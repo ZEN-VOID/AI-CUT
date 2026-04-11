@@ -23,6 +23,7 @@
 | 内联字段名漂移 | 输出合同层 | 固定单行格式与字段顺序 | 父级统一内联格式 | 全文字段名一致 |
 | 插入时改坏原文 | 原文守恒层 | 回滚到 grouped source，再重新插入 | 父级写死“只前插，不改原句” | 原文逐句可比对 |
 | 顾问团已启用，但 `1-分镜表现` 没继承 `3-明细` 的阶段顾问运行时 | 继承层 | 明确本父技能继承上层 `3-明细` 的 `Council Runtime Contract` | 子技能不再重复发明第二套顾问团规则 | 进入 `1-分镜表现` 时会先遵守项目根 `team.yaml` 判定 |
+| 外部分镜粗锚点被当成最终镜头真相，导致无法细分 | 粗细分层合同层 | 把 storyboard 预设降为“骨架约束”，用 `lock_level + projected_shot_mode` 区分保壳、细分与重构 | 在父级/密度/构图三层合同中固定“hard_lock 先保骨架，soft_lock 可一锚多镜” | 外部分镜不会压死内部细分，但也不会被随意推翻 |
 | `chain-of-thought` 仍停留在三张表最小版，reasoning 模型读不到显式判断链 | 思维链真源层 | 将 reference 升级为 `运行模式 + 启发式工作链 + 三轴三重 + 可见快照 + Gate Summary` | 把新版 think-think 骨架固定为父级 `chain-of-thought` 的最小合同 | 遮掉字段表后，仍能读出 `panel_count -> 锚点 -> 单行插回` 的判断顺序 |
 
 ## Repair Playbook
@@ -39,6 +40,7 @@
 - 对当前脚本阶段来说，`构图风格` 比 `构图方式` 更适合作为用户面字段名，但底层判断仍可参考导演阶段的构图方法论。
 - 对 `1-分镜表现` 来说，顾问团机制应该继承自 `3-明细` 根级，不应在父子链里再复制一套。
 - 对 `1-分镜表现` 这类父级编排技能，最新版思维链的比较尺不该是“镜头句是否漂亮”，而应是“能否稳定完成 `panel_count -> 锚点 -> 单行插回 -> 主文件验收` 的闭环”。
+- 外部分镜脚本若只给粗锚点，最稳的办法不是全盘照抄，也不是全盘推翻，而是把它降成受保护骨架，再用 `1-分镜表现` 做一锚多镜式细分。
 
 ## Case Log
 
@@ -78,3 +80,22 @@
   - `.agents/skills/aigc/3-明细/subtypes/1-分镜表现/CONTEXT.md`
   - `/Users/vincentlee/.codex/skills/meta/解构/思维/think-think/SKILL.md`
 - user_feedback_or_constraint: 用户明确指定按最新 `think-think` 规范升级目标文件，并要求在现有 `1-分镜表现` 分镜插入逻辑基础上优化，而不是改写父技能边界。
+
+### Case-20260411-AIGC-DETAIL-STORYBOARD-COARSE-TO-FINE
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户要求当外部分镜脚本不够细时，`1-分镜表现` 不能被粗锚点压死，而应支持“保留骨架 + 细化展开”。
+- root_cause_or_design_decision: 直接技术缺口不是不会补镜头，而是此前没有把 `hard_lock / soft_lock / reference_only` 与 `single_anchor_multi_shot` 接到 `1-分镜表现`、`分镜密度`、`分镜构图` 的合同里。
+- final_fix_or_heuristic: 在父级 `SKILL.md` 与 `references/type-strategies.md` 固定“外部分镜保骨架，本层长血肉”；并在 `分镜密度 / 分镜构图` 的类型策略里明确：`hard_lock` 先保骨架，`soft_lock + single_anchor_multi_shot` 才允许一锚多镜。
+- prevention_or_replication_checklist:
+  - [x] 父级 `SKILL.md` 已加入 coarse-to-fine 合同
+  - [x] 父级 `references/type-strategies.md` 已加入粗锚点展开规则
+  - [x] `分镜密度/references/type-strategies.md` 已加入 preset density contract
+  - [x] `分镜构图/references/type-strategies.md` 已加入 preset composition contract
+- evidence_paths:
+  - `.agents/skills/aigc/3-明细/subtypes/1-分镜表现/SKILL.md`
+  - `.agents/skills/aigc/3-明细/subtypes/1-分镜表现/references/type-strategies.md`
+  - `.agents/skills/aigc/3-明细/subtypes/1-分镜表现/subtypes/分镜密度/references/type-strategies.md`
+  - `.agents/skills/aigc/3-明细/subtypes/1-分镜表现/subtypes/分镜构图/references/type-strategies.md`
+  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- user_feedback_or_constraint: 用户明确指出“外部的分镜脚本一般不如我们 3-明细 仔细深入”，因此系统需要默认支持“保骨架、细展开”。

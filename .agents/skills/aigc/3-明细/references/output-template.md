@@ -23,9 +23,21 @@
 - `3-明细` 默认消费的是已存在的 `projects/<项目名>/编导/第N集.json`，不是自建空文件。
 - 若上游 `2-组间/导演意图` 或阶段中间件需要结构化 JSON，唯一共享字段壳为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
 - `3-明细` 不得私造另一套 episode/group/shot JSON 命名；结构化消费时，默认读取 `final_output.main_content.分镜组列表[]`。
+- 读取前必须先检查 `metadata.source_profile`；若存在 storyboard 预设保护模式，则本阶段只允许“preserve and extend”式 patch。
 - 每个组级对象的共享固定顺序为：`分镜组ID -> 总时长 -> 剧本正文 -> 组间设计 -> 分镜明细`。
 - 每个镜级对象的共享固定顺序为：`分镜ID -> 时间段 -> 场景及方位 -> 角色及站位 -> 道具及状态 -> 分镜表现 -> 角色表现 -> 运镜手法 -> 场景氛围 -> 摄影美学 -> 转场特效(可选)`。
 - 当前阶段 patch-in-place 的重点是把各子路径判断压回共享 `分镜明细[]` 语义，而不是将其重写成另一份独立 shot contract。
+
+## Source Profile Consumption
+
+`metadata.source_profile` 的默认消费方式如下：
+
+| 字段 | `3-明细` 默认理解 |
+| --- | --- |
+| `source_type = storyboard_script` | 当前集已有镜头/分镜层预设，不再把全部镜头逻辑视为待生成空白位 |
+| `preset_retention_mode = preserve_and_extend` | 可补质感、角色、氛围、摄影与细节，不可推翻预设轴 |
+| `preset_retention_mode = preserve_only` | 仅补最小必要缺口，避免任何结构性重排 |
+| `locked_preset_axes[]` | 命中这些轴时，不得改写对应边界、顺序或母题 |
 
 ## 镜级字段责任总览
 

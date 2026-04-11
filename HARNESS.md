@@ -39,7 +39,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-10`，当前仓库已经完成了 HARNESS 引导期的最小真源收束：
+截至 `2026-04-11`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能与项目治理状态快照纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -81,7 +81,9 @@
 当前已显式声明：
 
 - `aigc` 为仓库级总入口技能
+- `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
 - `projects/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
+- `projects/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
 - `6-视频` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照` 可路由
 - `7-后期` 仍处于 `shelved` 状态
@@ -107,6 +109,8 @@
 - `.codex/evals/`
 
 当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
+同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐。
+同时，AIGC 项目运行时已经开始把 `project_state.yaml + governance-state.yaml` 视为“人类摘要 + 结构化控制面”的双状态组合。
 
 ### 7. 架构初始化方案
 
@@ -148,8 +152,8 @@
 仍然明显未完成的部分也很清楚：
 
 - 业务级 suite skill 还没有 fully cut over 到本地 HARNESS 真源。
-- 门下省的专项 reviewer 能力还未系统展开。
-- 兵部 / 工部的自动化、hook、续跑与批量治理能力还在待接入阶段。
+- 门下省已经有 `review` 卫星技能作为项目级 preflight / validation / learning bridge 入口，且其下已开始拆分 `preflight-review / acceptance-review / learning-bridge` 三个受治理子技能；更细分的内容专项 reviewer 仍未系统展开。
+- 兵部侧已有 `resume` 卫星技能作为续跑与安全回接入口，但自动化 hook、批量恢复与更细粒度调度能力仍在待接入阶段。
 - `6-视频` 已从纯预留升级为部分可执行阶段，但其余视频子路径仍待补齐。
 - `7-后期` 仍然是架构上预留、执行上搁浅的阶段。
 - 面向真实项目任务的项目内工件落盘与审计闭环，还需要持续在 `projects/<项目名>/` 实战固化。
@@ -161,19 +165,21 @@
 ### 1. 从 bootstrap 走向 shadow
 
 - 补出第一个真正受 registry 管理的 repo-local suite skill。
+- 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
+- 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
 - 让更多真实任务以 `projects/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
 - 把阶段状态、局部可执行声明、项目控制面与审计覆盖进一步联动。
 
 ### 2. 从通用治理走向专项治理
 
-- 在门下省下继续拆出故事审计、角色一致性、镜头语法、交付质量等专项 reviewer 席位。
+- 在现有 `review` 卫星技能之下继续拆出故事审计、角色一致性、镜头语法、交付质量等专项 reviewer 席位。
 - 为中书省补足更细粒度的任务起草、路线裁决与阶段切换策略。
-- 为尚书省补足续跑、失败恢复、产物索引与长流程执行策略。
+- 为尚书省补足 `query / resume` 的深层产物索引、失败恢复与长流程执行策略。
 
 ### 3. 从人工驱动走向半自动化治理
 
 - 将更多校验沉到 `scripts/`、`.codex/evals/` 与未来 hooks。
-- 让 registry / route / template / audit 之间具备更强的一致性校验。
+- 让 registry / route / template / audit 之间具备更强的一致性校验，包括根级卫星技能与主阶段链的协同审计。
 - 为 HARNESS 关键变更建立更明确的同步检查与升级路径。
 
 ### 4. 从设计源继承走向制度化继承

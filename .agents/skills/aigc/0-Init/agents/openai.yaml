@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 项目初始化"
-  short_description: "为影视 AIGC 项目选择初始化模式，并落盘 north_star、init_handoff 与改编/节奏门"
-  default_prompt: "Use $aigc-init to initialize this AIGC film project, choose the right initialization mode, and produce north_star plus init_handoff artifacts with explicit original-adherence and pacing fields."
+  short_description: "选择初始化模式，并落盘 north_star、handoff 与治理状态快照"
+  default_prompt: "Use $aigc-init to initialize this AIGC film project, choose the right initialization mode, and produce north_star, init_handoff, project_state, and governance-state artifacts with explicit next-entry alignment."

@@ -40,6 +40,7 @@ last_compaction: null
 | 组容器只有目标与范围，没有结构锚点、依赖说明和并行性判断 | 输出锚点层 | 在表格与组章节中补 `structure_anchor / dependency_note / parallelism` | 把这些字段纳入模板和 validator 的强制校验 | 下游无需重新猜“为什么这样分”和“先做哪组” |
 | 量化合同是当前技能自己抽象的一套简化分数，而未继承参照源的场景顺序与字窗机制 | 量化真源层 | 把参照源的“场景顺序 + 时长策略 + 字窗公式 + 有效字数”投影为本技能 shared reference | 将 `scene-duration-projection.md` 设为量化真源，并让 `SKILL.md / references / templates / validator` 全部回指它 | `group_load_score` 降为二级摘要，量化硬门槛以投影 reference 为准 |
 | 非均匀组时长只写在说明文字里，未显式落到 episode meta，导致下游把整集时长误当每组时长 | 时间基线层 | 在 `第N集.md` frontmatter 补 `默认组时长 / 分镜组时长映射`，并让 `estimated_duration_seconds` 与解析结果对齐 | 把组总时长基线固化进模板、reference 与 validator；帧级切分只作为下游交接合同，不在本阶段伪造 | 任一偏离默认值的组都能在 frontmatter 显式追溯到时长来源 |
+| 外部分镜锚点没有进入分组层，导致 hard lock 被切断或 soft lock 无法解释 | 跨阶段预设继承层 | 在 `3-分组` 模板、reference 与 validator 中加入 `外部分镜锚点登记 + preset_anchor_policy` | 将 `preset_registry` 视为组边界前置真源，而不是只留给 `3-明细` 事后补救 | 每个组都能回答“继承了哪些外部锚点、为什么能拆/不能拆” |
 
 ## Playbook
 
@@ -67,6 +68,8 @@ last_compaction: null
 - 对 reasoning 模型的思维链模块，不要把 `S1-S7` 写成“必须逐字外显”的流程剧本；应先用启发式工作链决定删什么、比什么、落到哪个字段，再把 `S1-S7` 作为可见支架。
 - `3-分组` 的可见思维快照至少要暴露 `路由决议 + 候选边界 + 组容器落点 + Gate Summary`；如果只剩流程标题或完整内部推理全文，都会降低可审计性。
 - “组总时长元数据”与“帧内时间切分规则”不是同一层：前者属于 `3-分组` 的 episode meta 真源，后者属于下游 `5-分镜构图` 的消费合同，适合沉在量化 reference 做交接。
+- 外部分镜脚本若已有粗锚点，`3-分组` 的职责不是忽略它，而是先裁决“这根锚点是 hard lock、soft lock 还是 reference only”。
+- `soft_lock + single_anchor_multi_shot` 最稳的处理，不是在本阶段强行细化成镜头，而是在组层明确登记“允许下游一锚多镜展开”。
 
 ## Case Log
 
@@ -230,3 +233,22 @@ last_compaction: null
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/templates/validation-report.md`
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py`
 - user_feedback_or_constraint: 用户明确要求“如已有相关内容不必赘述，仅作缺失补全”，并要求补全部分必须是真正消化吸收后的融合与分配，而不是直接大段插入。
+
+### Case-20260411-AIGC-PLAN-GROUPING-PRESET-REGISTRY
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户要求当上游是外部分镜脚本时，`3-分组` 也要能回答“哪些锚点不能拆、哪些锚点可作为连续子组拆开”，而不是把全部压力留给 `3-明细` 事后修补。
+- root_cause_or_design_decision: 直接技术缺口不是 `3-分组` 不会继承上游，而是此前 shared handoff 里没有 `preset_registry`，模板和 validator 也没有写位，导致外部分镜锚点只能停在口头约束。
+- final_fix_or_extracted_heuristic: 将 `preset_registry` 接入 shared contract，并在 `3-分组` 的 `type-strategies / grouped-episode template / output-template / validate_grouping.py` 中正式增加 `外部分镜预设模式 + 外部分镜锚点登记 + preset_anchor_policy` 合同。
+- prevention_or_replication_checklist:
+  - [x] `3-分组/references/type-strategies.md` 已补锚点继承规则
+  - [x] `templates/grouped-episode.md` 已补外部分镜锚点槽位
+  - [x] `references/output-template.md` 已声明字段落点
+  - [x] `scripts/validate_grouping.py` 已校验相关 frontmatter 与表格字段
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/references/type-strategies.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/templates/grouped-episode.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py`
+  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- user_feedback_or_constraint: 用户明确要求“把外部分镜脚本原有分镜设计的保留，以及我们 3-明细 的拆解拓展，做成真正的可执行合同”。

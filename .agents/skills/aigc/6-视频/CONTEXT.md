@@ -23,7 +23,7 @@
 | 任务明明是分镜组蒸馏，却被误判成首帧类路径 | 父级路由层 | 默认回到 `1-提示词蒸馏/全能参照` | 在父级 `Route Summary` 固化唯一默认入口 | 分镜组视频请求默认落到 `1-提示词蒸馏/全能参照` |
 | 只输出 prompt，不输出请求字段与落点 | 输出契约层 | 补写 episode JSON 与 manifest | 在 `output-template.md` 固化“prompt 不是唯一交付” | JSON 能直接进入视频工具或 handoff |
 | 继续沿用 `6-视频` 搁浅旧认知 | 根级状态同步层 | 同步更新根技能、registry、routes 与 HARNESS | 把“阶段由搁浅转为部分可执行”视为必须向上同步的元修复 | 根技能与控制面不再把 `6-视频` 视为 frozen |
-| 请求 JSON 已稳定，却没有 tranche-3 执行入口承接真实生成 | 子路径合同层 | 补齐 `3-视频生成` 子技能，把 provider 路由与 handoff 包收回阶段真源 | 在父级路由、执行流程与输出契约中显式纳入 `3-视频生成` | 提交前不再从请求 JSON 直接跳到 provider 命令 |
+| 父合同把 `3-视频生成` 写成可执行，但磁盘上只有未治理占位目录或 tranche 编号漂移 | 子路径合同层 | 收敛到唯一 `3-视频生成` 路径，补齐父技能合同，并把 provider 空目录降级为 `providers/` 槽位 | 在审计脚本新增“文档声明的 subtype 路径必须有合同”检查 | `3-视频生成` 的文档、磁盘与审计口径一致 |
 
 ## Repair Playbook
 
@@ -120,21 +120,22 @@
   - `.agents/skills/aigc/6-视频/subtypes/1-提示词蒸馏/首帧参照/CONTEXT.md`
 - user_feedback_or_constraint: 用户明确要求完善 `.agents/skills/aigc/6-视频/subtypes/1-提示词蒸馏/首帧参照`，并要求站在分镜帧颗粒度、默认读取 `projects/<项目名>/编导/第N集.json`、沿用双输出模板，但把 `剧本正文` 解析为对应分镜帧的剧情桥段。
 
-### Case-20260410-AIGC-VIDEO-GENERATION-TRANCHE-ACTIVATION
+### Case-20260411-AIGC-VIDEO-GENERATION-TRANCHE-CONTRACT-REPAIR
 
 - milestone_type: source_contract_change
-- outcome: 将 `6-视频/subtypes/3-视频生成` 从零字节占位目录升级为可执行子技能，并把父级 `6-视频` 路由从“请求 JSON 后直接 handoff provider”收束为“先进入 tranche 3，再显式交给 provider skill”。
-- root_cause_or_design_decision: 全局巡检时发现 `3-视频生成` 虽被父级列为显式 tranche，但 `SKILL.md` 与 `CONTEXT.md` 为空，导致真实生成入口没有受治理合同，只剩松散 handoff 描述。
-- final_fix_or_heuristic: 将 tranche 3 定义为“稳定请求 JSON -> provider 路由 -> handoff 包 -> provider skill”的执行入口层，把 provider 选择、目标输出根与下一步动作收敛成可复核工件，而不再让请求对象直接跳到具体命令。
+- outcome: 将历史遗留的 `6-视频/subtypes/2-视频生成/` 占位目录收敛为规范的 `6-视频/subtypes/3-视频生成/` 受治理父技能，并把 provider 空目录从误导性的 `subtypes/` 收口到 `providers/`。
+- root_cause_or_design_decision: 质量评估暴露出 `6-视频` 存在编号漂移与假阳性成熟度问题：父级与 references 全部声明 `3-视频生成` 已可执行，但磁盘上只有未合同化的 `2-视频生成/subtypes/*` 占位目录，导致“文档成立、目录存在、实际不可执行”三层脱节。
+- final_fix_or_heuristic: 将 tranche 3 定义为“稳定请求 JSON -> provider 路由 -> handoff 包 -> provider skill”的唯一执行入口层；provider 名称本身只保留为 `providers/` 槽位，后续若需要本地执行合同，再单独晋升为 governed child skill。
 - prevention_or_replication_checklist:
   - [x] `3-视频生成` 已具备 `SKILL.md + CONTEXT.md + references/*`
-  - [x] 父级 `Route Summary` 已显式纳入 tranche 3
-  - [x] 父级 `execution-flow` 与 `output-template` 已补 handoff 包落点
-  - [x] 审计脚本已能同时检出真实空文件与继承型引用
+  - [x] provider 占位目录已从 `subtypes/` 收敛到 `providers/`
+  - [x] 父级 `Route Summary`、`execution-flow` 与 `output-template` 已与 tranche 3 对齐
+  - [x] 审计脚本已能检出文档声明但缺失合同的 subtype 路径
 - evidence_paths:
   - `.agents/skills/aigc/6-视频/SKILL.md`
   - `.agents/skills/aigc/6-视频/CONTEXT.md`
   - `.agents/skills/aigc/6-视频/subtypes/3-视频生成/SKILL.md`
   - `.agents/skills/aigc/6-视频/subtypes/3-视频生成/CONTEXT.md`
+  - `.agents/skills/aigc/6-视频/subtypes/3-视频生成/providers/README.md`
   - `scripts/aigc_skill_audit.py`
-- user_feedback_or_constraint: 用户要求对全仓做一轮全局检查，并在发现问题后直接修复，而不是只停在报告层。
+- user_feedback_or_constraint: 用户要求对评估发现的问题做全量修复，不能保留“目录像是有能力、实际没有合同”的状态。

@@ -25,7 +25,9 @@ governance_tier: full
 - 初始化一个新的 AIGC 创作项目
 - 在 `projects/<项目名>/` 下推进影视创作主链
 - 判断当前任务应该进入 `1-规划`、`2-组间`、`3-明细`、`4-主体`、`5-画面`、`6-视频`、`7-后期` 的哪一个阶段
+- 查询某个 AIGC 项目的 runtime 真源、阶段产物、编导根文件、主体/画面/视频资产与治理工件
 - 续跑一个中断的创作项目
+- 对某个阶段或整个项目执行门下省侧预审、验收、`validation-report.md` 更新与学习桥接
 - 对齐阶段输出、项目状态与仓库级治理合同
 
 ## 项目工作区与工件落点
@@ -54,6 +56,7 @@ governance_tier: full
 ### Canonical Runtime Artifacts
 
 - `projects/<项目名>/project_state.yaml`
+- `projects/<项目名>/governance-state.yaml`
 - `projects/<项目名>/mandate.yaml`
 - `projects/<项目名>/mission-brief.yaml`
 - `projects/<项目名>/route-plan.yaml`
@@ -65,6 +68,10 @@ governance_tier: full
 
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+
+### Quality Evidence Source
+
+- `.agents/skills/aigc/benchmark-suite.yaml`
 
 ## 阶段路由
 
@@ -87,6 +94,28 @@ governance_tier: full
 8. `7-后期`
    - 负责最终成片整理、后期收束与交付
 
+### 根级卫星技能
+
+- `query`
+  - 根级事实查询卫星技能
+  - 默认挂在尚书省执行侧，治理分域偏 `户部`
+  - 负责围绕 `projects/<项目名>/` 读取项目状态、阶段产物、编导主文件、资产落点与治理工件，不改写业务真源
+- `resume`
+  - 根级续跑恢复卫星技能
+  - 默认挂在尚书省执行侧，治理分域偏 `兵部`
+  - 负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根技能或目标阶段
+- `review`
+  - 根级复核承接卫星技能
+  - 默认挂在门下省复核侧，治理分域偏 `刑部`
+  - 负责 `preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md` 的 project/stage review bridge，不替代阶段执行
+
+卫星技能默认关系：
+
+- 三个卫星技能与根 `aigc` 同根同级，不并入主阶段串行链。
+- `query` 只拥有检索与证据综合权，不拥有项目或阶段内容真源改写权。
+- `resume` 只拥有恢复裁决与回接权，不拥有伪造断点或跳过治理 gate 的权力。
+- `review` 只拥有门下省侧预审/验收/学习桥接权，不拥有阶段执行或内容生成权。
+
 ### 当前合同覆盖状态
 
 | 阶段 | 目录存在 | 阶段合同状态 | 调度策略 |
@@ -97,8 +126,16 @@ governance_tier: full
 | `3-明细` | 是 | 已建阶段合同，`2-角色表现`、`3-运镜手法`、`4-场景氛围`、`5-摄影美学` 与 `6-转场特效` 可执行，其余子路径持续补全 | 可路由到 `2-角色表现`、`3-运镜手法`、`4-场景氛围`、`5-摄影美学`、`6-转场特效`；其他子路径按状态检查 |
 | `4-主体` | 是 | 已建阶段合同，四个子路径可路由 | 可路由到 `1-清单`、`2-设计`、`3-审计`、`4-面板` |
 | `5-画面` | 是 | 已建阶段合同，支持围绕既有文件进行 `分镜故事板`、`分镜帧`、`漫画` 三类画面生成 | 可路由到 `分镜故事板`、`分镜帧`、`漫画`；整阶段模式默认先入 `分镜故事板` |
-| `6-视频` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照` 与 `1-提示词蒸馏/首帧参照` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`；`首尾帧参照`、`多图参照` 仍按状态检查 |
+| `6-视频` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`3-视频生成`；`首尾帧参照`、`多图参照` 与 `2-一致性处理` 仍按状态检查 |
 | `7-后期` | 是 | 搁浅 | 当前不纳入执行链与严格审计失败项；仅保留目录槽位 |
+
+### 卫星技能覆盖状态
+
+| 卫星技能 | 目录存在 | owner_office | 治理分域 | 合同状态 | 默认职责 |
+| --- | --- | --- | --- | --- | --- |
+| `query` | 是 | `shangshu` | `户部` | active | runtime / project / artifact / governance truth retrieval |
+| `resume` | 是 | `shangshu` | `兵部` | active | interruption recovery / safe re-entry / governance artifact repair |
+| `review` | 是 | `menxia` | `刑部` | active | preflight / validation / learning bridge |
 
 ### 子技能调度规则
 
@@ -130,25 +167,26 @@ governance_tier: full
 | 六部 | 在 `aigc` 根技能中的挂载 |
 | --- | --- |
 | 吏部 | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml` 对 `aigc` 的注册与路由 |
-| 户部 | 根 `CONTEXT.md` 与 `projects/<项目名>/project_state.yaml`；必要时镜像到 `.codex/state/tasks/` |
+| 户部 | 根 `CONTEXT.md`、`projects/<项目名>/project_state.yaml` 与 `projects/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
 | 礼部 | `.codex/templates/harness/` 与项目级工件合同 |
-| 兵部 | 主阶段链与子技能调度 |
-| 刑部 | 根验收闭环、主体审计、失败上溯 |
+| 兵部 | 主阶段链与子技能调度；`resume` 负责续跑与恢复回接 |
+| 刑部 | 根验收闭环、主体审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
 | 工部 | `scripts/`、`.codex/evals/`、后续阶段工具链接入 |
 
 ## 强制工作流
 
 1. 确认或创建 `projects/<项目名>/`
-2. 在 `projects/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml` 是否存在。
+2. 在 `projects/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
 4. 若后续进入 `1-规划 / 2-组间 / 3-明细 / 4-主体`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-5. 判断当前任务属于初始化、规划、组间、明细、主体、画面、视频或后期中的哪一类
-6. 只推荐一个当前主入口阶段，不输出模糊候选列表
+5. 判断当前任务属于初始化、规划、组间、明细、主体、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
+6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段合同缺失，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
-9. 若目标阶段合同存在，则进入对应阶段或子技能
-10. 阶段完成后，把结果写回项目工作区根层运行时工件
-11. 输出验收结论与下一步唯一推荐入口
+9. 若命中卫星技能，则先进入对应卫星技能，再按其合同回接根技能或目标阶段
+10. 若目标阶段合同存在，则进入对应阶段或子技能
+11. 阶段或卫星动作完成后，把结果写回项目工作区根层运行时工件
+12. 输出验收结论与下一步唯一推荐入口
 
 ## 硬规则
 
@@ -159,6 +197,10 @@ governance_tier: full
 5. 对尚未补齐或已搁浅的阶段，必须报告“待补合同/搁浅”，不得伪造其工作流。
 6. 子技能经验优先写入最窄作用域；跨阶段经验再晋升到根 `CONTEXT.md`。
 7. 对 `1-规划 / 2-组间 / 3-明细 / 4-主体`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
+8. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
+9. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
+10. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
+11. `project_state.yaml` 负责人类摘要与推荐入口，`governance-state.yaml` 负责结构化断点、治理缺口与 review/resume 同步；不得让两者各自演化成平行真源。
 
 ## 完成标准
 

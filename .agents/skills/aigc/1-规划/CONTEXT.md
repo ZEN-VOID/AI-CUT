@@ -27,6 +27,7 @@
 | 分组后节奏治理仍挂在 `2-组间` | 阶段边界层 | 将其迁回 `1-规划/subtypes/4-节奏`，并让 `0-Init.original_adherence` 直接作为规划阶段执行门 | 固化 `1-规划` 的第 4 个串行子路径，避免 `3-分组 -> 2-组间` 之间出现错位真源 | 分组后的节奏产物统一落到 `projects/<项目名>/规划/4-节奏/` |
 | `1-规划` 结束后没有立即创建后续共享 episode 根文件 | 运行时真源层 | 让 `1-分集` 在分集确定后立即 bootstrap `projects/<项目名>/编导/第N集.json` | 把 `_shared/project-runtime-layout.md` 与 bootstrap template 作为规划阶段的 shared carrier，并让后续阶段都消费同一根文件 | `2-组间` 与 `3-明细` 都不再自建 episode 主文件 |
 | 规划阶段默认假设“故事主源已经存在”，导致 `1-分集` 缺少显式阻塞门 | 共享输入真源层 | 在 `1-规划` 根技能增加 `Story Source Gate`，统一读取 `Init/story-source-manifest.yaml` | 把故事源缺失提示上收到 `_shared/story-source-contract.md`，由父级先挡住 `1-分集` | 进入 `1-分集` 前能先判断是否具备增量进入条件与整季完成条件 |
+| 上游其实是分镜脚本，但 `1-规划` 仍按小说原文型处理 | 根级类型策略层 | 在根技能建立 `storyboard_script` 双来源矩阵，并把预设保护模式回写到 `source_profile` | 用根层 `references/type-strategies.md` + shared manifest/schema 固化“保留并扩写”链路 | `3-明细` 能读取并顺着预设扩写，而不是重写预设 |
 
 ## Repair Playbook
 
@@ -51,6 +52,7 @@
 - 若某个规划子路径的进入前提取决于共享输入真源，最稳的拦截层应在 `1-规划` 父级，而不是让叶子技能各自临时追问。
 - 只要主故事源已经覆盖到至少一段连续正文，`1-规划` 就不应再把整个分集入口判死；更合理的做法是允许增量规划，并把“整季未完备”单独标红。
 - 当项目把正文运行时目录改名为 `故事/` 时，父级 `1-规划` 应优先回写 shared contract 和 manifest，而不是只改单个项目路径。
+- 若主故事源直接是分镜脚本，`1-规划` 最稳的职责不是“小说化清洗”，而是先把预设点变成下游可消费的受保护约束，再允许 `3-明细` 顺着这些点扩写。
 
 ### Case-20260410-AIGC-PLANNING-PARTIAL-STORY-SOURCE-ENTRY
 
@@ -214,3 +216,22 @@
   - `.agents/skills/aigc/2-组间/SKILL.md`
   - `.agents/skills/aigc/3-明细/SKILL.md`
 - user_feedback_or_constraint: 用户明确要求“`1-规划/subtypes/1-分集` 阶段随着分集的确定，索性就把这个 json 的空内容文件落了”。
+
+### Case-20260411-AIGC-PLANNING-DUAL-SOURCE-TYPING
+
+- milestone_type: source_contract_change
+- outcome: 为 `1-规划` 根技能补齐了 `references/` 四件套，并把故事主源从“默认小说原文型”升级为“叙事原文型 / 分镜脚本型 / 混合型”的正式类型矩阵。
+- root_cause_or_design_decision: 直接技术阻塞不在 `1-分集` 局部，而在 `1-规划` 根层缺少 `references/type-strategies.md` 与 shared handoff，导致 storyboard source 的预设点只能停留在经验判断，无法稳定交给 `3-明细` 顺承。
+- final_fix_or_heuristic: 先在根技能建立双来源类型矩阵，再把 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes` 接到 `story-source-manifest.yaml` 与 bootstrap `第N集.json.metadata.source_profile`，让 `3-明细` 默认执行“preserve and extend”。
+- prevention_or_replication_checklist:
+  - [x] `1-规划` 根层已补 `references/chain-of-thought.md`
+  - [x] `1-规划` 根层已补 `references/execution-flow.md`
+  - [x] `1-规划` 根层已补 `references/type-strategies.md`
+  - [x] `1-规划` 根层已补 `references/output-template.md`
+  - [x] shared story-source contract 与 bootstrap handoff 已加入 storyboard source 保护链
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/references/type-strategies.md`
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- user_feedback_or_constraint: 用户明确要求“把 `1-规划` 从默认小说原文上游，升级为同时支持小说原文型和分镜脚本型的类型化处理，并保证后续 `3-明细` 顺着预设点继续扩写”。

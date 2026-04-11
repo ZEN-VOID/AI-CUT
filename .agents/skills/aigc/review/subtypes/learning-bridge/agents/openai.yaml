@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 学习桥接"
+  short_description: "把 review 结果沉淀为 learning-record，并同步治理摘要"
+  default_prompt: "Use $aigc-review-learning-bridge to turn a completed AIGC review cycle into a structured learning-record entry and sync the learning summary into governance-state."

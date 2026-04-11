@@ -8,12 +8,30 @@
 - 项目级治理工件：
   - `projects/<项目名>/team.yaml`
   - `projects/<项目名>/project_state.yaml`
+  - `projects/<项目名>/governance-state.yaml`
   - `projects/<项目名>/mandate.yaml`
   - `projects/<项目名>/mission-brief.yaml`
   - `projects/<项目名>/route-plan.yaml`
   - `projects/<项目名>/preflight-verdict.yaml`
   - `projects/<项目名>/validation-report.md`
   - `projects/<项目名>/learning-record.md`
+
+## Governance Snapshot Contract
+
+- `projects/<项目名>/project_state.yaml`
+  - 面向人和主路由的简明项目摘要。
+  - 负责给出当前阶段、推荐下一入口和用户可读状态。
+- `projects/<项目名>/governance-state.yaml`
+  - 面向 `query / resume / review` 的结构化治理快照与断点真源。
+  - 负责记录 `last_stable_checkpoint`、`resume_contract`、`artifact_status` 与 `review_bridge`。
+  - 首次生成责任在 `0-Init`，后续由根 `aigc`、`resume/`、`review/` 与相关阶段按需同步更新。
+- 模板真源：`.agents/skills/aigc/_shared/governance-state.template.yaml`
+
+硬规则：
+
+1. `project_state.yaml` 与 `governance-state.yaml` 不是二选一，而是“人类摘要 + 结构化控制面”的分工组合。
+2. 若 `query / resume / review` 需要判断断点、治理缺口或唯一回接入口，默认优先读取 `governance-state.yaml`，再回看 `project_state.yaml`。
+3. 不新增 `CHANGELOGS.md` 作为一级项目治理真源；如需时间序列说明，应由 `validation-report.md`、`learning-record.md` 与 `governance-state.yaml` 派生，而不是再造并行状态本。
 
 ## Canonical Runtime Roots
 

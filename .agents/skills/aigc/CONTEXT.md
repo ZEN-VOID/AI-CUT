@@ -40,7 +40,11 @@
 | 阶段执行状态只写在根技能表格里，registry / audit 不知道 | 注册与审计层 | 将阶段状态上收至 `.codex/registry/skills.yaml`，并补 `scripts/aigc_skill_audit.py` | 把“阶段 active / shelved”视为控制面真源，而不是仅属技能文案 | 审计可识别哪些阶段可执行、哪些已搁浅 |
 | `7-后期` 当前不做，但仍被视为待补执行阶段 | 阶段生命周期层 | 在根技能与 registry 中显式标记为 `搁浅` | 审计脚本对搁浅阶段跳过严格失败，但要求根技能与 registry 同步声明 | 总入口不会再把搁浅阶段误判为立即补建目标 |
 | `6-视频` 已补父子合同，但根技能与控制面仍写 `shelved` | 根技能状态同步层 | 同步根技能、registry、routes 与 HARNESS 的阶段状态 | 把“阶段由搁浅转为部分可执行”视为必须向上同步的元修复 | 总入口与阶段真源对 `6-视频` 的描述一致 |
+| `6-视频` 父合同把 tranche 写成可执行，但磁盘上只有未治理占位目录或编号漂移 | 子路径真源治理层 | 收敛 tranche 编号、补齐父级 `SKILL.md + CONTEXT.md`，并把 provider 占位目录降级为非执行槽位 | 在审计脚本增加“文档声明的 `subtypes/...` 必须存在合同”检查 | 父合同、磁盘目录与审计结果对同一路径达成一致 |
+| 根 suite 缺 benchmark suite，导致只能做静态或低证据级评估 | 质量评测合同层 | 在 `aigc` 根目录补 `benchmark-suite.yaml`，至少覆盖 baseline 与 regression | 将 benchmark suite 作为根级质量证据载体显式挂入技能树 | 评估时能直接读取任务集，而不是临时拼样本 |
 | governed leaf 已有字段表，但漏掉 `Root-Cause Execution Contract` | rollout 合同层 | 为 leaf 补齐根因上溯章节，并让严格审计继续把这项当成硬门槛 | 把“leaf 也必须有 root-cause 合同”视为 rollout 基线，而不是只要求父级技能齐全 | `scripts/aigc_skill_audit.py --strict` 不再漏报或卡在同类缺项 |
+| 根技能没有 `query / resume / review` 这类跨阶段旁路能力，导致事实查询、续跑与复核被塞回阶段链或聊天口头说明 | 根 suite contract 层 | 在 `.agents/skills/aigc/` 根目录补 `query`、`resume`、`review` 三个卫星技能，并同步 registry / routes / audit | 对跨全阶段但不拥有阶段内容真源的能力，优先建根级卫星技能，不再把它们藏进 `references/` 或某个阶段私有流程 | 根入口可直接路由到 `query / resume / review`，且 registry / audit 能识别 |
+| 已有 `query / resume / review`，但项目根没有结构化断点快照，导致三者仍只能围绕 `project_state.yaml` 自由文本猜恢复入口 | 根 runtime control 层 | 在 `0-Init` 新增 `governance-state.yaml` 并让卫星技能共读 | 对跨阶段治理能力，优先补共享结构化状态真源，而不是新增 `CHANGELOGS.md` | 查询、续跑、复核都能从同一份 checkpoint 真源读取状态 |
 
 ## Repair Playbook
 
@@ -69,6 +73,9 @@
 - 当某阶段明确“不在当前轮次推进”时，优先把它标成 `搁浅`，而不是继续挂着“预留中”；`搁浅` 表示有意冻结，不应被审计当作立即补全失败。
 - 对跨兄弟阶段共同消费的治理工件，真源应优先放项目根；对跨兄弟阶段共同执行的运行规则，真源应优先放 `_shared/`。
 - 当技能阶段名本身带序号时，不要默认把这个序号投影到项目 runtime 目录；项目目录应优先服从 `_shared/project-runtime-layout.md` 的映射。
+- 若某项能力横跨所有阶段，但它只负责读取、恢复、复核或桥接，而不拥有阶段内容真源，最稳的落点是根级卫星技能，而不是再加一个伪 stage。
+- 在 `aigc` 里，`query / resume / review` 的最稳分工分别是：尚书省+户部读真源、尚书省+兵部续跑、门下省+刑部做预审与验收桥接。
+- 当根级卫星技能开始承担项目治理职责时，`project_state.yaml` 已经不够；最稳的补强不是 `CHANGELOGS.md`，而是单独的 `governance-state.yaml` 结构化快照。
 
 ### Case-20260410-AIGC-ROOT-RUNTIME-DIR-NONNUMERIC
 
@@ -463,3 +470,84 @@
   - `.agents/skills/aigc/6-视频/SKILL.md`
   - `.agents/skills/aigc/6-视频/subtypes/1-提示词蒸馏/首帧参照/SKILL.md`
 - user_feedback_or_constraint: 用户明确要求完善 `6-视频/subtypes/1-提示词蒸馏/首帧参照`，因此根级入口也需要同步把该叶子路径标成可执行。
+
+### Case-20260411-AIGC-ROOT-VIDEO-SUBMIT-STATUS-SYNC
+
+- milestone_type: source_contract_change
+- outcome: 将根技能 `.agents/skills/aigc/SKILL.md` 中 `6-视频` 的阶段状态，从“仅 `全能参照` 与 `首帧参照` 可执行”同步更新为“额外包含 `3-视频生成` 可执行”。
+- root_cause_or_design_decision: 质量评估暴露出 `6-视频` 阶段存在“父合同写 `3-视频生成`，磁盘却只有未治理 `2-视频生成/` 占位目录”的真源漂移；若根入口不回写，会继续低估或误判视频阶段执行深度。
+- final_fix_or_heuristic: 当阶段内新增 tranche 级受治理父技能时，根技能覆盖表必须同步更新，并明确哪些仍是待补槽位、哪些已经具备真实入口。
+- prevention_or_replication_checklist:
+  - [x] 根技能 `6-视频` 状态已同步更新
+  - [x] `6-视频/subtypes/3-视频生成/` 已具备父级合同
+  - [x] provider 占位目录已从误导性的 `subtypes/` 收敛为 `providers/`
+  - [x] 审计脚本已新增文档声明路径校验
+- evidence_paths:
+  - `.agents/skills/aigc/SKILL.md`
+  - `.agents/skills/aigc/CONTEXT.md`
+  - `.agents/skills/aigc/6-视频/SKILL.md`
+  - `.agents/skills/aigc/6-视频/subtypes/3-视频生成/SKILL.md`
+  - `scripts/aigc_skill_audit.py`
+- user_feedback_or_constraint: 用户要求对评估报告中的问题执行全量修复，而不是只保留结论。
+
+### Case-20260411-AIGC-ROOT-BENCHMARK-SUITE-BOOTSTRAP
+
+- milestone_type: source_contract_change
+- outcome: 为 `.agents/skills/aigc` 新增根级 `benchmark-suite.yaml`，覆盖 baseline、boundary、stress、adversarial 与 regression 五类任务。
+- root_cause_or_design_decision: 质量评估与发布级别合同都要求 benchmark / regression 证据，但 `aigc` 根目录此前没有统一任务集载体，导致评估只能临时抓样本，难以稳定复跑。
+- final_fix_or_heuristic: 对 root-suite 级技能包，benchmark suite 应作为质量证据真源单独落到技能根目录，并由根合同显式挂接，而不是埋在评估报告里。
+- prevention_or_replication_checklist:
+  - [x] `benchmark-suite.yaml` 已落到根目录
+  - [x] 根 `SKILL.md` 已显式列出质量证据载体
+  - [x] baseline 与 regression 任务已绑定当前 runtime / 审计入口
+- evidence_paths:
+  - `.agents/skills/aigc/benchmark-suite.yaml`
+  - `.agents/skills/aigc/SKILL.md`
+  - `.codex/templates/quality-evaluation/creative-skill-package-benchmark-suite.yaml`
+- user_feedback_or_constraint: 用户要求对评估暴露出的证据缺口一并补齐，不能只修文档漂移。
+
+### Case-20260411-AIGC-ROOT-SATELLITE-SKILLS
+
+- milestone_type: source_contract_change
+- outcome: 为 `aigc` 根目录新增 `query / resume / review` 三个卫星技能，并同步更新根合同、registry、routes、audit 与架构包。
+- root_cause_or_design_decision: `aigc` 之前只有主阶段链，没有根级旁路能力层，导致项目事实查询、续跑恢复、门下省复核桥接只能混在根技能口头路由或阶段私有流程里，缺显式 skill、缺 registry 注册，也缺 audit 入口。
+- final_fix_or_heuristic: 对跨全阶段但不拥有阶段内容真源的能力，优先建根级卫星技能；`query` 归尚书省/户部，`resume` 归尚书省/兵部，`review` 归门下省/刑部，并同步写入 root skill、registry、routes 与 audit。
+- prevention_or_replication_checklist:
+  - [x] 根 `SKILL.md` 已声明卫星技能边界与路由
+  - [x] `.codex/registry/skills.yaml` 已登记 `satellite_index`
+  - [x] `.codex/registry/routes.yaml` 已声明三条卫星路由策略
+  - [x] `scripts/aigc_skill_audit.py` 已接入卫星技能与现行 runtime 口径
+- evidence_paths:
+  - `.agents/skills/aigc/SKILL.md`
+  - `.agents/skills/aigc/query/SKILL.md`
+  - `.agents/skills/aigc/resume/SKILL.md`
+  - `.agents/skills/aigc/review/SKILL.md`
+  - `.codex/registry/skills.yaml`
+  - `.codex/registry/routes.yaml`
+  - `scripts/aigc_skill_audit.py`
+  - `docs/plans/2026-04-11-san-sheng-liu-bu-architecture.md`
+- user_feedback_or_constraint: 用户要求参照 `story2026/query|resume|review` 的卫星技能体系，在 `aigc` 根目录补同名卫星技能，并结合 `.codex/agents/harness治理` 进一步考虑配置。
+
+### Case-20260411-AIGC-ROOT-GOVERNANCE-STATE
+
+- milestone_type: source_contract_change
+- outcome: 为 `aigc` 项目根新增 `governance-state.yaml` 结构化治理快照，并把它接入 `0-Init`、`query`、`resume`、`review` 与严格审计。
+- root_cause_or_design_decision: 卫星技能补齐后，项目级治理能力已经跨越查询、续跑和复核三条链；若仍只依赖 `project_state.yaml` 的人类摘要，就无法稳定承载断点、治理缺口与 review 摘要同步。
+- final_fix_or_heuristic: 保留 `project_state.yaml` 负责人类摘要，新增 `governance-state.yaml` 负责结构化 checkpoint、resume_contract、artifact_status 与 review_bridge；拒绝把 `CHANGELOGS.md` 升成一级治理真源。
+- prevention_or_replication_checklist:
+  - [x] `_shared/project-runtime-layout.md` 已声明双状态文件分工
+  - [x] `_shared/governance-state.template.yaml` 已建立
+  - [x] `0-Init` 已新增治理快照合同
+  - [x] `query / resume / review` 已回接该工件
+  - [x] `scripts/aigc_skill_audit.py` 已把 `governance-state.yaml` 纳入 runtime 对齐检查
+- evidence_paths:
+  - `.agents/skills/aigc/SKILL.md`
+  - `.agents/skills/aigc/CONTEXT.md`
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/_shared/governance-state.template.yaml`
+  - `.agents/skills/aigc/query/SKILL.md`
+  - `.agents/skills/aigc/resume/SKILL.md`
+  - `.agents/skills/aigc/review/SKILL.md`
+  - `scripts/aigc_skill_audit.py`
+- user_feedback_or_constraint: 用户明确追问 `0-Init` 是否应调整初始化落盘，以支持断点续传与任务状态治理。

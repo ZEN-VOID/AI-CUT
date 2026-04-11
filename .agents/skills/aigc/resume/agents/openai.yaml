@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 项目续跑"
+  short_description: "重建最后稳定断点，修补治理工件，并安全回接下一入口"
+  default_prompt: "Use $aigc-resume to reconstruct the last stable AIGC project checkpoint from governance-state, project-state, governance artifacts, and stage outputs, then return one safe next entry."

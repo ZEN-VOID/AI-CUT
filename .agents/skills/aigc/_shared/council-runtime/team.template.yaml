@@ -58,9 +58,9 @@ roles:
       - stage: "1-规划"
         gate_artifact: "projects/<项目名>/规划/validation-report.md"
       - stage: "2-组间"
-        gate_artifact: "projects/<项目名>/2-组间/validation-report.md"
+        gate_artifact: "projects/<项目名>/编导/validation-report.md"
       - stage: "3-明细"
-        gate_artifact: "projects/<项目名>/3-明细/validation-report.md"
+        gate_artifact: "projects/<项目名>/编导/validation-report.md"
       - stage: "4-主体"
         gate_artifact: "projects/<项目名>/主体/validation-report.md"
 

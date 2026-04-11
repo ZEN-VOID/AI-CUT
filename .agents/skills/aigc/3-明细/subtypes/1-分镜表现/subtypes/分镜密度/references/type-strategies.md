@@ -4,6 +4,23 @@
 
 ## VSM
 
+## Preset Anchor Density Contract
+
+若当前组命中 `metadata.source_profile.preset_registry`，`panel_count` 先受以下合同约束：
+
+1. `hard_lock`
+   - 默认保持锚点提供的主镜头骨架，不以“更细更丰富”为理由主动加镜。
+2. `soft_lock + single_anchor_multi_shot`
+   - 允许把一个粗锚点扩成多个细分镜，但这些细分镜必须连续，且仍围绕同一锚点任务。
+3. `reference_only`
+   - 可按常规密度逻辑裁决，不受锚点骨架约束。
+
+一句话规则：
+
+- `hard_lock` 先保骨架
+- `soft_lock` 可细分
+- `reference_only` 才自由
+
 ### 变量登记表
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |

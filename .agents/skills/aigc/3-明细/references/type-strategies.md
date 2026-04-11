@@ -19,3 +19,24 @@
 2. 当用户只命中某一个任务类型时，只进入一个唯一主子路径。
 3. 若上游 grouped source 未锁定，不得直接进入任何下游加权层。
 4. 已建合同的子路径可以直接执行；待补合同的子路径若被命中，必须先报告缺口。
+
+## 上游来源保护路由
+
+| source_profile 状态 | 默认动作 | 禁止动作 | 回退 |
+| --- | --- | --- | --- |
+| `missing` | 按普通 `3-明细` 路由执行，但仍需保留上游 grouped source | 不得假定自己拥有自由重写权 | 若发现明显 storyboard 预设痕迹，回到规划/组间补来源画像 |
+| `preset_retention_mode = standard` | 可按常规方式生成与加权各层细节 | 不得越权改写上游事实 | 常规 root-cause 链 |
+| `preset_retention_mode = preserve_and_extend` | 顺着既有场次/镜头/运镜/转场预设补细节 | 不得重排 `locked_preset_axes` | 若命中冲突，先暂停并回查 manifest 或上游验收报告 |
+| `preset_retention_mode = preserve_only` | 仅补最小必要缺口，优先维持已有预设壳 | 不得扩张成第二套镜头设计 | 冲突时直接暂停，等待人工授权 |
+
+### Locked Preset Axes
+
+当 `locked_preset_axes` 包含以下任一项时，本阶段默认视为不可擅改：
+
+- `scene_boundary`
+- `shot_order`
+- `camera_motif`
+- `transition_hook`
+- `viewpoint_order`
+
+只有用户显式授权或上游 manifest/验收报告已改写保护模式时，才允许突破。

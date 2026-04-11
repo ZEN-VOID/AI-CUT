@@ -14,6 +14,7 @@
 2. 所有请求对象都必须能回链 `编导/第N集.json` 的分镜组或分镜。
 3. `6-视频` 结束时必须能说明下一步是继续补参照，还是进入 `3-视频生成` / 具体 provider skill。
 4. 共享 JSON 模板必须允许叶子子技能同时表达组级来源与帧级来源；至少应支持 `meta.group_id + meta.source_shot_ids + meta.shot_level`。
+5. provider 名称若仅存在于 `3-视频生成/providers/`，则默认视为槽位，不视为本地已建 governed leaf。
 
 ## 当前共享模板真源
 

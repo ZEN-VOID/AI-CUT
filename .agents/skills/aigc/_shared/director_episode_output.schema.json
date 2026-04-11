@@ -42,6 +42,58 @@
           "type": "string",
           "description": "上游来源或执行路由，例如 `2-组间/导演意图 -> 3-明细`。"
         },
+        "source_profile": {
+          "type": "object",
+          "description": "上游故事源类型及预设保护模式，供 `2-组间` 与 `3-明细` 读取。",
+          "additionalProperties": false,
+          "required": [
+            "source_type",
+            "preset_retention_mode",
+            "detail_expansion_mode",
+            "locked_preset_axes",
+            "preset_registry"
+          ],
+          "properties": {
+            "source_type": {
+              "type": "string",
+              "enum": [
+                "novel_original",
+                "script_original",
+                "storyboard_script",
+                "oral_story_transcript",
+                "hybrid_story_text"
+              ]
+            },
+            "preset_retention_mode": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "preserve_and_extend",
+                "preserve_only"
+              ]
+            },
+            "detail_expansion_mode": {
+              "type": "string",
+              "enum": [
+                "free_expansion",
+                "guided_expansion",
+                "respect_storyboard_presets"
+              ]
+            },
+            "locked_preset_axes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preset_registry": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/preset_anchor"
+              }
+            }
+          }
+        },
         "episode_id": {
           "type": "string",
           "description": "集标识，例如 `第1集`。"
@@ -151,6 +203,72 @@
           "type": "string"
         },
         "judgment": {
+          "type": "string"
+        }
+      }
+    },
+    "preset_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "anchor_id",
+        "source_span",
+        "lock_level",
+        "owned_axes",
+        "expandable_axes",
+        "forbidden_changes",
+        "projected_group_ids",
+        "projected_shot_mode"
+      ],
+      "properties": {
+        "anchor_id": {
+          "type": "string"
+        },
+        "source_span": {
+          "type": "string"
+        },
+        "lock_level": {
+          "type": "string",
+          "enum": [
+            "hard_lock",
+            "soft_lock",
+            "reference_only"
+          ]
+        },
+        "owned_axes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expandable_axes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbidden_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "projected_group_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "projected_shot_mode": {
+          "type": "string",
+          "enum": [
+            "single_anchor_single_shot",
+            "single_anchor_multi_shot",
+            "multi_anchor_fixed",
+            "reference_only"
+          ]
+        },
+        "notes": {
           "type": "string"
         }
       }

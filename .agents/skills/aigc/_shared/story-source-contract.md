@@ -1,6 +1,6 @@
 # Story Source Contract
 
-本文件是 `aigc` 技能树中“故事/小说原文/剧本原文”落盘与缺失提示的单一真源。
+本文件是 `aigc` 技能树中“故事/小说原文/剧本原文/分镜脚本”落盘与缺失提示的单一真源。
 
 ## Canonical Landing
 
@@ -38,12 +38,41 @@
 
 - `primary_story_source`
   - 唯一主故事源。
-  - 合法类型：`novel_original`、`script_original`、`oral_story_transcript`、`hybrid_story_text`
+  - 合法类型：`novel_original`、`script_original`、`storyboard_script`、`oral_story_transcript`、`hybrid_story_text`
 - `auxiliary_sources`
   - 章节补遗、人物小传、设定补丁、参考梗概等辅助材料。
 - `development_briefs`
   - 执行案、方法论文档、项目提案、角色总结、结构蓝图。
   - 可服务 `0-Init` 和部分 `1-规划` 子路径，但默认不等价于 `primary_story_source`。
+
+## Source-Type Extension Fields
+
+当主故事源已经带有镜头/分镜/转场预设时，manifest 还必须声明：
+
+- `preset_retention_mode`
+  - `standard`
+  - `preserve_and_extend`
+  - `preserve_only`
+- `detail_expansion_mode`
+  - `free_expansion`
+  - `guided_expansion`
+  - `respect_storyboard_presets`
+- `locked_preset_axes`
+  - 推荐枚举：`scene_boundary`、`shot_order`、`camera_motif`、`transition_hook`、`viewpoint_order`
+- `preset_registry`
+  - 对外部分镜脚本中的预设点做结构化登记，供 `3-分组` 与 `3-明细` 继续消费
+  - 每条至少说明：`anchor_id`、`source_span`、`lock_level`、`owned_axes`、`expandable_axes`、`forbidden_changes`
+
+规则：
+
+1. 当 `source_type == storyboard_script` 时，默认推荐 `preset_retention_mode = preserve_and_extend`。
+2. 当 `preset_retention_mode != standard` 时，`1-规划` 必须把同样的结论继续写入 bootstrap `第N集.json` 的 `metadata.source_profile`。
+3. `preset_registry` 中的 `lock_level` 默认分三档：
+   - `hard_lock`: 只能补厚，不能改骨架
+   - `soft_lock`: 核心意图不变，但允许一锚多镜式细分
+   - `reference_only`: 仅保留叙事功能，可在 `3-明细` 中重构
+4. `3-分组` 必须根据 `preset_registry` 判断哪些锚点不可拆、哪些可拆成连续子组。
+5. `3-明细` 读取到 `respect_storyboard_presets` 或 `preserve_only` 时，只能顺着预设补强，不得把已锁定预设轴改造成第二套主镜头逻辑。
 
 ## Standard Missing Prompt
 
@@ -57,6 +86,7 @@
 1. 主故事源类型
 - 小说原文
 - 剧本原文
+- 分镜脚本
 - 口述故事整理稿
 - 其他（请说明）
 
@@ -75,6 +105,7 @@
 ## Verification
 
 - `story-source-manifest.yaml` 能明确区分“主故事源”和“执行案/提案”。
+- 若主故事源是分镜脚本，manifest 必须继续声明 `preset_retention_mode`、`detail_expansion_mode` 与 `preset_registry`。
 - 当主故事源缺失时，`readiness.can_enter_episode_split` 必须为 `false`。
 - 当只导入部分正文时，`readiness.can_enter_episode_split` 可以为 `true`，但 `readiness.can_finalize_full_season_episode_split` 必须为 `false`。
 - `coverage_scope`、`split_scope` 与 `partial_limitations` 必须能解释当前是“增量规划”还是“整季正式分集”。

@@ -35,6 +35,9 @@
 | `estimated_duration_seconds` | `第N集.md / 分组计划表` | 当前组总时长的规划层投影，必须与 frontmatter 解析结果一致 |
 | `estimated_duration_seconds` | `第N集.md / 组级章节 / 量化指标` | 组章节中的量化复写口径，不能与计划表或 frontmatter 漂移 |
 | `默认组时长 / 分镜组时长映射 / 分镜时间读取链` | `执行报告.md / 量化摘要` | 供下游与审阅者确认组总时长来源链，而不是凭整集时长猜测 |
+| `外部分镜预设模式` | `第N集.md / frontmatter` | 当前集是否继承 storyboard 预设保护模式：`standard / preserve_and_extend / preserve_only` |
+| `外部分镜锚点登记` | `第N集.md / frontmatter` | 当前集命中的 `preset_registry` 投影；无则写 `[]` |
+| `preset_anchor_policy / preset_anchor_ids` | `第N集.md / 分组计划表` | 声明当前组对外部分镜锚点采取什么策略，并登记命中锚点 ID |
 
 ## 模板使用规则
 
@@ -50,7 +53,8 @@
 2. `执行报告.md` 是否具备输入、路由、边界、依赖、验收等必需区块
 3. `第N集.md` 是否具备 frontmatter、分组计划表和完整组级章节
 4. `默认组时长 / 分镜组时长映射` 是否存在且与每组 `estimated_duration_seconds` 对齐
-5. 是否错误生成了 `第N组.md`
+5. `外部分镜预设模式 / 外部分镜锚点登记 / preset_anchor_policy / preset_anchor_ids` 是否存在且可回查
+6. 是否错误生成了 `第N组.md`
 
 补充说明：
 

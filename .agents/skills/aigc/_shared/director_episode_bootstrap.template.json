@@ -4,6 +4,13 @@
     "skill_id": "aigc-planning-episode-split",
     "template_version": "bootstrap-v1",
     "source_route": "1-规划/1-分集 -> 编导根文件初始化",
+    "source_profile": {
+      "source_type": "novel_original",
+      "preset_retention_mode": "standard",
+      "detail_expansion_mode": "free_expansion",
+      "locked_preset_axes": [],
+      "preset_registry": []
+    },
     "episode_id": "<第N集>",
     "document_phase": "bootstrapped",
     "created_at": "YYYY-MM-DDTHH:MM:SSZ"

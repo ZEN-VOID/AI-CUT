@@ -1,0 +1,53 @@
+version: "aigc-governance-state-v1"
+project_name: "<项目名>"
+
+canonical_runtime:
+  project_root: "projects/<项目名>/"
+  layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
+
+lifecycle:
+  phase: "受命"  # 受命 | 起草 | 预审 | 执行 | 验收 | 沉淀
+  status: "init_bootstrapped"
+
+current_focus:
+  active_skill: "aigc-init"
+  active_stage: "0-Init"
+  active_scope: "project"
+  active_step: "initialization_completed"
+
+last_stable_checkpoint:
+  checkpoint_id: "CHK-YYYYMMDD-001"
+  summary: ""
+  source_artifacts:
+    - "Init/north_star.yaml"
+    - "Init/init_handoff.yaml"
+    - "project_state.yaml"
+  verified_by:
+    carrier: "validation-report.md"
+    status: "seeded"
+
+resume_contract:
+  recommended_entry_skill: "aigc-planning"
+  recommended_entry_stage: "1-规划"
+  recommended_entry_path: ""
+  rationale: ""
+  blockers: []
+  required_repairs: []
+
+artifact_status:
+  team: "present"
+  project_state: "present"
+  governance_state: "present"
+  mandate: "present"
+  mission_brief: "present"
+  route_plan: "present"
+  preflight_verdict: "present"
+  validation_report: "present"
+  learning_record: "present"
+
+review_bridge:
+  latest_preflight_status: "seeded"
+  latest_acceptance_status: "seeded"
+  latest_learning_status: "seeded"
+
+updated_at: "YYYY-MM-DDTHH:MM:SSZ"

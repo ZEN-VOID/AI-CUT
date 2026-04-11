@@ -3,9 +3,13 @@ source_root: "故事/"
 
 primary_story_source:
   status: "missing"  # missing | ready
-  source_type: ""  # novel_original | script_original | oral_story_transcript | hybrid_story_text
+  source_type: ""  # novel_original | script_original | storyboard_script | oral_story_transcript | hybrid_story_text
   path: ""
   coverage_scope: ""
+  preset_retention_mode: "standard"  # standard | preserve_and_extend | preserve_only
+  detail_expansion_mode: "free_expansion"  # free_expansion | guided_expansion | respect_storyboard_presets
+  locked_preset_axes: []  # e.g. scene_boundary | shot_order | camera_motif | transition_hook | viewpoint_order
+  preset_registry: []  # [{anchor_id, source_span, lock_level, owned_axes, expandable_axes, forbidden_changes, projected_group_ids, projected_shot_mode}]
   authoritative_for:
     - "1-规划/1-分集"
   notes: ""

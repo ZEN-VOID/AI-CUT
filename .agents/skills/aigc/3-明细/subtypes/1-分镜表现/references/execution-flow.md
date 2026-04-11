@@ -26,9 +26,10 @@
 ## Mandatory Workflow
 
 1. 读取上层 `.agents/skills/aigc/3-明细/SKILL.md + CONTEXT.md` 与完整的 `projects/<项目名>/编导/第N集.json`。
-2. 先由父级 route decision 明确本轮 `selected_subskills[]`；若只命中其一，则只调度其一，不为结构完整补跑另一子技能。
-3. 逐组进入 `分镜密度`，确定镜数、锚点与插入节奏。
-4. 仅对已命中的结果继续进入 `分镜构图`，生成静态镜头组织方案与 `分镜表现` patch。
-5. 各叶子把完整三段式过程写入各自 sidecar，只返回本层负责字段的 patch。
-6. 父技能只聚合本轮已调度叶子的有效 patch，并统一回写到 `第N集.json` 的镜级字段。
-7. 复检原文守恒、组内编号连续、写位边界与结构一致性；未命中的子技能不得补空字段。
+2. 若 `metadata.source_profile.preset_registry` 非空，先做锚点继承判定：哪些组命中 `hard_lock / soft_lock / reference_only`，哪些允许一锚多镜。
+3. 先由父级 route decision 明确本轮 `selected_subskills[]`；若只命中其一，则只调度其一，不为结构完整补跑另一子技能。
+4. 逐组进入 `分镜密度`，确定镜数、锚点与插入节奏；若命中 `soft_lock + single_anchor_multi_shot`，可在同一粗锚点内细分多镜。
+5. 仅对已命中的结果继续进入 `分镜构图`，生成静态镜头组织方案与 `分镜表现` patch。
+6. 各叶子把完整三段式过程写入各自 sidecar，只返回本层负责字段的 patch。
+7. 父技能只聚合本轮已调度叶子的有效 patch，并统一回写到 `第N集.json` 的镜级字段。
+8. 复检原文守恒、组内编号连续、写位边界与结构一致性；未命中的子技能不得补空字段。

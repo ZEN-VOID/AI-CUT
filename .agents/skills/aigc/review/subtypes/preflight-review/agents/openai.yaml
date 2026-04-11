@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 预审复核"
+  short_description: "为高风险执行生成 preflight verdict，并同步治理状态"
+  default_prompt: "Use $aigc-review-preflight to gate a high-risk AIGC action, update preflight-verdict.yaml, and sync the governance-state summary without touching business truth."

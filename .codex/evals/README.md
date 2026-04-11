@@ -28,3 +28,5 @@
 - schema completeness checks
 - self-host adoption checks
 - context health checks
+- creative skill package benchmark execution
+- release-level recommendation checks

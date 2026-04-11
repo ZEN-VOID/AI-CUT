@@ -39,11 +39,12 @@ EPISODE_REQUIRED_SECTIONS = [
     "## 本集分组目标",
     "## 分组计划表",
 ]
-GROUP_TABLE_HEADER = "| group_id | group_name | source_span | structure_anchor | estimated_duration_seconds | effective_text_chars | window_status | group_unit_count | group_turning_point_count | group_dependency_count | group_load_score | dependency_note | parallelism | downstream_entry | boundary_reason |"
+GROUP_TABLE_HEADER = "| group_id | group_name | source_span | structure_anchor | preset_anchor_policy | preset_anchor_ids | estimated_duration_seconds | effective_text_chars | window_status | group_unit_count | group_turning_point_count | group_dependency_count | group_load_score | dependency_note | parallelism | downstream_entry | boundary_reason |"
 GROUP_SUBSECTIONS = [
     "### 组目标",
     "### 组内容范围",
     "### 结构锚点",
+    "### 外部分镜锚点",
     "### 量化指标",
     "### 交接约束",
     "### 依赖与并行性",
@@ -52,6 +53,8 @@ GROUP_SUBSECTIONS = [
 ALLOWED_ROUTES = {"preset", "structure", "load"}
 ALLOWED_PACE_TIERS = {"慢节奏", "中节奏", "快节奏"}
 ALLOWED_WINDOW_STATUS = {"ok", "warn-low", "warn-high", "error"}
+ALLOWED_PRESET_MODES = {"standard", "preserve_and_extend", "preserve_only"}
+ALLOWED_PRESET_POLICIES = {"inherit", "split-soft-lock", "reference-only", "none"}
 DURATION_TEXT_RE = re.compile(r"^(?P<seconds>\d+)秒$")
 
 
@@ -196,6 +199,8 @@ def validate_episode(path: Path, errors: list[str]) -> None:
         "duration_policy",
         "默认组时长",
         "分镜组时长映射",
+        "外部分镜预设模式",
+        "外部分镜锚点登记",
         "pace_tier",
         "base_text_window",
         "warn_window",
@@ -278,6 +283,27 @@ def validate_episode(path: Path, errors: list[str]) -> None:
     if frontmatter["pace_tier"] not in ALLOWED_PACE_TIERS:
         errors.append(f"{path}: `pace_tier` 必须是 {sorted(ALLOWED_PACE_TIERS)} 之一。")
 
+    if frontmatter["外部分镜预设模式"] not in ALLOWED_PRESET_MODES:
+        errors.append(f"{path}: `外部分镜预设模式` 必须是 {sorted(ALLOWED_PRESET_MODES)} 之一。")
+
+    raw_anchor_registry = strip_wrapping_quotes(frontmatter["外部分镜锚点登记"])
+    try:
+        anchor_registry = json.loads(raw_anchor_registry)
+    except json.JSONDecodeError as exc:
+        errors.append(f"{path}: `外部分镜锚点登记` 必须是合法 JSON 数组字符串：{exc.msg}。")
+        anchor_registry = None
+
+    known_anchor_ids: set[str] = set()
+    if anchor_registry is not None:
+        if not isinstance(anchor_registry, list):
+            errors.append(f"{path}: `外部分镜锚点登记` 必须解析为 JSON 数组。")
+        else:
+            for item in anchor_registry:
+                if not isinstance(item, dict) or not isinstance(item.get("anchor_id"), str) or not item["anchor_id"].strip():
+                    errors.append(f"{path}: `外部分镜锚点登记` 的每一项都必须包含非空 `anchor_id`。")
+                    continue
+                known_anchor_ids.add(item["anchor_id"].strip())
+
     if not re.match(r"^\d+-\d+$", frontmatter["warn_window"]):
         errors.append(f"{path}: `warn_window` 必须形如 `120-180`。")
 
@@ -301,6 +327,24 @@ def validate_episode(path: Path, errors: list[str]) -> None:
     for row in plan_rows:
         group_id = row["group_id"]
         seen_group_ids.add(group_id)
+        if row["preset_anchor_policy"] not in ALLOWED_PRESET_POLICIES:
+            errors.append(
+                f"{path}: `分组计划表` 中 `{group_id}` 的 `preset_anchor_policy` 必须是 {sorted(ALLOWED_PRESET_POLICIES)} 之一。"
+            )
+        try:
+            preset_anchor_ids = json.loads(row["preset_anchor_ids"])
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path}: `{group_id}` 的 `preset_anchor_ids` 必须是合法 JSON 数组字符串：{exc.msg}。")
+            preset_anchor_ids = []
+        if not isinstance(preset_anchor_ids, list):
+            errors.append(f"{path}: `{group_id}` 的 `preset_anchor_ids` 必须解析为数组。")
+            preset_anchor_ids = []
+        for anchor_id in preset_anchor_ids:
+            if not isinstance(anchor_id, str) or not anchor_id.strip():
+                errors.append(f"{path}: `{group_id}` 的 `preset_anchor_ids` 只能包含非空字符串。")
+                continue
+            if known_anchor_ids and anchor_id not in known_anchor_ids:
+                errors.append(f"{path}: `{group_id}` 引用了未登记的锚点 `{anchor_id}`。")
         estimated_duration = row["estimated_duration_seconds"]
         if not estimated_duration.isdigit() or int(estimated_duration) <= 0:
             errors.append(f"{path}: `分组计划表` 中 `{group_id}` 的 `estimated_duration_seconds` 必须是正整数。")

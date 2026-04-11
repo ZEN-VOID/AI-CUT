@@ -24,10 +24,12 @@
 | 顾问团真源被挂在 `0-Init/` 下，后续阶段消费不稳定 | 真源治理层 | 将 `team.yaml` 提升到 `projects/<项目名>/team.yaml` | 把顾问团 schema 从初始化私有工件升级为项目级治理工件 | `1-规划 / 2-组间 / 3-明细 / 4-主体` 都直接读取项目根 team |
 | 问题方式仍沿用小说字段 | 领域适配层 | 按 `规划/编导/脚本/主体/分镜/视频/后期` 组织提问与路由 | 在 `SKILL.md` 固化 `Question Framing Contract` | 初始化问题能映射当前影视阶段链 |
 | 工件落盘仍漂向外仓或旧路径 | 路径合同层 | 固定到 `projects/<项目名>/Init/` 与项目根 | 在根 `aigc` 与 `0-Init` 双层合同中同时声明 canonical landing | 全部初始化工件都位于当前仓库项目路径 |
+| `project_state.yaml`、`route-plan.yaml` 与 `north_star` 给出不同下一步 | 阶段入口同步层 | 先以 `north_star.stage_entry_contract.stage_priority_order` 为主，回写项目状态与 handoff 到同一入口 | 在 `0-Init` 充分性闸门中新增“下一步建议一致性”校验 | 读取三处工件时只能得到一个当前主入口 |
 | 设计完成但没有可复用真源模板 | 真源治理层 | 新增 `templates/north-star.template.yaml` 与 `templates/init-handoff.template.yaml` | 后续脚本与文档都引用模板，而不是各写一份 schema | 未来实现不会再出现多份字段定义 |
 | 是否允许分组后节奏治理只留在口头层 | 上游决策层 | 在 `north_star` 与 `init_handoff` 同时写入 `original_adherence` 与重排授权 | 在 `0-Init` 固化布尔门与节奏 seed 规则 | `1-规划/4-节奏` 能直接判断是否执行 |
 | 仅凭项目名或极简题眼就跳过模式选择 | 模式锁定闸门 | 先发“初始化元选项卡”，未锁定模式前禁止起草初始化产物 | 在 `SKILL.md` 明确“项目名/单句概念不足以自动判定快速模式”，并要求中断恢复后先补模式卡 | 初始化开始前能看到模式来源，且没有未锁定模式的草案写入 |
 | 项目进入规划前没有故事主源登记，导致 `1-分集` 只能临时猜输入范围 | 共享输入真源层 | 在 `0-Init` 固定生成 `story-source-manifest.yaml`，区分 `primary_story_source` 与 `development_briefs` | 将故事源落点与缺失提示上收到 `_shared/story-source-contract.md` | 初始化完成后，能立刻判断 `1-分集` 是否具备增量进入条件与整季完成条件 |
+| 续跑与状态查询只能读 `project_state.yaml` 的自由文本，无法稳定重建断点 | 项目治理快照层 | 在初始化阶段新增 `governance-state.yaml` | 用 shared template 固定 `last_stable_checkpoint + resume_contract + artifact_status` | `query / resume / review` 能从同一份结构化快照读取断点与缺口 |
 
 ## Repair Playbook
 
@@ -55,6 +57,45 @@
 - “快速模式可接受极简 brief” 不等于 “可替用户自动选择快速模式”；模式选择本身仍是前置 gate，除非用户文本已明确触发强制路由信号。
 - 如果项目后续要做 `1-分集`，最稳的初始化习惯不是先问“要不要分几集”，而是先把“故事主源在哪、是否完整、能否正式切分”写进 `story-source-manifest.yaml`。
 - 对故事源 gate，不要把“已有一集正文，可增量规划”和“整季正文齐备，可正式切完整季”压成同一布尔值；这两层门必须分开。
+- 只要 `north_star` 已经写出 `stage_priority_order`，就不要再让 `project_state` 或 `route-plan` 各自重写一版“下一步”；最稳做法是让它们都投影同一个首选入口。
+- 若项目已经引入 `query / resume / review` 这类跨阶段卫星技能，`0-Init` 最该补的不是 `CHANGELOGS.md`，而是结构化 `governance-state.yaml`。
+- `CHANGELOG.md` 适合做派生说明，不适合作为断点治理真源；断点、缺口和唯一回接入口应优先落到 `governance-state.yaml`。
+
+### Case-20260411-AIGC-INIT-GOVERNANCE-STATE
+
+- milestone_type: source_contract_change
+- outcome: 为 `0-Init` 增补了 `governance-state.yaml`，把项目断点、治理缺口与卫星技能回接入口从自由文本摘要提升为结构化项目真源。
+- root_cause_or_design_decision: 新增了根级 `query / resume / review` 之后，仅靠 `project_state.yaml` 的人类摘要无法稳定承载断点续跑、状态查询和 review 同步，因此需要一个项目级结构化治理快照。
+- final_fix_or_heuristic: 保留 `project_state.yaml` 作为人类摘要，同时新增 `governance-state.yaml` 承载 `last_stable_checkpoint + resume_contract + artifact_status + review_bridge`；不要再用 `CHANGELOGS.md` 充当一级状态真源。
+- prevention_or_replication_checklist:
+  - [x] `0-Init/SKILL.md` 已新增 `Governance State Contract`
+  - [x] `_shared/governance-state.template.yaml` 已建立
+  - [x] `project-runtime-layout.md` 已记录分工
+  - [x] `query / resume / review` 已回链该工件
+- evidence_paths:
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+  - `.agents/skills/aigc/0-Init/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/_shared/governance-state.template.yaml`
+- user_feedback_or_constraint: 用户明确追问“0-Init 初始化落盘是否需要调整”，并希望提升断点续传与任务状态管理治理能力。
+
+### Case-20260411-AIGC-INIT-NEXT-STEP-SYNC
+
+- milestone_type: source_contract_change
+- outcome: 修复了初始化产物中“下一步建议”双真源漂移，并把 `project_state / route-plan / north_star` 的同步约束回写到 `0-Init` 合同。
+- root_cause_or_design_decision: `north_star.stage_entry_contract.stage_priority_order` 已把项目入口定为 `1-规划/2-格式` 优先，但 `project_state.yaml` 仍保留旧的 `1-规划/1-分集` 推荐，导致续跑时无法判定唯一主入口。
+- final_fix_or_heuristic: 若 `north_star` 已提供阶段优先级，`project_state` 与 `route-plan` 只能作为其项目态投影；当前可进入的第一子路径必须成为唯一推荐下一步。
+- prevention_or_replication_checklist:
+  - [x] `0-Init/SKILL.md` 已新增“下一步建议一致性”闸门
+  - [x] `0-Init/CONTEXT.md` 已记录同步策略
+  - [x] 项目态工件已收敛为同一入口
+- evidence_paths:
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+  - `.agents/skills/aigc/0-Init/CONTEXT.md`
+  - `projects/晴深不渝/Init/north_star.yaml`
+  - `projects/晴深不渝/project_state.yaml`
+  - `projects/晴深不渝/route-plan.yaml`
+- user_feedback_or_constraint: 用户要求“继续执行下一步”，因此项目态必须能提供唯一可执行入口，而不是多个相互冲突的提示。
 
 ### Case-20260410-AIGC-INIT-STORY-SOURCE-MANIFEST
 

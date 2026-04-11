@@ -12,9 +12,15 @@
 - `mission-brief.schema.yaml`
 - `route-plan.schema.yaml`
 - `validation-report.schema.yaml`
+- `creative-skill-package-benchmark-suite.schema.yaml`
 
 ## Why Not Now
 
 - 当前仓库仍处在 bootstrap 阶段
 - 先固定模板与流程，比过早拆 schema 更稳
 - 一旦字段跨 2 个以上工作流稳定复用，再晋升为 schema
+
+## Current Shared Schema
+
+- `creative-skill-package-benchmark-suite.schema.yaml`
+  - 用于创作型技能包综合质量评估的 benchmark suite 真源约束

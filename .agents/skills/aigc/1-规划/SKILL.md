@@ -6,6 +6,22 @@ governance_tier: full
 
 # aigc 1-规划
 
+## Skill Package Layout（对齐最新创作型规范）
+
+- 主合同真源：`SKILL.md`
+- 经验层：`CONTEXT.md`
+- 标准细则模块层：`references/`
+  - `references/chain-of-thought.md`
+  - `references/execution-flow.md`
+  - `references/type-strategies.md`
+  - `references/output-template.md`
+
+硬规则：
+
+1. `SKILL.md` 负责阶段边界、硬门槛、唯一子路径路由与闭环。
+2. 根技能级字段系统、流程蓝图、双来源类型矩阵与输出写位细则统一下沉到 `references/`。
+3. 若后续规则继续升级，优先修改对应 `references/*.md`，不要在多个文档里平行复制长细则。
+
 ## 概述
 
 `1-规划` 是 `aigc` 技能树的结构规划阶段真源。
@@ -82,6 +98,21 @@ flowchart LR
     B --> E["3-明细"]
 ```
 
+## Reference Modules (Mandatory)
+
+`aigc 1-规划/SKILL.md` 只保留主合同、边界、门禁与回链；专项细则以下列模块为真源：
+
+- `references/chain-of-thought.md`
+- `references/execution-flow.md`
+- `references/type-strategies.md`
+- `references/output-template.md`
+
+硬规则：
+
+1. 根 `SKILL.md` 仍是唯一主合同；`references/` 是模块化细则承载层，不是并行第二真源。
+2. 若字段、流程、来源类型策略或输出写位需要升级，优先回写对应 `references/*.md`。
+3. `1-规划` 的双来源上游处理以 `references/type-strategies.md` 为唯一根级类型矩阵真源。
+
 ## Canonical Landing
 
 - 阶段根目录：`projects/<项目名>/规划/`
@@ -124,6 +155,16 @@ flowchart LR
 4. 若 manifest 缺失或 `can_enter_episode_split != true`，必须输出标准“故事源补充卡”，不得让用户自行猜测该补什么。
 5. 执行案、大纲、角色设定文档默认只能视为 `development_briefs`，除非用户明确授权其作为分集主故事源。
 
+## Story Source Mode And Preset Handoff (Mandatory)
+
+`1-规划` 不再默认把上游只理解成“小说原文”。根技能必须先判定故事主源属于哪一类，再决定如何交给 `3-明细`：
+
+1. 详细类型矩阵以 `references/type-strategies.md` 为准。
+2. 当 `primary_story_source.source_type == storyboard_script` 时，现有场次边界、镜头顺序、关键运镜/转场钩子默认视为上游预设证据，而不是待清洗噪音。
+3. 进入 `1-分集` 或完成 bootstrap 时，必须把 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes` 写回共享 handoff。
+4. `3-明细` 若读到 `metadata.source_profile.preset_retention_mode in {preserve_and_extend, preserve_only}`，默认只能顺着预设扩写，不得推翻已锁定轴。
+5. 若用户明确授权重写 storyboard 预设，必须先更新 manifest 或阶段验收报告，再允许下游放开。
+
 ## 子路径路由矩阵
 
 | 子路径 | 默认调度 | 当前状态 | 触发条件 | 主产物落点 | 备注 |
@@ -143,16 +184,17 @@ flowchart LR
 
 1. 读取 `projects/<项目名>/team.yaml`，并按需加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 读取 `projects/<项目名>/Init/north_star.yaml`、`projects/<项目名>/Init/init_handoff.yaml` 与 `projects/<项目名>/Init/story-source-manifest.yaml`。
-3. 若顾问团启用且 `roles.planning.members` 非空，先调用 `策划` 顾问团，再进入阶段路由。
-4. 判断当前请求属于 `1-分集`、`2-格式`、`3-分组`、`4-节奏` 中哪一个唯一主入口。
-5. 若目标是 `1-分集`，先检查 `story-source-manifest.yaml` 是否放行；未放行则返回标准补充提示；若仅部分放行，则进入增量规划并写清覆盖边界。
-6. 若目标是 `2-格式`，先进入父技能，再在 `标准剧/解说剧` 间完成唯一变体裁决。
-7. 若目标是 `4-节奏`，先确认 `3-分组` 结果已稳定，且 `Init.original_adherence=false`。
-8. 若目标子路径合同缺失，停止向下伪造，返回缺口与补建落点。
-9. 若目标子路径合同存在，则进入对应子技能执行。
-10. 在阶段级 `validation-report.md` 前后按需调用 `评审` 顾问团。
-11. 将阶段级验收结论落到 `projects/<项目名>/规划/validation-report.md`；若命中 `1-分集`，同时在 `Init/` 写 bootstrap 产物，并首次创建 `projects/<项目名>/编导/第N集.json`。
-12. 返回唯一推荐的下一阶段入口，而不是模糊候选集合。
+3. 依据 `references/type-strategies.md` 先判定 `source_mode`、`preset_retention_mode` 与 `detail_expansion_mode`。
+4. 若顾问团启用且 `roles.planning.members` 非空，先调用 `策划` 顾问团，再进入阶段路由。
+5. 判断当前请求属于 `1-分集`、`2-格式`、`3-分组`、`4-节奏` 中哪一个唯一主入口。
+6. 若目标是 `1-分集`，先检查 `story-source-manifest.yaml` 是否放行；未放行则返回标准补充提示；若仅部分放行，则进入增量规划并写清覆盖边界。
+7. 若目标是 `2-格式`，先进入父技能，再在 `标准剧/解说剧` 间完成唯一变体裁决。
+8. 若目标是 `4-节奏`，先确认 `3-分组` 结果已稳定，且 `Init.original_adherence=false`。
+9. 若目标子路径合同缺失，停止向下伪造，返回缺口与补建落点。
+10. 若目标子路径合同存在，则进入对应子技能执行。
+11. 在阶段级 `validation-report.md` 前后按需调用 `评审` 顾问团。
+12. 将阶段级验收结论落到 `projects/<项目名>/规划/validation-report.md`；若命中 `1-分集`，同时在 `Init/` 写 bootstrap 产物，并首次创建 `projects/<项目名>/编导/第N集.json`，且写入 `metadata.source_profile`。
+13. 返回唯一推荐的下一阶段入口，而不是模糊候选集合。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -184,18 +226,20 @@ flowchart LR
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | FIELD-PLAN-ROOT-01 | 阶段定位 | 明确 `1-规划` 是结构规划阶段，而不是编导/脚本替身 | S1 | 阶段边界清晰度 | FAIL-PLAN-ROOT-01 |
-| FIELD-PLAN-ROUTE-02 | 子路径路由矩阵 | 明确 `分集 / 格式 / 分组` 的进入条件、状态与落点 | S2 | 路由完整性 | FAIL-PLAN-ROUTE-02 |
+| FIELD-PLAN-ROUTE-02 | 子路径路由矩阵 | 明确 `分集 / 格式 / 分组 / 节奏` 的进入条件、状态与落点 | S2 | 路由完整性 | FAIL-PLAN-ROUTE-02 |
 | FIELD-PLAN-LAND-03 | Canonical Landing | 锁定 `projects/<项目名>/规划/` 及各子路径产物落点 | S3 | 落点一致性 | FAIL-PLAN-LAND-03 |
 | FIELD-PLAN-CLOSE-04 | 阶段闭环 | 说明验收、缺口报告和下一阶段唯一入口 | S4 | 闭环可执行性 | FAIL-PLAN-CLOSE-04 |
+| FIELD-PLAN-SRC-05 | 来源类型与预设交接 | 锁定双来源类型判定、预设保护模式与 `3-明细` handoff | S5 | 类型化处理完整性 | FAIL-PLAN-SRC-05 |
 
 ## Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | S1 | FIELD-PLAN-ROOT-01 | `1-规划` 到底负责什么 | 锁定阶段边界与上下游关系 | 把规划写成编导或脚本说明 |
-| S2 | FIELD-PLAN-ROUTE-02 | 当前任务应进入哪个子路径 | 明确三个子路径的路由矩阵与状态 | 只有目录，没有进入条件 |
+| S2 | FIELD-PLAN-ROUTE-02 | 当前任务应进入哪个子路径 | 明确四个子路径的路由矩阵与状态 | 只有目录，没有进入条件 |
 | S3 | FIELD-PLAN-LAND-03 | 规划结果落到哪里 | 固定阶段根目录与各子路径落点 | 产物路径漂移 |
 | S4 | FIELD-PLAN-CLOSE-04 | 阶段如何结案并交接 | 固定验收、缺口报告、下一阶段推荐 | 任务完成但无法续跑 |
+| S5 | FIELD-PLAN-SRC-05 | 当前是小说原文型还是分镜脚本型上游 | 锁定 `source_mode -> preset_retention -> detail_expansion` | 分镜脚本预设点没有正式交接链 |
 
 ## Pass Table
 
@@ -205,10 +249,12 @@ flowchart LR
 | FIELD-PLAN-ROUTE-02 | 子路径进入条件、状态、落点完整 | FAIL-PLAN-ROUTE-02 | S2 |
 | FIELD-PLAN-LAND-03 | 所有规划产物路径一致 | FAIL-PLAN-LAND-03 | S3 |
 | FIELD-PLAN-CLOSE-04 | 有缺口报告、验收与唯一下一入口 | FAIL-PLAN-CLOSE-04 | S4 |
+| FIELD-PLAN-SRC-05 | 双来源类型与预设保护链已落到 manifest 与编导根文件 | FAIL-PLAN-SRC-05 | S5 |
 
 ## Context Preload (Mandatory)
 
 - 每次调用本技能时，必须自动加载同目录 `CONTEXT.md`。
+- 需要细化字段系统、流程蓝图、类型矩阵与输出写位时，继续加载本目录 `references/*.md`。
 - 若进入具体子路径，继续加载对应 `subtypes/<子路径>/SKILL.md` 与 `CONTEXT.md`。
 - 若项目根 `team.yaml.enabled == true`，继续加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 - 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。

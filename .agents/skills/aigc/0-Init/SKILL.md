@@ -92,6 +92,7 @@ flowchart LR
 ### Runtime Artifacts
 
 - `projects/<项目名>/project_state.yaml`
+- `projects/<项目名>/governance-state.yaml`
 - `projects/<项目名>/mandate.yaml`
 - `projects/<项目名>/mission-brief.yaml`
 - `projects/<项目名>/route-plan.yaml`
@@ -159,8 +160,28 @@ flowchart LR
 
 1. `north_star.yaml` 只承接长期有效、不应轻易漂移的项目总约束。
 2. `init_handoff.yaml` 承接阶段入口种子、来源分层和未决问题，不把整轮对话原样倒进去。
-3. 若某信息只在当前初始化会话有意义，不应写进 `north_star.yaml`，而应进入 `interview_summary.md` 或 `project_state.yaml`。
+3. 若某信息只在当前初始化会话有意义，不应写进 `north_star.yaml`，而应进入 `interview_summary.md`、`project_state.yaml` 或 `governance-state.yaml`。
 4. 初始化可一次性预建 `Init / 故事 / 规划 / 编导 / 主体 / 画面 / 视频 / 后期` 八个 runtime 根目录。
+
+## Governance State Contract (`governance-state.yaml`，Mandatory)
+
+`governance-state.yaml` 是项目级结构化治理快照与断点真源：
+
+- `projects/<项目名>/governance-state.yaml`
+
+起草与更新时必须读取：
+
+- `.agents/skills/aigc/_shared/project-runtime-layout.md`
+- `.agents/skills/aigc/_shared/governance-state.template.yaml`
+
+硬规则：
+
+1. `0-Init` 必须在项目首次起盘时生成 `governance-state.yaml`，不能只留 `project_state.yaml`。
+2. `project_state.yaml` 负责“给人看”的项目摘要与推荐入口；`governance-state.yaml` 负责“给系统读”的结构化 checkpoint、resume_contract 与 artifact_status。
+3. `governance-state.yaml.last_stable_checkpoint` 必须能回指本轮已落盘的主工件，例如 `north_star.yaml`、`init_handoff.yaml`、`project_state.yaml`。
+4. `governance-state.yaml.resume_contract.recommended_entry_*` 必须与 `north_star.stage_entry_contract.stage_priority_order`、`project_state.recommended_next_*` 与 `route-plan.yaml` 保持同一主入口。
+5. 若当前项目仍没有足够证据支持断点治理，不要额外新增 `CHANGELOGS.md` 充当第二真源；优先把结构化状态收束进 `governance-state.yaml`。
+6. 后续 `query / resume / review` 默认优先读取本文件；因此初始化时必须把 `artifact_status` 与 `review_bridge` 基本骨架写齐。
 
 ## Story Source Manifest Contract (`story-source-manifest.yaml`，Mandatory)
 
@@ -433,6 +454,8 @@ B. 你先综合，我只做最后确认
 - `north_star.yaml` 已具备最小核心字段
 - `init_handoff.yaml` 已具备阶段入口种子与 `unknowns`
 - `project_state.yaml` 已能指向主工件与推荐下一阶段
+- `governance-state.yaml` 已生成，且能回指 `last_stable_checkpoint`
+- 若 `north_star.stage_entry_contract.stage_priority_order` 已存在，`project_state.yaml`、`governance-state.yaml` 与 `route-plan.yaml` 的下一步建议必须与首个当前可进入的子路径保持一致，不得各写一套
 - 已返回唯一推荐下一阶段入口
 
 ## Execution Procedure
@@ -447,10 +470,11 @@ B. 你先综合，我只做最后确认
 8. 生成 `story-source-manifest.yaml`；若主故事源缺失，显式登记阻塞原因与补充提示。
 9. 生成 `north_star` 草案，并写入 `adaptation_strategy` 的长期节奏政策。
 10. 生成 `init_handoff` 草案，明确 `team_ref + stage_entry_seeds + unknowns + sources_breakdown`，尤其补齐 `directing_seed.original_adherence` 与重排授权。
-11. 起草 `mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml` 与 `project_state.yaml`。
-12. 同步生成 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` 的初始化骨架。
-13. 输出确认卡，通过后落盘全部工件。
-14. 返回唯一推荐阶段入口。
+11. 起草 `mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`project_state.yaml` 与 `governance-state.yaml`。
+12. 若 `north_star.stage_entry_contract.stage_priority_order` 已存在，回读校验 `project_state.recommended_next_step`、`project_state.recommended_next_stage`、`governance-state.resume_contract.recommended_entry_*` 与 `route-plan.handoff_notes` 是否对齐到同一个当前主入口。
+13. 同步生成 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` 的初始化骨架，并把基础 verdict 状态回写到 `governance-state.yaml.review_bridge`。
+14. 输出确认卡，通过后落盘全部工件。
+15. 返回唯一推荐阶段入口。
 
 ## Completion Standard
 

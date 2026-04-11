@@ -42,57 +42,67 @@ REFERENCE_MODULES = (
     "type-strategies.md",
     "output-template.md",
 )
+SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
     "0-Init": "projects/<项目名>/Init/",
-    "1-规划": "projects/<项目名>/1-规划/",
+    "1-规划": "projects/<项目名>/规划/",
     "2-组间": "projects/<项目名>/编导/",
     "3-明细": "projects/<项目名>/编导/",
-    "4-主体": "projects/<项目名>/4-主体/",
-    "5-画面": "projects/<项目名>/5-画面/",
+    "4-主体": "projects/<项目名>/主体/",
+    "5-画面": "projects/<项目名>/画面/",
     "6-视频": "projects/<项目名>/视频/",
     "7-后期": "projects/<项目名>/后期/",
 }
 ROOT_STAGE_LANDING = (
     "projects/<项目名>/Init/",
-    "projects/<项目名>/1-规划/",
+    "projects/<项目名>/规划/",
     "projects/<项目名>/编导/",
-    "projects/<项目名>/4-主体/",
-    "projects/<项目名>/5-画面/",
+    "projects/<项目名>/主体/",
+    "projects/<项目名>/画面/",
     "projects/<项目名>/视频/",
     "projects/<项目名>/后期/",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/<项目名>/设定/",
-    "projects/<项目名>/画面/",
+    "projects/<项目名>/1-规划/",
+    "projects/<项目名>/2-组间/",
+    "projects/<项目名>/3-明细/",
+    "projects/<项目名>/4-主体/",
+    "projects/<项目名>/5-画面/",
+)
+PROJECT_GOVERNANCE_ARTIFACTS = (
+    "projects/<项目名>/project_state.yaml",
+    "projects/<项目名>/governance-state.yaml",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
-    "1-规划": "projects/<项目名>/1-规划/validation-report.md",
+    "1-规划": "projects/<项目名>/规划/validation-report.md",
     "2-组间": "projects/<项目名>/编导/validation-report.md",
     "3-明细": "projects/<项目名>/编导/validation-report.md",
-    "4-主体": "projects/<项目名>/4-主体/validation-report.md",
+    "4-主体": "projects/<项目名>/主体/validation-report.md",
 }
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
-        "projects/<项目名>/1-规划/",
-        "projects/<项目名>/4-主体/",
-        "projects/<项目名>/5-画面/",
+        "projects/<项目名>/规划/",
+        "projects/<项目名>/主体/",
+        "projects/<项目名>/画面/",
+        "projects/<项目名>/governance-state.yaml",
     ),
     ROOT / "1-规划" / "SKILL.md": (
-        "projects/<项目名>/1-规划/",
-        "projects/<项目名>/1-规划/validation-report.md",
+        "projects/<项目名>/规划/",
+        "projects/<项目名>/规划/validation-report.md",
     ),
     ROOT / "4-主体" / "SKILL.md": (
-        "projects/<项目名>/4-主体/",
+        "projects/<项目名>/主体/",
     ),
     ROOT / "5-画面" / "SKILL.md": (
-        "projects/<项目名>/5-画面/",
+        "projects/<项目名>/画面/",
     ),
     ROOT / "6-视频" / "SKILL.md": (
         "projects/<项目名>/视频/",
     ),
     ROOT / "6-视频" / "references" / "execution-flow.md": (
-        "projects/<项目名>/4-主体/",
-        "projects/<项目名>/5-画面/",
+        "projects/<项目名>/主体/",
+        "projects/<项目名>/画面/",
         "projects/<项目名>/视频/",
     ),
 }
@@ -107,8 +117,18 @@ STAGE_RUNTIME_FORBIDDEN = {
     ),
     ROOT / "6-视频" / "references" / "execution-flow.md": (
         "projects/<项目名>/设定/",
-        "projects/<项目名>/画面/",
+        "projects/<项目名>/5-画面/",
     ),
+}
+REQUIRED_SATELLITES = {
+    "aigc-query": ROOT / "query",
+    "aigc-resume": ROOT / "resume",
+    "aigc-review": ROOT / "review",
+}
+REQUIRED_ROUTE_POLICIES = {
+    "aigc-query-satellite-entry",
+    "aigc-resume-satellite-entry",
+    "aigc-review-satellite-entry",
 }
 
 
@@ -172,6 +192,31 @@ def declared_local_reference_modules(content: str) -> set[str]:
     return local_modules
 
 
+def declared_local_subtype_paths(content: str) -> set[str]:
+    matches = re.findall(r"`([^`]+)`|\]\(([^)]+)\)", content)
+    declared_paths = {
+        candidate.strip()
+        for pair in matches
+        for candidate in pair
+        if candidate
+    }
+    subtype_paths: set[str] = set()
+    for candidate in declared_paths:
+        normalized = candidate.removeprefix("./")
+        if not normalized.startswith("subtypes/"):
+            continue
+        if any(marker in normalized for marker in ("<", ">", "*", "{", "}", "[", "]")):
+            continue
+        if normalized in {"subtypes", "subtypes/"}:
+            continue
+        if "/providers/" in normalized or normalized.endswith("/providers"):
+            continue
+        if len(Path(normalized).parts) < 2:
+            continue
+        subtype_paths.add(normalized.rstrip("/"))
+    return subtype_paths
+
+
 def audit_skill_file(path: Path, failures: list[str]) -> None:
     content = ""
     tier = None
@@ -214,6 +259,16 @@ def audit_skill_file(path: Path, failures: list[str]) -> None:
             if not reference_path.exists():
                 failures.append(f"{reference_path}: missing referenced module file")
 
+        for subtype_ref in declared_local_subtype_paths(content):
+            subtype_path = path.parent / subtype_ref
+            if subtype_path.suffix:
+                if not subtype_path.exists():
+                    failures.append(f"{subtype_path}: missing declared subtype contract path")
+                continue
+            subtype_skill = subtype_path / "SKILL.md"
+            if not subtype_skill.exists():
+                failures.append(f"{subtype_skill}: missing for declared subtype path `{subtype_ref}`")
+
     context_path = path.with_name("CONTEXT.md")
     if not context_path.exists():
         failures.append(f"{context_path}: missing sibling CONTEXT.md")
@@ -232,28 +287,44 @@ def audit_skill_file(path: Path, failures: list[str]) -> None:
         )
 
 
-def audit_registry(failures: list[str]) -> list[dict]:
+def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict]]:
     if not REGISTRY.exists():
         failures.append(f"{REGISTRY}: missing")
-        return []
+        return [], []
 
     registry = load_yaml(REGISTRY)
     active_skills = registry.get("active_skills", [])
     aigc_entry = next((item for item in active_skills if item.get("id") == "aigc"), None)
     if not aigc_entry:
         failures.append(f"{REGISTRY}: missing active skill `aigc`")
-        return []
+        return [], []
 
     runtime_control = aigc_entry.get("runtime_control", {})
     if runtime_control.get("canonical_project_runtime") != "projects/<项目名>/":
         failures.append(
             f"{REGISTRY}: `aigc.runtime_control.canonical_project_runtime` must be `projects/<项目名>/`"
         )
+    if runtime_control.get("project_state_carrier") != "projects/<项目名>/project_state.yaml":
+        failures.append(
+            f"{REGISTRY}: `aigc.runtime_control.project_state_carrier` must be `projects/<项目名>/project_state.yaml`"
+        )
+    if runtime_control.get("governance_state_carrier") != "projects/<项目名>/governance-state.yaml":
+        failures.append(
+            f"{REGISTRY}: `aigc.runtime_control.governance_state_carrier` must be `projects/<项目名>/governance-state.yaml`"
+        )
 
     stage_index = aigc_entry.get("stage_index", [])
     if len(stage_index) < 8:
         failures.append(f"{REGISTRY}: `aigc.stage_index` is incomplete")
-    return stage_index
+
+    satellite_index = aigc_entry.get("satellite_index", [])
+    satellite_ids = {item.get("id") for item in satellite_index}
+    missing_satellites = sorted(set(REQUIRED_SATELLITES) - satellite_ids)
+    if missing_satellites:
+        failures.append(
+            f"{REGISTRY}: `aigc.satellite_index` missing {', '.join(missing_satellites)}"
+        )
+    return stage_index, satellite_index
 
 
 def audit_routes(failures: list[str]) -> None:
@@ -262,6 +333,14 @@ def audit_routes(failures: list[str]) -> None:
         return
 
     routes = load_yaml(ROUTES)
+    route_policies = routes.get("route_policies", [])
+    route_policy_ids = {item.get("id") for item in route_policies}
+    missing_route_policies = sorted(REQUIRED_ROUTE_POLICIES - route_policy_ids)
+    if missing_route_policies:
+        failures.append(
+            f"{ROUTES}: missing route policies {', '.join(missing_route_policies)}"
+        )
+
     workflow_carriers = routes.get("workflow_carriers", [])
     aigc_runtime = next((item for item in workflow_carriers if item.get("id") == "aigc-project-runtime"), None)
     if not aigc_runtime:
@@ -270,6 +349,10 @@ def audit_routes(failures: list[str]) -> None:
 
     if aigc_runtime.get("canonical_runtime_root") != "projects/<项目名>/":
         failures.append(f"{ROUTES}: `aigc-project-runtime` canonical root mismatch")
+    if aigc_runtime.get("project_state_carrier") != "projects/<项目名>/project_state.yaml":
+        failures.append(f"{ROUTES}: `aigc-project-runtime` project_state carrier mismatch")
+    if aigc_runtime.get("governance_state_carrier") != "projects/<项目名>/governance-state.yaml":
+        failures.append(f"{ROUTES}: `aigc-project-runtime` governance_state carrier mismatch")
 
 
 def audit_runtime_alignment(failures: list[str]) -> None:
@@ -279,12 +362,18 @@ def audit_runtime_alignment(failures: list[str]) -> None:
         return
 
     shared_content = shared_layout.read_text(encoding="utf-8")
+    for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
+        if governance_file not in shared_content:
+            failures.append(f"{shared_layout}: missing project governance artifact `{governance_file}`")
     for stage_name, runtime_root in SHARED_RUNTIME_ROWS.items():
         row = f"| `{stage_name}` | `{runtime_root}` |"
         if row not in shared_content:
             failures.append(f"{shared_layout}: missing canonical runtime row `{row}`")
 
     root_content = ROOT_SKILL.read_text(encoding="utf-8") if ROOT_SKILL.exists() else ""
+    for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
+        if governance_file not in root_content:
+            failures.append(f"{ROOT_SKILL}: missing project governance artifact `{governance_file}`")
     for runtime_root in ROOT_STAGE_LANDING:
         if runtime_root not in root_content:
             failures.append(f"{ROOT_SKILL}: missing canonical stage landing `{runtime_root}`")
@@ -344,6 +433,26 @@ def audit_stage_index(stage_index: list[dict], failures: list[str]) -> None:
             failures.append(f"{context_path}: missing for active stage `{stage['id']}`")
 
 
+def audit_satellite_index(satellite_index: list[dict], failures: list[str]) -> None:
+    indexed_by_id = {item.get("id"): item for item in satellite_index}
+    for satellite_id, expected_root in REQUIRED_SATELLITES.items():
+        entry = indexed_by_id.get(satellite_id)
+        if not entry:
+            continue
+        path = Path(entry["path"])
+        if path != expected_root:
+            failures.append(f"{REGISTRY}: `{satellite_id}` path must be `{expected_root}`")
+        if entry.get("route_role") != "satellite":
+            failures.append(f"{REGISTRY}: `{satellite_id}` route_role must be `satellite`")
+
+        skill_path = expected_root / "SKILL.md"
+        context_path = expected_root / "CONTEXT.md"
+        if not skill_path.exists():
+            failures.append(f"{skill_path}: missing for satellite `{satellite_id}`")
+        if not context_path.exists():
+            failures.append(f"{context_path}: missing for satellite `{satellite_id}`")
+
+
 def shelved_stage_roots(stage_index: list[dict]) -> list[Path]:
     return [Path(stage["path"]) for stage in stage_index if stage.get("contract_status") == "shelved"]
 
@@ -362,7 +471,7 @@ def main() -> int:
     if ROOT_CONTEXT.exists() and ROOT_CONTEXT.stat().st_size == 0:
         failures.append(f"{ROOT_CONTEXT}: CONTEXT.md is empty")
 
-    stage_index = audit_registry(failures)
+    stage_index, satellite_index = audit_registry(failures)
     audit_routes(failures)
     audit_runtime_alignment(failures)
 
@@ -375,11 +484,14 @@ def main() -> int:
 
     if stage_index:
         audit_stage_index(stage_index, failures)
+    if satellite_index:
+        audit_satellite_index(satellite_index, failures)
 
     print("AIGC skill tree audit")
     print(f"repo_root: {Path.cwd()}")
     print(f"discovered_skill_docs: {len(list(ROOT.rglob('SKILL.md')))}")
     print(f"registry_stage_entries: {len(stage_index)}")
+    print(f"registry_satellite_entries: {len(satellite_index)}")
     print(f"failures: {len(failures)}")
 
     if failures:

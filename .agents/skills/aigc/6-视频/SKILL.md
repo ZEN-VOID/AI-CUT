@@ -90,6 +90,12 @@ flowchart LR
 | 类型策略 | 承载子路径路由与回退规则 | `references/type-strategies.md` |
 | 输出契约 | 承载阶段级交付结构与最低要求 | `references/output-template.md` |
 
+## Provider Slot Semantics
+
+- `6-视频/subtypes/3-视频生成/providers/` 只承载 provider 槽位与命名保留，不默认等同于受治理可执行子技能。
+- 当前 provider 槽位包括：`grok`、`kling`、`seedance`、`sora`、`veo`、`vidu`。
+- 若某个 provider 未来需要独立执行合同，应升级为明确的 `SKILL.md + CONTEXT.md`，而不是继续靠空目录冒充能力存在。
+
 ## Route Summary
 
 - 若任务是“按分镜组把导演 JSON 蒸馏成视频工具入参”，默认进入 `1-提示词蒸馏/全能参照`。
@@ -159,4 +165,5 @@ flowchart LR
 
 - 当前 `6-视频/subtypes/` 显式分为三个 tranche：`1-提示词蒸馏`、`2-一致性处理`、`3-视频生成`。
 - 当前已建且可执行的叶子路径位于 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照` 与 `3-视频生成`。
+- `3-视频生成/providers/` 当前只保留 provider 槽位，不自动视为本地 governed leaf。
 - `首尾帧参照`、`多图参照` 目前仍作为后续叶子槽位保留在 `1-提示词蒸馏/` 下，不因目录存在而自动视为可执行。

@@ -31,6 +31,7 @@
 | 分集已确定，但没有为后续阶段创建统一 episode 根文件 | 运行时真源层 | 在输出 `episode-split-*` 的同时，按 bootstrap template 创建 `projects/<项目名>/编导/第N集.json` | 将 bootstrap 行为写入主合同、输出模板与 shared runtime layout，确保 `2-组间/3-明细` 共享同一根文件 | 每个已确定分集都能在 `projects/<项目名>/编导/` 下找到对应空 JSON |
 | 没有故事主源也直接开始分集 | 共享输入真源层 | 先读取 `story-source-manifest.yaml`，未放行则返回标准补充卡 | 将故事源缺失判断固化为 `Story Source Readiness Gate` | 没有主故事源时，`1-分集` 不再偷偷用执行案或印象流替代 |
 | 已有部分原文，却仍被整体判为不可分集 | readiness 语义层 | 将“允许进入增量分集”和“允许完成整季正式分集”拆成两层 gate | 在 manifest 中新增 `can_finalize_full_season_episode_split` 与 `split_scope` | 至少一集原文存在时，可进入覆盖范围内的增量分集 |
+| 主故事源明明是分镜脚本，但补充卡和合法枚举仍只写到剧本原文 | 共享枚举同步层 | 在 `1-分集` 主合同里显式把 `分镜脚本` 纳入合法类型与补充卡 | 让 leaf 合同与 `_shared/story-source-contract.md` 同步升级，避免 shared contract 和 leaf prompt 再次漂移 | 用户不再需要把 storyboard source 伪装成“剧本原文 / 其他” |
 
 ## Repair Playbook
 
@@ -53,6 +54,7 @@
 - 若项目只有执行案、人物设定或方法论文档，最稳的处理是把它们登记为 `development_briefs`，并明确告诉用户“还不能正式分集”，而不是让模型擅自假定它们等价于小说原文。
 - 若项目已经落盘至少一集原文，最稳的处理不是继续卡死，而是进入“增量分集”，并在输出里标明当前只覆盖到哪里。
 - 若项目把正文目录改成 `故事/`，`1-分集` 最先要同步的是 manifest 和补充卡里的 canonical 路径，而不是局部硬编码。
+- 若共享故事源合同已经把 `storyboard_script` 视为一等主故事源，`1-分集` 的补充卡与合法枚举也必须同步升级；否则执行时仍会逼用户把 storyboard source 塞进“其他”。
 
 ### Case-20260410-AIGC-PLAN-EPS-STORY-SOURCE-GATE
 

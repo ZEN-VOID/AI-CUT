@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-10
+last_updated: 2026-04-11
 
 active_skills:
   - id: aigc
@@ -9,6 +9,8 @@ active_skills:
     purpose: 仓库级 AIGC 影视创作多子技能组合总入口，负责项目工作区、阶段路由与总闭环。
     runtime_control:
       canonical_project_runtime: projects/<项目名>/
+      project_state_carrier: projects/<项目名>/project_state.yaml
+      governance_state_carrier: projects/<项目名>/governance-state.yaml
       governance_mirror: .codex/state/tasks/<task_id>/
       mirror_policy: 对 AIGC 项目工作流，`projects/<项目名>/` 为运行时唯一真源；`.codex/state/tasks` 仅作跨项目治理镜像或非项目任务账本。
     stage_index:
@@ -52,6 +54,28 @@ active_skills:
         owner_office: shangshu
         contract_status: shelved
         route_role: frozen
+    satellite_index:
+      - id: aigc-query
+        path: .agents/skills/aigc/query
+        owner_office: shangshu
+        governance_domain: hubu
+        contract_status: active
+        route_role: satellite
+        purpose: 项目级 runtime、阶段产物、编导主文件与治理工件事实查询。
+      - id: aigc-resume
+        path: .agents/skills/aigc/resume
+        owner_office: shangshu
+        governance_domain: bingbu
+        contract_status: active
+        route_role: satellite
+        purpose: 项目中断恢复、治理工件补齐与安全回接。
+      - id: aigc-review
+        path: .agents/skills/aigc/review
+        owner_office: menxia
+        governance_domain: xingbu
+        contract_status: active
+        route_role: satellite
+        purpose: 门下省侧 preflight、validation 与 learning bridge。
 
 planned_skills:
   - id: film-suite

@@ -51,6 +51,7 @@ governance_tier: full
 - Root-Cause 执行契约继承：一旦出现分镜插入漂移、子技能顺序错乱、主文件回写冲突或越权补写，先按根 `AGENTS.md` 与本技能 `Root-Cause Execution Contract` 上溯规则源，再决定是否改正文。
 - 自评偏差与缓解：LLM 容易跳过上游裁决直接写内联分镜，或把运镜/摄影信息提前写进本层；执行时必须先锁 `分镜密度 -> 分镜构图 -> 分镜插入` 的受控链，再进入主文件回写。
 - 本层只允许沿 `分镜密度 -> 分镜构图 -> 分镜插入` 的受控链推进，不得跳过上游裁决直接回写主文件。
+- 若 `metadata.source_profile.preset_registry` 存在，必须先判每个锚点的 `lock_level + projected_shot_mode`。默认规则是：外部分镜保骨架，本层长血肉；`hard_lock` 只能补厚，`soft_lock` 可以一锚多镜，`reference_only` 才允许重构。
 ## Visual Maps
 
 ```mermaid
@@ -85,6 +86,7 @@ flowchart LR
 ## Route Summary
 
 - 当前技能的路由矩阵、VSM 变量、情况判定、策略映射与回退规则已下沉到 `references/type-strategies.md`。
+- 若命中 storyboard 粗锚点，“一锚多镜”与锁级处理合同同样以下沉到 `references/type-strategies.md` 为准。
 - 主 `SKILL.md` 只保留入口边界与判路摘要，不再重复长表。
 ## Execution Summary
 

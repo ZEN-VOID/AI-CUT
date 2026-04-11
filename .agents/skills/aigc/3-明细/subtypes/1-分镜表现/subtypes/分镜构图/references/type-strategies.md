@@ -11,6 +11,17 @@
   2. 在上游 `refined_range` 内申请 `+1/-1` 微调；
   3. 若两轮后仍失败，升级回上游最近的更高合法值，并显式记录原因。
 
+## Preset Anchor Composition Contract
+
+若当前分镜继承自 `preset_registry` 中的外部锚点，本层按以下方式处理：
+
+1. `hard_lock`
+   - `owned_axes` 视为不可推翻轴；本层只能在 `expandable_axes` 上补构图密度、层次和焦点设计。
+2. `soft_lock`
+   - 允许把粗锚点展开成多个细分镜，但每个细分镜都必须继承同一锚点的核心视点/母题，不得改写其主轴。
+3. `reference_only`
+   - 可重构构图，但仍应保留原锚点的叙事功能与意图回声。
+
 ## VSM
 
 ### 变量登记表

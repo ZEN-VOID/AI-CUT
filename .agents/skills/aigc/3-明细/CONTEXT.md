@@ -35,6 +35,7 @@
 | `3-明细` 仍把主写位理解成阶段私有 `第N集.md`，而不是统一编导根文件 | 运行时真源层 | 将父级合同与输出模板统一改写为 `projects/<项目名>/编导/第N集.json` | 让 `_shared/project-runtime-layout.md` 承担目录真源，并固定“执行前完整读取 episode JSON，再做镜级 patch” | 各子路径都在同一 JSON 根文件上 patch 自己负责字段 |
 | 子技能既想直写统一根文件，又把完整思维链一起堆进 episode JSON，导致根文件失控 | 输出治理层 | 固定“根文件只放最终镜级事实，完整思维链留在子技能 sidecar” | 在父级 `SKILL.md` 建立 `Unified Root File Output Governance`，要求子技能只交 `field patch`，父级统一聚合 | 根文件不再重复堆叠多份子技能三段式思维链 |
 | 父级默认把所有子技能都纳入聚合，导致未命中层也被补空字段或伪状态 | 调度治理层 | 在父级 `SKILL.md` 建立 `Selective Dispatch And Aggregation Contract`，只聚合 `selected_subskills[]` | 固定“未调度子技能与总 json 无关，禁止为了结构完整补空聚合” | 本轮总 json 只受实际命中的子技能 patch 影响 |
+| 上游其实来自 storyboard script，但 `3-明细` 仍按自由生成镜头处理 | 跨阶段 handoff 层 | 读取 `metadata.source_profile`，把 storyboard 预设当作保护性锚点 | 由 `1-规划` 把 `source_profile` 写进 bootstrap root，`3-明细` 固化 `preserve and extend` 合同 | 后续扩写围绕预设展开，不再推翻已锁定镜头轴 |
 
 ## Repair Playbook
 
@@ -65,6 +66,7 @@
 - 对复合型多子技能包来说，最稳的聚合方式不是“每轮全量子技能都过一遍”，而是“只聚合本轮命中的子技能 patch”；未命中能力与总 json 无关。
 - 当 `3-明细` 改为统一根文件后，叶子层最稳的合同不是“直接拥有 episode 主稿”，而是“只声明本字段 patch、自己的 evidence sidecar，以及只有被调度时才参与聚合”。
 - 当 `3-明细` 已改为统一根文件后，leaf 深层细则不能只改路径；凡是 `[分镜N]`、`运镜：`、`转场：`、`[摄影美学]` 这类旧行式表头和示例，也要一起收平为 `分镜明细[]` 节点或镜级字段语义，否则执行者仍会把 JSON patch 理解成旧 `md` 主稿续写。
+- 若上游源本身已经是分镜脚本，`3-明细` 的最佳动作不是“重做分镜”，而是“顺着预设点补质量层和细节层”。
 
 ### Case-20260410-AIGC-DETAIL-REPOSITION
 
@@ -319,3 +321,20 @@
   - `.agents/skills/aigc/3-明细/subtypes/5-摄影美学/references/chain-of-thought.md`
   - `.agents/skills/aigc/3-明细/subtypes/6-转场特效/references/chain-of-thought.md`
 - user_feedback_or_constraint: 用户明确要求“把更深一层的 leaf chain-of-thought/type-strategies 全量再扫一轮，把还带旧 md 语义的表头和示例也彻底收平”。
+
+### Case-20260411-AIGC-DETAIL-STORYBOARD-SOURCE-HANDOFF
+
+- milestone_type: source_contract_change
+- outcome: 为 `3-明细` 根技能补入了 `metadata.source_profile` 的消费合同，使 storyboard-script 上游能够以“preserve and extend”模式稳定进入后续明细层。
+- root_cause_or_design_decision: 先前 `3-明细` 只假设上游是 grouped source + 空白可扩写位，没有来源画像就无法区分“可自由生成的镜头骨架”和“必须保留的 storyboard 预设”。
+- final_fix_or_heuristic: 若 `1-规划` 已把 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes` 写入 bootstrap root，则 `3-明细` 必须先消费这组来源画像，再决定是否允许自由扩写；对 storyboard source 默认执行“preserve and extend”。
+- prevention_or_replication_checklist:
+  - [x] `3-明细/SKILL.md` 已加入来源画像读取门
+  - [x] `3-明细/references/type-strategies.md` 已加入 source-profile 路由
+  - [x] `3-明细/references/output-template.md` 已加入 source-profile 消费说明
+- evidence_paths:
+  - `.agents/skills/aigc/3-明细/SKILL.md`
+  - `.agents/skills/aigc/3-明细/references/type-strategies.md`
+  - `.agents/skills/aigc/3-明细/references/output-template.md`
+  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- user_feedback_or_constraint: 用户明确要求“如果保留分镜脚本中的预设点，后续 `3-明细` 需要能够不冲突地顺着这些预设点继续丰富和拓展”。
