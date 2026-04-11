@@ -2,13 +2,13 @@
 
 ## Canonical Landing
 
-- 根目录：`projects/<项目名>/4-主体/3-审计/`
-- 总报告：`projects/<项目名>/4-主体/3-审计/第N集/subject-audit-report.md`
+- 根目录：`projects/<项目名>/主体/3-审计/`
+- 总报告：`projects/<项目名>/主体/3-审计/第N集/subject-audit-report.md`
 - 单主体审计：
-  - `projects/<项目名>/4-主体/3-审计/第N集/角色/[主体名].audit.md`
-  - `projects/<项目名>/4-主体/3-审计/第N集/场景/[主体名].audit.md`
-  - `projects/<项目名>/4-主体/3-审计/第N集/道具/[主体名].audit.md`
-- 回写建议：`projects/<项目名>/4-主体/3-审计/第N集/writeback-plan.md`
+  - `projects/<项目名>/主体/3-审计/第N集/角色/[主体名].audit.md`
+  - `projects/<项目名>/主体/3-审计/第N集/场景/[主体名].audit.md`
+  - `projects/<项目名>/主体/3-审计/第N集/道具/[主体名].audit.md`
+- 回写建议：`projects/<项目名>/主体/3-审计/第N集/writeback-plan.md`
 
 ## Mandatory Workflow
 
@@ -26,5 +26,5 @@
 
 1. 直接进入本叶子技能时，仍必须先读取 `projects/<项目名>/team.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 若顾问团启用，则由 `策划` 先对审计范围、修订优先级与对象连续性提供前置建议。
-3. 阶段级 `projects/<项目名>/4-主体/validation-report.md` 前后若命中 `评审`，仍按 `4-主体` 根技能的闸门执行。
+3. 阶段级 `projects/<项目名>/主体/validation-report.md` 前后若命中 `评审`，仍按 `4-主体` 根技能的闸门执行。
 4. 本叶子技能不夺取主代理的阶段 canonical 写回权。

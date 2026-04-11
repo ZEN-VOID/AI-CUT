@@ -8,10 +8,10 @@
 
 ## Canonical Landing
 
-- 子路径根目录：`projects/<项目名>/5-画面/分镜帧/`
-- 单集目录：`projects/<项目名>/5-画面/分镜帧/第N集/`
-- 汇总 JSON：`projects/<项目名>/5-画面/分镜帧/第N集/第N集.json`
-- 汇总清单：`projects/<项目名>/5-画面/分镜帧/第N集/_manifest.json`（可选）
+- 子路径根目录：`projects/<项目名>/画面/分镜帧/`
+- 单集目录：`projects/<项目名>/画面/分镜帧/第N集/`
+- 汇总 JSON：`projects/<项目名>/画面/分镜帧/第N集/第N集.json`
+- 汇总清单：`projects/<项目名>/画面/分镜帧/第N集/_manifest.json`（可选）
 
 ## 输入合同
 
@@ -23,8 +23,8 @@
 
 ### 推荐输入
 
-- `projects/<项目名>/4-主体/` 下的角色、场景、道具参考
-- 既有 `projects/<项目名>/5-画面/` 历史 prompt、参考图或单帧产物
+- `projects/<项目名>/主体/` 下的角色、场景、道具参考
+- 既有 `projects/<项目名>/画面/` 历史 prompt、参考图或单帧产物
 
 ### 输入处理原则
 

@@ -24,8 +24,9 @@
 | 规划阶段越权替下游阶段做细节真源 | 阶段边界层 | 收回到结构规划、格式规划、分组规划的边界 | 在父级和子级合同都显式声明“不拥有”范围 | 规划产物可交给下游继续消费，而不是代替下游 |
 | `2-格式` 已有变体目录，但缺少父级裁决与默认分支 | 变体路由层 | 先补 `2-格式` 父级合同，再写 `标准剧/解说剧` 子技能 | 固化“父级裁决变体，子级细写合同” | 不再出现空壳变体目录 |
 | 项目已启用顾问团，但规划阶段未读取 `team.yaml` | 共享运行时层 | 执行前先读项目根 `team.yaml` 与 `_shared/council-runtime/module-spec.md` | 在 `1-规划` 根技能固化 `策划前置 + 评审闸门` 合同 | 规划任务进入前能判断是否要启用顾问团 |
-| 分组后节奏治理仍挂在 `2-组间` | 阶段边界层 | 将其迁回 `1-规划/subtypes/4-节奏`，并让 `0-Init.original_adherence` 直接作为规划阶段执行门 | 固化 `1-规划` 的第 4 个串行子路径，避免 `3-分组 -> 2-组间` 之间出现错位真源 | 分组后的节奏产物统一落到 `projects/<项目名>/1-规划/4-节奏/` |
+| 分组后节奏治理仍挂在 `2-组间` | 阶段边界层 | 将其迁回 `1-规划/subtypes/4-节奏`，并让 `0-Init.original_adherence` 直接作为规划阶段执行门 | 固化 `1-规划` 的第 4 个串行子路径，避免 `3-分组 -> 2-组间` 之间出现错位真源 | 分组后的节奏产物统一落到 `projects/<项目名>/规划/4-节奏/` |
 | `1-规划` 结束后没有立即创建后续共享 episode 根文件 | 运行时真源层 | 让 `1-分集` 在分集确定后立即 bootstrap `projects/<项目名>/编导/第N集.json` | 把 `_shared/project-runtime-layout.md` 与 bootstrap template 作为规划阶段的 shared carrier，并让后续阶段都消费同一根文件 | `2-组间` 与 `3-明细` 都不再自建 episode 主文件 |
+| 规划阶段默认假设“故事主源已经存在”，导致 `1-分集` 缺少显式阻塞门 | 共享输入真源层 | 在 `1-规划` 根技能增加 `Story Source Gate`，统一读取 `Init/story-source-manifest.yaml` | 把故事源缺失提示上收到 `_shared/story-source-contract.md`，由父级先挡住 `1-分集` | 进入 `1-分集` 前能先判断是否具备增量进入条件与整季完成条件 |
 
 ## Repair Playbook
 
@@ -47,6 +48,59 @@
 - 对 `1-规划` 来说，顾问团最稳的节奏是“策划先给结构建议，评审最后卡 validation gate”，不要三角色同时抢答。
 - 对长期维护的可执行技能目录，除 `SKILL.md + CONTEXT.md` 外，还应补齐 `agents/openai.yaml`，这样 Codex / OpenAI 侧的展示名、摘要和默认提示才有稳定入口。
 - 当后续多个阶段都要围绕同一集文件持续 patch 时，`1-规划` 最稳的做法不是只写报告，而是先把空的 runtime root file 创建出来。
+- 若某个规划子路径的进入前提取决于共享输入真源，最稳的拦截层应在 `1-规划` 父级，而不是让叶子技能各自临时追问。
+- 只要主故事源已经覆盖到至少一段连续正文，`1-规划` 就不应再把整个分集入口判死；更合理的做法是允许增量规划，并把“整季未完备”单独标红。
+- 当项目把正文运行时目录改名为 `故事/` 时，父级 `1-规划` 应优先回写 shared contract 和 manifest，而不是只改单个项目路径。
+
+### Case-20260410-AIGC-PLANNING-PARTIAL-STORY-SOURCE-ENTRY
+
+- milestone_type: source_contract_change
+- outcome: 修正了 `1-规划` 对故事源 gate 的过严解释，允许“至少一集原文”驱动覆盖范围内的增量分集，而不是把整个规划入口一起阻塞。
+- root_cause_or_design_decision: 先前 `Story Source Gate` 只用了一个 `can_enter_episode_split` 布尔值承载全部语义，导致 manifest 在部分原文已就位时仍只能返回“未放行”。
+- final_fix_or_heuristic: 父级 `1-规划` 应区分“允许进入增量分集”和“允许宣称整季正式分集完成”；前者只要求当前覆盖范围可证实，后者才要求整季边界可判定。
+- prevention_or_replication_checklist:
+  - [x] `1-规划/SKILL.md` 已新增增量 vs 整季的 gate 解释
+  - [x] 项目 manifest 已要求写清 `split_scope`
+  - [x] 项目摘要不再把“整季未齐”误写成“不能进入规划”
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+- user_feedback_or_constraint: 用户明确要求“原文至少有一集应就允许进入规划了”。
+
+### Case-20260410-AIGC-PLANNING-STORY-DIR-RENAME
+
+- milestone_type: source_contract_change
+- outcome: 将 `1-规划` 依赖的项目级故事目录 canonical landing 同步到 `故事/`。
+- root_cause_or_design_decision: 目录重命名若只改项目文件，不改父级规划合同，会导致 `1-规划` 继续把旧路径当作输入真源。
+- final_fix_or_heuristic: 目录名变更时，先改 shared runtime layout 和 story-source contract，再改 `1-规划` 父级与项目 manifest，最后做物理重命名。
+- prevention_or_replication_checklist:
+  - [x] `1-规划/SKILL.md` 已同步新路径
+  - [x] `1-规划/CONTEXT.md` 已记录重命名顺序
+  - [x] 项目清单与摘要已改写到 `故事/`
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求“`projects/晴深不渝/故事源` 重命名为 `故事`（源层同步）”。
+
+### Case-20260410-AIGC-PLANNING-RUNTIME-DIR-DERIVE
+
+- milestone_type: source_contract_change
+- outcome: 将 `1-规划` 阶段的 project runtime root 从带号目录收敛为无序号目录 `projects/<项目名>/规划/`。
+- root_cause_or_design_decision: 先前阶段合同把技能名 `1-规划` 直接当成项目目录名，导致用户即使要求 runtime 去序号，规划阶段仍持续写回旧路径。
+- final_fix_or_heuristic: 对项目路径，优先使用 `_shared/project-runtime-layout.md` 的“技能阶段 -> runtime 目录”映射，而不是从技能目录名直接推导项目路径。
+- prevention_or_replication_checklist:
+  - [x] `1-规划/SKILL.md` 已切到 `projects/<项目名>/规划/`
+  - [x] team gate artifact 已同步到 `projects/晴深不渝/规划/validation-report.md`
+  - [x] 物理目录已完成重命名
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/CONTEXT.md`
+  - `projects/晴深不渝/team.yaml`
+- user_feedback_or_constraint: 用户明确要求 `projects/晴深不渝/1-规划` 不要序号。
 
 ## Case Log
 
@@ -76,7 +130,7 @@
 - prevention_or_replication_checklist:
   - [x] `3-分组` 已补齐 `SKILL.md + CONTEXT.md`
   - [x] 父级 `1-规划` 已把 `3-分组` 标记为已建合同
-  - [x] 当前仓仍坚持 `projects/<项目名>/1-规划/3-分组/` 作为子路径 landing，且主产物按 `第N集.md` 落盘
+  - [x] 当前仓仍坚持 `projects/<项目名>/规划/3-分组/` 作为子路径 landing，且主产物按 `第N集.md` 落盘
   - [x] 导演阶段专属字段未被误迁入规划阶段
 - evidence_paths:
   - `.agents/skills/aigc/1-规划/SKILL.md`
@@ -144,9 +198,9 @@
 ### Case-20260410-AIGC-PLANNING-BOOTSTRAP-DIRECTOR-ROOT
 
 - milestone_type: source_contract_change
-- outcome: 将 `1-规划` 的项目级运行时升级为“以 `projects/<项目名>/1-规划/` 承接父级阶段产物与验收，同时允许 `1-分集` 在 `Init/` 写 bootstrap 产物，并在分集确定后立即创建 `projects/<项目名>/编导/第N集.json` 根文件”。
+- outcome: 将 `1-规划` 的项目级运行时升级为“以 `projects/<项目名>/规划/` 承接父级阶段产物与验收，同时允许 `1-分集` 在 `Init/` 写 bootstrap 产物，并在分集确定后立即创建 `projects/<项目名>/编导/第N集.json` 根文件”。
 - root_cause_or_design_decision: 用户明确要求后续 `2-组间` 与 `3-明细` 都围绕一个统一 JSON 根文件工作；若 `1-规划/1-分集` 不先创建这个文件，后续阶段只能继续各自生成自己的 episode 真相。
-- final_fix_or_heuristic: 将目录真源上收至 `.agents/skills/aigc/_shared/project-runtime-layout.md`，并把 `1-规划` 的阶段根目录固定为 `projects/<项目名>/1-规划/`；其中仅 `1-分集` 在落 `Init/episode-split-*` 的同时，按 bootstrap template 批量创建 `projects/<项目名>/编导/第N集.json`。
+- final_fix_or_heuristic: 将目录真源上收至 `.agents/skills/aigc/_shared/project-runtime-layout.md`，并把 `1-规划` 的阶段根目录固定为 `projects/<项目名>/规划/`；其中仅 `1-分集` 在落 `Init/episode-split-*` 的同时，按 bootstrap template 批量创建 `projects/<项目名>/编导/第N集.json`。
 - prevention_or_replication_checklist:
   - [x] `1-规划/SKILL.md` 已改写到 `1-规划/`
   - [x] `1-分集/SKILL.md` 已声明 bootstrap `编导/第N集.json`

@@ -73,10 +73,10 @@ flowchart LR
 
 ## Canonical Landing
 
-- 变体根目录：`projects/<项目名>/1-规划/2-格式/标准剧/`
-- 主合同：`projects/<项目名>/1-规划/2-格式/标准剧/格式合同.md`
-- 最小样例：`projects/<项目名>/1-规划/2-格式/标准剧/格式样例.md`
-- 局部验收：`projects/<项目名>/1-规划/2-格式/标准剧/validation-report.md`
+- 变体根目录：`projects/<项目名>/规划/2-格式/标准剧/`
+- 主合同：`projects/<项目名>/规划/2-格式/标准剧/格式合同.md`
+- 最小样例：`projects/<项目名>/规划/2-格式/标准剧/格式样例.md`
+- 局部验收：`projects/<项目名>/规划/2-格式/标准剧/validation-report.md`
 
 ## VSM Complexity (Mandatory)
 

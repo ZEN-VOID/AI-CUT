@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 规划阶段"
   short_description: "把项目种子路由到分集、格式、分组或节奏，并生成规划层真源"
-  default_prompt: "Use $aigc-planning to route this task into episode splitting, format planning, grouping, or post-group rhythm planning, then output planning artifacts under projects/<项目名>/1-规划/."
+  default_prompt: "Use $aigc-planning to route this task into episode splitting, format planning, grouping, or post-group rhythm planning, then output planning artifacts under projects/<项目名>/规划/."

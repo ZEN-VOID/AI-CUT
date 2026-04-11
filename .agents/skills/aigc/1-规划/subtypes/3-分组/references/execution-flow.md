@@ -38,7 +38,7 @@ flowchart TD
 
 1. 读取 `projects/<项目名>/0-Init/north_star.yaml`
 2. 读取 `projects/<项目名>/0-Init/init_handoff.yaml`
-3. 读取 `projects/<项目名>/1-规划/1-分集/第N集.md` 或其他合法待分组材料
+3. 读取 `projects/<项目名>/规划/1-分集/第N集.md` 或其他合法待分组材料
 4. 检查是否存在跨集诉求；若存在，立即回退到 `1-分集`
 
 ### Tranche B：路由与量化锁定

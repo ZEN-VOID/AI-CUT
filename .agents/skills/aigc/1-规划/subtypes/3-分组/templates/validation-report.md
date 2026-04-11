@@ -4,7 +4,7 @@
 
 - `projects/<项目名>/0-Init/north_star.yaml`
 - `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/1-规划/1-分集/第1集.md`
+- `projects/<项目名>/规划/1-分集/第1集.md`
 
 ## 路由决议
 

@@ -1,6 +1,6 @@
 ---
 name: aigc-subject
-description: Use when operating the subject stage under `projects/<项目名>/4-主体/`, especially when routing work across inventory, design, audit, and panel production for characters, scenes, and props.
+description: Use when operating the subject stage under `projects/<项目名>/主体/`, especially when routing work across inventory, design, audit, and panel production for characters, scenes, and props.
 governance_tier: full
 ---
 
@@ -94,7 +94,7 @@ flowchart TD
 ## Execution Summary
 
 - `4-主体` 负责阶段级路由，不替代叶子技能的局部合同。
-- canonical 阶段根目录仍为 `projects/<项目名>/4-主体/`。
+- canonical 阶段根目录仍为 `projects/<项目名>/主体/`。
 - 详细 workflow、落点与顾问团运行时见 `references/execution-flow.md`。
 
 ## Output Summary

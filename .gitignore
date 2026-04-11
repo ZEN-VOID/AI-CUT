@@ -18,6 +18,11 @@
 /.codex/state*.sqlite-wal
 /.env
 /.tmp/
+/PRPs/
+/projects/
+/projects/晴深不渝/
+/input/
+/reports/
 /.DS_Store
 .DS_Store
 __pycache__/

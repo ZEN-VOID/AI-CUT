@@ -391,7 +391,7 @@ def main() -> int:
     parser.add_argument(
         "--input",
         required=True,
-        help="输入目录，通常为 projects/<项目名>/1-规划/3-分组",
+        help="输入目录，通常为 projects/<项目名>/规划/3-分组",
     )
     args = parser.parse_args()
 

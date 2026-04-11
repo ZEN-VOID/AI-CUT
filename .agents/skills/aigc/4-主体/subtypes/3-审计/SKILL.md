@@ -1,6 +1,6 @@
 ---
 name: aigc-subject-audit
-description: Use when auditing subject design outputs under `projects/<项目名>/4-主体/2-设计/`, especially when characters, scenes, or props need structured review, repair verdicts, or canonical writeback guidance.
+description: Use when auditing subject design outputs under `projects/<项目名>/主体/2-设计/`, especially when characters, scenes, or props need structured review, repair verdicts, or canonical writeback guidance.
 governance_tier: full
 ---
 
@@ -84,7 +84,7 @@ flowchart TD
 ## Execution Summary
 
 - `3-审计` 负责审计闭环，不越权代替 `2-设计` 或 `4-面板` 的执行。
-- canonical 落点仍为 `projects/<项目名>/4-主体/3-审计/`。
+- canonical 落点仍为 `projects/<项目名>/主体/3-审计/`。
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`。
 
 ## Output Summary
@@ -121,7 +121,7 @@ flowchart TD
   - `.agents/skills/aigc/4-主体/subtypes/3-审计/SKILL.md`
   - `.agents/skills/aigc/4-主体/subtypes/3-审计/CONTEXT.md`
   - `.agents/skills/aigc/4-主体/subtypes/3-审计/references/*.md`
-  - `projects/<项目名>/4-主体/2-设计/`
+  - `projects/<项目名>/主体/2-设计/`
 - `Meta Rule Source`
   - `.agents/skills/aigc/4-主体/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`

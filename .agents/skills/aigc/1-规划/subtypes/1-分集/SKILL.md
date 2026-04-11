@@ -115,6 +115,7 @@ flowchart LR
 
 - `projects/<项目名>/Init/north_star.yaml`
 - `projects/<项目名>/Init/init_handoff.yaml`
+- `projects/<项目名>/Init/story-source-manifest.yaml`
 - 用户指定的故事主源文件，或当前项目工作区内已明确的故事源集合
 
 ### 合法故事源类型
@@ -131,6 +132,36 @@ flowchart LR
 2. 若输入已是分镜脚本或混合剧本，现有场次、镜头组、运镜提示、视角切换、时间跳转都视为原文证据的一部分，可同时服务边界判断与 `【剧本正文】` 保留。
 3. 用户显式指定的集数、边界或禁拆剧情包，优先级高于默认推断。
 4. 只有当下游明确要求标准剧本化或分镜结构化时，才在后续阶段处理这些镜头语言；本阶段不得擅自改写为纯小说叙述。
+
+## Story Source Readiness Gate
+
+进入 `1-分集` 前必须读取：
+
+- `projects/<项目名>/Init/story-source-manifest.yaml`
+- `.agents/skills/aigc/_shared/story-source-contract.md`
+
+硬规则：
+
+1. 只有当 `primary_story_source.status == ready` 且 `readiness.can_enter_episode_split == true` 时，才允许进入分集执行。
+2. 若 `readiness.can_finalize_full_season_episode_split != true`，本轮只能按 `coverage_scope` 做增量/局部分集，且必须显式写出缺口与未覆盖范围。
+3. `development_briefs` 默认只能作为辅助理解，不得直接冒充主故事源。
+4. 若 manifest 表示阻塞，必须先返回“故事源补充卡”，不得直接开始切文。
+5. 若用户明确授权“仅凭现有 brief 做开发式分集”，必须把该授权写回 `story-source-manifest.yaml` 后再执行。
+
+### 故事源补充卡（唯一合法提示）
+
+```markdown
+故事源补充卡
+
+当前还不能正式进入 `1-规划/1-分集`，因为缺少可覆盖分集边界的主故事源。
+
+请补充：
+
+1. 主故事源类型：小说原文 / 剧本原文 / 口述故事整理稿 / 其他
+2. 文件路径：请优先放到 `projects/<项目名>/故事/`
+3. 覆盖范围：全文 / 前N章 / 指定段落
+4. 是否允许仅凭现有执行案或大纲做“开发式分集”：是 / 否
+```
 
 ## 变量场景识别与策略映射
 
@@ -180,6 +211,7 @@ flowchart LR
 ## Canonical Landing
 
 - 规划落点：`projects/<项目名>/Init/`
+- 项目故事目录：`projects/<项目名>/故事/`
 - 分集规划主文件：`projects/<项目名>/Init/episode-split-plan.json`
 - 证据侧车：`projects/<项目名>/Init/episode-split-report.md`
 - 可选索引：`projects/<项目名>/Init/episode-index.json`
@@ -205,15 +237,16 @@ flowchart LR
 
 本节只保留主流程摘要；详细流程蓝图、tranche、回退与停止条件以 `step-by-step` 路由结果 `references/execution-flow.md` 为准。
 
-1. 读取上层 `1-规划` 合同、`0-Init` 种子与故事源集合。
-2. 建立输入清单，确认故事源范围、顺序与累计字数。
-3. 按 `P1 -> P2 -> P3` 唯一主路由裁决。
-4. 加载 `references/type-strategies.md` 中对应策略细则。
-5. 生成候选边界与逐集规划表。
-6. 执行覆盖率校验与边界可解释性检查。
-7. 按 `references/output-template.md` 落盘 `episode-split-plan.json`、`episode-split-report.md` 与可选索引。
-8. 对每一集动态加载 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`，首次创建 `projects/<项目名>/编导/第N集.json`。
-9. 输出 PASS/FAIL、失败码、返工入口与下一阶段建议。
+1. 读取上层 `1-规划` 合同、`Init` 种子、`story-source-manifest.yaml` 与故事源集合。
+2. 先检查故事源 readiness；若未放行，返回“故事源补充卡”并停止执行；若仅具备局部覆盖，则进入增量分集模式。
+3. 建立输入清单，确认故事源范围、顺序与累计字数。
+4. 按 `P1 -> P2 -> P3` 唯一主路由裁决。
+5. 加载 `references/type-strategies.md` 中对应策略细则。
+6. 生成候选边界与逐集规划表。
+7. 执行覆盖率校验与边界可解释性检查。
+8. 按 `references/output-template.md` 落盘 `episode-split-plan.json`、`episode-split-report.md` 与可选索引。
+9. 对每一集动态加载 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`，首次创建 `projects/<项目名>/编导/第N集.json`。
+10. 输出 PASS/FAIL、失败码、返工入口与下一阶段建议；若当前只完成局部分集，必须显式注明“非整季正式完成”。
 
 ## 输出结构规范
 
@@ -336,7 +369,7 @@ flowchart LR
 
 1. 直接进入本叶子技能时，仍必须先读取 `projects/<项目名>/team.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 若顾问团启用，则由 `策划` 先对分集边界、集级规模与结构粒度给出前置建议。
-3. 阶段级 `projects/<项目名>/1-规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
+3. 阶段级 `projects/<项目名>/规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
 4. 本叶子技能只产出局部分集结论，不夺取主代理的阶段 canonical 写回权。
 
 ## SKILL vs CONTEXT Placement Matrix

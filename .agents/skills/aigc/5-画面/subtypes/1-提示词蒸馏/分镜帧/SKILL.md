@@ -94,8 +94,8 @@ flowchart TD
 
 ## Output Summary
 
-- canonical 主产物：`projects/<项目名>/5-画面/分镜帧/第N集/第N集.json`
-- 可选追溯文件：`projects/<项目名>/5-画面/分镜帧/第N集/_manifest.json`
+- canonical 主产物：`projects/<项目名>/画面/分镜帧/第N集/第N集.json`
+- 可选追溯文件：`projects/<项目名>/画面/分镜帧/第N集/_manifest.json`
 - 共享模板真源：`.agents/skills/aigc/5-画面/_shared/image-generation-input.template.json`
 - 当前无 `.txt` 派生视图
 - 详细 JSON 结构、prompt 规则与最小追溯要求见 `references/output-template.md`

@@ -67,10 +67,11 @@ flowchart LR
 
 - `projects/<项目名>/`
 - `projects/<项目名>/Init/`
-- `projects/<项目名>/1-规划/`
+- `projects/<项目名>/故事/`
+- `projects/<项目名>/规划/`
 - `projects/<项目名>/编导/`
-- `projects/<项目名>/4-主体/`
-- `projects/<项目名>/5-画面/`
+- `projects/<项目名>/主体/`
+- `projects/<项目名>/画面/`
 - `projects/<项目名>/视频/`
 - `projects/<项目名>/后期/`
 
@@ -78,9 +79,11 @@ flowchart LR
 
 - 主文件：`projects/<项目名>/Init/north_star.yaml`
 - 伴生 handoff：`projects/<项目名>/Init/init_handoff.yaml`
+- 故事源登记：`projects/<项目名>/Init/story-source-manifest.yaml`
 - 访谈摘要：`projects/<项目名>/Init/interview_summary.md`
 - 确认卡：`projects/<项目名>/Init/confirmation_card.md`
 - runtime 布局真源：`.agents/skills/aigc/_shared/project-runtime-layout.md`
+- 故事源合同真源：`.agents/skills/aigc/_shared/story-source-contract.md`
 
 ### Project Governance Artifacts
 
@@ -110,12 +113,14 @@ flowchart LR
 ### `0-Init` 首次生成但不独占
 
 - `projects/<项目名>/team.yaml`
+- `projects/<项目名>/Init/story-source-manifest.yaml`
 
 说明：
 
 1. `team.yaml` 的首次生成责任在 `0-Init`。
 2. 但它的长期真源归属是项目级治理工件，不是 `Init/` 私有阶段资产。
 3. `1-规划 / 2-组间 / 3-明细 / 4-主体` 后续都应直接读取项目根 `team.yaml`。
+4. `story-source-manifest.yaml` 的首次生成责任也在 `0-Init`，但后续由 `1-规划` 持续消费和更新其 readiness。
 
 ### `0-Init` 不拥有
 
@@ -155,7 +160,37 @@ flowchart LR
 1. `north_star.yaml` 只承接长期有效、不应轻易漂移的项目总约束。
 2. `init_handoff.yaml` 承接阶段入口种子、来源分层和未决问题，不把整轮对话原样倒进去。
 3. 若某信息只在当前初始化会话有意义，不应写进 `north_star.yaml`，而应进入 `interview_summary.md` 或 `project_state.yaml`。
-4. 初始化可一次性预建 `Init / 1-规划 / 编导 / 4-主体 / 5-画面 / 视频 / 后期` 七个 runtime 根目录。
+4. 初始化可一次性预建 `Init / 故事 / 规划 / 编导 / 主体 / 画面 / 视频 / 后期` 八个 runtime 根目录。
+
+## Story Source Manifest Contract (`story-source-manifest.yaml`，Mandatory)
+
+`story-source-manifest.yaml` 是“项目故事主源是否已真正到位”的唯一登记真源：
+
+- `projects/<项目名>/Init/story-source-manifest.yaml`
+
+起草与更新时必须读取：
+
+- `.agents/skills/aigc/_shared/story-source-contract.md`
+- `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`
+
+硬规则：
+
+1. 无论当前是否已拿到小说原文/剧本原文，`0-Init` 都必须生成 `story-source-manifest.yaml`。
+2. 若只有执行案、角色设定、方法论文档或结构大纲，这些只能登记为 `development_briefs`，不得冒充 `primary_story_source`。
+3. 若 `primary_story_source.status != ready`，必须显式写出：
+   - `readiness.can_enter_episode_split: false`
+   - `blocking_reason`
+   - `required_user_action`
+   - 标准补充提示
+4. 若主故事源已开始落盘，但只覆盖部分正文，则必须显式写出：
+   - `readiness.can_enter_episode_split: true`
+   - `readiness.can_finalize_full_season_episode_split: false`
+   - `readiness.split_scope: incremental`
+   - `partial_limitations`
+   - 仍需继续补源的 `required_user_action`
+5. 故事主源文件本体默认落到 `projects/<项目名>/故事/`；`Init/` 只登记 manifest，不复制正文大文件。
+6. `0-Init` 可以在故事主源缺失时完成立项，但不得暗示 `1-规划/1-分集` 已具备正式进入条件。
+7. 只要至少已有一集/一章/一个连续正文段落并被登记为 `primary_story_source`，就不得把覆盖范围内的 `1-分集` 一并判死；只能把“整季正式分集”保持未放行。
 
 ## Initialization Mode Contract (Mandatory)
 
@@ -175,6 +210,13 @@ flowchart LR
 4. 一旦模式锁定，只加载该模式对应的 `module-spec.md` 作为主执行真源。
 5. `主创会诊模式` 与 `快速成案模式` 禁止回退成长问卷；最多允许 1 张阻塞/裁决卡。
 6. 模式元选项卡只能在本节出现一次，其他章节不得重写。
+
+### 模式锁定闸门（新增硬门槛）
+
+1. 若用户尚未明确选择模式，且输入也未触发上表中的强制路由信号，必须先展示“初始化元选项卡”，不得直接进入任一模式执行。
+2. 仅有项目名、片名、题眼、单句概念或极简 brief，不足以自动视为用户已选择 `快速成案模式`。
+3. 在模式锁定前，允许做合同读取、模板核对与风险诊断；不得起草 `north_star`、`init_handoff`、`team.yaml` 或任何项目根治理工件。
+4. 若会话在模式锁定前被打断，恢复时第一动作仍应是补发“初始化元选项卡”，而不是沿未确认的模式继续。
 
 ### 初始化元选项卡（唯一合法展示位）
 
@@ -259,9 +301,9 @@ B. 你先综合，我只做最后确认
 2. `team.yaml` 必须落在项目根，而不是 `0-Init/` 子目录。
 3. 若用户选择“同一套顾问团贯穿三个角色”，必须把同一批 `shared_agents` 展开映射到 `策划 / 监制 / 评审` 三个角色，而不是只写一个平铺列表。
 4. `评审` 不是前置策划角色，默认只作用于对应阶段的最终验收闸门：
-   - `projects/<项目名>/1-规划/validation-report.md`
+   - `projects/<项目名>/规划/validation-report.md`
    - `projects/<项目名>/编导/validation-report.md`（适用于 `2-组间 / 3-明细`）
-   - `projects/<项目名>/4-主体/validation-report.md`
+   - `projects/<项目名>/主体/validation-report.md`
 5. 如果当前环境无法真实并发 subagents，也必须保留三角色结构，只把执行方式降级为顺序会诊。
 6. 无论当前初始化模式是否启用顾问团，都应落盘 `projects/<项目名>/team.yaml`：
    - 启用顾问团时：`enabled: true`
@@ -387,6 +429,7 @@ B. 你先综合，我只做最后确认
 
 - 已确定项目名与项目根目录
 - 已锁定 `init_mode`
+- `init_mode` 来自用户显式选择，或来自 `Initialization Mode Contract` 中的明确触发信号；不得来自助手自行猜测
 - `north_star.yaml` 已具备最小核心字段
 - `init_handoff.yaml` 已具备阶段入口种子与 `unknowns`
 - `project_state.yaml` 已能指向主工件与推荐下一阶段
@@ -396,22 +439,25 @@ B. 你先综合，我只做最后确认
 
 1. 确认或创建 `projects/<项目名>/`。
 2. 读取根 `.agents/skills/aigc/SKILL.md` 与本目录 `CONTEXT.md`。
-3. 发送一次初始化元选项卡并锁定模式。
+3. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并锁定模式；未锁定前不得起草任何初始化产物。
 4. 只加载对应模式的 `module-spec.md`。
 5. 读取 `templates/north-star.template.yaml`、`templates/init-handoff.template.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`。
-6. 收集最小充分信息，先生成项目根 `team.yaml` 草案，锁定 `enabled + team_setup + roles`。
-7. 生成 `north_star` 草案，并写入 `adaptation_strategy` 的长期节奏政策。
-8. 生成 `init_handoff` 草案，明确 `team_ref + stage_entry_seeds + unknowns + sources_breakdown`，尤其补齐 `directing_seed.original_adherence` 与重排授权。
-9. 起草 `mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml` 与 `project_state.yaml`。
-10. 同步生成 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` 的初始化骨架。
-11. 输出确认卡，通过后落盘全部工件。
-12. 返回唯一推荐阶段入口。
+6. 读取 `.agents/skills/aigc/_shared/story-source-contract.md` 与 `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`。
+7. 收集最小充分信息，先生成项目根 `team.yaml` 草案，锁定 `enabled + team_setup + roles`。
+8. 生成 `story-source-manifest.yaml`；若主故事源缺失，显式登记阻塞原因与补充提示。
+9. 生成 `north_star` 草案，并写入 `adaptation_strategy` 的长期节奏政策。
+10. 生成 `init_handoff` 草案，明确 `team_ref + stage_entry_seeds + unknowns + sources_breakdown`，尤其补齐 `directing_seed.original_adherence` 与重排授权。
+11. 起草 `mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml` 与 `project_state.yaml`。
+12. 同步生成 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` 的初始化骨架。
+13. 输出确认卡，通过后落盘全部工件。
+14. 返回唯一推荐阶段入口。
 
 ## Completion Standard
 
 - 已明确项目根目录
 - 已明确初始化模式
 - 已产出 `projects/<项目名>/team.yaml`
+- 已产出 `projects/<项目名>/Init/story-source-manifest.yaml`
 - 已产出 `north_star.yaml`
 - 已产出 `init_handoff.yaml`
 - 已产出项目根初始化治理工件

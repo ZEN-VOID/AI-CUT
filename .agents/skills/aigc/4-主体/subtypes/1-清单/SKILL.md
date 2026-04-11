@@ -1,6 +1,6 @@
 ---
 name: aigc-subject-inventory
-description: Use when extracting and normalizing subject inventories under `projects/<项目名>/4-主体/1-清单/`, especially when characters, scenes, and props must be pulled from script truth into stable bridgeable records.
+description: Use when extracting and normalizing subject inventories under `projects/<项目名>/主体/1-清单/`, especially when characters, scenes, and props must be pulled from script truth into stable bridgeable records.
 governance_tier: full
 ---
 
@@ -88,7 +88,7 @@ flowchart TD
 ## Execution Summary
 
 - `1-清单` 负责主体抽取、归一与 bridge 建档，不越权做设计定稿。
-- canonical 落点仍为 `projects/<项目名>/4-主体/1-清单/`。
+- canonical 落点仍为 `projects/<项目名>/主体/1-清单/`。
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`。
 
 ## Output Summary

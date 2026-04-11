@@ -33,7 +33,7 @@ last_compaction: null
 | --- | --- | --- | --- | --- |
 | 直接沿用参考仓导演阶段字段，导致规划阶段越权 | 阶段边界层 | 收回到组级结构容器、边界理由与交接约束 | 在 `SKILL.md` 显式声明“继承结构，不继承导演字段” | 对应 `第N集.md` 不出现导演/镜头专属字段 |
 | 只写组名清单，没有主路由与边界理由 | 路由合同层 | 先补 `G1/G2/G3` 裁决，再重写分组计划 | 把“先判路由再分组”固化为硬规则 | `执行报告.md` 可解释为何这样分组 |
-| 直接照抄旧仓路径，产物漂移到 `output/影片/...` | 路径合同层 | 重写到 `projects/<项目名>/1-规划/3-分组/` | 将当前仓 canonical landing 固化到主合同 | 所有产物落在当前项目工作区 |
+| 直接照抄旧仓路径，产物漂移到 `output/影片/...` | 路径合同层 | 重写到 `projects/<项目名>/规划/3-分组/` | 将当前仓 canonical landing 固化到主合同 | 所有产物落在当前项目工作区 |
 | 把集内分组误写成 `第N组.md` 独立文件 | 输出粒度层 | 收回到对应 `第N集.md` 中写组级容器 | 固化“集粒度由 `1-分集` 决定，`3-分组` 只做集内分组” | 不再出现 `第N组.md`，且对应 `第N集.md` 内含分组表与组条目 |
 | 分组只是平均切块，未考虑依赖与并行性 | 结构设计层 | 重跑边界评估与依赖分析 | 在 `FIELD-GRP-DEP-06` 固化串并行检查 | 可明确判断哪些组能并行、哪些需串行 |
 | 只有 `SKILL.md + CONTEXT.md`，没有 route reference / template / validator 载体 | 真源机制层 | 补齐 `references/`、`templates/`、`scripts/validate_grouping.py` | 将分路细则、模板骨架、校验入口都提升为单一真源 | `3-分组` 不再只是可读合同，而具备可执行机制骨架 |
@@ -79,7 +79,7 @@ last_compaction: null
 - prevention_or_replication_checklist:
   - [x] `3-分组/SKILL.md` 已建立完整子技能合同
   - [x] `3-分组/CONTEXT.md` 已建立经验层
-  - [x] 路径合同已切换到 `projects/<项目名>/1-规划/3-分组/`
+  - [x] 路径合同已切换到 `projects/<项目名>/规划/3-分组/`
   - [x] 父级 `1-规划` 已能把当前子路径视为正式入口
 - evidence_paths:
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/SKILL.md`
@@ -94,7 +94,7 @@ last_compaction: null
 - milestone_type: source_contract_change
 - symptom_or_outcome: 用户明确要求 `3-分组` 不应再按 `第N组.md` 输出，而应继续按 `1-分集` 已确定的 `第N集.md` 输出，分组仅在集内部执行。
 - root_cause_or_design_decision: 直接技术原因不是不会分组，而是早先合同把“组级容器”误外化成了独立组文件，导致 `3-分组` 和 `1-分集` 在输出粒度上出现并行真相。
-- final_fix_or_extracted_heuristic: 将 `3-分组` 的 canonical output 收回为 `projects/<项目名>/1-规划/3-分组/第N集.md`，在单集文件内部落盘分组表和组条目；`group-plan.md` 仅保留总览，不再承担组级真源。
+- final_fix_or_extracted_heuristic: 将 `3-分组` 的 canonical output 收回为 `projects/<项目名>/规划/3-分组/第N集.md`，在单集文件内部落盘分组表和组条目；`group-plan.md` 仅保留总览，不再承担组级真源。
 - prevention_or_replication_checklist:
   - [x] `3-分组/SKILL.md` 已声明 `1-分集` 是集边界真源
   - [x] `3-分组/SKILL.md` 已禁止新增 `第N组.md`

@@ -1,6 +1,6 @@
 ---
 name: aigc-visuals
-description: Use when the `aigc` workflow reaches `projects/<项目名>/5-画面/` and needs to turn `projects/<项目名>/编导/第N集.json`, subject assets, or prior images into prompt packages, consistency controls, and generated outputs across multiple image types.
+description: Use when the `aigc` workflow reaches `projects/<项目名>/画面/` and needs to turn `projects/<项目名>/编导/第N集.json`, subject assets, or prior images into prompt packages, consistency controls, and generated outputs across multiple image types.
 governance_tier: full
 ---
 
@@ -21,7 +21,7 @@ governance_tier: full
 1. 哪些已有文件才是本轮画面任务的权威输入
 2. 当前任务应进入哪一个唯一画面类型子路径
 3. 该子路径需要怎样的 prompt 组合与一致性锚点
-4. 画面产物应落到 `projects/<项目名>/5-画面/` 的哪里
+4. 画面产物应落到 `projects/<项目名>/画面/` 的哪里
 
 本次结构已按最新内容输出型规范重构为：
 
@@ -49,7 +49,7 @@ governance_tier: full
 - 画面阶段父级路由合同
 - 三个画面类型子路径的主职责与默认入口解释
 - 基于已有文件的 prompt 组合与一致性处理总入口
-- `projects/<项目名>/5-画面/` 阶段真源落点
+- `projects/<项目名>/画面/` 阶段真源落点
 - 上游脚本锚点到下游图像资产的消费关系
 
 ### `5-画面` 不拥有
@@ -63,8 +63,8 @@ governance_tier: full
 ```mermaid
 flowchart TD
     A["编导/第N集.json 与既有锚点"] --> B{"识别 5-画面 任务类型"}
-    C["4-主体/ 与参考图"] --> B
-    D["5-画面/ 历史 prompt / 历史出图"] --> B
+    C["主体/ 与参考图"] --> B
+    D["画面/ 历史 prompt / 历史出图"] --> B
     B -->|"整组多格 storyboard"| E["subtypes/1-提示词蒸馏/分镜故事板"]
     B -->|"单一分镜ID / 首帧"| F["subtypes/1-提示词蒸馏/分镜帧"]
     B -->|"9:16 漫画页 / 气泡文字"| G["subtypes/1-提示词蒸馏/漫画"]
@@ -113,7 +113,7 @@ flowchart LR
 
 - 本阶段的第一事实源改为 `projects/<项目名>/编导/第N集.json`，结构口径固定遵循 `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `4-主体`、已有参考图和历史出图只作为一致性参照与资产锚点来源，不反向改写镜头事实
-- 阶段级产物统一写回 `projects/<项目名>/5-画面/`，并由 `validation-report.md` 记录路由、prompt 组合、一致性与验收
+- 阶段级产物统一写回 `projects/<项目名>/画面/`，并由 `validation-report.md` 记录路由、prompt 组合、一致性与验收
 - 详细输入合同、canonical landing、workflow 与 handoff 见 `references/execution-flow.md`
 
 ## Output Summary
@@ -136,7 +136,7 @@ flowchart LR
 - `分镜帧` 或 `漫画` 被误当成 `分镜故事板` 的必经下游
 - 上游没有合法 `分镜组列表[] / 分镜明细[]` 仍被直接送进 `5-画面`
 - 只出图片，不写 prompt 包、一致性依据或验收记录
-- 产物路径继续沿用旧仓 `output/影片/...` 而不是当前 `projects/<项目名>/5-画面/`
+- 产物路径继续沿用旧仓 `output/影片/...` 而不是当前 `projects/<项目名>/画面/`
 
 必经链路：
 

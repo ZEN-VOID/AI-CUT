@@ -1,6 +1,6 @@
 ---
 name: aigc-planning-rhythm
-description: Use when shaping episode-level rhythm under `projects/<项目名>/1-规划/4-节奏/`, especially after grouping is stable and when `0-Init` does not require preserving original pacing.
+description: Use when shaping episode-level rhythm under `projects/<项目名>/规划/4-节奏/`, especially after grouping is stable and when `0-Init` does not require preserving original pacing.
 governance_tier: full
 ---
 
@@ -14,11 +14,11 @@ governance_tier: full
 
 交付类型：`内容输出型`
 
-本子技能已按最新内容输出型规范重构为“主合同 + references 模块细则”结构，并以当前仓 `projects/<项目名>/1-规划/4-节奏/` 作为唯一阶段落点。
+本子技能已按最新内容输出型规范重构为“主合同 + references 模块细则”结构，并以当前仓 `projects/<项目名>/规划/4-节奏/` 作为唯一阶段落点。
 
 ## When to Use
 
-- 需要在 `projects/<项目名>/1-规划/4-节奏/` 下为某一集生成节奏规划。
+- 需要在 `projects/<项目名>/规划/4-节奏/` 下为某一集生成节奏规划。
 - `1-规划/3-分组/第N集.md` 已稳定，需要进一步判定主驱动、七步节奏、峰值账本与组级节奏刀法。
 - `0-Init/north_star.yaml` 或 `init_handoff.yaml` 明确 `original_adherence: false`，允许在分组后做节奏重组、前置、压缩、留白或有限交叉。
 - 用户明确要求“节奏 / 七步节奏蓝图 / 主驱动 / 峰值 / 节奏重排 / 原作节奏保留判断 / 钩子与 Exit 收束”。
@@ -57,7 +57,7 @@ flowchart TD
     B -->|"false"| D["锁定主驱动与顺序授权"]
     D --> E["生成七步节奏蓝图与峰值账本"]
     E --> F["写组级节奏刀法与风险回退"]
-    F --> G["落盘 projects/<项目名>/1-规划/4-节奏/第N集.md"]
+    F --> G["落盘 projects/<项目名>/规划/4-节奏/第N集.md"]
 ```
 
 ## Canonical Module References
@@ -72,7 +72,7 @@ flowchart TD
 ## Execution Summary
 
 - 本技能先做“原作节奏保留”布尔门，再做节奏蓝图；没有授权不进入结构级改写。
-- canonical 主产物仍为 `projects/<项目名>/1-规划/4-节奏/第N集.md`
+- canonical 主产物仍为 `projects/<项目名>/规划/4-节奏/第N集.md`
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`
 
 ## Output Summary
@@ -123,6 +123,6 @@ flowchart TD
 - 执行前默认联合读取：
   - `projects/<项目名>/0-Init/north_star.yaml`
   - `projects/<项目名>/0-Init/init_handoff.yaml`
-  - `projects/<项目名>/1-规划/1-分集/第N集.md`
-  - `projects/<项目名>/1-规划/2-格式/validation-report.md`
-  - `projects/<项目名>/1-规划/3-分组/第N集.md`
+  - `projects/<项目名>/规划/1-分集/第N集.md`
+  - `projects/<项目名>/规划/2-格式/validation-report.md`
+  - `projects/<项目名>/规划/3-分组/第N集.md`

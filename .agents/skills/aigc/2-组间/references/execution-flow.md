@@ -27,11 +27,11 @@
 ## Mandatory Workflow
 
 1. 读取 `projects/<项目名>/team.yaml`，并按需加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-2. 读取 `projects/<项目名>/Init/` 与 `projects/<项目名>/1-规划/` 的已有产物。
+2. 读取 `projects/<项目名>/Init/` 与 `projects/<项目名>/规划/` 的已有产物。
 3. 若顾问团启用且 `roles.supervision.members` 非空，先调用 `监制` 顾问团，再进入阶段路由。
 4. 判断当前请求属于三个子路径中的哪一个唯一主入口。
 5. 若目标是 `导演意图`，先检查 `全局风格`、`类型元素` 与必要的规划容器是否存在。
-6. 若请求混入节奏蓝图裁决，先检查 `projects/<项目名>/1-规划/4-节奏/第N集.md` 是否存在；不存在则回退补该规划层 handoff。
+6. 若请求混入节奏蓝图裁决，先检查 `projects/<项目名>/规划/4-节奏/第N集.md` 是否存在；不存在则回退补该规划层 handoff。
 7. 若目标子路径合同缺失，停止向下伪造，返回缺口与补建落点。
 8. 若目标子路径合同存在，则先完整读取 `projects/<项目名>/编导/第N集.json`，再进入对应子技能执行。
 9. 在阶段级 `validation-report.md` 前后按需调用 `评审` 顾问团。

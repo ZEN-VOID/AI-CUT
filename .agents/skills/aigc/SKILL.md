@@ -39,12 +39,17 @@ governance_tier: full
 ### Canonical Stage Landing
 
 - `projects/<项目名>/Init/`
-- `projects/<项目名>/1-规划/`
+- `projects/<项目名>/规划/`
 - `projects/<项目名>/编导/`
-- `projects/<项目名>/4-主体/`
-- `projects/<项目名>/5-画面/`
+- `projects/<项目名>/主体/`
+- `projects/<项目名>/画面/`
 - `projects/<项目名>/视频/`
 - `projects/<项目名>/后期/`
+
+说明：
+
+- 技能阶段名仍沿用 `1-规划 / 4-主体 / 5-画面`。
+- 项目 runtime 目录不再沿用这些阶段号，统一落为 `规划 / 主体 / 画面`。
 
 ### Canonical Runtime Artifacts
 

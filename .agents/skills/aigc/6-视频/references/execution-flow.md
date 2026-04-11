@@ -4,7 +4,7 @@
 
 - `projects/<项目名>/编导/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- 可选：`projects/<项目名>/4-主体/` 与 `projects/<项目名>/5-画面/` 中已存在的主体或画面锚点
+- 可选：`projects/<项目名>/主体/` 与 `projects/<项目名>/画面/` 中已存在的主体或画面锚点
 
 ## Canonical Landing
 

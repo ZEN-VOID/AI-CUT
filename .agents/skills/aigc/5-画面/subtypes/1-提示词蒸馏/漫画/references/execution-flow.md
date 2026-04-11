@@ -8,10 +8,10 @@
 
 ## Canonical Landing
 
-- 子路径根目录：`projects/<项目名>/5-画面/漫画/`
-- 单集目录：`projects/<项目名>/5-画面/漫画/第N集/`
-- 汇总 JSON：`projects/<项目名>/5-画面/漫画/第N集/第N集.json`
-- 汇总清单：`projects/<项目名>/5-画面/漫画/第N集/_manifest.json`（可选）
+- 子路径根目录：`projects/<项目名>/画面/漫画/`
+- 单集目录：`projects/<项目名>/画面/漫画/第N集/`
+- 汇总 JSON：`projects/<项目名>/画面/漫画/第N集/第N集.json`
+- 汇总清单：`projects/<项目名>/画面/漫画/第N集/_manifest.json`（可选）
 
 ## 输入合同
 
@@ -25,7 +25,7 @@
 ### 推荐输入
 
 - `projects/<项目名>/3-明细/第N集.md`，当需要补充对白原文或 markdown 上下文时再读取
-- `projects/<项目名>/4-主体/` 下的角色、场景、道具参考
+- `projects/<项目名>/主体/` 下的角色、场景、道具参考
 
 ### 输入处理原则
 

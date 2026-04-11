@@ -1,0 +1,28 @@
+manifest_version: "aigc-story-source/v1"
+source_root: "故事/"
+
+primary_story_source:
+  status: "missing"  # missing | ready
+  source_type: ""  # novel_original | script_original | oral_story_transcript | hybrid_story_text
+  path: ""
+  coverage_scope: ""
+  authoritative_for:
+    - "1-规划/1-分集"
+  notes: ""
+
+auxiliary_sources: []
+
+development_briefs: []
+
+readiness:
+  can_enter_episode_split: false
+  can_finalize_full_season_episode_split: false
+  split_scope: "blocked"  # blocked | incremental | full_season
+  blocking_reason: ""
+  partial_limitations: []
+  allowed_next_entries_when_blocked: []
+  required_user_action: []
+
+missing_prompt:
+  summary: ""
+  ask_user_to_provide: []

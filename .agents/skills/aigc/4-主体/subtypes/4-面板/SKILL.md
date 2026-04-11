@@ -1,6 +1,6 @@
 ---
 name: aigc-subject-panel
-description: Use when turning stable subject design outputs under `projects/<项目名>/4-主体/2-设计/` or approved audit results into panel-ready layout assets under `projects/<项目名>/4-主体/4-面板/`.
+description: Use when turning stable subject design outputs under `projects/<项目名>/主体/2-设计/` or approved audit results into panel-ready layout assets under `projects/<项目名>/主体/4-面板/`.
 governance_tier: full
 ---
 
@@ -89,7 +89,7 @@ flowchart TD
 ## Execution Summary
 
 - `4-面板` 负责布局化参照，不越权重做主体设计。
-- canonical 落点仍为 `projects/<项目名>/4-主体/4-面板/`。
+- canonical 落点仍为 `projects/<项目名>/主体/4-面板/`。
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`。
 
 ## Output Summary
@@ -126,7 +126,7 @@ flowchart TD
   - `.agents/skills/aigc/4-主体/subtypes/4-面板/SKILL.md`
   - `.agents/skills/aigc/4-主体/subtypes/4-面板/CONTEXT.md`
   - `.agents/skills/aigc/4-主体/subtypes/4-面板/references/*.md`
-  - `projects/<项目名>/4-主体/2-设计/`
+  - `projects/<项目名>/主体/2-设计/`
 - `Meta Rule Source`
   - `.agents/skills/aigc/4-主体/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`

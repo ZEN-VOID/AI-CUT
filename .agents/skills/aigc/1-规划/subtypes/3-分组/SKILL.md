@@ -37,7 +37,7 @@ governance_tier: full
 2. 先判主路由，再执行切分与归组
 3. 每个组都必须可追溯、可解释、可交接
 
-当前子技能的真源路径固定为 `projects/<项目名>/1-规划/3-分组/`，并沿用 `1-分集` 已锁定的 `第N集.md` 集粒度；不沿用参考仓的 `output/影片/.../2-导演/...` 路径合同。
+当前子技能的真源路径固定为 `projects/<项目名>/规划/3-分组/`，并沿用 `1-分集` 已锁定的 `第N集.md` 集粒度；不沿用参考仓的 `output/影片/.../2-导演/...` 路径合同。
 
 ## When to Use
 
@@ -89,7 +89,7 @@ flowchart LR
     A["projects/<项目名>/0-Init/north_star.yaml"] --> B["分组目标与约束"]
     C["projects/<项目名>/0-Init/init_handoff.yaml"] --> D["当前阶段入口种子"]
     E["1-分集 或 其他规划输入"] --> F["待分组材料"]
-    B --> G["projects/<项目名>/1-规划/3-分组/"]
+    B --> G["projects/<项目名>/规划/3-分组/"]
     D --> G
     F --> G
 ```
@@ -111,10 +111,10 @@ flowchart LR
 
 ## Canonical Landing
 
-- 子路径根目录：`projects/<项目名>/1-规划/3-分组/`
-- 集级主产物：`projects/<项目名>/1-规划/3-分组/第N集.md`
-- 主计划：`projects/<项目名>/1-规划/3-分组/group-plan.md`
-- 证据侧车：`projects/<项目名>/1-规划/3-分组/执行报告.md`
+- 子路径根目录：`projects/<项目名>/规划/3-分组/`
+- 集级主产物：`projects/<项目名>/规划/3-分组/第N集.md`
+- 主计划：`projects/<项目名>/规划/3-分组/group-plan.md`
+- 证据侧车：`projects/<项目名>/规划/3-分组/执行报告.md`
 
 ## 输入合同
 
@@ -142,7 +142,7 @@ flowchart LR
 1. `1-分集` 是“集边界真源”；哪些集存在、如何命名、集顺序如何排列，都由 `1-分集` 决定。
 2. `3-分组` 只允许在已存在的 `第N集.md` 内部做组级划分，不得新增 `第N组.md` 平行文档，不得重命名或重编号集文件。
 3. 若分组诉求实际跨越集边界，必须先回到 `1-分集` 重裁边界，再恢复 `3-分组`。
-4. `projects/<项目名>/1-规划/3-分组/第N集.md` 是该集分组结果的真源；`group-plan.md` 只能做总览，不得成为隐藏的第二真相。
+4. `projects/<项目名>/规划/3-分组/第N集.md` 是该集分组结果的真源；`group-plan.md` 只能做总览，不得成为隐藏的第二真相。
 
 ## 量化真源继承合同（Mandatory）
 
@@ -371,7 +371,7 @@ flowchart LR
   - 校验 frontmatter、强制章节、分组计划表、组级容器、依赖说明与报告区块
   - 校验 `默认组时长 / 分镜组时长映射` 与每组 `estimated_duration_seconds` 是否一致
 - 建议命令：
-  - `python3 .agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py --input "projects/<项目名>/1-规划/3-分组"`
+  - `python3 .agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py --input "projects/<项目名>/规划/3-分组"`
 
 补充规则：
 
@@ -424,7 +424,7 @@ flowchart LR
 
 1. 直接进入本叶子技能时，仍必须先读取 `projects/<项目名>/team.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 若顾问团启用，则由 `策划` 先对分组批次、执行波次与结构裁剪提供前置建议。
-3. 阶段级 `projects/<项目名>/1-规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
+3. 阶段级 `projects/<项目名>/规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
 4. 本叶子技能只产出局部分组结论，不夺取主代理的阶段 canonical 写回权。
 
 ## Root-Cause Execution Contract (Mandatory)

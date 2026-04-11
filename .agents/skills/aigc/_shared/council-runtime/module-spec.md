@@ -31,10 +31,10 @@
 
 | 当前阶段 | 默认前置顾问角色 | 评审时机 | canonical 写回权 |
 | --- | --- | --- | --- |
-| `1-规划` | `策划` | `projects/<项目名>/1-规划/validation-report.md` 前后 | 主代理 |
+| `1-规划` | `策划` | `projects/<项目名>/规划/validation-report.md` 前后 | 主代理 |
 | `2-组间` | `监制` | `projects/<项目名>/编导/validation-report.md` 前后 | 主代理 |
 | `3-明细` | `监制` | `projects/<项目名>/编导/validation-report.md` 前后 | 主代理 |
-| `4-主体` | `策划` | `projects/<项目名>/4-主体/validation-report.md` 前后 | 主代理 |
+| `4-主体` | `策划` | `projects/<项目名>/主体/validation-report.md` 前后 | 主代理 |
 
 ## Runtime Decision Contract
 

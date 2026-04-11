@@ -22,13 +22,15 @@
 
 | failure_or_outcome_type                                          | root_cause_layer | immediate_fix                                                              | systemic_prevention                                      | verification_point                                             |
 | ---------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
-| 直接继承旧仓路径，落点仍指向 `output/影片/...`                 | 路径合同层       | 重写到 `projects/<项目名>/1-规划/1-分集/`                                | 在主合同中锁定 Canonical Landing                         | 所有产物都落在当前项目工作区                                   |
+| 直接继承旧仓路径，落点仍指向 `output/影片/...`                 | 路径合同层       | 重写到 `projects/<项目名>/规划/1-分集/`                                | 在主合同中锁定 Canonical Landing                         | 所有产物都落在当前项目工作区                                   |
 | 只落 `第N集.md`，缺少证据侧车                                  | 输出合同层       | 补 `执行报告.md` 与验收结论                                              | 固化“逐集正文 + 证据侧车”双轨输出                      | 分集决策可追溯                                                 |
 | `P1/P2/P3` 主路由混用                                          | 路由层           | 强制先锁唯一主策略，再加载细则模块                                         | 在 VSM 中固定 `P1 -> P2 -> P3` 判定顺序                | 路由决议唯一且可解释                                           |
 | 路由细则散落在多份 `p1/p2/p3` 文档中，主合同与细则模块开始漂移 | 真源治理层       | 收敛为 `references/type-strategies.md` 单一策略真源                      | 将思维链、流程、类型策略、模板拆成四模块 `references/` | 主合同不再平行重写长细则                                       |
 | 混合剧本文本被误当脏数据                                         | 输入契约层       | 按证据保真重跑输入判定，把场次、镜头组、运镜提示视为原文证据并允许进入正文 | 在输入原则、类型策略与输出模板同时锁定“保留而非清洗”   | 混合文本既能稳定分集，也不会在 `【剧本正文】` 中被擅自小说化 |
 | 分集结果缺文或重文                                               | 覆盖率层         | 回跑输入累计 vs 分集累计校验                                               | 将覆盖率校验设为落盘前硬门槛                             | 源文累计与分集累计一致                                         |
 | 分集已确定，但没有为后续阶段创建统一 episode 根文件 | 运行时真源层 | 在输出 `episode-split-*` 的同时，按 bootstrap template 创建 `projects/<项目名>/编导/第N集.json` | 将 bootstrap 行为写入主合同、输出模板与 shared runtime layout，确保 `2-组间/3-明细` 共享同一根文件 | 每个已确定分集都能在 `projects/<项目名>/编导/` 下找到对应空 JSON |
+| 没有故事主源也直接开始分集 | 共享输入真源层 | 先读取 `story-source-manifest.yaml`，未放行则返回标准补充卡 | 将故事源缺失判断固化为 `Story Source Readiness Gate` | 没有主故事源时，`1-分集` 不再偷偷用执行案或印象流替代 |
+| 已有部分原文，却仍被整体判为不可分集 | readiness 语义层 | 将“允许进入增量分集”和“允许完成整季正式分集”拆成两层 gate | 在 manifest 中新增 `can_finalize_full_season_episode_split` 与 `split_scope` | 至少一集原文存在时，可进入覆盖范围内的增量分集 |
 
 ## Repair Playbook
 
@@ -48,6 +50,59 @@
 - 当 `P1` 已成立时，`P2/P3` 只能做边界求解辅助，不应反向推翻主路由规模约束。
 - 把思维链、流程、类型策略、输出模板拆成四个核心模块后，主 `SKILL.md` 更适合保留硬门槛和 field gate，而不是继续膨胀成长说明书。
 - 当后续多个阶段都要围绕同一 episode 文件持续 patch 时，`1-分集` 的最高杠杆动作不是多写一份分集正文，而是先把空的统一根文件创建出来。
+- 若项目只有执行案、人物设定或方法论文档，最稳的处理是把它们登记为 `development_briefs`，并明确告诉用户“还不能正式分集”，而不是让模型擅自假定它们等价于小说原文。
+- 若项目已经落盘至少一集原文，最稳的处理不是继续卡死，而是进入“增量分集”，并在输出里标明当前只覆盖到哪里。
+- 若项目把正文目录改成 `故事/`，`1-分集` 最先要同步的是 manifest 和补充卡里的 canonical 路径，而不是局部硬编码。
+
+### Case-20260410-AIGC-PLAN-EPS-STORY-SOURCE-GATE
+
+- milestone_type: source_contract_change
+- outcome: 为 `1-分集` 增加了故事源 readiness gate，并把“缺失主故事源时的标准补充提示”固化进合同。
+- root_cause_or_design_decision: 子技能原先要求读取故事源集合，却没有项目级 manifest 和统一补充提示，导致执行时容易把执行案、人物设定或摘要文档误当成可正式分集的主故事源。
+- final_fix_or_heuristic: 进入 `1-分集` 前先读取 `Init/story-source-manifest.yaml`；若 `primary_story_source.status == ready` 且 `can_enter_episode_split == true`，即可进入覆盖范围内的增量分集；只有 `can_finalize_full_season_episode_split == true` 时才可宣称整季正式分集完成，否则返回标准“故事源补充卡”或局部覆盖说明。
+- prevention_or_replication_checklist:
+  - [x] `story-source-manifest.yaml` 已成为必需输入
+  - [x] `_shared/story-source-contract.md` 已作为共享真源接入
+  - [x] 标准补充提示已固定在主合同
+  - [x] `development_briefs` 已明确不能天然充当主故事源
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确指出当前 `0-Init` 与 `1-规划` 缺少故事源落盘与缺失提示。
+
+### Case-20260410-AIGC-PLAN-EPS-PARTIAL-ENTRY
+
+- milestone_type: source_contract_change
+- outcome: 将 `1-分集` 的故事源 gate 从“全-or-无”修正为“局部可进、整季另判”，允许至少一集原文驱动增量分集。
+- root_cause_or_design_decision: 原 gate 把 `can_enter_episode_split` 等同于“整季正式分集完成条件”，导致只导入首集原文时也被迫停机。
+- final_fix_or_heuristic: `1-分集` 应先问“当前覆盖范围能不能切”，再问“能不能切完整季”；这是两个不同问题，必须用两层 readiness 表达。
+- prevention_or_replication_checklist:
+  - [x] `1-分集/SKILL.md` 已加入增量模式说明
+  - [x] `CONTEXT.md` 已记录部分原文的稳定处理方式
+  - [x] 项目 manifest 已具备 `split_scope`
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+- user_feedback_or_constraint: 用户明确要求“原文至少有一集应就允许进入规划了”。
+
+### Case-20260410-AIGC-PLAN-EPS-STORY-DIR-RENAME
+
+- milestone_type: source_contract_change
+- outcome: 将 `1-分集` 的故事正文 canonical 目录同步改为 `故事/`，并保持 manifest 仍是唯一登记真源。
+- root_cause_or_design_decision: 若只改项目目录名，`1-分集` 的补充卡与输入合同仍会继续把用户导向旧路径。
+- final_fix_or_heuristic: 对目录级重命名，叶子技能只负责消费 shared contract 指定的新 landing，不应自行保留历史路径。
+- prevention_or_replication_checklist:
+  - [x] `1-分集/SKILL.md` 的补充卡已改到 `故事/`
+  - [x] `1-分集/CONTEXT.md` 已记录目录重命名策略
+  - [x] 项目 manifest 已同步新 `source_root`
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求“`projects/晴深不渝/故事源` 重命名为 `故事`（源层同步）”。
 
 # 镜头的语法：可执行规则条目（面向 LLM 任务）
 
@@ -396,12 +451,12 @@
 
 - milestone_type: source_contract_change
 - symptom: 当前仓原本缺少可执行的 `1-分集` 子技能合同，直接照搬参考仓会把旧路径合同一并带入。
-- root cause: 真正缺口不是“复制旧技能”，而是把分集能力迁入当前 `projects/<项目名>/1-规划/1-分集/` 体系，并接回父级 `1-规划` 路由。
+- root cause: 真正缺口不是“复制旧技能”，而是把分集能力迁入当前 `projects/<项目名>/规划/1-分集/` 体系，并接回父级 `1-规划` 路由。
 - final fix: 先补父级 `1-规划` 合同，再为 `1-分集` 建立当前仓可执行的主合同、经验层与项目内落点。
 - prevention checklist:
   - [X] 主路由已固定为 `P1 > P2 > P3`
   - [X] 主产物与证据侧车已同时定义
-  - [X] 路径合同已切换到 `projects/<项目名>/1-规划/1-分集/`
+  - [X] 路径合同已切换到 `projects/<项目名>/规划/1-分集/`
   - [X] 父级 `1-规划` 已能路由到当前子技能
 - evidence paths:
   - `.agents/skills/aigc/1-规划/SKILL.md`

@@ -23,7 +23,7 @@
 | `分镜帧` / `漫画` 被误当成 `分镜故事板` 下游 | 子路径关系层 | 重申三者是同源 sibling，而不是串行下游 | 在父级显式写出 `T1-mainline / T2-branch` 关系 | 单帧或漫画任务不再被要求先做 storyboard |
 | 上游共享导演文件没有合法 `分镜组列表[] / 分镜明细[]` 却仍被推进到本阶段 | 输入契约层 | 先回到 `2-组间 / 3-明细` 补齐共享导演主文件 | 在父级输入真源合同中固化“无合法共享分镜数据不进 5-画面” | 错层输入可在父级被拦截 |
 | 只出图片，不写 prompt 包、一致性说明或验收记录 | 输出契约层 | 补写 `validation-report.md` 与对应子路径 sidecar / manifest | 在父级 `output-template.md` 固化“图片不可脱离追溯” | 产物可回链 prompt、锚点与来源文件 |
-| 产物路径继续沿用 ZEN-VOID 的 `output/影片/...` | 落点治理层 | 重写为 `projects/<项目名>/5-画面/...` | 在父级 `Canonical Landing` 固化当前仓路径真源 | 新文档与后续脚本不再引用旧路径 |
+| 产物路径继续沿用 ZEN-VOID 的 `output/影片/...` | 落点治理层 | 重写为 `projects/<项目名>/画面/...` | 在父级 `Canonical Landing` 固化当前仓路径真源 | 新文档与后续脚本不再引用旧路径 |
 | `5-画面` 与上游 `1-分镜表现` 语义重叠，继续承担“重新定义分镜事实”的旧定位 | 阶段边界层 | 把父级定位改写为“围绕已有文件做 prompt 组合、一致性与生图” | 在根 `SKILL.md` 和思维链中固化“上游定事实、5-画面做图像化执行” | 阶段边界不再与上游重叠 |
 
 ## Repair Playbook
@@ -45,6 +45,7 @@
 - 当阶段合同开始承载过多字段、流程、路由与输出细则时，优先升级为 `SKILL.md + references/*.md` 的模块化真源结构，而不是继续在主合同里堆长表。
 - 对多子路径父级阶段来说，思维链真源最先服务的不是叶子层产物细节，而是 `输入归属 -> 唯一路由 -> prompt/一致性 -> validation-report 闭环` 这条判断链。
 - 对 `5-画面` 的叶子子技能来说，升级思维链时优先保住现有 `FIELD-SB-*` 接口与对象边界，再补 `模式与对象`、`Think-Think Design Snapshot`、`工具后反思` 和 `Gate Summary`，不要为了追新规范而改坏下游字段引用。
+- 对 `5-画面` 来说，技能编号只属于技能树，不应继续污染项目路径；项目 runtime 目录应固定为 `画面/`。
 
 ## Case Log
 
@@ -77,7 +78,7 @@
   - [x] 父级 `SKILL.md` 已补
   - [x] 父级 `CONTEXT.md` 已补
   - [x] 三个子路径已被父级显式路由
-  - [x] 当前仓路径真源已改写为 `projects/<项目名>/5-画面/`
+  - [x] 当前仓路径真源已改写为 `projects/<项目名>/画面/`
   - [x] 根技能状态待同步上收
 - evidence_paths:
   - `.agents/skills/aigc/5-画面/SKILL.md`
@@ -111,7 +112,7 @@
 - milestone_type: source_contract_change
 - outcome: 将 `.agents/skills/aigc/5-画面/references/chain-of-thought.md` 从旧版三张表升级为最新版 `think-think` 父级思维链合同。
 - root_cause_or_design_decision: 旧版文件虽保留 `FIELD-SB-ROOT-01` 到 `04`，但缺少 `模式与任务对象`、`启发式工作链`、`三轴三重`、`可见快照分层`、`工具后反思` 与 `Gate Summary`，无法承载 `5-画面` 这种多子路径父级真正需要的唯一路由与阶段闭环判断。
-- final_fix_or_heuristic: 保留原字段接口不变，把父级判断升级为“先锁 `[分镜N]` 与阶段归属，再裁决 `分镜故事板 / 分镜帧 / 漫画` 唯一路由，最后收口到 `projects/<项目名>/5-画面/` 与 `validation-report.md`”的 reasoning-friendly 合同。
+- final_fix_or_heuristic: 保留原字段接口不变，把父级判断升级为“先锁 `[分镜N]` 与阶段归属，再裁决 `分镜故事板 / 分镜帧 / 漫画` 唯一路由，最后收口到 `projects/<项目名>/画面/` 与 `validation-report.md`”的 reasoning-friendly 合同。
 - prevention_or_replication_checklist:
   - [x] 已补 `模式与任务对象`
   - [x] 已补 `Think-Think Design Snapshot`
@@ -138,6 +139,23 @@
   - [x] 原 `FIELD-SB-SHEET-*`、`FIELD-SB-FRAME-*`、`FIELD-SB-COMIC-*` 接口保持不变
   - [x] 经验层已回写根 `5-画面/CONTEXT.md`
 - evidence_paths:
+
+### Case-20260410-AIGC-VISUAL-RUNTIME-DIR-RENAME
+
+- milestone_type: source_contract_change
+- outcome: 将画面阶段的 project runtime canonical landing 从带号目录收敛为 `projects/<项目名>/画面/`。
+- root_cause_or_design_decision: 先前画面阶段沿用了带编号的旧项目目录名，导致 runtime 布局与用户要求的无序号目录不一致。
+- final_fix_or_heuristic: `5-画面` 继续作为技能阶段名存在，但项目级执行流、输出模板和下游引用统一改写为 `projects/<项目名>/画面/`。
+- prevention_or_replication_checklist:
+  - [x] `5-画面/SKILL.md` 与 `references/*.md` 已切到 `projects/<项目名>/画面/`
+  - [x] 上游 `6-视频` 对画面阶段的引用已同步
+  - [x] 项目 runtime 目录已物理重命名为 `画面/`
+- evidence_paths:
+  - `.agents/skills/aigc/5-画面/SKILL.md`
+  - `.agents/skills/aigc/5-画面/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/6-视频/references/execution-flow.md`
+- user_feedback_or_constraint: 用户明确要求 `projects/晴深不渝/5-画面` 不要序号。
   - `.agents/skills/aigc/5-画面/subtypes/1-提示词蒸馏/分镜故事板/references/chain-of-thought.md`
   - `.agents/skills/aigc/5-画面/subtypes/1-提示词蒸馏/分镜帧/references/chain-of-thought.md`
   - `.agents/skills/aigc/5-画面/subtypes/1-提示词蒸馏/漫画/references/chain-of-thought.md`

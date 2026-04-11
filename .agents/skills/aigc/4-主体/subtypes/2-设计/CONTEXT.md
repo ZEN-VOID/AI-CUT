@@ -42,7 +42,7 @@
 
 - milestone_type: source_contract_change
 - outcome: 为 `4-主体/subtypes/2-设计` 建立了设计卡、机读侧车与 thinking sidecar 的三件套合同。
-- root_cause_or_design_decision: 参考仓 `2-设计` 的核心价值是“把 bridge 变成设计真源”，当前仓因此保留其主链语义，但收敛为当前 `projects/<项目名>/4-主体/2-设计/` 的统一交付面。
+- root_cause_or_design_decision: 参考仓 `2-设计` 的核心价值是“把 bridge 变成设计真源”，当前仓因此保留其主链语义，但收敛为当前 `projects/<项目名>/主体/2-设计/` 的统一交付面。
 - final_fix_or_heuristic: 对每个主体域固定“设计卡 + JSON + thinking sidecar”三件套，比只复刻上游脚本更适合当前仓的技能真源模式。
 - prevention_or_replication_checklist:
   - [x] 双产物已固定

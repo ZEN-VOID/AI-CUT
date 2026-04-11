@@ -39,6 +39,7 @@
 - 对 `4-主体` 来说，顾问团最稳的节奏是“策划先校对象池和资产路线，评审最后卡 validation gate”，不要让评审代替设计判断。
 - 对稳定阶段技能做规范升级时，优先把 field map、workflow、路由与输出硬规则迁到 `references/`，主合同只保留边界、摘要与回指。
 - 对阶段级 `chain-of-thought` 来说，第一优先不是补字段表，而是先把“主链/扩展链/唯一下一入口”的路由压力显式化；否则 reasoning 模型仍会在父级层迷路。
+- 对 `4-主体` 来说，技能阶段名可以保留编号，但项目 runtime 目录应优先服从 `_shared/project-runtime-layout.md` 的 `主体/` 映射，而不是直接照抄 `4-主体/`。
 
 ## Case Log
 
@@ -111,3 +112,20 @@
   - `.agents/skills/aigc/4-主体/references/chain-of-thought.md`
   - `.agents/skills/aigc/4-主体/CONTEXT.md`
 - user_feedback_or_constraint: 用户明确要求按最新思维链设计规范优化 `4-主体` 与四个子路径的 `chain-of-thought.md`。
+
+### Case-20260410-AIGC-SUBJECT-RUNTIME-DIR-RENAME
+
+- milestone_type: source_contract_change
+- outcome: 将主体阶段的 project runtime canonical landing 从带号目录收敛为 `projects/<项目名>/主体/`。
+- root_cause_or_design_decision: 先前主体阶段默认把技能阶段号直接投影到项目路径，和用户要求的无序号 runtime 目录发生冲突。
+- final_fix_or_heuristic: `4-主体` 应继续作为技能阶段名存在，但所有项目级路径、模板、执行流和 gate artifact 都必须写到 `projects/<项目名>/主体/`。
+- prevention_or_replication_checklist:
+  - [x] `4-主体/SKILL.md` 与 `references/*.md` 已切到 `projects/<项目名>/主体/`
+  - [x] `team.yaml` gate artifact 已同步到 `projects/晴深不渝/主体/validation-report.md`
+  - [x] 项目 runtime 目录已物理重命名为 `主体/`
+- evidence_paths:
+  - `.agents/skills/aigc/4-主体/SKILL.md`
+  - `.agents/skills/aigc/4-主体/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `projects/晴深不渝/team.yaml`
+- user_feedback_or_constraint: 用户明确要求 `projects/晴深不渝/4-主体` 不要序号。

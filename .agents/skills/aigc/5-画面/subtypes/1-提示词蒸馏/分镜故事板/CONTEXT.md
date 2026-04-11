@@ -46,7 +46,7 @@
 - milestone_type: source_contract_change
 - outcome: 为 `5-画面/subtypes/1-提示词蒸馏/分镜故事板` 建立了面向当前仓的组级 storyboard 合同与经验层。
 - root_cause_or_design_decision: 参考源来自 ZEN-VOID 的 `4-分镜/分镜故事板/生成`，但当前仓的第一事实源已经改成 `projects/<项目名>/3-明细/第N集.md`，因此必须重写输入与落点口径。
-- final_fix_or_heuristic: 保留“组级多格 storyboard + episode JSON + manifest”的骨架，把输入改写为 `3-明细` 分镜锚点，把落点改写为 `projects/<项目名>/5-画面/分镜故事板/`。
+- final_fix_or_heuristic: 保留“组级多格 storyboard + episode JSON + manifest”的骨架，把输入改写为 `3-明细` 分镜锚点，把落点改写为 `projects/<项目名>/画面/分镜故事板/`。
 - prevention_or_replication_checklist:
   - [x] 输入口径已改写到当前仓
   - [x] 组级输出合同已补齐

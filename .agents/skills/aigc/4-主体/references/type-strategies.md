@@ -4,7 +4,7 @@
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| V-SUBJECT-01 | 主链 | `1-清单 / 2-设计` 是否已完成 | `missing_inventory / missing_design / complete` | 读取 `projects/<项目名>/4-主体/` 现有产物 | P0 |
+| V-SUBJECT-01 | 主链 | `1-清单 / 2-设计` 是否已完成 | `missing_inventory / missing_design / complete` | 读取 `projects/<项目名>/主体/` 现有产物 | P0 |
 | V-SUBJECT-02 | 任务意图 | 用户当前要抽取、设计、复核还是布局 | `inventory / design / audit / panel / vague` | 解析用户请求与现有产物 | P0 |
 | V-SUBJECT-03 | 运行时 | 顾问团是否启用 | `disabled / planning_only / planning_and_review` | 读取 `projects/<项目名>/team.yaml` | P1 |
 | V-SUBJECT-04 | 下游阻塞 | 是否因一致性或参照面不足卡住下游 | `none / needs_audit / needs_panel` | 结合 `5-画面 / 6-视频` 消费反馈与阶段现状 | P1 |

@@ -68,6 +68,24 @@
 - 对 `aigc` 项目工作流，`projects/<项目名>/` 不是普通内容目录，而是三省六部控制面认可的 canonical runtime；只有把它同步写进 runbook / registry / audit，技能树才算真正接上 harness。
 - 当某阶段明确“不在当前轮次推进”时，优先把它标成 `搁浅`，而不是继续挂着“预留中”；`搁浅` 表示有意冻结，不应被审计当作立即补全失败。
 - 对跨兄弟阶段共同消费的治理工件，真源应优先放项目根；对跨兄弟阶段共同执行的运行规则，真源应优先放 `_shared/`。
+- 当技能阶段名本身带序号时，不要默认把这个序号投影到项目 runtime 目录；项目目录应优先服从 `_shared/project-runtime-layout.md` 的映射。
+
+### Case-20260410-AIGC-ROOT-RUNTIME-DIR-NONNUMERIC
+
+- milestone_type: source_contract_change
+- outcome: 将根技能的 canonical stage landing 从带号 runtime 目录收敛为 `规划 / 主体 / 画面`，同时保留技能阶段名 `1-规划 / 4-主体 / 5-画面` 不变。
+- root_cause_or_design_decision: 先前根技能把阶段名和项目目录名混用，导致用户已要求去序号后，初始化和阶段合同仍持续生成旧路径。
+- final_fix_or_heuristic: 根技能只负责声明“技能阶段名”，项目目录名一律回查 `_shared/project-runtime-layout.md`；路径重命名必须先改 shared mapping，再改阶段合同和项目目录。
+- prevention_or_replication_checklist:
+  - [x] 根 `SKILL.md` 已改为 `projects/<项目名>/规划/`、`主体/`、`画面/`
+  - [x] `_shared/project-runtime-layout.md` 已写明映射规则
+  - [x] `0-Init` 已改为预建无序号 runtime 目录
+- evidence_paths:
+  - `.agents/skills/aigc/SKILL.md`
+  - `.agents/skills/aigc/CONTEXT.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+- user_feedback_or_constraint: 用户明确要求 `projects/晴深不渝/1-规划`、`4-主体`、`5-画面` 去掉序号。
 
 ## Case Log
 
@@ -257,7 +275,7 @@
 - final_fix_or_heuristic: 在根技能中将阶段 landing、阶段说明与状态表同步到 `5-画面`，并把阶段职责重写为“prompt 组合 + 一致性处理 + 图像生成”。
 - prevention_or_replication_checklist:
   - [x] 根技能阶段名已同步为 `5-画面`
-  - [x] 根技能阶段 landing 已改为 `projects/<项目名>/5-画面/`
+  - [x] 根技能阶段 landing 已改为 `projects/<项目名>/画面/`
   - [x] 根经验层已记录本次更名与重定位
 - evidence_paths:
   - `.agents/skills/aigc/SKILL.md`

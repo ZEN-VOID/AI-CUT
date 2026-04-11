@@ -1,6 +1,6 @@
 ---
 name: aigc-subject-design
-description: Use when turning subject inventory outputs under `projects/<项目名>/4-主体/1-清单/` into canonical design assets for characters, scenes, and props under `projects/<项目名>/4-主体/2-设计/`.
+description: Use when turning subject inventory outputs under `projects/<项目名>/主体/1-清单/` into canonical design assets for characters, scenes, and props under `projects/<项目名>/主体/2-设计/`.
 governance_tier: full
 ---
 
@@ -83,7 +83,7 @@ flowchart TD
 ## Execution Summary
 
 - `2-设计` 负责主体设计真源，不越权回头重做 `1-清单` 抽取。
-- canonical 主产物仍落在 `projects/<项目名>/4-主体/2-设计/`。
+- canonical 主产物仍落在 `projects/<项目名>/主体/2-设计/`。
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`。
 
 ## Output Summary
@@ -120,7 +120,7 @@ flowchart TD
   - `.agents/skills/aigc/4-主体/subtypes/2-设计/SKILL.md`
   - `.agents/skills/aigc/4-主体/subtypes/2-设计/CONTEXT.md`
   - `.agents/skills/aigc/4-主体/subtypes/2-设计/references/*.md`
-  - `projects/<项目名>/4-主体/1-清单/*/*_design_bridge.json`
+  - `projects/<项目名>/主体/1-清单/*/*_design_bridge.json`
 - `Meta Rule Source`
   - `.agents/skills/aigc/4-主体/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`

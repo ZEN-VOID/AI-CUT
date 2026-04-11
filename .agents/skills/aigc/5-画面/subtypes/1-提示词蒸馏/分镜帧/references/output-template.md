@@ -8,8 +8,8 @@
 
 ## 单输出落点
 
-- `projects/<项目名>/5-画面/分镜帧/第N集/第N集.json`
-- `projects/<项目名>/5-画面/分镜帧/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
+- `projects/<项目名>/画面/分镜帧/第N集/第N集.json`
+- `projects/<项目名>/画面/分镜帧/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
 
 ## 子技能负责填充的 JSON 字段
 

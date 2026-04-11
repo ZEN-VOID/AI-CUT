@@ -46,7 +46,7 @@
 - milestone_type: source_contract_change
 - outcome: 为 `5-画面/subtypes/1-提示词蒸馏/漫画` 建立了漫画页改编合同与经验层。
 - root_cause_or_design_decision: 参考源来自 ZEN-VOID 的 `漫画故事板`，但当前仓需要服务 `projects/<项目名>/3-明细` 内联分镜与当前 `5-画面/漫画/` 落点，因此不能直接沿用旧阶段路径与旧父子关系。
-- final_fix_or_heuristic: 保留“分镜组 -> 漫画页”的消费骨架，把输入重写为当前仓脚本分镜锚点，把输出收口到 `projects/<项目名>/5-画面/漫画/`，并显式固化 `1 shot = 1 panel`。
+- final_fix_or_heuristic: 保留“分镜组 -> 漫画页”的消费骨架，把输入重写为当前仓脚本分镜锚点，把输出收口到 `projects/<项目名>/画面/漫画/`，并显式固化 `1 shot = 1 panel`。
 - prevention_or_replication_checklist:
   - [x] 当前仓输入真源已改写
   - [x] `1 shot = 1 panel` 已固化

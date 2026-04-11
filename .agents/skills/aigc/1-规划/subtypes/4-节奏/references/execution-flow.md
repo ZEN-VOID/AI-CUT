@@ -2,10 +2,10 @@
 
 ## Canonical Landing
 
-- 阶段目录：`projects/<项目名>/1-规划/4-节奏/`
-- canonical 主产物：`projects/<项目名>/1-规划/4-节奏/第N集.md`
-- thinking sidecar：`projects/<项目名>/1-规划/4-节奏/thinking/第N集.md`
-- 验收记录：`projects/<项目名>/1-规划/4-节奏/validation-report-第N集.md`
+- 阶段目录：`projects/<项目名>/规划/4-节奏/`
+- canonical 主产物：`projects/<项目名>/规划/4-节奏/第N集.md`
+- thinking sidecar：`projects/<项目名>/规划/4-节奏/thinking/第N集.md`
+- 验收记录：`projects/<项目名>/规划/4-节奏/validation-report-第N集.md`
 
 ## Mandatory Workflow
 
@@ -25,5 +25,5 @@
 
 1. 直接进入本叶子技能时，仍必须先读取 `projects/<项目名>/team.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 若顾问团启用，则由 `策划` 先对节奏重排收益、结构完整性与后续可消费性提供前置建议。
-3. 阶段级 `projects/<项目名>/1-规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
+3. 阶段级 `projects/<项目名>/规划/validation-report.md` 前后若命中 `评审`，仍按 `1-规划` 根技能的闸门执行。
 4. 本叶子技能不夺取主代理的阶段 canonical 写回权。

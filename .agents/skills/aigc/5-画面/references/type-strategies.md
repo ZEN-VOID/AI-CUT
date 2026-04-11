@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- |
 | V-VIS-ROOT-01 | 类型 | 用户需要的是组级故事板、单帧还是漫画页 | `sheet/frame/comic/ambiguous` | 读取任务目标与交付词 | P0 |
 | V-VIS-ROOT-02 | 输入 | 现有共享导演数据、锚点或既有画面文件是否足以支撑本轮执行 | `ready/partial/missing` | 读取 `编导/第N集.json`、已有 manifest、历史图片 | P0 |
-| V-VIS-ROOT-03 | 一致性 | `4-主体`、参考图或历史出图是否可用于一致性锚定 | `available/partial/missing` | 检查 `projects/<项目名>/4-主体/` 与 `projects/<项目名>/5-画面/` | P1 |
+| V-VIS-ROOT-03 | 一致性 | `4-主体`、参考图或历史出图是否可用于一致性锚定 | `available/partial/missing` | 检查 `projects/<项目名>/主体/` 与 `projects/<项目名>/画面/` | P1 |
 | V-VIS-ROOT-04 | 交付 | 本轮主要目标是 prompt 组合、直接出图还是二者兼有 | `prompt_only/generate/mixed` | 结合用户目标与当前文件状态 | P1 |
 
 ## 情况判定表

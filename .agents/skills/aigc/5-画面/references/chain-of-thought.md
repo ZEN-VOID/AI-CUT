@@ -94,7 +94,7 @@
 - `锚点就绪检查`：删掉 `编导/第N集.json` 的 `分镜组列表[] / 分镜明细[]` 证据后，当前阶段是否应立即回退。
 - `一致性快检`：删掉 `4-主体`、参考图与历史图后，是否还能解释本轮为什么这样做 prompt 组合。
 - `sibling 关系检查`：是否仍明确 `分镜故事板` 是默认主链，`分镜帧 / 漫画` 是同源分支。
-- `落点追踪`：所有判断能否回到 `projects/<项目名>/5-画面/` 与 `validation-report.md`。
+- `落点追踪`：所有判断能否回到 `projects/<项目名>/画面/` 与 `validation-report.md`。
 
 ## 字段落盘快照
 
@@ -103,7 +103,7 @@
 | 输入归属与反越权范围 | `validation-report.md / 输入边界` | `第N集.json` 已具备合法 `分镜组列表[] / 分镜明细[]`，且本轮不重写上游镜头事实 |
 | 唯一路由裁决 | `validation-report.md / 路由结论` | `sheet/frame/comic` 三路比较结果与排除理由 |
 | prompt 与一致性包 | `validation-report.md / prompt-consistency` 或命中子路径 sidecar | 正向约束、负向约束、参考图/历史图复用说明 |
-| canonical landing | `projects/<项目名>/5-画面/` 与命中子路径目录 | 阶段根目录、命中子路径目录、禁止旧仓路径说明 |
+| canonical landing | `projects/<项目名>/画面/` 与命中子路径目录 | 阶段根目录、命中子路径目录、禁止旧仓路径说明 |
 | Gate Summary | `validation-report.md / 验收结论与下一入口` | PASS/WARN/FAIL、失败码、返工入口、unknowns、confidence |
 
 ## 统一字段主表
@@ -113,7 +113,7 @@
 | FIELD-VIS-ROOT-01 | 输入边界 | 明确 `5-画面` 只消费已有文件，且上游必须已有合法 `分镜组列表[] / 分镜明细[]` 或等价画面锚点 | S1-S2 | 输入边界清晰度 | FAIL-VIS-ROOT-01 |
 | FIELD-VIS-ROOT-02 | 子路径矩阵 | 明确三条子路径的职责、唯一主入口、默认主链与 sibling 排除理由 | S3 | 路由完整性 | FAIL-VIS-ROOT-02 |
 | FIELD-VIS-ROOT-03 | Prompt 与一致性 | 明确本轮 prompt 组合、负向约束、一致性锚点与复用策略 | S4-S5 | 生成稳定性 | FAIL-VIS-ROOT-03 |
-| FIELD-VIS-ROOT-04 | 阶段闭环 | 固定 `projects/<项目名>/5-画面/`、命中子路径目录、阶段验收与返工入口 | S6-S7 | 可续跑性 | FAIL-VIS-ROOT-04 |
+| FIELD-VIS-ROOT-04 | 阶段闭环 | 固定 `projects/<项目名>/画面/`、命中子路径目录、阶段验收与返工入口 | S6-S7 | 可续跑性 | FAIL-VIS-ROOT-04 |
 
 ## Thought Pass Map
 
