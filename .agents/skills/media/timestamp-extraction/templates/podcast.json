@@ -1,0 +1,23 @@
+{
+  "plan_id": "podcast-template",
+  "description": "播客剪辑预设模板 - 适用于音频播客、有声书、音频访谈等场景。特点：严格静音检测、快节奏、包含波形可视化。",
+  "config": {
+    "silence_thresh": -55,
+    "min_silence_len": 400,
+    "padding": 150,
+    "detect_scenes": false,
+    "output_format": {
+      "include_waveform": true,
+      "include_timecodes": true,
+      "include_frames": false
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "podcast-001",
+      "video_path": "input/podcast.mp3",
+      "output_dir": "output/podcast-edit/timestamps",
+      "audio_only": true
+    }
+  ]
+}

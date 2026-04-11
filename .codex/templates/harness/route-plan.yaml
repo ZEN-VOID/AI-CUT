@@ -1,0 +1,16 @@
+task_id: TASK-YYYYMMDD-001
+owner_chain:
+  drafting: zhongshu
+  review: menxia
+  execution: shangshu
+steps:
+  - id: S1
+    owner: zhongshu
+    action: ""
+    output: ""
+  - id: S2
+    owner: menxia
+    action: ""
+    output: ""
+parallelizable_steps: []
+handoff_notes: []

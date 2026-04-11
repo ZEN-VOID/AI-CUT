@@ -1,0 +1,71 @@
+version: 1
+repo: AIGC-FILM
+last_updated: 2026-04-10
+
+default_flow:
+  - step: mandate
+    owner: zhongshu
+    carrier: .codex/templates/harness/mandate.yaml
+  - step: mission_brief
+    owner: zhongshu
+    carrier: .codex/templates/harness/mission-brief.yaml
+  - step: preflight
+    owner: menxia
+    carrier: .codex/templates/harness/preflight-verdict.yaml
+  - step: execution
+    owner: shangshu
+    carrier: .codex/state/tasks/<task_id>/
+    note: 通用默认执行账本；`aigc` 项目工作流以下方 `canonical_runtime_root` 声明的 `projects/<项目名>/` 为唯一真源
+  - step: validation
+    owner: menxia
+    carrier: .codex/templates/harness/validation-report.md
+  - step: learning
+    owner: menxia
+    carrier: .codex/templates/harness/learning-record.md
+
+route_policies:
+  - id: aigc-root-entry
+    trigger: AIGC 创作项目初始化、阶段切换、续跑、总入口判定
+    rule: "优先进入 `.agents/skills/aigc/SKILL.md`，由根技能路由到一个明确阶段"
+  - id: aigc-project-runtime-canonical
+    trigger: 命中 `.agents/skills/aigc/SKILL.md` 及其阶段技能
+    rule: "`projects/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
+  - id: aigc-video-stage-entry
+    trigger: 命中 `6-视频` 或需要把 `编导/第N集.json` 蒸馏成视频工具入参 JSON
+    rule: "先进入 `.agents/skills/aigc/6-视频/SKILL.md`；若任务是按分镜组组织视频请求，默认路由 `1-提示词蒸馏/全能参照`"
+  - id: aigc-shelved-stages
+    trigger: 命中 `7-后期`
+    rule: "显式返回“搁浅”状态与补建落点，不得伪造执行链，也不计入当前可执行阶段审计失败"
+  - id: bootstrap-governance-first
+    trigger: 仓库初始化、架构升级、长流程治理、跨仓继承
+    rule: "先走治理链，再扩业务 skill"
+  - id: legacy-import-needs-mapping
+    trigger: 从 AIGC-ZEN-VOID 引入任何目录、skill、脚本或规则
+    rule: "必须先登记 heritage mapping，再进入执行"
+  - id: high-risk-review-gate
+    trigger: 涉及重构、批量迁移、状态修复、基础规则变更
+    rule: "必须经过门下省预审"
+
+legacy_mapping:
+  - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026
+    target_role: future film-suite
+    bootstrap_action: 保留为 design source，本轮只建立接入槽位
+  - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.codex/agents/story
+    target_role: future menxia specialist reviewers
+    bootstrap_action: 先建立总 reviewer office，再逐步拆专项席位
+  - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.codex/hooks
+    target_role: future bingbu/gongbu automation
+    bootstrap_action: 当前先不迁移 hooks，优先完成 runbook 与 audit 基线
+
+workflow_carriers:
+  - id: aigc-project-runtime
+    applies_to: aigc-root-entry
+    canonical_runtime_root: projects/<项目名>/
+    mandate_carrier: projects/<项目名>/mandate.yaml
+    mission_brief_carrier: projects/<项目名>/mission-brief.yaml
+    route_plan_carrier: projects/<项目名>/route-plan.yaml
+    preflight_carrier: projects/<项目名>/preflight-verdict.yaml
+    validation_carrier: projects/<项目名>/validation-report.md
+    learning_carrier: projects/<项目名>/learning-record.md
+    governance_mirror: .codex/state/tasks/<task_id>/
+    mirror_policy: canonical-first

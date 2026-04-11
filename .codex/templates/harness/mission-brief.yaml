@@ -1,0 +1,13 @@
+task_id: TASK-YYYYMMDD-001
+objective: ""
+scope_in:
+  - ""
+scope_out:
+  - ""
+risk_level: low|medium|high
+required_carriers:
+  - ""
+acceptance_criteria:
+  - ""
+rollback_conditions:
+  - ""

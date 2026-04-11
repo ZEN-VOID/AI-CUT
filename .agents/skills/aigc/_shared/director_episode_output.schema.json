@@ -1,0 +1,368 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aigc/_shared/director_episode_output.schema.json",
+  "title": "AIGC Director Episode Output Schema",
+  "description": "用于 `1-规划/1-分集 -> 2-组间 -> 3-明细` 的共享 JSON 输出真源。严格遵循 `skill-内容输出型` 的三段式同构投影：`metadata / thinking_chain / final_output`。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata",
+    "thinking_chain",
+    "final_output"
+  ],
+  "properties": {
+    "metadata": {
+      "title": "元数据",
+      "description": "声明本次导演集级结构化产物的识别、路由和追踪字段。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "skill_id",
+        "template_version",
+        "source_route",
+        "episode_id",
+        "document_phase",
+        "created_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "aigc/director-episode-output/v1"
+        },
+        "skill_id": {
+          "type": "string",
+          "description": "生成本结构化产物的主技能标识。"
+        },
+        "template_version": {
+          "type": "string",
+          "description": "当前模板版本。"
+        },
+        "source_route": {
+          "type": "string",
+          "description": "上游来源或执行路由，例如 `2-组间/导演意图 -> 3-明细`。"
+        },
+        "episode_id": {
+          "type": "string",
+          "description": "集标识，例如 `第1集`。"
+        },
+        "document_phase": {
+          "type": "string",
+          "enum": [
+            "bootstrapped",
+            "planning_seeded",
+            "directing_in_progress",
+            "detail_in_progress",
+            "ready"
+          ],
+          "description": "当前文档所处的生命周期阶段。"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO 8601 时间戳。"
+        }
+      }
+    },
+    "thinking_chain": {
+      "title": "思维链",
+      "description": "显式输出可见的阶段判断链，服务后续追踪与验收。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "thinking_goal",
+        "key_steps",
+        "conclusion"
+      ],
+      "properties": {
+        "thinking_goal": {
+          "type": "string"
+        },
+        "key_steps": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "$ref": "#/$defs/thinking_step"
+          }
+        },
+        "conclusion": {
+          "type": "string"
+        }
+      }
+    },
+    "final_output": {
+      "title": "主内容",
+      "description": "真正交给下游阶段消费的导演集级结构化内容。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deliverable_type",
+        "main_content",
+        "acceptance_notes"
+      ],
+      "properties": {
+        "deliverable_type": {
+          "type": "string",
+          "const": "director_episode_output"
+        },
+        "main_content": {
+          "title": "主内容",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "分镜组列表"
+          ],
+          "properties": {
+            "分镜组列表": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "$ref": "#/$defs/storyboard_group"
+              }
+            }
+          }
+        },
+        "acceptance_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "thinking_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_id",
+        "focus",
+        "evidence",
+        "judgment"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string"
+        },
+        "focus": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "judgment": {
+          "type": "string"
+        }
+      }
+    },
+    "storyboard_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "分镜组ID",
+        "总时长",
+        "剧本正文",
+        "组间设计",
+        "分镜明细"
+      ],
+      "properties": {
+        "分镜组ID": {
+          "type": "string"
+        },
+        "总时长": {
+          "type": "number",
+          "minimum": 0,
+          "description": "单位：秒。"
+        },
+        "剧本正文": {
+          "type": "string"
+        },
+        "组间设计": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "全局风格",
+            "类型元素",
+            "导演意图"
+          ],
+          "properties": {
+            "全局风格": {
+              "type": "string"
+            },
+            "类型元素": {
+              "type": "string"
+            },
+            "导演意图": {
+              "type": "string"
+            }
+          }
+        },
+        "分镜明细": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/shot_detail"
+          }
+        }
+      }
+    },
+    "shot_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "分镜ID",
+        "时间段",
+        "场景及方位",
+        "角色及站位",
+        "道具及状态",
+        "分镜表现",
+        "角色表现",
+        "运镜手法",
+        "场景氛围",
+        "摄影美学"
+      ],
+      "properties": {
+        "分镜ID": {
+          "type": "string"
+        },
+        "时间段": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "开始秒",
+            "结束秒"
+          ],
+          "properties": {
+            "开始秒": {
+              "type": "number",
+              "minimum": 0
+            },
+            "结束秒": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "description": "以秒为单位的闭区间。"
+        },
+        "场景及方位": {
+          "type": "string"
+        },
+        "角色及站位": {
+          "type": "string"
+        },
+        "道具及状态": {
+          "type": "string"
+        },
+        "分镜表现": {
+          "type": "string"
+        },
+        "角色表现": {
+          "type": "string"
+        },
+        "运镜手法": {
+          "type": "string"
+        },
+        "场景氛围": {
+          "type": "string"
+        },
+        "摄影美学": {
+          "type": "string"
+        },
+        "转场特效": {
+          "type": "string",
+          "description": "非必须；仅在该镜头需要显式转场或特效桥接时填写。"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "metadata": {
+        "schema_version": "aigc/director-episode-output/v1",
+        "skill_id": "aigc-inter-group-director-intent",
+        "template_version": "v1",
+        "source_route": "2-组间/导演意图 -> 3-明细",
+        "episode_id": "第1集",
+        "document_phase": "detail_in_progress",
+        "created_at": "2026-04-10T12:00:00-07:00"
+      },
+      "thinking_chain": {
+        "thinking_goal": "收束第1集第1分镜组的导演理解，并把它投影为可供 3-明细 消费的结构化分镜明细骨架。",
+        "key_steps": [
+          {
+            "step_id": "S1",
+            "focus": "锁定组级核心冲突",
+            "evidence": "1-规划/3-分组 + 2-组间上游约束",
+            "judgment": "本组应以压迫式观看路径与迟滞情绪释放为主。"
+          }
+        ],
+        "conclusion": "组间设计与镜级明细已经对齐到同一组内真源。"
+      },
+      "final_output": {
+        "deliverable_type": "director_episode_output",
+        "main_content": {
+          "分镜组列表": [
+            {
+              "分镜组ID": "1-1-10",
+              "总时长": 18,
+              "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
+              "组间设计": {
+                "全局风格": "低饱和、高反差、冷压迫。",
+                "类型元素": "悬疑压迫感优先，避免抒情化稀释。",
+                "导演意图": "观众应先被空间压扁，再被人物迟疑拉慢呼吸。"
+              },
+              "分镜明细": [
+                {
+                  "分镜ID": "1-1-10-1",
+                  "时间段": {
+                    "开始秒": 0,
+                    "结束秒": 6
+                  },
+                  "场景及方位": "长廊西端入口朝东。",
+                  "角色及站位": "角色A位于前景左侧入画，角色B远端居中。",
+                  "道具及状态": "门把仍在轻微晃动，墙边旧灯管间歇闪烁。",
+                  "分镜表现": "用前后景纵深压出进入感与未知距离。",
+                  "角色表现": "角色A先试探后压近，角色B保持迟滞不动。",
+                  "运镜手法": "轻微前压后停顿，最后以极慢速收束。",
+                  "场景氛围": "空气偏冷，走廊回声略长，静压先行。",
+                  "摄影美学": "冷色主导，边缘高光克制，阴影层次保留。",
+                  "转场特效": ""
+                }
+              ]
+            }
+          ]
+        },
+        "acceptance_notes": [
+          "所有组级字段必须能直接被 3-明细 继承。",
+          "转场特效为空时不应强行补写。"
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "schema_version": "aigc/director-episode-output/v1",
+        "skill_id": "aigc-planning-episode-split",
+        "template_version": "bootstrap-v1",
+        "source_route": "1-规划/1-分集 -> 编导根文件初始化",
+        "episode_id": "第2集",
+        "document_phase": "bootstrapped",
+        "created_at": "2026-04-10T12:30:00-07:00"
+      },
+      "thinking_chain": {
+        "thinking_goal": "初始化空白编导根文件，等待后续阶段写入。",
+        "key_steps": [],
+        "conclusion": "空壳文件已就位。"
+      },
+      "final_output": {
+        "deliverable_type": "director_episode_output",
+        "main_content": {
+          "分镜组列表": []
+        },
+        "acceptance_notes": [
+          "允许 bootstrapped 空壳存在。",
+          "后续由 2-组间 与 3-明细 继续补全。"
+        ]
+      }
+    }
+  ]
+}

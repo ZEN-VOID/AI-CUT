@@ -1,0 +1,68 @@
+# init_handoff.yaml
+#
+# 角色：
+# - `0-Init` 的伴生 handoff
+# - 承接阶段入口种子、来源分层、unknowns
+# - 供后续阶段读取，不替代各阶段 canonical
+
+north_star_ref: "Init/north_star.yaml"
+team_ref: "team.yaml"
+runtime_layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
+
+project_contract:
+  initialization_goal: ""
+  acceptance_hint: ""
+  current_stage: "0-Init"
+  recommended_next_stage: ""
+
+stage_entry_seeds:
+  planning_seed:
+    scope: []
+    structure_assumptions: []
+    output_constraints: []
+  directing_seed:
+    tone: []
+    directing_refs: []
+    pacing_preferences: []
+    original_adherence: false
+    reorder_authorization: ""
+    pacing_focus: []
+    pacing_skip_reason: ""
+  script_seed:
+    key_beats: []
+    scene_energy_targets: []
+    dialogue_density_hint: ""
+  subject_seed:
+    role_pool: []
+    scene_pool: []
+    prop_pool: []
+    world_elements: []
+  storyboard_seed:
+    framing_preferences: []
+    motion_preferences: []
+    composition_rules: []
+  video_seed:
+    render_strategy: []
+    quality_tier: ""
+    generation_risks: []
+  post_seed:
+    music_direction: []
+    subtitle_packaging: []
+    finishing_notes: []
+
+unknowns:
+  unresolved_questions: []
+  deferred_to_planning: []
+  deferred_to_directing: []
+  deferred_to_script: []
+  deferred_to_subject: []
+  deferred_to_storyboard: []
+  deferred_to_video: []
+  deferred_to_post: []
+
+sources_breakdown:
+  user_confirmed: []
+  council_advised: []
+  assistant_inferred: []
+
+risk_notes: []

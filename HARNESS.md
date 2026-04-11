@@ -1,0 +1,226 @@
+# HARNESS.md
+
+本文件是仓库根层的 HARNESS 总览文档，用于把当前仓库的 Harness 工程化构思、已落地真源、运行方式、现状判断与发展方向收束为一份可快速阅读的初始化说明。
+
+注意：`HARNESS.md` 是总览型派生文档，不是新的第一真源。规范性约束仍以下列真源为准：
+
+1. 根 `AGENTS.md`
+2. `.codex/templates/harness/office-governance-contract.md`
+3. `.codex/agents/harness治理/`
+4. `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml`
+5. `.codex/runbooks/task-lifecycle.md`
+6. `.codex/templates/harness/`
+7. `scripts/aigc_harness_audit.py`
+
+## 文档定位
+
+- 作为根层 HARNESS 初始化说明，服务于仓库维护者、后续技能开发者与治理升级任务。
+- 作为总览投影，帮助快速理解“仓库当前已经做到哪里、还缺什么、下一步往哪里走”。
+- 作为变更同步目标：当 HARNESS 工程相关真源发生变化时，必须同步更新本文件。
+
+## 当前工程化构思
+
+当前仓库的 HARNESS 不是把 agent、skill、prompt 临时串起来的运行胶水，而是按“三省六部制 + 编排工程”收束为一套可治理、可审计、可扩展的工作底座：
+
+- 宪章层由根 `AGENTS.md` 负责，定义优先级、硬门槛、根因上溯、真源治理与闭环格式。
+- 三省治理层负责起草、复核、执行分权：
+  - 中书省：负责目标收束、任务起草、路线规划。
+  - 门下省：负责预审、否决、验收、上溯与学习闭环。
+  - 尚书省：负责执行调度、状态落盘、运行时控制与证据回传。
+- 六部能力层负责把治理意图落到能力域真源：
+  - 吏部：能力注册与路由
+  - 户部：上下文、状态、项目控制面
+  - 礼部：模板、合同、移交载体
+  - 兵部：运行、调度、生命周期
+  - 刑部：审计、风险控制、反回归
+  - 工部：脚本、评测、基础设施
+
+这一构思的核心目标不是“先把业务技能补齐”，而是先把业务技能未来必须依附的治理骨架、工件真源、状态面与审计入口建立起来。
+
+## 当前已实现真源
+
+截至 `2026-04-10`，当前仓库已经完成了 HARNESS 引导期的最小真源收束：
+
+### 1. 宪章层
+
+- 根 `AGENTS.md` 已明确：
+  - 执行深度默认规则
+  - 三省六部制编排治理基线
+  - 批量技能调度默认规则
+  - Rollout 标准
+  - 根因优先、根因学习回路、真源治理、复合型输出治理等全局合同
+
+### 2. 三省治理层
+
+- `.codex/agents/harness治理/中书省.md`
+- `.codex/agents/harness治理/门下省.md`
+- `.codex/agents/harness治理/尚书省.md`
+
+三省角色合同已经从“目录骨架”推进到“有共享上位合同、各自写差异职责”的状态。
+
+### 3. 共享治理合同
+
+- `.codex/templates/harness/office-governance-contract.md`
+
+该文件已经承担跨 office 的单一共享真源职责，覆盖：
+
+- canonical priority
+- canonical carriers
+- shared entry gates
+- shared workflow
+- layered trace contract
+- shared handoff contract
+- closure contract
+- anti-drift rules
+
+### 4. 注册与路由真源
+
+- `.codex/registry/skills.yaml`
+- `.codex/registry/routes.yaml`
+
+当前已显式声明：
+
+- `aigc` 为仓库级总入口技能
+- `projects/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
+- `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
+- `6-视频` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照` 可路由
+- `7-后期` 仍处于 `shelved` 状态
+- `AIGC-ZEN-VOID` 作为 design source 通过 mapping 管理，而不是直接整仓继承
+
+### 5. 生命周期与任务工件真源
+
+- `.codex/runbooks/task-lifecycle.md`
+- `.codex/templates/harness/mandate.yaml`
+- `.codex/templates/harness/mission-brief.yaml`
+- `.codex/templates/harness/route-plan.yaml`
+- `.codex/templates/harness/preflight-verdict.yaml`
+- `.codex/templates/harness/validation-report.md`
+- `.codex/templates/harness/learning-record.md`
+
+当前已经明确标准任务生命周期：
+
+`受命 -> 起草 -> 预审 -> 执行 -> 验收 -> 沉淀`
+
+### 6. 审计与验证入口
+
+- `scripts/aigc_harness_audit.py`
+- `.codex/evals/`
+
+当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
+
+### 7. 架构初始化方案
+
+- `docs/plans/2026-04-08-san-sheng-liu-bu-architecture.md`
+
+该文档承担本轮改造升级的阶段性架构包角色，记录了现状诊断、映射关系、迁移阶段与防回归方案。
+
+## 当前运行方式
+
+当前仓库的 HARNESS 运行逻辑可概括为：
+
+1. 用户请求或自动化触发进入治理链。
+2. 中书省负责把复杂任务收束为 `mandate + mission-brief + route-plan`。
+3. 高风险任务先由门下省给出 `preflight-verdict`。
+4. 尚书省在已声明的 canonical runtime 中执行：
+   - `aigc` 项目工作流：`projects/<项目名>/`
+   - 通用非项目任务：`.codex/state/tasks/<task_id>/`
+5. 门下省以 `validation-report` 完成验收。
+6. 学习结果沉淀到 `learning-record` 与对应 `CONTEXT.md`。
+
+对当前仓库而言，最重要的运行约束是：
+
+- 复杂任务不能跳过起草工件。
+- 高风险任务不能跳过预审。
+- 非平凡失败不能跳过分层上溯。
+- 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
+
+## 现状判断
+
+当前 HARNESS 的成熟度判断为：`引导期已落地，但仍处于 bootstrap-to-shadow 之间的工程化早期阶段。`
+
+已经完成的不是“概念宣言”，而是以下几类关键收束：
+
+- 有宪章层，不再只靠零散 prompt 口头约束。
+- 有三省角色合同，不再只有一个模糊 orchestrator。
+- 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
+- 有 legacy mapping，不再默认从旧仓无治理复制。
+
+仍然明显未完成的部分也很清楚：
+
+- 业务级 suite skill 还没有 fully cut over 到本地 HARNESS 真源。
+- 门下省的专项 reviewer 能力还未系统展开。
+- 兵部 / 工部的自动化、hook、续跑与批量治理能力还在待接入阶段。
+- `6-视频` 已从纯预留升级为部分可执行阶段，但其余视频子路径仍待补齐。
+- `7-后期` 仍然是架构上预留、执行上搁浅的阶段。
+- 面向真实项目任务的项目内工件落盘与审计闭环，还需要持续在 `projects/<项目名>/` 实战固化。
+
+## 可期发展方向
+
+后续 HARNESS 工程建议按以下方向推进：
+
+### 1. 从 bootstrap 走向 shadow
+
+- 补出第一个真正受 registry 管理的 repo-local suite skill。
+- 让更多真实任务以 `projects/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
+- 把阶段状态、局部可执行声明、项目控制面与审计覆盖进一步联动。
+
+### 2. 从通用治理走向专项治理
+
+- 在门下省下继续拆出故事审计、角色一致性、镜头语法、交付质量等专项 reviewer 席位。
+- 为中书省补足更细粒度的任务起草、路线裁决与阶段切换策略。
+- 为尚书省补足续跑、失败恢复、产物索引与长流程执行策略。
+
+### 3. 从人工驱动走向半自动化治理
+
+- 将更多校验沉到 `scripts/`、`.codex/evals/` 与未来 hooks。
+- 让 registry / route / template / audit 之间具备更强的一致性校验。
+- 为 HARNESS 关键变更建立更明确的同步检查与升级路径。
+
+### 4. 从设计源继承走向制度化继承
+
+- 继续以 `mapping -> review -> landing` 吸收 `AIGC-ZEN-VOID` 的高价值结构。
+- 严禁未登记、未复核、未声明 canonical 落点的直接复制。
+- 优先迁移制度资产、审计逻辑、路由经验和 suite 架构，而不是运行时内容产物。
+
+### 5. 从单点规则走向系统防漂移
+
+- 让新增或调整的 HARNESS 规则优先回收到单一真源。
+- 减少在兄弟 agent 文档、技能文档、runbook 中平行复制相同合同。
+- 将 `HARNESS.md` 维护成“总览投影”，而不是让它与真源竞争。
+
+## 更新维护合同
+
+`HARNESS.md` 的维护原则如下：
+
+### 1. 真源优先
+
+- 本文件是总览投影，不替代 `AGENTS.md`、registry、runbook、模板、agent 合同或审计脚本。
+- 若本文件与真源冲突，以真源为准，并应尽快把本文件同步修正。
+
+### 2. 变更即同步
+
+当以下任一内容发生变化时，必须在同一轮任务内同步检查并更新 `HARNESS.md`：
+
+- 根 `AGENTS.md` 中的 HARNESS 宪章、治理层级、硬门槛、闭环格式
+- `.codex/templates/harness/office-governance-contract.md`
+- `.codex/agents/harness治理/` 下任何 office 合同
+- `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`
+- `.codex/runbooks/task-lifecycle.md`
+- `.codex/templates/harness/` 下任务工件结构或字段
+- `scripts/aigc_harness_audit.py` 的审计口径
+- `projects/<项目名>/` 与 `.codex/state/tasks/<task_id>/` 的 canonical / mirror 关系
+- HARNESS 阶段成熟度、搁浅阶段、suite 规划、继承策略、自动化策略
+
+### 3. 更新要求
+
+每次更新本文件时，至少应检查以下四类内容是否仍然准确：
+
+- 当前工程化构思是否变化
+- 当前已实现真源与运行方式是否变化
+- 现状判断与成熟度是否变化
+- 可期发展方向与待补机制是否变化
+
+### 4. 阻塞处理
+
+- 如果某次 HARNESS 真源变更因为范围、权限或时机原因无法同步更新本文件，必须在任务结尾显式报告遗漏点与临时护栏。
+- 不允许默默让 `HARNESS.md` 过期漂移。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 导演意图"
+  short_description: "按分镜组生成可交接的导演设计真源"
+  default_prompt: "Use $aigc-inter-group-director-intent to write director intent per storyboard group for grouped material and hand it off to the detail stage."

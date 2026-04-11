@@ -1,0 +1,28 @@
+{
+  "plan_id": "interview-template",
+  "description": "访谈剪辑预设模板 - 适用于访谈视频、纪录片、教学视频等场景。特点：标准静音检测、场景切换检测、完整时间码和帧号输出。",
+  "config": {
+    "silence_thresh": -50,
+    "min_silence_len": 500,
+    "padding": 200,
+    "detect_scenes": true,
+    "scene_detector": {
+      "type": "content",
+      "threshold": 27.0,
+      "min_scene_len": 15
+    },
+    "output_format": {
+      "include_waveform": false,
+      "include_timecodes": true,
+      "include_frames": true
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "interview-001",
+      "video_path": "input/interview.mp4",
+      "output_dir": "output/interview-edit/timestamps",
+      "audio_only": false
+    }
+  ]
+}

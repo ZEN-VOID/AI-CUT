@@ -1,0 +1,122 @@
+{
+  "plan_id": "montage-template",
+  "description": "音乐蒙太奇模板 - 音乐节奏同步剪辑、转场效果、色彩分级。适用于音乐视频、宣传片、预告片等内容。",
+  "config": {
+    "output_format": "mp4",
+    "resolution": "1080p",
+    "fps": 30,
+    "codec": "libx264",
+    "audio_codec": "aac",
+    "bitrate": "10M",
+    "audio_bitrate": "320k",
+    "quality": "high",
+    "preset": "slow",
+    "threads": 4,
+    "add_transitions": true,
+    "default_transition": "crossfade",
+    "transition_duration": 0.8
+  },
+  "tasks": [
+    {
+      "task_id": "montage-001",
+      "type": "montage",
+      "clips": [
+        "input/clip1.mp4",
+        "input/clip2.mp4",
+        "input/clip3.mp4",
+        "input/clip4.mp4",
+        "input/clip5.mp4"
+      ],
+      "clip_durations": [3.0, 2.5, 3.5, 2.0, 4.0],
+      "music": {
+        "path": "assets/montage_music.mp3",
+        "volume": 0.8,
+        "sync_to_beats": true,
+        "beat_timestamps": [
+          0.0, 0.5, 1.0, 1.5, 2.0, 2.5,
+          3.0, 3.5, 4.0, 4.5, 5.0, 5.5,
+          6.0, 6.5, 7.0, 7.5, 8.0, 8.5,
+          9.0, 9.5, 10.0, 10.5, 11.0, 11.5,
+          12.0, 12.5, 13.0, 13.5, 14.0, 14.5
+        ],
+        "fade_in": 1.0,
+        "fade_out": 2.0
+      },
+      "effects": {
+        "transitions": [
+          "crossfade",
+          "wipe_right",
+          "slide_left",
+          "crossfade",
+          "wipe_down"
+        ],
+        "color_grading": {
+          "preset": "cinematic",
+          "brightness": 1.1,
+          "contrast": 1.2,
+          "saturation": 1.15
+        },
+        "speed_ramps": {
+          "enabled": true,
+          "locations": [
+            {
+              "clip_index": 1,
+              "start": 0.5,
+              "end": 1.5,
+              "speed": 0.5,
+              "description": "慢镜头效果"
+            },
+            {
+              "clip_index": 3,
+              "start": 0.0,
+              "end": 1.0,
+              "speed": 2.0,
+              "description": "快进效果"
+            }
+          ]
+        },
+        "vignette": {
+          "enabled": true,
+          "strength": 0.3
+        },
+        "blur_edges": {
+          "enabled": false,
+          "amount": 10
+        }
+      },
+      "text_overlays": [
+        {
+          "type": "title",
+          "text": "SUMMER 2025",
+          "start": 0,
+          "duration": 3,
+          "position": "center",
+          "animation": "fade_in",
+          "style": {
+            "fontsize": 72,
+            "color": "white",
+            "stroke_color": "black",
+            "stroke_width": 3,
+            "font": "Arial-Bold"
+          }
+        },
+        {
+          "type": "end_title",
+          "text": "Subscribe for More",
+          "start": 12,
+          "duration": 3,
+          "position": "center",
+          "animation": "slide_up",
+          "style": {
+            "fontsize": 48,
+            "color": "white",
+            "bg_color": "rgba(0,0,0,0.6)",
+            "padding": 20
+          }
+        }
+      ],
+      "output_dir": "output/montage-final",
+      "output_path": "output/montage-final/montage_001_final.mp4"
+    }
+  ]
+}

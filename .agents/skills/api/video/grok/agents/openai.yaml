@@ -1,0 +1,4 @@
+interface:
+  display_name: "GROK 生视频"
+  short_description: "提交 GROK 视频生成任务，支持文本生视频与读图生视频"
+  default_prompt: "Use $grok to submit a GROK video generation task from text or one or more reference images."

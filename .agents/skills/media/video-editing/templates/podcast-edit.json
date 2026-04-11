@@ -1,0 +1,50 @@
+{
+  "plan_id": "podcast-edit-template",
+  "description": "播客自动剪辑模板 - 添加片头片尾、移除静音片段、音频规范化。适用于音频播客、访谈节目、有声书等内容。",
+  "config": {
+    "output_format": "mp4",
+    "resolution": "720p",
+    "fps": 30,
+    "codec": "libx264",
+    "audio_codec": "aac",
+    "bitrate": "3M",
+    "audio_bitrate": "192k",
+    "quality": "high",
+    "preset": "medium",
+    "threads": 4,
+    "add_transitions": true,
+    "default_transition": "crossfade",
+    "transition_duration": 0.3
+  },
+  "tasks": [
+    {
+      "task_id": "podcast-001",
+      "type": "podcast_edit",
+      "input_video": "input/podcast.mp4",
+      "timestamp_file": "output/podcast-timestamps/podcast-001_silence_gaps.json",
+      "assets": {
+        "intro": "assets/podcast_intro.mp4",
+        "outro": "assets/podcast_outro.mp4",
+        "background_music": "assets/podcast_music.mp3"
+      },
+      "editing": {
+        "remove_silence": {
+          "enabled": true,
+          "confidence_threshold": 0.85,
+          "min_gap_duration": 0.8,
+          "preserve_natural_pauses": true
+        },
+        "audio_ducking": {
+          "enabled": true,
+          "music_volume": 0.2,
+          "reduction": 0.4,
+          "threshold": -30
+        },
+        "normalize_audio": true,
+        "target_loudness": -16
+      },
+      "output_dir": "output/podcast-final",
+      "output_path": "output/podcast-final/podcast_001_final.mp4"
+    }
+  ]
+}

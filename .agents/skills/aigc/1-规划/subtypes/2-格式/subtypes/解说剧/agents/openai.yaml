@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 解说剧格式"
+  short_description: "规划旁白主导、对白保真的解说剧文稿合同"
+  default_prompt: "Use $aigc-planning-format-explainer-drama to define an explainer-drama format contract with narration-led structure and clear dialogue-to-voiceover rules."

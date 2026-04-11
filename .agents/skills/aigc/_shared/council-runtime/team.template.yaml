@@ -1,0 +1,76 @@
+# team.yaml
+#
+# 角色：
+# - 项目级智能顾问团真源
+# - 由 `0-Init` 首次生成，供 `1-规划 / 2-组间 / 3-明细 / 4-主体` 共同消费
+# - 不替代各阶段 canonical，只提供顾问角色、成员与运行时调用规则
+
+enabled: false
+
+team_setup:
+  team_mode: "disabled"  # `disabled` | `same_lineup` | `per_role`
+  shared_agents: []
+
+roles:
+  planning:
+    label: "策划"
+    enabled: true
+    members: []
+    source_skill_refs:
+      - ".agents/skills/aigc/1-规划/SKILL.md"
+      - ".agents/skills/aigc/4-主体/SKILL.md"
+    operates_on:
+      - "1-规划"
+      - "4-主体"
+    intervention_mode: "pre_draft_advisory"
+    focus:
+      - "结构规划方向"
+      - "角色/场景/道具池方向"
+      - "对象与资产路线的前置裁剪"
+
+  supervision:
+    label: "监制"
+    enabled: true
+    members: []
+    source_skill_refs:
+      - ".agents/skills/aigc/2-组间/SKILL.md"
+      - ".agents/skills/aigc/3-明细/SKILL.md"
+    operates_on:
+      - "2-组间"
+      - "3-明细"
+    intervention_mode: "pre_draft_advisory"
+    focus:
+      - "导演表达一致性"
+      - "脚本可拍性与资源感"
+      - "风格、节奏与执行成本对齐"
+
+  review:
+    label: "评审"
+    enabled: true
+    members: []
+    source_skill_refs:
+      - ".agents/skills/aigc/1-规划/SKILL.md"
+      - ".agents/skills/aigc/2-组间/SKILL.md"
+      - ".agents/skills/aigc/3-明细/SKILL.md"
+      - ".agents/skills/aigc/4-主体/SKILL.md"
+    intervention_mode: "pre_and_post_validation_gate"
+    operates_on_final_stage_of:
+      - stage: "1-规划"
+        gate_artifact: "projects/<项目名>/1-规划/validation-report.md"
+      - stage: "2-组间"
+        gate_artifact: "projects/<项目名>/2-组间/validation-report.md"
+      - stage: "3-明细"
+        gate_artifact: "projects/<项目名>/3-明细/validation-report.md"
+      - stage: "4-主体"
+        gate_artifact: "projects/<项目名>/4-主体/validation-report.md"
+
+runtime_policy:
+  use_subagents_by_default: true
+  ordinary_path_when_disabled_or_empty: true
+  fallback_when_subagents_unavailable: "顺序读取 agent 文档并模拟顾问纪要"
+  canonical_owner: "main_agent"
+  review_timing: "before_and_after_stage_validation_report"
+
+decision_policy:
+  decision_owner: ""
+  conflict_rule: "user_confirmed > review_gate > role_consensus > main_agent_inferred"

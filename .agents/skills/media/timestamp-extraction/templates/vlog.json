@@ -1,0 +1,28 @@
+{
+  "plan_id": "vlog-template",
+  "description": "Vlog剪辑预设模板 - 适用于Vlog、旅拍、活动记录等场景。特点：宽松静音检测（适应背景音乐）、强化场景检测、快速模式。",
+  "config": {
+    "silence_thresh": -45,
+    "min_silence_len": 800,
+    "padding": 250,
+    "detect_scenes": true,
+    "scene_detector": {
+      "type": "content",
+      "threshold": 23.0,
+      "min_scene_len": 10
+    },
+    "output_format": {
+      "include_waveform": false,
+      "include_timecodes": false,
+      "include_frames": true
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "vlog-001",
+      "video_path": "input/vlog.mp4",
+      "output_dir": "output/vlog-edit/timestamps",
+      "audio_only": false
+    }
+  ]
+}

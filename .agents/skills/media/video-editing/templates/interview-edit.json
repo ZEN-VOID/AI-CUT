@@ -1,0 +1,89 @@
+{
+  "plan_id": "interview-edit-template",
+  "description": "访谈剪辑模板 - 场景切换、多机位切换、字幕叠加、静音片段移除。适用于访谈视频、纪录片、教学视频等内容。",
+  "config": {
+    "output_format": "mp4",
+    "resolution": "1080p",
+    "fps": 30,
+    "codec": "libx264",
+    "audio_codec": "aac",
+    "bitrate": "8M",
+    "audio_bitrate": "192k",
+    "quality": "high",
+    "preset": "medium",
+    "threads": 4,
+    "add_transitions": true,
+    "default_transition": "crossfade",
+    "transition_duration": 0.5
+  },
+  "tasks": [
+    {
+      "task_id": "interview-001",
+      "type": "interview_edit",
+      "input_video": "input/interview_cam1.mp4",
+      "timestamp_file": "output/interview-timestamps/interview-001_silence_gaps.json",
+      "scene_file": "output/interview-timestamps/interview-001_scene_changes.json",
+      "multi_cam": {
+        "enabled": false,
+        "cameras": [
+          {
+            "path": "input/interview_cam1.mp4",
+            "position": "wide",
+            "description": "主机位 - 全景"
+          },
+          {
+            "path": "input/interview_cam2.mp4",
+            "position": "closeup",
+            "description": "副机位 - 特写"
+          }
+        ],
+        "switch_on_scene": true,
+        "switch_pattern": ["wide", "closeup", "wide"],
+        "min_shot_duration": 3.0
+      },
+      "editing": {
+        "remove_silence": {
+          "enabled": true,
+          "confidence_threshold": 0.80,
+          "min_gap_duration": 1.0,
+          "preserve_natural_pauses": true
+        },
+        "use_scenes": {
+          "enabled": true,
+          "keep_scenes": [0, 2, 4, 7, 9],
+          "description": "保留指定场景段落"
+        }
+      },
+      "text_overlays": [
+        {
+          "type": "lower_third",
+          "text": "专家访谈 | Expert Interview",
+          "start": 5,
+          "duration": 10,
+          "position": "bottom_left",
+          "style": {
+            "fontsize": 36,
+            "color": "white",
+            "bg_color": "rgba(0,0,0,0.7)",
+            "margin": 40
+          }
+        },
+        {
+          "type": "title",
+          "text": "主题：AI技术发展趋势",
+          "start": 0,
+          "duration": 5,
+          "position": "center",
+          "style": {
+            "fontsize": 48,
+            "color": "white",
+            "stroke_color": "black",
+            "stroke_width": 2
+          }
+        }
+      ],
+      "output_dir": "output/interview-final",
+      "output_path": "output/interview-final/interview_001_final.mp4"
+    }
+  ]
+}

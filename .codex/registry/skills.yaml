@@ -1,0 +1,86 @@
+version: 1
+repo: AIGC-FILM
+last_updated: 2026-04-10
+
+active_skills:
+  - id: aigc
+    path: .agents/skills/aigc
+    owner_office: zhongshu
+    purpose: 仓库级 AIGC 影视创作多子技能组合总入口，负责项目工作区、阶段路由与总闭环。
+    runtime_control:
+      canonical_project_runtime: projects/<项目名>/
+      governance_mirror: .codex/state/tasks/<task_id>/
+      mirror_policy: 对 AIGC 项目工作流，`projects/<项目名>/` 为运行时唯一真源；`.codex/state/tasks` 仅作跨项目治理镜像或非项目任务账本。
+    stage_index:
+      - id: aigc-0-init
+        path: .agents/skills/aigc/0-Init
+        owner_office: zhongshu
+        contract_status: active
+        route_role: entry
+      - id: aigc-1-planning
+        path: .agents/skills/aigc/1-规划
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-2-directing
+        path: .agents/skills/aigc/2-组间
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-3-detail
+        path: .agents/skills/aigc/3-明细
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-4-subject
+        path: .agents/skills/aigc/4-主体
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-5-visuals
+        path: .agents/skills/aigc/5-画面
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-6-video
+        path: .agents/skills/aigc/6-视频
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+      - id: aigc-7-post
+        path: .agents/skills/aigc/7-后期
+        owner_office: shangshu
+        contract_status: shelved
+        route_role: frozen
+
+planned_skills:
+  - id: film-suite
+    stage: shadow
+    owner_office: shangshu
+    purpose: 作为当前仓库的影视全流程 suite skill，总控状态、路由、续跑与报告。
+  - id: detail-design-pipeline
+    stage: shadow
+    owner_office: zhongshu
+    purpose: 管理选题、结构、组间约束到明细设计前的规划与设计链。
+  - id: visual-production
+    stage: shadow
+    owner_office: shangshu
+    purpose: 管理设定、镜头设计、生成资产与导演执行链。
+  - id: review-audit
+    stage: shadow
+    owner_office: menxia
+    purpose: 管理剧情、角色、一致性、镜头语法与交付审计。
+
+heritage_sources:
+  - id: aigc-zen-void
+    path: /Volumes/AIGC/AIGC-ZEN-VOID
+    status: mapped-not-imported
+    reusable_assets:
+      - .agents/skills/aigc2026
+      - .codex/agents/story
+      - docs/plans
+      - .codex/hooks
+    non_goals_for_bootstrap:
+      - 不整仓复制 output/
+      - 不复制运行时状态与内容产物
+      - 不在未审核前导入旧 hooks

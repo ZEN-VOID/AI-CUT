@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 文稿格式规划"
+  short_description: "在标准剧与解说剧之间做唯一裁决，并固化文稿格式合同"
+  default_prompt: "Use $aigc-planning-format to choose the correct episode format variant and produce the planning contract for downstream script writing."

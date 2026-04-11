@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 组间阶段"
+  short_description: "把规划结果路由到全组一致的风格、半动态的类型元素或逐组导演意图，并消费上游节奏 handoff"
+  default_prompt: "Use $aigc-inter-group to route this inter-group design task into global style, type elements, or director intent, then write artifacts under projects/<项目名>/2-组间/."

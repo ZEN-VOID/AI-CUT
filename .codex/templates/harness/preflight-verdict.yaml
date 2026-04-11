@@ -1,0 +1,12 @@
+task_id: TASK-YYYYMMDD-001
+verdict: pass|revise|reject
+review_owner: menxia
+blocking_risks: []
+required_fixes: []
+approved_execution_scope: []
+layered_trace:
+  symptom: ""
+  direct_cause: ""
+  rule_source: ""
+  meta_rule_source: ""
+rollback_watchpoints: []

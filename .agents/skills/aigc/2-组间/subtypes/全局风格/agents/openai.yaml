@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 全局风格"
+  short_description: "定义项目级媒介/渲染/美学协议、节奏锚定与风格母体"
+  default_prompt: "Use $aigc-inter-group-global-style to create the all-groups-shared style bible, including narrative-world decomposition, medium and rendering stack, aesthetic paradigm, pace anchor, and downstream inheritance guidance."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 分集规划"
+  short_description: "把长故事稳定切成逐集规划文件，并附带边界证据与覆盖率闭环"
+  default_prompt: "Use $aigc-planning-episode-split to split this story source into episode-level planning files, decide the primary route, and output both episode files and an execution report."
