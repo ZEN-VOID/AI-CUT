@@ -55,7 +55,7 @@ Canonical module for `1-分集` thought design.
 | S4-NARROW | FIELD-EPS-STR-01 | 哪些候选先判废 | 按预设冲突、结构强度、冲突闭环逐步淘汰 | 判废条件模糊 |
 | S5-SELECTION | FIELD-EPS-STR-02 | 成立解里最终取哪组边界 | 形成逐集规划表 | 集间连续性差 |
 | S6-COVERAGE | FIELD-EPS-CST-01 | 是否完整覆盖原文 | 跑覆盖率比对 | 缺文、重文、越界 |
-| S7-LANDING | FIELD-EPS-MAT-01 | 如何稳定投影到逐集文件且不损坏原文证据 | 落盘 `第N集.md` 并保留应保留的场次/镜头/运镜描述 | 正文或头部缺失，或被擅自小说化 |
+| S7-LANDING | FIELD-EPS-MAT-01 | 如何稳定落盘 canonical 分集真源并初始化下游根文件 | 落盘 `episode-split-plan.json`，登记每集 `bootstrap_output`，并保留应保留的场次/镜头/运镜证据 | 分集真源缺字段、bootstrap 输出缺失，或证据被擅自小说化 |
 | S8-CLOSE | FIELD-EPS-CST-02 | 如何给出验收与返工入口 | 输出 PASS/FAIL 与下一阶段建议 | 无法返工 |
 
 ## 字段落盘门禁

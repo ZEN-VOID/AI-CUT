@@ -17,16 +17,16 @@ GROUP_HEADING_RE = re.compile(r"^##\s+(G\d+)\b")
 GROUP_PLAN_REQUIRED = [
     "# 分组总览",
     "## 分组目标",
-    "## 主路由决议",
+    "## 边界裁决摘要",
     "## 量化摘要",
     "## 集级总览表",
 ]
-GROUP_PLAN_TABLE_HEADER = "| episode | route | duration_policy | pace_tier | episode_load_score | recommended_group_band | group_count | grouping_focus | downstream_entry | dependency_note |"
+GROUP_PLAN_TABLE_HEADER = "| episode | grouping_method | duration_policy | pace_tier | episode_load_score | recommended_group_band | group_count | grouping_focus | downstream_entry | dependency_note |"
 
 REPORT_REQUIRED = [
     "# 分组执行报告",
     "## 输入清单",
-    "## 路由决议",
+    "## 边界裁决摘要",
     "## 量化摘要",
     "## 集级边界继承检查",
     "## 候选边界",
@@ -50,12 +50,20 @@ GROUP_SUBSECTIONS = [
     "### 依赖与并行性",
     "### 下游建议",
 ]
-ALLOWED_ROUTES = {"preset", "structure", "load"}
+GROUPING_METHOD = "multidimensional_quantized"
 ALLOWED_PACE_TIERS = {"慢节奏", "中节奏", "快节奏"}
 ALLOWED_WINDOW_STATUS = {"ok", "warn-low", "warn-high", "error"}
 ALLOWED_PRESET_MODES = {"standard", "preserve_and_extend", "preserve_only"}
 ALLOWED_PRESET_POLICIES = {"inherit", "split-soft-lock", "reference-only", "none"}
 DURATION_TEXT_RE = re.compile(r"^(?P<seconds>\d+)秒$")
+SHOT_SPAN_RE = re.compile(r"镜\s*(?P<start>\d+)(?:\s*-\s*(?P<end>\d+))?")
+PRIMARY_SOURCE_BLOCK_RE = re.compile(r"(?ms)^primary_story_source:\s*\n(?P<body>(?:^[ \t].*\n)+)")
+SUPPORTED_SOURCE_BACKED_TYPES = {"storyboard_script", "hybrid_story_text"}
+PACE_COEFFICIENTS = {
+    "慢节奏": 0.7,
+    "中节奏": 1.0,
+    "快节奏": 1.3,
+}
 
 
 def fail(message: str) -> int:
@@ -129,6 +137,142 @@ def strip_wrapping_quotes(value: str) -> str:
     return stripped
 
 
+def normalized_char_count(value: str) -> int:
+    return len(re.sub(r"\s+", "", value))
+
+
+def compute_text_windows(duration_seconds: int, pace_tier: str) -> tuple[int, int, int, int]:
+    base = round(duration_seconds * 10 * PACE_COEFFICIENTS[pace_tier])
+    warn_low = round(base * 0.8)
+    warn_high = round(base * 1.0)
+    hard = round(base * 1.1)
+    return base, warn_low, warn_high, hard
+
+
+def expected_window_status(effective_text_chars: int, duration_seconds: int, pace_tier: str) -> str:
+    _, warn_low, warn_high, hard = compute_text_windows(duration_seconds, pace_tier)
+    if effective_text_chars > hard:
+        return "error"
+    if effective_text_chars > warn_high:
+        return "warn-high"
+    if effective_text_chars < warn_low:
+        return "warn-low"
+    return "ok"
+
+
+def find_project_root(start_path: Path) -> Path | None:
+    current = start_path.resolve()
+    for candidate in [current, *current.parents]:
+        if (candidate / "Init" / "story-source-manifest.yaml").exists():
+            return candidate
+    return None
+
+
+def load_primary_story_source(project_root: Path) -> dict[str, str] | None:
+    manifest_path = project_root / "Init" / "story-source-manifest.yaml"
+    if not manifest_path.exists():
+        return None
+    text = read_text(manifest_path)
+    match = PRIMARY_SOURCE_BLOCK_RE.search(text)
+    if not match:
+        return None
+    body = match.group("body")
+    result: dict[str, str] = {}
+    for field in ("status", "source_type", "path"):
+        field_match = re.search(rf"^\s+{field}:\s*\"?(?P<value>[^\"\n]+)\"?\s*$", body, re.M)
+        if field_match:
+            result[field] = field_match.group("value").strip()
+    if {"status", "source_type", "path"} - set(result):
+        return None
+    return result
+
+
+def projected_char_weight(content: str, mode: str, pace_tier: str) -> float:
+    if not content or content == "无":
+        return 0.0
+    chars = normalized_char_count(content)
+    if mode == "voice_text":
+        return float(chars)
+    if mode == "voice_visual":
+        return 0.0
+    return chars * PACE_COEFFICIENTS[pace_tier]
+
+
+def parse_storyboard_source_effective_chars(source_path: Path, pace_tier: str) -> dict[int, int]:
+    text = read_text(source_path)
+    parts = re.split(r"(?m)^#### 镜号\s+(?P<shot>\d+)\s*$", text)
+    result: dict[int, int] = {}
+    for index in range(1, len(parts), 2):
+        shot_id = int(parts[index])
+        block = parts[index + 1]
+        total = 0.0
+        current_mode = "action_visual"
+        for raw_line in block.splitlines():
+            if not raw_line.strip():
+                continue
+            stripped = raw_line.strip()
+            if stripped.startswith("#### "):
+                break
+            if not stripped.startswith("- "):
+                continue
+
+            indent = len(raw_line) - len(raw_line.lstrip(" "))
+            payload = stripped[2:].strip()
+            if indent > 0:
+                nested_content = payload.split("：", 1)[1].strip() if "：" in payload else payload
+                total += projected_char_weight(nested_content, current_mode, pace_tier)
+                continue
+
+            label, content = (payload.split("：", 1) + [""])[:2]
+            label = label.strip()
+            content = content.strip()
+
+            if label in {"台词", "闪回台词", "回到现实台词"}:
+                current_mode = "voice_text"
+                total += projected_char_weight(content, current_mode, pace_tier)
+                continue
+            if re.fullmatch(r"(对白|独白|内心独白|旁白)(（.*?）)?", label):
+                current_mode = "voice_text"
+                total += projected_char_weight(content, current_mode, pace_tier)
+                continue
+            if label in {"对白画面", "独白画面", "内心独白画面", "旁白画面"}:
+                current_mode = "voice_visual"
+                total += projected_char_weight(content, current_mode, pace_tier)
+                continue
+
+            current_mode = "action_visual"
+            total += projected_char_weight(content, current_mode, pace_tier)
+        result[shot_id] = round(total)
+    return result
+
+
+def parse_shot_ranges(source_span: str) -> list[tuple[int, int]]:
+    ranges: list[tuple[int, int]] = []
+    for match in SHOT_SPAN_RE.finditer(source_span):
+        start = int(match.group("start"))
+        end = int(match.group("end") or start)
+        if end < start:
+            start, end = end, start
+        ranges.append((start, end))
+    return ranges
+
+
+def source_backed_effective_chars(
+    source_span: str,
+    shot_effective_chars: dict[int, int],
+) -> tuple[int | None, str | None]:
+    ranges = parse_shot_ranges(source_span)
+    if not ranges:
+        return None, "source_span 不是可机读的镜号范围"
+    total = 0
+    for start, end in ranges:
+        for shot_id in range(start, end + 1):
+            if shot_id not in shot_effective_chars:
+                return None, f"故事主源中缺少镜号 {shot_id}"
+            total += shot_effective_chars[shot_id]
+    return total, None
+
+
 def parse_frontmatter(path: Path, text: str, errors: list[str]) -> dict[str, str] | None:
     lines = text.splitlines()
     if len(lines) < 3 or lines[0].strip() != "---":
@@ -192,13 +336,14 @@ def validate_episode(path: Path, errors: list[str]) -> None:
     required_keys = {
         "project",
         "episode",
-        "route",
+        "grouping_method",
         "source_span",
         "group_count",
         "scene_unit_count",
         "duration_policy",
         "默认组时长",
         "分镜组时长映射",
+        "时长偏离证据",
         "外部分镜预设模式",
         "外部分镜锚点登记",
         "pace_tier",
@@ -225,13 +370,30 @@ def validate_episode(path: Path, errors: list[str]) -> None:
     if frontmatter["episode"] != episode_label:
         errors.append(f"{path}: frontmatter `episode` 与文件名不一致。")
 
-    if frontmatter["route"] not in ALLOWED_ROUTES:
-        errors.append(f"{path}: `route` 必须是 {sorted(ALLOWED_ROUTES)} 之一。")
+    if frontmatter["grouping_method"] != GROUPING_METHOD:
+        errors.append(f"{path}: `grouping_method` 必须是 `{GROUPING_METHOD}`。")
 
     if not frontmatter["group_count"].isdigit() or int(frontmatter["group_count"]) <= 0:
         errors.append(f"{path}: `group_count` 必须是正整数。")
         return
     group_count = int(frontmatter["group_count"])
+
+    source_backed_story: dict[int, int] | None = None
+    source_backed_type: str | None = None
+    project_root = find_project_root(path.parent)
+    if project_root is not None:
+        primary_story_source = load_primary_story_source(project_root)
+        if (
+            primary_story_source
+            and primary_story_source.get("status") == "ready"
+            and primary_story_source.get("source_type") in SUPPORTED_SOURCE_BACKED_TYPES
+        ):
+            source_path = project_root / primary_story_source["path"]
+            source_backed_type = primary_story_source["source_type"]
+            if not source_path.exists():
+                errors.append(f"{path}: 主故事源 `{source_path}` 不存在，无法回算 `effective_text_chars`。")
+            else:
+                source_backed_story = parse_storyboard_source_effective_chars(source_path, frontmatter["pace_tier"])
 
     for key in (
         "scene_unit_count",
@@ -280,6 +442,26 @@ def validate_episode(path: Path, errors: list[str]) -> None:
                     continue
                 parsed_duration_overrides[group_id] = parsed_seconds
 
+    raw_duration_evidence = strip_wrapping_quotes(frontmatter["时长偏离证据"])
+    try:
+        duration_override_evidence = json.loads(raw_duration_evidence)
+    except json.JSONDecodeError as exc:
+        errors.append(f"{path}: `时长偏离证据` 必须是合法 JSON 数组字符串：{exc.msg}。")
+        duration_override_evidence = None
+    if duration_override_evidence is not None:
+        if not isinstance(duration_override_evidence, list):
+            errors.append(f"{path}: `时长偏离证据` 必须解析为 JSON 数组。")
+            duration_override_evidence = None
+        else:
+            for item in duration_override_evidence:
+                if not isinstance(item, str) or not item.strip():
+                    errors.append(f"{path}: `时长偏离证据` 只能包含非空字符串。")
+                    break
+    if parsed_duration_overrides and not duration_override_evidence:
+        errors.append(f"{path}: 存在 `分镜组时长映射` 偏离，但缺少非空 `时长偏离证据`。")
+    if not parsed_duration_overrides and duration_override_evidence:
+        errors.append(f"{path}: `分镜组时长映射` 为空时，`时长偏离证据` 也必须为空数组。")
+
     if frontmatter["pace_tier"] not in ALLOWED_PACE_TIERS:
         errors.append(f"{path}: `pace_tier` 必须是 {sorted(ALLOWED_PACE_TIERS)} 之一。")
 
@@ -324,9 +506,11 @@ def validate_episode(path: Path, errors: list[str]) -> None:
         plan_rows = []
 
     seen_group_ids = set()
+    plan_rows_by_group_id: dict[str, dict[str, str]] = {}
     for row in plan_rows:
         group_id = row["group_id"]
         seen_group_ids.add(group_id)
+        plan_rows_by_group_id[group_id] = row
         if row["preset_anchor_policy"] not in ALLOWED_PRESET_POLICIES:
             errors.append(
                 f"{path}: `分组计划表` 中 `{group_id}` 的 `preset_anchor_policy` 必须是 {sorted(ALLOWED_PRESET_POLICIES)} 之一。"
@@ -349,6 +533,47 @@ def validate_episode(path: Path, errors: list[str]) -> None:
         if not estimated_duration.isdigit() or int(estimated_duration) <= 0:
             errors.append(f"{path}: `分组计划表` 中 `{group_id}` 的 `estimated_duration_seconds` 必须是正整数。")
             continue
+        effective_text_chars = row["effective_text_chars"]
+        if not effective_text_chars.isdigit() or int(effective_text_chars) < 0:
+            errors.append(f"{path}: `分组计划表` 中 `{group_id}` 的 `effective_text_chars` 必须是非负整数。")
+            continue
+        computed_effective: int | None = None
+        if source_backed_story is not None:
+            computed_effective, source_error = source_backed_effective_chars(row["source_span"], source_backed_story)
+            if source_error:
+                errors.append(
+                    f"{path}: `分组计划表` 中 `{group_id}` 命中 `{source_backed_type}` 主源回算路径，但 {source_error}；"
+                    "请把 `source_span` 写成如 `镜1-5` 的可机读范围。"
+                )
+            elif computed_effective != int(effective_text_chars):
+                errors.append(
+                    f"{path}: `分组计划表` 中 `{group_id}` 的 `effective_text_chars={effective_text_chars}` "
+                    f"与故事主源回算值 `{computed_effective}` 不一致。"
+                )
+        window_status = row["window_status"]
+        if window_status not in ALLOWED_WINDOW_STATUS:
+            errors.append(
+                f"{path}: `分组计划表` 中 `{group_id}` 的 `window_status` 必须是 {sorted(ALLOWED_WINDOW_STATUS)} 之一。"
+            )
+        else:
+            expected_status = expected_window_status(
+                computed_effective if computed_effective is not None else int(effective_text_chars),
+                int(estimated_duration),
+                frontmatter["pace_tier"],
+            )
+            if window_status != expected_status:
+                _, warn_low, warn_high, hard = compute_text_windows(int(estimated_duration), frontmatter["pace_tier"])
+                errors.append(
+                    f"{path}: `分组计划表` 中 `{group_id}` 的量化状态不一致："
+                    f"`effective_text_chars={effective_text_chars}`、`estimated_duration_seconds={estimated_duration}`、"
+                    f"`pace_tier={frontmatter['pace_tier']}` 时应为 `{expected_status}`，当前写为 `{window_status}` "
+                    f"（warn={warn_low}-{warn_high}, hard={hard}）。"
+                )
+            if window_status != "ok":
+                errors.append(
+                    f"{path}: `分组计划表` 中 `{group_id}` 的 `window_status={window_status}` 未通过严格 gate；"
+                    "正式 `第N集.md` 只允许 `ok` 落盘。"
+                )
         if default_group_duration is None:
             continue
         resolved_duration = parsed_duration_overrides.get(group_id, default_group_duration)
@@ -370,6 +595,8 @@ def validate_episode(path: Path, errors: list[str]) -> None:
     for idx, start in enumerate(group_indices):
         end = group_indices[idx + 1] if idx + 1 < len(group_indices) else len(lines)
         block = "\n".join(lines[start:end])
+        group_match = GROUP_HEADING_RE.match(lines[start].strip())
+        block_group_id = group_match.group(1) if group_match else None
         for subsection in GROUP_SUBSECTIONS:
             if subsection not in block:
                 errors.append(f"{path}: `{lines[start].strip()}` 缺少必需子区块 `{subsection}`。")
@@ -384,6 +611,31 @@ def validate_episode(path: Path, errors: list[str]) -> None:
         if status_match and status_match.group(1) not in ALLOWED_WINDOW_STATUS:
             errors.append(
                 f"{path}: `{lines[start].strip()}` 的 `window_status` 必须是 {sorted(ALLOWED_WINDOW_STATUS)} 之一。"
+            )
+        if not block_group_id or block_group_id not in plan_rows_by_group_id:
+            continue
+        plan_row = plan_rows_by_group_id[block_group_id]
+        duration_match = re.search(r"estimated_duration_seconds:\s*(\d+)", block)
+        effective_match = re.search(r"effective_text_chars:\s*(\d+)", block)
+        if duration_match and duration_match.group(1) != plan_row["estimated_duration_seconds"]:
+            errors.append(
+                f"{path}: `{block_group_id}` 组章节中的 `estimated_duration_seconds={duration_match.group(1)}` "
+                f"与 `分组计划表` 中的 `{plan_row['estimated_duration_seconds']}` 不一致。"
+            )
+        if effective_match and effective_match.group(1) != plan_row["effective_text_chars"]:
+            errors.append(
+                f"{path}: `{block_group_id}` 组章节中的 `effective_text_chars={effective_match.group(1)}` "
+                f"与 `分组计划表` 中的 `{plan_row['effective_text_chars']}` 不一致。"
+            )
+        if status_match and status_match.group(1) != plan_row["window_status"]:
+            errors.append(
+                f"{path}: `{block_group_id}` 组章节中的 `window_status={status_match.group(1)}` "
+                f"与 `分组计划表` 中的 `{plan_row['window_status']}` 不一致。"
+            )
+        if status_match and status_match.group(1) != "ok":
+            errors.append(
+                f"{path}: `{block_group_id}` 组章节中的 `window_status={status_match.group(1)}` 未通过严格 gate；"
+                "正式 `第N集.md` 只允许 `ok` 落盘。"
             )
 
 
@@ -411,14 +663,9 @@ def validate_directory(input_path: Path) -> list[str]:
 
     group_plan = input_path / "group-plan.md"
     report = input_path / "执行报告.md"
-    if not group_plan.exists():
-        errors.append(f"{input_path}: 缺少 `group-plan.md`。")
-    else:
+    if group_plan.exists():
         validate_group_plan(group_plan, errors)
-
-    if not report.exists():
-        errors.append(f"{input_path}: 缺少 `执行报告.md`。")
-    else:
+    if report.exists():
         validate_report(report, errors)
 
     episode_files = collect_episode_files(input_path)

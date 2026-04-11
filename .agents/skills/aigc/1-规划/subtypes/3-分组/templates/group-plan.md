@@ -6,11 +6,12 @@
 - 范围：<涉及集数或范围>
 - 输出粒度：按集落盘，集内分组
 
-## 主路由决议
+## 边界裁决摘要
 
-- 主路由：<G1|G2|G3>
-- 决议理由：<为什么采用该主路由>
-- 放弃其他路由的原因：<为什么没有采用其他路由>
+- grouping_method: `multidimensional_quantized`
+- 不可动约束：<集边界 / hard lock / 用户硬要求>
+- 主要裁决依据：<结构锚点 / 依赖闭环 / 量化 / handoff>
+- 放弃相邻候选的原因：<为什么不是前一个或后一个切点>
 
 ## 量化摘要
 
@@ -28,6 +29,6 @@
 
 ## 集级总览表
 
-| episode | route | duration_policy | pace_tier | episode_load_score | recommended_group_band | group_count | grouping_focus | downstream_entry | dependency_note |
+| episode | grouping_method | duration_policy | pace_tier | episode_load_score | recommended_group_band | group_count | grouping_focus | downstream_entry | dependency_note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 第1集 | structure | 默认15秒 | 中节奏 | 7 | 3-4 | 3 | 潜入-暴露-脱身 | 1-规划/4-节奏 | G02 依赖 G01 的信息揭示 |
+| 第1集 | multidimensional_quantized | 默认15秒 | 中节奏 | 7 | 3-4 | 3 | 潜入-暴露-脱身 | 1-规划/4-节奏 | G02 依赖 G01 的信息揭示 |

@@ -1,17 +1,18 @@
 ---
 project: <项目名>
 episode: 第1集
-route: structure
-source_span: <该集来源范围摘要>
+grouping_method: multidimensional_quantized
+source_span: <该集来源范围摘要；若主故事源为 storyboard_script / hybrid_story_text，优先写成可机读镜号范围，如 镜1-13>
 group_count: 3
 scene_unit_count: 3
 duration_policy: 默认15秒
 默认组时长: 15秒
-分镜组时长映射: {"G03":"12秒"}
+分镜组时长映射: {}
+时长偏离证据: []
 pace_tier: 中节奏
 base_text_window: 150
-warn_window: 120-180
-hard_text_window: 225
+warn_window: 120-150
+hard_text_window: 165
 structure_unit_count: 4
 turning_point_count: 2
 hard_dependency_count: 1
@@ -30,8 +31,8 @@ recommended_group_band: 3-4
 | group_id | group_name | source_span | structure_anchor | preset_anchor_policy | preset_anchor_ids | estimated_duration_seconds | effective_text_chars | window_status | group_unit_count | group_turning_point_count | group_dependency_count | group_load_score | dependency_note | parallelism | downstream_entry | boundary_reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | G01 | 潜入准备 | 第1场-第2场前半 | 场次链起点 + 潜入任务触发 | inherit | ["A01"] | 15 | 136 | ok | 2 | 1 | 0 | 3 | none | 串行起点 | 1-规划/4-节奏 | 该段形成独立潜入任务起点 |
-| G02 | 身份暴露 | 第2场后半-第3场前半 | 身份暴露 + 追捕启动 | split-soft-lock | ["A01","A02"] | 15 | 171 | warn-high | 1 | 1 | 1 | 3 | 依赖 G01 的潜入成功 | 需在 G01 后执行 | 1-规划/4-节奏 | 该段形成第一次强反转 |
-| G03 | 脱身余波 | 第3场后半 | 追捕余波 + 阶段闭环 | none | [] | 12 | 102 | warn-low | 1 | 0 | 1 | 2 | 依赖 G02 的暴露结果 | 可与后续资产准备并行 | 1-规划/4-节奏 | 该段承担当前集的阶段闭环 |
+| G02 | 身份暴露 | 第2场后半-第3场前半 | 身份暴露 + 追捕启动 | split-soft-lock | ["A01","A02"] | 15 | 149 | ok | 1 | 1 | 1 | 3 | 依赖 G01 的潜入成功 | 需在 G01 后执行 | 1-规划/4-节奏 | 该段形成第一次强反转 |
+| G03 | 脱身余波 | 第3场后半 | 追捕余波 + 阶段闭环 | none | [] | 15 | 120 | ok | 1 | 0 | 1 | 2 | 依赖 G02 的暴露结果 | 可与后续资产准备并行 | 1-规划/4-节奏 | 该段承担当前集的阶段闭环 |
 
 ## G01 潜入准备
 
@@ -42,6 +43,7 @@ recommended_group_band: 3-4
 ### 组内容范围
 
 - 写清本组覆盖的场次、段落或任务链。
+- 若主故事源为 `storyboard_script / hybrid_story_text`，`分组计划表.source_span` 应优先写成可机读镜号范围，供 validator 回算 `effective_text_chars`。
 
 ### 结构锚点
 
@@ -54,9 +56,9 @@ recommended_group_band: 3-4
 
 ### 量化指标
 
-- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射`>
+- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射` 与 `时长偏离证据`>
 - effective_text_chars: <整数>
-- window_status: <<ok>|<warn-low>|<warn-high>|<error>>
+- window_status: <ok>
 - group_unit_count: <整数>
 - group_turning_point_count: <整数>
 - group_dependency_count: <整数>
@@ -95,9 +97,9 @@ recommended_group_band: 3-4
 
 ### 量化指标
 
-- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射`>
+- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射` 与 `时长偏离证据`>
 - effective_text_chars: <整数>
-- window_status: <<ok>|<warn-low>|<warn-high>|<error>>
+- window_status: <ok>
 - group_unit_count: <整数>
 - group_turning_point_count: <整数>
 - group_dependency_count: <整数>
@@ -136,9 +138,9 @@ recommended_group_band: 3-4
 
 ### 量化指标
 
-- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射`>
+- estimated_duration_seconds: <整数；若偏离 `默认组时长`，需同步登记到 frontmatter 的 `分镜组时长映射` 与 `时长偏离证据`>
 - effective_text_chars: <整数>
-- window_status: <<ok>|<warn-low>|<warn-high>|<error>>
+- window_status: <ok>
 - group_unit_count: <整数>
 - group_turning_point_count: <整数>
 - group_dependency_count: <整数>

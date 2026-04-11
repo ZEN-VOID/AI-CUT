@@ -10,7 +10,7 @@ governance_tier: full
 
 `节奏` 是 `1-规划` 阶段里位于 `3-分组` 之后的集级节奏规划真源。
 
-它负责在 `1-规划/3-分组/第N集.md` 已经稳定的前提下，把“这一集靠什么抓人、峰值放在哪里、哪些组该前置/压缩/留白、是否允许偏离原作节奏、哪些节奏法则必须交给下游”收束成独立的规划层节奏 handoff。
+它负责在 `1-规划/3-分组/第N集.md` 已经稳定的前提下，把“这一集靠什么抓人、峰值放在哪里、哪些组该前置/压缩/留白、是否允许偏离原作节奏、哪些节奏法则必须交给下游”收束成独立的规划层节奏 handoff；当父级 `1-规划` 以全链模式显式选中本步时，再把节奏裁决 patch 回 `projects/<项目名>/规划/第N集.md`。
 
 交付类型：`内容输出型`
 
@@ -58,6 +58,7 @@ flowchart TD
     D --> E["生成七步节奏蓝图与峰值账本"]
     E --> F["写组级节奏刀法与风险回退"]
     F --> G["落盘 projects/<项目名>/规划/4-节奏/第N集.md"]
+    G --> H["若父级显式选中本步，则 patch 回 projects/<项目名>/规划/第N集.md"]
 ```
 
 ## Canonical Module References
@@ -73,6 +74,7 @@ flowchart TD
 
 - 本技能先做“原作节奏保留”布尔门，再做节奏蓝图；没有授权不进入结构级改写。
 - canonical 主产物仍为 `projects/<项目名>/规划/4-节奏/第N集.md`
+- 若父级 `1-规划` 显式把 `4-节奏` 纳入当前轮，则必须把 `主驱动裁决 / 峰值账本 / 节奏执行策略 / 下游加载提示` 以摘要 patch 回 `projects/<项目名>/规划/第N集.md`
 - 详细 workflow、落点与顾问团继承规则见 `references/execution-flow.md`
 
 ## Output Summary
@@ -121,8 +123,8 @@ flowchart TD
 - 每次调用本技能时，必须自动加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，建议同时读取 `references/*.md` 以获取模块细则。
 - 执行前默认联合读取：
-  - `projects/<项目名>/0-Init/north_star.yaml`
-  - `projects/<项目名>/0-Init/init_handoff.yaml`
-  - `projects/<项目名>/规划/1-分集/第N集.md`
-  - `projects/<项目名>/规划/2-格式/validation-report.md`
+  - `projects/<项目名>/Init/north_star.yaml`
+  - `projects/<项目名>/Init/init_handoff.yaml`
+  - `projects/<项目名>/Init/episode-split-plan.json`
+  - `projects/<项目名>/规划/第N集.md`
   - `projects/<项目名>/规划/3-分组/第N集.md`

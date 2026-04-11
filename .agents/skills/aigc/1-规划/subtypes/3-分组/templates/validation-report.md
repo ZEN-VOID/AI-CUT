@@ -2,14 +2,17 @@
 
 ## 输入清单
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/规划/1-分集/第1集.md`
+- `projects/<项目名>/Init/north_star.yaml`
+- `projects/<项目名>/Init/init_handoff.yaml`
+- `projects/<项目名>/Init/episode-split-plan.json`
+- `projects/<项目名>/规划/第1集.md`
 
-## 路由决议
+## 边界裁决摘要
 
-- 主路由：<G1|G2|G3>
-- 证据摘要：<支持该路由的核心证据>
+- grouping_method: `multidimensional_quantized`
+- 不可动约束：<集边界 / lock / 用户硬要求>
+- 主要裁决依据：<结构锚点 / 依赖闭环 / 量化 / handoff>
+- 终裁理由：<为什么采用当前边界集合>
 
 ## 量化摘要
 
@@ -17,6 +20,7 @@
 - duration_policy: <<默认15秒>|<每组10秒>|<第3场每组8秒>|...>
 - 默认组时长: <15秒|12秒|...>
 - 分镜组时长映射: <{}|{"G03":"12秒"}|{"1-4-2":"10秒"}|...>
+- 时长偏离证据: <[]|["north_star: ..."]|["user: ..."]|...>
 - 分镜时间读取链: 分镜组时长映射 -> 默认组时长 -> 切分时长策略
 - pace_tier: <<慢节奏>|<中节奏>|<快节奏>>
 - base_text_window: <整数>
@@ -45,8 +49,8 @@
 | episode | group_id | group_name | effective_text_chars | window_status | group_load_score | dependency | parallelism | note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 第1集 | G01 | 潜入准备 | 136 | ok | 3 | none | 串行起点 | 开场任务触发 |
-| 第1集 | G02 | 身份暴露 | 171 | warn-high | 3 | G01 | 需在 G01 后执行 | 依赖前组铺垫 |
-| 第1集 | G03 | 脱身余波 | 102 | warn-low | 2 | G02 | 可与后续资产准备并行 | 依赖反转结果 |
+| 第1集 | G02 | 身份暴露 | 149 | ok | 3 | G01 | 需在 G01 后执行 | 依赖前组铺垫 |
+| 第1集 | G03 | 脱身余波 | 120 | ok | 2 | G02 | 可与后续资产准备并行 | 依赖反转结果 |
 
 ## 依赖与并行性检查
 

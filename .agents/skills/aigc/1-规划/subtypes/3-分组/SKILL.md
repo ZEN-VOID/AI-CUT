@@ -24,7 +24,7 @@ governance_tier: full
 硬规则：
 
 1. 本次重构采用“主合同 + 标准细则模块 + 领域专项真源”的三层结构，不改变 `3-分组` 既有分组逻辑、量化口径和产物职责。
-2. 新增四个标准 `references` 模块负责承接最新创作型规范要求的核心细则；其中 `G1/G2/G3` 细则已并入 `references/type-strategies.md`，量化投影、模板与 validator 继续作为独立真源。
+2. 新增四个标准 `references` 模块负责承接最新创作型规范要求的核心细则；其中统一多维量化裁决已并入 `references/type-strategies.md`，量化投影、模板与 validator 继续作为独立真源。
 3. 若后续出现规则漂移，优先判定应修改哪一层真源，而不是在多个文档里重复抄写同一套细则。
 
 ## 概述
@@ -34,7 +34,7 @@ governance_tier: full
 它参照了 `AIGC-ZEN-VOID` 中 `3-拍摄段落` 的高价值思路，但当前阶段只继承三类能力，不继承导演阶段的专属字段：
 
 1. 先建结构容器，再让下游填细节
-2. 先判主路由，再执行切分与归组
+2. 先抽取约束，再执行候选边界生成与归组
 3. 每个组都必须可追溯、可解释、可交接
 
 当前子技能的真源路径固定为 `projects/<项目名>/规划/3-分组/`，并沿用 `1-分集` 已锁定的 `第N集.md` 集粒度；不沿用参考仓的 `output/影片/.../2-导演/...` 路径合同。
@@ -57,7 +57,7 @@ governance_tier: full
 ### `3-分组` 拥有
 
 - 分组目标识别
-- 分组主路由裁决
+- 分组边界裁决
 - 分组锚点与边界说明
 - 逐集分组文档
 - 分组阶段验证报告
@@ -73,21 +73,18 @@ governance_tier: full
 ```mermaid
 flowchart TD
     A["进入 3-分组"] --> B["读取 0-Init seeds + 规划输入"]
-    B --> C{"分组主路由"}
-    C -->|"G1 预设驱动"| D["按用户或项目预设分组"]
-    C -->|"G2 结构驱动"| E["按章节/场次/模块归组"]
-    C -->|"G3 负载驱动"| F["按工作量与依赖闭环平衡分组"]
-    D --> G["形成分组计划表"]
-    E --> G
-    F --> G
-    G --> H["落盘 第N集.md + group-plan.md"]
-    H --> I["输出 执行报告.md"]
+    B --> C["抽取 preset / 结构 / 依赖 / 量化约束"]
+    C --> D["形成候选边界集合"]
+    D --> E["统一多维量化裁决"]
+    E --> F["形成分组计划表"]
+    F --> G["落盘 第N集.md + group-plan.md"]
+    G --> H["输出 执行报告.md"]
 ```
 
 ```mermaid
 flowchart LR
-    A["projects/<项目名>/0-Init/north_star.yaml"] --> B["分组目标与约束"]
-    C["projects/<项目名>/0-Init/init_handoff.yaml"] --> D["当前阶段入口种子"]
+    A["projects/<项目名>/Init/north_star.yaml"] --> B["分组目标与约束"]
+    C["projects/<项目名>/Init/init_handoff.yaml"] --> D["当前阶段入口种子"]
     E["1-分集 或 其他规划输入"] --> F["待分组材料"]
     B --> G["projects/<项目名>/规划/3-分组/"]
     D --> G
@@ -100,7 +97,7 @@ flowchart LR
 
 1. 主流程摘要、阶段/回退关系：`references/execution-flow.md`
 2. 思维链与字段落盘快照：`references/chain-of-thought.md`
-3. 路由差异、量化继承与 fallback：`references/type-strategies.md`
+3. 统一裁决方法、量化继承与 fallback：`references/type-strategies.md`
 4. 产物骨架、字段到模板映射：`references/output-template.md`
 
 硬规则：
@@ -113,15 +110,15 @@ flowchart LR
 
 - 子路径根目录：`projects/<项目名>/规划/3-分组/`
 - 集级主产物：`projects/<项目名>/规划/3-分组/第N集.md`
-- 主计划：`projects/<项目名>/规划/3-分组/group-plan.md`
-- 证据侧车：`projects/<项目名>/规划/3-分组/执行报告.md`
+- 主计划：默认降为按需 sidecar，不属于父级全链默认交付
+- 证据侧车：默认降为按需 sidecar，不属于父级全链默认交付
 
 ## 输入合同
 
 ### 必需输入
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/<项目名>/Init/north_star.yaml`
+- `projects/<项目名>/Init/init_handoff.yaml`
 - 当前明确的待分组材料
 
 ### 合法待分组材料
@@ -159,7 +156,8 @@ flowchart LR
    - 尾组 `< 5 秒` 并组规则
 2. `episode_load_score`、`group_load_score` 只保留为规划阶段摘要指标，不得覆盖上面的硬门槛。
 3. 若当前阶段尚无字段化正文，允许做“规划级估算”，但必须在 `执行报告.md` 明确标注“估算”而非“导演阶段精算”。
-4. 路由与模板若涉及量化判断，必须回指 `references/scene-duration-projection.md`，不得在兄弟文档各自重写一套。
+4. 裁决合同与模板若涉及量化判断，必须回指 `references/scene-duration-projection.md`，不得在兄弟文档各自重写一套。
+5. `warn-low / warn-high / error` 只允许存在于候选分析或返工判断，不允许作为正式 `第N集.md` 的通过状态落盘。
 
 ## 分镜时间基线合同（Mandatory）
 
@@ -170,12 +168,14 @@ flowchart LR
 1. `第N集.md` 的 episode frontmatter 必须显式维护：
    - `默认组时长`
    - `分镜组时长映射`
+   - `时长偏离证据`
 2. `默认组时长` 负责声明当前集默认组总时长；若无上游覆盖，默认写 `15秒`。
 3. `分镜组时长映射` 只登记偏离默认值的组；无偏离时写 `{}`，不得省略成隐式规则。
-4. 每组的 `estimated_duration_seconds` 必须与 `分镜组时长映射 -> 默认组时长` 解析出的组总时长保持一致，不允许 frontmatter、计划表和组章节三套口径漂移。
-5. 下游 `5-分镜构图` 及其 validator 读取链固定为：
+4. 若 `分镜组时长映射` 非空，`时长偏离证据` 必须同时给出可追溯的上游证据；无证据不得偏离默认 `15秒`。
+5. 每组的 `estimated_duration_seconds` 必须与 `分镜组时长映射 -> 默认组时长` 解析出的组总时长保持一致，不允许 frontmatter、计划表和组章节三套口径漂移。
+6. 下游 `5-分镜构图` 及其 validator 读取链固定为：
    - `分镜组时长映射 -> 默认组时长 -> 切分时长策略`
-6. 帧级时间字段格式、场景类型化分配、节奏联动与 `FAIL-TIME-*` 失败码统一以 `references/scene-duration-projection.md` 的下游交接协议为准；本 `SKILL.md` 不重复展开帧级切分正文。
+7. 帧级时间字段格式、场景类型化分配、节奏联动与 `FAIL-TIME-*` 失败码统一以 `references/scene-duration-projection.md` 的下游交接协议为准；本 `SKILL.md` 不重复展开帧级切分正文。
 
 ## 量化指标合同（Mandatory）
 
@@ -199,7 +199,7 @@ flowchart LR
 - `warn_window`
   - 形如 `84-126` 的建议区间。
 - `hard_text_window`
-  - 基准字窗的 `1.5x` 上限。
+  - 基准字窗的 `1.1x` 上限。
 - `structure_unit_count`
   - 本集内可作为分组输入的最小结构单位数。
   - 章节块、场次块、任务块、模块块、镜头包各记 `1`。
@@ -231,6 +231,13 @@ flowchart LR
 - `effective_text_chars`
 - `window_status`
   - `ok / warn-low / warn-high / error`
+
+硬规则：
+
+1. 正式 `第N集.md` 的分组计划表与组章节只允许 `window_status=ok`。
+2. 若某组经量化后仍为 `warn-low / warn-high / error`，当前轮必须回退重分或等待上游豁免，不得继续宣称 `3-分组` 已完成。
+3. 当 `primary_story_source.source_type in {storyboard_script, hybrid_story_text}` 且当前组 `source_span` 可解析为镜号范围时，`effective_text_chars` 必须由故事主源回算，不得人工拍脑袋填写。
+4. 若命中了上述主源回算条件，但 `source_span` 不是可机读的镜号范围，或回算结果与填写值不一致，当前轮必须视为返工，不得继续落盘正式 `第N集.md`。
 - `group_unit_count`
 - `group_turning_point_count`
 - `group_dependency_count`
@@ -262,22 +269,16 @@ flowchart LR
 
 缺任一项，视为 `FAIL-GRP-FILES` 候选。
 
-## Route Reference Canonical Source
+## Unified Decision Canonical Source
 
-`G1/G2/G3` 的执行细则、边界样例与回退条件，以本目录 `references/` 为单一真源；本 `SKILL.md` 只保留判路顺序、硬门槛与落盘合同，不再在多个区块静默重写一套细则。
+`3-分组` 不再在 `G1/G2/G3` 之间选主路由。当前统一执行方法、边界样例与回退条件，以本目录 `references/` 为单一真源；本 `SKILL.md` 只保留硬门槛与落盘合同。
 
 通用量化真源：`references/scene-duration-projection.md`
 
-| route | canonical reference | 用途 |
-| --- | --- | --- |
-| `G1 预设驱动` | `references/type-strategies.md#G1-预设驱动` | 当用户、`north_star` 或 `init_handoff` 已明确分组规模、批次或硬边界时，说明如何严格执行预设并处理冲突 |
-| `G2 结构驱动` | `references/type-strategies.md#G2-结构驱动` | 当单集内部已有章节、场次、段落包、任务链或模块链时，说明如何沿天然断点归组 |
-| `G3 负载驱动` | `references/type-strategies.md#G3-负载驱动` | 当预设不足且结构不稳时，说明如何按工作量、依赖闭环、并行度与下游消费压力平衡分组 |
-
 硬规则：
 
-1. 锁定主路由后，必须加载并遵守 `references/type-strategies.md` 中对应小节，再生成候选边界。
-2. 路由细则若需升级，优先修改对应 reference；只有优先级、硬门槛或落盘合同变化时才回写本 `SKILL.md`。
+1. 必须先加载并遵守 `references/type-strategies.md` 中的“统一多维量化裁决”，再生成候选边界。
+2. `preset_registry`、结构锚点、依赖闭环和量化结果是同一套裁决输入，不得再拆成互斥主路由。
 3. `references/` 中的示例是执行基线，不是可随意跳过的参考阅读。
 
 ## Standard Reference Modules（Mandatory）
@@ -287,8 +288,8 @@ flowchart LR
 | standard module | canonical file | 负责内容 | 继续回指的领域真源 |
 | --- | --- | --- | --- |
 | 思维链细则 | `references/chain-of-thought.md` | `S1-S7` 的思考顺序、裁决轴、字段落盘关系 | `Field Master`、`Thought Pass Map` |
-| 执行流程细则 | `references/execution-flow.md` | 阶段推进、tranche、回退与 Mermaid 主流程 | `主路由合同`、`Validation Entry` |
-| 类型化策略细则 | `references/type-strategies.md` | `G1/G2/G3` 差异、量化继承、降级与回退 | `references/type-strategies.md`、`references/scene-duration-projection.md` |
+| 执行流程细则 | `references/execution-flow.md` | 阶段推进、tranche、回退与 Mermaid 主流程 | `统一裁决合同`、`Validation Entry` |
+| 类型化策略细则 | `references/type-strategies.md` | 统一多维裁决、量化继承、降级与回退 | `references/type-strategies.md`、`references/scene-duration-projection.md` |
 | 输出模板细则 | `references/output-template.md` | 产物职责、模板骨架、字段到模板映射 | `templates/*.md`、`scripts/validate_grouping.py` |
 
 硬规则：
@@ -297,27 +298,22 @@ flowchart LR
 2. 若未来要升级思维链、流程、模板说明，优先修改对应标准模块；若升级会影响阶段边界、强制字段或失败码，再回写本 `SKILL.md`。
 3. 不允许在 `SKILL.md`、标准模块、领域专项 reference 三处各自静默演化出不同口径。
 
-## 主路由合同（Mandatory）
+## 统一多维量化裁决合同（Mandatory）
 
-分组必须按以下优先级选择唯一主路由：
+分组统一按以下顺序执行：
 
-1. `G1 预设驱动`
-   - 用户、项目约束或 `0-Init` 种子已明确组数、批次、波次或模块边界
-   - 执行细则与示例：`references/type-strategies.md#G1-预设驱动`
-2. `G2 结构驱动`
-   - 输入材料本身已有清晰的章节、场次、模块、任务包结构
-   - 执行细则与示例：`references/type-strategies.md#G2-结构驱动`
-3. `G3 负载驱动`
-   - 预设不足且天然结构不够稳定时，按工作量、依赖闭环与下游可并行性做平衡分组
-   - 执行细则与示例：`references/type-strategies.md#G3-负载驱动`
+1. 锁定不可违背的上游约束
+2. 生成结构上成立的候选边界
+3. 检查依赖闭环、串并行关系与下游 handoff
+4. 用量化真源验证时长、字窗和有效字数
+5. 在可通过的候选中，选择返工成本最低的一组边界
 
 硬规则：
 
-1. 路由确定前不得直接改写对应 `第N集.md`，也不得新增 `第N组.md`。
-2. 若 `G1` 可用，不得绕过预设自行重排组数。
-3. 若 `G2` 可用，优先沿用现有结构断点，再用 `G3` 做微调。
-4. 每个组边界都必须能回答“为什么在这里切开或合并，而不是前后相邻位置”。
-5. 路由总表、裁决摘要与路由内细则统一写在 `references/type-strategies.md`；不再维护 `g1/g2/g3` 并列文件。
+1. 裁决完成前不得直接改写对应 `第N集.md`，也不得新增 `第N组.md`。
+2. `projected_group_ids` 只能作为约束或追踪索引，不能跳过当前裁决直接等同正式组数。
+3. 每个组边界都必须能回答“为什么在这里切开或合并，而不是前后相邻位置”。
+4. 裁决总表、边界摘要与回退细则统一写在 `references/type-strategies.md`。
 
 ## 结构容器合同（Mandatory）
 
@@ -351,7 +347,7 @@ flowchart LR
 
 | artifact | canonical template | 用途 |
 | --- | --- | --- |
-| `group-plan.md` | `templates/group-plan.md` | 项目级或阶段级分组总览，只负责跨集摘要与分组主路由结果 |
+| `group-plan.md` | `templates/group-plan.md` | 项目级或阶段级分组总览，只负责跨集摘要与边界裁决结果 |
 | `第N集.md` | `templates/grouped-episode.md` | 单集分组真源，负责落盘分组表与组级容器 |
 | `执行报告.md` | `templates/validation-report.md` | 证据侧车，负责输入清单、路由裁决、边界证据与验收结论 |
 
@@ -366,7 +362,8 @@ flowchart LR
 
 - 契约校验入口：`scripts/validate_grouping.py`
 - 默认用途：
-  - 校验 `group-plan.md`、`第N集.md`、`执行报告.md` 是否齐全
+  - 强校验 `第N集.md` 是否齐全
+  - 若存在 `group-plan.md`、`执行报告.md`，再校验其 sidecar 结构是否齐全
   - 校验集粒度未漂移到 `第N组.md`
   - 校验 frontmatter、强制章节、分组计划表、组级容器、依赖说明与报告区块
   - 校验 `默认组时长 / 分镜组时长映射` 与每组 `estimated_duration_seconds` 是否一致
@@ -383,7 +380,7 @@ flowchart LR
 | field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- |
 | FIELD-GRP-INPUT-01 | `执行报告.md / 输入清单` | 列出全部待分组材料、顺序、范围与来源 | 输入扫描结果 | S1 | 输入覆盖率 | FAIL-GRP-INPUT |
-| FIELD-GRP-ROUTE-02 | `执行报告.md / 路由决议` | 明确最终采用 `G1/G2/G3` 及放弃其他路由的原因 | `north_star`、`init_handoff`、结构评估 | S2 | 路由正确性 | FAIL-GRP-ROUTE |
+| FIELD-GRP-DECISION-02 | `执行报告.md / 边界裁决摘要` | 明确不可动约束、主要裁决依据与终裁理由 | `north_star`、`init_handoff`、manifest、结构评估 | S2 | 裁决正确性 | FAIL-GRP-DECISION |
 | FIELD-GRP-BOUNDARY-03 | `执行报告.md / 候选边界` | 列出候选分组边界、锚点与排除理由，并确认未越过 `1-分集` 集边界 | 原文结构、任务包、模块列表、逐集文件 | S3 | 边界可解释性 | FAIL-GRP-BOUNDARY |
 | FIELD-GRP-PLAN-04 | `第N集.md / 分组计划表` | 在对应集文件中给出每组范围、结构锚点、时长估算、字窗状态、负载分、依赖、并行性、下游入口与边界理由；其中 `estimated_duration_seconds` 必须与 episode frontmatter 的组时长基线一致 | 边界收窄结果 | S4 | 结构稳定性 | FAIL-GRP-PLAN |
 | FIELD-GRP-FILES-05 | `第N集.md / 组级容器` | 为每个组落盘固定字段、组目标、结构锚点、量化指标、字窗压力、依赖与并行性判断，并在 episode frontmatter 显式写出 `默认组时长 / 分镜组时长映射` | 最终分组方案 | S5 | 输出结构完整性 | FAIL-GRP-FILES |
@@ -397,7 +394,7 @@ flowchart LR
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | S1 | FIELD-GRP-INPUT-01 | 输入是否完整且顺序清晰 | 扫描待分组材料并生成输入清单 | 漏材料、范围不明、顺序断裂 |
-| S2 | FIELD-GRP-ROUTE-02 | 当前应走哪条主路由 | 锁定 `G1/G2/G3` 并写明理由 | 还没判路由就开始分组 |
+| S2 | FIELD-GRP-DECISION-02 | 当前有哪些不可违背约束与终裁依据 | 锁定约束并写明终裁理由 | 还没锁约束就开始分组 |
 | S3 | FIELD-GRP-BOUNDARY-03 | 哪些边界具有真实结构价值且不跨集 | 形成候选边界与排除说明 | 只按数量平均切组或擅自改集边界 |
 | S4 | FIELD-GRP-PLAN-04 | 集内分组计划是否可交接 | 在对应 `第N集.md` 中生成组级计划表与编号 | 组间职责重叠或空洞 |
 | S5 | FIELD-GRP-FILES-05 | 是否能稳定落盘集级分组文档 | 输出 `第N集.md` 中的组容器 | 只有计划表，没有组级容器，或额外长出 `第N组.md` |
@@ -409,8 +406,8 @@ flowchart LR
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
 | FIELD-GRP-INPUT-01 | 输入材料完整可追溯 | FAIL-GRP-INPUT | S1 |
-| FIELD-GRP-ROUTE-02 | 主路由唯一且有证据 | FAIL-GRP-ROUTE | S2 |
-| FIELD-GRP-BOUNDARY-03 | 边界具备结构或负载依据 | FAIL-GRP-BOUNDARY | S3 |
+| FIELD-GRP-DECISION-02 | 边界裁决依据完整且可审计 | FAIL-GRP-DECISION | S2 |
+| FIELD-GRP-BOUNDARY-03 | 边界具备结构、依赖与量化依据 | FAIL-GRP-BOUNDARY | S3 |
 | FIELD-GRP-PLAN-04 | 分组计划稳定、清晰、可交接 | FAIL-GRP-PLAN | S4 |
 | FIELD-GRP-FILES-05 | 每集文件内的组级容器结构完整 | FAIL-GRP-FILES | S5 |
 | FIELD-GRP-DEP-06 | 串并行关系明确可执行 | FAIL-GRP-DEP | S6 |
@@ -431,7 +428,7 @@ flowchart LR
 
 当出现以下症状时，必须优先修本子技能或父级路由合同，而不是只补单次分组结果：
 
-- 已经写了若干“组”，但没有统一分组主路由
+- 已经写了若干“组”，但没有统一边界裁决摘要
 - 分组结果只是平均切块，缺乏边界理由与下游入口
 - 把集内分组误写成 `第N组.md` 独立文件，导致与 `1-分集` 粒度冲突
 - 参考仓思路被直接照抄，导致当前仓路径与阶段边界失配
@@ -462,8 +459,8 @@ flowchart LR
 ## 完成标准
 
 - 已明确待分组材料范围
-- 已锁定唯一主路由 `G1/G2/G3`
-- 已加载并遵守对应 route reference
+- 已完成统一多维量化裁决
+- 已加载并遵守对应 reference
 - 已确认并继承 `1-分集` 的集边界
 - 已形成候选边界与分组计划表
 - 已完成依赖与并行性检查

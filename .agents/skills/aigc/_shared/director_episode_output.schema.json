@@ -459,9 +459,9 @@
     {
       "metadata": {
         "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-planning-episode-split",
+        "skill_id": "aigc-inter-group",
         "template_version": "bootstrap-v1",
-        "source_route": "1-规划/1-分集 -> 编导根文件初始化",
+        "source_route": "2-组间 -> 编导根文件初始化",
         "episode_id": "第2集",
         "document_phase": "bootstrapped",
         "created_at": "2026-04-10T12:30:00-07:00"
@@ -477,7 +477,7 @@
           "分镜组列表": []
         },
         "acceptance_notes": [
-          "允许 bootstrapped 空壳存在。",
+          "允许 2-组间 在首次进入时自动创建 bootstrapped 空壳。",
           "后续由 2-组间 与 3-明细 继续补全。"
         ]
       }

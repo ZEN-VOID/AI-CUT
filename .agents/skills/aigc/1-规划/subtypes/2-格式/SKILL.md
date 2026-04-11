@@ -8,15 +8,15 @@ governance_tier: full
 
 ## 概述
 
-`2-格式` 是 `1-规划` 阶段里负责“文稿格式真源”的父技能。
+`2-格式` 是 `1-规划` 阶段里负责“文稿格式化结果”的父技能。
 
 它只负责三件事：
 
 1. 识别当前项目需要哪一种文稿格式变体
-2. 把格式合同、样例骨架与验收方式锁成规划层真源
-3. 把唯一主变体交接给后续 `3-明细` 与 `5-画面`
+2. 在不改动原文事实与原文措辞的前提下，为已确定集内容附加该变体下的字段标题与场景骨架
+3. 把唯一主变体与格式化结果稿交接给后续 `3-分组`、`2-组间` 与 `3-明细`
 
-它不直接代写整集正文，也不替下游阶段发明表现细节。
+它不新增故事事实，也不替下游阶段发明导演、镜头或主体细节。
 
 ## When to Use
 
@@ -36,9 +36,8 @@ governance_tier: full
 ### `2-格式` 拥有
 
 - 变体判定
-- 文稿格式合同
-- 字段模板与最小示例
-- 结构化验证清单
+- 集级格式化结果稿
+- 字段附加规则
 - 向下游阶段的格式交接说明
 
 ### `2-格式` 不拥有
@@ -46,6 +45,7 @@ governance_tier: full
 - 逐场景对白、独白、旁白正文创作
 - 导演意图、视听风格或镜头语法真源
 - 项目分组/批次规划
+- `## G01 / G02 ...` 一类组容器或组级摘要投影
 
 ## Reference Modules (Mandatory)
 
@@ -66,25 +66,25 @@ governance_tier: full
 
 ```mermaid
 flowchart TD
-    A["进入 2-格式"] --> B["读取 0-Init seeds + 1-分集结果 + 用户偏好"]
+    A["进入 2-格式"] --> B["读取 Init seeds + 1-分集结果 + 用户偏好"]
     B --> C["完成 VSM 判模"]
     C --> D{"唯一主变体裁决"}
     D -->|"未显式要求解说 / 默认表演优先"| E["进入 subtypes/标准剧"]
     D -->|"显式要求旁白主导 / 解说剧"| F["进入 subtypes/解说剧"]
     D -->|"用户要求双案对照"| G["并行生成两套合同并标推荐主案"]
-    E --> H["产出 标准剧合同/样例/局部验证"]
-    F --> I["产出 解说剧合同/样例/局部验证"]
+    E --> H["产出 标准剧格式化结果稿"]
+    F --> I["产出 解说剧格式化结果稿"]
     G --> J["汇总双案对照与推荐主案"]
-    H --> K["汇总父级 validation-report.md"]
+    H --> K["汇总父级结果结论"]
     I --> K
     J --> K
 ```
 
 ```mermaid
 flowchart LR
-    A["projects/<项目名>/0-Init/north_star.yaml"] --> D["2-格式判模"]
-    B["projects/<项目名>/0-Init/init_handoff.yaml"] --> D
-    C["projects/<项目名>/规划/1-分集/"] --> D
+    A["projects/<项目名>/Init/north_star.yaml"] --> D["2-格式判模"]
+    B["projects/<项目名>/Init/init_handoff.yaml"] --> D
+    C["projects/<项目名>/Init/episode-split-plan.json 或 projects/<项目名>/规划/第N集.md"] --> D
     D --> E["标准剧"]
     D --> F["解说剧"]
     E --> G["projects/<项目名>/规划/2-格式/"]
@@ -95,17 +95,14 @@ flowchart LR
 ## Canonical Landing
 
 - 父级根目录：`projects/<项目名>/规划/2-格式/`
-- 父级总报告：`projects/<项目名>/规划/2-格式/validation-report.md`
-- 标准剧合同：`projects/<项目名>/规划/2-格式/标准剧/格式合同.md`
-- 标准剧样例：`projects/<项目名>/规划/2-格式/标准剧/格式样例.md`
-- 解说剧合同：`projects/<项目名>/规划/2-格式/解说剧/格式合同.md`
-- 解说剧样例：`projects/<项目名>/规划/2-格式/解说剧/格式样例.md`
+- 父级结果稿：`projects/<项目名>/规划/2-格式/第N集.md`
+- 父级总报告：默认降为按需 sidecar；父级全链模式下以 `projects/<项目名>/规划/第N集.md` 中的格式化正文为准
 
 ## 输入合同
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/规划/1-分集/` 下的逐集文档或分集执行报告
+- `projects/<项目名>/Init/north_star.yaml`
+- `projects/<项目名>/Init/init_handoff.yaml`
+- `projects/<项目名>/Init/episode-split-plan.json` 或 `projects/<项目名>/规划/第N集.md`
 - 项目预设中的叙事类型、受众、平台时长、消费节奏说明
 - 用户提供的参考文稿或既有项目格式样例
 
@@ -117,20 +114,26 @@ flowchart LR
 
 ## 核心约束（Mandatory）
 
-1. 先判变体，再写格式合同。
+1. 先判变体，再写格式化结果稿。
 2. 没有显式“解说剧 / 旁白主导”信号时，默认进入 `标准剧`。
 3. `标准剧` 与 `解说剧` 正式落盘时默认互斥，只能输出唯一主变体。
 4. 若用户明确要求“两套格式都做对照”，允许并行生成，但必须显式标注推荐主变体。
-5. 参考仓只继承能力结构，不继承旧路径；所有产物必须重写到当前 `projects/<项目名>/规划/2-格式/`。
+5. 参考仓只继承能力结构，不继承旧路径；所有结果必须重写到当前 `projects/<项目名>/规划/2-格式/`。
+6. `2-格式` 默认执行模式为“原文保真 + 字段标题附加”：允许补 `### 场景X`、`动作画面：`、`对白（角色）：`、`对白画面：` 等结构标题，但不得改写、压缩、润色、同义替换或重述原文正文。
+7. 若 `source_type in {storyboard_script, hybrid_story_text}` 且 `locked_preset_axes` 包含 `scene_boundary`，`场景号` 只能按连续时空编号；`镜号 / 锚点 / 组号` 必须单独显式保留，不得把镜号直接升格为新场景号。
+8. 若 `source_type in {storyboard_script, hybrid_story_text}`，`2-格式` 必须优先保留上游已明确写出的镜头语言；处理重点是把既有分镜表达规范化整理，而不是默认补齐第二套画面结构。
+9. 若上游已提供可解析的场景标题、场次边界或镜头块标题，结果稿必须优先复用这些结构证据，不得先抹平再重概括。
+10. `镜头语言预设` 仅允许整理上游已明确写出的运镜/镜头提示，且必须紧跟相关 `*画面` 条目；不得凭空新增、脑补补写或把导演层推断伪装成源文本证据。
+11. `2-格式/第N集.md` 只能保持 scene-first draft，不得提前写入 `## G01 / G02 ...` 组容器；组级投影只属于 `3-分组` 子产物与父级 `规划/第N集.md` 聚合阶段。
 
 ## Mandatory Workflow
 
 执行摘要如下；详细 phase、fallback 与局部验证顺序见 `references/execution-flow.md`：
 
-1. 读取 `0-Init` 种子、`1-分集` 结果与用户要求，确认任务属于“格式规划”。
+1. 读取 `Init` 种子、`1-分集` 结果与用户要求，确认任务属于“格式化处理”。
 2. 依据 `references/type-strategies.md` 完成变量识别、情况判定与唯一主变体裁决。
-3. 路由到 `标准剧` 或 `解说剧` 子技能，生成对应的格式合同、格式样例与局部验证。
-4. 在父级 `validation-report.md` 汇总采用理由、放弃原因、风险与下游交接说明。
+3. 路由到 `标准剧` 或 `解说剧` 子技能，按被选变体为当集原文附加字段标题与场景骨架，不改写原文正文。
+4. 默认落盘 `projects/<项目名>/规划/2-格式/第N集.md`；说明性报告仅按需保留。
 5. 返回唯一推荐入口；若双案对照，则返回“推荐主案 + 备选案”的明确关系。
 
 ## Council Runtime Inheritance (Mandatory)
@@ -148,41 +151,33 @@ flowchart LR
 
 主模板真源位于 `references/output-template.md`。父技能至少应稳定产出：
 
-- `validation-report.md`
+- `第N集.md` 格式化结果稿
 - 主变体选择结论
-- 合同摘要与样例入口
-- 放弃另一变体的原因
 - 下游交接说明与返工入口
 
 ## Field Master
 
 | field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- |
-| FIELD-FMT-VARIANT-01 | `validation-report.md / 变体裁决` | 唯一裁决为 `标准剧` 或 `解说剧`，并说明理由 | 用户要求、项目预设、`0-Init` 种子 | S1 | 判模准确性 | FAIL-FMT-VARIANT |
-| FIELD-FMT-CONTRACT-02 | `<变体>/格式合同.md` | 写明场景标题、字段层级、文本层边界与使用门禁 | 参考仓能力 + 当前项目约束 | S2 | 合同完整性 | FAIL-FMT-CONTRACT |
-| FIELD-FMT-SAMPLE-03 | `<变体>/格式样例.md` | 提供最小可消费样例，供下游直接对齐 | 选定变体合同 | S3 | 可消费性 | FAIL-FMT-SAMPLE |
-| FIELD-FMT-VALIDATE-04 | `validation-report.md / 验收结论` | 给出结构检查项、失败码与返工入口 | 合同与样例对照检查 | S4 | 验证闭环 | FAIL-FMT-VALIDATE |
-| FIELD-FMT-HANDOFF-05 | `validation-report.md / 下游交接说明` | 说明下游按何格式继续执行，以及哪些边界不在本阶段解决 | 父子技能结论 | S5 | 交接清晰度 | FAIL-FMT-HANDOFF |
+| FIELD-FMT-VARIANT-01 | `第N集.md / 文稿格式` | 唯一裁决为 `标准剧` 或 `解说剧`，并按其规则附加字段标题 | 用户要求、项目预设、`Init` 种子 | S1 | 判模准确性 | FAIL-FMT-VARIANT |
+| FIELD-FMT-DRAFT-02 | `第N集.md / 正文场景块` | 在不改变原文措辞的前提下，把原文挂到场景与字段标题下 | 原文、被选变体规则 | S2 | 结果稿完整性 | FAIL-FMT-DRAFT |
+| FIELD-FMT-HANDOFF-03 | `第N集.md / 结构边界` | 保留供 `3-分组` 可继续切组的场景边界、字段边界和锚点关系；不得提前写入组容器 | 父子技能结论 | S3 | 交接清晰度 | FAIL-FMT-HANDOFF |
 
 ## Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | S1 | FIELD-FMT-VARIANT-01 | 现有信号支持哪一种主变体 | 锁定唯一主变体并说明原因 | 标准/解说边界模糊 |
-| S2 | FIELD-FMT-CONTRACT-02 | 该变体的格式合同该交给下游什么真源 | 产出可执行格式合同摘要并回链子技能 | 只有风格描述，没有字段规则 |
-| S3 | FIELD-FMT-SAMPLE-03 | 下游如何一眼理解该格式 | 确认最小样例已由子技能产出 | 样例不能直接指导写作 |
-| S4 | FIELD-FMT-VALIDATE-04 | 如何知道合同可用 | 写验证清单、失败码与回退链 | 只能凭主观感觉验收 |
-| S5 | FIELD-FMT-HANDOFF-05 | 如何把结果交给下游 | 产出明确交接说明 | 下游不知道按什么格式续跑 |
+| S2 | FIELD-FMT-DRAFT-02 | 如何在不改写原文的前提下附加该变体字段 | 产出可直接阅读的保真格式稿 | 改写了原文或只剩合同说明 |
+| S3 | FIELD-FMT-HANDOFF-03 | 如何把结果交给 `3-分组` 与父级主稿 | 保留场景边界与锚点关系 | 下游不知道从哪里继续切组 |
 
 ## Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
 | FIELD-FMT-VARIANT-01 | 主变体唯一且理由清楚 | FAIL-FMT-VARIANT | S1 |
-| FIELD-FMT-CONTRACT-02 | 字段、门禁、边界完整 | FAIL-FMT-CONTRACT | S2 |
-| FIELD-FMT-SAMPLE-03 | 样例能直接示范写法 | FAIL-FMT-SAMPLE | S3 |
-| FIELD-FMT-VALIDATE-04 | 有验收项、失败码和返工入口 | FAIL-FMT-VALIDATE | S4 |
-| FIELD-FMT-HANDOFF-05 | 下游入口与边界清楚 | FAIL-FMT-HANDOFF | S5 |
+| FIELD-FMT-DRAFT-02 | 结果稿可直接阅读，且原文措辞未被改写 | FAIL-FMT-DRAFT | S2 |
+| FIELD-FMT-HANDOFF-03 | 下游入口与边界清楚 | FAIL-FMT-HANDOFF | S3 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -211,9 +206,8 @@ flowchart LR
 ## 完成标准
 
 - 已锁定唯一主变体
-- 已产出对应变体的 `格式合同.md`
-- 已产出对应变体的 `格式样例.md`
-- 已汇总父级 `validation-report.md`
+- 已产出对应集的格式化结果稿 `第N集.md`
+- 结果稿已可被 `3-分组` 继续消费
 - 已给出下游唯一推荐入口
 
 ## Context Preload (Mandatory)

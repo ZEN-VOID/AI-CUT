@@ -68,7 +68,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["1-规划 / bootstrap 第N集.json"] --> B["2-组间 / patch 组级字段"]
+    A["1-规划 / 分组结果 + source_profile handoff"] --> B["2-组间 / 首次建根并 patch 组级字段"]
     B --> C["3-明细 / patch 镜级字段"]
     C --> D["4-主体 / 5-画面 / 6-视频"]
 ```
@@ -102,7 +102,7 @@ flowchart LR
 - 进入阶段后，先判定是否启用 `team.yaml` 顾问团运行时
 - 再读取 `0-Init` 与 `1-规划` 结果，锁定唯一主子路径
 - 再读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，确认本阶段的 canonical runtime 是 `projects/<项目名>/编导/第N集.json`
-- 执行前默认加载已落盘的整份 `projects/<项目名>/编导/第N集.json` 作为 patch 上下文
+- 执行前默认加载已落盘的整份 `projects/<项目名>/编导/第N集.json` 作为 patch 上下文；若文件不存在，则先自动初始化再进入 patch
 - 若当前任务混入节奏蓝图裁决，优先读取 `1-规划/4-节奏/第N集.md`
 - 最终产物统一 patch 回 `projects/<项目名>/编导/第N集.json`，并以 `projects/<项目名>/编导/validation-report.md` 做阶段验收
 - 详细 council runtime 与完整流程见 `references/execution-flow.md`
@@ -112,7 +112,7 @@ flowchart LR
 - 根技能负责阶段级落点、阶段验收与下一阶段 handoff
 - 子技能分别负责：全组一致的 `全局风格`、全组半一致半动态的 `类型元素`，以及逐组展开的 `导演意图`
 - 分组后的节奏蓝图由 `1-规划/4-节奏` 提供，`2-组间` 负责消费而非重建
-- `1-分集` 先负责 bootstrap 空的 `projects/<项目名>/编导/第N集.json`
+- `2-组间` 在首次进入且根文件缺失时负责自动 bootstrap `projects/<项目名>/编导/第N集.json`
 - `2-组间` 只负责 patch `final_output.main_content.分镜组列表[]` 下的组级字段，不另起第二正文或第二集文件
 - 结构化真源统一继承 `.agents/skills/aigc/_shared/director_episode_output.schema.json`，不在阶段内另起平行字段壳
 - 各子路径主产物、thinking sidecar 与阶段输出总表见 `references/output-template.md`
@@ -214,7 +214,7 @@ flowchart LR
 
 - 每次调用本技能时，必须自动加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，建议同时按需读取 `references/*.md` 以获取模块细则。
-- 每次调用本技能时，必须额外读取 `.agents/skills/aigc/_shared/project-runtime-layout.md` 与已落盘的 `projects/<项目名>/编导/第N集.json`。
+- 每次调用本技能时，必须额外读取 `.agents/skills/aigc/_shared/project-runtime-layout.md` 与已落盘或待初始化的 `projects/<项目名>/编导/第N集.json`。
 - 若进入具体子路径，继续加载对应 `subtypes/<子路径>/SKILL.md` 与 `CONTEXT.md`。
 - 若项目根 `team.yaml.enabled == true`，继续加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 - 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。

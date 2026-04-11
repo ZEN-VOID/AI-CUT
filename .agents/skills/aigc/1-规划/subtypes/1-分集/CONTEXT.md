@@ -22,8 +22,8 @@
 
 | failure_or_outcome_type                                          | root_cause_layer | immediate_fix                                                              | systemic_prevention                                      | verification_point                                             |
 | ---------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
-| 直接继承旧仓路径，落点仍指向 `output/影片/...`                 | 路径合同层       | 重写到 `projects/<项目名>/规划/1-分集/`                                | 在主合同中锁定 Canonical Landing                         | 所有产物都落在当前项目工作区                                   |
-| 只落 `第N集.md`，缺少证据侧车                                  | 输出合同层       | 补 `执行报告.md` 与验收结论                                              | 固化“逐集正文 + 证据侧车”双轨输出                      | 分集决策可追溯                                                 |
+| 直接继承旧仓路径，落点仍指向 `output/影片/...`                 | 路径合同层       | 重写到 `projects/<项目名>/Init/episode-split-plan.json`，并同步 bootstrap 到 `projects/<项目名>/编导/第N集.json` | 在主合同中锁定 canonical child output 与 bootstrap landing | 所有产物都落在当前项目工作区                                   |
+| 把父级 `规划/第N集.md` 误当成 `1-分集` 主产物                  | 输出合同层       | 收回到 `episode-split-plan.json + 可选 report sidecar`，只向父级提供边界/coverage/bootstrap patch | 固化“子技能真源 vs 父级聚合主稿”分层                    | `1-分集` 不再和父级主稿争写权                                   |
 | `P1/P2/P3` 主路由混用                                          | 路由层           | 强制先锁唯一主策略，再加载细则模块                                         | 在 VSM 中固定 `P1 -> P2 -> P3` 判定顺序                | 路由决议唯一且可解释                                           |
 | 路由细则散落在多份 `p1/p2/p3` 文档中，主合同与细则模块开始漂移 | 真源治理层       | 收敛为 `references/type-strategies.md` 单一策略真源                      | 将思维链、流程、类型策略、模板拆成四模块 `references/` | 主合同不再平行重写长细则                                       |
 | 混合剧本文本被误当脏数据                                         | 输入契约层       | 按证据保真重跑输入判定，把场次、镜头组、运镜提示视为原文证据并允许进入正文 | 在输入原则、类型策略与输出模板同时锁定“保留而非清洗”   | 混合文本既能稳定分集，也不会在 `【剧本正文】` 中被擅自小说化 |
@@ -32,6 +32,8 @@
 | 没有故事主源也直接开始分集 | 共享输入真源层 | 先读取 `story-source-manifest.yaml`，未放行则返回标准补充卡 | 将故事源缺失判断固化为 `Story Source Readiness Gate` | 没有主故事源时，`1-分集` 不再偷偷用执行案或印象流替代 |
 | 已有部分原文，却仍被整体判为不可分集 | readiness 语义层 | 将“允许进入增量分集”和“允许完成整季正式分集”拆成两层 gate | 在 manifest 中新增 `can_finalize_full_season_episode_split` 与 `split_scope` | 至少一集原文存在时，可进入覆盖范围内的增量分集 |
 | 主故事源明明是分镜脚本，但补充卡和合法枚举仍只写到剧本原文 | 共享枚举同步层 | 在 `1-分集` 主合同里显式把 `分镜脚本` 纳入合法类型与补充卡 | 让 leaf 合同与 `_shared/story-source-contract.md` 同步升级，避免 shared contract 和 leaf prompt 再次漂移 | 用户不再需要把 storyboard source 伪装成“剧本原文 / 其他” |
+| 规划阶段过早创建 `编导/第N集.json`，导致根文件时机早于分组容器稳定 | bootstrap 责任层 | 将 `1-分集` 收回到 `bootstrap_output` 目标路径登记，并把真正初始化责任转移给 `2-组间` | 在 `_shared/project-runtime-layout.md` 与 `2-组间` 合同中固化“缺文件自动建根” | 规划阶段不再提前落空壳，但后续仍有唯一根文件入口 |
+| `1-分集` 没有自己的 `规划/1-分集/第N集.md`，而 `2-格式`、`3-分组` 都有本地 `第N集.md` | 父子输出分层层 | 恢复 `规划/1-分集/第N集.md` 作为本地可读 sidecar，同时保持 canonical 真源仍是 `Init/episode-split-plan.json` | 在 `references/output-template.md` 明确“canonical json 真源 + 本地 md sidecar + 父级规划主稿”三层分工，避免再次把 sidecar 误删成“冲突真源” | `1-分集` 既有机器真源，也有和兄弟子路径一致的人读 sidecar |
 
 ## Repair Playbook
 
@@ -51,10 +53,46 @@
 - 当 `P1` 已成立时，`P2/P3` 只能做边界求解辅助，不应反向推翻主路由规模约束。
 - 把思维链、流程、类型策略、输出模板拆成四个核心模块后，主 `SKILL.md` 更适合保留硬门槛和 field gate，而不是继续膨胀成长说明书。
 - 当后续多个阶段都要围绕同一 episode 文件持续 patch 时，`1-分集` 的最高杠杆动作不是多写一份分集正文，而是先把空的统一根文件创建出来。
+- `1-分集` 的 canonical child output 是 `Init/episode-split-plan.json`；`projects/<项目名>/规划/第N集.md` 只应由父级 `1-规划` 聚合落盘。
 - 若项目只有执行案、人物设定或方法论文档，最稳的处理是把它们登记为 `development_briefs`，并明确告诉用户“还不能正式分集”，而不是让模型擅自假定它们等价于小说原文。
 - 若项目已经落盘至少一集原文，最稳的处理不是继续卡死，而是进入“增量分集”，并在输出里标明当前只覆盖到哪里。
 - 若项目把正文目录改成 `故事/`，`1-分集` 最先要同步的是 manifest 和补充卡里的 canonical 路径，而不是局部硬编码。
 - 若共享故事源合同已经把 `storyboard_script` 视为一等主故事源，`1-分集` 的补充卡与合法枚举也必须同步升级；否则执行时仍会逼用户把 storyboard source 塞进“其他”。
+- `1-分集` 最稳的做法不是提前创建 `编导/第N集.json`，而是只登记 `bootstrap_output` 目标路径与 `source_profile` handoff；真正的首次建根应留给 `2-组间`。
+- `1-分集` 不应该只有 `Init/episode-split-plan.json` 而没有自己的 `规划/1-分集/第N集.md`；更稳的分层是：machine-readable 真源在 `Init/`，人读 sidecar 在 `规划/1-分集/`，父级最终主稿在 `规划/第N集.md`。
+
+### Case-20260411-AIGC-PLAN-EPS-LOCAL-SIDECAR-RESTORE
+
+- milestone_type: source_contract_change
+- outcome: 恢复了 `1-分集` 的本地可读 sidecar `projects/<项目名>/规划/1-分集/第N集.md`，并明确其与 `Init/episode-split-plan.json`、父级 `规划/第N集.md` 的三层分工。
+- root_cause_or_design_decision: 先前为避免 `1-分集` 与父级 `规划/第N集.md` 双真源冲突，合同把 `1-分集` 的本地 `第N集.md` 也一并收掉了；但 `2-格式`、`3-分组` 仍保留各自的 `第N集.md`，导致子路径输出层不一致，也不利于人工核读。
+- final_fix_or_heuristic: `1-分集` 应保留三层落盘：`Init/episode-split-plan.json` 作为 canonical machine-readable 真源，`规划/1-分集/第N集.md` 作为本地可读 sidecar，`规划/第N集.md` 作为父级全链聚合主稿。
+- prevention_or_replication_checklist:
+  - [x] `1-分集/SKILL.md` 已补回本地 sidecar 落点
+  - [x] `1-分集/references/output-template.md` 已补回 sidecar 模板与边界
+  - [x] `1-规划/references/output-template.md` 已记录该 sidecar 的聚合角色
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/references/output-template.md`
+- user_feedback_or_constraint: 用户明确指出“父级 `规划/第N集.md` 包含 1-分集/2-格式/3-分组 的聚合结果，并不与 `1-分集` 自己的 `第N集.md` 冲突”。 
+
+### Case-20260411-AIGC-PLAN-EPS-BOOTSTRAP-TEMPLATE-DRIFT
+
+- milestone_type: new_failure_class
+- outcome: 识别并修复了 `编导/第N集.json` 在 `1-分集` 阶段“schema 通过但模板漂移”的问题。
+- root_cause_or_design_decision: `1-分集` 合同要求“首次创建空白编导根文件，文件内容必须来自 shared bootstrap template”，但实际执行时把分集解释、扩展的 `thinking_chain` 和额外 `acceptance_notes` 直接写进了 bootstrap 根文件，导致文件虽合法却不像模板。
+- final_fix_or_heuristic: `1-分集` 创建 bootstrap 根文件时，只替换 `episode_id / created_at / source_profile` 等必要 runtime 字段；分集边界解释与执行说明继续留在 `episode-split-plan.json` 和 `episode-split-report.md`。
+- prevention_or_replication_checklist:
+  - [x] 实际 `编导/第1集.json` 已收回到模板骨架
+  - [x] `references/output-template.md` 已补充 bootstrap 落盘约束
+  - [x] 本 `CONTEXT.md` 已记录该失败模式
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+  - `projects/嫡母重生/编导/第1集.json`
+- user_feedback_or_constraint: 用户明确指出“`projects/嫡母重生/编导/第1集.json` 不太符合模版要求”。
 
 ### Case-20260410-AIGC-PLAN-EPS-STORY-SOURCE-GATE
 
@@ -453,12 +491,12 @@
 
 - milestone_type: source_contract_change
 - symptom: 当前仓原本缺少可执行的 `1-分集` 子技能合同，直接照搬参考仓会把旧路径合同一并带入。
-- root cause: 真正缺口不是“复制旧技能”，而是把分集能力迁入当前 `projects/<项目名>/规划/1-分集/` 体系，并接回父级 `1-规划` 路由。
-- final fix: 先补父级 `1-规划` 合同，再为 `1-分集` 建立当前仓可执行的主合同、经验层与项目内落点。
+- root cause: 真正缺口不是“复制旧技能”，而是把分集能力迁入当前 `Init/episode-split-plan.json + 编导 bootstrap` 体系，并接回父级 `1-规划` 聚合路由。
+- final fix: 先补父级 `1-规划` 合同，再为 `1-分集` 建立当前仓可执行的主合同、经验层、canonical child output 与 bootstrap 落点。
 - prevention checklist:
   - [X] 主路由已固定为 `P1 > P2 > P3`
   - [X] 主产物与证据侧车已同时定义
-  - [X] 路径合同已切换到 `projects/<项目名>/规划/1-分集/`
+  - [X] 路径合同已切换到 `projects/<项目名>/Init/episode-split-plan.json`
   - [X] 父级 `1-规划` 已能路由到当前子技能
 - evidence paths:
   - `.agents/skills/aigc/1-规划/SKILL.md`
@@ -466,6 +504,23 @@
   - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
   - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
 - user feedback: 用户要求参照 `AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/1-故事分集` 完善当前 `1-分集`，默认以中文合同表达。
+
+### Case-20260411-AIGC-PLAN-EPISODE-SPLIT-PARENT-AGGREGATION
+
+- milestone_type: source_contract_change
+- symptom: 父级 `1-规划` 已改为“子技能顺序执行后汇总到 `projects/<项目名>/规划/第N集.md`”，但 `1-分集` 仍把自己写成 `第N集.md` 的直接写稿者。
+- root cause: 直接技术原因不是分集逻辑错误，而是子技能旧合同没有跟上父级复合型输出治理，导致 `1-分集` canonical child output 与父级聚合主稿发生双真源漂移。
+- final fix: 将 `1-分集` 的落盘职责重新锁回 `Init/episode-split-plan.json + 编导 bootstrap + 可选 report sidecar`，并明确它只向父级提供边界、coverage 与 bootstrap patch。
+- prevention checklist:
+  - [x] `SKILL.md` 已移除“落盘 `第N集.md`”表述
+  - [x] `references/chain-of-thought.md` 已改为 canonical child output 落盘
+  - [x] `CONTEXT.md` 已补“子技能真源 vs 父级聚合主稿”分层 heuristic
+- evidence paths:
+  - `.agents/skills/aigc/1-规划/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/chain-of-thought.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+- user feedback: 用户明确要求 `1-规划` 按 `1-分集 -> 2-格式 -> 3-分组` 顺序执行后，统一汇总到 `projects/嫡母重生：过继局/规划/第N集.md`。
 
 ### Case-20260409-AIGC-PLAN-EPISODE-SPLIT-CREATIVE-SPEC
 
@@ -529,3 +584,35 @@
   - `.agents/skills/aigc/2-组间/SKILL.md`
   - `.agents/skills/aigc/3-明细/SKILL.md`
 - user feedback: 用户明确要求“`1-规划/subtypes/1-分集` 阶段随着分集的确定，索性就把这个 json 的空内容文件落了”。
+
+### Case-20260411-AIGC-PLAN-EPS-SIDECAR-AUTO-LANDING
+
+- milestone_type: source_contract_change
+- symptom: `1-分集` 虽然已经恢复了 `规划/1-分集/第N集.md` sidecar，但执行流仍停留在旧的 `第N集.md / 执行报告.md` 表述，导致 sidecar 更像手动补件而不是默认落盘。
+- root cause: 直接技术原因不是 sidecar 合法性，而是 `references/execution-flow.md` 仍把 `U6/U7` 写成旧一代文件落点，没有把 `plan.json + sidecar + bootstrap + report/index` 的四层关系写成默认执行结果。
+- final fix: 将 `U6` 改为默认落 `Init/episode-split-plan.json + 规划/1-分集/第N集.md + 编导/第N集.json`，`U7` 改为默认落 `Init/episode-split-report.md + Init/episode-index.json`，并同步修正依赖表与 Mermaid。
+- prevention checklist:
+  - [x] `references/execution-flow.md` 已移除旧 `第N集.md / 执行报告.md` 落点
+  - [x] `U6/U7` 已改写为当前真实输出集合
+  - [x] Mermaid 与依赖/写集表已与新落点一致
+- evidence paths:
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/CONTEXT.md`
+- user feedback: 用户明确要求把 `1-分集` 的 sidecar 变成默认自动生成，而不是只在这次手动补。
+
+### Case-20260411-AIGC-PLAN-EPS-DEFER-BOOTSTRAP-TO-INTER-GROUP
+
+- milestone_type: source_contract_change
+- symptom: `1-分集` 虽能提前创建 `编导/第N集.json` 空壳，但用户明确质疑这一步应不应该早于分组与组间阶段。
+- root_cause: 直接技术原因不是没有 bootstrap 模板，而是把“需要统一根文件”误等同于“越早创建越好”；实际上根文件第一次稳定消费发生在 `2-组间`，而不是 `1-分集`。
+- final fix: 将 `1-分集` 的 `FIELD-EPS-MAT-01` 收回成 `bootstrap_output` 目标路径登记，不再在规划阶段默认创建 `编导/第N集.json`；真正的初始化责任转移给 `2-组间` 首次进入时自动执行。
+- prevention checklist:
+  - [x] `1-分集/SKILL.md` 已移除“首次创建编导根文件”表述
+  - [x] `references/execution-flow.md` 已收回到 `plan.json + sidecar`
+  - [x] `references/output-template.md` 已改成“目标路径登记”而非“规划期建根”
+- evidence paths:
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/1-分集/references/output-template.md`
+- user feedback: 用户明确要求“如果无必要，就不在规划阶段落盘，等到 2-编导阶段再根据相关规则自动落盘”。

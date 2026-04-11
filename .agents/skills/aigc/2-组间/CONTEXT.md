@@ -48,7 +48,7 @@
 - 对内容输出型技能族做结构升级时，优先把字段、流程、策略、模板拆进 `references/`，再收缩主 `SKILL.md`，比直接重写整份合同更稳。
 - 对长期维护的可执行技能目录，除 `SKILL.md + CONTEXT.md` 外，还应补齐 `agents/openai.yaml`，这样 Codex / OpenAI 侧的展示名、摘要和默认提示才有稳定入口。
 - 当 `导演意图` 与 `3-明细` 共享同一组级/镜级事实时，最稳的做法是让 `_shared/*.schema.json` 承担结构真源，阶段文档只维护语义和写位，不再各自发明 JSON 壳。
-- 当 `1-分集` 已经先创建了空的 `编导/第N集.json`，`2-组间` 最该守住的不是“再写一份组间主文件”，而是只 patch 自己负责的组级字段。
+- 当规划阶段只留下 `bootstrap_output` 与 `source_profile` handoff 时，`2-组间` 最该守住的不是等待别人先建根，而是“缺文件就自动初始化，再只 patch 自己负责的组级字段”。
 - 对复合型多子技能包来说，最稳的输出结构不是“每个子技能把完整三段式灌进根文件”，而是“根文件只收最终字段，三段式思维链留在 sidecar”。
 - 对复合型多子技能包来说，最稳的聚合方式不是“每轮全量子技能都过一遍”，而是“只聚合本轮命中的子技能 patch”；未命中能力与总 json 无关。
 - 当叶子层开始共享同一份 `projects/<项目名>/编导/第N集.json` 时，最容易长回来的旧习惯是“叶子自认拥有自己的阶段主稿”；最稳的修法是强制每个 leaf 在 `execution-flow.md` 中显式写出 `patch target / sidecar / selected_subskills only`。
@@ -261,3 +261,20 @@
   - `.agents/skills/aigc/2-组间/subtypes/导演意图/CONTEXT.md`
   - `.agents/skills/aigc/2-组间/subtypes/导演意图/references/chain-of-thought.md`
 - user_feedback_or_constraint: 用户明确要求“扫 `2-组间` 更深层 references 与历史 case/example 文本，把还残留的旧主稿叙述口径再清一轮”。
+
+### Case-20260411-AIGC-INTER-GROUP-FIRST-BOOTSTRAP-OWNERSHIP
+
+- milestone_type: source_contract_change
+- outcome: 将 `projects/<项目名>/编导/第N集.json` 的首次初始化责任正式上收为 `2-组间`，并把规则固定为“首次进入且根文件缺失时自动 bootstrap，再继续 patch 组级字段”。
+- root_cause_or_design_decision: 用户指出 `编导/第N集.json` 的稳定最小骨架应建立在分组容器已成立之后；直接技术原因是旧合同把建根责任放在 `1-规划/1-分集`，导致 `2-组间` 虽是第一次真正消费方，却无法对初始化时机负责。
+- final_fix_or_heuristic: 如果某阶段是共享根文件的第一次真实消费方，就应同时拥有“缺文件则自动初始化”的责任；否则上游会被迫提前落一个语义不完整的空壳。
+- prevention_or_replication_checklist:
+  - [x] `2-组间/SKILL.md` 已声明缺文件自动 bootstrap
+  - [x] `2-组间/references/output-template.md` 已改写父级真源责任
+  - [x] `2-组间/references/execution-flow.md` 已把初始化插入正式工作流
+- evidence_paths:
+  - `.agents/skills/aigc/2-组间/SKILL.md`
+  - `.agents/skills/aigc/2-组间/references/output-template.md`
+  - `.agents/skills/aigc/2-组间/references/execution-flow.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+- user_feedback_or_constraint: 用户明确提出“`编导/第N集.json` 应该在分组之后确定，或等到 2-编导阶段再根据规则自动落盘”。

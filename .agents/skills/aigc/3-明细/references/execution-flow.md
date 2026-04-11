@@ -37,7 +37,7 @@
 1. 读取 `projects/<项目名>/team.yaml`，并按需加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 2. 读取 `1-规划` 已完成产物与 `2-组间` 已 patch 的 episode root，锁定 grouped source。
 3. 若顾问团启用且 `roles.supervision.members` 非空，先调用 `监制` 顾问团，再进入阶段路由。
-4. 先完整读取 `projects/<项目名>/编导/第N集.json`；若不存在，先回退到 `1-分集` bootstrap 根文件。
+4. 先完整读取 `projects/<项目名>/编导/第N集.json`；若不存在，先回退到 `2-组间` 完成首次建根，不得再假定 `1-分集` 已提前创建根文件。
 5. 判断本轮任务属于哪个唯一子路径，或是否要按默认顺序串行推进多个子路径。
 6. 每个子路径只能在既有统一根文件上 `patch-in-place`，不得另起平行正文。
 7. 每轮扩写都要同步写入本阶段或子路径证据侧车。

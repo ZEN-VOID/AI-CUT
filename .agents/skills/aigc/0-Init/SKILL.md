@@ -151,8 +151,8 @@ flowchart LR
 
 起草时必须读取：
 
-- `templates/north-star.template.yaml`
-- `templates/init-handoff.template.yaml`
+- `.agents/skills/aigc/0-Init/templates/north-star.template.yaml`
+- `.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml`
 - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
 
@@ -464,7 +464,7 @@ B. 你先综合，我只做最后确认
 2. 读取根 `.agents/skills/aigc/SKILL.md` 与本目录 `CONTEXT.md`。
 3. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并锁定模式；未锁定前不得起草任何初始化产物。
 4. 只加载对应模式的 `module-spec.md`。
-5. 读取 `templates/north-star.template.yaml`、`templates/init-handoff.template.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`。
+5. 读取 `.agents/skills/aigc/0-Init/templates/north-star.template.yaml`、`.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml` 与 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`。
 6. 读取 `.agents/skills/aigc/_shared/story-source-contract.md` 与 `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`。
 7. 收集最小充分信息，先生成项目根 `team.yaml` 草案，锁定 `enabled + team_setup + roles`。
 8. 生成 `story-source-manifest.yaml`；若主故事源缺失，显式登记阻塞原因与补充提示。
@@ -503,8 +503,8 @@ B. 你先综合，我只做最后确认
   - `.agents/skills/aigc/0-Init/SKILL.md`
   - `.agents/skills/aigc/0-Init/CONTEXT.md`
   - `references/*/module-spec.md`
-  - `templates/north-star.template.yaml`
-  - `templates/init-handoff.template.yaml`
+  - `.agents/skills/aigc/0-Init/templates/north-star.template.yaml`
+  - `.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml`
   - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 - `Meta Rule Source`
   - 根 `AGENTS.md`

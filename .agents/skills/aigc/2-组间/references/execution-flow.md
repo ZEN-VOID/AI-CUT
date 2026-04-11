@@ -33,7 +33,7 @@
 5. 若目标是 `导演意图`，先检查 `全局风格`、`类型元素` 与必要的规划容器是否存在。
 6. 若请求混入节奏蓝图裁决，先检查 `projects/<项目名>/规划/4-节奏/第N集.md` 是否存在；不存在则回退补该规划层 handoff。
 7. 若目标子路径合同缺失，停止向下伪造，返回缺口与补建落点。
-8. 若目标子路径合同存在，则先完整读取 `projects/<项目名>/编导/第N集.json`，再进入对应子技能执行。
+8. 若目标子路径合同存在，则先检查 `projects/<项目名>/编导/第N集.json` 是否存在；若不存在，先基于 shared bootstrap template 自动创建，并从 `story-source-manifest.yaml`、`规划/第N集.md` 与 `1-分集` 结果回填 `metadata.source_profile`，再进入对应子技能执行。
 9. 在阶段级 `validation-report.md` 前后按需调用 `评审` 顾问团。
 10. 将阶段产物与阶段验收结论 patch 回 `projects/<项目名>/编导/第N集.json` 与 `projects/<项目名>/编导/validation-report.md`。
 11. 返回唯一推荐的下一阶段入口。

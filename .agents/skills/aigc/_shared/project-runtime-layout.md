@@ -58,7 +58,7 @@
 | --- | --- | --- |
 | `0-Init` | `projects/<项目名>/Init/` | 初始化合同、项目种子与根布局预建 |
 | `故事` | `projects/<项目名>/故事/` | 项目级故事主源与辅助源材料落点，由 `Init/story-source-manifest.yaml` 统一登记 |
-| `1-规划` | `projects/<项目名>/规划/` | 规划阶段父级合同、阶段验收与多数规划子路径落点；仅 `1-分集` 继续在 `Init/` 写 bootstrap 产物 |
+| `1-规划` | `projects/<项目名>/规划/` | 规划阶段父级合同、阶段验收与多数规划子路径落点；`1-分集` 继续在 `Init/` 写分集真源，并为后续 `2-组间` 预留 `bootstrap_output` 目标路径 |
 | `2-组间` | `projects/<项目名>/编导/` | 与 `3-明细` 共享同一份 `第N集.json` 主文件 |
 | `3-明细` | `projects/<项目名>/编导/` | 围绕同一份 `第N集.json` 做字段分属 patch-in-place |
 | `4-主体` | `projects/<项目名>/主体/` | 主体阶段产物 |
@@ -74,8 +74,9 @@
 
 ## Ownership Contract
 
-1. `1-规划/subtypes/1-分集` 在集数与集标识确定后，负责首次创建 `projects/<项目名>/编导/第N集.json` 空壳文件。
-2. `2-组间` 与 `3-明细` 后续都只允许围绕同一份 `第N集.json` 做字段分属 patch-in-place。
-3. `2-组间` 负责优先补齐 `分镜组列表[].组间设计` 等组级字段。
-4. `3-明细` 负责继续补齐 `分镜组列表[].分镜明细[]` 等镜级字段。
-5. 下游阶段若消费编导数据，默认读取 `projects/<项目名>/编导/第N集.json`，不得私造第二份 episode/group/shot 根文件。
+1. `1-规划` 只负责在规划产物中登记每集 `bootstrap_output` 目标路径与 `source_profile` handoff，不在规划阶段默认创建 `projects/<项目名>/编导/第N集.json`。
+2. `2-组间` 在首次进入且检测到 `projects/<项目名>/编导/第N集.json` 不存在时，负责基于 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json` 自动创建根文件。
+3. `2-组间` 与 `3-明细` 后续都只允许围绕同一份 `第N集.json` 做字段分属 patch-in-place。
+4. `2-组间` 负责优先补齐 `分镜组列表[].组间设计` 等组级字段，并在首次建根时写入 `metadata.source_profile`。
+5. `3-明细` 负责继续补齐 `分镜组列表[].分镜明细[]` 等镜级字段。
+6. 下游阶段若消费编导数据，默认读取 `projects/<项目名>/编导/第N集.json`，不得私造第二份 episode/group/shot 根文件。

@@ -66,7 +66,7 @@
 规则：
 
 1. 当 `source_type == storyboard_script` 时，默认推荐 `preset_retention_mode = preserve_and_extend`。
-2. 当 `preset_retention_mode != standard` 时，`1-规划` 必须把同样的结论继续写入 bootstrap `第N集.json` 的 `metadata.source_profile`。
+2. 当 `preset_retention_mode != standard` 时，`1-规划` 必须先把同样的结论写入规划 handoff；`2-组间` 首次创建 `第N集.json` 时，再写入 `metadata.source_profile`。
 3. `preset_registry` 中的 `lock_level` 默认分三档：
    - `hard_lock`: 只能补厚，不能改骨架
    - `soft_lock`: 核心意图不变，但允许一锚多镜式细分

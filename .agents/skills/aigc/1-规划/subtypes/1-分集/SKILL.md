@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`1-分集` 负责把项目故事源切成规划阶段可直接消费的逐集文档，并为后续 `1-规划/4-节奏`、`2-组间`、`3-明细`、`5-画面` 提供稳定的集级入口。
+`1-分集` 负责把项目故事源切成规划阶段可直接消费的逐集文档，并为后续 `1-规划/4-节奏`、`2-组间`、`3-明细`、`5-画面` 提供稳定的集级入口与未来建根目标路径。
 
 本子技能现在按 `skill-内容输出型` 的最新规范重构为：
 
@@ -19,7 +19,7 @@ governance_tier: full
 ## When to Use
 
 - 需要把长篇小说、剧本原文、口述故事或混合分镜文本拆成逐集规划文件。
-- 需要在 `projects/<项目名>/Init/` 下生成分集规划主文件、执行报告与可选索引，并在 `projects/<项目名>/编导/` 下首次创建空白 `第N集.json`。
+- 需要在 `projects/<项目名>/Init/` 下生成分集规划主文件、执行报告与可选索引，并为后续 `2-组间` 预留 `bootstrap_output` 目标路径。
 - 需要先判断该故事应按预设、天然结构还是节奏冲突来切集。
 - 需要把分集边界证据、覆盖率和返工入口一起固化，而不是只给逐集正文。
 
@@ -43,7 +43,7 @@ governance_tier: full
 - 继承真源：根 `AGENTS.md` 的 `Root-Cause First`、`Canonical Source Governance`、`Root-Cause Learning Loop`。
 - 出现以下症状时，必须优先修源层合同，而不是只补本轮分集结果：
   - 分集边界混乱且无法解释
-  - `第N集.md` 漏文、重文或顺序错乱
+  - `episode-split-plan.json` 漏集、重集、顺序错乱或 `bootstrap_output` 目标路径缺失
   - 路由细则漂移成多份平行真相
   - 父级 `1-规划` 看不出何时进入 `1-分集`
   - 混合剧本文本被误判为“必须先清洗”
@@ -96,7 +96,7 @@ flowchart TD
     F --> H
     G --> H
     H --> I["覆盖率校验与返工判定"]
-    I --> J["落盘 第N集.md + 执行报告.md + 可选索引"]
+    I --> J["落盘 episode-split-plan.json + 可选 sidecar + bootstrap_output 索引"]
 ```
 
 ```mermaid
@@ -216,8 +216,8 @@ flowchart LR
 - 分集规划主文件：`projects/<项目名>/Init/episode-split-plan.json`
 - 证据侧车：`projects/<项目名>/Init/episode-split-report.md`
 - 可选索引：`projects/<项目名>/Init/episode-index.json`
-- 编导根文件初始化模板：`.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
-- 首次创建的编导根文件：`projects/<项目名>/编导/第N集.json`
+- 本地可读侧车：`projects/<项目名>/规划/1-分集/第N集.md`
+- 后续编导根文件目标路径：`projects/<项目名>/编导/第N集.json`
 
 ## Core Reference Modules
 
@@ -245,15 +245,15 @@ flowchart LR
 5. 加载 `references/type-strategies.md` 中对应策略细则。
 6. 生成候选边界与逐集规划表。
 7. 执行覆盖率校验与边界可解释性检查。
-8. 按 `references/output-template.md` 落盘 `episode-split-plan.json`、`episode-split-report.md` 与可选索引。
-9. 对每一集动态加载 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`，首次创建 `projects/<项目名>/编导/第N集.json`。
+8. 按 `references/output-template.md` 落盘 `episode-split-plan.json`、`episode-split-report.md`、可选索引，以及 `projects/<项目名>/规划/1-分集/第N集.md` 本地可读 sidecar。
+9. 为每一集登记未来 `bootstrap_output` 目标路径与 `source_profile` handoff，供 `2-组间` 首次建根时自动消费。
 10. 输出 PASS/FAIL、失败码、返工入口与下一阶段建议；若当前只完成局部分集，必须显式注明“非整季正式完成”。
 
 ## 输出结构规范
 
 本节只保留输出契约摘要；详细骨架、固定段、Markdown 投影与 JSON 字段以 `deconstruct-elements` 路由结果 `references/output-template.md` 为准。
 
-- 默认采用 `JSON-first` 设计，主规划文件与编导根文件都以 JSON 为 canonical。
+- 默认采用 `JSON-first` 设计，主规划文件以 JSON 为 canonical；编导根文件不在本阶段默认落盘。
 - canonical 顶层骨架必须可回指：
   - `schema_version`
   - `meta`
@@ -265,13 +265,13 @@ flowchart LR
 
 | field_id | 类型(type) | JSON路径 | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| FIELD-EPS-CTX-01 | CTX | `meta.inputs[]` | `执行报告.md / 输入清单` | 列出全部输入文件、顺序、范围与累计字数 | `0-Init` 种子、源文件扫描 | S1 | 输入覆盖率 | FAIL-EPS-INPUT |
-| FIELD-EPS-CTX-02 | CTX | `meta.route.primary` | `执行报告.md / 路由决议` | 明确最终主路由、放弃其他主策略的原因与已加载 reference | VSM 裁决与策略细则 | S2 | 路由正确性 | FAIL-EPS-ROUTE |
-| FIELD-EPS-STR-01 | STR | `content.boundary_candidates[]` | `执行报告.md / 候选边界` | 给出候选切点、结构证据、冲突闭环与排除理由 | 原文结构、冲突单位、预设约束 | S3 | 边界可解释性 | FAIL-EPS-BOUNDARY |
-| FIELD-EPS-STR-02 | STR | `content.episodes[]` | `执行报告.md / 分集规划表` | 给出每集范围、主事件、边界理由、字数与主张力 | 候选边界收窄结果 | S4 | 连续性与节奏均衡 | FAIL-EPS-PLAN |
-| FIELD-EPS-CST-01 | CST | `gate_summary.coverage` | `执行报告.md / 覆盖率校验` | 对比源文累计与分集累计，标出缺文、重文或越界 | 输入清单与分集草案 | S5 | 覆盖率与一致性 | FAIL-EPS-COVERAGE |
-| FIELD-EPS-MAT-01 | MAT | `content.episodes[].bootstrap_output` | `projects/<项目名>/编导/第N集.json` | 在集数确定后，首次创建空白编导根文件；文件内容必须来自 shared bootstrap template，而不是即兴手写 | 最终边界版本 + shared bootstrap template | S6 | 输出结构完整性 | FAIL-EPS-FILES |
-| FIELD-EPS-CST-02 | CST | `gate_summary.verdict` | `执行报告.md / 验收结论与返工项` | 给出 PASS/FAIL、失败码、返工入口与下一阶段建议 | 全字段校验结果 | S7 | 闭环完整性 | FAIL-EPS-QA |
+| FIELD-EPS-CTX-01 | CTX | `meta.inputs[]` | `episode-split-report.md / 输入清单` | 列出全部输入文件、顺序、范围与累计字数 | `0-Init` 种子、源文件扫描 | S1 | 输入覆盖率 | FAIL-EPS-INPUT |
+| FIELD-EPS-CTX-02 | CTX | `meta.route.primary` | `episode-split-report.md / 路由决议` | 明确最终主路由、放弃其他主策略的原因与已加载 reference | VSM 裁决与策略细则 | S2 | 路由正确性 | FAIL-EPS-ROUTE |
+| FIELD-EPS-STR-01 | STR | `content.boundary_candidates[]` | `episode-split-report.md / 候选边界` | 给出候选切点、结构证据、冲突闭环与排除理由 | 原文结构、冲突单位、预设约束 | S3 | 边界可解释性 | FAIL-EPS-BOUNDARY |
+| FIELD-EPS-STR-02 | STR | `content.episodes[]` | `episode-split-report.md / 分集规划表` | 给出每集范围、主事件、边界理由、字数与主张力 | 候选边界收窄结果 | S4 | 连续性与节奏均衡 | FAIL-EPS-PLAN |
+| FIELD-EPS-CST-01 | CST | `gate_summary.coverage` | `episode-split-report.md / 覆盖率校验` | 对比源文累计与分集累计，标出缺文、重文或越界 | 输入清单与分集草案 | S5 | 覆盖率与一致性 | FAIL-EPS-COVERAGE |
+| FIELD-EPS-MAT-01 | MAT | `content.episodes[].bootstrap_output` | `episode-split-plan.json / bootstrap_output` | 为每一集登记后续 `2-组间` 首次建根的目标路径，不在本阶段提前创建文件 | 最终边界版本 + runtime layout contract | S6 | 输出结构完整性 | FAIL-EPS-FILES |
+| FIELD-EPS-CST-02 | CST | `gate_summary.verdict` | `episode-split-report.md / 验收结论与返工项` | 给出 PASS/FAIL、失败码、返工入口与下一阶段建议 | 全字段校验结果 | S7 | 闭环完整性 | FAIL-EPS-QA |
 
 ### 构成主义类型分布
 
@@ -323,7 +323,7 @@ flowchart LR
 | S3 | FIELD-EPS-STR-01 | 哪些切点具备真实叙事价值 | 生成候选边界与排除理由 | 只按字数均分或只凭感觉切段 |
 | S4 | FIELD-EPS-STR-02 | 分集草案是否连续、可交接 | 形成逐集规划表并微调边界 | 集间断裂、主事件失焦 |
 | S5 | FIELD-EPS-CST-01 | 是否完整覆盖原文且无重文 | 执行输入累计 vs 分集累计校验 | 覆盖率失败、顺序错乱 |
-| S6 | FIELD-EPS-MAT-01 | 是否能稳定落盘成逐集文件 | 写入 `第N集.md` 正文与头部 | 正文缺失、头部不完整 |
+| S6 | FIELD-EPS-MAT-01 | 是否能稳定落盘 canonical 分集真源 | 写入 `episode-split-plan.json` 并登记 `bootstrap_output` 目标路径 | 分集真源缺字段、bootstrap 输出缺失 |
 | S7 | FIELD-EPS-CST-02 | 是否可以结案 | 输出 PASS/FAIL、失败码与返工入口 | 结果不可追溯、下一入口不明 |
 | S8 | FIELD-EPS-CST-02 | 是否满足阶段级交接价值 | 追加下一阶段建议并确认不越权 | 把分集写成导演或脚本说明 |
 
@@ -347,7 +347,7 @@ flowchart LR
 - 一票否决规则：
   - 主路由不唯一
   - 覆盖率校验失败
-  - `第N集.md` 顺序错乱或缺失正文
+  - `episode-split-plan.json` 顺序错乱、缺集或 bootstrap 输出缺失
   - 证据侧车缺失
 
 ### 字段通过表
@@ -388,7 +388,7 @@ flowchart LR
 - 已加载并遵守对应细则模块
 - 已形成候选边界与逐集规划表
 - 已完成覆盖率校验
-- 已落盘 `第N集.md` 与 `执行报告.md`
+- 已落盘 `episode-split-plan.json`、`projects/<项目名>/规划/1-分集/第N集.md`，并登记未来 `bootstrap_output` 目标路径与其他必要 sidecar
 - 已给出 PASS/FAIL、返工入口与下一阶段建议
 
 ## Context Preload (Mandatory)

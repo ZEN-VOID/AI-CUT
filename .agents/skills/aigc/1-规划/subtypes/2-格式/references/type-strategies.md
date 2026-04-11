@@ -15,6 +15,9 @@
 | VAR-FMT-02 | 结构 | 项目主通道更靠表演还是解释 | `performance_led` / `narration_led` / `mixed` | 读 `north_star`、`init_handoff`、分集摘要 | P1 |
 | VAR-FMT-03 | 资源 | 下游是否需要高密度解释性文本 | `high_explainer_need` / `normal` | 看平台节奏、受众、项目定位 | P2 |
 | VAR-FMT-04 | 技术 | 输入是否足够支持稳定判模 | `enough` / `insufficient` | 检查上游文件完整度 | P0 |
+| VAR-FMT-05 | 来源 | 当前集是否来自 `storyboard_script / hybrid_story_text` | `narrative_only / preset_driven` | 读取 `story-source-manifest.yaml` 或 `metadata.source_profile` | P0 |
+| VAR-FMT-06 | 写位 | 场景编号应绑定连续时空还是逐镜递增 | `continuous_scene / invalid_shot_promote` | 读取 `locked_preset_axes` 与上游锚点 | P0 |
+| VAR-FMT-07 | 证据 | 上游是否明确写出可保留的运镜/镜头提示 | `camera_explicit / camera_absent` | 扫描主故事源中的运镜词、镜头块与拍摄提示 | P0 |
 
 ## 2. Scenario Table
 
@@ -51,3 +54,15 @@
   - 输入缺失
   - 子技能无法给出合同或样例
   - 双案对照却无法指定推荐主案
+
+## Source Granularity Override
+
+当 `VAR-FMT-05=preset_driven` 且 `locked_preset_axes` 包含 `scene_boundary` 时，`2-格式` 必须额外遵守：
+
+1. `场景号` 只按连续时空单元编号，不按镜号逐条递增。
+2. 同一连续时空若被多个组级锚点连续继承，允许写成 `场景X（续）`。
+3. `镜号范围` 与 `锚点继承` 必须显式出现在结果稿正文中，不能只留在 `story-source-manifest.yaml` 或 `第N集.json`。
+4. 若输入本身是混合源，结果稿顶部必须显式写出 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes`，避免下游把它误读成纯叙事原文。
+5. 若 `VAR-FMT-07=camera_explicit`，则当前变体必须优先保留上游明确写出的镜头语言，并将其整理为紧邻相关 `*画面` 的规范字段；不得把推断性镜头意图伪装成上游证据。
+6. 对 `preset_driven` 输入，画面处理默认是“规范化整理既有分镜表达”，不是“先假定画面缺失再补齐第二套画面”。
+7. 场景标题若可从分镜脚本已有结构稳定提取，必须优先复用上游标题或边界证据，不得重新概括成另一套弱标题。

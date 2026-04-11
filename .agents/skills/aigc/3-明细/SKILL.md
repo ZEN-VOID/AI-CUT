@@ -49,7 +49,7 @@ governance_tier: full
 
 - 工匠级契约继承：遵循 `skill-内容输出型/SKILL.md` 的反模板化与深度思考要求，本阶段不做模板化批量写稿，也不退回泛化脚本写作，只在已锁定 grouped source 与单一主文件上做分层精修设计。
 - Root-Cause 执行契约继承：一旦出现阶段路由失真、主文件漂移、子路径并行冲突或越权改写，先按根 `AGENTS.md` 与本技能 `Root-Cause Execution Contract` 上溯规则源，再决定是否改正文。
-- 自评偏差与缓解：LLM 容易把 `3-明细` 误写回泛化剧本任务，或把多个子路径混写进同一轮；执行时必须先锁 `bootstrap root -> 2-组间 patch -> 第N集.json -> 3-明细 patch-in-place` 的单一真源链，再判唯一主入口。
+- 自评偏差与缓解：LLM 容易把 `3-明细` 误写回泛化剧本任务，或把多个子路径混写进同一轮；执行时必须先锁 `2-组间 首次建根 -> 组级 patch -> 第N集.json -> 3-明细 patch-in-place` 的单一真源链，再判唯一主入口。
 - 阶段真源保持为“已分组原文 -> projects/<项目名>/编导/第N集.json -> 子路径 patch-in-place”，不得把 `3-明细` 退化成一次性另写整稿或泛化正文改写。
 - 若上游来源画像表明当前集来自 `storyboard_script`，则 `3-明细` 的默认动作是“preserve and extend”：补角色、氛围、摄影、微动作与必要细化，但不重排已锁定的场次边界、镜头顺序、核心运镜母题与转场钩子。
 ## Visual Maps
@@ -68,7 +68,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["1-规划/1-分集 bootstrap"] --> B["编导/第N集.json"]
+    A["2-组间 首次建根"] --> B["编导/第N集.json"]
     C["2-组间/全局风格"] --> B
     D["2-组间/类型元素"] --> B
     E["2-组间/导演意图"] --> B

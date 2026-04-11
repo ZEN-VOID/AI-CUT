@@ -6,16 +6,18 @@
 - canonical 主产物：`projects/<项目名>/规划/4-节奏/第N集.md`
 - thinking sidecar：`projects/<项目名>/规划/4-节奏/thinking/第N集.md`
 - 验收记录：`projects/<项目名>/规划/4-节奏/validation-report-第N集.md`
+- 父级聚合写回：仅在 `1-规划` 显式选中 `4-节奏` 时，把节奏摘要 patch 回 `projects/<项目名>/规划/第N集.md`
 
 ## Mandatory Workflow
 
-1. 读取 `projects/<项目名>/0-Init/north_star.yaml` 与 `init_handoff.yaml`，确认 `original_adherence` 与顺序授权。
+1. 读取 `projects/<项目名>/Init/north_star.yaml` 与 `Init/init_handoff.yaml`，确认 `original_adherence` 与顺序授权。
 2. 若 `original_adherence: true`，停止本技能，返回“保留原作节奏，不独立执行 `4-节奏`”的结论。
-3. 读取 `1-规划/1-分集/第N集.md`、`1-规划/2-格式/validation-report.md` 与 `1-规划/3-分组/第N集.md`。
+3. 读取 `Init/episode-split-plan.json`、`规划/第N集.md` 与 `规划/3-分组/第N集.md`。
 4. 锁定本集主驱动与七步缺口。
 5. 生成七步节奏蓝图、峰值账本与组级节奏刀法。
 6. 补齐 `下游加载提示`，明确 `2-组间/导演意图` 与 `3-明细` 继续放大的方向。
 7. 先落 `thinking/第N集.md`，再落 `第N集.md` 与 `validation-report-第N集.md`。
+8. 若本轮由父级 `1-规划` 显式纳入 `4-节奏`，则把 `主驱动裁决 / 峰值账本 / 节奏执行策略 / 下游加载提示` 以摘要 patch 回父级 `规划/第N集.md`；若未显式纳入，则本技能只保留本地节奏 handoff。
 
 ## Council Runtime Inheritance
 

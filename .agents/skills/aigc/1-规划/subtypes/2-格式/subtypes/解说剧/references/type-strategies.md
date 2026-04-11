@@ -14,6 +14,8 @@
 | VAR-EXP-01 | 叙事 | 旁白是否必须成为非对白信息主通道 | `narration_primary` / `narration_support_only` | 看用户与项目节奏要求 | P0 |
 | VAR-EXP-02 | 结构 | 对白是否需要严格逐字保留 | `dialogue_strict` / `dialogue_flexible` | 看项目是否强调对白戏剧支点 | P1 |
 | VAR-EXP-03 | 风格 | 内心独白是否允许开启 | `inner_voice_on` / `inner_voice_off` | 看用户是否显式要求 | P2 |
+| VAR-EXP-04 | 来源 | 当前是否命中 `storyboard_script / hybrid_story_text` | `preset_driven / narrative_only` | 读取 `source_profile` | P0 |
+| VAR-EXP-05 | 证据 | 上游是否明确写出运镜/镜头提示 | `camera_explicit / camera_absent` | 扫描分镜源中的镜头语言 | P0 |
 
 ## 2. Scenario Table
 
@@ -22,6 +24,7 @@
 | CASE-EXP-CORE | `VAR-EXP-01=narration_primary` 且 `VAR-EXP-02=dialogue_strict` | 0.80 | 与 `CASE-EXP-WEAK` 互斥 | 可与 `CASE-EXP-INNER` 并发分析 |
 | CASE-EXP-WEAK | `VAR-EXP-01=narration_support_only` | 0.75 | 与 `CASE-EXP-CORE` 互斥 | 无 |
 | CASE-EXP-INNER | `VAR-EXP-03=inner_voice_on` | 0.90 | 无 | 可并发 |
+| CASE-EXP-STORYBOARD | `VAR-EXP-04=preset_driven` | 1.00 | 无 | 可并发主 case |
 
 ## 3. Case -> Strategy Map
 
@@ -30,13 +33,15 @@
 | CASE-EXP-CORE | STRAT-EXP-CORE | 保留旁白、旁白画面、动作画面、对白四件套 | 旁白主导但不吞对白 | STRAT-EXP-REVIEW | 样例里对白被解释化 |
 | CASE-EXP-WEAK | STRAT-EXP-RECHECK | 回父级复核是否真应进入解说剧 | 不得把弱信号硬拉成主变体 | 无 | 父级改判为标准剧 |
 | CASE-EXP-INNER | STRAT-EXP-INNER | 在合同中显式开启内心独白，并补对应画面 | 不得默认常开 | STRAT-EXP-CORE | 内心独白只是重复旁白 |
+| CASE-EXP-STORYBOARD | STRAT-EXP-STORYBOARD | 优先保留镜头语言、规范化整理既有分镜结构、优先复用原场景标题 | 镜头语言保留率 100%，不脑补新增 | STRAT-EXP-REVIEW | 场景标题被重概括，或镜头语言挂错位置 |
 
 ## 4. Routing Card
 
 - 判定顺序:
   1. 先确认旁白是否真是主通道
   2. 再确认对白保真要求
-  3. 最后决定是否打开内心独白扩展
+  3. 若命中分镜源，优先锁定原场景结构与镜头语言保留规则
+  4. 最后决定是否打开内心独白扩展
 - unknown 默认路由:
   - 不打开内心独白
   - 若旁白主导信号不足，则回父级复核
@@ -44,3 +49,4 @@
 - 停止条件:
   - 对白被吞并
   - 旁白主体不统一
+  - 分镜源的镜头语言被误删、误改写或脑补新增

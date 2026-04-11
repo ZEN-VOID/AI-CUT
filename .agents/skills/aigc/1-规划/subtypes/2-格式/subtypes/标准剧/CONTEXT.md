@@ -23,6 +23,8 @@
 | 样例只有对白，没有动作画面承载 | 字段合同层 | 补 `动作画面` 为默认可用字段 | 固化“动作画面承载无台词推进” | 样例能体现无台词推进 |
 | 直接照搬参考仓的正文改写规则 | 阶段边界层 | 重写为规划层合同和样例 | 显式声明本技能不代写整集正文 | 产物落为 `格式合同.md` 与 `格式样例.md` |
 | 旁白主体口径漂移 | 字段一致性层 | 若启用旁白，统一规划为 `讲述者` | 在合同中固定主体口径 | 合同与样例口径一致 |
+| 混合源下把镜号逐条升格为场景号，导致同一连续时空被错误拆成多个场景 | 场景骨架层 | 标准剧结果稿改为“场景号按连续时空，镜号范围单列” | 在叶子模板和执行流中固化 `场景X（续） + 镜号范围 / 锚点继承` | 同一寿堂日连续段会写成 `场景2（续）`，而不是 6、7、8、9 连续新场景 |
+| 分镜脚本来源下镜头语言被当成可删可不删的备注，而非应优先保留的上游证据 | 分镜源保真层 | 把 `镜头语言预设` 升为 storyboard source 下的优先字段，并要求紧跟相关 `*画面` | 在标准剧叶子合同、流程、模板中统一固化“只整理上游明确提示，禁止脑补新增” | 分镜源结果稿里可见原镜头语言，且挂位稳定 |
 
 ## Repair Playbook
 
@@ -39,6 +41,26 @@
 - 如果一份标准剧样例读起来像讲解稿，通常不是文笔问题，而是变体判模已经跑偏了。
 - 对 `标准剧` 这类叶子技能，模板、局部流程和变量策略很适合下沉到 `references/`；主 `SKILL.md` 只要守住变体边界与质量门槛。
 - 对长期维护的可执行技能目录，除 `SKILL.md + CONTEXT.md` 外，还应补齐 `agents/openai.yaml`，这样 Codex / OpenAI 侧的展示名、摘要和默认提示才有稳定入口。
+- 对混合源标准剧转写来说，`场景号` 是连续时空层，`镜号` 是证据层；两层必须并存，不能互相替代。
+- 对分镜脚本来源标准剧来说，`镜头语言预设` 不是装饰性字段；只要上游明确写了，就应作为优先保留的证据字段继续传递。
+
+### Case-20260411-AIGC-PLAN-FORMAT-STANDARD-STORYBOARD-CAMERA
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户要求当前仓 `标准剧` 对分镜脚本来源完整承接参考仓的四条特别处理，不再只是保留 `镜号范围 / 锚点继承`。
+- root_cause_or_design_decision: 直接技术原因是当前标准剧叶子只有 mixed source 场景编号规则，没有把“镜头语言优先保留、画面规范化整理、标题优先复用原结构、禁止脑补新增”写成局部合同。
+- final_fix_or_heuristic: 为 `标准剧` 增补 `FIELD-STD-CAMERA-05`，并在局部 VSM、执行流、模板中统一声明 storyboard source 下优先保留 `镜头语言预设`。
+- prevention_or_replication_checklist:
+  - [x] `标准剧/SKILL.md` 已补 storyboard special case 与 camera field
+  - [x] `标准剧/references/type-strategies.md` 已补 `CASE-STD-STORYBOARD`
+  - [x] `标准剧/references/execution-flow.md` 已补镜头语言保留步骤
+  - [x] `标准剧/references/output-template.md` 已补 `镜头语言预设`
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/type-strategies.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/output-template.md`
+- user_feedback_or_constraint: 用户明确要求“优先保留镜头语言、规范化整理、场景标题优先复用原结构、不能脑补新增，这些都要有”。
 
 ## Case Log
 
@@ -77,3 +99,20 @@
   - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/CONTEXT.md`
   - `/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/标准剧/SKILL.md`
 - user_feedback_or_constraint: 用户要求参照 `AIGC-ZEN-VOID` 的 `标准剧`，同时当前仓默认交互与合同表达使用中文。
+
+### Case-20260411-AIGC-PLAN-FORMAT-STANDARD-HYBRID-SCENE-CHAIN
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 标准剧结果稿在混合源模式下把寿堂日的连续段按镜号拆成多个新场景，导致“场景号”和“镜号”概念混淆。
+- root_cause_or_design_decision: 叶子模板只写了 `### 场景X` 骨架，没有约束“混合源场景号必须绑定连续时空”，执行流也没要求显式列出 `镜号范围 / 锚点继承`。
+- final_fix_or_heuristic: 标准剧叶子模板新增 `来源画像`、`镜号范围`、`锚点继承`，并规定同一连续时空跨组续写时使用 `场景X（续）`。
+- prevention_or_replication_checklist:
+  - [x] `标准剧/SKILL.md` 已补混合源场景骨架硬规则
+  - [x] `标准剧/references/execution-flow.md` 已补场景编号粒度步骤
+  - [x] `标准剧/references/output-template.md` 已补 `场景X（续） + 镜号范围 / 锚点继承`
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/output-template.md`
+  - `projects/嫡母重生：过继局/规划/2-格式/第1集.md`
+- user_feedback_or_constraint: 用户明确指出“相关空间场景和时间状态被错误分到不同场景号下”，要求从源层修正而不是只改一稿。

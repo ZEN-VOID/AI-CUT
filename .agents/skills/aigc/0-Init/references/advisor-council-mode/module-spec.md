@@ -64,8 +64,8 @@
 ## Shared Dependency Contract
 
 - 必读：
-  - `templates/north-star.template.yaml`
-  - `templates/init-handoff.template.yaml`
+  - `.agents/skills/aigc/0-Init/templates/north-star.template.yaml`
+  - `.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml`
   - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 - 按需读取：
   - 根 `.agents/skills/aigc/SKILL.md`
