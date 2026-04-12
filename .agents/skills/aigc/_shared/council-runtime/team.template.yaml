@@ -2,7 +2,7 @@
 #
 # 角色：
 # - 项目级智能顾问团真源
-# - 由 `0-Init` 首次生成，供 `1-规划 / 2-组间 / 3-明细 / 4-主体` 共同消费
+# - 由 `0-Init` 首次生成，供 `1-Planning / 2-Global / 3-Detail / 4-Design` 共同消费
 # - 不替代各阶段 canonical，只提供顾问角色、成员与运行时调用规则
 
 enabled: false
@@ -17,11 +17,11 @@ roles:
     enabled: true
     members: []
     source_skill_refs:
-      - ".agents/skills/aigc/1-规划/SKILL.md"
-      - ".agents/skills/aigc/4-主体/SKILL.md"
+      - ".agents/skills/aigc/1-Planning/SKILL.md"
+      - ".agents/skills/aigc/4-Design/SKILL.md"
     operates_on:
-      - "1-规划"
-      - "4-主体"
+      - "1-Planning"
+      - "4-Design"
     intervention_mode: "pre_draft_advisory"
     focus:
       - "结构规划方向"
@@ -33,11 +33,11 @@ roles:
     enabled: true
     members: []
     source_skill_refs:
-      - ".agents/skills/aigc/2-组间/SKILL.md"
-      - ".agents/skills/aigc/3-明细/SKILL.md"
+      - ".agents/skills/aigc/2-Global/SKILL.md"
+      - ".agents/skills/aigc/3-Detail/SKILL.md"
     operates_on:
-      - "2-组间"
-      - "3-明细"
+      - "2-Global"
+      - "3-Detail"
     intervention_mode: "pre_draft_advisory"
     focus:
       - "导演表达一致性"
@@ -49,20 +49,20 @@ roles:
     enabled: true
     members: []
     source_skill_refs:
-      - ".agents/skills/aigc/1-规划/SKILL.md"
-      - ".agents/skills/aigc/2-组间/SKILL.md"
-      - ".agents/skills/aigc/3-明细/SKILL.md"
-      - ".agents/skills/aigc/4-主体/SKILL.md"
+      - ".agents/skills/aigc/1-Planning/SKILL.md"
+      - ".agents/skills/aigc/2-Global/SKILL.md"
+      - ".agents/skills/aigc/3-Detail/SKILL.md"
+      - ".agents/skills/aigc/4-Design/SKILL.md"
     intervention_mode: "pre_and_post_validation_gate"
     operates_on_final_stage_of:
-      - stage: "1-规划"
-        gate_artifact: "projects/<项目名>/规划/validation-report.md"
-      - stage: "2-组间"
-        gate_artifact: "projects/<项目名>/编导/validation-report.md"
-      - stage: "3-明细"
-        gate_artifact: "projects/<项目名>/编导/validation-report.md"
-      - stage: "4-主体"
-        gate_artifact: "projects/<项目名>/主体/validation-report.md"
+      - stage: "1-Planning"
+        gate_artifact: "projects/<项目名>/1-Planning/validation-report.md"
+      - stage: "2-Global"
+        gate_artifact: "projects/<项目名>/3-Detail/validation-report.md"
+      - stage: "3-Detail"
+        gate_artifact: "projects/<项目名>/3-Detail/validation-report.md"
+      - stage: "4-Design"
+        gate_artifact: "projects/<项目名>/4-Design/validation-report.md"
 
 runtime_policy:
   use_subagents_by_default: true

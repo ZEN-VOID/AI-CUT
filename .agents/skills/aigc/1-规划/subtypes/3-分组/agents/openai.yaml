@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 集内分组规划"
-  short_description: "把逐集材料整理成可交接、可并行的组级结构容器"
-  default_prompt: "Use $aigc-planning-grouping to regroup planned episode material into execution-ready narrative or production groups, and output grouping artifacts plus validation."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 2-Global"
+  short_description: "把分组结果收束成全局风格、类型指导和导演意图三份导演前置真源"
+  default_prompt: "Use $aigc-global to read the current episode grouping plus init presets, route the 导演组 subagents in background by default, and write or refresh 全局风格.md、类型指导.md、导演意图.md under 2-Global."

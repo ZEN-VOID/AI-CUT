@@ -1,0 +1,82 @@
+# Output Template
+
+## 1. 道具清单.json
+
+```json
+{
+  "meta": {
+    "project_name": "项目名",
+    "episode_id": "第1集",
+    "source_input": "projects/项目名/3-Detail/第1集.json",
+    "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
+    "skill_id": "aigc/4-Design/4-道具/1-清单",
+    "generated_at": "2026-04-12T12:00:00-07:00"
+  },
+  "group_prop_map": [
+    {
+      "group_id": "1-1-10",
+      "shot_id": "1-1-10-1",
+      "scene": "长廊西端入口朝东",
+      "roles": "角色A前景入画，角色B远端停住",
+      "raw_prop_text": "门把轻晃，旧灯管闪烁",
+      "prop_mentions": []
+    }
+  ],
+  "props": []
+}
+```
+
+## 2. 道具研究.json
+
+```json
+{
+  "meta": {},
+  "props": [
+    {
+      "prop_id": "prop-001",
+      "canonical_name": "令牌",
+      "evidence_ledger": [],
+      "attribute_profile": {},
+      "scene_usage_profile": {},
+      "historical_cultural_profile": {},
+      "design_bridge_profile": {},
+      "display_profile": {},
+      "chronicle": ""
+    }
+  ]
+}
+```
+
+## 3. prop_design_bridge.json
+
+```json
+{
+  "meta": {},
+  "props": [
+    {
+      "prop_id": "prop-001",
+      "canonical_name": "令牌",
+      "prompt_anchor": "令牌 / material=metal / function=authority / route=macro",
+      "structure_modules": [],
+      "material_and_finish": [],
+      "wear_marks": [],
+      "shot_route": {},
+      "physical_character": {},
+      "negative_constraints": []
+    }
+  ]
+}
+```
+
+## Naming Contract
+
+- `道具清单.json` 是抽取层主产物
+- `道具研究.json` 是研究层主产物
+- `prop_design_bridge.json` 是桥接层主产物
+
+## Path Contract
+
+- 默认每集独立目录：
+  - `projects/<项目名>/4-Design/4-道具/1-清单/第N集/道具清单.json`
+  - `projects/<项目名>/4-Design/4-道具/1-清单/第N集/道具研究.json`
+  - `projects/<项目名>/4-Design/4-道具/1-清单/第N集/prop_design_bridge.json`

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 道具设计"
+  short_description: "把道具 bridge 收束为 design master、prompt sidecar 和可下游消费的设计包"
+  default_prompt: "Use $aigc-design-prop-design to read the current episode prop bridge plus 2-Global presets, route the 道具设计组 subagents in background by default, and write 道具设计.json、prop_design_prompt.json and _manifest.json under `projects/<项目名>/4-Design/4-道具/2-设计/第N集/`."

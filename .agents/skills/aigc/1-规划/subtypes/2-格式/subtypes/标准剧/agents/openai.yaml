@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 标准剧格式"
-  short_description: "规划表演优先、旁白从严的标准剧文稿合同"
-  default_prompt: "Use $aigc-planning-format-standard-drama to define a standard-drama format contract with performance-first structure and restrained narration."

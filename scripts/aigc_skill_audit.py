@@ -36,6 +36,12 @@ CONTEXT_KB_SECTIONS = [
     "## Repair Playbook",
     "## Reusable Heuristics",
 ]
+DEFAULT_SOFT_LIMIT_CHARS = 20000
+DEFAULT_HARD_LIMIT_CHARS = 40000
+DEFAULT_SOFT_LIMIT_CASES = 16
+DEFAULT_HARD_LIMIT_CASES = 32
+CASE_LOG_DOMINANCE_RATIO = 0.6
+CASE_LOG_DOMINANCE_MIN_CASES = 8
 REFERENCE_MODULES = (
     "chain-of-thought.md",
     "execution-flow.md",
@@ -44,80 +50,98 @@ REFERENCE_MODULES = (
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
-    "0-Init": "projects/<项目名>/Init/",
-    "1-规划": "projects/<项目名>/规划/",
-    "2-组间": "projects/<项目名>/编导/",
-    "3-明细": "projects/<项目名>/编导/",
-    "4-主体": "projects/<项目名>/主体/",
-    "5-画面": "projects/<项目名>/画面/",
-    "6-视频": "projects/<项目名>/视频/",
-    "7-后期": "projects/<项目名>/后期/",
+    "0-Init": "projects/<项目名>/0-Init/",
+    "Story": "projects/<项目名>/Story/",
+    "1-Planning": "projects/<项目名>/1-Planning/",
+    "2-Global": "projects/<项目名>/2-Global/",
+    "3-Detail": "projects/<项目名>/3-Detail/",
+    "4-Design": "projects/<项目名>/4-Design/",
+    "5-Image": "projects/<项目名>/5-Image/",
+    "6-Video": "projects/<项目名>/6-Video/",
+    "7-Cut": "projects/<项目名>/7-Cut/",
 }
 ROOT_STAGE_LANDING = (
-    "projects/<项目名>/Init/",
-    "projects/<项目名>/规划/",
-    "projects/<项目名>/编导/",
-    "projects/<项目名>/主体/",
-    "projects/<项目名>/画面/",
-    "projects/<项目名>/视频/",
-    "projects/<项目名>/后期/",
+    "projects/<项目名>/0-Init/",
+    "projects/<项目名>/Story/",
+    "projects/<项目名>/1-Planning/",
+    "projects/<项目名>/2-Global/",
+    "projects/<项目名>/3-Detail/",
+    "projects/<项目名>/4-Design/",
+    "projects/<项目名>/5-Image/",
+    "projects/<项目名>/6-Video/",
+    "projects/<项目名>/7-Cut/",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/<项目名>/设定/",
     "projects/<项目名>/1-规划/",
     "projects/<项目名>/2-组间/",
     "projects/<项目名>/3-明细/",
+    "projects/<项目名>/主体/",
     "projects/<项目名>/4-主体/",
     "projects/<项目名>/5-画面/",
+    "projects/<项目名>/6-视频/",
+    "projects/<项目名>/7-后期/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/<项目名>/project_state.yaml",
     "projects/<项目名>/governance-state.yaml",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
-    "1-规划": "projects/<项目名>/规划/validation-report.md",
-    "2-组间": "projects/<项目名>/编导/validation-report.md",
-    "3-明细": "projects/<项目名>/编导/validation-report.md",
-    "4-主体": "projects/<项目名>/主体/validation-report.md",
+    "1-Planning": "projects/<项目名>/1-Planning/validation-report.md",
+    "2-Global": "projects/<项目名>/2-Global/validation-report.md",
+    "3-Detail": "projects/<项目名>/3-Detail/validation-report.md",
+    "4-Design": "projects/<项目名>/4-Design/validation-report.md",
 }
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
-        "projects/<项目名>/规划/",
-        "projects/<项目名>/主体/",
-        "projects/<项目名>/画面/",
-        "projects/<项目名>/governance-state.yaml",
+        "projects/<项目名>/Story/",
+        "projects/<项目名>/1-Planning/1-分集/",
+        "projects/<项目名>/1-Planning/2-剧本/",
+        "projects/<项目名>/1-Planning/3-分组/",
+        "projects/<项目名>/1-Planning/",
+        "projects/<项目名>/4-Design/1-场景/1-清单/",
+        "projects/<项目名>/4-Design/2-角色/1-清单/",
+        "projects/<项目名>/5-Image/",
+        "projects/<项目名>/5-Image/分镜故事板/",
+        "projects/<项目名>/6-Video/全能参照/",
     ),
-    ROOT / "1-规划" / "SKILL.md": (
-        "projects/<项目名>/规划/",
-        "projects/<项目名>/规划/validation-report.md",
+    ROOT / "1-Planning" / "SKILL.md": (
+        "projects/<项目名>/1-Planning/",
+        "projects/<项目名>/1-Planning/validation-report.md",
     ),
-    ROOT / "4-主体" / "SKILL.md": (
-        "projects/<项目名>/主体/",
+    ROOT / "4-Design" / "SKILL.md": (
+        "projects/<项目名>/4-Design/",
     ),
-    ROOT / "5-画面" / "SKILL.md": (
-        "projects/<项目名>/画面/",
+    ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
+        "projects/<项目名>/5-Image/",
+        "projects/<项目名>/5-Image/分镜故事板/",
+        "projects/<项目名>/5-Image/分镜帧/",
+        "projects/<项目名>/5-Image/漫画/",
     ),
-    ROOT / "6-视频" / "SKILL.md": (
-        "projects/<项目名>/视频/",
-    ),
-    ROOT / "6-视频" / "references" / "execution-flow.md": (
-        "projects/<项目名>/主体/",
-        "projects/<项目名>/画面/",
-        "projects/<项目名>/视频/",
+    ROOT / "6-Video" / "SKILL.md": (
+        "projects/<项目名>/6-Video/",
+        "projects/<项目名>/6-Video/全能参照/",
+        "projects/<项目名>/6-Video/首帧参照/",
+        "projects/<项目名>/6-Video/生成任务/",
     ),
 }
 STAGE_RUNTIME_FORBIDDEN = {
     ROOT / "0-Init" / "SKILL.md": (
+        "projects/<项目名>/主体/",
+        "projects/<项目名>/4-主体/",
+        "projects/<项目名>/5-画面/",
+        "projects/<项目名>/6-视频/",
         "projects/<项目名>/2-组间/validation-report.md",
         "projects/<项目名>/3-明细/validation-report.md",
     ),
-    ROOT / "1-规划" / "SKILL.md": (
-        "runtime 根目录：`projects/<项目名>/Init/`",
-        "阶段验证报告：`projects/<项目名>/Init/validation-report.md`",
+    ROOT / "1-Planning" / "SKILL.md": (
+        "runtime 根目录：`projects/<项目名>/0-Init/`",
+        "阶段验证报告：`projects/<项目名>/0-Init/validation-report.md`",
     ),
-    ROOT / "6-视频" / "references" / "execution-flow.md": (
+    ROOT / "6-Video" / "SKILL.md": (
         "projects/<项目名>/设定/",
         "projects/<项目名>/5-画面/",
+        "projects/<项目名>/主体/",
     ),
 }
 REQUIRED_SATELLITES = {
@@ -129,6 +153,55 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-query-satellite-entry",
     "aigc-resume-satellite-entry",
     "aigc-review-satellite-entry",
+}
+REQUIRED_INIT_AGENT_DOCS = (
+    Path(".codex/agents/aigc/初始组/team.md"),
+    Path(".codex/agents/aigc/初始组/模式路由.md"),
+    Path(".codex/agents/aigc/初始组/主创会诊.md"),
+    Path(".codex/agents/aigc/初始组/快速成案.md"),
+    Path(".codex/agents/aigc/初始组/自主问答.md"),
+    Path(".codex/agents/aigc/初始组/充分性审计.md"),
+)
+REQUIRED_STAGE_AGENT_DOCS = {
+    "0-Init": REQUIRED_INIT_AGENT_DOCS,
+    "1-Planning": (
+        Path(".codex/agents/aigc/规划组/team.md"),
+        Path(".codex/agents/aigc/规划组/格式判模.md"),
+        Path(".codex/agents/aigc/规划组/标准剧.md"),
+        Path(".codex/agents/aigc/规划组/解说剧.md"),
+        Path(".codex/agents/aigc/规划组/分组.md"),
+        Path(".codex/agents/aigc/规划组/节奏.md"),
+    ),
+    "2-Global": (
+        Path(".codex/agents/aigc/导演组/team.md"),
+        Path(".codex/agents/aigc/导演组/全局风格设计师.md"),
+        Path(".codex/agents/aigc/导演组/类型化指导.md"),
+        Path(".codex/agents/aigc/导演组/导演.md"),
+    ),
+    "3-Detail": (
+        Path(".codex/agents/aigc/制作组/team.md"),
+        Path(".codex/agents/aigc/制作组/分镜表现/分镜规划.md"),
+        Path(".codex/agents/aigc/制作组/分镜表现/分镜构图.md"),
+        Path(".codex/agents/aigc/制作组/角色表现/内心戏指导.md"),
+        Path(".codex/agents/aigc/制作组/角色表现/动作戏指导.md"),
+        Path(".codex/agents/aigc/制作组/角色表现/对手戏指导.md"),
+        Path(".codex/agents/aigc/制作组/运镜手法/叙事派.md"),
+        Path(".codex/agents/aigc/制作组/运镜手法/炫技派.md"),
+        Path(".codex/agents/aigc/制作组/场景氛围/景观设计.md"),
+        Path(".codex/agents/aigc/制作组/场景氛围/氛围设计.md"),
+        Path(".codex/agents/aigc/制作组/摄影美学/摄影师.md"),
+        Path(".codex/agents/aigc/制作组/摄影美学/光影美学大师.md"),
+        Path(".codex/agents/aigc/制作组/摄影美学/色彩美学大师.md"),
+        Path(".codex/agents/aigc/制作组/转场特效/转场设计.md"),
+        Path(".codex/agents/aigc/制作组/转场特效/特效设计.md"),
+        Path(".codex/agents/aigc/制作组/复核审计/连续性复核.md"),
+        Path(".codex/agents/aigc/制作组/复核审计/真源审计.md"),
+    ),
+}
+AGENT_REFERENCE_PATTERN = re.compile(r"\.codex/agents/aigc/[^\s`)\]>\"']+\.md")
+BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
+BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
+    "aigc-bootstrap-compat-mode",
 }
 
 
@@ -217,6 +290,78 @@ def declared_local_subtype_paths(content: str) -> set[str]:
     return subtype_paths
 
 
+def extract_context_limit(content: str, limit_name: str, default: int) -> int:
+    pattern = rf"^- {re.escape(limit_name)}:\s*(\d+)\s*$"
+    match = re.search(pattern, content, re.MULTILINE)
+    return int(match.group(1)) if match else default
+
+
+def case_count_of(content: str) -> int:
+    return len(re.findall(r"^###\s+Case-", content, re.MULTILINE))
+
+
+def has_case_before_case_log(content: str) -> bool:
+    case_matches = list(re.finditer(r"^###\s+Case-", content, re.MULTILINE))
+    if not case_matches:
+        return False
+    case_log_match = re.search(r"^##\s+Case Log\s*$", content, re.MULTILINE)
+    if not case_log_match:
+        return False
+    return any(match.start() < case_log_match.start() for match in case_matches)
+
+
+def case_log_dominates(content: str) -> bool:
+    first_case_match = re.search(r"^###\s+Case-", content, re.MULTILINE)
+    if not first_case_match:
+        return False
+    case_count = case_count_of(content)
+    if case_count < CASE_LOG_DOMINANCE_MIN_CASES:
+        return False
+    case_payload = content[first_case_match.start() :]
+    return len(case_payload) / max(len(content), 1) >= CASE_LOG_DOMINANCE_RATIO
+
+
+def audit_context_quality(context_path: Path, context: str, warnings: list[str]) -> None:
+    char_count = len(context)
+    cases = case_count_of(context)
+    soft_limit_chars = extract_context_limit(context, "soft_limit_chars", DEFAULT_SOFT_LIMIT_CHARS)
+    hard_limit_chars = extract_context_limit(context, "hard_limit_chars", DEFAULT_HARD_LIMIT_CHARS)
+    soft_limit_cases = extract_context_limit(context, "soft_limit_cases", DEFAULT_SOFT_LIMIT_CASES)
+    hard_limit_cases = extract_context_limit(context, "hard_limit_cases", DEFAULT_HARD_LIMIT_CASES)
+
+    if char_count >= soft_limit_chars:
+        warnings.append(
+            f"{context_path}: chars={char_count} reached soft limit {soft_limit_chars}; compact KB or move long timelines to CHANGELOG.md"
+        )
+    if cases >= soft_limit_cases:
+        warnings.append(
+            f"{context_path}: cases={cases} reached soft limit {soft_limit_cases}; keep only milestone conclusions in Case Log"
+        )
+    if char_count >= hard_limit_chars:
+        warnings.append(
+            f"{context_path}: chars={char_count} reached hard limit {hard_limit_chars}; archive older material before further growth"
+        )
+    if cases >= hard_limit_cases:
+        warnings.append(
+            f"{context_path}: cases={cases} reached hard limit {hard_limit_cases}; archive older cases before appending new ones"
+        )
+    if has_case_before_case_log(context):
+        warnings.append(
+            f"{context_path}: found `Case-*` sections before `## Case Log`; move them under Case Log or externalize detailed timeline to CHANGELOG.md"
+        )
+    if case_log_dominates(context):
+        warnings.append(
+            f"{context_path}: Case content dominates the file; move long process history to CHANGELOG.md or reports and keep CONTEXT.md as KB"
+        )
+
+
+def audit_all_context_hygiene(warnings: list[str]) -> None:
+    for context_path in sorted(ROOT.rglob("CONTEXT.md")):
+        if not context_path.exists() or context_path.stat().st_size == 0:
+            continue
+        audit_context_quality(context_path, context_path.read_text(encoding="utf-8"), warnings)
+
+
 def audit_skill_file(path: Path, failures: list[str]) -> None:
     content = ""
     tier = None
@@ -287,18 +432,19 @@ def audit_skill_file(path: Path, failures: list[str]) -> None:
         )
 
 
-def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict]]:
+def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict], str]:
     if not REGISTRY.exists():
         failures.append(f"{REGISTRY}: missing")
-        return [], []
+        return [], [], ""
 
     registry = load_yaml(REGISTRY)
     active_skills = registry.get("active_skills", [])
     aigc_entry = next((item for item in active_skills if item.get("id") == "aigc"), None)
     if not aigc_entry:
         failures.append(f"{REGISTRY}: missing active skill `aigc`")
-        return [], []
+        return [], [], ""
 
+    contract_mode = aigc_entry.get("contract_mode", "")
     runtime_control = aigc_entry.get("runtime_control", {})
     if runtime_control.get("canonical_project_runtime") != "projects/<项目名>/":
         failures.append(
@@ -324,10 +470,10 @@ def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict]]:
         failures.append(
             f"{REGISTRY}: `aigc.satellite_index` missing {', '.join(missing_satellites)}"
         )
-    return stage_index, satellite_index
+    return stage_index, satellite_index, contract_mode
 
 
-def audit_routes(failures: list[str]) -> None:
+def audit_routes(contract_mode: str, failures: list[str]) -> None:
     if not ROUTES.exists():
         failures.append(f"{ROUTES}: missing")
         return
@@ -335,7 +481,10 @@ def audit_routes(failures: list[str]) -> None:
     routes = load_yaml(ROUTES)
     route_policies = routes.get("route_policies", [])
     route_policy_ids = {item.get("id") for item in route_policies}
-    missing_route_policies = sorted(REQUIRED_ROUTE_POLICIES - route_policy_ids)
+    required_route_policies = set(REQUIRED_ROUTE_POLICIES)
+    if contract_mode == BOOTSTRAP_COMPAT_MODE:
+        required_route_policies |= BOOTSTRAP_COMPAT_ROUTE_POLICIES
+    missing_route_policies = sorted(required_route_policies - route_policy_ids)
     if missing_route_policies:
         failures.append(
             f"{ROUTES}: missing route policies {', '.join(missing_route_policies)}"
@@ -353,9 +502,13 @@ def audit_routes(failures: list[str]) -> None:
         failures.append(f"{ROUTES}: `aigc-project-runtime` project_state carrier mismatch")
     if aigc_runtime.get("governance_state_carrier") != "projects/<项目名>/governance-state.yaml":
         failures.append(f"{ROUTES}: `aigc-project-runtime` governance_state carrier mismatch")
+    if contract_mode == BOOTSTRAP_COMPAT_MODE and aigc_runtime.get("contract_mode") != BOOTSTRAP_COMPAT_MODE:
+        failures.append(
+            f"{ROUTES}: `aigc-project-runtime.contract_mode` must be `{BOOTSTRAP_COMPAT_MODE}`"
+        )
 
 
-def audit_runtime_alignment(failures: list[str]) -> None:
+def audit_runtime_alignment(contract_mode: str, failures: list[str]) -> None:
     shared_layout = ROOT / "_shared" / "project-runtime-layout.md"
     if not shared_layout.exists():
         failures.append(f"{shared_layout}: missing")
@@ -365,15 +518,19 @@ def audit_runtime_alignment(failures: list[str]) -> None:
     for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
         if governance_file not in shared_content:
             failures.append(f"{shared_layout}: missing project governance artifact `{governance_file}`")
-    for stage_name, runtime_root in SHARED_RUNTIME_ROWS.items():
-        row = f"| `{stage_name}` | `{runtime_root}` |"
-        if row not in shared_content:
-            failures.append(f"{shared_layout}: missing canonical runtime row `{row}`")
 
     root_content = ROOT_SKILL.read_text(encoding="utf-8") if ROOT_SKILL.exists() else ""
     for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
         if governance_file not in root_content:
             failures.append(f"{ROOT_SKILL}: missing project governance artifact `{governance_file}`")
+
+    if contract_mode == BOOTSTRAP_COMPAT_MODE:
+        return
+
+    for stage_name, runtime_root in SHARED_RUNTIME_ROWS.items():
+        row = f"| `{stage_name}` | `{runtime_root}` |"
+        if row not in shared_content:
+            failures.append(f"{shared_layout}: missing canonical runtime row `{row}`")
     for runtime_root in ROOT_STAGE_LANDING:
         if runtime_root not in root_content:
             failures.append(f"{ROOT_SKILL}: missing canonical stage landing `{runtime_root}`")
@@ -411,7 +568,45 @@ def audit_runtime_alignment(failures: list[str]) -> None:
                 failures.append(f"{path}: contains legacy runtime marker `{marker}`")
 
 
-def audit_stage_index(stage_index: list[dict], failures: list[str]) -> None:
+def audit_init_subagent_presence(failures: list[str]) -> None:
+    init_skill = ROOT / "0-Init" / "SKILL.md"
+    if not init_skill.exists():
+        return
+    init_content = init_skill.read_text(encoding="utf-8")
+    if ".codex/agents/aigc/初始组/" not in init_content:
+        return
+    for doc in REQUIRED_INIT_AGENT_DOCS:
+        if not doc.exists():
+            failures.append(f"{doc}: missing required 0-Init subagent contract")
+
+
+def audit_stage_subagent_contracts(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
+    if contract_mode == BOOTSTRAP_COMPAT_MODE:
+        return
+
+    for stage in stage_index:
+        if stage.get("contract_status") == "shelved":
+            continue
+
+        stage_root = Path(stage["path"])
+        if not stage_root.exists():
+            continue
+
+        for doc in REQUIRED_STAGE_AGENT_DOCS.get(stage_root.name, ()):
+            if not doc.exists():
+                failures.append(f"{doc}: missing required {stage_root.name} subagent contract")
+
+        for path in sorted(stage_root.rglob("*")):
+            if not path.is_file() or path.suffix not in {".md", ".yaml"}:
+                continue
+            content = path.read_text(encoding="utf-8")
+            for raw_ref in sorted(set(AGENT_REFERENCE_PATTERN.findall(content))):
+                ref = Path(raw_ref)
+                if not ref.exists():
+                    failures.append(f"{path}: references missing agent contract `{raw_ref}`")
+
+
+def audit_stage_index(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
     root_content = ROOT_SKILL.read_text(encoding="utf-8") if ROOT_SKILL.exists() else ""
     for stage in stage_index:
         path = Path(stage["path"])
@@ -423,6 +618,11 @@ def audit_stage_index(stage_index: list[dict], failures: list[str]) -> None:
                 failures.append(
                     f"{ROOT_SKILL}: shelved stage `{stage_name}` must be explicitly marked as `搁浅` in root status table"
                 )
+            continue
+
+        if contract_mode == BOOTSTRAP_COMPAT_MODE:
+            if not path.exists():
+                failures.append(f"{path}: missing for active stage `{stage['id']}`")
             continue
 
         skill_path = path / "SKILL.md"
@@ -460,6 +660,7 @@ def shelved_stage_roots(stage_index: list[dict]) -> list[Path]:
 def main() -> int:
     args = parse_args()
     failures: list[str] = []
+    warnings: list[str] = []
 
     if not ROOT_SKILL.exists():
         failures.append(f"{ROOT_SKILL}: missing")
@@ -471,19 +672,30 @@ def main() -> int:
     if ROOT_CONTEXT.exists() and ROOT_CONTEXT.stat().st_size == 0:
         failures.append(f"{ROOT_CONTEXT}: CONTEXT.md is empty")
 
-    stage_index, satellite_index = audit_registry(failures)
-    audit_routes(failures)
-    audit_runtime_alignment(failures)
+    audit_all_context_hygiene(warnings)
+
+    stage_index, satellite_index, contract_mode = audit_registry(failures)
+    audit_routes(contract_mode, failures)
+    audit_runtime_alignment(contract_mode, failures)
+    audit_init_subagent_presence(failures)
+    if stage_index:
+        audit_stage_subagent_contracts(stage_index, contract_mode, failures)
 
     skipped_roots = shelved_stage_roots(stage_index)
 
-    for skill_path in sorted(ROOT.rglob("SKILL.md")):
-        if any(root in skill_path.parents for root in skipped_roots):
-            continue
-        audit_skill_file(skill_path, failures)
+    if ROOT_SKILL.exists():
+        audit_skill_file(ROOT_SKILL, failures)
+
+    if contract_mode != BOOTSTRAP_COMPAT_MODE:
+        for skill_path in sorted(ROOT.rglob("SKILL.md")):
+            if skill_path == ROOT_SKILL:
+                continue
+            if any(root in skill_path.parents for root in skipped_roots):
+                continue
+            audit_skill_file(skill_path, failures)
 
     if stage_index:
-        audit_stage_index(stage_index, failures)
+        audit_stage_index(stage_index, contract_mode, failures)
     if satellite_index:
         audit_satellite_index(satellite_index, failures)
 
@@ -493,15 +705,24 @@ def main() -> int:
     print(f"registry_stage_entries: {len(stage_index)}")
     print(f"registry_satellite_entries: {len(satellite_index)}")
     print(f"failures: {len(failures)}")
+    print(f"warnings: {len(warnings)}")
 
     if failures:
         print("")
         print("Audit failures:")
         for failure in failures:
             print(f"- {failure}")
-    else:
+    if warnings:
+        print("")
+        print("Audit warnings:")
+        for warning in warnings:
+            print(f"- {warning}")
+    if not failures and not warnings:
         print("")
         print("All checked AIGC skill contracts are aligned.")
+    elif not failures:
+        print("")
+        print("All checked AIGC skill contracts passed strict checks; review warnings for context hygiene drift.")
 
     if args.strict and failures:
         return 1

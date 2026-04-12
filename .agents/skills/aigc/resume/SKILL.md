@@ -10,7 +10,7 @@ governance_tier: lite
 
 - `resume/` 是 `aigc` 根目录下的续跑恢复卫星技能，不是新的主阶段。
 - 它负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根 `aigc` 或目标阶段。
-- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/<项目名>/` 下的治理工件、`governance-state.yaml`、`project_state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
+- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/<项目名>/` 下的核心初始化工件、`project_state.yaml`、可选的 `governance-state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
 
 ## Stage Position
 
@@ -29,9 +29,9 @@ governance_tier: lite
 
 | scope | support level | note |
 | --- | --- | --- |
-| 根治理工件缺口修复 | full | `mandate / brief / route / verdict / validation / learning` |
-| `0-Init` 到 `6-视频` 的阶段续跑 | full | 以项目运行时与阶段产物证据为准 |
-| `7-后期` | blocked | 当前阶段处于 `搁浅`，只返回恢复前置 |
+| 根治理工件缺口修复 | full | 支持从轻量初始化态补 `governance-state / mandate / brief / route / verdict / validation / learning` |
+| `0-Init` 到 `6-Video` 的阶段续跑 | full | 以项目运行时与阶段产物证据为准 |
+| `7-Cut` | blocked | 当前阶段处于 `搁浅`，只返回恢复前置 |
 | 伪造 workflow state / 自动回滚 Git | forbidden | 明确禁止 |
 
 ## Workflow
@@ -92,11 +92,10 @@ L2 按需：
 优先确认：
 
 - `project_state.yaml`
-- `governance-state.yaml`
 - `team.yaml`
-- `mandate.yaml`
-- `mission-brief.yaml`
-- `route-plan.yaml`
+- `0-Init/north_star.yaml`
+- `0-Init/init_handoff.yaml`
+- `0-Init/story-source-manifest.yaml`
 
 若项目根无法锁定，不得继续推断“上次跑到哪”。
 
@@ -105,12 +104,12 @@ L2 按需：
 推荐读取：
 
 ```bash
-sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
 sed -n '1,220p' "$PROJECT_ROOT/project_state.yaml"
-sed -n '1,220p' "$PROJECT_ROOT/mission-brief.yaml"
-sed -n '1,220p' "$PROJECT_ROOT/route-plan.yaml"
-sed -n '1,220p' "$PROJECT_ROOT/preflight-verdict.yaml"
-sed -n '1,220p' "$PROJECT_ROOT/validation-report.md"
+test -f "$PROJECT_ROOT/governance-state.yaml" && sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
+test -f "$PROJECT_ROOT/mission-brief.yaml" && sed -n '1,220p' "$PROJECT_ROOT/mission-brief.yaml"
+test -f "$PROJECT_ROOT/route-plan.yaml" && sed -n '1,220p' "$PROJECT_ROOT/route-plan.yaml"
+test -f "$PROJECT_ROOT/preflight-verdict.yaml" && sed -n '1,220p' "$PROJECT_ROOT/preflight-verdict.yaml"
+test -f "$PROJECT_ROOT/validation-report.md" && sed -n '1,220p' "$PROJECT_ROOT/validation-report.md"
 git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 ```
 
@@ -118,7 +117,8 @@ git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 
 | mode | 触发条件 | 默认动作 |
 | --- | --- | --- |
-| `governance_rebuild` | `governance-state.yaml` 缺失、根治理工件缺失或明显漂移 | 回根 `aigc` 补 `state / brief / route / verdict` |
+| `lightweight_init_continue` | 核心初始化工件齐全，但尚未生成结构化治理快照 | 回根 `aigc` 或低风险下一阶段继续；只有需要深治理时才补快照 |
+| `governance_rebuild` | `project_state.yaml` 缺失、核心初始化工件缺失，或高风险恢复所需 gate 明显缺失 | 回根 `aigc` 补 `state / brief / route / verdict` |
 | `stage_continue` | 阶段产物已存在，但验收闭环未完成 | 继续当前阶段或其直接下游 |
 | `review_reentry` | 内容产物已有，但需要预审或验收 | 进入 `review/` |
 | `root_reroute` | 当前阶段不清、阶段已搁浅或合同缺失 | 回根 `aigc` 重判唯一路由 |
@@ -129,15 +129,14 @@ git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 
 ```bash
 find "$PROJECT_ROOT" -type f -mtime -3 | sort
-rg --files "$PROJECT_ROOT/编导" | rg '第[0-9]+集\\.json$'
+rg --files "$PROJECT_ROOT/3-Detail" | rg '第[0-9]+集\\.json$'
 rg --files "$PROJECT_ROOT/主体"
-rg --files "$PROJECT_ROOT/画面"
-rg --files "$PROJECT_ROOT/视频"
+rg --files "$PROJECT_ROOT/5-Image"
+rg --files "$PROJECT_ROOT/6-Video"
 ```
 
 恢复时优先依赖：
 
-- `governance-state.yaml`
 - `project_state.yaml`
 - 最近一轮 `route-plan.yaml`
 - 对应阶段 runtime 目录中的真实产物
@@ -154,7 +153,7 @@ rg --files "$PROJECT_ROOT/视频"
 - 先经 `review/` 做 preflight 或验收桥接
 - 先补治理工件，再继续内容阶段
 
-若 `governance-state.yaml` 缺失但其他工件存在，默认判为 `governance_rebuild`，先补结构化治理快照，再谈继续执行。
+若 `governance-state.yaml` 缺失但 `project_state.yaml` 与核心初始化工件齐全，默认先判为 `lightweight_init_continue`；只有当用户需要结构化断点、复杂多步恢复或 review bridge 时，才升级为 `governance_rebuild`。
 
 禁止的默认动作：
 

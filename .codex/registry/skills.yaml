@@ -1,12 +1,14 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-11
+last_updated: 2026-04-12
 
 active_skills:
   - id: aigc
     path: .agents/skills/aigc
     owner_office: zhongshu
     purpose: 仓库级 AIGC 影视创作多子技能组合总入口，负责项目工作区、阶段路由与总闭环。
+    contract_mode: bootstrap_compat
+    contract_mode_note: "aigc 系列正处于重大改造窗口；当前先固定项目 runtime、治理 carriers 与卫星技能入口，阶段内部合同允许重构。"
     runtime_control:
       canonical_project_runtime: projects/<项目名>/
       project_state_carrier: projects/<项目名>/project_state.yaml
@@ -20,37 +22,37 @@ active_skills:
         contract_status: active
         route_role: entry
       - id: aigc-1-planning
-        path: .agents/skills/aigc/1-规划
+        path: .agents/skills/aigc/1-Planning
         owner_office: zhongshu
         contract_status: active
         route_role: stage
       - id: aigc-2-directing
-        path: .agents/skills/aigc/2-组间
+        path: .agents/skills/aigc/2-Global
         owner_office: zhongshu
         contract_status: active
         route_role: stage
       - id: aigc-3-detail
-        path: .agents/skills/aigc/3-明细
+        path: .agents/skills/aigc/3-Detail
         owner_office: shangshu
         contract_status: active
         route_role: stage
       - id: aigc-4-subject
-        path: .agents/skills/aigc/4-主体
+        path: .agents/skills/aigc/4-Design
         owner_office: shangshu
         contract_status: active
         route_role: stage
       - id: aigc-5-visuals
-        path: .agents/skills/aigc/5-画面
+        path: .agents/skills/aigc/5-Image
         owner_office: shangshu
         contract_status: active
         route_role: stage
       - id: aigc-6-video
-        path: .agents/skills/aigc/6-视频
+        path: .agents/skills/aigc/6-Video
         owner_office: shangshu
         contract_status: active
         route_role: stage
       - id: aigc-7-post
-        path: .agents/skills/aigc/7-后期
+        path: .agents/skills/aigc/7-Cut
         owner_office: shangshu
         contract_status: shelved
         route_role: frozen
@@ -61,7 +63,7 @@ active_skills:
         governance_domain: hubu
         contract_status: active
         route_role: satellite
-        purpose: 项目级 runtime、阶段产物、编导主文件与治理工件事实查询。
+        purpose: 项目级 runtime、阶段产物、`3-Detail` 主文件与治理工件事实查询。
       - id: aigc-resume
         path: .agents/skills/aigc/resume
         owner_office: shangshu

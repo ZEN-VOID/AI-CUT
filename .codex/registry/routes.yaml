@@ -30,6 +30,9 @@ route_policies:
   - id: aigc-project-runtime-canonical
     trigger: 命中 `.agents/skills/aigc/SKILL.md` 及其阶段技能
     rule: "`projects/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
+  - id: aigc-bootstrap-compat-mode
+    trigger: 命中 `.agents/skills/aigc/` 大规模重构、阶段合同重写、子路径迁移或 schema 重建
+    rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、卫星技能入口与 review gate；不把当前阶段内细节视为冻结真源"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -40,10 +43,10 @@ route_policies:
     trigger: 命中高风险预审、阶段验收、项目级 validation-report 更新、learning bridge
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；由门下省侧卫星技能判定 mode 后再路由到 `preflight-review / acceptance-review / learning-bridge` 子技能"
   - id: aigc-video-stage-entry
-    trigger: 命中 `6-视频` 或需要把 `编导/第N集.json` 蒸馏成视频工具入参 JSON
-    rule: "先进入 `.agents/skills/aigc/6-视频/SKILL.md`；若任务是按分镜组组织视频请求，默认路由 `1-提示词蒸馏/全能参照`"
+    trigger: 命中 `6-Video` 或需要把 `3-Detail/第N集.json` 蒸馏成视频工具入参 JSON
+    rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若任务是按分镜组组织视频请求，默认路由 `1-提示词蒸馏/全能参照`"
   - id: aigc-shelved-stages
-    trigger: 命中 `7-后期`
+    trigger: 命中 `7-Cut / 7-后期`
     rule: "显式返回“搁浅”状态与补建落点，不得伪造执行链，也不计入当前可执行阶段审计失败"
   - id: bootstrap-governance-first
     trigger: 仓库初始化、架构升级、长流程治理、跨仓继承
@@ -69,6 +72,7 @@ legacy_mapping:
 workflow_carriers:
   - id: aigc-project-runtime
     applies_to: aigc-root-entry
+    contract_mode: bootstrap_compat
     canonical_runtime_root: projects/<项目名>/
     project_state_carrier: projects/<项目名>/project_state.yaml
     governance_state_carrier: projects/<项目名>/governance-state.yaml

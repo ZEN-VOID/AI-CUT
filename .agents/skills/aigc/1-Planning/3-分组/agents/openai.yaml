@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 规划分组"
+  short_description: "由父 skill 统筹 shared planning team 的分组 specialist，并通过 quantizer/validator 写回 grouped script 与唯一总执行报告"
+  default_prompt: "Use $aigc-planning-grouping to keep the stage-local parent skill as the only execution and writeback owner: optionally dispatch the shared planning-team grouping specialist in background mode for boundary proposals, apply the scene-order and duration-strategy projection through the local quantizer, insert three-part group ids like `【episode-scene-group】` into `2-剧本/第N集.md`, write the canonical grouped script plus one shared `执行报告.md`, run validator-backed quant checks, and return a parent-consumable group handoff patch."

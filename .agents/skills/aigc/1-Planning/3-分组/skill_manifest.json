@@ -1,0 +1,51 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "planning.grouping",
+  "skill_path": ".agents/skills/aigc/1-Planning/3-分组",
+  "postprocess": {
+    "script": ".agents/skills/aigc/1-Planning/3-分组/scripts/postprocess_grouping_output.py",
+    "runner": "python3",
+    "args": [
+      {
+        "flag": "--input",
+        "value": "{output_path}"
+      }
+    ]
+  },
+  "io": {
+    "inputs": {
+      "source": {
+        "pattern": "projects/<项目名>/1-Planning/2-剧本/第{episode}.md",
+        "format": "markdown",
+        "required": true
+      }
+    },
+    "outputs": {
+      "primary": {
+        "pattern": "projects/<项目名>/1-Planning/3-分组/第{episode}.md",
+        "format": "markdown",
+        "required_sections": [
+          "【分组正文】"
+        ]
+      },
+      "report": {
+        "pattern": "projects/<项目名>/1-Planning/3-分组/执行报告.md",
+        "format": "markdown"
+      }
+    }
+  },
+  "dependencies": {
+    "requires": [
+      "planning.episode_split"
+    ],
+    "optional_context": [
+      "planning.rhythm",
+      "planning.format_judgement"
+    ]
+  },
+  "scope": "episode",
+  "tags": [
+    "planning",
+    "grouping"
+  ]
+}

@@ -19,8 +19,8 @@ last_stable_checkpoint:
   checkpoint_id: "CHK-YYYYMMDD-001"
   summary: ""
   source_artifacts:
-    - "Init/north_star.yaml"
-    - "Init/init_handoff.yaml"
+    - "0-Init/north_star.yaml"
+    - "0-Init/init_handoff.yaml"
     - "project_state.yaml"
   verified_by:
     carrier: "validation-report.md"
@@ -28,7 +28,7 @@ last_stable_checkpoint:
 
 resume_contract:
   recommended_entry_skill: "aigc-planning"
-  recommended_entry_stage: "1-规划"
+  recommended_entry_stage: "1-Planning"
   recommended_entry_path: ""
   rationale: ""
   blockers: []

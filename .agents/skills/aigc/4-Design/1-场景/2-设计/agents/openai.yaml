@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 4-Design 场景设计"
+  short_description: "用场景设计组 subagents 把场景清单收束为设计卡与 episode 级设计载体"
+  default_prompt: "Use $aigc-design-scene-design to read the scene catalog, global style, director evidence, and initialization presets, dispatch the scene-design subagents, and write scene design cards to `projects/<项目名>/4-Design/1-场景/2-设计/第N集/`."

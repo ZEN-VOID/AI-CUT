@@ -20,12 +20,23 @@ governance_tier: full
 4. 三省六部分别在这棵树上挂到哪里
 5. 任务完成后如何验收、续跑与学习回流
 
+## 当前改造模式
+
+- 当前 `aigc` 根技能已切换到 `bootstrap_compat` 改造窗口。
+- 在这个窗口内，harness 对 `aigc` 根技能固定的真源只有四类：
+  - `projects/<项目名>/` 项目 runtime 与根层治理工件
+  - `.codex/registry/skills.yaml` / `.codex/registry/routes.yaml` 的根注册与路由入口
+  - `query / resume / review` 三个根级卫星技能入口
+  - 高风险任务的 `preflight-verdict` 与完成闭环的 `validation-report`
+- 在这个窗口内，主阶段链、阶段状态表与子路径说明仍然可用，但它们默认视为“路由投影”，不是冻结的阶段内部 schema；后续重大改造可重写阶段内合同，只要不破坏上述根层真源。
+- 若旧的阶段细节合同与当前重构目标冲突，优先保住项目 runtime、治理 carriers 与 review gate，再以目标阶段的当前显式本地合同为准。
+
 ## 使用场景
 
 - 初始化一个新的 AIGC 创作项目
 - 在 `projects/<项目名>/` 下推进影视创作主链
-- 判断当前任务应该进入 `1-规划`、`2-组间`、`3-明细`、`4-主体`、`5-画面`、`6-视频`、`7-后期` 的哪一个阶段
-- 查询某个 AIGC 项目的 runtime 真源、阶段产物、编导根文件、主体/画面/视频资产与治理工件
+- 判断当前任务应该进入 `1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video`、`7-Cut` 的哪一个阶段
+- 查询某个 AIGC 项目的 runtime 真源、阶段产物、编导根文件、设计/画面/视频资产与治理工件
 - 续跑一个中断的创作项目
 - 对某个阶段或整个项目执行门下省侧预审、验收、`validation-report.md` 更新与学习桥接
 - 对齐阶段输出、项目状态与仓库级治理合同
@@ -40,29 +51,33 @@ governance_tier: full
 
 ### Canonical Stage Landing
 
-- `projects/<项目名>/Init/`
-- `projects/<项目名>/规划/`
-- `projects/<项目名>/编导/`
-- `projects/<项目名>/主体/`
-- `projects/<项目名>/画面/`
-- `projects/<项目名>/视频/`
-- `projects/<项目名>/后期/`
+- `projects/<项目名>/0-Init/`
+- `projects/<项目名>/Story/`
+- `projects/<项目名>/1-Planning/`
+- `projects/<项目名>/2-Global/`
+- `projects/<项目名>/3-Detail/`
+- `projects/<项目名>/4-Design/`
+- `projects/<项目名>/5-Image/`
+- `projects/<项目名>/6-Video/`
+- `projects/<项目名>/7-Cut/`
 
 说明：
 
-- 技能阶段名仍沿用 `1-规划 / 4-主体 / 5-画面`。
-- 项目 runtime 目录不再沿用这些阶段号，统一落为 `规划 / 主体 / 画面`。
+- 技能阶段名仍沿用当前技能树口径，如 `1-Planning / 4-Design / 5-Image`。
+- 项目 runtime 目录以 `.agents/skills/aigc/_shared/project-runtime-layout.md` 为唯一真源；当前 `4-Design` 不再回退到旧的 `主体/` 目录。
 
 ### Canonical Runtime Artifacts
 
-- `projects/<项目名>/project_state.yaml`
-- `projects/<项目名>/governance-state.yaml`
-- `projects/<项目名>/mandate.yaml`
-- `projects/<项目名>/mission-brief.yaml`
-- `projects/<项目名>/route-plan.yaml`
-- `projects/<项目名>/preflight-verdict.yaml`
-- `projects/<项目名>/validation-report.md`
-- `projects/<项目名>/learning-record.md`
+- 核心运行时工件：
+  - `projects/<项目名>/project_state.yaml`
+- 惰性治理工件：
+  - `projects/<项目名>/governance-state.yaml`
+  - `projects/<项目名>/mandate.yaml`
+  - `projects/<项目名>/mission-brief.yaml`
+  - `projects/<项目名>/route-plan.yaml`
+  - `projects/<项目名>/preflight-verdict.yaml`
+  - `projects/<项目名>/validation-report.md`
+  - `projects/<项目名>/learning-record.md`
 
 ### Shared Runtime Source
 
@@ -78,20 +93,20 @@ governance_tier: full
 ### 主阶段链
 
 1. `0-Init`
-   - 负责项目初始化、项目根目录建立、`north_star` 生成与基础运行时工件创建，并可预建统一 runtime 目录骨架
-2. `1-规划`
+   - 负责项目初始化、项目根目录建立、`north_star` 生成与基础运行时工件创建，并按 shared runtime layout 预建阶段根目录与 active child skeleton
+2. `1-Planning`
    - 负责分集、格式、分组、节奏等规划合同，并在规划期登记 `bootstrap_output` 目标路径与 `source_profile` handoff
-3. `2-组间`
-   - 负责全组一致的全局风格、半一致半动态的类型元素，以及按分镜组展开的导演意图；首次进入且缺文件时自动创建 `编导/第N集.json`，再围绕它做组级字段补全
-4. `3-明细`
-   - 负责围绕分镜组内颗粒度的明细设计，包括分镜表现、角色表现、运镜、氛围、摄影美学与转场设计，并围绕同一份 `编导/第N集.json` 做镜级字段补全
-5. `4-主体`
-   - 负责主体清单、主体设计、主体审计与主体面板
-6. `5-画面`
+3. `2-Global`
+   - 负责全项目共用的全局风格、类型指导与按集按组展开的导演意图三份 Markdown 真源，并把它们作为 `3-Detail` 的导演前置合同
+4. `3-Detail`
+   - 负责围绕分镜组内颗粒度的明细设计，包括分镜表现、角色表现、运镜、氛围、摄影美学与转场设计；当前父 skill 已升格为制作组 subagents 编排面，并消费 `2-Global/*.md` 后继续补齐 `3-Detail/第N集.json`
+5. `4-Design`
+   - 负责场景、角色、服装、道具的清单、设计与面板阶段
+6. `5-Image`
    - 负责围绕已有文件进行多类型画面提示词组合、一致性处理与图像生成
-7. `6-视频`
-   - 负责视频生成前的主体参照、分镜参照与视频执行入口
-8. `7-后期`
+7. `6-Video`
+   - 负责视频生成前的设计/画面参照、分镜参照与视频执行入口
+8. `7-Cut`
    - 负责最终成片整理、后期收束与交付
 
 ### 根级卫星技能
@@ -99,7 +114,7 @@ governance_tier: full
 - `query`
   - 根级事实查询卫星技能
   - 默认挂在尚书省执行侧，治理分域偏 `户部`
-  - 负责围绕 `projects/<项目名>/` 读取项目状态、阶段产物、编导主文件、资产落点与治理工件，不改写业务真源
+  - 负责围绕 `projects/<项目名>/` 读取项目状态、阶段产物、`3-Detail` 主文件、资产落点与治理工件，不改写业务真源
 - `resume`
   - 根级续跑恢复卫星技能
   - 默认挂在尚书省执行侧，治理分域偏 `兵部`
@@ -121,13 +136,13 @@ governance_tier: full
 | 阶段 | 目录存在 | 阶段合同状态 | 调度策略 |
 | --- | --- | --- | --- |
 | `0-Init` | 是 | 已建合同，脚本待补 | 允许显式初始化任务进入，按 `north_star + init_handoff + project-root runtime` 合同执行 |
-| `1-规划` | 是 | 已建阶段合同，父子路由已补齐 | 可路由到 `1-分集`、`2-格式`、`3-分组`、`4-节奏` |
-| `2-组间` | 是 | 已建阶段合同，三个子路径可执行，并消费 `1-规划/4-节奏` handoff | 可路由到 `全局风格`、`类型元素`、`导演意图` |
-| `3-明细` | 是 | 已建阶段合同，`2-角色表现`、`3-运镜手法`、`4-场景氛围`、`5-摄影美学` 与 `6-转场特效` 可执行，其余子路径持续补全 | 可路由到 `2-角色表现`、`3-运镜手法`、`4-场景氛围`、`5-摄影美学`、`6-转场特效`；其他子路径按状态检查 |
-| `4-主体` | 是 | 已建阶段合同，四个子路径可路由 | 可路由到 `1-清单`、`2-设计`、`3-审计`、`4-面板` |
-| `5-画面` | 是 | 已建阶段合同，支持围绕既有文件进行 `分镜故事板`、`分镜帧`、`漫画` 三类画面生成 | 可路由到 `分镜故事板`、`分镜帧`、`漫画`；整阶段模式默认先入 `分镜故事板` |
-| `6-视频` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`3-视频生成`；`首尾帧参照`、`多图参照` 与 `2-一致性处理` 仍按状态检查 |
-| `7-后期` | 是 | 搁浅 | 当前不纳入执行链与严格审计失败项；仅保留目录槽位 |
+| `1-Planning` | 是 | 已建阶段合同，`1-分集` 直达 leaf 执行，其余规划判断由规划组 subagents 编排 | 可先执行 `1-分集`，再路由到 `格式判模`、`标准剧/解说剧`、`分组`、`节奏` |
+| `2-Global` | 是 | 已建阶段合同，父 skill 已升格为导演组 subagents 编排面，并消费 `1-Planning/3-分组` handoff | 写入 `全局风格.md`、`类型指导.md`、`导演意图.md` |
+| `3-Detail` | 是 | 已建阶段合同，父 skill 已升格为制作组 subagents 编排面，统一调度分镜表现、角色表现、运镜手法、场景氛围、摄影美学与转场特效 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按制作组 team 判定 `selected_stages[] / selected_agents[]` |
+| `4-Design` | 是 | 已建阶段合同，四个子路径可路由 | 可路由到 `1-清单`、`2-设计`、`3-审计`、`4-面板` |
+| `5-Image` | 是 | 已建阶段合同，支持围绕既有文件进行 `分镜故事板`、`分镜帧`、`漫画` 三类画面生成 | 可路由到 `分镜故事板`、`分镜帧`、`漫画`；整阶段模式默认先入 `分镜故事板` |
+| `6-Video` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照` 与 `2-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-视频生成`；`首尾帧参照`、`多图参照` 与未来一致性处理路径仍按状态检查 |
+| `7-Cut` | 是 | 搁浅 | 当前不纳入执行链与严格审计失败项；仅保留目录槽位 |
 
 ### 卫星技能覆盖状态
 
@@ -170,7 +185,7 @@ governance_tier: full
 | 户部 | 根 `CONTEXT.md`、`projects/<项目名>/project_state.yaml` 与 `projects/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
 | 礼部 | `.codex/templates/harness/` 与项目级工件合同 |
 | 兵部 | 主阶段链与子技能调度；`resume` 负责续跑与恢复回接 |
-| 刑部 | 根验收闭环、主体审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
+| 刑部 | 根验收闭环、阶段审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
 | 工部 | `scripts/`、`.codex/evals/`、后续阶段工具链接入 |
 
 ## 强制工作流
@@ -178,8 +193,8 @@ governance_tier: full
 1. 确认或创建 `projects/<项目名>/`
 2. 在 `projects/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
-4. 若后续进入 `1-规划 / 2-组间 / 3-明细 / 4-主体`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-5. 判断当前任务属于初始化、规划、组间、明细、主体、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
+4. 若后续进入 `1-Planning / 2-Global / 3-Detail / 4-Design`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
+5. 判断当前任务属于初始化、规划、组间、明细、设计、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段合同缺失，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
@@ -192,15 +207,16 @@ governance_tier: full
 
 1. `aigc` 根技能是总控面，不是替代各阶段产物的第二真源。
 2. 创作项目的 canonical workspace 必须优先落在 `projects/<项目名>/`。
-3. 没有 `mission-brief` 与 `route-plan`，复杂任务不得直接跳入阶段执行。
-4. 高风险任务没有 `preflight-verdict`，不得宣布进入正式执行。
-5. 对尚未补齐或已搁浅的阶段，必须报告“待补合同/搁浅”，不得伪造其工作流。
-6. 子技能经验优先写入最窄作用域；跨阶段经验再晋升到根 `CONTEXT.md`。
-7. 对 `1-规划 / 2-组间 / 3-明细 / 4-主体`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
-8. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
-9. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
-10. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
-11. `project_state.yaml` 负责人类摘要与推荐入口，`governance-state.yaml` 负责结构化断点、治理缺口与 review/resume 同步；不得让两者各自演化成平行真源。
+3. 当前 `bootstrap_compat` 模式下，不得把旧阶段细节合同当作冻结真源去阻断 `aigc` 系列重构；需要保留的是根 runtime、治理工件与 review gate。
+4. 没有 `mission-brief` 与 `route-plan`，复杂任务不得直接跳入阶段执行。
+5. 高风险任务没有 `preflight-verdict`，不得宣布进入正式执行。
+6. 对尚未补齐或已搁浅的阶段，必须报告“待补合同/搁浅”，不得伪造其工作流。
+7. 子技能经验优先写入最窄作用域；跨阶段经验再晋升到根 `CONTEXT.md`。
+8. 对 `1-Planning / 2-Global / 3-Detail / 4-Design`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
+9. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
+10. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
+11. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
+12. `project_state.yaml` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 review/resume 同步。两者不得各自演化成平行真源。
 
 ## 完成标准
 

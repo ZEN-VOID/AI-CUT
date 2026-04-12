@@ -1,0 +1,26 @@
+{
+  "schema_version": "aigc/planning-episode-split-plan/v1",
+  "project_name": "<项目名>",
+  "source_root": "projects/<项目名>/Story/",
+  "source_manifest": "projects/<项目名>/0-Init/story-source-manifest.yaml",
+  "split_scope": "incremental",
+  "can_finalize_full_season": false,
+  "source_profile": {
+    "source_type": "novel_original",
+    "preset_retention_mode": "standard",
+    "detail_expansion_mode": "free_expansion",
+    "locked_preset_axes": [],
+    "preset_registry": []
+  },
+  "episodes": [
+    {
+      "episode_id": "第1集",
+      "coverage_scope": "",
+      "route": "source_structure",
+      "upstream_paths": [],
+      "script_output": "projects/<项目名>/1-Planning/2-剧本/第1集.md",
+      "bootstrap_output": "projects/<项目名>/2-Global/导演意图.md",
+      "boundary_summary": ""
+    }
+  ]
+}

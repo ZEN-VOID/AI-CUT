@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 集级节奏规划"
-  short_description: "在允许偏离原作节奏时，为分组后的单集生成主驱动、七步节奏与峰值蓝图"
-  default_prompt: "Use $aigc-planning-rhythm to build an episode-level rhythm plan after grouping is stable, but only when 0-Init does not require preserving original pacing."

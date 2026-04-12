@@ -1,30 +1,30 @@
 # Story Source Contract
 
-本文件是 `aigc` 技能树中“故事/小说原文/剧本原文/分镜脚本”落盘与缺失提示的单一真源。
+本文件是 `aigc` 技能树中“Story/小说原文/剧本原文/分镜脚本”落盘与缺失提示的单一真源。
 
 ## Canonical Landing
 
-- 项目级故事目录：`projects/<项目名>/故事/`
-- 故事源登记真源：`projects/<项目名>/Init/story-source-manifest.yaml`
+- 项目级故事目录：`projects/<项目名>/Story/`
+- 故事源登记真源：`projects/<项目名>/0-Init/story-source-manifest.yaml`
 
 ## Ownership
 
 - `0-Init` 负责首次生成 `story-source-manifest.yaml`。
-- 主故事源与辅助源文件本体统一落在 `projects/<项目名>/故事/`。
-- `1-规划/1-分集` 只消费 `story-source-manifest.yaml` 与其登记路径，不自行发明第二套源文件清单。
+- 主故事源与辅助源文件本体统一落在 `projects/<项目名>/Story/`。
+- `1-Planning/1-分集` 只消费 `story-source-manifest.yaml` 与其登记路径，不自行发明第二套源文件清单。
 
 ## Minimum Readiness Gate
 
 故事源 readiness 必须分层，而不是把“能否开始规划”和“能否完成整季正式分集”压成同一个门：
 
-1. `projects/<项目名>/Init/story-source-manifest.yaml` 存在。
+1. `projects/<项目名>/0-Init/story-source-manifest.yaml` 存在。
 2. `primary_story_source.status == ready` 且已登记实际正文路径时，允许把该正文覆盖范围作为规划真源。
-3. `readiness.can_enter_episode_split == true` 时，允许进入 `1-规划/1-分集`，但默认只对 `coverage_scope` 已覆盖范围执行。
+3. `readiness.can_enter_episode_split == true` 时，允许进入 `1-Planning/1-分集`，但默认只对 `coverage_scope` 已覆盖范围执行。
 4. `readiness.can_finalize_full_season_episode_split == true` 时，才允许宣称“整季正式分集完成”。
 
 若仅满足第 1-3 条而不满足第 4 条，则：
 
-- 允许进入 `1-规划/1-分集` 做增量分集或覆盖范围内规划。
+- 允许进入 `1-Planning/1-分集` 做增量分集或覆盖范围内规划。
 - 必须显式标记为“增量/局部分集”，不得伪装成整季正式切分。
 - 必须保留覆盖缺口与后续补源要求。
 
@@ -60,26 +60,26 @@
 - `locked_preset_axes`
   - 推荐枚举：`scene_boundary`、`shot_order`、`camera_motif`、`transition_hook`、`viewpoint_order`
 - `preset_registry`
-  - 对外部分镜脚本中的预设点做结构化登记，供 `3-分组` 与 `3-明细` 继续消费
+  - 对外部分镜脚本中的预设点做结构化登记，供 `3-分组` 与 `3-Detail` 继续消费
   - 每条至少说明：`anchor_id`、`source_span`、`lock_level`、`owned_axes`、`expandable_axes`、`forbidden_changes`
 
 规则：
 
 1. 当 `source_type == storyboard_script` 时，默认推荐 `preset_retention_mode = preserve_and_extend`。
-2. 当 `preset_retention_mode != standard` 时，`1-规划` 必须先把同样的结论写入规划 handoff；`2-组间` 首次创建 `第N集.json` 时，再写入 `metadata.source_profile`。
+2. 当 `preset_retention_mode != standard` 时，`1-Planning` 必须先把同样的结论写入规划 handoff；`3-Detail` 首次创建 `第N集.json` 时，再写入 `metadata.source_profile`。
 3. `preset_registry` 中的 `lock_level` 默认分三档：
    - `hard_lock`: 只能补厚，不能改骨架
    - `soft_lock`: 核心意图不变，但允许一锚多镜式细分
-   - `reference_only`: 仅保留叙事功能，可在 `3-明细` 中重构
+   - `reference_only`: 仅保留叙事功能，可在 `3-Detail` 中重构
 4. `3-分组` 必须根据 `preset_registry` 判断哪些锚点不可拆、哪些可拆成连续子组。
-5. `3-明细` 读取到 `respect_storyboard_presets` 或 `preserve_only` 时，只能顺着预设补强，不得把已锁定预设轴改造成第二套主镜头逻辑。
+5. `3-Detail` 读取到 `respect_storyboard_presets` 或 `preserve_only` 时，只能顺着预设补强，不得把已锁定预设轴改造成第二套主镜头逻辑。
 
 ## Standard Missing Prompt
 
 ```markdown
 故事源补充卡
 
-当前还不能正式进入 `1-规划/1-分集`，因为缺少可覆盖分集边界的主故事源。
+当前还不能正式进入 `1-Planning/1-分集`，因为缺少可覆盖分集边界的主故事源。
 
 请补充以下信息：
 
@@ -91,7 +91,7 @@
 - 其他（请说明）
 
 2. 文件路径
-- 请优先放到：`projects/<项目名>/故事/`
+- 请优先放到：`projects/<项目名>/Story/`
 
 3. 覆盖范围
 - 全文
@@ -109,4 +109,4 @@
 - 当主故事源缺失时，`readiness.can_enter_episode_split` 必须为 `false`。
 - 当只导入部分正文时，`readiness.can_enter_episode_split` 可以为 `true`，但 `readiness.can_finalize_full_season_episode_split` 必须为 `false`。
 - `coverage_scope`、`split_scope` 与 `partial_limitations` 必须能解释当前是“增量规划”还是“整季正式分集”。
-- `1-规划/1-分集` 的输入清单应来自 manifest，而不是临时口头约定。
+- `1-Planning/1-分集` 的输入清单应来自 manifest，而不是临时口头约定。

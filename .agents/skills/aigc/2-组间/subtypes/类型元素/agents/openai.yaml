@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 类型元素"
-  short_description: "定义共享类型约束、分组偏置与误配禁区"
-  default_prompt: "Use $aigc-inter-group-type-elements to define the type playbook, separating all-groups-shared constraints from storyboard-group-specific emphasis and contamination guardrails."

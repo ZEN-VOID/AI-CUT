@@ -31,11 +31,11 @@
 | scope | carrier |
 | --- | --- |
 | `project` | `projects/<项目名>/validation-report.md` |
-| `1-规划` | `projects/<项目名>/规划/validation-report.md` |
-| `2-组间` / `3-明细` | `projects/<项目名>/编导/validation-report.md` |
-| `4-主体` | `projects/<项目名>/主体/validation-report.md` |
-| `5-画面` | `projects/<项目名>/画面/validation-report.md` |
-| `6-视频` | `projects/<项目名>/视频/validation-report.md` |
+| `1-Planning` | `projects/<项目名>/1-Planning/validation-report.md` |
+| `2-Global` / `3-Detail` | `projects/<项目名>/3-Detail/validation-report.md` |
+| `4-Design` | `projects/<项目名>/4-Design/validation-report.md` |
+| `5-Image` | `projects/<项目名>/5-Image/validation-report.md` |
+| `6-Video` | `projects/<项目名>/6-Video/validation-report.md` |
 
 ## Hard Guards
 

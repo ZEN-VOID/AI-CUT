@@ -169,16 +169,26 @@ def infer_focus_path(
 def map_skill_from_path(path_or_stage: str) -> str:
     mapping = {
         "0-Init": "aigc-init",
+        "1-Planning": "aigc-planning",
+        "1-Planning/1-分集": "aigc-planning-episode-splitter",
+        "1-Planning/2-剧本": "aigc-planning-script",
+        "1-Planning/3-分组": "aigc-planning-grouping",
         "1-规划": "aigc-planning",
         "1-规划/1-分集": "aigc-planning-episode-split",
         "1-规划/2-格式": "aigc-planning-format",
         "1-规划/3-分组": "aigc-planning-grouping",
         "1-规划/4-节奏": "aigc-planning-rhythm",
-        "2-组间": "aigc-inter-group",
+        "2-组间": "aigc-global",
+        "2-Global": "aigc-global",
         "3-明细": "aigc-detail",
+        "3-Detail": "aigc-detail",
+        "4-Design": "aigc-design",
         "4-主体": "aigc-subject",
+        "5-Image": "aigc-visual-prompt-distillation",
         "5-画面": "aigc-visuals",
+        "6-Video": "aigc-video",
         "6-视频": "aigc-video",
+        "7-Cut": "aigc-cut",
         "query": "aigc-query",
         "resume": "aigc-resume",
         "review": "aigc-review",
@@ -198,15 +208,38 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
     mission_brief = read_text_optional(project_root / "mission-brief.yaml").strip()
 
     stage_dirs = [
+        project_root / "1-Planning",
+        project_root / "2-Global",
+        project_root / "3-Detail",
+        project_root / "4-Design",
+        project_root / "5-Image",
+        project_root / "6-Video",
+        project_root / "7-Cut",
         project_root / "规划",
         project_root / "编导",
         project_root / "主体",
         project_root / "画面",
         project_root / "视频",
+        project_root / "后期",
     ]
     has_stage_outputs = any(stage_dir.exists() and any(stage_dir.rglob("*")) for stage_dir in stage_dirs)
 
-    if current_stage_root in {"1-规划", "2-组间", "3-明细", "4-主体", "5-画面", "6-视频"}:
+    if current_stage_root in {
+        "1-Planning",
+        "1-规划",
+        "2-Global",
+        "2-组间",
+        "3-Detail",
+        "3-明细",
+        "4-Design",
+        "4-主体",
+        "5-Image",
+        "5-画面",
+        "6-Video",
+        "6-视频",
+        "7-Cut",
+        "7-后期",
+    }:
         return "执行"
     if learning:
         return "沉淀"
@@ -273,8 +306,8 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     source_artifacts = [
         relative.as_posix()
         for relative in [
-            Path("Init/north_star.yaml"),
-            Path("Init/init_handoff.yaml"),
+            Path("0-Init/north_star.yaml"),
+            Path("0-Init/init_handoff.yaml"),
             Path("project_state.yaml"),
             Path("route-plan.yaml"),
             Path("validation-report.md"),

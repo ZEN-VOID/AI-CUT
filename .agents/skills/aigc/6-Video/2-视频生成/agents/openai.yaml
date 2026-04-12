@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 视频生成"
+  short_description: "将稳定视频请求 JSON 收束为 provider 路由、submit-plan 和 handoff 包"
+  default_prompt: "Use $aigc-video-generation to verify request readiness, choose a provider, and produce submit-plan.json plus submit-brief.md without changing upstream source JSON."

@@ -7,10 +7,10 @@
 
 ## Context Health
 
-- soft_limit_chars: 40000
-- hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
+- soft_limit_chars: 20000
+- hard_limit_chars: 40000
+- soft_limit_cases: 16
+- hard_limit_cases: 32
 - status: ok
 
 ## Type Map

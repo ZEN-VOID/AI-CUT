@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 角色设计"
+  short_description: "由父 skill 统筹角色设计组 subagents，生成结构化角色设计稿与逐角色设计卡"
+  default_prompt: "Use $aigc-design-role-design to consume the role list, global guidance, and director evidence, route the 角色设计组 subagents in background by default, and write character_design.json plus per-role design cards under 4-Design/2-角色/2-设计."

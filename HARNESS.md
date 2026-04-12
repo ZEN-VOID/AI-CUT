@@ -33,9 +33,15 @@
   - 礼部：模板、合同、移交载体
   - 兵部：运行、调度、生命周期
   - 刑部：审计、风险控制、反回归
-  - 工部：脚本、评测、基础设施
+- 工部：脚本、评测、基础设施
 
 这一构思的核心目标不是“先把业务技能补齐”，而是先把业务技能未来必须依附的治理骨架、工件真源、状态面与审计入口建立起来。
+
+当前针对 `.agents/skills/aigc/` 的重大改造，还额外启用了显式 `bootstrap_compat` 模式：
+
+- 不清空 HARNESS 真源，只把它收缩为兼容骨架。
+- 保留 `projects/<项目名>/`、registry、runbook、template、audit、卫星技能入口与 review gate。
+- 暂时不把 `aigc` 当前阶段内部细节视为冻结真源，允许在后续改造中重写。
 
 ## 当前已实现真源
 
@@ -109,7 +115,7 @@
 - `.codex/evals/`
 
 当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
-同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐。
+同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐，并对 `CONTEXT.md` 的超 soft-limit、Case 失衡与日志化回流给出软警告。
 同时，AIGC 项目运行时已经开始把 `project_state.yaml + governance-state.yaml` 视为“人类摘要 + 结构化控制面”的双状态组合。
 
 ### 7. 架构初始化方案
@@ -131,16 +137,23 @@
 5. 门下省以 `validation-report` 完成验收。
 6. 学习结果沉淀到 `learning-record` 与对应 `CONTEXT.md`。
 
+当 `aigc` 处于 `bootstrap_compat` 改造窗口时，额外执行一条兼容约束：
+
+- harness 继续守住项目 runtime、治理工件 carriers、卫星技能入口与高风险预审。
+- `scripts/aigc_skill_audit.py` 可降级为根层兼容检查，不用旧阶段细节去卡住正在进行的结构重构。
+
 对当前仓库而言，最重要的运行约束是：
 
 - 复杂任务不能跳过起草工件。
 - 高风险任务不能跳过预审。
 - 非平凡失败不能跳过分层上溯。
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
+- 对由 `skill-subagents` 治理的多子智能体 skill，父 skill、`team.md`、agent docs、子路径合同与相关 review / audit / route 工件必须保持联动同步，不能只改其中一层就宣称源层收束。
+- `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
 
 ## 现状判断
 
-当前 HARNESS 的成熟度判断为：`引导期已落地，但仍处于 bootstrap-to-shadow 之间的工程化早期阶段。`
+当前 HARNESS 的成熟度判断为：`引导期已落地，但仍处于 bootstrap-to-shadow 之间的工程化早期阶段；其中 aigc 主技能树当前运行在 bootstrap_compat 改造窗口。`
 
 已经完成的不是“概念宣言”，而是以下几类关键收束：
 
@@ -216,6 +229,7 @@
 - `scripts/aigc_harness_audit.py` 的审计口径
 - `projects/<项目名>/` 与 `.codex/state/tasks/<task_id>/` 的 canonical / mirror 关系
 - HARNESS 阶段成熟度、搁浅阶段、suite 规划、继承策略、自动化策略
+- 多子智能体 skill 的父层总合同、`team.md` / agent docs 关系、以及相关 review / audit / route 路径的 canonical 绑定关系
 
 ### 3. 更新要求
 

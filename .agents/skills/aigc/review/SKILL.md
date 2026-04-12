@@ -73,14 +73,14 @@ flowchart TD
 支持的 scope：
 
 - `project`
-- `1-规划`
-- `2-组间`
-- `3-明细`
-- `4-主体`
-- `5-画面`
-- `6-视频`
+- `1-Planning`
+- `2-Global`
+- `3-Detail`
+- `4-Design`
+- `5-Image`
+- `6-Video`
 
-`7-后期` 当前为 `搁浅`，只能返回 review blocker，不进入正式 acceptance。
+`7-Cut` 当前为 `搁浅`，只能返回 review blocker，不进入正式 acceptance。
 
 ## Reference Loading
 
@@ -101,11 +101,11 @@ L2 按需：
 | `project` preflight | `projects/<项目名>/preflight-verdict.yaml` |
 | `project` acceptance | `projects/<项目名>/validation-report.md` |
 | `project` learning | `projects/<项目名>/learning-record.md` |
-| `1-规划` acceptance | `projects/<项目名>/规划/validation-report.md` |
-| `2-组间` / `3-明细` acceptance | `projects/<项目名>/编导/validation-report.md` |
-| `4-主体` acceptance | `projects/<项目名>/主体/validation-report.md` |
-| `5-画面` acceptance | `projects/<项目名>/画面/validation-report.md` |
-| `6-视频` acceptance | `projects/<项目名>/视频/validation-report.md` |
+| `1-Planning` acceptance | `projects/<项目名>/1-Planning/validation-report.md` |
+| `2-Global` / `3-Detail` acceptance | `projects/<项目名>/3-Detail/validation-report.md` |
+| `4-Design` acceptance | `projects/<项目名>/4-Design/validation-report.md` |
+| `5-Image` acceptance | `projects/<项目名>/5-Image/validation-report.md` |
+| `6-Video` acceptance | `projects/<项目名>/6-Video/validation-report.md` |
 
 ## Workflow Checklist
 

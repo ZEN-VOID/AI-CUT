@@ -9,7 +9,7 @@ governance_tier: lite
 ## Purpose
 
 - `query/` 是 `aigc` 根目录下的事实查询卫星技能，不是新的主阶段。
-- 它负责把“我现在到底有哪些项目状态、阶段产物、编导主文件、主体资产、画面/视频结果、治理工件”这类问题，映射到 `projects/<项目名>/` 的真实载体上。
+- 它负责把“我现在到底有哪些项目状态、阶段产物、`3-Detail` 主文件、design 资产、`5-Image/6-Video/7-Cut` 结果、治理工件”这类问题，映射到 `projects/<项目名>/` 的真实载体上。
 - 它拥有的是 truth-role 判定与证据综合权，不拥有内容生成、阶段执行、验收裁决或真源改写权。
 
 ## Stage Position
@@ -27,10 +27,10 @@ governance_tier: lite
 
 ## When to Use
 
-- 用户询问项目当前阶段、最近产物、阶段验证报告、`第N集.json` 是否存在、主体/画面/视频落点在哪。
-- 需要确认某个项目是否已经具备 `mandate / mission-brief / route-plan / preflight / validation / learning` 工件。
-- 需要查询 `projects/<项目名>/编导/第N集.json`、`主体/`、`画面/`、`视频/` 的存在状态与最近修改痕迹。
-- 需要读取 `team.yaml`、`governance-state.yaml`、`project_state.yaml`、registry / routes 等治理信息来说明当前系统状态。
+- 用户询问项目当前阶段、最近产物、阶段验证报告、`第N集.json` 是否存在、`4-Design` / `5-Image` / `6-Video` 落点在哪。
+- 需要确认某个项目目前只有核心初始化工件，还是已经补齐 `mandate / mission-brief / route-plan / preflight / validation / learning` 等惰性治理工件。
+- 需要查询 `projects/<项目名>/3-Detail/第N集.json`、`4-Design/`、`5-Image/`、`6-Video/` 的存在状态与最近修改痕迹。
+- 需要读取 `team.yaml`、`project_state.yaml`、可选的 `governance-state.yaml`、registry / routes 等治理信息来说明当前系统状态。
 
 ## When Not to Use
 
@@ -45,9 +45,9 @@ flowchart TD
     A["接收查询请求"] --> B["解析 PROJECT_ROOT"]
     B --> C{"识别 truth role"}
     C -->|"project-governance"| D["读取 governance-state / project_state / mandate / brief / route / verdict / validation / learning"]
-    C -->|"planning"| E["读取 projects/<项目名>/规划/"]
-    C -->|"directing"| F["读取 projects/<项目名>/编导/第N集.json 与编导验收"]
-    C -->|"subject/media"| G["读取 主体/画面/视频/后期"]
+    C -->|"planning"| E["读取 projects/<项目名>/1-Planning/"]
+    C -->|"directing"| F["读取 projects/<项目名>/3-Detail/第N集.json 与 3-Detail 验收"]
+    C -->|"subject/media"| G["读取 4-Design / 5-Image / 6-Video / 7-Cut"]
     C -->|"governance"| H["读取 team.yaml + registry/routes + shared carriers"]
     D --> I["交叉校验冲突"]
     E --> I
@@ -91,11 +91,11 @@ L2 按需：
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 | --- | --- | --- | --- |
-| 项目当前跑到哪、治理工件齐不齐 | `governance-state.yaml`、`project_state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | `team.yaml` | 不能只扫聊天记录或目录名 |
-| 规划产物、格式、分组、节奏 | `projects/<项目名>/规划/` | `规划/validation-report.md` | 不能拿 `Init/` 代替整阶段规划真源 |
-| 组间/明细/第N集事实 | `projects/<项目名>/编导/第N集.json` | `projects/<项目名>/编导/validation-report.md` | 不能因为存在 sidecar 就忽略主 JSON |
-| 主体资产状态 | `projects/<项目名>/主体/` | `主体/validation-report.md` | 不能把 `4-主体` 技能目录当作项目资产目录 |
-| 画面、视频、后期产物 | `projects/<项目名>/画面/`、`视频/`、`后期/` | 阶段级 `validation-report.md` | 不能把脚本模板当作生成结果 |
+| 项目当前跑到哪、治理工件齐不齐 | `project_state.yaml`，若存在再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | `team.yaml` | 不能只扫聊天记录或目录名 |
+| 规划产物、格式、分组、节奏 | `projects/<项目名>/1-Planning/` | `1-Planning/validation-report.md` | 不能拿 `0-Init/` 代替整阶段规划真源 |
+| 组间/明细/第N集事实 | `projects/<项目名>/3-Detail/第N集.json` | `projects/<项目名>/3-Detail/validation-report.md` | 不能因为存在 sidecar 就忽略主 JSON |
+| `4-Design` 资产状态 | `projects/<项目名>/4-Design/` | `4-Design/validation-report.md` | 不能把技能目录当作项目资产目录 |
+| `5-Image`、`6-Video`、`7-Cut` 产物 | `projects/<项目名>/5-Image/`、`6-Video/`、`7-Cut/` | 阶段级 `validation-report.md` | 不能把脚本模板当作生成结果 |
 | 顾问团、review gate、路由制度 | `team.yaml`、registry、routes、shared carrier | 根 `aigc/SKILL.md` | 不能把 stage 本地约定说成全局制度 |
 
 ## Workflow Checklist
@@ -143,13 +143,14 @@ cat ".agents/skills/aigc/_shared/project-runtime-layout.md"
 常用读取入口：
 
 ```bash
-rg --files "$PROJECT_ROOT/规划"
-rg --files "$PROJECT_ROOT/编导" | rg '第[0-9]+集\\.json$'
-rg --files "$PROJECT_ROOT/主体"
-rg --files "$PROJECT_ROOT/画面"
-rg --files "$PROJECT_ROOT/视频"
+rg --files "$PROJECT_ROOT/1-Planning"
+rg --files "$PROJECT_ROOT/3-Detail" | rg '第[0-9]+集\\.json$'
+rg --files "$PROJECT_ROOT/4-Design"
+rg --files "$PROJECT_ROOT/5-Image"
+rg --files "$PROJECT_ROOT/6-Video"
+rg --files "$PROJECT_ROOT/7-Cut"
 sed -n '1,220p' "$PROJECT_ROOT/project_state.yaml"
-sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
+test -f "$PROJECT_ROOT/governance-state.yaml" && sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
 sed -n '1,220p' "$PROJECT_ROOT/team.yaml"
 ```
 
@@ -161,7 +162,7 @@ sed -n '1,220p' "$PROJECT_ROOT/team.yaml"
 
 ## Step 4：冲突校验
 
-若 `governance-state.yaml` 缺失但 `project_state.yaml` 存在，只能回答“当前项目仍是 legacy 状态摘要模式，断点治理信息不完整”，并建议回根 `aigc` 或 `resume/` 补治理快照。
+若 `governance-state.yaml` 缺失但 `project_state.yaml` 与核心初始化工件存在，应回答“当前项目处于轻量初始化态，深治理快照尚未生成”；只有当用户要问结构化断点、复核或复杂续跑时，才建议回根 `aigc` 或 `resume/` 补治理快照。
 
 若文件存在但没有验收结论，只能回答“存在产物，不等于已通过验收”。
 

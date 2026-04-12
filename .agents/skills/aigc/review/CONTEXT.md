@@ -8,10 +8,10 @@
 
 ## Context Health
 
-- soft_limit_chars: 40000
-- hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
+- soft_limit_chars: 20000
+- hard_limit_chars: 40000
+- soft_limit_cases: 16
+- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -79,3 +79,20 @@
   - `.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md`
   - `.agents/skills/aigc/review/subtypes/learning-bridge/SKILL.md`
 - user_feedback_or_constraint: 用户明确要求“1+2”，即同时完成治理状态回填与 review 专项 reviewer 拆分。
+
+### Case-20260412-AIGC-REVIEW-4-DESIGN-CARRIER-SYNC
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: `review/` 仍把 `4-Design` 的 acceptance carrier 写成旧的 `projects/<项目名>/主体/validation-report.md`，与当前 `4-Design` runtime 不一致。
+- root_cause_or_design_decision: design 阶段 runtime 已经迁到 `projects/<项目名>/4-Design/`，但 review scope mapping 和 acceptance subtype 没有同步跟进，形成了 gate carrier 漂移。
+- final_fix_or_heuristic: 以 `project-runtime-layout.md` 为单一 runtime 真源，同步更新 `review/SKILL.md`、`review-modes.md` 与 `subtypes/acceptance-review/SKILL.md` 的 `4-Design` carrier。
+- prevention_or_replication_checklist:
+  - [x] `review/SKILL.md` 已改到 `projects/<项目名>/4-Design/validation-report.md`
+  - [x] `review-modes.md` 已同步 scope mapping
+  - [x] `acceptance-review/SKILL.md` 已同步 carrier
+- evidence_paths:
+  - `.agents/skills/aigc/review/SKILL.md`
+  - `.agents/skills/aigc/review/references/review-modes.md`
+  - `.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md`
+  - `.agents/skills/aigc/review/CONTEXT.md`
+- user_feedback_or_constraint: 用户要求继续把 `4-Design` 父级与 shared runtime 一并收口，避免 review 继续写旧 gate 路径。

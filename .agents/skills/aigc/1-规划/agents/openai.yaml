@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 规划阶段"
-  short_description: "支持小说原文型与分镜脚本型双来源的规划阶段总入口"
-  default_prompt: "Use $aigc-planning to classify the story source mode first, then route this task into episode splitting, format planning, grouping, or post-group rhythm planning, and preserve storyboard presets when the upstream source is a storyboard script."

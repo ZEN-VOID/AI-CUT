@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 规划阶段"
+  short_description: "由父 skill 统筹规划执行，直达完成 1-分集，并调度规划组处理格式、剧本、分组与节奏判断"
+  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: execute 1-分集 directly as a leaf skill, route the planning team only for format arbitration, script variants, grouping, and rhythm judgments, then aggregate the selected results back into the canonical planning outputs."

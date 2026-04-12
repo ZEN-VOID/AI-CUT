@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "aigc/_shared/director_episode_output.schema.json",
   "title": "AIGC Director Episode Output Schema",
-  "description": "用于 `1-规划/1-分集 -> 2-组间 -> 3-明细` 的共享 JSON 输出真源。严格遵循 `skill-内容输出型` 的三段式同构投影：`metadata / thinking_chain / final_output`。",
+  "description": "用于 `1-Planning/3-分组 -> 2-Global -> 3-Detail` 的共享 JSON 输出真源。严格遵循 `skill-内容输出型` 的三段式同构投影：`metadata / thinking_chain / final_output`。",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -40,11 +40,11 @@
         },
         "source_route": {
           "type": "string",
-          "description": "上游来源或执行路由，例如 `2-组间/导演意图 -> 3-明细`。"
+          "description": "上游来源或执行路由，例如 `2-Global/导演意图 -> 3-Detail`。"
         },
         "source_profile": {
           "type": "object",
-          "description": "上游故事源类型及预设保护模式，供 `2-组间` 与 `3-明细` 读取。",
+          "description": "上游故事源类型及预设保护模式，供 `3-Detail` 读取。",
           "additionalProperties": false,
           "required": [
             "source_type",
@@ -331,7 +331,7 @@
         "分镜ID",
         "时间段",
         "场景及方位",
-        "角色及站位",
+        "角色及站位和穿搭",
         "道具及状态",
         "分镜表现",
         "角色表现",
@@ -365,8 +365,9 @@
         "场景及方位": {
           "type": "string"
         },
-        "角色及站位": {
-          "type": "string"
+        "角色及站位和穿搭": {
+          "type": "string",
+          "description": "明确角色在镜头中的站位、朝向、层次关系与服装穿搭。"
         },
         "道具及状态": {
           "type": "string"
@@ -397,20 +398,20 @@
     {
       "metadata": {
         "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-inter-group-director-intent",
+        "skill_id": "aigc-detail",
         "template_version": "v1",
-        "source_route": "2-组间/导演意图 -> 3-明细",
+        "source_route": "2-Global/导演意图 -> 3-Detail",
         "episode_id": "第1集",
         "document_phase": "detail_in_progress",
         "created_at": "2026-04-10T12:00:00-07:00"
       },
       "thinking_chain": {
-        "thinking_goal": "收束第1集第1分镜组的导演理解，并把它投影为可供 3-明细 消费的结构化分镜明细骨架。",
+        "thinking_goal": "收束第1集第1分镜组的导演理解，并把它投影为可供 3-Detail 消费的结构化分镜明细骨架。",
         "key_steps": [
           {
             "step_id": "S1",
             "focus": "锁定组级核心冲突",
-            "evidence": "1-规划/3-分组 + 2-组间上游约束",
+            "evidence": "1-Planning/3-分组 + 2-Global 上游约束",
             "judgment": "本组应以压迫式观看路径与迟滞情绪释放为主。"
           }
         ],
@@ -421,7 +422,7 @@
         "main_content": {
           "分镜组列表": [
             {
-              "分镜组ID": "1-1-10",
+              "分镜组ID": "1-1-1",
               "总时长": 18,
               "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
               "组间设计": {
@@ -431,13 +432,13 @@
               },
               "分镜明细": [
                 {
-                  "分镜ID": "1-1-10-1",
+                  "分镜ID": "1-1-1-1",
                   "时间段": {
                     "开始秒": 0,
                     "结束秒": 6
                   },
                   "场景及方位": "长廊西端入口朝东。",
-                  "角色及站位": "角色A位于前景左侧入画，角色B远端居中。",
+                  "角色及站位和穿搭": "角色A位于前景左侧入画，穿深灰风衣与黑色长靴；角色B位于远端居中，穿浅色衬衫外搭旧西装。",
                   "道具及状态": "门把仍在轻微晃动，墙边旧灯管间歇闪烁。",
                   "分镜表现": "用前后景纵深压出进入感与未知距离。",
                   "角色表现": "角色A先试探后压近，角色B保持迟滞不动。",
@@ -451,7 +452,7 @@
           ]
         },
         "acceptance_notes": [
-          "所有组级字段必须能直接被 3-明细 继承。",
+          "所有组级字段必须能直接被 3-Detail 继承。",
           "转场特效为空时不应强行补写。"
         ]
       }
@@ -459,9 +460,9 @@
     {
       "metadata": {
         "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-inter-group",
+        "skill_id": "aigc-detail",
         "template_version": "bootstrap-v1",
-        "source_route": "2-组间 -> 编导根文件初始化",
+        "source_route": "2-Global -> 3-Detail bootstrap",
         "episode_id": "第2集",
         "document_phase": "bootstrapped",
         "created_at": "2026-04-10T12:30:00-07:00"
@@ -477,8 +478,8 @@
           "分镜组列表": []
         },
         "acceptance_notes": [
-          "允许 2-组间 在首次进入时自动创建 bootstrapped 空壳。",
-          "后续由 2-组间 与 3-明细 继续补全。"
+          "允许 3-Detail 在首次进入时自动创建 bootstrapped 空壳。",
+          "后续由 3-Detail 继续补全。"
         ]
       }
     }

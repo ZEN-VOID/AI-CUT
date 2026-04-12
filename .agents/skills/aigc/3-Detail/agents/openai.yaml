@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 3-Detail"
+  short_description: "由父 skill 统筹制作组 subagents，把 2-Global 与 3-分组 输入收束为编导根文件"
+  default_prompt: "Use $aigc-detail to keep the parent skill as the only writeback owner, route the 制作组 subagents for shot-level thinking and patches, then bootstrap or update `projects/<项目名>/3-Detail/第N集.json` under the shared schema."

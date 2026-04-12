@@ -4,7 +4,7 @@
 
 - `module_type`: `shared-runtime`
 - `activation_signal`: 项目根存在 `projects/<项目名>/team.yaml` 且 `enabled == true`
-- `primary_consumers`: `1-规划`、`2-组间`、`3-明细`、`4-主体` 及其可直达子技能
+- `primary_consumers`: `1-Planning`、`2-Global`、`3-Detail`、`4-Design` 及其可直达子技能
 
 ## Scope
 
@@ -18,7 +18,7 @@
 
 本模块不负责：
 
-- 重新定义 `1-规划 / 2-组间 / 3-明细 / 4-主体` 的阶段内容合同
+- 重新定义 `1-Planning / 2-Global / 3-Detail / 4-Design` 的阶段内容合同
 - 直接产出阶段 canonical
 - 取代 `0-Init` 生成 `team.yaml`
 
@@ -31,10 +31,10 @@
 
 | 当前阶段 | 默认前置顾问角色 | 评审时机 | canonical 写回权 |
 | --- | --- | --- | --- |
-| `1-规划` | `策划` | `projects/<项目名>/规划/validation-report.md` 前后 | 主代理 |
-| `2-组间` | `监制` | `projects/<项目名>/编导/validation-report.md` 前后 | 主代理 |
-| `3-明细` | `监制` | `projects/<项目名>/编导/validation-report.md` 前后 | 主代理 |
-| `4-主体` | `策划` | `projects/<项目名>/主体/validation-report.md` 前后 | 主代理 |
+| `1-Planning` | `策划` | `projects/<项目名>/1-Planning/validation-report.md` 前后 | 主代理 |
+| `2-Global` | `监制` | `projects/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
+| `3-Detail` | `监制` | `projects/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
+| `4-Design` | `策划` | `projects/<项目名>/4-Design/validation-report.md` 前后 | 主代理 |
 
 ## Runtime Decision Contract
 
@@ -42,8 +42,8 @@
 2. 若文件不存在、`enabled != true`、或所有角色成员都为空，走普通路径。
 3. 若 `enabled == true` 但当前阶段默认角色成员为空，则跳过前置顾问，仅保留已配置的 `评审` 闸门。
 4. 若启用且当前阶段默认角色成员非空：
-   - `1-规划 / 4-主体` 先调用 `roles.planning.members`
-   - `2-组间 / 3-明细` 先调用 `roles.supervision.members`
+   - `1-Planning / 4-Design` 先调用 `roles.planning.members`
+   - `2-Global / 3-Detail` 先调用 `roles.supervision.members`
 5. 主代理先整合前置顾问意见，再产出本轮阶段草案。
 6. 在阶段级 `validation-report.md` 写作前后，若 `roles.review.members` 非空，则调用 `评审` 给出 PASS/返工意见。
 7. 无论顾问是否启用，主代理都保留最终 canonical 写回权。
@@ -74,6 +74,6 @@
 
 1. 当前阶段进入前，已读取项目根 `team.yaml`。
 2. `enabled == false` 或无成员时，没有误触发顾问团。
-3. `1-规划 / 4-主体` 命中的是 `策划`，`2-组间 / 3-明细` 命中的是 `监制`。
+3. `1-Planning / 4-Design` 命中的是 `策划`，`2-Global / 3-Detail` 命中的是 `监制`。
 4. `评审` 只在阶段级 `validation-report.md` 前后介入。
 5. 主代理保留最终 canonical 写回权。

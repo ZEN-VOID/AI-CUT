@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 规划剧本"
+  short_description: "由 skill 统筹剧本执行，在单技能包内调度 标准剧/解说剧 subagents 产出变体 agents plan 与 patch"
+  default_prompt: "Use $aigc-planning-script to keep the skill as the only execution owner, route through 标准剧 or 解说剧 subagents inside one skill package for variant agents-plan thinking and text patches, write the canonical 2-剧本 episode markdown, validate the structure, and return a parent-consumable script handoff patch."

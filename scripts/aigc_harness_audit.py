@@ -53,11 +53,14 @@ AGENT_REQUIRED_SNIPPETS = {
 ROOT_REQUIRED_SNIPPETS = {
     Path("AGENTS.md"): [
         "### HARNESS.md 总览与同步（强制）",
+        "### AIGC 改造兼容模式（强制）",
+        "bootstrap_compat",
         "根目录 `HARNESS.md`",
         "必须在同一轮任务内同步检查并更新根目录 `HARNESS.md`",
     ],
     Path("HARNESS.md"): [
         "## 当前工程化构思",
+        "bootstrap_compat",
         "## 当前已实现真源",
         "## 可期发展方向",
         "## 更新维护合同",
@@ -88,10 +91,13 @@ RUNBOOK_REQUIRED_SNIPPETS = [
 
 REGISTRY_REQUIRED_SNIPPETS = {
     Path(".codex/registry/skills.yaml"): [
+        "contract_mode: bootstrap_compat",
         "canonical_project_runtime: projects/<项目名>/",
         "contract_status: shelved",
     ],
     Path(".codex/registry/routes.yaml"): [
+        "id: aigc-bootstrap-compat-mode",
+        "contract_mode: bootstrap_compat",
         "id: aigc-project-runtime",
         "canonical_runtime_root: projects/<项目名>/",
         "id: aigc-shelved-stages",

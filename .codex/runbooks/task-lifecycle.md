@@ -49,3 +49,4 @@
 - 当前阶段允许最小人工驱动，但不允许绕开标准工件
 - 业务 skill 尚未齐备时，先保持治理链完整，再逐步接入具体影视流程
 - 对 `aigc` 项目技能树，阶段扩展、状态注册与审计覆盖必须同步进入 `.codex/registry/` 与 `scripts/aigc_skill_audit.py`
+- 当 `aigc` 进入 `bootstrap_compat` 改造窗口时，保留 `projects/<项目名>/`、治理工件 carriers、卫星技能入口与 review gate；阶段内部合同与深层 runtime 检查可按审计脚本的兼容模式降级

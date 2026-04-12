@@ -1,9 +1,9 @@
 {
   "metadata": {
     "schema_version": "aigc/director-episode-output/v1",
-    "skill_id": "aigc-inter-group",
+    "skill_id": "aigc-detail",
     "template_version": "bootstrap-v1",
-    "source_route": "2-组间 -> 编导根文件初始化",
+    "source_route": "2-Global -> 3-Detail bootstrap",
     "source_profile": {
       "source_type": "novel_original",
       "preset_retention_mode": "standard",
@@ -16,7 +16,7 @@
     "created_at": "YYYY-MM-DDTHH:MM:SSZ"
   },
   "thinking_chain": {
-    "thinking_goal": "等待 2-组间 首次写入组级字段，并由 3-明细 按字段分属继续补全。",
+    "thinking_goal": "等待 3-Detail 基于 2-Global 与 3-分组输入首次写入组级与镜级字段，并继续按字段分属补全。",
     "key_steps": [],
     "conclusion": "已初始化空白编导根文件。"
   },
@@ -26,8 +26,8 @@
       "分镜组列表": []
     },
     "acceptance_notes": [
-      "本文件由 2-组间 在首次进入且根文件缺失时自动创建。",
-      "后续仅允许 2-组间 与 3-明细 在 shared schema 约束下 patch-in-place。"
+      "本文件由 3-Detail 在首次进入且根文件缺失时自动创建。",
+      "后续仅允许 3-Detail 在 shared schema 约束下 patch-in-place。"
     ]
   }
 }
