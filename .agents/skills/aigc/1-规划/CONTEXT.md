@@ -33,6 +33,7 @@
 | 根技能同时保留 `references/output-template.md` 和 `templates/planned-episode.md` 两份主稿骨架 | 根级真源治理层 | 把 `planned-episode.md` 并回 `references/output-template.md`，删除平行模板文件 | 固化“父级主稿骨架只在根级 output-template 唯一化” | 根级 `1-规划` 不再存在第二份 `规划/第N集.md` 模板真源 |
 | 父级 `规划/第N集.md` 几乎与 `2-格式/第N集.md` 同稿 | 父级聚合投影层 | 让 `2-格式` 回到 scene-first draft，并要求父级显式投影 `3-分组` 的 compact group summary | 固化“父级主稿 != 2-格式拷贝稿，必须体现组级消费价值” | 父级主稿至少多出每组的目标/锚点/约束投影 |
 | 已执行子路径的 validator 未过，但父级 `规划/validation-report.md` 仍写成 `PASS` | 父级验收闸门层 | 先回查失败子路径并重跑本地 validator，再重写阶段报告 | 在父级 `1-规划/SKILL.md` 固化“所有已执行子路径 gate 先通过，阶段级结论才可写 PASS” | 任何一次父级结案前，都能用子路径 validator 结果复核 |
+| 项目根 `规划/` 目录只剩子路径 sidecar 和报告，没有父级 `规划/第N集.md` 主稿 | 父级共享目标落地层 | 立即把 `2-格式` 正文与 `3-分组` compact summary 聚合写回 `规划/第N集.md` | 固化“规划完成 = 父级主稿已存在”的检查，并让控制面与验证报告都引用这份主稿 | 用户在 `规划/` 根目录能直接看到最终可用文档，而不必自己拼 sidecar |
 
 ## Repair Playbook
 
@@ -64,6 +65,7 @@
 - 对父级根技能来说，`references/output-template.md` 已经承担主稿写位真源时，就不要再额外保留一个 `templates/*.md` 平行骨架；否则极容易形成“改了一边、忘了另一边”的双真源。
 - 父级 `规划/第N集.md` 若和 `2-格式/第N集.md` 只差一层文件路径或一行节奏说明，通常说明聚合没有真正消费 `3-分组`，而只是把 scene draft 换壳。
 - 父级 `规划/validation-report.md` 不能替代子路径 validator；只要某个已执行子路径仍是 FAIL，父级阶段结论就必须停在返工或阻塞。
+- 对 `1-规划` 来说，“规划阶段已完成” 不等于子路径都写过；还必须真的有 `规划/第N集.md` 这份父级主稿落在项目根目录。
 
 ### Case-20260411-AIGC-PLANNING-PARENT-VS-FORMAT-DRAFT
 
@@ -82,6 +84,24 @@
   - `projects/嫡母重生：过继局/规划/第1集.md`
   - `projects/嫡母重生：过继局/规划/2-格式/第1集.md`
 - user_feedback_or_constraint: 用户明确指出父级主稿“几乎与 2 阶段的完全一样”。
+
+### Case-20260411-AIGC-PLANNING-MASTER-MISSING-IN-PROJECT-ROOT
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户指出 `projects/嫡母重生/规划/` 中没有最终可用的分组文档，能看到的只有 `3-分组` sidecar 和阶段报告。
+- root_cause_or_design_decision: 直接技术原因不是 `3-分组` 内容缺失，而是父级 `1-规划` 的共享目标 `规划/第1集.md` 没有实际落盘，导致父级“规划完成”状态与共享目标合同脱节。
+- final_fix_or_heuristic: 规划阶段完成时，必须把 `2-格式` 的 scene-first 正文与 `3-分组` 的 compact group summary 聚合写回 `projects/<项目名>/规划/第N集.md`，并让控制面与验收报告把这份主稿列为主产物。
+- prevention_or_replication_checklist:
+  - [x] 当前项目已补 `projects/嫡母重生/规划/第1集.md`
+  - [x] `project_state.yaml` 已把 `规划/第1集.md` 纳入 `primary_artifacts`
+  - [x] `规划/validation-report.md` 已把缺主稿问题写入 layered trace
+  - [x] `CONTEXT.md` 已补“规划完成 = 父级主稿存在”经验
+- evidence_paths:
+  - `projects/嫡母重生/规划/第1集.md`
+  - `projects/嫡母重生/project_state.yaml`
+  - `projects/嫡母重生/规划/validation-report.md`
+  - `.agents/skills/aigc/1-规划/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确指出“`projects/嫡母重生/规划/` 中没有最终可用的分组文档，只是报告”。 
 
 ### Case-20260411-AIGC-PLANNING-ROOT-OUTPUT-TEMPLATE-CANONICALIZATION
 

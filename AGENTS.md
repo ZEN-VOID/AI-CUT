@@ -182,10 +182,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### 批量 SKILL 调度默认规则（强制）
 
-- 当批量或成组调度多个技能执行任务时，默认执行模式应由技能名称决定。
-- 如果技能名称中包含数字序列标记，则将该数字视为执行顺序信号，默认按数字升序串行执行。
-- 如果技能名称中不包含数字序列标记，则默认以多线程并行执行。
-- 更高优先级约束可覆盖上述默认规则，包括：用户显式指令、上游/下游硬依赖，以及相关 `SKILL.md` 中定义的安全限制。
+- 当批量或成组调度多个技能执行任务时，串行或并行应由当前技能合同、路由规则、任务计划或用户显式指令决定，而不是默认靠观察名称推断。
+- 技能名称中的数字序列，只能在该技能体系已显式声明“数字即顺序信号”时，才可作为技能间有序执行的辅助约定。
+- 上述“数字即顺序信号”规则仅针对技能层，不外推到 subagents；subagents 一般不以名称序号承载调度语义。
+- 若相关规则未明确调度方式，则不得仅凭“有无序号”推断串行或并行。
 
 ### 仓库 Rollout 标准（强制）
 
@@ -195,8 +195,8 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
   - 在 `CONTEXT.md` 中包含知识库核心（Type Map 与/或 Playbook 与/或 Reusable Heuristics）
   - 在 `CONTEXT.md` 中包含符合 `meta/skill-context` 结构的 Case Log（仅里程碑级）
-- 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；`references/` 下的子模块不单独视为独立 skill 基线对象。
-- 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `references/` 或 `agents/openai.yaml` 定义为默认层，则也必须同步初始化，不得回退为“只有主合同 + 经验层”。
+- 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
+- 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在。缺项应被视为审计失败。
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
 
@@ -205,35 +205,24 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 技能目录基线：
   - `SKILL.md`：必需，作为规范执行合同
   - `CONTEXT.md`：推荐，作为预加载运行上下文
-  - `references/`：按技能合同决定；可作为普通参考资料层，也可被上游元技能或主 `SKILL.md` 声明为默认生成、默认加载、默认维护的核心细则模块层
-  - 可选：`scripts/`、`templates/`、`subtypes/`、`assets/`
+  - 可选：`scripts/`、`templates/`、`assets/`、专项细则模块或受治理子技能载体
 - `SKILL` 细分定位（仓库级规范）：
   - 主技能：拥有一段业务域或一条阶段链的总入口、总路由、共享载体边界与真源裁决权。形态通常为 `<skill-root>/SKILL.md + CONTEXT.md`，也可以是技能树中的阶段根，例如 `aigc/1-规划`。
-  - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块，默认落在 `references/`、共享模板、schema 或 helper 中；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
-  - 子技能：受治理的可执行下钻单元，默认落在 `subtypes/<subskill-name>/SKILL.md + CONTEXT.md`；它们由父级主技能路由进入，负责局部执行合同，不得擅自越权为新的总入口。
+  - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块，可落在共享模板、schema、spec、helper 或其他被合同显式声明的专项细则载体中；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
+  - 子技能：受治理的可执行下钻单元；其路径、命名与载体形态必须由父级主技能显式声明，不再绑定固定目录包裹约定。它们由父级主技能路由进入，负责局部执行合同，不得擅自越权为新的总入口。
   - 卫星技能：与主技能同根同级放置的旁路可执行 skill，推荐形态为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`；它们服务查询、恢复、复核、汇总、桥接等辅助职责，可被直接调用，但不默认冒充新的主链 stage 或新的父级总线。
 - 结构判定规则：
   - 若某单元只提供长细则、模板、schema、思维链或策略表，而不独立受理任务，则它是子模块，不是子技能。
   - 若某单元必须经父级路由进入，且其结果默认回流到父级共享目标，则它优先视为子技能。
   - 若某单元与主技能同根同级存在，可直接被用户或上游命中，承担查询/恢复/审查承接等旁路职责，则它优先视为卫星技能。
-  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不得继续藏在 `references/` 中，必须升级为子技能或卫星技能之一。
+  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不得伪装成普通细则模块，必须显式定义为子技能或卫星技能之一。
 - 现有结构判例：
   - `aigc/SKILL.md` 与各阶段根（如 `aigc/1-规划`、`aigc/3-明细`）属于主技能层。
-  - `aigc/1-规划/references/*`、`aigc/3-明细/references/*` 属于子模块层。
-  - `aigc/1-规划/subtypes/3-分组`、`aigc/3-明细/subtypes/2-角色表现` 属于子技能层。
   - 跨项目仓 `story2026/query`、`story2026/resume` 属于卫星技能层；`story2026/review` 若被根技能声明为旁路承接而非主链真源拥有者，也应按卫星技能合同治理其边界。
-- `references/` 的角色：
-  - 默认语义由技能合同决定；若未被声明为模块层，可作为普通参考文件、示例、支持材料
-  - 一旦被主 `SKILL.md` 或上游元技能声明为 canonical module layer，即承担被拆出的专项细则，而不是“可有可无的参考区”
-  - 可承载思维链细则、执行流程细则、类型化处理 / 模式化策略、输出模板等可独立升级的专项模块
-  - `references/` 与主 `SKILL.md` 的关系是“主合同 + 模块细则”，不是双真源竞争；不得替代主合同，也不得退化为无结构随笔堆放区
-- `subtypes/` 的角色：
-  - 受治理的可执行子技能
-  - 推荐形态为 `subtypes/<subskill-name>/SKILL.md + CONTEXT.md`
 - `卫星技能` 的角色：
-  - 是主技能侧的旁路执行层，而不是 `references/` 里的扩展说明，也不是默认加入主链阶段序列的 `subtypes/`
+  - 是主技能侧的旁路执行层，而不是普通细则模块，也不是默认加入主链阶段序列的子技能
   - 必须在主技能 `SKILL.md` 中显式声明其 `stage_position`、`truth ownership`、`not-owned truth` 与回接关系
-  - 可共享主技能的 `references/`、`scripts/`、`templates/`，但不得借共享载体偷渡新的总线规则
+  - 可共享主技能的 `scripts/`、`templates/` 与其他共享模块载体，但不得借共享载体偷渡新的总线规则
   - 默认只拥有辅助真源或辅助动作权，例如查询、恢复、审查承接、状态持久化、桥接；不得改写主技能或主链 stage 的 canonical truth 判定权
 - `SKILL.md` 的角色（硬规则）：
   - 定义范围、触发条件、必需输入、严格工作流、工具/脚本入口、输出合同与质量门槛
@@ -244,10 +233,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `CONTEXT.md` 的角色（经验层）：
   - 保存可复用的 heuristic：成功/失败案例、陷阱、调试线索、兼容性注记、提示技巧与战术捷径
   - 作为规划/执行时的预加载上下文，但不得重定义核心合同
-  - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识；同一技能的规范型类型化处理 / 多模式策略，默认应落在 `references/type-strategies.md` 或等价模块，而不是继续整合进 `CONTEXT.md`
-- `subtypes/<subskill-name>/SKILL.md` 的角色（子技能规范合同）：
+  - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识；同一技能的规范型类型化处理 / 多模式策略，应落在主合同显式回指的专项模块或共享 spec，而不是继续整合进 `CONTEXT.md`
+- 子技能自身 `SKILL.md` 的角色（子技能规范合同）：
   - 定义该子技能的局部合同、边界、加载顺序、命名规则与进入条件
-- `subtypes/<subskill-name>/CONTEXT.md` 的角色（子技能经验层）：
+- 子技能自身 `CONTEXT.md` 的角色（子技能经验层）：
   - 仅保存该子技能自身的局部 heuristic、陷阱、案例与修复模式
   - 不得吞并属于主技能根层 `CONTEXT.md` 的跨子技能或整技能经验
 - `<satellite-name>/SKILL.md` 的角色（卫星技能规范合同）：
@@ -258,17 +247,17 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 不得吞并属于主技能根层 `CONTEXT.md` 的跨卫星、跨主链或整技能经验
 - 运行时加载顺序与优先级：
   1. 先解析当前主技能 `SKILL.md`，锁定强制约束、总路由与真源边界。
-  2. 若进入某个受治理子技能，先加载 `subtypes/<subskill-name>/SKILL.md`；若进入某个卫星技能，先加载 `<satellite-name>/SKILL.md`，锁定局部合同。
-  3. 若当前主技能、子技能或卫星技能声明 `references/` 为核心细则模块层，则按任务需要加载相关模块；涉及同一技能的类型化处理 / 多模式策略时，默认优先读取 `references/type-strategies.md` 或等价模块。
+  2. 若进入某个受治理子技能，先加载该子技能在父级合同中声明的 `SKILL.md`；若进入某个卫星技能，先加载 `<satellite-name>/SKILL.md`，锁定局部合同。
+  3. 若当前主技能、子技能或卫星技能声明了专项细则模块、模板、schema 或 spec，则按任务需要加载相关模块；涉及同一技能的类型化处理 / 多模式策略时，优先读取被主合同显式指定的规范模块。
   4. 加载主技能根层 `CONTEXT.md`，用于选择策略并避开整技能级已知失败模式。
   5. 子技能或卫星技能的 `CONTEXT.md` 仅用于当前命中单元自身的局部经验与陷阱。
-  6. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的 `references/` 模块 > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md`
+  6. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md`
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
   - 每个显著失败都应在 `CONTEXT.md` 中记录：症状、根因、修复与预防检查
   - 每个经用户确认的显著成功都应在 `CONTEXT.md` 中记录：结果、设计决策、提炼 heuristic 与可复制范围
-  - 同一技能的类型化/多模式处理若已上升为执行前必须遵守的专项细则，应沉到 `references/type-strategies.md` 或等价模块；`CONTEXT.md` 只保留执行后沉淀出的经验性 Type Map、Playbook 与 Heuristics
+  - 同一技能的类型化/多模式处理若已上升为执行前必须遵守的专项细则，应沉到主合同显式声明的规范模块；`CONTEXT.md` 只保留执行后沉淀出的经验性 Type Map、Playbook 与 Heuristics
   - 保持 `SKILL.md` 简洁且规范；保持 `CONTEXT.md` 可积累且经验化
   - 当主技能、子技能与卫星技能的 `CONTEXT.md` 同时存在时，新经验应优先写入最窄且有效的作用域；仅当模式跨子技能、跨卫星或已经成为整技能级政策时，才向上晋升
 
@@ -299,7 +288,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 当父级已经定义统一输出模板、共享 schema、统一根文件合同或聚合规则时：
   - 子单元必须显式回指父级真源。
   - 子单元不得再额外定义第二份平行输出模板。
-  - 子单元自己的 `references/` 应只承载局部写位、sidecar 规则、执行流程、路由策略或本地约束，不得重写父级输出真源。
+  - 子单元自己的局部模块、模板或 sidecar 规则，只应承载局部写位、执行流程、路由策略或本地约束，不得重写父级输出真源。
 - 若共享目标当前无法直接承接局部 patch，必须显式报告：
   - 阻塞原因
   - 临时聚合适配层
@@ -311,15 +300,15 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 根因优先（强制）
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
-- 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明为核心细则模块层的 `references/`、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本。
+- 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的专项细则模块、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本。
 - 源层追踪必须分层进行：不得停在第一个局部原因，必须继续上溯直到识别治理该行为的规则源。
 - 非平凡问题的强制追因链为：
   - `Symptom/Failure` -> `Direct Technical Cause` -> `Rule Source`（skill / runbook / template / script gate）-> `Meta Rule Source`（meta-AGENT / meta-SKILL / global policy）-> `Fix Landing Points`
-- `Rule Source` 通常包括：任务级 `SKILL.md`、`references/` 模块细则、命令 runbook、阶段模板、验证脚本与执行入口。
+- `Rule Source` 通常包括：任务级 `SKILL.md`、专项细则模块、命令 runbook、阶段模板、验证脚本与执行入口。
 - `Meta Rule Source` 通常包括：仓库 `AGENTS.md`、`.codex/skills/meta/*/SKILL.md` 以及其他跨技能治理合同。
 - 如果诊断无法上溯到 meta 层工件，必须明确说明为什么没有更高层治理合同。
 - 对每个问题，都应给出简洁修复建议，包括：根因位置、立即修复、系统预防修复。
-- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、`references/`、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
+- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、专项细则模块、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
 - 如果执行被阻塞，必须立即暂停下游动作，先完成分层追因与源层修复/增强，再恢复任务。
 - 优先修复产生该错误模式的规则或脚本，使同类问题在后续运行中不再重复。
 - 每一个非平凡修复都应视为一次源层增强机会：不仅要修症状，也要补强源层合同，降低类似问题再次发生的概率。
@@ -356,7 +345,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - Case Record 的最小必填字段包括：`milestone_type`、症状或结果、根因或设计决策、最终修复或提炼 heuristic、预防/复现检查清单、证据路径、用户反馈/约束。
 - 如果只是修复了本地产物或确认了结果，却没有同步更新 `CONTEXT.md`，则视为 `Root-Cause Learning Loop` 尚未完成；若因阻塞无法更新，必须显式报告阻塞原因。
 
-### AGENT、SKILL、REFERENCES、CONTEXT 与入口元数据放置矩阵（全局真源）
+### AGENT、SKILL、专项模块、CONTEXT 与入口元数据放置矩阵（全局真源）
 
 - 以下内容应写入 `AGENTS.md` / meta-SKILL（规范型元合同）：
   - 跨技能的根因上溯顺序（`Rule Source -> Meta Rule Source`）
@@ -385,15 +374,15 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 卫星职责、触发条件、与主链/主技能的 `stage_position`
   - `owned truth`、`not-owned truth`、共享载体依赖与回接路径
   - 是否参与 tracked workflow、是否允许直接调用、以及完成后回到哪个主技能或阶段
-  - 不得把卫星技能写成主技能缩略版，也不得把它藏进 `references/` 冒充模块
+  - 不得把卫星技能写成主技能缩略版，也不得把它伪装成普通细则模块
 - 以下内容应写入 `agents/openai.yaml`（入口元数据层）：
   - `display_name`、`short_description`、`default_prompt` 等 UI-facing 入口元数据
   - 与主 `SKILL.md` 同步的发现入口摘要
   - 不得承载独立于主合同之外的隐藏执行规则
-- 以下内容应写入 `references/`（核心细则模块层）：
+- 以下内容应写入共享模块文件 / `templates/` / spec / schema（专项细则层）：
   - 可独立升级、但仍受主合同约束的专项细则模块
   - 思维链细则、执行流程细则、类型化处理 / 模式化策略、输出模板等长细则
-  - 同一技能的多类型化 / 多模式化若属于执行前必须遵守的工作台，应优先落到 `references/type-strategies.md` 或同类模块，而不是放进 `CONTEXT.md`
+  - 同一技能的多类型化 / 多模式化若属于执行前必须遵守的工作台，应优先落到主合同显式指定的规范模块，而不是放进 `CONTEXT.md`
   - 一旦某模块已成为 canonical module，主 `SKILL.md` 与其他文档应回链该模块，而不是平行复制同一套长说明
 - 以下内容应写入 `CONTEXT.md`（经验层）：
   - Type Map（失败模式 -> 修复策略 -> 验证点）、Repair Playbook 与 Reusable Heuristics
@@ -405,11 +394,12 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `CONTEXT.md` 支持多级放置。
 - 当前规范特指主技能、子技能与卫星技能之间的多级放置：
   - 主技能根层 `CONTEXT.md`：整个技能族的默认经验层，承接跨子技能、跨模式、跨工作流的经验
-  - 子技能 `CONTEXT.md`：用于受治理子技能的局部经验层，通常采用如下形态：
+  - 子技能 `CONTEXT.md`：用于受治理子技能的局部经验层，路径由父级合同显式声明，通常采用如下形态：
 
     ```text
-    subtypes/
-      <subskill-name>/
+    <skill-root>/
+      ...
+      <child-skill-path>/
         SKILL.md
         CONTEXT.md
     ```
@@ -428,11 +418,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 
     卫星技能 `CONTEXT.md` 仅保存该卫星技能自己的局部 heuristic、旁路恢复/查询/承接策略与陷阱，不得替代主技能根层 `CONTEXT.md`
 - 子技能与卫星技能 `CONTEXT.md` 的升级规则：
-  - 一旦某个技能采用受治理子技能结构，则范围内长期维护的子技能应显式表现为 `subtypes/<subskill-name>/SKILL.md + CONTEXT.md`
+  - 一旦某个技能采用受治理子技能结构，则范围内长期维护的子技能应在父级合同声明的子技能路径上显式暴露 `SKILL.md + CONTEXT.md`
   - 一旦某个技能出现长期维护、可直接调用、且拥有独立旁路职责的 sibling skill，则应显式表现为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`
-  - `references/` 默认不承担受治理子技能语义，但可由主技能或子技能合同声明为专项细则模块层；该情形下应视为可加载的规范细则承载层，而不是普通附录
   - 跨子技能、跨卫星或跨技能的 heuristic，仍必须回晋升到主技能根层 `CONTEXT.md` 或 `SKILL.md`
-- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的 `references/` 模块 > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md`
+- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md`
 
 ### Agent 源层优化合同（强制）
 
@@ -509,7 +498,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - Type Map：失败类型 -> 根因层级 -> 立即修复 -> 系统预防 -> 验证方式
   - Repair Playbook：稳定的排障顺序与 fallback 策略
   - Reusable Heuristics：简洁且高价值的可复用经验
-  - `Type Map` 在此特指经验性映射与排障知识，不等于同一技能的规范型类型策略工作台；后者应放在 `references/type-strategies.md` 或等价模块
+  - `Type Map` 在此特指经验性映射与排障知识，不等于同一技能的规范型类型策略工作台；后者应放在主合同显式指定的规范模块
 - Case Log 频率控制：
   - 仅在里程碑事件发生时新增/追加案例。负向里程碑包括：新错误类别、源规则变更、重复模式晋升；正向里程碑包括：新成功类别、跨技能可复用 heuristic、正向晋升证据
   - 对于非里程碑迭代，应优先更新已有 Type Map / Playbook / Heuristics，而不是新建案例

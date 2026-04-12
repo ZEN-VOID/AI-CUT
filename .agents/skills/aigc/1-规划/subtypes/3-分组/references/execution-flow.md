@@ -19,7 +19,7 @@
 
 ```mermaid
 flowchart TD
-    A["读取 north_star / init_handoff / 第N集.md"] --> B["锁定集边界与上游约束"]
+    A["读取 north_star / init_handoff / 2-格式 第N集.md"] --> B["锁定集边界与上游约束"]
     B --> C["抽取 preset_registry / 连续时空 / 用户硬要求"]
     C --> D["生成候选边界集合"]
     D --> E["按 结构 + 依赖 + 量化 + handoff 统一裁决"]
@@ -36,8 +36,9 @@ flowchart TD
 
 1. 读取 `projects/<项目名>/Init/north_star.yaml`
 2. 读取 `projects/<项目名>/Init/init_handoff.yaml`
-3. 读取 `projects/<项目名>/Init/episode-split-plan.json`、`projects/<项目名>/规划/第N集.md`
-4. 若当前诉求跨集，立即回退 `1-分集`
+3. 读取 `projects/<项目名>/Init/episode-split-plan.json`、`projects/<项目名>/规划/2-格式/第N集.md`
+4. 若 `2-格式` 尚未执行，才允许临时回退到 `1-分集/第N集.md` 或其他已声明待分组材料
+5. 若当前诉求跨集，立即回退 `1-分集`
 
 ### Tranche B：约束抽取
 

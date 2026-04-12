@@ -25,6 +25,7 @@
 | 旁白主体口径漂移 | 字段一致性层 | 若启用旁白，统一规划为 `讲述者` | 在合同中固定主体口径 | 合同与样例口径一致 |
 | 混合源下把镜号逐条升格为场景号，导致同一连续时空被错误拆成多个场景 | 场景骨架层 | 标准剧结果稿改为“场景号按连续时空，镜号范围单列” | 在叶子模板和执行流中固化 `场景X（续） + 镜号范围 / 锚点继承` | 同一寿堂日连续段会写成 `场景2（续）`，而不是 6、7、8、9 连续新场景 |
 | 分镜脚本来源下镜头语言被当成可删可不删的备注，而非应优先保留的上游证据 | 分镜源保真层 | 把 `镜头语言预设` 升为 storyboard source 下的优先字段，并要求紧跟相关 `*画面` | 在标准剧叶子合同、流程、模板中统一固化“只整理上游明确提示，禁止脑补新增” | 分镜源结果稿里可见原镜头语言，且挂位稳定 |
+| 普通叙事源结果稿出现 `镜头语言预设 / 镜号范围 / 锚点继承` 占位行 | 叶子模板写位层 | 删除占位行，并把叶子模板改成“命中条件才输出” | 在 `标准剧/references/output-template.md + execution-flow.md` 固化条件字段启用规则 | 普通叙事源标准剧结果稿不再出现“未预置 / 无上游显式提示” |
 
 ## Repair Playbook
 
@@ -43,6 +44,7 @@
 - 对长期维护的可执行技能目录，除 `SKILL.md + CONTEXT.md` 外，还应补齐 `agents/openai.yaml`，这样 Codex / OpenAI 侧的展示名、摘要和默认提示才有稳定入口。
 - 对混合源标准剧转写来说，`场景号` 是连续时空层，`镜号` 是证据层；两层必须并存，不能互相替代。
 - 对分镜脚本来源标准剧来说，`镜头语言预设` 不是装饰性字段；只要上游明确写了，就应作为优先保留的证据字段继续传递。
+- 对普通叙事源标准剧来说，条件字段宁可不出现，也不要用“未预置 / 无显式提示”占位。
 
 ### Case-20260411-AIGC-PLAN-FORMAT-STANDARD-STORYBOARD-CAMERA
 
@@ -116,3 +118,19 @@
   - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/output-template.md`
   - `projects/嫡母重生：过继局/规划/2-格式/第1集.md`
 - user_feedback_or_constraint: 用户明确指出“相关空间场景和时间状态被错误分到不同场景号下”，要求从源层修正而不是只改一稿。
+
+### Case-20260411-AIGC-PLAN-FORMAT-STANDARD-CONDITIONAL-FIELDS
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 当前项目标准剧结果稿把 `镜头语言预设 / 镜号范围 / 锚点继承` 当成固定骨架，即使上游没有对应证据也照样输出。
+- root_cause_or_design_decision: 叶子模板把这些证据型字段直接写进了默认骨架，执行时容易机械保留占位文本。
+- final_fix_or_heuristic: 把这些字段全部降回条件字段，只有上游显式提供或锁轴要求保留时才输出；否则整段省略。
+- prevention_or_replication_checklist:
+  - [x] `标准剧/references/output-template.md` 已改成条件字段模板
+  - [x] `标准剧/references/execution-flow.md` 已补“无证据则省略”
+  - [x] 当前项目标准剧结果稿已删除无证据占位
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/execution-flow.md`
+  - `projects/晴深不渝/规划/2-格式/第1集.md`
+- user_feedback_or_constraint: 用户明确指出这些行“不应该硬加”。

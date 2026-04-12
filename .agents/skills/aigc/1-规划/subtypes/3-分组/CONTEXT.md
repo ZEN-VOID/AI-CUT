@@ -44,11 +44,13 @@ last_compaction: null
 | 量化字段已写出，但 `effective_text_chars / window_status` 与字窗公式不一致 | 量化校验层 | 先按 `scene-duration-projection.md` 重算状态，再修正当前组表 | 在 validator 中增加“按 `estimated_duration_seconds + pace_tier` 回推窗口并核对 `window_status`”的强校验 | `validate_grouping.py` 能直接拦下 `20秒 + 260字 + warn-high` 这类自相矛盾组合 |
 | `warn` 状态仍被当作可落盘结果，或无证据写入非默认时长 | 严格 gate 层 | 收回到统一 `15秒`，并把非 `ok` 一律视作返工信号 | 将 “`window_status != ok` 不得落盘” 与 “无 `时长偏离证据` 不得写 `分镜组时长映射`” 固化进 reference、SKILL、template 与 validator | validator 会直接拒绝 `warn-*` 成稿与无证据时长 override |
 | `effective_text_chars` 只是手填数字，未从混合源 / 分镜源正文真实回算 | 主源量化证据层 | 先按 `story-source-manifest.yaml -> primary_story_source.path` 和 `source_span` 镜号范围重算，再重写分组结果 | 将“命中 `storyboard_script / hybrid_story_text` 时强制主源回算”固化进 `scene-duration-projection.md`、执行流、模板与 validator | validator 会直接拒绝与主源回算不一致的 `effective_text_chars` |
+| `3-分组` 明明应直接消费 `2-格式`，执行流/模板却仍把父级输入写成模糊 `规划/第N集.md`，并且 validator 不能读取 `.docx` 主源 | 输入链与校验入口层 | 将直接输入链显式收口为 `Init/episode-split-plan.json + 规划/2-格式/第N集.md`，并为 validator 补 `.docx + plain 镜号` 解析 | 把“`2-格式` 为直接业务输入、主故事源只作证据回算”固化进 `SKILL.md / execution-flow / template / validator` | 执行 `3-分组` 时不再误判为要重绕原始故事文件分组，且 validator 可在 `.docx` 项目上正常通过 |
+| 把 `hard_lock` 误执行成“一锚一组”，导致同一锚点内已经形成独立 handoff 的连续子段被过度并组 | 锚点解释层 | 在保持锚点顺序和 owned axes 不变的前提下，允许同锚点内连续切分，并让各子组继续继承同一锚点 | 将 `hard_lock` 收口为“保护顺序与 owned axes”，而不是机械禁止一切组内连续切分 | 分组结果可以在不破坏锚点的情况下更细地匹配结构 handoff |
 
 ## Playbook
 
 1. 先确认父级 `1-规划` 已把当前任务路由到 `3-分组`。
-2. 先锁定 `Init/episode-split-plan.json` 已给出的集边界，再读取父级 `规划/第N集.md` 的现有主稿，而不是重切分集。
+2. 先锁定 `Init/episode-split-plan.json` 已给出的集边界，再优先读取父级 `规划/2-格式/第N集.md` 的现有主稿，而不是重切分集。
 3. 先锁定待分组材料与主目标，而不是直接平分组数。
 4. 先抽取不可动约束，再生成候选边界。
 5. 先做依赖与并行性检查，再把组级容器写回对应 `第N集.md`。
@@ -73,7 +75,10 @@ last_compaction: null
 - “组总时长元数据”与“帧内时间切分规则”不是同一层：前者属于 `3-分组` 的 episode meta 真源，后者属于下游 `5-分镜构图` 的消费合同，适合沉在量化 reference 做交接。
 - 外部分镜脚本若已有粗锚点，`3-分组` 的职责不是忽略它，而是先裁决“这根锚点是 hard lock、soft lock 还是 reference only”。
 - `soft_lock + single_anchor_multi_shot` 最稳的处理，不是在本阶段强行细化成镜头，而是在组层明确登记“允许下游一锚多镜展开”。
-- `3-分组` 的最小稳定输入链是 `Init/episode-split-plan.json + 规划/第N集.md`；如果执行流还在读 `规划/1-分集/第N集.md`，通常说明旧路径没有收口干净。
+- `3-分组` 的最小稳定输入链是 `Init/episode-split-plan.json + 规划/2-格式/第N集.md`；只有 `2-格式` 尚未执行时，才应临时回退到 `1-分集/第N集.md` 或其他已声明待分组材料。
+- `3-分组` 的主稿输入与量化证据要分层：前者优先消费 `2-格式` 聚合稿，后者再从 `story-source-manifest.yaml -> primary_story_source` 回算 `effective_text_chars`。
+- 当主故事源是 `.docx` 时，validator 不能假设它已经是 markdown bullet 稿；至少要同时兼容 `.docx` 段落提取与 plain `镜号 X` 分镜格式。
+- `hard_lock` 保护的是顺序、边界主意图和 owned axes，不等于必须“一锚一组”；如果锚点内部已经出现更清晰的连续 handoff，可以在不破坏顺序的前提下拆成多个连续组。
 - “写了 `effective_text_chars` 和 `window_status`”不等于量化已落实；至少还要检查它们是否能被 `estimated_duration_seconds + pace_tier` 的窗口公式反推一致。
 - 在严格 gate 模式下，`warn-low / warn-high / error` 都不再是“可解释偏差”，而是“必须返工”的失败信号。
 - 对 `storyboard_script / hybrid_story_text`，只要求“写了 `effective_text_chars`”还不够；如果 `source_span` 已经能指向镜号范围，就必须让 validator 从主源回算并复核。
@@ -124,6 +129,22 @@ last_compaction: null
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/templates/grouped-episode.md`
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py`
 - user_feedback_or_constraint: 用户明确指出“怀疑是为了通过而作弊”，要求把这条缺口补成可执行 gate。
+
+### Case-20260411-AIGC-PLAN-GROUPING-HARDLOCK-NOT-ONE-GROUP
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户指出当前项目里 `G01` 不应继续吞入场景2，且原 `G02` 的“重生选子与反向改局”再拆成两个分组更合适。
+- root_cause_or_design_decision: 直接技术原因不是量化不成立，而是当前执行结果把 `hard_lock` 近似执行成“一锚一组”，过度放大了 `A01/A02` 的整锚点保留，压过了同锚点内部已经形成的连续结构 handoff。
+- final_fix_or_extracted_heuristic: 将 `hard_lock` 的解释收口为“保护顺序与 owned axes，不等于禁止同锚点内连续切分”；当用户显式要求、且切分后 handoff 更清晰时，允许多个连续组共同继承同一锚点。
+- prevention_or_replication_checklist:
+  - [x] `type-strategies.md` 已更新 `hard_lock` 解释
+  - [x] 当前项目 `3-分组/第1集.md` 已按 `镜1-4 / 镜5 / 镜6-7 / 镜8-10 / 镜11-13` 重裁
+  - [x] `CONTEXT.md` 已补“hard_lock != 一锚一组”的经验
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/references/type-strategies.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/CONTEXT.md`
+  - `projects/嫡母重生/规划/3-分组/第1集.md`
+- user_feedback_or_constraint: 用户明确指出“场景2开始就要进入到新的分组”“G02 重生选子与反向改局 拆成两个分组比较合适”。
 
 ### Case-20260409-AIGC-PLAN-GROUPING
 
@@ -358,3 +379,22 @@ last_compaction: null
   - `.agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py`
   - `projects/嫡母重生：过继局/规划/3-分组/第1集.md`
 - user_feedback_or_constraint: 用户明确要求“warn 不应继续落盘”“无证据不得偏离默认 15 秒”“1.5x 收缩为 1.1x”。
+
+### Case-20260411-AIGC-PLAN-GROUPING-FORMAT-FIRST-DOCX-VALIDATOR
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 用户指出 `3-分组` 已经完成 `1-分集` 和 `2-格式`，因此本阶段应直接围绕 `规划/2-格式/第1集.md` 处理，而不是看起来又回到原始故事源重跑一遍。
+- root_cause_or_design_decision: 直接技术原因不是业务链路错误，而是 `3-分组` 的执行流、模板和经验层仍把父级输入写成模糊 `规划/第N集.md`，同时 validator 在主源回算时默认把 `primary_story_source.path` 当 UTF-8 纯文本，未兼容当前项目实际使用的 `.docx + plain 镜号` 主源格式。
+- final_fix_or_extracted_heuristic: 将 `3-分组` 的直接业务输入链显式收口为 `Init/episode-split-plan.json + 规划/2-格式/第N集.md`，把主故事源降为量化证据层；同时为 validator 增加 `.docx` 提取和 plain `镜号 X` 分镜解析能力，避免 source-backed 校验把证据层误表现为第二条主执行链。
+- prevention_or_replication_checklist:
+  - [x] `SKILL.md` 已声明 `2-格式` 为默认直接输入
+  - [x] `references/execution-flow.md` 已改为优先读取 `规划/2-格式/第N集.md`
+  - [x] `templates/validation-report.md` 已改正输入清单示例
+  - [x] `validate_grouping.py` 已兼容 `.docx` 主源与 plain `镜号` 格式
+  - [x] `CONTEXT.md` 已补“主稿输入 / 量化证据分层”经验
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/SKILL.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/templates/validation-report.md`
+  - `.agents/skills/aigc/1-规划/subtypes/3-分组/scripts/validate_grouping.py`
+- user_feedback_or_constraint: 用户明确指出“已经进行了分集和格式处理，那 3-分组 直接围绕 2-格式 的结果处理不就行了”。 

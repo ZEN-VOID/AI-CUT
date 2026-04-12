@@ -5,7 +5,7 @@
 - `projects/<项目名>/Init/north_star.yaml`
 - `projects/<项目名>/Init/init_handoff.yaml`
 - `projects/<项目名>/Init/episode-split-plan.json`
-- `projects/<项目名>/规划/第1集.md`
+- `projects/<项目名>/规划/2-格式/第1集.md`
 
 ## 边界裁决摘要
 

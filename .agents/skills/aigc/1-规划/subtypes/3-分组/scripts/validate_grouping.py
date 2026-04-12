@@ -8,6 +8,8 @@ import json
 import re
 import sys
 from pathlib import Path
+from xml.etree import ElementTree as ET
+from zipfile import ZipFile
 
 
 EPISODE_FILE_RE = re.compile(r"^第0*(?P<ep>\d+)集\.md$")
@@ -57,6 +59,7 @@ ALLOWED_PRESET_MODES = {"standard", "preserve_and_extend", "preserve_only"}
 ALLOWED_PRESET_POLICIES = {"inherit", "split-soft-lock", "reference-only", "none"}
 DURATION_TEXT_RE = re.compile(r"^(?P<seconds>\d+)秒$")
 SHOT_SPAN_RE = re.compile(r"镜\s*(?P<start>\d+)(?:\s*-\s*(?P<end>\d+))?")
+SHOT_HEADING_RE = re.compile(r"^(?:####\s*)?镜号?\s*(?P<shot>\d+)\s*$")
 PRIMARY_SOURCE_BLOCK_RE = re.compile(r"(?ms)^primary_story_source:\s*\n(?P<body>(?:^[ \t].*\n)+)")
 SUPPORTED_SOURCE_BACKED_TYPES = {"storyboard_script", "hybrid_story_text"}
 PACE_COEFFICIENTS = {
@@ -64,6 +67,8 @@ PACE_COEFFICIENTS = {
     "中节奏": 1.0,
     "快节奏": 1.3,
 }
+STORY_META_LABELS = {"场景", "环境", "景别", "音效", "时长"}
+STORY_ACTION_LABELS = {"画面", "全景", "中景", "近景", "特写", "正反打", "交叉切", "转场"}
 
 
 def fail(message: str) -> int:
@@ -73,6 +78,26 @@ def fail(message: str) -> int:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def read_docx_lines(path: Path) -> list[str]:
+    ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+    with ZipFile(path) as archive:
+        xml = archive.read("word/document.xml")
+    root = ET.fromstring(xml)
+    lines: list[str] = []
+    for para in root.findall(".//w:p", ns):
+        texts = [node.text or "" for node in para.findall(".//w:t", ns)]
+        line = "".join(texts).strip()
+        if line:
+            lines.append(line)
+    return lines
+
+
+def read_story_source_lines(path: Path) -> list[str]:
+    if path.suffix.lower() == ".docx":
+        return read_docx_lines(path)
+    return read_text(path).splitlines()
 
 
 def require_markers(path: Path, text: str, markers: list[str], errors: list[str]) -> None:
@@ -198,51 +223,111 @@ def projected_char_weight(content: str, mode: str, pace_tier: str) -> float:
     return chars * PACE_COEFFICIENTS[pace_tier]
 
 
-def parse_storyboard_source_effective_chars(source_path: Path, pace_tier: str) -> dict[int, int]:
-    text = read_text(source_path)
-    parts = re.split(r"(?m)^#### 镜号\s+(?P<shot>\d+)\s*$", text)
+def split_storyboard_blocks(lines: list[str]) -> list[tuple[int, list[str]]]:
+    blocks: list[tuple[int, list[str]]] = []
+    current_shot: int | None = None
+    current_lines: list[str] = []
+    for raw_line in lines:
+        line = raw_line.strip()
+        match = SHOT_HEADING_RE.match(line)
+        if match:
+            if current_shot is not None:
+                blocks.append((current_shot, current_lines))
+            current_shot = int(match.group("shot"))
+            current_lines = []
+            continue
+        if current_shot is not None and line:
+            current_lines.append(line)
+    if current_shot is not None:
+        blocks.append((current_shot, current_lines))
+    return blocks
+
+
+def parse_markdown_storyboard_block(lines: list[str], pace_tier: str) -> int:
     result: dict[int, int] = {}
-    for index in range(1, len(parts), 2):
-        shot_id = int(parts[index])
-        block = parts[index + 1]
-        total = 0.0
-        current_mode = "action_visual"
-        for raw_line in block.splitlines():
-            if not raw_line.strip():
-                continue
-            stripped = raw_line.strip()
-            if stripped.startswith("#### "):
-                break
-            if not stripped.startswith("- "):
-                continue
+    total = 0.0
+    current_mode = "action_visual"
+    for raw_line in lines:
+        if not raw_line.strip():
+            continue
+        stripped = raw_line.strip()
+        if not stripped.startswith("- "):
+            continue
 
-            indent = len(raw_line) - len(raw_line.lstrip(" "))
-            payload = stripped[2:].strip()
-            if indent > 0:
-                nested_content = payload.split("：", 1)[1].strip() if "：" in payload else payload
-                total += projected_char_weight(nested_content, current_mode, pace_tier)
-                continue
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        payload = stripped[2:].strip()
+        if indent > 0:
+            nested_content = payload.split("：", 1)[1].strip() if "：" in payload else payload
+            total += projected_char_weight(nested_content, current_mode, pace_tier)
+            continue
 
-            label, content = (payload.split("：", 1) + [""])[:2]
-            label = label.strip()
-            content = content.strip()
+        label, content = (payload.split("：", 1) + [""])[:2]
+        label = label.strip()
+        content = content.strip()
 
-            if label in {"台词", "闪回台词", "回到现实台词"}:
-                current_mode = "voice_text"
-                total += projected_char_weight(content, current_mode, pace_tier)
-                continue
-            if re.fullmatch(r"(对白|独白|内心独白|旁白)(（.*?）)?", label):
-                current_mode = "voice_text"
-                total += projected_char_weight(content, current_mode, pace_tier)
-                continue
-            if label in {"对白画面", "独白画面", "内心独白画面", "旁白画面"}:
-                current_mode = "voice_visual"
-                total += projected_char_weight(content, current_mode, pace_tier)
-                continue
-
-            current_mode = "action_visual"
+        if label in {"台词", "闪回台词", "回到现实台词"}:
+            current_mode = "voice_text"
             total += projected_char_weight(content, current_mode, pace_tier)
-        result[shot_id] = round(total)
+            continue
+        if re.fullmatch(r"(对白|独白|内心独白|旁白)(（.*?）)?", label):
+            current_mode = "voice_text"
+            total += projected_char_weight(content, current_mode, pace_tier)
+            continue
+        if label in {"对白画面", "独白画面", "内心独白画面", "旁白画面"}:
+            current_mode = "voice_visual"
+            total += projected_char_weight(content, current_mode, pace_tier)
+            continue
+
+        current_mode = "action_visual"
+        total += projected_char_weight(content, current_mode, pace_tier)
+    return round(total)
+
+
+def classify_plain_story_label(label: str) -> str:
+    base = re.sub(r"（.*?）", "", label).strip()
+    if base in STORY_META_LABELS:
+        return "meta"
+    if base in STORY_ACTION_LABELS:
+        return "action_visual"
+    if base in {"对白画面", "独白画面", "内心独白画面", "旁白画面"}:
+        return "voice_visual"
+    if base in {"对白", "独白", "内心独白", "旁白", "台词"}:
+        return "voice_text"
+    if re.fullmatch(r".{1,20}", base):
+        return "voice_text"
+    return "action_visual"
+
+
+def parse_plain_storyboard_block(lines: list[str], pace_tier: str) -> int:
+    text = "\n".join(lines)
+    total = 0.0
+    segment_matches = list(re.finditer(r"(?P<label>[^：\n]{1,30})：", text))
+    if not segment_matches:
+        return round(projected_char_weight(text, "action_visual", pace_tier))
+
+    for index, match in enumerate(segment_matches):
+        label = match.group("label").strip()
+        start = match.end()
+        end = segment_matches[index + 1].start() if index + 1 < len(segment_matches) else len(text)
+        content = text[start:end].strip(" \n")
+        if not content:
+            continue
+        mode = classify_plain_story_label(label)
+        if mode == "meta":
+            continue
+        total += projected_char_weight(content, mode, pace_tier)
+    return round(total)
+
+
+def parse_storyboard_source_effective_chars(source_path: Path, pace_tier: str) -> dict[int, int]:
+    lines = read_story_source_lines(source_path)
+    blocks = split_storyboard_blocks(lines)
+    result: dict[int, int] = {}
+    for shot_id, block_lines in blocks:
+        if any(line.strip().startswith("- ") for line in block_lines):
+            result[shot_id] = parse_markdown_storyboard_block(block_lines, pace_tier)
+        else:
+            result[shot_id] = parse_plain_storyboard_block(block_lines, pace_tier)
     return result
 
 

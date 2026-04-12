@@ -30,6 +30,7 @@
 | `2-格式/第N集.md` 提前长出 `## G01 / G02 ...`，导致与父级主稿几乎同稿 | 父子职责边界层 | 收回为 scene-first draft，只保留场景边界与锚点；组级投影延后到 `3-分组` 和父级聚合 | 固化“2-格式不写组容器，父级主稿才写 compact group projection” | `2-格式/第N集.md` 与 `规划/第N集.md` 不再只有一行差异 |
 | `2-格式` 把原文改写成转述版正文，用户要求“不得改变原文，只附加字段标题” | 结果稿生成层 | 回退到原文保真模式，仅补 `场景标题 / 动作画面 / 对白 / 对白画面` 等字段标题 | 在父级合同、执行流和标准剧模板中固化“仅附加字段标题，不改正文” | 格式稿中的正文与主故事源逐段可回查，不再出现同义改写 |
 | 分镜脚本来源进入 `2-格式` 后，镜头语言没有被优先保留，或被当成普通叙事源去补画面 | source_profile 投影层 | 在父级 `2-格式` 合同中补“优先保留镜头语言 / 规范化整理 / 优先复用原结构 / 禁止脑补新增” | 把 storyboard special case 固化到父级 `SKILL.md + references`，并要求两个叶子同步承接 | 分镜源结果稿能看见原镜头语言与原结构证据，而不是二次改写稿 |
+| 条件字段被模板写成硬字段，导致普通叙事源也出现 `镜头语言预设 / 镜号范围 / 锚点继承` 占位 | 模板写位层 | 删除当前结果稿中的占位字段，并把父级模板改成“仅在上游显式提供或锁轴要求时输出” | 在 `references/output-template.md + execution-flow.md` 固化“条件字段不占位”规则 | 普通叙事源结果稿不再出现无证据的镜头/锚点占位字段 |
 
 ## Repair Playbook
 
@@ -52,6 +53,7 @@
 - `2-格式` 的正确交付是“scene-first draft”，不是“半聚合后的总稿”；一旦它提前长出 `G01 / G02 ...`，父级 `1-规划` 就几乎失去聚合空间。
 - 若用户要求“不要改原文”，`2-格式` 的最稳做法是把原文整段挂到字段标题下，而不是先理解后复述。
 - 当主故事源已经是分镜脚本时，`2-格式` 的重点不是“补齐画面”，而是“把已有分镜表达规范化投影给下游继续消费”。
+- `镜头语言预设 / 镜号范围 / 锚点继承` 都是证据型条件字段；没有上游显式证据时，最稳做法是完全省略，而不是写“未预置”。
 
 ### Case-20260411-AIGC-PLAN-FORMAT-STORYBOARD-CAMERA-PRESERVE
 
@@ -168,3 +170,23 @@
   - `.agents/skills/aigc/1-规划/subtypes/2-格式/references/output-template.md`
   - `projects/嫡母重生：过继局/规划/2-格式/第1集.md`
 - user_feedback_or_constraint: 用户明确指出当前任务已选混合模式，但最终执行结果“看不出来保留了分镜脚本属性”。
+
+### Case-20260411-AIGC-PLAN-FORMAT-CONDITIONAL-FIELDS
+
+- milestone_type: source_contract_change
+- symptom_or_outcome: 当前项目 `规划/2-格式/第1集.md` 在没有上游显式镜头提示和镜号锚点的情况下，仍硬写了 `镜头语言预设：无上游显式镜头提示` 与 `镜号范围：未预置`。
+- root_cause_or_design_decision: 直接技术原因不是判模错误，而是父级与 `标准剧` 模板把条件字段写成了默认骨架，执行时即使没有证据也会机械落占位。
+- final_fix_or_heuristic: 把 `镜头语言预设 / 镜号范围 / 锚点继承 / 当前集继承锚点` 全部收回为条件字段；只有上游显式提供或锁轴要求保留时才允许写入。
+- prevention_or_replication_checklist:
+  - [x] 父级 `references/output-template.md` 已改为条件字段模板
+  - [x] 父级 `references/execution-flow.md` 已补“条件字段不占位”
+  - [x] `标准剧/references/output-template.md` 已改为条件字段模板
+  - [x] `标准剧/references/execution-flow.md` 已补条件启用规则
+  - [x] 当前项目 `规划/2-格式/第1集.md` 已删除无证据占位字段
+- evidence_paths:
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/references/execution-flow.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/output-template.md`
+  - `.agents/skills/aigc/1-规划/subtypes/2-格式/subtypes/标准剧/references/execution-flow.md`
+  - `projects/晴深不渝/规划/2-格式/第1集.md`
+- user_feedback_or_constraint: 用户明确指出“`镜头语言预设：无上游显式镜头提示` 和 `镜号范围：未预置` 这种不应该硬加”。
