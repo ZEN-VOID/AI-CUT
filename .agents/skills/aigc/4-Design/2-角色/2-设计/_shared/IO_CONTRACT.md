@@ -56,7 +56,7 @@
 | 角色 | 默认输出 | 负责槽位 |
 | --- | --- | --- |
 | `设计统筹` | `agents_plan + patch + note + report` | `selected_roles[]`、批次、角色优先级、返工路径 |
-| `形象建模` | `agents_plan + patch + note + report` | `visual_anchor`、`face_signature`、`body_signature`、`silhouette_signature` |
+| `形象建模` | `agents_plan + patch + note + report` | `visual_anchor`、`face_signature`、`body_signature`、`silhouette_signature`、`casting_reference`、`feature_markers`、`signature_elements` |
 | `服装设计` | `agents_plan + patch + note + report` | `wardrobe_profile`、`variation_rules`、`negative_constraints.costume` |
 | `妆容设计` | `agents_plan + patch + note + report` | `makeup_profile`、`hair_profile`、`negative_constraints.makeup` |
 | `个性塑造` | `agents_plan + patch + note + report` | `personality_profile`、`pose_profile`、`dialogue_presence`、`emotion_anchor` |
@@ -68,5 +68,6 @@
 1. subagents 只能返回 `agents_plan + patch / note / report`，不能直接落盘 canonical 产物。
 2. `character_design.json` 是本阶段唯一 machine-first 真源；逐角色 Markdown 必须与其同源。
 3. `shape -> costume/makeup/persona -> review -> audit` 的默认顺序不可跳过。
-4. 场景/道具 carrier 只作为只读上下文包，不得反向变成角色设计组的新常驻职责。
-5. 未命中的角色不得出现在本轮 `_manifest.json` 或被补空模板。
+4. `casting_reference` 只作为具象化代理，不得覆盖 `角色清单.json`、`2-Global` 与 `3-Detail` 的证据优先级；最终必须转译为 `feature_markers / signature_elements`。
+5. 场景/道具 carrier 只作为只读上下文包，不得反向变成角色设计组的新常驻职责。
+6. 未命中的角色不得出现在本轮 `_manifest.json` 或被补空模板。

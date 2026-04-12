@@ -22,6 +22,7 @@
 | `costume_state` 缺失导致服装条目混成一团 | 状态归一层 | 回退默认 `baseline` 并在 notes 中记录 | 在 bridge 中固定 `role_id + costume_state` 作为 costume 主键 | 同一角色多套服装能稳定分开 |
 | 研究层只剩审美形容词 | 研究层 | 强制补 silhouette/material/accessory/continuity 四类字段 | 在输出模板中固定四类研究槽位 | `服装研究.json` 可直接支撑 `2-设计` |
 | bridge 缺少可机读字段 | 设计桥接层 | 补 `prompt_anchor / layer_system / continuity_rules` | 把 bridge 视为设计输入而不是研究摘要 | `2-设计` 无需重做抽取 |
+| 叶子合同只保留字段表，节点动作和返工路径不清 | 思行网络层 | 把输入锁定、状态归一、证据补包、研究链、bridge 链和汇流门写回同一 `SKILL.md` | 固化 `Thinking-Action Node Network + Capability Detail + Convergence Contract` | 叶子技能能独立闭环执行 |
 
 ## Repair Playbook
 
@@ -35,6 +36,7 @@
 - 服装对象池最稳的主键通常不是纯服装名，而是 `role_id + costume_state`。
 - 服装链的研究层价值不在“多写审美词”，而在于把 silhouette/material/accessory/continuity 固化成后续可消费字段。
 - 若角色链已经给出 `costume_profile`，服装链就不应再回头重做角色名提取。
+- 对 `1-清单` 做知行合一改造时，最稳的方式是让 `catalog -> research -> bridge` 共享同一 costume 主键，而不是为每个输出各自解释一次输入。
 
 ## Case Log
 
@@ -53,3 +55,18 @@
   - `.agents/skills/aigc/4-Design/3-服装/1-清单/scripts/extract_costume_catalog.py`
   - `.agents/skills/aigc/4-Design/2-角色/1-清单/SKILL.md`
 - user_feedback_or_constraint: 用户要求参照角色/场景/道具家族，把服装链补齐到同等治理层级。
+
+### Case-20260412-AIGC-COSTUME-LIST-ZHI-XING-NETWORK
+
+- milestone_type: source_contract_change
+- outcome: 在保留三份 JSON 输出、脚本入口和输出模板不变的前提下，将 `1-清单` 重排为知行合一叶子技能。
+- root_cause_or_design_decision: 原合同虽然有字段表和最小流程，但业务分析、状态归一、研究链、bridge 链和汇流门仍分散，难以支撑“每一个思维·执行节点足够细”的高质量要求。
+- final_fix_or_heuristic: 将 `1-清单` 改写为 `Business Requirement Analysis -> Topology -> Thinking-Action Node Network -> Capability Detail -> Convergence -> One-Shot Output`，并把关键细则留在主 `SKILL.md`，不再下沉为骨架化主文档。
+- prevention_or_replication_checklist:
+  - [x] 三份 JSON 真源路径未变
+  - [x] `role_id + costume_state` 主键继续保留
+  - [x] 研究链与 bridge 链已有明确返工入口
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/3-服装/1-清单/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-服装/1-清单/CONTEXT.md`
+- user_feedback_or_constraint: 用户要求“复杂链路的骨架 / 细则分层：false”，并要求每个思维·执行节点一步一步足够细致。

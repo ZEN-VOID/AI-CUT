@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 6-Video 首帧参照"
-  short_description: "从单一分镜ID蒸馏帧级视频请求 JSON，并输出 JSON/TXT/manifest。"
-  default_prompt: "Use $aigc-video-first-frame-reference to read `projects/<项目名>/3-Detail/第N集.json`, lock one `分镜ID`, preserve `组间设计.全局风格` verbatim, trim `剧本正文` into the matching frame bridge, and generate the frame-level JSON/TXT/manifest outputs without inventing reference images or upstream facts."
+  short_description: "以知行合一思行网络锁定单一分镜ID，蒸馏帧级视频请求 JSON/TXT/manifest。"
+  default_prompt: "Use $aigc-video-first-frame-reference to read `projects/<项目名>/3-Detail/第N集.json`, lock one `分镜ID`, preserve `组间设计.全局风格` verbatim, distill `剧本正文` into the matching frame bridge through the local thinking-action network, and generate the frame-level JSON/TXT/manifest outputs without inventing reference images or upstream facts."

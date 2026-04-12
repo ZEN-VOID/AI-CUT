@@ -85,16 +85,15 @@
 - milestone_type: source_contract_change
 - outcome: 为 `4-Design` 阶段补上了 `1-场景` 类目父级与 `1-场景/2-设计` 子技能，使场景链从对象池延伸到设计稿收束。
 - root_cause_or_design_decision: 阶段父级虽然能把任务路由到场景方向，但场景类目此前只有 `1-清单` 和空目录，导致对象池之后没有稳定接手合同。
-- final_fix_or_heuristic: 让 `1-场景` 成为类目路由真源，再把 `2-设计` 升级为场景设计组 subagents 编排面。
+- final_fix_or_heuristic: 让 `1-场景` 成为类目路由真源，再把 `2-设计` 升级为知行合一单技能场景设计真源。
 - prevention_or_replication_checklist:
   - [x] `1-场景` 父级合同已补齐
   - [x] `2-设计` 已具备 SKILL / CONTEXT / CHANGELOG / openai.yaml
-  - [x] 场景设计组 team 已回指父 skill
+  - [x] `2-设计` 已承担场景设计唯一执行真源
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/1-场景/SKILL.md`
   - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
-  - `.codex/agents/aigc/设计组/场景设计/team.md`
-- user_feedback_or_constraint: 用户要求以 `skill-subagents` 为基础，对 `1-场景/2-设计` 做系统性重构。
+- user_feedback_or_constraint: 用户先前要求补齐 `1-场景/2-设计`，随后进一步要求按 `skill-知行合一` 对其做系统性重构，并废弃旧场景设计组 agent。
 
 ### Case-20260412-AIGC-4-DESIGN-ROLE-DESIGN-ACTIVE
 

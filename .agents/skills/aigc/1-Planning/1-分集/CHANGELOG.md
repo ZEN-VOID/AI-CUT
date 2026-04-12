@@ -4,6 +4,13 @@
 
 ## 2026-04-12
 
+- `Case-20260412-AIGC-PLANNING-EPISODE-SPLIT-ZHI-XING-NETWORK`
+  - 在不改变 `1-分集` 既有输入输出、`P1>P2>P3`、VSM、字段主表与 handoff 机制的前提下，将合同重排为知行合一单技能网络：补齐业务分析、拓扑合同、思行节点、汇流门、一-shot 输出与 Mermaid 可视真源。
+  - 证据路径：
+    - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/1-分集/CONTEXT.md`
+    - `.agents/skills/aigc/1-Planning/1-分集/CHANGELOG.md`
+
 - `Case-20260412-AIGC-PLANNING-EPISODE-SPLIT-DIRECT-LEAF`
   - 将 `1-分集` 从“单分集 agent + skill 收束”收敛为 direct leaf skill，删除孤立 agent 文档，并同步父级规划合同、入口元数据与 audit。
   - 证据路径：
@@ -11,7 +18,6 @@
     - `.agents/skills/aigc/1-Planning/1-分集/CONTEXT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/agents/openai.yaml`
     - `.agents/skills/aigc/1-Planning/SKILL.md`
-    - `.codex/agents/aigc/规划组/team.md`
     - `scripts/aigc_skill_audit.py`
 
 - `Case-20260412-AIGC-PLANNING-EPISODE-SPLIT-EXECUTION-BOUNDARY`

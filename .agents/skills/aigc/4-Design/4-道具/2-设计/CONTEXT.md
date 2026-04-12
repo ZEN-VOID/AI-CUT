@@ -23,6 +23,7 @@
 | 路径错写成 `4-Design/2-角色/4-道具` | 路径归一层 | 在父 skill 与 runner 中统一规范化到 `4-Design/4-道具/2-设计/第N集/` | 将 path normalization 记入 manifest 与 shared I/O | 输出目录稳定一致 |
 | team 存在但没有明确后台执行规则 | subagent 编排层 | 在父 skill 与 team 文档同时补写后台执行规则 | 把 team 和父 skill 一起作为 validator 的检查对象 | 调用层不再误解成交互式前台流程 |
 | prompt 架构师脱离 canonical truth 自创事实 | prompt handoff 层 | 强制 prompt 只消费 `道具设计.json` | 固化“prompt 不改业务事实”禁令 | prompt 内容能回链 design master |
+| specialists 并行存在，但父 skill 仍像线性说明书，无法单读复现汇流 | 编排真源层 | 在主 `SKILL.md` 明写 tranche、节点、汇流和审计门 | 固化“subagent 机制保留，但主技能单文档统筹” | 不读 references 也能看懂整条 design synthesis 链 |
 
 ## Repair Playbook
 
@@ -39,6 +40,7 @@
 - prompt 架构师应晚于 canonical synthesis；否则 prompt 很容易反过来绑架业务事实。
 - 用户给错路径时，不要把错路径写成新的真源；要在 manifest 里记录一次 path normalization，然后统一落到 canonical 目录。
 - 对道具设计来说，`agents_plan` 最适合承载 bridge 消费顺序、字段补位顺序与 audit 返工摘要；最终三件套真源仍只能由父 skill 写回。
+- 对 subagent 型叶子技能来说，知行合一不是取消角色分工，而是把“门禁 -> brief -> 并行 patch -> canonical -> prompt -> audit”明确写成父 skill 主文档中的可执行网络。
 
 ## Case Log
 
@@ -77,3 +79,18 @@
   - `.codex/agents/aigc/设计组/道具设计/team.md`
   - `.codex/agents/aigc/设计组/道具设计/模型师.md`
 - user_feedback_or_constraint: 用户要求把 `1-Planning` 已切换的 agents-plan 口径继续推广到道具设计链，统一 subagent 的思考与执行边界。
+
+### Case-20260412-AIGC-PROP-DESIGN-ZHIXING-REFRACTOR
+
+- milestone_type: source_contract_change
+- outcome: 将 `2-设计` 升级为知行合一式父 skill 主合同，完整内收 task mode、tranche、节点、汇流、manifest 与下游 handoff。
+- root_cause_or_design_decision: 旧版 `2-设计` 已声明 subagent 机制，但真正的执行认知仍分散在 team、shared I/O、references 和经验里，不足以满足“每个思维·执行节点都要足够细”的要求。
+- final_fix_or_heuristic: 保留现有 team、shared I/O、scripts 与输出三件套，仅把主技能改写为单文档真源，让执行者只读 `SKILL.md` 就能完成 design synthesis 的调度与闭环。
+- prevention_or_replication_checklist:
+  - [x] 主文档已明写 task mode 与默认 tranche
+  - [x] canonical / prompt / manifest 汇流顺序已内置
+  - [x] 经验层已登记“subagent 机制保留、主合同单文档统筹” heuristic
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/4-道具/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/4-道具/2-设计/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求按 `$skill-知行合一` 重构 `4-道具` 子技能包，并指定不要采用“骨架在主文档、细则下沉 references”的结构。

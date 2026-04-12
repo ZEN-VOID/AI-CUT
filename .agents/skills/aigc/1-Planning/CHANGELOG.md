@@ -4,6 +4,13 @@
 
 ## 2026-04-12
 
+- `Case-20260412-AIGC-PLANNING-GROUPING-ZXY-SINGLE-SKILL`
+  - 将 `3-分组` 从“stage-local parent skill + shared 分组 specialist”收敛为知行合一单技能直达执行真源，并同步删除 `规划组/team.md` 中的 `分组` 角色及审计脚本中的对应硬依赖。
+  - 证据路径：
+    - `.agents/skills/aigc/1-Planning/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+    - `scripts/aigc_skill_audit.py`
+
 - `Case-20260412-AIGC-PLANNING-GROUPING-STAGE-LOCAL-OWNERSHIP`
   - 将 `3-分组` 升格为真正的 stage-local parent skill，并把 `规划组/team.md` 收回 shared dispatch plane 定位；同时新增 quantizer 作为本阶段计算真源。
   - 证据路径：
@@ -11,17 +18,14 @@
     - `.agents/skills/aigc/1-Planning/CONTEXT.md`
     - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
     - `.agents/skills/aigc/1-Planning/3-分组/scripts/grouping_quantizer.py`
-    - `.codex/agents/aigc/规划组/team.md`
-    - `.codex/agents/aigc/规划组/分组.md`
 
 - `Case-20260412-AIGC-PLANNING-EPISODE-SPLIT-DIRECT-LEAF`
-  - 将 `1-分集` 从“规划组单 subagent 投影”收敛为 direct leaf skill，删除孤立的 `.codex/agents/aigc/规划组/分集.md`，并同步修正父 skill、team、入口元数据与 audit。
+  - 将 `1-分集` 从“规划组单 subagent 投影”收敛为 direct leaf skill，删除孤立的旧分集 subagent 载体，并同步修正父 skill、入口元数据与 audit。
   - 证据路径：
     - `.agents/skills/aigc/1-Planning/SKILL.md`
     - `.agents/skills/aigc/1-Planning/CONTEXT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
     - `.agents/skills/aigc/1-Planning/1-分集/agents/openai.yaml`
-    - `.codex/agents/aigc/规划组/team.md`
     - `scripts/aigc_skill_audit.py`
 
 - `Case-20260412-AIGC-PLANNING-AGENTS-PLAN-SHIFT`
@@ -32,7 +36,6 @@
     - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
     - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
     - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
-    - `.codex/agents/aigc/规划组/team.md`
 
 - `Case-20260412-AIGC-PLANNING-SUBAGENT-EXECUTION-BOUNDARY`
   - 将“subagents 负责思考与 plan，skill 负责统筹与执行”的硬规则同步到 `1-Planning` 父级、已完成 leaf skills 的经验层与入口元数据，避免入口摘要与主合同再度分叉。
@@ -52,7 +55,6 @@
   - 证据路径：
     - `.agents/skills/aigc/1-Planning/SKILL.md`
     - `.agents/skills/aigc/1-Planning/CONTEXT.md`
-    - `.codex/agents/aigc/规划组/team.md`
     - `.codex/registry/skills.yaml`
 - `Case-20260412-AIGC-PLANNING-EPISODE-SPLIT-LEAF`
   - 参照 `AIGC-ZEN-VOID` 的 `1-故事分集`，在 DREAMER runtime 下补齐 `1-分集` 的 leaf 合同、经验层与机读模板。

@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 规划阶段"
-  short_description: "由父 skill 统筹规划执行，直达完成 1-分集，并调度规划组处理格式、剧本、分组与节奏判断"
-  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: execute 1-分集 directly as a leaf skill, route the planning team only for format arbitration, script variants, grouping, and rhythm judgments, then aggregate the selected results back into the canonical planning outputs."
+  short_description: "由父 skill 统筹规划执行，路由 1-分集、2-剧本、3-分组 三个内化型阶段技能并完成阶段验收"
+  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: route between 1-分集, 2-剧本, and 3-分组 as stage-local skills with internalized capability fusion, aggregate their canonical outputs into the planning validation report, and hand off to 2-Global."

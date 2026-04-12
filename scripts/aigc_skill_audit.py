@@ -46,6 +46,13 @@ REFERENCE_MODULES = (
     "chain-of-thought.md",
     "execution-flow.md",
     "type-strategies.md",
+    "capability-playbook.md",
+    "分镜表现.md",
+    "角色表现.md",
+    "场景氛围.md",
+    "运镜手法.md",
+    "摄影美学.md",
+    "转场特效.md",
     "output-template.md",
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
@@ -154,49 +161,7 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-resume-satellite-entry",
     "aigc-review-satellite-entry",
 }
-REQUIRED_INIT_AGENT_DOCS = (
-    Path(".codex/agents/aigc/初始组/team.md"),
-    Path(".codex/agents/aigc/初始组/模式路由.md"),
-    Path(".codex/agents/aigc/初始组/主创会诊.md"),
-    Path(".codex/agents/aigc/初始组/快速成案.md"),
-    Path(".codex/agents/aigc/初始组/自主问答.md"),
-    Path(".codex/agents/aigc/初始组/充分性审计.md"),
-)
 REQUIRED_STAGE_AGENT_DOCS = {
-    "0-Init": REQUIRED_INIT_AGENT_DOCS,
-    "1-Planning": (
-        Path(".codex/agents/aigc/规划组/team.md"),
-        Path(".codex/agents/aigc/规划组/格式判模.md"),
-        Path(".codex/agents/aigc/规划组/标准剧.md"),
-        Path(".codex/agents/aigc/规划组/解说剧.md"),
-        Path(".codex/agents/aigc/规划组/分组.md"),
-        Path(".codex/agents/aigc/规划组/节奏.md"),
-    ),
-    "2-Global": (
-        Path(".codex/agents/aigc/导演组/team.md"),
-        Path(".codex/agents/aigc/导演组/全局风格设计师.md"),
-        Path(".codex/agents/aigc/导演组/类型化指导.md"),
-        Path(".codex/agents/aigc/导演组/导演.md"),
-    ),
-    "3-Detail": (
-        Path(".codex/agents/aigc/制作组/team.md"),
-        Path(".codex/agents/aigc/制作组/分镜表现/分镜规划.md"),
-        Path(".codex/agents/aigc/制作组/分镜表现/分镜构图.md"),
-        Path(".codex/agents/aigc/制作组/角色表现/内心戏指导.md"),
-        Path(".codex/agents/aigc/制作组/角色表现/动作戏指导.md"),
-        Path(".codex/agents/aigc/制作组/角色表现/对手戏指导.md"),
-        Path(".codex/agents/aigc/制作组/运镜手法/叙事派.md"),
-        Path(".codex/agents/aigc/制作组/运镜手法/炫技派.md"),
-        Path(".codex/agents/aigc/制作组/场景氛围/景观设计.md"),
-        Path(".codex/agents/aigc/制作组/场景氛围/氛围设计.md"),
-        Path(".codex/agents/aigc/制作组/摄影美学/摄影师.md"),
-        Path(".codex/agents/aigc/制作组/摄影美学/光影美学大师.md"),
-        Path(".codex/agents/aigc/制作组/摄影美学/色彩美学大师.md"),
-        Path(".codex/agents/aigc/制作组/转场特效/转场设计.md"),
-        Path(".codex/agents/aigc/制作组/转场特效/特效设计.md"),
-        Path(".codex/agents/aigc/制作组/复核审计/连续性复核.md"),
-        Path(".codex/agents/aigc/制作组/复核审计/真源审计.md"),
-    ),
 }
 AGENT_REFERENCE_PATTERN = re.compile(r"\.codex/agents/aigc/[^\s`)\]>\"']+\.md")
 BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
@@ -568,16 +533,117 @@ def audit_runtime_alignment(contract_mode: str, failures: list[str]) -> None:
                 failures.append(f"{path}: contains legacy runtime marker `{marker}`")
 
 
-def audit_init_subagent_presence(failures: list[str]) -> None:
+def audit_init_single_skill_contract(failures: list[str]) -> None:
     init_skill = ROOT / "0-Init" / "SKILL.md"
     if not init_skill.exists():
         return
     init_content = init_skill.read_text(encoding="utf-8")
-    if ".codex/agents/aigc/初始组/" not in init_content:
+    if "## Internal Capability Fusion Contract (Mandatory)" not in init_content:
+        failures.append(f"{init_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
+    if ".codex/agents/aigc/初始组/" in init_content:
+        failures.append(
+            f"{init_skill}: 0-Init must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
+        )
+
+    init_openai = ROOT / "0-Init" / "agents" / "openai.yaml"
+    if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
+        failures.append(f"{init_openai}: should not reference external init-agent contracts")
+
+    refs_root = ROOT / "0-Init" / "references"
+    if refs_root.exists():
+        for path in sorted(refs_root.rglob("*.md")):
+            content = path.read_text(encoding="utf-8")
+            if ".codex/agents/aigc/初始组/" in content:
+                failures.append(f"{path}: reference stub still points to deleted external init-agent contracts")
+
+
+def audit_planning_internal_skill_contract(failures: list[str]) -> None:
+    planning_root = ROOT / "1-Planning"
+    if not planning_root.exists():
         return
-    for doc in REQUIRED_INIT_AGENT_DOCS:
-        if not doc.exists():
-            failures.append(f"{doc}: missing required 0-Init subagent contract")
+
+    forbidden_marker = ".codex/agents/aigc/规划组/"
+    targets = (
+        planning_root / "SKILL.md",
+        planning_root / "agents" / "openai.yaml",
+        planning_root / "2-剧本" / "SKILL.md",
+        planning_root / "2-剧本" / "agents" / "openai.yaml",
+        planning_root / "3-分组" / "SKILL.md",
+    )
+
+    for path in targets:
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8")
+        if path.suffix == ".md" and path.name == "SKILL.md":
+            if "## Internal Capability Fusion Contract (Mandatory)" not in content:
+                failures.append(f"{path}: missing `Internal Capability Fusion Contract (Mandatory)`")
+        if forbidden_marker in content:
+            failures.append(f"{path}: should not reference deleted planning-agent contracts")
+
+
+def audit_global_single_skill_contract(failures: list[str]) -> None:
+    global_root = ROOT / "2-Global"
+    global_skill = global_root / "SKILL.md"
+    if not global_skill.exists():
+        return
+
+    forbidden_marker = ".codex/agents/aigc/导演组/"
+    targets = (
+        global_skill,
+        global_root / "_shared" / "IO_CONTRACT.md",
+        global_root / "agents" / "openai.yaml",
+        global_root / "templates" / "全局风格.template.md",
+        global_root / "templates" / "类型指导.template.md",
+        global_root / "templates" / "导演意图.template.md",
+    )
+
+    skill_content = global_skill.read_text(encoding="utf-8")
+    if "## Internal Capability Fusion Contract (Mandatory)" not in skill_content:
+        failures.append(f"{global_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
+    if forbidden_marker in skill_content:
+        failures.append(
+            f"{global_skill}: 2-Global must internalize style/type/director capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/导演组/`"
+        )
+
+    for path in targets[1:]:
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8")
+        if forbidden_marker in content:
+            failures.append(f"{path}: should not reference deleted director-group contracts")
+
+
+def audit_detail_single_skill_contract(failures: list[str]) -> None:
+    detail_root = ROOT / "3-Detail"
+    detail_skill = detail_root / "SKILL.md"
+    if not detail_skill.exists():
+        return
+
+    forbidden_marker = ".codex/agents/aigc/制作组/"
+    targets = (
+        detail_skill,
+        detail_root / "_shared" / "IO_CONTRACT.md",
+        detail_root / "agents" / "openai.yaml",
+    )
+
+    refs_root = detail_root / "references"
+    ref_targets = sorted(refs_root.rglob("*.md")) if refs_root.exists() else []
+
+    skill_content = detail_skill.read_text(encoding="utf-8")
+    if "## Internal Capability Fusion Contract (Mandatory)" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
+    if forbidden_marker in skill_content:
+        failures.append(
+            f"{detail_skill}: 3-Detail must internalize former production-team capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/制作组/`"
+        )
+
+    for path in (*targets[1:], *ref_targets):
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8")
+        if forbidden_marker in content:
+            failures.append(f"{path}: should not reference deleted production-team contracts")
 
 
 def audit_stage_subagent_contracts(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
@@ -677,7 +743,10 @@ def main() -> int:
     stage_index, satellite_index, contract_mode = audit_registry(failures)
     audit_routes(contract_mode, failures)
     audit_runtime_alignment(contract_mode, failures)
-    audit_init_subagent_presence(failures)
+    audit_init_single_skill_contract(failures)
+    audit_planning_internal_skill_contract(failures)
+    audit_global_single_skill_contract(failures)
+    audit_detail_single_skill_contract(failures)
     if stage_index:
         audit_stage_subagent_contracts(stage_index, contract_mode, failures)
 

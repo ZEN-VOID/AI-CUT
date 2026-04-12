@@ -4,13 +4,18 @@
 
 ## 2026-04-12
 
+- `Case-20260412-AIGC-PLANNING-GROUPING-ZXY-SINGLE-SKILL`
+  - 按 `skill-知行合一` 将 `3-分组` 重写为单技能思行网络真源，并把旧 `规划组/分组.md` 的边界判断、回退升级、质量检查与输入输出合同吸收回本地 `SKILL.md`；同步删除 planning team 中的 `分组` 角色与 audit 依赖。
+  - 证据路径：
+    - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/SKILL.md`
+    - `scripts/aigc_skill_audit.py`
+
 - `Case-20260412-AIGC-PLANNING-GROUPING-SUBAGENT-GOVERNANCE-RESET`
   - 将 `3-分组` 从“leaf 合同 + 一个分组 agent 附注”重构为 stage-local parent skill，明确 shared planning team 只负责调度与 handoff matrix，`分组` specialist 只负责 `patch / note / report`。
   - 证据路径：
     - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
     - `.agents/skills/aigc/1-Planning/SKILL.md`
-    - `.codex/agents/aigc/规划组/team.md`
-    - `.codex/agents/aigc/规划组/分组.md`
 
 - `Case-20260412-AIGC-PLANNING-GROUPING-QUANTIZER-SOURCE-LAYER`
   - 新增 `grouping_quantizer.py`，把 `effective_text_chars / duration mapping / mixed-source recompute` 提升为脚本真源；同步让 validator 直接消费 quantizer 结果。

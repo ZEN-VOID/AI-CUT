@@ -21,6 +21,7 @@
 | `道具及状态` 被整句吞掉，无法收束 canonical prop | 抽取层 | 先做 clause 级拆分，再用 noun suffix 收束 prop name | 在抽取脚本固化 `prop_name + state` 二分结构 | `道具清单.json.props[]` 能稳定聚合同名道具 |
 | 研究层只有抽象评语，没有设计可消费字段 | 输出桥接层 | 强制输出 `structure_modules / material_and_finish / shot_route / physical_character` | 把 bridge 字段写成叶子技能主产物，而非可选 sidecar | `prop_design_bridge.json` 字段完整 |
 | 用户给的是 `3-Detail` 路径，但项目仍保留 `编导` 真源 | runtime 兼容层 | 支持双路径解析，优先命中用户给定路径 | 在 runner 中内建 `3-Detail <-> 编导` 回退，不要求用户改命令 | 同一命令可在两种项目布局中运行 |
+| 叶子合同必须依赖 references 才能看懂执行顺序 | 合同真源层 | 把输入锁定、抽取、聚合、研究、bridge、写回验证全部收回主 `SKILL.md` | 固化“1-清单的核心节点在主文档直写”规则 | 只读 `SKILL.md` 也能完整执行该叶子技能 |
 
 ## Repair Playbook
 
@@ -36,6 +37,7 @@
 - 只要上游已经把道具信息落在 `道具及状态`，设计阶段就不该再回到旧 markdown 分镜块里猜。
 - 对 `4-Design` 来说，研究不是终点；研究必须在同一轮里产出 bridge 字段，否则下游仍然会退回手工理解。
 - 用户显式给阶段路径时，叶子技能应优先兼容那个路径，而不是强迫用户接受仓内另一套 runtime 口径。
+- 对抽取型叶子技能来说，最稳的知行合一写法是把“抽取 -> 聚合 -> 研究 -> bridge -> 写回”直接写成主文档节点，而不是把关键执行顺序藏进 references。
 
 ## Case Log
 
@@ -55,3 +57,18 @@
   - `.agents/skills/aigc/4-Design/4-道具/1-清单/CONTEXT.md`
   - `.agents/skills/aigc/4-Design/4-道具/1-清单/scripts/run_prop_list_pipeline.py`
 - user_feedback_or_constraint: 用户明确要求“参照 AIGC-ZEN-VOID 的道具清单，但要匹配当前仓的 `director_episode_output.schema.json`，输入为 `projects/[项目名]/3-Detail/第N集.json`，输出为 `projects/[项目名]/4-Design/4-道具/1-清单/`”。
+
+### Case-20260412-AIGC-PROP-LIST-ZHIXING-REFRACTOR
+
+- milestone_type: source_contract_change
+- outcome: 将 `1-清单` 重构为知行合一叶子技能，主 `SKILL.md` 直接承载抽取、聚合、研究、bridge 与写回节点。
+- root_cause_or_design_decision: 旧版 `1-清单` 已有内容，但强依赖 `references/chain-of-thought.md` 与 `execution-flow.md` 才能看清真实执行顺序，不满足用户要求的“每个思维·执行节点足够细”。
+- final_fix_or_heuristic: 保留脚本、路径、输出结构与 fail code，不动机制；只把关键执行链收回主 `SKILL.md`，让节点槽位、着手面与返工门在主合同可单读。
+- prevention_or_replication_checklist:
+  - [x] 主文档已写明六个思行节点
+  - [x] 研究层和 bridge 不再依赖 references 才能理解
+  - [x] 经验层已记录“抽取型叶子技能主文档直写节点” heuristic
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/4-道具/1-清单/SKILL.md`
+  - `.agents/skills/aigc/4-Design/4-道具/1-清单/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求按 `$skill-知行合一` 重构 `4-道具` 相关子技能包，且关闭“骨架 / 细则分层”，要求逐节点细写。

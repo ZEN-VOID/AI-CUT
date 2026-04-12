@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 规划分组"
-  short_description: "由父 skill 统筹 shared planning team 的分组 specialist，并通过 quantizer/validator 写回 grouped script 与唯一总执行报告"
-  default_prompt: "Use $aigc-planning-grouping to keep the stage-local parent skill as the only execution and writeback owner: optionally dispatch the shared planning-team grouping specialist in background mode for boundary proposals, apply the scene-order and duration-strategy projection through the local quantizer, insert three-part group ids like `【episode-scene-group】` into `2-剧本/第N集.md`, write the canonical grouped script plus one shared `执行报告.md`, run validator-backed quant checks, and return a parent-consumable group handoff patch."
+  short_description: "以单技能直达执行方式完成 `3-分组`：吸收旧分组 agent 能力，在本地通过 quantizer/validator 写回 grouped script 与唯一总执行报告"
+  default_prompt: "Use $aigc-planning-grouping as the direct stage-local execution source for `3-分组`: lock `2-剧本/第N集.md` as the only upstream script, apply the scene-order and duration-strategy projection inside the local thinking-action network, generate stable three-part group ids like `【episode-scene-group】`, run `grouping_quantizer.py` and `validate_grouping_output.py`, write the canonical grouped script plus one shared `执行报告.md`, and return a parent-consumable handoff patch with a concise thinking-process summary."

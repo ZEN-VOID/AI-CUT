@@ -8,14 +8,17 @@ governance_tier: full
 
 ## 概述
 
-`1-分集` 是 `1-Planning` 下的叶子技能，负责把 `projects/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-剧本` 与下游 `2-Global` 生成稳定 handoff。
+`1-分集` 是 `1-Planning` 下的 direct leaf skill，负责把 `projects/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-剧本` 与下游 `2-Global` 生成稳定 handoff。
 
-本技能全面参照 `AIGC-ZEN-VOID` 的 `1-故事分集` 思路，但已经改写到 DREAMER 当前 runtime：
+本技能在内容与机制上继承当前 DREAMER 规划链既有配置：
 
-- 默认输入根是 `projects/<项目名>/Story/`
-- canonical 输出落在 `projects/<项目名>/1-Planning/1-分集/第N集.md`
-- 机读索引固定为 `projects/<项目名>/1-Planning/episode-split-plan.json`
-- 执行报告落在 `projects/<项目名>/1-Planning/1-分集/执行报告.md`
+- 默认输入根仍是 `projects/<项目名>/Story/`
+- canonical 输出仍落在 `projects/<项目名>/1-Planning/1-分集/第N集.md`
+- 机读索引仍固定为 `projects/<项目名>/1-Planning/episode-split-plan.json`
+- 执行报告仍固定为 `projects/<项目名>/1-Planning/1-分集/执行报告.md`
+- `P1 > P2 > P3`、VSM、字段主表、QA、`source_profile + bootstrap_output` handoff 仍为现行真源
+
+本轮重编排只改变合同表达方式，不改变业务边界：将“分集判断”改写为同一 `SKILL.md` 内的思行网络，使业务分析、执行步骤、汇流门禁与最终输出收束到单一真源。
 
 ## Skill Execution Rule (Mandatory)
 
@@ -23,18 +26,46 @@ governance_tier: full
 
 - skill 自身负责输入读取、边界裁决、`1-分集/第N集.md` 落盘、索引更新、执行报告汇总与校验
 - 父 `1-Planning` 只消费本技能返回的 handoff patch，不再维护一份平行的分集 agent 合同
+- 不得为 `1-分集` 再生成第二份 team、thinking sidecar 或并列执行真源
 
-## 功能描述
+## Business Requirement Analysis Contract (Mandatory)
 
-- 目标问题：把故事相关内容切到可承接 `2-剧本` 与导演阶段的逐集原文真源。
-- 目标用户：`aigc` 规划阶段执行者。
-- 交付结果：输出逐集原文真源、全剧集执行报告与机读分集索引，并产出 `source_profile + bootstrap_output` handoff。
+在进入分集步骤前，先锁定本技能的业务问题，而不是直接套用默认 step。
 
-## 共享前置合同（Mandatory）
+| analysis_slot | 当前结论 |
+| --- | --- |
+| `business_goal` | 把故事主源切成可供 `2-剧本` 与 `2-Global` 承接的逐集原文真源，并保留可追溯边界证据 |
+| `business_object` | `projects/<项目名>/Story/` 下的故事正文、manifest 索引与 init 种子 |
+| `constraint_profile` | 只切分不改写；不得越权创建 `2-Global/*.md` 或 `3-Detail/第N集.json`；必须保留 `source_profile` |
+| `success_criteria` | 输入范围可追溯、主路由唯一、边界有证据、逐集原文真源/机读索引/handoff 完整、QA 可回查 |
+| `non_goals` | 不做剧本改写、镜头结构化、导演 JSON 生成、节奏重排 |
+| `complexity_source` | 输入 readiness 判定、`P1>P2>P3` 路由选择、边界证据生成、机读索引与 handoff 收束 |
+| `topology_fit` | 前段串行锁定输入与 readiness，中段条件分支选择主路由，后段并行收束正文/索引/handoff，最终统一 QA 汇流 |
+| `step_strategy` | 采用“串行主干 + 条件分支 + 收束汇流”的单技能思行网络，而不是纯线性清单或额外 subagent |
+
+## Context Preload (Mandatory)
+
+加载顺序固定为：
+
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/1-Planning/SKILL.md + CONTEXT.md`
+4. 本 `SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
+6. `.agents/skills/aigc/_shared/story-source-contract.md`
+7. `.agents/skills/aigc/_shared/project-runtime-layout.md`
+8. `projects/<项目名>/0-Init/north_star.yaml`
+9. `projects/<项目名>/0-Init/init_handoff.yaml`
+10. `projects/<项目名>/Story/` 相关内容
+11. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+12. `templates/episode-split-plan.template.json`
+
+## Shared Canonical Sources (Mandatory)
 
 - 强制读取：`../_shared/IO_CONTRACT.md`
 - 强制读取：`.agents/skills/aigc/_shared/story-source-contract.md`
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
+- 强制读取：`templates/episode-split-plan.template.json`
 
 硬规则：
 
@@ -42,8 +73,9 @@ governance_tier: full
 2. 不得创建 `projects/<项目名>/2-Global/*.md` 或 `projects/<项目名>/3-Detail/第N集.json`。
 3. 不得把分镜/运镜/转场语言清洗成纯小说叙述；本阶段只切分，不改写。
 4. 必须把 `source_profile` 从 manifest 延续给父级规划 handoff。
+5. 思行裁决摘要只能压缩进 `执行报告.md` 与用户闭环，不得旁挂第二份 reasoning 真源。
 
-## 输入来源
+## Total Input Contract
 
 ### 必需输入
 
@@ -53,26 +85,109 @@ governance_tier: full
 
 ### 可选输入
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在，则作为索引与 `source_profile` 证据优先消费）
+- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+  - 若存在，作为索引、`coverage_scope` 与 `source_profile` 证据优先消费
 - 用户显式指定的增量范围
-- `projects/<项目名>/team.yaml` 与共享 `council-runtime`（当规划阶段启用顾问团时）
+- `projects/<项目名>/team.yaml` 与共享 `council-runtime`
+  - 仅在规划阶段启用顾问团时读取
 
 ### 禁止输入
 
 - 与故事正文无关的治理工件、执行案、提案或说明文档
 - 与当前项目无关的其他故事库文本
+- 任何要求本阶段直接输出导演或 detail 阶段真源的额外指令
 
-## 路由优先级（Mandatory）
+### 输入处理原则
+
+1. 用户显式指定路径或范围时，用户指定优先。
+2. 用户未指定时，只能从 `projects/<项目名>/Story/` 扫描有效正文。
+3. manifest 只承担索引与证据，不替代故事正文主源。
+4. readiness 未通过时，不得假装继续正式分集。
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["锁定 Story 输入与 init 种子"] --> B["判定 readiness 与 coverage"]
+    B --> C["抽取 source_profile"]
+    C --> D["在 P1 > P2 > P3 中锁定唯一主路由"]
+    D --> E["生成候选边界并排除弱候选"]
+    E --> F["写逐集原文真源"]
+    E --> G["更新 split plan 与 handoff"]
+    F --> H["QA 汇流门"]
+    G --> H
+    H --> I["输出执行报告 + 父级 handoff patch"]
+```
+
+```mermaid
+flowchart TD
+    A["Route Gate"] --> B{{"V-READINESS"}}
+    B -->|"blocked"| C["停止执行并返回缺口"]
+    B -->|"incremental/full_season"| D{{"主路由"}}
+    D -->|"P1 显式边界 / preset"| E["R-PRESET"]
+    D -->|"P2 天然结构"| F["R-STRUCT"]
+    D -->|"P3 戏剧启发式"| G["R-HEURISTIC"]
+    E --> H["生成候选边界"]
+    F --> H
+    G --> H
+    H --> I{{"coverage + source_profile + output pass?"}}
+    I -->|"no"| J["回到对应节点返工"]
+    I -->|"yes"| K["进入最终写回与 QA"]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> IntakeLocked
+    IntakeLocked --> Ready
+    IntakeLocked --> Blocked
+    Ready --> Routed
+    Routed --> BoundarySolved
+    BoundarySolved --> WritingOutputs
+    WritingOutputs --> Converged
+    Converged --> Finalized
+    Blocked --> [*]
+    Finalized --> [*]
+```
+
+```mermaid
+graph LR
+    A["Story/ + north_star + init_handoff"] --> B["FIELD-SPLIT-01 输入清单"]
+    B --> C["FIELD-SPLIT-02 readiness"]
+    C --> D["FIELD-SPLIT-03 主路由决议"]
+    D --> E["FIELD-SPLIT-04 候选边界"]
+    E --> F["FIELD-SPLIT-05 第N集.md"]
+    E --> G["FIELD-SPLIT-06 episode-split-plan.json"]
+    C --> H["FIELD-SPLIT-07 handoff"]
+    F --> I["FIELD-SPLIT-08 QA 闭环"]
+    G --> I
+    H --> I
+```
+
+## Topology Contract (Mandatory)
+
+### Topology Fit
+
+本技能采用 `混合型思行网络`：
+
+1. 串行主干：
+   - 锁输入
+   - 判 readiness
+   - 抽 `source_profile`
+2. 条件分支：
+   - 在 `P1 > P2 > P3` 中选择唯一主路由
+3. 收束汇流：
+   - 逐集真源写回
+   - 机读索引更新
+   - 父级 handoff 生成
+   - QA 汇流
+
+### Route Priority (Mandatory)
 
 `P1 显式边界 > P2 源文本天然结构 > P3 戏剧启发式`
-
-说明：
 
 - `P1`：用户显式指定范围、manifest 已登记的锁轴/预设锚点、或 init 种子里明确给出的集边界
 - `P2`：章节/幕/场/seq/镜头组等天然结构边界
 - `P3`：在 `P1/P2` 不足时，以冲突闭环、悬念点、代价显现点与覆盖窗口做启发式切分
-
-## 变量场景识别（VSM）
 
 ### Variable Register
 
@@ -93,7 +208,54 @@ governance_tier: full
 | C3-STRUCT | `V-STRUCT-SIGNAL=clear` | 沿天然结构切分 | C4-HEURISTIC |
 | C4-HEURISTIC | `V-STRUCT-SIGNAL in {partial,chaotic}` | 用戏剧启发式补位 | 手工澄清 |
 
-## 输出合同
+## Thinking-Action Node Contract (Mandatory)
+
+每个关键节点必须同时描述判断与动作，至少覆盖以下槽位：
+
+| slot | 要求 |
+| --- | --- |
+| `node_id` | 稳定节点标识 |
+| `objective` | 该节点要解决的判断/动作目标 |
+| `inputs` | 进入该节点的输入与依赖 |
+| `actions` | 该节点真正执行的动作 |
+| `evidence` | 该节点留下的证据、产物或验证结果 |
+| `route_out` | 成功、失败、分支时分别流向何处 |
+| `gate` | 是否允许进入最终汇流 |
+
+## Thinking-Action Node Network
+
+| node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| N1-INPUT-LOCK | S1 | `FIELD-SPLIT-01` | 锁定唯一故事输入范围 | 读取 `Story/`、`north_star`、`init_handoff`、manifest | 输入清单、coverage 范围 | 成功 -> N2；输入漂移 -> 返工 S1 | 输入真源唯一后方可继续 |
+| N2-READINESS-GATE | S2 | `FIELD-SPLIT-02` | 判断是否允许正式分集 | 解析 readiness 与 split_scope | blocked / incremental / full_season 结论 | blocked -> 结束；可执行 -> N3 | blocked 不得进入写回 |
+| N3-SOURCE-PROFILE | S3 | `FIELD-SPLIT-07` | 保留 `source_profile` 与上下游约束 | 从 manifest 或保守推断抽取 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes / preset_registry` | `source_profile` 草案 | 成功 -> N4；缺口 -> 回到 S1/S2 | handoff 字段成形后方可裁路 |
+| N4-ROUTE-SELECT | S4 | `FIELD-SPLIT-03` | 在 `P1>P2>P3` 中锁定唯一主路由 | 基于 VSM 与 route priority 选择 R-PRESET / R-STRUCT / R-HEURISTIC | 主路由决议、放弃理由 | 成功 -> N5；冲突 -> 回到 S2-S4 | 主路由唯一才可求边界 |
+| N5-BOUNDARY-SOLVE | S5 | `FIELD-SPLIT-04` | 生成边界并排除弱候选 | 形成候选边界、排除理由、coverage 边界 | 候选边界表、boundary_summary | 成功 -> N6/N7；弱边界 -> 回到 S4/S5 | 必须有结构或戏剧证据 |
+| N6-EPISODE-WRITEBACK | S6 | `FIELD-SPLIT-05` | 把边界切成逐集原文真源 | 生成 `1-分集/第N集.md` 与执行报告正文区块 | 逐集原文真源、报告区块 | 成功 -> N8；结构错误 -> 回到 S5/S6 | 正文文件结构合法 |
+| N7-INDEX-HANDOFF | S7 | `FIELD-SPLIT-06` `FIELD-SPLIT-07` | 更新机读索引并产出父级 patch | 读取模板、更新 `episode-split-plan.json`、生成 handoff patch | 索引、`source_profile + bootstrap_output + upstream_paths` | 成功 -> N8；字段缺失 -> 回到 S3/S5/S7 | 索引与 handoff 一致 |
+| N8-QA-CONVERGENCE | S8 | `FIELD-SPLIT-08` | 收束全部证据并给出完成或阻塞结论 | 校验 coverage、顺序、输出结构、handoff、失败码 | `执行报告.md`、PASS/FAIL、返工入口 | pass -> Final；fail -> 对应返工节点 | 仅当字段和输出全部达标时允许结案 |
+
+## Convergence Contract (Mandatory)
+
+只有同时满足以下条件，`1-分集` 才允许宣布完成：
+
+1. `FIELD-SPLIT-01` 到 `FIELD-SPLIT-08` 全部已落位
+2. `V-READINESS` 不是 `blocked`
+3. 主路由唯一且遵守 `P1>P2>P3`
+4. 候选边界具备结构或戏剧证据
+5. `第N集.md`、`episode-split-plan.json`、`source_profile + bootstrap_output` handoff 一致
+6. `执行报告.md` 已写明验收结论、失败码与返工入口
+
+若未满足：
+
+- 输入/coverage 问题 -> 回到 `N1-INPUT-LOCK`
+- readiness 问题 -> 回到 `N2-READINESS-GATE`
+- route/boundary 问题 -> 回到 `N4-ROUTE-SELECT` 或 `N5-BOUNDARY-SOLVE`
+- 输出/handoff 问题 -> 回到 `N6-EPISODE-WRITEBACK` 或 `N7-INDEX-HANDOFF`
+
+## One-Shot Output Contract (Mandatory)
+
+`1-分集` 的一次性输出不是多个平行半成品，而是同一 bundle 内的四类 canonical 结果：
 
 ### A. 逐集原文真源（Mandatory）
 
@@ -131,6 +293,11 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 ## 验收结论与返工项
 ```
 
+规则：
+
+- 思行裁决摘要应压缩进 `主路由决议 / 候选边界 / 验收结论与返工项`
+- 不额外挂第二份思考过程 sidecar
+
 ### C. 机读索引（Mandatory）
 
 `projects/<项目名>/1-Planning/episode-split-plan.json`
@@ -150,18 +317,6 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 - `bootstrap_output`
 - `boundary_summary`
 - `upstream_paths`
-
-## 执行流程
-
-1. 读取 `projects/<项目名>/Story/` 相关内容，并按需读取 `story-source-manifest.yaml`。
-2. 若 manifest 存在，则先锁定 `primary_story_source`、coverage 与 readiness；若不存在，则基于故事目录做保守输入判定。
-3. 解析 `source_type / preset_retention_mode / detail_expansion_mode / locked_preset_axes / preset_registry`，形成 `source_profile`；manifest 缺失时只允许保守推断。
-4. 在 `P1 > P2 > P3` 中锁定唯一主路由。
-5. 仅在 manifest 的 `coverage_scope` 内生成候选边界，不越界猜测。
-6. 生成 `projects/<项目名>/1-Planning/1-分集/第N集.md`，并把各集边界证据、readiness 判定、覆盖率校验与 handoff 汇总进唯一的全剧集执行报告。
-7. 用模板更新 `projects/<项目名>/1-Planning/episode-split-plan.json`。
-8. 生成父级 handoff patch，等待 `1-Planning` 聚合与下游消费。
-9. 做覆盖率、顺序一致性与锁轴保护校验。
 
 ## Quality And Audit Contract
 
@@ -184,37 +339,37 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 | --- | --- | --- | --- | --- | --- |
 | FIELD-SPLIT-01 | 输入清单 | 列出 `projects/<项目名>/Story/` 命中内容与有效覆盖范围 | S1 | 输入真源一致性 | FAIL-SPLIT-01 |
 | FIELD-SPLIT-02 | readiness 判定 | 明确 blocked / incremental / full_season / unknown | S2 | readiness 正确性 | FAIL-SPLIT-02 |
-| FIELD-SPLIT-03 | 主路由决议 | 明确 `P1/P2/P3` 的唯一主路由与放弃理由 | S3 | 路由正确性 | FAIL-SPLIT-03 |
-| FIELD-SPLIT-04 | 候选边界 | 给出边界证据与被排除候选 | S4 | 边界价值 | FAIL-SPLIT-04 |
-| FIELD-SPLIT-05 | 原文真源文件 | 输出 `1-Planning/1-分集/第N集.md` | S5 | 输出完整性 | FAIL-SPLIT-05 |
-| FIELD-SPLIT-06 | 机读索引 | 更新 `episode-split-plan.json` | S6 | 机读一致性 | FAIL-SPLIT-06 |
-| FIELD-SPLIT-07 | 父级 handoff | 产出 `source_profile + bootstrap_output` patch | S7 | handoff 可消费性 | FAIL-SPLIT-07 |
+| FIELD-SPLIT-03 | 主路由决议 | 明确 `P1/P2/P3` 的唯一主路由与放弃理由 | S4 | 路由正确性 | FAIL-SPLIT-03 |
+| FIELD-SPLIT-04 | 候选边界 | 给出边界证据与被排除候选 | S5 | 边界价值 | FAIL-SPLIT-04 |
+| FIELD-SPLIT-05 | 原文真源文件 | 输出 `1-Planning/1-分集/第N集.md` | S6 | 输出完整性 | FAIL-SPLIT-05 |
+| FIELD-SPLIT-06 | 机读索引 | 更新 `episode-split-plan.json` | S7 | 机读一致性 | FAIL-SPLIT-06 |
+| FIELD-SPLIT-07 | 父级 handoff | 产出 `source_profile + bootstrap_output` patch | S3/S7 | handoff 可消费性 | FAIL-SPLIT-07 |
 | FIELD-SPLIT-08 | QA 闭环 | 写验收结论、失败码与返工入口 | S8 | 闭环完整性 | FAIL-SPLIT-08 |
 
-## Thought Pass Map
+### Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | S1 | FIELD-SPLIT-01 | 输入范围是否唯一且可追溯 | 读取 `Story/` 与 manifest（若有） | 临时猜路径 |
 | S2 | FIELD-SPLIT-02 | 当前能否进入分集 | 判定 blocked / incremental / full_season | 忽略 readiness |
-| S3 | FIELD-SPLIT-03 | 应走哪个主路由 | 在 `P1>P2>P3` 中锁定唯一主路由 | 多路并列无裁决 |
-| S4 | FIELD-SPLIT-04 | 哪些切点成立 | 生成候选边界与排除理由 | 只有字数切分，没有证据 |
-| S5 | FIELD-SPLIT-05 | 如何落逐集原文真源 | 写 `1-Planning/1-分集/第N集.md` 与报告 | 直接写到下游剧本主稿 |
-| S6 | FIELD-SPLIT-06 | 如何保留机读索引 | 读取模板并更新 `episode-split-plan.json` | 手写随意字段 |
-| S7 | FIELD-SPLIT-07 | 父级需要什么 handoff | 输出 `source_profile + bootstrap_output` patch | 漏掉关键 handoff |
+| S3 | FIELD-SPLIT-07 | 上下游约束是什么 | 解析并保留 `source_profile` | handoff 字段不全 |
+| S4 | FIELD-SPLIT-03 | 应走哪个主路由 | 在 `P1>P2>P3` 中锁定唯一主路由 | 多路并列无裁决 |
+| S5 | FIELD-SPLIT-04 | 哪些切点成立 | 生成候选边界与排除理由 | 只有字数切分，没有证据 |
+| S6 | FIELD-SPLIT-05 | 如何落逐集原文真源 | 写 `1-Planning/1-分集/第N集.md` 与报告 | 直接写到下游剧本主稿 |
+| S7 | FIELD-SPLIT-06 / 07 | 如何保留机读索引并交接父级 | 读取模板更新索引并输出 handoff | 漏掉模板或关键字段 |
 | S8 | FIELD-SPLIT-08 | 如何证明完成或阻塞 | 写 QA、失败码与返工入口 | 只有结果没有闭环 |
 
-## Pass Table
+### Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
 | FIELD-SPLIT-01 | 输入来自 `Story/`，且 coverage 可追溯 | FAIL-SPLIT-01 | S1 |
 | FIELD-SPLIT-02 | readiness 判定与 manifest 或用户显式范围一致 | FAIL-SPLIT-02 | S2 |
-| FIELD-SPLIT-03 | 主路由唯一且遵守 `P1>P2>P3` | FAIL-SPLIT-03 | S3 |
-| FIELD-SPLIT-04 | 候选边界具备结构或戏剧证据 | FAIL-SPLIT-04 | S4 |
-| FIELD-SPLIT-05 | `1-Planning/1-分集/第N集.md` 结构合法 | FAIL-SPLIT-05 | S5 |
-| FIELD-SPLIT-06 | `episode-split-plan.json` 与逐集主稿一致 | FAIL-SPLIT-06 | S6 |
-| FIELD-SPLIT-07 | handoff 含 `source_profile` 与 `bootstrap_output` | FAIL-SPLIT-07 | S7 |
+| FIELD-SPLIT-03 | 主路由唯一且遵守 `P1>P2>P3` | FAIL-SPLIT-03 | S4 |
+| FIELD-SPLIT-04 | 候选边界具备结构或戏剧证据 | FAIL-SPLIT-04 | S5 |
+| FIELD-SPLIT-05 | `1-Planning/1-分集/第N集.md` 结构合法 | FAIL-SPLIT-05 | S6 |
+| FIELD-SPLIT-06 | `episode-split-plan.json` 与逐集主稿一致 | FAIL-SPLIT-06 | S7 |
+| FIELD-SPLIT-07 | handoff 含 `source_profile` 与 `bootstrap_output` | FAIL-SPLIT-07 | S3/S7 |
 | FIELD-SPLIT-08 | QA 含失败码、返工入口与 triad closure | FAIL-SPLIT-08 | S8 |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -225,6 +380,7 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 - 把非故事正文材料当主故事源
 - 忽略 storyboard / hybrid 文本中的预设锁轴
 - 直接从 `1-分集` 创建 `2-Global/*.md` 或 `3-Detail/第N集.json`
+- 只改标题或步骤顺序，却没有把业务分析、节点动作、汇流门和输出收束保持同源
 
 必经链路：
 
@@ -234,11 +390,14 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 - `Rule Source`
   - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
+  - `.agents/skills/aigc/1-Planning/1-分集/CONTEXT.md`
   - `../_shared/IO_CONTRACT.md`
   - `.agents/skills/aigc/_shared/story-source-contract.md`
+  - `templates/episode-split-plan.template.json`
 - `Meta Rule Source`
   - `AGENTS.md`
   - `.agents/skills/aigc/SKILL.md`
+  - `.agents/skills/aigc/1-Planning/SKILL.md`
   - `.agents/skills/aigc/_shared/project-runtime-layout.md`
 
 面向用户的闭环固定返回：
@@ -250,6 +409,8 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 ## Completion Criteria
 
 - 已从 `projects/<项目名>/Story/` 锁定输入范围，并在 manifest 存在时完成索引对齐。
+- 已完成 business requirement analysis，并明确当前拓扑为何是“串行主干 + 条件分支 + 汇流”。
 - 已产出 `projects/<项目名>/1-Planning/1-分集/第N集.md`、全剧集执行报告与机读索引。
 - 已形成可供父 skill 聚合的 `source_profile + bootstrap_output` handoff。
 - 已完成 QA，并能明确说明本轮是 blocked / incremental / full_season。
+- 不存在平行 team、平行 reasoning sidecar 或第二份分集真源。

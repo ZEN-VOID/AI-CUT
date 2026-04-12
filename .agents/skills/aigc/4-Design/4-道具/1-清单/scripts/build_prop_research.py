@@ -219,6 +219,69 @@ def infer_shot_route(prop_name: str) -> dict:
     }
 
 
+def infer_narrative_significance(
+    prop_name: str,
+    functions: Sequence[str],
+    states: Sequence[str],
+    rows: Sequence[dict],
+    shot_route: dict,
+) -> dict:
+    primary_function = functions[0] if functions else "story_support"
+    function_label = FUNCTION_LABELS.get(primary_function, primary_function)
+    route_type = str(shot_route.get("route_type", "standard"))
+    evidence_count = len(rows)
+    meaningful_states = [item for item in states if item and item != "unknown"]
+    has_state_change = len(meaningful_states) >= 2
+
+    level = "background"
+    reason_parts: List[str] = []
+
+    if primary_function in {"authority", "token_or_memory"}:
+        level = "critical"
+        reason_parts.append("道具本身承担身份确认、信物回收或记忆触发")
+    elif primary_function in {"combat_or_restraint", "illumination"} and (evidence_count >= 2 or route_type == "macro"):
+        level = "notable"
+        reason_parts.append("道具直接参与动作推进或情绪照明，不只是环境陈设")
+    elif primary_function == "transport_or_space" and evidence_count >= 3:
+        level = "notable"
+        reason_parts.append("道具持续定义场域边界或行动限制")
+
+    if route_type == "macro" and level == "background":
+        level = "notable"
+        reason_parts.append("镜头路径要求近景/特写可读，已具备被重点设计的必要性")
+
+    if has_state_change:
+        reason_parts.append("跨镜头状态变化需要连续保留，不能被设计阶段抹平")
+
+    continuity_pressure = "high" if level == "critical" or has_state_change else "medium" if level == "notable" else "low"
+
+    if level == "critical":
+        visual_obligation = f"{prop_name}必须按英雄道具处理，确保关键轮廓、局部纹样和状态痕迹在近景/特写中一眼可辨。"
+    elif level == "notable":
+        visual_obligation = f"{prop_name}需要保留功能端、受力端与关键磨损，让观众能迅速读到它为何重要。"
+    else:
+        visual_obligation = f"{prop_name}保持功能可读即可，不应喧宾夺主，但也不能被弱化成无功能摆件。"
+
+    if meaningful_states:
+        continuity_guard = f"延续“{' / '.join(meaningful_states[:2])}”这一状态线索，避免跨镜头失真。"
+    else:
+        continuity_guard = "保持功能轮廓和主要使用痕迹的连续性。"
+
+    reason = "；".join(reason_parts) if reason_parts else "当前证据更接近一般功能道具，不构成额外叙事负载。"
+    return {
+        "is_special": level in {"critical", "notable"},
+        "level": level,
+        "story_function": function_label,
+        "reason": reason,
+        "visual_obligation": visual_obligation,
+        "continuity_guard": continuity_guard,
+        "evidence_count": evidence_count,
+        "state_change_required": has_state_change,
+        "route_type": route_type,
+        "anchor_states": meaningful_states[:3],
+    }
+
+
 def compose_analysis_text(prop: dict, rows: Sequence[dict], group_index: Dict[str, dict]) -> str:
     parts = [prop["canonical_name"], prop["canonical_name"]]
     for row in rows:
@@ -343,6 +406,13 @@ def build_research_payload(catalog: dict) -> Tuple[dict, dict]:
             materials=material_candidates,
             states=states,
         )
+        narrative_significance = infer_narrative_significance(
+            prop_name=prop_name,
+            functions=function_candidates,
+            states=states,
+            rows=rows,
+            shot_route=shot_route,
+        )
         display_profile = build_display_profile(
             prop_name=prop_name,
             materials=material_candidates,
@@ -380,7 +450,11 @@ def build_research_payload(catalog: dict) -> Tuple[dict, dict]:
                 f"function={FUNCTION_LABELS.get(function_candidates[0], function_candidates[0])} / "
                 f"route={shot_route['route_type']}"
             ),
+            "narrative_significance": narrative_significance,
         }
+
+        if narrative_significance["is_special"]:
+            design_bridge_profile["negative_constraints"].append("不要把具有特殊叙事意义的道具降格为普通背景摆件")
 
         research_props.append(
             {
@@ -408,6 +482,7 @@ def build_research_payload(catalog: dict) -> Tuple[dict, dict]:
                 },
                 "design_bridge_profile": design_bridge_profile,
                 "display_profile": display_profile,
+                "narrative_significance": narrative_significance,
                 "chronicle": chronicle,
             }
         )
@@ -425,6 +500,7 @@ def build_research_payload(catalog: dict) -> Tuple[dict, dict]:
                 "physical_character": design_bridge_profile["physical_character"],
                 "negative_constraints": design_bridge_profile["negative_constraints"],
                 "display_profile": display_profile,
+                "narrative_significance": narrative_significance,
             }
         )
 

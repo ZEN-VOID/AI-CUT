@@ -4,75 +4,101 @@
 
 - 本文件是 `4-Design/1-场景/2-设计` 的经验层知识库，不是过程日志。
 - 调用本子技能时，应在 `aigc -> 4-Design -> 1-场景` 根链之后加载本文件。
+- 本技能当前已取消 `references/` 规范载体，也不再依赖 `.codex/agents/aigc/设计组/场景设计/`。
 
 ## Context Health
 
-- soft_limit_chars: 40000
-- hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
-- status: ok
+<!-- CONTEXT_HEALTH_START -->
+```yaml
+monitor_version: 1
+soft_limit_chars: 40000
+hard_limit_chars: 80000
+soft_limit_cases: 80
+hard_limit_cases: 140
+current_chars: 5017
+current_lines: 104
+current_cases: 3
+status: ok
+recommended_action: keep-target-scoped-updates
+last_checked_at: 2026-04-12T00:00:00-07:00
+```
+<!-- CONTEXT_HEALTH_END -->
 
 ## Type Map
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 绕过 `1-清单` 直接从导演 JSON 发明场景设计 | 输入真源层 | 先回到 `1-清单` 产出 scene catalog，再继续设计 | 在 `execution-flow` 固化 `scene catalog` 为首选输入 | `2-设计` 不再重建对象池 |
-| subagents 各自输出平行主稿，父 skill 无法收束 | handoff 合同层 | 强制只返 `agents_plan + patch / note / report` | 在 team 合同与 agent 合同中固化 `parent writeback only` | 只有父 skill 写最终设计文件 |
-| 场景设计只剩风格词堆，没有空间结构与镜头锚点 | 字段设计层 | 回到模板字段，强制补齐空间原型、结构、陈设、动线、镜头 | 在模板与 Field Master 中锁定最小字段集 | 场景卡可直接支撑下游消费 |
-| reviewer / auditor 缺位，场景设计断开全局风格与导演意图 | 审计闭环层 | 补 `审景师` 与 `真源审计` 两道 gate | 在 team.md 固化 mixed tranche + veto 规则 | 设计稿可给出 review/audit trace |
-| 输出仍沿用旧仓 `output/影片/...` 口径 | runtime 落点层 | 改回 `projects/<项目名>/4-Design/1-场景/2-设计/` | 在 `output-template` 与 `openai.yaml` 固化当前路径 | 产物落点符合当前仓合同 |
+| 仍从 `3-Detail` 直接发明场景设计 | 输入真源层 | 回退到 `scene catalog -> 2-Global -> optional detail` 的输入顺序 | 在 `SKILL.md` 的 `Total Input Contract` 与 `Field Master` 固化第一输入根 | 不再跳过 `1-清单` |
+| 规范内容再次分裂到 `references/*` 或外置场景设计 agent | 真源治理层 | 把流程、节点、判型与 gate 全部收回 `SKILL.md` | 在 `Legacy Migration Mapping` 固化“旧载体已内联并删除” | 技能目录不再残留第二真源 |
+| 场景设计只剩风格词，没有空间/建筑/布景实义 | 能力拆解层 | 回到 `D3-D5`，按空间、建筑、布景三条能力链重做 | 在 `Thinking-Action Node Contract` 固化每链的着手面 | 设计卡具备可拍、可搭、可消费细节 |
+| review 或 audit 缺位，直接写回 | 汇流门层 | 阻止写回，补跑 `D7-D8` 并按返工入口回退 | 在 `Convergence Contract` 固化双重 gate | `场景设计.json` 总带最小 trace |
+| `panel_handoff` 或 `final_scene_prompt` 仍需下游重猜 | 下游接口层 | 回到 `D6` 重新整合 candidate、prompt 与 handoff | 在 `One-Shot Output Contract` 固化下游最小接口 | `3-面板 / 5-Image / 6-Video` 可直接继续消费 |
 
 ## Repair Playbook
 
-1. 先检查 `1-清单/第N集.json` 是否存在且可用。
-2. 再检查 `2-Global` 的全局风格 / 类型指导 / 导演意图是否齐全。
-3. 然后检查 `mission_brief` 和 `scene_dispatch_plan` 是否只命中本轮需要的场景。
-4. 再检查 specialist patch 是否能被父 skill 聚合进模板字段。
-5. 最后检查 `审景师` 与 `真源审计` 是否留下 review / audit note。
+1. 先确认问题属于输入真源、能力拆解、聚合收束、review gate、audit gate 还是下游 handoff。
+2. 若输入根错，立刻回到 `scene catalog`，停止从导演 JSON 自由发挥。
+3. 若内容空泛，优先检查 `D3-D5` 是否被混写或跳步。
+4. 若写回异常，优先检查 `D7-D8` 是否被跳过，以及路径是否仍在 `projects/<项目名>/4-Design/1-场景/2-设计/`。
+5. 若发现旧 `references/*` 或 `.codex/agents/aigc/设计组/场景设计/*` 回链，视为源层回退，直接修主合同而不是补兼容文案。
 
 ## Reusable Heuristics
 
-- 场景设计最稳的输入顺序是：先 scene catalog，再全局风格，再回看导演镜头证据；不要把这三层反过来。
-- `设计统筹` 负责缩范围，`空间逻辑/建筑设计师/布景师` 负责补字段，`审景师/真源审计` 负责拦漂移；这三层不能混写。
-- 场景卡对下游最有价值的不是辞藻，而是“空间怎么搭、镜头怎么看、哪些误读必须禁止”。
-- 只要模板字段还没锁稳，就不要让 subagents 直接写整篇主稿。
-- 对场景设计来说，`agents_plan` 适合承载 dispatch plan、字段补位顺序与审景返工摘要；canonical 设计稿仍只能由父 skill 聚合写回。
+- 对场景设计来说，最稳的输入顺序永远是：先对象池，再导演约束，再命中镜头补证据。
+- 真正高质量的场景设计不是“多写点形容词”，而是让空间、建筑、布景三条链各自负责不同层面的确定性。
+- `review -> audit -> writeback` 不能压成一句“复核通过”；必须显式区分内容复核和真源审计。
+- 当用户要求“每个思行节点一步一步足够细”，最有效的做法不是再长角色文档，而是把着手面直接固化进节点 playbook。
+- 对“这个场景像什么”不要只给抽象风格词，先判定 `reference_anchor` 是作品场景、现实场所、历史母题，还是只能在题材边界内做 `bounded_extrapolation`。
+- “大胆畅想”不能脱离约束单独存在；最稳的写法是先在 `D4` 锁住历史文化和结构边界，再在 `D5` 把想象增量落成具体可见物与标志性元素。
+- `templates/scene-design-card.md` 可以保留，因为它是落盘模板；但凡字段主表、workflow、判型或 output contract 跑到别的文档里，第二真源就会重新长出来。
 
 ## Case Log
 
-### Case-20260412-AIGC-SCENE-DESIGN-SUBAGENT-UPGRADE
+### Case-20260412-AIGC-SCENE-DESIGN-SINGLE-SOURCE-ELEVATION
 
 - milestone_type: source_contract_change
-- outcome: 把空壳的 `.agents/skills/aigc/4-Design/1-场景/2-设计` 升级为由父 skill 收束、场景设计组 subagents 分工的可执行子技能包。
-- root_cause_or_design_decision: 目录先前只有空壳，没有 `SKILL.md / CONTEXT.md / CHANGELOG.md / agents/openai.yaml`，同时场景设计组角色文档也为空，导致 `1-清单` 虽然已把场景对象池交给 `2-设计`，但缺少接手合同。
-- final_fix_or_heuristic: 建立父 skill、team.md、角色 agent docs、模板与 references，确保输入沿 `scene catalog -> global style -> director evidence` 收束，输出沿 `patch -> synthesis -> review/audit -> canonical writeback` 闭环。
+- outcome: 将 `4-Design/1-场景/2-设计` 从“`SKILL.md + references/* + 外置场景设计组`”重构为“知行合一单技能真源”。
+- root_cause_or_design_decision: 用户明确要求“内容和机制上全量参照现有配置，但根据知行合一的规范进行编排”，并指定 `复杂链路的骨架 / 细则分层=false`，同时废弃 `.codex/agents/aigc/设计组/场景设计`。旧结构把核心规则分散在 `SKILL.md`、四份 `references` 和六个 agent 文档中，已形成平行真源。
+- final_fix_or_heuristic: 将六个角色能力面、四份 references 的规范内容、并发拓扑、变量判型、输出骨架与双重 gate 全部并入同一 `SKILL.md`，只保留 `templates/scene-design-card.md` 作为落盘模板。
 - prevention_or_replication_checklist:
-  - [x] `2-设计` 主合同已补齐
-  - [x] team 与角色合同已落盘
-  - [x] `CHANGELOG.md` 与 `agents/openai.yaml` 已补齐
-  - [x] 场景设计卡模板已成为唯一字段真源
+  - [x] `references/*` 规范内容已内联到 `SKILL.md`
+  - [x] 场景设计组旧 agent 真源已删除
+  - [x] `CONTEXT.md` 已改为只保留经验层
+  - [x] `agents/openai.yaml` 已改为单技能口径
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
   - `.agents/skills/aigc/4-Design/1-场景/2-设计/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/1-场景/2-设计/references/chain-of-thought.md`
-  - `.codex/agents/aigc/设计组/场景设计/team.md`
-- user_feedback_or_constraint: 用户要求基于 `skill-subagents` 规范，结合 `brainstorming` 与 `senior-prompt-engineer`，把当前主题系统性重构为 subagents 执行思考、父 skill 统筹输入输出的结构。
+  - `.agents/skills/aigc/4-Design/1-场景/2-设计/CHANGELOG.md`
+  - `.agents/skills/aigc/4-Design/1-场景/2-设计/agents/openai.yaml`
+- user_feedback_or_constraint: 用户要求“每一个思维·执行节点从哪些方面着手，一步一步要足够细致，确保高品质”。
 
-### Case-20260412-AIGC-SCENE-DESIGN-AGENTS-PLAN-ALIGNMENT
+### Case-20260412-AIGC-SCENE-DESIGN-NODE-DETAIL-HARDENING
 
 - milestone_type: source_contract_change
-- outcome: 将场景设计链的 subagent handoff 从 patch-only 语义升级为 `agents_plan + patch / note / report`。
-- root_cause_or_design_decision: `1-Planning / 2-Global / 3-Detail` 已切到“subagents 负责思考计划、skills 负责执行闭环”的统一口径，但场景设计链仍停留在 patch-only 叙述，导致阶段间 handoff 语义不一致。
-- final_fix_or_heuristic: 同步更新 `2-设计/SKILL.md`、`references/chain-of-thought.md`、team 与角色入口元数据，明确 `agents_plan` 只承载 dispatch 计划、字段补位顺序与返工摘要，不冒充 canonical 设计稿。
+- outcome: 为场景设计的每个关键思行节点补齐了细化着手面、返工条件与最小证据位。
+- root_cause_or_design_decision: 仅有“设计统筹 -> 三 specialist -> review/audit”的粗拓扑还不足以保证高质量；如果不把每个节点从哪些方面着手写细，执行者很容易回到抽象文案或经验性跳步。
+- final_fix_or_heuristic: 在 `Thinking-Action Node Contract` 中把 `D0-D8` 分别拆为清晰的观察面、决策面、动作面与 gate。
 - prevention_or_replication_checklist:
-  - [x] 父 skill 已改为 agents-plan-aware handoff
-  - [x] team 与 `设计统筹` 已补 agents_plan 输出口径
-  - [x] role frontmatter 已同步 `allowed_return_types`
-  - [x] 经验层已登记新 handoff 语义
+  - [x] 每个节点都具备 `objective / actions / evidence / route_out / gate`
+  - [x] `D3-D5` 已写明具体着手维度
+  - [x] `D7-D8` 已区分内容复核与真源审计
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/1-场景/2-设计/references/chain-of-thought.md`
-  - `.codex/agents/aigc/设计组/场景设计/team.md`
-  - `.codex/agents/aigc/设计组/场景设计/设计统筹.md`
-- user_feedback_or_constraint: 用户要求把 `1-Planning` 已收口的 agents-plan 口径继续推广到后续阶段，避免 stage 间 subagent 合同分裂。
+  - `.agents/skills/aigc/4-Design/1-场景/2-设计/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求“每一个思维·执行节点从哪些方面着手，一步一步要足够细致”。
+
+### Case-20260412-AIGC-SCENE-DESIGN-REFERENCE-ICONIC-HARDENING
+
+- milestone_type: source_contract_change
+- outcome: 将“作品参照、想象外扩、历史文化框架、标志性元素”固化进场景设计思行节点，而不是留给执行者临场发挥。
+- root_cause_or_design_decision: 用户要求补入“这个场景参照哪部作品的哪个场景、或大胆畅想时应该是什么样子、是否需要服从既定历史文化框架、标志性元素是什么”等判断维度；若这些问题只写成补充提示，执行时会再次漂移成抽象灵感，而不能稳定落到结构和布景字段。
+- final_fix_or_heuristic: 将四类判断拆解并嵌入 `D2 -> D4 -> D5 -> D6`：`D2` 建立参照锚点和想象模式判型，`D4` 落历史文化与结构边界，`D5` 落标志性元素和可见想象增量，`D6` 检查 candidate 是否形成完整闭环。
+- prevention_or_replication_checklist:
+  - [x] `D2` 已显式识别 `reference_anchor / reference_mode / iconic_elements_seed`
+  - [x] `D4` 已要求写清参照对象、可借鉴点、不应照搬点与文化边界
+  - [x] `D5` 已要求把标志性元素落成可见陈设而不是抽象形容词
+  - [x] `D6` 已要求检查 `reference_anchor -> boundary -> iconic cluster -> prompt` 闭环
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-场景/2-设计/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求把“参照作品/场景、大胆畅想、历史文化框架、标志性元素”作为思维·执行节点的内生判断维度，而不是附加提示。

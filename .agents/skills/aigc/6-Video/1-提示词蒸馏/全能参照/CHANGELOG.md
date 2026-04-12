@@ -12,3 +12,13 @@
     - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/SKILL.md`
     - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md`
     - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/agents/openai.yaml`
+
+- `Case-20260412-AIGC-VIDEO-SUBJECT-ZXY-REFACTOR`
+  - 在不改变现有输入、输出、模板、字段、字数窗与禁止项的前提下，将 `全能参照` 重写为知行合一式单技能思行网络。
+  - 新增 `业务需求分析合同 / 总输入合同 / 拓扑合同 / N0-N8 思行节点 / 汇流门 / 一次性输出门`，并显式声明 `复杂链路的骨架 / 细则分层: false`。
+  - 新增执行闭环要求：最终结案除三件套外，必须包含 `思考过程 + 关键证据 + 风险/例外`。
+  - 同步刷新 `CONTEXT.md` 的 Type Map、Heuristics 与案例记录，并更新 `agents/openai.yaml` 的入口描述。
+  - 证据路径：
+    - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/SKILL.md`
+    - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md`
+    - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/agents/openai.yaml`

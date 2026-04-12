@@ -23,6 +23,7 @@
 | prompt sidecar 缺失导致 panel prompt 变短 | 降级策略层 | 回退 `道具设计.json.prompt_anchor` 并标记 degraded mode | manifest 永远记录 sidecar 缺失 | `_manifest.json.degraded_episodes` 非空 |
 | 每集被写成单一 panel 文件 | 输出契约层 | 按 `props[]` 逐道具输出 layout | 在命名合同中固定 `<prop_id>-<prop_name>-PropPanel-layout.json` | episode 输出文件数等于 prop 数 |
 | 模板结构从 reference 漂移 | 模板真源层 | 回退当前目录 template，禁止脚本内再造第二套结构 | 把 layout contract 锁在 template 文件，不在脚本复制模块定义 | prompt 中能回链 mandatory rules |
+| 面板技能要依赖历史说明或 references 才能看懂降级与 manifest 规则 | 合同真源层 | 将输入门禁、模板锁定、逐 prop dossier、manifest 汇流全部收回主 `SKILL.md` | 固化“展示型叶子技能也必须主文档单读可执行” | 只读主文档即可理解 panel 输出链 |
 
 ## Repair Playbook
 
@@ -38,6 +39,7 @@
 - 若当前仓库还没有稳定共享 panel engine，先固定 layout JSON 停点，比仓促接回自动生图更稳。
 - 逐道具 layout 比整集单文件更适合后续审阅、回修和图像工具消费。
 - reference 仓的模板可以继承，但 runtime 路径、停点和输出 contract 必须服从当前仓库真源。
+- 对展示型叶子技能来说，最关键的不是 prose 解释，而是把“输入门禁 -> 模板锁定 -> prompt 组装 -> layout 写回 -> manifest 审计”写成主文档中的稳定节点。
 
 ## Case Log
 
@@ -59,3 +61,18 @@
   - `.agents/skills/aigc/4-Design/4-道具/3-面板/scripts/generate_prop_panels.py`
   - `/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/3-设定/4-面板/道具面板/SKILL.md`
 - user_feedback_or_constraint: 用户要求完善当前仓库的 `3-面板`，并以 AIGC-ZEN-VOID 的道具面板为参考，而不是直接复制旧链路。
+
+### Case-20260412-AIGC-PROP-PANEL-ZHIXING-REFRACTOR
+
+- milestone_type: source_contract_change
+- outcome: 将 `3-面板` 改写为知行合一式展示叶子技能，把降级、模板、逐 prop dossier 与 manifest 审计全部内收进主 `SKILL.md`。
+- root_cause_or_design_decision: 旧版 `3-面板` 已有阶段边界与输出字段，但对“逐节点怎么做、sidecar 缺失如何降级、manifest 如何汇流”的说明还偏章节式，不足以满足用户要求的细粒度思维·执行节点。
+- final_fix_or_heuristic: 不改模板、不改 runner、不改输出 contract，只重排主 `SKILL.md` 为单文档节点网络，让展示链从输入门禁到 handoff 都可单读。
+- prevention_or_replication_checklist:
+  - [x] 主文档已包含输入门禁、模板锁定、逐 prop dossier、manifest 汇流节点
+  - [x] degraded mode 已作为主合同硬门槛
+  - [x] 经验层已记录“展示型叶子技能主文档直写节点” heuristic
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/4-道具/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/4-道具/3-面板/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求按 `$skill-知行合一` 重构 `4-道具` 子技能包，并要求每个思维·执行节点一步一步写细。

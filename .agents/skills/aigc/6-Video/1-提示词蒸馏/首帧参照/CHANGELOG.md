@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-04-12 - zhixing-action-network refactor
+
+### 修改
+
+- 在不改变现有输入输出、模板依赖、桥段提取规则、字数窗与三件套落点的前提下，将 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/SKILL.md` 重排为 `$skill-知行合一` 的 inline-full-spec 单技能网络。
+- 新增 `Business Requirement Analysis Contract`、`Total Input Contract`、`Topology Contract`、`Convergence Contract` 与 `One-Shot Output Contract`，并将执行主干细化为 `N0-N9` 思行节点。
+- 补充多张 Mermaid 图，显式承载主干流程、桥段判型、预算分支与状态推进。
+- 更新 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md`，沉淀本次知行合一重排案例与可复用 heuristic。
+- 微调 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/agents/openai.yaml`，让入口描述与当前单技能网络口径对齐。
+
+### 保持不变
+
+- `projects/<项目名>/6-Video/首帧参照/第N集/` 三件套落点不变。
+- `FIELD-VID-FFR-01` 到 `FIELD-VID-FFR-04` 字段主表不变。
+- `single_shot / direct_match / ambiguous` 与 `normal / tight / underflow` 机制不变。
+- 共享模板依赖仍为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json` 与 `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`。
+
 ## 2026-04-12 - first-frame-reference full elevation
 
 ### 新增

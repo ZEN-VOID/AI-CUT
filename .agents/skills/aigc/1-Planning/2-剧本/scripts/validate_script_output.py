@@ -262,6 +262,7 @@ def validate_variant(
     upstream_quotes = extract_upstream_dialogues(upstream_text) if upstream_text else set()
     narration_count = 0
     dialogue_count = 0
+    narration_speakers: set[str] = set()
 
     for scene in scenes:
         action_count = 0
@@ -298,6 +299,8 @@ def validate_variant(
                         )
                 if entry.kind == "narration":
                     narration_count += 1
+                    if entry.speaker:
+                        narration_speakers.add(entry.speaker.strip())
                 if entry.kind == "inner" and variant == "explainer" and not allow_inner:
                     add_finding(
                         findings,
@@ -364,6 +367,14 @@ def validate_variant(
             file_path=path,
             detail="解说剧至少应存在 1 条 `旁白`，否则无法证明已完成旁白主导整理。",
         )
+    if narration_count > 1 and len(narration_speakers) > 1:
+        add_finding(
+            findings,
+            level="error",
+            code="FAIL-NARRATOR-DRIFT",
+            file_path=path,
+            detail=f"发现多个旁白主体：{', '.join(sorted(narration_speakers))}；同一集旁白主体必须保持一致。",
+        )
     if variant == "standard" and dialogue_count > 0:
         narration_ratio = narration_count / max(dialogue_count + narration_count, 1)
         if narration_ratio > STANDARD_WARNING_NARRATION_RATIO:
@@ -381,6 +392,7 @@ def validate_variant(
         "scenes": len(scenes),
         "dialogue_count": dialogue_count,
         "narration_count": narration_count,
+        "narration_speakers": sorted(narration_speakers),
         "actual_word_count": actual_word_count,
     }
     return findings, summary

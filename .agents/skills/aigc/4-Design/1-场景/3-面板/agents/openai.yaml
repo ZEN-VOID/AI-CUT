@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 4-Design 场景面板"
-  short_description: "把场景设计 carrier 收束为 16:9 九宫格场景面板 JSON 包与逐场景 layout"
-  default_prompt: "Use $aigc-design-scene-panel to read `projects/<项目名>/4-Design/1-场景/2-设计/第N集/场景设计.json`, compose 16:9 3x3 scene panel layout carriers, and write `场景面板.json` plus per-scene `*-layout.json` to `projects/<项目名>/4-Design/1-场景/3-面板/第N集/`."
+  short_description: "用单一思行网络把场景设计收束为 16:9 九宫格场景面板 JSON 包"
+  default_prompt: "Use $aigc-design-scene-panel to read `projects/<项目名>/4-Design/1-场景/2-设计/第N集/场景设计.json`, run the single-source thinking-action flow, and write `场景面板.json` plus per-scene `*-layout.json` to `projects/<项目名>/4-Design/1-场景/3-面板/第N集/`."

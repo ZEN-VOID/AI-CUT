@@ -1,54 +1,12 @@
-# Output Template
+# Migration Stub
 
-## 文件列表
+本文件自 `2026-04-12` 起不再承载 `1-清单` 的输出结构真源。
 
-### `角色清单.json`
+`角色清单.json`、`_manifest.json` 的结构、默认路径与验收面，均已内收到 `../SKILL.md` 的 `One-Shot Output Contract`。
 
-- `meta`
-  - `schema_version`
-  - `skill_id`
-  - `source_schema`
-  - `episode_id`
-  - `project_name`
-  - `source_file`
-  - `generated_at`
-- `statistics`
-  - `group_count`
-  - `shot_count`
-  - `role_count`
-  - `unknown_shot_count`
-- `group_role_map[]`
-  - `group_id`
-  - `shot_id`
-  - `shot_scene`
-  - `role_text`
-  - `roles[]`
-  - `costume_mentions`
-  - `source_file`
-- `roles[]`
-  - `role_id`
-  - `name`
-  - `role_level`
-  - `group_ids[]`
-  - `shot_ids[]`
-  - `first_appearance`
-  - `costume_profile`
-  - `display_card`
-  - `evidence[]`
+保留本文件仅用于：
 
-### `_manifest.json`
+- 兼容历史路径
+- 避免旧链接直接失效
 
-- `status`
-- `episode_id`
-- `input_file`
-- `output_dir`
-- `output_files[]`
-- `statistics`
-- `notes[]`
-
-## 验收面
-
-- `角色清单.json.roles[]` 非空。
-- `group_role_map[]` 的每项都带 `group_id + shot_id + source_file`。
-- `unknown_shot_count` 可解释，且不会吞掉全部镜头。
-- `_manifest.json.statistics.role_count` 与主清单一致。
+当前执行请回到 `../SKILL.md`。

@@ -19,47 +19,45 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 又把 `标准剧 / 解说剧` 拆成两个本地子技能包 | 技能治理层 | 收敛回单一 `2-剧本` 技能包 | 在 `SKILL.md` 固化“单包 + subagent 变体” | 本地目录下不再出现两个 sibling 技能真源 |
-| 直接绕过 `1-分集` 输出物重做自由切分 | 输入真源层 | 回到 `1-分集/第N集.md + 执行报告 + episode-split-plan.json` | 在 `SKILL.md` 固化 `1-分集` 输出物为唯一输入锚点 | 输入链路可追溯 |
-| subagent 直接写 canonical 文件 | 编排边界层 | 收回写回权到 `2-剧本` 父技能 | 在 subagent/team 与本技能合同中固化 patch-only 边界 | canonical 文件只由本技能写回 |
-| validator 只做弱检测，漏掉主体/引号/画面配对问题 | 校验器层 | 补强统一 validator | 把高频硬门禁收敛到脚本 | 结构性失误能被脚本拦下 |
-| `解说剧` 未显式信号却被默认启用 | 路由裁决层 | 回退到 `标准剧` 并补写裁决理由 | 在执行报告中固定记录主变体裁决证据 | 主变体选择可复盘 |
-| 变体 subagent 与 skill 的执行边界重新混写 | 执行治理层 | 收回 canonical 写回、validator 与执行报告到 skill | 在 `SKILL.md` 与入口元数据同步固化“subagents 返回 `agents plan + patch / note`，skill 统筹执行” | 变体角色不再伪装成并列执行者 |
-| `总字数` 未按最终 `【剧本正文】` 实算值回填，导致 validator 卡住 | 输出收尾层 | 在最终文本定稿后回填 `总字数` 并重新跑 validator | 将“字数回填 -> validator 复跑”视为 `2-剧本` 出口清单固定步骤 | `FAIL-WORDCOUNT-STALE` 不再出现 |
+| 又把 `格式判模 / 标准剧 / 解说剧` 拆成外部 agent 依赖 | 真源治理层 | 收回到 `2-剧本/SKILL.md` 的内化能力面 | 在 `SKILL.md + audit` 固化 `Internal Capability Fusion Contract` | `2-剧本` 不再引用旧规划组文档 |
+| 未显式信号却误切 `解说剧` | 变体裁决层 | 回退 `标准剧` 并在执行报告写明原因 | 在 `Variant Arbitration Contract` 固化“默认安全主案=标准剧” | `selected_variant` 可复盘 |
+| `解说剧` 旁白主体漂移 | 体裁纪律层 | 统一为单一旁白主体，默认 `讲述者` | 在 validator 增加主体一致性检查 | 不再出现多旁白主体混写 |
+| 对白被润色或改写 | 文本保真层 | 回滚为上游逐字文本 | 保留对话冻结门禁 + 上游对白比对 | `WARN/FAIL-DIALOGUE-FREEZE` 可定位 |
+| 引号内混入动作或文本画面错配 | 共享门禁层 | 动作下沉到 `*画面`，重排同命题配对 | 在 `N5-normalize + validator` 固化高频结构门禁 | `FAIL-ACTION-MIXED / FAIL-VISUAL-MISSING` 可拦截 |
+| `总字数` 未按最终正文回填 | 收尾层 | 重算并回写 `总字数` 后重跑 validator | 将“字数回填 -> validator 复跑”固定为出口清单 | `FAIL-WORDCOUNT-STALE` 不再复发 |
+| 提前把分组/节奏结论写进剧本主稿 | 下游边界层 | 删除越权字段，只保留 handoff 接口 | 在 `Downstream Interface Contract` 固化非 owned truth | 主稿只承载本阶段内容 |
 
 ## Repair Playbook
 
-1. 先确认本技能是否仍是单一技能包。
-2. 再确认输入是否唯一来自 `1-分集` 输出物。
-3. 再检查 `格式判模 -> 标准剧/解说剧` 的路由是否被正确执行。
-4. 最后才检查 validator 是否覆盖到当前失败类型。
+1. 先确认输入是否唯一来自 `1-分集` 输出物。
+2. 再确认业务分析与主变体裁决是否明确。
+3. 再检查共享硬门禁：对白冻结、主体、双引号、动作剥离、声画配对、字数回填。
+4. 最后才看 validator 是否覆盖到当前失败类型。
 
 ## Reusable Heuristics
 
-- 在 `1-Planning` 里，`2-剧本` 最稳的形态是“一个技能包 + 多个变体 subagents”，而不是“多个本地 sibling 技能包”。
-- `格式判模` 负责决定变体，`2-剧本` 负责写 canonical 主稿，`标准剧 / 解说剧` 只负责 patch；这三个层次一旦混写，就会重新长出第二真源。
-- 如果 `2-剧本` 已经写了主稿，却没留下单集执行报告和 handoff patch，这轮执行仍不算闭环完成。
-- `标准剧` 默认值更安全；只有用户或 `格式判模` 明确给出信号时，才应启用 `解说剧`。
-- 在 `2-剧本` 里，subagents 只适合承担变体思考、`agents plan`、结构判断和文本 patch；真正的主稿写回、validator 和闭环始终属于 skill。
-- `2-剧本` 若需要沉淀变体规划过程，应优先写 `agents-plan/`，而不是重新长出强制 thinking sidecar 或第二份 canonical 草稿。
-- `2-剧本` 的 `总字数` 不是装饰字段；它必须在主稿最终定稿后按 `【剧本正文】` 实算值回填，否则 validator 会把产物拦在出口。
+- `2-剧本` 最稳的形态不是“skill + 一堆外部规划组 agent”，而是“一个 skill 内化判模、变体与执行闭环”。
+- 默认值始终应是 `标准剧`；只有用户或上游信号明确要求讲述型消费时，才切 `解说剧`。
+- `标准剧` 与 `解说剧` 的真正差异是信息承载策略，不是输出真相所有权；canonical 写回权永远只属于 `2-剧本`。
+- `2-剧本` 若要保留变体思行证据，应该优先落到 `agents-plan/` 侧车，而不是再长出第二份主稿。
+- 下游 `3-分组` 真正需要的是稳定的 `selected_variant + dialogue/narration policy + source_profile`，不是在剧本阶段提前拿到组边界或节奏蓝图。
 
 ## Case Log
 
-### Case-20260412-AIGC-PLANNING-SCRIPT-SINGLE-PACKAGE
+### Case-20260412-AIGC-PLANNING-SCRIPT-ZHI-XING-INTERNALIZATION
 
 - milestone_type: source_contract_change
-- outcome: 为 `2-剧本` 建立单一技能包，并通过规划组 `标准剧 / 解说剧` subagents 完成变体路由。
-- root_cause_or_design_decision: 用户明确要求“标准剧/解说剧 不要分成两个子技能包，一个技能包内完成，不同的 subagents 触发”。
-- final_fix_or_heuristic: 只建立 `2-剧本/SKILL.md + CONTEXT.md + CHANGELOG.md + scripts/validate_script_output.py + agents/openai.yaml`，不再建立本地变体子目录。
+- outcome: 将 `2-剧本` 从“单包 + 外部规划组判模/变体 agent”重构为知行合一的单技能内化网络。
+- root_cause_or_design_decision: 用户明确要求完善 `.agents/skills/aigc/1-Planning/2-剧本`，内容与机制全量参照现有配置，但不再需要旧规划组文档，相关能力必须重新整理消化融合回 `SKILL.md`。
+- final_fix_or_heuristic: 在 `2-剧本/SKILL.md` 内建立 `Internal Capability Fusion Contract + Variant Arbitration Contract + Variant Writing Contract + Thinking-Action Node Contract + Downstream Interface Contract`，并用 Mermaid 承载主干、分支、状态与字段关系；执行闭环仍由 `2-剧本` 自己写回与校验。
 - prevention_or_replication_checklist:
-  - [x] 本地只保留单一 `2-剧本` 技能包
-  - [x] 变体通过规划组 subagents 触发
-  - [x] 已具备统一 validator
-  - [x] 已补齐入口元数据
+  - [x] `2-剧本` 已不再引用旧规划组文档
+  - [x] 判模、标准剧、解说剧规则已回收进单一 `SKILL.md`
+  - [x] validator 仍作为统一出口门
+  - [x] `3-分组 / 节奏` 只保留为下游接口，不再反客为主
 - evidence_paths:
   - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
   - `.agents/skills/aigc/1-Planning/2-剧本/CONTEXT.md`
   - `.agents/skills/aigc/1-Planning/2-剧本/scripts/validate_script_output.py`
   - `.agents/skills/aigc/1-Planning/2-剧本/agents/openai.yaml`
-- user_feedback_or_constraint: 用户明确要求变体作为 subagents 触发，而不是本地双子技能包。
+- user_feedback_or_constraint: 用户明确要求“根据知行合一的规范进行编排”，并废弃旧规划组文档。

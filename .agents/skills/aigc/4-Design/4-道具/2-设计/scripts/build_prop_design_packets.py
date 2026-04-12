@@ -62,9 +62,19 @@ def lookup_item(items: list[dict[str, Any]], key: str, fallback_key: str) -> dic
     return by_name.get(fallback_key, {})
 
 
-def infer_design_goal(prop_name: str, route: dict[str, Any], functions: list[str]) -> str:
+def infer_design_goal(
+    prop_name: str,
+    route: dict[str, Any],
+    functions: list[str],
+    narrative_significance: dict[str, Any] | None = None,
+) -> str:
     function_hint = functions[0] if functions else "story_support"
     route_hint = str(route.get("route_type", "coverage"))
+    if narrative_significance and narrative_significance.get("is_special"):
+        return (
+            f"把 {prop_name} 按{narrative_significance.get('level', 'notable')}级叙事道具处理，"
+            f"保留其 {function_hint} 识别度，并确保 {route_hint} 路径下的关键可读性。"
+        )
     return f"保持 {prop_name} 的 {function_hint} 识别度，并让它在 {route_hint} 镜头路径中始终可辨识。"
 
 
@@ -74,11 +84,45 @@ def infer_continuity_rule(route: dict[str, Any], wear_marks: list[str]) -> str:
     return f"在 {route_hint} 路径中持续保留 {wear_hint} 的可见痕迹，不把状态词并入 canonical 名称。"
 
 
+def normalize_narrative_significance(
+    bridge_prop: dict[str, Any],
+    research_prop: dict[str, Any],
+    functions: list[str],
+    shot_route: dict[str, Any],
+) -> dict[str, Any]:
+    candidate = bridge_prop.get("narrative_significance") or research_prop.get("narrative_significance") or {}
+    level = str(candidate.get("level", "background"))
+    if level not in {"critical", "notable", "background"}:
+        level = "background"
+    is_special = bool(candidate.get("is_special", level in {"critical", "notable"}))
+    story_function = str(candidate.get("story_function", functions[0] if functions else "story_support"))
+    route_type = str(candidate.get("route_type", shot_route.get("route_type", "standard")))
+    return {
+        "is_special": is_special,
+        "level": level,
+        "story_function": story_function,
+        "reason": str(candidate.get("reason", "")),
+        "visual_obligation": str(candidate.get("visual_obligation", "")),
+        "continuity_guard": str(candidate.get("continuity_guard", "")),
+        "evidence_count": int(candidate.get("evidence_count", 0) or 0),
+        "state_change_required": bool(candidate.get("state_change_required", False)),
+        "route_type": route_type,
+        "anchor_states": candidate.get("anchor_states", []),
+    }
+
+
 def build_prompt_text(prop: dict[str, Any]) -> str:
     structure = "；".join(prop.get("structure_modules", [])[:3])
     material = "；".join(prop.get("material_and_finish", [])[:3])
     wear = "；".join(prop.get("wear_marks", [])[:3])
     style_refs = prop.get("style_refs", {})
+    narrative_significance = prop.get("design_thesis", {}).get("narrative_significance", {})
+    narrative_clause = ""
+    if narrative_significance.get("is_special"):
+        narrative_clause = (
+            f" 该道具具有{narrative_significance.get('level', 'notable')}级叙事权重，"
+            f"必须保留{narrative_significance.get('visual_obligation', '关键可读性')}。"
+        )
     style_hint = " ".join(
         filter(
             None,
@@ -93,6 +137,7 @@ def build_prompt_text(prop: dict[str, Any]) -> str:
         f"为 {prop['canonical_name']} 生成专业 PROP_DESIGN_SHEET 道具设计页，16:9 三栏布局，"
         f"主体必须突出其功能骨架与轮廓识别。结构重点：{structure}。"
         f"材质与表面：{material}。磨损与状态：{wear}。"
+        f"{narrative_clause}"
         f"风格锚点：{style_hint or '遵循项目既有风格，不额外发明新流派。'} "
         f"保持背景克制，不让布局说明覆盖道具本体，避免加入上游证据不存在的附属零件。"
     )
@@ -135,6 +180,12 @@ def build_payloads(
         functions = attribute_profile.get("primary_functions", [])
         wear_marks = bridge_prop.get("wear_marks", [])
         shot_route = bridge_prop.get("shot_route", {})
+        narrative_significance = normalize_narrative_significance(
+            bridge_prop=bridge_prop,
+            research_prop=research_prop,
+            functions=functions,
+            shot_route=shot_route,
+        )
 
         design_prop = {
             "prop_id": prop_id,
@@ -146,10 +197,12 @@ def build_payloads(
                 "evidence_ledger": research_prop.get("evidence_ledger", []),
             },
             "design_thesis": {
-                "design_goal": infer_design_goal(canonical_name, shot_route, functions),
+                "design_goal": infer_design_goal(canonical_name, shot_route, functions, narrative_significance),
                 "narrative_function": functions[0] if functions else "story_support",
+                "narrative_significance": narrative_significance,
                 "silhouette_hook": (bridge_prop.get("structure_modules") or [f"{canonical_name} 的主轮廓"])[0],
-                "continuity_rule": infer_continuity_rule(shot_route, wear_marks),
+                "continuity_rule": narrative_significance.get("continuity_guard")
+                or infer_continuity_rule(shot_route, wear_marks),
             },
             "structure_modules": bridge_prop.get("structure_modules", []),
             "material_and_finish": bridge_prop.get("material_and_finish", []),
@@ -188,6 +241,10 @@ def build_payloads(
                 "target_skill_id": "nano-banana-multiview-prop",
                 "prompt_cn": build_prompt_text(design_prop),
                 "negative_constraints": design_prop["negative_constraints"],
+                "narrative_focus": {
+                    "level": narrative_significance.get("level", "background"),
+                    "visual_obligation": narrative_significance.get("visual_obligation", ""),
+                },
                 "render_hints": {
                     "render_mode": "PROP_DESIGN_SHEET",
                     "aspect_ratio": "16:9",
@@ -234,6 +291,9 @@ def build_payloads(
         "selected_agents": SELECTED_AGENTS,
         "coverage": {
             "prop_count": len(design_props),
+            "special_narrative_prop_count": sum(
+                1 for item in design_props if item.get("design_thesis", {}).get("narrative_significance", {}).get("is_special")
+            ),
             "has_design_master": True,
             "has_prompt_sidecar": True,
             "has_catalog": catalog is not None,

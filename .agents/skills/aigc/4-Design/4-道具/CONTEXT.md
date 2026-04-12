@@ -22,6 +22,7 @@
 | 道具设计把 prompt 当成唯一真源 | 输出治理层 | 区分 `道具设计.json` 与 `prop_design_prompt.json` | 将 canonical facts 与执行话术分层 | 下游能复用设计真值，不依赖单次 prompt |
 | subagents 角色存在但 team 层为空 | agent team 层 | 补齐 `.codex/agents/aigc/设计组/道具设计/team.md` 与角色合同 | 让父 skill 永远回指真实 team，而不是口头想象 | team 路径存在且可被 audit 检出 |
 | 道具链停在 `2-设计`，没有 panel handoff | 类目路由层 | 建立 `3-面板` 叶子技能，消费 design master 输出逐道具 layout | 把 `清单 -> 设计 -> 面板` 真正闭环，而不是只在父级写顺序 | 用户可从 `道具设计.json` 稳定进入 panel layout |
+| 父级合同只能读摘要，必须翻 references 才能看懂执行链 | 合同真源层 | 把类目路由、门禁、节点与汇流收回父级 `SKILL.md` | 固化“父级单文档真源 + 叶子细化节点”的知行合一写法 | 只读父级 `SKILL.md` 也能完成阶段判断 |
 
 ## Repair Playbook
 
@@ -36,6 +37,7 @@
 - 设计阶段最稳的真源不是“长篇 prompt”，而是“可重复消费的设计事实 + 可漂移的 prompt sidecar”。
 - 道具设计的多 subagent 协同最适合按结构、材质、痕迹、prompt、审计分层，而不是让一个角色重写所有字段。
 - 面板阶段最稳的输入不是重新回读导演 JSON，而是已经固化好的 `道具设计.json + prop_design_prompt.json`。
+- 对父级类目技能来说，最稳的重构不是再加一层 references 导航，而是把阶段归类、门禁、回退与汇流直接写进一个可单读的 `SKILL.md`。
 
 ## Case Log
 
@@ -70,3 +72,18 @@
   - `.agents/skills/aigc/4-Design/4-道具/CONTEXT.md`
   - `.agents/skills/aigc/4-Design/4-道具/3-面板/SKILL.md`
 - user_feedback_or_constraint: 用户明确要求完善 `.agents/skills/aigc/4-Design/4-道具/3-面板`，并参考旧仓道具面板而不是继续保留空目录。
+
+### Case-20260412-AIGC-PROP-CATEGORY-ZHIXING-REFRACTOR
+
+- milestone_type: source_contract_change
+- outcome: 将 `.agents/skills/aigc/4-Design/4-道具` 父级合同重构为知行合一单文档路由真源，显式关闭“复杂链路骨架在主文档、细则下沉 references”的默认写法。
+- root_cause_or_design_decision: 旧版父级合同能说明阶段顺序，但不足以单独承载“如何判阶段、如何卡门禁、如何回退、如何汇流”；真正执行判断仍隐含在子技能和历史约定里。
+- final_fix_or_heuristic: 保留原有阶段路径、脚本和产物机制不变，只把类目判断逻辑升级为父级 `SKILL.md` 内的思行节点网络，使父级成为可单读、可路由、可闭环的真源。
+- prevention_or_replication_checklist:
+  - [x] 父级 `SKILL.md` 已包含业务分析、总输入合同、Mermaid 路由图、思行节点与一次性输出合同
+  - [x] `清单 -> 设计 -> 面板` 的阻塞回退已内置到父级门禁
+  - [x] 经验层已登记“父级单文档真源” heuristic
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/4-道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/4-道具/CONTEXT.md`
+- user_feedback_or_constraint: 用户明确要求按 `$skill-知行合一` 重构 `4-道具` 子技能包，并指定“复杂链路的骨架 / 细则分层：false”，要求每个思维·执行节点写得足够细。

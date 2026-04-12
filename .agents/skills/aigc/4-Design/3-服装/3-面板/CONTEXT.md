@@ -23,12 +23,14 @@
 | prompt sidecar 缺失导致 panel prompt 变短 | 降级策略层 | 回退 `服装设计.json.prompt_anchor` 并标记 degraded mode | manifest 永远记录 sidecar 缺失 | `_manifest.json.degraded_costumes` 非空 |
 | 每集被写成单一 panel 文件 | 输出契约层 | 按 `costumes[]` 逐服装输出 layout | 在命名合同中固定 `<costume_id>-<canonical_label>-CostumePanel-layout.json` | episode 输出文件数等于 costume 数 |
 | 模板结构从 reference 漂移 | 模板真源层 | 回退当前目录 template，禁止脚本内再造第二套结构 | 把 layout contract 锁在 template 文件，不在脚本复制模块定义 | prompt 中能回链 mandatory rules |
+| 叶子合同只说流程，不足以支撑 degraded mode 和 packet 级闭环 | 思行网络层 | 把输入门、sidecar 退化、模板锁定、逐服装 packet 组装和 manifest 汇流都收回主 `SKILL.md` | 固化 `Node Network + Capability Detail + Convergence` | `3-面板` 可直接按节点执行 |
 
 ## Reusable Heuristics
 
 - 服装面板最稳定的输入不是角色清单，而是已经收束好的 `服装设计.json + costume_design_prompt.json`。
 - 若当前仓库还没有稳定共享 panel engine，先固定 layout JSON 停点，比仓促接回自动生图更稳。
 - 逐服装 layout 比整集单文件更适合后续审阅、回修和图像工具消费。
+- 对 `3-面板` 做知行合一改造时，最重要的是把 degraded mode 也当成正式节点，而不是只在脚本里静默兜底。
 
 ## Case Log
 
@@ -48,3 +50,19 @@
   - `.agents/skills/aigc/4-Design/3-服装/3-面板/templates/服装面板-提示词.json`
   - `.agents/skills/aigc/4-Design/3-服装/3-面板/scripts/generate_costume_panels.py`
 - user_feedback_or_constraint: 用户要求参照现有 `角色 / 场景 / 道具` 家族，把 `3-服装` 一次性补齐到完整链路。
+
+### Case-20260412-AIGC-COSTUME-PANEL-ZHI-XING-NETWORK
+
+- milestone_type: source_contract_change
+- outcome: 在保持 design-master-first、template 真源和 layout packet 停点不变的前提下，将 `3-面板` 重排为知行合一叶子技能。
+- root_cause_or_design_decision: 原合同已有字段表和流程，但对 degraded mode、identity badge、逐服装 packet 组装和 manifest 汇流的节点化表达还不够强，难以满足“每一步足够细”的质量要求。
+- final_fix_or_heuristic: 将 `3-面板` 改写为 `Business Requirement Analysis -> Topology -> Thinking-Action Node Network -> Capability Detail -> Convergence -> One-Shot Output`，并把 sidecar 缺失的退化处理纳入正式节点。
+- prevention_or_replication_checklist:
+  - [x] 输入根仍固定为 `2-设计` 产物
+  - [x] template 真源与 runner 未变
+  - [x] degraded mode 已进入节点网络和 manifest 合同
+- evidence_paths:
+  - `.agents/skills/aigc/4-Design/3-服装/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-服装/3-面板/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/3-服装/3-面板/templates/服装面板-提示词.json`
+- user_feedback_or_constraint: 用户要求“复杂链路的骨架 / 细则分层：false”，并要求每一个思维·执行节点一步一步足够细致。

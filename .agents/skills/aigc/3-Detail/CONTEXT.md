@@ -19,89 +19,157 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| `3-Detail` 在 root / registry 中已被视为 active stage，但阶段目录为空 | 阶段锚点层 | 建立 `SKILL.md + CONTEXT.md + CHANGELOG.md + openai.yaml + shared I/O` | 将空目录视为规则层故障，而不是“以后再补”的待办 | 根技能与 registry 能回指真实阶段合同 |
-| 制作组角色目录存在，但 agent 文档全部是 0 字节占位 | agent provisioning 层 | 为 team 与每个角色补齐最小 agent contract | 把“目录存在但文件空白”视为未完成建队，而不是已落地 roster | 每个角色都有明确输入、输出和越权禁令 |
-| 多专业角色都在写同一 shot 字段，导致 patch 冲突 | 字段槽位层 | 用 `_shared/IO_CONTRACT.md` 固定 field-slot 与 merge precedence | 将 field-slot contract 视为父 skill 必需共享真源 | 多角色 patch 可被父 skill 稳定合成 |
-| 组级导演意图能读，但下不去到 shot skeleton | execution topology 层 | 强制 `分镜规划` 先产出 `分镜ID / 时间段 / coverage` 骨架 | 把 planner skeleton 写成进入专业角色的先决条件 | 专业角色不再自行发明镜序 |
-| 下游又开始读取平行 sidecar 或旧 detail 主稿 | output governance 层 | 收口到 `projects/<项目名>/3-Detail/第N集.json` | 在父 skill 与 team 固化“唯一根文件 + patch-in-place” | `query / review / 5-Image / 6-Video` 都以 root JSON 为先 |
-| 运镜或摄影角色过度炫技，压过叙事任务 | type routing 层 | 默认以 `叙事派` 为主路由，`炫技派` 只做显式对照 | 在 team 合同中固定 default vs challenger 关系 | 运镜字段先服务剧情任务，再追求表达上限 |
-| 制作组角色能分工，但产出仍显单调或质量不稳 | agent prompt contract 层 | 把共享创作方法、质量门禁、失败回退收敛成 team 级真源，再让角色只写局部 delta | 以 `_shared/CREATIVE_QUALITY_PLAYBOOK.md` 作为制作组共享方法真源，避免 15 个角色平行漂移 | 专业角色 `agents_plan / note / report` 变得可解释，patch 更具体且少空话 |
+| `3-Detail` 还回指外置 `制作组` 合同 | 真源治理层 | 把 team / role / shared playbook 能力内收进 `SKILL.md + references/` | 在审计脚本中加入“禁止引用已删除制作组路径”检查 | `3-Detail` 文档与 audit 均不再引用旧路径 |
+| 没有 `shot skeleton` 就直接补构图、表演、运镜 | 拓扑依赖层 | 强制 `shot_skeleton_engine` 先产出 `分镜ID / 时间段 / coverage` | 在 `IO_CONTRACT` 与 `execution-flow` 中固定 skeleton 先决门 | 其他能力链不再发明镜序 |
+| 结构链、表演链、摄影链同时补同一字段导致冲突 | 字段 ownership 层 | 用 `_shared/IO_CONTRACT.md` 固定 owned fields 与 merge precedence | 将 ownership 与 precedence 提升为 shared I/O 真源 | 合并结果可稳定落到 schema |
+| 炫技表达压过叙事清晰度 | 路由策略层 | 默认保守路由为 `叙事派 + 摄影总协调`，挑战方案只作条件对照 | 在 `type-strategies.md` 固定 default vs challenger 规则 | 运镜与摄影优先服务剧情任务 |
+| 摄影链只写“电影感 / 冷暖对比 / 高级感”，缺少可执行光位与色彩判断 | 摄影维度合同层 | 在 `references/摄影美学.md` 中强制先回看项目级摄影底座，再拆成 `光位 / 组级光影推进 / 色彩心理 / 摄影总协调` 四段 | 在 `chain-of-thought.md`、`execution-flow.md` 与 `_shared/IO_CONTRACT.md` 同步固定摄影链的串并结构与必答维度 | `摄影美学` 不再是抽象口号，且能解释组内光影如何推进 |
+| 摄影知识库被当成“术语贴纸”，没有真正进入节点决策 | 知识库转译层 | 在 `摄影美学.md` 中增加显式 `命中摄影知识库` 节点，并要求产出 `cinematography_academy_hit_note` | 在 `SKILL.md`、`execution-flow.md` 与 `_shared/IO_CONTRACT.md` 中把该 note 固定为摄影链前置证据 | 学院派知识会被转成当前镜组的布光/色彩决策，而不是标题堆砌 |
+| 连续性复核与真源审计缺位，导致写回时放过漂移 | 汇流门层 | 把 `review -> audit -> writeback` 写成固定串行 gate | 在 `output-template.md` 与 audit 脚本中同步固化 | `validation-report.md` 与 `audit_report` 同步存在 |
+| 旧制作组能力删除后，质量方法也被一起删没了 | 能力吸收层 | 将共享稳定性合同与创作方法整理进 `capability-playbook.md` | 用“内部能力链 + playbook 细则”的单技能结构替代 team/role docs | 细则仍可追溯，但不再依赖外置 agents |
+| 角色表现写成泛情绪标签，镜头有人但人物不成立 | 角色表现规则层 | 先锁角色化表达通道，再把情绪落成习惯动作、下意识和可见微表情 | 在 `references/角色表现.md` 固定 `主轴 -> 个性/习惯/下意识 -> 可见信号 -> 叙事行为 -> 传神强化` 的串行链 | `角色表现` 字段能区分“这个角色怎么演”，而不只是“现在什么情绪” |
 
 ## Repair Playbook
 
-1. 先看阶段问题是“空壳未落合同”“角色未建队”“字段冲突”还是“下游真源漂移”。
-2. 若根文件缺失或 shot skeleton 不稳，先回到 `分镜规划`，不要让各 specialist 各写各的镜头。
-3. 若字段打架，优先修 `_shared/IO_CONTRACT.md` 的 field-slot 与 merge precedence，而不是靠人工临场裁判。
-4. 若输出被平行文稿分裂，强制回收写回权到父 skill，并只保留 `3-Detail/第N集.json`。
-5. 若风格化表达压过叙事，优先降级为 `叙事派 + 摄影师` 的保守路线，再决定是否追加挑战方案。
-6. 若角色文档只有“定位 + 输入输出 + 禁止项”，应视为提示合同不完整，先补共享创作质量手册，再补角色级局部方法。
+1. 先判断问题出在输入/阶段门、scope/bootstrap、skeleton、并发 merge、还是 review/audit。
+2. 若镜序不稳，先回到 `shot_skeleton_engine`，不要直接修后段字段。
+3. 若字段打架，优先修 `_shared/IO_CONTRACT.md` 的 ownership 与 precedence，而不是手工裁判本轮 JSON。
+4. 若 challenge 方案压过叙事，先回退到默认叙事路由，再决定是否保留对照 note。
+5. 若输出又出现第二真源，优先修 `output-template.md` 与写回规则，只保留 `第N集.json`。
+6. 若能力细则漂散，优先回收到 `references/capability-playbook.md`，不要重新长出平行角色文档。
 
 ## Reusable Heuristics
 
-- `3-Detail` 最稳的定位不是“把导演意图再写一遍”，而是“把组级导演意图投影为 shot-level schema 字段”。
-- 这类阶段最容易出错的点不是文采，而是 field ownership；先锁字段槽位，再谈风格发挥。
-- `分镜规划` 必须先出手，否则 specialist 角色会各自脑补镜序，最终合不回同一份 JSON。
-- `炫技派` 最适合作为挑战者，而不是默认主路由；默认路由必须先保护叙事清晰度。
-- reviewer / auditor 没落盘时，父 skill 再强也容易在收尾阶段放过字段漂移与越权写回。
-- `3-Detail` 里的串行 tranche 和角色并行只定义 patch 依赖，不定义交互形态；默认应由父 skill 在后台派发并收束，别让多角色前台轮询侵蚀根文件治理边界。
-- 制作组的高质量方法不应散落在每个角色文件里；最佳落点是 team 共享方法真源 + 单角色 delta。
-- 对 `3-Detail` 来说，`agents_plan` 最适合承载 shot skeleton、字段裁决顺序与冲突上抛摘要；真正写进 episode JSON 的仍应是父 skill 聚合后的 patch。
-
-### Case-20260412-AIGC-DETAIL-AGENTS-PLAN-ALIGNMENT
-
-- milestone_type: source_contract_change
-- outcome: 将 `3-Detail` 从 patch-only handoff 统一升级为 `agents_plan + patch / note / report` 的制作组合同。
-- root_cause_or_design_decision: `1-Planning` 已切到“subagents 负责思考计划、skills 负责执行闭环”的新口径，但 `3-Detail` 仍要求制作组只返 patch/note/report，导致阶段间 subagent 语义不一致。
-- final_fix_or_heuristic: 同步更新父 skill、shared I/O、制作组 team、共享质量/提示合同与角色入口元数据，明确 `agents_plan` 只用于说明 shot-level 裁决路径、字段计划与阻塞摘要，不冒充 canonical episode JSON。
-- prevention_or_replication_checklist:
-  - [x] 父 skill 已改为 agents-plan-aware handoff
-  - [x] shared I/O 已补 `agents_plan_<role>` 命名
-  - [x] team 与角色入口元数据已同步 `allowed_return_types`
-  - [x] 共享质量/提示合同已统一新口径
-- evidence_paths:
-  - `.agents/skills/aigc/3-Detail/SKILL.md`
-  - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
-  - `.codex/agents/aigc/制作组/team.md`
-  - `.codex/agents/aigc/制作组/_shared/CREATIVE_QUALITY_PLAYBOOK.md`
-  - `.codex/agents/aigc/制作组/_shared/PROMPT_STABILITY_CONTRACT.md`
-  - `.codex/agents/aigc/制作组/分镜表现/分镜规划.md`
-- user_feedback_or_constraint: 用户要求把 `1-Planning` 已确定的“取消 thinking sidecar 硬要求，统一改为 agents plan + skill execution”口径继续推广到 `3-Detail` 及其后续阶段。
+- `3-Detail` 的关键不在“多写镜头文字”，而在“先锁 skeleton，再让并发字段补全可被同一 schema 吃下”。
+- 对这个阶段来说，最危险的不是内容贫乏，而是并发链失去 merge precedence。
+- 结构链与表演链负责让镜头成立，运镜/摄影/转场链只负责在此基础上做 finish，而不是反向定义镜头主任务。
+- `叙事派` 最稳的角色已经不是一个外置 agent，而是一条默认路由策略；挑战方案永远只能是条件对照。
+- 运镜维度里“更酷”不是另起炉灶，而是先固定同一表现目标，再比较 2-3 个不偷换任务的镜头变体；只有额外收益明确时，才把其中一个升格为挑战案。
+- 单技能知行合一最适合这种“最终只有一份 JSON，但中间有多条并发能力链”的阶段。
+- 高质量方法不能跟着被删除的外置 agents 一起消失，必须在父 skill 的 reference 层重建为可追溯的能力手册。
+- 当维度数已经达到 `分镜表现 / 角色表现 / 场景氛围 / 运镜手法 / 摄影美学 / 转场特效` 这种密度时，单一总手册只应保留共享规则，逐维度思行节点必须独立成文。
+- `摄影美学` 最稳的写法不是直接堆“光影 + 色彩”形容词，而是先回看 `全局风格 / 类型指导 / 导演意图`，再把 `主光源 / 辅助光 / 逆光 / 照明类型 / 光影流动 / 色相 / 明度 / 饱和度 / 色温 / 色彩心理` 压成单一摄影判断。
+- 若 `knowledge-base/电影学院派/电影摄影` 有高命中条目，最稳的用法不是“引用它”，而是先生成一份 `cinematography_academy_hit_note`，明确“命中哪条规则、转成了什么布光/色彩判断、放弃了什么不适用规则”。
+- `分镜表现` 维度最稳的起手式不是先写构图，而是先锁组级节奏、关键节拍和镜头密度，再为每拍配景别、为每镜配焦点。
+- 当 `分镜表现` 进入 shot-level 结构链时，`景别` 后面不要直接跳到 `焦点/空间轴线`；更稳的顺序是先锁 `主体/陪体/背景关系 -> 构图布局 -> 构图方式`，再收束到焦点、观看路径、空间与几何写回。
+- 若用户或下游需要结构化镜头标签，最稳的落点不是新开平行字段族，而是把 `景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角` 作为 `FIELD-DETAIL-05` 的 shot-level 描述子槽，由 `分镜表现` 统一统筹。
+- 当 reference 模块内部已经存在明确的串行、并行、条件分支或回退链时，除了表格合同，还应补一段 Mermaid，把上游输入、节点拓扑、失败回跳和下游消费关系显式画出来。
+- `角色表现` 如果只写“愤怒、悲伤、紧张”这类抽象词，几乎一定会丢掉人物辨识度；更稳的写法是先锁角色会怎样露馅、怎样硬撑、怎样下意识反应。
+- 想让观众共情，不应先加大情绪词，而应优先增加“想压住却露出来”“想维持却失手”的可见身体细节，尤其是眉眼、呼吸、嘴角、肩颈与手部的小失控。
 
 ## Case Log
 
-### Case-20260412-AIGC-DETAIL-STAGE-BOOTSTRAP
+### Case-20260412-AIGC-DETAIL-ZXY-FUSION
 
 - milestone_type: source_contract_change
-- outcome: 为 `.agents/skills/aigc/3-Detail` 建立父 skill、shared I/O、经验层、变更记录与 `openai.yaml`，并同步落盘 `.codex/agents/aigc/制作组/team.md` 与 16 个角色合同。
-- root_cause_or_design_decision: 当前仓内 `aigc` 根技能、registry、query/review 与 shared runtime 都已经把 `3-Detail` 当作 active stage 使用，但阶段目录与制作组 roster 仍是空壳；继续空置会让 `2-Global -> 3-Detail -> 3-Detail/第N集.json` 的责任链长期漂移。
-- final_fix_or_heuristic: 建立 `3-Detail/SKILL.md + CONTEXT.md + CHANGELOG.md + agents/openai.yaml + _shared/IO_CONTRACT.md`，并把制作组 team、14 个专业角色、1 个 reviewer 与 1 个 auditor 的合同一起补齐，锁定“父 skill 独占 JSON 写回，subagents 只返 agents_plan + patch / note / report”的治理边界。
+- outcome: 将 `3-Detail` 从“父 skill + 制作组 subagents”重构为“单一知行合一 skill + references 细则分层”的复杂并发链。
+- root_cause_or_design_decision: 旧结构虽然有完整能力面，但真源分裂在 `SKILL.md + team.md + 16 个角色 agent + 两份 shared 手册` 中；对当前阶段来说，主要复杂度来自并发补字段与汇流审计，而不是长期独立角色治理。
+- final_fix_or_heuristic: 保留全部既有能力面，但把它们内收为 `shot_skeleton / structural_staging / performance / atmosphere / camera_movement / cinematography / transition_fx / continuity_review / source_audit` 九条内部能力链，并用 `SKILL.md` 承担骨架、`references/` 承担细则。
 - prevention_or_replication_checklist:
-  - [x] `3-Detail` 父 skill 已建立
-  - [x] 制作组 team 已建立
-  - [x] 所有角色文件已从 0 字节占位升级为最小合同
-  - [x] shared I/O 已锁定 field-slot 与 merge precedence
+  - [x] 主 `SKILL.md` 已改为单技能思行网络
+  - [x] `references/` 已承接链路细则与能力手册
+  - [x] `_shared/IO_CONTRACT.md` 已移除外置 agent 依赖
+  - [x] 审计脚本已增加禁止旧制作组路径的检查
 - evidence_paths:
   - `.agents/skills/aigc/3-Detail/SKILL.md`
   - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
-  - `.codex/agents/aigc/制作组/team.md`
-  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- user_feedback_or_constraint: 用户要求以 `skill-subagents` 为基线，用 `brainstorming + senior-prompt-engineer` 深度重构 `3-Detail`，并让 subagents 负责思考、父 skill 统筹输入输出。
+  - `.agents/skills/aigc/3-Detail/references/chain-of-thought.md`
+  - `.agents/skills/aigc/3-Detail/references/execution-flow.md`
+  - `.agents/skills/aigc/3-Detail/references/capability-playbook.md`
+  - `scripts/aigc_skill_audit.py`
+- user_feedback_or_constraint: 用户明确要求“根据知行合一规范编排，走复杂链路的骨架 / 细则分层；不再需要 `.codex/agents/aigc/制作组`；每一步从哪些方面着手要足够细致”。
 
-### Case-20260412-AIGC-DETAIL-CREATIVE-QUALITY-UPGRADE
+### Case-20260412-AIGC-DETAIL-CAPABILITY-PRESERVATION
+
+- milestone_type: new_success_class
+- outcome: 删除外置制作组真源的同时，保留了分镜规划、构图、角色表现、运镜、氛围、摄影、转场、复核、审计的全部方法密度。
+- root_cause_or_design_decision: 直接删 team/role docs 容易导致“机制统一了，但能力细则被削平”；真正需要保留的是方法和 merge logic，而不是角色文件本身。
+- final_fix_or_heuristic: 最稳的做法是“主文档只保留网络骨架 + references/capability-playbook.md 承接逐能力步骤、门禁和回退”，这样既不回退到多智能体，也不损失高质量细则。
+- prevention_or_replication_checklist:
+  - [x] 能力矩阵已写入 `SKILL.md`
+  - [x] 逐能力步骤已写入 `capability-playbook.md`
+  - [x] 路由判型已写入 `type-strategies.md`
+  - [x] 输出与审计闭环已写入 `output-template.md`
+- evidence_paths:
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+  - `.agents/skills/aigc/3-Detail/references/capability-playbook.md`
+  - `.agents/skills/aigc/3-Detail/references/type-strategies.md`
+  - `.agents/skills/aigc/3-Detail/references/output-template.md`
+- user_feedback_or_constraint: 用户要求“内容和机制上全量参照现有配置，但根据知行合一的规范进行编排”。
+
+### Case-20260412-AIGC-DETAIL-DIMENSION-SPLIT
 
 - milestone_type: source_contract_change
-- outcome: 将制作组从“字段分工卡”升级为“共享创作方法 + 角色 delta”的高质量 agent 合同。
-- root_cause_or_design_decision: 原有制作组 team 与角色 agent 主要约束输入、输出、越权边界和 patch handoff，能保证不乱写，但无法稳定保证写得好；缺的不是更多文采，而是共享创作方法、质量门禁、失败回退和 `note / report` 最小合同。
-- final_fix_or_heuristic: 新增 `.codex/agents/aigc/制作组/_shared/CREATIVE_QUALITY_PLAYBOOK.md` 作为共享方法真源，并让 `team.md`、`3-Detail/SKILL.md` 与角色 agent 统一回指；角色文件只保留本角色的创作方法、质量门禁和保守回退 delta。
+- outcome: 将 `3-Detail` 的六个高复杂子领域进一步拆为独立 references，形成真正的“骨架 / 维度细则”双层结构。
+- root_cause_or_design_decision: 单一 `capability-playbook.md` 已能承接共享规则，但六个维度各自都存在丰富子类型、节点门禁和回退逻辑；继续塞在一份文档里，会重新形成第二个“大而全真源”。
+- final_fix_or_heuristic: 保留 `capability-playbook.md` 作为共享总则与跨维度协调器，并把 `分镜表现 / 角色表现 / 场景氛围 / 运镜手法 / 摄影美学 / 转场特效` 各自拆成独立 reference 文档，分别承载思维执行节点设计。
 - prevention_or_replication_checklist:
-  - [x] 制作组共享创作质量真源已建立
-  - [x] 父 skill 已把共享质量手册加入强制读取链路
-  - [x] team 已把质量门禁升级为共享合同
-  - [x] 各角色输出合同已补 `report` 路径与局部质量 delta
+  - [x] 主 `SKILL.md` 已回链六个维度模块
+  - [x] `capability-playbook.md` 已降为共享总则与协调层
+  - [x] 六个维度细则已各自独立落盘
+  - [x] 审计脚本已将这些 references 纳入声明式引用检查
 - evidence_paths:
-  - `.codex/agents/aigc/制作组/_shared/CREATIVE_QUALITY_PLAYBOOK.md`
-  - `.codex/agents/aigc/制作组/team.md`
-  - `.codex/agents/aigc/制作组/分镜表现/分镜规划.md`
-  - `.codex/agents/aigc/制作组/摄影美学/摄影师.md`
   - `.agents/skills/aigc/3-Detail/SKILL.md`
-- user_feedback_or_constraint: 用户明确指出 `.codex/agents/aigc/制作组` 相关智能体“仅有简单目标和规范明确，没有确保高质量创作的方法和引导”，要求直接升级。
+  - `.agents/skills/aigc/3-Detail/references/capability-playbook.md`
+  - `.agents/skills/aigc/3-Detail/references/分镜表现.md`
+  - `.agents/skills/aigc/3-Detail/references/角色表现.md`
+  - `.agents/skills/aigc/3-Detail/references/场景氛围.md`
+  - `.agents/skills/aigc/3-Detail/references/运镜手法.md`
+  - `.agents/skills/aigc/3-Detail/references/摄影美学.md`
+  - `.agents/skills/aigc/3-Detail/references/转场特效.md`
+- user_feedback_or_constraint: 用户明确要求在 `references/` 中以六个专属维度展开思维·执行节点细节设计。
+
+### Case-20260412-AIGC-DETAIL-CINEMATOGRAPHY-LIGHTING
+
+- milestone_type: source_contract_change
+- outcome: 将 `摄影美学` 从“光影 / 色彩”两段抽象子补丁，增强为“摄影底座回看 -> 光位与照明类型 -> 组级光影流动 -> 色彩心理 -> 摄影总协调”的可执行链。
+- root_cause_or_design_decision: 旧摄影链能表达 final look，但还没有把 `全局风格 / 类型指导 / 导演意图` 的摄影承诺显式回收到节点前置，也没有把组级照明推进与色彩心理拆成稳定必答位，容易滑回抽象审美词。
+- final_fix_or_heuristic: 先在 `references/摄影美学.md` 固定摄影链的串并结构，再同步修改 `chain-of-thought.md`、`execution-flow.md` 与 `_shared/IO_CONTRACT.md`，让摄影维度既有局部细则，又有共享门禁承接。
+- prevention_or_replication_checklist:
+  - [x] `摄影美学.md` 已显式要求回看项目级摄影底座
+  - [x] 光位、组级光影推进与色彩心理已成为摄影链必答维度
+  - [x] 共享思维链、执行流与 I/O 合同已同步摄影链串并关系
+  - [x] 最终写回仍收束到单一 `摄影美学` 字段，没有越权扩 schema
+- evidence_paths:
+  - `.agents/skills/aigc/3-Detail/references/摄影美学.md`
+  - `.agents/skills/aigc/3-Detail/references/chain-of-thought.md`
+  - `.agents/skills/aigc/3-Detail/references/execution-flow.md`
+  - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
+- user_feedback_or_constraint: 用户要求把摄影美学中的灯光与色彩考量细化到可执行节点，并优先落在 `references` 专属模块中。
+
+### Case-20260412-AIGC-DETAIL-CINEMATOGRAPHY-KB-HIT
+
+- milestone_type: source_contract_change
+- outcome: 将 `knowledge-base/电影学院派/电影摄影` 从可选背景材料提升为 `摄影美学` 链的显式前置命中节点。
+- root_cause_or_design_decision: 仅在总合同里提“可命中学院派知识库”还不够，摄影链如果没有单独的知识命中与转译节点，最终容易退化为只读了知识库但没有改变布光和色彩决策。
+- final_fix_or_heuristic: 在 `references/摄影美学.md` 中加入 `CP-3 命中摄影知识库`，并把 `cinematography_academy_hit_note` 接入 execution flow、shared I/O 与主技能骨架，使摄影知识直接参与后续光位与色彩分支。
+- prevention_or_replication_checklist:
+  - [x] `摄影美学.md` 已显式列出摄影知识库文件
+  - [x] 已增加知识命中与转译节点
+  - [x] `cinematography_academy_hit_note` 已进入执行流与 I/O 合同
+  - [x] 质量门禁已禁止直接照抄学院派术语
+- evidence_paths:
+  - `.agents/skills/aigc/3-Detail/references/摄影美学.md`
+  - `.agents/skills/aigc/3-Detail/references/execution-flow.md`
+  - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+- user_feedback_or_constraint: 用户明确说明他的意思是“把 `knowledge-base/电影学院派/电影摄影` 作为摄影美学思维·执行节点里的直接高命中参考来源”。 
+
+### Case-20260412-AIGC-DETAIL-PERFORMANCE-EXPRESSIVITY
+
+- milestone_type: source_contract_change
+- outcome: 将 `角色表现` 维度从“情绪/动作/关系可见化”进一步增强为“角色化表达 + 行为推动叙事 + 微表情传神”的串行支链。
+- root_cause_or_design_decision: 仅要求“可见表演”仍容易落成通用情绪模板，导致镜头有人物却缺少人物辨识度，也难把共情与叙事推进写进同一字段。
+- final_fix_or_heuristic: 在 `references/角色表现.md` 中固定 `主轴 -> 个性/习惯/下意识 -> 可见信号 -> 叙事性行为 -> 传神强化 -> 越权清理` 的内部顺序，并把其对运镜/摄影的协同关系写入 `execution-flow.md` 与 `capability-playbook.md`。
+- prevention_or_replication_checklist:
+  - [x] `角色表现` 专属 reference 已加入角色化表达、动作叙事、共情强化与眉眼微表情节点
+  - [x] `chain-of-thought.md` 已提升 `FIELD-DETAIL-07` 的判定口径
+  - [x] `execution-flow.md` 已明确该支链“外并行、内串行”的执行方式
+  - [x] `capability-playbook.md` 已明确与运镜/摄影的 side input 交接边界
+- evidence_paths:
+  - `.agents/skills/aigc/3-Detail/references/角色表现.md`
+  - `.agents/skills/aigc/3-Detail/references/chain-of-thought.md`
+  - `.agents/skills/aigc/3-Detail/references/execution-flow.md`
+  - `.agents/skills/aigc/3-Detail/references/capability-playbook.md`
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+- user_feedback_or_constraint: 用户要求在 `3-Detail` 的思维·执行节点中补入“个性化表现、习惯动作、下意识、动作推动叙事、形象生动与共情、强情绪与眉眼传神”等考虑，并优先落在 references 专属模块。

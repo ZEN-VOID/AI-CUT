@@ -22,57 +22,57 @@
 | --- | --- | --- |
 | canonical | `projects/<项目名>/3-Detail/第N集.json` | 当前集唯一 episode 根文件 |
 | validation | `projects/<项目名>/3-Detail/validation-report.md` | 阶段验收与返工入口 |
-| handoff | `agents_plan + patch / note / report` | subagents 返回给父 skill 的思考计划与局部增量 |
+| internal artifacts | `plan + patch / note / report` | skill 内部能力链返回的思考计划与局部增量 |
 
 ## Naming Contract
 
-- `mission_brief`
-- `selected_groups`
-- `selected_agents`
-- `subagent_brief_<role>`
-- `context_packet_<role>`
-- `agents_plan_<role>`
-- `plan_patch_分镜规划`
-- `artifact_patch_<role>`
-- `review_note_连续性复核`
-- `audit_report_真源审计`
+- `detail_mission_brief`
+- `scope_plan`
+- `bootstrap_patch`
+- `skeleton_plan`
+- `skeleton_patch`
+- `core_patch_set`
+- `finish_patch_set`
+- `camera_decision_note`
+- `cinematography_brief`
+- `cinematography_academy_hit_note`
+- `group_lighting_note`
+- `continuity_note`
+- `continuity_report`
+- `audit_report`
+- `writeback_patch_set`
 - `synthesis_report`
 
 ## Field Slot Contract
 
-| 角色 | 默认返回 | 主字段槽位 | 说明 |
+| 内部能力链 | 默认返回 | 主字段槽位 | 说明 |
 | --- | --- | --- | --- |
-| `分镜规划` | `plan_patch + report` | `分镜ID`、`时间段`、shot coverage、组级拆镜顺序 | 先给骨架，不直接写完整 shot 文案 |
-| `分镜构图` | `artifact_patch + note` | `分镜表现`、`场景及方位` 的构图补强、`角色及站位和穿搭` 的几何关系与穿搭显著特征 | 负责画面可读性与主体关系 |
-| `景观设计` | `artifact_patch + note` | `场景及方位`、`道具及状态` | 负责空间结构、环境元素与道具状态 |
-| `氛围设计` | `artifact_patch + note` | `场景氛围` | 负责时间感、空气感与情绪气候 |
-| `内心戏指导` | `artifact_patch + note` | `角色表现` | 负责心理活动与情绪内压 |
-| `动作戏指导` | `artifact_patch + note` | `角色表现`、`角色及站位和穿搭` 的动作调度补充 | 负责动作节奏与肢体因果 |
-| `对手戏指导` | `artifact_patch + note` | `角色表现`、`角色及站位和穿搭` 的关系调度补充 | 负责多角色关系张力 |
-| `叙事派` | `artifact_patch + note` | `运镜手法` | 默认路线，优先信息传达与叙事推进 |
-| `炫技派` | `artifact_patch + note` | `运镜手法` 的挑战方案 | 只有在显式需要时参与对照 |
-| `摄影师` | `artifact_patch + note` | `摄影美学` | 负责摄影总协调与镜头语言合成 |
-| `光影美学大师` | `artifact_patch + note` | `摄影美学` 的光线子补丁 | 提供主辅光、明暗戏剧性 |
-| `色彩美学大师` | `artifact_patch + note` | `摄影美学` 的色彩子补丁 | 提供色板、色温与情绪色 |
-| `转场设计` | `artifact_patch + note` | `转场特效` 或组间过渡 note | 负责衔接与视觉过渡 |
-| `特效设计` | `artifact_patch + note` | `转场特效` 的特效子补丁 | 负责必要特效与边界说明 |
-| `连续性复核` | `review_note + report` | completeness / continuity / readability verdict | 不直接生成业务字段 |
-| `真源审计` | `audit_report` | schema / lineage / overreach verdict | 不直接生成业务字段 |
+| `scope_bootstrap_engine` | `plan + patch + report` | `metadata`、命中切片索引、bootstrap 落点 | 锁定写回范围与根文件存在性 |
+| `shot_skeleton_engine` | `plan + patch + report` | `分镜ID`、`时间段`、shot coverage、组级拆镜顺序 | 先给骨架，不直接写完整 shot 文案 |
+| `structural_staging_engine` | `patch + note + report` | `分镜表现`、`景别`、`镜头属性`、`镜头框架`、`镜头类型`、`镜头视角`、`场景及方位`、`角色及站位和穿搭`、`道具及状态` | 负责空间结构、观看路径、镜头描述子槽、几何关系与道具底座 |
+| `performance_engine` | `patch + note + report` | `角色表现`、`角色及站位和穿搭` 的表演补丁 | 吸收内心 / 动作 / 对手戏三种子模式 |
+| `atmosphere_engine` | `patch + note + report` | `场景氛围` | 负责时间感、空气感与情绪气候 |
+| `camera_movement_engine` | `patch + note + report` | `运镜手法` | 默认叙事路线，条件追加挑战方案 |
+| `cinematography_engine` | `patch + note + report` | `摄影美学` | 先回看项目级摄影底座，再产出光位 / 组级光影推进 / 色彩子证据，最后合成 final look |
+| `transition_fx_engine` | `patch + note + report` | `转场特效` | 只在存在明确叙事收益时补强 |
+| `continuity_review_engine` | `note + report` | completeness / continuity / readability verdict | 不直接生成业务字段 |
+| `source_audit_engine` | `report` | schema / lineage / overreach verdict | 不直接生成业务字段 |
 
 ## Merge Precedence
 
-1. `分镜规划` 先锁 shot skeleton。
-2. `景观设计` 先给空间与道具底座，`分镜构图` 再补画面构图与主体关系。
-3. `角色表现` 族群按命中问题合成到 `角色表现`，如涉及站位、关系或服装显著特征调整，由父 skill 统一回写 `角色及站位和穿搭`。
-4. `叙事派` 是 `运镜手法` 默认主路由；`炫技派` 只作为对照方案，不自动覆盖默认路线。
-5. `摄影师` 负责 `摄影美学` 的最终合成；光影与色彩大师只提供子补丁。
-6. `转场设计` 先给叙事过渡；`特效设计` 只在必要时补强特效说明。
-7. `连续性复核` 与 `真源审计` 只读合成后的 draft，不反向写业务字段。
+1. `scope_bootstrap_engine` 先锁命中切片与 preset 保护范围。
+2. `shot_skeleton_engine` 先锁 shot skeleton。
+3. `structural_staging_engine` 中由节拍/景别与构图判断先行，再收束镜头描述子槽、空间/道具底座与几何关系。
+4. `performance_engine` 只在已锁 skeleton 上补表演，不得反向重排镜序。
+5. `camera_movement_engine` 里 `叙事派` 是默认主路由；挑战方案只作为对照，不自动覆盖。
+6. `cinematography_engine` 中先生成 `cinematography_brief`、视觉控制线与 `cinematography_academy_hit_note`，再并行产出光位与色彩子补丁，随后串行补 `group_lighting_note`，最后由摄影总协调合成最终 `摄影美学`。
+7. `transition_fx_engine` 先判断是否需要转场，再判断是否需要特效桥接。
+8. `continuity_review_engine` 与 `source_audit_engine` 只读合成后的 candidate，不反向写业务字段。
 
 ## Hard Rules
 
 1. `projects/<项目名>/3-Detail/第N集.json` 是唯一 canonical 输出。
-2. 所有 subagents 只能返回 `agents_plan + patch / note / report`，不能直接落盘 JSON。
-3. 没有 `分镜规划` 的 shot skeleton，不得让专业角色自行发明 `分镜ID` 或改写镜序。
+2. 所有内部能力链只能返回 `plan + patch / note / report`，不能直接落盘 JSON。
+3. 没有 `shot_skeleton_engine` 产出的 skeleton，不得让其他能力链自行发明 `分镜ID` 或改写镜序。
 4. 读取到 `respect_storyboard_presets` 或 `preserve_only` 时，不得越权重排已锁定的 shot order。
-5. `连续性复核` 与 `真源审计` 拥有 veto / rework 建议权，但不拥有 canonical 写回权。
+5. `continuity_review_engine` 与 `source_audit_engine` 拥有 veto / rework 建议权，但不拥有 canonical 写回权。

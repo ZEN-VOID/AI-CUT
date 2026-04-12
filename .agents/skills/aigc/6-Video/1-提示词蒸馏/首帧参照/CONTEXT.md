@@ -24,6 +24,8 @@
 | 为了凑字数而虚构桥段细节 | 字数预算层 | 回退到保守桥段表达，允许 underflow | 在策略表中固化 `ambiguous/underflow` 保守退化规则 | manifest 中有原因备注且无新事实 |
 | 规则散落在 `references/*.md` 导致主合同失真 | 真源治理层 | 把字段表、流程、类型策略、输出契约全部回收进 `SKILL.md` | 固化“`SKILL.md` 是唯一规范真源，`CONTEXT.md` 只保留经验层” | 执行无需再依赖 `references/` |
 | `6-视频/subtypes/...` 与真实路径 `6-Video/...` 不一致 | 路径合同层 | 统一所有技能内路径与证据路径到真实目录 | 在案例与合同中持续使用真实路径，避免旧路径回潮 | 仓内不再残留命中的旧路径字符串 |
+| 只把章节标题改成知行合一口径，但桥段判型、预算压缩、写回与汇流仍是旧线性说明书 | 思行网络层 | 把执行链重排为 `任务归位 -> 判型 -> 提取 -> 压缩 -> 写回 -> 汇流` 的节点网络 | 在 `SKILL.md` 固化 `Business Requirement Analysis + Topology + Thinking-Action Node + Convergence + One-Shot Output` 五层结构 | 关键链路可通过节点与 Mermaid 一眼定位 |
+| 概述中的 canonical 路径漂到不存在的仓库根（如 `AIGC-DREAMER`） | 路径真源层 | 回收所有本地目录说明到当前真实技能树路径 | 在 leaf 合同、经验层与 changelog 中统一使用 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/` | 文档路径、evidence path 与仓内真实目录一致 |
 
 ## Repair Playbook
 
@@ -43,6 +45,8 @@
 - 帧级提示词的字数窗应低于组级；若上游信息有限，允许 underflow，但必须把原因写进 manifest，而不是用空泛修辞补字数。
 - 当叶子技能已经稳定时，字段表、流程、类型策略和输出契约应收束进单一 `SKILL.md`；经验层只保留 failure map、repair playbook 和 milestone case。
 - 技能路径一旦完成真实目录切换，后续 case、evidence path 和默认加载路径都必须同步使用真实路径，不能继续沿用旧别名。
+- 对帧级 `首帧参照` 做知行合一改造时，最稳的方式不是改变桥段/模板机制，而是把既有机制重织成更细的思行节点，让“判型、提取、预算、写回、汇流”全部显性化。
+- 当用户明确要求 `复杂链路的骨架 / 细则分层 = false` 时，应把复杂度体现在节点粒度和 Mermaid 治理密度上，而不是再拆出第二份 references 真源。
 
 ## Case Log
 
@@ -81,3 +85,22 @@
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CHANGELOG.md`
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/agents/openai.yaml`
 - user_feedback_or_constraint: 用户明确要求“针对 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` 执行全量升格重构，references 内容整合到 `SKILL.md` 内，不再以 references 作为载体引用”。
+
+### Case-20260412-AIGC-VIDEO-FIRST-FRAME-ZHI-XING-NETWORK
+
+- milestone_type: source_contract_change
+- outcome: 在不改变 `首帧参照` 现有输入输出、桥段判型、共享模板、字数窗和三件套机制的前提下，将其重排为知行合一的 inline-full-spec 单技能网络。
+- root_cause_or_design_decision: 现有 `首帧参照` 虽然已经是单一 `SKILL.md` 主合同，但表达形态仍偏传统“workflow + field tables”说明书，且节点粒度不足，无法把用户要求的“每一个思维·执行节点从哪些方面着手，一步一步足够细致”显性化。
+- final_fix_or_heuristic: 保留现有帧级机制，只把结构重排为 `Business Requirement Analysis -> Total Input -> Topology -> N0-N9 思行节点 -> Convergence -> One-Shot Output`，并显式写出 `bridge_mode`、`budget_state`、汇流门与 `思考过程` closure。
+- prevention_or_replication_checklist:
+  - [x] 未改变 `projects/<项目名>/6-Video/首帧参照/第N集/` 三件套落点
+  - [x] 保留 `FIELD-VID-FFR-01` 到 `FIELD-VID-FFR-04`
+  - [x] 已把桥段判型、预算压缩、模板骨架与写回汇流改为细粒度节点
+  - [x] 已显式写明 `复杂链路的骨架 / 细则分层 = false`
+  - [x] 已修正概述中的仓库根路径漂移
+- evidence_paths:
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/SKILL.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CHANGELOG.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/agents/openai.yaml`
+- user_feedback_or_constraint: 用户明确要求“重构 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` 下相关子技能包，内容和机制上全量参照现有配置，但根据知行合一的规范进行编排；‘复杂链路的骨架 / 细则分层’: false；每一个思维·执行节点一步一步足够细致”。

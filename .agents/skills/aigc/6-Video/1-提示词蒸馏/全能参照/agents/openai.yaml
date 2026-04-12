@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 全能参照"
-  short_description: "把编导分镜组蒸馏为视频请求 JSON、TXT 与 manifest"
-  default_prompt: "Use $aigc-video-seedance2 to read `projects/<项目名>/3-Detail/第N集.json`, distill each 分镜组 into the canonical video request JSON, preserve `剧本正文` and `全局风格` verbatim, write `第N集.json`, `第N集.txt`, and `_manifest.json`, and keep `SKILL.md` as the only contract source."
+  short_description: "按知行合一节点网把分镜组蒸馏为视频请求 JSON、TXT 与 manifest。"
+  default_prompt: "Use $aigc-video-seedance2 to read `projects/<项目名>/3-Detail/第N集.json`, treat each 分镜组 as one group-level request packet, preserve `剧本正文` and `全局风格` verbatim, compress the remaining group-level and shot-level facts under the budget strategy, write `第N集.json`, `第N集.txt`, and `_manifest.json`, and close with a thinking-process summary plus key evidence without inventing reference images or upstream facts."

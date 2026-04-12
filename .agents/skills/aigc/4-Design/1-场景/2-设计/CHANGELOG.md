@@ -1,28 +1,25 @@
-# CHANGELOG
+# CHANGELOG.md
 
-## 2026-04-12 - scene-design subagent upgrade
+本文件承载 `.agents/skills/aigc/4-Design/1-场景/2-设计` 的结构性变更索引，不参与默认技能预加载，也不与 `SKILL.md / CONTEXT.md` 竞争真源。
 
-### 新增
+## 2026-04-12
 
-- 新建 `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
-- 新建 `.agents/skills/aigc/4-Design/1-场景/2-设计/CONTEXT.md`
-- 新建 `.agents/skills/aigc/4-Design/1-场景/2-设计/agents/openai.yaml`
-- 新建 `.agents/skills/aigc/4-Design/1-场景/2-设计/references/{chain-of-thought,execution-flow,type-strategies,output-template}.md`
-- 新建 `.agents/skills/aigc/4-Design/1-场景/2-设计/templates/scene-design-card.md`
-- 新建 `.codex/agents/aigc/设计组/场景设计/team.md`
-- 新建 `.codex/agents/aigc/设计组/场景设计/{设计统筹,审景师,真源审计}.md`
-
-### 修改
-
-- 补齐 `.codex/agents/aigc/设计组/场景设计/{空间逻辑,建筑设计师,布景师}.md` 的稳定角色合同
-
-### 关键迁移映射
-
-- 旧状态：`1-场景/2-设计/` 仅为空目录，场景设计组 agent 文档为空
-- 新状态：`2-设计` 作为 canonical scene design skill，场景设计组仅返回 `agents_plan + patch / note / report`
-
-### Harness / Handoff 同步
-
-- `1-清单 -> 2-设计` 的 handoff 关系已在新技能合同中显式化
-- `team.md` 已明确 canonical writeback owner 为父 skill
-- 默认 mixed tranche + 后台 subagents 模式已显式写入 team 与 skill
+- `Case-20260412-AIGC-SCENE-DESIGN-SINGLE-SOURCE-ELEVATION`
+  - 将 `2-设计` 从“父 skill + references + 外置场景设计组”重构为知行合一单技能真源。
+  - 将 `设计统筹 / 空间逻辑 / 建筑设计师 / 布景师 / 审景师 / 真源审计` 六个能力面全部内联回 `SKILL.md`。
+  - 将 `references/chain-of-thought.md`、`references/execution-flow.md`、`references/type-strategies.md`、`references/output-template.md` 的规范内容全部并入 `SKILL.md`。
+  - 同步刷新 `CONTEXT.md`，把经验层改成“单技能真源”口径。
+  - 同步刷新 `agents/openai.yaml`，移除 subagent / team 叙述。
+  - 同步删除废弃载体：
+    - `.agents/skills/aigc/4-Design/1-场景/2-设计/references/*`
+    - `.codex/agents/aigc/设计组/场景设计/*`
+  - 旧载体到新真源映射：
+    - `references/chain-of-thought.md` -> `SKILL.md / Field Master / Thought Pass Map / Pass Table`
+    - `references/execution-flow.md` -> `SKILL.md / Context Preload / Mandatory Workflow / Scene Design Card Assembly Rules`
+    - `references/type-strategies.md` -> `SKILL.md / Type System / Convergence Contract`
+    - `references/output-template.md` -> `SKILL.md / One-Shot Output Contract`
+    - `.codex/agents/aigc/设计组/场景设计/*.md` -> `SKILL.md / Internal Capability Fusion Contract + Thinking-Action Node Network`
+  - 证据路径：
+    - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
+    - `.agents/skills/aigc/4-Design/1-场景/2-设计/CONTEXT.md`
+    - `.agents/skills/aigc/4-Design/1-场景/2-设计/agents/openai.yaml`

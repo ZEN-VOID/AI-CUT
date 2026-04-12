@@ -24,6 +24,8 @@
 | 压缩后远低于 1800 字或显著超出 2000 字 | 字数预算层 | 调整非固定字段压缩力度 | 在策略表加入 `tight/normal/underflow` 预算规则 | `prompt_char_count` 处于目标窗或有保守例外说明 |
 | `reference_images` 缺失，或 `image_markers` 的 URL/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐三元信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
+| 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
+| 三件套已写出，但对用户的结案信息只剩路径，没有思考过程和关键证据 | 结案闭环层 | 在最终闭环中补 `思考过程 + 关键证据 + 风险/例外` | 新增 `FIELD-VID-SUBJ-05` 并把闭环四段写成硬合同 | 执行结果可复核，不再只剩文件清单 |
 
 ## Repair Playbook
 
@@ -43,6 +45,8 @@
 - 当同一份 prompt 既要给工具消费又要给人读时，最稳的是 `json` 保结构、`txt` 保阅读，不把两种职责硬塞进同一个文件。
 - 一旦采用双输出，必须持续强调：`txt` 是 derived display view，`json` 才是 completeness carrier。
 - 当 `references/` 开始充当规则入口时，真正的问题不是“文件多”，而是子技能出现了第二真源；应直接把规范收回 `SKILL.md`。
+- 这类“固定块原文保留 + 压缩块受预算约束 + 三件套落盘”的叶子技能，最稳的结构不是再加几条 checklist，而是改成“串行主干 + 条件预算分支 + 汇流门”的思行网络。
+- 如果节点没有显式写出 `route_out` 和 `gate`，执行者最容易在 `underflow`、标题泄露或三件套不一致时直接凭感觉补救，最后留下不可复核的半闭环。
 
 ## Case Log
 
@@ -95,3 +99,21 @@
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CHANGELOG.md`
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/agents/openai.yaml`
 - user_feedback_or_constraint: 用户明确要求“针对 `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照` 执行全量升格重构，references 内容整合到 `SKILL.md` 内，不再以 references 作为载体引用”。
+
+### Case-20260412-AIGC-VIDEO-SUBJECT-ZXY-REFACTOR
+
+- milestone_type: source_contract_change
+- outcome: 将 `全能参照` 从强化线性叶子合同重构为知行合一式单技能思行网络，并显式关闭“骨架 / 细则分层”。
+- root_cause_or_design_decision: 旧合同虽然已经把字段系统、流程、类型策略与输出契约收回主 `SKILL.md`，但关键判断仍散在线性章节里；一旦遇到输入缺口、预算压力、标题泄露或三件套不一致，执行者很难明确知道应回到哪一层返工，也无法稳定输出思考过程。
+- final_fix_or_heuristic: 保留现有输入、输出、模板、字段、字数窗与禁止项不变，把组织方式重写为 `业务需求分析 -> 总输入合同 -> 混合拓扑 -> N0-N8 思行节点 -> 汇流门 -> 一次性输出门`，并新增执行闭环字段 `FIELD-VID-SUBJ-05`。
+- prevention_or_replication_checklist:
+  - [x] `SKILL.md` 已明确声明 `复杂链路的骨架 / 细则分层: false`
+  - [x] 每个节点已补齐 `objective / inputs / actions / evidence / route_out / gate`
+  - [x] 已新增汇流门与结案门
+  - [x] 最终闭环已固定包含 `思考过程`
+- evidence_paths:
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/SKILL.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CHANGELOG.md`
+  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/agents/openai.yaml`
+- user_feedback_or_constraint: 用户明确要求“根据知行合一的规范进行编排”，“复杂链路的骨架 / 细则分层：false”，并要求每一个思维·执行节点从哪些方面着手、一步一步足够细致。
