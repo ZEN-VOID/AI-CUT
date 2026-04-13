@@ -62,7 +62,7 @@ governance_tier: full
 ## Canonical Source Governance
 
 - 当前 `SKILL.md` 是本技能唯一规范真源。
-- `CONTEXT.md` 仅承载经验层：Type Map、Repair Playbook、Reusable Heuristics、Case Log。
+- `CONTEXT.md` 仅承载经验层：Type Map、Repair Playbook、Reusable Heuristics。
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 是共享模板真源；本技能只做局部填充，不复制平行模板。
 - 相关“子技能包能力面”当前以内收节点方式治理，不另起本地子目录；若未来真有稳定独立边界，应显式升格为父级声明的受治理子技能，而不是重新拆回多份文档。
 

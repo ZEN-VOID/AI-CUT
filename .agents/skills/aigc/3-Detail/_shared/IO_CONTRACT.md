@@ -22,7 +22,7 @@
 | --- | --- | --- |
 | canonical | `projects/<项目名>/3-Detail/第N集.json` | 当前集唯一 episode 根文件 |
 | validation | `projects/<项目名>/3-Detail/validation-report.md` | 阶段验收与返工入口 |
-| internal artifacts | `plan + patch / note / report + density_quantization_report + density_validation_verdict` | skill 内部能力链返回的思考计划、局部增量与 authoritative 密度证据 |
+| internal artifacts | `plan + patch / note / report + density_quantization_report + density_validation_verdict` | skill 内部能力链返回的思考计划、局部增量与结构化密度预算证据 |
 
 ## Naming Contract
 
@@ -82,5 +82,5 @@
 4. `2-Global` 已 seed 的 `组间设计` 默认只允许继承与消费；若需改写，必须在 `report` 中显式说明返工原因。
 5. 读取到 `respect_storyboard_presets` 或 `preserve_only` 时，不得越权重排已锁定的 shot order。
 6. `continuity_review_engine` 与 `source_audit_engine` 拥有 veto / rework 建议权，但不拥有 canonical 写回权。
-7. 若 `shot_count_decision`、`景别/空间包络` 与下游维度判断不对齐，必须回到 `SB-2/3/4` 或对应结构节点重判；禁止以下游链复制组级文本的方式“补齐多数”。
+7. 若 `preferred_shot_count / shot_budget_floor / shot_budget_ceiling`、`景别/空间包络` 与下游维度判断不对齐，必须回到 `SB-2/3/4` 或对应结构节点重判；禁止以下游链复制组级文本的方式“补齐多数”。
 8. 只要命中组已有有效 `分镜明细[]`，`组间设计.出场角色及穿搭` 就不得保持空字符串；闭环前必须完成回填或显式写明 `无出场角色`。

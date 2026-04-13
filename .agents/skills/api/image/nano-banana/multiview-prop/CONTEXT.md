@@ -6,11 +6,8 @@
 monitor_version: 1
 soft_limit_chars: 40000
 hard_limit_chars: 80000
-soft_limit_cases: 80
-hard_limit_cases: 140
 current_chars: auto
 current_lines: auto
-current_cases: auto
 status: ok
 recommended_action: keep-target-scoped-updates
 last_checked_at: 2026-03-20T00:00:00Z
@@ -42,7 +39,3 @@ last_checked_at: 2026-03-20T00:00:00Z
 - 道具描述应涵盖功能、造型骨架、材质工艺、磨损痕迹、尺度比例
 - 默认 `--no-report` 减少冗余文件
 - 描述控制在 400 字以内
-
-## Case Log
-
-（待积累）

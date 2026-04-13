@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -37,36 +35,3 @@
 - 当 `场景及方位` 同时含空间实体和朝向短语时，优先保住空间实体；方位信息宁可全部留在 `scene_variant`。
 - 对本链路来说，`unknown` 是合格回退，不是失败遮羞布；真正的失败是静默跳过镜头。
 - 若规则已经收回单一 `SKILL.md`，经验层只补 heuristics，不再额外复制流程、表格和输出契约。
-
-## Case Log
-
-### Case-20260412-AIGC-DESIGN-SCENE-LIST-CREATION
-
-- milestone_type: source_contract_change
-- outcome: 为 `.agents/skills/aigc/4-Design/场景/1-清单` 建立了面向当前仓的场景清单子技能包与提取脚本。
-- root_cause_or_design_decision: 参照仓 `场景清单` 绑定旧 runtime，并同时负责研究与 bridge；当前任务则明确要求消费 `projects/<项目名>/3-Detail/第N集.json` 并只输出 `4-Design/场景/1-清单/` 下的场景清单。
-- final_fix_or_heuristic: 保留“镜级场景抽取 + 主场景聚合”的核心能力，把输出收口为 `第N集.json + 可选 _manifest.json`，去掉研究链与旧 runtime 假设。
-- prevention_or_replication_checklist:
-  - [x] shared director schema 已成为输入真源
-  - [x] `projects/<项目名>/4-Design/场景/1-清单/` 已成为当前技能默认落点
-  - [x] `scenes[] / group_scene_map[]` 已固定为主输出字段
-- evidence_paths:
-  - `.agents/skills/aigc/4-Design/场景/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/scripts/extract_scene_catalog.py`
-- user_feedback_or_constraint: 用户明确要求参照旧场景清单能力，但输入改为 `projects/<项目名>/3-Detail/第N集.json`，输出改为 `projects/<项目名>/4-Design/场景/1-清单/`。
-
-### Case-20260412-AIGC-DESIGN-SCENE-LIST-ZXY-REFACTOR
-
-- milestone_type: source_contract_change
-- outcome: 将 `1-清单` 重构为知行合一单合同技能，取消 `references/` 细则分层，所有规则收束到 `SKILL.md`。
-- root_cause_or_design_decision: 旧结构把思维链、执行流、类型策略和输出模板拆到 `references/`，虽然可用，但已不符合用户要求的“复杂链路骨架/细则分层=false”与单一真源口径。
-- final_fix_or_heuristic: 采用 `N0-N7` 思行节点，把边界、输入、抽取、聚合、写出、验收全部写进主合同；经验层只保留失败模式与复用 heuristics。
-- prevention_or_replication_checklist:
-  - [x] 主合同已覆盖输入、拓扑、节点、输出、字段表和 root-cause 合同
-  - [x] `references/` 已不再承载规则真源
-  - [x] 下游仍可沿原输出路径消费 `scene catalog`
-- evidence_paths:
-  - `.agents/skills/aigc/4-Design/场景/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/CONTEXT.md`
-- user_feedback_or_constraint: 用户明确要求基于 `$skill-知行合一` 重构本技能，并指定 `复杂链路的骨架 / 细则分层: false`，且每个思维·执行节点必须足够细致。

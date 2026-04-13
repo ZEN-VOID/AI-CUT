@@ -6,11 +6,8 @@
 monitor_version: 1
 soft_limit_chars: 40000
 hard_limit_chars: 80000
-soft_limit_cases: 80
-hard_limit_cases: 140
 current_chars: auto
 current_lines: auto
-current_cases: auto
 status: ok
 recommended_action: keep-target-scoped-updates
 last_checked_at: 2026-03-10T00:00:00Z
@@ -69,24 +66,3 @@ last_checked_at: 2026-03-10T00:00:00Z
 - 输出文件名由 `--filename-prefix` 控制，默认 `seedream`；批量场景建议按分镜 ID 设置前缀。
 - 密钥优先从根目录 `.env` 读取，脚本支持三级回退：`SEEDREAM_API_KEY > ARK_API_KEY > VOLCENGINE_ARK_API_KEY`。
 - 水印默认启用；正式交付场景可用 `--no-watermark` 关闭。
-
-## Case Log
-
-### [CASE-20260310-SDR-INIT] 新建 SEEDREAM 5.0 技能基线并完成结构化改造
-
-- symptom: seedream 技能缺少 Field-Centric Thought-Pass 三表体系、Root-Cause 执行契约和 CONTEXT.md 经验层，不符合仓库 `AGENTS.md` 基线要求。
-- root cause: 技能初版仅包含执行流程和参数列表，未按 `AGENTS.md` 的 Field-Centric / Root-Cause / Repository Rollout Standard 进行结构化改造。
-- final fix: 以 `nano-banana` 技能为模板，完成 `SKILL.md` 全面改造（frontmatter 补全、字段主表 FIELD-SDR-01~05、思维导引表、通过表 FAIL-SDR-*、Root-Cause 执行契约、标准调用示例、输出约定），并新建 `CONTEXT.md`（Context Health、Type Map、Repair Playbook、Reusable Heuristics）。
-- prevention checklist:
-  - [x] SKILL.md 包含完整 frontmatter（name/description/triggers/tools/color/version）
-  - [x] 字段主表覆盖 5 个 field_id（FIELD-SDR-01 ~ FIELD-SDR-05）
-  - [x] 思维导引表 5 个 step_id 与 field_id 一一对应
-  - [x] 通过表 5 个 field_id 均有 pass_standard / fail_code / rework_entry
-  - [x] Root-Cause 执行契约包含层层上溯链路
-  - [x] CONTEXT.md 建立 Type Map / Playbook / Heuristics 基线
-- evidence paths:
-  - `.agents/skills/api/image/seedream/SKILL.md`
-  - `.agents/skills/api/image/seedream/CONTEXT.md`
-  - `.agents/skills/api/image/seedream/scripts/seedream_generate.py`
-  - `.agents/skills/api/image/seedream/references/api.md`
-- user feedback/constraint: 按 nano-banana 模板完成结构化改造；保留 Ark API 特有的连续多图、流式返回等能力；使用 FIELD-SDR / FAIL-SDR 前缀。

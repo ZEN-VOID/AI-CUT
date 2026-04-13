@@ -18,6 +18,7 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | prompt 直接照搬整组 `剧本正文` | 桥段提取层 | 回到目标 `分镜ID`，重做剧情桥段裁切 | 在 `FIELD-VID-FFR-02` 固化“剧情桥段只对应目标帧” | 剧情桥段与目标镜级事实对齐 |
+| shared director schema 已升级到 `角色背景面 / 角色站位走位 / 出场角色及穿搭`，但首帧 prompt 仍按旧字段心智压缩 | schema handoff 层 | 在帧级 prompt 中显式纳入组级 `出场角色及穿搭`，并把镜级消费口径切到 `角色背景面 / 角色站位走位` | 在 `SKILL.md` 的输入门、N3/N6、质量清单与根因合同中固定新字段 | 首帧 prompt 能同时读出空间朝向、角色走位与组级视觉识别锚点 |
 | `全局风格` 被改写 | 固定文本层 | 恢复原文直贴 | 在输出契约里显式标记“fixed verbatim block” | 与上游逐字一致 |
 | prompt 中暴露了字段标题 | 文本编排层 | 重写为无标题融合文本 | 在 `FIELD-VID-FFR-02` 固化只保留组ID/镜ID标签 | 除组ID/镜ID外无显式字段名 |
 | 帧级请求没有带出所属 `分镜组ID` | 来源定位层 | 补回 `meta.group_id` 与显式 `分镜组` 标签 | 在字段表中要求 `group_id + source_shot_ids` 成对存在 | 可同时回链到组级与帧级 |
@@ -42,6 +43,7 @@
 - 当一个分镜组只有 1 个分镜时，直接使用整段 `剧本正文` 作为剧情桥段，通常最稳。
 - 当一个分镜组有多个分镜而桥段边界不够清晰时，优先锚定目标分镜的可见动作、人物状态和空间关系，保守缩写，不虚构过渡。
 - 帧级 prompt 仍然需要组级空气层，所以最稳结构通常是：`剧情桥段 + 全局风格 + 压缩后的类型元素/导演意图 + 目标镜级字段`。
+- 当上游 schema 把“角色背后空间”“角色位移”“组级服装摘要”拆成三层时，帧级 prompt 也应同步三层消费：`角色背景面` 提供当前帧的空间朝向，`角色站位走位` 提供动作布局，`出场角色及穿搭` 提供视觉识别锚点。
 - 帧级提示词的字数窗应低于组级；若上游信息有限，允许 underflow，但必须把原因写进 manifest，而不是用空泛修辞补字数。
 - 当叶子技能已经稳定时，字段表、流程、类型策略和输出契约应收束进单一 `SKILL.md`；经验层只保留 failure map、repair playbook 和 milestone case。
 - 技能路径一旦完成真实目录切换，后续 case、evidence path 和默认加载路径都必须同步使用真实路径，不能继续沿用旧别名。
@@ -50,57 +52,18 @@
 
 ## Case Log
 
-### Case-20260410-AIGC-VIDEO-FIRST-FRAME-CONTRACT
+### Case-20260413-AIGC-VIDEO-FFR-SCHEMA-SYNC
 
 - milestone_type: source_contract_change
-- outcome: 为 `6-Video/1-提示词蒸馏/首帧参照` 建立了从 `3-Detail/第N集.json` 单一 `分镜ID` 到帧级视频请求 JSON 的叶子合同。
-- root_cause_or_design_decision: 用户需求已明确要求“站在分镜帧颗粒度，按分镜ID组织提示词，并把剧本正文切成对应分镜帧的剧情桥段”；若仍沿用组级 `全能参照` 规则，会把最关键的帧级桥段提取问题留成隐式人工判断。
-- final_fix_or_heuristic: 将“单帧定位、剧情桥段提取、全局风格固定保留、其余字段均匀压缩、双输出模式、参照图暂留空”的规则写成稳定的叶子执行合同，并让 `meta.source_shot_ids` 固定承载单一目标 `分镜ID`。
+- outcome: 将 `首帧参照` 对上游导演 schema 的消费口径同步到新字段分层：组级新增 `出场角色及穿搭`，镜级显式消费 `角色背景面 / 角色站位走位`。
+- root_cause_or_design_decision: 旧合同虽然已锁定“帧级 prompt 要消费组级与镜级上下文”，但输入门和压缩块清单没有显式列出新增组级服装摘要，也没有把镜级新字段写进最小壳与质量门，容易继续按旧字段名理解。
+- final_fix_or_heuristic: 在 `必需字段 / 输入完整性门 / N3 / N6 / FIELD-VID-FFR-02 / Quality And Audit Contract` 中固定新字段，确保首帧 prompt 不丢组级服装摘要，也不再依赖旧字段口径。
 - prevention_or_replication_checklist:
-  - [x] 帧级来源定位已写入合同
-  - [x] `剧本正文 -> 剧情桥段` 规则已写入策略
-  - [x] 双输出落点已写入合同
-  - [x] `source_shot_ids` 已回链共享模板
+  - [x] `SKILL.md` 已将 `出场角色及穿搭` 纳入必需字段与输入门
+  - [x] `SKILL.md` 已将 `角色背景面 / 角色站位走位` 纳入推荐字段与质量门
+  - [x] `FIELD-VID-FFR-02` 已固定新的压缩块覆盖范围
 - evidence_paths:
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/SKILL.md`
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md`
-  - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
-- user_feedback_or_constraint: 用户明确要求默认读取 `projects/<项目名>/3-Detail/第N集.json`，模板参照共享 JSON/TXT 模板，提示词以分镜组内容为基础，但当前站在分镜帧颗粒度，只处理单一 `分镜ID`，并将剧本正文调整为对应分镜帧的剧情桥段。
-
-### Case-20260412-AIGC-VIDEO-FIRST-FRAME-SINGLE-SOURCE-UPGRADE
-
-- milestone_type: source_contract_change
-- outcome: 将 `首帧参照` 从“`SKILL.md` 摘要 + `references/*.md` 规范外置”升级为单一 `SKILL.md` 主合同，并补齐 `CHANGELOG.md` 与 `agents/openai.yaml`。
-- root_cause_or_design_decision: 原结构把字段表、执行流程、类型策略和输出契约拆散到 `references/*.md`，同时继续保留旧路径 `6-视频/subtypes/...`，导致执行者必须跨文件拼合同，且实际目录与文档入口漂移。
-- final_fix_or_heuristic: 将字段表、workflow、variable register、case-to-strategy、output contract 与 audit contract 全部回收进 `SKILL.md`，同步把路径口径统一到 `6-Video/1-提示词蒸馏/首帧参照`，并新增 interface metadata 与 changelog 作为稳定交付面。
-- prevention_or_replication_checklist:
-  - [x] `SKILL.md` 已成为唯一规范真源
-  - [x] `CONTEXT.md` 只保留经验层与里程碑案例
-  - [x] `agents/openai.yaml` 已补齐
-  - [x] `CHANGELOG.md` 已记录升格与迁移
-  - [x] 目标目录不再依赖 `references/*.md`
-- evidence_paths:
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/SKILL.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CHANGELOG.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/agents/openai.yaml`
-- user_feedback_or_constraint: 用户明确要求“针对 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` 执行全量升格重构，references 内容整合到 `SKILL.md` 内，不再以 references 作为载体引用”。
-
-### Case-20260412-AIGC-VIDEO-FIRST-FRAME-ZHI-XING-NETWORK
-
-- milestone_type: source_contract_change
-- outcome: 在不改变 `首帧参照` 现有输入输出、桥段判型、共享模板、字数窗和三件套机制的前提下，将其重排为知行合一的 inline-full-spec 单技能网络。
-- root_cause_or_design_decision: 现有 `首帧参照` 虽然已经是单一 `SKILL.md` 主合同，但表达形态仍偏传统“workflow + field tables”说明书，且节点粒度不足，无法把用户要求的“每一个思维·执行节点从哪些方面着手，一步一步足够细致”显性化。
-- final_fix_or_heuristic: 保留现有帧级机制，只把结构重排为 `Business Requirement Analysis -> Total Input -> Topology -> N0-N9 思行节点 -> Convergence -> One-Shot Output`，并显式写出 `bridge_mode`、`budget_state`、汇流门与 `思考过程` closure。
-- prevention_or_replication_checklist:
-  - [x] 未改变 `projects/<项目名>/6-Video/首帧参照/第N集/` 三件套落点
-  - [x] 保留 `FIELD-VID-FFR-01` 到 `FIELD-VID-FFR-04`
-  - [x] 已把桥段判型、预算压缩、模板骨架与写回汇流改为细粒度节点
-  - [x] 已显式写明 `复杂链路的骨架 / 细则分层 = false`
-  - [x] 已修正概述中的仓库根路径漂移
-- evidence_paths:
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/SKILL.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CHANGELOG.md`
-  - `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/agents/openai.yaml`
-- user_feedback_or_constraint: 用户明确要求“重构 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` 下相关子技能包，内容和机制上全量参照现有配置，但根据知行合一的规范进行编排；‘复杂链路的骨架 / 细则分层’: false；每一个思维·执行节点一步一步足够细致”。
+  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- user_feedback_or_constraint: 用户要求根据更新后的 shared director schema，检查并同步 `6-Video/1-提示词蒸馏/首帧参照`。

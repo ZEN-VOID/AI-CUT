@@ -9,8 +9,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -23,7 +21,7 @@
 ## Repair Playbook
 
 1. 先读上一轮 preflight / acceptance 证据。
-2. 再提炼 milestone_type 与 heuristic。
+2. 再提炼可复用 heuristic 与 promotion scope。
 3. 写回 `learning-record.md`。
 4. 最后同步 `governance-state.yaml` 摘要。
 
@@ -31,19 +29,3 @@
 
 - learning-bridge 的价值不在于“记一遍发生了什么”，而在于“记住以后怎么少重来一次”。
 - 经验沉淀应比 verdict 更抽象，但不能脱离具体 scope。
-
-## Case Log
-
-### Case-20260411-AIGC-REVIEW-LEARNING-SUBTYPE
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: 将 `review` 的 learning 模式提升为受治理子技能。
-- root_cause_or_design_decision: learning 既不等于 preflight，也不等于 acceptance；如果继续挂在父技能里，很容易被忽略或写成重复摘要。
-- final_fix_or_heuristic: 将 learning-bridge 独立成子技能，固定 `learning-record.md` 为真源载体。
-- prevention_or_replication_checklist:
-  - [x] 已建立 `SKILL.md`
-  - [x] 已建立 `CONTEXT.md`
-- evidence_paths:
-  - `.agents/skills/aigc/review/subtypes/learning-bridge/SKILL.md`
-  - `.agents/skills/aigc/review/subtypes/learning-bridge/CONTEXT.md`
-- user_feedback_or_constraint: 用户要求把 `review` 进一步细化为专项 reviewer。

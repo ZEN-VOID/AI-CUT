@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Authoritative density quantizer for `aigc/3-Detail`.
+"""Structured density budget quantizer for `aigc/3-Detail`.
 
-This script turns grouped-script evidence into stage-local shot-count truth.
+This script turns grouped-script evidence into stage-local shot-budget guidance.
 It does not read prose shot drafts. It only reads `1-Planning/3-分组/第N集.md`.
 
 The quantizer is intentionally source-first:
 - candidate beats are segmented from action / dialogue / focus / turn signals
 - no scene-mode window clamps are applied
 - no extra format coefficient is applied
-- final shot count is decided by:
-  `round(candidate_beats * pace_coefficient) + split_bonus - merge_discount`
+- the output is a flexible budget:
+  `preferred_shot_count + [shot_budget_floor, shot_budget_ceiling]`
 """
 
 from __future__ import annotations
@@ -74,6 +74,8 @@ CROWD_KEYWORDS = (
     "祝贺",
 )
 
+CROWD_SUBJECT_RE = re.compile(r"(宾客|旁人|众人|人群|全场|围观|太太|老人|广场舞大妈)")
+
 BURST_KEYWORDS = (
     "突然",
     "猛地",
@@ -89,21 +91,36 @@ BURST_KEYWORDS = (
     "断开",
 )
 
-SUBJECT_HINTS = (
-    "苏晴",
-    "林深",
-    "苏国雄",
-    "贺廷",
-    "司机",
-    "宾客",
-    "太太",
-    "旁人",
-    "人群",
-    "全场",
-    "项链",
+ACTION_SUBJECT_PATTERNS = (
+    re.compile(
+        r"^(?:主位上的|门口的|吧台边|人群里的|人群中|一位|另一位|几位|周围几位)?"
+        r"(?P<subject>[一-龥]{2,6})"
+        r"(?:[，,、 ]|穿着|站在|看着|走出|走向|转进|转身|坐进|低头|抬头|伸手|举杯|笑|"
+        r"望着|摸到|推门|赤脚|背靠着|护住|扶住|抱住|吻|递给|拿着|追下车|安顿在|盯着|"
+        r"回到|回了|把|将)"
+    ),
+    re.compile(r"^(?P<subject>[一-龥]{2,6})的话音"),
+)
+
+GENERIC_SCENE_SUBJECTS = {
+    "晨光",
+    "阳光",
+    "空气",
+    "雨水",
+    "雨点",
+    "灯光",
+    "弦乐",
+    "掌声",
+    "笑声",
+    "高跟鞋",
+    "卷帘",
+    "背景",
+    "现场",
+    "广场",
+    "宴会厅",
     "酒吧",
     "阁楼",
-)
+}
 
 
 class DensityQuantizationError(RuntimeError):
@@ -135,8 +152,19 @@ class Segment:
     focus_owner: str = "场景"
 
 
+def normalize_subject(subject: str | None) -> str:
+    if not subject:
+        return "场景"
+    token = subject.strip()
+    if not token:
+        return "场景"
+    if CROWD_SUBJECT_RE.search(token):
+        return "群体"
+    return token
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="计算 `3-Detail` authoritative 分镜密度。")
+    parser = argparse.ArgumentParser(description="计算 `3-Detail` 的结构化分镜密度预算。")
     parser.add_argument("--grouped-script", required=True, help="输入 grouped script 路径（第N集.md）")
     parser.add_argument("--group-id", help="仅输出单个分镜组的量化结果")
     parser.add_argument("--json", action="store_true", help="以 JSON 输出")
@@ -191,10 +219,16 @@ def split_tail_hook_block(text: str) -> tuple[str, str]:
 
 def infer_subject(text: str, speaker: str | None = None) -> str:
     if speaker:
-        return speaker
-    for token in SUBJECT_HINTS:
-        if token in text:
-            return token
+        return normalize_subject(speaker)
+    if CROWD_SUBJECT_RE.search(text):
+        return "群体"
+    for pattern in ACTION_SUBJECT_PATTERNS:
+        match = pattern.match(text)
+        if not match:
+            continue
+        subject = normalize_subject(match.group("subject"))
+        if subject not in GENERIC_SCENE_SUBJECTS:
+            return subject
     return "场景"
 
 
@@ -252,21 +286,22 @@ def parse_units(text: str) -> list[Unit]:
 
 
 def should_start_new_segment(previous: Segment, unit: Unit) -> bool:
-    prev_unit = previous.units[-1]
     if unit.kind == "support":
         return False
-    if prev_unit.kind == "support":
-        prev_kind = "action" if previous.has_action and not previous.has_dialogue else "dialogue"
-    else:
-        prev_kind = prev_unit.kind
 
     if unit.turn_signal:
         return True
-    if unit.kind != prev_kind:
+    current_focus = normalize_subject(unit.subject)
+    previous_focus = normalize_subject(previous.focus_owner)
+    if previous.turn_signal:
         return True
-    if unit.kind == "dialogue" and unit.subject != previous.focus_owner:
+    if current_focus == previous_focus:
+        return False
+    if current_focus == "群体" and previous_focus == "群体":
+        return False
+    if unit.kind == "dialogue" and previous.has_dialogue and current_focus != previous_focus:
         return True
-    if unit.kind == "action" and unit.subject not in {previous.focus_owner, "场景"}:
+    if unit.kind == "action" and previous.has_action and current_focus not in {previous_focus, "场景"}:
         return True
     return False
 
@@ -280,7 +315,7 @@ def build_segments(units: list[Unit]) -> list[Segment]:
                 has_action=unit.kind in {"action", "support"},
                 has_dialogue=unit.kind == "dialogue",
                 turn_signal=unit.turn_signal,
-                focus_owner=unit.subject or "场景",
+                focus_owner=normalize_subject(unit.subject),
             )
             segments.append(segment)
             continue
@@ -292,7 +327,7 @@ def build_segments(units: list[Unit]) -> list[Segment]:
                     has_action=unit.kind in {"action", "support"},
                     has_dialogue=unit.kind == "dialogue",
                     turn_signal=unit.turn_signal,
-                    focus_owner=unit.subject or "场景",
+                    focus_owner=normalize_subject(unit.subject),
                 )
             )
             continue
@@ -301,8 +336,20 @@ def build_segments(units: list[Unit]) -> list[Segment]:
         current.has_dialogue = current.has_dialogue or unit.kind == "dialogue"
         current.turn_signal = current.turn_signal or unit.turn_signal
         if unit.kind != "support":
-            current.focus_owner = unit.subject or current.focus_owner
+            current.focus_owner = normalize_subject(unit.subject)
     return segments
+
+
+def has_crowd_pressure(section_body: str, focus_shift_points: int) -> bool:
+    return any(token in section_body for token in CROWD_KEYWORDS) and focus_shift_points >= 2
+
+
+def has_burst_pivot(section_body: str, structural_turn_points: int) -> bool:
+    return any(token in section_body for token in BURST_KEYWORDS) and structural_turn_points >= 2
+
+
+def has_dialogue_relay(dialogue_line_count: int, focus_shift_points: int, canonical_beat_count: int) -> bool:
+    return dialogue_line_count >= 3 and focus_shift_points >= 1 and canonical_beat_count <= 3
 
 
 def build_group_metrics(section: GroupSection, pace_tier: str) -> dict[str, Any]:
@@ -315,6 +362,7 @@ def build_group_metrics(section: GroupSection, pace_tier: str) -> dict[str, Any]
     canonical_beat_count = max(1, len(segments))
     action_phase_points = sum(1 for seg in segments if seg.has_action)
     dialogue_breath_points = sum(1 for seg in segments if seg.has_dialogue)
+    dialogue_line_count = sum(1 for unit in canonical_units if unit.kind == "dialogue")
     focus_shift_points = sum(
         1
         for idx in range(1, len(segments))
@@ -325,41 +373,80 @@ def build_group_metrics(section: GroupSection, pace_tier: str) -> dict[str, Any]
 
     pace_coef = PACE_COEFFICIENT[pace_tier]
     recommended_shot_baseline = max(1, round(canonical_beat_count * pace_coef))
+    dialogue_relay = has_dialogue_relay(
+        dialogue_line_count=dialogue_line_count,
+        focus_shift_points=focus_shift_points,
+        canonical_beat_count=canonical_beat_count,
+    )
+    single_beat_release = canonical_beat_count == 1 and hook_preview_count >= 1 and structural_turn_points >= 1
 
-    split_bonus = 0
-    split_bonus_reasons: list[str] = []
-    if hook_preview_count:
-        split_bonus += 1
-        split_bonus_reasons.append("tail-hook 形成预映余波")
-    if any(token in canonical_body for token in CROWD_KEYWORDS) and focus_shift_points >= 1:
-        split_bonus += 1
-        split_bonus_reasons.append("存在群体压力或多对象接力反应")
-    if split_bonus < 2 and any(token in canonical_body for token in BURST_KEYWORDS) and structural_turn_points >= 1:
-        split_bonus += 1
-        split_bonus_reasons.append("存在爆点/落锁/失控等必须单独着陆的转折")
-    split_bonus = min(split_bonus, 2)
+    expansion_headroom = 0
+    expansion_reasons: list[str] = []
+    if hook_preview_count and (structural_turn_points >= 1 or dialogue_relay):
+        expansion_headroom += 1
+        expansion_reasons.append("存在 hook preview，可在需要余波/预感时上探一镜")
+    if single_beat_release:
+        expansion_headroom += 1
+        expansion_reasons.append("单拍收束组带余波释放，需要给结果着陆留空间")
+    if dialogue_relay:
+        expansion_headroom += 1
+        expansion_reasons.append("对白接力与显性揭心思并存，可保留额外反应/承接镜空间")
+    if has_crowd_pressure(canonical_body, focus_shift_points):
+        expansion_headroom += 1
+        expansion_reasons.append("存在群体压力或多对象接力反应，可保留额外反应镜空间")
+    if expansion_headroom < 2 and has_burst_pivot(canonical_body, structural_turn_points):
+        expansion_headroom += 1
+        expansion_reasons.append("存在强转折/爆点，可保留单独着陆镜空间")
+    expansion_headroom = min(expansion_headroom, 2)
 
-    merge_discount = 0
-    merge_discount_reasons: list[str] = []
+    compression_headroom = 0
+    compression_reasons: list[str] = []
     focus_counter = Counter(seg.focus_owner for seg in segments)
     dominant_focus, dominant_focus_count = focus_counter.most_common(1)[0]
-    if canonical_beat_count >= 2 and dominant_focus_count >= max(2, canonical_beat_count - 1):
-        merge_discount += 1
-        merge_discount_reasons.append(f"主焦点长期稳定在 `{dominant_focus}`，可合镜")
-    if structural_turn_points == 0 and focus_shift_points <= 1:
-        merge_discount += 1
-        merge_discount_reasons.append("转折与焦点切换有限，连续动作/对话链可压并")
-    merge_discount = min(merge_discount, 2)
+    if canonical_beat_count >= 3 and dominant_focus_count >= max(2, canonical_beat_count - 1):
+        compression_headroom += 1
+        compression_reasons.append(f"主焦点长期稳定在 `{dominant_focus}`，可压并")
+    if structural_turn_points == 0 and focus_shift_points <= 1 and not dialogue_relay:
+        compression_headroom += 1
+        compression_reasons.append("转折与焦点切换有限，连续动作/对话链可压并")
+    compression_headroom = min(compression_headroom, 2)
 
-    shot_count_decision = max(1, recommended_shot_baseline + split_bonus - merge_discount)
+    preferred_delta = 0
+    preferred_reasons: list[str] = []
+    if has_burst_pivot(canonical_body, structural_turn_points):
+        preferred_delta += 1
+        preferred_reasons.append("强转折需要保留明确落点")
+    elif single_beat_release:
+        preferred_delta += 1
+        preferred_reasons.append("单拍收束后还承接余波时，宜留出结果镜")
+    elif dialogue_relay:
+        preferred_delta += 1
+        preferred_reasons.append("对白接力里存在独立揭示/反应链，宜略高于基准")
+    elif has_crowd_pressure(canonical_body, focus_shift_points):
+        preferred_delta += 1
+        preferred_reasons.append("群体接力反应更适合略高于基准的镜数")
+
+    if canonical_beat_count >= 3 and dominant_focus_count >= max(2, canonical_beat_count - 1):
+        preferred_delta -= 1
+        preferred_reasons.append("主焦点长期稳定，可优先压回更紧凑的镜数")
+    elif structural_turn_points == 0 and focus_shift_points <= 1 and not dialogue_relay:
+        preferred_delta -= 1
+        preferred_reasons.append("结构转折有限，可优先合镜")
+
+    shot_budget_floor = max(1, recommended_shot_baseline - compression_headroom)
+    shot_budget_ceiling = max(shot_budget_floor, recommended_shot_baseline + expansion_headroom)
+    preferred_shot_count = max(
+        shot_budget_floor,
+        min(shot_budget_ceiling, recommended_shot_baseline + preferred_delta),
+    )
 
     why_not_fewer = (
-        f"当前组至少有 {canonical_beat_count} 个候选节拍，"
-        f"且触发了 {split_bonus} 项拆镜加权，压得更少会吞掉关键落点。"
+        f"当前组候选节拍约为 {canonical_beat_count}，预算下限为 {shot_budget_floor}；"
+        "若再压低，容易吞掉当前组的关键任务切换或情绪着陆点。"
     )
     why_not_more = (
-        f"当前组已有 {merge_discount} 项合镜折减，且主焦点/动作链存在可连续完成的部分，"
-        "继续加镜会把同一信息切碎。"
+        f"当前组预算上限为 {shot_budget_ceiling}；若继续加镜，"
+        "高概率会把同一信息链切碎，或让下游维度被迫用模板补镜。"
     )
 
     return {
@@ -373,11 +460,16 @@ def build_group_metrics(section: GroupSection, pace_tier: str) -> dict[str, Any]
         "structural_turn_points": structural_turn_points,
         "pace_tier": pace_tier,
         "recommended_shot_baseline": recommended_shot_baseline,
-        "split_bonus": split_bonus,
-        "split_bonus_reasons": split_bonus_reasons,
-        "merge_discount": merge_discount,
-        "merge_discount_reasons": merge_discount_reasons,
-        "shot_count_decision": shot_count_decision,
+        "expansion_headroom": expansion_headroom,
+        "expansion_reasons": expansion_reasons,
+        "compression_headroom": compression_headroom,
+        "compression_reasons": compression_reasons,
+        "preferred_shot_count": preferred_shot_count,
+        "preferred_reasons": preferred_reasons,
+        "shot_budget_floor": shot_budget_floor,
+        "shot_budget_ceiling": shot_budget_ceiling,
+        # legacy alias kept for downstream compatibility; validator now reads the budget range.
+        "shot_count_decision": preferred_shot_count,
         "why_not_fewer": why_not_fewer,
         "why_not_more": why_not_more,
     }
@@ -394,7 +486,7 @@ def build_quantization_result(grouped_script_path: Path) -> dict[str, Any]:
 
     sections = parse_group_sections(body)
     groups = [build_group_metrics(section, pace_tier=pace_tier) for section in sections]
-    shot_distribution = Counter(group["shot_count_decision"] for group in groups)
+    shot_distribution = Counter(group["preferred_shot_count"] for group in groups)
 
     return {
         "episode_label": frontmatter.get("集数", grouped_script_path.stem),
@@ -433,8 +525,8 @@ def main() -> int:
         print(
             f"{group['group_id']}: beats={group['canonical_beat_count']} "
             f"baseline={group['recommended_shot_baseline']} "
-            f"+split={group['split_bonus']} -merge={group['merge_discount']} "
-            f"=> shots={group['shot_count_decision']}"
+            f"preferred={group['preferred_shot_count']} "
+            f"range={group['shot_budget_floor']}-{group['shot_budget_ceiling']}"
         )
     return 0
 

@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 - last_checked_at: 2026-04-12
 
@@ -38,23 +36,3 @@
 - 如果某个阶段的高分叉能力已经稳定地可以写回单一 `SKILL.md`，就不要再保留外部 agent/team 文档充当第二真源。
 - `1-Planning` 最稳的总线始终是：父 skill 负责路由与验收，子阶段 skill 负责 stage-local 执行与写回。
 - 节奏在当前规划阶段应优先作为 reviewer gate 存在，而不是默认独立执行面。
-
-## Case Log
-
-### Case-20260412-AIGC-PLANNING-INTERNAL-CAPABILITY-FUSION
-
-- milestone_type: source_contract_change
-- outcome: 将 `1-Planning` 从“父 skill + 外部 planning group docs”重构为“父 skill + 内化型 stage skills”的单线治理结构。
-- root_cause_or_design_decision: 用户明确要求废弃旧规划组文档，并把相关能力重新整理吸回 `SKILL.md`；因此规划阶段不能再把外部 planning docs 当作执行真源。
-- final_fix_or_heuristic: 在父 `1-Planning` 中明确 `1-分集 / 2-剧本 / 3-分组` 的 stage-local ownership；在 `2-剧本` 与 `3-分组` 中分别内化原来的判模/变体与分组/reviewer 能力；同步让 audit 改查内化合同，而不再要求旧 planning docs。
-- prevention_or_replication_checklist:
-  - [x] `1-Planning` 已不再回链旧 planning docs
-  - [x] `2-剧本` 已内化判模/标准剧/解说剧
-  - [x] `3-分组` 已内化分组/reviewer gate
-  - [x] audit 已转为检查新合同
-- evidence_paths:
-  - `.agents/skills/aigc/1-Planning/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
-  - `scripts/aigc_skill_audit.py`
-- user_feedback_or_constraint: 用户明确要求旧规划组文档不再需要，并要求按知行合一规范重排 `2-剧本`。

@@ -140,7 +140,7 @@ python3 .agents/skills/fanqie-download/scripts/app.py
 - 目录链路：校验 `metadata.json` 存在且 `data.lists` 为可解析列表。
 - 下载链路：校验本地章节数、缺失数、失败章节数；若有失败章节必须转失败态。
 - 短篇分享链路：校验 `短篇分享-<post_id>.txt` 与 `share_metadata.json` 同时存在。
-- 发生失败、返工、用户纠错后，必须把可复用经验沉淀到同目录 `CONTEXT.md` 的 `Type Map / Repair Playbook / Reusable Heuristics`，里程碑级事件再追加 `Case Log`。
+- 发生失败、返工、用户纠错后，必须把可复用经验沉淀到同目录 `CONTEXT.md` 的 `Type Map / Repair Playbook / Reusable Heuristics`；若需保留长过程材料，外置到 `CHANGELOG.md` 或 `reports/`。
 
 ## 输出约定
 
@@ -219,7 +219,6 @@ python3 .agents/skills/fanqie-download/scripts/app.py
   - `Type Map`：失败类型到修复策略的稳定映射
   - `Repair Playbook`：固定排障顺序
   - `Reusable Heuristics`：已验证的高价值执行经验
-  - `Case Log`：里程碑级证据
 - 冲突优先级：用户明确要求 > 本 `SKILL.md` > `CONTEXT.md`
 
 ## Root-Cause 执行契约（必执行）
@@ -231,6 +230,5 @@ python3 .agents/skills/fanqie-download/scripts/app.py
   2. 若仍需补救，再处理本次任务的局部内容。
 - 必须将案例沉淀到同目录 `CONTEXT.md`：
   - 普通迭代优先更新 `Type Map / Repair Playbook / Reusable Heuristics`
-  - 里程碑事件再追加 `Case Log`
-  - 最少字段仍需包含：`symptom`、`root cause`、`final fix`、`prevention checklist`、`evidence paths`、`user feedback/constraint`
+  - 若需保留里程碑级长材料，外置到 `CHANGELOG.md` 或 `reports/`
 - 用户闭环汇报必须给出三项：`root cause location` + `immediate fix` + `systemic prevention fix`。

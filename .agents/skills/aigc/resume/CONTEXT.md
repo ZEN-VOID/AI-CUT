@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -42,21 +40,3 @@
 - 若阶段已搁浅，恢复入口应该回到根 `aigc`，而不是硬闯阶段目录。
 - `resume/` 最稳的输入不是聊天回忆，而是 `governance-state.yaml` 里的结构化 checkpoint，再用 `project_state.yaml` 做人类摘要校对。
 - 若只是轻量初始化后的低风险续跑，`project_state.yaml + Init/*` 已足够决定下一入口；不要为了补齐全套治理工件而卡住创作起跑。
-
-## Case Log
-
-### Case-20260411-AIGC-RESUME-BOOTSTRAP
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: `aigc` 根技能此前没有独立恢复卫星技能，中断项目续跑只能依赖根路由的口头解释。
-- root_cause_or_design_decision: `resume` 横跨所有阶段，但不拥有任何阶段内容真源，更适合做尚书省/兵部侧的根级卫星技能。
-- final_fix_or_heuristic: 新建 `resume/`，固定恢复判断依赖 `project_state + governance artifacts + stage outputs`，并明确禁止伪造 workflow state 与危险 Git 默认动作。
-- prevention_or_replication_checklist:
-  - [x] 已建立 `resume/SKILL.md`
-  - [x] 已建立 `resume/references/workflow-resume.md`
-  - [x] 已建立 `resume/CONTEXT.md`
-- evidence_paths:
-  - `.agents/skills/aigc/resume/SKILL.md`
-  - `.agents/skills/aigc/resume/CONTEXT.md`
-  - `.agents/skills/aigc/resume/references/workflow-resume.md`
-- user_feedback_or_constraint: 用户要求参照 `story2026/resume` 的卫星技能形态，在 `aigc` 根目录补同名卫星技能。

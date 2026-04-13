@@ -6,11 +6,8 @@
 monitor_version: 1
 soft_limit_chars: 40000
 hard_limit_chars: 80000
-soft_limit_cases: 80
-hard_limit_cases: 140
 current_chars: auto
 current_lines: auto
-current_cases: auto
 status: ok
 recommended_action: keep-target-scoped-updates
 last_checked_at: 2026-03-20T00:00:00Z
@@ -49,7 +46,3 @@ last_checked_at: 2026-03-20T00:00:00Z
 - 参考图场景建议加 `--no-report` 减少冗余文件
 - `--input-json` 中字段值为空字符串或 `null` 等同于"未指定"，会触发默认值补齐，不会报错
 - 多任务批量调用时无需上游手写外部并发，`--input-json` 传入数组即可自动并发
-
-## Case Log
-
-*(待积累——仅记录里程碑级事件：新错误类型、源层契约变更、重复模式晋升。)*

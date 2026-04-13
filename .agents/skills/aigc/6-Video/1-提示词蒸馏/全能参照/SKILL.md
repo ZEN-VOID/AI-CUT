@@ -44,9 +44,9 @@ governance_tier: full
 | 分析项 | 当前结论 |
 | --- | --- |
 | `business_goal` | 把导演真源中的整组信息压缩为后续视频工具可直接消费的组级请求对象，同时不损坏上游事实。 |
-| `business_object` | 单个 `分镜组`，包括 `剧本正文`、`组间设计.*` 与该组下全部 `分镜明细[]`。 |
+| `business_object` | 单个 `分镜组`，包括 `剧本正文`、`组间设计.*`（含 `出场角色及穿搭`）与该组下全部 `分镜明细[]`（重点消费 `角色背景面 / 角色站位走位`）。 |
 | `task_goal` | 生成一组一条的 `meta + prompt_style + model + prompt + prompt_char_count` 请求对象，并落盘三件套。 |
-| `constraint_profile` | 必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段必须全部进入 prompt 但允许压缩；不得虚构图片、URL、主体、动作或场景事实。 |
+| `constraint_profile` | 必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段必须全部进入 prompt 但允许压缩，尤其不得漏掉 `组间设计.出场角色及穿搭` 与镜级 `角色背景面 / 角色站位走位 / 景别 / 运镜手法`；不得虚构图片、URL、主体、动作或场景事实。 |
 | `non_goals` | 不改写上游导演事实；不上传参照图；不执行 provider 提交、轮询与下载；不把 TXT 当主真源。 |
 | `success_criteria` | 每个分镜组都能回链到来源镜头列表；prompt 覆盖整组信息；固定块逐字一致；无字段标题泄露；JSON/TXT/manifest 三件套可继续 handoff。 |
 | `evidence_sources` | `projects/<项目名>/3-Detail/第N集.json`、`.agents/skills/aigc/_shared/director_episode_output.schema.json`、`6-Video/_shared` 双模板。 |
@@ -105,7 +105,12 @@ governance_tier: full
   - `组间设计.全局风格`
   - `组间设计.类型元素`
   - `组间设计.导演意图`
+  - `组间设计.出场角色及穿搭`
   - `分镜明细[]`
+  - `分镜明细[].角色背景面`
+  - `分镜明细[].角色站位走位`
+  - `分镜明细[].景别`
+  - `分镜明细[].运镜手法`
 
 ### Loading Order
 
@@ -160,7 +165,7 @@ flowchart TD
 flowchart LR
     A["剧本正文"] --> D["固定保留块"]
     B["组间设计.全局风格"] --> D
-    C["类型元素 / 导演意图 / 分镜明细[]"] --> E["压缩块"]
+    C["类型元素 / 导演意图 / 出场角色及穿搭 / 分镜明细[]"] --> E["压缩块"]
     D --> F["prompt"]
     E --> F
     G["分镜组ID / source_shot_ids"] --> H["meta + prompt_style"]
@@ -257,6 +262,7 @@ erDiagram
   1. 读取单集 JSON
   2. 定位 `分镜组列表`
   3. 检查 `分镜组ID / 剧本正文 / 组间设计 / 分镜明细`
+  4. 若 `组间设计.出场角色及穿搭` 为空，视为上游 `3-Detail` 未完成 schema 闭环，不得继续蒸馏
   4. 对不完整输入记录缺口类型
 - `evidence`
   - `V-VID-SUBJ-01=ready|incomplete`
@@ -282,8 +288,9 @@ erDiagram
   1. 提取 `分镜组ID`
   2. 提取 `剧本正文`
   3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图`
-  4. 遍历全部 `分镜明细[]`
-  5. 生成 `meta.source_shot_ids`
+  4. 提取 `组间设计.出场角色及穿搭`
+  5. 遍历全部 `分镜明细[]`，显式收齐 `角色背景面 / 角色站位走位 / 景别 / 运镜手法`
+  6. 生成 `meta.source_shot_ids`
 - `evidence`
   - 组级字段清单
   - 镜级字段覆盖清单
@@ -307,7 +314,7 @@ erDiagram
 - `actions`
   1. 原样拷贝 `剧本正文`
   2. 原样拷贝 `组间设计.全局风格`
-  3. 标记 `类型元素 / 导演意图 / 分镜明细[]` 为压缩块
+  3. 标记 `类型元素 / 导演意图 / 出场角色及穿搭 / 分镜明细[]` 为压缩块
   4. 记录 fixed block char count
 - `evidence`
   - `fixed_blocks.script_verbatim`
@@ -331,14 +338,14 @@ erDiagram
 - `inputs`
   - fixed block
   - 压缩块候选
-  - 目标字数窗 `1800-2000`
+  - 目标字数上限 `<= 1900`
 - `actions`
   1. 计算 fixed block 字数
   2. 判断剩余预算
   3. 选择预算策略：
      - `normal`：自然句压缩
-     - `tight`：高密度短语/关键词串
-     - `underflow`：保守保真，接受低于下限
+     - `tight`：仅在预计逼近上限或超限风险明显时，改用更精炼的自然短语；`分镜明细 >= 5` 只是高风险信号，不是默认短语化开关
+     - `underflow`：预算明显宽松时保持自然语句与保守保真；允许显著低于上限，但不得为凑字数虚构扩写，也不得在阔绰余量下无故切成短语
   4. 预置异常说明模板
 - `evidence`
   - `V-VID-SUBJ-02=normal|tight|underflow`
@@ -358,7 +365,7 @@ erDiagram
   2. 压缩块均匀覆盖全部组级与镜级内容
   3. 只保留 `分镜组ID / 分镜ID` 两类标签
   4. 计算真实 `prompt_char_count`
-  5. 用自然句式融合信息，不允许把字段逐项硬裁切成带省略号的半截短语
+  5. 默认用自然句式融合信息；当 `tight` 触发时可切换为更精炼的自然短语，但仍不得把字段逐项硬裁切成带省略号的半截短语
 - `inputs`
   - fixed block
   - 预算策略
@@ -368,10 +375,12 @@ erDiagram
   1. 写入 `分镜组ID`
   2. 原文嵌入 `剧本正文`
   3. 原文嵌入 `全局风格`
-  4. 按预算策略压缩 `类型元素 / 导演意图 / 分镜明细[]`
-  5. 将镜级字段改写为自然融合句，不得靠字段值硬截断、堆省略号或保留半字段骨架来压字数
-  6. 检查是否泄露字段标题
-  7. 以最终会写入 `第N集.json` 的 `prompt` 字符串为准统计 `prompt_char_count`，不得按带临时换行或中间草稿计数
+  4. 按预算策略压缩 `类型元素 / 导演意图 / 出场角色及穿搭 / 分镜明细[]`
+  5. 明确把组级穿搭摘要与镜级 `角色背景面 / 角色站位走位 / 景别 / 运镜手法` 融进自然句，不得回退成旧字段标题拼贴
+  6. 每个镜级条目都必须保留明确的景别结论与运镜结论；可自然融合，不要求暴露字段标题，但不得在压缩中被吞掉
+  7. 将镜级字段改写为自然融合句；只有 `tight` 生效时，才允许把完整自然句收束为更精炼的自然短语。`>= 5` 镜长组只表示应更早做预算预估，不代表在预算宽松时放弃自然语句；仍不得靠字段值硬截断、堆省略号或保留半字段骨架来压字数
+  8. 检查是否泄露字段标题
+  9. 以最终会写入 `第N集.json` 的 `prompt` 字符串为准统计 `prompt_char_count`，不得按带临时换行或中间草稿计数
 - `evidence`
   - 完整 `prompt`
   - `prompt_char_count`
@@ -427,7 +436,7 @@ erDiagram
   1. 写 `第N集.json`
   2. 写 `第N集.txt`
   3. 写 `_manifest.json`
-  4. 为每组记录 `group_id / prompt_char_count / within_target_range / exception_note`
+  4. 为每组记录 `group_id / prompt_char_count / within_target_limit / exception_note`
   5. 回读最终 JSON，确认 `len(prompt) == prompt_char_count`
 - `evidence`
   - 三个文件路径
@@ -473,8 +482,8 @@ erDiagram
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| V-VID-SUBJ-01 | 输入 | 分镜组结构是否完整 | `ready/incomplete` | 检查 `分镜组ID/剧本正文/组间设计/分镜明细` | P0 |
-| V-VID-SUBJ-02 | 字数预算 | 非固定字段压缩压力 | `normal/tight/underflow` | 估算固定块后剩余字数 | P1 |
+| V-VID-SUBJ-01 | 输入 | 分镜组结构是否完整 | `ready/incomplete` | 检查 `分镜组ID/剧本正文/组间设计（含出场角色及穿搭）/分镜明细（含角色背景面/角色站位走位/景别/运镜手法）` | P0 |
+| V-VID-SUBJ-02 | 字数预算 | 非固定字段压缩压力 | `normal/tight/underflow` | 估算 fixed block 后剩余字数，并结合组内镜数判断是否存在逼近上限风险；预算宽松时保持自然语句 | P1 |
 | V-VID-SUBJ-03 | 输出要求 | 本轮是否需要完整闭环 | `json_only/full_trace` | 结合用户目标与父级合同 | P1 |
 | V-VID-SUBJ-04 | 文本结构 | 是否存在标题泄露风险 | `clean/leaking` | 搜索除 `分镜组ID / 分镜ID` 外的字段名暴露 | P1 |
 
@@ -483,9 +492,9 @@ erDiagram
 | case_id | 触发谓词 | 主策略 | 通过标准 | fallback |
 | --- | --- | --- | --- | --- |
 | C-VID-SUBJ-01 | `V-VID-SUBJ-01=incomplete` | 停止并报告上游缺口 | 不伪造缺失字段 | 回上游补 `3-Detail/第N集.json` |
-| C-VID-SUBJ-02 | `V-VID-SUBJ-02=normal` | 用自然语句压缩非固定字段 | `prompt_char_count` 落在目标窗 | 无 |
-| C-VID-SUBJ-03 | `V-VID-SUBJ-02=tight` | 把非固定字段压成短语或关键词串 | 固定块不动，整体尽量靠近目标窗 | 无 |
-| C-VID-SUBJ-04 | `V-VID-SUBJ-02=underflow` | 保守保真，不虚构扩写 | 允许低于下限，但 manifest 备注 | 无 |
+| C-VID-SUBJ-02 | `V-VID-SUBJ-02=normal` | 用自然语句压缩非固定字段 | `prompt_char_count <= 1900` | 无 |
+| C-VID-SUBJ-03 | `V-VID-SUBJ-02=tight` | 只在逼近上限时把非固定字段改写成更精炼的自然短语；`>= 5` 镜长组优先触发预算预警，但不直接改写成短语版 | fixed block 不动，整体尽量压到 `<= 1900` | 无 |
+| C-VID-SUBJ-04 | `V-VID-SUBJ-02=underflow` | 保守保真并保持自然语句，不虚构扩写 | 允许显著低于上限，但 manifest 备注 | 无 |
 | C-VID-SUBJ-05 | `V-VID-SUBJ-03=full_trace` | 输出 JSON + TXT + manifest + 执行闭环说明 | 三件套可追溯，闭环可复核 | `json_only` |
 | C-VID-SUBJ-06 | `V-VID-SUBJ-04=leaking` | 回到 prompt 组装层清理字段标题 | 除组ID/镜ID外无显式字段名 | 回 `N5` |
 
@@ -506,11 +515,14 @@ erDiagram
 - `prompt_char_count` 与实际 prompt 一致。
 - `prompt_char_count` 必须按最终落盘到 `第N集.json` 的 `prompt` 字符串计数，不得把临时换行、草稿拼接态或 TXT 视图改写计入。
 - `剧本正文` 与 `组间设计.全局风格` 与上游逐字一致。
+- `组间设计.出场角色及穿搭` 已进入压缩块，且未在蒸馏过程中丢失。
+- 镜级 `角色背景面 / 角色站位走位 / 景别 / 运镜手法` 已被消费，不再依赖旧 `场景及方位 / 角色及站位和穿搭` 心智，也不得把景别与运镜压缩到不可辨认。
 - 除 `分镜组ID / 分镜ID` 外，无字段标题泄露。
 - 分镜压缩必须是自然融合文本，不得出现大量靠硬截断生成的 `…` 半截短语。
+- 当预算明显宽松时，不得把自然语句无故压成短语式表达。
 - `reference_images` 字段存在。
 - `image_markers` 未伪造 URL / 主体 / 图号。
-- `_manifest.json` 在低于目标窗或输入不足时写出异常说明。
+- `_manifest.json` 在超出 1900、显著低于上限或输入不足时写出异常说明。
 - `第N集.txt` 只承载提示词与字数统计，不承载结构化参数区块。
 - 若 `第N集.txt` 已用 section header 单独显示 `分镜组ID`，则不得再重复显示 prompt 首行同组 `分镜组ID`。
 - 执行闭环说明必须显式给出 `思考过程`。
@@ -529,6 +541,7 @@ erDiagram
 - `第N集.json` 是唯一 completeness carrier。
 - `第N集.txt` 只是 derived display view。
 - `_manifest.json` 是追溯与例外说明载体。
+- 若本次属于 recovery rerun，且 `project_state.yaml` 已推进到 `2-视频生成`、provider handoff 或更后续阶段，则本技能只修复缺失的 `全能参照` 三件套与 trace，不得把项目推荐入口、`current_stage` 或后续 ready 状态回退到本子技能之前。
 
 ### 执行闭环输出
 
@@ -544,9 +557,9 @@ erDiagram
    - 哪些节点触发了返工或保守退化
 3. `关键证据`
    - fixed block 逐字一致
-   - `prompt_char_count`
-   - `source_shot_ids`
-   - `within_target_range`
+  - `prompt_char_count`
+  - `source_shot_ids`
+  - `within_target_limit`
 4. `风险 / 例外`
    - underflow
    - 输入缺口
@@ -557,6 +570,7 @@ erDiagram
 - 正式进入视频生成时，优先把 `第N集.json` 交给 `.agents/skills/cli/dreamina-cli/SKILL.md` 或父阶段 `2-视频生成`。
 - `第N集.txt` 只供人工审阅，不作为自动化 handoff 主体。
 - `_manifest.json` 只承载追溯、异常说明与最小验证结果，不替代 JSON 主体。
+- 若 `project_state.yaml` 已经把下一入口锁到 `2-视频生成`，而磁盘缺失 `全能参照` 三件套，应视为 video prompt 层 runtime drift：先补回三件套，再保持原 handoff 指向，不额外降级项目状态。
 
 ## Field System
 
@@ -565,7 +579,7 @@ erDiagram
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Node | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | FIELD-VID-SUBJ-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 锁定组级来源、提示词类型与来源分镜列表 | `N0-N2` | 输入覆盖完整度 | FAIL-VID-SUBJ-01 |
-| FIELD-VID-SUBJ-02 | `prompt / prompt_char_count` | prompt 覆盖整组内容，固定块原文保留，其余压缩且隐藏标题 | `N3-N5` | Prompt 蒸馏稳定性 | FAIL-VID-SUBJ-02 |
+| FIELD-VID-SUBJ-02 | `prompt / prompt_char_count` | prompt 覆盖整组内容，固定块原文保留；压缩块显式覆盖 `类型元素 / 导演意图 / 出场角色及穿搭 / 分镜明细[]`，并隐藏标题 | `N3-N5` | Prompt 蒸馏稳定性 | FAIL-VID-SUBJ-02 |
 | FIELD-VID-SUBJ-03 | `model.reference_images / model.image_markers` | 保留上传顺序位，并维持 marker 顺序稳定 | `N6` | 模板兼容性 | FAIL-VID-SUBJ-03 |
 | FIELD-VID-SUBJ-04 | `第N集.json / 第N集.txt / _manifest.json` | 三件套可追溯、可审阅、可继续 handoff | `N7` | 输出可消费性 | FAIL-VID-SUBJ-04 |
 | FIELD-VID-SUBJ-05 | `执行闭环.思考过程 / 关键证据 / 风险例外` | 最终回复必须给出思考过程与关键门禁依据 | `N8` | 结案可复核性 | FAIL-VID-SUBJ-05 |
@@ -600,7 +614,8 @@ erDiagram
 
 当出现以下症状时，必须先修本子技能合同，而不是只润色 prompt：
 
-- prompt 只覆盖整组的局部字段。
+- prompt 只覆盖整组的局部字段，尤其漏掉 `出场角色及穿搭` 或新镜级字段。
+- prompt 漏掉镜级 `景别` 或 `运镜手法`，导致视频请求只有动作和气氛，没有镜头组织依据。
 - `剧本正文` 或 `全局风格` 被改写。
 - prompt 中仍残留字段标题。
 - 压缩过猛只剩碎片，或显著超出预算。

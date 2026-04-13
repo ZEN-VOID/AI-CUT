@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate `3-Detail` episode JSON against authoritative density quantization."""
+"""Validate `3-Detail` episode JSON against density budget guidance."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ GROUP_COSTUME_SEPARATOR_RE = re.compile(r"[-—:：]")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="校验 `3-Detail` 输出是否符合 authoritative 分镜密度裁决。")
+    parser = argparse.ArgumentParser(description="校验 `3-Detail` 输出是否落在结构化分镜密度预算内。")
     parser.add_argument("--grouped-script", required=True, help="输入 grouped script 路径（第N集.md）")
     parser.add_argument("--episode-json", required=True, help="输入 `3-Detail/第N集.json` 路径")
     parser.add_argument("--json", action="store_true", help="输出 JSON")
@@ -157,23 +157,29 @@ def main() -> int:
     failures: list[dict[str, object]] = []
     for group in quantization["groups"]:
         group_id = group["group_id"]
-        expected = group["shot_count_decision"]
+        preferred = group["preferred_shot_count"]
+        floor = group["shot_budget_floor"]
+        ceiling = group["shot_budget_ceiling"]
         actual = actual_groups.get(group_id)
         if actual is None:
             failures.append(
                 {
                     "group_id": group_id,
                     "error": "missing_group",
-                    "expected_shots": expected,
+                    "preferred_shots": preferred,
+                    "shot_budget_floor": floor,
+                    "shot_budget_ceiling": ceiling,
                 }
             )
             continue
-        if actual != expected:
+        if actual < floor or actual > ceiling:
             failures.append(
                 {
                     "group_id": group_id,
-                    "error": "shot_count_mismatch",
-                    "expected_shots": expected,
+                    "error": "shot_count_out_of_budget",
+                    "preferred_shots": preferred,
+                    "shot_budget_floor": floor,
+                    "shot_budget_ceiling": ceiling,
                     "actual_shots": actual,
                     "why_not_fewer": group["why_not_fewer"],
                     "why_not_more": group["why_not_more"],

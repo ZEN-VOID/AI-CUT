@@ -2,7 +2,6 @@
 context_health:
   status: ok
   chars: ~2000
-  cases: 0
   last_compaction: null
 ---
 
@@ -31,7 +30,3 @@ context_health:
 - 默认 `--no-report` 减少冗余产物
 - 描述控制在 400 字以内，过长会稀释关键特征导致生成模型注意力分散
 - 角色 ID badge 固定左上角，便于批量产物识别
-
-## Case Log
-
-（暂无案例记录）

@@ -2,11 +2,8 @@
 context_health:
   status: ok
   chars: ~1200
-  cases: 0
   soft_limit_chars: 40000
   hard_limit_chars: 80000
-  soft_limit_cases: 80
-  hard_limit_cases: 140
 ---
 
 # nano-banana-face-swap 经验层
@@ -39,7 +36,3 @@ face-swap 子技能操作经验与故障修复知识库。
 - 换脸场景通常不需要 `--no-report`，保留报告便于比对排查
 - 图B 优先使用正面、高清、背景干净的定妆照，侧面照或复杂背景会降低面貌提取质量
 - 永不覆盖原文件：输出命名自动递增，避免误覆盖
-
-## Case Log
-
-（暂无里程碑级案例记录）

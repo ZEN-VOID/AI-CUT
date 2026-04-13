@@ -30,7 +30,7 @@ governance_tier: lite
 ## Workflow
 
 1. 读取当前 `validation-report.md`、`preflight-verdict.yaml`、`governance-state.yaml` 与现有 `learning-record.md`。
-2. 提炼 milestone_type、heuristic 与 promotion scope。
+2. 提炼里程碑结论、heuristic 与 promotion scope。
 3. 写回 `learning-record.md`。
 4. 同步 `governance-state.yaml.review_bridge.latest_learning_status`。
 5. 返回唯一下一入口或 promotion 说明。

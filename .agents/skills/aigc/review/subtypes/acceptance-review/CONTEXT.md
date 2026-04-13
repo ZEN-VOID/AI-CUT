@@ -9,8 +9,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -31,19 +29,3 @@
 
 - acceptance 不是“看起来差不多”，而是“能不能把下一入口正式交出去”。
 - 阶段级验收优先写阶段 runtime 下的 report，项目根 report 只承接 project scope。
-
-## Case Log
-
-### Case-20260411-AIGC-REVIEW-ACCEPTANCE-SUBTYPE
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: 将 `review` 的 acceptance 模式提升为受治理子技能。
-- root_cause_or_design_decision: 验收天然绑定 scope-to-carrier mapping，若和 preflight / learning 混写，最容易出现落点漂移。
-- final_fix_or_heuristic: 将 acceptance 收敛到独立子技能，父级只保留 mode router。
-- prevention_or_replication_checklist:
-  - [x] 已建立 `SKILL.md`
-  - [x] 已建立 `CONTEXT.md`
-- evidence_paths:
-  - `.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md`
-  - `.agents/skills/aigc/review/subtypes/acceptance-review/CONTEXT.md`
-- user_feedback_or_constraint: 用户要求把 `review` 进一步细化为专项 reviewer。

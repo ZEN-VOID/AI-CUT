@@ -24,12 +24,12 @@
 - `shot_skeleton_engine`
   - 读取当前集全量分组正文、grouping JSON、shared root 中命中组的 `组间设计`。
   - 若分组正文来自 `1-Planning/3-分组` 且包含 `tail-hook` 预映或下一组借入首拍，必须先标记 `hook_preview_span`；该借入段默认不算当前组 canonical beat，只能作为“将收未收”的预映证据。
-  - 进入镜序切分前，先继承组总时长与 `pace_tier`；若当前组后续命中量化密度裁决，skeleton 只能为其服务，不能反向偷改节拍与镜数真源。
+  - 进入镜序切分前，先继承组总时长与 `pace_tier`；若当前组后续命中密度预算裁决，skeleton 只能为其服务，不能反向偷改节拍与镜数预算真源。
 - `structural_staging_engine`
   - 读取命中组/镜的 skeleton、`组间设计.导演意图`、`组间设计.全局风格` 与现有 draft。
   - 进入 `beat_map` 前必须先区分 `canonical beats` 与 `hook preview`；`hook preview` 只有在当前组确实需要独立的 anticipatory reaction / overhang shot 时，才允许转成额外分镜。
-  - `SB-2 / SB-3` 必须调用 `scripts/detail_density_quantizer.py`，按 `动作阶段点 + 台词气口点 + 焦点切换点 + 结构转折点` 联合分段生成 `candidate beat segments`，再结合 `pace_tier + split_bonus + merge_discount` 得出 `shot_count_decision`。
-  - `SB-14` 必须调用 `scripts/validate_detail_output.py` 校验 episode JSON 中的实际镜数是否与 quantizer 一致；不一致则直接返工。
+  - `SB-2 / SB-3` 必须调用 `scripts/detail_density_quantizer.py`，按 `动作阶段点 + 台词气口点 + 焦点切换点 + 结构转折点` 联合分段生成 `candidate beat segments`，再结合 `pace_tier + expansion/compression headroom` 给出 `preferred_shot_count + shot_budget_floor/ceiling`。
+  - `SB-14` 必须调用 `scripts/validate_detail_output.py` 校验 episode JSON 中的实际镜数是否落在预算区间内；超出区间则直接返工。
   - 在 `SB-4` 到 `SB-9` 之间，必须补齐 `景别节奏预判` 与 `POV 策略预判`，并在命中镜头窗口内完成 `节奏曲线验证 / 心理距离深度审视 / 反直觉检验`；窗口大小按当前命中镜头序列确定，不预设固定镜数。
   - 在 `SB-13` 写回前，必须额外锁定每镜 `shot-local envelope`：`主任务 / 主焦点 / 景别 / 空间锚点 / 观看路径 / 允许运动强度`。后续表演、氛围、运镜、摄影只能在该 envelope 内补字段，不得另起一套粒度解释。
 - `performance_engine`
@@ -119,7 +119,7 @@
 - `performance_engine` 虽然属于 `Tranche 2` 并行支链，但其内部节点必须串行完成，不能跳过角色化表达、`Character Arc` 隐匿项或直接把情绪词写进字段。
 - `Dialogue & Interaction` 技巧只在对手戏或互动密集镜条件触发；它属于表演链内部策略判型，不单独形成新的并行支链。
 - `camera_movement_engine` 与 `cinematography_engine` 只能消费 `performance_note` 中的捕捉提示，不能反向改写角色行为逻辑。
-- 若 `performance / atmosphere` 发现当前 `shot_count_decision` 或 `shot-local envelope` 无法承载内容，正确回退入口是 `SB-2/3/4`，不是在本地复制组级句子填满多个 shot。
+- 若 `performance / atmosphere` 发现当前 `preferred_shot_count` 或 `shot-local envelope` 无法承载内容，正确回退入口是 `SB-2/3/4`，不是在本地复制组级句子填满多个 shot。
 
 ## Tranche 3. Finish 并行
 

@@ -13,11 +13,8 @@
 monitor_version: 1
 soft_limit_chars: 20000
 hard_limit_chars: 40000
-soft_limit_cases: 16
-hard_limit_cases: 32
 current_chars: 5898
 current_lines: 111
-current_cases: 3
 status: ok
 recommended_action: keep-target-scoped-updates
 last_checked_at: 2026-04-12T20:25:00-07:00
@@ -53,59 +50,3 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 - 漫画子技能最常见的漂移不是画风，而是把“漫画图像请求 JSON 蒸馏”误做成“直接页图落盘”。
 - 对这种已经是叶子且又有多道判断门的蒸馏技能，最稳的知行合一改造不是继续拆 `references/`，而是把节点细则直接写进主 `SKILL.md`。
 - 如果用户明确要求 `复杂链路的骨架 / 细则分层 = false`，就要把“可扫描性”交给 Mermaid 和节点表，而不是把执行细节外包给另一个文档。
-
-## Case Log
-
-### Case-20260410-AIGC-STORYBOARD-COMIC-IMAGE-REQUEST-CONTRACT
-
-- milestone_type: source_contract_change
-- outcome: 将 `漫画` 从“漫画页图片中心”重定义为“每个分镜组对应 1 条漫画图像请求 JSON”的提示词蒸馏合同。
-- root_cause_or_design_decision: 既然 `漫画` 要与 `1-提示词蒸馏` 共享上下文范式和 `5-Image/_shared` 的图像模板真源，就不应继续把页图落盘当主产物。
-- final_fix_or_heuristic: 复用 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`，把 `漫画` 固化为“固定漫画前缀 + comic_page_group + 图像侧 model 骨架 + 第N集.json”的单输出合同。
-- prevention_or_replication_checklist:
-  - [x] 主产物已固定为 `第N集.json`
-  - [x] 共享模板已作为唯一图像模板真源
-  - [x] `1 shot = 1 panel` 已固化到 prompt 合同
-- evidence_paths:
-  - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CONTEXT.md`
-- user_feedback_or_constraint: 用户要求 `漫画` 与同层提示词蒸馏技能保持共享模板与请求 JSON handoff 口径。
-
-### Case-20260412-AIGC-STORYBOARD-COMIC-SINGLE-SOURCE-ELEVATION
-
-- milestone_type: source_contract_change
-- outcome: 将 `漫画` 从“`SKILL.md + references/*` 平行规范”升格为“单一 `SKILL.md` 真源”，并补齐 `agents/openai.yaml` 与 `CHANGELOG.md`。
-- root_cause_or_design_decision: 原 `references/*.md` 已实际承担字段表、workflow、类型策略和输出合同，形成第二套规范层；同时目录内残留旧路径 `5-画面/subtypes/...`，与当前真实树 `5-Image/1-提示词蒸馏/...` 发生漂移。
-- final_fix_or_heuristic: 将四个 `references` 文件的规范内容全部并入 `SKILL.md`，在 `CONTEXT.md` 只保留经验层；同步补建入口元数据、变更记录，并删除废弃 `references/` 载体。
-- prevention_or_replication_checklist:
-  - [x] `references/*` 规范内容已内联到 `SKILL.md`
-  - [x] 本技能不再保留第二套规范载体
-  - [x] 已补 `agents/openai.yaml`
-  - [x] 已补 `CHANGELOG.md`
-  - [x] 技能目录内旧路径已同步到真实目录结构
-- evidence_paths:
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CONTEXT.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CHANGELOG.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/agents/openai.yaml`
-- user_feedback_or_constraint: 用户明确要求“references 内容整合到 SKILL.md 内，不再以 references 作为载体引用”，并按 `skill-subagents` 执行全量升格重构。
-
-### Case-20260412-AIGC-STORYBOARD-COMIC-ZHIXING-PLAYBOOK-REFRAME
-
-- milestone_type: source_contract_change
-- outcome: 在不改动漫画蒸馏业务机制的前提下，将 `漫画` 重编排为知行合一单技能网络，并明确 `skeleton_detail_split: false`。
-- root_cause_or_design_decision: 旧版 `漫画` 虽已收回单一 `SKILL.md` 真源，但仍偏“字段表 + workflow 摘要”表达；用户要求每个思维·执行节点一步一步足够细、且不把复杂细则下沉到 `references/`，因此必须补齐业务分析、节点网络、逐节点 playbook、汇流门与一次性输出门。
-- final_fix_or_heuristic: 保留现有 `prompt / model / landing / manifest` 机制不变，只重写合同表达层：新增 `Business Requirement Analysis Contract`、四张 Mermaid 图、九个思行节点、逐节点 `aspect` 细化表、`Convergence Contract` 与 `One-Shot Output Contract`，并在主合同声明 `skeleton_detail_split: false`。
-- prevention_or_replication_checklist:
-  - [x] 已显式声明 `skeleton_detail_split: false`
-  - [x] 已补 `Thinking-Action Node Network`
-  - [x] 已补逐节点 `Node Execution Playbook`
-  - [x] 已补 `Convergence Contract`
-  - [x] 已补 `One-Shot Output Contract`
-  - [x] 未新增 `references/` 或第二套真源
-- evidence_paths:
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CONTEXT.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CHANGELOG.md`
-- user_feedback_or_constraint: 用户明确要求“根据知行合一规范进行编排”“复杂链路的骨架 / 细则分层：false”“每一个思维·执行节点从哪些方面着手，一步一步要足够细致，确保高品质”。

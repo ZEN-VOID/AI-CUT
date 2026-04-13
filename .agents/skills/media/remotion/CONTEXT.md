@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 40000
 - hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
 - status: ok
 - action_policy:
   - ok: 优先更新 Type Map / Repair Playbook / Reusable Heuristics。
@@ -40,17 +38,3 @@
 - 在 Remotion 里先定义 composition 的时长、fps 和内容节拍，再写视觉组件，返工会少很多。
 - 把文字、媒体、音频、字幕分别抽成可组合层，比把所有逻辑塞进一个 composition 更稳定。
 - 能在预览阶段暴露的问题，尽量不要等到最终 render 才发现，所以 sequence 边界和媒体时长要尽早核对。
-
-## Case Log
-
-> 仅记录里程碑案例（milestone-grade），避免过程流水账。
-
-### Case-000 (placeholder)
-
-- milestone_type: new_success_class
-- outcome: 待补充
-- root_cause_or_design_decision: 待补充
-- final_fix_or_heuristic: 待补充
-- prevention_or_replication_checklist: 待补充
-- evidence_paths: 待补充
-- user_feedback_or_constraint: 待补充

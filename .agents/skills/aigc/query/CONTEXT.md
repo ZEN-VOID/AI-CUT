@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -42,37 +40,3 @@
 - 若一个查询横跨多个阶段，最稳的表达是拆成“项目治理 / 阶段产物 / 验收状态”三栏，而不是混成一句。
 - 当问题带有“现在停在哪、从哪继续、还缺什么治理工件”时，`governance-state.yaml` 的优先级应高于 `project_state.yaml`。
 - 若 `governance-state.yaml` 缺失但 `project_state.yaml` 与 `Init/` 核心工件都在，优先判为“轻量初始化态”，不要直接说成治理失效。
-
-## Case Log
-
-### Case-20260411-AIGC-QUERY-BOOTSTRAP
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: `aigc` 根技能此前缺少独立事实查询卫星技能，项目状态、产物定位与治理工件查证只能混在根路由说明里。
-- root_cause_or_design_decision: 根技能承担总入口与路由职责，但 query 类能力横跨所有阶段、又不拥有阶段内容真源，更适合做根级卫星技能。
-- final_fix_or_heuristic: 新建 `query/`，并把它固定为尚书省/户部侧的事实查询入口；查询总是先解析 `PROJECT_ROOT`，再判定 truth role。
-- prevention_or_replication_checklist:
-  - [x] 已建立 `query/SKILL.md`
-  - [x] 已建立 `query/references/system-data-flow.md`
-  - [x] 已建立 `query/CONTEXT.md`
-- evidence_paths:
-  - `.agents/skills/aigc/query/SKILL.md`
-  - `.agents/skills/aigc/query/CONTEXT.md`
-  - `.agents/skills/aigc/query/references/system-data-flow.md`
-- user_feedback_or_constraint: 用户要求参照 `story2026/query` 的卫星技能形态，在 `aigc` 根目录补同名卫星技能。
-
-### Case-20260412-AIGC-QUERY-4-DESIGN-RUNTIME-SYNC
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: `query/` 的 truth-role 表和 system-data-flow 仍把 design 阶段资产指向旧的 `projects/<项目名>/主体/`，与当前 `4-Design` 父级和叶子技能的 runtime 已分裂。
-- root_cause_or_design_decision: `4-Design` 阶段后来独立收口到了 `projects/<项目名>/4-Design/`，但 `query/` 仍沿用早期 runtime 口径，导致查询返回的 design 资产路径可能失真。
-- final_fix_or_heuristic: 以 `.agents/skills/aigc/_shared/project-runtime-layout.md` 为 canonical runtime，同步更新 `query/SKILL.md` 与 `references/system-data-flow.md` 中的 design truth-role carrier。
-- prevention_or_replication_checklist:
-  - [x] `query/SKILL.md` 已将 design 资产查询改到 `projects/<项目名>/4-Design/`
-  - [x] `system-data-flow.md` 已将 `subject` carrier 改到 `4-Design/`
-  - [x] 本地 `CONTEXT.md` 已记录本轮 runtime 收口
-- evidence_paths:
-  - `.agents/skills/aigc/query/SKILL.md`
-  - `.agents/skills/aigc/query/references/system-data-flow.md`
-  - `.agents/skills/aigc/query/CONTEXT.md`
-- user_feedback_or_constraint: 用户要求继续把 `4-Design` 父级与 shared runtime 一并收口，避免查询层继续读旧目录。

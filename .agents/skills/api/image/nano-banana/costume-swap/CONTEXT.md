@@ -6,11 +6,8 @@
 monitor_version: 1
 soft_limit_chars: 40000
 hard_limit_chars: 80000
-soft_limit_cases: 80
-hard_limit_cases: 140
 current_chars: auto
 current_lines: auto
-current_cases: auto
 status: ok
 recommended_action: keep-target-scoped-updates
 last_checked_at: 2026-03-20T00:00:00Z
@@ -39,7 +36,3 @@ last_checked_at: 2026-03-20T00:00:00Z
 - 图序严格：第一张=角色源（锁定身份），第二张=服装源（提供样式）
 - 比例从角色原图动态适配，不硬编码
 - 服装参照图越清晰（单品图/设计稿），还原度越高
-
-## Case Log
-
-（待积累）

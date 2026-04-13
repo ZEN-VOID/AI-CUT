@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -39,25 +37,3 @@
 - 对 `5-画面` 来说，`分镜故事板` 是最宽容的默认入口；`分镜帧` 和 `漫画` 只在对象信号足够明确时再切入。
 - 父级提示词蒸馏层不应自建第二套 prompt 模板；对象内细节继续留在叶子子技能。
 - 若问题表现为“叶子都对，但整体还是接不上”，通常根因在父级路由或 handoff 合同缺失，而不在叶子 prompt 内容。
-
-## Case Log
-
-### Case-20260411-AIGC-VISUAL-PROMPT-DISTILLATION-PARENT-CONTRACT
-
-- milestone_type: source_contract_change
-- outcome: 为 `.agents/skills/aigc/5-Image/1-提示词蒸馏` 补齐了缺失的父级 `SKILL.md + CONTEXT.md`，把 `分镜故事板`、`分镜帧`、`漫画` 收回到统一入口下。
-- root_cause_or_design_decision: 直接技术缺口不是三个叶子子技能缺内容，而是父级层完全缺席，导致这三个无序 sibling 没有显式上层路由合同，容易被误判为默认并发或被上层直接绕过。
-- final_fix_or_heuristic: 建立父级合同，显式声明本层是“对象裁决 + 互斥路由 + handoff 边界”层；默认入口为 `分镜故事板`，单帧与漫画对象才分流到对应叶子子技能。
-- prevention_or_replication_checklist:
-  - [x] 已补父级 `SKILL.md`
-  - [x] 已补父级 `CONTEXT.md`
-  - [x] 已写明三个叶子是互斥 sibling，不默认并发
-  - [x] 已写明“请求 JSON 为主产物”的阶段边界
-  - [x] 已补到后续 `2-一致性处理 / 3-图像生成` 的 handoff 说明
-- evidence_paths:
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/CONTEXT.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/SKILL.md`
-  - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
-- user_feedback_or_constraint: 用户明确指出 `.agents/skills/aigc/5-Image/1-提示词蒸馏` 需要补齐父级真源，并统一管理三个叶子子技能的路由。

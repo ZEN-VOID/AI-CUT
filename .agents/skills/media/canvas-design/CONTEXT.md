@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 40000
 - hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
 - status: ok
 - action_policy:
   - ok: 优先更新 Type Map / Repair Playbook / Reusable Heuristics。
@@ -39,17 +37,3 @@
 - 先验证输入合同完整性，再执行生成或改写，避免下游返工。
 - 优先修改可复用规则入口（模板/校验/脚本），而非仅修单次产物。
 - 成功模式在跨场景复现达到阈值后再晋升到 SKILL/AGENT，避免过早固化。
-
-## Case Log
-
-> 仅记录里程碑案例（milestone-grade），避免过程流水账。
-
-### Case-000 (placeholder)
-
-- milestone_type: new_success_class
-- outcome: 待补充
-- root_cause_or_design_decision: 待补充
-- final_fix_or_heuristic: 待补充
-- prevention_or_replication_checklist: 待补充
-- evidence_paths: 待补充
-- user_feedback_or_constraint: 待补充

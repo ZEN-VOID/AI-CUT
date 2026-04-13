@@ -135,4 +135,4 @@ To create additional pages when requested, create more creative pages along the 
 - 冲突优先级固定为：用户显式请求 > AGENT.md / 元规则 > SKILL.md > CONTEXT.md。
 - 失败闭环必须回写 `CONTEXT.md`：记录 `root cause location + immediate fix + systemic prevention fix + layered trace path`。
 - 成功闭环必须回写 `CONTEXT.md`：沉淀可复用 heuristic，并标注 promotion scope。
-- 禁止将 `CONTEXT.md` 当作过程日志；默认采用知识库模式（Type Map / Repair Playbook / Reusable Heuristics / milestone Case Log）。
+- 禁止将 `CONTEXT.md` 当作过程日志；默认采用知识库模式（Type Map / Repair Playbook / Reusable Heuristics）。

@@ -25,12 +25,12 @@
 13. `camera_movement_engine` 若要探索“同目标更酷解法”，必须先固定表现目标不变量，再比较镜头变体，不得借机重写 core 维度事实。
 14. `cinematography_engine` 必须先回看上游 `组间设计.全局风格 / 类型元素 / 导演意图`，再写当前镜组的光位、光影推进与色彩心理；不能只从局部镜头词汇直接下结论。
 15. `cinematography_engine` 必须把项目内摄影判断压成 `主光源 / 辅助光 / 逆光 / 照明类型 / 光影流动 / 色相 / 明度 / 饱和度 / 色温 / 色彩心理` 这类当前字段可消费的语言，不得停在抽象审美词。
-15. 若上游 grouped script 含 `tail-hook` 借入拍点，`shot_skeleton_engine` 与 `structural_staging_engine` 必须先区分 `canonical beat` 与 `hook preview`；预映默认不是独立 shot 配额。
+15. 若上游 grouped script 含 `tail-hook` 借入拍点，`shot_skeleton_engine` 与 `structural_staging_engine` 必须先区分 `canonical beat` 与 `hook preview`；预映默认只提供上探空间，不默认直接加镜。
 16. “大多数分镜组都写成同一镜数”默认视为密度同质化风险；除非存在明确上游锁定，否则必须回到 `节拍/密度` 节点逐组重判，不得把共享样例当成镜数模板。
-17. `节拍` 是 authoritative quantizer 解出的候选拆镜单位，不是“一个节拍必等于一镜”；最终镜数必须经过 `节奏系数 + 拆镜加权 - 合镜折减` 的联合裁决，且以 `scripts/detail_density_quantizer.py` 为真源。
+17. `节拍` 是 density quantizer 解出的候选拆镜单位，不是“一个节拍必等于一镜”；当前真源给出的不是唯一镜数，而是 `preferred_shot_count + shot_budget_floor/ceiling`。
 18. `动作阶段点`、`台词气口点`、`焦点切换点`、`结构转折点` 是 `structural_staging_engine` 的密度真源；不得把“动词数”或“画面内对象数”直接当成镜数。
-19. 格式类型不再额外引入密度乘数；若某组需要更密或更疏的镜数，必须通过 `节拍拆分`、`pace_tier` 或可解释的 `split / merge` 证据显式体现，不能再用隐藏格式档位偷调结果。
-20. 若某组的 `shot_count_decision` 需要 5 镜，但下游链只能稳定给出 2 套景别或 3 套运镜语法，这不是“复制补齐”的信号，而是 `节拍 -> 景别 -> shot-local envelope` 没锁稳，必须上溯重判。
+19. 格式类型不再额外引入密度乘数；若某组需要更密或更疏的镜数，必须通过 `节拍拆分`、`pace_tier` 或可解释的预算上下探证据显式体现，不能再用隐藏格式档位偷调结果。
+20. 若某组的 `preferred_shot_count` 需要 5 镜，但下游链只能稳定给出 2 套景别或 3 套运镜语法，这不是“复制补齐”的信号，而是 `节拍 -> 景别 -> shot-local envelope` 没锁稳，必须上溯重判。
 
 ## 参考锚点前置包
 

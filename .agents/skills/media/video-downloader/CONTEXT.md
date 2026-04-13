@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 40000
 - hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
 - status: ok
 - action_policy:
   - ok: 优先更新 Type Map / Repair Playbook / Reusable Heuristics。
@@ -40,17 +38,3 @@
 - 视频下载类任务先收齐“链接、格式、质量、保存位置”四个输入，再执行最稳。
 - 只要版权或权限边界含糊，就先停下来澄清，不要把下载动作默认视为可执行。
 - 音频提取、单视频下载、播放列表下载其实是三种不同任务，最好在技能调用时明确分流。
-
-## Case Log
-
-> 仅记录里程碑案例（milestone-grade），避免过程流水账。
-
-### Case-000 (placeholder)
-
-- milestone_type: new_success_class
-- outcome: 待补充
-- root_cause_or_design_decision: 待补充
-- final_fix_or_heuristic: 待补充
-- prevention_or_replication_checklist: 待补充
-- evidence_paths: 待补充
-- user_feedback_or_constraint: 待补充

@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -39,39 +37,3 @@
 - provider 名称如果只有目录没有合同，就应该被视为槽位，而不是能力。
 - 对视频阶段来说，最危险的跳步是“有请求 JSON 就直接下命令”，因为这样会丢失下一入口、失败回放与计划证据。
 - 只要字段表、流程或输出契约还散落在 sidecar 文件里，父 skill 就还没有真正升格成单一真源。
-
-## Case Log
-
-### Case-20260411-AIGC-VIDEO-SUBMIT-CONTRACT-BOOTSTRAP
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: 为 `6-Video/2-视频生成` 建立提交前组织叶子合同，并将 provider 空目录收敛为 `providers/` 槽位说明。
-- root_cause_or_design_decision: 质量评估暴露出 `6-Video` 的真实生成入口存在“文档有、目录有、合同不完整”的假成熟度问题；继续保留会使提交层长期漂在技能树之外。
-- final_fix_or_heuristic: 将 `2-视频生成` 定义为“稳定请求 JSON -> provider 路由 -> submit-plan -> submit-brief -> 外部执行入口”的唯一叶子真源。
-- prevention_or_replication_checklist:
-  - [x] `SKILL.md` 已建立
-  - [x] `CONTEXT.md` 已建立
-  - [x] `providers/README.md` 已明确槽位语义
-- evidence_paths:
-  - `.agents/skills/aigc/6-Video/2-视频生成/SKILL.md`
-  - `.agents/skills/aigc/6-Video/2-视频生成/CONTEXT.md`
-  - `.agents/skills/aigc/6-Video/2-视频生成/providers/README.md`
-- user_feedback_or_constraint: 用户要求对评估暴露出的 `6-Video` 成熟度漂移做全量修复。
-
-### Case-20260412-AIGC-VIDEO-GENERATION-SINGLE-SOURCE-UPLIFT
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: 将 `2-视频生成` 从“主合同摘要 + references 细则”升格为单一 `SKILL.md` 真源，并统一修复 `2/3-视频生成` 路径漂移。
-- root_cause_or_design_decision: 原结构同时存在主合同、`references/*.md` 与 `providers/README.md` 三处局部规则承载，导致字段、流程、输出契约和路径回链无法稳定收束。
-- final_fix_or_heuristic: 把 `references/*.md` 的规范内容内联进 `SKILL.md`，让 `CONTEXT.md` 只保留经验层，并把全仓当前路径口径统一收敛到 `.agents/skills/aigc/6-Video/2-视频生成/`。
-- prevention_or_replication_checklist:
-  - [x] `SKILL.md` 已成为唯一规范真源
-  - [x] `CONTEXT.md` 仅保留经验层
-  - [x] `references/` 已退出规范承载
-  - [x] 根级与父级路径回指已同步
-- evidence_paths:
-  - `.agents/skills/aigc/6-Video/2-视频生成/SKILL.md`
-  - `.agents/skills/aigc/6-Video/2-视频生成/CONTEXT.md`
-  - `.agents/skills/aigc/6-Video/SKILL.md`
-  - `.agents/skills/aigc/SKILL.md`
-- user_feedback_or_constraint: 用户明确要求将 `references` 内容整合到 `SKILL.md` 内，不再以 `references` 作为载体引用。

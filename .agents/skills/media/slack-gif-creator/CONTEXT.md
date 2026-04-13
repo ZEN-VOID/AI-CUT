@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 40000
 - hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
 - status: ok
 - action_policy:
   - ok: 优先更新 Type Map / Repair Playbook / Reusable Heuristics。
@@ -40,17 +38,3 @@
 - 先确定是 Slack emoji 还是消息内 GIF，再决定尺寸、时长和文件大小预算。
 - 好的 Slack GIF 通常先赢在辨识度和节奏，而不是细节复杂度。
 - 如果目标是更小文件，优先减帧率、减时长、减颜色，而不是先牺牲主体清晰度。
-
-## Case Log
-
-> 仅记录里程碑案例（milestone-grade），避免过程流水账。
-
-### Case-000 (placeholder)
-
-- milestone_type: new_success_class
-- outcome: 待补充
-- root_cause_or_design_decision: 待补充
-- final_fix_or_heuristic: 待补充
-- prevention_or_replication_checklist: 待补充
-- evidence_paths: 待补充
-- user_feedback_or_constraint: 待补充

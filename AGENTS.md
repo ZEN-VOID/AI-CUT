@@ -208,10 +208,10 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 在 `SKILL.md` 中包含与本全局政策对齐的 Root-Cause 执行合同，并附带上溯到 meta 层合同的钩子
   - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
   - 在 `CONTEXT.md` 中包含知识库核心（Type Map 与/或 Playbook 与/或 Reusable Heuristics）
-  - 在 `CONTEXT.md` 中包含符合 `meta/skill-context` 结构的 Case Log（仅里程碑级）
+  - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
-- `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、Case 区块失衡与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
+- `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
 
 ### 技能组成与语义
@@ -366,7 +366,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 无需额外等待用户提示，必须自动执行以下流程：
   1. 源层诊断（分层上溯）：从症状追到直接原因，再追到 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）。
   2. 立即修复 + 增强：优先修补最高杠杆的源层工件（规则 / 脚本 / runbook / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
-  3. 上下文沉淀：使用 `meta/skill-context` 结构更新受影响技能的 `CONTEXT.md`（若缺失则创建）；优先更新 Type Map / Playbook / Reusable Heuristics，仅在达到里程碑级别时新增 Case Record。
+  3. 上下文沉淀：更新受影响技能的 `CONTEXT.md`（若缺失则创建）；优先把结论化经验写入 Type Map / Playbook / Reusable Heuristics，若需保留里程碑细节，则外置到 `CHANGELOG.md` 或 `reports/`。
   4. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / runbook -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
   5. 面向用户的闭环输出：必须返回三元组 `root cause location + immediate fix + systemic prevention fix`，并附上分层追踪路径 `symptom -> rule source -> meta rule source`。
 
@@ -375,13 +375,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 无需额外等待用户提示，必须自动执行以下流程：
   1. 模式识别：定位产出正向结果的设计决策，例如 prompt 结构、参数选择、工作流顺序、字段映射或架构安排。
   2. 抽象：将该决策提炼为 1-3 句可复用 heuristic，且要限定适用范围（skill、阶段、领域、主题），避免过度泛化。
-  3. 上下文沉淀：将 heuristic 写入对应技能的 `CONTEXT.md` 中的 Reusable Heuristics；仅当该模式足够新颖或具有跨技能复用价值时，再追加里程碑案例。
+  3. 上下文沉淀：将 heuristic 写入对应技能的 `CONTEXT.md` 中的 Reusable Heuristics；若需要保留里程碑级证据，只保留结论摘要在知识库章节中，长材料外置到 `CHANGELOG.md` 或 `reports/`。
   4. 晋升（自下而上）：当同一正向模式在 >= 2 次独立执行中得到确认时，将其从 `CONTEXT.md` 晋升到 `SKILL.md`，必要时再晋升到 `AGENTS.md` 或 meta-SKILL。
   5. 面向用户的闭环输出：返回三元组：成功模式位置 + 提炼出的 heuristic + 晋升范围。
-- **Case Record 里程碑类型**（创建/更新案例时必须提供 `milestone_type`）：
-  - 负向里程碑：`new_failure_class`、`source_contract_change`、`repeated_pattern_promotion`
-  - 正向里程碑：`new_success_class`、`cross_skill_heuristic`、`positive_promotion_evidence`
-- Case Record 的最小必填字段包括：`milestone_type`、症状或结果、根因或设计决策、最终修复或提炼 heuristic、预防/复现检查清单、证据路径、用户反馈/约束。
+- 若需要保留里程碑级证据，`CONTEXT.md` 仅保留结论化沉淀；详细字段、时间线与长证据材料应写入 `CHANGELOG.md`、执行报告或 `reports/`。
 - 如果只是修复了本地产物或确认了结果，却没有同步更新 `CONTEXT.md`，则视为 `Root-Cause Learning Loop` 尚未完成；若因阻塞无法更新，必须显式报告阻塞原因。
 
 ### AGENT、SKILL、专项模块、CONTEXT 与入口元数据放置矩阵（全局真源）
@@ -434,17 +431,17 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 以下内容应写入 `CONTEXT.md`（经验层）：
 
   - Type Map（失败模式 -> 修复策略 -> 验证点）、Repair Playbook 与 Reusable Heuristics
-  - 基于真实执行形成的 Case Record（里程碑级、低频、高价值；避免进度流水账）
   - 运行陷阱、兼容性问题、成功恢复策略
   - 多因素选择任务中的经验性 tie-break heuristic、收窄 heuristic 与观察到的失败模式
   - 对类型化处理的经验性复盘、失败模式、修复策略与验证点；但不承载同一技能的规范型多模式策略主表
   - 尚未稳定到足以晋升为 `SKILL.md` 的候选经验
+  - 若某次里程碑事件需要保留额外证据，`CONTEXT.md` 仅保留结论化摘要，长材料外置到 `CHANGELOG.md` 或 `reports/`
 - 以下内容应写入 `CHANGELOG.md`（派生变更史）：
 
   - 按时间顺序组织的变更摘要、迁移记录、结构重排说明、长段执行时间线与版本差异
   - `CHANGELOG.md` 是派生说明载体，不是规范真源，也不是经验真源；不得与 `AGENTS.md` / `SKILL.md` / `CONTEXT.md` 并列竞争事实裁决权
   - `CHANGELOG.md` 默认不参与技能运行时预加载；只有在追溯迁移、审计差异、发布说明或需要查看详细过程时才按需读取
-  - `CONTEXT.md` 中需要保留的 Case 若存在较长过程材料，应在 Case 内只保留结论化沉淀，并链接指向 `CHANGELOG.md` 或 `reports/`
+  - 若某条经验需要保留较长过程材料，`CONTEXT.md` 只保留结论化沉淀，并链接指向 `CHANGELOG.md` 或 `reports/`
 - `CONTEXT.md` 支持多级放置。
 - 当前规范特指主技能、子技能与卫星技能之间的多级放置：
 
@@ -537,15 +534,14 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 该要求同时适用于主技能根层 `CONTEXT.md` 与子技能 `CONTEXT.md`。
 - 默认健康阈值如下：
   - `soft_limit_chars: 20000`，`hard_limit_chars: 40000`
-  - `soft_limit_cases: 16`，`hard_limit_cases: 32`
 - 动作策略：
-  - `ok`：保持面向目标的知识更新，优先更新 Type Map / Playbook；仅在达到里程碑标准时追加案例
+  - `ok`：保持面向目标的知识更新，优先更新 Type Map / Playbook / Reusable Heuristics
   - `warn`：对该技能的上下文做定向压缩与整理
-  - `warn` 且文档很长但案例较少：优先做人为结构整理（章节合并/拆分/抽取），而不是只做案例压缩
+  - `warn` 且文档很长但知识密度失衡：优先做人为结构整理（章节合并/拆分/抽取），而不是继续追加
   - `critical`：在继续大规模追加前，必须先压缩并归档旧内容
 - 压缩时必须保持证据完整性：
-  - 将近期活跃案例保留在 `CONTEXT.md`
-  - 将较早案例归档到 `reports/context-archive/`，并保留可追踪索引
+  - 将仍有高复用价值的结论保留在 `CONTEXT.md`
+  - 将较长时间线、旧证据和过程性材料外置到 `reports/context-archive/`、`CHANGELOG.md` 或其他可追踪载体
 - 默认操作应针对单个技能上下文，而不是在未被要求时全仓重写。
 
 ### CONTEXT 知识库模式（强制）
@@ -558,9 +554,8 @@ python3 -m pip install <pkg>  # 安装依赖包
   - Reusable Heuristics：简洁且高价值的可复用经验
   - `Type Map` 在此特指经验性映射与排障知识，不等于同一技能的规范型类型策略工作台；后者应放在主合同显式指定的规范模块
 - 详细时间线、长日志、迁移流水、版本差异说明应外置到 `CHANGELOG.md`、执行报告或 `reports/`；不要把这些内容直接堆进 `CONTEXT.md`
-- Case Log 频率控制：
-  - 仅在里程碑事件发生时新增/追加案例。负向里程碑包括：新错误类别、源规则变更、重复模式晋升；正向里程碑包括：新成功类别、跨技能可复用 heuristic、正向晋升证据
-  - 对于非里程碑迭代，应优先更新已有 Type Map / Playbook / Heuristics，而不是新建案例
-  - Case 只保留结论化沉淀：症状/结果、根因或设计决策、最终修复或 heuristic、预防或复现检查；详细过程应以链接指向 `CHANGELOG.md` 或 `reports/`
+- 里程碑事件处理：
+  - 不再单设 `Case Log`；负向或正向里程碑也应优先回写为 Type Map / Playbook / Reusable Heuristics 中的结论化条目
+  - 若某次里程碑需要保留独立证据链，`CONTEXT.md` 仅保留摘要与回指，详细过程应外置到 `CHANGELOG.md` 或 `reports/`
 - 禁止记录低价值内容：
   - 进度叙述、长段执行日志、迁移流水原文、仅做表面润色的修改、无法提供复用防护或复制价值的一次性噪声笔记

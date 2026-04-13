@@ -65,7 +65,7 @@ governance_tier: full
 允许的本地变化：
 
 - `providers/README.md` 只允许补充 provider 名称列表或非规范性目录注释。
-- `CONTEXT.md` 只允许沉淀经验型 Type Map、Playbook、Heuristics 与里程碑 Case。
+- `CONTEXT.md` 只允许沉淀经验型 Type Map、Playbook 与 Heuristics；长过程与里程碑细节外置到 `CHANGELOG.md` 或 `reports/`。
 
 禁止的第二真源：
 

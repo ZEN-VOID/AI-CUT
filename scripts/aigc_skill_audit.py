@@ -29,7 +29,6 @@ CHAIN_OF_THOUGHT_REQUIRED_SECTIONS = [
 ]
 CONTEXT_REQUIRED_SECTIONS = [
     "## Context Health",
-    "## Case Log",
 ]
 CONTEXT_KB_SECTIONS = [
     "## Type Map",
@@ -38,10 +37,6 @@ CONTEXT_KB_SECTIONS = [
 ]
 DEFAULT_SOFT_LIMIT_CHARS = 20000
 DEFAULT_HARD_LIMIT_CHARS = 40000
-DEFAULT_SOFT_LIMIT_CASES = 16
-DEFAULT_HARD_LIMIT_CASES = 32
-CASE_LOG_DOMINANCE_RATIO = 0.6
-CASE_LOG_DOMINANCE_MIN_CASES = 8
 REFERENCE_MODULES = (
     "chain-of-thought.md",
     "execution-flow.md",
@@ -281,62 +276,33 @@ def extract_context_limit(content: str, limit_name: str, default: int) -> int:
     return int(match.group(1)) if match else default
 
 
-def case_count_of(content: str) -> int:
-    return len(re.findall(r"^###\s+Case-", content, re.MULTILINE))
-
-
-def has_case_before_case_log(content: str) -> bool:
-    case_matches = list(re.finditer(r"^###\s+Case-", content, re.MULTILINE))
-    if not case_matches:
-        return False
-    case_log_match = re.search(r"^##\s+Case Log\s*$", content, re.MULTILINE)
-    if not case_log_match:
-        return False
-    return any(match.start() < case_log_match.start() for match in case_matches)
-
-
-def case_log_dominates(content: str) -> bool:
-    first_case_match = re.search(r"^###\s+Case-", content, re.MULTILINE)
-    if not first_case_match:
-        return False
-    case_count = case_count_of(content)
-    if case_count < CASE_LOG_DOMINANCE_MIN_CASES:
-        return False
-    case_payload = content[first_case_match.start() :]
-    return len(case_payload) / max(len(content), 1) >= CASE_LOG_DOMINANCE_RATIO
+def has_stale_case_log_markup(content: str) -> bool:
+    return any(
+        pattern.search(content)
+        for pattern in (
+            re.compile(r"^##\s+Case Log\s*$", re.MULTILINE),
+            re.compile(r"^###\s+Case-", re.MULTILINE),
+            re.compile(r"^- milestone_type:", re.MULTILINE),
+        )
+    )
 
 
 def audit_context_quality(context_path: Path, context: str, warnings: list[str]) -> None:
     char_count = len(context)
-    cases = case_count_of(context)
     soft_limit_chars = extract_context_limit(context, "soft_limit_chars", DEFAULT_SOFT_LIMIT_CHARS)
     hard_limit_chars = extract_context_limit(context, "hard_limit_chars", DEFAULT_HARD_LIMIT_CHARS)
-    soft_limit_cases = extract_context_limit(context, "soft_limit_cases", DEFAULT_SOFT_LIMIT_CASES)
-    hard_limit_cases = extract_context_limit(context, "hard_limit_cases", DEFAULT_HARD_LIMIT_CASES)
 
     if char_count >= soft_limit_chars:
         warnings.append(
             f"{context_path}: chars={char_count} reached soft limit {soft_limit_chars}; compact KB or move long timelines to CHANGELOG.md"
         )
-    if cases >= soft_limit_cases:
-        warnings.append(
-            f"{context_path}: cases={cases} reached soft limit {soft_limit_cases}; keep only milestone conclusions in Case Log"
-        )
     if char_count >= hard_limit_chars:
         warnings.append(
             f"{context_path}: chars={char_count} reached hard limit {hard_limit_chars}; archive older material before further growth"
         )
-    if cases >= hard_limit_cases:
+    if has_stale_case_log_markup(context):
         warnings.append(
-            f"{context_path}: cases={cases} reached hard limit {hard_limit_cases}; archive older cases before appending new ones"
-        )
-    if has_case_before_case_log(context):
-        warnings.append(
-            f"{context_path}: found `Case-*` sections before `## Case Log`; move them under Case Log or externalize detailed timeline to CHANGELOG.md"
-        )
-    if case_log_dominates(context):
-        warnings.append(
-            f"{context_path}: Case content dominates the file; move long process history to CHANGELOG.md or reports and keep CONTEXT.md as KB"
+            f"{context_path}: found stale `Case Log` / `Case-*` / `milestone_type` markup; migrate details to CHANGELOG.md or reports and keep CONTEXT.md KB-only"
         )
 
 
@@ -411,6 +377,8 @@ def audit_skill_file(path: Path, failures: list[str]) -> None:
     for section in CONTEXT_REQUIRED_SECTIONS:
         if section not in context:
             failures.append(f"{context_path}: missing section `{section}`")
+    if has_stale_case_log_markup(context):
+        failures.append(f"{context_path}: contains deprecated `Case Log` / `Case-*` / `milestone_type` markup")
     if not any(section in context for section in CONTEXT_KB_SECTIONS):
         failures.append(
             f"{context_path}: missing knowledge-base core (`Type Map` / `Repair Playbook` / `Reusable Heuristics`)"

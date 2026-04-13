@@ -256,8 +256,8 @@ graph LR
 | 转场特效细则 | 承载转场与特效桥接的思维执行节点 | `references/转场特效.md` |
 | 输出契约 | 承载 writeback、validation-report 与下游 handoff | `references/output-template.md` |
 | shared I/O | 承载字段 ownership 与 merge precedence | `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md` |
-| authoritative density quantizer | 承载 `3-Detail` 的镜数计算真源 | `scripts/detail_density_quantizer.py` |
-| authoritative density validator | 承载 `3-Detail` 的镜数一致性校验真源 | `scripts/validate_detail_output.py` |
+| density budget quantizer | 承载 `3-Detail` 的结构化镜数预算真源 | `scripts/detail_density_quantizer.py` |
+| density budget validator | 承载 `3-Detail` 的预算区间一致性校验真源 | `scripts/validate_detail_output.py` |
 
 ## Topology Contract (Mandatory)
 
@@ -328,8 +328,8 @@ graph LR
 - 证据补充固定来自 `Init`、`story-source-manifest`、`第N集.grouping.json` 与 `2-Global/*.md` 的兼容回退/审计读取。
 - 当前 canonical 主产物是 `projects/<项目名>/3-Detail/第N集.json`。
 - 当前 canonical 验收产物是 `projects/<项目名>/3-Detail/validation-report.md`。
-- 当前 authoritative 密度计算真源是 `scripts/detail_density_quantizer.py`，而不是人工口述解释。
-- 当前 authoritative 密度一致性校验真源是 `scripts/validate_detail_output.py`。
+- 当前结构化密度预算真源是 `scripts/detail_density_quantizer.py`，而不是人工口述解释。
+- 当前预算区间一致性校验真源是 `scripts/validate_detail_output.py`。
 - 默认采用后台内部并发链；只有证据缺口、用户显式要求逐轮共创、或某个命中组/镜必须前台确认时才阻塞。
 
 ## Output Summary

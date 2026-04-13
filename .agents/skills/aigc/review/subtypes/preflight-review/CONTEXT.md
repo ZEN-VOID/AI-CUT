@@ -9,8 +9,6 @@
 
 - soft_limit_chars: 20000
 - hard_limit_chars: 40000
-- soft_limit_cases: 16
-- hard_limit_cases: 32
 - status: ok
 
 ## Type Map
@@ -31,19 +29,3 @@
 
 - preflight 最重要的是定义“现在能做什么”，而不是泛泛而谈风险。
 - 对高风险任务，缺治理工件通常比缺内容证据更先阻断执行。
-
-## Case Log
-
-### Case-20260411-AIGC-REVIEW-PREFLIGHT-SUBTYPE
-
-- milestone_type: source_contract_change
-- symptom_or_outcome: 将 `review` 的 preflight 模式提升为受治理子技能。
-- root_cause_or_design_decision: preflight verdict 与 acceptance/learning 的 carrier、边界和放行条件不同，长期混在父技能里容易再次漂移。
-- final_fix_or_heuristic: 将高风险放行逻辑收敛到 `subtypes/preflight-review/`，父技能只做模式路由。
-- prevention_or_replication_checklist:
-  - [x] 已建立 `SKILL.md`
-  - [x] 已建立 `CONTEXT.md`
-- evidence_paths:
-  - `.agents/skills/aigc/review/subtypes/preflight-review/SKILL.md`
-  - `.agents/skills/aigc/review/subtypes/preflight-review/CONTEXT.md`
-- user_feedback_or_constraint: 用户要求把 `review` 进一步细化为专项 reviewer。

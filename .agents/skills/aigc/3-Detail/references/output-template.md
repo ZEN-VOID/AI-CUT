@@ -46,21 +46,23 @@
 3. 更新 `acceptance_notes`
 4. 写 `validation-report.md`
 5. 仅当 `第N集.json` 与 `validation-report.md` 都已真实存在时，才允许同步 `projects/<项目名>/project_state.yaml` 为 `detail_complete_validated` 并推荐进入 `4-Design`
+6. 若本次属于 recovery rerun，且 `project_state.yaml` 已推进到 `4-Design / 5-Image / 6-Video` 或更后阶段，则只修复缺失 artifact 与验收记录，不得把 `current_stage`、推荐入口或 ready 状态回退到 `3-Detail` 之后的较早节点
 
 ## Stage Closure Sync
 
 - `project_state.yaml` 只能在以下条件同时满足后，才允许宣称本阶段完成：
   - `projects/<项目名>/3-Detail/第N集.json` 已写回
   - `projects/<项目名>/3-Detail/validation-report.md` 已写回
-  - `scripts/validate_detail_output.py` 已返回 `PASS`
+  - `scripts/validate_detail_output.py` 已返回 `ok`
 - 如果 `project_state.yaml` 已声称完成，但上述任一产物缺失，应视为 runtime drift，先重建 artifact，再改状态。
+- 如果 runtime drift 发生在项目已进入更后阶段之后，则只恢复 `3-Detail` 产物一致性；除非用户明确要求回退流程，否则不得下调 `current_stage`、`recommended_next_stage` 或覆盖更后阶段已经成立的下游推荐。
 
-## authoritative 量化校验
+## 结构化预算校验
 
 - `validation-report.md` 应显式记录：
-  - `scripts/detail_density_quantizer.py` 的格式档位、节奏档位与镜数分布
+  - `scripts/detail_density_quantizer.py` 的节奏档位、preferred 镜数分布与预算区间摘要
   - `scripts/validate_detail_output.py` 的 pass / fail 结论
-- 若 quantizer 与 episode JSON 不一致，不得宣布阶段完成。
+- 若 episode JSON 的实际镜数落在预算区间外，不得宣布阶段完成。
 - 若 validator 检测到同一组内 shot-level 业务字段存在过量逐镜原句复制，也不得宣布阶段完成。
 - 若 validator 检测到 `组间设计.出场角色及穿搭` 缺失或格式不满足 `角色名-服装简述` 的组级摘要要求，也不得宣布阶段完成。
 

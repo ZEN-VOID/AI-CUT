@@ -10,8 +10,6 @@
 
 - soft_limit_chars: 40000
 - hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
 - status: ok
 - action_policy:
   - ok: 优先更新 Type Map / Repair Playbook / Reusable Heuristics。
@@ -40,17 +38,3 @@
 - 先定义“滚动要讲什么故事”，再决定用 GSAP、Framer Motion 还是原生 CSS，而不是先堆技术。
 - 每个 scroll beat 最好只承担一个主要情绪或信息目标，能明显降低用户疲劳。
 - 任何滚动特效都必须有移动端降级方案，否则很容易从“沉浸”变成“阻碍”。
-
-## Case Log
-
-> 仅记录里程碑案例（milestone-grade），避免过程流水账。
-
-### Case-000 (placeholder)
-
-- milestone_type: new_success_class
-- outcome: 待补充
-- root_cause_or_design_decision: 待补充
-- final_fix_or_heuristic: 待补充
-- prevention_or_replication_checklist: 待补充
-- evidence_paths: 待补充
-- user_feedback_or_constraint: 待补充

@@ -2,11 +2,8 @@
 context_health:
   status: ok
   chars: ~1500
-  cases: 0
   soft_limit_chars: 40000
   hard_limit_chars: 80000
-  soft_limit_cases: 80
-  hard_limit_cases: 140
 ---
 
 # CONTEXT: nano-banana-multiview-scene
@@ -37,7 +34,3 @@ context_health:
 - 默认 `--no-report`，仅输出图片。
 - 第一张图为主参照图（"图一"），后续图为辅助参照。
 - 输出命名递增防覆盖，永不覆盖原始文件。
-
-## Case Log
-
-（暂无案例记录）
