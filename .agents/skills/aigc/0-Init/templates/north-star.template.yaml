@@ -8,6 +8,7 @@
 project_identity:
   project_name: ""
   working_title: ""
+  # 建议写明确的媒介/节奏目标，例如：概念短片 / 短剧 / 竖屏短剧 / 漫剧 / 漫画短片
   format: ""
   target_runtime: ""
   target_platforms: []

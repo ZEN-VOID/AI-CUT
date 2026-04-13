@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "AIGC 服装面板"
-  short_description: "把服装设计真源收束为逐服装的 panel layout JSON 与 episode manifest"
-  default_prompt: "Use $aigc-design-costume-panel to read `服装设计.json + costume_design_prompt.json` under `projects/<项目名>/4-Design/3-服装/2-设计/第N集/`, then write one `<costume_id>-<canonical_label>-CostumePanel-layout.json` per costume plus `_manifest.json` under `projects/<项目名>/4-Design/3-服装/3-面板/第N集/`."

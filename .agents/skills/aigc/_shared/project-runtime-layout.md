@@ -68,7 +68,7 @@
 | 阶段 | 默认预建子路径 |
 | --- | --- |
 | `1-Planning` | `projects/<项目名>/1-Planning/1-分集/`、`projects/<项目名>/1-Planning/2-剧本/`、`projects/<项目名>/1-Planning/3-分组/` |
-| `4-Design` | `projects/<项目名>/4-Design/1-场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/2-角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/3-服装/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/4-道具/1-清单/`、`2-设计/`、`3-面板/` |
+| `4-Design` | `projects/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/服装/1-清单/`、`2-设计/`、`3-面板/`；`projects/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/` |
 | `5-Image` | `projects/<项目名>/5-Image/分镜故事板/`、`projects/<项目名>/5-Image/分镜帧/`、`projects/<项目名>/5-Image/漫画/` |
 | `6-Video` | `projects/<项目名>/6-Video/全能参照/`、`projects/<项目名>/6-Video/首帧参照/`、`projects/<项目名>/6-Video/生成任务/` |
 
@@ -100,8 +100,8 @@
 | `0-Init` | `projects/<项目名>/0-Init/` | 初始化合同、项目种子与根布局预建 |
 | `Story` | `projects/<项目名>/Story/` | 项目级故事主源与辅助源材料落点，由 `0-Init/story-source-manifest.yaml` 统一登记 |
 | `1-Planning` | `projects/<项目名>/1-Planning/` | 规划阶段父级合同、阶段验收与多数规划子路径落点；`1-分集` 将故事正文收束到 `2-剧本/第N集.md`，并为后续 `2-Global` 预留 `bootstrap_output` 目标路径 |
-| `2-Global` | `projects/<项目名>/2-Global/` | 负责全局风格、类型指导与导演意图三份 Markdown 真源 |
-| `3-Detail` | `projects/<项目名>/3-Detail/` | 消费 `2-Global/*.md` 后，围绕 `第N集.json` 做字段分属 patch-in-place |
+| `2-Global` | `projects/<项目名>/2-Global/` | 负责全局风格、类型元素与导演意图三份 Markdown，并在阶段末段把 `组间设计` seed 写入 shared episode root |
+| `3-Detail` | `projects/<项目名>/3-Detail/` | 优先继承 `2-Global` 已 seed 的 episode root，再围绕同一份 `第N集.json` 完成 shot-level patch-in-place |
 | `4-Design` | `projects/<项目名>/4-Design/` | design-source 阶段产物 |
 | `5-Image` | `projects/<项目名>/5-Image/` | 画面阶段；当前 active 子路径是 `分镜故事板 / 分镜帧 / 漫画` |
 | `6-Video` | `projects/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 生成任务` |
@@ -112,11 +112,13 @@
 - 唯一主文件：`projects/<项目名>/3-Detail/第N集.json`
 - shared schema：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - bootstrap template：`.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
+- group seed contract：`.agents/skills/aigc/_shared/group_design_seed_contract.md`
+- phase transition reading rule：以同一 `第N集.json` 的 `metadata.document_phase` 读取 `directing_in_progress -> detail_in_progress -> ready` 的推进，不再依赖共享静态样例。
 
 ## Ownership Contract
 
-1. `1-Planning` 只负责在 `projects/<项目名>/1-Planning/2-剧本/第N集.md` 中登记每集 `bootstrap_output` 目标路径与 `source_profile` handoff，不在规划阶段默认创建 `projects/<项目名>/2-Global/*.md` 或 `projects/<项目名>/3-Detail/第N集.json`。
-2. `2-Global` 负责写入 `projects/<项目名>/2-Global/全局风格.md`、`类型指导.md` 与 `导演意图.md`，但不创建 `projects/<项目名>/3-Detail/第N集.json`。
-3. `3-Detail` 在首次进入且检测到 `projects/<项目名>/3-Detail/第N集.json` 不存在时，负责基于 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json` 自动创建根文件。
-4. `3-Detail` 后续只允许围绕同一份 `第N集.json` 做字段分属 patch-in-place。
+1. `1-Planning` 只负责在 `projects/<项目名>/1-Planning/2-剧本/第N集.md` 中登记每集 `bootstrap_output` 目标路径与 `source_profile` handoff，不在规划阶段默认创建 `projects/<项目名>/2-Global/*.md` 或 shared episode root。
+2. `2-Global` 负责写入 `projects/<项目名>/2-Global/全局风格.md`、`类型元素.md` 与 `导演意图.md`，并在阶段末段把 `组间设计` seed 写入 `projects/<项目名>/3-Detail/第N集.json`。
+3. `2-Global` 在 shared root 不存在时，可基于 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json` 创建同模版 episode root，但只拥有 `组间设计` 与相关 metadata 的写入权。
+4. `3-Detail` 后续只允许围绕同一份 `第N集.json` 做 shot-level 与 detail-level patch-in-place，并默认继承已有 `组间设计`。
 5. 下游阶段若消费编导数据，默认读取 `projects/<项目名>/3-Detail/第N集.json`，不得私造第二份 episode/group/shot 根文件。

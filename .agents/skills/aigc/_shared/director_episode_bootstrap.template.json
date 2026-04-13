@@ -15,19 +15,14 @@
     "document_phase": "bootstrapped",
     "created_at": "YYYY-MM-DDTHH:MM:SSZ"
   },
-  "thinking_chain": {
-    "thinking_goal": "等待 3-Detail 基于 2-Global 与 3-分组输入首次写入组级与镜级字段，并继续按字段分属补全。",
-    "key_steps": [],
-    "conclusion": "已初始化空白编导根文件。"
-  },
   "final_output": {
     "deliverable_type": "director_episode_output",
     "main_content": {
       "分镜组列表": []
     },
     "acceptance_notes": [
-      "本文件由 3-Detail 在首次进入且根文件缺失时自动创建。",
-      "后续仅允许 3-Detail 在 shared schema 约束下 patch-in-place。"
+      "本文件可由 2-Global 在阶段末段创建并写入完整分镜组壳（分镜组ID / 总时长 / 剧本正文 / 组间设计 / 空分镜明细），也可由 3-Detail 在兼容回退路径下创建空壳。",
+      "后续由 2-Global 先补完整分镜组壳与组间设计，再由 3-Detail 在 shared schema 约束下继续 patch-in-place。"
     ]
   }
 }

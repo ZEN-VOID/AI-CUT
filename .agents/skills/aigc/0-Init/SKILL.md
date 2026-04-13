@@ -243,18 +243,18 @@ flowchart LR
    - `projects/<项目名>/1-Planning/1-分集/`
    - `projects/<项目名>/1-Planning/2-剧本/`
    - `projects/<项目名>/1-Planning/3-分组/`
-   - `projects/<项目名>/4-Design/1-场景/1-清单/`
-   - `projects/<项目名>/4-Design/1-场景/2-设计/`
-   - `projects/<项目名>/4-Design/1-场景/3-面板/`
-   - `projects/<项目名>/4-Design/2-角色/1-清单/`
-   - `projects/<项目名>/4-Design/2-角色/2-设计/`
-   - `projects/<项目名>/4-Design/2-角色/3-面板/`
-   - `projects/<项目名>/4-Design/3-服装/1-清单/`
-   - `projects/<项目名>/4-Design/3-服装/2-设计/`
-   - `projects/<项目名>/4-Design/3-服装/3-面板/`
-   - `projects/<项目名>/4-Design/4-道具/1-清单/`
-   - `projects/<项目名>/4-Design/4-道具/2-设计/`
-   - `projects/<项目名>/4-Design/4-道具/3-面板/`
+   - `projects/<项目名>/4-Design/场景/1-清单/`
+   - `projects/<项目名>/4-Design/场景/2-设计/`
+   - `projects/<项目名>/4-Design/场景/3-面板/`
+   - `projects/<项目名>/4-Design/角色/1-清单/`
+   - `projects/<项目名>/4-Design/角色/2-设计/`
+   - `projects/<项目名>/4-Design/角色/3-面板/`
+   - `projects/<项目名>/4-Design/服装/1-清单/`
+   - `projects/<项目名>/4-Design/服装/2-设计/`
+   - `projects/<项目名>/4-Design/服装/3-面板/`
+   - `projects/<项目名>/4-Design/道具/1-清单/`
+   - `projects/<项目名>/4-Design/道具/2-设计/`
+   - `projects/<项目名>/4-Design/道具/3-面板/`
    - `projects/<项目名>/5-Image/分镜故事板/`
    - `projects/<项目名>/5-Image/分镜帧/`
    - `projects/<项目名>/5-Image/漫画/`
@@ -339,16 +339,18 @@ flowchart LR
 
 1. 若用户明确指定 `.codex/agents/**/*.md` 作为顾问素材，则强制进入 `主创会诊模式`。
 2. 若用户表达“你直接补完 / 少问点 / 快速给一版”，进入 `快速成案模式`。
-3. 其余情况默认进入 `自主问答模式`。
-4. 一旦模式锁定，只允许命中 1 个模式路径；不得混跑多个模式主路径。
-5. `主创会诊模式` 与 `快速成案模式` 禁止回退成长问卷；最多允许 1 张阻塞/裁决卡。
+3. 其余情况的默认前台建议是 `自主问答模式`，但这只是初始化元选项卡的默认展示项，不等于自动锁定。
+4. 若用户未显式选择，且输入也未触发强制路由信号，必须先展示初始化元选项卡并等待确认；不得把“推荐模式”直接写成 `mode_lock_note`。
+5. 一旦模式锁定，只允许命中 1 个模式路径；不得混跑多个模式主路径。
+6. `主创会诊模式` 与 `快速成案模式` 禁止回退成长问卷；最多允许 1 张阻塞/裁决卡。
 
 ### 模式锁定闸门
 
 1. 若用户尚未明确选择模式，且输入也未触发强制路由信号，必须先展示“初始化元选项卡”。
 2. 仅有项目名、片名、题眼、单句概念或极简 brief，不足以自动视为用户已选择 `快速成案模式`。
-3. 模式锁定前，允许做合同读取、模板核对与风险诊断；不得起草任何初始化主工件。
-4. 若会话在模式锁定前被打断，恢复时第一动作仍应是补发“初始化元选项卡”。
+3. 允许给出模式推荐，但推荐必须显式标注为 `pending_recommendation`，不得越权写成已锁定模式，更不得推进到 `N2-runtime-bootstrap` 之后的起草节点。
+4. 模式锁定前，允许做合同读取、模板核对与风险诊断；不得起草任何初始化主工件。
+5. 若会话在模式锁定前被打断，恢复时第一动作仍应是补发“初始化元选项卡”。
 
 ### 初始化元选项卡（唯一合法展示位）
 
@@ -479,6 +481,43 @@ B. 你先综合，我只做最后确认
 3. 若 `primary_story_source.status != ready`，必须显式写出 `blocking_reason` 与 `required_user_action`。
 4. 若主故事源只覆盖部分正文，必须显式区分“可增量规划”与“不可正式完成整季切分”。
 
+## Story Source Completeness Gate (Mandatory)
+
+`0-Init` 不要求“必须先有故事源才能初始化项目”，但必须区分两种初始化态：
+
+1. `source-light bootstrap`
+   - 条件：`primary_story_source.status != ready`
+   - 允许：创建 runtime skeleton、`team.yaml`、`story-source-manifest.yaml`、轻量 `project_state.yaml`，以及只包含题材级/边界级约束的 `north_star.yaml`
+   - 禁止：把具体剧情事件、人物关系、冲突机制、单集 key beats、场景池、对象池或世界规则细节写成既定事实
+2. `source-grounded bootstrap`
+   - 条件：已拿到实际主故事源正文，或至少拿到可覆盖当前规划范围的正式梗概
+   - 允许：在 `init_handoff.yaml` 中生成与当前 coverage 对齐的 story-facing seeds，并将其标记为来自故事源
+
+硬规则：
+
+1. 当 `primary_story_source.status != ready` 时，`north_star.yaml` 只能写题材、气质、受众、制作边界与长期约束，不得发明剧情断言。
+2. 当 `primary_story_source.status != ready` 时，`init_handoff.yaml` 的 story-facing 区块必须降级为 `unknowns / deferred_to_* / risk_notes`，而不是伪装成已验证 seeds。
+3. 快速成案模式在缺故事源时，最多只能产出“概念级 seed”，不得把助手推断的剧情细节写成后续阶段默认输入。
+4. 若用户明确要求“先别卡我，先起盘”，允许走 `source-light bootstrap`；但下一步动作必须显式包含补故事源或补正式梗概。
+
+## Story Source Reconciliation Contract (Mandatory)
+
+如果项目已在缺故事源状态下完成初始化，而后续又补入真实故事源，则必须先执行一次回刷对齐，再继续依赖这些初始化工件进入下游阶段。
+
+回刷范围至少包括：
+
+- `projects/<项目名>/0-Init/north_star.yaml`
+- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/<项目名>/project_state.yaml`
+
+硬规则：
+
+1. 后补故事源一旦进入 `Story/` 并登记到 manifest，所有 `assistant_inferred` 的剧情级字段都必须接受回刷。
+2. 回刷优先级固定为：`story source user truth > user explicit confirmation > council_advised > assistant_inferred`。
+3. 若旧的 `north_star / init_handoff` 含有与故事源冲突的剧情断言，必须先修这些工件，再进入 `1-Planning`、`2-Global` 或更下游阶段。
+4. `project_state.yaml` 必须同步更新为当前真实 readiness，不得保留“故事源缺失”时期的过期入口建议。
+5. 回刷动作属于源层维护，不应要求用户手工逐个改文件。
+
 ## Synthesis Contract (Mandatory)
 
 1. 父 skill 只吸收本轮命中的 `route_plan_patch`、模式 patch 与 `audit_report`。
@@ -488,6 +527,8 @@ B. 你先综合，我只做最后确认
    - `council_advised`
    - `assistant_inferred`
 4. 必须把 `team_ref`、`sources_breakdown` 与唯一下一阶段入口同步写回到相关工件。
+5. 若当前处于 `source-light bootstrap`，所有剧情级推断必须降级为 provisional note，不得提升为稳定 seed。
+6. 若检测到“旧 seed 与新故事源冲突”，先进入 `Story Source Reconciliation Contract`，再做最终写回。
 
 ## Sufficiency Gate (Mandatory)
 
@@ -502,6 +543,8 @@ B. 你先综合，我只做最后确认
 - `init_handoff.yaml` 已具备阶段入口种子与 `unknowns`
 - `story-source-manifest.yaml` 已生成并标明 readiness
 - `project_state.yaml` 已能指向主工件与推荐下一阶段
+- 若故事源缺失，所有剧情级字段都已降级为 `unknowns / deferred / risk_notes`
+- 若故事源为后补输入，已完成一次初始化工件回刷
 - 若 `north_star.stage_entry_contract.stage_priority_order` 已存在，`project_state.yaml` 的下一步建议必须对齐
 - 若惰性治理工件已生成，它们与 `project_state.yaml` 的下一步建议也必须对齐
 - 已返回唯一推荐下一阶段入口
@@ -525,7 +568,7 @@ B. 你先综合，我只做最后确认
 
 1. 确认或创建 `projects/<项目名>/`。
 2. 读取根 `.agents/skills/aigc/SKILL.md`、本目录 `CONTEXT.md` 与 `.agents/skills/aigc/_shared/*`。
-3. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并锁定模式；未锁定前不得起草初始化主工件。
+3. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并等待确认；只有收到用户选择或命中强制路由信号后才能锁定模式。未锁定前不得起草初始化主工件。
 4. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录与 active child skeleton。
 5. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan` 与 `route_plan_patch`。
 6. 只命中 1 个内部模式能力：
@@ -535,10 +578,11 @@ B. 你先综合，我只做最后确认
 7. 读取模板与 shared contracts。
 8. 起草项目根 `team.yaml`。
 9. 生成 `story-source-manifest.yaml`。
-10. 聚合模式 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `project_state.yaml`。
-11. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
-12. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 做统一检查。
-13. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
+10. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合模式 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `project_state.yaml`。
+11. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
+12. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
+13. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 做统一检查。
+14. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
 
 ## Completion Standard
 

@@ -2,12 +2,94 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "aigc/_shared/director_episode_output.schema.json",
   "title": "AIGC Director Episode Output Schema",
-  "description": "用于 `1-Planning/3-分组 -> 2-Global -> 3-Detail` 的共享 JSON 输出真源。严格遵循 `skill-内容输出型` 的三段式同构投影：`metadata / thinking_chain / final_output`。",
+  "description": "用于 `1-Planning/3-分组 -> 2-Global -> 3-Detail` 的共享 JSON 输出真源。当前 canonical 输出按 `metadata / final_output` 双槽组织；`thinking_chain` 仅为兼容旧 root 的可选摘要槽，默认不输出。",
   "type": "object",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "document_phase": {
+                "enum": [
+                  "detail_in_progress",
+                  "ready"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "final_output": {
+            "properties": {
+              "main_content": {
+                "properties": {
+                  "分镜组列表": {
+                    "items": {
+                      "properties": {
+                        "分镜明细": {
+                          "minItems": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "document_phase": {
+                "const": "directing_in_progress"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "final_output": {
+            "properties": {
+              "main_content": {
+                "properties": {
+                  "分镜组列表": {
+                    "items": {
+                      "properties": {
+                        "组间设计": {
+                          "properties": {
+                            "全局风格": {
+                              "maxLength": 220
+                            },
+                            "类型元素": {
+                              "maxLength": 50
+                            },
+                            "导演意图": {
+                              "maxLength": 100
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": false,
   "required": [
     "metadata",
-    "thinking_chain",
     "final_output"
   ],
   "properties": {
@@ -117,7 +199,7 @@
     },
     "thinking_chain": {
       "title": "思维链",
-      "description": "显式输出可见的阶段判断链，服务后续追踪与验收。",
+      "description": "兼容旧 root 的可选摘要槽；默认不输出，也不作为阶段写回或验收必填项。",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -293,7 +375,8 @@
           "description": "单位：秒。"
         },
         "剧本正文": {
-          "type": "string"
+          "type": "string",
+          "description": "该分镜组在 `1-Planning/3-分组/第N集.md` 中的完整正文整理结果；除重复组号标题外不得摘要化。"
         },
         "组间设计": {
           "type": "object",
@@ -305,19 +388,22 @@
           ],
           "properties": {
             "全局风格": {
-              "type": "string"
+              "type": "string",
+              "description": "由 2-Global 直接引用 `全局风格.md` 中字段标题 `全局风格` 的项目级无污染统一风格前缀，默认不超过 220 字。"
             },
             "类型元素": {
-              "type": "string"
+              "type": "string",
+              "description": "由 2-Global 直接引用 `类型元素.md` 中命中组字段标题 `类型元素` 的组级类型信号，默认不超过 50 字。"
             },
             "导演意图": {
-              "type": "string"
+              "type": "string",
+              "description": "由 2-Global 直接引用 `导演意图.md` 中命中组字段标题 `导演意图` 的组级执行导向，默认不超过 100 字。"
             }
           }
         },
         "分镜明细": {
           "type": "array",
-          "minItems": 1,
+          "minItems": 0,
           "items": {
             "$ref": "#/$defs/shot_detail"
           }
@@ -418,24 +504,12 @@
     {
       "metadata": {
         "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-detail",
-        "template_version": "v1",
-        "source_route": "2-Global/导演意图 -> 3-Detail",
+        "skill_id": "aigc-global",
+        "template_version": "global-seed-v1",
+        "source_route": "2-Global group_design seed",
         "episode_id": "第1集",
-        "document_phase": "detail_in_progress",
-        "created_at": "2026-04-10T12:00:00-07:00"
-      },
-      "thinking_chain": {
-        "thinking_goal": "收束第1集第1分镜组的导演理解，并把它投影为可供 3-Detail 消费的结构化分镜明细骨架。",
-        "key_steps": [
-          {
-            "step_id": "S1",
-            "focus": "锁定组级核心冲突",
-            "evidence": "1-Planning/3-分组 + 2-Global 上游约束",
-            "judgment": "本组应以压迫式观看路径与迟滞情绪释放为主。"
-          }
-        ],
-        "conclusion": "组间设计与镜级明细已经对齐到同一组内真源。"
+        "document_phase": "directing_in_progress",
+        "created_at": "2026-04-12T10:00:00-07:00"
       },
       "final_output": {
         "deliverable_type": "director_episode_output",
@@ -446,7 +520,40 @@
               "总时长": 18,
               "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
               "组间设计": {
-                "全局风格": "低饱和、高反差、冷压迫。",
+                "全局风格": "低照度心理悬疑影视风格，低调照明、空气介质交互与胶片化质感统一，整体维持遮蔽、压抑、延迟揭示的不安基调。",
+                "类型元素": "悬疑压迫优先，克制抒情。",
+                "导演意图": "先让空间压住观众，再用人物迟疑把呼吸拖慢，焦点始终围绕“谁先打破僵局”。"
+              },
+              "分镜明细": []
+            }
+          ]
+        },
+        "acceptance_notes": [
+          "2-Global 阶段允许先写完整分镜组壳与组间设计，分镜明细可暂为空数组。",
+          "3-Detail 必须优先继承这三条组级上下文，再补镜级字段。"
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "schema_version": "aigc/director-episode-output/v1",
+        "skill_id": "aigc-detail",
+        "template_version": "v1",
+        "source_route": "2-Global/导演意图 -> 3-Detail",
+        "episode_id": "第1集",
+        "document_phase": "detail_in_progress",
+        "created_at": "2026-04-10T12:00:00-07:00"
+      },
+      "final_output": {
+        "deliverable_type": "director_episode_output",
+        "main_content": {
+          "分镜组列表": [
+            {
+              "分镜组ID": "1-1-1",
+              "总时长": 18,
+              "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
+              "组间设计": {
+                "全局风格": "低照度心理悬疑影视风格，低调照明与压抑质感统一，整体维持遮蔽、延迟揭示与不安感。",
                 "类型元素": "悬疑压迫感优先，避免抒情化稀释。",
                 "导演意图": "观众应先被空间压扁，再被人物迟疑拉慢呼吸。"
               },
@@ -491,11 +598,6 @@
         "episode_id": "第2集",
         "document_phase": "bootstrapped",
         "created_at": "2026-04-10T12:30:00-07:00"
-      },
-      "thinking_chain": {
-        "thinking_goal": "初始化空白编导根文件，等待后续阶段写入。",
-        "key_steps": [],
-        "conclusion": "空壳文件已就位。"
       },
       "final_output": {
         "deliverable_type": "director_episode_output",

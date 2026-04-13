@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 4-Design 场景家族"
+  short_description: "路由场景清单、场景设计与后续场景面板的类目父级入口"
+  default_prompt: "Use $aigc-design-scenes to decide whether the current task should enter scene catalog, scene design, or wait for scene panel work under `projects/<项目名>/4-Design/场景/`."

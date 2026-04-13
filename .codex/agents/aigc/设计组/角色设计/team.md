@@ -7,7 +7,7 @@ consciousness_level: high
 bias_coefficient: 0.9
 target_domain: aigc-role-design-orchestration
 shell_contract: Team Entry + Mixed Topology + Agents-Plan-Aware Handoff + Audit Gate
-parent_canonical_skill: ./.agents/skills/aigc/4-Design/2-角色/2-设计/SKILL.md
+parent_canonical_skill: ./.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md
 shared_prompt_contract: ./.codex/agents/aigc/设计组/_shared/DESIGN_AGENT_PROMPT_CONTRACT.md
 canonical_writeback_owner: parent-skill-only
 allowed_return_types:
@@ -21,9 +21,9 @@ allowed_return_types:
 
 ## 0. 目的
 
-角色设计组是 `./.agents/skills/aigc/4-Design/2-角色/2-设计` 的 subagents 编排面，负责把角色设计阶段拆成稳定的 planner、specialist、reviewer 与 auditor 工作面，但不拥有最终写回权。
+角色设计组是 `./.agents/skills/aigc/4-Design/角色/2-设计` 的 subagents 编排面，负责把角色设计阶段拆成稳定的 planner、specialist、reviewer 与 auditor 工作面，但不拥有最终写回权。
 
-本组的唯一 canonical writeback 仍由父 skill `./.agents/skills/aigc/4-Design/2-角色/2-设计/SKILL.md` 持有。
+本组的唯一 canonical writeback 仍由父 skill `./.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md` 持有。
 
 ## 0.5 共享提示合同
 
@@ -65,15 +65,15 @@ flowchart TD
 所有角色共用以下输入：
 
 - 用户目标、项目名、当前集数、显式角色范围、显式风格约束
-- `projects/<项目名>/4-Design/2-角色/1-清单/第N集/角色清单.json`
+- `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
 - `projects/<项目名>/3-Detail/第N集.json`
 - `projects/<项目名>/0-Init/north_star.yaml`
 - `projects/<项目名>/0-Init/init_handoff.yaml`
 - `projects/<项目名>/2-Global/全局风格.md`
-- `projects/<项目名>/2-Global/类型指导.md`
+- `projects/<项目名>/2-Global/类型元素.md`
 - `projects/<项目名>/2-Global/导演意图.md`（若存在）
-- `projects/<项目名>/4-Design/1-场景/1-清单/第N集/第N集.json`（若存在）
-- `projects/<项目名>/4-Design/4-道具/1-清单/第N集/prop_design_bridge.json`（若存在）
+- `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`（若存在）
+- `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`（若存在）
 
 ### 共享变量词汇
 
@@ -87,6 +87,7 @@ flowchart TD
   - 当前角色可写字段，例如 `visual_anchor`、`wardrobe_profile`、`makeup_profile`。
 - `failure_modes`
   - 角色 identity 冲突、跨角色辨识度不足、把临时镜头状态误当永久设定。
+  - 把缺证据基础属性写成确定事实、或把角色主体摄影字段越权扩写成导演调度。
 
 ## 3. 共享输出合同
 
@@ -105,7 +106,7 @@ flowchart TD
 
 ## 4. 共享越权禁令
 
-1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/2-角色/2-设计/第N集/*`。
+1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/角色/2-设计/第N集/*`。
 2. 任何角色都不得把自己的局部判断升级成最终角色定稿。
 3. 任何角色都不得重定义父 skill 的阶段边界、落点或验收口径。
 4. 任何角色都不得把场景/道具上下文包升级成自己的常驻职责领域。
@@ -135,8 +136,8 @@ flowchart TD
 
 所有角色的最终交接目标都回到父 skill：
 
-- 父级主合同：`./.agents/skills/aigc/4-Design/2-角色/2-设计/SKILL.md`
-- 父级经验层：`./.agents/skills/aigc/4-Design/2-角色/2-设计/CONTEXT.md`
+- 父级主合同：`./.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md`
+- 父级经验层：`./.agents/skills/aigc/4-Design/角色/2-设计/CONTEXT.md`
 - 父级产物落盘由父 skill 决定，角色设计组只提供局部增量
 
 ## 7. 角色注册表

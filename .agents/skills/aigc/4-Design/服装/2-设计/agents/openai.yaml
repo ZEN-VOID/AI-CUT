@@ -1,0 +1,5 @@
+version: 1
+interface:
+  display_name: "AIGC 服装设计"
+  short_description: "由父 skill 统筹服装设计组 subagents，生成结构化服装设计稿、prompt sidecar 与逐服装设计卡"
+  default_prompt: "Use $aigc-design-costume-design to consume the costume bridge, research, role design constraints, and director evidence, route the 服装设计组 subagents in background by default, and write `服装设计.json` plus per-costume design cards and `costume_design_prompt.json` under `projects/<项目名>/4-Design/服装/2-设计/第N集/`."

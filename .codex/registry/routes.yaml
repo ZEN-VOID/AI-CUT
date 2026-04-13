@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-11
+last_updated: 2026-04-13
 
 default_flow:
   - step: mandate
@@ -57,6 +57,9 @@ route_policies:
   - id: high-risk-review-gate
     trigger: 涉及重构、批量迁移、状态修复、基础规则变更
     rule: "必须经过门下省预审"
+  - id: comic-novel-adaptation-entry
+    trigger: 命中文本、图片、视频、新闻事件或网络热搜，需要改编为后续漫画生成可用的小说底稿
+    rule: "优先进入 `.agents/skills/comic/漫画小说改编/SKILL.md`；先做来源归一与事实边界裁决，再输出 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

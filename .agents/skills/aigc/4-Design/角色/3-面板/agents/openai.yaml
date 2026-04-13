@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 角色面板"
+  short_description: "以单一思行网络把角色设计稿收束为角色面板 layout packet，供后续审阅与生图链显式消费"
+  default_prompt: "Use $aigc-design-role-panel to read character_design.json plus per-role design Markdown, resolve each role's prompt source inside the skill's thinking-action network, and write role panel layout packets under `projects/<项目名>/4-Design/角色/3-面板/第N集/` without generating images directly."

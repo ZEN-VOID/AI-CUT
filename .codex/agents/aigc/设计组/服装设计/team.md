@@ -8,7 +8,7 @@ consciousness_level: high
 bias_coefficient: 0.9
 target_domain: aigc-costume-design-synthesis
 shell_contract: Team Entry + Parallel Costume Specialists + Agents-Plan-Aware Prompt Sidecar + Audit Gate
-parent_canonical_skill: ./.agents/skills/aigc/4-Design/3-服装/2-设计/SKILL.md
+parent_canonical_skill: ./.agents/skills/aigc/4-Design/服装/2-设计/SKILL.md
 shared_prompt_contract: ./.codex/agents/aigc/设计组/_shared/DESIGN_AGENT_PROMPT_CONTRACT.md
 canonical_writeback_owner: parent-skill-only
 allowed_return_types:
@@ -22,7 +22,7 @@ allowed_return_types:
 
 ## 0. 目的
 
-服装设计组是 `./.agents/skills/aigc/4-Design/3-服装/2-设计` 的 subagents 编排面，负责把服装 bridge 收束成 design master、prompt sidecar 与审计结果，但不拥有最终写回权。
+服装设计组是 `./.agents/skills/aigc/4-Design/服装/2-设计` 的 subagents 编排面，负责把服装 bridge 收束成 design master、prompt sidecar 与审计结果，但不拥有最终写回权。
 
 ## 0.5 共享提示合同
 
@@ -56,12 +56,12 @@ flowchart TD
 
 - 用户目标、项目名、当前集数、约束、偏好
 - 父 skill 整理后的 `mission_brief_costume_design`
-- `projects/<项目名>/4-Design/3-服装/1-清单/第N集/costume_design_bridge.json`
-- `projects/<项目名>/4-Design/3-服装/1-清单/第N集/服装研究.json`
-- `projects/<项目名>/4-Design/3-服装/1-清单/第N集/服装清单.json`
+- `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+- `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+- `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
 - `projects/<项目名>/3-Detail/第N集.json`
-- `projects/<项目名>/4-Design/2-角色/2-设计/第N集/character_design.json`（若存在）
-- `projects/<项目名>/2-Global/全局风格.md`、`类型指导.md`
+- `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`（若存在）
+- `projects/<项目名>/2-Global/全局风格.md`、`类型元素.md`
 
 ### 共享变量词汇
 
@@ -95,7 +95,7 @@ flowchart TD
 
 ## 4. 共享越权禁令
 
-1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/3-服装/2-设计/第N集/*.json`。
+1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/服装/2-设计/第N集/*.json`。
 2. 任何角色都不得修改父 skill 的 path normalization 规则。
 3. 任何角色都不得把自己的局部判断升级成最终真源。
 4. 任何角色都不得把角色形象主体重新定义成服装事实。
@@ -124,8 +124,8 @@ flowchart TD
 
 所有角色的最终交接目标都回到父 skill：
 
-- 父级主合同：`./.agents/skills/aigc/4-Design/3-服装/2-设计/SKILL.md`
-- 父级经验层：`./.agents/skills/aigc/4-Design/3-服装/2-设计/CONTEXT.md`
+- 父级主合同：`./.agents/skills/aigc/4-Design/服装/2-设计/SKILL.md`
+- 父级经验层：`./.agents/skills/aigc/4-Design/服装/2-设计/CONTEXT.md`
 
 ## 7. 角色注册表
 

@@ -26,3 +26,6 @@ generated_at: 2026-04-12 00:00 America/Los_Angeles
 
 ### 场景2：<沿用上游标题>
 <沿用上游正文>
+
+<!-- tail-hook: from=1-1-2 -->
+<下一组开端的首个叙事拍点>

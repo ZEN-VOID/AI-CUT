@@ -56,10 +56,10 @@ flowchart TD
     D --> H["1-清单 / 2-设计 / 3-面板（active）"]
     E --> M["1-清单 / 2-设计 / 3-面板（active）"]
     F --> I["1-清单 / 2-设计 / 3-面板（active）"]
-    G --> J["projects/<项目名>/4-Design/1-场景/"]
-    H --> K["projects/<项目名>/4-Design/2-角色/"]
-    M --> N["projects/<项目名>/4-Design/3-服装/"]
-    I --> L["projects/<项目名>/4-Design/4-道具/1-清单/第N集/"]
+    G --> J["projects/<项目名>/4-Design/场景/"]
+    H --> K["projects/<项目名>/4-Design/角色/"]
+    M --> N["projects/<项目名>/4-Design/服装/"]
+    I --> L["projects/<项目名>/4-Design/道具/1-清单/第N集/"]
 ```
 
 ## 当前路由状态

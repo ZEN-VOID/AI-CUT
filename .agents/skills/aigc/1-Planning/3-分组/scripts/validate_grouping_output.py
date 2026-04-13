@@ -10,13 +10,26 @@ import re
 import sys
 from pathlib import Path
 
-from grouping_quantizer import QuantizationError, build_quantization_result, parse_frontmatter
+from grouping_quantizer import (
+    TAIL_HOOK_COMMENT_PREFIX,
+    TAIL_HOOK_LABEL,
+    QuantizationError,
+    build_quantization_result,
+    parse_frontmatter,
+    parse_group_sections,
+    strip_tail_hook_block,
+)
 
 EPISODE_FILE_RE = re.compile(r"^第(?P<episode>\d+)集\.md$")
 GROUP_HEADER_RE = re.compile(r"^##\s*【(?P<group_id>\d+-\d+-\d+)】(?:\s+(?P<title>.+))?$")
 SCENE_HEADER_RE = re.compile(r"^###\s*场景(?P<label>[^：:]+)\s*[：:]\s*(?P<title>.+?)\s*$")
 SOURCE_PATH_RE = re.compile(r"^projects/.+/1-Planning/2-剧本/第\d+集\.md$")
 REPORT_PATH_RE = re.compile(r"^projects/.+/1-Planning/3-分组/执行报告\.md$")
+TAIL_HOOK_HEADING_RE = re.compile(rf"^####\s*{re.escape(TAIL_HOOK_LABEL)}(?:（(?P<meta>.*)）)?\s*$")
+TAIL_HOOK_COMMENT_RE = re.compile(
+    rf"^<!--\s*{re.escape(TAIL_HOOK_COMMENT_PREFIX)}\s*from=(?P<group_id>\d+-\d+-\d+)"
+    rf"(?:\s*;\s*quantize=(?P<quantize>[a-z-]+))?\s*-->$"
+)
 
 REQUIRED_FRONTMATTER = (
     "项目名",
@@ -127,6 +140,43 @@ def extract_report_value(block: str, field_name: str) -> str | None:
     return match.group(1).strip()
 
 
+def validate_tail_hook_contract(body: str) -> str | None:
+    sections = parse_group_sections(body)
+    for index, section in enumerate(sections):
+        lines = section.body.splitlines()
+        hook_indexes = [
+            line_index
+            for line_index, raw_line in enumerate(lines)
+            if TAIL_HOOK_HEADING_RE.match(raw_line.strip()) or TAIL_HOOK_COMMENT_RE.match(raw_line.strip())
+        ]
+        if not hook_indexes:
+            continue
+        if len(hook_indexes) > 1:
+            return f"`{section.group_id}` 只能出现一个 `{TAIL_HOOK_LABEL}` 区块。"
+        if index == len(sections) - 1:
+            return f"末组 `{section.group_id}` 不得追加 `{TAIL_HOOK_LABEL}`。"
+        hook_index = hook_indexes[0]
+        if not any(raw_line.strip() for raw_line in lines[hook_index + 1 :]):
+            return f"`{section.group_id}` 的 `{TAIL_HOOK_LABEL}` 区块不能为空。"
+        if strip_tail_hook_block(section.body) != "\n".join(lines[:hook_index]).rstrip():
+            return f"`{section.group_id}` 的 `{TAIL_HOOK_LABEL}` 必须位于组尾，且其后只允许保留借入段落。"
+        expected_next_group_id = sections[index + 1].group_id
+        marker_line = lines[hook_index].strip()
+        comment_match = TAIL_HOOK_COMMENT_RE.match(marker_line)
+        if comment_match:
+            referenced_group_id = comment_match.group("group_id")
+            quantize_mode = comment_match.group("quantize")
+            if quantize_mode not in (None, "include", "ignore"):
+                return f"`{section.group_id}` 的 `{TAIL_HOOK_LABEL}` 注释包含未知 quantize 模式：{quantize_mode}"
+        else:
+            heading_match = TAIL_HOOK_HEADING_RE.match(marker_line)
+            meta = heading_match.group("meta") if heading_match else ""
+            referenced_group_id = expected_next_group_id if expected_next_group_id in (meta or "") else ""
+        if referenced_group_id != expected_next_group_id:
+            return f"`{section.group_id}` 的 `{TAIL_HOOK_LABEL}` 标记必须显式回指下一组 `{expected_next_group_id}`。"
+    return None
+
+
 def validate_file(path: Path) -> tuple[bool, str]:
     text = path.read_text(encoding="utf-8")
     try:
@@ -165,6 +215,9 @@ def validate_file(path: Path) -> tuple[bool, str]:
     if not groups:
         return False, "未发现任何三段式分镜组标题 `## 【x-x-x】`。"
 
+    tail_hook_error = validate_tail_hook_contract(body)
+    if tail_hook_error:
+        return False, tail_hook_error
     scenes = parse_scene_headers(body)
     if not scenes:
         return False, "未发现任何 `### 场景N：...` 标题。"
@@ -236,7 +289,12 @@ def validate_file(path: Path) -> tuple[bool, str]:
         block = extract_report_block(report_text, group_id)
         if block is None:
             return False, f"执行报告未登记分镜组ID：{group_id}"
-        for field in ("estimated_duration_seconds", "effective_text_chars", "window_status", "judgement_basis"):
+        for field in (
+            "estimated_duration_seconds",
+            "effective_text_chars",
+            "window_status",
+            "judgement_basis",
+        ):
             if f"{field}:" not in block:
                 return False, f"执行报告缺少 `{group_id}` 的 `{field}`。"
 

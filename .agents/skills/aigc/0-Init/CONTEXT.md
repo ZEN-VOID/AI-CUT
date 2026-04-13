@@ -30,6 +30,8 @@
 | 创作起盘被整套治理工件压得过重 | 初始化分层合同 | 把首次必出收敛到 `north_star / init_handoff / story-source-manifest / team / project_state` | 将 `governance-state + harness carriers` 改为惰性生成 | 首次初始化不再被非必要治理载体阻塞 |
 | 路由、模式执行、充分性检查散落在外部规则真源 | 源层编排层 | 将这些能力完全吸收到父 `SKILL.md` 的内部能力合同与节点网络 | 审计脚本反向约束 `0-Init` 不得再引用 `.codex/agents/aigc/初始组/*.md` | `0-Init` 能仅凭自身 `SKILL.md` 解释完整执行链 |
 | 初始化预建目录看起来与当前技能树“不匹配” | 真源口径混层 | 明确区分“技能树执行层”与“项目 runtime 落盘层”两套命名 | 在 `_shared/project-runtime-layout.md` 建立 `Skill Tree To Runtime Mapping`，并在 `0-Init/SKILL.md` 同步注明 `5-Image / 6-Video` 的映射 | 读者不会再把 `1-提示词蒸馏/全能参照` 误读成必须预建 `projects/<项目名>/6-Video/1-提示词蒸馏/全能参照/` |
+| 把推荐模式当成已锁定模式 | mode gate contract | 回到 `Initialization Mode Contract`，补发初始化元选项卡并等待用户确认 | 在 `SKILL.md` 明确“默认展示项/推荐项 != mode_lock_note”，并用审计脚本拦截歧义表述 | 仅有项目名或极简 brief 时，不再越权进入 `fast_draft_engine` 或其他模式引擎 |
+| 缺故事源时先生成了剧情级预设，后补故事源也不回刷 | source completeness / reconciliation 层 | 将缺故事源初始化降级为 `source-light bootstrap`，并在故事源后补时强制回刷 `north_star / init_handoff / project_state` | 在 `SKILL.md` 固化 `Story Source Completeness Gate + Story Source Reconciliation Contract`，审计脚本同步检查 | 不再出现“题眼推断版剧情”覆盖真实故事源的情况 |
 
 ## Repair Playbook
 
@@ -39,6 +41,8 @@
 4. 若是路径问题，先回查根 `aigc/SKILL.md` 与本阶段 `Canonical Landing`。
 5. 若是能力外置或执行链断裂，先修父 `SKILL.md` 的节点网络，再修局部文字。
 6. 只有源层合同稳定后，才修本次具体输出。
+7. 若问题发生在 `N1-mode-gate`，先区分“推荐”“默认展示项”“已锁定模式”三层状态；只有最后一层允许进入 `N2` 之后的节点。
+8. 若问题发生在故事源后补场景，先区分“概念级约束”和“剧情级 seed”；凡属剧情级 seed，先回刷再允许下游继续。
 
 ## Reusable Heuristics
 
@@ -55,6 +59,9 @@
 - 对创作起盘来说，最小闭环应先保证 `north_star / init_handoff / story-source-manifest / team / project_state`；其余治理载体只有在复杂执行或卫星技能真正需要时再补。
 - 对 `知行合一` 编排的 `0-Init`，最稳的写法不是再造第二份思考文档，而是把路由、三种模式和充分性审计直接写进同一份父 `SKILL.md`。
 - 当技能树有中间 tranche，但项目 runtime 只接受业务语义落盘名时，必须优先相信 `_shared/project-runtime-layout.md`，并在阶段合同里把两套命名的映射写明；否则读者会把“技能目录现状”误当成“项目预建目录”。
+- 在 `0-Init` 里，`自主问答模式（默认）` 是前台选项卡的默认建议，不是无确认自动锁模；只要用户没拍板且不存在强制路由信号，就必须停在 `N1-mode-gate`。
+- `0-Init` 可以在缺故事源时初始化项目，但只能生成题材级、边界级、生产级约束；凡是剧情级、单集级、人物关系级推断，都应降级为 provisional unknowns。
+- 一旦真实故事源后补进入 `Story/`，优先动作不是继续下游阶段，而是先回刷 `north_star / init_handoff / project_state` 中的 assistant-inferred 剧情字段。
 
 ## Archive Index
 
@@ -119,3 +126,39 @@
   - `.agents/skills/aigc/_shared/story-source-contract.md`
   - `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`
   - `.agents/skills/aigc/0-Init/SKILL.md`
+
+### Case-20260412-AIGC-INIT-MODE-LOCK-DISCIPLINE
+
+- milestone_type: source_contract_change
+- outcome: 收紧了 `0-Init` 的模式锁定纪律，明确“推荐模式 / 默认展示项”不得越权写成已锁定模式，并为此增加审计护栏。
+- root_cause_or_design_decision: `Initialization Mode Contract` 里原先写有“其余情况默认进入自主问答模式”，这句话容易把“默认展示项”误读成“自动锁定”；在只给项目名或极简 brief 的场景下，执行者可能跳过初始化元选项卡，直接进入某个模式引擎。
+- final_fix_or_heuristic: 把规则改为“其余情况默认前台建议为自主问答模式，但不等于自动锁定”，同时要求未触发强制路由信号时必须先发初始化元选项卡并等待确认；审计脚本同步校验该硬规则。
+- prevention_or_replication_checklist:
+  - [x] `0-Init/SKILL.md` 已区分推荐、默认展示项与已锁定模式
+  - [x] `0-Init/SKILL.md` 已明确未锁定前不得推进到起草节点
+  - [x] `scripts/aigc_skill_audit.py` 已增加模式锁定纪律检查
+  - [x] `0-Init/CONTEXT.md` 已沉淀该失败模式与修复策略
+- evidence_paths:
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+  - `.agents/skills/aigc/0-Init/CONTEXT.md`
+  - `scripts/aigc_skill_audit.py`
+- user_feedback_or_constraint: 用户明确指出“此时你不应该直接判定为快速成案模式，可以根据当前情况推荐，但需要确定，源层修复”。
+
+### Case-20260412-AIGC-INIT-STORY-SOURCE-RECONCILIATION
+
+- milestone_type: source_contract_change
+- outcome: 为 `0-Init` 增加了“故事源完整度门禁 + 后补故事源回刷合同”，避免缺故事源时生成的剧情级推断固化成下游真源输入。
+- root_cause_or_design_decision: 旧合同允许在无主故事源时先做轻量初始化，但没有进一步限制 fast-draft 的剧情推断边界，也没有要求后补故事源后先回刷初始化工件，导致题眼推断版 `north_star / init_handoff` 可能与真实正文漂移。
+- final_fix_or_heuristic: 把缺故事源初始化显式命名为 `source-light bootstrap`，只允许题材/气质/制作边界级约束；当故事源后补时，必须先回刷 `north_star / init_handoff / project_state`，再继续进入下游阶段。
+- prevention_or_replication_checklist:
+  - [x] `0-Init/SKILL.md` 已新增 `Story Source Completeness Gate`
+  - [x] `0-Init/SKILL.md` 已新增 `Story Source Reconciliation Contract`
+  - [x] `scripts/aigc_skill_audit.py` 已增加对应审计
+  - [x] 当前项目已按新合同回刷初始化工件
+- evidence_paths:
+  - `.agents/skills/aigc/0-Init/SKILL.md`
+  - `.agents/skills/aigc/0-Init/CONTEXT.md`
+  - `scripts/aigc_skill_audit.py`
+  - `projects/2049退休老头的快乐生活/0-Init/north_star.yaml`
+  - `projects/2049退休老头的快乐生活/0-Init/init_handoff.yaml`
+- user_feedback_or_constraint: 用户指出“初始化时缺故事源会先生成预设，后补故事源也不会更改”，要求判断是否应上收到源层门禁。

@@ -1,6 +1,6 @@
 ---
 name: aigc-detail
-description: Use when the detail directing stage needs a single thinking-action skill to turn `2-Global` guidance, planning grouping outputs, and init presets into `projects/<项目名>/3-Detail/第N集.json` under the shared director episode schema.
+description: Use when the detail directing stage needs a single thinking-action skill to inherit the `2-Global`-seeded episode root, then turn planning grouping outputs and init presets into the completed `projects/<项目名>/3-Detail/第N集.json` under the shared director episode schema.
 governance_tier: full
 ---
 
@@ -13,7 +13,7 @@ governance_tier: full
 它负责把：
 
 - `1-Planning/3-分组` 的组级导演输入
-- `2-Global` 的三份导演前置真源
+- `2-Global` 已 seed 的 shared episode root
 - `0-Init` 的项目基线与 preset 保护约束
 
 收束为唯一 canonical episode 根文件：
@@ -37,7 +37,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已经存在 `projects/<项目名>/1-Planning/3-分组/第N集.md`，且 `2-Global/全局风格.md`、`类型指导.md`、`导演意图.md` 可读。
+- 已经存在 `projects/<项目名>/1-Planning/3-分组/第N集.md`，且 `2-Global` 已 seed 或兼容可回退到 `projects/<项目名>/3-Detail/第N集.json`。
 - 需要把组级导演构思下钻为 shot-level 的结构化字段。
 - 需要初始化或增量维护 `projects/<项目名>/3-Detail/第N集.json`。
 - 需要处理一个“串行锁前提 + 并发补字段 + 汇流审计”的典型复杂链路。
@@ -45,7 +45,7 @@ governance_tier: full
 ## When Not to Use
 
 - 当前连 `projects/<项目名>/1-Planning/3-分组/第N集.md` 都不存在。
-- `2-Global` 三份 Markdown 还不稳定，应先回到 `2-Global`。
+- `2-Global` 的 shared episode root 尚未 seed，且长文本上游也不足以兼容回退，应先回到 `2-Global`。
 - 当前任务已经进入 `4-Design / 5-Image / 6-Video` 产物生成，而不是补 `3-Detail` 的 episode JSON。
 
 ## Business Requirement Analysis Contract (Mandatory)
@@ -53,8 +53,8 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把组级导演意图稳定投影为 shot-level episode JSON，使下游设计、图像、视频阶段无需再次猜测镜头事实 |
-| `business_object` | `第N集.md / 第N集.grouping.json / 2-Global/*.md / Init handoff / 现有第N集.json / shared schema / 可命中的学院派知识库` |
-| `constraint_profile` | 只能维护 `projects/<项目名>/3-Detail/第N集.json` 这一份真源；必须尊重 `source_profile`、preset 锁轴、上游组边界与 schema；参考大师/作品/知识库时必须转译成可执行表述，不能停留在抽象致敬 |
+| `business_object` | `第N集.md / 第N集.grouping.json / 2-Global 已 seed 的第N集.json / Init handoff / 兼容回退用 2-Global/*.md / shared schema / 可命中的学院派知识库` |
+| `constraint_profile` | 只能维护 `projects/<项目名>/3-Detail/第N集.json` 这一份真源；必须优先继承上游已 seed 的 `组间设计`，并尊重 `source_profile`、preset 锁轴、上游组边界与 schema；参考大师/作品/知识库时必须转译成可执行表述，不能停留在抽象致敬 |
 | `success_criteria` | 镜序稳定、字段 ownership 清楚、初始化预设显化清楚、参考锚点可追溯、并发链与汇流门明确、审计闭环存在、下游可直接消费 |
 | `non_goals` | 不重写 `2-Global`；不直接生成设计/画面/视频请求；不为每个能力面输出平行主稿 |
 | `complexity_source` | shot skeleton 先决依赖强；中段存在多字段并发补全；局部能力间 merge precedence 复杂；审计要求高于普通文本改写 |
@@ -77,10 +77,10 @@ governance_tier: full
 10. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
 11. `projects/<项目名>/1-Planning/3-分组/第N集.md`
 12. `projects/<项目名>/1-Planning/3-分组/第N集.grouping.json`（若存在）
-13. `projects/<项目名>/2-Global/全局风格.md`
-14. `projects/<项目名>/2-Global/类型指导.md`
-15. `projects/<项目名>/2-Global/导演意图.md`
-16. `projects/<项目名>/3-Detail/第N集.json`（若已存在）
+13. `projects/<项目名>/3-Detail/第N集.json`
+14. `projects/<项目名>/2-Global/全局风格.md`（兼容回退或审计时）
+15. `projects/<项目名>/2-Global/类型元素.md`（兼容回退或审计时）
+16. `projects/<项目名>/2-Global/导演意图.md`（兼容回退或审计时）
 17. 按需读取 `references/*.md`
 
 ## Shared Canonical Sources (Mandatory)
@@ -92,21 +92,19 @@ governance_tier: full
 
 硬规则：
 
-1. 本阶段第一输入根固定为 `projects/<项目名>/1-Planning/3-分组/第N集.md` 与 `projects/<项目名>/2-Global/*.md`。
-2. 首次进入且根文件不存在时，必须先 bootstrap `projects/<项目名>/3-Detail/第N集.json`。
+1. 本阶段第一输入根固定为 `projects/<项目名>/1-Planning/3-分组/第N集.md` 与 `projects/<项目名>/3-Detail/第N集.json`；`2-Global/*.md` 默认只作兼容回退或审计。
+2. 首次进入若 shared root 缺失，可走兼容回退路径 bootstrap 空壳，但标准路径应由 `2-Global` 先完成 `group_design` seed。
 3. `metadata.source_profile` 只能继承或保守扩写 `Init / Planning` 的既有结论，不得在本阶段发明新 preset 模式。
-4. 用户显式只要求某一组或某个 `分镜ID` 时，只更新命中切片，不补空其他组或镜。
-5. 本阶段不得创建第二份 episode/group/shot 根文件；`thinking_chain` 只保留父级收束摘要。
-6. 任何内部能力链都不得越权改写 `2-Global/*.md` 或下游 `4-Design / 5-Image / 6-Video` 产物。
+4. 用户显式只要求某一组或某个 `分镜ID` 时，只更新命中切片，不补空其他组或镜，也不重写未命中组的 `组间设计`。
+5. 本阶段不得创建第二份 episode/group/shot 根文件；canonical writeback 默认只维护 `metadata + final_output`，不再要求 `thinking_chain` 输出。
+6. 任何内部能力链都不得越权改写 `2-Global/*.md` 或下游 `4-Design / 5-Image / 6-Video` 产物；无上游返工理由时也不得静默重写已 seed 的 `组间设计`。
 
 ## Total Input Contract (Mandatory)
 
 ### 必需输入
 
 - `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/2-Global/全局风格.md`
-- `projects/<项目名>/2-Global/类型指导.md`
-- `projects/<项目名>/2-Global/导演意图.md`
+- `projects/<项目名>/3-Detail/第N集.json`
 - `projects/<项目名>/0-Init/north_star.yaml`
 - `projects/<项目名>/0-Init/init_handoff.yaml`
 
@@ -114,7 +112,9 @@ governance_tier: full
 
 - `projects/<项目名>/1-Planning/3-分组/第N集.grouping.json`
 - `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/<项目名>/2-Global/全局风格.md`
+- `projects/<项目名>/2-Global/类型元素.md`
+- `projects/<项目名>/2-Global/导演意图.md`
 - 用户显式指定的 `组ID / 分镜ID / 字段族 / 精修偏好`
 
 ### 禁止输入
@@ -125,10 +125,11 @@ governance_tier: full
 
 ### 输入处理原则
 
-1. 先锁 `scope + preset + shot skeleton`，再进入并发补字段。
+1. 先锁 `scope + preset + inherited group_design + shot skeleton`，再进入并发补字段。
 2. 用户显式指定优先，但不得越过 `source_profile` 与已锁镜序。
-3. 现有 `第N集.json` 只作为 patch-in-place 基底，不得被当成跳过上游证据的捷径。
-4. 若组级证据、锁轴或时间段依据不足，只能产出保守 patch 或 `report`，不得幻想补洞。
+3. 现有 `第N集.json` 先作为上游已 seed 的结构化上下文，再作为 patch-in-place 基底；不得绕开其中已存在的 `组间设计`。
+4. `2-Global/*.md` 只作为兼容回退与审计证据，不再是默认第一结构化输入。
+5. 若组级证据、锁轴或时间段依据不足，只能产出保守 patch 或 `report`，不得幻想补洞。
 
 ## Visual Maps
 
@@ -221,8 +222,8 @@ graph LR
 | `structural_staging_engine` | `分镜构图 + 景观设计` | 锁空间锚点、构图关系、观看路径与道具底座 | `staging_patch`、`landscape_patch`、`structural_note` | 需要新建或重写 shot-level staging 时默认触发 |
 | `performance_engine` | `内心戏指导 + 动作戏指导 + 对手戏指导` | 把情绪、动作、关系压成可见表演信息，并显化角色个性、习惯动作、下意识、叙事性行为与眉眼微表情承载点 | `performance_patch`、`performance_note`、`performance_report` | 按镜头问题类型选择一个或多个子模式 |
 | `atmosphere_engine` | `氛围设计` | 把情绪气候写成可感知条件 | `atmosphere_patch`、`atmosphere_note` | 命中镜需要时间感、空气感、压迫/抒缓氛围时触发 |
-| `camera_movement_engine` | `叙事派 + 炫技派` | 先给默认叙事路线，再比较同目标下是否存在更强变体，最后按需给挑战方案 | `narrative_camera_patch`、`camera_variant_note`、`showcase_camera_note` | `叙事派` 默认必进；同目标变体比较在默认路线后执行；`炫技派` 仅条件触发 |
-| `cinematography_engine` | `摄影师 + 光影美学大师 + 色彩美学大师` | 先回看 `全局风格 / 类型指导 / 导演意图`，再命中并转译 `knowledge-base/电影学院派/电影摄影` 的高命中规则，随后生成光位、组级光影推进与色彩子证据，最后由摄影总协调合成 `摄影美学` | `cinematography_brief`、`cinematography_academy_hit_note`、`lighting_patch`、`group_lighting_note`、`color_patch`、`cinematography_patch` | 需要形成 final look 时默认触发 |
+| `camera_movement_engine` | `叙事派 + 炫技派` | 先给默认叙事路线与运动动机，再条件判断 `knowledge-base/电影学院派/分镜脚本` 是否存在高命中的运动语法母型，随后比较同目标下是否存在更强变体，最后按需给挑战方案 | `camera_academy_hit_note`、`narrative_camera_patch`、`camera_variant_note`、`showcase_camera_note` | `叙事派` 默认必进；高命中检测只在默认路线已锁后进入；同目标变体比较在默认路线后执行；`炫技派` 仅条件触发 |
+| `cinematography_engine` | `摄影师 + 光影美学大师 + 色彩美学大师` | 先回看上游 `组间设计.全局风格 / 类型元素 / 导演意图`，再命中并转译 `knowledge-base/电影学院派/电影摄影` 的高命中规则，随后生成光位、组级光影推进与色彩子证据，最后由摄影总协调合成 `摄影美学` | `cinematography_brief`、`cinematography_academy_hit_note`、`lighting_patch`、`group_lighting_note`、`color_patch`、`cinematography_patch` | 需要形成 final look 时默认触发 |
 | `transition_fx_engine` | `转场设计 + 特效设计` | 只在有明确叙事收益时补转场或特效 | `transition_note`、`fx_patch`、`transition_report` | 条件触发，默认克制 |
 | `continuity_review_engine` | `连续性复核` | 检查字段齐全度、镜序可读性、空间连续性、动作因果与 patch 兼容性 | `continuity_note`、`continuity_report` | 首次创建、多字段合成、精修模式时强触发 |
 | `source_audit_engine` | `真源审计` | 检查 single source、schema、lineage、overreach 与 writeback 边界 | `audit_report`、`writeback_patch_set` | 写回前必触发 |
@@ -247,7 +248,7 @@ graph LR
 | 运镜手法细则 | 承载默认路由与挑战方案的思维执行节点 | `references/运镜手法.md` |
 | 摄影美学细则 | 承载 `摄影前置回看 / 光位与照明推进 / 色彩心理 / 摄影总协调` 的思维执行节点 | `references/摄影美学.md` |
 | 转场特效细则 | 承载转场与特效桥接的思维执行节点 | `references/转场特效.md` |
-| 输出契约 | 承载 writeback、thinking_chain、validation-report 与下游 handoff | `references/output-template.md` |
+| 输出契约 | 承载 writeback、validation-report 与下游 handoff | `references/output-template.md` |
 | shared I/O | 承载字段 ownership 与 merge precedence | `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md` |
 
 ## Topology Contract (Mandatory)
@@ -280,6 +281,7 @@ graph LR
 - `N4-结构链 / N4-表演链 / N4-氛围链` 默认并行。
 - `N5` 只能在 `N3` 完成、且 `N4` 已产出足够上下文后进入。
 - `叙事派` 默认必进；`炫技派` 只作为条件对照，不默认覆盖。
+- 运镜链内部必须先完成 `默认路线 -> 运动动机 -> 分镜脚本高命中检测`，再形成默认 patch 与同目标变体比较。
 - 摄影链内部先串行完成 `摄影底座回看 -> 视觉控制线 -> 摄影知识命中/转译`，再并行展开 `光位` 与 `色彩`，随后串行补 `组级光影推进`，最后才允许总协调落成 `摄影美学`。
 - `N6 -> N7 -> N8` 固定串行。
 - 用户显式只要求某一字段族时，只命中相关能力链，不补空其他路径。
@@ -302,19 +304,20 @@ graph LR
 
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE-GATE` | S1 | `FIELD-DETAIL-01` `FIELD-DETAIL-02` | 锁定当前确属 `3-Detail` 且输入齐备 | 读取 `Init / Planning / 2-Global` 真源并检查阶段边界 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并返回 `report` | 输入与阶段边界达标后才可继续 |
-| `N2-SCOPE-BOOTSTRAP` | S2 | `FIELD-DETAIL-02` `FIELD-DETAIL-03` | 锁定命中组/镜、preset 约束、bootstrap、参考锚点与具像化表达范围 | 生成 `scope_plan`，显化初始化预设要求呈现的元素，提炼可参考的大师手法 / 作品桥段 / 学院派知识命中，并转译成 `reference_anchor_note`；必要时 bootstrap 根文件 | `scope_plan`、`preset_manifest`、`reference_anchor_note`、`bootstrap_patch` | pass -> `N3`；冲突 -> 回 `S1/S2` | 作用域、参考锚点与真源落点明确后才可继续 |
+| `N1-INTAKE-GATE` | S1 | `FIELD-DETAIL-01` `FIELD-DETAIL-02` | 锁定当前确属 `3-Detail` 且输入齐备 | 读取 `Init / Planning / shared episode root` 真源并检查阶段边界；必要时再补读 `2-Global/*.md` 做兼容回退或审计 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并返回 `report` | 输入与阶段边界达标后才可继续 |
+| `N2-SCOPE-BOOTSTRAP` | S2 | `FIELD-DETAIL-02` `FIELD-DETAIL-03` | 锁定命中组/镜、preset 约束、上游 `组间设计`、bootstrap、参考锚点与具像化表达范围 | 生成 `scope_plan`，先校验并继承上游已 seed 的 `组间设计`，再显化初始化预设要求呈现的元素，提炼可参考的大师手法 / 作品桥段 / 学院派知识命中，并转译成 `reference_anchor_note`；仅在兼容回退时 bootstrap 空壳 | `scope_plan`、`preset_manifest`、`reference_anchor_note`、`bootstrap_patch` | pass -> `N3`；冲突 -> 回 `S1/S2` | 作用域、上游 seed、参考锚点与真源落点明确后才可继续 |
 | `N3-SKELETON` | S3 | `FIELD-DETAIL-04` | 生成稳定 `分镜ID / 时间段 / coverage` 骨架 | 运行 skeleton 细化步骤并 patch-in-place 到命中切片 | `skeleton_plan`、`skeleton_patch` | pass -> `N4/N5`；fail -> 回 `S3` | 无 skeleton 不得并发补字段 |
 | `N4-PARALLEL-CORE` | S4-S7 | `FIELD-DETAIL-05` `FIELD-DETAIL-06` `FIELD-DETAIL-07` `FIELD-DETAIL-08` | 并发补结构、表演与氛围字段 | 运行结构链、表演链、氛围链并做第一轮 merge | `core_patch_set`、`core_merge_note` | pass -> `N5`；fail -> 回目标子链 | 结构链必须可被运镜/摄影消费 |
-| `N5-PARALLEL-FINISH` | S8-S10 | `FIELD-DETAIL-09` `FIELD-DETAIL-10` `FIELD-DETAIL-11` | 在 core draft 上并发完成运镜、摄影、转场/特效 | 运镜链先锁默认路线，再比较同目标更强变体，最后按需升格挑战案；摄影链先回看 `全局风格 / 类型指导 / 导演意图`，再命中并转译 `knowledge-base/电影学院派/电影摄影` 的高命中规则，随后运行光位、组级光影推进、色彩与摄影总协调；转场/特效链条件进入 | `finish_patch_set`、`camera_decision_note`、`camera_variant_note`、`cinematography_academy_hit_note`、`group_lighting_note` | pass -> `N6`；fail -> 回目标子链 | finish draft 不能破坏叙事清晰度，也不得为“更酷”偷换表现目标 |
+| `N5-PARALLEL-FINISH` | S8-S10 | `FIELD-DETAIL-09` `FIELD-DETAIL-10` `FIELD-DETAIL-11` | 在 core draft 上并发完成运镜、摄影、转场/特效 | 运镜链先锁默认路线与运动动机，再条件命中并转译 `knowledge-base/电影学院派/分镜脚本` 的高命中运动母型，随后比较同目标更强变体并按需升格挑战案；摄影链先回看上游 `组间设计.全局风格 / 类型元素 / 导演意图`，再命中并转译 `knowledge-base/电影学院派/电影摄影` 的高命中规则，随后运行光位、组级光影推进、色彩与摄影总协调；转场/特效链条件进入 | `finish_patch_set`、`camera_decision_note`、`camera_academy_hit_note`、`camera_variant_note`、`cinematography_academy_hit_note`、`group_lighting_note` | pass -> `N6`；fail -> 回目标子链 | finish draft 不能破坏叙事清晰度，也不得为“更酷”偷换表现目标 |
 | `N6-CONTINUITY-REVIEW` | S11 | `FIELD-DETAIL-12` | 检查镜序、空间、动作、情绪与跨字段兼容性 | 生成 review note 与返工入口 | `continuity_note`、`continuity_report` | pass -> `N7`；fail -> 回 `N3/N4/N5` | 通过后才可审计写回 |
 | `N7-SOURCE-AUDIT` | S11 | `FIELD-DETAIL-12` | 检查 single source、schema、lineage 与 overreach | 生成 audit report 与 writeback patch set | `audit_report`、`writeback_patch_set` | pass -> `N8`；fail -> 回目标节点 | 通过后才允许最终写回 |
-| `N8-WRITEBACK-HANDOFF` | S12 | `FIELD-DETAIL-13` | 统一写回 `第N集.json` 与 `validation-report.md`，并回接下游 | patch-in-place 写回、更新 `thinking_chain`、输出 triad closure | canonical files、`handoff_note` | Final | 仅当前 skill 拥有写回权 |
+| `N8-WRITEBACK-HANDOFF` | S12 | `FIELD-DETAIL-13` | 统一写回 `第N集.json` 与 `validation-report.md`，并回接下游 | patch-in-place 写回 `metadata + final_output`、输出 triad closure | canonical files、`handoff_note` | Final | 仅当前 skill 拥有写回权 |
 
 ## Execution Summary
 
 - 首选输入固定为 `projects/<项目名>/1-Planning/3-分组/第N集.md`。
-- 证据补充固定来自 `2-Global/*.md`、`Init`、`story-source-manifest`、`第N集.grouping.json` 与已有 `第N集.json`。
+- 第一结构化输入固定为 `projects/<项目名>/3-Detail/第N集.json` 中已 seed 的 `组间设计`。
+- 证据补充固定来自 `Init`、`story-source-manifest`、`第N集.grouping.json` 与 `2-Global/*.md` 的兼容回退/审计读取。
 - 当前 canonical 主产物是 `projects/<项目名>/3-Detail/第N集.json`。
 - 当前 canonical 验收产物是 `projects/<项目名>/3-Detail/validation-report.md`。
 - 默认采用后台内部并发链；只有证据缺口、用户显式要求逐轮共创、或某个命中组/镜必须前台确认时才阻塞。
@@ -324,7 +327,7 @@ graph LR
 - canonical 主产物：`projects/<项目名>/3-Detail/第N集.json`
 - canonical 验收：`projects/<项目名>/3-Detail/validation-report.md`
 - 当前不生成第二份 episode/group/shot 主稿
-- `thinking_chain` 只保留父级收束摘要，不堆叠全量中间推理
+- 默认不输出 `thinking_chain`；若兼容旧 root 临时保留，也不得把它当作阶段写回必填槽
 
 ## Strategy Summary
 

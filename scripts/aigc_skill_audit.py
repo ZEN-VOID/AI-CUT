@@ -101,16 +101,36 @@ COUNCIL_STAGE_REVIEW_PATHS = {
 }
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
+        "projects/<项目名>/0-Init/",
         "projects/<项目名>/Story/",
+        "projects/<项目名>/1-Planning/",
         "projects/<项目名>/1-Planning/1-分集/",
         "projects/<项目名>/1-Planning/2-剧本/",
         "projects/<项目名>/1-Planning/3-分组/",
-        "projects/<项目名>/1-Planning/",
-        "projects/<项目名>/4-Design/1-场景/1-清单/",
-        "projects/<项目名>/4-Design/2-角色/1-清单/",
+        "projects/<项目名>/2-Global/",
+        "projects/<项目名>/3-Detail/",
+        "projects/<项目名>/4-Design/",
+        "projects/<项目名>/4-Design/场景/1-清单/",
+        "projects/<项目名>/4-Design/场景/2-设计/",
+        "projects/<项目名>/4-Design/场景/3-面板/",
+        "projects/<项目名>/4-Design/角色/1-清单/",
+        "projects/<项目名>/4-Design/角色/2-设计/",
+        "projects/<项目名>/4-Design/角色/3-面板/",
+        "projects/<项目名>/4-Design/服装/1-清单/",
+        "projects/<项目名>/4-Design/服装/2-设计/",
+        "projects/<项目名>/4-Design/服装/3-面板/",
+        "projects/<项目名>/4-Design/道具/1-清单/",
+        "projects/<项目名>/4-Design/道具/2-设计/",
+        "projects/<项目名>/4-Design/道具/3-面板/",
         "projects/<项目名>/5-Image/",
         "projects/<项目名>/5-Image/分镜故事板/",
+        "projects/<项目名>/5-Image/分镜帧/",
+        "projects/<项目名>/5-Image/漫画/",
+        "projects/<项目名>/6-Video/",
         "projects/<项目名>/6-Video/全能参照/",
+        "projects/<项目名>/6-Video/首帧参照/",
+        "projects/<项目名>/6-Video/生成任务/",
+        "projects/<项目名>/7-Cut/",
     ),
     ROOT / "1-Planning" / "SKILL.md": (
         "projects/<项目名>/1-Planning/",
@@ -544,6 +564,30 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(
             f"{init_skill}: 0-Init must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
         )
+    if "其余情况默认进入 `自主问答模式`。" in init_content:
+        failures.append(
+            f"{init_skill}: ambiguous mode-gate wording detected; `自主问答模式` may be the default card option but must not auto-lock before user confirmation"
+        )
+    if "默认前台建议是 `自主问答模式`，但这只是初始化元选项卡的默认展示项，不等于自动锁定。" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit rule that the default init card option must not auto-lock `init_mode`"
+        )
+    if "只有收到用户选择或命中强制路由信号后才能锁定模式" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit gate that mode lock requires either user confirmation or a forced routing signal"
+        )
+    if "## Story Source Completeness Gate (Mandatory)" not in init_content:
+        failures.append(f"{init_skill}: missing `Story Source Completeness Gate (Mandatory)`")
+    if "## Story Source Reconciliation Contract (Mandatory)" not in init_content:
+        failures.append(f"{init_skill}: missing `Story Source Reconciliation Contract (Mandatory)`")
+    if "source-light bootstrap" not in init_content or "source-grounded bootstrap" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit split between source-light and source-grounded bootstrap modes"
+        )
+    if "必须先执行一次回刷对齐" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit rule that backfilled story sources must trigger init artifact reconciliation"
+        )
 
     init_openai = ROOT / "0-Init" / "agents" / "openai.yaml"
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
@@ -594,7 +638,7 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         global_root / "_shared" / "IO_CONTRACT.md",
         global_root / "agents" / "openai.yaml",
         global_root / "templates" / "全局风格.template.md",
-        global_root / "templates" / "类型指导.template.md",
+        global_root / "templates" / "类型元素.template.md",
         global_root / "templates" / "导演意图.template.md",
     )
 

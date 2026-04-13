@@ -8,7 +8,7 @@ consciousness_level: high
 bias_coefficient: 0.9
 target_domain: aigc-prop-design-synthesis
 shell_contract: Team Entry + Parallel Design Specialists + Agents-Plan-Aware Prompt Sidecar + Audit Gate
-parent_canonical_skill: ./.agents/skills/aigc/4-Design/4-道具/2-设计/SKILL.md
+parent_canonical_skill: ./.agents/skills/aigc/4-Design/道具/2-设计/SKILL.md
 shared_prompt_contract: ./.codex/agents/aigc/设计组/_shared/DESIGN_AGENT_PROMPT_CONTRACT.md
 canonical_writeback_owner: parent-skill-only
 allowed_return_types:
@@ -22,9 +22,9 @@ allowed_return_types:
 
 ## 0. 目的
 
-道具设计组是 `./.agents/skills/aigc/4-Design/4-道具/2-设计` 的 subagents 编排面，负责把道具 bridge 收束成 design master、prompt sidecar 与审计结果，但不拥有最终写回权。
+道具设计组是 `./.agents/skills/aigc/4-Design/道具/2-设计` 的 subagents 编排面，负责把道具 bridge 收束成 design master、prompt sidecar 与审计结果，但不拥有最终写回权。
 
-本组的唯一 canonical writeback 仍由父 skill `./.agents/skills/aigc/4-Design/4-道具/2-设计/SKILL.md` 持有。
+本组的唯一 canonical writeback 仍由父 skill `./.agents/skills/aigc/4-Design/道具/2-设计/SKILL.md` 持有。
 
 ## 0.5 共享提示合同
 
@@ -65,11 +65,11 @@ flowchart TD
 
 - 用户目标、项目名、当前集数、约束、偏好
 - 父 skill 整理后的 `mission_brief_prop_design`
-- `projects/<项目名>/4-Design/4-道具/1-清单/第N集/prop_design_bridge.json`
-- `projects/<项目名>/4-Design/4-道具/1-清单/第N集/道具研究.json`
+- `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+- `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
 - `projects/<项目名>/3-Detail/第N集.json`
 - `projects/<项目名>/2-Global/全局风格.md`（若存在）
-- `projects/<项目名>/2-Global/类型指导.md`（若存在）
+- `projects/<项目名>/2-Global/类型元素.md`（若存在）
 - `projects/<项目名>/0-Init/north_star.yaml`、`init_handoff.yaml`（若存在）
 
 ### 共享变量词汇
@@ -104,7 +104,7 @@ flowchart TD
 
 ## 4. 共享越权禁令
 
-1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/4-道具/2-设计/第N集/*.json`。
+1. 任何角色都不得直接写回 `projects/<项目名>/4-Design/道具/2-设计/第N集/*.json`。
 2. 任何角色都不得修改父 skill 的 path normalization 规则。
 3. 任何角色都不得把自己的局部判断升级成最终真源。
 4. 任何角色都不得把长 prompt 反向当成设计事实。
@@ -133,8 +133,8 @@ flowchart TD
 
 所有角色的最终交接目标都回到父 skill：
 
-- 父级主合同：`./.agents/skills/aigc/4-Design/4-道具/2-设计/SKILL.md`
-- 父级经验层：`./.agents/skills/aigc/4-Design/4-道具/2-设计/CONTEXT.md`
+- 父级主合同：`./.agents/skills/aigc/4-Design/道具/2-设计/SKILL.md`
+- 父级经验层：`./.agents/skills/aigc/4-Design/道具/2-设计/CONTEXT.md`
 
 ## 7. 角色注册表
 

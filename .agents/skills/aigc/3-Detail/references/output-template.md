@@ -23,15 +23,6 @@
 - 返工入口
 - 默认下一入口
 
-## `thinking_chain` 最小合同
-
-- `thinking_goal`
-  - 说明本轮 detail 的目标切片与为什么进入该链路
-- `key_steps`
-  - 只记录父 skill 的关键收束判断，不记录每条能力链的原始长推理
-- `conclusion`
-  - 说明本轮为什么允许写回或为什么阻塞
-
 ## `acceptance_notes` 最小合同
 
 至少覆盖以下四类中的两类：
@@ -44,10 +35,9 @@
 ## 写回顺序
 
 1. 更新 `metadata`
-2. 更新 `thinking_chain`
-3. patch `final_output.main_content.分镜组列表`
-4. 更新 `acceptance_notes`
-5. 写 `validation-report.md`
+2. patch `final_output.main_content.分镜组列表`
+3. 更新 `acceptance_notes`
+4. 写 `validation-report.md`
 
 ## 可选镜头描述子槽
 

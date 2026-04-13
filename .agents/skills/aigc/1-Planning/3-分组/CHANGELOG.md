@@ -4,6 +4,23 @@
 
 ## 2026-04-12
 
+- `Case-20260412-AIGC-PLANNING-GROUPING-TAIL-HOOK-PREVIEW`
+  - 为 `3-分组` 新增 `尾钩借焰` 机制：允许在非末组尾部借入下一组开端的首个叙事拍点做预映，默认用隐藏标记执行；authoritative 量化先在 canonical 分组正文上完成，尾钩只在结果落定后追加，不再回流字窗裁决。
+  - 证据路径：
+    - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/CONTEXT.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/references/scene-order-duration-strategy.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/templates/grouping-output.template.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/scripts/postprocess_grouping_output.py`
+    - `.agents/skills/aigc/1-Planning/3-分组/scripts/grouping_quantizer.py`
+    - `.agents/skills/aigc/1-Planning/3-分组/scripts/validate_grouping_output.py`
+
+- `Case-20260412-AIGC-PLANNING-GROUPING-TAIL-HOOK-NODE-NETWORK`
+  - 为 `3-分组` 补齐 `Thinking-Action Node Contract + Node Network + Convergence Contract`，并把 `尾钩借焰` 拆成“门禁判断节点”和“隐藏注入节点”，同时固定 authoritative 量化停在尾钩之前，使返工入口能精确回指到边界/量化/尾钩三个层面。
+  - 证据路径：
+    - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/3-分组/CONTEXT.md`
+
 - `Case-20260412-AIGC-PLANNING-GROUPING-ZXY-SINGLE-SKILL`
   - 按 `skill-知行合一` 将 `3-分组` 重写为单技能思行网络真源，并把旧 `规划组/分组.md` 的边界判断、回退升级、质量检查与输入输出合同吸收回本地 `SKILL.md`；同步删除 planning team 中的 `分组` 角色与 audit 依赖。
   - 证据路径：

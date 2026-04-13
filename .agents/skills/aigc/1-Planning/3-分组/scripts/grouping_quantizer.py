@@ -33,11 +33,20 @@ ACTION_VISUAL_COEFFICIENT = {
     "快节奏": 0.3,
 }
 
+VOICE_TEXT_COEFFICIENT = 1.2
+TAIL_HOOK_LABEL = "尾钩借焰"
+TAIL_HOOK_COMMENT_PREFIX = "tail-hook:"
+
 GROUP_HEADER_RE = re.compile(r"^##\s*【(?P<group_id>\d+-\d+-\d+)】(?:\s+(?P<title>.+))?$")
 SCENE_HEADER_RE = re.compile(r"^###\s*场景(?P<label>[^：:]+)\s*[：:]\s*(?P<title>.+?)\s*$")
 VOICE_TEXT_RE = re.compile(r"^(对白|独白|内心独白|旁白)(?:（.*?）|\(.*?\))?\s*[：:]\s*(.*)$")
 VOICE_VISUAL_RE = re.compile(r"^(对白画面|独白画面|内心独白画面|旁白画面)\s*[：:]\s*(.*)$")
 ACTION_VISUAL_RE = re.compile(r"^动作画面\s*[：:]\s*(.*)$")
+TAIL_HOOK_HEADING_RE = re.compile(rf"^####\s*{re.escape(TAIL_HOOK_LABEL)}(?:（.*）)?\s*$")
+TAIL_HOOK_COMMENT_RE = re.compile(
+    rf"^<!--\s*{re.escape(TAIL_HOOK_COMMENT_PREFIX)}\s*from=(?P<group_id>\d+-\d+-\d+)"
+    rf"(?:\s*;\s*quantize=(?P<quantize>[a-z-]+))?\s*-->$"
+)
 SHOT_RANGE_RE = re.compile(r"镜\s*(?P<start>\d+)(?:\s*-\s*(?P<end>\d+))?")
 SHOT_HEADER_RE = re.compile(
     r"(?m)^(?:#{1,6}\s*)?(?:镜头?|分镜|镜)\s*(?P<num>\d+)\s*[：:].*$"
@@ -151,6 +160,29 @@ def parse_group_sections(body: str) -> list[GroupSection]:
     return finalized
 
 
+def split_tail_hook_block(text: str) -> tuple[str, str | None]:
+    lines = text.splitlines()
+    for index, raw_line in enumerate(lines):
+        stripped = raw_line.strip()
+        comment_match = TAIL_HOOK_COMMENT_RE.match(stripped)
+        if comment_match:
+            return (
+                "\n".join(lines[:index]).rstrip(),
+                "\n".join(lines[index + 1 :]).strip(),
+            )
+        if TAIL_HOOK_HEADING_RE.match(stripped):
+            return (
+                "\n".join(lines[:index]).rstrip(),
+                "\n".join(lines[index + 1 :]).strip(),
+            )
+    return text.rstrip(), None
+
+
+def strip_tail_hook_block(text: str) -> str:
+    canonical_text, _tail_hook = split_tail_hook_block(text)
+    return canonical_text
+
+
 def field_weighted_chars(text: str, pace_tier: str) -> tuple[int, bool]:
     total = 0
     matched_field = False
@@ -163,7 +195,7 @@ def field_weighted_chars(text: str, pace_tier: str) -> tuple[int, bool]:
             continue
         voice_text = VOICE_TEXT_RE.match(line)
         if voice_text:
-            total += count_visible_chars(voice_text.group(2))
+            total += round(count_visible_chars(voice_text.group(2)) * VOICE_TEXT_COEFFICIENT)
             matched_field = True
             continue
         voice_visual = VOICE_VISUAL_RE.match(line)
@@ -195,6 +227,13 @@ def planning_estimate_chars(text: str) -> int:
         if re.search(r"[。！？!?；;]", line):
             turning_points += 1
     return visible_total + scene_units * 6 + turning_points * 2
+
+
+def compute_body_chars(text: str, pace_tier: str) -> tuple[int, str]:
+    weighted, matched_field = field_weighted_chars(text, pace_tier)
+    if matched_field:
+        return weighted, "field_weighted"
+    return planning_estimate_chars(text), "planning_estimate_visible_chars"
 
 
 def parse_report_block(report_text: str, group_id: str) -> str | None:
@@ -305,10 +344,10 @@ def compute_effective_chars(
     ):
         return recompute_from_story_source(story_source_text, shot_range, pace_tier)
 
-    weighted, matched_field = field_weighted_chars(section.body, pace_tier)
-    if matched_field:
-        return weighted, "group_section_field_weighted"
-    return planning_estimate_chars(section.body), "planning_estimate_visible_chars"
+    counted_chars, mode = compute_body_chars(section.body, pace_tier)
+    if mode == "field_weighted":
+        return counted_chars, "group_section_field_weighted"
+    return counted_chars, mode
 
 
 def build_quantization_result(grouped_script_path: Path, report_path: Path | None = None) -> dict[str, Any]:
@@ -346,8 +385,9 @@ def build_quantization_result(grouped_script_path: Path, report_path: Path | Non
                 field_name=f"分镜组时长映射[{section.group_id}]",
             )
         group_window = compute_window(resolved_duration, pace_tier)
+        canonical_body, _tail_hook_body = split_tail_hook_block(section.body)
         effective_chars, calculation_mode = compute_effective_chars(
-            section,
+            GroupSection(group_id=section.group_id, title=section.title, body=canonical_body),
             pace_tier,
             report_block,
             source_type,

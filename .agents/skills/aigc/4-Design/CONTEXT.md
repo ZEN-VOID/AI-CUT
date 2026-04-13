@@ -61,7 +61,7 @@
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
   - `.agents/skills/aigc/4-Design/CONTEXT.md`
-- user_feedback_or_constraint: 用户明确要求完善 `.agents/skills/aigc/4-Design/2-角色/1-清单`，并以前代参考技能为基底。
+- user_feedback_or_constraint: 用户明确要求完善 `.agents/skills/aigc/4-Design/角色/1-清单`，并以前代参考技能为基底。
 
 ### Case-20260412-AIGC-4-DESIGN-ROUTE-SYNC
 
@@ -76,8 +76,8 @@
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
   - `.agents/skills/aigc/4-Design/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/4-道具/SKILL.md`
-  - `.agents/skills/aigc/4-Design/4-道具/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/道具/CONTEXT.md`
 - user_feedback_or_constraint: 用户在道具叶子技能落地后要求继续“补”父级合同与路由层。
 
 ### Case-20260412-AIGC-4-DESIGN-SCENE-DESIGN-UPGRADE
@@ -91,8 +91,8 @@
   - [x] `2-设计` 已具备 SKILL / CONTEXT / CHANGELOG / openai.yaml
   - [x] `2-设计` 已承担场景设计唯一执行真源
 - evidence_paths:
-  - `.agents/skills/aigc/4-Design/1-场景/SKILL.md`
-  - `.agents/skills/aigc/4-Design/1-场景/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/场景/2-设计/SKILL.md`
 - user_feedback_or_constraint: 用户先前要求补齐 `1-场景/2-设计`，随后进一步要求按 `skill-知行合一` 对其做系统性重构，并废弃旧场景设计组 agent。
 
 ### Case-20260412-AIGC-4-DESIGN-ROLE-DESIGN-ACTIVE
@@ -107,9 +107,9 @@
   - [x] 角色设计组 team 已落盘
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
-  - `.agents/skills/aigc/4-Design/2-角色/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md`
   - `.codex/agents/aigc/设计组/角色设计/team.md`
-- user_feedback_or_constraint: 用户要求系统性重构 `4-Design/2-角色/2-设计`，并明确 subagents 负责思考与 plan，父 skill 统筹输入输出。
+- user_feedback_or_constraint: 用户要求系统性重构 `4-Design/角色/2-设计`，并明确 subagents 负责思考与 plan，父 skill 统筹输入输出。
 
 ### Case-20260412-AIGC-4-DESIGN-RUNTIME-CANONICALIZED
 
@@ -141,8 +141,8 @@
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
   - `.agents/skills/aigc/4-Design/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/2-角色/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/2-角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/角色/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/角色/SKILL.md`
 - user_feedback_or_constraint: 用户要求补齐当前仓的角色面板技能，而不是只保留参考仓能力。
 
 ### Case-20260412-AIGC-4-DESIGN-SCENE-PANEL-UPGRADE
@@ -156,8 +156,8 @@
   - [x] `4-Design/SKILL.md` 已新增 scene panel active 路由
   - [x] `4-Design/CONTEXT.md` 已记录这次状态同步经验
 - evidence_paths:
-  - `.agents/skills/aigc/4-Design/1-场景/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/1-场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/场景/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/场景/SKILL.md`
   - `.agents/skills/aigc/4-Design/SKILL.md`
 - user_feedback_or_constraint: 用户明确要求完善当前仓的场景面板技能，而不是只保留目录占位。
 
@@ -174,8 +174,8 @@
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
   - `.agents/skills/aigc/4-Design/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/4-道具/SKILL.md`
-  - `.agents/skills/aigc/4-Design/4-道具/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/道具/3-面板/SKILL.md`
 - user_feedback_or_constraint: 用户要求直接完善 prop panel skill，而不是只把空目录留在阶段树里。
 
 ### Case-20260412-AIGC-4-DESIGN-COSTUME-ACTIVATED
@@ -190,7 +190,7 @@
   - [x] `4-Design/CONTEXT.md` 已记录服装链路的 canonical source 决策
 - evidence_paths:
   - `.agents/skills/aigc/4-Design/SKILL.md`
-  - `.agents/skills/aigc/4-Design/3-服装/SKILL.md`
-  - `.agents/skills/aigc/4-Design/3-服装/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/3-服装/3-面板/SKILL.md`
-- user_feedback_or_constraint: 用户要求根据 `角色 / 场景 / 道具` 及相关 subagents 配置，完善 `.agents/skills/aigc/4-Design/3-服装`。
+  - `.agents/skills/aigc/4-Design/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/服装/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/服装/3-面板/SKILL.md`
+- user_feedback_or_constraint: 用户要求根据 `角色 / 场景 / 道具` 及相关 subagents 配置，完善 `.agents/skills/aigc/4-Design/服装`。

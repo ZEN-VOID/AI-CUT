@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-12
+last_updated: 2026-04-13
 
 active_skills:
   - id: aigc
@@ -78,6 +78,15 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 门下省侧 preflight、validation 与 learning bridge。
+  - id: comic-novel-adaptation
+    path: .agents/skills/comic/漫画小说改编
+    owner_office: zhongshu
+    purpose: 把文本、图片、视频、新闻事件或网络热搜改编为适合后续漫画生成的强情节小说底稿。
+    contract_mode: active
+    runtime_control:
+      canonical_output: 用户指定目标路径；若未指定，则按当前回复结构交付 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`
+      bridge_output: 在需要继续漫画生成时，同步输出视觉桥接层
+      mirror_policy: 不单独建立项目 runtime；以用户当前任务目标路径或当前回复为 canonical 交付口径
 
 planned_skills:
   - id: film-suite

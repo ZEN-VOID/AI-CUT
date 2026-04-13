@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-11`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能与项目治理状态快照纳入受治理注册：
+截至 `2026-04-13`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、项目治理状态快照与首个 repo-local 改编技能纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -88,6 +88,7 @@
 
 - `aigc` 为仓库级总入口技能
 - `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
+- `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
 - `projects/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
 - `projects/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
@@ -161,6 +162,7 @@
 - 有三省角色合同，不再只有一个模糊 orchestrator。
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
+- 已出现第一个受 registry 管理的 repo-local 非 `aigc` 改编技能，用来验证“非项目型技能也能走受治理注册与路由”。
 
 仍然明显未完成的部分也很清楚：
 
@@ -177,7 +179,7 @@
 
 ### 1. 从 bootstrap 走向 shadow
 
-- 补出第一个真正受 registry 管理的 repo-local suite skill。
+- 在 `comic-novel-adaptation` 之外，继续补出真正受 registry 管理的 repo-local suite skill。
 - 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
 - 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
 - 让更多真实任务以 `projects/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。

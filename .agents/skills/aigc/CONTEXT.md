@@ -38,7 +38,7 @@
 | `5-画面` 父子合同已补齐，但根技能仍把该阶段标记为空骨架                                                                  | 根技能状态同步层       | 同步更新 `.agents/skills/aigc/SKILL.md` 中 `5-画面` 的阶段状态与子路径说明                                                            | 把阶段合同补齐后的状态上收视为根入口必须完成的收尾动作                                                                                                                       | 根技能能正确路由到 `分镜故事板 / 分镜帧 / 漫画`                                                       |
 | `4-Design` 父子合同已补齐，但 shared runtime 与根技能消费方仍沿用 `主体/` 旧目录                                       | 根技能状态同步层       | 同步 `.agents/skills/aigc/SKILL.md` 与 `_shared/project-runtime-layout.md` 中的 design 阶段 runtime 口径                              | 把“design 阶段 runtime 变更”视为必须向上同步到 query/review/council-runtime 的元修复                                                                                       | 根技能与共享载体都指向 `projects/<项目名>/4-Design/`                                                  |
 | 项目根运行时与 `.codex/state/tasks` 同时存在，但没有优先级声明                                                           | harness 状态面层       | 明确 `projects/<项目名>/` 为 AIGC 项目 canonical runtime                                                                                | 将 runtime 优先级同步写入 runbook、registry、audit 与三省合同                                                                                                                | 技能树、registry、runbook 对状态真源的说法一致                                                          |
-| `1-Planning/2-Global/3-Detail` 各自维护不同阶段目录与 episode 文件，导致导演真源分裂                                     | 真源治理层             | 上收统一运行时布局到 `.agents/skills/aigc/_shared/project-runtime-layout.md`，并固定 `projects/<项目名>/3-Detail/第N集.json` 为单一根文件 | 让 `1-分集` 只负责 bootstrap handoff，`2-Global` 只写三份导演前置 Markdown，`3-Detail` 才创建并 patch episode 根文件，所有父级合同都回指 shared layout + shared schema | 根技能、阶段技能与 shared carrier 对 `Init/1-Planning/2-Global/编导/4-Design/画面/视频/后期` 说法一致 |
+| `1-Planning/2-Global/3-Detail` 各自维护不同阶段目录与 episode 文件，导致导演真源分裂                                     | 真源治理层             | 上收统一运行时布局到 `.agents/skills/aigc/_shared/project-runtime-layout.md`，并固定 `projects/<项目名>/3-Detail/第N集.json` 为单一根文件 | 让 `1-分集` 只负责 bootstrap handoff，`2-Global` 负责写三份导演前置 Markdown并 seed `组间设计`，`3-Detail` 再围绕同一根文件补齐 shot-level 明细，所有父级合同都回指 shared layout + shared schema | 根技能、阶段技能与 shared carrier 对 `Init/1-Planning/2-Global/编导/4-Design/画面/视频/后期` 说法一致 |
 | 阶段技能已声明 subagents 拓扑，但没写“默认后台执行”或仍残留失效 team 路径                                                | subagent 编排合同层    | 在父 skill / team 明确“无论有序还是无序都默认后台 subagents”，并清理失效 `.codex/agents/aigc/*` 路径                                  | 将后台执行规则与 agent 引用存在性检查同时接入阶段合同和 `scripts/aigc_skill_audit.py`                                                                                      | 角色拓扑既能解释顺序，也能解释运行形态，且审计能拦住断链                                                |
 | 阶段执行状态只写在根技能表格里，registry / audit 不知道                                                                    | 注册与审计层           | 将阶段状态上收至 `.codex/registry/skills.yaml`，并补 `scripts/aigc_skill_audit.py`                                                    | 把“阶段 active / shelved”视为控制面真源，而不是仅属技能文案                                                                                                                | 审计可识别哪些阶段可执行、哪些已搁浅                                                                    |
 | `7-后期` 当前不做，但仍被视为待补执行阶段                                                                                | 阶段生命周期层         | 在根技能与 registry 中显式标记为 `搁浅`                                                                                                 | 审计脚本对搁浅阶段跳过严格失败，但要求根技能与 registry 同步声明                                                                                                             | 总入口不会再把搁浅阶段误判为立即补建目标                                                                |
@@ -60,7 +60,7 @@
 ## Reusable Heuristics
 
 - 多子技能组合包最容易犯的错，是目录树长得很漂亮，但缺一个总控面；没有根合同时，阶段越多，漂移越快。
-- 只要 `2-Global` 与 `3-Detail` 共用同一条导演链路，就不该再让多个阶段各自拥有自己的 episode 真稿；最稳的办法是让 `3-Detail/第N集.json` 只由 `3-Detail` 负责维护。
+- 只要 `2-Global` 与 `3-Detail` 共用同一条导演链路，就不该再让多个阶段各自拥有自己的 episode 真稿；最稳的办法是让它们共享同一份 `3-Detail/第N集.json`，由 `2-Global` 先 seed `组间设计`，`3-Detail` 再补齐镜级事实。
 - 当阶段目录已经明确是 runtime 分区时，父技能最该写清的是“字段责任”和“patch 顺序”，而不是各自再定义一套集文件壳。
 - 在 AIGC 影视创作场景里，先固定 `projects/<项目名>/` 这种项目工作区，比先讨论每一阶段写多少提示词更重要。
 - 对于已建目录但尚未写合同的阶段，最稳的做法不是硬补执行细节，而是在根技能中显式标为“预留中/待补合同”。
@@ -76,6 +76,7 @@
 - 对正在重大重构的 suite skill，不要先清空 harness；更稳的做法是保留 runtime / registry / review gate，再给审计增加显式 `bootstrap_compat` 模式开关。
 - 当某阶段明确“不在当前轮次推进”时，优先把它标成 `搁浅`，而不是继续挂着“预留中”；`搁浅` 表示有意冻结，不应被审计当作立即补全失败。
 - 对跨兄弟阶段共同消费的治理工件，真源应优先放项目根；对跨兄弟阶段共同执行的运行规则，真源应优先放 `_shared/`。
+- 只要 shared schema 或 phase handoff 合同发生明显升级，最稳的落地不是只补 schema `examples`，而是补一组 `_shared/examples/` 下的同 episode phase-transition 样例，让执行者能直接对照 `directing_in_progress -> detail_in_progress -> ready`。
 - 当技能阶段名本身带序号时，不要默认把这个序号投影到项目 runtime 目录；项目目录应优先服从 `_shared/project-runtime-layout.md` 的映射。
 - 一旦 `_shared/project-runtime-layout.md` 已明确采用技能树真实目录名，`0-Init`、共享模板、governance-state、query/resume 和 backfill 脚本都必须直接复用同一组阶段名：`0-Init / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`。
 - 若某项能力横跨所有阶段，但它只负责读取、恢复、复核或桥接，而不拥有阶段内容真源，最稳的落点是根级卫星技能，而不是再加一个伪 stage。
@@ -103,6 +104,21 @@
   - `.agents/skills/aigc/_shared/project-runtime-layout.md`
   - `scripts/aigc_skill_audit.py`
 - user_feedback_or_constraint: 用户明确要求“根据 `.agents/skills/aigc` 最新的目录结构，重新约定 `.agents/skills/aigc/0-Init` 初始化时项目目录结构”。
+
+### Case-20260412-AIGC-ROOT-DIRECTOR-PHASE-TRANSITION-EXAMPLE
+
+- milestone_type: source_contract_change
+- outcome: 曾为 shared director root 补过同一 episode 的 phase-transition 三段样例，用于解释 `2-Global -> directing_in_progress -> 3-Detail -> detail_in_progress -> ready`。
+- root_cause_or_design_decision: 仅靠 schema 的内嵌 examples 一度不足以充当真实项目 seed 样例，执行者难以把“同一 root、跨 phase patch-in-place”的关系看清，尤其容易把 `ready` 误解为另起一份终稿。
+- final_fix_or_heuristic: 当前口径已从“依赖静态共享示例”调整为“直接读取真实项目里同一 `第N集.json` 的 `metadata.document_phase` 与 `分镜明细[]` 变化”；共享示例因会引入模板污染风险而退役，不再作为规范真源。
+- prevention_or_replication_checklist:
+  - [x] `group_design_seed_contract.md` 已回指样例
+  - [x] `project-runtime-layout.md` 已给出 phase 读取规则
+  - [x] 当前已改为直接读取真实项目 root 的 phase 推进，不再依赖静态样例
+- evidence_paths:
+  - `.agents/skills/aigc/_shared/group_design_seed_contract.md`
+  - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+- user_feedback_or_constraint: 用户明确要求“直接补一轮真实项目样例 seed”，希望能看到某个 `第N集` 从 `2-Global` seed 到 `3-Detail` 继续补全的完整示例 JSON。
 
 ## Archive Index
 

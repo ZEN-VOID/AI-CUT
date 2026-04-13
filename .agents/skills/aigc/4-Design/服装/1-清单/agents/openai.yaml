@@ -1,0 +1,5 @@
+version: 1
+interface:
+  display_name: "4-Design / 服装清单"
+  short_description: "从角色清单与导演证据提取服装清单、研究与设计桥接。"
+  default_prompt: "Use $aigc-design-costume-list to read `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json` plus episode-level director evidence, then write `服装清单.json`、`服装研究.json` and `costume_design_bridge.json` under `projects/<项目名>/4-Design/服装/1-清单/第N集/`."

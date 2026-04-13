@@ -1,0 +1,5 @@
+version: 1
+interface:
+  display_name: "AIGC 道具面板"
+  short_description: "把道具设计真源收束为逐道具的 panel layout JSON 与 episode manifest"
+  default_prompt: "Use $aigc-design-prop-panel to read `道具设计.json + prop_design_prompt.json` under `projects/<项目名>/4-Design/道具/2-设计/第N集/`, then write one `<prop_id>-<prop_name>-PropPanel-layout.json` per prop plus `_manifest.json` under `projects/<项目名>/4-Design/道具/3-面板/第N集/`."
