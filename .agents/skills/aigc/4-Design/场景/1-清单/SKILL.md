@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`1-清单` 负责把上游导演 episode JSON 中已经存在的 `场景及方位` 事实，收束为当前集唯一可复用的 `scene catalog`，供 `2-设计` 直接消费。
+`1-清单` 负责把上游导演 episode JSON 中已经存在的 `角色背景面` 事实，收束为当前集唯一可复用的 `scene catalog`，供 `2-设计` 直接消费；旧 `场景及方位` 仅作兼容读取。
 
 本次重构采用 `$skill-知行合一` 的单技能真源口径：
 
@@ -22,7 +22,7 @@ governance_tier: full
 ## When To Use
 
 - 需要从 `projects/<项目名>/3-Detail/第N集.json` 提取当前集出现过的场景主表。
-- 需要把 `分镜明细[].场景及方位` 收束成稳定的 `scene_name / scene_variant / group_scene_map`。
+- 需要把 `分镜明细[].角色背景面` 收束成稳定的 `scene_name / scene_variant / group_scene_map`。
 - 需要为 `4-Design/场景/2-设计` 提供唯一场景对象池，避免下游重新从镜头文本猜场景。
 
 ## When Not To Use
@@ -35,7 +35,7 @@ governance_tier: full
 
 ### `1-清单` 拥有
 
-- `场景及方位 -> scene_name / scene_variant` 的保守抽取合同。
+- `角色背景面 -> scene_name / scene_variant` 的保守抽取合同。
 - `group_scene_map[]`、`scenes[]`、`summary` 的 episode 级聚合合同。
 - `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` 的 canonical 写出。
 
@@ -53,7 +53,7 @@ governance_tier: full
 
 ### 业务对象
 
-- 导演 episode JSON 中的 `分镜组列表[] / 分镜明细[] / 场景及方位`。
+- 导演 episode JSON 中的 `分镜组列表[] / 分镜明细[] / 角色背景面`。
 
 ### 复杂度来源
 
@@ -89,7 +89,7 @@ governance_tier: full
 - `分镜组列表[].分镜组ID`
 - `分镜组列表[].分镜明细[]`
 - `分镜明细[].分镜ID`
-- `分镜明细[].场景及方位`
+- `分镜明细[].角色背景面`
 
 ### 推荐字段
 
@@ -100,7 +100,7 @@ governance_tier: full
 ### 输入处理原则
 
 1. 一切场景事实以上游 episode JSON 为准。
-2. 只抽取既有 `场景及方位`，不新增研究型字段。
+2. 只抽取既有 `角色背景面`，不新增研究型字段。
 3. shot 级事实只用于提取和映射，不反向改写上游。
 
 ## Visual Maps
@@ -175,12 +175,12 @@ stateDiagram-v2
 - `from_angles`
   - 根文件是否存在。
   - `分镜组列表[]` 是否存在。
-  - `分镜明细[] / 场景及方位` 是否存在。
+  - `分镜明细[] / 角色背景面` 是否存在。
 - `actions`
   1. 读取 root file。
   2. 校验 `final_output.main_content.分镜组列表[]`。
   3. 校验每个 group 是否有 `分镜组ID`。
-  4. 统计缺失 `场景及方位` 的镜头数。
+  4. 统计缺失 `角色背景面` 的镜头数。
 - `evidence`
   - 输入壳通过 / 失败结论。
   - 基础缺口统计。
@@ -221,7 +221,7 @@ stateDiagram-v2
 - `inputs`
   - `分镜组ID`
   - `分镜ID`
-  - `场景及方位`
+  - `角色背景面`
   - `时间段`
 - `from_angles`
   - 原句是否为空。
@@ -390,7 +390,7 @@ stateDiagram-v2
 ### 硬规则
 
 1. 当前模式只输出场景清单，不输出研究稿、设计稿或桥接稿。
-2. `scene_name` 必须来自上游 `场景及方位` 的保守抽取，不得凭空研究补写。
+2. `scene_name` 必须来自上游 `角色背景面` 的保守抽取，不得凭空研究补写。
 3. `group_scene_map[]` 必须能回链 `分镜组ID + 分镜ID`。
 4. 当原句为空或无法成立时，允许写 `unknown`，但不得静默跳过该镜头。
 
@@ -408,7 +408,7 @@ stateDiagram-v2
 
 | step_id | 聚焦字段(field_id) | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| N1 | FIELD-SCENE-LIST-01 | 输入壳是否成立 | 校验 root file 与 shared schema 最小壳 | 缺 `分镜组列表[]` 或 `场景及方位` |
+| N1 | FIELD-SCENE-LIST-01 | 输入壳是否成立 | 校验 root file 与 shared schema 最小壳 | 缺 `分镜组列表[]` 或 `角色背景面` |
 | N2 | FIELD-SCENE-LIST-01 | 遍历基线是否稳定 | 建立 episode_id、group/shot 统计与容器 | 统计与上游不一致 |
 | N3-N4 | FIELD-SCENE-LIST-02 | 镜级场景是否可追溯且可保守拆分 | 抽 `scene_raw` 并拆 `scene_name / scene_variant` | 原句为空、噪声过多、拆分漂移 |
 | N5 | FIELD-SCENE-LIST-03 / FIELD-SCENE-LIST-04 | 同一场景能否稳定聚合 | 生成 `scene_key`、聚合 `scenes[] / variants[]` | 同名主场景裂变 |

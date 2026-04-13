@@ -176,6 +176,16 @@ def clean_scene_text(value: object) -> str:
     return text
 
 
+def resolve_scene_text(shot: object) -> str:
+    if not isinstance(shot, dict):
+        return ""
+    for field in ("角色背景面", "场景及方位"):
+        raw = clean_scene_text(shot.get(field, ""))
+        if raw:
+            return raw
+    return ""
+
+
 def canonical_key(value: str) -> str:
     normalized = re.sub(r"\s+", "", value).strip(TRIM_PUNCTUATION)
     normalized = re.sub(r"[^\w\u4e00-\u9fff]+", "", normalized.lower())
@@ -236,7 +246,7 @@ def build_scene_catalog(payload: dict, input_path: Path) -> dict:
             shot_count += 1
             order += 1
             shot_id = str(shot.get("分镜ID", "")).strip() or f"{group_id}-unknown-shot-{shot_count}"
-            raw_scene = clean_scene_text(shot.get("场景及方位", ""))
+            raw_scene = resolve_scene_text(shot)
             scene_name, scene_variant = split_scene(raw_scene)
             scene_key = canonical_key(scene_name)
             scene_record = scene_map.get(scene_key)
@@ -339,7 +349,7 @@ def build_scene_catalog(payload: dict, input_path: Path) -> dict:
         "scenes": scene_rows,
         "group_scene_map": group_scene_map,
         "acceptance_notes": [
-            "scene_name 只来自上游 `场景及方位` 的保守抽取。",
+            "scene_name 只来自上游 `角色背景面` 的保守抽取；旧 `场景及方位` 仅作兼容读取。",
             "group_scene_map 必须保持对 group_id / shot_id 的直接回链。",
             "当前产物只服务 4-Design 场景链，不承载研究稿或 bridge 字段。",
         ],

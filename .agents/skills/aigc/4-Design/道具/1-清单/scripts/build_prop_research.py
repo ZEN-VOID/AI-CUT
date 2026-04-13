@@ -310,8 +310,8 @@ def compose_analysis_text(prop: dict, rows: Sequence[dict], group_index: Dict[st
                 continue
             parts.extend(
                 [
-                    str(shot.get("场景及方位", "")).strip(),
-                    str(shot.get("角色及站位和穿搭", "")).strip(),
+                    str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip(),
+                    str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip(),
                     str(shot.get("道具及状态", "")).strip(),
                     str(shot.get("分镜表现", "")).strip(),
                     str(shot.get("角色表现", "")).strip(),

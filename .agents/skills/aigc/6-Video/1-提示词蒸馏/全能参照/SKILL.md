@@ -358,6 +358,7 @@ erDiagram
   2. 压缩块均匀覆盖全部组级与镜级内容
   3. 只保留 `分镜组ID / 分镜ID` 两类标签
   4. 计算真实 `prompt_char_count`
+  5. 用自然句式融合信息，不允许把字段逐项硬裁切成带省略号的半截短语
 - `inputs`
   - fixed block
   - 预算策略
@@ -368,8 +369,9 @@ erDiagram
   2. 原文嵌入 `剧本正文`
   3. 原文嵌入 `全局风格`
   4. 按预算策略压缩 `类型元素 / 导演意图 / 分镜明细[]`
-  5. 检查是否泄露字段标题
-  6. 统计 `prompt_char_count`
+  5. 将镜级字段改写为自然融合句，不得靠字段值硬截断、堆省略号或保留半字段骨架来压字数
+  6. 检查是否泄露字段标题
+  7. 以最终会写入 `第N集.json` 的 `prompt` 字符串为准统计 `prompt_char_count`，不得按带临时换行或中间草稿计数
 - `evidence`
   - 完整 `prompt`
   - `prompt_char_count`
@@ -379,7 +381,7 @@ erDiagram
   - fixed block 被污染：回 `N3`
   - 预算策略失衡：回 `N4`
 - `gate`
-  - 若任一镜级条目遗漏、字段标题泄露或字数统计不实，不得进入下游模板组装
+  - 若任一镜级条目遗漏、字段标题泄露、出现机械省略号截断或字数统计不实，不得进入下游模板组装
 
 ### N6 锚定 model / marker 骨架
 
@@ -426,6 +428,7 @@ erDiagram
   2. 写 `第N集.txt`
   3. 写 `_manifest.json`
   4. 为每组记录 `group_id / prompt_char_count / within_target_range / exception_note`
+  5. 回读最终 JSON，确认 `len(prompt) == prompt_char_count`
 - `evidence`
   - 三个文件路径
   - manifest group summary
@@ -501,12 +504,15 @@ erDiagram
 ### 最小验收清单
 
 - `prompt_char_count` 与实际 prompt 一致。
+- `prompt_char_count` 必须按最终落盘到 `第N集.json` 的 `prompt` 字符串计数，不得把临时换行、草稿拼接态或 TXT 视图改写计入。
 - `剧本正文` 与 `组间设计.全局风格` 与上游逐字一致。
 - 除 `分镜组ID / 分镜ID` 外，无字段标题泄露。
+- 分镜压缩必须是自然融合文本，不得出现大量靠硬截断生成的 `…` 半截短语。
 - `reference_images` 字段存在。
 - `image_markers` 未伪造 URL / 主体 / 图号。
 - `_manifest.json` 在低于目标窗或输入不足时写出异常说明。
 - `第N集.txt` 只承载提示词与字数统计，不承载结构化参数区块。
+- 若 `第N集.txt` 已用 section header 单独显示 `分镜组ID`，则不得再重复显示 prompt 首行同组 `分镜组ID`。
 - 执行闭环说明必须显式给出 `思考过程`。
 
 ## One-Shot Output Contract

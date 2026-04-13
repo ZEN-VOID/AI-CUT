@@ -37,7 +37,7 @@ governance_tier: full
 
 - 需要从 `projects/<项目名>/3-Detail/第N集.json` 提取角色 canonical list。
 - 当前输入仍是兼容路径 `projects/<项目名>/3-Detail/第N集.json`，但内容结构已经对齐 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
-- 需要把镜级 `角色及站位和穿搭` 收敛为角色对象池、穿搭提示和证据映射。
+- 需要把镜级 `角色站位走位` 与组级 `出场角色及穿搭` 收敛为角色对象池、穿搭提示和证据映射。
 
 ## When Not to Use
 
@@ -50,7 +50,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把镜级角色事实收束成稳定的角色对象池，让后续 `2-设计 / 3-面板 / 5-Image / 6-Video` 消费同一份 JSON 真源 |
-| `business_object` | `3-Detail` episode JSON 中的 `分镜组列表[].分镜明细[].角色及站位和穿搭` |
+| `business_object` | `3-Detail` episode JSON 中的 `分镜组列表[].分镜明细[].角色站位走位` + `分镜组列表[].组间设计.出场角色及穿搭` |
 | `constraint_profile` | 只提取不改写；必须保留 `group_id + shot_id + source_file`；不得把环境/道具词误写成人名或服装结论 |
 | `success_criteria` | `roles[]` 非空、镜级 evidence 完整、群像判定可解释、`_manifest.json` 统计与主清单一致 |
 | `non_goals` | 不做角色研究长文、不做角色视觉设计、不做角色面板或生图 prompt |
@@ -81,7 +81,7 @@ governance_tier: full
 硬规则：
 
 1. 第一输入根必须是对齐 shared director schema 的 episode JSON
-2. 角色提取主路径必须来自 `分镜明细[].角色及站位和穿搭`
+2. 角色提取主路径必须来自 `分镜明细[].角色站位走位`，穿搭摘要默认补读 `组间设计.出场角色及穿搭`
 3. 所有角色结论都必须保留 `group_id + shot_id + source_file`
 4. 不得把 `1-清单` 扩写成角色设计、角色面板或下游生图阶段
 
@@ -116,7 +116,7 @@ governance_tier: full
 flowchart TD
     A["锁定 episode JSON 输入"] --> B["校验 shared director schema readiness"]
     B --> C["逐组读取 分镜组列表[]"]
-    C --> D["逐镜解析 角色及站位和穿搭"]
+    C --> D["逐镜解析 角色站位走位 + 组级穿搭"]
     D --> E["判定 单角色 / 群像 / unknown"]
     E --> F["聚合 canonical roles + costume_profile"]
     F --> G["写回 角色清单.json"]
@@ -190,8 +190,8 @@ graph LR
 
 | var_id | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- |
-| `V-SCHEMA` | 输入结构是否可读 | `blocked/ready` | 检查 `分镜组列表[] / 分镜明细[] / 角色及站位和穿搭` | P0 |
-| `V-ROLE-TEXT` | 当前镜头角色文本形态 | `single-role/crowd-placeholder/ambiguous/empty` | 解析 `角色及站位和穿搭` | P0 |
+| `V-SCHEMA` | 输入结构是否可读 | `blocked/ready` | 检查 `分镜组列表[] / 分镜明细[] / 角色站位走位 / 组间设计.出场角色及穿搭` | P0 |
+| `V-ROLE-TEXT` | 当前镜头角色文本形态 | `single-role/crowd-placeholder/ambiguous/empty` | 解析 `角色站位走位`，必要时补读组级穿搭摘要 | P0 |
 | `V-COSTUME-SIGNAL` | 是否命中服装子句 | `present/weak/none` | 服装关键词窗口与角色子句绑定 | P1 |
 | `V-EVIDENCE-DENSITY` | 当前镜头证据是否足够 | `full/partial/weak` | 是否具备 `group_id + shot_id + source_file + role_text` | P0 |
 
@@ -326,7 +326,7 @@ python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.p
 
 | field_id | 输出位置 | 内容要求 | 来源 | 默认责任 Step | 质量维度 | fail_code |
 | --- | --- | --- | --- | --- | --- | --- |
-| `FIELD-ROLE-LIST-01` | `roles[]` | 角色 canonical identity、首次出现、出现统计、角色层级 | `分镜明细[].角色及站位和穿搭` | S3 | identity 稳定性 | `FAIL-ROLE-LIST-01` |
+| `FIELD-ROLE-LIST-01` | `roles[]` | 角色 canonical identity、首次出现、出现统计、角色层级 | `分镜明细[].角色站位走位` + `组间设计.出场角色及穿搭` | S3 | identity 稳定性 | `FAIL-ROLE-LIST-01` |
 | `FIELD-ROLE-LIST-02` | `group_role_map[]` | 每镜角色证据、原始角色文本、场景文本、穿搭片段、`group_id + shot_id` | `分镜组列表[].分镜明细[]` | S2 | 镜级可追溯性 | `FAIL-ROLE-LIST-02` |
 | `FIELD-ROLE-LIST-03` | `roles[].costume_profile` | 角色穿搭主线索和常见变体 | 命中服装关键词的角色子句 | S4 | 穿搭隔离度 | `FAIL-ROLE-LIST-03` |
 | `FIELD-ROLE-LIST-04` | `_manifest.json` | 输入输出路径、统计、告警与产物摘要 | 提取脚本运行结果 | S5-S6 | 收束完整性 | `FAIL-ROLE-LIST-04` |

@@ -13,8 +13,11 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 
-ROLE_FIELD = "角色及站位和穿搭"
-SCENE_FIELD = "场景及方位"
+ROLE_FIELD = "角色站位走位"
+LEGACY_ROLE_FIELD = "角色及站位和穿搭"
+SCENE_FIELD = "角色背景面"
+LEGACY_SCENE_FIELD = "场景及方位"
+GROUP_COSTUME_FIELD = "出场角色及穿搭"
 DIRECTOR_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
 DEFAULT_JSON_NAME = "角色清单.json"
 DEFAULT_MANIFEST_NAME = "_manifest.json"
@@ -321,6 +324,16 @@ def unique_preserve(values: Sequence[str]) -> List[str]:
     return result
 
 
+def pick_first_text(container: object, *fields: str) -> str:
+    if not isinstance(container, dict):
+        return ""
+    for field in fields:
+        value = container.get(field)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
 def extract_role_mentions_from_text(text: str) -> Tuple[List[str], Dict[str, List[str]]]:
     roles: List[str] = []
     costume_map: Dict[str, List[str]] = {}
@@ -328,6 +341,19 @@ def extract_role_mentions_from_text(text: str) -> Tuple[List[str], Dict[str, Lis
     costume_lead_markers = ("穿", "身着", "穿着", "披", "披着", "戴", "戴着", "一身", "换上")
 
     for clause in split_text_clauses(text):
+        pair_match = re.match(
+            r"^(?P<role>[\u4e00-\u9fffA-Za-z0-9·・_\\-]{1,16})\s*[-—:：]\s*(?P<costume>.+)$",
+            clause,
+        )
+        if pair_match:
+            role_name = normalize_role_token(pair_match.group("role"))
+            if is_valid_role_candidate(role_name):
+                last_named_roles = [role_name]
+                roles.append(role_name)
+                costume_map.setdefault(role_name, [])
+                costume_map[role_name].append(clause)
+                continue
+
         if clause.startswith(costume_lead_markers):
             current_roles = []
         else:
@@ -383,14 +409,25 @@ def extract_records_from_episode(input_file: Path) -> Tuple[str, List[ShotRoleRe
         group_id = str(group.get("分镜组ID") or "").strip()
         if not group_id:
             continue
+        group_design = group.get("组间设计") if isinstance(group.get("组间设计"), dict) else {}
+        group_costume_text = pick_first_text(group_design, GROUP_COSTUME_FIELD)
         shots = group.get("分镜明细") or []
         for index, shot in enumerate(shots, start=1):
             if not isinstance(shot, dict):
                 continue
             shot_id = str(shot.get("分镜ID") or "").strip() or f"{group_id}-{index}"
-            role_text = str(shot.get(ROLE_FIELD) or "").strip()
-            shot_scene = str(shot.get(SCENE_FIELD) or "").strip()
+            role_text = pick_first_text(shot, ROLE_FIELD, LEGACY_ROLE_FIELD)
+            shot_scene = pick_first_text(shot, SCENE_FIELD, LEGACY_SCENE_FIELD)
             role_names, costume_mentions = extract_role_mentions_from_text(role_text) if role_text else (["unknown"], {})
+            if group_costume_text:
+                group_role_names, group_costume_mentions = extract_role_mentions_from_text(group_costume_text)
+                if role_names == ["unknown"] and group_role_names != ["unknown"]:
+                    role_names = group_role_names
+                for role_name in role_names:
+                    for clause in group_costume_mentions.get(role_name, []):
+                        costume_mentions.setdefault(role_name, [])
+                        if clause not in costume_mentions[role_name]:
+                            costume_mentions[role_name].append(clause)
             records.append(
                 ShotRoleRecord(
                     episode_label=episode_label,

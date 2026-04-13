@@ -244,8 +244,8 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
 
         for shot in shots:
             shot_id = str(shot.get("分镜ID", "unknown"))
-            scene_value = str(shot.get("场景及方位", "")).strip()
-            roles_value = str(shot.get("角色及站位和穿搭", "")).strip()
+            scene_value = str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip()
+            roles_value = str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip()
             prop_value = str(shot.get("道具及状态", "")).strip()
             mentions = parse_prop_mentions(prop_value)
             if mentions:

@@ -21,7 +21,10 @@
 | prompt 只覆盖分镜组的局部字段 | 输入覆盖层 | 回到“整组全部内容”重新蒸馏 | 在 `FIELD-VID-SUBJ-02` 固化“整组全覆盖” | 每个条目都能回链整组与全部分镜 |
 | `剧本正文` 或 `全局风格` 被改写 | 固定文本层 | 恢复原文直贴 | 在 `SKILL.md` 的 Prompt Assembly Contract 固化 fixed verbatim block | 两段文本与上游逐字一致 |
 | prompt 中暴露了字段标题 | 文本编排层 | 重写为无标题融合文本 | 在 `FIELD-VID-SUBJ-02` 固化只保留组ID/镜ID标签 | 除组ID/镜ID外无显式字段名 |
+| prompt 读起来像字段硬裁切拼接，出现大量 `…` 半截短语 | 压缩执行层 | 回到镜级压缩步骤，把字段值改写成自然句式后再落盘 | 在 `SKILL.md` 固化“禁止用省略号硬截断代替语义压缩” | 抽查 `prompt` 时不再出现大面积机械省略号 |
 | 压缩后远低于 1800 字或显著超出 2000 字 | 字数预算层 | 调整非固定字段压缩力度 | 在策略表加入 `tight/normal/underflow` 预算规则 | `prompt_char_count` 处于目标窗或有保守例外说明 |
+| `prompt_char_count` 与 JSON 中实际 `prompt` 长度不一致 | 输出统计层 | 回到最终 JSON 主体，以实际落盘 `prompt` 文本重新计数 | 在 `SKILL.md` 固化“按最终落盘 prompt 计数并回读 JSON 复核” | `len(prompt) == prompt_char_count` |
+| `第N集.txt` 中 section header 与 prompt 首行重复显示同一 `分镜组ID` | TXT 派生视图层 | 保留 section header，并去掉 TXT 中重复的 prompt 首行组 ID | 在 `SKILL.md` 固化“TXT 已显示组 ID 时不得重复显示 prompt 首行组 ID” | `第N集.txt` 每组只出现一次组 ID header |
 | `reference_images` 缺失，或 `image_markers` 的 URL/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐三元信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
@@ -41,9 +44,12 @@
 - 对本子技能来说，`剧本正文` 与 `全局风格` 更像硬锁文本，而不是可自由润色的素材。
 - 字数吃紧时，优先把非固定字段压成高密度短语，不要碰固定原文块。
 - “隐藏字段标题”不等于“删除信息结构”；最稳的做法是只保留 `分镜组ID / 分镜ID` 作为显式骨架，其余内容揉进自然文本。
+- “压缩”不等于“把字段值切半再加省略号”；如果读起来像半字段残片，说明执行方法已经偏离合同。
 - 最稳的做法是把 `reference_images` 当作上传顺序位保留，再用 `image_markers` 承接 URL、主体和图号语义。
 - 当同一份 prompt 既要给工具消费又要给人读时，最稳的是 `json` 保结构、`txt` 保阅读，不把两种职责硬塞进同一个文件。
 - 一旦采用双输出，必须持续强调：`txt` 是 derived display view，`json` 才是 completeness carrier。
+- 只要有落盘前裁剪、去尾换行或 TXT 派生改写，`prompt_char_count` 就必须以后写回 JSON 的最终 `prompt` 字符串为准，不能拿中间草稿长度顶替。
+- 当 `txt` 已经把 `分镜组ID` 放在 section header，最稳的是把 prompt 首行同组 ID 从 `txt` 视图剥离，只保留 `json` 主体里的原始 prompt。
 - 当 `references/` 开始充当规则入口时，真正的问题不是“文件多”，而是子技能出现了第二真源；应直接把规范收回 `SKILL.md`。
 - 这类“固定块原文保留 + 压缩块受预算约束 + 三件套落盘”的叶子技能，最稳的结构不是再加几条 checklist，而是改成“串行主干 + 条件预算分支 + 汇流门”的思行网络。
 - 如果节点没有显式写出 `route_out` 和 `gate`，执行者最容易在 `underflow`、标题泄露或三件套不一致时直接凭感觉补救，最后留下不可复核的半闭环。
