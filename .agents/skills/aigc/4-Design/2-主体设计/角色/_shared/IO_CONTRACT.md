@@ -6,25 +6,25 @@
 
 | 类型 | 路径 | 作用 |
 | --- | --- | --- |
-| 必需 | `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json` | 当前集角色对象池与证据回链 |
-| 必需 | `projects/<项目名>/3-Detail/第N集.json` | 镜头级角色表现、穿搭、场景与道具事实 |
-| 可选 | `projects/<项目名>/3-Detail/第N集.json` | 用户显式给旧路径时的兼容回退 |
-| 必需 | `projects/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
-| 必需 | `projects/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段角色侧约束 |
-| 必需 | `projects/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
-| 必需 | `projects/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
-| 可选 | `projects/<项目名>/2-Global/导演意图.md` | 当前集、当前组的导演人物指导 |
-| 可选 | `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` | 场景兼容性上下文包 |
-| 可选 | `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 道具兼容性上下文包 |
-| 可选 | `projects/<项目名>/4-Design/角色/2-设计/第N集/*` | 已有角色设计稿，供增量 patch 使用 |
+| 必需 | `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json` | 当前集角色对象池与证据回链 |
+| 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级角色表现、穿搭、场景与道具事实 |
+| 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 用户显式给旧路径时的兼容回退 |
+| 必需 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
+| 必需 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段角色侧约束 |
+| 必需 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
+| 必需 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
+| 可选 | `projects/aigc/<项目名>/2-Global/导演意图.md` | 当前集、当前组的导演人物指导 |
+| 可选 | `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` | 场景兼容性上下文包 |
+| 可选 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 道具兼容性上下文包 |
+| 可选 | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/*` | 已有角色设计稿，供增量 patch 使用 |
 
 ## Outputs
 
 | 类型 | 路径 | 责任 |
 | --- | --- | --- |
-| canonical | `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json` | machine-first 角色设计主稿 |
-| canonical | `projects/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md` | 与 JSON 同源的人读稿 |
-| canonical | `projects/<项目名>/4-Design/角色/2-设计/第N集/_manifest.json` | 本轮输入、命中角色、输出清单与审计摘要 |
+| canonical | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json` | machine-first 角色设计主稿 |
+| canonical | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md` | 与 JSON 同源的人读稿 |
+| canonical | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/_manifest.json` | 本轮输入、命中角色、输出清单与审计摘要 |
 | handoff | `agents_plan + patch / note / report` | subagents 返回给父 skill 的思考计划与局部增量 |
 
 ## Naming Contract

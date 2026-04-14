@@ -25,13 +25,13 @@
 | `2-镜花` 很强，但 JSON 里角色走位、空间关系仍发虚 | 证据映射层 | 用 `1-水月` 补人物、动作、空间证据，再由 `2-镜花` 补镜头语法 | 在父层聚合规则固定“水月补事实，镜花补镜头组织” | `角色背景面 / 角色站位走位` 不再空泛 |
 | `出场角色及穿搭` 长期留空 | 组级回填层 | 在 stage patch 时从 sidecar 与镜级事实回填，而不是等下游猜 | 在父 `SKILL.md` 把该字段列为 `3-Detail` 的最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
 | `document_phase` 被直接写成 `ready`，但组内没有 shots | phase 管理层 | 回退到 `detail_in_progress`，先补 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 shot patch + validation | `ready` 与实际完成度一致 |
-| 阶段产物存在，但没有 `validation-report.md` | 阶段闭环层 | 补写 `projects/<项目名>/3-Detail/validation-report.md` | 在父 `SKILL.md` Convergence Contract 固定 validation 必写 | 阶段完成时一定有验收结论 |
+| 阶段产物存在，但没有 `validation-report.md` | 阶段闭环层 | 补写 `projects/aigc/<项目名>/3-Detail/validation-report.md` | 在父 `SKILL.md` Convergence Contract 固定 validation 必写 | 阶段完成时一定有验收结论 |
 | `team.yaml` 已启用却绕过共享顾问团 gate | 共享运行时层 | 回到 `council-runtime` 做前置判断 | 在父层合同固定 council gate 是 `3-Detail` 的前置节点 | `validation-report.md` 中有 gate note |
 | 子技能与 `module-index.md` 已声明共享 validator，但阶段根没有对应脚本 | 共享校验真源层 | 在 `.agents/skills/aigc/3-Detail/scripts/` 补齐 `validate_node_packs.py` 与 `validate_creative_guidance.py` | 让子技能只回链阶段根共享 validator，不再各自口头约定“应有校验”；每次调整 `references/` 后先跑共享校验脚本 | `1-水月` 与 `2-镜花` 的引用路径可执行且校验通过 |
 
 ## Repair Playbook
 
-1. 先检查 `projects/<项目名>/3-Detail/第N集.json` 是否存在、是否符合 shared schema、`document_phase` 当前处于什么状态。
+1. 先检查 `projects/aigc/<项目名>/3-Detail/第N集.json` 是否存在、是否符合 shared schema、`document_phase` 当前处于什么状态。
 2. 若 root 不存在或 seed 不完整，先回溯 `2-Global -> group_design_seed_contract`，不要直接让 child sidecar 越权补根文件。
 3. 再判断本轮是阶段级任务，还是单独的 `1-水月 / 2-镜花` 局部任务。
 4. 若要写 JSON，优先复用已有 sidecar；只有证据不足时才重跑子技能。

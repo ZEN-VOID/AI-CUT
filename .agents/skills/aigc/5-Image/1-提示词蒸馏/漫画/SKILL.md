@@ -1,6 +1,6 @@
 ---
 name: aigc-storyboard-comic
-description: Use when the `5-Image` stage needs to turn a storyboard group from `projects/<项目名>/3-Detail/第N集.json` into group-level image request JSON for a comic page, especially before downstream consistency or image-generation work.
+description: Use when the `5-Image` stage needs to turn a storyboard group from `projects/aigc/<项目名>/3-Detail/第N集.json` into group-level image request JSON for a comic page, especially before downstream consistency or image-generation work.
 governance_tier: full
 ---
 
@@ -8,14 +8,14 @@ governance_tier: full
 
 ## 概述
 
-`漫画` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/<项目名>/3-Detail/第N集.json` 中一个可唯一回链的 `分镜组`，收束为 **每个分镜组 1 条漫画页图像请求 JSON**。
+`漫画` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中一个可唯一回链的 `分镜组`，收束为 **每个分镜组 1 条漫画页图像请求 JSON**。
 
 本轮重构遵循 `skill-知行合一`，但不改变既有业务机制：
 
-- 上游真源仍是 `projects/<项目名>/3-Detail/第N集.json`
+- 上游真源仍是 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - shared schema 仍是 `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - shared JSON 模板仍是 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-- canonical 输出仍是 `projects/<项目名>/5-Image/漫画/第N集/第N集.json`
+- canonical 输出仍是 `projects/aigc/<项目名>/5-Image/漫画/第N集/第N集.json`
 - `prompt` 仍由固定漫画前缀 + `comic_page_group` 构成
 - `1 shot = 1 panel` 与文字归属约束仍是 prompt 的硬门槛
 
@@ -65,19 +65,19 @@ parallel_sibling_dispatch: false
 4. 本 `SKILL.md + CONTEXT.md`
 5. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 6. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-7. `projects/<项目名>/3-Detail/第N集.json`
-8. `projects/<项目名>/3-Detail/evidence/` 与 `projects/<项目名>/4-Design/` 下仅与当前组相关的补充证据（按需）
+7. `projects/aigc/<项目名>/3-Detail/第N集.json`
+8. `projects/aigc/<项目名>/3-Detail/evidence/` 与 `projects/aigc/<项目名>/4-Design/` 下仅与当前组相关的补充证据（按需）
 
 ## Shared Canonical Sources (Mandatory)
 
 - 强制读取：`.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
 - 强制读取：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - 强制读取：`.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-- 强制读取：`projects/<项目名>/3-Detail/第N集.json`
+- 强制读取：`projects/aigc/<项目名>/3-Detail/第N集.json`
 
 硬规则：
 
-1. `projects/<项目名>/3-Detail/第N集.json` 是组级与镜级事实的第一真源。
+1. `projects/aigc/<项目名>/3-Detail/第N集.json` 是组级与镜级事实的第一真源。
 2. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 是图像请求骨架的唯一模板真源。
 3. `3-Detail/evidence/` 只作为补充校对证据，不替代 `第N集.json`。
 4. `4-Design` 只作为参照图槽位来源，不得反向改写 `分镜组` 事实。
@@ -87,15 +87,15 @@ parallel_sibling_dispatch: false
 
 ### 必需输入
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 一个可唯一回链的 `分镜组`
 
 ### 可选输入
 
-- `projects/<项目名>/3-Detail/evidence/` 下与当前组相关的 sidecar
-- `projects/<项目名>/4-Design/` 下角色、场景、道具参考图
+- `projects/aigc/<项目名>/3-Detail/evidence/` 下与当前组相关的 sidecar
+- `projects/aigc/<项目名>/4-Design/` 下角色、场景、道具参考图
 - 父级 `1-提示词蒸馏` 给出的 `output_mode` 要求
 
 ### 禁止输入
@@ -345,7 +345,7 @@ graph LR
 
 | aspect | 要求 |
 | --- | --- |
-| `先看什么` | 确认 canonical 落点是 `projects/<项目名>/5-Image/漫画/第N集/第N集.json` |
+| `先看什么` | 确认 canonical 落点是 `projects/aigc/<项目名>/5-Image/漫画/第N集/第N集.json` |
 | `必须锁定` | 每个分镜组只生成 1 条请求对象；仅在 `full_trace` 时输出 `_manifest.json` |
 | `执行动作` | 写单集 JSON，若 `full_trace` 则写 manifest，并保持同一 `group_id` 的追溯一致性 |
 | `常见错误` | 把图片落盘当主产物；或无条件生成 `_manifest.json`；或多个组混写成一条对象 |
@@ -367,7 +367,7 @@ graph LR
 
 1. 读取父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`，确认当前命中 `漫画`。
 2. 锁定 `episode_id / group_id / output_mode`，拒绝把多对象请求混入本技能。
-3. 读取 `projects/<项目名>/3-Detail/第N集.json`，校验其 shared schema 字段壳。
+3. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，校验其 shared schema 字段壳。
 4. 在 `final_output.main_content.分镜组列表[]` 中定位唯一目标组，并回链有序 `source_shot_ids`。
 5. 提取该组的 `剧本正文`、`组间设计` 与全部按原顺序排列的 `分镜明细[]`，形成 `comic_page_group`。
 6. 显式绑定漫画页硬约束：`1 shot = 1 panel`，且对白/独白/旁白只能放在对应 panel 内。
@@ -425,7 +425,7 @@ graph LR
 
 ### A. 组级漫画图像请求 JSON（Mandatory）
 
-`projects/<项目名>/5-Image/漫画/第N集/第N集.json`
+`projects/aigc/<项目名>/5-Image/漫画/第N集/第N集.json`
 
 最小要求：
 
@@ -437,7 +437,7 @@ graph LR
 
 ### B. 执行清单 `_manifest.json`（Conditional）
 
-`projects/<项目名>/5-Image/漫画/第N集/_manifest.json`
+`projects/aigc/<项目名>/5-Image/漫画/第N集/_manifest.json`
 
 只在 `output_mode=full_trace` 时输出。最低要求：
 

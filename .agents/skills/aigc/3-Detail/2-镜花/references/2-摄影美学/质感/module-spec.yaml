@@ -1,11 +1,12 @@
 version: 1
 module_id: jinghua-texture
 module_level: leaf
-purpose: 把材料、湿度、颗粒、表面反射等触感线索压入画面描述，并让质感服务当前组的世界表面语言与观看压力。
+purpose: 沿 `visual_control_line` 已锁定的质感方向，把材料、湿度、颗粒、表面反射等触感线索压入画面描述，并让质感服务当前组的世界表面语言与观看压力。
 triggers:
   - 画面需要更明确的材质触感或时代/世界表面语言
-  - 已收束 `visual_control_note`，知道这组需要强调哪类表面行为
+  - 已收束 `visual_control_line`，知道这组需要强调哪类表面行为
 must_answer:
+  - `visual_control_line` 已锁定的质感方向是什么
   - 观众最先感到的材料是什么
   - 表面反光、粗糙、潮湿或颗粒如何帮助场感成立
   - 这些质感是否与世界观和设计元素一致

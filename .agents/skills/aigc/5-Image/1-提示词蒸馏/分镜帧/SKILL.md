@@ -1,6 +1,6 @@
 ---
 name: aigc-storyboard-frame
-description: Use when the `5-Image` stage needs to turn one canonical shot id from `projects/<项目名>/3-Detail/第N集.json` into frame-level image request JSON before downstream consistency or image-generation steps run.
+description: Use when the `5-Image` stage needs to turn one canonical shot id from `projects/aigc/<项目名>/3-Detail/第N集.json` into frame-level image request JSON before downstream consistency or image-generation steps run.
 governance_tier: full
 ---
 
@@ -15,7 +15,7 @@ governance_tier: full
 
 ## 概述
 
-`分镜帧` 负责把 `projects/<项目名>/3-Detail/第N集.json` 中某一个可唯一定位的 `分镜ID`，蒸馏为单帧图像生成请求 JSON。
+`分镜帧` 负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中某一个可唯一定位的 `分镜ID`，蒸馏为单帧图像生成请求 JSON。
 
 本技能不负责真实出图，不改写上游镜头事实，也不把多镜头拼成一条请求。它只负责把单一帧级对象稳定收束成下游可消费的请求对象。
 
@@ -74,10 +74,10 @@ governance_tier: full
 
 ### Business Object
 
-- 第一结构化真源：`projects/<项目名>/3-Detail/第N集.json`
+- 第一结构化真源：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - 目标对象：`final_output.main_content.分镜组列表[].分镜明细[]` 中的单一 `分镜ID`
 - 业务投影：`single_frame_shot`
-- 最终载体：`projects/<项目名>/5-Image/分镜帧/第N集/第N集.json`
+- 最终载体：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
 
 ### Constraints
 
@@ -105,26 +105,26 @@ governance_tier: full
 
 ### Evidence Sources
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-- `projects/<项目名>/4-Design/` 下参考资产，仅用于 `reference_images / image_markers` 槽位登记
+- `projects/aigc/<项目名>/4-Design/` 下参考资产，仅用于 `reference_images / image_markers` 槽位登记
 
 ## Canonical Inputs And Landing
 
 ### Canonical Inputs
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 一个可唯一定位的 `分镜ID`
 
 ### Canonical Landing
 
-- 子路径根目录：`projects/<项目名>/5-Image/分镜帧/`
-- 单集目录：`projects/<项目名>/5-Image/分镜帧/第N集/`
-- 汇总 JSON：`projects/<项目名>/5-Image/分镜帧/第N集/第N集.json`
-- 汇总清单：`projects/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
+- 子路径根目录：`projects/aigc/<项目名>/5-Image/分镜帧/`
+- 单集目录：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/`
+- 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
+- 汇总清单：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
 
 ## Visual Maps
 
@@ -311,7 +311,7 @@ stateDiagram-v2
 
 1. 读取 `.agents/skills/aigc/SKILL.md`。
 2. 读取 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`，确认本轮明确命中 `分镜帧`。
-3. 读取 `projects/<项目名>/3-Detail/第N集.json`，锁定 `final_output.main_content.分镜组列表`。
+3. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，锁定 `final_output.main_content.分镜组列表`。
 4. 遍历分镜组并按 `分镜明细[].分镜ID` 唯一锁定目标分镜，同时记录所属 `分镜组ID / 剧本正文 / 组间设计`。
 5. 以目标分镜与所属组上下文组织 `single_frame_shot`，只保留当前帧所需组级上下文与镜级事实。
 6. 以共享模板为骨架填充 `meta + prompt_style + model + prompt + prompt_char_count`。
@@ -383,8 +383,8 @@ stateDiagram-v2
 
 本技能的 canonical business output 不变，仍然只收束到以下业务真源：
 
-1. `projects/<项目名>/5-Image/分镜帧/第N集/第N集.json`
-2. `projects/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
+1. `projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
+2. `projects/aigc/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
 
 额外输出要求：
 

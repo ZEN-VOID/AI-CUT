@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 2-Global"
   short_description: "统一调度全局风格、类型元素、设计元素，并完成阶段级验收与 handoff 判断。"
-  default_prompt: "Use $aigc-global to treat `1-Planning/3-分组` as the primary stage input, load `0-Init` as supporting context, selectively route the active `2-Global` child skills, then write the stage-level `projects/<项目名>/2-Global/validation-report.md` with output inventory and `3-Detail` handoff readiness."
+  default_prompt: "Use $aigc-global to treat `1-Planning/3-分组` as the primary stage input, load `0-Init` as supporting context, selectively route the active `2-Global` child skills, then write the stage-level `projects/aigc/<项目名>/2-Global/validation-report.md` with output inventory and `3-Detail` handoff readiness."

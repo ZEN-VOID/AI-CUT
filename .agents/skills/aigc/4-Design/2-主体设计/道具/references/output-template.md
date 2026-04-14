@@ -8,7 +8,7 @@
     "project_name": "项目名",
     "episode_id": "第1集",
     "skill_id": "aigc/4-Design/道具/2-设计",
-    "source_bridge": "projects/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json"
+    "source_bridge": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json"
   },
   "props": [
     {
@@ -109,6 +109,6 @@
 
 ## Path Contract
 
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`

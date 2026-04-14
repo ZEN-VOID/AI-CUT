@@ -14,8 +14,8 @@ governance_tier: lite
 
 ## Carrier
 
-- canonical carrier: `projects/<项目名>/preflight-verdict.yaml`
-- sync summary: `projects/<项目名>/governance-state.yaml.review_bridge.latest_preflight_status`
+- canonical carrier: `projects/aigc/<项目名>/preflight-verdict.yaml`
+- sync summary: `projects/aigc/<项目名>/governance-state.yaml.review_bridge.latest_preflight_status`
 
 ## When to Use
 

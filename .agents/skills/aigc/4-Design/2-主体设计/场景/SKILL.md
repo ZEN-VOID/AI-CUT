@@ -38,7 +38,7 @@ governance_tier: full
 
 - `scene catalog -> scene design` 的唯一收束合同。
 - 场景设计六组能力镜面的调度、汇流、复核与审计。
-- `projects/<项目名>/4-Design/场景/2-设计/第N集/` 下 canonical 设计产物写回。
+- `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/` 下 canonical 设计产物写回。
 
 ### `2-设计` 不拥有
 
@@ -94,13 +94,13 @@ governance_tier: full
 
 ### Canonical Inputs
 
-- `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
-- `projects/<项目名>/2-Global/全局风格.md`
-- `projects/<项目名>/2-Global/类型元素.md`
-- `projects/<项目名>/2-Global/导演意图.md`
-- `projects/<项目名>/3-Detail/第N集.json`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
+- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/类型元素.md`
+- `projects/aigc/<项目名>/2-Global/导演意图.md`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `templates/scene-design-card.md`
 
 ### 输入顺序硬规则
@@ -112,9 +112,9 @@ governance_tier: full
 
 ### 输出落点
 
-- `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
-- `projects/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
-- 可选 `projects/<项目名>/4-Design/场景/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
+- `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
+- 可选 `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/_manifest.json`
 
 ## Mermaid Visual Contract
 
@@ -453,9 +453,9 @@ stateDiagram-v2
 
 ### Canonical Outputs
 
-- `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
-- `projects/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
-- 可选 `projects/<项目名>/4-Design/场景/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
+- `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
+- 可选 `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/_manifest.json`
 
 ### `场景设计.json` 最低结构
 

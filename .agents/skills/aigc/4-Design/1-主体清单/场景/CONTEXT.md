@@ -19,7 +19,7 @@
 | 把 `1-清单` 误写成研究链或设计链 | 阶段边界层 | 回退到 scene catalog 最小输出壳 | 在 `SKILL.md` 固化“只输出 scenes[] / group_scene_map[] / summary” | 主产物不含研究与设计字段 |
 | `scene_name` 与 `scene_variant` 拆分不稳 | 抽取规则层 | 保守只锁 `scene_name`，其余回收到 `scene_variant` 或整句 | 在 `SKILL.md + 脚本` 固定 earliest-marker 与 keep-raw 回退 | 同一主场景不再裂成多个伪场景 |
 | 上游 episode JSON 缺少 shared schema 壳 | 输入合同层 | 停止并报告缺失字段 | 在 `SKILL.md` 中把 `N1` 作为硬门槛 | 不在缺壳情况下伪造清单 |
-| 输出落回旧 `output/影片/...` 路径 | runtime 落点层 | 改回 `projects/<项目名>/4-Design/场景/1-清单/第N集/` | 在 `SKILL.md` 和脚本默认落点里固定当前仓口径 | 输出目录符合当前技能合同 |
+| 输出落回旧 `output/影片/...` 路径 | runtime 落点层 | 改回 `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/` | 在 `SKILL.md` 和脚本默认落点里固定当前仓口径 | 输出目录符合当前技能合同 |
 | 主文档与 `references/` 规则漂移 | 真源治理层 | 把有效规则全部收回 `SKILL.md` | 删除或退役明细 `references/`，避免第二真源 | 当前目录只剩单一规则主合同 |
 
 ## Repair Playbook

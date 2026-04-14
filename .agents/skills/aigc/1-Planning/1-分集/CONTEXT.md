@@ -17,7 +17,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 输入根没有锁到 `projects/<项目名>/Story/` | 输入真源层 | 回到故事目录重新锁定输入范围 | 在 `SKILL.md` 固化故事目录优先，manifest 只作索引证据 | 输入清单与用户口径一致 |
+| 输入根没有锁到 `projects/aigc/<项目名>/Story/` | 输入真源层 | 回到故事目录重新锁定输入范围 | 在 `SKILL.md` 固化故事目录优先，manifest 只作索引证据 | 输入清单与用户口径一致 |
 | readiness 未通过仍继续正式分集 | gate 层 | 停止执行并返回缺口 | 把 blocked / incremental / full_season 写成强门禁 | 不再出现 blocked 仍落盘正式结果 |
 | 把 storyboard / hybrid 中的镜头语言清洗掉 | 源文本保真层 | 恢复原文切分，不做小说化改写 | 在 `SKILL.md` 固化“只切分，不清洗镜头语言” | 输出仍保留源文本结构证据 |
 | 漏写 `source_profile` 或 `bootstrap_output` handoff | 下游交接层 | 重建父级 patch | 在字段主表与模板中固定 handoff 字段 | `2-Global` 可直接消费 handoff |
@@ -27,17 +27,17 @@
 
 ## Repair Playbook
 
-1. 先确认 `projects/<项目名>/Story/` 的实际输入范围。
+1. 先确认 `projects/aigc/<项目名>/Story/` 的实际输入范围。
 2. 再确认主路由是否真的遵守 `P1>P2>P3`。
 3. 再看候选边界是否有结构/戏剧证据，而不是字数硬切。
 4. 最后才检查 `episode-split-plan.json` 与 handoff patch。
 
 ## Reusable Heuristics
 
-- 在 DREAMER 里，`1-分集` 的 canonical 输出应是 `projects/<项目名>/1-Planning/1-分集/第N集.md`，由 `2-格式` 再继续整理成主稿。
+- 在 DREAMER 里，`1-分集` 的 canonical 输出应是 `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`，由 `2-格式` 再继续整理成主稿。
 - 只要 `story-source-manifest.yaml` 已经把 `storyboard_script` 和锁轴写清，分集阶段就应保留这些结构信号，而不是先清洗再切分。
 - `episode-split-plan.json` 的价值不是替代正文，而是给 `2-格式`、父 skill、规划组其他角色和 `2-Global` 一个稳定机读入口。
-- `1-分集` 的证据侧车最多保留一份 `projects/<项目名>/1-Planning/1-分集/执行报告.md`；逐集报告会把证据层拆碎，不利于规划阶段收口。
+- `1-分集` 的证据侧车最多保留一份 `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md`；逐集报告会把证据层拆碎，不利于规划阶段收口。
 - 在 `1-分集` 里，不要为了单一裁决面额外保留 subagent；边界判断、落盘、索引更新和 QA 应统一留在 skill。
 - 若某个 leaf 当前只有一个命中的角色且没有独立变体路由价值，应直接融合回 skill 本体，而不是再维护一层 team/agent 合同。
 - 对 `1-分集` 做知行合一改造时，最稳的方式不是发明新业务，而是把现有 `P1>P2>P3`、VSM、字段主表和 QA 重新编织成“串行主干 + 条件分支 + 汇流门”的单技能网络。

@@ -1,6 +1,6 @@
 ---
 name: aigc-global-type-elements
-description: Use when the `2-Global` stage needs to turn `1-Planning/3-分组` outputs plus `0-Init` constraints into a project-level genre bible and group-level type design under `projects/<项目名>/2-Global/类型元素/`.
+description: Use when the `2-Global` stage needs to turn `1-Planning/3-分组` outputs plus `0-Init` constraints into a project-level genre bible and group-level type design under `projects/aigc/<项目名>/2-Global/类型元素/`.
 governance_tier: full
 ---
 
@@ -18,12 +18,12 @@ governance_tier: full
 
 收束为两份 canonical 输出：
 
-- `projects/<项目名>/2-Global/类型元素/全集设计.md`
-- `projects/<项目名>/2-Global/类型元素/分组设计.md`
+- `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+- `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
 
 并在需要兼容旧链路时，派生：
 
-- `projects/<项目名>/2-Global/类型元素.md`
+- `projects/aigc/<项目名>/2-Global/类型元素.md`
 
 ## Leaf Skill Boundary (Mandatory)
 
@@ -41,7 +41,7 @@ governance_tier: full
 
 - `全局风格` 的项目级风格底座真源
 - `导演意图` 的按组导演调度真源
-- `projects/<项目名>/3-Detail/第N集.json` 的最终组间设计写回权
+- `projects/aigc/<项目名>/3-Detail/第N集.json` 的最终组间设计写回权
 
 ### Stage Position
 
@@ -52,7 +52,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已有 `projects/<项目名>/1-Planning/3-分组/第N集.md`，需要把项目题材与各分镜组的类型打法正式定稿。
+- 已有 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`，需要把项目题材与各分镜组的类型打法正式定稿。
 - 需要从类型片族群中提炼灵感、标志性元素与错误示范，并把它们压成可被下游消费的设计语言。
 - 需要让所有分镜组保持同一部作品的整体类型气质，同时允许局部细节、冲突引擎与节奏策略发生可控差异。
 - 需要把旧的单文件 `类型元素.md` 升格为“全集真源 + 分组真源 + 兼容投影”的可治理结构。
@@ -85,14 +85,14 @@ governance_tier: full
 3. 本 `SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 5. `references/类型片灵感矩阵.md`
-6. `projects/<项目名>/0-Init/north_star.yaml`
-7. `projects/<项目名>/0-Init/init_handoff.yaml`
-8. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-9. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-10. `projects/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
-11. 已有 `projects/<项目名>/2-Global/类型元素/全集设计.md`
-12. 已有 `projects/<项目名>/2-Global/类型元素/分组设计.md`
-13. 已有 `projects/<项目名>/2-Global/类型元素.md`
+6. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+7. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+8. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+9. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+10. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
+11. 已有 `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+12. 已有 `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
+13. 已有 `projects/aigc/<项目名>/2-Global/类型元素.md`
 14. `templates/全集设计.template.md`
 15. `templates/分组设计.template.md`
 
@@ -108,8 +108,8 @@ governance_tier: full
 
 本技能的 authoritative source 固定为：
 
-1. `projects/<项目名>/2-Global/类型元素/全集设计.md`
-2. `projects/<项目名>/2-Global/类型元素/分组设计.md`
+1. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+2. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
 
 它们分别承担：
 
@@ -128,7 +128,7 @@ governance_tier: full
 
 ### Derived Projection
 
-`projects/<项目名>/2-Global/类型元素.md` 从现在起降级为兼容投影，不再独立持有新事实。
+`projects/aigc/<项目名>/2-Global/类型元素.md` 从现在起降级为兼容投影，不再独立持有新事实。
 
 投影规则：
 
@@ -141,17 +141,17 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
 
 ### 可选输入
 
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-- 已有 `projects/<项目名>/2-Global/类型元素/全集设计.md`
-- 已有 `projects/<项目名>/2-Global/类型元素/分组设计.md`
-- 已有 `projects/<项目名>/2-Global/类型元素.md`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+- 已有 `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+- 已有 `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
+- 已有 `projects/aigc/<项目名>/2-Global/类型元素.md`
 
 ### 禁止输入
 
@@ -290,9 +290,9 @@ graph LR
 
 本技能的正式输出固定为：
 
-1. `projects/<项目名>/2-Global/类型元素/全集设计.md`
-2. `projects/<项目名>/2-Global/类型元素/分组设计.md`
-3. `projects/<项目名>/2-Global/类型元素.md`（仅兼容投影）
+1. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+2. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
+3. `projects/aigc/<项目名>/2-Global/类型元素.md`（仅兼容投影）
 
 输出中的 `思考过程` 只允许以“判型路径 / inspiration 取舍 / 不采纳原因”的结构化摘要出现，不写冗长流水账。
 

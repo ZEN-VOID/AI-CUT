@@ -14,7 +14,7 @@ import yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-PROJECTS_ROOT = REPO_ROOT / "projects"
+PROJECTS_ROOT = REPO_ROOT / "projects" / "aigc"
 TEMPLATE_PATH = REPO_ROOT / ".agents/skills/aigc/_shared/governance-state.template.yaml"
 STAGE_PATH_PATTERN = re.compile(r"\d+-[^\s/，。,；;（）()]+(?:/\d+-[^\s，。,；;（）()]+)?")
 PREFERRED_ENTRY_PATTERNS = (
@@ -26,13 +26,13 @@ PREFERRED_ENTRY_PATTERNS = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Backfill projects/<项目名>/governance-state.yaml from existing AIGC governance artifacts."
+        description="Backfill projects/aigc/<项目名>/governance-state.yaml from existing AIGC governance artifacts."
     )
     parser.add_argument(
         "--project",
         action="append",
         default=[],
-        help="Specific project name(s) under projects/ to backfill. Defaults to every project with project_state.yaml.",
+        help="Specific project name(s) under projects/aigc/ to backfill. Defaults to every project with project_state.yaml.",
     )
     parser.add_argument(
         "--write",
@@ -222,7 +222,10 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
         project_root / "视频",
         project_root / "后期",
     ]
-    has_stage_outputs = any(stage_dir.exists() and any(stage_dir.rglob("*")) for stage_dir in stage_dirs)
+    has_stage_outputs = any(
+        stage_dir.exists() and any(path.is_file() for path in stage_dir.rglob("*"))
+        for stage_dir in stage_dirs
+    )
 
     if current_stage_root in {
         "1-Planning",
@@ -277,7 +280,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template = copy.deepcopy(load_yaml(TEMPLATE_PATH))
     project_state = load_yaml_optional(project_root / "project_state.yaml")
     route_plan = load_yaml_optional(project_root / "route-plan.yaml")
-    north_star = load_yaml_optional(project_root / "Init" / "north_star.yaml")
+    north_star = load_yaml_optional(project_root / "0-Init" / "north_star.yaml")
     task_id = first_non_empty(
         project_state.get("task_id"),
         route_plan.get("task_id"),
@@ -324,7 +327,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     blockers = [str(item) for item in project_state.get("open_unknowns") or []]
 
     template["project_name"] = str(project_state.get("project_name") or project_root.name)
-    template["canonical_runtime"]["project_root"] = f"projects/{project_root.name}/"
+    template["canonical_runtime"]["project_root"] = f"projects/aigc/{project_root.name}/"
     template["lifecycle"]["phase"] = infer_phase(project_root, project_state)
     template["lifecycle"]["status"] = first_non_empty(project_state.get("status"), "governance_state_backfilled")
     template["current_focus"]["active_skill"] = map_skill_from_path(active_path)

@@ -1,6 +1,6 @@
 ---
 name: aigc-design-scene-list
-description: Use when the `4-Design/场景/1-清单` stage needs to turn `projects/<项目名>/3-Detail/第N集.json` into an episode-level scene catalog under the shared director episode schema.
+description: Use when the `4-Design/场景/1-清单` stage needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into an episode-level scene catalog under the shared director episode schema.
 governance_tier: full
 ---
 
@@ -21,7 +21,7 @@ governance_tier: full
 
 ## When To Use
 
-- 需要从 `projects/<项目名>/3-Detail/第N集.json` 提取当前集出现过的场景主表。
+- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 提取当前集出现过的场景主表。
 - 需要把 `分镜明细[].角色背景面` 收束成稳定的 `scene_name / scene_variant / group_scene_map`。
 - 需要为 `4-Design/场景/2-设计` 提供唯一场景对象池，避免下游重新从镜头文本猜场景。
 
@@ -37,7 +37,7 @@ governance_tier: full
 
 - `角色背景面 -> scene_name / scene_variant` 的保守抽取合同。
 - `group_scene_map[]`、`scenes[]`、`summary` 的 episode 级聚合合同。
-- `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` 的 canonical 写出。
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` 的 canonical 写出。
 
 ### `1-清单` 不拥有
 
@@ -77,7 +77,7 @@ governance_tier: full
 
 ### Canonical Inputs
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/CONTEXT.md`
@@ -170,7 +170,7 @@ stateDiagram-v2
 - `objective`
   - 确认上游 episode JSON 具备最小 shared schema 壳。
 - `inputs`
-  - `projects/<项目名>/3-Detail/第N集.json`
+  - `projects/aigc/<项目名>/3-Detail/第N集.json`
   - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `from_angles`
   - 根文件是否存在。
@@ -307,7 +307,7 @@ stateDiagram-v2
   1. 写入 `metadata / summary / scenes / group_scene_map / acceptance_notes`。
   2. 明确 `source_file` 和 `output_file`。
   3. 仅在 `full_trace` 时补 `_manifest.json`。
-  4. 保证输出路径固定到 `projects/<项目名>/4-Design/场景/1-清单/第N集/`。
+  4. 保证输出路径固定到 `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/`。
 - `evidence`
   - `第N集.json`
   - 可选 `_manifest.json`
@@ -355,8 +355,8 @@ stateDiagram-v2
 
 ### Canonical Outputs
 
-- `projects/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
-- `projects/<项目名>/4-Design/场景/1-清单/第N集/_manifest.json` 仅在显式要求追溯时输出
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/_manifest.json` 仅在显式要求追溯时输出
 
 ### `第N集.json` 最低结构
 
@@ -431,7 +431,7 @@ stateDiagram-v2
 - 把 `1-清单` 做成研究链或设计链。
 - `scene_name / scene_variant` 拆分漂移，导致同一场景反复裂变。
 - `group_scene_map` 无法回链 `分镜组ID / 分镜ID`。
-- 输出落回旧 runtime，而不是当前 `projects/<项目名>/4-Design/...`。
+- 输出落回旧 runtime，而不是当前 `projects/aigc/<项目名>/4-Design/...`。
 - 主合同、`references/`、脚本三处并存不同规则，造成第二真源。
 
 必经链路：

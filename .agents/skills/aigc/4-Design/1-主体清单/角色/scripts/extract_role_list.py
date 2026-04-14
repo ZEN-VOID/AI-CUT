@@ -206,7 +206,7 @@ def resolve_input_path(input_arg: Optional[str], project: Optional[str], episode
 
     if project and episode:
         episode_label = normalize_episode_label(episode)
-        project_root = Path("projects") / project
+        project_root = Path("projects") / "aigc" / project
         for stage_name in DIRECTOR_INPUT_ALIASES:
             candidate = project_root / stage_name / f"{episode_label}.json"
             if candidate.exists():
@@ -228,6 +228,8 @@ def infer_project_name(path: Path) -> str:
     parts = path.resolve().parts
     if "projects" in parts:
         idx = parts.index("projects")
+        if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+            return parts[idx + 2]
         if idx + 1 < len(parts):
             return parts[idx + 1]
     return "unknown-project"
@@ -239,10 +241,14 @@ def infer_output_dir(input_file: Path, explicit_output_dir: Optional[str], episo
     parts = input_file.resolve().parts
     if "projects" in parts:
         idx = parts.index("projects")
-        if idx + 1 < len(parts):
+        if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+            project_root = Path(*parts[: idx + 3])
+        elif idx + 1 < len(parts):
             project_root = Path(*parts[: idx + 2])
-            return project_root / "4-Design" / "2-角色" / "1-清单" / episode_label
-    return input_file.parent / "4-Design" / "2-角色" / "1-清单" / episode_label
+        else:
+            project_root = input_file.parent
+        return project_root / "4-Design" / "角色" / "1-清单" / episode_label
+    return input_file.parent / "4-Design" / "角色" / "1-清单" / episode_label
 
 
 def load_episode_json(path: Path) -> dict:

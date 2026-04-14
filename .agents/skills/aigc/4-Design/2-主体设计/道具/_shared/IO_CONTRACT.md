@@ -6,22 +6,22 @@
 
 | 类型 | 路径 | 作用 |
 | --- | --- | --- |
-| 必需 | `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 本阶段第一输入根 |
-| 必需 | `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 研究层补证 |
-| 可选 | `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | 原始 shot/group 回链 |
-| 必需 | `projects/<项目名>/3-Detail/第N集.json` | 镜头级事实 |
-| 可选 | `projects/<项目名>/2-Global/全局风格.md` | 项目风格锚点 |
-| 可选 | `projects/<项目名>/2-Global/类型元素.md` | 项目类型打法约束 |
-| 可选 | `projects/<项目名>/0-Init/north_star.yaml` | 风格北极星 |
-| 可选 | `projects/<项目名>/0-Init/init_handoff.yaml` | 初始化 handoff |
+| 必需 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 本阶段第一输入根 |
+| 必需 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 研究层补证 |
+| 可选 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | 原始 shot/group 回链 |
+| 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级事实 |
+| 可选 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目风格锚点 |
+| 可选 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 项目类型打法约束 |
+| 可选 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 风格北极星 |
+| 可选 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化 handoff |
 
 ## Outputs
 
 | 类型 | 路径 | 责任 |
 | --- | --- | --- |
-| canonical | `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | 道具设计事实与 render contract 真源 |
-| sidecar | `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | prompt sidecar |
-| sidecar | `projects/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json` | lineage、coverage 与 path normalization |
+| canonical | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | 道具设计事实与 render contract 真源 |
+| sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | prompt sidecar |
+| sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json` | lineage、coverage 与 path normalization |
 | handoff | `agents_plan + patch / note / report` | subagents 返回给父 skill 的思考计划与局部增量 |
 
 ## Naming Contract
@@ -47,8 +47,8 @@
 
 ## Path Normalization Rule
 
-- 若用户或上游 brief 中出现 `projects/<项目名>/4-Design/角色/4-道具` 等错位路径，本阶段必须规范化为：
-  - `projects/<项目名>/4-Design/道具/2-设计/第N集/`
+- 若用户或上游 brief 中出现 `projects/aigc/<项目名>/4-Design/角色/4-道具` 等错位路径，本阶段必须规范化为：
+  - `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`
 - 规范化行为必须记录到 `_manifest.json.path_normalization`。
 
 ## Hard Rules

@@ -1,6 +1,6 @@
 ---
 name: aigc-detail
-description: Use when the `3-Detail` stage needs to route `1-水月` and `2-镜花`, inherit or repair the shared `projects/<项目名>/3-Detail/第N集.json`, patch shot-level detail fields in place, and write the stage `validation-report.md`.
+description: Use when the `3-Detail` stage needs to route `1-水月` and `2-镜花`, inherit or repair the shared `projects/aigc/<项目名>/3-Detail/第N集.json`, patch shot-level detail fields in place, and write the stage `validation-report.md`.
 governance_tier: full
 ---
 
@@ -22,18 +22,18 @@ governance_tier: full
 - 锁定共享输入与阶段边界
 - 判断 shared episode root 是否已由 `2-Global` 正确 seed
 - 按需路由 `1-水月`、`2-镜花`，或复用它们已有输出
-- 把 sidecar 证据与 shared seed 汇流到同一份 `projects/<项目名>/3-Detail/第N集.json`
+- 把 sidecar 证据与 shared seed 汇流到同一份 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 维护 `metadata.document_phase`
-- 写回 `projects/<项目名>/3-Detail/validation-report.md`
+- 写回 `projects/aigc/<项目名>/3-Detail/validation-report.md`
 
 当前阶段的唯一结构化业务真源固定为：
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 
 子技能输出是阶段侧车真源，不是第二份 episode 主文件：
 
-- `projects/<项目名>/3-Detail/1-水月/第N集.md`
-- `projects/<项目名>/3-Detail/2-镜花/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`
 
 ## Parent Positioning
 
@@ -52,7 +52,7 @@ governance_tier: full
 - `组间设计.出场角色及穿搭` 的阶段级回填
 - `分镜明细[]` 的 patch-in-place
 - `metadata.document_phase = detail_in_progress | ready` 的推进
-- `projects/<项目名>/3-Detail/validation-report.md` 写回
+- `projects/aigc/<项目名>/3-Detail/validation-report.md` 写回
 
 父层不拥有：
 
@@ -72,7 +72,7 @@ governance_tier: full
 | grouped prose 增密 | `1-水月/SKILL.md` | 提供人物、动作、空间、氛围和视觉强化的组级证据 |
 | 导演/摄影融写增密 | `2-镜花/SKILL.md` | 提供 shot spine、摄影、运镜与转场的组级证据 |
 | shared root 继承与结构化 patch | `3-Detail/SKILL.md` + shared schema/contracts | 把 sidecar 证据压回 `第N集.json`，并推进 `document_phase` |
-| 阶段验收与 handoff | `3-Detail/SKILL.md` | 写 `projects/<项目名>/3-Detail/validation-report.md`，给出 ready/partial/blocked |
+| 阶段验收与 handoff | `3-Detail/SKILL.md` | 写 `projects/aigc/<项目名>/3-Detail/validation-report.md`，给出 ready/partial/blocked |
 
 硬规则：
 
@@ -107,7 +107,7 @@ governance_tier: full
 
 ## When To Use
 
-- 已存在或需要补齐 `projects/<项目名>/3-Detail/第N集.json`
+- 已存在或需要补齐 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 需要围绕同一份 episode root 继续补 `分镜明细[]`
 - 需要决定本轮是否运行 `1-水月`、`2-镜花`，还是复用已有 sidecar
 - 需要把 `2-Global` 已 seed 的 `组间设计` 继续推进为可供下游消费的 detail 级事实
@@ -124,8 +124,8 @@ governance_tier: full
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 在同一份 `projects/<项目名>/3-Detail/第N集.json` 上继承 `2-Global` 的分镜组壳与 `组间设计`，并把 `1-水月 + 2-镜花` 的 sidecar 证据收束成镜级 detail 字段，使其进入可供下游消费的阶段状态。 |
-| `business_object` | `projects/<项目名>/3-Detail/第N集.json`、`projects/<项目名>/3-Detail/1-水月/第N集.md`、`projects/<项目名>/3-Detail/2-镜花/第N集.md`、`projects/<项目名>/3-Detail/validation-report.md`。 |
+| `business_goal` | 在同一份 `projects/aigc/<项目名>/3-Detail/第N集.json` 上继承 `2-Global` 的分镜组壳与 `组间设计`，并把 `1-水月 + 2-镜花` 的 sidecar 证据收束成镜级 detail 字段，使其进入可供下游消费的阶段状态。 |
+| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`、`projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`、`projects/aigc/<项目名>/3-Detail/validation-report.md`。 |
 | `constraint_profile` | shared episode root 是唯一结构化真源；`1-水月/2-镜花` 是 sidecar；`组间设计` 默认继承不重写；`分镜明细[]` 只在 `3-Detail` 扩展；若 shared root 缺失，只能走显式兼容 bootstrap。 |
 | `success_criteria` | 本轮 scope 内的分镜组都能在 shared root 中看到稳定的 `分镜明细[]` patch、必要的 `出场角色及穿搭` 回填、正确的 `document_phase` 推进，以及阶段级 `validation-report.md`。 |
 | `non_goals` | 不把 `1-水月/2-镜花` 变成第二份 episode 主文件；不越权重写 `2-Global` 的项目级设计真源；不直接生成 design/image/video 请求。 |
@@ -149,35 +149,35 @@ governance_tier: full
 10. `.agents/skills/aigc/2-Global/SKILL.md`
 11. `1-水月/SKILL.md`
 12. `2-镜花/SKILL.md`
-13. `projects/<项目名>/team.yaml`（若存在）
-14. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-15. `projects/<项目名>/3-Detail/第N集.json`（若存在）
-16. `projects/<项目名>/3-Detail/1-水月/第N集.md`（若存在）
-17. `projects/<项目名>/3-Detail/2-镜花/第N集.md`（若存在）
-18. `projects/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
-19. `projects/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
-20. `projects/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
-21. `projects/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
+13. `projects/aigc/<项目名>/team.yaml`（若存在）
+14. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+15. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
+16. `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`（若存在）
+17. `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`（若存在）
+18. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
+19. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
+20. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
+21. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
 
 ## Total Input Contract (Mandatory)
 
 ### 必需输入
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/3-Detail/第N集.json` 或可显式 bootstrap 的兼容条件
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/第N集.json` 或可显式 bootstrap 的兼容条件
 
 ### 强烈建议输入
 
-- `projects/<项目名>/3-Detail/1-水月/第N集.md`
-- `projects/<项目名>/3-Detail/2-镜花/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`
 
 ### 可选输入
 
-- `projects/<项目名>/team.yaml`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- 现有 `projects/<项目名>/3-Detail/validation-report.md`
+- `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- 现有 `projects/aigc/<项目名>/3-Detail/validation-report.md`
 - 用户显式指定的 `selected_groups[] / selected_fields[] / selected_chains[]`
 
 ### 硬规则
@@ -193,7 +193,7 @@ governance_tier: full
 
 ### 正常路径
 
-- 读取 `projects/<项目名>/3-Detail/第N集.json`
+- 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 校验其是否符合 shared schema
 - 优先继承：
   - `分镜组ID`
@@ -236,13 +236,13 @@ governance_tier: full
 
 当前 canonical 输出：
 
-- `projects/<项目名>/3-Detail/第N集.json`
-- `projects/<项目名>/3-Detail/validation-report.md`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/validation-report.md`
 
 当前 sidecar 输出：
 
-- `projects/<项目名>/3-Detail/1-水月/第N集.md`
-- `projects/<项目名>/3-Detail/2-镜花/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`
 
 聚合规则：
 
@@ -344,7 +344,7 @@ stateDiagram-v2
 | `N6-JINGHUA-EVIDENCE` | `S6` | `FIELD-DETAIL-06` | 收集 shot spine 与导演/摄影证据 | 复用或执行 `2-镜花`，提炼分镜序列、摄影、运镜、转场收益 | jinghua evidence note | -> `N7` | `2-镜花` 证据必须回指 `1-水月` |
 | `N7-SHARED-PATCH` | `S7` | `FIELD-DETAIL-07` `FIELD-DETAIL-08` | 把 sidecar 证据压成 shared JSON patch | 回填 `出场角色及穿搭`，补写 `分镜明细[]` 与可选描述子槽 | patch summary、schema note | pass -> `N8`；drift -> 回 `S4~S7` | 不得重写无返工理由的 `组间设计` |
 | `N8-PHASE-UPDATE` | `S8` | `FIELD-DETAIL-09` | 推进 episode 生命周期状态 | 依据 shot 完整度更新 `document_phase` 与 `acceptance_notes` | phase note | pass -> `N9` | 未满足条件不得写 `ready` |
-| `N9-STAGE-VALIDATION` | `S9` | `FIELD-DETAIL-10` | 写回阶段级验收结论 | 生成 `projects/<项目名>/3-Detail/validation-report.md`，说明 ready/partial/blocked | validation report | done | 无 validation report 不得结案 |
+| `N9-STAGE-VALIDATION` | `S9` | `FIELD-DETAIL-10` | 写回阶段级验收结论 | 生成 `projects/aigc/<项目名>/3-Detail/validation-report.md`，说明 ready/partial/blocked | validation report | done | 无 validation report 不得结案 |
 
 ## Convergence Contract (Mandatory)
 
@@ -357,7 +357,7 @@ stateDiagram-v2
 5. `metadata.document_phase` 与实际完成度一致：
    - `detail_in_progress`
    - `ready`
-6. `projects/<项目名>/3-Detail/validation-report.md` 已写回。
+6. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
 
 ## Field Master
 
@@ -372,7 +372,7 @@ stateDiagram-v2
 | `FIELD-DETAIL-07` | 回填组级穿搭与继承说明 | `第N集.json -> 分镜组列表[].组间设计.出场角色及穿搭` | `shared root + sidecar evidence` | `N7` |
 | `FIELD-DETAIL-08` | 写入 shot-level detail 字段 | `第N集.json -> 分镜组列表[].分镜明细[]` | `1-水月 + 2-镜花 + schema` | `N7` |
 | `FIELD-DETAIL-09` | 推进 episode phase 与 acceptance notes | `第N集.json -> metadata / final_output.acceptance_notes` | `patch completeness + schema phase rules` | `N8` |
-| `FIELD-DETAIL-10` | 写阶段级验收结论 | `projects/<项目名>/3-Detail/validation-report.md` | `shared root + route result` | `N9` |
+| `FIELD-DETAIL-10` | 写阶段级验收结论 | `projects/aigc/<项目名>/3-Detail/validation-report.md` | `shared root + route result` | `N9` |
 
 ## Thought Pass Map
 

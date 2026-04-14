@@ -31,7 +31,7 @@ governance_tier: full
 
 `/Volumes/AIGC/AIGC-DREAM- MAKER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/`
 
-它负责把 `projects/<项目名>/3-Detail/第N集.json` 中 **单个分镜组的全部组级与镜级内容** 蒸馏为 **每组 1 条** 视频请求对象，并同步产出：
+它负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 **单个分镜组的全部组级与镜级内容** 蒸馏为 **每组 1 条** 视频请求对象，并同步产出：
 
 - `第N集.json`
 - `第N集.txt`
@@ -49,14 +49,14 @@ governance_tier: full
 | `constraint_profile` | 必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段默认必须以连贯自然语句串联并尽量全部进入 prompt，除 `分镜组ID / 分镜ID` 外移除字段标题，总字数控制在 `1900` 字内；每个分镜都不得漏掉当前分镜组内的 `xx秒-xx秒` 时间段标签，且 `分镜ID` 与时间之间不得写成“`分镜ID 的 xx秒-xx秒`”；镜级信息组织顺序可优先参考“`[镜头属性] -> [景别 / 运镜手法 / 镜头速度 / 镜头视角] -> [角色站位走位 / 角色背景面] -> [角色表现 / 场景氛围] -> [道具及状态 / 摄影美学 / 其他]`”，但表层表达不强制套固定句式，自然流畅与信息覆盖优先；只有当且仅当字数吃紧时，才允许把部分句子收束为短语式压缩；超限时只能按优先级压缩，优先保留镜级 `时间段 / 角色站位走位 / 角色背景面 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`，其次保留 `角色表现 / 场景氛围 / 道具及状态 / 摄影美学`，再次压缩 `镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`；不得虚构图片、URL、主体、动作或场景事实。 |
 | `non_goals` | 不改写上游导演事实；不上传参照图；不执行 provider 提交、轮询与下载；不把 TXT 当主真源。 |
 | `success_criteria` | 每个分镜组都能回链到来源镜头列表；prompt 覆盖整组信息；固定块逐字一致；无字段标题泄露；JSON/TXT/manifest 三件套可继续 handoff。 |
-| `evidence_sources` | `projects/<项目名>/3-Detail/第N集.json`、`.agents/skills/aigc/_shared/director_episode_output.schema.json`、`6-Video/_shared` 双模板。 |
+| `evidence_sources` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`.agents/skills/aigc/_shared/director_episode_output.schema.json`、`6-Video/_shared` 双模板。 |
 | `complexity_sources` | 输入完整性门禁、固定块与压缩块的并存、字数预算分支、标题隐藏约束、结构化输出与阅读视图的双重落盘。 |
 | `topology_fit` | 采用“串行主干 + 条件分支 + 汇流门”的混合拓扑最合适：主干负责锁源、抽取、组装、落盘；分支负责输入缺口、预算压力与异常说明；最终统一进入唯一输出门。 |
 | `step_strategy` | 不用假线性大段 prose，而用细粒度思行节点拆开“锁任务、验输入、抽整组、锁固定块、判预算、组 prompt、锚模型、写三件套、做汇流审计”。 |
 
 ## When to Use
 
-- 需要把 `projects/<项目名>/3-Detail/第N集.json` 的 **分镜组** 蒸馏为视频工具入参 JSON。
+- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 的 **分镜组** 蒸馏为视频工具入参 JSON。
 - 需要输出 `第N集.json + 第N集.txt + _manifest.json` 三件套。
 - 需要保留 `剧本正文` 与 `组间设计.全局风格` 原文不变，同时压缩其余组级与镜级字段。
 - 需要把每个分镜的 `时间段` 转成 `xx秒-xx秒` 并显式保留在镜级条目前部。
@@ -91,7 +91,7 @@ governance_tier: full
 
 ### Canonical Inputs
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
 - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
@@ -307,7 +307,7 @@ erDiagram
 - `着手面`
   1. 判定任务粒度是不是 `分镜组 -> 1 条请求对象`
   2. 锁定本轮最终只允许产出 `第N集.json + 第N集.txt + _manifest.json`
-  3. 锁定 canonical runtime 落点为 `projects/<项目名>/6-Video/全能参照/第N集/`
+  3. 锁定 canonical runtime 落点为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/`
   4. 明确 `思考过程` 只进入执行闭环说明，不与 JSON 主体竞争真源
 - `inputs`
   - 用户任务目标
@@ -336,7 +336,7 @@ erDiagram
   3. 判断缺口是“可继续压缩”还是“必须停机”
   4. 给出显式失败原因，而不是生成半成品
 - `inputs`
-  - `projects/<项目名>/3-Detail/第N集.json`
+  - `projects/aigc/<项目名>/3-Detail/第N集.json`
   - director schema
 - `actions`
   1. 读取单集 JSON
@@ -623,9 +623,9 @@ erDiagram
 
 ### Canonical Artifact Landing
 
-- canonical 主产物：`projects/<项目名>/6-Video/全能参照/第N集/第N集.json`
-- canonical 文本视图：`projects/<项目名>/6-Video/全能参照/第N集/第N集.txt`
-- canonical 追溯台账：`projects/<项目名>/6-Video/全能参照/第N集/_manifest.json`
+- canonical 主产物：`projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.json`
+- canonical 文本视图：`projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.txt`
+- canonical 追溯台账：`projects/aigc/<项目名>/6-Video/全能参照/第N集/_manifest.json`
 
 说明：
 

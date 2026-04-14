@@ -7,7 +7,7 @@
   "meta": {
     "project_name": "项目名",
     "episode_id": "第1集",
-    "source_bridge": "projects/项目名/4-Design/服装/1-清单/第1集/costume_design_bridge.json",
+    "source_bridge": "projects/aigc/项目名/4-Design/服装/1-清单/第1集/costume_design_bridge.json",
     "skill_id": "aigc/4-Design/服装/2-设计",
     "generated_at": "2026-04-12T12:00:00-07:00"
   },
@@ -24,7 +24,7 @@
       "accessory_system": {},
       "mobility_and_continuity": {},
       "negative_constraints": [],
-      "structured_markdown_path": "projects/项目名/4-Design/服装/2-设计/第1集/costume-role-001-baseline-角色名-常服.md"
+      "structured_markdown_path": "projects/aigc/项目名/4-Design/服装/2-设计/第1集/costume-role-001-baseline-角色名-常服.md"
     }
   ]
 }

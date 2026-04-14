@@ -1,6 +1,6 @@
 ---
 name: aigc-design-costume-design
-description: Use when the `4-Design/服装/2-设计` stage needs to turn costume bridges plus global presets into a canonical costume design master, prompt sidecar, and costume design cards under `projects/项目名/4-Design/服装/2-设计/`.
+description: Use when the `4-Design/服装/2-设计` stage needs to turn costume bridges plus global presets into a canonical costume design master, prompt sidecar, and costume design cards under `projects/aigc/项目名/4-Design/服装/2-设计/`.
 governance_tier: full
 ---
 
@@ -39,7 +39,7 @@ governance_tier: full
   - 局部 `patch / note / report`
   - 字段候选、证据补充、冲突说明、返工建议
 
-任何 subagent 都不得直接写 `projects/<项目名>/4-Design/服装/2-设计/第N集/*`。
+任何 subagent 都不得直接写 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*`。
 
 ## When to Use
 
@@ -88,14 +88,14 @@ governance_tier: full
 5. 本 `SKILL.md + CONTEXT.md`
 6. `.agents/skills/aigc/4-Design/服装/2-设计/_shared/IO_CONTRACT.md`
 7. `.codex/agents/aigc/设计组/服装设计/team.md`
-8. `projects/<项目名>/0-Init/north_star.yaml`
-9. `projects/<项目名>/0-Init/init_handoff.yaml`
-10. `projects/<项目名>/2-Global/全局风格.md`
-11. `projects/<项目名>/2-Global/类型元素.md`
-12. `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
-13. `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
-14. `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
-15. `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
+8. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+9. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+10. `projects/aigc/<项目名>/2-Global/全局风格.md`
+11. `projects/aigc/<项目名>/2-Global/类型元素.md`
+12. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
+13. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+14. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+15. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
 16. 仅加载命中的 agent docs
 
 ## Shared Canonical Sources (Mandatory)
@@ -120,19 +120,19 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
-- `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
-- `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
-- `projects/<项目名>/3-Detail/第N集.json`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/2-Global/全局风格.md`
-- `projects/<项目名>/2-Global/类型元素.md`
+- `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+- `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+- `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/类型元素.md`
 
 ### 可选输入
 
-- `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
-- 已存在的 `projects/<项目名>/4-Design/服装/2-设计/第N集/*`
+- `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
+- 已存在的 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*`
 
 ### 禁止输入
 
@@ -348,7 +348,7 @@ graph LR
 | --- | --- | --- | --- |
 | `DW1` | JSON 真源结构 | 聚合 design facts，只保留 machine-first 字段 | 不夹带长 prompt prose |
 | `DW2` | Markdown 卡片 | 基于同一 JSON 生成人读稿 | 结构和命名与 JSON 同源 |
-| `DW3` | 路径归一 | 写到 `projects/<项目名>/4-Design/服装/2-设计/第N集/` | 不允许漂移到其他 sibling |
+| `DW3` | 路径归一 | 写到 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/` | 不允许漂移到其他 sibling |
 
 ### `S10` sidecar 生成
 
@@ -388,10 +388,10 @@ graph LR
 
 `2-设计` 的一次性输出是同一 bundle 内的五类结果：
 
-1. `projects/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
-2. `projects/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
-3. `projects/<项目名>/4-Design/服装/2-设计/第N集/<costume_id>-<canonical_label>.md`
-4. `projects/<项目名>/4-Design/服装/2-设计/第N集/_manifest.json`
+1. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
+2. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
+3. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/<costume_id>-<canonical_label>.md`
+4. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/_manifest.json`
 5. `thinking_process + closure_triad`
    - 为什么命中这些 costume
    - 哪些字段由哪条 specialist 链提供

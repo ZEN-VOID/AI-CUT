@@ -1,6 +1,6 @@
 ---
 name: aigc-design-costume-panel
-description: Use when the `4-Design/服装/3-面板` stage needs to turn `服装设计.json + costume_design_prompt.json` into review-ready costume panel layout JSONs under `projects/项目名/4-Design/服装/3-面板/`.
+description: Use when the `4-Design/服装/3-面板` stage needs to turn `服装设计.json + costume_design_prompt.json` into review-ready costume panel layout JSONs under `projects/aigc/项目名/4-Design/服装/3-面板/`.
 governance_tier: full
 ---
 
@@ -33,7 +33,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已有 `projects/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`，需要继续生成服装展示面板布局。
+- 已有 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`，需要继续生成服装展示面板布局。
 - 需要把 design master 收束成可审阅、可追溯、可继续下游消费的 panel dossier。
 - 需要为 image/review/costume-swap 工具提供稳定的 panel handoff JSON。
 
@@ -74,8 +74,8 @@ governance_tier: full
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/4-Design/服装/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
-6. `projects/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
-7. `projects/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
+6. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
+7. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
 8. `templates/服装面板-提示词.json`
 9. `references/output-template.md`
 10. `scripts/generate_costume_panels.py`
@@ -98,12 +98,12 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
+- `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
 - `templates/服装面板-提示词.json`
 
 ### 条件输入
 
-- `projects/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
+- `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
   - 缺失时允许 degraded mode，但必须记录
 
 ### 禁止输入
@@ -224,7 +224,7 @@ graph LR
 | --- | --- | --- | --- |
 | `DL1` | 当前轮是不是 panel 任务 | 区分 panel dossier 和直接生图任务 | 若是生图任务，应退出给父级 |
 | `DL2` | design master 是否可消费 | 检查 `costumes[]`、`costume_id`、`canonical_label`、`prompt_anchor` | 缺主字段时停止 |
-| `DL3` | 输出根是否正确 | 锁 `projects/<项目名>/4-Design/服装/3-面板/第N集/` | 不得漂移到 `2-设计` 目录 |
+| `DL3` | 输出根是否正确 | 锁 `projects/aigc/<项目名>/4-Design/服装/3-面板/第N集/` | 不得漂移到 `2-设计` 目录 |
 
 ### `S2` prompt 索引与 degraded mode
 
@@ -282,8 +282,8 @@ graph LR
 
 `3-面板` 的一次性输出是同一 bundle 内的三类结果：
 
-1. `projects/<项目名>/4-Design/服装/3-面板/第N集/<costume_id>-<canonical_label>-CostumePanel-layout.json`
-2. `projects/<项目名>/4-Design/服装/3-面板/第N集/_manifest.json`
+1. `projects/aigc/<项目名>/4-Design/服装/3-面板/第N集/<costume_id>-<canonical_label>-CostumePanel-layout.json`
+2. `projects/aigc/<项目名>/4-Design/服装/3-面板/第N集/_manifest.json`
 3. `thinking_process + closure_triad`
    - 说明设计主稿如何被翻译为 panel packet
    - 说明 sidecar 是否缺失、退化发生在哪些 costume

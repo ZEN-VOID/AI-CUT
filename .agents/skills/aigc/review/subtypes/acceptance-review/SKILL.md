@@ -15,13 +15,13 @@ governance_tier: lite
 ## Carrier
 
 - canonical carrier:
-  - `project` -> `projects/<项目名>/validation-report.md`
-  - `1-Planning` -> `projects/<项目名>/1-Planning/validation-report.md`
-  - `2-Global / 3-Detail` -> `projects/<项目名>/3-Detail/validation-report.md`
-  - `4-Design` -> `projects/<项目名>/4-Design/validation-report.md`
-  - `5-Image` -> `projects/<项目名>/5-Image/validation-report.md`
-  - `6-Video` -> `projects/<项目名>/6-Video/validation-report.md`
-- sync summary: `projects/<项目名>/governance-state.yaml.review_bridge.latest_acceptance_status`
+  - `project` -> `projects/aigc/<项目名>/validation-report.md`
+  - `1-Planning` -> `projects/aigc/<项目名>/1-Planning/validation-report.md`
+  - `2-Global / 3-Detail` -> `projects/aigc/<项目名>/3-Detail/validation-report.md`
+  - `4-Design` -> `projects/aigc/<项目名>/4-Design/validation-report.md`
+  - `5-Image` -> `projects/aigc/<项目名>/5-Image/validation-report.md`
+  - `6-Video` -> `projects/aigc/<项目名>/6-Video/validation-report.md`
+- sync summary: `projects/aigc/<项目名>/governance-state.yaml.review_bridge.latest_acceptance_status`
 
 ## When to Use
 

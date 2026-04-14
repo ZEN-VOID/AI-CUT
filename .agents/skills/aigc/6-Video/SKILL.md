@@ -1,6 +1,6 @@
 ---
 name: aigc-video
-description: Use when the `aigc` workflow reaches `projects/<项目名>/6-Video/` and needs to turn canonical director-group material, subject anchors, or existing images into video request JSON, reference packs, and model-ready execution entries.
+description: Use when the `aigc` workflow reaches `projects/aigc/<项目名>/6-Video/` and needs to turn canonical director-group material, subject anchors, or existing images into video request JSON, reference packs, and model-ready execution entries.
 governance_tier: full
 ---
 
@@ -17,7 +17,7 @@ governance_tier: full
 1. 视频阶段本轮到底该消费哪一类上游真源
 2. 当前任务应进入哪一个唯一视频子路径
 3. 视频请求对象应如何对齐具体工具的入参格式
-4. 产物应落到 `projects/<项目名>/6-Video/` 的哪里
+4. 产物应落到 `projects/aigc/<项目名>/6-Video/` 的哪里
 
 当前已建可执行子路径位于 `1-提示词蒸馏` 与 `2-视频生成` 叶子：
 
@@ -29,7 +29,7 @@ governance_tier: full
 
 ## When to Use
 
-- 需要把 `projects/<项目名>/3-Detail/第N集.json` 的分镜组内容蒸馏为视频工具入参 JSON。
+- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 的分镜组内容蒸馏为视频工具入参 JSON。
 - 需要在正式调用 `dreamina` 或其他视频 API 前，先整理主体参照、prompt、画幅与质量参数。
 - 需要说明 `6-Video` 与 `5-Image`、`dreamina-cli` 的边界。
 - 用户只说“做视频参照 / 做视频请求 JSON / 从 `3-Detail` 转视频入参”，但还没进入实际提交命令。
@@ -48,7 +48,7 @@ governance_tier: full
 - 视频请求 JSON 与参照包的统一入口
 - provider 执行入口与 handoff 包的阶段级约定
 - 工具配置与上游真源之间的对位规则
-- `projects/<项目名>/6-Video/` 阶段落点
+- `projects/aigc/<项目名>/6-Video/` 阶段落点
 
 ### `6-Video` 不拥有
 
@@ -67,9 +67,9 @@ flowchart TD
     B -->|"稳定请求 -> 真实生成入口"| J["2-视频生成"]
     B -->|"首尾帧双锚点"| F["1-提示词蒸馏/首尾帧参照（待补）"]
     B -->|"多图故事线"| G["1-提示词蒸馏/多图参照（待补）"]
-    D --> H["projects/<项目名>/6-Video/全能参照/"]
-    E --> I["projects/<项目名>/6-Video/首帧参照/"]
-    J --> K["projects/<项目名>/6-Video/生成任务/<provider>/"]
+    D --> H["projects/aigc/<项目名>/6-Video/全能参照/"]
+    E --> I["projects/aigc/<项目名>/6-Video/首帧参照/"]
+    J --> K["projects/aigc/<项目名>/6-Video/生成任务/<provider>/"]
 ```
 
 ```mermaid
@@ -106,20 +106,20 @@ flowchart LR
 
 ## Execution Summary
 
-- 当前阶段的第一事实源是 `projects/<项目名>/3-Detail/第N集.json`。
+- 当前阶段的第一事实源是 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 - shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
-- 阶段级产物统一写回 `projects/<项目名>/6-Video/`，由命中的子路径承载请求对象或 handoff 包。
+- 阶段级产物统一写回 `projects/aigc/<项目名>/6-Video/`，由命中的子路径承载请求对象或 handoff 包。
 - 详细输入合同、canonical landing 与 handoff 见 `references/execution-flow.md`。
 
 ## Output Summary
 
 - 当前阶段默认交付不是视频文件，而是“请求 JSON + manifest/说明 + 下一步执行入口”。
-- 首个 canonical 主产物为 `projects/<项目名>/6-Video/全能参照/第N集/第N集.json`。
-- 首个 canonical 文本副产物为 `projects/<项目名>/6-Video/全能参照/第N集/第N集.txt`。
-- 帧级 canonical 主产物为 `projects/<项目名>/6-Video/首帧参照/第N集/第N集.json`。
-- 帧级 canonical 文本副产物为 `projects/<项目名>/6-Video/首帧参照/第N集/第N集.txt`。
-- 生成入口 canonical 计划文件为 `projects/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`。
-- 生成入口 canonical 简报为 `projects/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`。
+- 首个 canonical 主产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.json`。
+- 首个 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.txt`。
+- 帧级 canonical 主产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`。
+- 帧级 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`。
+- 生成入口 canonical 计划文件为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`。
+- 生成入口 canonical 简报为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`。
 - 当前共享入参模板真源为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`，供多个视频子技能包共用。
 - 当前共享文本模板真源为 `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`，供多个视频子技能包共用。
 - 详细顶层结构与必要文件见 `references/output-template.md`。

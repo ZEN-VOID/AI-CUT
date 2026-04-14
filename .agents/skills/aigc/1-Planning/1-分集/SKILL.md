@@ -8,14 +8,14 @@ governance_tier: full
 
 ## 概述
 
-`1-分集` 是 `1-Planning` 下的 direct leaf skill，负责把 `projects/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-格式` 与下游 `2-Global` 生成稳定 handoff。
+`1-分集` 是 `1-Planning` 下的 direct leaf skill，负责把 `projects/aigc/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-格式` 与下游 `2-Global` 生成稳定 handoff。
 
 本技能在内容与机制上继承当前 DREAMER 规划链既有配置：
 
-- 默认输入根仍是 `projects/<项目名>/Story/`
-- canonical 输出仍落在 `projects/<项目名>/1-Planning/1-分集/第N集.md`
-- 机读索引仍固定为 `projects/<项目名>/1-Planning/episode-split-plan.json`
-- 执行报告仍固定为 `projects/<项目名>/1-Planning/1-分集/执行报告.md`
+- 默认输入根仍是 `projects/aigc/<项目名>/Story/`
+- canonical 输出仍落在 `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`
+- 机读索引仍固定为 `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+- 执行报告仍固定为 `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md`
 - `P1 > P2 > P3`、VSM、字段主表、QA、`source_profile + bootstrap_output` handoff 仍为现行真源
 
 本轮重编排只改变合同表达方式，不改变业务边界：将“分集判断”改写为同一 `SKILL.md` 内的思行网络，使业务分析、执行步骤、汇流门禁与最终输出收束到单一真源。
@@ -35,7 +35,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把故事主源切成可供 `2-格式` 与 `2-Global` 承接的逐集原文真源，并保留可追溯边界证据 |
-| `business_object` | `projects/<项目名>/Story/` 下的故事正文、manifest 索引与 init 种子 |
+| `business_object` | `projects/aigc/<项目名>/Story/` 下的故事正文、manifest 索引与 init 种子 |
 | `constraint_profile` | 只切分不改写；不得越权创建 `2-Global/*.md` 或 `3-Detail/第N集.json`；必须保留 `source_profile` |
 | `success_criteria` | 输入范围可追溯、主路由唯一、边界有证据、逐集原文真源/机读索引/handoff 完整、QA 可回查 |
 | `non_goals` | 不做剧本改写、镜头结构化、导演 JSON 生成、节奏重排 |
@@ -54,10 +54,10 @@ governance_tier: full
 5. `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
 6. `.agents/skills/aigc/_shared/story-source-contract.md`
 7. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-8. `projects/<项目名>/0-Init/north_star.yaml`
-9. `projects/<项目名>/0-Init/init_handoff.yaml`
-10. `projects/<项目名>/Story/` 相关内容
-11. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+8. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+9. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+10. `projects/aigc/<项目名>/Story/` 相关内容
+11. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
 12. `templates/episode-split-plan.template.json`
 
 ## Shared Canonical Sources (Mandatory)
@@ -69,8 +69,8 @@ governance_tier: full
 
 硬规则：
 
-1. 默认输入根必须是 `projects/<项目名>/Story/`。
-2. 不得创建 `projects/<项目名>/2-Global/*.md` 或 `projects/<项目名>/3-Detail/第N集.json`。
+1. 默认输入根必须是 `projects/aigc/<项目名>/Story/`。
+2. 不得创建 `projects/aigc/<项目名>/2-Global/*.md` 或 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 3. 不得把分镜/运镜/转场语言清洗成纯小说叙述；本阶段只切分，不改写。
 4. 必须把 `source_profile` 从 manifest 延续给父级规划 handoff。
 5. 思行裁决摘要只能压缩进 `执行报告.md` 与用户闭环，不得旁挂第二份 reasoning 真源。
@@ -79,16 +79,16 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/Story/` 相关内容
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/Story/` 相关内容
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 
 ### 可选输入
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
   - 若存在，作为索引、`coverage_scope` 与 `source_profile` 证据优先消费
 - 用户显式指定的增量范围
-- `projects/<项目名>/team.yaml` 与共享 `council-runtime`
+- `projects/aigc/<项目名>/team.yaml` 与共享 `council-runtime`
   - 仅在规划阶段启用顾问团时读取
 
 ### 禁止输入
@@ -100,7 +100,7 @@ governance_tier: full
 ### 输入处理原则
 
 1. 用户显式指定路径或范围时，用户指定优先。
-2. 用户未指定时，只能从 `projects/<项目名>/Story/` 扫描有效正文。
+2. 用户未指定时，只能从 `projects/aigc/<项目名>/Story/` 扫描有效正文。
 3. manifest 只承担索引与证据，不替代故事正文主源。
 4. readiness 未通过时，不得假装继续正式分集。
 
@@ -259,7 +259,7 @@ graph LR
 
 ### A. 逐集原文真源（Mandatory）
 
-`projects/<项目名>/1-Planning/1-分集/第N集.md`
+`projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`
 
 ```markdown
 ---
@@ -268,7 +268,7 @@ graph LR
 源类型: <source_type>
 coverage_scope: <coverage_scope>
 split_scope: <incremental|full_season>
-bootstrap_output: projects/<项目名>/2-Global/导演意图.md
+bootstrap_output: projects/aigc/<项目名>/2-Global/导演意图.md
 ---
 
 【剧本正文】
@@ -277,7 +277,7 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 ### B. 全剧集执行报告（Mandatory）
 
-`projects/<项目名>/1-Planning/1-分集/执行报告.md`
+`projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md`
 
 默认区块：
 
@@ -300,7 +300,7 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 ### C. 机读索引（Mandatory）
 
-`projects/<项目名>/1-Planning/episode-split-plan.json`
+`projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
 
 - 必须读取 `templates/episode-split-plan.template.json`
 - 仅记录分集边界、覆盖范围、`source_profile` 与 `bootstrap_output`
@@ -337,7 +337,7 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| FIELD-SPLIT-01 | 输入清单 | 列出 `projects/<项目名>/Story/` 命中内容与有效覆盖范围 | S1 | 输入真源一致性 | FAIL-SPLIT-01 |
+| FIELD-SPLIT-01 | 输入清单 | 列出 `projects/aigc/<项目名>/Story/` 命中内容与有效覆盖范围 | S1 | 输入真源一致性 | FAIL-SPLIT-01 |
 | FIELD-SPLIT-02 | readiness 判定 | 明确 blocked / incremental / full_season / unknown | S2 | readiness 正确性 | FAIL-SPLIT-02 |
 | FIELD-SPLIT-03 | 主路由决议 | 明确 `P1/P2/P3` 的唯一主路由与放弃理由 | S4 | 路由正确性 | FAIL-SPLIT-03 |
 | FIELD-SPLIT-04 | 候选边界 | 给出边界证据与被排除候选 | S5 | 边界价值 | FAIL-SPLIT-04 |
@@ -376,7 +376,7 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 当分集出现以下问题时，必须先修源层：
 
-- 读错 `projects/<项目名>/Story/` 输入范围
+- 读错 `projects/aigc/<项目名>/Story/` 输入范围
 - 把非故事正文材料当主故事源
 - 忽略 storyboard / hybrid 文本中的预设锁轴
 - 直接从 `1-分集` 创建 `2-Global/*.md` 或 `3-Detail/第N集.json`
@@ -408,9 +408,9 @@ bootstrap_output: projects/<项目名>/2-Global/导演意图.md
 
 ## Completion Criteria
 
-- 已从 `projects/<项目名>/Story/` 锁定输入范围，并在 manifest 存在时完成索引对齐。
+- 已从 `projects/aigc/<项目名>/Story/` 锁定输入范围，并在 manifest 存在时完成索引对齐。
 - 已完成 business requirement analysis，并明确当前拓扑为何是“串行主干 + 条件分支 + 汇流”。
-- 已产出 `projects/<项目名>/1-Planning/1-分集/第N集.md`、全剧集执行报告与机读索引。
+- 已产出 `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`、全剧集执行报告与机读索引。
 - 已形成可供父 skill 聚合的 `source_profile + bootstrap_output` handoff。
 - 已完成 QA，并能明确说明本轮是 blocked / incremental / full_season。
 - 不存在平行 team、平行 reasoning sidecar 或第二份分集真源。

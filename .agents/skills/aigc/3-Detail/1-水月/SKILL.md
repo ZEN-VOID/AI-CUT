@@ -1,6 +1,6 @@
 ---
 name: aigc-detail-watermoon
-description: Use when `3-Detail` needs a stage-local child skill to expand `1-Planning/3-分组/第N集.md` into a concise per-group rewritten screenplay under `projects/<项目名>/3-Detail/1-水月/第N集.md`, using `0-Init` and `2-Global` outputs as supporting context.
+description: Use when `3-Detail` needs a stage-local child skill to expand `1-Planning/3-分组/第N集.md` into a concise per-group rewritten screenplay under `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`, using `0-Init` and `2-Global` outputs as supporting context.
 governance_tier: full
 ---
 
@@ -10,11 +10,11 @@ governance_tier: full
 
 `1-水月` 是 `3-Detail` 下的 stage-local child skill。
 
-它不拥有 `projects/<项目名>/3-Detail/第N集.json` 的 canonical writeback 权，而是负责把上游 `1-Planning/3-分组/第N集.md` 已经成型的分镜组脚本，扩写成一份更可拍、更可演、更可感知的中文细化改编稿：
+它不拥有 `projects/aigc/<项目名>/3-Detail/第N集.json` 的 canonical writeback 权，而是负责把上游 `1-Planning/3-分组/第N集.md` 已经成型的分镜组脚本，扩写成一份更可拍、更可演、更可感知的中文细化改编稿：
 
-- 主输入：`projects/<项目名>/1-Planning/3-分组/第N集.md`
+- 主输入：`projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
 - 附加上下文：`0-Init` 初始化输出、`2-Global` 的类型元素 / 全局风格 / 设计元素
-- canonical 输出：`projects/<项目名>/3-Detail/1-水月/第N集.md`
+- canonical 输出：`projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
 
 本技能的核心不是“多写一版长文”，而是把上游分镜组在不改组界、不改组序的前提下，通过四条并发树形维度链完成一次性深描扩写：
 
@@ -23,7 +23,7 @@ governance_tier: full
 3. `氛围表现`
 4. `视觉强化`
 
-四条维度链各自再按 `references/` 中列出的 12 个子模块下钻思考，最终只汇成每个分镜组一段收束后的扩写正文。每个分镜组总字数上限固定为 `1200` 字。
+四条维度链各自再按 `references/` 中列出的 12 个子模块下钻思考，最终只汇成每个分镜组一段收束后的扩写正文。每个分镜组总字数上限固定为 `1000` 字。
 
 ## Child-Skill Positioning
 
@@ -32,19 +32,19 @@ governance_tier: full
 - 对 `3-分组` 成果做组内中文扩写、细化和优化式剧本改编
 - 把 `0-Init + 2-Global` 的项目级风格约束压入组级 prose
 - 以并发树形维度链做内部思考，再一次性汇成单段组级正文
-- 写回 `projects/<项目名>/3-Detail/1-水月/第N集.md`
+- 写回 `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
 - 用模板和 validator 保证每组字数、结构和落盘格式稳定
 
 ### `1-水月` 不拥有
 
 - 改写 `1-Planning/3-分组` 的组界、组序、组 ID
-- 直接改写 `projects/<项目名>/3-Detail/第N集.json`
+- 直接改写 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 直接生成 `4-Design / 5-Image / 6-Video` 请求
 - 为 12 个子模块各自写一份平行主稿
 
 ## When to Use
 
-- 上游已经存在 `projects/<项目名>/1-Planning/3-分组/第N集.md`
+- 上游已经存在 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
 - 需要先得到一份比 grouped script 更具画面感、表演感和空间感的组级细化剧本
 - 需要把 `0-Init` 的项目基线与 `2-Global` 的类型 / 风格 / 设计元素压进组级 prose，但又不想直接进入 `第N集.json`
 - 需要一个可供后续 detail/design 阶段引用的中文扩写 sidecar
@@ -57,19 +57,19 @@ governance_tier: full
 
 ## Canonical Source Contract (Mandatory)
 
-- 第一输入真源固定为：`projects/<项目名>/1-Planning/3-分组/第N集.md`
+- 第一输入真源固定为：`projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
 - `0-Init` 只提供项目目标、题材、人物关系、语气、禁写项与 north star 约束
 - `2-Global` 只提供风格、类型、设计元素和必要的分组级导演辅助证据
 - `references/` 下的 12 个子模块只定义内部思考维度，不得各自长出第二份输出模板
 - 节点包分层合同统一回链：`.agents/skills/aigc/3-Detail/references/node-pack-contract.md`
-- 最终真源只允许落在：`projects/<项目名>/3-Detail/1-水月/第N集.md`
+- 最终真源只允许落在：`projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
 
 硬规则：
 
 1. 不得改组 ID、组序、组边界。
 2. 不得把思考过程直接写进最终输出。
 3. 不得把 12 个子模块逐条罗列进最终正文，必须先汇流后写。
-4. 每个分镜组最终正文总字数不得超过 `1200` 字。
+4. 每个分镜组最终正文总字数不得超过 `1000` 字。
 5. 若附加上下文不足，可保守扩写；不得臆造跨组新情节。
 
 ## Context Preload (Mandatory)
@@ -80,15 +80,15 @@ governance_tier: full
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
 4. 本 `SKILL.md + CONTEXT.md`
-5. `projects/<项目名>/0-Init/north_star.yaml`
-6. `projects/<项目名>/0-Init/init_handoff.yaml`
-7. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-8. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-9. `projects/<项目名>/1-Planning/3-分组/第N集.grouping.json`（若存在）
-10. `projects/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
-11. `projects/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
-12. `projects/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
-13. `projects/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
+5. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+6. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+7. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+8. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+9. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.grouping.json`（若存在）
+10. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
+11. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
+12. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
+13. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
 14. `references/module-index.md`
 15. 先读 `.agents/skills/aigc/3-Detail/references/node-pack-contract.md`
 16. 再读 `.agents/skills/aigc/3-Detail/references/creative-guidance-contract.md`
@@ -115,7 +115,7 @@ flowchart TD
     E2 --> F
     E3 --> F
     E4 --> F
-    F --> G["1200 字预算裁剪"]
+    F --> G["1000 字预算裁剪"]
     G --> H["写回 第N集.md"]
     H --> I["validate_watermoon_output.py"]
 ```
@@ -134,7 +134,7 @@ flowchart LR
     G --> J
     H --> J
     I --> J
-    J --> K{"字数 <= 1200?"}
+    J --> K{"字数 <= 1000?"}
     K -- "否" --> L["保留主冲突 / 主感受 / 主行动线"]
     K -- "是" --> M["group prose"]
     L --> M
@@ -169,8 +169,8 @@ stateDiagram-v2
 | `N4C-ATMOSPHERE-BRANCH` | `S4` | `FIELD-WM-06` | 让空间气候和情绪场感成立 | 并行调用 `层次 / 意境 / 空间诗学` 叶子规则 | `atmosphere_patch` | -> `N5` | 只补感知条件 |
 | `N4D-VISUAL-BRANCH` | `S4` | `FIELD-WM-07` | 让画面质感与观看抓力成立 | 并行调用 `冲击力 / 品味 / 观赏性` 叶子规则 | `visual_patch` | -> `N5` | 不得变成空洞辞藻 |
 | `N5-CONVERGE` | `S5` | `FIELD-WM-08` | 把四条支路汇成一段组级 prose | 只保留主冲突、主行动、主氛围、主视觉收益 | `group_convergence_note` | 成功 -> `N6`；散乱 -> 回 `S4` | 汇流后只保留单段写法 |
-| `N6-BUDGET` | `S6` | `FIELD-WM-09` | 把正文裁进 1200 字预算 | 删掉重复修辞，保留能拍能演能看懂的内容 | `budget_report` | 成功 -> `N7`；超限 -> 回 `S5` | 预算合格才可写回 |
-| `N7-WRITEBACK` | `S7` | `FIELD-WM-10` | 按模板一次性写回整集 markdown | 落盘 `projects/<项目名>/3-Detail/1-水月/第N集.md` | `writeback_note` | -> `N8` | 只写一个 canonical 文件 |
+| `N6-BUDGET` | `S6` | `FIELD-WM-09` | 把正文裁进 1000 字预算 | 删掉重复修辞，保留能拍能演能看懂的内容 | `budget_report` | 成功 -> `N7`；超限 -> 回 `S5` | 预算合格才可写回 |
+| `N7-WRITEBACK` | `S7` | `FIELD-WM-10` | 按模板一次性写回整集 markdown | 落盘 `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md` | `writeback_note` | -> `N8` | 只写一个 canonical 文件 |
 | `N8-VALIDATE` | `S8` | `FIELD-WM-10` | 验证结构与字数 | 执行 `scripts/validate_watermoon_output.py` | `validation_verdict` | pass -> `done`；fail -> 回 `S5/S6/S7` | 通过前不得结案 |
 
 ## Canonical Module References
@@ -196,22 +196,20 @@ stateDiagram-v2
 
 ### 输出路径
 
-- `projects/<项目名>/3-Detail/1-水月/第N集.md`
+- `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`
 
 ### 输出格式
 
 - 按上游分镜组顺序逐组展开
-- 每个分镜组保留一个组标题
-- 每组至少包含：
-  - `锚点`
-  - `扩写`
-- `扩写` 是最终 prose，不得夹带“分析 / 思考过程 / 模块名称 / 打分”
+- 保留上游分镜组标题与组内格式化标题字段
+- 最终落盘形态仍然是剧本，只允许在原分组正文基础上扩写
+- 不得新增 `锚点：`、`扩写：`、模块名、判断过程或打分字段
 
 ### 输出质量门槛
 
 1. 组序与上游一致。
-2. 每组 `扩写` 可直接被人类继续改写为分镜级导演稿。
-3. 每组正文不超过 `1200` 字。
+2. 每组都仍然读起来像完整剧本，而不是分析表单。
+3. 每组正文不超过 `1000` 字。
 4. 全文语言为中文。
 5. `Init / Global` 的附加上下文必须以实际 prose 效果进入正文，而不是只写成标签。
 
@@ -227,7 +225,7 @@ stateDiagram-v2
 | `FIELD-WM-06` | 氛围表现 patch | 空间层次、意境和场感成立 | `S4` | 场感密度 | `FAIL-WM-06` |
 | `FIELD-WM-07` | 视觉强化 patch | 有抓力但不浮夸 | `S4` | 画面吸引力 | `FAIL-WM-07` |
 | `FIELD-WM-08` | 组级汇流 prose | 四链被收束成一段单体正文 | `S5` | 收束能力 | `FAIL-WM-08` |
-| `FIELD-WM-09` | 字数预算 | 每组 <= 1200 字 | `S6` | 预算控制 | `FAIL-WM-09` |
+| `FIELD-WM-09` | 字数预算 | 每组 <= 1000 字 | `S6` | 预算控制 | `FAIL-WM-09` |
 | `FIELD-WM-10` | 最终文件 | 文件格式、组序、结构和 validator 全通过 | `S7/S8` | 落盘可消费性 | `FAIL-WM-10` |
 
 ## Thought Pass Map
@@ -239,7 +237,7 @@ stateDiagram-v2
 | `S3` | `FIELD-WM-03` | 每个分镜组真正要写的主冲突和主感受是什么 | 提炼组锚点表 | 组内扩写散乱、无主轴 |
 | `S4` | `FIELD-WM-04~07` | 四条维度链各自要补什么，不该越权补什么 | 生成四类 patch | 四链都在重写同一件事 |
 | `S5` | `FIELD-WM-08` | 如何把四类 patch 合成一段自然 prose | 汇成组级扩写 | 输出像拼贴，不像成稿 |
-| `S6` | `FIELD-WM-09` | 如何在 1200 字内保住主收益 | 裁剪、去重、保主线 | 超字数或裁得只剩空骨架 |
+| `S6` | `FIELD-WM-09` | 如何在 1000 字内保住主收益 | 裁剪、去重、保主线 | 超字数或裁得只剩空骨架 |
 | `S7` | `FIELD-WM-10` | 如何按模板一次性写回 | 落盘 episode markdown | 结构不稳、缺组 |
 | `S8` | `FIELD-WM-10` | 文件是否真能交付 | 跑 validator | 预算或结构未过仍宣布完成 |
 
@@ -255,7 +253,7 @@ stateDiagram-v2
 | `FIELD-WM-06` | 场感既具体又不空泛 | `FAIL-WM-06` | `S4` |
 | `FIELD-WM-07` | 画面强化有效但不油腻 | `FAIL-WM-07` | `S4` |
 | `FIELD-WM-08` | 四链被汇成单段 prose | `FAIL-WM-08` | `S5` |
-| `FIELD-WM-09` | 每组字数不超过 1200 | `FAIL-WM-09` | `S6` |
+| `FIELD-WM-09` | 每组字数不超过 1000 | `FAIL-WM-09` | `S6` |
 | `FIELD-WM-10` | 模板结构与 validator 同时通过 | `FAIL-WM-10` | `S7/S8` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -265,8 +263,9 @@ stateDiagram-v2
 - 输出仍像 grouped script 摘抄，而不是细化改编
 - 四条维度链都写了，但成稿像拼贴
 - `Init / Global` 没真正进入最终 prose
-- 单个分镜组反复超出 `1200` 字
+- 单个分镜组反复超出 `1000` 字
 - 最终文档把模块名、判断过程直接写进正文
+- 把内部锚点或汇流中间态直接外露成最终字段
 
 强制上溯链：
 
@@ -295,8 +294,8 @@ stateDiagram-v2
 
 只有同时满足以下条件，`1-水月` 才允许宣布完成：
 
-1. `第N集.md` 已写入 `projects/<项目名>/3-Detail/1-水月/`
+1. `第N集.md` 已写入 `projects/aigc/<项目名>/3-Detail/1-水月/`
 2. 上游每个命中分镜组都被展开
-3. 每组只有一个最终 `扩写` 区块
-4. 每组字数都不超过 `1200`
+3. 每组保持上游分组结构，不外露 `锚点/扩写` 字段
+4. 每组字数都不超过 `1000`
 5. `validate_watermoon_output.py` 返回通过

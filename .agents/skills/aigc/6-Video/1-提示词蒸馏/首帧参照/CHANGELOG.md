@@ -12,7 +12,7 @@
 
 ### 保持不变
 
-- `projects/<项目名>/6-Video/首帧参照/第N集/` 三件套落点不变。
+- `projects/aigc/<项目名>/6-Video/首帧参照/第N集/` 三件套落点不变。
 - `FIELD-VID-FFR-01` 到 `FIELD-VID-FFR-04` 字段主表不变。
 - `single_shot / direct_match / ambiguous` 与 `normal / tight / underflow` 机制不变。
 - 共享模板依赖仍为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json` 与 `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`。

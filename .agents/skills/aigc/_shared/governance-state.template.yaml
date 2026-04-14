@@ -2,7 +2,7 @@ version: "aigc-governance-state-v1"
 project_name: "<项目名>"
 
 canonical_runtime:
-  project_root: "projects/<项目名>/"
+  project_root: "projects/aigc/<项目名>/"
   layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
 
 lifecycle:
@@ -49,5 +49,13 @@ review_bridge:
   latest_preflight_status: "seeded"
   latest_acceptance_status: "seeded"
   latest_learning_status: "seeded"
+
+reset_bridge:
+  last_reset_at: ""
+  reset_mode: ""
+  reset_reason: ""
+  preserved_paths: []
+  archived_paths: []
+  stale_paths: []
 
 updated_at: "YYYY-MM-DDTHH:MM:SSZ"

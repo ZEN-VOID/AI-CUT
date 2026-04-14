@@ -7,8 +7,8 @@
   "meta": {
     "project_name": "项目名",
     "episode_id": "第1集",
-    "source_role_list": "projects/项目名/4-Design/角色/1-清单/第1集/角色清单.json",
-    "source_episode_detail": "projects/项目名/3-Detail/第1集.json",
+    "source_role_list": "projects/aigc/项目名/4-Design/角色/1-清单/第1集/角色清单.json",
+    "source_episode_detail": "projects/aigc/项目名/3-Detail/第1集.json",
     "skill_id": "aigc/4-Design/服装/1-清单",
     "generated_at": "2026-04-12T12:00:00-07:00"
   },
@@ -65,6 +65,6 @@
 ## Path Contract
 
 - 默认每集独立目录：
-  - `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
-  - `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
-  - `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+  - `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
+  - `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+  - `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`

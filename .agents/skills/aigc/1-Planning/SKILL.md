@@ -43,13 +43,13 @@ governance_tier: full
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| 分集真源 | `projects/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 的逐集原文真源 |
-| 规划主稿 | `projects/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
-| 分组主稿 | `projects/<项目名>/1-Planning/3-分组/第N集.md` | `3-分组` 的 grouped script |
-| 阶段验收 | `projects/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 handoff 结论 |
-| 分集执行报告 | `projects/<项目名>/1-Planning/1-分集/执行报告.md` | `1-分集` 全剧集证据侧车 |
-| 分组执行报告 | `projects/<项目名>/1-Planning/3-分组/执行报告.md` | 分组量化、边界与 handoff 证据 |
-| 分集机读索引 | `projects/<项目名>/1-Planning/episode-split-plan.json` | coverage、`source_profile`、`bootstrap_output` |
+| 分集真源 | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 的逐集原文真源 |
+| 规划主稿 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
+| 分组主稿 | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | `3-分组` 的 grouped script |
+| 阶段验收 | `projects/aigc/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 handoff 结论 |
+| 分集执行报告 | `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md` | `1-分集` 全剧集证据侧车 |
+| 分组执行报告 | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | 分组量化、边界与 handoff 证据 |
+| 分集机读索引 | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | coverage、`source_profile`、`bootstrap_output` |
 | 共享 I/O | `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md` | 阶段输入/输出、命名与 handoff 真源 |
 
 ## Stage Coverage Status
@@ -87,7 +87,7 @@ governance_tier: full
 
 硬规则：
 
-1. `projects/<项目名>/Story/` 是 `1-分集` 的默认输入根。
+1. `projects/aigc/<项目名>/Story/` 是 `1-分集` 的默认输入根。
 2. `story-source-manifest.yaml` 只作为输入索引与 `source_profile` 证据，不替代故事正文。
 3. `1-分集/第N集.md` 是上游逐集原文真源。
 4. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
@@ -103,11 +103,11 @@ governance_tier: full
 3. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 4. `.agents/skills/aigc/_shared/story-source-contract.md`
 5. `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
-6. `projects/<项目名>/0-Init/north_star.yaml`
-7. `projects/<项目名>/0-Init/init_handoff.yaml`
-8. `projects/<项目名>/Story/` 相关内容
-9. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-10. `projects/<项目名>/1-Planning/episode-split-plan.json`（若存在）
+6. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+7. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+8. `projects/aigc/<项目名>/Story/` 相关内容
+9. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+10. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`（若存在）
 11. 命中 `1-分集` 时，加载 `1-分集/SKILL.md + CONTEXT.md`
 12. 命中 `2-格式` 时，加载 `2-格式/SKILL.md + CONTEXT.md`
 13. 命中 `3-分组` 时，加载 `3-分组/SKILL.md + CONTEXT.md`

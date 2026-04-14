@@ -17,4 +17,4 @@
 - 新增复杂工作流前，先更新 `routes.yaml`
 - 从上一代仓库引入资产时，必须先写入映射，不允许口头继承
 - 对多阶段技能树，阶段 `active / shadow / shelved` 状态必须进入注册表，而不是只留在根 `SKILL.md`
-- 若某工作流采用项目内 runtime（如 `projects/<项目名>/`），必须同时登记 canonical runtime 与镜像策略
+- 若某工作流采用项目内 runtime（如 `projects/aigc/<项目名>/`），必须同时登记 canonical runtime 与镜像策略

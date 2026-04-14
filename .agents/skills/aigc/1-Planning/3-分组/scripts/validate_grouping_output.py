@@ -197,9 +197,9 @@ def validate_file(path: Path) -> tuple[bool, str]:
     if frontmatter["集数"] != episode_label:
         return False, f"frontmatter `集数` 与文件名不一致：{frontmatter['集数']} vs {path.name}"
     if not SOURCE_PATH_RE.match(frontmatter["上游主稿"]):
-        return False, "frontmatter `上游主稿` 必须指向 `projects/<项目名>/1-Planning/2-格式/第N集.md`。"
+        return False, "frontmatter `上游主稿` 必须指向 `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`。"
     if not REPORT_PATH_RE.match(frontmatter["report_ref"]):
-        return False, "frontmatter `report_ref` 必须指向 `projects/<项目名>/1-Planning/3-分组/执行报告.md`。"
+        return False, "frontmatter `report_ref` 必须指向 `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`。"
 
     duration_mapping = parse_literal(frontmatter["分镜组时长映射"])
     duration_evidence = parse_literal(frontmatter["时长偏离证据"])

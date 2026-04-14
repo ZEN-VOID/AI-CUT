@@ -1,8 +1,8 @@
 ---
 项目名: <项目名>
 集数: 第1集
-上游主稿: projects/<项目名>/1-Planning/2-格式/第1集.md
-bootstrap_output: projects/<项目名>/2-Global/导演意图.md
+上游主稿: projects/aigc/<项目名>/1-Planning/2-格式/第1集.md
+bootstrap_output: projects/aigc/<项目名>/2-Global/导演意图.md
 scene_unit_count: 0
 duration_policy: 默认15秒；若无显式上游时长证据则不偏离
 pace_tier: 中节奏
@@ -13,7 +13,7 @@ hard_text_window: 165
 分镜组时长映射: {}
 时长偏离证据: []
 group_count: 0
-report_ref: projects/<项目名>/1-Planning/3-分组/执行报告.md
+report_ref: projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md
 generated_at: 2026-04-12 00:00 America/Los_Angeles
 ---
 

@@ -15,7 +15,7 @@ default_flow:
   - step: execution
     owner: shangshu
     carrier: .codex/state/tasks/<task_id>/
-    note: 通用默认执行账本；`aigc` 项目工作流以下方 `canonical_runtime_root` 声明的 `projects/<项目名>/` 为唯一真源
+    note: 通用默认执行账本；`aigc` 项目工作流以下方 `canonical_runtime_root` 声明的 `projects/aigc/<项目名>/` 为唯一真源
   - step: validation
     owner: menxia
     carrier: .codex/templates/harness/validation-report.md
@@ -29,7 +29,7 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/SKILL.md`，由根技能路由到一个明确阶段"
   - id: aigc-project-runtime-canonical
     trigger: 命中 `.agents/skills/aigc/SKILL.md` 及其阶段技能
-    rule: "`projects/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
+    rule: "`projects/aigc/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
   - id: aigc-bootstrap-compat-mode
     trigger: 命中 `.agents/skills/aigc/` 大规模重构、阶段合同重写、子路径迁移或 schema 重建
     rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、卫星技能入口与 review gate；不把当前阶段内细节视为冻结真源"
@@ -76,14 +76,14 @@ workflow_carriers:
   - id: aigc-project-runtime
     applies_to: aigc-root-entry
     contract_mode: bootstrap_compat
-    canonical_runtime_root: projects/<项目名>/
-    project_state_carrier: projects/<项目名>/project_state.yaml
-    governance_state_carrier: projects/<项目名>/governance-state.yaml
-    mandate_carrier: projects/<项目名>/mandate.yaml
-    mission_brief_carrier: projects/<项目名>/mission-brief.yaml
-    route_plan_carrier: projects/<项目名>/route-plan.yaml
-    preflight_carrier: projects/<项目名>/preflight-verdict.yaml
-    validation_carrier: projects/<项目名>/validation-report.md
-    learning_carrier: projects/<项目名>/learning-record.md
+    canonical_runtime_root: projects/aigc/<项目名>/
+    project_state_carrier: projects/aigc/<项目名>/project_state.yaml
+    governance_state_carrier: projects/aigc/<项目名>/governance-state.yaml
+    mandate_carrier: projects/aigc/<项目名>/mandate.yaml
+    mission_brief_carrier: projects/aigc/<项目名>/mission-brief.yaml
+    route_plan_carrier: projects/aigc/<项目名>/route-plan.yaml
+    preflight_carrier: projects/aigc/<项目名>/preflight-verdict.yaml
+    validation_carrier: projects/aigc/<项目名>/validation-report.md
+    learning_carrier: projects/aigc/<项目名>/learning-record.md
     governance_mirror: .codex/state/tasks/<task_id>/
     mirror_policy: canonical-first

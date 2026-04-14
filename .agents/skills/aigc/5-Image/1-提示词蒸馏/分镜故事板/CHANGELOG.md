@@ -32,7 +32,7 @@
 
 - shared schema：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - shared template：`.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-- canonical business output：`projects/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
+- canonical business output：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
 - 可选 sidecar：`_manifest.json`
 - 主字段骨架：`meta / prompt_style / model / prompt / prompt_char_count`
 

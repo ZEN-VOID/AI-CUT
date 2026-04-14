@@ -8,7 +8,7 @@ import re
 import sys
 from pathlib import Path
 
-GROUP_HEADING_RE = re.compile(r"^###\s*分镜组", re.MULTILINE)
+GROUP_HEADING_RE = re.compile(r"^##\s*【[^】]+】", re.MULTILINE)
 
 
 def split_group_sections(text: str) -> list[tuple[str, str]]:
@@ -35,13 +35,13 @@ def validate(text: str, max_chars: int) -> list[str]:
     errors: list[str] = []
     sections = split_group_sections(text)
     if not sections:
-        return ["未找到 `### 分镜组` 段落。"]
+        return ["未找到 `## 【分镜组ID】 组标题` 段落。"]
 
     for heading, body in sections:
-        if "锚点：" not in body:
-            errors.append(f"{heading} 缺少 `锚点：` 段落。")
-        if "扩写：" not in body:
-            errors.append(f"{heading} 缺少 `扩写：` 段落。")
+        if "锚点：" in body or "扩写：" in body:
+            errors.append(f"{heading} 不应外露 `锚点：/扩写：` 字段。")
+        if "### " not in body:
+            errors.append(f"{heading} 缺少场景级标题字段。")
         count = visible_chars(body)
         if count > max_chars:
             errors.append(f"{heading} 可见字符数 {count} 超过上限 {max_chars}。")
@@ -56,8 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--max-chars",
         type=int,
-        default=1200,
-        help="Maximum visible characters allowed per group block. Default: 1200.",
+        default=1000,
+        help="Maximum visible characters allowed per group block. Default: 1000.",
     )
     return parser
 
@@ -77,4 +77,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

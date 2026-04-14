@@ -1,6 +1,6 @@
 ---
 name: aigc-review
-description: Use when an AIGC film project needs menxia-side preflight, stage or project acceptance, validation-report updates, or learning-bridge closure around artifacts in `projects/<项目名>/`.
+description: Use when an AIGC film project needs menxia-side preflight, stage or project acceptance, validation-report updates, or learning-bridge closure around artifacts in `projects/aigc/<项目名>/`.
 governance_tier: lite
 ---
 
@@ -98,14 +98,14 @@ L2 按需：
 
 | review scope | canonical carrier |
 | --- | --- |
-| `project` preflight | `projects/<项目名>/preflight-verdict.yaml` |
-| `project` acceptance | `projects/<项目名>/validation-report.md` |
-| `project` learning | `projects/<项目名>/learning-record.md` |
-| `1-Planning` acceptance | `projects/<项目名>/1-Planning/validation-report.md` |
-| `2-Global` / `3-Detail` acceptance | `projects/<项目名>/3-Detail/validation-report.md` |
-| `4-Design` acceptance | `projects/<项目名>/4-Design/validation-report.md` |
-| `5-Image` acceptance | `projects/<项目名>/5-Image/validation-report.md` |
-| `6-Video` acceptance | `projects/<项目名>/6-Video/validation-report.md` |
+| `project` preflight | `projects/aigc/<项目名>/preflight-verdict.yaml` |
+| `project` acceptance | `projects/aigc/<项目名>/validation-report.md` |
+| `project` learning | `projects/aigc/<项目名>/learning-record.md` |
+| `1-Planning` acceptance | `projects/aigc/<项目名>/1-Planning/validation-report.md` |
+| `2-Global` / `3-Detail` acceptance | `projects/aigc/<项目名>/3-Detail/validation-report.md` |
+| `4-Design` acceptance | `projects/aigc/<项目名>/4-Design/validation-report.md` |
+| `5-Image` acceptance | `projects/aigc/<项目名>/5-Image/validation-report.md` |
+| `6-Video` acceptance | `projects/aigc/<项目名>/6-Video/validation-report.md` |
 
 ## Workflow Checklist
 

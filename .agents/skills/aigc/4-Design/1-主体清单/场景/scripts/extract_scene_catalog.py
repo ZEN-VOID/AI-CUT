@@ -102,11 +102,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input",
         required=True,
-        help="输入 episode JSON，例如 projects/<项目名>/3-Detail/第N集.json",
+        help="输入 episode JSON，例如 projects/aigc/<项目名>/3-Detail/第N集.json",
     )
     parser.add_argument(
         "--output-dir",
-        help="输出目录；默认自动推断到 projects/<项目名>/4-Design/场景/1-清单/第N集/",
+        help="输出目录；默认自动推断到 projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/",
     )
     parser.add_argument(
         "--emit-manifest",

@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop-design
-description: Use when the `4-Design/道具/2-设计` stage needs to turn prop bridges plus global presets into a canonical prop design master and prompt sidecar under `projects/<项目名>/4-Design/道具/2-设计/`.
+description: Use when the `4-Design/道具/2-设计` stage needs to turn prop bridges plus global presets into a canonical prop design master and prompt sidecar under `projects/aigc/<项目名>/4-Design/道具/2-设计/`.
 governance_tier: full
 ---
 
@@ -37,25 +37,25 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md`
 - `.codex/agents/aigc/设计组/道具设计/team.md`
 
 ### 可选输入
 
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-- `projects/<项目名>/2-Global/全局风格.md`
-- `projects/<项目名>/2-Global/类型元素.md`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
+- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/类型元素.md`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 
 ### 固定输出落点
 
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`
 
 ### 输入硬门槛
 
@@ -68,13 +68,13 @@ governance_tier: full
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| 上游 bridge | `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 本阶段第一输入根 |
-| 上游研究 | `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 补证与 evidence ledger |
-| 上游清单 | `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | shot/group 回链 |
-| episode 根文件 | `projects/<项目名>/3-Detail/第N集.json` | 导演事实与最新状态 |
-| 全局风格 | `projects/<项目名>/2-Global/全局风格.md` | 项目级风格锚点 |
-| 类型元素 | `projects/<项目名>/2-Global/类型元素.md` | 类型与导演打法约束 |
-| init / north star | `projects/<项目名>/0-Init/` | 硬边界与世界观基线 |
+| 上游 bridge | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 本阶段第一输入根 |
+| 上游研究 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 补证与 evidence ledger |
+| 上游清单 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | shot/group 回链 |
+| episode 根文件 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 导演事实与最新状态 |
+| 全局风格 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级风格锚点 |
+| 类型元素 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型与导演打法约束 |
+| init / north star | `projects/aigc/<项目名>/0-Init/` | 硬边界与世界观基线 |
 | shared I/O | `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md` | 输入输出、命名和 path normalization 真源 |
 | 道具设计组 team | `.codex/agents/aigc/设计组/道具设计/team.md` | 角色 roster、返回类型与越权禁令 |
 
@@ -321,18 +321,18 @@ stateDiagram-v2
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
-  --bridge "projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
-  --research "projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
-  --detail "projects/<项目名>/3-Detail/第N集.json" \
-  --global-style "projects/<项目名>/2-Global/全局风格.md" \
-  --type-elements "projects/<项目名>/2-Global/类型元素.md"
+  --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
+  --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
+  --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \
+  --global-style "projects/aigc/<项目名>/2-Global/全局风格.md" \
+  --type-elements "projects/aigc/<项目名>/2-Global/类型元素.md"
 ```
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
-  --bridge "projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
-  --research "projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
-  --detail "projects/<项目名>/3-Detail/第N集.json" \
+  --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
+  --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
+  --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \
   --dry-run
 ```
 
@@ -360,9 +360,9 @@ python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pip
 
 ### 最终结果
 
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json`
 
 ### 思考过程
 
@@ -465,12 +465,12 @@ python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pip
 4. 本 `SKILL.md + CONTEXT.md`
 5. `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md`
 6. `.codex/agents/aigc/设计组/道具设计/team.md`
-7. `projects/<项目名>/0-Init/north_star.yaml`
-8. `projects/<项目名>/0-Init/init_handoff.yaml`
-9. `projects/<项目名>/2-Global/全局风格.md`
-10. `projects/<项目名>/2-Global/类型元素.md`
-11. `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-12. `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
-13. `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
-14. `projects/<项目名>/3-Detail/第N集.json`
+7. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+8. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+9. `projects/aigc/<项目名>/2-Global/全局风格.md`
+10. `projects/aigc/<项目名>/2-Global/类型元素.md`
+11. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
+12. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
+13. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+14. `projects/aigc/<项目名>/3-Detail/第N集.json`
 15. 仅加载命中的 agent docs

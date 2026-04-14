@@ -20,10 +20,10 @@ RESEARCH_SCRIPT = SCRIPT_DIR / "build_prop_research.py"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="从 `projects/<项目名>/3-Detail/第N集.json` 生成 4-Design 道具清单、研究与桥接 JSON。"
+        description="从 `projects/aigc/<项目名>/3-Detail/第N集.json` 生成 4-Design 道具清单、研究与桥接 JSON。"
     )
     parser.add_argument("--input", required=True, help="输入 episode JSON")
-    parser.add_argument("--output-dir", help="输出目录；默认推断到 `projects/<项目名>/4-Design/道具/1-清单/第N集/`")
+    parser.add_argument("--output-dir", help="输出目录；默认推断到 `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/`")
     parser.add_argument("--catalog-name", default="道具清单.json", help="道具清单文件名")
     parser.add_argument("--research-name", default="道具研究.json", help="道具研究文件名")
     parser.add_argument("--bridge-name", default="prop_design_bridge.json", help="桥接 JSON 文件名")
@@ -57,12 +57,15 @@ def resolve_output_dir(input_path: Path, explicit: Optional[str]) -> Path:
         root_parts = input_path.parts
         try:
             projects_index = root_parts.index("projects")
-            project_root = Path(*root_parts[: projects_index + 2])
-            return project_root / "4-Design" / "4-道具" / "1-清单" / input_path.stem
+            if projects_index + 2 < len(root_parts) and root_parts[projects_index + 1] == "aigc":
+                project_root = Path(*root_parts[: projects_index + 3])
+            else:
+                project_root = Path(*root_parts[: projects_index + 2])
+            return project_root / "4-Design" / "道具" / "1-清单" / input_path.stem
         except ValueError:
             pass
 
-    return input_path.parent / "4-Design-4-道具-1-清单" / input_path.stem
+    return input_path.parent / "4-Design-道具-1-清单" / input_path.stem
 
 
 def run_cmd(cmd: List[str]) -> None:

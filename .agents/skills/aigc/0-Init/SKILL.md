@@ -1,6 +1,6 @@
 ---
 name: aigc-init
-description: Use when initializing a new AIGC film project through advisor council, fast synthesis, or autonomous questionnaire modes, with north_star as the primary artifact.
+description: Use when initializing or reinitializing an AIGC film project through advisor council, fast synthesis, or autonomous questionnaire modes, with north_star as the primary artifact.
 governance_tier: full
 ---
 
@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`0-Init` 是 `aigc` 技能树的项目立项层、初始化治理层与 `north_star` 生成入口。
+`0-Init` 是 `aigc` 技能树的项目立项层、初始化治理层、`north_star` 生成入口，以及“重置式重新初始化”入口。
 
 当前合同采用单技能真源模式：
 
@@ -20,7 +20,8 @@ governance_tier: full
 ## When to Use
 
 - 需要新建一个 AIGC 影视创作项目。
-- 需要在 `projects/<项目名>/` 下建立 `0-Init/` 与项目根初始化治理工件。
+- 已初始化项目因重大方向错误、审美失真、结构失效或用户明确不满意，需要退回初始化态重新起盘。
+- 需要在 `projects/aigc/<项目名>/` 下建立 `0-Init/` 与项目根初始化治理工件。
 - 需要先锁定项目 `north_star`，再决定进入 `1-Planning`、`2-Global` 或其他后续阶段。
 - 用户希望采用多模式初始化，而不是默认单一路径问答。
 
@@ -29,6 +30,7 @@ governance_tier: full
 - 项目已经有稳定的 `north_star.yaml`，只是在补某个阶段的局部细节。
 - 当前任务本质上是续跑 `1-Planning` 之后的阶段，而不是项目起盘。
 - 用户只是在查项目状态，不需要重新初始化。
+- 用户要做的是“沿现有方向安全续跑 / 补断点 / 补治理工件”，而不是推翻当前方向重新起盘；这类诉求应进入 `resume/`。
 
 ## 业务需求分析合同
 
@@ -36,16 +38,17 @@ governance_tier: full
 
 - 先锁定初始化模式，再沿单一路径收集最小充分信息。
 - 以 `north_star` 为主产物，而不是堆一批散乱访谈文档。
-- 让问题方式按当前 `aigc` 阶段体系组织，输出也按当前 `projects/<项目名>/` 治理落点组织。
+- 让问题方式按当前 `aigc` 阶段体系组织，输出也按当前 `projects/aigc/<项目名>/` 治理落点组织。
 - 让模式能力全部成为父 skill 的内部能力，而不是外置规则面。
+- 当旧方向已经失效时，把项目安全降回 `0-Init`，而不是带着下游旧 seed 继续硬修。
 
 ### business_object
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/team.yaml`
-- `projects/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/project_state.yaml`
 - 按需补齐的 `governance-state.yaml` 与 HARNESS 治理载体
 
 ### constraint_profile
@@ -55,6 +58,9 @@ governance_tier: full
 - 创作起盘默认走轻量治理，不强绑整套 HARNESS 载体
 - 项目 runtime 目录必须服从 `.agents/skills/aigc/_shared/project-runtime-layout.md`
 - 所有模式推理、问题裁剪与充分性检查都必须内收在当前 `SKILL.md`
+- `回退到初始化态` 不是 Git 回滚；默认只重置项目 runtime 与治理工件，不依赖版本控制硬回退
+- 未获用户显式授权，不删除 `Story/` 故事主源、原始素材、外部参考或其它不可再生资产
+- 对已存在的下游阶段产物，默认采用 `archive_reset`，而不是无痕清空
 
 ### success_criteria
 
@@ -63,6 +69,7 @@ governance_tier: full
 - 核心五件套已经落盘
 - `north_star`、`init_handoff`、`story-source-manifest`、`team`、`project_state` 之间无双真源冲突
 - 若惰性治理工件已生成，其推荐入口与根工件保持一致
+- 若本轮属于重置式重新初始化，旧下游产物已按保留/归档/清退边界处理，且项目主入口已回到 `0-Init`
 
 ### topology_fit
 
@@ -151,11 +158,11 @@ flowchart LR
 2. `task context`
    当前项目目标、用户偏好、约束、非目标、已知素材与项目名
 3. `mode context`
-   `init_mode`、`mode_source`、`decision_owner`、`research_policy`
+   `init_mode`、`mode_source`、`decision_owner`、`research_policy`、`rebootstrap_requested`、`reset_mode`、`reset_reason`
 4. `template context`
    `north-star.template.yaml`、`init-handoff.template.yaml`、`team.template.yaml`、`story-source-manifest.template.yaml`
 5. `evidence context`
-   现有 `projects/<项目名>/` 工件、故事源情况、来源分层、已有治理快照
+   现有 `projects/aigc/<项目名>/` 工件、故事源情况、来源分层、已有治理快照
 
 硬规则：
 
@@ -173,6 +180,7 @@ flowchart LR
 | `advisor_council_engine` | 将多角色顾问意见压缩成可吸收 patch，同时保留共识、分歧与拍板位 | `team_manifest_patch`、`north_star_patch`、`report` | `init_mode == 主创会诊模式` |
 | `fast_draft_engine` | 从极简 brief 中保守提取高信息密度 seed | `north_star_patch`、`init_handoff_patch`、`risk_note` | `init_mode == 快速成案模式` |
 | `autonomous_qa_engine` | 将初始化缺口组织成分轮问题包并做字段回填 | `question_pack`、`unknowns_patch`、`sources_breakdown_patch` | `init_mode == 自主问答模式` |
+| `rebootstrap_reset_engine` | 对已有项目执行“退回初始化态”的边界裁定，生成保留/归档/清退计划并把项目主入口降回 `0-Init` | `reset_scope_note`、`archive_plan`、`stale_scope_note` | `rebootstrap_requested == true` |
 | `sufficiency_audit_engine` | 检查充分性、来源分层与下一步一致性 | `audit_report`、`alignment_note`、`blocking_note` | 聚合草案后、写回前 |
 
 硬规则：
@@ -199,7 +207,7 @@ flowchart LR
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N0-intake` | 确认这是一次项目初始化而非续跑或局部补档 | 用户请求、项目路径、现有工件 | 识别任务性质、锁定项目名与作用域 | `project_scope_note` | 到 `N1-mode-gate`；若非初始化则回根 `aigc` | 否 |
+| `N0-intake` | 确认这是首次初始化、重置式重新初始化，还是续跑/局部补档 | 用户请求、项目路径、现有工件 | 识别任务性质、锁定项目名、作用域与是否命中 `rebootstrap` | `project_scope_note + reset_intent_note` | 到 `N1-mode-gate`；若属续跑则回 `resume/` 或根 `aigc` | 否 |
 | `N1-mode-gate` | 锁定唯一 `init_mode` | 用户意图、模式信号、元选项卡 | 判定或发放元选项卡，记录模式元数据 | `mode_lock_note` | 到 `N2-runtime-bootstrap`；模式冲突回自身 | 否 |
 | `N2-runtime-bootstrap` | 锁定项目根与 runtime skeleton | 项目名、shared runtime layout | 预建项目根、阶段根目录与 active child skeleton | `runtime_bootstrap_note` | 到 `N3-internal-router` | 否 |
 | `N3-internal-router` | 只保留本轮最需要的问题与字段缺口 | 已锁模式、当前缺口、上下文预算 | 产出 `route_plan_patch + context_packet_plan` | `route_plan_patch` | 到 `N4-mode-engine`；若模式未锁回 `N1` | 否 |
@@ -222,16 +230,16 @@ flowchart LR
 
 ### Project Root
 
-- `projects/<项目名>/`
-- `projects/<项目名>/0-Init/`
-- `projects/<项目名>/Story/`
-- `projects/<项目名>/1-Planning/`
-- `projects/<项目名>/2-Global/`
-- `projects/<项目名>/3-Detail/`
-- `projects/<项目名>/4-Design/`
-- `projects/<项目名>/5-Image/`
-- `projects/<项目名>/6-Video/`
-- `projects/<项目名>/7-Cut/`
+- `projects/aigc/<项目名>/`
+- `projects/aigc/<项目名>/0-Init/`
+- `projects/aigc/<项目名>/Story/`
+- `projects/aigc/<项目名>/1-Planning/`
+- `projects/aigc/<项目名>/2-Global/`
+- `projects/aigc/<项目名>/3-Detail/`
+- `projects/aigc/<项目名>/4-Design/`
+- `projects/aigc/<项目名>/5-Image/`
+- `projects/aigc/<项目名>/6-Video/`
+- `projects/aigc/<项目名>/7-Cut/`
 
 ### Bootstrap Runtime Skeleton
 
@@ -240,27 +248,27 @@ flowchart LR
 1. 阶段根目录：
    `0-Init / Story / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`
 2. 已建 active 子路径骨架：
-   - `projects/<项目名>/1-Planning/1-分集/`
-   - `projects/<项目名>/1-Planning/2-格式/`
-   - `projects/<项目名>/1-Planning/3-分组/`
-   - `projects/<项目名>/4-Design/场景/1-清单/`
-   - `projects/<项目名>/4-Design/场景/2-设计/`
-   - `projects/<项目名>/4-Design/场景/3-面板/`
-   - `projects/<项目名>/4-Design/角色/1-清单/`
-   - `projects/<项目名>/4-Design/角色/2-设计/`
-   - `projects/<项目名>/4-Design/角色/3-面板/`
-   - `projects/<项目名>/4-Design/服装/1-清单/`
-   - `projects/<项目名>/4-Design/服装/2-设计/`
-   - `projects/<项目名>/4-Design/服装/3-面板/`
-   - `projects/<项目名>/4-Design/道具/1-清单/`
-   - `projects/<项目名>/4-Design/道具/2-设计/`
-   - `projects/<项目名>/4-Design/道具/3-面板/`
-   - `projects/<项目名>/5-Image/分镜故事板/`
-   - `projects/<项目名>/5-Image/分镜帧/`
-   - `projects/<项目名>/5-Image/漫画/`
-   - `projects/<项目名>/6-Video/全能参照/`
-   - `projects/<项目名>/6-Video/首帧参照/`
-   - `projects/<项目名>/6-Video/生成任务/`
+   - `projects/aigc/<项目名>/1-Planning/1-分集/`
+   - `projects/aigc/<项目名>/1-Planning/2-格式/`
+   - `projects/aigc/<项目名>/1-Planning/3-分组/`
+   - `projects/aigc/<项目名>/4-Design/场景/1-清单/`
+   - `projects/aigc/<项目名>/4-Design/场景/2-设计/`
+   - `projects/aigc/<项目名>/4-Design/场景/3-面板/`
+   - `projects/aigc/<项目名>/4-Design/角色/1-清单/`
+   - `projects/aigc/<项目名>/4-Design/角色/2-设计/`
+   - `projects/aigc/<项目名>/4-Design/角色/3-面板/`
+   - `projects/aigc/<项目名>/4-Design/服装/1-清单/`
+   - `projects/aigc/<项目名>/4-Design/服装/2-设计/`
+   - `projects/aigc/<项目名>/4-Design/服装/3-面板/`
+   - `projects/aigc/<项目名>/4-Design/道具/1-清单/`
+   - `projects/aigc/<项目名>/4-Design/道具/2-设计/`
+   - `projects/aigc/<项目名>/4-Design/道具/3-面板/`
+   - `projects/aigc/<项目名>/5-Image/分镜故事板/`
+   - `projects/aigc/<项目名>/5-Image/分镜帧/`
+   - `projects/aigc/<项目名>/5-Image/漫画/`
+   - `projects/aigc/<项目名>/6-Video/全能参照/`
+   - `projects/aigc/<项目名>/6-Video/首帧参照/`
+   - `projects/aigc/<项目名>/6-Video/生成任务/`
 
 这里的“active 子路径骨架”特指 **项目 runtime 的 canonical landing**，不是技能树中的中间执行目录。
 
@@ -277,26 +285,26 @@ flowchart LR
 
 ### Primary Artifacts
 
-- 主文件：`projects/<项目名>/0-Init/north_star.yaml`
-- 伴生 handoff：`projects/<项目名>/0-Init/init_handoff.yaml`
-- 故事源登记：`projects/<项目名>/0-Init/story-source-manifest.yaml`
+- 主文件：`projects/aigc/<项目名>/0-Init/north_star.yaml`
+- 伴生 handoff：`projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- 故事源登记：`projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - runtime 布局真源：`.agents/skills/aigc/_shared/project-runtime-layout.md`
 - 故事源合同真源：`.agents/skills/aigc/_shared/story-source-contract.md`
 
 ### Project Governance Artifacts
 
-- 顾问团队真源：`projects/<项目名>/team.yaml`
-- 轻量项目状态入口：`projects/<项目名>/project_state.yaml`
+- 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
+- 轻量项目状态入口：`projects/aigc/<项目名>/project_state.yaml`
 
 ### Lazy Governance Artifacts
 
-- `projects/<项目名>/governance-state.yaml`
-- `projects/<项目名>/mandate.yaml`
-- `projects/<项目名>/mission-brief.yaml`
-- `projects/<项目名>/route-plan.yaml`
-- `projects/<项目名>/preflight-verdict.yaml`
-- `projects/<项目名>/validation-report.md`
-- `projects/<项目名>/learning-record.md`
+- `projects/aigc/<项目名>/governance-state.yaml`
+- `projects/aigc/<项目名>/mandate.yaml`
+- `projects/aigc/<项目名>/mission-brief.yaml`
+- `projects/aigc/<项目名>/route-plan.yaml`
+- `projects/aigc/<项目名>/preflight-verdict.yaml`
+- `projects/aigc/<项目名>/validation-report.md`
+- `projects/aigc/<项目名>/learning-record.md`
 
 ## Init Truth Ownership Contract (Mandatory)
 
@@ -312,8 +320,8 @@ flowchart LR
 
 ### `0-Init` 首次生成但不独占
 
-- `projects/<项目名>/team.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 
 ### `0-Init` 不拥有
 
@@ -324,6 +332,55 @@ flowchart LR
 - `5-Image` 的 prompt 包、一致性锚点与图像真源
 - `6-Video` 的视频执行包真源
 - `7-Cut` 的最终交付真源
+
+## Rebootstrap Contract (Mandatory)
+
+`0-Init` 除首次立项外，还拥有“重置式重新初始化（rebootstrap）”入口。
+
+它用于：项目已经跑出初始化后工件甚至下游阶段产物，但用户明确要求“回到初始化态重来”“推翻当前方向重新起盘”“保留项目壳但重做北极星”。
+
+它不用于：沿现有方向补断点、修治理工件、续跑同一套创作路线。后者应进入 `resume/`。
+
+### Ownership Boundary
+
+- `0-Init` 拥有：重判 `north_star`、重写 `init_handoff`、把项目主入口降回 `0-Init`、裁定保留/归档/清退边界、重新锁模。
+- `resume/` 拥有：基于现有真源安全续跑、补治理缺口、重建最后稳定入口。
+- 若诉求是“继续当前方向”，进 `resume/`；若诉求是“推翻当前方向重起”，进 `0-Init`。
+
+### Reset Modes
+
+| mode | 默认性 | 作用 | 默认保留 | 默认禁止 |
+| --- | --- | --- | --- | --- |
+| `refresh_reset` | 否 | 重写初始化核心工件，并将旧下游产物标记为 stale，文件暂留原位 | `Story/`、故事主源、原始素材、外部参考、已存下游文件 | 把旧下游输出继续当成新一轮默认输入 |
+| `archive_reset` | 是 | 将旧下游派生产物与旧治理工件归档到 `projects/aigc/<项目名>/0-Init/rebootstrap-archive/<timestamp>/`，再重写初始化核心工件 | `Story/`、故事主源、原始素材、必要参考资产 | 无痕清空、直接覆写不可再生素材 |
+| `purge_reset` | 否，且需用户显式授权 | 在完成保留/归档确认后，对指定派生产物执行清退 | `Story/`、故事主源、原始素材，除非用户明确要求连源一起废弃 | 未授权删除、把 Git 回滚当作项目重置 |
+
+### Reset Preservation Contract
+
+1. 默认保留 `projects/aigc/<项目名>/Story/` 与已登记故事主源；只有当用户明确指出“源故事本身也错了/要废弃”时，才允许改判来源真源。
+2. 默认保留原始素材、参考图、外部调研与不可再生资产；重置针对的是“派生产物与阶段方向”，不是抹除原料。
+3. `story-source-manifest.yaml` 默认保留并更新 readiness / note，不因重置而丢失故事源登记。
+4. `1-Planning` 到 `7-Cut` 的派生产物、以及旧 `mission-brief / route-plan / preflight / validation / learning`，默认按 `archive_reset` 归档，不得继续作为 active truth。
+5. `team.yaml` 仅在团队配置或顾问职责也需要重置时重写；否则允许保留。
+
+### Reset Writeback Contract
+
+1. 每次 `rebootstrap` 至少要重写：
+   - `projects/aigc/<项目名>/0-Init/north_star.yaml`
+   - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+   - `projects/aigc/<项目名>/project_state.yaml`
+2. 若团队结构或会诊来源改变，应同步重写 `projects/aigc/<项目名>/team.yaml`。
+3. `project_state.yaml` 必须把当前主入口降回 `0-Init`；在新一轮初始化通过 `Sufficiency Gate` 前，不得继续保留旧的下游推荐入口。
+4. 若 `governance-state.yaml` 已存在或本轮按需生成，必须同步写入 `reset_bridge`，记录 `last_reset_at / reset_mode / reset_reason / preserved_paths / archived_paths / stale_paths`。
+5. 旧的 `preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md` 不得在重置后继续充当当前有效 gate；要么归档，要么明确标记为旧周期证据。
+
+### Reset Hard Rules
+
+1. 用户明确要求“回到初始化态”时，唯一主入口是 `0-Init`，不是 `resume/`。
+2. 默认 `reset_mode == archive_reset`；只有用户明确要求更轻或更猛，才切换到 `refresh_reset` 或 `purge_reset`。
+3. 重置式重新初始化不等于 Git 回滚；不得默认使用 `git reset --hard`、`git checkout --` 或其他版本控制硬回退代替业务重置。
+4. 新一轮 `rebootstrap` 仍必须重新经过 `N1-mode-gate` 锁模；不得沿用上一轮初始化模式直接起草。
+5. 重置完成后，旧周期的下游 seed 不得静默继续喂给 `1-Planning` 及以后阶段。
 
 ## Initialization Mode Contract (Mandatory)
 
@@ -382,7 +439,7 @@ B. 你先综合，我只做最后确认
 
 `team.yaml` 是项目根下的顾问团布阵唯一真源：
 
-- `projects/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/team.yaml`
 
 它负责把“谁参与初始化会诊”升级为“谁以什么职责作用于哪些阶段、在哪个闸门发言、最终如何被后续阶段消费”。
 
@@ -445,21 +502,21 @@ B. 你先综合，我只做最后确认
 
 ### 核心必出工件
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/team.yaml`
-- `projects/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/project_state.yaml`
 
 ### 惰性治理工件
 
-- `projects/<项目名>/governance-state.yaml`
-- `projects/<项目名>/mandate.yaml`
-- `projects/<项目名>/mission-brief.yaml`
-- `projects/<项目名>/route-plan.yaml`
-- `projects/<项目名>/preflight-verdict.yaml`
-- `projects/<项目名>/validation-report.md`
-- `projects/<项目名>/learning-record.md`
+- `projects/aigc/<项目名>/governance-state.yaml`
+- `projects/aigc/<项目名>/mandate.yaml`
+- `projects/aigc/<项目名>/mission-brief.yaml`
+- `projects/aigc/<项目名>/route-plan.yaml`
+- `projects/aigc/<项目名>/preflight-verdict.yaml`
+- `projects/aigc/<项目名>/validation-report.md`
+- `projects/aigc/<项目名>/learning-record.md`
 
 触发条件：
 
@@ -467,12 +524,22 @@ B. 你先综合，我只做最后确认
 2. 任务即将进入复杂多步执行，需要 `mission-brief / route-plan` 承接。
 3. 任务属于高风险执行，需要 `preflight-verdict.yaml`。
 4. `query / resume / review` 需要结构化断点或验收桥接。
+5. 本轮属于 `rebootstrap`，需要为卫星技能留下 reset trace。
+
+若本轮属于 `rebootstrap`，且 `governance-state.yaml` 已存在或需要补建，则 `reset_bridge` 至少应记录：
+
+- `last_reset_at`
+- `reset_mode`
+- `reset_reason`
+- `preserved_paths`
+- `archived_paths`
+- `stale_paths`
 
 ## Story Source Manifest Contract (`story-source-manifest.yaml`，Mandatory)
 
 `story-source-manifest.yaml` 是“项目故事主源是否已真正到位”的唯一登记真源：
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 
 硬规则：
 
@@ -506,9 +573,9 @@ B. 你先综合，我只做最后确认
 
 回刷范围至少包括：
 
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/project_state.yaml`
 
 硬规则：
 
@@ -529,6 +596,7 @@ B. 你先综合，我只做最后确认
 4. 必须把 `team_ref`、`sources_breakdown` 与唯一下一阶段入口同步写回到相关工件。
 5. 若当前处于 `source-light bootstrap`，所有剧情级推断必须降级为 provisional note，不得提升为稳定 seed。
 6. 若检测到“旧 seed 与新故事源冲突”，先进入 `Story Source Reconciliation Contract`，再做最终写回。
+7. 若当前属于 `rebootstrap`，必须先消费 `reset_scope_note / archive_plan / stale_scope_note`，再允许旧项目目录里的残留工件参与任何引用。
 
 ## Sufficiency Gate (Mandatory)
 
@@ -545,6 +613,7 @@ B. 你先综合，我只做最后确认
 - `project_state.yaml` 已能指向主工件与推荐下一阶段
 - 若故事源缺失，所有剧情级字段都已降级为 `unknowns / deferred / risk_notes`
 - 若故事源为后补输入，已完成一次初始化工件回刷
+- 若本轮属于 `rebootstrap`，旧周期下游工件已按 `reset_mode` 完成保留/归档/清退，不再作为 active truth
 - 若 `north_star.stage_entry_contract.stage_priority_order` 已存在，`project_state.yaml` 的下一步建议必须对齐
 - 若惰性治理工件已生成，它们与 `project_state.yaml` 的下一步建议也必须对齐
 - 已返回唯一推荐下一阶段入口
@@ -566,34 +635,37 @@ B. 你先综合，我只做最后确认
 
 ## Execution Procedure
 
-1. 确认或创建 `projects/<项目名>/`。
+1. 确认或创建 `projects/aigc/<项目名>/`。
 2. 读取根 `.agents/skills/aigc/SKILL.md`、本目录 `CONTEXT.md` 与 `.agents/skills/aigc/_shared/*`。
-3. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并等待确认；只有收到用户选择或命中强制路由信号后才能锁定模式。未锁定前不得起草初始化主工件。
-4. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录与 active child skeleton。
-5. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan` 与 `route_plan_patch`。
-6. 只命中 1 个内部模式能力：
+3. 先在 `N0-intake` 判定本轮属于首次初始化还是 `rebootstrap`；若属于续跑/补断点，则回 `resume/` 或根 `aigc`。
+4. 若命中 `rebootstrap`，先锁定 `reset_mode + reset_reason`，生成 `reset_scope_note`，并处理旧下游工件的保留/归档/清退计划。
+5. 若用户输入尚未触发强制路由信号，发送一次初始化元选项卡并等待确认；只有收到用户选择或命中强制路由信号后才能锁定模式。未锁定前不得起草初始化主工件。
+6. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录与 active child skeleton。
+7. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan` 与 `route_plan_patch`。
+8. 只命中 1 个内部模式能力：
    - `advisor_council_engine`
    - `fast_draft_engine`
    - `autonomous_qa_engine`
-7. 读取模板与 shared contracts。
-8. 起草项目根 `team.yaml`。
-9. 生成 `story-source-manifest.yaml`。
-10. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合模式 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `project_state.yaml`。
-11. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
-12. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
-13. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 做统一检查。
-14. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
+9. 读取模板与 shared contracts。
+10. 起草项目根 `team.yaml`。
+11. 生成 `story-source-manifest.yaml`。
+12. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合模式 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `project_state.yaml`。
+13. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
+14. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
+15. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 做统一检查。
+16. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
 
 ## Completion Standard
 
 - 已明确项目根目录
 - 已明确初始化模式
-- 已产出 `projects/<项目名>/team.yaml`
-- 已产出 `projects/<项目名>/project_state.yaml`
-- 已产出 `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- 已产出 `projects/aigc/<项目名>/team.yaml`
+- 已产出 `projects/aigc/<项目名>/project_state.yaml`
+- 已产出 `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - 已产出 `north_star.yaml`
 - 已产出 `init_handoff.yaml`
 - 已给出唯一推荐的下一阶段入口
+- 若本轮属于 `rebootstrap`，旧周期下游产物已按 `reset_mode` 保留/归档/清退，且项目主入口已回到本轮初始化链
 - 若本轮触发治理需求，相关惰性治理工件已补齐
 - 已返回闭环三元组：
   - `root cause location`
@@ -634,22 +706,24 @@ B. 你先综合，我只做最后确认
 | FIELD-INIT-01 | `north_star.yaml` | 锁定长期不应漂移的项目总约束，含 `adaptation_strategy` | N5 | north star 稳定性 | FAIL-INIT-01 |
 | FIELD-INIT-02 | `init_handoff.yaml` | 提供阶段入口种子与 `unknowns` | N5 | handoff 清晰度 | FAIL-INIT-02 |
 | FIELD-INIT-03 | 模式元数据与来源分层 | `init_mode / mode_source / team_ref / sources_breakdown` 可追溯 | N1 / N3 | provenance 完整性 | FAIL-INIT-03 |
-| FIELD-INIT-04 | `projects/<项目名>/team.yaml` | 顾问团队角色、作用阶段与最终闸门明确 | N5 | 团队治理清晰度 | FAIL-INIT-04 |
-| FIELD-INIT-05 | `projects/<项目名>/*.yaml|*.md` | 核心初始化工件与项目状态入口齐全；惰性治理工件按触发条件补齐 | N2 / N5 / N6 | 落盘规范性 | FAIL-INIT-05 |
+| FIELD-INIT-04 | `projects/aigc/<项目名>/team.yaml` | 顾问团队角色、作用阶段与最终闸门明确 | N5 | 团队治理清晰度 | FAIL-INIT-04 |
+| FIELD-INIT-05 | `projects/aigc/<项目名>/*.yaml|*.md` | 核心初始化工件与项目状态入口齐全；惰性治理工件按触发条件补齐 | N2 / N5 / N6 | 落盘规范性 | FAIL-INIT-05 |
 | FIELD-INIT-06 | 下一阶段建议 | 只推荐一个当前主入口阶段 | N7 | 路由确定性 | FAIL-INIT-06 |
 | FIELD-INIT-07 | 内部模式拓扑与审计门 | 路由、三种模式、充分性审计都内收到父 skill | N3 / N4 / N7 | 治理可执行性 | FAIL-INIT-07 |
+| FIELD-INIT-08 | `rebootstrap` 边界与 trace | 重置诉求被正确识别，保留/归档/清退边界清晰，旧周期工件不再混入 active truth | N0 / N6 / N7 | 重置边界清晰度 | FAIL-INIT-08 |
 
 ## Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
+| N0 | FIELD-INIT-08 | 本轮是首次初始化、重置式重新初始化，还是续跑诉求 | 锁定 `rebootstrap_requested / reset_mode / reset_reason` 与边界 | 把主动回炉误判为 `resume`，或直接清空故事主源 |
 | N1 | FIELD-INIT-03 | 模式是否已锁定且来源可追溯 | 记录 `init_mode / mode_source / decision_owner / research_policy` | 模式未锁就开始起草主工件 |
 | N2 | FIELD-INIT-05 | 项目根与 skeleton 是否已按 shared truth 预建 | 建目录骨架并锁定 canonical landing | runtime 路径漂移或沿用旧口径 |
 | N3 | FIELD-INIT-03 / FIELD-INIT-07 | 当前该走哪条模式路径，问题预算如何裁剪 | 产出 `route_plan_patch + context_packet_plan` | 路由能力散在外部真源或上下文过噪 |
 | N4 | FIELD-INIT-01 / FIELD-INIT-02 | 哪些模式内补料足以形成可吸收 patch | 产出 mode-specific patch / note / report | patch 变成平行主稿或越权结论 |
 | N5 | FIELD-INIT-01 / FIELD-INIT-02 / FIELD-INIT-04 / FIELD-INIT-05 | 核心五件套如何分工写回 | 聚合 `team / story-source / north_star / handoff / project_state` | `north_star` 与 handoff 混层，team 不成角色真源 |
-| N6 | FIELD-INIT-05 | 是否需要补惰性治理工件 | 按触发条件补 `governance-state` 与 HARNESS carriers | 轻量起盘被全量治理阻塞或深治理需求未承接 |
-| N7 | FIELD-INIT-06 / FIELD-INIT-07 | 是否已满足充分性与下一步一致性 | 审计、对齐、给唯一推荐入口 | 多入口冲突、来源不明、模式能力外置漂移 |
+| N6 | FIELD-INIT-05 / FIELD-INIT-08 | 是否需要补惰性治理工件与 reset trace | 按触发条件补 `governance-state`、HARNESS carriers 与 `reset_bridge` | 轻量起盘被全量治理阻塞，或重置后没有结构化 trace |
+| N7 | FIELD-INIT-06 / FIELD-INIT-07 / FIELD-INIT-08 | 是否已满足充分性、下一步一致性与重置边界 | 审计、对齐、给唯一推荐入口 | 多入口冲突、来源不明、模式能力外置漂移，或旧周期工件仍混入 active truth |
 
 ## Pass Table
 
@@ -662,6 +736,7 @@ B. 你先综合，我只做最后确认
 | FIELD-INIT-05 | `0-Init/` 与项目根工件齐全且路径正确；惰性治理按需补齐 | FAIL-INIT-05 | N2 / N5 / N6 |
 | FIELD-INIT-06 | 只返回一个当前主入口阶段 | FAIL-INIT-06 | N7 |
 | FIELD-INIT-07 | 路由、三种模式与充分性审计均内收到父 skill | FAIL-INIT-07 | N3 / N4 / N7 |
+| FIELD-INIT-08 | `rebootstrap` 被正确识别并留痕；旧周期工件已按 reset contract 退场 | FAIL-INIT-08 | N0 / N6 / N7 |
 
 ## Context Preload (Mandatory)
 

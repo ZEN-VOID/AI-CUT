@@ -85,21 +85,21 @@ TEMPLATE_REQUIRED_SNIPPETS = {
 }
 
 RUNBOOK_REQUIRED_SNIPPETS = [
-    "projects/<项目名>/",
+    "projects/aigc/<项目名>/",
     "Workflow-Specific Control Planes",
 ]
 
 REGISTRY_REQUIRED_SNIPPETS = {
     Path(".codex/registry/skills.yaml"): [
         "contract_mode: bootstrap_compat",
-        "canonical_project_runtime: projects/<项目名>/",
+        "canonical_project_runtime: projects/aigc/<项目名>/",
         "contract_status: shelved",
     ],
     Path(".codex/registry/routes.yaml"): [
         "id: aigc-bootstrap-compat-mode",
         "contract_mode: bootstrap_compat",
         "id: aigc-project-runtime",
-        "canonical_runtime_root: projects/<项目名>/",
+        "canonical_runtime_root: projects/aigc/<项目名>/",
         "id: aigc-shelved-stages",
     ],
 }

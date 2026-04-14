@@ -257,9 +257,11 @@ def extract_report_field(block: str, field_name: str) -> str | None:
 def locate_project_root(grouped_script_path: Path) -> Path:
     parts = grouped_script_path.parts
     if "projects" not in parts:
-        raise QuantizationError("分组文件路径必须位于 `projects/<项目名>/...` 下。")
+        raise QuantizationError("分组文件路径必须位于 `projects/aigc/<项目名>/...` 下。")
     projects_index = parts.index("projects")
     try:
+        if projects_index + 2 < len(parts) and parts[projects_index + 1] == "aigc":
+            return Path(*parts[: projects_index + 3])
         return Path(*parts[: projects_index + 2])
     except Exception as exc:
         raise QuantizationError(f"无法从路径解析项目根：{grouped_script_path}") from exc

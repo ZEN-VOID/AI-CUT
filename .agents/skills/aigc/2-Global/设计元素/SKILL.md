@@ -1,6 +1,6 @@
 ---
 name: aigc-global-design-elements
-description: Use when `2-Global` needs to turn `1-Planning/3-分组` grouped scripts plus `0-Init` seeds into a project-level design-direction bible for costumes and architectural scenes under `projects/<项目名>/2-Global/设计元素/设计元素.md`.
+description: Use when `2-Global` needs to turn `1-Planning/3-分组` grouped scripts plus `0-Init` seeds into a project-level design-direction bible for costumes and architectural scenes under `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`.
 governance_tier: full
 ---
 
@@ -19,7 +19,7 @@ governance_tier: full
 
 收束为一份项目级设计定调真源：
 
-- `projects/<项目名>/2-Global/设计元素/设计元素.md`
+- `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
 
 ## Truth Ownership
 
@@ -65,7 +65,7 @@ governance_tier: full
 
 ## When To Use
 
-- 已有 `projects/<项目名>/1-Planning/3-分组/第N集.md`，需要为整部影片建立服装与建筑场景的总设计定调。
+- 已有 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`，需要为整部影片建立服装与建筑场景的总设计定调。
 - 需要把题材时代属性显式纳入设计逻辑，而不是只写抽象审美形容词。
 - 需要让服装与建筑场景在同一世界观下形成统一设计语言，并允许不同叙事阶段发生成长与变化。
 - 需要为古代、现代、未来或混合型题材建立不同的研究/借鉴方法。
@@ -103,14 +103,14 @@ governance_tier: full
 7. `.agents/skills/aigc/0-Init/SKILL.md`
 8. `references/execution-flow.md`
 9. `references/era-routing.md`
-10. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-11. `projects/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
-12. `projects/<项目名>/1-Planning/episode-split-plan.json`
-13. `projects/<项目名>/0-Init/north_star.yaml`
-14. `projects/<项目名>/0-Init/init_handoff.yaml`
-15. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-16. 已有 `projects/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在，仅作横向对齐）
-17. 已有 `projects/<项目名>/2-Global/设计元素/设计元素.md`（若存在，用于增量 patch）
+10. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+11. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
+12. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+13. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+14. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+15. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+16. 已有 `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在，仅作横向对齐）
+17. 已有 `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在，用于增量 patch）
 18. `templates/设计元素.template.md`
 
 硬规则：
@@ -124,17 +124,17 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
 
 ### 可选输入
 
-- `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-- `projects/<项目名>/1-Planning/episode-split-plan.json`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/2-Global/全局风格/全局风格设计.md`
-- 已有 `projects/<项目名>/2-Global/设计元素/设计元素.md`
+- `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+- `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
+- 已有 `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
 - 用户补充的历史参考、设计偏好、当代大师名录或题材禁区
 
 ### 禁止输入
@@ -264,19 +264,19 @@ stateDiagram-v2
 3. 已同时产出服装定调与建筑场景定调，不能只写其中一条线。
 4. 已写出全剧或多阶段的成长 / 变化矩阵，不能只给静态设计总则。
 5. 对古代题材，已写清历史地域人文与时代禁区；对现代题材，已写清大师机制抽象与词汇造句；对未来题材，已写清超现实发挥的世界逻辑。
-6. canonical 输出已写入 `projects/<项目名>/2-Global/设计元素/设计元素.md`。
+6. canonical 输出已写入 `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`。
 7. 输出可直接被 `4-Design/服装`、`4-Design/场景` 与后续画面阶段继承，而不必重新解释。
 
 ## Output Contract (Mandatory)
 
 ### Canonical Output
 
-- `projects/<项目名>/2-Global/设计元素/设计元素.md`
+- `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
 
 ### Child-Local Canonical Rule
 
 - 本子技能以子目录 `设计元素/` 为唯一真源落点。
-- 若未来父阶段需要投影 `projects/<项目名>/2-Global/设计元素.md`，只能从本文件派生，不得双向编辑。
+- 若未来父阶段需要投影 `projects/aigc/<项目名>/2-Global/设计元素.md`，只能从本文件派生，不得双向编辑。
 
 ### Required Sections
 

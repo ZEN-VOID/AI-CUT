@@ -2,30 +2,30 @@
 
 ## Inputs
 
-- 首选：`projects/<项目名>/3-Detail/第N集.json`
-- 兼容：`projects/<项目名>/3-Detail/第N集.json`
+- 首选：`projects/aigc/<项目名>/3-Detail/第N集.json`
+- 兼容：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - shared schema：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 
 ## Default Output Root
 
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/`
 
 ## Commands
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json"
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json"
 ```
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json" \
-  --output-dir "projects/<项目名>/4-Design/道具/1-清单/第N集"
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
+  --output-dir "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集"
 ```
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json" \
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
   --dry-run
 ```
 

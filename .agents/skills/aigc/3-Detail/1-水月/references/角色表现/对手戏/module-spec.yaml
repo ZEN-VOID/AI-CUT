@@ -3,15 +3,18 @@ module_id: watermoon-character-duel
 module_level: leaf
 branch_key: character
 leaf_key: duet_drama
-purpose: 参照共享 `角色表现` 细则，把人物关系张力压成攻守、距离、视线、让压和信息交换等可演策略。
+purpose: 参照共享 `角色表现` 细则，把人物关系张力压成攻守、距离、视线、让压、话语节奏和信息交换等可演策略。
 triggers:
   - 分镜组中有双人或多人核心互动
   - 当前桥段的戏剧收益主要来自关系攻守而不是单人动作
+  - 当前互动包含有台词的对白博弈、试探、逼问、反击或情绪失守
 must_answer:
   - 谁在逼近，谁在回避
   - 当前优势落在谁手里
   - 哪个互动点最能制造张力
   - 当前空间与权力关系最适合什么攻守和距离策略
+  - 谁在掌控话语节奏，谁在被迫接话、吞话或改口
+  - 情绪该通过哪种断句、气口、停顿或抢话方式显形
 patch_contract:
   target_slot: character_patch
   append_fields:
@@ -31,3 +34,4 @@ quality_gates:
   - 必须落成演员可执行策略
   - 不得只说“关系复杂”
   - 不得脱离当前空间与站位空谈张力
+  - 有台词时不得只复述对白内容，必须写出情绪发法与话语攻守

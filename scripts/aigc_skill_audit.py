@@ -52,118 +52,118 @@ REFERENCE_MODULES = (
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
-    "0-Init": "projects/<项目名>/0-Init/",
-    "Story": "projects/<项目名>/Story/",
-    "1-Planning": "projects/<项目名>/1-Planning/",
-    "2-Global": "projects/<项目名>/2-Global/",
-    "3-Detail": "projects/<项目名>/3-Detail/",
-    "4-Design": "projects/<项目名>/4-Design/",
-    "5-Image": "projects/<项目名>/5-Image/",
-    "6-Video": "projects/<项目名>/6-Video/",
-    "7-Cut": "projects/<项目名>/7-Cut/",
+    "0-Init": "projects/aigc/<项目名>/0-Init/",
+    "Story": "projects/aigc/<项目名>/Story/",
+    "1-Planning": "projects/aigc/<项目名>/1-Planning/",
+    "2-Global": "projects/aigc/<项目名>/2-Global/",
+    "3-Detail": "projects/aigc/<项目名>/3-Detail/",
+    "4-Design": "projects/aigc/<项目名>/4-Design/",
+    "5-Image": "projects/aigc/<项目名>/5-Image/",
+    "6-Video": "projects/aigc/<项目名>/6-Video/",
+    "7-Cut": "projects/aigc/<项目名>/7-Cut/",
 }
 ROOT_STAGE_LANDING = (
-    "projects/<项目名>/0-Init/",
-    "projects/<项目名>/Story/",
-    "projects/<项目名>/1-Planning/",
-    "projects/<项目名>/2-Global/",
-    "projects/<项目名>/3-Detail/",
-    "projects/<项目名>/4-Design/",
-    "projects/<项目名>/5-Image/",
-    "projects/<项目名>/6-Video/",
-    "projects/<项目名>/7-Cut/",
+    "projects/aigc/<项目名>/0-Init/",
+    "projects/aigc/<项目名>/Story/",
+    "projects/aigc/<项目名>/1-Planning/",
+    "projects/aigc/<项目名>/2-Global/",
+    "projects/aigc/<项目名>/3-Detail/",
+    "projects/aigc/<项目名>/4-Design/",
+    "projects/aigc/<项目名>/5-Image/",
+    "projects/aigc/<项目名>/6-Video/",
+    "projects/aigc/<项目名>/7-Cut/",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
-    "projects/<项目名>/设定/",
-    "projects/<项目名>/1-规划/",
-    "projects/<项目名>/2-组间/",
-    "projects/<项目名>/3-明细/",
-    "projects/<项目名>/主体/",
-    "projects/<项目名>/4-主体/",
-    "projects/<项目名>/5-画面/",
-    "projects/<项目名>/6-视频/",
-    "projects/<项目名>/7-后期/",
+    "projects/aigc/<项目名>/设定/",
+    "projects/aigc/<项目名>/1-规划/",
+    "projects/aigc/<项目名>/2-组间/",
+    "projects/aigc/<项目名>/3-明细/",
+    "projects/aigc/<项目名>/主体/",
+    "projects/aigc/<项目名>/4-主体/",
+    "projects/aigc/<项目名>/5-画面/",
+    "projects/aigc/<项目名>/6-视频/",
+    "projects/aigc/<项目名>/7-后期/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
-    "projects/<项目名>/project_state.yaml",
-    "projects/<项目名>/governance-state.yaml",
+    "projects/aigc/<项目名>/project_state.yaml",
+    "projects/aigc/<项目名>/governance-state.yaml",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
-    "1-Planning": "projects/<项目名>/1-Planning/validation-report.md",
-    "2-Global": "projects/<项目名>/2-Global/validation-report.md",
-    "3-Detail": "projects/<项目名>/3-Detail/validation-report.md",
-    "4-Design": "projects/<项目名>/4-Design/validation-report.md",
+    "1-Planning": "projects/aigc/<项目名>/1-Planning/validation-report.md",
+    "2-Global": "projects/aigc/<项目名>/2-Global/validation-report.md",
+    "3-Detail": "projects/aigc/<项目名>/3-Detail/validation-report.md",
+    "4-Design": "projects/aigc/<项目名>/4-Design/validation-report.md",
 }
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
-        "projects/<项目名>/0-Init/",
-        "projects/<项目名>/Story/",
-        "projects/<项目名>/1-Planning/",
-        "projects/<项目名>/1-Planning/1-分集/",
-        "projects/<项目名>/1-Planning/2-格式/",
-        "projects/<项目名>/1-Planning/3-分组/",
-        "projects/<项目名>/2-Global/",
-        "projects/<项目名>/3-Detail/",
-        "projects/<项目名>/4-Design/",
-        "projects/<项目名>/4-Design/场景/1-清单/",
-        "projects/<项目名>/4-Design/场景/2-设计/",
-        "projects/<项目名>/4-Design/场景/3-面板/",
-        "projects/<项目名>/4-Design/角色/1-清单/",
-        "projects/<项目名>/4-Design/角色/2-设计/",
-        "projects/<项目名>/4-Design/角色/3-面板/",
-        "projects/<项目名>/4-Design/服装/1-清单/",
-        "projects/<项目名>/4-Design/服装/2-设计/",
-        "projects/<项目名>/4-Design/服装/3-面板/",
-        "projects/<项目名>/4-Design/道具/1-清单/",
-        "projects/<项目名>/4-Design/道具/2-设计/",
-        "projects/<项目名>/4-Design/道具/3-面板/",
-        "projects/<项目名>/5-Image/",
-        "projects/<项目名>/5-Image/分镜故事板/",
-        "projects/<项目名>/5-Image/分镜帧/",
-        "projects/<项目名>/5-Image/漫画/",
-        "projects/<项目名>/6-Video/",
-        "projects/<项目名>/6-Video/全能参照/",
-        "projects/<项目名>/6-Video/首帧参照/",
-        "projects/<项目名>/6-Video/生成任务/",
-        "projects/<项目名>/7-Cut/",
+        "projects/aigc/<项目名>/0-Init/",
+        "projects/aigc/<项目名>/Story/",
+        "projects/aigc/<项目名>/1-Planning/",
+        "projects/aigc/<项目名>/1-Planning/1-分集/",
+        "projects/aigc/<项目名>/1-Planning/2-格式/",
+        "projects/aigc/<项目名>/1-Planning/3-分组/",
+        "projects/aigc/<项目名>/2-Global/",
+        "projects/aigc/<项目名>/3-Detail/",
+        "projects/aigc/<项目名>/4-Design/",
+        "projects/aigc/<项目名>/4-Design/场景/1-清单/",
+        "projects/aigc/<项目名>/4-Design/场景/2-设计/",
+        "projects/aigc/<项目名>/4-Design/场景/3-面板/",
+        "projects/aigc/<项目名>/4-Design/角色/1-清单/",
+        "projects/aigc/<项目名>/4-Design/角色/2-设计/",
+        "projects/aigc/<项目名>/4-Design/角色/3-面板/",
+        "projects/aigc/<项目名>/4-Design/服装/1-清单/",
+        "projects/aigc/<项目名>/4-Design/服装/2-设计/",
+        "projects/aigc/<项目名>/4-Design/服装/3-面板/",
+        "projects/aigc/<项目名>/4-Design/道具/1-清单/",
+        "projects/aigc/<项目名>/4-Design/道具/2-设计/",
+        "projects/aigc/<项目名>/4-Design/道具/3-面板/",
+        "projects/aigc/<项目名>/5-Image/",
+        "projects/aigc/<项目名>/5-Image/分镜故事板/",
+        "projects/aigc/<项目名>/5-Image/分镜帧/",
+        "projects/aigc/<项目名>/5-Image/漫画/",
+        "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/6-Video/全能参照/",
+        "projects/aigc/<项目名>/6-Video/首帧参照/",
+        "projects/aigc/<项目名>/6-Video/生成任务/",
+        "projects/aigc/<项目名>/7-Cut/",
     ),
     ROOT / "1-Planning" / "SKILL.md": (
-        "projects/<项目名>/1-Planning/",
-        "projects/<项目名>/1-Planning/validation-report.md",
+        "projects/aigc/<项目名>/1-Planning/",
+        "projects/aigc/<项目名>/1-Planning/validation-report.md",
     ),
     ROOT / "4-Design" / "SKILL.md": (
-        "projects/<项目名>/4-Design/",
+        "projects/aigc/<项目名>/4-Design/",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
-        "projects/<项目名>/5-Image/",
-        "projects/<项目名>/5-Image/分镜故事板/",
-        "projects/<项目名>/5-Image/分镜帧/",
-        "projects/<项目名>/5-Image/漫画/",
+        "projects/aigc/<项目名>/5-Image/",
+        "projects/aigc/<项目名>/5-Image/分镜故事板/",
+        "projects/aigc/<项目名>/5-Image/分镜帧/",
+        "projects/aigc/<项目名>/5-Image/漫画/",
     ),
     ROOT / "6-Video" / "SKILL.md": (
-        "projects/<项目名>/6-Video/",
-        "projects/<项目名>/6-Video/全能参照/",
-        "projects/<项目名>/6-Video/首帧参照/",
-        "projects/<项目名>/6-Video/生成任务/",
+        "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/6-Video/全能参照/",
+        "projects/aigc/<项目名>/6-Video/首帧参照/",
+        "projects/aigc/<项目名>/6-Video/生成任务/",
     ),
 }
 STAGE_RUNTIME_FORBIDDEN = {
     ROOT / "0-Init" / "SKILL.md": (
-        "projects/<项目名>/主体/",
-        "projects/<项目名>/4-主体/",
-        "projects/<项目名>/5-画面/",
-        "projects/<项目名>/6-视频/",
-        "projects/<项目名>/2-组间/validation-report.md",
-        "projects/<项目名>/3-明细/validation-report.md",
+        "projects/aigc/<项目名>/主体/",
+        "projects/aigc/<项目名>/4-主体/",
+        "projects/aigc/<项目名>/5-画面/",
+        "projects/aigc/<项目名>/6-视频/",
+        "projects/aigc/<项目名>/2-组间/validation-report.md",
+        "projects/aigc/<项目名>/3-明细/validation-report.md",
     ),
     ROOT / "1-Planning" / "SKILL.md": (
-        "runtime 根目录：`projects/<项目名>/0-Init/`",
-        "阶段验证报告：`projects/<项目名>/0-Init/validation-report.md`",
+        "runtime 根目录：`projects/aigc/<项目名>/0-Init/`",
+        "阶段验证报告：`projects/aigc/<项目名>/0-Init/validation-report.md`",
     ),
     ROOT / "6-Video" / "SKILL.md": (
-        "projects/<项目名>/设定/",
-        "projects/<项目名>/5-画面/",
-        "projects/<项目名>/主体/",
+        "projects/aigc/<项目名>/设定/",
+        "projects/aigc/<项目名>/5-画面/",
+        "projects/aigc/<项目名>/主体/",
     ),
 }
 REQUIRED_SATELLITES = {
@@ -399,17 +399,17 @@ def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict], str]:
 
     contract_mode = aigc_entry.get("contract_mode", "")
     runtime_control = aigc_entry.get("runtime_control", {})
-    if runtime_control.get("canonical_project_runtime") != "projects/<项目名>/":
+    if runtime_control.get("canonical_project_runtime") != "projects/aigc/<项目名>/":
         failures.append(
-            f"{REGISTRY}: `aigc.runtime_control.canonical_project_runtime` must be `projects/<项目名>/`"
+            f"{REGISTRY}: `aigc.runtime_control.canonical_project_runtime` must be `projects/aigc/<项目名>/`"
         )
-    if runtime_control.get("project_state_carrier") != "projects/<项目名>/project_state.yaml":
+    if runtime_control.get("project_state_carrier") != "projects/aigc/<项目名>/project_state.yaml":
         failures.append(
-            f"{REGISTRY}: `aigc.runtime_control.project_state_carrier` must be `projects/<项目名>/project_state.yaml`"
+            f"{REGISTRY}: `aigc.runtime_control.project_state_carrier` must be `projects/aigc/<项目名>/project_state.yaml`"
         )
-    if runtime_control.get("governance_state_carrier") != "projects/<项目名>/governance-state.yaml":
+    if runtime_control.get("governance_state_carrier") != "projects/aigc/<项目名>/governance-state.yaml":
         failures.append(
-            f"{REGISTRY}: `aigc.runtime_control.governance_state_carrier` must be `projects/<项目名>/governance-state.yaml`"
+            f"{REGISTRY}: `aigc.runtime_control.governance_state_carrier` must be `projects/aigc/<项目名>/governance-state.yaml`"
         )
 
     stage_index = aigc_entry.get("stage_index", [])
@@ -449,11 +449,11 @@ def audit_routes(contract_mode: str, failures: list[str]) -> None:
         failures.append(f"{ROUTES}: missing workflow carrier `aigc-project-runtime`")
         return
 
-    if aigc_runtime.get("canonical_runtime_root") != "projects/<项目名>/":
+    if aigc_runtime.get("canonical_runtime_root") != "projects/aigc/<项目名>/":
         failures.append(f"{ROUTES}: `aigc-project-runtime` canonical root mismatch")
-    if aigc_runtime.get("project_state_carrier") != "projects/<项目名>/project_state.yaml":
+    if aigc_runtime.get("project_state_carrier") != "projects/aigc/<项目名>/project_state.yaml":
         failures.append(f"{ROUTES}: `aigc-project-runtime` project_state carrier mismatch")
-    if aigc_runtime.get("governance_state_carrier") != "projects/<项目名>/governance-state.yaml":
+    if aigc_runtime.get("governance_state_carrier") != "projects/aigc/<项目名>/governance-state.yaml":
         failures.append(f"{ROUTES}: `aigc-project-runtime` governance_state carrier mismatch")
     if contract_mode == BOOTSTRAP_COMPAT_MODE and aigc_runtime.get("contract_mode") != BOOTSTRAP_COMPAT_MODE:
         failures.append(
@@ -744,7 +744,7 @@ def main() -> int:
         failures.append(f"{ROOT_SKILL}: missing")
     else:
         root_content = ROOT_SKILL.read_text(encoding="utf-8")
-        if "projects/<项目名>/" not in root_content:
+        if "projects/aigc/<项目名>/" not in root_content:
             failures.append(f"{ROOT_SKILL}: missing canonical project-root runtime declaration")
 
     if ROOT_CONTEXT.exists() and ROOT_CONTEXT.stat().st_size == 0:

@@ -1,6 +1,6 @@
 ---
 name: aigc-storyboard-sheet
-description: Use when the `5-Image` stage needs to turn a storyboard group from `projects/<项目名>/3-Detail/第N集.json` into group-level image request JSON for a multi-panel storyboard, especially before downstream consistency or image-generation subtypes run.
+description: Use when the `5-Image` stage needs to turn a storyboard group from `projects/aigc/<项目名>/3-Detail/第N集.json` into group-level image request JSON for a multi-panel storyboard, especially before downstream consistency or image-generation subtypes run.
 governance_tier: full
 ---
 
@@ -14,7 +14,7 @@ governance_tier: full
 
 ## 概述
 
-`分镜故事板` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/<项目名>/3-Detail/第N集.json` 中符合 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 的 `final_output.main_content.分镜组列表[]`，收口为 **每个分镜组 1 条多格 storyboard 图像请求 JSON**。
+`分镜故事板` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中符合 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 的 `final_output.main_content.分镜组列表[]`，收口为 **每个分镜组 1 条多格 storyboard 图像请求 JSON**。
 
 本技能只负责图像请求 JSON 蒸馏，不负责真实图片生成，也不改写上游镜头事实。
 
@@ -28,7 +28,7 @@ governance_tier: full
 
 固定边界：
 
-- 上游第一事实源固定为 `projects/<项目名>/3-Detail/第N集.json`
+- 上游第一事实源固定为 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - shared JSON 模板固定为 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 默认业务输出模式固定为 `json_only`
@@ -78,7 +78,7 @@ governance_tier: full
 | `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏、不做一致性处理、不做模型提交 |
 | `success_criteria` | 分镜组可唯一回链；`storyboard_group` 覆盖完整；固定前缀逐字保留；共享模板骨架完整；输出可 handoff |
 | `evidence_sources` | `3-Detail/第N集.json`、shared schema、shared image template、可选 `3-Detail/evidence/` 与 `4-Design/` |
-| `canonical_output` | `projects/<项目名>/5-Image/分镜故事板/第N集/第N集.json` |
+| `canonical_output` | `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json` |
 
 ### 强制加载顺序
 
@@ -94,21 +94,21 @@ governance_tier: full
 
 ## Canonical Inputs
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 
 ### 推荐补充输入
 
-- `projects/<项目名>/3-Detail/evidence/` 下相关 sidecar：仅在核对分镜组语义缺口时读取
-- `projects/<项目名>/4-Design/` 下角色、场景、道具参考：仅登记到 `model.reference_images / image_markers`
+- `projects/aigc/<项目名>/3-Detail/evidence/` 下相关 sidecar：仅在核对分镜组语义缺口时读取
+- `projects/aigc/<项目名>/4-Design/` 下角色、场景、道具参考：仅登记到 `model.reference_images / image_markers`
 
 ## Canonical Landing
 
-- 子路径根目录：`projects/<项目名>/5-Image/分镜故事板/`
-- 单集目录：`projects/<项目名>/5-Image/分镜故事板/第N集/`
-- 汇总 JSON：`projects/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
-- 汇总清单：`projects/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
+- 子路径根目录：`projects/aigc/<项目名>/5-Image/分镜故事板/`
+- 单集目录：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/`
+- 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
+- 汇总清单：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
 
 ## Business Requirement Analysis Contract
 
@@ -241,7 +241,7 @@ stateDiagram-v2
 
 #### 一步一步
 
-1. 读取 `projects/<项目名>/3-Detail/第N集.json`。
+1. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 2. 对照 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 检查 shared 壳是否成立。
 3. 检查 `分镜组列表[]` 是否存在且至少含一个可消费组。
 4. 将缺口拆成两类：
@@ -359,7 +359,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 #### 一步一步
 
-1. 将每个分镜组的单条请求对象写入 `projects/<项目名>/5-Image/分镜故事板/第N集/第N集.json`。
+1. 将每个分镜组的单条请求对象写入 `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`。
 2. 若模式是 `full_trace`，额外生成 `_manifest.json`，用于承载可追溯摘要与思考过程浓缩说明。
 3. 执行最终汇流检查：
    - prompt 结构正确
@@ -403,11 +403,11 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 ### 唯一业务输出
 
-- `projects/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
+- `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
 
 ### 条件侧车
 
-- `projects/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当 `full_trace`）
+- `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当 `full_trace`）
 
 ### 只输出什么
 

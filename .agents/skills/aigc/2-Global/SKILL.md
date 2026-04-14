@@ -16,7 +16,7 @@ governance_tier: full
 - `0-Init` 的项目基线、世界约束与题材 corridor
 - `全局风格 / 类型元素 / 设计元素` 三条 active 子技能
 
-收束为 `projects/<项目名>/2-Global/` 下的项目级设计真源，并为后续 `3-Detail` 准备同一条导演链路的 handoff。
+收束为 `projects/aigc/<项目名>/2-Global/` 下的项目级设计真源，并为后续 `3-Detail` 准备同一条导演链路的 handoff。
 
 当前阶段根合同遵循两个原则：
 
@@ -78,7 +78,7 @@ governance_tier: full
 
 ## When Not To Use
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md` 还不存在
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` 还不存在
 - 当前只是局部修一份子技能输出，不涉及阶段路由、聚合或 handoff
 - 当前已经进入 `3-Detail` 的 shot-level 补齐，而不是全局设计阶段
 
@@ -87,10 +87,10 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 以 `1-Planning/3-分组` 为主输入、`0-Init` 为附加上下文，统一调度 `2-Global` active 子技能，形成项目级全局设计真源并完成阶段交接准备。 |
-| `business_object` | `projects/<项目名>/2-Global/全局风格/全局风格设计.md`、`类型元素/全集设计.md`、`类型元素/分组设计.md`、`设计元素/设计元素.md`、`projects/<项目名>/2-Global/validation-report.md`。 |
+| `business_object` | `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`、`类型元素/全集设计.md`、`类型元素/分组设计.md`、`设计元素/设计元素.md`、`projects/aigc/<项目名>/2-Global/validation-report.md`。 |
 | `constraint_profile` | grouped script 是第一主输入；`0-Init` 只补长期约束；active 子技能只写局部 canonical；未调度子技能不得补空占位；`组间设计 seed` 目前是阶段预留 handoff，不得伪造。 |
 | `success_criteria` | 已明确本轮命中子技能、共享输入锁定正确、各 canonical 输出落盘、阶段级验收结论存在，并能说明是否已具备 `3-Detail` handoff readiness。 |
-| `non_goals` | 不直接替代子技能写业务正文；不在当前无稳定子链路时假写 `projects/<项目名>/3-Detail/第N集.json`；不把阶段父 skill 写成第二份子技能细则。 |
+| `non_goals` | 不直接替代子技能写业务正文；不在当前无稳定子链路时假写 `projects/aigc/<项目名>/3-Detail/第N集.json`；不把阶段父 skill 写成第二份子技能细则。 |
 | `complexity_source` | 三个 active 子技能共享同一主输入但输出类型不同；阶段级验收要同时处理已执行与未执行子技能；`3-Detail` handoff 既要对齐根合同，又要避免伪造不存在的组级导演链。 |
 | `topology_fit` | 固定为“输入锁定 -> 顾问团 gate -> selective dispatch -> 子技能执行/复用 -> 阶段验收 -> handoff readiness -> stage validation”。 |
 | `step_strategy` | 父 `SKILL.md` 保留主骨架、Mermaid、字段表与阶段门；子技能细则留在各自目录，不在父层重复展开。 |
@@ -110,29 +110,29 @@ governance_tier: full
 9. `全局风格/SKILL.md`
 10. `类型元素/SKILL.md`
 11. `设计元素/SKILL.md`
-12. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-13. `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-14. `projects/<项目名>/1-Planning/episode-split-plan.json`
-15. `projects/<项目名>/0-Init/north_star.yaml`
-16. `projects/<项目名>/0-Init/init_handoff.yaml`
-17. `projects/<项目名>/team.yaml`（若存在）
-18. 已有 `projects/<项目名>/2-Global/` 子技能输出
+12. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+13. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+14. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+15. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+16. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+17. `projects/aigc/<项目名>/team.yaml`（若存在）
+18. 已有 `projects/aigc/<项目名>/2-Global/` 子技能输出
 
 ## Total Input Contract (Mandatory)
 
 ### 必需输入
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-- `projects/<项目名>/1-Planning/episode-split-plan.json`
-- `projects/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+- `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+- `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
 
 ### 可选输入
 
-- `projects/<项目名>/0-Init/init_handoff.yaml`
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/team.yaml`
-- 已有 `projects/<项目名>/2-Global/` 子技能真源
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/team.yaml`
+- 已有 `projects/aigc/<项目名>/2-Global/` 子技能真源
 - 用户显式指定的命中子技能、剧集范围、返工范围
 
 ### 硬规则
@@ -153,18 +153,18 @@ governance_tier: full
 - selective dispatch
 - stage validation
 - handoff readiness summary
-- `projects/<项目名>/2-Global/validation-report.md` 写回
+- `projects/aigc/<项目名>/2-Global/validation-report.md` 写回
 
 当前 active 子技能 canonical 输出：
 
-- `projects/<项目名>/2-Global/全局风格/全局风格设计.md`
-- `projects/<项目名>/2-Global/类型元素/全集设计.md`
-- `projects/<项目名>/2-Global/类型元素/分组设计.md`
-- `projects/<项目名>/2-Global/设计元素/设计元素.md`
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
+- `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+- `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
+- `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
 
 当前阶段级预留 handoff：
 
-- `projects/<项目名>/3-Detail/第N集.json` 的 `组间设计 seed`
+- `projects/aigc/<项目名>/3-Detail/第N集.json` 的 `组间设计 seed`
 
 预留 handoff 规则：
 
@@ -235,19 +235,19 @@ stateDiagram-v2
 2. 本轮命中的 active 子技能 canonical 输出已落盘
 3. 阶段级 inventory 能说明哪些输出已完成、哪些未执行、哪些仍预留
 4. 已明确 `3-Detail` handoff readiness 是 `ready / partial / blocked`
-5. `projects/<项目名>/2-Global/validation-report.md` 已写回
+5. `projects/aigc/<项目名>/2-Global/validation-report.md` 已写回
 6. 未把不存在的 `导演意图 / 组间设计 seed` 链路伪造成已完成
 
 ## Canonical Output Contract
 
 ### Stage-Level Outputs
 
-- `projects/<项目名>/2-Global/validation-report.md`
+- `projects/aigc/<项目名>/2-Global/validation-report.md`
 - 子技能 canonical 输出清单：
-  - `projects/<项目名>/2-Global/全局风格/全局风格设计.md`
-  - `projects/<项目名>/2-Global/类型元素/全集设计.md`
-  - `projects/<项目名>/2-Global/类型元素/分组设计.md`
-  - `projects/<项目名>/2-Global/设计元素/设计元素.md`
+  - `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
+  - `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`
+  - `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
+  - `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
 
 ### Stage Validation Must Cover
 

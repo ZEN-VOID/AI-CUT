@@ -2,7 +2,7 @@ version: 1
 module_id: jinghua-shot-composition
 module_level: leaf
 stage_order: 1.3
-purpose: 为已插入的各分镜补构图布局、主陪背景层级、焦点路径、镜头描述子槽和空间锚点，使后续摄影与运镜可沿同一 shot-local envelope 叠加。
+purpose: 为已插入的各分镜补构图布局、主陪背景层级、焦点路径、五个镜头描述子槽、景别节奏模板、POV 策略、心理距离复核和空间锚点，使后续摄影与运镜可沿同一 shot-local envelope 叠加。
 triggers:
   - 已有 `shot_marker_spine`
   - 需要把每镜的画面组织收束成可继承的 shot-local envelope
@@ -12,8 +12,11 @@ must_answer:
   - 每一镜主看点落在画面哪里，第二焦点和观看路径如何组织
   - 画面重心、负空间、入口出口和前后高低关系如何服务冲突
   - 采用了哪种构图方式，以及为什么这样选
-  - "`景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角` 如何与构图判断保持一致"
+  - "`景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角` 如何与构图判断保持一致，并形成稳定的 shot descriptor lock"
   - 前景/中景/后景、空间轴线与入口出口如何帮助读者理解空间和情绪
+  - 当前段落的 `叙事内核 / Previous End / Current Mission / Next Start / 情绪引导` 如何落成景别与视点节奏
+  - 当前段落更适合哪种 `景别节奏模板` 与 `POV 策略`
+  - 命中镜头窗口内，实际景别曲线、心理距离与情感目标是否一致
 patch_contract:
   target_slot: composition_skeleton
   required_elements:
@@ -25,6 +28,11 @@ patch_contract:
     - composition_method_note
     - depth_layer_hint
     - shot_descriptor_patch
+    - shot_descriptor_lock
+    - shot_size_rhythm_verdict
+    - pov_strategy_preview
+    - psychological_distance_review
+    - axis_geometry_note
     - space_anchor_note
 merge_policy:
   preserve_first:
@@ -42,6 +50,11 @@ quality_gates:
   - 必须解释主体重心、负空间、入口出口与观看路径，而不是只报一个景别
   - 构图方式必须服务镜头任务，不得只为形式好看
   - "`景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角` 必须彼此协调"
+  - 每镜都必须锁定最该突出的第一焦点，并明确第二焦点与观看路径
+  - 必须显式交代空间锚点、镜头轴线与主体几何关系，不能只写“前景/后景”
+  - "`SB-8` 至少要锁定 POV 选择、道德立场与切换策略"
+  - "`SB-14` 必须对照 `SB-4` 的景别节奏模板，回答 `预判模板 / 实际曲线 / 偏离分析`"
+  - "`SB-14` 必须逐镜复核物理景别、预期心理距离与实际心理效果，不得只做总评"
   - 第一焦点、第二焦点和观看路径必须稳定，不得让观众注意力漂移
   - 构图不能替代上游发明新关系或新空间
   - 不得只给抽象美学词而无画面组织

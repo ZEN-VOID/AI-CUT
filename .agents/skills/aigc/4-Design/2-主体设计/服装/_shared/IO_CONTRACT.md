@@ -6,25 +6,25 @@
 
 | 类型 | 路径 | 作用 |
 | --- | --- | --- |
-| 必需 | `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json` | 当前集服装桥接主输入 |
-| 必需 | `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json` | 研究层证据与结论 |
-| 必需 | `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json` | 当前集服装对象池 |
-| 可选 | `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json` | 角色锚点与角色兼容约束 |
-| 必需 | `projects/<项目名>/3-Detail/第N集.json` | 镜头级穿搭与动作证据 |
-| 必需 | `projects/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
-| 必需 | `projects/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段服装侧约束 |
-| 必需 | `projects/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
-| 必需 | `projects/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
-| 可选 | `projects/<项目名>/4-Design/服装/2-设计/第N集/*` | 已有服装设计稿，供增量 patch 使用 |
+| 必需 | `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json` | 当前集服装桥接主输入 |
+| 必需 | `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json` | 研究层证据与结论 |
+| 必需 | `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json` | 当前集服装对象池 |
+| 可选 | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json` | 角色锚点与角色兼容约束 |
+| 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级穿搭与动作证据 |
+| 必需 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
+| 必需 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段服装侧约束 |
+| 必需 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
+| 必需 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
+| 可选 | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*` | 已有服装设计稿，供增量 patch 使用 |
 
 ## Outputs
 
 | 类型 | 路径 | 责任 |
 | --- | --- | --- |
-| canonical | `projects/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json` | machine-first 服装设计主稿 |
-| canonical | `projects/<项目名>/4-Design/服装/2-设计/第N集/<costume_id>-<canonical_label>.md` | 与 JSON 同源的人读稿 |
-| canonical | `projects/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json` | prompt sidecar |
-| canonical | `projects/<项目名>/4-Design/服装/2-设计/第N集/_manifest.json` | 本轮输入、命中服装、输出清单与审计摘要 |
+| canonical | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json` | machine-first 服装设计主稿 |
+| canonical | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/<costume_id>-<canonical_label>.md` | 与 JSON 同源的人读稿 |
+| canonical | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json` | prompt sidecar |
+| canonical | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/_manifest.json` | 本轮输入、命中服装、输出清单与审计摘要 |
 | handoff | `agents_plan + patch / note / report` | subagents 返回给父 skill 的思考计划与局部增量 |
 
 ## Naming Contract

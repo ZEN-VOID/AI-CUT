@@ -1,6 +1,6 @@
 ---
 name: aigc
-description: Use when operating the repository's core multi-skill AIGC film workflow across project initialization, planning, inter-group directing, detail design, subject design, visuals, video, and post-production stages.
+description: Use when operating the repository's core multi-skill AIGC film workflow across project initialization, reinitialization, planning, inter-group directing, detail design, subject design, visuals, video, and post-production stages.
 governance_tier: full
 ---
 
@@ -24,7 +24,7 @@ governance_tier: full
 
 - 当前 `aigc` 根技能已切换到 `bootstrap_compat` 改造窗口。
 - 在这个窗口内，harness 对 `aigc` 根技能固定的真源只有四类：
-  - `projects/<项目名>/` 项目 runtime 与根层治理工件
+  - `projects/aigc/<项目名>/` 项目 runtime 与根层治理工件
   - `.codex/registry/skills.yaml` / `.codex/registry/routes.yaml` 的根注册与路由入口
   - `query / resume / review` 三个根级卫星技能入口
   - 高风险任务的 `preflight-verdict` 与完成闭环的 `validation-report`
@@ -34,7 +34,8 @@ governance_tier: full
 ## 使用场景
 
 - 初始化一个新的 AIGC 创作项目
-- 在 `projects/<项目名>/` 下推进影视创作主链
+- 对已初始化项目执行“回到初始化态重来”的重置式重新初始化
+- 在 `projects/aigc/<项目名>/` 下推进影视创作主链
 - 判断当前任务应该进入 `1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video`、`7-Cut` 的哪一个阶段
 - 查询某个 AIGC 项目的 runtime 真源、阶段产物、编导根文件、设计/画面/视频资产与治理工件
 - 续跑一个中断的创作项目
@@ -45,21 +46,21 @@ governance_tier: full
 
 ### Canonical Project Root
 
-- 创作项目根目录：`projects/<项目名>/`
-- 项目级团队真源：`projects/<项目名>/team.yaml`
-- 项目运行时目录：`projects/<项目名>/`，并以此作为 AIGC 项目运行时唯一真源
+- 创作项目根目录：`projects/aigc/<项目名>/`
+- 项目级团队真源：`projects/aigc/<项目名>/team.yaml`
+- 项目运行时目录：`projects/aigc/<项目名>/`，并以此作为 AIGC 项目运行时唯一真源
 
 ### Canonical Stage Landing
 
-- `projects/<项目名>/0-Init/`
-- `projects/<项目名>/Story/`
-- `projects/<项目名>/1-Planning/`
-- `projects/<项目名>/2-Global/`
-- `projects/<项目名>/3-Detail/`
-- `projects/<项目名>/4-Design/`
-- `projects/<项目名>/5-Image/`
-- `projects/<项目名>/6-Video/`
-- `projects/<项目名>/7-Cut/`
+- `projects/aigc/<项目名>/0-Init/`
+- `projects/aigc/<项目名>/Story/`
+- `projects/aigc/<项目名>/1-Planning/`
+- `projects/aigc/<项目名>/2-Global/`
+- `projects/aigc/<项目名>/3-Detail/`
+- `projects/aigc/<项目名>/4-Design/`
+- `projects/aigc/<项目名>/5-Image/`
+- `projects/aigc/<项目名>/6-Video/`
+- `projects/aigc/<项目名>/7-Cut/`
 
 说明：
 
@@ -69,15 +70,15 @@ governance_tier: full
 ### Canonical Runtime Artifacts
 
 - 核心运行时工件：
-  - `projects/<项目名>/project_state.yaml`
+  - `projects/aigc/<项目名>/project_state.yaml`
 - 惰性治理工件：
-  - `projects/<项目名>/governance-state.yaml`
-  - `projects/<项目名>/mandate.yaml`
-  - `projects/<项目名>/mission-brief.yaml`
-  - `projects/<项目名>/route-plan.yaml`
-  - `projects/<项目名>/preflight-verdict.yaml`
-  - `projects/<项目名>/validation-report.md`
-  - `projects/<项目名>/learning-record.md`
+  - `projects/aigc/<项目名>/governance-state.yaml`
+  - `projects/aigc/<项目名>/mandate.yaml`
+  - `projects/aigc/<项目名>/mission-brief.yaml`
+  - `projects/aigc/<项目名>/route-plan.yaml`
+  - `projects/aigc/<项目名>/preflight-verdict.yaml`
+  - `projects/aigc/<项目名>/validation-report.md`
+  - `projects/aigc/<项目名>/learning-record.md`
 
 ### Shared Runtime Source
 
@@ -114,11 +115,11 @@ governance_tier: full
 - `query`
   - 根级事实查询卫星技能
   - 默认挂在尚书省执行侧，治理分域偏 `户部`
-  - 负责围绕 `projects/<项目名>/` 读取项目状态、阶段产物、`3-Detail` 主文件、资产落点与治理工件，不改写业务真源
+  - 负责围绕 `projects/aigc/<项目名>/` 读取项目状态、阶段产物、`3-Detail` 主文件、资产落点与治理工件，不改写业务真源
 - `resume`
   - 根级续跑恢复卫星技能
   - 默认挂在尚书省执行侧，治理分域偏 `兵部`
-  - 负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根技能或目标阶段
+  - 负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根技能或目标阶段；不处理“主动回到初始化态重来”
 - `review`
   - 根级复核承接卫星技能
   - 默认挂在门下省复核侧，治理分域偏 `刑部`
@@ -175,14 +176,14 @@ governance_tier: full
 - 尚书省
   - 阶段执行调度
   - 项目状态与产物维护
-  - `projects/<项目名>/` canonical runtime
+  - `projects/aigc/<项目名>/` canonical runtime
 
 ### 六部
 
 | 六部 | 在 `aigc` 根技能中的挂载 |
 | --- | --- |
 | 吏部 | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml` 对 `aigc` 的注册与路由 |
-| 户部 | 根 `CONTEXT.md`、`projects/<项目名>/project_state.yaml` 与 `projects/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
+| 户部 | 根 `CONTEXT.md`、`projects/aigc/<项目名>/project_state.yaml` 与 `projects/aigc/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
 | 礼部 | `.codex/templates/harness/` 与项目级工件合同 |
 | 兵部 | 主阶段链与子技能调度；`resume` 负责续跑与恢复回接 |
 | 刑部 | 根验收闭环、阶段审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
@@ -190,11 +191,11 @@ governance_tier: full
 
 ## 强制工作流
 
-1. 确认或创建 `projects/<项目名>/`
-2. 在 `projects/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
+1. 确认或创建 `projects/aigc/<项目名>/`
+2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
 4. 若后续进入 `1-Planning / 2-Global / 3-Detail / 4-Design`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-5. 判断当前任务属于初始化、规划、组间、明细、设计、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
+5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段合同缺失，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
@@ -206,7 +207,7 @@ governance_tier: full
 ## 硬规则
 
 1. `aigc` 根技能是总控面，不是替代各阶段产物的第二真源。
-2. 创作项目的 canonical workspace 必须优先落在 `projects/<项目名>/`。
+2. 创作项目的 canonical workspace 必须优先落在 `projects/aigc/<项目名>/`。
 3. 当前 `bootstrap_compat` 模式下，不得把旧阶段细节合同当作冻结真源去阻断 `aigc` 系列重构；需要保留的是根 runtime、治理工件与 review gate。
 4. 没有 `mission-brief` 与 `route-plan`，复杂任务不得直接跳入阶段执行。
 5. 高风险任务没有 `preflight-verdict`，不得宣布进入正式执行。
@@ -217,6 +218,7 @@ governance_tier: full
 10. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
 11. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
 12. `project_state.yaml` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 review/resume 同步。两者不得各自演化成平行真源。
+13. 用户若明确要求“回到初始化态 / 重新起盘 / 推翻当前方向重来”，根路由必须回 `0-Init`；不得把这类诉求误判为 `resume` 的续跑恢复。
 
 ## 完成标准
 
@@ -237,7 +239,7 @@ governance_tier: full
 
 - 目录已建但阶段路由混乱
 - 子技能很多，但没有统一入口
-- 项目输出散落在 `projects/<项目名>/` 之外
+- 项目输出散落在 `projects/aigc/<项目名>/` 之外
 - 阶段合同为空却仍被当作可执行链路
 - 项目可以运行，但无法验收、续跑或回流
 
@@ -263,7 +265,7 @@ governance_tier: full
 | --- | --- | --- | --- | --- | --- |
 | FIELD-AIGC-ROOT-01 | 根技能.任务边界 | 明确 `aigc` 是总入口、总路由、总闭环，而非单阶段技能 | S1 | 根技能定位清晰度 | FAIL-AIGC-ROOT-01 |
 | FIELD-AIGC-ROUTE-02 | 根技能.阶段路由 | 给出主阶段链、当前覆盖状态与子技能调度规则 | S2 | 路由完整性 | FAIL-AIGC-ROUTE-02 |
-| FIELD-AIGC-LAND-03 | 根技能.工件落点 | 明确 `projects/<项目名>/` 即项目运行时真源，根层工件落点清晰 | S3 | 落点规范性 | FAIL-AIGC-LAND-03 |
+| FIELD-AIGC-LAND-03 | 根技能.工件落点 | 明确 `projects/aigc/<项目名>/` 即项目运行时真源，根层工件落点清晰 | S3 | 落点规范性 | FAIL-AIGC-LAND-03 |
 | FIELD-AIGC-GOV-04 | 根技能.三省六部挂载 | 说明三省六部如何挂到 `aigc` 总合同 | S4 | 治理映射准确性 | FAIL-AIGC-GOV-04 |
 | FIELD-AIGC-CLOSE-05 | 根技能.闭环合同 | 明确验收、续跑、失败上溯与学习回流 | S5 | 闭环完整性 | FAIL-AIGC-CLOSE-05 |
 
@@ -273,7 +275,7 @@ governance_tier: full
 | --- | --- | --- | --- | --- |
 | S1 | FIELD-AIGC-ROOT-01 | `aigc` 根技能到底是什么 | 锁定总入口、总路由、总闭环定位 | 把根技能写成某个阶段说明 |
 | S2 | FIELD-AIGC-ROUTE-02 | 阶段如何串起来 | 定义主阶段链、覆盖状态、调度规则 | 只有目录，没有路由合同 |
-| S3 | FIELD-AIGC-LAND-03 | 项目工件落在哪里 | 明确 `projects/<项目名>/` 根层载体 | 输出与状态落点漂移 |
+| S3 | FIELD-AIGC-LAND-03 | 项目工件落在哪里 | 明确 `projects/aigc/<项目名>/` 根层载体 | 输出与状态落点漂移 |
 | S4 | FIELD-AIGC-GOV-04 | 治理如何挂到技能树 | 将三省六部映射到根技能 | 只有技能树，没有治理结构 |
 | S5 | FIELD-AIGC-CLOSE-05 | 如何验收和回流 | 写闭环、续跑与失败上溯合同 | 能运行但无法结案 |
 

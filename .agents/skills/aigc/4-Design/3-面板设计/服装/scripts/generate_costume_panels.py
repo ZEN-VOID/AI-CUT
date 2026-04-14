@@ -115,8 +115,8 @@ def _build_layout_doc(
             "project_name": project_name,
             "episode_id": episode_id,
             "skill_id": "aigc-design-costume-panel",
-            "source_design": f"projects/{project_name}/4-Design/服装/2-设计/{episode_id}/服装设计.json",
-            "source_prompt": f"projects/{project_name}/4-Design/服装/2-设计/{episode_id}/costume_design_prompt.json",
+            "source_design": f"projects/aigc/{project_name}/4-Design/服装/2-设计/{episode_id}/服装设计.json",
+            "source_prompt": f"projects/aigc/{project_name}/4-Design/服装/2-设计/{episode_id}/costume_design_prompt.json",
         },
         "subject": {
             "costume_id": costume_id,
@@ -149,9 +149,9 @@ def _build_layout_doc(
 
 def build_panels(project_name: str, episode: str | None, dry_run: bool) -> int:
     repo_root = _repo_root()
-    project_root = repo_root / "projects" / project_name
-    input_root = project_root / "4-Design" / "3-服装" / "2-设计"
-    output_root = project_root / "4-Design" / "3-服装" / "3-面板"
+    project_root = repo_root / "projects" / "aigc" / project_name
+    input_root = project_root / "4-Design" / "服装" / "2-设计"
+    output_root = project_root / "4-Design" / "服装" / "3-面板"
     if not input_root.exists():
         raise PanelBuildError(f"未找到输入根目录: {input_root}")
 

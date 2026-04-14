@@ -25,8 +25,8 @@
 | `.codex/registry/routes.yaml` | 路由真源 | 定义 owner chain、默认流转与 legacy mapping |
 | `.codex/registry/skills.yaml` | 能力注册真源 | 新增 skill / workflow 时必须核对是否已注册 |
 | `.codex/templates/harness/*.yaml|*.md` | 任务工件真源 | mandate / brief / route / verdict / validation / learning |
-| `projects/<项目名>/` | AIGC 项目运行时真源 | 对 `aigc` 项目工作流，任务工件、项目状态、验收与学习记录以此为准 |
-| `.codex/state/tasks/<task_id>/` | 治理镜像 / 通用任务状态面 | 非项目任务的默认状态面；对 `aigc` 项目工作流仅作可选治理镜像，不覆盖 `projects/<项目名>/` |
+| `projects/aigc/<项目名>/` | AIGC 项目运行时真源 | 对 `aigc` 项目工作流，任务工件、项目状态、验收与学习记录以此为准 |
+| `.codex/state/tasks/<task_id>/` | 治理镜像 / 通用任务状态面 | 非项目任务的默认状态面；对 `aigc` 项目工作流仅作可选治理镜像，不覆盖 `projects/aigc/<项目名>/` |
 
 ## Shared Entry Gates
 
@@ -92,4 +92,4 @@ flowchart LR
 - 共享结构若被 2 个以上 office 需要，优先回收至本文件或其他单一真源载体。
 - 模板字段新增后，相关 office agent 文档与审计脚本必须同步更新。
 - 审计脚本至少应验证共享真源引用和关键合同锚点存在。
-- 若某工作流采用项目内 runtime（如 `projects/<项目名>/`），registry、runbook、audit 与根技能必须同步声明，不得只在 skill 文档单边出现。
+- 若某工作流采用项目内 runtime（如 `projects/aigc/<项目名>/`），registry、runbook、audit 与根技能必须同步声明，不得只在 skill 文档单边出现。

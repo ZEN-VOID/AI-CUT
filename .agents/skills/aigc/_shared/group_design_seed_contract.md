@@ -6,14 +6,14 @@
 
 - 让 `2-Global` 在阶段末段把导演前置判断与完整分组正文直接写入与 `3-Detail` 相同的 episode JSON 模版。
 - 让 `3-Detail` 优先继承已收束的 `组间设计`，而不是再次从三份 Markdown 长文中抽取。
-- 保留 `2-Global/*.md` 作为长文本审阅/解释载体，但把跨阶段 handoff 的第一结构化真源固定为 `projects/<项目名>/3-Detail/第N集.json`。
+- 保留 `2-Global/*.md` 作为长文本审阅/解释载体，但把跨阶段 handoff 的第一结构化真源固定为 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 
 ## Canonical Carrier
 
 - shared schema:
   - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - shared root file:
-  - `projects/<项目名>/3-Detail/第N集.json`
+  - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - target slot:
   - `final_output.main_content.分镜组列表[]`
 
@@ -59,7 +59,7 @@
 
 ## Phase Transition Reading Guide
 
-- 读取真实项目时，按同一 `projects/<项目名>/3-Detail/第N集.json` 的 `metadata.document_phase` 理解 phase 推进：
+- 读取真实项目时，按同一 `projects/aigc/<项目名>/3-Detail/第N集.json` 的 `metadata.document_phase` 理解 phase 推进：
   - `directing_in_progress`：`2-Global` 已写完整分镜组壳，`分镜明细` 仍可为空数组。
   - `detail_in_progress`：`3-Detail` 已开始在同一 root 上补 `分镜明细[]`。
   - `ready`：同一份 root 已推进到可交付态。

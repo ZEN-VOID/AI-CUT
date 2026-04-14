@@ -8,7 +8,7 @@
 
 AIGC（AI Generated Content）视频·小说·漫画创作管理工作区。该仓库不是传统意义上承载多个独立软件子项目的代码仓，而是用于组织 AIGC 创作流的项目工作台：
 
-- 以 `projects/<项目名>/` 作为单个创作项目的主要工作空间
+- 以 `projects/aigc/<项目名>/` 作为单个创作项目的主要工作空间
 - 在项目空间内逐步沉淀文本、图片、视频及其过程工件
 - 以仓库根层的规则、模板、脚本与治理工件，为多个创作项目提供统一编排能力
 
@@ -35,7 +35,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - **文档**：公共函数使用 docstring，行内注释仅在必要时添加。
 - **测试**：实现改动应尽量配套测试。
 - 分镜 ID 使用四段式模式：`episode-scene-group-frame`，例如 `1-1-1-1`。
-- 创作项目通常以 `projects/<项目名>/` 作为主工作目录，并在其中组织文本、图片、视频及阶段产物。
+- 创作项目通常以 `projects/aigc/<项目名>/` 作为主工作目录，并在其中组织文本、图片、视频及阶段产物。
 - 模板要求时，提示中的任务 ID 应保持 ASCII 安全字符。
 
 ### 重命名引用同步（强制）
@@ -46,15 +46,15 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### 架构决策
 
-- `projects/` 表示 AIGC 创作项目空间，而不是传统软件工程中的独立子项目集合。
-- 每个创作项目通常落在 `projects/影片/<项目名>/`（`.agents/skills/aigc` 关联）或 `projects/小说/<项目名>/`（`.agents/skills/story` 关联），并在其内部继续组织文本、图片、视频、阶段产物与过程状态。
+- `projects/` 是项目总容器；对当前仓库的 AIGC 影视工作流，规范命名空间固定为 `projects/aigc/`，而不是把项目直接平铺在 `projects/` 根层。
+- 对当前仓库，创作项目的 canonical runtime 统一落在 `projects/aigc/<项目名>/`；影片/小说等媒介归属应通过技能路由、项目元数据或命名约定表达，而不是再引入 `projects/影片/<项目名>/` / `projects/小说/<项目名>/` 作为第二层路径真源。
 - 共享工具与配置统一放在 `scripts/` 和 `configs/` 中。
 - `reports/` 用于保存开发或任务过程中的报告，允许按主题、日期或自动化流程归类。
 - `PRPs/` 用于保存大型开发计划与阶段性实施方案。
 - `docs/` 用于保存重要知识、制度说明与典藏文档。
 - `templates/` 中的模板用于脚手架与标准化生成。
 - 本仓库的治理基线采用 `三省六部制 + 编排工程` 架构，而不是临时拼接的提示词集合。
-- 当前编排治理的引导期真源已收束为：根 `AGENTS.md` + `.codex/templates/harness/office-governance-contract.md` 共享合同，配合 `.codex/agents/harness治理/`、`.codex/registry/`、`.codex/runbooks/`、`projects/<项目名>/` / `.codex/state/tasks/`、`.codex/evals/`、`.codex/templates/harness/` 与 `scripts/aigc_harness_audit.py`。
+- 当前编排治理的引导期真源已收束为：根 `AGENTS.md` + `.codex/templates/harness/office-governance-contract.md` 共享合同，配合 `.codex/agents/harness治理/`、`.codex/registry/`、`.codex/runbooks/`、`projects/aigc/<项目名>/` / `.codex/state/tasks/`、`.codex/evals/`、`.codex/templates/harness/` 与 `scripts/aigc_harness_audit.py`。
 - `AIGC-ZEN-VOID` 被视为本仓库下一代影视工作流的发源仓库，但其继承必须通过显式映射与复核进行，而不能直接整仓复制。
 
 ### 测试指引
@@ -107,11 +107,11 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 注册与路由真源：`.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`
   - 生命周期真源：`.codex/runbooks/task-lifecycle.md`
   - 任务工件真源：`.codex/templates/harness/{mandate, mission-brief, route-plan, preflight-verdict, validation-report, learning-record}`
-  - 运行时控制面：`projects/<项目名>/` 为 `aigc` 项目工作流唯一真源，`.codex/state/tasks/<task_id>/` 为通用任务状态面或治理镜像
+  - 运行时控制面：`projects/aigc/<项目名>/` 为 `aigc` 项目工作流唯一真源，`.codex/state/tasks/<task_id>/` 为通用任务状态面或治理镜像
   - 审计与评测入口：`scripts/aigc_harness_audit.py`、`.codex/evals/`
 - 六部当前最小落点应与真源载体显式对应：
   - 吏部：`.codex/registry/skills.yaml` / `.codex/registry/routes.yaml`
-  - 户部：`projects/<项目名>/` 与 `.codex/state/tasks/<task_id>/`
+  - 户部：`projects/aigc/<项目名>/` 与 `.codex/state/tasks/<task_id>/`
   - 礼部：`.codex/templates/harness/` 与 `office-governance-contract.md`
   - 兵部：`.codex/runbooks/task-lifecycle.md`
   - 刑部：`scripts/aigc_harness_audit.py`、`preflight-verdict.yaml`、`validation-report.md`
@@ -119,7 +119,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 标准引导期合同：
   - 中书省负责将复杂任务先写成 `mandate + mission-brief + route-plan`
   - 门下省负责 `preflight-verdict + validation-report + upward trace`
-  - 尚书省负责将执行状态与产物落到已声明的 canonical runtime；对 `aigc` 项目型工作流，canonical runtime 为 `projects/<项目名>/`
+  - 尚书省负责将执行状态与产物落到已声明的 canonical runtime；对 `aigc` 项目型工作流，canonical runtime 为 `projects/aigc/<项目名>/`
   - 三省共享总则、移交、闭环与防漂移要求统一以 `.codex/templates/harness/office-governance-contract.md` 为准，office-specific agent 文档只写各自差异
 - 默认任务生命周期：
   1. `受命`
@@ -139,7 +139,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 新增工作流路由或旧仓继承映射时，必须先登记到 `.codex/registry/routes.yaml`
   - 新增或调整三省任务工件字段时，必须同步更新 `.codex/templates/harness/` 对应模板与 `scripts/aigc_harness_audit.py`
   - 共享结构必须沉到模板、schema、runbook 或 registry 等真源载体中，不得在多个同级工件中静默重复定义
-  - 运行状态必须优先落到已声明的 canonical control plane 中；对 `aigc` 项目工作流，以 `projects/<项目名>/` 为准，`.codex/state/tasks/` 仅作为跨项目治理镜像或非项目任务账本
+  - 运行状态必须优先落到已声明的 canonical control plane 中；对 `aigc` 项目工作流，以 `projects/aigc/<项目名>/` 为准，`.codex/state/tasks/` 仅作为跨项目治理镜像或非项目任务账本
 - `AIGC-ZEN-VOID` 继承规则：
   - `/Volumes/AIGC/AIGC-ZEN-VOID` 仅作为设计源，而不是自动规范真源
   - 来自发源仓库的复用必须遵循 `mapping -> review -> landing`，不得以批量复制 `output/`、运行时状态或未治理的技能树作为起点
@@ -184,7 +184,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 当 `.agents/skills/aigc/` 进入重大结构改造窗口时，不得把 HARNESS 真源整体清空回“空白初始化态”。
 - 此时应进入显式 `bootstrap_compat` 模式：保留 registry、runbook、template、audit、canonical runtime 与 review gate 这些骨架真源，只收缩其对 `aigc` 阶段内部细节的绑定强度。
 - `bootstrap_compat` 模式下必须继续保留：
-  - `projects/<项目名>/` 作为 canonical runtime
+  - `projects/aigc/<项目名>/` 作为 canonical runtime
   - `.codex/registry/skills.yaml` / `.codex/registry/routes.yaml` 的根注册与路由入口
   - `.codex/runbooks/task-lifecycle.md` 的任务生命周期硬门槛
   - `.codex/templates/harness/` 的治理工件槽位
@@ -212,7 +212,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
-  - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
+  - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
 
 ### 技能组成与语义
 

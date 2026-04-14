@@ -10,7 +10,7 @@ governance_tier: full
 
 `2-视频生成` 是 `6-Video` 阶段里承接“稳定请求对象 -> provider 路由 -> submit-plan -> submit-brief -> 下一执行入口”的叶子父技能。
 
-它不替代外部 provider skill，也不回头改写 `projects/<项目名>/3-Detail/第N集.json`、`1-提示词蒸馏/*` 请求 JSON 或上游设计资产。它只负责把已经稳定的请求对象收束成一个可复核、可续跑、可 handoff 的真实生成入口。
+它不替代外部 provider skill，也不回头改写 `projects/aigc/<项目名>/3-Detail/第N集.json`、`1-提示词蒸馏/*` 请求 JSON 或上游设计资产。它只负责把已经稳定的请求对象收束成一个可复核、可续跑、可 handoff 的真实生成入口。
 
 本技能优先回答四件事：
 
@@ -36,7 +36,7 @@ governance_tier: full
 
 - 还没有合法请求 JSON，或请求对象仍需回到 `1-提示词蒸馏/*` 补齐。
 - 当前问题已经明确是 provider 运行时故障排查，而不是提交前组织。
-- 仍在修改 `projects/<项目名>/3-Detail/第N集.json`、主体资产或画面资产本体。
+- 仍在修改 `projects/aigc/<项目名>/3-Detail/第N集.json`、主体资产或画面资产本体。
 
 ## 父技能边界
 
@@ -50,7 +50,7 @@ governance_tier: full
 
 ### `2-视频生成` 不拥有
 
-- 改写 `projects/<项目名>/3-Detail/第N集.json`
+- 改写 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 重新生成提示词蒸馏产物
 - 直接代替 provider skill 执行提交、轮询与下载
 - 把 provider 槽位目录误判为本地已实现执行能力
@@ -89,16 +89,16 @@ governance_tier: full
 ## Canonical Inputs
 
 - 命中的 `6-Video` 稳定请求 JSON
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
-- 可选：`projects/<项目名>/5-Image/` 与 `projects/<项目名>/4-Design/` 中的引用资产
+- 可选：`projects/aigc/<项目名>/5-Image/` 与 `projects/aigc/<项目名>/4-Design/` 中的引用资产
 
 ## Canonical Landing
 
-- tranche 根目录：`projects/<项目名>/6-Video/生成任务/`
-- provider 计划目录：`projects/<项目名>/6-Video/生成任务/<provider>/第N集/`
-- canonical 计划文件：`projects/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`
-- canonical 简报：`projects/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`
+- tranche 根目录：`projects/aigc/<项目名>/6-Video/生成任务/`
+- provider 计划目录：`projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/`
+- canonical 计划文件：`projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`
+- canonical 简报：`projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`
 
 ## Variable Register
 
@@ -218,7 +218,7 @@ governance_tier: full
 - 已有稳定请求 JSON，却还是直接跳到 provider 命令
 - provider 名称只存在为空目录，却被误判为“本地已建 skill”
 - `submit-plan.json` 缺字段、缺落点、缺下一入口
-- 本层越权回写上游请求 JSON 或 `projects/<项目名>/3-Detail/第N集.json`
+- 本层越权回写上游请求 JSON 或 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 规则仍散落在 `references/` 或 `providers/README.md`，导致主合同不是唯一真源
 
 必经链路：

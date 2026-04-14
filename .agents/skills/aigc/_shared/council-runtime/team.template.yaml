@@ -56,13 +56,13 @@ roles:
     intervention_mode: "pre_and_post_validation_gate"
     operates_on_final_stage_of:
       - stage: "1-Planning"
-        gate_artifact: "projects/<项目名>/1-Planning/validation-report.md"
+        gate_artifact: "projects/aigc/<项目名>/1-Planning/validation-report.md"
       - stage: "2-Global"
-        gate_artifact: "projects/<项目名>/3-Detail/validation-report.md"
+        gate_artifact: "projects/aigc/<项目名>/3-Detail/validation-report.md"
       - stage: "3-Detail"
-        gate_artifact: "projects/<项目名>/3-Detail/validation-report.md"
+        gate_artifact: "projects/aigc/<项目名>/3-Detail/validation-report.md"
       - stage: "4-Design"
-        gate_artifact: "projects/<项目名>/4-Design/validation-report.md"
+        gate_artifact: "projects/aigc/<项目名>/4-Design/validation-report.md"
 
 runtime_policy:
   use_subagents_by_default: true

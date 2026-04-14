@@ -92,7 +92,7 @@ stateDiagram-v2
 
 ### When To Use
 
-- 需要把 `projects/<项目名>/1-Planning/2-格式/第N集.md` 收束为 grouped script
+- 需要把 `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` 收束为 grouped script
 - 需要为 `2-Global` 准备组边界、量化字段与 handoff
 - 需要先判断“该不该拆、能不能并、是否过载”
 
@@ -181,11 +181,11 @@ stateDiagram-v2
 6. `.agents/skills/aigc/_shared/story-source-contract.md`
 7. `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
 8. `references/scene-order-duration-strategy.md`
-9. `projects/<项目名>/0-Init/north_star.yaml`
-10. `projects/<项目名>/0-Init/init_handoff.yaml`
-11. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-12. `projects/<项目名>/1-Planning/episode-split-plan.json`
-13. `projects/<项目名>/1-Planning/2-格式/第N集.md`
+9. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+10. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+11. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+12. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+13. `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
 
 ## Scene Order And Duration Strategy Projection (Mandatory Digest)
 
@@ -194,11 +194,12 @@ stateDiagram-v2
 1. 先场景顺序，后组内切分
 2. 先时长策略，后负载均衡
 3. 先上游 preset/style，再用默认值
-4. `effective_text_chars > hard_text_window` 默认失败，必须拆
-5. `effective_text_chars < warn_low` 优先检查同场景并组
-6. 默认禁止跨场景凑时长；仅极短快切/闪回/过场可例外
-7. 尾组 `< 5 秒` 且存在前组时，默认并入前组，除非承担明确信息落点
-8. 命中 `尾钩借焰` 时，只允许在分组结果落定后，于非末组尾部追加下一组开端的首个叙事拍点；该借入段落不参与本组字窗裁决
+4. 若无用户或上游显式时长证据，不得通过人为抬高 `分镜组时长映射` 来让既定叙事划分过窗；必须先拆/并组，再决定是否需要显式豁免
+5. `effective_text_chars > hard_text_window` 默认失败，必须拆
+6. `effective_text_chars < warn_low` 优先检查同场景并组
+7. 默认禁止跨场景凑时长；仅极短快切/闪回/过场可例外
+8. 尾组 `< 5 秒` 且存在前组时，默认并入前组，除非承担明确信息落点
+9. 命中 `尾钩借焰` 时，只允许在分组结果落定后，于非末组尾部追加下一组开端的首个叙事拍点；该借入段落不参与本组字窗裁决
 
 ## Script Contract (Mandatory)
 
@@ -241,16 +242,16 @@ stateDiagram-v2
 
 ### Required Inputs
 
-- `projects/<项目名>/1-Planning/2-格式/第N集.md`
-- `projects/<项目名>/1-Planning/episode-split-plan.json`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
+- `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 
 ### Optional Inputs
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - 用户显式指定的组数、组时长、不可拆模块、优先保留模块
-- 既有 `projects/<项目名>/1-Planning/3-分组/执行报告.md`
+- 既有 `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
 
 ## Canonical Output Contract
 
@@ -258,7 +259,7 @@ stateDiagram-v2
 
 路径：
 
-`projects/<项目名>/1-Planning/3-分组/第N集.md`
+`projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
 
 必须遵守 `templates/grouping-output.template.md`，并至少包含：
 
@@ -285,7 +286,7 @@ stateDiagram-v2
 
 路径：
 
-`projects/<项目名>/1-Planning/3-分组/执行报告.md`
+`projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
 
 每个 `分镜组ID` 至少登记：
 

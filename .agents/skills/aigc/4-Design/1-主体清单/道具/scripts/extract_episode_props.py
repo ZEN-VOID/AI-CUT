@@ -69,7 +69,9 @@ def write_json(path: Path, payload: dict) -> None:
 
 
 def infer_project_name(input_path: Path) -> str:
-    match = re.search(r"/projects/([^/]+)/", input_path.as_posix())
+    match = re.search(r"/projects/aigc/([^/]+)/", input_path.as_posix())
+    if not match:
+        match = re.search(r"/projects/([^/]+)/", input_path.as_posix())
     if match:
         return match.group(1)
     return input_path.parent.name

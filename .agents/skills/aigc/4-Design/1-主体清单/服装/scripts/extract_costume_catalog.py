@@ -56,7 +56,7 @@ def resolve_role_list_path(role_list: str | None, project: str | None, episode: 
             return path
     if project and episode:
         episode_label = normalize_episode_label(episode)
-        path = Path("projects") / project / "4-Design" / "2-角色" / "1-清单" / episode_label / DEFAULT_ROLE_LIST_NAME
+        path = Path("projects") / "aigc" / project / "4-Design" / "角色" / "1-清单" / episode_label / DEFAULT_ROLE_LIST_NAME
         if path.exists():
             return path
     raise FileNotFoundError("未找到角色清单；请提供 --role-list，或使用 --project + --episode。")
@@ -68,15 +68,20 @@ def infer_output_dir(role_list_path: Path, explicit_output_dir: str | None, epis
     parts = role_list_path.resolve().parts
     if "projects" in parts:
         idx = parts.index("projects")
-        project_root = Path(*parts[: idx + 2])
-        return project_root / "4-Design" / "3-服装" / "1-清单" / episode_label
-    return role_list_path.parent.parent.parent / "3-服装" / "1-清单" / episode_label
+        if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+            project_root = Path(*parts[: idx + 3])
+        else:
+            project_root = Path(*parts[: idx + 2])
+        return project_root / "4-Design" / "服装" / "1-清单" / episode_label
+    return role_list_path.parent.parent.parent / "服装" / "1-清单" / episode_label
 
 
 def _infer_project_name(path: Path) -> str:
     parts = path.resolve().parts
     if "projects" in parts:
         idx = parts.index("projects")
+        if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+            return parts[idx + 2]
         if idx + 1 < len(parts):
             return parts[idx + 1]
     return "unknown-project"
@@ -87,7 +92,10 @@ def _resolve_detail_path(role_list_path: Path, episode_label: str) -> Path | Non
     if "projects" not in parts:
         return None
     idx = parts.index("projects")
-    project_root = Path(*parts[: idx + 2])
+    if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+        project_root = Path(*parts[: idx + 3])
+    else:
+        project_root = Path(*parts[: idx + 2])
     for alias in DIRECTOR_INPUT_ALIASES:
         candidate = project_root / alias / f"{episode_label}.json"
         if candidate.exists():
@@ -171,7 +179,7 @@ def build_artifacts(role_list_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any
     project_name = str(meta.get("project_name") or _infer_project_name(role_list_path))
     detail_path = _resolve_detail_path(role_list_path, episode_label)
     source_detail = (
-        str(detail_path).replace(str(Path.cwd()) + "/", "") if detail_path else f"projects/{project_name}/3-Detail/{episode_label}.json"
+        str(detail_path).replace(str(Path.cwd()) + "/", "") if detail_path else f"projects/aigc/{project_name}/3-Detail/{episode_label}.json"
     )
 
     roles = [item for item in role_list.get("roles", []) if isinstance(item, dict)]

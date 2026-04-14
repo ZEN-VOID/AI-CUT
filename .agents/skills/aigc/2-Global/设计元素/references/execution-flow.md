@@ -14,12 +14,12 @@
 
 ## Evidence Priority
 
-1. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-2. `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-3. `projects/<项目名>/1-Planning/episode-split-plan.json`
-4. `projects/<项目名>/0-Init/north_star.yaml`
-5. `projects/<项目名>/0-Init/init_handoff.yaml`
-6. 已有 `projects/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
+1. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+2. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+3. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+4. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+5. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+6. 已有 `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
 
 ## Node-Level Guidance
 

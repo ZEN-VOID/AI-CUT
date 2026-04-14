@@ -2,25 +2,36 @@ version: 1
 module_id: jinghua-shot-insert
 module_level: leaf
 stage_order: 1.2
-purpose: 按 `1-切换` 的结果，在 `1-水月` prose 中找到自然插入点并埋入 `[分镜N 第X秒-第Y秒]` 标记。
+purpose: 按 `1-切换` 的结果，在 `1-水月` prose 中找到自然插入点并埋入 `[分镜N 第X秒-第Y秒]` 标记，把 grouped prose 压成可被父级 `3-Detail` 聚合且可被 `5-Image / 6-Video` 继续抽镜的 shot-local marker spine。
 triggers:
   - 已有 `shot_count_plan`
   - 需要把整段 prose 变成有镜头脊柱的融写稿
 must_answer:
   - 每个分镜标记承接的是 `1-水月` 哪一句、哪一拍或哪一段动作
   - 每个分镜标记应该插在动作、视线或停顿的哪一处
+  - 每个插入点属于 `动作转折 / 视线切点 / 反应着陆 / 揭示落点 / 节奏停顿 / 尾钩预映` 的哪一种
   - 插入后文本如何保持顺滑
   - 哪些原句需要轻度改写才能服务镜头切换
+  - 每个标记段如何保持 `1-水月` 的主行动线、主情绪和主空间关系
+  - 父级 `3-Detail` 之后如何从这些标记段继续聚合 `分镜明细[]`
+  - `5-Image / 分镜故事板 / 分镜帧` 与 `6-Video / 全能参照 / 首帧参照` 之后如何从这些标记段继续抽取镜头窗口
 patch_contract:
   target_slot: shot_marker_spine
   required_elements:
     - insertion_points
+    - insertion_anchor_map
+    - insertion_type_map
     - inline_marker_plan
+    - watermoon_trace_links
+    - json_patchability_note
+    - downstream_handoff_note
     - smoothing_rewrite_notes
 merge_policy:
   preserve_first:
     - natural sentence flow
     - readable marker positions
+    - watermoon fact integrity
+    - shot-local extractability
   trim_first:
     - 生硬断句
     - 与动作无关的随机插入
@@ -29,3 +40,8 @@ quality_gates:
   - 插入应优先发生在节奏节点、动作转折、视线切点
   - 改写只能服务镜头显化，不得改写 `1-水月` 的事实含义
   - 不得因为插入而破坏主行动线
+  - 每个标记都必须对应一个清楚的镜头职责，不能只对应一个语法停顿
+  - 每个标记段都必须能回指 `1-水月` 原句，且能说明为什么不是前一镜或后一镜来承接
+  - 标记段必须为父级 `3-Detail` 后续聚合 `分镜明细[]` 保留可抽取抓手
+  - 标记段必须让 `5-Image / 6-Video` 的下游蒸馏仍能辨认当前镜的动作焦点、顺序关系和桥段边界
+  - "`tail-hook` 默认只保留为预映，不得因为插入便利而自动折成当前组独立镜头"

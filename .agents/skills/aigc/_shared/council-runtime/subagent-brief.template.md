@@ -5,7 +5,7 @@
 
 当前阶段：`{stage_name}`
 当前任务：`{task_summary}`
-项目团队真源：`projects/<项目名>/team.yaml`
+项目团队真源：`projects/aigc/<项目名>/team.yaml`
 
 你的职责：
 - 若你是 `策划`：提供结构、对象池与前置裁剪建议

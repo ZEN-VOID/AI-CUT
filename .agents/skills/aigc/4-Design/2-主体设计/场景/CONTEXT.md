@@ -37,7 +37,7 @@ last_checked_at: 2026-04-13T00:25:52-0700
 1. 先确认问题属于输入真源、能力拆解、聚合收束、review gate、audit gate 还是下游 handoff。
 2. 若输入根错，立刻回到 `scene catalog`，停止从导演 JSON 自由发挥。
 3. 若内容空泛，优先检查 `D3-D5` 是否被混写或跳步。
-4. 若写回异常，优先检查 `D7-D8` 是否被跳过，以及路径是否仍在 `projects/<项目名>/4-Design/场景/2-设计/`。
+4. 若写回异常，优先检查 `D7-D8` 是否被跳过，以及路径是否仍在 `projects/aigc/<项目名>/4-Design/场景/2-设计/`。
 5. 若发现旧 `references/*` 或 `.codex/agents/aigc/设计组/场景设计/*` 回链，视为源层回退，直接修主合同而不是补兼容文案。
 
 ## Reusable Heuristics

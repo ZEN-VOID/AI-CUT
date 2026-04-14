@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop-panel
-description: Use when the `4-Design/道具/3-面板` stage needs to turn `道具设计.json + prop_design_prompt.json` into review-ready prop panel layout JSONs under `projects/<项目名>/4-Design/道具/3-面板/`.
+description: Use when the `4-Design/道具/3-面板` stage needs to turn `道具设计.json + prop_design_prompt.json` into review-ready prop panel layout JSONs under `projects/aigc/<项目名>/4-Design/道具/3-面板/`.
 governance_tier: full
 ---
 
@@ -33,17 +33,17 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
 - `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json`
 
 ### 可选输入
 
-- `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+- `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
 
 ### 固定输出落点
 
-- `projects/<项目名>/4-Design/道具/3-面板/第N集/<prop_id>-<prop_name>-PropPanel-layout.json`
-- `projects/<项目名>/4-Design/道具/3-面板/第N集/_manifest.json`
+- `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/<prop_id>-<prop_name>-PropPanel-layout.json`
+- `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/_manifest.json`
 
 ### 输入硬门槛
 
@@ -55,11 +55,11 @@ governance_tier: full
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| design master | `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | panel 第一输入真源 |
-| prompt sidecar | `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | 长 prompt、负面约束与渲染提示 |
+| design master | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | panel 第一输入真源 |
+| prompt sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | 长 prompt、负面约束与渲染提示 |
 | layout template | `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json` | layout contract 真源 |
 | runner | `.agents/skills/aigc/4-Design/道具/3-面板/scripts/generate_prop_panels.py` | 最小可执行入口 |
-| panel output root | `projects/<项目名>/4-Design/道具/3-面板/第N集/` | 本阶段唯一输出根 |
+| panel output root | `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/` | 本阶段唯一输出根 |
 
 ## Visual Maps
 
@@ -288,7 +288,7 @@ stateDiagram-v2
 
 ### 最终结果
 
-- `projects/<项目名>/4-Design/道具/3-面板/第N集/` 下的逐 prop layout JSON 与 `_manifest.json`
+- `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/` 下的逐 prop layout JSON 与 `_manifest.json`
 
 ### 思考过程
 
@@ -377,6 +377,6 @@ stateDiagram-v2
 2. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/道具/SKILL.md + CONTEXT.md`
 4. 本 `SKILL.md + CONTEXT.md`
-5. `projects/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-6. `projects/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+5. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+6. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
 7. `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json`

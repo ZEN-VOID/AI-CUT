@@ -8,7 +8,7 @@
     "project_name": "项目名",
     "episode_id": "第1集",
     "skill_id": "aigc/4-Design/服装/3-面板",
-    "source_design": "projects/项目名/4-Design/服装/2-设计/第1集/服装设计.json"
+    "source_design": "projects/aigc/项目名/4-Design/服装/2-设计/第1集/服装设计.json"
   },
   "subject": {
     "costume_id": "costume-role-001-baseline",

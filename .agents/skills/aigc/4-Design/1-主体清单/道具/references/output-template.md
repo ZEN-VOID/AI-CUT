@@ -7,7 +7,7 @@
   "meta": {
     "project_name": "项目名",
     "episode_id": "第1集",
-    "source_input": "projects/项目名/3-Detail/第1集.json",
+    "source_input": "projects/aigc/项目名/3-Detail/第1集.json",
     "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
     "skill_id": "aigc/4-Design/道具/1-清单",
     "generated_at": "2026-04-12T12:00:00-07:00"
@@ -93,6 +93,6 @@
 ## Path Contract
 
 - 默认每集独立目录：
-  - `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-  - `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
-  - `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+  - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
+  - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
+  - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`

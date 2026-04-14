@@ -46,32 +46,24 @@ def validate_file(path: Path, max_chars: int) -> list[str]:
         return ["未找到任何 `## 分镜组标题` 组块。"]
 
     for header, body in groups:
-        anchor = extract_section(body, "锚点")
-        jinghua = extract_section(body, "镜花")
+        if "### 锚点" in body or "### 镜花" in body or "水月承接：" in body:
+            errors.append(f"{header}: 不应外露 `锚点/镜花/水月承接` 区块。")
+        if "### " not in body:
+            errors.append(f"{header}: 缺少场景级标题字段。")
+        if not SHOT_MARKER_RE.search(body):
+            errors.append(f"{header}: 缺少 `[分镜N ...]` 标记。")
 
-        if anchor is None:
-            errors.append(f"{header}: 缺少 `### 锚点` 区块。")
-        elif "水月承接：" not in anchor:
-            errors.append(f"{header}: `锚点` 区块缺少 `水月承接：` 行。")
-
-        if jinghua is None:
-            errors.append(f"{header}: 缺少 `### 镜花` 区块。")
-            continue
-
-        if not SHOT_MARKER_RE.search(jinghua):
-            errors.append(f"{header}: `镜花` 区块缺少 `[分镜N ...]` 标记。")
-
-        count = visible_char_count(jinghua)
+        count = visible_char_count(body)
         if count > max_chars:
-            errors.append(f"{header}: `镜花` visible chars = {count}，超过上限 {max_chars}。")
+            errors.append(f"{header}: visible chars = {count}，超过上限 {max_chars}。")
 
     return errors
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate 2-镜花 markdown output.")
-    parser.add_argument("path", type=Path, help="Path to `projects/<项目名>/3-Detail/2-镜花/第N集.md`")
-    parser.add_argument("--max-chars", type=int, default=2000, help="Per-group visible char limit.")
+    parser.add_argument("path", type=Path, help="Path to `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`")
+    parser.add_argument("--max-chars", type=int, default=1800, help="Per-group visible char limit.")
     args = parser.parse_args()
 
     if not args.path.exists():

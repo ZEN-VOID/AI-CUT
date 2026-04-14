@@ -49,7 +49,7 @@ output_mode: layered-scorecard-first
   - `.codex/registry/routes.yaml`
   - `.codex/runbooks/`
   - 根 `AGENTS.md`
-  - `projects/<项目名>/` 下的代表性运行样本与验证证据
+  - `projects/aigc/<项目名>/` 下的代表性运行样本与验证证据
 
 ## 3. AIGC 专属评估哲学
 
@@ -67,7 +67,7 @@ output_mode: layered-scorecard-first
 重点检查：
 
 - 根技能、阶段技能、leaf 的层级关系是否符合影视阶段职责
-- `projects/<项目名>/`、共享模板、schema、registry 的真源关系是否单一
+- `projects/aigc/<项目名>/`、共享模板、schema、registry 的真源关系是否单一
 - 每个阶段是否有清晰进入条件、输出落点与下一入口
 - 是否存在“父级说一套、leaf 说一套、shared carrier 又说一套”的隐藏第二真源
 - 阶段、leaf、registry、agent metadata 是否同步

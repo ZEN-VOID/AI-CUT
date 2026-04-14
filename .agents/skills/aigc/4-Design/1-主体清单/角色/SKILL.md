@@ -1,6 +1,6 @@
 ---
 name: aigc-design-role-list
-description: Use when the `4-Design` stage needs to extract a canonical role list from `projects/<项目名>/3-Detail/第N集.json` or legacy `projects/<项目名>/3-Detail/第N集.json`, and write role-list artifacts under `projects/<项目名>/4-Design/角色/1-清单/`.
+description: Use when the `4-Design` stage needs to extract a canonical role list from `projects/aigc/<项目名>/3-Detail/第N集.json` or legacy `projects/aigc/<项目名>/3-Detail/第N集.json`, and write role-list artifacts under `projects/aigc/<项目名>/4-Design/角色/1-清单/`.
 governance_tier: full
 ---
 
@@ -12,8 +12,8 @@ governance_tier: full
 
 本轮重排只改变合同表达方式，不改变业务边界、输入根、输出根、脚本入口与字段口径：
 
-- 第一输入根仍是 `projects/<项目名>/3-Detail/第N集.json`
-- 兼容输入仍允许消费 `projects/<项目名>/3-Detail/第N集.json`
+- 第一输入根仍是 `projects/aigc/<项目名>/3-Detail/第N集.json`
+- 兼容输入仍允许消费 `projects/aigc/<项目名>/3-Detail/第N集.json`
 - canonical 输出仍是 `角色清单.json + _manifest.json`
 - 脚本入口仍是 `scripts/extract_role_list.py`
 
@@ -35,8 +35,8 @@ governance_tier: full
 
 ## When to Use
 
-- 需要从 `projects/<项目名>/3-Detail/第N集.json` 提取角色 canonical list。
-- 当前输入仍是兼容路径 `projects/<项目名>/3-Detail/第N集.json`，但内容结构已经对齐 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
+- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 提取角色 canonical list。
+- 当前输入仍是兼容路径 `projects/aigc/<项目名>/3-Detail/第N集.json`，但内容结构已经对齐 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
 - 需要把镜级 `角色站位走位` 与组级 `出场角色及穿搭` 收敛为角色对象池、穿搭提示和证据映射。
 
 ## When Not to Use
@@ -70,7 +70,7 @@ governance_tier: full
 6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 7. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 8. `scripts/extract_role_list.py`
-9. `projects/<项目名>/3-Detail/第N集.json` 或兼容 `projects/<项目名>/3-Detail/第N集.json`
+9. `projects/aigc/<项目名>/3-Detail/第N集.json` 或兼容 `projects/aigc/<项目名>/3-Detail/第N集.json`
 
 ## Shared Canonical Sources (Mandatory)
 
@@ -89,12 +89,12 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 
 ### 可选输入
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
   - 用户显式给旧路径时可兼容消费
 - 用户显式指定的单集范围、单组范围或增量镜头范围
 
@@ -107,7 +107,7 @@ governance_tier: full
 ### 输入处理原则
 
 1. 用户显式指定路径时，先验证结构，再决定是否消费
-2. 用户未指定时，默认从 `projects/<项目名>/3-Detail/第N集.json` 读取
+2. 用户未指定时，默认从 `projects/aigc/<项目名>/3-Detail/第N集.json` 读取
 3. 读取失败或 schema 缺失时，必须先阻塞并返回缺口，不得硬猜角色清单
 
 ## Visual Maps
@@ -256,7 +256,7 @@ graph LR
 
 默认路径：
 
-`projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+`projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
 
 最低结构：
 
@@ -296,7 +296,7 @@ graph LR
 
 默认路径：
 
-`projects/<项目名>/4-Design/角色/1-清单/第N集/_manifest.json`
+`projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/_manifest.json`
 
 最低结构：
 
@@ -312,7 +312,7 @@ graph LR
 
 ```bash
 python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.py \
-  --input "projects/项目名/3-Detail/第1集.json"
+  --input "projects/aigc/项目名/3-Detail/第1集.json"
 ```
 
 ```bash

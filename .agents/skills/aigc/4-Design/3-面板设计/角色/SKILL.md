@@ -1,6 +1,6 @@
 ---
 name: aigc-design-role-panel
-description: Use when the `4-Design/角色/3-面板` stage needs to turn `character_design.json` plus per-role design Markdown into role panel layout packets under `projects/<项目名>/4-Design/角色/3-面板/`.
+description: Use when the `4-Design/角色/3-面板` stage needs to turn `character_design.json` plus per-role design Markdown into role panel layout packets under `projects/aigc/<项目名>/4-Design/角色/3-面板/`.
 governance_tier: full
 ---
 
@@ -33,7 +33,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已有 `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`，需要继续生成角色面板布局包。
+- 已有 `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`，需要继续生成角色面板布局包。
 - 需要把逐角色 Markdown 中的 `prompt整合` 收束成稳定的角色面板 prompt。
 - 需要为后续角色多视图生图、角色展示板审阅或 layout review 保留 machine-first packet。
 - 用户明确要求“角色面板 / 角色展示板 / dossier / CHARACTER_ATMOSPHERIC_DOSSIER”。
@@ -68,9 +68,9 @@ governance_tier: full
 7. `.agents/skills/aigc/4-Design/角色/3-面板/_shared/IO_CONTRACT.md`
 8. `templates/角色面板-提示词.json`
 9. `scripts/build_character_panel_packets.py`
-10. `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
-11. `projects/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
-12. 可选 `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+10. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
+11. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
+12. 可选 `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
 
 ## Shared Canonical Sources (Mandatory)
 
@@ -84,22 +84,22 @@ governance_tier: full
 2. `prompt整合` 是首选 `design_subject` 提取源；若缺失必须显式记录 fallback
 3. packet 只负责 prompt/layout 收束，不直接出图
 4. `_manifest.json` 只记录输入输出与统计，不反写角色设计事实
-5. 输出目录固定为 `projects/<项目名>/4-Design/角色/3-面板/第N集/`
+5. 输出目录固定为 `projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`
 
 ## Total Input Contract
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
+- `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
 - `.agents/skills/aigc/4-Design/角色/3-面板/templates/角色面板-提示词.json`
 
 ### 可选但优先输入
 
-- `projects/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
+- `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
   - 首选 `prompt整合` 提取源
-- `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+- `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
   - identity 与 evidence 补证
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
   - 兼容回看，不作为第一 prompt 源
 - 角色 Markdown 同目录存在的本地参考图片
 - 用户显式给定的 `--reference`
@@ -280,7 +280,7 @@ graph LR
 
 默认路径：
 
-`projects/<项目名>/4-Design/角色/3-面板/第N集/<role_id>-<role_name>-<costume_state>-CharacterPanel-layout.json`
+`projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/<role_id>-<role_name>-<costume_state>-CharacterPanel-layout.json`
 
 最低结构：
 
@@ -323,7 +323,7 @@ graph LR
 
 默认路径：
 
-`projects/<项目名>/4-Design/角色/3-面板/第N集/_manifest.json`
+`projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/_manifest.json`
 
 最低结构：
 

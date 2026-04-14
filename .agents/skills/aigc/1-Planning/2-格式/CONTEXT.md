@@ -24,6 +24,7 @@
 | 引号内混入动作或文本画面错配 | 共享门禁层 | 动作下沉到 `*画面`，重排同命题配对 | 在 `N5-normalize + validator` 固化高频结构门禁 | `FAIL-ACTION-MIXED / FAIL-VISUAL-MISSING` 可拦截 |
 | `总字数` 未按最终正文回填 | 收尾层 | 重算并回写 `总字数` 后重跑 validator | 将“字数回填 -> validator 复跑”固定为出口清单 | `FAIL-WORDCOUNT-STALE` 不再复发 |
 | 提前把分组/节奏结论写进剧本主稿 | 下游边界层 | 删除越权字段，只保留 handoff 接口 | 在 `Downstream Interface Contract` 固化非 owned truth | 主稿只承载本阶段内容 |
+| 场景标题使用中文数字导致下游 `3-分组` validator 无法解析场景号 | 跨阶段 I/O 兼容层 | 改回 `### 场景1：...` 这类阿拉伯数字标题 | 在 `2-格式` 合同中固定场景标题编号格式，避免把示例写成中文数字 | `3-分组` 可稳定识别组起始场景 |
 
 ## Repair Playbook
 
@@ -39,3 +40,4 @@
 - `标准剧` 与 `解说剧` 的真正差异是信息承载策略，不是输出真相所有权；canonical 写回权永远只属于 `2-格式`。
 - `2-格式` 若要保留变体思行证据，应该优先落到 `agents-plan/` 侧车，而不是再长出第二份主稿。
 - 下游 `3-分组` 真正需要的是稳定的 `selected_variant + dialogue/narration policy + source_profile`，不是在剧本阶段提前拿到组边界或节奏蓝图。
+- 若主稿还要继续进入 `3-分组`，场景标题应统一写成 `场景1/场景2/...`，不要混用中文数字。

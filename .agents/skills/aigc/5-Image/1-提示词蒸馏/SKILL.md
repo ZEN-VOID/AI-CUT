@@ -26,7 +26,7 @@ governance_tier: full
 ## When to Use
 
 - 需要进入 `5-Image` 的第一层执行，但用户还没明确说是 `分镜故事板`、`分镜帧` 还是 `漫画`。
-- 需要把已有 `projects/<项目名>/3-Detail/第N集.json` 内容先蒸馏成图像请求 JSON。
+- 需要把已有 `projects/aigc/<项目名>/3-Detail/第N集.json` 内容先蒸馏成图像请求 JSON。
 - 需要在进入一致性处理或真实生成前，先完成 prompt 包和请求骨架收口。
 
 ## When Not to Use

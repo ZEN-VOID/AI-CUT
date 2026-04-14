@@ -3,7 +3,7 @@
 ## Module Identity
 
 - `module_type`: `shared-runtime`
-- `activation_signal`: 项目根存在 `projects/<项目名>/team.yaml` 且 `enabled == true`
+- `activation_signal`: 项目根存在 `projects/aigc/<项目名>/team.yaml` 且 `enabled == true`
 - `primary_consumers`: `1-Planning`、`2-Global`、`3-Detail`、`4-Design` 及其可直达子技能
 
 ## Scope
@@ -24,21 +24,21 @@
 
 ## Canonical Sources
 
-- 项目级团队真源：`projects/<项目名>/team.yaml`
+- 项目级团队真源：`projects/aigc/<项目名>/team.yaml`
 - 共享模板真源：`.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 
 ## Stage Role Routing
 
 | 当前阶段 | 默认前置顾问角色 | 评审时机 | canonical 写回权 |
 | --- | --- | --- | --- |
-| `1-Planning` | `策划` | `projects/<项目名>/1-Planning/validation-report.md` 前后 | 主代理 |
-| `2-Global` | `监制` | `projects/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
-| `3-Detail` | `监制` | `projects/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
-| `4-Design` | `策划` | `projects/<项目名>/4-Design/validation-report.md` 前后 | 主代理 |
+| `1-Planning` | `策划` | `projects/aigc/<项目名>/1-Planning/validation-report.md` 前后 | 主代理 |
+| `2-Global` | `监制` | `projects/aigc/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
+| `3-Detail` | `监制` | `projects/aigc/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
+| `4-Design` | `策划` | `projects/aigc/<项目名>/4-Design/validation-report.md` 前后 | 主代理 |
 
 ## Runtime Decision Contract
 
-1. 进入阶段根技能或其可直达子技能时，先读取 `projects/<项目名>/team.yaml`。
+1. 进入阶段根技能或其可直达子技能时，先读取 `projects/aigc/<项目名>/team.yaml`。
 2. 若文件不存在、`enabled != true`、或所有角色成员都为空，走普通路径。
 3. 若 `enabled == true` 但当前阶段默认角色成员为空，则跳过前置顾问，仅保留已配置的 `评审` 闸门。
 4. 若启用且当前阶段默认角色成员非空：

@@ -25,8 +25,8 @@
 
 ## AIGC Workflow Override
 
-- 对 `aigc` 项目型工作流，canonical runtime 为 `projects/<项目名>/`
-- `mandate / mission-brief / route-plan / preflight-verdict / validation-report / learning-record` 以 `projects/<项目名>/` 为准
+- 对 `aigc` 项目型工作流，canonical runtime 为 `projects/aigc/<项目名>/`
+- `mandate / mission-brief / route-plan / preflight-verdict / validation-report / learning-record` 以 `projects/aigc/<项目名>/` 为准
 - 本目录仅在以下场景使用：
   - 非项目型通用治理任务
   - 跨项目协调任务

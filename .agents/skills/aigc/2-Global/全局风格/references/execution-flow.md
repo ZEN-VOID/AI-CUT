@@ -2,11 +2,11 @@
 
 ## 1. 输入锁定顺序
 
-1. 读取 `projects/<项目名>/1-Planning/3-分组/第N集.md`
-2. 读取 `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-3. 读取 `projects/<项目名>/1-Planning/episode-split-plan.json`
-4. 再读取 `projects/<项目名>/0-Init/north_star.yaml`
-5. 再读取 `projects/<项目名>/0-Init/init_handoff.yaml`
+1. 读取 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+2. 读取 `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+3. 读取 `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+4. 再读取 `projects/aigc/<项目名>/0-Init/north_star.yaml`
+5. 再读取 `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 6. `story-source-manifest.yaml` 仅在需要回查故事主源时补读
 
 规则：
@@ -43,18 +43,21 @@
    - 适用原因
    - 明确不照搬的表皮元素
 
-## 4. 风格词汇造句顺序
+## 4. 风格词汇造句与通用前缀顺序
 
 1. 先写一段 `全剧视觉命题`
 2. 再写 `风格词汇组`
 3. 再写 2-4 句 `风格母句`
-4. 最后补 `稳定继承法则`
+4. 再补 `稳定继承法则`
+5. 最后压 1 条 `150` 字内的 `通用全局风格提示词前缀`
 
 要求：
 
 - 句子要能直接给下游复用
 - 避免只有形容词而没有视觉机制
 - 避免直接出现“像某片一样”的懒惰类比
+- 通用前缀不得写项目私有剧情、角色名或单集事件
+- 通用前缀必须放在最终文档最后一节
 
 ## 5. 写回与自检
 
@@ -67,3 +70,4 @@
 - 是否具有全剧视角
 - 是否包含大师灵感映射和拒绝照搬项
 - 是否包含下游可继承的风格句
+- 是否在文末输出了 `150` 字内的通用前缀

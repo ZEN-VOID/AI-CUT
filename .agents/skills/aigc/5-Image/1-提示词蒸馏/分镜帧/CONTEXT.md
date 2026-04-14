@@ -23,7 +23,7 @@ last_checked_at: 2026-04-12T21:20:00-07:00
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | `分镜ID` 仍是局部编号 | ID 归一层 | 重新归一为四段式 canonical ID | 在 `SKILL.md` 输入合同中固化四段式要求 | 单帧条目可全局回链 |
-| 下游仍按旧 detail markdown sidecar 读取上游 | 输入真源层 | 切换到 `projects/<项目名>/3-Detail/第N集.json` 并按 shared schema 锁定目标分镜 | 在 `SKILL.md` 固化 `final_output.main_content.分镜组列表[].分镜明细[]` 取数路径 | 单帧条目能回链 shared director schema |
+| 下游仍按旧 detail markdown sidecar 读取上游 | 输入真源层 | 切换到 `projects/aigc/<项目名>/3-Detail/第N集.json` 并按 shared schema 锁定目标分镜 | 在 `SKILL.md` 固化 `final_output.main_content.分镜组列表[].分镜明细[]` 取数路径 | 单帧条目能回链 shared director schema |
 | `single_frame_shot` 混入整组剧情或大段对白 | 内容归纳层 | 收缩到当前目标分镜与其必要组级上下文 | 把 `single_frame_shot` 定义为单帧内容块，而非整组剧情摘要 | 内容块不再复述整段台词 |
 | prompt 没有固定单帧前缀 | Prompt 合同层 | 重新按固定前缀 + `single_frame_shot` 拼接 | 在 `SKILL.md` 固化前缀逐字保留 | prompt 开头逐字一致 |
 | 仍把图片落盘当主产物 | 输出契约层 | 回退到 `第N集.json` 单帧图像请求集合 | 将 JSON 视为必要 completeness carrier | 主产物指向 `第N集.json` |

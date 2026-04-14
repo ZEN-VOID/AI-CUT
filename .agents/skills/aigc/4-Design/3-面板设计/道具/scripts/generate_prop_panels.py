@@ -122,8 +122,8 @@ def _build_layout_doc(
             "project_name": project_name,
             "episode_id": episode_id,
             "skill_id": "aigc-design-prop-panel",
-            "source_design": f"projects/{project_name}/4-Design/道具/2-设计/{episode_id}/道具设计.json",
-            "source_prompt": f"projects/{project_name}/4-Design/道具/2-设计/{episode_id}/prop_design_prompt.json",
+            "source_design": f"projects/aigc/{project_name}/4-Design/道具/2-设计/{episode_id}/道具设计.json",
+            "source_prompt": f"projects/aigc/{project_name}/4-Design/道具/2-设计/{episode_id}/prop_design_prompt.json",
         },
         "subject": {
             "prop_id": prop_id,
@@ -154,9 +154,9 @@ def _build_layout_doc(
 
 def build_panels(project_name: str, episode: str | None, dry_run: bool) -> int:
     repo_root = _repo_root()
-    project_root = repo_root / "projects" / project_name
-    input_root = project_root / "4-Design" / "4-道具" / "2-设计"
-    output_root = project_root / "4-Design" / "4-道具" / "3-面板"
+    project_root = repo_root / "projects" / "aigc" / project_name
+    input_root = project_root / "4-Design" / "道具" / "2-设计"
+    output_root = project_root / "4-Design" / "道具" / "3-面板"
 
     if not input_root.exists():
         raise PanelBuildError(f"未找到输入根目录: {input_root}")
@@ -233,7 +233,7 @@ def build_panels(project_name: str, episode: str | None, dry_run: bool) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="从 4-Design/道具/2-设计 生成逐道具 panel layout JSON。")
-    parser.add_argument("--project", required=True, help="项目名，对应 projects/<项目名>/")
+    parser.add_argument("--project", required=True, help="项目名，对应 projects/aigc/<项目名>/")
     parser.add_argument("--episode", help="可选，仅处理指定 episode 目录，例如 第1集")
     parser.add_argument("--dry-run", action="store_true", help="只校验输入并统计，不写文件")
     args = parser.parse_args()

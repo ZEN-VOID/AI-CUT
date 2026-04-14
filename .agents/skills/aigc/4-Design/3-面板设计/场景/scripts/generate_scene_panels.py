@@ -35,11 +35,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-key", help="仅生成指定 scene_key")
     parser.add_argument(
         "--design-file",
-        help="显式指定场景设计 JSON；默认使用 projects/<项目名>/4-Design/场景/2-设计/<episode>/场景设计.json",
+        help="显式指定场景设计 JSON；默认使用 projects/aigc/<项目名>/4-Design/场景/2-设计/<episode>/场景设计.json",
     )
     parser.add_argument(
         "--output-root",
-        help="显式指定输出目录；默认使用 projects/<项目名>/4-Design/场景/3-面板/<episode>",
+        help="显式指定输出目录；默认使用 projects/aigc/<项目名>/4-Design/场景/3-面板/<episode>",
     )
     parser.add_argument("--dry-run", action="store_true", help="仅打印将写出的文件")
     parser.add_argument("--force", action="store_true", help="覆盖已存在输出")
@@ -124,16 +124,16 @@ def ensure_writable(path: Path, force: bool) -> None:
 
 def main() -> int:
     args = parse_args()
-    project_root = Path("projects") / args.project
+    project_root = Path("projects") / "aigc" / args.project
     design_path = (
         Path(args.design_file)
         if args.design_file
-        else project_root / "4-Design" / "1-场景" / "2-设计" / args.episode / "场景设计.json"
+        else project_root / "4-Design" / "场景" / "2-设计" / args.episode / "场景设计.json"
     )
     output_root = (
         Path(args.output_root)
         if args.output_root
-        else project_root / "4-Design" / "1-场景" / "3-面板" / args.episode
+        else project_root / "4-Design" / "场景" / "3-面板" / args.episode
     )
     if not design_path.exists():
         raise FileNotFoundError(f"未找到场景设计输入: {design_path}")

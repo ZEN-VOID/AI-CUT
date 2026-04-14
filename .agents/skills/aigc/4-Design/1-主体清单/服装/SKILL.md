@@ -1,6 +1,6 @@
 ---
 name: aigc-design-costume-list
-description: Use when the `4-Design/服装/1-清单` leaf skill needs to turn `角色清单.json` plus episode-level director evidence into costume catalog, costume research, and costume design bridge JSON under `projects/项目名/4-Design/服装/1-清单/`.
+description: Use when the `4-Design/服装/1-清单` leaf skill needs to turn `角色清单.json` plus episode-level director evidence into costume catalog, costume research, and costume design bridge JSON under `projects/aigc/项目名/4-Design/服装/1-清单/`.
 governance_tier: full
 ---
 
@@ -18,7 +18,7 @@ governance_tier: full
 
 - 第一输入根仍固定为 `2-角色/1-清单/角色清单.json`
 - 证据补包仍优先读取 `3-Detail/第N集.json`
-- 输出根仍固定为 `projects/<项目名>/4-Design/服装/1-清单/第N集/`
+- 输出根仍固定为 `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/`
 - 三份 JSON 的路径、命名和字段角色仍保持现有配置
 
 ## Skill Execution Rule (Mandatory)
@@ -72,8 +72,8 @@ governance_tier: full
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/4-Design/服装/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
-6. `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
-7. `projects/<项目名>/3-Detail/第N集.json`
+6. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+7. `projects/aigc/<项目名>/3-Detail/第N集.json`
 8. `references/output-template.md`
 9. `references/type-strategies.md`
 10. `references/execution-flow.md`
@@ -95,12 +95,12 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 
 ### 可选输入
 
-- 已存在的 `projects/<项目名>/4-Design/服装/1-清单/第N集/*.json`
+- 已存在的 `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/*.json`
   - 仅用于增量修补或覆盖比对
 
 ### 禁止输入
@@ -289,7 +289,7 @@ graph LR
 2. 每个 `costume_id` 都能回链 `role_id + costume_state + evidence`。
 3. `服装研究.json` 具备 `silhouette/material/accessory/continuity` 四类核心信息。
 4. `costume_design_bridge.json` 具备 `prompt_anchor / layer_system / continuity_rules` 等机读字段。
-5. 三份 JSON 全部落到 `projects/<项目名>/4-Design/服装/1-清单/第N集/`。
+5. 三份 JSON 全部落到 `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/`。
 
 若未满足：
 
@@ -303,9 +303,9 @@ graph LR
 
 `1-清单` 的一次性输出是同一 bundle 内的四类结果：
 
-1. `projects/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
-2. `projects/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
-3. `projects/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+1. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
+2. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+3. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
 4. `thinking_process + closure_triad`
    - 说明怎样锁定 `role_id + costume_state`
    - 说明哪些证据来自角色链，哪些来自导演补包

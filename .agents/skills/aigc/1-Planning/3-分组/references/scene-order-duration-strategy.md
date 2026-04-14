@@ -81,7 +81,7 @@
 硬规则：
 
 1. `source_span` 必须保留可机读镜号范围，例如 `镜1-5`、`镜11`、`镜12-13`。
-2. validator 应优先从 `projects/<项目名>/Init/story-source-manifest.yaml -> primary_story_source.path` 读取主源，再按镜号范围复算 `effective_text_chars`。
+2. validator 应优先从 `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml -> primary_story_source.path` 读取主源，再按镜号范围复算 `effective_text_chars`。
 3. 若回算值与产物中填写值不一致，不得以“只是规划阶段估算”为由继续落盘。
 4. 只有在主故事源不是 `storyboard_script / hybrid_story_text`，或当前组确实无法映射到镜号范围时，才允许退回“规划级估算”路径。
 

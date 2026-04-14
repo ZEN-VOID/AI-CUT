@@ -1,5 +1,4 @@
 interface:
   display_name: "AIGC 镜花融写"
   short_description: "在 `1-水月` 基础上补齐分镜、摄影、运镜与转场设计，输出组级导演/摄影融写稿到 `3-Detail/2-镜花/第N集.md`"
-  default_prompt: "Use $aigc-detail-jinghua as the stage-local child skill under `3-Detail`: lock `projects/<项目名>/3-Detail/1-水月/第N集.md` as the primary screenplay source, load `0-Init` plus `2-Global` outputs as added context, run the numbered module chain `1-分镜表现 -> 2-摄影美学 -> 3-运镜手法 -> 4-转场特效` with branch-local parallel thinking, then converge each group into one Chinese director/cinematography enriched `镜花` block under 2000 characters and write the canonical markdown to `projects/<项目名>/3-Detail/2-镜花/第N集.md`."
-
+  default_prompt: "Use $aigc-detail-jinghua as the stage-local child skill under `3-Detail`: lock `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md` as the primary screenplay source, load `0-Init` plus `2-Global` outputs as added context, run the numbered module chain `1-分镜表现 -> 2-摄影美学 -> 3-运镜手法 -> 4-转场特效` with branch-local parallel thinking, then converge each group into one Chinese director/cinematography enriched `镜花` block under 1800 characters and write the canonical markdown to `projects/aigc/<项目名>/3-Detail/2-镜花/第N集.md`."

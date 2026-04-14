@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 2-Global 设计元素"
   short_description: "以 3-分组 为主输入、0-Init 为附加上下文，收束服装与建筑场景的时代化设计定调，并写入阶段成长矩阵。"
-  default_prompt: "Use $aigc-global-design-elements to read `projects/<项目名>/1-Planning/3-分组/` as the primary evidence layer, load `projects/<项目名>/0-Init/` only as supporting context, route the project through an explicit era-design strategy for ancient, modern, future, or hybrid worlds, and write the canonical costume-and-architectural design-direction bible to `projects/<项目名>/2-Global/设计元素/设计元素.md`."
+  default_prompt: "Use $aigc-global-design-elements to read `projects/aigc/<项目名>/1-Planning/3-分组/` as the primary evidence layer, load `projects/aigc/<项目名>/0-Init/` only as supporting context, route the project through an explicit era-design strategy for ancient, modern, future, or hybrid worlds, and write the canonical costume-and-architectural design-direction bible to `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`."

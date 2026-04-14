@@ -15,7 +15,7 @@
 ## 2026-04-12
 
 - `Case-20260412-AIGC-ROOT-INIT-RUNTIME-SKELETON-SYNC`
-  - 将根技能对 `0-Init` 的说明同步为“按 shared runtime layout 预建阶段根目录与 active child skeleton”，并补入 `projects/<项目名>/故事/` 项目根目录，避免根入口继续停留在旧的根目录口径。
+  - 将根技能对 `0-Init` 的说明同步为“按 shared runtime layout 预建阶段根目录与 active child skeleton”，并补入 `projects/aigc/<项目名>/故事/` 项目根目录，避免根入口继续停留在旧的根目录口径。
   - 证据路径：
     - `.agents/skills/aigc/SKILL.md`
     - `.agents/skills/aigc/0-Init/SKILL.md`
@@ -47,7 +47,7 @@
     - `.agents/skills/aigc/SKILL.md`
     - `.agents/skills/aigc/_shared/project-runtime-layout.md`
 - `Case-20260410-AIGC-ROOT-VISUAL-STAGE-RENAME`
-  - 将 runtime 口径统一收敛到 `projects/<项目名>/5-Image/`，避免继续把视觉阶段写成历史命名。
+  - 将 runtime 口径统一收敛到 `projects/aigc/<项目名>/5-Image/`，避免继续把视觉阶段写成历史命名。
   - 证据路径：
     - `.agents/skills/aigc/SKILL.md`
     - `.agents/skills/aigc/5-画面/SKILL.md`
@@ -118,7 +118,7 @@
     - `.agents/skills/aigc/SKILL.md`
     - `.agents/skills/aigc/4-主体/SKILL.md`
 - `Case-20260409-AIGC-PROJECT-ROOT-RUNTIME`
-  - 将 `projects/<项目名>/` 收口为唯一项目运行时真源，移除隐藏运行时目录作为第二真相。
+  - 将 `projects/aigc/<项目名>/` 收口为唯一项目运行时真源，移除隐藏运行时目录作为第二真相。
   - 证据路径：
     - `.agents/skills/aigc/SKILL.md`
     - `.codex/registry/skills.yaml`

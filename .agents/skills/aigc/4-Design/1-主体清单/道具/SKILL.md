@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop-list
-description: Use when the `4-Design/道具/1-清单` leaf skill needs to turn `projects/<项目名>/3-Detail/第N集.json` into prop catalog, prop research, and prop design bridge JSON under `projects/<项目名>/4-Design/道具/1-清单/`.
+description: Use when the `4-Design/道具/1-清单` leaf skill needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into prop catalog, prop research, and prop design bridge JSON under `projects/aigc/<项目名>/4-Design/道具/1-清单/`.
 governance_tier: full
 ---
 
@@ -32,7 +32,7 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 
 ### 补充输入
@@ -45,9 +45,9 @@ governance_tier: full
 
 ### 固定输出落点
 
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
 
 ### 输入硬门槛
 
@@ -121,7 +121,7 @@ stateDiagram-v2
   - 锁定 episode 输入根、schema 解释方式与 canonical 输出目录。
 - `inputs`
   - 用户给定输入路径
-  - `projects/<项目名>/3-Detail/第N集.json`
+  - `projects/aigc/<项目名>/3-Detail/第N集.json`
   - 兼容回退路径
   - shared schema
 - `actions`
@@ -292,18 +292,18 @@ stateDiagram-v2
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json"
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json"
 ```
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json" \
-  --output-dir "projects/<项目名>/4-Design/道具/1-清单/第N集"
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
+  --output-dir "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集"
 ```
 
 ```bash
 python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
-  --input "projects/<项目名>/3-Detail/第N集.json" \
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
   --dry-run
 ```
 
@@ -337,7 +337,7 @@ python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipel
 
 ### 最终结果
 
-- `projects/<项目名>/4-Design/道具/1-清单/第N集/` 下的三份 JSON
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/` 下的三份 JSON
 
 ### 思考过程
 

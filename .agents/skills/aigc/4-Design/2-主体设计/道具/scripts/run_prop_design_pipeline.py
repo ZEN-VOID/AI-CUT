@@ -26,13 +26,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--type-guide", dest="type_elements", help=argparse.SUPPRESS)
     parser.add_argument("--north-star", help="north_star.yaml 路径")
     parser.add_argument("--init-handoff", help="init_handoff.yaml 路径")
-    parser.add_argument("--output-dir", help="输出目录；默认推断到 `projects/<项目名>/4-Design/道具/2-设计/第N集/`")
+    parser.add_argument("--output-dir", help="输出目录；默认推断到 `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`")
     parser.add_argument("--dry-run", action="store_true", help="只预览 manifest，不写文件")
     return parser.parse_args()
 
 
 def normalize_output_dir(raw: Path) -> Path:
-    text = raw.as_posix().replace("/2-角色/4-道具", "/4-道具/2-设计")
+    text = raw.as_posix().replace("/角色/4-道具", "/道具/2-设计")
+    text = text.replace("/2-角色/4-道具", "/道具/2-设计")
     return Path(text)
 
 

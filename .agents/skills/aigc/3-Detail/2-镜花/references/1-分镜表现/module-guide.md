@@ -26,6 +26,25 @@ flowchart TD
 - `插入` 先把镜头落回 prose 的节奏节点，让构图不是悬空写画面。
 - `构图` 再把每镜真正变成可看、可读、可继续叠加摄影与运镜的画面骨架。
 
+## 分镜表现维度总则
+
+这一级现在不再只回答“切几镜、插哪儿、怎么构图”，还必须同时回答三类组级问题：
+
+- 结构化密度预算
+  先形成 `candidate beat -> pace_tier -> recommended baseline -> headroom -> preferred/budget range`，而不是凭感觉估一个镜数。
+- 景别与视点节奏
+  先预判这组更适合哪种 `景别节奏模板`、哪种 `POV 策略`，以及它们如何服务 `叙事内核 / Current Mission / 情绪引导`。
+- 镜头描述子槽锁定
+  至少锁 `景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角` 五个槽位，避免后续模块重新猜镜头任务。
+
+换句话说，`1-分镜表现` 的完成标准不再只是“有 shot 数和分镜标记”，而是：
+
+- 预算区间可解释
+- 命中窗口的景别曲线可解释
+- POV 立场可解释
+- 每镜 descriptor 可解释
+- 这些解释都仍然回指 `1-水月`
+
 ## 具体创作方法
 
 ### 1. 先锁一条可执行的 `水月承接`
@@ -132,8 +151,9 @@ flowchart TD
 | `SHOT-N1-ANCHOR` | 锁定 `水月承接` | 这组究竟承接了哪条动作、情绪、空间、关系信息 | 回看 `1-水月`，提炼一句组级锚点，标出主动作和主视线 | `watermoon_inheritance` | 若不能用一句话概括本组承接内容，不得继续 |
 | `SHOT-N2-SWITCH` | 形成镜数预算 | 为什么是这些镜，而不是更多或更少 | 列候选节拍，写 `preferred / floor / ceiling` 与秒位窗口 | `shot_count_plan` | 若说不清 `why_not_fewer / why_not_more`，需回退 |
 | `SHOT-N3-INSERT` | 形成 prose 标记骨架 | 每镜在 prose 哪个位置进入最自然 | 把 `[分镜N ...]` 埋入动作、视线、停顿节点，必要时轻改句法 | `shot_marker_spine` | 若标记一插就生硬，回退 `SHOT-N2` |
-| `SHOT-N4-COMPOSE` | 形成画面组织骨架 | 观众先看什么，再看什么，最后停在哪 | 为每镜补主陪背景、构图方式、观看路径和空间锚点 | `composition_skeleton` | 若构图开始发明新空间或新关系，立刻回退 |
-| `SHOT-N5-CONVERGE` | 收束组级 shot spine | 三叶子是否已形成统一脊柱 | 检查主冲突、动作连续、镜头可读性，并压成单一 patch | `shot_spine_patch` | 未形成统一脊柱前不得进入摄影美学 |
+| `SHOT-N4-COMPOSE` | 形成画面组织骨架 | 观众先看什么，再看什么，最后停在哪 | 为每镜补主陪背景、构图方式、观看路径、descriptor 和空间锚点 | `composition_skeleton` | 若构图开始发明新空间或新关系，立刻回退 |
+| `SHOT-N5-RHYTHM-POV` | 锁定组级节奏与视点 | 这组镜头窗口更适合哪种景别曲线与 POV 立场 | 汇总 `shot_size_rhythm_preview + pov_strategy_preview + shot_descriptor_lock` | `focus_spatial_logic` | 若景别曲线、POV 或 descriptor 仍说不清，不得汇流 |
+| `SHOT-N6-CONVERGE` | 收束组级 shot spine | 三叶子是否已形成统一脊柱 | 检查主冲突、动作连续、镜头可读性、心理距离与 descriptor 一致性，并压成单一 patch | `shot_spine_patch` | 未形成统一脊柱前不得进入摄影美学 |
 
 ## 延展判型
 
@@ -152,6 +172,8 @@ flowchart TD
 - 读完整组后，能否一眼看出镜头顺序，而不需要额外列表解释。
 - 每个 `[分镜N ...]` 是否都承担独立的观看任务，而不是机械切句。
 - 构图骨架是否能自然承接后续 `光影 / 色彩 / 质感 / 运镜 / 转场`，而不是需要后续模块反向救场。
+- 这组的 `preferred_shot_count + budget range` 是否真能由候选节拍、pace tier 和 headroom 解释。
+- 命中镜头窗口的景别曲线、POV 立场和五个 descriptor 槽位是否已经锁住，而不是留给后续模块临场重判。
 - 是否仍能明确回指 `1-水月` 的原始动作、情绪、空间与关系信息。
 - 若删掉任何一镜，这组的主冲突、主情绪或主空间是否会变弱；如果不会，说明镜数偏多。
 

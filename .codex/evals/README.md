@@ -11,7 +11,7 @@
 - 三省角色是否引用共享治理真源并暴露关键合同锚点
 - 任务模板是否存在
 - runbook / state / registry / evals 是否存在
-- `aigc` 技能树是否已声明 `projects/<项目名>/` canonical runtime
+- `aigc` 技能树是否已声明 `projects/aigc/<项目名>/` canonical runtime
 - `aigc` 阶段状态是否已注册到 registry
 - 搁浅阶段是否被显式排除出执行链与严格审计失败项
 

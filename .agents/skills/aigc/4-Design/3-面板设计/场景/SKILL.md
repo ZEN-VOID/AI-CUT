@@ -1,6 +1,6 @@
 ---
 name: aigc-design-scene-panel
-description: Use when the `4-Design/场景/3-面板` stage needs to turn scene design carriers into scene panel layout JSON packages under `projects/<项目名>/4-Design/场景/3-面板/`.
+description: Use when the `4-Design/场景/3-面板` stage needs to turn scene design carriers into scene panel layout JSON packages under `projects/aigc/<项目名>/4-Design/场景/3-面板/`.
 governance_tier: full
 ---
 
@@ -22,7 +22,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已有 `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`，需要继续生成场景面板 carrier。
+- 已有 `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`，需要继续生成场景面板 carrier。
 - 需要把 `final_scene_prompt + panel_handoff + reverse_taboos` 收束为 16:9、3x3、9-panel 的 scene sheet prompt。
 - 需要为后续 `5-Image`、人工审阅或其他下游装配保留 machine-first JSON carrier。
 - 用户明确要求“场景面板 / 场景展示板 / scene panel / 九宫格场景设计页”。
@@ -80,11 +80,11 @@ governance_tier: full
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| 场景设计真源 | `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json` | 本阶段第一输入根 |
-| 逐场景设计卡 | `projects/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md` | 人读审阅与局部字段回看 |
+| 场景设计真源 | `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json` | 本阶段第一输入根 |
+| 逐场景设计卡 | `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md` | 人读审阅与局部字段回看 |
 | 面板模板 | `templates/scene-panel-layout.template.json` | 固定 16:9 九宫格布局合同 |
 | 执行脚本 | `scripts/generate_scene_panels.py` | 负责模板装配、批量生成与落盘 |
-| 场景面板输出根 | `projects/<项目名>/4-Design/场景/3-面板/第N集/` | 本阶段 canonical 输出根 |
+| 场景面板输出根 | `projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/` | 本阶段 canonical 输出根 |
 
 ## 子技能边界
 
@@ -105,19 +105,19 @@ governance_tier: full
 
 ### 必需输入
 
-1. `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
+1. `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
 2. `templates/scene-panel-layout.template.json`
 
 ### 补充输入
 
-1. `projects/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
-2. `projects/<项目名>/2-Global/全局风格.md`
-3. `projects/<项目名>/2-Global/类型元素.md`
-4. `projects/<项目名>/2-Global/导演意图.md`
+1. `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
+2. `projects/aigc/<项目名>/2-Global/全局风格.md`
+3. `projects/aigc/<项目名>/2-Global/类型元素.md`
+4. `projects/aigc/<项目名>/2-Global/导演意图.md`
 
 ### 命名合同
 
-- episode 输出目录：`projects/<项目名>/4-Design/场景/3-面板/第N集/`
+- episode 输出目录：`projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/`
 - episode carrier：`场景面板.json`
 - per-scene carrier：`<scene_key>-layout.json`
 - manifest：`_manifest.json`
@@ -515,7 +515,7 @@ erDiagram
 
 路径：
 
-`projects/<项目名>/4-Design/场景/3-面板/第N集/场景面板.json`
+`projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/场景面板.json`
 
 最小骨架：
 
@@ -524,7 +524,7 @@ erDiagram
   "meta": {
     "project_name": "项目名",
     "episode_id": "第1集",
-    "source_scene_design": "projects/<项目名>/4-Design/场景/2-设计/第1集/场景设计.json",
+    "source_scene_design": "projects/aigc/<项目名>/4-Design/场景/2-设计/第1集/场景设计.json",
     "skill_id": "aigc/4-Design/场景/3-面板",
     "generated_at": "2026-04-12T12:00:00-07:00"
   },
@@ -545,8 +545,8 @@ erDiagram
       "panel_prompt": "",
       "negative_prompt": "",
       "panel_handoff": "",
-      "layout_path": "projects/<项目名>/4-Design/场景/3-面板/第1集/ancient-hall--night-layout.json",
-      "design_markdown_path": "projects/<项目名>/4-Design/场景/2-设计/第1集/ancient-hall--night.md"
+      "layout_path": "projects/aigc/<项目名>/4-Design/场景/3-面板/第1集/ancient-hall--night-layout.json",
+      "design_markdown_path": "projects/aigc/<项目名>/4-Design/场景/2-设计/第1集/ancient-hall--night.md"
     }
   ]
 }
@@ -556,7 +556,7 @@ erDiagram
 
 路径：
 
-`projects/<项目名>/4-Design/场景/3-面板/第N集/<scene_key>-layout.json`
+`projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/<scene_key>-layout.json`
 
 最小骨架：
 
@@ -567,7 +567,7 @@ erDiagram
     "episode_id": "第1集",
     "scene_key": "ancient-hall--night",
     "scene_name": "皇城大殿",
-    "source_scene_design": "projects/<项目名>/4-Design/场景/2-设计/第1集/场景设计.json"
+    "source_scene_design": "projects/aigc/<项目名>/4-Design/场景/2-设计/第1集/场景设计.json"
   },
   "subject": {
     "scene_key": "ancient-hall--night",
@@ -621,7 +621,7 @@ erDiagram
 
 1. 所有命中场景都已通过 `FIELD-SCN-PANEL-01` 到 `FIELD-SCN-PANEL-10` 的门禁。
 2. `场景面板.json`、全部 `<scene_key>-layout.json`、`_manifest.json` 已全部落盘或在 `dry-run` 中完整列出。
-3. 输出路径全部位于 `projects/<项目名>/4-Design/场景/3-面板/第N集/`。
+3. 输出路径全部位于 `projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/`。
 4. 未发生越权出图、越权改写 `2-设计` 产物或从导演 JSON 直接编造面板。
 5. 用户侧 closure 已包含：
    - 最终产物
@@ -655,7 +655,7 @@ erDiagram
 - 面板 carrier 只有文案，没有 machine-first JSON。
 - 逐场景 layout 与 episode 级 panel carrier 不同源，出现第二真源。
 - `3-面板` 越权调用图片生成，把 `4-Design` 与 `5-Image` 边界打穿。
-- 输出仍沿用旧仓 `output/影片/.../3-设定/4-面板` 路径，而不是当前 `projects/<项目名>/4-Design/...`。
+- 输出仍沿用旧仓 `output/影片/.../3-设定/4-面板` 路径，而不是当前 `projects/aigc/<项目名>/4-Design/...`。
 - 主合同与旧 `references/*.md` 同时演化，出现并行真源。
 
 必经链路：
@@ -692,8 +692,8 @@ erDiagram
 5. 按需读取：
    - `templates/scene-panel-layout.template.json`
    - `scripts/generate_scene_panels.py`
-   - `projects/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
-   - `projects/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
+   - `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
+   - `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/<scene_key>.md`
 
 优先级：
 

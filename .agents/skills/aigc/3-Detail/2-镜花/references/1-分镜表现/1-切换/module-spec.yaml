@@ -2,22 +2,27 @@ version: 1
 module_id: jinghua-shot-switch
 module_level: leaf
 stage_order: 1.1
-purpose: 估算每个分镜组最稳的候选节拍、镜数预算和秒位切分，并为后续插入与构图提供可解释的切换骨架。
+purpose: 基于候选节拍和节奏系数形成结构化分镜密度预算，给出首选镜数、预算区间、预映强度、秒位切分和景别节奏预判，并为后续插入与构图提供可解释的切换骨架。
 triggers:
   - 分镜组默认按约 15 秒理解，若上游已有显式时长则优先使用显式值
   - 需要先把整组 prose 切成可执行的镜头节拍
   - 需要判断 `tail-hook` 应只作 `hook preview` 还是应折成独立镜头
 must_answer:
+  - 这组当前命中的整体节奏感是什么，对应哪一档 `pace_tier`
   - 这些切镜承接了 `1-水月` 的哪些 `动作阶段点 / 台词气口点 / 焦点切换点 / 结构转折点`
-  - 当前组的 `preferred_shot_count`、`shot_budget_floor`、`shot_budget_ceiling` 分别是多少
+  - 当前组可以拆成哪些 `candidate beat segments`，它们为什么成立或为什么可合并
+  - 当前组的 `canonical_beat_count`、`recommended_shot_baseline`、`preferred_shot_count`、`shot_budget_floor`、`shot_budget_ceiling` 分别是多少
+  - "`expansion_headroom` 与 `compression_headroom` 分别来自哪些可解释证据"
   - 是否存在 `hook_preview_count`，以及它为什么不应或应当折成独立镜头
   - 每一镜大致覆盖哪一段秒位
+  - 当前组最适合哪种 `景别节奏模板`，以及命中镜头窗口的预期景别曲线是什么
   - 这些切换为什么有助于主冲突、主动作或主视线
   - "`why_not_fewer` 与 `why_not_more` 分别是什么"
 patch_contract:
   target_slot: shot_count_plan
   required_elements:
     - estimated_group_duration
+    - candidate_beat_segments
     - canonical_beat_count
     - hook_preview_count
     - action_phase_points
@@ -33,7 +38,10 @@ patch_contract:
     - shot_budget_floor
     - shot_budget_ceiling
     - shot_count_decision
+    - preferred_reasons
+    - density_budget_rationale
     - shot_time_ranges
+    - shot_size_rhythm_preview
     - switching_rationale
     - why_not_fewer
     - why_not_more
@@ -50,9 +58,16 @@ merge_policy:
     - 无收益空镜
 quality_gates:
   - "`候选节拍` 只能作为分段条件，不得当成机械镜数加分器"
+  - 四类信号是分段条件，不是“多出现一次就一定多一镜”的加法计分器
+  - "`推荐镜数基准 = round(候选节拍 * 节奏系数)`，且最低为 `1`"
+  - "结构化密度预算不再引入额外格式系数；若需更密或更疏，只能通过 `candidate beat`、`pace_tier` 与 `headroom` 解释"
+  - "`preferred_shot_count` 只是默认首选值，不是唯一真值；实际镜数只需落在预算区间内"
+  - "`shot_count_decision` 仅保留为 legacy alias，等价于 `preferred_shot_count`"
+  - "`1 镜 / 2 镜 / 3 镜 / 4 镜及以上` 都必须有清晰的叙事拍点证据，不得拍脑袋压镜或碎镜"
   - 默认不要为了炫技过度切碎
   - 应先给预算区间和首选镜数，再给秒位分配，不得把镜数伪装成唯一不可变真值
   - "`tail-hook` 默认只计入 `hook_preview_count`，除非明确承担余波或预感职责"
   - 秒位分配必须能支撑后续插入和构图
+  - "`shot_size_rhythm_preview` 至少要锁定模板、选择理由，以及该模板如何服务 `叙事内核 / Current Mission / 情绪引导`"
   - 切镜依据必须来自 `1-水月` 已有信息，而不是外加桥段
   - 切镜理由必须能被故事或情绪解释，并能回答 `why_not_fewer / why_not_more`

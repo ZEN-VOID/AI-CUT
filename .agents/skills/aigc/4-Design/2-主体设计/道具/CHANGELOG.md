@@ -10,5 +10,5 @@
   - 新建最小 runner，把 `1-清单` 的 bridge 收束为 `道具设计.json + prop_design_prompt.json + _manifest.json`。
 
 - `Case-20260412-AIGC-PROP-DESIGN-PATH-NORMALIZATION`
-  - 将用户输入中错位的 `projects/<项目名>/4-Design/角色/4-道具` 兼容口径统一收束到 `projects/<项目名>/4-Design/道具/2-设计/第N集/`。
+  - 将用户输入中错位的 `projects/aigc/<项目名>/4-Design/角色/4-道具` 兼容口径统一收束到 `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`。
   - 在父 skill、shared I/O 与 manifest 同步补写 path normalization 记录，避免错路径演化为第二真源。

@@ -1,6 +1,6 @@
 ---
 name: aigc-video-first-frame-reference
-description: Use when the `6-Video` stage enters the `首帧参照` subtype to build frame-level video request JSON from `projects/<项目名>/3-Detail/第N集.json`, especially when a single `分镜ID` should become the first-frame anchor while still inheriting its storyboard-group context.
+description: Use when the `6-Video` stage enters the `首帧参照` subtype to build frame-level video request JSON from `projects/aigc/<项目名>/3-Detail/第N集.json`, especially when a single `分镜ID` should become the first-frame anchor while still inheriting its storyboard-group context.
 governance_tier: full
 ---
 
@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`首帧参照` 是 `6-Video/1-提示词蒸馏` 下的帧级叶子技能，负责把 `projects/<项目名>/3-Detail/第N集.json` 中 **单一 `分镜ID`** 收束为 **1 条首帧锚点视频请求对象**，并写出可供视频工具消费的 `JSON + TXT + _manifest.json` 三件套。
+`首帧参照` 是 `6-Video/1-提示词蒸馏` 下的帧级叶子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 **单一 `分镜ID`** 收束为 **1 条首帧锚点视频请求对象**，并写出可供视频工具消费的 `JSON + TXT + _manifest.json` 三件套。
 
 本次重构采用 `$skill-知行合一` 的单技能真源口径，并显式关闭“复杂链路的骨架 / 细则分层”：
 
@@ -21,7 +21,7 @@ governance_tier: full
 
 ## When To Use
 
-- 需要从 `projects/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，生成帧级视频请求对象。
+- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，生成帧级视频请求对象。
 - 需要把目标分镜所属组的 `剧本正文` 裁切为对应分镜帧的剧情桥段，而不是直接照搬整组剧情。
 - 需要原文保留 `组间设计.全局风格`，同时压缩 `组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭` 与目标镜级字段。
 - 需要把目标分镜 `时间段.开始秒 / 结束秒` 落成当前分镜组内的 `xx秒-xx秒` 时间锚点，并直接接在 `分镜 <ID>` 后，不写成 `分镜 <ID> 的 xx秒-xx秒`。
@@ -65,7 +65,7 @@ governance_tier: full
 
 ### 业务对象
 
-- 上游对象：`projects/<项目名>/3-Detail/第N集.json`
+- 上游对象：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - 关键结构：`final_output.main_content.分镜组列表[]`
 - 关键组级字段：`分镜组ID`、`剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭`
 - 关键镜级字段：目标 `分镜明细` 下的 `分镜ID`、`时间段.开始秒 / 结束秒`、`角色背景面`、`角色站位走位`、`景别`、`运镜手法`、`镜头视角`，以及存在时的 `镜头速度 / 角色表现 / 场景氛围 / 道具及状态 / 摄影美学 / 镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`
@@ -106,7 +106,7 @@ governance_tier: full
 
 ### Canonical Inputs
 
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - 按需：`.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
 - `.agents/skills/aigc/SKILL.md`
@@ -479,7 +479,7 @@ stateDiagram-v2
   2. TXT 是否只承载 prompt 与字数统计
   3. manifest 是否完整记录策略与例外
 - `actions`:
-  1. 写出 `projects/<项目名>/6-Video/首帧参照/第N集/第N集.json`
+  1. 写出 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`
   2. 按共享 TXT 模板写出 `第N集.txt`
   3. 写出 `_manifest.json`，登记 `output_mode / bridge_strategy / within_target_range / exception_note`
   4. 确保 `source_shot_ids` 仅包含 1 个目标 `分镜ID`
@@ -545,9 +545,9 @@ stateDiagram-v2
 本技能最终只允许一个 canonical final output 口径：
 
 1. `最终产物`
-   - `projects/<项目名>/6-Video/首帧参照/第N集/第N集.json`
-   - `projects/<项目名>/6-Video/首帧参照/第N集/第N集.txt`
-   - `projects/<项目名>/6-Video/首帧参照/第N集/_manifest.json`
+   - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`
+   - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`
+   - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/_manifest.json`
 2. `思考过程`
    - 简明说明本轮 `bridge_mode`、`budget_state`、固定块/压缩块处理与汇流判断
    - 该思考过程只作为用户 closure 说明或 manifest 摘要，不得另起第二真源文件
@@ -564,9 +564,9 @@ stateDiagram-v2
 
 ### Canonical Outputs
 
-- `projects/<项目名>/6-Video/首帧参照/第N集/第N集.json`
-- `projects/<项目名>/6-Video/首帧参照/第N集/第N集.txt`
-- `projects/<项目名>/6-Video/首帧参照/第N集/_manifest.json`
+- `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`
+- `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`
+- `projects/aigc/<项目名>/6-Video/首帧参照/第N集/_manifest.json`
 
 ### JSON Fill Scope
 
@@ -716,7 +716,7 @@ stateDiagram-v2
    - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
    - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
    - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
-   - `projects/<项目名>/3-Detail/第N集.json`
+   - `projects/aigc/<项目名>/3-Detail/第N集.json`
 
 优先级：
 

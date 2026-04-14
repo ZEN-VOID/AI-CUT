@@ -39,12 +39,12 @@ governance_tier: full
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| 剧本主稿 | `projects/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段逐集 canonical 主稿 |
-| 单集执行报告 | `projects/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | 记录变体裁决、结构重排、validator 与返工结论 |
-| 变体决策证据 | `projects/<项目名>/1-Planning/2-格式/agents-plan/第N集.<variant>.md` | 可选证据，不与主稿竞争 |
-| 上游逐集真源 | `projects/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 产出的逐集原文真源 |
-| 上游执行报告 | `projects/<项目名>/1-Planning/1-分集/执行报告.md` | coverage、`source_profile` 与边界证据 |
-| 上游机读索引 | `projects/<项目名>/1-Planning/episode-split-plan.json` | 分集边界、`source_profile`、`bootstrap_output` |
+| 剧本主稿 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段逐集 canonical 主稿 |
+| 单集执行报告 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | 记录变体裁决、结构重排、validator 与返工结论 |
+| 变体决策证据 | `projects/aigc/<项目名>/1-Planning/2-格式/agents-plan/第N集.<variant>.md` | 可选证据，不与主稿竞争 |
+| 上游逐集真源 | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 产出的逐集原文真源 |
+| 上游执行报告 | `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md` | coverage、`source_profile` 与边界证据 |
+| 上游机读索引 | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | 分集边界、`source_profile`、`bootstrap_output` |
 | 共享校验器 | `.agents/skills/aigc/1-Planning/2-格式/scripts/validate_script_output.py` | 校验 `标准剧 / 解说剧` 主稿结构与高频硬门禁 |
 
 ## Shared Preload Contract (Mandatory)
@@ -134,13 +134,13 @@ erDiagram
 
 ### Required Inputs
 
-- `projects/<项目名>/1-Planning/1-分集/第N集.md`
-- `projects/<项目名>/1-Planning/1-分集/执行报告.md`
-- `projects/<项目名>/1-Planning/episode-split-plan.json`
+- `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`
+- `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md`
+- `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
 
 ### Optional Inputs
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - 用户显式指定的变体、受众、旁白密度、对白保真、内心独白开关
 - 父级已有 `validation-report.md`
 
@@ -208,6 +208,7 @@ erDiagram
 5. 引号内不得混入动作描写；动作全部下沉到 `*画面`
 6. `总字数` 必须按最终 `【剧本正文】` 实算回填
 7. `镜头语言预设` 仅可整理上游明确存在的运镜，不得脑补
+8. 场景标题统一使用阿拉伯数字编号，例如 `### 场景1：...`，以便下游 `3-分组` 稳定解析组起始场景号
 
 ### 标准剧规则
 
@@ -252,7 +253,7 @@ erDiagram
 
 路径：
 
-`projects/<项目名>/1-Planning/2-格式/第N集.md`
+`projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
 
 ```markdown
 ---
@@ -263,12 +264,12 @@ source_type: <source_type>
 coverage_scope: <coverage_scope>
 split_scope: <incremental|full_season>
 总字数: <当前正文实算值>
-bootstrap_output: projects/<项目名>/2-Global/导演意图.md
-upstream_source: projects/<项目名>/1-Planning/1-分集/第<n>集.md
+bootstrap_output: projects/aigc/<项目名>/2-Global/导演意图.md
+upstream_source: projects/aigc/<项目名>/1-Planning/1-分集/第<n>集.md
 ---
 
 【剧本正文】
-### 场景一：<场景信息>
+### 场景1：<场景信息>
 ...
 ```
 
@@ -276,7 +277,7 @@ upstream_source: projects/<项目名>/1-Planning/1-分集/第<n>集.md
 
 路径：
 
-`projects/<项目名>/1-Planning/2-格式/第N集-执行报告.md`
+`projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md`
 
 固定区块：
 

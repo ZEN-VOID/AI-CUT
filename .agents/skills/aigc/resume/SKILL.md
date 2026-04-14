@@ -1,6 +1,6 @@
 ---
 name: aigc-resume
-description: Use when an AIGC film project task was interrupted and the operator needs to reconstruct the last stable stage, repair missing governance artifacts, or safely continue from a `projects/<项目名>/` runtime without guessing the breakpoint.
+description: Use when an AIGC film project task was interrupted and the operator needs to reconstruct the last stable stage, repair missing governance artifacts, or safely continue from a `projects/aigc/<项目名>/` runtime without guessing the breakpoint.
 governance_tier: lite
 ---
 
@@ -10,7 +10,8 @@ governance_tier: lite
 
 - `resume/` 是 `aigc` 根目录下的续跑恢复卫星技能，不是新的主阶段。
 - 它负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根 `aigc` 或目标阶段。
-- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/<项目名>/` 下的核心初始化工件、`project_state.yaml`、可选的 `governance-state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
+- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/aigc/<项目名>/` 下的核心初始化工件、`project_state.yaml`、可选的 `governance-state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
+- 用户若明确要求“回到初始化态重来 / 推翻当前方向重新起盘”，不属于 `resume/`；应回 `0-Init` 处理 `rebootstrap`。
 
 ## Stage Position
 
@@ -32,6 +33,7 @@ governance_tier: lite
 | 根治理工件缺口修复 | full | 支持从轻量初始化态补 `governance-state / mandate / brief / route / verdict / validation / learning` |
 | `0-Init` 到 `6-Video` 的阶段续跑 | full | 以项目运行时与阶段产物证据为准 |
 | `7-Cut` | blocked | 当前阶段处于 `搁浅`，只返回恢复前置 |
+| 主动回退到初始化态 | reroute_only | 这不是续跑恢复；唯一主入口是 `0-Init` |
 | 伪造 workflow state / 自动回滚 Git | forbidden | 明确禁止 |
 
 ## Workflow
@@ -58,7 +60,7 @@ flowchart TD
 
 允许的判定顺序：
 
-1. 当前工作目录已经在 `projects/<项目名>/` 下。
+1. 当前工作目录已经在 `projects/aigc/<项目名>/` 下。
 2. 用户明确给出项目名。
 3. `projects/` 下只有一个候选项目。
 4. 多项目且用户未说明时，停止猜测，先回根 `aigc` 或直接询问项目名。
@@ -121,6 +123,7 @@ git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 | `governance_rebuild` | `project_state.yaml` 缺失、核心初始化工件缺失，或高风险恢复所需 gate 明显缺失 | 回根 `aigc` 补 `state / brief / route / verdict` |
 | `stage_continue` | 阶段产物已存在，但验收闭环未完成 | 继续当前阶段或其直接下游 |
 | `review_reentry` | 内容产物已有，但需要预审或验收 | 进入 `review/` |
+| `init_rebootstrap_reroute` | 用户明确要求“回到初始化态重来 / 推翻方向重做” | 直接回 `0-Init`，不要按续跑逻辑硬接 |
 | `root_reroute` | 当前阶段不清、阶段已搁浅或合同缺失 | 回根 `aigc` 重判唯一路由 |
 
 ## Step 3：检查阶段产物与工作区证据
@@ -149,6 +152,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 允许的建议：
 
 - 回根 `aigc` 重新路由
+- 回 `0-Init` 执行重置式重新初始化
 - 回到某个已知阶段继续执行
 - 先经 `review/` 做 preflight 或验收桥接
 - 先补治理工件，再继续内容阶段
@@ -160,6 +164,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 - `git reset --hard`
 - 假设存在某个 tag/commit 再硬回滚
 - 在没有 `mission-brief / route-plan / preflight-verdict` 时直接重启高风险执行
+- 把“主动回到初始化态重来”伪装成 `stage_continue` 或 `governance_rebuild`
 
 ## Step 5：回接
 
@@ -179,6 +184,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 - 只凭目录猜断点
 - 缺治理工件时仍建议直接续跑
 - 默认给出危险 Git 动作
+- 把主动 `rebootstrap` 误判成普通续跑
 
 必经链路：
 

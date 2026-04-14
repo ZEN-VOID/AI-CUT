@@ -4,20 +4,20 @@
 
 ## Canonical Landing
 
-- 项目级故事目录：`projects/<项目名>/Story/`
-- 故事源登记真源：`projects/<项目名>/0-Init/story-source-manifest.yaml`
+- 项目级故事目录：`projects/aigc/<项目名>/Story/`
+- 故事源登记真源：`projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 
 ## Ownership
 
 - `0-Init` 负责首次生成 `story-source-manifest.yaml`。
-- 主故事源与辅助源文件本体统一落在 `projects/<项目名>/Story/`。
+- 主故事源与辅助源文件本体统一落在 `projects/aigc/<项目名>/Story/`。
 - `1-Planning/1-分集` 只消费 `story-source-manifest.yaml` 与其登记路径，不自行发明第二套源文件清单。
 
 ## Minimum Readiness Gate
 
 故事源 readiness 必须分层，而不是把“能否开始规划”和“能否完成整季正式分集”压成同一个门：
 
-1. `projects/<项目名>/0-Init/story-source-manifest.yaml` 存在。
+1. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml` 存在。
 2. `primary_story_source.status == ready` 且已登记实际正文路径时，允许把该正文覆盖范围作为规划真源。
 3. `readiness.can_enter_episode_split == true` 时，允许进入 `1-Planning/1-分集`，但默认只对 `coverage_scope` 已覆盖范围执行。
 4. `readiness.can_finalize_full_season_episode_split == true` 时，才允许宣称“整季正式分集完成”。
@@ -91,7 +91,7 @@
 - 其他（请说明）
 
 2. 文件路径
-- 请优先放到：`projects/<项目名>/Story/`
+- 请优先放到：`projects/aigc/<项目名>/Story/`
 
 3. 覆盖范围
 - 全文
