@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "schema_version": "aigc/detail-patch-sidecar/v1",
+    "skill_id": "aigc-detail-watermoon",
+    "episode_id": "第N集",
+    "patch_owner": "水月",
+    "source_root": "projects/aigc/<项目名>/3-Detail/第N集.json",
+    "script_body_policy": "inherit_only",
+    "generated_at": "2026-04-14T10:00:00-07:00"
+  },
+  "group_patches": [
+    {
+      "group_id": "<group_id>",
+      "target_fields": [
+        "组间设计.出场角色及穿搭",
+        "分镜明细[].角色背景面",
+        "分镜明细[].角色站位走位",
+        "分镜明细[].道具及状态",
+        "分镜明细[].分镜表现"
+      ],
+      "group_design_patch": {
+        "出场角色及穿搭": "<角色A-服装简述；角色B-服装简述>"
+      },
+      "beat_patches": [
+        {
+          "beat_id": "<group_id>-b01",
+          "anchor_summary": "<固定剧本正文中的主动作锚点摘要>",
+          "角色背景面": "<角色所在背景面与空间朝向>",
+          "角色站位走位": "<角色位置层次与位移路径>",
+          "道具及状态": "<关键道具与状态变化>",
+          "镜头消费提示": "<可供切镜与构图消费的表现抓手>"
+        }
+      ],
+      "merge_hints": [
+        "按 beat_id 与 镜花.shot_patches[].beat_refs 对齐，再由父层投影到 分镜明细[].分镜表现。"
+      ]
+    }
+  ]
+}

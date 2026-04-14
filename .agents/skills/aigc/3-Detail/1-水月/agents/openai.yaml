@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 水月扩写"
-  short_description: "把 `3-分组` 的 grouped script 扩成组级中文细化剧本，内收 12 个维度子模块做并发树形思考，并写回 `3-Detail/1-水月/第N集.md`"
-  default_prompt: "Use $aigc-detail-watermoon as the stage-local child skill under `3-Detail`: lock `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` as the primary source, seed the rewrite with `0-Init` and `2-Global` outputs, run the four parallel dimension trunks (`角色表现` / `运动表现` / `氛围表现` / `视觉强化`) with their twelve leaf modules as internal thinking branches, then converge each group into one concise Chinese rewritten screenplay block under 1000 characters and write the canonical markdown to `projects/aigc/<项目名>/3-Detail/1-水月/第N集.md`."

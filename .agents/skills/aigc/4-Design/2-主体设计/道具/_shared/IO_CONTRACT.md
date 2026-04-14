@@ -10,7 +10,7 @@
 | 必需 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 研究层补证 |
 | 可选 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | 原始 shot/group 回链 |
 | 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级事实 |
-| 可选 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目风格锚点 |
+| 可选 | `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md` | 项目风格锚点 |
 | 可选 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 项目类型打法约束 |
 | 可选 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 风格北极星 |
 | 可选 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化 handoff |
@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | canonical | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | 道具设计事实与 render contract 真源 |
 | sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | prompt sidecar |
-| sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json` | lineage、coverage 与 path normalization |
+| sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/_manifest.json` | 审计侧车；基础壳固定为 `status / episode_id / input_file / output_dir / output_files / statistics / notes`，扩展记录 `selected_agents / source_inputs / path_normalization` |
 | handoff | `agents_plan + patch / note / report` | subagents 返回给父 skill 的思考计划与局部增量 |
 
 ## Naming Contract
@@ -49,7 +49,7 @@
 
 - 若用户或上游 brief 中出现 `projects/aigc/<项目名>/4-Design/角色/4-道具` 等错位路径，本阶段必须规范化为：
   - `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`
-- 规范化行为必须记录到 `_manifest.json.path_normalization`。
+- 规范化行为必须记录到 `_manifest.json.path_normalization`，且 `requested_output_root / canonical_output_root` 一律使用仓库相对路径。
 
 ## Hard Rules
 
@@ -58,3 +58,5 @@
 3. `prop_design_prompt.json` 承载长 prompt、布局与调用话术，但不得改写业务事实。
 4. 若缺少 `prop_design_bridge.json`，本阶段必须阻塞并回退到 `1-清单`。
 5. 若 `prop_design_bridge.json.props[]` 中存在 `narrative_significance`，父 skill 必须将其保留到 `道具设计.json.design_thesis.narrative_significance`，不得静默丢失或降级。
+6. `道具设计.json.meta` 必须至少包含 `schema_version / skill_id / project_name / episode_id / primary_input / source_inputs / generated_at`。
+7. `prop_design_prompt.json.meta` 必须回链 `道具设计.json`，且 `skill_id` 与 design master 对齐为 `aigc-design-prop-design`。

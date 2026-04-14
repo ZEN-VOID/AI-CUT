@@ -10,7 +10,7 @@
 | 可选但优先 | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md` | 首选 `prompt整合` 提取源 |
 | 可选 | `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json` | identity 与 evidence 补证 |
 | 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 兼容回看，不作为第一 prompt 源 |
-| 必需 | `.agents/skills/aigc/4-Design/角色/3-面板/templates/角色面板-提示词.json` | 布局模板 |
+| 必需 | `.agents/skills/aigc/4-Design/3-面板设计/角色/templates/角色面板-提示词.json` | 布局模板 |
 
 ## Outputs
 

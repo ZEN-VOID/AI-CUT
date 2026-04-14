@@ -34,7 +34,7 @@ governance_tier: full
 ### 必需输入
 
 - `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-- `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json`
+- `.agents/skills/aigc/4-Design/3-面板设计/道具/templates/道具面板-提示词.json`
 
 ### 可选输入
 
@@ -57,8 +57,8 @@ governance_tier: full
 | --- | --- | --- |
 | design master | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json` | panel 第一输入真源 |
 | prompt sidecar | `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json` | 长 prompt、负面约束与渲染提示 |
-| layout template | `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json` | layout contract 真源 |
-| runner | `.agents/skills/aigc/4-Design/道具/3-面板/scripts/generate_prop_panels.py` | 最小可执行入口 |
+| layout template | `.agents/skills/aigc/4-Design/3-面板设计/道具/templates/道具面板-提示词.json` | layout contract 真源 |
+| runner | `.agents/skills/aigc/4-Design/3-面板设计/道具/scripts/generate_prop_panels.py` | 最小可执行入口 |
 | panel output root | `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/` | 本阶段唯一输出根 |
 
 ## Visual Maps
@@ -362,21 +362,24 @@ stateDiagram-v2
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/道具/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/道具/3-面板/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json`
-  - `.agents/skills/aigc/4-Design/道具/3-面板/scripts/generate_prop_panels.py`
+  - `.agents/skills/aigc/4-Design/3-面板设计/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/道具/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/道具/templates/道具面板-提示词.json`
+  - `.agents/skills/aigc/4-Design/3-面板设计/道具/scripts/generate_prop_panels.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/道具/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
 
 ## Context Preload (Mandatory)
 
-1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-2. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/4-Design/道具/SKILL.md + CONTEXT.md`
-4. 本 `SKILL.md + CONTEXT.md`
-5. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
-6. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
-7. `.agents/skills/aigc/4-Design/道具/3-面板/templates/道具面板-提示词.json`
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/2-主体设计/道具/SKILL.md + CONTEXT.md`
+6. 本 `SKILL.md + CONTEXT.md`
+7. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/道具设计.json`
+8. `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/prop_design_prompt.json`
+9. `.agents/skills/aigc/4-Design/3-面板设计/道具/templates/道具面板-提示词.json`

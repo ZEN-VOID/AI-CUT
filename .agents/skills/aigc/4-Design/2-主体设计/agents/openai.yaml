@@ -1,0 +1,5 @@
+interface:
+  display_name: "4-Design / 2-主体设计"
+  short_description: "统一路由场景、角色、服装、道具四类 machine-first 设计真源。"
+  default_prompt: "Use $aigc-design-object-design to route the current design-stage task into the right domain leaf after `1-主体清单`, and keep the design carriers aligned."
+version: 1

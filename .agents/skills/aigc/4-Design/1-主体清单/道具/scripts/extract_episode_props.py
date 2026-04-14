@@ -36,6 +36,15 @@ PROP_INLINE_RE = re.compile(
     r"信|牌|印|镜|梳|门|锁|栏|车|箱|帘|灯|扇|佩|簪|冠|甲|鞘|囊|袍|衣|鞋|靴|旗|鼓|伞|炉|匣|匙|钥匙"
     r"))"
 )
+CANONICAL_PROP_RULES: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+    ("量子核桃", ("量子核桃", "核桃扩音器", "核桃")),
+    ("全息锦鲤池", ("全息锦鲤池", "锦鲤池")),
+    ("数据鱼", ("数据鱼",)),
+    ("丈八蛇矛", ("丈八蛇矛", "蛇矛")),
+    ("智能手环", ("智能手环", "手环")),
+    ("手腕操作面板", ("手腕操作面板", "操作面板")),
+    ("反物质引擎", ("反物质引擎",)),
+)
 LEADING_CONTEXT_RE = re.compile(
     r"^(?:前景|后景|近景|远景|桌上|案上|柜台上|门边|地上|脚边|身旁|怀里|肩上|腰间|手中|手里|掌中|背后|画面中|镜头里)"
     r"(?:的)?"
@@ -69,11 +78,13 @@ def write_json(path: Path, payload: dict) -> None:
 
 
 def infer_project_name(input_path: Path) -> str:
-    match = re.search(r"/projects/aigc/([^/]+)/", input_path.as_posix())
-    if not match:
-        match = re.search(r"/projects/([^/]+)/", input_path.as_posix())
-    if match:
-        return match.group(1)
+    parts = input_path.resolve().parts
+    if "projects" in parts:
+        idx = parts.index("projects")
+        if idx + 2 < len(parts) and parts[idx + 1] == "aigc":
+            return parts[idx + 2]
+        if idx + 1 < len(parts):
+            return parts[idx + 1]
     return input_path.parent.name
 
 
@@ -121,10 +132,18 @@ def pick_prop_name(text: str) -> str:
 
 
 def extract_candidate_names(text: str) -> List[str]:
-    matches = [match.group(1).strip() for match in PROP_INLINE_RE.finditer(text) if match.group(1).strip()]
     output: List[str] = []
+    for canonical_name, keywords in CANONICAL_PROP_RULES:
+        if any(keyword in text for keyword in keywords) and canonical_name not in output:
+            output.append(canonical_name)
+    if output:
+        return output
+
+    matches = [match.group(1).strip() for match in PROP_INLINE_RE.finditer(text) if match.group(1).strip()]
     for item in matches:
         cleaned = STATE_PREFIX_RE.sub("", item).strip(" ，。；;、")
+        if any(token in cleaned for token in ("被", "作为", "成为", "进入", "可见", "运行", "游动", "察觉", "现身", "切成")):
+            continue
         if cleaned and cleaned not in output:
             output.append(cleaned)
     return output
@@ -157,11 +176,6 @@ def parse_prop_mentions(prop_text: str) -> List[dict]:
 
         stripped_clause, paren_state = extract_parenthetical_state(clause)
         candidate_names = extract_candidate_names(stripped_clause)
-        if not candidate_names:
-            fallback_name = pick_prop_name(stripped_clause)
-            if fallback_name and fallback_name not in NO_PROP_TOKENS:
-                candidate_names = [fallback_name]
-
         if not candidate_names:
             continue
 
@@ -224,11 +238,14 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
     project_name = infer_project_name(input_path)
     episode_id = infer_episode_id(input_path, payload)
     meta = {
+        "schema_version": "aigc/design-prop-list/v1",
+        "skill_id": "aigc-design-prop-list",
         "project_name": project_name,
         "episode_id": episode_id,
+        "primary_input": input_path.as_posix(),
+        "source_inputs": [input_path.as_posix()],
         "source_input": input_path.as_posix(),
         "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
-        "skill_id": "aigc/4-Design/道具/1-清单",
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
 
@@ -335,6 +352,13 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
 
     return {
         "meta": meta,
+        "statistics": {
+            "group_count": len(groups),
+            "shot_count": len(group_prop_map),
+            "group_map_count": len(group_prop_map),
+            "prop_count": len(props),
+            "groups_without_prop_count": len(groups_without_props),
+        },
         "group_prop_map": group_prop_map,
         "groups_without_props": groups_without_props,
         "props": props,

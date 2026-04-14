@@ -8,8 +8,8 @@
 
 ## Context Health
 
-- soft_limit_chars: 20000
-- hard_limit_chars: 40000
+- soft_limit_chars: 22000
+- hard_limit_chars: 44000
 - status: ok
 - last_checked_at: 2026-04-14
 
@@ -17,36 +17,41 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| `3-Detail` 只有 `1-水月/2-镜花`，却没有父级阶段合同 | 阶段真源层 | 补父级 `SKILL.md + CONTEXT.md`，固定路由、shared root 写回和 validation | 把 `3-Detail` 视为 stage-local parent skill，而不是 sidecar 容器目录 | 根 `aigc`、阶段根与 shared layout 的说法一致 |
-| child sidecar 写得很好，但 `第N集.json` 仍空或只有 seed | 父级聚合层 | 回到父 skill 做 sidecar -> shared JSON patch | 在父 `SKILL.md` 固化父层拥有 `分镜明细[]` 写回权 | `分镜明细[]` 不再停留为空数组 |
-| shared root 缺失或只有 `bootstrapped` 空壳，却被静默继续下游 | seed 继承层 | 先报告 `2-Global` seed 缺口，再决定是否兼容 bootstrap | 在父 `SKILL.md` 固化 `seed check -> compat fallback` | 缺上游 seed 时不会被假装成 ready |
-| 用户只要求局部 group 或单个 child skill，却被默认全量重跑 | 路由层 | 回到父层做 selective dispatch，只 patch 命中 scope | 在父 `SKILL.md` 固化 `selected_groups[] / selected_fields[] / selected_chains[]` 的路由语义 | validation 只登记本轮命中范围 |
-| `组间设计` 在 detail 阶段被无故改写 | 继承边界层 | 恢复上游 seed，只允许回填 `出场角色及穿搭` 或显式返工项 | 在 `group_design_seed_contract.md` 与父层合同共同固化“默认继承不重写” | `全局风格 / 类型元素` 保持稳定继承 |
-| `2-镜花` 很强，但 JSON 里角色走位、空间关系仍发虚 | 证据映射层 | 用 `1-水月` 补人物、动作、空间证据，再由 `2-镜花` 补镜头语法 | 在父层聚合规则固定“水月补事实，镜花补镜头组织” | `角色背景面 / 角色站位走位` 不再空泛 |
-| `出场角色及穿搭` 长期留空 | 组级回填层 | 在 stage patch 时从 sidecar 与镜级事实回填，而不是等下游猜 | 在父 `SKILL.md` 把该字段列为 `3-Detail` 的最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
-| `document_phase` 被直接写成 `ready`，但组内没有 shots | phase 管理层 | 回退到 `detail_in_progress`，先补 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 shot patch + validation | `ready` 与实际完成度一致 |
-| 阶段产物存在，但没有 `validation-report.md` | 阶段闭环层 | 补写 `projects/aigc/<项目名>/3-Detail/validation-report.md` | 在父 `SKILL.md` Convergence Contract 固定 validation 必写 | 阶段完成时一定有验收结论 |
-| `team.yaml` 已启用却绕过共享顾问团 gate | 共享运行时层 | 回到 `council-runtime` 做前置判断 | 在父层合同固定 council gate 是 `3-Detail` 的前置节点 | `validation-report.md` 中有 gate note |
-| 子技能与 `module-index.md` 已声明共享 validator，但阶段根没有对应脚本 | 共享校验真源层 | 在 `.agents/skills/aigc/3-Detail/scripts/` 补齐 `validate_node_packs.py` 与 `validate_creative_guidance.py` | 让子技能只回链阶段根共享 validator，不再各自口头约定“应有校验”；每次调整 `references/` 后先跑共享校验脚本 | `1-水月` 与 `2-镜花` 的引用路径可执行且校验通过 |
+| `3-Detail` 仍沿用双次 markdown 扩写，导致 shared root 不收束 | 阶段总合同层 | 把父层切到 `JSON root + patch sidecar + parent merge` | 在父 `SKILL.md` 固化字段 ownership 与 sidecar merge 契约 | `剧本正文` 不再被二次重写 |
+| `水月` 与 `镜花` 因目录序号被误判为关系不清 | 调度语义层 | 移除目录序号，并在父层显式写顺序门 | 把调度裁决固定到 `分镜切换 -> 水月 -> 镜花` | `3-Detail` 不再靠目录观感理解顺序 |
+| `剧本正文` 在 detail 阶段被再次改写 | 真源边界层 | 回退到上游继承版本，只允许补字段 | 在父层与子层合同共同固定 `script_body_policy = inherit_only` | shared root 中 `剧本正文` 保持稳定 |
+| `水月` 开始写 `分镜ID / 时间段 / 摄影美学` | 字段 ownership 层 | 回退到 factual patch，仅保留 `出场角色及穿搭 + beat factual fields` | 在 `director_episode_output.schema.json#/$defs/detail_patch_sidecar` 与 validator 中固化 owner 边界 | `水月` sidecar 无 cinematic 字段 |
+| `镜花` 开始写 `出场角色及穿搭` 或 factual 字段 | 字段 ownership 层 | 回退到 cinematic patch，仅保留 shot skeleton 与导演/摄影字段 | 在 `director_episode_output.schema.json#/$defs/detail_patch_sidecar` 与 validator 中固化 owner 边界 | `镜花` sidecar 无 group/factual 字段 |
+| sidecar 结构同时在两个 schema 文件维护，导致契约漂移 | canonical schema 治理层 | 将 sidecar 定义收束进 `director_episode_output.schema.json::$defs`，旧路径只保留兼容包装 | 在父子技能合同统一引用 canonical schema JSON Pointer，防止再出现双真源 | sidecar 与 canonical shot 契约只需维护一处 |
+| 子技能 sidecar 很完整，但父层不会 merge | 父级聚合层 | 回到父 skill 做 `beat_refs[] -> shot merge` | 在父 `SKILL.md` 固化 `beat_id / beat_refs[]` 对齐规则 | `分镜明细[]` 不再停留为空数组 |
+| `beat_id` 不稳定，导致 factual/cinematic sidecar 无法对齐 | patch 对齐层 | 回退到共享 `beat_id = <group_id>-bNN` 规则 | 在 shared schema 与父层 merge 契约固化 beat id 规则 | merge 不再靠临场猜测 |
+| shared root 缺 `分镜切换`，却直接开始 `镜花` 落镜 | 上游 seed 层 | 先报告 `2-Global` seed 缺口，再决定是否兼容修复 | 在父层把 `分镜切换` 设为 `镜花` 前置门 | `镜花` 不再代替上游决定镜数 |
+| 把 `水月 / 镜花` 的“允许并发”误读成 `镜花` 内部也能乱序展开 | 调度边界层 | 回到父层顺序 gate、子层阶段串行的双层规则 | 在父 `SKILL.md` 和 `镜花/SKILL.md` 同步固定“先 seed，再水月，再镜花；镜花内部先 `分镜构图`” | `镜花` 后续模块不再反向改镜数 |
+| `3-Detail` 重构后共享 reference 真源断链 | 真源同步层 | 将共享节点包/创作引导合同上收 `_shared/` 并统一回指 | 在 validator 中固定共享 reference 存在性与新路径检查 | 子技能 preload 与 `module-index` 不再落死路径 |
+| 校验脚本只验子目录内部，导致父子拓扑断裂仍给绿灯 | 防回归门层 | 把父层 `镜花` 路由、共享 reference 存在性、旧叶子残留纳入校验 | 在阶段 validator 中增加父层和共享真源检查 | 旧拓扑或死链再次出现时能直接报错 |
+| `组间设计` 在 detail 阶段被无故改写 | 继承边界层 | 恢复上游 seed，只允许回填 `出场角色及穿搭` | 在 `group_design_seed_contract.md` 与父层合同共同固化“默认继承不重写” | `全局风格 / 类型元素` 保持稳定 |
+| `出场角色及穿搭` 长期留空 | 组级回填层 | 从 `水月` group patch 回填，不再等下游猜 | 在父 `SKILL.md` 把该字段列为最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
+| `document_phase` 被直接写成 `ready`，但 shot patch 仍不完整 | phase 管理层 | 回退到 `detail_in_progress`，先补完 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 merge 完成与 validation | `ready` 与实际完成度一致 |
 
 ## Repair Playbook
 
 1. 先检查 `projects/aigc/<项目名>/3-Detail/第N集.json` 是否存在、是否符合 shared schema、`document_phase` 当前处于什么状态。
-2. 若 root 不存在或 seed 不完整，先回溯 `2-Global -> group_design_seed_contract`，不要直接让 child sidecar 越权补根文件。
-3. 再判断本轮是阶段级任务，还是单独的 `1-水月 / 2-镜花` 局部任务。
-4. 若要写 JSON，优先复用已有 sidecar；只有证据不足时才重跑子技能。
-5. 写 `分镜明细[]` 时，先用 `1-水月` 锁人物/动作/空间，再用 `2-镜花` 锁切镜/摄影/运镜/转场。
-6. 最后用 `document_phase + validation-report.md` 一起表达完成度，不用单一文件存在与否代替验收。
+2. 再检查 shared root 是否已经具备 `剧本正文 + 组间设计 + 分镜切换`；缺 `分镜切换` 时先报 seed 缺口。
+3. 若需要 `组间设计.出场角色及穿搭` 或 factual 字段，先检查 `水月` sidecar 是否提供 beat-level evidence。
+4. 若需要 shot skeleton 或导演/摄影字段，只有在既定 `分镜切换 + 水月 evidence` 稳定后才检查或重跑 `镜花` sidecar。
+5. 做 shared root writeback 时，先保住 `剧本正文` 与 `分镜切换` 不变，再做 `beat_refs[]` merge 与 `镜头消费提示 -> 分镜表现` 投影。
+6. 最后用 `document_phase + validation-report.md` 一起表达完成度，不用某个 sidecar 是否存在代替验收。
 
 ## Reusable Heuristics
 
-- `3-Detail` 父层的价值不是“再写一篇总稿”，而是让 shared JSON 与两个 sidecar 保持单线闭环。
-- 当前最稳的阶段分工是：`1-水月` 负责 prose 级事实增密，`2-镜花` 负责镜头语法增密，父层负责结构化写回。
-- `3-Detail` 一旦已经拿到 `2-Global` seed，就应优先继承而不是重抽；重抽通常意味着边界丢失。
-- `组间设计` 在 `3-Detail` 的默认姿势是“继承 + 消费”，不是“重新定义”。
-- `出场角色及穿搭` 最适合在 `3-Detail` 回填，因为这时镜级事实已经足够稳定，早填容易空泛，晚填会把负担转嫁给 `4-Design`。
-- 若用户只要局部 group 或局部字段，就维持 `detail_in_progress`，不要为了追求看起来完整而假写 `ready`。
+- `3-Detail` 父层的价值不是“再写一篇总稿”，而是让 shared JSON 与两个 patch sidecar 保持单线闭环。
+- `水月` 最适合持有事实层，`镜花` 最适合持有镜头层；这两者应通过字段 ownership 协作，而不是轮流改正文。
+- `剧本正文` 一旦已经由 `2-Global` 正确 seed，就应优先继承而不是再扩写；重写正文通常意味着边界丢失。
+- `组间设计` 在 `3-Detail` 的默认姿势是“继承 + 回填穿搭”，不是“重新定义设计”。
+- `出场角色及穿搭` 最适合在 `3-Detail` 回填，因为这时镜级事实已经足够稳定，早填容易空泛，晚填会把负担转嫁给下游。
+- `3-Detail` 最稳的顺序不是“谁先想到谁先跑”，而是 `2-Global` 先落固定 `分镜切换`，`水月` 先落 beat-level evidence，`镜花` 再按既定镜数落真实切镜和镜头语言。
+- 父层真正要守的是 shared root 单线写回和顺序 gate，而不是追求表面上的 owner 并发。
+- `镜花` 内部仍必须先锁 `分镜构图` 的实际切镜窗口，再让后续模块消费这个骨架。
+- 子技能 `references/` 若共享同一套节点包或创作引导规则，真源应显式上收 `_shared/`；否则目录重构后最容易出现局部自洽、整体断链。
 - `ready` 的真实含义不是 sidecar 都存在，而是 shared root 已可被下游稳定消费且 validation 已给出通过结论。
-- 当 `1-水月` 与 `2-镜花` 出现冲突时，优先回看 `1-Planning/3-分组` 与 shared root 已继承的 seed，再决定是否返工子技能，而不是直接在 JSON 里折中臆写。
-- 对 `3-Detail` 来说，最危险的退化模式是：child sidecar 越来越丰富，但父层 shared root 永远不收束；一旦出现这种迹象，应优先修父层聚合合同。
-- 当 `module-index.md` 或子技能 `SKILL.md` 已经把 validator 写成共享入口时，阶段根必须真的承载这份脚本；否则“可验证”只是文档承诺，不是可执行能力。
+- 当 `4-Design/1-主体清单` 成为 detail 阶段的首个稳定下游时，应把它的字段消费矩阵显式回链到 `3-Detail` 父合同；否则上游 schema 虽然完整，下游 leaf 仍会各自演化一套“我以为该怎么读”的解释。

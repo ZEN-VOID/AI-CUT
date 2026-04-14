@@ -62,21 +62,22 @@ governance_tier: full
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/4-Design/角色/SKILL.md + CONTEXT.md`
-5. `.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/2-主体设计/角色/SKILL.md + CONTEXT.md`
 6. 本 `SKILL.md + CONTEXT.md`
-7. `.agents/skills/aigc/4-Design/角色/3-面板/_shared/IO_CONTRACT.md`
-8. `templates/角色面板-提示词.json`
-9. `scripts/build_character_panel_packets.py`
-10. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
-11. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
-12. 可选 `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+7. `.agents/skills/aigc/4-Design/3-面板设计/角色/_shared/IO_CONTRACT.md`
+8. `.agents/skills/aigc/4-Design/1-主体清单/角色/SKILL.md + CONTEXT.md`（按需回看）
+9. `templates/角色面板-提示词.json`
+10. `scripts/build_character_panel_packets.py`
+11. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
+12. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/[角色名].md`
+13. 可选 `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
 
 ## Shared Canonical Sources (Mandatory)
 
-- 强制读取：`.agents/skills/aigc/4-Design/角色/3-面板/_shared/IO_CONTRACT.md`
-- 强制读取：`.agents/skills/aigc/4-Design/角色/3-面板/templates/角色面板-提示词.json`
-- 强制读取：`.agents/skills/aigc/4-Design/角色/3-面板/scripts/build_character_panel_packets.py`
+- 强制读取：`.agents/skills/aigc/4-Design/3-面板设计/角色/_shared/IO_CONTRACT.md`
+- 强制读取：`.agents/skills/aigc/4-Design/3-面板设计/角色/templates/角色面板-提示词.json`
+- 强制读取：`.agents/skills/aigc/4-Design/3-面板设计/角色/scripts/build_character_panel_packets.py`
 
 硬规则：
 
@@ -91,7 +92,7 @@ governance_tier: full
 ### 必需输入
 
 - `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
-- `.agents/skills/aigc/4-Design/角色/3-面板/templates/角色面板-提示词.json`
+- `.agents/skills/aigc/4-Design/3-面板设计/角色/templates/角色面板-提示词.json`
 
 ### 可选但优先输入
 
@@ -401,15 +402,15 @@ graph LR
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/角色/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/角色/3-面板/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/角色/3-面板/_shared/IO_CONTRACT.md`
-  - `.agents/skills/aigc/4-Design/角色/3-面板/templates/角色面板-提示词.json`
-  - `.agents/skills/aigc/4-Design/角色/3-面板/scripts/build_character_panel_packets.py`
+  - `.agents/skills/aigc/4-Design/3-面板设计/角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/角色/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/角色/_shared/IO_CONTRACT.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/角色/templates/角色面板-提示词.json`
+  - `.agents/skills/aigc/4-Design/3-面板设计/角色/scripts/build_character_panel_packets.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/角色/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/角色/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/角色/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 

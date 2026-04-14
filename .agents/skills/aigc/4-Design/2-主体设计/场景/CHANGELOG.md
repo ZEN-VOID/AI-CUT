@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-本文件承载 `.agents/skills/aigc/4-Design/场景/2-设计` 的结构性变更索引，不参与默认技能预加载，也不与 `SKILL.md / CONTEXT.md` 竞争真源。
+本文件承载 `.agents/skills/aigc/4-Design/2-主体设计/场景` 的结构性变更索引，不参与默认技能预加载，也不与 `SKILL.md / CONTEXT.md` 竞争真源。
 
 ## 2026-04-12
 
@@ -11,7 +11,7 @@
   - 同步刷新 `CONTEXT.md`，把经验层改成“单技能真源”口径。
   - 同步刷新 `agents/openai.yaml`，移除 subagent / team 叙述。
   - 同步删除废弃载体：
-    - `.agents/skills/aigc/4-Design/场景/2-设计/references/*`
+    - 当前目录下旧 `references/*`
     - `.codex/agents/aigc/设计组/场景设计/*`
   - 旧载体到新真源映射：
     - `references/chain-of-thought.md` -> `SKILL.md / Field Master / Thought Pass Map / Pass Table`
@@ -20,6 +20,6 @@
     - `references/output-template.md` -> `SKILL.md / One-Shot Output Contract`
     - `.codex/agents/aigc/设计组/场景设计/*.md` -> `SKILL.md / Internal Capability Fusion Contract + Thinking-Action Node Network`
   - 证据路径：
-    - `.agents/skills/aigc/4-Design/场景/2-设计/SKILL.md`
-    - `.agents/skills/aigc/4-Design/场景/2-设计/CONTEXT.md`
-    - `.agents/skills/aigc/4-Design/场景/2-设计/agents/openai.yaml`
+    - `.agents/skills/aigc/4-Design/2-主体设计/场景/SKILL.md`
+    - `.agents/skills/aigc/4-Design/2-主体设计/场景/CONTEXT.md`
+    - `.agents/skills/aigc/4-Design/2-主体设计/场景/agents/openai.yaml`

@@ -107,6 +107,13 @@ def _load_json(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _to_repo_relative(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def _safe_name(value: str) -> str:
     text = re.sub(r"[\\/:*?\"<>|]+", "-", (value or "").strip())
     text = re.sub(r"\s+", "-", text)
@@ -172,7 +179,7 @@ def _build_costume_entry(role: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def build_artifacts(role_list_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+def build_artifacts(role_list_path: Path, output_dir: Path) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     role_list = _load_json(role_list_path)
     meta = role_list.get("meta") or {}
     episode_label = normalize_episode_label(str(meta.get("episode_id") or role_list_path.parent.name))
@@ -188,14 +195,23 @@ def build_artifacts(role_list_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any
 
     costume_catalog = {
         "meta": {
+            "schema_version": "aigc/design-costume-list/v1",
+            "skill_id": "aigc-design-costume-list",
             "project_name": project_name,
             "episode_id": episode_label,
+            "primary_input": str(role_list_path).replace(str(Path.cwd()) + "/", ""),
+            "source_inputs": [
+                str(role_list_path).replace(str(Path.cwd()) + "/", ""),
+                source_detail,
+            ],
             "source_role_list": str(role_list_path).replace(str(Path.cwd()) + "/", ""),
             "source_episode_detail": source_detail,
-            "skill_id": "aigc/4-Design/服装/1-清单",
+            "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
             "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         },
         "statistics": {
+            "group_count": len({str(item.get("group_id", "")) for item in group_role_map if str(item.get("group_id", "")).strip()}),
+            "shot_count": len(group_role_map),
             "role_count": len(roles),
             "costume_count": len(costumes),
             "group_map_count": len(group_role_map),
@@ -309,11 +325,12 @@ def build_artifacts(role_list_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any
     manifest = {
         "status": "ok",
         "episode_id": episode_label,
-        "input_file": str(role_list_path).replace(str(Path.cwd()) + "/", ""),
-        "output_files": list(DEFAULT_OUTPUT_FILES),
+        "input_file": _to_repo_relative(role_list_path),
+        "output_dir": _to_repo_relative(output_dir),
+        "output_files": [_to_repo_relative(output_dir / filename) for filename in DEFAULT_OUTPUT_FILES],
         "statistics": costume_catalog["statistics"],
         "notes": [
-            "第一输入根固定为角色清单；导演 episode JSON 仅作证据补包。",
+            "canonical business truth 是 `服装清单.json`；研究与 bridge 为派生 sidecar，且第一输入根固定为角色清单。",
         ],
     }
     return costume_catalog, research, bridge, manifest
@@ -331,7 +348,7 @@ def main() -> None:
     role_list = _load_json(role_list_path)
     episode_label = normalize_episode_label(str((role_list.get("meta") or {}).get("episode_id") or role_list_path.parent.name))
     output_dir = infer_output_dir(role_list_path, args.output_dir, episode_label)
-    payloads = build_artifacts(role_list_path)
+    payloads = build_artifacts(role_list_path, output_dir)
 
     if args.dry_run:
         costume_catalog = payloads[0]

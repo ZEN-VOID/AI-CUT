@@ -29,7 +29,7 @@ governance_tier: full
 
 ## When to Use
 
-- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 的分镜组内容蒸馏为视频工具入参 JSON。
+- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 `metadata.document_phase=ready` 的分镜组内容蒸馏为视频工具入参 JSON。
 - 需要在正式调用 `dreamina` 或其他视频 API 前，先整理主体参照、prompt、画幅与质量参数。
 - 需要说明 `6-Video` 与 `5-Image`、`dreamina-cli` 的边界。
 - 用户只说“做视频参照 / 做视频请求 JSON / 从 `3-Detail` 转视频入参”，但还没进入实际提交命令。
@@ -37,6 +37,7 @@ governance_tier: full
 ## When Not to Use
 
 - 任务仍在补 `3-Detail/第N集.json` 的组级或镜级事实，应回到 `2-Global` 或 `3-Detail`。
+- 上游 `3-Detail/第N集.json` 仍处于 `bootstrapped` 或 `detail_in_progress`，或组内 `分镜切换` 与 `分镜明细[]` 尚未对齐，应回到 `3-Detail` 完成 handoff gate。
 - 任务仍在生成参考图、故事板或单帧图，应回到 `5-Image`。
 - 任务已经明确处于具体 provider 技能内部，只是在排查 `dreamina-cli` / `grok` 的提交、轮询、队列或下载问题，应直接进入对应 provider 技能。
 
@@ -99,6 +100,7 @@ flowchart LR
 ## Route Summary
 
 - 若任务是“按分镜组把导演 JSON 蒸馏成视频工具入参”，默认进入 `1-提示词蒸馏/全能参照`。
+- 命中任何 `1-提示词蒸馏/*` 叶子前，默认先确认 `3-Detail/第N集.json` 已进入 `metadata.document_phase=ready`，且各组 `分镜切换 == len(分镜明细[])`。
 - 若任务已经明确以单一 `分镜ID` 作为首帧锚点，进入 `1-提示词蒸馏/首帧参照`。
 - 若任务已经有稳定请求 JSON，且当前目标是选择 provider、写提交计划并进入真实生成入口，进入 `2-视频生成`。
 - 若任务已经有首尾帧或多图强约束，但对应子路径合同未补齐，必须报告缺口，不得伪造执行链。
@@ -107,6 +109,7 @@ flowchart LR
 ## Execution Summary
 
 - 当前阶段的第一事实源是 `projects/aigc/<项目名>/3-Detail/第N集.json`。
+- 只有 `metadata.document_phase=ready` 且组内 `分镜切换` 与 `分镜明细[]` 已对齐的 episode root，才可被 `6-Video` 视作稳定 handoff 输入。
 - shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
 - 阶段级产物统一写回 `projects/aigc/<项目名>/6-Video/`，由命中的子路径承载请求对象或 handoff 包。
 - 详细输入合同、canonical landing 与 handoff 见 `references/execution-flow.md`。
@@ -118,6 +121,7 @@ flowchart LR
 - 首个 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.txt`。
 - 帧级 canonical 主产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`。
 - 帧级 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`。
+- 组级与帧级叶子的共享 `图生视频` 句法总原则统一收敛到 `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`，子路径 `prompt-assembly-spec.md` 只负责各自 specialization。
 - 生成入口 canonical 计划文件为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`。
 - 生成入口 canonical 简报为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`。
 - 当前共享入参模板真源为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`，供多个视频子技能包共用。
@@ -135,6 +139,7 @@ flowchart LR
 
 - 执行者直接跳到视频模型命令，绕过请求 JSON 整理层
 - 上游还没锁定 `3-Detail/第N集.json`，却提前生成视频入参
+- `3-Detail` 仍是 `bootstrapped/detail_in_progress` 半成品，或 `分镜切换` 与 `分镜明细[]` 数量未对齐，却被误当成稳定视频输入
 - 任务明明是分镜组级蒸馏，却被误判成首帧或多图路径
 - 请求 JSON 里继续混用旧仓 `output/影片/...` 路径
 - 只剩 prompt，没有请求字段、台账或下游 handoff

@@ -13,11 +13,12 @@ governance_tier: full
 1. `服装清单.json`
 2. `服装研究.json`
 3. `costume_design_bridge.json`
+4. `_manifest.json`
 
 本轮重编排只改合同形态，不改业务机制：
 
-- 第一输入根仍固定为 `2-角色/1-清单/角色清单.json`
-- 证据补包仍优先读取 `3-Detail/第N集.json`
+- 第一输入根仍固定为 `4-Design/角色/1-清单/角色清单.json`
+- 证据补包仍优先读取 `3-Detail/第N集.json`，必要时才 fallback 到 legacy `编导/第N集.json`
 - 输出根仍固定为 `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/`
 - 三份 JSON 的路径、命名和字段角色仍保持现有配置
 
@@ -37,7 +38,7 @@ governance_tier: full
 
 ## When Not to Use
 
-- 角色 canonical identity 还没稳定，应回 `2-角色/1-清单`。
+- 角色 canonical identity 还没稳定，应回 `4-Design/角色/1-清单`。
 - 已有 `costume_design_bridge.json` 且目标是设计 synthesis，应进入 `2-设计`。
 - 当前任务是面板、出图或视频请求，而不是对象池抽取。
 
@@ -70,16 +71,22 @@ governance_tier: full
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/4-Design/服装/SKILL.md + CONTEXT.md`
-5. 本 `SKILL.md + CONTEXT.md`
-6. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
-7. `projects/aigc/<项目名>/3-Detail/第N集.json`
-8. `references/output-template.md`
-9. `references/type-strategies.md`
-10. `references/execution-flow.md`
+4. `.agents/skills/aigc/4-Design/1-主体清单/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
+7. 本 `SKILL.md + CONTEXT.md`
+8. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+9. `projects/aigc/<项目名>/3-Detail/第N集.json`
+10. legacy `projects/aigc/<项目名>/编导/第N集.json`（仅在 direct detail fallback 时）
+11. `references/output-template.md`
+12. `references/type-strategies.md`
+13. `references/execution-flow.md`
 
 ## Shared Canonical Sources (Mandatory)
 
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/list-output-contract.md`
 - 强制读取：`references/output-template.md`
 - 按需读取：`references/type-strategies.md`
 - runner：`scripts/extract_costume_catalog.py`
@@ -90,6 +97,7 @@ governance_tier: full
 2. `3-Detail/第N集.json` 只补 costume evidence，不夺角色真源。
 3. `costume_id` 的稳定主键优先围绕 `role_id + costume_state`。
 4. `服装研究.json` 与 `costume_design_bridge.json` 都必须回链 `服装清单.json` 中的 costume 条目。
+5. 不允许从导演句子残片反向发明 `role_id` 或新的 costume identity。
 
 ## Total Input Contract (Mandatory)
 
@@ -100,6 +108,8 @@ governance_tier: full
 
 ### 可选输入
 
+- `projects/aigc/<项目名>/编导/第N集.json`
+  - 仅当 direct detail 证据需要 legacy fallback 时消费
 - 已存在的 `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/*.json`
   - 仅用于增量修补或覆盖比对
 
@@ -306,17 +316,14 @@ graph LR
 1. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
 2. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
 3. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
-4. `thinking_process + closure_triad`
-   - 说明怎样锁定 `role_id + costume_state`
-   - 说明哪些证据来自角色链，哪些来自导演补包
-   - 说明若存在保守回退，回退发生在哪个 costume 条目
+4. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/_manifest.json`
 
 ## Canonical Output Governance (Mandatory)
 
 1. `服装清单.json` 是对象池真源。
-2. `服装研究.json` 是研究层真源，不冒充设计主稿。
+2. `服装研究.json` 是研究层派生 sidecar，不冒充设计主稿。
 3. `costume_design_bridge.json` 是 `2-设计` 的第一输入根。
-4. 不额外挂第二份抽取报告 sidecar；思考过程只压缩进用户闭环。
+4. `_manifest.json` 只记录输入、输出、统计与告警，不承载服装事实。
 
 ## Quality And Audit Contract
 
@@ -378,10 +385,10 @@ graph LR
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/服装/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/服装/1-清单/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/服装/1-清单/scripts/extract_costume_catalog.py`
+  - `.agents/skills/aigc/4-Design/1-主体清单/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/服装/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/服装/scripts/extract_costume_catalog.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/角色/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
   - 根 `AGENTS.md`

@@ -54,6 +54,12 @@ SCENE_NOISE_ONLY = {
     "中景",
     "后景",
 }
+CATEGORY_JSON_NAME = "场景清单.json"
+SCENE_FAMILY_RULES = (
+    ("木星深空通讯画面", ("木星", "戴森球", "深空", "宇航服", "反物质引擎", "金属结构", "等离子")),
+    ("全息锦鲤池", ("锦鲤池", "数据鱼", "池边")),
+    ("社区中央广场", ("全息广场", "广场", "晨间步道", "广场舞")),
+)
 
 
 @dataclass
@@ -108,16 +114,21 @@ def parse_args() -> argparse.Namespace:
         "--output-dir",
         help="输出目录；默认自动推断到 projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/",
     )
-    parser.add_argument(
-        "--emit-manifest",
-        action="store_true",
-        help="附带输出 _manifest.json",
-    )
+    parser.add_argument("--emit-manifest", dest="emit_manifest", action="store_true", help="输出 _manifest.json（默认开启）")
+    parser.add_argument("--no-manifest", dest="emit_manifest", action="store_false", help="不输出 _manifest.json")
+    parser.set_defaults(emit_manifest=True)
     return parser.parse_args()
 
 
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def to_repo_relative(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
 
 
 def find_project_root(input_path: Path) -> Optional[Path]:
@@ -128,6 +139,8 @@ def find_project_root(input_path: Path) -> Optional[Path]:
     index = parts.index("projects")
     if index + 1 >= len(parts):
         return None
+    if index + 2 < len(parts) and parts[index + 1] == "aigc":
+        return Path(*parts[: index + 3])
     return Path(*parts[: index + 2])
 
 
@@ -154,7 +167,7 @@ def infer_output_dir(input_path: Path, episode_id: str, explicit_output_dir: Opt
 
     project_root = find_project_root(input_path)
     if project_root is not None:
-        return project_root / "4-Design" / "1-场景" / "1-清单" / episode_id
+        return project_root / "4-Design" / "场景" / "1-清单" / episode_id
 
     return input_path.parent / "1-清单" / episode_id
 
@@ -206,6 +219,11 @@ def split_scene(raw_scene: str) -> tuple[str, str]:
 
     if text in SCENE_NOISE_ONLY:
         return ("unknown", "")
+
+    for family_name, keywords in SCENE_FAMILY_RULES:
+        if any(keyword in text for keyword in keywords):
+            variant = text if text != family_name else ""
+            return (family_name, variant)
 
     head = re.split(r"[，,。；;、]", text, maxsplit=1)[0].strip(TRIM_PUNCTUATION)
     split_index: Optional[int] = None
@@ -330,22 +348,28 @@ def build_scene_catalog(payload: dict, input_path: Path) -> dict:
             }
         )
 
-    return {
-        "metadata": {
+    project_root = find_project_root(input_path)
+    meta = {
             "schema_version": "aigc/design-scene-catalog/v1",
             "skill_id": "aigc-design-scene-list",
+            "project_name": project_root.name if project_root else input_path.parent.name,
+            "primary_input": input_path.as_posix(),
+            "source_inputs": [input_path.as_posix()],
             "source_episode_file": input_path.as_posix(),
             "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
             "source_route": "3-Detail -> 4-Design/场景/1-清单",
             "episode_id": episode_id,
-            "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        },
-        "summary": {
+            "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+    statistics = {
             "group_count": len(groups),
             "shot_count": shot_count,
             "scene_count": len(scene_rows),
             "variant_count": variant_count,
-        },
+    }
+    return {
+        "meta": meta,
+        "statistics": statistics,
         "scenes": scene_rows,
         "group_scene_map": group_scene_map,
         "acceptance_notes": [
@@ -357,22 +381,20 @@ def build_scene_catalog(payload: dict, input_path: Path) -> dict:
 
 
 def build_manifest(catalog: dict, output_file: Path) -> dict:
-    scenes = catalog["scenes"]
+    meta = catalog["meta"]
+    statistics = catalog["statistics"]
     return {
-        "episode_id": catalog["metadata"]["episode_id"],
-        "source_file": catalog["metadata"]["source_episode_file"],
-        "output_file": output_file.as_posix(),
-        "output_mode": "full_trace",
-        "scene_count": catalog["summary"]["scene_count"],
-        "group_scene_count": len(catalog["group_scene_map"]),
-        "scenes": [
-            {
-                "scene_id": item["scene_id"],
-                "scene_name": item["scene_name"],
-                "variant_count": len(item["variants"]),
-                "shot_count": item["coverage"]["shot_count"],
-            }
-            for item in scenes
+        "status": "ok",
+        "episode_id": meta["episode_id"],
+        "input_file": to_repo_relative(Path(meta["source_episode_file"])),
+        "output_dir": to_repo_relative(output_file.parent),
+        "output_files": [
+            to_repo_relative(output_file),
+            to_repo_relative(output_file.parent / "_manifest.json"),
+        ],
+        "statistics": statistics,
+        "notes": [
+            "canonical business truth 是 `场景清单.json`；`_manifest.json` 只承担审计与统计侧车职责。",
         ],
     }
 
@@ -396,7 +418,7 @@ def main() -> int:
         explicit_output_dir=args.output_dir,
     )
     catalog = build_scene_catalog(payload=payload, input_path=input_path)
-    output_file = output_dir / f"{episode_id}.json"
+    output_file = output_dir / CATEGORY_JSON_NAME
     write_json(output_file, catalog)
 
     if args.emit_manifest:

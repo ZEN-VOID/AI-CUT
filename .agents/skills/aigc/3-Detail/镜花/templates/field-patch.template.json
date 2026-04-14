@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "schema_version": "aigc/detail-patch-sidecar/v1",
+    "skill_id": "aigc-detail-jinghua",
+    "episode_id": "第N集",
+    "patch_owner": "镜花",
+    "source_root": "projects/aigc/<项目名>/3-Detail/第N集.json",
+    "script_body_policy": "inherit_only",
+    "generated_at": "2026-04-14T10:00:00-07:00"
+  },
+  "group_patches": [
+    {
+      "group_id": "<group_id>",
+      "target_fields": [
+        "分镜明细[].分镜ID",
+        "分镜明细[].时间段",
+        "分镜明细[].景别",
+        "分镜明细[].镜头属性",
+        "分镜明细[].镜头框架",
+        "分镜明细[].镜头类型",
+        "分镜明细[].镜头视角",
+        "分镜明细[].运镜手法",
+        "分镜明细[].镜头速度",
+        "分镜明细[].摄影美学",
+        "分镜明细[].转场特效"
+      ],
+      "shot_patches": [
+        {
+          "slot_id": "<group_id>-s01",
+          "分镜ID": "<episode-scene-group-frame>",
+          "beat_refs": [
+            "<group_id>-b01"
+          ],
+          "时间段": {
+            "开始秒": 0,
+            "结束秒": 4
+          },
+          "景别": "<景别>",
+          "镜头属性": "<镜头属性>",
+          "镜头框架": "<镜头框架>",
+          "镜头类型": "<镜头类型>",
+          "镜头视角": "<镜头视角>",
+          "运镜手法": "<运镜手法>",
+          "镜头速度": "<镜头速度，可为空字符串>",
+          "摄影美学": "<摄影美学>",
+          "转场特效": "<转场特效，可为空字符串>"
+        }
+      ],
+      "merge_hints": [
+        "若 beat_refs 缺失且无法按顺序稳定对齐，父层应阻塞该 group。"
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `.agents/skills/aigc/4-Design/角色/3-面板` 的经验层知识库，不是过程日志。
+- 本文件是 `.agents/skills/aigc/4-Design/3-面板设计/角色` 的经验层知识库，不是过程日志。
 - 调用本叶子技能时，应自动预加载本文件。
 - 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > `aigc` 根技能 > 本 `SKILL.md` > 本 `CONTEXT.md`。
 

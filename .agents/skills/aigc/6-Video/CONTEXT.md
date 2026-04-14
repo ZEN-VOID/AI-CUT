@@ -22,6 +22,7 @@
 | 只输出 prompt，不输出请求字段与落点 | 输出契约层 | 补写 episode JSON 与 manifest | 在 `output-template.md` 固化“prompt 不是唯一交付” | JSON 能直接进入视频工具或 handoff |
 | 继续沿用 `6-视频` 搁浅旧认知 | 根级状态同步层 | 同步更新根技能、registry、routes 与 HARNESS | 把“阶段由搁浅转为部分可执行”视为必须向上同步的元修复 | 根技能与控制面不再把 `6-视频` 视为 frozen |
 | 父合同把 `2-视频生成` 写成可执行，但叶子自身仍分散规则或路径口径漂移 | 子路径合同层 | 收敛到唯一 `.agents/skills/aigc/6-Video/2-视频生成/` 路径，并把 provider 空目录降级为 `providers/` 槽位 | 在审计脚本新增“叶子路径、主合同与 sidecar 目录说明必须一致”检查 | `2-视频生成` 的文档、磁盘与审计口径一致 |
+| 组级与帧级叶子各自微调 prompt 风格，导致 `图生视频` 句法顺序开始分叉 | 共享句法治理层 | 把跨兄弟叶子的 `图生视频` 句法原则提升到 `6-Video/_shared/image-to-video-prompt-principles.md`，叶子 spec 只写本地 specialization | 当同一 tranche 的多个叶子共享 prompt 取向时，先建立 shared principles 真源，再允许子 spec 做局部特化 | 两个叶子的整体句法顺序和压缩原则保持同源 |
 
 ## Repair Playbook
 
@@ -40,4 +41,5 @@
 - 当同一视频入参模板开始被多个叶子子技能共用时，应优先提升到 `6-视频/_shared/`，不要继续留在某个子技能私有 `templates/` 中演化。
 - 当视频入参既要给工具消费，又要给人直接审读时，优先采用 `第N集.json + 第N集.txt` 双输出，而不是只保留 JSON。
 - 当同一 tranche 同时承载组级与帧级叶子子技能时，共享模板必须先抽成中性骨架，再由叶子子技能各自补 `shot_level + source_shot_ids` 约束；不要把组级字段硬写死成全阶段默认。
+- 当组级与帧级叶子都要往 `图生视频` 最佳实践靠拢时，最容易漂移的不是字段集合，而是句法顺序；这类共享取向应先沉到 `6-Video/_shared/`，不要让兄弟 spec 各自演化成第二真源。
 - 当请求对象已经稳定、任务目标也已转向真实生成时，最稳的做法不是直接跳到 provider 命令，而是先通过 `2-视频生成` 产出可复核的 handoff 包。

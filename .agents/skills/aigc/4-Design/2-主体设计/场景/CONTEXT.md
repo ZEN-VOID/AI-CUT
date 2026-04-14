@@ -2,8 +2,8 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `4-Design/场景/2-设计` 的经验层知识库，不是过程日志。
-- 调用本子技能时，应在 `aigc -> 4-Design -> 1-场景` 根链之后加载本文件。
+- 本文件是 `.agents/skills/aigc/4-Design/2-主体设计/场景` 的经验层知识库，不是过程日志。
+- 调用本子技能时，应在 `aigc -> 3-Detail -> 4-Design/1-主体清单/场景` 根链之后加载本文件。
 - 本技能当前已取消 `references/` 规范载体，也不再依赖 `.codex/agents/aigc/设计组/场景设计/`。
 
 ## Context Health
@@ -31,6 +31,7 @@ last_checked_at: 2026-04-13T00:25:52-0700
 | review 或 audit 缺位，直接写回 | 汇流门层 | 阻止写回，补跑 `D7-D8` 并按返工入口回退 | 在 `Convergence Contract` 固化双重 gate | `场景设计.json` 总带最小 trace |
 | `panel_handoff` 或 `final_scene_prompt` 仍需下游重猜 | 下游接口层 | 回到 `D6` 重新整合 candidate、prompt 与 handoff | 在 `One-Shot Output Contract` 固化下游最小接口 | `3-面板 / 5-Image / 6-Video` 可直接继续消费 |
 | 逐场景 Markdown 卡仍沿用旧分块模板，无法承载物语/解构/摄影参数 | 输出合同层 | 将卡片模板改为三段式 Markdown，并在 `SKILL.md` 固化 Markdown 与 JSON 映射 | 把三段式结构与兼容字段同步写进 `One-Shot Output Contract` | `<scene_key>.md` 与 `场景设计.json` 不再脱节 |
+| `2-设计` 继续索取不存在的 `2-Global/导演意图.md`，导致输入合同与项目 runtime 脱节 | 输入真源层 | 改从 `3-Detail/第N集.json` 的 `组间设计.导演意图` 读取场景导演指导，并把风格真源锁到 `全局风格/全局风格设计.md` | 在 `SKILL.md` 固化“目录化全局风格 + detail 组级导演意图”的真实消费口径 | 输入合同不再依赖不存在的平铺投影 |
 
 ## Repair Playbook
 
@@ -43,6 +44,7 @@ last_checked_at: 2026-04-13T00:25:52-0700
 ## Reusable Heuristics
 
 - 对场景设计来说，最稳的输入顺序永远是：先对象池，再导演约束，再命中镜头补证据。
+- 如果 `2-Global` 没有单独的 `导演意图.md`，场景设计链不应补造假投影；应直接消费 `3-Detail` 命中分组里的导演意图字段。
 - 真正高质量的场景设计不是“多写点形容词”，而是让空间、建筑、布景三条链各自负责不同层面的确定性。
 - `review -> audit -> writeback` 不能压成一句“复核通过”；必须显式区分内容复核和真源审计。
 - 当用户要求“每个思行节点一步一步足够细”，最有效的做法不是再长角色文档，而是把着手面直接固化进节点 playbook。

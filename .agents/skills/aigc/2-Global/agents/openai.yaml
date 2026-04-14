@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 2-Global"
-  short_description: "统一调度全局风格、类型元素、设计元素，并完成阶段级验收与 handoff 判断。"
-  default_prompt: "Use $aigc-global to treat `1-Planning/3-分组` as the primary stage input, load `0-Init` as supporting context, selectively route the active `2-Global` child skills, then write the stage-level `projects/aigc/<项目名>/2-Global/validation-report.md` with output inventory and `3-Detail` handoff readiness."
+  short_description: "用单技能并发链先定稿三份 Markdown，再把按字段确认的结果、固定分镜切换与完整组正文提取进 shared episode root"
+  default_prompt: "Use $aigc-global to read the current episode grouping plus init presets, run the internal global-style, type-guidance, and director-intent capability chains with a convergence gate, confirm the Markdown fields first, then write or refresh 全局风格.md、类型元素.md、导演意图.md, decide each group's fixed `分镜切换` as one concrete number, internalize former `镜花/1-切换` fixed-shot-count acceptance logic into the stage-end distill step, and extract all confirmed seed fields into the shared episode root."

@@ -19,7 +19,7 @@ governance_tier: full
 3. `_manifest.json`
    lineage、coverage、path normalization 与审计侧车
 
-本技能保留现有 subagent 机制与 `_shared/IO_CONTRACT.md`，但把核心路由、节点、汇流与写回合同统一收回到本 `SKILL.md`，避免出现“主文档只写摘要、真实执行逻辑散在 references/team/口头约定里”的第二真源。
+本技能保留现有能力镜面机制与 `_shared/IO_CONTRACT.md`，但把核心路由、节点、汇流与写回合同统一收回到本 `SKILL.md`，避免出现“主文档只写摘要、真实执行逻辑散在 references/口头约定里”的第二真源。
 
 ## Business Requirement Analysis Contract
 
@@ -40,13 +40,12 @@ governance_tier: full
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md`
-- `.codex/agents/aigc/设计组/道具设计/team.md`
+- `.agents/skills/aigc/4-Design/2-主体设计/道具/_shared/IO_CONTRACT.md`
 
 ### 可选输入
 
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
 - `projects/aigc/<项目名>/2-Global/类型元素.md`
 - `projects/aigc/<项目名>/0-Init/north_star.yaml`
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
@@ -72,11 +71,11 @@ governance_tier: full
 | 上游研究 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json` | 补证与 evidence ledger |
 | 上游清单 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json` | shot/group 回链 |
 | episode 根文件 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 导演事实与最新状态 |
-| 全局风格 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级风格锚点 |
+| 全局风格 | `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md` | 项目级风格锚点 |
 | 类型元素 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型与导演打法约束 |
 | init / north star | `projects/aigc/<项目名>/0-Init/` | 硬边界与世界观基线 |
-| shared I/O | `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md` | 输入输出、命名和 path normalization 真源 |
-| 道具设计组 team | `.codex/agents/aigc/设计组/道具设计/team.md` | 角色 roster、返回类型与越权禁令 |
+| shared I/O | `.agents/skills/aigc/4-Design/2-主体设计/道具/_shared/IO_CONTRACT.md` | 输入输出、命名和 path normalization 真源 |
+| 上游 design-source 合同 | `.agents/skills/aigc/4-Design/1-主体清单/道具/SKILL.md` | 锁 bridge / research / catalog 的生成边界 |
 
 ## Visual Maps
 
@@ -171,10 +170,10 @@ stateDiagram-v2
 ### NODE-PROP-DESIGN-02 mission brief 与 context packet 装配
 
 - `objective`
-  - 为父 skill 和命中的 subagents 装配统一上下文，不让角色各自读全量材料后跑偏。
+  - 为父 skill 和命中的能力镜面装配统一上下文，不让不同切面各自读全量材料后跑偏。
 - `inputs`
   - shared I/O contract
-  - team contract
+  - 当前技能的能力镜面边界
   - bridge/research/catalog/detail/global presets
 - `actions`
   1. 生成 `mission_brief_prop_design`，明确目标 prop、输出三件套、`narrative_significance` 判型和禁止越权边界。
@@ -320,16 +319,16 @@ stateDiagram-v2
 ## CLI
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
+python3 .agents/skills/aigc/4-Design/2-主体设计/道具/scripts/run_prop_design_pipeline.py \
   --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
   --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
   --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \
-  --global-style "projects/aigc/<项目名>/2-Global/全局风格.md" \
+  --global-style "projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md" \
   --type-elements "projects/aigc/<项目名>/2-Global/类型元素.md"
 ```
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
+python3 .agents/skills/aigc/4-Design/2-主体设计/道具/scripts/run_prop_design_pipeline.py \
   --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
   --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
   --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \
@@ -387,7 +386,7 @@ python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pip
 
 ### 下一步
 
-- 默认进入 `.agents/skills/aigc/4-Design/道具/3-面板`
+- 默认进入 `.agents/skills/aigc/4-Design/3-面板设计/道具`
 - 或进入 `nano-banana/multiview-prop`
 
 ## Field Master
@@ -444,33 +443,35 @@ python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pip
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/道具/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/道具/2-设计/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md`
-  - `.codex/agents/aigc/设计组/道具设计/team.md`
-  - `.agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py`
+  - `.agents/skills/aigc/4-Design/2-主体设计/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/道具/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/道具/_shared/IO_CONTRACT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/道具/scripts/run_prop_design_pipeline.py`
 - `Meta Rule Source`
   - `AGENTS.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
-  - `.agents/skills/aigc/4-Design/道具/SKILL.md`
-  - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-subagents/SKILL.md`
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
+  - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 
 ## Context Contract (Mandatory)
 
 ### 加载顺序
 
-1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-2. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/4-Design/道具/SKILL.md + CONTEXT.md`
-4. 本 `SKILL.md + CONTEXT.md`
-5. `.agents/skills/aigc/4-Design/道具/2-设计/_shared/IO_CONTRACT.md`
-6. `.codex/agents/aigc/设计组/道具设计/team.md`
-7. `projects/aigc/<项目名>/0-Init/north_star.yaml`
-8. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-9. `projects/aigc/<项目名>/2-Global/全局风格.md`
-10. `projects/aigc/<项目名>/2-Global/类型元素.md`
-11. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
-12. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
-13. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
-14. `projects/aigc/<项目名>/3-Detail/第N集.json`
-15. 仅加载命中的 agent docs
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
+6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+7. `.agents/skills/aigc/4-Design/1-主体清单/道具/SKILL.md + CONTEXT.md`
+8. 本 `SKILL.md + CONTEXT.md`
+9. `.agents/skills/aigc/4-Design/2-主体设计/道具/_shared/IO_CONTRACT.md`
+10. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+11. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+12. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
+13. `projects/aigc/<项目名>/2-Global/类型元素.md`
+14. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
+15. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
+16. `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+17. `projects/aigc/<项目名>/3-Detail/第N集.json`

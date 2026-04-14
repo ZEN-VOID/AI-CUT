@@ -9,9 +9,12 @@ governance_tier: full
 ## 编排声明
 
 - 本技能按 `$skill-知行合一` 的 `既有优化` 模式重构。
-- 本技能采用 `单一 SKILL.md 真源 + 思行节点网络 + 一次性收束输出`。
+- 本技能采用 `SKILL.md + prompt-assembly-spec.md 双真源`：
+  - `SKILL.md` 持有门禁、优先级、节点网、验收与返工入口。
+  - `prompt-assembly-spec.md` 持有组级桥接句、镜级句式槽、压缩级别与可选字段挂句。
+- 跨兄弟叶子共享的 `图生视频` 句法总原则回指 `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`；本地 spec 只负责组级 specialization。
 - `复杂链路的骨架 / 细则分层`：`false`
-- 这意味着：本技能所有稳定规则、节点细则、汇流门、输出门、字段映射与返工入口全部留在当前 `SKILL.md`，不再把复杂步骤下沉到 `references/`。
+- 这意味着：本技能不再把执行句法散落在脚本函数体，也不再回退到 `references/` 分层；句法级真源固定为同目录 `prompt-assembly-spec.md`。
 
 ## Mode Selection
 
@@ -43,10 +46,10 @@ governance_tier: full
 
 | 分析项 | 当前结论 |
 | --- | --- |
-| `business_goal` | 把导演真源中的整组信息压缩为后续视频工具可直接消费的组级请求对象，同时不损坏上游事实。 |
+| `business_goal` | 只消费 `metadata.document_phase=ready` 的 `3-Detail` shared root，把导演真源中的整组信息压缩为后续视频工具可直接消费的组级请求对象，同时不损坏上游事实。 |
 | `business_object` | 单个 `分镜组`，包括 `剧本正文`、`组间设计.*`（含 `出场角色及穿搭`）与该组下全部 `分镜明细[]`；镜级蒸馏默认尽量覆盖全部字段，并按保留优先级重点消费 `时间段 / 角色背景面 / 角色站位走位 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`。 |
 | `task_goal` | 生成一组一条的 `meta + prompt_style + model + prompt + prompt_char_count` 请求对象，并落盘三件套。 |
-| `constraint_profile` | 必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段默认必须以连贯自然语句串联并尽量全部进入 prompt，除 `分镜组ID / 分镜ID` 外移除字段标题，总字数控制在 `1900` 字内；每个分镜都不得漏掉当前分镜组内的 `xx秒-xx秒` 时间段标签，且 `分镜ID` 与时间之间不得写成“`分镜ID 的 xx秒-xx秒`”；镜级信息组织顺序可优先参考“`[镜头属性] -> [景别 / 运镜手法 / 镜头速度 / 镜头视角] -> [角色站位走位 / 角色背景面] -> [角色表现 / 场景氛围] -> [道具及状态 / 摄影美学 / 其他]`”，但表层表达不强制套固定句式，自然流畅与信息覆盖优先；只有当且仅当字数吃紧时，才允许把部分句子收束为短语式压缩；超限时只能按优先级压缩，优先保留镜级 `时间段 / 角色站位走位 / 角色背景面 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`，其次保留 `角色表现 / 场景氛围 / 道具及状态 / 摄影美学`，再次压缩 `镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`；不得虚构图片、URL、主体、动作或场景事实。 |
+| `constraint_profile` | 只允许消费 `metadata.document_phase=ready`、且每组 `分镜切换 == len(分镜明细[])` 的 `3-Detail` shared root；必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段默认必须以连贯自然语句串联并尽量全部进入 prompt，除 `分镜组ID / 分镜ID` 外移除字段标题，总字数控制在 `1900` 字内；每个分镜都不得漏掉当前分镜组内的 `xx秒-xx秒` 时间段标签，且 `分镜ID` 与时间之间不得写成“`分镜ID 的 xx秒-xx秒`”；镜级信息组织顺序可优先参考“`[镜头属性] -> [景别 / 运镜手法 / 镜头速度 / 镜头视角] -> [角色站位走位 / 角色背景面] -> [角色表现 / 场景氛围] -> [道具及状态 / 摄影美学 / 其他]`”，但表层表达不强制套固定句式，自然流畅与信息覆盖优先；只有当且仅当字数吃紧时，才允许把部分句子收束为短语式压缩；超限时只能按优先级压缩，优先保留镜级 `时间段 / 角色站位走位 / 角色背景面 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`，其次保留 `角色表现 / 场景氛围 / 道具及状态 / 摄影美学`，再次压缩 `镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`；不得虚构图片、URL、主体、动作或场景事实。 |
 | `non_goals` | 不改写上游导演事实；不上传参照图；不执行 provider 提交、轮询与下载；不把 TXT 当主真源。 |
 | `success_criteria` | 每个分镜组都能回链到来源镜头列表；prompt 覆盖整组信息；固定块逐字一致；无字段标题泄露；JSON/TXT/manifest 三件套可继续 handoff。 |
 | `evidence_sources` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`.agents/skills/aigc/_shared/director_episode_output.schema.json`、`6-Video/_shared` 双模板。 |
@@ -56,7 +59,7 @@ governance_tier: full
 
 ## When to Use
 
-- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 的 **分镜组** 蒸馏为视频工具入参 JSON。
+- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 `metadata.document_phase=ready` 的 **分镜组** 蒸馏为视频工具入参 JSON。
 - 需要输出 `第N集.json + 第N集.txt + _manifest.json` 三件套。
 - 需要保留 `剧本正文` 与 `组间设计.全局风格` 原文不变，同时压缩其余组级与镜级字段。
 - 需要把每个分镜的 `时间段` 转成 `xx秒-xx秒` 并显式保留在镜级条目前部。
@@ -68,6 +71,8 @@ governance_tier: full
 - 当前任务是单一 `分镜ID` 的帧级蒸馏，应进入 `1-提示词蒸馏/首帧参照`。
 - 当前任务是实际提交 provider、轮询结果或下载产物，应进入 `2-视频生成` 或命中的 provider 技能。
 - 上游 `3-Detail/第N集.json` 尚未形成合法 `final_output.main_content.分镜组列表`。
+- 上游 `metadata.document_phase` 仍为 `bootstrapped` 或 `detail_in_progress`。
+- 任一目标分镜组的 `分镜切换` 与 `分镜明细[]` 数量未对齐，说明 `3-Detail` merge/handoff 仍未稳定。
 - 任务要求上传、选择或补画参照图；本子技能只保留参照图骨架，不处理真实图片资产。
 
 ## Ownership Boundary
@@ -92,18 +97,23 @@ governance_tier: full
 ### Canonical Inputs
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/validation-report.md`（若存在，作为 handoff 辅助证据）
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
 - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
+- `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
+- `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/prompt-assembly-spec.md`
 - canonical rerun entry：`python3 .agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/scripts/generate_episode_packets.py --project <项目名> --episode <第N集>`
 
 ### Input Integrity Gates
 
 最小输入前提：
 
+- `metadata.document_phase = ready`
 - `final_output.main_content.分镜组列表` 存在。
 - 每个目标分镜组至少具备：
   - `分镜组ID`
+  - `分镜切换`
   - `剧本正文`
   - `组间设计.全局风格`
   - `组间设计.类型元素`
@@ -117,6 +127,10 @@ governance_tier: full
   - `分镜明细[].景别`
   - `分镜明细[].运镜手法`
   - `分镜明细[].镜头视角`
+- 对每个目标分镜组，还要求：
+  - `组间设计.出场角色及穿搭` 非空
+  - `分镜明细[]` 非空
+  - `len(分镜明细[]) == 分镜切换`
 - 若目标分镜存在以下字段，也应一并收齐并纳入压缩预算：
   - `分镜明细[].镜头速度`
   - `分镜明细[].角色表现`
@@ -132,6 +146,7 @@ governance_tier: full
 
 - P0 固定原文块：
   - `剧本正文`
+  - 固定音频约束行：`不生成字幕，不生成BGM，要生成物理互动音效与环境音。`
   - `组间设计.全局风格`
 - P1 高保留镜头控制项：
   - `时间段`
@@ -155,11 +170,12 @@ governance_tier: full
 压缩规则：
 
 1. 默认先按连贯自然语句串联 `P1 + P2 + P3`，尽量覆盖全部字段内容。
-2. 当预计超出 `1900` 字时，只能先压缩 `P3`，再酌情收束 `P2`，不得先牺牲 `P1`。
-3. `P1` 必须在最终 prompt 中保持高度可辨认，至少要让每个分镜都能读出 `xx秒-xx秒`、空间朝向/人物走位、景别、运镜方式，以及存在时的镜头速度和镜头视角。
-4. 默认优先采用“时间 -> 镜头控制 -> 人物与空间 -> 表现与氛围 -> 道具与摄影 -> 其他”的语义顺序，但表层表达不强制套固定句式；若固定骨架让句子变拗口，应优先改写成更自然通顺的表达。
-5. `时间段` 必须落成当前分镜组内的 `xx秒-xx秒`，并直接接在 `分镜ID` 后，不得写成 `分镜ID 的 xx秒-xx秒`，也不得误写成全集时间线。
-6. 无论是否压缩，除 `分镜组ID / 分镜ID` 外都不得暴露字段标题，尤其不得写成 `字段标题：字段值`。
+2. 每个分镜组 prompt 都必须在 `剧本正文` 下一行插入固定音频约束行：`不生成字幕，不生成BGM，要生成物理互动音效与环境音。`
+3. 当预计超出 `1900` 字时，只能先压缩 `P3`，再酌情收束 `P2`，不得先牺牲 `P1`。
+4. `P1` 必须在最终 prompt 中保持高度可辨认，至少要让每个分镜都能读出 `xx秒-xx秒`、空间朝向/人物走位、景别、运镜方式，以及存在时的镜头速度和镜头视角。
+5. 默认优先采用“时间 -> 镜头控制 -> 人物与空间 -> 表现与氛围 -> 道具与摄影 -> 其他”的语义顺序，但表层表达不强制套固定句式；若固定骨架让句子变拗口，应优先改写成更自然通顺的表达。
+6. `时间段` 必须落成当前分镜组内的 `xx秒-xx秒`，并直接接在 `分镜ID` 后，不得写成 `分镜ID 的 xx秒-xx秒`，也不得误写成全集时间线。
+7. 无论是否压缩，除 `分镜组ID / 分镜ID` 外都不得暴露字段标题，尤其不得写成 `字段标题：字段值`。
 
 ### 镜头属性术语合同
 
@@ -197,7 +213,8 @@ governance_tier: full
 1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 2. `.agents/skills/aigc/6-Video/SKILL.md + CONTEXT.md`
 3. 本 `SKILL.md + CONTEXT.md`
-4. 按需读取 `6-Video/_shared` 双模板
+4. `projects/aigc/<项目名>/3-Detail/validation-report.md`（若存在）
+5. 按需读取 `6-Video/_shared` 双模板
 
 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/6-Video/SKILL.md` > 本 `SKILL.md` > 各级 `CONTEXT.md`。
 
@@ -331,21 +348,26 @@ erDiagram
 - `objective`
   - 在处理任何 prompt 文本前，先判定上游 director 真源是否足够支撑整组蒸馏。
 - `着手面`
-  1. 锁定 `final_output.main_content.分镜组列表`
-  2. 检查每组必需字段
-  3. 判断缺口是“可继续压缩”还是“必须停机”
-  4. 给出显式失败原因，而不是生成半成品
+  1. 锁定 `metadata.document_phase`
+  2. 锁定 `final_output.main_content.分镜组列表`
+  3. 检查每组必需字段
+  4. 判断缺口是“可继续压缩”还是“必须停机”
+  5. 给出显式失败原因，而不是生成半成品
 - `inputs`
   - `projects/aigc/<项目名>/3-Detail/第N集.json`
   - director schema
+  - `projects/aigc/<项目名>/3-Detail/validation-report.md`（若存在）
 - `actions`
   1. 读取单集 JSON
-  2. 定位 `分镜组列表`
-  3. 检查 `分镜组ID / 剧本正文 / 组间设计 / 分镜明细`
-  4. 若 `组间设计.出场角色及穿搭` 为空，视为上游 `3-Detail` 未完成 schema 闭环，不得继续蒸馏
-  5. 对不完整输入记录缺口类型
+  2. 检查 `metadata.document_phase` 是否已经到 `ready`
+  3. 定位 `分镜组列表`
+  4. 检查 `分镜组ID / 分镜切换 / 剧本正文 / 组间设计 / 分镜明细`
+  5. 若 `组间设计.出场角色及穿搭` 为空，视为上游 `3-Detail` 未完成 schema 闭环，不得继续蒸馏
+  6. 若 `len(分镜明细[]) != 分镜切换`，视为上游 `3-Detail` merge/handoff 未稳定，不得继续蒸馏
+  7. 对不完整输入记录缺口类型与 phase 状态
 - `evidence`
   - `V-VID-SUBJ-01=ready|incomplete`
+  - `document_phase`
   - 缺口字段列表
 - `route_out`
   - `ready`：进入 `N2`
@@ -567,7 +589,7 @@ erDiagram
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| V-VID-SUBJ-01 | 输入 | 分镜组结构是否完整 | `ready/incomplete` | 检查 `分镜组ID/剧本正文/组间设计（含出场角色及穿搭）/分镜明细（含时间段开始秒/结束秒、角色背景面/角色站位走位/景别/运镜手法/镜头视角，以及存在时的镜头速度）` | P0 |
+| V-VID-SUBJ-01 | 输入 | `3-Detail` handoff 是否已稳定可消费 | `ready/incomplete` | 检查 `metadata.document_phase=ready`，且 `分镜组ID/分镜切换/剧本正文/组间设计（含出场角色及穿搭）/分镜明细（含时间段开始秒/结束秒、角色背景面/角色站位走位/景别/运镜手法/镜头视角，以及存在时的镜头速度）` 成立，并验证 `分镜切换 == len(分镜明细[])` | P0 |
 | V-VID-SUBJ-02 | 字数预算 | 非固定字段压缩压力 | `normal/tight/underflow` | 估算 fixed block 后剩余字数，并结合组内镜数判断是否存在逼近上限风险；除 `tight` 外均保持连贯自然语句 | P1 |
 | V-VID-SUBJ-03 | 输出要求 | 本轮是否需要完整闭环 | `json_only/full_trace` | 结合用户目标与父级合同 | P1 |
 | V-VID-SUBJ-04 | 文本结构 | 是否存在标题泄露风险 | `clean/leaking` | 搜索除 `分镜组ID / 分镜ID` 外的字段名暴露 | P1 |
@@ -599,6 +621,8 @@ erDiagram
 
 - `prompt_char_count` 与实际 prompt 一致。
 - `prompt_char_count` 必须按最终落盘到 `第N集.json` 的 `prompt` 字符串计数，不得把临时换行、草稿拼接态或 TXT 视图改写计入。
+- `metadata.document_phase = ready`，不得误吃 `bootstrapped/detail_in_progress` 半成品。
+- 每个命中分镜组都满足 `分镜切换 == len(分镜明细[])`。
 - `剧本正文` 与 `组间设计.全局风格` 与上游逐字一致。
 - `组间设计.出场角色及穿搭` 已进入压缩块，且未在蒸馏过程中丢失。
 - 每个镜级条目前都保留 `xx秒-xx秒`，且来自上游 `时间段.开始秒 / 结束秒`，不得漏写或改成模糊时间语。
@@ -670,7 +694,7 @@ erDiagram
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Node | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| FIELD-VID-SUBJ-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 锁定组级来源、提示词类型与来源分镜列表 | `N0-N2` | 输入覆盖完整度 | FAIL-VID-SUBJ-01 |
+| FIELD-VID-SUBJ-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 锁定组级来源、提示词类型与来源分镜列表，并确认上游 `document_phase=ready` 且 `分镜切换 == len(分镜明细[])` | `N0-N2` | 输入覆盖完整度 | FAIL-VID-SUBJ-01 |
 | FIELD-VID-SUBJ-02 | `prompt / prompt_char_count` | prompt 覆盖整组内容，固定块原文保留；压缩块显式覆盖 `类型元素 / 导演意图 / 出场角色及穿搭 / 分镜明细[]`，并按 `P1 高保留 / P2 重要 / P3 补充` 顺序压缩；每镜保留当前分镜组内的 `xx秒-xx秒`，按推荐语义顺序组织信息，但不为固定句式牺牲自然度，且隐藏标题 | `N3-N5` | Prompt 蒸馏稳定性 | FAIL-VID-SUBJ-02 |
 | FIELD-VID-SUBJ-03 | `model.reference_images / model.image_markers` | 保留上传顺序位，并维持 marker 顺序稳定 | `N6` | 模板兼容性 | FAIL-VID-SUBJ-03 |
 | FIELD-VID-SUBJ-04 | `第N集.json / 第N集.txt / _manifest.json` | 三件套可追溯、可审阅、可继续 handoff | `N7` | 输出可消费性 | FAIL-VID-SUBJ-04 |
@@ -696,7 +720,7 @@ erDiagram
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
-| FIELD-VID-SUBJ-01 | `prompt_style.type / meta.shot_level` 合法，且 `group_id` 与 `source_shot_ids` 成立 | FAIL-VID-SUBJ-01 | `N0-N2` |
+| FIELD-VID-SUBJ-01 | `prompt_style.type / meta.shot_level` 合法，`group_id` 与 `source_shot_ids` 成立，且上游 `document_phase=ready`、`分镜切换 == len(分镜明细[])` | FAIL-VID-SUBJ-01 | `N0-N2` |
 | FIELD-VID-SUBJ-02 | prompt 满足固定块、压缩块、隐藏标题与字数窗，且 `P1` 镜头控制项与 `xx秒-xx秒` 保持高度可辨认 | FAIL-VID-SUBJ-02 | `N3-N5` |
 | FIELD-VID-SUBJ-03 | `reference_images` 存在，`image_markers` 三元信息结构完整且顺序稳定 | FAIL-VID-SUBJ-03 | `N6` |
 | FIELD-VID-SUBJ-04 | JSON、TXT 与 manifest 可追溯可 handoff | FAIL-VID-SUBJ-04 | `N7` |
@@ -707,6 +731,7 @@ erDiagram
 当出现以下症状时，必须先修本子技能合同，而不是只润色 prompt：
 
 - prompt 只覆盖整组的局部字段，尤其漏掉 `出场角色及穿搭` 或新镜级字段。
+- `3-Detail` 仍处于 `bootstrapped/detail_in_progress`，或组内 `分镜切换` 与 `分镜明细[]` 未对齐，却被误当成稳定视频输入。
 - prompt 漏掉镜级 `景别` 或 `运镜手法`，导致视频请求只有动作和气氛，没有镜头组织依据。
 - `剧本正文` 或 `全局风格` 被改写。
 - prompt 中仍残留字段标题。

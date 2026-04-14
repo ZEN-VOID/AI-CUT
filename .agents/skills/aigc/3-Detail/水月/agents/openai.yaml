@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "围绕固定 `剧本正文` 生成 `出场角色及穿搭 + beat factual evidence`，输出到 `3-Detail/水月/第N集.field-patch.json`"
+  default_prompt: "Use $aigc-detail-watermoon as the stage-local child skill under `3-Detail`: lock `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` plus `projects/aigc/<项目名>/3-Detail/第N集.json` as the only truth sources, preserve `剧本正文` exactly as inherited, treat shared-root `分镜切换` as upstream fixed context rather than something to rewrite, run the four parallel dimension trunks (`角色表现` / `运动表现` / `氛围表现` / `视觉强化`) as internal thinking branches, and emit only beat-level factual evidence (`组间设计.出场角色及穿搭` + `beat_patches[]` with `角色背景面 / 角色站位走位 / 道具及状态 / 镜头消费提示`) to `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`."

@@ -21,7 +21,14 @@ GROUP_COSTUME_FIELD = "出场角色及穿搭"
 DIRECTOR_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
 DEFAULT_JSON_NAME = "角色清单.json"
 DEFAULT_MANIFEST_NAME = "_manifest.json"
-DIRECTOR_INPUT_ALIASES = ("编导", "3-Detail")
+DIRECTOR_INPUT_ALIASES = ("3-Detail", "编导")
+
+
+def to_repo_relative(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
 
 NON_CHARACTER_ROLE_KEYWORDS = (
     "无出场角色",
@@ -55,6 +62,7 @@ ROLE_BOUNDARY_KEYWORDS: Sequence[str] = (
     "拎",
     "撑",
     "扶",
+    "向",
     "盯",
     "望",
     "看",
@@ -98,6 +106,13 @@ COSTUME_HINT_TERMS: Sequence[str] = (
     "换上",
     "披着",
     "戴着",
+)
+STATE_KEYWORDS: Sequence[Tuple[str, Tuple[str, ...]]] = (
+    ("战损", ("战损", "染血", "沾血", "血迹", "破损", "撕裂", "残破")),
+    ("夜行", ("夜行", "潜行", "夜色伪装", "暗行")),
+    ("仪式", ("礼服", "仪式", "祭服", "朝服", "婚服", "冕服")),
+    ("伪装", ("乔装", "伪装", "易容", "换装")),
+    ("甲胄", ("甲", "铠", "战甲", "甲胄")),
 )
 CROWD_ROLE_KEYWORDS = (
     "侍卫",
@@ -156,6 +171,7 @@ NON_ROLE_ACTION_HINTS = (
 )
 ROLE_TOKEN_RE = re.compile(r"^[\u4e00-\u9fffA-Za-z0-9·・_\-]{1,16}$")
 EPISODE_STEM_RE = re.compile(r"第0*(?P<ep>\d+)集")
+CROWD_PHRASE_RE = re.compile(r"[\u4e00-\u9fffA-Za-z0-9]{1,12}(?:群像|众人|路人|随从)")
 
 
 @dataclass
@@ -266,6 +282,7 @@ def normalize_role_token(token: str) -> str:
     text = re.sub(r"\s+", "", text)
     text = re.sub(r"^(?:前景|后景|左侧|右侧|中央|居中|远端|近端|门口|门边)", "", text)
     text = re.sub(r"(?:位于|站在|站|立|坐|跪|蹲|靠|贴|持|举|握|拎|撑|扶|盯|望|看|面朝|背对|身着|穿着|穿|披|戴|别着|系着).*$", "", text)
+    text = re.sub(r"(?:左手|右手|双手|单手|双臂|手臂)$", "", text)
     text = text.rstrip("的之其")
     return text
 
@@ -330,6 +347,35 @@ def unique_preserve(values: Sequence[str]) -> List[str]:
     return result
 
 
+def infer_costume_state(costume_texts: Sequence[str]) -> Tuple[str, List[str]]:
+    state_hits: Counter[str] = Counter()
+    tagged_rules: List[str] = []
+
+    for raw_text in costume_texts:
+        text = str(raw_text or "").strip()
+        if not text:
+            continue
+        matched_state = "baseline"
+        for state_name, keywords in STATE_KEYWORDS:
+            if any(keyword in text for keyword in keywords):
+                matched_state = state_name
+                break
+        state_hits[matched_state] += 1
+        if matched_state != "baseline":
+            tagged_rules.append(f"{matched_state}: {text}")
+
+    if not state_hits:
+        return "baseline", []
+
+    primary_state = state_hits.most_common(1)[0][0]
+    variation_rules = [
+        rule
+        for rule in unique_preserve(tagged_rules)
+        if not rule.startswith(f"{primary_state}:")
+    ]
+    return primary_state, variation_rules
+
+
 def pick_first_text(container: object, *fields: str) -> str:
     if not isinstance(container, dict):
         return ""
@@ -390,6 +436,66 @@ def extract_role_mentions_from_text(text: str) -> Tuple[List[str], Dict[str, Lis
     return normalized_roles, {key: unique_preserve(value) for key, value in costume_map.items()}
 
 
+def extract_group_role_costume_pairs(text: str) -> Tuple[List[str], Dict[str, List[str]]]:
+    roles: List[str] = []
+    costume_map: Dict[str, List[str]] = {}
+    for clause in re.split(r"[；;]+", str(text or "").strip()):
+        item = clause.strip()
+        if not item:
+            continue
+        pair_match = re.match(
+            r"^(?P<role>[\u4e00-\u9fffA-Za-z0-9·・_\-]{1,16})\s*[-—:：]\s*(?P<costume>.+)$",
+            item,
+        )
+        if not pair_match:
+            continue
+        role_name = normalize_role_token(pair_match.group("role"))
+        if not is_valid_role_candidate(role_name):
+            continue
+        roles.append(role_name)
+        costume_map.setdefault(role_name, [])
+        costume_map[role_name].append(item)
+    normalized_roles = unique_preserve(roles)
+    return normalized_roles or ["unknown"], {key: unique_preserve(value) for key, value in costume_map.items()}
+
+
+def build_role_aliases(role_name: str) -> List[str]:
+    aliases = [role_name]
+    for suffix in ("全息投影", "群像"):
+        if role_name.endswith(suffix):
+            aliases.append(role_name[: -len(suffix)])
+    return [alias for alias in unique_preserve(aliases) if alias]
+
+
+def detect_roles_from_roster(role_text: str, roster_names: Sequence[str]) -> List[str]:
+    text = str(role_text or "").strip()
+    if not text:
+        return ["unknown"]
+
+    detected = [
+        role_name
+        for role_name in roster_names
+        if role_name != "unknown" and any(alias in text for alias in build_role_aliases(role_name))
+    ]
+    if detected:
+        return unique_preserve(detected)
+
+    crowd_hits = [
+        match.group(0)
+        for match in CROWD_PHRASE_RE.finditer(text)
+        if any(keyword in match.group(0) for keyword in CROWD_ROLE_KEYWORDS)
+    ]
+    if crowd_hits:
+        return unique_preserve(crowd_hits)
+
+    fallback = [
+        token
+        for token in split_roles(text)
+        if token != "unknown" and is_valid_role_candidate(token) and len(token) <= 6
+    ]
+    return unique_preserve(fallback) or ["unknown"]
+
+
 def infer_role_level(role_name: str, group_count: int, total_groups: int) -> str:
     if any(keyword in role_name for keyword in CROWD_ROLE_KEYWORDS):
         return "群像角色"
@@ -417,6 +523,7 @@ def extract_records_from_episode(input_file: Path) -> Tuple[str, List[ShotRoleRe
             continue
         group_design = group.get("组间设计") if isinstance(group.get("组间设计"), dict) else {}
         group_costume_text = pick_first_text(group_design, GROUP_COSTUME_FIELD)
+        group_role_names, group_costume_mentions = extract_group_role_costume_pairs(group_costume_text)
         shots = group.get("分镜明细") or []
         for index, shot in enumerate(shots, start=1):
             if not isinstance(shot, dict):
@@ -424,16 +531,13 @@ def extract_records_from_episode(input_file: Path) -> Tuple[str, List[ShotRoleRe
             shot_id = str(shot.get("分镜ID") or "").strip() or f"{group_id}-{index}"
             role_text = pick_first_text(shot, ROLE_FIELD, LEGACY_ROLE_FIELD)
             shot_scene = pick_first_text(shot, SCENE_FIELD, LEGACY_SCENE_FIELD)
-            role_names, costume_mentions = extract_role_mentions_from_text(role_text) if role_text else (["unknown"], {})
-            if group_costume_text:
-                group_role_names, group_costume_mentions = extract_role_mentions_from_text(group_costume_text)
-                if role_names == ["unknown"] and group_role_names != ["unknown"]:
-                    role_names = group_role_names
-                for role_name in role_names:
-                    for clause in group_costume_mentions.get(role_name, []):
-                        costume_mentions.setdefault(role_name, [])
-                        if clause not in costume_mentions[role_name]:
-                            costume_mentions[role_name].append(clause)
+            role_names = detect_roles_from_roster(role_text, group_role_names) if role_text else group_role_names
+            costume_mentions: Dict[str, List[str]] = {}
+            for role_name in role_names:
+                for clause in group_costume_mentions.get(role_name, []):
+                    costume_mentions.setdefault(role_name, [])
+                    if clause not in costume_mentions[role_name]:
+                        costume_mentions[role_name].append(clause)
             records.append(
                 ShotRoleRecord(
                     episode_label=episode_label,
@@ -502,10 +606,13 @@ def build_roles(records: List[ShotRoleRecord]) -> List[dict]:
         item["role_id"] = f"ROLE-{index:03d}"
         item["role_level"] = infer_role_level(item["name"], len(item["group_ids"]), total_groups)
         costume_counter = Counter(item["costume_mentions"])
+        costume_state, variation_rules = infer_costume_state(item["costume_mentions"])
         item["costume_profile"] = {
             "primary_costumes": [text for text, _ in costume_counter.most_common(2)] or ["unknown"],
             "variant_costumes": [text for text, _ in costume_counter.most_common()[2:8]],
         }
+        item["costume_state"] = costume_state
+        item["variation_rules"] = variation_rules
         first = item["first_appearance"]
         item["display_card"] = {
             "title": item["name"],
@@ -528,9 +635,11 @@ def build_payload(
         "meta": {
             "schema_version": "aigc/design-role-list/v1",
             "skill_id": "aigc-design-role-list",
-            "source_schema": DIRECTOR_SCHEMA,
             "project_name": project_name,
             "episode_id": episode_label,
+            "primary_input": input_file.as_posix(),
+            "source_inputs": [input_file.as_posix()],
+            "source_schema": DIRECTOR_SCHEMA,
             "source_file": input_file.as_posix(),
             "generated_at": generated_at,
         },
@@ -572,11 +681,16 @@ def build_manifest(
     return {
         "status": "ok",
         "episode_id": episode_label,
-        "input_file": input_file.as_posix(),
-        "output_dir": output_dir.as_posix(),
-        "output_files": [str(output_dir / json_name), str(output_dir / manifest_name)],
+        "input_file": to_repo_relative(input_file),
+        "output_dir": to_repo_relative(output_dir),
+        "output_files": [
+            to_repo_relative(output_dir / json_name),
+            to_repo_relative(output_dir / manifest_name),
+        ],
         "statistics": payload["statistics"],
-        "notes": notes or [],
+        "notes": notes or [
+            "canonical business truth 是 `角色清单.json`；`_manifest.json` 只承担审计与统计侧车职责。",
+        ],
     }
 
 
@@ -598,7 +712,7 @@ def main() -> int:
         if not roles:
             raise RuntimeError(f"{input_file} 未提取到有效角色。")
 
-        generated_at = datetime.now().isoformat(timespec="seconds")
+        generated_at = datetime.now().astimezone().isoformat(timespec="seconds")
         output_dir = infer_output_dir(input_file, args.output_dir, episode_label)
         payload = build_payload(project_name, episode_label, input_file, records, roles, generated_at)
         manifest = build_manifest(

@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop-list
-description: Use when the `4-Design/道具/1-清单` leaf skill needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into prop catalog, prop research, and prop design bridge JSON under `projects/aigc/<项目名>/4-Design/道具/1-清单/`.
+description: Use when the `4-Design/道具/1-清单` leaf skill needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into prop catalog, prop research, and prop design bridge JSON, with legacy `projects/aigc/<项目名>/编导/第N集.json` only as fallback.
 governance_tier: full
 ---
 
@@ -8,11 +8,12 @@ governance_tier: full
 
 ## 概述
 
-`1-清单` 是 `4-Design/道具` 的首个执行叶子技能，用来把导演 episode JSON 中已经出现的道具事实收束为可被设计阶段直接消费的三份 JSON 真源：
+`1-清单` 是 `4-Design/道具` 的首个执行叶子技能，用来把导演 episode JSON 中已经出现的道具事实收束为可被设计阶段直接消费的 `base pair + derived sidecars`：
 
 1. `道具清单.json`
 2. `道具研究.json`
 3. `prop_design_bridge.json`
+4. `_manifest.json`
 
 本技能采用知行合一的单文档编排方式：核心思考、执行步骤、门禁、输出与返工都在本 `SKILL.md` 中锁定；`references/`、脚本和 schema 继续保留，但只作为执行支撑，不再承担主骨架真源。
 
@@ -37,17 +38,19 @@ governance_tier: full
 
 ### 补充输入
 
+- `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- `.agents/skills/aigc/4-Design/1-主体清单/_shared/list-output-contract.md`
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
-- `.agents/skills/aigc/4-Design/道具/SKILL.md + CONTEXT.md`
-- `.agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py`
-- `.agents/skills/aigc/4-Design/道具/1-清单/scripts/extract_episode_props.py`
-- `.agents/skills/aigc/4-Design/道具/1-清单/scripts/build_prop_research.py`
+- `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/run_prop_list_pipeline.py`
+- `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/extract_episode_props.py`
+- `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/build_prop_research.py`
 
 ### 固定输出落点
 
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json`
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/_manifest.json`
 
 ### 输入硬门槛
 
@@ -156,8 +159,8 @@ stateDiagram-v2
   - 每个 shot 的 `道具及状态`
 - `actions`
   1. 遍历 group 和 shot，读取 `group_id / shot_id / raw_prop_text`。
-  2. 对 `raw_prop_text` 做 clause 级拆分，优先拆出 `prop_name + state`。
-  3. 记录 `prop_mentions[]`，保留原文证据，不先做强归一。
+  2. 对 `raw_prop_text` 做 clause 级拆分，优先命中 stable noun，再拆出 `prop_name + state`。
+  3. 记录 `prop_mentions[]`，保留原文证据，不先做强归一，也不允许整句直接回退成 `prop_name`。
   4. 若整组没有道具，只把它记入 `groups_without_props`，不硬造空 prop。
 - `evidence`
   - `group_prop_map[]`
@@ -167,7 +170,7 @@ stateDiagram-v2
   - 抽取成功 -> `NODE-PROP-LIST-03`
   - 无法稳定拆分或 evidence 丢失 -> `FAIL-PROP-EXTRACT`
 - `gate`
-  - 每条 mention 至少要能回链 `group_id + shot_id + raw_prop_text`。
+  - 每条 mention 至少要能回链 `group_id + shot_id + raw_prop_text`，且 `prop_name` 不能是状态残句。
 
 #### 着手面
 
@@ -183,7 +186,7 @@ stateDiagram-v2
   - `group_prop_map[]`
   - `prop_mentions[]`
 - `actions`
-  1. 按 `canonical_name` 或稳定 noun 核心词聚合同类道具。
+  1. 先按 stable noun / canonical object key 聚合同类道具，再补 `canonical_name`。
   2. 汇总每个 prop 的 `group_ids / shot_ids / raw mentions / state_variants`。
   3. 为每个 prop 生成稳定 `prop_id` 与 `display_profile` 摘要。
   4. 若同名但明显是不同物件，保留分裂并写明原因。
@@ -194,7 +197,7 @@ stateDiagram-v2
   - 聚合完成 -> `NODE-PROP-LIST-04`
   - canonical 名称漂移或状态合并错误 -> `FAIL-PROP-AGGREGATE`
 - `gate`
-  - 每个 canonical prop 都必须既有名称也有镜头锚点。
+  - 每个 canonical prop 都必须既有对象主键也有镜头锚点，且不能由整句描述直接升格。
 
 #### 着手面
 
@@ -291,18 +294,18 @@ stateDiagram-v2
 ## Commands
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
+python3 .agents/skills/aigc/4-Design/1-主体清单/道具/scripts/run_prop_list_pipeline.py \
   --input "projects/aigc/<项目名>/3-Detail/第N集.json"
 ```
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
+python3 .agents/skills/aigc/4-Design/1-主体清单/道具/scripts/run_prop_list_pipeline.py \
   --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
   --output-dir "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集"
 ```
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py \
+python3 .agents/skills/aigc/4-Design/1-主体清单/道具/scripts/run_prop_list_pipeline.py \
   --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
   --dry-run
 ```
@@ -323,9 +326,10 @@ python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipel
 
 ### 唯一业务真源
 
-- `道具清单.json`：抽取与聚合事实
-- `道具研究.json`：研究结论与 chronicle
-- `prop_design_bridge.json`：设计桥接字段
+- `道具清单.json`：唯一对象池真源
+- `道具研究.json`：研究层派生 sidecar
+- `prop_design_bridge.json`：设计桥接派生 sidecar
+- `_manifest.json`：输入输出与统计审计 sidecar
 
 ### 不拥有的真源
 
@@ -337,7 +341,7 @@ python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipel
 
 ### 最终结果
 
-- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/` 下的三份 JSON
+- `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/` 下的四份 JSON
 
 ### 思考过程
 
@@ -360,7 +364,7 @@ python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipel
 
 ### 下一步
 
-- 默认进入 `.agents/skills/aigc/4-Design/道具/2-设计`
+- 默认进入 `.agents/skills/aigc/4-Design/2-主体设计/道具`
 
 ## Field Master
 
@@ -409,21 +413,26 @@ python3 .agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipel
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/道具/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/道具/1-清单/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/道具/1-清单/scripts/run_prop_list_pipeline.py`
-  - `.agents/skills/aigc/4-Design/道具/1-清单/scripts/extract_episode_props.py`
-  - `.agents/skills/aigc/4-Design/道具/1-清单/scripts/build_prop_research.py`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/run_prop_list_pipeline.py`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/extract_episode_props.py`
+  - `.agents/skills/aigc/4-Design/1-主体清单/道具/scripts/build_prop_research.py`
 - `Meta Rule Source`
   - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
   - `.agents/skills/aigc/_shared/project-runtime-layout.md`
-  - `.agents/skills/aigc/4-Design/道具/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
   - 根 `AGENTS.md`
 
 ## Context Preload (Mandatory)
 
-1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-2. `.agents/skills/aigc/4-Design/道具/SKILL.md + CONTEXT.md`
-3. 本 `SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-5. 按需读取本目录 `scripts/` 与 `references/`
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/4-Design/1-主体清单/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
+7. 本 `SKILL.md + CONTEXT.md`
+8. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+6. 按需读取本目录 `scripts/` 与 `references/`

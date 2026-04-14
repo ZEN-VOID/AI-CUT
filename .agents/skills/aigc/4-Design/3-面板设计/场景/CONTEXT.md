@@ -2,8 +2,8 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `4-Design/场景/3-面板` 的经验层知识库，不是过程日志。
-- 调用本子技能时，应在 `aigc -> 4-Design -> 1-场景` 根链之后加载本文件。
+- 本文件是 `.agents/skills/aigc/4-Design/3-面板设计/场景` 的经验层知识库，不是过程日志。
+- 调用本子技能时，应在 `aigc` 根技能与 `4-Design/2-主体设计/场景` 上游技能之后加载本文件。
 
 ## Context Health
 

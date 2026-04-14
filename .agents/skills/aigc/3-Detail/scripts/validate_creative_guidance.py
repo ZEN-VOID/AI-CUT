@@ -21,6 +21,17 @@ ROUTE_PROFILE_KEYS = (
     "route_profiles",
 )
 
+REQUIRED_SHARED_CREATIVE_GUIDANCE_REF = (
+    ".agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md"
+)
+LEGACY_SHARED_CREATIVE_GUIDANCE_REF = (
+    ".agents/skills/aigc/3-Detail/references/creative-guidance-contract.md"
+)
+FORBIDDEN_PARENT_TOPOLOGY_PHRASES = (
+    "1-分镜表现/1-切换",
+    "`1-切换` 的实际切镜窗口",
+)
+
 
 def discover_skill_roots(stage_root: Path) -> list[Path]:
     return sorted(
@@ -76,6 +87,48 @@ def validate_skill_root(skill_root: Path) -> list[str]:
         errors.extend(validate_module_index(skill_root, module_index_path))
     if route_profile_path.exists():
         errors.extend(validate_route_profile(skill_root, route_profile_path))
+
+    for contract_file in (skill_root / "SKILL.md", module_index_path):
+        if not contract_file.exists():
+            continue
+        text = contract_file.read_text(encoding="utf-8")
+        rel_path = contract_file.relative_to(skill_root)
+        if REQUIRED_SHARED_CREATIVE_GUIDANCE_REF not in text:
+            errors.append(
+                f"{skill_root.name}: {rel_path} 未回指共享创作引导真源 `{REQUIRED_SHARED_CREATIVE_GUIDANCE_REF}`。"
+            )
+        if LEGACY_SHARED_CREATIVE_GUIDANCE_REF in text:
+            errors.append(
+                f"{skill_root.name}: {rel_path} 仍引用已删除路径 `{LEGACY_SHARED_CREATIVE_GUIDANCE_REF}`。"
+            )
+    return errors
+
+
+def validate_stage_contracts(stage_root: Path) -> list[str]:
+    errors: list[str] = []
+
+    shared_contract = stage_root / "_shared" / "creative-guidance-contract.md"
+    if not shared_contract.exists():
+        errors.append(
+            f"{stage_root.name}: 缺少共享创作引导真源 {shared_contract.relative_to(stage_root.parent)}。"
+        )
+
+    stage_skill = stage_root / "SKILL.md"
+    stage_context = stage_root / "CONTEXT.md"
+
+    if stage_skill.exists():
+        stage_skill_text = stage_skill.read_text(encoding="utf-8")
+        if "分镜构图" not in stage_skill_text:
+            errors.append(f"{stage_root.name}: 父层 SKILL.md 未声明 `分镜构图` 先行拓扑。")
+        for phrase in FORBIDDEN_PARENT_TOPOLOGY_PHRASES:
+            if phrase in stage_skill_text:
+                errors.append(f"{stage_root.name}: 父层 SKILL.md 仍残留已删除镜花叶子引用 `{phrase}`。")
+
+    if stage_context.exists():
+        stage_context_text = stage_context.read_text(encoding="utf-8")
+        for phrase in FORBIDDEN_PARENT_TOPOLOGY_PHRASES[1:]:
+            if phrase in stage_context_text:
+                errors.append(f"{stage_root.name}: 父层 CONTEXT.md 仍残留旧镜花拓扑表述 `{phrase}`。")
     return errors
 
 
@@ -87,7 +140,7 @@ def build_parser() -> argparse.ArgumentParser:
         "skill_roots",
         nargs="*",
         type=Path,
-        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/1-水月`.",
+        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/水月`.",
     )
     return parser
 
@@ -105,6 +158,7 @@ def main() -> int:
         return 1
 
     errors: list[str] = []
+    errors.extend(validate_stage_contracts(stage_root))
     for skill_root in skill_roots:
         errors.extend(validate_skill_root(skill_root.resolve()))
 

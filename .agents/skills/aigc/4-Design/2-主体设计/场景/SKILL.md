@@ -8,7 +8,7 @@ governance_tier: full
 
 ## Mode Selection
 
-- 本次重构采用 `$skill-知行合一` 的单技能真源口径，并显式退役原 `.codex/agents/aigc/设计组/场景设计` 外挂 agent 组。
+- 本次重构采用 `$skill-知行合一` 的单技能真源口径，并显式退役原外挂场景设计 agent 组。
 - `复杂链路的骨架 / 细则分层`：`false`
 - canonical source：仅本 `SKILL.md`
 - 角色能力不再外放为 subagents，而是内收为本技能的六组能力镜面。
@@ -67,7 +67,7 @@ governance_tier: full
 
 ### 业务对象
 
-- `1-清单` 的 `第N集.json`
+- `1-清单` 的 `场景清单.json`
 - `2-Global` 的风格、类型与导演意图
 - `3-Detail` 的镜头级证据
 - `0-Init` 的 north star 与初始化预设
@@ -94,10 +94,10 @@ governance_tier: full
 
 ### Canonical Inputs
 
-- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
-- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json`
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
 - `projects/aigc/<项目名>/2-Global/类型元素.md`
-- `projects/aigc/<项目名>/2-Global/导演意图.md`
+- `projects/aigc/<项目名>/3-Detail/第N集.json` 中命中分组的 `组间设计.导演意图`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `projects/aigc/<项目名>/0-Init/north_star.yaml`
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
@@ -208,7 +208,7 @@ stateDiagram-v2
   - 本轮是逐场覆盖还是只覆盖命中子集，是否已显式声明。
   - scene dispatch 顺序是否合理。
 - `actions`
-  1. 读取 `scene catalog` 的 `scenes[] / group_scene_map[] / summary`。
+  1. 读取 `scene catalog` 的 `scenes[] / group_scene_map[] / statistics`；兼容 legacy `summary`。
   2. 生成 `scene_dispatch_plan`，列出命中场景、优先级、证据缺口。
   3. 标记本轮覆盖模式：`full-episode` 或 `targeted-subset`。
   4. 排除未命中场景，避免补空设计稿。
@@ -462,7 +462,7 @@ stateDiagram-v2
 1. `episode_id`
 2. `source_scene_catalog`
 3. `scene_designs`
-4. `summary`
+4. `statistics`（兼容 legacy `summary`）
 5. `acceptance_notes`
 
 ### `scene_designs[]` 最低字段
@@ -547,12 +547,13 @@ stateDiagram-v2
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/场景/2-设计/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/场景/2-设计/templates/scene-design-card.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/场景/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/场景/templates/scene-design-card.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/场景/SKILL.md`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 
@@ -566,6 +567,9 @@ stateDiagram-v2
 
 - 执行前先加载 `.agents/skills/aigc/SKILL.md + CONTEXT.md`。
 - 再加载 `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`。
-- 再加载 `.agents/skills/aigc/4-Design/场景/SKILL.md + CONTEXT.md`。
+- 再加载 `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md + CONTEXT.md`。
+- 再加载 `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`。
+- 再加载 `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`。
+- 再加载 `.agents/skills/aigc/4-Design/1-主体清单/场景/SKILL.md + CONTEXT.md`。
 - 最后加载本 `SKILL.md + CONTEXT.md` 与 `templates/scene-design-card.md`。
-- 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `aigc` 根技能 > `4-Design` 父级 > `1-场景` 父级 > 本 `SKILL.md` > 各级 `CONTEXT.md`。
+- 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `aigc` 根技能 > `3-Detail` 阶段合同 > `1-主体清单/场景` 合同 > 本 `SKILL.md` > 各级 `CONTEXT.md`。

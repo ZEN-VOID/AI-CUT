@@ -1,6 +1,6 @@
 ---
 name: aigc-design-scene-list
-description: Use when the `4-Design/场景/1-清单` stage needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into an episode-level scene catalog under the shared director episode schema.
+description: Use when the `4-Design/场景/1-清单` stage needs to turn `projects/aigc/<项目名>/3-Detail/第N集.json` into an episode-level scene catalog under the shared director episode schema, with legacy `projects/aigc/<项目名>/编导/第N集.json` only as fallback.
 governance_tier: full
 ---
 
@@ -36,8 +36,9 @@ governance_tier: full
 ### `1-清单` 拥有
 
 - `角色背景面 -> scene_name / scene_variant` 的保守抽取合同。
-- `group_scene_map[]`、`scenes[]`、`summary` 的 episode 级聚合合同。
-- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` 的 canonical 写出。
+- `meta / statistics / group_scene_map[] / scenes[]` 的 episode 级聚合合同。
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json` 的 canonical 写出。
+- `_manifest.json` 作为统一 audit sidecar 的默认写出规则。
 
 ### `1-清单` 不拥有
 
@@ -71,14 +72,17 @@ governance_tier: full
 
 - 同一主场景不会因为方位差异被伪拆成多个场景。
 - 每个镜头都能在 `group_scene_map[]` 中回链到抽取结果。
-- 输出 `第N集.json` 可直接被 `2-设计` 读取，无需二次解释。
+- 输出 `场景清单.json` 可直接被 `2-设计` 读取，无需二次解释。
 
 ## Total Input Contract
 
 ### Canonical Inputs
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
+- legacy `projects/aigc/<项目名>/编导/第N集.json`（仅在主路径缺失时）
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- `.agents/skills/aigc/4-Design/1-主体清单/_shared/list-output-contract.md`
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/CONTEXT.md`
 - 本目录下 `CONTEXT.md`
@@ -93,7 +97,7 @@ governance_tier: full
 
 ### 推荐字段
 
-- `metadata.episode_id`
+- `meta.episode_id`
 - `分镜明细[].时间段`
 - `分镜组列表[].剧本正文`
 
@@ -154,7 +158,7 @@ stateDiagram-v2
   - 下游 handoff 需要什么。
   - 哪些内容绝对不写。
 - `actions`
-  1. 明确本轮最终产物只有 `第N集.json`，`_manifest.json` 仅在显式要求时输出。
+  1. 明确本轮最终产物为 `场景清单.json + _manifest.json`，其中 `_manifest.json` 只承载审计与统计。
   2. 锁定下游消费方是 `2-设计`，不是图片或视频阶段。
   3. 记录本轮是否需要 `json_only` 或 `full_trace`。
 - `evidence`
@@ -252,18 +256,19 @@ stateDiagram-v2
   - 方位词是否应留在变体。
   - 无法稳定拆分时如何保守回退。
 - `actions`
-  1. 先找最早出现的方位、门槛、边界、朝向标记。
-  2. 优先保住主空间实体作为 `scene_name`。
-  3. 余量信息收进 `scene_variant`。
-  4. 若切分后主场景为空，则整句回退为 `scene_name`。
-  5. 若原句无效，则 `scene_name=unknown`。
+  1. 先尝试命中主场景家族或稳定空间实体。
+  2. 再找最早出现的方位、门槛、边界、朝向标记。
+  3. 优先保住主空间实体作为 `scene_name`。
+  4. 余量信息收进 `scene_variant`。
+  5. 若切分后主场景为空，则先回退主场景家族；仍失败时才整句回退为 `scene_name`。
+  6. 若原句无效，则 `scene_name=unknown`。
 - `evidence`
   - 每条记录都有 `scene_name / scene_variant / scene_key_seed`。
 - `route_out`
   - 成功：进入 `N5`。
   - 若拆分异常裂变：返回本节点重做。
 - `gate`
-  - 不允许把氛围词、朝向词误升为新场景主名。
+  - 不允许把氛围词、朝向词或整句背景描述误升为新场景主名。
 
 ### N5. 聚合 `scenes[]` 与 `variants[]`
 
@@ -280,7 +285,7 @@ stateDiagram-v2
   2. 按首次出现顺序分配 `scene_id`。
   3. 聚合每个场景的 `coverage`、`source_shots`、`variants`。
   4. 去重同义变体，保留出现证据。
-  5. 生成 `summary.scene_count / variant_count / unknown_count`。
+  5. 生成 `statistics.scene_count / variant_count`。
 - `evidence`
   - 完整 `scenes[]`。
   - 完整 `group_scene_map[]`。
@@ -293,9 +298,9 @@ stateDiagram-v2
 ### N6. 写 episode carrier
 
 - `objective`
-  - 生成 canonical `第N集.json`，并在需要时生成 `_manifest.json`。
+  - 生成 canonical `场景清单.json` 与 `_manifest.json`。
 - `inputs`
-  - `summary`
+- `statistics`
   - `scenes[]`
   - `group_scene_map[]`
   - 输出模式
@@ -304,18 +309,18 @@ stateDiagram-v2
   - manifest 是否真有必要。
   - 路径是否落在当前仓。
 - `actions`
-  1. 写入 `metadata / summary / scenes / group_scene_map / acceptance_notes`。
-  2. 明确 `source_file` 和 `output_file`。
-  3. 仅在 `full_trace` 时补 `_manifest.json`。
+  1. 写入 `meta / statistics / scenes / group_scene_map / acceptance_notes`。
+  2. 明确 `input_file` 和 `output_files`。
+  3. 写入 `_manifest.json`，只记录输入、输出、统计与命中摘要。
   4. 保证输出路径固定到 `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/`。
 - `evidence`
-  - `第N集.json`
-  - 可选 `_manifest.json`
+- `场景清单.json`
+- `_manifest.json`
 - `route_out`
   - 成功：进入 `N7`。
   - 失败：回到本节点修补输出壳。
 - `gate`
-  - 没有 `summary / scenes / group_scene_map` 不得写出完成态。
+- 没有 `statistics / scenes / group_scene_map` 不得写出完成态。
 
 ### N7. 验收与 handoff
 
@@ -355,13 +360,13 @@ stateDiagram-v2
 
 ### Canonical Outputs
 
-- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json`
-- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/_manifest.json` 仅在显式要求追溯时输出
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json`
+- `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/_manifest.json`
 
-### `第N集.json` 最低结构
+### `场景清单.json` 最低结构
 
-1. `metadata`
-2. `summary`
+1. `meta`
+2. `statistics`
 3. `scenes`
 4. `group_scene_map`
 5. `acceptance_notes`
@@ -398,11 +403,11 @@ stateDiagram-v2
 
 | field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- |
-| FIELD-SCENE-LIST-01 | `metadata / summary` | 输入源、episode、统计信息完整可追溯 | episode root、文件名、遍历基线 | N1-N2 | 输入真源清晰度 | FAIL-SCENE-LIST-01 |
+| FIELD-SCENE-LIST-01 | `meta / statistics` | 输入源、episode、统计信息完整可追溯 | episode root、文件名、遍历基线 | N1-N2 | 输入真源清晰度 | FAIL-SCENE-LIST-01 |
 | FIELD-SCENE-LIST-02 | `group_scene_map[]` | 每个镜头都有 `scene_raw -> scene_name -> scene_variant` 映射 | `分镜组列表[].分镜明细[]` | N3-N4 | 镜级提取稳定性 | FAIL-SCENE-LIST-02 |
 | FIELD-SCENE-LIST-03 | `scenes[]` | 同一主场景稳定聚合，首次出现与覆盖范围完整 | 镜级映射、聚合规则 | N5 | 场景聚合稳定性 | FAIL-SCENE-LIST-03 |
 | FIELD-SCENE-LIST-04 | `scenes[].variants[]` | 变体可追溯到 group / shot | `scene_variant` 与来源镜头 | N5 | 变体表达清晰度 | FAIL-SCENE-LIST-04 |
-| FIELD-SCENE-LIST-05 | `第N集.json / _manifest.json` | episode 级输出完整可 handoff | 输出 carrier 与验收结果 | N6-N7 | 输出可消费性 | FAIL-SCENE-LIST-05 |
+| FIELD-SCENE-LIST-05 | `场景清单.json / _manifest.json` | episode 级输出完整可 handoff | 输出 carrier 与验收结果 | N6-N7 | 输出可消费性 | FAIL-SCENE-LIST-05 |
 
 ## Thought Pass Map
 
@@ -422,7 +427,7 @@ stateDiagram-v2
 | FIELD-SCENE-LIST-02 | 镜级提取稳定性 | 每个镜头至少有 1 条可追溯映射记录 | FAIL-SCENE-LIST-02 | N3 |
 | FIELD-SCENE-LIST-03 | 场景聚合稳定性 | 同一主场景不出现重复 `scene_id` | FAIL-SCENE-LIST-03 | N5 |
 | FIELD-SCENE-LIST-04 | 变体表达清晰度 | 每个变体都能回链原镜头 | FAIL-SCENE-LIST-04 | N5 |
-| FIELD-SCENE-LIST-05 | 输出可消费性 | `第N集.json` 可直接交给 `2-设计` 读取 | FAIL-SCENE-LIST-05 | N6 |
+| FIELD-SCENE-LIST-05 | 输出可消费性 | `场景清单.json` 可直接交给 `2-设计` 读取 | FAIL-SCENE-LIST-05 | N6 |
 
 ## Root-Cause Execution Contract
 
@@ -441,12 +446,11 @@ stateDiagram-v2
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/场景/1-清单/scripts/extract_scene_catalog.py`
+  - `.agents/skills/aigc/4-Design/1-主体清单/场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/场景/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/场景/scripts/extract_scene_catalog.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
   - 根 `AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 
@@ -460,6 +464,8 @@ stateDiagram-v2
 
 - 执行前先加载 `.agents/skills/aigc/SKILL.md + CONTEXT.md`。
 - 再加载 `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`。
-- 再加载 `.agents/skills/aigc/4-Design/场景/SKILL.md + CONTEXT.md`。
+- 再加载 `.agents/skills/aigc/4-Design/1-主体清单/SKILL.md + CONTEXT.md`。
+- 再加载 `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`。
+- 再加载 `.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`。
 - 最后加载本 `SKILL.md + CONTEXT.md`。
-- 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `aigc` 根技能 > `4-Design` 父级 > `1-场景` 父级 > 本 `SKILL.md` > 各级 `CONTEXT.md`。
+- 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `aigc` 根技能 > `1-主体清单` 共享消费合同 > `object-normalization-contract` > 本 `SKILL.md` > 本地 `CONTEXT.md`。

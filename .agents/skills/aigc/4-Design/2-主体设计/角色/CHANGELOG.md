@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-本文件记录 `aigc/4-Design/角色/2-设计` 的结构性改动，不参与默认预加载。
+本文件记录 `aigc/4-Design/2-主体设计/角色` 的结构性改动，不参与默认预加载。
 
 ## 2026-04-12
 
@@ -10,8 +10,8 @@
   - 将 `2-设计` 的 canonical 输出锁定为 `character_design.json + 逐角色 Markdown + _manifest.json`。
 
 - `Case-20260412-AIGC-ROLE-DESIGN-PARENT-STATUS-SYNC`
-  - 将 `.agents/skills/aigc/4-Design/SKILL.md` 与 `.agents/skills/aigc/4-Design/角色/SKILL.md` 中的 `2-设计` 状态从 `pending` 同步为 `active`。
-  - 为 `.agents/skills/aigc/4-Design/CONTEXT.md` 与 `.agents/skills/aigc/4-Design/角色/CONTEXT.md` 补充本轮设计技能激活记录。
+  - 将 `.agents/skills/aigc/4-Design/SKILL.md` 与 `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md` 中的 `角色` 设计链状态同步为 `active`。
+  - 为 `.agents/skills/aigc/4-Design/CONTEXT.md` 与 `.agents/skills/aigc/4-Design/2-主体设计/CONTEXT.md` 补充本轮设计技能激活记录。
 
 ## 2026-04-13
 

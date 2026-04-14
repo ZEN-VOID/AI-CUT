@@ -1,0 +1,5 @@
+interface:
+  display_name: "AIGC 4-Design"
+  short_description: "统一路由场景、角色、服装、道具的清单、设计与面板三段设计阶段。"
+  default_prompt: "Use $aigc-design to route the current task into `1-主体清单`、`2-主体设计` or `3-面板设计`, then dispatch only the needed design domains under `projects/aigc/<项目名>/4-Design/`."
+version: 1

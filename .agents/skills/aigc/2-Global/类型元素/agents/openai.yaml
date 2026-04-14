@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 2-Global / 类型元素"
-  short_description: "以 3-分组 为主输入、0-Init 为附加上下文，产出影片级题材圣经与分组级类型设计，并维护旧类型元素文件的兼容投影"
-  default_prompt: "Use $aigc-global-type-elements to read the current episode grouping as the primary input and 0-Init outputs as supporting context, build a project-level genre bible plus episode-group type design under projects/aigc/<项目名>/2-Global/类型元素/, then refresh the compatibility projection projects/aigc/<项目名>/2-Global/类型元素.md without introducing a second truth source."

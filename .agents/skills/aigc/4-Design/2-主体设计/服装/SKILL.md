@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`2-设计` 是 `3-服装` 链路下的 subagent-governed 父技能，负责把 `1-清单` 已稳定写出的对象池、研究层与 bridge，继续收束成：
+`2-设计` 是 `3-服装` 链路下的 capability-governed 父技能，负责把 `1-清单` 已稳定写出的对象池、研究层与 bridge，继续收束成：
 
 1. `服装设计.json`
 2. `costume_design_prompt.json`
@@ -19,12 +19,12 @@ governance_tier: full
 
 - 第一输入根仍是 `costume_design_bridge.json`
 - shared I/O 仍以 `_shared/IO_CONTRACT.md` 为单一输入输出真源
-- subagents 仍只返回 `agents_plan + patch / note / report`
-- team 拓扑仍是 `服装统筹 -> specialists 并行 -> 服装一致性复核 -> 提示词架构师 -> 真源审计 -> 父 skill 写回`
+- 能力镜面仍只返回 `agents_plan + patch / note / report`
+- 原 `服装设计组` 拓扑保留为本技能内部命名：`服装统筹 -> specialists 并行 -> 服装一致性复核 -> 提示词架构师 -> 真源审计 -> 父 skill 写回`
 
 变化只在合同表达：把业务分析、team 路由、节点网络、并发/汇流门、细颗粒执行细则和一次性输出统一到同一 `SKILL.md`。
 
-## Skill / Subagent Execution Rule (Mandatory)
+## Skill / Capability Execution Rule (Mandatory)
 
 在 `2-设计` 中，职责固定分层：
 
@@ -34,12 +34,12 @@ governance_tier: full
   - 上下文装配
   - patch 汇总
   - canonical design master / prompt sidecar / markdown / manifest 的最终写回
-- subagents 负责：
+- 能力镜面负责：
   - `agents_plan`
   - 局部 `patch / note / report`
   - 字段候选、证据补充、冲突说明、返工建议
 
-任何 subagent 都不得直接写 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*`。
+任何能力镜面都不得直接写 `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*`。
 
 ## When to Use
 
@@ -84,24 +84,27 @@ governance_tier: full
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/4-Design/服装/SKILL.md + CONTEXT.md`
-5. 本 `SKILL.md + CONTEXT.md`
-6. `.agents/skills/aigc/4-Design/服装/2-设计/_shared/IO_CONTRACT.md`
-7. `.codex/agents/aigc/设计组/服装设计/team.md`
-8. `projects/aigc/<项目名>/0-Init/north_star.yaml`
-9. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-10. `projects/aigc/<项目名>/2-Global/全局风格.md`
-11. `projects/aigc/<项目名>/2-Global/类型元素.md`
-12. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
-13. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
-14. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
-15. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`
-16. 仅加载命中的 agent docs
+4. `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
+6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+7. `.agents/skills/aigc/4-Design/1-主体清单/服装/SKILL.md + CONTEXT.md`
+8. 本 `SKILL.md + CONTEXT.md`
+9. `.agents/skills/aigc/4-Design/2-主体设计/服装/_shared/IO_CONTRACT.md`
+10. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+11. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+12. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
+13. `projects/aigc/<项目名>/2-Global/类型元素.md`
+14. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装清单.json`
+15. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/服装研究.json`
+16. `projects/aigc/<项目名>/4-Design/服装/1-清单/第N集/costume_design_bridge.json`
+17. `projects/aigc/<项目名>/3-Detail/第N集.json`
+18. `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/character_design.json`（若存在）
+19. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*`（若存在）
 
 ## Shared Canonical Sources (Mandatory)
 
-- 强制读取：`.agents/skills/aigc/4-Design/服装/2-设计/_shared/IO_CONTRACT.md`
-- 强制读取：`.codex/agents/aigc/设计组/服装设计/team.md`
+- 强制读取：`.agents/skills/aigc/4-Design/2-主体设计/服装/_shared/IO_CONTRACT.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/服装/SKILL.md`
 - 辅助读取：
   - `references/output-template.md`
   - `references/execution-flow.md`
@@ -126,7 +129,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `projects/aigc/<项目名>/0-Init/north_star.yaml`
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
 - `projects/aigc/<项目名>/2-Global/类型元素.md`
 
 ### 可选输入
@@ -158,7 +161,7 @@ governance_tier: full
 
 - Mermaid 是 `2-设计` 的实际拓扑真源，必须同时覆盖 team 主链、route mode、状态推进和字段依赖。
 - 图中的并行 specialists、review gate、prompt tranche 和 audit gate 必须与主文节点网络一一对应。
-- 不允许把关键 team 执行顺序只留在 `team.md` 而不在主合同可视化呈现。
+- 不允许把关键执行顺序只留在隐含 team 拓扑里，而不在主合同可视化呈现。
 
 ## Visual Maps (Mermaid)
 
@@ -265,7 +268,7 @@ graph LR
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-GATE` | `S1` | `FIELD-COSTUME-DESIGN-01` | 锁定当前确属 bridge 下游设计问题 | 读取 bridge、research、catalog、global presets，校验输入完整性 | `input_gate_note` | pass -> `N2`；fail -> 结束 | bridge 缺失不得继续 |
 | `N2-ROUTE-MODE` | `S2` | `FIELD-COSTUME-DESIGN-02` | 判断当前轮是全量、局部还是 prompt-only | 基于目标、既有产物与缺口生成 route mode | `route_mode_note`、`selected_costumes[]` | pass -> `N3`；冲突 -> 回 `S1-S2` | 路由模式唯一 |
-| `N3-SHARED-IO-LOCK` | `S3` | `FIELD-COSTUME-DESIGN-03` | 锁定 shared I/O、team 与命名合同 | 读取 `_shared/IO_CONTRACT.md` 和 `team.md`，生成 mission brief / context packets | `mission_brief_costume_design` | pass -> `N4`；fail -> 回 `S2-S3` | I/O 和 handoff 清晰后才可派发 |
+| `N3-SHARED-IO-LOCK` | `S3` | `FIELD-COSTUME-DESIGN-03` | 锁定 shared I/O、能力镜面与命名合同 | 读取 `_shared/IO_CONTRACT.md`，生成 mission brief / context packets，并确认内部能力镜面边界 | `mission_brief_costume_design` | pass -> `N4`；fail -> 回 `S2-S3` | I/O 和 handoff 清晰后才可派发 |
 | `N4-COORDINATOR-DISPATCH` | `S4` | `FIELD-COSTUME-DESIGN-02` `FIELD-COSTUME-DESIGN-07` | 由 `服装统筹` 锁定批次、优先级与返工入口 | 生成 `agents_plan`、tranche 和缺口摘要 | `plan_patch_服装统筹` | pass -> `N5A/N5B/N5C`；fail -> 回 `S4` | 命中服装与职责分配清楚 |
 | `N5A-SILHOUETTE-LAYER` | `S5` | `FIELD-COSTUME-DESIGN-04` | 生成 silhouette/layering 设计 patch | 产出 `design_thesis / silhouette_system / layering_system` | `artifact_patch_廓形层次设计师` | pass -> `N6`；fail -> 回 `S5` | patch 必须服务同一 costume identity |
 | `N5B-MATERIAL-PATTERN` | `S6` | `FIELD-COSTUME-DESIGN-04` | 生成材质纹样与颜色脚本 patch | 产出 `material_and_pattern / color_script / fabric_finish` | `artifact_patch_材质纹样设计师` | pass -> `N6`；fail -> 回 `S6` | patch 不能脱离 bridge |
@@ -475,11 +478,12 @@ graph LR
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/服装/2-设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/服装/2-设计/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/服装/2-设计/_shared/IO_CONTRACT.md`
-  - `.codex/agents/aigc/设计组/服装设计/team.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/服装/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/服装/_shared/IO_CONTRACT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/服装/SKILL.md`
 - `Meta Rule Source`
   - `AGENTS.md`
-  - `.agents/skills/aigc/4-Design/服装/SKILL.md`
-  - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-subagents/SKILL.md`
+  - `.agents/skills/aigc/3-Detail/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
+  - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`

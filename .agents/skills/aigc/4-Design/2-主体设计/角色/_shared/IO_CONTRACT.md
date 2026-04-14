@@ -8,13 +8,13 @@
 | --- | --- | --- |
 | 必需 | `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json` | 当前集角色对象池与证据回链 |
 | 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级角色表现、穿搭、场景与道具事实 |
-| 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 用户显式给旧路径时的兼容回退 |
+| 可选 | `projects/aigc/<项目名>/编导/第N集.json` | 用户显式给 legacy 路径时的兼容回退 |
 | 必需 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
 | 必需 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段角色侧约束 |
-| 必需 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
+| 必需 | `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md` | 项目级审美底座 |
 | 必需 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
-| 可选 | `projects/aigc/<项目名>/2-Global/导演意图.md` | 当前集、当前组的导演人物指导 |
-| 可选 | `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/第N集.json` | 场景兼容性上下文包 |
+| 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` 中 `分镜组列表[].组间设计.导演意图` | 当前集、当前组的导演人物指导 |
+| 可选 | `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json` | 场景兼容性上下文包 |
 | 可选 | `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json` | 道具兼容性上下文包 |
 | 可选 | `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/*` | 已有角色设计稿，供增量 patch 使用 |
 

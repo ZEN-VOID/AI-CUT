@@ -5,10 +5,22 @@
 ```json
 {
   "meta": {
+    "schema_version": "aigc/design-prop-design/v1",
+    "skill_id": "aigc-design-prop-design",
     "project_name": "项目名",
     "episode_id": "第1集",
-    "skill_id": "aigc/4-Design/道具/2-设计",
-    "source_bridge": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json"
+    "primary_input": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+    "source_inputs": [
+      "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+      "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具研究.json",
+      "projects/aigc/项目名/3-Detail/第1集.json",
+      "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具清单.json"
+    ],
+    "source_bridge": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+    "source_research": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具研究.json",
+    "source_detail": "projects/aigc/项目名/3-Detail/第1集.json",
+    "source_catalog": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具清单.json",
+    "generated_at": "2026-04-14T10:00:00-07:00"
   },
   "props": [
     {
@@ -64,7 +76,21 @@
 
 ```json
 {
-  "meta": {},
+  "meta": {
+    "schema_version": "aigc/design-prop-design-prompt/v1",
+    "skill_id": "aigc-design-prop-design",
+    "project_name": "项目名",
+    "episode_id": "第1集",
+    "primary_input": "projects/aigc/项目名/4-Design/道具/2-设计/第1集/道具设计.json",
+    "source_inputs": [
+      "projects/aigc/项目名/4-Design/道具/2-设计/第1集/道具设计.json",
+      "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+      "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具研究.json",
+      "projects/aigc/项目名/3-Detail/第1集.json"
+    ],
+    "source_design_master": "projects/aigc/项目名/4-Design/道具/2-设计/第1集/道具设计.json",
+    "generated_at": "2026-04-14T10:00:00-07:00"
+  },
   "props": [
     {
       "prop_id": "prop-001",
@@ -90,20 +116,34 @@
 
 ```json
 {
-  "meta": {},
-  "inputs": {},
-  "outputs": {},
+  "status": "completed",
+  "episode_id": "第1集",
+  "input_file": "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+  "output_dir": "projects/aigc/项目名/4-Design/道具/2-设计/第1集",
+  "output_files": [
+    "projects/aigc/项目名/4-Design/道具/2-设计/第1集/道具设计.json",
+    "projects/aigc/项目名/4-Design/道具/2-设计/第1集/prop_design_prompt.json",
+    "projects/aigc/项目名/4-Design/道具/2-设计/第1集/_manifest.json"
+  ],
+  "source_inputs": [
+    "projects/aigc/项目名/4-Design/道具/1-清单/第1集/prop_design_bridge.json",
+    "projects/aigc/项目名/4-Design/道具/1-清单/第1集/道具研究.json",
+    "projects/aigc/项目名/3-Detail/第1集.json"
+  ],
   "selected_agents": [],
-  "coverage": {
+  "statistics": {
     "prop_count": 0,
     "special_narrative_prop_count": 0,
     "has_design_master": true,
     "has_prompt_sidecar": true
   },
   "path_normalization": {
-    "requested_output_root": "",
-    "canonical_output_root": ""
-  }
+    "requested_output_root": "projects/aigc/项目名/4-Design/道具/2-设计/第1集",
+    "canonical_output_root": "projects/aigc/项目名/4-Design/道具/2-设计/第1集"
+  },
+  "notes": [
+    "canonical business truth 是 `道具设计.json`；`prop_design_prompt.json` 与 `_manifest.json` 都是派生 sidecar。"
+  ]
 }
 ```
 

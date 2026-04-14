@@ -320,21 +320,22 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 根因优先（强制）
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
-- 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的专项细则模块、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本。
+- 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的专项细则模块、`references/` 下的类型化/模式化模块、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本。
+- 源层诊断不仅要看“写了什么规则”，还要看“规则要求如何思考与如何执行”：凡 `SKILL.md` 或 `references/` 中存在思维·执行节点、思维链细则、执行流程节点、判断分叉、tie-break、字段思考顺序、聚合/回写顺序等设计，均应视为可追因、可优化的源层合同。
 - 源层追踪必须分层进行：不得停在第一个局部原因，必须继续上溯直到识别治理该行为的规则源。
 - 非平凡问题的强制追因链为：
   - `Symptom/Failure` -> `Direct Technical Cause` -> `Rule Source`（skill / runbook / template / script gate）-> `Meta Rule Source`（meta-AGENT / meta-SKILL / global policy）-> `Fix Landing Points`
-- `Rule Source` 通常包括：任务级 `SKILL.md`、专项细则模块、命令 runbook、阶段模板、验证脚本与执行入口。
+- `Rule Source` 通常包括：任务级 `SKILL.md`、专项细则模块、`references/` 类型化模块、思维·执行节点设计、命令 runbook、阶段模板、验证脚本与执行入口。
 - `Meta Rule Source` 通常包括：仓库 `AGENTS.md`、`.codex/skills/meta/*/SKILL.md` 以及其他跨技能治理合同。
 - 如果诊断无法上溯到 meta 层工件，必须明确说明为什么没有更高层治理合同。
 - 对每个问题，都应给出简洁修复建议，包括：根因位置、立即修复、系统预防修复。
-- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、专项细则模块、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
+- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、专项细则模块、`references/`、思维·执行节点、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
 - 如果执行被阻塞，必须立即暂停下游动作，先完成分层追因与源层修复/增强，再恢复任务。
 - 优先修复产生该错误模式的规则或脚本，使同类问题在后续运行中不再重复。
 - 每一个非平凡修复都应视为一次源层增强机会：不仅要修症状，也要补强源层合同，降低类似问题再次发生的概率。
 - 如果在工作中发现更优的执行路径或工作流，且源层重构风险可控，则允许在继续下游工作前优先完成源层优化。
 - 如果优化的安全性、范围或预期收益不够明确，应先按 `PRPs/README.md` 记录为 `PRP`，再沿当前最安全路径继续工作，等待人工确认。
-- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、或在 `SKILL.md` / runbook 中补强合同说明。
+- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、在 `references/` 中补强类型化模块与决策表、或在 `SKILL.md` / `references/` 中重写失效的思维·执行节点与合同说明。
 - 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新。
 - 如果增强被权限、外部依赖或范围限制阻塞，必须显式报告阻塞项与临时防护措施。
 
@@ -364,8 +365,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 **负向触发**：当出现以下任一情况时自动触发：用户报告问题、运行失败、任务实践/测试阻塞（包括 `SKILL` 执行、dry-run 与 `pytest` 回归）、失败后返工、或用户明确要求修正。
 
 - 无需额外等待用户提示，必须自动执行以下流程：
-  1. 源层诊断（分层上溯）：从症状追到直接原因，再追到 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）。
-  2. 立即修复 + 增强：优先修补最高杠杆的源层工件（规则 / 脚本 / runbook / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
+  1. 源层诊断（分层上溯）：从症状追到直接原因，再追到 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）；诊断时必须按需联查 `references/` 类型化模块与 `SKILL.md` / `references/` 中的思维·执行节点。
+  2. 立即修复 + 增强：优先修补最高杠杆的源层工件（规则 / 脚本 / runbook / `references/` / 思维·执行节点 / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
   3. 上下文沉淀：更新受影响技能的 `CONTEXT.md`（若缺失则创建）；优先把结论化经验写入 Type Map / Playbook / Reusable Heuristics，若需保留里程碑细节，则外置到 `CHANGELOG.md` 或 `reports/`。
   4. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / runbook -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
   5. 面向用户的闭环输出：必须返回三元组 `root cause location + immediate fix + systemic prevention fix`，并附上分层追踪路径 `symptom -> rule source -> meta rule source`。
@@ -425,8 +426,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 以下内容应写入共享模块文件 / `templates/` / spec / schema（专项细则层）：
 
   - 可独立升级、但仍受主合同约束的专项细则模块
-  - 思维链细则、执行流程细则、类型化处理 / 模式化策略、输出模板等长细则
+  - `references/` 下的类型化处理 / 模式化策略模块，以及其他可独立回指的专项细则
+  - 思维·执行节点设计、思维链细则、执行流程细则、判断分叉、输出模板等长细则
   - 同一技能的多类型化 / 多模式化若属于执行前必须遵守的工作台，应优先落到主合同显式指定的规范模块，而不是放进 `CONTEXT.md`
+  - 若某项问题根因来自错误的思考顺序、判断节点、聚合节点、回写节点或类型路由，应优先在对应 `references/` / spec / schema / module 中修复，而不是只在局部产物层面兜底
   - 一旦某模块已成为 canonical module，主 `SKILL.md` 与其他文档应回链该模块，而不是平行复制同一套长说明
 - 以下内容应写入 `CONTEXT.md`（经验层）：
 
@@ -480,6 +483,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - Agent 规则文档是第一类源层工件，而不只是人格包装。
 - 对多子智能体 skill，agent 源层优化至少联查三处回指：父 skill 的 topology / handoff / synthesis 说明、`team.md` 的 team 级调用规则、agent doc 的局部边界与输出合同。
+- 若 agent 或父 skill 还显式依赖 `references/`、类型化模块、思维·执行节点说明、decision table 或 handoff node spec，源层优化必须把这些载体纳入联查与修复范围，不得只停留在 agent 主文档正文。
 - 如果某个问题受 agent 自身合同约束，且该 agent 没有专用 `CONTEXT.md`，则应直接在 agent 规则文档中修复稳定规则，而不是等待外部经验层。
 - 若某次修复触及父 skill、`team.md` 或单个 agent doc 中任一层，必须同步核对其余受影响层；未联查或未同步说明，视为源层闭环不完整。
 - 直接修改 agent 规则文档时，应优先覆盖以下内容：

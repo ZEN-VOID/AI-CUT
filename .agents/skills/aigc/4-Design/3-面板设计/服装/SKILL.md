@@ -72,13 +72,14 @@ governance_tier: full
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/4-Design/服装/SKILL.md + CONTEXT.md`
-5. 本 `SKILL.md + CONTEXT.md`
-6. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
-7. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
-8. `templates/服装面板-提示词.json`
-9. `references/output-template.md`
-10. `scripts/generate_costume_panels.py`
+4. `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/2-主体设计/服装/SKILL.md + CONTEXT.md`
+6. 本 `SKILL.md + CONTEXT.md`
+7. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/服装设计.json`
+8. `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/costume_design_prompt.json`
+9. `templates/服装面板-提示词.json`
+10. `references/output-template.md`
+11. `scripts/generate_costume_panels.py`
 
 ## Shared Canonical Sources (Mandatory)
 
@@ -359,11 +360,12 @@ graph LR
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/服装/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/服装/3-面板/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/服装/3-面板/templates/服装面板-提示词.json`
-  - `.agents/skills/aigc/4-Design/服装/3-面板/scripts/generate_costume_panels.py`
+  - `.agents/skills/aigc/4-Design/3-面板设计/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/服装/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/服装/templates/服装面板-提示词.json`
+  - `.agents/skills/aigc/4-Design/3-面板设计/服装/scripts/generate_costume_panels.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/服装/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/服装/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/服装/SKILL.md`
+  - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`

@@ -13,7 +13,7 @@
 | 必需 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 镜头级穿搭与动作证据 |
 | 必需 | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 项目级世界观、风格与目标 |
 | 必需 | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段服装侧约束 |
-| 必需 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级审美底座 |
+| 必需 | `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md` | 项目级审美底座 |
 | 必需 | `projects/aigc/<项目名>/2-Global/类型元素.md` | 类型化导演协议 |
 | 可选 | `projects/aigc/<项目名>/4-Design/服装/2-设计/第N集/*` | 已有服装设计稿，供增量 patch 使用 |
 

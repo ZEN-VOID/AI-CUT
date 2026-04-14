@@ -14,3 +14,11 @@
 - 提示历史读者回跳主合同
 
 如需执行真源，请返回 `../SKILL.md`。
+
+如需 sibling 共享的输入消费合同，请回跳：
+
+- `../../_shared/detail-output-consumption-contract.md`
+
+如需 sibling 共享的对象归一原则，请回跳：
+
+- `../../_shared/object-normalization-contract.md`

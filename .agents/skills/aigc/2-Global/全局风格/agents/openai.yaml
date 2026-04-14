@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 2-Global 全局风格"
-  short_description: "以 3-分组 为主输入、0-Init 为附加上下文，收束全剧级画面风格设计。"
-  default_prompt: "Use $aigc-global-style to read `projects/aigc/<项目名>/1-Planning/3-分组/` as the primary evidence layer, load `projects/aigc/<项目名>/0-Init/` only as supporting context, abstract 2-4 masterwork inspiration anchors into reusable visual mechanisms rather than surface imitation, write the canonical series-level style design to `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`, and end the document with one globally reusable Chinese style-prefix prompt under 150 characters."

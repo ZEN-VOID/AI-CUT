@@ -125,7 +125,7 @@ governance_tier: full
 ### CLI 合同
 
 ```bash
-python3 .agents/skills/aigc/4-Design/场景/3-面板/scripts/generate_scene_panels.py \
+python3 .agents/skills/aigc/4-Design/3-面板设计/场景/scripts/generate_scene_panels.py \
   --project "<项目名>" \
   --episode "第1集"
 ```
@@ -665,13 +665,13 @@ erDiagram
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/3-面板/SKILL.md`
-  - `.agents/skills/aigc/4-Design/场景/3-面板/CONTEXT.md`
-  - `.agents/skills/aigc/4-Design/场景/3-面板/templates/scene-panel-layout.template.json`
-  - `.agents/skills/aigc/4-Design/场景/3-面板/scripts/generate_scene_panels.py`
+  - `.agents/skills/aigc/4-Design/3-面板设计/场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/场景/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/场景/templates/scene-panel-layout.template.json`
+  - `.agents/skills/aigc/4-Design/3-面板设计/场景/scripts/generate_scene_panels.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/场景/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-主体设计/场景/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/场景/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
@@ -685,11 +685,14 @@ erDiagram
 
 ## Context Preload (Mandatory)
 
-1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-2. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/4-Design/场景/SKILL.md + CONTEXT.md`
-4. 本 `SKILL.md + CONTEXT.md`
-5. 按需读取：
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/2-主体设计/场景/SKILL.md + CONTEXT.md`
+6. 本 `SKILL.md + CONTEXT.md`
+7. `.agents/skills/aigc/4-Design/1-主体清单/场景/SKILL.md + CONTEXT.md`（按需回看）
+8. 按需读取：
    - `templates/scene-panel-layout.template.json`
    - `scripts/generate_scene_panels.py`
    - `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/场景设计.json`
@@ -697,7 +700,7 @@ erDiagram
 
 优先级：
 
-`用户显式请求 > 根 AGENTS.md > aigc 根技能 > 4-Design 父级 > 1-场景 父级 > 本 SKILL.md > 各级 CONTEXT.md`
+`用户显式请求 > 根 AGENTS.md > aigc 根技能 > 4-Design 阶段父级 > 3-面板设计 tranche 父级 > 4-Design/2-主体设计/场景 上游技能 > 本 SKILL.md > 各级 CONTEXT.md`
 
 ## Completion Criteria
 

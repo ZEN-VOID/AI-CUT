@@ -5,7 +5,7 @@
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
+- `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
 - `projects/aigc/<项目名>/2-Global/类型元素.md`（若存在）
 
 ## Default Outputs
@@ -17,18 +17,18 @@
 ## CLI
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
+python3 .agents/skills/aigc/4-Design/2-主体设计/道具/scripts/run_prop_design_pipeline.py \
   --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
   --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
   --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \
-  --global-style "projects/aigc/<项目名>/2-Global/全局风格.md" \
+  --global-style "projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md" \
   --type-elements "projects/aigc/<项目名>/2-Global/类型元素.md"
 ```
 
 ## Dry Run
 
 ```bash
-python3 .agents/skills/aigc/4-Design/道具/2-设计/scripts/run_prop_design_pipeline.py \
+python3 .agents/skills/aigc/4-Design/2-主体设计/道具/scripts/run_prop_design_pipeline.py \
   --bridge "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json" \
   --research "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json" \
   --detail "projects/aigc/<项目名>/3-Detail/第N集.json" \

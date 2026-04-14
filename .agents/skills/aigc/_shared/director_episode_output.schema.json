@@ -363,6 +363,7 @@
         "总时长",
         "剧本正文",
         "组间设计",
+        "分镜切换",
         "分镜明细"
       ],
       "properties": {
@@ -384,22 +385,32 @@
           "required": [
             "全局风格",
             "类型元素",
+            "导演意图",
             "出场角色及穿搭"
           ],
           "properties": {
             "全局风格": {
               "type": "string",
-              "description": "由 2-Global 直接引用 `全局风格.md` 中字段标题 `全局风格` 的项目级无污染统一风格前缀，默认不超过 220 字。"
+              "description": "由 2-Global 直接引用 `全局风格/全局风格设计.md` 中字段标题 `全局风格` 的项目级无污染统一风格前缀，默认不超过 220 字。"
             },
             "类型元素": {
               "type": "string",
-              "description": "由 2-Global 直接引用 `类型元素.md` 中命中组字段标题 `类型元素` 的组级类型信号，默认不超过 50 字。"
+              "description": "由 2-Global 直接引用 `类型元素/分组设计.md` 中命中组字段标题 `类型元素` 的组级类型信号，默认不超过 50 字。"
+            },
+            "导演意图": {
+              "type": "string",
+              "description": "由 2-Global 直接引用 `设计元素/设计元素.md` 中命中组字段标题 `导演意图` 的组级执行导向，默认不超过 100 字。"
             },
             "出场角色及穿搭": {
               "type": "string",
               "description": "组级角色服装摘要槽；格式建议为 `角色名-服装简述`，多个角色用 `；` 分隔。`2-Global` 可先留空字符串占位，`3-Detail` 在镜级明细稳定后应回填。"
             }
           }
+        },
+        "分镜切换": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "由 `2-Global` 在阶段末段直接写入的组级固定分镜数。它是该组后续 `3-Detail` 落镜时必须接受的总导演真值，不再在 `水月` 或 `镜花` 内重判。"
         },
         "分镜明细": {
           "type": "array",
@@ -412,6 +423,7 @@
     },
     "shot_detail": {
       "type": "object",
+      "description": "镜级 final factual 槽位。`3-Detail/水月` 先产 beat-level factual evidence，`镜花` 再基于既定 `分镜切换 + beat_refs[]` 落出 shot skeleton；父层将两者合成为这些 canonical 字段，不得把内部链名直接投影为并列输出字段。",
       "additionalProperties": false,
       "required": [
         "分镜ID",
@@ -460,7 +472,8 @@
           "type": "string"
         },
         "分镜表现": {
-          "type": "string"
+          "type": "string",
+          "description": "镜级最终视觉抓手槽；只保留可被镜头直接消费的结果，不回显内部分析链名或并列思考维度。"
         },
         "景别": {
           "type": "string",
@@ -497,6 +510,219 @@
           "description": "非必须；仅在该镜头需要显式转场或特效桥接时填写。"
         }
       }
+    },
+    "detail_patch_sidecar": {
+      "type": "object",
+      "description": "`3-Detail` 子技能 sidecar 投影定义。唯一真源已收束到当前 schema：`水月` 负责 group/beat factual evidence，`镜花` 负责 shot skeleton 与 cinematic patch；父层负责 merge 回 canonical `final_output.main_content.分镜组列表[]`。",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "group_patches"
+      ],
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "skill_id",
+            "episode_id",
+            "patch_owner",
+            "source_root",
+            "script_body_policy",
+            "generated_at"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "string",
+              "const": "aigc/detail-patch-sidecar/v1"
+            },
+            "skill_id": {
+              "type": "string"
+            },
+            "episode_id": {
+              "type": "string"
+            },
+            "patch_owner": {
+              "type": "string",
+              "enum": [
+                "水月",
+                "镜花"
+              ]
+            },
+            "source_root": {
+              "type": "string"
+            },
+            "script_body_policy": {
+              "type": "string",
+              "const": "inherit_only"
+            },
+            "generated_at": {
+              "type": "string"
+            }
+          }
+        },
+        "group_patches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/detail_group_patch"
+          }
+        }
+      }
+    },
+    "detail_group_patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group_id",
+        "target_fields"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string"
+        },
+        "target_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "group_design_patch": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "出场角色及穿搭": {
+              "type": "string"
+            }
+          }
+        },
+        "beat_patches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/detail_beat_patch"
+          }
+        },
+        "shot_patches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/detail_shot_patch"
+          }
+        },
+        "merge_hints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "detail_beat_patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "beat_id",
+        "anchor_summary",
+        "角色背景面",
+        "角色站位走位",
+        "道具及状态",
+        "镜头消费提示"
+      ],
+      "properties": {
+        "beat_id": {
+          "type": "string"
+        },
+        "anchor_summary": {
+          "type": "string"
+        },
+        "角色背景面": {
+          "type": "string"
+        },
+        "角色站位走位": {
+          "type": "string"
+        },
+        "道具及状态": {
+          "type": "string"
+        },
+        "镜头消费提示": {
+          "type": "string"
+        }
+      }
+    },
+    "detail_shot_patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot_id",
+        "分镜ID",
+        "beat_refs",
+        "时间段",
+        "景别",
+        "镜头属性",
+        "镜头框架",
+        "镜头类型",
+        "镜头视角",
+        "运镜手法",
+        "摄影美学"
+      ],
+      "properties": {
+        "slot_id": {
+          "type": "string"
+        },
+        "分镜ID": {
+          "type": "string"
+        },
+        "beat_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "时间段": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "开始秒",
+            "结束秒"
+          ],
+          "properties": {
+            "开始秒": {
+              "type": "number",
+              "minimum": 0
+            },
+            "结束秒": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "景别": {
+          "type": "string"
+        },
+        "镜头属性": {
+          "type": "string"
+        },
+        "镜头框架": {
+          "type": "string"
+        },
+        "镜头类型": {
+          "type": "string"
+        },
+        "镜头视角": {
+          "type": "string"
+        },
+        "运镜手法": {
+          "type": "string"
+        },
+        "镜头速度": {
+          "type": "string"
+        },
+        "摄影美学": {
+          "type": "string"
+        },
+        "转场特效": {
+          "type": "string"
+        }
+      }
     }
   },
   "examples": [
@@ -523,12 +749,13 @@
                 "类型元素": "悬疑压迫优先，克制抒情。",
                 "出场角色及穿搭": ""
               },
+              "分镜切换": 3,
               "分镜明细": []
             }
           ]
         },
         "acceptance_notes": [
-          "2-Global 阶段允许先写完整分镜组壳与组间设计，分镜明细可暂为空数组。",
+          "2-Global 阶段允许先写完整分镜组壳、组间设计与既定分镜切换，分镜明细可暂为空数组。",
           "3-Detail 必须优先继承这三条组级上下文，再补镜级字段。"
         ]
       }
@@ -556,6 +783,7 @@
                 "类型元素": "悬疑压迫感优先，避免抒情化稀释。",
                 "出场角色及穿搭": "角色A-深灰风衣与黑色长靴；角色B-浅色衬衫外搭旧西装"
               },
+              "分镜切换": 3,
               "分镜明细": [
                 {
                   "分镜ID": "1-1-1-1",

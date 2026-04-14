@@ -13,15 +13,18 @@ governance_tier: full
 本次重构采用 `$skill-知行合一` 的单技能真源口径，并显式关闭“复杂链路的骨架 / 细则分层”：
 
 - `复杂链路的骨架 / 细则分层`：`false`
-- canonical source：仅本 `SKILL.md`
+- canonical source：`SKILL.md + prompt-assembly-spec.md`
+- `SKILL.md` 持有门禁、桥段提取、节点网、验收与返工入口
+- `prompt-assembly-spec.md` 持有组级桥接句、镜级 `P1/P2/P3` 槽位、`tight/ultra` 压缩与 `转场特效` 可选挂句
+- 跨兄弟叶子共享的 `图生视频` 句法总原则回指 `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`；本地 spec 只负责单镜 specialization
 - 保留现有业务机制、模板依赖、字段主表、三件套落点与 fallback 规则
-- 不再把思维链、执行流、类型策略与输出契约拆散到平行载体
+- 不再把思维链、执行流、类型策略与输出契约拆散到平行载体，也不再把句法硬编码散落在脚本函数体
 
 交付类型：`内容输出型`
 
 ## When To Use
 
-- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，生成帧级视频请求对象。
+- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，且该 episode root 已满足 `metadata.document_phase=ready`，生成帧级视频请求对象。
 - 需要把目标分镜所属组的 `剧本正文` 裁切为对应分镜帧的剧情桥段，而不是直接照搬整组剧情。
 - 需要原文保留 `组间设计.全局风格`，同时压缩 `组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭` 与目标镜级字段。
 - 需要把目标分镜 `时间段.开始秒 / 结束秒` 落成当前分镜组内的 `xx秒-xx秒` 时间锚点，并直接接在 `分镜 <ID>` 后，不写成 `分镜 <ID> 的 xx秒-xx秒`。
@@ -34,6 +37,8 @@ governance_tier: full
 - 当前任务是按整个分镜组覆盖生成视频请求对象，应进入 `6-Video/1-提示词蒸馏/全能参照`。
 - 当前任务是正式提交 provider、轮询结果或下载视频，应进入 `6-Video/2-视频生成` 或命中的 provider 技能。
 - 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表[]`，或目标 `分镜ID` 不存在。
+- 上游 `3-Detail/第N集.json` 仍处于 `bootstrapped` 或 `detail_in_progress`。
+- 目标分镜所属组的 `分镜切换` 与 `分镜明细[]` 数量未对齐，说明 `3-Detail` merge/handoff 仍未稳定。
 - 任务要求把多个 `分镜ID` 混成一条请求；本技能只处理“一镜一条”。
 - 当前任务要求上传、选择或伪造真实参照图；本技能只保留图片字段骨架，不处理真实图片资产。
 
@@ -67,6 +72,7 @@ governance_tier: full
 
 - 上游对象：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - 关键结构：`final_output.main_content.分镜组列表[]`
+- handoff gate：`metadata.document_phase=ready`，且目标分镜所属组满足 `分镜切换 == len(分镜明细[])`
 - 关键组级字段：`分镜组ID`、`剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭`
 - 关键镜级字段：目标 `分镜明细` 下的 `分镜ID`、`时间段.开始秒 / 结束秒`、`角色背景面`、`角色站位走位`、`景别`、`运镜手法`、`镜头视角`，以及存在时的 `镜头速度 / 角色表现 / 场景氛围 / 道具及状态 / 摄影美学 / 镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`
 - 输出对象：`meta + prompt_style + model + prompt + prompt_char_count`
@@ -107,8 +113,9 @@ governance_tier: full
 ### Canonical Inputs
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/validation-report.md`（若存在，作为 handoff 辅助证据）
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- 按需：`.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
+- 按需：`.agents/skills/aigc/3-Detail/SKILL.md`
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/CONTEXT.md`
 - `.agents/skills/aigc/6-Video/SKILL.md`
@@ -119,12 +126,16 @@ governance_tier: full
 
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
 - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
+- `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
+- `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/prompt-assembly-spec.md`
 
 ### 必需字段
 
 - `final_output.main_content.分镜组列表[]`
+- `metadata.document_phase = ready`
 - 目标 `分镜ID`
 - 目标分镜所属 `分镜组ID`
+- 目标分镜所属组的 `分镜切换`
 - 所属组的 `剧本正文`
 - 所属组的 `组间设计.全局风格`
 - 所属组的 `组间设计.类型元素`
@@ -155,18 +166,21 @@ governance_tier: full
 ### 输入处理原则
 
 1. 一切剧情与镜头事实以上游 `3-Detail/第N集.json` 为准。
-2. `全局风格` 只允许原文直贴，不做净化、重命名或压缩。
-3. `剧情桥段` 只负责把组级剧本切成目标帧可见事实，不负责重写剧情。
-4. `时间段` 只允许使用目标分镜所在组内的相对秒位，不得回退成全集累积时间线，也不得改写成模糊时间语。
-5. 图片字段只保留共享模板骨架，不准编造真实图片信息。
+2. 只有 `metadata.document_phase=ready` 且目标分镜所属组 `分镜切换 == len(分镜明细[])` 时，才允许首帧蒸馏继续。
+3. `全局风格` 只允许原文直贴，不做净化、重命名或压缩。
+4. `剧情桥段` 只负责把组级剧本切成目标帧可见事实，不负责重写剧情。
+5. `时间段` 只允许使用目标分镜所在组内的相对秒位，不得回退成全集累积时间线，也不得改写成模糊时间语。
+6. 图片字段只保留共享模板骨架，不准编造真实图片信息。
 
 ### 输入完整性门禁
 
 以下任一缺失都必须停机并回报上游缺口：
 
 - `分镜组列表[]` 缺失
+- `metadata.document_phase` 不是 `ready`
 - 目标 `分镜ID` 不存在
 - 无法锁定所属 `分镜组ID`
+- 目标分镜所属组 `分镜切换` 与 `分镜明细[]` 数量不一致
 - 目标组缺 `剧本正文`
 - 目标组缺 `组间设计.全局风格`
 - 目标组缺 `组间设计.类型元素`、`组间设计.导演意图` 或 `组间设计.出场角色及穿搭`
@@ -247,7 +261,7 @@ flowchart LR
     E --> F{{"budget_state"}}
     F -->|"normal"| G["连贯自然句覆盖 P1+P2+P3"]
     F -->|"tight"| H["先压 P3 再压 P2，必要时局部短语化"]
-    F -->|"underflow"| I["保守低于下限并保持自然句"]
+    F -->|"within_limit"| I["保持自然句并保留当前分镜细节密度"]
 ```
 
 ```mermaid
@@ -284,8 +298,8 @@ stateDiagram-v2
   - 非固定块保持连贯自然句，并尽量覆盖 `P1 + P2 + P3`，把单分镜剩余预算优先转化为当前镜头的细节密度
 - `budget_state=tight`
   - 先压 `P3` 再压 `P2`；仅这一档允许局部短语化，`P1` 继续保持清晰可辨
-- `budget_state=underflow`
-  - 保守保真，允许低于目标下限，但必须在 manifest 中说明原因，且仍保持自然句表达；如仍有安全余量，优先补足当前分镜细节而不是空泛修辞
+- `budget_state=within_limit`
+  - 在不超过上限的前提下保持自然句表达，并优先把余量转成当前分镜的动作、空间、镜头控制与氛围细节
 
 ### 回退门
 
@@ -337,15 +351,17 @@ stateDiagram-v2
   1. episode root 是否存在
   2. shared schema 是否明确
   3. JSON/TXT 共享模板是否齐备
-  4. 上游 `3-Detail` 是否已把 `时间段` 固定为组内相对秒位，并允许 `镜头速度` 作为可选镜级槽
-  5. 上下文加载顺序是否正确
+  4. 上游 `3-Detail` 是否已经到 `document_phase=ready`
+  5. 上游 `3-Detail` 是否已把 `时间段` 固定为组内相对秒位，并允许 `镜头速度` 作为可选镜级槽
+  6. 上下文加载顺序是否正确
 - `actions`:
   1. 读取 episode root
   2. 读取 `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-  3. 按需对照 `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`，确认 `时间段.开始秒 / 结束秒` 为当前分镜组内相对秒位，且 `镜头速度` 是可选新槽位
-  4. 读取共享 JSON/TXT 模板，并锁定其中“自然句优先、`tight` 才局部短语化、禁用 `分镜 <ID> 的 xx秒-xx秒`”的模板语义
-  5. 记录可用输入清单与路径合法性
-- `evidence`: 输入清单、模板路径、schema/模板就绪结论、上游时间/模板口径确认
+  3. 对照 `.agents/skills/aigc/3-Detail/SKILL.md`，确认 `document_phase=ready` 与 `分镜切换 -> 分镜明细[]` 的 handoff gate 已满足
+  4. 若存在，读取 `projects/aigc/<项目名>/3-Detail/validation-report.md` 作为阶段辅助证据
+  5. 读取共享 JSON/TXT 模板，并锁定其中“自然句优先、`tight` 才局部短语化、禁用 `分镜 <ID> 的 xx秒-xx秒`”的模板语义
+  6. 记录可用输入清单与路径合法性
+- `evidence`: 输入清单、模板路径、schema/模板就绪结论、上游 phase/handoff/时间口径确认
 - `route_out`: 真源齐备进入 `N2`；缺任一关键真源则失败退出
 - `gate`: 缺 root file、shared schema 或共享模板时，不得假继续
 
@@ -364,8 +380,8 @@ stateDiagram-v2
   2. 锁定 `group_id`、目标 `shot`、组级上下文字段
   3. 建立 `meta.source_shot_ids=[目标分镜ID]`
   4. 记录目标分镜 `时间段.开始秒 / 结束秒`，作为后续 `xx秒-xx秒` 时间锚点
-  5. 记录组级总镜头数，供后续桥段判型
-- `evidence`: 唯一命中结果、`group_id`、目标镜头上下文、组内镜头统计、目标时间锚点
+  5. 记录组级总镜头数，并校验 `分镜切换 == len(分镜明细[])`
+- `evidence`: 唯一命中结果、`group_id`、目标镜头上下文、组内镜头统计、目标时间锚点、组级镜数对齐结论
 - `route_out`: 唯一命中进入 `N3`；缺失或多命中则触发 `FAIL-VID-FFR-01`
 - `gate`: 不允许在分镜定位冲突时继续裁桥段
 
@@ -380,11 +396,13 @@ stateDiagram-v2
   3. 哪些缺口会直接阻断，哪些只会进入风险备注
 - `actions`:
   1. 校验 `剧本正文 / 全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`
-  2. 校验目标分镜是否具备 `分镜ID / 时间段.开始秒 / 时间段.结束秒 / 角色背景面 / 角色站位走位 / 景别 / 运镜手法 / 镜头视角`
-  3. 若 `镜头速度 / 角色表现 / 场景氛围 / 道具及状态 / 摄影美学 / 镜头属性 / 镜头框架 / 镜头类型 / 分镜表现` 缺失，则登记为 `soft risk`
-  4. 确认 `时间段` 使用的是当前分镜组内相对秒位，而不是全集累积时间线
-  5. 统计缺口并区分 `hard block` 与 `soft risk`
-  6. 对 hard block 直接停止，不做“尽量像”
+  2. 校验上游 `metadata.document_phase = ready`
+  3. 校验目标分镜所属组 `分镜切换 == len(分镜明细[])`
+  4. 校验目标分镜是否具备 `分镜ID / 时间段.开始秒 / 时间段.结束秒 / 角色背景面 / 角色站位走位 / 景别 / 运镜手法 / 镜头视角`
+  5. 若 `镜头速度 / 角色表现 / 场景氛围 / 道具及状态 / 摄影美学 / 镜头属性 / 镜头框架 / 镜头类型 / 分镜表现` 缺失，则登记为 `soft risk`
+  6. 确认 `时间段` 使用的是当前分镜组内相对秒位，而不是全集累积时间线
+  7. 统计缺口并区分 `hard block` 与 `soft risk`
+  8. 对 hard block 直接停止，不做“尽量像”
 - `evidence`: 输入体检结论、缺口清单、阻断/风险分类
 - `route_out`: 通过进入 `N4`；失败触发 `FAIL-VID-FFR-01`
 - `gate`: 缺失硬字段时不得继续
@@ -432,7 +450,7 @@ stateDiagram-v2
 - `着手方面`:
   1. 哪些内容属于 `P0` 固定/核心块
   2. 哪些内容属于 `P1/P2/P3`，以及压缩优先级如何执行
-  3. 当前预算压力是 `normal`、`tight` 还是 `underflow`
+  3. 当前预算压力是 `normal` 还是 `tight`
 - `actions`:
   1. 冻结 `剧情桥段 + 全局风格` 作为 `P0`
   2. 估算 `P0` 后的剩余空间
@@ -515,9 +533,9 @@ stateDiagram-v2
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| V-VID-FFR-01 | 输入 | 目标分镜结构是否完整 | `ready/incomplete` | 检查 `分镜组ID / 剧本正文 / 组间设计（含出场角色及穿搭） / 目标分镜明细（含时间段开始秒/结束秒、角色背景面/角色站位走位/景别/运镜手法/镜头视角，若存在则含镜头速度）` | P0 |
+| V-VID-FFR-01 | 输入 | 目标分镜 handoff 是否已稳定可消费 | `ready/incomplete` | 检查 `metadata.document_phase=ready`，目标分镜所属组 `分镜切换 == len(分镜明细[])`，且 `分镜组ID / 剧本正文 / 组间设计（含出场角色及穿搭） / 目标分镜明细（含时间段开始秒/结束秒、角色背景面/角色站位走位/景别/运镜手法/镜头视角，若存在则含镜头速度）` 成立 | P0 |
 | V-VID-FFR-02 | 桥段判定 | `剧本正文` 与目标分镜的对应清晰度 | `single_shot/direct_match/ambiguous` | 结合组内分镜数、时间段与动作状态 | P0 |
-| V-VID-FFR-03 | 字数预算 | 非固定字段压缩压力 | `normal/tight/underflow` | 估算 `剧情桥段 + 全局风格` 后的剩余字数；除 `tight` 外默认保持连贯自然语句 | P1 |
+| V-VID-FFR-03 | 字数预算 | 非固定字段压缩压力 | `normal/tight` | 估算 `剧情桥段 + 全局风格` 后的剩余字数；只要不超过 1900 字就保持连贯自然语句，仅在超限风险下进入 `tight` | P1 |
 
 ### Case To Strategy Map
 
@@ -527,9 +545,8 @@ stateDiagram-v2
 | C-VID-FFR-02 | `V-VID-FFR-02=single_shot` | 直接使用整段 `剧本正文` 作为剧情桥段 | 桥段与目标分镜天然一一对应 | 无 |
 | C-VID-FFR-03 | `V-VID-FFR-02=direct_match` | 提取与目标分镜直接对应的剧情桥段 | 不引入无关分镜事实 | 无 |
 | C-VID-FFR-04 | `V-VID-FFR-02=ambiguous` | 保守压缩到目标分镜可见的最小剧情事实 | 不虚构过渡；manifest 备注原因 | 无 |
-| C-VID-FFR-05 | `V-VID-FFR-03=normal` | 用连贯自然语句压缩非固定字段，并把剩余预算优先转成当前分镜的细节密度 | `prompt_char_count` 落在目标窗附近，且 `P1` 可清晰读出，当前分镜细节不呈现稀疏缩写感 | 无 |
-| C-VID-FFR-06 | `V-VID-FFR-03=tight` | 只在预算吃紧时按 `P3 -> P2` 顺序压缩；必要时局部短语化，但继续高保留 `P1` | 固定块不动，整体仍尽量靠近目标窗，且 `分镜 <ID> xx秒-xx秒` 与 `P1` 仍清晰可辨 | 无 |
-| C-VID-FFR-07 | `V-VID-FFR-03=underflow` | 保守保真，不虚构扩写，并保持自然句；若仍有安全余量，优先补足当前分镜细节 | 允许低于下限，但 manifest 备注原因，且不以空泛修辞填充字数 | 无 |
+| C-VID-FFR-05 | `V-VID-FFR-03=normal` | 用连贯自然语句压缩非固定字段，并把剩余预算优先转成当前分镜的细节密度 | `prompt_char_count <= 1900`，且 `P1` 可清晰读出，当前分镜细节不呈现稀疏缩写感 | 无 |
+| C-VID-FFR-06 | `V-VID-FFR-03=tight` | 只在超 1900 风险下按 `P3 -> P2` 顺序压缩；必要时局部短语化，但继续高保留 `P1` | 固定块不动，整体被压回 `1900` 以内，且 `分镜 <ID> xx秒-xx秒` 与 `P1` 仍清晰可辨 | 无 |
 
 ## Convergence Contract
 
@@ -556,7 +573,7 @@ stateDiagram-v2
    - `剧情桥段` 提取依据
    - 共享模板与计数校验结果
 4. `风险 / 例外`
-   - `ambiguous` 判型、`underflow`、输入缺口或保守退化说明
+   - `ambiguous` 判型、`tight` 压缩、输入缺口或保守退化说明
 5. `下一步`
    - 继续进入 `dreamina-cli` 或 `6-Video/2-视频生成`
 
@@ -567,6 +584,15 @@ stateDiagram-v2
 - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`
 - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`
 - `projects/aigc/<项目名>/6-Video/首帧参照/第N集/_manifest.json`
+
+### Script Entrypoint
+
+- canonical runner：`.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/scripts/generate_episode_packets.py`
+- 默认以 episode 为 carrier 批量遍历命中的 `分镜ID`，把“单镜一条请求对象”聚合写回同一集的三件套。
+- 若只需单一 `分镜ID`，可使用 `--shot-id <分镜ID>` 将本叶子收束为单镜执行。
+- 标准执行命令：
+  - `python3 .agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/scripts/generate_episode_packets.py --project <项目名> --episode 第N集`
+  - `python3 .agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --shot-id <分镜ID>`
 
 ### JSON Fill Scope
 
@@ -588,7 +614,7 @@ stateDiagram-v2
 6. `全局风格` 必须原文保留，不得改写。
 7. `剧情桥段` 必须转换为对应分镜帧的剧情桥段；仅在组内只有 1 个分镜时允许整段直贴。
 8. `时间段` 必须使用当前分镜组内的 `开始秒 / 结束秒`，并写成 `分镜 <ID> xx秒-xx秒`，不得写成 `分镜 <ID> 的 xx秒-xx秒`，也不得误写成全集时间线。
-9. 默认目标字数为 `800-1200` 中文字符；若用户或父级显式给出其他范围，以显式约束覆盖。
+9. 默认目标字数上限为 `1900` 中文字符；若用户或父级显式给出其他范围，以显式约束覆盖。
 10. 除 `分镜组 <ID>` 与 `分镜 <ID>` 外，不得出现 `字段标题：字段值` 结构。
 11. 单分镜模式下，同样总字数应优先体现为当前分镜的细节丰满度；不得机械沿用组级多镜 prompt 的稀疏表达心智。
 12. 只有当预算进入 `tight` 时，才允许把部分镜级内容收束为更精炼的自然短语；其余情况下应保持连贯自然语句。
@@ -616,7 +642,7 @@ stateDiagram-v2
 
 | field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- |
-| FIELD-VID-FFR-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 以独立 `prompt_style` 声明帧级提示词约束，并锁定组级归属与单一目标 `分镜ID` | episode root、目标 shot 绑定结果 | N2-N3 | 输入覆盖完整度 | FAIL-VID-FFR-01 |
+| FIELD-VID-FFR-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 以独立 `prompt_style` 声明帧级提示词约束，锁定组级归属与单一目标 `分镜ID`，并确认上游 `document_phase=ready` 且所属组 `分镜切换 == len(分镜明细[])` | episode root、目标 shot 绑定结果 | N2-N3 | 输入覆盖完整度 | FAIL-VID-FFR-01 |
 | FIELD-VID-FFR-02 | `prompt / prompt_char_count` | prompt 必须覆盖目标分镜的剧情桥段、全局风格和压缩后的上下文；压缩块需显式覆盖 `类型元素 / 导演意图 / 出场角色及穿搭 / 目标镜级字段`，并按 `P1 高保留 / P2 重要 / P3 补充` 顺序压缩；目标镜级条目需保留当前分镜组内的 `xx秒-xx秒`，且隐藏字段标题；在单分镜模式下，同等预算应优先体现为当前分镜细节更丰满 | `剧本正文`、`组间设计.*`、目标镜级字段 | N4-N7 | Prompt 蒸馏稳定性 | FAIL-VID-FFR-02 |
 | FIELD-VID-FFR-03 | `model.reference_images / model.image_markers` | 保留共享模板中的双字段骨架；`reference_images` 不得缺失，`image_markers` 需维持 URL/主体/图号结构与顺序稳定，且不擅自填入虚构图片信息 | 共享模板、模板兼容性检查 | N7-N9 | 模板兼容性 | FAIL-VID-FFR-03 |
 | FIELD-VID-FFR-04 | `第N集.json / 第N集.txt / _manifest.json` | 三件套可追溯、可继续 handoff，且例外说明完整 | carrier 写回结果、manifest 验收项 | N8-N9 | 输出可消费性 | FAIL-VID-FFR-04 |
@@ -635,7 +661,7 @@ stateDiagram-v2
 
 | field_id | 质量维度 | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- | --- |
-| FIELD-VID-FFR-01 | 输入覆盖完整度 | `prompt_style.type / meta.shot_level` 合法，且 `group_id` 与长度为 1 的 `source_shot_ids` 同时成立 | FAIL-VID-FFR-01 | N2 |
+| FIELD-VID-FFR-01 | 输入覆盖完整度 | `prompt_style.type / meta.shot_level` 合法，`group_id` 与长度为 1 的 `source_shot_ids` 同时成立，且上游 `document_phase=ready`、所属组 `分镜切换 == len(分镜明细[])` | FAIL-VID-FFR-01 | N2 |
 | FIELD-VID-FFR-02 | Prompt 蒸馏稳定性 | prompt 满足桥段提取、固定块保留、隐藏标题与字数窗，且 `P1` 高保留项与 `分镜 <ID> xx秒-xx秒` 保持清晰可辨；非 `tight` 档不退化成碎短语清单，且当前分镜细节在同等预算下明显比组级模式更丰满 | FAIL-VID-FFR-02 | N4 |
 | FIELD-VID-FFR-03 | 模板兼容性 | 图片字段保留共享模板双字段骨架，`reference_images` 存在，`image_markers` 结构与顺序稳定且无虚构内容 | FAIL-VID-FFR-03 | N7 |
 | FIELD-VID-FFR-04 | 输出可消费性 | JSON、TXT 与 manifest 可追溯、可 handoff，且例外信息完整 | FAIL-VID-FFR-04 | N8 |
@@ -645,6 +671,8 @@ stateDiagram-v2
 最小校验清单：
 
 - `group_id`、`shot_id`、`source_shot_ids` 是否能同时回链到目标分镜
+- `metadata.document_phase` 是否已经到 `ready`
+- 目标分镜所属组是否满足 `分镜切换 == len(分镜明细[])`
 - `剧情桥段` 是否只包含目标分镜可见事实
 - `全局风格` 是否与上游逐字一致
 - `出场角色及穿搭` 是否已进入帧级 prompt 的压缩块
@@ -659,8 +687,8 @@ stateDiagram-v2
 - `prompt_char_count` 是否与实际 prompt 一致
 - `reference_images` 是否存在，`image_markers` 是否保持共享模板骨架和顺序稳定
 - `bridge_strategy` 是否与桥段提取策略一致
-- `within_target_range` 是否如实反映字数窗命中情况
-- `exception_note` 是否记录了 `underflow`、保守桥段或输入缺口
+- `within_target_range` 是否如实反映 `<= 1900` 的字数窗命中情况
+- `exception_note` 是否记录了 `tight` 压缩、保守桥段或输入缺口
 - `第N集.json / 第N集.txt / _manifest.json` 是否三件套齐全
 
 ## Handoff Contract
@@ -674,6 +702,7 @@ stateDiagram-v2
 当出现以下症状时，必须先修本子技能合同，而不是只润色 prompt：
 
 - prompt 明明是帧级任务，却直接复用了整组 `剧本正文`
+- `3-Detail` 仍处于 `bootstrapped/detail_in_progress`，或目标分镜所属组 `分镜切换` 与 `分镜明细[]` 未对齐，却被误当成稳定帧级输入
 - prompt 对应错了 `分镜ID`，或没能回链到所属 `分镜组ID`
 - `全局风格` 被改写，或 `剧情桥段` 中新增了上游没有的事实
 - prompt 没写出目标分镜所属组内的 `xx秒-xx秒`，写成了 `分镜 <ID> 的 xx秒-xx秒`，或把时间误当成全集时间线
@@ -715,7 +744,8 @@ stateDiagram-v2
 4. 按需读取：
    - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
    - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
-   - `.agents/skills/aigc/3-Detail/_shared/IO_CONTRACT.md`
+   - `.agents/skills/aigc/3-Detail/SKILL.md`
+   - `projects/aigc/<项目名>/3-Detail/validation-report.md`
    - `projects/aigc/<项目名>/3-Detail/第N集.json`
 
 优先级：

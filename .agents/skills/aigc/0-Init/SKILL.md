@@ -17,6 +17,16 @@ governance_tier: full
 - 不再依赖任何外置初始组合同作为执行真源
 - 最终只允许父 skill 写回 canonical 初始化工件
 
+## 单一真源目录合同
+
+- 本 `SKILL.md` 是 `0-Init` 的唯一规范真源。
+- `CONTEXT.md` 只承载经验层知识库，不再存放模式合同或目录真源。
+- `agents/openai.yaml` 只承载入口元数据，不得扩写执行规则。
+- `CHANGELOG.md` 只承载迁移与结构变更索引，不参与默认运行时预加载。
+- `templates/` 只保留本地模板真源；共享模板继续回指 `.agents/skills/aigc/_shared/`。
+- `复杂链路的骨架 / 细则分层 = false`；三种初始化模式的规则、节点与 gate 必须全部留在本 `SKILL.md`。
+- 已删除旧的 `references/*-mode/module-spec.md` 迁移 stub；后续不得在本目录重建平行 mode reference 真源。
+
 ## When to Use
 
 - 需要新建一个 AIGC 影视创作项目。
@@ -233,6 +243,7 @@ flowchart LR
 - `projects/aigc/<项目名>/`
 - `projects/aigc/<项目名>/0-Init/`
 - `projects/aigc/<项目名>/Story/`
+- `projects/aigc/<项目名>/assets/`
 - `projects/aigc/<项目名>/1-Planning/`
 - `projects/aigc/<项目名>/2-Global/`
 - `projects/aigc/<项目名>/3-Detail/`
@@ -248,9 +259,21 @@ flowchart LR
 1. 阶段根目录：
    `0-Init / Story / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`
 2. 已建 active 子路径骨架：
+   - `projects/aigc/<项目名>/assets/角色/`
+   - `projects/aigc/<项目名>/assets/道具/`
+   - `projects/aigc/<项目名>/assets/场景/`
+   - `projects/aigc/<项目名>/assets/服装/`
+   - `projects/aigc/<项目名>/assets/分镜画板/分镜帧/`
+   - `projects/aigc/<项目名>/assets/分镜画板/分镜故事板/`
+   - `projects/aigc/<项目名>/assets/分镜画板/漫画/`
    - `projects/aigc/<项目名>/1-Planning/1-分集/`
    - `projects/aigc/<项目名>/1-Planning/2-格式/`
    - `projects/aigc/<项目名>/1-Planning/3-分组/`
+   - `projects/aigc/<项目名>/2-Global/全局风格/`
+   - `projects/aigc/<项目名>/2-Global/类型元素/`
+   - `projects/aigc/<项目名>/2-Global/设计元素/`
+   - `projects/aigc/<项目名>/3-Detail/水月/`
+   - `projects/aigc/<项目名>/3-Detail/镜花/`
    - `projects/aigc/<项目名>/4-Design/场景/1-清单/`
    - `projects/aigc/<项目名>/4-Design/场景/2-设计/`
    - `projects/aigc/<项目名>/4-Design/场景/3-面板/`
@@ -274,6 +297,22 @@ flowchart LR
 
 当前最容易误读的是：
 
+- `assets`
+  - 它是项目级辅助资产库，不是阶段真源，也不参与 `project_state` 阶段推进判定
+  - `角色 / 道具 / 场景 / 服装` 用于沉淀通用参考资产
+  - `分镜画板/分镜帧 + 分镜故事板 + 漫画` 用于沉淀可复用画板资产，不替代 `5-Image` 的 canonical 输出
+- `2-Global`
+  - 技能树当前是单技能内化能力链，不以 sibling 子技能目录暴露 `全局风格 / 类型元素 / 导演意图`
+  - runtime 预建路径：`2-Global/全局风格/`、`2-Global/类型元素/`、`2-Global/设计元素/`
+  - `导演意图` 当前通过 `类型元素/分组设计.md + shared root seed` 落到 canonical runtime，不额外预建平行目录
+- `3-Detail`
+  - 技能树 active 路径：`水月`、`镜花`
+  - runtime 预建路径：`3-Detail/水月/`、`3-Detail/镜花/`
+  - 这些目录只锁 sidecar landing，不代表已经生成任何 `field-patch.json`
+- `4-Design`
+  - 技能树 active 路径：`1-主体清单`、`2-主体设计`、`3-面板设计`
+  - runtime 预建路径：仍是 `4-Design/场景|角色|服装|道具/*`
+  - 不预建 `4-Design/1-主体清单/` 这类执行层 tranche 目录；它们属于技能树路由层，不是项目业务落盘层
 - `5-Image`
   - 技能树 active 路径：`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/分镜帧`、`1-提示词蒸馏/漫画`
   - runtime 预建路径：`5-Image/分镜故事板/`、`5-Image/分镜帧/`、`5-Image/漫画/`
@@ -295,6 +334,24 @@ flowchart LR
 
 - 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
 - 轻量项目状态入口：`projects/aigc/<项目名>/project_state.yaml`
+
+### Auxiliary Asset Library
+
+- 资产库根：`projects/aigc/<项目名>/assets/`
+- 角色资产：`projects/aigc/<项目名>/assets/角色/`
+- 道具资产：`projects/aigc/<项目名>/assets/道具/`
+- 场景资产：`projects/aigc/<项目名>/assets/场景/`
+- 服装资产：`projects/aigc/<项目名>/assets/服装/`
+- 分镜画板资产：
+  - `projects/aigc/<项目名>/assets/分镜画板/分镜帧/`
+  - `projects/aigc/<项目名>/assets/分镜画板/分镜故事板/`
+  - `projects/aigc/<项目名>/assets/分镜画板/漫画/`
+
+硬规则：
+
+1. `assets/` 只承载复用型参考资产与人工沉淀素材，不替代任何阶段 canonical 输出。
+2. `assets/分镜画板/分镜帧|分镜故事板|漫画` 与 `5-Image/分镜帧|分镜故事板|漫画` 不是同一层：前者是资产库，后者是阶段业务真源。
+3. 初始化应预建这些资产目录，但不得因此推断相应阶段已经执行。
 
 ### Lazy Governance Artifacts
 

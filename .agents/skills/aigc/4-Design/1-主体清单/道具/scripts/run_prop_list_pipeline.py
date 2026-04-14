@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shlex
 import subprocess
 import sys
@@ -27,6 +28,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--catalog-name", default="道具清单.json", help="道具清单文件名")
     parser.add_argument("--research-name", default="道具研究.json", help="道具研究文件名")
     parser.add_argument("--bridge-name", default="prop_design_bridge.json", help="桥接 JSON 文件名")
+    parser.add_argument("--manifest-name", default="_manifest.json", help="manifest 文件名")
     parser.add_argument("--dry-run", action="store_true", help="仅校验链路，不保留输出文件")
     return parser.parse_args()
 
@@ -52,18 +54,16 @@ def resolve_output_dir(input_path: Path, explicit: Optional[str]) -> Path:
     if explicit:
         return Path(explicit)
 
-    path_str = input_path.as_posix()
-    if "/projects/" in path_str:
-        root_parts = input_path.parts
-        try:
-            projects_index = root_parts.index("projects")
-            if projects_index + 2 < len(root_parts) and root_parts[projects_index + 1] == "aigc":
-                project_root = Path(*root_parts[: projects_index + 3])
-            else:
-                project_root = Path(*root_parts[: projects_index + 2])
-            return project_root / "4-Design" / "道具" / "1-清单" / input_path.stem
-        except ValueError:
-            pass
+    root_parts = input_path.parts
+    try:
+        projects_index = root_parts.index("projects")
+        if projects_index + 2 < len(root_parts) and root_parts[projects_index + 1] == "aigc":
+            project_root = Path(*root_parts[: projects_index + 3])
+        else:
+            project_root = Path(*root_parts[: projects_index + 2])
+        return project_root / "4-Design" / "道具" / "1-清单" / input_path.stem
+    except ValueError:
+        pass
 
     return input_path.parent / "4-Design-道具-1-清单" / input_path.stem
 
@@ -71,6 +71,34 @@ def resolve_output_dir(input_path: Path, explicit: Optional[str]) -> Path:
 def run_cmd(cmd: List[str]) -> None:
     print("$ " + " ".join(shlex.quote(part) for part in cmd))
     subprocess.run(cmd, check=True)
+
+
+def read_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_manifest(args: argparse.Namespace, input_path: Path, output_dir: Path) -> Path:
+    catalog = read_json(output_dir / args.catalog_name)
+    meta = catalog.get("meta", {})
+    manifest = {
+        "status": "ok",
+        "episode_id": meta.get("episode_id") or input_path.stem,
+        "input_file": input_path.as_posix(),
+        "output_dir": output_dir.as_posix(),
+        "output_files": [
+            (output_dir / args.catalog_name).as_posix(),
+            (output_dir / args.research_name).as_posix(),
+            (output_dir / args.bridge_name).as_posix(),
+            (output_dir / args.manifest_name).as_posix(),
+        ],
+        "statistics": catalog.get("statistics", {}),
+        "notes": [
+            "canonical business truth 是 `道具清单.json`；研究与 bridge 为派生 sidecar。",
+        ],
+    }
+    manifest_path = output_dir / args.manifest_name
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return manifest_path
 
 
 def build_extract_cmd(args: argparse.Namespace, input_path: Path, output_dir: Path, dry_run: bool) -> List[str]:
@@ -122,11 +150,13 @@ def run_normal(args: argparse.Namespace, input_path: Path) -> int:
 
     run_cmd(build_extract_cmd(args=args, input_path=input_path, output_dir=output_dir, dry_run=False))
     run_cmd(build_research_cmd(args=args, output_dir=output_dir, dry_run=False))
+    manifest_path = write_manifest(args=args, input_path=input_path, output_dir=output_dir)
 
     print(f"输出目录: {output_dir.as_posix()}")
     print(f"- 道具清单: {(output_dir / args.catalog_name).as_posix()}")
     print(f"- 道具研究: {(output_dir / args.research_name).as_posix()}")
     print(f"- 设计桥接: {(output_dir / args.bridge_name).as_posix()}")
+    print(f"- 审计侧车: {manifest_path.as_posix()}")
     return 0
 
 

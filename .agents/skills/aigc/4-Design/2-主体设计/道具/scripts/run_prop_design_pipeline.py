@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--research", required=True, help="道具研究.json 路径")
     parser.add_argument("--detail", required=True, help="3-Detail/第N集.json 路径")
     parser.add_argument("--catalog", help="道具清单.json 路径")
-    parser.add_argument("--global-style", help="全局风格.md 路径")
+    parser.add_argument("--global-style", help="全局风格设计.md 路径")
     parser.add_argument(
         "--type-elements",
         dest="type_elements",

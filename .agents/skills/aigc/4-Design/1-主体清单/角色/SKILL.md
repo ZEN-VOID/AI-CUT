@@ -1,6 +1,6 @@
 ---
 name: aigc-design-role-list
-description: Use when the `4-Design` stage needs to extract a canonical role list from `projects/aigc/<项目名>/3-Detail/第N集.json` or legacy `projects/aigc/<项目名>/3-Detail/第N集.json`, and write role-list artifacts under `projects/aigc/<项目名>/4-Design/角色/1-清单/`.
+description: Use when the `4-Design` stage needs to extract a canonical role list from `projects/aigc/<项目名>/3-Detail/第N集.json` and optionally fall back to legacy `projects/aigc/<项目名>/编导/第N集.json`, then write role-list artifacts under `projects/aigc/<项目名>/4-Design/角色/1-清单/`.
 governance_tier: full
 ---
 
@@ -13,8 +13,8 @@ governance_tier: full
 本轮重排只改变合同表达方式，不改变业务边界、输入根、输出根、脚本入口与字段口径：
 
 - 第一输入根仍是 `projects/aigc/<项目名>/3-Detail/第N集.json`
-- 兼容输入仍允许消费 `projects/aigc/<项目名>/3-Detail/第N集.json`
-- canonical 输出仍是 `角色清单.json + _manifest.json`
+- 兼容输入仍允许消费 legacy `projects/aigc/<项目名>/编导/第N集.json`
+- canonical 输出仍是 `角色清单.json`，并统一附带 `_manifest.json` audit sidecar
 - 脚本入口仍是 `scripts/extract_role_list.py`
 
 本叶子显式采用知行合一单技能真源模式，且：
@@ -36,7 +36,7 @@ governance_tier: full
 ## When to Use
 
 - 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 提取角色 canonical list。
-- 当前输入仍是兼容路径 `projects/aigc/<项目名>/3-Detail/第N集.json`，但内容结构已经对齐 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
+- 当前输入以 `projects/aigc/<项目名>/3-Detail/第N集.json` 为 canonical，legacy `编导/第N集.json` 仅作 fallback，且内容结构已经对齐 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
 - 需要把镜级 `角色站位走位` 与组级 `出场角色及穿搭` 收敛为角色对象池、穿搭提示和证据映射。
 
 ## When Not to Use
@@ -65,23 +65,28 @@ governance_tier: full
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/4-Design/角色/SKILL.md + CONTEXT.md`
-5. 本 `SKILL.md + CONTEXT.md`
-6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-7. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-8. `scripts/extract_role_list.py`
-9. `projects/aigc/<项目名>/3-Detail/第N集.json` 或兼容 `projects/aigc/<项目名>/3-Detail/第N集.json`
+4. `.agents/skills/aigc/4-Design/1-主体清单/SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
+7. 本 `SKILL.md + CONTEXT.md`
+8. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+9. `.agents/skills/aigc/_shared/project-runtime-layout.md`
+10. `scripts/extract_role_list.py`
+11. `projects/aigc/<项目名>/3-Detail/第N集.json` 或兼容 legacy `projects/aigc/<项目名>/编导/第N集.json`
 
 ## Shared Canonical Sources (Mandatory)
 
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/object-normalization-contract.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/list-output-contract.md`
 - 强制读取：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
-- 强制读取：`.agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.py`
+- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/角色/scripts/extract_role_list.py`
 
 硬规则：
 
 1. 第一输入根必须是对齐 shared director schema 的 episode JSON
-2. 角色提取主路径必须来自 `分镜明细[].角色站位走位`，穿搭摘要默认补读 `组间设计.出场角色及穿搭`
+2. 角色提取必须先用 `组间设计.出场角色及穿搭` 锁当前组 roster，再用 `分镜明细[].角色站位走位` 做镜级命中；自由切词只作 fallback
 3. 所有角色结论都必须保留 `group_id + shot_id + source_file`
 4. 不得把 `1-清单` 扩写成角色设计、角色面板或下游生图阶段
 
@@ -94,8 +99,8 @@ governance_tier: full
 
 ### 可选输入
 
-- `projects/aigc/<项目名>/3-Detail/第N集.json`
-  - 用户显式给旧路径时可兼容消费
+- `projects/aigc/<项目名>/编导/第N集.json`
+  - 用户显式给 legacy 路径时可兼容消费
 - 用户显式指定的单集范围、单组范围或增量镜头范围
 
 ### 禁止输入
@@ -223,8 +228,8 @@ graph LR
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-LOCK` | S1 | `FIELD-ROLE-LIST-02` | 锁定唯一 episode 输入根并确认路径别名 | 读取默认路径或兼容路径，校验 shared schema 主结构 | 输入清单、episode_id、readiness 结论 | ready -> `N2`；blocked -> 结束 | 输入真源唯一后方可继续 |
-| `N2-SHOT-PARSE` | S2 | `FIELD-ROLE-LIST-02` | 在镜级粒度上稳定提取角色原始文本 | 遍历 `分镜组列表[].分镜明细[]`，提取 `role_text / shot_scene / group_id / shot_id` | `group_role_map[]` 草稿 | 成功 -> `N3`；字段缺失 -> 回到 `S1/S2` | 镜级 evidence 可追溯 |
-| `N3-ROLE-NORMALIZE` | S3 | `FIELD-ROLE-LIST-01` | 把镜级角色文本收束成 canonical identity | 判定单角色、群像、占位和 unknown，做 alias 归并与首次出现统计 | `roles[]` 草稿、`first_appearance`、`role_level` | 成功 -> `N4`；全空或全 unknown -> 回到 `S2/S3` | 至少出现可解释的角色对象池 |
+| `N2-SHOT-PARSE` | S2 | `FIELD-ROLE-LIST-02` | 在镜级粒度上稳定提取角色原始文本 | 遍历 `分镜组列表[].分镜明细[]`，先读取组级 roster，再提取 `role_text / shot_scene / group_id / shot_id` 与 roster 命中结果 | `group_role_map[]` 草稿 | 成功 -> `N3`；字段缺失 -> 回到 `S1/S2` | 镜级 evidence 可追溯，且不能脱离组级 roster 自由扩张 |
+| `N3-ROLE-NORMALIZE` | S3 | `FIELD-ROLE-LIST-01` | 把镜级角色文本收束成 canonical identity | 优先保留 roster 命中的角色，随后再判定群像、占位和 unknown，并做 alias 归并与首次出现统计 | `roles[]` 草稿、`first_appearance`、`role_level` | 成功 -> `N4`；全空或全 unknown -> 回到 `S2/S3` | 至少出现可解释的角色对象池，且 canonical name 不得是动作残片 |
 | `N4-COSTUME-TRACE` | S4 | `FIELD-ROLE-LIST-03` | 在不污染角色 identity 的前提下提炼穿搭线索 | 只在命中服装关键词的角色子句中抽取 `costume_mentions` 与 `costume_profile` | `roles[].costume_profile`、`group_role_map[].costume_mentions` | 成功 -> `N5`；服装串场 -> 回到 `S2/S4` | 穿搭线索与角色子句绑定 |
 | `N5-AGGREGATE-WRITEBACK` | S5 | `FIELD-ROLE-LIST-01` `FIELD-ROLE-LIST-04` | 把角色对象池、镜级 evidence 与统计收束成 canonical 输出 | 生成 `角色清单.json` 与 `_manifest.json`，写入默认 episode 目录 | JSON 主稿、manifest、统计摘要 | 成功 -> `N6`；统计不一致 -> 回到 `S3/S5` | 输出结构完整 |
 | `N6-QA-CONVERGENCE` | S6 | `FIELD-ROLE-LIST-04` | 校验 evidence、统计、unknown 比例与路径稳定性 | 检查角色数、evidence 覆盖、manifest 一致性、输出路径 | PASS/FAIL、返工入口 | pass -> Final；fail -> 对应返工节点 | 仅在字段与统计全部通过时允许结案 |
@@ -288,11 +293,13 @@ graph LR
   - `group_ids[]`
   - `shot_ids[]`
   - `first_appearance`
+  - `costume_state`
   - `costume_profile`
+  - `variation_rules[]`
   - `display_card`
   - `evidence[]`
 
-### B. `_manifest.json`（Mandatory）
+### B. `_manifest.json`（Audit Sidecar）
 
 默认路径：
 
@@ -311,12 +318,12 @@ graph LR
 ### 命令入口
 
 ```bash
-python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.py \
+python3 .agents/skills/aigc/4-Design/1-主体清单/角色/scripts/extract_role_list.py \
   --input "projects/aigc/项目名/3-Detail/第1集.json"
 ```
 
 ```bash
-python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.py \
+python3 .agents/skills/aigc/4-Design/1-主体清单/角色/scripts/extract_role_list.py \
   --project "项目名" \
   --episode "第1集" \
   --dry-run
@@ -328,7 +335,7 @@ python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.p
 | --- | --- | --- | --- | --- | --- | --- |
 | `FIELD-ROLE-LIST-01` | `roles[]` | 角色 canonical identity、首次出现、出现统计、角色层级 | `分镜明细[].角色站位走位` + `组间设计.出场角色及穿搭` | S3 | identity 稳定性 | `FAIL-ROLE-LIST-01` |
 | `FIELD-ROLE-LIST-02` | `group_role_map[]` | 每镜角色证据、原始角色文本、场景文本、穿搭片段、`group_id + shot_id` | `分镜组列表[].分镜明细[]` | S2 | 镜级可追溯性 | `FAIL-ROLE-LIST-02` |
-| `FIELD-ROLE-LIST-03` | `roles[].costume_profile` | 角色穿搭主线索和常见变体 | 命中服装关键词的角色子句 | S4 | 穿搭隔离度 | `FAIL-ROLE-LIST-03` |
+| `FIELD-ROLE-LIST-03` | `roles[].costume_profile / costume_state / variation_rules[]` | 角色穿搭主线索、主状态与可追溯变体规则 | 命中服装关键词的角色子句 | S4 | 穿搭隔离度 | `FAIL-ROLE-LIST-03` |
 | `FIELD-ROLE-LIST-04` | `_manifest.json` | 输入输出路径、统计、告警与产物摘要 | 提取脚本运行结果 | S5-S6 | 收束完整性 | `FAIL-ROLE-LIST-04` |
 
 ## Thought Pass Map
@@ -368,12 +375,11 @@ python3 .agents/skills/aigc/4-Design/角色/1-清单/scripts/extract_role_list.p
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/aigc/4-Design/角色/1-清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/角色/1-清单/CONTEXT.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/角色/CONTEXT.md`
   - `scripts/extract_role_list.py`
 - `Meta Rule Source`
-  - `.agents/skills/aigc/4-Design/角色/SKILL.md`
-  - `.agents/skills/aigc/4-Design/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
   - 根 `AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 

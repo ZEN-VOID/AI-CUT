@@ -21,8 +21,8 @@
       "分镜组列表": []
     },
     "acceptance_notes": [
-      "本文件可由 2-Global 在阶段末段创建并写入完整分镜组壳（分镜组ID / 总时长 / 剧本正文 / 组间设计 / 空分镜明细），也可由 3-Detail 在兼容回退路径下创建空壳。",
-      "后续由 2-Global 先补完整分镜组壳与组间设计，再由 3-Detail 在 shared schema 约束下继续 patch-in-place。"
+      "本文件可由 2-Global 在阶段末段创建并写入完整分镜组壳（分镜组ID / 总时长 / 剧本正文 / 组间设计 / 分镜切换 / 空分镜明细），也可由 3-Detail 在兼容回退路径下创建空壳。",
+      "后续由 2-Global 先补完整分镜组壳、组间设计与分镜切换，再由 3-Detail 在 shared schema 约束下继续 patch-in-place。"
     ]
   }
 }

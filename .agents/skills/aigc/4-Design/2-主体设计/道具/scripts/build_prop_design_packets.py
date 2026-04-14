@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import json
 import sys
 from pathlib import Path
@@ -25,7 +26,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--research", required=True, help="道具研究.json 路径")
     parser.add_argument("--detail", required=True, help="3-Detail/第N集.json 路径")
     parser.add_argument("--catalog", help="道具清单.json 路径")
-    parser.add_argument("--global-style", help="全局风格.md 路径")
+    parser.add_argument("--global-style", help="全局风格设计.md 路径")
     parser.add_argument(
         "--type-elements",
         dest="type_elements",
@@ -58,6 +59,13 @@ def compact_text(text: str, limit: int = 220) -> str:
     if len(compact) <= limit:
         return compact
     return compact[: limit - 3] + "..."
+
+
+def to_repo_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def lookup_item(items: list[dict[str, Any]], key: str, fallback_key: str) -> dict[str, Any]:
@@ -155,6 +163,7 @@ def build_payloads(
     bridge: dict[str, Any],
     research: dict[str, Any],
     catalog: dict[str, Any] | None,
+    catalog_path: Path | None,
     detail_path: Path,
     global_style_text: str,
     type_elements_text: str,
@@ -173,6 +182,17 @@ def build_payloads(
         or research.get("meta", {}).get("project_name")
         or detail.get("项目名", "项目名")
     )
+    generated_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    bridge_repo_path = to_repo_path(bridge_path)
+    research_repo_path = to_repo_path(research_path)
+    detail_repo_path = to_repo_path(detail_path)
+    catalog_repo_path = to_repo_path(catalog_path) if catalog else None
+    source_inputs = [
+        bridge_repo_path,
+        research_repo_path,
+        detail_repo_path,
+        *([catalog_repo_path] if catalog_repo_path else []),
+    ]
 
     design_props: list[dict[str, Any]] = []
     prompt_props: list[dict[str, Any]] = []
@@ -262,41 +282,45 @@ def build_payloads(
 
     design_payload = {
         "meta": {
+            "schema_version": "aigc/design-prop-design/v1",
+            "skill_id": "aigc-design-prop-design",
             "project_name": project_name,
             "episode_id": episode_id,
-            "skill_id": "aigc/4-Design/道具/2-设计",
-            "source_bridge": bridge_path.as_posix(),
-            "source_research": research_path.as_posix(),
+            "primary_input": bridge_repo_path,
+            "source_inputs": source_inputs,
+            "source_bridge": bridge_repo_path,
+            "source_research": research_repo_path,
+            "source_detail": detail_repo_path,
+            "source_catalog": catalog_repo_path,
+            "generated_at": generated_at,
         },
         "props": design_props,
     }
     prompt_payload = {
         "meta": {
+            "schema_version": "aigc/design-prop-design-prompt/v1",
+            "skill_id": "aigc-design-prop-design",
             "project_name": project_name,
             "episode_id": episode_id,
-            "skill_id": "aigc/4-Design/道具/2-设计",
+            "primary_input": "道具设计.json",
+            "source_inputs": [
+                "道具设计.json",
+                *source_inputs,
+            ],
             "source_design_master": "道具设计.json",
+            "generated_at": generated_at,
         },
         "props": prompt_props,
     }
     manifest_payload = {
-        "meta": {
-            "project_name": project_name,
-            "episode_id": episode_id,
-            "skill_id": "aigc/4-Design/道具/2-设计",
-        },
-        "inputs": {
-            "bridge": bridge_path.as_posix(),
-            "research": research_path.as_posix(),
-            "detail": detail_path.as_posix(),
-        },
-        "outputs": {
-            "design_master": "道具设计.json",
-            "prompt_sidecar": "prop_design_prompt.json",
-            "manifest": "_manifest.json",
-        },
+        "status": "completed",
+        "episode_id": episode_id,
+        "input_file": bridge_repo_path,
+        "output_dir": "",
+        "output_files": [],
+        "source_inputs": source_inputs,
         "selected_agents": SELECTED_AGENTS,
-        "coverage": {
+        "statistics": {
             "prop_count": len(design_props),
             "special_narrative_prop_count": sum(
                 1 for item in design_props if item.get("design_thesis", {}).get("narrative_significance", {}).get("is_special")
@@ -309,6 +333,10 @@ def build_payloads(
             "requested_output_root": "",
             "canonical_output_root": "",
         },
+        "notes": [
+            "canonical business truth 是 `道具设计.json`；`prop_design_prompt.json` 与 `_manifest.json` 都是派生 sidecar。",
+            "第一输入根固定为 `prop_design_bridge.json`；其他输入通过 `source_inputs` 记录。", 
+        ],
     }
     return design_payload, prompt_payload, manifest_payload
 
@@ -338,6 +366,7 @@ def main() -> int:
         bridge=bridge,
         research=research,
         catalog=catalog,
+        catalog_path=catalog_path,
         detail_path=detail_path,
         global_style_text=read_text(Path(args.global_style) if args.global_style else None),
         type_elements_text=read_text(Path(args.type_elements) if args.type_elements else None),
@@ -346,8 +375,21 @@ def main() -> int:
         bridge_path=bridge_path,
         research_path=research_path,
     )
-    manifest_payload["path_normalization"]["requested_output_root"] = output_dir.as_posix()
-    manifest_payload["path_normalization"]["canonical_output_root"] = output_dir.as_posix()
+    output_dir_repo = to_repo_path(output_dir)
+    design_output_repo = f"{output_dir_repo}/{args.design_name}"
+    prompt_output_repo = f"{output_dir_repo}/{args.prompt_name}"
+    manifest_output_repo = f"{output_dir_repo}/{args.manifest_name}"
+    prompt_payload["meta"]["primary_input"] = design_output_repo
+    prompt_payload["meta"]["source_inputs"][0] = design_output_repo
+    prompt_payload["meta"]["source_design_master"] = design_output_repo
+    manifest_payload["output_dir"] = output_dir_repo
+    manifest_payload["output_files"] = [
+        design_output_repo,
+        prompt_output_repo,
+        manifest_output_repo,
+    ]
+    manifest_payload["path_normalization"]["requested_output_root"] = output_dir_repo
+    manifest_payload["path_normalization"]["canonical_output_root"] = output_dir_repo
 
     if args.dry_run:
         print(json.dumps(manifest_payload, ensure_ascii=False, indent=2))

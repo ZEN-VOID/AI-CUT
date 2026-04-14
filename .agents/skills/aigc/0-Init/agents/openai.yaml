@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 项目初始化"
-  short_description: "用单技能思行网络统筹首次初始化或重置式重新初始化，把路由、三种模式、rebootstrap 边界与充分性审计全部内收于父 SKILL，并写回 north_star、handoff 与项目根治理工件"
-  default_prompt: "Use $aigc-init to keep the parent skill as the only canonical writeback owner, distinguish first-time init from rebootstrap, lock exactly one init mode, internalize routing, advisor-council, fast-draft, autonomous-qa, rebootstrap-reset, and sufficiency-audit capabilities inside the parent SKILL, and synthesize north_star, init_handoff, story-source-manifest, team, project_state, and optional governance-state with a single next-stage recommendation."
+  short_description: "用单技能单一真源目录统筹首次初始化或重置式重新初始化；路由、三种模式、rebootstrap 边界与充分性审计全部内收于父 SKILL，不再保留平行 mode reference 目录"
+  default_prompt: "Use $aigc-init to keep the parent skill as the only canonical writeback owner, lock exactly one init mode, internalize routing, advisor-council, fast-draft, autonomous-qa, rebootstrap-reset, and sufficiency-audit capabilities inside the parent SKILL, avoid recreating parallel mode reference directories, and synthesize north_star, init_handoff, story-source-manifest, team, project_state, and optional governance-state with a single next-stage recommendation."

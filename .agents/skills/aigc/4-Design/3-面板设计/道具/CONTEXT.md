@@ -2,7 +2,7 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `.agents/skills/aigc/4-Design/道具/3-面板` 的经验层知识库，不是过程日志。
+- 本文件是 `.agents/skills/aigc/4-Design/3-面板设计/道具` 的经验层知识库，不是过程日志。
 - 调用本叶子技能时，应自动预加载本文件。
 
 ## Context Health

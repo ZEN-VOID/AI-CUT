@@ -19,8 +19,11 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | prompt 只覆盖分镜组的局部字段 | 输入覆盖层 | 回到“整组全部内容”重新蒸馏 | 在 `FIELD-VID-SUBJ-02` 固化“整组全覆盖” | 每个条目都能回链整组与全部分镜 |
+| 把 `bootstrapped/detail_in_progress` 的 `3-Detail` shared root 当成稳定视频输入 | 阶段 handoff 层 | 停止蒸馏，先回上游完成 `document_phase=ready` | 在 `6-Video` 父层、`全能参照/SKILL.md` 与生成脚本共同固定 `ready` gate | 只要 phase 不是 `ready`，叶子就会显式拒绝继续 |
+| 组内 `分镜切换` 与 `分镜明细[]` 数量不一致，却仍尝试生成视频请求 | shared-root merge 层 | 回上游补 `3-Detail` merge/handoff，再重新蒸馏 | 在输入门、验收清单与脚本里固定 `分镜切换 == len(分镜明细[])` | 每个被消费的分镜组都能通过数量对齐检查 |
 | shared director schema 已升级到 `角色背景面 / 角色站位走位 / 出场角色及穿搭`，但视频 prompt 仍按旧字段心智压缩 | schema handoff 层 | 在组级压缩块显式纳入 `出场角色及穿搭`，并把镜级消费口径改成 `角色背景面 / 角色站位走位` | 在 `SKILL.md` 的输入门、N2/N3/N5 与验收清单中固定新字段，不再依赖旧字段名的隐式理解 | prompt 能读出角色背景关系、走位和组级穿搭摘要 |
 | `剧本正文` 或 `全局风格` 被改写 | 固定文本层 | 恢复原文直贴 | 在 `SKILL.md` 的 Prompt Assembly Contract 固化 fixed verbatim block | 两段文本与上游逐字一致 |
+| 每个分镜组在 `剧本正文` 后漏插固定音频约束行 | 固定约束层 | 在组级 prompt 装配时强制插入 `不生成字幕，不生成BGM，要生成物理互动音效与环境音。` | 在脚本 `compose_prompt()` 与验收校验中共同固定该行必须存在 | 每组 prompt 在 `剧本正文` 后都能看到固定音频约束行 |
 | prompt 中暴露了字段标题 | 文本编排层 | 重写为无标题融合文本 | 在 `FIELD-VID-SUBJ-02` 固化只保留组ID/镜ID标签 | 除组ID/镜ID外无显式字段名 |
 | 输出虽然是自然句，但仍残留 `镜头属性：`、`景别：` 这类标签前缀 | 句式执行层 | 回到镜级句式骨架，改写成无标签自然句 | 在 `SKILL.md` 与共享模板中明确禁止 `字段标题：字段值` | 最终 prompt 不再出现标签冒号句 |
 | prompt 只剩动作、情绪和空间，没有把镜级 `景别 / 运镜手法` 保留下来 | 镜头语法层 | 回到镜级压缩步骤，为每个分镜补回明确的景别结论与运镜结论 | 在 `SKILL.md` 的输入门、N2/N5 与验收清单中把 `景别 / 运镜手法` 固化为不可忽略字段 | 每个镜级条目都能读出镜头远近关系与运动方式 |
@@ -36,6 +39,8 @@
 | `prompt_char_count` 与 JSON 中实际 `prompt` 长度不一致 | 输出统计层 | 回到最终 JSON 主体，以实际落盘 `prompt` 文本重新计数 | 在 `SKILL.md` 固化“按最终落盘 prompt 计数并回读 JSON 复核” | `len(prompt) == prompt_char_count` |
 | `第N集.txt` 中 section header 与 prompt 首行重复显示同一 `分镜组ID` | TXT 派生视图层 | 保留 section header，并去掉 TXT 中重复的 prompt 首行组 ID | 在 `SKILL.md` 固化“TXT 已显示组 ID 时不得重复显示 prompt 首行组 ID” | `第N集.txt` 每组只出现一次组 ID header |
 | `reference_images` 缺失，或 `image_markers` 的 URL/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐三元信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
+| 执行脚本把项目根误拼成 `projects/<项目名>/`，导致 canonical 项目下无法找到 `3-Detail/第N集.json` | 项目命名空间层 | 把脚本项目根解析收束到 `projects/aigc/<项目名>/`，并在缺失时显式报 canonical path | 对所有 `aigc` 阶段脚本统一复用 `projects/aigc/<项目名>/` 作为运行时命名空间，不再让叶子脚本各自拼路径 | 脚本能直接读取 `projects/aigc/<项目名>/3-Detail/第N集.json` 并把产物写回同一项目根 |
+| 句式规则散落在 `build_*` 函数里，调整输出风格时必须同时改多个函数 | 句法真源治理层 | 把组级桥接、镜级句式槽、压缩级别与可选挂句收束到 `prompt-assembly-spec.md`，脚本只消费 spec | 对可重复演化的 prompt assembly 逻辑，优先建立“人可读 + 机可读”的 spec 真源，不再让脚本硬编码句法 | 调整句式时只需改 `prompt-assembly-spec.md`，脚本无需同步改多处字符串 |
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
 | 三件套已写出，但对用户的结案信息只剩路径，没有思考过程和关键证据 | 结案闭环层 | 在最终闭环中补 `思考过程 + 关键证据 + 风险/例外` | 新增 `FIELD-VID-SUBJ-05` 并把闭环四段写成硬合同 | 执行结果可复核，不再只剩文件清单 |
@@ -43,16 +48,20 @@
 
 ## Repair Playbook
 
-1. 先查 `分镜组列表` 是否为合法 director schema 结构。
-2. 再查每个分镜组的 `剧本正文` 和 `全局风格` 是否被原文保留。
-3. 再查其余组级与镜级字段是否已经全部进入 prompt，只是压缩程度不同。
-4. 再查 prompt 是否只有 `分镜组ID / 分镜ID` 显式标签。
-5. 最后查 `prompt_char_count`、`reference_images`、`image_markers` 与 `_manifest.json` 是否完整。
+1. 先查 `metadata.document_phase` 是否已经到 `ready`，再查 `分镜组列表` 是否为合法 director schema 结构。
+2. 再查每个命中分镜组是否满足 `分镜切换 == len(分镜明细[])`，避免误吃 `3-Detail` 半成品 merge。
+3. 再查每个分镜组的 `剧本正文` 和 `全局风格` 是否被原文保留。
+4. 再查其余组级与镜级字段是否已经全部进入 prompt，只是压缩程度不同。
+5. 再查 prompt 是否只有 `分镜组ID / 分镜ID` 显式标签。
+6. 最后查 `prompt_char_count`、`reference_images`、`image_markers` 与 `_manifest.json` 是否完整。
 
 ## Reusable Heuristics
 
 - 这类视频请求整理最容易错的不是“文采不够”，而是把整组信息缩成了局部摘要。
+- 对接重构后的 `3-Detail` 时，最先看的不是文案，而是 `metadata.document_phase`；phase 还没到 `ready`，视频蒸馏就不应启动。
+- `分镜切换` 是 `3-Detail` 继承自上游导演真值的组级镜数门；只要它和 `分镜明细[]` 数量不一致，就说明 shared root 还没完成稳定 handoff。
 - 对本子技能来说，`剧本正文` 与 `全局风格` 更像硬锁文本，而不是可自由润色的素材。
+- 组级 prompt 若需要稳定附带跨镜一致的音频生成约束，最稳的落点是 `剧本正文` 后的固定行，而不是把要求散到桥接句或镜级条目里。
 - 字数上限现在以 `1900` 为硬门；默认写法仍应是连贯自然语句，只有压缩吃紧时才把非固定字段压成更精炼的自然短语，不要碰固定原文块。
 - 当预算明显有余时，最稳的表达仍是自然语句，不要为了“看起来更省字”主动切成短语式表达。
 - 当组内镜头达到 `5` 个或更多时，应更早做预算预估；只有自然语句版逼近上限时，才把非固定字段收束为更精炼的自然短语。
@@ -79,6 +88,9 @@
 - 这类“固定块原文保留 + 压缩块受预算约束 + 三件套落盘”的叶子技能，最稳的结构不是再加几条 checklist，而是改成“串行主干 + 条件预算分支 + 汇流门”的思行网络。
 - 如果节点没有显式写出 `route_out` 和 `gate`，执行者最容易在 `underflow`、标题泄露或三件套不一致时直接凭感觉补救，最后留下不可复核的半闭环。
 - 若 `全能参照` 三件套只是磁盘漂移丢失，而项目已经进入 `2-视频生成`，最稳的修法是只补 carrier 与 trace，不回退后续 handoff；否则会把 prompt 层修复误做成流程降级。
+- 只要脚本要触达项目 runtime，就必须先锁定 `projects/aigc/<项目名>/` 这个 canonical 命名空间；叶子脚本自己拼 `projects/<项目名>/` 往往会在首次实跑时暴露断链。
+- 只要句式开始出现“组级桥接 / 镜级 P1-P3 / tight-ultra 压缩 / 可选字段挂句”四类独立政策，就不该再把它们散落在脚本函数里；最稳的落点是单独的 prompt assembly spec。
+- 当视频 prompt 的目标取向开始明确偏向 `图生视频` 时，最稳的优化不是增加新字段，而是把现有字段改写成“主体锚点 -> 镜头起势 -> 可见动作 -> 环境光感 -> 视觉焦点”的顺序；这样更贴近模型消费方式，又不会偏离 `3-Detail` 真源。
 
 ## Case Log
 

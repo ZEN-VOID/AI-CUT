@@ -4,7 +4,7 @@
     "shot_level": "<storyboard_group|storyboard_frame|storyboard_frame_pair|multi_image_storyline>",
     "group_id": "<分镜组ID>",
     "source_shot_ids": [],
-    "source_file": "projects/<项目名>/3-Detail/<第N集>.json",
+    "source_file": "projects/aigc/<项目名>/3-Detail/<第N集>.json",
     "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
     "template_version": "v1"
   },
