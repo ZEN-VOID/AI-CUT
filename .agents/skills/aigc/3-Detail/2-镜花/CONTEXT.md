@@ -29,6 +29,8 @@
 | 编号模块被并行打乱，导致依赖错位 | 调度层 | 恢复顶层 `1 -> 2 -> 3 -> 4` 串行推进，只允许分类内部叶子并发 | 在 `SKILL.md` 和 `module-index.md` 固定编号语义 | 分镜表现一定先于摄影/运镜/转场 |
 | references 只剩占位说明，执行时退回临场发挥 | reference 真源层 | 为每个分类和叶子模块补 `module-spec.yaml`，删掉 README 型占位真源 | 在 `module-index.md` 固定只回链 `module-spec.yaml` | `references/` 下不再依赖 README 承载规范 |
 | 节点知道要交什么 patch，但不知道为什么这样交最稳 | node-pack 分层层 | 为每个 branch / leaf 补 `module-guide.md`，把动机、误用和审美边界从 YAML 剥离 | 在 `3-Detail/references/node-pack-contract.md` 固定合同层与解释层分离 | 新节点不会再把认知解释塞回 schema |
+| branch 级 `module-guide.md` 只有定位和用法摘要，执行时仍要倒推整条方法链 | branch 解释层 | 在 branch guide 补齐“主链 -> 具体创作方法 -> 思行节点 -> 分型延展 -> 汇流检查” | 把 branch guide 视为模块级创作手册，而不是叶子目录的上位提要 | 仅读 branch guide 也能知道如何把多个叶子模块串成稳定 patch |
+| leaf 级 `module-guide.md` 只有原则和禁区，没有“如何落到字段”的中层桥梁 | leaf 解释层 | 在 leaf guide 补“具体创作方法 / 思维·执行节点 / 延展与变体”，把判断问句、执行动作、常见适配场景和升级边界写清 | 固定 leaf guide 的中层结构，让解释层直接服务 patch 设计，而不是停在抽象建议 | 读完 leaf guide 后能直接形成字段级 patch，而不是还要现场拆步骤 |
 | 所有视觉层都打满了，但成稿没有明确收益重点 | 创作路由层 | 先按 `references/route-profile.yaml` 选当前组的主收益层，再决定其余层是否保守进入 | 在 `creative-guidance-contract.md` 固定 route-profile 为创作偏置真源 | 成稿能回答“这组到底为什么值得这样拍” |
 
 ## Repair Playbook
@@ -58,5 +60,8 @@
 - 想压字数时，优先保留分镜标记后的核心动作、构图收益和一项最关键的摄影/运镜设计。
 - `镜花` 正文必须像导演在和摄影、美术、后期说同一件事，而不是四类模块轮流发言。
 - 节点包若只有 `module-spec.yaml`，久了容易把解释层塞回 schema；最稳的做法是用同目录 `module-guide.md` 承接 why、误用和审美尺度。
+- 对 branch 级 `module-guide.md`，最稳的写法不是再复述三个叶子做什么，而是把“为什么先后这样排、怎样汇成组级 patch、不同组型如何偏置”一次讲清。
+- 对 leaf 级 `module-guide.md`，最有价值的不是术语表，而是“静镜基线 / 呼吸点 / 最小配对”这类可直接落到字段的中层动作词；有了这层，执行就不会只剩临场感觉。
+- 当某个 branch/leaf 的 `module-guide.md` 仍停在“模块说明”层时，最稳的补强结构是：`具体创作方法 -> 思维·执行节点 -> 延展问法 -> 写法落点 -> 失真与修正`；这样既能补执行密度，又不会污染 `module-spec.yaml` 的规范层。
 - `镜花` 想真正有导演感，关键不是每层都更满，而是先明确这组最该让观众感到什么，再让 route profile 决定谁主谁辅。
 - 吸收 `3-Detail/references/运镜手法.md` 这类共享维度细则时，branch 节点应下沉“默认路线、汇流裁决、挑战边界”，leaf 节点应下沉各自的必答问题、误用和字段分权，避免共享细则只停在上层总文档里。

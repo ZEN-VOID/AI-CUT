@@ -27,6 +27,7 @@
 | `document_phase` 被直接写成 `ready`，但组内没有 shots | phase 管理层 | 回退到 `detail_in_progress`，先补 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 shot patch + validation | `ready` 与实际完成度一致 |
 | 阶段产物存在，但没有 `validation-report.md` | 阶段闭环层 | 补写 `projects/<项目名>/3-Detail/validation-report.md` | 在父 `SKILL.md` Convergence Contract 固定 validation 必写 | 阶段完成时一定有验收结论 |
 | `team.yaml` 已启用却绕过共享顾问团 gate | 共享运行时层 | 回到 `council-runtime` 做前置判断 | 在父层合同固定 council gate 是 `3-Detail` 的前置节点 | `validation-report.md` 中有 gate note |
+| 子技能与 `module-index.md` 已声明共享 validator，但阶段根没有对应脚本 | 共享校验真源层 | 在 `.agents/skills/aigc/3-Detail/scripts/` 补齐 `validate_node_packs.py` 与 `validate_creative_guidance.py` | 让子技能只回链阶段根共享 validator，不再各自口头约定“应有校验”；每次调整 `references/` 后先跑共享校验脚本 | `1-水月` 与 `2-镜花` 的引用路径可执行且校验通过 |
 
 ## Repair Playbook
 
@@ -48,3 +49,4 @@
 - `ready` 的真实含义不是 sidecar 都存在，而是 shared root 已可被下游稳定消费且 validation 已给出通过结论。
 - 当 `1-水月` 与 `2-镜花` 出现冲突时，优先回看 `1-Planning/3-分组` 与 shared root 已继承的 seed，再决定是否返工子技能，而不是直接在 JSON 里折中臆写。
 - 对 `3-Detail` 来说，最危险的退化模式是：child sidecar 越来越丰富，但父层 shared root 永远不收束；一旦出现这种迹象，应优先修父层聚合合同。
+- 当 `module-index.md` 或子技能 `SKILL.md` 已经把 validator 写成共享入口时，阶段根必须真的承载这份脚本；否则“可验证”只是文档承诺，不是可执行能力。

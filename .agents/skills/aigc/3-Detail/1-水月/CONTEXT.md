@@ -27,6 +27,7 @@
 | 子模块只有 README 占位，缺少执行配置 | reference 真源层 | 把分类与叶子模块全部改成 `module-spec.yaml`，显式声明触发、必答、patch 输出与 merge 规则 | 在 `SKILL.md` 与 `module-index.md` 固定只回链 `module-spec.yaml` | `references/` 下不再残留 README 型占位模块 |
 | 多个子模块各自长出平行模板 | 真源治理层 | 统一收回到 `templates/episode-watermoon.template.md` | 在 `module-index.md` 固定 references 只产出 patch，不产出主稿 | `references/` 中不再出现第二套输出骨架 |
 | 节点合同稳定了，但解释和审美尺度只能靠临场发挥 | node-pack 分层层 | 为每个模块补 `module-guide.md`，把 why / anti-pattern / 审美尺度从 YAML 中剥离出来 | 在 `3-Detail/references/node-pack-contract.md` 固定 `spec + guide + context + validator` 四层分工 | 新模块进入时不再混写合同和解释 |
+| 创作类 `module-guide.md` 只有方向提示，没有可复用思考顺序，导致同一分支每次都要临场重新发明方法 | 创作指导层 | 把 guide 升格为 `创作目标 + 思维·执行链 + 节点拆解 + 判型 + 延展变体` | 对高频创作分支固定“薄 guide 不是完成态”，解释层必须能直接支持 patch 生成 | 读 guide 即可落出稳定 patch，而不是二次自建方法论 |
 | 每组四条链都平均发力，成稿很稳但不够鲜明 | 创作路由层 | 先按 `references/route-profile.yaml` 选主链和辅链，再组织 prose | 在 `creative-guidance-contract.md` 固定 route-profile 为创作偏置真源 | 成稿能看出当前组真正的重心 |
 | 视觉强化写得很美，但对下游 AIGC 生成没有新增可消费信息 | visual-generation-readiness layer | 把抽象感性收益改写成可见细节、主抓手和生成可消费的具像化信息 | 在 `视觉强化/module-spec.yaml` 固定“先可见、可生成，再漂亮” | prose 中能明确看见模型可消费的视觉锚点 |
 | 运动关系对人类读者成立，但 AI 下游容易误解或补错 | motion-anti-drift layer | 在 `运动表现` 中把连续性、方位和因果里的隐含信息显式言明 | 在 `运动表现/module-spec.yaml` 固定 anti-drift 的显式化职责 | 下游不再依赖默认脑补才能理解动作关系 |
@@ -52,6 +53,7 @@
 - 对手戏最稳的写法不是解释两人关系，而是让一个人怎么逼近、另一个人怎么回避或失手。
 - 子模块真源若只剩说明文，执行时就会退回临场发挥；最稳的做法是把每个分支和叶子都压成 `module-spec.yaml`，写清触发、问题栈、patch 槽位和裁剪优先级。
 - 节点包长期要稳，必须把 `module-spec.yaml` 和 `module-guide.md` 配成双文件：前者锁合同，后者锁解释。
+- 当创作类 `module-guide.md` 只剩“定位 + 使用方法 + 失真修正”三段时，解释层仍然太薄；更稳的写法是补齐 `判型入口 + 思维·执行主线 + 节点 + 延展`，把审美判断压成可重复的思考顺序。
 - 想把创作写得更鲜明，不是四条链一起加码，而是先用 `route-profile.yaml` 决定谁主谁辅。
 - `视觉强化` 的真正价值不是“写得更美”，而是把戏剧收益转成更具像、更可被 AIGC 下游稳定消费的视觉信息。
 - `运动表现` 的真正价值不是“动作更顺”，而是把人类默认知道、但 AI 容易漂移的连续性与逻辑关系提前言明。
