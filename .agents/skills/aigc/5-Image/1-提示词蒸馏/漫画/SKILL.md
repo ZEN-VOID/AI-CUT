@@ -47,7 +47,7 @@ parallel_sibling_dispatch: false
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把一个可唯一定位的 `分镜组` 收束成可继续 handoff 给一致性处理或图像生成的漫画页图像请求 JSON |
-| `business_object` | `3-Detail/第N集.json` 中的组级事实、镜级顺序、组间设计，以及共享图像请求模板 |
+| `business_object` | `3-Detail/第N集.json` 中的组级事实、镜级顺序、组间设计（含 `出场角色及穿搭`）、镜级 canonical 字段，以及共享图像请求模板 |
 | `constraint_profile` | 不改写上游镜头事实；不虚构对白/旁白/镜头；固定漫画前缀必须逐字保留；`1 shot = 1 panel` 必须显式进入 prompt |
 | `success_criteria` | 组定位唯一、`comic_page_group` 覆盖完整、prompt 约束正确、模板骨架完整、输出 JSON 可追溯可 handoff |
 | `non_goals` | 不直接生成图片、不负责一致性处理、不改写导演意图、不把漫画页渲染结果当主产物 |
@@ -66,7 +66,7 @@ parallel_sibling_dispatch: false
 5. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 6. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 7. `projects/aigc/<项目名>/3-Detail/第N集.json`
-8. `projects/aigc/<项目名>/3-Detail/evidence/` 与 `projects/aigc/<项目名>/4-Design/` 下仅与当前组相关的补充证据（按需）
+8. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json` 与 `projects/aigc/<项目名>/4-Design/` 下仅与当前组相关的补充证据（按需）
 
 ## Shared Canonical Sources (Mandatory)
 
@@ -79,7 +79,7 @@ parallel_sibling_dispatch: false
 
 1. `projects/aigc/<项目名>/3-Detail/第N集.json` 是组级与镜级事实的第一真源。
 2. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 是图像请求骨架的唯一模板真源。
-3. `3-Detail/evidence/` 只作为补充校对证据，不替代 `第N集.json`。
+3. `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` 只作为补充校对证据，不替代 `第N集.json`。
 4. `4-Design` 只作为参照图槽位来源，不得反向改写 `分镜组` 事实。
 5. 当前技能包不得重建 `references/` 规范分层；所有规范细则必须留在本 `SKILL.md`。
 
@@ -94,9 +94,18 @@ parallel_sibling_dispatch: false
 
 ### 可选输入
 
-- `projects/aigc/<项目名>/3-Detail/evidence/` 下与当前组相关的 sidecar
+- `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
+- `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`
 - `projects/aigc/<项目名>/4-Design/` 下角色、场景、道具参考图
 - 父级 `1-提示词蒸馏` 给出的 `output_mode` 要求
+
+### Readiness Gate
+
+进入漫画页蒸馏前，必须确认：
+
+1. `metadata.document_phase in {detail_in_progress, ready}`
+2. 目标组具备 `组间设计.出场角色及穿搭`
+3. 目标组的 `分镜明细[]` 至少能回链 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`
 
 ### 禁止输入
 
@@ -253,9 +262,9 @@ graph LR
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | N1-INTAKE-LOCK | S1 | `FIELD-SB-COMIC-01` | 锁定当前任务是否确实命中 `漫画`，并确定 `episode_id / group_id / output_mode` | 读取父级路由结论、用户显式要求与目标单元 | 路由结论、目标组锚点、输出模式 | 成功 -> N2；对象混杂 -> 回父级；缺锚点 -> 阻塞 | 只有对象唯一时才可继续 |
-| N2-SOURCE-SHELL-GATE | S2 | `FIELD-SB-COMIC-01` | 验证 `3-Detail/第N集.json` 是否具备 shared schema 字段壳与组列表 | 检查 `metadata / final_output / 分镜组列表[]` 与模板读取可用性 | 源壳通过/失败结论 | 通过 -> N3；失败 -> 阻塞 | shared schema 不成立不得继续 |
+| N2-SOURCE-SHELL-GATE | S2 | `FIELD-SB-COMIC-01` | 验证 `3-Detail/第N集.json` 是否具备 shared schema 字段壳与组列表 | 检查 `metadata.document_phase`、`final_output`、`分镜组列表[]` 与模板读取可用性 | 源壳通过/失败结论 | 通过 -> N3；失败 -> 阻塞 | shared schema 不成立不得继续 |
 | N3-GROUP-RESOLVE | S3 | `FIELD-SB-COMIC-01` | 锁定唯一 `分镜组` 与有序 `source_shot_ids` | 按 `分镜组ID` 与组内 `分镜明细[]` 排序回链 | 目标组对象、`source_shot_ids`、冲突说明 | 唯一 -> N4；冲突/缺失 -> 阻塞 | 组与镜头顺序唯一后才可继续 |
-| N4-CONTENT-EXTRACT | S4 | `FIELD-SB-COMIC-02` | 提取 `comic_page_group` 的事实基座 | 抽取 `剧本正文 + 组间设计 + 分镜明细[]`，保留原顺序与原文措辞 | `comic_page_group` 原始内容块 | 完整 -> N5；部分缺口 -> N5 | 提取结果必须可回链上游字段 |
+| N4-CONTENT-EXTRACT | S4 | `FIELD-SB-COMIC-02` | 提取 `comic_page_group` 的事实基座 | 抽取 `剧本正文 + 组间设计（含 出场角色及穿搭） + 分镜明细[]`，保留原顺序与原文措辞，并保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` | `comic_page_group` 原始内容块 | 完整 -> N5；部分缺口 -> N5 | 提取结果必须可回链上游字段 |
 | N5-COMIC-RULE-BIND | S5 | `FIELD-SB-COMIC-02` | 把漫画页特有硬约束绑定到内容块与 `prompt_style` | 明确 `1 shot = 1 panel`、对白/独白/旁白只能落在对应 panel、`prompt_style.type/language` | 漫画约束清单、`prompt_style` 草案 | 成功 -> N6；约束缺失 -> 回到 N4/N5 | 硬约束进入 prompt 前必须齐备 |
 | N6-PROMPT-ASSEMBLY | S6 | `FIELD-SB-COMIC-03` | 生成唯一合法的 `prompt` 与 `prompt_char_count` | 逐字保留固定前缀并直接拼接 `comic_page_group` | 最终 `prompt`、字数统计 | 成功 -> N7；前缀/顺序错误 -> 回到 N5/N6 | prompt 完整后才可填模板 |
 | N7-TEMPLATE-FILL | S7 | `FIELD-SB-COMIC-04` | 以共享模板为骨架填充 `meta + model`，并保留参照图槽位 | 填充 `shot_level/group_id/source_shot_ids`、保留 `reference_images / image_markers`、接入可选参考图 | 结构完整的请求对象草案 | 成功 -> N8；模板漂移 -> 回到 N2/N7 | 模板骨架必须兼容共享真源 |
@@ -279,7 +288,7 @@ graph LR
 
 | aspect | 要求 |
 | --- | --- |
-| `先看什么` | 检查 `3-Detail/第N集.json` 是否存在，且具备 `metadata / final_output.main_content.分镜组列表[]` |
+| `先看什么` | 检查 `3-Detail/第N集.json` 是否存在，且具备 `metadata.document_phase`、`metadata / final_output.main_content.分镜组列表[]` |
 | `必须锁定` | shared schema 壳、组列表存在性、共享模板文件可读 |
 | `执行动作` | 校验 JSON 结构与共享模板骨架，确认后续读取不会落到旧路径或私有模板 |
 | `常见错误` | 只看到了 `分镜组ID` 就继续执行，没有确认 `分镜明细[]`、`组间设计` 是否存在 |
@@ -301,7 +310,7 @@ graph LR
 
 | aspect | 要求 |
 | --- | --- |
-| `先看什么` | 看目标组是否具备 `剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图` 与全部 `分镜明细[]` |
+| `先看什么` | 看目标组是否具备 `剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭` 与全部 `分镜明细[]`，并确认镜级 canonical 字段可回链 |
 | `必须锁定` | `comic_page_group` 的事实基座来自同一组，不混入其他组内容 |
 | `执行动作` | 按原顺序提取组级与镜级字段，构造 `comic_page_group` 原始内容块 |
 | `常见错误` | 只抽镜头摘要，漏掉组级风格或导演意图；或为了压缩字数删除原镜头细节 |

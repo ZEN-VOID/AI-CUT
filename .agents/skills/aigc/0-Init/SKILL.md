@@ -243,7 +243,7 @@ flowchart LR
 - `projects/aigc/<项目名>/`
 - `projects/aigc/<项目名>/0-Init/`
 - `projects/aigc/<项目名>/Story/`
-- `projects/aigc/<项目名>/assets/`
+- `projects/aigc/<项目名>/Assets/`
 - `projects/aigc/<项目名>/1-Planning/`
 - `projects/aigc/<项目名>/2-Global/`
 - `projects/aigc/<项目名>/3-Detail/`
@@ -259,13 +259,13 @@ flowchart LR
 1. 阶段根目录：
    `0-Init / Story / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`
 2. 已建 active 子路径骨架：
-   - `projects/aigc/<项目名>/assets/角色/`
-   - `projects/aigc/<项目名>/assets/道具/`
-   - `projects/aigc/<项目名>/assets/场景/`
-   - `projects/aigc/<项目名>/assets/服装/`
-   - `projects/aigc/<项目名>/assets/分镜画板/分镜帧/`
-   - `projects/aigc/<项目名>/assets/分镜画板/分镜故事板/`
-   - `projects/aigc/<项目名>/assets/分镜画板/漫画/`
+   - `projects/aigc/<项目名>/Assets/角色/`
+   - `projects/aigc/<项目名>/Assets/道具/`
+   - `projects/aigc/<项目名>/Assets/场景/`
+   - `projects/aigc/<项目名>/Assets/服装/`
+   - `projects/aigc/<项目名>/Assets/分镜画板/分镜帧/`
+   - `projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/`
+   - `projects/aigc/<项目名>/Assets/分镜画板/漫画/`
    - `projects/aigc/<项目名>/1-Planning/1-分集/`
    - `projects/aigc/<项目名>/1-Planning/2-格式/`
    - `projects/aigc/<项目名>/1-Planning/3-分组/`
@@ -297,7 +297,7 @@ flowchart LR
 
 当前最容易误读的是：
 
-- `assets`
+- `Assets`
   - 它是项目级辅助资产库，不是阶段真源，也不参与 `project_state` 阶段推进判定
   - `角色 / 道具 / 场景 / 服装` 用于沉淀通用参考资产
   - `分镜画板/分镜帧 + 分镜故事板 + 漫画` 用于沉淀可复用画板资产，不替代 `5-Image` 的 canonical 输出
@@ -337,20 +337,20 @@ flowchart LR
 
 ### Auxiliary Asset Library
 
-- 资产库根：`projects/aigc/<项目名>/assets/`
-- 角色资产：`projects/aigc/<项目名>/assets/角色/`
-- 道具资产：`projects/aigc/<项目名>/assets/道具/`
-- 场景资产：`projects/aigc/<项目名>/assets/场景/`
-- 服装资产：`projects/aigc/<项目名>/assets/服装/`
+- 资产库根：`projects/aigc/<项目名>/Assets/`
+- 角色资产：`projects/aigc/<项目名>/Assets/角色/`
+- 道具资产：`projects/aigc/<项目名>/Assets/道具/`
+- 场景资产：`projects/aigc/<项目名>/Assets/场景/`
+- 服装资产：`projects/aigc/<项目名>/Assets/服装/`
 - 分镜画板资产：
-  - `projects/aigc/<项目名>/assets/分镜画板/分镜帧/`
-  - `projects/aigc/<项目名>/assets/分镜画板/分镜故事板/`
-  - `projects/aigc/<项目名>/assets/分镜画板/漫画/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/分镜帧/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/漫画/`
 
 硬规则：
 
-1. `assets/` 只承载复用型参考资产与人工沉淀素材，不替代任何阶段 canonical 输出。
-2. `assets/分镜画板/分镜帧|分镜故事板|漫画` 与 `5-Image/分镜帧|分镜故事板|漫画` 不是同一层：前者是资产库，后者是阶段业务真源。
+1. `Assets/` 只承载复用型参考资产与人工沉淀素材，不替代任何阶段 canonical 输出。
+2. `Assets/分镜画板/分镜帧|分镜故事板|漫画` 与 `5-Image/分镜帧|分镜故事板|漫画` 不是同一层：前者是资产库，后者是阶段业务真源。
 3. 初始化应预建这些资产目录，但不得因此推断相应阶段已经执行。
 
 ### Lazy Governance Artifacts

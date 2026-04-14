@@ -39,7 +39,7 @@ governance_tier: full
 
 - 需要把一个分镜组整理成多格 storyboard 的图像生成请求 JSON。
 - 用户说的是“storyboard / 故事板 / 多格分镜 / 一组多格图像请求”，而不是单帧或漫画页。
-- 当前任务位于 `1-提示词蒸馏`，后续还要交给 `2-一致性处理` 或 `3-图像生成`。
+- 当前任务位于 `1-提示词蒸馏`，后续还要交给 `2-参照引用` 或 `3-图像生成`。
 - 父级 `1-提示词蒸馏` 已经把对象裁决到组级，多对象混合问题已经被拆开。
 
 ## When Not to Use
@@ -77,7 +77,7 @@ governance_tier: full
 | `constraints` | 不压缩镜头事实、不虚构信息、不直接生成图片、不引入第二真源、不破坏共享模板骨架 |
 | `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏、不做一致性处理、不做模型提交 |
 | `success_criteria` | 分镜组可唯一回链；`storyboard_group` 覆盖完整；固定前缀逐字保留；共享模板骨架完整；输出可 handoff |
-| `evidence_sources` | `3-Detail/第N集.json`、shared schema、shared image template、可选 `3-Detail/evidence/` 与 `4-Design/` |
+| `evidence_sources` | `3-Detail/第N集.json`、shared schema、shared image template、可选 `3-Detail/水月/第N集.field-patch.json`、`3-Detail/镜花/第N集.field-patch.json` 与 `4-Design/` |
 | `canonical_output` | `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json` |
 
 ### 强制加载顺序
@@ -90,7 +90,7 @@ governance_tier: full
 说明：
 
 - 当前仓没有独立的 `.agents/skills/aigc/5-Image/SKILL.md` 阶段根合同；本技能不得再引用该旧路径。
-- `3-Detail/evidence/` 与 `4-Design/` 只作为证据补充或参照图来源，不能覆盖 `3-Detail/第N集.json` 的第一结构化真源地位。
+- `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` 只作为补证或人工核对入口，不能覆盖 `3-Detail/第N集.json` 的第一结构化真源地位。
 
 ## Canonical Inputs
 
@@ -100,8 +100,22 @@ governance_tier: full
 
 ### 推荐补充输入
 
-- `projects/aigc/<项目名>/3-Detail/evidence/` 下相关 sidecar：仅在核对分镜组语义缺口时读取
+- `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`：仅在核对 `出场角色及穿搭 / factual` 缺口时读取
+- `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`：仅在核对 shot skeleton 或 cinematic 缺口时读取
 - `projects/aigc/<项目名>/4-Design/` 下角色、场景、道具参考：仅登记到 `model.reference_images / image_markers`
+
+### Readiness Gate
+
+进入组级蒸馏前，必须确认：
+
+1. `metadata.document_phase in {detail_in_progress, ready}`
+2. 目标组具备 `组间设计.出场角色及穿搭`
+3. 目标组的 `分镜明细[]` 至少能回链：
+   - `分镜ID`
+   - `角色背景面`
+   - `角色站位走位`
+   - `道具及状态`
+   - `分镜表现`
 
 ## Canonical Landing
 
@@ -131,7 +145,7 @@ governance_tier: full
 
 - 主干节点固定为：`N0 入口锁定 -> N1 上游完整性校验 -> N2 分镜组定位 -> N3 storyboard_group 组织 -> N4 prompt 装配 -> N5 模板映射 -> N6 落盘与验收`
 - 条件支路只有两类：
-  - `B1 证据补读支路`：仅在 `3-Detail/第N集.json` 组级字段不足以支撑人工核对时触发
+  - `B1 证据补读支路`：仅在 `3-Detail/第N集.json` 组级或镜级 canonical 字段不足以支撑人工核对时，按需补读 `水月 / 镜花` sidecar
   - `B2 full_trace 支路`：仅在用户或父级明确要求时输出 `_manifest.json`
 - 任一失败都必须回退到具体节点，而不是跳过或整盘重来
 - 只有 `N6` 通过汇流门，才允许宣布完成
@@ -200,7 +214,7 @@ stateDiagram-v2
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N0-intake-lock` | 锁定本轮就是“组级 storyboard 请求 JSON 蒸馏” | 用户意图、父级路由结论、本技能合同 | 冻结对象类型、输出模式默认值、非目标 | 路由结论、对象边界说明 | `success -> N1`；`wrong_object -> 回父级重路由` | 未锁定对象不得进入主干 |
-| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema | 检查结构壳、`分镜组列表[]`、关键字段存在性 | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> B1/N2`；`broken -> 停止` | 上游结构不成立不得继续 |
+| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema | 检查 `document_phase`、结构壳、`分镜组列表[]`、关键字段存在性 | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> B1/N2`；`broken -> 停止` | 上游结构不成立不得继续 |
 | `N2-group-lock` | 锁定当前要蒸馏的分镜组与镜头顺序 | `分镜组列表[]`、父级或用户提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认顺序 | 目标 `group_id`、有序 `source_shot_ids` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
 | `N3-block-synthesize` | 组织完整 `storyboard_group` 内容块 | 目标组、可选 evidence sidecar | 提取组级字段与全部 `分镜明细[]`，必要时保守留空 | `storyboard_group` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
 | `N4-prompt-assemble` | 生成固定前缀 + `storyboard_group` 的 prompt | 固定英文前缀、内容块 | 逐字保留前缀、直接拼接、统计字数 | `prompt`、`prompt_char_count` | `success -> N5`；`prefix_drift -> 回 N4` | prompt 结构成立 |
@@ -235,8 +249,9 @@ stateDiagram-v2
 #### 着手面
 
 - `3-Detail/第N集.json` 是否符合 shared schema 的三段式壳
+- `metadata.document_phase` 是否已到 `detail_in_progress | ready`
 - `final_output.main_content.分镜组列表[]` 是否存在
-- 组内是否包含 `分镜组ID / 剧本正文 / 组间设计 / 分镜明细[]`
+- 组内是否包含 `分镜组ID / 剧本正文 / 组间设计 / 分镜切换 / 分镜明细[]`
 - 缺口是“全局缺口”还是“局部缺口”
 
 #### 一步一步
@@ -244,14 +259,15 @@ stateDiagram-v2
 1. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 2. 对照 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 检查 shared 壳是否成立。
 3. 检查 `分镜组列表[]` 是否存在且至少含一个可消费组。
-4. 将缺口拆成两类：
+4. 检查 `metadata.document_phase` 是否处于 `detail_in_progress | ready`；若不是，直接停止并回报上游阶段缺口。
+5. 将缺口拆成两类：
    - 全局缺口：`分镜组列表[]` 缺失、shared 壳破坏
-   - 局部缺口：某些描述字段不完整，但组结构仍成立
-5. 全局缺口直接停止；局部缺口可带着保守留空标记继续。
+   - 局部缺口：`出场角色及穿搭` 或镜级 canonical 字段局部缺失，但组结构仍成立
+6. 全局缺口直接停止；局部缺口可带着保守留空标记继续。
 
 #### 条件支路 `B1`
 
-- 仅当局部缺口影响人工理解，但不影响组结构时，补读 `3-Detail/evidence/`。
+- 仅当局部缺口影响人工理解，但不影响组结构时，按需补读 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json`。
 - 该支路只补“解释能力”，不改写第一事实源。
 
 ### N2 `group-lock`
@@ -293,7 +309,8 @@ stateDiagram-v2
    - `组间设计.全局风格`
    - `组间设计.类型元素`
    - `组间设计.导演意图`
-2. 按上游原顺序拼入全部 `分镜明细[]`。
+   - `组间设计.出场角色及穿搭`
+2. 按上游原顺序拼入全部 `分镜明细[]`，并保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
 3. 严禁压缩、重写或脑补镜头事实；只允许做结构化整理。
 4. 若某组级字段为空，但镜头顺序和组边界仍成立，则显式保守留空。
 5. 形成 `storyboard_group` 内容块，并做字段覆盖检查。
@@ -378,7 +395,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 6. 执行 `N4`，用固定英文前缀装配 `prompt` 并计算 `prompt_char_count`。
 7. 执行 `N5`，把组信息和 prompt 映射到 shared image template 骨架。
 8. 执行 `N6`，写 `第N集.json`；若要求 `full_trace`，走 `B2` 额外输出 `_manifest.json`。
-9. 通过汇流门后，把 handoff 关系明确交给 `2-一致性处理` 或 `3-图像生成`。
+9. 通过汇流门后，把 handoff 关系明确交给 `2-参照引用` 或 `3-图像生成`。
 
 ## Convergence Contract
 
@@ -435,14 +452,14 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 1. 每个分镜组在 `第N集.json` 中只生成 1 条请求对象。
 2. `prompt` 必须严格由固定英文前缀开头，并直接拼接 `storyboard_group`。
-3. `storyboard_group` 必须覆盖该分镜组的 `分镜组ID`、`剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图` 与全部按原顺序排列的 `分镜明细[]`。
+3. `storyboard_group` 必须覆盖该分镜组的 `分镜组ID`、`剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭` 与全部按原顺序排列的 `分镜明细[]`；镜级至少保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
 4. `storyboard_group` 的内容允许直接使用上游信息，不做文字压缩，也不虚构补写上游没有的镜头事实。
 5. `meta.shot_level` 固定为 `storyboard_group`；`meta.group_id` 与 `meta.source_shot_ids` 必须能完整回链该组。
 6. `prompt_style.type` 固定服务多格故事板；`prompt_style.language` 默认标记为 `mixed`。
 7. `model` 必须保持图像侧参数骨架完整；`reference_images` 与 `image_markers` 在缺图时也必须保留空骨架。
 8. `prompt_char_count` 必须与实际 `prompt` 内容一致。
 9. 默认输出模式为 `json_only`；只有用户或父级明确要求时，才额外输出 `_manifest.json`。
-10. 图片生成与一致性处理属于后续子技能，本技能不得越权执行。
+10. 图片参照绑定与真实生成属于后续子技能，本技能不得越权执行。
 
 ### `_manifest.json` 最低要求
 
@@ -465,7 +482,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 ## Handoff Contract
 
 - 本技能的消费单位是分镜组，不下沉为单帧执行面。
-- 当前产物默认交给 `5-Image/2-一致性处理` 与 `5-Image/3-图像生成` 继续消费。
+- 当前产物默认先交给 `5-Image/2-参照引用`；若明确 `prompt_only`，也可直接交给 `5-Image/3-图像生成`。
 - 本技能本身不负责真实图片生成。
 
 ## Type Strategy Matrix

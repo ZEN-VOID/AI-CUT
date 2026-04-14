@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -12,6 +13,7 @@ from typing import Any
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 TEMPLATE_PATH = SKILL_DIR / "templates" / "scene-panel-layout.template.json"
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 
 
 @dataclass
@@ -43,6 +45,18 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--dry-run", action="store_true", help="仅打印将写出的文件")
     parser.add_argument("--force", action="store_true", help="覆盖已存在输出")
+    parser.add_argument("--auto-generate", action="store_true", help="写完 panel packet 后自动桥接到 nano-banana/general")
+    parser.add_argument(
+        "--smart-mode",
+        choices=("auto", "continuous-batch", "single-doc-t2i", "off"),
+        default="auto",
+        help="自动生图桥的 SMART 模式",
+    )
+    parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
+    parser.add_argument("--max-concurrent", type=int, default=100, help="自动生图桥最大并发")
+    parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
+    parser.add_argument("--no-save-images", action="store_true", help="自动生图时不落 PNG")
+    parser.add_argument("--no-report", action="store_true", help="自动生图时跳过 nano-banana report JSON")
     return parser.parse_args()
 
 
@@ -60,6 +74,30 @@ def dump_json(path: Path, payload: Any) -> None:
 
 def join_nonempty(parts: list[str], *, separator: str = "\n\n") -> str:
     return separator.join(part.strip() for part in parts if part and part.strip())
+
+
+def _load_panel_auto_generate_module() -> Any:
+    module_path = Path(__file__).resolve().parents[2] / "_shared" / "panel_auto_generate.py"
+    spec = importlib.util.spec_from_file_location("panel_auto_generate_bridge", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"无法加载自动生图桥接脚本: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def collect_adjacent_images(markdown_path: str) -> list[str]:
+    text = str(markdown_path).strip()
+    if not text:
+        return []
+    path = Path(text)
+    if not path.exists():
+        return []
+    return sorted(
+        file.as_posix()
+        for file in path.parent.iterdir()
+        if file.is_file() and file.suffix.lower() in IMAGE_EXTENSIONS
+    )
 
 
 def build_negative_prompt(template_payload: dict[str, Any], reverse_taboos: list[str]) -> str:
@@ -175,6 +213,7 @@ def main() -> int:
     for panel in selected_entries:
         layout_path = output_root / f"{panel.scene_key}-layout.json"
         ensure_writable(layout_path, args.force)
+        reference_images = collect_adjacent_images(panel.design_markdown_path)
         layout_payload = {
             "meta": {
                 "project_name": args.project,
@@ -182,6 +221,7 @@ def main() -> int:
                 "scene_key": panel.scene_key,
                 "scene_name": panel.scene_name,
                 "source_scene_design": design_path.as_posix(),
+                "source_design_markdown": panel.design_markdown_path,
             },
             "subject": {
                 "scene_key": panel.scene_key,
@@ -198,6 +238,29 @@ def main() -> int:
             "prompt": panel.panel_prompt,
             "negative_prompt": panel.negative_prompt,
             "panel_handoff": panel.panel_handoff,
+            "image_generation": {
+                "target_skill_id": "nano-banana-general",
+                "smart_mode_default": "continuous-batch",
+                "prompt_field": "prompt",
+                "prompt_text": panel.panel_prompt,
+                "prompt_reference_sections": [
+                    "prompt",
+                    "negative_prompt",
+                    "panel_handoff",
+                ],
+                "reference_images": reference_images,
+                "explicit_references": args.reference,
+                "continuity_source_roots": list(
+                    dict.fromkeys(
+                        [
+                            design_path.parent.as_posix(),
+                            *( [str(Path(panel.design_markdown_path).parent)] if panel.design_markdown_path else [] ),
+                        ]
+                    )
+                ),
+                "output_filename": f"{panel.scene_key}-ScenePanel.png",
+                "request_id": f"{panel.scene_key}-scene-panel",
+            },
             "output_hint": {
                 "downstream_stage": "5-Image",
                 "suggested_filename": f"{panel.scene_key}-ScenePanel.png",
@@ -231,7 +294,17 @@ def main() -> int:
         "source_inputs": [design_path.as_posix(), TEMPLATE_PATH.as_posix()],
         "output_files": [episode_path.as_posix(), manifest_path.as_posix(), *output_files],
         "review_status": "pass",
+        "handoff_targets": [
+            "5-Image",
+            "nano-banana-general",
+        ],
     }
+    if args.auto_generate:
+        manifest_payload["image_generation"] = {
+            "enabled": True,
+            "smart_mode_requested": args.smart_mode,
+            "status": "pending" if not args.dry_run else "skipped-dry-run",
+        }
 
     if args.dry_run:
         for path in [episode_path, manifest_path, *map(Path, output_files)]:
@@ -239,8 +312,44 @@ def main() -> int:
         return 0
 
     dump_json(episode_path, episode_carrier)
+    auto_generate_failed = False
+    if args.auto_generate:
+        try:
+            bridge_module = _load_panel_auto_generate_module()
+            auto_generate_result = bridge_module.run_panel_auto_generate(
+                [Path(path) for path in output_files],
+                manifest_path=manifest_path,
+                smart_mode=args.smart_mode,
+                explicit_references=args.reference,
+                max_concurrent=args.max_concurrent,
+                print_payload=args.print_payload,
+                save_images=not args.no_save_images,
+                no_report=args.no_report,
+                pipeline_context="panel-stage",
+            )
+            manifest_payload["image_generation"] = {
+                "enabled": True,
+                "smart_mode_requested": args.smart_mode,
+                "smart_mode_resolved": auto_generate_result.get("smart_mode_resolved", ""),
+                "success": bool(auto_generate_result.get("success", False)),
+                "task_count": auto_generate_result.get("task_count", 0),
+                "success_count": auto_generate_result.get("success_count", 0),
+                "failed_count": auto_generate_result.get("failed_count", 0),
+                "request_batch_path": auto_generate_result.get("request_batch_path"),
+                "bridge_report_path": auto_generate_result.get("bridge_report_path"),
+                "batch_report_path": auto_generate_result.get("batch_report_path"),
+            }
+            auto_generate_failed = not bool(auto_generate_result.get("success", False))
+        except Exception as exc:
+            manifest_payload["image_generation"] = {
+                "enabled": True,
+                "smart_mode_requested": args.smart_mode,
+                "success": False,
+                "error": str(exc),
+            }
+            auto_generate_failed = True
     dump_json(manifest_path, manifest_payload)
-    return 0
+    return 1 if auto_generate_failed else 0
 
 
 if __name__ == "__main__":

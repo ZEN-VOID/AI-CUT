@@ -22,6 +22,7 @@
 | 面板阶段越权做图片生成 | 阶段边界层 | 停在 panel carrier 落盘，不调用生图 | 在 `SKILL.md`、脚本 CLI 与输出契约中固定 JSON-only 边界 | 运行后只生成 JSON |
 | identity badge 漂移，导致场景面板无法稳定追溯 | 命名合同层 | 固定 `<scene_key> + <scene_name>` identity badge | 在模板与脚本中统一 badge 生成规则 | 每个 layout 都有稳定 badge |
 | `SKILL.md` 与 `references/*.md` 并行演化，导致 scene panel 合同出现第二真源 | 真源治理层 | 把字段表、流程、判型、输出合同全部收回单一 `SKILL.md` | 对该技能固定 `inline-full-spec`，删除旧 reference 规范文件 | 技能目录内不再存在会继续演化的平行规范源 |
+| 连续批量任务里场景设计图没有自动成为 panel 生图参照 | SMART bridge 层 | 在 packet 写稳后按 `continuous-batch` 扫描 `2-设计/第N集/` 图像并桥接 `nano-banana/general` | 用共享 bridge 脚本统一 continuity ref 扫描和 request sidecar | request sidecar 中出现正确的场景 continuity refs |
 
 ## Repair Playbook
 
@@ -39,3 +40,4 @@
 - 面板阶段最容易越权到“直接生图”，但当前仓的真边界是 `4-Design` 负责 carrier，`5-Image` 负责图像生成。
 - 当一个叶子技能的复杂度主要来自判型、写回和汇流，而不是来自跨文件规则族时，`inline-full-spec` 往往比 `SKILL + references` 更稳，因为读者在一个文档里就能完成定位、判断和执行。
 - 场景面板的高质量不来自“写更多文案”，而来自逐节点锁定：输入体检、design_state 判型、主 prompt 收束、negative 合成、双层 carrier 同源写回。
+- 场景面板若启用自动生图，应该先把 `prompt / negative_prompt / panel_handoff` 固化进 packet，再让 SMART bridge 决定是 I2I 还是 T2I，而不是在模型调用前临时重组。

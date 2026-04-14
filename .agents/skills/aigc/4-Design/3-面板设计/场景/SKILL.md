@@ -8,9 +8,9 @@ governance_tier: full
 
 ## 概述
 
-`3-面板` 负责把 `2-设计` 已收束的场景设计 carrier，继续整理成可展示、可审阅、可被 `5-Image` 或人工流程继续消费的场景面板 layout package。
+`3-面板` 负责把 `2-设计` 已收束的场景设计 carrier，继续整理成可展示、可审阅、可被 `5-Image`、`nano-banana/general` 或人工流程继续消费的场景面板 layout package。
 
-它的工作不是再造第二份场景设计稿，也不是直接进入图片生成。它只做一件事：把 `场景设计.json` 中已经稳定的空间事实、布局意图与禁区信息，收束为统一的 16:9 九宫格 scene panel carrier。
+它的工作不是再造第二份场景设计稿。canonical 停点仍是 scene panel packet；若用户要求自动生图，则在 packet 写稳之后再按 SMART 合同桥接到 `nano-banana/general`，而不是先跳过 packet 直接出图。
 
 本轮采用 `skill-知行合一` 的单一真源编排，且显式关闭“复杂链路的骨架 / 细则分层”：
 
@@ -31,7 +31,7 @@ governance_tier: full
 
 - 当前还没有 `2-设计` 的合法输入，应先回退到 `4-Design/场景/2-设计`。
 - 当前任务是补场景设计字段或改场景设计世界观，不应越权停留在本阶段。
-- 当前任务是直接生图、视频或镜头请求，应进入 `5-Image` 或 `6-Video`。
+- 当前任务是视频或镜头请求，应进入 `6-Video`；若只是从当前 packet 自动出图，可留在本阶段的 SMART bridge。
 
 ## Business Requirement Analysis Contract
 
@@ -52,7 +52,7 @@ governance_tier: full
 
 - 第一输入根必须是 `场景设计.json`，不得回退成从导演 JSON 直接发明面板。
 - 布局合同固定为 `16:9 + 3x3 + 9 panels`。
-- 本阶段只产出 JSON carrier，不直接出图。
+- 本阶段的 canonical 产物仍是 JSON carrier；若启用 SMART 自动生图，PNG 与 request/report 只作为 derived sidecar。
 - episode 聚合 carrier 与 per-scene layout 必须同源，不能各写各的。
 - negative prompt 必须稳定继承模板禁区与 `reverse_taboos`。
 
@@ -67,7 +67,7 @@ governance_tier: full
 
 - 不补写 `场景设计.json`
 - 不替代 `2-设计` 的思考与设计判断
-- 不自动触发图像或视频生成
+- 不自动绕过 packet 直接生成图像或视频
 - 不把逐场景 Markdown 卡片重写成新真源
 
 ### 拓扑判断
@@ -143,7 +143,7 @@ python3 .agents/skills/aigc/4-Design/3-面板设计/场景/scripts/generate_scen
 1. 脚本只承接模板装配与落盘，不得替代 `2-设计` 的结构化思考。
 2. 若 `scene_designs[]` 缺少 `scene_key` 或 `final_scene_prompt`，必须失败退出，不得静默补空。
 3. 若输出已存在，默认不覆盖；除非显式传 `--force`。
-4. 本阶段不得自动调用图片生成或视频生成脚本。
+4. 若启用自动生图，必须先写稳 packet，再桥接到 `nano-banana/general`；不得绕过 packet 直接调用模型。
 
 ## Visual Maps
 

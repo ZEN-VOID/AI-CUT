@@ -24,13 +24,14 @@ governance_tier: full
 - 各域模板与输出根是否稳定的阶段级检查
 - `projects/aigc/<项目名>/4-Design/validation-report.md` 的 panel-stage 验收摘要
 - 指向 `5-Image / review` 的统一 handoff 说明
+- `panel packet -> nano-banana/general` 的 SMART 自动生图桥接规则
 
 父层不拥有：
 
 - 直接写某一域 layout packet 内容
 - 改写 `2-主体设计` 的 design master 或 prompt sidecar
 - 代替 leaf 重建模板结构
-- 自动触发图片或视频生成
+- 把 PNG、request sidecar 或 report 升格为 `3-面板` 业务真源
 
 ## Stage Coverage Status
 
@@ -45,6 +46,7 @@ governance_tier: full
 
 - 强制读取：`.agents/skills/aigc/4-Design/2-主体设计/SKILL.md`
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
+- 强制读取：`_shared/smart-image-handoff-contract.md`
 - 强制读取：`场景/SKILL.md`
 - 强制读取：`角色/SKILL.md`
 - 强制读取：`服装/SKILL.md`
@@ -53,9 +55,11 @@ governance_tier: full
 硬规则：
 
 1. 各域 panel 第一输入根必须来自对应的 `2-主体设计` canonical carrier。
-2. panel packet 只承载 layout / prompt / display handoff，不反写设计事实。
+2. panel packet 只承载 layout / prompt / display handoff，不反写设计事实；若自动调用 `nano-banana/general`，生成的 PNG 与 request/report 仅是派生 sidecar。
 3. 模板缺失时应阻塞对应域，不得在父层或脚本里另造第二模板。
 4. 若用户请求全量 panel build，四域默认可以并行候选；只有用户显式要求共享审阅包时才等全部域汇流后统一说明。
+5. `SMART=Stage-aware Material Auto-Reference Transfer`；在 `1-主体清单 -> 2-主体设计 -> 3-面板设计` 连续批量链路中，默认把 `2-主体设计` 的对应主体图自动并入 `nano-banana/general` 的 `images[]`。
+6. 当用户单独指定某个文档或 JSON 发起生图时，默认解析为 `single-doc-t2i`，除非用户显式追加参考图。
 
 ## Context Preload (Mandatory)
 
@@ -67,11 +71,12 @@ governance_tier: full
 4. `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
 6. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-7. `场景/SKILL.md + CONTEXT.md`
-8. `角色/SKILL.md + CONTEXT.md`
-9. `服装/SKILL.md + CONTEXT.md`
-10. `道具/SKILL.md + CONTEXT.md`
-11. 各域 `2-主体设计` 输出与已存在 `3-面板设计` 产物（若存在）
+7. `_shared/smart-image-handoff-contract.md`
+8. `场景/SKILL.md + CONTEXT.md`
+9. `角色/SKILL.md + CONTEXT.md`
+10. `服装/SKILL.md + CONTEXT.md`
+11. `道具/SKILL.md + CONTEXT.md`
+12. 各域 `2-主体设计` 输出与已存在 `3-面板设计` 产物（若存在）
 
 ## Total Input Contract (Mandatory)
 
@@ -92,6 +97,7 @@ governance_tier: full
 - 各域逐项 Markdown / 设计卡
 - 用户显式指定的 `selected_domains[] / selected_items[]`
 - 已存在的各域 `3-面板设计` 输出
+- 用户显式指定的 `smart_mode / auto_generate / reference[]`
 
 ### 硬规则
 
@@ -99,6 +105,7 @@ governance_tier: full
 2. 若 design carrier 缺失，必须回退到 `2-主体设计`，不得从 `1-主体清单` 或 `3-Detail` 补猜 panel。
 3. 若模板缺失，必须阻塞对应域并写明缺口。
 4. 同轮多域执行时，未命中的域不得补空 packet。
+5. 若启用自动生图，必须先写稳 panel packet，再从 packet 生成 request sidecar，最后才调用 `nano-banana/general`。
 
 ## Route And Topology Contract (Mandatory)
 
@@ -116,6 +123,8 @@ governance_tier: full
 3. 用户只指定单域时，本轮只命中该域。
 4. 全量 panel build 时，四域可并行候选；父层只汇总 coverage 与 handoff readiness。
 5. 若某域仅需修补 manifest 或单个 packet，本轮不得重跑整集其余域。
+6. 若开启 `SMART auto_generate`，且当前上下文属于阶段连续批量任务，则 resolved mode 固定为 `continuous-batch`。
+7. 若用户单独点名某个文档或 JSON 发起生图，则 resolved mode 固定为 `single-doc-t2i`。
 
 ## Canonical Output Governance (Mandatory)
 
@@ -131,6 +140,7 @@ governance_tier: full
 1. 父层不生成跨域 `panel_master.json`。
 2. 父层只在 `projects/aigc/<项目名>/4-Design/validation-report.md` 记录命中域、blocked templates、下游 handoff。
 3. `5-Image` 只能消费已稳定写出的 packet，不应要求 panel 阶段重造设计事实。
+4. 自动生图产物必须落在各域 `3-面板/.../generated/` 下，不得覆盖 packet 所在目录的 canonical JSON。
 
 ## Field Master
 
@@ -140,7 +150,8 @@ governance_tier: full
 | `FIELD-PANEL-STAGE-02` | 调度裁决 | 明确命中域、并行候选和 selective dispatch | `S2` | 路由完整性 | `FAIL-PANEL-STAGE-02` |
 | `FIELD-PANEL-STAGE-03` | 输入 carrier | 固定各域从 `2-主体设计` carrier 起步 | `S3` | 真源一致性 | `FAIL-PANEL-STAGE-03` |
 | `FIELD-PANEL-STAGE-04` | 模板与输出治理 | 固定 packet、aggregate 与 manifest 边界 | `S4` | 输出治理 | `FAIL-PANEL-STAGE-04` |
-| `FIELD-PANEL-STAGE-05` | 验收回接 | 锁 `5-Image / review` handoff | `S5` | 闭环完整性 | `FAIL-PANEL-STAGE-05` |
+| `FIELD-PANEL-STAGE-05` | SMART 生图桥 | 锁 `nano-banana/general` 的 prompt/ref/output sidecar 合同 | `S5` | 桥接一致性 | `FAIL-PANEL-STAGE-05` |
+| `FIELD-PANEL-STAGE-06` | 验收回接 | 锁 `5-Image / review` handoff | `S6` | 闭环完整性 | `FAIL-PANEL-STAGE-06` |
 
 ## Thought Pass Map
 
@@ -150,7 +161,8 @@ governance_tier: full
 | `S2` | `FIELD-PANEL-STAGE-02` | 本轮命中哪些域、是否需要并行 | 写 route 与 selective dispatch | 多域执行没有任何调度规则 |
 | `S3` | `FIELD-PANEL-STAGE-03` | 输入 carrier 是否从 `2-主体设计` 正确继承 | 回指 design carrier 输入根 | 回头从 detail 或 list 直接造 panel |
 | `S4` | `FIELD-PANEL-STAGE-04` | 模板与 packet 输出是否稳定 | 写模板门和输出治理表 | manifest 或 aggregate 越权承载事实 |
-| `S5` | `FIELD-PANEL-STAGE-05` | 如何证明本轮已可下游消费 | 写 validation 摘要与 handoff | 没有 `5-Image` 或 review 入口 |
+| `S5` | `FIELD-PANEL-STAGE-05` | 自动生图时 prompt / refs / output sidecar 是否可追溯 | 统一 SMART 合同与 `nano-banana/general` request sidecar | 自动生图时每个 leaf 都各写一套桥接规则 |
+| `S6` | `FIELD-PANEL-STAGE-06` | 如何证明本轮已可下游消费 | 写 validation 摘要与 handoff | 没有 `5-Image` 或 review 入口 |
 
 ## Pass Table
 
@@ -160,7 +172,8 @@ governance_tier: full
 | `FIELD-PANEL-STAGE-02` | 多域调度与 selective dispatch 明确 | `FAIL-PANEL-STAGE-02` | `S2` |
 | `FIELD-PANEL-STAGE-03` | 各域统一从 `2-主体设计` carrier 起步 | `FAIL-PANEL-STAGE-03` | `S3` |
 | `FIELD-PANEL-STAGE-04` | 模板、packet、aggregate、manifest 边界稳定 | `FAIL-PANEL-STAGE-04` | `S4` |
-| `FIELD-PANEL-STAGE-05` | `validation-report` 与 `5-Image / review` handoff 明确 | `FAIL-PANEL-STAGE-05` | `S5` |
+| `FIELD-PANEL-STAGE-05` | SMART bridge 与 `nano-banana/general` request sidecar 合同明确 | `FAIL-PANEL-STAGE-05` | `S5` |
+| `FIELD-PANEL-STAGE-06` | `validation-report` 与 `5-Image / review` handoff 明确 | `FAIL-PANEL-STAGE-06` | `S6` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -170,6 +183,7 @@ governance_tier: full
 - 模板缺失却在脚本里临时拼结构
 - packet 开始回写设计事实
 - `5-Image` 仍需重猜 packet 路径或 prompt 来源
+- 四个 leaf 各自复制一套自动生图 prompt/ref 规则
 
 必经链路：
 
@@ -179,6 +193,7 @@ governance_tier: full
 
 - `Rule Source`
   - `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板设计/_shared/smart-image-handoff-contract.md`
   - 四个子技能 `SKILL.md`
   - `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md`
 - `Meta Rule Source`
@@ -198,3 +213,4 @@ governance_tier: full
 - 已锁定四域从 `2-主体设计` carrier 起步的输入边界
 - 已明确多域 panel build 的并行候选与 selective dispatch
 - 已给出 `projects/aigc/<项目名>/4-Design/validation-report.md` 的 panel-stage 验收回接
+- 已建立 `SMART` 自动生图合同：连续批量任务默认继承 `2-主体设计` 图像为参照；单文档 / 单 JSON 默认按 T2I

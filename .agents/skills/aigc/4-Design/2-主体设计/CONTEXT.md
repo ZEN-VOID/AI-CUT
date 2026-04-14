@@ -22,6 +22,7 @@
 | `角色` 与 `服装` 同轮刷新后相互漂移 | 依赖门层 | 先稳定角色设计，再补服装设计 | 在父层明确 `角色 -> 服装` 的软依赖门 | 同轮服装更新不再脱离角色约束 |
 | full-build 时四域全部串行，周期过长 | 调度拓扑层 | 回到 `场景 + 角色 + 道具` 先行、`服装` 后置 | 父层把批次和 selective dispatch 固定为默认策略 | 多域构建耗时下降且依赖仍正确 |
 | `3-面板设计` 需要重新猜 design carrier 或路径 | handoff 层 | 回查 design master、sidecar、card 的命名和路径 | 父层验收强制检查下游可读性与路径一致性 | 下游直接消费，无需重新映射 |
+| 自动生图时直接手写 prompt，绕过设计载体 | auto-image handoff 层 | 回到域内 prompt 真源读取 | 在父层固定四域 prompt 引用优先级表，并把 provider 锁为 `nano-banana/general` | 自动生图不再和设计真源脱钩 |
 
 ## Repair Playbook
 
@@ -29,7 +30,12 @@
 2. 再检查该域是否从对应 `1-主体清单` 输出起步，而不是回头把 detail 当第一输入根。
 3. 若同轮命中 `角色` 与 `服装`，优先核对依赖门是否已经显式触发。
 4. 再检查 design master 与 secondary outputs 是否混层。
-5. 最后汇总到 `projects/aigc/<项目名>/4-Design/validation-report.md`，记录 blocked domain 与下游 handoff readiness。
+5. 若本轮带自动生图，再按域核对 prompt 真源：
+   - 场景 `final_scene_prompt`
+   - 角色 `prompt_integration`
+   - 服装 `costume_design_prompt.json.costumes[].prompt_cn`
+   - 道具 `prop_design_prompt.json.props[].prompt_cn`
+6. 最后汇总到 `projects/aigc/<项目名>/4-Design/validation-report.md`，记录 blocked domain 与下游 handoff readiness。
 
 ## Reusable Heuristics
 
@@ -38,3 +44,4 @@
 - `角色 -> 服装` 的依赖通常不是绝对硬门，但在 full-build 中把它写成默认顺序最稳。
 - 真正可靠的 handoff 不是“某个 Markdown 写完了”，而是下游能直接读取 design master 和必要 sidecar。
 - stage-level 验收只记录 coverage、blocked 域和下一入口，不应在父层生成新的跨域设计主稿。
+- 自动生图最稳的做法不是再写一套新 prompt，而是直接读取域内已稳定的 prompt carrier，再把 provider 固定到 `nano-banana/general`。

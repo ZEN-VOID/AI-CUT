@@ -20,7 +20,7 @@ governance_tier: full
 - 输入根仍固定为 `服装设计.json + costume_design_prompt.json`
 - 模板真源仍是 `templates/服装面板-提示词.json`
 - runner 仍是 `scripts/generate_costume_panels.py`
-- 停点仍是 layout JSON，不直接生 PNG
+- canonical 停点仍是 layout JSON；若启用 SMART 自动生图，PNG 与 request/report 只作为 derived sidecar
 
 ## Skill Execution Rule (Mandatory)
 
@@ -40,7 +40,7 @@ governance_tier: full
 ## When Not to Use
 
 - 还没有 `costume_design_bridge.json` 或 `服装设计.json`，应先回到 `1-清单` 或 `2-设计`。
-- 当前任务是直接执行图片生成、视频请求或素材发布，而不是先固化 panel layout。
+- 当前任务若要绕过 panel packet 直接执行视频请求或素材发布，应离开本阶段；若只是从当前 packet 自动出图，可留在本阶段的 SMART bridge。
 - 当前只是修补角色设计或导演事实，不应在本阶段绕行。
 
 ## Mode Selection

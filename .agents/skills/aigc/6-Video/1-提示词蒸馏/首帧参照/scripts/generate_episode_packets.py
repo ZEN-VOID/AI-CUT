@@ -412,7 +412,14 @@ def build_request_packet(
     if "reference_images" not in packet["model"]:
         packet["model"]["reference_images"] = []
     if "image_markers" not in packet["model"] or not isinstance(packet["model"]["image_markers"], list):
-        packet["model"]["image_markers"] = [{"image_url": "<图片URL>", "related_subject": "<关联主体>", "image_no": "图1"}]
+        packet["model"]["image_markers"] = [
+            {
+                "image_ref": "<图片引用>",
+                "ref_kind": "pending",
+                "related_subject": "<关联主体>",
+                "image_no": "图1",
+            }
+        ]
     packet["prompt"] = prompt
     packet["prompt_char_count"] = len(prompt)
     return packet
@@ -487,7 +494,7 @@ def validate_packet(packet: dict[str, Any], group: dict[str, Any], shot: dict[st
     if not isinstance(image_markers, list) or not image_markers:
         raise ValueError(f"{shot_id} 缺少 image_markers 模板骨架。")
     for marker in image_markers:
-        if not isinstance(marker, dict) or sorted(marker.keys()) != ["image_no", "image_url", "related_subject"]:
+        if not isinstance(marker, dict) or sorted(marker.keys()) != ["image_no", "image_ref", "ref_kind", "related_subject"]:
             raise ValueError(f"{shot_id} 的 image_markers 结构不符合共享模板骨架。")
 
 

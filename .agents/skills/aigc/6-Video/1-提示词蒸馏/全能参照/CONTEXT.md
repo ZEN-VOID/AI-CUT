@@ -38,13 +38,13 @@
 | `镜头属性` 前被机械补上“为”，导致行文发僵 | 术语落句层 | 去掉术语前缀，直接落 `定场镜头 / 规训镜头 / 权力落位镜头` | 在 `SKILL.md`、共享模板、入口 prompt 与生成脚本里统一固定“镜头属性直接落术语本体” | 不再出现“为定场镜头”“为规训镜头” |
 | `prompt_char_count` 与 JSON 中实际 `prompt` 长度不一致 | 输出统计层 | 回到最终 JSON 主体，以实际落盘 `prompt` 文本重新计数 | 在 `SKILL.md` 固化“按最终落盘 prompt 计数并回读 JSON 复核” | `len(prompt) == prompt_char_count` |
 | `第N集.txt` 中 section header 与 prompt 首行重复显示同一 `分镜组ID` | TXT 派生视图层 | 保留 section header，并去掉 TXT 中重复的 prompt 首行组 ID | 在 `SKILL.md` 固化“TXT 已显示组 ID 时不得重复显示 prompt 首行组 ID” | `第N集.txt` 每组只出现一次组 ID header |
-| `reference_images` 缺失，或 `image_markers` 的 URL/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐三元信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
+| `reference_images` 缺失，或 `image_markers` 的引用/类型/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐四字段信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
 | 执行脚本把项目根误拼成 `projects/<项目名>/`，导致 canonical 项目下无法找到 `3-Detail/第N集.json` | 项目命名空间层 | 把脚本项目根解析收束到 `projects/aigc/<项目名>/`，并在缺失时显式报 canonical path | 对所有 `aigc` 阶段脚本统一复用 `projects/aigc/<项目名>/` 作为运行时命名空间，不再让叶子脚本各自拼路径 | 脚本能直接读取 `projects/aigc/<项目名>/3-Detail/第N集.json` 并把产物写回同一项目根 |
 | 句式规则散落在 `build_*` 函数里，调整输出风格时必须同时改多个函数 | 句法真源治理层 | 把组级桥接、镜级句式槽、压缩级别与可选挂句收束到 `prompt-assembly-spec.md`，脚本只消费 spec | 对可重复演化的 prompt assembly 逻辑，优先建立“人可读 + 机可读”的 spec 真源，不再让脚本硬编码句法 | 调整句式时只需改 `prompt-assembly-spec.md`，脚本无需同步改多处字符串 |
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
 | 三件套已写出，但对用户的结案信息只剩路径，没有思考过程和关键证据 | 结案闭环层 | 在最终闭环中补 `思考过程 + 关键证据 + 风险/例外` | 新增 `FIELD-VID-SUBJ-05` 并把闭环四段写成硬合同 | 执行结果可复核，不再只剩文件清单 |
-| `project_state.yaml` 已指向 `2-视频生成`，但 `6-Video/全能参照/第N集/` 三件套磁盘缺失 | 项目运行时同步层 | 先重建 `第N集.json + 第N集.txt + _manifest.json`，再保持既有 video-generation handoff，不回退项目状态 | 在 `SKILL.md` 的 artifact landing 与 handoff contract 固定 recovery rerun 规则，禁止视频提示词补跑把项目路由降级 | drift 修复后磁盘产物恢复且 `project_state.yaml` 仍保持后续入口 |
+| `project_state.yaml` 已指向 `2-参照引用` 或 `3-视频生成`，但 `6-Video/全能参照/第N集/` 三件套磁盘缺失 | 项目运行时同步层 | 先重建 `第N集.json + 第N集.txt + _manifest.json`，再保持既有 video-generation handoff，不回退项目状态 | 在 `SKILL.md` 的 artifact landing 与 handoff contract 固定 recovery rerun 规则，禁止视频提示词补跑把项目路由降级 | drift 修复后磁盘产物恢复且 `project_state.yaml` 仍保持后续入口 |
 
 ## Repair Playbook
 
@@ -79,7 +79,7 @@
 - “不要字段标题”要执行到符号级：不只是不要字段名，也不要保留 `镜头属性：`、`景别：`、`角色表现：` 这种冒号标签前缀。
 - 当上游 schema 把“角色背后空间”“角色位移”“组级服装摘要”拆成三层时，视频 prompt 也应同步三层消费：`角色背景面` 提供空间朝向，`角色站位走位` 提供动作布局，`出场角色及穿搭` 提供整组视觉识别锚点。
 - “压缩”不等于“把字段值切半再加省略号”；如果读起来像半字段残片，说明执行方法已经偏离合同。
-- 最稳的做法是把 `reference_images` 当作上传顺序位保留，再用 `image_markers` 承接 URL、主体和图号语义。
+- 最稳的做法是把 `reference_images` 当作上传顺序位保留，再用 `image_markers` 承接引用、引用类型、主体和图号语义。
 - 当同一份 prompt 既要给工具消费又要给人读时，最稳的是 `json` 保结构、`txt` 保阅读，不把两种职责硬塞进同一个文件。
 - 一旦采用双输出，必须持续强调：`txt` 是 derived display view，`json` 才是 completeness carrier。
 - 只要有落盘前裁剪、去尾换行或 TXT 派生改写，`prompt_char_count` 就必须以后写回 JSON 的最终 `prompt` 字符串为准，不能拿中间草稿长度顶替。
@@ -87,7 +87,7 @@
 - 当 `references/` 开始充当规则入口时，真正的问题不是“文件多”，而是子技能出现了第二真源；应直接把规范收回 `SKILL.md`。
 - 这类“固定块原文保留 + 压缩块受预算约束 + 三件套落盘”的叶子技能，最稳的结构不是再加几条 checklist，而是改成“串行主干 + 条件预算分支 + 汇流门”的思行网络。
 - 如果节点没有显式写出 `route_out` 和 `gate`，执行者最容易在 `underflow`、标题泄露或三件套不一致时直接凭感觉补救，最后留下不可复核的半闭环。
-- 若 `全能参照` 三件套只是磁盘漂移丢失，而项目已经进入 `2-视频生成`，最稳的修法是只补 carrier 与 trace，不回退后续 handoff；否则会把 prompt 层修复误做成流程降级。
+- 若 `全能参照` 三件套只是磁盘漂移丢失，而项目已经进入 `2-参照引用` 或 `3-视频生成`，最稳的修法是只补 carrier 与 trace，不回退后续 handoff；否则会把 prompt 层修复误做成流程降级。
 - 只要脚本要触达项目 runtime，就必须先锁定 `projects/aigc/<项目名>/` 这个 canonical 命名空间；叶子脚本自己拼 `projects/<项目名>/` 往往会在首次实跑时暴露断链。
 - 只要句式开始出现“组级桥接 / 镜级 P1-P3 / tight-ultra 压缩 / 可选字段挂句”四类独立政策，就不该再把它们散落在脚本函数里；最稳的落点是单独的 prompt assembly spec。
 - 当视频 prompt 的目标取向开始明确偏向 `图生视频` 时，最稳的优化不是增加新字段，而是把现有字段改写成“主体锚点 -> 镜头起势 -> 可见动作 -> 环境光感 -> 视觉焦点”的顺序；这样更贴近模型消费方式，又不会偏离 `3-Detail` 真源。

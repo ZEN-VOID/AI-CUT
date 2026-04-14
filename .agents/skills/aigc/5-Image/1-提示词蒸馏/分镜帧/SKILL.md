@@ -31,14 +31,14 @@ governance_tier: full
 
 - 需要把单一 `分镜ID` 整理成单帧图像生成请求 JSON。
 - 用户明确说“单帧 / 首帧 / 单镜头静帧 / 关键帧 / 按分镜ID出图”。
-- 需要先完成 `1-提示词蒸馏`，后续再进入 `2-一致性处理` 或 `3-图像生成`。
+- 需要先完成 `1-提示词蒸馏`，后续再进入 `2-参照引用` 或 `3-图像生成`。
 - 需要保留目标分镜所属组的必要上下文，但最终只服务当前唯一 `分镜ID`。
 
 ## When Not to Use
 
 - 目标是整组多格 storyboard，应进入 `分镜故事板`。
 - 目标是漫画页、气泡文字、旁白框或漫画阅读节奏，应进入 `漫画`。
-- 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表`，或当前无法确认唯一 `分镜ID`。
+- 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表`、`metadata.document_phase` 未到 `detail_in_progress | ready`，或当前无法确认唯一 `分镜ID`。
 - 任务想把多个 `分镜ID` 合并成一条请求；本技能只处理“一镜一条”。
 
 ## Truth Ownership
@@ -118,6 +118,16 @@ governance_tier: full
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 一个可唯一定位的 `分镜ID`
+- 可选 `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
+- 可选 `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`
+
+### Readiness Gate
+
+进入单帧蒸馏前，必须确认：
+
+1. `metadata.document_phase in {detail_in_progress, ready}`
+2. 目标分镜所属组具备 `组间设计.出场角色及穿搭`
+3. 目标分镜至少具备 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`
 
 ### Canonical Landing
 
@@ -172,7 +182,7 @@ stateDiagram-v2
 
 | 能力面 | 作用 | 典型证据 | 何时触发 |
 | --- | --- | --- | --- |
-| `input_gate_engine` | 校验当前任务是否确属帧级蒸馏，且输入真源齐备 | `input_lock_note`、缺口列表 | 每次进入本技能时必须触发 |
+| `input_gate_engine` | 校验当前任务是否确属帧级蒸馏，且输入真源与阶段就绪门齐备 | `input_lock_note`、缺口列表 | 每次进入本技能时必须触发 |
 | `shot_locator_engine` | 在 `分镜组列表[].分镜明细[]` 中唯一锁定目标分镜与所属分镜组 | `shot_lock_record` | 输入门禁通过后必触发 |
 | `context_pack_engine` | 把组级事实与镜级事实打成单帧蒸馏可消费的上下文包 | `frame_context_pack` | 目标分镜锁定后必触发 |
 | `single_frame_distill_engine` | 生成只服务当前帧的 `single_frame_shot` | `single_frame_shot`、`coverage_note` | 上下文包形成后必触发 |
@@ -232,7 +242,7 @@ stateDiagram-v2
 
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INPUT-GATE` | S1 | `FIELD-SB-FRAME-01` | 锁定当前任务确属帧级蒸馏，且核心输入存在 | 读取父级合同、episode JSON、共享模板与目标 `分镜ID`，检查阶段边界与文件存在性 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并回报缺口 | 输入齐备前不得继续 |
+| `N1-INPUT-GATE` | S1 | `FIELD-SB-FRAME-01` | 锁定当前任务确属帧级蒸馏，且核心输入存在 | 读取父级合同、episode JSON、共享模板、可选 sidecar 与目标 `分镜ID`，检查阶段边界与文件存在性 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并回报缺口 | 输入齐备前不得继续 |
 | `N2-SHOT-LOCK` | S2 | `FIELD-SB-FRAME-01` | 在 `分镜组列表[].分镜明细[]` 中唯一定位目标分镜 | 遍历分镜组，锁定 `group_id + shot_id + source_shot_ids`，排除重号或缺号 | `shot_lock_record` | pass -> `N3`；fail -> 回 `S1/S2` | 唯一定位成立后才可蒸馏 |
 | `N3-CONTEXT-PACK` | S3 | `FIELD-SB-FRAME-02` | 打包当前帧需要继承的组级与镜级上下文 | 提取 `分镜组ID / 剧本正文 / 组间设计 / 目标分镜明细`，形成 `frame_context_pack` | `frame_context_pack`、字段覆盖清单 | pass -> `N4`；fail -> 回 `S2/S3` | 上下文包须可回链真实上游 |
 | `N4-SINGLE-FRAME-DISTILL` | S4 | `FIELD-SB-FRAME-02` | 生成只服务当前帧的 `single_frame_shot` | 按单帧可见事实收缩内容块，区分 `ready / partial` 两种完整度 | `single_frame_shot`、`coverage_note` | ready/partial -> `N5`；fail -> 回 `S3/S4` | 不得写成整组剧情摘要 |
@@ -248,7 +258,7 @@ stateDiagram-v2
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
 | 阶段边界 | 1. 读取父级 `1-提示词蒸馏` 合同。2. 确认当前对象是“单一 `分镜ID`”。3. 排除故事板/漫画意图。 | 明明是组级或漫画诉求，却直接进入本技能 |
-| 真源存在性 | 1. 检查 `3-Detail/第N集.json`。2. 检查共享 schema。3. 检查共享模板。 | 缺少 episode JSON、模板或 schema |
+| 真源存在性 | 1. 检查 `3-Detail/第N集.json`。2. 检查 `metadata.document_phase`。3. 检查共享 schema 与模板。4. 仅按需登记 `水月/镜花` sidecar。 | 缺少 episode JSON、phase 未就绪、模板或 schema |
 | 输入最小集 | 1. 检查 `分镜ID` 是否提供。2. 检查文件能否读取。3. 记录缺口。 | 没有 `分镜ID` 仍继续运行 |
 
 ### `N2-SHOT-LOCK`
@@ -263,8 +273,8 @@ stateDiagram-v2
 
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
-| 组级事实 | 1. 提取 `分镜组ID`。2. 提取 `剧本正文`。3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图`。 | 组级关键字段缺失 |
-| 镜级事实 | 1. 提取目标 `分镜明细`。2. 保留镜级字段原貌。3. 不改写镜头事实。 | 镜级字段被压成模糊摘要 |
+| 组级事实 | 1. 提取 `分镜组ID`。2. 提取 `剧本正文`。3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`。 | 组级关键字段缺失 |
+| 镜级事实 | 1. 提取目标 `分镜明细`。2. 保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 原貌。3. 不改写镜头事实。 | 镜级字段被压成模糊摘要 |
 | 证据打包 | 1. 把组级与镜级合成 `frame_context_pack`。2. 标记缺失字段。3. 为 `N4` 提供可审计输入。 | 上下文包无法解释后续 prompt 来源 |
 
 ### `N4-SINGLE-FRAME-DISTILL`
@@ -421,7 +431,7 @@ stateDiagram-v2
 
 ## Handoff Contract
 
-- 本技能默认把结果继续交给 `5-Image/2-一致性处理` 或 `5-Image/3-图像生成`。
+- 本技能默认先把结果继续交给 `5-Image/2-参照引用`；若明确 `prompt_only`，也可直接交给 `5-Image/3-图像生成`。
 - 本技能本身不负责真实图片生成。
 - `_manifest.json` 只承载异常说明与追溯证据，不得升级为第二主产物。
 

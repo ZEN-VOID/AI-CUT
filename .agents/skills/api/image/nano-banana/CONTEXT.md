@@ -33,7 +33,7 @@ last_checked_at: 2026-03-20T00:00:00Z
 | --- | --- | --- | --- | --- | --- |
 | `TM-DXJ2-DEFAULTS-MISSING` | 未指定比例/清晰度时请求体缺少 `aspectRatio` 或 `imageSize` | 默认值逻辑层 | 在脚本中强制补齐 `16:9 / 4K` | 保持 `FIELD-DXJ2-02` 与脚本常量同源 | `--dry-run --print-payload` 中能看到 `16:9 / 4K` |
 | `TM-DXJ2-ENV-DRIFT` | 技能文档、脚本与真实端点不一致 | 环境配置层 | 统一从根目录 `.env` 读取 `ANYFAST_API_BASE_URL / ANYFAST_API_KEY / DXJ2_DEFAULT_MODEL` | 把端点与模型的单一事实源收口到 `.env` | 报告中的 `api_url` 与 `.env` 一致 |
-| `TM-DXJ2-OUTPUT-PATH` | 产物落到技能级散目录或旧别名目录 | 输出路由层 | 默认输出统一改为 `output/影片/[项目名]/5-API/image/nano-banana/` | 由脚本集中构造默认路径，测试/临时任务自动映射项目名 | 报告中的 `project_name / task_kind / output_dir` 与规则一致 |
+| `TM-DXJ2-OUTPUT-PATH` | 产物落到固定 `5-API` 根目录，忽略调用方 skill 的运行时路径 | 输出路由层 | 改为 `output_dir > input_json.output_dir > caller_skill 推导 > general 兜底` | 由脚本集中维护 caller-skill 路径解析，测试/临时任务仅作为项目名兜底 | 报告中的 `caller_skill / episode_id / output_dir` 与调用方合同一致 |
 | `TM-DXJ2-BATCH-SERIAL` | 明明给了多个任务，但脚本仍一张一张串行执行 | 调度层 | 把 `--input-json` 扩展为支持对象数组 / `tasks[]`，任务数 `>1` 时自动并发执行 | 在脚本与 `SKILL.md` 同步固化“默认最大并发 100、硬上限 100”的同源合同 | 多任务运行时出现批量汇总报告，且 `effective_max_concurrent <= 100` |
 | `TM-DXJ2-SHAPE-MISMATCH` | 仍沿用旧版 `ratio / quality` 或 `images[].url` 直传，接口报错 | 请求体结构层 | 改为 `contents.parts + generationConfig.imageConfig` | 在技能合同和脚本中固定原生格式 | payload 中仅出现原生字段 |
 | `TM-DXJ2-RESPONSE-CAMELCASE` | 请求成功但报告里没有图片文件，`candidate_count=1` 且 `finishReason=STOP` | 响应解析层 | 同时兼容解析 `inlineData/mimeType` 与 `inline_data/mime_type` | 把响应解析写成 camelCase + snake_case 双兼容 | 成功调用后 `saved_files` 非空 |
@@ -53,7 +53,10 @@ last_checked_at: 2026-03-20T00:00:00Z
    - `ANYFAST_API_BASE_URL=https://fw2afus.ent.acc.kurtisasia.com`
    - `DXJ2_DEFAULT_MODEL=gemini-3.1-flash-image-preview`
 3. 核查输出路径：
-   - 默认应进入 `output/影片/[项目名]/5-API/image/nano-banana/`
+   - 先看是否传了 `--output-dir` 或 `input_json.output_dir`
+   - 再看是否传了 `caller_skill / episode_id`
+   - `general` 直调默认应进入 `output/影片/[项目名]/5-API/image/nano-banana/general/`
+   - `4-Design/2-主体设计` 系应进入 `projects/aigc/<项目名>/.../generated/`
    - `task_kind=test` 且未传项目名时应映射到 `测试`
    - `task_kind=temp` 且未传项目名时应映射到 `临时`
 4. 核查默认值：
@@ -91,8 +94,10 @@ last_checked_at: 2026-03-20T00:00:00Z
   - `imageSize=4K`
 - 若用户已明确指定 `9:16` 或 `2K`，不得因默认策略而覆盖。
 - 并发配置默认取 `100`，但实际执行值必须硬限制在 `100` 以内，避免文档推荐值失控上飘。
-- 默认输出走项目资产树：
-  - `output/影片/[项目名]/5-API/image/nano-banana/`
+- 默认输出不是单一路径常量，而是调用方技能包策略：
+  - `general` 走 `output/影片/[项目名]/5-API/image/nano-banana/general/`
+  - 输入图驱动的子技能优先贴着第一张本地输入图
+  - `4-Design/2-主体设计` 系走 `projects/aigc/[项目名]/.../generated/`
 - 测试任务未显式给 `project_name` 时，默认映射为 `测试`；临时任务默认映射为 `临时`。
 - AnyFast 这版接口的参考图不是 URL 直传，而是 `inline_data`；这是与旧版 `nano-banana` 包最关键的差异点。
 - AnyFast 平台这边生成的图片可直接视为 `BASE64` 返回；当下一环节引用生成结果或执行二改时，优先直接按 `BASE64` 方式传入，不额外改写成文件路径或 URL。

@@ -22,6 +22,7 @@
 | 每集被写成单一 panel 文件 | 输出契约层 | 按 `props[]` 逐道具输出 layout | 在命名合同中固定 `<prop_id>-<prop_name>-PropPanel-layout.json` | episode 输出文件数等于 prop 数 |
 | 模板结构从 reference 漂移 | 模板真源层 | 回退当前目录 template，禁止脚本内再造第二套结构 | 把 layout contract 锁在 template 文件，不在脚本复制模块定义 | prompt 中能回链 mandatory rules |
 | 面板技能要依赖历史说明或 references 才能看懂降级与 manifest 规则 | 合同真源层 | 将输入门禁、模板锁定、逐 prop dossier、manifest 汇流全部收回主 `SKILL.md` | 固化“展示型叶子技能也必须主文档单读可执行” | 只读主文档即可理解 panel 输出链 |
+| 连续批量任务里道具设计图没有自动接到 panel 生图 | SMART bridge 层 | 以 `道具设计.json` 所在 episode 根做 continuity ref 扫描，再统一桥接 `nano-banana/general` | packet 写 `image_generation`，ref 扫描收口到共享 bridge 脚本 | request sidecar 中 continuity refs 指向 `2-设计/第N集/` |
 
 ## Repair Playbook
 
@@ -38,3 +39,4 @@
 - 逐道具 layout 比整集单文件更适合后续审阅、回修和图像工具消费。
 - reference 仓的模板可以继承，但 runtime 路径、停点和输出 contract 必须服从当前仓库真源。
 - 对展示型叶子技能来说，最关键的不是 prose 解释，而是把“输入门禁 -> 模板锁定 -> prompt 组装 -> layout 写回 -> manifest 审计”写成主文档中的稳定节点。
+- 道具面板启用自动生图时，不要把 continuity ref 扫描写进每个 leaf 的私有逻辑；直接复用 packet 的 `prompt` 和共享 SMART bridge 更稳。

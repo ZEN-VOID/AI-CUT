@@ -89,6 +89,13 @@ def _empty_to_none(value: Any) -> Optional[str]:
     return str(value)
 
 
+def _normalize_caller_skill(value: Any) -> Optional[str]:
+    normalized = _empty_to_none(value)
+    if not normalized:
+        return None
+    return normalized.replace("\\", "/")
+
+
 def _normalize_aspect_ratio(value: Optional[str]) -> Optional[str]:
     value = _empty_to_none(value)
     if value is None:
@@ -147,6 +154,8 @@ def _extract_input_doc(data: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(images, list):
         raise ValueError("input_json 中的 images 必须是数组")
 
+    meta = data.get("meta") if isinstance(data.get("meta"), dict) else {}
+
     return {
         "prompt": _empty_to_none(data.get("prompt")),
         "aspect_ratio": _empty_to_none(data.get("aspect_ratio") or data.get("ratio")),
@@ -158,6 +167,10 @@ def _extract_input_doc(data: Dict[str, Any]) -> Dict[str, Any]:
         "output_dir": _empty_to_none(data.get("output_dir")),
         "output_filename": _empty_to_none(data.get("output_filename")),
         "filename_prefix": _empty_to_none(data.get("filename_prefix")),
+        "caller_skill": _normalize_caller_skill(
+            data.get("caller_skill") or data.get("source_skill") or meta.get("caller_skill")
+        ),
+        "episode_id": _empty_to_none(data.get("episode_id") or meta.get("episode_id")),
     }
 
 
@@ -552,8 +565,82 @@ def _resolve_project_name(explicit_project_name: Optional[str], task_kind: Optio
     return "测试"
 
 
-def _build_default_output_dir(project_name: str) -> Path:
-    return DEFAULT_OUTPUT_ROOT / project_name / "5-API" / "image" / "nano-banana"
+def _default_general_output_dir(project_name: str) -> Path:
+    return DEFAULT_OUTPUT_ROOT / project_name / "5-API" / "image" / "nano-banana" / "general"
+
+
+def _first_local_image_parent(images: List[str]) -> Optional[Path]:
+    for image in images:
+        candidate = Path(str(image))
+        if candidate.exists():
+            return candidate.parent
+    return None
+
+
+def _build_aigc_design_output_dir(
+    project_name: str,
+    domain: str,
+    episode_id: Optional[str],
+) -> Path:
+    root = Path("projects") / "aigc" / project_name / "4-Design" / domain / "2-设计"
+    if episode_id:
+        return root / episode_id / "generated"
+    return root / "generated"
+
+
+def _build_aigc_parent_design_output_dir(project_name: str, episode_id: Optional[str]) -> Path:
+    root = Path("projects") / "aigc" / project_name / "4-Design" / "2-主体设计"
+    if episode_id:
+        return root / episode_id / "generated"
+    return root / "generated"
+
+
+def _build_default_output_dir(
+    project_name: str,
+    *,
+    caller_skill: Optional[str],
+    episode_id: Optional[str],
+    images: List[str],
+) -> Path:
+    normalized_skill = _normalize_caller_skill(caller_skill)
+    if not normalized_skill:
+        return _default_general_output_dir(project_name)
+
+    local_image_parent = _first_local_image_parent(images)
+    basename = Path(normalized_skill).name
+
+    if basename in {"general", "nano-banana-general"}:
+        return _default_general_output_dir(project_name)
+
+    local_image_callers = {
+        "face-swap",
+        "nano-banana-face-swap",
+        "costume-swap",
+        "nano-banana-costume-swap",
+        "multiview-character",
+        "nano-banana-multiview-character",
+        "multiview-scene",
+        "nano-banana-multiview-scene",
+        "multiview-prop",
+        "nano-banana-multiview-prop",
+    }
+    if basename in local_image_callers:
+        if local_image_parent is not None:
+            return local_image_parent
+        return DEFAULT_OUTPUT_ROOT / project_name / "5-API" / "image" / "nano-banana" / _safe_name(basename)
+
+    if ".agents/skills/aigc/4-Design/2-主体设计/场景" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "场景", episode_id)
+    if ".agents/skills/aigc/4-Design/2-主体设计/角色" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "角色", episode_id)
+    if ".agents/skills/aigc/4-Design/2-主体设计/服装" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "服装", episode_id)
+    if ".agents/skills/aigc/4-Design/2-主体设计/道具" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "道具", episode_id)
+    if ".agents/skills/aigc/4-Design/2-主体设计" in normalized_skill:
+        return _build_aigc_parent_design_output_dir(project_name, episode_id)
+
+    return DEFAULT_OUTPUT_ROOT / project_name / "5-API" / "image" / "nano-banana" / _safe_name(basename or "general")
 
 
 def _build_task_token(task_index: int, request_id: Optional[str], filename_prefix: str) -> str:
@@ -611,12 +698,21 @@ def _prepare_task(
         _empty_to_none(args.project_name) or input_doc.get("project_name"),
         task_kind,
     )
+    caller_skill = _normalize_caller_skill(args.caller_skill or input_doc.get("caller_skill"))
+    episode_id = _empty_to_none(args.episode_id) or input_doc.get("episode_id")
     request_id = _empty_to_none(args.request_id) or input_doc.get("request_id")
     api_url = _empty_to_none(args.api_url) or _build_api_url(_env_api_base_url(), args.model)
     output_dir_value = (
         _empty_to_none(args.output_dir)
         or input_doc.get("output_dir")
-        or str(_build_default_output_dir(project_name))
+        or str(
+            _build_default_output_dir(
+                project_name,
+                caller_skill=caller_skill,
+                episode_id=episode_id,
+                images=images,
+            )
+        )
     )
     output_filename = _empty_to_none(args.output_filename) or input_doc.get("output_filename")
     base_filename_prefix = (
@@ -678,6 +774,8 @@ def _prepare_task(
         "images": images,
         "project_name": project_name,
         "task_kind": task_kind,
+        "caller_skill": caller_skill,
+        "episode_id": episode_id,
         "request_id": request_id,
         "api_url": api_url,
         "output_dir": output_dir,
@@ -721,6 +819,8 @@ def _execute_task(
             "image_count": len(task["images"]),
             "project_name": task["project_name"],
             "task_kind": task["task_kind"],
+            "caller_skill": task["caller_skill"],
+            "episode_id": task["episode_id"],
             "output_dir": task["output_dir_value"],
             "output_filename": task["output_filename"],
             "aspect_ratio": task["final_aspect_ratio"],
@@ -814,6 +914,8 @@ def _execute_task(
         "task_token": task["task_token"],
         "prompt": task["prompt"],
         "project_name": task["project_name"],
+        "caller_skill": task["caller_skill"],
+        "episode_id": task["episode_id"],
         "output_dir": task["output_dir_value"],
         "output_filename": task.get("output_filename"),
         "aspect_ratio": task["final_aspect_ratio"],
@@ -857,6 +959,8 @@ def _write_batch_report(
                 "task_index": task["task_index"],
                 "task_token": task["task_token"],
                 "project_name": task["project_name"],
+                "caller_skill": task["caller_skill"],
+                "episode_id": task["episode_id"],
                 "output_dir": task["output_dir_value"],
                 "report_path": next(
                     (
@@ -895,6 +999,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--image-size", help="图像清晰度")
     parser.add_argument("--image-url", action="append", default=[], help="参考图 URL / 本地路径 / data URL / base64（可重复）")
     parser.add_argument("--request-id", help="可选请求 ID")
+    parser.add_argument("--caller-skill", help="调用方技能包路径或 skill id；未显式传 output_dir 时用于推导默认输出路径")
+    parser.add_argument("--episode-id", help="调用方 episode 标识；当输出路径跟随 AIGC 技能包时用于补全默认输出目录")
     parser.add_argument("--output-dir", help="输出目录")
     parser.add_argument("--output-filename", help="精确输出文件名（如 ScenePanel.png）")
     parser.add_argument("--filename-prefix", help="输出文件名前缀")
@@ -926,6 +1032,8 @@ def run_generation_from_docs(
     image_size: Optional[str] = None,
     image_urls: Optional[List[str]] = None,
     request_id: Optional[str] = None,
+    caller_skill: Optional[str] = None,
+    episode_id: Optional[str] = None,
     output_dir: Optional[str] = None,
     output_filename: Optional[str] = None,
     filename_prefix: Optional[str] = None,
@@ -950,6 +1058,8 @@ def run_generation_from_docs(
         image_size=image_size,
         image_url=image_urls or [],
         request_id=request_id,
+        caller_skill=caller_skill,
+        episode_id=episode_id,
         output_dir=output_dir,
         output_filename=output_filename,
         filename_prefix=filename_prefix,

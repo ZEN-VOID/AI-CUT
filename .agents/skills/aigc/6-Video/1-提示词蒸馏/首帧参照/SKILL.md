@@ -30,17 +30,17 @@ governance_tier: full
 - 需要把目标分镜 `时间段.开始秒 / 结束秒` 落成当前分镜组内的 `xx秒-xx秒` 时间锚点，并直接接在 `分镜 <ID>` 后，不写成 `分镜 <ID> 的 xx秒-xx秒`。
 - 需要遵循共享文本模板的新合同：默认以连贯自然语句组织镜级信息，只有预算进入 `tight` 时才允许局部短语化。
 - 需要输出 `第N集.json + 第N集.txt + _manifest.json` 三件套。
-- 需要让下游 `.agents/skills/cli/dreamina-cli/SKILL.md` 或 `6-Video/2-视频生成` 继续消费帧级 JSON。
+- 需要让下游 `6-Video/2-参照引用` 或 `6-Video/3-视频生成` 继续消费帧级 JSON。
 
 ## When Not To Use
 
 - 当前任务是按整个分镜组覆盖生成视频请求对象，应进入 `6-Video/1-提示词蒸馏/全能参照`。
-- 当前任务是正式提交 provider、轮询结果或下载视频，应进入 `6-Video/2-视频生成` 或命中的 provider 技能。
+- 当前任务是正式提交 provider、轮询结果或下载视频，应进入 `6-Video/3-视频生成` 或命中的 provider 技能；若还需要从 `Assets/` 绑定参考图，则先进入 `6-Video/2-参照引用`。
 - 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表[]`，或目标 `分镜ID` 不存在。
 - 上游 `3-Detail/第N集.json` 仍处于 `bootstrapped` 或 `detail_in_progress`。
 - 目标分镜所属组的 `分镜切换` 与 `分镜明细[]` 数量未对齐，说明 `3-Detail` merge/handoff 仍未稳定。
 - 任务要求把多个 `分镜ID` 混成一条请求；本技能只处理“一镜一条”。
-- 当前任务要求上传、选择或伪造真实参照图；本技能只保留图片字段骨架，不处理真实图片资产。
+- 当前任务要求上传、选择或伪造真实参照图；本技能只保留图片字段骨架，不处理真实图片资产，也不提前把图片引用绑定成某个 provider 的私有入参格式。
 
 ## 单一真源边界
 
@@ -55,7 +55,7 @@ governance_tier: full
 ### `首帧参照` 不拥有
 
 - 改写上游导演事实、虚构镜头内容或补造剧情过渡。
-- 上传真实图片、编造 `reference_images` / `image_markers` / URL。
+- 上传真实图片、编造 `reference_images` / `image_markers` / 图片引用。
 - 把多个分镜拼接成一条请求，或把整组任务伪装成首帧任务。
 - 真实 provider 提交、轮询与下载。
 
@@ -337,7 +337,7 @@ stateDiagram-v2
   1. 明确当前只处理 1 个目标 `分镜ID`
   2. 锁定本轮 canonical output 为 `JSON + TXT + manifest`
   3. 锁定 `output_mode=full_trace`
-  4. 明确下游入口是 `dreamina-cli` 或 `6-Video/2-视频生成`
+  4. 明确下游入口是 `6-Video/2-参照引用` 或 `6-Video/3-视频生成`
 - `evidence`: 阶段定位说明、输出停点说明、边界确认结果、`output_mode=full_trace`
 - `route_out`: 归位成功进入 `N1`；若归位失败，回退父级路由并停止
 - `gate`: 若任务主语不是“单镜首帧参照”，不得继续
@@ -522,7 +522,7 @@ stateDiagram-v2
   2. 复查 `全局风格` 是否逐字一致
   3. 复查 `reference_images` 是否保留、`image_markers` 是否维持共享模板骨架与顺序稳定
   4. 复查 `bridge_strategy / within_target_range / exception_note`
-  5. 给出唯一 handoff 入口：`dreamina-cli` 或 `6-Video/2-视频生成`
+  5. 给出唯一 handoff 入口：若需绑定参考图则去 `6-Video/2-参照引用`，否则去 `6-Video/3-视频生成`
 - `evidence`: 验收结论、风险摘要、下一入口 verdict、模板骨架审计结果
 - `route_out`: 通过则任务完成；不通过则回到对应失败节点
 - `gate`: 未通过结构、保真、例外同步三重检查前不得结案
@@ -575,7 +575,7 @@ stateDiagram-v2
 4. `风险 / 例外`
    - `ambiguous` 判型、`tight` 压缩、输入缺口或保守退化说明
 5. `下一步`
-   - 继续进入 `dreamina-cli` 或 `6-Video/2-视频生成`
+   - 继续进入 `6-Video/2-参照引用` 或 `6-Video/3-视频生成`
 
 禁止输出多个互不收束的半成品 verdict。
 
@@ -620,7 +620,7 @@ stateDiagram-v2
 12. 只有当预算进入 `tight` 时，才允许把部分镜级内容收束为更精炼的自然短语；其余情况下应保持连贯自然语句。
 13. `prompt_char_count` 必须与实际 `prompt` 内容一致，且 `第N集.txt` 中的字数统计必须与 JSON 同步。
 14. `reference_images` 与 `image_markers` 仅保留共享模板骨架，不得擅自补入虚构图片信息。
-15. `reference_images` 字段本身不得缺失；`image_markers` 至少保持共享模板要求的 URL/主体/图号三元结构与顺序槽位。
+15. `reference_images` 字段本身不得缺失；`image_markers` 至少保持共享模板要求的 `image_ref / ref_kind / related_subject / image_no` 四字段结构与顺序槽位。
 16. `第N集.txt` 只承载提示词与字数统计，不承载结构化参数区块。
 
 ### `_manifest.json` Minimum Fields
@@ -644,7 +644,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- | --- |
 | FIELD-VID-FFR-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 以独立 `prompt_style` 声明帧级提示词约束，锁定组级归属与单一目标 `分镜ID`，并确认上游 `document_phase=ready` 且所属组 `分镜切换 == len(分镜明细[])` | episode root、目标 shot 绑定结果 | N2-N3 | 输入覆盖完整度 | FAIL-VID-FFR-01 |
 | FIELD-VID-FFR-02 | `prompt / prompt_char_count` | prompt 必须覆盖目标分镜的剧情桥段、全局风格和压缩后的上下文；压缩块需显式覆盖 `类型元素 / 导演意图 / 出场角色及穿搭 / 目标镜级字段`，并按 `P1 高保留 / P2 重要 / P3 补充` 顺序压缩；目标镜级条目需保留当前分镜组内的 `xx秒-xx秒`，且隐藏字段标题；在单分镜模式下，同等预算应优先体现为当前分镜细节更丰满 | `剧本正文`、`组间设计.*`、目标镜级字段 | N4-N7 | Prompt 蒸馏稳定性 | FAIL-VID-FFR-02 |
-| FIELD-VID-FFR-03 | `model.reference_images / model.image_markers` | 保留共享模板中的双字段骨架；`reference_images` 不得缺失，`image_markers` 需维持 URL/主体/图号结构与顺序稳定，且不擅自填入虚构图片信息 | 共享模板、模板兼容性检查 | N7-N9 | 模板兼容性 | FAIL-VID-FFR-03 |
+| FIELD-VID-FFR-03 | `model.reference_images / model.image_markers` | 保留共享模板中的双字段骨架；`reference_images` 不得缺失，`image_markers` 需维持 `image_ref / ref_kind / related_subject / image_no` 结构与顺序稳定，且不擅自填入虚构图片信息 | 共享模板、模板兼容性检查 | N7-N9 | 模板兼容性 | FAIL-VID-FFR-03 |
 | FIELD-VID-FFR-04 | `第N集.json / 第N集.txt / _manifest.json` | 三件套可追溯、可继续 handoff，且例外说明完整 | carrier 写回结果、manifest 验收项 | N8-N9 | 输出可消费性 | FAIL-VID-FFR-04 |
 
 ## Thought Pass Map
@@ -693,7 +693,7 @@ stateDiagram-v2
 
 ## Handoff Contract
 
-- 正式进入视频生成时，优先把 `第N集.json` 交给 `.agents/skills/cli/dreamina-cli/SKILL.md` 或 `6-Video/2-视频生成`。
+- 正式进入视频生成时，优先先判定是否要进入 `6-Video/2-参照引用` 绑定 `Assets` 参考图；若不需要，再把 `第N集.json` 交给 `6-Video/3-视频生成`。
 - `TXT` 仅作为人工审阅副产物，不作为 canonical handoff 载体。
 - `_manifest.json` 负责承载异常说明、桥段策略与验收证据。
 
@@ -709,9 +709,9 @@ stateDiagram-v2
 - prompt 里仍然残留旧字段标题，或因 schema / 模板升级后漏掉 `出场角色及穿搭 / 角色背景面 / 角色站位走位 / 景别 / 运镜手法 / 镜头视角`
 - 共享模板已经切到“自然句优先、`tight` 才局部短语化”，但本技能仍默认输出短语/关键词串
 - 单分镜模式明明拥有更充裕的镜头级字数预算，但 prompt 仍写成组级多镜模式的缩小版，导致当前分镜细节发薄
-- `reference_images` 被删空字段，或 `image_markers` 的 URL/主体/图号结构与顺序漂移
+- `reference_images` 被删空字段，或 `image_markers` 的引用/类型/主体/图号结构与顺序漂移
 - `第N集.txt` 开始承载结构化参数区块，和 JSON 主体争夺真源角色
-- 参照图字段被擅自填入虚构 URL、主体或图片说明
+- 参照图字段被擅自填入虚构引用、主体或图片说明
 - 只把标题换成知行合一口径，但实际没有形成“任务归位 -> 判型 -> 提取 -> 压缩 -> 写回 -> 汇流”的思行网络
 
 必经链路：

@@ -1,12 +1,15 @@
 {
   "meta": {
     "episode_id": "<第N集>",
+    "source_tranche": "<分镜故事板|分镜帧|漫画>",
     "shot_level": "storyboard_group",
     "group_id": "<分镜组ID>",
     "source_shot_ids": [],
-    "source_file": "projects/<项目名>/3-Detail/<第N集>.json",
+    "source_file": "projects/aigc/<项目名>/3-Detail/<第N集>.json",
     "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
-    "template_version": "v1"
+    "template_version": "v2",
+    "reference_mode": "pending",
+    "provider_mode": "pending"
   },
   "prompt_style": {
     "type": "",
@@ -14,6 +17,7 @@
     "char_limit": ""
   },
   "model": {
+    "provider": "",
     "model_version": "",
     "ratio": "",
     "image_size": "",
@@ -22,9 +26,22 @@
     "reference_images": [],
     "image_markers": [
       {
-        "image_url": "<图片URL>",
+        "image_ref": "<图片引用>",
+        "ref_kind": "pending",
         "related_subject": "<关联主体>",
-        "image_no": "图1"
+        "image_no": "图1",
+        "provider_variants": {
+          "jimeng_cli": {
+            "input_mode": "local_path",
+            "resolution_status": "pending",
+            "resolved_input": "<本地图片路径>"
+          },
+          "nano_banana": {
+            "input_mode": "base64",
+            "resolution_status": "pending_encode",
+            "resolved_input": "<BASE64或data URL>"
+          }
+        }
       }
     ]
   },

@@ -21,7 +21,8 @@
     "reference_images": [],
     "image_markers": [
       {
-        "image_url": "<图片URL>",
+        "image_ref": "<图片引用>",
+        "ref_kind": "pending",
         "related_subject": "<关联主体>",
         "image_no": "图1"
       }

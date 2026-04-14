@@ -24,11 +24,11 @@
   - 新增默认预建 `projects/aigc/<项目名>/3-Detail/水月/`、`镜花/`
   - 明确 `4-Design` 仍坚持 domain-first runtime，不把 `1-主体清单 / 2-主体设计 / 3-面板设计` 误投影成项目目录
 - 同步新增项目级辅助资产库 bootstrap：
-  - `projects/aigc/<项目名>/assets/角色/`
-  - `projects/aigc/<项目名>/assets/道具/`
-  - `projects/aigc/<项目名>/assets/场景/`
-  - `projects/aigc/<项目名>/assets/服装/`
-  - `projects/aigc/<项目名>/assets/分镜画板/分镜帧/`
-  - `projects/aigc/<项目名>/assets/分镜画板/分镜故事板/`
-  - `projects/aigc/<项目名>/assets/分镜画板/漫画/`
+  - `projects/aigc/<项目名>/Assets/角色/`
+  - `projects/aigc/<项目名>/Assets/道具/`
+  - `projects/aigc/<项目名>/Assets/场景/`
+  - `projects/aigc/<项目名>/Assets/服装/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/分镜帧/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/`
+  - `projects/aigc/<项目名>/Assets/分镜画板/漫画/`
   - 根因：初始化缺少统一资产沉淀层，容易把参考素材散落到阶段输出目录里。

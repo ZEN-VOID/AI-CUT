@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -27,6 +28,17 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="显式追加参考图路径，可重复传入",
     )
+    parser.add_argument("--auto-generate", action="store_true", help="写完 packet 后自动桥接到 nano-banana/general")
+    parser.add_argument(
+        "--smart-mode",
+        choices=("auto", "continuous-batch", "single-doc-t2i", "off"),
+        default="auto",
+        help="自动生图桥的 SMART 模式",
+    )
+    parser.add_argument("--max-concurrent", type=int, default=100, help="自动生图桥最大并发")
+    parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
+    parser.add_argument("--no-save-images", action="store_true", help="自动生图时不落 PNG，只保留请求与报告")
+    parser.add_argument("--no-report", action="store_true", help="自动生图时跳过 nano-banana report JSON")
     parser.add_argument("--manifest-name", default="_manifest.json", help="manifest 文件名")
     parser.add_argument("--dry-run", action="store_true", help="只输出 manifest 预览，不写文件")
     return parser.parse_args()
@@ -73,6 +85,16 @@ def make_safe_token(value: str) -> str:
     safe = re.sub(r"\s+", "-", safe)
     safe = safe.strip("-")
     return safe or "unknown"
+
+
+def _load_panel_auto_generate_module() -> Any:
+    module_path = Path(__file__).resolve().parents[2] / "_shared" / "panel_auto_generate.py"
+    spec = importlib.util.spec_from_file_location("panel_auto_generate_bridge", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"无法加载自动生图桥接脚本: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def parse_filters(raw: str | None) -> set[str]:
@@ -198,6 +220,9 @@ def build_packet(
     identity_badge = f"{role_id}+{role_name}"
     group_portrait = role_tier == "crowd"
     local_references = collect_reference_images(markdown_path)
+    continuity_source_roots = [design_json_path.parent.as_posix()]
+    if markdown_path:
+        continuity_source_roots.append(markdown_path.parent.as_posix())
     layout_prompt = build_layout_prompt(template_payload["layout_generation_prompt"])
     prompt_text = build_prompt_text(
         role=role,
@@ -262,6 +287,24 @@ def build_packet(
             "render_mode": "CHARACTER_ATMOSPHERIC_DOSSIER",
             "aspect_ratio": template_payload["layout"]["aspect_ratio"],
             "layout": "three-column",
+        },
+        "image_generation": {
+            "target_skill_id": "nano-banana-general",
+            "smart_mode_default": "continuous-batch",
+            "prompt_field": "prompt_payload.prompt_text",
+            "prompt_text": prompt_text,
+            "prompt_reference_sections": [
+                "prompt_payload.prompt_text",
+                "prompt_payload.prompt_segments.identity_prompt",
+                "prompt_payload.prompt_segments.design_subject_prompt",
+                "prompt_payload.prompt_segments.layout_prompt",
+                "prompt_payload.prompt_segments.negative_prompt_global",
+            ],
+            "reference_images": local_references,
+            "explicit_references": explicit_references,
+            "continuity_source_roots": list(dict.fromkeys(continuity_source_roots)),
+            "output_filename": filename.replace("-layout.json", ".png"),
+            "request_id": filename.replace("-layout.json", ""),
         },
         "output": {
             "packet_filename": filename,
@@ -376,9 +419,16 @@ def main() -> int:
         },
         "handoff_targets": [
             "5-Image",
+            "nano-banana-general",
             "nano-banana-multiview-character",
         ],
     }
+    if args.auto_generate:
+        manifest["image_generation"] = {
+            "enabled": True,
+            "smart_mode_requested": args.smart_mode,
+            "status": "pending" if not args.dry_run else "skipped-dry-run",
+        }
 
     if args.dry_run:
         print(json.dumps(manifest, ensure_ascii=False, indent=2))
@@ -387,12 +437,53 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     for filename, packet in packets:
         write_json(output_dir / filename, packet)
+    packet_paths = [output_dir / filename for filename, _ in packets]
+
+    auto_generate_failed = False
+    if args.auto_generate:
+        try:
+            bridge_module = _load_panel_auto_generate_module()
+            auto_generate_result = bridge_module.run_panel_auto_generate(
+                packet_paths,
+                manifest_path=output_dir / args.manifest_name,
+                smart_mode=args.smart_mode,
+                explicit_references=args.reference,
+                max_concurrent=args.max_concurrent,
+                print_payload=args.print_payload,
+                save_images=not args.no_save_images,
+                no_report=args.no_report,
+                pipeline_context="panel-stage",
+            )
+            manifest["image_generation"] = {
+                "enabled": True,
+                "smart_mode_requested": args.smart_mode,
+                "smart_mode_resolved": auto_generate_result.get("smart_mode_resolved", ""),
+                "success": bool(auto_generate_result.get("success", False)),
+                "task_count": auto_generate_result.get("task_count", 0),
+                "success_count": auto_generate_result.get("success_count", 0),
+                "failed_count": auto_generate_result.get("failed_count", 0),
+                "request_batch_path": auto_generate_result.get("request_batch_path"),
+                "bridge_report_path": auto_generate_result.get("bridge_report_path"),
+                "batch_report_path": auto_generate_result.get("batch_report_path"),
+            }
+            auto_generate_failed = not bool(auto_generate_result.get("success", False))
+        except Exception as exc:
+            manifest["image_generation"] = {
+                "enabled": True,
+                "smart_mode_requested": args.smart_mode,
+                "success": False,
+                "error": str(exc),
+            }
+            auto_generate_failed = True
+
     write_json(output_dir / args.manifest_name, manifest)
 
     print(f"[OK] 写入角色面板 packet 数量: {len(packets)}")
     print(f"[OK] 输出目录: {output_dir.as_posix()}")
     print(f"[OK] 写入 manifest: {(output_dir / args.manifest_name).as_posix()}")
-    return 0
+    if args.auto_generate:
+        print(f"[OK] 自动生图桥状态: {manifest['image_generation']['success']}")
+    return 1 if auto_generate_failed else 0
 
 
 if __name__ == "__main__":

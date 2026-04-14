@@ -83,7 +83,7 @@ governance_tier: full
 
 1. 第一输入根固定为 `character_design.json`
 2. `prompt整合` 是首选 `design_subject` 提取源；若缺失必须显式记录 fallback
-3. packet 只负责 prompt/layout 收束，不直接出图
+3. packet 是 canonical 停点；若启用 SMART 自动生图，PNG 与 request/report 只作为 derived sidecar
 4. `_manifest.json` 只记录输入输出与统计，不反写角色设计事实
 5. 输出目录固定为 `projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`
 
@@ -109,7 +109,7 @@ governance_tier: full
 
 - 直接把整份角色 Markdown 原封不动灌进 packet
 - 跳过 `2-设计` 重新从导演 JSON 发明角色形象
-- 任何要求本阶段直接出图的越权指令
+- 任何要求绕过 packet 直接出图的越权指令
 
 ## Visual Maps
 

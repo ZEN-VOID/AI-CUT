@@ -22,6 +22,7 @@
 | 每集被写成单一 panel 文件 | 输出契约层 | 按 `costumes[]` 逐服装输出 layout | 在命名合同中固定 `<costume_id>-<canonical_label>-CostumePanel-layout.json` | episode 输出文件数等于 costume 数 |
 | 模板结构从 reference 漂移 | 模板真源层 | 回退当前目录 template，禁止脚本内再造第二套结构 | 把 layout contract 锁在 template 文件，不在脚本复制模块定义 | prompt 中能回链 mandatory rules |
 | 叶子合同只说流程，不足以支撑 degraded mode 和 packet 级闭环 | 思行网络层 | 把输入门、sidecar 退化、模板锁定、逐服装 packet 组装和 manifest 汇流都收回主 `SKILL.md` | 固化 `Node Network + Capability Detail + Convergence` | `3-面板` 可直接按节点执行 |
+| 连续批量任务里服装设计图没有自动接到 panel 生图 | SMART bridge 层 | 以 `服装设计.json` episode 根为 continuity source root，写稳 packet 后统一桥接 `nano-banana/general` | 不在 leaf 内重复写 ref 扫描逻辑，只复用共享 bridge 脚本 | request sidecar 中 continuity refs 指向 `2-设计/第N集/` |
 
 ## Reusable Heuristics
 
@@ -29,3 +30,4 @@
 - 若当前仓库还没有稳定共享 panel engine，先固定 layout JSON 停点，比仓促接回自动生图更稳。
 - 逐服装 layout 比整集单文件更适合后续审阅、回修和图像工具消费。
 - 对 `3-面板` 做知行合一改造时，最重要的是把 degraded mode 也当成正式节点，而不是只在脚本里静默兜底。
+- 服装面板启用自动生图时，bridge 层应该直接复用 packet 的 `prompt`，再由 SMART continuity refs 决定是否补 I2I 参考，而不是在调用前重新改写服装话术。

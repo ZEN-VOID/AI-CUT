@@ -31,11 +31,13 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 | 图像侧模板字段被删掉或乱改 | 请求模板层 | 恢复共享模板骨架 | 以 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 为唯一模板真源 | `model` 骨架与共享模板一致 |
 | 文档再次引用 `5-画面/subtypes/...` 或 `references/*.md` | 真源治理层 | 统一替换回当前真实路径，并保持单一 `SKILL.md` 真源 | 在 `SKILL.md` 固化 `Shared Canonical Sources`、`Context Preload` 与 `Root-Cause Execution Contract`，禁止重建第二套规范载体 | 技能目录内不再残留旧路径或已删除 references 引用 |
 | 合同只剩字段表与 workflow 摘要，节点没有做到“想清楚即执行” | 编排表达层 | 把业务分析、思行节点网络、节点执行 playbook、汇流门和一次性输出门补回 `SKILL.md` | 在主合同显式声明 `skeleton_detail_split: false`，并要求每个节点写清输入、动作、证据、路由与完成信号 | 执行者无需查额外细则即可完成整条漫画蒸馏链 |
+| 仍把补证入口写成 `3-Detail/evidence/` | 补证路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在 `SKILL.md` 固化真实 sidecar 路径与只读补证边界 | 不再引用不存在的补证目录 |
+| 漫画页蒸馏没查 `document_phase` 或漏掉 `出场角色及穿搭` | 阶段就绪层 | 在 `N2/N4` 之前先查 phase、组级穿搭槽与镜级 canonical 字段 | 在 `SKILL.md` 固化 readiness gate 与内容抽取最低覆盖面 | 漫画页 prompt 不再建立在未就绪或空壳 detail 上 |
 
 ## Repair Playbook
 
 1. 先核对当前父路径是否指向 `.agents/skills/aigc/5-Image/1-提示词蒸馏/`，不要再引用不存在的 `5-画面/subtypes/...`。
-2. 再查目标分镜组是否能从 `3-Detail/第N集.json` 的 `分镜组列表[]` 唯一定位。
+2. 再查 `metadata.document_phase` 是否已到 `detail_in_progress | ready`，以及目标分镜组能否从 `3-Detail/第N集.json` 的 `分镜组列表[]` 唯一定位。
 3. 再查 `prompt` 是否严格等于“固定前缀 + comic_page_group”。
 4. 再查 `model` 是否仍保持共享模板骨架，且 `reference_images / image_markers` 未被删掉。
 5. 最后查输出模式是 `json_only` 还是 `full_trace`，确认 `第N集.json` 与 `_manifest.json` 的落盘是否一致。
@@ -50,3 +52,4 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 - 漫画子技能最常见的漂移不是画风，而是把“漫画图像请求 JSON 蒸馏”误做成“直接页图落盘”。
 - 对这种已经是叶子且又有多道判断门的蒸馏技能，最稳的知行合一改造不是继续拆 `references/`，而是把节点细则直接写进主 `SKILL.md`。
 - 如果用户明确要求 `复杂链路的骨架 / 细则分层 = false`，就要把“可扫描性”交给 Mermaid 和节点表，而不是把执行细节外包给另一个文档。
+- 漫画页 prompt 若没显式承接 `出场角色及穿搭` 与镜级 `分镜表现`，通常只剩版式约束，缺少角色服装与镜头视觉抓手。

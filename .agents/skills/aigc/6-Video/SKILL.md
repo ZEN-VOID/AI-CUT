@@ -19,11 +19,12 @@ governance_tier: full
 3. 视频请求对象应如何对齐具体工具的入参格式
 4. 产物应落到 `projects/aigc/<项目名>/6-Video/` 的哪里
 
-当前已建可执行子路径位于 `1-提示词蒸馏` 与 `2-视频生成` 叶子：
+当前已建可执行子路径位于 `1-提示词蒸馏`、`2-参照引用` 与 `3-视频生成`：
 
 1. `全能参照`
 2. `首帧参照`
-3. `2-视频生成`
+3. `2-参照引用`
+4. `3-视频生成`
 
 其余目录 `首尾帧参照`、`多图参照` 目前仍保留为后续扩展槽位。
 
@@ -65,11 +66,15 @@ flowchart TD
     C["4-Design / 5-Image 资产"] --> B
     B -->|"分镜组 -> 视频请求 JSON"| D["1-提示词蒸馏/全能参照"]
     B -->|"单帧主导"| E["1-提示词蒸馏/首帧参照"]
-    B -->|"稳定请求 -> 真实生成入口"| J["2-视频生成"]
+    D --> R["2-参照引用"]
+    E --> R
+    B -->|"已有稳定请求，需从 Assets 绑定参照图"| R
+    B -->|"稳定请求 -> 真实生成入口"| J["3-视频生成"]
     B -->|"首尾帧双锚点"| F["1-提示词蒸馏/首尾帧参照（待补）"]
     B -->|"多图故事线"| G["1-提示词蒸馏/多图参照（待补）"]
     D --> H["projects/aigc/<项目名>/6-Video/全能参照/"]
     E --> I["projects/aigc/<项目名>/6-Video/首帧参照/"]
+    R --> M["projects/aigc/<项目名>/6-Video/2-参照引用/<模式>/"]
     J --> K["projects/aigc/<项目名>/6-Video/生成任务/<provider>/"]
 ```
 
@@ -93,7 +98,7 @@ flowchart LR
 
 ## Provider Slot Semantics
 
-- `6-Video/2-视频生成/providers/` 只承载 provider 槽位与命名保留，不默认等同于受治理可执行子技能。
+- `6-Video/3-视频生成/providers/` 只承载 provider 槽位与命名保留，不默认等同于受治理可执行子技能。
 - 当前 provider 槽位包括：`grok`、`kling`、`seedance`、`sora`、`veo`、`vidu`。
 - 若某个 provider 未来需要独立执行合同，应升级为明确的 `SKILL.md + CONTEXT.md`，而不是继续靠空目录冒充能力存在。
 
@@ -102,7 +107,8 @@ flowchart LR
 - 若任务是“按分镜组把导演 JSON 蒸馏成视频工具入参”，默认进入 `1-提示词蒸馏/全能参照`。
 - 命中任何 `1-提示词蒸馏/*` 叶子前，默认先确认 `3-Detail/第N集.json` 已进入 `metadata.document_phase=ready`，且各组 `分镜切换 == len(分镜明细[])`。
 - 若任务已经明确以单一 `分镜ID` 作为首帧锚点，进入 `1-提示词蒸馏/首帧参照`。
-- 若任务已经有稳定请求 JSON，且当前目标是选择 provider、写提交计划并进入真实生成入口，进入 `2-视频生成`。
+- 若任务已经有稳定请求 JSON，且目标是从 `Assets/` 补齐参照图字段，进入 `2-参照引用`。
+- 若任务已经有稳定请求 JSON，且当前目标是选择 provider、写提交计划并进入真实生成入口，进入 `3-视频生成`。
 - 若任务已经有首尾帧或多图强约束，但对应子路径合同未补齐，必须报告缺口，不得伪造执行链。
 - 若任务已经明确卡在 provider 运行时故障排查，则直接进入命中的 provider 技能，不再重复经过父级路由。
 
@@ -121,10 +127,13 @@ flowchart LR
 - 首个 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.txt`。
 - 帧级 canonical 主产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`。
 - 帧级 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.txt`。
+- 参照绑定 canonical 主产物为 `projects/aigc/<项目名>/6-Video/2-参照引用/<模式>/第N集/第N集.json`。
+- 参照绑定 canonical 审计产物为 `projects/aigc/<项目名>/6-Video/2-参照引用/<模式>/第N集/_manifest.json + match-report.md`。
 - 组级与帧级叶子的共享 `图生视频` 句法总原则统一收敛到 `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`，子路径 `prompt-assembly-spec.md` 只负责各自 specialization。
 - 生成入口 canonical 计划文件为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-plan.json`。
 - 生成入口 canonical 简报为 `projects/aigc/<项目名>/6-Video/生成任务/<provider>/第N集/submit-brief.md`。
 - 当前共享入参模板真源为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`，供多个视频子技能包共用。
+- 共享模板中的 `model.image_markers[]` 使用 provider-neutral 的 `image_ref + ref_kind + related_subject + image_no` 骨架；是否需要落成本地路径、URL 或其他 provider 专用格式，由 `3-视频生成` 或命中的 provider 技能在 handoff 时解析。
 - 当前共享文本模板真源为 `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`，供多个视频子技能包共用。
 - 详细顶层结构与必要文件见 `references/output-template.md`。
 
@@ -154,7 +163,8 @@ flowchart LR
   - `.agents/skills/aigc/6-Video/SKILL.md`
   - `.agents/skills/aigc/6-Video/CONTEXT.md`
   - `.agents/skills/aigc/6-Video/1-提示词蒸馏/*/SKILL.md`
-  - `.agents/skills/aigc/6-Video/2-视频生成/SKILL.md`
+  - `.agents/skills/aigc/6-Video/2-参照引用/SKILL.md`
+  - `.agents/skills/aigc/6-Video/3-视频生成/SKILL.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
@@ -169,7 +179,7 @@ flowchart LR
 
 ## Subtype Partition (Mandatory)
 
-- 当前 `6-Video/` 已建且可执行的子路径位于 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照` 与 `2-视频生成`。
-- `2-视频生成/providers/` 当前只保留 provider 槽位，不自动视为本地 governed leaf。
+- 当前 `6-Video/` 已建且可执行的子路径位于 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成`。
+- `3-视频生成/providers/` 当前只保留 provider 槽位，不自动视为本地 governed leaf。
 - `首尾帧参照`、`多图参照` 与未来一致性处理路径仍为后续扩展槽位，目录存在与否都不等于合同已建。
 - `首尾帧参照`、`多图参照` 目前仍作为后续叶子槽位保留在 `1-提示词蒸馏/` 下，不因目录存在而自动视为可执行。

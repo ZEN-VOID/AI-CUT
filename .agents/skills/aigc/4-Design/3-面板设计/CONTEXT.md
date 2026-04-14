@@ -22,6 +22,8 @@
 | manifest 或 aggregate 开始承载设计事实 | 输出治理层 | 恢复 packet 为唯一展示事实载体 | 在父层与 leaf 共同固定 packet / aggregate / manifest 分层 | aggregate 只做汇总，manifest 只做审计 |
 | full-build 时四域被无意义串行 | 调度拓扑层 | 回到多域并行候选 + selective dispatch | 在父层显式声明“并行候选，不靠名称序号推断” | 多域构建时长下降 |
 | `5-Image` 仍需重猜 packet 路径或 prompt 来源 | handoff 层 | 回查各域 packet 命名与输出根 | 在父层验收里强制检查 handoff readiness | 下游直接定位 packet 与 manifest |
+| 自动生图时每个 leaf 都私有一套 prompt/ref 规则 | 真源治理层 | 收回到 `_shared/smart-image-handoff-contract.md` + 共享桥接脚本 | 统一 request sidecar、SMART 判型和 continuity ref 扫描 | 四域自动生图合同不再漂移 |
+| 用户单独点某个 JSON 生图，却被隐式塞进 continuity refs | SMART 模式层 | 将 resolved mode 切到 `single-doc-t2i` | 在共享合同固化“单文档默认 T2I” | 单文件请求不再误走 I2I |
 
 ## Repair Playbook
 
@@ -29,7 +31,8 @@
 2. 再检查该域是否从对应 `2-主体设计` carrier 起步。
 3. 再检查模板是否存在，以及 leaf 是否已显式声明 packet 输出根。
 4. 若是多域构建，优先检查 selective dispatch 与并行策略，而不是默认全串行。
-5. 最后汇总到 `projects/aigc/<项目名>/4-Design/validation-report.md`，记录 blocked templates 与 handoff 状态。
+5. 若开启自动生图，再检查 request sidecar 是否来自 packet 真源字段，且 `SMART` resolved mode 是否正确。
+6. 最后汇总到 `projects/aigc/<项目名>/4-Design/validation-report.md`，记录 blocked templates、handoff 状态和自动生图桥结果。
 
 ## Reusable Heuristics
 
@@ -38,3 +41,5 @@
 - 多域 panel build 通常没有强依赖，默认应视为并行候选；真正需要串行的是人工审阅或共享汇报，而不是 packet 生成本身。
 - template readiness 比 prompt 细节更优先，因为没有模板就不存在稳定的 layout contract。
 - stage-level 验收只需要回答三个问题：命中了哪些域、哪些域 blocked、哪些 packet 已可交给 `5-Image / review`。
+- 若要在 `3-面板` 直接自动生图，最稳的做法不是在四个 leaf 里各造 prompt，而是从 packet 写统一 request sidecar 再调用 `nano-banana/general`。
+- `SMART` 的关键不是“总带参考图”，而是“连续批量任务自动继承 `2-设计` 图像；单文档请求默认 T2I”。

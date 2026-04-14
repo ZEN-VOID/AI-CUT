@@ -35,7 +35,7 @@
 | 预建阶段骨架被治理脚本误判成“已进入执行” | 轻量治理快照层 | 在治理回填脚本中只把真实文件产物视为阶段输出，不把空目录当执行证据 | 将“骨架目录 != 阶段产物”同步写入经验层，并在治理回填逻辑中固定 `is_file()` 判定 | `governance-state` 预演时，刚初始化的项目不会被误判到执行期 |
 | `0-Init` 目录仍保留旧 mode reference stub，阅读路径与真源边界变得含混 | 技能目录结构层 | 删除 `references/*-mode/module-spec.md`，把目录合同写回 `SKILL.md` 并补建 `CHANGELOG.md` | 对单技能初始化层固定 `SKILL.md + CONTEXT.md + CHANGELOG.md + agents/openai.yaml + templates/` 结构，禁止重建平行 mode 目录真源 | `find .agents/skills/aigc/0-Init -maxdepth 3` 不再出现 `references/`，且目录边界可直接从根文件读清 |
 | 初始化只预建了后段媒体/设计骨架，漏掉 `2-Global` 目录化输出与 `3-Detail` sidecar 子路径 | runtime skeleton 合同层 | 将 `2-Global/全局风格 + 类型元素 + 设计元素` 与 `3-Detail/水月 + 镜花` 一起加入默认 bootstrap skeleton | 让 `0-Init/SKILL.md`、`_shared/project-runtime-layout.md` 与 `aigc_skill_audit.py` 同步约束同一批 stable runtime subpaths | 新初始化项目在进入 `2-Global / 3-Detail` 前不再临时补目录 |
-| 初始化没有同步预建项目级 `assets/` 资产库，导致参考图和画板素材只能临时散落在各阶段目录 | project runtime asset layer | 将 `assets/角色 / 道具 / 场景 / 服装 / 分镜画板/*` 加入默认 bootstrap skeleton | 在 shared runtime layout、`0-Init/SKILL.md` 与审计脚本固定“assets 是辅助资产库，不是阶段真源” | 新项目初始化后立即具备统一资产沉淀目录，且不与 `5-Image` 业务输出混淆 |
+| 初始化没有同步预建项目级 `Assets/` 资产库，导致参考图和画板素材只能临时散落在各阶段目录 | project runtime asset layer | 将 `Assets/角色 / 道具 / 场景 / 服装 / 分镜画板/*` 加入默认 bootstrap skeleton | 在 shared runtime layout、`0-Init/SKILL.md` 与审计脚本固定“Assets 是辅助资产库，不是阶段真源” | 新项目初始化后立即具备统一资产沉淀目录，且不与 `5-Image` 业务输出混淆 |
 
 ## Repair Playbook
 
@@ -64,8 +64,8 @@
 - 对 `知行合一` 编排的 `0-Init`，最稳的写法不是再造第二份思考文档，而是把路由、三种模式和充分性审计直接写进同一份父 `SKILL.md`。
 - 对单技能父层初始化目录，若旧 `references/*-mode` 已无仓内回链价值，应直接删掉 stub，而不是继续让它们冒充“还在生效的模式子层”。
 - 对项目初始化骨架，不能只预建“后段叶子输出目录”；凡某阶段已经存在稳定 canonical 子落点，如 `2-Global/全局风格` 或 `3-Detail/水月`，都应一并进入 bootstrap skeleton。
-- 对跨阶段都会复用的图像/素材沉淀，单独放进项目根 `assets/` 比散落在各阶段目录更稳；但必须明确它只是资产库，不是业务真源。
-- `assets/分镜画板/分镜帧|分镜故事板|漫画` 可以和 `5-Image/*` 同名，但语义必须拆开：前者存参考资产，后者存阶段输出。
+- 对跨阶段都会复用的图像/素材沉淀，单独放进项目根 `Assets/` 比散落在各阶段目录更稳；但必须明确它只是资产库，不是业务真源。
+- `Assets/分镜画板/分镜帧|分镜故事板|漫画` 可以和 `5-Image/*` 同名，但语义必须拆开：前者存参考资产，后者存阶段输出。
 - 对 `4-Design` 这类“技能树 tranche 父层 != runtime 落盘层”的阶段，初始化应继续预建 domain-first 业务目录，而不是把 `1-主体清单/2-主体设计/3-面板设计` 直接投影成项目目录。
 - 当技能树有中间 tranche，但项目 runtime 只接受业务语义落盘名时，必须优先相信 `_shared/project-runtime-layout.md`，并在阶段合同里把两套命名的映射写明；否则读者会把“技能目录现状”误当成“项目预建目录”。
 - 在 `0-Init` 里，`自主问答模式（默认）` 是前台选项卡的默认建议，不是无确认自动锁模；只要用户没拍板且不存在强制路由信号，就必须停在 `N1-mode-gate`。

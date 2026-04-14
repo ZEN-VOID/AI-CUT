@@ -23,6 +23,7 @@
 | crowd 角色仍被当成单人 turnaround 处理 | 角色层级策略层 | `role_tier=crowd` 时自动打 `group_portrait=true` | 在类型策略中固化 crowd 群像策略 | manifest 统计到 `group_portrait_count` |
 | 父级合同仍把 `3-面板` 写成 pending | 路由状态层 | 同步更新 `2-角色` 与 `4-Design` 父级状态 | 每新增 active leaf 同步回写父级真源与经验层 | 父级合同不再出现 stale pending |
 | 主合同改成知行合一后，prompt 来源/类型策略仍留在并列 `references/` | 真源治理层 | 把 prompt 来源判型、role tier 策略、输出合同收回主 `SKILL.md` | 对 `复杂链路的骨架 / 细则分层=false` 的面板技能，只保留迁移 stub，不保留并列 reference 真源 | 当前目录不再出现平行执行真源 |
+| 连续批量任务进入 `3-面板` 时，`2-设计` 图像没有自动变成参考图 | SMART bridge 层 | 先把 packet 写稳，再按 `continuous-batch` 扫描 `2-设计` 图像并桥接 `nano-banana/general` | 在 packet 中固化 `image_generation` 字段，并统一走共享 bridge 脚本 | request sidecar 中能看到 continuity refs |
 
 ## Repair Playbook
 
@@ -39,3 +40,4 @@
 - 如果上游设计稿还不完整，宁可保守 fallback 到 JSON synthesis，也不要把 `物语 / 解构` 之类分析段直接灌给下游。
 - crowd 角色的 panel 更像“同一阶层群像设计板”，不是单人 front/side/back 转身图。
 - 当用户显式要求知行合一且 `复杂链路的骨架 / 细则分层=false` 时，`3-面板` 的 prompt 来源策略、群像策略、reference image 规则和 output contract 都应回收到主 `SKILL.md`，不再让 `references/` 承载并列步骤真源。
+- 若角色面板要自动生图，最稳的做法不是在 bridge 层再拼 prompt，而是直接复用 packet 的 `prompt_payload.prompt_text`，并把 `2-设计` 图像通过 SMART continuity refs 自动并入。

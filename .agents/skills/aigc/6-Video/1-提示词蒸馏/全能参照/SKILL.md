@@ -49,7 +49,7 @@ governance_tier: full
 | `business_goal` | 只消费 `metadata.document_phase=ready` 的 `3-Detail` shared root，把导演真源中的整组信息压缩为后续视频工具可直接消费的组级请求对象，同时不损坏上游事实。 |
 | `business_object` | 单个 `分镜组`，包括 `剧本正文`、`组间设计.*`（含 `出场角色及穿搭`）与该组下全部 `分镜明细[]`；镜级蒸馏默认尽量覆盖全部字段，并按保留优先级重点消费 `时间段 / 角色背景面 / 角色站位走位 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`。 |
 | `task_goal` | 生成一组一条的 `meta + prompt_style + model + prompt + prompt_char_count` 请求对象，并落盘三件套。 |
-| `constraint_profile` | 只允许消费 `metadata.document_phase=ready`、且每组 `分镜切换 == len(分镜明细[])` 的 `3-Detail` shared root；必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段默认必须以连贯自然语句串联并尽量全部进入 prompt，除 `分镜组ID / 分镜ID` 外移除字段标题，总字数控制在 `1900` 字内；每个分镜都不得漏掉当前分镜组内的 `xx秒-xx秒` 时间段标签，且 `分镜ID` 与时间之间不得写成“`分镜ID 的 xx秒-xx秒`”；镜级信息组织顺序可优先参考“`[镜头属性] -> [景别 / 运镜手法 / 镜头速度 / 镜头视角] -> [角色站位走位 / 角色背景面] -> [角色表现 / 场景氛围] -> [道具及状态 / 摄影美学 / 其他]`”，但表层表达不强制套固定句式，自然流畅与信息覆盖优先；只有当且仅当字数吃紧时，才允许把部分句子收束为短语式压缩；超限时只能按优先级压缩，优先保留镜级 `时间段 / 角色站位走位 / 角色背景面 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`，其次保留 `角色表现 / 场景氛围 / 道具及状态 / 摄影美学`，再次压缩 `镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`；不得虚构图片、URL、主体、动作或场景事实。 |
+| `constraint_profile` | 只允许消费 `metadata.document_phase=ready`、且每组 `分镜切换 == len(分镜明细[])` 的 `3-Detail` shared root；必须原文保留 `剧本正文` 与 `组间设计.全局风格`；其余字段默认必须以连贯自然语句串联并尽量全部进入 prompt，除 `分镜组ID / 分镜ID` 外移除字段标题，总字数控制在 `1900` 字内；每个分镜都不得漏掉当前分镜组内的 `xx秒-xx秒` 时间段标签，且 `分镜ID` 与时间之间不得写成“`分镜ID 的 xx秒-xx秒`”；镜级信息组织顺序可优先参考“`[镜头属性] -> [景别 / 运镜手法 / 镜头速度 / 镜头视角] -> [角色站位走位 / 角色背景面] -> [角色表现 / 场景氛围] -> [道具及状态 / 摄影美学 / 其他]`”，但表层表达不强制套固定句式，自然流畅与信息覆盖优先；只有当且仅当字数吃紧时，才允许把部分句子收束为短语式压缩；超限时只能按优先级压缩，优先保留镜级 `时间段 / 角色站位走位 / 角色背景面 / 景别 / 运镜手法 / 镜头速度（如存在）/ 镜头视角`，其次保留 `角色表现 / 场景氛围 / 道具及状态 / 摄影美学`，再次压缩 `镜头属性 / 镜头框架 / 镜头类型 / 分镜表现`；不得虚构图片引用、引用类型、主体、动作或场景事实。 |
 | `non_goals` | 不改写上游导演事实；不上传参照图；不执行 provider 提交、轮询与下载；不把 TXT 当主真源。 |
 | `success_criteria` | 每个分镜组都能回链到来源镜头列表；prompt 覆盖整组信息；固定块逐字一致；无字段标题泄露；JSON/TXT/manifest 三件套可继续 handoff。 |
 | `evidence_sources` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`.agents/skills/aigc/_shared/director_episode_output.schema.json`、`6-Video/_shared` 双模板。 |
@@ -64,12 +64,12 @@ governance_tier: full
 - 需要保留 `剧本正文` 与 `组间设计.全局风格` 原文不变，同时压缩其余组级与镜级字段。
 - 需要把每个分镜的 `时间段` 转成 `xx秒-xx秒` 并显式保留在镜级条目前部。
 - 需要按“高保留镜头控制项 > 情绪/氛围/道具/摄影 > 其余镜头补充项”的顺序压缩，并默认保持连贯自然语句表达；只有字数吃紧时才退化到短语。
-- 需要为后续 `.agents/skills/cli/dreamina-cli/SKILL.md` 或 `6-Video/2-视频生成` 提供组级 `multimodal2video` 风格输入对象。
+- 需要为后续 `6-Video/2-参照引用` 或 `6-Video/3-视频生成` 提供组级 `multimodal2video` 风格输入对象。
 
 ## When Not to Use
 
 - 当前任务是单一 `分镜ID` 的帧级蒸馏，应进入 `1-提示词蒸馏/首帧参照`。
-- 当前任务是实际提交 provider、轮询结果或下载产物，应进入 `2-视频生成` 或命中的 provider 技能。
+- 当前任务是实际提交 provider、轮询结果或下载产物，应进入 `3-视频生成` 或命中的 provider 技能；若还需要从 `Assets/` 绑定参考图，则先进入 `2-参照引用`。
 - 上游 `3-Detail/第N集.json` 尚未形成合法 `final_output.main_content.分镜组列表`。
 - 上游 `metadata.document_phase` 仍为 `bootstrapped` 或 `detail_in_progress`。
 - 任一目标分镜组的 `分镜切换` 与 `分镜明细[]` 数量未对齐，说明 `3-Detail` merge/handoff 仍未稳定。
@@ -88,7 +88,7 @@ governance_tier: full
 ### `全能参照` 不拥有
 
 - 改写上游导演事实。
-- 上传参照图、虚构图片 URL 或补造主体信息。
+- 上传参照图、虚构图片引用或补造主体信息。
 - 真实 provider 提交、轮询、下载。
 - 父阶段路由裁决；路径选择由 `.agents/skills/aigc/6-Video/SKILL.md` 负责。
 
@@ -332,7 +332,7 @@ erDiagram
   - 当前子技能输出合同
 - `actions`
   1. 确认任务不是 `首帧参照`
-  2. 确认任务不是 `2-视频生成`
+  2. 确认任务不是 `2-参照引用` 或 `3-视频生成`
   3. 锁定三件套与唯一 handoff 主体为 `第N集.json`
 - `evidence`
   - 命中 `全能参照`
@@ -637,7 +637,7 @@ erDiagram
 - 分镜压缩必须是自然融合文本，不得出现大量靠硬截断生成的 `…` 半截短语。
 - 当预算明显宽松时，不得把自然语句无故压成短语式表达。
 - `reference_images` 字段存在。
-- `image_markers` 未伪造 URL / 主体 / 图号。
+- `image_markers` 未伪造引用 / 类型 / 主体 / 图号。
 - `_manifest.json` 在超出 1900、显著低于上限或输入不足时写出异常说明。
 - `第N集.txt` 只承载提示词与字数统计，不承载结构化参数区块。
 - 若 `第N集.txt` 已用 section header 单独显示 `分镜组ID`，则不得再重复显示 prompt 首行同组 `分镜组ID`。
@@ -657,7 +657,7 @@ erDiagram
 - `第N集.json` 是唯一 completeness carrier。
 - `第N集.txt` 只是 derived display view。
 - `_manifest.json` 是追溯与例外说明载体。
-- 若本次属于 recovery rerun，且 `project_state.yaml` 已推进到 `2-视频生成`、provider handoff 或更后续阶段，则本技能只修复缺失的 `全能参照` 三件套与 trace，不得把项目推荐入口、`current_stage` 或后续 ready 状态回退到本子技能之前。
+- 若本次属于 recovery rerun，且 `project_state.yaml` 已推进到 `2-参照引用`、`3-视频生成`、provider handoff 或更后续阶段，则本技能只修复缺失的 `全能参照` 三件套与 trace，不得把项目推荐入口、`current_stage` 或后续 ready 状态回退到本子技能之前。
 
 ### 执行闭环输出
 
@@ -683,10 +683,10 @@ erDiagram
 
 ### Handoff Contract
 
-- 正式进入视频生成时，优先把 `第N集.json` 交给 `.agents/skills/cli/dreamina-cli/SKILL.md` 或父阶段 `2-视频生成`。
+- 正式进入视频生成时，优先先判定是否要进入 `2-参照引用` 绑定 `Assets` 参考图；若不需要，再把 `第N集.json` 交给父阶段 `3-视频生成`。
 - `第N集.txt` 只供人工审阅，不作为自动化 handoff 主体。
 - `_manifest.json` 只承载追溯、异常说明与最小验证结果，不替代 JSON 主体。
-- 若 `project_state.yaml` 已经把下一入口锁到 `2-视频生成`，而磁盘缺失 `全能参照` 三件套，应视为 video prompt 层 runtime drift：先补回三件套，再保持原 handoff 指向，不额外降级项目状态。
+- 若 `project_state.yaml` 已经把下一入口锁到 `2-参照引用` 或 `3-视频生成`，而磁盘缺失 `全能参照` 三件套，应视为 video prompt 层 runtime drift：先补回三件套，再保持原 handoff 指向，不额外降级项目状态。
 
 ## Field System
 
@@ -722,7 +722,7 @@ erDiagram
 | --- | --- | --- | --- |
 | FIELD-VID-SUBJ-01 | `prompt_style.type / meta.shot_level` 合法，`group_id` 与 `source_shot_ids` 成立，且上游 `document_phase=ready`、`分镜切换 == len(分镜明细[])` | FAIL-VID-SUBJ-01 | `N0-N2` |
 | FIELD-VID-SUBJ-02 | prompt 满足固定块、压缩块、隐藏标题与字数窗，且 `P1` 镜头控制项与 `xx秒-xx秒` 保持高度可辨认 | FAIL-VID-SUBJ-02 | `N3-N5` |
-| FIELD-VID-SUBJ-03 | `reference_images` 存在，`image_markers` 三元信息结构完整且顺序稳定 | FAIL-VID-SUBJ-03 | `N6` |
+| FIELD-VID-SUBJ-03 | `reference_images` 存在，`image_markers` 四字段信息结构完整且顺序稳定 | FAIL-VID-SUBJ-03 | `N6` |
 | FIELD-VID-SUBJ-04 | JSON、TXT 与 manifest 可追溯可 handoff | FAIL-VID-SUBJ-04 | `N7` |
 | FIELD-VID-SUBJ-05 | 最终闭环包含思考过程、关键证据与风险/例外 | FAIL-VID-SUBJ-05 | `N8` |
 
@@ -736,7 +736,7 @@ erDiagram
 - `剧本正文` 或 `全局风格` 被改写。
 - prompt 中仍残留字段标题。
 - 压缩过猛只剩碎片，或显著超出预算。
-- `reference_images` 被删除，或 `image_markers` 出现虚构 URL/主体/顺序错位。
+- `reference_images` 被删除，或 `image_markers` 出现虚构引用/类型/主体/顺序错位。
 - 有三件套产物，但没有思考过程与返工入口，导致结案不可复核。
 
 必经链路：

@@ -23,7 +23,7 @@ governance_tier: full
 | --- | --- |
 | `business_goal` | 把设计主稿稳定转换成 layout dossier handoff，而不让展示阶段重新发明设计事实 |
 | `business_object` | `道具设计.json` 中的每个 prop、对应 prompt sidecar、模板合同与 manifest 追踪 |
-| `constraint_profile` | 不改写上游设计真源；不自动生成 PNG；模板是唯一布局真源；sidecar 缺失时必须显式降级 |
+| `constraint_profile` | 不改写上游设计真源；canonical 产物仍是 layout packet；若启用 SMART 自动生图，PNG 只作为派生 sidecar；模板是唯一布局真源；sidecar 缺失时必须显式降级 |
 | `success_criteria` | 每个 prop 都生成独立 layout JSON，identity badge 稳定，manifest 完整记录 degraded mode 与输出统计 |
 | `non_goals` | 不回写 `3-Detail`、不重做 `2-设计`、不将本阶段升级成图片生成阶段 |
 | `complexity_source` | 输入来自两份上游文件，且要把模板规则、prompt 片段、identity badge 与降级逻辑稳定组合 |
@@ -112,7 +112,7 @@ stateDiagram-v2
 
 - 改写 `道具设计.json` 或 `prop_design_prompt.json`
 - 回头重扫 `3-Detail/第N集.json`
-- 自动调用图片生成器写 PNG
+- 绕过 packet 直接调用图片生成器写 PNG
 - 再造第二份模板真源
 
 ## Thinking-Action Node Network
