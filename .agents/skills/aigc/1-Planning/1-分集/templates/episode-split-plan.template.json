@@ -18,7 +18,7 @@
       "coverage_scope": "",
       "route": "source_structure",
       "upstream_paths": [],
-      "script_output": "projects/<项目名>/1-Planning/2-剧本/第1集.md",
+      "script_output": "projects/<项目名>/1-Planning/2-格式/第1集.md",
       "bootstrap_output": "projects/<项目名>/2-Global/导演意图.md",
       "boundary_summary": ""
     }

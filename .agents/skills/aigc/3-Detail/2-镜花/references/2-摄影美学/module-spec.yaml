@@ -1,0 +1,60 @@
+version: 1
+module_id: jinghua-cinematography-stage
+module_level: branch
+stage_order: 2
+branch_key: cinematography
+purpose: 在已稳定的 shot spine 上先回收上游摄影底座与视觉控制线，再汇流光影、色彩、质感，最终收束为可执行的组级 `cinematography_patch`。
+child_modules:
+  - path: references/2-摄影美学/光影/module-spec.yaml
+  - path: references/2-摄影美学/色彩/module-spec.yaml
+  - path: references/2-摄影美学/质感/module-spec.yaml
+triggers:
+  - 已形成 `shot_spine_patch`
+  - 当前组需要继承 `Init / Global` 或项目级摄影承诺
+  - 当前组需要明确画面气候、光影推进和材质指向
+must_answer:
+  - 这些摄影选择在显化 `1-水月` 的哪条信息
+  - 这组必须继承哪些上游摄影承诺、风格走廊和禁区
+  - 当前组的视觉控制线是什么，主体控制、空间剥离和观看压力如何成立
+  - 这组的照明与影调怎么服务冲突，并在组内形成可追踪推进
+  - 色彩温度、明度、饱和度和色彩心理从何而来，哪些只能点到为止
+  - 画面表面的材料感应如何被镜头感知，且不压过人物与动作
+patch_contract:
+  target_slot: cinematography_patch
+  required_elements:
+    - visual_control_summary
+    - strategy_priority
+    - lighting_strategy
+    - group_lighting_note
+    - color_strategy
+    - texture_strategy
+merge_policy:
+  execution_mode: leaf_parallel_branch_serial
+  branch_prelude:
+    - 回看摄影底座
+    - 锁视觉控制线
+    - 收束摄影执行策略
+  combine_order:
+    - 光影
+    - 色彩
+    - 质感
+  postprocess:
+    - 组级光影流动
+    - 摄影总协调
+  preserve_first:
+    - shot readability
+    - init/global style corridor
+    - visual control line
+    - tactile visual cues
+  trim_first:
+    - 空泛审美词
+    - 不可执行光色设定
+    - 与组级推进脱节的单镜漂亮话
+quality_gates:
+  - 不得跳过上游摄影底座回看与视觉控制线收束
+  - 先可执行，后审美
+  - 摄影信息必须挂在具体 shot 上
+  - 必须形成 `group_lighting_note`，不能把每镜写成互不关联的独立布光
+  - 最终 `cinematography_patch` 必须压成单一可执行判断，不能退回字段枚举
+  - 摄影只能强化 `1-水月` 已有信息，不得反向发明剧情事实
+  - 不得反向改写分镜骨架

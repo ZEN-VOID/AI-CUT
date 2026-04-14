@@ -1,0 +1,86 @@
+version: 1
+skill_id: aigc-detail-watermoon
+profile_goal: 根据当前分镜组的叙事重心，决定四条维度链谁主谁辅，避免每组都平均用力。
+default_strategy: 先锁主行动线，再决定哪条分支承担主要增益，其余分支只做补强，不抢 prose 主轴。
+route_profiles:
+  - signal_id: emotional-pressure
+    when_to_use:
+      - 分镜组以压抑、犹豫、掩饰、失守或情绪外溢为主
+      - 动作量不大，但人物压力和关系温差很强
+    primary_nodes:
+      - 角色表现/内心戏
+      - 角色表现/对手戏
+    supporting_nodes:
+      - 氛围表现/意境
+      - 视觉强化/品味
+    writing_bias:
+      - 先写露馅点，再写关系受压，不靠空泛情绪词。
+      - 空间和视觉只为人物压力服务，不喧宾夺主。
+    review_focus:
+      - 是否出现可拍微动作
+      - 是否把关系变化写成了行为而不是解释
+  - signal_id: action-push
+    when_to_use:
+      - 分镜组以冲突推进、追逐、阻拦、出手或物件交接为主
+      - 读者最先感知到的是行动而不是情绪回味
+    primary_nodes:
+      - 运动表现/逻辑性
+      - 运动表现/位置和方向
+      - 角色表现/动作戏
+    supporting_nodes:
+      - 视觉强化/冲击力
+      - 氛围表现/层次
+    writing_bias:
+      - 先把动作因果和路径写清，再补抓手和场感。
+      - 任何美感都不能破坏读者对动作线路的理解。
+    review_focus:
+      - 动作因果是否清楚
+      - 谁往哪里动是否一眼可懂
+  - signal_id: duel-tension
+    when_to_use:
+      - 分镜组核心看点是两人或多人之间的攻守、试探、逼近和回避
+      - 台词之外，关系张力本身比事件结果更重要
+    primary_nodes:
+      - 角色表现/对手戏
+      - 角色表现/内心戏
+    supporting_nodes:
+      - 运动表现/位置和方向
+      - 视觉强化/观赏性
+    writing_bias:
+      - 优先写距离、视线和让压，不要先解释关系史。
+      - prose 要让读者感觉到攻守交换，而不是旁白总结。
+    review_focus:
+      - 攻守方向是否明确
+      - 距离和视线变化是否托住张力
+  - signal_id: atmosphere-carry
+    when_to_use:
+      - 分镜组需要借环境、空间或景物压出情绪
+      - 主冲突不靠大量动作，而靠场感和温度积累
+    primary_nodes:
+      - 氛围表现/层次
+      - 氛围表现/空间诗学
+    supporting_nodes:
+      - 氛围表现/意境
+      - 视觉强化/品味
+    writing_bias:
+      - 先给空间支架，再给意境温度，不写悬空抒情。
+      - 景物和空间必须参与叙事，而不是背景美术说明。
+    review_focus:
+      - 空间是否真在参与叙事
+      - 意境是否有物象和距离支点
+  - signal_id: visual-hook
+    when_to_use:
+      - 分镜组叙事已成立，但缺少记忆点和第一眼抓手
+      - 需要增强观看收益而不是增加更多情节
+    primary_nodes:
+      - 视觉强化/冲击力
+      - 视觉强化/品味
+    supporting_nodes:
+      - 视觉强化/观赏性
+      - 角色表现/动作戏
+    writing_bias:
+      - 先找一个主抓手，再用品味收口，最后保节奏。
+      - 不允许同时追多个抓手导致 prose 失焦。
+    review_focus:
+      - 第一眼抓手是否明确
+      - 是否因追求好看而牺牲主冲突

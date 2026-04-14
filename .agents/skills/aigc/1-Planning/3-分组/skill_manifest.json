@@ -15,7 +15,7 @@
   "io": {
     "inputs": {
       "source": {
-        "pattern": "projects/<项目名>/1-Planning/2-剧本/第{episode}.md",
+        "pattern": "projects/<项目名>/1-Planning/2-格式/第{episode}.md",
         "format": "markdown",
         "required": true
       }

@@ -1,0 +1,31 @@
+version: 1
+module_id: jinghua-intra-group-transition
+module_level: leaf
+purpose: 优化组内分镜之间的切接收益和视觉递进。
+triggers:
+  - 相邻分镜之间存在明显动作承接、视线承接、轴线延续或情绪推进
+  - 这些切接需要判断保持直切是否已经足够
+must_answer:
+  - 当前要解决的是动作、视线、节奏还是情绪衔接问题
+  - 哪些组内切接最关键
+  - 这些切接靠保持直切、动作、视线、构图还是节奏完成
+  - 是否需要显式提示衔接方式
+patch_contract:
+  target_slot: intra_group_transition
+  required_elements:
+    - key_cut_points
+    - transition_gain
+    - handoff_hint
+  optional_elements:
+    - transition_problem_type
+    - cut_priority_note
+merge_policy:
+  preserve_first:
+    - cut clarity
+    - action continuity
+    - gaze continuity
+quality_gates:
+  - 先判断直切是否已经最强
+  - 不得把普通剪切说得过于夸张
+  - 组内衔接优先自然顺滑
+  - 若显式提示衔接方式，必须能说明连续性收益

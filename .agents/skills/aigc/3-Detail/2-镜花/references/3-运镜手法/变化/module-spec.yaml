@@ -1,0 +1,36 @@
+version: 1
+module_id: jinghua-camera-variation
+module_level: leaf
+purpose: 决定镜头应静止、最小必要运动还是推拉摇移跟等变化，并给出默认叙事路线及其运动理由。
+triggers:
+  - 当前组存在情绪升降、信息揭示或空间关系变化
+  - 当前镜头需要判断“动”是否真的优于“静”
+  - "`academy_hit_note` 若含运动提示，需要筛选是否吸收到默认路线"
+must_answer:
+  - 默认叙事路线是静止还是变化，为什么
+  - 哪一镜需要变化
+  - 为什么这一变化有必要，或为什么此处宁可不动
+  - 不变化会损失什么
+  - 上游运动提示哪些可吸收，哪些应放弃
+patch_contract:
+  target_slot: movement_variation
+  required_elements:
+    - default_route
+    - target_shots
+    - movement_type
+    - movement_reason
+merge_policy:
+  preserve_first:
+    - narrative-route stability
+    - emotional gain
+    - clarity of reveal
+    - view-follow motivation
+  trim_first:
+    - motion for motion's sake
+    - motion that rewrites composition or space
+quality_gates:
+  - 变化必须有清楚动机
+  - 动机不足时必须允许静镜或最小必要运动成为默认路线
+  - 只能吸收与当前路线一致的上游运动提示
+  - 不得借变化重写构图、空间轴线或角色行为逻辑
+  - 不得为变化而变化

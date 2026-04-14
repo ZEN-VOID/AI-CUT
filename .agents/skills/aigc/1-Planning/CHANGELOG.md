@@ -34,7 +34,7 @@
     - `.agents/skills/aigc/1-Planning/SKILL.md`
     - `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
-    - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/2-格式/SKILL.md`
     - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
 
 - `Case-20260412-AIGC-PLANNING-SUBAGENT-EXECUTION-BOUNDARY`
@@ -45,8 +45,8 @@
     - `.agents/skills/aigc/1-Planning/agents/openai.yaml`
     - `.agents/skills/aigc/1-Planning/1-分集/CONTEXT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/agents/openai.yaml`
-    - `.agents/skills/aigc/1-Planning/2-剧本/CONTEXT.md`
-    - `.agents/skills/aigc/1-Planning/2-剧本/agents/openai.yaml`
+    - `.agents/skills/aigc/1-Planning/2-格式/CONTEXT.md`
+    - `.agents/skills/aigc/1-Planning/2-格式/agents/openai.yaml`
     - `.agents/skills/aigc/1-Planning/3-分组/CONTEXT.md`
     - `.agents/skills/aigc/1-Planning/3-分组/agents/openai.yaml`
 
@@ -79,11 +79,11 @@
     - `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/CONTEXT.md`
 - `Case-20260412-AIGC-PLANNING-SCRIPT-SINGLE-PACKAGE`
-  - 参照 `AIGC-ZEN-VOID` 的 `2-对白·独白·旁白`，在 DREAMER `1-Planning` 下补齐 `2-剧本` 单技能包合同，并把 `标准剧 / 解说剧` 收敛为包内 subagents 路由。
-  - 同步修正 `1-分集 -> 2-剧本` 的共享 I/O：`1-分集` 只写逐集原文真源，`2-剧本` 才写 canonical 主稿。
+  - 参照 `AIGC-ZEN-VOID` 的 `2-对白·独白·旁白`，在 DREAMER `1-Planning` 下补齐 `2-格式` 单技能包合同，并把 `标准剧 / 解说剧` 收敛为包内 subagents 路由。
+  - 同步修正 `1-分集 -> 2-格式` 的共享 I/O：`1-分集` 只写逐集原文真源，`2-格式` 才写 canonical 主稿。
   - 证据路径：
-    - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
-    - `.agents/skills/aigc/1-Planning/2-剧本/CONTEXT.md`
-    - `.agents/skills/aigc/1-Planning/2-剧本/scripts/validate_script_output.py`
+    - `.agents/skills/aigc/1-Planning/2-格式/SKILL.md`
+    - `.agents/skills/aigc/1-Planning/2-格式/CONTEXT.md`
+    - `.agents/skills/aigc/1-Planning/2-格式/scripts/validate_script_output.py`
     - `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
     - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`

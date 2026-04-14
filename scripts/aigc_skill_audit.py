@@ -100,7 +100,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/<项目名>/Story/",
         "projects/<项目名>/1-Planning/",
         "projects/<项目名>/1-Planning/1-分集/",
-        "projects/<项目名>/1-Planning/2-剧本/",
+        "projects/<项目名>/1-Planning/2-格式/",
         "projects/<项目名>/1-Planning/3-分组/",
         "projects/<项目名>/2-Global/",
         "projects/<项目名>/3-Detail/",
@@ -578,8 +578,8 @@ def audit_planning_internal_skill_contract(failures: list[str]) -> None:
     targets = (
         planning_root / "SKILL.md",
         planning_root / "agents" / "openai.yaml",
-        planning_root / "2-剧本" / "SKILL.md",
-        planning_root / "2-剧本" / "agents" / "openai.yaml",
+        planning_root / "2-格式" / "SKILL.md",
+        planning_root / "2-格式" / "agents" / "openai.yaml",
         planning_root / "3-分组" / "SKILL.md",
     )
 

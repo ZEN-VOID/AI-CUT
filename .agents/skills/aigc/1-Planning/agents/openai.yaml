@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 规划阶段"
-  short_description: "由父 skill 统筹规划执行，路由 1-分集、2-剧本、3-分组 三个内化型阶段技能并完成阶段验收"
-  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: route between 1-分集, 2-剧本, and 3-分组 as stage-local skills with internalized capability fusion, aggregate their canonical outputs into the planning validation report, and hand off to 2-Global."
+  short_description: "由父 skill 统筹规划执行，路由 1-分集、2-格式、3-分组 三个内化型阶段技能并完成阶段验收"
+  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: route between 1-分集, 2-格式, and 3-分组 as stage-local skills with internalized capability fusion, aggregate their canonical outputs into the planning validation report, and hand off to 2-Global."

@@ -1,0 +1,31 @@
+version: 1
+module_id: watermoon-atmosphere-space-poetics
+module_level: leaf
+branch_key: atmosphere
+leaf_key: space_poetics
+purpose: 借助建筑与空间设计中的高阶观念提升场景布景与空间组织的设计感，让空间既参与叙事，也显出不平凡的结构气质。
+triggers:
+  - 场景需要借建筑、器物或环境结构施压/托情
+  - 当前场景布景考量过于平凡，需要更高的空间设计感
+must_answer:
+  - 这个空间怎样压人、托人或见证人物
+  - 哪个物理特征最能承载当下情绪
+  - 角色和空间的关系是贴近、躲避、侵入还是被包围
+  - 哪个空间结构设计让这个场景摆脱平凡布景感
+patch_contract:
+  target_slot: atmosphere_patch
+  append_fields:
+    - space_role
+    - poetic_anchor
+    - person_space_relation
+    - spatial_design_lift
+merge_policy:
+  keep:
+    - 空间参与感
+    - 结构设计感
+  avoid:
+    - 与人物无关的空景赞美
+    - 只有“宏大/古旧/高级”而无空间组织
+quality_gates:
+  - 空间必须参与叙事
+  - 空间设计感必须落成可见结构，而不是审美口号

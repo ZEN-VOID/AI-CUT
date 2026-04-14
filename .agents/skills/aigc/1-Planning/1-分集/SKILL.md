@@ -8,7 +8,7 @@ governance_tier: full
 
 ## 概述
 
-`1-分集` 是 `1-Planning` 下的 direct leaf skill，负责把 `projects/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-剧本` 与下游 `2-Global` 生成稳定 handoff。
+`1-分集` 是 `1-Planning` 下的 direct leaf skill，负责把 `projects/<项目名>/Story/` 相关内容收束成逐集原文真源，并为 `2-格式` 与下游 `2-Global` 生成稳定 handoff。
 
 本技能在内容与机制上继承当前 DREAMER 规划链既有配置：
 
@@ -34,7 +34,7 @@ governance_tier: full
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把故事主源切成可供 `2-剧本` 与 `2-Global` 承接的逐集原文真源，并保留可追溯边界证据 |
+| `business_goal` | 把故事主源切成可供 `2-格式` 与 `2-Global` 承接的逐集原文真源，并保留可追溯边界证据 |
 | `business_object` | `projects/<项目名>/Story/` 下的故事正文、manifest 索引与 init 种子 |
 | `constraint_profile` | 只切分不改写；不得越权创建 `2-Global/*.md` 或 `3-Detail/第N集.json`；必须保留 `source_profile` |
 | `success_criteria` | 输入范围可追溯、主路由唯一、边界有证据、逐集原文真源/机读索引/handoff 完整、QA 可回查 |

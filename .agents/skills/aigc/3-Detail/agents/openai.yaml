@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 3-Detail"
-  short_description: "用单一思行技能把 2-Global 与 3-分组 输入收束为镜头级 episode JSON"
-  default_prompt: "Use $aigc-detail to internalize the former 制作组 capabilities into one thinking-action skill, run the serial-plus-parallel detail chain, then bootstrap or update `projects/<项目名>/3-Detail/第N集.json` under the shared schema."

@@ -1,0 +1,26 @@
+version: 1
+module_id: watermoon-visual-watchability
+module_level: leaf
+branch_key: visual
+leaf_key: watchability
+purpose: 确保文字既有画面收益，又不因堆细节而发闷。
+triggers:
+  - 当前组需要增强阅读和观看流动
+must_answer:
+  - 观众读完最会记住什么
+  - 哪一句解释拖慢了节奏
+  - 怎样压缩一句换来更顺的观看流
+patch_contract:
+  target_slot: visual_patch
+  append_fields:
+    - memory_point
+    - slow_sentence_cut
+    - viewing_flow
+merge_policy:
+  keep:
+    - 节奏推进
+  avoid:
+    - 解释性累赘
+quality_gates:
+  - 必须能指出一个应删减的拖速点
+

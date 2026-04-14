@@ -17,7 +17,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 输入没有锁到 `2-剧本/第N集.md` | 输入真源层 | 回到规划主稿重新锁定当前集范围 | 在 `SKILL.md + validator` 固化输入根门禁 | 输入清单与当前集一致 |
+| 输入没有锁到 `2-格式/第N集.md` | 输入真源层 | 回到规划主稿重新锁定当前集范围 | 在 `SKILL.md + validator` 固化输入根门禁 | 输入清单与当前集一致 |
 | `3-分组` 重新依赖外部 planning specialist / reviewer | 真源治理层 | 收回到 `3-分组/SKILL.md` 的内部能力面 | 在 `SKILL.md + audit` 固化 `Internal Capability Fusion Contract` | 不再引用旧规划组文档 |
 | 分组切口混用了 `分镜组ID` 与 `分镜ID` | ID 合同层 | 改回三段式 `分镜组ID` | 在模板、validator 与父 skill 固化“组三级、镜四级” | 标题语义稳定 |
 | 量化规则只写在 reference，计算仍靠手填 | 计算真源层 | 回到 quantizer 重新计算 | 让 validator 直接消费 quantizer 结果 | `effective_text_chars` 不再只是说明字段 |
@@ -27,14 +27,14 @@
 
 ## Repair Playbook
 
-1. 先确认 `2-剧本/第N集.md` 是否是唯一输入主证据。
+1. 先确认 `2-格式/第N集.md` 是否是唯一输入主证据。
 2. 再确认 quantizer 是否真的参与组界裁决。
 3. 再看 grouped script 是否保持正文结构，只在切口处新增组标题。
 4. 最后才检查 reviewer gate 是否被误开或越权。
 
 ## Reusable Heuristics
 
-- `3-分组` 最稳的定位不是摘要板，而是“在 `2-剧本` 正文里切出组边界后的 grouped script”。
+- `3-分组` 最稳的定位不是摘要板，而是“在 `2-格式` 正文里切出组边界后的 grouped script”。
 - 对当前阶段来说，最有效的抗漂移机制不是再造 specialist 文档，而是“主合同 digest + quantizer + validator”三件套。
 - 节奏复核在规划阶段只应作为 reviewer gate 存在，除非用户明确要求，否则不要把它升级成单独执行面。
 - 对 `3-分组` 来说，`effective_text_chars` 一旦进入 validator，就不应再允许人工说明替代 authoritative 结果。

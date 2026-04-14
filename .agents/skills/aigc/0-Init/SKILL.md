@@ -241,7 +241,7 @@ flowchart LR
    `0-Init / Story / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`
 2. 已建 active 子路径骨架：
    - `projects/<项目名>/1-Planning/1-分集/`
-   - `projects/<项目名>/1-Planning/2-剧本/`
+   - `projects/<项目名>/1-Planning/2-格式/`
    - `projects/<项目名>/1-Planning/3-分组/`
    - `projects/<项目名>/4-Design/场景/1-清单/`
    - `projects/<项目名>/4-Design/场景/2-设计/`

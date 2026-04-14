@@ -34,9 +34,9 @@
 
 ## Reusable Heuristics
 
-- 在 DREAMER 里，`1-分集` 的 canonical 输出应是 `projects/<项目名>/1-Planning/1-分集/第N集.md`，由 `2-剧本` 再继续整理成主稿。
+- 在 DREAMER 里，`1-分集` 的 canonical 输出应是 `projects/<项目名>/1-Planning/1-分集/第N集.md`，由 `2-格式` 再继续整理成主稿。
 - 只要 `story-source-manifest.yaml` 已经把 `storyboard_script` 和锁轴写清，分集阶段就应保留这些结构信号，而不是先清洗再切分。
-- `episode-split-plan.json` 的价值不是替代正文，而是给 `2-剧本`、父 skill、规划组其他角色和 `2-Global` 一个稳定机读入口。
+- `episode-split-plan.json` 的价值不是替代正文，而是给 `2-格式`、父 skill、规划组其他角色和 `2-Global` 一个稳定机读入口。
 - `1-分集` 的证据侧车最多保留一份 `projects/<项目名>/1-Planning/1-分集/执行报告.md`；逐集报告会把证据层拆碎，不利于规划阶段收口。
 - 在 `1-分集` 里，不要为了单一裁决面额外保留 subagent；边界判断、落盘、索引更新和 QA 应统一留在 skill。
 - 若某个 leaf 当前只有一个命中的角色且没有独立变体路由价值，应直接融合回 skill 本体，而不是再维护一层 team/agent 合同。

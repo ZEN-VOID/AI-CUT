@@ -171,7 +171,7 @@ def map_skill_from_path(path_or_stage: str) -> str:
         "0-Init": "aigc-init",
         "1-Planning": "aigc-planning",
         "1-Planning/1-分集": "aigc-planning-episode-splitter",
-        "1-Planning/2-剧本": "aigc-planning-script",
+        "1-Planning/2-格式": "aigc-planning-script",
         "1-Planning/3-分组": "aigc-planning-grouping",
         "1-规划": "aigc-planning",
         "1-规划/1-分集": "aigc-planning-episode-split",

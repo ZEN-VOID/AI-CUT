@@ -23,7 +23,7 @@ from grouping_quantizer import (
 EPISODE_FILE_RE = re.compile(r"^第(?P<episode>\d+)集\.md$")
 GROUP_HEADER_RE = re.compile(r"^##\s*【(?P<group_id>\d+-\d+-\d+)】(?:\s+(?P<title>.+))?$")
 SCENE_HEADER_RE = re.compile(r"^###\s*场景(?P<label>[^：:]+)\s*[：:]\s*(?P<title>.+?)\s*$")
-SOURCE_PATH_RE = re.compile(r"^projects/.+/1-Planning/2-剧本/第\d+集\.md$")
+SOURCE_PATH_RE = re.compile(r"^projects/.+/1-Planning/2-格式/第\d+集\.md$")
 REPORT_PATH_RE = re.compile(r"^projects/.+/1-Planning/3-分组/执行报告\.md$")
 TAIL_HOOK_HEADING_RE = re.compile(rf"^####\s*{re.escape(TAIL_HOOK_LABEL)}(?:（(?P<meta>.*)）)?\s*$")
 TAIL_HOOK_COMMENT_RE = re.compile(
@@ -197,7 +197,7 @@ def validate_file(path: Path) -> tuple[bool, str]:
     if frontmatter["集数"] != episode_label:
         return False, f"frontmatter `集数` 与文件名不一致：{frontmatter['集数']} vs {path.name}"
     if not SOURCE_PATH_RE.match(frontmatter["上游主稿"]):
-        return False, "frontmatter `上游主稿` 必须指向 `projects/<项目名>/1-Planning/2-剧本/第N集.md`。"
+        return False, "frontmatter `上游主稿` 必须指向 `projects/<项目名>/1-Planning/2-格式/第N集.md`。"
     if not REPORT_PATH_RE.match(frontmatter["report_ref"]):
         return False, "frontmatter `report_ref` 必须指向 `projects/<项目名>/1-Planning/3-分组/执行报告.md`。"
 

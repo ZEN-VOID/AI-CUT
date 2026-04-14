@@ -1,0 +1,33 @@
+version: 1
+module_id: watermoon-character-action
+module_level: leaf
+branch_key: character
+leaf_key: action_drama
+purpose: 参照共享 `角色表现` 细则，把人物行为写成角色化的叙事动作链，让动作既体现这个人会怎么做，也真实改写局面。
+triggers:
+  - 上游文本存在明确动作或行动转换
+  - 当前桥段的推进主要依赖人物行为而不是纯情绪停留
+must_answer:
+  - 这一步动作想达成什么
+  - 它被什么阻断或放大
+  - 动作结果怎样改变局面
+  - 这个角色会以怎样带有个性痕迹的方式完成这一步动作
+patch_contract:
+  target_slot: character_patch
+  append_fields:
+    - action_intent
+    - resistance_point
+    - outcome_shift
+    - characterized_action_style
+merge_policy:
+  keep:
+    - 动词力度
+    - 动作因果
+    - 角色个性痕迹
+  avoid:
+    - 无目的动作堆叠
+    - 镜头运动术语
+quality_gates:
+  - 行动必须推动叙事
+  - 动作描述不得沦为空转表演
+  - 不得把动作戏写成任何人都能套用的通用动作模板

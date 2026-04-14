@@ -1,6 +1,6 @@
 ---
 name: aigc-planning
-description: Use when the planning stage needs to execute `1-分集 -> 2-剧本 -> 3-分组` under one parent skill, with routing, variant control, grouping gates, and handoff governance internalized into stage-local SKILL contracts instead of external planning agent docs.
+description: Use when the planning stage needs to execute `1-分集 -> 2-格式 -> 3-分组` under one parent skill, with routing, variant control, grouping gates, and handoff governance internalized into stage-local SKILL contracts instead of external planning agent docs.
 governance_tier: full
 ---
 
@@ -12,12 +12,12 @@ governance_tier: full
 
 当前阶段的稳定链路固定为：
 
-`Story/ -> 1-分集 -> 2-剧本 -> 3-分组 -> 2-Global`
+`Story/ -> 1-分集 -> 2-格式 -> 3-分组 -> 2-Global`
 
 本次口径进一步收紧为：
 
 - `1-分集` 继续作为 direct leaf skill
-- `2-剧本` 继续作为单技能包，但其内部已内化 `格式判模 + 标准剧 + 解说剧 + 编排边界`
+- `2-格式` 继续作为单技能包，但其内部已内化 `格式判模 + 标准剧 + 解说剧 + 编排边界`
 - `3-分组` 继续作为 stage-local parent skill，但其内部已内化分组 specialist / 节奏复核规则
 - `1-Planning` 父 skill 只回链真实存在的阶段技能，不再依赖已废弃的旧规划组文档
 
@@ -29,7 +29,7 @@ governance_tier: full
 | --- | --- | --- |
 | 阶段入口判定 | `1-Planning/SKILL.md` | 决定本轮是单点直达还是全链规划 |
 | 分集执行 | `1-分集/SKILL.md` | 直接生成逐集原文真源与机读索引 |
-| 剧本判模与变体执行 | `2-剧本/SKILL.md` | 在单技能内化 `标准剧 / 解说剧` 与主稿落盘 |
+| 剧本判模与变体执行 | `2-格式/SKILL.md` | 在单技能内化 `标准剧 / 解说剧` 与主稿落盘 |
 | 分组与节奏复核 | `3-分组/SKILL.md` | 在 stage-local parent 内化组边界、量化门与节奏复核接口 |
 | 阶段验收与 handoff | `1-Planning/SKILL.md` | 聚合 leaf/stage 产物并写 `validation-report.md` |
 
@@ -44,7 +44,7 @@ governance_tier: full
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
 | 分集真源 | `projects/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 的逐集原文真源 |
-| 规划主稿 | `projects/<项目名>/1-Planning/2-剧本/第N集.md` | 规划阶段唯一逐集主稿 |
+| 规划主稿 | `projects/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
 | 分组主稿 | `projects/<项目名>/1-Planning/3-分组/第N集.md` | `3-分组` 的 grouped script |
 | 阶段验收 | `projects/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 handoff 结论 |
 | 分集执行报告 | `projects/<项目名>/1-Planning/1-分集/执行报告.md` | `1-分集` 全剧集证据侧车 |
@@ -57,7 +57,7 @@ governance_tier: full
 | 单元 | 当前状态 | 说明 |
 | --- | --- | --- |
 | `1-分集` | active | direct leaf 执行，已按知行合一重排 |
-| `2-剧本` | active | 单技能内化判模、标准剧、解说剧与执行闭环 |
+| `2-格式` | active | 单技能内化判模、标准剧、解说剧与执行闭环 |
 | `3-分组` | active | stage-local parent 内化分组与节奏复核规则 |
 | `4-节奏` | folded-into-grouping | 当前不再作为独立 external agent 载体；节奏复核只作为 `3-分组` 内部 reviewer 规则或父级额外 gate |
 
@@ -65,13 +65,13 @@ governance_tier: full
 
 ### 默认 tranche
 
-`1-分集 -> 2-剧本 -> 3-分组 -> 2-Global`
+`1-分集 -> 2-格式 -> 3-分组 -> 2-Global`
 
 ### 路由规则
 
 1. 父 skill 先锁定本轮是单点直达还是全链规划。
 2. 只需切分逐集原文时，直达 `1-分集`。
-3. 需要规划阶段 canonical 主稿时，进入 `2-剧本`。
+3. 需要规划阶段 canonical 主稿时，进入 `2-格式`。
 4. 需要组边界、量化与分组 handoff 时，进入 `3-分组`。
 5. 节奏复核只在以下条件满足至少一项时进入：
    - 用户显式要求节奏预演或重排判断
@@ -90,8 +90,8 @@ governance_tier: full
 1. `projects/<项目名>/Story/` 是 `1-分集` 的默认输入根。
 2. `story-source-manifest.yaml` 只作为输入索引与 `source_profile` 证据，不替代故事正文。
 3. `1-分集/第N集.md` 是上游逐集原文真源。
-4. `2-剧本/第N集.md` 是规划阶段唯一逐集主稿。
-5. `3-分组/第N集.md` 是 grouped script，不与 `2-剧本` 竞争。
+4. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
+5. `3-分组/第N集.md` 是 grouped script，不与 `2-格式` 竞争。
 6. `1-Planning` 只登记 `bootstrap_output` 与 `source_profile` handoff，不在本阶段生成 `2-Global/*.md` 或 `3-Detail/*.json`。
 
 ## Context Contract (Mandatory)
@@ -109,7 +109,7 @@ governance_tier: full
 9. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
 10. `projects/<项目名>/1-Planning/episode-split-plan.json`（若存在）
 11. 命中 `1-分集` 时，加载 `1-分集/SKILL.md + CONTEXT.md`
-12. 命中 `2-剧本` 时，加载 `2-剧本/SKILL.md + CONTEXT.md`
+12. 命中 `2-格式` 时，加载 `2-格式/SKILL.md + CONTEXT.md`
 13. 命中 `3-分组` 时，加载 `3-分组/SKILL.md + CONTEXT.md`
 
 ### 四层上下文
@@ -124,14 +124,14 @@ governance_tier: full
 1. 读取 `Story/` 与 `0-Init` 相关内容，锁定项目范围。
 2. 判定本轮是单点直达还是全链规划。
 3. 命中 `1-分集` 时，确保 `1-分集/` 与 `episode-split-plan.json` 合同可用，并由 leaf skill 完成切分。
-4. 命中 `2-剧本` 时，必须先读取 `1-分集` 输出物，再由其内部完成变体裁决、主稿写回与 validator。
-5. 命中 `3-分组` 时，必须先读取 `2-剧本` 输出物，再由其内部完成组边界、量化与节奏复核 gate。
+4. 命中 `2-格式` 时，必须先读取 `1-分集` 输出物，再由其内部完成变体裁决、主稿写回与 validator。
+5. 命中 `3-分组` 时，必须先读取 `2-格式` 输出物，再由其内部完成组边界、量化与节奏复核 gate。
 6. 聚合有效结果并写入 `validation-report.md`。
 7. 返回默认下一入口：`2-Global`。
 
 ## Canonical Output Governance (Mandatory)
 
-1. `2-剧本/第N集.md` 是规划阶段唯一逐集主稿。
+1. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
 2. `1-分集/第N集.md` 是上游原文真源，不与主稿竞争。
 3. `3-分组/第N集.md` 是 grouped script，不是第二份逐集主稿。
 4. `1-分集` 与 `3-分组` 的执行报告只承载证据与 handoff，不替代 canonical 正文。
@@ -143,7 +143,7 @@ governance_tier: full
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-PLAN-01` | 阶段定位 | 明确 `1-Planning` 是规划阶段唯一父级真源 | `S1` | 边界清晰度 | `FAIL-PLAN-01` |
 | `FIELD-PLAN-02` | 阶段路由 | 明确本轮命中的 stage 与 tranche | `S2` | 路由完整性 | `FAIL-PLAN-02` |
-| `FIELD-PLAN-03` | 共享 I/O | 明确 `Story/ -> 1-分集 -> 2-剧本 -> 3-分组` 真源关系 | `S3` | 真源一致性 | `FAIL-PLAN-03` |
+| `FIELD-PLAN-03` | 共享 I/O | 明确 `Story/ -> 1-分集 -> 2-格式 -> 3-分组` 真源关系 | `S3` | 真源一致性 | `FAIL-PLAN-03` |
 | `FIELD-PLAN-04` | 聚合写回 | 明确父 skill 如何汇总 stage 产物与验证报告 | `S4` | 聚合可执行性 | `FAIL-PLAN-04` |
 | `FIELD-PLAN-05` | 验收闭环 | 明确 `validation-report`、返工入口与下游 handoff | `S5` | 闭环完整性 | `FAIL-PLAN-05` |
 
@@ -163,7 +163,7 @@ governance_tier: full
 | --- | --- | --- | --- |
 | `FIELD-PLAN-01` | 阶段边界、父子职责与 stage-local ownership 明确 | `FAIL-PLAN-01` | `S1` |
 | `FIELD-PLAN-02` | 路由、单点直达与全链规则明确 | `FAIL-PLAN-02` | `S2` |
-| `FIELD-PLAN-03` | `Story/`、`1-分集`、`2-剧本`、`3-分组` 的真源关系明确 | `FAIL-PLAN-03` | `S3` |
+| `FIELD-PLAN-03` | `Story/`、`1-分集`、`2-格式`、`3-分组` 的真源关系明确 | `FAIL-PLAN-03` | `S3` |
 | `FIELD-PLAN-04` | 父 skill 只聚合 stage 产物，不替代子阶段写回 | `FAIL-PLAN-04` | `S4` |
 | `FIELD-PLAN-05` | `validation-report`、返工入口与 `2-Global` handoff 明确 | `FAIL-PLAN-05` | `S5` |
 
@@ -172,7 +172,7 @@ governance_tier: full
 当规划阶段出现以下问题时，必须先修源层而不是补临时说明：
 
 - 父 skill 仍引用已删除的 planning agent 文档
-- `1-分集`、`2-剧本`、`3-分组` 真源关系再次混写
+- `1-分集`、`2-格式`、`3-分组` 真源关系再次混写
 - 子阶段把非 owned truth 写进本阶段 canonical 文件
 - `validation-report` 与真实阶段产物脱节
 
@@ -186,7 +186,7 @@ governance_tier: full
   - `.agents/skills/aigc/1-Planning/SKILL.md`
   - `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
   - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/2-剧本/SKILL.md`
+  - `.agents/skills/aigc/1-Planning/2-格式/SKILL.md`
   - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
 - `Meta Rule Source`
   - `AGENTS.md`
@@ -202,6 +202,6 @@ governance_tier: full
 ## Completion Criteria
 
 - 已建立 `1-Planning` 阶段父级真源
-- 已锁定 `Story/ -> 1-分集 -> 2-剧本 -> 3-分组` 单一口径
+- 已锁定 `Story/ -> 1-分集 -> 2-格式 -> 3-分组` 单一口径
 - 已去除对已废弃旧规划组文档的运行依赖
 - 已给出 `validation-report` 与 `2-Global` handoff 闭环

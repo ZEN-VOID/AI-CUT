@@ -1,0 +1,36 @@
+version: 1
+module_id: jinghua-lighting
+module_level: leaf
+purpose: 确定每组画面的主光源、辅助光、逆光、照明类型与组内光影推进逻辑。
+triggers:
+  - 需要明确画面明暗、光源方向、空间剥离或压迫感
+  - 已收束 `cinematography_brief + visual_control_note + cinematography_strategy_note`
+must_answer:
+  - 主光来自哪里
+  - 辅助光和逆光怎样服务人物轮廓、空间剥离或观看压力
+  - 当前组采用什么照明类型，以及它承担什么戏剧功能
+  - 阴影和高光如何服务人物或空间
+  - 光影推进如何对应组内情绪变化
+patch_contract:
+  target_slot: lighting_strategy
+  required_elements:
+    - key_light_logic
+    - support_light_logic
+    - back_light_logic
+    - lighting_type
+    - shadow_use
+    - lighting_progression
+merge_policy:
+  preserve_first:
+    - conflict visibility
+    - spatial clarity
+    - project cinematography promises
+  trim_first:
+    - 无来源的唯美光
+    - 压没动作信息的过度暗部
+quality_gates:
+  - 不得给出无来源的唯美光
+  - 主光、辅助光、逆光之间的逻辑必须自洽
+  - 照明类型必须说清戏剧用途，不能只写“有层次”
+  - 光影推进必须能回收到组级统一语法，不能各镜各打一套
+  - 光影必须解释故事收益

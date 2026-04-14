@@ -1,0 +1,31 @@
+version: 1
+module_id: jinghua-shot-insert
+module_level: leaf
+stage_order: 1.2
+purpose: 按 `1-切换` 的结果，在 `1-水月` prose 中找到自然插入点并埋入 `[分镜N 第X秒-第Y秒]` 标记。
+triggers:
+  - 已有 `shot_count_plan`
+  - 需要把整段 prose 变成有镜头脊柱的融写稿
+must_answer:
+  - 每个分镜标记承接的是 `1-水月` 哪一句、哪一拍或哪一段动作
+  - 每个分镜标记应该插在动作、视线或停顿的哪一处
+  - 插入后文本如何保持顺滑
+  - 哪些原句需要轻度改写才能服务镜头切换
+patch_contract:
+  target_slot: shot_marker_spine
+  required_elements:
+    - insertion_points
+    - inline_marker_plan
+    - smoothing_rewrite_notes
+merge_policy:
+  preserve_first:
+    - natural sentence flow
+    - readable marker positions
+  trim_first:
+    - 生硬断句
+    - 与动作无关的随机插入
+quality_gates:
+  - 标记必须内嵌到 prose，而不是另起清单
+  - 插入应优先发生在节奏节点、动作转折、视线切点
+  - 改写只能服务镜头显化，不得改写 `1-水月` 的事实含义
+  - 不得因为插入而破坏主行动线

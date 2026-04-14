@@ -1,0 +1,32 @@
+version: 1
+module_id: jinghua-texture
+module_level: leaf
+purpose: 把材料、湿度、颗粒、表面反射等触感线索压入画面描述，并让质感服务当前组的世界表面语言与观看压力。
+triggers:
+  - 画面需要更明确的材质触感或时代/世界表面语言
+  - 已收束 `visual_control_note`，知道这组需要强调哪类表面行为
+must_answer:
+  - 观众最先感到的材料是什么
+  - 表面反光、粗糙、潮湿或颗粒如何帮助场感成立
+  - 这些质感是否与世界观和设计元素一致
+  - 哪些质感需要被收住，避免抢走人物与动作主线
+patch_contract:
+  target_slot: texture_strategy
+  required_elements:
+    - material_focus
+    - surface_behavior
+    - tactile_gain
+    - texture_restraint
+merge_policy:
+  preserve_first:
+    - visible material cues
+    - design-element continuity
+    - character and action priority
+  trim_first:
+    - 只起装饰作用的表面词
+    - 与世界观无关的炫技材质
+quality_gates:
+  - 质感必须可见，不得只做抽象赞美
+  - 质感必须服从当前组的视觉控制线，不能独立漂浮
+  - 必须回答材料如何被镜头看见，而不只是它“很高级”
+  - 不得压过人物和动作主线

@@ -1,6 +1,6 @@
 ---
 name: aigc-planning-grouping
-description: Use when `1-Planning` needs to turn `2-剧本/第N集.md` into a grouped script with stable group boundaries, quantized duration/text-window evidence, post-quantization tail-hook previews, and an internalized grouping/rhythm review contract inside one stage-local parent SKILL.
+description: Use when `1-Planning` needs to turn `2-格式/第N集.md` into a grouped script with stable group boundaries, quantized duration/text-window evidence, post-quantization tail-hook previews, and an internalized grouping/rhythm review contract inside one stage-local parent SKILL.
 governance_tier: full
 ---
 
@@ -52,7 +52,7 @@ governance_tier: full
 
 ```mermaid
 flowchart TD
-    U["用户 / 父级 1-Planning"] --> A["锁定 2-剧本 上游真源"]
+    U["用户 / 父级 1-Planning"] --> A["锁定 2-格式 上游真源"]
     A --> B["边界判断内核"]
     B --> C["量化裁决内核"]
     C --> D["可选节奏复核 gate"]
@@ -66,7 +66,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["2-剧本/第N集.md"] --> Q["grouping_quantizer.py"]
+    A["2-格式/第N集.md"] --> Q["grouping_quantizer.py"]
     B["story-source-manifest.yaml"] --> Q
     C["执行报告 source_span"] --> Q
     D["默认组时长 / 映射"] --> Q
@@ -92,13 +92,13 @@ stateDiagram-v2
 
 ### When To Use
 
-- 需要把 `projects/<项目名>/1-Planning/2-剧本/第N集.md` 收束为 grouped script
+- 需要把 `projects/<项目名>/1-Planning/2-格式/第N集.md` 收束为 grouped script
 - 需要为 `2-Global` 准备组边界、量化字段与 handoff
 - 需要先判断“该不该拆、能不能并、是否过载”
 
 ### When Not To Use
 
-- 上游还没有稳定的 `2-剧本/第N集.md`
+- 上游还没有稳定的 `2-格式/第N集.md`
 - 当前任务已经进入导演分镜、帧级切分或镜头字段阶段
 
 ## Topology Contract (Mandatory)
@@ -138,7 +138,7 @@ stateDiagram-v2
 
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INPUT-LOCK` | `S1` | `FIELD-GROUP-01` | 锁定唯一上游主稿与当前集范围 | 读取 `2-剧本/第N集.md`、`episode-split-plan.json`、`north_star.yaml`、`init_handoff.yaml`、manifest | 输入清单、episode scope、上游锚点 | 成功 -> `N2`；输入漂移 -> 回到 `S1` | 输入真源唯一后方可继续 |
+| `N1-INPUT-LOCK` | `S1` | `FIELD-GROUP-01` | 锁定唯一上游主稿与当前集范围 | 读取 `2-格式/第N集.md`、`episode-split-plan.json`、`north_star.yaml`、`init_handoff.yaml`、manifest | 输入清单、episode scope、上游锚点 | 成功 -> `N2`；输入漂移 -> 回到 `S1` | 输入真源唯一后方可继续 |
 | `N2-BOUNDARY-SOLVE` | `S2` | `FIELD-GROUP-02` | 形成唯一候选组序、组界与 `source_span` | 识别场景顺序、结构断点、并组/拆组候选，排除无证据切口 | 组界表、`source_span`、边界说明 | 成功 -> `N3`；边界不稳 -> 回到 `S2` | 组界稳定后方可量化 |
 | `N3-CANONICAL-QUANTIZE` | `S3` | `FIELD-GROUP-03` | 对当前候选分组执行 authoritative 量化 | 运行 quantizer 计算 `estimated_duration_seconds / base_text_window / effective_text_chars`，判断过载/过轻 | quantizer 数值、window verdict、返工信号 | 成功 -> `N4`；超载/失配 -> 回到 `S2/S3` | authoritative 数值形成后方可进入复核 |
 | `N4-RHYTHM-REVIEW` | `S4` | `FIELD-GROUP-04` | 在必要时补充节奏 reviewer note | 仅在命中 reviewer gate 时补充节奏影响说明，不改写组界与量化真相 | reviewer note / skip 结论 | skip -> `N5`；review 完成 -> `N5` | reviewer 不能直接汇流 |
@@ -185,7 +185,7 @@ stateDiagram-v2
 10. `projects/<项目名>/0-Init/init_handoff.yaml`
 11. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
 12. `projects/<项目名>/1-Planning/episode-split-plan.json`
-13. `projects/<项目名>/1-Planning/2-剧本/第N集.md`
+13. `projects/<项目名>/1-Planning/2-格式/第N集.md`
 
 ## Scene Order And Duration Strategy Projection (Mandatory Digest)
 
@@ -241,7 +241,7 @@ stateDiagram-v2
 
 ### Required Inputs
 
-- `projects/<项目名>/1-Planning/2-剧本/第N集.md`
+- `projects/<项目名>/1-Planning/2-格式/第N集.md`
 - `projects/<项目名>/1-Planning/episode-split-plan.json`
 - `projects/<项目名>/0-Init/north_star.yaml`
 - `projects/<项目名>/0-Init/init_handoff.yaml`
@@ -297,7 +297,7 @@ stateDiagram-v2
 
 ## Execution Workflow
 
-1. 锁定 `2-剧本/第N集.md` 为唯一上游主稿。
+1. 锁定 `2-格式/第N集.md` 为唯一上游主稿。
 2. 读取 `episode-split-plan.json`、`north_star.yaml`、`init_handoff.yaml` 与 `story-source-manifest.yaml`。
 3. 形成唯一候选组序与组边界。
 4. 运行 quantizer 得到 authoritative 数值。
@@ -311,7 +311,7 @@ stateDiagram-v2
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-GROUP-01` | 输入锚点 | 锁定 `2-剧本/第N集.md` 与相关索引 | `S1` | 输入真源一致性 | `FAIL-GROUP-01` |
+| `FIELD-GROUP-01` | 输入锚点 | 锁定 `2-格式/第N集.md` 与相关索引 | `S1` | 输入真源一致性 | `FAIL-GROUP-01` |
 | `FIELD-GROUP-02` | 候选组界 | 形成唯一候选组序、组界与 `source_span` | `S2` | 结构稳定性 | `FAIL-GROUP-02` |
 | `FIELD-GROUP-03` | 量化裁决 | 通过 quantizer 得到 authoritative 数值 | `S3` | 量化正确性 | `FAIL-GROUP-03` |
 | `FIELD-GROUP-04` | reviewer gate | 仅在需要时补节奏影响说明 | `S4` | 复核边界清晰度 | `FAIL-GROUP-04` |
@@ -323,7 +323,7 @@ stateDiagram-v2
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `S1` | `FIELD-GROUP-01` | 上游主稿是否唯一 | 锁定输入与当前集范围 | 直接读取非 `2-剧本` 主稿 |
+| `S1` | `FIELD-GROUP-01` | 上游主稿是否唯一 | 锁定输入与当前集范围 | 直接读取非 `2-格式` 主稿 |
 | `S2` | `FIELD-GROUP-02` | 组界如何成立 | 输出候选组界与 `source_span` | 只给抽象说明不落边界 |
 | `S3` | `FIELD-GROUP-03` | 是否该拆/能并/是否过载 | 运行 quantizer | 继续手填说明性数字 |
 | `S4` | `FIELD-GROUP-04` | 是否需要节奏 reviewer | 判断并补 reviewer note | 在默认场景滥开 reviewer |
@@ -335,7 +335,7 @@ stateDiagram-v2
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
-| `FIELD-GROUP-01` | 输入只来自 `2-剧本` 主稿 | `FAIL-GROUP-01` | `S1` |
+| `FIELD-GROUP-01` | 输入只来自 `2-格式` 主稿 | `FAIL-GROUP-01` | `S1` |
 | `FIELD-GROUP-02` | 组界、组序与 `source_span` 明确 | `FAIL-GROUP-02` | `S2` |
 | `FIELD-GROUP-03` | authoritative 数值全部来自 quantizer | `FAIL-GROUP-03` | `S3` |
 | `FIELD-GROUP-04` | reviewer gate 只在必要时触发 | `FAIL-GROUP-04` | `S4` |

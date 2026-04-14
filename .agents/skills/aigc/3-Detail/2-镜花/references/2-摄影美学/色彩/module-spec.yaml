@@ -1,0 +1,35 @@
+version: 1
+module_id: jinghua-color
+module_level: leaf
+purpose: 确定每组的色相、明度、饱和度、色温、色彩关系与情绪色心理。
+triggers:
+  - "`Init / Global` 或组内情绪要求存在明确色彩倾向"
+  - 已收束 `cinematography_brief + visual_control_note + cinematography_strategy_note`
+must_answer:
+  - 这组偏冷、偏暖还是混合对照
+  - 哪组色相、明度和饱和度最该被稳定压住
+  - 哪组色彩关系最值得被强调
+  - 色彩如何呼应类型、导演意图和风格基线
+  - 哪些色彩只能点到为止，避免压过动作或人物主线
+patch_contract:
+  target_slot: color_strategy
+  required_elements:
+    - hue_bias
+    - lightness_plan
+    - saturation_plan
+    - color_temperature
+    - palette_relation
+    - emotional_color_gain
+merge_policy:
+  preserve_first:
+    - style continuity
+    - emotional clarity
+    - shot readability
+  trim_first:
+    - 抽象色彩赞美词
+    - 抢主线的次级色彩修辞
+quality_gates:
+  - 不得只说“高级”而无具体色彩关系
+  - 至少要回答色相、明度、饱和度和色温中的稳定主导关系
+  - 必须说明色彩心理收益，不能只剩风格标签
+  - 色彩必须能被布景、服装或光线承接

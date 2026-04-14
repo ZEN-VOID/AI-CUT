@@ -1,0 +1,31 @@
+version: 1
+module_id: jinghua-inter-group-transition
+module_level: leaf
+purpose: 为当前组结尾与下一组起势之间预埋组间衔接钩子。
+triggers:
+  - 当前组结尾承担情绪翻页、时间跳切、空间切换或感知收束任务
+  - 当前组与下一组边界存在值得处理的衔接问题
+must_answer:
+  - 当前组边界要解决的是时间、空间、情绪还是视觉母题承接问题
+  - 当前组该如何把观众送入下一组
+  - 组间衔接靠保持干净直切、尾钩还是情绪、动作、视觉母题承接
+  - 当前组是否需要留尾钩
+patch_contract:
+  target_slot: inter_group_hook
+  required_elements:
+    - outgoing_hook
+    - transition_basis
+    - next_group_readiness
+  optional_elements:
+    - boundary_problem_type
+    - cut_priority_note
+merge_policy:
+  preserve_first:
+    - clean boundary
+    - group boundary clarity
+    - emotional carryover
+quality_gates:
+  - 先判断普通收尾或直切是否已足够
+  - 组间提示只能作为尾钩，不得吞掉当前组主线
+  - 不得发明不存在的下一组事实
+  - 尾钩只保留最小但可感知的送入收益

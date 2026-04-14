@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 规划剧本"
-  short_description: "以单技能真源内化格式判模、标准剧、解说剧和执行闭环，产出 canonical 2-剧本主稿"
-  default_prompt: "Use $aigc-planning-script to internalize format arbitration plus 标准剧/解说剧 shaping inside one SKILL, transform the 1-分集 episode truth into the canonical 2-剧本 markdown, validate it, and return a parent-consumable handoff patch without relying on external planning agent docs."

@@ -1,0 +1,40 @@
+version: 1
+module_id: jinghua-shot-stage
+module_level: branch
+stage_order: 1
+branch_key: shot_stage
+purpose: 在 `1-水月` prose 基础上先形成稳定的 group-level shot spine，包括切镜数、插入点和构图骨架，并保证所有镜头组织都可回指到 `1-水月` 证据。
+child_modules:
+  - path: references/1-分镜表现/1-切换/module-spec.yaml
+  - path: references/1-分镜表现/2-插入/module-spec.yaml
+  - path: references/1-分镜表现/3-构图/module-spec.yaml
+triggers:
+  - 已存在 `1-水月/第N集.md`
+  - 需要把 grouped prose 进一步变成可拆镜的导演/摄影融写稿
+must_answer:
+  - 这组镜头语言承接了 `1-水月` 的哪条主动作、主情绪或主空间关系
+  - 这组默认切成多少镜最稳
+  - 每镜应在原 prose 的什么位置插入
+  - 每镜的主视线、景别和构图任务是什么
+patch_contract:
+  target_slot: shot_spine_patch
+  required_elements:
+    - watermoon_inheritance
+    - shot_count_plan
+    - shot_marker_spine
+    - composition_skeleton
+merge_policy:
+  execution_mode: strict_serial
+  combine_order:
+    - 1-切换
+    - 2-插入
+    - 3-构图
+  preserve_first:
+    - group conflict axis
+    - action continuity
+    - readable shot markers
+quality_gates:
+  - 未形成 shot spine 前不得进入后续阶段
+  - 不得把 prose 切碎到失去组级主线
+  - 每个分镜决策都必须能回指到 `1-水月` 的原始信息
+  - 不得直接越权写摄影、运镜或转场的细节

@@ -1,0 +1,91 @@
+version: 1
+skill_id: aigc-detail-jinghua
+profile_goal: 根据当前分镜组的导演/摄影任务，决定四个编号主链与其叶子该如何加权，避免每组都把所有视觉手段打满。
+default_strategy: 永远先稳住 shot spine，再根据当前组的真正收益点选择摄影、运镜、转场谁主谁辅；没有收益的层默认保守。
+route_profiles:
+  - signal_id: confrontation-coverage
+    when_to_use:
+      - 组内核心是人物对峙、问答压迫、攻守试探或目光交换
+      - 镜头组织需要先把关系轴和观看顺序锁清
+    primary_nodes:
+      - 1-分镜表现/1-切换
+      - 1-分镜表现/3-构图
+      - 2-摄影美学/光影
+    supporting_nodes:
+      - 3-运镜手法/速度
+      - 4-转场特效/组内
+    writing_bias:
+      - 先把谁看谁、谁压谁的镜头顺序锁清，再补光影压力。
+      - 运镜只做呼吸，不做炫技位移。
+    review_focus:
+      - shot spine 是否服务关系轴
+      - 光影是否放大压迫而非抢戏
+  - signal_id: action-reveal
+    when_to_use:
+      - 组内以追逐、突进、遮挡、揭示或快速信息转移为主
+      - 观众理解动作路径和揭示顺序比审美抒情更重要
+    primary_nodes:
+      - 1-分镜表现/1-切换
+      - 1-分镜表现/2-插入
+      - 3-运镜手法/变化
+      - 3-运镜手法/组合
+    supporting_nodes:
+      - 2-摄影美学/光影
+      - 4-转场特效/组内
+    writing_bias:
+      - 先稳节拍和揭示顺序，再谈运动变化。
+      - 任何镜头运动都必须帮助观众跟上动作。
+    review_focus:
+      - 揭示顺序是否清楚
+      - 运镜是否真帮助动作阅读
+  - signal_id: stillness-pressure
+    when_to_use:
+      - 组内重点是凝视、迟疑、停顿、欲言又止或时间拉长
+      - 需要把慢和停写出压强，而不是写成空镜
+    primary_nodes:
+      - 1-分镜表现/3-构图
+      - 2-摄影美学/色彩
+      - 3-运镜手法/速度
+    supporting_nodes:
+      - 2-摄影美学/光影
+      - 4-转场特效/组间
+    writing_bias:
+      - 让停顿和构图共同制造压力，不靠修辞解释“空气凝固”。
+      - 速度设计优先是停、缓、留白，而不是额外加镜。
+    review_focus:
+      - 停顿是否有观看收益
+      - 色彩和构图是否真的托住迟疑感
+  - signal_id: tactile-worldbuilding
+    when_to_use:
+      - 组内需要显化世界质地、时代触感、潮湿颗粒或材料语言
+      - 视觉收益来自画面可触感，而非强节奏运动
+    primary_nodes:
+      - 2-摄影美学/质感
+      - 2-摄影美学/色彩
+      - 1-分镜表现/3-构图
+    supporting_nodes:
+      - 3-运镜手法/速度
+      - 4-转场特效/特效
+    writing_bias:
+      - 先让材质可见，再让其与人物和空间发生关系。
+      - 没有必要时不加特效放大质感。
+    review_focus:
+      - 质感是否可见且不抢人物主线
+      - 材料语言是否与项目世界观一致
+  - signal_id: transition-event
+    when_to_use:
+      - 组尾承担明显的时空翻页、梦境感知变化或组间情绪跃迁
+      - 普通组内镜头已成立，需要评估是否值得补转场或特效
+    primary_nodes:
+      - 4-转场特效/组间
+      - 4-转场特效/特效
+      - 1-分镜表现/2-插入
+    supporting_nodes:
+      - 3-运镜手法/速度
+      - 2-摄影美学/光影
+    writing_bias:
+      - 默认先证明“普通画面手段不够”，再考虑转场和特效。
+      - 组间尾钩只做送出，不抢当前组主线。
+    review_focus:
+      - 转场或特效是否真有叙事收益
+      - 是否因为效果需求发明了上游没有的事实
