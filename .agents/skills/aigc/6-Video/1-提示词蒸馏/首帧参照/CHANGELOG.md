@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-04-14 - context knowledge-base cleanup
+
+### 修改
+
+- 将原先保留在 `CONTEXT.md` 尾部的 milestone case 移出经验层，继续以 `CHANGELOG.md` 承接时间序证据。
+- 保持 `CONTEXT.md` 只承载 `Type Map / Repair Playbook / Reusable Heuristics`，消除 `aigc_skill_audit.py --strict` 对 `Case Log` 残留的 warning。
+
 ## 2026-04-14 - image-to-video style governance
 
 ### 修改

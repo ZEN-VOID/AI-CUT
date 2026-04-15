@@ -15,21 +15,21 @@
   "io": {
     "inputs": {
       "source": {
-        "pattern": "projects/<项目名>/1-Planning/2-格式/第{episode}.md",
+        "pattern": "projects/aigc/<项目名>/1-Planning/2-格式/第{episode}.md",
         "format": "markdown",
         "required": true
       }
     },
     "outputs": {
       "primary": {
-        "pattern": "projects/<项目名>/1-Planning/3-分组/第{episode}.md",
+        "pattern": "projects/aigc/<项目名>/1-Planning/3-分组/第{episode}.md",
         "format": "markdown",
         "required_sections": [
           "【分组正文】"
         ]
       },
       "report": {
-        "pattern": "projects/<项目名>/1-Planning/3-分组/执行报告.md",
+        "pattern": "projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md",
         "format": "markdown"
       }
     }

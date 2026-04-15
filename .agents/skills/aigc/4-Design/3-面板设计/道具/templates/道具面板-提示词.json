@@ -5,7 +5,7 @@
     "version": "v1.0",
     "doc_role": "layout_contract",
     "updated_at": "2026-04-12",
-    "note": "基于 AIGC-ZEN-VOID 道具面板合同收敛到当前仓库 `projects/<项目名>/4-Design/...` runtime。"
+    "note": "基于 AIGC-ZEN-VOID 道具面板合同收敛到当前仓库 `projects/aigc/<项目名>/4-Design/...` runtime。"
   },
   "prompt_payload": {
     "layout": {

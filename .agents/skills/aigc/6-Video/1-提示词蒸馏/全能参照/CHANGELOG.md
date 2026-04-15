@@ -4,6 +4,14 @@
 
 ## 2026-04-14
 
+- `Case-20260414-AIGC-VIDEO-OMNIREF-CONTEXT-KB-CLEANUP`
+  - 将原先保留在 `CONTEXT.md` 尾部的 milestone case 移出经验层，保留 `Type Map / Repair Playbook / Reusable Heuristics` 为唯一知识库核心。
+  - 继续以本 `CHANGELOG.md` 承接 schema sync 与结构升级的时间序证据，消除 `aigc_skill_audit.py --strict` 对 `Case Log` 残留的 warning。
+  - 证据路径：
+    - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md`
+    - `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CHANGELOG.md`
+    - `scripts/aigc_skill_audit.py`
+
 - `Case-20260414-AIGC-VIDEO-OMNIREF-I2V-STYLE-GOVERNANCE`
   - 新增 `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md` 作为组级与帧级叶子共享的 `图生视频` 句法原则真源。
   - 重写 `prompt-assembly-spec.md` 的组级桥接句与镜级句法顺序，使其更偏“主体锚点 -> 镜头起势 -> 可见动作 -> 环境光感 -> 视觉焦点”的 `image-to-video` 组织方式，但内容来源仍保持当前 `3-Detail` 字段。

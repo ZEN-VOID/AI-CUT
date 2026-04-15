@@ -1,0 +1,111 @@
+suite_meta:
+  suite_id: aigc-root-suite-benchmark
+  domain: creative-skill-package
+  owner: aigc-root
+  version: 1.0.0
+  canonical_report_template: .codex/templates/quality-evaluation/creative-skill-package-evaluation-report.md
+  canonical_schema: .codex/schemas/creative-skill-package-benchmark-suite.schema.yaml
+
+target_profile:
+  target_name: aigc-root-suite
+  target_paths:
+    - .agents/skills/aigc/SKILL.md
+    - .agents/skills/aigc/query/SKILL.md
+    - .agents/skills/aigc/resume/SKILL.md
+    - .agents/skills/aigc/review/SKILL.md
+    - .agents/skills/aigc/_shared/project-runtime-layout.md
+  runtime_kind: projects/aigc
+  success_definition: 根 suite 能稳定完成项目根判定、唯一路由、卫星桥接、runtime 真源锁定与闭环回写，不虚构阶段入口，不漂移 canonical carrier。
+  comparison_baseline: static-audit-plus-single-project-sample
+
+tasks:
+  - task_id: aigc-root-baseline-001
+    task_type: baseline
+    title: 根入口与项目控制面基线检查
+    goal: 验证根 suite、registry、runbook 与项目控制面是否对 `projects/aigc/<项目名>/`、卫星桥接和主阶段链保持一致。
+    input_profile:
+      content_type: root-suite-governance
+      constraints:
+        - "必须以 `projects/aigc/<项目名>/` 作为 canonical runtime"
+        - "必须显式区分主阶段链与 `query / resume / review` 卫星技能"
+      context_package:
+        - .agents/skills/aigc/SKILL.md
+        - .codex/registry/skills.yaml
+        - .codex/registry/routes.yaml
+        - .codex/runbooks/task-lifecycle.md
+        - .agents/skills/aigc/_shared/project-runtime-layout.md
+    expected_properties:
+      - 根入口只给唯一下一入口，不并列抛出多个阶段候选
+      - 卫星技能不被伪装成主阶段
+      - runtime 真源与治理工件路径保持一致
+    checks:
+      - check_id: root-audit-pass
+        method: script
+        description: "`python3 scripts/aigc_harness_audit.py --strict` 通过"
+        weight: 1
+      - check_id: skill-audit-pass
+        method: script
+        description: "`python3 scripts/aigc_skill_audit.py --strict` 通过"
+        weight: 1
+      - check_id: carrier-alignment
+        method: manual
+        description: 根 `SKILL.md`、registry、runbook 与 shared runtime layout 对 canonical runtime 的说法一致
+        weight: 1
+    pass_threshold:
+      min_score: 2
+      required_checks:
+        - root-audit-pass
+        - skill-audit-pass
+    evidence_paths:
+      - .agents/skills/aigc/SKILL.md
+      - .codex/registry/skills.yaml
+      - .codex/registry/routes.yaml
+      - .codex/runbooks/task-lifecycle.md
+      - projects/aigc/2049退休老头的快乐生活/project_state.yaml
+      - projects/aigc/2049退休老头的快乐生活/governance-state.yaml
+
+  - task_id: aigc-root-regression-001
+    task_type: regression
+    title: review carrier 与项目样本回归检查
+    goal: 防止 `2-Global` acceptance carrier 再次回退到 `3-Detail/validation-report.md`，并验证 review bridge 与样本项目保持一致。
+    input_profile:
+      content_type: review-carrier-regression
+      constraints:
+        - "`2-Global` acceptance 必须写回 `2-Global/validation-report.md`"
+        - "`3-Detail` acceptance 必须写回 `3-Detail/validation-report.md`"
+      context_package:
+        - .agents/skills/aigc/review/SKILL.md
+        - .agents/skills/aigc/review/references/review-modes.md
+        - .agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md
+        - .agents/skills/aigc/_shared/council-runtime/module-spec.md
+        - .agents/skills/aigc/_shared/council-runtime/team.template.yaml
+    expected_properties:
+      - "`review` 父技能、subtype、shared runtime、team template 与项目样本对 `2-Global` carrier 口径一致"
+      - "项目样本的 `team.yaml` gate artifact 不再把 `2-Global` 指到 `3-Detail`"
+    checks:
+      - check_id: review-scope-sync
+        method: manual
+        description: "`review` 父技能、subtype 与 `review-modes.md` 对 `2-Global` carrier 完全一致"
+        weight: 1
+      - check_id: council-sync
+        method: manual
+        description: "`council-runtime/module-spec.md` 与 `team.template.yaml` 对 `2-Global` gate artifact 完全一致"
+        weight: 1
+      - check_id: sample-sync
+        method: manual
+        description: "样本项目 `team.yaml` 与 `project_state.yaml` 不再出现 `2-Global` carrier 漂移"
+        weight: 1
+    pass_threshold:
+      min_score: 3
+      required_checks:
+        - review-scope-sync
+        - council-sync
+        - sample-sync
+    evidence_paths:
+      - .agents/skills/aigc/review/SKILL.md
+      - .agents/skills/aigc/review/references/review-modes.md
+      - .agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md
+      - .agents/skills/aigc/_shared/council-runtime/module-spec.md
+      - .agents/skills/aigc/_shared/council-runtime/team.template.yaml
+      - projects/aigc/2049退休老头的快乐生活/team.yaml
+      - projects/aigc/2049退休老头的快乐生活/2-Global/validation-report.md

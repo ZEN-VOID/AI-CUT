@@ -32,7 +32,7 @@
 | 当前阶段 | 默认前置顾问角色 | 评审时机 | canonical 写回权 |
 | --- | --- | --- | --- |
 | `1-Planning` | `策划` | `projects/aigc/<项目名>/1-Planning/validation-report.md` 前后 | 主代理 |
-| `2-Global` | `监制` | `projects/aigc/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
+| `2-Global` | `监制` | `projects/aigc/<项目名>/2-Global/validation-report.md` 前后 | 主代理 |
 | `3-Detail` | `监制` | `projects/aigc/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
 | `4-Design` | `策划` | `projects/aigc/<项目名>/4-Design/validation-report.md` 前后 | 主代理 |
 

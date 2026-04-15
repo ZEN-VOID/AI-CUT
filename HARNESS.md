@@ -40,12 +40,12 @@
 当前针对 `.agents/skills/aigc/` 的重大改造，还额外启用了显式 `bootstrap_compat` 模式：
 
 - 不清空 HARNESS 真源，只把它收缩为兼容骨架。
-- 保留 `projects/<项目名>/`、registry、runbook、template、audit、卫星技能入口与 review gate。
+- 保留 `projects/aigc/<项目名>/`、registry、runbook、template、audit、卫星技能入口与 review gate。
 - 暂时不把 `aigc` 当前阶段内部细节视为冻结真源，允许在后续改造中重写。
 
 ## 当前已实现真源
 
-截至 `2026-04-13`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、项目治理状态快照与首个 repo-local 改编技能纳入受治理注册：
+截至 `2026-04-14`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、项目治理状态快照、根级 benchmark suite 与首个 repo-local 改编技能纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -89,11 +89,11 @@
 - `aigc` 为仓库级总入口技能
 - `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
 - `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
-- `projects/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
-- `projects/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
+- `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
+- `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
-- `6-视频` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照` 可路由
-- `7-后期` 仍处于 `shelved` 状态
+- `6-Video` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照 / 首帧参照` 可路由
+- `7-Cut` 仍处于 `shelved` 状态
 - `AIGC-ZEN-VOID` 作为 design source 通过 mapping 管理，而不是直接整仓继承
 
 ### 5. 生命周期与任务工件真源
@@ -118,6 +118,7 @@
 当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
 同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐，并对 `CONTEXT.md` 的超 soft-limit、Case 失衡与日志化回流给出软警告。
 同时，AIGC 项目运行时已经开始把 `project_state.yaml + governance-state.yaml` 视为“人类摘要 + 结构化控制面”的双状态组合。
+同时，根级 `.agents/skills/aigc/benchmark-suite.yaml` 已落盘，作为后续动态评测的最小基线入口。
 
 ### 7. 架构初始化方案
 
@@ -133,7 +134,7 @@
 2. 中书省负责把复杂任务收束为 `mandate + mission-brief + route-plan`。
 3. 高风险任务先由门下省给出 `preflight-verdict`。
 4. 尚书省在已声明的 canonical runtime 中执行：
-   - `aigc` 项目工作流：`projects/<项目名>/`
+   - `aigc` 项目工作流：`projects/aigc/<项目名>/`
    - 通用非项目任务：`.codex/state/tasks/<task_id>/`
 5. 门下省以 `validation-report` 完成验收。
 6. 学习结果沉淀到 `learning-record` 与对应 `CONTEXT.md`。
@@ -169,9 +170,9 @@
 - 业务级 suite skill 还没有 fully cut over 到本地 HARNESS 真源。
 - 门下省已经有 `review` 卫星技能作为项目级 preflight / validation / learning bridge 入口，且其下已开始拆分 `preflight-review / acceptance-review / learning-bridge` 三个受治理子技能；更细分的内容专项 reviewer 仍未系统展开。
 - 兵部侧已有 `resume` 卫星技能作为续跑与安全回接入口，但自动化 hook、批量恢复与更细粒度调度能力仍在待接入阶段。
-- `6-视频` 已从纯预留升级为部分可执行阶段，但其余视频子路径仍待补齐。
-- `7-后期` 仍然是架构上预留、执行上搁浅的阶段。
-- 面向真实项目任务的项目内工件落盘与审计闭环，还需要持续在 `projects/<项目名>/` 实战固化。
+- `6-Video` 已从纯预留升级为部分可执行阶段，但其余视频子路径仍待补齐。
+- `7-Cut` 仍然是架构上预留、执行上搁浅的阶段。
+- 面向真实项目任务的项目内工件落盘与审计闭环，还需要持续在 `projects/aigc/<项目名>/` 实战固化；当前已不再停留在纯 `validation-report` 单点闭环，首个项目已补入 `preflight-verdict.yaml` 与 `learning-record.md`。
 
 ## 可期发展方向
 
@@ -182,7 +183,7 @@
 - 在 `comic-novel-adaptation` 之外，继续补出真正受 registry 管理的 repo-local suite skill。
 - 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
 - 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
-- 让更多真实任务以 `projects/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
+- 让更多真实任务以 `projects/aigc/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
 - 把阶段状态、局部可执行声明、项目控制面与审计覆盖进一步联动。
 
 ### 2. 从通用治理走向专项治理
@@ -229,7 +230,7 @@
 - `.codex/runbooks/task-lifecycle.md`
 - `.codex/templates/harness/` 下任务工件结构或字段
 - `scripts/aigc_harness_audit.py` 的审计口径
-- `projects/<项目名>/` 与 `.codex/state/tasks/<task_id>/` 的 canonical / mirror 关系
+- `projects/aigc/<项目名>/` 与 `.codex/state/tasks/<task_id>/` 的 canonical / mirror 关系
 - HARNESS 阶段成熟度、搁浅阶段、suite 规划、继承策略、自动化策略
 - 多子智能体 skill 的父层总合同、`team.md` / agent docs 关系、以及相关 review / audit / route 路径的 canonical 绑定关系
 

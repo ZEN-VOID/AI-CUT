@@ -70,14 +70,24 @@ def compact_text(value: Any) -> str:
 
 def infer_output_dir(design_json_path: Path) -> Path:
     parts = list(design_json_path.parts)
-    try:
-        role_idx = parts.index("2-角色")
-    except ValueError as exc:
-        raise ValueError("无法从 design-json 路径推断 `2-角色` 目录。") from exc
-    if role_idx + 1 >= len(parts) or parts[role_idx + 1] != "2-设计":
-        raise ValueError("design-json 不在 `2-角色/2-设计/` 目录下，无法自动推断输出路径。")
-    parts[role_idx + 1] = "3-面板"
-    return Path(*parts[:-1])
+    candidates = [
+        ("4-Design", "角色", "2-设计"),
+        ("2-角色", "2-设计"),
+    ]
+    for candidate in candidates:
+        candidate_len = len(candidate)
+        for index in range(len(parts) - candidate_len):
+            if tuple(parts[index : index + candidate_len]) != candidate:
+                continue
+            replaced = parts[:]
+            if candidate[0] == "4-Design":
+                replaced[index + 2] = "3-面板"
+            else:
+                replaced[index + 1] = "3-面板"
+            return Path(*replaced[:-1])
+    raise ValueError(
+        "design-json 不在 `4-Design/角色/2-设计/` 或兼容旧路径 `2-角色/2-设计/` 下，无法自动推断输出路径。"
+    )
 
 
 def make_safe_token(value: str) -> str:

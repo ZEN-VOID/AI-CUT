@@ -58,7 +58,7 @@ roles:
       - stage: "1-Planning"
         gate_artifact: "projects/aigc/<项目名>/1-Planning/validation-report.md"
       - stage: "2-Global"
-        gate_artifact: "projects/aigc/<项目名>/3-Detail/validation-report.md"
+        gate_artifact: "projects/aigc/<项目名>/2-Global/validation-report.md"
       - stage: "3-Detail"
         gate_artifact: "projects/aigc/<项目名>/3-Detail/validation-report.md"
       - stage: "4-Design"

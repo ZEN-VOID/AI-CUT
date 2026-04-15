@@ -42,6 +42,95 @@ governance_tier: full
 - 对某个阶段或整个项目执行门下省侧预审、验收、`validation-report.md` 更新与学习桥接
 - 对齐阶段输出、项目状态与仓库级治理合同
 
+## Mode Selection
+
+当前根技能默认按四种入口模式之一运行：
+
+1. `project-bootstrap`
+   - 当前任务要新建项目、回到初始化态、重建项目根治理骨架
+2. `mainline-stage-routing`
+   - 当前任务要把项目推进到 `0-Init -> 7-Cut` 主链中的唯一下一入口
+3. `satellite-bridge`
+   - 当前任务本质是 `query / resume / review`，不应被伪装成主阶段执行
+4. `root-sync-repair`
+   - 当前任务要修根入口、registry、runtime layout 或治理投影漂移
+
+选择规则：
+
+- 只要用户目标是“从头起盘 / 重来 / 重置方向”，优先进入 `project-bootstrap`。
+- 只要用户目标是“当前该进哪个阶段”，优先进入 `mainline-stage-routing`。
+- 只要任务核心动作是“查询事实 / 恢复中断 / 做预审或验收”，优先进入 `satellite-bridge`。
+- 只要问题症状是“根入口说法和技能树、registry、runtime 不一致”，优先进入 `root-sync-repair`。
+
+## Business Requirement Analysis Contract (Mandatory)
+
+| analysis_slot | 当前结论 |
+| --- | --- |
+| `business_goal` | 用单一根 `SKILL.md` 统一治理 AIGC 项目的项目根判定、阶段路由、卫星桥接、治理挂载与一次性闭环，不让根入口退化为目录说明页。 |
+| `business_object` | `projects/aigc/<项目名>/` runtime、项目根治理工件、`.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`、`_shared/project-runtime-layout.md`、各阶段与卫星技能合同。 |
+| `constraint_profile` | 当前处于 `bootstrap_compat`；根技能必须只给一个唯一下一入口；不得伪造不存在的阶段根合同；不得把 runtime 槽位误写成受治理技能目录；不得与各阶段争夺 canonical business truth。 |
+| `success_criteria` | 根入口能稳定回答“项目根在哪、当前模式是什么、唯一下一入口是什么、真源从哪读、若 blocked 原因是什么、闭环该写回哪里”，并且这些说法与 registry、runtime layout、真实磁盘结构一致。 |
+| `non_goals` | 不替代任何阶段产物生成；不在根层重写子阶段细则；不把卫星技能并入主链；不发明第二套 runtime 或治理真源。 |
+| `complexity_source` | 复杂度来自主阶段链、卫星技能、项目 runtime、registry 控制面、`bootstrap_compat` 窗口和搁浅阶段共存，而不是单一路由判断本身。 |
+| `topology_fit` | 采用“串行 intake 主干 + 条件分流 + 汇流审计”的思行网络：先锁项目根与模式，再锁真源，再裁决主阶段/卫星/搁浅/缺口，最后一次性输出。 |
+| `step_strategy` | 根技能只保留业务分析、真源锁定、分支路由、汇流审计与 one-shot output；阶段内执行细节下放给命中的阶段或卫星技能。 |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["用户任务进入 aigc 根技能"] --> B["N1 模式与项目根 intake"]
+    B --> C["N2 真源锁定: runtime / registry / shared layout"]
+    C --> D{"N3 入口判型"}
+    D -->|"project-bootstrap"| E["0-Init"]
+    D -->|"mainline-stage-routing"| F["主阶段链路由"]
+    D -->|"satellite-bridge"| G["query / resume / review"]
+    D -->|"root-sync-repair"| H["修根入口与控制面投影"]
+    E --> I["N4 门禁与存在性检查"]
+    F --> I
+    G --> I
+    H --> I
+    I --> J["N5 一次性闭环输出"]
+```
+
+```mermaid
+flowchart LR
+    A["projects/aigc/<项目名>/"] --> B["project_state.yaml"]
+    A --> C["governance-state.yaml"]
+    D[".codex/registry/skills.yaml"] --> E["aigc root route truth"]
+    F[".codex/registry/routes.yaml"] --> E
+    G["project-runtime-layout.md"] --> E
+    E --> H{"主阶段 / 卫星 / 缺口 / 搁浅"}
+    H --> I["阶段技能"]
+    H --> J["query"]
+    H --> K["resume"]
+    H --> L["review"]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> Intake
+    Intake --> TruthLocked
+    TruthLocked --> Routed
+    Routed --> GateChecked
+    GateChecked --> Finalized
+    Routed --> Blocked
+    GateChecked --> Blocked
+    Blocked --> Finalized
+```
+
+```mermaid
+erDiagram
+    PROJECT_ROOT ||--|| PROJECT_STATE : owns
+    PROJECT_ROOT ||--o| GOVERNANCE_STATE : may_generate
+    PROJECT_ROOT ||--o{ STAGE_RUNTIME : contains
+    REGISTRY_SKILLS ||--|| ROOT_SKILL : indexes
+    REGISTRY_ROUTES ||--|| ROOT_SKILL : routes
+    ROOT_SKILL ||--o{ STAGE_SKILL : dispatches
+    ROOT_SKILL ||--o{ SATELLITE_SKILL : dispatches
+    SHARED_RUNTIME_LAYOUT ||--|| ROOT_SKILL : constrains
+```
+
 ## 项目工作区与工件落点
 
 ### Canonical Project Root
@@ -88,7 +177,29 @@ governance_tier: full
 
 ### Quality Evidence Source
 
-- `.agents/skills/aigc/benchmark-suite.yaml`
+- 当前稳定质量证据以以下三类载体为准：
+  - `scripts/aigc_skill_audit.py --strict`
+  - 各阶段与项目根的 `validation-report.md`
+  - `project_state.yaml + governance-state.yaml`
+  - `.agents/skills/aigc/benchmark-suite.yaml`
+- 根级 benchmark suite 当前至少覆盖 `baseline + regression`，后续继续扩展到 `boundary / stress / adversarial`。
+
+## Internal Capability Fusion Contract (Mandatory)
+
+| 能力面 | 当前 owner | 说明 |
+| --- | --- | --- |
+| 项目根判定 | `aigc/SKILL.md` | 锁定 `projects/aigc/<项目名>/` 与项目级治理工件 |
+| 入口模式判型 | `aigc/SKILL.md` | 判断是 `bootstrap`、主链路由、卫星桥接还是根同步修复 |
+| 主阶段链路由 | `aigc/SKILL.md` | 只负责给出唯一下一入口，不替代阶段执行 |
+| 卫星桥接 | `aigc/SKILL.md` + `query/resume/review` | 根层判型，卫星技能执行局部合同 |
+| runtime / registry / shared layout 对齐 | `aigc/SKILL.md` | 根层负责治理投影同步与缺口上报 |
+| 业务真源执行 | 命中的阶段或卫星技能 | 根层不得抢写阶段 canonical 业务产物 |
+
+硬规则：
+
+1. 根技能只统筹，不直接替阶段写业务内容。
+2. 子阶段是否可执行，以真实 `SKILL.md` / governed entry 为准，不以目录名为准。
+3. 根层只拥有“唯一下一入口 + 根治理闭环”的 writeback 权，不拥有阶段业务真稿 writeback 权。
 
 ## 阶段路由
 
@@ -105,11 +216,11 @@ governance_tier: full
 5. `4-Design`
    - 负责场景、角色、服装、道具的清单、设计与面板阶段
 6. `5-Image`
-   - 负责围绕已有文件进行多类型画面提示词蒸馏、参照引用与图像生成
+   - 当前没有独立阶段根 `SKILL.md`；根入口只把它当作逻辑阶段桶，并直接路由到 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`
 7. `6-Video`
-   - 负责视频生成前的设计/画面参照、分镜参照与视频执行入口
+   - 负责视频生成前的设计/画面参照、分镜参照与视频执行入口；当前已建子路径为 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
 8. `7-Cut`
-   - 负责最终成片整理、后期收束与交付
+   - 当前仅保留 runtime 槽位与 registry `shelved` 声明；技能树中尚无受治理阶段目录
 
 ### 根级卫星技能
 
@@ -138,13 +249,13 @@ governance_tier: full
 | 阶段 | 目录存在 | 阶段合同状态 | 调度策略 |
 | --- | --- | --- | --- |
 | `0-Init` | 是 | 已建合同，脚本待补 | 允许显式初始化任务进入，按 `north_star + init_handoff + project-root runtime` 合同执行 |
-| `1-Planning` | 是 | 已建阶段合同，`1-分集` 直达 leaf 执行，`2-格式` 与 `3-分组` 已内化原规划组能力 | 可先执行 `1-分集`，再路由到 `2-格式`、`3-分组`，并按需触发节奏复核 gate |
+| `1-Planning` | 是 | 已建阶段合同，`1-分集`、`2-格式`、`3-分组` active；`4-节奏` 已折叠进 `3-分组` 的 reviewer / gate 规则 | 默认 `1-分集 -> 2-格式 -> 3-分组`；只有命中节奏复核条件时才触发额外 gate |
 | `2-Global` | 是 | 已建阶段合同，当前 active 子技能至少包含 `全局风格 / 类型元素 / 设计元素`，并继续消费 `1-Planning/3-分组` handoff；`导演意图` 仍保留为后续组级导演链路 | 写入 `全局风格/全局风格设计.md`、`类型元素/全集设计.md + 分组设计.md`、`设计元素/设计元素.md`，并由组级导演链路继续 seed shared `第N集.json` 的 `组间设计` |
 | `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一并发链，在父 skill 内部融合分镜表现、角色表现、运镜手法、场景氛围、摄影美学与转场特效能力 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部 capability route 判定 `selected_groups[] / selected_fields[] / selected_chains[]` |
 | `4-Design` | 是 | 已建阶段合同，`1-主体清单`、`2-主体设计`、`3-面板设计` 三个 tranche 父级与四类 leaf 可路由 | 可先进入 `1-主体清单`、`2-主体设计`、`3-面板设计`，再按 `场景 / 角色 / 服装 / 道具` 路由 |
-| `5-Image` | 是 | 已建阶段合同，`1-提示词蒸馏`、`2-参照引用`、`3-图像生成` 可执行；其中 `1-提示词蒸馏` 已支持 `分镜故事板`、`分镜帧`、`漫画` 三类请求蒸馏 | 默认先入 `1-提示词蒸馏`；若已有稳定请求 JSON 则可进入 `2-参照引用` 或 `3-图像生成` |
+| `5-Image` | 是 | 当前无独立阶段根合同；真实可执行入口为 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧 / 漫画` | 不先找不存在的 `5-Image/SKILL.md`；默认直达 `1-提示词蒸馏`，若已有稳定请求 JSON 则进入 `2-参照引用` 或 `3-图像生成` |
 | `6-Video` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`；`首尾帧参照`、`多图参照` 与其他扩展路径仍按状态检查 |
-| `7-Cut` | 是 | 搁浅 | 当前不纳入执行链与严格审计失败项；仅保留目录槽位 |
+| `7-Cut` | 否 | 搁浅 | 当前只保留 runtime 槽位与 registry `shelved` 状态，不纳入执行链与严格审计失败项 |
 
 ### 卫星技能覆盖状态
 
@@ -156,10 +267,59 @@ governance_tier: full
 
 ### 子技能调度规则
 
-- 主阶段目录带数字前缀，默认按升序串行
-- 主阶段内的 `subtypes/` 若带数字前缀，默认按升序串行
-- 无数字前缀的 `subtypes/` 默认并行候选，但仍以各阶段 `SKILL.md` 的显式合同为准
+- 根入口的逻辑主阶段链仍按 `0-Init -> 1-Planning -> 2-Global -> 3-Detail -> 4-Design -> 5-Image -> 6-Video -> 7-Cut` 判型。
+- 阶段内部是否串行、并行、折叠或直达，必须以目标阶段 `SKILL.md` 的显式合同为准，不靠目录名自行推断。
+- `1-Planning` 当前显式采用 `1-分集 -> 2-格式 -> 3-分组`，`4-节奏` 只作为 `3-分组` 内部 gate。
+- `5-Image` 当前没有阶段根合同；根入口必须直接路由到 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成` 中的真实入口。
+- `7-Cut` 当前没有技能树目录；只有在后续补齐受治理合同后，才可恢复为可执行阶段。
 - 若目标阶段或子技能还没有实质合同，必须报告缺口，而不是编造下游步骤
+
+## Topology Contract (Mandatory)
+
+### Topology Fit
+
+根技能固定采用“一条串行主干 + 四类条件分流 + 一个汇流门”的知行合一拓扑：
+
+- 串行主干：
+  - `N1 intake`
+  - `N2 truth lock`
+  - `N3 route classify`
+  - `N4 gate audit`
+  - `N5 one-shot close`
+- 条件分流：
+  - `project-bootstrap`
+  - `mainline-stage-routing`
+  - `satellite-bridge`
+  - `root-sync-repair`
+- 汇流门：
+  - 所有分支最终都必须回到 `N5`，统一给出唯一下一入口、blocker 或 closure triad
+
+### Ordered / Unordered Rules
+
+1. `N1 -> N2 -> N3 -> N4 -> N5` 固定串行，不得跳步。
+2. `N3` 可分流，但一次只能命中一个主分支。
+3. 根技能不在同一轮并发推荐多个主阶段或多个卫星入口。
+4. 若某分支在 `N4` 发现 blocker，必须直接汇流到 `N5`，而不是继续猜下游。
+
+## Thinking-Action Node Contract (Mandatory)
+
+| node_id | objective | inputs | actions | evidence | route_out | gate |
+| --- | --- | --- | --- | --- | --- | --- |
+| `N1-intake` | 锁定项目根、任务目标与入口模式候选 | 用户请求、项目路径、现有 runtime | 判断是否有 `PROJECT_ROOT`、是否是起盘/主链/卫星/修根 | `intake_note` | `N2` | 未锁项目范围不得继续 |
+| `N2-truth-lock` | 锁定根层真源与当前控制面 | `project_state`、`governance-state`、registry、shared layout | 读取并对齐 runtime、registry、layout、技能树存在性 | `truth_lock_note` | `N3` | 根层真源冲突时不得直接路由 |
+| `N3-route-classify` | 给出唯一入口分类 | `N1/N2` 结论、阶段覆盖状态、卫星边界 | 裁决命中主阶段、卫星、搁浅、缺口或根修复路径 | `route_decision` | `N4` | 不得同时给多个主入口 |
+| `N4-gate-audit` | 在进入下游前做存在性与门禁审计 | 命中入口、阶段合同、治理 gate | 校验阶段根/真实入口是否存在，是否缺 `mission-brief / route-plan / preflight` 等门 | `gate_verdict` | `N5` | blocker 未显式化不得结案 |
+| `N5-one-shot-close` | 一次性收束为根层结论 | route verdict、gate verdict、项目根信息 | 输出唯一下一入口、blocker 或 closure triad，并声明写回位置 | `root_closure` | `done` | 只能在本节点结案 |
+
+## Thinking-Action Network (Mandatory)
+
+| node_id | thinking focus | action focus | fail signal | re-entry |
+| --- | --- | --- | --- | --- |
+| `N1-intake` | 当前任务本质是什么 | 锁项目根与模式候选 | 项目范围不清、入口模式混杂 | `N1-intake` |
+| `N2-truth-lock` | 应该信哪一层真源 | 读 runtime / registry / shared layout | 根入口说法和真实结构冲突 | `N2-truth-lock` |
+| `N3-route-classify` | 应该进入哪一个唯一入口 | 判主阶段 / 卫星 / 修根分支 | 同时抛多个候选 | `N3-route-classify` |
+| `N4-gate-audit` | 当前入口是否合法且可执行 | 审合同存在性与治理门 | 缺根合同、缺 gate、搁浅误判 | `N4-gate-audit` |
+| `N5-one-shot-close` | 怎样统一口径交付 | 写唯一下一入口与闭环 | 输出仍需用户自行再猜下一步 | `N3-route-classify` 或 `N4-gate-audit` |
 
 ## 三省六部挂载
 
@@ -198,12 +358,35 @@ governance_tier: full
 4. 若后续进入 `1-Planning / 2-Global / 3-Detail / 4-Design`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
-7. 若目标阶段合同缺失，停止向下伪造，返回缺口与补建落点
+7. 若目标阶段既没有阶段根合同，也没有可回接的 governed entry，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
 9. 若命中卫星技能，则先进入对应卫星技能，再按其合同回接根技能或目标阶段
-10. 若目标阶段合同存在，则进入对应阶段或子技能
+10. 若目标阶段已有阶段根合同，则先进入阶段根；若像 `5-Image` 这样只有子级受治理入口，则直接进入真实入口
 11. 阶段或卫星动作完成后，把结果写回项目工作区根层运行时工件
 12. 输出验收结论与下一步唯一推荐入口
+
+## One-Shot Output Contract (Mandatory)
+
+根技能每轮只允许产出一个 canonical final output，至少包含：
+
+1. `project_root_verdict`
+   - 当前命中的 `projects/aigc/<项目名>/`
+2. `mode_verdict`
+   - 本轮属于 `project-bootstrap / mainline-stage-routing / satellite-bridge / root-sync-repair`
+3. `route_verdict`
+   - 唯一下一入口，或唯一 blocker
+4. `truth_sources`
+   - 本轮判定实际依赖的根层真源
+5. `closure_triad`
+   - `root cause location`
+   - `immediate fix`
+   - `systemic prevention fix`
+
+硬规则：
+
+1. 不得同时给两个“都可以”的主入口。
+2. 若本轮命中 blocker，最终输出的主结论必须是 blocker，而不是继续附带模糊路线图。
+3. 根技能对用户的最终交付只能有一个收束口径，不得并列抛出多个未汇流半成品。
 
 ## 硬规则
 
@@ -225,6 +408,7 @@ governance_tier: full
 
 当一次 `aigc` 根技能任务结束时，至少应满足以下条件：
 
+- 已锁定本轮 `mode_verdict`
 - 已明确当前项目根目录
 - 已明确当前唯一推荐阶段入口
 - 已给出项目级工件落点
@@ -262,37 +446,46 @@ governance_tier: full
 
 ## Field Master
 
-| field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
+| field_id | 输出位置/字段 | 内容要求 | 默认责任 Node | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| FIELD-AIGC-ROOT-01 | 根技能.任务边界 | 明确 `aigc` 是总入口、总路由、总闭环，而非单阶段技能 | S1 | 根技能定位清晰度 | FAIL-AIGC-ROOT-01 |
-| FIELD-AIGC-ROUTE-02 | 根技能.阶段路由 | 给出主阶段链、当前覆盖状态与子技能调度规则 | S2 | 路由完整性 | FAIL-AIGC-ROUTE-02 |
-| FIELD-AIGC-LAND-03 | 根技能.工件落点 | 明确 `projects/aigc/<项目名>/` 即项目运行时真源，根层工件落点清晰 | S3 | 落点规范性 | FAIL-AIGC-LAND-03 |
-| FIELD-AIGC-GOV-04 | 根技能.三省六部挂载 | 说明三省六部如何挂到 `aigc` 总合同 | S4 | 治理映射准确性 | FAIL-AIGC-GOV-04 |
-| FIELD-AIGC-CLOSE-05 | 根技能.闭环合同 | 明确验收、续跑、失败上溯与学习回流 | S5 | 闭环完整性 | FAIL-AIGC-CLOSE-05 |
+| `FIELD-AIGC-INTAKE-01` | 根技能.模式与项目范围 | 明确本轮 mode 与项目范围 | `N1-intake` | 边界清晰度 | `FAIL-AIGC-INTAKE-01` |
+| `FIELD-AIGC-TRUTH-02` | 根技能.真源锁定 | 明确 runtime、registry、shared layout 的当前真源组合 | `N2-truth-lock` | 真源一致性 | `FAIL-AIGC-TRUTH-02` |
+| `FIELD-AIGC-ROUTE-03` | 根技能.唯一入口 | 给出主阶段链、卫星桥接或根修复的唯一下一入口 | `N3-route-classify` | 路由准确性 | `FAIL-AIGC-ROUTE-03` |
+| `FIELD-AIGC-GATE-04` | 根技能.门禁 verdict | 说明入口是否存在、是否搁浅、是否缺治理 gate | `N4-gate-audit` | 门禁完整性 | `FAIL-AIGC-GATE-04` |
+| `FIELD-AIGC-CLOSE-05` | 根技能.one-shot close | 明确 closure triad、写回位置与唯一最终口径 | `N5-one-shot-close` | 闭环完整性 | `FAIL-AIGC-CLOSE-05` |
 
 ## Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| S1 | FIELD-AIGC-ROOT-01 | `aigc` 根技能到底是什么 | 锁定总入口、总路由、总闭环定位 | 把根技能写成某个阶段说明 |
-| S2 | FIELD-AIGC-ROUTE-02 | 阶段如何串起来 | 定义主阶段链、覆盖状态、调度规则 | 只有目录，没有路由合同 |
-| S3 | FIELD-AIGC-LAND-03 | 项目工件落在哪里 | 明确 `projects/aigc/<项目名>/` 根层载体 | 输出与状态落点漂移 |
-| S4 | FIELD-AIGC-GOV-04 | 治理如何挂到技能树 | 将三省六部映射到根技能 | 只有技能树，没有治理结构 |
-| S5 | FIELD-AIGC-CLOSE-05 | 如何验收和回流 | 写闭环、续跑与失败上溯合同 | 能运行但无法结案 |
+| `N1` | `FIELD-AIGC-INTAKE-01` | 当前到底是起盘、主链、卫星还是修根 | 锁定 mode 与项目范围 | 任务边界模糊 |
+| `N2` | `FIELD-AIGC-TRUTH-02` | 本轮应该信哪些真源 | 读取并对齐 runtime、registry、shared layout | 根层真源互相打架 |
+| `N3` | `FIELD-AIGC-ROUTE-03` | 唯一下一入口是什么 | 给出唯一阶段/卫星/修根分支 | 同时抛多个候选 |
+| `N4` | `FIELD-AIGC-GATE-04` | 这个入口现在能不能进 | 审计合同存在性与治理 gate | 入口不存在或 gate 缺失 |
+| `N5` | `FIELD-AIGC-CLOSE-05` | 怎样一次性收束给用户 | 输出 closure triad 与唯一结论 | 结论仍需用户自行再猜 |
 
 ## Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
-| FIELD-AIGC-ROOT-01 | 根技能定位清楚，能区分总控面与阶段面 | FAIL-AIGC-ROOT-01 | S1 |
-| FIELD-AIGC-ROUTE-02 | 主阶段链、阶段状态、子技能规则完整 | FAIL-AIGC-ROUTE-02 | S2 |
-| FIELD-AIGC-LAND-03 | 项目工作区与运行时工件落点明确 | FAIL-AIGC-LAND-03 | S3 |
-| FIELD-AIGC-GOV-04 | 三省六部挂载明确，无混层 | FAIL-AIGC-GOV-04 | S4 |
-| FIELD-AIGC-CLOSE-05 | 有验收、续跑、失败上溯、学习回流合同 | FAIL-AIGC-CLOSE-05 | S5 |
+| `FIELD-AIGC-INTAKE-01` | mode 与项目范围明确 | `FAIL-AIGC-INTAKE-01` | `N1` |
+| `FIELD-AIGC-TRUTH-02` | runtime、registry、shared layout 口径一致 | `FAIL-AIGC-TRUTH-02` | `N2` |
+| `FIELD-AIGC-ROUTE-03` | 唯一入口明确且不混层 | `FAIL-AIGC-ROUTE-03` | `N3` |
+| `FIELD-AIGC-GATE-04` | blocker、搁浅、缺 gate 状态被明确声明 | `FAIL-AIGC-GATE-04` | `N4` |
+| `FIELD-AIGC-CLOSE-05` | one-shot output 与 closure triad 完整 | `FAIL-AIGC-CLOSE-05` | `N5` |
 
 ## Context Preload (Mandatory)
 
-- 每次调用本技能时，必须自动加载同目录 `CONTEXT.md`。
-- 冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > `CONTEXT.md`。
-- 失败闭环必须回写 `CONTEXT.md`。
-- 成功闭环必须回写 `CONTEXT.md`。
+加载顺序固定为：
+
+1. 根 `AGENTS.md`
+2. `.agents/skills/aigc/CONTEXT.md`
+3. `.codex/registry/skills.yaml`
+4. `.codex/registry/routes.yaml`
+5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
+6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `1-Planning / 2-Global / 3-Detail / 4-Design`）
+7. `projects/aigc/<项目名>/project_state.yaml`（若存在）
+8. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
+9. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
+
+冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > `CONTEXT.md`。

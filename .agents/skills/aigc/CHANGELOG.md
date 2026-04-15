@@ -29,10 +29,27 @@
     - `.agents/skills/aigc/6-Video/2-视频生成/SKILL.md`
     - `.agents/skills/aigc/6-Video/2-视频生成/CHANGELOG.md`
 - `Case-20260411-AIGC-ROOT-BENCHMARK-SUITE-BOOTSTRAP`
-  - 为根 suite 新增 `benchmark-suite.yaml`，覆盖 baseline、boundary、stress、adversarial 与 regression 五类评测任务。
+  - 为根 suite 补出 benchmark suite 落点与合同引用，并将其确认为后续动态评测真源。
   - 证据路径：
     - `.agents/skills/aigc/benchmark-suite.yaml`
     - `.agents/skills/aigc/SKILL.md`
+
+## 2026-04-14
+
+- `Case-20260414-AIGC-ROOT-BENCHMARK-SUITE-LANDING`
+  - 实际落盘 `.agents/skills/aigc/benchmark-suite.yaml`，先覆盖 `baseline + regression` 两类最小动态评测任务，并同步把根技能质量证据源从“待补”切换为“已存在真源”。
+  - 证据路径：
+    - `.agents/skills/aigc/benchmark-suite.yaml`
+    - `.agents/skills/aigc/SKILL.md`
+- `Case-20260414-AIGC-ROOT-REVIEW-CARRIER-SYNC`
+  - 统一 `review`、`acceptance-review`、`review-modes`、`council-runtime`、`team.template.yaml` 与样本项目 `team.yaml` 对 `2-Global` acceptance carrier 的口径，不再将其误写到 `3-Detail/validation-report.md`。
+  - 证据路径：
+    - `.agents/skills/aigc/review/SKILL.md`
+    - `.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md`
+    - `.agents/skills/aigc/review/references/review-modes.md`
+    - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+    - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+    - `projects/aigc/2049退休老头的快乐生活/team.yaml`
 - `Case-20260411-AIGC-INIT-CONTRACT`
   - 将 `0-Init` 在根技能中的阶段状态从“预留中”升级为“已建合同，脚本待补”，完成根入口与初始化合同的第一次对齐。
   - 证据路径：

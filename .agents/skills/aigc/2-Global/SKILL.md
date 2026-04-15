@@ -28,7 +28,7 @@ governance_tier: full
 
 ## When to Use
 
-- 已经有 `projects/<项目名>/1-Planning/3-分组/第N集.md`，需要进入导演前置全局合同阶段。
+- 已经有 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`，需要进入导演前置全局合同阶段。
 - 需要把初始化预设、规划分组结果与当前项目定位沉淀为三份 Markdown 长文本真源，并同步写入可被 `3-Detail` 直接继承的 shared episode root。
 - 需要在阶段末段先给每个分镜组直接写入固定 `分镜切换` 数字，为 `3-Detail` 的真实切镜提供上游真值。
 - 需要同时处理项目级稳定项与当前集分镜组级导演构思，但又不希望把它们混成一份空泛总稿。
@@ -36,7 +36,7 @@ governance_tier: full
 
 ## When Not to Use
 
-- 当前连 `projects/<项目名>/1-Planning/3-分组/第N集.md` 都不存在。
+- 当前连 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` 都不存在。
 - 当前任务其实还是分集、剧本或分组问题，应回到 `1-Planning`。
 - 当前任务已经在补镜级字段、主体、设计、画面或视频产物，应进入 `3-Detail / 4-Design / 5-Image / 6-Video`。
 
@@ -65,14 +65,14 @@ governance_tier: full
 6. `.agents/skills/aigc/_shared/group_design_seed_contract.md`
 7. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 8. `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
-9. `projects/<项目名>/0-Init/north_star.yaml`
-10. `projects/<项目名>/0-Init/init_handoff.yaml`
-11. `projects/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-12. `projects/<项目名>/1-Planning/2-剧本/第N集.md`（若存在）
-13. `projects/<项目名>/1-Planning/3-分组/第N集.md`
-14. `projects/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
-15. 现有 `projects/<项目名>/2-Global/*.md`
-16. `projects/<项目名>/3-Detail/第N集.json`（若存在）
+9. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+10. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+11. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+12. `projects/aigc/<项目名>/1-Planning/2-剧本/第N集.md`（若存在）
+13. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+14. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
+15. 现有 `projects/aigc/<项目名>/2-Global/*.md`
+16. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
 17. 三个模板：
    - `templates/全局风格.template.md`
    - `templates/类型元素.template.md`
@@ -92,12 +92,12 @@ governance_tier: full
 
 硬规则：
 
-1. 本阶段的第一输入根固定为 `projects/<项目名>/1-Planning/3-分组/第N集.md`。
+1. 本阶段的第一输入根固定为 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`。
 2. 项目级稳定约束优先来自 `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml` 与 `story-source-manifest.yaml`。
 3. `全局风格.md` 只允许维护项目级稳定总则，且最终字段默认必须保持“无污染底层风格协议”口径；`类型元素.md` 必须按 `第N集 -> 【x-x-x】` 组织组级类型判断；两者都不得被某一集局部气氛污染。
 4. `导演意图.md` 必须按 `## 第N集 -> ### 【x-x-x】` 的层次做增量写回。
 5. `3-分组` 的组标题是三段式 `分镜组ID`；四段式 `分镜ID` 属于下游 `3-Detail`。
-6. 本阶段必须把 `组间设计` seed 与固定 `分镜切换` 写入 `projects/<项目名>/3-Detail/第N集.json`，并同步维护 `分镜组列表[].分镜组ID / 总时长 / 剧本正文 / 分镜切换 / 分镜明细=[]` 的组壳；`剧本正文` 必须完整整理自 `1-Planning/3-分组/第N集.md` 的命中组正文，除组号标题外不得二次摘要。
+6. 本阶段必须把 `组间设计` seed 与固定 `分镜切换` 写入 `projects/aigc/<项目名>/3-Detail/第N集.json`，并同步维护 `分镜组列表[].分镜组ID / 总时长 / 剧本正文 / 分镜切换 / 分镜明细=[]` 的组壳；`剧本正文` 必须完整整理自 `1-Planning/3-分组/第N集.md` 的命中组正文，除组号标题外不得二次摘要。
 7. `组间设计.全局风格 / 类型元素 / 导演意图` 的 JSON 文本必须分别直接提取自三份 Markdown 中已确认的同名字段；写入 JSON 时只允许剥离字段标题与空白，不允许现场重写。`出场角色及穿搭` 为组级摘要槽，本阶段可先写空字符串占位。
 8. `组间设计.全局风格 / 类型元素 / 导演意图` 的默认字符窗固定为 `220 / 50 / 100` 个字符以内；其中 `全局风格` 允许为 AIGC 统一风格前缀做适度放宽，但必须先在 Markdown 中确认。`出场角色及穿搭` 默认采用 `角色名-服装简述` 的短句格式。
 9. 三条能力链的判断逻辑、细化步骤与质量门都必须内收在本 `SKILL.md`，不得外包给任何外置导演组 contracts。
@@ -106,17 +106,17 @@ governance_tier: full
 
 ### 必需输入
 
-- `projects/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/<项目名>/0-Init/north_star.yaml`
-- `projects/<项目名>/0-Init/init_handoff.yaml`
+- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+- `projects/aigc/<项目名>/0-Init/north_star.yaml`
+- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 
 ### 可选输入
 
-- `projects/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/<项目名>/1-Planning/2-剧本/第N集.md`
-- `projects/<项目名>/1-Planning/3-分组/执行报告.md`
-- 现有 `projects/<项目名>/2-Global/*.md`
-- `projects/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
+- `projects/aigc/<项目名>/1-Planning/2-剧本/第N集.md`
+- `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+- 现有 `projects/aigc/<项目名>/2-Global/*.md`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 用户显式指定的风格、类型或导演偏好
 
 ### 禁止输入
@@ -324,13 +324,13 @@ graph LR
 
 `2-Global` 的一次性输出不是多个平行草案，而是同一 bundle 内的五类结果：
 
-1. `projects/<项目名>/2-Global/全局风格/全局风格设计.md`
+1. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`
    - 项目级风格底座唯一真源
-2. `projects/<项目名>/2-Global/类型元素/全集设计.md` 与 `projects/<项目名>/2-Global/类型元素/分组设计.md`
+2. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md` 与 `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`
    - 前者持有项目级类型总则，后者持有按集、按组组织的类型化导演协议；`类型元素.md` 仅允许作为兼容投影
-3. `projects/<项目名>/2-Global/设计元素/设计元素.md`
+3. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`
    - 按集、按组沉淀的导演构思唯一真源
-4. `projects/<项目名>/3-Detail/第N集.json`
+4. `projects/aigc/<项目名>/3-Detail/第N集.json`
    - shared episode root；本阶段写 `分镜组ID / 总时长 / 剧本正文 / 组间设计 / 分镜切换 / 分镜明细=[]` 的分镜组壳与相关 metadata
 5. `closure triad + handoff note`
    - 说明 `root cause location / immediate fix / systemic prevention fix`

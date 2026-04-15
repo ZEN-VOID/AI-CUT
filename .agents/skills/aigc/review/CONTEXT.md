@@ -18,6 +18,7 @@
 | --- | --- | --- | --- | --- |
 | 高风险执行没有 `preflight-verdict.yaml` 就要往下跑 | review gate | 先进入 `preflight-review` | 把 preflight 写成 review 的显式 mode | 高风险执行前存在 verdict 文件 |
 | 阶段产物存在就被当作“已通过验收” | acceptance contract | 同时更新对应 `validation-report.md` | 在 review mode 中固定 acceptance carrier | 验收结论能回到 canonical report |
+| `2-Global` 仍被误映射到 `3-Detail/validation-report.md` | acceptance carrier sync | 立即把 `2-Global` 独立映射回 `2-Global/validation-report.md` | 将 scope-carrier mapping、council-runtime 与 `team.yaml` gate artifact 收束到同一真源 | `review/`、shared runtime、项目样本都对 `2-Global` 使用同一路径 |
 | `review/` 越权修改 stage 业务真源 | satellite boundary | 只写 verdict 与下一入口 | 在 skill 中固定“不代替阶段执行” | review 输出不再改写业务内容 |
 | project / stage report 路径写旧 runtime | runtime mapping | 回查 `project-runtime-layout.md` 后改正 carrier | 把 runtime mapping 当 review 的必读真源 | `validation-report.md` 落点与当前 runtime 一致 |
 | learning 只停在聊天说明，没有落 `learning-record.md` | learning bridge | 进入 `learning-bridge` mode | 把 learning record 固定为 canonical carrier | 学习沉淀能在项目目录读回 |
@@ -37,6 +38,7 @@
 - `review/` 最重要的不是“评价得多漂亮”，而是“把 gate 写回 canonical carrier”。
 - 对 `aigc` 来说，review 是门下省桥接层，不是阶段执行层。
 - 只要 scope 是阶段级，就应该先写该阶段 runtime 下的 `validation-report.md`，而不是默认写项目根报告。
+- `2-Global` 和 `3-Detail` 虽然共享 episode root handoff，但验收 carrier 不应继续共用；前者写 `2-Global/validation-report.md`，后者写 `3-Detail/validation-report.md`。
 - 若 review 发现的是治理链缺口，最稳的下一入口通常不是阶段 skill，而是根 `aigc` 或 `resume/`。
 - `governance-state.yaml` 只记录 review 摘要和下一入口投影，真正 verdict 仍应回到 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md`。
 - 当 `review` 同时拥有 3 种长期模式时，最稳的演化方向不是继续给父技能加段落，而是提升为 `subtypes/preflight-review / acceptance-review / learning-bridge`。

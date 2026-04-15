@@ -102,7 +102,8 @@ L2 按需：
 | `project` acceptance | `projects/aigc/<项目名>/validation-report.md` |
 | `project` learning | `projects/aigc/<项目名>/learning-record.md` |
 | `1-Planning` acceptance | `projects/aigc/<项目名>/1-Planning/validation-report.md` |
-| `2-Global` / `3-Detail` acceptance | `projects/aigc/<项目名>/3-Detail/validation-report.md` |
+| `2-Global` acceptance | `projects/aigc/<项目名>/2-Global/validation-report.md` |
+| `3-Detail` acceptance | `projects/aigc/<项目名>/3-Detail/validation-report.md` |
 | `4-Design` acceptance | `projects/aigc/<项目名>/4-Design/validation-report.md` |
 | `5-Image` acceptance | `projects/aigc/<项目名>/5-Image/validation-report.md` |
 | `6-Video` acceptance | `projects/aigc/<项目名>/6-Video/validation-report.md` |
