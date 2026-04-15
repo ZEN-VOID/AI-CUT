@@ -3,7 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `5-Image/1-提示词蒸馏/分镜帧` 的经验层知识库，不是过程日志。
-- 调用本子技能时，应在父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md` 之后加载本文件。
+- 调用本子技能时，应在阶段父级 `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md` 与父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md` 之后加载本文件。
 - 当前知识沉淀已与 `skill-知行合一` 对齐：优先记录节点边界、回退入口、汇流门和可复用 heuristics，而不是记录一次性过程描述。
 
 ## Context Health

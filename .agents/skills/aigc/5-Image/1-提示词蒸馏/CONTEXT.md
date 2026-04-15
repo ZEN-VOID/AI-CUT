@@ -3,7 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `.agents/skills/aigc/5-Image/1-提示词蒸馏` 的经验层知识库，不是过程日志。
-- 调用 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md` 时，应先加载 `.agents/skills/aigc/SKILL.md`，再加载本文件。
+- 调用 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md` 时，应先加载 `.agents/skills/aigc/SKILL.md`、`.agents/skills/aigc/5-Image/SKILL.md`、`.agents/skills/aigc/3-Detail/SKILL.md`，再加载本文件。
 - 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > 上层 `SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。
 
 ## Context Health
@@ -39,7 +39,7 @@
 
 - `1-提示词蒸馏` 的核心不是“写 prompt”，而是“先判对象，再把 prompt 蒸馏收口到正确的请求 JSON”。
 - 当一层目录下全是语义 sibling 且彼此互斥时，必须由父级显式覆写“无序默认并发”的仓库级默认规则。
-- 对 `5-画面` 来说，`分镜故事板` 是最宽容的默认入口；`分镜帧` 和 `漫画` 只在对象信号足够明确时再切入。
+- 对 `5-Image` 来说，`分镜故事板` 是最宽容的默认入口；`分镜帧` 和 `漫画` 只在对象信号足够明确时再切入。
 - 父级提示词蒸馏层不应自建第二套 prompt 模板；对象内细节继续留在叶子子技能。
 - 若问题表现为“叶子都对，但整体还是接不上”，通常根因在父级路由或 handoff 合同缺失，而不在叶子 prompt 内容。
 - `1-提示词蒸馏` 的第一输入门不是“有没有 JSON”，而是“`3-Detail` 是否已经到 `detail_in_progress | ready` 且 canonical 字段足够下游消费”。

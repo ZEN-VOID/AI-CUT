@@ -60,9 +60,4 @@ decision_policy:
   mode_source: ""
   research_policy: ""
 
-stage_entry_contract:
-  recommended_next_stage: ""
-  rationale: ""
-  stage_priority_order: []
-
 long_term_open_questions: []

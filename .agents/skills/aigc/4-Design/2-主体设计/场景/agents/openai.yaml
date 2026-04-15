@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 场景设计"
-  short_description: "用单技能知行网络把场景清单、导演约束与镜头证据收束为场景设计真源"
-  default_prompt: "Use $aigc-design-scene-design to read the scene catalog plus 2-Global constraints, run the internal scene-scope, evidence-bridge, spatial, architectural, set-dressing, review, and audit capability chains, and write canonical scene design cards plus 场景设计.json under 4-Design/场景/2-设计."

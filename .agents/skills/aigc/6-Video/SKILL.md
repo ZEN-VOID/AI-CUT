@@ -87,14 +87,29 @@ flowchart LR
     E --> F["dreamina-cli / grok / 其他视频 API"]
 ```
 
-## Canonical Module References
+## Canonical Source Governance
 
-| 模块 | 作用 | 真源文件 |
-| --- | --- | --- |
-| 思维链 | 承载阶段级字段、判断链与返工入口 | `references/chain-of-thought.md` |
-| 执行流程 | 承载输入合同、落点与 handoff | `references/execution-flow.md` |
-| 类型策略 | 承载子路径路由与回退规则 | `references/type-strategies.md` |
-| 输出契约 | 承载阶段级交付结构与最低要求 | `references/output-template.md` |
+- authoritative source: 本 `SKILL.md` 负责阶段级路由、输入门禁、canonical landing 与 handoff 总合同。
+- shared carriers:
+  - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
+  - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
+  - `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
+- subtype-local canonical sources:
+  - `1-提示词蒸馏/全能参照/SKILL.md + prompt-assembly-spec.md`
+  - `1-提示词蒸馏/首帧参照/SKILL.md + prompt-assembly-spec.md`
+  - `2-参照引用/SKILL.md + scripts/bind_reference_assets.py`
+  - `3-视频生成/SKILL.md`
+- removed carrier: `references/*.md` 不再作为 `6-Video` 父级规范真源。
+
+允许的本地变化：
+
+- `_shared/` 只承载跨叶子共享模板与共享句法原则。
+- 各叶子只在自己的 `SKILL.md`、`prompt-assembly-spec.md` 或脚本中补 subtype specialization。
+
+禁止的第二真源：
+
+- 不再在父级合同中回指不存在的 `references/*.md`。
+- 不再让 `_shared/` 或 `providers/README.md` 反向定义阶段级路由或 handoff 总规则。
 
 ## Provider Slot Semantics
 
@@ -118,7 +133,7 @@ flowchart LR
 - 只有 `metadata.document_phase=ready` 且组内 `分镜切换` 与 `分镜明细[]` 已对齐的 episode root，才可被 `6-Video` 视作稳定 handoff 输入。
 - shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
 - 阶段级产物统一写回 `projects/aigc/<项目名>/6-Video/`，由命中的子路径承载请求对象或 handoff 包。
-- 详细输入合同、canonical landing 与 handoff 见 `references/execution-flow.md`。
+- 详细输入合同、canonical landing 与 handoff 以本 `SKILL.md` 与命中叶子的本地合同为准。
 
 ## Output Summary
 
@@ -135,12 +150,39 @@ flowchart LR
 - 当前共享入参模板真源为 `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`，供多个视频子技能包共用。
 - 共享模板中的 `model.image_markers[]` 使用 provider-neutral 的 `image_ref + ref_kind + related_subject + image_no` 骨架；是否需要落成本地路径、URL 或其他 provider 专用格式，由 `3-视频生成` 或命中的 provider 技能在 handoff 时解析。
 - 当前共享文本模板真源为 `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`，供多个视频子技能包共用。
-- 详细顶层结构与必要文件见 `references/output-template.md`。
+- 顶层结构与必要文件由本 `SKILL.md` 的阶段总合同与各叶子本地输出合同共同锁定。
 
 ## Field System Summary
 
 - 字段体系保持 `FIELD-VIDEO-ROOT-01` 到 `FIELD-VIDEO-ROOT-04`。
-- 详细字段表、thought pass 与 pass table 见 `references/chain-of-thought.md`。
+- 详细字段表、thought pass 与 pass table固定在本文件，不再外包给 `references/`。
+
+## Field Master
+
+| field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
+| --- | --- | --- | --- | --- | --- |
+| `FIELD-VIDEO-ROOT-01` | `route decision` | 任务必须被唯一归位到 `全能参照 / 首帧参照 / 2-参照引用 / 3-视频生成` 之一 | `S1` | 路由准确性 | `FAIL-VIDEO-ROOT-01` |
+| `FIELD-VIDEO-ROOT-02` | `input gate` | 只允许消费 `metadata.document_phase=ready` 且 `分镜切换 == len(分镜明细[])` 的 director root | `S2` | 输入稳定性 | `FAIL-VIDEO-ROOT-02` |
+| `FIELD-VIDEO-ROOT-03` | `canonical landing` | 阶段产物必须写回 `projects/aigc/<项目名>/6-Video/` 的声明子路径 | `S3` | 真源落点一致性 | `FAIL-VIDEO-ROOT-03` |
+| `FIELD-VIDEO-ROOT-04` | `handoff entry` | 结束时必须给出唯一下一入口，且不得把 provider 槽位冒充本地执行能力 | `S4` | 交接可执行性 | `FAIL-VIDEO-ROOT-04` |
+
+## Thought Pass Map
+
+| step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
+| --- | --- | --- | --- | --- |
+| `S1` | `FIELD-VIDEO-ROOT-01` | 当前任务到底属于哪个视频子路径 | 先按分镜组/单镜/参照绑定/提交前组织做唯一归位 | 同时命中多个子路径，或把 provider 故障排查误当成父级路由任务 |
+| `S2` | `FIELD-VIDEO-ROOT-02` | 上游 director root 是否达到稳定 handoff 条件 | 锁定 `3-Detail/第N集.json`，检查 `document_phase` 与镜数组对齐 | 输入仍是半成品却继续下游 |
+| `S3` | `FIELD-VIDEO-ROOT-03` | 当前阶段应该把产物写回哪里 | 把请求对象、绑定结果或 handoff 包落到 `projects/aigc/<项目名>/6-Video/` 的唯一子路径 | 继续混用旧仓路径、临时 sidecar 或未声明落点 |
+| `S4` | `FIELD-VIDEO-ROOT-04` | 下一入口是否唯一且真实可执行 | 显式给出命中的叶子或外部 provider handoff，不伪造未建能力 | 只留下模糊建议，或把 provider 槽位目录当成已实现子技能 |
+
+## Pass Table
+
+| field_id | Pass Standard | Fail Code | Rework Entry |
+| --- | --- | --- | --- |
+| `FIELD-VIDEO-ROOT-01` | 当前任务只对应一个合法子路径 | `FAIL-VIDEO-ROOT-01` | `S1` |
+| `FIELD-VIDEO-ROOT-02` | 只消费稳定 director root，不吃半成品 | `FAIL-VIDEO-ROOT-02` | `S2` |
+| `FIELD-VIDEO-ROOT-03` | 所有阶段级产物都回到声明的 canonical landing | `FAIL-VIDEO-ROOT-03` | `S3` |
+| `FIELD-VIDEO-ROOT-04` | 最终 handoff 唯一、真实、可继续执行 | `FAIL-VIDEO-ROOT-04` | `S4` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -173,7 +215,7 @@ flowchart LR
 
 - 执行前先加载 `.agents/skills/aigc/SKILL.md + CONTEXT.md`。
 - 再加载本 `SKILL.md + CONTEXT.md`。
-- 建议按需读取 `references/*.md`。
+- 建议按需读取 `6-Video/_shared/*` 与命中叶子的 `prompt-assembly-spec.md` / 脚本入口。
 - 进入叶子子路径时，再加载对应真实子路径的 `SKILL.md + CONTEXT.md`。
 - 优先级遵循：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 各级 `CONTEXT.md`。
 

@@ -74,9 +74,9 @@
 - 结果：
 - 是否存在样例迎合：
 
-## 5. 基准任务集结果
+## 5. 动态评测结果
 
-- benchmark suite 路径：
+- 动态任务来源：
 - 覆盖任务类型：`baseline / boundary / stress / adversarial / regression`
 - 通过概况：
 

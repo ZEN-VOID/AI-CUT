@@ -6,11 +6,10 @@
 
 ## Shared Truth Sources
 
-- 共享框架：`.codex/agents/质评组/_shared/creative-skill-package-evaluation-framework.md`
-- 发布级别：`.codex/agents/质评组/_shared/creative-skill-package-release-levels.md`
+- 共享框架：`.codex/agents/aigc/质评组/_shared/creative-skill-package-evaluation-framework.md`
+- 发布级别：`.codex/agents/aigc/质评组/_shared/creative-skill-package-release-levels.md`
 - 报告模板：`.codex/templates/quality-evaluation/creative-skill-package-evaluation-report.md`
-- benchmark suite 模板：`.codex/templates/quality-evaluation/creative-skill-package-benchmark-suite.yaml`
-- benchmark suite schema：`.codex/schemas/creative-skill-package-benchmark-suite.schema.yaml`
+- 动态评测应基于当前技能真源、运行样本、validator 与回归证据即时组织，不要求目标技能预先维护固定 benchmark 文档
 
 ## Standard Flow
 
@@ -25,9 +24,10 @@
    - 若评估创作稳定性，补收代表性样本、回放记录、回归结果。
 4. 判定证据等级。
    - 依据 `L0-L4` 给出证据级别。
-5. 若存在 benchmark suite，先跑 benchmark。
-   - 至少记录 baseline、regression。
+5. 基于当前真源与运行样本即时设计动态评测任务。
+   - 至少覆盖 baseline、regression。
    - 条件允许时补 boundary、stress、adversarial。
+   - 若已有可信 benchmark 文档，可作为辅助输入，但不得代替本轮即时取证。
 6. 执行四层主评估。
    - 契约治理层
    - 创作能力层
@@ -50,7 +50,7 @@
 - 出现隐藏第二真源且影响执行：直接降为 `FAIL-COVENANT`。
 - 无法回答 canonical landing 或 repair entry：不得高于 `PASS-WITH-REWORK`。
 - 仅有 `L0-L1` 证据：不得推荐 `R2+`。
-- 缺少 benchmark suite 与 regression 证据：不得推荐 `R3+`。
+- 缺少动态回归证据：不得推荐 `R3+`。
 
 ## Root-Cause Closure
 

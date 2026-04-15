@@ -589,7 +589,7 @@ def _build_aigc_design_output_dir(
 
 
 def _build_aigc_parent_design_output_dir(project_name: str, episode_id: Optional[str]) -> Path:
-    root = Path("projects") / "aigc" / project_name / "4-Design" / "2-主体设计"
+    root = Path("projects") / "aigc" / project_name / "4-Design" / "2-设计"
     if episode_id:
         return root / episode_id / "generated"
     return root / "generated"
@@ -628,6 +628,17 @@ def _build_default_output_dir(
         if local_image_parent is not None:
             return local_image_parent
         return DEFAULT_OUTPUT_ROOT / project_name / "5-API" / "image" / "nano-banana" / _safe_name(basename)
+
+    if ".agents/skills/aigc/4-Design/2-设计/场景" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "场景", episode_id)
+    if ".agents/skills/aigc/4-Design/2-设计/角色" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "角色", episode_id)
+    if ".agents/skills/aigc/4-Design/2-设计/服装" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "服装", episode_id)
+    if ".agents/skills/aigc/4-Design/2-设计/道具" in normalized_skill:
+        return _build_aigc_design_output_dir(project_name, "道具", episode_id)
+    if ".agents/skills/aigc/4-Design/2-设计" in normalized_skill:
+        return _build_aigc_parent_design_output_dir(project_name, episode_id)
 
     if ".agents/skills/aigc/4-Design/2-主体设计/场景" in normalized_skill:
         return _build_aigc_design_output_dir(project_name, "场景", episode_id)

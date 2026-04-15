@@ -16,8 +16,8 @@ tools: [Read, Write, Edit, Bash]
 - "帮我生张图" / "文本生图" / "T2I"
 - "参考这张图再生一张" / "参考图生图" / "I2I"
 - 上游流程输出了结构化生图请求但未指定特化子技能
-- `.agents/skills/aigc/4-Design/2-主体设计` 已完成 design master，希望直接自动生图，且当前目标只是通用概念图而非多视图版式
-- `.agents/skills/aigc/4-Design/3-面板设计` 已输出 panel packet / SMART request sidecar，需要承接稳定的 `prompt + images[]`
+- `.agents/skills/aigc/4-Design/2-设计` 已完成单一主体设计文件，希望直接自动生图，且当前目标只是通用概念图而非多视图版式
+- `.agents/skills/aigc/4-Design/3-面板` 已输出 panel packet / SMART request sidecar，需要承接稳定的 `prompt + images[]`
 
 意图模糊时默认走本技能。
 
@@ -34,27 +34,54 @@ tools: [Read, Write, Edit, Bash]
 
 ## 3. 设计阶段 Prompt 引用（Mandatory）
 
-当本技能被 `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md` 以 `auto-image-fast-path` 调用时，prompt 必须直接读取上游已稳定 design carrier，而不是在本技能层重新改写。
+当本技能被 `.agents/skills/aigc/4-Design/2-设计/SKILL.md` 以 `auto-image-fast-path` 调用时，prompt 必须直接读取上游已稳定 design carrier，并遵守 `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`。
+
+关键约束：
+
+1. 入参 `prompt` 必须是 `full_generation_prompt`。
+2. `full_generation_prompt` 必须包含统一 `global_style_prefix`。
+3. 图片必须写回主体设计文件同目录，文件 stem 与设计文件一致。
+4. 本技能不得在通用层重新润色、改写或替换上游 prompt。
 
 ### 3.1 上游 prompt 真源表
 
-| design 域 | 第一引用 | 允许回退 | 说明 |
+| design 域 | 第一引用 | 允许回退 | 输出路径规则 |
 | --- | --- | --- | --- |
-| `场景` | `场景设计.json.scene_designs[].final_scene_prompt` | `prompt_integration` | `final_scene_prompt` 是场景链专门留给下游消费的兼容字段 |
-| `角色` | `character_design.json.roles[].prompt_integration` | 无 | 直接使用角色设计真源中的整合 prompt |
-| `服装` | `costume_design_prompt.json.costumes[].prompt_cn` | 无 | 服装快路径必须读取 prompt sidecar |
-| `道具` | `prop_design_prompt.json.props[].prompt_cn` | 无 | 道具快路径必须读取 prompt sidecar |
+| `场景` | `scene_design.json.scenes[].full_generation_prompt` | `global_style_prefix + scene_design.json.scenes[].design_prompt` 或 `[场景名].md / prompt整合` | `[场景名].md` 同目录同 stem |
+| `角色` | `character_design.json.roles[].full_generation_prompt` | `global_style_prefix + character_design.json.roles[].prompt_integration` 或 `[角色名].md / prompt整合` | `[角色名].md` 同目录同 stem |
+| `道具` | `<prop_id>-<canonical_name>.md / full_generation_prompt` | `global_style_prefix + Markdown **prompt整合**` | `<prop_id>-<canonical_name>.md` 同目录同 stem |
+| `服装` | reserved | reserved | reserved |
 
 ### 3.2 硬规则
 
-1. 若上游 prompt 字段为空或缺失，必须阻塞并回到对应 design skill 修源层，不得在本技能里临时造 prompt。
+1. 若上游 `full_generation_prompt` 为空、缺失或不含全局风格前缀，必须阻塞并回到对应 design skill 修源层，不得在本技能里临时造 prompt。
 2. 可把上游 `negative_constraints / reverse_taboos / render_hints` 合并为补充约束，但不得覆盖主 prompt 的真源位置。
 3. 若上游已经绑定稳定参照图，可按 I2I 调用；否则按 T2I 调用。
 4. 设计阶段快路径产物是 derived asset，不会反向改写上游 design master。
+5. 如果调用方显式传入 `--output-dir` 与 `--output-filename`，必须尊重调用方的同目录同名策略。
 
-### 3.3 `3-面板设计` SMART request sidecar
+### 3.3 `2-设计` 单主体快路径示例
 
-当上游来自 `.agents/skills/aigc/4-Design/3-面板设计/_shared/smart-image-handoff-contract.md` 时，推荐直接承接 request JSON sidecar：
+```bash
+python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
+  --project-name "<项目名>" \
+  --task-kind project \
+  --prompt "<full_generation_prompt>" \
+  --output-dir "projects/aigc/<项目名>/4-Design/场景/2-设计/第1集" \
+  --output-filename "<场景名>.png" \
+  --no-report
+```
+
+推荐由共享 helper 调用：
+
+```bash
+python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_image.py \
+  --design-file "projects/aigc/<项目名>/4-Design/场景/2-设计/第1集/<场景名>.md"
+```
+
+### 3.4 `3-面板` SMART request sidecar
+
+当上游来自 `.agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md` 时，推荐直接承接 request JSON sidecar：
 
 ```bash
 python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
@@ -149,13 +176,14 @@ JSON 结构示例：
   "prompt": "东方奇幻山门，云雾缭绕，清晨金光",
   "project_name": "测试",
   "task_kind": "test",
-  "caller_skill": ".agents/skills/aigc/4-Design/2-主体设计/角色",
+  "caller_skill": ".agents/skills/aigc/4-Design/2-设计/角色",
   "episode_id": "第1集",
   "aspect_ratio": "",
   "image_size": null,
   "images": [{"url": "https://example.com/ref.png"}],
   "request_id": "shot-001",
-  "output_dir": "projects/aigc/<项目名>/4-Design/角色/2-设计/第1集/generated/"
+  "output_dir": "projects/aigc/<项目名>/4-Design/角色/2-设计/第1集/",
+  "output_filename": "角色名.png"
 }
 ```
 
@@ -185,7 +213,7 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 - 下游交接：默认 `BASE64` 透传
 - 若显式传 `--output-dir`，允许覆盖默认路径
 - 永不覆盖原则：原始文件保持不变
-- 若上游显式把 `output_dir` 指到 `projects/aigc/<项目名>/4-Design/.../generated/`，则应保留该路径，不回退到默认目录
+- 若上游显式把 `output_dir` 指到 `projects/aigc/<项目名>/4-Design/.../2-设计/第N集/` 并指定 `output_filename`，则应保留该同目录同名策略，不回退到默认目录
 
 ## 6. 字段通过表（Lite Combined）
 
@@ -200,9 +228,9 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 继承父级 `../SKILL.md` §9。通用生图场景下的补充排查优先级：
 
 1. prompt 是否为空或被截断
-2. 若来自 `4-Design/2-主体设计`，prompt 是否按四域真源表读取，而不是临时改写
+2. 若来自 `4-Design/2-设计`，prompt 是否按三域真源表读取且包含 `global_style_prefix`，而不是临时改写
 3. 参数是否被父级默认值正确补齐
 4. 参考图（若有）是否成功转为 `inline_data`
-5. 若来自 `4-Design/3-面板设计`，先确认 `prompt_reference.prompt_field` 是否能回链到 panel packet 真源字段
+5. 若来自 `4-Design/3-面板`，先确认 `prompt_reference.prompt_field` 是否能回链到 panel packet 真源字段
 6. 若是单文档 / 单 JSON 请求，确认是否被错误塞入 continuity refs
 7. 上溯父级完整排查链路

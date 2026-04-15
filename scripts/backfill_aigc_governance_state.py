@@ -102,36 +102,40 @@ def stage_root_of(path_or_stage: str) -> str:
 def infer_focus_path(
     project_state: dict[str, Any],
     route_plan: dict[str, Any],
-    north_star: dict[str, Any],
+    init_handoff: dict[str, Any],
 ) -> tuple[str, str, str, list[str]]:
     route_notes = route_plan.get("handoff_notes") or []
     route_text = "\n".join(str(item) for item in route_notes)
-    north_star_contract = north_star.get("stage_entry_contract") or {}
-    priority_order = north_star_contract.get("stage_priority_order") or []
-    priority_text = "\n".join(str(item) for item in priority_order)
+    handoff_project_contract = init_handoff.get("project_contract") or {}
     step_text = str(project_state.get("recommended_next_step", ""))
     explicit_preferred_entries = [
         entry
         for entry in (
+            first_non_empty(str(project_state.get("recommended_entry_path", ""))),
             extract_preferred_entry(step_text),
             extract_preferred_entry(route_text),
-            extract_preferred_entry(str(north_star_contract.get("rationale", ""))),
-            priority_order[0] if priority_order else "",
+            first_non_empty(str(handoff_project_contract.get("recommended_next_stage", ""))),
         )
         if entry
     ]
 
-    stage_candidates = extract_stage_candidates(step_text, route_text, priority_text)
+    stage_candidates = extract_stage_candidates(
+        step_text,
+        route_text,
+        str(project_state.get("recommended_entry_path", "")),
+        str(handoff_project_contract.get("recommended_next_stage", "")),
+    )
     recommended_stage = first_non_empty(
         project_state.get("recommended_next_stage"),
-        north_star_contract.get("recommended_next_stage"),
+        handoff_project_contract.get("recommended_next_stage"),
         stage_root_of(project_state.get("current_stage", "")),
     )
 
     preferred_path = first_non_empty(
+        project_state.get("recommended_entry_path"),
         extract_preferred_entry(step_text),
         extract_preferred_entry(route_text),
-        priority_order[0] if priority_order else "",
+        handoff_project_contract.get("recommended_next_stage"),
     )
 
     if not preferred_path and recommended_stage:
@@ -150,13 +154,13 @@ def infer_focus_path(
     rationale = first_non_empty(
         project_state.get("recommended_next_step"),
         route_notes[0] if route_notes else "",
-        north_star_contract.get("rationale"),
+        handoff_project_contract.get("acceptance_hint"),
     )
 
     required_repairs: list[str] = []
     if len(set(explicit_preferred_entries)) > 1:
         required_repairs.append(
-            "统一 `project_state / route-plan / north_star` 中的下一入口表达，避免多条 stage path 并存。"
+            "统一 `project_state / route-plan / init_handoff` 中的下一入口表达，避免多条 stage path 并存。"
         )
     if recommended_stage and preferred_path and stage_root_of(preferred_path) != recommended_stage:
         required_repairs.append(
@@ -280,7 +284,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template = copy.deepcopy(load_yaml(TEMPLATE_PATH))
     project_state = load_yaml_optional(project_root / "project_state.yaml")
     route_plan = load_yaml_optional(project_root / "route-plan.yaml")
-    north_star = load_yaml_optional(project_root / "0-Init" / "north_star.yaml")
+    init_handoff = load_yaml_optional(project_root / "0-Init" / "init_handoff.yaml")
     task_id = first_non_empty(
         project_state.get("task_id"),
         route_plan.get("task_id"),
@@ -288,7 +292,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     )
 
     recommended_stage, recommended_path, rationale, alignment_repairs = infer_focus_path(
-        project_state, route_plan, north_star
+        project_state, route_plan, init_handoff
     )
     current_stage = first_non_empty(project_state.get("current_stage"), recommended_path, recommended_stage, "0-Init")
     active_path = first_non_empty(recommended_path, recommended_stage, current_stage)

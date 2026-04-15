@@ -16,6 +16,13 @@ ROOT_SKILL = ROOT / "SKILL.md"
 ROOT_CONTEXT = ROOT / "CONTEXT.md"
 REGISTRY = Path(".codex/registry/skills.yaml")
 ROUTES = Path(".codex/registry/routes.yaml")
+DESIGN_2_ROOT = ROOT / "4-Design" / "2-设计"
+DESIGN_2_CANONICAL_TEMPLATES = {
+    DESIGN_2_ROOT / "角色" / "templates" / "character_masterprompt.structured.v2.md",
+    DESIGN_2_ROOT / "道具" / "templates" / "prop_masterprompt.structured.v2.md",
+    DESIGN_2_ROOT / "场景" / "templates" / "scene_masterprompt.structured.v2.md",
+}
+AMBIGUOUS_OUTPUT_TEMPLATE_NAME = "output-" "template.md"
 
 ROOT_CAUSE_SECTION_PATTERNS = [
     re.compile(r"^##\s+Root-Cause Execution Contract \(Mandatory\)\s*$", re.MULTILINE),
@@ -48,7 +55,6 @@ REFERENCE_MODULES = (
     "运镜手法.md",
     "摄影美学.md",
     "转场特效.md",
-    "output-template.md",
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
@@ -94,6 +100,7 @@ COUNCIL_STAGE_REVIEW_PATHS = {
     "3-Detail": "projects/aigc/<项目名>/3-Detail/validation-report.md",
     "4-Design": "projects/aigc/<项目名>/4-Design/validation-report.md",
 }
+PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
         "projects/aigc/<项目名>/0-Init/",
@@ -111,9 +118,6 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-Planning/2-格式/",
         "projects/aigc/<项目名>/1-Planning/3-分组/",
         "projects/aigc/<项目名>/2-Global/",
-        "projects/aigc/<项目名>/2-Global/全局风格/",
-        "projects/aigc/<项目名>/2-Global/类型元素/",
-        "projects/aigc/<项目名>/2-Global/设计元素/",
         "projects/aigc/<项目名>/3-Detail/",
         "projects/aigc/<项目名>/3-Detail/水月/",
         "projects/aigc/<项目名>/3-Detail/镜花/",
@@ -124,9 +128,6 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/4-Design/角色/1-清单/",
         "projects/aigc/<项目名>/4-Design/角色/2-设计/",
         "projects/aigc/<项目名>/4-Design/角色/3-面板/",
-        "projects/aigc/<项目名>/4-Design/服装/1-清单/",
-        "projects/aigc/<项目名>/4-Design/服装/2-设计/",
-        "projects/aigc/<项目名>/4-Design/服装/3-面板/",
         "projects/aigc/<项目名>/4-Design/道具/1-清单/",
         "projects/aigc/<项目名>/4-Design/道具/2-设计/",
         "projects/aigc/<项目名>/4-Design/道具/3-面板/",
@@ -188,6 +189,7 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-query-satellite-entry",
     "aigc-resume-satellite-entry",
     "aigc-review-satellite-entry",
+    "aigc-image-stage-entry",
 }
 REQUIRED_STAGE_AGENT_DOCS = {
 }
@@ -534,6 +536,75 @@ def audit_runtime_alignment(contract_mode: str, failures: list[str]) -> None:
                 failures.append(f"{path}: contains legacy runtime marker `{marker}`")
 
 
+def audit_stage_review_carriers(failures: list[str]) -> None:
+    """Ensure stage parent contracts do not drift from their canonical review carriers."""
+    for stage_name, review_path in COUNCIL_STAGE_REVIEW_PATHS.items():
+        skill_path = ROOT / stage_name / "SKILL.md"
+        if not skill_path.exists():
+            continue
+
+        content = skill_path.read_text(encoding="utf-8")
+        if "validation-report.md" not in content:
+            continue
+
+        if review_path not in content:
+            failures.append(
+                f"{skill_path}: missing canonical stage review carrier `{review_path}`"
+            )
+        if review_path != PROJECT_LEVEL_VALIDATION_REPORT and PROJECT_LEVEL_VALIDATION_REPORT in content:
+            failures.append(
+                f"{skill_path}: contains project-level review carrier "
+                f"`{PROJECT_LEVEL_VALIDATION_REPORT}`; expected stage carrier `{review_path}`"
+            )
+
+
+def audit_design_2_template_registry(failures: list[str]) -> None:
+    """Ensure 4-Design/2-设计 has exactly one Markdown template truth per domain."""
+    if not DESIGN_2_ROOT.exists():
+        return
+
+    for stale_template in sorted(DESIGN_2_ROOT.rglob(AMBIGUOUS_OUTPUT_TEMPLATE_NAME)):
+        failures.append(f"{stale_template}: remove ambiguous legacy output template reference; use canonical templates instead")
+
+    shared_contract = DESIGN_2_ROOT / "_shared" / "design-output-contract.md"
+    if not shared_contract.exists():
+        failures.append(f"{shared_contract}: missing shared output contract")
+        return
+
+    shared_content = shared_contract.read_text(encoding="utf-8")
+    if "## Markdown Template Registry" not in shared_content:
+        failures.append(f"{shared_contract}: missing `Markdown Template Registry`")
+
+    for template_path in sorted(DESIGN_2_CANONICAL_TEMPLATES):
+        if not template_path.exists():
+            failures.append(f"{template_path}: missing canonical design Markdown template")
+            continue
+        if template_path.as_posix() not in shared_content:
+            failures.append(f"{shared_contract}: missing canonical template `{template_path.as_posix()}`")
+
+    renderer_expectations = {
+        DESIGN_2_ROOT / "场景" / "scripts" / "build_scene_design_packets.py": "scene_masterprompt.structured.v2.md",
+        DESIGN_2_ROOT / "道具" / "scripts" / "build_prop_design_packets.py": "prop_masterprompt.structured.v2.md",
+    }
+    for renderer, template_name in renderer_expectations.items():
+        if not renderer.exists():
+            failures.append(f"{renderer}: missing renderer for canonical template `{template_name}`")
+            continue
+        renderer_content = renderer.read_text(encoding="utf-8")
+        if template_name not in renderer_content or "TEMPLATE_PATH" not in renderer_content:
+            failures.append(f"{renderer}: renderer must bind `TEMPLATE_PATH` to `{template_name}`")
+
+    template_like_markers = ("```md", "**物语**", "**解构**", "**prompt整合**")
+    for path in sorted(DESIGN_2_ROOT.rglob("*.md")):
+        if path in DESIGN_2_CANONICAL_TEMPLATES:
+            continue
+        content = path.read_text(encoding="utf-8")
+        if all(marker in content for marker in template_like_markers):
+            failures.append(
+                f"{path}: contains a complete Markdown card template; move structure to the canonical `templates/*.structured.v2.md` file"
+            )
+
+
 def audit_init_single_skill_contract(failures: list[str]) -> None:
     init_skill = ROOT / "0-Init" / "SKILL.md"
     if not init_skill.exists():
@@ -569,6 +640,21 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(
             f"{init_skill}: missing explicit rule that backfilled story sources must trigger init artifact reconciliation"
         )
+    if "## Stage Entry Ownership Contract (Mandatory)" not in init_content:
+        failures.append(f"{init_skill}: missing `Stage Entry Ownership Contract (Mandatory)`")
+    if "`north_star.yaml` 不得出现 `stage_entry_contract`、`recommended_next_stage`、`stage_priority_order`、`rebootstrap_status` 等状态型字段。" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit prohibition that `north_star.yaml` must not own stage-entry or reset-state fields"
+        )
+
+    north_star_template = ROOT / "0-Init" / "templates" / "north-star.template.yaml"
+    if north_star_template.exists():
+        north_star_template_content = north_star_template.read_text(encoding="utf-8")
+        for forbidden_marker in ("stage_entry_contract:", "rebootstrap_status:"):
+            if forbidden_marker in north_star_template_content:
+                failures.append(
+                    f"{north_star_template}: contains forbidden init-state field `{forbidden_marker.rstrip(':')}`"
+                )
 
     init_openai = ROOT / "0-Init" / "agents" / "openai.yaml"
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
@@ -619,7 +705,8 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         global_root / "_shared" / "IO_CONTRACT.md",
         global_root / "agents" / "openai.yaml",
         global_root / "templates" / "全局风格.template.md",
-        global_root / "templates" / "类型元素.template.md",
+        global_root / "templates" / "全集类型元素.template.md",
+        global_root / "templates" / "分组类型元素.template.md",
         global_root / "templates" / "导演意图.template.md",
     )
 
@@ -630,6 +717,24 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         failures.append(
             f"{global_skill}: 2-Global must internalize style/type/director capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/导演组/`"
         )
+
+    required_root_outputs = (
+        "projects/aigc/<项目名>/2-Global/全局风格.md",
+        "projects/aigc/<项目名>/2-Global/导演意图.md",
+        "projects/aigc/<项目名>/2-Global/全集类型元素.md",
+        "projects/aigc/<项目名>/2-Global/分组类型元素.md",
+    )
+    io_contract = global_root / "_shared" / "IO_CONTRACT.md"
+    if io_contract.exists():
+        io_content = io_contract.read_text(encoding="utf-8")
+        for output_path in required_root_outputs:
+            if output_path not in io_content:
+                failures.append(f"{io_contract}: missing canonical output `{output_path}`")
+        if "| derived | `projects/aigc/<项目名>/2-Global/类型元素.md`" in io_content:
+            failures.append(f"{io_contract}: old `类型元素.md` compatibility projection must not remain an output row")
+
+    if (global_root / "templates" / "类型元素.template.md").exists():
+        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be split into `全集类型元素.template.md` and `分组类型元素.template.md`")
 
     for path in targets[1:]:
         if not path.exists():
@@ -711,17 +816,29 @@ def audit_stage_index(stage_index: list[dict], contract_mode: str, failures: lis
                 )
             continue
 
-        if contract_mode == BOOTSTRAP_COMPAT_MODE:
-            if not path.exists():
-                failures.append(f"{path}: missing for active stage `{stage['id']}`")
-            continue
-
         skill_path = path / "SKILL.md"
         context_path = path / "CONTEXT.md"
+        if not path.exists():
+            failures.append(f"{path}: missing for active stage `{stage['id']}`")
+            continue
         if not skill_path.exists():
             failures.append(f"{skill_path}: missing for active stage `{stage['id']}`")
         if not context_path.exists():
             failures.append(f"{context_path}: missing for active stage `{stage['id']}`")
+
+        if contract_mode == BOOTSTRAP_COMPAT_MODE:
+            continue
+
+
+def audit_bootstrap_compat_active_stage_parents(stage_index: list[dict], failures: list[str]) -> None:
+    """Keep active stage parent contracts auditable during bootstrap_compat."""
+    for stage in stage_index:
+        if stage.get("contract_status") != "active":
+            continue
+        skill_path = Path(stage["path"]) / "SKILL.md"
+        if not skill_path.exists():
+            continue
+        audit_skill_file(skill_path, failures)
 
 
 def audit_satellite_index(satellite_index: list[dict], failures: list[str]) -> None:
@@ -768,6 +885,8 @@ def main() -> int:
     stage_index, satellite_index, contract_mode = audit_registry(failures)
     audit_routes(contract_mode, failures)
     audit_runtime_alignment(contract_mode, failures)
+    audit_stage_review_carriers(failures)
+    audit_design_2_template_registry(failures)
     audit_init_single_skill_contract(failures)
     audit_planning_internal_skill_contract(failures)
     audit_global_single_skill_contract(failures)
@@ -780,7 +899,10 @@ def main() -> int:
     if ROOT_SKILL.exists():
         audit_skill_file(ROOT_SKILL, failures)
 
-    if contract_mode != BOOTSTRAP_COMPAT_MODE:
+    if contract_mode == BOOTSTRAP_COMPAT_MODE:
+        if stage_index:
+            audit_bootstrap_compat_active_stage_parents(stage_index, failures)
+    else:
         for skill_path in sorted(ROOT.rglob("SKILL.md")):
             if skill_path == ROOT_SKILL:
                 continue

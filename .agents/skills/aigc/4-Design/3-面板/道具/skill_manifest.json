@@ -1,0 +1,72 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc.design.prop_panel",
+  "skill_path": ".agents/skills/aigc/4-Design/3-面板/道具",
+  "entrypoint": {
+    "script": ".agents/skills/aigc/4-Design/3-面板/道具/scripts/generate_prop_panels.py",
+    "runner": "python3",
+    "args": [
+      {
+        "flag": "--project",
+        "value": "{project_name}"
+      },
+      {
+        "flag": "--episode",
+        "value": "{episode_id}"
+      }
+    ]
+  },
+  "io": {
+    "inputs": {
+      "markdown_design_cards": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/*.md",
+        "format": "markdown",
+        "required": true,
+        "required_fields": [
+          "**prompt整合**"
+        ]
+      },
+      "prompt_json_compat": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/prop_design_prompt.json",
+        "format": "json",
+        "optional": true
+      },
+      "design_json_compat": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/道具设计.json",
+        "format": "json",
+        "optional": true
+      }
+    },
+    "outputs": {
+      "layout_packets": {
+        "pattern": "4-Design/道具/3-面板/第{episode}/*-PropPanel-layout.json",
+        "format": "json",
+        "required": true
+      },
+      "manifest": {
+        "pattern": "4-Design/道具/3-面板/第{episode}/_manifest.json",
+        "format": "json",
+        "required": true
+      },
+      "generation_requests": {
+        "pattern": "4-Design/道具/3-面板/第{episode}/generated/requests/*.json",
+        "format": "json",
+        "optional": true
+      },
+      "generated_images": {
+        "pattern": "4-Design/道具/3-面板/第{episode}/generated/**/*.png",
+        "format": "image",
+        "optional": true
+      }
+    }
+  },
+  "scope": "episode_or_single_prop",
+  "tags": [
+    "aigc",
+    "design",
+    "prop",
+    "panel",
+    "nano-banana",
+    "smart-reference"
+  ]
+}

@@ -191,15 +191,29 @@ stateDiagram-v2
 
 完整方法论以 `references/scene-order-duration-strategy.md` 为准；本阶段必须执行的 digest：
 
-1. 先场景顺序，后组内切分
+1. 先锁定上游场景单位顺序，后裁决分镜组边界
 2. 先时长策略，后负载均衡
 3. 先上游 preset/style，再用默认值
 4. 若无用户或上游显式时长证据，不得通过人为抬高 `分镜组时长映射` 来让既定叙事划分过窗；必须先拆/并组，再决定是否需要显式豁免
-5. `effective_text_chars > hard_text_window` 默认失败，必须拆
-6. `effective_text_chars < warn_low` 优先检查同场景并组
-7. 默认禁止跨场景凑时长；仅极短快切/闪回/过场可例外
+5. `effective_text_chars > hard_text_window` 默认失败，必须拆；若存在用户、上游或下游显式锁定的 `分镜组ID / 分镜ID`，必须先上溯请求豁免，不得静默改组
+6. `effective_text_chars < warn_low` 只触发并组检查，不自动取消分镜组；若该组已被 `2-Global / 3-Detail` 固定镜数、beat 或四段式 `分镜ID` 消费，必须保留组界并在报告中登记锁定依据
+7. 默认禁止跨物理场景链凑时长；相邻上游场景单位若仍属同一连续物理场景，可在保留原 `### 场景N` 标题的前提下并入同一分镜组
 8. 尾组 `< 5 秒` 且存在前组时，默认并入前组，除非承担明确信息落点
 9. 命中 `尾钩借焰` 时，只允许在分组结果落定后，于非末组尾部追加下一组开端的首个叙事拍点；该借入段落不参与本组字窗裁决
+
+### Scene / Group Semantic Boundary
+
+- `### 场景N：...` 是从 `2-格式/第N集.md` 继承的上游场景单位锚点；`3-分组` 只能原样搬运，不得改名、重编号或用分组标题替换。
+- `## 【episode-scene-group】 <分组名>` 是分镜组边界；分组名描述本组节拍，不是新的场景标题。
+- `分镜组ID` 第二段表示本组起始上游场景单位编号，第三段表示该起始场景单位内的分组序号；它不声明导演阶段的物理空间主键。
+- 物理场景链只作为拆并判断证据进入 `judgement_basis`，不得反向改写 `### 场景N` 标题；真正的空间主键、场景类型和镜头化字段由后继导演/分镜阶段持有。
+
+### Locked Group Boundary Precedence
+
+- `分镜组ID` 是下游四段式 `分镜ID` 的前三段；一旦下游已生成 `分镜ID / beat_refs / 固定镜数 / 分镜明细`，该组界默认视为锁定边界。
+- 锁定边界的优先级高于 `warn_low` 并组建议；不得为了让字窗更饱满而取消、合并或重编号已锁定分镜组。
+- 若锁定边界与 `hard_text_window` 冲突，当前阶段必须失败并上溯请求显式豁免或下游重排授权；不得本地静默改写 `分镜组ID`。
+- 回刷历史产物时，必须先扫描 `2-Global` 与 `3-Detail` 是否已有相同 `group_id` 或四段式 `分镜ID`，再决定是否允许并组。
 
 ## Script Contract (Mandatory)
 
@@ -233,9 +247,11 @@ stateDiagram-v2
 
 - grouped script 结构
 - 三段式 `分镜组ID`
+- 输出中的 `### 场景N：...` 必须能回读 `上游主稿` 并与 `2-格式` 的场景编号和标题逐项一致，不得由分组阶段生成第二套场景标题
 - `尾钩借焰` 只能出现在非末组尾部，且必须显式回指下一组
 - frontmatter window 与 quantizer 一致
 - `estimated_duration_seconds / effective_text_chars` 与 quantizer 一致
+- `effective_text_chars > hard_text_window` 必须失败；低于 `warn_low` 或高于 `warn_high` 的通过结果必须在 `judgement_basis` 写明拆并检查依据或锁定 `分镜组ID / 分镜ID` 证据
 - mixed-source 命中镜号范围时的强制回算
 
 ## Input Contract
@@ -266,7 +282,7 @@ stateDiagram-v2
 - frontmatter
 - `【分组正文】`
 - 若干 `## 【episode-scene-group】 <分组名>`
-- 保留上游 `### 场景N：...` 结构
+- 原样保留上游 `### 场景N：...` 结构；分组标题不得改写为场景标题
 - 默认在非末组尾部追加以下隐藏可机读区块；仅在用户明确禁用时才跳过：
 
 ```md

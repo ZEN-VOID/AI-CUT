@@ -543,7 +543,7 @@ graph LR
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
   - 根 `AGENTS.md`
 
-若需要继续上溯，当前仓对本技能不存在独立 `5-Image/SKILL.md` 阶段根合同，应显式说明上溯在 `1-提示词蒸馏` 父级结束，而不是引用不存在的旧路径。
+若需要继续上溯，应先回到 `.agents/skills/aigc/5-Image/SKILL.md` 阶段父级，再回到根 `aigc`；不得再把上溯链截断在 `1-提示词蒸馏` 父级。
 
 ## SKILL / CONTEXT 分工（Mandatory）
 

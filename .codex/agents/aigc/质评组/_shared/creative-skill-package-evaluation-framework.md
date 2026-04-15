@@ -253,9 +253,9 @@
 - 更换题材或约束条件后重跑
 - 使用隐藏 benchmark task 做抽查
 
-## 9. 基准任务集合同
+## 9. 动态评测任务合同
 
-高成熟度评估应尽量依赖 benchmark suite，而不是只靠人工阅读合同。
+高成熟度评估应尽量依赖当前真实样本、validator 结果与多场景即时任务，而不是只靠人工阅读合同。
 
 推荐最小任务集类型：
 
@@ -265,7 +265,7 @@
 - `adversarial`：对抗性或投机性任务
 - `regression`：历史失败模式回归任务
 
-每个 benchmark task 至少应声明：
+每个动态评测任务至少应声明：
 
 - `task_id`
 - `task_type`
@@ -276,16 +276,13 @@
 - `pass_threshold`
 - `evidence_paths`
 
-共享模板与 schema 真源：
-
-- 模板：`.codex/templates/quality-evaluation/creative-skill-package-benchmark-suite.yaml`
-- schema：`.codex/schemas/creative-skill-package-benchmark-suite.schema.yaml`
+这些任务可以当轮即时生成，也可以在需要时沉淀为可复用 task pack；但 task pack 只是辅助，不得反客为主，替代对当前真源和真实样本的即时分析。
 
 ## 10. 发布级别合同
 
 综合评估不应只输出 `PASS/FAIL`，还应推荐发布级别。
 
-发布级别真源：`.codex/agents/质评组/_shared/creative-skill-package-release-levels.md`
+发布级别真源：`.codex/agents/aigc/质评组/_shared/creative-skill-package-release-levels.md`
 
 ## 11. 输出合同
 
@@ -368,7 +365,7 @@ closure:
 1. 锁定评估对象与作用域。
 2. 先判本轮是静态评估、动态评估还是双轨混合评估。
 3. 收集最小证据束，并判断证据等级。
-4. 若存在 benchmark suite，优先按 benchmark 运行。
+4. 优先基于当前真源、代表性样本与 validator 结果组织动态评测；若已有可信 task pack，可作为辅助输入。
 5. 先判契约治理层，再判创作能力层。
 6. 再判工程运行层与演化持续层。
 7. 执行路由质量、知识拓扑、质量上限/下限与反作弊专项检查。

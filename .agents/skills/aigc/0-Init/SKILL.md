@@ -269,9 +269,6 @@ flowchart LR
    - `projects/aigc/<项目名>/1-Planning/1-分集/`
    - `projects/aigc/<项目名>/1-Planning/2-格式/`
    - `projects/aigc/<项目名>/1-Planning/3-分组/`
-   - `projects/aigc/<项目名>/2-Global/全局风格/`
-   - `projects/aigc/<项目名>/2-Global/类型元素/`
-   - `projects/aigc/<项目名>/2-Global/设计元素/`
    - `projects/aigc/<项目名>/3-Detail/水月/`
    - `projects/aigc/<项目名>/3-Detail/镜花/`
    - `projects/aigc/<项目名>/4-Design/场景/1-清单/`
@@ -280,9 +277,6 @@ flowchart LR
    - `projects/aigc/<项目名>/4-Design/角色/1-清单/`
    - `projects/aigc/<项目名>/4-Design/角色/2-设计/`
    - `projects/aigc/<项目名>/4-Design/角色/3-面板/`
-   - `projects/aigc/<项目名>/4-Design/服装/1-清单/`
-   - `projects/aigc/<项目名>/4-Design/服装/2-设计/`
-   - `projects/aigc/<项目名>/4-Design/服装/3-面板/`
    - `projects/aigc/<项目名>/4-Design/道具/1-清单/`
    - `projects/aigc/<项目名>/4-Design/道具/2-设计/`
    - `projects/aigc/<项目名>/4-Design/道具/3-面板/`
@@ -303,16 +297,17 @@ flowchart LR
   - `分镜画板/分镜帧 + 分镜故事板 + 漫画` 用于沉淀可复用画板资产，不替代 `5-Image` 的 canonical 输出
 - `2-Global`
   - 技能树当前是单技能内化能力链，不以 sibling 子技能目录暴露 `全局风格 / 类型元素 / 导演意图`
-  - runtime 预建路径：`2-Global/全局风格/`、`2-Global/类型元素/`、`2-Global/设计元素/`
-  - `导演意图` 当前通过 `类型元素/分组设计.md + shared root seed` 落到 canonical runtime，不额外预建平行目录
+  - runtime 只预建阶段根 `2-Global/`
+  - 阶段执行后必须在根层写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md`
 - `3-Detail`
   - 技能树 active 路径：`水月`、`镜花`
   - runtime 预建路径：`3-Detail/水月/`、`3-Detail/镜花/`
   - 这些目录只锁 sidecar landing，不代表已经生成任何 `field-patch.json`
 - `4-Design`
-  - 技能树 active 路径：`1-主体清单`、`2-主体设计`、`3-面板设计`
-  - runtime 预建路径：仍是 `4-Design/场景|角色|服装|道具/*`
-  - 不预建 `4-Design/1-主体清单/` 这类执行层 tranche 目录；它们属于技能树路由层，不是项目业务落盘层
+  - 技能树当前目录口径：`1-清单`、`2-设计`、`3-面板`
+  - runtime 预建路径：当前只预建 active leaf 对应的 `4-Design/场景|角色|道具/{1-清单,2-设计,3-面板}/`
+  - `服装` 仍可作为项目级 `Assets/服装/` 资产沉淀类目保留，但 4-Design source leaf 尚未迁回 active 时，不预建 `4-Design/服装/*`
+  - 不预建 `4-Design/1-清单/` 这类执行层 tranche 目录；它们属于技能树路由层，不是项目业务落盘层
 - `5-Image`
   - 技能树 active 路径：`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/分镜帧`、`1-提示词蒸馏/漫画`
   - runtime 预建路径：`5-Image/分镜故事板/`、`5-Image/分镜帧/`、`5-Image/漫画/`
@@ -362,6 +357,16 @@ flowchart LR
 - `projects/aigc/<项目名>/preflight-verdict.yaml`
 - `projects/aigc/<项目名>/validation-report.md`
 - `projects/aigc/<项目名>/learning-record.md`
+
+### Quality Evidence Source
+
+- 当前稳定质量证据以以下载体为准：
+  - `scripts/aigc_skill_audit.py --strict`
+  - `projects/aigc/<项目名>/project_state.yaml`
+  - `projects/aigc/<项目名>/governance-state.yaml`
+  - `projects/aigc/<项目名>/validation-report.md`
+  - 代表性项目初始化样本的即时读回、回刷与审计结果
+- `0-Init` 的质评应直接基于当前 `north_star / init_handoff / project_state / governance-state`、模板边界与真实样本回读结果做即时分析，不要求维护固定评测任务 YAML。
 
 ## Init Truth Ownership Contract (Mandatory)
 
@@ -543,6 +548,19 @@ B. 你先综合，我只做最后确认
 1. `north_star.yaml` 只承接长期有效、不应轻易漂移的项目总约束。
 2. `init_handoff.yaml` 承接阶段入口种子、来源分层和未决问题。
 3. 只在当前初始化会话有意义的信息，不应写进 `north_star.yaml`。
+4. `north_star.yaml` 不拥有当前阶段路由、下一入口排序或 `rebootstrap` 过程痕迹；这些信息必须落到 `project_state.yaml`、按需生成的 `governance-state.yaml`，以及初始化当轮的 `init_handoff.yaml`。
+
+## Stage Entry Ownership Contract (Mandatory)
+
+`0-Init` 必须把“长期创作方向”与“当前阶段入口”拆成不同真源，不允许再把路由状态塞回 `north_star.yaml`。
+
+硬规则：
+
+1. 初始化完成当轮的 handoff 种子，写在 `init_handoff.yaml.project_contract.recommended_next_stage`。
+2. 当前项目的 live route truth，写在 `project_state.yaml.recommended_next_stage / recommended_entry_path / recommended_next_step`。
+3. 若 `governance-state.yaml` 已生成，则 `resume_contract.*` 是 `query / resume / review` 的结构化续跑真源。
+4. `north_star.yaml` 不得出现 `stage_entry_contract`、`recommended_next_stage`、`stage_priority_order`、`rebootstrap_status` 等状态型字段。
+5. 项目离开 `0-Init` 之后，`init_handoff.yaml` 只保留初始化时的入口 seed；后续阶段推进不得反向要求它承担 live current-stage truth。
 
 ## Adaptation & Pacing Seed Contract (Mandatory)
 
@@ -671,7 +689,7 @@ B. 你先综合，我只做最后确认
 - 若故事源缺失，所有剧情级字段都已降级为 `unknowns / deferred / risk_notes`
 - 若故事源为后补输入，已完成一次初始化工件回刷
 - 若本轮属于 `rebootstrap`，旧周期下游工件已按 `reset_mode` 完成保留/归档/清退，不再作为 active truth
-- 若 `north_star.stage_entry_contract.stage_priority_order` 已存在，`project_state.yaml` 的下一步建议必须对齐
+- 若仍处于 `0-Init` 完成当轮，`init_handoff.yaml.project_contract.recommended_next_stage` 与 `project_state.yaml` 的下一步建议必须对齐
 - 若惰性治理工件已生成，它们与 `project_state.yaml` 的下一步建议也必须对齐
 - 已返回唯一推荐下一阶段入口
 

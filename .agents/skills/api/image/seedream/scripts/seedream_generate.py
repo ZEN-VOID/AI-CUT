@@ -198,6 +198,25 @@ def _env_api_key() -> Optional[str]:
     )
 
 
+def _diagnostic_hint(exc: Exception, payload: Dict[str, Any], use_stream: bool) -> Optional[str]:
+    message = str(exc)
+    max_images = (
+        payload.get("sequential_image_generation_options", {}).get("max_images")
+        if isinstance(payload.get("sequential_image_generation_options"), dict)
+        else None
+    )
+    is_read_timeout = isinstance(exc, requests.exceptions.ReadTimeout) or "Read timed out" in message
+
+    if is_read_timeout and not use_stream and isinstance(max_images, int) and max_images >= 5:
+        return (
+            "Large sequential image requests can exceed non-streaming read timeouts. "
+            "Retry with --stream, increase --timeout, or reduce --max-images."
+        )
+    if is_read_timeout:
+        return "Read timeout. Retry with --stream or increase --timeout."
+    return None
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="SEEDREAM 5.0 图像生成 CLI (Ark OpenAI 兼容接口)"
@@ -301,12 +320,14 @@ def main() -> int:
     try:
         payloads, final_payload = client.generate(payload=payload, use_stream=bool(args.stream))
     except Exception as exc:
+        diagnostic_hint = _diagnostic_hint(exc, payload, bool(args.stream))
         report_path = Path(args.report_json) if args.report_json else output_dir / f"seedream_report_{_now_stamp()}.json"
         report_path.write_text(
             json.dumps(
                 {
                     "ok": False,
                     "error": str(exc),
+                    "diagnostic_hint": diagnostic_hint,
                     "request": payload,
                     "stream": bool(args.stream),
                 },
@@ -316,6 +337,8 @@ def main() -> int:
             encoding="utf-8",
         )
         print(f"❌ 调用失败: {exc}")
+        if diagnostic_hint:
+            print(f"💡 诊断提示: {diagnostic_hint}")
         print(f"📝 已写入错误报告: {report_path}")
         return 2
 

@@ -68,7 +68,7 @@ governance_tier: full
 | --- | --- |
 | `business_goal` | 用单一根 `SKILL.md` 统一治理 AIGC 项目的项目根判定、阶段路由、卫星桥接、治理挂载与一次性闭环，不让根入口退化为目录说明页。 |
 | `business_object` | `projects/aigc/<项目名>/` runtime、项目根治理工件、`.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`、`_shared/project-runtime-layout.md`、各阶段与卫星技能合同。 |
-| `constraint_profile` | 当前处于 `bootstrap_compat`；根技能必须只给一个唯一下一入口；不得伪造不存在的阶段根合同；不得把 runtime 槽位误写成受治理技能目录；不得与各阶段争夺 canonical business truth。 |
+| `constraint_profile` | 当前处于 `bootstrap_compat`；根技能必须只给一个唯一下一入口；不得把 runtime 槽位误写成受治理技能目录；不得与各阶段争夺 canonical business truth；对 active stage 必须回链真实存在的阶段父级合同。 |
 | `success_criteria` | 根入口能稳定回答“项目根在哪、当前模式是什么、唯一下一入口是什么、真源从哪读、若 blocked 原因是什么、闭环该写回哪里”，并且这些说法与 registry、runtime layout、真实磁盘结构一致。 |
 | `non_goals` | 不替代任何阶段产物生成；不在根层重写子阶段细则；不把卫星技能并入主链；不发明第二套 runtime 或治理真源。 |
 | `complexity_source` | 复杂度来自主阶段链、卫星技能、项目 runtime、registry 控制面、`bootstrap_compat` 窗口和搁浅阶段共存，而不是单一路由判断本身。 |
@@ -181,8 +181,8 @@ erDiagram
   - `scripts/aigc_skill_audit.py --strict`
   - 各阶段与项目根的 `validation-report.md`
   - `project_state.yaml + governance-state.yaml`
-  - `.agents/skills/aigc/benchmark-suite.yaml`
-- 根级 benchmark suite 当前至少覆盖 `baseline + regression`，后续继续扩展到 `boundary / stress / adversarial`。
+  - 代表性样本项目的即时 validator 结果与跨层对照结论
+- 根级质评默认基于当前真实合同、样本项目与审计/validator 结果做即时分析，不要求预先维护固定评测任务 YAML。
 
 ## Internal Capability Fusion Contract (Mandatory)
 
@@ -216,7 +216,7 @@ erDiagram
 5. `4-Design`
    - 负责场景、角色、服装、道具的清单、设计与面板阶段
 6. `5-Image`
-   - 当前没有独立阶段根 `SKILL.md`；根入口只把它当作逻辑阶段桶，并直接路由到 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`
+   - 已建阶段根合同；负责图像阶段父级路由、runtime 对齐与 `1-提示词蒸馏 -> 2-参照引用 -> 3-图像生成` 三段链路收口
 7. `6-Video`
    - 负责视频生成前的设计/画面参照、分镜参照与视频执行入口；当前已建子路径为 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
 8. `7-Cut`
@@ -250,10 +250,10 @@ erDiagram
 | --- | --- | --- | --- |
 | `0-Init` | 是 | 已建合同，脚本待补 | 允许显式初始化任务进入，按 `north_star + init_handoff + project-root runtime` 合同执行 |
 | `1-Planning` | 是 | 已建阶段合同，`1-分集`、`2-格式`、`3-分组` active；`4-节奏` 已折叠进 `3-分组` 的 reviewer / gate 规则 | 默认 `1-分集 -> 2-格式 -> 3-分组`；只有命中节奏复核条件时才触发额外 gate |
-| `2-Global` | 是 | 已建阶段合同，当前 active 子技能至少包含 `全局风格 / 类型元素 / 设计元素`，并继续消费 `1-Planning/3-分组` handoff；`导演意图` 仍保留为后续组级导演链路 | 写入 `全局风格/全局风格设计.md`、`类型元素/全集设计.md + 分组设计.md`、`设计元素/设计元素.md`，并由组级导演链路继续 seed shared `第N集.json` 的 `组间设计` |
+| `2-Global` | 是 | 已建阶段合同，采用单技能内收模式，在父 skill 内部融合 `全局风格 / 类型元素 / 导演意图` 三条能力链，并继续消费 `1-Planning/3-分组` handoff | 写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md`，并由当前父 skill 直接 seed shared `第N集.json` 的 `组间设计` |
 | `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一并发链，在父 skill 内部融合分镜表现、角色表现、运镜手法、场景氛围、摄影美学与转场特效能力 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部 capability route 判定 `selected_groups[] / selected_fields[] / selected_chains[]` |
-| `4-Design` | 是 | 已建阶段合同，`1-主体清单`、`2-主体设计`、`3-面板设计` 三个 tranche 父级与四类 leaf 可路由 | 可先进入 `1-主体清单`、`2-主体设计`、`3-面板设计`，再按 `场景 / 角色 / 服装 / 道具` 路由 |
-| `5-Image` | 是 | 当前无独立阶段根合同；真实可执行入口为 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧 / 漫画` | 不先找不存在的 `5-Image/SKILL.md`；默认直达 `1-提示词蒸馏`，若已有稳定请求 JSON 则进入 `2-参照引用` 或 `3-图像生成` |
+| `4-Design` | 是 | 已建阶段父合同；当前 `1-清单/{场景,角色,道具}` 与 `2-设计/{场景,角色,道具}` 已迁回新路径，其余 tranche / leaf 仍处于 bootstrap-compatible migration | 可先进入 `1-清单` 或 `2-设计`，当前稳定命中 `场景 / 角色 / 道具`；其余 design tranche 按 source-layer 回迁状态再开放 |
+| `5-Image` | 是 | 已建阶段合同，负责统一路由 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧 / 漫画` | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成` |
 | `6-Video` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`；`首尾帧参照`、`多图参照` 与其他扩展路径仍按状态检查 |
 | `7-Cut` | 否 | 搁浅 | 当前只保留 runtime 槽位与 registry `shelved` 状态，不纳入执行链与严格审计失败项 |
 
@@ -270,7 +270,7 @@ erDiagram
 - 根入口的逻辑主阶段链仍按 `0-Init -> 1-Planning -> 2-Global -> 3-Detail -> 4-Design -> 5-Image -> 6-Video -> 7-Cut` 判型。
 - 阶段内部是否串行、并行、折叠或直达，必须以目标阶段 `SKILL.md` 的显式合同为准，不靠目录名自行推断。
 - `1-Planning` 当前显式采用 `1-分集 -> 2-格式 -> 3-分组`，`4-节奏` 只作为 `3-分组` 内部 gate。
-- `5-Image` 当前没有阶段根合同；根入口必须直接路由到 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成` 中的真实入口。
+- `5-Image` 当前已建阶段根合同；根入口应先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再由阶段父层路由到三个真实子入口。
 - `7-Cut` 当前没有技能树目录；只有在后续补齐受治理合同后，才可恢复为可执行阶段。
 - 若目标阶段或子技能还没有实质合同，必须报告缺口，而不是编造下游步骤
 
@@ -356,12 +356,12 @@ erDiagram
 2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
 4. 若后续进入 `1-Planning / 2-Global / 3-Detail / 4-Design`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、画面、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
+5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、图像、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段既没有阶段根合同，也没有可回接的 governed entry，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
 9. 若命中卫星技能，则先进入对应卫星技能，再按其合同回接根技能或目标阶段
-10. 若目标阶段已有阶段根合同，则先进入阶段根；若像 `5-Image` 这样只有子级受治理入口，则直接进入真实入口
+10. 若目标阶段已有阶段根合同，则先进入阶段根；只有当阶段被显式声明为“无阶段父级的过渡入口”时，才允许直接进入真实子入口
 11. 阶段或卫星动作完成后，把结果写回项目工作区根层运行时工件
 12. 输出验收结论与下一步唯一推荐入口
 

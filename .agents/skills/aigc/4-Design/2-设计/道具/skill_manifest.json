@@ -1,0 +1,97 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc.design.prop_design",
+  "skill_path": ".agents/skills/aigc/4-Design/2-设计/道具",
+  "entrypoint": {
+    "script": ".agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py",
+    "runner": "python3",
+    "args": [
+      {
+        "flag": "--catalog",
+        "value": "{catalog_path}"
+      },
+      {
+        "flag": "--output-dir",
+        "value": "{output_dir}"
+      }
+    ]
+  },
+  "io": {
+    "inputs": {
+      "catalog": {
+        "pattern": "4-Design/道具/1-清单/第{episode}/道具清单.json",
+        "format": "json",
+        "required": true,
+        "required_fields": [
+          "props[].design_context",
+          "props[].design_context.design_handoff"
+        ]
+      },
+      "north_star": {
+        "pattern": "0-Init/north_star.yaml",
+        "format": "yaml",
+        "required": true
+      },
+      "init_handoff": {
+        "pattern": "0-Init/init_handoff.yaml",
+        "format": "yaml",
+        "required": true
+      },
+      "global_style": {
+        "pattern": "2-Global/全局风格.md",
+        "format": "markdown",
+        "required": true
+      },
+      "type_elements": {
+        "pattern": "2-Global/全集类型元素.md",
+        "format": "markdown",
+        "required": true
+      }
+    },
+    "outputs": {
+      "markdown_cards": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/*.md",
+        "format": "markdown",
+        "required": true
+      },
+      "auto_image_assets": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/*.{png,jpg,jpeg,webp}",
+        "format": "image",
+        "naming": "same_stem_as_markdown_card",
+        "required": true
+      },
+      "manifest": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/_manifest.json",
+        "format": "json",
+        "required": true
+      },
+      "design_json_compat": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/道具设计.json",
+        "format": "json",
+        "optional": true
+      },
+      "prompt_json_compat": {
+        "pattern": "4-Design/道具/2-设计/第{episode}/prop_design_prompt.json",
+        "format": "json",
+        "optional": true
+      }
+    },
+    "fallback_inputs": [
+      {
+        "pattern": "4-Design/道具/1-清单/第{episode}/道具研究.json",
+        "format": "json"
+      },
+      {
+        "pattern": "4-Design/道具/1-清单/第{episode}/prop_design_bridge.json",
+        "format": "json"
+      }
+    ]
+  },
+  "scope": "episode",
+  "tags": [
+    "aigc",
+    "design",
+    "prop",
+    "markdown-canonical"
+  ]
+}

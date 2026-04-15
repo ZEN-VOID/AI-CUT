@@ -69,14 +69,14 @@
 - `references/chain-of-thought.md` -> `SKILL.md` 的 `Field Master / Thought Pass Map / Pass Table`
 - `references/execution-flow.md` -> `SKILL.md` 的 `Canonical Inputs / Canonical Landing / 输入合同 / Mandatory Workflow / Handoff Rule`
 - `references/type-strategies.md` -> `SKILL.md` 的 `Strategy Summary / Type Strategy Matrix`
-- `references/output-template.md` -> `SKILL.md` 的 `Output Contract`
+- legacy output contract reference -> `SKILL.md` 的 `Output Contract`
 
 ### 弃用 / 删除
 
 - `references/chain-of-thought.md`
 - `references/execution-flow.md`
 - `references/type-strategies.md`
-- `references/output-template.md`
+- legacy output contract reference
 
 ### 旧路径收敛
 

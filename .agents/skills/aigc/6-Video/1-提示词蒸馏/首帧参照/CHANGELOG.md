@@ -71,7 +71,7 @@
 
 ### 迁移 / 弃用
 
-- 将 `references/chain-of-thought.md`、`references/execution-flow.md`、`references/type-strategies.md`、`references/output-template.md` 的稳定规范内容并入 `SKILL.md`
+- 将旧 `references/` 规范模块的稳定内容并入 `SKILL.md`
 - 停止以 `references/` 作为本技能规范载体；目标目录下的 `references/` 文件已移除
 - 将技能内默认路径从旧口径 `.agents/skills/aigc/6-视频/subtypes/1-提示词蒸馏/首帧参照/` 统一为真实路径 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/`
 

@@ -3,8 +3,8 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板` 的经验层知识库，不是过程日志。
-- 调用本子技能时，应在根 `.agents/skills/aigc/SKILL.md` 与父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md` 之后加载本文件。
-- 当前仓没有独立的 `.agents/skills/aigc/5-Image/SKILL.md` 阶段根合同；若再次出现该旧回链，应视为源层漂移。
+- 调用本子技能时，应在根 `.agents/skills/aigc/SKILL.md`、阶段父级 `.agents/skills/aigc/5-Image/SKILL.md` 与父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md` 之后加载本文件。
+- 当前阶段父级真源已固定为 `.agents/skills/aigc/5-Image/SKILL.md`；若再次绕过该父级，应视为源层漂移。
 
 ## Context Health
 
@@ -22,7 +22,7 @@
 | 图像侧模板字段被删掉或乱改 | 请求模板层 | 恢复共享模板骨架 | 在 `.agents/skills/aigc/5-Image/_shared` 固定共享 JSON 模板 | `model` 骨架与共享模板一致 |
 | 规范又被拆回 `references` 或其他副本 | 真源治理层 | 回收规范到当前 `SKILL.md` | 固化“单文件真源 + `复杂链路的骨架 / 细则分层: false`” | 目录下不再存在第二套规范载体 |
 | 节点只有动作没有路由与门禁 | 思行网络层 | 给对应节点补 `route_out / gate` | 在 `Thinking-Action Node Contract` 强制六槽位 | 每个关键节点都可回退或汇流 |
-| 仍引用不存在的 `5-Image/SKILL.md` | 上游回链层 | 改回根 `aigc` + 父级 `1-提示词蒸馏` 加载顺序 | 在 `Total Input Contract` 固化真实加载链 | 本包内不再出现旧路径引用 |
+| 绕过 `5-Image/SKILL.md`，把叶子误当阶段入口 | 上游回链层 | 改回根 `aigc` + `5-Image` 阶段父级 + 父级 `1-提示词蒸馏` 加载顺序 | 在 `Total Input Contract` 固化真实加载链 | 本包内不再跳过阶段父级 |
 | 仍把补证入口写成 `3-Detail/evidence/` | 补证路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在 `SKILL.md` 固化真实 sidecar 路径与只读补证边界 | 证据入口与 `3-Detail` 总输出一致 |
 | 组级蒸馏忽略 `document_phase` 或 `出场角色及穿搭` | 阶段就绪层 | 在 `N1` 前增加 readiness gate，先查 phase 与组级穿搭槽 | 在 `SKILL.md` 固化 `detail_in_progress | ready` 与 `出场角色及穿搭` 必检 | 不再把未就绪 detail 结果误当可消费输入 |
 

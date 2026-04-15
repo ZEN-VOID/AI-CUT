@@ -105,14 +105,76 @@ def parse_group_headers(body: str) -> list[tuple[str, int, str]]:
     return groups
 
 
-def parse_scene_headers(body: str) -> list[tuple[int, str]]:
-    scenes: list[tuple[int, str]] = []
+def parse_scene_headers(body: str) -> list[tuple[int, int, str]]:
+    scenes: list[tuple[int, int, str]] = []
     for line_no, raw_line in enumerate(body.splitlines(), start=1):
         match = SCENE_HEADER_RE.match(raw_line.strip())
         if match:
             scene_no = int(match.group("label"))
-            scenes.append((line_no, f"场景{scene_no}"))
+            scenes.append((line_no, scene_no, match.group("title").strip()))
     return scenes
+
+
+def resolve_declared_path(declared_path: str, grouped_script_path: Path) -> Path:
+    path = Path(declared_path)
+    if path.is_absolute() or path.exists():
+        return path
+
+    resolved_grouped_path = grouped_script_path.resolve()
+    parts = resolved_grouped_path.parts
+    if "projects" not in parts:
+        return path
+    repo_root = Path(*parts[: parts.index("projects")])
+    return repo_root / path
+
+
+def parse_upstream_scene_headers(upstream_path: Path) -> tuple[list[tuple[int, str]], str | None]:
+    if not upstream_path.exists():
+        return [], f"frontmatter `上游主稿` 指向的文件不存在：{upstream_path}"
+
+    upstream_text = upstream_path.read_text(encoding="utf-8")
+    _frontmatter, body = parse_frontmatter(upstream_text)
+    scenes: list[tuple[int, str]] = []
+    seen_scene_numbers: set[int] = set()
+    for raw_line in body.splitlines():
+        match = SCENE_HEADER_RE.match(raw_line.strip())
+        if not match:
+            continue
+        scene_no = int(match.group("label"))
+        if scene_no in seen_scene_numbers:
+            return [], f"上游主稿存在重复场景编号：场景{scene_no}"
+        seen_scene_numbers.add(scene_no)
+        scenes.append((scene_no, match.group("title").strip()))
+
+    if not scenes:
+        return [], f"上游主稿未发现任何 `### 场景N：...` 标题：{upstream_path}"
+    return scenes, None
+
+
+def validate_scene_headers_against_upstream(
+    output_scenes: list[tuple[int, int, str]],
+    upstream_scenes: list[tuple[int, str]],
+    upstream_path: Path,
+) -> str | None:
+    upstream_by_no = dict(upstream_scenes)
+    seen_scene_numbers: set[int] = set()
+
+    for line_no, scene_no, title in output_scenes:
+        expected_title = upstream_by_no.get(scene_no)
+        if expected_title is None:
+            return f"第 {line_no} 行 `场景{scene_no}` 不存在于上游主稿：{upstream_path}"
+        if title != expected_title:
+            return (
+                f"第 {line_no} 行 `场景{scene_no}` 标题必须逐字沿用上游："
+                f"`{expected_title}`，实际为 `{title}`。"
+            )
+        seen_scene_numbers.add(scene_no)
+
+    missing_scene_numbers = [scene_no for scene_no, _title in upstream_scenes if scene_no not in seen_scene_numbers]
+    if missing_scene_numbers:
+        missing = "、".join(f"场景{scene_no}" for scene_no in missing_scene_numbers)
+        return f"grouped script 缺少上游场景单位：{missing}"
+    return None
 
 
 def parse_int_field(frontmatter: dict[str, str], key: str) -> int:
@@ -222,11 +284,19 @@ def validate_file(path: Path) -> tuple[bool, str]:
     if not scenes:
         return False, "未发现任何 `### 场景N：...` 标题。"
 
+    upstream_path = resolve_declared_path(frontmatter["上游主稿"], path)
+    upstream_scenes, upstream_scene_error = parse_upstream_scene_headers(upstream_path)
+    if upstream_scene_error:
+        return False, upstream_scene_error
+    scene_truth_error = validate_scene_headers_against_upstream(scenes, upstream_scenes, upstream_path)
+    if scene_truth_error:
+        return False, scene_truth_error
+
     expected_group_count = parse_int_field(frontmatter, "group_count")
     if expected_group_count != len(groups):
         return False, f"`group_count` 应为 {len(groups)}，实际为 {frontmatter['group_count']}。"
     expected_scene_count = parse_int_field(frontmatter, "scene_unit_count")
-    unique_scene_count = len({scene_label for _line_no, scene_label in scenes})
+    unique_scene_count = len({scene_no for _line_no, scene_no, _title in scenes})
     if expected_scene_count != unique_scene_count:
         return False, f"`scene_unit_count` 应为 {unique_scene_count}，实际为 {frontmatter['scene_unit_count']}。"
 
@@ -247,9 +317,9 @@ def validate_file(path: Path) -> tuple[bool, str]:
 
         next_scene_no: int | None = None
         while current_scene_index < len(scenes):
-            scene_line_no, scene_label = scenes[current_scene_index]
+            scene_line_no, scene_no, _scene_title = scenes[current_scene_index]
             if scene_line_no > line_no:
-                next_scene_no = int(scene_label.removeprefix("场景"))
+                next_scene_no = scene_no
                 break
             current_scene_index += 1
         if next_scene_no is None:
@@ -329,6 +399,27 @@ def validate_file(path: Path) -> tuple[bool, str]:
                     f"`{group_id}` 的 `effective_text_chars` 偏离 quantizer 估算过大："
                     f"{reported_chars} vs {expected_chars}（容差 {tolerance}）。"
                 )
+
+        judgement_basis = extract_report_value(block, "judgement_basis") or ""
+        if expected_chars > int(group_metric["hard_text_window"]):
+            return False, (
+                f"`{group_id}` 的 `effective_text_chars` 超过 hard_text_window："
+                f"{expected_chars} > {group_metric['hard_text_window']}。"
+            )
+        if expected_chars < int(group_metric["warn_low"]) and not re.search(
+            r"warn_low|低于|过轻|并组|不可并|明确信息落点|独立信息落点|尾组|锁定|固定镜数|分镜ID|分镜组ID|下游|2-Global|3-Detail|beat",
+            judgement_basis,
+        ):
+            return False, (
+                f"`{group_id}` 低于 warn_low 时，`judgement_basis` 必须说明并组检查、独立信息落点或锁定分镜依据。"
+            )
+        if int(group_metric["warn_high"]) < expected_chars <= int(group_metric["hard_text_window"]) and not re.search(
+            r"warn_high|未超|不超|hard_text_window|不可拆|连续峰值|保留",
+            judgement_basis,
+        ):
+            return False, (
+                f"`{group_id}` 高于 warn_high 时，`judgement_basis` 必须说明拆分检查或保留依据。"
+            )
 
     return True, f"{path.name} 校验通过：grouped script、三段式组ID与量化报告一致。"
 

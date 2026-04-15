@@ -40,6 +40,7 @@
 | `第N集.txt` 中 section header 与 prompt 首行重复显示同一 `分镜组ID` | TXT 派生视图层 | 保留 section header，并去掉 TXT 中重复的 prompt 首行组 ID | 在 `SKILL.md` 固化“TXT 已显示组 ID 时不得重复显示 prompt 首行组 ID” | `第N集.txt` 每组只出现一次组 ID header |
 | `reference_images` 缺失，或 `image_markers` 的引用/类型/主体/图号与上传顺序不一致 | 请求模板层 | 保留 `reference_images: []`，并回到 `model.image_markers` 重排补齐四字段信息 | 在模板真源与 `SKILL.md` 中固定双字段承接与顺序规则 | 请求 JSON 能稳定映射真实上传顺序 |
 | 执行脚本把项目根误拼成 `projects/<项目名>/`，导致 canonical 项目下无法找到 `3-Detail/第N集.json` | 项目命名空间层 | 把脚本项目根解析收束到 `projects/aigc/<项目名>/`，并在缺失时显式报 canonical path | 对所有 `aigc` 阶段脚本统一复用 `projects/aigc/<项目名>/` 作为运行时命名空间，不再让叶子脚本各自拼路径 | 脚本能直接读取 `projects/aigc/<项目名>/3-Detail/第N集.json` 并把产物写回同一项目根 |
+| 概述中的 canonical 路径写成了不存在的仓库根（如 `AIGC-DREAM- MAKER`） | 路径真源层 | 统一改回当前真实路径 `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/` | 在 leaf 合同、经验层与变更记录中只保留真实仓内路径，不再混入历史工作区名 | 文档路径、脚本入口与证据路径可直接回链当前仓库 |
 | 句式规则散落在 `build_*` 函数里，调整输出风格时必须同时改多个函数 | 句法真源治理层 | 把组级桥接、镜级句式槽、压缩级别与可选挂句收束到 `prompt-assembly-spec.md`，脚本只消费 spec | 对可重复演化的 prompt assembly 逻辑，优先建立“人可读 + 机可读”的 spec 真源，不再让脚本硬编码句法 | 调整句式时只需改 `prompt-assembly-spec.md`，脚本无需同步改多处字符串 |
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |

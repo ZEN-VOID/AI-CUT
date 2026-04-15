@@ -3,7 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `.agents/skills/aigc/5-Image/2-参照引用` 的经验层知识库，不是过程日志。
-- 调用本技能时，应先加载根 `aigc`、`1-提示词蒸馏` 与本技能主合同。
+- 调用本技能时，应先加载根 `aigc`、`5-Image` 阶段父级、`1-提示词蒸馏` 与本技能主合同。
 - provider-specific 规范真源在 `references/`，经验层只沉淀失败模式、修复顺序与复用 heuristic。
 
 ## Context Health
@@ -38,4 +38,3 @@
 - 即梦 CLI 与 NANO-banana 的最大差异不在 prompt，而在图片输入运输层：前者吃本地路径，后者最终吃 BASE64-compatible 载体。
 - `dual_mode` 最稳的做法不是提前生成巨大的 BASE64，而是保留 canonical 本地引用，再把编码责任下沉到 `3-图像生成`。
 - 绑定阶段若出现歧义，宁可阻断，也不要为了流畅感强行选图。
-

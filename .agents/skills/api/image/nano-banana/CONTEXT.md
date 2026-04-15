@@ -56,7 +56,7 @@ last_checked_at: 2026-03-20T00:00:00Z
    - 先看是否传了 `--output-dir` 或 `input_json.output_dir`
    - 再看是否传了 `caller_skill / episode_id`
    - `general` 直调默认应进入 `output/影片/[项目名]/5-API/image/nano-banana/general/`
-   - `4-Design/2-主体设计` 系应进入 `projects/aigc/<项目名>/.../generated/`
+   - `4-Design/2-设计` 系若显式传 `--output-dir + --output-filename`，应遵循调用方同目录同名策略；未显式传时才进入 `projects/aigc/<项目名>/.../generated/`
    - `task_kind=test` 且未传项目名时应映射到 `测试`
    - `task_kind=temp` 且未传项目名时应映射到 `临时`
 4. 核查默认值：
@@ -97,7 +97,7 @@ last_checked_at: 2026-03-20T00:00:00Z
 - 默认输出不是单一路径常量，而是调用方技能包策略：
   - `general` 走 `output/影片/[项目名]/5-API/image/nano-banana/general/`
   - 输入图驱动的子技能优先贴着第一张本地输入图
-  - `4-Design/2-主体设计` 系走 `projects/aigc/[项目名]/.../generated/`
+  - `4-Design/2-设计` 系显式输出参数优先，可服务同目录同名图片快路径；未显式传时走 `projects/aigc/[项目名]/.../generated/`
 - 测试任务未显式给 `project_name` 时，默认映射为 `测试`；临时任务默认映射为 `临时`。
 - AnyFast 这版接口的参考图不是 URL 直传，而是 `inline_data`；这是与旧版 `nano-banana` 包最关键的差异点。
 - AnyFast 平台这边生成的图片可直接视为 `BASE64` 返回；当下一环节引用生成结果或执行二改时，优先直接按 `BASE64` 方式传入，不额外改写成文件路径或 URL。

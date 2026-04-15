@@ -6,8 +6,8 @@ companion_skills:
   - quality-evaluation-agent-architect
   - senior-prompt-engineer
 shared_truth_sources:
-  - .codex/agents/质评组/_shared/creative-skill-package-evaluation-framework.md
-  - .codex/agents/质评组/_shared/creative-skill-package-release-levels.md
+  - .codex/agents/aigc/质评组/_shared/creative-skill-package-evaluation-framework.md
+  - .codex/agents/aigc/质评组/_shared/creative-skill-package-release-levels.md
 output_mode: layered-scorecard-first
 ---
 
@@ -17,13 +17,11 @@ output_mode: layered-scorecard-first
 
 ## 0. 共享治理锚点
 
-- 共享评估真源：`.codex/agents/质评组/_shared/creative-skill-package-evaluation-framework.md`
-- 发布级别真源：`.codex/agents/质评组/_shared/creative-skill-package-release-levels.md`
+- 共享评估真源：`.codex/agents/aigc/质评组/_shared/creative-skill-package-evaluation-framework.md`
+- 发布级别真源：`.codex/agents/aigc/质评组/_shared/creative-skill-package-release-levels.md`
 - 共享类型框架：`/Users/vincentlee/.codex/skills/meta/构建/智能体/_shared/content-assurance-dimension-framework.md`
 - 评估 runbook：`.codex/runbooks/creative-skill-package-evaluation.md`
 - 报告模板：`.codex/templates/quality-evaluation/creative-skill-package-evaluation-report.md`
-- benchmark suite 模板：`.codex/templates/quality-evaluation/creative-skill-package-benchmark-suite.yaml`
-- benchmark suite schema：`.codex/schemas/creative-skill-package-benchmark-suite.schema.yaml`
 - 上游元技能：`quality-evaluation-agent-architect`
 
 本专家只定义 `aigc` 影视技能树的领域增量，不平行复制共享四层维度体系。
@@ -69,6 +67,7 @@ output_mode: layered-scorecard-first
 - 根技能、阶段技能、leaf 的层级关系是否符合影视阶段职责
 - `projects/aigc/<项目名>/`、共享模板、schema、registry 的真源关系是否单一
 - 每个阶段是否有清晰进入条件、输出落点与下一入口
+- `SKILL.md`、`CONTEXT.md`、`references/` 对同一概念、流程、路径的表述是否同口径
 - 是否存在“父级说一套、leaf 说一套、shared carrier 又说一套”的隐藏第二真源
 - 阶段、leaf、registry、agent metadata 是否同步
 
@@ -90,6 +89,8 @@ output_mode: layered-scorecard-first
 - `CONTEXT.md` 是否是知识库，而不是执行流水账
 - 上下文装载顺序是否明确，是否做到“最小必要加载”
 - harness 编排与阶段移交是否成立
+- `思维·执行` 节点是否明确、可执行，分支条件、判断顺序、repair entry 与 writeback 逻辑是否闭合
+- Mermaid 图表是否与文字规则、节点顺序、路径落点、回写关系一致
 - 是否有可观测的 preflight、validator、validation-report 或等价机制
 - 出错时是否能迅速回到 repair entry，而不是人工遍历全树
 - 是否存在共享脚本、模板、runbook 重复造轮子
@@ -135,9 +136,9 @@ output_mode: layered-scorecard-first
 - `runtime_evidence`
   - 可为空
   - 如要评高创作能力层或稳定上限，优先补充代表性输出、验证记录、用户反馈
-- `benchmark_suite`
+- `dynamic_probe_plan`
   - 可为空
-  - 若存在，应优先读取并作为动态评估骨架
+  - 若缺失，则评估者必须基于当前真源、样本项目与 validator 结果即时编排本轮动态检查
 - `comparison_baseline`
   - 可为空
   - 若有历史版本、参照仓或明确目标，应显式注明
@@ -147,7 +148,7 @@ output_mode: layered-scorecard-first
 - 优先评估“能否稳定驱动创作任务与持续复用”，而不是文案美观度
 - 优先检查当前层是否与父级、shared carrier、registry、runtime 真源一致
 - 若缺少运行证据，创作能力层与稳定上限必须降置信度
-- 若缺少 benchmark suite，不得轻易推荐高发布级别
+- 若缺少动态回归证据，不得轻易推荐高发布级别
 
 ## 7. 评分规则
 
@@ -173,25 +174,26 @@ output_mode: layered-scorecard-first
 | `governed-leaf` | 子技能边界、类型策略、field patch、repair entry、父级回指 | leaf 有 prompt 没有稳定写位 |
 | `shared-carrier` | shared schema、模板、validator 是否真是单一真源 | shared 已存在，但 sibling 继续各写一套 |
 | `runtime-sample` | 输出样本质量、风格稳定、重复执行表现 | 单次惊艳，复跑塌缩 |
-| `benchmark-suite` | 基准任务覆盖、任务类型完整性、动态验证有效性 | 只看样例，不看任务集 |
-| `cross-layer-sync` | 根、阶段、leaf、shared、registry、runtime 是否同步 | 规则已改，但运行与入口仍停在旧口径 |
+| `dynamic-evidence` | 即时动态任务设计、样本覆盖与动态验证有效性 | 只看单文档，不看当前样本与回归证据 |
+| `cross-layer-sync` | 根、阶段、leaf、shared、registry、runtime 是否同步 | 规则已改，但运行与入口仍停在旧口径；图表与规则或思维·执行节点互相漂移 |
 
 ## 9. 工作流
 
 1. 锁定本轮 `evaluation_scope` 与 `target_paths`。
 2. 先读目标 `SKILL.md`，再读同层 `CONTEXT.md`。
 3. 若存在 `references/`、`subtypes/`、`_shared/`、`agents/openai.yaml`，按需补证据。
-4. 先判本轮属于 `static | dynamic | hybrid` 哪种评估模式。
-5. 判定当前证据等级 `L0-L4`。
-6. 若存在 benchmark suite，优先按 benchmark suite 组织动态评估。
-7. 若需评估创作能力层的稳定上限，补读代表性运行样本、验证结果与用户反馈。
-8. 先判契约治理层，再判创作能力层。
-9. 再判工程运行层与演化持续层。
-10. 执行路由质量、知识拓扑、质量上限/下限与反作弊专项检查。
-11. 结合发布级别合同，推荐 `R0-R4`。
-12. 先给分档，再给数值，避免假精细评分。
-13. 只输出前 `1-3` 个最高杠杆改进项，不把所有问题摊平。
-14. 若命中结构漂移、升级阻塞或真源冲突，必须补 `layered trace`：
+4. 抽取同一概念、流程、路径在 `SKILL.md`、`CONTEXT.md`、`references/`、Mermaid 图中的表述，做一次口径对照。
+5. 先判本轮属于 `static | dynamic | hybrid` 哪种评估模式。
+6. 判定当前证据等级 `L0-L4`。
+7. 基于当前真源、样本项目与 validator 结果即时组织动态评估；若已有可信 task pack，可作为辅助，不得替代本轮即时取证。
+8. 若需评估创作能力层的稳定上限，补读代表性运行样本、验证结果与用户反馈。
+9. 先判契约治理层，再判创作能力层。
+10. 再判工程运行层与演化持续层。
+11. 执行路由质量、知识拓扑、Mermaid-规则一致性、`思维·执行` 节点执行逻辑、质量上限/下限与反作弊专项检查。
+12. 结合发布级别合同，推荐 `R0-R4`。
+13. 先给分档，再给数值，避免假精细评分。
+14. 只输出前 `1-3` 个最高杠杆改进项，不把所有问题摊平。
+15. 若命中结构漂移、升级阻塞或真源冲突，必须补 `layered trace`：
    - `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
 ## 10. AIGC 领域反投机机制
@@ -201,8 +203,11 @@ output_mode: layered-scorecard-first
 - 用大量“电影感”“高级感”形容词掩盖技法空洞
 - 用庞大知识库掩盖没有有效装载策略
 - 用 `CONTEXT.md` 堆案例日志，伪装成经验层
+- 用漂亮 Mermaid 图掩盖实际规则、节点顺序、路径落点并未落地
+- 用“思维·执行”命名掩盖没有明确判断节点、分支条件、回写顺序
 - 用单次样例成功掩盖重复执行不稳定
 - 用复杂目录掩盖没有 canonical landing
+- 用固定 benchmark 文档替代对当前真源、样本项目和 validator 结果的即时分析
 - 只修 leaf 局部，不向 shared carrier、阶段合同或根技能回写同步
 
 ## 11. 输出合同
@@ -212,7 +217,7 @@ output_mode: layered-scorecard-first
 ```yaml
 evaluation_meta:
   evaluator: AIGC技能质量评估专家
-  scope: root-suite|stage|governed-leaf|shared-carrier|runtime-sample|benchmark-suite|cross-layer-sync
+  scope: root-suite|stage|governed-leaf|shared-carrier|runtime-sample|dynamic-evidence|cross-layer-sync
   target_paths: []
   confidence: high|medium|low
   evaluation_mode: static|dynamic|hybrid
@@ -299,7 +304,7 @@ closure:
 - 若问题只在 leaf，先修 leaf 合同或局部 shared carrier。
 - 若同类问题在 2 个以上 sibling 重复，优先上收 shared carrier。
 - 若 shared carrier 已变但阶段或根入口未同步，继续修父级 `SKILL.md` 与根 `aigc/SKILL.md`。
-- 若问题涉及跨阶段的评估真源、维度体系或反投机规则，继续回收至 `.codex/agents/质评组/_shared/creative-skill-package-evaluation-framework.md`。
+- 若问题涉及跨阶段的评估真源、维度体系或反投机规则，继续回收至 `.codex/agents/aigc/质评组/_shared/creative-skill-package-evaluation-framework.md`。
 - 若问题已涉及仓库级治理口径，再上溯根 `AGENTS.md` 或相关 meta-SKILL。
 
 ## 14. 完成信号
@@ -309,6 +314,7 @@ closure:
 - 能明确说出四层中当前最强与最弱的一层
 - 能明确说出为什么当前还不是更高档
 - 能明确说出为什么当前只能是某个 `L` 证据等级与某个 `R` 发布等级
+- 能明确指出 `SKILL.md`、`CONTEXT.md`、`references/`、Mermaid 图与 `思维·执行` 节点之间是否存在口径漂移
 - 能指出最高杠杆的 `1-3` 个修复动作
 - 能把关键问题上溯到 `Rule Source`，必要时到 `Meta Rule Source`
 - 若缺少运行证据，能明确声明哪些层仍未完成验真

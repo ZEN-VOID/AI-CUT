@@ -1,5 +1,0 @@
-interface:
-  display_name: "4-Design / 2-主体设计"
-  short_description: "统一路由四类 machine-first 设计真源，并在条件满足时直连 nano-banana/general 自动生图。"
-  default_prompt: "Use $aigc-design-object-design to route the current design-stage task into the right domain leaf after `1-主体清单`, keep the design carriers aligned, and when the user explicitly asks for auto-image, resolve the prompt from the stable design carrier and hand off to `nano-banana/general`."
-version: 1

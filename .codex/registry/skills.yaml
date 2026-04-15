@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-13
+last_updated: 2026-04-15
 
 active_skills:
   - id: aigc
@@ -41,6 +41,47 @@ active_skills:
         owner_office: shangshu
         contract_status: active
         route_role: stage
+        leaf_index:
+          - id: aigc-design-scene-list
+            path: .agents/skills/aigc/4-Design/1-清单/场景
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-role-list
+            path: .agents/skills/aigc/4-Design/1-清单/角色
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-prop-list
+            path: .agents/skills/aigc/4-Design/1-清单/道具
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-scene-design
+            path: .agents/skills/aigc/4-Design/2-设计/场景
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-role-design
+            path: .agents/skills/aigc/4-Design/2-设计/角色
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-prop-design
+            path: .agents/skills/aigc/4-Design/2-设计/道具
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-role-panel
+            path: .agents/skills/aigc/4-Design/3-面板/角色
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-prop-panel
+            path: .agents/skills/aigc/4-Design/3-面板/道具
+            contract_status: active
+            route_role: leaf
+          - id: aigc-design-panel
+            path: .agents/skills/aigc/4-Design/3-面板
+            contract_status: partial-active
+            route_role: tranche
+          - id: aigc-design-scene-panel
+            path: .agents/skills/aigc/4-Design/3-面板/场景
+            contract_status: active
+            route_role: leaf
       - id: aigc-5-visuals
         path: .agents/skills/aigc/5-Image
         owner_office: shangshu

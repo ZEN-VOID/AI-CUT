@@ -71,9 +71,9 @@
 尤其对 `3-Detail`、`4-Design`、`5-Image` 与 `6-Video`，当前仓存在“技能树执行层”和“项目 runtime 落盘层”不完全同构的情况：
 
 1. 技能树执行入口层
-   例如 `水月 / 镜花`、`1-主体清单 / 2-主体设计 / 3-面板设计`、`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/首帧参照`、`2-视频生成`
+   例如 `水月 / 镜花`、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/首帧参照`、`2-视频生成`
 2. 项目 runtime 落盘层
-   例如 `projects/aigc/<项目名>/2-Global/全局风格/`、`projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/6-Video/生成任务/`
+   例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/6-Video/生成任务/`
 
 初始化预建目录时，必须服从 **runtime 落盘层**，而不是机械复制技能树中间 tranche 名称。
 
@@ -81,9 +81,9 @@
 | --- | --- |
 | `Assets` | `projects/aigc/<项目名>/Assets/角色/`、`projects/aigc/<项目名>/Assets/道具/`、`projects/aigc/<项目名>/Assets/场景/`、`projects/aigc/<项目名>/Assets/服装/`、`projects/aigc/<项目名>/Assets/分镜画板/分镜帧/`、`projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/`、`projects/aigc/<项目名>/Assets/分镜画板/漫画/` |
 | `1-Planning` | `projects/aigc/<项目名>/1-Planning/1-分集/`、`projects/aigc/<项目名>/1-Planning/2-格式/`、`projects/aigc/<项目名>/1-Planning/3-分组/` |
-| `2-Global` | `projects/aigc/<项目名>/2-Global/全局风格/`、`projects/aigc/<项目名>/2-Global/类型元素/`、`projects/aigc/<项目名>/2-Global/设计元素/` |
+| `2-Global` | `projects/aigc/<项目名>/2-Global/`；阶段执行后根层写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md` |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/3-Detail/镜花/` |
-| `4-Design` | `projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/服装/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/` |
+| `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
 | `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/` |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
 
@@ -93,9 +93,10 @@
 | --- | --- | --- |
 | `.agents/skills/aigc/3-Detail/水月` | `projects/aigc/<项目名>/3-Detail/水月/` | 子技能名与 runtime sidecar 目录同名，可直接预建 |
 | `.agents/skills/aigc/3-Detail/镜花` | `projects/aigc/<项目名>/3-Detail/镜花/` | 同上 |
-| `.agents/skills/aigc/4-Design/1-主体清单/*` | 不预建 `projects/aigc/<项目名>/4-Design/1-主体清单/` | `1-主体清单 / 2-主体设计 / 3-面板设计` 是父级执行 tranche，runtime 仍坚持按 `场景 / 角色 / 服装 / 道具` 落盘 |
-| `.agents/skills/aigc/4-Design/2-主体设计/*` | 不预建 `projects/aigc/<项目名>/4-Design/2-主体设计/` | 同上 |
-| `.agents/skills/aigc/4-Design/3-面板设计/*` | 不预建 `projects/aigc/<项目名>/4-Design/3-面板设计/` | 同上 |
+| `.agents/skills/aigc/4-Design/1-清单/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/1-清单/` | `1-清单` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
+| `.agents/skills/aigc/4-Design/2-设计/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/2-设计/` | `2-设计` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
+| `.agents/skills/aigc/4-Design/3-面板/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/3-面板/` | `3-面板` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
+| `.agents/skills/aigc/4-Design/*/服装` | 暂不预建 `projects/aigc/<项目名>/4-Design/服装/*` | `服装` 当前仍是 4-Design 类目宇宙和 Assets 资产库类目，但 source leaf 未迁回 active；初始化不得把 pending sibling 投影成 runtime active 目录 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板` | `projects/aigc/<项目名>/5-Image/分镜故事板/` | `1-提示词蒸馏` 是父级执行 tranche，不是 runtime 目录名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧` | `projects/aigc/<项目名>/5-Image/分镜帧/` | 叶子技能名直接投影为业务落盘名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画` | `projects/aigc/<项目名>/5-Image/漫画/` | 同上 |
@@ -139,7 +140,7 @@
 ## Ownership Contract
 
 1. `1-Planning` 只负责在 `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` 中登记每集 `bootstrap_output` 目标路径与 `source_profile` handoff，不在规划阶段默认创建 `projects/aigc/<项目名>/2-Global/*.md` 或 shared episode root。
-2. `2-Global` 负责写入项目级设计真源；当前已稳定的 canonical 落点包括 `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`、`projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`、`projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`、`projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`，并由组级导演链路在阶段末段把 `组间设计 + 分镜切换` 写入 `projects/aigc/<项目名>/3-Detail/第N集.json`。
+2. `2-Global` 负责写入项目级设计真源；当前已稳定的 canonical 落点包括 `projects/aigc/<项目名>/2-Global/全局风格.md`、`projects/aigc/<项目名>/2-Global/全集类型元素.md`、`projects/aigc/<项目名>/2-Global/分组类型元素.md`、`projects/aigc/<项目名>/2-Global/导演意图.md`，并由组级导演链路在阶段末段把 `组间设计 + 分镜切换` 写入 `projects/aigc/<项目名>/3-Detail/第N集.json`。
 3. `2-Global` 在 shared root 不存在时，可基于 `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json` 创建同模版 episode root，但只拥有 `组间设计`、`分镜切换` 与相关 metadata 的写入权。
 4. `3-Detail` 后续只允许围绕同一份 `第N集.json` 做 shot-level 与 detail-level patch-in-place，并默认继承已有 `组间设计 + 分镜切换`。
 5. 下游阶段若消费编导数据，默认读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，不得私造第二份 episode/group/shot 根文件。

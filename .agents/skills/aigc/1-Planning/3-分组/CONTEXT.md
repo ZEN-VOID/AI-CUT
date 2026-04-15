@@ -26,6 +26,8 @@
 | 组尾重复借入下一组开端后污染字窗判定 | 展示增强层 | 先用 canonical 正文完成量化裁决，再在结果落定后追加隐藏 `尾钩借焰` | 在 `SKILL.md + reference + postprocess + quantizer + validator` 固化“先量化定组，后挂尾钩” | 尾钩存在时，本组 `effective_text_chars` 仍只对应 canonical 分组正文 |
 | 分组量化回查主故事源时误读旧 `Init/` 路径 | 初始化输入索引层 | 改回 `0-Init/story-source-manifest.yaml` 再解析 `primary_story_source.path` | 在 reference、脚本与经验层统一固定 `0-Init` 作为初始化目录真源 | quantizer / validator 能稳定命中主故事源而不落回旧路径 |
 | 先按叙事整场切组，再倒推 `分镜组时长映射` 让结果过窗 | 量化先行层 | 回到默认时长窗口重新拆/并组，移除无上游证据的时长偏离 | 在 `SKILL.md` 固化“无显式时长证据不得靠时长映射兜底” | 分组边界先由 quantizer 约束，再由结构断点解释 |
+| `### 场景N` 与 `## 【episode-scene-group】` 被当成同一种标题 | 场景/分组语义边界层 | 回读 `2-格式`，把 `### 场景N` 还原为上游场景单位锚点，把组标题只作为节拍标题 | 在 `SKILL.md + reference + template + validator` 固化“场景标题逐字继承上游，分组标题不得改写场景” | validator 能发现分组阶段发明、重命名或遗漏上游场景标题 |
+| 已被下游 `分镜ID` 消费的低字数组被误并 | 锁定锚点优先级层 | 恢复原 `分镜组ID`，并回查 `2-Global / 3-Detail` 固定镜数、beat 与四段式 `分镜ID` | 在 `SKILL.md + reference + validator` 固化“锁定分镜组优先于 warn_low 并组建议” | 低于 `warn_low` 的组若保留，`judgement_basis` 必须写明并组检查或锁定分镜依据 |
 
 ## Repair Playbook
 
@@ -45,3 +47,4 @@
 - 对 `尾钩借焰`，最稳的思维·执行拆法仍是“两节点制”：先做 `eligibility gate`，再做 `inject`；但量化节点必须停在尾钩之前，不能与尾钩重新缠在一起。
 - 当 `3-分组` 需要从初始化层回查主故事源时，路径真源固定是 `0-Init/story-source-manifest.yaml`；只要 reference 或脚本写回了旧 `Init/`，后续量化就会静默失去输入索引。
 - 若 grouped script 一眼看上去只是“按剧情段落排得顺”，先检查是不是偷用了时长偏离去给既定分组补合法性；真正的量化先行结果通常会先出现同场景内拆组，再由叙事断点解释其合理性。
+- 读 `3-分组` 产物时，先把 `### 场景N` 当作上游锚点，把 `## 【episode-scene-group】` 当作分组边界；两者一一对应只是一种结果，不是规则本身。但一旦分镜组已经进入 `2-Global / 3-Detail` 并生成四段式 `分镜ID`，该组界就是下游锚点，不能再用 `warn_low` 并组建议取消。

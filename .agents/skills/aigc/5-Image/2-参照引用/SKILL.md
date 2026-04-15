@@ -92,12 +92,13 @@ governance_tier: full
 
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
-4. 本 `SKILL.md + CONTEXT.md`
-5. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-6. 命中的 `1-提示词蒸馏` 请求 JSON
-7. `projects/aigc/<项目名>/Assets/` 与 `projects/aigc/<项目名>/4-Design/`
-8. 命中的 `references/*.md`
+3. `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
+5. 本 `SKILL.md + CONTEXT.md`
+6. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
+7. 命中的 `1-提示词蒸馏` 请求 JSON
+8. `projects/aigc/<项目名>/Assets/` 与 `projects/aigc/<项目名>/4-Design/`
+9. 命中的 `references/*.md`
 
 ## Total Input Contract (Mandatory)
 
@@ -243,4 +244,3 @@ stateDiagram-v2
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`
-

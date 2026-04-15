@@ -83,13 +83,14 @@ governance_tier: full
 ### 强制加载顺序
 
 1. 根 `.agents/skills/aigc/SKILL.md`
-2. 父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
-3. 本 `SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
+2. 阶段父级 `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md`
+3. 父级 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
+4. 本 `SKILL.md + CONTEXT.md`
+5. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 
 说明：
 
-- 当前仓没有独立的 `.agents/skills/aigc/5-Image/SKILL.md` 阶段根合同；本技能不得再引用该旧路径。
+- 图像阶段父级真源固定为 `.agents/skills/aigc/5-Image/SKILL.md`；本技能不得绕过该阶段根直接冒充 stage 入口。
 - `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` 只作为补证或人工核对入口，不能覆盖 `3-Detail/第N集.json` 的第一结构化真源地位。
 
 ## Canonical Inputs
@@ -573,7 +574,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 - `storyboard_group` 没覆盖完整组级与镜级信息
 - 共享模板字段被删改，尤其是 `reference_images` 或 `image_markers`
 - 输出规则又被拆回第二套局部规范载体
-- 仍引用不存在的 `.agents/skills/aigc/5-Image/SKILL.md`
+- 仍绕过 `.agents/skills/aigc/5-Image/SKILL.md`，把本叶子误当成阶段入口
 - 节点没有 `route_out / gate`，导致做完局部动作却无法结案
 
 必经链路：

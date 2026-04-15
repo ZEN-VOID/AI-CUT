@@ -221,14 +221,15 @@ python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
 2. 使用 `--dry-run --print-payload` 确认请求参数正确
 3. 若返回 4xx/5xx，查看报告文件中的 `error` 字段和 HTTP body
 4. 若启用 `--stream` 无输出，先切到非流式重试（去掉 `--stream`）
-5. 确认输出目录是否符合：`output/影片/[项目名]/5-API/image/seedream/`
-6. 若参考图调用失败：
+5. 若 `--max-images >= 5` 的非流式连续多图读超时，先改用 `--stream`，或降低 `--max-images` 分批验证；脚本报告中的 `diagnostic_hint` 会给出建议
+6. 确认输出目录是否符合：`output/影片/[项目名]/5-API/image/seedream/`
+7. 若参考图调用失败：
    - 检查 `--image-url` 传入的 URL 是否可公网访问
    - 检查 payload 中 `image[]` 是否正确构造
-7. 若图片落盘失败：
+8. 若图片落盘失败：
    - 检查 `response_format` 是否与实际返回匹配
    - 检查输出目录是否有写权限
-8. 若报告文件不完整：
+9. 若报告文件不完整：
    - 检查 `--report-json` 路径是否合法
    - 检查磁盘空间
 

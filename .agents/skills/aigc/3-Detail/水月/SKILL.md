@@ -93,10 +93,10 @@ governance_tier: full
 8. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
 9. `projects/aigc/<项目名>/3-Detail/第N集.json`
 10. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`（若存在）
-11. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
-12. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
-13. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
-14. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
+11. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
+12. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
+13. `projects/aigc/<项目名>/2-Global/分组类型元素.md`（若存在）
+14. `projects/aigc/<项目名>/2-Global/导演意图.md`（若存在）
 15. `references/module-index.md`
 16. `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 17. `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
@@ -117,6 +117,14 @@ governance_tier: full
 - `group_id`
 - `target_fields[]`
 - `group_design_patch.出场角色及穿搭`（若有证据）
+
+`target_fields[]` 只允许声明：
+
+- `组间设计.出场角色及穿搭`
+- `分镜明细[].角色背景面`
+- `分镜明细[].角色站位走位`
+- `分镜明细[].道具及状态`
+- `beat_patches[].镜头消费提示`
 
 ### beat patch 最低要求
 
@@ -161,6 +169,12 @@ governance_tier: full
 ### 输出格式
 
 - 顶层必须符合 `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
+- `target_fields[]` 只允许声明：
+  - `组间设计.出场角色及穿搭`
+  - `分镜明细[].角色背景面`
+  - `分镜明细[].角色站位走位`
+  - `分镜明细[].道具及状态`
+  - `beat_patches[].镜头消费提示`
 - 只允许出现：
   - `group_design_patch.出场角色及穿搭`
   - `beat_patches[].角色背景面`

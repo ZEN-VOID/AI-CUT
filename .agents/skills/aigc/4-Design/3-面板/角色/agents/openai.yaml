@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "消费角色 2-设计 产物，直引 prompt 部分生成 CharacterPanel layout JSON，并默认调用 nano-banana/general 生图。"
+  default_prompt: "Use $aigc-design-role-panel to consume `projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/`, extract each role's prompt portion directly, write `*-CharacterPanel-layout.json` under `projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`, and call `api/image/nano-banana/general` unless JSON-only is explicit."

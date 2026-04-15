@@ -83,14 +83,15 @@ governance_tier: full
 
 1. 根 `AGENTS.md`
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
-4. 本 `SKILL.md + CONTEXT.md`
-5. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-6. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-7. `projects/aigc/<项目名>/3-Detail/第N集.json`
-8. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
-9. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
-10. 命中叶子后的对应 `SKILL.md + CONTEXT.md`
+3. `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md`
+4. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
+5. 本 `SKILL.md + CONTEXT.md`
+6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+7. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
+8. `projects/aigc/<项目名>/3-Detail/第N集.json`
+9. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
+10. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
+11. 命中叶子后的对应 `SKILL.md + CONTEXT.md`
 
 ## Total Input Contract (Mandatory)
 

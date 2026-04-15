@@ -1,0 +1,64 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc-design-role-panel",
+  "skill_path": ".agents/skills/aigc/4-Design/3-面板/角色",
+  "entrypoint": {
+    "script": ".agents/skills/aigc/4-Design/3-面板/角色/scripts/generate_character_panels.py",
+    "runner": "python3",
+    "args": [
+      {
+        "flag": "--project",
+        "value": "{project}"
+      },
+      {
+        "flag": "--episode",
+        "value": "{episode}"
+      },
+      {
+        "flag": "--prompt-file",
+        "value": "{prompt_file}",
+        "optional": true
+      },
+      {
+        "flag": "--json-only",
+        "optional": true,
+        "condition": "layout_mode==json-only"
+      }
+    ]
+  },
+  "io": {
+    "inputs": {
+      "role_design": {
+        "pattern": "projects/aigc/{project}/4-Design/角色/2-设计/{episode}/",
+        "format": "directory",
+        "required": true
+      }
+    },
+    "outputs": {
+      "layout": {
+        "pattern": "projects/aigc/{project}/4-Design/角色/3-面板/{episode}/",
+        "format": "directory"
+      },
+      "request_sidecar": {
+        "pattern": "projects/aigc/{project}/4-Design/角色/3-面板/{episode}/generated/requests/panel_auto_generate_batch.json",
+        "format": "json"
+      }
+    }
+  },
+  "dependencies": {
+    "requires": [
+      "aigc-design-role-design",
+      "nano-banana-general"
+    ],
+    "optional_context": [
+      ".agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md"
+    ]
+  },
+  "scope": "episode",
+  "tags": [
+    "layout",
+    "character",
+    "panel",
+    "nano-banana"
+  ]
+}

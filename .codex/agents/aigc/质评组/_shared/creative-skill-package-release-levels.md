@@ -16,7 +16,7 @@
 
 - 主要依赖 `L0-L1` 证据
 - 四层中至少一层明显未成立
-- benchmark suite 尚未建立
+- 缺少足够动态证据
 
 ### `R1` 可试跑期
 
@@ -40,7 +40,7 @@
 
 - 至少有 `L2-L3` 证据
 - 四层主结构大致成立
-- benchmark suite 已有 baseline 与 regression
+- 已有 baseline 与 regression 的动态证据
 - 已知风险可被定位与返工
 
 ### `R3` 稳定复用期
@@ -65,7 +65,7 @@
 典型状态：
 
 - 达到 `L4` 证据
-- benchmark suite 已覆盖 baseline、boundary、stress、adversarial、regression
+- baseline、boundary、stress、adversarial、regression 的动态证据长期齐备
 - 四层结构成熟，且升级经济性良好
 - shared carrier、template、schema、runbook 已形成稳定协同
 
@@ -74,7 +74,7 @@
 - 发布级别由四层主评分、横切专项检查、证据等级共同决定。
 - 任一 `FAIL-COVENANT` 不得高于 `R0`。
 - 仅有 `L0-L1` 证据时，不得高于 `R1`。
-- 缺少 benchmark suite 或 regression 任务时，不得高于 `R2`。
+- 缺少动态回归证据时，不得高于 `R2`。
 - 路由质量或知识拓扑专项明显失效时，不得高于 `R2`。
 - 若质量上限高但质量下限不稳，优先下调发布级别，而不是维持高等级。
 

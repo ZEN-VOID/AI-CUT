@@ -29,9 +29,12 @@
 | 把 `水月 / 镜花` 的“允许并发”误读成 `镜花` 内部也能乱序展开 | 调度边界层 | 回到父层顺序 gate、子层阶段串行的双层规则 | 在父 `SKILL.md` 和 `镜花/SKILL.md` 同步固定“先 seed，再水月，再镜花；镜花内部先 `分镜构图`” | `镜花` 后续模块不再反向改镜数 |
 | `3-Detail` 重构后共享 reference 真源断链 | 真源同步层 | 将共享节点包/创作引导合同上收 `_shared/` 并统一回指 | 在 validator 中固定共享 reference 存在性与新路径检查 | 子技能 preload 与 `module-index` 不再落死路径 |
 | 校验脚本只验子目录内部，导致父子拓扑断裂仍给绿灯 | 防回归门层 | 把父层 `镜花` 路由、共享 reference 存在性、旧叶子残留纳入校验 | 在阶段 validator 中增加父层和共享真源检查 | 旧拓扑或死链再次出现时能直接报错 |
+| 父层 `validation-report` 声称 merge/ready 已完成，但缺少等价 stage validator | 阶段验收门层 | 增加 `scripts/validate_stage_output.py`，统一校验 episode root、child sidecar、`document_phase` 与 `validation-report.md` | 把 `ready` 门槛收束成可复跑脚本，而不是 prose 自证 | 父层完成态可以直接复验 |
+| `3-Detail` 质评若只看单样本或只读合同，容易误判稳定性 | 证据治理层 | 每轮评估至少同时抽取当前 shared root、child sidecar、stage validator 与一个代表性 episode 做交叉复验 | 将“即时样本 + validator + 合同对照”固定为默认动态评测组合，而不是依赖单独维护的固定 benchmark 文档 | 每轮质评都能直接从当前项目状态复验 `shared root / sidecar / report` 一致性 |
 | `组间设计` 在 detail 阶段被无故改写 | 继承边界层 | 恢复上游 seed，只允许回填 `出场角色及穿搭` | 在 `group_design_seed_contract.md` 与父层合同共同固化“默认继承不重写” | `全局风格 / 类型元素` 保持稳定 |
 | `出场角色及穿搭` 长期留空 | 组级回填层 | 从 `水月` group patch 回填，不再等下游猜 | 在父 `SKILL.md` 把该字段列为最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
 | `document_phase` 被直接写成 `ready`，但 shot patch 仍不完整 | phase 管理层 | 回退到 `detail_in_progress`，先补完 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 merge 完成与 validation | `ready` 与实际完成度一致 |
+| `场景` 下游只拿到 `角色背景面`，导致旧仓研究/bridge 迁移时证据过薄 | downstream handoff 层 | 把 `分镜表现 / 摄影美学 / 时间段 / 导演意图` 显式纳入 `场景` 的补证字段 | 在 `3-Detail/SKILL.md` 与 `4-Design/1-清单/_shared/detail-output-consumption-contract.md` 同步固定场景补证口径 | `场景清单.json.scenes[].design_context` 能直接回链到镜头表现与摄影证据 |
 
 ## Repair Playbook
 
@@ -40,7 +43,7 @@
 3. 若需要 `组间设计.出场角色及穿搭` 或 factual 字段，先检查 `水月` sidecar 是否提供 beat-level evidence。
 4. 若需要 shot skeleton 或导演/摄影字段，只有在既定 `分镜切换 + 水月 evidence` 稳定后才检查或重跑 `镜花` sidecar。
 5. 做 shared root writeback 时，先保住 `剧本正文` 与 `分镜切换` 不变，再做 `beat_refs[]` merge 与 `镜头消费提示 -> 分镜表现` 投影。
-6. 最后用 `document_phase + validation-report.md` 一起表达完成度，不用某个 sidecar 是否存在代替验收。
+6. 最后用 `document_phase + validation-report.md + scripts/validate_stage_output.py` 一起表达完成度，不用某个 sidecar 是否存在代替验收。
 
 ## Reusable Heuristics
 
@@ -54,4 +57,6 @@
 - `镜花` 内部仍必须先锁 `分镜构图` 的实际切镜窗口，再让后续模块消费这个骨架。
 - 子技能 `references/` 若共享同一套节点包或创作引导规则，真源应显式上收 `_shared/`；否则目录重构后最容易出现局部自洽、整体断链。
 - `ready` 的真实含义不是 sidecar 都存在，而是 shared root 已可被下游稳定消费且 validation 已给出通过结论。
-- 当 `4-Design/1-主体清单` 成为 detail 阶段的首个稳定下游时，应把它的字段消费矩阵显式回链到 `3-Detail` 父合同；否则上游 schema 虽然完整，下游 leaf 仍会各自演化一套“我以为该怎么读”的解释。
+- 当 `4-Design/1-清单` 成为 detail 阶段的首个稳定下游时，应把它的字段消费矩阵显式回链到 `3-Detail` 父合同；否则上游 schema 虽然完整，下游 leaf 仍会各自演化一套“我以为该怎么读”的解释。
+- `3-Detail` 的动态质评最稳的做法，是直接绑定当前真实 validator、样本项目和最小对抗场景即时取证；否则很容易退化成只解读固定文档。
+- `场景` 链在当前仓已经不是“只抄背景句”的极简模式；只要要承接旧仓高密度配置，就该把 `分镜表现 / 摄影美学 / 时间段` 一起视作 design_context 的合法补证层。

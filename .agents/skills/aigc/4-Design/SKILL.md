@@ -1,6 +1,6 @@
 ---
 name: aigc-design
-description: Use when the `4-Design` stage needs to route `1-主体清单 -> 2-主体设计 -> 3-面板设计` across `场景 / 角色 / 服装 / 道具`, while keeping runtime truth inside `projects/aigc/<项目名>/4-Design/`.
+description: Use when the `4-Design` stage needs to route the current design tranche under `projects/aigc/<项目名>/4-Design/`, with `1-清单/{场景,角色,道具}` and `2-设计/{场景,角色,道具}` already re-landed while the rest of the tranche tree remains in bootstrap-compatible migration.
 governance_tier: full
 ---
 
@@ -10,9 +10,15 @@ governance_tier: full
 
 `4-Design` 是 `aigc` 技能树承接 `3-Detail`、连接 `5-Image / 6-Video` 的阶段父 skill。
 
-当前阶段的稳定执行链固定为：
+当前阶段的 source-layer 处于 `bootstrap_compat` 迁移窗口。
 
-`3-Detail -> 1-主体清单 -> 2-主体设计 -> 3-面板设计 -> 5-Image`
+本轮已稳定落地的链路是：
+
+`3-Detail -> 1-清单/{场景,角色,道具} -> 2-设计/{场景,角色,道具} + 单主体自动图 -> 3-面板/{场景,角色,道具}`
+
+更完整的阶段目标仍然是：
+
+`3-Detail -> 1-清单 -> 2-设计 -> 3-面板 -> 5-Image`
 
 `4-Design` 父层不生产新的跨类目超级主稿；它只负责：
 
@@ -20,13 +26,13 @@ governance_tier: full
 - tranche 路由
 - 类目路由
 - runtime 根路径与 shared contract 对齐
-- 阶段级验收摘要回接到项目级 `validation-report.md`
+- 阶段级验收摘要回接到 `projects/aigc/<项目名>/4-Design/validation-report.md`
 
 ## Parent Positioning
 
 `4-Design` 拥有：
 
-- `1-主体清单 / 2-主体设计 / 3-面板设计` 的顺序门
+- `1-清单 / 2-设计 / 3-面板` 的顺序门
 - `场景 / 角色 / 服装 / 道具` 四类类目路由
 - `projects/aigc/<项目名>/4-Design/` 的路径真源对齐
 - `3-Detail` 下游 design-source 消费总合同回链
@@ -42,15 +48,15 @@ governance_tier: full
 | 能力面 | 当前 owner | 说明 |
 | --- | --- | --- |
 | 阶段入口判定 | `4-Design/SKILL.md` | 决定本轮是否进入 design 阶段 |
-| tranche 路由 | `4-Design/SKILL.md` | 决定进入 `1-主体清单 / 2-主体设计 / 3-面板设计` 哪一段 |
-| list-stage 总线 | `4-Design/1-主体清单/SKILL.md` | 统一承接 `3-Detail` 输出，生成 design-source 对象池 |
-| design-stage 总线 | `4-Design/2-主体设计/SKILL.md` | 统一承接对象池，生成 machine-first 设计真源 |
-| panel-stage 总线 | `4-Design/3-面板设计/SKILL.md` | 统一承接设计真源，生成 layout carrier |
+| tranche 路由 | `4-Design/SKILL.md` | 决定进入 `1-清单 / 2-设计 / 3-面板` 哪一段 |
+| list-stage 总线 | `4-Design/1-清单/SKILL.md` | 当前已落地，用来统一承接 `3-Detail` 输出，并稳定 `场景 / 角色 / 道具` 清单真源 |
+| design-stage 总线 | `4-Design/2-设计/SKILL.md` | 当前已重建 tranche parent，`场景 / 角色 / 道具` leaf 已 active，并通过共享输出合同自动生成同目录同名单主体图；其余 sibling 仍待迁移 |
+| panel-stage 总线 | `4-Design/3-面板/SKILL.md` | 当前已重建 tranche parent，`场景 / 角色 / 道具` leaf 已 active，可消费 `2-设计` prompt 与同 stem 单主体图；`服装` leaf 仍待迁移 |
 
 硬规则：
 
 1. `4-Design` 父层只路由真实存在的 tranche parent 与 leaf。
-2. 默认 tranche 顺序固定为 `1-主体清单 -> 2-主体设计 -> 3-面板设计`。
+2. 默认 tranche 顺序固定为 `1-清单 -> 2-设计 -> 3-面板`。
 3. 类目默认集合固定为 `场景 / 角色 / 服装 / 道具`。
 4. 父层不得再生成 `4-Design` 阶段总稿。
 
@@ -58,25 +64,28 @@ governance_tier: full
 
 | 单元 | 当前状态 | 说明 |
 | --- | --- | --- |
-| `1-主体清单` | active | 四类 list leaf 与 shared contracts 可执行 |
-| `2-主体设计` | active | 四类 design leaf 与 design-stage 验收可执行 |
-| `3-面板设计` | active | 四类 panel leaf 与 panel-stage 验收可执行 |
+| `1-清单` | partial-active | 父层与 `场景 / 角色 / 道具` leaf 已迁回新路径；其余 sibling 仍待迁移 |
+| `2-设计` | partial-active | tranche parent 与 `场景 / 角色 / 道具` leaf 已迁回；其余 sibling 仍待迁移 |
+| `3-面板` | partial-active | tranche parent 已重建，`场景 / 角色 / 道具` leaf 已迁回并默认桥接 nano-banana/general；其余 sibling 仍待迁移 |
 
 ## Shared Canonical Sources (Mandatory)
 
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
 - 强制读取：`.agents/skills/aigc/3-Detail/SKILL.md`
-- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
-- 强制读取：`.agents/skills/aigc/4-Design/1-主体清单/SKILL.md`
-- 强制读取：`.agents/skills/aigc/4-Design/2-主体设计/SKILL.md`
-- 强制读取：`.agents/skills/aigc/4-Design/3-面板设计/SKILL.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
+- 强制读取：`.agents/skills/aigc/4-Design/1-清单/SKILL.md`
+- 强制读取：`.agents/skills/aigc/4-Design/2-设计/SKILL.md`
+- 条件读取：`.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`（命中 design 或 panel tranche 时）
+- 条件读取：`.agents/skills/aigc/4-Design/3-面板/SKILL.md`（命中 panel tranche 时）
 
 硬规则：
 
 1. `projects/aigc/<项目名>/4-Design/` 是 design 阶段唯一 runtime 根。
-2. `1-主体清单` 是 `2-主体设计` 的默认上游。
-3. `2-主体设计` 是 `3-面板设计` 的默认上游。
-4. leaf 只在各自 domain runtime 下写 canonical 业务产物。
+2. `1-清单` 是 `2-设计` 的默认上游。
+3. `2-设计` 当前已具备 tranche parent 与 `场景 / 角色 / 道具` leaf；未迁回的 sibling 仍不得伪装为 active。
+4. `2-设计` 的正式完成必须包含 `full_generation_prompt` 与同目录同 stem 单主体图片。
+5. `3-面板` 当前已具备 tranche parent 与 `场景 / 角色 / 道具` leaf；未迁回的 sibling 仍不得伪装为 active。
+6. leaf 只在各自 domain runtime 下写 canonical 业务产物。
 
 ## Context Preload (Mandatory)
 
@@ -87,11 +96,12 @@ governance_tier: full
 3. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
 4. 本 `SKILL.md + CONTEXT.md`
 5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-6. `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
-7. 命中 `1-主体清单` 时，加载 `4-Design/1-主体清单/SKILL.md + CONTEXT.md`
-8. 命中 `2-主体设计` 时，加载 `4-Design/2-主体设计/SKILL.md + CONTEXT.md`
-9. 命中 `3-面板设计` 时，加载 `4-Design/3-面板设计/SKILL.md + CONTEXT.md`
-10. `projects/aigc/<项目名>/team.yaml`（若存在）
+6. `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
+7. 命中 `1-清单` 时，加载 `4-Design/1-清单/SKILL.md + CONTEXT.md`
+8. 命中 `2-设计` 时，加载 `4-Design/2-设计/SKILL.md + CONTEXT.md`
+9. 命中 `2-设计` 或 `3-面板` 时，加载 `4-Design/2-设计/_shared/design-output-contract.md`
+10. 命中 `3-面板` 时，加载 `4-Design/3-面板/SKILL.md + CONTEXT.md`；当前仅 `场景 / 角色 / 道具` leaf 可继续下钻
+11. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Route And Topology Contract (Mandatory)
 
@@ -103,16 +113,16 @@ governance_tier: full
 
 ### 路由规则
 
-1. 只缺对象池时，进入 `1-主体清单`。
-2. design-source 已稳定、需生成设计真源时，进入 `2-主体设计`。
-3. 设计真源已稳定、需生成 layout carrier 时，进入 `3-面板设计`。
+1. 只缺对象池时，进入 `1-清单`。
+2. design-source 已稳定且命中 `场景 / 角色 / 道具` 域时，进入 `2-设计/<域>`。
+3. 设计真源、`full_generation_prompt` 与同 stem 单主体图已稳定且命中 `场景 / 角色 / 道具` 面板时，进入对应 `3-面板/<域>`；命中其他未迁回 sibling 时报告 pending-migration。
 4. 若用户只命中单一类目，本轮只调度该类目。
 5. 若用户只命中单一 tranche，本轮只调度该 tranche，不伪造全链完成。
 
 ## Canonical Output Governance (Mandatory)
 
 1. `4-Design` 阶段没有父层第二业务真源。
-2. 阶段级 summary 只允许沉到项目级 `projects/aigc/<项目名>/validation-report.md`。
+2. 阶段级 summary 只允许沉到 `projects/aigc/<项目名>/4-Design/validation-report.md`。
 3. canonical 业务内容始终由具体 tranche leaf 写回。
 4. 父层只负责阶段边界、coverage 与下一入口说明。
 
@@ -121,7 +131,7 @@ governance_tier: full
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-4D-01` | 阶段边界 | 明确 `4-Design` 只拥有路由与边界，不拥有第二业务真源 | `S1` | 边界清晰度 | `FAIL-4D-01` |
-| `FIELD-4D-02` | tranche 顺序 | 明确 `1-主体清单 -> 2-主体设计 -> 3-面板设计` 顺序 | `S2` | 路由稳定性 | `FAIL-4D-02` |
+| `FIELD-4D-02` | tranche 顺序 | 明确 `1-清单 -> 2-设计 -> 3-面板` 顺序 | `S2` | 路由稳定性 | `FAIL-4D-02` |
 | `FIELD-4D-03` | 类目调度 | 明确四类类目的 selective dispatch | `S3` | 调度准确性 | `FAIL-4D-03` |
 | `FIELD-4D-04` | runtime 对齐 | 明确 `projects/aigc/<项目名>/4-Design/` 是唯一 stage runtime 根 | `S4` | 真源一致性 | `FAIL-4D-04` |
 | `FIELD-4D-05` | handoff | 明确 `5-Image / 6-Video / review` 的下一入口口径 | `S5` | 闭环完整性 | `FAIL-4D-05` |
@@ -163,9 +173,11 @@ governance_tier: full
 
 - `Rule Source`
   - `.agents/skills/aigc/4-Design/SKILL.md`
-  - `.agents/skills/aigc/4-Design/1-主体清单/SKILL.md`
-  - `.agents/skills/aigc/4-Design/2-主体设计/SKILL.md`
-  - `.agents/skills/aigc/4-Design/3-面板设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/1-清单/SKILL.md`
+  - `.agents/skills/aigc/4-Design/2-设计/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md`
+  - `.agents/skills/aigc/4-Design/3-面板/道具/SKILL.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/SKILL.md`
   - `AGENTS.md`
@@ -174,6 +186,7 @@ governance_tier: full
 ## Completion Criteria
 
 - 已建立真实存在的 `4-Design` 阶段父级合同
-- 已把 design 阶段路由收束为三个 tranche parent
-- 已把四类类目挂入统一 stage parent
+- 已把 `1-清单/{场景,角色,道具}` 迁回新路径并与 `3-Detail` 对齐
+- 已把 `2-设计/{场景,角色,道具}` 接回 source-layer 总线，并要求每个主体产出含全局风格前缀的 `full_generation_prompt` 与同目录同名图片；其余 sibling 仍显式标记待迁移
+- 已把 `3-面板/{场景,角色,道具}` 接回 source-layer 总线并默认桥接 `nano-banana/general`，可消费 `2-设计` 同 stem 单主体图作为批量 SMART 参照；其余 sibling 仍显式标记待迁移
 - 已避免父级造出第二业务真源

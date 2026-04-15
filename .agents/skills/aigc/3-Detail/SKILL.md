@@ -85,7 +85,7 @@ governance_tier: full
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-- `.agents/skills/aigc/4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
@@ -105,13 +105,23 @@ governance_tier: full
 - `director_episode_output.schema.json`
   - `3-Detail/第N集.json` 的最终结构化字段真源
   - 同时持有 `#/$defs/detail_patch_sidecar` 等 sidecar projection 定义
-- `4-Design/1-主体清单/_shared/detail-output-consumption-contract.md`
+- `4-Design/1-清单/_shared/detail-output-consumption-contract.md`
   - 定义 `角色 / 服装 / 道具 / 场景` 四类下游清单如何消费 `3-Detail` 的 canonical 字段
   - `3-Detail` 不拥有下游 design-source artifact，但拥有它们的 upstream field contract
 
+## Quality Evidence Source
+
+- 当前阶段质量证据以以下载体为准：
+  - `projects/aigc/<项目名>/3-Detail/validation-report.md`
+  - `scripts/validate_stage_output.py`
+  - `水月/scripts/validate_watermoon_output.py`
+  - `镜花/scripts/validate_jinghua_output.py`
+  - 代表性 episode 样本、父子 sidecar 与即时 validator 结果
+- `3-Detail` 的质评应以当前 shared root、child sidecar、stage validator 与样本项目回读为主，不要求额外维护固定评测任务 YAML。
+
 ## Downstream Handoff Contract (Mandatory)
 
-`3-Detail` 的完成态不只等于 “父层 merge 成功”，还等于“下游 `1-主体清单` 能按共享消费合同直接读取”。
+`3-Detail` 的完成态不只等于 “父层 merge 成功”，还等于“下游 `1-清单` 能按共享消费合同直接读取”。
 
 因此 handoff 最低要求固定为：
 
@@ -121,6 +131,10 @@ governance_tier: full
    - `组间设计.出场角色及穿搭`
 2. `场景` 可直接消费：
    - `分镜明细[].角色背景面`
+   - `分镜明细[].分镜表现`
+   - `分镜明细[].摄影美学`
+   - `分镜明细[].时间段`
+   - `组间设计.导演意图`
 3. `道具` 可直接消费：
    - `分镜明细[].道具及状态`
    - `分镜明细[].角色背景面`
@@ -165,10 +179,10 @@ governance_tier: full
 18. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
 19. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
 20. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
-21. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
-22. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
-23. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
-24. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
+21. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
+22. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
+23. `projects/aigc/<项目名>/2-Global/分组类型元素.md`（若存在）
+24. `projects/aigc/<项目名>/2-Global/导演意图.md`（若存在）
 
 ## Total Input Contract (Mandatory)
 
@@ -311,7 +325,7 @@ governance_tier: full
 | `N4-WATERMOON-PATCH` | `S4` | `FIELD-DETAIL-04` | 获取 beat-level factual evidence sidecar | 复用或执行 `水月`，读取 `group_design_patch + beat_patches[]` | `watermoon_patch_note` | -> `N5/N6` | 不得越权写 cinematic 字段 |
 | `N5-JINGHUA-PATCH` | `S5` | `FIELD-DETAIL-05` | 在既定 `分镜切换 + 水月 evidence` 基础上获取 cinematic patch sidecar | 复用或执行 `镜花`，读取 `shot_patches[]` | `jinghua_patch_note` | -> `N6` | 不得越权写 factual 字段，且不得重判 seed |
 | `N6-MERGE` | `S6` | `FIELD-DETAIL-06` `FIELD-DETAIL-07` | 合并 child patch 并写回 shared root | 先回填 `出场角色及穿搭`，再按 `beat_refs[]` 合成 `分镜明细[]` | `merge_summary` | pass -> `N7`；drift -> 回 `S3~S6` | `剧本正文` 不得变化 |
-| `N7-PHASE-VALIDATE` | `S7` | `FIELD-DETAIL-08` | 推进 phase 并写阶段验收 | 更新 `document_phase`、写 `validation-report.md` | `validation_verdict` | pass -> `done`；fail -> 回 `S4~S6` | `ready` 前必须存在可消费 `分镜明细[]` |
+| `N7-PHASE-VALIDATE` | `S7` | `FIELD-DETAIL-08` | 推进 phase 并写阶段验收 | 更新 `document_phase`、写 `validation-report.md`、执行 `scripts/validate_stage_output.py` | `validation_verdict` | pass -> `done`；fail -> 回 `S4~S6` | `ready` 前必须存在可消费 `分镜明细[]`，且阶段 validator 通过 |
 
 ## Field Master
 
@@ -383,3 +397,4 @@ governance_tier: full
 4. 命中 group 已写入合法 `分镜明细[]`。
 5. `document_phase` 与实际完成度一致。
 6. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
+7. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过。

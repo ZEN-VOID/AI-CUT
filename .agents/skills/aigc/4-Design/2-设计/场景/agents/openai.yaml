@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "消费 `1-清单/场景` 三 JSON、`0-Init` 与 `2-Global`，生成 `scene_design.json` 与逐场景 Markdown"
+  default_prompt: "Use $aigc-design-scene-design to consume `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/{场景清单.json,场景研究.json,scene_design_bridge.json}` plus `0-Init` and `2-Global` truths, keep `scene_design.json` as the machine-first scene design source, and project each scene into `[场景名].md` under `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/`."

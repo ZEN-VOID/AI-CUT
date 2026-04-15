@@ -3,7 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画` 的经验层知识库，不是过程日志。
-- 调用本子技能时，应在 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md` 之后加载本文件。
+- 调用本子技能时，应在 `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md` 与 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md` 之后加载本文件。
 - 本技能当前已取消 `references/` 规范载体；经验层只保留在 `CONTEXT.md`。
 
 ## Context Health
@@ -47,8 +47,8 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 
 - 对这种确定性的叶子蒸馏技能，最稳的升格方式不是补 `team.md`，而是把规范内容收回单一 `SKILL.md` 真源。
 - 只要 `references/` 承担了字段表、workflow、类型策略或输出合同，它就不再是“参考材料”，而是在偷渡第二套规范层。
-- 阶段名称可以保留人类可读的“5-画面”语义，但文件路径必须以当前真实目录 `5-Image/1-提示词蒸馏/漫画/` 为准。
-- 当前仓对本技能没有独立的 `5-Image/SKILL.md` 阶段根合同，因此加载顺序应直接落到 `1-提示词蒸馏` 父级。
+- 阶段名称可以保留人类可读的图像语义，但文件路径必须以当前真实目录 `5-Image/1-提示词蒸馏/漫画/` 为准。
+- 当前仓对本技能的阶段根合同已落到 `5-Image/SKILL.md`，因此加载顺序应先经过阶段父级，再进入 `1-提示词蒸馏` 父级。
 - 漫画子技能最常见的漂移不是画风，而是把“漫画图像请求 JSON 蒸馏”误做成“直接页图落盘”。
 - 对这种已经是叶子且又有多道判断门的蒸馏技能，最稳的知行合一改造不是继续拆 `references/`，而是把节点细则直接写进主 `SKILL.md`。
 - 如果用户明确要求 `复杂链路的骨架 / 细则分层 = false`，就要把“可扫描性”交给 Mermaid 和节点表，而不是把执行细节外包给另一个文档。

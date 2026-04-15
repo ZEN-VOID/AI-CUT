@@ -26,6 +26,7 @@
 | factual patch 很丰富，但仍夹带新剧情 | 事实边界层 | 回到固定 `剧本正文`，删掉越权新增事实 | 在 `SKILL.md` 固定“不发明新剧情” | patch 能逐条回指原文 |
 | 把 `角色表现 / 运动表现 / 氛围表现` 直接写成 shared 镜级并列字段 | shared schema 投影层 | 撤回内部主链字段，恢复 canonical factual 槽位 | 在 shared schema 与本 `CONTEXT.md` 固定“内部主链先汇流，再写最终字段” | 下游只消费 `角色背景面 / 角色站位走位 / 道具及状态 / 镜头消费提示` |
 | 把 `水月` 误当成最终 shot-level `分镜表现` owner | 父子 handoff 层 | 回退到 beat-level evidence，只保留 `镜头消费提示` | 在父层 merge 契约中固定“由父层按 `beat_refs[]` 投影到 `分镜明细[].分镜表现`” | `水月` sidecar 不再冒充最终镜级真源 |
+| validator / template 继续把 `分镜明细[].分镜表现` 当作 `水月.target_fields` | 校验门层 | 把 `target_fields` 收回 `beat_patches[].镜头消费提示` | 在 `template + validator + runtime sample` 同步固定“`分镜表现` 只属于父层 merge 结果” | `validate_watermoon_output.py` 会直接拦截错误 green |
 
 ## Repair Playbook
 

@@ -1,5 +1,0 @@
-interface:
-  display_name: "4-Design / 3-面板设计"
-  short_description: "统一路由场景、角色、服装、道具四类 panel/layout carrier。"
-  default_prompt: "Use $aigc-design-object-panel to route the current panel-stage task into the right domain leaf after `2-主体设计`, write stable layout packets first, and when the user asks for auto-generation bridge those packets to `nano-banana/general` via SMART mode without promoting PNGs to canonical truth."
-version: 1

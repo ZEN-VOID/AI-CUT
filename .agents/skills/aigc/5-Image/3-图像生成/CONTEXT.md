@@ -3,6 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `.agents/skills/aigc/5-Image/3-图像生成` 的经验层知识库，不是过程日志。
+- 调用本技能时，应先加载根 `aigc`、`5-Image` 阶段父级、`1-提示词蒸馏`、`2-参照引用` 与本技能主合同。
 - provider-specific 规范真源在 `references/`，本文件只记录类型化失败、修复顺序和可复用 heuristic。
 
 ## Context Health
@@ -37,4 +38,3 @@
 - 对这条链来说，`dual_mode` 适合停留在 `2-参照引用`，不适合直接进入最终生成计划。
 - 即梦 CLI 与 NANO-banana 的主要分水岭，在图片输入承载形态，而不是 prompt 文案。
 - 只要 provider-specific 输入解析还没写清，submit-plan 就还不是合格的 handoff 包。
-

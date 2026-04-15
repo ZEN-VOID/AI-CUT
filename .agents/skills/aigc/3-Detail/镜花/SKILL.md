@@ -118,10 +118,10 @@ governance_tier: full
 11. `projects/aigc/<项目名>/3-Detail/第N集.json`
 12. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`（若存在）
 13. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
-14. `projects/aigc/<项目名>/2-Global/类型元素/全集设计.md`（若存在）
-15. `projects/aigc/<项目名>/2-Global/类型元素/分组设计.md`（若存在）
-16. `projects/aigc/<项目名>/2-Global/全局风格/全局风格设计.md`（若存在）
-17. `projects/aigc/<项目名>/2-Global/设计元素/设计元素.md`（若存在）
+14. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
+15. `projects/aigc/<项目名>/2-Global/分组类型元素.md`（若存在）
+16. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
+17. `projects/aigc/<项目名>/2-Global/导演意图.md`（若存在）
 18. `references/module-index.md`
 19. `references/route-profile.yaml`
 20. 按需读取各分类 `module-spec.yaml` 与命中叶子 `module-spec.yaml`

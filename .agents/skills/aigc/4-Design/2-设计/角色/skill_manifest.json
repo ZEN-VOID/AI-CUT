@@ -1,0 +1,67 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "design.role_design",
+  "skill_path": ".agents/skills/aigc/4-Design/2-设计/角色",
+  "io": {
+    "inputs": {
+      "role_list": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/1-清单/第{episode}集/角色清单.json",
+        "format": "json",
+        "required": true
+      },
+      "role_bridge": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/1-清单/第{episode}集/role_design_bridge.json",
+        "format": "json",
+        "required": false
+      },
+      "role_research": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/1-清单/第{episode}集/角色研究.json",
+        "format": "json",
+        "required": false
+      }
+    },
+    "outputs": {
+      "primary": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/2-设计/第{episode}集/character_design.json",
+        "format": "json",
+        "required_fields": [
+          "roles",
+          "roles[].role_id",
+          "roles[].structured_fields",
+          "roles[].global_style_prefix",
+          "roles[].full_generation_prompt",
+          "roles[].final_prompt"
+        ]
+      },
+      "auto_image_assets": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/2-设计/第{episode}集/*.{png,jpg,jpeg,webp}",
+        "format": "image",
+        "naming": "same_stem_as_human_projection"
+      },
+      "manifest": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/2-设计/第{episode}集/_manifest.json",
+        "format": "json"
+      },
+      "human_projection_dir": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色/2-设计/第{episode}集/",
+        "format": "directory"
+      }
+    }
+  },
+  "dependencies": {
+    "requires": [
+      "design.role_list"
+    ],
+    "optional_context": [
+      "aigc-global",
+      "aigc-init"
+    ]
+  },
+  "scope": "episode",
+  "tags": [
+    "design",
+    "role",
+    "character",
+    "prompt"
+  ]
+}

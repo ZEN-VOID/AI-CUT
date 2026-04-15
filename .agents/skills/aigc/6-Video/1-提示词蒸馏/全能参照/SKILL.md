@@ -32,7 +32,7 @@ governance_tier: full
 
 `全能参照` 是 `6-Video` 阶段位于 `1-提示词蒸馏` tranche 的组级叶子子技能，当前 canonical 路径固定为：
 
-`/Volumes/AIGC/AIGC-DREAM- MAKER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/`
+`/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/`
 
 它负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 **单个分镜组的全部组级与镜级内容** 蒸馏为 **每组 1 条** 视频请求对象，并同步产出：
 

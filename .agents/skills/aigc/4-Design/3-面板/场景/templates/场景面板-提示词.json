@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "schema": "scene_panel/prompt/v1.0",
+    "skill_id": "aigc/4-Design/3-面板/场景",
+    "version": "v1.2",
+    "doc_role": "layout_contract",
+    "updated_at": "2026-04-15",
+    "note": "参照 AIGC-ZEN-VOID 场景面板模板迁入当前仓，用于 ScenePanel 提示词合成。"
+  },
+  "prompt_payload": {
+    "layout": {
+      "aspect_ratio": "16:9",
+      "resolution": "4K",
+      "panel_count": 9,
+      "grid": "3x3"
+    },
+    "panel_sheet_contract": {
+      "fixed_aspect_ratio": "16:9",
+      "constraints": [
+        "Render one coherent scene as a unified 3x3 panel sheet with strict cross-panel consistency.",
+        "No split style: all panels must share the same architectural era, material logic, lighting source direction, and color script.",
+        "Treat every panel as a view variant of the same space, not nine different scenes."
+      ]
+    },
+    "layout_generation_prompt": {
+      "canvas_setup": "Create a 16:9 widescreen scene sheet (4096x2304) on a dark neutral ground using a strict 3x3 nine-grid. Keep spacing, margins, and panel ratio uniform, but let the sheet behave like a cultural-spatial dossier rather than a purely technical orthographic board.",
+      "critical_requirements": [
+        "P1-P3: atmosphere plus iconography sequence (wide, medium, ritual detail).",
+        "P4/P5/P7/P8: structural or directional views, but at least two panels must foreground era-coded cultural thresholds, ornament, ritual zoning, edge traversal, or cosmology linkage rather than empty technical coverage.",
+        "P6: low-angle up-shot emphasizing vertical authority, oppression, or transcendence; P9: high-angle top-down shot revealing spatial order or cosmology logic.",
+        "Maintain anchor-prop identity across all nine panels (count, silhouette, proportion, material cannot drift).",
+        "Keep empty-scene guardrail: no humans, creatures, silhouettes, or human-shaped shadows.",
+        "When the scene belongs to a mythic, religious, or historical world, at least three panels must visibly encode culture-specific symbols, materials, or ceremonial circulation logic.",
+        "If the design direction implies sacred luminosity, preserve brightness, sanctity, and material cleanliness; do not inject ruin, mildew, bunker heaviness, or generic dark-fantasy decay.",
+        "If the design direction implies a liminal passage or world-linking corridor, show openness, edge traversal, and cosmology connection; do not collapse the space into a fortress gatehouse, prison tower, or sealed bunker corridor.",
+        "Must display one fixed top-left identity badge using matched roster text `<SCENE_ID>+<SCENE_NAME>`; keep position and typography stable across outputs."
+      ]
+    },
+    "layout_modules": {
+      "panel_views": {
+        "modules": [
+          {
+            "id": "P1",
+            "label": "Atmosphere Wide",
+            "description": "Eye-level wide shot establishing full spatial envelope and dominant light logic."
+          },
+          {
+            "id": "P2",
+            "label": "Atmosphere Medium",
+            "description": "Mid shot showing functional zoning, narrative center, and the first clear era/culture cue."
+          },
+          {
+            "id": "P3",
+            "label": "Ritual Detail",
+            "description": "Close architectural or material detail that proves iconography, ceremonial logic, or world-specific ornament."
+          },
+          {
+            "id": "P4/P5/P7/P8",
+            "label": "Directional / Threshold Views",
+            "description": "Directional consistency views that prove threshold design, circulation hierarchy, cosmology order, edge traversal, or sacred-light organization without defaulting to fortress architecture."
+          },
+          {
+            "id": "P6/P9",
+            "label": "Vertical Axis Views",
+            "description": "One low-angle upward frame and one high-angle top-down frame for spatial verification and mythic or social power reading."
+          }
+        ]
+      },
+      "consistency": {
+        "modules": [
+          {
+            "id": "lighting",
+            "label": "Lighting Continuity",
+            "description": "Primary light source direction and intensity must remain physically coherent in all panels."
+          },
+          {
+            "id": "material",
+            "label": "Material Continuity",
+            "description": "Material families and texture age state must remain stable across panels."
+          },
+          {
+            "id": "composition",
+            "label": "Layout Discipline",
+            "description": "Keep equal panel sizes, clean gutters, no overlap, no decorative frame noise."
+          }
+        ]
+      }
+    },
+    "prompt_segments": {
+      "identity_prompt": "",
+      "layout_prompt": "",
+      "negative_prompt_global": "",
+      "negative_prompt_layout": "",
+      "negative_prompt_motion": ""
+    },
+    "prompt_text": ""
+  }
+}

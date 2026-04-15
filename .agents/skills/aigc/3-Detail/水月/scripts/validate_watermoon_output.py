@@ -13,7 +13,7 @@ ALLOWED_TARGET_FIELDS = {
     "分镜明细[].角色背景面",
     "分镜明细[].角色站位走位",
     "分镜明细[].道具及状态",
-    "分镜明细[].分镜表现",
+    "beat_patches[].镜头消费提示",
 }
 
 
@@ -51,6 +51,9 @@ def validate_file(path: Path) -> list[str]:
         disallowed = sorted(target_fields - ALLOWED_TARGET_FIELDS)
         if disallowed:
             errors.append(f"{group_id}: 出现越权 target_fields: {', '.join(disallowed)}")
+        missing = sorted(ALLOWED_TARGET_FIELDS - target_fields)
+        if missing:
+            errors.append(f"{group_id}: 缺少必需 target_fields: {', '.join(missing)}")
 
         if "shot_patches" in group and group.get("shot_patches"):
             errors.append(f"{group_id}: `水月` 不得输出 `shot_patches`。")

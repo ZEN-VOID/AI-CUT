@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-14`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、项目治理状态快照、根级 benchmark suite 与首个 repo-local 改编技能纳入受治理注册：
+截至 `2026-04-15`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite 与首个 repo-local 改编技能纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -88,10 +88,12 @@
 
 - `aigc` 为仓库级总入口技能
 - `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
+- `4-Design` 已在 `active_skills[id=aigc].stage_index[id=aigc-4-subject].leaf_index` 登记 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}` 与 `3-面板/{场景,角色,道具}` 的 active leaf；`3-面板` tranche parent 处于 `partial-active`，仍处于 `bootstrap_compat` 局部迁移窗口
 - `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
 - `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
 - `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
+- `5-Image` 已升级为真实阶段父合同，当前统一收口 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成`
 - `6-Video` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照 / 首帧参照` 可路由
 - `7-Cut` 仍处于 `shelved` 状态
 - `AIGC-ZEN-VOID` 作为 design source 通过 mapping 管理，而不是直接整仓继承
@@ -116,7 +118,7 @@
 - `.codex/evals/`
 
 当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
-同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐，并对 `CONTEXT.md` 的超 soft-limit、Case 失衡与日志化回流给出软警告。
+同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐，并对 `CONTEXT.md` 的超 soft-limit、Case 失衡与日志化回流给出软警告；在 `bootstrap_compat` 下，至少仍会检查 active stage 父合同，避免父级 `SKILL.md` 的断链回指被误判为全绿。
 同时，AIGC 项目运行时已经开始把 `project_state.yaml + governance-state.yaml` 视为“人类摘要 + 结构化控制面”的双状态组合。
 同时，根级 `.agents/skills/aigc/benchmark-suite.yaml` 已落盘，作为后续动态评测的最小基线入口。
 
@@ -142,7 +144,7 @@
 当 `aigc` 处于 `bootstrap_compat` 改造窗口时，额外执行一条兼容约束：
 
 - harness 继续守住项目 runtime、治理工件 carriers、卫星技能入口与高风险预审。
-- `scripts/aigc_skill_audit.py` 可降级为根层兼容检查，不用旧阶段细节去卡住正在进行的结构重构。
+- `scripts/aigc_skill_audit.py` 可降级深层阶段细节检查，不用旧叶子细节去卡住正在进行的结构重构；但仍需覆盖 active stage 父 `SKILL.md`，防止父级路由、真源或本地引用断链被静默放行。
 
 对当前仓库而言，最重要的运行约束是：
 
