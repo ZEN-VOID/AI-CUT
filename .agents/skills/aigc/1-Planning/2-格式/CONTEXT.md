@@ -25,6 +25,7 @@
 | `总字数` 未按最终正文回填 | 收尾层 | 重算并回写 `总字数` 后重跑 validator | 将“字数回填 -> validator 复跑”固定为出口清单 | `FAIL-WORDCOUNT-STALE` 不再复发 |
 | 提前把分组/节奏结论写进剧本主稿 | 下游边界层 | 删除越权字段，只保留 handoff 接口 | 在 `Downstream Interface Contract` 固化非 owned truth | 主稿只承载本阶段内容 |
 | 场景标题使用中文数字导致下游 `3-分组` validator 无法解析场景号 | 跨阶段 I/O 兼容层 | 改回 `### 场景1：...` 这类阿拉伯数字标题 | 在 `2-格式` 合同中固定场景标题编号格式，避免把示例写成中文数字 | `3-分组` 可稳定识别组起始场景 |
+| storyboard_script 上游用 `角色名：台词` 而非中文引号，导致对白冻结校验误报 warnings | validator source extraction 层 | 扩展 `validate_script_output.py` 的上游对白抽取，兼容中文引号与角色冒号归因两种形式 | 对 `storyboard_script` / 分镜脚本源，validator 不应假设所有上游对白都已被中文引号包裹 | `validate_script_output.py --upstream <1-分集/第N集.md>` 对冒号式对白不再产生 `WARN-DIALOGUE-FREEZE` |
 
 ## Repair Playbook
 
@@ -41,3 +42,4 @@
 - `2-格式` 若要保留变体思行证据，应该优先落到 `agents-plan/` 侧车，而不是再长出第二份主稿。
 - 下游 `3-分组` 真正需要的是稳定的 `selected_variant + dialogue/narration policy + source_profile`，不是在剧本阶段提前拿到组边界或节奏蓝图。
 - 若主稿还要继续进入 `3-分组`，场景标题应统一写成 `场景1/场景2/...`，不要混用中文数字。
+- 对 `storyboard_script` 输入，源文本常把对白写成 `角色名（语气）：台词` 并夹在画面描述行内；对白冻结校验应先兼容这种上游形态，再判断主稿是否改写台词。

@@ -32,6 +32,33 @@ VISUAL_PATTERNS = {
     "camera_preset": re.compile(r"^镜头语言预设\s*[：:]\s*(?P<body>.+?)\s*$"),
 }
 UPSTREAM_QUOTE_RE = re.compile(r"[“\"](?P<text>[^”\"\n]+)[”\"]")
+UPSTREAM_ATTRIBUTION_RE = re.compile(
+    r"(?P<speaker>[\u4e00-\u9fffA-Za-z0-9·]{1,12})(?:（[^）\n]*）)?\s*[：:]\s*(?P<body>.*?)(?="
+    r"[\u4e00-\u9fffA-Za-z0-9·]{1,12}(?:（[^）\n]*）)?\s*[：:]"
+    r"|画面\s*[：:]|时长\s*[：:]|音效\s*[：:]|景别\s*[：:]|环境\s*[：:]|$)",
+    re.S,
+)
+UPSTREAM_NON_DIALOGUE_LABELS = {
+    "场景",
+    "环境",
+    "景别",
+    "画面",
+    "音效",
+    "时长",
+    "特写",
+    "近景",
+    "中景",
+    "全景",
+    "正反打",
+    "交叉切",
+    "转场",
+    "剧本类型",
+    "人物",
+    "总镜数",
+    "源文件",
+    "项目名",
+    "集数",
+}
 INLINE_ATTRIBUTION_RE = re.compile(
     r"(?:笑着|哭着|低声|轻声|沉声|冷声|怒声|怒吼|喊着|喊道|吼道|叹道|哽咽着|看着|盯着|望着|转身|抬手|伸手|后退|上前|走向).{0,8}(?:说|问|道|喊)$"
 )
@@ -205,8 +232,24 @@ def compute_word_count(script_body: str) -> int:
     return len(script_body.strip())
 
 
+def normalize_upstream_dialogue(text: str) -> str:
+    return re.sub(r"\s+", " ", text.strip().strip("。；;"))
+
+
 def extract_upstream_dialogues(upstream_text: str) -> set[str]:
-    return {match.group("text").strip() for match in UPSTREAM_QUOTE_RE.finditer(upstream_text) if match.group("text").strip()}
+    dialogues = {
+        normalize_upstream_dialogue(match.group("text"))
+        for match in UPSTREAM_QUOTE_RE.finditer(upstream_text)
+        if normalize_upstream_dialogue(match.group("text"))
+    }
+    for match in UPSTREAM_ATTRIBUTION_RE.finditer(upstream_text):
+        speaker = match.group("speaker").strip()
+        if speaker in UPSTREAM_NON_DIALOGUE_LABELS:
+            continue
+        body = normalize_upstream_dialogue(match.group("body"))
+        if body:
+            dialogues.add(body)
+    return dialogues
 
 
 def validate_variant(
@@ -287,7 +330,7 @@ def validate_variant(
                     )
                 if entry.kind == "dialogue":
                     dialogue_count += 1
-                    if quote and upstream_quotes and quote not in upstream_quotes:
+                    if quote and upstream_quotes and normalize_upstream_dialogue(quote) not in upstream_quotes:
                         add_finding(
                             findings,
                             level="warning",

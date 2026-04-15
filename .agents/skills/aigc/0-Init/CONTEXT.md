@@ -39,6 +39,7 @@
 | 初始化没有同步预建项目级 `Assets/` 资产库，导致参考图和画板素材只能临时散落在各阶段目录 | project runtime asset layer | 将 `Assets/角色 / 道具 / 场景 / 服装 / 分镜画板/*` 加入默认 bootstrap skeleton | 在 shared runtime layout、`0-Init/SKILL.md` 与审计脚本固定“Assets 是辅助资产库，不是阶段真源” | 新项目初始化后立即具备统一资产沉淀目录，且不与 `5-Image` 业务输出混淆 |
 | `4-Design` source leaf 缩到 active 三类后，初始化仍预建 `4-Design/服装/*` | runtime skeleton / active leaf drift | 将初始化预建目录收敛为 `场景 / 角色 / 道具` 三类 active leaf，保留 `Assets/服装/` 作为资产库 | 以 `_shared/project-runtime-layout.md` 为单一 runtime 真源，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查同一份 active skeleton | 新项目不再把 pending `服装` sibling 误判为已具备 4-Design active runtime |
 | `5-Image` 已升格为三段 active 链路后，初始化仍只预建三类请求目录 | runtime skeleton / active chain drift | 将 `5-Image/2-参照引用/` 与 `5-Image/3-图像生成/` 加入默认 bootstrap skeleton | 以 `_shared/project-runtime-layout.md` 为单一真源，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查五个图像阶段根 | 新项目初始化后能承接请求蒸馏、参照绑定与 provider handoff，不再残留旧 `2-图像生成` 口径 |
+| 分镜脚本故事源登记时按语义自造 `preset_registry.lock_level` 值 | story-source contract / 枚举边界层 | 将 `high / critical` 等自然语言强度值改为合法枚举 `hard_lock / soft_lock / reference_only` | 起草 storyboard_script manifest 时先回读 `_shared/story-source-contract.md` 的 Source-Type Extension Fields，禁止自造 lock level | manifest YAML 解析后，所有 `preset_registry[].lock_level` 均属于合法枚举 |
 
 ## Repair Playbook
 
@@ -80,6 +81,7 @@
 - 对已跑出下游产物的项目，默认最稳的回炉方式是 `archive_reset`：保留故事源和原始素材，归档旧阶段派生产物，再重写 `north_star / init_handoff / project_state`。
 - “继续当前方向但补断点”属于 `resume/`；“推翻当前方向重新起盘”属于 `0-Init`，两者不能混判。
 - 对轻量初始化项目，`1-Planning / 2-Global / ...` 这些预建目录只负责锁定 runtime，不代表阶段已经开跑；治理脚本若把目录本身当产出，恢复入口就会被错误前推。
+- 当 `primary_story_source.source_type == storyboard_script` 且需要登记 `preset_registry` 时，`lock_level` 只能使用 `_shared/story-source-contract.md` 的三档枚举：`hard_lock`、`soft_lock`、`reference_only`；不要用 `high`、`critical` 这类语义强度词。
 
 ## Archive Index
 

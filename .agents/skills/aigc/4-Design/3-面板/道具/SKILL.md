@@ -6,9 +6,15 @@ governance_tier: full
 
 # aigc 4-Design / 3-面板 / 道具
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
-`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认继续调用 `.agents/skills/api/image/nano-banana/general` 生图。
+`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/image/nano-banana/general` 生图。
 
 本技能完全继承 `/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/3-设定/4-面板/道具面板` 的核心配置口径：
 
@@ -16,7 +22,7 @@ governance_tier: full
 - 固定 16:9 / 4K / `4096x2304`
 - 三栏布局 `LEFT 15% | CENTER 50% | RIGHT 35%`
 - 左上角固定 `PROP_ID+PROP_NAME` identity badge
-- `layout.json` 先行、默认继续自动生图
+- `layout.json` 先行、默认继续后台批量并发自动生图
 
 当前仓的差异只在 runtime 与输入真源：
 
@@ -31,7 +37,7 @@ governance_tier: full
 | `business_goal` | 把道具设计产物中的 prompt 区块转成面板 layout JSON，并默认生成可审阅 PNG |
 | `business_object` | 逐道具 Markdown 设计卡、兼容 prompt JSON、兼容 design JSON、道具面板模板、SMART 参考图规则 |
 | `constraint_profile` | 不重做设计；只直引 prompt；先写 JSON 后生图；批量链路自动找参照；单文件/自然语言默认无参照 |
-| `success_criteria` | 每个道具有独立 `<prop_id>-<prop_name>-PropPanel-layout.json`、manifest、request sidecar 与默认 PNG 生成链 |
+| `success_criteria` | 每个道具有独立 `<prop_id>-<prop_name>-PropPanel-layout.json`、manifest、request sidecar 与默认后台提交链；最终 PNG 由输出文件或 provider report 复核 |
 | `non_goals` | 不回写 `2-设计`，不把面板 prompt 反向升格为设计事实，不为未重建 sibling 定义规则 |
 | `complexity_source` | 上游文件形态多，且 SMART 参照图规则需要同时满足连续批量与单次直生图两种语义 |
 | `topology_fit` | 混合型：输入判型 -> prompt 提取 -> 模板装配 -> layout 写回 -> SMART 生图 -> manifest 汇流 |
@@ -58,7 +64,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/<prop_id>-<prop_name>-PropPanel-layout.json`
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/_manifest.json`
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/generated/requests/*.json`
-- 默认 PNG 输出到 `generated/<layout-stem>/`
+- 默认后台提交 pid/log 写入 manifest；最终 PNG 输出到 `generated/<layout-stem>/`
 
 ## Stage Boundary
 
@@ -67,7 +73,7 @@ governance_tier: full
 1. 从设计产物提取 `prompt`。
 2. 读取 `templates/道具面板-提示词.json`。
 3. 组装道具面板 layout JSON。
-4. 调用共享 SMART bridge 生图。
+4. 调用共享 SMART bridge 后台批量并发生图。
 5. 写 `_manifest.json` 记录 layout 与生图结果。
 
 ### 本阶段不拥有
@@ -196,10 +202,10 @@ stateDiagram-v2
   1. 调用 `../_shared/panel_auto_generate.py`。
   2. 批量上下文自动发现 continuity refs。
   3. 单文件/自然语言上下文默认无参照。
-  4. 将 bridge 结果回写 manifest。
-- `evidence`: request sidecar、bridge report、nano result。
+  4. 默认后台批量并发提交，将 bridge 结果回写 manifest。
+- `evidence`: request sidecar、bridge report、`background_pid/background_log` 或 foreground nano result。
 - `route_out`: 成功 -> final；失败 -> `FAIL-PROP-PANEL-GENERATION`。
-- `gate`: 失败时返回非零，不伪装完成。
+- `gate`: 失败时返回非零；后台提交只写 `background_submitted`，不伪装为图片已完成。
 
 ## Commands
 

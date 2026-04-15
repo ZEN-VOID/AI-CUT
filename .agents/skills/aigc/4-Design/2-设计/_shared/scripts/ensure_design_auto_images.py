@@ -7,14 +7,21 @@ import argparse
 import json
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[7]
-RUN_DESIGN_AUTO_IMAGE = Path(__file__).resolve().parent / "run_design_auto_image.py"
+SCRIPT_DIR = Path(__file__).resolve().parent
+RUN_DESIGN_AUTO_IMAGE = SCRIPT_DIR / "run_design_auto_image.py"
+NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py"
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 ACTIVE_DOMAINS = ("场景", "角色", "道具")
+if SCRIPT_DIR.as_posix() not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR.as_posix())
+
+from run_design_auto_image import build_full_prompt, build_request_doc  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -28,6 +35,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--project-name", help="透传给 nano-banana 的项目名；默认从 --project 或路径推断")
     parser.add_argument("--global-style", help="全局风格.md 路径；默认交给 run_design_auto_image.py 自动推断")
     parser.add_argument("--timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
+    parser.add_argument("--max-concurrent", type=int, default=100, help="批量并发上限；默认 100")
+    parser.add_argument("--foreground", action="store_true", help="前台等待批量生图完成；默认后台提交")
     parser.add_argument("--write-report", action="store_true", help="保留 nano-banana report JSON")
     parser.add_argument("--generation-dry-run", action="store_true", help="调用 helper dry-run，只验证 payload，不真实请求 API")
     parser.add_argument("--plan-only", action="store_true", help="只打印缺图计划，不调用 helper，也不写 manifest")
@@ -152,6 +161,114 @@ def run_one_image(
     return int(result.returncode)
 
 
+def build_missing_request_docs(
+    design_files: Iterable[Path],
+    *,
+    project_name: str,
+    global_style: Path | None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    request_docs: list[dict[str, Any]] = []
+    attempts: list[dict[str, Any]] = []
+    for design_file in design_files:
+        try:
+            full_prompt = build_full_prompt(design_file, None, global_style)
+            request_docs.append(
+                build_request_doc(
+                    design_file=design_file,
+                    project_name=project_name,
+                    prompt=full_prompt,
+                    aspect_ratio="16:9",
+                    image_size="4K",
+                )
+            )
+            attempts.append(
+                {
+                    "design_file": repo_relative(design_file),
+                    "returncode": None,
+                    "planned": True,
+                    "request_id": f"design-auto-image-{design_file.stem}",
+                }
+            )
+        except Exception as exc:
+            attempts.append(
+                {
+                    "design_file": repo_relative(design_file),
+                    "returncode": 1,
+                    "planned": False,
+                    "error": str(exc),
+                }
+            )
+    return request_docs, attempts
+
+
+def write_batch_request(design_dir: Path, request_docs: list[dict[str, Any]]) -> Path:
+    request_dir = design_dir / "generated" / "requests"
+    request_dir.mkdir(parents=True, exist_ok=True)
+    request_path = request_dir / "design_auto_image_batch.json"
+    request_path.write_text(json.dumps({"tasks": request_docs}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return request_path
+
+
+def background_log_path(design_dir: Path) -> Path:
+    log_dir = design_dir / "generated" / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return log_dir / f"design_auto_image_batch_{stamp}.log"
+
+
+def run_batch_requests(
+    request_path: Path,
+    *,
+    timeout: int,
+    max_concurrent: int,
+    write_report: bool,
+    generation_dry_run: bool,
+    foreground: bool,
+) -> dict[str, Any]:
+    cmd = [
+        sys.executable,
+        NANO_SCRIPT.as_posix(),
+        "--input-json",
+        request_path.as_posix(),
+        "--timeout",
+        str(timeout),
+        "--max-concurrent",
+        str(max_concurrent),
+    ]
+    if not write_report:
+        cmd.append("--no-report")
+    if generation_dry_run:
+        cmd.extend(["--dry-run", "--print-payload"])
+
+    if foreground or generation_dry_run:
+        result = subprocess.run(cmd, check=False)
+        return {
+            "execution_mode": "dry-run" if generation_dry_run else "foreground-batch-concurrent",
+            "returncode": int(result.returncode),
+            "request_batch_path": request_path.as_posix(),
+            "max_concurrent": max_concurrent,
+        }
+
+    log_path = background_log_path(request_path.parent.parent.parent)
+    log_file = log_path.open("ab")
+    process = subprocess.Popen(
+        cmd,
+        cwd=REPO_ROOT,
+        stdout=log_file,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+    )
+    log_file.close()
+    return {
+        "execution_mode": "background-batch-concurrent",
+        "returncode": 0,
+        "background_pid": process.pid,
+        "background_log": log_path.as_posix(),
+        "request_batch_path": request_path.as_posix(),
+        "max_concurrent": max_concurrent,
+    }
+
+
 def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, Any], int]:
     manifest_path = design_dir / args.manifest_name
     project_name = infer_project_name(design_dir, args.project, args.project_name)
@@ -161,19 +278,26 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
     missing = [path for path, image in initial_images.items() if image is None]
 
     attempts: list[dict[str, Any]] = []
-    for design_file in missing:
+    batch_result: dict[str, Any] = {}
+    if missing:
         if args.plan_only:
-            attempts.append({"design_file": repo_relative(design_file), "returncode": None, "planned": True})
-            continue
-        returncode = run_one_image(
-            design_file,
-            project_name=project_name,
-            global_style=global_style,
-            timeout=args.timeout,
-            write_report=args.write_report,
-            generation_dry_run=args.generation_dry_run,
-        )
-        attempts.append({"design_file": repo_relative(design_file), "returncode": returncode, "planned": False})
+            attempts = [{"design_file": repo_relative(design_file), "returncode": None, "planned": True} for design_file in missing]
+        else:
+            request_docs, attempts = build_missing_request_docs(
+                missing,
+                project_name=project_name,
+                global_style=global_style,
+            )
+            if request_docs:
+                request_path = write_batch_request(design_dir, request_docs)
+                batch_result = run_batch_requests(
+                    request_path,
+                    timeout=args.timeout,
+                    max_concurrent=args.max_concurrent,
+                    write_report=args.write_report,
+                    generation_dry_run=args.generation_dry_run,
+                    foreground=args.foreground,
+                )
 
     final_images = {path: same_stem_image(path) for path in files}
     image_paths = [repo_relative(image) for image in final_images.values() if image is not None]
@@ -181,6 +305,8 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
 
     if args.generation_dry_run:
         status = "dry_run"
+    elif batch_result.get("execution_mode") == "background-batch-concurrent":
+        status = "background_submitted"
     elif not files:
         status = "no_markdown"
     elif missing_after:
@@ -202,6 +328,14 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         "existing_count": sum(1 for image in initial_images.values() if image is not None),
         "generated_count": max(0, len(image_paths) - sum(1 for image in initial_images.values() if image is not None)),
         "timeout_seconds": args.timeout,
+        "max_concurrent": args.max_concurrent,
+        "execution_mode": batch_result.get(
+            "execution_mode",
+            "plan-only" if args.plan_only else ("foreground-batch-concurrent" if missing else "already-complete"),
+        ),
+        "request_batch_path": batch_result.get("request_batch_path", ""),
+        "background_pid": batch_result.get("background_pid"),
+        "background_log": batch_result.get("background_log", ""),
         "generation_dry_run": bool(args.generation_dry_run),
         "attempts": attempts,
     }
@@ -218,7 +352,7 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         update_output_files(manifest, image_paths)
         write_manifest(manifest_path, manifest)
 
-    return report, 0 if status in {"success", "dry_run"} else 1
+    return report, 0 if status in {"success", "dry_run", "background_submitted"} else 1
 
 
 def main() -> int:

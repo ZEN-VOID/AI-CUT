@@ -7,6 +7,9 @@ import argparse
 import importlib.util
 import json
 import re
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
@@ -83,6 +86,10 @@ def _load_nano_module(repo_root: Path) -> Any:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _nano_script_path(repo_root: Path) -> Path:
+    return repo_root / ".agents" / "skills" / "api" / "image" / "nano-banana" / "scripts" / "nano_banana_generate.py"
 
 
 def _normalize_token(value: str) -> str:
@@ -411,6 +418,7 @@ def run_panel_auto_generate(
     save_images: bool = True,
     no_report: bool = False,
     generate: bool = True,
+    background: bool = True,
     pipeline_context: str = "direct-request",
 ) -> dict[str, Any]:
     if smart_mode == "off":
@@ -467,6 +475,60 @@ def run_panel_auto_generate(
             "trace": trace,
         }
 
+    if background and not dry_run:
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_path = request_root / f"panel_auto_generate_background_{stamp}.log"
+        cmd = [
+            sys.executable,
+            _nano_script_path(repo_root).as_posix(),
+            "--input-json",
+            batch_request_path.as_posix(),
+            "--max-concurrent",
+            str(max_concurrent),
+            "--timeout",
+            str(timeout),
+        ]
+        if not save_images:
+            cmd.append("--no-save-images")
+        if no_report:
+            cmd.append("--no-report")
+        if print_payload:
+            cmd.append("--print-payload")
+        log_file = log_path.open("ab")
+        process = subprocess.Popen(
+            cmd,
+            cwd=repo_root,
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        )
+        log_file.close()
+        nano_result = {
+            "success": True,
+            "status": "background_submitted",
+            "execution_mode": "background-batch-concurrent",
+            "task_count": len(request_docs),
+            "success_count": 0,
+            "failed_count": 0,
+            "background_pid": process.pid,
+            "background_log": log_path.as_posix(),
+            "effective_max_concurrent": min(len(request_docs), max_concurrent) if len(request_docs) > 1 else 1,
+        }
+        bridge_report_path = request_root / "panel_auto_generate_report.json"
+        bridge_report = {
+            "request_batch_path": batch_request_path.as_posix(),
+            "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",
+            "trace": trace,
+            "nano_result": nano_result,
+        }
+        _write_json(bridge_report_path, bridge_report)
+        nano_result["request_batch_path"] = batch_request_path.as_posix()
+        nano_result["bridge_report_path"] = bridge_report_path.as_posix()
+        nano_result["smart_mode_requested"] = trace["smart_mode_requested"]
+        nano_result["smart_mode_resolved"] = trace["smart_mode_resolved"]
+        nano_result["trace"] = trace
+        return nano_result
+
     nano_module = _load_nano_module(repo_root)
     nano_result = nano_module.run_generation_from_docs(
         request_docs,
@@ -505,6 +567,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-save-images", action="store_true", help="只保留请求与报告，不落 PNG")
     parser.add_argument("--no-report", action="store_true", help="跳过 nano-banana report JSON")
     parser.add_argument("--request-only", action="store_true", help="只写 request sidecar 和 bridge report，不调用 nano")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
     parser.add_argument("--dry-run", action="store_true", help="只生成 request sidecar 并调用 nano dry-run")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano 最终 payload")
     parser.add_argument("--pipeline-context", choices=("panel-stage", "direct-request"), default="direct-request", help="auto 模式判型所需上下文")
@@ -527,6 +590,7 @@ def main() -> int:
         save_images=not args.no_save_images,
         no_report=args.no_report,
         generate=not args.request_only,
+        background=not args.foreground,
         pipeline_context=args.pipeline_context,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))

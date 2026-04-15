@@ -6,6 +6,12 @@ governance_tier: full
 
 # aigc 5-Image / 3-图像生成
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## Mode Selection
 
 - 当前任务属于 `原生创建 + 既有优化`：目录已存在但无执行合同，同时必须承接 `1-提示词蒸馏` 与 `2-参照引用` 的既有请求对象。
@@ -48,6 +54,7 @@ governance_tier: full
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `.agents/skills/cli/dreamina-cli/SKILL.md`
 - `.agents/skills/api/image/nano-banana/SKILL.md`
+- `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - [references/jimeng-cli.md](references/jimeng-cli.md)
 - [references/nano-banana.md](references/nano-banana.md)
 
@@ -90,6 +97,7 @@ governance_tier: full
 6. 本 `SKILL.md + CONTEXT.md`
 7. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 8. 命中的 `references/*.md`
+9. `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 
 ## Canonical Inputs
 
@@ -110,6 +118,8 @@ governance_tier: full
 ## Output Image Path Contract (Mandatory)
 
 `submit-plan.json` 必须把 provider 执行后的目标输出目录写成与 `submit-plan.json`、`submit-brief.md` 相同的 provider/source/episode 目录。
+
+默认执行模式必须继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`：submit-plan 中写明 `execution_mode=background-batch-concurrent`、`max_concurrent=100`、request sidecar 或 provider batch section、以及后台状态回填字段。`3-图像生成` 完成只表示 handoff 包稳定，不表示 provider 已产图。
 
 硬规则：
 
@@ -184,7 +194,7 @@ stateDiagram-v2
 | `G2-provider-route` | 选择唯一 provider 或给出推荐主案 | 按选择机制锁定 `jimeng_cli` 或 `nano_banana` | `provider_decision` | `G3` 或推荐输出 | provider 不唯一不得写最终计划 |
 | `G3-provider-resolve` | 解析 provider-specific 输入 | 读取命中模块，把引用解释成本地路径或 BASE64-compatible 说明 | `provider_resolution` | `G4` | 输入运输层未说清不得继续 |
 | `G4-submit-pack` | 生成提交计划与简报 | 写 `submit-plan.json + submit-brief.md`，并锁定同目录 `output_dir / expected_outputs` | `submit_pack` | `G5` | 无计划文件或输出目录不得 handoff |
-| `G5-handoff-converge` | 给出唯一下一入口 | 明确 handoff 到 `dreamina-cli` 或 `nano-banana` | `handoff_note` | `Done` | 只有本节点可结案 |
+| `G5-handoff-converge` | 给出唯一下一入口 | 明确 handoff 到 `dreamina-cli` 或 `nano-banana`，并声明默认后台批量并发执行参数 | `handoff_note` | `Done` | 只有本节点可结案 |
 
 ## Output Contract
 
@@ -195,6 +205,7 @@ stateDiagram-v2
 3. provider 选择结论
 4. 唯一下一入口
 5. 与提交包同目录的 `output_dir / expected_outputs` 路径约束
+6. `execution_mode=background-batch-concurrent`、`max_concurrent=100`、后台状态回填字段与前台覆盖方式
 
 硬规则：
 
@@ -204,6 +215,7 @@ stateDiagram-v2
 4. 本层不得删除 provider-neutral 引用字段。
 5. 本层不得把真实输出图像的 canonical 路径写到 `Assets/`、provider 临时缓存或其它阶段目录；输出图片必须与 `submit-plan.json`、`submit-brief.md` 同目录。
 6. 本层不得在 `Assets/` 有可用图片且引用字段为空时自行补猜、静默忽略或直接提交；唯一合法路径是回到 `2-参照引用` 产出通过审计的绑定 JSON，除非本轮显式声明 `prompt_only / no_reference`。
+7. 默认 submit-plan 不得写成前台逐个串行生成；除非用户显式要求同步等待，否则必须采用后台批量并发 handoff，并把 `background_submitted` 与最终产图成功区分开。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -216,6 +228,7 @@ stateDiagram-v2
 - provider 不唯一却仍然硬落最终计划
 - 计划文件缺失下一入口或返工入口
 - 输出图像路径漂到 `Assets/`、provider cache、阶段根或其它目录，导致提交包与结果文件分离
+- submit-plan 缺默认后台批量并发参数，或把后台提交态写成最终产图成功
 
 链路固定为：
 
@@ -228,6 +241,7 @@ stateDiagram-v2
   - `.agents/skills/aigc/5-Image/3-图像生成/CONTEXT.md`
   - `.agents/skills/aigc/5-Image/3-图像生成/references/jimeng-cli.md`
   - `.agents/skills/aigc/5-Image/3-图像生成/references/nano-banana.md`
+  - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md`
   - `.agents/skills/aigc/SKILL.md`

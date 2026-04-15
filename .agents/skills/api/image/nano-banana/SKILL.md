@@ -10,6 +10,12 @@ color: yellow
 
 # nano-banana API 契约层
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 1. 作用范围
 
 本文件是 nano-banana 的 **纯 API 契约层**，定义参数枚举、请求格式、并发调度与落盘规则。所有应用场景（通用生图、换脸、换装、多视图等）由子技能包承载。

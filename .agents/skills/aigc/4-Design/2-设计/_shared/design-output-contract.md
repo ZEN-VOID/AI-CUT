@@ -10,7 +10,7 @@
 | 人读投影 | `[场景名].md`、`[角色名].md`、`<prop_id>-<canonical_name>.md` | 文件名按 leaf 主键规则生成 |
 | 全局风格前缀 | `projects/aigc/<项目名>/2-Global/全局风格.md` 中 `## JSON 直接提取字段` 下 `- 全局风格：...` 的字段值 | 只允许提取该字段值；不得压缩整份 Markdown，不得混入 frontmatter、章节说明、类型元素或设计元素；进入 `prompt整合` 时应转写为英文自然语句 |
 | 生图提示词 | `full_generation_prompt = prompt整合` 的完整英文段落 | leaf 可保留 `design_prompt / final_prompt / prompt_integration` 等兼容字段，但最终入参必须是英文 integrated prompt，而不是局部字段拼接；`Integrated prompt` 正文目标为约 2000 UTF-8 bytes |
-| 自动图片 | 调用 `.agents/skills/api/image/nano-banana/general` 的单主体 T2I 快路径 | 可显式关闭或 dry-run，但正式完成不得跳过图片结果 |
+| 自动图片 | 调用 `.agents/skills/api/image/nano-banana/general` 的单主体 T2I 快路径，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 可显式关闭、dry-run 或 `--foreground` 等待；默认后台批量并发提交，不得把提交态伪装成已产图成功 |
 
 ## Markdown Template Registry
 
@@ -104,6 +104,8 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
   --design-file "projects/aigc/<项目名>/4-Design/<主体>/2-设计/第N集/<主体文件>.md"
 ```
 
+默认情况下该命令会先写 `generated/requests/<主体文件>-auto-image-request.json`，再以后台批量并发模式提交 nano-banana；如需前台等待真实图片完成，显式追加 `--foreground`。
+
 批量或补跑时必须使用共享 guard，而不是让各 leaf 自己判断“是否已经完整生图”：
 
 ```bash
@@ -113,15 +115,14 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/ensure_design_auto
   --episode "第1集"
 ```
 
+该 guard 默认写 `generated/requests/design_auto_image_batch.json`，把所有缺同 stem 图片的 Markdown 聚合为 `{ "tasks": [...] }`，并用 `--max-concurrent 100` 后台提交。只有验收、调试或需要同步拿图时才加 `--foreground`。
+
 该 helper 必须调用：
 
 ```bash
 python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
-  --project-name "<项目名>" \
-  --task-kind project \
-  --prompt "<full_generation_prompt>" \
-  --output-dir "<设计文件同目录>" \
-  --output-filename "<设计文件同名>.png" \
+  --input-json "<设计目录>/generated/requests/design_auto_image_batch.json" \
+  --max-concurrent 100 \
   --no-report
 ```
 
@@ -134,6 +135,7 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 5. 若 API key、网络或 provider 失败，应记录为图片步骤失败并阻塞“完整完成”声明；不得把只有设计文件的状态宣布为已完成自动生图。
 6. 自动生图 helper 必须带超时边界；provider 超时按图片步骤失败处理，返回非零码并在 manifest / validation-report 留痕，不得让批量 `2-设计` pipeline 无限等待。
 7. 批量状态必须按“每个 Markdown 设计文件都有同 stem 图片”判定；只要缺任一主体图片，`_manifest.json.auto_image.status` 必须是 `failed`，不得因部分图片存在而写成 `success`。
+8. 默认后台提交时 `_manifest.json.auto_image.status` 必须写 `background_submitted`，并记录 `execution_mode / request_batch_path / background_pid / background_log / max_concurrent`；后续验收再根据同 stem 图片是否存在判定最终成功。
 
 ## Subject Handoff Table
 
@@ -152,10 +154,15 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
   "auto_image": {
     "provider_skill": ".agents/skills/api/image/nano-banana/general",
     "mode": "single-subject-t2i",
+    "execution_mode": "background-batch-concurrent",
+    "max_concurrent": 100,
     "prompt_field": "full_generation_prompt",
     "output_dir_policy": "same_directory_as_design_file",
     "filename_policy": "same_stem_as_design_file",
-    "status": "success | failed | skipped_by_user | dry_run",
+    "status": "background_submitted | success | failed | skipped_by_user | dry_run",
+    "request_batch_path": "",
+    "background_pid": 0,
+    "background_log": "",
     "image_paths": []
   }
 }
@@ -168,5 +175,5 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 1. 主体设计真源已落盘。
 2. 人读设计文件已落盘。
 3. `full_generation_prompt` 已包含统一全局风格前缀。
-4. 单主体图片已通过 nano-banana general 生成到设计文件同目录，且文件名 stem 一致。
+4. 单主体图片请求已按默认后台批量并发模式提交；最终验收时图片已通过 nano-banana general 生成到设计文件同目录，且文件名 stem 一致。
 5. `_manifest.json` 已记录 prompt 来源、provider、输出路径与失败/成功状态。

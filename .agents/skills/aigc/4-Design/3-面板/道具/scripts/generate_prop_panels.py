@@ -406,6 +406,7 @@ def build_panels(
     smart_mode: str,
     explicit_references: list[str],
     max_concurrent: int,
+    foreground: bool,
     print_payload: bool,
     save_images: bool,
     no_report: bool,
@@ -434,6 +435,7 @@ def build_panels(
             smart_mode=smart_mode,
             explicit_references=explicit_references,
             max_concurrent=max_concurrent,
+            foreground=foreground,
             print_payload=print_payload,
             save_images=save_images,
             no_report=no_report,
@@ -461,6 +463,7 @@ def build_panels(
             smart_mode=smart_mode,
             explicit_references=explicit_references,
             max_concurrent=max_concurrent,
+            foreground=foreground,
             print_payload=print_payload,
             save_images=save_images,
             no_report=no_report,
@@ -487,6 +490,7 @@ def build_panels(
             smart_mode=smart_mode,
             explicit_references=explicit_references,
             max_concurrent=max_concurrent,
+            foreground=foreground,
             print_payload=print_payload,
             save_images=save_images,
             no_report=no_report,
@@ -509,6 +513,7 @@ def _build_episode(
     smart_mode: str,
     explicit_references: list[str],
     max_concurrent: int,
+    foreground: bool,
     print_payload: bool,
     save_images: bool,
     no_report: bool,
@@ -601,6 +606,7 @@ def _build_episode(
                 explicit_references=explicit_references,
                 dry_run=generation_dry_run,
                 max_concurrent=max_concurrent,
+                background=not foreground,
                 print_payload=print_payload,
                 save_images=save_images,
                 no_report=no_report,
@@ -608,12 +614,15 @@ def _build_episode(
             )
             manifest["image_generation"].update(
                 {
-                    "status": "completed" if result.get("success", False) else "failed",
+                    "status": result.get("status", "completed" if result.get("success", False) else "failed"),
                     "success": bool(result.get("success", False)),
                     "smart_mode_resolved": result.get("smart_mode_resolved"),
                     "task_count": result.get("task_count", 0),
                     "success_count": result.get("success_count", 0),
                     "failed_count": result.get("failed_count", 0),
+                    "execution_mode": result.get("execution_mode"),
+                    "background_pid": result.get("background_pid"),
+                    "background_log": result.get("background_log"),
                     "request_batch_path": result.get("request_batch_path"),
                     "bridge_report_path": result.get("bridge_report_path"),
                 }
@@ -645,6 +654,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto", help="SMART 生图模式")
     parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100, help="自动生图最大并发")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
     parser.add_argument("--no-save-images", action="store_true", help="自动生图时不落 PNG")
     parser.add_argument("--no-report", action="store_true", help="跳过 nano-banana report JSON")
@@ -667,6 +677,7 @@ def main() -> int:
             smart_mode=smart_mode,
             explicit_references=args.reference,
             max_concurrent=args.max_concurrent,
+            foreground=args.foreground,
             print_payload=args.print_payload,
             save_images=not args.no_save_images,
             no_report=args.no_report,

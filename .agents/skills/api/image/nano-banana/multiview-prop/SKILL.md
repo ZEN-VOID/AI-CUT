@@ -9,6 +9,12 @@ tools: [Read, Write, Edit, Bash]
 
 # 道具多视图布局（PROP_DESIGN_SHEET）
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 触发条件
 
 用户提供一张或多张道具参照图 + 道具主体描述，要求生成多视图道具设计页。

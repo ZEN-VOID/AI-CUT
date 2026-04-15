@@ -54,6 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto")
     parser.add_argument("--reference", action="append", default=[], help="显式参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100)
+    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
     parser.add_argument("--dry-run", action="store_true", help="写 JSON 与 request sidecar，但 nano 只 dry-run")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano payload")
     parser.add_argument("--no-report", action="store_true", help="调用 nano 时跳过 report")
@@ -489,6 +490,7 @@ def main() -> int:
             print_payload=args.print_payload,
             max_concurrent=args.max_concurrent,
             no_report=args.no_report,
+            background=not args.foreground,
             pipeline_context=source_context(args),
         )
         generation_failed = not bool(result.get("success"))
@@ -500,6 +502,10 @@ def main() -> int:
             "task_count": result.get("task_count", 0),
             "success_count": result.get("success_count", 0),
             "failed_count": result.get("failed_count", 0),
+            "status": result.get("status", "completed" if result.get("success") else "failed"),
+            "execution_mode": result.get("execution_mode"),
+            "background_pid": result.get("background_pid"),
+            "background_log": result.get("background_log"),
             "request_batch_path": result.get("request_batch_path"),
             "bridge_report_path": result.get("bridge_report_path"),
             "nano_returncode": result.get("nano_returncode"),

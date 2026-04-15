@@ -6,6 +6,7 @@ Included templates:
 
 - `agent/agent-template.md`
 - `skill/SKILL.md`
+- `skill/CONTEXT.md`
 - `plugin/.codex-plugin/plugin.json`
 - `quality-evaluation/creative-skill-package-evaluation-report.md`
 - `quality-evaluation/creative-skill-package-benchmark-suite.yaml`

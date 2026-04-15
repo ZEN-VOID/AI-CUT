@@ -9,6 +9,12 @@ tools: [Read, Write, Edit, Bash]
 
 # 角色换装（Costume Swap）
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 基于角色原图（图A）和服装参照图（图B），保留角色的面部、发型、体态等身份特征不变，仅将服装替换为图B中的服装样式。参照图通过 BASE64 方式直接传入，继承父级 nano-banana API 契约。
 
 ## 触发条件

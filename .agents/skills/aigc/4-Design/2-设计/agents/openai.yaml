@@ -1,4 +1,4 @@
 model: gpt-5
 metadata:
   short_description: "消费 `1-清单/*.json + 0-Init + 2-Global`，路由场景/角色/道具设计真源"
-  default_prompt: "Use $aigc-design-object-design to route the current `4-Design/2-设计` task, lock `1-清单` JSON plus `0-Init` and `2-Global` as the only upstream truth layers, dispatch the needed active design leaf (`场景`, `角色`, or `道具`) under `projects/aigc/<项目名>/4-Design/`, then generate the same-directory same-stem single-subject image through nano-banana general with a full prompt that includes the global style prefix."
+  default_prompt: "Use $aigc-design-object-design to route the current `4-Design/2-设计` task, lock `1-清单` JSON plus `0-Init` and `2-Global` as the only upstream truth layers, dispatch the needed active design leaf (`场景`, `角色`, or `道具`) under `projects/aigc/<项目名>/4-Design/`, then submit same-directory same-stem single-subject images through nano-banana general in the default background batch concurrent mode with full prompts that include the global style prefix."

@@ -81,6 +81,57 @@ route_policies:
   - id: comic-generation-entry
     trigger: 命中漫画生成、已有 `nine_blade_comic_prompts.v1` JSON 需要生图、或需要 Seedream 一次生成 9 张连续竖版漫画页
     rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再合成单次 master prompt 调用 `.agents/skills/api/image/seedream`，默认输出到 `projects/comic/[项目名]/3-漫画生成/`，并使用 `--max-images 9 --stream --size 2K`。"
+  - id: team-screenwriter-dazai-osamu-entry
+    trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
+    rule: "进入 `.agents/skills/team/编剧组/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"
+  - id: team-actor-leslie-cheung-entry
+    trigger: 命中张国荣、哥哥表演法、Leslie Cheung actor perspective，或演员组需要处理角色气质、镜头特写、亲密戏、性别表达、舞台/银幕魅力
+    rule: "进入 `.agents/skills/team/演员组/张国荣/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出角色核心、身体方案、镜头方案与安全边界。"
+  - id: team-actor-anita-mui-entry
+    trigger: 命中梅艳芳表演视角、梅姐会怎么演、Anita Mui performance、百变天后、香港女儿，或演员组需要处理强悍女性、舞台造型、告别式演出、喜剧骨气、悲剧克制与公众人物气场
+    rule: "进入 `.agents/skills/team/演员组/梅艳芳/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出一句判断、表演抓手、排练动作与不要做清单。"
+  - id: team-actor-leung-ka-fai-entry
+    trigger: 命中梁家辉表演视角、梁家辉会怎么演、Tony Leung Ka-fai actor perspective，或演员组需要处理跨类型角色、黑帮/警匪权力人物、喜剧变形、历史人物、父亲/丈夫角色
+    rule: "进入 `.agents/skills/team/演员组/梁家辉/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出生活底盘、类型重心、身体方案、对手/镜头关系与工种提醒。"
+  - id: team-actor-maggie-cheung-entry
+    trigger: 命中张曼玉表演视角、张曼玉会怎么演、Maggie Cheung performance、花样年华式留白，或演员组需要处理优雅克制、旗袍/造型、跨语言角色、女演员转型、影史女性气质
+    rule: "进入 `.agents/skills/team/演员组/张曼玉/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出一句判断、角色核心、身体方案、镜头方案、破口设计与不要做清单。"
+  - id: team-actor-brigitte-lin-entry
+    trigger: 命中林青霞表演视角、林青霞会怎么演、Brigitte Lin performance、东方不败气质、青霞式美感，或演员组需要处理冷艳、旧梦、雌雄同体、武侠女性、被凝视与反凝视、传奇退场
+    rule: "进入 `.agents/skills/team/演员组/林青霞/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出一句判断、角色核心、身体方案、造型/镜头方案、不要做清单与一句表演指令。"
+  - id: team-director-park-chan-wook-entry
+    trigger: 命中朴赞郁视角、朴赞郁会怎么拍、Park Chan-wook perspective、像老男孩/小姐/分手的决心那样处理，或导演组需要处理复仇、禁忌欲望、侦探爱情、情色惊悚、黑色幽默、改编转译、精密美术与声音剪辑机关
+    rule: "进入 `.agents/skills/team/导演组/朴赞郁/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，情欲/暴力/禁忌场面必须先检查观看权、行动权和信息权，再输出类型机关、欲望罪责、视听方案与制作边界。"
+  - id: team-director-david-fincher-entry
+    trigger: 命中大卫·芬奇视角、芬奇会怎么拍、David Fincher perspective、Fincher style、七宗罪/搏击俱乐部/社交网络/消失的爱人/心灵猎人/杀手式处理，或导演组需要处理犯罪程序、调查执念、机构系统、媒体操控、数字工作流、冷峻悬疑、隐形 VFX 与精密剪辑
+    rule: "进入 `.agents/skills/team/导演组/大卫·芬奇/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出信息结构、行为证据、制度压力、镜头/声音/剪辑方案、workflow 边界与不要做清单。"
+  - id: team-director-denis-villeneuve-entry
+    trigger: 命中维伦纽瓦视角、丹尼斯·维伦纽瓦会怎么拍、Denis Villeneuve perspective、像沙丘/降临/银翼杀手2049那样处理，或导演组需要处理大体量科幻、经典 IP 改编、极简对白、自然光/实景/VFX 混合、声音世界、影院大格式与人的尺度
+    rule: "进入 `.agents/skills/team/导演组/丹尼斯·维伦纽瓦/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出一句导演判断、人的尺度、影像方案、声音方案、改编/IP 边界、技术/制作方案与不要做清单。"
+  - id: team-director-ang-lee-entry
+    trigger: 命中李安视角、李安会怎么拍、李安式导演、Ang Lee perspective，或导演组需要处理家庭礼法、跨文化改编、压抑情感、同性/亲密关系、技术实验、3D/HFR/CGI 与不可拍小说改编
+    rule: "进入 `.agents/skills/team/导演组/李安/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出一句导演判断、压抑来源、身体/空间方案、演员边界、类型/技术方案、镜头剪辑方案与制作边界。"
+  - id: team-director-hou-hsiao-hsien-entry
+    trigger: 命中侯孝贤视角、侯孝贤会怎么拍、侯导式导演、Hou Hsiao-hsien perspective，或导演组需要处理生活流、历史创伤、家庭记忆、非职业演员、即兴对白、长镜头、画外暴力、弱情节、慢电影风险和武侠去奇观化
+    rule: "进入 `.agents/skills/team/导演组/侯孝贤/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出人物怎样生活、空间怎样运作、演员任务、镜头距离、历史/时间压力与慢/空/含蓄过度的修正。"
+  - id: team-director-jiang-wen-entry
+    trigger: 命中姜文视角、姜文会怎么拍、姜文式导演、让子弹飞式、姜文式幽默、历史寓言、台词太密或太装，或导演组需要处理强表达、人物模型、黑色幽默、演员本体、作者片前期定型与技术边界
+    rule: "进入 `.agents/skills/team/导演组/姜文/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出表达核心、人物模型、幽默/态度、场面方案、演员方案、后期/技术边界与历史/传播风险。"
+  - id: team-director-bong-joon-ho-entry
+    trigger: 命中奉俊昊视角、奉俊昊会怎么拍、Bong Joon Ho perspective、寄生虫式、杀人回忆式、雪国列车式，或导演组需要处理阶级空间、类型转调、怪物/动物/复制人寓言、黑色幽默、普通人伦理困境、韩国/国际类型片融合
+    rule: "进入 `.agents/skills/team/导演组/奉俊昊/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出一句导演判断、类型入口、空间/制度机器、人物压力、转调点、分镜/演员方案与不要做清单。"
+  - id: team-cinematography-christopher-doyle-entry
+    trigger: 命中杜可风摄影视角、杜可风会怎么拍、Christopher Doyle perspective、Du Kefeng、Doyle touch，或摄影组需要处理香港城市空间、手持摄影、低照度、霓虹/混合光、演员距离、现场即兴和王家卫式摄影拆解
+    rule: "进入 `.agents/skills/team/摄影组/杜可风/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，摄影型问题必须输出一句摄影判断、空间方案、光线方案、摄影机身体、演员关系、色彩质感与片场护栏。"
+  - id: team-cinematography-wing-shya-entry
+    trigger: 命中夏永康摄影视角、夏永康会怎么拍、Wing Shya perspective、夏永康摄影，或摄影组需要处理王家卫式剧照、香港明星肖像、情绪摄影、误焦/偏色/胶片实验、时尚影像小剧场和电影平面延展
+    rule: "进入 `.agents/skills/team/摄影组/夏永康/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，摄影型问题必须输出一句摄影判断、人物小剧本、抓取方式、画面与平面、错误策略、媒介选择与现场护栏。"
+  - id: team-cinematography-hiroshi-sugimoto-entry
+    trigger: 命中杉本博司视角、杉本博司会怎么拍、Hiroshi Sugimoto perspective、杉本式摄影，或摄影组需要处理时间、记忆、海景、剧场、蜡像/假物、自然史、建筑失焦、银盐工艺、暗房实验、古物与场所观测
+    rule: "进入 `.agents/skills/team/摄影组/杉本博司/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，摄影型问题必须输出一句摄影判断、观念机制、观看装置、主体处理、场所与时间轴、黑白/色彩/材料与执行护栏。"
+  - id: team-action-ching-siu-tung-entry
+    trigger: 命中程小东视角、程小东会怎么设计动作、Ching Siu-tung perspective、wire-fu、倩女幽魂式动作、轻功威亚、神怪武侠动作，或武术组需要处理飘逸轻功、剑舞、竹林追逐、威亚动作、AIGC 动作分镜与动作安全
+    rule: "进入 `.agents/skills/team/武术组/程小东/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，动作型问题必须输出动作气质、人物关系、空间路线、威亚/落点/镜头节奏、安全护栏和不要做清单。"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

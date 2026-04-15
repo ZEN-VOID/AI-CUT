@@ -6,11 +6,19 @@ governance_tier: full
 
 # aigc 4-Design / 3-面板
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
 `3-面板` 是 `4-Design` 的展示与派生生图 tranche。它只消费 `2-设计` 已稳定的设计产物，把其中可直接下游使用的 `full_generation_prompt / prompt整合` 收束为面板 layout JSON，并在默认路径下自动桥接 `.agents/skills/api/image/nano-banana/general` 生图。
 
 `2-设计` 当前会为单一主体生成同目录同 stem 概念图；`3-面板` 在批量上下文中可把这些图片作为 SMART 连续性参照，但不得把它们升格为面板 layout 真源。
+
+真实 provider 调用默认继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`：先写 `panel_auto_generate_batch.json`，再后台批量并发提交；只有显式 `--foreground` 时才前台等待图片完成。
 
 本 tranche 当前已重建的 active leaf：
 
@@ -104,6 +112,7 @@ stateDiagram-v2
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
 | SMART bridge | `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py` | layout JSON -> nano-banana/general request |
+| image execution contract | `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 后台批量并发默认执行模式 |
 | design output contract | `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md` | `full_generation_prompt` 与同目录同名单主体图真源 |
 | 场景 leaf | `.agents/skills/aigc/4-Design/3-面板/场景/SKILL.md` | 当前 active leaf |
 | 角色 leaf | `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md` | 当前 active leaf |
@@ -140,8 +149,8 @@ stateDiagram-v2
 ### NODE-PANEL-03 SMART 生图桥
 
 - `objective`: 根据执行上下文决定是否自动绑定设计图参照。
-- `actions`: 批量上下文扫描 `2-设计` 同 stem 单主体图片；单文件/自然语言上下文默认不扫描；构造 nano-banana request sidecar。
-- `evidence`: `prompt_reference.smart_mode_resolved`、`continuity_reference_images`、`explicit_references`。
+- `actions`: 批量上下文扫描 `2-设计` 同 stem 单主体图片；单文件/自然语言上下文默认不扫描；构造 nano-banana request sidecar；默认以 `background-batch-concurrent + max_concurrent=100` 提交 provider。
+- `evidence`: `prompt_reference.smart_mode_resolved`、`continuity_reference_images`、`explicit_references`、`execution_mode`、`background_pid/background_log`。
 - `route_out`: request 生成 -> nano-banana/general；映射失败 -> `FAIL-PANEL-SMART`。
 - `gate`: 自动参照图只允许在批量上下文中出现。
 
@@ -151,9 +160,9 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-PANEL-01` | leaf route | 只调度 active leaf | `NODE-PANEL-01` | 路由准确性 | `FAIL-PANEL-ROUTE` |
 | `FIELD-PANEL-02` | `*-Panel-layout.json.prompt` | 直接来自上游 `full_generation_prompt / prompt整合` | `NODE-PANEL-02` | prompt 真源性 | `FAIL-PANEL-LAYOUT` |
-| `FIELD-PANEL-03` | `image_generation` | 指向 nano-banana/general 并记录 SMART 默认 | `NODE-PANEL-03` | 生图桥接 | `FAIL-PANEL-SMART` |
+| `FIELD-PANEL-03` | `image_generation` | 指向 nano-banana/general，记录 SMART 默认，并按共享执行合同默认后台批量并发提交 | `NODE-PANEL-03` | 生图桥接 | `FAIL-PANEL-SMART` |
 | `FIELD-PANEL-04` | request sidecar | 批量自动参照、单文件默认无参照 | `NODE-PANEL-03` | SMART 语义 | `FAIL-PANEL-SMART` |
-| `FIELD-PANEL-05` | `_manifest.json` | 记录 layout 与 image generation 状态 | `NODE-PANEL-02/03` | 可追溯性 | `FAIL-PANEL-MANIFEST` |
+| `FIELD-PANEL-05` | `_manifest.json` | 记录 layout、request sidecar、`background_submitted` 或前台执行结果 | `NODE-PANEL-02/03` | 可追溯性 | `FAIL-PANEL-MANIFEST` |
 
 ## Thought Pass Map
 
@@ -170,7 +179,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-PANEL-01` | 只进入 active leaf | `FAIL-PANEL-ROUTE` | `NODE-PANEL-01` |
 | `FIELD-PANEL-02` | prompt 非空、可回链上游文件，且优先使用 `full_generation_prompt` | `FAIL-PANEL-LAYOUT` | leaf prompt extraction |
-| `FIELD-PANEL-03` | request 指向 nano-banana/general 标准字段 | `FAIL-PANEL-SMART` | `_shared/panel_auto_generate.py` |
+| `FIELD-PANEL-03` | request 指向 nano-banana/general 标准字段，默认 `execution_mode=background-batch-concurrent` 且并发上限可追踪 | `FAIL-PANEL-SMART` | `_shared/panel_auto_generate.py` |
 | `FIELD-PANEL-04` | 批量/单文件参照策略符合合同 | `FAIL-PANEL-SMART` | `_shared/panel_auto_generate.py` |
 | `FIELD-PANEL-05` | manifest 记录输出与生图结果 | `FAIL-PANEL-MANIFEST` | leaf manifest writeback |
 
@@ -186,11 +195,13 @@ stateDiagram-v2
 2. `_shared/panel_auto_generate.py` 的 SMART 判型与 request 映射。
 3. layout template 的字段结构。
 4. nano-banana/general 的结构化请求承接说明。
+5. `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 的执行模式真源。
 
 ## Completion Criteria
 
 - active leaf 产出 `layout.json`。
 - 默认自动桥接 nano-banana/general。
+- 默认后台批量并发提交 provider，并在 manifest/bridge report 中记录 request sidecar、pid 与日志。
 - 批量上下文自动扫描 `2-设计` 同 stem 单主体图片作为参照。
 - 单文件或自然语言生图默认无参照。
 - `_manifest.json` 可追溯 layout 与生图状态。

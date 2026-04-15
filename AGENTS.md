@@ -205,12 +205,14 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 每个长期维护的 skill 都应包含：
   - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite`
+  - 在 `SKILL.md` 中包含 `Context Loading Contract`：明确该技能每次被调用时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文
   - 在 `SKILL.md` 中包含与本全局政策对齐的 Root-Cause 执行合同，并附带上溯到 meta 层合同的钩子
   - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
   - 在 `CONTEXT.md` 中包含知识库核心（Type Map 与/或 Playbook 与/或 Reusable Heuristics）
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
+- `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
 

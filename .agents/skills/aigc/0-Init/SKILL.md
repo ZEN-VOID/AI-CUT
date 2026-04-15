@@ -6,6 +6,12 @@ governance_tier: full
 
 # aigc 0-Init
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
 `0-Init` 是 `aigc` 技能树的项目立项层、初始化治理层、`north_star` 生成入口，以及“重置式重新初始化”入口。

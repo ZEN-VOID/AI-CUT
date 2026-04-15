@@ -6,6 +6,12 @@ governance_tier: full
 
 # 6-Video / 首帧参照
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
 `首帧参照` 是 `6-Video/1-提示词蒸馏` 下的帧级叶子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 **单一 `分镜ID`** 收束为 **1 条首帧锚点视频请求对象**，并写出可供视频工具消费的 `JSON + TXT + _manifest.json` 三件套。

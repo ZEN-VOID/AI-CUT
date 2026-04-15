@@ -157,6 +157,159 @@ active_skills:
       canonical_output: "projects/comic/[项目名]/3-漫画生成/"
       bridge_output: "`generation_plan.json`、`seedream_master_prompt.txt`、`seedream_report_*.json`、`comic_generation_report.json` 与 9 张图片"
       mirror_policy: "3 号目录为执行证据真源；不把图片回写到上游 JSON。"
+  - id: team-screenwriter-dazai-osamu
+    path: .agents/skills/team/编剧组/太宰治
+    owner_office: shangshu
+    purpose: "编剧组 repo-local 人物叙事视角 skill，用太宰治式道化防御、羞耻自白、没落家庭、女性旁观与旧故事反写分析剧本人物、旁白、独白和失败者叙事。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/编剧组/太宰治/"
+      research_carrier: ".agents/skills/team/编剧组/太宰治/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-actor-leslie-cheung
+    path: .agents/skills/team/演员组/张国荣
+    owner_office: shangshu
+    purpose: "演员组 repo-local 人物表演视角 skill，用张国荣式镜头温度、性别流动、明星魅力与职业边界分析剧本角色和表演方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/演员组/张国荣/"
+      research_carrier: ".agents/skills/team/演员组/张国荣/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-actor-anita-mui
+    path: .agents/skills/team/演员组/梅艳芳
+    owner_office: shangshu
+    purpose: "演员组 repo-local 人物表演视角 skill，用梅艳芳式形象文本、强悍外壳、哀伤内核、舞台承诺与公众人物气场分析角色和舞台方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/演员组/梅艳芳/"
+      research_carrier: ".agents/skills/team/演员组/梅艳芳/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-actor-leung-ka-fai
+    path: .agents/skills/team/演员组/梁家辉
+    owner_office: shangshu
+    purpose: "演员组 repo-local 人物表演视角 skill，用梁家辉式类型切换、角色生活底盘、权力分寸、喜剧节拍与工种意识分析剧本角色和表演方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/演员组/梁家辉/"
+      research_carrier: ".agents/skills/team/演员组/梁家辉/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-actor-maggie-cheung
+    path: .agents/skills/team/演员组/张曼玉
+    owner_office: shangshu
+    purpose: "演员组 repo-local 人物表演视角 skill，用张曼玉式留白、身段控制、造型压力、转型判断与跨语境表演分析剧本角色和镜头方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/演员组/张曼玉/"
+      research_carrier: ".agents/skills/team/演员组/张曼玉/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-actor-brigitte-lin
+    path: .agents/skills/team/演员组/林青霞
+    owner_office: shangshu
+    purpose: "演员组 repo-local 人物表演视角 skill，用林青霞式镜前镜后、雌雄同体、旧梦烈性、类型片造神与退场余温分析剧本角色和镜头方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/演员组/林青霞/"
+      research_carrier: ".agents/skills/team/演员组/林青霞/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-park-chan-wook
+    path: .agents/skills/team/导演组/朴赞郁
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用朴赞郁式类型误导、欲望罪责、观看伦理、改编骨架迁移和精密感官机关分析剧本、分镜、情欲/暴力场面与导演方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/朴赞郁/"
+      research_carrier: ".agents/skills/team/导演组/朴赞郁/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-david-fincher
+    path: .agents/skills/team/导演组/大卫·芬奇
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用芬奇式程序悬疑、行为控制、制度冷感、信息经济、隐形技术和残酷改编发动机分析剧本、分镜、犯罪/悬疑、科技媒体题材、声音剪辑与制作策略。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/大卫·芬奇/"
+      research_carrier: ".agents/skills/team/导演组/大卫·芬奇/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-denis-villeneuve
+    path: .agents/skills/team/导演组/丹尼斯·维伦纽瓦
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用维伦纽瓦式影像优先、物理触感、人的尺度、经典改编、沉默叙事、声音世界和巨型 IP 责任分析剧本、分镜、科幻、史诗、改编与制作方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/丹尼斯·维伦纽瓦/"
+      research_carrier: ".agents/skills/team/导演组/丹尼斯·维伦纽瓦/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-ang-lee
+    path: .agents/skills/team/导演组/李安
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用李安式压抑显影、跨文化翻译、技术信仰、演员边界与类型换壳方法分析剧本、改编、分镜、表演、亲密场面和项目策略。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/李安/"
+      research_carrier: ".agents/skills/team/导演组/李安/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-hou-hsiao-hsien
+    path: .agents/skills/team/导演组/侯孝贤
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用侯孝贤式生活流现实主义、限制生成自由、历史家庭化、段落式剧作、距离伦理与类型内现实主义分析剧本、分镜、表演、历史题材和长镜头方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/侯孝贤/"
+      research_carrier: ".agents/skills/team/导演组/侯孝贤/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-jiang-wen
+    path: .agents/skills/team/导演组/姜文
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用姜文式表达欲望、人物模型、历史寓言、态度幽默、演员保护与作者片前期定型分析剧本、分镜、台词、类型、演员和项目策略。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/姜文/"
+      research_carrier: ".agents/skills/team/导演组/姜文/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-director-bong-joon-ho
+    path: .agents/skills/team/导演组/奉俊昊
+    owner_office: shangshu
+    purpose: "导演组 repo-local 人物导演视角 skill，用奉俊昊式类型混合、空间阶级、制度怪物、黑色幽默、普通人困境与精密分镜方法分析剧本、分镜、社会寓言、怪物/科幻、动画和项目策略。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/导演组/奉俊昊/"
+      research_carrier: ".agents/skills/team/导演组/奉俊昊/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-cinematography-christopher-doyle
+    path: .agents/skills/team/摄影组/杜可风
+    owner_office: shangshu
+    purpose: "摄影组 repo-local 人物摄影视角 skill，用杜可风式空间能量、身体化手持、低照度、现场适应、城市质感与跨文化位置分析分镜、光线、机位、运动和片场协作。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/摄影组/杜可风/"
+      research_carrier: ".agents/skills/team/摄影组/杜可风/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-cinematography-wing-shya
+    path: .agents/skills/team/摄影组/夏永康
+    owner_office: shangshu
+    purpose: "摄影组 repo-local 人物摄影视角 skill，用夏永康式情绪、剧情入口、错误转化、平面设计延展、人物距离与变化意识分析剧照、明星肖像、时尚摄影、电影平面和 AIGC 视觉方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/摄影组/夏永康/"
+      research_carrier: ".agents/skills/team/摄影组/夏永康/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-cinematography-hiroshi-sugimoto
+    path: .agents/skills/team/摄影组/杉本博司
+    owner_office: shangshu
+    purpose: "摄影组 repo-local 人物摄影视角 skill，用杉本博司式时间机器、虚实转换、原初地平线、暗房实验、建筑耐久测试与古即新方法分析摄影、分镜、美术、装置、场所和 AIGC 视觉方案。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/摄影组/杉本博司/"
+      research_carrier: ".agents/skills/team/摄影组/杉本博司/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-action-ching-siu-tung
+    path: .agents/skills/team/武术组/程小东
+    owner_office: shangshu
+    purpose: "武术组 repo-local 人物动作设计视角 skill，用程小东式威亚诗性、武侠物理、动作节奏、场景材料与现场护栏分析动作场面、分镜、奇幻武侠和 AIGC 视频动作。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/武术组/程小东/"
+      research_carrier: ".agents/skills/team/武术组/程小东/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
 
 planned_skills:
   - id: film-suite

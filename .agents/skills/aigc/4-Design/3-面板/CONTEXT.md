@@ -27,6 +27,7 @@
 | JSON 设计项同时存在 `prompt_integration` 与 `full_generation_prompt` 时面板误取未加前缀正文 | prompt 字段优先级层 | 将场景/角色面板 JSON prompt 读取顺序改为先取 `full_generation_prompt` | 面板脚本字段序必须与父 tranche 经验合同一致，`prompt_integration` 仅作兼容 fallback | batch request prompt 以 `Global style prefix:` 开头 |
 | manifest 批量模式读取 Markdown 时仍只认 `prompt整合` | Markdown 字段优先级层 | Markdown 抽取同样按 `full_generation_prompt -> prompt整合` 顺序 | JSON 与 Markdown 两种入口共享同一 prompt 真源优先级 | manifest 批量 request prompt 以 `Global style prefix:` 开头 |
 | 单文件任务被自动塞入历史参照 | SMART 污染层 | 单文件/自然语言默认 `single-doc-t2i` | 只有显式 `--reference` 才加入参照 | request trace 无自动 continuity refs |
+| 面板图批量生成前台等待，导致 layout 交付和后续审计被 provider 时延阻塞 | execution mode layer | 先写 `panel_auto_generate_batch.json` 与 bridge report，再后台提交 nano-banana | 共享 `image-generation-execution-contract.md` + `_shared/panel_auto_generate.py` 默认 `background-batch-concurrent + max_concurrent=100`，`--foreground` 才等待 | manifest/bridge report 含 `background_submitted`、pid、log 与 request batch |
 
 ## Repair Playbook
 
@@ -35,6 +36,7 @@
 3. 检查 `prompt` 是否直接来自 `2-设计` 产物的 `full_generation_prompt / prompt整合`。
 4. 检查 `SMART` 模式：批量走 `continuous-batch` 并只扫描同 stem 单主体图，单文件/自然语言走 `single-doc-t2i`。
 5. 若 API 映射失败，先查 `_shared/panel_auto_generate.py`，再查 `nano-banana/general`。
+6. 判断生成状态时区分 `background_submitted` 与前台完成；只有真实图片文件或 provider report 能证明产图完成。
 
 ## Reusable Heuristics
 
@@ -48,4 +50,5 @@
 - `2-设计` 同目录同名图片是批量 panel 的 continuity reference 候选，不是 layout JSON 的替代物。
 - 父 tranche 应持有共享桥与路由口径，leaf 只持有领域 prompt 提取、模板装配和局部 manifest。
 - JSON-only 停点不等于没有 handoff；应保留 request sidecar 和 bridge report，供审计或后续补跑。
+- 面板层默认完成口径是 layout + request sidecar + 后台提交证据；不要把后台提交态写成图片已完成态。
 - active leaf 每新增一个，都要同步父 `3-面板`、`4-Design` 父层与 registry；否则批量路由会出现“文件存在但入口仍 pending”的断层。

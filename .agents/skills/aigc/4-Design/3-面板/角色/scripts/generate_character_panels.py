@@ -532,9 +532,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON 和 request sidecar，不调用生图")
     parser.add_argument("--json-only", action="store_true", help="同 --layout-only")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
     parser.add_argument("--dry-run", action="store_true", help="调用 nano-banana/general dry-run，不真实请求 API")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
-    parser.add_argument("--max-concurrent", type=int, default=4, help="生图并发，默认 4")
+    parser.add_argument("--max-concurrent", type=int, default=100, help="生图并发，默认 100")
     parser.add_argument("--timeout", type=int, default=180, help="单任务超时秒数")
     return parser
 
@@ -579,12 +580,17 @@ def main() -> int:
                 max_concurrent=args.max_concurrent,
                 timeout=args.timeout,
                 generate=not (args.layout_only or args.json_only),
+                background=not args.foreground,
                 pipeline_context=source_context(args),
             )
             request_sidecar = bridge_result.get("request_batch_path", "")
 
         manifest = {
-            "status": "layout-only" if (args.layout_only or args.json_only) else ("dry-run" if args.dry_run else "generated"),
+            "status": (
+                "layout-only"
+                if (args.layout_only or args.json_only)
+                else ("dry-run" if args.dry_run else ((bridge_result or {}).get("status") or "generated"))
+            ),
             "project_name": args.project,
             "episode_id": episode,
             "skill_id": "aigc-design-role-panel",
@@ -606,6 +612,9 @@ def main() -> int:
                 "failed_count": bridge_result.get("failed_count"),
                 "dry_run": args.dry_run,
                 "skipped": bridge_result.get("skipped", False),
+                "execution_mode": bridge_result.get("execution_mode"),
+                "background_pid": bridge_result.get("background_pid"),
+                "background_log": bridge_result.get("background_log"),
             }
 
         write_json(output_dir / "_manifest.json", manifest)

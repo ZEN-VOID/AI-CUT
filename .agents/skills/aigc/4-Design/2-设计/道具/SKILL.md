@@ -6,6 +6,12 @@ governance_tier: full
 
 # aigc 4-Design / 2-设计 / 道具
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
 `2-设计/道具` 是 `4-Design` 阶段承接 `1-清单/道具`、连接 `3-面板 / 5-Image / 6-Video` 的设计叶子技能。
@@ -15,7 +21,7 @@ governance_tier: full
 1. `<prop_id>-<canonical_name>.md`
    逐道具 Markdown 设计卡，默认业务真源
 2. `<prop_id>-<canonical_name>.<ext>`
-   nano-banana general 单主体图片，与设计卡同目录同 stem
+   nano-banana general 单主体图片，默认后台批量并发提交，与设计卡同目录同 stem
 3. `_manifest.json`
    lineage、coverage、兼容导出状态与 handoff 审计侧车
 4. `道具设计.json`（仅在显式兼容导出时）
@@ -70,7 +76,7 @@ governance_tier: full
 2. `道具清单.json.props[].design_context` 缺失时必须阻塞并回退到 `1-清单/道具`，而不是在 `2-设计` 自行补猜。
 3. `0-Init` 与 `2-Global` 产物默认作为设计约束源；若缺失，必须在 `_manifest.json.notes` 中显式记录降级，而不是静默继续。
 4. 下游 prompt 默认从 Markdown 的 `**prompt整合**` 区块读取；compat JSON 只在显式兼容模式下导出。
-5. 生图 prompt 必须按 `_shared/design-output-contract.md` 自动加载统一全局风格前缀，形成 `full_generation_prompt` 后再调用 nano-banana general。
+5. 生图 prompt 必须按 `_shared/design-output-contract.md` 自动加载统一全局风格前缀，形成 `full_generation_prompt` 后再按共享执行合同后台批量并发调用 nano-banana general。
 
 ## Canonical Anchors
 
@@ -86,6 +92,7 @@ governance_tier: full
 | episode 根文件 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 回链镜头事实与状态 |
 | shared I/O | `.agents/skills/aigc/4-Design/2-设计/道具/_shared/IO_CONTRACT.md` | 输入输出、命名与 compat 投影合同 |
 | shared output | `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md` | 全局风格前缀、完整 prompt 与同目录同名图片快路径真源 |
+| image execution | `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 默认后台批量并发执行模式真源 |
 | Markdown 模板 | `.agents/skills/aigc/4-Design/2-设计/道具/templates/prop_masterprompt.structured.v2.md` | 逐道具 Markdown projection 的固定结构真源 |
 
 ## Visual Maps
@@ -298,7 +305,7 @@ stateDiagram-v2
   1. 从 Markdown `**prompt整合**` 提取主体 prompt。
   2. 自动加载统一全局风格前缀，生成 `full_generation_prompt`。
   3. 生图前复验 `isolated pure prop view / no hands / no characters`，并复核 prompt 不正向要求手、身体局部、持有者、角色或复杂场景。
-  4. 调用 `.agents/skills/api/image/nano-banana/general`，输出 `<prop_id>-<canonical_name>.<ext>`。
+  4. 默认后台批量并发调用 `.agents/skills/api/image/nano-banana/general`，目标输出 `<prop_id>-<canonical_name>.<ext>`。
   5. 在 `_manifest.json.auto_image` 记录 provider、prompt 字段、输出路径、状态与 `reference_cleanliness_note`。
 - `evidence`
   - `full_generation_prompt`
@@ -438,7 +445,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `FIELD-PROP-DESIGN-04` | `*.md / prompt整合` | 必须可被下游直接提取，显式包含全局风格前缀；`Integrated prompt` 完全英文且为 1800-2200 bytes，并且只回链已有事实 | `NODE-PROP-DESIGN-03` | prompt 可消费性 | `FAIL-PROP-DESIGN-CARD` |
 | `FIELD-PROP-DESIGN-05` | `_manifest.json` | 记录 inputs / outputs / statistics / notes / compat 状态 | `NODE-PROP-DESIGN-04` | 审计完整性 | `FAIL-PROP-DESIGN-AUDIT` |
 | `FIELD-PROP-DESIGN-06` | optional compat JSON | 只能由 Markdown 主稿投影 | `NODE-PROP-DESIGN-04` | compat 分层正确性 | `FAIL-PROP-DESIGN-AUDIT` |
-| `FIELD-PROP-DESIGN-07` | `<prop_id>-<canonical_name>.<ext> / _manifest.json.auto_image` | 自动生图使用含全局风格前缀的完整 prompt，图片与设计文件同目录同 stem | `NODE-PROP-DESIGN-05` | auto image completeness | `FAIL-PROP-DESIGN-AUTO-IMAGE` |
+| `FIELD-PROP-DESIGN-07` | `<prop_id>-<canonical_name>.<ext> / _manifest.json.auto_image` | 自动生图使用含全局风格前缀的完整 prompt，默认后台批量并发提交，图片与设计文件同目录同 stem | `NODE-PROP-DESIGN-05` | auto image completeness | `FAIL-PROP-DESIGN-AUTO-IMAGE` |
 | `FIELD-PROP-DESIGN-08` | `*.md / prompt整合 / auto_image preflight` | 道具图必须是纯道具参照；使用、触碰、手持或角色动作只能转写为器物表面、功能端、受力点、状态痕迹或离屏使用语境 | `NODE-PROP-DESIGN-03` / `NODE-PROP-DESIGN-05` | reference cleanliness | `FAIL-PROP-DESIGN-REFERENCE-CONTAMINATION` |
 
 ## Thought Pass Map
@@ -449,7 +456,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `S2` | `FIELD-PROP-DESIGN-02` / `03` | `design_context` 是否足以支撑完整设计卡 | 装配 `design_packet` 与约束 bundle | `design_context` 缺关键 handoff 字段 |
 | `S3` | `FIELD-PROP-DESIGN-02` / `03` / `04` / `08` | 如何把事实上收束为三段式 Markdown，并把手持/使用逻辑转写为纯道具参照 | 写 `物语 / 解构 / prompt整合 / reference_cleanliness_note` | prompt 与前文事实断链；纯道具锚句缺失 |
 | `S4` | `FIELD-PROP-DESIGN-05` / `06` | 如何审计并决定 compat projection | 写 manifest，并按需导出 compat JSON | compat JSON 被误当成默认主稿 |
-| `S5` | `FIELD-PROP-DESIGN-07` / `08` | 如何用完整且通过纯道具门禁的 prompt 自动生成同名图片 | 复验 `isolated pure prop view / no hands / no characters`，调用 nano-banana general 并更新 manifest | 图片缺失、不同名、prompt 缺全局前缀或纯道具门禁失败 |
+| `S5` | `FIELD-PROP-DESIGN-07` / `08` | 如何用完整且通过纯道具门禁的 prompt 自动生成同名图片 | 复验 `isolated pure prop view / no hands / no characters`，默认后台批量并发调用 nano-banana general 并更新 manifest | 后台提交缺追踪、图片缺失、不同名、prompt 缺全局前缀或纯道具门禁失败 |
 
 ## Pass Table
 
@@ -461,7 +468,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `FIELD-PROP-DESIGN-04` | `**prompt整合**` 可被稳定提取，含正确全局风格前缀，`Integrated prompt` 为完全英文 1800-2200 bytes，且不自创事实 | `FAIL-PROP-DESIGN-CARD` | `NODE-PROP-DESIGN-03` |
 | `FIELD-PROP-DESIGN-05` | `_manifest.json` 记录统计、compat 状态与下一入口 | `FAIL-PROP-DESIGN-AUDIT` | `NODE-PROP-DESIGN-04` |
 | `FIELD-PROP-DESIGN-06` | compat JSON 仅在显式模式下导出 | `FAIL-PROP-DESIGN-AUDIT` | `NODE-PROP-DESIGN-04` |
-| `FIELD-PROP-DESIGN-07` | `<prop_id>-<canonical_name>.<ext>` 已由 `full_generation_prompt` 生成，且 stem 与 Markdown 一致 | `FAIL-PROP-DESIGN-AUTO-IMAGE` | `NODE-PROP-DESIGN-05` |
+| `FIELD-PROP-DESIGN-07` | 默认提交态含 `background_submitted/request_batch_path/background_log`；最终验收时 `<prop_id>-<canonical_name>.<ext>` 已由 `full_generation_prompt` 生成，且 stem 与 Markdown 一致 | `FAIL-PROP-DESIGN-AUTO-IMAGE` | `NODE-PROP-DESIGN-05` |
 | `FIELD-PROP-DESIGN-08` | `Integrated prompt` 含 `isolated pure prop view / no hands / no characters`，且不正向要求手、身体局部、持有者、角色或复杂场景 | `FAIL-PROP-DESIGN-REFERENCE-CONTAMINATION` | `NODE-PROP-DESIGN-03` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -509,4 +516,4 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 - 已把逐道具 Markdown 固定为 canonical design truth，compat JSON 退为可选 projection
 - 已保证 `**prompt整合**` 可被 `3-面板` 与后续图像链稳定提取
 - 已保证逐道具 Markdown 严格绑定 `templates/prop_masterprompt.structured.v2.md`，并在 `prompt整合` 中包含正确全局风格前缀
-- 已使用含统一全局风格前缀的 `full_generation_prompt` 自动生成同目录同名图片
+- 已使用含统一全局风格前缀的 `full_generation_prompt` 默认后台批量并发提交同目录同名图片请求；最终验收时图片同 stem 存在

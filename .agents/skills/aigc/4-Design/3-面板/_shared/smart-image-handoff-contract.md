@@ -4,7 +4,7 @@
 
 ## Canonical Rule
 
-`3-面板` leaf 必须先写 layout JSON，再构造 nano-banana/general 标准 input JSON。默认执行生图；显式 `--layout-only` 或 `--json-only` 时只交付 layout JSON、request sidecar 与 bridge report。
+`3-面板` leaf 必须先写 layout JSON，再构造 nano-banana/general 标准 input JSON。默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发提交生图；显式 `--layout-only`、`--json-only` 或 `--request-only` 时只交付 layout JSON、request sidecar 与 bridge report。
 
 ## SMART Mode
 
@@ -48,3 +48,4 @@
 4. request sidecar 默认落到 `projects/aigc/<项目名>/4-Design/<域>/3-面板/第N集/generated/requests/panel_auto_generate_batch.json`。
 5. `--layout-only / --json-only` 必须仍通过共享 bridge 写 request sidecar 与 bridge report，但以 `request-sidecar-only` 停点退出，不调用 nano。
 6. active leaf 不得私造第二套 nano-banana payload、Assets 扫描或 SMART mode 解析；统一调用 `_shared/panel_auto_generate.py`。
+7. 默认真实生图必须写 `status=background_submitted`、`execution_mode=background-batch-concurrent`、`background_pid`、`background_log` 与 `max_concurrent`；只有 `--foreground` 才允许把本轮结果写成前台完成或失败。

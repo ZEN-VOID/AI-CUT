@@ -23,6 +23,7 @@
 | 本层试图重新绑定图片或重写 prompt | 边界层 | 回退到 `2-参照引用` 或 `1-提示词蒸馏` | 在主合同固化阶段边界 | `3-图像生成` 保持提交前组织职责 |
 | 真实输出图像落到 provider cache、`Assets/` 或阶段根，和 `submit-plan` 不在同一目录 | 输出路径合同层 | 在 `submit-plan` 写入同目录 `output_dir / expected_outputs`，执行后把 `result_outputs` 回填到同目录 | 在主合同和 provider references 固化“提交包与结果同目录”，`Assets/` 只允许派生副本 | 打开 `5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/` 即可同时看到计划、简报与本地图像 |
 | `Assets/` 中已有可用图片，但空引用请求仍被直接落成 provider 计划 | 引用模式分流层 | 停止生成计划，先回 `2-参照引用` 运行保守绑定和严格审计 | 在 Readiness Gate 固化“Assets 非空 + 未显式 prompt-only = unresolved” | submit-plan 只消费通过审计的绑定 JSON，或明确记录显式 prompt-only |
+| submit-plan 只写 provider，却没写默认后台批量并发执行参数 | 执行 handoff 层 | 在计划中补 `execution_mode / max_concurrent / request_batch_path / foreground_override` | 共享 `image-generation-execution-contract.md` 成为 `3-图像生成` 与 provider references 的执行模式真源 | submit-plan 能区分 `background_submitted` 与真实 `result_outputs` |
 
 ## Repair Playbook
 
@@ -35,6 +36,7 @@
 5. 再查 `submit-plan.json + submit-brief.md` 是否齐备。
 6. 再查 `output_dir / expected_outputs` 是否指向 submit 包同目录。
 7. 最后查下一入口是否唯一清楚。
+8. 再查执行参数是否继承后台批量并发默认：`execution_mode=background-batch-concurrent`，`max_concurrent=100`，且有前台覆盖说明。
 
 ## Reusable Heuristics
 
@@ -44,3 +46,4 @@
 - 只要 provider-specific 输入解析还没写清，submit-plan 就还不是合格的 handoff 包。
 - provider 执行结果不要只留在外部工具默认下载目录或 `Assets/`；最稳的 canonical 落点是 submit 包所在目录，后续资产库副本再从这里派生。
 - `Assets` 非空时，空引用不能自动等同 prompt-only；除非用户或上游明确声明不用参照图，否则它代表绑定链路未完成。
+- `3-图像生成` 的完成口径是稳定 handoff，不是 provider 结果；后台批量并发提交态必须写成 `background_submitted`，最终产图由 `result_outputs` 或本地文件复核。

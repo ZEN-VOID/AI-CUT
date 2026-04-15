@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-15`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite 与首个 repo-local 改编技能纳入受治理注册：
+截至 `2026-04-15`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite、repo-local 漫画链路与团队能力 skill 纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -93,6 +93,21 @@
 - `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
 - `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把小说或漫画小说桥接包输出为 `nine_blade_comic_prompts.v1` JSON
 - `comic-generation` 已登记为 repo-local 执行技能，负责校验九刀流 JSON 并通过 Seedream 单次连续多图请求生成 9 张竖版漫画页
+- `team-screenwriter-dazai-osamu` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/太宰治/`，其自包含调研载体为 `references/research/`
+- `team-actor-leslie-cheung` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/张国荣/`，其自包含调研载体为 `references/research/`
+- `team-actor-anita-mui` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梅艳芳/`，其自包含调研载体为 `references/research/`
+- `team-actor-leung-ka-fai` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梁家辉/`，其自包含调研载体为 `references/research/`
+- `team-actor-maggie-cheung` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/张曼玉/`，其自包含调研载体为 `references/research/`
+- `team-actor-brigitte-lin` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/林青霞/`，其自包含调研载体为 `references/research/`
+- `team-director-park-chan-wook` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/朴赞郁/`，其自包含调研载体为 `references/research/`
+- `team-director-ang-lee` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/李安/`，其自包含调研载体为 `references/research/`
+- `team-director-hou-hsiao-hsien` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/侯孝贤/`，其自包含调研载体为 `references/research/`
+- `team-director-jiang-wen` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/姜文/`，其自包含调研载体为 `references/research/`
+- `team-director-bong-joon-ho` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/奉俊昊/`，其自包含调研载体为 `references/research/`
+- `team-cinematography-christopher-doyle` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杜可风/`，其自包含调研载体为 `references/research/`
+- `team-cinematography-wing-shya` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/夏永康/`，其自包含调研载体为 `references/research/`
+- `team-cinematography-hiroshi-sugimoto` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杉本博司/`，其自包含调研载体为 `references/research/`
+- `team-action-ching-siu-tung` 已登记为武术组 repo-local 人物动作设计视角 skill，固定 skill 根为 `.agents/skills/team/武术组/程小东/`，其自包含调研载体为 `references/research/`
 - `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
 - `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
@@ -155,6 +170,7 @@
 - 高风险任务不能跳过预审。
 - 非平凡失败不能跳过分层上溯。
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
+- 团队能力类 skill 不默认创建项目 runtime；其 canonical carrier 是对应 `.agents/skills/team/<组名>/<技能名>/` 根目录和自包含 `references/` 材料。
 - 对由 `skill-subagents` 治理的多子智能体 skill，父 skill、`team.md`、agent docs、子路径合同与相关 review / audit / route 工件必须保持联动同步，不能只改其中一层就宣称源层收束。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
 
@@ -168,7 +184,7 @@
 - 有三省角色合同，不再只有一个模糊 orchestrator。
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
-- 已出现第一个受 registry 管理的 repo-local 非 `aigc` 改编技能，用来验证“非项目型技能也能走受治理注册与路由”。
+- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角与武术组人物动作设计视角；编剧组已纳入太宰治等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康与杉本博司三个自包含人物摄影视角，武术组已纳入程小东动作设计视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
 
 仍然明显未完成的部分也很清楚：
 

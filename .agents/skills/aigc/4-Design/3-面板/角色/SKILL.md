@@ -6,6 +6,12 @@ governance_tier: full
 
 # aigc 4-Design / 3-面板 / 角色
 
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+
 ## 概述
 
 `4-Design/3-面板/角色` 是角色设计产物的面板化与自动生图入口。
@@ -14,7 +20,7 @@ governance_tier: full
 
 - 上游：`projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/`
 - 输出：`projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`
-- 生图：`.agents/skills/api/image/nano-banana/general`
+- 生图：`.agents/skills/api/image/nano-banana/general`，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 
 本技能只做：
 
@@ -22,7 +28,7 @@ governance_tier: full
 2. 直接抽取设计产物中的 `prompt整合` / `prompt_integration` / `final_prompt` 等 prompt 部分。
 3. 套用固定 16:9 `CHARACTER_ATMOSPHERIC_DOSSIER` 三栏模板。
 4. 写 `*-CharacterPanel-layout.json`。
-5. 默认调用 nano-banana/general 自动生图。
+5. 默认写 request sidecar 后以后台批量并发模式调用 nano-banana/general 自动生图。
 
 本技能不做：
 
@@ -35,6 +41,7 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/3-面板/SKILL.md`
 - `.agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md`
 - `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py`
+- `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/角色/SKILL.md`
 - `templates/角色面板-提示词.json`
 - `scripts/generate_character_panels.py`
@@ -92,12 +99,13 @@ governance_tier: full
 
 1. `<role_id>-<role_name>-<costume_state>-CharacterPanel-layout.json`
 2. `generated/requests/panel_auto_generate_batch.json`
-3. 默认生图结果：`generated/<layout-stem>/...png`
+3. 默认后台提交证据：`background_submitted`、`background_pid`、`background_log`；最终图片输出到 `generated/<layout-stem>/...png`
 4. `_manifest.json`
 
 停点规则：
 
 - 默认：写 JSON 后自动执行生图。
+- `--foreground`：前台等待 nano-banana 完成；未传时默认后台批量并发提交。
 - `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar、bridge report 与 manifest，不调用 API。
 - `--dry-run`：写 JSON 与 request sidecar，并让 nano-banana/general 只打印/验证 payload，不真实调用 API。
 
@@ -191,7 +199,7 @@ erDiagram
 | `S4` | 模板装配 | 读取固定模板并合成 `prompt_payload.prompt_text` | `template_path` | `S5` | `S4` |
 | `S5` | SMART 参照 | 按模式绑定自动/显式参照 | `references` | `S6` | `S5` |
 | `S6` | JSON 与请求汇流 | 写 layout JSON 与 request sidecar | `layout_paths`、`request_sidecar` | `S7` | `S6` |
-| `S7` | 生图与收束 | 默认调用 nano-banana/general 或停在 JSON | `generation_result`、`manifest` | `done` | `S6-S7` |
+| `S7` | 生图与收束 | 默认后台批量并发提交 nano-banana/general 或停在 JSON | `generation_result`、`manifest` | `done` | `S6-S7` |
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -203,7 +211,7 @@ erDiagram
 | `N4-TEMPLATE` | 锁面板布局 | 模板 JSON | 合成三栏 layout prompt | `prompt_payload` | `N5` | 模板缺 `prompt_payload` 阻断 |
 | `N5-SMART-REF` | 锁参照图策略 | SMART mode / explicit refs / Assets | 写入 continuity roots 并调用共享 bridge 绑定 refs 或保持 T2I | `references` | `N6` | single/natural 不得隐式扫图 |
 | `N6-WRITE` | 写 JSON 与 request | `N2~N5` | 落 layout 和 sidecar | `layout_paths` | `N7` | layout 不存在不得生图 |
-| `N7-GENERATE` | 自动生图或停点 | request sidecar | 调用 nano-banana/general 或 JSON-only 停下 | `generation_result` | `done` | 默认不得漏掉生图 |
+| `N7-GENERATE` | 自动生图或停点 | request sidecar | 默认后台批量并发提交 nano-banana/general，或 JSON-only 停下 | `generation_result` | `done` | 默认不得漏掉生图；后台提交不得伪装为图片已完成 |
 
 ## Pass Table
 
