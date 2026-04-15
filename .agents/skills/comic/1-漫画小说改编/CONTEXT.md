@@ -60,27 +60,27 @@ last_checked_at: 2026-04-13T18:30:00Z
 ### 元信息
 
 - milestone_type: new_success_class
-- 范围/目标: 为 `.agents/skills/comic/漫画小说改编` 建立可执行的单技能真源，覆盖文本、图片、视频、新闻热搜到漫画小说底稿的改编链。
-- 触发（用户原话或摘要）: “完善 `.agents/skills/comic/漫画小说改编`，将任意资料改编为精彩的漫画小说，默认概念包含多类章末钩子、类型化示例以及网络热搜参照。”
+- 范围/目标: 为 `.agents/skills/comic/1-漫画小说改编` 建立可执行的单技能真源，覆盖文本、图片、视频、新闻热搜到漫画小说底稿的改编链。
+- 触发（用户原话或摘要）: “完善 `.agents/skills/comic/1-漫画小说改编`，将任意资料改编为精彩的漫画小说，默认概念包含多类章末钩子、类型化示例以及网络热搜参照。”
 - 涉及技能:
-  - `.agents/skills/comic/漫画小说改编`
+  - `.agents/skills/comic/1-漫画小说改编`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一`
 - layered_trace:
   - symptom/failure: 目标目录存在但没有实际技能合同，无法稳定处理多来源改编与章末钩子控制。
   - direct technical cause: 缺少 `SKILL.md`、`CONTEXT.md`、入口元数据与来源/钩子/热搜细则真源。
-  - rule source: `.agents/skills/comic/漫画小说改编/SKILL.md` 及 `references/*`
+  - rule source: `.agents/skills/comic/1-漫画小说改编/SKILL.md` 及 `references/*`
   - meta rule source: 仓库 `AGENTS.md` 的 Rollout Standard、Root-Cause First、Canonical Source Governance，以及 `skill-知行合一` 的 skeleton-first 合同
 - 产出物/变更路径:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/CONTEXT.md`
-  - `.agents/skills/comic/漫画小说改编/agents/openai.yaml`
-  - `.agents/skills/comic/漫画小说改编/references/source-intake-and-mode-selection.md`
-  - `.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
-  - `.agents/skills/comic/漫画小说改编/references/hook-ending-playbook.md`
-  - `.agents/skills/comic/漫画小说改编/references/hotsearch-news-adaptation.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/CONTEXT.md`
+  - `.agents/skills/comic/1-漫画小说改编/agents/openai.yaml`
+  - `.agents/skills/comic/1-漫画小说改编/references/source-intake-and-mode-selection.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/hook-ending-playbook.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/hotsearch-news-adaptation.md`
 - evidence paths:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/references/hook-ending-playbook.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/hook-ending-playbook.md`
 - 用户反馈: 希望技能能处理任意来源，默认强调漫画生成友好的小说化改编与高强度章末钩子。
 
 ### Feature / Positive（可复用经验）
@@ -98,20 +98,20 @@ last_checked_at: 2026-04-13T18:30:00Z
 - 范围/目标: 解决“正文有氛围但漫画冲击点后置、只能事后补桥接”的执行缺口。
 - 触发（用户原话或摘要）: “氛围感再加强一点……在创作时预先考虑到相应漫画表现时画面冲击力的方便？”
 - 涉及技能:
-  - `.agents/skills/comic/漫画小说改编`
+  - `.agents/skills/comic/1-漫画小说改编`
   - `.agents/skills/aigc2026/1-编剧/6-氛围感`
 - layered_trace:
   - symptom/failure: 当前合同强调视觉锚点和桥接包，但没有把“高冲击画面候选”前置到正文设计阶段。
   - direct technical cause: `SKILL.md` 与 `comic-novel-writing-spec.md` 缺少强制性的 `impact_beats / impact_map / 翻页点` 预演要求。
-  - rule source: `.agents/skills/comic/漫画小说改编/SKILL.md`、`.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
+  - rule source: `.agents/skills/comic/1-漫画小说改编/SKILL.md`、`.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
   - meta rule source: 仓库 `AGENTS.md` 的 Root-Cause First、Canonical Source Governance 与 `atmosphere-elevation` 的“氛围必须可拍摄、可分镜、可回收”约束
 - 产出物/变更路径:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
-  - `.agents/skills/comic/漫画小说改编/CONTEXT.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
+  - `.agents/skills/comic/1-漫画小说改编/CONTEXT.md`
 - evidence paths:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
 - 用户反馈: 希望氛围感更强，同时在创作时就考虑漫画表现的画面冲击力。
 
 ### Root Cause / Fix / Prevention
@@ -128,19 +128,19 @@ last_checked_at: 2026-04-13T18:30:00Z
 - 范围/目标: 让 `漫画小说改编` 在保持漫画画面感的同时，能直接产出适合解说漫朗读的沉浸式描述。
 - 触发（用户原话或摘要）: “能否设计为兼容解说漫的创作逻辑……既要有漫画画面感，还要有解说的声音沉浸感……不啰嗦，不冗余，沉浸式。”
 - 涉及技能:
-  - `.agents/skills/comic/漫画小说改编`
+  - `.agents/skills/comic/1-漫画小说改编`
   - `.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧`
 - layered_trace:
   - symptom/failure: 当前技能能产出强画面稿，但缺少“作为旁白直接读出来也成立”的声音栈约束。
   - direct technical cause: `SKILL.md` 与写作规格未定义 `delivery_flavor / narration_density / voice_brief`，也未继承解说剧的同命题声画约束。
-  - rule source: `.agents/skills/comic/漫画小说改编/SKILL.md`、`.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
+  - rule source: `.agents/skills/comic/1-漫画小说改编/SKILL.md`、`.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
   - meta rule source: 仓库 `AGENTS.md` 的 Root-Cause First、Canonical Source Governance，以及 `解说剧` 技能的“旁白主导 + 同命题配对”约束
 - 产出物/变更路径:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/references/comic-novel-writing-spec.md`
-  - `.agents/skills/comic/漫画小说改编/CONTEXT.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/comic-novel-writing-spec.md`
+  - `.agents/skills/comic/1-漫画小说改编/CONTEXT.md`
 - evidence paths:
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
   - `.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md`
 - 用户反馈: 要求同时兼容漫画画面感与解说旁白沉浸感，且语言不啰嗦、不冗余。
 

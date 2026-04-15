@@ -122,6 +122,44 @@ governance_tier: full
 3. 若 `meta.source_tranche` 缺失，可从路径或 `shot_level` 推断
 4. 引用来源必须是本地文件，不是外部 URL 主链
 
+## Candidate Derivation And Ambiguity Gate (Mandatory)
+
+`R2/R3` 的核心不是“凡是文本里出现过的资产名都绑定”，而是只把能被当前请求对象唯一证明的本地图片写入 `reference_images / image_markers`。
+
+### 允许绑定的证据等级
+
+| evidence_level | 可绑定条件 | 示例 | 默认动作 |
+| --- | --- | --- | --- |
+| `explicit_subject` | `related_subject`、组级 `出场角色及穿搭`、shot 级角色字段中出现完整角色名，且 `Assets/角色/` 只有唯一同名图片 | `林澄` -> `Assets/角色/第1集/林澄.jpg` | 允许绑定 |
+| `explicit_scene_anchor` | 组标题、shot `角色背景面` 或 `分镜表现` 中出现完整场景名，且该场景是本组主空间锚点 | `黑暗卧室与床头`、`楼道` | 允许绑定，默认每组不超过 2 个主场景锚点 |
+| `explicit_prop_full_name` | 出现完整道具规范名或不含编号的完整复合名，且只命中一张道具图 | `水龙头和床边拖鞋`、`滴答声效字和门` | 允许绑定 |
+| `provider_required_ref` | 上游请求已在 `image_markers[].related_subject` 或等价字段显式要求某引用 | 明确的 `related_subject` | 允许绑定 |
+
+### 禁止直接绑定的弱证据
+
+以下信号只能进入 `candidate_requests / ambiguous_candidates / rejected_candidates`，不得直接写入 `reference_images`：
+
+1. 单字或泛词：`门`、`灯`、`墙`、`水`、`床`、`地面`。
+2. 高复用场景词：`卫生间`、`吊顶`、`楼道`、`洗手池`、`门板`，除非它是组级主空间锚点且同类候选唯一。
+3. 子串命中：因为 `卫生间门` 命中 `卫生间` 或 `门`，因为 `楼道灯` 命中 `楼道` 或 `灯`。
+4. 一个 token 同时命中 2 张及以上资产，例如 `门 -> 门 / 卫生间门 / 木门 / 出租屋门`。
+5. 只靠 prompt 全文包含而没有字段位证据的匹配。
+
+### 候选裁决规则
+
+1. 每个候选必须写出 `match_reason`、`evidence_level`、`evidence_field` 与 `confidence`。
+2. `confidence < 0.75` 或候选集合存在同 token 多义时，默认不绑定。
+3. 同一组默认绑定上限：
+   - 角色：按 `出场角色及穿搭` 中真实出场者绑定。
+   - 场景：最多 2 个主空间锚点。
+   - 道具：只绑定完整复合名或上游显式 `related_subject`。
+4. 如果绑定上限会丢失关键引用，必须在 `match-report.md` 中说明 `override_reason`；不得静默过量绑定。
+5. `match-report.md` 必须同时列出：
+   - `bound_assets`
+   - `ambiguous_candidates`
+   - `rejected_candidates`
+   - 每个候选的 `match_reason / evidence_level / evidence_field / confidence`
+
 ## Canonical Landing
 
 - 根目录：`projects/aigc/<项目名>/5-Image/2-参照引用/`
@@ -129,6 +167,26 @@ governance_tier: full
 - 主文件：`projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/<第N集>.json`
 - manifest：`projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/_manifest.json`
 - 报告：`projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/match-report.md`
+
+## Validation Script Contract (Mandatory)
+
+本技能的本地防回归入口为：
+
+```bash
+python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/audit_reference_binding.py \
+  --bound-json projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/<第N集>.json \
+  --manifest projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/_manifest.json \
+  --assets projects/aigc/<项目名>/Assets/selected-4-design-assets.json
+```
+
+审计脚本至少检查：
+
+1. 主 JSON 与 manifest 必须存在 `next_entry`。
+2. `reference_images[]` 与 `image_markers[]` 一一可回链。
+3. 所有本地路径真实存在。
+4. `jimeng_cli` 只能写本地路径，`nano_banana` 不得写伪 BASE64。
+5. 泛词或子串导致的疑似过量绑定必须报 warning；同组 reference count 异常高时必须报 warning。
+6. `--strict` 下 warning 升级为失败。
 
 ## Topology Contract (Mandatory)
 
@@ -185,8 +243,8 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- |
 | `R0-intake-lock` | 锁定 source request 与目标模式 | 读取输入 JSON，决定 `jimeng_cli / nano_banana / dual_mode` | `intake_note` | `R1` | 未锁模式不得继续 |
 | `R1-request-audit` | 校验请求对象结构与模板兼容性 | 检查 `meta/prompt/model`、引用骨架、source tranche | `request_audit` | `R2` 或阻断 | 空壳请求不得继续 |
-| `R2-candidate-derive` | 推导该绑定哪些本地图片 | 从 `source_tranche / group_id / shot_id / related_subject` 推导候选 | `candidate_requests` | `R3` | 无依据不得猜测绑定 |
-| `R3-local-match` | 绑定真实本地图片 | 扫描 `Assets/` 与 `4-Design/`，锁定唯一文件 | `match_results` | `R4` 或阻断 | 歧义文件不得放行 |
+| `R2-candidate-derive` | 推导该绑定哪些本地图片 | 从 `source_tranche / group_id / shot_id / related_subject` 与字段位证据推导候选，写 `match_reason / evidence_level / evidence_field / confidence` | `candidate_requests / ambiguous_candidates / rejected_candidates` | `R3` | 无依据、泛词、子串命中不得直接绑定 |
+| `R3-local-match` | 绑定真实且唯一的本地图片 | 扫描 `Assets/` 与 `4-Design/`，只放行唯一高置信候选；多义 token 和同类候选进入歧义清单 | `match_results` | `R4` 或阻断 | 歧义文件、过量绑定、无字段证据不得放行 |
 | `R4-provider-resolve` | 生成 provider-specific 兼容槽位 | 按命中 reference 模块写 `provider_variants.*` | `provider_resolution_note` | `R5` | 未写明 provider 兼容态不得结束 |
 | `R5-writeback-audit` | 写回三件套并审计 | 落盘 JSON/manifest/report，给出下一入口 | `validation_report` | `Done` | 仅本节点可宣告完成 |
 
@@ -194,13 +252,14 @@ stateDiagram-v2
 
 1. 读取 `1-提示词蒸馏` 请求 JSON。
 2. 审计模板字段是否兼容 `v2` 双模式骨架；若是旧 `image_url` 结构，统一升级为 `image_ref + ref_kind + provider_variants`。
-3. 从路径、`shot_level`、`group_id`、`source_shot_ids`、`related_subject` 推导图片候选。
-4. 在 `Assets/` 与 `4-Design/` 中只绑定真实本地图片。
+3. 从路径、`shot_level`、`group_id`、`source_shot_ids`、`related_subject` 与字段位证据推导图片候选。
+4. 在 `Assets/` 与 `4-Design/` 中只绑定真实且唯一的高置信本地图片；泛词、子串命中和多义 token 必须进入 `ambiguous_candidates / rejected_candidates`。
 5. 按 provider 模式写入：
    - `jimeng_cli`: `resolved_input=本地路径`，`resolution_status=ready`
    - `nano_banana`: 默认 `resolved_input=""`，`resolution_status=pending_encode`
    - `dual_mode`: 同时保留两种槽位
-6. 写回 `2-参照引用` 三件套。
+6. 写回 `2-参照引用` 三件套，并显式写入 `next_entry`。
+7. 运行 `scripts/audit_reference_binding.py`；若存在 warning，必须在 `match-report.md` 中说明是否阻断或为何允许覆盖。
 
 ## Output Contract
 
@@ -218,6 +277,8 @@ stateDiagram-v2
 3. `image_markers[].provider_variants.jimeng_cli.resolved_input` 只能是本地路径。
 4. `image_markers[].provider_variants.nano_banana.resolution_status` 允许为 `pending_encode`，但不得写入虚构 BASE64。
 5. 若 `provider_mode=dual_mode`，不得删除任何一方 provider 槽位。
+6. `第N集.json` 与 `_manifest.json` 必须同时包含 `next_entry`；`match-report.md` 必须展示下一入口。
+7. `match-report.md` 不得只列已绑定资产，还必须列 `ambiguous_candidates / rejected_candidates`，否则不能证明 R2/R3 门已执行。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -228,6 +289,8 @@ stateDiagram-v2
 - `NANO-banana` 槽位提前塞入伪 BASE64
 - 双模式下只保留了一边 provider 槽位
 - `3-图像生成` 收到的请求对象仍无法判断 provider 输入该怎么解析
+- 泛词、子串或全文包含匹配导致每组绑定大量重叠资产
+- `next_entry` 未写入主 JSON、manifest 或 match-report
 
 链路固定为：
 

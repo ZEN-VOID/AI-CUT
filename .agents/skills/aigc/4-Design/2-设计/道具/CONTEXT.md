@@ -28,6 +28,7 @@
 | 未识别的新项目全局风格被包装成 `Translate this project style...` 并携带中文原文 | global style translation layer | 为当前风格族补英文转写；未知 fallback 返回保守英文风格句而非中文翻译指令 | `translate_global_style_prefix()` 不得透传中文原文，所有 fallback 必须是 provider-ready English ASCII | `rg "Translate this project style" <道具2-设计输出>` 无命中 |
 | 道具参照图混入手、角色或手持状态，导致后续道具引用带人物污染 | reference cleanliness layer | 将道具 prompt 固定为纯道具图 | `SKILL.md / IO_CONTRACT / build_prop_design_packets.py` 固定 `isolated pure prop view`、`no hands`、`no characters` | prop prompt 不要求手、角色、身体局部、使用者、手持姿态或复杂场景 |
 | 道具设计卡仍把使用/触碰/手持当成画面主体，只在 prompt 末尾写 no hands | thinking-action node layer | 在 `NODE-PROP-DESIGN-03` 先把使用逻辑转写为器物表面、功能端、受力点、状态痕迹或离屏使用语境 | `NODE-PROP-DESIGN-03/05` 登记 `reference_cleanliness_note`，自动生图前复验纯道具锚句 | prompt 含 `isolated pure prop view / no hands / no characters`，且没有正向手、身体局部、持有者、角色或复杂场景 |
+| 中文道具名或中文设计片段未被英文映射，生图主体退化为 `documented prop` 占位 | prompt subject binding layer | 为当前项目常见道具名与状态片段补英文映射，并把 fallback 改成“主体名 + 功能/材质/状态”描述 | `build_prop_design_packets.py` 的 `translate_prop_name / translate_fragment` 不得让 provider-facing prompt 回退成空泛主体占位；新增项目发现占位语时先修映射再重生图 | `rg "documented prop\\|documented visual priority\\|documented story premise" <道具2-设计输出>` 无命中，抽样图像主体与文件 stem 对齐 |
 
 ## Repair Playbook
 
@@ -50,3 +51,4 @@
 - 道具 `prompt整合` 应是一段约 2000 bytes 的英文 prop-art brief：从模板上方所有字段整合可视化指令，尤其不要遗漏 `Prop Design` 的材质、纹理、功能、状态痕迹和负面约束；画面固定为 `isolated pure prop view`，不得加入手、角色或手持元素。
 - 全局风格转写失败时，脚本宁可落一个保守但纯英文的 provider-ready 风格前缀，也不要把中文原文包进 `Translate this project style...`；后者会把翻译任务推给生图模型并污染下游面板请求。
 - 道具纯物图不是把“手”删除这么简单；先把手持/触碰/使用动作改写为器物自身的结构证据和状态证据，再写 prompt，才能避免模型补手或补持有者。
+- 用户确认画面风格、角色图、场景图与道具图效果稳定时，不应为修主体错配而重写全局风格；优先只修 `prompt整合` 的主体绑定、英文名映射和状态证据，保留已验证的黑白恐怖漫画风格前缀。

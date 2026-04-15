@@ -1,0 +1,139 @@
+{
+  "schema_version": "nine_blade_comic_prompts.v1",
+  "generation_contract": {
+    "provider": "seedream",
+    "call_mode": "single_request_sequential",
+    "image_count": 9,
+    "page_aspect_ratio": "9:16",
+    "seedream": {
+      "model": "doubao-seedream-5-0-260128",
+      "max_images": 9,
+      "size": "2K",
+      "stream": true
+    },
+    "hard_constraints": [
+      "Generate exactly 9 separate images/pages.",
+      "Each output image is one complete vertical 9:16 comic page.",
+      "Do not create a nine-grid collage, contact sheet, or one image containing all pages.",
+      "Do not create nine variations of the same scene.",
+      "Keep the nine pages as a continuous story sequence."
+    ]
+  },
+  "style_bible": {
+    "base_style": "cinematic comic realism with sharp classic manga page grammar",
+    "manga_style_keywords": [
+      "dynamic manga paneling",
+      "dramatic inked line art",
+      "bold contour lines",
+      "high contrast black gutters",
+      "screentone shadows",
+      "speed lines and impact bursts",
+      "oversized hand-lettered SFX",
+      "asymmetric panel rhythm",
+      "printed comic page texture"
+    ],
+    "layout_directive": "Use classic manga page grammar: splash panels, inset reaction panels, diagonal cuts, border-breaking SFX, silent beat panels, close-up strips, and irregular gutters. Avoid nine pages of flat top-to-bottom strips.",
+    "rendering": "dramatic rim lighting, hyper detailed textures, bold black panel borders, clear gutters, printed comic page feeling",
+    "color_script": "high contrast cinematic palette matched to story mood",
+    "quality_tags": "masterpiece, best quality, sharp focus"
+  },
+  "character_locks": [
+    {
+      "character_id": "protagonist",
+      "name": "角色名",
+      "lock_prompt": "stable face, stable costume, stable body type, stable signature prop across all pages"
+    }
+  ],
+  "comic_text_system": {
+    "dialogue": "speech bubble containing clear legible Chinese text",
+    "narration": "rectangular caption box containing clear legible Chinese text",
+    "inner_monologue": "thought bubble or inner monologue caption containing clear legible Chinese text",
+    "sfx": "large hand-lettered comic SFX text integrated inside the panel"
+  },
+  "story_beat_map": [
+    {"page": 1, "beat": "开场钩子"},
+    {"page": 2, "beat": "触发动作"},
+    {"page": 3, "beat": "阻力上桌"},
+    {"page": 4, "beat": "代价宣告"},
+    {"page": 5, "beat": "场景迁移"},
+    {"page": 6, "beat": "危机显形"},
+    {"page": 7, "beat": "生死瞬间"},
+    {"page": 8, "beat": "反击或救援"},
+    {"page": 9, "beat": "余波钩子"}
+  ],
+  "pages": [
+    {
+      "page_number": 1,
+      "page_role": "开场钩子",
+      "source_fragment": "填入第1页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "splash-with-insets", "panel_count": 3, "panel_ratios": ["dominant splash panel 65%", "two small inset reaction panels 15% + 20%"]},
+      "panels": [{"panel_id": "1A", "shot": "opening dramatic splash panel", "action": "填入第1页最大视觉钩子", "comic_techniques": ["full-bleed splash panel", "bold black gutters"], "text_slots": [{"type": "narration", "text": "第1页短旁白"}]}, {"panel_id": "1B", "shot": "reaction inset close-up", "action": "填入主角第一反应", "comic_techniques": ["overlapping inset panel"], "text_slots": [{"type": "sfx", "text": "异响"}]}, {"panel_id": "1C", "shot": "object or sound detail inset", "action": "填入声音/物件细节", "comic_techniques": ["single-color accent panel"], "text_slots": [{"type": "sfx", "text": "滴答"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 1 opening hook, splash-with-insets classic manga layout, dynamic manga paneling, dramatic inked line art, bold black gutters, screentone shadows, one dominant splash panel plus two overlapping reaction insets, fill in the exact visual action for page 1"
+    },
+    {
+      "page_number": 2,
+      "page_role": "触发动作",
+      "source_fragment": "填入第2页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "diagonal-cut-action", "panel_count": 3, "panel_ratios": ["large diagonal action panel 50%", "thin diagonal evidence panel 20%", "bottom reaction panel 30%"]},
+      "panels": [{"panel_id": "2A", "shot": "dynamic action comic shot", "action": "填入第2页触发动作", "comic_techniques": ["diagonal panel borders", "speed lines crossing gutters"], "text_slots": [{"type": "dialogue", "text": "第2页短对白"}]}, {"panel_id": "2B", "shot": "thin detail panel", "action": "填入关键物件/证据", "comic_techniques": ["evidence close-up strip"], "text_slots": []}, {"panel_id": "2C", "shot": "reaction close-up", "action": "填入情绪变化", "comic_techniques": ["reaction close-up strip"], "text_slots": [{"type": "narration", "text": "第2页短旁白"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 2 triggering action, diagonal-cut-action manga layout, slanted panel borders, speed lines crossing gutters, bold contour lines, screentone shadows, oversized SFX if needed, fill in the exact visual action for page 2"
+    },
+    {
+      "page_number": 3,
+      "page_role": "阻力上桌",
+      "source_fragment": "填入第3页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "overlapping-inset-reaction", "panel_count": 4, "panel_ratios": ["large scene panel 55%", "three overlapping small reaction insets 15% each"]},
+      "panels": [{"panel_id": "3A", "shot": "conflict reveal comic shot", "action": "填入第3页阻力显形", "comic_techniques": ["large scene panel"], "text_slots": [{"type": "dialogue", "text": "第3页短对白"}]}, {"panel_id": "3B", "shot": "reaction inset 1", "action": "填入第一反应", "comic_techniques": ["overlapping inset panel"], "text_slots": []}, {"panel_id": "3C", "shot": "reaction inset 2", "action": "填入第二反应", "comic_techniques": ["screen tone shadows"], "text_slots": []}, {"panel_id": "3D", "shot": "detail inset", "action": "填入关键细节", "comic_techniques": ["irregular gutter rhythm"], "text_slots": [{"type": "sfx", "text": "咔"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 3 opposition appears, overlapping-inset-reaction manga layout, large scene panel with three reaction insets, irregular gutters, dramatic inked line art, screentone shadows, fill in the exact visual action for page 3"
+    },
+    {
+      "page_number": 4,
+      "page_role": "代价宣告",
+      "source_fragment": "填入第4页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "split-diopter-page", "panel_count": 2, "panel_ratios": ["foreground face split 45%", "background threat/evidence split 55%"]},
+      "panels": [{"panel_id": "4A", "shot": "foreground face close-up", "action": "填入主角前景反应", "comic_techniques": ["split-diopter composition"], "text_slots": [{"type": "narration", "text": "第4页短旁白"}]}, {"panel_id": "4B", "shot": "background evidence or threat", "action": "填入代价显形", "comic_techniques": ["black gutter suspense"], "text_slots": [{"type": "sfx", "text": "啪"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 4 cost declaration, split-diopter-page manga layout, foreground face and background evidence in split focus, high contrast black gutters, dramatic inked line art, fill in the exact visual action for page 4"
+    },
+    {
+      "page_number": 5,
+      "page_role": "场景迁移",
+      "source_fragment": "填入第5页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "vertical-cascade", "panel_count": 4, "panel_ratios": ["tall cascading panel 35%", "narrow motion panel 20%", "thin detail panel 15%", "bottom reveal panel 30%"]},
+      "panels": [{"panel_id": "5A", "shot": "tall vertical transition panel", "action": "填入场景迁移主动作", "comic_techniques": ["vertical cascade composition"], "text_slots": [{"type": "narration", "text": "第5页短旁白"}]}, {"panel_id": "5B", "shot": "motion continuation panel", "action": "填入移动/转场", "comic_techniques": ["motion trail across panels"], "text_slots": []}, {"panel_id": "5C", "shot": "detail panel", "action": "填入关键场景物件", "comic_techniques": ["evidence close-up strip"], "text_slots": []}, {"panel_id": "5D", "shot": "bottom reveal panel", "action": "填入新场景钩子", "comic_techniques": ["black gutter suspense"], "text_slots": [{"type": "sfx", "text": "滴"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 5 location shift, vertical-cascade manga layout, tall cascading panels and motion trail crossing gutters, printed comic page texture, bold contour lines, fill in the exact visual action for page 5"
+    },
+    {
+      "page_number": 6,
+      "page_role": "危机显形",
+      "source_fragment": "填入第6页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "zigzag-tension-ladder", "panel_count": 4, "panel_ratios": ["zigzag panel 1 25%", "zigzag panel 2 20%", "zigzag panel 3 20%", "large reveal panel 35%"]},
+      "panels": [{"panel_id": "6A", "shot": "suspense setup panel", "action": "填入危机前兆", "comic_techniques": ["zigzag reading path"], "text_slots": [{"type": "sfx", "text": "异响"}]}, {"panel_id": "6B", "shot": "reaction panel", "action": "填入角色反应", "comic_techniques": ["silent beat panel"], "text_slots": []}, {"panel_id": "6C", "shot": "evidence detail panel", "action": "填入危机物证", "comic_techniques": ["single-color accent panel"], "text_slots": []}, {"panel_id": "6D", "shot": "large reveal panel", "action": "填入危机显形", "comic_techniques": ["black gutter suspense"], "text_slots": [{"type": "narration", "text": "第6页短旁白"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 6 crisis revealed, zigzag-tension-ladder manga layout, zigzag panel flow into one large reveal panel, high contrast black gutters, screentone shadows, oversized SFX, fill in the exact visual action for page 6"
+    },
+    {
+      "page_number": 7,
+      "page_role": "生死瞬间",
+      "source_fragment": "填入第7页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "impact-sfx-page", "panel_count": 2, "panel_ratios": ["full-height impact panel 75%", "small aftermath inset 25%"]},
+      "panels": [{"panel_id": "7A", "shot": "impact comic splash shot", "action": "填入第7页最大冲击动作", "comic_techniques": ["impact burst", "SFX breaking panel border"], "text_slots": [{"type": "sfx", "text": "轰"}]}, {"panel_id": "7B", "shot": "aftermath inset", "action": "填入冲击后的反应", "comic_techniques": ["overlapping inset panel"], "text_slots": [{"type": "narration", "text": "第7页短旁白"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 7 life and death instant, impact-sfx-page manga layout, huge impact splash panel with SFX breaking panel border and small aftermath inset, speed lines, impact burst, fill in the exact visual action for page 7"
+    },
+    {
+      "page_number": 8,
+      "page_role": "反击或救援",
+      "source_fragment": "填入第8页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "border-breaking-action", "panel_count": 3, "panel_ratios": ["large border-breaking action panel 60%", "thin evidence/action strip 15%", "reaction panel 25%"]},
+      "panels": [{"panel_id": "8A", "shot": "heroic action comic shot", "action": "填入第8页破局动作", "comic_techniques": ["border-breaking character pose"], "text_slots": [{"type": "dialogue", "text": "第8页短对白"}]}, {"panel_id": "8B", "shot": "thin strip panel", "action": "填入动作连续性", "comic_techniques": ["motion trail across panels"], "text_slots": []}, {"panel_id": "8C", "shot": "reaction panel", "action": "填入余波反应", "comic_techniques": ["silent beat panel"], "text_slots": [{"type": "narration", "text": "第8页短旁白"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 8 counterattack or rescue, border-breaking-action manga layout, character pose or SFX breaks panel border, motion trail across panels, high contrast black gutters, fill in the exact visual action for page 8"
+    },
+    {
+      "page_number": 9,
+      "page_role": "余波钩子",
+      "source_fragment": "填入第9页对应小说片段",
+      "layout": {"aspect_ratio": "9:16", "layout_id": "border-breaking-cliffhanger", "panel_count": 3, "panel_ratios": ["extreme close-up 35%", "large negative-space panel 45%", "tiny final sting panel 20%"]},
+      "panels": [{"panel_id": "9A", "shot": "cliffhanger close-up comic shot", "action": "填入第9页人物反应", "comic_techniques": ["extreme close-up", "screen tone shadows"], "text_slots": [{"type": "inner_monologue", "text": "第9页短独白"}]}, {"panel_id": "9B", "shot": "large negative-space threat panel", "action": "填入未解威胁", "comic_techniques": ["negative space dread", "black gutter suspense"], "text_slots": [{"type": "dialogue", "text": "钩子短句"}]}, {"panel_id": "9C", "shot": "final sting panel", "action": "填入最后一个视觉钩子", "comic_techniques": ["border-breaking SFX"], "text_slots": [{"type": "sfx", "text": "滴答"}]}],
+      "positive_prompt": "vertical 9:16 comic page, Page 9 aftermath cliffhanger, border-breaking-cliffhanger manga layout, extreme close-up plus large negative-space threat panel and tiny final sting panel, black gutter suspense, SFX breaking panel border, fill in the exact visual action for page 9"
+    }
+  ],
+  "global_negative_prompt": "nine-grid collage, contact sheet, single image containing all pages, nine variations of the same scene, duplicated composition, inconsistent character face, mismatched costume, unreadable Chinese text, wrong Chinese characters, speech bubble outside panel, caption outside panel, deformed hands, extra fingers, missing fingers, distorted face, low resolution, blurry, watermark, signature, logo"
+}

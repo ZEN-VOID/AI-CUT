@@ -104,6 +104,15 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
   --design-file "projects/aigc/<项目名>/4-Design/<主体>/2-设计/第N集/<主体文件>.md"
 ```
 
+批量或补跑时必须使用共享 guard，而不是让各 leaf 自己判断“是否已经完整生图”：
+
+```bash
+python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/ensure_design_auto_images.py \
+  --project "<项目名>" \
+  --domain "场景" \
+  --episode "第1集"
+```
+
 该 helper 必须调用：
 
 ```bash
@@ -124,6 +133,7 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 4. 自动图片是 derived asset，不得反向改写 `scene_design.json`、`character_design.json`、逐道具 Markdown 或 `1-清单` 真源。
 5. 若 API key、网络或 provider 失败，应记录为图片步骤失败并阻塞“完整完成”声明；不得把只有设计文件的状态宣布为已完成自动生图。
 6. 自动生图 helper 必须带超时边界；provider 超时按图片步骤失败处理，返回非零码并在 manifest / validation-report 留痕，不得让批量 `2-设计` pipeline 无限等待。
+7. 批量状态必须按“每个 Markdown 设计文件都有同 stem 图片”判定；只要缺任一主体图片，`_manifest.json.auto_image.status` 必须是 `failed`，不得因部分图片存在而写成 `success`。
 
 ## Subject Handoff Table
 

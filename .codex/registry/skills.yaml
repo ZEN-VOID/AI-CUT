@@ -119,15 +119,44 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 门下省侧 preflight、validation 与 learning bridge。
+  - id: comic
+    path: .agents/skills/comic
+    owner_office: zhongshu
+    purpose: "漫画项目父级总入口，统一路由 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成` 三段链，并固定项目根为 `projects/comic/[项目名]/`。"
+    contract_mode: active
+    runtime_control:
+      canonical_project_runtime: "projects/comic/[项目名]/"
+      stage_1_output: "projects/comic/[项目名]/1-漫画小说改编/"
+      stage_2_output: "projects/comic/[项目名]/2-九刀流漫画提示词/"
+      stage_3_output: "projects/comic/[项目名]/3-漫画生成/"
+      mirror_policy: "不单独使用 `output/comic` 作为正式项目真源；三段链以 `projects/comic/[项目名]/` 为 canonical runtime。"
   - id: comic-novel-adaptation
-    path: .agents/skills/comic/漫画小说改编
+    path: .agents/skills/comic/1-漫画小说改编
     owner_office: zhongshu
     purpose: 把文本、图片、视频、新闻事件或网络热搜改编为适合后续漫画生成的强情节小说底稿。
     contract_mode: active
     runtime_control:
-      canonical_output: 用户指定目标路径；若未指定，则按当前回复结构交付 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`
+      canonical_output: "projects/comic/[项目名]/1-漫画小说改编/"
       bridge_output: 在需要继续漫画生成时，同步输出视觉桥接层
-      mirror_policy: 不单独建立项目 runtime；以用户当前任务目标路径或当前回复为 canonical 交付口径
+      mirror_policy: "继承 comic 父级项目根；不把当前回复或 `output/` 作为默认正式落点。"
+  - id: comic-nine-blade-prompts
+    path: .agents/skills/comic/2-九刀流漫画提示词
+    owner_office: zhongshu
+    purpose: "将漫画小说或用户指定小说蒸馏为 `nine_blade_comic_prompts.v1` JSON，用于 Seedream 一次生成 9 张连续漫画页。"
+    contract_mode: active
+    runtime_control:
+      canonical_output: "projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json"
+      bridge_output: "`nine_blade_comic_prompts.v1` JSON，作为 `comic-generation` 的唯一输入真源"
+      mirror_policy: "继承 comic 父级项目根；以 2 号目录下 JSON 文件为跨技能交接真源。"
+  - id: comic-generation
+    path: .agents/skills/comic/3-漫画生成
+    owner_office: shangshu
+    purpose: "读取 `nine_blade_comic_prompts.v1` JSON，调用 Seedream 单次连续多图请求生成 9 张竖版漫画页。"
+    contract_mode: active
+    runtime_control:
+      canonical_output: "projects/comic/[项目名]/3-漫画生成/"
+      bridge_output: "`generation_plan.json`、`seedream_master_prompt.txt`、`seedream_report_*.json`、`comic_generation_report.json` 与 9 张图片"
+      mirror_policy: "3 号目录为执行证据真源；不把图片回写到上游 JSON。"
 
 planned_skills:
   - id: film-suite

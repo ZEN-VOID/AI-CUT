@@ -28,6 +28,7 @@ last_checked_at: 2026-03-10T00:00:00Z
 | `TM-SDR-DEDUP-MISS` | 流式返回中出现重复图片 | SSE 解析层 | 检查 `_merge_items` 去重逻辑是否覆盖当前返回格式 | 保持脚本中 URL/Base64 双维度去重 | `result_count` 与实际不重复图片数一致 |
 | `TM-SDR-B64-DECODE` | `response_format=b64_json` 时图片文件损坏 | 响应解析层 | 检查 Base64 数据是否完整（未被截断）；检查文件扩展名是否正确 | 在脚本中增加 Base64 长度校验 | 落盘图片可正常打开 |
 | `TM-SDR-LARGE-SEQUENTIAL-TIMEOUT` | `--max-images` 较大且非流式调用时读超时，错误类似 `Read timed out` | 执行/网络层 | 改用 `--stream`，或提高 `--timeout`，或降低 `--max-images` 分批测试 | 脚本失败报告写入 `diagnostic_hint`；排错流程优先把大批量连续图切到流式 | 报告中出现可执行诊断提示；流式或分批调用能返回图片 |
+| `TM-SDR-STREAM-TOPLEVEL-URL` | 流式完成事件显示 `usage.generated_images > 0`，但脚本 `result_count=0` | SSE 解析层 | 解析 `image_generation.partial_succeeded` 顶层 `url / b64_json`，不只读取非流式 `data[]` | 空结果必须写 `ok=false`；报告保留 `stream_event_count / stream_event_types` 便于定位事件形态 | 流式调用能从 partial 事件提取图片；无图时退出码非 0 |
 
 ## Repair Playbook
 
@@ -41,6 +42,7 @@ last_checked_at: 2026-03-10T00:00:00Z
    - 若 `--stream` 挂起或无输出，先去掉 `--stream` 重试
    - 非流式成功后再排查流式问题
    - 若 `--max-images >= 5` 的非流式连续多图读超时，优先改用 `--stream`；仍不稳定时再降低 `--max-images` 分批验证
+   - 若流式报告出现 `usage.generated_images > 0` 但 `result_count=0`，检查解析器是否兼容顶层 `url / b64_json` 事件
 4. **参考图排查**：
    - 确认每个 `--image-url` 可公网 GET 访问
    - 用 `curl -I <url>` 验证返回 200
@@ -63,6 +65,7 @@ last_checked_at: 2026-03-10T00:00:00Z
 - 连续多图（`sequential_image_generation=auto`）是 SEEDREAM 5.0 的核心差异化能力，适合生成同一主题的系列图片。
 - `--max-images` 控制连续图上限，但实际输出数量可能少于该值（取决于模型判断）。
 - 大批量连续图不要优先使用非流式长等；`--max-images >= 5` 的研究性测试优先启用 `--stream`，便于避免读超时并保留中间事件。
+- SEEDREAM 流式图片结果可能出现在 `image_generation.partial_succeeded` 事件顶层，非流式结果通常在 `data[]`；解析器必须同时支持两种结构。
 - 流式返回适合大批量或需要实时进度的场景，但网络不稳定时优先使用非流式。
 - 参考图数量建议 1-3 张；过多参考图可能导致模型难以融合。
 - `--extra-json` 可用于注入 API 文档中已发布但脚本尚未显式支持的新字段。

@@ -7,6 +7,7 @@ import argparse
 from datetime import datetime
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -168,11 +169,44 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-id", action="append", dest="scene_ids", help="只处理指定 scene_id，可重复传入")
     parser.add_argument("--scene-name", action="append", dest="scene_names", help="只处理指定 scene_name，可重复传入")
     parser.add_argument("--dry-run", action="store_true", help="只打印将生成的 manifest，不写文件")
+    parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
+    parser.add_argument("--auto-image-dry-run", action="store_true", help="写 manifest 并验证自动生图 payload，不真实请求 API")
+    parser.add_argument("--auto-image-timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
     return parser.parse_args()
 
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def run_auto_image_guard(
+    *,
+    output_dir: Path,
+    project_name: str,
+    global_style_path: Path | None,
+    manifest_name: str,
+    timeout: int,
+    generation_dry_run: bool,
+) -> int:
+    helper = SHARED_SCRIPTS_DIR / "ensure_design_auto_images.py"
+    cmd = [
+        sys.executable,
+        helper.as_posix(),
+        "--design-dir",
+        output_dir.as_posix(),
+        "--project-name",
+        project_name,
+        "--manifest-name",
+        manifest_name,
+        "--timeout",
+        str(timeout),
+    ]
+    if global_style_path and global_style_path.exists():
+        cmd.extend(["--global-style", global_style_path.as_posix()])
+    if generation_dry_run:
+        cmd.append("--generation-dry-run")
+    result = subprocess.run(cmd, check=False)
+    return int(result.returncode)
 
 
 def read_text(path: Path | None) -> str:
@@ -915,6 +949,17 @@ def main() -> int:
     write_json(output_dir / args.design_name, design_payload)
     manifest["template_validation"]["status"] = "generated_unvalidated"
     write_json(output_dir / args.manifest_name, manifest)
+    if not args.skip_auto_image:
+        auto_status = run_auto_image_guard(
+            output_dir=output_dir,
+            project_name=project_name,
+            global_style_path=global_style_path,
+            manifest_name=args.manifest_name,
+            timeout=args.auto_image_timeout,
+            generation_dry_run=args.auto_image_dry_run,
+        )
+        if auto_status != 0:
+            return auto_status
     print(f"[OK] wrote {len(packets)} scene designs to {output_dir}")
     return 0
 

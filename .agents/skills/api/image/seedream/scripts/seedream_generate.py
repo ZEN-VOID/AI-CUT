@@ -64,6 +64,20 @@ def _detect_ext_from_url(url: str) -> str:
 
 def _extract_image_items(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     items: List[Dict[str, Any]] = []
+    top_level_url = payload.get("url")
+    top_level_b64 = payload.get("b64_json")
+    if top_level_url or top_level_b64:
+        items.append(
+            {
+                "index": payload.get("image_index", 0),
+                "url": top_level_url,
+                "b64_json": top_level_b64,
+                "revised_prompt": payload.get("revised_prompt"),
+                "size": payload.get("size"),
+                "event_type": payload.get("type"),
+            }
+        )
+
     data = payload.get("data")
     if not isinstance(data, list):
         return items
@@ -82,6 +96,8 @@ def _extract_image_items(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "url": url,
                 "b64_json": b64_json,
                 "revised_prompt": revised_prompt,
+                "size": item.get("size"),
+                "event_type": payload.get("type"),
             }
         )
     return items
@@ -217,6 +233,20 @@ def _diagnostic_hint(exc: Exception, payload: Dict[str, Any], use_stream: bool) 
     return None
 
 
+def _empty_result_hint(payloads: List[Dict[str, Any]], final_payload: Optional[Dict[str, Any]]) -> str:
+    event_types = [str(payload.get("type")) for payload in payloads if payload.get("type")]
+    usage = final_payload.get("usage") if isinstance(final_payload, dict) else None
+    generated_images = usage.get("generated_images") if isinstance(usage, dict) else None
+    if generated_images:
+        return (
+            "The API reported generated_images but no url/b64_json was extracted. "
+            "Check streaming event parsing for partial_succeeded payloads."
+        )
+    if any(event_type == "image_generation.partial_failed" for event_type in event_types):
+        return "The stream contained partial_failed events. Inspect final_payload/error details."
+    return "No image url/b64_json was found in the API response."
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="SEEDREAM 5.0 图像生成 CLI (Ark OpenAI 兼容接口)"
@@ -344,6 +374,25 @@ def main() -> int:
 
     all_items = _merge_items(payloads)
     saved_files: List[str] = []
+    event_types = [str(payload.get("type")) for payload in payloads if payload.get("type")]
+
+    if not all_items:
+        report = {
+            "ok": False,
+            "error": _empty_result_hint(payloads, final_payload),
+            "request": payload,
+            "result_count": 0,
+            "results": [],
+            "saved_files": [],
+            "final_payload": final_payload,
+            "stream_event_count": len(payloads),
+            "stream_event_types": event_types,
+        }
+        report_path = Path(args.report_json) if args.report_json else output_dir / f"seedream_report_{_now_stamp()}.json"
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"❌ 未提取到图片结果: {report['error']}")
+        print(f"📝 报告: {report_path}")
+        return 3
 
     if args.save_images:
         for idx, item in enumerate(all_items, start=1):
@@ -373,6 +422,8 @@ def main() -> int:
         "results": all_items,
         "saved_files": saved_files,
         "final_payload": final_payload,
+        "stream_event_count": len(payloads),
+        "stream_event_types": event_types,
     }
     report_path = Path(args.report_json) if args.report_json else output_dir / f"seedream_report_{_now_stamp()}.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

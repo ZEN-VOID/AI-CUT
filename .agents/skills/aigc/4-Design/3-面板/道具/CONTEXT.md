@@ -21,6 +21,7 @@
 | 批量 panel 不能复用 2-设计 已有图片 | SMART continuity 层 | layout 写入 `continuity_source_roots` | `_shared` 统一扫描同主体图片 | request trace 有 continuity refs |
 | 单文件或自然语言任务被历史图片污染 | SMART 上下文层 | 单次输入默认 `direct-request/single-doc-t2i` | 单次任务不写 continuity roots | request trace 默认 reference_count=0 |
 | 形制高风险道具生成现代错误形态 | prompt guardrail 层 | 对杯、细链、图纸、铜铃注入 guardrails | 在 runner 中集中维护 morphology map | layout prompt 含对应形制约束 |
+| 上游道具 `prompt整合` 修复后，旧 layout/request 仍继承坏主体占位 | stale panel projection layer | 重新运行 `generate_prop_panels.py`，从当前 Markdown 重写 layout、request sidecar 与面板图 | 任何 `2-设计/道具` prompt 主体绑定修复后，必须同步刷新 `3-面板/道具`，不得只替换设计图 | `rg "documented prop\\|documented visual priority\\|documented story premise" <道具3-面板输出>` 无命中，抽样面板主体与 identity badge 对齐 |
 
 ## Repair Playbook
 
@@ -35,3 +36,4 @@
 - 当前仓的道具面板最稳定输入是逐道具 Markdown 的 `**prompt整合**`；旧仓 JSON 配置只保留为兼容入口。
 - `layout.json` 既是生图前置请求，也是失败后可补跑的审计证据。
 - 批量连续性与单次创作是两种不同语义；不要为了“更像上一次”而污染用户单次 prompt。
+- 当用户反馈“道具图风格好但主体不对”时，优先检查面板 layout 的 `image_generation.prompt_text` 是否仍含旧占位或旧 JSON 投影；若含旧投影，重建 layout 比单独补跑图片更可靠。

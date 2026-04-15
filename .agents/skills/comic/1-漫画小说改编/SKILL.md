@@ -401,7 +401,7 @@ erDiagram
 
 当任务允许写盘且用户给出目标目录时，canonical 落点默认：
 
-`<target_root>/漫画小说改编/漫画小说主稿.md`
+`projects/comic/[项目名]/1-漫画小说改编/漫画小说主稿.md`
 
 若用户只要求当前回复交付，则按同样结构直接输出。最低内容要求：
 
@@ -416,7 +416,7 @@ erDiagram
 
 当 `output_mode=full_package` 或用户明确要求后续继续做漫画生成时，同时交付：
 
-`<target_root>/漫画小说改编/漫画桥接包.md`
+`projects/comic/[项目名]/1-漫画小说改编/漫画桥接包.md`
 
 最低内容要求：
 
@@ -507,11 +507,11 @@ erDiagram
 优先检查：
 
 - `Rule Source`
-  - `.agents/skills/comic/漫画小说改编/SKILL.md`
-  - `.agents/skills/comic/漫画小说改编/CONTEXT.md`
-  - `.agents/skills/comic/漫画小说改编/references/source-intake-and-mode-selection.md`
-  - `.agents/skills/comic/漫画小说改编/references/hook-ending-playbook.md`
-  - `.agents/skills/comic/漫画小说改编/references/hotsearch-news-adaptation.md`
+  - `.agents/skills/comic/1-漫画小说改编/SKILL.md`
+  - `.agents/skills/comic/1-漫画小说改编/CONTEXT.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/source-intake-and-mode-selection.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/hook-ending-playbook.md`
+  - `.agents/skills/comic/1-漫画小说改编/references/hotsearch-news-adaptation.md`
 - `Meta Rule Source`
   - `/Volumes/AIGC/AIGC-DREAM- MAKER/AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`

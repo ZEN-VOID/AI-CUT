@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "nine_blade_comic_prompts.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generation_contract",
+    "style_bible",
+    "character_locks",
+    "comic_text_system",
+    "pages",
+    "global_negative_prompt"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "nine_blade_comic_prompts.v1"
+    },
+    "generation_contract": {
+      "type": "object",
+      "required": ["provider", "call_mode", "image_count", "page_aspect_ratio", "hard_constraints"],
+      "properties": {
+        "provider": {"const": "seedream"},
+        "call_mode": {"const": "single_request_sequential"},
+        "image_count": {"const": 9},
+        "page_aspect_ratio": {"const": "9:16"},
+        "seedream": {
+          "type": "object",
+          "properties": {
+            "model": {"type": "string"},
+            "max_images": {"const": 9},
+            "size": {"type": "string"},
+            "stream": {"type": "boolean"}
+          }
+        },
+        "hard_constraints": {
+          "type": "array",
+          "minItems": 3,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "style_bible": {"type": "object"},
+    "character_locks": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "comic_text_system": {"type": "object"},
+    "pages": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": [
+          "page_number",
+          "page_role",
+          "source_fragment",
+          "layout",
+          "panels",
+          "positive_prompt"
+        ],
+        "properties": {
+          "page_number": {"type": "integer", "minimum": 1, "maximum": 9},
+          "page_role": {"type": "string"},
+          "source_fragment": {"type": "string"},
+          "layout": {
+            "type": "object",
+            "required": ["aspect_ratio", "layout_id", "panel_count", "panel_ratios"],
+            "properties": {
+              "aspect_ratio": {"const": "9:16"},
+              "layout_id": {"type": "string"},
+              "panel_count": {"type": "integer", "minimum": 1, "maximum": 5},
+              "panel_ratios": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          },
+          "panels": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": ["panel_id", "shot", "action", "text_slots"],
+              "properties": {
+                "panel_id": {"type": "string"},
+                "shot": {"type": "string"},
+                "action": {"type": "string"},
+                "comic_techniques": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "text_slots": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["type", "text"],
+                    "properties": {
+                      "type": {
+                        "enum": ["dialogue", "narration", "inner_monologue", "sfx"]
+                      },
+                      "text": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "positive_prompt": {"type": "string"}
+        }
+      }
+    },
+    "global_negative_prompt": {"type": "string"}
+  }
+}
+

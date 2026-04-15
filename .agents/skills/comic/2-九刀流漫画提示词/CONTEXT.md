@@ -1,0 +1,148 @@
+# Context: 九刀流漫画提示词
+
+## Context Health
+<!-- CONTEXT_HEALTH_START -->
+```yaml
+monitor_version: 1
+soft_limit_chars: 40000
+hard_limit_chars: 80000
+soft_limit_cases: 80
+hard_limit_cases: 140
+current_chars: 15518
+current_lines: 148
+current_cases: 0
+status: ok
+recommended_action: keep-target-scoped-updates
+last_checked_at: 2026-04-15T11:17:17Z
+```
+<!-- CONTEXT_HEALTH_END -->
+
+本文件沉淀“小说/漫画桥接包 -> 九页漫画生成提示词 JSON”的经验。默认知识库模式，不记录流水账。
+
+## Type Map
+
+| type_id | 触发症状 | 根因层 | 立即修复 | 系统预防 | 验证点 |
+| --- | --- | --- | --- | --- | --- |
+| `TM-NB-01` | 下游生成九宫格拼图 | 顶层生成合同 | 在 `hard_constraints` 与 master prompt 写明 9 separate images/pages, not collage | schema 和脚本检查禁拼图约束 | 3 号技能 dry-run prompt 含 hard constraints |
+| `TM-NB-02` | 九张图像同一画面的变体 | 故事切页层 | 重做 `story_beat_map[9]`，每页必须有不同动作目标和情绪转折 | 每页 `page_role / narrative_function` 必填 | 9 页标题连读能形成剧情链 |
+| `TM-NB-03` | 角色在各页漂移 | 连续性层 | 补 `character_locks`，把脸型、服装、道具、色彩写成复用短语 | 每页 prompt 必须引用角色锁 | 主角描述不靠临场自由发挥 |
+| `TM-NB-04` | 页面像电影分镜，不像漫画页 | 漫画语法层 | 增加 panel borders、gutter、caption、SFX、speed lines、inset panel 等漫画技法 | 版式库在 reference 中固定 | 每页至少一个漫画技法标签 |
+| `TM-NB-05` | 文本气泡不可读或挤压画面 | 文字系统层 | 对白压短，旁白进 caption，独白与对白分离 | `comic_text_system` 固定四类文本槽 | 每个 text slot 类型明确 |
+| `TM-NB-06` | JSON 能读但不能被 3 号技能执行 | 结构合同层 | 按 schema 补齐 `generation_contract/pages/global_negative_prompt` | 验证脚本作为交接门 | validator 零错误 |
+| `TM-NB-07` | 流程通畅但画面漫画感不够犀利 | 全局风格层 | 在 `style_bible` 加 `manga_style_keywords / layout_directive`，用 ink、screentone、black gutters、oversized SFX 等词先锁漫画页语法 | reference 固化全局漫画风格锐化词库，validator 检查 style_bible 不只写泛影视词 | master prompt 前半段出现明确漫画页风格词 |
+| `TM-NB-08` | 9 页都从上到下平整排列 | 版式多样性层 | 重排 `layout_id / panel_ratios`，加入 splash、inset、diagonal、split、border-breaking、zigzag 等经典布局 | validator 检查至少 5 个 layout_id 且动态版式不少于 3 类 | 9 页缩略图能看出节奏变化 |
+| `TM-NB-09` | 单页有漫画词但冲击力弱 | 画面力度层 | 每页补 1 个主视觉冲击词组：extreme perspective、impact burst、heavy ink shadow、focus lines、border-breaking pose 等 | `style_bible` 分成线条、明暗、运动、文字、印刷质感五类，而不是只给一串泛词 | 高冲击页的 prompt 首段能读出“视觉冲击机制” |
+| `TM-NB-10` | 版式名存在但 panel 关系不清 | 版式执行层 | 在 `layout.panel_ratios` 和 `positive_prompt` 写清 dominant panel、inset、gutter、reading path、final reveal 的相对位置 | 版式提示词必须同时包含“格数/比例/阅读动线/冲击点”四项 | 不看剧情也能画出页面骨架 |
+| `TM-NB-11` | 气泡/SFX 破坏画面或阅读顺序 | lettering 层 | 把 speech bubble 贴近说话角色，SFX 绑定动作源，避免贴边漂浮和压住关键表情 | 文本槽提示词写入 near speaker / inside panel / no tangent / readable Chinese | 页面缩略图中视线不需要左右大幅摆动 |
+
+## Repair Playbook
+
+1. 先看失败是 `9 图合同`、`故事切页`、`角色锁`、`漫画语法`、`文字系统` 还是 `JSON 结构`。
+2. 若下游像九宫格，优先修顶层 hard constraints，而不是改单页文案。
+3. 若下游像九个变体，优先重切 `story_beat_map`。
+4. 若单页漫画感弱，优先补 panel 结构、gutter、caption、SFX、速度线、跨格构图。
+5. 若文字失败，减少文字数量；不要指望模型稳定生成长段中文。
+6. 若用户反馈“漫画感不够”但流程本身通畅，优先修全局风格词与版式多样性，而不是重切故事。
+7. 若用户要求“更有冲击力”，先判定冲击点类型：构图冲击、动作冲击、明暗冲击、情绪冲击、文字/SFX 冲击；每页只主打一到两类，避免词堆叠互相稀释。
+8. 若用户要求“布局更像漫画”，不要只新增 layout 名称；必须补 `panel_ratios`、dominant panel 位置、inset 位置、gutter 颜色/宽度、阅读路径和页末停顿点。
+
+## Reusable Heuristics
+
+- Seedream 已验证支持一次请求返回 9 张独立图片；提示词 JSON 的职责是让这 9 张“各有剧情功能”，不是把九页压成九宫格。
+- 每页内部可以是三格、二格、四格或 splash + inset；九页之间不要都用同一版式。
+- 页级 prompt 最稳的结构是：页面版式 -> 角色锁 -> panels -> 文本槽 -> overall -> negative。
+- 中文气泡要短，旁白比对白更适合承载解释，SFX 只承载动作声音。
+- 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链与 Seedream 单请求机制成立；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换。
+- 对 Seedream 连续 9 页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。
+- 当质量优化点已经明确为“漫画感”和“布局感”时，思行网络不能继续维持单线 `Comic Grammar` 节点；应拆成 `STYLE-SHARPEN / LAYOUT-DIVERSIFY / TEXT-SYSTEM` 三支路，并在汇流门阻断缺风格词、缺动态版式或文字槽失控的 JSON。
+- 冲击力不是“更多形容词”，而是“明确的视觉机制”：低机位仰拍制造压迫，极近特写制造情绪，斜切 panel 制造速度，黑 gutter 制造悬念，破框 SFX 制造爆发。
+- 版式提示词应像给分镜师的页面设计单：先写页面骨架，再写每格功能；如果 prompt 只剩镜头描述，模型容易回到电影分镜而不是漫画页。
+- 高冲击页可用 `one dominant splash panel + 2 small reaction insets + oversized SFX crossing the gutter`；解释页可用 `evidence strip + reaction close-up + caption anchor`，不必都做大爆炸。
+- 气泡位置是阅读动线的一部分。对白气泡离角色太远，模型即便画出气泡，也会让读者视线在页面两端摇摆；提示词应写 `speech bubble close to the speaking character, inside the panel, not at the far edge`。
+
+## Online Research Synthesis
+
+2026-04-15 联网检索后，将外部资料只抽象为可复用经验，不把网页内容当作本 skill 的第二真源。
+
+参考来源：
+
+- [Lee Sullivan Art - A Guide to Writing & Drawing for Comic Books](https://leesullivanart.co.uk/LEE/guidelines.htm)：强调漫画优先服务 storytelling，画面要包含 drama、dynamics，并通过远景/中景/特写变化建立地点、人物、表情与动作。
+- [Making Comics - Page Layouts](https://makingcomics.com/2014/05/07/panel-layout-golden-ratio/)：页面版式会通过 panel 大小、关系和阅读路径影响节奏与重点；适合抽象为 `dominant panel / reading path / final reveal` 类提示词。
+- [Clip Studio Tips - Manga Effects Every Artist Should Know](https://tips.clip-studio.com/en-us/articles/10107)：可将 action lines、focus/flash lines、hatching、screentone、sparkle 等漫画效果拆成风格词库。
+- [Clip Studio Tips - Webtoon Storyboard Notes](https://tips.clip-studio.com/en-us/articles/9394)：气泡位置和 panel 间距共同决定阅读流，漫画画面应尽量做到去掉文字也能看懂大致动作。
+- [Blambot - Comic Book Grammar & Tradition](https://blambot.com/en-gb/pages/comic-book-grammar-tradition)：lettering、caption、balloon、SFX 与 tangents 是漫画页语法的一部分，不应作为后置装饰。
+
+经验转译：
+
+- `style_bible` 里应同时覆盖“线条/明暗/动态/印刷/lettering”五类漫画语法，不能只写题材风格。
+- `pages[].layout` 应承担视觉叙事功能：开场建立、危机压迫、动作爆发、静默反应、证据揭示、页末钩子。
+- `panels[].comic_techniques` 是冲击力的最小落点。每格应选择 1-3 个技术词，而不是把全局词重复粘贴到所有 panel。
+
+## Impact Style Prompt Bank
+
+这些词库用于 `style_bible.manga_style_keywords`、`pages[].positive_prompt` 或 `panels[].comic_techniques`。原则：每页选 4-8 个，全局选 8-14 个；不要全量堆叠。
+
+| style_family | 可用提示词 | 最适合页面 | 使用注意 |
+| --- | --- | --- | --- |
+| 线条压迫 | `heavy black ink linework`, `bold contour lines`, `razor-sharp ink strokes`, `scratchy cross-hatching`, `thick silhouette edges` | 反派压迫、恐怖、命运宣告 | 和 `clean glossy anime` 同时出现会互相抵消 |
+| 明暗冲击 | `deep chiaroscuro shadows`, `black gutter suspense`, `hard rim light`, `single bright highlight`, `crushed blacks and stark whites` | 揭示、审讯、绝境、恐怖 | 暗部过多时要指定 readable faces |
+| 动作爆发 | `speed lines`, `focus lines`, `impact burst`, `motion trails across panels`, `kinetic diagonal composition`, `foreshortened action pose` | 战斗、坠落、追逐、觉醒 | 每页只让一个动作成为主爆点 |
+| 画面变形 | `extreme low-angle perspective`, `wide-angle distortion`, `claustrophobic close-up crop`, `tilted Dutch angle panel`, `overlapping foreground silhouette` | 权力压迫、眩晕、失控 | 变形要服务情绪，不要让角色识别物漂移 |
+| 印刷质感 | `screentone shadows`, `halftone texture`, `printed comic page grain`, `ben-day dot texture`, `rough paper ink texture` | 所有漫画页全局底色 | 作为统一风格锁，别写成单页主戏 |
+| 文字冲击 | `oversized hand-lettered SFX`, `SFX breaking the panel border`, `jagged scream balloon`, `rectangular caption anchor`, `caption embedded in black gutter` | 爆炸、尖叫、钩子、旁白页 | SFX 绑定动作源；caption 绑定叙事压缩 |
+| 情绪装饰 | `shoujo sparkle screentone`, `floating reaction inset`, `silent beat panel`, `negative space around the face`, `tiny sweat-drop emphasis` | 恋爱、尴尬、震惊、沉默 | 情绪装饰适合小格，不宜抢主画面 |
+| 悬疑证据 | `evidence close-up strip`, `cold noir gutter`, `documentary evidence insert`, `fingerprint detail panel`, `red-circled clue accent` | 推理、罪案、真相揭示 | 证据页也要有角色反应小格 |
+| 奇观尺度 | `full-bleed epic splash`, `tiny figure against colossal background`, `mythic scale contrast`, `vertical aura trails`, `ornate ink detail density` | 玄幻、灾难、神迹、城市毁灭 | 巨物页要保留人物尺度参照 |
+
+## Layout Prompt Matrix
+
+版式提示词应同时包含：`panel_count`、`panel_ratios`、dominant panel、reading path、gutter / inset / SFX 关系。
+
+| layout_id | 页功能 | 可直接改写的 layout prompt | 常见反模式 |
+| --- | --- | --- | --- |
+| `opening-hook-splash` | 第 1 页异常初现 | `vertical 9:16 comic page, one full-bleed opening splash occupying 70% of the page, two small bottom reaction insets, black gutters, final caption in the lower gutter` | 只写大场景但没有读者视线落点 |
+| `threat-low-angle-stack` | 压迫登场 | `three stacked panels: top extreme low-angle villain silhouette, middle narrow terrified eye close-up strip, bottom wide room panel with heavy black gutters` | 反派和主角同权重，压迫感消失 |
+| `diagonal-impact-run` | 追逐/攻击 | `four irregular panels cut by one strong diagonal reading path, speed lines crossing gutters, final panel is a foreshortened impact pose with oversized SFX` | 斜切很多但动作方向不清 |
+| `splash-with-reaction-insets` | 爆点/觉醒 | `one dominant splash panel with the hero action, 2-3 overlapping reaction insets near the edge, SFX partly breaking the splash border` | inset 遮住主角脸或关键动作 |
+| `silent-beat-triptych` | 情绪停顿 | `three quiet narrow panels with minimal dialogue: hand detail, eye close-up, empty space, one small caption box anchoring the pause` | 停顿页塞满解释对白 |
+| `evidence-ladder` | 推理/线索 | `zigzag evidence ladder: close-up clue panel, witness reaction inset, document strip, final dark room reveal, captions placed in gutters` | 证据图像没有和剧情动作绑定 |
+| `vertical-fall-cascade` | 坠落/失控 | `tall vertical cascading panels, body motion trail moving downward through panel borders, narrow black gutters, bottom impact burst` | 每格都是同一姿势的重复 |
+| `border-breaking-cliffhanger` | 页末钩子 | `bottom cliffhanger close-up breaks out of the panel border into the black gutter, one short final caption, large negative space above` | 钩子藏在普通小格里 |
+| `split-focus-reveal` | 双线揭示 | `split-focus page: foreground extreme close-up face on the left, background action panel on the right, thin inset clue between them, controlled reading path` | 两个焦点没有主次 |
+| `lettering-impact-page` | 声音/爆炸主导 | `dominant action panel, oversized hand-lettered SFX integrated with the explosion shape, smaller aftermath panel below, no floating disconnected letters` | SFX 像贴纸，不像画面元素 |
+
+## Prompt Assembly Patterns
+
+页级 `positive_prompt` 可按以下句式拼装，保证画风和版式同时进入模型上下文：
+
+```text
+Vertical 9:16 comic page, [layout_id as natural language], [dominant panel + inset relationship], [reading path], [gutter/SFX/caption placement].
+Art style: [2 line/ink terms], [1 shading term], [1 print texture term], [1 motion/emotion effect].
+Panel 1: [shot + action + comic technique].
+Panel 2: [shot + reaction/transition + comic technique].
+Panel 3: [shot + reveal/hook + text slot placement].
+Readable Chinese lettering: [speech/caption/SFX rule].
+Avoid collage, contact sheet, duplicate composition, nine variations of the same scene.
+```
+
+全局 `style_bible` 可分栏写：
+
+```json
+{
+  "line_and_ink": ["heavy black ink linework", "bold contour lines"],
+  "contrast_and_texture": ["screentone shadows", "printed comic page grain"],
+  "motion_and_impact": ["speed lines", "impact burst", "border-breaking SFX"],
+  "layout_language": ["dominant splash panel", "reaction insets", "irregular black gutters"],
+  "lettering_language": ["clear Chinese speech bubbles near speakers", "caption boxes in gutters"]
+}
+```
+
+## Anti-Pattern Checklist
+
+- 只写 `cinematic masterpiece`，没有 `panel / gutter / balloon / SFX / screentone`。
+- 只写 layout 名称，不写 panel 比例、dominant panel 和阅读路径。
+- 每页都使用同一种三格上中下条带，导致九页缩略图节奏相同。
+- 高冲击页没有大画面、没有 inset 反应、没有 SFX 或 focus lines。
+- 解释页只有人物说话，没有证据 close-up、caption anchor 或静默反应格。
+- 气泡漂到页面边缘，远离说话角色；SFX 没有绑定动作源。
+- 所有 panel 都塞满效果词，反而没有主次；每格应有一个主视觉功能。

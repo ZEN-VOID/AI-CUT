@@ -366,7 +366,7 @@ def main() -> int:
         filename_prefix = f"{safe_slug(task.scene_id)}-{safe_slug(task.scene_name)}_ScenePanel"
         layout_path = output_root / f"{filename_prefix}-layout.json"
         prompt = build_prompt(template_payload, task)
-        generated_output_dir = output_root / "generated" / filename_prefix
+        generated_output_dir = output_root
         layout_payload = {
             "meta": {
                 "project_name": project_name,

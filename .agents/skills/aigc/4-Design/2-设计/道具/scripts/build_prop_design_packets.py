@@ -179,6 +179,17 @@ def translate_global_style_prefix(style_text: str) -> str:
 
 
 PHRASE_TRANSLATIONS = {
+    "空间/承载": "spatial boundary and support function",
+    "光开关": "light-switch state",
+    "光": "light state",
+    "未知": "unknown worn state",
+    "木质": "wood material",
+    "框架装配": "framed assembly craft",
+    "小体量、局部细节密集": "small volume with dense local details",
+    "以递交、佩戴、展示或藏匿为主": "off-frame transfer, display, storage, or concealment logic",
+    "道具持续定义场域边界或行动限制；跨镜头状态变化需要连续保留，不能被设计阶段抹平": "the prop continuously defines field boundaries or action limits; preserve cross-shot state changes as visible continuity evidence",
+    "延续“光开关 / 光”这一状态线索，避免跨镜头失真。": "preserve the light-switch and light-state continuity cue across shots",
+    "设计时优先保留灯的轮廓、受力关系与木质表面处理。": "prioritize the light fixture silhouette, force relationships, and wood surface treatment",
     "量子核桃的主体轮廓": "the Quantum Walnut's main silhouette",
     "全息锦鲤池的主体轮廓": "the holographic koi pond's main silhouette",
     "数据鱼的主体轮廓": "the data fish's main silhouette",
@@ -218,12 +229,49 @@ PROP_NAME_TRANSLATIONS = {
     "数据鱼": "Data Fish",
     "丈八蛇矛": "Long Serpent Spear",
     "智能手环": "Smart Wristband",
+    "旧墙面和卫生间门": "Old Wall Surface and Bathroom Door",
+    "门": "Door",
+    "卫生间门": "Bathroom Door",
+    "灯": "Light Fixture",
+    "无声灯": "Silent Light Fixture",
+    "水龙头和床边拖鞋": "Faucet and Bedside Slippers",
+    "洗手池和冷硬灯": "Washbasin and Cold Hard Light",
+    "门板": "Door Panel",
+    "卫生间门板": "Bathroom Door Panel",
+    "木门": "Wooden Door",
+    "滴答声效字和门": "Dripping Sound-Effect Text and Door",
+    "周成背心拖鞋": "Zhou Cheng's Vest and Slippers",
+    "周成拖鞋": "Zhou Cheng's Slippers",
+    "楼道灯": "Corridor Light",
+    "出租屋门": "Rental Apartment Door",
 }
+
+
+def translate_prop_name(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return "the catalogued prop"
+    translated = PROP_NAME_TRANSLATIONS.get(text)
+    if translated:
+        return translated
+    if NON_ASCII_RE.search(text):
+        return "the catalogued prop"
+    return text
 
 
 def translate_fragment(text: str) -> str:
     clean = str(text).strip()
-    return PHRASE_TRANSLATIONS.get(clean, clean)
+    if clean in PHRASE_TRANSLATIONS:
+        return PHRASE_TRANSLATIONS[clean]
+    if clean in PROP_NAME_TRANSLATIONS:
+        return PROP_NAME_TRANSLATIONS[clean]
+    if clean.endswith("的主体轮廓"):
+        prop_name = clean[: -len("的主体轮廓")]
+        return f"{translate_prop_name(prop_name)} main silhouette"
+    match = re.search(r"优先保留(.+?)的轮廓", clean)
+    if match:
+        return f"prioritize {translate_prop_name(match.group(1))} silhouette, force relationships, and documented surface treatment"
+    return clean
 
 
 def join_brief(items: list[str], limit: int = 4) -> str:
@@ -289,23 +337,24 @@ def build_integrated_prompt_text(
     packet: dict[str, Any],
 ) -> str:
     prop_name = packet["canonical_name"]
-    prop_name_en = PROP_NAME_TRANSLATIONS.get(prop_name, prop_name)
-    if NON_ASCII_RE.search(prop_name_en):
-        prop_name_en = "the documented prop"
+    prop_name_en = translate_prop_name(prop_name)
     narrative = packet["narrative_significance"]
     shot_route = packet["shot_route"]
     physical_character = packet["physical_character"]
     display_profile = packet["display_profile"]
-    structure = english_join_brief(packet["structure_modules"], "documented structure modules", 3)
-    material = english_join_brief(packet["material_and_finish"], "documented material and finish evidence", 3)
-    wear = english_join_brief(packet["wear_marks"], "documented wear and state marks", 5)
+    structure = english_join_brief(packet["structure_modules"], f"{prop_name_en} silhouette, functional end, force points, and readable state-mark details", 3)
+    material = english_join_brief(packet["material_and_finish"], f"{prop_name_en} material finish and surface craft", 3)
+    wear = english_join_brief(packet["wear_marks"], f"{prop_name_en} wear, switch state, light state, and surface-use marks", 5)
     negative = english_join_brief(packet["negative_constraints"], "do not invent unsupported parts or decoration", 4)
     visual_obligation = english_fragment(
         narrative.get("visual_obligation", ""),
         "keep the key silhouette and readable functional logic clear",
     )
     story_function = english_fragment(narrative.get("story_function", ""), "story support")
-    story_text = english_fragment(packet["story_text"], "the documented story premise")
+    story_text = english_fragment(
+        packet["story_text"],
+        f"{prop_name_en} carries the documented narrative function, visible material evidence, and cross-shot state continuity",
+    )
     shot_size = english_fragment(shot_route.get("shot_size", ""), "medium hero shot")
     camera_angle = english_fragment(shot_route.get("camera_angle", ""), "eye-level three-quarter")
     focal_length = english_fragment(shot_route.get("focal_length", ""), "50mm")
@@ -317,7 +366,7 @@ def build_integrated_prompt_text(
     force_logic = english_fragment(physical_character.get("force_logic", ""), "functional interaction, display, and force logic")
     visual_signature = english_fragment(
         display_profile.get("visual_signature", "") or packet["reasoning_pivot"],
-        "the documented visual priority",
+        f"{prop_name_en} silhouette, material wear, force relationship, and readable state marks",
     )
     narrative_focus = ""
     if narrative.get("is_special"):

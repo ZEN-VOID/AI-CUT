@@ -22,6 +22,7 @@
 | leaf 已回迁，但父层仍宣称 pending | stage coverage layer | 更新 tranche parent 与 `4-Design` 父层 coverage 状态 | 在阶段总线上同步 stage coverage status | source-layer 状态与实体一致 |
 | 场景设计 leaf 直接复刻旧仓 `3-设定` 路径 | migration adapter layer | 把旧仓字段密度迁移到当前 `4-Design/场景/2-设计` runtime | 在 `场景/SKILL.md` 固化当前仓输入输出路径，父层只声明 active leaf 与 handoff | 输出路径不再指向旧 `output/影片/.../3-设定` |
 | 设计文件已落盘但没有自动生图，或生图 prompt 缺全局风格前缀 | output fast-path layer | 从主体设计文件生成 `full_generation_prompt`，再调用 nano-banana general 输出同目录同名图片 | 新增 `_shared/design-output-contract.md` 与 `run_design_auto_image.py`，把全局风格前缀和图片快路径沉为共享真源 | 每个主体文件旁边存在同 stem 图片，manifest 记录 `auto_image` |
+| 批量输出中只生成了部分同 stem 图片，但 manifest 仍把自动生图写成成功 | auto-image completion aggregation layer | 用 `ensure_design_auto_images.py` 逐 Markdown 检查同 stem 图片，缺图就补跑或标失败 | 批量完成判定统一为“每个设计 Markdown 都有同 stem 图片”，leaf runner 不再各自聚合成功状态 | `_manifest.json.auto_image.missing_design_files=[]` 且 `status=success` |
 | `full_generation_prompt` 的全局风格前缀混入 YAML frontmatter、章节说明、类型元素或设计元素文本 | prefix extraction layer | 只提取 `2-Global/全局风格.md` 中 `- 全局风格：` 的字段值 | 用 `_shared/scripts/global_style_prefix.py` 作为共享提取器，并让 leaf runner / auto-image helper 复用它 | prompt 中 `全局风格前缀：` 后紧跟一段项目风格正文，不出现 `project_name:`、`# 类型元素` 或模板说明 |
 | `全局风格.md` 写成裸行 `全局风格:`，导致 `4-Design/2-设计` 无法提取统一前缀 | upstream format drift layer | 将项目风格文件规范化为 `## JSON 直接提取字段` 下的 `- 全局风格：...` | 共享提取器在失败时检测非规范裸行并输出可执行修复提示；上游 `2-Global` 必须继续服从模板字段 | `global_style_prefix.py <全局风格.md>` 成功返回前缀 |
 | 全局风格字段本身已带句号时下游拼接成双句号 | prompt assembly layer | 拼接前检查结尾标点，只在缺失时补句号 | 设计脚本将前缀字段视为完整句，不额外无条件追加标点 | prompt 中前缀段以单个句号结束 |
@@ -40,7 +41,7 @@
 4. 设计文件稳定后，检查 `full_generation_prompt / prompt整合` 是否是完全英文、1800-2200 UTF-8 bytes 的 integrated prompt，而不是 `global_style_prefix + subject_design_prompt` 的机械拼接。
 5. 检查 `global_style_prefix` 是否来自 `全局风格.md` 的 `- 全局风格：` 字段值；若字段被写成裸行 `全局风格:`，先把项目文件规范化到 `## JSON 直接提取字段` 下再重跑产物。
 6. 检查参照洁净是否在节点证据中完成：场景已把人物动作转写为空间痕迹，角色已锁纯色背景，道具已把手持/触碰转写为器物自身证据。
-7. 最后执行单主体自动生图并回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
+7. 最后执行 `ensure_design_auto_images.py`，逐个 Markdown 补齐同 stem 图片并回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
 8. 若 provider 超过 `run_design_auto_image.py --timeout` 仍未返回，立即按图片步骤失败处理，不得让父级 pipeline 无限等待；继续保留设计真源、request/dry-run 证据和验收缺口。
 
 ## Reusable Heuristics
@@ -50,11 +51,13 @@
 - `0-Init` 负责世界与情绪的北极星，`2-Global` 负责视觉与类型总线；两者都不该替代角色 bridge 本身。
 - 场景设计迁回时，旧仓 `场景设计` 的价值在字段、质量门和三段式输出，不在旧 runtime 路径；当前仓必须以 `场景清单.json + 场景研究.json + scene_design_bridge.json` 为上游设计源。
 - 自动生图不要让每个 leaf 各写一套 prompt 拼接规则；统一从共享输出合同取得 `global_style_prefix -> full_generation_prompt -> same-dir same-stem image` 的单一路径。
+- 自动生图完整性不要按“至少有一张图片”聚合；批量 design 目录必须逐 Markdown 对齐同 stem 图片，缺任一主体都只能是 `failed` 或 `dry_run`。
 - `全局风格.md` 是富文档，不能整文压缩进 prompt；provider-ready 前缀只认 `## JSON 直接提取字段` 下的 `- 全局风格：` 值。
 - 当全局风格字段已包含结束标点时，设计脚本不得再额外追加句号；前缀字段应被视作完整句子。
 - 当前 `2-设计` 的三类 Markdown projection 模板应直接继承 AIGC-ZEN-VOID 原参照结构；当前仓只在 `prompt整合` 内补充英文 `Global style prefix` 与英文 `Integrated prompt`，其他章节不应为局部便利重排。
 - 模板真源判断不要只看文件名；凡非 `templates/*.structured.v2.md` 文件包含完整 `物语 / 解构 / prompt整合` 样例，就会被执行者误用为第二模板，应直接移除或由 audit 阻断。
 - `prompt整合` 是同模板上文的英文整合层，不是字段拼接层或短摘要层；执行时要先看 `物语 / 解构 / Photography / Prop Design / Cinematography` 等已落位内容，再写一段可直接给图像模型的约 2000 bytes 英文自然语句。
+- 当用户确认当前 `4-Design` 提示词效果稳定时，自动生图修复应只补齐调用、状态聚合和 manifest 闭环，不要顺手重写 `full_generation_prompt / prompt整合` 的生成策略。
 - `2-设计` 的同名自动图首先是后续参照资产，不是叙事剧照；场景要空、道具要纯、角色要纯色背景，否则后续一致性引用会把人物、手或背景一起带走。
 - 凡会影响参照污染的规则，不能只写在 prompt 末尾；它必须进入思维·执行节点：先在摄影/设计卡 synthesis 中改写污染源，再在 prompt 节点注入锚句，最后在 auto-image 前复验。
 - `2-设计` 的单主体图片只服务主体概念锁定和 panel continuity reference；不替代 `3-面板` 的 layout 图。

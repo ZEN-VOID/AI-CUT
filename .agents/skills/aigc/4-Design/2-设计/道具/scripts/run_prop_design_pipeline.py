@@ -74,6 +74,7 @@ def update_auto_image_manifest(output_dir: Path, manifest_name: str = "_manifest
         return
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     image_paths = []
+    design_files = sorted(path for path in output_dir.glob("*.md") if path.is_file())
     for design_file in sorted(output_dir.glob("*.md")):
         for suffix in (".png", ".jpg", ".jpeg", ".webp"):
             image_path = design_file.with_suffix(suffix)
@@ -86,7 +87,7 @@ def update_auto_image_manifest(output_dir: Path, manifest_name: str = "_manifest
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",
         "filename_policy": "same_stem_as_design_file",
-        "status": "dry_run" if dry_run else ("success" if image_paths else "failed"),
+        "status": "dry_run" if dry_run else ("success" if design_files and len(image_paths) == len(design_files) else "failed"),
         "image_paths": image_paths,
     }
     output_files = payload.setdefault("output_files", [])
@@ -114,30 +115,21 @@ def mark_auto_image_skipped(output_dir: Path, manifest_name: str = "_manifest.js
 
 
 def run_auto_images(output_dir: Path, project_name: str, global_style_path: Path | None, dry_run: bool) -> int:
-    helper = Path(__file__).resolve().parents[2] / "_shared" / "scripts" / "run_design_auto_image.py"
-    design_files = sorted(path for path in output_dir.glob("*.md") if path.is_file())
-    if not design_files:
-        print(f"[ERROR] 未找到可自动生图的 Markdown 设计文件: {output_dir}", file=sys.stderr)
-        return 1
-
-    failed = False
-    for design_file in design_files:
-        cmd = [
-            sys.executable,
-            helper.as_posix(),
-            "--design-file",
-            design_file.as_posix(),
-            "--project-name",
-            project_name,
-        ]
-        if global_style_path and global_style_path.exists():
-            cmd.extend(["--global-style", global_style_path.as_posix()])
-        if dry_run:
-            cmd.append("--dry-run")
-        result = subprocess.run(cmd, check=False)
-        failed = failed or result.returncode != 0
-    update_auto_image_manifest(output_dir, dry_run=dry_run)
-    return 1 if failed else 0
+    helper = Path(__file__).resolve().parents[2] / "_shared" / "scripts" / "ensure_design_auto_images.py"
+    cmd = [
+        sys.executable,
+        helper.as_posix(),
+        "--design-dir",
+        output_dir.as_posix(),
+        "--project-name",
+        project_name,
+    ]
+    if global_style_path and global_style_path.exists():
+        cmd.extend(["--global-style", global_style_path.as_posix()])
+    if dry_run:
+        cmd.append("--generation-dry-run")
+    result = subprocess.run(cmd, check=False)
+    return int(result.returncode)
 
 
 def main() -> int:

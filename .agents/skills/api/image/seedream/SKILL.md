@@ -63,6 +63,7 @@ version: "v1.0"
 5. **流式返回兼容**
    - 支持 `--stream` 启用 SSE 流式返回。
    - 脚本自动解析 SSE `data:` 行并合并去重。
+   - 流式图片结果可能出现在 `image_generation.partial_succeeded` 事件顶层的 `url / b64_json`，也必须兼容非流式 `data[]` 结构。
    - 若流式不稳定，可去掉 `--stream` 回退非流式。
 6. **项目化输出路径**
    - 默认输出路径为：`output/影片/[项目名]/5-API/image/seedream/`
@@ -80,7 +81,7 @@ version: "v1.0"
 | `FIELD-SDR-01` | 输入解析结果：`prompt / image_urls / extra_json` | `prompt` 非空；参考图列表为合法 URL；`extra_json` 为合法 JSON 对象 | 用户输入、CLI 参数 | Step 1 | 输入完整度 | `FAIL-SDR-INPUT` |
 | `FIELD-SDR-02` | 参数解析结果：`model / size / max_images / response_format / stream / watermark` | 所有参数显式传入或使用脚本默认值；`size` 为合法值；`response_format` 仅 `url` 或 `b64_json` | 用户输入、脚本默认值 | Step 2 | 参数合规性 | `FAIL-SDR-PARAMS` |
 | `FIELD-SDR-03` | 请求体：Ark API payload（`model / prompt / image / sequential_image_generation / size / stream / watermark`） | 请求体符合 Ark `images/generations` 接口契约；参考图为 URL 列表；`extra_json` 正确合并 | Ark API 文档、脚本构造结果 | Step 3 | 请求体合法性 | `FAIL-SDR-PAYLOAD` |
-| `FIELD-SDR-04` | 执行结果：HTTP 响应 / SSE 事件流 / 合并去重后的图片列表 | 请求成功返回 200；SSE 解析正确合并去重；异常时生成错误报告 | API 响应、SSE 事件流 | Step 4 | 执行稳定性 | `FAIL-SDR-EXEC` |
+| `FIELD-SDR-04` | 执行结果：HTTP 响应 / SSE 事件流 / 合并去重后的图片列表 | 请求成功返回 200；SSE 解析兼容顶层 `url / b64_json` 与非流式 `data[]`；图片列表为空时必须生成失败报告 | API 响应、SSE 事件流 | Step 4 | 执行稳定性 | `FAIL-SDR-EXEC` |
 | `FIELD-SDR-05` | 输出产物：图片文件、`seedream_report_*.json`、项目化目录路径 | 图片正确落盘（URL 下载或 Base64 解码）；报告 JSON 包含完整请求/响应信息；输出在正确目录 | API 响应、落盘结果、报告文件 | Step 5 | 输出可追溯性 | `FAIL-SDR-OUTPUT` |
 
 ## 5. 思维导引与执行流程（Mandatory）
@@ -105,8 +106,10 @@ version: "v1.0"
    - 支持 `--dry-run --print-payload` 仅打印不调用
 4. **Step 4 / 调用与响应处理**
    - 流式（`--stream`）：发起 SSE 请求，逐行解析 `data:` 事件，遇 `[DONE]` 停止，收集所有 payload
+   - 流式图片提取必须读取 `image_generation.partial_succeeded` 顶层 `url / b64_json`
    - 非流式：发起普通 POST 请求，直接读取 JSON 响应
    - 合并去重所有图片项（`url` 或 `b64_json`）
+   - 若最终图片列表为空，写入 `ok=false` 报告并以非零退出码结束
    - 异常时捕获错误并生成错误报告
 5. **Step 5 / 落盘与报告**
    - 创建输出目录（默认 `output/影片/[项目名]/5-API/image/seedream/`）
@@ -198,6 +201,7 @@ python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
   - `results`：图片项列表（含 `url` / `b64_json` / `revised_prompt`）
   - `saved_files`：落盘文件路径列表
   - `final_payload`：最终 SSE 事件或响应体
+  - `stream_event_count / stream_event_types`：流式事件摘要
   - `error`：失败时的错误信息
 
 ## 9. Root-Cause 执行契约（Mandatory）
@@ -222,14 +226,15 @@ python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
 3. 若返回 4xx/5xx，查看报告文件中的 `error` 字段和 HTTP body
 4. 若启用 `--stream` 无输出，先切到非流式重试（去掉 `--stream`）
 5. 若 `--max-images >= 5` 的非流式连续多图读超时，先改用 `--stream`，或降低 `--max-images` 分批验证；脚本报告中的 `diagnostic_hint` 会给出建议
-6. 确认输出目录是否符合：`output/影片/[项目名]/5-API/image/seedream/`
-7. 若参考图调用失败：
+6. 若流式最终事件显示 `usage.generated_images > 0` 但 `result_count=0`，检查解析器是否兼容顶层 `url / b64_json` 事件
+7. 确认输出目录是否符合：`output/影片/[项目名]/5-API/image/seedream/`
+8. 若参考图调用失败：
    - 检查 `--image-url` 传入的 URL 是否可公网访问
    - 检查 payload 中 `image[]` 是否正确构造
-8. 若图片落盘失败：
+9. 若图片落盘失败：
    - 检查 `response_format` 是否与实际返回匹配
    - 检查输出目录是否有写权限
-9. 若报告文件不完整：
+10. 若报告文件不完整：
    - 检查 `--report-json` 路径是否合法
    - 检查磁盘空间
 
@@ -240,7 +245,7 @@ python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
 | `FIELD-SDR-01` | 输入完整度 | `prompt` 存在且非空；参考图 URL 格式合法；`extra_json` 可解析 | `FAIL-SDR-INPUT` | 回到 `Step 1` 校验输入参数 |
 | `FIELD-SDR-02` | 参数合规性 | API Key 存在；`response_format` 为 `url` 或 `b64_json`；`size` 为合法值 | `FAIL-SDR-PARAMS` | 回到 `Step 2` 修正参数与环境变量 |
 | `FIELD-SDR-03` | 请求体合法性 | payload 符合 Ark `images/generations` 接口文档；`image[]` 为 URL 列表；`extra_json` 正确合并 | `FAIL-SDR-PAYLOAD` | 回到 `Step 3` 复核请求体构造 |
-| `FIELD-SDR-04` | 执行稳定性 | HTTP 200 返回；SSE 正确解析并合并去重；异常时生成错误报告 | `FAIL-SDR-EXEC` | 回到 `Step 4` 排查网络/SSE/API 问题 |
+| `FIELD-SDR-04` | 执行稳定性 | HTTP 200 返回；SSE 正确解析并合并去重；图片列表为空时报告 `ok=false`；异常时生成错误报告 | `FAIL-SDR-EXEC` | 回到 `Step 4` 排查网络/SSE/API 问题 |
 | `FIELD-SDR-05` | 输出可追溯性 | 至少生成报告 JSON；成功时图片正确落盘；报告字段完整；输出在正确目录 | `FAIL-SDR-OUTPUT` | 回到 `Step 5` 修正落盘与报告逻辑 |
 
 ## 12. 参考资料

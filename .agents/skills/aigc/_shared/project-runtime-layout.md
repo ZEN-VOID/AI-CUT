@@ -71,9 +71,9 @@
 尤其对 `3-Detail`、`4-Design`、`5-Image` 与 `6-Video`，当前仓存在“技能树执行层”和“项目 runtime 落盘层”不完全同构的情况：
 
 1. 技能树执行入口层
-   例如 `水月 / 镜花`、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/首帧参照`、`2-视频生成`
+   例如 `水月 / 镜花`、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`2-参照引用`、`3-图像生成`、`1-提示词蒸馏/首帧参照`、`2-视频生成`
 2. 项目 runtime 落盘层
-   例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/6-Video/生成任务/`
+   例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/`、`projects/aigc/<项目名>/6-Video/生成任务/`
 
 初始化预建目录时，必须服从 **runtime 落盘层**，而不是机械复制技能树中间 tranche 名称。
 
@@ -84,7 +84,7 @@
 | `2-Global` | `projects/aigc/<项目名>/2-Global/`；阶段执行后根层写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md` |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/3-Detail/镜花/` |
 | `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
-| `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/` |
+| `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
 
 ### Skill Tree To Runtime Mapping
@@ -100,7 +100,8 @@
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板` | `projects/aigc/<项目名>/5-Image/分镜故事板/` | `1-提示词蒸馏` 是父级执行 tranche，不是 runtime 目录名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧` | `projects/aigc/<项目名>/5-Image/分镜帧/` | 叶子技能名直接投影为业务落盘名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画` | `projects/aigc/<项目名>/5-Image/漫画/` | 同上 |
-| `.agents/skills/aigc/5-Image/2-图像生成` | 暂不在 `0-Init` 默认预建列表中 | 当前共享真源尚未声明其稳定 runtime landing，不能先造路径真源 |
+| `.agents/skills/aigc/5-Image/2-参照引用` | `projects/aigc/<项目名>/5-Image/2-参照引用/` | provider/mode/source/episode 目录在执行时下钻创建；初始化只预建稳定根目录 |
+| `.agents/skills/aigc/5-Image/3-图像生成` | `projects/aigc/<项目名>/5-Image/3-图像生成/` | provider/source/episode 目录在执行时下钻创建；`submit-plan`、`submit-brief` 与真实输出图像同目录落盘 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照` | `projects/aigc/<项目名>/6-Video/全能参照/` | `1-提示词蒸馏` 只属于技能树执行层 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` | `projects/aigc/<项目名>/6-Video/首帧参照/` | 同上 |
 | `.agents/skills/aigc/6-Video/2-视频生成` | `projects/aigc/<项目名>/6-Video/生成任务/` | runtime 采用业务语义落点，不沿用技能树编号名 |
@@ -109,7 +110,7 @@
 
 1. 技能阶段名必须跟随当前技能树真实目录，如 `1-Planning`、`3-Detail`、`5-Image`、`6-Video`、`7-Cut`；不得再混用 `1-规划 / 3-明细 / 5-画面 / 6-视频 / 7-后期` 作为阶段标识。
 2. 项目运行时目录必须以本文件为准；当前 `1-Planning / 2-Global / 4-Design` 保留阶段名，`Assets` 作为项目级辅助资产层，`编导 / 画面 / 视频 / 后期` 采用业务语义目录。
-3. 初始化预建的 child skeleton 必须跟随“当前已建 active 子技能的 canonical landing”，而不是机械照抄技能文件系统中间层名称；因此项目 runtime 预建 `3-Detail/水月/`、`5-Image/分镜故事板/`，而不是误造新的执行层投影目录。
+3. 初始化预建的 child skeleton 必须跟随“当前已建 active 子技能的 canonical landing”，而不是机械照抄技能文件系统中间层名称；因此项目 runtime 预建 `3-Detail/水月/`、`5-Image/分镜故事板/`、`5-Image/2-参照引用/`、`5-Image/3-图像生成/`，而不是误造新的执行层投影目录。
 4. `Assets/分镜画板/*` 与 `5-Image/*` 名称相近但职责不同：前者是可复用资产库，后者是阶段业务输出根；不得把两者混为同一真源。
 5. 预建目录骨架不等于提前生成阶段产物；它只负责锁定路径与防漂移。
 6. `0-Init`、根 `aigc/SKILL.md`、各阶段 `SKILL.md` 与审计脚本若同时提到“当前 active 子路径”，必须明确标注自己说的是“技能树执行层”还是“项目 runtime 落盘层”。
@@ -125,7 +126,7 @@
 | `2-Global` | `projects/aigc/<项目名>/2-Global/` | 负责全局风格、类型元素、设计元素与导演意图等项目级设计真源，并在阶段末段把 `组间设计 + 分镜切换` 写入 shared episode root |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 优先继承 `2-Global` 已 seed 的 episode root，再围绕同一份 `第N集.json` 完成 shot-level patch-in-place |
 | `4-Design` | `projects/aigc/<项目名>/4-Design/` | design-source 阶段产物 |
-| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 子路径是 `分镜故事板 / 分镜帧 / 漫画` |
+| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路是 `分镜故事板 / 分镜帧 / 漫画 -> 2-参照引用 -> 3-图像生成` |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 生成任务` |
 | `7-Cut` | `projects/aigc/<项目名>/7-Cut/` | 后期阶段 |
 

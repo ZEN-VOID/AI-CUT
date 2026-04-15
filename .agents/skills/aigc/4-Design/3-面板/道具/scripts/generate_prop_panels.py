@@ -350,7 +350,7 @@ def _build_layout_doc(
         "aspect_ratio": DEFAULT_ASPECT_RATIO,
         "image_size": DEFAULT_IMAGE_SIZE,
         "request_id": layout_path.stem,
-        "output_dir": (layout_path.parent / "generated" / layout_path.stem).as_posix(),
+        "output_dir": layout_path.parent.as_posix(),
         "output_filename": output_filename,
         "filename_prefix": f"{_safe_name(task.prop_id)}-{_safe_name(task.prop_name)}-PropPanel",
         "image_generation": {

@@ -69,9 +69,18 @@ route_policies:
   - id: high-risk-review-gate
     trigger: 涉及重构、批量迁移、状态修复、基础规则变更
     rule: "必须经过门下省预审"
+  - id: comic-root-entry
+    trigger: 命中漫画项目、完整漫画链路、从素材/小说到九页漫画图、或需要统一落盘到 `projects/comic/[项目名]/`
+    rule: "优先进入 `.agents/skills/comic/SKILL.md`；先锁定 `project_name` 与 `projects/comic/[项目名]/` 项目根，再路由到 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成`。"
   - id: comic-novel-adaptation-entry
     trigger: 命中文本、图片、视频、新闻事件或网络热搜，需要改编为后续漫画生成可用的小说底稿
-    rule: "优先进入 `.agents/skills/comic/漫画小说改编/SKILL.md`；先做来源归一与事实边界裁决，再输出 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`"
+    rule: "进入 `.agents/skills/comic/1-漫画小说改编/SKILL.md`；默认落到 `projects/comic/[项目名]/1-漫画小说改编/`，先做来源归一与事实边界裁决，再输出 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`。"
+  - id: comic-nine-blade-prompts-entry
+    trigger: 命中九刀流漫画提示词、小说转 9 页漫画 prompt、一次生成 9 张漫画页的 JSON 提示词、或需要把漫画小说桥接包交给 Seedream 连续多图
+    rule: "进入 `.agents/skills/comic/2-九刀流漫画提示词/SKILL.md`；默认落到 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`，输出 `nine_blade_comic_prompts.v1` JSON，固定 9 页、9:16、单请求连续生成、非九宫格拼图、非同图九变体。"
+  - id: comic-generation-entry
+    trigger: 命中漫画生成、已有 `nine_blade_comic_prompts.v1` JSON 需要生图、或需要 Seedream 一次生成 9 张连续竖版漫画页
+    rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再合成单次 master prompt 调用 `.agents/skills/api/image/seedream`，默认输出到 `projects/comic/[项目名]/3-漫画生成/`，并使用 `--max-images 9 --stream --size 2K`。"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

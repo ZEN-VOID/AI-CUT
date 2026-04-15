@@ -305,7 +305,7 @@ def build_generation_requests(
             ]
         )
         images = [{"url": item} for item in merged_references]
-        output_dir = packet_path.parent / "generated" / packet_path.stem
+        output_dir = packet_path.parent
         request_doc = {
             "prompt": prompt_text,
             "images": images,
@@ -380,10 +380,10 @@ def run_panel_auto_generate(
         pipeline_context=pipeline_context,
     )
 
-    request_root = resolved_packets[0].parent / "generated" / "requests"
+    request_root = resolved_packets[0].parent
     request_root.mkdir(parents=True, exist_ok=True)
     for task, request_doc in zip(trace["tasks"], request_docs):
-        request_path = request_root / f"{request_doc['request_id']}.json"
+        request_path = request_root / f"{request_doc['request_id']}-request.json"
         _write_json(request_path, request_doc)
         task["request_json"] = request_path.as_posix()
     batch_request_path = request_root / "panel_auto_generate_batch.json"
@@ -399,7 +399,7 @@ def run_panel_auto_generate(
         no_report=no_report,
     )
 
-    bridge_report_path = request_root.parent / "panel_auto_generate_report.json"
+    bridge_report_path = request_root / "panel_auto_generate_report.json"
     bridge_report = {
         "request_batch_path": batch_request_path.as_posix(),
         "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",

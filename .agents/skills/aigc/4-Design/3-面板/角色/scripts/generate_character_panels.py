@@ -431,7 +431,7 @@ def build_layout_doc(
 
     filename_prefix = f"{safe_name(task.role_id)}-{safe_name(task.role_name)}-{safe_name(task.costume_state)}-CharacterPanel"
     layout_path = output_dir / f"{filename_prefix}-layout.json"
-    image_output_dir = output_dir / "generated" / safe_name(task.role_id)
+    image_output_dir = output_dir
     image_filename = f"{filename_prefix}.png"
     now = datetime.now().astimezone().isoformat(timespec="seconds")
     layout_doc = {
@@ -608,7 +608,7 @@ def main() -> int:
             layout_paths.append(repo_rel(layout_path))
             request_docs.append(request_doc)
 
-        request_sidecar = output_dir / "generated" / "requests" / "panel_auto_generate_batch.json"
+        request_sidecar = output_dir / "panel_auto_generate_batch.json"
         write_json(
             request_sidecar,
             {

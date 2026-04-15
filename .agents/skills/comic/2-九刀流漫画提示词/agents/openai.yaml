@@ -1,0 +1,5 @@
+interface:
+  display_name: "九刀流漫画提示词"
+  short_description: "把小说或漫画小说底稿蒸馏成一次生成 9 张连续漫画页的结构化提示词 JSON"
+  default_prompt: "Use $comic-nine-blade-prompts to transform a comic novel draft or user-provided novel into nine_blade_comic_prompts.v1 JSON for one Seedream sequential request that creates exactly 9 separate vertical comic pages."
+

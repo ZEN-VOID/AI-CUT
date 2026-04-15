@@ -89,7 +89,10 @@
 - `aigc` 为仓库级总入口技能
 - `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
 - `4-Design` 已在 `active_skills[id=aigc].stage_index[id=aigc-4-subject].leaf_index` 登记 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}` 与 `3-面板/{场景,角色,道具}` 的 active leaf；`3-面板` tranche parent 处于 `partial-active`，仍处于 `bootstrap_compat` 局部迁移窗口
+- `comic` 已登记为 repo-local 漫画项目父级总入口，固定 canonical runtime 为 `projects/comic/[项目名]/`
 - `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
+- `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把小说或漫画小说桥接包输出为 `nine_blade_comic_prompts.v1` JSON
+- `comic-generation` 已登记为 repo-local 执行技能，负责校验九刀流 JSON 并通过 Seedream 单次连续多图请求生成 9 张竖版漫画页
 - `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
 - `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
@@ -182,7 +185,7 @@
 
 ### 1. 从 bootstrap 走向 shadow
 
-- 在 `comic-novel-adaptation` 之外，继续补出真正受 registry 管理的 repo-local suite skill。
+- 在 `comic` 父级总入口与 `comic-novel-adaptation / comic-nine-blade-prompts / comic-generation` 三段链基础上，继续补齐项目状态、续跑、验收与批量任务能力。
 - 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
 - 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
 - 让更多真实任务以 `projects/aigc/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
