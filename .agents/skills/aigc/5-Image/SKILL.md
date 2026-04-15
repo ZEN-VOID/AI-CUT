@@ -112,8 +112,15 @@ flowchart TD
 1. `5-Image` 阶段没有父层第二业务真源。
 2. `1-提示词蒸馏` 负责写请求 JSON 到 `分镜故事板 / 分镜帧 / 漫画` 子路径。
 3. `2-参照引用` 负责写绑定后的 JSON、`_manifest.json` 与 `match-report.md`。
-4. `3-图像生成` 负责写 `submit-plan.json + submit-brief.md` 与唯一下一入口。
+4. `3-图像生成` 负责写 `submit-plan.json + submit-brief.md`、provider 输出图像同目录落盘合同与唯一下一入口。
 5. 父层只负责阶段路由、边界、coverage 与下一入口说明。
+
+### Runtime Write Slots
+
+- 请求对象根：`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`
+- 参照绑定根：`projects/aigc/<项目名>/5-Image/2-参照引用/`
+- 生成 handoff 根：`projects/aigc/<项目名>/5-Image/3-图像生成/`
+- 真实输出图像不得回写到阶段父层根或项目级 `Assets/` 作为唯一真源；它应随 `3-图像生成` 的 provider/source/episode 包同目录落盘，资产库副本只能作为派生引用。
 
 ## Field Master
 
