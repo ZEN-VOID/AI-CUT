@@ -2,9 +2,9 @@
   "meta": {
     "schema": "角色面板/提示词/v1.0",
     "skill_id": "1.2.3-角色面板",
-    "version": "v1.3",
+    "version": "v1.4",
     "template_type": "CHARACTER_ATMOSPHERIC_DOSSIER",
-    "updated_at": "2026-04-02"
+    "updated_at": "2026-04-15"
   },
   "prompt_payload": {
     "layout": {
@@ -70,17 +70,20 @@
       },
       "critical_requirements": [
         "Output must be a 3-column character dossier sheet, not a 3x3 storyboard or a sterile game turnaround board.",
+        "The upstream role design prompt is the primary source of truth; layout instructions organize the sheet but must not override identity, costume facts, era, style, role tier, or narrative pressure.",
+        "Reference images, when provided, are continuity anchors only; preserve upstream character identity and do not copy unrelated pose, lighting, gender, costume subject, or accidental artifacts from references.",
         "Rendering style must follow upstream design_subject/style references/hard constraints; do not force unrelated style shifts.",
         "Keep one coherent style language across all modules and avoid mixed-style artifacts (e.g., flat 2D linework mixed with photoreal skin pores).",
         "All modules must inherit the upstream design direction and explicit anti-drift guardrails; layout may elaborate them but must not replace or reinterpret them.",
         "Character identity lock: same face, hair, skin tone, body proportion across all views.",
         "Atmospheric backdrop may exist, but it must remain subordinate to the character and tied to the same world logic.",
-        "No props/weapons/hand-held objects should hijack the character design output.",
+        "If the upstream role has a signature prop, weapon, tool, or ritual object, it may appear only as a subordinate identity cue and must not replace the character as the main subject.",
         "Layout reference image can control layout grammar only; never copy its character identity/gender/costume subject.",
         "ACTION POSES and FACIAL EXPRESSIONS must be configurable slots, not fixed hardcoded labels.",
-        "Must display one fixed top-left identity badge using matched roster text `<CHARACTER_ID>+<CHARACTER_NAME>`; keep position and typography stable across outputs.",
+        "Must reserve one fixed top-left identity badge area using matched roster text `<CHARACTER_ID>+<CHARACTER_NAME>`; if exact text rendering is unreliable, preserve the badge area and short ID cleanly for post-production text overlay.",
         "Costume identity must read through silhouette, textile, damage, ritual rank, or social class before the viewer notices beauty polish.",
-        "Makeup must be merged into FACIAL EXPRESSIONS slots; no standalone makeup panel.",
+        "Makeup, scars, ritual marks, and facial ornaments must remain consistent across all hero views; close-up expression slots may explain them, but they cannot exist only in the FACE STATES module.",
+        "Prioritize readable silhouette, costume construction, social rank, and narrative pressure over beauty polish, lens glamour, or fashion-poster posing.",
         "Do not drift into generic fashion editorial, beauty-first cosplay, generic monk sheet, generic warrior sheet, or cloned crowd portrait unless the upstream role contract explicitly requires that reading.",
         "Costume modules must foreground role identity, era markers, ritual or punishment traces, and class signals; do not flatten clothing into decorative neutral styling.",
         "Gesture and face modules must reinforce upstream narrative pressure and the same moral or spiritual direction vector rather than random attractive posing."

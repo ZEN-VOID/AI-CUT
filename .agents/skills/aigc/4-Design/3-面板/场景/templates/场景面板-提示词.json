@@ -2,7 +2,7 @@
   "meta": {
     "schema": "scene_panel/prompt/v1.0",
     "skill_id": "aigc/4-Design/3-面板/场景",
-    "version": "v1.2",
+    "version": "v1.3",
     "doc_role": "layout_contract",
     "updated_at": "2026-04-15",
     "note": "参照 AIGC-ZEN-VOID 场景面板模板迁入当前仓，用于 ScenePanel 提示词合成。"
@@ -25,15 +25,20 @@
     "layout_generation_prompt": {
       "canvas_setup": "Create a 16:9 widescreen scene sheet (4096x2304) on a dark neutral ground using a strict 3x3 nine-grid. Keep spacing, margins, and panel ratio uniform, but let the sheet behave like a cultural-spatial dossier rather than a purely technical orthographic board.",
       "critical_requirements": [
+        "The upstream scene design prompt is the primary source of truth; layout instructions organize the sheet but must not override scene identity, era, style, spatial facts, or narrative function.",
+        "Reference images, when provided, are continuity anchors only; do not copy unrelated composition, accidental artifacts, or subject drift from references.",
         "P1-P3: atmosphere plus iconography sequence (wide, medium, ritual detail).",
         "P4/P5/P7/P8: structural or directional views, but at least two panels must foreground era-coded cultural thresholds, ornament, ritual zoning, edge traversal, or cosmology linkage rather than empty technical coverage.",
         "P6: low-angle up-shot emphasizing vertical authority, oppression, or transcendence; P9: high-angle top-down shot revealing spatial order or cosmology logic.",
-        "Maintain anchor-prop identity across all nine panels (count, silhouette, proportion, material cannot drift).",
+        "Maintain anchor architecture and landmark identity across all nine panels; silhouette, position logic, material, and symbolic anchors cannot drift.",
+        "Maintain one consistent spatial orientation across all panels; doors, thresholds, major landmarks, and light direction must not flip randomly between views.",
+        "Include at least one scale-readable environmental cue such as steps, railing height, doorway size, furniture scale, floor tile rhythm, or structural measurement logic, without adding people.",
         "Keep empty-scene guardrail: no humans, creatures, silhouettes, or human-shaped shadows.",
         "When the scene belongs to a mythic, religious, or historical world, at least three panels must visibly encode culture-specific symbols, materials, or ceremonial circulation logic.",
         "If the design direction implies sacred luminosity, preserve brightness, sanctity, and material cleanliness; do not inject ruin, mildew, bunker heaviness, or generic dark-fantasy decay.",
         "If the design direction implies a liminal passage or world-linking corridor, show openness, edge traversal, and cosmology connection; do not collapse the space into a fortress gatehouse, prison tower, or sealed bunker corridor.",
-        "Must display one fixed top-left identity badge using matched roster text `<SCENE_ID>+<SCENE_NAME>`; keep position and typography stable across outputs."
+        "Panel labels, grid divisions, and borders must remain clean and secondary; do not let labels, decorative UI, or frame ornaments dominate the scene.",
+        "Must reserve one fixed top-left identity badge area using matched roster text `<SCENE_ID>+<SCENE_NAME>`; if exact text rendering is unreliable, preserve the badge area and short ID cleanly for post-production text overlay."
       ]
     },
     "layout_modules": {

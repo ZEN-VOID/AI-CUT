@@ -21,16 +21,20 @@
 | NANO-banana 计划没写 BASE64-compatible 说明 | provider 输入层 | 补 `pending_encode` 或 ready base64 说明 | 在 `references/nano-banana.md` 固化 BASE64-compatible handoff | nano plan 不再缺运输层说明 |
 | 计划文件有了，但没有唯一下一入口 | handoff 层 | 回到 `G5` 补下一入口与返工入口 | 在输出合同固化唯一 next entry | 执行者不再自己猜下一步 |
 | 本层试图重新绑定图片或重写 prompt | 边界层 | 回退到 `2-参照引用` 或 `1-提示词蒸馏` | 在主合同固化阶段边界 | `3-图像生成` 保持提交前组织职责 |
+| 真实输出图像落到 provider cache、`Assets/` 或阶段根，和 `submit-plan` 不在同一目录 | 输出路径合同层 | 在 `submit-plan` 写入同目录 `output_dir / expected_outputs`，执行后把 `result_outputs` 回填到同目录 | 在主合同和 provider references 固化“提交包与结果同目录”，`Assets/` 只允许派生副本 | 打开 `5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/` 即可同时看到计划、简报与本地图像 |
+| `Assets/` 中已有可用图片，但空引用请求仍被直接落成 provider 计划 | 引用模式分流层 | 停止生成计划，先回 `2-参照引用` 运行保守绑定和严格审计 | 在 Readiness Gate 固化“Assets 非空 + 未显式 prompt-only = unresolved” | submit-plan 只消费通过审计的绑定 JSON，或明确记录显式 prompt-only |
 
 ## Repair Playbook
 
 1. 先查请求对象是否真的可提交。
 2. 再查 provider 是否唯一。
-3. 再查引用运输层是否与 provider 匹配：
+3. 再查项目 `Assets/` 是否非空；若非空且本轮没有显式 `prompt_only / no_reference`，空引用必须先回 `2-参照引用`。
+4. 再查引用运输层是否与 provider 匹配：
    - 即梦 CLI -> 本地路径
    - NANO-banana -> BASE64-compatible
-4. 再查 `submit-plan.json + submit-brief.md` 是否齐备。
-5. 最后查下一入口是否唯一清楚。
+5. 再查 `submit-plan.json + submit-brief.md` 是否齐备。
+6. 再查 `output_dir / expected_outputs` 是否指向 submit 包同目录。
+7. 最后查下一入口是否唯一清楚。
 
 ## Reusable Heuristics
 
@@ -38,3 +42,5 @@
 - 对这条链来说，`dual_mode` 适合停留在 `2-参照引用`，不适合直接进入最终生成计划。
 - 即梦 CLI 与 NANO-banana 的主要分水岭，在图片输入承载形态，而不是 prompt 文案。
 - 只要 provider-specific 输入解析还没写清，submit-plan 就还不是合格的 handoff 包。
+- provider 执行结果不要只留在外部工具默认下载目录或 `Assets/`；最稳的 canonical 落点是 submit 包所在目录，后续资产库副本再从这里派生。
+- `Assets` 非空时，空引用不能自动等同 prompt-only；除非用户或上游明确声明不用参照图，否则它代表绑定链路未完成。

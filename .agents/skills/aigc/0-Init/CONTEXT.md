@@ -38,6 +38,7 @@
 | `2-Global` canonical 输出改为根层四文件后，初始化仍预建旧目录化输出骨架 | runtime skeleton 合同层 | 将 `2-Global/全局风格 + 类型元素 + 设计元素` 子目录从 bootstrap skeleton 移除，只预建 `2-Global/` 阶段根 | 让 `0-Init/SKILL.md`、`_shared/project-runtime-layout.md` 与 `aigc_skill_audit.py` 同步约束同一 runtime 真源：四个 Markdown 由 `2-Global` 阶段执行后落盘 | 新初始化项目不会再被空目录推回旧输出结构 |
 | 初始化没有同步预建项目级 `Assets/` 资产库，导致参考图和画板素材只能临时散落在各阶段目录 | project runtime asset layer | 将 `Assets/角色 / 道具 / 场景 / 服装 / 分镜画板/*` 加入默认 bootstrap skeleton | 在 shared runtime layout、`0-Init/SKILL.md` 与审计脚本固定“Assets 是辅助资产库，不是阶段真源” | 新项目初始化后立即具备统一资产沉淀目录，且不与 `5-Image` 业务输出混淆 |
 | `4-Design` source leaf 缩到 active 三类后，初始化仍预建 `4-Design/服装/*` | runtime skeleton / active leaf drift | 将初始化预建目录收敛为 `场景 / 角色 / 道具` 三类 active leaf，保留 `Assets/服装/` 作为资产库 | 以 `_shared/project-runtime-layout.md` 为单一 runtime 真源，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查同一份 active skeleton | 新项目不再把 pending `服装` sibling 误判为已具备 4-Design active runtime |
+| `5-Image` 已升格为三段 active 链路后，初始化仍只预建三类请求目录 | runtime skeleton / active chain drift | 将 `5-Image/2-参照引用/` 与 `5-Image/3-图像生成/` 加入默认 bootstrap skeleton | 以 `_shared/project-runtime-layout.md` 为单一真源，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查五个图像阶段根 | 新项目初始化后能承接请求蒸馏、参照绑定与 provider handoff，不再残留旧 `2-图像生成` 口径 |
 
 ## Repair Playbook
 
@@ -70,6 +71,7 @@
 - 对项目初始化骨架，阶段根和阶段产物要分开；`2-Global` 这类根层文件输出只预建阶段根，四个 Markdown 等阶段执行时生成，避免空子目录反向制造旧 canonical 结构。
 - 对跨阶段都会复用的图像/素材沉淀，单独放进项目根 `Assets/` 比散落在各阶段目录更稳；但必须明确它只是资产库，不是业务真源。
 - `Assets/分镜画板/分镜帧|分镜故事板|漫画` 可以和 `5-Image/*` 同名，但语义必须拆开：前者存参考资产，后者存阶段输出。
+- `5-Image` 初始化骨架要跟随当前 active 链路：请求对象目录、`2-参照引用/` 与 `3-图像生成/` 都是稳定 runtime 根；只有 provider/mode/source/episode 的下钻目录等执行时再创建。
 - 对 `4-Design` 这类“技能树 tranche 父层 != runtime 落盘层”的阶段，初始化应继续预建 domain-first 业务目录，而不是把 `1-清单/2-设计/3-面板` 直接投影成项目目录；但 domain-first 只覆盖当前 active leaf，pending sibling 只能保留在说明中，不应预建成 runtime。
 - 当技能树有中间 tranche，但项目 runtime 只接受业务语义落盘名时，必须优先相信 `_shared/project-runtime-layout.md`，并在阶段合同里把两套命名的映射写明；否则读者会把“技能目录现状”误当成“项目预建目录”。
 - 在 `0-Init` 里，`自主问答模式（默认）` 是前台选项卡的默认建议，不是无确认自动锁模；只要用户没拍板且不存在强制路由信号，就必须停在 `N1-mode-gate`。

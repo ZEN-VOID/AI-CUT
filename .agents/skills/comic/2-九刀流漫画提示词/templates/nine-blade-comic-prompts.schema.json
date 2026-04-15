@@ -34,6 +34,7 @@
         },
         "hard_constraints": {
           "type": "array",
+          "description": "Must include 9 separate pages, no collage, no same-scene variants, and character/scene consistency across all pages.",
           "minItems": 3,
           "items": {"type": "string"}
         }
@@ -107,11 +108,13 @@
               }
             }
           },
-          "positive_prompt": {"type": "string"}
+          "positive_prompt": {
+            "type": "string",
+            "description": "Page prompt must mention vertical 9:16 comic page and explicit character/scene consistency semantics."
+          }
         }
       }
     },
     "global_negative_prompt": {"type": "string"}
   }
 }
-

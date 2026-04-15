@@ -24,7 +24,7 @@ governance_tier: full
 | --- | --- | --- |
 | `business_goal` | 输出服务什么动作 | 服务 Seedream 一次生成 9 张连续漫画页 |
 | `business_object` | 输入是什么 | 上游漫画小说 / 用户小说 / 片段摘要 / 漫画桥接包 |
-| `success_criteria` | 什么叫成功 | 9 页连续、角色一致、每页漫画感强、文本槽位清晰、可被下游脚本校验 |
+| `success_criteria` | 什么叫成功 | 9 页连续、角色与场景一致、每页漫画感强、文本槽位清晰、可被下游脚本校验 |
 | `constraint_profile` | 哪些约束不可破 | 禁止九宫格拼图；禁止同一图九变体；固定 9:16；固定 9 页 |
 | `topology_fit` | 最佳思行结构 | 先抽剧情九刀，再并行锁角色/风格/文字系统，最后汇流为 JSON |
 | `step_strategy` | 重点在哪 | 页级剧情切分、犀利全局漫画风格、经典漫画版式轮换、跨页一致性、Seedream 单请求兼容 |
@@ -148,7 +148,7 @@ flowchart TD
 | `N4B-LAYOUT-DIVERSIFY` | 锁 9 页经典漫画版式轮换 | `story_beat_map`、冲击页、解释页、过渡页 | 为每页分配 `layout_id / panel_count / panel_ratios`，轮换 splash、inset、diagonal、split、border-breaking、zigzag 等 | `layout_plan`、每页 layout | pass -> `N4G`；平整化 -> 重排高冲击页和过渡页 | 至少 5 个 layout_id，动态布局不少于 3 类 |
 | `N4C-TEXT-SYSTEM` | 锁文字槽位与漫画文字表现 | 剧情信息量、对白/旁白/SFX 需求 | 把解释压进 caption，把动作声压进 SFX，把对白压短并绑定气泡类型 | `comic_text_system`、每页 text slot 策略 | pass -> `N4G`；文字过长 -> 压缩/转旁白 | 每个文字槽类型明确，中文短句可读 |
 | `N4G-COMIC-GRAMMAR-MERGE` | 汇流漫画语法三支路 | `style_bible`、`layout_plan`、`comic_text_system` | 检查三支路是否齐备，阻断缺失支路，形成 page prompt 写作策略 | 汇流摘要、风险清单 | pass -> `N5`；fail -> 对应回 `N4A/N4B/N4C` | 风格、版式、文字三个门禁同时通过 |
-| `N5-PAGE-PROMPTS` | 写 9 个完整页 prompt | `story_beat_map`、角色锁、风格词、layout plan、文字系统 | 为每页写 `positive_prompt / panels / text_slots`，prompt 先写版式再写角色动作 | 9 个 page objects | pass -> `N6`；缺页或缺 panel -> 回本节点 | 每页含 9:16、独立页、非拼图约束、漫画版式 |
+| `N5-PAGE-PROMPTS` | 写 9 个完整页 prompt | `story_beat_map`、角色锁、场景锁、风格词、layout plan、文字系统 | 为每页写 `positive_prompt / panels / text_slots`，prompt 先写版式，再固定写入“保持角色和场景一致性”的等价语义，最后写角色动作 | 9 个 page objects | pass -> `N6`；缺页或缺 panel -> 回本节点 | 每页含 9:16、独立页、非拼图约束、漫画版式、角色场景一致性语义 |
 | `N6-ASSEMBLY` | 汇流为 `nine_blade_comic_prompts.v1` JSON | 9 个 page objects、schema、模板 | 按 schema 填充顶层合同、style、locks、pages、negative prompt | JSON 文件 | pass -> `N7`；结构缺失 -> 本节点修复 | JSON 可解析且字段齐 |
 | `N7-VALIDATE` | 脚本与人工双门验收 | JSON 文件、validator、reference 门禁 | 运行 validator；检查 9 页、风格词、layout 多样性、文字系统、负向提示词 | validator 输出、人工风险摘要 | pass -> `N8`；fail -> 按失败码回对应节点 | 可被 3 号技能消费 |
 | `N8-HANDOFF` | 交付下游生成所需真源 | 已验证 JSON、思考过程摘要、输出路径 | 写入 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`，附切页/版式/风险摘要 | 最终 JSON、思考过程 | 完成或交给 3 号技能 | 只有一个 canonical JSON |
@@ -185,6 +185,7 @@ nine_blade_comic_prompts.json
 ## 8. 版式与文字硬规则
 
 - 页面级：每个 `page.positive_prompt` 必须写明 `vertical 9:16 comic page`。
+- 连续性级：每个 `page.positive_prompt` 必须在版式说明之后、具体动作之前，固定写入“保持角色和场景一致性”的等价语义。英文推荐短语为 `keep character and scene consistency across all pages`，可按语境改写为 `consistent character appearance and consistent scene/location continuity across all pages`，但不得只依赖 `character_locks` 或 `location_locks` 字段隐含表达。
 - 全局风格级：`style_bible` 必须包含能显著推动漫画感的锐化词组，优先写入 `manga_style_keywords` 或等价字段，例如：`dynamic manga paneling`、`dramatic inked line art`、`screentone shadows`、`high contrast black gutters`、`oversized SFX`、`cinematic page composition`。
 - 版式级：9 页必须轮换经典漫画布局，不得全部采用从上到下的平整条带；默认至少 5 个不同 `layout_id`，并至少包含 3 类动态布局：`splash-with-insets`、`diagonal-cut-action`、`split-diopter-page`、`border-breaking-cliffhanger`、`vertical-cascade`、`impact-sfx-page` 等。
 - 每页 `positive_prompt` 必须先说明页面版式，再写角色/动作；禁止只写“cinematic shot”而缺少 panel grammar。
@@ -192,6 +193,7 @@ nine_blade_comic_prompts.json
   - `Generate exactly 9 separate images/pages.`
   - `Do not create a nine-grid collage.`
   - `Do not create nine variations of the same scene.`
+  - `Keep character and scene consistency across all pages.`
 - 文字系统：
   - 对白：`speech bubble`，短句，放角色附近。
   - 旁白：`rectangular caption box`，放页边或 panel 边缘。
@@ -207,7 +209,7 @@ nine_blade_comic_prompts.json
 | `FIELD-NB-02` | `story_beat_map` | 9 个连续页级剧情刀口 | `FAIL-NB-BEATS` |
 | `FIELD-NB-03` | `character_locks` | 跨页角色外观、服装、关键识别物稳定 | `FAIL-NB-LOCKS` |
 | `FIELD-NB-04` | `comic_text_system` | 对白/旁白/独白/SFX 表现形式固定 | `FAIL-NB-TEXT` |
-| `FIELD-NB-05` | `pages[]` | 恰好 9 页；每页含 panel 布局、prompt、文本槽 | `FAIL-NB-PAGES` |
+| `FIELD-NB-05` | `pages[]` | 恰好 9 页；每页含 panel 布局、prompt、文本槽，且 `positive_prompt` 显式包含角色和场景一致性语义 | `FAIL-NB-PAGES` |
 | `FIELD-NB-06` | `global_negative_prompt` | 禁止拼图、变体、文字错误、错手、logo、水印 | `FAIL-NB-NEGATIVE` |
 | `FIELD-NB-07` | `style_bible` | 全局漫画风格锐化词明确，不能只有泛影视词 | `FAIL-NB-STYLE` |
 | `FIELD-NB-08` | `pages[].layout` | 9 页 layout_id 足够多样，动态版式不少于 3 类 | `FAIL-NB-LAYOUT-DIVERSITY` |

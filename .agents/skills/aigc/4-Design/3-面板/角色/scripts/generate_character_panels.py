@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import importlib.util
 import json
 import re
 import sys
@@ -14,7 +15,6 @@ from typing import Any
 
 DEFAULT_ASPECT_RATIO = "16:9"
 DEFAULT_IMAGE_SIZE = "4K"
-IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 PROMPT_SECTION_RE = re.compile(
     r"^\*\*(?P<label>full_generation_prompt|prompt整合)\*\*\s*\n(?P<content>.+?)(?=^\*\*|\Z)",
     re.MULTILINE | re.DOTALL | re.IGNORECASE,
@@ -37,7 +37,6 @@ class PanelTask:
     source_file: str
     source_kind: str
     explicit_refs: list[str] = field(default_factory=list)
-    auto_refs: list[str] = field(default_factory=list)
 
 
 def find_repo_root() -> Path:
@@ -51,17 +50,7 @@ def find_repo_root() -> Path:
 REPO_ROOT = find_repo_root()
 SKILL_DIR = Path(__file__).resolve().parents[1]
 TEMPLATE_PATH = SKILL_DIR / "templates" / "角色面板-提示词.json"
-NANO_SCRIPT_DIR = REPO_ROOT / ".agents" / "skills" / "api" / "image" / "nano-banana" / "scripts"
-if NANO_SCRIPT_DIR.as_posix() not in sys.path:
-    sys.path.insert(0, NANO_SCRIPT_DIR.as_posix())
-
-try:
-    from nano_banana_generate import run_generation_from_docs  # type: ignore
-except Exception as exc:  # pragma: no cover
-    run_generation_from_docs = None  # type: ignore
-    NANO_IMPORT_ERROR = exc
-else:
-    NANO_IMPORT_ERROR = None
+PANEL_PARENT_DIR = SKILL_DIR.parent
 
 
 def repo_rel(path: Path) -> str:
@@ -349,37 +338,32 @@ def resolve_smart_mode(args: argparse.Namespace) -> str:
     if args.prompt_text:
         return "natural-language-t2i"
     if args.prompt_file:
-        prompt_path = resolve_path(args.prompt_file)
-        if prompt_path.is_file():
-            return "single-doc-t2i"
+        return "single-doc-t2i"
     return "continuous-batch"
 
 
-def collect_candidate_images(project: str, source_path: str) -> list[Path]:
-    candidates: list[Path] = []
-    source = resolve_path(source_path) if source_path and source_path != "inline_prompt" else None
-    if source and source.exists():
-        folder = source.parent if source.is_file() else source
-        candidates.extend(path for path in folder.iterdir() if path.suffix.lower() in IMAGE_EXTS and path.is_file())
-    assets_dir = REPO_ROOT / "projects" / "aigc" / project / "Assets" / "角色"
-    if assets_dir.exists():
-        candidates.extend(path for path in assets_dir.rglob("*") if path.suffix.lower() in IMAGE_EXTS and path.is_file())
-    return candidates
+def load_panel_auto_generate_module() -> Any:
+    module_path = PANEL_PARENT_DIR / "_shared" / "panel_auto_generate.py"
+    spec = importlib.util.spec_from_file_location("panel_auto_generate_bridge", module_path)
+    if spec is None or spec.loader is None:
+        raise SkillError(f"FAIL-RP-HANDOFF: 无法加载共享 SMART bridge: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-def match_auto_refs(project: str, task: PanelTask, smart_mode: str) -> list[str]:
-    if smart_mode != "continuous-batch":
+def source_context(args: argparse.Namespace) -> str:
+    if args.prompt_text or args.prompt_file:
+        return "direct-request"
+    return "panel-stage"
+
+
+def continuity_roots_for_task(task: PanelTask, smart_mode: str) -> list[str]:
+    if smart_mode != "continuous-batch" or task.source_file == "inline_prompt":
         return []
-    role_id = task.role_id.lower()
-    role_name = task.role_name.lower()
-    matches: list[str] = []
-    for path in collect_candidate_images(project, task.source_file):
-        stem = path.stem.lower()
-        if role_id and role_id in stem:
-            matches.append(path.as_posix())
-        elif role_name and role_name in stem:
-            matches.append(path.as_posix())
-    return dedupe(matches, max_total=3)
+    source = resolve_path(task.source_file)
+    root = source.parent if source.is_file() else source
+    return [repo_rel(root)] if root.exists() else []
 
 
 def compose_prompt(task: PanelTask, layout_prompt: str, reference_hint: str) -> str:
@@ -409,13 +393,13 @@ def build_layout_doc(
     template_path: Path,
     smart_mode_requested: str,
     smart_mode_resolved: str,
-) -> tuple[dict[str, Any], dict[str, Any], Path]:
+) -> tuple[dict[str, Any], Path]:
     layout_prompt = layout_prompt_from_template(template)
-    refs = dedupe([*task.explicit_refs, *task.auto_refs], max_total=14)
+    refs = dedupe(task.explicit_refs, max_total=14)
     images = [{"url": ref} for ref in refs]
     reference_hint = ""
-    if task.auto_refs:
-        reference_hint = "以自动匹配的设计图作为角色形象连续性参照，保持身份、体态、服装状态和风格一致。"
+    if smart_mode_resolved == "continuous-batch":
+        reference_hint = "共享 SMART bridge 会自动匹配上游角色设计图作为形象连续性参照；保持身份、体态、服装状态和风格一致，但不得复制参照图中的偶发构图或噪声。"
     if task.explicit_refs:
         explicit_hint = "用户显式参考图优先，保持当前设计主体身份，不从服装或风格参考图偷换角色脸。"
         reference_hint = f"{reference_hint}\n{explicit_hint}".strip()
@@ -431,7 +415,7 @@ def build_layout_doc(
 
     filename_prefix = f"{safe_name(task.role_id)}-{safe_name(task.role_name)}-{safe_name(task.costume_state)}-CharacterPanel"
     layout_path = output_dir / f"{filename_prefix}-layout.json"
-    image_output_dir = output_dir
+    image_output_dir = output_dir / "generated" / filename_prefix
     image_filename = f"{filename_prefix}.png"
     now = datetime.now().astimezone().isoformat(timespec="seconds")
     layout_doc = {
@@ -459,7 +443,7 @@ def build_layout_doc(
         "prompt": prompt_text,
         "images": images,
         "references": {
-            "reference_images": [{"url": ref, "ref_type": "auto_design_image"} for ref in task.auto_refs],
+            "reference_images": [],
             "explicit_references": [{"url": ref, "ref_type": "explicit_reference"} for ref in task.explicit_refs],
         },
         "render_contract": {
@@ -474,7 +458,10 @@ def build_layout_doc(
             "smart_mode_resolved": smart_mode_resolved,
             "prompt_field": "prompt_payload.prompt_text",
             "prompt_text": prompt_text,
-            "reference_images": refs,
+            "reference_images": [],
+            "explicit_references": refs,
+            "continuity_source_roots": continuity_roots_for_task(task, smart_mode_resolved),
+            "output_dir": image_output_dir.as_posix(),
             "output_filename": image_filename,
             "request_id": filename_prefix,
         },
@@ -483,33 +470,7 @@ def build_layout_doc(
             "target_image_filename": image_filename,
         },
     }
-    request_doc = {
-        "prompt": prompt_text,
-        "images": images,
-        "project_name": project,
-        "task_kind": "project",
-        "aspect_ratio": DEFAULT_ASPECT_RATIO,
-        "image_size": DEFAULT_IMAGE_SIZE,
-        "request_id": filename_prefix,
-        "output_dir": image_output_dir.as_posix(),
-        "output_filename": image_filename,
-        "filename_prefix": filename_prefix,
-        "caller_skill": ".agents/skills/aigc/4-Design/3-面板/角色",
-        "episode_id": episode,
-        "prompt_reference": {
-            "smart_mode_requested": smart_mode_requested,
-            "smart_mode_resolved": smart_mode_resolved,
-            "prompt_field": "prompt_payload.prompt_text",
-            "prompt_reference_sections": [
-                "prompt_payload.prompt_text",
-                "prompt_payload.prompt_segments.identity_prompt",
-                "prompt_payload.prompt_segments.design_subject_prompt",
-                "prompt_payload.prompt_segments.layout_prompt",
-            ],
-            "source_layout_json": repo_rel(layout_path),
-        },
-    }
-    return layout_doc, request_doc, layout_path
+    return layout_doc, layout_path
 
 
 def collect_tasks(args: argparse.Namespace, episode: str) -> list[PanelTask]:
@@ -566,7 +527,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--smart-mode",
         default="auto",
-        choices=["auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i"],
+        choices=["auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"],
         help="默认 auto：批量自动参照，单文件/自然语言默认 T2I",
     )
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON 和 request sidecar，不调用生图")
@@ -588,13 +549,11 @@ def main() -> int:
         template = load_template(template_path)
         smart_mode = resolve_smart_mode(args)
         tasks = collect_tasks(args, episode)
-        for task in tasks:
-            task.auto_refs = match_auto_refs(args.project, task, smart_mode)
 
         layout_paths: list[str] = []
-        request_docs: list[dict[str, Any]] = []
+        layout_path_objects: list[Path] = []
         for task in tasks:
-            layout_doc, request_doc, layout_path = build_layout_doc(
+            layout_doc, layout_path = build_layout_doc(
                 task=task,
                 project=args.project,
                 episode=episode,
@@ -606,19 +565,23 @@ def main() -> int:
             )
             write_json(layout_path, layout_doc)
             layout_paths.append(repo_rel(layout_path))
-            request_docs.append(request_doc)
+            layout_path_objects.append(layout_path)
 
-        request_sidecar = output_dir / "panel_auto_generate_batch.json"
-        write_json(
-            request_sidecar,
-            {
-                "schema": "aigc.panel.nano-banana.batch/v1",
-                "project_name": args.project,
-                "episode_id": episode,
-                "smart_mode_resolved": smart_mode,
-                "tasks": request_docs,
-            },
-        )
+        bridge_result: dict[str, Any] | None = None
+        request_sidecar = ""
+        if args.smart_mode != "off":
+            bridge_module = load_panel_auto_generate_module()
+            bridge_result = bridge_module.run_panel_auto_generate(
+                layout_path_objects,
+                smart_mode=smart_mode,
+                dry_run=args.dry_run,
+                print_payload=args.print_payload,
+                max_concurrent=args.max_concurrent,
+                timeout=args.timeout,
+                generate=not (args.layout_only or args.json_only),
+                pipeline_context=source_context(args),
+            )
+            request_sidecar = bridge_result.get("request_batch_path", "")
 
         manifest = {
             "status": "layout-only" if (args.layout_only or args.json_only) else ("dry-run" if args.dry_run else "generated"),
@@ -628,40 +591,38 @@ def main() -> int:
             "smart_mode_resolved": smart_mode,
             "layout_count": len(layout_paths),
             "layout_files": layout_paths,
-            "request_sidecar": repo_rel(request_sidecar),
-            "auto_reference_count": sum(len(task.auto_refs) for task in tasks),
+            "request_sidecar": request_sidecar,
+            "bridge_report_path": (bridge_result or {}).get("bridge_report_path", ""),
+            "auto_reference_count": sum(
+                int(task.get("continuity_reference_count", 0))
+                for task in ((bridge_result or {}).get("trace", {}) or {}).get("tasks", [])
+            ),
             "explicit_reference_count": sum(len(task.explicit_refs) for task in tasks),
         }
-
-        generation_result: dict[str, Any] | None = None
-        if not args.layout_only and not args.json_only:
-            if run_generation_from_docs is None:
-                raise SkillError(f"FAIL-RP-HANDOFF: 无法导入 nano-banana/general 脚本: {NANO_IMPORT_ERROR}")
-            generation_result = run_generation_from_docs(
-                request_docs,
-                max_concurrent=args.max_concurrent,
-                timeout=args.timeout,
-                dry_run=args.dry_run,
-                print_payload=args.print_payload,
-                no_report=True,
-            )
+        if bridge_result is not None:
             manifest["generation_result"] = {
-                "success_count": generation_result.get("success_count"),
-                "failed_count": generation_result.get("failed_count"),
+                "success": bridge_result.get("success"),
+                "success_count": bridge_result.get("success_count"),
+                "failed_count": bridge_result.get("failed_count"),
                 "dry_run": args.dry_run,
+                "skipped": bridge_result.get("skipped", False),
             }
 
         write_json(output_dir / "_manifest.json", manifest)
         print(f"✅ layout: {len(layout_paths)}")
-        print(f"✅ request_sidecar: {repo_rel(request_sidecar)}")
+        if request_sidecar:
+            print(f"✅ request_sidecar: {request_sidecar}")
         if args.layout_only or args.json_only:
             print("✅ JSON-only 完成：未调用 nano-banana/general。")
             return 0
+        if bridge_result is not None and not bridge_result.get("success", False):
+            print(f"❌ generation_failed: {bridge_result.get('failed_count', 0)}")
+            return 1
         if args.dry_run:
             print("✅ dry-run 完成：已构造 nano-banana/general 请求，未真实调用 API。")
             return 0
-        failed = int((generation_result or {}).get("failed_count", 0))
-        print(f"✅ generation_success: {(generation_result or {}).get('success_count', 0)}")
+        failed = int((bridge_result or {}).get("failed_count", 0))
+        print(f"✅ generation_success: {(bridge_result or {}).get('success_count', 0)}")
         print(f"❌ generation_failed: {failed}")
         return 0 if failed == 0 else 1
     except SkillError as exc:

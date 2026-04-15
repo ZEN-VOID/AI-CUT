@@ -30,6 +30,7 @@
    - 明确 panel 比例、跨格、斜切、inset、splash、破框 SFX、黑 gutter 等。
 3. `Continuity Locks`
    - 主角固定短语、服装、关键识别物。
+   - 每页必须显式写入“保持角色和场景一致性”的等价语义；英文推荐短语：`keep character and scene consistency across all pages`。
 4. `Panel Blocks`
    - 每格镜头、动作、情绪、环境、光线、漫画技法。
 5. `Text Slots`
@@ -136,4 +137,10 @@
 
 ```text
 nine-grid collage, single image collage, contact sheet, nine variations of the same scene, duplicated composition, inconsistent character face, mismatched costume, unreadable Chinese text, wrong Chinese characters, speech bubble outside panel, caption outside panel, deformed hands, extra fingers, missing fingers, distorted face, low resolution, blurry, watermark, signature, logo
+```
+
+顶层 `generation_contract.hard_constraints` 至少还必须包含角色与场景一致性约束，例如：
+
+```text
+Keep character and scene consistency across all pages.
 ```

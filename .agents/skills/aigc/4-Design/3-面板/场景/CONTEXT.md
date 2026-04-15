@@ -21,6 +21,8 @@
 | 当前仓 `scene_design.json.scenes[]` 与旧仓 `scene_designs[]` 字段不一致 | 迁移兼容层 | 同时支持 `scenes[] / scene_designs[]`，按 prompt 字段优先级读取 | skill_manifest 写清当前第一输入为 `scene_design.json` | 脚本可 dry-run 当前新路径 |
 | 批量执行时未拿到场景参照图 | SMART 输入根层 | layout 写入 `continuity_source_roots` 指向对应 `2-设计` 目录与 Markdown 同级目录 | 共享 SMART 桥在 `continuous-batch` 扫描主体 token | request `images[]` 可见匹配图 |
 | 单文件/自然语言直调误扫参考图 | SMART 场景判型层 | `--prompt-file` / `--prompt-text` 默认 `pipeline_context=direct-request` | `single-doc-t2i` 不读取 continuity refs | `continuity_reference_images=[]` |
+| `--prompt-file` 指向目录时被数量误判为批量 | SMART 场景判型层 | direct-request 下的 `auto` 固定为 `single-doc-t2i` | 只有父级 batch 或显式 `continuous-batch` 才自动扫参照 | 目录直调 request trace 无 continuity refs |
+| JSON-only 没有 request sidecar，后续补跑不可复盘 | delivery trace 层 | layout-only 时仍调用共享 bridge 的 request-sidecar-only 停点 | request sidecar 与 bridge report 是 JSON 停点的必备派生证据 | `generated/requests/panel_auto_generate_batch.json` 存在 |
 | layout JSON 已写但生图失败 | 下游 API 层 | 保留 layout 与 request sidecar，按 nano-banana root-cause 链排查 API key/参数/图像编码 | 默认先写 JSON，再调用 nano，避免失败时丢业务真源 | `_manifest.json.image_generation.success=false` 且有 report |
 
 ## Repair Playbook
@@ -29,7 +31,7 @@
 2. 再确认 prompt 来源：优先 `prompt整合 / prompt_integration / design_prompt / final_prompt / final_scene_prompt`。
 3. 检查模板 `prompt_payload` 是否存在，比例是否仍为 `16:9 + 3x3`。
 4. 若参考图异常，查看 `smart_mode_resolved` 与 request JSON 的 `prompt_reference`。
-5. 生图失败时不重写 layout；先看 `generated/requests/panel_auto_generate_report.json`。
+5. 生图失败或 JSON-only 补跑时不重写 layout；先看 `generated/requests/panel_auto_generate_report.json`。
 
 ## Reusable Heuristics
 

@@ -138,7 +138,7 @@ stateDiagram-v2
    - `smart_mode=auto` 解析为 `single-doc-t2i`
    - 默认不扫描 continuity refs
    - 只有显式 `--reference` 才加入参照图
-3. `--layout-only` 或 `--json-only` 时只产出 layout JSON 与 manifest，不调用生图。
+3. `--layout-only` 或 `--json-only` 时只产出 layout JSON、manifest、request sidecar 与 bridge report，不调用生图。
 
 ## Thinking-Action Node Network
 
@@ -291,7 +291,7 @@ python3 .agents/skills/aigc/4-Design/3-面板/道具/scripts/generate_prop_panel
 
 ### 风险 / 例外
 
-- `--layout-only / --json-only` 会跳过生图。
+- `--layout-only / --json-only` 会跳过生图，但仍通过共享 SMART bridge 写 request sidecar 与 bridge report。
 - `--dry-run` 不写 layout，也不调用远端 API。
 - 真实 API 失败时，本技能不重试伪造结果，返回失败并保留 request sidecar。
 

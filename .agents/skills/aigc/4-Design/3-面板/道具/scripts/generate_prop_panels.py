@@ -305,6 +305,8 @@ def _build_layout_doc(
         ]
     )
     output_filename = f"{_safe_name(task.prop_id)}-{_safe_name(task.prop_name)}-PropPanel.png"
+    filename_prefix = f"{_safe_name(task.prop_id)}-{_safe_name(task.prop_name)}-PropPanel"
+    image_output_dir = layout_path.parent / "generated" / filename_prefix
     continuity_roots = []
     if pipeline_context == "panel-stage" and task.continuity_root is not None:
         continuity_roots.append(_repo_relative(task.continuity_root, repo_root))
@@ -350,9 +352,9 @@ def _build_layout_doc(
         "aspect_ratio": DEFAULT_ASPECT_RATIO,
         "image_size": DEFAULT_IMAGE_SIZE,
         "request_id": layout_path.stem,
-        "output_dir": layout_path.parent.as_posix(),
+        "output_dir": image_output_dir.as_posix(),
         "output_filename": output_filename,
-        "filename_prefix": f"{_safe_name(task.prop_id)}-{_safe_name(task.prop_name)}-PropPanel",
+        "filename_prefix": filename_prefix,
         "image_generation": {
             "target_skill_id": "nano-banana-general",
             "smart_mode_default": "continuous-batch" if pipeline_context == "panel-stage" else "single-doc-t2i",
@@ -367,6 +369,7 @@ def _build_layout_doc(
             "reference_images": [],
             "explicit_references": explicit_references,
             "continuity_source_roots": continuity_roots,
+            "output_dir": image_output_dir.as_posix(),
             "output_filename": output_filename,
             "request_id": layout_path.stem,
         },
@@ -563,6 +566,31 @@ def _build_episode(
         if not dry_run:
             _write_json(layout_path, layout_doc)
 
+    if not dry_run and smart_mode != "off" and layout_only:
+        bridge_module = _load_panel_auto_generate_module()
+        result = bridge_module.run_panel_auto_generate(
+            packet_paths,
+            manifest_path=output_dir / "_manifest.json",
+            smart_mode=smart_mode,
+            explicit_references=explicit_references,
+            max_concurrent=max_concurrent,
+            print_payload=print_payload,
+            save_images=save_images,
+            no_report=no_report,
+            generate=False,
+            pipeline_context=pipeline_context,
+        )
+        manifest["image_generation"].update(
+            {
+                "status": "request-sidecar-only",
+                "success": True,
+                "smart_mode_resolved": result.get("smart_mode_resolved"),
+                "task_count": result.get("task_count", 0),
+                "request_batch_path": result.get("request_batch_path"),
+                "bridge_report_path": result.get("bridge_report_path"),
+            }
+        )
+
     if not layout_only and not dry_run:
         try:
             bridge_module = _load_panel_auto_generate_module()
@@ -614,7 +642,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--json-only", action="store_true", help="兼容别名：只写 layout JSON，不调用生图")
     parser.add_argument("--dry-run", action="store_true", help="只校验输入并统计，不写文件也不调用远端")
     parser.add_argument("--generation-dry-run", action="store_true", help="写 layout 与 request sidecar，但 nano-banana 只 dry-run")
-    parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "off"), default="auto", help="SMART 生图模式")
+    parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto", help="SMART 生图模式")
     parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100, help="自动生图最大并发")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
@@ -625,6 +653,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    smart_mode = "natural-language-t2i" if args.smart_mode == "auto" and args.text else args.smart_mode
     try:
         built_files = build_panels(
             project_name=args.project,
@@ -635,7 +664,7 @@ def main() -> int:
             layout_only=args.layout_only or args.json_only,
             dry_run=args.dry_run,
             generation_dry_run=args.generation_dry_run,
-            smart_mode=args.smart_mode,
+            smart_mode=smart_mode,
             explicit_references=args.reference,
             max_concurrent=args.max_concurrent,
             print_payload=args.print_payload,

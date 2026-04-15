@@ -325,6 +325,16 @@ def _format_mb(byte_count: int) -> str:
     return f"{byte_count / (1024 * 1024):.2f}MB"
 
 
+def _redact_secrets(value: Any) -> Any:
+    if value is None:
+        return None
+    text = str(value)
+    text = re.sub(r"([?&](?:key|api_key|token|access_token)=)[^&\s]+", r"\1<redacted>", text, flags=re.IGNORECASE)
+    text = re.sub(r"(Bearer\s+)[A-Za-z0-9._~+/=-]+", r"\1<redacted>", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bsk-[A-Za-z0-9._~+/=-]{12,}\b", "sk-<redacted>", text)
+    return text
+
+
 def _image_budget_summary(image_stats: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {
         "image_count": len(image_stats),
@@ -893,17 +903,18 @@ def _execute_task(
             last_exc = exc
             error_body = None
             if isinstance(exc, requests.HTTPError) and exc.response is not None:
-                error_body = exc.response.text
+                error_body = _redact_secrets(exc.response.text)
+            safe_error = _redact_secrets(exc)
             if attempt < RETRY_MAX_ATTEMPTS:
                 delay = RETRY_BASE_DELAY * (RETRY_BACKOFF ** (attempt - 1))
                 print(
                     f"[RETRY] 任务 {task['task_index']} 第 {attempt} 次失败，"
-                    f"{delay:.0f}s 后重试: {exc}"
+                    f"{delay:.0f}s 后重试: {safe_error}"
                 )
                 time.sleep(delay)
             else:
                 report["error"] = {
-                    "message": str(exc),
+                    "message": safe_error,
                     "http_body": error_body,
                     "attempts": attempt,
                 }
@@ -1002,9 +1013,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--project-name", help="项目名；未传时测试任务映射为“测试”，临时任务映射为“临时”")
     parser.add_argument(
         "--task-kind",
-        default="test",
         choices=["project", "test", "temp"],
-        help="任务类型：project/test/temp；未传项目名时决定默认项目目录名",
+        help="任务类型：project/test/temp；未传时优先使用 input_json.task_kind，仍缺失则默认 test",
     )
     parser.add_argument("--aspect-ratio", help="宽高比")
     parser.add_argument("--image-size", help="图像清晰度")
@@ -1038,7 +1048,7 @@ def run_generation_from_docs(
     api_url: Optional[str] = None,
     api_key: Optional[str] = None,
     project_name: Optional[str] = None,
-    task_kind: str = "test",
+    task_kind: Optional[str] = None,
     aspect_ratio: Optional[str] = None,
     image_size: Optional[str] = None,
     image_urls: Optional[List[str]] = None,

@@ -78,7 +78,7 @@ Prompt 字段优先级：
 2. 默认批量 `project + episode` 是 `panel-stage` 上下文，SMART `auto` 解析为 `continuous-batch`。
 3. `--prompt-file` 或 `--prompt-text` 是 `direct-request` 上下文，SMART `auto` 解析为 `single-doc-t2i`。
 4. 用户显式传 `--reference` 时，无论上下文都加入 explicit refs。
-5. `--layout-only / --json-only / --smart-mode off` 时只产出 JSON，不调用 nano。
+5. `--layout-only / --json-only` 时只产出 layout、manifest、request sidecar 与 bridge report，不调用 nano；`--smart-mode off` 才完全跳过 SMART bridge。
 
 ## Output Contract
 
@@ -91,7 +91,7 @@ Prompt 字段优先级：
 1. `*_ScenePanel-layout.json`
 2. `场景面板.json`
 3. `_manifest.json`
-4. 默认派生：`generated/requests/*.json`、`generated/requests/panel_auto_generate_batch.json`、`generated/panel_auto_generate_report.json`、nano-banana 输出图片。
+4. 默认派生：`generated/requests/*.json`、`generated/requests/panel_auto_generate_batch.json`、`generated/requests/panel_auto_generate_report.json`、nano-banana 输出图片。
 
 `layout.json` 至少包含：
 
@@ -129,8 +129,8 @@ python3 .agents/skills/aigc/4-Design/3-面板/场景/scripts/generate_scene_pane
 - `--design-file <path>`：显式指定设计 JSON。
 - `--prompt-file <path>`：指定单文件或目录。
 - `--prompt-text "<prompt>"`：自然语言直调。
-- `--layout-only` / `--json-only`：只写 JSON，不调用 nano。
-- `--smart-mode auto|continuous-batch|single-doc-t2i|off`：SMART 模式。
+- `--layout-only` / `--json-only`：只写 JSON、request sidecar 与 bridge report，不调用 nano。
+- `--smart-mode auto|continuous-batch|single-doc-t2i|natural-language-t2i|off`：SMART 模式。
 - `--reference <path-or-url>`：显式参考图，可重复。
 - `--dry-run`：写 JSON 与 request sidecar，并 dry-run nano payload，不真正调用 API。
 - `--force`：覆盖已存在输出。

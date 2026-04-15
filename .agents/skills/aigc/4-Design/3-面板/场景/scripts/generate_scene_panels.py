@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", help="显式输出目录")
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON，不自动生图")
     parser.add_argument("--json-only", action="store_true", help="兼容别名：只写 layout JSON，不自动生图")
-    parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "off"), default="auto")
+    parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto")
     parser.add_argument("--reference", action="append", default=[], help="显式参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100)
     parser.add_argument("--dry-run", action="store_true", help="写 JSON 与 request sidecar，但 nano 只 dry-run")
@@ -319,6 +319,14 @@ def source_context(args: argparse.Namespace) -> str:
     return "panel-stage"
 
 
+def bridge_smart_mode(args: argparse.Namespace) -> str:
+    if args.smart_mode != "auto":
+        return args.smart_mode
+    if args.prompt_text:
+        return "natural-language-t2i"
+    return args.smart_mode
+
+
 def resolve_tasks(args: argparse.Namespace) -> tuple[list[SceneTask], str]:
     project = infer_project_name(args)
     if args.prompt_text:
@@ -366,7 +374,7 @@ def main() -> int:
         filename_prefix = f"{safe_slug(task.scene_id)}-{safe_slug(task.scene_name)}_ScenePanel"
         layout_path = output_root / f"{filename_prefix}-layout.json"
         prompt = build_prompt(template_payload, task)
-        generated_output_dir = output_root
+        generated_output_dir = output_root / "generated" / filename_prefix
         layout_payload = {
             "meta": {
                 "project_name": project_name,
@@ -400,7 +408,7 @@ def main() -> int:
             },
             "image_generation": {
                 "target_skill_id": "nano-banana-general",
-                "smart_mode_default": "continuous-batch",
+                "smart_mode_default": "continuous-batch" if source_context(args) == "panel-stage" else bridge_smart_mode(args),
                 "prompt_field": "prompt",
                 "prompt_text": prompt,
                 "prompt_reference_sections": [
@@ -411,6 +419,7 @@ def main() -> int:
                 "reference_images": task.reference_images,
                 "explicit_references": args.reference,
                 "continuity_source_roots": task.continuity_roots,
+                "output_dir": generated_output_dir.as_posix(),
                 "output_filename": f"{filename_prefix}.png",
                 "request_id": f"{safe_slug(task.scene_id)}-scene-panel",
             },
@@ -474,7 +483,7 @@ def main() -> int:
         result = bridge_module.run_panel_auto_generate(
             layout_paths,
             manifest_path=manifest_path,
-            smart_mode=args.smart_mode,
+            smart_mode=bridge_smart_mode(args),
             explicit_references=args.reference,
             dry_run=args.dry_run,
             print_payload=args.print_payload,
@@ -495,6 +504,26 @@ def main() -> int:
             "bridge_report_path": result.get("bridge_report_path"),
             "nano_returncode": result.get("nano_returncode"),
             "dry_run": bool(args.dry_run),
+        }
+    elif args.smart_mode != "off":
+        bridge_module = _load_panel_auto_generate_module()
+        result = bridge_module.run_panel_auto_generate(
+            layout_paths,
+            manifest_path=manifest_path,
+            smart_mode=bridge_smart_mode(args),
+            explicit_references=args.reference,
+            max_concurrent=args.max_concurrent,
+            no_report=args.no_report,
+            generate=False,
+            pipeline_context=source_context(args),
+        )
+        manifest_payload["image_generation"] = {
+            "enabled": False,
+            "smart_mode_requested": args.smart_mode,
+            "smart_mode_resolved": result.get("smart_mode_resolved", ""),
+            "status": "request-sidecar-only",
+            "request_batch_path": result.get("request_batch_path"),
+            "bridge_report_path": result.get("bridge_report_path"),
         }
 
     write_json(manifest_path, manifest_payload, force=True)

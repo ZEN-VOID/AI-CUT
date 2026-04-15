@@ -4,14 +4,14 @@
 
 ## Canonical Rule
 
-`3-面板` leaf 必须先写 layout JSON，再构造 nano-banana/general 标准 input JSON。默认执行生图；显式 `--layout-only` 或 `--json-only` 时只交付 layout JSON 与 request sidecar。
+`3-面板` leaf 必须先写 layout JSON，再构造 nano-banana/general 标准 input JSON。默认执行生图；显式 `--layout-only` 或 `--json-only` 时只交付 layout JSON、request sidecar 与 bridge report。
 
 ## SMART Mode
 
 | mode | 触发 | references policy | nano-banana route |
 | --- | --- | --- | --- |
-| `continuous-batch` | 由 `4-Design` 系列批量调度，或只给 `--project + --episode` 批量处理设计目录 | 自动扫描设计目录同级图片与 `projects/aigc/<项目名>/Assets/<域>/` 中匹配主体的已有图片 | 有图则 I2I，无图则 T2I |
-| `single-doc-t2i` | 显式 `--prompt-file` 指向单文件，或只给单个 JSON/Markdown | 默认不隐式扫描 continuity refs；只使用用户显式给出的参考图 | 默认 T2I |
+| `continuous-batch` | 由 `4-Design` 系列批量调度，或只给 `--project + --episode` 批量处理设计目录 | 自动扫描 layout 中声明的 `continuity_source_roots`、设计目录同级图片与 `projects/aigc/<项目名>/Assets/<域>/` 中匹配主体的已有图片 | 有图则 I2I，无图则 T2I |
+| `single-doc-t2i` | 显式 `--prompt-file` 指向单文件、目录、单个 JSON/Markdown，或 direct-request 上下文 | 默认不隐式扫描 continuity refs；只使用用户显式给出的参考图 | 默认 T2I |
 | `natural-language-t2i` | 显式 `--prompt-text` 或会话自然语言要求生图 | 默认不隐式扫描 continuity refs；只使用用户显式给出的参考图 | 默认 T2I |
 
 ## Request JSON Shape
@@ -46,3 +46,5 @@
 2. `images[]` 只能来自 SMART 规则或用户显式参考图；不得在 single/natural 模式下隐式扫描 continuity refs。
 3. `prompt_reference.source_layout_json` 必须回链到实际存在的 layout JSON。
 4. request sidecar 默认落到 `projects/aigc/<项目名>/4-Design/<域>/3-面板/第N集/generated/requests/panel_auto_generate_batch.json`。
+5. `--layout-only / --json-only` 必须仍通过共享 bridge 写 request sidecar 与 bridge report，但以 `request-sidecar-only` 停点退出，不调用 nano。
+6. active leaf 不得私造第二套 nano-banana payload、Assets 扫描或 SMART mode 解析；统一调用 `_shared/panel_auto_generate.py`。

@@ -36,6 +36,7 @@ governance_tier: full
 
 - 还没有合法请求 JSON，或请求对象仍需回到 `1-提示词蒸馏/*` 补齐。
 - 请求对象虽然存在，但若本轮明确需要绑定 `Assets/` 参考图而 `reference_images / image_markers` 仍为空或仍未解析，应先进入 `2-参照引用`。
+- 项目 `Assets/` 中已有可用图片，且用户或上游没有显式声明 `prompt_only / no_reference`；此时空 `reference_images / image_markers` 必须先判为 `unresolved`，不得直接降级为纯 prompt 生成。
 - 当前问题已经明确是 provider 运行时故障排查，而不是提交前组织。
 - 仍在修改 `projects/aigc/<项目名>/3-Detail/第N集.json`、主体资产或画面资产本体。
 
@@ -126,7 +127,7 @@ governance_tier: full
 1. 读取上游稳定请求对象，确认 `request_ready`。
 2. 若不满足提交前条件，立即停止并回上游补请求对象。
 3. 检查 `reference_images / image_markers` 当前是 `bound`、`empty` 还是 `unresolved`。
-4. 若处于 `unresolved`，立即停止并回 `2-参照引用`，不得继续拼 provider 参数。
+4. 若处于 `unresolved`，或项目 `Assets/` 非空但本轮没有显式 `prompt_only / no_reference` 声明且引用字段仍为空，立即停止并回 `2-参照引用`，不得继续拼 provider 参数。
 5. 锁定唯一 provider 或推荐主案。
 6. 按引用状态确定执行模式：
    - `bound` -> `reference_driven`

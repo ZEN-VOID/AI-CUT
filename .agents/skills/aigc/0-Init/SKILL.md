@@ -170,7 +170,8 @@ flowchart LR
 3. `mode context`
    `init_mode`、`mode_source`、`decision_owner`、`research_policy`、`rebootstrap_requested`、`reset_mode`、`reset_reason`
 4. `template context`
-   `north-star.template.yaml`、`init-handoff.template.yaml`、`team.template.yaml`、`story-source-manifest.template.yaml`
+   本地模板：`.agents/skills/aigc/0-Init/templates/north-star.template.yaml`、`.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml`
+   共享模板：`.agents/skills/aigc/_shared/council-runtime/team.template.yaml`、`.agents/skills/aigc/_shared/story-source-manifest.template.yaml`
 5. `evidence context`
    现有 `projects/aigc/<项目名>/` 工件、故事源情况、来源分层、已有治理快照
 

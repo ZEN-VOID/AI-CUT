@@ -82,7 +82,8 @@ def _self_test_data() -> dict[str, Any]:
                 ],
                 "positive_prompt": (
                     f"cinematic comic page, vertical 9:16 aspect ratio, "
-                    f"Page {page_number}, unique visible action {page_number}"
+                    f"Page {page_number}, keep character and scene consistency "
+                    f"across all pages, unique visible action {page_number}"
                 ),
             }
         )
@@ -98,6 +99,7 @@ def _self_test_data() -> dict[str, Any]:
                 "Generate exactly 9 separate images/pages.",
                 "Do not create a nine-grid collage.",
                 "Do not create nine variations of the same scene.",
+                "Keep character and scene consistency across all pages.",
             ],
         },
         "style_bible": {
@@ -129,6 +131,18 @@ def _load_json(path: Path) -> dict[str, Any]:
 def _contains(texts: list[str], needle: str) -> bool:
     needle = needle.lower()
     return any(needle in text.lower() for text in texts)
+
+
+def _has_character_scene_consistency(text: str) -> bool:
+    lower = text.lower()
+    has_character = "character" in lower
+    has_scene = "scene" in lower or "location" in lower
+    has_consistency = (
+        "consistent" in lower
+        or "consistency" in lower
+        or "continuity" in lower
+    )
+    return has_character and has_scene and has_consistency
 
 
 def _stringify(value: Any) -> str:
@@ -164,6 +178,10 @@ def validate(data: dict[str, Any]) -> list[str]:
     for needle in REQUIRED_HARD_CONSTRAINTS:
         if not _contains(hard_constraints, needle):
             errors.append(f"hard_constraints must mention {needle!r}")
+    if not _has_character_scene_consistency(" ".join(hard_constraints)):
+        errors.append(
+            "hard_constraints must explicitly require character and scene consistency"
+        )
 
     seedream = contract.get("seedream", {})
     if isinstance(seedream, dict) and seedream.get("max_images") not in (None, 9):
@@ -224,8 +242,13 @@ def validate(data: dict[str, Any]) -> list[str]:
         positive_prompt = page.get("positive_prompt")
         if not isinstance(positive_prompt, str) or not positive_prompt.strip():
             errors.append(f"pages[{i}].positive_prompt must be a non-empty string")
-        elif "9:16" not in positive_prompt:
-            errors.append(f"pages[{i}].positive_prompt must mention 9:16")
+        else:
+            if "9:16" not in positive_prompt:
+                errors.append(f"pages[{i}].positive_prompt must mention 9:16")
+            if not _has_character_scene_consistency(positive_prompt):
+                errors.append(
+                    f"pages[{i}].positive_prompt must mention character and scene consistency"
+                )
 
         for panel in panels:
             if not isinstance(panel, dict):

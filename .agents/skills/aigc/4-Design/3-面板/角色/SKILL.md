@@ -34,6 +34,7 @@ governance_tier: full
 
 - `.agents/skills/aigc/4-Design/3-面板/SKILL.md`
 - `.agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md`
+- `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py`
 - `.agents/skills/aigc/4-Design/2-设计/角色/SKILL.md`
 - `templates/角色面板-提示词.json`
 - `scripts/generate_character_panels.py`
@@ -44,7 +45,7 @@ governance_tier: full
 - 本 `SKILL.md`：角色面板 leaf 的输入输出、思行网络、SMART 域内门禁。
 - `templates/角色面板-提示词.json`：固定布局与 prompt payload 模板真源。
 - `_shared/smart-image-handoff-contract.md`：批量/单例参照图策略与 nano-banana request sidecar 真源。
-- `scripts/generate_character_panels.py`：落盘与自动生图执行入口。
+- `scripts/generate_character_panels.py`：角色 layout 落盘入口；SMART mode、Assets 扫描、request sidecar 与 nano 调用统一交给 `_shared/panel_auto_generate.py`。
 
 ## Business Requirement Analysis Contract (Mandatory)
 
@@ -91,13 +92,13 @@ governance_tier: full
 
 1. `<role_id>-<role_name>-<costume_state>-CharacterPanel-layout.json`
 2. `generated/requests/panel_auto_generate_batch.json`
-3. 默认生图结果：`generated/<role_id>/...png`
+3. 默认生图结果：`generated/<layout-stem>/...png`
 4. `_manifest.json`
 
 停点规则：
 
 - 默认：写 JSON 后自动执行生图。
-- `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar 与 manifest，不调用 API。
+- `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar、bridge report 与 manifest，不调用 API。
 - `--dry-run`：写 JSON 与 request sidecar，并让 nano-banana/general 只打印/验证 payload，不真实调用 API。
 
 ## Visual Maps (Mermaid)
@@ -113,7 +114,7 @@ flowchart TD
     E --> F
     F --> G["Apply CHARACTER_ATMOSPHERIC_DOSSIER template"]
     G --> H["Write CharacterPanel layout JSON"]
-    H --> I["Build nano-banana/general request sidecar"]
+    H --> I["Call shared SMART bridge"]
     I --> J{"layout-only/json-only?"}
     J -->|"No"| K["Run nano-banana/general"]
     J -->|"Yes"| L["Stop at JSON"]
@@ -159,8 +160,8 @@ erDiagram
 
 1. `continuous-batch`
    - 触发：只提供 `--project + --episode`、或父级 `4-Design` 批量调度。
-   - 动作：自动获取设计中已有图片作为对应参照图进行面板化生图。
-   - 匹配：优先 `role_id`，再 `role_name`，最后 `role_id + role_name` 的文件名包含关系。
+   - 动作：由共享 SMART bridge 自动获取设计中已有图片作为对应参照图进行面板化生图。
+   - 匹配：共享 bridge 基于 `role_id / role_name / identity_badge` 等主体 token 扫描 `2-设计` 同级图与 `Assets/角色`。
 2. `single-doc-t2i`
    - 触发：显式指定单个 `--prompt-file`。
    - 动作：默认无参照图直接生成。
@@ -200,7 +201,7 @@ erDiagram
 | `N2-IDENTITY` | 锁角色锚点 | manifest / JSON / Markdown / 文件名 | 解析主体字段 | `subject` | `N3` | `role_name` 不得为空 |
 | `N3-PROMPT` | 锁设计主体 | 上游设计产物 | 只抽取 prompt 部分 | `design_subject` | `N4` | prompt 空则阻断 |
 | `N4-TEMPLATE` | 锁面板布局 | 模板 JSON | 合成三栏 layout prompt | `prompt_payload` | `N5` | 模板缺 `prompt_payload` 阻断 |
-| `N5-SMART-REF` | 锁参照图策略 | SMART mode / explicit refs / Assets | 绑定 refs 或保持 T2I | `references` | `N6` | single/natural 不得隐式扫图 |
+| `N5-SMART-REF` | 锁参照图策略 | SMART mode / explicit refs / Assets | 写入 continuity roots 并调用共享 bridge 绑定 refs 或保持 T2I | `references` | `N6` | single/natural 不得隐式扫图 |
 | `N6-WRITE` | 写 JSON 与 request | `N2~N5` | 落 layout 和 sidecar | `layout_paths` | `N7` | layout 不存在不得生图 |
 | `N7-GENERATE` | 自动生图或停点 | request sidecar | 调用 nano-banana/general 或 JSON-only 停下 | `generation_result` | `done` | 默认不得漏掉生图 |
 

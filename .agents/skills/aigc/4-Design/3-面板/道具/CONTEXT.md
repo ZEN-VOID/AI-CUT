@@ -20,6 +20,7 @@
 | layout 后没有自动生图 | 交付边界层 | 默认调用共享 SMART bridge | `--layout-only/--json-only` 才停在 JSON | manifest 有 `image_generation` 状态 |
 | 批量 panel 不能复用 2-设计 已有图片 | SMART continuity 层 | layout 写入 `continuity_source_roots` | `_shared` 统一扫描同主体图片 | request trace 有 continuity refs |
 | 单文件或自然语言任务被历史图片污染 | SMART 上下文层 | 单次输入默认 `direct-request/single-doc-t2i` | 单次任务不写 continuity roots | request trace 默认 reference_count=0 |
+| JSON-only 停点缺 request sidecar | delivery trace 层 | layout-only 时仍调用共享 bridge 的 request-sidecar-only 停点 | request sidecar 与 bridge report 是补跑和审计必需证据 | `generated/requests/panel_auto_generate_batch.json` 存在 |
 | 形制高风险道具生成现代错误形态 | prompt guardrail 层 | 对杯、细链、图纸、铜铃注入 guardrails | 在 runner 中集中维护 morphology map | layout prompt 含对应形制约束 |
 | 上游道具 `prompt整合` 修复后，旧 layout/request 仍继承坏主体占位 | stale panel projection layer | 重新运行 `generate_prop_panels.py`，从当前 Markdown 重写 layout、request sidecar 与面板图 | 任何 `2-设计/道具` prompt 主体绑定修复后，必须同步刷新 `3-面板/道具`，不得只替换设计图 | `rg "documented prop\\|documented visual priority\\|documented story premise" <道具3-面板输出>` 无命中，抽样面板主体与 identity badge 对齐 |
 
@@ -28,7 +29,7 @@
 1. 先看输入是不是 `--project/--episode` 批量，还是 `--prompt-file/--text` 单次。
 2. Markdown 优先提取 `**prompt整合**`；若缺失，不要从全文拼接。
 3. 兼容 JSON 只读 `prompt_cn / prompt_anchor / prompt`，不把 JSON 全文当 prompt。
-4. layout 一定先于生图；生图失败时保留 request sidecar 方便补跑。
+4. layout 一定先于生图；生图失败或 JSON-only 停点都要保留 request sidecar 方便补跑。
 5. SMART 参照异常时先查 `_shared/panel_auto_generate.py`，不要在 leaf 复制扫描逻辑。
 
 ## Reusable Heuristics

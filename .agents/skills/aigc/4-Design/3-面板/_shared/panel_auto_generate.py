@@ -12,9 +12,9 @@ from typing import Any, Iterable, Sequence
 
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
-SMART_MODE_CHOICES = ("auto", "continuous-batch", "single-doc-t2i", "off")
+SMART_MODE_CHOICES = ("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off")
 MAX_DISCOVERED_REFS = 4
-MAX_SCAN_DEPTH = 2
+MAX_SCAN_DEPTH = 4
 
 
 def _repo_root() -> Path:
@@ -44,6 +44,12 @@ def _dedupe_strings(values: Iterable[str]) -> list[str]:
         seen.add(text)
         result.append(text)
     return result
+
+
+def _ref_value(item: Any) -> str:
+    if isinstance(item, dict):
+        return str(item.get("url") or item.get("path") or item.get("image") or "").strip()
+    return str(item or "").strip()
 
 
 def _load_manifest_packet_paths(manifest_path: Path) -> list[Path]:
@@ -123,7 +129,32 @@ def _resolve_source_path(path_value: str, repo_root: Path) -> Path | None:
     return candidate if candidate.exists() else None
 
 
-def _continuity_roots(packet: dict[str, Any], repo_root: Path) -> list[Path]:
+def _project_name(packet: dict[str, Any]) -> str:
+    meta = packet.get("meta")
+    if isinstance(meta, dict):
+        project_name = str(meta.get("project_name", "")).strip()
+        if project_name:
+            return project_name
+    return str(packet.get("project_name") or "测试")
+
+
+def _domain_from_packet(packet: dict[str, Any], packet_path: Path) -> str:
+    meta = packet.get("meta")
+    skill_id = ""
+    if isinstance(meta, dict):
+        skill_id = str(meta.get("skill_id") or "").strip()
+    for domain in ("场景", "角色", "道具", "服装"):
+        if f"/{domain}" in skill_id or skill_id.endswith(domain):
+            return domain
+
+    parts = packet_path.as_posix().split("/")
+    for index, part in enumerate(parts):
+        if part == "4-Design" and index + 1 < len(parts):
+            return parts[index + 1]
+    return ""
+
+
+def _continuity_roots(packet: dict[str, Any], packet_path: Path, repo_root: Path) -> list[Path]:
     roots: list[Path] = []
     image_generation = packet.get("image_generation")
     if isinstance(image_generation, dict):
@@ -140,6 +171,12 @@ def _continuity_roots(packet: dict[str, Any], repo_root: Path) -> list[Path]:
             resolved = _resolve_source_path(str(value), repo_root)
             if resolved is not None:
                 roots.append(resolved if resolved.is_dir() else resolved.parent)
+
+    domain = _domain_from_packet(packet, packet_path)
+    if domain:
+        assets_root = repo_root / "projects" / "aigc" / _project_name(packet) / "Assets" / domain
+        if assets_root.exists():
+            roots.append(assets_root)
 
     deduped: list[Path] = []
     seen: set[str] = set()
@@ -158,7 +195,7 @@ def _discover_continuity_refs(packet: dict[str, Any], packet_path: Path, repo_ro
         return []
 
     candidates: list[tuple[int, int, str]] = []
-    for root in _continuity_roots(packet, repo_root):
+    for root in _continuity_roots(packet, packet_path, repo_root):
         if not root.exists():
             continue
         for candidate in root.rglob("*"):
@@ -215,7 +252,11 @@ def _resolve_requested_mode(requested_mode: str, *, pipeline_context: str, packe
         return requested_mode
     if pipeline_context == "panel-stage":
         return "continuous-batch"
-    return "single-doc-t2i" if packet_count == 1 else "continuous-batch"
+    return "single-doc-t2i"
+
+
+def _is_continuity_mode(resolved_mode: str) -> bool:
+    return resolved_mode == "continuous-batch"
 
 
 def _packet_reference_lists(packet: dict[str, Any]) -> tuple[list[str], list[str]]:
@@ -223,12 +264,15 @@ def _packet_reference_lists(packet: dict[str, Any]) -> tuple[list[str], list[str
     packet_refs: list[str] = []
     explicit_refs: list[str] = []
     if isinstance(image_generation, dict):
-        packet_refs.extend(str(item) for item in image_generation.get("reference_images", []) or [])
-        explicit_refs.extend(str(item) for item in image_generation.get("explicit_references", []) or [])
+        packet_refs.extend(_ref_value(item) for item in image_generation.get("reference_images", []) or [])
+        explicit_refs.extend(_ref_value(item) for item in image_generation.get("explicit_references", []) or [])
     refs = packet.get("references")
     if isinstance(refs, dict):
-        packet_refs.extend(str(item) for item in refs.get("reference_images", []) or [])
-        explicit_refs.extend(str(item) for item in refs.get("explicit_references", []) or [])
+        packet_refs.extend(_ref_value(item) for item in refs.get("reference_images", []) or [])
+        explicit_refs.extend(_ref_value(item) for item in refs.get("explicit_references", []) or [])
+    images = packet.get("images")
+    if isinstance(images, list):
+        packet_refs.extend(_ref_value(item) for item in images)
     return _dedupe_strings(packet_refs), _dedupe_strings(explicit_refs)
 
 
@@ -239,15 +283,6 @@ def _request_id(packet: dict[str, Any], packet_path: Path) -> str:
         if request_id:
             return request_id
     return re.sub(r"[^A-Za-z0-9._-]+", "-", packet_path.stem).strip("-") or "panel-request"
-
-
-def _project_name(packet: dict[str, Any]) -> str:
-    meta = packet.get("meta")
-    if isinstance(meta, dict):
-        project_name = str(meta.get("project_name", "")).strip()
-        if project_name:
-            return project_name
-    return str(packet.get("project_name") or "测试")
 
 
 def _output_filename(packet: dict[str, Any], packet_path: Path) -> str:
@@ -263,6 +298,18 @@ def _output_filename(packet: dict[str, Any], packet_path: Path) -> str:
             if output_filename:
                 return output_filename
     return f"{packet_path.stem}.png"
+
+
+def _output_dir(packet: dict[str, Any], packet_path: Path) -> Path:
+    image_generation = packet.get("image_generation")
+    if isinstance(image_generation, dict):
+        output_dir = str(image_generation.get("output_dir", "")).strip()
+        if output_dir:
+            return Path(output_dir)
+    output_dir = str(packet.get("output_dir", "")).strip()
+    if output_dir:
+        return Path(output_dir)
+    return packet_path.parent / "generated" / _request_id(packet, packet_path)
 
 
 def _prompt_reference_sections(packet: dict[str, Any], prompt_field: str) -> list[str]:
@@ -293,19 +340,19 @@ def build_generation_requests(
         packet_reference_images, packet_explicit_references = _packet_reference_lists(packet)
         continuity_reference_images = (
             _discover_continuity_refs(packet, packet_path, repo_root)
-            if resolved_mode == "continuous-batch"
+            if _is_continuity_mode(resolved_mode)
             else []
         )
         merged_references = _dedupe_strings(
             [
-                *(packet_reference_images if resolved_mode != "single-doc-t2i" else []),
+                *(packet_reference_images if _is_continuity_mode(resolved_mode) else []),
                 *packet_explicit_references,
                 *explicit_references,
                 *continuity_reference_images,
             ]
         )
         images = [{"url": item} for item in merged_references]
-        output_dir = packet_path.parent
+        output_dir = _output_dir(packet, packet_path)
         request_doc = {
             "prompt": prompt_text,
             "images": images,
@@ -335,6 +382,8 @@ def build_generation_requests(
                 "resolved_mode": resolved_mode,
                 "task_mode": "i2i" if images else "t2i",
                 "reference_count": len(images),
+                "continuity_reference_count": len(continuity_reference_images),
+                "explicit_reference_count": len(_dedupe_strings([*packet_explicit_references, *explicit_references])),
                 "output_dir": output_dir.as_posix(),
                 "request_json": "",
             }
@@ -358,8 +407,10 @@ def run_panel_auto_generate(
     dry_run: bool = False,
     print_payload: bool = False,
     max_concurrent: int = 100,
+    timeout: int = 180,
     save_images: bool = True,
     no_report: bool = False,
+    generate: bool = True,
     pipeline_context: str = "direct-request",
 ) -> dict[str, Any]:
     if smart_mode == "off":
@@ -380,7 +431,7 @@ def run_panel_auto_generate(
         pipeline_context=pipeline_context,
     )
 
-    request_root = resolved_packets[0].parent
+    request_root = resolved_packets[0].parent / "generated" / "requests"
     request_root.mkdir(parents=True, exist_ok=True)
     for task, request_doc in zip(trace["tasks"], request_docs):
         request_path = request_root / f"{request_doc['request_id']}-request.json"
@@ -389,10 +440,38 @@ def run_panel_auto_generate(
     batch_request_path = request_root / "panel_auto_generate_batch.json"
     _write_json(batch_request_path, {"tasks": request_docs})
 
+    if not generate:
+        bridge_report_path = request_root / "panel_auto_generate_report.json"
+        bridge_report = {
+            "request_batch_path": batch_request_path.as_posix(),
+            "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",
+            "trace": trace,
+            "nano_result": {
+                "success": True,
+                "skipped": True,
+                "reason": "request-sidecar-only",
+            },
+        }
+        _write_json(bridge_report_path, bridge_report)
+        return {
+            "success": True,
+            "task_count": len(request_docs),
+            "success_count": 0,
+            "failed_count": 0,
+            "skipped": True,
+            "reason": "request-sidecar-only",
+            "request_batch_path": batch_request_path.as_posix(),
+            "bridge_report_path": bridge_report_path.as_posix(),
+            "smart_mode_requested": trace["smart_mode_requested"],
+            "smart_mode_resolved": trace["smart_mode_resolved"],
+            "trace": trace,
+        }
+
     nano_module = _load_nano_module(repo_root)
     nano_result = nano_module.run_generation_from_docs(
         request_docs,
         max_concurrent=max_concurrent,
+        timeout=timeout,
         save_images=save_images,
         dry_run=dry_run,
         print_payload=print_payload,
@@ -411,6 +490,7 @@ def run_panel_auto_generate(
     nano_result["bridge_report_path"] = bridge_report_path.as_posix()
     nano_result["smart_mode_requested"] = trace["smart_mode_requested"]
     nano_result["smart_mode_resolved"] = trace["smart_mode_resolved"]
+    nano_result["trace"] = trace
     return nano_result
 
 
@@ -421,8 +501,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smart-mode", choices=SMART_MODE_CHOICES, default="auto", help="SMART 模式")
     parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100, help="透传 nano-banana 最大并发")
+    parser.add_argument("--timeout", type=int, default=180, help="透传 nano-banana 单任务超时秒数")
     parser.add_argument("--no-save-images", action="store_true", help="只保留请求与报告，不落 PNG")
     parser.add_argument("--no-report", action="store_true", help="跳过 nano-banana report JSON")
+    parser.add_argument("--request-only", action="store_true", help="只写 request sidecar 和 bridge report，不调用 nano")
     parser.add_argument("--dry-run", action="store_true", help="只生成 request sidecar 并调用 nano dry-run")
     parser.add_argument("--print-payload", action="store_true", help="打印 nano 最终 payload")
     parser.add_argument("--pipeline-context", choices=("panel-stage", "direct-request"), default="direct-request", help="auto 模式判型所需上下文")
@@ -441,8 +523,10 @@ def main() -> int:
         dry_run=args.dry_run,
         print_payload=args.print_payload,
         max_concurrent=args.max_concurrent,
+        timeout=args.timeout,
         save_images=not args.no_save_images,
         no_report=args.no_report,
+        generate=not args.request_only,
         pipeline_context=args.pipeline_context,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))

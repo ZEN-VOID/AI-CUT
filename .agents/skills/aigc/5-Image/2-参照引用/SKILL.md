@@ -170,6 +170,26 @@ governance_tier: full
 
 ## Validation Script Contract (Mandatory)
 
+本技能的本地执行入口为：
+
+```bash
+python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/bind_reference_assets.py --help
+python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/bind_reference_assets.py \
+  --project "<项目名>" \
+  --episode 第N集 \
+  --source-tranche 漫画 \
+  --provider-mode dual_mode \
+  --dry-run
+```
+
+执行脚本必须遵循保守绑定策略：
+
+1. 自动绑定只允许使用结构化强证据：`group_id / source_shot_ids / 组间设计.出场角色及穿搭 / image_markers[].related_subject`。
+2. 对 `角色` 默认只接受完整角色名与 `Assets/角色/` 中唯一同名图片。
+3. 对 `场景 / 道具` 默认只接受上游已显式写入 `image_markers[].related_subject` 的完整非泛词主体；不得从 prompt 全文泛扫后直接绑定。
+4. `门 / 灯 / 墙 / 水 / 床 / 地面 / 卫生间 / 吊顶 / 楼道 / 洗手池 / 门板` 等泛词、子串、多义候选必须进入报告的 `ambiguous_candidates / rejected_candidates / skipped_candidates`，不得写入 `reference_images`。
+5. 脚本写回后必须立即通过本节审计入口；`--strict` 失败时不得继续进入 `3-图像生成`。
+
 本技能的本地防回归入口为：
 
 ```bash
@@ -252,8 +272,8 @@ stateDiagram-v2
 
 1. 读取 `1-提示词蒸馏` 请求 JSON。
 2. 审计模板字段是否兼容 `v2` 双模式骨架；若是旧 `image_url` 结构，统一升级为 `image_ref + ref_kind + provider_variants`。
-3. 从路径、`shot_level`、`group_id`、`source_shot_ids`、`related_subject` 与字段位证据推导图片候选。
-4. 在 `Assets/` 与 `4-Design/` 中只绑定真实且唯一的高置信本地图片；泛词、子串命中和多义 token 必须进入 `ambiguous_candidates / rejected_candidates`。
+3. 从路径、`shot_level`、`group_id`、`source_shot_ids`、`related_subject` 与字段位证据推导图片候选；不得把 prompt 全文包含当作直接绑定依据。
+4. 在 `Assets/` 与 `4-Design/` 中只绑定真实且唯一的高置信本地图片；泛词、子串命中和多义 token 必须进入 `ambiguous_candidates / rejected_candidates / skipped_candidates`。
 5. 按 provider 模式写入：
    - `jimeng_cli`: `resolved_input=本地路径`，`resolution_status=ready`
    - `nano_banana`: 默认 `resolved_input=""`，`resolution_status=pending_encode`

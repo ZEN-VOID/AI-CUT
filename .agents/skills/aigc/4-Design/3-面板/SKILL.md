@@ -54,7 +54,8 @@ governance_tier: full
 2. `layout.json` 必须先落盘，再调用图片生成。
 3. 自动生图统一走 `.agents/skills/api/image/nano-banana/general` 的结构化请求承接。
 4. 批量 `4-Design` 调度默认启用 `continuous-batch`，自动扫描 `2-设计` 目录中同主体同 stem 图片作为参照。
-5. 单独指定文件、layout JSON 或自然语言生图默认启用 `single-doc-t2i`，除非用户显式传 `--reference`，否则不自动绑定参照图。
+5. 单独指定文件、目录、layout JSON 或自然语言生图默认启用 `single-doc-t2i / natural-language-t2i`，除非用户显式传 `--reference`，否则不自动绑定参照图。
+6. `layout-only / json-only` 仍必须写出 `generated/requests/panel_auto_generate_batch.json` 与 bridge report；只是不调用 nano。
 
 ## Visual Maps
 
@@ -77,7 +78,7 @@ flowchart TD
 ```mermaid
 flowchart LR
     A{"执行上下文"} -->|"批量 4-Design 调度"| B["continuous-batch"]
-    A -->|"单文件 / 自然语言"| C["single-doc-t2i"]
+    A -->|"单文件 / 目录 / 自然语言"| C["single-doc-t2i / natural-language-t2i"]
     B --> D["扫描 2-设计 同 stem 单主体图片"]
     C --> E["默认不扫描参照"]
     D --> F["I2I request if refs found"]
@@ -116,7 +117,7 @@ stateDiagram-v2
 3. 命中 `道具面板 / prop panel / 道具 layout / 道具面板生图` 时进入 `3-面板/道具`。
 4. 用户要求整个 `4-Design` 批量推进，且对应 `2-设计/<域>` 已产出，允许自动进入已 active 的 panel leaf。
 5. 未重建的 `服装` panel leaf 只报告 pending，不得引用旧路径执行。
-6. leaf 产出的 layout JSON 必须遵循共享 SMART bridge 合同；若 leaf 自带 handoff 入口，也必须写出同形 request sidecar 并调用 nano-banana/general。
+6. leaf 产出的 layout JSON 必须遵循共享 SMART bridge 合同；leaf 只能调用 `_shared/panel_auto_generate.py`，不得私造第二套 nano payload、Assets 扫描或 SMART mode 解析。
 
 ## Thinking-Action Node Network
 

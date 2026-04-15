@@ -23,21 +23,23 @@
 | 本地图片歧义时被脚本或人工硬选一张 | 资产匹配层 | 阻断并报告歧义 | 在 `R3` 固化“歧义即失败” | 不再出现猜测性绑定 |
 | 泛词或子串匹配导致每组绑定大量重叠资产 | 候选推导层 | 重跑绑定，只放行完整角色名、主场景锚点、完整复合道具名；泛词进入 `ambiguous_candidates / rejected_candidates` | 在 `SKILL.md` 固化 `Candidate Derivation And Ambiguity Gate`，并用 `scripts/audit_reference_binding.py --strict` 防回归 | `match-report.md` 同时列出 bound / ambiguous / rejected，且审计脚本不再报过量绑定 |
 | `2-参照引用` 三件套缺失 `next_entry` | 输出闭环层 | 在主 JSON、manifest、match-report 同步补下一入口 | 在 `SKILL.md` 的 Output Contract 与审计脚本中强制检查 `next_entry` | `/3-图像生成` 可从 `/2` 输出直接定位下一入口 |
+| 只有审计脚本、没有绑定脚本，导致执行者绕过保守匹配合同手工产出过量引用 | 执行入口层 | 使用 `scripts/bind_reference_assets.py` 重新从稳定请求 JSON 生成绑定三件套 | 在 `SKILL.md` 固化绑定脚本入口，并要求写回后立刻跑 `audit_reference_binding.py --strict` | 新绑定结果可通过严格审计，且不会再把宽松批次误当 canonical |
 
 ## Repair Playbook
 
 1. 先查输入请求对象是否兼容 `v2` 模板。
 2. 再查 `provider_mode` 是 `jimeng_cli`、`nano_banana` 还是 `dual_mode`。
-3. 再查 `reference_images / image_markers` 是否能回链真实本地文件。
-4. 再查候选来源是否足够强：
+3. 若需要重新绑定，先运行 `scripts/bind_reference_assets.py --dry-run` 看保守匹配摘要；不要手写宽松绑定结果。
+4. 再查 `reference_images / image_markers` 是否能回链真实本地文件。
+5. 再查候选来源是否足够强：
    - 完整角色名、组级主场景锚点、完整复合道具名才可直接绑定
    - `门 / 灯 / 卫生间 / 吊顶 / 楼道 / 洗手池 / 门板` 等泛词不得直接绑定
    - 子串命中和同 token 多候选必须进入歧义清单
-5. 再查 provider-specific 槽位是否写对：
+6. 再查 provider-specific 槽位是否写对：
    - 即梦 CLI 只收本地路径
    - NANO-banana 兼容态允许 `pending_encode`
-6. 最后查三件套落盘与下一入口是否清楚。
-7. 对已落盘结果运行：
+7. 最后查三件套落盘与下一入口是否清楚。
+8. 对已落盘结果运行：
    `python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/audit_reference_binding.py --bound-json <第N集.json> --manifest <_manifest.json> --assets <selected-4-design-assets.json> --strict`
 
 ## Reusable Heuristics
@@ -49,3 +51,4 @@
 - “路径真实存在”只是最低门槛，不等于“引用绑定正确”；引用还必须具备字段位证据和唯一候选。
 - 漫画组级请求尤其容易被 `门 / 灯 / 卫生间` 这类高频词污染；这类词默认只能用于候选解释，不能直接进入 `reference_images`。
 - 宽松参考图批次可以作为探索性输出，但不能冒充严格参照绑定版；严格版必须能解释每张图为什么属于该组。
+- 自动绑定脚本的默认口径应偏保守：先保住完整角色名、显式 marker 和可唯一证明的画板引用；场景/道具若只来自 prompt 全文或泛词子串，应跳过而不是扩张绑定数。
