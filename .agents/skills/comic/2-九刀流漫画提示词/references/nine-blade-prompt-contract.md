@@ -18,6 +18,52 @@
 
 可按故事类型替换功能，但不得让 9 页变成同一事件的 9 个角度。
 
+## 1.0 小说来源格式化前奏
+
+`九刀流` 不再直接从任意原始小说正文切页。当前口径固定为：
+
+1. 先把 `source_novel` 做“小说来源格式化处理”。
+2. 再用格式化后的 `formatted_source_novel` 作为九刀切页的起点。
+3. 最终仍只交付一份 `nine_blade_comic_prompts.v1` JSON；前奏不产出第二份 canonical 成品。
+
+前奏处理机制参照 `.agents/skills/aigc/1-Planning/2-格式`，按以下顺序执行：
+
+- `source intake`
+- `business analyze`
+- `source route`
+- `variant format`
+- `source normalize`
+- `source validate`
+
+### 1.0.1 来源判模
+
+原始小说源必须先判定为以下之一：
+
+- `scene-led`
+  - 适用于章节正文、动作/对白较充足的戏剧型文本。
+- `explainer-led`
+  - 适用于梗概、简介、摘要、解说密度高的概述型文本。
+- `compare`
+  - 仅在输入模糊时内部双路比较后择一，不允许保留双 canonical handoff。
+
+### 1.0.2 格式化真源最低要求
+
+`formatted_source_novel` 推荐最少包含：
+
+- `source_format_variant`
+- `canonical_story_summary`
+- `ordered_story_units[]`
+- `character_seed_roster[]`
+- `scene_seed_roster[]`
+- `continuity_alerts[]`
+- `blade_ready_notes`
+
+硬规则：
+
+- 未完成前奏验证前，不得直接切 `story_beat_map`。
+- `ordered_story_units[]` 必须可视化、可顺序切刀，不能还是大段抽象 prose。
+- 若关键角色、场景、转场、高潮或余波在前奏中丢失，视为前奏失败而不是九刀失败。
+
 ## 1.1 主角锚定硬规则
 
 - 九页连续漫画默认必须先锁一个 `main_character_lock`，它是整组 prompt 的第一视觉锚点，不得省略。
@@ -47,7 +93,12 @@
 2. `Layout`
    - `irregular classic manga page layout`
    - 明确 panel 比例、跨格、斜切、inset、splash、破框 SFX、黑 gutter 等。
-3. `Continuity Locks`
+3. `Global Style Lock`
+   - 在每页 prompt 前段重复注入同一条 `global style anchor`，而不是只把风格放在顶层 `style_bible`。
+   - 这条 style anchor 至少锁住：同一渲染媒介、同一线条体系、同一明暗方法、同一上色策略、同一 lettering 质感、同一 panel border 质感、同一角色年龄比例。
+   - 必须补一句 `forbidden style shifts`，明确禁止页面之间断层切换成 `chibi / SD / children picture-book / painterly concept art / 3D render / live-action storyboard / random full-color realism`。
+   - 允许变化的是布局、镜头、情绪强弱；不允许变化的是整组 9 页的视觉 DNA。
+4. `Continuity Locks`
    - 先注入 `main_character_lock.anchor_prompt`。
    - 再写当前页 `active_character_ids` 对应角色的名字与其他角色锁。
    - 推荐直接采用 `Character locked across all panels: [name], [species/body/face/costume/material/color], consistent face, costume, silhouette and color palette in every panel and every page.` 这种高密度锚定句。
@@ -61,6 +112,17 @@
    - speech bubble / caption box / thought bubble / SFX。
 6. `Overall`
    - 氛围、质感、光影、质量词。
+
+### 2.1 风格稳定性硬规则
+
+- 9 页连续漫画不允许“每页像不同作品”。最常见失控形态是：第一页黑白重墨，第二页儿童彩图，第三页影视概念图，第四页又回到简笔漫画。这样的结果即使剧情对了，也属于失败。
+- `style_bible` 不只负责“漫画感”，还负责“同一部作品感”。它必须让模型知道 9 页是一个稳定世界，而不是 9 次独立试风格。
+- 若用户没有明确指定风格，仍必须先选一套稳定基线，例如：
+  - `heavy ink contour + screentone + limited color accents`
+  - `clean brush contour + airy negative space + low-saturation wash`
+  - `sharp black-white action comic + restrained palette`
+- 一旦选定，9 页都不得改成另一种基线。
+- 若故事包含回忆、梦境、神谕或异象，默认也只允许在同一基线内做“局部语气变化”，不得切换整套媒介或人物年龄画法。
 
 ## 3. 全局漫画风格锐化词库
 
@@ -81,6 +143,23 @@
     "printed comic page texture"
   ],
   "layout_directive": "Use classic manga page grammar: splash panels, inset reaction panels, diagonal cuts, border-breaking SFX, silent beat panels, close-up strips, and irregular gutters. Avoid nine pages of flat top-to-bottom strips."
+}
+```
+
+建议在 `style_bible` 里额外加入：
+
+```json
+{
+  "style_anchor_prompt": "Use one immutable visual DNA across all 9 pages: the same rendering medium, line weight system, shadow system, color policy, lettering feeling, panel border feeling, and character age ratio. Do not switch into chibi, children picture-book, painterly concept art, 3D render, live-action storyboard, or random full-color realism on any page.",
+  "style_continuity_rule": "Pages may change in layout and emotional pressure, but not in core rendering language.",
+  "forbidden_style_shifts": [
+    "chibi or SD deformation",
+    "children picture-book softness",
+    "painterly concept art rendering",
+    "3D render gloss",
+    "live-action storyboard realism",
+    "random color-script reset between pages"
+  ]
 }
 ```
 
@@ -155,6 +234,46 @@
 
 长解释优先转成旁白 caption，不要塞进对白气泡。
 
+### 6.1 结构化文字合同
+
+- 顶层 `comic_text_system` 必须完整声明 `dialogue / narration / inner_monologue / sfx` 四类文字系统。
+- 每类至少包含：
+  - `visual_form`
+  - `placement_rule`
+  - `legibility_rule`
+  - `max_chars`
+- `text_slots[]` 不是纯文本数组，而是漫画文字执行槽。每个槽位至少包含：
+  - `type`
+  - `text`
+  - `placement`
+  - `bubble_style`
+  - `inside_panel`
+- `dialogue` 与 `inner_monologue` 槽位必须额外包含 `speaker_id`，并且必须回指当前页 `active_character_ids` 中的角色。
+- 九页成品默认必须覆盖四类文字槽至少各一次，避免退化成“只有旁白说明文”的假漫画页。
+
+推荐槽位形态：
+
+```json
+{
+  "type": "dialogue",
+  "speaker_id": "protagonist",
+  "text": "别回头！",
+  "placement": "near_speaker_inside_panel",
+  "bubble_style": "speech_bubble",
+  "inside_panel": true
+}
+```
+
+```json
+{
+  "type": "narration",
+  "text": "雷门第三次震动。",
+  "placement": "panel_edge_caption",
+  "bubble_style": "caption_box",
+  "inside_panel": true
+}
+```
+
 ## 7. 负向提示词基线
 
 全局负向提示词至少覆盖：
@@ -178,5 +297,13 @@ Place a small page number in the bottom-right corner of every page, using digits
 页级 `positive_prompt` 推荐固定骨架：
 
 ```text
-vertical 9:16 comic page, [layout grammar], Character locked across all panels: [main character anchor prompt], [all active recurring characters with stable and distinguishable appearance], Scene locked across relevant pages: [scene anchor prompt], place page number "[N]" in the bottom-right corner, digits only, keep character and scene consistency across all pages, [panel actions], [text slots], [overall mood]
+vertical 9:16 comic page, [layout grammar], [global style anchor + forbidden style shifts], Character locked across all panels: [main character anchor prompt], [all active recurring characters with stable and distinguishable appearance], Scene locked across relevant pages: [scene anchor prompt], place page number "[N]" in the bottom-right corner, digits only, keep character and scene consistency across all pages, [panel actions], [text slots], [overall mood]
 ```
+
+若当前页存在文字槽，`[text slots]` 片段至少要显式包含：
+
+- `clear legible Chinese text`
+- `speech bubbles near speakers`（有对白时）
+- `rectangular caption boxes`（有旁白时）
+- `thought bubbles or inner captions clearly different from dialogue`（有独白时）
+- `hand-lettered SFX integrated inside the action panel`（有 SFX 时）

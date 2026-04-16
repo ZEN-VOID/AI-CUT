@@ -8,12 +8,12 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: 11693
-current_lines: 153
-current_cases: 13
+current_chars: 13779
+current_lines: 165
+current_cases: 19
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-16T03:50:07Z
+last_checked_at: 2026-04-16T08:05:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
@@ -39,6 +39,10 @@ last_checked_at: 2026-04-16T03:50:07Z
 | `TM-NB-09` | 单页有漫画词但冲击力弱 | 画面力度层 | 每页补 1 个主视觉冲击词组：extreme perspective、impact burst、heavy ink shadow、focus lines、border-breaking pose 等 | `style_bible` 分成线条、明暗、运动、文字、印刷质感五类，而不是只给一串泛词 | 高冲击页的 prompt 首段能读出“视觉冲击机制” |
 | `TM-NB-10` | 版式名存在但 panel 关系不清 | 版式执行层 | 在 `layout.panel_ratios` 和 `positive_prompt` 写清 dominant panel、inset、gutter、reading path、final reveal 的相对位置 | 版式提示词必须同时包含“格数/比例/阅读动线/冲击点”四项 | 不看剧情也能画出页面骨架 |
 | `TM-NB-11` | 气泡/SFX 破坏画面或阅读顺序 | lettering 层 | 把 speech bubble 贴近说话角色，SFX 绑定动作源，避免贴边漂浮和压住关键表情 | 文本槽提示词写入 near speaker / inside panel / no tangent / readable Chinese | 页面缩略图中视线不需要左右大幅摆动 |
+| `TM-NB-17` | `comic_text_system` 存在，但 JSON 仍退化成只有旁白或缺少独白/SFX | 结构合同层 | 把四类文字系统从裸 object 升级为显式对象合同，并要求九页整体至少覆盖 `dialogue / narration / inner_monologue / sfx` 各一次 | schema + validator 同步要求四类系统齐备、页面整体覆盖四类槽位 | validator 对“只有 narration”的 JSON 报错 |
+| `TM-NB-18` | 槽位类型正确，但对白/独白/旁白在画面中的位置和归属混乱 | 结构语义层 | 为 `text_slots` 补 `speaker_id / placement / bubble_style / inside_panel`；对白与独白必须绑定当前页角色 | schema 与 validator 同步检查 `speaker_id` 回指 `active_character_ids`，并校验 bubble/placement 语义 | validator 对无说话者或错误 placement 的槽位报错 |
+| `TM-NB-19` | 文档写了长度上限和可读性，但超长对白与不可读中文仍通过 | 校验门禁层 | 把长度上限和 `clear legible Chinese text` 约束同时落到 schema、validator 和 page prompt 注入模板 | validator 按类型检查 `max_chars` 和 prompt 文本可读性语义 | 超长对白、缺文字可读性提示的 page prompt 无法通过 |
+| `TM-NB-20` | 在 Coze/扣子这类 Agent 平台上，9 页成品的漫画风格断层漂移：有页像黑白港漫，有页像儿童彩图，有页像影视概念图 | 全局风格锁缺失层 | 在 `style_bible` 和每页 `positive_prompt` 前段同时注入同一条 `global style anchor`，锁死渲染媒介、线条体系、明暗方法、上色策略、lettering 质感与角色年龄比例，并显式写 `forbidden style shifts` | 在 `SKILL.md`、reference 与导出的 Agent system prompt 同步提升“全局风格锁”优先级；把页间风格稳定看作高于单页炫技 | 页 1-9 允许构图变化，但不再出现儿童绘本 / Q 版 / 写实概念图的断层混切 |
 
 ## Repair Playbook
 
@@ -50,10 +54,13 @@ last_checked_at: 2026-04-16T03:50:07Z
 6. 若用户反馈“漫画感不够”但流程本身通畅，优先修全局风格词与版式多样性，而不是重切故事。
 7. 若用户要求“更有冲击力”，先判定冲击点类型：构图冲击、动作冲击、明暗冲击、情绪冲击、文字/SFX 冲击；每页只主打一到两类，避免词堆叠互相稀释。
 8. 若用户要求“布局更像漫画”，不要只新增 layout 名称；必须补 `panel_ratios`、dominant panel 位置、inset 位置、gutter 颜色/宽度、阅读路径和页末停顿点。
+9. 若用户反馈“风格不稳定”，先不要急着加更多风格词；先检查是否缺少“同一套视觉 DNA 必须逐页重复”的硬门禁。单靠顶层 `style_bible`，很多 Agent 平台会把 9 页当 9 次独立创作。
 
 ## Reusable Heuristics
 
 - Seedream 已验证支持一次请求返回 9 张独立图片；提示词 JSON 的职责是让这 9 张“各有剧情功能”，不是把九页压成九宫格。
+- 若 `projects/comic/<项目名>/` 下只有 `metadata.json` 没有目标章节正文，不要先跑整书下载；优先读取 `metadata.data.lists[*].item_id`，用单章级正文抓取补齐当前集源文本，再进入九刀前奏。
+- 当用户要求同项目的第 2 集/第 3 集“保持角色和风格一致”时，优先把上一集 `nine_blade_comic_prompts.json` 视为 continuity truth：继承 `main_character_lock`、`style_bible`、既有 `character_locks`，只对新增人物和新增场景做增量扩展。
 - 每页内部可以是三格、二格、四格或 splash + inset；九页之间不要都用同一版式。
 - 页级 prompt 最稳的结构是：页面版式 -> 角色锁 -> panels -> 文本槽 -> overall -> negative。
 - 对连续 9 页漫画，`character_locks` 只能描述角色表，不能替代主角锚。最稳结构是：页面版式 -> `main_character_lock.anchor_prompt` -> 角色/场景一致性语义 -> panels -> 文本槽 -> overall -> negative。
@@ -62,10 +69,16 @@ last_checked_at: 2026-04-16T03:50:07Z
 - 当用户已经给出高密度人物锁定句时，不要把它拆散到多个字段后期待模型自己拼回去；应保留为 `main_character_lock.anchor_prompt`，逐页原样或近原样注入。
 - 场景连续性最稳的方式不是抽象写 `same location`，而是给出具名场景锁：场景名 + 建筑/地标 + 光线/时段 + 空间朝向，再由每页 `scene_id` 显式回指。
 - 页码要进最终图，必须让它既存在于结构字段，也存在于页级 prompt 和 master prompt；只在 JSON 里存一个 `page_number` 数字并不会自动出现在图上。
+- 多集漫画项目若继续沿用根级 `nine_blade_comic_prompts.json`，会覆盖上一集；在没有更强 episode 子目录合同前，默认应改用 `第N集-` 前缀文件名，并让中间真源与摘要同前缀联动。
+- 当阶段目录里已经存在单集旧产物而用户继续点名“第2集 / 第3集”时，最稳做法不是直接覆盖旧文件，而是先把旧产物迁成 `第1集-...` 或对应集号前缀，再把当前集写成新的 `第N集-...`；否则下游会出现“上一集真源消失、当前集冒充唯一 canonical”的假单集状态。
 - 中文气泡要短，旁白比对白更适合承载解释，SFX 只承载动作声音。
+- 文字系统如果只存在于顶层说明文而不进入 `text_slots` 结构字段，生成时就会退化为“模型自由发挥的气泡”。要把 `speaker_id / placement / bubble_style / inside_panel` 当成执行合同，而不是备注。
+- 9 页漫画足够覆盖对白、旁白、独白、SFX 四类文字形态；若最终 JSON 缺其中一类，通常不是“题材不需要”，而是文字系统在切页或模板阶段被压扁了。
 - 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链与 Seedream 单请求机制成立；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换。
 - 对 Seedream 连续 9 页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。
+- 对 Coze/扣子这类 Agent 平台，只在顶层定义画风通常不够。最稳的做法是：`style_bible` 有全局风格锁，且每页 `positive_prompt` 再重复同一条 `global style anchor + forbidden style shifts`，让模型没有机会把 9 页当成 9 次试风格。
 - 当质量优化点已经明确为“漫画感”和“布局感”时，思行网络不能继续维持单线 `Comic Grammar` 节点；应拆成 `STYLE-SHARPEN / LAYOUT-DIVERSIFY / TEXT-SYSTEM` 三支路，并在汇流门阻断缺风格词、缺动态版式或文字槽失控的 JSON。
+- 如果最终图像出现“第一页像港漫、第二页像儿童绘本、第三页像影视概念图”，根因通常不是故事切页，而是 `global style anchor` 缺失或没有逐页重复注入。
 - 冲击力不是“更多形容词”，而是“明确的视觉机制”：低机位仰拍制造压迫，极近特写制造情绪，斜切 panel 制造速度，黑 gutter 制造悬念，破框 SFX 制造爆发。
 - 版式提示词应像给分镜师的页面设计单：先写页面骨架，再写每格功能；如果 prompt 只剩镜头描述，模型容易回到电影分镜而不是漫画页。
 - 高冲击页可用 `one dominant splash panel + 2 small reaction insets + oversized SFX crossing the gutter`；解释页可用 `evidence strip + reaction close-up + caption anchor`，不必都做大爆炸。

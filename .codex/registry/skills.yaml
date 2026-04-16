@@ -122,14 +122,15 @@ active_skills:
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu
-    purpose: "漫画项目父级总入口，统一路由 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成` 三段链，并固定项目根为 `projects/comic/[项目名]/`。"
+    purpose: "漫画项目父级总入口，统一路由 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成 / 4-剧集海报` 四段链，并固定项目根为 `projects/comic/[项目名]/`。"
     contract_mode: active
     runtime_control:
       canonical_project_runtime: "projects/comic/[项目名]/"
       stage_1_output: "projects/comic/[项目名]/1-漫画小说改编/"
       stage_2_output: "projects/comic/[项目名]/2-九刀流漫画提示词/"
       stage_3_output: "projects/comic/[项目名]/3-漫画生成/"
-      mirror_policy: "不单独使用 `output/comic` 作为正式项目真源；三段链以 `projects/comic/[项目名]/` 为 canonical runtime。"
+      stage_4_output: "projects/comic/[项目名]/4-剧集海报/"
+      mirror_policy: "不单独使用 `output/comic` 作为正式项目真源；四段链以 `projects/comic/[项目名]/` 为 canonical runtime。"
   - id: comic-novel-adaptation
     path: .agents/skills/comic/1-漫画小说改编
     owner_office: zhongshu
@@ -157,6 +158,15 @@ active_skills:
       canonical_output: "projects/comic/[项目名]/3-漫画生成/"
       bridge_output: "`generation_plan.json`、`seedream_master_prompt.txt`、`seedream_report_*.json`、`comic_generation_report.json` 与 9 张图片"
       mirror_policy: "3 号目录为执行证据真源；不把图片回写到上游 JSON。"
+  - id: comic-episode-poster
+    path: .agents/skills/comic/4-剧集海报
+    owner_office: shangshu
+    purpose: "为当前剧集输出一个只绑定本集实际出场角色、代表性画面、居中文字系统和钩子标题的海报设计 JSON。"
+    contract_mode: active
+    runtime_control:
+      canonical_output: "projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json"
+      bridge_output: "`comic_episode_poster_design.v1` JSON，作为海报设计与后续生图的唯一真源"
+      mirror_policy: "4 号目录只保存海报设计 JSON；不把海报设计回写到 1/2/3 号阶段。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/编剧组/太宰治
     owner_office: shangshu

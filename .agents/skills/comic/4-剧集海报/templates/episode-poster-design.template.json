@@ -1,0 +1,112 @@
+{
+  "schema_version": "comic_episode_poster_design.v1",
+  "project_name": "项目名",
+  "episode": {
+    "number": 1,
+    "display_text": "第1集"
+  },
+  "upstream_context": {
+    "loaded_artifacts": [
+      {
+        "stage": "1-漫画小说改编",
+        "path": "",
+        "role": "bridge_pack"
+      },
+      {
+        "stage": "2-九刀流漫画提示词",
+        "path": "",
+        "role": "nine_blade_json"
+      }
+    ],
+    "style_inheritance": {
+      "character_stage_anchor": "",
+      "scene_continuity_anchor": "",
+      "style_anchor": "",
+      "consistency_rules": []
+    },
+    "highlight_discovery": {
+      "candidate_highlights": [],
+      "selected_highlight": "",
+      "selection_reason": ""
+    }
+  },
+  "source_artifacts": {
+    "novel_draft_path": "",
+    "bridge_pack_path": "",
+    "nine_blade_json_path": "",
+    "generated_pages_dir": ""
+  },
+  "thinking_process": {
+    "hook_reason": "",
+    "subject_reason": "",
+    "representative_scene_reason": "",
+    "highlight_selection_reason": "",
+    "style_consistency_reason": "",
+    "text_atmosphere_reason": ""
+  },
+  "creative_direction": {
+    "creative_core": "",
+    "episode_logline": "",
+    "representative_scene": "",
+    "hook_meaning": "",
+    "spoiler_level": "tease_not_reveal"
+  },
+  "subject_lock": {
+    "only_current_episode_characters": true,
+    "primary_subjects": [
+      {
+        "character_id": "",
+        "name": "",
+        "presence_evidence": "",
+        "visual_role": "primary"
+      }
+    ],
+    "secondary_subjects": [],
+    "excluded_characters": []
+  },
+  "composition": {
+    "aspect_ratio": "3:4",
+    "camera_language": "",
+    "foreground": "",
+    "subjects": "",
+    "background": "",
+    "negative_space": "",
+    "focus_order": [
+      "hook_title",
+      "primary_subjects",
+      "representative_scene"
+    ]
+  },
+  "text_system": {
+    "horizontal_alignment": "center",
+    "vertical_alignment": "center",
+    "episode_label": {
+      "text": "第1集",
+      "font_scale": "smaller",
+      "position": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "hook_title": {
+      "text": "",
+      "language": "zh-CN",
+      "font_scale": "dominant",
+      "position": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "supporting_copy": ""
+  },
+  "atmosphere_color": {
+    "mood": "",
+    "dominant_colors": [],
+    "accent_colors": [],
+    "lighting_strategy": ""
+  },
+  "prompt_package": {
+    "positive_prompt": "",
+    "negative_prompt": ""
+  }
+}

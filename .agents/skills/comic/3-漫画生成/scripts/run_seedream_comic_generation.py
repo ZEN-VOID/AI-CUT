@@ -62,7 +62,13 @@ def _self_test_data() -> dict[str, Any]:
                         "shot": "dramatic comic shot",
                         "action": f"unique visible action {page_number}",
                         "text_slots": [
-                            {"type": "narration", "text": f"第{page_number}页"}
+                            {
+                                "type": "narration",
+                                "text": f"第{page_number}页",
+                                "placement": "panel_edge_caption",
+                                "bubble_style": "caption_box",
+                                "inside_panel": True,
+                            }
                         ],
                     }
                 ],
@@ -128,7 +134,32 @@ def _self_test_data() -> dict[str, Any]:
                 ),
             }
         ],
-        "comic_text_system": {"narration": "rectangular caption box"},
+        "comic_text_system": {
+            "dialogue": {
+                "visual_form": "speech bubble containing clear legible Chinese text",
+                "placement_rule": "near the speaking character, inside the panel, not at the far edge",
+                "legibility_rule": "clear legible Chinese text, short sentence, do not cover faces",
+                "max_chars": 18,
+            },
+            "narration": {
+                "visual_form": "rectangular caption box containing clear legible Chinese text",
+                "placement_rule": "panel edge or gutter edge caption, readable and not blocking key acting",
+                "legibility_rule": "clear legible Chinese text for narration compression",
+                "max_chars": 24,
+            },
+            "inner_monologue": {
+                "visual_form": "thought bubble or inner monologue caption containing clear legible Chinese text",
+                "placement_rule": "near the thinker or as an inner caption inside the panel, clearly different from dialogue",
+                "legibility_rule": "clear legible Chinese text, emotionally concise",
+                "max_chars": 20,
+            },
+            "sfx": {
+                "visual_form": "large hand-lettered comic SFX text integrated inside the panel",
+                "placement_rule": "integrated with the action source inside the panel, never floating like a sticker",
+                "legibility_rule": "clear legible Chinese onomatopoeia as part of the drawing",
+                "max_chars": 6,
+            },
+        },
         "pages": pages,
         "global_negative_prompt": "collage, nine variations, unreadable Chinese text, watermark",
     }

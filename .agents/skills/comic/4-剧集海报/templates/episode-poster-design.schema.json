@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "comic_episode_poster_design.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_name",
+    "episode",
+    "upstream_context",
+    "thinking_process",
+    "creative_direction",
+    "subject_lock",
+    "composition",
+    "text_system",
+    "atmosphere_color",
+    "prompt_package"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "comic_episode_poster_design.v1"
+    },
+    "project_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "episode": {
+      "type": "object",
+      "required": [
+        "number",
+        "display_text"
+      ],
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "display_text": {
+          "type": "string",
+          "pattern": "^第\\d+集$"
+        }
+      }
+    },
+    "upstream_context": {
+      "type": "object",
+      "required": [
+        "loaded_artifacts",
+        "style_inheritance",
+        "highlight_discovery"
+      ]
+    },
+    "thinking_process": {
+      "type": "object"
+    },
+    "creative_direction": {
+      "type": "object",
+      "required": [
+        "creative_core",
+        "representative_scene",
+        "hook_meaning"
+      ]
+    },
+    "subject_lock": {
+      "type": "object",
+      "required": [
+        "only_current_episode_characters",
+        "primary_subjects"
+      ]
+    },
+    "composition": {
+      "type": "object",
+      "required": [
+        "aspect_ratio",
+        "foreground",
+        "subjects",
+        "background"
+      ]
+    },
+    "text_system": {
+      "type": "object",
+      "required": [
+        "horizontal_alignment",
+        "vertical_alignment",
+        "episode_label",
+        "hook_title"
+      ]
+    },
+    "atmosphere_color": {
+      "type": "object",
+      "required": [
+        "mood",
+        "dominant_colors",
+        "accent_colors",
+        "lighting_strategy"
+      ]
+    },
+    "prompt_package": {
+      "type": "object",
+      "required": [
+        "positive_prompt",
+        "negative_prompt"
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
 interface:
   display_name: "九刀流漫画提示词"
-  short_description: "把小说或漫画小说底稿蒸馏成一次生成 9 张、主角锚定、群像可区分、场景稳定且带右下角数字页码的连续漫画页提示词 JSON"
-  default_prompt: "Use $comic-nine-blade-prompts to transform a comic novel draft or user-provided novel into nine_blade_comic_prompts.v1 JSON for one Seedream sequential request that creates exactly 9 separate vertical comic pages, injects one main_character_lock anchor into every page prompt, keeps active recurring characters visually consistent and clearly distinguishable, keeps scene continuity across pages, and places a bottom-right numeric page number 1-9 on every page."
+  short_description: "先把任意小说源格式化为可切九刀的标准化输入，再蒸馏成一次生成 9 张、主角锚定、群像可区分、场景稳定且带右下角数字页码的连续漫画页提示词 JSON"
+  default_prompt: "Use $comic-nine-blade-prompts to first normalize any raw novel source into a formatted_source_novel packet with ordered story units, then transform that canonical formatted source into nine_blade_comic_prompts.v1 JSON for one Seedream sequential request that creates exactly 9 separate vertical comic pages, injects one main_character_lock anchor into every page prompt, keeps active recurring characters visually consistent and clearly distinguishable, keeps scene continuity across pages, and places a bottom-right numeric page number 1-9 on every page."

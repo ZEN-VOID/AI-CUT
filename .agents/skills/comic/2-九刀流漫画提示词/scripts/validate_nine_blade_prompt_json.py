@@ -50,6 +50,61 @@ MAIN_CHARACTER_ANCHOR_KEYWORDS = [
     "consistent costume",
 ]
 
+TEXT_SYSTEM_RULES = {
+    "dialogue": {
+        "max_chars": 18,
+        "requires_speaker": True,
+        "bubble_styles": {"speech_bubble"},
+        "placements": {"near_speaker_inside_panel"},
+        "inside_panel": True,
+        "system_keywords": {
+            "visual_form": ("speech", "bubble"),
+            "placement_rule": ("speaker", "panel"),
+            "legibility_rule": ("legible", "chinese"),
+        },
+        "prompt_keywords": ("speech bubble", "speaker"),
+    },
+    "narration": {
+        "max_chars": 24,
+        "requires_speaker": False,
+        "bubble_styles": {"caption_box"},
+        "placements": {"panel_edge_caption", "gutter_edge_caption"},
+        "inside_panel": None,
+        "system_keywords": {
+            "visual_form": ("caption",),
+            "placement_rule": ("caption",),
+            "legibility_rule": ("legible", "chinese"),
+        },
+        "prompt_keywords": ("caption",),
+    },
+    "inner_monologue": {
+        "max_chars": 20,
+        "requires_speaker": True,
+        "bubble_styles": {"thought_bubble", "inner_caption"},
+        "placements": {"near_thinker_inside_panel", "inner_caption_inside_panel"},
+        "inside_panel": True,
+        "system_keywords": {
+            "visual_form": ("thought", "inner"),
+            "placement_rule": ("thinker", "caption", "panel"),
+            "legibility_rule": ("legible", "chinese"),
+        },
+        "prompt_keywords": ("thought bubble", "inner caption"),
+    },
+    "sfx": {
+        "max_chars": 6,
+        "requires_speaker": False,
+        "bubble_styles": {"integrated_sfx"},
+        "placements": {"integrated_with_action_inside_panel"},
+        "inside_panel": True,
+        "system_keywords": {
+            "visual_form": ("sfx",),
+            "placement_rule": ("action", "panel"),
+            "legibility_rule": ("legible", "chinese"),
+        },
+        "prompt_keywords": ("sfx",),
+    },
+}
+
 
 def _self_test_data() -> dict[str, Any]:
     pages: list[dict[str, Any]] = []
@@ -68,10 +123,53 @@ def _self_test_data() -> dict[str, Any]:
         active_character_ids = (
             ["protagonist", "companion"] if page_number in {2, 3, 4, 6} else ["protagonist"]
         )
+        panel_a_slots: list[dict[str, Any]] = [
+            {
+                "type": "narration",
+                "text": f"第{page_number}页",
+                "placement": "panel_edge_caption",
+                "bubble_style": "caption_box",
+                "inside_panel": True,
+            }
+        ]
+        panel_b_slots: list[dict[str, Any]] = []
+        if page_number in {2, 3, 8}:
+            panel_b_slots.append(
+                {
+                    "type": "dialogue",
+                    "speaker_id": active_character_ids[0],
+                    "text": "快走！",
+                    "placement": "near_speaker_inside_panel",
+                    "bubble_style": "speech_bubble",
+                    "inside_panel": True,
+                }
+            )
+        if page_number in {4, 9}:
+            panel_b_slots.append(
+                {
+                    "type": "inner_monologue",
+                    "speaker_id": "protagonist",
+                    "text": "不能退。",
+                    "placement": "near_thinker_inside_panel",
+                    "bubble_style": "thought_bubble",
+                    "inside_panel": True,
+                }
+            )
+        if page_number in {1, 3, 6, 7, 9}:
+            panel_b_slots.append(
+                {
+                    "type": "sfx",
+                    "text": "轰",
+                    "placement": "integrated_with_action_inside_panel",
+                    "bubble_style": "integrated_sfx",
+                    "inside_panel": True,
+                }
+            )
         prompt_parts = [
             "cinematic comic page, vertical 9:16 aspect ratio",
             f"Page {page_number}",
             "Character locked across all panels: Sun Wukong, a muscular monkey demon with golden fur, consistent face, consistent costume, consistent silhouette",
+            "render clear legible Chinese text, use speech bubbles near speakers for dialogue, rectangular caption boxes for narration, thought bubbles or inner captions clearly different from dialogue for inner monologue, and integrated SFX inside the action panel",
         ]
         if len(active_character_ids) >= 2:
             prompt_parts.append(
@@ -104,16 +202,14 @@ def _self_test_data() -> dict[str, Any]:
                         "shot": "dramatic comic shot",
                         "action": f"unique visible action {page_number}",
                         "comic_techniques": ["bold gutter"],
-                        "text_slots": [
-                            {"type": "narration", "text": f"第{page_number}页"}
-                        ],
+                        "text_slots": panel_a_slots,
                     },
                     {
                         "panel_id": f"{page_number}B",
                         "shot": "supporting reaction or detail panel",
                         "action": f"supporting visible action {page_number}",
                         "comic_techniques": ["reaction inset"],
-                        "text_slots": [],
+                        "text_slots": panel_b_slots,
                     }
                 ],
                 "page_number_overlay": {
@@ -190,7 +286,32 @@ def _self_test_data() -> dict[str, Any]:
                 ),
             }
         ],
-        "comic_text_system": {"narration": "rectangular caption box"},
+        "comic_text_system": {
+            "dialogue": {
+                "visual_form": "speech bubble containing clear legible Chinese text",
+                "placement_rule": "near the speaking character, inside the panel, not at the far edge",
+                "legibility_rule": "clear legible Chinese text, short sentence, do not cover faces",
+                "max_chars": 18,
+            },
+            "narration": {
+                "visual_form": "rectangular caption box containing clear legible Chinese text",
+                "placement_rule": "panel edge or gutter edge caption, readable and not blocking key acting",
+                "legibility_rule": "clear legible Chinese text for narration compression",
+                "max_chars": 24,
+            },
+            "inner_monologue": {
+                "visual_form": "thought bubble or inner monologue caption containing clear legible Chinese text",
+                "placement_rule": "near the thinker or as an inner caption inside the panel, clearly different from dialogue",
+                "legibility_rule": "clear legible Chinese text, emotionally concise",
+                "max_chars": 20,
+            },
+            "sfx": {
+                "visual_form": "large hand-lettered comic SFX text integrated inside the panel",
+                "placement_rule": "integrated with the action source inside the panel, never floating like a sticker",
+                "legibility_rule": "clear legible Chinese onomatopoeia as part of the drawing",
+                "max_chars": 6,
+            },
+        },
         "pages": pages,
         "global_negative_prompt": (
             "collage, nine variations, unreadable Chinese text, watermark"
@@ -251,6 +372,11 @@ def _stringify(value: Any) -> str:
     if isinstance(value, str):
         return value
     return json.dumps(value, ensure_ascii=False)
+
+
+def _contains_any(text: str, needles: tuple[str, ...]) -> bool:
+    lower = text.lower()
+    return any(needle in lower for needle in needles)
 
 
 def validate(data: dict[str, Any]) -> list[str]:
@@ -388,6 +514,29 @@ def validate(data: dict[str, Any]) -> list[str]:
             "for example manga/comic, ink or line art, gutters, panels, screentone, SFX"
         )
 
+    comic_text_system = data.get("comic_text_system")
+    if not isinstance(comic_text_system, dict):
+        errors.append("comic_text_system must be an object")
+        comic_text_system = {}
+    for slot_type, rules in TEXT_SYSTEM_RULES.items():
+        entry = comic_text_system.get(slot_type)
+        if not isinstance(entry, dict):
+            errors.append(f"comic_text_system.{slot_type} must be an object")
+            continue
+        for field in ("visual_form", "placement_rule", "legibility_rule"):
+            value = str(entry.get(field, "")).strip()
+            if not value:
+                errors.append(f"comic_text_system.{slot_type}.{field} must be a non-empty string")
+                continue
+            if not _contains_any(value, rules["system_keywords"][field]):
+                errors.append(
+                    f"comic_text_system.{slot_type}.{field} should mention {rules['system_keywords'][field]}"
+                )
+        if entry.get("max_chars") != rules["max_chars"]:
+            errors.append(
+                f"comic_text_system.{slot_type}.max_chars must be {rules['max_chars']}"
+            )
+
     pages = data.get("pages")
     if not isinstance(pages, list):
         errors.append("pages must be an array")
@@ -398,6 +547,7 @@ def validate(data: dict[str, Any]) -> list[str]:
     seen_page_numbers: set[int] = set()
     layout_ids: list[str] = []
     dynamic_layout_count = 0
+    used_slot_types: set[str] = set()
     for i, page in enumerate(pages, start=1):
         if not isinstance(page, dict):
             errors.append(f"pages[{i}] must be an object")
@@ -478,6 +628,13 @@ def validate(data: dict[str, Any]) -> list[str]:
         else:
             if "9:16" not in positive_prompt:
                 errors.append(f"pages[{i}].positive_prompt must mention 9:16")
+            if not _contains_any(
+                positive_prompt,
+                ("clear legible chinese text", "readable chinese text"),
+            ):
+                errors.append(
+                    f"pages[{i}].positive_prompt must mention clear legible Chinese text"
+                )
             if main_character_name and not _has_main_character_anchor(
                 positive_prompt, main_character_name
             ):
@@ -528,10 +685,52 @@ def validate(data: dict[str, Any]) -> list[str]:
                 if not isinstance(slot, dict):
                     errors.append(f"pages[{i}] text slot must be an object")
                     continue
-                if slot.get("type") not in {"dialogue", "narration", "inner_monologue", "sfx"}:
+                slot_type = slot.get("type")
+                if slot_type not in {"dialogue", "narration", "inner_monologue", "sfx"}:
                     errors.append(f"pages[{i}] text slot has invalid type")
+                    continue
+                used_slot_types.add(slot_type)
                 if not isinstance(slot.get("text"), str):
                     errors.append(f"pages[{i}] text slot text must be a string")
+                    continue
+                text_value = slot["text"].strip()
+                if not text_value:
+                    errors.append(f"pages[{i}] text slot text must be non-empty")
+                max_chars = TEXT_SYSTEM_RULES[slot_type]["max_chars"]
+                if len(text_value) > max_chars:
+                    errors.append(
+                        f"pages[{i}] {slot_type} text slot exceeds max length {max_chars}"
+                    )
+                bubble_style = slot.get("bubble_style")
+                if bubble_style not in TEXT_SYSTEM_RULES[slot_type]["bubble_styles"]:
+                    errors.append(
+                        f"pages[{i}] {slot_type} bubble_style must be one of {sorted(TEXT_SYSTEM_RULES[slot_type]['bubble_styles'])}"
+                    )
+                placement = slot.get("placement")
+                if placement not in TEXT_SYSTEM_RULES[slot_type]["placements"]:
+                    errors.append(
+                        f"pages[{i}] {slot_type} placement must be one of {sorted(TEXT_SYSTEM_RULES[slot_type]['placements'])}"
+                    )
+                expected_inside_panel = TEXT_SYSTEM_RULES[slot_type]["inside_panel"]
+                inside_panel = slot.get("inside_panel")
+                if expected_inside_panel is not None and inside_panel is not expected_inside_panel:
+                    errors.append(
+                        f"pages[{i}] {slot_type} inside_panel must be {expected_inside_panel}"
+                    )
+                speaker_id = str(slot.get("speaker_id", "")).strip()
+                if TEXT_SYSTEM_RULES[slot_type]["requires_speaker"]:
+                    if not speaker_id:
+                        errors.append(f"pages[{i}] {slot_type} text slot must include speaker_id")
+                    elif speaker_id not in active_character_ids:
+                        errors.append(
+                            f"pages[{i}] {slot_type} speaker_id must belong to active_character_ids"
+                        )
+                if isinstance(positive_prompt, str) and not _contains_any(
+                    positive_prompt, TEXT_SYSTEM_RULES[slot_type]["prompt_keywords"]
+                ):
+                    errors.append(
+                        f"pages[{i}].positive_prompt must mention {slot_type} rendering cues {TEXT_SYSTEM_RULES[slot_type]['prompt_keywords']}"
+                    )
 
     if seen_page_numbers and seen_page_numbers != set(range(1, 10)):
         errors.append("page_number values must be exactly 1..9")
@@ -543,6 +742,10 @@ def validate(data: dict[str, Any]) -> list[str]:
             errors.append(
                 "pages[].layout should include at least 3 dynamic classic comic layouts "
                 "(splash, inset, diagonal, split, cascade, impact, cliffhanger, border-breaking, zigzag, asymmetric)"
+            )
+        if used_slot_types != set(TEXT_SYSTEM_RULES):
+            errors.append(
+                "pages must cover all four text slot types across the 9 pages: dialogue, narration, inner_monologue, sfx"
             )
 
     negative = data.get("global_negative_prompt")

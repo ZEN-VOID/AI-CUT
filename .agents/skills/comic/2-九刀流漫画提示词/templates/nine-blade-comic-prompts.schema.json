@@ -13,6 +13,96 @@
     "pages",
     "global_negative_prompt"
   ],
+  "$defs": {
+    "text_system_entry": {
+      "type": "object",
+      "required": ["visual_form", "placement_rule", "legibility_rule", "max_chars"],
+      "properties": {
+        "visual_form": {"type": "string", "minLength": 8},
+        "placement_rule": {"type": "string", "minLength": 12},
+        "legibility_rule": {"type": "string", "minLength": 12},
+        "max_chars": {"type": "integer", "minimum": 1}
+      }
+    },
+    "text_slot": {
+      "type": "object",
+      "required": ["type", "text", "placement", "bubble_style", "inside_panel"],
+      "properties": {
+        "type": {
+          "enum": ["dialogue", "narration", "inner_monologue", "sfx"]
+        },
+        "speaker_id": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+        "placement": {
+          "enum": [
+            "near_speaker_inside_panel",
+            "panel_edge_caption",
+            "gutter_edge_caption",
+            "near_thinker_inside_panel",
+            "inner_caption_inside_panel",
+            "integrated_with_action_inside_panel"
+          ]
+        },
+        "bubble_style": {
+          "enum": [
+            "speech_bubble",
+            "caption_box",
+            "thought_bubble",
+            "inner_caption",
+            "integrated_sfx"
+          ]
+        },
+        "inside_panel": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"type": {"const": "dialogue"}}, "required": ["type"]},
+          "then": {
+            "required": ["speaker_id"],
+            "properties": {
+              "text": {"type": "string", "minLength": 1, "maxLength": 18},
+              "placement": {"const": "near_speaker_inside_panel"},
+              "bubble_style": {"const": "speech_bubble"},
+              "inside_panel": {"const": true}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "narration"}}, "required": ["type"]},
+          "then": {
+            "properties": {
+              "text": {"type": "string", "minLength": 1, "maxLength": 24},
+              "placement": {"enum": ["panel_edge_caption", "gutter_edge_caption"]},
+              "bubble_style": {"const": "caption_box"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "inner_monologue"}}, "required": ["type"]},
+          "then": {
+            "required": ["speaker_id"],
+            "properties": {
+              "text": {"type": "string", "minLength": 1, "maxLength": 20},
+              "placement": {"enum": ["near_thinker_inside_panel", "inner_caption_inside_panel"]},
+              "bubble_style": {"enum": ["thought_bubble", "inner_caption"]},
+              "inside_panel": {"const": true}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "sfx"}}, "required": ["type"]},
+          "then": {
+            "properties": {
+              "text": {"type": "string", "minLength": 1, "maxLength": 6},
+              "placement": {"const": "integrated_with_action_inside_panel"},
+              "bubble_style": {"const": "integrated_sfx"},
+              "inside_panel": {"const": true}
+            }
+          }
+        }
+      ]
+    }
+  },
   "properties": {
     "schema_version": {
       "const": "nine_blade_comic_prompts.v1"
@@ -96,7 +186,36 @@
         }
       }
     },
-    "comic_text_system": {"type": "object"},
+    "comic_text_system": {
+      "type": "object",
+      "required": ["dialogue", "narration", "inner_monologue", "sfx"],
+      "properties": {
+        "dialogue": {
+          "allOf": [
+            {"$ref": "#/$defs/text_system_entry"},
+            {"properties": {"max_chars": {"const": 18}}}
+          ]
+        },
+        "narration": {
+          "allOf": [
+            {"$ref": "#/$defs/text_system_entry"},
+            {"properties": {"max_chars": {"const": 24}}}
+          ]
+        },
+        "inner_monologue": {
+          "allOf": [
+            {"$ref": "#/$defs/text_system_entry"},
+            {"properties": {"max_chars": {"const": 20}}}
+          ]
+        },
+        "sfx": {
+          "allOf": [
+            {"$ref": "#/$defs/text_system_entry"},
+            {"properties": {"max_chars": {"const": 6}}}
+          ]
+        }
+      }
+    },
     "pages": {
       "type": "array",
       "minItems": 9,
@@ -154,16 +273,7 @@
                 },
                 "text_slots": {
                   "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": ["type", "text"],
-                    "properties": {
-                      "type": {
-                        "enum": ["dialogue", "narration", "inner_monologue", "sfx"]
-                      },
-                      "text": {"type": "string"}
-                    }
-                  }
+                  "items": {"$ref": "#/$defs/text_slot"}
                 }
               }
             }
@@ -183,7 +293,7 @@
           },
           "positive_prompt": {
             "type": "string",
-            "description": "Page prompt must mention vertical 9:16 comic page, inject the main character anchor, include active multi-character continuity, inject the scene anchor, and include a bottom-right digits-only page number rule."
+            "description": "Page prompt must mention vertical 9:16 comic page, inject the main character anchor, include active multi-character continuity, inject the scene anchor, include a bottom-right digits-only page number rule, and explicitly describe readable Chinese comic lettering for the text slot types used on that page."
           }
         }
       }
