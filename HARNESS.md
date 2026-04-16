@@ -108,6 +108,7 @@
 - `team-cinematography-christopher-doyle` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杜可风/`，其自包含调研载体为 `references/research/`
 - `team-cinematography-wing-shya` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/夏永康/`，其自包含调研载体为 `references/research/`
 - `team-cinematography-hiroshi-sugimoto` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杉本博司/`，其自包含调研载体为 `references/research/`
+- `team-cinematography-peter-pau` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/鲍德熹/`，其自包含调研载体为 `references/research/`
 - `team-action-ching-siu-tung` 已登记为武术组 repo-local 人物动作设计视角 skill，固定 skill 根为 `.agents/skills/team/武术组/程小东/`，其自包含调研载体为 `references/research/`
 - `team-anime-ogino-makoto` 已登记为动漫组 repo-local 人物漫画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/荻野真/`，其自包含调研载体为 `references/research/`
 - `team-anime-yoshiaki-kawajiri` 已登记为动漫组 repo-local 人物动作动画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/川尻善昭/`，其自包含调研载体为 `references/research/`
@@ -187,7 +188,7 @@
 - 有三省角色合同，不再只有一个模糊 orchestrator。
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
-- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角、武术组人物动作设计视角与动漫组人物漫画/动作动画视角；编剧组已纳入太宰治、渡边淳一等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康与杉本博司三个自包含人物摄影视角，武术组已纳入程小东动作设计视角，动漫组已纳入荻野真与川尻善昭人物视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
+- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角、武术组人物动作设计视角与动漫组人物漫画/动作动画视角；编剧组已纳入太宰治、渡边淳一等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康、杉本博司与鲍德熹四个自包含人物摄影视角，武术组已纳入程小东动作设计视角，动漫组已纳入荻野真与川尻善昭人物视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
 
 仍然明显未完成的部分也很清楚：
 

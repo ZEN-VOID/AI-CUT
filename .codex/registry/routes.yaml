@@ -138,6 +138,9 @@ route_policies:
   - id: team-cinematography-hiroshi-sugimoto-entry
     trigger: 命中杉本博司视角、杉本博司会怎么拍、Hiroshi Sugimoto perspective、杉本式摄影，或摄影组需要处理时间、记忆、海景、剧场、蜡像/假物、自然史、建筑失焦、银盐工艺、暗房实验、古物与场所观测
     rule: "进入 `.agents/skills/team/摄影组/杉本博司/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，摄影型问题必须输出一句摄影判断、观念机制、观看装置、主体处理、场所与时间轴、黑白/色彩/材料与执行护栏。"
+  - id: team-cinematography-peter-pau-entry
+    trigger: 命中鲍德熹视角、鲍德熹会怎么拍、Peter Pau perspective、卧虎藏龙式摄影、繁花摄影，或摄影组需要处理武侠追逐、人物镜头设计、大场面工业拍摄、单机叙事、设备选择、实拍可信度和 AI 时代摄影判断
+    rule: "进入 `.agents/skills/team/摄影组/鲍德熹/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，摄影型问题必须输出一句摄影判断、内容轴、角色镜头、空间与运动、光线与质感、设备与工艺，以及协作与执行护栏。"
   - id: team-action-ching-siu-tung-entry
     trigger: 命中程小东视角、程小东会怎么设计动作、Ching Siu-tung perspective、wire-fu、倩女幽魂式动作、轻功威亚、神怪武侠动作，或武术组需要处理飘逸轻功、剑舞、竹林追逐、威亚动作、AIGC 动作分镜与动作安全
     rule: "进入 `.agents/skills/team/武术组/程小东/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，动作型问题必须输出动作气质、人物关系、空间路线、威亚/落点/镜头节奏、安全护栏和不要做清单。"

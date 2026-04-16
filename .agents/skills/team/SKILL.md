@@ -3,16 +3,16 @@ name: team-perspective-root
 governance_tier: full
 description: |
   Use when a creative task needs routing across director, screenwriter, actor,
-  cinematography, design, action, or aesthetic perspective skills under the
-  team skill tree, or when shared rules for those persona skills must be
-  inspected, repaired, or governed from the root.
+  cinematography, design, action, aesthetic, or work-based perspective skills
+  under the team skill tree, or when shared rules for those persona skills
+  must be inspected, repaired, or governed from the root.
 ---
 
 # Team Perspective Root
 
 技能包 ID: `team`
 
-本文件是 `.agents/skills/team/` 的根目录规范。它只治理团队视角技能树的分类、路由、加载顺序、共享输出门禁和源层修复规则；具体人物、创作者或部门视角的事实材料、心智模型、语气和工作流，仍由各子目录自己的 `SKILL.md` 与 `CONTEXT.md` 持有。
+本文件是 `.agents/skills/team/` 的根目录规范。它只治理团队视角技能树的分类、路由、加载顺序、共享输出门禁和源层修复规则；具体人物、创作者、作品或部门视角的事实材料、心智模型、语气和工作流，仍由各子目录自己的 `SKILL.md` 与 `CONTEXT.md` 持有。
 
 ## Scope And Truth Ownership
 
@@ -20,8 +20,8 @@ description: |
 | --- | --- | --- |
 | `team/SKILL.md` | 部门 taxonomy、路由策略、加载顺序、跨子技能汇流、根因追踪和治理门槛 | 具体人物视角、研究证据、局部口吻、单人物工作流 |
 | `team/CONTEXT.md` | 跨部门/跨人物的复用经验、失败类型、路由启发、根层 Playbook | 单人物案例流水、未验证的研究事实、子技能本地经验 |
-| `team/<部门>/<人物>/SKILL.md` | 该人物/角色的触发条件、事实边界、心智模型、回答工作流 | 团队根 taxonomy、跨人物聚合合同 |
-| `team/<部门>/<人物>/CONTEXT.md` | 该人物技能的局部启发、陷阱、修复模式 | team 根层的跨技能经验 |
+| `team/<分类>/<条目>/SKILL.md` | 该人物、作品或条目的触发条件、事实边界、心智模型、回答工作流 | 团队根 taxonomy、跨条目聚合合同 |
+| `team/<分类>/<条目>/CONTEXT.md` | 该条目技能的局部启发、陷阱、修复模式 | team 根层的跨技能经验 |
 
 根合同不得把子技能内容复制成第二真源。若共享规则需要影响多个人物技能，先落在本根合同或根 `CONTEXT.md`，再由子技能显式继承或局部特化。
 
@@ -37,6 +37,7 @@ description: |
 使用本根技能的场景：
 
 - 用户要求“用某某视角”“导演组/编剧组/演员组怎么看”“让团队顾问会诊”等跨部门或人物视角任务。
+- 用户明确点名某部作品，希望“像《2046》那样处理”“用某作品做镜片”“拆某部作品的方法”。
 - 用户没有指定人物，但任务明显需要在导演、编剧、演员、摄影、设计、动作、美学之间选择最合适的视角。
 - 用户要求维护、审计、批量补齐或修复 `.agents/skills/team/` 下的共享规范。
 - 子技能之间出现触发冲突、事实边界冲突、输出结构漂移或经验沉淀位置不清。
@@ -58,6 +59,7 @@ description: |
 | `design` | `设计组/` | 空间、服装、美术、材料、建筑/场景 | 设计诊断、视觉系统、提示词字段 |
 | `action` | `武术组/` | 打戏、动作路线、身体风险、威亚/实拍 | 动作设计、拍摄安全、节奏方案 |
 | `aesthetic` | `美学组/` | 整体美学、东方视觉、舞台/展览/装置 | 美学框架、视觉统合、概念校准 |
+| `work_dimension` | `作品维度/` | 单部作品语法、结构迁移、互文续写、作品拆解 | 作品维度诊断、迁移规则、结构/场面方案 |
 
 ## Thinking-Action Network
 
@@ -121,10 +123,11 @@ stateDiagram-v2
 路由必须使用证据，而不是只凭关键词联想：
 
 1. 用户明确点名人物时，优先进入对应人物子技能。
-2. 用户只给部门时，在该部门内选择最贴合任务对象的人物技能；若无法确定，先说明选择假设。
-3. 用户给创作症状时，按主问题路由：结构进编剧组，调度进导演组，表演进演员组，影像进摄影组，空间/服装/美术进设计组，打戏进武术组，整体视觉气质进美学组。
-4. 需要多视角时使用 council mode，但默认只选 `2-4` 个必要视角；不得全量调度所有人物技能。
-5. 事实依赖问题必须先核验再进入人物视角；不得伪造本人言论、私人记忆或未公开立场。
+2. 用户明确点名作品时，优先进入 `作品维度/` 下对应条目，而不是强行改路由到导演组或编剧组。
+3. 用户只给部门时，在该部门内选择最贴合任务对象的人物技能；若无法确定，先说明选择假设。
+4. 用户给创作症状时，按主问题路由：结构进编剧组，调度进导演组，表演进演员组，影像进摄影组，空间/服装/美术进设计组，打戏进武术组，整体视觉气质进美学组；若症状明显是在索取单部作品的结构镜片或风格迁移，则进 `作品维度/`。
+5. 需要多视角时使用 council mode，但默认只选 `2-4` 个必要视角；不得全量调度所有人物技能。
+6. 事实依赖问题必须先核验再进入人物或作品视角；不得伪造本人言论、私人记忆或未公开立场。
 
 ### Step 3. Child Skill Entry
 
@@ -182,8 +185,8 @@ stateDiagram-v2
 
 - 部门分类、路由原则、council 汇流、跨技能沉淀规则：本根 `SKILL.md`。
 - 跨人物经验、反复失败模式、路由启发：本根 `CONTEXT.md`。
-- 单人物视角、事实材料、心智模型、回答工作流：子技能 `SKILL.md`。
-- 单人物运行经验和修复模式：子技能 `CONTEXT.md`。
+- 单人物/单作品视角、事实材料、心智模型、回答工作流：子技能 `SKILL.md`。
+- 单人物/单作品运行经验和修复模式：子技能 `CONTEXT.md`。
 
 若同一规则需要改动 `2+` 个子技能，先判断是否应上收为根级共享规则；不得在多个兄弟子技能里静默复制演化。
 
