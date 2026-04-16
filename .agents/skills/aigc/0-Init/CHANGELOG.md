@@ -2,6 +2,44 @@
 
 本文件记录 `.agents/skills/aigc/0-Init/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-04-15
+
+- `Case-20260415-AIGC-INIT-SMART-ADVISOR-SINGLE-MODE`
+  - 将 `0-Init` 的初始化模式从旧的 `主创会诊 / 快速成案 / 自主问答` 三分结构，收口为单一 `智能顾问模式`。
+  - 开场只保留 `自动组队 / 自定义组队` 两个编组子模式，并明确任何顾问候选都只能来自 `.agents/skills/team/`。
+  - 同步把 `team.yaml` 模板升级为初始化编组真源，新增 `init_contract.*`、`roles.planning.init_interview.*` 与 `runtime_policy.require_subagents_for_init_interview`。
+  - 将 `planning` 角色固定为初始化 interview 的首轮顾问 owner，并把“必须真实启用 subagents、不可降级成本地顺序扮演”写回父 `SKILL.md` 与审计脚本。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+    - `.agents/skills/aigc/0-Init/agents/openai.yaml`
+    - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+    - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+    - `scripts/aigc_skill_audit.py`
+
+- `Case-20260415-AIGC-INIT-THOUGHT-ACTION-NODE-SYNC`
+  - 将 `0-Init` 的思维·执行节点继续下沉到新口径：不仅改模式说明，还同步改 `Thinking-Action Node Contract`、`Topology Contract`、`Thought Pass Map` 与 `Pass Table`。
+  - 新增节点级执行语义：`decision_lock / dispatch_contract / write_scope / blocker_rule / reentry_rule`。
+  - 明确 `N4` 的 `planning_interview_engine` 必须真实起 subagents，且 `N7` 失败时按缺口层级回退到 `N1/N3/N4/N5`，而不是泛化回退。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+
+- `Case-20260415-AIGC-INIT-TEAM-OWNERSHIP-AND-AUTO-LINEUP`
+  - 将 `策划 / 监制 / 评审` 从“阶段通用顾问”改写为明确权属：`策划 -> 0-Init`，`监制 -> 2-Global / 3-Detail / 4-Design`，`评审 -> 5-Image / 6-Video`。
+  - 将自动组队重写为“两层裁决”：先锁治理角色，再按 `导演组 / 设计组 / 摄影组` 三个必选组补齐具体大师，允许每组多人，并把“黄金组合”改为显式排序准则而不是模糊口头推荐。
+  - 明确 `策划 / 监制 / 评审` 可以是同一波人，也可以是不同的人；新增 `team_setup.role_allocation_mode / same_person_cross_role_allowed / role_overlap_notes`，避免后续把三类治理角色误读成强制互斥。
+  - 增加题材缺口补救口：当现有 roster 明显不足但当前仍可执行时，继续按现有阵容执行，同时在 `todos/*-team-recommendation.md` 输出推荐文档并把路径写回团队真源。
+  - 同步把 shared `council-runtime` 的消费范围从 `1-Planning / 2-Global / 3-Detail / 4-Design` 改为 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，避免根技能与共享模板继续传播旧阶段口径。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+    - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+    - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+    - `.agents/skills/aigc/_shared/council-runtime/CONTEXT.md`
+    - `.agents/skills/aigc/SKILL.md`
+    - `.agents/skills/aigc/CONTEXT.md`
+
 ## 2026-04-14
 
 - 目录结构按最新单技能 SKILLS 口径收束为：

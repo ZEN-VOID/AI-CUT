@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-15
+last_updated: 2026-04-16
 
 default_flow:
   - step: mandate
@@ -84,6 +84,9 @@ route_policies:
   - id: team-screenwriter-dazai-osamu-entry
     trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
     rule: "进入 `.agents/skills/team/编剧组/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"
+  - id: team-screenwriter-watanabe-junichi-entry
+    trigger: 命中渡边淳一视角、渡边淳一会怎么写、Watanabe Junichi perspective、失乐园式、钝感力、熟年恋爱、婚外恋题材、医学恋爱小说，或编剧组需要处理中年情欲、医疗题材、医生角色、身体真实、禁忌关系、情色边界与死亡结尾风险
+    rule: "进入 `.agents/skills/team/编剧组/渡边淳一/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出身体事实、禁忌账单、熟年时间、医学/伦理边界、女性主体检查与死亡浪漫化风险提醒。"
   - id: team-actor-leslie-cheung-entry
     trigger: 命中张国荣、哥哥表演法、Leslie Cheung actor perspective，或演员组需要处理角色气质、镜头特写、亲密戏、性别表达、舞台/银幕魅力
     rule: "进入 `.agents/skills/team/演员组/张国荣/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出角色核心、身体方案、镜头方案与安全边界。"
@@ -114,6 +117,9 @@ route_policies:
   - id: team-director-hou-hsiao-hsien-entry
     trigger: 命中侯孝贤视角、侯孝贤会怎么拍、侯导式导演、Hou Hsiao-hsien perspective，或导演组需要处理生活流、历史创伤、家庭记忆、非职业演员、即兴对白、长镜头、画外暴力、弱情节、慢电影风险和武侠去奇观化
     rule: "进入 `.agents/skills/team/导演组/侯孝贤/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出人物怎样生活、空间怎样运作、演员任务、镜头距离、历史/时间压力与慢/空/含蓄过度的修正。"
+  - id: team-director-jia-zhangke-entry
+    trigger: 命中贾樟柯视角、贾科长会怎么拍、Jia Zhangke perspective、像小武/站台/三峡好人/天注定/江湖儿女/风流一代那样处理，或导演组需要处理社会转型、县城/边缘空间、普通人群像、拆迁/迁移、现实中的超现实、纪录-虚构混合、时代记忆和数字档案影像
+    rule: "进入 `.agents/skills/team/导演组/贾樟柯/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出观察对象、地方空间、时代压力、人物行动、材料/媒介方案、公共传播风险与不要做清单。"
   - id: team-director-jiang-wen-entry
     trigger: 命中姜文视角、姜文会怎么拍、姜文式导演、让子弹飞式、姜文式幽默、历史寓言、台词太密或太装，或导演组需要处理强表达、人物模型、黑色幽默、演员本体、作者片前期定型与技术边界
     rule: "进入 `.agents/skills/team/导演组/姜文/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，导演型问题必须输出表达核心、人物模型、幽默/态度、场面方案、演员方案、后期/技术边界与历史/传播风险。"
@@ -132,6 +138,15 @@ route_policies:
   - id: team-action-ching-siu-tung-entry
     trigger: 命中程小东视角、程小东会怎么设计动作、Ching Siu-tung perspective、wire-fu、倩女幽魂式动作、轻功威亚、神怪武侠动作，或武术组需要处理飘逸轻功、剑舞、竹林追逐、威亚动作、AIGC 动作分镜与动作安全
     rule: "进入 `.agents/skills/team/武术组/程小东/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，动作型问题必须输出动作气质、人物关系、空间路线、威亚/落点/镜头节奏、安全护栏和不要做清单。"
+  - id: team-anime-ogino-makoto-entry
+    trigger: 命中荻野真视角、荻野真会怎么画、Ogino Makoto perspective、孔雀王式、密教传奇漫画、退魔动作漫画，或动漫组需要处理密教/妖怪设定、青年漫画黑暗娱乐、历史奇想、旧 IP 重启、漫画分镜、原稿密度、动画/游戏改编
+    rule: "进入 `.agents/skills/team/动漫组/荻野真/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出资料根、邪气来源、人物使命、漫画动作场面、读者入口与商业连载边界。"
+  - id: team-anime-yoshiaki-kawajiri-entry
+    trigger: 命中川尻善昭视角、川尻善昭会怎么拍、Yoshiaki Kawajiri perspective、Ninja Scroll 式、獣兵衛忍風帖式、妖兽都市式、Vampire Hunter D Bloodlust 式，或动漫组需要处理成人向动作动画、忍者剑戟、黑暗幻想、赛博都市、怪物战、分镜蓝图、IP 改编、经典重制或制作负荷评估
+    rule: "进入 `.agents/skills/team/动漫组/川尻善昭/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出核心影像、动作机制、分镜路径、人物/情感锚点、制作护栏与不要做清单。"
+  - id: team-anime-tsai-chih-chung-entry
+    trigger: 命中蔡志忠视角、蔡志忠会怎么画、Tsai Chih-chung perspective、庄子说式、老子说式、国学漫画、哲思漫画、用漫画讲经典，或动漫组需要处理经典改编、教育漫画、传统文化 IP、知识型漫画、跨语言传播、系列策划或内容优先的动画前期
+    rule: "进入 `.agents/skills/team/动漫组/蔡志忠/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出主题锚点、可漫画化单元、系列结构、传播转译、内容底盘与不要做清单。"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

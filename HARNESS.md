@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-15`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite、repo-local 漫画链路与团队能力 skill 纳入受治理注册：
+截至 `2026-04-16`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite、repo-local 漫画链路与团队能力 skill 纳入受治理注册：
 
 ### 1. 宪章层
 
@@ -94,6 +94,7 @@
 - `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把小说或漫画小说桥接包输出为 `nine_blade_comic_prompts.v1` JSON
 - `comic-generation` 已登记为 repo-local 执行技能，负责校验九刀流 JSON 并通过 Seedream 单次连续多图请求生成 9 张竖版漫画页
 - `team-screenwriter-dazai-osamu` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/太宰治/`，其自包含调研载体为 `references/research/`
+- `team-screenwriter-watanabe-junichi` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/渡边淳一/`，其自包含调研载体为 `references/research/`
 - `team-actor-leslie-cheung` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/张国荣/`，其自包含调研载体为 `references/research/`
 - `team-actor-anita-mui` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梅艳芳/`，其自包含调研载体为 `references/research/`
 - `team-actor-leung-ka-fai` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梁家辉/`，其自包含调研载体为 `references/research/`
@@ -108,6 +109,8 @@
 - `team-cinematography-wing-shya` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/夏永康/`，其自包含调研载体为 `references/research/`
 - `team-cinematography-hiroshi-sugimoto` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杉本博司/`，其自包含调研载体为 `references/research/`
 - `team-action-ching-siu-tung` 已登记为武术组 repo-local 人物动作设计视角 skill，固定 skill 根为 `.agents/skills/team/武术组/程小东/`，其自包含调研载体为 `references/research/`
+- `team-anime-ogino-makoto` 已登记为动漫组 repo-local 人物漫画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/荻野真/`，其自包含调研载体为 `references/research/`
+- `team-anime-yoshiaki-kawajiri` 已登记为动漫组 repo-local 人物动作动画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/川尻善昭/`，其自包含调研载体为 `references/research/`
 - `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
 - `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
 - `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
@@ -184,7 +187,7 @@
 - 有三省角色合同，不再只有一个模糊 orchestrator。
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
-- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角与武术组人物动作设计视角；编剧组已纳入太宰治等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康与杉本博司三个自包含人物摄影视角，武术组已纳入程小东动作设计视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
+- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角、武术组人物动作设计视角与动漫组人物漫画/动作动画视角；编剧组已纳入太宰治、渡边淳一等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康与杉本博司三个自包含人物摄影视角，武术组已纳入程小东动作设计视角，动漫组已纳入荻野真与川尻善昭人物视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
 
 仍然明显未完成的部分也很清楚：
 

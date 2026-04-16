@@ -18,6 +18,25 @@
 
 可按故事类型替换功能，但不得让 9 页变成同一事件的 9 个角度。
 
+## 1.1 主角锚定硬规则
+
+- 九页连续漫画默认必须先锁一个 `main_character_lock`，它是整组 prompt 的第一视觉锚点，不得省略。
+- 即使当前页主角未正面出镜，也要保留该锚定句，以防模型在跨页时漂移主角的脸、毛色、服装或轮廓。
+- 群像戏不等于取消主角锚。群像只意味着 `character_locks` 中还有其他角色；`main_character_lock` 仍必须唯一。
+- 推荐字段最少包含：`character_id`、`name`、`anchor_prompt`。
+
+## 1.2 群像角色协同硬规则
+
+- `character_locks` 中的 recurring characters 必须是具名锁，而不是一句泛化备注。推荐字段最少包含：`character_id`、`name`、`anchor_prompt`。
+- 每页必须显式声明 `active_character_ids`；多人页禁止只写“others nearby”之类泛化表述。
+- 若某页 `active_character_ids` 数量 >= 2，页级 prompt 必须点名这些角色，并加入 `visually consistent and clearly distinguishable`、`stable height order / face / costume / silhouette` 一类协同语义，防止多人页出现“主角清楚、其他人漂移成路人”的问题。
+
+## 1.3 场景连续性硬规则
+
+- 顶层必须存在 `scene_continuity_bible`，至少包含 `default_rule` 与 `scene_locks[]`。
+- 每个 `scene_lock` 推荐最少包含：`scene_id`、`name`、`anchor_prompt`。`anchor_prompt` 应锁住建筑/地标/道具/光线/时段/空间朝向，而不是只写“同一地点”。
+- 每页必须通过 `scene_id` 回指一个已定义场景；页级 prompt 需要显式带入该场景名和连续性语义。
+
 ## 2. 页面 prompt 最佳骨架
 
 每页 `positive_prompt` 推荐顺序：
@@ -29,7 +48,12 @@
    - `irregular classic manga page layout`
    - 明确 panel 比例、跨格、斜切、inset、splash、破框 SFX、黑 gutter 等。
 3. `Continuity Locks`
-   - 主角固定短语、服装、关键识别物。
+   - 先注入 `main_character_lock.anchor_prompt`。
+   - 再写当前页 `active_character_ids` 对应角色的名字与其他角色锁。
+   - 推荐直接采用 `Character locked across all panels: [name], [species/body/face/costume/material/color], consistent face, costume, silhouette and color palette in every panel and every page.` 这种高密度锚定句。
+   - 若是多人页，补 `all listed recurring characters remain visually consistent and clearly distinguishable` 一类协同语义。
+   - 再注入 `scene_continuity_bible.scene_locks[scene_id].anchor_prompt`。
+   - 再写 `place page number "N" in the bottom-right corner, digits only`。
    - 每页必须显式写入“保持角色和场景一致性”的等价语义；英文推荐短语：`keep character and scene consistency across all pages`。
 4. `Panel Blocks`
    - 每格镜头、动作、情绪、环境、光线、漫画技法。
@@ -143,4 +167,16 @@ nine-grid collage, single image collage, contact sheet, nine variations of the s
 
 ```text
 Keep character and scene consistency across all pages.
+```
+
+以及页码约束：
+
+```text
+Place a small page number in the bottom-right corner of every page, using digits 1-9 only.
+```
+
+页级 `positive_prompt` 推荐固定骨架：
+
+```text
+vertical 9:16 comic page, [layout grammar], Character locked across all panels: [main character anchor prompt], [all active recurring characters with stable and distinguishable appearance], Scene locked across relevant pages: [scene anchor prompt], place page number "[N]" in the bottom-right corner, digits only, keep character and scene consistency across all pages, [panel actions], [text slots], [overall mood]
 ```

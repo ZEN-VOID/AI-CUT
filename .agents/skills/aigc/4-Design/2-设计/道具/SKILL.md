@@ -61,6 +61,9 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/2-设计/道具/templates/prop_masterprompt.structured.v2.md`
 - `.agents/skills/aigc/4-Design/1-清单/道具/SKILL.md`
 - `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
+- `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+- `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ### 固定输出落点
 
@@ -94,6 +97,8 @@ governance_tier: full
 | shared output | `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md` | 全局风格前缀、完整 prompt 与同目录同名图片快路径真源 |
 | image execution | `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 默认后台批量并发执行模式真源 |
 | Markdown 模板 | `.agents/skills/aigc/4-Design/2-设计/道具/templates/prop_masterprompt.structured.v2.md` | 逐道具 Markdown projection 的固定结构真源 |
+| shared supervision | `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md` | 输出后 `team.yaml -> reviewer -> subagents council` 的阶段收尾真源 |
+| team runtime | `projects/aigc/<项目名>/team.yaml` | 当前项目 `4-Design` closeout 的 refine / review-gate / subagents runtime 真源 |
 
 ## Visual Maps
 
@@ -126,7 +131,8 @@ stateDiagram-v2
     DraftingCards --> Audited
     Audited --> WrittenBack
     WrittenBack --> CompatProjected
-    CompatProjected --> [*]
+    CompatProjected --> SupervisionReviewed
+    SupervisionReviewed --> [*]
     IntakeLocked --> ReworkInput: FAIL-PROP-DESIGN-INPUT
     ContextPacked --> ReworkContext: FAIL-PROP-DESIGN-CONTEXT
     DraftingCards --> ReworkDraft: FAIL-PROP-DESIGN-CARD
@@ -319,6 +325,30 @@ stateDiagram-v2
 - `gate`
   - 正式结案前必须有同目录同 stem 图片，除非用户显式要求 dry-run 或跳过图片；纯道具门禁失败时不得调用生图，必须回到 `NODE-PROP-DESIGN-03`。
 
+### NODE-PROP-DESIGN-06 输出后监制强化
+
+- `objective`
+  - 在道具 canonical 输出写完后，依据项目根 `team.yaml` 启动设计向 reviewer subagents 做监制强化收尾。
+- `inputs`
+  - 当前轮 `<prop_id>-<canonical_name>.md`
+  - 当前轮 `_manifest.json`
+  - `projects/aigc/<项目名>/team.yaml`
+  - `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+- `actions`
+  1. 按共享合同确认当前轮 closeout 是否允许进入，并区分 stage-end refine 与 `4-Design` final-stage gate。
+  2. 显式 reviewer 先取 `roles.supervision.members`；若 `4-Design` final-stage gate 存在则并入 `roles.review.members`；再读 `team_setup.shared_agents`。
+  3. 若显式 reviewer 不足，则按道具目标补入 `张叔平 + 叶锦添`。
+  4. 在 `use_subagents_by_default == true` 且环境支持时，真实启动 reviewer subagents。
+  5. 主代理汇流 reviewer 结论，只 patch 当前轮道具输出，并按需补阶段 `validation-report.md`。
+- `evidence`
+  - `supervision_review_note`
+  - `subagent_supervision_result`
+- `route_out`
+  - 监制强化完成 -> final output
+  - reviewer 解析失败或被错误降级 -> `FAIL-PROP-DESIGN-SUPERVISION-REVIEW`
+- `gate`
+  - 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council。
+
 ## Commands
 
 ```bash
@@ -447,6 +477,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `FIELD-PROP-DESIGN-06` | optional compat JSON | 只能由 Markdown 主稿投影 | `NODE-PROP-DESIGN-04` | compat 分层正确性 | `FAIL-PROP-DESIGN-AUDIT` |
 | `FIELD-PROP-DESIGN-07` | `<prop_id>-<canonical_name>.<ext> / _manifest.json.auto_image` | 自动生图使用含全局风格前缀的完整 prompt，默认后台批量并发提交，图片与设计文件同目录同 stem | `NODE-PROP-DESIGN-05` | auto image completeness | `FAIL-PROP-DESIGN-AUTO-IMAGE` |
 | `FIELD-PROP-DESIGN-08` | `*.md / prompt整合 / auto_image preflight` | 道具图必须是纯道具参照；使用、触碰、手持或角色动作只能转写为器物表面、功能端、受力点、状态痕迹或离屏使用语境 | `NODE-PROP-DESIGN-03` / `NODE-PROP-DESIGN-05` | reference cleanliness | `FAIL-PROP-DESIGN-REFERENCE-CONTAMINATION` |
+| `FIELD-PROP-DESIGN-09` | current-round outputs / supervision review | 输出后必须读取项目根 `team.yaml`，按共享收尾合同裁定当前轮 closeout、reviewer 顺序与道具设计型补选，并只 patch 当前轮道具文件 | `NODE-PROP-DESIGN-06` | council closeout | `FAIL-PROP-DESIGN-SUPERVISION-REVIEW` |
 
 ## Thought Pass Map
 
@@ -457,6 +488,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `S3` | `FIELD-PROP-DESIGN-02` / `03` / `04` / `08` | 如何把事实上收束为三段式 Markdown，并把手持/使用逻辑转写为纯道具参照 | 写 `物语 / 解构 / prompt整合 / reference_cleanliness_note` | prompt 与前文事实断链；纯道具锚句缺失 |
 | `S4` | `FIELD-PROP-DESIGN-05` / `06` | 如何审计并决定 compat projection | 写 manifest，并按需导出 compat JSON | compat JSON 被误当成默认主稿 |
 | `S5` | `FIELD-PROP-DESIGN-07` / `08` | 如何用完整且通过纯道具门禁的 prompt 自动生成同名图片 | 复验 `isolated pure prop view / no hands / no characters`，默认后台批量并发调用 nano-banana general 并更新 manifest | 后台提交缺追踪、图片缺失、不同名、prompt 缺全局前缀或纯道具门禁失败 |
+| `S6` | `FIELD-PROP-DESIGN-09` | 如何在道具输出完成后做 `team.yaml` 驱动的监制强化 | 读取 `team.yaml`、共享收尾合同，裁定当前轮 closeout 是否可进入，解析显式 reviewer、可选 `4-Design review gate members` 与道具设计型补选，并真实启动 reviewer subagents 回写当前轮文件 | reviewer 命中阶段 skill；`source_skill_refs` 被误当授权字段；`use_subagents_by_default=true` 仍被本地模拟；输出未经过 council 即结案 |
 
 ## Pass Table
 
@@ -470,6 +502,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 | `FIELD-PROP-DESIGN-06` | compat JSON 仅在显式模式下导出 | `FAIL-PROP-DESIGN-AUDIT` | `NODE-PROP-DESIGN-04` |
 | `FIELD-PROP-DESIGN-07` | 默认提交态含 `background_submitted/request_batch_path/background_log`；最终验收时 `<prop_id>-<canonical_name>.<ext>` 已由 `full_generation_prompt` 生成，且 stem 与 Markdown 一致 | `FAIL-PROP-DESIGN-AUTO-IMAGE` | `NODE-PROP-DESIGN-05` |
 | `FIELD-PROP-DESIGN-08` | `Integrated prompt` 含 `isolated pure prop view / no hands / no characters`，且不正向要求手、身体局部、持有者、角色或复杂场景 | `FAIL-PROP-DESIGN-REFERENCE-CONTAMINATION` | `NODE-PROP-DESIGN-03` |
+| `FIELD-PROP-DESIGN-09` | `team.yaml` 已读取，当前轮 closeout 已按共享合同完成 refine / gate 分层裁定，reviewer 解析遵循共享合同，且在允许时真实启动 reviewer subagents 完成道具输出收尾 | `FAIL-PROP-DESIGN-SUPERVISION-REVIEW` | `NODE-PROP-DESIGN-06` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -482,6 +515,10 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 - nano-banana prompt 缺失 `global_style_prefix`
 - 特殊叙事道具在设计卡里被压平为普通摆件
 - compat JSON 与 Markdown 主稿内容漂移
+- 把 `4-Design` 的 stage-end refine 与 final-stage review gate 混成同一条权限线
+- 道具输出已落盘，但没有读取项目根 `team.yaml` 做监制强化
+- 把 `roles.supervision.source_skill_refs` 误当 reviewer skill，导致 reviewer 选成阶段合同而非 `.agents/skills/team/` 技能
+- `runtime_policy.use_subagents_by_default == true` 时，仍用本地顺序模拟冒充道具 council
 
 必经链路：
 
@@ -495,6 +532,9 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
   - `.agents/skills/aigc/4-Design/2-设计/道具/_shared/IO_CONTRACT.md`
   - `.agents/skills/aigc/4-Design/2-设计/道具/templates/prop_masterprompt.structured.v2.md`
   - `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
+  - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+  - `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+  - `projects/aigc/<项目名>/team.yaml`
   - `.agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py`
   - `.agents/skills/aigc/4-Design/2-设计/道具/scripts/build_prop_design_packets.py`
 - `Meta Rule Source`
@@ -509,6 +549,13 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 2. immediate fix
 3. systemic prevention fix
 
+## Subagents 监制强化收尾（Mandatory）
+
+1. `NODE-PROP-DESIGN-05` 完成后不得直接结案，必须进入 `NODE-PROP-DESIGN-06`。
+2. reviewer precedence、manual override、structured summary 与 subagent gate 全部以 `_shared/subagent-supervision-contract.md` 为准；本 leaf 只声明道具型补选差异。
+3. 当前轮输出的 design supplement 为 `张叔平 -> 叶锦添`。
+4. 监制强化只允许 patch 当前轮 `<prop_id>-<canonical_name>.md / _manifest.json`，并按需补阶段 `validation-report.md`；不得另起 reviewer 平行总稿。
+
 ## Completion Criteria
 
 - 已建立 `2-设计/道具` 的单文档知行合一合同
@@ -517,3 +564,4 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/run_design_auto_im
 - 已保证 `**prompt整合**` 可被 `3-面板` 与后续图像链稳定提取
 - 已保证逐道具 Markdown 严格绑定 `templates/prop_masterprompt.structured.v2.md`，并在 `prompt整合` 中包含正确全局风格前缀
 - 已使用含统一全局风格前缀的 `full_generation_prompt` 默认后台批量并发提交同目录同名图片请求；最终验收时图片同 stem 存在
+- 已按 `team.yaml + _shared/subagent-supervision-contract.md` 完成当前轮道具输出的 `subagents` 监制强化，并把有效建议回写到当前轮文件

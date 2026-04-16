@@ -8,12 +8,12 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: 11123
-current_lines: 150
-current_cases: 0
+current_chars: 11693
+current_lines: 153
+current_cases: 13
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-15T15:09:14Z
+last_checked_at: 2026-04-16T03:50:07Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
@@ -26,6 +26,10 @@ last_checked_at: 2026-04-15T15:09:14Z
 | `TM-NB-01` | 下游生成九宫格拼图 | 顶层生成合同 | 在 `hard_constraints` 与 master prompt 写明 9 separate images/pages, not collage | schema 和脚本检查禁拼图约束 | 3 号技能 dry-run prompt 含 hard constraints |
 | `TM-NB-02` | 九张图像同一画面的变体 | 故事切页层 | 重做 `story_beat_map[9]`，每页必须有不同动作目标和情绪转折 | 每页 `page_role / narrative_function` 必填 | 9 页标题连读能形成剧情链 |
 | `TM-NB-03` | 角色在各页漂移 | 连续性层 | 补 `character_locks`，把脸型、服装、道具、色彩写成复用短语 | 每页 prompt 必须引用角色锁 | 主角描述不靠临场自由发挥 |
+| `TM-NB-13` | 已经写了 `character_locks`，但主角脸/毛色/服装仍跨页漂移 | 主角锚定真源缺失层 | 新增唯一 `main_character_lock`，用 `Character locked across all panels: [name], ...` 高密度锚定句锁主角，再把该句逐页注入 `positive_prompt` | `SKILL.md`、reference、template、schema、validator 同步要求 `main_character_lock` 为必填，并校验每页 prompt 含主角锚定语句 | 页面 prompt 中既能看到主角姓名，也能看到稳定脸/服装/轮廓语义 |
+| `TM-NB-14` | 多角色同页时，主角稳定但配角脸/服装/身高关系漂移 | 群像协同真源缺失层 | 把 recurring characters 升级为具名 `character_locks`，并在每页显式写 `active_character_ids`；多人页 prompt 必须点名出场角色并要求 `visually consistent and clearly distinguishable` | schema、template、validator、master prompt 同步要求多人页声明 active ids 且 prompt 提到这些角色 | 多人页 prompt 能读到所有出场 recurring character 的名字或稳定身份 |
+| `TM-NB-15` | 同一地点跨页建筑/地标/光线漂移，像换了场景 | 场景锚定真源缺失层 | 新增 `scene_continuity_bible.scene_locks[]`，每页通过 `scene_id` 绑定场景锁，并把场景锚定句写进 page prompt | `SKILL.md`、reference、template、schema、validator、3 号编译器同步要求场景锁与 page scene_id | page prompt 中能读到场景名和稳定建筑/地标/光线语义 |
+| `TM-NB-16` | 最终漫画页没有页码，或页码不是右下角纯数字 | 页码覆盖层缺失 | 在顶层 hard constraints 和每页 `page_number_overlay` 中同时声明 `bottom-right` + `digits only` + 当前页数字 | 2 号 schema/template/validator 与 3 号编译器同时固化页码合同 | dry-run master prompt 与页级 prompt 都明确写出右下角数字页码 |
 | `TM-NB-12` | 角色锁存在但生成时仍出现人物或场景漂移 | 页级提示词显式约束层 | 在每页 `positive_prompt` 的版式之后固定写入 `keep character and scene consistency across all pages` 或等价语义 | `SKILL.md`、reference、模板和 validator 同步要求 hard constraints 与每页 prompt 都包含角色/场景一致性语义 | validator 对缺少一致性语义的 hard constraints 或 page prompt 报错 |
 | `TM-NB-04` | 页面像电影分镜，不像漫画页 | 漫画语法层 | 增加 panel borders、gutter、caption、SFX、speed lines、inset panel 等漫画技法 | 版式库在 reference 中固定 | 每页至少一个漫画技法标签 |
 | `TM-NB-05` | 文本气泡不可读或挤压画面 | 文字系统层 | 对白压短，旁白进 caption，独白与对白分离 | `comic_text_system` 固定四类文本槽 | 每个 text slot 类型明确 |
@@ -52,7 +56,12 @@ last_checked_at: 2026-04-15T15:09:14Z
 - Seedream 已验证支持一次请求返回 9 张独立图片；提示词 JSON 的职责是让这 9 张“各有剧情功能”，不是把九页压成九宫格。
 - 每页内部可以是三格、二格、四格或 splash + inset；九页之间不要都用同一版式。
 - 页级 prompt 最稳的结构是：页面版式 -> 角色锁 -> panels -> 文本槽 -> overall -> negative。
+- 对连续 9 页漫画，`character_locks` 只能描述角色表，不能替代主角锚。最稳结构是：页面版式 -> `main_character_lock.anchor_prompt` -> 角色/场景一致性语义 -> panels -> 文本槽 -> overall -> negative。
+- 多人页要稳定，不能只靠 `character_locks` 存在于 JSON 顶层。必须把当页 `active_character_ids` 对应的角色名或身份锚点直接打进 `positive_prompt`，否则模型会把配角当成可自由漂移的背景路人。
 - 对连续多页漫画，`character_locks/location_locks` 是结构锁，但模型生成时仍需要在每页 `positive_prompt` 显式看到角色与场景一致性短语；该短语应放在版式说明之后、具体动作之前，避免被单页动作描述稀释。
+- 当用户已经给出高密度人物锁定句时，不要把它拆散到多个字段后期待模型自己拼回去；应保留为 `main_character_lock.anchor_prompt`，逐页原样或近原样注入。
+- 场景连续性最稳的方式不是抽象写 `same location`，而是给出具名场景锁：场景名 + 建筑/地标 + 光线/时段 + 空间朝向，再由每页 `scene_id` 显式回指。
+- 页码要进最终图，必须让它既存在于结构字段，也存在于页级 prompt 和 master prompt；只在 JSON 里存一个 `page_number` 数字并不会自动出现在图上。
 - 中文气泡要短，旁白比对白更适合承载解释，SFX 只承载动作声音。
 - 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链与 Seedream 单请求机制成立；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换。
 - 对 Seedream 连续 9 页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。

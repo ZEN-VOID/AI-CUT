@@ -632,18 +632,21 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(
             f"{init_skill}: 0-Init must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
         )
-    if "其余情况默认进入 `自主问答模式`。" in init_content:
-        failures.append(
-            f"{init_skill}: ambiguous mode-gate wording detected; `自主问答模式` may be the default card option but must not auto-lock before user confirmation"
-        )
-    if "默认前台建议是 `自主问答模式`，但这只是初始化元选项卡的默认展示项，不等于自动锁定。" not in init_content:
-        failures.append(
-            f"{init_skill}: missing explicit rule that the default init card option must not auto-lock `init_mode`"
-        )
-    if "只有收到用户选择或命中强制路由信号后才能锁定模式" not in init_content:
-        failures.append(
-            f"{init_skill}: missing explicit gate that mode lock requires either user confirmation or a forced routing signal"
-        )
+    for removed_mode in ("主创会诊模式", "快速成案模式", "自主问答模式"):
+        if f"| {removed_mode} |" in init_content:
+            failures.append(f"{init_skill}: legacy init mode `{removed_mode}` should not remain in the active mode table")
+    if "`0-Init` 现只允许 `init_mode == smart_advisor`；旧的 `主创会诊模式 / 快速成案模式 / 自主问答模式` 全部失效。" not in init_content:
+        failures.append(f"{init_skill}: missing explicit single-mode smart-advisor rule for 0-Init")
+    if "开场必须展示“初始化元选项卡”，让用户在 `自动组队 / 自定义组队` 间拍板；不得无确认自动锁 `team_lineup_mode`。" not in init_content:
+        failures.append(f"{init_skill}: missing explicit gate that `team_lineup_mode` must be user-confirmed")
+    if "固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。" not in init_content:
+        failures.append(f"{init_skill}: missing execution-step lock for `smart_advisor` plus `auto/custom` lineup choice")
+    if "planning interview 必须真实使用 subagents" not in init_content:
+        failures.append(f"{init_skill}: missing mandatory subagent rule for the planning interview")
+    if "若 subagents 不可用，本轮初始化停止并报告阻塞" not in init_content:
+        failures.append(f"{init_skill}: missing block-and-report rule when init interview subagents are unavailable")
+    if "selector_scope_root" not in init_content or ".agents/skills/team/" not in init_content:
+        failures.append(f"{init_skill}: missing explicit selector-scope rule for `.agents/skills/team/`")
     if "## Story Source Completeness Gate (Mandatory)" not in init_content:
         failures.append(f"{init_skill}: missing `Story Source Completeness Gate (Mandatory)`")
     if "## Story Source Reconciliation Contract (Mandatory)" not in init_content:
@@ -675,6 +678,19 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
     init_openai = ROOT / "0-Init" / "agents" / "openai.yaml"
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
         failures.append(f"{init_openai}: should not reference external init-agent contracts")
+
+    team_template = ROOT / "_shared" / "council-runtime" / "team.template.yaml"
+    if team_template.exists():
+        team_template_content = team_template.read_text(encoding="utf-8")
+        for required_marker in (
+            'init_mode: "smart_advisor"',
+            'team_lineup_mode: "auto"',
+            'selector_scope_root: ".agents/skills/team/"',
+            'require_subagents_for_init_interview: true',
+            'init_interview_owner_role: "planning"',
+        ):
+            if required_marker not in team_template_content:
+                failures.append(f"{team_template}: missing smart-advisor team marker `{required_marker}`")
 
     refs_root = ROOT / "0-Init" / "references"
     if refs_root.exists():

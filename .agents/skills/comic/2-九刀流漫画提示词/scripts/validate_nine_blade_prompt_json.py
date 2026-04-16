@@ -14,6 +14,7 @@ REQUIRED_HARD_CONSTRAINTS = [
     "9 separate",
     "nine-grid",
     "variations of the same scene",
+    "multiple comic panels",
 ]
 
 STYLE_KEYWORDS = [
@@ -24,7 +25,7 @@ STYLE_KEYWORDS = [
     "ink",
     "line art",
     "screentone",
-    "SFX",
+    "sfx",
     "printed",
 ]
 
@@ -43,6 +44,12 @@ DYNAMIC_LAYOUT_KEYWORDS = [
     "noir",
 ]
 
+MAIN_CHARACTER_ANCHOR_KEYWORDS = [
+    "character locked across all panels",
+    "consistent face",
+    "consistent costume",
+]
+
 
 def _self_test_data() -> dict[str, Any]:
     pages: list[dict[str, Any]] = []
@@ -58,16 +65,38 @@ def _self_test_data() -> dict[str, Any]:
         "noir-evidence-strip",
     ]
     for page_number in range(1, 10):
+        active_character_ids = (
+            ["protagonist", "companion"] if page_number in {2, 3, 4, 6} else ["protagonist"]
+        )
+        prompt_parts = [
+            "cinematic comic page, vertical 9:16 aspect ratio",
+            f"Page {page_number}",
+            "Character locked across all panels: Sun Wukong, a muscular monkey demon with golden fur, consistent face, consistent costume, consistent silhouette",
+        ]
+        if len(active_character_ids) >= 2:
+            prompt_parts.append(
+                "Zhu Bajie remains visually consistent and clearly distinguishable with heavy build, round snout, patched vest"
+            )
+        prompt_parts.extend(
+            [
+                "scene locked across relevant pages: Thunder Gate Courtyard, black stone gate, lightning totems, consistent architecture and landmark props",
+                f"place page number \"{page_number}\" in the bottom-right corner, digits only",
+                "keep character and scene consistency across all pages",
+                f"unique visible action {page_number}",
+            ]
+        )
         pages.append(
             {
                 "page_number": page_number,
                 "page_role": f"story beat {page_number}",
                 "source_fragment": f"source fragment {page_number}",
+                "active_character_ids": active_character_ids,
+                "scene_id": "thunder_gate",
                 "layout": {
                     "aspect_ratio": "9:16",
                     "layout_id": layout_ids[page_number - 1],
-                    "panel_count": 1,
-                    "panel_ratios": ["dominant irregular panel with inset/reaction area"],
+                    "panel_count": 2,
+                    "panel_ratios": ["dominant irregular panel 70%", "supporting inset/reaction panel 30%"],
                 },
                 "panels": [
                     {
@@ -78,13 +107,24 @@ def _self_test_data() -> dict[str, Any]:
                         "text_slots": [
                             {"type": "narration", "text": f"第{page_number}页"}
                         ],
+                    },
+                    {
+                        "panel_id": f"{page_number}B",
+                        "shot": "supporting reaction or detail panel",
+                        "action": f"supporting visible action {page_number}",
+                        "comic_techniques": ["reaction inset"],
+                        "text_slots": [],
                     }
                 ],
-                "positive_prompt": (
-                    f"cinematic comic page, vertical 9:16 aspect ratio, "
-                    f"Page {page_number}, keep character and scene consistency "
-                    f"across all pages, unique visible action {page_number}"
-                ),
+                "page_number_overlay": {
+                    "text": str(page_number),
+                    "position": "bottom-right",
+                    "style_prompt": (
+                        f"place page number \"{page_number}\" in the bottom-right corner, "
+                        "digits only, small but readable"
+                    ),
+                },
+                "positive_prompt": ", ".join(prompt_parts),
             }
         )
     return {
@@ -99,7 +139,36 @@ def _self_test_data() -> dict[str, Any]:
                 "Generate exactly 9 separate images/pages.",
                 "Do not create a nine-grid collage.",
                 "Do not create nine variations of the same scene.",
+                "Every page must contain multiple comic panels, never a single full-page illustration.",
                 "Keep character and scene consistency across all pages.",
+                "Place a small page number in the bottom-right corner of every page, using digits 1-9 only.",
+            ],
+        },
+        "main_character_lock": {
+            "character_id": "protagonist",
+            "name": "Sun Wukong",
+            "anchor_prompt": (
+                "Character locked across all panels: Sun Wukong, "
+                "a muscular monkey demon with golden fur, a pronounced thunder-god mouth, "
+                "sunken eyes with bright golden pupils, wearing a tattered grey-brown Daoist robe, "
+                "consistent face, costume, silhouette and color palette in every panel and every page."
+            ),
+        },
+        "scene_continuity_bible": {
+            "default_rule": (
+                "Keep recurring locations consistent in architecture, landmark props, "
+                "lighting mood, and spatial geography across all relevant pages."
+            ),
+            "scene_locks": [
+                {
+                    "scene_id": "thunder_gate",
+                    "name": "Thunder Gate Courtyard",
+                    "anchor_prompt": (
+                        "Scene locked across relevant pages: Thunder Gate Courtyard, "
+                        "black stone gate, lightning totems, cracked steps, storm-dark sky, "
+                        "consistent architecture, landmark props, lighting mood and spatial geography."
+                    ),
+                }
             ],
         },
         "style_bible": {
@@ -111,7 +180,16 @@ def _self_test_data() -> dict[str, Any]:
                 "oversized SFX",
             ],
         },
-        "character_locks": [],
+        "character_locks": [
+            {
+                "character_id": "companion",
+                "name": "Zhu Bajie",
+                "anchor_prompt": (
+                    "Character locked across all relevant pages: Zhu Bajie, heavy build, "
+                    "round snout, patched vest, clearly distinguishable from Sun Wukong."
+                ),
+            }
+        ],
         "comic_text_system": {"narration": "rectangular caption box"},
         "pages": pages,
         "global_negative_prompt": (
@@ -143,6 +221,30 @@ def _has_character_scene_consistency(text: str) -> bool:
         or "continuity" in lower
     )
     return has_character and has_scene and has_consistency
+
+
+def _has_main_character_anchor(text: str, character_name: str) -> bool:
+    lower = text.lower()
+    if character_name.lower() not in lower:
+        return False
+    return any(keyword in lower for keyword in MAIN_CHARACTER_ANCHOR_KEYWORDS)
+
+
+def _has_bottom_right_numeric_page_number(text: str, page_number: int) -> bool:
+    lower = text.lower()
+    has_position = "bottom-right" in lower or "bottom right" in lower
+    has_numeric_only = (
+        "digits only" in lower
+        or "numeric only" in lower
+        or "pure digits" in lower
+    )
+    has_number = f"\"{page_number}\"" in text or f" {page_number} " in f" {text} "
+    return has_position and has_numeric_only and has_number
+
+
+def _mentioned_names(text: str, names: list[str]) -> list[str]:
+    lower = text.lower()
+    return [name for name in names if name.lower() in lower]
 
 
 def _stringify(value: Any) -> str:
@@ -178,21 +280,108 @@ def validate(data: dict[str, Any]) -> list[str]:
     for needle in REQUIRED_HARD_CONSTRAINTS:
         if not _contains(hard_constraints, needle):
             errors.append(f"hard_constraints must mention {needle!r}")
-    if not _has_character_scene_consistency(" ".join(hard_constraints)):
+    joined_constraints = " ".join(hard_constraints)
+    if not _has_character_scene_consistency(joined_constraints):
         errors.append(
             "hard_constraints must explicitly require character and scene consistency"
+        )
+    if "bottom-right" not in joined_constraints.lower() or "digits 1-9 only" not in joined_constraints.lower():
+        errors.append(
+            "hard_constraints must require a bottom-right digits-only page number on every page"
         )
 
     seedream = contract.get("seedream", {})
     if isinstance(seedream, dict) and seedream.get("max_images") not in (None, 9):
         errors.append("generation_contract.seedream.max_images must be 9 when present")
 
+    main_character_lock = data.get("main_character_lock")
+    if not isinstance(main_character_lock, dict):
+        errors.append("main_character_lock must be an object")
+        main_character_lock = {}
+    main_character_id = str(main_character_lock.get("character_id", "")).strip()
+    main_character_name = str(main_character_lock.get("name", "")).strip()
+    main_character_anchor = str(main_character_lock.get("anchor_prompt", "")).strip()
+    if not main_character_id:
+        errors.append("main_character_lock.character_id must be a non-empty string")
+    if not main_character_name:
+        errors.append("main_character_lock.name must be a non-empty string")
+    if len(main_character_anchor) < 40:
+        errors.append("main_character_lock.anchor_prompt must be a detailed anchor string")
+    else:
+        anchor_lower = main_character_anchor.lower()
+        if "character locked across all panels" not in anchor_lower:
+            errors.append(
+                "main_character_lock.anchor_prompt should include 'Character locked across all panels'"
+            )
+        if "consistent" not in anchor_lower:
+            errors.append(
+                "main_character_lock.anchor_prompt should explicitly describe stable appearance semantics"
+            )
+        if main_character_name and main_character_name.lower() not in anchor_lower:
+            errors.append(
+                "main_character_lock.anchor_prompt must include main_character_lock.name"
+            )
+
+    scene_continuity_bible = data.get("scene_continuity_bible")
+    scene_names_by_id: dict[str, str] = {}
+    if not isinstance(scene_continuity_bible, dict):
+        errors.append("scene_continuity_bible must be an object")
+        scene_continuity_bible = {}
+    default_rule = str(scene_continuity_bible.get("default_rule", "")).strip()
+    if len(default_rule) < 20:
+        errors.append("scene_continuity_bible.default_rule must be a descriptive rule")
+    scene_locks = scene_continuity_bible.get("scene_locks")
+    if not isinstance(scene_locks, list) or not scene_locks:
+        errors.append("scene_continuity_bible.scene_locks must be a non-empty array")
+        scene_locks = []
+    for index, scene_lock in enumerate(scene_locks, start=1):
+        if not isinstance(scene_lock, dict):
+            errors.append(f"scene_continuity_bible.scene_locks[{index}] must be an object")
+            continue
+        scene_id = str(scene_lock.get("scene_id", "")).strip()
+        scene_name = str(scene_lock.get("name", "")).strip()
+        anchor_prompt = str(scene_lock.get("anchor_prompt", "")).strip()
+        if not scene_id:
+            errors.append(f"scene_continuity_bible.scene_locks[{index}].scene_id must be non-empty")
+            continue
+        if not scene_name:
+            errors.append(f"scene_continuity_bible.scene_locks[{index}].name must be non-empty")
+        if len(anchor_prompt) < 40:
+            errors.append(
+                f"scene_continuity_bible.scene_locks[{index}].anchor_prompt must be detailed"
+            )
+        scene_names_by_id[scene_id] = scene_name
+
+    character_names_by_id: dict[str, str] = {}
+    if main_character_id:
+        character_names_by_id[main_character_id] = main_character_name
+
+    character_locks = data.get("character_locks")
+    if not isinstance(character_locks, list):
+        errors.append("character_locks must be an array")
+        character_locks = []
+    for index, lock in enumerate(character_locks, start=1):
+        if not isinstance(lock, dict):
+            errors.append(f"character_locks[{index}] must be an object")
+            continue
+        character_id = str(lock.get("character_id", "")).strip()
+        name = str(lock.get("name", "")).strip()
+        anchor_prompt = str(lock.get("anchor_prompt", "")).strip()
+        if not character_id:
+            errors.append(f"character_locks[{index}].character_id must be non-empty")
+            continue
+        if not name:
+            errors.append(f"character_locks[{index}].name must be non-empty")
+        if len(anchor_prompt) < 20:
+            errors.append(f"character_locks[{index}].anchor_prompt must be descriptive")
+        character_names_by_id[character_id] = name
+
     style_bible = data.get("style_bible")
     if not isinstance(style_bible, dict):
         errors.append("style_bible must be an object")
         style_bible = {}
     style_text = _stringify(style_bible).lower()
-    style_hits = [keyword for keyword in STYLE_KEYWORDS if keyword.lower() in style_text]
+    style_hits = [keyword for keyword in STYLE_KEYWORDS if keyword in style_text]
     if len(style_hits) < 3:
         errors.append(
             "style_bible must include sharper comic style grammar, "
@@ -238,6 +427,50 @@ def validate(data: dict[str, Any]) -> list[str]:
             panels = []
         if isinstance(panel_count, int) and panel_count != len(panels):
             errors.append(f"pages[{i}].layout.panel_count must match panels length")
+        if isinstance(panel_count, int) and panel_count < 2:
+            errors.append(f"pages[{i}].layout.panel_count must be at least 2 for a multi-panel comic page")
+        if isinstance(panels, list) and len(panels) < 2:
+            errors.append(f"pages[{i}].panels must contain at least 2 panels for a multi-panel comic page")
+
+        active_character_ids = page.get("active_character_ids")
+        if not isinstance(active_character_ids, list) or not active_character_ids:
+            errors.append(f"pages[{i}].active_character_ids must be a non-empty array")
+            active_character_ids = []
+        else:
+            unknown_character_ids = [
+                character_id
+                for character_id in active_character_ids
+                if character_id not in character_names_by_id
+            ]
+            if unknown_character_ids:
+                errors.append(
+                    f"pages[{i}].active_character_ids contains unknown ids: {unknown_character_ids}"
+                )
+
+        scene_id = str(page.get("scene_id", "")).strip()
+        if not scene_id:
+            errors.append(f"pages[{i}].scene_id must be a non-empty string")
+        elif scene_id not in scene_names_by_id:
+            errors.append(f"pages[{i}].scene_id must reference scene_continuity_bible.scene_locks")
+
+        page_number_overlay = page.get("page_number_overlay")
+        if not isinstance(page_number_overlay, dict):
+            errors.append(f"pages[{i}].page_number_overlay must be an object")
+            page_number_overlay = {}
+        else:
+            overlay_text = str(page_number_overlay.get("text", "")).strip()
+            if overlay_text != str(i):
+                errors.append(f"pages[{i}].page_number_overlay.text must equal '{i}'")
+            position = str(page_number_overlay.get("position", "")).strip().lower()
+            if position != "bottom-right":
+                errors.append(f"pages[{i}].page_number_overlay.position must be bottom-right")
+            style_prompt = str(page_number_overlay.get("style_prompt", "")).strip()
+            if len(style_prompt) < 20:
+                errors.append(f"pages[{i}].page_number_overlay.style_prompt must be descriptive")
+            elif not _has_bottom_right_numeric_page_number(style_prompt, i):
+                errors.append(
+                    f"pages[{i}].page_number_overlay.style_prompt must require bottom-right digits-only page number {i}"
+                )
 
         positive_prompt = page.get("positive_prompt")
         if not isinstance(positive_prompt, str) or not positive_prompt.strip():
@@ -245,10 +478,37 @@ def validate(data: dict[str, Any]) -> list[str]:
         else:
             if "9:16" not in positive_prompt:
                 errors.append(f"pages[{i}].positive_prompt must mention 9:16")
+            if main_character_name and not _has_main_character_anchor(
+                positive_prompt, main_character_name
+            ):
+                errors.append(
+                    f"pages[{i}].positive_prompt must inject the main character anchor with {main_character_name}"
+                )
             if not _has_character_scene_consistency(positive_prompt):
                 errors.append(
                     f"pages[{i}].positive_prompt must mention character and scene consistency"
                 )
+            if not _has_bottom_right_numeric_page_number(positive_prompt, i):
+                errors.append(
+                    f"pages[{i}].positive_prompt must require bottom-right digits-only page number {i}"
+                )
+            if scene_id in scene_names_by_id:
+                scene_name = scene_names_by_id[scene_id]
+                if scene_name.lower() not in positive_prompt.lower():
+                    errors.append(
+                        f"pages[{i}].positive_prompt must mention the active scene lock name {scene_name!r}"
+                    )
+            if len(active_character_ids) >= 2:
+                active_names = [
+                    character_names_by_id[character_id]
+                    for character_id in active_character_ids
+                    if character_id in character_names_by_id
+                ]
+                mentioned = _mentioned_names(positive_prompt, active_names)
+                if len(mentioned) < 2:
+                    errors.append(
+                        f"pages[{i}].positive_prompt must mention at least two active recurring character names for multi-character pages"
+                    )
 
         for panel in panels:
             if not isinstance(panel, dict):

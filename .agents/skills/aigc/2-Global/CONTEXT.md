@@ -31,6 +31,10 @@
 | `全局风格` 最终字段混入具体景别、颜色、材质或摄影操作，导致下游被错误锁死 | 风格纯度层 | 将项目级统一前缀改回“媒介属性 + 渲染技术栈 + 美学范式 + 整体质感”的无污染底层协议 | 在 `SKILL.md`、模板、shared contract、schema 示例与项目产物中同步固化无污染过滤规则 | `全局风格` 可被 `3-Detail/4-Design/5-Image/6-Video` 继承而不预锁镜头规模 |
 | `剧本正文` 写入 shared root 时被摘要化 | 组壳写回层 | 强制将命中组全文完整整理入 `分镜组列表[].剧本正文`，仅移除重复组号标题 | 在 `group_design_seed_contract`、schema 与 `N6/N7` 审计中固化“完整入壳”规则 | 下游图像/视频提示词能继承完整组级文本 |
 | `全集类型元素.md` 与 `分组类型元素.md` 的思维节点混在一起，导致项目级总则和组级打法互相污染 | 类型组织层 | 将 `N3B` 固定为 `全集类型元素` 总则节点，将 `N3C` 固定为继承总则的 `分组类型元素` 节点，并为每组设置字段标题 `类型元素` | 在模板、节点网络、字段映射与 `N6` type inheritance check 中固定按组提取和继承规则；在 I/O 合同禁止新输出生成旧兼容投影 | `组间设计.类型元素` 与命中组一一对应，且可追溯到 `全集类型元素.md` 的项目级规则 |
+| 输出相关真源文件已经落盘，但 `2-Global` 没有再读取项目根 `team.yaml` 的监制配置做 stage-end 会审 | 阶段末端共享运行时层 | 在 `N8` 后追加 `N9-SUPERVISION-SUBAGENT-REFINE`，强制围绕本轮 canonical 文件执行 `roles.supervision` 会审 | 在 `SKILL.md`、`_shared/IO_CONTRACT.md` 与 shared `council-runtime/module-spec.md` 同时固化“首次写回后再会审”的阶段末端回路 | `2-Global` 输出后能自动进入 `team.yaml -> reviewer -> subagents -> 主 agent refine` 闭环 |
+| `roles.supervision.source_skill_refs` 被直接当 reviewer 使用，导致阶段 skill 与 reviewer skill 混淆 | reviewer 路由层 | 将 `source_skill_refs` 明确降级为 reviewer 匹配提示，不允许直接充当 reviewer | 在 `Subagents 监制强化` 合同与 shared `council-runtime/module-spec.md` 写死“最终 reviewer 真源必须落在 `.agents/skills/team/**/SKILL.md`” | `2-Global` 的监制会审 reviewer 来源可解释且不混淆层级 |
+| `runtime_policy.use_subagents_by_default == true` 时，`2-Global` 仍静默退回本地主 agent 模拟顾问团 | dispatch gate 层 | 为 `N9` 增加与 `master-check` 对齐的 `Subagent Dispatch Gate`，默认一 reviewer 一 subagent | 在思维·执行节点、shared runtime 与 I/O 命名真源中同步固定 `supervision_runtime_decision / supervision_report / supervision_patch_set` | 会审是否真实用了 subagents 可以被追溯，而不是只靠口头说明 |
+| `2-Global` 已有监制强化合同，但没有把 `team.template` 与 `master-check` 文档纳入显式预加载，导致三个阶段对 reviewer 设计依赖列表不一致 | reviewer 真源显式化层 | 把 `team.template.yaml` 与 `.codex/commands/master-check*.md` 补进 `Context Preload / Shared Canonical Sources` | 统一三阶段对监制强化上游合同的显式回链，避免后续只在某一阶段单边演化 | `2-Global / 3-Detail / 4-Design` 都能从主合同直接回读相同的 reviewer 设计真源 |
 | 旧的 `subagent_brief / agents_plan` 命名仍残留在 shared I/O | I/O 合同层 | 改写为内部 `global_style_plan / type_guidance_plan / director_intent_plan / convergence_report` 命名 | 将 `_shared/IO_CONTRACT.md` 作为唯一命名真源 | 不再出现外置导演组 handoff 语义 |
 | `2-Global` 源层仍残留扁平输出命名或 `1-Planning/2-剧本` 旧路径 | canonical naming/path 层 | 把主合同、入口 prompt、模板和根 skill 投影统一收束到 `全局风格.md`、`全集类型元素.md + 分组类型元素.md`、`导演意图.md` 与 `1-Planning/2-格式/第N集.md` | runtime 路径或 canonical filename 发生变化时，必须按 `shared carrier -> stage skill -> root projection -> context` 四层同步，不允许 validation-report 提前宣称完成 | `2-Global` 不再同时维护旧扁平命名和新 runtime 命名两套口径 |
 | `2-Global` 实际输出仍落到目录化旧结构，和根层四文件预期不符 | canonical output carrier 层 | 将 canonical 输出收束为 `全局风格.md / 导演意图.md / 全集类型元素.md / 分组类型元素.md`，并迁移示例项目旧文件 | 在 `IO_CONTRACT.md` 禁止新输出生成旧目录与 `类型元素.md` 兼容投影；同步 `SKILL.md`、模板、bootstrap skeleton、审计脚本和下游读取 fallback | 新项目只预建 `2-Global/` 阶段根；示例项目 `2-Global` 根层存在四个 Markdown，旧目录不再作为 canonical 输出 |
@@ -56,6 +60,10 @@
 - 参考作品不是只报片名，必须尽量下钻到具体桥段，并说明借鉴的是哪种处理逻辑；这样下游才知道是借镜头组织、气压控制还是信息揭示方式。
 - 对 `2-Global` 来说，最稳的跨阶段 handoff 不是再让 `3-Detail` 读四份长文，而是把三条 seed 字段压成 `组间设计.全局风格 / 类型元素 / 导演意图` 直接写入 shared episode root。
 - 当 `分镜切换` 已经被证明是 `水月 + 镜花` 的共同前置时，最稳的落点不是继续塞在 `镜花` 叶子里，而是由 `2-Global` 先写组级固定镜数。
+- 若项目根 `team.yaml` 启用了 `roles.supervision`，`2-Global` 最稳的闭环不是“写完就结束”，而是“先写 canonical，再让监制 reviewer 对这些真源做一次 stage-end refine，然后由主 agent 回写最小 patch”。
+- 对 `2-Global` 来说，`roles.supervision.members` 才是 stage-specific reviewer 的第一优先级；`team_setup.shared_agents` 只做补充，`roles.supervision.source_skill_refs` 只做 reviewer 匹配提示，不能直接拿阶段 skill 充当 reviewer。
+- `master-check-team` 的精髓不是“自动拉很多人”，而是“当 `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中时，默认真实起 subagents，而不是把本地模拟伪装成正常路径”；`2-Global` 的 stage-end 会审必须复用这条门禁语义。
+- 当 `2-Global`、`3-Detail` 与 `4-Design` 都接入监制强化时，`team.template.yaml + master-check-team.md + master-check.md` 应作为三者共同的显式 reviewer 设计上游，而不是只停留在 shared runtime 常识层。
 - `分镜切换` 不是抽象预算数字，必须先按 `媒介形态 + 平台形态 + 类型任务` 解释：漫画项目按面板密度裁定，短剧/竖屏短剧按高信息递送密度裁定；恐怖/悬疑可以慢停顿，但停顿必须承担信息或情绪功能，否则固定镜数虽然稳定，仍会把紧张感或爽感压扁。
 - 若 fixed-shot-count 接受逻辑已经稳定上收 `2-Global`，`3-Detail` 就不应再保留独立 `1-切换` 叶子；下游应直接把 inherited `分镜切换` 落成 `分镜构图` 的 shot spine。
 - `组间设计` 的三条继承句必须先在 Markdown 用同名字段定稿，再写入 shared root；JSON 阶段若还在“临场改句子”，等于真源已经分裂。

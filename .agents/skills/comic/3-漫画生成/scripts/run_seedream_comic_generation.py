@@ -24,10 +24,32 @@ def _now_stamp() -> str:
 def _self_test_data() -> dict[str, Any]:
     pages: list[dict[str, Any]] = []
     for page_number in range(1, 10):
+        active_character_ids = (
+            ["protagonist", "companion"] if page_number in {2, 3, 4, 6} else ["protagonist"]
+        )
+        positive_prompt_parts = [
+            "cinematic comic page, vertical 9:16 aspect ratio",
+            f"Page {page_number}",
+            "Character locked across all panels: Sun Wukong, golden fur, consistent face, consistent costume, consistent silhouette",
+        ]
+        if len(active_character_ids) >= 2:
+            positive_prompt_parts.append(
+                "Zhu Bajie remains visually consistent and clearly distinguishable with patched vest and round snout"
+            )
+        positive_prompt_parts.extend(
+            [
+                "scene locked across relevant pages: Thunder Gate Courtyard, black stone gate, lightning totems, consistent architecture and landmark props",
+                f"place page number \"{page_number}\" in the bottom-right corner, digits only",
+                f"unique visible action {page_number}",
+            ]
+        )
         pages.append(
             {
                 "page_number": page_number,
                 "page_role": f"story beat {page_number}",
+                "source_fragment": f"source fragment {page_number}",
+                "active_character_ids": active_character_ids,
+                "scene_id": "thunder_gate",
                 "layout": {
                     "aspect_ratio": "9:16",
                     "layout_id": "three-tier-dramatic",
@@ -44,22 +66,68 @@ def _self_test_data() -> dict[str, Any]:
                         ],
                     }
                 ],
-                "positive_prompt": (
-                    f"cinematic comic page, vertical 9:16 aspect ratio, "
-                    f"Page {page_number}, unique visible action {page_number}"
-                ),
+                "page_number_overlay": {
+                    "text": str(page_number),
+                    "position": "bottom-right",
+                    "style_prompt": (
+                        f"place page number \"{page_number}\" in the bottom-right corner, "
+                        "digits only, small but readable"
+                    ),
+                },
+                "positive_prompt": ", ".join(positive_prompt_parts),
             }
         )
     return {
+        "schema_version": "nine_blade_comic_prompts.v1",
         "generation_contract": {
+            "provider": "seedream",
+            "call_mode": "single_request_sequential",
+            "image_count": 9,
+            "page_aspect_ratio": "9:16",
             "hard_constraints": [
                 "Generate exactly 9 separate images/pages.",
                 "Do not create a nine-grid collage.",
                 "Do not create nine variations of the same scene.",
-            ]
+                "Keep character and scene consistency across all pages.",
+                "Place a small page number in the bottom-right corner of every page, using digits 1-9 only.",
+            ],
+        },
+        "main_character_lock": {
+            "character_id": "protagonist",
+            "name": "Sun Wukong",
+            "anchor_prompt": (
+                "Character locked across all panels: Sun Wukong, muscular monkey demon, golden fur, "
+                "consistent face, consistent costume, consistent silhouette."
+            ),
+        },
+        "scene_continuity_bible": {
+            "default_rule": (
+                "Keep recurring locations consistent in architecture, landmark props, "
+                "lighting mood, and spatial geography across all relevant pages."
+            ),
+            "scene_locks": [
+                {
+                    "scene_id": "thunder_gate",
+                    "name": "Thunder Gate Courtyard",
+                    "anchor_prompt": (
+                        "Scene locked across relevant pages: Thunder Gate Courtyard, "
+                        "black stone gate, lightning totems, cracked steps, storm-dark sky, "
+                        "consistent architecture, landmark props, lighting mood and spatial geography."
+                    ),
+                }
+            ],
         },
         "style_bible": {"base_style": "cinematic comic realism"},
-        "character_locks": [],
+        "character_locks": [
+            {
+                "character_id": "companion",
+                "name": "Zhu Bajie",
+                "anchor_prompt": (
+                    "Character locked across all relevant pages: Zhu Bajie, heavy build, "
+                    "round snout, patched vest, clearly distinguishable from Sun Wukong."
+                ),
+            }
+        ],
         "comic_text_system": {"narration": "rectangular caption box"},
         "pages": pages,
         "global_negative_prompt": "collage, nine variations, unreadable Chinese text, watermark",
@@ -84,22 +152,64 @@ def _text_block(title: str, value: Any) -> str:
     return f"\n## {title}\n{body}\n"
 
 
+def _character_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    main_character_lock = data.get("main_character_lock", {})
+    if isinstance(main_character_lock, dict):
+        character_id = str(main_character_lock.get("character_id", "")).strip()
+        if character_id:
+            result[character_id] = main_character_lock
+    character_locks = data.get("character_locks", [])
+    if isinstance(character_locks, list):
+        for lock in character_locks:
+            if not isinstance(lock, dict):
+                continue
+            character_id = str(lock.get("character_id", "")).strip()
+            if character_id:
+                result[character_id] = lock
+    return result
+
+
+def _scene_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    scene_bible = data.get("scene_continuity_bible", {})
+    if not isinstance(scene_bible, dict):
+        return result
+    scene_locks = scene_bible.get("scene_locks", [])
+    if not isinstance(scene_locks, list):
+        return result
+    for scene_lock in scene_locks:
+        if not isinstance(scene_lock, dict):
+            continue
+        scene_id = str(scene_lock.get("scene_id", "")).strip()
+        if scene_id:
+            result[scene_id] = scene_lock
+    return result
+
+
 def compile_master_prompt(data: dict[str, Any]) -> str:
     contract = data.get("generation_contract", {})
     hard_constraints = contract.get("hard_constraints", [])
+    main_character_lock = data.get("main_character_lock", {})
+    scene_continuity_bible = data.get("scene_continuity_bible", {})
     style_bible = data.get("style_bible", {})
     character_locks = data.get("character_locks", [])
     comic_text_system = data.get("comic_text_system", {})
     pages = data.get("pages", [])
     negative = data.get("global_negative_prompt", "")
+    character_map = _character_map(data)
+    scene_map = _scene_map(data)
 
     parts: list[str] = [
         "Generate exactly 9 separate images/pages. Each output image is one complete vertical 9:16 comic page. "
         "Do not create a nine-grid collage, contact sheet, or one image containing all pages. "
         "Do not create nine variations of the same scene. "
-        "The nine images are consecutive comic pages from the same story, in page order from Page 1 to Page 9."
+        "The nine images are consecutive comic pages from the same story, in page order from Page 1 to Page 9. "
+        "Place a small page number in the bottom-right corner of every page, using digits 1-9 only."
     ]
     parts.append(_text_block("Hard Constraints", hard_constraints))
+    parts.append(_text_block("Main Character Lock", main_character_lock))
+    parts.append(_text_block("Scene Continuity Bible", scene_continuity_bible))
     parts.append(_text_block("Global Style Bible", style_bible))
     parts.append(_text_block("Character Locks", character_locks))
     parts.append(_text_block("Comic Text System", comic_text_system))
@@ -110,14 +220,31 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
         layout = page.get("layout", {})
         prompt = page.get("positive_prompt", "")
         panels = page.get("panels", [])
+        active_character_ids = page.get("active_character_ids", [])
+        scene_id = str(page.get("scene_id", "")).strip()
+        page_number_overlay = page.get("page_number_overlay", {})
+        active_character_locks = [
+            character_map[character_id]
+            for character_id in active_character_ids
+            if isinstance(active_character_ids, list) and character_id in character_map
+        ]
+        scene_lock = scene_map.get(scene_id, {})
         parts.append(
             "\n## Page {page_number}: {page_role}\n"
             "This output image must be Page {page_number} only, a complete vertical 9:16 comic page, not a collage.\n"
+            "Active character ids: {active_character_ids}\n"
+            "Active character locks: {active_character_locks}\n"
+            "Scene continuity lock: {scene_lock}\n"
+            "Page number overlay: {page_number_overlay}\n"
             "Layout: {layout}\n"
             "Panels and text slots: {panels}\n"
             "Positive prompt: {prompt}\n".format(
                 page_number=page_number,
                 page_role=page_role,
+                active_character_ids=json.dumps(active_character_ids, ensure_ascii=False),
+                active_character_locks=json.dumps(active_character_locks, ensure_ascii=False),
+                scene_lock=json.dumps(scene_lock, ensure_ascii=False),
+                page_number_overlay=json.dumps(page_number_overlay, ensure_ascii=False),
                 layout=json.dumps(layout, ensure_ascii=False),
                 panels=json.dumps(panels, ensure_ascii=False),
                 prompt=prompt,
@@ -147,6 +274,14 @@ def _infer_project_root(json_path: Path, project_name: str | None) -> Path:
     for index in range(len(parts) - 2):
         if parts[index] == "projects" and parts[index + 1] == "comic":
             return Path(*parts[: index + 3])
+        if (
+            parts[index] == "projects"
+            and parts[index + 1] == "aigc"
+            and index + 5 < len(parts)
+            and parts[index + 3] == "5-Image"
+            and parts[index + 4] == "漫画"
+        ):
+            return Path(*parts[: index + 5])
 
     inferred_name = project_name or json_path.stem
     return REPO_ROOT / "projects/comic" / inferred_name
@@ -174,6 +309,10 @@ def main() -> int:
             "Do not create nine variations of the same scene",
             "Page 9",
             "vertical 9:16",
+            "bottom-right corner",
+            "digits 1-9 only",
+            "Scene Continuity Bible",
+            "Active character locks",
         ]
         missing = [text for text in required if text not in prompt]
         if missing:

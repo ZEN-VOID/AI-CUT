@@ -22,6 +22,7 @@ governance_tier: full
 - 每张图是一页完整竖版 9:16 漫画页。
 - 一次 Seedream 连续多图请求完成，不拆成 9 次单图请求。
 - 明确禁止九宫格拼图、contact sheet、同一画面九个版本。
+- 每张图右下角必须带对应页码，严格使用数字 `1-9`。
 - 保留 Seedream 报告与本技能生成摘要，便于追溯。
 
 ## 2. 已验证上下文
@@ -51,7 +52,9 @@ governance_tier: full
 ### 可选输入
 
 - `output_dir`
-  - 默认：`projects/comic/[项目名]/3-漫画生成/`。若 JSON 已位于 `projects/comic/[项目名]/2-九刀流漫画提示词/`，自动推断同一项目名。
+  - 默认：`projects/comic/[项目名]/3-漫画生成/`。
+  - 若 JSON 已位于 `projects/comic/[项目名]/2-九刀流漫画提示词/`，自动推断同一项目名。
+  - 若 JSON 已位于 `projects/aigc/[项目名]/5-Image/漫画/2-九刀流漫画提示词/`，自动推断到同项目的 `projects/aigc/[项目名]/5-Image/漫画/3-漫画生成/`，避免漂移到 `projects/comic/`。
 - `project_name`
   - 当 JSON 不在 `projects/comic/[项目名]/` 下时，用于指定输出项目名。
 - `filename_prefix`
@@ -84,7 +87,7 @@ flowchart LR
     B -->|"少于 9 张"| D["提高约束或重跑；检查 max_images=9"]
     B -->|"九宫格拼图"| E["回到 2 号 JSON hard_constraints"]
     B -->|"九张变体"| F["回到 2 号 story_beat_map"]
-    B -->|"角色漂移"| G["回到 2 号 character_locks"]
+    B -->|"角色/场景/页码漂移"| G["回到 2 号 main_character_lock / character_locks / scene_continuity_bible / page_number_overlay"]
 ```
 
 ```mermaid
@@ -143,7 +146,7 @@ python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
 合成后的 prompt 必须以执行合同开头：
 
 ```text
-Generate exactly 9 separate images. Each image is one complete vertical 9:16 comic page. Do not create a nine-grid collage, contact sheet, or one image containing all pages. Do not create nine variations of the same scene. The nine images are consecutive comic pages from the same story.
+Generate exactly 9 separate images. Each image is one complete vertical 9:16 comic page. Do not create a nine-grid collage, contact sheet, or one image containing all pages. Do not create nine variations of the same scene. The nine images are consecutive comic pages from the same story. Place a small page number in the bottom-right corner of every page, using digits 1-9 only.
 ```
 
 ## 9. 字段映射
@@ -151,7 +154,7 @@ Generate exactly 9 separate images. Each image is one complete vertical 9:16 com
 | field_id | 输出位置/字段 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-CG-01` | `input_json` | `nine_blade_comic_prompts.v1` 可解析且 9 页有效 | `FAIL-CG-INPUT` |
-| `FIELD-CG-02` | `master_prompt` | 含单请求 9 图、9:16、非拼图、非变体约束 | `FAIL-CG-PROMPT` |
+| `FIELD-CG-02` | `master_prompt` | 含单请求 9 图、9:16、非拼图、非变体、群像/场景连续性和右下角数字页码约束 | `FAIL-CG-PROMPT` |
 | `FIELD-CG-03` | `seedream_command` | `--max-images 9 --stream --size 2K` 默认齐备 | `FAIL-CG-CMD` |
 | `FIELD-CG-04` | `seedream_report` | `ok=true result_count=9` | `FAIL-CG-SEEDREAM` |
 | `FIELD-CG-05` | `saved_files` | 9 个独立图片文件 | `FAIL-CG-FILES` |
@@ -167,6 +170,6 @@ Generate exactly 9 separate images. Each image is one complete vertical 9:16 com
 - 少于 9 张：检查 `max_images=9`、prompt 约束和服务端报告。
 - 九宫格拼图：回到 2 号 JSON 的 `hard_constraints` 和 `master_prompt` 编译器。
 - 九张变体：回到 2 号的 `story_beat_map / pages[]`。
-- 角色漂移：回到 2 号的 `character_locks`。
+- 角色漂移、场景漂移或页码缺失：回到 2 号的 `main_character_lock / character_locks / scene_continuity_bible / pages[].page_number_overlay`。
 
 规则源：本 `SKILL.md`、`references/seedream-nine-page-generation.md`、`scripts/run_seedream_comic_generation.py`、Seedream 技能合同。

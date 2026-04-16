@@ -30,6 +30,9 @@ last_checked_at: 2026-04-15T00:00:00Z
 | `TM-CG-05` | 页面比例不稳定 | prompt 与 size 层 | 每页 prompt 强写 vertical 9:16；size 保持 2K | 2 号 schema 固定 layout.aspect_ratio | 文件视觉为竖版页 |
 | `TM-CG-06` | 文字槽失败严重 | 上游提示词层 | 减少气泡文本，把解释转 caption | 2 号文字系统限制长度 | 气泡短句、旁白短框 |
 | `TM-CG-07` | 生成计划或图片落到 `output/comic` | 项目根合同层 | 改用 `projects/comic/[项目名]/3-漫画生成/`，必要时传 `--project-name` | 脚本默认从 JSON 路径推断项目根 | `generation_plan.json` 位于项目 3 号目录 |
+| `TM-CG-08` | `aigc` 项目的漫画生成计划被错误推到 `projects/comic/<json-stem>/3-漫画生成/` | 项目根推断层 | 对 `projects/aigc/[项目名]/5-Image/漫画/2-九刀流漫画提示词/` 显式回推到同级 `5-Image/漫画/3-漫画生成/` | 在执行脚本固化 `aigc` 路径推断，避免依赖人工传 `--output-dir` | dry-run 默认输出目录位于当前 `aigc` 项目内 |
+| `TM-CG-09` | 最终页没有页码，或页码不在右下角/不是纯数字 | master prompt 编译层 | 从 2 号 JSON 读取 `pages[].page_number_overlay`，并在每页 block 和总约束里重复写入 `bottom-right` + `digits only` | 3 号编译器和 2 号 validator 同步要求页码覆盖层 | dry-run master prompt 能逐页读到 `page number "N" in the bottom-right corner, digits only` |
+| `TM-CG-10` | 多人页或场景在 3 号执行后仍漂移 | 编译上下文稀释层 | 在 master prompt 顶层带上 `scene_continuity_bible`，并在每页 block 显式展开 `active_character_ids` 对应角色锁与 `scene_id` 对应场景锁 | 3 号编译器不再只传 page prompt 字符串，而是把角色/场景锁作为每页上下文一起注入 | dry-run master prompt 中每页都能看到 active character locks 与 scene continuity lock |
 
 ## Repair Playbook
 
@@ -44,3 +47,5 @@ last_checked_at: 2026-04-15T00:00:00Z
 - 已验证 Seedream 的 9 图连续生成不是九宫格裁切；下游应该尊重单请求能力，而不是拆成 9 次调用。
 - 大批量连续图优先流式；非流式适合 1-4 张轻量验证。
 - 3 号技能只负责执行与报告，不负责临场改写剧情；剧情、版式和文字槽错误应回到 2 号技能修源。
+- 当 2 号 JSON 位于 `projects/aigc/<项目名>/5-Image/漫画/2-九刀流漫画提示词/` 时，3 号技能应把 `5-Image/漫画` 视为当前生成阶段根，而不是回退创建新的 `projects/comic/<json-stem>/` 项目壳。
+- 页码如果只存在于 `page_number` 数值字段里，模型不会自动画出来；必须把 `page_number_overlay` 编进 master prompt，且逐页重复。

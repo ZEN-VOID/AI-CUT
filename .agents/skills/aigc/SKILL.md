@@ -361,7 +361,7 @@ erDiagram
 1. 确认或创建 `projects/aigc/<项目名>/`
 2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
-4. 若后续进入 `1-Planning / 2-Global / 3-Detail / 4-Design`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
+4. 若后续进入 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、图像、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段既没有阶段根合同，也没有可回接的 governed entry，停止向下伪造，返回缺口与补建落点
@@ -403,7 +403,7 @@ erDiagram
 5. 高风险任务没有 `preflight-verdict`，不得宣布进入正式执行。
 6. 对尚未补齐或已搁浅的阶段，必须报告“待补合同/搁浅”，不得伪造其工作流。
 7. 子技能经验优先写入最窄作用域；跨阶段经验再晋升到根 `CONTEXT.md`。
-8. 对 `1-Planning / 2-Global / 3-Detail / 4-Design`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
+8. 对 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
 9. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
 10. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
 11. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
@@ -489,7 +489,7 @@ erDiagram
 3. `.codex/registry/skills.yaml`
 4. `.codex/registry/routes.yaml`
 5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `1-Planning / 2-Global / 3-Detail / 4-Design`）
+6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`）
 7. `projects/aigc/<项目名>/project_state.yaml`（若存在）
 8. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
 9. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`

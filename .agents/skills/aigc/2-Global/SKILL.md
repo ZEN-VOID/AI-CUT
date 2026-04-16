@@ -23,14 +23,21 @@ governance_tier: full
 - 内容层面全量继承现有 `2-Global` 已沉淀的四份真源、模板口径、项目级/组级分层与下游 handoff 边界
 - 机制层面改写为单技能真源，不再维护平行的导演组 team、角色 agent 合同或外置创作方法真源
 
+同时追加一个受 shared runtime 治理的阶段末端强化回路：
+
+- 业务生成仍由当前 `SKILL.md` 的内部能力链完成
+- 当项目根 `team.yaml` 启用且 `roles.supervision` 对当前阶段有效时，允许在 canonical 输出首次落盘后，按 `team.yaml -> shared council runtime -> reviewer skill` 的顺序触发一次 `监制 subagents` 会审与优化
+- 这条回路只负责评审、给 patch、促成主 agent 二次收束；不生成第二套阶段真源，也不夺取最终写回权
+
 ## Skill Execution Rule (Mandatory)
 
-`2-Global` 采用单技能内部融合模式：
+`2-Global` 采用“单技能内部生成 + 阶段末端监制强化”模式：
 
-- skill 自身负责输入读取、业务分析、并发链裁决、模板约束、四份 Markdown 写回、字段提取入壳、shared episode root seed、汇流审计与下游回接
-- `全局风格`、`全集类型元素`、`分组类型元素`、`导演意图` 不是外置 subagents，而是父 skill 的内部能力链
-- 中间只允许形成内部 `plan / note / report / patch set`，最终 canonical 写回只能由当前 `SKILL.md` 完成
-- 不得再回指任何外置导演组 contracts 作为执行真源
+- skill 自身负责输入读取、业务分析、并发链裁决、模板约束、四份 Markdown 首次写回、字段提取入壳、shared episode root seed、汇流审计与下游回接
+- `全局风格`、`全集类型元素`、`分组类型元素`、`导演意图` 的业务生成不是外置 subagents，而是父 skill 的内部能力链
+- 若项目根 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，stage-end refine 允许按 shared `council-runtime` 规则调度 reviewer subagents，对已写出的 canonical 文件做一轮监制会审与最小必要优化
+- 中间只允许形成内部 `plan / note / report / patch set`；最终 canonical 写回始终由当前 `SKILL.md` / 主 agent 完成
+- 不得再回指任何外置导演组 contracts 作为业务生成真源；监制 subagents 只作为阶段末端共享运行时，不得冒充第二创作总线
 
 ## When to Use
 
@@ -67,19 +74,24 @@ governance_tier: full
 2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
 3. 本 `SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-5. `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
-6. `.agents/skills/aigc/_shared/group_design_seed_contract.md`
-7. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-8. `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
-9. `projects/aigc/<项目名>/0-Init/north_star.yaml`
-10. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-11. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-12. `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`（若存在）
-13. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
-14. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
-15. 现有 `projects/aigc/<项目名>/2-Global/*.md`
-16. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
-17. 四个模板：
+5. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+6. `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+7. `.codex/commands/master-check-team.md`
+8. `.codex/commands/master-check.md`
+9. `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
+10. `.agents/skills/aigc/_shared/group_design_seed_contract.md`
+11. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+12. `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
+13. `projects/aigc/<项目名>/team.yaml`（若存在）
+14. `projects/aigc/<项目名>/0-Init/north_star.yaml`
+15. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
+16. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
+17. `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`（若存在）
+18. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+19. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
+20. 现有 `projects/aigc/<项目名>/2-Global/*.md`
+21. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
+22. 四个模板：
    - `templates/全局风格.template.md`
    - `templates/全集类型元素.template.md`
    - `templates/分组类型元素.template.md`
@@ -89,9 +101,13 @@ governance_tier: full
 
 - 强制读取：`.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
+- 强制读取：`.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+- 强制读取：`.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 - 强制读取：`.agents/skills/aigc/_shared/group_design_seed_contract.md`
 - 强制读取：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - 强制读取：`.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
+- 条件读取：`.codex/commands/master-check-team.md`（命中阶段末 `监制强化` 时）
+- 条件读取：`.codex/commands/master-check.md`（命中阶段末 `监制强化` 时）
 - 强制读取：
   - `.agents/skills/aigc/2-Global/templates/全局风格.template.md`
   - `.agents/skills/aigc/2-Global/templates/全集类型元素.template.md`
@@ -123,6 +139,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
 - `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
+- `projects/aigc/<项目名>/team.yaml`
 - 现有 `projects/aigc/<项目名>/2-Global/*.md`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - 用户显式指定的风格、类型或导演偏好
@@ -140,6 +157,8 @@ governance_tier: full
 3. 现有 `2-Global/*.md` 只作为增量 patch 依据，不作为绕开上游证据的捷径。
 4. 若分组正文不稳定或关键组界不明，`类型元素`、`导演意图` 与 `group_design seed` 只能生成保守版 patch 或 `report`，不得幻想补洞。
 5. shared episode root 的 `剧本正文` 必须直接整理自命中组全文；如果落盘内容更像摘要而不是原组正文，视为写回失败。
+6. 若存在 `projects/aigc/<项目名>/team.yaml`，必须在输出前读取 shared `council-runtime`，锁定当前阶段是否需要在 canonical 首次落盘后触发 `roles.supervision` 的 stage-end refine。
+7. `2-Global` 的 stage-end refine 只允许评审并优化本轮命中的 canonical 文件：`全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md`、`3-Detail/第N集.json`；不得扩展到无关阶段。
 
 ## Visual Maps
 
@@ -159,8 +178,9 @@ flowchart TD
     E --> F
     F --> G["N6 JSON 提取 + 固定分镜切换内化 + 组壳写回链"]
     G --> H["N7 汇流审计"]
-    H --> I["N8 父 skill 唯一写回"]
-    I --> J["回接 3-Detail"]
+    H --> I["N8 canonical 首次写回"]
+    I --> J["N9 监制 subagents 会审与 refine"]
+    J --> K["N10 回接 3-Detail"]
 ```
 
 ```mermaid
@@ -189,8 +209,11 @@ stateDiagram-v2
     ParallelRunning --> ConstraintsConverged
     ConstraintsConverged --> DirectorIntentFinalized
     DirectorIntentFinalized --> Audited
-    Audited --> Finalized
+    Audited --> FirstWriteback
+    FirstWriteback --> SupervisionReview
+    SupervisionReview --> Finalized
     Audited --> Rework
+    SupervisionReview --> Rework
     Rework --> ParallelRunning
 ```
 
@@ -223,12 +246,14 @@ graph LR
 | `director_intent_engine` | 把当前集分组结果翻译成按组可消费的导演构思 | `director_intent_plan`、`director_intent_patch`、`director_note`、`director_report` | 当前集分组已稳定时默认触发 |
 | `group_design_distill_engine` | 把四份 Markdown 中已确认字段、固定分镜切换与完整分组正文提取到 shared episode root 的分镜组壳，并内化 former `镜花/1-切换` 的 fixed-shot-count 接受逻辑 | `group_design_seed_plan`、`group_design_seed_patch`、`episode_seed_patch`、`switching_rationale_note` | 风格/类型/导演意图都稳定且 Markdown 提取字段已确认后强触发 |
 | `convergence_audit_engine` | 校验四个输出面与 `group_design seed` 是否边界正确、模板一致、下游可消费且无越权 | `convergence_report`、`writeback_patch_set`、`blocking_note` | 四个输出面与 seed 草案产出后、写回前必须触发 |
+| `supervision_council_engine` | 在 canonical 输出首次落盘后，读取项目根 `team.yaml` 的 `roles.supervision` 配置，按 shared `council-runtime` 与 `master-check` 风格规则解析 reviewer、分发 subagents、汇流 findings，并对命中真源文件做最小必要优化 | `supervision_runtime_decision`、`supervision_reviewer_list`、`supervision_report`、`supervision_patch_set`、`supervision_refine_note` | `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision` 时评估；当 `runtime_policy.use_subagents_by_default == true` 且 reviewer 可稳定解析时强触发 |
 
 硬规则：
 
-1. 这些能力面是当前 `SKILL.md` 的内部节点，不是外置真源。
-2. 任何能力面都不得绕过父 skill 直接写 canonical Markdown 或 shared episode root。
-3. 若未来继续细化 `2-Global`，必须直接扩写本 `SKILL.md` 的思行网络、seed 合同与模板合同，不得重新长出外置导演组平行真源。
+1. `global_style / type_bible / group_type / director_intent / group_design_distill / convergence_audit` 是当前 `SKILL.md` 的内部业务节点，不是外置真源。
+2. `supervision_council_engine` 是阶段末端 shared runtime hook，不是新的业务生成主链；它只能围绕已落盘的 canonical 文件给出会审与 patch 建议。
+3. 任何能力面都不得绕过父 skill 直接写 canonical Markdown 或 shared episode root；监制 subagents 只能产出局部 findings / patch 建议，最终写回仍归主 agent。
+4. 若未来继续细化 `2-Global`，必须直接扩写本 `SKILL.md` 的思行网络、seed 合同、监制 refine 合同与模板合同，不得重新长出外置导演组平行真源。
 
 ## Topology Contract (Mandatory)
 
@@ -264,7 +289,7 @@ graph LR
 - `N3C-GROUP-TYPE-PROTOCOL` 必须等待 `N3B-TYPE-BIBLE` 至少形成 project-level type bible 后再定稿；允许先做组级草案，但不得先写 canonical 字段。
 - `N4-CONSTRAINT-CONVERGENCE` 必须等待 `N3A/N3B/N3C` 三个约束面稳定。
 - `N5-DIRECTOR-FINALIZE` 必须等待 `N4` 与 `N3D` 同时通过；导演意图可预解构，但最终写回必须服从风格、全集类型与分组类型三层约束。
-- `N6 -> N7 -> N8` 固定串行。
+- `N6 -> N7 -> N8 -> N9 -> N10` 固定串行。
 - 若用户显式只要求其中一份产物，只命中对应能力链，不补空路径。
 
 ## Thinking-Action Node Contract (Mandatory)
@@ -281,6 +306,34 @@ graph LR
 | `route_out` | 成功、失败、分支时分别流向何处 |
 | `gate` | 是否允许进入最终汇流 |
 
+对于 `2-Global` 当前的“单技能生成 + 阶段末端监制强化”模式，各节点还必须显式回答以下执行语义：
+
+| slot | 要求 |
+| --- | --- |
+| `decision_lock` | 该节点锁定什么决策，例如 `project_vs_group_boundary`、`md_field_anchor`、`team_runtime_enabled`、`supervision_reviewer_resolution` |
+| `dispatch_contract` | 该节点是否会启动 subagents；若会，必须写明 reviewer 来源、owner、是否允许降级 |
+| `write_scope` | 该节点允许生成哪些 patch / note，禁止直接写哪些 canonical |
+| `blocker_rule` | 该节点在什么条件下必须阻塞，而不是继续推断 |
+| `reentry_rule` | 审计失败、team 配置变化或会审后返工时，应从哪个节点重新进入 |
+
+### Node Semantics (Mandatory)
+
+| node_id | decision_lock | dispatch_contract | write_scope | blocker_rule | reentry_rule |
+| --- | --- | --- | --- | --- | --- |
+| `N1-INPUT-GATE` | `stage_scope == 2-Global`、`required_inputs_present` | 不启动 subagents | 只允许 `input_lock_note + missing_input_report` | 缺 `north_star / init_handoff / 第N集分组正文` 任一关键输入时必须阻塞 | 缺口补齐后回 `N1` |
+| `N2-INVARIANT-LOCK` | `project_vs_group_boundary`、`forbidden_overreach_set` | 不启动 subagents | 只允许 `invariant_brief + branch_scope_plan + boundary_note` | 项目级/组级边界未拆开、或仍混入旧输出真源时必须阻塞 | 上游输入或边界定义变化回 `N2` |
+| `N3A-GLOBAL-STYLE` | `global_style_baseline` | 不启动 subagents | 只允许 `global_style_plan / patch / note`，不得提前写 shared root | 风格仍污染到具体镜头/颜色/材质/对象层时必须返工 | 风格基线或上游不变量变化回 `N3A` |
+| `N3B-TYPE-BIBLE` | `project_type_bible` | 不启动 subagents | 只允许 `type_bible_plan / patch / note`，不得混写组级打法 | 项目级类型总则未锁或与当前组打法混写时必须返工 | 类型总则变化回 `N3B` |
+| `N3C-GROUP-TYPE-PROTOCOL` | `group_type_inheritance` | 不启动 subagents | 只允许 `group_type_plan / patch / note`，不得改写项目级类型总则 | 未显式继承 `全集类型元素.md`、或未按 `第N集/【x-x-x】` 组织时必须返工 | `N3B` 或组正文变化后回 `N3C` |
+| `N3D-DIRECTOR-PREP` | `director_focus_map`、`detail_amplification_candidates` | 不启动 subagents | 只允许 `director_intent_plan / note`，禁止提前定稿 `导演意图` 字段 | 若把预解构写成最终口号或失去后续受约束空间，必须返工 | 组任务变化回 `N3D` |
+| `N4-CONSTRAINT-CONVERGENCE` | `md_field_anchor`、`constraint_bridge_locked` | 不启动 subagents | 只允许 `constraint_bridge_note + md_field_anchor_note + detail_execution_bridge` | `全局风格 / 类型元素` 字段未在 Markdown 定稿，或导演意图仍未受约束时必须阻塞 | 任一上游链变化回 `N4` |
+| `N5-DIRECTOR-FINALIZE` | `director_intent_ready_for_writeback` | 不启动 subagents | 允许 `director_intent_patch / report`，禁止跳过 `N6/N7` 直接终结 | 参考桥段、具像化表述或 detail 落地指令不足时必须返工 | `N3D/N4` 变化后回 `N5` |
+| `N6-GROUP-DESIGN-DISTILL` | `seed_fields_locked`、`fixed_switching_count` | 不启动 subagents | 允许 `group_design_seed_patch + episode_seed_patch + switching_rationale_note`，禁止发明 shot-level `分镜明细[]` | Markdown 字段未定稿、`剧本正文` 被摘要化、或 `分镜切换` 未完成媒介/平台/类型密度裁定时必须阻塞 | 上游字段或命中组变化回 `N6` |
+| `N7-CONVERGENCE-AUDIT` | `writeback_ready` | 不启动 subagents | 只允许 `convergence_report + writeback_patch_set` | 模板一致性、字段引用、长度窗、越权或完整性任一失败时必须阻塞 | Fail 回目标节点 `N3A/N3B/N3C/N5/N6` |
+| `N8-WRITEBACK-CANONICAL` | `first_writeback_done`、`output_target_set` | 不启动 subagents | 允许首次写回 `全局风格.md / 导演意图.md / 全集类型元素.md / 分组类型元素.md / 3-Detail/第N集.json`，不允许扩写无关文件 | 任一 canonical 文件路径不明或 patch provenance 不全时必须阻塞 | 写回目标或 patch 集变化回 `N8` |
+| `N9-SUPERVISION-SUBAGENT-REFINE` | `team_runtime_enabled`、`supervision_reviewer_resolution`、`supervision_mode` | 若 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，必须先读 `team.yaml` 与 shared `council-runtime`；当 `runtime_policy.use_subagents_by_default == true` 且 reviewer 为 `1-4` 个时，默认真实启动 subagents，一 reviewer skill 对应一个 subagent；仅在环境不可用、上层策略阻断或用户显式禁止 subagents 时允许降级 | 只允许 `supervision_runtime_decision + supervision_report + supervision_patch_set + supervision_refine_note`，并只 patch 本轮命中的 canonical 文件；不得创建平行评审真源 | 当 `team.yaml.enabled == true`、`roles.supervision.enabled == true` 且 reviewer 既不能从 `roles.supervision.members / team_setup.shared_agents / roles.supervision.source_skill_refs` 稳定解析，也无法基于 `focus + target_type` 安全补选时必须阻塞；若仅是 subagents 不可用，可按 shared runtime 规则降级并显式报告 | team 配置变化、首次写回内容变化或会审指出重大问题时回 `N3A/N3B/N3C/N5/N6/N8`，随后重跑 `N9` |
+| `N10-FINAL-HANDOFF` | `post_supervision_closure`、`next_stage_truth` | 不启动 subagents；只汇流既有 findings | 允许输出 `handoff_note + closure_triad + supervision_summary`，禁止再改业务范围 | 若会审结论未汇流、下一阶段入口不唯一或仍有未声明 blocker，不得结案 | 若闭环不完整回 `N7/N9` |
+
 ## Thinking-Action Node Network
 
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
@@ -295,7 +348,9 @@ graph LR
 | `N5-DIRECTOR-FINALIZE` | S9 | `FIELD-GLOBAL-07` | 在约束已稳定的前提下完成导演意图 patch，并把参考锚点翻译成当前组的可执行指令 | 将组级预解构翻译成 `导演意图.md` 的 `第N集/【x-x-x】` patch，补齐参考桥段、具像化表述、detail 放大方向，并先在组内定稿字段标题 `导演意图` | `director_intent_patch`、`director_report`、`director_implementation_note` | pass -> `N6`；fail -> 回 `N3D/N4` | 每组必须可被 `3-Detail` 直接消费，不能只有口号 |
 | `N6-GROUP-DESIGN-DISTILL` | S10 | `FIELD-GLOBAL-08` | 把四份 Markdown 中已确认字段、固定分镜切换与完整剧本正文直接提取到 shared episode root 的组级壳，并控制长度窗 | 按 `group_design_seed_contract` 对照字段标题，直接提取 `全局风格.md` 的项目级 `全局风格`、`分组类型元素.md` 的命中组 `类型元素`、`导演意图.md` 的命中组 `导演意图`；同步核对该组 `类型元素` 是否继承 `全集类型元素.md`；再基于 `总时长 + 媒介形态 + 平台形态 + 类型元素 + 导演意图 + 组正文` 直接裁定 `分镜切换`，先判定当前 `rhythm_density_profile`：漫画/恐怖漫画默认以面板密度计数，24 秒左右分镜组通常不得低于 4 镜，常规压迫组 4-6 镜，强峰值/信息反转组 5-7 镜；短剧/竖屏短剧默认以高信息递送密度计数，24 秒左右分镜组通常不得低于 5 镜，钩子/反转/冲突升级组通常 6-9 镜；长剧/电影可按场面调度保留更长镜头，但必须说明张力如何不丢失。注意“快节奏”不是一律快速剪，恐怖/悬疑可以慢停顿，但必须保持高信息密度；低于下限必须在 `switching_rationale_note` 写明不可拆原因；并以内化 former `镜花/1-切换` 的口径写出 `switching_rationale_note`；最后将命中组全文去掉组号标题后完整写入 `分镜组列表[].剧本正文`，生成 `episode_seed_patch` | `group_design_seed_plan`、`group_design_seed_patch`、`episode_seed_patch`、`switching_rationale_note`、`type_inheritance_check`、`medium_density_check`、`rhythm_density_profile` | pass -> `N7`；fail -> 回 `N3A/N3B/N3C/N5` | 三个 seed 字段必须来自已确认 Markdown，`类型元素` 必须继承全集总则，`分镜切换` 必须是组级固定数值并满足媒介/平台/类型密度，且 `剧本正文` 必须是完整组正文 |
 | `N7-CONVERGENCE-AUDIT` | S11 | `FIELD-GLOBAL-09` | 检查模板一致性、字段引用位置、剧本正文完整性、长度窗、边界正确性、媒介密度、参考锚点清晰度与下游 handoff | 运行模板对齐、项目级/组级边界检查、JSON 字段位置检查、`group_design` 长度窗检查、`分镜切换` 媒介密度检查、越权检查、空话审计、reference/bridge 审计、剧本正文完整性审计与可实现性审计 | `convergence_report`、`writeback_patch_set` | pass -> `N8`；fail -> 回目标节点返工 | 通过后才能写回 |
-| `N8-WRITEBACK-HANDOFF` | S12 | `FIELD-GLOBAL-10` | 统一写回四份 Markdown、shared episode root，并回接 `3-Detail` | 先按增量策略写回四份长文本真源，再将已确认字段与组全文提取入 `第N集.json` 的分镜组壳，输出下一入口与闭环 triad | 四份 canonical 文档、shared root、`handoff_note` | Final | 仅父 skill 拥有最终写回权 |
+| `N8-WRITEBACK-CANONICAL` | S12 | `FIELD-GLOBAL-10` | 统一完成 canonical 首次写回，为后续监制会审提供真实目标文件 | 先按增量策略写回四份长文本真源，再将已确认字段与组全文提取入 `第N集.json` 的分镜组壳，形成本轮 output target set | 四份 canonical 文档、shared root、`first_writeback_note` | pass -> `N9`；fail -> 回 `N7` | 仅父 skill 拥有首次写回权 |
+| `N9-SUPERVISION-SUBAGENT-REFINE` | S13 | `FIELD-GLOBAL-11` | 在输出相关真源文件已存在的前提下，根据项目根 `team.yaml` 的监制配置触发 stage-end 会审与最小必要优化 | 读取 `team.yaml` 的 `roles.supervision`、`team_setup.shared_agents`、`runtime_policy`、`focus` 与 shared `council-runtime`；按 `master-check-team / master-check` 风格规则解析 reviewer、判定 `single-reviewer / parallel-council / serial-refine / independent-only`；若满足条件则真实启动 subagents，对 `全局风格.md / 导演意图.md / 全集类型元素.md / 分组类型元素.md / 3-Detail/第N集.json` 做局部会审，并由主 agent 汇流后回写最小 patch | `supervision_runtime_decision`、`supervision_reviewer_list`、`supervision_report`、`supervision_patch_set`、`supervision_refine_note` | pass -> `N10`；fail -> 回 `N3A/N3B/N3C/N5/N6/N8` | reviewer 来源、模式裁决与是否降级都必须可追溯；最终写回仍归主 agent |
+| `N10-FINAL-HANDOFF` | S14 | `FIELD-GLOBAL-12` | 汇流 stage-end 会审结果，输出下一入口与闭环 triad | 汇总业务生成链与监制 refine 链，输出 `root cause / immediate fix / systemic prevention`、`supervision_summary` 与固定下一入口 `3-Detail` | `handoff_note`、`closure_triad`、`supervision_summary` | Final | 只有本节点允许结案 |
 
 ## Capability Chain Detail (Mandatory)
 
@@ -353,7 +408,7 @@ graph LR
 
 ## One-Shot Output Contract (Mandatory)
 
-`2-Global` 的一次性输出不是多个平行草案，而是同一 bundle 内的五类结果：
+`2-Global` 的一次性输出不是多个平行草案，而是同一 bundle 内的六类结果：
 
 1. `projects/aigc/<项目名>/2-Global/全局风格.md`
    - 项目级风格底座唯一真源
@@ -363,7 +418,10 @@ graph LR
    - 前者持有项目级类型总则，后者持有按集、按组组织的类型化导演协议；`类型元素.md` 仅允许作为旧项目迁移输入 fallback
 4. `projects/aigc/<项目名>/3-Detail/第N集.json`
    - shared episode root；本阶段写 `分镜组ID / 总时长 / 剧本正文 / 组间设计 / 分镜切换 / 分镜明细=[]` 的分镜组壳与相关 metadata
-5. `closure triad + handoff note`
+5. `supervision runtime report`
+   - 若项目根 `team.yaml` 启用且当前阶段命中 `roles.supervision`，必须给出 `reviewer_source / reviewers / mode / used_subagents / patched_targets / key_findings`
+   - 若未启用或降级，也必须显式说明原因
+6. `closure triad + handoff note`
    - 说明 `root cause location / immediate fix / systemic prevention fix`
    - 给出下一入口固定为 `3-Detail`
 
@@ -376,6 +434,73 @@ graph LR
 5. JSON 写回时，`组间设计.全局风格 / 类型元素 / 导演意图` 只能直接引用 Markdown 中同名字段，不得临场改写或另起第二套摘要。
 6. 现有文档或 shared root 存在时，只允许增量更新命中章节与命中组，不得整稿抹平历史内容。
 7. 对 `3-Detail` 的第一结构化 handoff 以 shared episode root 为准；`2-Global/*.md` 仍保留为长文本解释载体。
+8. 若 `team.yaml` 启用 `roles.supervision`，stage-end 会审只能围绕本轮已写出的 canonical 文件给 patch 建议；不得生成新的“监制稿”“评审稿”或旁路总稿。
+9. `supervision_report / supervision_patch_set` 只属于内部运行时侧车；最终 canonical 改动仍必须回写到既有五个真源文件。
+
+## Subagents 监制强化（Mandatory）
+
+`2-Global` 在阶段末端必须兼容 `master-check-team` / `master-check` 的 reviewer runtime 机制，但采用当前阶段专用的 `roles.supervision` 优先路由。
+
+### 触发时机
+
+1. 先完成 `N8-WRITEBACK-CANONICAL`，确保输出相关真源文件已经存在。
+2. 再读取 `projects/aigc/<项目名>/team.yaml`。
+3. 若 `team.yaml.enabled != true`、`roles.supervision.enabled != true`、或当前阶段不在 `roles.supervision.operates_on`，跳过 `N9` 的 reviewer 分发，只保留 `skip_reason`。
+4. 若命中 `roles.supervision`，必须围绕本轮 output target set 触发一次 stage-end refine。
+
+### reviewer 解析顺序
+
+对于 `2-Global`，reviewer 解析优先级固定为：
+
+1. `roles.supervision.members`
+2. `team_setup.shared_agents` 中与当前阶段输出相关的 `.agents/skills/team/` reviewer
+3. `roles.supervision.source_skill_refs`
+4. 基于 `roles.supervision.focus + target_type` 的安全补选
+
+解析规则：
+
+- 若条目已是 `.agents/skills/team/**/SKILL.md`，直接作为 reviewer skill。
+- 若条目指向 `.agents/skills/aigc/**/SKILL.md` 这类阶段 skill，只把它视为领域提示，不得直接拿阶段 skill 充当 reviewer；必须再映射到 `.agents/skills/team/` 下的 reviewer skill。
+- `roles.supervision.source_skill_refs` 主要用于确认当前阶段的适配域，不替代 reviewer 真源。
+- 当显式 reviewer 不足时，才允许基于 `focus + target_type` 补选 1-2 个 reviewer；补选必须显式说明是推断，不是 `team.yaml` 的显式声明。
+- `2-Global` 的输出默认属于“文本/导演协议/组级 JSON handoff”类型，补选时优先：
+  - 导演组 1 位
+  - 若 `focus` 更偏人物关系、剧情执行或可拍性，补编剧组 1 位
+  - 若 `focus` 更偏风格纯度、画面组织或整体气质，补摄影组或设计组 1 位
+- reviewer 总数必须限制在 `1-4` 个。
+
+### 模式裁决
+
+1. 若 reviewer 为 1 个，默认 `single-reviewer`，仍优先真实启动 1 个 subagent。
+2. 若 `runtime_policy.use_subagents_by_default == true` 且 reviewer 为 `2-4` 个，优先 `parallel-council`。
+3. 若目标明显需要链式 refine，再改为 `serial-refine`。
+4. 若目标不适合主 agent 直接改写，才允许 `independent-only`。
+
+### Subagent Dispatch Gate
+
+- `2-Global` 的默认语义不是“主 agent 模拟监制团”，而是“一个 reviewer skill 对应一个 subagent，由主 agent 汇流并最终 patch”。
+- 只要命中 reviewer skill，且环境真实支持 subagents、也不存在更高优先级策略阻断，就应实际启动 subagents。
+- 仅在以下情况允许降级：
+  - 当前环境无法真实使用 subagents
+  - 更高优先级策略明确阻断 subagent 调度
+  - 用户显式要求不要启用 subagents
+- 降级时必须在 `supervision_runtime_decision` 中写明降级原因与替代执行方式。
+
+### 输出与优化范围
+
+- 会审目标固定为本轮命中的：
+  - `projects/aigc/<项目名>/2-Global/全局风格.md`
+  - `projects/aigc/<项目名>/2-Global/导演意图.md`
+  - `projects/aigc/<项目名>/2-Global/全集类型元素.md`
+  - `projects/aigc/<项目名>/2-Global/分组类型元素.md`
+  - `projects/aigc/<项目名>/3-Detail/第N集.json`
+- 每个 subagent 只负责局部判断和建议，不拥有最终写回权。
+- 主 agent 必须汇流为：
+  - `共识`
+  - `关键分歧`
+  - `建议采用方案`
+  - `少数派高价值提醒`
+- 若 `output` 语义允许优化，则由主 agent 直接对上述真源文件做最小必要 patch。
 
 ## Field Master
 
@@ -390,7 +515,9 @@ graph LR
 | `FIELD-GLOBAL-07` | 导演意图写回 | `导演意图.md` 当前集命中组的 patch 具体、可消费、具备参考桥段与具像化落地指令、不过界，并在字段标题 `导演意图` 定稿组级摘要 | S9 | 下游可消费性 | FAIL-GLOBAL-07 |
 | `FIELD-GLOBAL-08` | JSON 提取与组壳写回 | shared episode root 的 `剧本正文 / 全局风格 / 类型元素 / 导演意图 / 分镜切换` 已按正确字段位置写回，其中 `组间设计` 字段来自 Markdown 直接提取并满足 `220 / 50 / 100` 字符窗，`分镜切换` 来自同轮固定数值裁决，且 former `镜花/1-切换` 的 fixed-shot-count 接受逻辑已内化为 `switching_rationale_note` | S10 | 提取可消费性 | FAIL-GLOBAL-08 |
 | `FIELD-GLOBAL-09` | 汇流审计 | 空话、越权、边界污染、字段错引、剧本正文摘要化、长度窗违规与依赖断裂被拦住 | S11 | 收束完整性 | FAIL-GLOBAL-09 |
-| `FIELD-GLOBAL-10` | shared root + 下一阶段 handoff | 返回 triad closure，并固定回接 `3-Detail` 与 shared episode root | S12 | 闭环可执行性 | FAIL-GLOBAL-10 |
+| `FIELD-GLOBAL-10` | canonical 首次写回 | 四份 Markdown 与 shared root 已完成首次合法写回，且 output target set 明确 | S12 | 首次写回完整性 | FAIL-GLOBAL-10 |
+| `FIELD-GLOBAL-11` | 监制会审与 refine | `team.yaml` 的 `roles.supervision` 已被解释，reviewer 选择、模式裁决、subagent 使用与会审 patch 可追溯 | S13 | stage-end refine 有效性 | FAIL-GLOBAL-11 |
+| `FIELD-GLOBAL-12` | 下一阶段 handoff | 返回 triad closure、supervision summary，并固定回接 `3-Detail` 与 shared episode root | S14 | 闭环可执行性 | FAIL-GLOBAL-12 |
 
 ## Thought Pass Map
 
@@ -407,7 +534,9 @@ graph LR
 | `S9` | `FIELD-GLOBAL-07` | 当前集导演构思是否足够具体，是否具备参考桥段与具像化指令 | 写入 `导演意图.md` 命中章节 patch，并在字段标题 `导演意图` 定稿组级摘要 | 只剩空泛口号，或只有参照名词没有具像化处理 |
 | `S10` | `FIELD-GLOBAL-08` | Markdown 已确认字段、固定分镜切换与完整组正文能否被正确提取进 shared episode root，并保持 `220 / 50 / 100` 字符窗 | 生成 `group_design_seed_patch`、`episode_seed_patch` 与 `switching_rationale_note` | 字段错引、固定镜数缺失、剧本正文被摘要化、跨组混写、旧 `1-切换` 逻辑仍留在下游或超窗 |
 | `S11` | `FIELD-GLOBAL-09` | 四份文档与 shared root 能否一起合法落盘，并被下游直接消费 | 执行模板/字段位置/剧本正文完整性/边界/长度窗/越权/空话/reference 可实现性审计 | 结构断裂、字段错位、边界污染、长度窗违规、参照失焦或越权写回 |
-| `S12` | `FIELD-GLOBAL-10` | 如何证明本轮完成并交给下游 | 输出 triad closure、shared root seed 与 `3-Detail` 回接说明 | 没有返工入口、shared root 未落盘或下一阶段缺失 |
+| `S12` | `FIELD-GLOBAL-10` | 如何完成本轮 output target set 的首次合法写回 | 写回四份 Markdown 与 shared root，并锁定会审目标集合 | canonical 文件未落盘、patch provenance 不清或目标集合不明确 |
+| `S13` | `FIELD-GLOBAL-11` | team.yaml 的监制配置如何转成 reviewer 选择、subagent 分发与 stage-end 优化 | 解析 `roles.supervision`、裁决模式、启动或降级 subagents、汇流 findings 并 patch 命中真源 | `team.yaml` 已启用却未读取、reviewer 无法解析、应起 subagents 却被静默跳过，或会审输出变成第二真源 |
+| `S14` | `FIELD-GLOBAL-12` | 如何证明会审结果已汇流并交给下游 | 输出 triad closure、supervision summary 与 `3-Detail` 回接说明 | 没有返工入口、会审未汇流、shared root 未落盘或下一阶段缺失 |
 
 ## Pass Table
 
@@ -422,7 +551,9 @@ graph LR
 | `FIELD-GLOBAL-07` | `导演意图.md` 当前集命中组的 patch 具体、可消费、具备参考桥段、具像化落地指令且不过界，并在字段标题 `导演意图` 定稿组级摘要 | FAIL-GLOBAL-07 | S8-S9 |
 | `FIELD-GLOBAL-08` | `剧本正文 + 组间设计 + 分镜切换` 已按正确字段位置写入分镜组壳，其中三条组级上下文来自 Markdown 直接提取，且 fixed-shot-count 接受逻辑已在本阶段内化 | FAIL-GLOBAL-08 | S10 |
 | `FIELD-GLOBAL-09` | 无空话、无越权、无项目级/组级污染、无字段错引、无剧本正文摘要化、无字符窗违规 | FAIL-GLOBAL-09 | S11 |
-| `FIELD-GLOBAL-10` | 返回 triad closure，shared root 已 seed，并固定回接 `3-Detail` | FAIL-GLOBAL-10 | S12 |
+| `FIELD-GLOBAL-10` | 四份 Markdown 与 shared root 已完成首次合法写回，且会审目标集合明确 | FAIL-GLOBAL-10 | S12 |
+| `FIELD-GLOBAL-11` | `team.yaml` 的监制配置、reviewer 解析、subagent 模式、降级原因与 refine patch 都可追溯 | FAIL-GLOBAL-11 | S13 |
+| `FIELD-GLOBAL-12` | 返回 triad closure、supervision summary，shared root 已 seed，并固定回接 `3-Detail` | FAIL-GLOBAL-12 | S14 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -444,6 +575,10 @@ graph LR
 - former `镜花/1-切换` 的 fixed-shot-count 接受逻辑仍滞留在 `3-Detail/镜花`，导致上游/下游出现第二套切换真源
 - `剧本正文` 写进 shared episode root 时只剩摘要，没有完整保留命中组正文
 - `组间设计` 没有 seed 到 shared episode root，或长度窗失控
+- 项目根 `team.yaml` 存在且 `roles.supervision` 对 `2-Global` 生效，但阶段输出后没有读取其配置、没有解析 reviewer、或没有按规则触发监制会审与最小必要优化
+- `roles.supervision.source_skill_refs` 被直接当 reviewer 使用，导致阶段 skill 与 reviewer skill 混淆
+- `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中，但主 agent 仍静默跳过真实 subagents，退回本地模拟却未报告
+- stage-end 会审输出生成了平行“监制稿”或旁路文件，而不是回写既有 canonical 真源
 - 阶段越权在 `2-Global` 发明 shot-level `分镜明细[]`
 
 必经链路：
@@ -455,6 +590,7 @@ graph LR
 - `Rule Source`
   - `.agents/skills/aigc/2-Global/SKILL.md`
   - `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
+  - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
   - `.agents/skills/aigc/2-Global/templates/*.template.md`
   - `.agents/skills/aigc/_shared/group_design_seed_contract.md`
   - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
@@ -478,4 +614,6 @@ graph LR
 - 已固定 shared episode root 中 `剧本正文` 必须完整保留命中组正文，不得再写成摘要。
 - 已要求四个输出面都回答 `3-Detail` 可实现性、参考作品桥段与具像化表述。
 - 已明确不再依赖外置导演组 contracts。
+- 已把 `输出相关真源文件后 -> 读取 team.yaml -> 命中 roles.supervision -> reviewer 解析 -> subagent 会审 -> 主 agent 最小 patch` 收束为阶段末端唯一监制强化回路。
+- 已把监制会审模式、reviewer 来源、降级条件与最终写回权边界写成思维·执行节点，而不是只放在 prose 补充说明里。
 - 已锁定四份 Markdown 的长文本口径、shared episode root 的 `组间设计` seed 合同，以及 `3-Detail` 的唯一回接闭环。

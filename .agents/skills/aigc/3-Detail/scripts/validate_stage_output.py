@@ -55,6 +55,14 @@ REQUIRED_REPORT_SECTIONS = (
     "## Closure Triad",
     "## 已执行校验",
 )
+REQUIRED_SUPERVISION_REPORT_SECTIONS = (
+    "## 监制强化",
+    "reviewer_source",
+    "mode",
+    "used_subagents",
+    "patched_targets",
+    "synthesis",
+)
 
 
 def load_json(path: Path) -> object:
@@ -299,6 +307,7 @@ def validate_report(
     episode_path: Path,
     watermoon_path: Path,
     jinghua_path: Path,
+    supervision_team_yaml: Path | None,
 ) -> list[str]:
     errors: list[str] = []
     if not report_path.exists():
@@ -320,6 +329,19 @@ def validate_report(
         if token not in text:
             errors.append(f"validation-report 未提及 `{token}`。")
 
+    if supervision_team_yaml is not None:
+        expected_supervision_tokens = (
+            supervision_team_yaml.name,
+            "监制强化",
+            "used_subagents",
+        )
+        for section in REQUIRED_SUPERVISION_REPORT_SECTIONS:
+            if section not in text:
+                errors.append(f"validation-report 缺少监制强化槽位 `{section}`。")
+        for token in expected_supervision_tokens:
+            if token not in text:
+                errors.append(f"validation-report 未提及监制强化关键信息 `{token}`。")
+
     return errors
 
 
@@ -331,6 +353,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--watermoon", type=Path, help="Override `水月` sidecar path.")
     parser.add_argument("--jinghua", type=Path, help="Override `镜花` sidecar path.")
     parser.add_argument("--report", type=Path, help="Override `validation-report.md` path.")
+    parser.add_argument(
+        "--team-yaml",
+        type=Path,
+        help="When supervision reinforcement is active, require `validation-report.md` to include the team-driven supervision summary slots.",
+    )
     return parser
 
 
@@ -342,8 +369,11 @@ def main() -> int:
     watermoon_path = (args.watermoon or derive_sidecar_path(episode_path, "水月")).resolve()
     jinghua_path = (args.jinghua or derive_sidecar_path(episode_path, "镜花")).resolve()
     report_path = (args.report or derive_report_path(episode_path)).resolve()
+    team_yaml_path = args.team_yaml.resolve() if args.team_yaml else None
 
     missing_paths = [path for path in (episode_path, watermoon_path, jinghua_path) if not path.exists()]
+    if team_yaml_path is not None and not team_yaml_path.exists():
+        missing_paths.append(team_yaml_path)
     if missing_paths:
         for path in missing_paths:
             print(f"文件不存在: {path}")
@@ -356,7 +386,7 @@ def main() -> int:
     watermoon_errors, beat_ids_by_group = validate_watermoon_sidecar(load_json(watermoon_path), groups_by_id)
     errors.extend(watermoon_errors)
     errors.extend(validate_jinghua_sidecar(load_json(jinghua_path), groups_by_id, beat_ids_by_group, phase))
-    errors.extend(validate_report(report_path, episode_path, watermoon_path, jinghua_path))
+    errors.extend(validate_report(report_path, episode_path, watermoon_path, jinghua_path, team_yaml_path))
 
     if errors:
         print("校验失败:")

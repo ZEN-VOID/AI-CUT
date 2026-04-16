@@ -33,6 +33,8 @@
 | 参照图洁净只写在输出规则，思维·执行节点仍按剧情剧照思路装配 prompt | thinking-action contract layer | 将洁净判断前移到 leaf 的摄影/设计卡 synthesis 节点，并在 prompt 与 auto-image 节点复验 | `_shared/design-output-contract.md` 增加 Thinking-Action Placement Contract；父层与三 leaf Field/Pass/Node 表登记 `reference_cleanliness_note` | 节点证据能说明污染词已被转写，且自动生图前已复验锚句 |
 | 单主体自动生图 provider 长时间无响应，导致 `2-设计` 父级 pipeline 卡死 | provider timeout layer | 中断当前远端等待，将本轮 manifest 标为 `auto_image.failed/timeout`，继续交付可追踪设计真源与后续 layout dry-run | `run_design_auto_image.py` 增加默认 `--timeout`，超时返回 124 并输出明确错误，避免批量链路无限挂起 | 真实生图失败时命令能在超时窗内退出，manifest 与 validation-report 明确记录 provider timeout |
 | 多主体设计批量生图仍逐个前台等待，拖慢或阻塞 `2-设计` pipeline | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认后台提交 | 新增共享 `image-generation-execution-contract.md`，`ensure_design_auto_images.py` 默认 `background-batch-concurrent + max_concurrent=100`，只在 `--foreground` 时等待 | `_manifest.json.auto_image.status=background_submitted` 且含 `request_batch_path/background_pid/background_log` |
+| 设计输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在父层 `S6` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层、显式 reviewer 与设计补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 设计补选 + real subagents` | 当前轮输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
+| 把 `4-Design` 的 stage-end refine、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先区分当前轮 closeout 与阶段最终验收 gate；再把 `source_skill_refs` 降为领域提示 | shared contract、`4-Design/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“分层裁定 + reviewer precedence” | reviewer roster 稳定，且 `source_skill_refs` 不再被当成授权字段 |
 
 ## Repair Playbook
 
@@ -45,6 +47,9 @@
 7. 最后执行 `ensure_design_auto_images.py`，逐个 Markdown 补齐同 stem 图片并回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
 8. 若 provider 超过 `run_design_auto_image.py --timeout` 仍未返回，立即按图片步骤失败处理，不得让父级 pipeline 无限等待；继续保留设计真源、request/dry-run 证据和验收缺口。
 9. 默认自动生图先看 `execution_mode`：后台批量并发提交只证明 request 已交付；需要消费真实图片时再复核同 stem 图片或用 `--foreground` 重跑。
+10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；图片状态只作证据，不作 prerequisite。
+11. `S6` 先按 shared contract 区分 stage-end refine 与 final-stage gate，再决定 reviewer roster；显式 reviewer 不足时，按父层 / 场景 / 角色 / 道具目标补入设计 reviewer。
+12. 若 `team.yaml.enabled == false` 但用户明确要求本轮启用 subagents 监制强化，按 `manual override` 走 shared contract，并在结论里说明这是人工触发复审，不是常驻运行时。
 
 ## Reusable Heuristics
 
@@ -65,3 +70,5 @@
 - `2-设计` 的单主体图片只服务主体概念锁定和 panel continuity reference；不替代 `3-面板` 的 layout 图。
 - 外部 provider 是不稳定依赖，批量设计链路必须有超时边界；超时后可以继续生成结构化设计和面板 layout，但不得把图片步骤宣布为成功。
 - AIGC 图像生成默认应以 request sidecar 为提交真源，后台批量并发执行；`background_submitted` 是可追踪提交态，不是最终产图成功态。
+- 设计输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏设计系统审稿时，再补入设计组/美学组 reviewer。对 `2-设计` 父层默认是 `张叔平 + 叶锦添`。
+- `source_skill_refs` 适合做 reviewer 映射提示，不适合当 `4-Design` 当前轮 closeout 的授权字段；一旦把它升格，reviewer roster 会随 provenance 漂移。

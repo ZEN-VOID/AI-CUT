@@ -1,5 +1,5 @@
 interface:
   display_name: "AIGC 4-Design"
-  short_description: "统一路由场景、角色、服装、道具的清单、设计与面板三段设计阶段。"
-  default_prompt: "Use $aigc-design to route the current task into `1-清单`、`2-设计` or `3-面板`, then dispatch only the needed design domains under `projects/aigc/<项目名>/4-Design/`."
+  short_description: "统一路由场景、角色、服装、道具的清单、设计与面板三段设计阶段，并在 team.yaml 启用时对本轮命中的 leaf canonical 执行阶段末监制强化。"
+  default_prompt: "Use $aigc-design to route the current task into `1-清单`、`2-设计` or `3-面板`, dispatch only the needed design domains under `projects/aigc/<项目名>/4-Design/`, keep the parent skill as the only stage-level router and summary owner, and after the current-round leaf canonical outputs have been written, if project-root `team.yaml` enables `roles.supervision`, resolve reviewer skills from the team roster and run stage-end supervision subagents to minimally refine the touched canonical files before final handoff."
 version: 1

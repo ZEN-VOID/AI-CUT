@@ -5,6 +5,8 @@
   "required": [
     "schema_version",
     "generation_contract",
+    "main_character_lock",
+    "scene_continuity_bible",
     "style_bible",
     "character_locks",
     "comic_text_system",
@@ -40,10 +42,59 @@
         }
       }
     },
+    "main_character_lock": {
+      "type": "object",
+      "required": ["character_id", "name", "anchor_prompt"],
+      "properties": {
+        "character_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "anchor_prompt": {
+          "type": "string",
+          "minLength": 40,
+          "description": "Primary character anchor injected into every page prompt, e.g. Character locked across all panels: [name], [stable appearance/costume/silhouette]."
+        }
+      }
+    },
+    "scene_continuity_bible": {
+      "type": "object",
+      "required": ["default_rule", "scene_locks"],
+      "properties": {
+        "default_rule": {"type": "string", "minLength": 20},
+        "scene_locks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["scene_id", "name", "anchor_prompt"],
+            "properties": {
+              "scene_id": {"type": "string", "minLength": 1},
+              "name": {"type": "string", "minLength": 1},
+              "anchor_prompt": {
+                "type": "string",
+                "minLength": 40,
+                "description": "Named scene anchor used to keep architecture, landmark props, lighting, and spatial geography consistent across relevant pages."
+              }
+            }
+          }
+        }
+      }
+    },
     "style_bible": {"type": "object"},
     "character_locks": {
       "type": "array",
-      "items": {"type": "object"}
+      "items": {
+        "type": "object",
+        "required": ["character_id", "name", "anchor_prompt"],
+        "properties": {
+          "character_id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "anchor_prompt": {
+            "type": "string",
+            "minLength": 20,
+            "description": "Recurring character anchor used when the page contains multiple named characters."
+          }
+        }
+      }
     },
     "comic_text_system": {"type": "object"},
     "pages": {
@@ -56,21 +107,30 @@
           "page_number",
           "page_role",
           "source_fragment",
+          "active_character_ids",
+          "scene_id",
           "layout",
           "panels",
+          "page_number_overlay",
           "positive_prompt"
         ],
         "properties": {
           "page_number": {"type": "integer", "minimum": 1, "maximum": 9},
           "page_role": {"type": "string"},
           "source_fragment": {"type": "string"},
+          "active_character_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "scene_id": {"type": "string", "minLength": 1},
           "layout": {
             "type": "object",
             "required": ["aspect_ratio", "layout_id", "panel_count", "panel_ratios"],
             "properties": {
               "aspect_ratio": {"const": "9:16"},
               "layout_id": {"type": "string"},
-              "panel_count": {"type": "integer", "minimum": 1, "maximum": 5},
+              "panel_count": {"type": "integer", "minimum": 2, "maximum": 5},
               "panel_ratios": {
                 "type": "array",
                 "items": {"type": "string"}
@@ -79,7 +139,7 @@
           },
           "panels": {
             "type": "array",
-            "minItems": 1,
+            "minItems": 2,
             "maxItems": 5,
             "items": {
               "type": "object",
@@ -108,9 +168,22 @@
               }
             }
           },
+          "page_number_overlay": {
+            "type": "object",
+            "required": ["text", "position", "style_prompt"],
+            "properties": {
+              "text": {"type": "string", "pattern": "^[1-9]$"},
+              "position": {"const": "bottom-right"},
+              "style_prompt": {
+                "type": "string",
+                "minLength": 20,
+                "description": "Must require a readable bottom-right numeric page number using digits only."
+              }
+            }
+          },
           "positive_prompt": {
             "type": "string",
-            "description": "Page prompt must mention vertical 9:16 comic page and explicit character/scene consistency semantics."
+            "description": "Page prompt must mention vertical 9:16 comic page, inject the main character anchor, include active multi-character continuity, inject the scene anchor, and include a bottom-right digits-only page number rule."
           }
         }
       }

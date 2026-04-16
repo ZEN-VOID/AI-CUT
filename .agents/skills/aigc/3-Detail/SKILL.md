@@ -91,12 +91,15 @@ governance_tier: full
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+- `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
 - `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
 - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
 - `.agents/skills/aigc/2-Global/SKILL.md`
+- `.codex/commands/master-check-team.md`
+- `.codex/commands/master-check.md`
 - `水月/SKILL.md`
 - `镜花/SKILL.md`
 
@@ -122,6 +125,9 @@ governance_tier: full
   - `scripts/validate_stage_output.py`
   - `水月/scripts/validate_watermoon_output.py`
   - `镜花/scripts/validate_jinghua_output.py`
+  - `projects/aigc/<项目名>/team.yaml`
+  - `.codex/commands/master-check-team.md`
+  - `.codex/commands/master-check.md`
   - 代表性 episode 样本、父子 sidecar 与即时 validator 结果
 - `3-Detail` 的质评应以当前 shared root、child sidecar、stage validator 与样本项目回读为主，不要求额外维护固定评测任务 YAML。
 
@@ -155,10 +161,10 @@ governance_tier: full
 | `business_goal` | 在同一份 `projects/aigc/<项目名>/3-Detail/第N集.json` 上继承 `2-Global` 已写入的分镜组壳、`组间设计` 与固定 `分镜切换`，再把 `水月` beat-level evidence 与 `镜花` cinematic sidecar 收束成 `组间设计.出场角色及穿搭 + 分镜明细[]`，使其进入可供下游消费的阶段状态。 |
 | `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/validation-report.md`。 |
 | `constraint_profile` | shared episode root 是唯一结构化真源；`剧本正文` 保持不动；`组间设计` 与 `分镜切换` 默认继承不重写；`水月` 只写 beat-level factual evidence；`镜花` 只写 cinematic patch；`分镜明细[]` 只在 `3-Detail` 阶段扩展；若 shared root 缺失，只能走显式兼容 bootstrap。 |
-| `success_criteria` | 本轮 scope 内的分镜组都能在 shared root 中看到稳定的 `分镜明细[]` patch、必要的 `出场角色及穿搭` 回填、正确的 `document_phase` 推进，以及阶段级 `validation-report.md`。 |
+| `success_criteria` | 本轮 scope 内的分镜组都能在 shared root 中看到稳定的 `分镜明细[]` patch、必要的 `出场角色及穿搭` 回填、正确的 `document_phase` 推进、阶段级 `validation-report.md`，并在项目根 `team.yaml` 启用 `监制` 时完成一次基于 subagents 的监制强化收束或显式降级说明。 |
 | `non_goals` | 不再生成两轮 markdown 扩写稿；不重写 `剧本正文`；不越权重写 `2-Global` 的项目级设计真源；不直接生成 design/image/video 请求。 |
-| `complexity_source` | 当前阶段要同时维护 shared JSON、既定 `分镜切换`、两个字段 patch sidecar，以及 beat-level factual evidence 与 shot-level cinematic patch 的 merge 对齐。 |
-| `topology_fit` | 固定为“输入锁定 -> council gate -> root seed 检查/兼容回退 -> 顺序 dispatch (`分镜切换 -> 水月 -> 镜花`) -> child patch 产出/复用 -> parent merge -> shared JSON patch -> phase 推进 -> stage validation”。 |
+| `complexity_source` | 当前阶段要同时维护 shared JSON、既定 `分镜切换`、两个字段 patch sidecar、beat-level factual evidence 与 shot-level cinematic patch 的 merge 对齐，以及输出后由 `team.yaml` 驱动的 `监制` subagents 强化收束。 |
+| `topology_fit` | 固定为“输入锁定 -> council gate -> root seed 检查/兼容回退 -> 顺序 dispatch (`分镜切换 -> 水月 -> 镜花`) -> child patch 产出/复用 -> parent merge -> shared JSON patch -> phase/report 初写 -> `team.yaml` 驱动的监制强化 -> 最终复验与闭环”。 |
 | `step_strategy` | 父 `SKILL.md` 保留阶段门、字段边界、merge 规则与验收；子技能细则留在各自目录，不在父层重复展开。 |
 
 ## Context Preload (Mandatory)
@@ -173,22 +179,25 @@ governance_tier: full
 6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 7. `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
 8. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-9. `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
-10. `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
-11. `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
-12. `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
-13. `.agents/skills/aigc/2-Global/SKILL.md`
-14. `水月/SKILL.md`
-15. `镜花/SKILL.md`
-16. `projects/aigc/<项目名>/team.yaml`（若存在）
-17. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
-18. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
-19. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
-20. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
-21. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
-22. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
-23. `projects/aigc/<项目名>/2-Global/分组类型元素.md`（若存在）
-24. `projects/aigc/<项目名>/2-Global/导演意图.md`（若存在）
+9. `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+10. `.codex/commands/master-check-team.md`
+11. `.codex/commands/master-check.md`
+12. `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
+13. `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
+14. `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
+15. `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+16. `.agents/skills/aigc/2-Global/SKILL.md`
+17. `水月/SKILL.md`
+18. `镜花/SKILL.md`
+19. `projects/aigc/<项目名>/team.yaml`（若存在）
+20. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
+21. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
+22. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
+23. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
+24. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
+25. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
+26. `projects/aigc/<项目名>/2-Global/分组类型元素.md`（若存在）
+27. `projects/aigc/<项目名>/2-Global/导演意图.md`（若存在）
 
 ## Total Input Contract (Mandatory)
 
@@ -331,7 +340,9 @@ governance_tier: full
 | `N4-WATERMOON-PATCH` | `S4` | `FIELD-DETAIL-04` | 获取 beat-level factual evidence sidecar | 复用或执行 `水月`，读取 `group_design_patch + beat_patches[]` | `watermoon_patch_note` | -> `N5/N6` | 不得越权写 cinematic 字段 |
 | `N5-JINGHUA-PATCH` | `S5` | `FIELD-DETAIL-05` | 在既定 `分镜切换 + 水月 evidence` 基础上获取 cinematic patch sidecar | 复用或执行 `镜花`，读取 `shot_patches[]` | `jinghua_patch_note` | -> `N6` | 不得越权写 factual 字段，且不得重判 seed |
 | `N6-MERGE` | `S6` | `FIELD-DETAIL-06` `FIELD-DETAIL-07` | 合并 child patch 并写回 shared root | 先回填 `出场角色及穿搭`，再按 `beat_refs[]` 合成 `分镜明细[]` | `merge_summary` | pass -> `N7`；drift -> 回 `S3~S6` | `剧本正文` 不得变化 |
-| `N7-PHASE-VALIDATE` | `S7` | `FIELD-DETAIL-08` | 推进 phase 并写阶段验收 | 更新 `document_phase`、写 `validation-report.md`、执行 `scripts/validate_stage_output.py` | `validation_verdict` | pass -> `done`；fail -> 回 `S4~S6` | `ready` 前必须存在可消费 `分镜明细[]`，且阶段 validator 通过 |
+| `N7-PRE-REVIEW-VALIDATE` | `S7` | `FIELD-DETAIL-08` | 先形成可被监制审看的 canonical 输出包 | 更新 `document_phase`、初写 `validation-report.md`、执行一次阶段 validator | `pre_review_validation_verdict` | pass -> `N8`；fail -> 回 `S4~S6` | 未形成 episode root + report bundle 不得进入监制强化 |
+| `N8-SUPERVISION-REINFORCE` | `S8` | `FIELD-DETAIL-09` `FIELD-DETAIL-10` | 按 `team.yaml` 解析监制 roster、模式与 review target bundle，并做 subagents 强化收束 | 读取 `team.yaml`、抽取/补选 reviewer、启动 subagents 或按 fallback 降级、综合建议、对命中文件做最小必要优化 | `supervision_runtime_note`、`supervision_reinforcement_result` | patch root/report -> `N9`；factual drift -> 回 `S4`；cinematic drift -> 回 `S5`；skip -> `N9` | reviewer 来源、模式与是否启用真实 subagents 必须可追踪 |
+| `N9-FINAL-CLOSE` | `S9` | `FIELD-DETAIL-10` | 完成监制强化后的终验与闭环写回 | 重跑 validator、补写最终 `validation-report.md` closure、记录 patched targets / skip reason | `final_close_verdict` | pass -> `done`；fail -> 回 `S4/S5/S8` | 项目启用监制 runtime 时，不得跳过该节点直接宣布完成 |
 
 ## Field Master
 
@@ -344,7 +355,9 @@ governance_tier: full
 | `FIELD-DETAIL-05` | `镜花` cinematic patch | shot skeleton 与 cinematic fields 稳定 | `S5` | 镜头可聚合性 | `FAIL-DETAIL-05` |
 | `FIELD-DETAIL-06` | `组间设计.出场角色及穿搭` | 只回填有证据的服装摘要 | `S6` | 组级回填准确度 | `FAIL-DETAIL-06` |
 | `FIELD-DETAIL-07` | `分镜明细[]` | factual + cinematic merge 后满足 schema | `S6` | shot patch 完整度 | `FAIL-DETAIL-07` |
-| `FIELD-DETAIL-08` | `document_phase + validation-report.md` | 完成度表达真实且可验收 | `S7` | 闭环完整性 | `FAIL-DETAIL-08` |
+| `FIELD-DETAIL-08` | `document_phase + validation-report.md` 初稿 | 输出包已形成可审看的 canonical bundle | `S7` | 预审可读性 | `FAIL-DETAIL-08` |
+| `FIELD-DETAIL-09` | `team.yaml -> supervision runtime packet` | 监制 role、reviewer 来源、模式、fallback 与 target bundle 可追踪 | `S8` | subagents 运行时正确性 | `FAIL-DETAIL-09` |
+| `FIELD-DETAIL-10` | `supervision_reinforcement + final close` | 监制强化后的 patch、skip reason、终验结果与 final closure 一致 | `S8/S9` | 闭环完整性 | `FAIL-DETAIL-10` |
 
 ## Thought Pass Map
 
@@ -356,7 +369,9 @@ governance_tier: full
 | `S4` | `FIELD-DETAIL-04` | `水月` 是否提供了可聚合 factual evidence | 读取/生成 group_design_patch 与 beat_patches | 只有抽象 prose，无结构化事实 |
 | `S5` | `FIELD-DETAIL-05` | `镜花` 是否在 seed + factual evidence 基础上提供了可聚合 cinematic patch | 读取/生成 shot_patches | 只有镜头感，没有字段落点 |
 | `S6` | `FIELD-DETAIL-06/07` | 如何在不改 `剧本正文` 的前提下写回 root | merge factual + cinematic patch | 字段 owner 漂移、对齐失败 |
-| `S7` | `FIELD-DETAIL-08` | 当前是否只能 `detail_in_progress`，还是可以 `ready` | 写 phase 与 validation | `ready` 与真实完成度不符 |
+| `S7` | `FIELD-DETAIL-08` | 当前输出包是否已经够资格进入监制强化 | 写 phase、report 初稿并做预审校验 | episode root / report 任一缺失或不可读 |
+| `S8` | `FIELD-DETAIL-09/10` | 当前项目是否要按 `team.yaml` 启用监制 subagents，以及 review 命中哪些文件 | 解析 supervision roster、选择 mode、执行 subagents 或 fallback、综合 patch | team 配置已启用却静默跳过，或把 report 当成唯一评审对象 |
+| `S9` | `FIELD-DETAIL-10` | 监制强化后的输出是否已经真正闭环 | 重跑 validator、补写 final closure 与 supervision summary | patch 后未复验、skip reason 缺失、或最终 closure 与真实状态不符 |
 
 ## Pass Table
 
@@ -369,7 +384,9 @@ governance_tier: full
 | `FIELD-DETAIL-05` | cinematic patch 可回链且不越权 | `FAIL-DETAIL-05` | `S5` |
 | `FIELD-DETAIL-06` | `出场角色及穿搭` 回填准确且克制 | `FAIL-DETAIL-06` | `S6` |
 | `FIELD-DETAIL-07` | `分镜明细[]` 满足 schema 且 merge 无冲突 | `FAIL-DETAIL-07` | `S6` |
-| `FIELD-DETAIL-08` | `document_phase` 与 `validation-report.md` 一致 | `FAIL-DETAIL-08` | `S7` |
+| `FIELD-DETAIL-08` | episode root + report 初稿已形成可读 bundle | `FAIL-DETAIL-08` | `S7` |
+| `FIELD-DETAIL-09` | supervision runtime 按 `team.yaml` / `master-check-team` 规则可追踪 | `FAIL-DETAIL-09` | `S8` |
+| `FIELD-DETAIL-10` | 监制强化结果、patched targets 与终验 closure 一致 | `FAIL-DETAIL-10` | `S8/S9` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -380,6 +397,8 @@ governance_tier: full
 - `beat_id / beat_refs[]` 无法对齐
 - `分镜明细[]` 合成后不满足 shared schema
 - `document_phase` 与真实完成度不一致
+- 项目根 `team.yaml` 已启用 `监制`，但阶段收尾没有执行 reviewer 解析、subagents 调度或显式降级
+- 监制强化直接越权修改 child owner 字段，而没有回流 `S4/S5`
 
 强制追因链：
 
@@ -388,6 +407,10 @@ governance_tier: full
 本阶段常见 landing points：
 
 - `.agents/skills/aigc/3-Detail/SKILL.md`
+- `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+- `projects/aigc/<项目名>/team.yaml`
+- `.codex/commands/master-check-team.md`
+- `.codex/commands/master-check.md`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`
 - `水月/SKILL.md`
 - `镜花/SKILL.md`
@@ -403,4 +426,142 @@ governance_tier: full
 4. 命中 group 已写入合法 `分镜明细[]`。
 5. `document_phase` 与实际完成度一致。
 6. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
-7. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过。
+7. 若 `projects/aigc/<项目名>/team.yaml` 启用 `roles.supervision` 且当前阶段命中 `3-Detail`，已完成一次 `监制强化`，并在 `validation-report.md` 中写明 reviewer 来源、模式、是否启用真实 subagents、patched targets 或 skip/fallback 原因。
+8. 监制强化若命中 `水月 / 镜花` owner 字段，已回流到 `S4/S5` 而不是在父层静默越权 patch。
+9. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过；若启用监制强化校验，再追加 `--team-yaml projects/aigc/<项目名>/team.yaml`。
+
+## Subagents 监制强化合同 (Mandatory)
+
+`3-Detail` 在输出以下真源文件后，必须立即进入一次基于 `team.yaml` 的 `监制强化` 判定：
+
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
+- `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`
+- `projects/aigc/<项目名>/3-Detail/validation-report.md`
+
+本节直接继承 `.codex/commands/master-check-team.md` 与 `.codex/commands/master-check.md` 的 reviewer 解析与 subagents 调度设计，但只对 `3-Detail` 的 `监制` 角色生效。
+
+### 激活门
+
+只有同时满足以下条件，才进入真实 `监制强化`：
+
+1. `projects/aigc/<项目名>/team.yaml` 存在。
+2. `enabled == true`。
+3. `roles.supervision.enabled == true`。
+4. `roles.supervision.operates_on` 包含 `3-Detail`。
+5. 当前 canonical output bundle 已完成 `S7`，可供顾问团读取。
+
+若任一条件不满足：
+
+- 记录 `supervision_runtime_note`
+- 在 `validation-report.md` 中写明 `skip reason`
+- 直接进入 `S9`
+
+### Reviewer 解析顺序
+
+按以下顺序抽取 `监制` reviewer，规则对齐 `master-check-team`：
+
+1. `team_setup.shared_agents`
+2. `roles.supervision.members`
+3. `roles.supervision.source_skill_refs`
+
+处理规则：
+
+- 只保留位于 `.agents/skills/team/` 下的 skill。
+- 若条目指向目录，补到其 `SKILL.md`。
+- `roles.supervision.source_skill_refs` 默认主要是阶段 skill 回指；只有其中实际命中 `.agents/skills/team/` 时，才可视为 reviewer roster。
+- 若显式 roster 为空或不足，才允许进入 `stage-aware` 补选。
+
+### `stage-aware` 补选规则
+
+仅在 `enabled == true` 且 `runtime_policy.use_subagents_by_default == true` 时允许补选，数量限制在 `1-3` 位：
+
+1. `导演组` 1 位：必选，用于检查导演表达一致性、节奏与可拍性。
+2. `摄影组` 1 位：当 issue 主要落在 `分镜明细[].景别 / 运镜手法 / 摄影美学 / 镜头速度` 时补入。
+3. `编剧组` 1 位：当 issue 主要落在剧情执行、角色动机、beat 消费合理性与资源感时补入。
+
+硬规则：
+
+- 补选必须在 `validation-report.md` 标记 `reviewer_source: team-inferred`。
+- 不得无边界拉起整个 `.agents/skills/team/` 技能树。
+- 若无法稳定补选，宁可记录 `skip reason`，也不要臆造整套监制团。
+
+### Review Target Bundle
+
+`3-Detail` 的监制强化默认不是“只审最后一个文件”，而是固定审以下 bundle：
+
+1. 主目标：`projects/aigc/<项目名>/3-Detail/第N集.json`
+2. 次目标：`projects/aigc/<项目名>/3-Detail/validation-report.md`
+3. 条件目标：`水月/第N集.field-patch.json` 或 `镜花/第N集.field-patch.json`
+
+硬规则：
+
+1. 即使最后一个写入文件是 `validation-report.md`，也不得让它替代 `第N集.json` 成为唯一评审对象。
+2. child sidecar 只在 findings 明确命中 owner 字段时才进入条件目标。
+3. 若 findings 只影响 report 表达、监制摘要或 closure triad，允许只 patch `validation-report.md`。
+
+### 模式裁决
+
+默认裁决对齐 `master-check`：
+
+1. reviewer 为 1 个 -> `single-reviewer`
+2. reviewer 为 `2-4` 个且相对独立 -> `parallel-council`
+3. reviewer 之间存在明显 refine 依赖 -> `serial-refine`
+
+对 `3-Detail` 的默认建议：
+
+- `导演组 + 摄影组` 一般优先 `parallel-council`
+- `编剧组 -> 导演组 -> 摄影组` 的强依赖修稿才进入 `serial-refine`
+- `independent-only` 不是默认主路径；只有用户明确要求“只看法不改稿”时才使用
+
+### Subagent Dispatch Gate
+
+当满足以下条件时，必须真实启用 subagents，而不是本地模拟：
+
+1. `runtime_policy.use_subagents_by_default == true`
+2. 已解析出 `1-4` 个 reviewer
+3. 当前环境未被更高优先级策略阻断
+4. 用户未显式禁止 subagents
+
+执行语义：
+
+- 一个 reviewer skill 对应一个 subagent
+- 主 agent 保留 canonical 写回权
+- subagent 只输出局部判断、主要问题、可执行优化建议与是否建议直接修改目标
+
+### 降级 / 阻塞规则
+
+若不能真实启用 subagents，按 `team.yaml.runtime_policy.fallback_when_subagents_unavailable` 执行：
+
+- `block_and_report_for_init_interview`
+  - 对 `3-Detail` 不直接复用为硬阻塞；先记录为 `stage_runtime_policy_mismatch`
+  - 默认回退到 `validation-report.md` 中显式报告，并让用户决定是否继续
+- 其他值
+  - 允许顺序读取 reviewer skill 文档并模拟顾问纪要
+  - 必须在 `validation-report.md` 中写明 `used_subagents: false` 与降级原因
+
+### Optimization Routing
+
+监制强化不得破坏字段 ownership：
+
+1. findings 命中 `组间设计.出场角色及穿搭`、`角色背景面`、`角色站位走位`、`道具及状态`、`镜头消费提示`
+   - 回流 `S4`
+2. findings 命中 `分镜ID / 时间段 / 景别 / 运镜手法 / 摄影美学 / 转场特效`
+   - 回流 `S5`
+3. findings 只涉及 shared root 汇流、closure triad、验证摘要或 reviewer provenance
+   - 允许在 `S8/S9` 直接 patch `第N集.json` 或 `validation-report.md`
+
+### `validation-report.md` 最低记录槽位
+
+`监制强化` 命中时，`validation-report.md` 至少应包含：
+
+- `## 监制强化`
+- `team_yaml`
+- `reviewer_source`
+- `reviewers`
+- `mode`
+- `used_subagents`
+- `patched_targets`
+- `key_findings`
+- `synthesis`
+- `fallback_or_skip_reason`（若存在）

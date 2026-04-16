@@ -14,6 +14,7 @@
 | 可选 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 当前集逐集剧本主稿 |
 | 可选 | `projects/aigc/<项目名>/2-Global/*.md` | 已有全局文档，供增量 patch 使用 |
 | 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 已有 shared episode root；供 `group_design` seed 增量 patch 使用 |
+| 可选 | `projects/aigc/<项目名>/team.yaml` | 项目级顾问团真源；若 `enabled == true` 且当前阶段命中 `roles.supervision`，供 stage-end 监制会审 runtime 使用 |
 
 ## Outputs
 
@@ -29,6 +30,7 @@
 | internal | `switching_rationale_note` | former `镜花/1-切换` fixed-shot-count 接受逻辑的阶段内化说明 |
 | internal | `style_note / type_note / director_note / convergence_report` | 取舍、阻塞与汇流审计侧车 |
 | internal | `writeback_patch_set` | 父 skill 最终写回前的统一 patch 集 |
+| internal | `supervision_runtime_decision / supervision_reviewer_list / supervision_report / supervision_patch_set / supervision_refine_note` | 输出相关真源文件首次落盘后的 `监制 subagents` 会审、汇流与最小 patch 侧车 |
 
 ## Naming Contract
 
@@ -54,6 +56,11 @@
 - `constraint_bridge_note`
 - `convergence_report`
 - `writeback_patch_set`
+- `supervision_runtime_decision`
+- `supervision_reviewer_list`
+- `supervision_report`
+- `supervision_patch_set`
+- `supervision_refine_note`
 - `handoff_note`
 
 ## Hard Rules
@@ -69,3 +76,5 @@
 9. `组间设计.全局风格 / 类型元素 / 导演意图` 的默认字数窗固定为 `220 / 50 / 100` 个字符以内；`出场角色及穿搭` 在 `2-Global` 阶段允许先留空字符串，待 `3-Detail` 回填。
 10. 不再允许 `subagent_brief_*`、`context_packet_*`、`agents_plan_*` 这类外置导演组命名语义继续作为本阶段真源。
 11. 新输出不得再生成 `2-Global/类型元素.md`、`2-Global/全局风格/`、`2-Global/类型元素/`、`2-Global/设计元素/` 等旧兼容载体；旧项目中已经存在的同名文件只允许作为迁移输入 fallback。
+12. 若 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，`supervision_*` 命名必须作为 stage-end runtime 侧车；它们只能服务于已落盘 canonical 文件的会审与 refine，不得扩写成第二套输出真源。
+13. `roles.supervision.source_skill_refs` 只可作为 reviewer 匹配提示，不得直接充当 reviewer skill；会审 reviewer 的最终真源仍应落在 `.agents/skills/team/**/SKILL.md`。
