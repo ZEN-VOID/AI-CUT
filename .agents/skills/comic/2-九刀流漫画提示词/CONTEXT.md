@@ -8,16 +8,16 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: 13779
-current_lines: 165
-current_cases: 19
+current_chars: 16097
+current_lines: 178
+current_cases: 21
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-16T08:05:00Z
+last_checked_at: 2026-04-17T07:20:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
-本文件沉淀“小说/漫画桥接包 -> 九页漫画生成提示词 JSON”的经验。默认知识库模式，不记录流水账。
+本文件沉淀“漫画剧本/`formatted_source_script`/漫画剧本桥接包 -> 九页漫画生成提示词 JSON”的经验。默认知识库模式，不记录流水账。
 
 ## Type Map
 
@@ -43,6 +43,9 @@ last_checked_at: 2026-04-16T08:05:00Z
 | `TM-NB-18` | 槽位类型正确，但对白/独白/旁白在画面中的位置和归属混乱 | 结构语义层 | 为 `text_slots` 补 `speaker_id / placement / bubble_style / inside_panel`；对白与独白必须绑定当前页角色 | schema 与 validator 同步检查 `speaker_id` 回指 `active_character_ids`，并校验 bubble/placement 语义 | validator 对无说话者或错误 placement 的槽位报错 |
 | `TM-NB-19` | 文档写了长度上限和可读性，但超长对白与不可读中文仍通过 | 校验门禁层 | 把长度上限和 `clear legible Chinese text` 约束同时落到 schema、validator 和 page prompt 注入模板 | validator 按类型检查 `max_chars` 和 prompt 文本可读性语义 | 超长对白、缺文字可读性提示的 page prompt 无法通过 |
 | `TM-NB-20` | 在 Coze/扣子这类 Agent 平台上，9 页成品的漫画风格断层漂移：有页像黑白港漫，有页像儿童彩图，有页像影视概念图 | 全局风格锁缺失层 | 在 `style_bible` 和每页 `positive_prompt` 前段同时注入同一条 `global style anchor`，锁死渲染媒介、线条体系、明暗方法、上色策略、lettering 质感与角色年龄比例，并显式写 `forbidden style shifts` | 在 `SKILL.md`、reference 与导出的 Agent system prompt 同步提升“全局风格锁”优先级；把页间风格稳定看作高于单页炫技 | 页 1-9 允许构图变化，但不再出现儿童绘本 / Q 版 / 写实概念图的断层混切 |
+| `TM-NB-21` | 把整段上游剧本直接压成一个 9 页包后，节奏忽快忽慢：有时 9 页塞太多事件，有时又被拉得过空 | 分组真源缺失层 | 在 `formatted_source_script` 之后强制生成 `page_group_plan`，按约 500 字原文切 `page-group`，再逐组跑九刀 | `SKILL.md`、reference、template、父子技能 handoff 同步提升 `page-group` 为 canonical 输出规则 | 每个 group 的 9 页都能成立完整小节奏，且 episode 不再只有一个过载或过空 JSON |
+| `TM-NB-22` | 分组后单组节奏合理，但组与组之间人物、风格、场景像换了作品 | 组间 continuity 合同缺失层 | 在每个组级 JSON 中显式加入 `page_group / continuity_context`，并要求继承同一套 `main_character_lock / style_bible / character_locks / scene_continuity_bible` | schema/template/validator 与下游技能同步识别组级 metadata，防止多组输出退化成多个独立短篇 | page-group-01 与 page-group-02 的视觉 DNA、角色锚点和场景锚点可连续对读 |
+| `TM-NB-23` | 4 号动画阶段能读到页级 prompt，但抽不出稳定的多分镜视频节奏，结果像单镜头动态海报 | 结构可动画化层 | 在 `pages[].panels[]` 中补齐 `shot / action / text_slots`，并让 `positive_prompt` 先写版式、再写 panel 级动作 | 4 号技能默认按 `one panel -> one shot` 编译 sora prompt；2 号模板与人工验收同步把 panel 结构当作视频 storyboard 输入 | 4 号 dry-run 的 `shot_plan` 能逐格展开，而不是只剩一个大句子 |
 
 ## Repair Playbook
 
@@ -60,7 +63,11 @@ last_checked_at: 2026-04-16T08:05:00Z
 
 - Seedream 已验证支持一次请求返回 9 张独立图片；提示词 JSON 的职责是让这 9 张“各有剧情功能”，不是把九页压成九宫格。
 - 若 `projects/comic/<项目名>/` 下只有 `metadata.json` 没有目标章节正文，不要先跑整书下载；优先读取 `metadata.data.lists[*].item_id`，用单章级正文抓取补齐当前集源文本，再进入九刀前奏。
-- 当用户要求同项目的第 2 集/第 3 集“保持角色和风格一致”时，优先把上一集 `nine_blade_comic_prompts.json` 视为 continuity truth：继承 `main_character_lock`、`style_bible`、既有 `character_locks`，只对新增人物和新增场景做增量扩展。
+- 当 `1-漫画剧本改编/formatted_source_script.json` 已存在时，优先把它视为唯一文本真源；不要回退到 Markdown 主稿重新猜 `ordered_story_units[]`。
+- 当用户要求同项目的第 2 集/第 3 集“保持角色和风格一致”时，优先把上一集的 `page-group-*.json` 或 `第N集-page-group-*.json` 视为 continuity truth：继承 `main_character_lock`、`style_bible`、既有 `character_locks`，只对新增人物和新增场景做增量扩展。
+- 当一个 episode 篇幅明显超过单组承载能力时，最稳的做法不是压缩剧情，而是先做 `page_group_plan`：以约 500 字原文为目标切组，优先 obey `scene_cards / impact_beats / page_turn_candidates` 的自然边界。
+- `page-group` 是节奏单元，不是风格单元。允许每组的剧情功能不同，但 `main_character_lock`、`style_bible`、`scene_continuity_bible` 和 recurring `character_locks` 必须跨组继承。
+- 如果下游不仅要生图，还要做图生视频，那么 2 号技能的页级产物必须同时满足“可生成漫画页”和“可还原为多分镜动画 storyboard”两套要求；最稳做法是保留清晰的 `panels[]` 粒度，而不是把所有动作压扁成一条大 prompt。
 - 每页内部可以是三格、二格、四格或 splash + inset；九页之间不要都用同一版式。
 - 页级 prompt 最稳的结构是：页面版式 -> 角色锁 -> panels -> 文本槽 -> overall -> negative。
 - 对连续 9 页漫画，`character_locks` 只能描述角色表，不能替代主角锚。最稳结构是：页面版式 -> `main_character_lock.anchor_prompt` -> 角色/场景一致性语义 -> panels -> 文本槽 -> overall -> negative。
@@ -69,8 +76,8 @@ last_checked_at: 2026-04-16T08:05:00Z
 - 当用户已经给出高密度人物锁定句时，不要把它拆散到多个字段后期待模型自己拼回去；应保留为 `main_character_lock.anchor_prompt`，逐页原样或近原样注入。
 - 场景连续性最稳的方式不是抽象写 `same location`，而是给出具名场景锁：场景名 + 建筑/地标 + 光线/时段 + 空间朝向，再由每页 `scene_id` 显式回指。
 - 页码要进最终图，必须让它既存在于结构字段，也存在于页级 prompt 和 master prompt；只在 JSON 里存一个 `page_number` 数字并不会自动出现在图上。
-- 多集漫画项目若继续沿用根级 `nine_blade_comic_prompts.json`，会覆盖上一集；在没有更强 episode 子目录合同前，默认应改用 `第N集-` 前缀文件名，并让中间真源与摘要同前缀联动。
-- 当阶段目录里已经存在单集旧产物而用户继续点名“第2集 / 第3集”时，最稳做法不是直接覆盖旧文件，而是先把旧产物迁成 `第1集-...` 或对应集号前缀，再把当前集写成新的 `第N集-...`；否则下游会出现“上一集真源消失、当前集冒充唯一 canonical”的假单集状态。
+- 多集漫画项目若继续沿用根级 `nine_blade_comic_prompts.json`，会覆盖上一集；在没有更强 episode 子目录合同前，默认应改用 `第N集-page-group-XX-...` 前缀文件名，并让中间真源与摘要同前缀联动。
+- 当阶段目录里已经存在单集旧产物而用户继续点名“第2集 / 第3集”时，最稳做法不是直接覆盖旧文件，而是先把旧产物迁成 `第1集-page-group-XX-...` 或对应集号前缀，再把当前集写成新的 `第N集-page-group-XX-...`；否则下游会出现“上一集真源消失、当前集冒充唯一 canonical”的假单集状态。
 - 中文气泡要短，旁白比对白更适合承载解释，SFX 只承载动作声音。
 - 文字系统如果只存在于顶层说明文而不进入 `text_slots` 结构字段，生成时就会退化为“模型自由发挥的气泡”。要把 `speaker_id / placement / bubble_style / inside_panel` 当成执行合同，而不是备注。
 - 9 页漫画足够覆盖对白、旁白、独白、SFX 四类文字形态；若最终 JSON 缺其中一类，通常不是“题材不需要”，而是文字系统在切页或模板阶段被压扁了。

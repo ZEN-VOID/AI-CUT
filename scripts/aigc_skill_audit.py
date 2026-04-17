@@ -22,6 +22,16 @@ DESIGN_2_CANONICAL_TEMPLATES = {
     DESIGN_2_ROOT / "道具" / "templates" / "prop_masterprompt.structured.v2.md",
     DESIGN_2_ROOT / "场景" / "templates" / "scene_masterprompt.structured.v2.md",
 }
+DESIGN_SLOT_REVIEW_CONTRACT = DESIGN_2_ROOT / "_shared" / "design-slot-review-contract.md"
+DESIGN_SLOT_RESOLVER = DESIGN_2_ROOT / "_shared" / "scripts" / "resolve_design_slot_bundles.py"
+DESIGN_SUBAGENT_SUPERVISION_CONTRACT = DESIGN_2_ROOT / "_shared" / "subagent-supervision-contract.md"
+DESIGN_SLOT_RUNTIME_MARKERS = (
+    "slot_bundles",
+    "SCENE-BUNDLE-01",
+    "ROLE-BUNDLE-01",
+    "PROP-BUNDLE-01",
+    "design-slot-review-contract.md",
+)
 AMBIGUOUS_OUTPUT_TEMPLATE_NAME = "output-" "template.md"
 
 ROOT_CAUSE_SECTION_PATTERNS = [
@@ -621,6 +631,39 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
             )
 
 
+def audit_design_slot_bundle_runtime(failures: list[str]) -> None:
+    """Ensure slot-bundle governance has a real execution carrier, not docs only."""
+    if not DESIGN_2_ROOT.exists():
+        return
+
+    if not DESIGN_SLOT_REVIEW_CONTRACT.exists():
+        failures.append(f"{DESIGN_SLOT_REVIEW_CONTRACT}: missing shared slot-review contract")
+        return
+
+    if not DESIGN_SLOT_RESOLVER.exists():
+        failures.append(
+            f"{DESIGN_SLOT_RESOLVER}: missing slot-bundle resolver runtime for `design-slot-review-contract.md`"
+        )
+    else:
+        resolver_content = DESIGN_SLOT_RESOLVER.read_text(encoding="utf-8")
+        for marker in DESIGN_SLOT_RUNTIME_MARKERS:
+            if marker not in resolver_content:
+                failures.append(
+                    f"{DESIGN_SLOT_RESOLVER}: missing runtime marker `{marker}` for slot-bundle resolution"
+                )
+
+    if not DESIGN_SUBAGENT_SUPERVISION_CONTRACT.exists():
+        failures.append(f"{DESIGN_SUBAGENT_SUPERVISION_CONTRACT}: missing shared supervision contract")
+        return
+
+    supervision_content = DESIGN_SUBAGENT_SUPERVISION_CONTRACT.read_text(encoding="utf-8")
+    for marker in ("slot_bundle_findings", "slot_bundles: []", "design-slot-review-contract.md"):
+        if marker not in supervision_content:
+            failures.append(
+                f"{DESIGN_SUBAGENT_SUPERVISION_CONTRACT}: missing slot-bundle marker `{marker}`"
+            )
+
+
 def audit_init_single_skill_contract(failures: list[str]) -> None:
     init_skill = ROOT / "0-Init" / "SKILL.md"
     if not init_skill.exists():
@@ -919,6 +962,7 @@ def main() -> int:
     audit_runtime_alignment(contract_mode, failures)
     audit_stage_review_carriers(failures)
     audit_design_2_template_registry(failures)
+    audit_design_slot_bundle_runtime(failures)
     audit_init_single_skill_contract(failures)
     audit_planning_internal_skill_contract(failures)
     audit_global_single_skill_contract(failures)

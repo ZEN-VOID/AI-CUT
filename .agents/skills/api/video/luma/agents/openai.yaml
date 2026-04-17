@@ -1,0 +1,4 @@
+interface:
+  display_name: "Luma 生视频"
+  short_description: "通过 FineAPI 兼容接口提交 Luma Ray 视频任务，支持关键帧 URL、轮询与项目化下载"
+  default_prompt: "使用 Luma 兼容接口生成视频。优先校验 FineAPI 创建字段 user_prompt/model_name、resolution 和 duration，按异步 generation 流程提交、轮询并将报告与 MP4 落到项目化目录。"

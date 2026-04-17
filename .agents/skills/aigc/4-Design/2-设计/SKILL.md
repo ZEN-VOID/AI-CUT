@@ -58,6 +58,7 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/1-清单/SKILL.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `场景/SKILL.md`
@@ -85,17 +86,18 @@ governance_tier: full
 5. 本 `SKILL.md + CONTEXT.md`
 6. `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 7. `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
-8. `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
-9. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-10. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
-11. 命中 `场景` 时，加载 `场景/SKILL.md + CONTEXT.md`
-12. 命中 `角色` 时，加载 `角色/SKILL.md + CONTEXT.md`
-13. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
-14. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
-15. `projects/aigc/<项目名>/2-Global/全局风格.md`
-16. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
-17. `projects/aigc/<项目名>/2-Global/导演意图.md`
-18. `projects/aigc/<项目名>/team.yaml`（若存在）
+8. `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
+9. `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
+10. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+11. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+12. 命中 `场景` 时，加载 `场景/SKILL.md + CONTEXT.md`
+13. 命中 `角色` 时，加载 `角色/SKILL.md + CONTEXT.md`
+14. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
+15. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
+16. `projects/aigc/<项目名>/2-Global/全局风格.md`
+17. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
+18. `projects/aigc/<项目名>/2-Global/导演意图.md`
+19. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Total Input Contract (Mandatory)
 
@@ -151,11 +153,11 @@ governance_tier: full
 | `FIELD-DESIGN-02-01` | tranche boundary | 明确父层只负责路由、输入裁决与 handoff | `S1` | boundary clarity | `FAIL-DESIGN-02-01` |
 | `FIELD-DESIGN-02-02` | dispatch decision | 明确命中 leaf、selected objects 与 selective dispatch | `S2` | routing stability | `FAIL-DESIGN-02-02` |
 | `FIELD-DESIGN-02-03` | shared inputs | 固定 `1-清单 + 0-Init + 2-Global` 三层输入口径 | `S3` | truth alignment | `FAIL-DESIGN-02-03` |
-| `FIELD-DESIGN-02-04` | output governance | 锁各 active leaf 的 canonical truth / projection / `_manifest.json` 边界 | `S4` | canonical governance | `FAIL-DESIGN-02-04` |
+| `FIELD-DESIGN-02-04` | output governance | 锁各 active leaf 的 canonical truth / projection / `_manifest.json` 边界，并把当前轮目标解析到 slot bundle | `S4` | canonical governance | `FAIL-DESIGN-02-04` |
 | `FIELD-DESIGN-02-05` | handoff | 明确 `3-面板` 默认消费 `full_generation_prompt` 与同 stem 单主体图片作为批量 SMART 参照 | `S5` | closure completeness | `FAIL-DESIGN-02-05` |
 | `FIELD-DESIGN-02-06` | `full_generation_prompt + auto_image_asset` | 完整 prompt 必须含全局风格前缀；图片请求必须通过共享 guard 以后台批量并发模式提交，并能在完成后确认为每个 Markdown 同目录同名落盘 | `S5` | image fast-path completeness | `FAIL-DESIGN-02-06` |
 | `FIELD-DESIGN-02-07` | reference cleanliness policy | 父层必须把场景空镜、角色纯色背景、道具纯物图作为 leaf prompt 与自动生图前置门禁 | `S5` | reference cleanliness | `FAIL-DESIGN-02-07` |
-| `FIELD-DESIGN-02-08` | subagent supervision closeout | 输出后必须读取项目根 `team.yaml`，按共享合同裁定当前轮 closeout 的 refine / review-gate 关系、reviewer 顺序与设计型补选，并只对当前轮业务文件做监制/设计向优化 | `S6` | council closeout | `FAIL-DESIGN-02-08` |
+| `FIELD-DESIGN-02-08` | subagent supervision closeout | 输出后必须读取项目根 `team.yaml`，按共享合同裁定当前轮 closeout 的 refine / review-gate 关系、reviewer 顺序与设计型补选，并先把当前轮文件解析到 slot bundle，再只对当前轮业务文件做监制/设计向优化 | `S6` | council closeout | `FAIL-DESIGN-02-08` |
 
 ## Thought Pass Map
 
@@ -164,9 +166,9 @@ governance_tier: full
 | `S1` | 锁 tranche 边界 | 明确父层拥有项与不拥有项 | `boundary_note` | `S2` | `S1` |
 | `S2` | 裁决命中 leaf | 锁 `场景 / 角色 / 道具` active leaf 与 selected objects | `dispatch_note` | `S3` | `S2` |
 | `S3` | 锁共享输入 | 回链 `1-清单 + 0-Init + 2-Global` 三层输入 | `input_lock_note` | `S4` | `S3` |
-| `S4` | 锁输出边界 | 固定 canonical truth 与 derived projection | `output_governance_note` | `S5` | `S4` |
+| `S4` | 锁输出边界 | 固定 canonical truth、derived projection 与 slot bundle 边界 | `output_governance_note + slot_bundle_note` | `S5` | `S4` |
 | `S5` | 写 handoff、参照洁净门禁与图片快路径 | 声明 `3-面板` 默认读取 `full_generation_prompt` 与同 stem 图片；按共享输出合同锁定 `场景=empty environmental shot`、`角色=solid color background`、`道具=isolated pure prop view` 后，再触发 `ensure_design_auto_images.py` 写批量 request sidecar 并按默认后台批量并发模式提交单主体自动图 | `handoff_note + reference_cleanliness_note + auto_image_note` | `S6` | `S5` |
-| `S6` | 写 subagents 监制强化收尾 | 读取 `team.yaml`，按共享合同裁定当前轮 closeout 是否可进入、合并 `roles.supervision.members`、可选 `4-Design review gate members` 与设计型补选，并真实启动 reviewer subagents 对当前轮输出做复审/优化 | `supervision_review_note + subagent_supervision_result` | `done` | `S6` |
+| `S6` | 写 subagents 监制强化收尾 | 读取 `team.yaml`，按共享合同裁定当前轮 closeout 是否可进入、合并 `roles.supervision.members`、可选 `4-Design review gate members` 与设计型补选，并先把当前轮文件解析到 slot bundle，再真实启动 reviewer subagents 对当前轮输出做复审/优化 | `supervision_review_note + subagent_supervision_result` | `done` | `S6` |
 
 ## Pass Table
 
@@ -195,6 +197,7 @@ governance_tier: full
 - 生图 prompt 只传了局部主体描述，缺统一全局风格前缀
 - 场景/角色/道具参照图 prompt 混入其他主体，导致下游 panel 或 image 阶段引用污染
 - `3-面板` 仍需重新猜对象主键或风格骨架
+- 当前轮监制强化仍停留在文件级，无法说明具体哪个 slot bundle 失真
 - 当前轮输出已落盘，但没有读取项目根 `team.yaml` 做监制强化收尾
 - 把 `4-Design` 的 stage-end refine 与 final-stage review gate 混成同一条权限线
 - 把 `roles.supervision.source_skill_refs` 误当 reviewer skill，导致 council 命中阶段技能而不是 `.agents/skills/team/` reviewer
@@ -210,13 +213,14 @@ governance_tier: full
 2. 当前轮 closeout 的进入裁决、reviewer precedence、manual override 与结构化 summary 全部以 `_shared/subagent-supervision-contract.md` 为准。
 3. `4-Design` 的 stage-end refine 与 final-stage review gate 必须分层理解：前者负责当前轮 `2-设计` 输出收口，后者若在 `team.yaml` 中显式覆盖 `4-Design`，只并入 reviewer 池，不取代本地 closeout。
 4. `source_skill_refs` 只证明 provenance / 领域提示，不得充当 runtime 授权字段。
-5. 若显式 reviewer 不足，本阶段按设计型目标补选 reviewer：
+5. 当前轮 review target 必须按 `_shared/design-slot-review-contract.md` 先解析到 slot bundle，再进入 reviewer council；不得停留在“只看文件名”的粗粒度模式。
+6. 若显式 reviewer 不足，本阶段按设计型目标补选 reviewer：
    - 父层 / shared：`张叔平 -> 叶锦添`
    - `场景`：`隈研吾 -> 叶锦添`
    - `角色`：`张叔平 -> 叶锦添`
    - `道具`：`张叔平 -> 叶锦添`
-6. `runtime_policy.use_subagents_by_default == true` 且环境支持时，必须真实启动 reviewer subagents；不得用本地模拟冒充。
-7. 监制强化只允许 patch 当前轮命中的 canonical 输出、projection、`_manifest.json` 与按需阶段 `validation-report.md`，不得新造 reviewer 总稿或第二业务真源。
+7. `runtime_policy.use_subagents_by_default == true` 且环境支持时，必须真实启动 reviewer subagents；不得用本地模拟冒充。
+8. 监制强化只允许 patch 当前轮命中的 canonical 输出、projection、`_manifest.json` 与按需阶段 `validation-report.md`，不得新造 reviewer 总稿或第二业务真源。
 
 ## Completion Criteria
 
@@ -227,4 +231,5 @@ governance_tier: full
 5. 已按 `_shared/design-output-contract.md` 为每个主体输出 `full_generation_prompt`，其中场景/角色/道具分别满足空镜、纯色背景、纯道具参照洁净门禁。
 6. 已自动生成同目录同名图片，且图片 prompt 通过参照洁净复核。
 7. 若 provider 处于后台执行中，已写出 request sidecar、`background_pid/background_log` 与 `background_submitted` 状态；不得把该状态冒充为最终图片成功。
-8. 已按 `team.yaml + _shared/subagent-supervision-contract.md` 完成当前轮 `subagents` 监制强化，并把有效建议回写到当前轮目标文件。
+8. 已按 `_shared/design-slot-review-contract.md` 把当前轮目标收束为 slot bundle，并据此进入 reviewer council。
+9. 已按 `team.yaml + _shared/subagent-supervision-contract.md` 完成当前轮 `subagents` 监制强化，并把有效建议回写到当前轮目标文件。

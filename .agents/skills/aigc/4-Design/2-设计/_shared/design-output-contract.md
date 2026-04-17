@@ -2,6 +2,10 @@
 
 本文件是 `4-Design/2-设计/{场景,角色,道具}` 的共享输出真源，负责统一三类设计主体的 prompt、图片快路径与派生产物边界。
 
+slot 级 carrier 映射、review bundle 与 rework 落点统一下沉到：
+
+- `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
+
 ## Canonical Scope
 
 | concern | canonical rule | local variation allowed |

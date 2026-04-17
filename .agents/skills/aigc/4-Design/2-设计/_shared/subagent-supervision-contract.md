@@ -4,7 +4,7 @@
 
 - `module_type`: `stage-local-shared-review-contract`
 - `primary_consumers`: `4-Design/2-设计` tranche parent、`场景`、`角色`、`道具`
-- `target_scope`: 当前轮刚写出的 `2-设计` canonical 输出、projection、`_manifest.json` 与按需阶段 `validation-report.md`
+- `target_scope`: 当前轮刚写出的 `2-设计` canonical 输出、projection、slot bundle、`_manifest.json` 与按需阶段 `validation-report.md`
 
 ## Purpose
 
@@ -14,7 +14,7 @@
 2. 区分 `4-Design` 的 stage-end refine 与 final-stage review gate
 3. 按显式成员、阶段 gate 与设计型补选规则匹配 `.agents/skills/team/` reviewer skill
 4. 在 `runtime_policy.use_subagents_by_default == true` 时真实启动 reviewer subagents
-5. 对当前轮业务输出文件做定向评审、必要优化与主代理汇流
+5. 对当前轮业务输出文件及其 slot bundle 做定向评审、必要优化与主代理汇流
 
 它参照但不复制：
 
@@ -26,6 +26,8 @@
 - `projects/aigc/<项目名>/team.yaml`
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
 - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/scripts/resolve_design_slot_bundles.py`
 - `.agents/skills/team/SKILL.md`
 - `.codex/commands/master-check-team.md`
 - `.codex/commands/master-check.md`
@@ -42,6 +44,27 @@
 若 `team.yaml.enabled == false`，但用户显式要求“启用 subagents 监制强化”，允许按 `manual override` 执行，并在结论中说明这次不是常驻运行时，而是人工触发复审。
 
 图片状态只作为证据或 reviewer 输入，不是进入监制强化的 prerequisite。
+
+## Slot Bundle Resolution
+
+进入监制强化后，target bundle 必须先按 `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md` 解析为：
+
+1. `target files`
+   - canonical truth
+   - projection
+   - `_manifest.json`
+   - 按需阶段 `validation-report.md`
+2. `slot bundles`
+   - `场景`：`SCENE-BUNDLE-01~04`
+   - `角色`：`ROLE-BUNDLE-01~04`
+   - `道具`：`PROP-BUNDLE-01~04`
+
+硬规则：
+
+1. reviewer finding 应尽量回指 `bundle_id` 或对应 slot cluster，而不是只说“文件有问题”。
+2. 若问题属于 `template_shape_drift`、renderer 漂移或 validator 失效，必须上报为 source-layer 问题，而不是只 patch 当前轮业务文件。
+3. prompt 洁净与参照污染问题必须先 patch canonical prompt carrier，再同步 projection；不得靠裁切图片或 reviewer prose 兜底。
+4. 默认执行载体是 `.agents/skills/aigc/4-Design/2-设计/_shared/scripts/resolve_design_slot_bundles.py`；若本轮无法把 target files 解析成 `slot_bundles`，必须先修 resolver 或 mapping，再进入 reviewer council。
 
 ## 4-Design Closeout Applicability
 
@@ -106,7 +129,7 @@
 
 ## Execution Contract
 
-1. 锁定本轮 target files，只审当前轮业务输出，不扩大到无关目录
+1. 锁定本轮 target files，并解析当前轮对应的 slot bundles；只审当前轮业务输出，不扩大到无关目录
 2. 为每个 reviewer skill 启动一个 subagent
 3. 每个 reviewer 至少返回：
    - `core_judgment`
@@ -114,6 +137,7 @@
    - `direct_patch_suggestion`
    - `patch_recommendation`
    - `design_checks`
+   - `slot_bundle_findings`
 4. 主代理负责 synthesis、冲突裁决与最终 patch
 5. patch 顺序固定为：
    - 先 canonical truth
@@ -153,6 +177,7 @@ subagent_supervision_result:
   team_yaml: "<path-or-null>"
   reviewer_source: "team-explicit|team-explicit+review-gate|team-explicit+team-inferred-design|team-explicit+review-gate+team-inferred-design|team-inferred-design|manual-override"
   reviewers: []
+  slot_bundles: []
   mode: "parallel-council|serial-refine|single-reviewer|degraded-local-review"
   used_subagents: true
   patched_targets: []
@@ -169,4 +194,5 @@ subagent_supervision_result:
 4. reviewer 顺序与共享运行时一致，且 `4-Design` final-stage gate reviewer 仅在配置存在时并入
 5. 显式成员不足时，已按目标类型补入设计型 reviewer
 6. `use_subagents_by_default == true` 且环境支持时，已真实启动 subagents
-7. 最终 patch 只作用于当前轮业务目标文件，没有制造第二真源
+7. 当前轮 target bundle 已从文件级解析到 slot bundle 级
+8. 最终 patch 只作用于当前轮业务目标文件，没有制造第二真源

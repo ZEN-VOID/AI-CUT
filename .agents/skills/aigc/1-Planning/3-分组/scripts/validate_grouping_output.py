@@ -202,6 +202,10 @@ def extract_report_value(block: str, field_name: str) -> str | None:
     return match.group(1).strip()
 
 
+def normalize_inline_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value).strip()
+
+
 def validate_tail_hook_contract(body: str) -> str | None:
     sections = parse_group_sections(body)
     for index, section in enumerate(sections):
@@ -364,6 +368,7 @@ def validate_file(path: Path) -> tuple[bool, str]:
             "effective_text_chars",
             "window_status",
             "judgement_basis",
+            "quantization_trace",
         ):
             if f"{field}:" not in block:
                 return False, f"执行报告缺少 `{group_id}` 的 `{field}`。"
@@ -399,6 +404,17 @@ def validate_file(path: Path) -> tuple[bool, str]:
                     f"`{group_id}` 的 `effective_text_chars` 偏离 quantizer 估算过大："
                     f"{reported_chars} vs {expected_chars}（容差 {tolerance}）。"
                 )
+
+        trace_value = extract_report_value(block, "quantization_trace")
+        if trace_value is None:
+            return False, f"执行报告未能解析 `{group_id}` 的 `quantization_trace`。"
+        expected_trace = normalize_inline_value(group_metric["quantization_trace"])
+        reported_trace = normalize_inline_value(trace_value)
+        if reported_trace != expected_trace:
+            return False, (
+                f"`{group_id}` 的 `quantization_trace` 与 quantizer 不一致。"
+                f" 期望：{expected_trace}；实际：{reported_trace}"
+            )
 
         judgement_basis = extract_report_value(block, "judgement_basis") or ""
         if expected_chars > int(group_metric["hard_text_window"]):

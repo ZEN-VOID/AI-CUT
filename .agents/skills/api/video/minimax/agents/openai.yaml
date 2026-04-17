@@ -1,0 +1,4 @@
+interface:
+  display_name: "MiniMax 海螺生视频"
+  short_description: "通过 /v1/video/generations 提交海螺视频任务，支持文生、图生、多图参考与首尾帧"
+  default_prompt: "使用 MiniMax 海螺通过 FineAPI 创建视频任务。优先校验 Prompt / ImageUrl / ImageInfos 三选一输入，默认模型自动选择当前已登记 Hailuo 系列最高版本（当前解析为 Hailuo-2.3），并统一使用 .env 中的 ANYFAST_VIDEO_API_KEY。"

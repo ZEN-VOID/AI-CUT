@@ -1,10 +1,10 @@
 ---
 name: grok
-description: Use when the task must submit GROK video generation jobs through api.ai666.net with model grok-video-3, especially for text-to-video or image-to-video requests that need local or remote image reading, dual JSON or multipart request handling, normalized task_id or id responses, and projectized submission reports.
+description: Use when the task must submit Grok Video 3 creation jobs through FineAPI, especially for image-conditioned video creation via `POST /v1/video/create` with `model/prompt/aspect_ratio/size/images` JSON payloads.
 governance_tier: full
 ---
 
-# GROK 生视频技能
+# Grok Video 3 生视频技能
 
 ## Context Loading Contract
 
@@ -14,242 +14,229 @@ governance_tier: full
 
 ## 1. 作用范围
 
-- 本技能用于通过 `https://api.ai666.net` 提交 GROK 生视频任务，默认模型为 `grok-video-3`。
-- 已确认的两类提交形态都来自 `PRPs/grok.md` 与配套截图：
-  - `POST /v1/video/create`，`application/json`，支持 `images[]`，适合文本生视频与多图/读图生视频。
-  - `POST /v1/videos`，`multipart/form-data`，支持单个 `input_reference`，适合严格跟随 OpenAPI 文本版接口时使用。
-- 本技能当前合同只覆盖“任务提交与提交回执落盘”：
-  - 返回规范化后的 `task_id`、`status`、`status_update_time`
-  - 生成提交报告 JSON
-  - 不承诺下载最终 MP4，因为 `PRPs/grok.md` 未提供独立查询/下载接口
+- 本技能用于通过 FineAPI 的 Grok Video 3 创建接口提交异步视频任务。
+- 当前已确认真源：
+  - 文档页：`https://docs.fineapi.cloud/403045611e0`
+  - 创建接口：`POST /v1/video/create`
+  - 已确认字段：`model / prompt / aspect_ratio / size / images`
+  - 已确认返回：`id / status / status_update_time`
+- 当前公开可确认材料仅稳定覆盖“创建任务”这一步；查询状态与结果下载的具体端点在本轮可见材料中尚未锁定，因此本技能不得擅自虚构后续端点。
+- 默认执行脚本：
 
-## 2. 必需输入
+```bash
+python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py submit ...
+```
 
-- `prompt`
-- API Key
-  - 优先读取根目录 `.env` 中的 `GROK_API_KEY`
-  - 回退 `AI666_API_KEY`
-  - 再回退 `OPENAI_API_KEY`
-  - 也可显式传 `--api-key`
+## 2. 已确认接口契约
 
-可选输入：
+### 2.1 请求头
 
-- `image`：可重复，支持本地路径、远程 URL、`data:` URL
-- `request-mode`：`auto / json / multipart`
-- `aspect-ratio`：`16:9 / 9:16 / 2:3 / 3:2 / 1:1`
-- `size`：`720P / 1080P`
-- `seconds`：`6 / 10 / 15`
-- `project-name`
-- `output-dir`
-- `report-json`
-- `timeout`
-- `dry-run`
+- `Accept: application/json`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+### 2.2 Body 字段
+
+| 字段 | 类型 | 必填 | 当前规则 |
+| --- | --- | --- | --- |
+| `model` | string | 是 | 默认使用当前环境最高已验证可用模型 `grok-video-3`；`2026-04-17` 实测 `grok-video-3-max` 返回 `model_not_found` |
+| `prompt` | string | 是 | 保留原样提交，可包含 `--mode=custom` 等后缀 |
+| `aspect_ratio` | string | 是 | `2:3 / 3:2 / 1:1` |
+| `size` | string | 是 | 文档截图显示 `720P` 或 `1080P`，但注明“暂只支持 720P” |
+| `images` | array[string] | 是 | 图片链接数组；当前按“公网可访问 URL”处理，不接受本地文件直传 |
+
+### 2.3 响应字段
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 视频任务 ID |
+| `status` | 初始状态，示例为 `pending` |
+| `status_update_time` | 最近状态更新时间戳 |
 
 ## 3. 核心约束（Mandatory）
 
-1. **双接口合同并存**
-   - 文本版 PRP 明示 `multipart /v1/videos`。
-   - 截图版示例明示 `json /v1/video/create`。
-   - 技能必须同时记录两种形态，不得擅自抹平成单一路径。
-2. **默认优先 JSON 提交**
-   - 默认 `request-mode=auto`。
-   - `auto` 下优先裁决为 `json`，因为它天然支持多图与统一“图片读取 -> data URL”流程。
-   - 只有用户显式要求 OpenAPI 文字版接口或必须使用 `input_reference` 时，才走 `multipart`。
-3. **图片读取刚性**
-   - `--image` 必须接受三种输入：本地文件、远程 URL、`data:` URL。
-   - `json` 模式必须统一转成 `data:image/...;base64,...` 写入 `images[]`。
-   - `multipart` 模式只允许单张参考图；若传入多张图，必须报错而不是静默丢弃。
-4. **参数标准化**
-   - `seconds` 与截图中的 `duration` 视为同一业务字段，统一对外以 `seconds` 表达。
-   - `task_id` 与 `id` 视为同一提交任务标识，脚本必须归一化为 `task_id`。
-5. **项目化输出路径**
+1. **当前只锁定创建接口**
+   - 已证实的是 `POST /v1/video/create`。
+   - 在未获得后续文档前，不得编造状态查询或下载端点。
+2. **JSON 提交刚性**
+   - 当前接口使用 `application/json`。
+   - 不得把它误改成 multipart/form-data。
+3. **图片输入是链接数组**
+   - `images` 当前按“图片链接数组”处理。
+   - 本地路径、二进制文件、base64 文本都不得静默塞进该字段。
+4. **`720P` 优先**
+   - 截图显示 `720P / 1080P`，但同时注明“暂只支持 720P”。
+   - 默认值必须是 `720P`；若显式使用 `1080P`，要保留风险提示，而不是假装完全受支持。
+5. **Base URL 必须走统一 AnyFast/FineAPI 回退链**
+   - `grok` 与同目录其他视频 provider 一样，优先继承仓库统一的 AnyFast 网关基线。
+   - 调用时优先读取 `ANYFAST_API_BASE_URL`，再回退 `GROK_VIDEO_API_BASE_URL / FINEAPI_GROK_API_BASE_URL / FINEAPI_API_BASE_URL`，必要时才由 `--base-url` 覆盖。
+6. **项目化输出路径**
    - 默认输出目录必须为 `output/影片/[项目名]/5-API/video/grok/`。
    - 若未显式传 `project-name`，默认项目名使用 `测试`。
-6. **能力边界诚实**
-   - 由于 `PRPs/grok.md` 未提供查询/下载端点，本技能默认只做到“提交任务 + 回执落盘”。
-   - 禁止在技能文档里虚构最终视频下载闭环。
 7. **失败优先修源层**
-   - 若出现请求模式漂移、图片编码错误、返回字段不一致或报告缺字段，优先修复：
+   - 若出现鉴权错误、Base URL 漂移、图片输入类型错误、`1080P` 不可用或字段命名不匹配，优先修：
      - `scripts/grok_video_generate.py`
      - 本 `SKILL.md`
      - `references/api.md`
+8. **最高版本以真实可用性为准**
+   - 默认模型不是按第三方站点或命名猜测升级，而是按“当前 provider 实测可用的最高版本”确定。
+   - 截至 `2026-04-17`，当前环境真实提交 `grok-video-3-max` 返回 `model_not_found`，因此默认仍保持 `grok-video-3`。
 
-## 4. 统一字段主表（Mandatory）
+## 4. Visual Maps (Mermaid)
 
-| field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任Step | 质量维度 | 失败码 |
+### 4.1 主流程
+
+```mermaid
+flowchart TD
+    A["收束 prompt / aspect_ratio / size / images"] --> B{"images 是否全为公网 URL?"}
+    B -- 否 --> X["停止：先把图片转成可访问链接"]
+    B -- 是 --> C["读取 API Key 与 Base URL"]
+    C --> D{"Base URL 已明确?"}
+    D -- 否 --> Y["停止：补 GROK_VIDEO_API_BASE_URL / ANYFAST_API_BASE_URL 或 --base-url"]
+    D -- 是 --> E["构造 JSON 请求体"]
+    E --> F["POST /v1/video/create"]
+    F --> G["保存 submit report"]
+    G --> H["返回 task receipt: id/status/status_update_time"]
+```
+
+### 4.2 分支与边界
+
+```mermaid
+flowchart TD
+    A["任务目标"] --> B{"只需创建任务?"}
+    B -- 是 --> C["本技能直接 submit"]
+    B -- 否 --> D{"是否已提供后续状态/下载文档?"}
+    D -- 否 --> E["停止在 create receipt；不得虚构后续接口"]
+    D -- 是 --> F["补强 references 与脚本后再扩展闭环"]
+```
+
+## 5. 统一字段主表（Mandatory）
+
+| field_id | 输出位置/字段 | 内容要求 | 证据来源 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `FIELD-GROK-01` | 输入解析结果：`prompt / image_inputs / project_name` | `prompt` 非空；图片输入被收束为稳定列表；项目名可用于路径落盘 | 用户输入、CLI 参数 | Step 1 | 输入收束完整度 | `FAIL-GROK-INPUT` |
-| `FIELD-GROK-02` | 参数裁决结果：`request_mode / aspect_ratio / size / seconds` | 模式裁决可解释；参数值均在允许枚举内；`seconds` 与 `duration` 语义统一 | PRP 文本、截图示例、脚本默认值 | Step 2 | 参数与模式一致性 | `FAIL-GROK-PARAMS` |
-| `FIELD-GROK-03` | 提交请求：`endpoint / headers / payload_or_form` | `json` 模式使用 `images[] data URL`；`multipart` 模式使用单个 `input_reference`；认证头合法 | `PRPs/grok.md`、截图、脚本构造结果 | Step 3 | 请求体合法性 | `FAIL-GROK-PAYLOAD` |
-| `FIELD-GROK-04` | 提交回执：`task_id / status / status_update_time / raw_response` | 兼容 `task_id` 与 `id`；状态值可归一化；异常时保留原始响应 | API 响应、截图示例 | Step 4 | 回执归一化稳定性 | `FAIL-GROK-RESPONSE` |
-| `FIELD-GROK-05` | 输出产物：`grok_video_report_*.json` 与项目化目录 | 至少生成报告 JSON；请求摘要、图片摘要、原始响应、规范化字段均可追溯 | 报告文件、输出目录 | Step 5 | 输出可追溯性 | `FAIL-GROK-OUTPUT` |
+| `FIELD-GROK-01` | 输入解析结果：`prompt / images / project_name` | `prompt` 非空；`images` 至少 1 条且均为公网 URL | 用户输入、CLI 参数、截图“图片链接” | Step 1 | 输入收束完整度 | `FAIL-GROK-INPUT` |
+| `FIELD-GROK-02` | 参数裁决结果：`model / aspect_ratio / size / base_url` | 枚举值合法；默认模型为当前环境最高已验证可用版本；`720P` 作为默认；Base URL 已明确 | 用户样例、截图、实测回执、脚本默认值 | Step 2 | 参数与环境一致性 | `FAIL-GROK-PARAMS` |
+| `FIELD-GROK-03` | 创建请求：`POST /v1/video/create` JSON 请求体 | 头与 Body 字段名准确；`images` 为数组 | 文档页、用户样例、截图 | Step 3 | 请求体合法性 | `FAIL-GROK-CREATE` |
+| `FIELD-GROK-04` | 创建回执：`id / status / status_update_time` | 报告完整保留任务回执，不把其误判为成片结果 | 用户样例、API 响应 | Step 4 | 回执闭环完整性 | `FAIL-GROK-RECEIPT` |
 
-## 5. 思维导引与执行流程（Mandatory）
+## 6. 思维导引与执行流程（Mandatory）
 
-### 5.1 固定步骤
+### 6.1 固定步骤
 
 1. **Step 1 / 输入收束**
-   - 读取 `prompt`、`image_inputs`、`project_name`
-   - 把每个图片输入标记为 `local_file / remote_url / data_url`
-2. **Step 2 / 模式与参数裁决**
-   - 校验 `aspect_ratio / size / seconds`
-   - `request-mode=auto` 时默认裁决为 `json`
-   - 若显式 `multipart`，强校验图片数量不超过 1
-3. **Step 3 / 请求构造**
-   - `json`：将图片统一转为 data URL，提交到 `/v1/video/create`
-   - `multipart`：将首张图转为文件部件，提交到 `/v1/videos`
-   - 注入 `Authorization: Bearer ...`
-4. **Step 4 / 回执归一化**
-   - 解析 JSON 响应
-   - 规范化 `task_id = task_id or id`
-   - 透传 `status`、`status_update_time`、`created_at`
-5. **Step 5 / 报告落盘**
-   - 默认写到 `output/影片/[项目名]/5-API/video/grok/`
-   - 产出 `grok_video_report_YYYYmmdd_HHMMSS.json`
-   - 记录图片来源摘要、请求模式、请求摘要、原始响应、规范化回执
+   - 读取 `prompt`、`images`、`project_name`
+   - 校验 `images` 至少一条，且全为 `http/https` 公网 URL
+2. **Step 2 / 参数与环境裁决**
+   - 优先使用当前环境最高已验证可用模型；截至 `2026-04-17` 为 `grok-video-3`
+   - 校验 `aspect_ratio` 枚举
+   - 校验 `size` 枚举；若为 `1080P`，保留“文档写有该值但截图注明暂只支持 720P”的风险提示
+   - 读取 `ANYFAST_VIDEO_API_KEY / GROK_VIDEO_API_KEY / ANYFAST_API_KEY / FINEAPI_GROK_API_KEY / FINEAPI_API_KEY`
+   - 读取 `ANYFAST_API_BASE_URL / GROK_VIDEO_API_BASE_URL / FINEAPI_GROK_API_BASE_URL / FINEAPI_API_BASE_URL`
+3. **Step 3 / 创建任务**
+   - 组装 JSON：`model / prompt / aspect_ratio / size / images`
+   - 提交到 `/v1/video/create`
+4. **Step 4 / 回执落盘**
+   - 保存任务回执 JSON
+   - 输出 `id / status / status_update_time`
+   - 明确声明“当前闭环停在 create receipt，不含状态轮询与下载”
 
-### 5.2 思维导引表
+### 6.2 思维导引表
 
 | step_id | 聚焦字段(field_id) | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `Step 1` | `FIELD-GROK-01` | 是否已经明确 prompt、图片来源类型与项目名？ | 收束输入并分类图片来源 | `prompt` 为空、图片源不可读、项目名无法路由 |
-| `Step 2` | `FIELD-GROK-02` | 本次应该走 JSON 还是 multipart？时长/比例/分辨率是否合法？ | 裁决模式并校验枚举 | 模式选择不可解释、参数越界 |
-| `Step 3` | `FIELD-GROK-03` | 请求体是否与对应接口形态完全匹配？ | 构造 JSON 或 multipart 提交体 | `images[]` 不是 data URL、multipart 多图、认证头缺失 |
-| `Step 4` | `FIELD-GROK-04` | 响应里有没有字段漂移？ | 兼容 `task_id/id` 并保留原始响应 | 任务 ID 丢失、状态字段无法解释 |
-| `Step 5` | `FIELD-GROK-05` | 是否已经形成可复盘报告？ | 写报告并输出最终摘要 | 没有报告、没有图片摘要、无规范化字段 |
+| `Step 1` | `FIELD-GROK-01` | prompt 与 images 是否收束完整？ | 校验 prompt 与公网图片链接数组 | prompt 为空、images 为空、本地路径混入 |
+| `Step 2` | `FIELD-GROK-02` | API Key、Base URL、最高已验证模型与枚举参数是否明确？ | 裁决环境变量和参数风险提示 | Base URL 缺失、模型按猜测漂移、枚举越界、1080P 风险被吞掉 |
+| `Step 3` | `FIELD-GROK-03` | 是否严格按 JSON 接口提交？ | 构造并发送 JSON 请求 | 错用 multipart、字段拼错、images 非数组 |
+| `Step 4` | `FIELD-GROK-04` | 是否把创建回执完整落盘并正确解释？ | 保存 submit report，回传 task receipt | 把 `pending` 回执误说成已出视频 |
 
-## 6. 标准调用
+## 7. 标准调用
 
-统一脚本入口：
-
-```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py [参数]
-```
-
-### 6.1 文本生视频
+### 7.1 直接提交
 
 ```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py \
-  --prompt "一只橘猫在雨夜霓虹街道慢慢回头，电影感，镜头缓推" \
-  --aspect-ratio 16:9 \
-  --size 720P \
-  --seconds 10 \
-  --project-name "测试"
-```
-
-### 6.2 读本地图片生视频
-
-```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py \
-  --prompt "让角色从静止肖像转为缓慢抬头看向镜头，真实电影光影" \
-  --image "/absolute/path/to/reference.png" \
-  --aspect-ratio 9:16 \
-  --size 1080P \
-  --seconds 6 \
-  --project-name "测试"
-```
-
-### 6.3 读远程图片生视频
-
-```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py \
-  --prompt "让图中的猫看向追逐对象，镜头轻微摇移" \
-  --image "https://example.com/cat.png" \
-  --image "https://example.com/fish.png" \
-  --request-mode json \
+python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py submit \
+  --base-url "https://<your-fineapi-host>" \
+  --prompt "小猫在吃鱼 --mode=custom" \
   --aspect-ratio 3:2 \
-  --size 1080P \
-  --seconds 6
-```
-
-### 6.4 严格走 multipart 参考图接口
-
-```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py \
-  --prompt "让参考图人物缓慢转身并向前迈步" \
-  --image "/absolute/path/to/reference.png" \
-  --request-mode multipart \
-  --aspect-ratio 2:3 \
   --size 720P \
-  --seconds 10
+  --image "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_5_imageToimage.png" \
+  --project-name "测试"
 ```
 
-### 6.5 Dry Run 验证
+### 7.2 Dry Run 检查请求体
 
 ```bash
-python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py \
-  --prompt "测试请求" \
-  --image "/absolute/path/to/reference.png" \
+python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py submit \
+  --base-url "https://<your-fineapi-host>" \
+  --prompt "测试请求 --mode=custom" \
+  --aspect-ratio 1:1 \
+  --size 720P \
+  --image "https://example.com/reference.png" \
   --dry-run \
   --print-payload
 ```
 
-## 7. 参数约定
+- `--dry-run` 只校验请求结构与落盘报告，可不提供 API Key。
+- 若环境中已配置 API Key，报告会显示脱敏后的 `Authorization`；未配置时，dry-run 不再因缺少密钥而阻断。
 
-| CLI 参数 | JSON 模式字段 | multipart 模式字段 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `--model` | `model` | `model` | `grok-video-3` | 模型 ID |
-| `--prompt` | `prompt` | `prompt` | 必填 | 提示词 |
-| `--image` | `images[]` | `input_reference` | 无 | 图片输入，支持本地/远程/data URL |
-| `--aspect-ratio` | `aspect_ratio` | `aspect_ratio` | `16:9` | 视频比例 |
-| `--size` | `size` | `size` | `720P` | 分辨率 |
-| `--seconds` | `duration` | `seconds` | `10` | 时长，支持 `6/10/15` |
-| `--request-mode` | 决定是否走 `/v1/video/create` | 决定是否走 `/v1/videos` | `auto` | `auto` 默认裁决为 `json` |
+### 7.3 多图链接输入
 
-## 8. 输出约定
+```bash
+python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py submit \
+  --base-url "https://<your-fineapi-host>" \
+  --prompt "两张参照图融合成一段产品演示视频 --mode=custom" \
+  --image "https://example.com/ref-a.png" \
+  --image "https://example.com/ref-b.png"
+```
+
+## 8. 参数约定
+
+| CLI 参数 | 创建字段 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--model` | `model` | `grok-video-3` | 当前环境最高已验证可用默认值；`grok-video-3-max` 在 `2026-04-17` 实测返回 `model_not_found` |
+| `--prompt` | `prompt` | 必填 | 视频提示词 |
+| `--aspect-ratio` | `aspect_ratio` | `3:2` | `2:3 / 3:2 / 1:1` |
+| `--size` | `size` | `720P` | 支持传 `720P / 1080P`，但当前默认只信任 `720P` |
+| `--image` | `images[]` | 至少一条 | 公网图片链接，可重复传参 |
+| `--base-url` | API Base URL | `.env` 回退链 | 优先 `ANYFAST_API_BASE_URL`，回退 `GROK_VIDEO_API_BASE_URL / FINEAPI_GROK_API_BASE_URL / FINEAPI_API_BASE_URL` |
+| `--api-key` | 鉴权 Token | `.env` 回退链 | 支持原始 token 或 `Bearer ...` |
+
+完整字段说明见：`references/api.md`
+
+## 9. 输出约定
 
 - 默认输出目录：`output/影片/[项目名]/5-API/video/grok/`
-- 默认报告文件：`grok_video_report_YYYYmmdd_HHMMSS.json`
+- 默认产物：
+  - `grok_submit_report_YYYYmmdd_HHMMSS.json`
 - 报告至少包含：
   - `ok`
-  - `request_mode`
-  - `endpoint`
+  - `command`
   - `request_summary`
-  - `image_inputs`
-  - `normalized_submission`
+  - `normalized_submit`
   - `raw_response`
+  - `diagnostic_hint`
   - `error`
 
-## 9. Root-Cause 执行契约（Mandatory）
+## 10. Root-Cause 执行契约（Mandatory）
 
-当调用失败、图片读不到、接口模式选错或报告缺字段时，按以下链路上溯：
+当创建失败、Base URL 未配置、图片不是公网 URL、`1080P` 报不支持，或调用方误以为任务已产出视频时，按以下链路上溯：
 
 `Symptom/Failure`
--> `Direct Cause`：图片未转 data URL、误把多图送入 multipart、`duration/seconds` 字段漂移、`task_id/id` 未归一化、输出目录不符合项目化路径
+-> `Direct Cause`：API Key 缺失、Base URL 未配置、`images` 不是 URL 数组、JSON 字段错名、`1080P` 当前未开、把 `pending` 回执误读为成片
 -> `规则源`：`.agents/skills/api/video/grok/SKILL.md`、`references/api.md`、`scripts/grok_video_generate.py`
--> `规则源的规则源`：仓库根 `AGENTS.md` 中的 Root-Cause First / Progressive Convergence / Field-Centric / CONTEXT 基线契约
--> `Fix Landing Points`：优先修请求构造、图片读取、字段归一化与报告合同，再修局部调用样例
+-> `规则源的规则源`：仓库根 `AGENTS.md` 中的 Root-Cause First / Context Loading / Canonical Source / Composite Output 治理契约
+-> `Fix Landing Points`：优先修正脚本的环境变量回退、Base URL 诊断、图片输入校验与回执解释，再修调用样例
 
 用户侧关闭语必须至少包含：
 - 根因位置
 - 立即修复
 - 系统性预防修复
 
-## 10. 失败排查
+## 11. 失败排查
 
-1. 检查 `.env` 是否存在 `GROK_API_KEY` 或 `AI666_API_KEY`
-2. 先运行 `--dry-run --print-payload`，确认模式裁决和请求摘要正确
-3. 若是 JSON 模式失败，检查 `images[]` 是否已被转成 `data:image/...;base64,...`
-4. 若是 multipart 模式失败，检查是否误传多张图
-5. 若响应只有 `id` 没有 `task_id`，确认脚本是否已做归一化
-6. 若出现 `SSL EOF`、`RemoteDisconnected`、`Empty reply from server`：
-   - 先判定为上游端点可用性问题，而不是 payload 结构问题
-   - 可用 `curl -Ivs https://api.ai666.net` 与 `curl -Ivs http://api.ai666.net` 复验
-   - 若两条链路都在握手或首包阶段断开，应暂停业务层调参，等待上游恢复或更换可用网关
-7. 若需要最终视频下载能力，先确认上游是否补充了查询/下载接口；本技能当前不虚构该能力
-
-## 11. 字段通过表（Mandatory）
-
-| field_id | 质量维度 | 通过标准 | 失败码 | 返工入口 |
-| --- | --- | --- | --- | --- |
-| `FIELD-GROK-01` | 输入收束完整度 | `prompt` 非空；图片输入可读；项目名可落盘 | `FAIL-GROK-INPUT` | 回到 `Step 1` 修输入 |
-| `FIELD-GROK-02` | 参数与模式一致性 | 模式裁决清晰；`aspect_ratio / size / seconds` 都在枚举内 | `FAIL-GROK-PARAMS` | 回到 `Step 2` 重裁决 |
-| `FIELD-GROK-03` | 请求体合法性 | `json` 使用 `images[] data URL`；`multipart` 只用单图 `input_reference`；认证头正确 | `FAIL-GROK-PAYLOAD` | 回到 `Step 3` 修请求体 |
-| `FIELD-GROK-04` | 回执归一化稳定性 | 至少解析出 `task_id`、`status`；原始响应被保留 | `FAIL-GROK-RESPONSE` | 回到 `Step 4` 修响应解析 |
-| `FIELD-GROK-05` | 输出可追溯性 | 报告 JSON 落盘成功；请求摘要与规范化回执完整 | `FAIL-GROK-OUTPUT` | 回到 `Step 5` 修报告与路径 |
-
-## 12. 参考资料
-
-- 接口摘要与证据：`.agents/skills/api/video/grok/references/api.md`
-- 提交脚本：`.agents/skills/api/video/grok/scripts/grok_video_generate.py`
-- 依赖：`.agents/skills/api/video/grok/requirements.txt`
+1. 检查 `.env` 是否存在 `ANYFAST_VIDEO_API_KEY / GROK_VIDEO_API_KEY / FINEAPI_GROK_API_KEY`
+2. 检查 `.env` 或命令行是否已提供 `ANYFAST_API_BASE_URL / GROK_VIDEO_API_BASE_URL / --base-url`
+3. 使用 `submit --dry-run --print-payload` 确认 JSON 请求体；这一步不要求必须先拿到 API Key
+4. 若 `images` 中混入本地路径，先把图片上传到可访问 URL，再重提
+5. 若 `size=1080P` 报错，优先回退 `720P`
+6. 若返回只有 `id/status/status_update_time`，说明只是创建成功，不是下载完成

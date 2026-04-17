@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -155,11 +156,25 @@ def require_int(value: Any, label: str) -> int:
     return value
 
 
+def require_numeric_seconds(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} 必须是有限数值秒数。")
+    numeric = float(value)
+    if not math.isfinite(numeric):
+        raise ValueError(f"{label} 必须是有限数值秒数。")
+    return numeric
+
+
+def format_seconds_label(value: Any, label: str) -> str:
+    numeric = require_numeric_seconds(value, label)
+    return f"{numeric:g}"
+
+
 def validate_shot_ready(group_id: str, shot: dict[str, Any]) -> None:
     shot_id = require_non_empty_text(shot.get("分镜ID"), f"{group_id}.分镜明细[].分镜ID")
     timing = require_dict(shot.get("时间段"), f"{group_id}.{shot_id}.时间段")
-    require_int(timing.get("开始秒"), f"{group_id}.{shot_id}.时间段.开始秒")
-    require_int(timing.get("结束秒"), f"{group_id}.{shot_id}.时间段.结束秒")
+    require_numeric_seconds(timing.get("开始秒"), f"{group_id}.{shot_id}.时间段.开始秒")
+    require_numeric_seconds(timing.get("结束秒"), f"{group_id}.{shot_id}.时间段.结束秒")
     for field in ("角色背景面", "角色站位走位", "道具及状态", "分镜表现", "景别", "运镜手法", "摄影美学", "镜头视角"):
         require_non_empty_text(shot.get(field), f"{group_id}.{shot_id}.{field}")
 
@@ -207,7 +222,9 @@ def validate_source_ready(source_data: dict[str, Any]) -> tuple[str, list[dict[s
 
 def build_time_range(shot: dict[str, Any]) -> str:
     timing = require_dict(shot.get("时间段"), "时间段")
-    return f"{timing['开始秒']}秒-{timing['结束秒']}秒"
+    start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
+    end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
+    return f"{start}秒-{end}秒"
 
 
 def split_sentences(text: str) -> list[str]:
@@ -393,7 +410,9 @@ def build_request_packet(
 ) -> dict[str, Any]:
     packet = copy.deepcopy(template)
     timing = require_dict(shot.get("时间段"), f"{shot.get('分镜ID')}.时间段")
-    duration = max(1, timing["结束秒"] - timing["开始秒"])
+    start = require_numeric_seconds(timing.get("开始秒"), f"{shot.get('分镜ID')}.时间段.开始秒")
+    end = require_numeric_seconds(timing.get("结束秒"), f"{shot.get('分镜ID')}.时间段.结束秒")
+    duration = max(1.0, end - start)
 
     packet["meta"]["episode_id"] = episode_id
     packet["meta"]["shot_level"] = "storyboard_frame"
@@ -406,7 +425,7 @@ def build_request_packet(
     packet["prompt_style"]["language"] = "zh-CN"
     packet["prompt_style"]["char_limit"] = TARGET_CHAR_LIMIT
     packet["model"]["model_version"] = "seedance2.0"
-    packet["model"]["duration"] = str(duration)
+    packet["model"]["duration"] = f"{duration:g}"
     packet["model"]["ratio"] = "16:9"
     packet["model"]["video_resolution"] = "720p"
     if "reference_images" not in packet["model"]:

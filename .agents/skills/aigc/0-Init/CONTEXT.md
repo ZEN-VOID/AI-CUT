@@ -31,6 +31,7 @@
 | 初始化预建目录看起来与当前技能树“不匹配” | 真源口径混层 | 明确区分“技能树执行层”与“项目 runtime 落盘层”两套命名 | 在 `_shared/project-runtime-layout.md` 建立 `Skill Tree To Runtime Mapping`，并在 `0-Init/SKILL.md` 同步注明 `5-Image / 6-Video` 的映射 | 读者不会再把 `1-提示词蒸馏/全能参照` 误读成必须预建 `projects/aigc/<项目名>/6-Video/1-提示词蒸馏/全能参照/` |
 | 把“自动组队（推荐）”当成已锁定编组 | mode gate contract | 回到 `Initialization Mode Contract`，补发初始化元选项卡并等待用户确认 | 在 `SKILL.md` 明确“推荐项 != mode_lock_note”，并用审计脚本拦截歧义表述 | 仅有项目名或极简 brief 时，不再越权进入自动组队 |
 | 自动组队把顾问选到 `.agents/skills/team/` 之外 | team scope contract | 立即裁掉越权成员，只保留 `team/` 树内 skill 并重写 `team.yaml` | 在 `team.yaml.init_contract.selector_scope_root` 固定 `.agents/skills/team/`，并在 `SKILL.md` 明确禁止外部候选 | `roles.*.members` 不再含 `.codex/agents/` 或仓外路径 |
+| 自动组队直接全树扫描 `team/`，没有先走根层成员索引 | team root fast-path contract | 先读取 `.agents/skills/team/SKILL.md + CONTEXT.md` 的成员/场景索引，生成 shortlist 后再深读子技能 | 在 `0-Init/SKILL.md` 固定“先根索引、后 shortlist deep-read”，并要求 team 根文档与成员树同步更新 | 自动选人理由可回溯到根层 `scenario_tags + candidate_shortlist` |
 | 自动组队把治理角色和部门覆盖混成一层 | team governance contract | 先回到 `策划 / 监制 / 评审` 权属矩阵，再单独补 `导演组 / 设计组 / 摄影组` 必选覆盖 | 在 `SKILL.md` 与 `team.template.yaml` 同步固定“两层裁决”：治理角色先锁、部门选人后落 | `team.yaml` 同时能读出角色权属与部门覆盖，不再互相替代 |
 | 把 `策划 / 监制 / 评审` 误判为必须三拨不同的人 | role allocation contract | 允许同人复用，也允许分人治理，并把实际选择写回 `team_setup.role_allocation_mode / role_overlap_notes` | 在 `SKILL.md` 与 `team.template.yaml` 固定“默认允许重叠，不默认强制互斥” | 后续读取 `team.yaml` 时，能看出是同人兼任还是分人治理 |
 | 题材明显缺少更合适的大师，但初始化直接硬凑现有 roster 且无记录 | roster gap contract | 保留当前可执行 lineup，同时额外生成 `todos/*-team-recommendation.md` | 在 `SKILL.md` 固定“继续执行 + 输出推荐 todo + 写回 `team_setup.recommendation_todo_paths`”三联动作 | 题材缺口不会无痕消失，且本轮初始化不被阻塞 |
@@ -84,6 +85,7 @@
 - 当技能树有中间 tranche，但项目 runtime 只接受业务语义落盘名时，必须优先相信 `_shared/project-runtime-layout.md`，并在阶段合同里把两套命名的映射写明；否则读者会把“技能目录现状”误当成“项目预建目录”。
 - 在 `0-Init` 里，`智能顾问模式` 是固定主模式，真正需要用户拍板的是 `自动组队 / 自定义组队`；只要用户没拍板且不存在强制路由信号，就必须停在 `N1-mode-gate`。
 - `team.yaml` 现在不仅是阶段顾问运行时，也是初始化编组真源；最少要看 `init_contract.*`、`roles.planning.init_interview.*` 和 `runtime_policy.require_subagents_for_init_interview`。
+- `0-Init` 自动组队若想选得快又稳，关键不是直接遍历整个 `team/` 树，而是先读 team 根文档的成员/场景索引，把 deep read 限定在 shortlist 内。
 - 对当前 `0-Init`，`策划 / 监制 / 评审` 是治理角色，不等于具体选人部门；自动组队应先锁治理权属，再补部门覆盖。
 - `策划 / 监制 / 评审` 可以是同一波人，也可以是不同的人；是否重叠是编组策略问题，不是角色定义问题。
 - 自动组队的最小可靠闭环是 `导演组 + 设计组 + 摄影组`；其他组只有在题材或执行难点真正需要时再加。

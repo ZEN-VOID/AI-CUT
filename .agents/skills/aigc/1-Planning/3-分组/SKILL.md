@@ -51,8 +51,10 @@ governance_tier: full
 - 本 `SKILL.md`：`3-分组` 父层规范合同
 - `references/scene-order-duration-strategy.md`：场景顺序与时长策略方法论
 - `scripts/grouping_quantizer.py`：量化计算真源
+- `scripts/render_grouping_report.py`：执行报告模板化写回真源
 - `scripts/validate_grouping_output.py`：结构 + 量化一致性校验真源
 - `templates/grouping-output.template.md`：grouped script 落盘骨架
+- `templates/grouping-report.template.md`：执行报告推荐落盘骨架
 
 ## Visual Maps
 
@@ -206,6 +208,8 @@ stateDiagram-v2
 7. 默认禁止跨物理场景链凑时长；相邻上游场景单位若仍属同一连续物理场景，可在保留原 `### 场景N` 标题的前提下并入同一分镜组
 8. 尾组 `< 5 秒` 且存在前组时，默认并入前组，除非承担明确信息落点
 9. 命中 `尾钩借焰` 时，只允许在分组结果落定后，于非末组尾部追加下一组开端的首个叙事拍点；该借入段落不参与本组字窗裁决
+10. 同一上游场景单位内若存在 2 个及以上清晰 beat 断点，例如“照料 -> 吐露”“试探 -> 拒绝 -> 失控”“设局 -> 施压 -> 脱身”，则必须先尝试按 beat 拆组，再决定是否保留 `warn_high` 或 `warn_low` 结果；`连续峰值 / 独立信息落点` 只能解释量化后的保留，不得替代拆组检查
+11. 同场景 beat 拆组检查必须递归执行：若首轮拆组后某个子组内部仍覆盖 2 个及以上清晰 beat 断点，必须继续复查并再次拆组，直到子组内部不再存在明显可分的 beat 链，或已命中锁定边界 / 显式豁免
 
 ### Scene / Group Semantic Boundary
 
@@ -246,6 +250,18 @@ stateDiagram-v2
    - `对白/独白/内心独白/旁白` 取文本行，并尽量连带其紧随的 `*画面` 行
 3. `尾钩借焰` 标记必须以隐藏注释显式回指下一组 `group_id`
 4. 该区块默认位于组尾，可见输出只保留借入正文，不保留可见标题，也不参与量化
+5. 默认调用 `render_grouping_report.py`，按 `templates/grouping-report.template.md` 回写 `执行报告.md`
+6. 最后再运行 validator，确保报告字段与 quantizer 一致
+
+### `scripts/render_grouping_report.py`
+
+职责固定为：
+
+1. 把 `templates/grouping-report.template.md` 接入默认写回链
+2. 复用既有报告中的 `source_span / judgement_basis / handoff` 字段，避免人工证据被覆盖
+3. 用 quantizer authoritative 数值重写 `estimated_duration_seconds / effective_text_chars / quantization_trace`
+4. 在缺少 `window_status / judgement_basis` 时按量化结果补最小默认值，保证报告至少具备可复核骨架
+5. 只生成单一 `执行报告.md`，不得旁挂第二份 report sidecar
 
 ### `scripts/validate_grouping_output.py`
 
@@ -257,6 +273,7 @@ stateDiagram-v2
 - `尾钩借焰` 只能出现在非末组尾部，且必须显式回指下一组
 - frontmatter window 与 quantizer 一致
 - `estimated_duration_seconds / effective_text_chars` 与 quantizer 一致
+- `quantization_trace` 与 quantizer 输出一致，不能只保留结果字段
 - `effective_text_chars > hard_text_window` 必须失败；低于 `warn_low` 或高于 `warn_high` 的通过结果必须在 `judgement_basis` 写明拆并检查依据或锁定 `分镜组ID / 分镜ID` 证据
 - mixed-source 命中镜号范围时的强制回算
 
@@ -310,6 +327,10 @@ stateDiagram-v2
 
 `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
 
+推荐模板：
+
+`templates/grouping-report.template.md`
+
 每个 `分镜组ID` 至少登记：
 
 - `source_span`
@@ -317,6 +338,13 @@ stateDiagram-v2
 - `effective_text_chars`
 - `window_status`
 - `judgement_basis`
+- `quantization_trace`
+
+`quantization_trace` 必须逐组显式展开 quantizer 的量化过程，不得只写结果。最小覆盖面：
+
+- `duration`：本组时长取默认值还是 `分镜组时长映射`
+- `window`：`base / warn_low / warn_high / hard` 的计算式
+- `effective_chars`：字段加权或规划估算的具体构成；若命中 story-source 回算，必须带上镜号范围
 
 ## Execution Workflow
 
@@ -326,7 +354,7 @@ stateDiagram-v2
 4. 运行 quantizer 得到 authoritative 数值。
 5. 若满足 reviewer 条件，再追加节奏复核说明。
 6. 在 authoritative 分组结果落定后，默认通过 `postprocess_grouping_output.py` 写入隐藏 `尾钩借焰` 标记；仅在明确禁用时才使用 `--skip-tail-hook` 跳过。
-7. 写回 grouped script 与执行报告。
+7. 通过 `render_grouping_report.py` 按模板回写 `执行报告.md`，并自动注入 `quantization_trace`。
 8. 运行 validator，失败则回退到边界、尾钩或量化节点。
 9. 生成父级 handoff。
 

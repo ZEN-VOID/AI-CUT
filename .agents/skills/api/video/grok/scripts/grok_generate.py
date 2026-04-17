@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Backward-compatible wrapper for the GROK video submit CLI."""
+"""Backward-compatible wrapper for the Grok video submit CLI."""
 
 from __future__ import annotations
 

@@ -14,7 +14,7 @@
 | 可选 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 当前集逐集剧本主稿 |
 | 可选 | `projects/aigc/<项目名>/2-Global/*.md` | 已有全局文档，供增量 patch 使用 |
 | 可选 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 已有 shared episode root；供 `group_design` seed 增量 patch 使用 |
-| 可选 | `projects/aigc/<项目名>/team.yaml` | 项目级顾问团真源；若 `enabled == true` 且当前阶段命中 `roles.supervision`，供 stage-end 监制会审 runtime 使用 |
+| 可选 | `projects/aigc/<项目名>/team.yaml` | 项目级顾问团真源；若 `enabled == true`，既供 `全局风格` 链提取 team 风格锚点，也供 stage-end 监制会审 runtime 使用 |
 
 ## Outputs
 
@@ -66,7 +66,7 @@
 ## Hard Rules
 
 1. 本阶段只存在父 skill 一个 canonical writeback owner。
-2. `全局风格.md` 的项目级总则必须保持稳定，且其最终字段默认必须是无污染底层风格协议：只描述媒介属性、渲染技术栈、美学范式与整体质感，不固定景别，不直接写具体颜色、材质、构图或镜头操作；`全集类型元素.md` 只写项目级类型总则，`分组类型元素.md` 必须按 `第N集 -> 【x-x-x】` 组织组级类型判断；三者都不得被 episode 细节污染。
+2. `全局风格.md` 的项目级总则必须保持稳定，且其最终字段默认必须是无污染底层摄影风格协议：只描述媒介属性、摄影参照锚点、渲染技术栈、摄影级总体属性与可执行摄影构词，优先使用 AIGC 工具易读的具象词组；重点应放在照明质感、反差策略、颗粒纯度、皮肤层次、反射控制、暗部可读性与可拍空间光比这些能统摄全局的摄影属性，不再要求“空间/时间处理”“整体画面气压”这类抽象汇总词，也不固定景别，不直接写具体颜色、材质、构图、镜头操作、剧情母题总结或工具参数；若 `team.yaml.enabled == true`，则应优先把已启用 team 成员转写为“参照 XXX 的 XXX”式摄影锚点，并补出 AIGC 工具可执行构词；若在 Markdown 中补充 `Midjourney` 等工具的投影组织建议，也只能作为 canonical core prefix 的派生排布，不得改写字段语义。`全集类型元素.md` 只写项目级类型总则，`分组类型元素.md` 必须按 `第N集 -> 【x-x-x】` 组织组级类型判断；三者都不得被 episode 细节污染。
 3. `导演意图.md` 必须按 `## 第N集 -> ### 【x-x-x】` 组织，父 skill 只更新命中章节。
 4. `2-Global` 必须把 `组间设计` 与完整 `剧本正文` 写入 `projects/aigc/<项目名>/3-Detail/第N集.json` 的分镜组壳，但不得在本阶段发明 shot-level `分镜明细[]`。
 5. `2-Global` 必须在同一份 shared root 中直接写入 `分镜切换` 固定数字，供 `3-Detail` 后续直接接受与落镜。

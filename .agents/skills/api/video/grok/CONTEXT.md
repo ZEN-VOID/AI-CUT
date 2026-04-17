@@ -10,49 +10,52 @@ current_chars: auto
 current_lines: auto
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-03T00:00:00Z
+last_checked_at: 2026-04-17T00:00:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
-本文件作为 `grok` 技能的经验层，默认以知识库模式维护：优先沉淀 GROK 生视频的双接口提交合同、图片读取与编码策略、响应字段归一化，以及提交报告落盘的稳定套路。
+本文件作为 `grok` 技能的经验层，默认以知识库模式维护：优先沉淀 FineAPI Grok Video 3 的创建接口约束、图片链接输入边界、Base URL 显式配置要求，以及“创建回执 != 成片结果”的执行认知。
 
 ## Type Map
 
 | 类型 | 症状 | 根因层 | 立即修复 | 系统性预防 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
-| `TM-GROK-MODE-DRIFT` | 文本 PRP 与截图示例接口不一致，导致调用时纠结到底该走哪个端点 | 接口契约层 | 保持 `json` 与 `multipart` 双模式共存，并把 `auto` 默认收敛到 `json` | 在 `references/api.md` 中显式记录“文字版 vs 截图版”证据来源，避免后续误删一支 | `--dry-run` 输出里可见 `request_mode` 与 `endpoint` |
-| `TM-GROK-IMAGE-READ` | 本地图、远程图、data URL 三种输入不能统一消费 | 输入标准化层 | 统一把所有图片读成 `bytes + mime_type`，再根据模式转 `data URL` 或 multipart 文件 | 脚本内固定保留 `_read_image_source()` 与 `_to_data_url()` 两段逻辑 | 三类输入都能通过 `--dry-run` |
-| `TM-GROK-MULTIPART-SINGLE` | multipart 模式下传多图后请求失败或行为不可预测 | 接口边界层 | 显式拒绝多图 multipart | 在 `SKILL.md` 与脚本参数校验中双重硬卡 | `--request-mode multipart --image a --image b` 直接报错 |
-| `TM-GROK-RESPONSE-DRIFT` | 有时返回 `task_id`，有时返回 `id`，导致上游拿不到任务号 | 响应解析层 | 使用 `task_id or id` 归一化 | 报告 JSON 固定输出 `normalized_submission.task_id` | 报告里始终可见 `task_id` |
-| `TM-GROK-SUBMIT-ONLY` | 用户以为技能能下载最终视频，但 PRP 并未提供查询/下载端点 | 需求边界层 | 在技能合同中明确当前只保证提交回执，不承诺 MP4 下载 | 若未来补到查询接口，再升级技能而不是先在文档里虚构能力 | `SKILL.md` 未出现未证实的下载流程 |
-| `TM-GROK-DRYRUN-AUTH` | `--dry-run` 时仍被 API Key 校验拦住，无法完成本地预检 | 脚本执行顺序层 | 把 API Key 校验后移到真实提交前 | 保持 dry-run 只验证输入、模式裁决与请求摘要，不依赖外部密钥 | 无 API Key 时 `--dry-run --print-payload` 仍返回 0 |
-| `TM-GROK-UPSTREAM-HANDSHAKE` | 真实提交时出现 `SSL EOF`、`RemoteDisconnected` 或 `Empty reply from server`，请求尚未进入业务响应层 | 外部依赖/网关层 | 先用 `curl -Ivs https://api.ai666.net` 与 `curl -Ivs http://api.ai666.net` 复验连通性，确认是上游端点问题 | 在脚本里把 SSL/连接中断错误归一化成“上游端点不可用”提示，避免误修 payload | `curl` 与真实提交都在握手/首包阶段断开时，不再继续调整业务参数 |
-| `TM-GROK-SECRET-HYGIENE` | API Key 被误写进技能文件或报告 | 安全层 | 所有技能文件只引用环境变量名，不写明文密钥 | 在脚本报告里默认不回写完整 Authorization 头 | 仓内 grep 不出现实际密钥 |
+| `TM-GROK-CREATE-ONLY` | 调用方把 `POST /v1/video/create` 的回执误当成视频成片 | 工作流契约层 | 明确当前只完成 create receipt 阶段 | 在 `SKILL.md` 与脚本输出中显式标注“当前未覆盖状态/下载” | 报告只出现 `id/status/status_update_time`，不虚构下载地址 |
+| `TM-GROK-IMAGE-URL` | 把本地路径或二进制内容塞进 `images`，接口报错 | 输入边界层 | 只接受公网 `http/https` 链接 | 在脚本前置校验中强制拦截非 URL 输入 | `--image ./foo.png` 直接报错并给动作建议 |
+| `TM-GROK-BASE-URL` | 文档只给相对路径，脚本无默认 host 或未继承共享网关导致无法调用 | 环境配置层 | 通过 `.env` 或 `--base-url` 提供 API Base URL，并优先继承 `ANYFAST_API_BASE_URL` | 保持“共享 AnyFast 基线 + provider 覆盖”的策略，并把缺失诊断写成硬错误 | 未配置 Base URL 时，脚本直接给出明确报错 |
+| `TM-GROK-SHARED-ANYFAST-ENV` | 仓库已配置 `ANYFAST_VIDEO_API_KEY / ANYFAST_API_BASE_URL`，但 `grok` 仍误报缺少 key 或 host，或被旧 `GROK_*` 抢回错误 host | 真源同步层 | 把 `ANYFAST_*` 加入脚本、主合同与参考文档回退链，并把共享基线提到本地变量前 | 固定“同系列 provider 先继承共享 AnyFast 环境，`GROK_*` 只做局部补充”的合同 | 不显式传 `GROK_*` 时，dry-run 仍能从共享 `.env` 得到完整请求摘要，且优先落到共享网关 |
+| `TM-GROK-720P-FIRST` | 调用 `1080P` 后失败，但使用者以为技能坏了 | 供应商能力漂移层 | 回退到 `720P` | 把“字段枚举存在 1080P，但截图注明暂只支持 720P”沉到技能合同 | `720P` 成为默认值，`1080P` 仅保留风险提示 |
+| `TM-GROK-HIGHEST-VERIFIED` | 调用方希望把默认模型盲目上调到更高命名版本 | 供应商可用渠道层 | 以真实提交结果判定；当前回退到 `grok-video-3` | 把“默认模型 = 当前环境最高已验证可用版本”写入合同，并在 `model_not_found` 时给出回退提示 | `grok-video-3` 可成功创建任务，`grok-video-3-max` 返回 `model_not_found` |
+| `TM-GROK-PROMPT-SUFFIX` | 把 `--mode=custom` 等提示后缀清洗掉，导致供应商模式失真 | Prompt 保真层 | 提示词原样透传 | 在脚本中不对 prompt 追加额外清洗逻辑 | 报告中的 `prompt` 与输入一致 |
+| `TM-GROK-JSON-SHAPE` | 错用 multipart 或把 `images` 写成单字符串 | 请求构造层 | 固定 `application/json`，并保持 `images` 为数组 | 在 dry-run 中输出最终 JSON 结构，便于人工核对 | `request_summary.data.images` 始终是数组 |
+| `TM-GROK-DRYRUN-SECRET-GATE` | 只是想先检查请求体，却因为缺少 API Key 无法运行 `--dry-run` | CLI 执行入口层 | 允许 dry-run 在无密钥时继续，只打印结构化请求摘要 | 将“dry-run 不强制密钥”写入脚本与 `SKILL.md`，避免把预检步骤绑死在鉴权上 | 未配置 API Key 时，`submit --dry-run --print-payload` 仍能输出请求摘要 |
+| `TM-GROK-REPORT-SELF-DESCRIBE` | 终端打印结果含 `report_json`，但落盘文件缺少该字段 | 报告落盘层 | 在写 JSON 前先补齐 `report_json` | 保持打印结果与落盘结果同构，避免后续自动化读取到两套 schema | 报告文件内也包含 `report_json` |
 
 ## Repair Playbook
 
-1. **先判定模式**
-   - 如果任务涉及多图或“读图即转 data URL”，先走 `json`
-   - 只有用户强制要求 OpenAPI 文字版接口时才走 `multipart`
-2. **先跑 Dry Run**
-   - `python3 .agents/skills/api/video/grok/scripts/grok_video_generate.py --prompt "test" --dry-run --print-payload`
-   - 确认 `request_mode / endpoint / image_inputs / request_summary`
-3. **图片输入排查**
-   - 本地图：检查路径是否存在
-   - 远程图：检查 URL 是否可访问
-   - data URL：检查是否以 `data:image/` 开头
-4. **回执排查**
-   - 若返回只有 `id` 没有 `task_id`，检查归一化逻辑
-   - 若状态为 `failed`，保留原始响应，不做静默吞错
-5. **输出排查**
-   - 检查默认目录是否为 `output/影片/[项目名]/5-API/video/grok/`
-   - 检查报告中是否包含 `normalized_submission`
+1. **先做 Dry Run**
+   - 运行 `submit --dry-run --print-payload`
+   - 先确认 `base_url / model / aspect_ratio / size / images`
+2. **再查图片输入**
+   - 每一项都必须是可访问的 `http/https` URL
+   - 若是本地图片，先走上游上传流程取得 URL
+3. **再查尺寸**
+   - 默认先用 `720P`
+   - 若用户坚持 `1080P`，应先提醒当前存在供应商侧不支持风险
+4. **再查 Base URL**
+   - 先看共享 `.env` 里的 `ANYFAST_API_BASE_URL` 是否已提供，再看 `GROK_VIDEO_API_BASE_URL`
+   - 若两者都没有，再要求调用方显式传 `--base-url`
+5. **最后看回执解释**
+   - 成功回执只代表任务已创建
+   - 没有确认后续查询/下载接口前，不要承诺成片位置
 
 ## Reusable Heuristics
 
-- 同一 PRP 同时存在“文字 OpenAPI”和“截图示例”时，不应强行二选一，而应把它们收敛成主路径与回退路径。
-- 涉及“图片读取”的视频接口，最稳的抽象不是“URL 还是文件”，而是统一转成“字节 + MIME”，后面再适配 JSON 或 multipart。
-- 当服务端响应字段有轻微漂移时，优先做归一化层，不要把漂移直接暴露给上游技能。
-- 如果文档只给了提交接口，没有给查询/下载接口，就把技能边界锁在“提交回执”，这样最诚实也最不容易误导下游。
-- 默认报告里只保留请求摘要，不落完整鉴权头，能显著降低技能文件和产物的泄密风险。
-- 如果 `https` 与 `http` 都在握手或首包阶段断开，应优先判定为网关/上游不可用，而不是继续修改 prompt、比例、时长等业务参数。
+- 当供应商文档只给相对路径而不暴露 host 时，最稳的策略不是拍脑袋写默认值，而是把 Base URL 升级成显式配置项。
+- 同一供应商家族若已经有共享网关和共享视频 key，默认应先吃共享基线；provider 局部变量只在共享基线缺失或需要特例时再介入。
+- “最高版本”应该以当前 provider 的真实可用性为准，而不是按第三方站点、命名后缀或营销文案猜更高版本。
+- 只要接口字段名已经明确写成 `images: array[string]` 且说明是“图片链接”，就不要偷偷扩展成文件上传能力。
+- 当截图同时出现“枚举包含 1080P”和“暂只支持 720P”两种信号时，应保留两者，而不是把其中之一抹平。
+- 异步视频接口的第一步回执经常非常像“成功结果”；技能合同必须明确区分“任务已创建”和“视频已可下载”。
+- 预检型 dry-run 的目标是尽早暴露 JSON 结构问题；不要把它和真实鉴权强绑定，否则最便宜的检查步骤会失效。
+- 如果 CLI 会把结果写盘，终端输出与落盘 JSON 应尽量同构；否则后续脚本会遇到“屏幕上有、文件里没有”的隐性 schema 漂移。

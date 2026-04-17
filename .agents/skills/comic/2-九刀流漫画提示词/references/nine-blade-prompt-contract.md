@@ -2,7 +2,7 @@
 
 ## 1. 九刀流定义
 
-`九刀流` 是页级切分方法：把一段小说切成 9 个连续漫画页刀口。每一刀必须承担一个不同叙事功能：
+`九刀流` 是页级切分方法：把一段漫画剧本切成 9 个连续漫画页刀口。每一刀必须承担一个不同叙事功能：
 
 | blade | 默认功能 | 常用页面动作 |
 | --- | --- | --- |
@@ -18,13 +18,15 @@
 
 可按故事类型替换功能，但不得让 9 页变成同一事件的 9 个角度。
 
-## 1.0 小说来源格式化前奏
+## 1.0 剧本来源格式化前奏
 
-`九刀流` 不再直接从任意原始小说正文切页。当前口径固定为：
+`九刀流` 不再直接从任意原始剧本文本切页。当前口径固定为：
 
-1. 先把 `source_novel` 做“小说来源格式化处理”。
-2. 再用格式化后的 `formatted_source_novel` 作为九刀切页的起点。
-3. 最终仍只交付一份 `nine_blade_comic_prompts.v1` JSON；前奏不产出第二份 canonical 成品。
+1. 先把 `source_script` 做“剧本来源格式化处理”。
+2. 再用格式化后的 `formatted_source_script` 作为九刀切页的起点。
+3. 最终不再默认只交付一份整集 JSON；当前口径是“先切 `page-group`，再按组各交付一份 `nine_blade_comic_prompts.v1` JSON”。前奏与分组都不与组级 JSON 竞争 canonical 成品。
+
+若 `1-漫画剧本改编/formatted_source_script.json` 已存在且通过校验，则它优先于自由 prose，默认视为唯一上游文本真源。
 
 前奏处理机制参照 `.agents/skills/aigc/1-Planning/2-格式`，按以下顺序执行：
 
@@ -37,7 +39,7 @@
 
 ### 1.0.1 来源判模
 
-原始小说源必须先判定为以下之一：
+原始剧本源必须先判定为以下之一：
 
 - `scene-led`
   - 适用于章节正文、动作/对白较充足的戏剧型文本。
@@ -48,7 +50,7 @@
 
 ### 1.0.2 格式化真源最低要求
 
-`formatted_source_novel` 推荐最少包含：
+`formatted_source_script` 推荐最少包含：
 
 - `source_format_variant`
 - `canonical_story_summary`
@@ -63,6 +65,16 @@
 - 未完成前奏验证前，不得直接切 `story_beat_map`。
 - `ordered_story_units[]` 必须可视化、可顺序切刀，不能还是大段抽象 prose。
 - 若关键角色、场景、转场、高潮或余波在前奏中丢失，视为前奏失败而不是九刀失败。
+
+### 1.0.3 Page-Group 划分硬规则
+
+- `formatted_source_script` 通过验证后，必须先生成 `page_group_plan`，再以每个 group 为单位执行九刀。
+- 默认节奏口径：约 `500` 字原文 = 一个 9 pages 的 `page-group`。
+- 推荐软窗口：`350-650` 字；若场景、高潮、钩子需要完整保留，可小幅放宽，但不得机械按字数把同一动作截断。
+- 分组优先尊重 `ordered_story_units[]`、`scene_cards[]`、`impact_beats[]`、`page_turn_candidates[]` 的自然边界。
+- 每个 group 至少要有：`entry_hook`、中段推进/阻力、`exit_hook` 或余波；不能只收一段长解释。
+- 每个 group 输出仍是标准 `nine_blade_comic_prompts.v1`，但建议额外包含 `page_group` 与 `continuity_context`，明确该组身份和 continuity 继承。
+- 组间 continuity 必须继承同一套 `main_character_lock`、`style_bible`、`character_locks`、`scene_continuity_bible`。允许剧情功能变化，不允许作品风格和角色造型 DNA 断层切换。
 
 ## 1.1 主角锚定硬规则
 
@@ -98,6 +110,7 @@
    - 这条 style anchor 至少锁住：同一渲染媒介、同一线条体系、同一明暗方法、同一上色策略、同一 lettering 质感、同一 panel border 质感、同一角色年龄比例。
    - 必须补一句 `forbidden style shifts`，明确禁止页面之间断层切换成 `chibi / SD / children picture-book / painterly concept art / 3D render / live-action storyboard / random full-color realism`。
    - 允许变化的是布局、镜头、情绪强弱；不允许变化的是整组 9 页的视觉 DNA。
+   - 若当前 episode 被切成多个 `page-group`，这条 `global style anchor` 也必须跨组继承；不允许上一组重墨低饱和、下一组突然儿童彩图或影视概念图。
 4. `Continuity Locks`
    - 先注入 `main_character_lock.anchor_prompt`。
    - 再写当前页 `active_character_ids` 对应角色的名字与其他角色锁。
@@ -160,6 +173,28 @@
     "live-action storyboard realism",
     "random color-script reset between pages"
   ]
+}
+```
+
+若当前是多组输出，建议在每个组级 JSON 中增加：
+
+```json
+{
+  "page_group": {
+    "group_id": "page-group-01",
+    "group_index": 1,
+    "total_groups": 3,
+    "estimated_source_chars": 480,
+    "target_source_chars": 500,
+    "source_span_summary": "山门异象 -> 入殿前夜",
+    "rhythm_rationale": "完整覆盖异常初现、进入行动与页末钩子，不把入殿动作截断。"
+  },
+  "continuity_context": {
+    "inherit_global_locks": true,
+    "same_visual_dna_rule": "Reuse the same rendering medium, line system, shadow method, lettering feeling, and character age ratio across all groups.",
+    "previous_group_hook": "",
+    "next_group_hook": "祭火大殿首次亮相"
+  }
 }
 ```
 

@@ -33,6 +33,8 @@
 3. `2-格式` 默认只读取 `1-分集` 输出物，不回退到 `Story/` 重做自由切分。
 4. 若 `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml` 存在，应将其作为输入索引与 coverage 证据优先消费。
 5. `1-分集` 不得自行扩展到 `development_briefs` 或其他非故事正文材料。
+6. 例外：当 `story-source-manifest.yaml` 已显式登记 `development_briefs`，且 `readiness` 明确允许“开发式/增量分集”时，`1-分集` 可把这些 brief 仅作为边界辅证输入。
+7. 上述例外不改变真源层级：`development_briefs` 仍不是 `primary_story_source`，不得被写成“整季正文已就绪”或覆盖正文真源。
 
 ## 4. Handoff Contract
 

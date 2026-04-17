@@ -1,0 +1,4 @@
+interface:
+  display_name: "FineAPI Veo 生视频"
+  short_description: "通过 FineAPI 的 /v1/video/create 接口提交 Veo 文生或图生视频创建任务，并将创建回执落到项目化目录"
+  default_prompt: "使用 FineAPI Veo 创建接口生成视频。优先校验 model、images、enhance_prompt、enable_upsample 与 aspect_ratio，按 POST /v1/video/create 的 JSON 合同提交，并把创建回执报告落到项目化目录。"

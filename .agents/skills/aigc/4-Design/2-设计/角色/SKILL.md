@@ -48,6 +48,7 @@ governance_tier: full
 
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
 - `.agents/skills/aigc/4-Design/1-清单/角色/SKILL.md`
@@ -62,6 +63,8 @@ governance_tier: full
   - `1-清单 + 0-Init + 2-Global` 的上游输入口径真源
 - `_shared/design-output-contract.md`
   - `global_style_prefix / full_generation_prompt / same-dir same-stem auto image` 的共享输出真源
+- `_shared/design-slot-review-contract.md`
+  - 当前轮 `character_design.json + [角色名].md + _manifest.json` 应如何解析成 `ROLE-BUNDLE-*` 的共享评审与返工真源
 - `references/character-design-assembly.md`
   - bridge-first 装配、文化原型保守模式、输出映射细则
 - `templates/character_masterprompt.structured.v2.md`
@@ -77,19 +80,20 @@ governance_tier: full
 4. `.agents/skills/aigc/4-Design/2-设计/SKILL.md + CONTEXT.md`
 5. `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 6. `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
-7. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-8. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
-9. 本 `SKILL.md + CONTEXT.md`
-10. `references/character-design-assembly.md`
-11. `templates/character_masterprompt.structured.v2.md`
-12. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/role_design_bridge.json`（若存在）
-13. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色研究.json`（若存在）
-14. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
-15. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
-16. `projects/aigc/<项目名>/2-Global/全局风格.md`
-17. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
-18. `projects/aigc/<项目名>/2-Global/导演意图.md`
-19. `projects/aigc/<项目名>/team.yaml`（若存在）
+7. `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
+8. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+9. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+10. 本 `SKILL.md + CONTEXT.md`
+11. `references/character-design-assembly.md`
+12. `templates/character_masterprompt.structured.v2.md`
+13. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/role_design_bridge.json`（若存在）
+14. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色研究.json`（若存在）
+15. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`
+16. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
+17. `projects/aigc/<项目名>/2-Global/全局风格.md`
+18. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
+19. `projects/aigc/<项目名>/2-Global/导演意图.md`
+20. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Business Requirement Analysis Contract (Mandatory)
 
@@ -219,7 +223,7 @@ stateDiagram-v2
 | `FIELD-CHAR-10` | `_manifest.json` | 审计、路径与统计清楚，且不冒充业务真源 | 全链输出 | `S9` | audit closure | `FAIL-MANIFEST-DRIFT` |
 | `FIELD-CHAR-11` | `[角色名].<ext> / _manifest.json.auto_image` | 自动生图使用含全局风格前缀的完整 prompt，默认后台批量并发提交，图片与设计文件同目录同 stem | `design-output-contract.md`、`image-generation-execution-contract.md`、`全局风格.md`、`[角色名].md` | `S10` | auto image completeness | `FAIL-CHAR-AUTO-IMAGE` |
 | `FIELD-CHAR-12` | `prompt_integration / full_generation_prompt / auto_image preflight` | 角色图必须是纯色背景定妆参照；场景、建筑、房间、街道、道具环境或其他人物只能作为离屏叙事压力，不得进入画面 | `design-output-contract.md`、`character-design-assembly.md`、`validate_character_design_projection.py` | `S7` / `S10` | reference cleanliness | `FAIL-CHAR-REFERENCE-CONTAMINATION` |
-| `FIELD-CHAR-13` | current-round outputs / supervision review | 输出后必须读取项目根 `team.yaml`，按共享收尾合同裁定当前轮 closeout、reviewer 顺序与角色设计型补选，并只 patch 当前轮角色文件 | `team.yaml`、`council-runtime`、`subagent-supervision-contract.md` | `S11` | council closeout | `FAIL-CHAR-SUPERVISION-REVIEW` |
+| `FIELD-CHAR-13` | current-round outputs / supervision review | 输出后必须读取项目根 `team.yaml`，按共享收尾合同裁定当前轮 closeout、reviewer 顺序与角色设计型补选，并先把当前轮角色输出解析成 `ROLE-BUNDLE-*`，再只 patch 当前轮角色文件 | `team.yaml`、`council-runtime`、`subagent-supervision-contract.md`、`design-slot-review-contract.md` | `S11` | council closeout | `FAIL-CHAR-SUPERVISION-REVIEW` |
 
 ## Thought Pass Map
 
@@ -235,7 +239,7 @@ stateDiagram-v2
 | `S8` | JSON/Markdown 汇流 | 写 `character_design.json + [角色名].md` | `design_truth_packet` | `S9` | `S8` |
 | `S9` | 审计与落盘 | 写 `_manifest.json`，验证 coverage | `manifest_packet` | `S10` | `S8-S9` |
 | `S10` | 单主体自动生图 | 读取 `[角色名].md` 与全局风格前缀；自动生图前复验纯色背景锚句，再默认后台批量并发提交 nano-banana general，同目录同名图片由后续验收复核 | `auto_image_packet + reference_cleanliness_note` | `S11` | `S7-S10` |
-| `S11` | 输出后 subagents 监制强化 | 读取 `team.yaml` 与共享收尾合同，裁定当前轮 closeout 是否可进入，解析显式 reviewer、可选 `4-Design review gate members` 与角色设计型补选，真实启动 reviewer subagents 并回写当前轮文件 | `supervision_review_note + subagent_supervision_result` | `done` | `S7-S11` |
+| `S11` | 输出后 subagents 监制强化 | 读取 `team.yaml` 与共享收尾合同，裁定当前轮 closeout 是否可进入，先把当前轮角色输出解析成 `ROLE-BUNDLE-01~04`，再解析显式 reviewer、可选 `4-Design review gate members` 与角色设计型补选，真实启动 reviewer subagents 并回写当前轮文件 | `supervision_review_note + subagent_supervision_result` | `done` | `S7-S11` |
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -251,7 +255,7 @@ stateDiagram-v2
 | `N8-PROJECTION` | 写结构化真源与人读投影 | 模板 + `prompt_packet` | 生成 `character_design.json` 和 `[角色名].md` | `design_truth_packet` | `N9` | Markdown 不得成为第二真源 |
 | `N9-VALIDATE` | 一次性收束与审计 | 全链输出 | 写 `_manifest.json` 并验证 coverage | `manifest_packet` | `N10` | 只允许在图片步骤完成后结案 |
 | `N10-AUTO-IMAGE` | 生成单角色概念图 | `[角色名].md`、`全局风格.md`、`prompt_integration` | 生成 `full_generation_prompt`；复验纯色背景锚句与背景污染禁令后默认后台批量并发提交 nano-banana general，目标输出 `[角色名].<ext>` | `auto_image_packet + reference_cleanliness_note` | `N11` | 不得只传局部 prompt；后台提交不得伪装为已产图；图片必须同目录同名；纯色背景门禁失败不得生图 |
-| `N11-SUPERVISION-REVIEW` | 输出后监制强化 | 当前轮 `character_design.json + [角色名].md + _manifest.json`、`team.yaml`、`subagent-supervision-contract.md` | 按共享合同确认当前轮 closeout 可进入；显式 reviewer 先取 `roles.supervision.members`，若 `4-Design` final-stage gate 存在则并入 `roles.review.members`，不足再补入 `张叔平 + 叶锦添`，并按 `use_subagents_by_default` 真实启动 reviewer subagents；主代理汇流后只 patch 当前轮角色输出 | `supervision_review_note + subagent_supervision_result` | `done` | 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council |
+| `N11-SUPERVISION-REVIEW` | 输出后监制强化 | 当前轮 `character_design.json + [角色名].md + _manifest.json`、`team.yaml`、`subagent-supervision-contract.md`、`design-slot-review-contract.md` | 按共享合同确认当前轮 closeout 可进入；先把当前轮角色输出解析成 `ROLE-BUNDLE-01~04`；显式 reviewer 先取 `roles.supervision.members`，若 `4-Design` final-stage gate 存在则并入 `roles.review.members`，不足再补入 `张叔平 + 叶锦添`，并按 `use_subagents_by_default` 真实启动 reviewer subagents；主代理汇流后只 patch 当前轮角色输出 | `supervision_review_note + subagent_supervision_result` | `done` | 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council |
 
 ## Pass Table
 
@@ -296,6 +300,7 @@ stateDiagram-v2
 2. `role_design_bridge.json` 缺失时允许回退，但必须显式打 `bridge_status`。
 3. 强文化原型角色缺证据时，必须走保守模式，不得泛词拼装。
 4. per-role Markdown 是 projection，不是 canonical truth。
+5. 当前轮 review target 必须先按 `_shared/design-slot-review-contract.md` 解析到 `ROLE-BUNDLE-*`，不得只停留在文件名级别。
 
 ## One-Shot Output Contract (Mandatory)
 
@@ -307,6 +312,8 @@ stateDiagram-v2
 4. `_manifest.json`
 
 thinking sidecar 只作为过程证据，不进入最终 canonical 交付集合。
+
+当前轮监制强化默认围绕以上文件及其对应 `ROLE-BUNDLE-*` 做 patch，不再以“整个文件的整体感觉”作为唯一定位方式。
 
 ## Root-Cause Execution Contract (Mandatory)
 

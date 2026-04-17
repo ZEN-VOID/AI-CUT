@@ -1,0 +1,4 @@
+interface:
+  display_name: "Runway 图生视频"
+  short_description: "通过 FineAPI 提交 Runway 图生视频任务，支持首帧图、异步轮询与项目化下载"
+  default_prompt: "使用 Runway 通过 FineAPI 生成图生视频。优先按创建任务、轮询状态、下载结果的异步流程执行，并将报告与 MP4 落到项目化目录。"

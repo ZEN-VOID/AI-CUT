@@ -95,10 +95,11 @@ governance_tier: full
 
 1. `projects/aigc/<项目名>/Story/` 是 `1-分集` 的默认输入根。
 2. `story-source-manifest.yaml` 只作为输入索引与 `source_profile` 证据，不替代故事正文。
-3. `1-分集/第N集.md` 是上游逐集原文真源。
-4. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
-5. `3-分组/第N集.md` 是 grouped script，不与 `2-格式` 竞争。
-6. `1-Planning` 只登记 `bootstrap_output` 与 `source_profile` handoff，不在本阶段生成 `2-Global/*.md` 或 `3-Detail/*.json`。
+3. 若 manifest 已显式登记 `development_briefs`，且当前项目处于 `incremental` / `开发式分集`，则 `1-分集` 可将 brief 作为边界辅证消费，但不得把其抬升为 `primary_story_source`。
+4. `1-分集/第N集.md` 是上游逐集原文真源。
+5. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
+6. `3-分组/第N集.md` 是 grouped script，不与 `2-格式` 竞争。
+7. `1-Planning` 只登记 `bootstrap_output` 与 `source_profile` handoff，不在本阶段生成 `2-Global/*.md` 或 `3-Detail/*.json`。
 
 ## Context Contract (Mandatory)
 

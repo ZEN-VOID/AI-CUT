@@ -225,6 +225,27 @@ def _self_test_data() -> dict[str, Any]:
         )
     return {
         "schema_version": "nine_blade_comic_prompts.v1",
+        "page_group": {
+            "group_id": "page-group-01",
+            "group_index": 1,
+            "total_groups": 1,
+            "estimated_source_chars": 480,
+            "target_source_chars": 500,
+            "source_span_summary": "Thunder Gate anomaly -> ritual hall reveal",
+            "rhythm_rationale": (
+                "Cover the full setup, escalation, and cliffhanger of the current group without "
+                "mechanically cutting a scene boundary."
+            ),
+        },
+        "continuity_context": {
+            "inherit_global_locks": True,
+            "same_visual_dna_rule": (
+                "Reuse the same rendering medium, line system, shadow method, lettering feeling, "
+                "and character age ratio across all groups."
+            ),
+            "previous_group_hook": "",
+            "next_group_hook": "Ritual hall first appears",
+        },
         "generation_contract": {
             "provider": "seedream",
             "call_mode": "single_request_sequential",
@@ -384,6 +405,46 @@ def validate(data: dict[str, Any]) -> list[str]:
 
     if data.get("schema_version") != "nine_blade_comic_prompts.v1":
         errors.append("schema_version must be nine_blade_comic_prompts.v1")
+
+    page_group = data.get("page_group")
+    if page_group is not None:
+        if not isinstance(page_group, dict):
+            errors.append("page_group must be an object when present")
+            page_group = {}
+        group_id = str(page_group.get("group_id", "")).strip()
+        if not group_id:
+            errors.append("page_group.group_id must be a non-empty string when present")
+        group_index = page_group.get("group_index")
+        total_groups = page_group.get("total_groups")
+        if not isinstance(group_index, int) or group_index < 1:
+            errors.append("page_group.group_index must be an integer >= 1 when present")
+        if not isinstance(total_groups, int) or total_groups < 1:
+            errors.append("page_group.total_groups must be an integer >= 1 when present")
+        if isinstance(group_index, int) and isinstance(total_groups, int) and group_index > total_groups:
+            errors.append("page_group.group_index must be <= page_group.total_groups")
+        estimated_source_chars = page_group.get("estimated_source_chars")
+        if not isinstance(estimated_source_chars, int) or estimated_source_chars < 1:
+            errors.append("page_group.estimated_source_chars must be an integer >= 1 when present")
+        target_source_chars = page_group.get("target_source_chars")
+        if not isinstance(target_source_chars, int) or target_source_chars < 1:
+            errors.append("page_group.target_source_chars must be an integer >= 1 when present")
+        if len(str(page_group.get("source_span_summary", "")).strip()) < 4:
+            errors.append("page_group.source_span_summary must be a descriptive string when present")
+        if len(str(page_group.get("rhythm_rationale", "")).strip()) < 12:
+            errors.append("page_group.rhythm_rationale must explain the grouping rationale when present")
+
+    continuity_context = data.get("continuity_context")
+    if continuity_context is not None:
+        if not isinstance(continuity_context, dict):
+            errors.append("continuity_context must be an object when present")
+            continuity_context = {}
+        if not isinstance(continuity_context.get("inherit_global_locks"), bool):
+            errors.append("continuity_context.inherit_global_locks must be boolean when present")
+        same_visual_dna_rule = str(continuity_context.get("same_visual_dna_rule", "")).strip()
+        if len(same_visual_dna_rule) < 20:
+            errors.append(
+                "continuity_context.same_visual_dna_rule must be a descriptive rule when present"
+            )
 
     contract = data.get("generation_contract")
     if not isinstance(contract, dict):

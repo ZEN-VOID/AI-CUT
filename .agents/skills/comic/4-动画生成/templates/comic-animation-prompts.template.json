@@ -1,0 +1,59 @@
+{
+  "schema_version": "comic_page_animation_prompts.v1",
+  "source_nine_blade_json": "projects/comic/项目名/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json",
+  "source_images_dir": "projects/comic/项目名/3-漫画生成/page-group-01",
+  "prompt_prefix": "Animate this vertical comic strip into a seamless, continuous cinematic video. Chronological sequence from right to left, top to bottom panels. Advanced camera movement transitioning smoothly between scenes. High-fidelity motion physics, 4K resolution, masterpiece quality.",
+  "page_group": {
+    "group_id": "page-group-01",
+    "group_index": 1,
+    "total_groups": 1
+  },
+  "continuity_context": {},
+  "video_generation_contract": {
+    "provider": "sora",
+    "mode": "image_to_video",
+    "model": "sora-2",
+    "seconds": 12,
+    "size": "720x1280",
+    "aspect_ratio": "9:16"
+  },
+  "pages": [
+    {
+      "page_number": 1,
+      "page_role": "opening hook",
+      "source_image": "projects/comic/项目名/3-漫画生成/page-group-01/page01.png",
+      "active_character_ids": [
+        "protagonist"
+      ],
+      "scene_id": "scene-01",
+      "page_number_overlay": {
+        "text": "1",
+        "position": "bottom-right"
+      },
+      "storyboard_policy": {
+        "panel_to_shot": "one_panel_one_shot_default",
+        "reading_order": "right_to_left_top_to_bottom"
+      },
+      "layout": {
+        "aspect_ratio": "9:16",
+        "layout_id": "opening-hook-splash",
+        "panel_count": 3,
+        "panel_ratios": [
+          "70/15/15"
+        ]
+      },
+      "shot_plan": [
+        {
+          "shot_index": 1,
+          "source_panel_id": "1A",
+          "shot": "extreme low-angle opening shot",
+          "action": "the protagonist notices the anomaly",
+          "camera_motion": "slow cinematic push-in",
+          "subject_motion": "subtle head lift and cloth motion",
+          "text_handling": "preserve caption and page number without distortion"
+        }
+      ],
+      "sora_prompt": "Animate this vertical comic strip into a seamless, continuous cinematic video. Chronological sequence from right to left, top to bottom panels. Advanced camera movement transitioning smoothly between scenes. High-fidelity motion physics, 4K resolution, masterpiece quality. Preserve the exact composition, character identity, scene continuity, Chinese lettering, and page number from the source image."
+    }
+  ]
+}

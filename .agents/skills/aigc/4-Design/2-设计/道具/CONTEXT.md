@@ -30,6 +30,7 @@
 | 道具设计卡仍把使用/触碰/手持当成画面主体，只在 prompt 末尾写 no hands | thinking-action node layer | 在 `NODE-PROP-DESIGN-03` 先把使用逻辑转写为器物表面、功能端、受力点、状态痕迹或离屏使用语境 | `NODE-PROP-DESIGN-03/05` 登记 `reference_cleanliness_note`，自动生图前复验纯道具锚句 | prompt 含 `isolated pure prop view / no hands / no characters`，且没有正向手、身体局部、持有者、角色或复杂场景 |
 | 中文道具名或中文设计片段未被英文映射，生图主体退化为 `documented prop` 占位 | prompt subject binding layer | 为当前项目常见道具名与状态片段补英文映射，并把 fallback 改成“主体名 + 功能/材质/状态”描述 | `build_prop_design_packets.py` 的 `translate_prop_name / translate_fragment` 不得让 provider-facing prompt 回退成空泛主体占位；新增项目发现占位语时先修映射再重生图 | `rg "documented prop\\|documented visual priority\\|documented story premise" <道具2-设计输出>` 无命中，抽样图像主体与文件 stem 对齐 |
 | 道具输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在 `NODE-PROP-DESIGN-06` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层与道具设计型 reviewer 补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 张叔平/叶锦添补选 -> real subagents` | 当前轮道具输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
+| 道具监制强化只能指向整份 Markdown，无法区分功能、摄影还是纯物图洁净问题 | slot-level review governance layer | 先把当前轮目标解析成 `PROP-BUNDLE-01~04`，再汇流 reviewer finding | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与 patch 顺序；leaf `NODE-PROP-DESIGN-06` 强制读取该合同 | reviewer 结论能区分是 story/function、design-structure、photography-readability 还是 prompt-cleanliness bundle 失真 |
 
 ## Repair Playbook
 
@@ -42,6 +43,7 @@
 7. 设计卡落盘后，用 `run_design_auto_image.py --design-file <prop_id>-<canonical_name>.md` 验证同目录同名图片快路径。
 8. 当前轮道具 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `NODE-PROP-DESIGN-06`；图片状态只作证据。
 9. `NODE-PROP-DESIGN-06` 先按 shared contract 区分 stage-end refine 与 final-stage gate；显式 reviewer 不足时，按道具目标补入 `张叔平 + 叶锦添`。
+10. 进入 `NODE-PROP-DESIGN-06` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `PROP-BUNDLE-*`；若无法解析，先修 mapping，不直接做泛化审稿。
 
 ## Reusable Heuristics
 
@@ -56,3 +58,4 @@
 - 道具纯物图不是把“手”删除这么简单；先把手持/触碰/使用动作改写为器物自身的结构证据和状态证据，再写 prompt，才能避免模型补手或补持有者。
 - 用户确认画面风格、角色图、场景图与道具图效果稳定时，不应为修主体错配而重写全局风格；优先只修 `prompt整合` 的主体绑定、英文名映射和状态证据，保留已验证的黑白恐怖漫画风格前缀。
 - 道具输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏道具视觉系统审稿时，再补入设计组/美学组 reviewer。对道具默认是 `张叔平 + 叶锦添`。
+- 道具当前以 Markdown 为 canonical truth，更需要 slot-level review；否则 reviewer 很容易把“功能/材质/摄影/纯物图洁净”四类问题混成一句泛化意见。

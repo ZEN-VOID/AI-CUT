@@ -1,4 +1,0 @@
-interface:
-  display_name: "漫画小说改编"
-  short_description: "把文本、图片、视频或热点事件改编为适合后续漫画生成的小说底稿"
-  default_prompt: "Use $comic-novel-adaptation to normalize arbitrary source material, lock the truth boundary, and rewrite it into a hook-driven comic novel draft with visual bridge notes for downstream comic generation."

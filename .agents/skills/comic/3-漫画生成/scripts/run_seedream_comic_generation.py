@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -23,6 +25,17 @@ def _now_stamp() -> str:
 
 def _self_test_data() -> dict[str, Any]:
     pages: list[dict[str, Any]] = []
+    layout_ids = [
+        "splash-with-insets",
+        "asymmetric-investigation-page",
+        "diagonal-cut-action",
+        "split-diopter-page",
+        "vertical-cascade",
+        "impact-sfx-page",
+        "silent-reaction-grid",
+        "border-breaking-cliffhanger",
+        "noir-evidence-strip",
+    ]
     for page_number in range(1, 10):
         active_character_ids = (
             ["protagonist", "companion"] if page_number in {2, 3, 4, 6} else ["protagonist"]
@@ -31,6 +44,7 @@ def _self_test_data() -> dict[str, Any]:
             "cinematic comic page, vertical 9:16 aspect ratio",
             f"Page {page_number}",
             "Character locked across all panels: Sun Wukong, golden fur, consistent face, consistent costume, consistent silhouette",
+            "render clear legible Chinese text, use speech bubbles near speakers for dialogue, rectangular caption boxes for narration, thought bubbles or inner captions clearly different from dialogue for inner monologue, and integrated SFX inside the action panel",
         ]
         if len(active_character_ids) >= 2:
             positive_prompt_parts.append(
@@ -43,6 +57,48 @@ def _self_test_data() -> dict[str, Any]:
                 f"unique visible action {page_number}",
             ]
         )
+        panel_a_slots: list[dict[str, Any]] = [
+            {
+                "type": "narration",
+                "text": f"第{page_number}页",
+                "placement": "panel_edge_caption",
+                "bubble_style": "caption_box",
+                "inside_panel": True,
+            }
+        ]
+        panel_b_slots: list[dict[str, Any]] = []
+        if page_number in {2, 3, 8}:
+            panel_b_slots.append(
+                {
+                    "type": "dialogue",
+                    "speaker_id": active_character_ids[0],
+                    "text": "快走！",
+                    "placement": "near_speaker_inside_panel",
+                    "bubble_style": "speech_bubble",
+                    "inside_panel": True,
+                }
+            )
+        if page_number in {4, 9}:
+            panel_b_slots.append(
+                {
+                    "type": "inner_monologue",
+                    "speaker_id": "protagonist",
+                    "text": "不能退。",
+                    "placement": "near_thinker_inside_panel",
+                    "bubble_style": "thought_bubble",
+                    "inside_panel": True,
+                }
+            )
+        if page_number in {1, 3, 6, 7, 9}:
+            panel_b_slots.append(
+                {
+                    "type": "sfx",
+                    "text": "轰",
+                    "placement": "integrated_with_action_inside_panel",
+                    "bubble_style": "integrated_sfx",
+                    "inside_panel": True,
+                }
+            )
         pages.append(
             {
                 "page_number": page_number,
@@ -52,25 +108,28 @@ def _self_test_data() -> dict[str, Any]:
                 "scene_id": "thunder_gate",
                 "layout": {
                     "aspect_ratio": "9:16",
-                    "layout_id": "three-tier-dramatic",
-                    "panel_count": 1,
-                    "panel_ratios": ["full page"],
+                    "layout_id": layout_ids[page_number - 1],
+                    "panel_count": 2,
+                    "panel_ratios": [
+                        "dominant irregular panel 70%",
+                        "supporting inset/reaction panel 30%",
+                    ],
                 },
                 "panels": [
                     {
                         "panel_id": f"{page_number}A",
                         "shot": "dramatic comic shot",
                         "action": f"unique visible action {page_number}",
-                        "text_slots": [
-                            {
-                                "type": "narration",
-                                "text": f"第{page_number}页",
-                                "placement": "panel_edge_caption",
-                                "bubble_style": "caption_box",
-                                "inside_panel": True,
-                            }
-                        ],
-                    }
+                        "comic_techniques": ["bold gutter"],
+                        "text_slots": panel_a_slots,
+                    },
+                    {
+                        "panel_id": f"{page_number}B",
+                        "shot": "supporting reaction or detail panel",
+                        "action": f"supporting visible action {page_number}",
+                        "comic_techniques": ["reaction inset"],
+                        "text_slots": panel_b_slots,
+                    },
                 ],
                 "page_number_overlay": {
                     "text": str(page_number),
@@ -85,6 +144,24 @@ def _self_test_data() -> dict[str, Any]:
         )
     return {
         "schema_version": "nine_blade_comic_prompts.v1",
+        "page_group": {
+            "group_id": "page-group-01",
+            "group_index": 1,
+            "total_groups": 3,
+            "estimated_source_chars": 480,
+            "target_source_chars": 500,
+            "source_span_summary": "Thunder Gate anomaly -> ritual hall reveal",
+            "rhythm_rationale": "Keep the setup and cliffhanger in one stable 9-page group.",
+        },
+        "continuity_context": {
+            "inherit_global_locks": True,
+            "same_visual_dna_rule": (
+                "Reuse the same rendering medium, line system, shadow method, lettering feeling, "
+                "and character age ratio across all groups."
+            ),
+            "previous_group_hook": "",
+            "next_group_hook": "Ritual hall first appears",
+        },
         "generation_contract": {
             "provider": "seedream",
             "call_mode": "single_request_sequential",
@@ -94,6 +171,7 @@ def _self_test_data() -> dict[str, Any]:
                 "Generate exactly 9 separate images/pages.",
                 "Do not create a nine-grid collage.",
                 "Do not create nine variations of the same scene.",
+                "Every page must contain multiple comic panels, never a single full-page illustration.",
                 "Keep character and scene consistency across all pages.",
                 "Place a small page number in the bottom-right corner of every page, using digits 1-9 only.",
             ],
@@ -123,7 +201,11 @@ def _self_test_data() -> dict[str, Any]:
                 }
             ],
         },
-        "style_bible": {"base_style": "cinematic comic realism"},
+        "style_bible": {
+            "base_style": "cinematic manga comic realism",
+            "rendering_medium": "inked line art with screentone shading and printed comic texture",
+            "layout_directive": "multiple comic panels, bold gutters, dynamic panel borders, oversized SFX",
+        },
         "character_locks": [
             {
                 "character_id": "companion",
@@ -219,6 +301,8 @@ def _scene_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 
 def compile_master_prompt(data: dict[str, Any]) -> str:
+    page_group = data.get("page_group", {})
+    continuity_context = data.get("continuity_context", {})
     contract = data.get("generation_contract", {})
     hard_constraints = contract.get("hard_constraints", [])
     main_character_lock = data.get("main_character_lock", {})
@@ -239,6 +323,8 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
         "Place a small page number in the bottom-right corner of every page, using digits 1-9 only."
     ]
     parts.append(_text_block("Hard Constraints", hard_constraints))
+    parts.append(_text_block("Page Group Meta", page_group))
+    parts.append(_text_block("Continuity Context", continuity_context))
     parts.append(_text_block("Main Character Lock", main_character_lock))
     parts.append(_text_block("Scene Continuity Bible", scene_continuity_bible))
     parts.append(_text_block("Global Style Bible", style_bible))
@@ -286,6 +372,31 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
     return "\n".join(part for part in parts if part)
 
 
+def _slugify(value: str) -> str:
+    slug = re.sub(r"[^A-Za-z0-9_-]+", "-", value.strip())
+    slug = re.sub(r"-{2,}", "-", slug).strip("-_")
+    return slug or "page-group"
+
+
+def _group_meta(data: dict[str, Any]) -> dict[str, Any]:
+    page_group = data.get("page_group", {})
+    return page_group if isinstance(page_group, dict) else {}
+
+
+def _derive_group_slug(data: dict[str, Any], json_path: Path) -> str:
+    page_group = _group_meta(data)
+    group_id = str(page_group.get("group_id", "")).strip()
+    if group_id:
+        return _slugify(group_id)
+
+    stem = json_path.stem
+    stem = re.sub(r"[-_]?nine_blade_comic_prompts$", "", stem)
+    stem = stem.strip("-_")
+    if stem:
+        return _slugify(stem)
+    return "page-group"
+
+
 def _run_validator(json_path: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(VALIDATOR), str(json_path)],
@@ -298,6 +409,24 @@ def _run_validator(json_path: Path) -> subprocess.CompletedProcess[str]:
 
 def _read_seedream_report(path: Path) -> dict[str, Any]:
     return _load_json(path)
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _canonicalize_page_filenames(
+    saved_files: list[str], output_dir: Path, filename_stem_prefix: str
+) -> list[str]:
+    renamed_files: list[str] = []
+    for index, raw_path in enumerate(saved_files, start=1):
+        path = Path(raw_path)
+        suffix = path.suffix or ".png"
+        canonical_path = output_dir / f"{filename_stem_prefix}{index:02d}{suffix}"
+        if path.resolve() != canonical_path.resolve():
+            path.replace(canonical_path)
+        renamed_files.append(str(canonical_path))
+    return renamed_files
 
 
 def _infer_project_root(json_path: Path, project_name: str | None) -> Path:
@@ -333,11 +462,24 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.self_test:
-        prompt = compile_master_prompt(_self_test_data())
+        sample = _self_test_data()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            sample_path = Path(tmp_dir) / "page-group-01-nine_blade_comic_prompts.json"
+            _write_json(sample_path, sample)
+            validator_result = _run_validator(sample_path)
+            if validator_result.returncode != 0:
+                print(validator_result.stdout, end="")
+                print(validator_result.stderr, end="", file=sys.stderr)
+                print("FAIL self-test: sample payload does not pass stage-2 validator", file=sys.stderr)
+                return validator_result.returncode
+
+        prompt = compile_master_prompt(sample)
         required = [
             "Generate exactly 9 separate images/pages",
             "Do not create a nine-grid collage",
             "Do not create nine variations of the same scene",
+            "Page Group Meta",
+            "Continuity Context",
             "Page 9",
             "vertical 9:16",
             "bottom-right corner",
@@ -371,12 +513,19 @@ def main() -> int:
 
     data = _load_json(json_path)
     master_prompt = compile_master_prompt(data)
+    page_group = _group_meta(data)
+    group_slug = _derive_group_slug(data, json_path)
     project_root = _infer_project_root(json_path, args.project_name)
-    output_dir = args.output_dir or (project_root / "3-漫画生成")
+    output_dir = (args.output_dir.resolve() if args.output_dir else (project_root / "3-漫画生成" / group_slug))
     output_dir.mkdir(parents=True, exist_ok=True)
-    prefix = args.filename_prefix or json_path.stem
-    seedream_report = output_dir / f"seedream_report_{_now_stamp()}.json"
-    master_prompt_path = output_dir / "seedream_master_prompt.txt"
+    user_supplied_prefix = bool(args.filename_prefix)
+    shared_output_dir = args.output_dir is not None and output_dir.name != group_slug
+    auto_filename_prefix = f"{group_slug}-page" if shared_output_dir else "page"
+    prefix = args.filename_prefix or auto_filename_prefix
+    seedream_report = output_dir / f"{group_slug}-seedream_report_{_now_stamp()}.json"
+    master_prompt_path = output_dir / f"{group_slug}-seedream_master_prompt.txt"
+    comic_report_path = output_dir / f"{group_slug}-comic_generation_report.json"
+    generation_plan_path = output_dir / f"{group_slug}-generation_plan.json"
 
     command = [
         sys.executable,
@@ -403,9 +552,14 @@ def main() -> int:
     plan = {
         "ok": True,
         "input_json": str(json_path),
+        "page_group": page_group,
+        "group_slug": group_slug,
         "output_dir": str(output_dir),
         "master_prompt_path": str(master_prompt_path),
         "seedream_report": str(seedream_report),
+        "output_filename_scheme": (
+            f"{prefix}01.ext .. {prefix}09.ext" if not user_supplied_prefix else "custom prefix"
+        ),
         "seedream_command_preview": [
             token if token != master_prompt else "<compiled master prompt>"
             for token in command
@@ -413,29 +567,70 @@ def main() -> int:
         "expected_result_count": 9,
     }
     master_prompt_path.write_text(master_prompt, encoding="utf-8")
-    (output_dir / "generation_plan.json").write_text(
-        json.dumps(plan, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    _write_json(generation_plan_path, plan)
+    pending_report = {
+        "ok": False,
+        "status": "pending",
+        "input_json": str(json_path),
+        "page_group": page_group,
+        "group_slug": group_slug,
+        "output_dir": str(output_dir),
+        "generation_plan_path": str(generation_plan_path),
+        "master_prompt_path": str(master_prompt_path),
+        "seedream_report": str(seedream_report),
+        "expected_result_count": 9,
+        "saved_files": [],
+    }
+    _write_json(comic_report_path, pending_report)
 
     if args.dry_run:
-        print(f"PASS dry-run: {output_dir / 'generation_plan.json'}")
+        print(f"PASS dry-run: {generation_plan_path}")
         return 0
 
     result = subprocess.run(command, cwd=str(REPO_ROOT), text=True, check=False)
     if result.returncode != 0:
+        _write_json(
+            comic_report_path,
+            {
+                **pending_report,
+                "status": "failed",
+                "error": "seedream subprocess returned non-zero exit code",
+                "seedream_exit_code": result.returncode,
+            },
+        )
         return result.returncode
 
     report = _read_seedream_report(seedream_report)
     saved_files = report.get("saved_files", [])
     if report.get("result_count") != 9 or not isinstance(saved_files, list) or len(saved_files) != 9:
+        _write_json(
+            comic_report_path,
+            {
+                **pending_report,
+                "status": "failed",
+                "error": "Seedream did not return exactly 9 saved files",
+                "seedream_result_count": report.get("result_count"),
+                "saved_files": saved_files if isinstance(saved_files, list) else [],
+                "stream_event_count": report.get("stream_event_count"),
+                "stream_event_types": report.get("stream_event_types"),
+            },
+        )
         print("FAIL: Seedream did not return exactly 9 saved files", file=sys.stderr)
         return 3
 
+    if not user_supplied_prefix:
+        saved_files = _canonicalize_page_filenames(saved_files, output_dir, prefix)
+        report["saved_files"] = saved_files
+        _write_json(seedream_report, report)
+
     comic_report = {
         "ok": True,
+        "status": "completed",
         "input_json": str(json_path),
+        "page_group": page_group,
+        "group_slug": group_slug,
         "output_dir": str(output_dir),
+        "generation_plan_path": str(generation_plan_path),
         "master_prompt_path": str(master_prompt_path),
         "seedream_report": str(seedream_report),
         "saved_files": saved_files,
@@ -443,9 +638,8 @@ def main() -> int:
         "stream_event_count": report.get("stream_event_count"),
         "stream_event_types": report.get("stream_event_types"),
     }
-    report_path = output_dir / "comic_generation_report.json"
-    report_path.write_text(json.dumps(comic_report, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"PASS generated 9 comic pages: {report_path}")
+    _write_json(comic_report_path, comic_report)
+    print(f"PASS generated 9 comic pages: {comic_report_path}")
     return 0
 
 

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "comic_page_animation_prompts.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "prompt_prefix",
+    "page_group",
+    "video_generation_contract",
+    "pages"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "comic_page_animation_prompts.v1"
+    },
+    "source_nine_blade_json": {
+      "type": "string"
+    },
+    "source_images_dir": {
+      "type": "string"
+    },
+    "prompt_prefix": {
+      "type": "string",
+      "minLength": 20
+    },
+    "page_group": {
+      "type": "object",
+      "required": [
+        "group_id"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string"
+        },
+        "group_index": {
+          "type": "integer"
+        },
+        "total_groups": {
+          "type": "integer"
+        }
+      }
+    },
+    "continuity_context": {
+      "type": "object"
+    },
+    "video_generation_contract": {
+      "type": "object",
+      "required": [
+        "provider",
+        "mode",
+        "model",
+        "seconds",
+        "size",
+        "aspect_ratio"
+      ],
+      "properties": {
+        "provider": {
+          "const": "sora"
+        },
+        "mode": {
+          "const": "image_to_video"
+        },
+        "model": {
+          "type": "string"
+        },
+        "seconds": {
+          "type": "integer",
+          "enum": [4, 8, 12]
+        },
+        "size": {
+          "type": "string",
+          "enum": ["720x1280", "1280x720", "1024x1792", "1792x1024"]
+        },
+        "aspect_ratio": {
+          "const": "9:16"
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": [
+          "page_number",
+          "page_role",
+          "source_image",
+          "storyboard_policy",
+          "layout",
+          "shot_plan",
+          "sora_prompt"
+        ],
+        "properties": {
+          "page_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9
+          },
+          "page_role": {
+            "type": "string"
+          },
+          "source_image": {
+            "type": "string"
+          },
+          "active_character_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scene_id": {
+            "type": "string"
+          },
+          "page_number_overlay": {
+            "type": "object"
+          },
+          "storyboard_policy": {
+            "type": "object",
+            "required": [
+              "panel_to_shot",
+              "reading_order"
+            ],
+            "properties": {
+              "panel_to_shot": {
+                "type": "string"
+              },
+              "reading_order": {
+                "type": "string"
+              }
+            }
+          },
+          "layout": {
+            "type": "object"
+          },
+          "shot_plan": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "shot_index",
+                "source_panel_id",
+                "shot",
+                "action",
+                "camera_motion",
+                "subject_motion"
+              ],
+              "properties": {
+                "shot_index": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "source_panel_id": {
+                  "type": "string"
+                },
+                "shot": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "camera_motion": {
+                  "type": "string"
+                },
+                "subject_motion": {
+                  "type": "string"
+                },
+                "text_handling": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sora_prompt": {
+            "type": "string",
+            "minLength": 100
+          }
+        }
+      }
+    }
+  }
+}

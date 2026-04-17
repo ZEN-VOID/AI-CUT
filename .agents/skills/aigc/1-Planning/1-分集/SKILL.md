@@ -93,6 +93,10 @@ governance_tier: full
 
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
   - 若存在，作为索引、`coverage_scope` 与 `source_profile` 证据优先消费
+- `projects/aigc/<项目名>/Story/` 下已在 manifest 登记的 `development_briefs`
+  - 仅当 `readiness` 明确允许“开发式/增量分集”时，作为边界辅证输入
+  - 只可用于补全标题、概要、coverage 与 episode boundary reasoning
+  - 不得抬升为 `primary_story_source`
 - 用户显式指定的增量范围
 - `projects/aigc/<项目名>/team.yaml` 与共享 `council-runtime`
   - 仅在规划阶段启用顾问团时读取
@@ -103,12 +107,18 @@ governance_tier: full
 - 与当前项目无关的其他故事库文本
 - 任何要求本阶段直接输出导演或 detail 阶段真源的额外指令
 
+例外说明：
+
+- 如果执行案 / 提案 / 结构蓝图已经被 `story-source-manifest.yaml` 显式登记为当前项目的 `development_briefs`，且 `readiness` 结论是“可以开发式/增量分集”，则这些材料不再视为“无关输入”，但仍只拥有辅证地位。
+- 辅证地位不等于正文真源：不得据此宣称整季正文 ready，不得覆盖 `primary_story_source` 的权属。
+
 ### 输入处理原则
 
 1. 用户显式指定路径或范围时，用户指定优先。
 2. 用户未指定时，只能从 `projects/aigc/<项目名>/Story/` 扫描有效正文。
 3. manifest 只承担索引与证据，不替代故事正文主源。
-4. readiness 未通过时，不得假装继续正式分集。
+4. 若 manifest 显式登记了 `development_briefs` 且当前是 `incremental`，可把这些 brief 作为“开发式分集”的辅证输入，但必须在执行报告和 `episode-split-plan.json` 中显式保留 coverage 缺口。
+5. readiness 未通过时，不得假装继续正式分集。
 
 ## Visual Maps
 
@@ -250,7 +260,8 @@ graph LR
 3. 主路由唯一且遵守 `P1>P2>P3`
 4. 候选边界具备结构或戏剧证据
 5. `第N集.md`、`episode-split-plan.json`、`source_profile + bootstrap_output` handoff 一致
-6. `执行报告.md` 已写明验收结论、失败码与返工入口
+6. 若 `第N集.md` 含 frontmatter、边界说明或包装区块，则 `【剧本正文】` 后的正文区必须完整覆盖被采纳边界，不得出现头尾截断
+7. `执行报告.md` 已写明验收结论、失败码与返工入口
 
 若未满足：
 
@@ -373,7 +384,7 @@ bootstrap_output: projects/aigc/<项目名>/2-Global/导演意图.md
 | FIELD-SPLIT-02 | readiness 判定与 manifest 或用户显式范围一致 | FAIL-SPLIT-02 | S2 |
 | FIELD-SPLIT-03 | 主路由唯一且遵守 `P1>P2>P3` | FAIL-SPLIT-03 | S4 |
 | FIELD-SPLIT-04 | 候选边界具备结构或戏剧证据 | FAIL-SPLIT-04 | S5 |
-| FIELD-SPLIT-05 | `1-Planning/1-分集/第N集.md` 结构合法 | FAIL-SPLIT-05 | S6 |
+| FIELD-SPLIT-05 | `1-Planning/1-分集/第N集.md` 结构合法，且 `【剧本正文】` 后正文区完整覆盖被采纳源片段 | FAIL-SPLIT-05 | S6 |
 | FIELD-SPLIT-06 | `episode-split-plan.json` 与逐集主稿一致 | FAIL-SPLIT-06 | S7 |
 | FIELD-SPLIT-07 | handoff 含 `source_profile` 与 `bootstrap_output` | FAIL-SPLIT-07 | S3/S7 |
 | FIELD-SPLIT-08 | QA 含失败码、返工入口与 triad closure | FAIL-SPLIT-08 | S8 |

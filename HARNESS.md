@@ -53,6 +53,7 @@
   - 执行深度默认规则
   - 三省六部制编排治理基线
   - 批量技能调度默认规则
+  - `subagents` 默认真实启动与降级显式报告口径
   - Rollout 标准
   - 根因优先、根因学习回路、真源治理、复合型输出治理等全局合同
 
@@ -90,8 +91,8 @@
 - `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
 - `4-Design` 已在 `active_skills[id=aigc].stage_index[id=aigc-4-subject].leaf_index` 登记 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}` 与 `3-面板/{场景,角色,道具}` 的 active leaf；`3-面板` tranche parent 处于 `partial-active`，仍处于 `bootstrap_compat` 局部迁移窗口
 - `comic` 已登记为 repo-local 漫画项目父级总入口，固定 canonical runtime 为 `projects/comic/[项目名]/`
-- `comic-novel-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的小说底稿
-- `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把小说或漫画小说桥接包输出为 `nine_blade_comic_prompts.v1` JSON
+- `comic-script-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的剧本真源与 `formatted_source_script.json`
+- `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把漫画剧本、`formatted_source_script.json` 或漫画剧本桥接包输出为 `nine_blade_comic_prompts.v1` JSON
 - `comic-generation` 已登记为 repo-local 执行技能，负责校验九刀流 JSON 并通过 Seedream 单次连续多图请求生成 9 张竖版漫画页
 - `team-screenwriter-dazai-osamu` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/太宰治/`，其自包含调研载体为 `references/research/`
 - `team-screenwriter-watanabe-junichi` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/渡边淳一/`，其自包含调研载体为 `references/research/`
@@ -176,6 +177,7 @@
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
 - 团队能力类 skill 不默认创建项目 runtime；其 canonical carrier 是对应 `.agents/skills/team/<组名>/<技能名>/` 根目录和自包含 `references/` 材料。
 - 对由 `skill-subagents` 治理的多子智能体 skill，父 skill、`team.md`、agent docs、子路径合同与相关 review / audit / route 工件必须保持联动同步，不能只改其中一层就宣称源层收束。
+- 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须把降级来源、替代路径与未真实启动部分显式写出。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
 
 ## 现状判断
@@ -205,7 +207,7 @@
 
 ### 1. 从 bootstrap 走向 shadow
 
-- 在 `comic` 父级总入口与 `comic-novel-adaptation / comic-nine-blade-prompts / comic-generation` 三段链基础上，继续补齐项目状态、续跑、验收与批量任务能力。
+- 在 `comic` 父级总入口与 `comic-script-adaptation / comic-nine-blade-prompts / comic-generation` 三段链基础上，继续补齐项目状态、续跑、验收与批量任务能力。
 - 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
 - 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
 - 让更多真实任务以 `projects/aigc/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。

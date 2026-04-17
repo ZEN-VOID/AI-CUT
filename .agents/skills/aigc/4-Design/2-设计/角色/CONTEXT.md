@@ -31,6 +31,7 @@
 | `character_design.json` 的 `structured_fields` 只有 `face_body/hair/costume/camera/performance` 粗字段 | structured truth layer | 回到角色装配环节补齐 face/hair/body/costume/camera 组级字段 | 校验器检查 `structured_fields` 组级覆盖和 prompt 厚度 | `structured_fields` 不再靠单行泛词通过 |
 | Integrated prompt 先填充后按句截断，导致长度重新跌破 1800 bytes 下限 | prompt length gate layer | 截断后再次执行长度复检与短填充 | 生成器必须把 `trim -> guardrail injection -> min/max byte check` 作为最终门，而不是只在截断前补长 | `validate_character_design_projection.py` 不再报 prompt too short |
 | 角色输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在 `S11/N11` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层与角色设计型 reviewer 补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 张叔平/叶锦添补选 -> real subagents` | 当前轮角色输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
+| 角色监制强化只能笼统说“角色稿薄”或“角色图不对”，无法指出具体槽组 | slot-level review governance layer | 先把当前轮目标解析成 `ROLE-BUNDLE-01~04`，再汇流 reviewer finding | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与 patch 顺序；leaf `S11/N11` 强制读取该合同 | reviewer 结论能区分是身份压力、视觉系统、摄影可读性还是 prompt/background bundle 失真 |
 
 ## Repair Playbook
 
@@ -44,6 +45,7 @@
 8. 在宣布 `角色/2-设计` 完成前，先跑 `scripts/validate_character_design_projection.py --output-dir <角色2-设计/第N集>`；失败时先修投影/JSON，不要让 `3-面板` 消费薄 prompt。
 9. 当前轮角色 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `N11-SUPERVISION-REVIEW`；图片状态只作证据。
 10. `N11` 先按 shared contract 区分 stage-end refine 与 final-stage gate；显式 reviewer 不足时，按角色目标补入 `张叔平 + 叶锦添`。
+11. 进入 `N11` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `ROLE-BUNDLE-*`；若无法解析，先修 mapping，不直接做泛化审稿。
 
 ## Reusable Heuristics
 
@@ -59,3 +61,4 @@
 - 如果下游角色面板只能读到 `Global style prefix + Integrated prompt` 两行，通常说明 `2-设计` 人读投影已经被压扁；先回 `character_design.json + Markdown template validation`，不要在 `3-面板` 里补救角色本体信息。
 - 角色 prompt 生成器如果需要按句截断，必须在截断之后重新检查 1800-2200 bytes 与 `solid color background / no scene background elements`，因为保留句子边界可能删掉原本用于达标的填充段。
 - 角色输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏角色视觉系统审稿时，再补入设计组/美学组 reviewer。对角色默认是 `张叔平 + 叶锦添`。
+- 对角色这种多槽位高耦合输出，review 粒度过粗会直接把问题误判成“prompt 不够好”；更稳的顺序是先看 `ROLE-BUNDLE-01/02/03`，最后才看 `ROLE-BUNDLE-04`。

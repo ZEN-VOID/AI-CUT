@@ -35,6 +35,8 @@
 | 多主体设计批量生图仍逐个前台等待，拖慢或阻塞 `2-设计` pipeline | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认后台提交 | 新增共享 `image-generation-execution-contract.md`，`ensure_design_auto_images.py` 默认 `background-batch-concurrent + max_concurrent=100`，只在 `--foreground` 时等待 | `_manifest.json.auto_image.status=background_submitted` 且含 `request_batch_path/background_pid/background_log` |
 | 设计输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在父层 `S6` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层、显式 reviewer 与设计补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 设计补选 + real subagents` | 当前轮输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
 | 把 `4-Design` 的 stage-end refine、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先区分当前轮 closeout 与阶段最终验收 gate；再把 `source_skill_refs` 降为领域提示 | shared contract、`4-Design/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“分层裁定 + reviewer precedence” | reviewer roster 稳定，且 `source_skill_refs` 不再被当成授权字段 |
+| 监制强化只能说“某个文件有问题”，无法定位到模板槽位或 canonical slot | slot-level review governance layer | 新增 `_shared/design-slot-review-contract.md`，把当前轮输出从文件级 bundle 细化到 slot bundle | 父层、leaf 与 `subagent-supervision-contract.md` 统一回指 slot bundle 真源，review finding 默认带 `bundle_id` | reviewer 结论可定位到 `SCENE/ROLE/PROP-BUNDLE-*`，不再停留在泛化文件点评 |
+| slot-bundle 合同已经写进父层/leaf，但 audit 仍全绿，因为没有任何执行器真正消费它 | audit-execution parity layer | 新增 `_shared/scripts/resolve_design_slot_bundles.py` 作为最小执行载体，并让 `scripts/aigc_skill_audit.py --strict` 显式检查 resolver + contract + `slot_bundles/slot_bundle_findings` | 对新增 shared contract，必须同时落三处：规范文档、执行脚本、审计器；缺一都不能视为“已落地” | `aigc_skill_audit.py --strict` 能在 resolver 缺失或 contract 未被脚本消费时失败 |
 
 ## Repair Playbook
 
@@ -50,6 +52,8 @@
 10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；图片状态只作证据，不作 prerequisite。
 11. `S6` 先按 shared contract 区分 stage-end refine 与 final-stage gate，再决定 reviewer roster；显式 reviewer 不足时，按父层 / 场景 / 角色 / 道具目标补入设计 reviewer。
 12. 若 `team.yaml.enabled == false` 但用户明确要求本轮启用 subagents 监制强化，按 `manual override` 走 shared contract，并在结论里说明这是人工触发复审，不是常驻运行时。
+13. 当前轮 closeout 进入 reviewer 前，先按 `_shared/design-slot-review-contract.md` 把目标文件解析成 slot bundles；若无法解析，优先修共享合同或 leaf mapping，而不是直接开始泛化审稿。
+14. 对 slot-bundle 这类 shared closeout contract，不能只看 `SKILL.md` 是否提到；必须同时检查 `_shared/scripts/resolve_design_slot_bundles.py` 和 `scripts/aigc_skill_audit.py` 是否消费了同一合同。
 
 ## Reusable Heuristics
 
@@ -72,3 +76,5 @@
 - AIGC 图像生成默认应以 request sidecar 为提交真源，后台批量并发执行；`background_submitted` 是可追踪提交态，不是最终产图成功态。
 - 设计输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏设计系统审稿时，再补入设计组/美学组 reviewer。对 `2-设计` 父层默认是 `张叔平 + 叶锦添`。
 - `source_skill_refs` 适合做 reviewer 映射提示，不适合当 `4-Design` 当前轮 closeout 的授权字段；一旦把它升格，reviewer roster 会随 provenance 漂移。
+- 当 `2-设计` 已经有稳定模板真源和 canonical truth 时，顾问团/监制/评审 不应继续只按文件名工作；最稳的粒度是“文件 + slot bundle”双层 target bundle。
+- 对 shared closeout contract 的审计，最容易出现的假阳性是“文档全提到了，但 runner 一个都没有”；防这种漂移最稳的方式是给 contract 配一个最小 resolver，并让 audit 直接检查它。

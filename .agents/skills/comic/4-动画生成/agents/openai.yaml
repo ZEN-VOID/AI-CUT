@@ -1,0 +1,4 @@
+interface:
+  display_name: "动画生成"
+  short_description: "按页把九刀流漫画提示词和对应漫画页图片编译成 sora 图生视频计划，并逐页执行 9:16 页视频"
+  default_prompt: "Use $comic-animation to read one page-group level nine_blade_comic_prompts.v1 JSON, match the corresponding page01-page09 comic images, compile one sora-2 image-to-video prompt per page with the fixed animation prefix and one-panel-one-shot default storyboard logic, then run Sora at 12 seconds and 720x1280 unless the user explicitly overrides those defaults."

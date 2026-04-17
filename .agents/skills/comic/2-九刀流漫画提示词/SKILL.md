@@ -1,6 +1,6 @@
 ---
 name: comic-nine-blade-prompts
-description: Use when 上游漫画小说或用户指定小说需要被蒸馏为一次 Seedream 连续生成 9 张漫画页的结构化长提示词 JSON，尤其适合要固定角色、跨页叙事、漫画格布局、对白/旁白/独白/SFX 文本规范的场景。
+description: Use when 上游漫画剧本或用户指定剧本需要先按约 500 字原文切成 page-group，再分别蒸馏为可供 Seedream 连续生成 9 张漫画页的结构化长提示词 JSON，尤其适合要固定角色、跨页叙事、漫画格布局、对白/旁白/独白/SFX 文本规范的场景。
 governance_tier: full
 ---
 
@@ -14,28 +14,31 @@ governance_tier: full
 
 ## 1. 定位
 
-本技能把上游 `1-漫画小说改编` 的小说底稿、漫画桥接包，或用户直接提供的任意小说片段，转成可被下游 `3-漫画生成` 消费的 `nine_blade_comic_prompts.v1` JSON。
+本技能把上游 `1-漫画剧本改编` 的漫画剧本主稿、`formatted_source_script.json`、漫画剧本桥接包，或用户直接提供的任意剧本片段，先切成若干 `page-group`，再把每个组分别转成可被下游 `3-漫画生成` 消费的 `nine_blade_comic_prompts.v1` JSON。
 
-核心目标不是写 9 个互不相关的文生图 prompt，而是生成一份**单次 Seedream 连续多图请求**可理解的九页漫画提示词包：
+同一份组级 JSON 也是 `4-动画生成` 的上游 prompt 真源：4 号技能会逐页读取其中的 `positive_prompt / panels / layout / active_character_ids / scene_id / continuity_context`，为每一页提炼对应的 `sora-2` 图生视频 prompt。
 
-- 一次固定 9 张图。
+核心目标不是把整份上游剧本粗暴压成 9 页，也不是写 9 个互不相关的文生图 prompt，而是生成一组组**单次 Seedream 连续多图请求**可理解的九页漫画提示词包：
+
+- 每个 `page-group` 固定对应一次 9 张图请求。
 - 每张图是一页竖版 9:16 漫画页。
 - 每页内部必须是 2-5 个 panels，默认 3 panels。
 - 禁止把某一页退化成单幅海报、单镜头插画或无分格整页图；即使使用 splash 主格，也必须保留至少一个辅助格形成“多格漫画页”。
-- 九页之间是连续连环画画面，不是同一画面九个版本。
-- 最终 JSON 必须足够让 `3-漫画生成` 合成一个单请求 master prompt。
+- 每个组内的九页之间是连续连环画画面，不是同一画面九个版本。
+- 组与组之间必须继承同一套角色、风格、场景世界观与叙事推进，不能每组像不同作品。
+- 最终输出是“每个 page-group 一份 JSON”，每份 JSON 都足够让 `3-漫画生成` 合成一个单请求 master prompt。
 
 ## 2. 业务需求分析合同
 
 | analysis_field | 必须锁定的问题 | 默认策略 |
 | --- | --- | --- |
 | `business_goal` | 输出服务什么动作 | 服务 Seedream 一次生成 9 张连续漫画页 |
-| `business_object` | 输入是什么 | 上游漫画小说 / 用户小说 / 片段摘要 / 漫画桥接包 |
-| `source_format_profile` | 原始小说源属于哪种叙事密度 | 先判定 `scene-led / explainer-led / compare`，再决定格式化路径 |
-| `success_criteria` | 什么叫成功 | 9 页连续、群像角色可区分且一致、场景锚点稳定、每页漫画感强、右下角带纯数字页码、可被下游脚本校验 |
+| `business_object` | 输入是什么 | 上游漫画剧本 / `formatted_source_script` / 用户剧本 / 片段摘要 / 漫画剧本桥接包 |
+| `source_format_profile` | 原始剧本源属于哪种叙事密度 | 先判定 `scene-led / explainer-led / compare`，再决定格式化路径 |
+| `success_criteria` | 什么叫成功 | 先按节奏切出合理 `page-group`，每组 9 页连续、群像角色可区分且一致、场景锚点稳定、每页漫画感强、右下角带纯数字页码、可被下游脚本校验 |
 | `constraint_profile` | 哪些约束不可破 | 禁止九宫格拼图；禁止同一图九变体；固定 9:16；固定 9 页 |
-| `topology_fit` | 最佳思行结构 | 先做小说来源格式化前奏，再切剧情九刀，再并行锁角色/风格/文字系统，最后汇流为 JSON |
-| `step_strategy` | 重点在哪 | 原始小说整形、页级剧情切分、犀利全局漫画风格、经典漫画版式轮换、跨页一致性、Seedream 单请求兼容 |
+| `topology_fit` | 最佳思行结构 | 先做剧本来源格式化前奏，再做 page-group 划分，再以组为单位切剧情九刀，并行锁角色/风格/文字系统，最后逐组汇流为 JSON |
+| `step_strategy` | 重点在哪 | 原始剧本整形、按约 500 字原文切组、组内页级剧情切分、组间 continuity 继承、犀利全局漫画风格、经典漫画版式轮换、Seedream 单请求兼容 |
 
 ## 3. Context Preload
 
@@ -48,15 +51,15 @@ governance_tier: full
 
 ### 必需输入
 
-- `source_novel`
-  - 上游漫画小说正文、用户指定小说、或足够完整的情节片段。
+- `source_script`
+  - 上游漫画剧本正文、用户指定剧本、或足够完整的情节片段。
 
 ### 可选输入
 
 - `comic_bridge_pack`
   - 上游输出的角色、场景、道具、冲击画面候选、旁白密度等桥接信息。
-- `formatted_source_novel`
-  - 若上游已经提供格式化好的小说源包，可作为前奏跳过候选；但仍必须先通过本技能的来源格式化验证门，不能盲信。
+- `formatted_source_script`
+  - 若上游已经提供格式化好的剧本源包，可作为前奏跳过候选；但仍必须先通过本技能的来源格式化验证门，不能盲信。
 - `style_profile`
   - 默认 `cinematic_comic_realism`，可指定国风连环画、美漫电影感、韩漫、暗黑写实等。
 - `text_language`
@@ -65,75 +68,133 @@ governance_tier: full
   - 固定为 `9`，不得因内容少而减少。
 - `page_aspect_ratio`
   - 固定为 `9:16`。
+- `page_group_target_chars`
+  - 默认 `500`。
+  - 表示以“原文约 500 字”为一个 9 pages 的默认节奏单元。
+  - 这是目标值而不是死阈值；应优先保证场景完整、冲突完整、钩子完整。
 - `output_path`
-  - 若用户未指定且当前任务是单集/单回项目，默认写到 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`。
-  - 若用户未指定且当前项目已明确进入多集执行（例如用户说“第2集 / 第3集”或阶段目录里已存在其他集产物），必须启用集级防覆盖命名，默认写到 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-nine_blade_comic_prompts.json`。
-  - 同轮产出的 `formatted_source_novel` 与思考摘要也应使用同一集级前缀：`第N集-formatted_source_novel.json`、`第N集-思考过程摘要.md`。
+  - 若用户未指定且当前任务是单集/单回项目，默认按组写到 `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等。
+  - 若用户未指定且当前项目已明确进入多集执行（例如用户说“第2集 / 第3集”或阶段目录里已存在其他集产物），必须启用集级防覆盖命名，默认写到 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-02-nine_blade_comic_prompts.json` 等。
+  - 同轮产出的 `formatted_source_script`、`page_group_plan` 与思考摘要也应使用同一集级前缀：`第N集-formatted_source_script.json`、`第N集-page_group_plan.json`、`第N集-思考过程摘要.md`。
+
+### 上游真源优先级
+
+优先读取顺序固定为：
+
+1. `projects/comic/[项目名]/1-漫画剧本改编/formatted_source_script.json`
+2. `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本桥接包.md`
+3. `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本主稿.md`
+4. 用户直接提供的 `source_script`
+
+若第 1 项存在且字段齐备，默认把它视为唯一文本真源；不得忽略它再从 Markdown prose 二次自由猜结构。
 
 ### 派生中间真源
 
-- `formatted_source_novel`
+- `formatted_source_script`
   - 这是本技能的强制前奏产物，也是九刀主流程的唯一上游文本真源。
-  - 若用户未显式提供，必须由本技能先从 `source_novel` 生成。
+  - 若 `1-漫画剧本改编` 已提供 `formatted_source_script.json`，默认直接消费，不重复造第二份。
+  - 若用户未显式提供，且项目内也不存在上游结构化包，才由本技能从 `source_script` 生成。
   - 若用户已提供，仍必须先校验其字段齐备和可切九刀性，才能进入主流程。
 
 推荐至少包含：
 
 - `source_format_variant`
+- `script_variant`
 - `canonical_story_summary`
 - `ordered_story_units[]`
+- `scene_cards[]`
 - `character_seed_roster[]`
 - `scene_seed_roster[]`
 - `continuity_alerts[]`
+- `impact_beats[]`
+- `page_turn_candidates[]`
+- `panel_text_budget`
 - `blade_ready_notes`
 
-### 小说来源格式化前奏合同
+- `page_group_plan`
+  - 这是本技能在 `formatted_source_script` 之后新增的强制前奏产物。
+  - 它只负责把标准化剧本源切成多个节奏稳定的 `page-group`，不与最终组级 JSON 竞争 canonical truth。
+  - 每个 `page-group` 都要能独立承载一次 9 pages 九刀机制，同时继承同一项目的 continuity 锁。
+
+推荐至少包含：
+
+- `target_source_chars`
+- `soft_char_window`
+- `groups[]`
+  - `group_id`
+  - `group_index`
+  - `estimated_source_chars`
+  - `story_unit_ids[]`
+  - `scene_ids[]`
+  - `entry_hook`
+  - `exit_hook`
+  - `continuity_focus`
+  - `rhythm_rationale`
+
+### 剧本来源格式化前奏合同
 
 硬规则：
 
-1. 任意 `source_novel` 都不得直接进入 `N2-STORY-BLADES`。
-2. 必须先经过“来源格式化前奏”，把原始文本归一为 `formatted_source_novel`。
+1. 任意 `source_script` 都不得直接进入 `N2-STORY-BLADES`。
+2. 必须先经过“来源格式化前奏”，把原始文本归一为 `formatted_source_script`。
 3. 前奏处理机制参照 `.agents/skills/aigc/1-Planning/2-格式` 的思路：先 intake，再 business analyze，再 route，再整形，再 normalize，再 validate。
-4. 前奏只服务“把原始小说变成可切九刀的标准化输入”，不输出第二份 canonical 成品，不与最终 JSON 竞争真源。
-5. 若原始小说是章节正文、对话体、梗概、简介、剧情摘要或混合文本，必须先判定为：
+4. 前奏只服务“把原始剧本或原始素材变成可切九刀的标准化输入”，不输出第二份 canonical 成品，不与最终 JSON 竞争真源。
+5. 若原始剧本是章节正文、对话体、梗概、简介、剧情摘要或混合文本，必须先判定为：
    - `scene-led`：场景动作充足，优先保留戏剧性切块。
    - `explainer-led`：概述/解说密度高，优先压成可视化事件单元。
    - `compare`：无法稳定判断时，内部比较两种整形路径后只保留一份 canonical handoff。
-6. 只有 `formatted_source_novel` 通过前奏验证后，当前九刀配置才允许开始。
+6. 只有 `formatted_source_script` 通过前奏验证后，当前九刀配置才允许开始。
+
+### Page-Group 划分前奏合同
+
+硬规则：
+
+1. `formatted_source_script` 不得再默认整体直通一个唯一 `nine_blade_comic_prompts.v1` JSON。
+2. 必须先执行 `page-group` 划分前奏，再以每个 group 为单位进入九刀主流程。
+3. 分组默认以“原文约 500 字”为一个 9 pages 节奏单元；推荐目标 `500`，软窗口 `350-650`，仅在保场景完整或高潮完整时才可放宽。
+4. 分组优先遵守 `ordered_story_units[] / scene_cards[] / impact_beats[] / page_turn_candidates[]` 的自然边界，禁止机械按字数硬切。
+5. 每个 group 必须具备完整的开场、推进、阻力、钩子或余波节奏，不能只截一半动作或只留解释段。
+6. 每个 group 必须继承同一套 `main_character_lock / style_bible / character_locks / scene_continuity_bible` 的 continuity 规则；组间只允许剧情推进变化，不允许角色视觉 DNA 或风格媒介断层变化。
+7. 新口径下，`2-九刀流漫画提示词` 的 canonical 交付物是“组级 JSON 集合”，不是“整集唯一 JSON”。
 
 ## 5. 思行网络
 
-本技能采用“来源格式化前奏 + 串行剧情主干 + 三支路漫画语法并行 + 汇流校验”的思行网络。原始小说先被格式化为 `formatted_source_novel`；只有前奏验证通过，才允许切 9 个页级刀口。角色连续性完成后，风格锐化、版式轮换、文字系统三条支路可并行设计，但必须在 `N4G-COMIC-GRAMMAR-MERGE` 汇流后才允许写 page prompts。
+本技能采用“来源格式化前奏 + page-group 划分前奏 + 组内九刀主干 + 三支路漫画语法并行 + 逐组汇流校验”的思行网络。原始剧本先被格式化为 `formatted_source_script`；只有前奏验证通过，才允许切 `page-group`。每个 group 再进入 9 页九刀流程，而 continuity 锁始终由跨组共享真源维持。
 
 ```mermaid
 flowchart TD
-    A["P1-SOURCE-INTAKE<br/>锁原始小说输入与边界"] --> B["P2-SOURCE-ANALYZE<br/>判密度/视角/可视化程度"]
+    A["P1-SOURCE-INTAKE<br/>锁原始剧本输入与边界"] --> B["P2-SOURCE-ANALYZE<br/>判密度/视角/可视化程度"]
     B --> C{"P3-SOURCE-ROUTE<br/>scene-led / explainer-led / compare"}
     C -->|"scene-led"| D1["P4S-SCENE-LED-FORMAT<br/>保留场景/动作/对白块"]
     C -->|"explainer-led"| D2["P4E-EXPLAINER-LED-FORMAT<br/>压缩概述为事件单元"]
     C -->|"compare"| D3["P4C-COMPARE-FORMAT<br/>双路比较后择一"]
-    D1 --> E["P5-SOURCE-NORMALIZE<br/>统一为 formatted_source_novel"]
+    D1 --> E["P5-SOURCE-NORMALIZE<br/>统一为 formatted_source_script"]
     D2 --> E
     D3 --> E
-    E --> F{"P6-SOURCE-VALIDATE<br/>可切九刀? 连续性齐备?"}
-    F -->|"pass"| G["N1-INTAKE<br/>锁目标/风格/输出路径"]
+    E --> F{"P6-SOURCE-VALIDATE<br/>可切 group? 连续性齐备?"}
+    F -->|"pass"| G["G1-PAGE-GROUP-PLAN<br/>按约500字原文切 group"]
     F -->|"fail"| C
-    G --> H["N2-STORY-BLADES<br/>基于 formatted_source_novel 切九刀"]
-    H --> I["N3-CONTINUITY<br/>锁角色/场景/道具连续性"]
-    I --> J1["N4A-STYLE-SHARPEN<br/>全局漫画风格锐化词"]
-    I --> J2["N4B-LAYOUT-DIVERSIFY<br/>经典版式轮换"]
-    I --> J3["N4C-TEXT-SYSTEM<br/>对白/旁白/独白/SFX 槽"]
-    J1 --> K["N4G-COMIC-GRAMMAR-MERGE<br/>漫画语法汇流门"]
-    J2 --> K
-    J3 --> K
-    K --> L["N5-PAGE-PROMPTS<br/>逐页生成 prompt/panels/text_slots"]
-    L --> M["N6-ASSEMBLY<br/>组装 nine_blade_comic_prompts.v1"]
-    M --> N{"N7-VALIDATE<br/>schema + 风格 + 版式门禁"}
-    N -->|"pass"| O["N8-HANDOFF<br/>交付 JSON + 思考过程"]
-    N -->|"fail: source"| C
-    N -->|"fail: story"| H
-    N -->|"fail: style/layout/text"| K
-    N -->|"fail: structure"| M
+    G --> H{"G2-GROUP-VALIDATE<br/>节奏/边界/continuity 是否可用?"}
+    H -->|"pass"| I["G3-GROUP-DISPATCH<br/>逐组进入九刀主流程"]
+    H -->|"fail"| G
+    I --> J["N1-INTAKE<br/>锁当前 group 的目标/风格/输出路径"]
+    J --> K["N2-STORY-BLADES<br/>基于当前 page-group 切九刀"]
+    K --> L["N3-CONTINUITY<br/>锁角色/场景/道具连续性"]
+    L --> M1["N4A-STYLE-SHARPEN<br/>全局漫画风格锐化词"]
+    L --> M2["N4B-LAYOUT-DIVERSIFY<br/>经典版式轮换"]
+    L --> M3["N4C-TEXT-SYSTEM<br/>对白/旁白/独白/SFX 槽"]
+    M1 --> N["N4G-COMIC-GRAMMAR-MERGE<br/>漫画语法汇流门"]
+    M2 --> N
+    M3 --> N
+    N --> O["N5-PAGE-PROMPTS<br/>逐页生成 prompt/panels/text_slots"]
+    O --> P["N6-ASSEMBLY<br/>组装当前 group 的 nine_blade_comic_prompts.v1"]
+    P --> Q{"N7-VALIDATE<br/>schema + 风格 + 版式门禁"}
+    Q -->|"pass"| R["N8-HANDOFF<br/>交付当前 group JSON + 思考过程"]
+    Q -->|"fail: source"| C
+    Q -->|"fail: group plan"| G
+    Q -->|"fail: story"| K
+    Q -->|"fail: style/layout/text"| N
+    Q -->|"fail: structure"| P
 ```
 
 ```mermaid
@@ -142,13 +203,14 @@ flowchart LR
     B -->|"FAIL-NB-SOURCE-ROUTE"| C["回 P3<br/>重做来源判模"]
     B -->|"FAIL-NB-SOURCE-FORMAT"| D["回 P4/P5<br/>重整 source units"]
     B -->|"FAIL-NB-SOURCE-COVERAGE"| E["回 P6<br/>补连续性/转场/视觉钩子"]
-    B -->|"FAIL-NB-BEATS"| F["回 N2<br/>重切 story_beat_map"]
-    B -->|"FAIL-NB-LOCKS"| G["回 N3<br/>补角色/场景/道具锁"]
-    B -->|"FAIL-NB-STYLE"| H["回 N4A<br/>补 manga_style_keywords"]
-    B -->|"FAIL-NB-LAYOUT-DIVERSITY"| I["回 N4B<br/>重排 layout_id/panel_ratios"]
-    B -->|"FAIL-NB-TEXT"| J["回 N4C<br/>压短文字槽"]
-    B -->|"FAIL-NB-PAGES"| K["回 N5<br/>补 panels/positive_prompt"]
-    B -->|"FAIL-NB-CONTRACT/STRUCTURE"| L["回 N6<br/>修 JSON 合同"]
+    B -->|"FAIL-NB-GROUP-PLAN / FAIL-NB-GROUP-META / FAIL-NB-GROUP-CONTINUITY"| F["回 G1/G2<br/>重切 group 与 continuity"]
+    B -->|"FAIL-NB-BEATS"| G["回 N2<br/>重切当前 group 的 story_beat_map"]
+    B -->|"FAIL-NB-LOCKS"| H["回 N3<br/>补角色/场景/道具锁"]
+    B -->|"FAIL-NB-STYLE"| I["回 N4A<br/>补 manga_style_keywords"]
+    B -->|"FAIL-NB-LAYOUT-DIVERSITY"| J["回 N4B<br/>重排 layout_id/panel_ratios"]
+    B -->|"FAIL-NB-TEXT"| K["回 N4C<br/>压短文字槽"]
+    B -->|"FAIL-NB-PAGES"| L["回 N5<br/>补 panels/positive_prompt"]
+    B -->|"FAIL-NB-CONTRACT/STRUCTURE"| M["回 N6<br/>修 JSON 合同"]
 ```
 
 ```mermaid
@@ -158,7 +220,9 @@ stateDiagram-v2
     SourceAnalyzed --> SourceRouted
     SourceRouted --> SourceFormatted
     SourceFormatted --> SourceValidated
-    SourceValidated --> CoreIntake
+    SourceValidated --> GroupPlanned
+    GroupPlanned --> GroupValidated
+    GroupValidated --> CoreIntake
     CoreIntake --> BladesReady: N2 pass
     BladesReady --> ContinuityReady: N3 pass
     ContinuityReady --> ComicGrammarFork: enter N4A/N4B/N4C
@@ -168,6 +232,7 @@ stateDiagram-v2
     JsonAssembled --> Validated: N7 pass
     JsonAssembled --> Rework: N7 fail
     Rework --> SourceRouted: source fail
+    Rework --> GroupPlanned: group plan fail
     Rework --> BladesReady: story fail
     Rework --> ComicGrammarFork: style/layout/text fail
     Rework --> JsonAssembled: structure fail
@@ -179,7 +244,8 @@ stateDiagram-v2
 erDiagram
     SOURCE_NOVEL ||--|| FORMATTED_SOURCE_NOVEL : normalizes_to
     FORMATTED_SOURCE_NOVEL ||--o{ STORY_UNIT : contains
-    FORMATTED_SOURCE_NOVEL ||--|| STORY_BEAT_MAP : distills
+    FORMATTED_SOURCE_NOVEL ||--o{ PAGE_GROUP : partitions
+    PAGE_GROUP ||--|| STORY_BEAT_MAP : distills
     COMIC_BRIDGE_PACK ||--o{ CHARACTER_LOCK : supplies
     COMIC_BRIDGE_PACK ||--o{ LOCATION_LOCK : supplies
     STORY_BEAT_MAP ||--o{ PAGE_PROMPT : drives
@@ -189,15 +255,24 @@ erDiagram
     COMIC_TEXT_SYSTEM ||--o{ TEXT_SLOT : labels
     PAGE_PROMPT ||--o{ PANEL_PROMPT : contains
     PANEL_PROMPT ||--o{ TEXT_SLOT : contains
-    PAGE_PROMPT }o--|| NINE_BLADE_JSON : assembles
+    PAGE_GROUP }o--|| NINE_BLADE_JSON : assembles
 ```
 
 ```mermaid
 flowchart TD
-    A0["前奏验证门 P6"] --> B0{{"formatted_source_novel 是否齐备?"}}
-    B0 -->|"chronology / story_units / scene seeds 缺失"| C0["阻断 N2<br/>回 P3-P5"]
-    B0 -->|"visual hooks / transition coverage 不足"| D0["阻断 N2<br/>补来源格式化"]
-    B0 -->|"全部通过"| E0["允许进入 N2"]
+    A0["前奏验证门 P6"] --> B0{{"formatted_source_script 是否齐备?"}}
+    B0 -->|"chronology / story_units / scene seeds 缺失"| C0["阻断 G1<br/>回 P3-P5"]
+    B0 -->|"visual hooks / transition coverage 不足"| D0["阻断 G1<br/>补来源格式化"]
+    B0 -->|"全部通过"| E0["允许进入 G1"]
+```
+
+```mermaid
+flowchart TD
+    A1["分组验证门 G2"] --> B1{{"page_group_plan 是否稳定?"}}
+    B1 -->|"字数机械切断 scene / hook"| C1["回 G1<br/>重排 group 边界"]
+    B1 -->|"group 节奏过快或过慢"| D1["回 G1<br/>按 500 字目标重切"]
+    B1 -->|"group 未继承 continuity 锁"| E1["回 G1/N3<br/>补 continuity focus"]
+    B1 -->|"全部通过"| F1["允许逐组进入 N1-N8"]
 ```
 
 ```mermaid
@@ -216,45 +291,59 @@ flowchart TD
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `P1-SOURCE-INTAKE` | 锁定原始小说输入与边界 | `source_novel`、`formatted_source_novel`、`comic_bridge_pack`、用户要求 | 读取原始小说或已格式化源；识别来源类型、长度、章节边界、可复用桥接信息 | 输入摘要、来源类型、原始边界说明 | pass -> `P2`；输入不足 -> 要求补源 | 原始输入可被归类 |
+| `P1-SOURCE-INTAKE` | 锁定原始剧本输入与边界 | `source_script`、`formatted_source_script`、`comic_bridge_pack`、用户要求 | 优先读取上游 `formatted_source_script.json`；若不存在再读取原始剧本；识别来源类型、长度、章节边界、可复用桥接信息 | 输入摘要、来源类型、原始边界说明 | pass -> `P2`；输入不足 -> 要求补源 | 原始输入可被归类 |
 | `P2-SOURCE-ANALYZE` | 完成来源格式化前的业务分析 | `P1` 输出 | 提炼叙事密度、对白占比、概述占比、视角稳定性、时间线清晰度、可视化程度 | source brief、风险卡 | pass -> `P3` | 已明确该用哪种格式化路径 |
 | `P3-SOURCE-ROUTE` | 做来源格式化判模 | `P2` 输出 | 裁决 `scene-led / explainer-led / compare`，默认优先 `scene-led`，信息过密或摘要化文本才切 `explainer-led` | `source_format_variant`、route evidence | `scene-led -> P4S`；`explainer-led -> P4E`；`compare -> P4C` | 只允许一个 canonical handoff |
-| `P4S-SCENE-LED-FORMAT` | 整形场景驱动小说源 | 原始章节、对白、动作、桥接包 | 保留场景动作与对白块，压缩赘述，抽出可切页的事件单元与视觉钩子 | scene-led source units | pass -> `P5` | 场景/动作可被九刀复用 |
-| `P4E-EXPLAINER-LED-FORMAT` | 整形概述驱动小说源 | 梗概、简介、摘要、旁白化文本 | 将摘要压成顺时序事件单元，补齐人物、场景、转场与视觉化动作，不把长段概述直接丢进九刀 | explainer-led source units | pass -> `P5` | 事件单元足够 sceneable |
+| `P4S-SCENE-LED-FORMAT` | 整形场景驱动剧本源 | 原始章节、对白、动作、桥接包 | 保留场景动作与对白块，压缩赘述，抽出可切页的事件单元与视觉钩子 | scene-led source units | pass -> `P5` | 场景/动作可被九刀复用 |
+| `P4E-EXPLAINER-LED-FORMAT` | 整形概述驱动剧本源 | 梗概、简介、摘要、旁白化文本 | 将摘要压成顺时序事件单元，补齐人物、场景、转场与视觉化动作，不把长段概述直接丢进九刀 | explainer-led source units | pass -> `P5` | 事件单元足够 sceneable |
 | `P4C-COMPARE-FORMAT` | 在歧义输入上内部比较双路格式化 | 原始文本、bridge pack | 同时试跑两路整形，比较哪一路更利于九刀切页与连续性；只保留一份 canonical handoff | compare verdict、selected packet | pass -> `P5` | 不产生双 canonical 真源 |
-| `P5-SOURCE-NORMALIZE` | 统一归一为 `formatted_source_novel` | `P4S/P4E/P4C` 输出 | 组装 `canonical_story_summary`、`ordered_story_units[]`、`character_seed_roster[]`、`scene_seed_roster[]`、`continuity_alerts[]`、`blade_ready_notes` | `formatted_source_novel` | pass -> `P6` | 字段齐备且顺序稳定 |
-| `P6-SOURCE-VALIDATE` | 验证格式化源是否可切九刀 | `formatted_source_novel` | 检查时间线、角色出场链、场景回指、视觉钩子、转场覆盖、高潮可切性；必要时回退补齐 | source validation verdict | pass -> `N1`；fail -> `P3/P4/P5` | 只有通过后才允许进入九刀主流程 |
-| `N1-INTAKE` | 锁定目标、风格、输出路径 | `formatted_source_novel`、`comic_bridge_pack`、用户风格要求 | 读取格式化小说源与桥接包；锁项目名、输出路径、风格边界 | intake 摘要、项目名、输出路径、风格约束 | pass -> `N2` | 进入主流程时不再读取 raw source 作为主真源 |
-| `N2-STORY-BLADES` | 切出 9 个页级剧情刀口 | `formatted_source_novel.ordered_story_units[]`、视觉锚点、章节钩子 | 生成 `story_beat_map[9]`，每页有动作、情绪、悬念和不同叙事功能 | `story_beat_map`、每页 `page_role` | pass -> `N3`；情节不足 -> 扩写过渡页；过密 -> 合并解释保留动作 | 9 页不重复、不跳戏 |
-| `N3-CONTINUITY` | 锁角色、场景、道具和世界观一致性 | `story_beat_map`、桥接包角色/场景/道具 | 先确定唯一 `main_character_lock`，再写具名 `character_locks`、`scene_continuity_bible.scene_locks` 与每页 `active_character_ids / scene_id`，提炼跨页复用短语 | 主角锚定锁、群像角色锁、场景锁、道具锁 | pass -> `N4A/N4B/N4C`；漂移风险高 -> 回桥接包补锁 | 主角外观、配角识别物与场景地标都可逐页复用 |
-| `N4A-STYLE-SHARPEN` | 锁全局犀利漫画风格 | 题材、目标画风、连续性锁 | 写 `style_bible.manga_style_keywords / layout_directive / genre_style_keywords`，并额外锁定同一轮 9 页共享的 `global style anchor`：同一渲染媒介、线条体系、明暗体系、上色策略、lettering 质感、panel border 质感与角色年龄比例；同时写明 `forbidden style shifts`，避免只有泛影视词 | `style_bible` 中的漫画语法词 + 风格锁定语句 + 禁止漂移清单 | pass -> `N4G`；风格泛化或存在页间漂移风险 -> 补 reference 风格词库与风格锁 | 至少命中漫画页、ink/line、gutter/panel/SFX 等风格语法，且能明确阻止跨页切换成儿童绘本、Q 版、影视概念图或不同渲染媒介 |
+| `P5-SOURCE-NORMALIZE` | 统一归一为 `formatted_source_script` | `P4S/P4E/P4C` 输出 | 组装 `canonical_story_summary`、`script_variant`、`ordered_story_units[]`、`scene_cards[]`、`character_seed_roster[]`、`scene_seed_roster[]`、`impact_beats[]`、`page_turn_candidates[]`、`panel_text_budget`、`continuity_alerts[]`、`blade_ready_notes` | `formatted_source_script` | pass -> `P6` | 字段齐备且顺序稳定 |
+| `P6-SOURCE-VALIDATE` | 验证格式化源是否可切 group | `formatted_source_script` | 检查时间线、角色出场链、场景回指、视觉钩子、转场覆盖、高潮可切性；必要时回退补齐 | source validation verdict | pass -> `G1`；fail -> `P3/P4/P5` | 只有通过后才允许进入分组前奏 |
+| `G1-PAGE-GROUP-PLAN` | 生成 `page_group_plan` | `formatted_source_script`、`scene_cards[]`、`impact_beats[]`、`page_turn_candidates[]` | 以约 500 字原文为目标切出多个 group；优先 obey scene / hook / beat 边界；给每组写 `group_id / estimated_source_chars / story_unit_ids / entry_hook / exit_hook / continuity_focus / rhythm_rationale` | `page_group_plan` | pass -> `G2` | 每组都能独立承载一次 9 页节奏 |
+| `G2-GROUP-VALIDATE` | 验证 group 节奏与 continuity | `page_group_plan`、桥接包、格式化源 | 检查是否机械按字数硬切、是否丢场景/高潮、是否具备 continuity focus、是否存在过快/过慢 group | group validation verdict | pass -> `G3`；fail -> `G1` | 组边界稳定可执行 |
+| `G3-GROUP-DISPATCH` | 逐组调度九刀主流程 | `page_group_plan.groups[]` | 以 group 为单位顺序执行 `N1-N8`，统一继承 continuity 锁；不把全部 group 混成一个 JSON | dispatch 清单 | pass -> `N1` | 当前轮只处理有效 group |
+| `N1-INTAKE` | 锁定当前 group 的目标、风格、输出路径 | `page_group`、`formatted_source_script`、`comic_bridge_pack`、用户风格要求 | 读取当前组 story units 与全局桥接包；锁项目名、group 输出路径、风格边界 | intake 摘要、项目名、group 输出路径、风格约束 | pass -> `N2` | 进入组内主流程时不再读取 raw source 作为主真源 |
+| `N2-STORY-BLADES` | 切出当前 group 的 9 个页级剧情刀口 | `page_group.story_unit_ids[]`、`scene_cards[]`、`impact_beats[]`、`page_turn_candidates[]`、视觉锚点、章节钩子 | 生成当前组的 `story_beat_map[9]`，每页有动作、情绪、悬念和不同叙事功能 | `story_beat_map`、每页 `page_role` | pass -> `N3`；情节不足 -> 扩写过渡页；过密 -> 合并解释保留动作 | 当前组的 9 页不重复、不跳戏 |
+| `N3-CONTINUITY` | 锁角色、场景、道具和世界观一致性 | `story_beat_map`、桥接包角色/场景/道具、前序 group continuity | 先确定唯一 `main_character_lock`，再写具名 `character_locks`、`scene_continuity_bible.scene_locks` 与每页 `active_character_ids / scene_id`，并补 `continuity_context` 说明如何继承前组/全局锁 | 主角锚定锁、群像角色锁、场景锁、道具锁、组间 continuity 摘要 | pass -> `N4A/N4B/N4C`；漂移风险高 -> 回桥接包补锁 | 主角外观、配角识别物与场景地标都可逐页、逐组复用 |
+| `N4A-STYLE-SHARPEN` | 锁全局犀利漫画风格 | 题材、目标画风、连续性锁 | 写 `style_bible.manga_style_keywords / layout_directive / genre_style_keywords`，并额外锁定同一轮 9 页共享的 `global style anchor`：同一渲染媒介、线条体系、明暗体系、上色策略、lettering 质感、panel border 质感与角色年龄比例；同时写明 `forbidden style shifts`，避免只有泛影视词 | `style_bible` 中的漫画语法词 + 风格锁定语句 + 禁止漂移清单 | pass -> `N4G`；风格泛化或存在页间/组间漂移风险 -> 补 reference 风格词库与风格锁 | 至少命中漫画页、ink/line、gutter/panel/SFX 等风格语法，且能明确阻止跨页跨组切换成儿童绘本、Q 版、影视概念图或不同渲染媒介 |
 | `N4B-LAYOUT-DIVERSIFY` | 锁 9 页经典漫画版式轮换 | `story_beat_map`、冲击页、解释页、过渡页 | 为每页分配 `layout_id / panel_count / panel_ratios`，轮换 splash、inset、diagonal、split、border-breaking、zigzag 等 | `layout_plan`、每页 layout | pass -> `N4G`；平整化 -> 重排高冲击页和过渡页 | 至少 5 个 layout_id，动态布局不少于 3 类 |
 | `N4C-TEXT-SYSTEM` | 锁文字槽位与漫画文字表现 | 剧情信息量、对白/旁白/SFX 需求 | 把解释压进 caption，把动作声压进 SFX，把对白压短并绑定气泡类型 | `comic_text_system`、每页 text slot 策略 | pass -> `N4G`；文字过长 -> 压缩/转旁白 | 每个文字槽类型明确，中文短句可读 |
-| `N4G-COMIC-GRAMMAR-MERGE` | 汇流漫画语法三支路 | `style_bible`、`layout_plan`、`comic_text_system` | 检查三支路是否齐备，阻断缺失支路，形成 page prompt 写作策略；额外做一次“页间风格漂移预判”：确认 9 页只允许布局和情绪变化，不允许渲染媒介、线稿密度、角色年龄比例、色彩系统发生断层式切换 | 汇流摘要、风险清单、style drift 预判结论 | pass -> `N5`；fail -> 对应回 `N4A/N4B/N4C` | 风格、版式、文字三个门禁同时通过，且页间风格锁稳定 |
+| `N4G-COMIC-GRAMMAR-MERGE` | 汇流漫画语法三支路 | `style_bible`、`layout_plan`、`comic_text_system`、`continuity_context` | 检查三支路是否齐备，阻断缺失支路，形成 page prompt 写作策略；额外做一次“页间/组间风格漂移预判”：确认 9 页只允许布局和情绪变化，不允许渲染媒介、线稿密度、角色年龄比例、色彩系统发生断层式切换 | 汇流摘要、风险清单、style drift 预判结论 | pass -> `N5`；fail -> 对应回 `N4A/N4B/N4C` | 风格、版式、文字三个门禁同时通过，且页间组间风格锁稳定 |
 | `N5-PAGE-PROMPTS` | 写 9 个完整页 prompt | `story_beat_map`、主角锚定锁、群像角色锁、场景锁、风格词、layout plan、文字系统、页码覆盖层 | 为每页写 `positive_prompt / panels / text_slots`，prompt 固定顺序必须为：`版式 -> 全局 style anchor -> 主角锚定 -> 群像锚定 -> 场景锚定 -> 页码 -> 一致性语义 -> panel 动作 -> 文字可读性/字型规则 -> overall mood`。每页都必须重复同一套全局 style anchor，禁止把风格锁只放在顶层 `style_bible` 里隐含表达 | 9 个 page objects | pass -> `N6`；缺页、缺 panel 或风格锁未逐页注入 -> 回本节点 | 每页含 9:16、独立页、非拼图约束、漫画版式、全局风格锁、主角锚定语句、群像可区分语句、场景锚定语句、右下角数字页码 |
-| `N6-ASSEMBLY` | 汇流为 `nine_blade_comic_prompts.v1` JSON | 9 个 page objects、schema、模板 | 按 schema 填充顶层合同、style、locks、pages、negative prompt | JSON 文件 | pass -> `N7`；结构缺失 -> 本节点修复 | JSON 可解析且字段齐 |
-| `N7-VALIDATE` | 脚本与人工双门验收 | JSON 文件、validator、reference 门禁 | 运行 validator；检查 9 页、风格词、layout 多样性、文字系统、负向提示词 | validator 输出、人工风险摘要 | pass -> `N8`；fail -> 按失败码回对应节点 | 可被 3 号技能消费 |
-| `N8-HANDOFF` | 交付下游生成所需真源 | 已验证 JSON、思考过程摘要、输出路径 | 单集项目写入 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`；多集项目默认写入 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-nine_blade_comic_prompts.json`，并同步落盘 `第N集-formatted_source_novel.json` 与 `第N集-思考过程摘要.md` | 最终 JSON、思考过程 | 完成或交给 3 号技能 | 当前集 canonical JSON 唯一且不覆盖其他集 |
+| `N6-ASSEMBLY` | 汇流为当前 group 的 `nine_blade_comic_prompts.v1` JSON | 9 个 page objects、schema、模板、当前组 metadata | 按 schema 填充顶层合同、`page_group`、`continuity_context`、style、locks、pages、negative prompt | 当前 group JSON 文件 | pass -> `N7`；结构缺失 -> 本节点修复 | JSON 可解析且组身份明确 |
+| `N7-VALIDATE` | 脚本与人工双门验收 | JSON 文件、validator、reference 门禁 | 运行 validator；检查 9 页、分组 metadata、风格词、layout 多样性、文字系统、负向提示词 | validator 输出、人工风险摘要 | pass -> `N8`；fail -> 按失败码回对应节点 | 可被 3 号技能消费 |
+| `N8-HANDOFF` | 交付下游生成所需真源 | 已验证当前 group JSON、思考过程摘要、输出路径 | 单集项目按组写入 `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等；多集项目默认写入 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-02-nine_blade_comic_prompts.json` 等，并同步落盘 `page_group_plan.json` / `第N集-page_group_plan.json` 与同前缀思考摘要；同一组 JSON 后续同时交给 3 号技能生图、交给 4 号技能逐页提炼 sora prompt | 组级 JSON 集合、思考过程 | 完成或交给 3/4 号技能 | 当前 episode/group canonical 输出明确且不互相覆盖 |
 
 ## 7. 输出合同
 
-最终输出为一个 JSON 对象，禁止只输出散文式 prompt。推荐文件名：
+最终输出不再默认是整集唯一 JSON，而是“每个 page-group 一个 JSON 对象”；禁止只输出散文式 prompt。推荐文件名：
 
 ```text
-nine_blade_comic_prompts.json
+page-group-01-nine_blade_comic_prompts.json
+page-group-02-nine_blade_comic_prompts.json
 ```
 
 若项目已进入多集模式，推荐文件名自动升级为：
 
 ```text
-第N集-nine_blade_comic_prompts.json
+第N集-page-group-01-nine_blade_comic_prompts.json
+第N集-page-group-02-nine_blade_comic_prompts.json
 ```
 
-最小结构：
+若需要记录分组真源，推荐同时落盘：
+
+```text
+page_group_plan.json
+第N集-page_group_plan.json
+```
+
+单个 group JSON 的最小结构：
 
 ```json
 {
   "schema_version": "nine_blade_comic_prompts.v1",
+  "page_group": {},
+  "continuity_context": {},
   "generation_contract": {
     "provider": "seedream",
     "call_mode": "single_request_sequential",
@@ -271,7 +360,13 @@ nine_blade_comic_prompts.json
 }
 ```
 
-输出同时附 `思考过程`，只说明切页理由、版式策略和关键风险，不输出冗长推理草稿。
+输出同时附 `思考过程`，只说明该组的切组理由、切页理由、版式策略、continuity 继承和关键风险，不输出冗长推理草稿。
+
+### 动画交接补充
+
+- `4-动画生成` 默认把每页 `panels[]` 视为 `one panel -> one shot` 的多分镜输入。
+- 因此 `pages[].positive_prompt` 不得只写单幅插画描述；必须保留版式、panel 动作、角色锁、场景锁与文字系统语义。
+- `pages[].page_number_overlay`、`active_character_ids`、`scene_id` 和 `continuity_context` 不是仅供 3 号技能使用；4 号技能也会把这些字段编译进每页 `sora-2` prompt。
 
 ## 8. 版式与文字硬规则
 
@@ -325,33 +420,38 @@ Character locked across all panels: Sun Wukong, a muscular monkey demon, covered
 
 | field_id | 输出位置/字段 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
-| `FIELD-NB-01` | `formatted_source_novel.source_format_variant` | 原始小说已被裁决为 `scene-led / explainer-led / compare -> selected` 之一 | `FAIL-NB-SOURCE-ROUTE` |
-| `FIELD-NB-02` | `formatted_source_novel` | 含 `canonical_story_summary / ordered_story_units[] / character_seed_roster[] / scene_seed_roster[] / continuity_alerts[] / blade_ready_notes`，可直接服务九刀切页 | `FAIL-NB-SOURCE-FORMAT` |
-| `FIELD-NB-03` | `formatted_source_novel.ordered_story_units[]` | 时间线、转场、视觉钩子、高潮与余波覆盖充分 | `FAIL-NB-SOURCE-COVERAGE` |
-| `FIELD-NB-04` | `generation_contract` | 固定 9 张、9:16、single_request_sequential | `FAIL-NB-CONTRACT` |
-| `FIELD-NB-05` | `story_beat_map` | 9 个连续页级剧情刀口 | `FAIL-NB-BEATS` |
-| `FIELD-NB-06` | `main_character_lock` | 唯一主要角色锚定对象，含 `name` 与高密度 `anchor_prompt` | `FAIL-NB-MAIN-LOCK` |
-| `FIELD-NB-07` | `scene_continuity_bible` | 具名场景锁完整，含 `scene_locks[]` 与稳定地标/光线/空间语义 | `FAIL-NB-SCENE-LOCK` |
-| `FIELD-NB-08` | `character_locks` | 其他跨页角色外观、服装、关键识别物稳定，且具名可回指 | `FAIL-NB-LOCKS` |
-| `FIELD-NB-09` | `comic_text_system` | 四类文字系统齐备；每类含 `visual_form / placement_rule / legibility_rule / max_chars`；九页整体至少覆盖一次 | `FAIL-NB-TEXT` |
-| `FIELD-NB-10` | `pages[]` | 恰好 9 页；每页含 panel 布局、prompt、文本槽、`active_character_ids`、`scene_id`、`page_number_overlay`，且 `positive_prompt` 显式包含主角锚定语句、群像区分语义、场景锚定语义与右下角数字页码语义 | `FAIL-NB-PAGES` |
-| `FIELD-NB-11` | `global_negative_prompt` | 禁止拼图、变体、文字错误、错手、logo、水印 | `FAIL-NB-NEGATIVE` |
-| `FIELD-NB-12` | `style_bible` | 全局漫画风格锐化词明确，不能只有泛影视词 | `FAIL-NB-STYLE` |
-| `FIELD-NB-13` | `pages[].layout` | 9 页 layout_id 足够多样，动态版式不少于 3 类 | `FAIL-NB-LAYOUT-DIVERSITY` |
-| `FIELD-NB-14` | `style_bible + pages[].positive_prompt` | 9 页共享同一套全局视觉 DNA；每页都显式重复 style anchor，禁止跨页切换成儿童绘本、Q 版、影视概念图或不同渲染媒介 | `FAIL-NB-STYLE-DRIFT` |
+| `FIELD-NB-01` | `formatted_source_script.source_format_variant` | 原始剧本已被裁决为 `scene-led / explainer-led / compare -> selected` 之一 | `FAIL-NB-SOURCE-ROUTE` |
+| `FIELD-NB-02` | `formatted_source_script` | 含 `canonical_story_summary / script_variant / ordered_story_units[] / scene_cards[] / impact_beats[] / page_turn_candidates[] / panel_text_budget / character_seed_roster[] / scene_seed_roster[] / continuity_alerts[] / blade_ready_notes`，可直接服务分组与九刀切页 | `FAIL-NB-SOURCE-FORMAT` |
+| `FIELD-NB-03` | `formatted_source_script.ordered_story_units[]` | 时间线、转场、视觉钩子、高潮与余波覆盖充分 | `FAIL-NB-SOURCE-COVERAGE` |
+| `FIELD-NB-04` | `page_group_plan` | 含 `target_source_chars / groups[] / continuity_focus / rhythm_rationale`，且边界不机械、不丢戏 | `FAIL-NB-GROUP-PLAN` |
+| `FIELD-NB-05` | `page_group` | 当前 JSON 明确标识 `group_id / group_index / total_groups / estimated_source_chars / source_span_summary` | `FAIL-NB-GROUP-META` |
+| `FIELD-NB-06` | `continuity_context` | 明确写出从前组/全局继承的角色、风格、场景 continuity 规则 | `FAIL-NB-GROUP-CONTINUITY` |
+| `FIELD-NB-07` | `generation_contract` | 固定 9 张、9:16、single_request_sequential | `FAIL-NB-CONTRACT` |
+| `FIELD-NB-08` | `story_beat_map` | 当前 group 的 9 个连续页级剧情刀口 | `FAIL-NB-BEATS` |
+| `FIELD-NB-09` | `main_character_lock` | 唯一主要角色锚定对象，含 `name` 与高密度 `anchor_prompt` | `FAIL-NB-MAIN-LOCK` |
+| `FIELD-NB-10` | `scene_continuity_bible` | 具名场景锁完整，含 `scene_locks[]` 与稳定地标/光线/空间语义 | `FAIL-NB-SCENE-LOCK` |
+| `FIELD-NB-11` | `character_locks` | 其他跨页角色外观、服装、关键识别物稳定，且具名可回指 | `FAIL-NB-LOCKS` |
+| `FIELD-NB-12` | `comic_text_system` | 四类文字系统齐备；每类含 `visual_form / placement_rule / legibility_rule / max_chars`；九页整体至少覆盖一次 | `FAIL-NB-TEXT` |
+| `FIELD-NB-13` | `pages[]` | 恰好 9 页；每页含 panel 布局、prompt、文本槽、`active_character_ids`、`scene_id`、`page_number_overlay`，且 `positive_prompt` 显式包含主角锚定语句、群像区分语义、场景锚定语义与右下角数字页码语义 | `FAIL-NB-PAGES` |
+| `FIELD-NB-14` | `global_negative_prompt` | 禁止拼图、变体、文字错误、错手、logo、水印 | `FAIL-NB-NEGATIVE` |
+| `FIELD-NB-15` | `style_bible` | 全局漫画风格锐化词明确，不能只有泛影视词 | `FAIL-NB-STYLE` |
+| `FIELD-NB-16` | `pages[].layout` | 9 页 layout_id 足够多样，动态版式不少于 3 类 | `FAIL-NB-LAYOUT-DIVERSITY` |
+| `FIELD-NB-17` | `style_bible + pages[].positive_prompt` | 9 页共享同一套全局视觉 DNA；每页都显式重复 style anchor，禁止跨页切换成儿童绘本、Q 版、影视概念图或不同渲染媒介 | `FAIL-NB-STYLE-DRIFT` |
 
 ## 10. 验证
 
 ```bash
 python3 .agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_blade_prompt_json.py \
-  path/to/nine_blade_comic_prompts.json
+  path/to/page-group-01-nine_blade_comic_prompts.json
 ```
 
 提交前还必须做前奏侧人工验证：
 
-- `formatted_source_novel` 是否已覆盖开场、触发、阻力、代价、迁移、危机、生死瞬间、反击、余波等可切页节点。
+- `formatted_source_script` 是否已覆盖开场、触发、阻力、代价、迁移、危机、生死瞬间、反击、余波等可切页节点。
 - `ordered_story_units[]` 是否存在明确转场和视觉钩子，而不是连续抽象概述。
 - 是否仍有关键角色、关键场景或高潮因原始文本松散而在前奏中丢失。
+- `page_group_plan` 是否以约 500 字原文为目标，但没有机械切断 scene / hook / payoff。
+- 组与组之间是否继承同一套角色、风格、场景 continuity，而不是每组像不同作品。
 
 ## 11. Root-Cause 合同
 
@@ -359,6 +459,6 @@ python3 .agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_bl
 
 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-- `Rule Source`：本 `SKILL.md`、`references/nine-blade-prompt-contract.md`、来源格式化前奏合同、schema、验证脚本。
+- `Rule Source`：本 `SKILL.md`、`references/nine-blade-prompt-contract.md`、来源格式化前奏合同、page-group 划分前奏合同、schema、验证脚本。
 - `Meta Rule Source`：仓库 `AGENTS.md` 与 `skill-知行合一` 的单技能思行网络 / skeleton-first 合同。
-- 优先修来源格式化前奏、模板、schema 或验证脚本，再修单次内容。
+- 优先修来源格式化前奏、page-group 真源、模板、schema 或验证脚本，再修单次内容。

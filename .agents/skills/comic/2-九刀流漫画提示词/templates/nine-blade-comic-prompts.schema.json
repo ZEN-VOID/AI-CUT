@@ -14,6 +14,37 @@
     "global_negative_prompt"
   ],
   "$defs": {
+    "page_group_meta": {
+      "type": "object",
+      "required": [
+        "group_id",
+        "group_index",
+        "total_groups",
+        "estimated_source_chars",
+        "target_source_chars",
+        "source_span_summary",
+        "rhythm_rationale"
+      ],
+      "properties": {
+        "group_id": {"type": "string", "minLength": 4},
+        "group_index": {"type": "integer", "minimum": 1},
+        "total_groups": {"type": "integer", "minimum": 1},
+        "estimated_source_chars": {"type": "integer", "minimum": 1},
+        "target_source_chars": {"type": "integer", "minimum": 1},
+        "source_span_summary": {"type": "string", "minLength": 4},
+        "rhythm_rationale": {"type": "string", "minLength": 12}
+      }
+    },
+    "continuity_context": {
+      "type": "object",
+      "required": ["inherit_global_locks", "same_visual_dna_rule"],
+      "properties": {
+        "inherit_global_locks": {"type": "boolean"},
+        "same_visual_dna_rule": {"type": "string", "minLength": 20},
+        "previous_group_hook": {"type": "string"},
+        "next_group_hook": {"type": "string"}
+      }
+    },
     "text_system_entry": {
       "type": "object",
       "required": ["visual_form", "placement_rule", "legibility_rule", "max_chars"],
@@ -106,6 +137,14 @@
   "properties": {
     "schema_version": {
       "const": "nine_blade_comic_prompts.v1"
+    },
+    "page_group": {
+      "$ref": "#/$defs/page_group_meta",
+      "description": "Optional but recommended group identity metadata when the episode is partitioned into multiple page-groups."
+    },
+    "continuity_context": {
+      "$ref": "#/$defs/continuity_context",
+      "description": "Optional but recommended cross-group continuity inheritance metadata."
     },
     "generation_contract": {
       "type": "object",

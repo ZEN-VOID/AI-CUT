@@ -175,7 +175,7 @@ flowchart LR
 父 skill 必须在开始前锁定以下总输入，而不是边做边猜：
 
 1. `global charter context`
-   根 `AGENTS.md`、`.agents/skills/aigc/SKILL.md`、本目录 `CONTEXT.md`、`.agents/skills/aigc/_shared/*`
+   根 `AGENTS.md`、`.agents/skills/aigc/SKILL.md`、本目录 `CONTEXT.md`、`.agents/skills/aigc/_shared/*`、`.agents/skills/team/SKILL.md`、`.agents/skills/team/CONTEXT.md`
 2. `task context`
    当前项目目标、用户偏好、约束、非目标、已知素材与项目名
 3. `mode context`
@@ -200,7 +200,7 @@ flowchart LR
 | 能力面 | 作用 | 典型输出 | 何时触发 |
 | --- | --- | --- | --- |
 | `internal_router` | 裁剪本轮问题包、上下文包、字段优先级与禁问项 | `route_plan_patch`、`context_packet_plan` | 编组锁定后，进入任一内部能力前 |
-| `team_auto_formation_engine` | 根据故事源、题材、约束与用户目标，从 `.agents/skills/team/` 自动挑选顾问阵容 | `team_manifest_patch`、`selection_rationale`、`lineup_risk_note` | `team_lineup_mode == auto` |
+| `team_auto_formation_engine` | 根据故事源、题材、约束与用户目标，先读取 `team/SKILL.md + team/CONTEXT.md` 的根级成员索引，再从 `.agents/skills/team/` 自动挑选顾问阵容 | `team_manifest_patch`、`selection_rationale`、`lineup_risk_note` | `team_lineup_mode == auto` |
 | `team_custom_formation_engine` | 校验用户自定义顾问阵容是否只引用 `.agents/skills/team/`，并按角色落位 | `team_manifest_patch`、`custom_lineup_validation_note` | `team_lineup_mode == custom` |
 | `planning_interview_engine` | 以 `roles.planning.members` 为初始化顾问团，真实启动 subagents 执行 interview 并压缩成可吸收 patch | `interview_question_pack`、`north_star_patch`、`init_handoff_patch`、`sources_breakdown_patch`、`interview_report` | `team.yaml` 已锁定后 |
 | `rebootstrap_reset_engine` | 对已有项目执行“退回初始化态”的边界裁定，生成保留/归档/清退计划并把项目主入口降回 `0-Init` | `reset_scope_note`、`archive_plan`、`stale_scope_note` | `rebootstrap_requested == true` |
@@ -600,31 +600,35 @@ B. 自定义组队
 
 自动组队必须按“两层裁决”执行：
 
-1. 先锁治理角色权属：
+1. 先读取 `.agents/skills/team/SKILL.md + .agents/skills/team/CONTEXT.md` 的根级成员索引，用 `部门 -> 成员 -> 适配场景` 先做 shortlist，而不是直接全树深读。
+2. 先锁治理角色权属：
    - `策划 -> 0-Init`
    - `监制 -> 2-Global / 3-Detail / 4-Design`
    - `评审 -> 5-Image / 6-Video`
-2. 再在 `.agents/skills/team/` 内为这些治理角色挑选具体大师，优先覆盖 `导演组 / 设计组 / 摄影组` 三个必选组。
-3. 三类治理角色的成员关系允许两种合法形态：
+3. 再按 `required_departments / optional_departments / scenario_tags` 从 `.agents/skills/team/` 内为这些治理角色挑选具体大师，优先覆盖 `导演组 / 设计组 / 摄影组` 三个必选组。
+4. 三类治理角色的成员关系允许两种合法形态：
    - `同人复用`：同一批人覆盖多个治理角色
    - `分人治理`：不同的人分别承担不同治理角色
 
 自动组队硬规则：
 
 1. `导演组 / 设计组 / 摄影组` 是必选组；只要命中 `auto`，默认至少各选 1 人。
-2. 每个组允许多人，但必须写清多人的分工，不得只因“名气大”堆叠。
-3. 不得默认把 `策划 / 监制 / 评审` 理解为三拨互斥成员；是否复用同人，应按题材匹配度、工作量与阶段跨度裁决。
-4. `黄金组合` 不是固定名单，而是优先级规则：先找叙事/题材适配高、再看视觉与摄影语言互补、最后看资源与执行风险。
-5. 若两个候选人高度同质，优先保留能补位另一必选组风格缺口的那一个。
-6. 可选组只在题材、媒介、制作难点或用户显式要求触发时加入；默认不为“看起来豪华”而滥加。
-7. 若同一位大师同时最适合承担 `策划 / 监制 / 评审` 中的多个角色，可以复用；但必须明确其主责角色与兼任角色，避免后续阶段读取时失真。
-8. 自动组队理由必须至少回答：
+2. shortlisting 必须先在根索引层完成：必选组默认缩到 `1-3` 个候选，可选组默认缩到 `0-2` 个候选；只有 shortlisted 成员允许进入子技能深读。
+3. 若根层成员索引缺失、明显过时、或与当前 `team/` 树不一致，必须先修 `.agents/skills/team/SKILL.md + CONTEXT.md`，不得继续盲扫。
+4. 每个组允许多人，但必须写清多人的分工，不得只因“名气大”堆叠。
+5. 不得默认把 `策划 / 监制 / 评审` 理解为三拨互斥成员；是否复用同人，应按题材匹配度、工作量与阶段跨度裁决。
+6. `黄金组合` 不是固定名单，而是优先级规则：先找叙事/题材适配高、再看视觉与摄影语言互补、最后看资源与执行风险。
+7. 若两个候选人高度同质，优先保留能补位另一必选组风格缺口的那一个。
+8. 可选组只在题材、媒介、制作难点或用户显式要求触发时加入；默认不为“看起来豪华”而滥加。
+9. 若同一位大师同时最适合承担 `策划 / 监制 / 评审` 中的多个角色，可以复用；但必须明确其主责角色与兼任角色，避免后续阶段读取时失真。
+10. 自动组队理由必须至少回答：
    - 为什么这三个必选组是当前题材的最小闭环
    - 为什么这些人构成当前题材的黄金组合或近似黄金组合
    - 当前是“同人复用”还是“分人治理”，为什么
    - 为什么未加入某些可选组
    - 当前 roster 有哪些明显缺口
-9. 当当前题材明显需要仓内尚未配置的更优大师时：
+11. `selection_rationale` 必须能回溯到根层索引中的 `scenario_tags + candidate_shortlist`，而不是只写抽象审美判断。
+12. 当当前题材明显需要仓内尚未配置的更优大师时：
    - 仍按现有 roster 完成本轮自动组队，不得阻塞当前初始化
    - 同时在 `todos/<项目名或task-id>-team-recommendation.md` 输出推荐文档
    - 文档至少包含：题材/任务背景、当前不足、推荐大师或部门、推荐理由、理想落点、当前为何先不改执行

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -87,6 +88,20 @@ def require_int(value: Any, label: str) -> int:
     return value
 
 
+def require_numeric_seconds(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} 必须是有限数值秒数。")
+    numeric = float(value)
+    if not math.isfinite(numeric):
+        raise ValueError(f"{label} 必须是有限数值秒数。")
+    return numeric
+
+
+def format_seconds_label(value: Any, label: str) -> str:
+    numeric = require_numeric_seconds(value, label)
+    return f"{numeric:g}"
+
+
 def compact_clause(text: str) -> str:
     clean = strip_tail_punct(text)
     if not clean:
@@ -152,8 +167,8 @@ def render_sentence_group(group_spec: dict[str, Any], source: dict[str, Any], le
 def validate_shot_ready(group_id: str, shot: dict[str, Any]) -> None:
     shot_id = require_non_empty_text(shot.get("分镜ID"), f"{group_id}.分镜明细[].分镜ID")
     timing = require_dict(shot.get("时间段"), f"{group_id}.{shot_id}.时间段")
-    require_int(timing.get("开始秒"), f"{group_id}.{shot_id}.时间段.开始秒")
-    require_int(timing.get("结束秒"), f"{group_id}.{shot_id}.时间段.结束秒")
+    require_numeric_seconds(timing.get("开始秒"), f"{group_id}.{shot_id}.时间段.开始秒")
+    require_numeric_seconds(timing.get("结束秒"), f"{group_id}.{shot_id}.时间段.结束秒")
     for field in ("角色背景面", "角色站位走位", "道具及状态", "分镜表现", "景别", "运镜手法", "摄影美学", "镜头视角"):
         require_non_empty_text(shot.get(field), f"{group_id}.{shot_id}.{field}")
 
@@ -200,7 +215,9 @@ def validate_source_ready(source_data: dict[str, Any]) -> list[dict[str, Any]]:
 
 def build_time_range(shot: dict[str, Any]) -> str:
     timing = shot.get("时间段", {})
-    return f"{timing.get('开始秒')}秒-{timing.get('结束秒')}秒"
+    start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
+    end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
+    return f"{start}秒-{end}秒"
 
 
 def build_group_bridge(group: dict[str, Any], spec: dict[str, Any]) -> str:

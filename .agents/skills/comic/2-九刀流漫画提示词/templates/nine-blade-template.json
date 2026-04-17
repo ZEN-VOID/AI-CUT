@@ -1,5 +1,20 @@
 {
   "schema_version": "nine_blade_comic_prompts.v1",
+  "page_group": {
+    "group_id": "page-group-01",
+    "group_index": 1,
+    "total_groups": 1,
+    "estimated_source_chars": 480,
+    "target_source_chars": 500,
+    "source_span_summary": "填写当前 group 覆盖的剧情跨度",
+    "rhythm_rationale": "填写为什么这一组适合压成当前 9 pages。"
+  },
+  "continuity_context": {
+    "inherit_global_locks": true,
+    "same_visual_dna_rule": "Reuse the same rendering medium, line system, shadow method, lettering feeling, and character age ratio across all groups.",
+    "previous_group_hook": "",
+    "next_group_hook": ""
+  },
   "generation_contract": {
     "provider": "seedream",
     "call_mode": "single_request_sequential",
@@ -113,7 +128,7 @@
     {
       "page_number": 1,
       "page_role": "开场钩子",
-      "source_fragment": "填入第1页对应小说片段",
+      "source_fragment": "填入第1页对应剧本片段",
       "active_character_ids": ["protagonist"],
       "scene_id": "thunder_gate",
       "layout": {"aspect_ratio": "9:16", "layout_id": "splash-with-insets", "panel_count": 3, "panel_ratios": ["dominant splash panel 65%", "two small inset reaction panels 15% + 20%"]},
@@ -124,7 +139,7 @@
     {
       "page_number": 2,
       "page_role": "触发动作",
-      "source_fragment": "填入第2页对应小说片段",
+      "source_fragment": "填入第2页对应剧本片段",
       "active_character_ids": ["protagonist", "ally"],
       "scene_id": "thunder_gate",
       "layout": {"aspect_ratio": "9:16", "layout_id": "diagonal-cut-action", "panel_count": 3, "panel_ratios": ["large diagonal action panel 50%", "thin diagonal evidence panel 20%", "bottom reaction panel 30%"]},
@@ -135,7 +150,7 @@
     {
       "page_number": 3,
       "page_role": "阻力上桌",
-      "source_fragment": "填入第3页对应小说片段",
+      "source_fragment": "填入第3页对应剧本片段",
       "active_character_ids": ["protagonist", "antagonist"],
       "scene_id": "thunder_gate",
       "layout": {"aspect_ratio": "9:16", "layout_id": "overlapping-inset-reaction", "panel_count": 4, "panel_ratios": ["large scene panel 55%", "three overlapping small reaction insets 15% each"]},
@@ -146,7 +161,7 @@
     {
       "page_number": 4,
       "page_role": "代价宣告",
-      "source_fragment": "填入第4页对应小说片段",
+      "source_fragment": "填入第4页对应剧本片段",
       "active_character_ids": ["protagonist", "antagonist"],
       "scene_id": "thunder_gate",
       "layout": {"aspect_ratio": "9:16", "layout_id": "split-diopter-page", "panel_count": 2, "panel_ratios": ["foreground face split 45%", "background threat/evidence split 55%"]},
@@ -157,7 +172,7 @@
     {
       "page_number": 5,
       "page_role": "场景迁移",
-      "source_fragment": "填入第5页对应小说片段",
+      "source_fragment": "填入第5页对应剧本片段",
       "active_character_ids": ["protagonist", "ally"],
       "scene_id": "sacrificial_hall",
       "layout": {"aspect_ratio": "9:16", "layout_id": "vertical-cascade", "panel_count": 4, "panel_ratios": ["tall cascading panel 35%", "narrow motion panel 20%", "thin detail panel 15%", "bottom reveal panel 30%"]},
@@ -168,7 +183,7 @@
     {
       "page_number": 6,
       "page_role": "危机显形",
-      "source_fragment": "填入第6页对应小说片段",
+      "source_fragment": "填入第6页对应剧本片段",
       "active_character_ids": ["protagonist", "ally", "antagonist"],
       "scene_id": "sacrificial_hall",
       "layout": {"aspect_ratio": "9:16", "layout_id": "zigzag-tension-ladder", "panel_count": 4, "panel_ratios": ["zigzag panel 1 25%", "zigzag panel 2 20%", "zigzag panel 3 20%", "large reveal panel 35%"]},
@@ -179,7 +194,7 @@
     {
       "page_number": 7,
       "page_role": "生死瞬间",
-      "source_fragment": "填入第7页对应小说片段",
+      "source_fragment": "填入第7页对应剧本片段",
       "active_character_ids": ["protagonist", "antagonist"],
       "scene_id": "sacrificial_hall",
       "layout": {"aspect_ratio": "9:16", "layout_id": "impact-sfx-page", "panel_count": 2, "panel_ratios": ["full-height impact panel 75%", "small aftermath inset 25%"]},
@@ -190,7 +205,7 @@
     {
       "page_number": 8,
       "page_role": "反击或救援",
-      "source_fragment": "填入第8页对应小说片段",
+      "source_fragment": "填入第8页对应剧本片段",
       "active_character_ids": ["protagonist", "ally"],
       "scene_id": "sacrificial_hall",
       "layout": {"aspect_ratio": "9:16", "layout_id": "border-breaking-action", "panel_count": 3, "panel_ratios": ["large border-breaking action panel 60%", "thin evidence/action strip 15%", "reaction panel 25%"]},
@@ -201,7 +216,7 @@
     {
       "page_number": 9,
       "page_role": "余波钩子",
-      "source_fragment": "填入第9页对应小说片段",
+      "source_fragment": "填入第9页对应剧本片段",
       "active_character_ids": ["protagonist"],
       "scene_id": "sacrificial_hall",
       "layout": {"aspect_ratio": "9:16", "layout_id": "border-breaking-cliffhanger", "panel_count": 3, "panel_ratios": ["extreme close-up 35%", "large negative-space panel 45%", "tiny final sting panel 20%"]},

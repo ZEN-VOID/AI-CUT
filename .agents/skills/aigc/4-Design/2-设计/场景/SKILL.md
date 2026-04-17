@@ -51,6 +51,7 @@ governance_tier: full
 
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
+- `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
 - `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
 - `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
@@ -68,6 +69,8 @@ governance_tier: full
   - `1-清单 + 0-Init + 2-Global` 的上游输入口径真源。
 - `_shared/design-output-contract.md`
   - `global_style_prefix / full_generation_prompt / same-dir same-stem auto image` 的共享输出真源。
+- `_shared/design-slot-review-contract.md`
+  - 当前轮 `scene_design.json + [场景名].md + _manifest.json` 应如何解析成 `SCENE-BUNDLE-*` 的共享评审与返工真源。
 - `references/scene-design-assembly.md`
   - 三真源装配、文化原型查证、三层收敛与输出映射细则。
 - `templates/scene_masterprompt.structured.v2.md`
@@ -87,21 +90,22 @@ governance_tier: full
 4. `.agents/skills/aigc/4-Design/2-设计/SKILL.md + CONTEXT.md`
 5. `.agents/skills/aigc/4-Design/2-设计/_shared/design-input-contract.md`
 6. `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`
-7. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-8. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
-9. `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
-10. `.agents/skills/aigc/4-Design/1-清单/场景/SKILL.md + CONTEXT.md`
-11. 本 `SKILL.md + CONTEXT.md`
-12. `references/scene-design-assembly.md`
-13. `templates/scene_masterprompt.structured.v2.md`
-14. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json`
-15. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景研究.json`（若存在）
-16. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/scene_design_bridge.json`（若存在）
-17. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
-18. `projects/aigc/<项目名>/2-Global/全局风格.md`
-19. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
-20. `projects/aigc/<项目名>/2-Global/导演意图.md`
-21. `projects/aigc/<项目名>/team.yaml`（若存在）
+7. `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
+8. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
+9. `.agents/skills/aigc/4-Design/2-设计/_shared/subagent-supervision-contract.md`
+10. `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
+11. `.agents/skills/aigc/4-Design/1-清单/场景/SKILL.md + CONTEXT.md`
+12. 本 `SKILL.md + CONTEXT.md`
+13. `references/scene-design-assembly.md`
+14. `templates/scene_masterprompt.structured.v2.md`
+15. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景清单.json`
+16. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景研究.json`（若存在）
+17. `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/scene_design_bridge.json`（若存在）
+18. `projects/aigc/<项目名>/0-Init/{north_star,init_handoff,story-source-manifest}.yaml`
+19. `projects/aigc/<项目名>/2-Global/全局风格.md`
+20. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
+21. `projects/aigc/<项目名>/2-Global/导演意图.md`
+22. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Business Requirement Analysis Contract (Mandatory)
 
@@ -279,7 +283,7 @@ flowchart TD
 | `FIELD-SCN-DES-11` | `_manifest.json` | 审计、路径、统计、降级与外部查证清楚，且不冒充业务真源 | 全链输出 | `S9` | audit closure | `FAIL-SCN-MANIFEST-DRIFT` |
 | `FIELD-SCN-DES-12` | `[场景名].<ext> / _manifest.json.auto_image` | 自动生图使用含全局风格前缀的完整 prompt，默认后台批量并发提交，图片与设计文件同目录同 stem | `design-output-contract.md`、`image-generation-execution-contract.md`、`全局风格.md`、`[场景名].md` | `S10` | auto image completeness | `FAIL-SCN-AUTO-IMAGE` |
 | `FIELD-SCN-DES-13` | `prompt_integration / full_generation_prompt / auto_image preflight` | 场景图必须是空镜环境参照；剧情人物动作只能转写为空间痕迹、动线、环境状态或物体尺度线索 | `design-output-contract.md`、`scene-design-assembly.md`、`validate_scene_design_projection.py` | `S7` / `S10` | reference cleanliness | `FAIL-SCN-REFERENCE-CONTAMINATION` |
-| `FIELD-SCN-DES-14` | current-round outputs / supervision review | 输出后必须读取项目根 `team.yaml`，按共享收尾合同裁定当前轮 closeout、reviewer 顺序与场景设计型补选，并只 patch 当前轮场景文件 | `team.yaml`、`council-runtime`、`subagent-supervision-contract.md` | `S11` | council closeout | `FAIL-SCN-SUPERVISION-REVIEW` |
+| `FIELD-SCN-DES-14` | current-round outputs / supervision review | 输出后必须读取项目根 `team.yaml`，按共享收尾合同裁定当前轮 closeout、reviewer 顺序与场景设计型补选，并先把当前轮场景输出解析成 `SCENE-BUNDLE-*`，再只 patch 当前轮场景文件 | `team.yaml`、`council-runtime`、`subagent-supervision-contract.md`、`design-slot-review-contract.md` | `S11` | council closeout | `FAIL-SCN-SUPERVISION-REVIEW` |
 
 ## Thought Pass Map
 
@@ -295,7 +299,7 @@ flowchart TD
 | `S8` | JSON/Markdown 汇流 | 写 `scene_design.json + [场景名].md` | `design_truth_packet` | `S9` | `S8` |
 | `S9` | 审计与落盘 | 写 `_manifest.json`，验证 coverage 与 alias 同步 | `manifest_packet` | `S10` | `S8-S9` |
 | `S10` | 单主体自动生图 | 读取 `[场景名].md` 与全局风格前缀；自动生图前复验空镜锚句，再默认后台批量并发提交 nano-banana general，同目录同名图片由后续验收复核 | `auto_image_packet + reference_cleanliness_note` | `S11` | `S7-S10` |
-| `S11` | 输出后 subagents 监制强化 | 读取 `team.yaml` 与共享收尾合同，裁定当前轮 closeout 是否可进入，解析显式 reviewer、可选 `4-Design review gate members` 与场景设计型补选，真实启动 reviewer subagents 并回写当前轮文件 | `supervision_review_note + subagent_supervision_result` | `done` | `S7-S11` |
+| `S11` | 输出后 subagents 监制强化 | 读取 `team.yaml` 与共享收尾合同，裁定当前轮 closeout 是否可进入，先把当前轮场景输出解析成 `SCENE-BUNDLE-01~04`，再解析显式 reviewer、可选 `4-Design review gate members` 与场景设计型补选，真实启动 reviewer subagents 并回写当前轮文件 | `supervision_review_note + subagent_supervision_result` | `done` | `S7-S11` |
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -311,7 +315,7 @@ flowchart TD
 | `N8-PROJECTION` | 写结构化真源与人读投影 | 模板 + `prompt_packet` | 生成 `scene_design.json` 和 `[场景名].md` | `design_truth_packet` | `N9` | Markdown 不得成为第二真源 |
 | `N9-VALIDATE` | 一次性收束与审计 | 全链输出 | 写 `_manifest.json` 并验证 coverage、字段、alias、降级说明 | `manifest_packet` | `N10` | 只允许在图片步骤完成后结案 |
 | `N10-AUTO-IMAGE` | 生成单场景概念图 | `[场景名].md`、`全局风格.md`、`design_prompt` | 生成 `full_generation_prompt`；复验空镜锚句与污染主体禁令后默认后台批量并发提交 nano-banana general，目标输出 `[场景名].<ext>` | `auto_image_packet + reference_cleanliness_note` | `N11` | 不得只传局部 prompt；后台提交不得伪装为已产图；图片必须同目录同名；空镜门禁失败不得生图 |
-| `N11-SUPERVISION-REVIEW` | 输出后监制强化 | 当前轮 `scene_design.json + [场景名].md + _manifest.json`、`team.yaml`、`subagent-supervision-contract.md` | 按共享合同确认当前轮 closeout 可进入；显式 reviewer 先取 `roles.supervision.members`，若 `4-Design` final-stage gate 存在则并入 `roles.review.members`，不足再补入 `隈研吾 + 叶锦添`，并按 `use_subagents_by_default` 真实启动 reviewer subagents；主代理汇流后只 patch 当前轮场景输出 | `supervision_review_note + subagent_supervision_result` | `done` | 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council |
+| `N11-SUPERVISION-REVIEW` | 输出后监制强化 | 当前轮 `scene_design.json + [场景名].md + _manifest.json`、`team.yaml`、`subagent-supervision-contract.md`、`design-slot-review-contract.md` | 按共享合同确认当前轮 closeout 可进入；先把当前轮场景输出解析成 `SCENE-BUNDLE-01~04`；显式 reviewer 先取 `roles.supervision.members`，若 `4-Design` final-stage gate 存在则并入 `roles.review.members`，不足再补入 `隈研吾 + 叶锦添`，并按 `use_subagents_by_default` 真实启动 reviewer subagents；主代理汇流后只 patch 当前轮场景输出 | `supervision_review_note + subagent_supervision_result` | `done` | 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council |
 
 ## Pass Table
 
@@ -358,6 +362,7 @@ flowchart TD
 3. 强文化原型场景缺证据时，必须先查证或保守降级，不得泛词拼装。
 4. per-scene Markdown 是 projection，不是 canonical truth。
 5. `场景类型` 是字段，不是技能拆分信号。
+6. 当前轮 review target 必须先按 `_shared/design-slot-review-contract.md` 解析到 `SCENE-BUNDLE-*`，不得只停留在文件名级别。
 
 ## One-Shot Output Contract (Mandatory)
 
@@ -367,6 +372,8 @@ flowchart TD
 2. `[场景名].md`
 3. `[场景名].<ext>`
 4. `_manifest.json`
+
+当前轮监制强化默认围绕以上文件及其对应 `SCENE-BUNDLE-*` 做 patch，不再以“整个文件的整体感觉”作为唯一定位方式。
 
 thinking sidecar 只作为过程证据，不进入最终 canonical 交付集合。
 

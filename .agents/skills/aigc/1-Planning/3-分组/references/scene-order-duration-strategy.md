@@ -109,6 +109,13 @@
   - `estimated_duration_seconds`
   - `effective_text_chars`
   - `window_status`
+  - `quantization_trace`
+
+`quantization_trace` 必须让下游复核者能直接看到每组的量化过程，而不是只看到结果。至少要写清：
+
+- 时长解析来源：默认值还是 `分镜组时长映射`
+- window 公式：`base / warn_low / warn_high / hard`
+- `effective_text_chars` 的构成：字段加权明细，或规划估算的 `visible_total + scene_units + turning_points`；若命中 story-source 回算，还要带镜号范围
 
 ## 分组时间切分交接协议
 
@@ -166,9 +173,13 @@
    - 默认视为过载，不得以“结构正好到这里”为由保留不拆。
 2. 若某候选组 `effective_text_chars` 落在 `warn_high` 以上但未超 `hard_text_window`：
    - 必须优先检查最近可见结构断点或语义转折点能否拆开。
+   - 若同一上游场景单位内部已出现明确的二段或三段 beat 链，必须先执行同场景内拆组试算，再决定是否保留为单组；不得直接用“连续峰值”跳过拆组。
+   - 若首轮同场景拆组后，某个子组内部仍可辨识出新的二段或三段 beat 链，必须继续递归复查该子组；不得因为已经“拆过一次”就停止。
 3. 若某候选组 `effective_text_chars < warn_low`：
    - 必须优先检查能否与同一物理场景链或同一上游场景单位内的下一语义单元合并。
    - 若该候选组已有固定 `分镜组ID`、固定镜数、beat 或四段式 `分镜ID`，则保留组界，并在 `judgement_basis` 登记锁定依据。
+   - 若该低字数组是同场景 beat 拆分后的结果，只要它本身承载完整且不可压缩的子拍点，可保留；但 `judgement_basis` 必须说明“已先做同场景拆组检查”，而不是只写“独立信息落点”。
+   - 若保留结果来自递归拆组后的子组，`judgement_basis` 还应明确写出这是“复查子组后保留”的结果，避免把首轮粗拆误写成最终边界。
 4. `warn-low / warn-high / error` 只允许存在于候选分析与返工判断，不允许直接落入正式 `第N集.md` 作为通过结果。
 5. 若 `hard_lock / soft_lock` 与严格量化 gate 冲突，当前轮应判为失败并上溯请求显式豁免；不得再以“先保锚点，再解释偏差”方式直接落盘。
 6. 默认禁止跨物理场景链凑时长：

@@ -1,106 +1,123 @@
-# GROK Video API Reference
+# FineAPI Grok Video 3 API 摘要
 
-## Source of Truth
+更新时间：`2026-04-17`
 
-本参考来自两类本地证据，二者都必须保留：
+## 1. 当前可确认真源
 
-1. `PRPs/grok.md` 的 OpenAPI 文字版
-2. `PRPs/image/grok/*.png` 的截图示例
+- 文档页：`https://docs.fineapi.cloud/403045611e0`
+- 用户提供的截图
+- 用户提供的请求示例与响应示例
 
-结论：当前能确认的是“同一业务能力存在两种提交形态”，而不是其中一份一定过时。
+说明：
 
-## Observed Endpoints
+- 该文档页在当前环境下为前端渲染页面，直接抓取只能拿到页面壳。
+- 因此本文件只沉淀本轮已稳定确认的创建接口事实与本地 live probe 结果；未确认的后续接口不写成真源。
 
-### Variant A: JSON submit
+## 1.1 当前默认模型结论
 
-- Source:
-  - `PRPs/image/grok/1775202638719.png`
-  - `PRPs/image/grok/1775202655941.png`
-  - `PRPs/image/grok/1775202663454.png`
-  - `PRPs/image/grok/1775202675162.png`
-- Method: `POST`
-- Path: `/v1/video/create`
-- Content-Type: `application/json`
-- Body shape:
+- 官方文档截图与历史样例稳定出现的是 `grok-video-3`。
+- `2026-04-17` 在当前配置环境做真实提交时，`grok-video-3` 成功创建任务。
+- 同日对 `grok-video-3-max` 做真实提交，返回：
+  - `status_code: 503`
+  - `error.code: model_not_found`
+  - `error.message`: `分组 auto 下模型 grok-video-3-max 无可用渠道（distributor）`
+- 因此当前技能的默认模型保持为“当前环境最高已验证可用版本” `grok-video-3`，而不是按外部命名推测升级。
+
+## 2. 创建任务
+
+### 2.1 端点
+
+- `POST /v1/video/create`
+
+### 2.2 请求头
+
+```http
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+### 2.3 Body 结构
 
 ```json
 {
   "model": "grok-video-3",
-  "prompt": "cat fish --mode=custom",
-  "images": [
-    "data:image/png;base64,..."
-  ],
+  "prompt": "小猫在吃鱼 --mode=custom",
   "aspect_ratio": "3:2",
-  "size": "1080P",
-  "duration": 6
+  "size": "720P",
+  "images": [
+    "https://ark-project.tos-cn-beijing.volces.com/doc_image/seedream4_5_imageToimage.png"
+  ]
 }
 ```
 
-- Notes:
-  - 截图明确展示 `images` 为字符串数组，内容是 `data:image/...;base64,...`
-  - 更适合多图与“图片读取 -> 统一编码”流程
-  - 返回示例出现 `task_id`
+### 2.4 字段说明
 
-### Variant B: multipart submit
-
-- Source: `PRPs/grok.md`
-- Method: `POST`
-- Path: `/v1/videos`
-- Content-Type: `multipart/form-data`
-- Fields:
-
-| Field | Type | Required | Notes |
+| 字段 | 类型 | 必填 | 已确认说明 |
 | --- | --- | --- | --- |
-| `model` | string | yes | 示例 `grok-video-3` |
-| `prompt` | string | yes | 提示词 |
-| `input_reference` | binary | no | 单个参考图 |
-| `aspect_ratio` | string | no | `16:9` `9:16` `2:3` `3:2` `1:1` |
-| `size` | string | no | `720P` or `1080P` |
-| `seconds` | integer | no | 默认 10，支持 6/10/15 |
+| `model` | string | 是 | 官方截图与样例稳定出现 `grok-video-3`；当前环境 live probe 也验证它可用 |
+| `prompt` | string | 是 | 提示词；样例保留 `--mode=custom` 后缀 |
+| `aspect_ratio` | string | 是 | 截图显示可选 `2:3 / 3:2 / 1:1` |
+| `size` | string | 是 | 截图写有 `720P` 或 `1080P`，并注明“暂只支持 720P” |
+| `images` | array[string] | 是 | 截图说明为“图片链接” |
 
-- Notes:
-  - 文字版只给了单个 `input_reference`
-  - 与截图版 `images[]` 多图模式不同
+## 3. 创建响应
 
-## Response Drift
+```json
+{
+  "id": "veo3.1-components:1762241017-xTL0P9HvGF",
+  "status": "pending",
+  "status_update_time": 1762241017286
+}
+```
 
-截图与 OpenAPI 文本里的返回字段存在轻微漂移：
+### 3.1 已确认字段
 
-| Observed field | Meaning | Normalized field |
-| --- | --- | --- |
-| `task_id` | 任务 ID | `task_id` |
-| `id` | 任务 ID | `task_id` |
-| `status` | `processing` `failed` `completed` | `status` |
-| `status_update_time` | 状态更新时间 | `status_update_time` |
-| `created_at` | 任务创建时间 | `created_at` |
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 任务 ID |
+| `status` | 示例值为 `pending` |
+| `status_update_time` | 状态更新时间戳 |
 
-技能脚本必须做字段归一化，不得把 `id` / `task_id` 分歧直接甩给上游。
+## 4. 当前未锁定的部分
 
-## Request Mode Decision
+以下内容本轮没有拿到稳定文档，因此不得写死到脚本或主合同里：
 
-默认决策：
+- 查询状态端点
+- 下载视频端点
+- API 默认 host
+- 失败响应的固定 schema
+- 比 `grok-video-3` 更高的可用模型 ID（当前只验证到 `grok-video-3-max` 不可用）
 
-1. 若 `request-mode=auto`，优先走 `json`
-2. 若传入多图，必须走 `json`
-3. 若显式要求 `multipart` 或需要严格对齐 OpenAPI 文本版，则走 `multipart`
+## 5. 环境变量建议
 
-## Current Known Gaps
+建议在根目录 `.env` 使用以下分层：
 
-- 未提供公开的查询/下载端点
-- 未提供最终视频文件字段
-- 未确认 JSON 模式下 `seconds` 是否也被服务端接受，因此技能内部使用：
-  - JSON 提交时发送 `duration`
-  - multipart 提交时发送 `seconds`
-  - 对外统一抽象为 `seconds`
+```dotenv
+ANYFAST_PLATFORM_URL=https://www.anyfas.ai
+ANYFAST_DOCS_URL=https://docs.anyfast.ai
+ANYFAST_API_BASE_URL=
+ANYFAST_VIDEO_API_KEY=
+ANYFAST_API_KEY=
 
-## Safe Contract for This Skill
+FINEAPI_DOCS_URL=https://docs.fineapi.cloud
+FINEAPI_API_BASE_URL=
+FINEAPI_API_KEY=
+FINEAPI_GROK_API_KEY=
 
-- 保证：
-  - 可以提交任务
-  - 可以读本地/远程/data URL 图片
-  - 可以归一化回执
-  - 可以生成项目化提交报告
-- 不保证：
-  - 查询任务完成状态
-  - 下载最终 MP4
-  - 推断未在 PRP 中出现的额外接口
+GROK_VIDEO_API_BASE_URL=
+GROK_VIDEO_API_KEY=
+```
+
+优先级建议：
+
+- Key：`ANYFAST_VIDEO_API_KEY` -> `GROK_VIDEO_API_KEY` -> `ANYFAST_API_KEY` -> `FINEAPI_GROK_API_KEY` -> `FINEAPI_API_KEY`
+- Base URL：`ANYFAST_API_BASE_URL` -> `GROK_VIDEO_API_BASE_URL` -> `FINEAPI_GROK_API_BASE_URL` -> `FINEAPI_API_BASE_URL`
+
+## 6. 推荐验证顺序
+
+1. 先跑 `submit --dry-run --print-payload`
+2. 再用默认模型和一张已知可访问的公网图跑 `submit`
+3. 确认只收到 `task receipt`
+4. 若尝试更高模型名，必须以真实回执判定是否可用；`model_not_found` 视为不可用而非“默认值应继续上调”
+5. 若要补查询/下载闭环，先取得对应文档页，再扩展脚本

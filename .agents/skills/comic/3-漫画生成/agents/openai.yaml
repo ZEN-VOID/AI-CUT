@@ -1,4 +1,4 @@
 interface:
   display_name: "漫画生成"
-  short_description: "读取九刀流提示词 JSON，并通过 Seedream 一次生成 9 张连续竖版漫画页"
-  default_prompt: "Use $comic-generation to validate nine_blade_comic_prompts.v1 JSON and call Seedream once with max_images=9 to create exactly 9 separate vertical comic pages, not a collage or nine variants, while preserving multi-character continuity, scene continuity, and a bottom-right numeric page number 1-9 on every page."
+  short_description: "读取单个 page-group 对应的九刀流提示词 JSON，并通过 Seedream 一次生成该组的 9 张连续竖版漫画页"
+  default_prompt: "Use $comic-generation to validate one page-group level nine_blade_comic_prompts.v1 JSON and call Seedream once with max_images=9 to create exactly 9 separate vertical comic pages for that group, not a collage or nine variants, while preserving multi-character continuity, scene continuity, cross-group visual DNA, and a bottom-right numeric page number 1-9 on every page."

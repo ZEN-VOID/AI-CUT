@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sora 2 生视频"
+  short_description: "通过 AnyFast 提交 Sora 2 视频任务，支持文生视频、首帧参考与异步下载"
+  default_prompt: "使用 Sora 2 通过 AnyFast 生成视频。未显式指定模型时默认先走最高档位候选链，再按创建任务、轮询状态、下载结果的异步流程执行，并将报告与 MP4 落到项目化目录。"

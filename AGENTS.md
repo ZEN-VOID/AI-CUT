@@ -201,6 +201,22 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 上述“数字即顺序信号”规则仅针对技能层，不外推到 subagents；subagents 一般不以名称序号承载调度语义。
 - 若相关规则未明确调度方式，则不得仅凭“有无序号”推断串行或并行。
 
+### Subagents 默认权限与降级口径（强制）
+
+- 对命中 `skill-subagents`、team reviewer runtime、`master-check*`、阶段末 `supervision/review`、或其他已声明 subagent 合同的任务，默认应真实启动 subagents，而不是先由主 agent 本地模拟顾问流程。
+- 当阶段或技能合同已声明 `use_subagents_by_default == true`、`parallel-council`、`serial-refine`、`single-reviewer`、`reviewer -> subagent` 等显式分发语义时，真实 subagent dispatch 视为默认主路径，而不是可有可无的增强项。
+- 一个 reviewer skill 默认对应一个 subagent；主 agent 负责路由、汇流、裁决与最终 canonical 写回，不得把“主 agent 顺序扮演多个 reviewer”表述成正常的 subagent 执行。
+- 仅在以下情况允许降级为本地顺序纪要、顺序读取 skill 合同、或其他非真实 subagent 路径：
+  - 当前会话的更高优先级 system / developer / tool policy 明确阻断
+  - 当前环境或工具权限无法真实启动 subagents
+  - 用户显式要求不要启用 subagents
+- 若发生降级，必须显式报告：
+  - 阻断来源属于 `system / developer / tool / user` 的哪一层
+  - 原本应执行的 subagent 路径是什么
+  - 实际采用的降级路径是什么
+  - 哪些 reviewer / 角色 / 子任务没有真实启动
+- 根 `AGENTS.md` 可以定义仓库内“默认应真实启动 subagents”的治理口径，但不得宣称能够覆盖更高优先级权限层；若与上层权限冲突，必须服从上层并按前条显式报告降级。
+
 ### 仓库 Rollout 标准（强制）
 
 - 每个长期维护的 skill 都应包含：
@@ -215,6 +231,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
+- 对 `.agents/skills/team/` 技能树，凡成员配置出现新增、删除、重命名、迁移或适配场景显著变化，都必须在同一轮任务内同步更新 `.agents/skills/team/SKILL.md` 的 `Member And Scenario Index`；不得允许 team 子树与根索引脱节。
 
 ### 技能组成与语义
 

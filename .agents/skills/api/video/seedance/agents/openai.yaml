@@ -1,0 +1,4 @@
+interface:
+  display_name: "Seedance 生视频"
+  short_description: "通过 /v1/video/generations 提交 Seedance 2.0 视频任务，默认使用最新质量优先别名 `seedance`"
+  default_prompt: "使用 Seedance 创建视频任务。优先校验 text / first-frame / first-last / multimodal 四类场景互斥；默认模型使用 AnyFast 当前最新质量优先别名 `seedance`，默认读取 .env 中的 ANYFAST_VIDEO_API_KEY，并按异步 create -> status -> download 流程执行。"

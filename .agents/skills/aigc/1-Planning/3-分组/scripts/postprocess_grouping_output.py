@@ -4,7 +4,7 @@
 Current contract:
 1) no machine sidecar generation,
 2) no agents-plan initialization,
-3) validator + quantizer are the default exit gate.
+3) report renderer + validator + quantizer are the default exit gate.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from grouping_quantizer import TAIL_HOOK_COMMENT_PREFIX, TAIL_HOOK_LABEL, strip_
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 VALIDATOR = SCRIPT_DIR / "validate_grouping_output.py"
+REPORT_RENDERER = SCRIPT_DIR / "render_grouping_report.py"
 GROUP_HEADER_RE = re.compile(r"^##\s*【(?P<group_id>\d+-\d+-\d+)】(?:\s+(?P<title>.+))?$")
 SCENE_HEADER_RE = re.compile(r"^###\s*场景(?P<label>[^：:]+)\s*[：:]\s*(?P<title>.+?)\s*$")
 VOICE_TEXT_RE = re.compile(r"^(对白|独白|内心独白|旁白)(?:（.*?）|\(.*?\))?\s*[：:]\s*(.*)$")
@@ -39,6 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input", required=True, help="输入文件或目录（第N集.md 或 3-分组 目录）")
     parser.add_argument("--include-pattern", default="第*集.md", help="目录模式匹配（默认: 第*集.md）")
     parser.add_argument("--skip-tail-hook", action="store_true", help=f"跳过默认的 `{TAIL_HOOK_LABEL}` 注入。")
+    parser.add_argument("--skip-render-report", action="store_true", help="跳过默认的执行报告模板回写。")
     parser.add_argument("--dry-run", action="store_true", help="仅打印即将校验的文件，不执行 validator")
     return parser.parse_args()
 
@@ -189,6 +191,8 @@ def main() -> int:
         print(f"准备校验 grouped script: {path}")
         if not args.skip_tail_hook:
             print(f"  - 将在校验前应用 `{TAIL_HOOK_LABEL}`")
+        if not args.skip_render_report:
+            print("  - 将在校验前按模板回写 `执行报告.md`")
 
     if args.dry_run:
         return 0
@@ -198,6 +202,13 @@ def main() -> int:
             updated = apply_tail_hook_to_file(path)
             if updated:
                 print(f"已写入 `{TAIL_HOOK_LABEL}`: {path}")
+
+    if not args.skip_render_report:
+        for path in files:
+            command = [sys.executable, str(REPORT_RENDERER), "--input", str(path)]
+            result = subprocess.run(command, check=False)
+            if result.returncode != 0:
+                return result.returncode
 
     command = [sys.executable, str(VALIDATOR), "--input", args.input, "--include-pattern", args.include_pattern]
     result = subprocess.run(command, check=False)

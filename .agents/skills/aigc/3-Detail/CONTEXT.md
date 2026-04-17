@@ -40,6 +40,7 @@
 | 监制强化为了快修，直接在父层改了 `水月/镜花` owner 字段 | ownership reentry 层 | 将 findings 按字段 ownership 回流到 `S4/S5`，而不是在 `S8/S9` 静默越权 patch | 在 `Optimization Routing` 与 `FIELD-DETAIL-10` 固定“root/report 可直修，child-owned findings 必须回流 owner step” | 监制强化后的 patch 不再破坏 owner 边界 |
 | 监制强化只审最后一个 `validation-report.md`，忽略 `第N集.json` 主输出 | review target bundle 层 | 将 `第N集.json` 固定为主目标，report 仅作次目标 | 在 `3-Detail/SKILL.md` 写死 `Review Target Bundle`，不允许 report 抢占 episode root 的主评审地位 | reviewer 结论能直接指向业务真源字段 |
 | `team.yaml` 没有显式 `监制 members` 时，阶段要么静默跳过，要么臆造整团 reviewer | reviewer 解析层 | 先按 `shared_agents -> roles.supervision.members -> roles.supervision.source_skill_refs` 解析，再做 `1-3` 位受限补选 | 把 `master-check-team` 的补选规则缩窄到 `3-Detail` 专用：导演必选，摄影/编剧按 issue 类型补入，并显式标记 `team-inferred` | reviewer roster 既不空转，也不无边界膨胀 |
+| stage validator 首次失败只报 sidecar / report 文件不存在，但 shared root seed 本身完好 | 执行完整度层 | 先把缺失的 canonical artifact 补齐到 `S4~S7`，不要把“文件缺失”误判成脚本入口损坏 | 将 `validate_stage_output.py` 作为 `3-Detail` 的前置缺件探针：先判断是 artifact 缺口还是合同失效，再决定是否上溯修源层 | 当 sidecar 与 report 补齐后，validator 应直接转绿；若仍失败再进入合同/脚本追因 |
 
 ## Repair Playbook
 
@@ -71,3 +72,4 @@
 - 对 `3-Detail` 来说，`team.yaml.enabled == false` 代表自动监制 runtime 不启用；这与用户显式调用 `master-check-team` 的人工 override 不是一回事，阶段自动路径不应偷用那个 override。
 - `shared_agents -> supervision.members -> supervision.source_skill_refs -> stage-aware 补选` 是 `3-Detail` 最稳的 reviewer 解析顺序；没有稳定 reviewer 时，应显式 skip，而不是制造伪顾问团。
 - 监制强化最容易越界的地方不是 review 本身，而是“图省事直接修 child-owned 字段”；一旦 findings 命中 `水月/镜花` ownership，就应回流 owner step，而不是在父层收尾节点偷改。
+- `validate_stage_output.py` 如果最先报的是 `水月/镜花 sidecar` 或 `validation-report.md` 缺失，而不是 schema / ownership / beat_refs 错误，优先把它视为 canonical bundle 未落盘，而不是源层合同坏掉；补齐 bundle 后再决定是否要追脚本或规则。

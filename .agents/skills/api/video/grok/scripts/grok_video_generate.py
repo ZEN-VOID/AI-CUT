@@ -1,30 +1,24 @@
 #!/usr/bin/env python3
 """
-GROK video generation submit CLI.
+FineAPI Grok Video 3 creation CLI.
 
-Current contract:
-- Submit GROK video jobs in JSON or multipart mode
-- Read local files, remote URLs, and data URLs as image inputs
-- Normalize task_id/id response fields
-- Persist a submission report
+Current scope:
+- submit/create: create a video task via POST /v1/video/create
 
-Current limit:
-- PRP does not provide a query/download endpoint, so this script only submits jobs.
+The currently confirmed source material covers the create endpoint only.
+Status polling and result download must not be invented until their docs are available.
 """
 
 from __future__ import annotations
 
 import argparse
-import base64
 import json
-import mimetypes
 import os
 import re
 import sys
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import requests
@@ -41,22 +35,21 @@ except ImportError:
     sys.exit(1)
 
 
-DEFAULT_BASE_URL = "https://api.ai666.net"
+# Highest provider-verified working default as of 2026-04-17 live submit.
 DEFAULT_MODEL = "grok-video-3"
-DEFAULT_ASPECT_RATIO = "16:9"
+DEFAULT_ASPECT_RATIO = "3:2"
 DEFAULT_SIZE = "720P"
-DEFAULT_SECONDS = 10
+DEFAULT_PROJECT_NAME = "测试"
 DEFAULT_TIMEOUT = 180
-ALLOWED_RATIOS = {"16:9", "9:16", "2:3", "3:2", "1:1"}
+ALLOWED_ASPECT_RATIOS = {"2:3", "3:2", "1:1"}
 ALLOWED_SIZES = {"720P", "1080P"}
-ALLOWED_SECONDS = {6, 10, 15}
 
 
 def _now_stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
 
 
-def _safe_name(text: str, max_len: int = 48) -> str:
+def _safe_name(text: str, max_len: int = 64) -> str:
     normalized = re.sub(r"\s+", "_", text.strip())
     normalized = re.sub(r"[^0-9A-Za-z_\u4e00-\u9fff-]+", "", normalized)
     return (normalized or "grok_video")[:max_len]
@@ -64,17 +57,20 @@ def _safe_name(text: str, max_len: int = 48) -> str:
 
 def _env_api_key() -> Optional[str]:
     return (
-        os.getenv("GROK_API_KEY")
-        or os.getenv("AI666_API_KEY")
-        or os.getenv("OPENAI_API_KEY")
+        os.getenv("ANYFAST_VIDEO_API_KEY")
+        or os.getenv("GROK_VIDEO_API_KEY")
+        or os.getenv("ANYFAST_API_KEY")
+        or os.getenv("FINEAPI_GROK_API_KEY")
+        or os.getenv("FINEAPI_API_KEY")
     )
 
 
-def _env_base_url() -> str:
+def _env_base_url() -> Optional[str]:
     return (
-        os.getenv("GROK_API_BASE_URL")
-        or os.getenv("AI666_API_BASE_URL")
-        or DEFAULT_BASE_URL
+        os.getenv("ANYFAST_API_BASE_URL")
+        or os.getenv("GROK_VIDEO_API_BASE_URL")
+        or os.getenv("FINEAPI_GROK_API_BASE_URL")
+        or os.getenv("FINEAPI_API_BASE_URL")
     )
 
 
@@ -85,9 +81,10 @@ def _normalize_auth_header(api_key: str) -> str:
     return f"Bearer {token}"
 
 
-def _guess_mime_type(name: str, fallback: str = "image/png") -> str:
-    mime_type, _ = mimetypes.guess_type(name)
-    return mime_type or fallback
+def _redact_auth_header(value: str) -> str:
+    if not value:
+        return value
+    return "Bearer ***"
 
 
 def _is_remote_url(value: str) -> bool:
@@ -95,334 +92,297 @@ def _is_remote_url(value: str) -> bool:
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
 
 
-def _is_data_url(value: str) -> bool:
-    return value.startswith("data:image/")
-
-
-@dataclass
-class ImageInput:
-    source: str
-    input_type: str
-    mime_type: str
-    data: bytes
-
-    def to_summary(self) -> Dict[str, Any]:
-        return {
-            "source": self.source,
-            "input_type": self.input_type,
-            "mime_type": self.mime_type,
-            "bytes": len(self.data),
-        }
-
-
-def _read_data_url(value: str) -> ImageInput:
-    match = re.match(r"^data:(image/[^;]+);base64,(.+)$", value, re.DOTALL)
-    if not match:
-        raise ValueError("data URL 格式不合法，需形如 data:image/png;base64,...")
-    mime_type = match.group(1)
-    b64_data = match.group(2)
-    try:
-        raw = base64.b64decode(b64_data)
-    except Exception as exc:  # pragma: no cover - defensive
-        raise ValueError("data URL 中的 base64 内容无法解码") from exc
-    return ImageInput(source=value[:64] + "...", input_type="data_url", mime_type=mime_type, data=raw)
-
-
-def _read_remote_url(value: str, timeout: int) -> ImageInput:
-    response = requests.get(value, timeout=timeout)
-    response.raise_for_status()
-    mime_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip() or _guess_mime_type(value)
-    return ImageInput(source=value, input_type="remote_url", mime_type=mime_type, data=response.content)
-
-
-def _read_local_file(value: str) -> ImageInput:
-    path = Path(value).expanduser()
-    if not path.is_file():
-        raise FileNotFoundError(f"本地图片不存在: {value}")
-    return ImageInput(
-        source=str(path),
-        input_type="local_file",
-        mime_type=_guess_mime_type(path.name),
-        data=path.read_bytes(),
-    )
-
-
-def _read_image_source(value: str, timeout: int) -> ImageInput:
-    if _is_data_url(value):
-        return _read_data_url(value)
-    if _is_remote_url(value):
-        return _read_remote_url(value, timeout=timeout)
-    return _read_local_file(value)
-
-
-def _to_data_url(image: ImageInput) -> str:
-    payload = base64.b64encode(image.data).decode("ascii")
-    return f"data:{image.mime_type};base64,{payload}"
-
-
-def _normalize_submission(body: Dict[str, Any]) -> Dict[str, Any]:
-    task_id = body.get("task_id") or body.get("id")
-    return {
-        "task_id": task_id,
-        "status": body.get("status"),
-        "status_update_time": body.get("status_update_time"),
-        "created_at": body.get("created_at"),
-    }
-
-
 def _default_output_dir(project_name: str) -> Path:
-    project = project_name.strip() or "测试"
+    project = project_name.strip() or DEFAULT_PROJECT_NAME
     return Path("output") / "影片" / project / "5-API" / "video" / "grok"
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Submit GROK video generation tasks")
-    parser.add_argument("--prompt", required=True, help="视频提示词")
-    parser.add_argument("--model", default=DEFAULT_MODEL, help="模型 ID")
-    parser.add_argument("--api-key", help="API Key，不传则读取 .env")
-    parser.add_argument("--base-url", default=_env_base_url(), help="API 基础 URL")
-    parser.add_argument(
-        "--request-mode",
-        choices=["auto", "json", "multipart"],
-        default="auto",
-        help="auto 默认优先 JSON；multipart 仅用于严格跟随 OpenAPI 文字版接口",
-    )
-    parser.add_argument("--image", action="append", default=[], help="图片输入，可重复传入；支持本地/远程/data URL")
-    parser.add_argument("--aspect-ratio", default=DEFAULT_ASPECT_RATIO, help="16:9 / 9:16 / 2:3 / 3:2 / 1:1")
-    parser.add_argument("--size", default=DEFAULT_SIZE, help="720P / 1080P")
-    parser.add_argument("--seconds", type=int, default=DEFAULT_SECONDS, help="6 / 10 / 15")
-    parser.add_argument("--project-name", default="测试", help="项目名，用于默认输出目录")
-    parser.add_argument("--output-dir", help="覆盖默认输出目录")
-    parser.add_argument("--filename-prefix", default="grok_video", help="报告文件名前缀")
-    parser.add_argument("--report-json", help="显式指定报告 JSON 路径")
-    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT, help="HTTP 超时秒数")
-    parser.add_argument("--dry-run", action="store_true", help="仅打印请求摘要，不实际提交")
-    parser.add_argument("--print-payload", action="store_true", help="打印最终请求摘要")
-    return parser
+def _write_json(path: Path, data: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def _validate_args(args: argparse.Namespace) -> None:
-    if args.aspect_ratio not in ALLOWED_RATIOS:
-        raise ValueError(f"aspect-ratio 不合法: {args.aspect_ratio}")
-    if args.size not in ALLOWED_SIZES:
-        raise ValueError(f"size 不合法: {args.size}")
-    if args.seconds not in ALLOWED_SECONDS:
-        raise ValueError(f"seconds 不合法: {args.seconds}")
+def _make_report_path(output_dir: Path, prefix: str, command: str, explicit: Optional[str]) -> Path:
+    if explicit:
+        return Path(explicit)
+    stem = _safe_name(prefix or "grok")
+    return output_dir / f"{stem}_{command}_report_{_now_stamp()}.json"
 
 
-def _resolve_request_mode(request_mode: str, image_count: int) -> str:
-    if request_mode == "auto":
-        return "json"
-    if request_mode == "multipart" and image_count > 1:
-        raise ValueError("multipart 模式只支持单张参考图，请改用 json 模式")
-    return request_mode
-
-
-def _build_request_spec(
-    *,
-    base_url: str,
-    mode: str,
-    model: str,
-    prompt: str,
-    aspect_ratio: str,
-    size: str,
-    seconds: int,
-    images: List[ImageInput],
-) -> Dict[str, Any]:
-    normalized_base = base_url.rstrip("/")
-    if mode == "json":
-        payload: Dict[str, Any] = {
-            "model": model,
-            "prompt": prompt,
-            "images": [_to_data_url(image) for image in images],
-            "aspect_ratio": aspect_ratio,
-            "size": size,
-            "duration": seconds,
-        }
-        return {
-            "mode": "json",
-            "method": "POST",
-            "url": f"{normalized_base}/v1/video/create",
-            "headers": {"Content-Type": "application/json"},
-            "json": payload,
-            "files": None,
-            "data": None,
-        }
-
-    data = {
-        "model": model,
-        "prompt": prompt,
-        "aspect_ratio": aspect_ratio,
-        "size": size,
-        "seconds": str(seconds),
+def _session_headers(api_key: Optional[str]) -> Dict[str, str]:
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
-    files = None
-    if images:
-        image = images[0]
-        extension = mimetypes.guess_extension(image.mime_type) or ".png"
-        files = {
-            "input_reference": (
-                f"reference{extension}",
-                image.data,
-                image.mime_type,
-            )
-        }
+    if api_key:
+        headers["Authorization"] = _normalize_auth_header(api_key)
+    return headers
+
+
+def _request_summary(*, method: str, url: str, headers: Dict[str, str], data: Dict[str, Any]) -> Dict[str, Any]:
+    sanitized_headers = {
+        key: (_redact_auth_header(value) if key.lower() == "authorization" else value)
+        for key, value in headers.items()
+    }
     return {
-        "mode": "multipart",
-        "method": "POST",
-        "url": f"{normalized_base}/v1/videos",
-        "headers": {},
-        "json": None,
-        "files": files,
+        "method": method,
+        "url": url,
+        "headers": sanitized_headers,
         "data": data,
     }
 
 
-def _request_summary(spec: Dict[str, Any], images: List[ImageInput]) -> Dict[str, Any]:
-    summary = {
-        "mode": spec["mode"],
-        "url": spec["url"],
-        "headers": spec["headers"],
-        "image_count": len(images),
-        "image_inputs": [image.to_summary() for image in images],
+def _normalize_submit_response(body: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "id": body.get("id"),
+        "status": body.get("status"),
+        "status_update_time": body.get("status_update_time"),
     }
-    if spec["mode"] == "json":
-        payload = dict(spec["json"] or {})
-        payload["images"] = [f"<data-url:{i + 1}>" for i, _ in enumerate(images)]
-        summary["payload"] = payload
-    else:
-        summary["form"] = spec["data"]
-        summary["files"] = [image.to_summary() for image in images[:1]]
-    return summary
 
 
-def _submit(spec: Dict[str, Any], auth_header: str, timeout: int) -> Dict[str, Any]:
-    headers = dict(spec["headers"])
-    headers["Authorization"] = auth_header
-    response = requests.request(
-        spec["method"],
-        spec["url"],
-        headers=headers,
-        json=spec["json"],
-        data=spec["data"],
-        files=spec["files"],
-        timeout=timeout,
-    )
-    response.raise_for_status()
+def _collect_error_strings(response_body: Dict[str, Any]) -> tuple[str, str]:
+    text_parts: List[str] = []
+    error_code = ""
+
+    nested_error = response_body.get("error")
+    if isinstance(nested_error, dict):
+        code = nested_error.get("code")
+        if isinstance(code, str) and code.strip():
+            error_code = code.strip()
+            text_parts.append(error_code)
+        for key in ("message", "type", "detail", "msg"):
+            value = nested_error.get(key)
+            if isinstance(value, str) and value.strip():
+                text_parts.append(value.strip())
+
+    for key in ("message", "error", "detail", "msg"):
+        value = response_body.get(key)
+        if isinstance(value, str) and value.strip():
+            text_parts.append(value.strip())
+
+    return error_code, " | ".join(text_parts)
+
+
+def _build_diagnostic_hint(
+    *, model: str, size: str, response_body: Optional[Dict[str, Any]] = None
+) -> Optional[str]:
+    messages: List[str] = []
+    if size == "1080P":
+        messages.append("文档截图写有 1080P，但同页同时注明“暂只支持 720P”；若失败请先回退到 720P。")
+    if response_body:
+        error_code, merged = _collect_error_strings(response_body)
+        lowered = merged.lower()
+        if error_code == "model_not_found" or ("model" in lowered and "not found" in lowered):
+            if model == DEFAULT_MODEL:
+                messages.append(f"当前默认模型 {DEFAULT_MODEL} 仍是本环境最高已验证可用版本；更高候选模型暂不可用。")
+            else:
+                messages.append(f"当前模型 {model} 暂无可用渠道；请先回退到 {DEFAULT_MODEL}。")
+        if "quota" in merged.lower() or "余额" in merged or "额度" in merged:
+            messages.append("当前更像额度或配额问题；优先检查 FineAPI/Grok 通道余额。")
+        if "unauthorized" in lowered or "token" in lowered:
+            messages.append("当前更像鉴权问题；优先检查 Bearer Token 是否正确。")
+    if not messages:
+        return None
+    return " ".join(messages)
+
+
+def submit_video(
+    *,
+    prompt: str,
+    model: str,
+    aspect_ratio: str,
+    size: str,
+    images: List[str],
+    api_key: Optional[str],
+    base_url: str,
+    timeout: int,
+    dry_run: bool,
+    print_payload: bool,
+) -> Dict[str, Any]:
+    if not prompt.strip():
+        raise ValueError("prompt 不能为空")
+    if aspect_ratio not in ALLOWED_ASPECT_RATIOS:
+        raise ValueError(f"aspect_ratio 不合法: {aspect_ratio}")
+    if size not in ALLOWED_SIZES:
+        raise ValueError(f"size 不合法: {size}")
+    if not images:
+        raise ValueError("至少需要一张图片链接，请通过 --image 传入")
+
+    invalid_images = [item for item in images if not _is_remote_url(item)]
+    if invalid_images:
+        raise ValueError(
+            "images 仅接受公网 http/https 链接，以下输入不合法: " + ", ".join(invalid_images)
+        )
+
+    if not dry_run and not api_key:
+        raise ValueError(
+            "缺少 API Key，请在 .env 中配置 GROK_VIDEO_API_KEY / ANYFAST_VIDEO_API_KEY / "
+            "FINEAPI_GROK_API_KEY / ANYFAST_API_KEY / FINEAPI_API_KEY"
+        )
+
+    headers = _session_headers(api_key)
+    url = f"{base_url.rstrip('/')}/v1/video/create"
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "aspect_ratio": aspect_ratio,
+        "size": size,
+        "images": images,
+    }
+    request_summary = _request_summary(method="POST", url=url, headers=headers, data=payload)
+    if print_payload or dry_run:
+        print(json.dumps(request_summary, ensure_ascii=False, indent=2))
+    if dry_run:
+        return {
+            "ok": True,
+            "request_summary": request_summary,
+            "normalized_submit": None,
+            "raw_response": None,
+            "diagnostic_hint": _build_diagnostic_hint(model=model, size=size),
+        }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=timeout)
     try:
-        return response.json()
-    except json.JSONDecodeError as exc:
-        raise RuntimeError("服务端未返回合法 JSON") from exc
+        body = response.json()
+    except ValueError:
+        body = {"non_json_response": response.text}
+
+    return {
+        "ok": response.ok,
+        "request_summary": request_summary,
+        "normalized_submit": _normalize_submit_response(body) if response.ok else None,
+        "raw_response": body,
+        "status_code": response.status_code,
+        "error": None if response.ok else "创建任务失败",
+        "diagnostic_hint": _build_diagnostic_hint(
+            model=model,
+            size=size,
+            response_body=body if isinstance(body, dict) else None,
+        ),
+    }
 
 
-def _write_report(report_path: Path, report: Dict[str, Any]) -> None:
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+def build_parser() -> argparse.ArgumentParser:
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument("--api-key", help="API Key，不传则读取 .env")
+    common_parser.add_argument("--base-url", default=_env_base_url(), help="API 基础 URL；当前必须显式配置")
+    common_parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT, help="HTTP 超时秒数")
+    common_parser.add_argument("--project-name", default=DEFAULT_PROJECT_NAME, help="项目名，用于默认输出目录")
+    common_parser.add_argument("--output-dir", help="覆盖默认输出目录")
+    common_parser.add_argument("--filename-prefix", default="grok", help="报告文件名前缀")
+    common_parser.add_argument("--report-json", help="显式指定报告 JSON 路径")
+
+    parser = argparse.ArgumentParser(
+        description="Submit FineAPI Grok Video 3 create tasks",
+        parents=[common_parser],
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    submit_parser = subparsers.add_parser(
+        "submit",
+        aliases=["create"],
+        help="创建视频任务",
+        parents=[common_parser],
+    )
+    submit_parser.add_argument("--prompt", required=True, help="视频提示词")
+    submit_parser.add_argument("--model", default=DEFAULT_MODEL, help="模型 ID")
+    submit_parser.add_argument(
+        "--aspect-ratio",
+        default=DEFAULT_ASPECT_RATIO,
+        choices=sorted(ALLOWED_ASPECT_RATIOS),
+        help="2:3 / 3:2 / 1:1",
+    )
+    submit_parser.add_argument(
+        "--size",
+        default=DEFAULT_SIZE,
+        choices=sorted(ALLOWED_SIZES),
+        help="720P / 1080P（当前优先推荐 720P）",
+    )
+    submit_parser.add_argument(
+        "--image",
+        dest="images",
+        action="append",
+        required=True,
+        help="公网图片链接，可重复传参",
+    )
+    submit_parser.add_argument("--dry-run", action="store_true", help="仅打印请求摘要，不实际提交")
+    submit_parser.add_argument("--print-payload", action="store_true", help="打印最终请求摘要")
+
+    return parser
 
 
-def _normalize_error(exc: Exception, endpoint: Optional[str] = None) -> str:
-    base = str(exc)
-    if isinstance(exc, requests.exceptions.SSLError):
-        return (
-            f"连接 {endpoint or '目标端点'} 时 TLS 握手失败（SSL EOF）。"
-            " 这通常表示上游 https 端点当前不可用或网关配置异常，而不是请求 payload 本身有误。"
+def _resolve_api_key(explicit: Optional[str], *, required: bool = True) -> str:
+    value = explicit or _env_api_key()
+    if not value and required:
+        raise ValueError(
+            "缺少 API Key，请在 .env 中配置 GROK_VIDEO_API_KEY / ANYFAST_VIDEO_API_KEY / "
+            "FINEAPI_GROK_API_KEY / ANYFAST_API_KEY / FINEAPI_API_KEY"
         )
-    if isinstance(exc, requests.exceptions.ConnectionError):
-        return (
-            f"连接 {endpoint or '目标端点'} 时连接被对端直接关闭。"
-            " 这通常表示上游服务未正常响应（例如空回复、网关断开），而不是本地参数校验失败。"
+    return value or ""
+
+
+def _resolve_base_url(explicit: Optional[str]) -> str:
+    value = explicit or _env_base_url()
+    if not value:
+        raise ValueError(
+            "缺少 API Base URL，请通过 --base-url 或 .env 中的 GROK_VIDEO_API_BASE_URL / "
+            "ANYFAST_API_BASE_URL / FINEAPI_GROK_API_BASE_URL / FINEAPI_API_BASE_URL 提供。"
         )
-    if isinstance(exc, requests.exceptions.Timeout):
-        return f"请求 {endpoint or '目标端点'} 超时，上游服务可能拥堵或不可达。"
-    return base
+    return value.rstrip("/")
 
 
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    endpoint_for_error: Optional[str] = None
 
     try:
-        _validate_args(args)
-        resolved_mode = _resolve_request_mode(args.request_mode, len(args.image))
-        images = [_read_image_source(item, timeout=args.timeout) for item in args.image]
-        if resolved_mode == "multipart" and len(images) > 1:
-            raise ValueError("multipart 模式只支持单张图片")
-
-        spec = _build_request_spec(
-            base_url=args.base_url,
-            mode=resolved_mode,
-            model=args.model,
-            prompt=args.prompt,
-            aspect_ratio=args.aspect_ratio,
-            size=args.size,
-            seconds=args.seconds,
-            images=images,
-        )
-        summary = _request_summary(spec, images)
-        endpoint_for_error = spec["url"]
-
+        api_key = _resolve_api_key(args.api_key, required=not getattr(args, "dry_run", False))
+        base_url = _resolve_base_url(args.base_url)
         output_dir = Path(args.output_dir) if args.output_dir else _default_output_dir(args.project_name)
-        report_path = Path(args.report_json) if args.report_json else output_dir / f"{args.filename_prefix}_{_now_stamp()}.json"
 
-        if args.print_payload or args.dry_run:
-            print(json.dumps(summary, ensure_ascii=False, indent=2))
-        if args.dry_run:
-            report = {
-                "ok": True,
-                "dry_run": True,
-                "request_mode": resolved_mode,
-                "endpoint": spec["url"],
-                "request_summary": summary,
-                "image_inputs": [image.to_summary() for image in images],
-                "normalized_submission": None,
-                "raw_response": None,
-                "error": None,
-            }
-            _write_report(report_path, report)
-            print(f"✅ Dry run 完成，报告已写入: {report_path}")
-            return 0
+        if args.command in {"submit", "create"}:
+            result = submit_video(
+                prompt=args.prompt,
+                model=args.model,
+                aspect_ratio=args.aspect_ratio,
+                size=args.size,
+                images=args.images,
+                api_key=api_key,
+                base_url=base_url,
+                timeout=args.timeout,
+                dry_run=args.dry_run,
+                print_payload=args.print_payload,
+            )
+        else:
+            raise ValueError(f"不支持的命令: {args.command}")
 
-        api_key = args.api_key or _env_api_key()
-        if not api_key:
-            raise ValueError("缺少 API Key，请设置 GROK_API_KEY / AI666_API_KEY / OPENAI_API_KEY 或传 --api-key")
+        result["command"] = args.command
+        report_path = _make_report_path(output_dir, args.filename_prefix, args.command, args.report_json)
+        result["report_json"] = str(report_path)
+        _write_json(report_path, result)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 1
 
-        response_body = _submit(spec, _normalize_auth_header(api_key), args.timeout)
-        normalized = _normalize_submission(response_body)
-        report = {
-            "ok": True,
-            "dry_run": False,
-            "request_mode": resolved_mode,
-            "endpoint": spec["url"],
-            "request_summary": summary,
-            "image_inputs": [image.to_summary() for image in images],
-            "normalized_submission": normalized,
-            "raw_response": response_body,
-            "error": None,
-        }
-        _write_report(report_path, report)
-        print(json.dumps({"report_json": str(report_path), "normalized_submission": normalized}, ensure_ascii=False, indent=2))
-        return 2 if normalized.get("status") == "failed" else 0
     except Exception as exc:
-        output_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else _default_output_dir(getattr(args, "project_name", "测试"))
-        report_path = Path(args.report_json) if getattr(args, "report_json", None) else output_dir / f"{getattr(args, 'filename_prefix', 'grok_video')}_{_now_stamp()}.json"
-        error_message = _normalize_error(exc, endpoint=endpoint_for_error)
-        report = {
+        fallback_output_dir = Path(args.output_dir) if getattr(args, "output_dir", None) else _default_output_dir(
+            getattr(args, "project_name", DEFAULT_PROJECT_NAME)
+        )
+        error_result = {
             "ok": False,
-            "dry_run": bool(getattr(args, "dry_run", False)),
-            "request_mode": getattr(args, "request_mode", "unknown"),
-            "endpoint": endpoint_for_error,
-            "request_summary": None,
-            "image_inputs": [{"source": value} for value in getattr(args, "image", [])],
-            "normalized_submission": None,
-            "raw_response": None,
-            "error": error_message,
+            "command": getattr(args, "command", "unknown"),
+            "error": str(exc),
         }
-        _write_report(report_path, report)
-        print(f"❌ {error_message}")
-        print(f"📝 错误报告已写入: {report_path}")
+        report_path = _make_report_path(
+            fallback_output_dir,
+            getattr(args, "filename_prefix", "grok"),
+            getattr(args, "command", "error"),
+            getattr(args, "report_json", None),
+        )
+        _write_json(report_path, error_result)
+        error_result["report_json"] = str(report_path)
+        print(json.dumps(error_result, ensure_ascii=False, indent=2))
         return 1
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

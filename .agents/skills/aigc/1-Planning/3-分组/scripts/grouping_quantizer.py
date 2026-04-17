@@ -114,6 +114,12 @@ def parse_seconds(value: Any, *, field_name: str) -> int:
     return int(match.group(1))
 
 
+def format_factor(value: float) -> str:
+    if float(value).is_integer():
+        return str(int(value))
+    return f"{value:.2f}".rstrip("0").rstrip(".")
+
+
 def count_visible_chars(text: str) -> int:
     stripped = re.sub(r"\s+", "", text)
     return len(stripped)
@@ -183,10 +189,36 @@ def strip_tail_hook_block(text: str) -> str:
     return canonical_text
 
 
-def field_weighted_chars(text: str, pace_tier: str) -> tuple[int, bool]:
+def field_weighted_chars(text: str, pace_tier: str) -> tuple[int, bool, dict[str, dict[str, Any]]]:
     total = 0
     matched_field = False
     action_coef = ACTION_VISUAL_COEFFICIENT[pace_tier]
+    breakdown = {
+        "voice_text": {
+            "raw_chars": 0,
+            "weighted_chars": 0,
+            "line_count": 0,
+            "coefficient": VOICE_TEXT_COEFFICIENT,
+        },
+        "voice_visual": {
+            "raw_chars": 0,
+            "weighted_chars": 0,
+            "line_count": 0,
+            "coefficient": 0.0,
+        },
+        "action_visual": {
+            "raw_chars": 0,
+            "weighted_chars": 0,
+            "line_count": 0,
+            "coefficient": action_coef,
+        },
+        "fallback_visual": {
+            "raw_chars": 0,
+            "weighted_chars": 0,
+            "line_count": 0,
+            "coefficient": action_coef,
+        },
+    }
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#"):
@@ -195,23 +227,40 @@ def field_weighted_chars(text: str, pace_tier: str) -> tuple[int, bool]:
             continue
         voice_text = VOICE_TEXT_RE.match(line)
         if voice_text:
-            total += round(count_visible_chars(voice_text.group(2)) * VOICE_TEXT_COEFFICIENT)
+            raw_chars = count_visible_chars(voice_text.group(2))
+            weighted_chars = round(raw_chars * VOICE_TEXT_COEFFICIENT)
+            total += weighted_chars
             matched_field = True
+            breakdown["voice_text"]["raw_chars"] += raw_chars
+            breakdown["voice_text"]["weighted_chars"] += weighted_chars
+            breakdown["voice_text"]["line_count"] += 1
             continue
         voice_visual = VOICE_VISUAL_RE.match(line)
         if voice_visual:
             matched_field = True
+            breakdown["voice_visual"]["raw_chars"] += count_visible_chars(voice_visual.group(2))
+            breakdown["voice_visual"]["line_count"] += 1
             continue
         action_visual = ACTION_VISUAL_RE.match(line)
         if action_visual:
-            total += round(count_visible_chars(action_visual.group(1)) * action_coef)
+            raw_chars = count_visible_chars(action_visual.group(1))
+            weighted_chars = round(raw_chars * action_coef)
+            total += weighted_chars
             matched_field = True
+            breakdown["action_visual"]["raw_chars"] += raw_chars
+            breakdown["action_visual"]["weighted_chars"] += weighted_chars
+            breakdown["action_visual"]["line_count"] += 1
             continue
-        total += round(count_visible_chars(line) * action_coef)
-    return total, matched_field
+        raw_chars = count_visible_chars(line)
+        weighted_chars = round(raw_chars * action_coef)
+        total += weighted_chars
+        breakdown["fallback_visual"]["raw_chars"] += raw_chars
+        breakdown["fallback_visual"]["weighted_chars"] += weighted_chars
+        breakdown["fallback_visual"]["line_count"] += 1
+    return total, matched_field, breakdown
 
 
-def planning_estimate_chars(text: str) -> int:
+def planning_estimate_chars(text: str) -> tuple[int, dict[str, int]]:
     visible_total = 0
     scene_units = 0
     turning_points = 0
@@ -226,14 +275,28 @@ def planning_estimate_chars(text: str) -> int:
         visible_total += count_visible_chars(line)
         if re.search(r"[。！？!?；;]", line):
             turning_points += 1
-    return visible_total + scene_units * 6 + turning_points * 2
+    total = visible_total + scene_units * 6 + turning_points * 2
+    return total, {
+        "visible_total": visible_total,
+        "scene_units": scene_units,
+        "turning_points": turning_points,
+    }
 
 
-def compute_body_chars(text: str, pace_tier: str) -> tuple[int, str]:
-    weighted, matched_field = field_weighted_chars(text, pace_tier)
+def compute_body_chars(text: str, pace_tier: str) -> tuple[int, str, dict[str, Any]]:
+    weighted, matched_field, field_breakdown = field_weighted_chars(text, pace_tier)
     if matched_field:
-        return weighted, "field_weighted"
-    return planning_estimate_chars(text), "planning_estimate_visible_chars"
+        return weighted, "field_weighted", {
+            "trace_type": "field_weighted",
+            "source_scope": "group_section",
+            "breakdown": field_breakdown,
+        }
+    estimated_total, planning_breakdown = planning_estimate_chars(text)
+    return estimated_total, "planning_estimate_visible_chars", {
+        "trace_type": "planning_estimate",
+        "source_scope": "group_section",
+        "breakdown": planning_breakdown,
+    }
 
 
 def parse_report_block(report_text: str, group_id: str) -> str | None:
@@ -313,7 +376,7 @@ def recompute_from_story_source(
     source_text: str,
     shot_range: tuple[int, int],
     pace_tier: str,
-) -> tuple[int, str]:
+) -> tuple[int, str, dict[str, Any]]:
     shot_map = split_story_source_by_shot(source_text)
     if not shot_map:
         raise QuantizationError("故事主源存在，但无法解析镜号标题。")
@@ -324,10 +387,27 @@ def recompute_from_story_source(
             raise QuantizationError(f"故事主源缺少镜号 `{shot_no}`。")
         chunks.append(chunk)
     joined = "\n".join(chunks)
-    weighted, matched_field = field_weighted_chars(joined, pace_tier)
+    weighted, matched_field, field_breakdown = field_weighted_chars(joined, pace_tier)
     if matched_field:
-        return weighted, "story_source_recomputed_field_weighted"
-    return planning_estimate_chars(joined), "story_source_recomputed_visible_chars"
+        return weighted, "story_source_recomputed_field_weighted", {
+            "trace_type": "field_weighted",
+            "source_scope": "story_source",
+            "shot_range": {
+                "start": shot_range[0],
+                "end": shot_range[1],
+            },
+            "breakdown": field_breakdown,
+        }
+    estimated_total, planning_breakdown = planning_estimate_chars(joined)
+    return estimated_total, "story_source_recomputed_visible_chars", {
+        "trace_type": "planning_estimate",
+        "source_scope": "story_source",
+        "shot_range": {
+            "start": shot_range[0],
+            "end": shot_range[1],
+        },
+        "breakdown": planning_breakdown,
+    }
 
 
 def compute_effective_chars(
@@ -336,7 +416,7 @@ def compute_effective_chars(
     report_block: str | None,
     source_type: str | None,
     story_source_text: str | None,
-) -> tuple[int, str]:
+) -> tuple[int, str, dict[str, Any]]:
     source_span = extract_report_field(report_block or "", "source_span")
     shot_range = parse_shot_range(source_span)
     if (
@@ -346,10 +426,118 @@ def compute_effective_chars(
     ):
         return recompute_from_story_source(story_source_text, shot_range, pace_tier)
 
-    counted_chars, mode = compute_body_chars(section.body, pace_tier)
+    counted_chars, mode, detail = compute_body_chars(section.body, pace_tier)
     if mode == "field_weighted":
-        return counted_chars, "group_section_field_weighted"
-    return counted_chars, mode
+        return counted_chars, "group_section_field_weighted", detail
+    return counted_chars, mode, detail
+
+
+def format_shot_range(shot_range: dict[str, int] | None) -> str | None:
+    if not shot_range:
+        return None
+    start = shot_range["start"]
+    end = shot_range["end"]
+    if start == end:
+        return f"镜{start}"
+    return f"镜{start}-{end}"
+
+
+def render_effective_chars_trace(total: int, detail: dict[str, Any], mode: str) -> str:
+    source_scope = detail.get("source_scope")
+    shot_range_label = format_shot_range(detail.get("shot_range"))
+    if detail.get("trace_type") == "planning_estimate":
+        breakdown = detail["breakdown"]
+        prefix = ""
+        if source_scope == "story_source" and shot_range_label:
+            prefix = f"{shot_range_label}; "
+        return (
+            f"effective_chars={prefix}"
+            f"planning_estimate(visible={breakdown['visible_total']} + "
+            f"scene_units({breakdown['scene_units']}*6={breakdown['scene_units'] * 6}) + "
+            f"turning_points({breakdown['turning_points']}*2={breakdown['turning_points'] * 2}))"
+            f"={total}; mode={mode}"
+        )
+
+    breakdown = detail["breakdown"]
+    components: list[str] = []
+    if breakdown["voice_text"]["line_count"]:
+        components.append(
+            "voice_text("
+            f"sum_round={breakdown['voice_text']['weighted_chars']}; "
+            f"raw={breakdown['voice_text']['raw_chars']}; "
+            f"coef={format_factor(breakdown['voice_text']['coefficient'])}; "
+            f"lines={breakdown['voice_text']['line_count']}"
+            ")"
+        )
+    if breakdown["voice_visual"]["line_count"]:
+        components.append(
+            "voice_visual("
+            f"excluded; raw={breakdown['voice_visual']['raw_chars']}; "
+            f"lines={breakdown['voice_visual']['line_count']}"
+            ")"
+        )
+    if breakdown["action_visual"]["line_count"]:
+        components.append(
+            "action_visual("
+            f"sum_round={breakdown['action_visual']['weighted_chars']}; "
+            f"raw={breakdown['action_visual']['raw_chars']}; "
+            f"coef={format_factor(breakdown['action_visual']['coefficient'])}; "
+            f"lines={breakdown['action_visual']['line_count']}"
+            ")"
+        )
+    if breakdown["fallback_visual"]["line_count"]:
+        components.append(
+            "fallback_visual("
+            f"sum_round={breakdown['fallback_visual']['weighted_chars']}; "
+            f"raw={breakdown['fallback_visual']['raw_chars']}; "
+            f"coef={format_factor(breakdown['fallback_visual']['coefficient'])}; "
+            f"lines={breakdown['fallback_visual']['line_count']}"
+            ")"
+        )
+    if not components:
+        components.append("no_weighted_components(0)")
+
+    prefix = ""
+    if source_scope == "story_source" and shot_range_label:
+        prefix = f"{shot_range_label}; "
+    return f"effective_chars={prefix}{' + '.join(components)} = {total}; mode={mode}"
+
+
+def render_quantization_trace(
+    *,
+    group_id: str,
+    default_duration_seconds: int,
+    resolved_duration_seconds: int,
+    duration_source: str,
+    pace_tier: str,
+    base_text_window: int,
+    warn_low: int,
+    warn_high: int,
+    hard_text_window: int,
+    effective_text_chars: int,
+    calculation_mode: str,
+    calculation_detail: dict[str, Any],
+) -> str:
+    duration_label = (
+        f"mapping[{group_id}]({resolved_duration_seconds})->{resolved_duration_seconds}"
+        if duration_source == "mapping"
+        else f"default({default_duration_seconds})->{resolved_duration_seconds}"
+    )
+    pace_coef = format_factor(PACE_COEFFICIENT[pace_tier])
+    duration_trace = f"duration={duration_label}"
+    window_trace = (
+        "window="
+        f"base({resolved_duration_seconds}*10*{pace_coef}={base_text_window}), "
+        f"warn_low({base_text_window}*0.8={warn_low}), "
+        f"warn_high({base_text_window}*1.0={warn_high}), "
+        f"hard({base_text_window}*1.1={hard_text_window})"
+    )
+    effective_trace = render_effective_chars_trace(
+        effective_text_chars,
+        calculation_detail,
+        calculation_mode,
+    )
+    return f"{duration_trace}; {window_trace}; {effective_trace}"
 
 
 def build_quantization_result(grouped_script_path: Path, report_path: Path | None = None) -> dict[str, Any]:
@@ -381,31 +569,50 @@ def build_quantization_result(grouped_script_path: Path, report_path: Path | Non
     for section in groups:
         report_block = parse_report_block(report_text, section.group_id)
         resolved_duration = default_duration_seconds
+        duration_source = "default"
         if section.group_id in duration_mapping:
             resolved_duration = parse_seconds(
                 duration_mapping[section.group_id],
                 field_name=f"分镜组时长映射[{section.group_id}]",
             )
+            duration_source = "mapping"
         group_window = compute_window(resolved_duration, pace_tier)
         canonical_body, _tail_hook_body = split_tail_hook_block(section.body)
-        effective_chars, calculation_mode = compute_effective_chars(
+        effective_chars, calculation_mode, calculation_detail = compute_effective_chars(
             GroupSection(group_id=section.group_id, title=section.title, body=canonical_body),
             pace_tier,
             report_block,
             source_type,
             story_source_text,
         )
+        quantization_trace = render_quantization_trace(
+            group_id=section.group_id,
+            default_duration_seconds=default_duration_seconds,
+            resolved_duration_seconds=resolved_duration,
+            duration_source=duration_source,
+            pace_tier=pace_tier,
+            base_text_window=group_window["base_text_window"],
+            warn_low=group_window["warn_low"],
+            warn_high=group_window["warn_high"],
+            hard_text_window=group_window["hard_text_window"],
+            effective_text_chars=effective_chars,
+            calculation_mode=calculation_mode,
+            calculation_detail=calculation_detail,
+        )
         group_results.append(
             {
                 "group_id": section.group_id,
                 "title": section.title,
                 "resolved_duration_seconds": resolved_duration,
+                "duration_source": duration_source,
                 "base_text_window": group_window["base_text_window"],
                 "warn_low": group_window["warn_low"],
                 "warn_high": group_window["warn_high"],
                 "hard_text_window": group_window["hard_text_window"],
                 "effective_text_chars": effective_chars,
                 "calculation_mode": calculation_mode,
+                "calculation_detail": calculation_detail,
+                "quantization_trace": quantization_trace,
                 "source_span": extract_report_field(report_block or "", "source_span"),
             }
         )
@@ -451,6 +658,7 @@ def main() -> int:
             f"{group['effective_text_chars']} chars, "
             f"{group['calculation_mode']}"
         )
+        print(f"  trace: {group['quantization_trace']}")
     return 0
 
 
