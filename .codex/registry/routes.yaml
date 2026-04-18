@@ -170,7 +170,7 @@ workflow_carriers:
     applies_to: aigc-root-entry
     contract_mode: bootstrap_compat
     canonical_runtime_root: projects/aigc/<项目名>/
-    project_state_carrier: projects/aigc/<项目名>/project_state.yaml
+    project_state_carrier: projects/aigc/<项目名>/STATE.json
     governance_state_carrier: projects/aigc/<项目名>/governance-state.yaml
     mandate_carrier: projects/aigc/<项目名>/mandate.yaml
     mission_brief_carrier: projects/aigc/<项目名>/mission-brief.yaml

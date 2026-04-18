@@ -18,6 +18,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import yaml
 
 from cards_coverage_validator import build_cards_coverage_report
 from data_modules.cli_args import load_json_arg
@@ -28,18 +29,40 @@ from security_utils import atomic_write_json
 
 SKILL_ID = "story-cards"
 CARDS_SKILL_ROOT = Path(__file__).resolve().parent.parent / "1-Cards"
-TEMPLATES_ROOT = CARDS_SKILL_ROOT / "templates"
-STATE_REL = Path(".webnovel") / "state.json"
-NORTH_STAR_REL = Path("Init") / "north_star_contract.json"
+STATE_REL = Path("STATE.json")
+NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
 
 
 SECTION_SPECS: Dict[str, Dict[str, Any]] = {
+    "styles": {
+        "kind": "style",
+        "schema_key": "style_card",
+        "template_name": "style-card.json",
+        "source_skill_id": "story-cards-style",
+        "child_skill_path": "风格卡/SKILL.md",
+        "child_context_path": "风格卡/CONTEXT.md",
+        "child_template_path": "风格卡/templates/style-card.json",
+        "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
+        "module_route": "story-cards > 风格卡/SKILL.md",
+        "index_rel": Path("Cards") / "1-风格卡" / "风格索引.json",
+        "bucket_dirs": {
+            "global_styles": "总风格",
+        },
+        "bucket_labels": {
+            "global_styles": "global_style",
+        },
+        "link_fields": ("style_contract_refs",),
+    },
     "characters": {
         "kind": "character",
         "schema_key": "character_card",
         "template_name": "character-card.json",
-        "reference_path": "references/character-card-module/module-spec.md",
-        "module_route": "story-cards > references/character-card-module/module-spec.md",
+        "source_skill_id": "story-cards-character",
+        "child_skill_path": "角色卡/SKILL.md",
+        "child_context_path": "角色卡/CONTEXT.md",
+        "child_template_path": "角色卡/templates/character-card.json",
+        "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
+        "module_route": "story-cards > 角色卡/SKILL.md",
         "index_rel": Path("Cards") / "2-角色卡" / "角色索引.json",
         "bucket_dirs": {
             "protagonists": "主要角色",
@@ -59,8 +82,12 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "kind": "scene",
         "schema_key": "scene_card",
         "template_name": "scene-card.json",
-        "reference_path": "references/scene-card-module/module-spec.md",
-        "module_route": "story-cards > references/scene-card-module/module-spec.md",
+        "source_skill_id": "story-cards-scene",
+        "child_skill_path": "场景卡/SKILL.md",
+        "child_context_path": "场景卡/CONTEXT.md",
+        "child_template_path": "场景卡/templates/scene-card.json",
+        "source_route": "0-Init > story-cards > 场景卡/SKILL.md",
+        "module_route": "story-cards > 场景卡/SKILL.md",
         "index_rel": Path("Cards") / "3-场景卡" / "场景索引.json",
         "bucket_dirs": {
             "indoor": "室内",
@@ -80,8 +107,12 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "kind": "item",
         "schema_key": "item_card",
         "template_name": "item-card.json",
-        "reference_path": "references/item-card-module/module-spec.md",
-        "module_route": "story-cards > references/item-card-module/module-spec.md",
+        "source_skill_id": "story-cards-item",
+        "child_skill_path": "物品卡/SKILL.md",
+        "child_context_path": "物品卡/CONTEXT.md",
+        "child_template_path": "物品卡/templates/item-card.json",
+        "source_route": "0-Init > story-cards > 物品卡/SKILL.md",
+        "module_route": "story-cards > 物品卡/SKILL.md",
         "index_rel": Path("Cards") / "4-物品卡" / "物品索引.json",
         "bucket_dirs": {
             "weapons_equipment": "武器装备",
@@ -107,7 +138,10 @@ VALID_MODES = {"full-build", "incremental-writeback", "coverage-repair", "source
 def _load_json(path: Path) -> Dict[str, Any]:
     if not path.is_file():
         return {}
-    raw = json.loads(path.read_text(encoding="utf-8"))
+    if path.suffix in {".yaml", ".yml"}:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    else:
+        raw = json.loads(path.read_text(encoding="utf-8"))
     return raw if isinstance(raw, dict) else {}
 
 
@@ -128,8 +162,8 @@ def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
     return base
 
 
-def _load_template(template_name: str) -> Dict[str, Any]:
-    template_path = TEMPLATES_ROOT / template_name
+def _load_template(template_path_rel: str) -> Dict[str, Any]:
+    template_path = CARDS_SKILL_ROOT / template_path_rel
     if not template_path.is_file():
         raise FileNotFoundError(f"未找到模板: {template_path}")
     return json.loads(template_path.read_text(encoding="utf-8"))
@@ -141,9 +175,11 @@ def _now_iso() -> str:
 
 def _build_loaded_references(spec: Dict[str, Any]) -> List[str]:
     return [
-        "references/README.md",
-        str(spec["reference_path"]),
-        f"templates/{spec['template_name']}",
+        "SKILL.md",
+        "CONTEXT.md",
+        str(spec["child_skill_path"]),
+        str(spec["child_context_path"]),
+        str(spec["child_template_path"]),
     ]
 
 
@@ -195,7 +231,7 @@ def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str
     if mode == "full-build":
         missing = [name for name in SECTION_SPECS if name not in sections]
         if missing:
-            raise ValueError(f"`full-build` 必须同时提供 characters/scenes/items；当前缺少: {missing}")
+            raise ValueError(f"`full-build` 必须同时提供 styles/characters/scenes/items；当前缺少: {missing}")
     return mode
 
 
@@ -279,7 +315,7 @@ def _build_card_payload(
     entry: Dict[str, Any],
 ) -> tuple[Path, Dict[str, Any], str]:
     spec = SECTION_SPECS[section_name]
-    template = _load_template(spec["template_name"])
+    template = _load_template(str(spec["child_template_path"]))
     payload = copy.deepcopy(template)
     content = _safe_dict(payload.setdefault("content", {}))
     card_schema = _safe_dict(content.setdefault("card_schema", {}))
@@ -301,8 +337,10 @@ def _build_card_payload(
 
     payload.setdefault("meta", {})
     payload["meta"]["skill_id"] = SKILL_ID
+    payload["meta"]["source_skill_id"] = str(spec["source_skill_id"])
     payload["meta"]["project_name"] = project_name
     payload["meta"]["created_at"] = created_at
+    payload["meta"]["source_route"] = str(spec["source_route"])
 
     content.update(
         _prepare_trace_block(
@@ -342,7 +380,7 @@ def _build_index_payload(
     card_refs_by_bucket: Dict[str, List[str]],
 ) -> Dict[str, Any]:
     spec = SECTION_SPECS[section_name]
-    template = _load_template(spec["template_name"])
+    template = _load_template(str(spec["child_template_path"]))
     existing = _load_json(project_root / spec["index_rel"])
     replace_existing = bool(section_payload.get("replace_existing", mode != "incremental-writeback"))
 
@@ -352,8 +390,10 @@ def _build_index_payload(
     content = _safe_dict(payload.setdefault("content", {}))
     payload.setdefault("meta", {})
     payload["meta"]["skill_id"] = SKILL_ID
+    payload["meta"]["source_skill_id"] = str(spec["source_skill_id"])
     payload["meta"]["project_name"] = project_name
     payload["meta"]["created_at"] = created_at
+    payload["meta"]["source_route"] = str(spec["source_route"])
 
     content.update(
         _prepare_trace_block(
@@ -452,6 +492,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
     if run_gate:
         gate_report = build_cards_coverage_report(project_root)
         section_to_report_key = {
+            "styles": "styles",
             "characters": "characters",
             "scenes": "scenes",
             "items": "items",

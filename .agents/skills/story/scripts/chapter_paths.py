@@ -153,3 +153,15 @@ def default_chapter_draft_path(project_root: Path, chapter_num: int, *, use_volu
         return vol_dir / _build_chapter_filename(project_root, chapter_num, use_volume_layout=True)
     else:
         return project_root / "正文" / _build_chapter_filename(project_root, chapter_num, use_volume_layout=False)
+
+
+def drafting_root_md_path(project_root: Path, chapter_num: int) -> Path:
+    """
+    Canonical stage-runtime root file for 3-Drafting.
+
+    Example:
+        3-Drafting/第7集.md
+    """
+    if chapter_num <= 0:
+        raise ValueError("chapter_num must be >= 1")
+    return project_root / "3-Drafting" / f"第{chapter_num}集.md"

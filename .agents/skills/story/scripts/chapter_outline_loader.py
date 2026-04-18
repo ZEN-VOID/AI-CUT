@@ -17,6 +17,11 @@ try:
 except ImportError:  # pragma: no cover
     from scripts.chapter_paths import volume_num_for_chapter
 
+try:
+    from project_locator import resolve_state_file
+except ImportError:  # pragma: no cover
+    from scripts.project_locator import resolve_state_file
+
 
 _CHAPTER_RANGE_RE = re.compile(r"^\s*(\d+)\s*-\s*(\d+)\s*$")
 _CHAPTER_REF_RE = re.compile(r"第\s*(\d+)\s*章(?:[：:]\s*(.+))?")
@@ -39,7 +44,7 @@ def _parse_chapters_range(value: object) -> tuple[int, int] | None:
 
 
 def volume_num_for_chapter_from_state(project_root: Path, chapter_num: int) -> int | None:
-    state_path = project_root / ".webnovel" / "state.json"
+    state_path = resolve_state_file(explicit_project_root=str(project_root))
     if not state_path.exists():
         return None
 

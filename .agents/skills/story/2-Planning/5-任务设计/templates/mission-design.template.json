@@ -1,0 +1,48 @@
+{
+  "schema_version": "story2026/planning-pass-artifact/v1",
+  "meta": {
+    "schema_version": "story2026/planning-pass-artifact/v1",
+    "skill_id": "story-plan-mission-design",
+    "module_id": "5-任务设计",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > 5-任务设计",
+    "template_version": "3.0.0"
+  },
+  "content": {
+    "mission_design": {
+      "scope": "full-series",
+      "mission_system": [],
+      "task_graph": [],
+      "reward_penalty_matrix": [],
+      "gating_rules": [],
+      "downstream_hooks": []
+    }
+  },
+  "story_map_patch": {
+    "owned_slots": [
+      "content.holomap.mission_threads",
+      "content.holomap.chapter_boards[].bundled_elements.missions"
+    ],
+    "patch_payload": {
+      "mission_threads": [],
+      "chapter_board_mission_refs": []
+    },
+    "target_json_paths": [
+      "content.holomap.mission_threads",
+      "content.holomap.chapter_boards"
+    ],
+    "write_policy": "progressive-commit"
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

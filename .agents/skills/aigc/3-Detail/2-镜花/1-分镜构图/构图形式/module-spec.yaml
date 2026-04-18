@@ -1,36 +1,54 @@
 version: 1
 module_id: jinghua-composition-form
 module_level: leaf
-purpose: 在既定 `shot_slot_map` 上锁每镜的空间几何、主陪背景关系、视线组织和 frame task，让画面先站住。
+purpose: "在既定 `shot_slot_map` 上锁每镜的空间几何、主陪背景关系、视线组织和 frame task，让画面先站住。"
 triggers:
-  - 已锁定 `watermoon_inheritance + shot_count_plan + shot_slot_map`
-  - 需要回答“这一镜为什么这样站、这样压、这样看”
+  - "已锁定 `watermoon_inheritance + shot_count_plan + shot_slot_map`"
+  - "需要回答“这一镜为什么这样站、这样压、这样看”"
 must_answer:
-  - 每镜主体、陪体、背景三层如何分工
-  - 空间锚点、镜头轴线和主体几何关系是否成立
-  - 当前画面更适合对称、偏轴、封闭、开放、前压后退还是其他几何组织
-  - 这镜的 frame task 是揭示、对压、旁观、隔断还是悬置
-  - 视线组织如何与动作连续和主冲突保持一致
+  - "每镜主体、陪体、背景三层如何分工"
+  - "头顶留白、视线留白、眼睛落点与关键动作/信息是否仍在安全区内"
+  - "空间锚点、镜头轴线和主体几何关系是否成立"
+  - "是否需要用地平线、消失点、斜线、前中后景、遮挡或空间扁平化来制造空间压力"
+  - "当前画面更适合哪种经典或稳定的构图范式，例如对称、单点透视、三角、对角线、S 型、黄金分割、框中框、前景遮挡、偏轴失衡或负空间悬置"
+  - "若当前镜是关系型镜头，应采用单人压幅、profile two-shot、front two-shot、OTS、框中窥视或遮挡窥视中的哪一型"
+  - "这镜的 frame task 是揭示、对压、旁观、隔断还是悬置"
+  - "视线组织如何与动作连续和主冲突保持一致"
 patch_contract:
   target_slot: composition_skeleton
   required_elements:
+    - composition_form
     - frame_task
     - subject_support_background
+    - frame_balance_rule
     - axis_and_geometry
     - spatial_anchor
+    - depth_geometry_note
+    - relation_staging
     - eyeline_organization
+    - continuity_guard
 merge_policy:
   preserve_first:
     - spatial readability
     - conflict axis stability
     - subject/background hierarchy
+    - safe-area readability
+    - eyeline readability
     - action continuity
   trim_first:
     - 发明新空间
     - 一镜承担多个互相打架的画面任务
+    - 没有戏剧动机的失衡修辞
+    - 抢戏的随机前景
 quality_gates:
-  - 必须回指 `shot_slot_map` 与 `watermoon_inheritance`
-  - 不得提前写景别、景深、器材、运镜、光影和色彩
-  - 主体/陪体/背景三层必须可解释
-  - 轴线、几何和空间锚点必须自洽
-  - frame task 必须能回答“这一镜为什么这样摆”
+  - "必须回指 `shot_slot_map` 与 `watermoon_inheritance`"
+  - "不得提前写景别、景深、器材、运镜、光影和色彩"
+  - "`构图形式` 必须优先回答画面组织范式，不得把角色站位走位原样重说一遍"
+  - "主体/陪体/背景三层必须可解释"
+  - "头顶留白、视线留白和安全区必须可复核；若刻意违反，必须写明戏剧动机"
+  - "轴线、几何和空间锚点必须自洽"
+  - "若使用荷兰角、偏轴失衡、过度切脸或强遮挡，必须写明它们在当前镜的异常修辞任务"
+  - "若是双人或关系型镜头，必须明确是 `profile two-shot / front two-shot / OTS / 框中窥视 / 遮挡窥视` 中的哪一型，以及为什么"
+  - "空间深度线索只允许写几何与层次，不得越权成焦段、镜头型号或景深参数"
+  - "必须预先照顾正反打、轴线与视线匹配，不得把连续性风险留给下游发现"
+  - "frame task 必须能回答“这一镜为什么这样摆”"

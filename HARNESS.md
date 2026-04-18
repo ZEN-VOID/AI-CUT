@@ -93,7 +93,7 @@
 
 - `aigc` 仍是仓库级总入口技能，`contract_mode: bootstrap_compat`，并显式声明：
   - `projects/aigc/<项目名>/` 为 canonical project runtime
-  - `project_state.yaml` 与 `governance-state.yaml` 为项目内控制面
+  - `STATE.json` 与 `governance-state.yaml` 为项目内控制面
   - `.codex/state/tasks/<task_id>/` 仅作治理镜像或非项目任务账本
 - `aigc.stage_index` 当前已登记：
   - `0-Init`、`1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 为 `active`

@@ -12,14 +12,15 @@
 
 1. Layer A：硬约束层
    - 项目承诺
-   - `Init/north_star_contract.json.cards`
-   - `state.json` 中的全局约束
+   - `0-Init/north_star.yaml.cards`
+   - `STATE.json` 中的全局约束
 2. Layer B：章节编排真源层
-   - 默认入口：`Planning/8-全息地图.json`
+   - 默认入口：`Planning/全息地图.json`
 3. Layer C：运行态层
-   - `state.json`
+   - `STATE.json`
    - 最近摘要
    - 最近 `chapter_meta / review_metrics / reading_power`
+   - 当 `3-Drafting` 写第 `N > 1` 集时，追加上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
 4. Layer D：对象定向切片层
    - 角色 / 场景 / 物品卡的相关切片
 5. Layer E：写法优化层
@@ -77,7 +78,7 @@
 
 ### `genre_profile`
 
-- 由 `state.project.genre` 或 `project_info.genre` 归一化生成
+- 由 `STATE.json.project_info.genre` 归一化生成
 - 参考根级：
   - `.agents/skills/story/references/genre-profiles.md`
   - `.agents/skills/story/references/reading-power-taxonomy.md`
@@ -96,6 +97,12 @@
   - `signals_used`
   - `checklist`
   - `checklist_score`
+
+### `continuity_carryover`
+
+- 当当前调用方是 `3-Drafting` 且 `chapter > 1` 时启用
+- 默认引用上一集最终加工正文，而不是中间摘要
+- 作用：帮助当前集知道上一集真正写到哪里，而不是只知道 planning 原本打算写什么
 
 ## Validation Projection
 

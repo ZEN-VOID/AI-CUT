@@ -1,0 +1,117 @@
+---
+name: story-cards-item
+governance_tier: lite
+description: Use when story2026 1-Cards needs to generate, rebuild, or repair item cards, ownership links, usage rules, costs, or exclusive fit.
+---
+
+# 物品卡
+
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 本技能只负责物品对象判断与正式物品卡 payload，不替父层承担总线路由与最终 gate。
+
+## Overview
+
+`物品卡` 负责把武器、线索、重要叙事物、遗物与专属物收束为正式物品卡。
+
+它必须直接产出：
+
+- `narrative_functions`
+- `ownership_links`
+- `usage_rules`
+- `costs`
+- `exclusive_fit`
+
+## Business Requirement Analysis Contract
+
+| analysis_slot | 当前结论 |
+| --- | --- |
+| `business_goal` | 把“有名字的道具”收束成“有剧情杠杆、有归属链、有代价”的正式物品卡。 |
+| `business_object` | `Cards/4-物品卡/**/*.json`、`ownership_links`、`exclusive_item_hooks` 的下游消费。 |
+| `constraint_profile` | 物品卡不能绕过角色接口和场景规则自说自话。 |
+| `success_criteria` | 每张物品卡都能回答属于谁、怎样启用、付什么代价、为什么非它不可。 |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["物品诉求"] --> B["确认进入物品卡 child skill"]
+    B --> C["锁剧情杠杆和物品桶"]
+    C --> D["闭合 ownership_links / usage_rules / costs"]
+    D --> E["吸收 exclusive_fit 与上游接口"]
+    E --> F["映射 item-card.json"]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> Routed
+    Routed --> Functional
+    Functional --> OwnershipClosed
+    OwnershipClosed --> ExclusiveReady
+    ExclusiveReady --> ReadyForWriteback
+```
+
+```mermaid
+flowchart LR
+    A["narrative_functions"] --> B["ownership_links"]
+    B --> C["usage_rules"]
+    C --> D["costs"]
+    D --> E["exclusive_fit"]
+```
+
+## Total Input Contract
+
+- `0-Init/north_star.yaml`
+- `0-Init/init_handoff.yaml`
+- 既有 `Cards/4-物品卡/**/*.json`（若存在）
+- mixed/full-build 时来自角色卡的 `exclusive_item_hooks`
+- mixed/full-build 时来自场景卡的 `rule_and_risk`
+
+## Thinking-Action Network
+
+| step_id | intent | required_output | fail_code | rework_entry |
+| --- | --- | --- | --- | --- |
+| `I1` | 确认当前真的是物品问题 | `module_route=story-cards > 物品卡/SKILL.md` | `FAIL-CD-ITEM-ROUTE` | 回父技能 |
+| `I2` | 锁剧情杠杆与物品桶 | `narrative_functions + group` | `FAIL-CD-ITEM-FUNC` | 回物品分桶 |
+| `I3` | 闭合归属与启用规则 | `ownership_links + usage_rules + costs` | `FAIL-CD-ITEM-OWN` | 回归属/代价 |
+| `I4` | 吸收专属接口与场景限制 | `exclusive_fit` | `FAIL-CD-ITEM-EXCLUSIVE` | 回上游接口 |
+| `I5` | 映射模板 | `item-card payload` | `FAIL-CD-ITEM-TEMPLATE` | 回模板映射 |
+
+## One-Shot Output Contract
+
+本技能只交付：
+
+- 正式物品卡 payload
+- 可进入索引的 `ownership_links`
+- 可解释的 `exclusive_fit`
+
+## Root-Cause Execution Contract
+
+物品问题优先检查：
+
+1. 剧情杠杆是否成立
+2. 归属与代价是否成立
+3. 是否吸收了角色/场景上游接口
+4. 模板映射是否完整
+
+## Lite Field Mapping
+
+| field_id | step_id | intent | required_output | fail_code | rework_entry |
+| --- | --- | --- | --- | --- | --- |
+| `FIELD-CD-ITEM-01` | `I1` | 物品路由正确 | `content.module_route` | `FAIL-CD-ITEM-ROUTE` | 回父技能 |
+| `FIELD-CD-ITEM-02` | `I2-I3` | 物品成立 | `narrative_functions + ownership_links + usage_rules + costs` | `FAIL-CD-ITEM-OWN` | 回归属/代价 |
+| `FIELD-CD-ITEM-03` | `I4` | 上游接口被正确吸收 | `exclusive_fit` | `FAIL-CD-ITEM-EXCLUSIVE` | 回上游接口 |
+| `FIELD-CD-ITEM-04` | `I5` | 正式模板可写回 | `item-card payload` | `FAIL-CD-ITEM-TEMPLATE` | 回模板映射 |
+
+## Completion Gate
+
+- 物品不是有名字的设定，而是有剧情杠杆的载体。
+- `ownership_links + usage_rules + costs` 已成立。
+- `exclusive_fit` 真正吸收角色与场景上游约束。
+
+## Dispatch Note
+
+- 本技能包名称不承载串行语义。
+- 仅当请求完全是物品局部修复，且不要求先刷新角色接口/场景规则时，允许与兄弟子技能并发。
+- 一旦本轮需要吸收 `exclusive_item_hooks` 或场景规则最新值，必须在父技能下按依赖串行执行。

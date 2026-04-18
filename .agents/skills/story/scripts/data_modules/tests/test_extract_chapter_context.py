@@ -28,9 +28,7 @@ def test_extract_state_summary_accepts_dominant_key(tmp_path):
         },
     }
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-    (webnovel_dir / "state.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     text = extract_state_summary(tmp_path)
     assert "Ch10:quest" in text
@@ -44,6 +42,7 @@ def test_extract_chapter_outline_supports_hyphen_filename(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
+    (tmp_path / "STATE.json").write_text("{}", encoding="utf-8")
     outline_dir = tmp_path / "Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第1卷-详细大纲.md").write_text("### 第1章：测试标题\n测试大纲", encoding="utf-8")
@@ -78,7 +77,7 @@ def test_extract_chapter_outline_prefers_holomap_over_legacy_outline(tmp_path):
             }
         },
     }
-    (planning_dir / "8-全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
 
     outline_dir = tmp_path / "Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
@@ -98,8 +97,6 @@ def test_extract_chapter_outline_prefers_state_volume_mapping(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
     state = {
         "progress": {
             "volumes_planned": [
@@ -108,7 +105,7 @@ def test_extract_chapter_outline_prefers_state_volume_mapping(tmp_path):
             ]
         }
     }
-    (webnovel_dir / "state.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     outline_dir = tmp_path / "Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
@@ -126,10 +123,8 @@ def test_extract_chapter_outline_falls_back_when_state_has_no_match(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
     state = {"progress": {"volumes_planned": [{"volume": 1, "chapters_range": "1-10"}]}}
-    (webnovel_dir / "state.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     outline_dir = tmp_path / "Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
@@ -154,6 +149,7 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
 
     state = {
         "project": {"genre": "xuanhuan"},
+        "project_info": {"genre": "xuanhuan"},
         "progress": {"current_chapter": 3, "total_words": 9000},
         "protagonist_state": {
             "power": {"realm": "筑基", "layer": 2},
@@ -165,7 +161,7 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
         "disambiguation_warnings": [],
         "disambiguation_pending": [],
     }
-    (cfg.webnovel_dir / "state.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    (project_root := tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     summaries_dir = cfg.webnovel_dir / "summaries"
     summaries_dir.mkdir(parents=True, exist_ok=True)

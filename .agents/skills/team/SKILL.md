@@ -4,7 +4,7 @@ governance_tier: full
 description: |
   Use when a creative task needs routing across director, novelist,
   actor, cinematography, design, action, aesthetic, or work-based perspective skills
-  under the team skill tree, or when shared rules for those persona skills
+  under the team skill tree, or when shared rules for those persona or scholar skills
   must be inspected, repaired, or governed from the root.
 ---
 
@@ -54,6 +54,7 @@ description: |
 
 - `小说组/` 是当前 canonical 目录与显示名。
 - `编剧组` 作为旧称保留输入兼容；凡命中旧称，默认等价路由到 `小说组/`。
+- `study/` 用于学者型视角与方法论型镜片；当前下含 `文学系/`、`建筑系/`、`历史系/` 等子树。
 
 | department_id | 目录 | 主要问题 | 默认交付 |
 | --- | --- | --- | --- |
@@ -65,6 +66,7 @@ description: |
 | `action` | `武术组/` | 打戏、动作路线、身体风险、威亚/实拍 | 动作设计、拍摄安全、节奏方案 |
 | `aesthetic` | `美学组/` | 整体美学、东方视觉、舞台/展览/装置 | 美学框架、视觉统合、概念校准 |
 | `work_dimension` | `作品维度/` | 单部作品语法、结构迁移、互文续写、作品拆解 | 作品维度诊断、迁移规则、结构/场面方案 |
+| `study` | `study/` | 学者方法论、跨学科思想镜片、公共知识判断 | 学者视角诊断、方法迁移、概念框架与论证路径 |
 
 ## Auto-Selection Fast Path
 
@@ -197,6 +199,33 @@ description: |
 | `繁花` | 城市商业、时代群像、饮食方言 |
 | `色·戒` | 欲望污染任务、卧底侵蚀、历史压迫 |
 | `银翼杀手2049` | 未来考古、记忆真假、巨构孤独 |
+
+### Study / 文学系
+
+| 成员 | 适配场景 |
+| --- | --- |
+| `芥川龙之介` | 多证词结构、艺术伦理、旧典新解 |
+| `太宰治` | 失败者自白、羞耻叙事、轻喜壳绝望 |
+| `川端康成` | 物哀、留白、冷感关系与静默场景 |
+| `三岛由纪夫` | 假面、仪式、身体兑现与危险之美 |
+| `李碧华` | 奇情、女性异端、鬼魅宿命与母题翻写 |
+| `渡边淳一` | 熟年恋爱、医学观察、禁忌情欲 |
+| `刘慈欣` | 硬科幻、文明危机、技术与宇宙尺度 |
+
+### Study / 建筑系
+
+| 成员 | 适配场景 |
+| --- | --- |
+| `安藤忠雄` | 光、墙、混凝土、路径与公共性 |
+| `隈研吾` | 反物体、材料粒子、柔软边界与五感建筑 |
+| `伊东丰雄` | 反网格、自然关系、结构与空间一体 |
+| `扎哈哈迪德` | 流体建筑、非正交空间、未来公共体量 |
+
+### Study / 历史系
+
+| 成员 | 适配场景 |
+| --- | --- |
+| `易中天` | 历史问题意识、制度与人性、公共叙事转译、古今结构映照 |
 
 ## Thinking-Action Network
 

@@ -262,5 +262,5 @@
 
 ## 版本说明
 
-- 当前根级 schema 已与 `4-Validation/SKILL.md`、`review/SKILL.md`、`3-Drafting/references/step-3-review-gate/appendix-review-gate.md` 对齐。
+- 当前根级 schema 已与 `4-Validation/SKILL.md`、`review/SKILL.md`、`3-Drafting/step-3-review-gate/appendix-review-gate.md` 对齐。
 - 若后续新增 checker 或风险字段，必须同步更新本文件与对应持久化 schema。

@@ -1,12 +1,12 @@
-# state.json 结构说明
+# `STATE.json` 结构说明
 
 > 该文件为运行态精简状态，避免体量膨胀。实体等大数据存于 index.db。
 >
 > 以下示例与 `update_state.py` 当前校验字段保持一致。
 >
-> 说明：章节编排、任务、线索、伏笔等规划真源不写入 `state.json`，默认读取 `Planning/8-全息地图.json`。
+> 说明：章节编排、任务、线索、伏笔等规划真源不写入 `STATE.json`，默认读取 `Planning/全息地图.json`。
 >
-> 执行态补充说明：任务断点与 run registry 不写入本文件，分别写入 `.webnovel/workflow_state.json`、`.webnovel/execution_state.json` 与 `.webnovel/task_log.jsonl`。
+> 执行态补充说明：任务断点与 run registry 已内联写入 `STATE.json.workflow_runtime.workflow_state / execution_state / task_log`。
 
 ```json
 {

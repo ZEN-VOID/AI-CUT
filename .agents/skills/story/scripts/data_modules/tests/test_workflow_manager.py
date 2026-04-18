@@ -17,12 +17,15 @@ def _load_module():
     return workflow_manager
 
 
+def _seed_project_root(project_root: Path) -> None:
+    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
+
+
 def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 7})
     module.start_step("Step 1", "Context")
@@ -34,15 +37,25 @@ def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     assert state["current_task"] is None
     assert state["history"][-1]["status"] == module.TASK_STATUS_COMPLETED
     assert state["last_stable_state"]["artifacts"]["review_completed"] is True
-    assert state["last_stable_state"]["governance_refs"]["mission_brief_ref"].endswith("mission_brief.yaml")
+    run_id = execution_state["runs"][-1]["run_id"]
+    assert state["last_stable_state"]["governance_refs"]["mission_brief_ref"] == (
+        f"STATE.json#workflow_runtime.governance_index.{run_id}.mission_brief"
+    )
     assert execution_state["active_run_id"] is None
     assert execution_state["runs"][-1]["status"] == module.TASK_STATUS_COMPLETED
     assert execution_state["stage_progress"]["3-drafting"]["status"] == module.TASK_STATUS_COMPLETED
-    assert execution_state["runs"][-1]["governance_refs"]["validation_report_ref"].endswith("validation_report.md")
+    assert execution_state["runs"][-1]["governance_refs"]["validation_report_ref"] == (
+        f"STATE.json#workflow_runtime.governance_index.{run_id}.validation_report"
+    )
 
     task_log_path = module.get_task_log_path()
     assert task_log_path.exists()
-    task_log_events = [json.loads(line)["event"] for line in task_log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    project_state = json.loads(task_log_path.read_text(encoding="utf-8"))
+    task_log_events = [
+        row["event"]
+        for row in project_state["workflow_runtime"]["task_log"]
+        if isinstance(row, dict) and row.get("event")
+    ]
     assert "task_started" in task_log_events
     assert "task_completed" in task_log_events
 
@@ -55,22 +68,20 @@ def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     assert "step_completed" in events
     assert "task_completed" in events
 
-    task_dir = tmp_path / ".webnovel" / "tasks" / execution_state["runs"][-1]["run_id"]
-    assert (task_dir / "mandate.yaml").exists()
-    assert (task_dir / "mission_brief.yaml").exists()
-    assert (task_dir / "route_plan.yaml").exists()
-    assert (task_dir / "preflight_verdict.yaml").exists()
-    assert (task_dir / "artifact_manifest.json").exists()
-    assert (task_dir / "validation_report.md").exists()
-    assert (task_dir / "learning_record.md").exists()
+    governance_bundle = execution_state["governance_index"][run_id]
+    assert governance_bundle["mandate"]["task_id"] == run_id
+    assert governance_bundle["mission_brief"]["task_id"] == run_id
+    assert governance_bundle["route_plan"]["task_id"] == run_id
+    assert governance_bundle["preflight_verdict"]["task_id"] == run_id
+    assert governance_bundle["artifact_manifest"]["status"] == module.TASK_STATUS_COMPLETED
+    assert governance_bundle["validation_report"] == f"story-write 已完成，run_id={run_id}"
+    assert governance_bundle["learning_record"] == "completed"
 
 
 def test_start_task_reentry_increments_retry(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 8})
     module.start_task("story-write", {"chapter_num": 8})
@@ -85,9 +96,7 @@ def test_start_task_reentry_increments_retry(tmp_path, monkeypatch):
 def test_legacy_command_aliases_are_normalized(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("webnovel-write", {"chapter_num": 6})
 
@@ -95,38 +104,34 @@ def test_legacy_command_aliases_are_normalized(tmp_path, monkeypatch):
     execution_state = module.load_execution_state()
     assert state["current_task"]["command"] == "story-write"
     assert execution_state["runs"][-1]["command"] == "story-write"
-    assert module.expected_step_owner("webnovel-write", "Step 1") == "context-agent"
+    assert module.expected_step_owner("webnovel-write", "Step 1") == "drafting-episode-kickoff"
 
 
 def test_complete_step_rejects_mismatch_step_id(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 9})
     module.start_step("Step 1", "Context")
     module.complete_step("Step 1")
-    module.start_step("Step 2A", "Draft")
-    module.complete_step("Step 2B")
+    module.start_step("Step 2", "Pacing")
+    module.complete_step("Step 3")
 
     state = module.load_state()
     current_step = state["current_task"]["current_step"]
     assert current_step is not None
-    assert current_step["id"] == "Step 2A"
+    assert current_step["id"] == "Step 2"
     assert current_step["status"] == module.STEP_STATUS_RUNNING
 
 
 def test_workflow_step_owner_and_order_violation_trace(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-
-    assert module.expected_step_owner("story-write", "Step 1") == "context-agent"
-    assert module.expected_step_owner("story-write", "Step 5") == "data-agent"
+    assert module.expected_step_owner("story-write", "Step 1") == "drafting-episode-kickoff"
+    assert module.expected_step_owner("story-write", "Step 7") == "drafting-polish"
 
     module.start_task("story-write", {"chapter_num": 12})
     module.start_step("Step 3", "Review")
@@ -146,9 +151,7 @@ def test_workflow_step_owner_and_order_violation_trace(tmp_path, monkeypatch):
 def test_workflow_rejects_unknown_step_id(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 13})
     module.start_step("Step X", "Bogus")
@@ -183,19 +186,18 @@ def test_get_workflow_paths_support_zero_arg_find_project_root(tmp_path, monkeyp
     module = _load_module()
     monkeypatch.setattr(module, "_cli_project_root", None)
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    assert module.get_workflow_state_path() == tmp_path / ".webnovel" / "workflow_state.json"
-    assert module.get_execution_state_path() == tmp_path / ".webnovel" / "execution_state.json"
-    assert module.get_task_log_path() == tmp_path / ".webnovel" / "task_log.jsonl"
+    assert module.get_workflow_state_path() == tmp_path / "STATE.json"
+    assert module.get_execution_state_path() == tmp_path / "STATE.json"
+    assert module.get_task_log_path() == tmp_path / "STATE.json"
     assert module.get_call_trace_path() == tmp_path / ".webnovel" / "observability" / "call_trace.jsonl"
 
 
 def test_workflow_reentry_does_not_duplicate_history(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 20})
     module.start_task("story-write", {"chapter_num": 20})
@@ -212,11 +214,9 @@ def test_workflow_reentry_does_not_duplicate_history(tmp_path, monkeypatch):
 def test_cleanup_artifacts_requires_confirm(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-
-    draft_path = module.default_chapter_draft_path(tmp_path, 7)
+    draft_path = module.drafting_root_md_path(tmp_path, 7)
     draft_path.parent.mkdir(parents=True, exist_ok=True)
     draft_path.write_text("draft", encoding="utf-8")
 
@@ -238,11 +238,9 @@ def test_cleanup_artifacts_requires_confirm(tmp_path, monkeypatch):
 def test_cleanup_artifacts_confirm_deletes_with_backup(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-
-    draft_path = module.default_chapter_draft_path(tmp_path, 8)
+    draft_path = module.drafting_root_md_path(tmp_path, 8)
     draft_path.parent.mkdir(parents=True, exist_ok=True)
     draft_path.write_text("draft", encoding="utf-8")
 
@@ -267,56 +265,56 @@ def test_cleanup_artifacts_confirm_deletes_with_backup(tmp_path, monkeypatch):
     assert backups
 
 
-def test_analyze_recovery_options_step_2_avoids_destructive_git_reset(tmp_path, monkeypatch):
+def test_analyze_recovery_options_midpass_avoids_destructive_git_reset(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-
-    draft_path = module.default_chapter_draft_path(tmp_path, 11)
+    draft_path = module.drafting_root_md_path(tmp_path, 11)
     draft_path.parent.mkdir(parents=True, exist_ok=True)
     draft_path.write_text("draft", encoding="utf-8")
 
     interrupt_info = {
         "command": "story-write",
         "args": {"chapter_num": 11},
-        "current_step": {"id": "Step 2A"},
+        "current_step": {"id": "Step 5"},
     }
 
     options = module.analyze_recovery_options(interrupt_info)
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
     assert "reset --hard" not in action_text
+    assert "3-Drafting/第11集.md" in action_text
     assert any(option.get("label") == "保留半成品做人工检查" for option in options)
 
 
-def test_analyze_recovery_options_step_6_preserves_worktree(tmp_path, monkeypatch):
+def test_analyze_recovery_options_polish_step_keeps_new_drafting_target(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
 
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    draft_path = module.drafting_root_md_path(tmp_path, 12)
+    draft_path.parent.mkdir(parents=True, exist_ok=True)
+    draft_path.write_text("draft", encoding="utf-8")
 
     interrupt_info = {
         "command": "story-write",
         "args": {"chapter_num": 12},
-        "current_step": {"id": "Step 6"},
+        "current_step": {"id": "Step 7"},
     }
 
     options = module.analyze_recovery_options(interrupt_info)
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
-    assert "删除第12章文件" not in action_text
-    assert any(option.get("label") == "保留工作区，退出恢复流程" for option in options)
+    assert "3-Drafting/第12集.md" in action_text
+    assert "backup_manager.py" not in action_text
+    assert any(option.get("label") == "继续 润色" for option in options)
 
 
 def test_workflow_supports_non_drafting_stage_runs(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-plan", {"chapter_num": None})
     module.start_step("Step 1", "题材选型")
@@ -328,16 +326,16 @@ def test_workflow_supports_non_drafting_stage_runs(tmp_path, monkeypatch):
     assert current_task["command"] == "story-plan"
     assert current_task["current_step"]["progress_note"] == "正在收敛题材走廊"
     assert current_task["current_step"]["progress_percent"] == 25
-    assert current_task["governance_refs"]["task_dir_ref"].startswith(".webnovel/tasks/")
+    assert current_task["governance_refs"]["governance_bundle_ref"].startswith(
+        "STATE.json#workflow_runtime.governance_index."
+    )
     assert execution_state["stage_progress"]["2-planning"]["status"] == module.TASK_STATUS_RUNNING
 
 
 def test_failed_task_writes_root_cause_trace(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 21})
     module.start_step("Step 1", "Context")
@@ -346,21 +344,19 @@ def test_failed_task_writes_root_cause_trace(tmp_path, monkeypatch):
     state = module.load_state()
     execution_state = module.load_execution_state()
     run_id = execution_state["latest_resume_point"]["run_id"]
-    task_dir = tmp_path / ".webnovel" / "tasks" / run_id
+    governance_bundle = execution_state["governance_index"][run_id]
 
     assert state["current_task"]["status"] == module.TASK_STATUS_FAILED
     assert execution_state["runs"][-1]["status"] == module.TASK_STATUS_FAILED
-    assert (task_dir / "root_cause_trace.md").exists()
-    assert "unit-test-failure" in (task_dir / "root_cause_trace.md").read_text(encoding="utf-8")
+    assert governance_bundle["root_cause_trace"] == "unit-test-failure"
+    assert governance_bundle["artifact_manifest"]["status"] == module.TASK_STATUS_FAILED
     assert execution_state["runs"][-1]["command"] == "story-write"
 
 
 def test_generic_recovery_options_for_non_write_review(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
-
-    webnovel_dir = tmp_path / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
+    _seed_project_root(tmp_path)
 
     interrupt_info = {
         "run_id": "2-planning-run-0001",

@@ -66,8 +66,8 @@
 
 | slice | 默认来源 |
 |---|---|
-| `promise_slice` | `0-Init` 最终确认项 + `Init/north_star_contract.json.cards` |
-| `chapter_board` | `Planning/8-全息地图.json` |
+| `promise_slice` | `0-Init` 最终确认项 + `0-Init/north_star.yaml.cards` |
+| `chapter_board` | `Planning/全息地图.json` |
 | `cards_state_history_slice` | 相关 `Cards.current_state/history` |
 | `foreshadow_silence_slice` | `MAP` 伏笔层 + 当前回收窗口 |
 | `style_gate` | 风格契约 + `core-constraints` + Step 4 终检要求 |

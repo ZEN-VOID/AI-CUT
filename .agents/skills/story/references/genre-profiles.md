@@ -650,7 +650,7 @@ override_config:
 
 ### 3.1 加载时机
 
-1. **Step 1**：根据 `state.json → project.genre` 加载对应 profile
+1. **Step 1**：根据 `STATE.json → project_info.genre` 加载对应 profile
 2. **Context Agent**：将profile相关字段注入创作任务书
 3. **Checkers**：根据profile调整检测阈值和建议权重
 
@@ -663,11 +663,11 @@ override_config:
 
 ### 3.3 自定义Profile
 
-用户可在 `state.json` 中覆盖默认值：
+用户可在 `STATE.json` 中覆盖默认值：
 
 ```json
 {
-  "project": {
+  "project_info": {
     "genre": "xianxia",
     "genre_overrides": {
       "pacing_config": {

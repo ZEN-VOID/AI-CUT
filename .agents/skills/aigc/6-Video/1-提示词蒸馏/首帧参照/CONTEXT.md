@@ -36,7 +36,7 @@
 | 规则散落在 `references/*.md` 导致主合同失真 | 真源治理层 | 把字段表、流程、类型策略、输出契约全部回收进 `SKILL.md` | 固化“`SKILL.md` 是唯一规范真源，`CONTEXT.md` 只保留经验层” | 执行无需再依赖 `references/` |
 | `6-视频/subtypes/...` 与真实路径 `6-Video/...` 不一致 | 路径合同层 | 统一所有技能内路径与证据路径到真实目录 | 在案例与合同中持续使用真实路径，避免旧路径回潮 | 仓内不再残留命中的旧路径字符串 |
 | 只把章节标题改成知行合一口径，但桥段判型、预算压缩、写回与汇流仍是旧线性说明书 | 思行网络层 | 把执行链重排为 `任务归位 -> 判型 -> 提取 -> 压缩 -> 写回 -> 汇流` 的节点网络 | 在 `SKILL.md` 固化 `Business Requirement Analysis + Topology + Thinking-Action Node + Convergence + One-Shot Output` 五层结构 | 关键链路可通过节点与 Mermaid 一眼定位 |
-| 概述中的 canonical 路径漂到不存在的仓库根（如 `AIGC-DREAMER`） | 路径真源层 | 回收所有本地目录说明到当前真实技能树路径 | 在 leaf 合同、经验层与 changelog 中统一使用 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/` | 文档路径、evidence path 与仓内真实目录一致 |
+| 概述中的 canonical 路径漂到不存在的仓库根（如 `AIGC-DREAM-MAKER`） | 路径真源层 | 回收所有本地目录说明到当前真实技能树路径 | 在 leaf 合同、经验层与 changelog 中统一使用 `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/` | 文档路径、evidence path 与仓内真实目录一致 |
 | 用户要求直接执行叶子技能，但技能目录只有规范合同没有 runner 脚本 | 执行入口层 | 新增 `scripts/generate_episode_packets.py`，用 episode-level carrier 聚合多条单镜请求，并保留 `--shot-id` 单镜入口 | 在 `SKILL.md` 显式登记脚本路径、标准命令与“单镜合同 + 整集 carrier”适配规则 | 可直接落出 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/` 三件套 |
 | 含 `对白（角色）/对白画面` 的剧本正文被重叠切片，导致桥段串镜或出现残句引号 | 桥段切片层 | 改为优先按 marker block 非重叠分配，只有 block 数不足才退回句级切分，并把“标点 + 收尾引号”视为合法句末 | 在 runner 中固定 non-overlap 边界公式与对话句末判定 | 对白桥段不再跨镜串接，也不再产生 `”。` 之类残缺收尾 |
 

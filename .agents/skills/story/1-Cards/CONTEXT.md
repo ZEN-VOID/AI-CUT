@@ -8,12 +8,12 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: ~14534
-current_lines: ~237
+current_chars: ~9200
+current_lines: ~120
 current_cases: 0
 status: ok
 recommended_action: none
-last_checked_at: 2026-04-08T00:00:00Z
+last_checked_at: 2026-04-17T00:00:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
@@ -21,40 +21,29 @@ last_checked_at: 2026-04-08T00:00:00Z
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 执行者仍把角色/场景/物品当三个 skill 调度 | source-layer routing contract | 回到 `1-Cards/SKILL.md` 与 `workflow_manager.py`，统一改为单 skill + references | 在主技能中写死 `references` 不是子技能，并移除旧 skill id | 全仓不存在活跃 `story2026-character-cards / scene-cards / item-cards` 入口 |
-| 全量建卡时顺序被打乱 | cards orchestration contract | 恢复 `角色 -> 场景 -> 物品` 固定顺序 | 在主技能和 references index 中同时写死顺序 | 物品卡不再缺角色钩子 |
-| 角色/场景/物品都产出了，但覆盖率仍明显偏薄 | coverage gate contract | 先跑 `cards-check`，定位缺失桶位与密度断层 | 把 blocking finding 直接升级为 `FAIL-QUALITY` | gate 不再默认 PASS |
-| 物品卡又回到模板化通用道具 | reference loading contract | 强制补读角色模块 reference 与角色卡切片 | 在 item module 中把专属适配写成硬门禁 | 专属物能一眼看出归属角色 |
-| 场景卡重新滑回“漂亮布景板” | scene function contract | 回到 scene module，先补功能、规则、危险 | 在 scene module 中固定“规则先于奇观” | 场景能回答“谁来、做什么、代价是什么” |
-| cards 仍依赖 `0-Init` 私有 worldbuilding 文档，导致共享工法和对象层消费链断裂 | shared worldbuilding routing | 改为从 `templates/worldbuilding/` 读取 character / faction / power / rule 工法 | 固化“跨阶段世界构建知识进 shared templates root，cards modules 只声明消费关系” | 角色/场景/物品 module 都能说明自己读取哪份共享 worldbuilding 资产 |
-| `cards-check` 只看桶数量与索引，不看单卡 schema/正文结构，导致空壳卡也能过 gate | coverage gate contract | 在 `cards_coverage_validator.py` 下钻到每张正式卡，校验 `core/current_state/history` 与模块强制字段 | 让 S8 同时承担“trace + index + single-card structure”三层门禁，并用壳卡失败测试锁住 | `{\"ok\": true}` 这类占位卡不再通过 coverage gate |
-| cards profile 只读 `.webnovel/state.json`，未消费 `north_star_contract / 初始化简报`，导致规则刚性与对象约束低估 | upstream truth consumption | 在 validator 合并 `north_star_contract.json + 初始化简报.json + state.json` 做 profile 推断 | 将 `north_star` / handoff 设为 coverage gate 的正式上游，并把规则刚性写入 profile 输出 | 强规则项目即使 state 较弱，也会提高 surreal / scene_link / ownership 门槛 |
-| 模板和 validator 已声明 trace 字段，但正式建卡链路没有统一 writer 落盘这些字段 | formal writeback contract | 新增 `cards_writer.py`，统一从模板写卡/索引并强制注入 `module_route / loaded_references / writeback_plan` | 把 `cards-write` 接入 `story.py`，并用“写卡后再跑 cards-check”回归锁住真实产物 | 正式 `Cards/**/*.json` 不再出现 trace 字段只存在于模板、实际产物为空的情况 |
-| governed reference 模块已经目录化，但 `module-spec.md` 仍像字段摘要卡，导致执行者要回父技能猜阶段与门禁 | reference module governance | 回到各模块 `module-spec.md`，按共享模板补齐 `适用场景 / 预加载上下文 / 思维链 / Phase / 交付 / 验收机制` 六块合同 | 把“目录化只是外壳，六块合同才是 governed reference 成立条件”写进根 CONTEXT 与模块 CONTEXT | 仅读模块文档即可判断何时进入、怎么执行、何时回接 gate |
-| 模块已经有 `Think-Think Design Snapshot`，但只有三轴三重标题，没有进入字段锋利度与增强验证层 | think-think execution depth | 回到模块 `## 3. 思维链`，补 `Observed Facts / Inferred Gaps / Protected Constraints / Proposed Rewrite`、`驱动/判废/对比` 字段、`轴权归属检查 / 近邻替换压测 / 落盘扰动测试` | 把“执行到位”的门槛从“看得见三轴三重”提升为“字段可归属、可压测、可扰动、可落盘” | 关键字段改动后会真实影响 `FIELD-CD-*` 或模板/说明槽位，而不只是文案变好看 |
-| 初始化已生成 `TEAM.toml`，但 `1-Cards` 执行时不读取 `策划` 布阵 | stage team governance | 在 `1-Cards/SKILL.md` 把 `TEAM.toml` 升级为必读输入，并要求有策划 AGENTS 时必须伴随后台多 subagents 会诊 | 将“策划团队参与 cards 决策并落盘”写成根技能硬规则，而不是初始化提示语 | 执行 `1-Cards` 时能明确区分“无策划组单跑”与“有策划组并行会诊后落盘” |
+| 初始化已经有 `reader_promise / aesthetic_axes / style_system`，但 cards 没有正式风格卡 | cards object coverage | 新增 `风格卡` 子技能包、模板、writer/validator/tests 接口 | 固定“整书风格契约也属于 1-Cards 对象真源” | `Cards/1-风格卡/**/*.json` 可正式落盘 |
+| 仍把角色/场景/物品当 `references` 模块加载 | parent routing contract | 回到 `1-Cards/SKILL.md`，改为直连 child skill dispatch | 在父技能、writer、validator、tests 同时锁定 child skill 路由 | `module_route` 不再出现 `references/*-module` |
+| 子技能文档已改，但 writer/validator 仍写旧 route | runtime parity | 同步改 `cards_writer.py`、`cards_coverage_validator.py` 与 tests 常量 | 把 route parity 提升为 completeness audit 必检项 | 文档、脚本、测试命中同一 child path |
+| template 改了 `source_route`，但 validator 不检查 | trace contract | 在 validator 增加 `meta.source_route / source_skill_id / loaded_references` 校验 | 任何 child skill path 升级都要做 trace parity 测试 | 错 route 会被 gate 拦住 |
+| 对象子技能已经独立，但模板仍留在 `1-Cards/templates` 根层 | canonical source layering | 把模板下沉到对应 child skill 包内，并让 writer/validator/tests 都消费 child-local template path | 固定“对象私有模板跟对象子技能同包，父层只保留总线合同” | 根层不再出现对象私有 `templates/` |
+| 物品卡重新绕过角色/场景接口直接补设定 | cross-skill consistency | 回到 `物品卡`，强制读取角色接口与场景规则 | 在父技能写死 mixed/full-build 顺序为 `角色 -> 场景 -> 物品` | 物品 blocking finding 能指回缺失上游 |
+| 只改文档，不改 tests | source-layer closure | 反查 `test_cards_writer.py` 与 `test_cards_coverage_validator.py` | cards 系统改动视为“文档 + runtime + tests”三件套 | pytest 覆盖 route parity 与 schema parity |
+| cards 系统看起来有卡，但 route trace 不可信 | completeness audit | 跑 `cards-check` 并核对 trace 输出 | validator 既查存在，也查 route/source parity | 报告里能看到正确 child skill trace |
 
 ## Repair Playbook
 
-1. 先判断问题是路由错、reference 漏载，还是单卡内容失真。
-2. 若是多模块同时失真，先修主 `SKILL.md` 与 `references/README.md`。
-3. 若是单模块失真，先修对应 module reference，再修卡片内容。
-4. 若是“看起来有卡但不够厚”，直接跑覆盖率校验，不做体感争论。
-5. 若是增量回写，最后回查是否污染了无关卡层。
+1. 先判断问题是父层路由、child 合同、writer、validator 还是 tests 漂移。
+2. 若文档与运行时分离，优先修 runtime parity，不先润色 prose。
+3. 若 trace 不可信，先看 template/source_route，再看 writer，再看 validator。
+4. 若物品侧异常，先回查角色接口和场景规则是否稳定，再修物品内容。
+5. 非平凡重构结束后，必须重跑 cards 相关定向测试。
 
 ## Reusable Heuristics
 
-- `1-Cards` 最容易失控的不是写不出卡，而是路由漂移；所以单技能真源比“三个看似清楚的子技能”更稳。
-- 角色卡的最高杠杆不是多加设定，而是先补功能桶和关系边。
-- 场景卡最值钱的是“可写戏”，不是“有画面”。
-- 物品卡最值钱的是“归属 + 代价 + 剧情作用”，不是“设定说明”。
-- 长篇项目的 cards 问题，常常不是 schema 不对，而是密度不够。
-- reference 模块应该像手术刀，而不是第二套权力中心。
-- 一旦某份 cards reference 进入治理范围，最稳的结构不是继续堆单文档，而是直接升格成 `references/<module>/module-spec.md + CONTEXT.md`，这样路由合同和局部经验层才不会互相污染。
-- 如果某份世界构建知识会同时服务初始化和对象建卡，就应提升到共享 `templates/worldbuilding/`，而不是继续从 `0-Init` 私有 `references/` 借读。
-- `cards-check` 只有同时消费索引层、单卡层、north star 约束层，才配叫最终 gate；任何只看“数量”的 validator 都会把空壳 cards 放过去。
-- 强规则项目的门槛不能只看 `state.json` 的摘要词；若 `north_star_contract.cards` 已经写了规则系统与 enforcement focus，coverage gate 必须把它算进 profile。
-- 对 `1-Cards` 来说，模板、writer、validator 必须三件套一起成立；只改其中一层，trace 合同最终都会漂回“文档存在、产物缺席”。
-- 对 governed references 来说，“已经拆目录”不等于“已经治理完成”；只有父技能路由、模块六块合同和模块 `CONTEXT` 三件套同时成立，模块才算真正接回主链路。
-- 对 `think-think` 来说，“已经写出三轴三重”也不等于“已经执行到位”；真正过线的是：事实/推断已分层，关键字段已拆成驱动/判废/对比，且至少经过轴权、替换、扰动三类验证中的核心项。
-- `1-Cards` 这类大 skill 的 frontmatter `description` 若开始解释流程而不是触发条件，会让执行者跳过后文真源与路由合同；保持 `Use when...` 式触发描述更稳。
+- `1-Cards` 的高杠杆不是把对象细则放在根文档里，而是让父 skill 只做总线，把判断权稳定下沉到 child skills。
+- 对 `story2026` 来说，`reader_promise / aesthetic_axes / cards.style_system` 不是抽象上游附录，而应进入正式 cards 真源，通过 `风格卡` 持有。
+- cards 体系一旦从 `references` 迁到 child skills，最容易漏掉的不是文档，而是 writer/validator/tests 的 route 常量。
+- `module_route` 只检查“存在”不够，必须检查“是否指向正确 child skill”。
+- 角色、场景、物品三类卡的强依赖关系没有变，变的是承载它们的源层形态：从 governed reference 升格为 governed child skill。
+- 真正的系统完善度，不是“新增了 child skills”，而是 template / writer / validator / tests / child contracts 五层同时对齐。
+- 对 `1-Cards` 来说，模板若还挂在父层，就说明真源分层还没收完；最稳的形态是“父层管总线，模板跟着对象子技能走”。

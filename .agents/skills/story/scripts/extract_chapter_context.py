@@ -55,7 +55,7 @@ _RAG_TRIGGER_KEYWORDS = (
 
 
 def find_project_root(start_path: Path | None = None) -> Path:
-    """解析真实书项目根（包含 `.webnovel/state.json` 的目录）。"""
+    """解析真实书项目根（包含 `STATE.json` 的目录）。"""
     from project_locator import resolve_project_root
 
     if start_path is None:
@@ -108,10 +108,12 @@ def extract_chapter_summary(project_root: Path, chapter_num: int) -> str:
 
 
 def extract_state_summary(project_root: Path) -> str:
-    """Extract key fields from `.webnovel/state.json`."""
-    state_file = project_root / ".webnovel" / "state.json"
+    """Extract key fields from `STATE.json`."""
+    from project_locator import resolve_state_file
+
+    state_file = resolve_state_file(explicit_project_root=str(project_root))
     if not state_file.exists():
-        return "⚠️ state.json 不存在"
+        return "⚠️ STATE.json 不存在"
 
     state = json.loads(state_file.read_text(encoding="utf-8"))
     summary_parts: List[str] = []

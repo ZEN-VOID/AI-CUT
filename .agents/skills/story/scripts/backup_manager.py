@@ -7,7 +7,7 @@ Git 集成备份管理系统 (Backup Manager with Git)
 🔧 重大升级：使用 Git 进行原子性版本控制
 
 为什么选择 Git：
-1. ✅ 原子性回滚：state.json + 正文/*.md 同时回滚，数据 100% 一致
+1. ✅ 原子性回滚：STATE.json + 正文/*.md 同时回滚，数据 100% 一致
 2. ✅ 增量存储：只存储 diff，节省 95% 空间
 3. ✅ 成熟稳定：经过 20 年验证的版本控制系统
 4. ✅ 分支管理：天然支持"平行世界"创作
@@ -41,7 +41,7 @@ Git 提交规范：
   - 每个章节对应一个 commit + 一个 tag
 
 数据一致性保证：
-  ✅ 回滚时，state.json 和所有 .md 文件同步回滚
+  ✅ 回滚时，STATE.json 和所有 .md 文件同步回滚
   ✅ 不会出现"状态记录筑基期，但文件里写着金丹期"的数据撕裂
   ✅ 原子性操作，要么全部成功，要么全部失败
 """
@@ -61,7 +61,7 @@ from typing import Optional, List, Tuple
 # 安全修复：导入安全工具函数（P1 MEDIUM）
 # ============================================================================
 from security_utils import sanitize_commit_message, is_git_available, is_git_repo, git_graceful_operation
-from project_locator import resolve_project_root
+from project_locator import resolve_project_root, resolve_state_file
 
 # Windows 编码兼容性修复
 if sys.platform == "win32":
@@ -115,7 +115,7 @@ __pycache__/
 .vscode/
 .idea/
 
-# Don't ignore .webnovel (we need to track state.json)
+# Don't ignore .webnovel (we need to track STATE.json)
 # But ignore cache files
 .webnovel/context_cache.json
 """)
@@ -177,8 +177,8 @@ __pycache__/
         backup_path = backup_dir / backup_name
 
         try:
-            # 备份 state.json
-            state_file = self.project_root / ".webnovel" / "state.json"
+            # 备份 STATE.json
+            state_file = resolve_state_file(explicit_project_root=str(self.project_root))
             if state_file.exists():
                 backup_path.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(state_file, backup_path / "state.json")
@@ -298,7 +298,7 @@ __pycache__/
 
         print(f"✅ 已回滚到第 {chapter_num} 章！")
         print(f"\n💡 提示:")
-        print(f"  - 所有文件（state.json + 正文/*.md）已同步回滚")
+        print(f"  - 所有文件（STATE.json + 正文/*.md）已同步回滚")
         print(f"  - 如需恢复，运行: git checkout master")
 
         return True
@@ -320,11 +320,9 @@ __pycache__/
         print("📈 文件变更统计：")
         print(output)
 
-        # 显示 state.json 的详细差异
-        print("\n📝 state.json 详细差异：")
-        success, state_diff = self._run_git_command(
-            ["diff", tag_a, tag_b, "--", ".webnovel/state.json"]
-        )
+        # 显示 STATE.json 的详细差异
+        print("\n📝 STATE.json 详细差异：")
+        success, state_diff = self._run_git_command(["diff", tag_a, tag_b, "--", "STATE.json"])
 
         if success and state_diff:
             print(state_diff[:2000])  # 限制输出长度
@@ -408,7 +406,7 @@ def main():
   # 在第 45 章完成后自动备份
   python backup_manager.py --chapter 45
 
-  # 回滚到第 30 章（原子性：state.json + 所有 .md 文件）
+  # 回滚到第 30 章（原子性：STATE.json + 所有 .md 文件）
   python backup_manager.py --rollback 30
 
   # 查看第 20 章和第 40 章的差异
@@ -437,7 +435,7 @@ def main():
     try:
         project_root = str(resolve_project_root(args.project_root))
     except FileNotFoundError as exc:
-        print(f"❌ 无法定位项目根目录（需要包含 .webnovel/state.json）: {exc}", file=sys.stderr)
+        print(f"❌ 无法定位项目根目录（需要包含 STATE.json）: {exc}", file=sys.stderr)
         sys.exit(1)
 
     # 创建管理器

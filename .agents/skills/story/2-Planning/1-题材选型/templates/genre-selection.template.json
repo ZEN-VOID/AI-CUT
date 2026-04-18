@@ -1,0 +1,72 @@
+{
+  "schema_version": "story2026/planning-pass-artifact/v1",
+  "meta": {
+    "schema_version": "story2026/planning-pass-artifact/v1",
+    "skill_id": "story-plan-genre-selection",
+    "module_id": "1-题材选型",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > 1-题材选型",
+    "template_version": "3.0.0"
+  },
+  "content": {
+    "genre_selection": {
+      "scope": "full-series",
+      "promise_matrix": {
+        "primary_genre": "",
+        "secondary_genres": [],
+        "reader_promise": [],
+        "platform_fit": []
+      },
+      "genre_corridor": {
+        "allowed_modes": [],
+        "tone_band": "",
+        "narrative_density": ""
+      },
+      "anti_cliche_bans": [],
+      "drift_corrections": [],
+      "activated_card_clusters": [],
+      "downstream_hooks": []
+    }
+  },
+  "story_map_patch": {
+    "owned_slots": [
+      "content.holomap.story_promise",
+      "content.holomap.genre_corridor",
+      "content.holomap.navigation_rules"
+    ],
+    "patch_payload": {
+      "story_promise": {
+        "reader_promise": [],
+        "platform_fit": [],
+        "forbidden_zone": []
+      },
+      "genre_corridor": {
+        "primary_genre": "",
+        "secondary_genres": [],
+        "allowed_modes": [],
+        "tone_band": "",
+        "narrative_density": "",
+        "downstream_hooks": []
+      },
+      "navigation_rules": []
+    },
+    "target_json_paths": [
+      "content.holomap.story_promise",
+      "content.holomap.genre_corridor",
+      "content.holomap.navigation_rules"
+    ],
+    "write_policy": "progressive-commit"
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

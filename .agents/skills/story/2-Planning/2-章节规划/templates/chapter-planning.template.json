@@ -1,0 +1,59 @@
+{
+  "schema_version": "story2026/planning-pass-artifact/v1",
+  "meta": {
+    "schema_version": "story2026/planning-pass-artifact/v1",
+    "skill_id": "story-plan-chapter-planning",
+    "module_id": "2-章节规划",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > 2-章节规划",
+    "template_version": "3.0.0"
+  },
+  "content": {
+    "chapter_planning": {
+      "scope": "full-series",
+      "volume_blocks": [],
+      "scale_density_contract": {
+        "selected_band": "",
+        "chapter_range": "",
+        "element_targets": {},
+        "applied_adjustments": [],
+        "gap_alerts": []
+      },
+      "density_bands": [],
+      "chapter_function_slots": [],
+      "rhythm_windows": [],
+      "buffer_rules": [],
+      "downstream_hooks": []
+    }
+  },
+  "story_map_patch": {
+    "owned_slots": [
+      "content.holomap.volume_boards",
+      "content.holomap.chapter_boards",
+      "content.holomap.episode_sequence_axis"
+    ],
+    "patch_payload": {
+      "volume_boards": [],
+      "chapter_boards": [],
+      "episode_sequence_axis": []
+    },
+    "target_json_paths": [
+      "content.holomap.volume_boards",
+      "content.holomap.chapter_boards",
+      "content.holomap.episode_sequence_axis"
+    ],
+    "write_policy": "progressive-commit"
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

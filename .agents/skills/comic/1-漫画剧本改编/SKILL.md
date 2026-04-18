@@ -662,7 +662,7 @@ erDiagram
   - `.agents/skills/comic/1-漫画剧本改编/references/hook-ending-playbook.md`
   - `.agents/skills/comic/1-漫画剧本改编/references/hotsearch-news-adaptation.md`
 - `Meta Rule Source`
-  - `/Volumes/AIGC/AIGC-DREAMER/AGENTS.md`
+  - `/Volumes/AIGC/AIGC-DREAM-MAKER/AGENTS.md`
   - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一/SKILL.md`
 
 用户闭环输出固定三段：

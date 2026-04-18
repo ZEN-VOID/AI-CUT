@@ -16,7 +16,7 @@ governance_tier: lite
 
 - `resume/` 是 `aigc` 根目录下的续跑恢复卫星技能，不是新的主阶段。
 - 它负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根 `aigc` 或目标阶段。
-- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/aigc/<项目名>/` 下的核心初始化工件、`project_state.yaml`、可选的 `governance-state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
+- 当前仓库尚无 `aigc` 专用 `workflow_manager.py`，因此 `resume/` 的恢复判断以 `projects/aigc/<项目名>/` 下的核心初始化工件、`STATE.json`、可选的 `governance-state.yaml`、阶段产物与工作区证据为准，不伪造不存在的 tracked workflow。
 - 用户若明确要求“回到初始化态重来 / 推翻当前方向重新起盘”，不属于 `resume/`；应回 `0-Init` 处理 `rebootstrap`。
 
 ## Stage Position
@@ -99,7 +99,7 @@ L2 按需：
 
 优先确认：
 
-- `project_state.yaml`
+- `STATE.json`
 - `team.yaml`
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
@@ -112,7 +112,7 @@ L2 按需：
 推荐读取：
 
 ```bash
-sed -n '1,220p' "$PROJECT_ROOT/project_state.yaml"
+sed -n '1,220p' "$PROJECT_ROOT/STATE.json"
 test -f "$PROJECT_ROOT/governance-state.yaml" && sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
 test -f "$PROJECT_ROOT/mission-brief.yaml" && sed -n '1,220p' "$PROJECT_ROOT/mission-brief.yaml"
 test -f "$PROJECT_ROOT/route-plan.yaml" && sed -n '1,220p' "$PROJECT_ROOT/route-plan.yaml"
@@ -126,7 +126,7 @@ git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 | mode | 触发条件 | 默认动作 |
 | --- | --- | --- |
 | `lightweight_init_continue` | 核心初始化工件齐全，但尚未生成结构化治理快照 | 回根 `aigc` 或低风险下一阶段继续；只有需要深治理时才补快照 |
-| `governance_rebuild` | `project_state.yaml` 缺失、核心初始化工件缺失，或高风险恢复所需 gate 明显缺失 | 回根 `aigc` 补 `state / brief / route / verdict` |
+| `governance_rebuild` | `STATE.json` 缺失、核心初始化工件缺失，或高风险恢复所需 gate 明显缺失 | 回根 `aigc` 补 `state / brief / route / verdict` |
 | `stage_continue` | 阶段产物已存在，但验收闭环未完成 | 继续当前阶段或其直接下游 |
 | `review_reentry` | 内容产物已有，但需要预审或验收 | 进入 `review/` |
 | `init_rebootstrap_reroute` | 用户明确要求“回到初始化态重来 / 推翻方向重做” | 直接回 `0-Init`，不要按续跑逻辑硬接 |
@@ -146,7 +146,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 
 恢复时优先依赖：
 
-- `project_state.yaml`
+- `STATE.json`
 - 最近一轮 `route-plan.yaml`
 - 对应阶段 runtime 目录中的真实产物
 - `validation-report.md` 是否已写出
@@ -163,7 +163,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 - 先经 `review/` 做 preflight 或验收桥接
 - 先补治理工件，再继续内容阶段
 
-若 `governance-state.yaml` 缺失但 `project_state.yaml` 与核心初始化工件齐全，默认先判为 `lightweight_init_continue`；只有当用户需要结构化断点、复杂多步恢复或 review bridge 时，才升级为 `governance_rebuild`。
+若 `governance-state.yaml` 缺失但 `STATE.json` 与核心初始化工件齐全，默认先判为 `lightweight_init_continue`；只有当用户需要结构化断点、复杂多步恢复或 review bridge 时，才升级为 `governance_rebuild`。
 
 禁止的默认动作：
 

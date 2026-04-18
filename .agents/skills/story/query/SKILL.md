@@ -23,7 +23,7 @@ allowed-tools: Read Grep Bash
 
 - `MAP` 回答“原计划如何编排”。
 - `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”。
-- `state/index` 回答“当前运行态和索引证据是什么”。
+- `STATE/index` 回答“当前运行态和索引证据是什么”。
 - `actualization + loopback` 回答“哪些计划已经被 PASS 后正式兑现”。
 - `review_metrics` 回答“质量与风险最近怎样”。
 
@@ -35,7 +35,7 @@ allowed-tools: Read Grep Bash
 
 1. 不得把 `planned_state` 当成 `actualized truth`。
 2. 不得把 `Cards.core` 当成“当前默认有效状态”。
-3. 不得把 `.webnovel/state.json` 当成唯一真源。
+3. 不得把 `STATE.json` 当成唯一真源。
 4. 不得把 XML 标签规范当成普通故事查询的主入口。
 5. 若用户问“已经发生了吗 / 现在怎样了 / 最终推进到哪”，必须显式区分：
    - `planned`
@@ -45,7 +45,7 @@ allowed-tools: Read Grep Bash
 ## Project Root Guard（必须先确认）
 
 - 工作区根目录不一定等于真实书项目根目录。
-- 必须先解析真实 `PROJECT_ROOT`；该目录必须包含 `.webnovel/state.json`。
+- 必须先解析真实 `PROJECT_ROOT`；该目录必须包含 `STATE.json`。
 - 禁止在 `.agents/skills/story` 技能包目录里冒充书项目查询业务数据。
 
 环境设置（bash 命令执行前）：
@@ -91,20 +91,20 @@ Copy and track progress:
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 |---|---|---|---|
-| “原计划哪章发生 / 这条线原本怎么排” | `Planning/8-全息地图.json` 的 `chapter_boards / cross_thread_indexes / planned_state` | `Planning/1-7/*.json` 追溯 | 不能只读 `state.json` |
-| “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `Cards/**/*.json` 的 `current_state` | `.webnovel/state.json`、`index.db` | 不能把 `core` 当当前态 |
+| “原计划哪章发生 / 这条线原本怎么排” | `Planning/全息地图.json` 的 `chapter_boards / cross_thread_indexes / planned_state` | `Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
+| “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
 | “这个人是怎么变成现在的 / 这段关系怎么演化的” | `角色卡.experience_timeline + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
-| “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / state.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
-| “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `state.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
-| “最近质量如何 / 哪些风险在抬头” | `index.db.review_metrics` / `reading_power` | `state.json.review_checkpoints` | 不能只凭主观总结 |
-| “关系图谱 / 某角色最近出场 / 状态变化证据” | `index.db` | `Cards` / `state.json` | 不能只扫 Markdown |
+| “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
+| “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
+| “最近质量如何 / 哪些风险在抬头” | `index.db.review_metrics` / `reading_power` | `STATE.json.review_checkpoints` | 不能只凭主观总结 |
+| “关系图谱 / 某角色最近出场 / 状态变化证据” | `index.db` | `Cards` / `STATE.json` | 不能只扫 Markdown |
 | “XML 标签怎么写 / 手动补标规范” | `references/tag-specification.md` | 无 | 不能把它当普通剧情查询入口 |
 
 固定裁决：
 
 - `计划问题` 优先问 `MAP`。
 - `对象问题` 优先问 `Cards`。
-- `运行态问题` 优先问 `state.json + index.db`。
+- `运行态问题` 优先问 `STATE.json + index.db`。
 - `是否已正式发生` 优先问 `actualization + loopback + validation PASS`。
 
 ## Reference Loading Levels（strict, lazy）
@@ -133,7 +133,7 @@ Copy and track progress:
 | 查询信号 | 查询类型 | 主读取层 |
 |---|---|---|
 | 角色、人物、配角、别名、身份、关系 | 对象 / 关系查询 | `Cards + index.db` |
-| 当前、现在、默认状态、持有、地点、境界 | 当前态查询 | `Cards.current_state + state.json` |
+| 当前、现在、默认状态、持有、地点、境界 | 当前态查询 | `Cards.current_state + STATE.json` |
 | 怎么变成、经历、成长、一路、时间线 | 历程查询 | `experience_timeline + history + state_changes` |
 | 原计划、哪章安排、落在哪章、编排、章节板 | 规划查询 | `MAP planned_state` |
 | 实际、已经发生、兑现了没、最后在哪集 | 实绩查询 | `MAP actualization + loopback artifact` |
@@ -174,7 +174,7 @@ cat "${SKILL_ROOT}/references/tag-specification.md"
 ### A. 规划查询
 
 ```bash
-cat "$PROJECT_ROOT/Planning/8-全息地图.json"
+cat "$PROJECT_ROOT/Planning/全息地图.json"
 ```
 
 如需追溯某条规划为何这样安排，再补读对应 `Planning/1-7/*.json`。
@@ -200,7 +200,7 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 
 必须同时检查：
 
-1. `Planning/8-全息地图.json` 的 `content.holomap.actualization`
+1. `Planning/全息地图.json` 的 `content.holomap.actualization`
 2. `Loopback/第N集.loopback.json`
 3. `validation_ref` / `review_metrics` / `review_checkpoints`
 
@@ -246,8 +246,8 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-ap
 3. `事件时间` 与 `经历时间`
    - `MAP` 是事件叙事中心
    - `experience_timeline` 是角色经历叙事中心
-4. `state.json` 快照 与 `index.db` 证据
-   - `state.json` 更像运行快照
+4. `STATE.json` 快照 与 `index.db` 证据
+   - `STATE.json` 更像运行快照
    - `index.db` 更像细粒度索引与证据层
 
 若多个来源冲突，必须在输出中显式写：
@@ -307,7 +307,7 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-ap
   - 当前 `query/SKILL.md`
   - `query/references/system-data-flow.md`
   - `2-Planning/SKILL.md`
-  - `2-Planning/references/holomap/module-spec.md`
+  - `2-Planning/_shared/planning-branch-output-contract.md`
   - `1-Cards/SKILL.md`
   - `5-Loopback/SKILL.md`
 - `Meta Rule Source` 默认上溯到仓库 `AGENTS.md` 与相关 meta skill。

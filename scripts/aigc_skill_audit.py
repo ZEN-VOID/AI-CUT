@@ -101,7 +101,7 @@ ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/7-后期/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
-    "projects/aigc/<项目名>/project_state.yaml",
+    "projects/aigc/<项目名>/STATE.json",
     "projects/aigc/<项目名>/governance-state.yaml",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
@@ -489,9 +489,9 @@ def audit_registry(failures: list[str]) -> tuple[list[dict], list[dict], str]:
         failures.append(
             f"{REGISTRY}: `aigc.runtime_control.canonical_project_runtime` must be `projects/aigc/<项目名>/`"
         )
-    if runtime_control.get("project_state_carrier") != "projects/aigc/<项目名>/project_state.yaml":
+    if runtime_control.get("project_state_carrier") != "projects/aigc/<项目名>/STATE.json":
         failures.append(
-            f"{REGISTRY}: `aigc.runtime_control.project_state_carrier` must be `projects/aigc/<项目名>/project_state.yaml`"
+            f"{REGISTRY}: `aigc.runtime_control.project_state_carrier` must be `projects/aigc/<项目名>/STATE.json`"
         )
     if runtime_control.get("governance_state_carrier") != "projects/aigc/<项目名>/governance-state.yaml":
         failures.append(
@@ -537,7 +537,7 @@ def audit_routes(contract_mode: str, failures: list[str]) -> None:
 
     if aigc_runtime.get("canonical_runtime_root") != "projects/aigc/<项目名>/":
         failures.append(f"{ROUTES}: `aigc-project-runtime` canonical root mismatch")
-    if aigc_runtime.get("project_state_carrier") != "projects/aigc/<项目名>/project_state.yaml":
+    if aigc_runtime.get("project_state_carrier") != "projects/aigc/<项目名>/STATE.json":
         failures.append(f"{ROUTES}: `aigc-project-runtime` project_state carrier mismatch")
     if aigc_runtime.get("governance_state_carrier") != "projects/aigc/<项目名>/governance-state.yaml":
         failures.append(f"{ROUTES}: `aigc-project-runtime` governance_state carrier mismatch")

@@ -18,8 +18,8 @@ def test_resolve_project_root_prefers_cwd_project(tmp_path):
     from project_locator import resolve_project_root
 
     project_root = tmp_path / "workspace"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (project_root).mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     resolved = resolve_project_root(cwd=project_root)
     assert resolved == project_root.resolve()
@@ -47,7 +47,7 @@ def test_resolve_project_root_stops_at_git_root(tmp_path):
         pass
 
 
-def test_resolve_project_root_finds_default_subdir_within_git_root(tmp_path):
+def test_resolve_project_root_finds_projects_story_container_within_git_root(tmp_path):
     _ensure_scripts_on_path()
 
     from project_locator import resolve_project_root
@@ -55,9 +55,9 @@ def test_resolve_project_root_finds_default_subdir_within_git_root(tmp_path):
     repo_root = tmp_path / "repo"
     (repo_root / ".git").mkdir(parents=True, exist_ok=True)
 
-    default_project = repo_root / "webnovel-project"
-    (default_project / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (default_project / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    default_project = repo_root / "projects" / "story" / "默认书"
+    (default_project).mkdir(parents=True, exist_ok=True)
+    (default_project / "STATE.json").write_text("{}", encoding="utf-8")
 
     nested = repo_root / "sub" / "dir"
     nested.mkdir(parents=True, exist_ok=True)
@@ -75,8 +75,8 @@ def test_resolve_project_root_finds_story_project_subdir_within_git_root(tmp_pat
     (repo_root / ".git").mkdir(parents=True, exist_ok=True)
 
     default_project = repo_root / "story-project"
-    (default_project / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (default_project / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (default_project).mkdir(parents=True, exist_ok=True)
+    (default_project / "STATE.json").write_text("{}", encoding="utf-8")
 
     nested = repo_root / "sub" / "dir"
     nested.mkdir(parents=True, exist_ok=True)
@@ -94,8 +94,8 @@ def test_resolve_project_root_uses_workspace_pointer(tmp_path):
     (workspace / ".claude").mkdir(parents=True, exist_ok=True)
 
     project_root = workspace / "凡人资本论"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (project_root).mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     pointer_file = write_current_project_pointer(project_root, workspace_root=workspace)
     assert pointer_file is not None
@@ -117,9 +117,9 @@ def test_resolve_project_root_ignores_stale_pointer_and_fallbacks(tmp_path):
         str(workspace / "missing-project"), encoding="utf-8"
     )
 
-    default_project = workspace / "webnovel-project"
-    (default_project / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (default_project / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    default_project = workspace / "projects" / "story" / "默认书"
+    (default_project).mkdir(parents=True, exist_ok=True)
+    (default_project / "STATE.json").write_text("{}", encoding="utf-8")
 
     resolved = resolve_project_root(cwd=workspace)
     assert resolved == default_project.resolve()
@@ -133,8 +133,8 @@ def test_resolve_project_root_reads_legacy_registry_and_migrates_to_story2026(tm
     claude_root = tmp_path / ".claude-home"
     workspace = tmp_path / "workspace"
     project_root = workspace / "项目A"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (project_root).mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     legacy_registry = claude_root / "webnovel-writer" / "workspaces.json"
     legacy_registry.parent.mkdir(parents=True, exist_ok=True)
@@ -170,8 +170,8 @@ def test_resolve_project_root_prefers_story_project_root_env(tmp_path, monkeypat
     from project_locator import resolve_project_root
 
     project_root = tmp_path / "story-project"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (project_root).mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     monkeypatch.setenv("STORY_PROJECT_ROOT", str(project_root))
     monkeypatch.delenv("WEBNOVEL_PROJECT_ROOT", raising=False)

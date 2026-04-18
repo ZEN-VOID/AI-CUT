@@ -27,7 +27,8 @@
 | 恢复后默认退回旧 `大纲/` | shared data-flow contract | 在 `resume` 写死 holomap-first | 在 `resume` 与共享 data-flow 文档中同步固定 | 恢复继续 drafting/query 时明确优先 `全息地图.json` |
 | `resume/` 与 `5-Loopback` actualization 职责混淆 | stage contract | 在 `resume/SKILL.md` 明确其是 satellite recovery skill | 在 `5-Loopback` 与 `resume` 同时固定边界 | 不再把恢复动作描述成 truth writeback |
 | 旧文档仍把 `Step 1.5` 当当前正式 tracked step | drafting contract drift | 改成 legacy compatibility note | 在 `resume` 文档中区分“当前 tracked step”与“旧状态兼容” | 当前 step 表以 `workflow_manager.get_pending_steps()` 为准 |
-| `resume` 只看 `workflow_state.json`，看不到全阶段 run / stage_progress / task log | execution-state contract | 为 `resume` 增加 `execution_state.json + task_log.jsonl` 读取语义，并把 registry 扩到全阶段 commands | 在脚本与参考文档同步固定“三件套分工” | `resume/status` 可判断 init/cards/plan/validate/loopback/query 等非 drafting run |
+| `resume` 仍按旧独立文件找断点，看不到内联全阶段 run / stage_progress / task log | execution-state contract | 为 `resume` 增加 `STATE.json.workflow_runtime` 读取语义，并把 registry 扩到全阶段 commands | 在脚本与参考文档同步固定内联三件套分工 | `resume/status` 可判断 init/cards/plan/validate/loopback/query 等非 drafting run |
+| `resume` / `workflow_manager` 仍按 `Step 2A/2B + 正文发布稿` 恢复 `story-write` | drafting runtime drift | 把 `story-write` tracked steps 改成 1-7 工序，并把 cleanup 目标切到 `3-Drafting/第N集.md` | 在 `resume` 合同、恢复 runbook、workflow manager 与测试里同步固定新 drafting runtime | 恢复建议会围绕 `第N集.md` 与对应工序，而不是旧发布稿 |
 
 ## Repair Playbook
 
@@ -50,6 +51,6 @@
 - 恢复建议若涉及删除正文或 Git 操作，优先做 preview-confirm 两段式，再执行实际清理。
 - `resume/` 最容易过时的不是命令名，而是“它以为自己在接回哪个 stage”；每次大改 stage 边界后都要重新核对。
 - 当 `detect` 输出只是诊断原料时，`resume/` 还必须做人类可执行的二次归一化，不能把脚本内部动作说明直接当 SOP。
-- 一旦仓库已经有 `workflow_state + execution_state + task_log` 三件套，恢复判断就不该再只靠单一 current_task；优先看 run registry，再看兼容断点，再看事件链。
+- 一旦仓库已经把三件套内联进 `STATE.json.workflow_runtime`，恢复判断就不该再只靠单一 `current_task`；优先看 run registry，再看兼容断点，再看事件链。
 - `resume/` 的正式支持清单必须跟 `workflow_manager.py` registry 同步缩放；命令下线后，不保留“理论上还能恢复”的幽灵入口。
-
+- 只要 `3-Drafting` 的正文真源换了路径，恢复链路里所有“删除半成品/继续加工”的目标文件都要一起换，否则用户会清理错对象。

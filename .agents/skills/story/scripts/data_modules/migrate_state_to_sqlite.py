@@ -336,7 +336,7 @@ def main():
 
     args = parser.parse_args()
 
-    # 允许传入“工作区根目录”，统一解析到真正的 book project_root（必须包含 .webnovel/state.json）
+    # 允许传入“工作区根目录”，统一解析到真正的 book project_root（必须包含 STATE.json）
     from project_locator import resolve_project_root
 
     resolved_root = resolve_project_root(args.project_root)

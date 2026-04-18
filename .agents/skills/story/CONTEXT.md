@@ -27,7 +27,8 @@ last_checked_at: 2026-04-08T00:00:00Z
 | 共享 helper 被多个阶段复制维护，导致路径或状态规则漂移 | shared script layer | 把共用 helper 收束到根级 `scripts/` | 对 2+ 阶段共用的路径/状态/CLI 逻辑，统一提升为共享入口 | 脚本调用路径与运行态规则只需修一处 |
 | 根级 skill 变成“阶段细则合集”，反而制造第二层重复 | scope discipline | 收缩根级 skill，只保留总线职责 | 阶段细节留在各阶段 `SKILL.md`，根级只保留拓扑和边界 | 根级文件可快速说明系统，不需要复制阶段合同 |
 | `story2026` 用户命令已切到 `/story-*`，但 skill frontmatter、workflow registry、模板 metadata 仍残留 `webnovel-*` / `story2026-*`，导致命名双真源 | canonical naming governance | 新增根级 `references/command-naming-contract.md`，并同步改写 skill/frontmatter、workflow、模板与命令文档 | 将命名迁移固定为“命名合同 -> 文档/技能 -> workflow/state -> 测试”的单一升级顺序，旧名只留 alias 层 | 用户侧、状态层与模板层都只写 canonical `story-*`，旧名仅能被兼容读取 |
-| 共享脚本已经开始写 `.webnovel/tasks/<run_id>/` 三省工件，但根/阶段合同不承认它们 | governance artifact governance | 在根级与关键阶段 skill 中显式加入 `.codex/*` 真源回指和 shadow 工件链说明 | 把 task artifact chain 固化成跨阶段共享证据层，并要求命令文档、阶段技能、CONTEXT 同步承认 | 运行脚本、技能合同、命令文档对任务工件链口径一致 |
+| workflow runtime 已改为内联写入 `STATE.json`，但根/阶段合同仍沿用 `.webnovel/tasks` 与旧独立状态文件口径 | governance artifact governance | 在根级与关键阶段 skill 中显式改成 `STATE.json.workflow_runtime` | 把 runtime artifact chain 固化成跨阶段共享证据层，并要求命令文档、阶段技能、CONTEXT 同步承认 | 运行脚本、技能合同、命令文档对执行态口径一致 |
+| `3-Drafting` 已切换到 `projects/story/<项目名>/3-Drafting/第N集.md` 单根文件模式，但共享文档与 helper 还在讲 `Drafting/chNNNN/chapter-root.md` | drafting runtime governance | 把根 skill、query data-flow、path helper、旧 shared 合同统一切回新路径 | 将 `3-Drafting/_shared/episode-root-contract.md` 固定为唯一 drafting runtime 真源，旧 `chapter-root` 降级为迁移回指 | 相关文档与 helper 不再并行描述两套 drafting 路径 |
 
 ## Repair Playbook
 
@@ -50,4 +51,5 @@ last_checked_at: 2026-04-08T00:00:00Z
 - 主链阶段默认串行，卫星技能默认侧挂；不要把 `query / resume` 写成新的主流程阶段，也不要让仅剩用户层入口的辅助命令伪装成正式卫星技能。
 - 当用户命令、skill id、workflow command、模板 metadata 同时出现改名需求时，不要逐层碰运气替换；先建立一份根级命名合同，再让其他载体回指这份真源。
 - 若某个命令只剩用户命令层入口、已不再对应 tracked workflow 或正式 skill，必须在命名合同与根级路由合同里显式标成“auxiliary command”，不要让它继续挂在卫星技能表里伪装成正式阶段。
-- 当共享脚本已能写出治理工件，而阶段合同还没承认这些工件时，优先补根 skill 与命令文档，再补关键阶段 skill，避免脚本能力再次沦为隐形层。
+- 当共享脚本已把治理工件内联到 `STATE.json.workflow_runtime`，而阶段合同还没承认这些对象时，优先补根 skill 与命令文档，再补关键阶段 skill，避免脚本能力再次沦为隐形层。
+- 当某阶段的 canonical runtime 已从“技术根文件”升级到“业务根文件”后，shared docs 与 path helper 必须同轮同步，不然旧路径会很快长成第二真源。

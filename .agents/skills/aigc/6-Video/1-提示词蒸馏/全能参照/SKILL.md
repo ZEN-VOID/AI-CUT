@@ -38,7 +38,7 @@ governance_tier: full
 
 `全能参照` 是 `6-Video` 阶段位于 `1-提示词蒸馏` tranche 的组级叶子子技能，当前 canonical 路径固定为：
 
-`/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/`
+`/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/`
 
 它负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 **单个分镜组的全部组级与镜级内容** 蒸馏为 **每组 1 条** 视频请求对象，并同步产出：
 
@@ -662,7 +662,7 @@ erDiagram
 - `第N集.json` 是唯一 completeness carrier。
 - `第N集.txt` 只是 derived display view。
 - `_manifest.json` 是追溯与例外说明载体。
-- 若本次属于 recovery rerun，且 `project_state.yaml` 已推进到 `2-参照引用`、`3-视频生成`、provider handoff 或更后续阶段，则本技能只修复缺失的 `全能参照` 三件套与 trace，不得把项目推荐入口、`current_stage` 或后续 ready 状态回退到本子技能之前。
+- 若本次属于 recovery rerun，且 `STATE.json` 已推进到 `2-参照引用`、`3-视频生成`、provider handoff 或更后续阶段，则本技能只修复缺失的 `全能参照` 三件套与 trace，不得把项目推荐入口、`current_stage` 或后续 ready 状态回退到本子技能之前。
 
 ### 执行闭环输出
 
@@ -691,7 +691,7 @@ erDiagram
 - 正式进入视频生成时，优先先判定是否要进入 `2-参照引用` 绑定 `Assets` 参考图；若不需要，再把 `第N集.json` 交给父阶段 `3-视频生成`。
 - `第N集.txt` 只供人工审阅，不作为自动化 handoff 主体。
 - `_manifest.json` 只承载追溯、异常说明与最小验证结果，不替代 JSON 主体。
-- 若 `project_state.yaml` 已经把下一入口锁到 `2-参照引用` 或 `3-视频生成`，而磁盘缺失 `全能参照` 三件套，应视为 video prompt 层 runtime drift：先补回三件套，再保持原 handoff 指向，不额外降级项目状态。
+- 若 `STATE.json` 已经把下一入口锁到 `2-参照引用` 或 `3-视频生成`，而磁盘缺失 `全能参照` 三件套，应视为 video prompt 层 runtime drift：先补回三件套，再保持原 handoff 指向，不额外降级项目状态。
 
 ## Field System
 

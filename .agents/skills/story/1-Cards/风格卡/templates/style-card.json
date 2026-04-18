@@ -1,0 +1,92 @@
+{
+  "schema_version": "story2026/cards/style/v1",
+  "meta": {
+    "skill_id": "story-cards",
+    "source_skill_id": "story-cards-style",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
+    "template_version": "1.0.0"
+  },
+  "content": {
+    "module_route": "",
+    "loaded_references": [],
+    "writeback_plan": {
+      "mode": "",
+      "target_paths": [],
+      "upstream_patch_required": false,
+      "boundary_notes": []
+    },
+    "card_schema": {
+      "style_card": {
+        "card_id": "",
+        "card_type": "style",
+        "group": "global_style",
+        "core": {
+          "identity": {
+            "name": "",
+            "scope": "full-series"
+          },
+          "reader_promise": {
+            "primary_pleasures": [],
+            "anti_trope": "",
+            "hard_constraints": [],
+            "no_fly_zones": []
+          },
+          "aesthetic_axes": {
+            "tone": "",
+            "violence_texture": "",
+            "mystery_density": "",
+            "romance_policy": ""
+          },
+          "style_system": {
+            "text_style": {
+              "tone": "",
+              "genre_corridor": "",
+              "anti_trope": ""
+            },
+            "narrative_style": {
+              "opening_hook": "",
+              "mystery_density": "",
+              "romance_policy": ""
+            },
+            "tone_promises": [],
+            "taboo_styles": [],
+            "downstream_constraints": []
+          },
+          "style_gate": {
+            "anti_ai_required": false,
+            "no_poison_required": false,
+            "style_contract_ref": ""
+          }
+        },
+        "current_state": {
+          "active_focus": [],
+          "downstream_targets": [],
+          "revision_policy": ""
+        },
+        "history": []
+      }
+    },
+    "card_groups": {
+      "global_styles": []
+    },
+    "style_contract_refs": [],
+    "current_focus": {
+      "confirmed_facts": [],
+      "inferred_defaults": [],
+      "active_constraints": []
+    }
+  },
+  "gate_summary": {
+    "status": "REVIEW_REQUIRED",
+    "total_score": 0,
+    "max_score": 60,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

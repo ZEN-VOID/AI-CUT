@@ -133,7 +133,7 @@ class DataModulesConfig:
 
     @property
     def state_file(self) -> Path:
-        return self.webnovel_dir / "state.json"
+        return self.project_root / "STATE.json"
 
     @property
     def index_db(self) -> Path:
@@ -368,7 +368,7 @@ def get_config(project_root: Optional[Path] = None) -> DataModulesConfig:
         # 使用统一的 project_locator 自动探测：
         # - 支持 STORY_PROJECT_ROOT / WEBNOVEL_PROJECT_ROOT
         # - 支持 `.claude/.webnovel-current-project` 指针文件
-        # - 支持从当前目录/父目录寻找 `.webnovel/state.json`
+        # - 支持从当前目录/父目录寻找 `STATE.json`
         from project_locator import resolve_project_root
 
         root = resolve_project_root()

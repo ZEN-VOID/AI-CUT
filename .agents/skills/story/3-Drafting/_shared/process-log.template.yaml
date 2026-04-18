@@ -1,0 +1,9 @@
+episode_num: 0
+manuscript_path: ""
+planning_ref: "Planning/全息地图.json"
+previous_episode_ref: ""
+completed_steps: []
+current_resume_pointer:
+  next_step: "1-单集叙事起盘"
+  reason: "not_started"
+step_history: []

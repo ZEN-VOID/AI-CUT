@@ -28,7 +28,7 @@
    - 当前 canonical carrier 路径
    - 现有 verdict / report / learning 载体
 2. `runtime evidence`
-   - `project_state.yaml`
+   - `STATE.json`
    - `governance-state.yaml`
    - `project-runtime-layout.md`
 3. `rule evidence`

@@ -135,10 +135,10 @@ last_checked_at: 2026-03-25T09:30:51Z
 - [x] challenge 连续命中时会尽早收敛为 blocker，而不是每章各自做长轮询。
 
 #### evidence paths
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/scripts/download.py`
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/SKILL.md`
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/CONTEXT.md`
-- `/Volumes/AIGC/AIGC-DREAMER/input/番茄小说/穿成疯批权臣的炮灰原配/metadata.json`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/scripts/download.py`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/SKILL.md`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/CONTEXT.md`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/input/番茄小说/穿成疯批权臣的炮灰原配/metadata.json`
 
 #### user feedback/constraint
 - 用户输入极简，只给技能与 `book_id`，期望直接落盘；若正文无法取回，必须给出真实 blocker，而不是伪装成普通接口波动。
@@ -174,11 +174,11 @@ last_checked_at: 2026-03-25T09:30:51Z
 - [x] 技能合同、README 与经验层已同步“challenge blocker 立即失败”口径。
 
 #### evidence paths
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/scripts/download.py`
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/SKILL.md`
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/references/README.md`
-- `/Volumes/AIGC/AIGC-DREAMER/.agents/skills/fanqie-download/CONTEXT.md`
-- `/Volumes/AIGC/AIGC-DREAMER/input/番茄小说/7370221167111572542/metadata.json`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/scripts/download.py`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/SKILL.md`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/references/README.md`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/fanqie-download/CONTEXT.md`
+- `/Volumes/AIGC/AIGC-DREAM-MAKER/input/番茄小说/7370221167111572542/metadata.json`
 
 #### user feedback/constraint
 - 用户仍是极简输入，只给技能与 `book_id`；要求不是“分析为什么失败”，而是要么直接落盘，要么给出可执行 blocker 结论。

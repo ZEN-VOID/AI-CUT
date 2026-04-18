@@ -18,10 +18,10 @@
 
 | 入口命令 | 调用方 | 触发时机 | 关键脚本/动作 |
 |---|---|---|---|
-| `/story-init` | `0-Init` Skill | 新建项目、模式选择后的初始化阶段（顾问团 / 快速 / 自主） | `scripts/init_project.py` + 生成 `idea_bank.json` + 初始化 `workflow_state/execution_state/task_log` |
+| `/story-init` | `0-Init` Skill | 新建项目、模式选择后的初始化阶段（顾问团 / 快速 / 自主） | `scripts/init_project.py` + 生成五件套 + 初始化 `STATE.json.workflow_runtime` |
 | `1-Cards` | `story-cards` 父技能 | 初始化完成后的整书建卡 / 增量回写 | 路由四张子卡，正式写入 `Cards/**` |
-| `/story-plan` | `2-Planning` Skill | 1-7 号 planning passes 收敛并产出 `Planning/8-全息地图.json` 时 | `scripts/update_state.py --volume-planned ...` + 落盘 `全息地图.json` |
-| `/story-write` | `3-Drafting` Skill | Step 1 先读 `Planning/8-全息地图.json` 组装上下文，Step 5 再更新数据链 | Task 调 `data-agent`（内部再写 state/index） |
+| `/story-plan` | `2-Planning` Skill | 1-7 号 planning 子技能 progressive commit 到 `Planning/全息地图.json` 时 | `scripts/update_state.py --volume-planned ...` + 落盘 `全息地图.json` |
+| `/story-write` | `3-Drafting` Skill | 固定按 `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-张力强化 -> 7-润色` 串行加工 `projects/story/<项目名>/3-Drafting/第N集.md` | 先读 `Planning/全息地图.json`，当 `N>1` 时额外加载上一集终稿，并同步更新 `写作日志.yaml` |
 | `4-Validation` | `story-validate` Skill | 章节或历史章节进入隔离上下文质检时 | 新建 checker 团队 + 聚合结构化结果 |
 | `/story-review` | `review` Skill | `4-Validation` 聚合结果需要生成正式报告、持久化评分并桥接修复 / `5-Loopback` 闭环时 | `scripts/workflow_manager.py` + `index save-review-metrics` + `update_state --add-review` |
 | `5-Loopback` | `story-loopback` Skill | `4-Validation = PASS` 后做 validated actualization 时 | 读取 `templates/loopback.json`，写回 Cards / story_map / projection |
@@ -33,17 +33,17 @@
 | 脚本 | 主要触发方 | 触发节点 | 备注 |
 |---|---|---|---|
 | `.agents/skills/story/scripts/story.py` | 所有 Skills / Agents | 任何需要调用 CLI 的节点 | **统一入口**：负责解析真实 book project_root，并转发到 `data_modules/*` 或 `scripts/*.py`，避免 `PYTHONPATH/cd/参数顺序` 导致的隐性失败 |
-| `.agents/skills/story/scripts/update_state.py` | `2-Planning` Skill | 全息地图落盘后同步更新 `state.json` 的卷规划信息 | 也可被自动化脚本调用；默认不是人工常规入口 |
-| `.agents/skills/story/scripts/extract_chapter_context.py` | `3-Drafting` Skill / `context-agent` | 章节级执行包与 validation fact pack 投影生成 | 默认从 `Planning/8-全息地图.json` 收束输入 |
+| `.agents/skills/story/scripts/update_state.py` | `2-Planning` Skill | 全息地图落盘后同步更新 `STATE.json` 的卷规划信息 | 也可被自动化脚本调用；默认不是人工常规入口 |
+| `.agents/skills/story/scripts/extract_chapter_context.py` | `3-Drafting` Skill / `context-agent` | 章节级执行包与 validation fact pack 投影生成 | 默认从 `Planning/全息地图.json` 收束输入 |
 | `.agents/skills/story/scripts/status_reporter.py` | `query` Skill / `pacing-checker` Agent(可选) | 查询分析或节奏审查时 | 产出健康报告与紧急度分析 |
-| `.agents/skills/story/scripts/workflow_manager.py` | `resume` Skill / 各 stage 调度点 | 全阶段 run 跟踪、恢复检测、心跳、状态汇总与 task log | 不再只服务 write/review；负责 `workflow_state + execution_state + task_log` |
-| `.agents/skills/story/scripts/init_project.py` | `0-Init` Skill | 项目初始化阶段 | 负责项目脚手架、基础状态文件以及状态管理期初文件 |
+| `.agents/skills/story/scripts/workflow_manager.py` | `resume` Skill / 各 stage 调度点 | 全阶段 run 跟踪、恢复检测、心跳、状态汇总与 task log | 不再只服务 write/review；负责 `STATE.json.workflow_runtime` |
+| `.agents/skills/story/scripts/init_project.py` | `0-Init` Skill | 项目初始化阶段 | 负责项目脚手架、五件套与状态管理期初内联结构 |
 
 ## 内部库调用（非独立命令）
 
 | 内部模块 | 调用方 | 触发时机 |
 |---|---|---|
-| `.agents/skills/story/scripts/data_modules/state_validator.py` | `update_state.py`、`status_reporter.py` | 读写 `state.json` 时自动规范化与校验 |
+| `.agents/skills/story/scripts/data_modules/state_validator.py` | `update_state.py`、`status_reporter.py` | 读写 `STATE.json` 时自动规范化与校验 |
 
 ## 阶段级职责提醒
 

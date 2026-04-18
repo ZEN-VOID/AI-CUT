@@ -49,7 +49,7 @@
 
 ## Governance Layering
 
-- `TEAM.toml["评审"]`
+- `team.yaml.roles.review`（缺失时回退 `team.yaml["评审"]`）
   - 只允许作为评审专家组的增量治理层。
   - 不得覆盖本文件定义的 checker roster。
 - `review/`

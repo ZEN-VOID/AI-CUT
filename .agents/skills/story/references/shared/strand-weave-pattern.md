@@ -4,7 +4,7 @@ purpose: 章节规划时检查三线平衡，避免节奏单调
 ---
 
 <context>
-此文件用于情节线平衡控制。Claude 已知多线叙事技巧，这里只补充网文特定的三线交织机制和 state.json 中的追踪器结构。
+此文件用于情节线平衡控制。Claude 已知多线叙事技巧，这里只补充网文特定的三线交织机制和 `STATE.json` 中的追踪器结构。
 注意：此文件为 shared 单一事实源；禁止在各 Skill 的 references 下复制修改。若需更新，请修改本文件。
 </context>
 
@@ -26,7 +26,7 @@ purpose: 章节规划时检查三线平衡，避免节奏单调
 | Fire 不超过 10 章不出现 | current - last_fire > 10 | 安排感情戏（小甜蜜/吃醋） |
 | Constellation 不超过 15 章不出现 | current - last_constellation > 15 | 展示新设定/势力/伏笔 |
 
-## state.json 中的 strand_tracker 结构
+## `STATE.json` 中的 `strand_tracker` 结构
 
 ```json
 {

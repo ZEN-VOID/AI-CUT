@@ -101,7 +101,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["projects/aigc/<项目名>/"] --> B["project_state.yaml"]
+    A["projects/aigc/<项目名>/"] --> B["STATE.json"]
     A --> C["governance-state.yaml"]
     D[".codex/registry/skills.yaml"] --> E["aigc root route truth"]
     F[".codex/registry/routes.yaml"] --> E
@@ -166,7 +166,7 @@ erDiagram
 ### Canonical Runtime Artifacts
 
 - 核心运行时工件：
-  - `projects/aigc/<项目名>/project_state.yaml`
+  - `projects/aigc/<项目名>/STATE.json`
 - 惰性治理工件：
   - `projects/aigc/<项目名>/governance-state.yaml`
   - `projects/aigc/<项目名>/mandate.yaml`
@@ -186,7 +186,7 @@ erDiagram
 - 当前稳定质量证据以以下三类载体为准：
   - `scripts/aigc_skill_audit.py --strict`
   - 各阶段与项目根的 `validation-report.md`
-  - `project_state.yaml + governance-state.yaml`
+  - `STATE.json + governance-state.yaml`
   - 代表性样本项目的即时 validator 结果与跨层对照结论
 - 根级质评默认基于当前真实合同、样本项目与审计/validator 结果做即时分析，不要求预先维护固定评测任务 YAML。
 
@@ -350,7 +350,7 @@ erDiagram
 | 六部 | 在 `aigc` 根技能中的挂载 |
 | --- | --- |
 | 吏部 | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml` 对 `aigc` 的注册与路由 |
-| 户部 | 根 `CONTEXT.md`、`projects/aigc/<项目名>/project_state.yaml` 与 `projects/aigc/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
+| 户部 | 根 `CONTEXT.md`、`projects/aigc/<项目名>/STATE.json` 与 `projects/aigc/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
 | 礼部 | `.codex/templates/harness/` 与项目级工件合同 |
 | 兵部 | 主阶段链与子技能调度；`resume` 负责续跑与恢复回接 |
 | 刑部 | 根验收闭环、阶段审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
@@ -359,7 +359,7 @@ erDiagram
 ## 强制工作流
 
 1. 确认或创建 `projects/aigc/<项目名>/`
-2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`project_state.yaml`、`governance-state.yaml` 是否存在。
+2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`STATE.json`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
 4. 若后续进入 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
 5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、图像、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
@@ -407,7 +407,7 @@ erDiagram
 9. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
 10. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
 11. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
-12. `project_state.yaml` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 review/resume 同步。两者不得各自演化成平行真源。
+12. `STATE.json` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 review/resume 同步。两者不得各自演化成平行真源。
 13. 用户若明确要求“回到初始化态 / 重新起盘 / 推翻当前方向重来”，根路由必须回 `0-Init`；不得把这类诉求误判为 `resume` 的续跑恢复。
 
 ## 完成标准
@@ -490,7 +490,7 @@ erDiagram
 4. `.codex/registry/routes.yaml`
 5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`）
-7. `projects/aigc/<项目名>/project_state.yaml`（若存在）
+7. `projects/aigc/<项目名>/STATE.json`（若存在）
 8. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
 9. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
 

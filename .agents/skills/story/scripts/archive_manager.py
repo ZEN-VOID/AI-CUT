@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-state.json 数据归档管理脚本
+STATE.json 数据归档管理脚本
 
-目标：防止 state.json 无限增长，确保 200 万字长跑稳定运行
+目标：防止 STATE.json 无限增长，确保 200 万字长跑稳定运行
 
 功能：
 1. 智能归档长期未使用的数据（角色/伏笔/审查报告）
@@ -45,7 +45,7 @@ from runtime_compat import enable_windows_utf8_stdio
 # 安全修复：导入安全工具函数（P1 MEDIUM）
 # ============================================================================
 from security_utils import create_secure_directory, atomic_write_json
-from project_locator import resolve_project_root
+from project_locator import resolve_project_root, resolve_state_file
 
 # v5.1 引入: 使用 IndexManager 读取实体
 try:
@@ -61,7 +61,7 @@ if sys.platform == "win32":
 
 
 class ArchiveManager:
-    """state.json 数据归档管理器"""
+    """STATE.json 数据归档管理器"""
 
     def __init__(self, project_root=None):
         if project_root is None:
@@ -71,7 +71,7 @@ class ArchiveManager:
             project_root = Path(project_root)
 
         self.project_root = project_root
-        self.state_file = project_root / ".webnovel" / "state.json"
+        self.state_file = resolve_state_file(explicit_project_root=str(project_root))
         self.archive_dir = project_root / ".webnovel" / "archive"
 
         # v5.1 引入: IndexManager 用于读取实体
@@ -95,24 +95,24 @@ class ArchiveManager:
             "character_inactive_threshold": 50,  # 角色超过 50 章未出场视为不活跃
             "plot_resolved_threshold": 20,       # 已回收伏笔超过 20 章后归档
             "review_old_threshold": 50,          # 审查报告超过 50 章后归档
-            "file_size_trigger_mb": 1.0,         # state.json 超过 1.0MB 触发强制归档
+            "file_size_trigger_mb": 1.0,         # STATE.json 超过 1.0MB 触发强制归档
             "chapter_trigger": 10                # 每 10 章检查一次
         }
 
     def load_state(self):
-        """加载 state.json"""
+        """加载 STATE.json"""
         if not self.state_file.exists():
-            print(f"❌ state.json 不存在: {self.state_file}")
+            print(f"❌ STATE.json 不存在: {self.state_file}")
             sys.exit(1)
 
         with open(self.state_file, 'r', encoding='utf-8') as f:
             return json.load(f)
 
     def save_state(self, state):
-        """保存 state.json（原子化写入）"""
+        """保存 STATE.json（原子化写入）"""
         # 使用集中式原子写入（自动备份）
         atomic_write_json(self.state_file, state, use_lock=True, backup=True)
-        print(f"✅ state.json 已原子化更新")
+        print(f"✅ STATE.json 已原子化更新")
 
     def load_archive(self, archive_file):
         """加载归档文件"""
@@ -365,9 +365,9 @@ class ArchiveManager:
         return len(old_reviews_list)
 
     def remove_from_state(self, state, inactive_chars, resolved_threads, old_reviews):
-        """从 state.json/SQLite 中移除已归档的数据（v5.1 引入，v5.4 沿用）"""
+        """从 STATE.json/SQLite 中移除已归档的数据（v5.1 引入，v5.4 沿用）"""
         # v5.1 引入: 角色数据在 SQLite，archive_characters 已处理状态更新
-        # 这里只需要处理 state.json 中的伏笔和审查报告
+        # 这里只需要处理 STATE.json 中的伏笔和审查报告
 
         # 移除已归档的伏笔
         if resolved_threads:
@@ -461,7 +461,7 @@ class ArchiveManager:
         threads_archived = self.archive_plot_threads(resolved_threads, dry_run=dry_run)
         reviews_archived = self.archive_reviews(old_reviews, dry_run=dry_run)
 
-        # 从 state.json 中移除
+        # 从 STATE.json 中移除
         state = self.remove_from_state(state, inactive_chars, resolved_threads, old_reviews)
         self.save_state(state)
 
@@ -526,13 +526,13 @@ class ArchiveManager:
 
         print(f"   归档大小: {total_size / 1024:.2f} KB")
 
-        # 显示 state.json 大小
+        # 显示 STATE.json 大小
         state_size_mb = self.state_file.stat().st_size / (1024 * 1024)
-        print(f"\n💾 state.json 当前大小: {state_size_mb:.2f} MB")
+        print(f"\n💾 STATE.json 当前大小: {state_size_mb:.2f} MB")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="state.json 数据归档管理")
+    parser = argparse.ArgumentParser(description="STATE.json 数据归档管理")
 
     parser.add_argument("--auto-check", action="store_true", help="自动归档检查")
     parser.add_argument("--force", action="store_true", help="强制归档（忽略触发条件）")
@@ -547,7 +547,7 @@ def main():
     try:
         project_root = str(resolve_project_root(args.project_root) if args.project_root else resolve_project_root())
     except FileNotFoundError as exc:
-        print(f"❌ 无法定位项目根目录（需要包含 .webnovel/state.json）: {exc}", file=sys.stderr)
+        print(f"❌ 无法定位项目根目录（需要包含 STATE.json）: {exc}", file=sys.stderr)
         sys.exit(1)
 
     manager = ArchiveManager(project_root=project_root)

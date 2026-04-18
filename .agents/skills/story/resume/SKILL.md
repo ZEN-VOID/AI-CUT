@@ -1,6 +1,6 @@
 ---
 name: story-resume
-description: Use when a story2026 task was interrupted and the operator needs to inspect `.webnovel/workflow_state.json`, present safe recovery choices, or restart a tracked `story-write` or `story-review` run without guessing the breakpoint.
+description: Use when a story2026 task was interrupted and the operator needs to inspect `STATE.json.workflow_runtime`, present safe recovery choices, or restart a tracked run without guessing the breakpoint.
 governance_tier: lite
 ---
 
@@ -17,12 +17,12 @@ governance_tier: lite
 - `resume/` 是 `story2026` 在 `5-Loopback` 侧的卫星恢复技能，不负责写入 truth，也不冒充 drafting / review / loopback actualization 主流程。
 - 它的职责是：定位真实中断点、给出安全恢复选项、清理或保留现场、把后续执行重新接回当前 canonical truth。
 - 当前 canonical truth 约定保持一致：
-  - 规划真源：`Planning/8-全息地图.json`
-  - 运行态真源：`.webnovel/state.json`
+  - 规划真源：`Planning/全息地图.json`
+  - 运行态真源：`STATE.json`
   - 实体/关系/状态变化主存储：`.webnovel/index.db`
-  - 工作流断点：`.webnovel/workflow_state.json`
-  - 全阶段执行状态：`.webnovel/execution_state.json`
-  - 追加式任务日志：`.webnovel/task_log.jsonl`
+  - 工作流断点：`STATE.json.workflow_runtime.workflow_state`
+  - 全阶段执行状态：`STATE.json.workflow_runtime.execution_state`
+  - 追加式任务日志：`STATE.json.workflow_runtime.task_log`
 
 ## Stage Position
 
@@ -32,7 +32,7 @@ governance_tier: lite
 - 若诉求其实是：
   - 查询运行时信息：转 `query/`
   - 对 PASS 集做正式回写：转 `5-Loopback/`
-  - 修正文稿质量问题：转 `3-Drafting` Step 4 或 `review/`
+  - 修正文稿质量问题：转 `3-Drafting` 对应工序或 `review/`
 
 ## Supported Scope
 
@@ -53,13 +53,13 @@ governance_tier: lite
 
 | 场景 | 支持方式 | 限制 |
 |---|---|---|
-| 手工 Bash / 临时调试任务被打断 | 只做诊断与安全建议 | 不伪造 `workflow_state.json` |
-| 未注册的自定义命令被打断 | 只做诊断与安全建议 | 不伪造 `workflow_state.json / execution_state.json` |
+| 手工 Bash / 临时调试任务被打断 | 只做诊断与安全建议 | 不伪造 `STATE.json.workflow_runtime` |
+| 未注册的自定义命令被打断 | 只做诊断与安全建议 | 不伪造内联 workflow runtime |
 
 ## Project Root Guard
 
 - 工作区根目录不一定等于真实书项目根目录。
-- 必须先解析 `PROJECT_ROOT`，它必须包含 `.webnovel/state.json`。
+- 必须先解析 `PROJECT_ROOT`，它必须包含 `STATE.json`。
 - 所有恢复命令都必须走统一入口 `scripts/story.py`，不要直接绕过统一 CLI 拼脚本路径。
 
 环境设置（bash 命令执行前）：
@@ -191,13 +191,13 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 | tracked step | 语义 | 默认恢复策略 |
 |---|---|---|
-| `Step 1` | Context Agent | 直接从 Step 1 重建上下文 |
-| `Step 2A` | 正文起草 | 优先“带备份地清理半成品 + 从 Step 1 重跑” |
-| `Step 2B` | 风格适配 | 与 `Step 2A` 同级处理；必要时保留半成品供人工比对 |
-| `Step 3` | 审查 | 重新执行审查，或经用户确认后跳过并转 Step 4 |
-| `Step 4` | 润色 | 优先继续润色；若文稿失真，再回 Step 2A |
-| `Step 5` | Data Agent | 直接重跑，按幂等步骤处理 |
-| `Step 6` | Git/备份收尾 | 默认保留工作区并检查 `git status`，不自动删除正文 |
+| `Step 1` | 单集叙事起盘 | 直接从 Step 1 重建当前集上下文与初稿底座 |
+| `Step 2` | 节奏优化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 3` | 场景和氛围渲染 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 4` | 角色形象刻画 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 5` | 对白个性化和声口优化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 6` | 叙事张力强化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 7` | 润色 | 优先继续润色收束；若终稿已明显漂移，再清理当前集正文并回 Step 1 |
 | `Step 1.5` | legacy 旧断点 | 视为 Step 1 兼容处理，不再单独追踪 |
 
 ### `story-review` 的当前 Step 解释
@@ -219,7 +219,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 - 禁止默认执行：
   - `git reset --hard`
   - 假定存在 `ch0007` 之类 tag/commit 再硬回滚
-  - 未备份即删除正文文件
+  - 未备份即删除当前集正文根文件 `3-Drafting/第N集.md`
 
 ## Step 4：与用户确认恢复策略
 
@@ -243,7 +243,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 ## Step 5：执行恢复或安全退出
 
-### 推荐路径：清理半成品后重跑
+### 推荐路径：清理当前集正文后重跑
 
 先预览：
 
@@ -276,7 +276,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ### 继续 `story-write`
 
 - 恢复后默认继续走 `3-Drafting` 当前合同。
-- 章节级上下文恢复必须重新以 `Planning/8-全息地图.json` 为默认规划真源。
+- 章节级上下文恢复必须重新以 `Planning/全息地图.json` 为默认规划真源。
 - 若用户要先检查恢复后的上下文包，可执行：
 
 ```bash
@@ -302,7 +302,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 - `workflow detect` 不再报告旧断点，或旧断点已按用户意图保留为人工现场。
 - 若执行了 cleanup：
   - 已有预览
-  - 真正删除前已自动备份正文文件
+  - 真正删除前已自动备份当前集正文根文件
 - 若恢复后继续写作：
   - 明确说明下一跳回到 `3-Drafting`
   - 继续以 holomap-first 方式加载上下文

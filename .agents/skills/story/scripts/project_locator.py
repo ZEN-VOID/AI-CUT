@@ -3,10 +3,10 @@
 Project location helpers for story2026 scripts.
 
 Problem this solves:
-- Many scripts assumed CWD is the project root and used relative paths like `.webnovel/state.json`.
+- Many scripts assumed CWD is the project root and used relative paths like `STATE.json`.
 - In this repo, commands/scripts are often invoked from the repo root, while the actual project lives
-  in a subdirectory (default: `story-project/`, legacy-compatible with `webnovel-project/`).
-- Newer projects may also expose a root-level `STATE.json` manifest that points to the runtime state file.
+  in a subdirectory (canonical: `projects/story/<项目名>/`, legacy-compatible with `story-project/` and `webnovel-project/`).
+- Newer projects use root-level `STATE.json` as the canonical runtime state file.
 
 These helpers provide a single, consistent way to locate the active project root.
 """
@@ -22,10 +22,14 @@ from typing import Iterable, Optional
 from runtime_compat import normalize_windows_path
 
 
-DEFAULT_PROJECT_DIR_NAMES: tuple[str, ...] = ("story-project", "webnovel-project")
+DEFAULT_PROJECT_DIR_CANDIDATES: tuple[Path, ...] = (
+    Path("projects") / "story",
+    Path("story-project"),
+    Path("webnovel-project"),
+)
 CURRENT_PROJECT_POINTER_REL: Path = Path(".claude") / ".webnovel-current-project"
 PROJECT_STATE_MANIFEST_REL: Path = Path("STATE.json")
-DEFAULT_RUNTIME_STATE_REL: Path = Path(".webnovel") / "state.json"
+DEFAULT_RUNTIME_STATE_REL: Path = Path("STATE.json")
 
 # 用户级全局映射（当 skills/agents 安装在 ~/.claude 时，项目目录可能在任意盘符）
 # 该文件用于在“空上下文 + CWD 不在项目内”的情况下仍能定位到正确 project_root。
@@ -284,13 +288,13 @@ def update_global_registry_current_project(
 
 def _candidate_roots(cwd: Path, *, stop_at: Optional[Path] = None) -> Iterable[Path]:
     yield cwd
-    for name in DEFAULT_PROJECT_DIR_NAMES:
-        yield cwd / name
+    for relative in DEFAULT_PROJECT_DIR_CANDIDATES:
+        yield cwd / relative
 
     for parent in cwd.parents:
         yield parent
-        for name in DEFAULT_PROJECT_DIR_NAMES:
-            yield parent / name
+        for relative in DEFAULT_PROJECT_DIR_CANDIDATES:
+            yield parent / relative
         if stop_at is not None and parent == stop_at:
             break
 
@@ -333,6 +337,15 @@ def _resolve_runtime_state_from_manifest(path: Path) -> Optional[Path]:
 
 def _is_project_root(path: Path) -> bool:
     return _default_runtime_state_path(path).is_file() or _resolve_runtime_state_from_manifest(path) is not None
+
+
+def _resolve_single_project_root_from_container(path: Path) -> Optional[Path]:
+    if not path.is_dir():
+        return None
+    matches = [child.resolve() for child in path.iterdir() if child.is_dir() and _is_project_root(child)]
+    if len(matches) == 1:
+        return matches[0]
+    return None
 
 
 def _pointer_candidates(cwd: Path, *, stop_at: Optional[Path] = None) -> Iterable[Path]:
@@ -421,9 +434,9 @@ def resolve_project_root(explicit_project_root: Optional[str] = None, *, cwd: Op
     Resolution order:
     1) explicit_project_root (if provided)
     2) env var STORY_PROJECT_ROOT / WEBNOVEL_PROJECT_ROOT (if set)
-    3) Search from cwd and parents, including common subdirs `story-project/` and `webnovel-project/`
+    3) Search from cwd and parents, including common subdirs `projects/story/`, `story-project/` and `webnovel-project/`
 
-    A valid project root must either contain `.webnovel/state.json` directly, or contain `STATE.json`
+    A valid project root must either contain `STATE.json` directly, or contain `STATE.json`
     whose `paths.runtime_state` points to an existing runtime state file.
 
     Search safety:
@@ -491,11 +504,14 @@ def resolve_project_root(explicit_project_root: Optional[str] = None, *, cwd: Op
     for candidate in _candidate_roots(base, stop_at=git_root):
         if _is_project_root(candidate):
             return candidate.resolve()
+        container_root = _resolve_single_project_root_from_container(candidate)
+        if container_root is not None:
+            return container_root
 
     raise FileNotFoundError(
         "Unable to locate story project root. Expected `STATE.json` (pointing to a runtime state file) or "
-        f"`{DEFAULT_RUNTIME_STATE_REL}` under the current directory, a parent directory, `story-project/`, or "
-        "`webnovel-project/`. Run /story-init first or pass --project-root / set "
+        f"`{DEFAULT_RUNTIME_STATE_REL}` under the current directory, a parent directory, `projects/story/<项目名>/`, "
+        "`story-project/`, or `webnovel-project/`. Run /story-init first or pass --project-root / set "
         f"{ENV_STORY_PROJECT_ROOT} (legacy-compatible with {ENV_WEBNOVEL_PROJECT_ROOT})."
     )
 

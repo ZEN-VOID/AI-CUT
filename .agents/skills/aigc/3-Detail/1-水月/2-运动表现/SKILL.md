@@ -23,7 +23,7 @@ governance_tier: lite
 - `constraint_profile`
   - 只拥有 `运动表现` 写权；必须保留 branch-owned 单一路径；必须写 branch process sidecar；必须让 AI 易漂移的连续性信息显式化。
 - `success_criteria`
-  - 一次阅读能看清谁因什么而往哪里动；`thinking_process` 真正支撑 `patch_payload`；review 和 validator 都能通过。
+  - 一次阅读能看清谁因什么而往哪里动，并能明确看出这一拍如何接住上一拍末态的朝向、相对方位与动势；`thinking_process` 真正支撑 `patch_payload`；review 和 validator 都能通过。
 - `non_goals`
   - 不负责人物心理、关系评语、镜头语言、空间世界观总搭建，也不替父层做 bundle prose 聚合。
 - `topology_fit`
@@ -71,8 +71,9 @@ governance_tier: lite
 1. 先读当前 root，再判断动作，不得从孤立 prose 直接改写。
 2. merge 顺序固定为 `一致性 -> 位置和方向 -> 逻辑性`；显式化筛查发生在三者汇流后。
 3. `运动表现` 只承载连续性、位置方向和因果桥，不得偷写人物主观解释。
-4. 多动作 prose 必须先锁“主运动句”；其余动作只能服务该主链。
-5. `target_json_paths[]` 只能命中 `final_output.main_content.分镜组列表[].分镜明细[].运动表现`。
+4. `一致性` 必须以上一拍末态为锚，至少显式锁住朝向、相对方位、位移趋势、持物/接触状态中的关键项，防止人物无理由从东侧跳到西侧或从逼近跳成远离。
+5. 多动作 prose 必须先锁“主运动句”；其余动作只能服务该主链。
+6. `target_json_paths[]` 只能命中 `final_output.main_content.分镜组列表[].分镜明细[].运动表现`。
 
 ## Output Contract
 
@@ -111,6 +112,7 @@ governance_tier: lite
 1. `逻辑性` 只回答“为什么现在发生、这拍怎样接向下一拍”，不得退化成完整动作句复写。
 2. `位置和方向` 只回答“谁相对什么锚点、往哪里动、方向怎么变”，不得代写因果。
 3. `一致性` 只回答“这一拍接住了上一拍什么状态”，不得与前两槽机械同句。
+4. 若当前镜是组内首拍，也必须说明它继承了本组开场设定的哪条朝向、距离或对峙关系，不能把“一致性”写成空泛的“延续紧张感”。
 
 ## Thinking-Action Topology
 
@@ -156,7 +158,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-SCOPE-LOCK` | 锁定唯一 episode/group 与 target path | 最新 root、父层 scope、branch owner | 读取当前 root；定位本轮 group；确认只写 `运动表现` | `scope_note`、`target_json_paths[]` | pass -> `N2` | scope 唯一且无越权 path |
 | `N2-MOTION-THESIS` | 回收上一拍状态并锁主运动句 | 当前组 prose、上一拍状态、已写回 root | 提炼 `context_anchor`；找一条主运动句；写 `creative_thesis` | `thinking_process.context_anchor`、`creative_thesis` | pass -> `N3` | 主动作明确，且不靠心理词驱动 |
-| `N3-CONTINUITY-PASS` | 让动作先接得住 | `一致性` 模块、上一拍状态、主运动句 | 补 `连续性说明`；标出最容易丢的承接状态 | `execution_steps[]` 中的 continuity step、`连续性说明` | pass -> `N4` / fail -> `N2` | 不出现失忆式跳变，不发明新动作 |
+| `N3-CONTINUITY-PASS` | 让动作先接得住 | `一致性` 模块、上一拍状态、主运动句 | 先锁上一拍末态的朝向/相对方位/位移趋势/持物接触，再补 `连续性说明`；标出最容易丢的承接状态 | `execution_steps[]` 中的 continuity step、`连续性说明` | pass -> `N4` / fail -> `N2` | 不出现失忆式跳变、无理由换边或换向，不发明新动作 |
 | `N4-POSITION-PASS` | 让谁往哪动可被快速读懂 | `位置和方向` 模块、主参考系、主运动句 | 锁主锚点；明确相对位置、方向变化与距离变化；去掉地图式说明 | `位置和方向` | pass -> `N5` / fail -> `N4` | 一次阅读能形成站位变化，不生成第二套坐标 |
 | `N5-CAUSAL-PASS` | 让动作不是为了好看才发生 | `逻辑性` 模块、触发点、位置和方向 | 写“为什么现在发生、下一拍怎么接”的最短因果桥 | `逻辑性` | pass -> `N6` / fail -> `N5` | 至少存在一条清晰因果短链，且节奏未拖慢 |
 | `N6-EXPLICIT-MERGE` | 汇成单一动作脊梁并显式防漂移 | 前三 pass 结果、module-spec must_answer、quality_gates | 汇总成 `patch_payload.运动表现`；把易漂移信息吸收到 `一致性 / 位置和方向 / 逻辑性`，并写 `self_check` | `patch_payload.运动表现`、`thinking_process.self_check[]` | pass -> `N7` / fail -> `N2` | 不是三段摘要拼接，而是一条可拍动作主链 |
@@ -168,7 +170,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `S1` | `N1-SCOPE-LOCK` | `FIELD-MO-01` | `target_json_paths[]` | 本轮到底补哪一集哪一组哪一条字段 | 锁 scope 与唯一 target path | scope 唯一、无越权 | `FAIL-MO-01` | `S1` |
 | `S2` | `N2-MOTION-THESIS` | `FIELD-MO-02` | `thinking_process.context_anchor / creative_thesis` | 这一拍最该被看懂的主动作是什么 | 回收上一拍状态并锁主运动句 | 有单一动作主轴 | `FAIL-MO-02` | `S2` |
-| `S3` | `N3-CONTINUITY-PASS` | `FIELD-MO-03` | `运动表现.一致性` | 当前拍有没有接住上一拍留下的状态 | 写承接句并标出易丢状态 | 无失忆式跳变 | `FAIL-MO-03` | `S2` |
+| `S3` | `N3-CONTINUITY-PASS` | `FIELD-MO-03` | `运动表现.一致性` | 当前拍有没有接住上一拍留下的朝向、相对方位、位移趋势与关键状态 | 写承接句并标出易丢状态 | 无失忆式跳变、无理由换边换向 | `FAIL-MO-03` | `S2` |
 | `S4` | `N4-POSITION-PASS` | `FIELD-MO-04` | `运动表现.位置和方向` | 谁相对什么锚点往哪里动 | 锁主参考系与方向路径 | 站位变化清楚且不画地图 | `FAIL-MO-04` | `S4` |
 | `S5` | `N5-CAUSAL-PASS` | `FIELD-MO-05` | `运动表现.逻辑性` | 为什么是现在发生、下一拍怎么接 | 写最短因果桥 | 至少一条清晰因果短链 | `FAIL-MO-05` | `S5` |
 | `S6` | `N6-EXPLICIT-MERGE` | `FIELD-MO-06` | `运动表现三槽收束` | 哪些信息人会脑补但模型会丢 | 显式化筛查并汇成单一动作脊梁 | 不再依赖默认脑补 | `FAIL-MO-06` | `S2` |

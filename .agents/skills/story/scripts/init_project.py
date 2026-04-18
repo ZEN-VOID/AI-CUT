@@ -4,8 +4,8 @@
 网文项目初始化脚本
 
 目标：
-- 生成可运行的项目结构（推荐位于 `projects/<小说名>/`）
-- 创建/更新 .webnovel/state.json（运行时真相）
+- 生成可运行的项目结构（推荐位于 `projects/story/<小说名>/`）
+- 创建/更新项目根 `STATE.json`（运行时真相）
 - 生成基础 stage 目录与兼容性规划模板文件（供 /story-plan 与 /story-write 使用）
 
 说明：
@@ -21,6 +21,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+import yaml
 
 from runtime_compat import enable_windows_utf8_stdio
 from typing import Any, Dict, List
@@ -31,15 +32,11 @@ from security_utils import sanitize_commit_message, atomic_write_json, is_git_av
 from project_locator import write_current_project_pointer
 
 
-RUNTIME_STATE_REL = Path(".webnovel") / "state.json"
-WORKFLOW_STATE_REL = Path(".webnovel") / "workflow_state.json"
-EXECUTION_STATE_REL = Path(".webnovel") / "execution_state.json"
-TASK_LOG_REL = Path(".webnovel") / "task_log.jsonl"
-TASK_ARTIFACTS_ROOT_REL = Path(".webnovel") / "tasks"
-IDEA_BANK_REL = Path(".webnovel") / "idea_bank.json"
+RUNTIME_STATE_REL = Path("STATE.json")
 PROJECT_STATE_MANIFEST_REL = Path("STATE.json")
-TEAM_MANIFEST_REL = Path("TEAM.toml")
+TEAM_MANIFEST_REL = Path("team.yaml")
 CHANGELOG_REL = Path("CHANGELOG.md")
+INIT_STAGE_REL = Path("0-Init")
 PLANNING_SKILL_PATHS = [
     ".agents/skills/story/0-Init",
     ".agents/skills/story/1-Cards",
@@ -93,12 +90,32 @@ def _cleanup_lock_file(path: Path) -> None:
         lock_path.unlink()
 
 
+def _write_yaml(path: Path, payload: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        yaml.safe_dump(payload, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+
+
 def _toml_quote(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
 def _render_toml_array(values: List[str]) -> str:
     return "[" + ", ".join(_toml_quote(value) for value in values if value) + "]"
+
+
+def _yaml_quote(value: str) -> str:
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _yaml_inline_list(values: List[str]) -> str:
+    return "[" + ", ".join(_yaml_quote(value) for value in values if value) + "]"
+
+
+def _yaml_bool(value: bool) -> str:
+    return "true" if value else "false"
 
 
 def _normalize_team_setup(
@@ -115,17 +132,23 @@ def _normalize_team_setup(
     production_members = _split_list_values(production_agents)
     review_members = _split_list_values(review_agents)
 
+    team_lineup_mode = "auto"
     team_mode = "unspecified"
     if shared_agents:
+        team_lineup_mode = "custom"
         team_mode = "same_lineup"
         planning_members = list(shared_agents)
         production_members = list(shared_agents)
         review_members = list(shared_agents)
     elif any((planning_members, production_members, review_members)):
+        team_lineup_mode = "custom"
         team_mode = "per_stage"
     elif legacy_advisor_agents:
+        team_lineup_mode = "custom"
         team_mode = "legacy_planning_only"
         planning_members = list(legacy_advisor_agents)
+    else:
+        team_mode = "auto"
 
     role_members = {
         "planning": planning_members,
@@ -141,12 +164,22 @@ def _normalize_team_setup(
             "enabled": True if members else "",
             "members": members,
             "governs": list(spec["skills"]) if members else [],
+            "source_skill_refs": list(spec["skills"]),
         }
 
     return {
+        "init_mode": "team_roleplay",
+        "selector_scope_root": ".agents/skills/team/",
+        "team_lineup_mode": team_lineup_mode,
         "team_mode": team_mode,
         "shared_agents": _unique_preserve_order(shared_agents),
         "legacy_advisor_agents": _unique_preserve_order(legacy_advisor_agents),
+        "required_departments": ["小说组", "导演组", "评审组"],
+        "optional_departments_considered": [],
+        "department_lineup_notes": [],
+        "role_allocation_mode": "overlap_allowed",
+        "role_overlap_notes": [],
+        "recommendation_todo_paths": [],
         "planning_agents": team_roles["planning"]["members"],
         "production_agents": team_roles["production"]["members"],
         "review_agents": team_roles["review"]["members"],
@@ -156,6 +189,7 @@ def _normalize_team_setup(
 
 def _council_mode_display(team_mode: str) -> str:
     mapping = {
+        "auto": "自动组队",
         "same_lineup": "同一套班底，三阶段通用",
         "per_stage": "三阶段分别指定",
         "legacy_planning_only": "兼容旧字段（仅策划阶段）",
@@ -293,26 +327,30 @@ def _compact_values(*values: Any) -> List[Any]:
 def _normalize_init_mode(raw: str) -> str:
     value = (raw or "").strip().lower()
     if not value:
-        return "自主模式"
+        return "team代入模式"
     mapping = {
-        "智能顾问团模式": "智能顾问团模式",
-        "顾问团模式": "智能顾问团模式",
-        "顾问团": "智能顾问团模式",
-        "advisor": "智能顾问团模式",
-        "advisory": "智能顾问团模式",
-        "council": "智能顾问团模式",
-        "快速模式": "快速模式",
-        "快速": "快速模式",
-        "quick": "快速模式",
-        "fast": "快速模式",
-        "自主模式": "自主模式",
-        "自主": "自主模式",
-        "autonomous": "自主模式",
-        "interactive": "自主模式",
-        "deep": "自主模式",
-        "深度模式": "自主模式",
+        "team代入模式": "team代入模式",
+        "team-roleplay": "team代入模式",
+        "team_roleplay": "team代入模式",
+        "team": "team代入模式",
+        "智能顾问团模式": "team代入模式",
+        "顾问团模式": "team代入模式",
+        "顾问团": "team代入模式",
+        "advisor": "team代入模式",
+        "advisory": "team代入模式",
+        "council": "team代入模式",
+        "快速模式": "team代入模式",
+        "快速": "team代入模式",
+        "quick": "team代入模式",
+        "fast": "team代入模式",
+        "自主模式": "team代入模式",
+        "自主": "team代入模式",
+        "autonomous": "team代入模式",
+        "interactive": "team代入模式",
+        "deep": "team代入模式",
+        "深度模式": "team代入模式",
     }
-    return mapping.get(raw.strip(), mapping.get(value, "自主模式"))
+    return mapping.get(raw.strip(), mapping.get(value, "team代入模式"))
 
 
 def _normalize_mode_source(raw: str, normalized_mode: str) -> str:
@@ -325,23 +363,23 @@ def _normalize_mode_source(raw: str, normalized_mode: str) -> str:
     }
     if value in mapping:
         return mapping[value]
-    return "defaulted" if normalized_mode == "自主模式" else "inferred"
+    return "defaulted"
 
 
 def _normalize_decision_owner(raw: str, normalized_mode: str) -> str:
     value = (raw or "").strip().lower()
     if value in {"assistant", "user"}:
         return value
-    return "assistant" if normalized_mode == "快速模式" else "user"
+    return "user"
 
 
 def _ensure_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
-    """确保 state.json 具备 v5.1 架构所需的字段集合（v5.4 沿用）。
+    """确保 STATE.json 具备 v5.1 架构所需的字段集合（v5.4 沿用）。
 
     v5.1 变更:
-    - entities_v3 和 alias_index 已迁移到 index.db，不再存储在 state.json
+    - entities_v3 和 alias_index 已迁移到 index.db，不再存储在 STATE.json
     - structured_relationships 已迁移到 index.db relationships 表
-    - state.json 保持精简 (< 5KB)
+    - STATE.json 保持精简 (< 5KB)
     """
     state.setdefault("project_info", {})
     state.setdefault("progress", {})
@@ -370,7 +408,7 @@ def _ensure_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
         },
     )
     # v5.1: entities_v3, alias_index, structured_relationships 已迁移到 index.db
-    # 不再在 state.json 中初始化这些字段
+    # 不再在 STATE.json 中初始化这些字段
 
     # progress schema evolution
     state["progress"].setdefault("current_chapter", 0)
@@ -460,7 +498,7 @@ def _build_master_outline(target_chapters: int, *, chapters_per_volume: int = 50
     lines: list[str] = [
         "# 总纲",
         "",
-        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 Planning/8-全息地图.json。",
+        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 Planning/全息地图.json。",
         "",
         "## 卷结构",
         "",
@@ -710,14 +748,13 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
     return {
-        "schema_version": "story2026/north-star-contract/v2",
+        "schema_version": "story2026/north-star/v1",
         "meta": {
             "source_stage": "0-Init",
             "generated_at": payload["meta"]["generated_at"],
             "role": "primary-init-artifact",
             "scope": "full-series",
             "canonical_consumers": ["1-Cards", "2-Planning"],
-            "companion_handoff": "Init/初始化简报.json",
             "cards_role": "north-star-object-constraints",
         },
         "project_identity": {
@@ -760,29 +797,52 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
         },
         "cards": cards_projection,
         "decision_policy": project_contract["decision_policy"],
-    }
-
-
-def _build_init_companion_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
-    return {
-        "schema_version": "story2026/init-handoff/v4",
-        "meta": {
-            "source_stage": "0-Init",
-            "generated_at": payload["meta"]["generated_at"],
-            "canonical_consumer": "1-Cards",
-            "primary_artifact": "Init/north_star_contract.json",
-            "companion_role": "cards-planning-handoff",
-            "contract_model": "north_star_contract + cards_seed + planning_seed + unknowns",
-            "project_entry_state": str(PROJECT_STATE_MANIFEST_REL),
-            "team_manifest": str(TEAM_MANIFEST_REL),
-            "changelog_file": str(CHANGELOG_REL),
-        },
         "init_session": payload["init_session"],
-        "north_star_ref": "Init/north_star_contract.json",
         "cards_seed": payload["cards_seed"],
         "planning_seed": payload["planning_seed"],
         "unknowns": payload["unknowns"],
         "sources_breakdown": payload["sources_breakdown"],
+    }
+
+
+def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
+    return {
+        "manifest_version": "story2026-story-source/v1",
+        "source_root": "Story/",
+        "primary_story_source": {
+            "status": "missing",
+            "source_type": "",
+            "path": "",
+            "coverage_scope": f"{title} 当前初始化未绑定正式故事主源。",
+            "preset_retention_mode": "standard",
+            "detail_expansion_mode": "free_expansion",
+            "locked_preset_axes": [],
+            "preset_registry": [],
+            "authoritative_for": ["1-Planning"],
+            "notes": "后续若补入正文、提纲或设定源，应先登记到本文件，再进入 planning。",
+        },
+        "auxiliary_sources": [],
+        "development_briefs": [],
+        "readiness": {
+            "can_enter_cards": True,
+            "can_enter_planning": True,
+            "planning_scope": "seed_first",
+            "blocking_reason": "",
+            "partial_limitations": [
+                "当前 planning 只能基于 north star seed 与用户输入推进，不能声称具备完整剧情主源。",
+            ],
+            "allowed_next_entries_when_blocked": ["1-Cards", "2-Planning"],
+            "required_user_action": [
+                "若有正式正文、章节大纲或设定文档，请补充到项目 `Story/` 后再回刷初始化源。",
+            ],
+        },
+        "missing_prompt": {
+            "summary": "当前已足够进入 cards 与 seed-first planning，但故事主源仍为空。",
+            "ask_user_to_provide": [
+                "故事正文、章节大纲、世界观设定或其它正式故事源。",
+            ],
+        },
+        "generated_at": now_iso,
     }
 
 
@@ -807,11 +867,7 @@ def _build_sources_breakdown(
     assistant_inferred_fields: str,
 ) -> Dict[str, List[str]]:
     all_fields = _collect_nonempty_field_paths(payload)
-    default_bucket = {
-        "自主模式": "user_confirmed",
-        "智能顾问团模式": "council_advised",
-        "快速模式": "assistant_inferred",
-    }[normalized_mode]
+    default_bucket = "user_confirmed"
     breakdown = {
         "user_confirmed": [field for field in _normalize_field_paths(user_confirmed_fields) if field in all_fields],
         "council_advised": [field for field in _normalize_field_paths(council_advised_fields) if field in all_fields],
@@ -916,9 +972,7 @@ def _build_init_handoff_payload(
         review_agents=review_agents,
     )
     advisor_agent_list = team_setup["planning_agents"]
-    normalized_research_policy = (research_policy or "").strip() or (
-        "targeted-web-precision" if normalized_mode == "快速模式" else "none"
-    )
+    normalized_research_policy = (research_policy or "").strip() or "none"
     normalized_mode_source = _normalize_mode_source(mode_source, normalized_mode)
     normalized_decision_owner = _normalize_decision_owner(decision_owner, normalized_mode)
     normalized_hard_constraints = _split_list_values(hard_constraints)
@@ -1139,6 +1193,39 @@ def _build_init_handoff_payload(
     return payload
 
 
+def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
+    init_session = payload["init_session"]
+    return {
+        "north_star_ref": "0-Init/north_star.yaml",
+        "story_source_manifest_ref": "0-Init/story-source-manifest.yaml",
+        "team_ref": "team.yaml",
+        "project_contract": {
+            "initialization_goal": "以 team 代入模式完成小说项目初始化，锁定北极星、故事源状态、团队编组与唯一下一入口。",
+            "acceptance_hint": "优先进入 `1-Cards` 建卡；若已有足够故事源，再进入 `2-Planning`。",
+            "current_stage": "0-Init",
+            "recommended_next_stage": "1-Cards",
+        },
+        "stage_entry_seeds": {
+            "cards_seed": payload["cards_seed"],
+            "planning_seed": payload["planning_seed"],
+        },
+        "unknowns": payload["unknowns"],
+        "sources_breakdown": payload["sources_breakdown"],
+        "risk_notes": [
+            "当前未绑定正式故事主源，planning 只能按 seed-first 模式推进。",
+            "初始化 interview 的结论已折叠进 seeds；后续若补入正式故事源，应先回刷 `0-Init` 三文件。",
+        ],
+        "init_session": {
+            "mode": init_session["mode"],
+            "mode_source": init_session["mode_source"],
+            "decision_owner": init_session["decision_owner"],
+            "advisor_agents": init_session["advisor_agents"],
+            "team_setup": init_session["team_setup"],
+            "research_policy": init_session["research_policy"],
+        },
+    }
+
+
 def _render_sources_breakdown_block(payload: Dict[str, Any]) -> List[str]:
     breakdown = payload.get("sources_breakdown", {})
     return [
@@ -1150,110 +1237,20 @@ def _render_sources_breakdown_block(payload: Dict[str, Any]) -> List[str]:
     ]
 
 
-def _render_init_summary_markdown(payload: Dict[str, Any]) -> str:
-    init_session = payload["init_session"]
-    team_setup = init_session.get("team_setup", {})
-    unknowns = payload["unknowns"]
-    pending_lines = [f"- {item}" for item in unknowns["unresolved_questions"]] or ["- 无"]
-
-    return "\n".join(
-        [
-            "# 访谈摘要",
-            "",
-            "> 本页只保留初始化产物导航，不重复承载核心设定正文。",
-            "",
-            "## 文件角色",
-            "- 主文件：`Init/north_star_contract.json`",
-            "- 伴生交接物：`Init/初始化简报.json`",
-            "- 长期对象约束：`Init/north_star_contract.json.cards`",
-            "- 项目入口状态：`STATE.json`（标准入口，指向运行态与关键工件路径）",
-            "- 团队治理模板：`TEAM.toml`",
-            "- 版本变更记录：`CHANGELOG.md`",
-            "- 对象真源阶段：`Cards/**/*.json`",
-            "- 规划真源阶段：`Planning/8-全息地图.json`",
-            "",
-            "## 会话元信息",
-            f"- 模式：{init_session['mode'] or '（待补充）'}",
-            f"- 模式来源：{init_session['mode_source'] or '（待补充）'}",
-            f"- 顾问团布阵：{_council_mode_display(team_setup.get('team_mode', 'unspecified'))}",
-            f"- 策划坐镇：{_format_team_members(team_setup, 'planning')}",
-            f"- 监制坐镇：{_format_team_members(team_setup, 'production')}",
-            f"- 评审坐镇：{_format_team_members(team_setup, 'review')}",
-            f"- 联网策略：{init_session['research_policy'] or 'none'}",
-            f"- 默认拍板者：{init_session['decision_owner'] or 'user'}",
-            "",
-            *_render_sources_breakdown_block(payload),
-            "## Unknowns",
-            *pending_lines,
-            f"- Deferred to Cards：{', '.join(unknowns['deferred_to_cards']) if unknowns['deferred_to_cards'] else '无'}",
-            f"- Deferred to Planning：{', '.join(unknowns['deferred_to_planning']) if unknowns['deferred_to_planning'] else '无'}",
-            "",
-        ]
-    ) + "\n"
-
-
-def _render_confirmation_card_markdown(payload: Dict[str, Any]) -> str:
-    init_session = payload["init_session"]
-    team_setup = init_session.get("team_setup", {})
-    unknowns = payload["unknowns"]
-    pending_lines = [f"- {item}" for item in unknowns["unresolved_questions"]] or ["- 无"]
-    return "\n".join(
-        [
-            "# 确认卡",
-            "",
-            "> 本卡只冻结初始化文件角色与交接边界，不重复正文设定。",
-            "",
-            "## 文件裁决",
-            "- 主文件：`Init/north_star_contract.json`",
-            "- 伴生交接物：`Init/初始化简报.json`",
-            "- 原“全局卡/全局总览”长期约束已并入 `north_star_contract.json.cards`",
-            "- `STATE.json` 是项目入口状态清单，不替代 `.webnovel/state.json` 运行快照",
-            "- `TEAM.toml` 是团队治理模板，`策划 / 监制 / 评审` 三阶段按已知程度落盘",
-            "- `CHANGELOG.md` 是项目级变更记录入口",
-            "- `0-Init` 不再把重复设定正文散落到多个 Init 文件",
-            "",
-            "## 会话裁决",
-            f"- 初始化模式：{init_session['mode'] or '（待补充）'}",
-            f"- 模式来源：{init_session['mode_source'] or '（待补充）'}",
-            f"- 顾问团布阵：{_council_mode_display(team_setup.get('team_mode', 'unspecified'))}",
-            f"- 策划坐镇：{_format_team_members(team_setup, 'planning')}",
-            f"- 监制坐镇：{_format_team_members(team_setup, 'production')}",
-            f"- 评审坐镇：{_format_team_members(team_setup, 'review')}",
-            f"- 默认拍板者：{init_session['decision_owner'] or 'user'}",
-            f"- 主文件状态：{'ready' if not unknowns['unresolved_questions'] else 'pending'}",
-            "",
-            *_render_sources_breakdown_block(payload),
-            "## Unknowns",
-            *pending_lines,
-            f"- Deferred to Cards：{', '.join(unknowns['deferred_to_cards']) if unknowns['deferred_to_cards'] else '无'}",
-            f"- Deferred to Planning：{', '.join(unknowns['deferred_to_planning']) if unknowns['deferred_to_planning'] else '无'}",
-            "",
-            "## 交接规则",
-            "- `north_star_contract.json` 是初始化主文件。",
-            "- `north_star_contract.json.cards` 承担原全局卡的长期对象总规范。",
-            "- `初始化简报.json` 是伴生 handoff，用于承接 `cards_seed / planning_seed / unknowns`。",
-            "- `访谈摘要.md` / `确认卡.md` 仅保留指针与边界，不重复正文设定。",
-            "- `1-Cards` 是人物、世界、规则、物品的唯一 canonical。",
-            "",
-        ]
-    ) + "\n"
-
-
 def _render_init_readme() -> str:
     return (
         "\n".join(
             [
-                "# Init 目录说明",
+                "# 0-Init 目录说明",
                 "",
-                "- `north_star_contract.json`：初始化主文件，承载故事核、读者承诺、审美轴、IP 边界，以及 `cards` 长期对象约束分区。",
-                "- `初始化简报.json`：伴生 handoff，只承接 `cards_seed / planning_seed / unknowns`。",
-                "- `访谈摘要.md` / `确认卡.md`：仅保留导航、边界与未决项，不重复正文设定。",
-                "- 项目根目录的 `STATE.json`：项目入口状态清单，统一声明运行态与关键工件路径。",
-                "- 项目根目录的 `TEAM.toml`：团队治理模板，初始化按已知信息填好 `策划 / 监制 / 评审` 三阶段。",
+                "- `north_star.yaml`：初始化主文件，承载故事核、读者承诺、审美轴、IP 边界与长期对象约束。",
+                "- `story-source-manifest.yaml`：故事主源登记与 readiness 判定。",
+                "- `init_handoff.yaml`：阶段入口种子、unknowns 与来源分层。",
+                "- 项目根目录的 `STATE.json`：项目运行态、入口状态与 workflow runtime 的唯一状态文件。",
+                "- 项目根目录的 `team.yaml`：团队治理真源，初始化写入 `策划 / 监制 / 评审` 三角色编组与 provenance。",
                 "- 项目根目录的 `CHANGELOG.md`：项目级变更记录入口。",
-                "- `.webnovel/tasks/`：复杂任务治理工件根目录，后续 tracked run 会在其下写入三省 shadow 工件。",
-                "- 新项目默认不再生成额外 `Init/*.md` seed 文档。",
-                "- 原“全局卡/全局总览”概念已废弃；长期总规范统一归入 `north_star_contract.json.cards`。",
+                "- 新项目默认不再生成额外 `Init/*.md` seed 文档或并行 init companion 文件。",
+                "- 原“全局卡/全局总览”概念已废弃；长期总规范统一归入 `north_star.yaml.cards`。",
                 "- 一旦 `1-Cards` 完成建卡，人物、场景、物品的正式真源统一以 `Cards/**/*.json` 为准。",
                 "",
             ]
@@ -1294,13 +1291,9 @@ def _build_project_state_manifest(
         },
         "paths": {
             "runtime_state": str(RUNTIME_STATE_REL),
-            "workflow_state": str(WORKFLOW_STATE_REL),
-            "execution_state": str(EXECUTION_STATE_REL),
-            "task_log": str(TASK_LOG_REL),
-            "task_artifacts_root": str(TASK_ARTIFACTS_ROOT_REL),
-            "idea_bank": str(IDEA_BANK_REL),
-            "north_star_contract": "Init/north_star_contract.json",
-            "init_handoff": "Init/初始化简报.json",
+            "north_star": "0-Init/north_star.yaml",
+            "story_source_manifest": "0-Init/story-source-manifest.yaml",
+            "init_handoff": "0-Init/init_handoff.yaml",
             "team_manifest": str(TEAM_MANIFEST_REL),
             "changelog": str(CHANGELOG_REL),
         },
@@ -1308,12 +1301,12 @@ def _build_project_state_manifest(
             "project_entry": str(PROJECT_STATE_MANIFEST_REL),
             "runtime_snapshot": str(RUNTIME_STATE_REL),
             "object_truth": "Cards/**/*.json",
-            "planning_truth": "Planning/8-全息地图.json",
+            "planning_truth": "Planning/全息地图.json",
         },
     }
 
 
-def _render_team_manifest(
+def _render_team_manifest_toml(
     *,
     title: str,
     now_iso: str,
@@ -1341,6 +1334,109 @@ def _render_team_manifest(
     return "\n".join(lines)
 
 
+def _render_team_manifest_yaml(
+    *,
+    title: str,
+    now_iso: str,
+    team_setup: Dict[str, Any],
+    init_mode: str,
+    mode_source: str,
+    decision_owner: str,
+    research_policy: str,
+) -> str:
+    team_lineup_mode = team_setup.get("team_lineup_mode", "auto")
+    auto_notes = []
+    custom_notes = []
+    if team_lineup_mode == "auto":
+        auto_notes = [
+            "默认由 0-Init 根据题材与故事核从 .agents/skills/team/ 里自动挑选代入顾问。",
+            "当前脚本只负责写入初始化真源；实际自动选人与 interview 调度由 0-Init 主技能执行。",
+        ]
+    else:
+        custom_notes = [
+            "当前 team.yaml 记录了用户或上游流程显式指定的顾问成员。",
+            "若存在 legacy advisor_agents，它们只作为 planning 角色兼容镜像保留。",
+        ]
+
+    lines = [
+        "# team.yaml",
+        "#",
+        "# 角色：",
+        "# - story2026 项目级 team 代入真源",
+        "# - 由 `0-Init` 首次生成，供 `1-Cards / 2-Planning / 3-Drafting / 4-Validation / review` 消费",
+        "# - 不替代各阶段 canonical，只提供治理角色、成员、初始化 provenance 与运行策略",
+        "",
+        f"enabled: {_yaml_bool(True)}",
+        "",
+        "init_contract:",
+        f"  init_mode: {_yaml_quote('team_roleplay')}",
+        f"  init_mode_display: {_yaml_quote(init_mode)}",
+        f"  team_lineup_mode: {_yaml_quote(team_lineup_mode)}",
+        f"  selector_scope_root: {_yaml_quote(team_setup.get('selector_scope_root', '.agents/skills/team/'))}",
+        f"  lineup_source: {_yaml_quote('0-Init')}",
+        f"  mode_source: {_yaml_quote(mode_source)}",
+        f"  locked_by: {_yaml_quote(decision_owner)}",
+        f"  research_policy: {_yaml_quote(research_policy or 'none')}",
+        f"  auto_selection_notes: {_yaml_inline_list(auto_notes)}",
+        f"  custom_selection_notes: {_yaml_inline_list(custom_notes)}",
+        f"  lineup_gap_todo_paths: {_yaml_inline_list(team_setup.get('recommendation_todo_paths', []))}",
+        "",
+        "team_setup:",
+        f"  team_mode: {_yaml_quote(team_setup.get('team_mode', 'auto'))}",
+        f"  shared_agents: {_yaml_inline_list(team_setup.get('shared_agents', []))}",
+        f"  role_allocation_mode: {_yaml_quote(team_setup.get('role_allocation_mode', 'overlap_allowed'))}",
+        f"  same_person_cross_role_allowed: {_yaml_bool(True)}",
+        f"  required_departments: {_yaml_inline_list(team_setup.get('required_departments', []))}",
+        f"  optional_departments_considered: {_yaml_inline_list(team_setup.get('optional_departments_considered', []))}",
+        f"  department_lineup_notes: {_yaml_inline_list(team_setup.get('department_lineup_notes', []))}",
+        f"  role_overlap_notes: {_yaml_inline_list(team_setup.get('role_overlap_notes', []))}",
+        f"  recommendation_todo_paths: {_yaml_inline_list(team_setup.get('recommendation_todo_paths', []))}",
+        "",
+        "roles:",
+    ]
+
+    for role_key in ("planning", "production", "review"):
+        role = team_setup["roles"][role_key]
+        kickoff_owner = role_key == "planning"
+        requires_subagents = role_key == "planning"
+        lines.extend(
+            [
+                f"  {role_key}:",
+                f"    label: {_yaml_quote(role['label'])}",
+                f"    enabled: {_yaml_bool(bool(role['members']))}",
+                f"    members: {_yaml_inline_list(role['members'])}",
+                f"    governs: {_yaml_inline_list(role['governs'])}",
+                "    init_interview:",
+                f"      kickoff_owner: {_yaml_bool(kickoff_owner)}",
+                f"      requires_subagents: {_yaml_bool(requires_subagents)}",
+                f"      execution_mode: {_yaml_quote('parallel-council' if kickoff_owner else 'on_demand')}",
+                f"    source_skill_refs: {_yaml_inline_list(role.get('source_skill_refs', []))}",
+            ]
+        )
+
+    lines.extend(
+        [
+            "",
+            "runtime_policy:",
+            f"  use_subagents_by_default: {_yaml_bool(True)}",
+            f"  require_subagents_for_init_interview: {_yaml_bool(True)}",
+            f"  init_interview_owner_role: {_yaml_quote('planning')}",
+            f"  init_interview_subagents_policy: {_yaml_quote('required')}",
+            f"  fallback_when_subagents_unavailable: {_yaml_quote('block_and_report_for_init_interview')}",
+            f"  canonical_owner: {_yaml_quote('main_agent')}",
+            "",
+            "decision_policy:",
+            f"  decision_owner: {_yaml_quote(decision_owner)}",
+            f"  conflict_rule: {_yaml_quote('user_confirmed > review_gate > planning_interview_consensus > role_consensus > main_agent_inferred')}",
+            "",
+            "meta:",
+            f"  generated_at: {_yaml_quote(now_iso)}",
+            f"  project_title: {_yaml_quote(title)}",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def _render_changelog(title: str, now: str) -> str:
     return (
         "\n".join(
@@ -1354,8 +1450,8 @@ def _render_changelog(title: str, now: str) -> str:
                 f"## [{now}]",
                 "### Added",
                 f"- 初始化项目骨架：{title}",
-                "- 建立 `STATE.json`、`TEAM.toml`、`CHANGELOG.md` 标准配置。",
-                "- 写入 `Init/north_star_contract.json` 与 `Init/初始化简报.json` 初始化合同。",
+                "- 建立 `STATE.json`、`team.yaml`、`CHANGELOG.md` 标准配置。",
+                "- 写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。",
                 "",
             ]
         )
@@ -1368,7 +1464,7 @@ def init_project(
     title: str,
     genre: str,
     *,
-    init_mode: str = "自主模式",
+    init_mode: str = "team代入模式",
     mode_source: str = "",
     decision_owner: str = "",
     advisor_agents: str = "",
@@ -1433,13 +1529,13 @@ def init_project(
     project_path = _resolve_project_path(project_dir, title)
     project_path.mkdir(parents=True, exist_ok=True)
 
-    # 目录结构：内容输出统一进入 stage 目录；运行时状态仍保留在 .webnovel/
+    # 目录结构：内容输出统一进入 stage 目录；初始化真源对齐到根五文件
     directories = [
         ".webnovel/backups",
         ".webnovel/archive",
         ".webnovel/summaries",
         ".webnovel/observability",
-        "Init",
+        "0-Init",
         "Cards/2-角色卡/主要角色",
         "Cards/2-角色卡/次要角色",
         "Cards/2-角色卡/反派角色",
@@ -1455,7 +1551,6 @@ def init_project(
         "Cards/4-物品卡/点缀物",
         "Cards/4-物品卡",
         "Cards/其他设定",
-        "Planning/8-全息地图",
         "Planning/legacy",
         "Drafting",
         "正文",
@@ -1465,7 +1560,7 @@ def init_project(
     for dir_path in directories:
         (project_path / dir_path).mkdir(parents=True, exist_ok=True)
 
-    # state.json（创建或增量补齐）
+    # STATE.json（创建或增量补齐）
     state_path = project_path / RUNTIME_STATE_REL
     if state_path.exists():
         try:
@@ -1485,9 +1580,7 @@ def init_project(
         review_agents=review_agents,
     )
     advisor_agent_list = team_setup["planning_agents"]
-    normalized_research_policy = (research_policy or "").strip() or (
-        "targeted-web-precision" if normalized_init_mode == "快速模式" else "none"
-    )
+    normalized_research_policy = (research_policy or "").strip() or "none"
     normalized_mode_source = _normalize_mode_source(mode_source, normalized_init_mode)
     normalized_decision_owner = _normalize_decision_owner(decision_owner, normalized_init_mode)
     created_at = state.get("project_info", {}).get("created_at") or datetime.now().strftime("%Y-%m-%d")
@@ -1508,17 +1601,18 @@ def init_project(
             "production_council_agents": team_setup["production_agents"],
             "review_council_agents": team_setup["review_agents"],
             "council_team_mode": team_setup["team_mode"],
+            "team_lineup_mode": team_setup["team_lineup_mode"],
+            "selector_scope_root": team_setup["selector_scope_root"],
             "team_setup": team_setup,
             "research_policy": normalized_research_policy,
-            "init_contract_model": "north_star_contract+cards_seed+planning_seed+unknowns",
-            "primary_init_artifact": "Init/north_star_contract.json",
-            "north_star_schema_version": "story2026/north-star-contract/v2",
-            "init_handoff_schema_version": "story2026/init-handoff/v4",
-            "init_companion_schema_version": "story2026/init-handoff/v4",
+            "init_contract_model": "north_star+story_source_manifest+init_handoff",
+            "primary_init_artifact": "0-Init/north_star.yaml",
+            "north_star_schema_version": "story2026/north-star/v1",
+            "story_source_manifest_schema_version": "story2026-story-source/v1",
+            "init_handoff_schema_version": "story2026/init-handoff/v1",
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
             "changelog_file": str(CHANGELOG_REL),
-            "task_artifacts_root": str(TASK_ARTIFACTS_ROOT_REL),
             "one_liner": one_liner,
             "core_conflict": core_conflict,
             "anti_trope": anti_trope,
@@ -1564,6 +1658,53 @@ def init_project(
             "no_fly_zones": _split_list_values(no_fly_zones),
         }
     )
+    state["project_name"] = title
+    state["task_id"] = f"init-{_sanitize_project_leaf(title)}"
+    state["project_root"] = str(project_path)
+    state["current_stage"] = "0-Init"
+    state["status"] = "initialized"
+    state["recommended_next_stage"] = "1-Cards"
+    state["recommended_entry_path"] = "1-Cards"
+    state["recommended_next_step"] = "进入 `1-Cards`，基于 `0-Init/north_star.yaml` 与 `0-Init/init_handoff.yaml` 建立角色/场景/物品 cards 真源。"
+    state["governance_mode"] = "lightweight_init"
+    state["story_source_status"] = "seed_only_no_primary_story_source"
+    state["init_session"] = {
+        "mode": normalized_init_mode,
+        "mode_source": normalized_mode_source,
+        "decision_owner": normalized_decision_owner,
+        "advisor_agents": advisor_agent_list,
+        "team_setup": team_setup,
+        "research_policy": normalized_research_policy,
+    }
+    state["paths"] = {
+        "runtime_state": str(RUNTIME_STATE_REL),
+        "north_star": "0-Init/north_star.yaml",
+        "story_source_manifest": "0-Init/story-source-manifest.yaml",
+        "init_handoff": "0-Init/init_handoff.yaml",
+        "team_manifest": str(TEAM_MANIFEST_REL),
+        "changelog": str(CHANGELOG_REL),
+    }
+    state["main_artifacts"] = {
+        "north_star": "0-Init/north_star.yaml",
+        "init_handoff": "0-Init/init_handoff.yaml",
+        "story_source_manifest": "0-Init/story-source-manifest.yaml",
+        "team": "team.yaml",
+        "project_state": "STATE.json",
+    }
+    state["open_unknowns"] = [
+        "当前尚未绑定正式故事主源；planning 只能按初始化 seeds 推进。",
+    ]
+    state["user_action_items"] = [
+        "如有正文、大纲或设定主源，请补入项目 `Story/` 后回刷 `0-Init/story-source-manifest.yaml`。",
+        "进入 `1-Cards` 建立角色、场景、物品 cards 真源。",
+    ]
+    state["notes"] = []
+    state["workflow_runtime"] = {
+        "workflow_state": {},
+        "execution_state": {},
+        "task_log": [],
+        "governance_index": {},
+    }
 
     if protagonist_name:
         state["protagonist_state"]["name"] = protagonist_name
@@ -1585,68 +1726,50 @@ def init_project(
     # 使用原子化写入（初始化不需要备份旧文件）
     atomic_write_json(state_path, state, use_lock=True, backup=False)
 
-    workflow_state_path = project_path / WORKFLOW_STATE_REL
-    if workflow_state_path.exists():
-        try:
-            workflow_state: Dict[str, Any] = json.loads(workflow_state_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            workflow_state = {}
-    else:
-        workflow_state = {}
-    workflow_state = _ensure_workflow_state_schema(workflow_state)
-    atomic_write_json(workflow_state_path, workflow_state, use_lock=True, backup=False)
-
-    execution_state_path = project_path / EXECUTION_STATE_REL
-    if execution_state_path.exists():
-        try:
-            execution_state: Dict[str, Any] = json.loads(execution_state_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            execution_state = {}
-    else:
-        execution_state = {}
-    execution_state = _ensure_execution_state_schema(execution_state)
-    atomic_write_json(execution_state_path, execution_state, use_lock=True, backup=False)
-    (project_path / TASK_ARTIFACTS_ROOT_REL).mkdir(parents=True, exist_ok=True)
-
-    _append_task_log_if_missing(
-        project_path / TASK_LOG_REL,
-        {
-            "timestamp": datetime.now().isoformat(),
-            "event": "project_initialized",
-            "payload": {
-                "title": title,
-                "genre": genre,
-                "project_root": str(project_path),
-                "target_words": int(target_words),
-                "target_chapters": int(target_chapters),
-                "init_mode": normalized_init_mode,
-                "mode_source": normalized_mode_source,
-                "decision_owner": normalized_decision_owner,
-                "advisor_agents": advisor_agent_list,
-                "shared_council_agents": team_setup["shared_agents"],
-                "planning_council_agents": team_setup["planning_agents"],
-                "production_council_agents": team_setup["production_agents"],
-                "review_council_agents": team_setup["review_agents"],
-                "council_team_mode": team_setup["team_mode"],
-                "team_setup": team_setup,
-                "research_policy": normalized_research_policy,
-                "init_contract_model": "north_star_contract+cards_seed+planning_seed+unknowns",
-                "primary_init_artifact": "Init/north_star_contract.json",
-                "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
-                "team_manifest_file": str(TEAM_MANIFEST_REL),
-                "changelog_file": str(CHANGELOG_REL),
-                "task_artifacts_root": str(TASK_ARTIFACTS_ROOT_REL),
-                "one_liner": one_liner,
-                "core_conflict": core_conflict,
-            },
+    workflow_state = _ensure_workflow_state_schema(state.get("workflow_runtime", {}).get("workflow_state", {}))
+    execution_state = _ensure_execution_state_schema(state.get("workflow_runtime", {}).get("execution_state", {}))
+    task_log: List[Dict[str, Any]] = state.get("workflow_runtime", {}).get("task_log", [])
+    if not isinstance(task_log, list):
+        task_log = []
+    init_task_row = {
+        "timestamp": datetime.now().isoformat(),
+        "event": "project_initialized",
+        "payload": {
+            "title": title,
+            "genre": genre,
+            "project_root": str(project_path),
+            "target_words": int(target_words),
+            "target_chapters": int(target_chapters),
+            "init_mode": normalized_init_mode,
+            "mode_source": normalized_mode_source,
+            "decision_owner": normalized_decision_owner,
+            "advisor_agents": advisor_agent_list,
+            "shared_council_agents": team_setup["shared_agents"],
+            "planning_council_agents": team_setup["planning_agents"],
+            "production_council_agents": team_setup["production_agents"],
+            "review_council_agents": team_setup["review_agents"],
+            "council_team_mode": team_setup["team_mode"],
+            "team_lineup_mode": team_setup["team_lineup_mode"],
+            "selector_scope_root": team_setup["selector_scope_root"],
+            "team_setup": team_setup,
+            "research_policy": normalized_research_policy,
+            "init_contract_model": "north_star+story_source_manifest+init_handoff",
+            "primary_init_artifact": "0-Init/north_star.yaml",
+            "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
+            "team_manifest_file": str(TEAM_MANIFEST_REL),
+            "changelog_file": str(CHANGELOG_REL),
+            "one_liner": one_liner,
+            "core_conflict": core_conflict,
         },
-    )
+    }
+    if not task_log:
+        task_log.append(init_task_row)
 
     init_now = datetime.now()
     now = init_now.strftime("%Y-%m-%d")
     now_iso = init_now.isoformat()
 
-    init_handoff_payload = _build_init_handoff_payload(
+    init_payload = _build_init_handoff_payload(
         init_mode=normalized_init_mode,
         mode_source=normalized_mode_source,
         decision_owner=normalized_decision_owner,
@@ -1712,65 +1835,46 @@ def init_project(
         no_fly_zones=no_fly_zones,
         now_iso=now_iso,
     )
-    north_star_payload = _build_north_star_contract(init_handoff_payload)
-    init_companion_payload = _build_init_companion_payload(init_handoff_payload)
-    atomic_write_json(project_path / "Init" / "north_star_contract.json", north_star_payload, use_lock=True, backup=False)
-    atomic_write_json(project_path / "Init" / "初始化简报.json", init_companion_payload, use_lock=True, backup=False)
-    (project_path / "Init" / "访谈摘要.md").write_text(
-        _render_init_summary_markdown(init_companion_payload),
-        encoding="utf-8",
-    )
-    (project_path / "Init" / "确认卡.md").write_text(
-        _render_confirmation_card_markdown(init_companion_payload),
-        encoding="utf-8",
-    )
-    (project_path / "Init" / "README.md").write_text(_render_init_readme(), encoding="utf-8")
+    north_star_payload = _build_north_star_contract(init_payload)
+    story_source_manifest = _build_story_source_manifest(title=title, now_iso=now_iso)
+    init_handoff_payload = _build_init_handoff_artifact(init_payload)
 
-    idea_bank_payload = {
-        "selected_idea": {
-            "title": title,
-            "one_liner": one_liner,
-            "anti_trope": anti_trope,
-            "hard_constraints": _split_list_values(hard_constraints),
-        },
-        "constraints_inherited": {
-            "anti_trope": anti_trope,
-            "hard_constraints": _split_list_values(hard_constraints),
-            "protagonist_flaw": protagonist_flaw,
-            "antagonist_mirror": antagonist_mirror,
-            "opening_hook": opening_hook,
-        },
-        "init_session": {
-            "mode": normalized_init_mode,
-            "mode_source": normalized_mode_source,
-            "decision_owner": normalized_decision_owner,
-            "advisor_agents": advisor_agent_list,
-            "team_setup": team_setup,
-            "research_policy": normalized_research_policy,
-        },
+    state["main_artifacts"] = {
+        "north_star": "0-Init/north_star.yaml",
+        "init_handoff": "0-Init/init_handoff.yaml",
+        "story_source_manifest": "0-Init/story-source-manifest.yaml",
+        "team": "team.yaml",
+        "project_state": "STATE.json",
     }
-    atomic_write_json(project_path / IDEA_BANK_REL, idea_bank_payload, use_lock=True, backup=False)
-    project_state_payload = _build_project_state_manifest(
-        title=title,
-        genre=genre,
-        now_iso=now_iso,
-        init_mode=normalized_init_mode,
-        mode_source=normalized_mode_source,
-        decision_owner=normalized_decision_owner,
-        team_setup=team_setup,
-        research_policy=normalized_research_policy,
+    state["workflow_runtime"] = {
+        "workflow_state": workflow_state,
+        "execution_state": execution_state,
+        "task_log": task_log,
+        "governance_index": execution_state.get("governance_index", {}),
+    }
+
+    _write_yaml(project_path / INIT_STAGE_REL / "north_star.yaml", north_star_payload)
+    _write_yaml(project_path / INIT_STAGE_REL / "story-source-manifest.yaml", story_source_manifest)
+    _write_yaml(project_path / INIT_STAGE_REL / "init_handoff.yaml", init_handoff_payload)
+    atomic_write_json(state_path, state, use_lock=True, backup=False)
+    _write_text_if_missing(
+        project_path / TEAM_MANIFEST_REL,
+        _render_team_manifest_yaml(
+            title=title,
+            now_iso=now_iso,
+            team_setup=team_setup,
+            init_mode=normalized_init_mode,
+            mode_source=normalized_mode_source,
+            decision_owner=normalized_decision_owner,
+            research_policy=normalized_research_policy,
+        ),
     )
-    atomic_write_json(project_path / PROJECT_STATE_MANIFEST_REL, project_state_payload, use_lock=True, backup=False)
-    _write_text_if_missing(project_path / TEAM_MANIFEST_REL, _render_team_manifest(title=title, now_iso=now_iso, team_setup=team_setup))
     _write_text_if_missing(project_path / CHANGELOG_REL, _render_changelog(title, now))
     for lock_target in (
         state_path,
-        workflow_state_path,
-        execution_state_path,
-        project_path / IDEA_BANK_REL,
-        project_path / PROJECT_STATE_MANIFEST_REL,
-        project_path / "Init" / "north_star_contract.json",
-        project_path / "Init" / "初始化简报.json",
+        project_path / INIT_STAGE_REL / "north_star.yaml",
+        project_path / INIT_STAGE_REL / "story-source-manifest.yaml",
+        project_path / INIT_STAGE_REL / "init_handoff.yaml",
     ):
         _cleanup_lock_file(lock_target)
 
@@ -1785,7 +1889,7 @@ def init_project(
         outline_content = _inject_volume_rows(outline_content, int(target_chapters)).rstrip() + "\n"
     else:
         outline_content = _build_master_outline(int(target_chapters))
-    outline_content = _inject_legacy_outline_contract_snapshot(outline_content, init_handoff_payload)
+    outline_content = _inject_legacy_outline_contract_snapshot(outline_content, init_payload)
     _write_text_if_missing(project_path / "Planning" / "legacy" / "总纲.md", outline_content)
 
     _write_text_if_missing(
@@ -1870,7 +1974,7 @@ __pycache__/
 .vscode/
 .idea/
 
-# Don't ignore .webnovel (we need to track state.json)
+# Don't ignore .webnovel (we need to track STATE.json)
 # But ignore cache files
 .webnovel/context_cache.json
 .webnovel/*.lock
@@ -1903,34 +2007,27 @@ __pycache__/
     print(f"\nProject initialized at: {project_path}")
     print("Primary files:")
     print(" - STATE.json")
-    print(" - TEAM.toml")
+    print(" - team.yaml")
     print(" - CHANGELOG.md")
-    print(" - .webnovel/state.json")
-    print(" - .webnovel/workflow_state.json")
-    print(" - .webnovel/execution_state.json")
-    print(" - .webnovel/task_log.jsonl")
-    print(" - .webnovel/tasks/")
-    print(" - Init/north_star_contract.json")
-    print(" - Init/初始化简报.json")
-    print(" - Init/访谈摘要.md")
-    print(" - Init/确认卡.md")
-    print(" - .webnovel/idea_bank.json")
-    print(" - Planning/8-全息地图/")
+    print(" - 0-Init/north_star.yaml")
+    print(" - 0-Init/story-source-manifest.yaml")
+    print(" - 0-Init/init_handoff.yaml")
+    print(" - Planning/全息地图.json")
     print(" - Planning/legacy/总纲.md")
     print(" - Planning/legacy/爽点规划.md")
-    print("No extra Init seed files are generated by default.")
+    print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="网文项目初始化脚本（生成项目结构 + state.json + 基础模板）")
-    parser.add_argument("project_dir", help="项目目录（建议 ./projects/<小说名>）")
+    parser = argparse.ArgumentParser(description="网文项目初始化脚本（生成项目结构 + STATE.json + 基础模板）")
+    parser.add_argument("project_dir", help="项目目录（建议 ./projects/story/<小说名>）")
     parser.add_argument("title", help="小说标题")
     parser.add_argument(
         "genre",
         help="题材类型（可用“+”组合，如：都市脑洞+规则怪谈；示例：修仙/系统流/都市异能/古言/现实题材）",
     )
 
-    parser.add_argument("--init-mode", default="自主模式", help="初始化模式（智能顾问团模式/快速模式/自主模式）")
+    parser.add_argument("--init-mode", default="team代入模式", help="初始化模式（统一归一为 team代入模式；旧模式值仍兼容）")
     parser.add_argument("--mode-source", default="", help="模式来源（user_selected/defaulted/inferred/switched_midway）")
     parser.add_argument("--decision-owner", default="", help="最终拍板者（user/assistant）")
     parser.add_argument("--advisor-agents", default="", help="顾问团 agent 路径（legacy 兼容：默认映射到策划阶段），多个用逗号分隔")
@@ -1984,7 +2081,7 @@ def main() -> None:
     parser.add_argument("--must-not-do", default="", help="IP 边界：禁止做的事，逗号分隔")
     parser.add_argument("--no-fly-zones", default="", help="读者承诺：禁飞区，逗号分隔")
 
-    # 初始化扩展字段（自主模式 / 快速模式 / 顾问团模式均可预填）
+    # 初始化扩展字段（统一 team 代入模式下均可预填）
     parser.add_argument("--protagonist-desire", default="", help="主角核心欲望（初始化扩展字段）")
     parser.add_argument("--protagonist-flaw", default="", help="主角性格弱点（初始化扩展字段）")
     parser.add_argument("--protagonist-archetype", default="", help="主角人设类型（初始化扩展字段）")

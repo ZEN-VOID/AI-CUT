@@ -1,12 +1,12 @@
-# execution_state.json 结构说明
+# `STATE.json.workflow_runtime.execution_state` 结构说明
 
-> 该文件用于承接 `story2026` 的全阶段执行状态，不替代 `state.json`。
+> 该对象用于承接 `story2026` 的全阶段执行状态，不替代 `STATE.json` 的其他运行态字段。
 >
 > 分工固定：
-> - `.webnovel/state.json`：小说运行态快照
-> - `.webnovel/workflow_state.json`：当前 run 的断点与兼容 history
-> - `.webnovel/execution_state.json`：全阶段 run registry / stage_progress / resume marker
-> - `.webnovel/task_log.jsonl`：追加式任务日志
+> - `STATE.json`：小说运行态与 workflow_runtime 根容器
+> - `STATE.json.workflow_runtime.workflow_state`：当前 run 的断点与兼容 history
+> - `STATE.json.workflow_runtime.execution_state`：全阶段 run registry / stage_progress / resume marker
+> - `STATE.json.workflow_runtime.task_log`：追加式任务日志
 
 ```json
 {

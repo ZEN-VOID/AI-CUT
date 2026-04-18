@@ -66,7 +66,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/team.yaml`
-- `projects/aigc/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/STATE.json`
 - 按需补齐的 `governance-state.yaml` 与 HARNESS 治理载体
 
 ### constraint_profile
@@ -161,7 +161,7 @@ flowchart LR
     B["init_handoff.yaml"] --> B1["阶段入口种子 + unknowns"]
     C["story-source-manifest.yaml"] --> C1["故事主源 readiness"]
     D["team.yaml"] --> D1["智能顾问编组真源 + planning interview 合同"]
-    E["project_state.yaml"] --> E1["当前阶段 + 唯一下一入口"]
+    E["STATE.json"] --> E1["当前阶段 + 唯一下一入口"]
     F["governance-state.yaml (lazy)"] --> F1["resume_contract + artifact_status"]
     A --> E
     B --> E
@@ -368,7 +368,7 @@ flowchart LR
 ### Project Governance Artifacts
 
 - 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
-- 轻量项目状态入口：`projects/aigc/<项目名>/project_state.yaml`
+- 轻量项目状态入口：`projects/aigc/<项目名>/STATE.json`
 
 ### Auxiliary Asset Library
 
@@ -402,7 +402,7 @@ flowchart LR
 
 - 当前稳定质量证据以以下载体为准：
   - `scripts/aigc_skill_audit.py --strict`
-  - `projects/aigc/<项目名>/project_state.yaml`
+  - `projects/aigc/<项目名>/STATE.json`
   - `projects/aigc/<项目名>/governance-state.yaml`
   - `projects/aigc/<项目名>/validation-report.md`
   - 代表性项目初始化样本的即时读回、回刷与审计结果
@@ -470,9 +470,9 @@ flowchart LR
 1. 每次 `rebootstrap` 至少要重写：
    - `projects/aigc/<项目名>/0-Init/north_star.yaml`
    - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-   - `projects/aigc/<项目名>/project_state.yaml`
+   - `projects/aigc/<项目名>/STATE.json`
 2. 若团队结构或会诊来源改变，应同步重写 `projects/aigc/<项目名>/team.yaml`。
-3. `project_state.yaml` 必须把当前主入口降回 `0-Init`；在新一轮初始化通过 `Sufficiency Gate` 前，不得继续保留旧的下游推荐入口。
+3. `STATE.json` 必须把当前主入口降回 `0-Init`；在新一轮初始化通过 `Sufficiency Gate` 前，不得继续保留旧的下游推荐入口。
 4. 若 `governance-state.yaml` 已存在或本轮按需生成，必须同步写入 `reset_bridge`，记录 `last_reset_at / reset_mode / reset_reason / preserved_paths / archived_paths / stale_paths`。
 5. 旧的 `preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md` 不得在重置后继续充当当前有效 gate；要么归档，要么明确标记为旧周期证据。
 
@@ -680,7 +680,7 @@ B. 自定义组队
 1. `north_star.yaml` 只承接长期有效、不应轻易漂移的项目总约束。
 2. `init_handoff.yaml` 承接阶段入口种子、来源分层和未决问题。
 3. 只在当前初始化会话有意义的信息，不应写进 `north_star.yaml`。
-4. `north_star.yaml` 不拥有当前阶段路由、下一入口排序或 `rebootstrap` 过程痕迹；这些信息必须落到 `project_state.yaml`、按需生成的 `governance-state.yaml`，以及初始化当轮的 `init_handoff.yaml`。
+4. `north_star.yaml` 不拥有当前阶段路由、下一入口排序或 `rebootstrap` 过程痕迹；这些信息必须落到 `STATE.json`、按需生成的 `governance-state.yaml`，以及初始化当轮的 `init_handoff.yaml`。
 
 ## Stage Entry Ownership Contract (Mandatory)
 
@@ -689,7 +689,7 @@ B. 自定义组队
 硬规则：
 
 1. 初始化完成当轮的 handoff 种子，写在 `init_handoff.yaml.project_contract.recommended_next_stage`。
-2. 当前项目的 live route truth，写在 `project_state.yaml.recommended_next_stage / recommended_entry_path / recommended_next_step`。
+2. 当前项目的 live route truth，写在 `STATE.json.recommended_next_stage / recommended_entry_path / recommended_next_step`。
 3. 若 `governance-state.yaml` 已生成，则 `resume_contract.*` 是 `query / resume / review` 的结构化续跑真源。
 4. `north_star.yaml` 不得出现 `stage_entry_contract`、`recommended_next_stage`、`stage_priority_order`、`rebootstrap_status` 等状态型字段。
 5. 项目离开 `0-Init` 之后，`init_handoff.yaml` 只保留初始化时的入口 seed；后续阶段推进不得反向要求它承担 live current-stage truth。
@@ -713,7 +713,7 @@ B. 自定义组队
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/team.yaml`
-- `projects/aigc/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/STATE.json`
 
 ### 惰性治理工件
 
@@ -761,7 +761,7 @@ B. 自定义组队
 
 1. `source-light bootstrap`
    - 条件：`primary_story_source.status != ready`
-   - 允许：创建 runtime skeleton、`team.yaml`、`story-source-manifest.yaml`、轻量 `project_state.yaml`，以及只包含题材级/边界级约束的 `north_star.yaml`
+   - 允许：创建 runtime skeleton、`team.yaml`、`story-source-manifest.yaml`、轻量 `STATE.json`，以及只包含题材级/边界级约束的 `north_star.yaml`
    - 禁止：把具体剧情事件、人物关系、冲突机制、单集 key beats、场景池、对象池或世界规则细节写成既定事实
 2. `source-grounded bootstrap`
    - 条件：已拿到实际主故事源正文，或至少拿到可覆盖当前规划范围的正式梗概
@@ -782,14 +782,14 @@ B. 自定义组队
 
 - `projects/aigc/<项目名>/0-Init/north_star.yaml`
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-- `projects/aigc/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/STATE.json`
 
 硬规则：
 
 1. 后补故事源一旦进入 `Story/` 并登记到 manifest，所有 `assistant_inferred` 的剧情级字段都必须接受回刷。
 2. 回刷优先级固定为：`story source user truth > user explicit confirmation > council_advised > assistant_inferred`。
 3. 若旧的 `north_star / init_handoff` 含有与故事源冲突的剧情断言，必须先修这些工件，再进入 `1-Planning`、`2-Global` 或更下游阶段。
-4. `project_state.yaml` 必须同步更新为当前真实 readiness，不得保留“故事源缺失”时期的过期入口建议。
+4. `STATE.json` 必须同步更新为当前真实 readiness，不得保留“故事源缺失”时期的过期入口建议。
 5. 回刷动作属于源层维护，不应要求用户手工逐个改文件。
 
 ## Synthesis Contract (Mandatory)
@@ -821,12 +821,12 @@ B. 自定义组队
 - `north_star.yaml` 已具备最小核心字段
 - `init_handoff.yaml` 已具备阶段入口种子与 `unknowns`
 - `story-source-manifest.yaml` 已生成并标明 readiness
-- `project_state.yaml` 已能指向主工件与推荐下一阶段
+- `STATE.json` 已能指向主工件与推荐下一阶段
 - 若故事源缺失，所有剧情级字段都已降级为 `unknowns / deferred / risk_notes`
 - 若故事源为后补输入，已完成一次初始化工件回刷
 - 若本轮属于 `rebootstrap`，旧周期下游工件已按 `reset_mode` 完成保留/归档/清退，不再作为 active truth
-- 若仍处于 `0-Init` 完成当轮，`init_handoff.yaml.project_contract.recommended_next_stage` 与 `project_state.yaml` 的下一步建议必须对齐
-- 若惰性治理工件已生成，它们与 `project_state.yaml` 的下一步建议也必须对齐
+- 若仍处于 `0-Init` 完成当轮，`init_handoff.yaml.project_contract.recommended_next_stage` 与 `STATE.json` 的下一步建议必须对齐
+- 若惰性治理工件已生成，它们与 `STATE.json` 的下一步建议也必须对齐
 - 已返回唯一推荐下一阶段入口
 
 ## One-Shot Output Contract (Mandatory)
@@ -862,7 +862,7 @@ B. 自定义组队
 10. 读取模板与 shared contracts。
 11. 以 `roles.planning.members` 为唯一首轮顾问团，真实启动 `planning_interview_engine` 的 subagents；若 subagents 不可用，停止并报告阻塞。
 12. 收集 planning interview patch，并生成 `story-source-manifest.yaml`。
-13. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 interview patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `project_state.yaml`。
+13. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 interview patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `STATE.json`。
 14. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
 15. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
 16. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 与 planning interview provenance 做统一检查。
@@ -876,7 +876,7 @@ B. 自定义组队
 - 已产出 `projects/aigc/<项目名>/team.yaml`
 - `team.yaml` 已声明编组只来自 `.agents/skills/team/`
 - planning 顾问团已以真实 subagents 完成 interview 初始化
-- 已产出 `projects/aigc/<项目名>/project_state.yaml`
+- 已产出 `projects/aigc/<项目名>/STATE.json`
 - 已产出 `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - 已产出 `north_star.yaml`
 - 已产出 `init_handoff.yaml`

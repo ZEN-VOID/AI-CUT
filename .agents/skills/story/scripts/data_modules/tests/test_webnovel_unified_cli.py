@@ -237,11 +237,11 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     module = _load_webnovel_module()
 
     project_root = tmp_path / "book"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
     planning_dir = project_root / "Planning"
     planning_dir.mkdir(parents=True, exist_ok=True)
-    (planning_dir / "8-全息地图.json").write_text("{}", encoding="utf-8")
+    (planning_dir / "全息地图.json").write_text("{}", encoding="utf-8")
 
     monkeypatch.setattr(sys, "argv", ["webnovel", "--project-root", str(project_root), "preflight"])
 
@@ -252,7 +252,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     assert int(exc.value.code or 0) == 0
     assert "OK project_root" in captured.out
     assert "OK planning_source" in captured.out
-    assert "默认规划真源：Planning/8-全息地图.json" in captured.out
+    assert "默认规划真源：Planning/全息地图.json" in captured.out
     assert str(project_root.resolve()) in captured.out
 
 
@@ -260,8 +260,8 @@ def test_preflight_fails_when_required_scripts_are_missing(monkeypatch, tmp_path
     module = _load_webnovel_module()
 
     project_root = tmp_path / "book"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     fake_scripts_dir = tmp_path / "fake-scripts"
     fake_scripts_dir.mkdir(parents=True, exist_ok=True)
@@ -282,8 +282,8 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
     module = _load_webnovel_module()
 
     project_root = tmp_path / "book"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
     outline_dir = project_root / "Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "总纲.md").write_text("# 总纲\n", encoding="utf-8")
@@ -303,8 +303,8 @@ def test_preflight_fails_when_planning_source_is_missing(monkeypatch, tmp_path, 
     module = _load_webnovel_module()
 
     project_root = tmp_path / "book"
-    (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    project_root.mkdir(parents=True, exist_ok=True)
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     monkeypatch.setattr(sys, "argv", ["webnovel", "--project-root", str(project_root), "preflight", "--format", "json"])
 
@@ -328,7 +328,7 @@ def test_quality_trend_report_writes_to_book_root_when_input_is_workspace_root(t
     (workspace_root / ".claude" / ".webnovel-current-project").write_text(str(book_root), encoding="utf-8")
 
     (book_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (book_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (book_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     output_path = workspace_root / "report.md"
 
@@ -361,7 +361,7 @@ def test_quality_trend_report_includes_formal_risk_fields(tmp_path):
 
     project_root = (tmp_path / "book").resolve()
     (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    (project_root / ".webnovel" / "state.json").write_text("{}", encoding="utf-8")
+    (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
     cfg = DataModulesConfig.from_project_root(project_root)
     manager = IndexManager(cfg)

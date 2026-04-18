@@ -11,7 +11,7 @@ active_skills:
     contract_mode_note: "aigc 系列正处于重大改造窗口；当前先固定项目 runtime、治理 carriers 与卫星技能入口，阶段内部合同允许重构。"
     runtime_control:
       canonical_project_runtime: projects/aigc/<项目名>/
-      project_state_carrier: projects/aigc/<项目名>/project_state.yaml
+      project_state_carrier: projects/aigc/<项目名>/STATE.json
       governance_state_carrier: projects/aigc/<项目名>/governance-state.yaml
       governance_mirror: .codex/state/tasks/<task_id>/
       mirror_policy: 对 AIGC 项目工作流，`projects/aigc/<项目名>/` 为运行时唯一真源；`.codex/state/tasks` 仅作跨项目治理镜像或非项目任务账本。

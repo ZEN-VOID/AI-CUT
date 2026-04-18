@@ -81,4 +81,4 @@
 
 ## 修改路径
 
-`/Volumes/AIGC/AIGC-DREAMER/.agents/skills/team/导演组/寺山修司/references/research/06-timeline.md`
+`/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/team/导演组/寺山修司/references/research/06-timeline.md`

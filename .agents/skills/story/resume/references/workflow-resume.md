@@ -49,8 +49,8 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 3. 删除正文前必须由脚本自动备份。
 4. 不默认执行 `git reset --hard`。
 5. 不假定存在 `ch0007` 之类 tag/commit。
-6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `Planning/8-全息地图.json`。
-7. 优先读取 `execution_state.json + task_log.jsonl` 辅助判断全阶段 run 与 resume marker，不把 `workflow_state.json` 当唯一线索。
+6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `Planning/全息地图.json`。
+7. 优先读取 `STATE.json.workflow_runtime.execution_state + task_log` 辅助判断全阶段 run 与 resume marker，不把 `workflow_state` 当唯一线索。
 
 ## Step 语义与默认策略
 
@@ -58,13 +58,13 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 | tracked step | 当前含义 | 默认策略 |
 |---|---|---|
-| `Step 1` | Context Agent | 重新做 Step 1 |
-| `Step 2A` | 正文起草 | 清理半成品后从 Step 1 重跑 |
-| `Step 2B` | 风格适配 | 视情况继续适配，或退回 Step 2A |
-| `Step 3` | 审查 | 重新执行审查，或用户确认跳过 |
-| `Step 4` | 润色 | 优先继续润色 |
-| `Step 5` | Data Agent | 直接重跑（幂等） |
-| `Step 6` | Git/备份收尾 | 保留工作区，继续提交或人工处理 |
+| `Step 1` | 单集叙事起盘 | 重新做 Step 1 |
+| `Step 2` | 节奏优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 3` | 场景和氛围渲染 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 4` | 角色形象刻画 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 5` | 对白个性化和声口优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 6` | 叙事张力强化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 7` | 润色 | 优先继续终修，必要时清理当前集正文后回到 Step 1 |
 | `Step 1.5` | legacy 旧断点 | 兼容视为 Step 1 |
 
 ### `story-review`
@@ -78,10 +78,10 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 ## 推荐恢复选项模板
 
-### 模板 A：删除半成品并重跑（推荐）
+### 模板 A：删除当前集正文并重跑（推荐）
 
 - 风险：`low`
-- 适用：`story-write` 的 `Step 2A / Step 2B`
+- 适用：`story-write` 的 `Step 2-7`
 - 动作：
   - 先 `workflow cleanup --chapter {N}` 预览
   - 用户确认后 `workflow cleanup --chapter {N} --confirm`
@@ -119,17 +119,18 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 <examples>
 
 <example>
-<input>`story-write` 在 `Step 2A` 中断</input>
+<input>`story-write` 在 `Step 5` 中断</input>
 <output>
-当前中断：`story-write` / `Step 2A`
+当前中断：`story-write` / `Step 5`
 
 推荐：
-A) 预览并清理半成品，然后从 Step 1 重跑（推荐，low）
-B) 保留半成品做人工检查，再手动决定是否重跑（medium）
+A) 保留 `3-Drafting/第N集.md`，继续当前工序（推荐，low）
+B) 预览并清理当前集正文，然后从 Step 1 重跑（medium）
+C) 保留半成品做人工检查，再手动决定是否重跑（medium）
 
 下一跳：
-- 若选 A：回到 `3-Drafting`
-- 继续写作时默认重新读取 `Planning/8-全息地图.json`
+- 若选 A：继续当前 `Step 5`
+- 继续写作时默认重新读取 `Planning/全息地图.json`
 </output>
 </example>
 

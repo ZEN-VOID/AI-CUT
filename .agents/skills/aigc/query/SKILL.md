@@ -36,7 +36,7 @@ governance_tier: lite
 - 用户询问项目当前阶段、最近产物、阶段验证报告、`第N集.json` 是否存在、`4-Design` / `5-Image` / `6-Video` 落点在哪。
 - 需要确认某个项目目前只有核心初始化工件，还是已经补齐 `mandate / mission-brief / route-plan / preflight / validation / learning` 等惰性治理工件。
 - 需要查询 `projects/aigc/<项目名>/3-Detail/第N集.json`、`4-Design/`、`5-Image/`、`6-Video/` 的存在状态与最近修改痕迹。
-- 需要读取 `team.yaml`、`project_state.yaml`、可选的 `governance-state.yaml`、registry / routes 等治理信息来说明当前系统状态。
+- 需要读取 `team.yaml`、`STATE.json`、可选的 `governance-state.yaml`、registry / routes 等治理信息来说明当前系统状态。
 
 ## When Not to Use
 
@@ -71,14 +71,14 @@ flowchart TD
 
 1. 若当前工作目录已位于 `projects/aigc/<项目名>/` 下，取该最近祖先目录为 `PROJECT_ROOT`。
 2. 若用户明确给出项目名，则使用 `projects/aigc/<项目名>/`。
-3. 若 `projects/` 下只有一个包含 `governance-state.yaml` 或 `project_state.yaml` 的候选项目，可谨慎推断。
+3. 若 `projects/` 下只有一个包含 `governance-state.yaml` 或 `STATE.json` 的候选项目，可谨慎推断。
 4. 若存在多个候选且用户未指明，必须先回到根 `aigc` 或直接向用户确认项目名。
 
 推荐命令：
 
 ```bash
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-find "$REPO_ROOT/projects/aigc" -mindepth 1 -maxdepth 2 \\( -name governance-state.yaml -o -name project_state.yaml \\)
+find "$REPO_ROOT/projects/aigc" -mindepth 1 -maxdepth 2 \\( -name governance-state.yaml -o -name STATE.json \\)
 ```
 
 ## Reference Loading
@@ -97,7 +97,7 @@ L2 按需：
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 | --- | --- | --- | --- |
-| 项目当前跑到哪、治理工件齐不齐 | `project_state.yaml`，若存在再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | `team.yaml` | 不能只扫聊天记录或目录名 |
+| 项目当前跑到哪、治理工件齐不齐 | `STATE.json`，若存在再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | `team.yaml` | 不能只扫聊天记录或目录名 |
 | 规划产物、格式、分组、节奏 | `projects/aigc/<项目名>/1-Planning/` | `1-Planning/validation-report.md` | 不能拿 `0-Init/` 代替整阶段规划真源 |
 | 组间/明细/第N集事实 | `projects/aigc/<项目名>/3-Detail/第N集.json` | `projects/aigc/<项目名>/3-Detail/validation-report.md` | 不能因为存在 sidecar 就忽略主 JSON |
 | `4-Design` 资产状态 | `projects/aigc/<项目名>/4-Design/` | `4-Design/validation-report.md` | 不能把技能目录当作项目资产目录 |
@@ -155,7 +155,7 @@ rg --files "$PROJECT_ROOT/4-Design"
 rg --files "$PROJECT_ROOT/5-Image"
 rg --files "$PROJECT_ROOT/6-Video"
 rg --files "$PROJECT_ROOT/7-Cut"
-sed -n '1,220p' "$PROJECT_ROOT/project_state.yaml"
+sed -n '1,220p' "$PROJECT_ROOT/STATE.json"
 test -f "$PROJECT_ROOT/governance-state.yaml" && sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
 sed -n '1,220p' "$PROJECT_ROOT/team.yaml"
 ```
@@ -168,7 +168,7 @@ sed -n '1,220p' "$PROJECT_ROOT/team.yaml"
 
 ## Step 4：冲突校验
 
-若 `governance-state.yaml` 缺失但 `project_state.yaml` 与核心初始化工件存在，应回答“当前项目处于轻量初始化态，深治理快照尚未生成”；只有当用户要问结构化断点、复核或复杂续跑时，才建议回根 `aigc` 或 `resume/` 补治理快照。
+若 `governance-state.yaml` 缺失但 `STATE.json` 与核心初始化工件存在，应回答“当前项目处于轻量初始化态，深治理快照尚未生成”；只有当用户要问结构化断点、复核或复杂续跑时，才建议回根 `aigc` 或 `resume/` 补治理快照。
 
 若文件存在但没有验收结论，只能回答“存在产物，不等于已通过验收”。
 

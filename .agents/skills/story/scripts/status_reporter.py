@@ -86,7 +86,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 from datetime import datetime
 from collections import defaultdict
-from project_locator import resolve_project_root
+from project_locator import resolve_project_root, resolve_state_file
 from chapter_paths import extract_chapter_num_from_filename
 from runtime_compat import enable_windows_utf8_stdio
 
@@ -129,7 +129,7 @@ class StatusReporter:
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
         self.config = get_config(self.project_root)
-        self.state_file = self.project_root / ".webnovel/state.json"
+        self.state_file = resolve_state_file(explicit_project_root=str(self.project_root))
         self.chapters_dir = self.config.chapters_dir
 
         self.state = None
@@ -1171,7 +1171,7 @@ def main():
     try:
         project_root = str(resolve_project_root(args.project_root))
     except FileNotFoundError as exc:
-        print(f"❌ 无法定位项目根目录（需要包含 .webnovel/state.json）: {exc}", file=sys.stderr)
+        print(f"❌ 无法定位项目根目录（需要包含 STATE.json）: {exc}", file=sys.stderr)
         sys.exit(1)
 
     # 创建报告生成器

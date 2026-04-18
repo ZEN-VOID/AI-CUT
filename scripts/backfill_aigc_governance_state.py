@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +17,8 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROJECTS_ROOT = REPO_ROOT / "projects" / "aigc"
 TEMPLATE_PATH = REPO_ROOT / ".agents/skills/aigc/_shared/governance-state.template.yaml"
+CANONICAL_STATE_FILENAME = "STATE.json"
+LEGACY_STATE_FILENAME = "project_state.yaml"
 STAGE_PATH_PATTERN = re.compile(r"\d+-[^\s/，。,；;（）()]+(?:/\d+-[^\s，。,；;（）()]+)?")
 PREFERRED_ENTRY_PATTERNS = (
     re.compile(r"下一步进入\s*(" + STAGE_PATH_PATTERN.pattern + r")"),
@@ -32,7 +35,11 @@ def parse_args() -> argparse.Namespace:
         "--project",
         action="append",
         default=[],
-        help="Specific project name(s) under projects/aigc/ to backfill. Defaults to every project with project_state.yaml.",
+        help=(
+            "Specific project name(s) under projects/aigc/ to backfill. "
+            f"Defaults to every project with {CANONICAL_STATE_FILENAME} "
+            f"(or legacy {LEGACY_STATE_FILENAME})."
+        ),
     )
     parser.add_argument(
         "--write",
@@ -51,10 +58,35 @@ def load_yaml(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8")) or {}
+
+
 def load_yaml_optional(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     return load_yaml(path)
+
+
+def resolve_project_state_path(project_root: Path) -> Path | None:
+    canonical = project_root / CANONICAL_STATE_FILENAME
+    if canonical.exists():
+        return canonical
+
+    legacy = project_root / LEGACY_STATE_FILENAME
+    if legacy.exists():
+        return legacy
+
+    return None
+
+
+def load_project_state_optional(project_root: Path) -> tuple[dict[str, Any], Path]:
+    project_state_path = resolve_project_state_path(project_root)
+    if project_state_path is None:
+        return {}, project_root / CANONICAL_STATE_FILENAME
+    if project_state_path.suffix == ".json":
+        return load_json(project_state_path), project_state_path
+    return load_yaml(project_state_path), project_state_path
 
 
 def read_text_optional(path: Path) -> str:
@@ -282,7 +314,7 @@ def parse_learning_status(project_root: Path) -> str:
 
 def build_governance_state(project_root: Path) -> dict[str, Any]:
     template = copy.deepcopy(load_yaml(TEMPLATE_PATH))
-    project_state = load_yaml_optional(project_root / "project_state.yaml")
+    project_state, project_state_path = load_project_state_optional(project_root)
     route_plan = load_yaml_optional(project_root / "route-plan.yaml")
     init_handoff = load_yaml_optional(project_root / "0-Init" / "init_handoff.yaml")
     task_id = first_non_empty(
@@ -300,7 +332,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
 
     artifact_paths = {
         "team": project_root / "team.yaml",
-        "project_state": project_root / "project_state.yaml",
+        "project_state": project_state_path,
         "governance_state": project_root / "governance-state.yaml",
         "mandate": project_root / "mandate.yaml",
         "mission_brief": project_root / "mission-brief.yaml",
@@ -310,12 +342,13 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
         "learning_record": project_root / "learning-record.md",
     }
 
+    project_state_rel = Path(project_state_path.name)
     source_artifacts = [
         relative.as_posix()
         for relative in [
             Path("0-Init/north_star.yaml"),
             Path("0-Init/init_handoff.yaml"),
-            Path("project_state.yaml"),
+            project_state_rel,
             Path("route-plan.yaml"),
             Path("validation-report.md"),
             Path("learning-record.md"),
@@ -326,6 +359,10 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     required_repairs = [
         f"补齐 `{name}`。" for name, path in artifact_paths.items() if name != "governance_state" and not path.exists()
     ]
+    if project_state_path.name == LEGACY_STATE_FILENAME:
+        required_repairs.append(
+            f"将 legacy `{LEGACY_STATE_FILENAME}` 迁移为 canonical `{CANONICAL_STATE_FILENAME}`。"
+        )
     required_repairs.extend(alignment_repairs)
 
     blockers = [str(item) for item in project_state.get("open_unknowns") or []]
@@ -367,7 +404,11 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
 def candidate_projects(selected_projects: list[str]) -> list[Path]:
     if selected_projects:
         return [PROJECTS_ROOT / project_name for project_name in selected_projects]
-    return sorted(path.parent for path in PROJECTS_ROOT.glob("*/project_state.yaml"))
+    candidates = {
+        path.parent for path in PROJECTS_ROOT.glob(f"*/{CANONICAL_STATE_FILENAME}")
+    }
+    candidates.update(path.parent for path in PROJECTS_ROOT.glob(f"*/{LEGACY_STATE_FILENAME}"))
+    return sorted(candidates)
 
 
 def main() -> int:
@@ -377,13 +418,16 @@ def main() -> int:
 
     projects = candidate_projects(args.project)
     if not projects:
-        print("No project with project_state.yaml found.")
+        print(f"No project with {CANONICAL_STATE_FILENAME} found (legacy {LEGACY_STATE_FILENAME} also absent).")
         return 0
 
     for project_root in projects:
-        project_state_path = project_root / "project_state.yaml"
-        if not project_state_path.exists():
-            print(f"SKIP {project_root}: missing project_state.yaml")
+        project_state_path = resolve_project_state_path(project_root)
+        if project_state_path is None:
+            print(
+                f"SKIP {project_root}: missing {CANONICAL_STATE_FILENAME} "
+                f"(legacy {LEGACY_STATE_FILENAME} also absent)"
+            )
             continue
 
         target = project_root / "governance-state.yaml"

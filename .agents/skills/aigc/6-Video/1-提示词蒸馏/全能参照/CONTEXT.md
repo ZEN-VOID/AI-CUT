@@ -47,7 +47,7 @@
 | `references/*.md` 继续被当作规范入口 | 真源治理层 | 把字段系统、流程、输出契约、类型策略全部回收到 `SKILL.md` | 禁止在主合同继续引用 `references/` 作为 Canonical Module | 主合同不再出现 `references/*.md` 规范依赖 |
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
 | 三件套已写出，但对用户的结案信息只剩路径，没有思考过程和关键证据 | 结案闭环层 | 在最终闭环中补 `思考过程 + 关键证据 + 风险/例外` | 新增 `FIELD-VID-SUBJ-05` 并把闭环四段写成硬合同 | 执行结果可复核，不再只剩文件清单 |
-| `project_state.yaml` 已指向 `2-参照引用` 或 `3-视频生成`，但 `6-Video/全能参照/第N集/` 三件套磁盘缺失 | 项目运行时同步层 | 先重建 `第N集.json + 第N集.txt + _manifest.json`，再保持既有 video-generation handoff，不回退项目状态 | 在 `SKILL.md` 的 artifact landing 与 handoff contract 固定 recovery rerun 规则，禁止视频提示词补跑把项目路由降级 | drift 修复后磁盘产物恢复且 `project_state.yaml` 仍保持后续入口 |
+| `STATE.json` 已指向 `2-参照引用` 或 `3-视频生成`，但 `6-Video/全能参照/第N集/` 三件套磁盘缺失 | 项目运行时同步层 | 先重建 `第N集.json + 第N集.txt + _manifest.json`，再保持既有 video-generation handoff，不回退项目状态 | 在 `SKILL.md` 的 artifact landing 与 handoff contract 固定 recovery rerun 规则，禁止视频提示词补跑把项目路由降级 | drift 修复后磁盘产物恢复且 `STATE.json` 仍保持后续入口 |
 
 ## Repair Playbook
 

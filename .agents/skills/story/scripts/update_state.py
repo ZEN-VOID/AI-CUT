@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-安全的 state.json 更新脚本
+安全的 STATE.json 更新脚本
 
 功能：
-1. 提供结构化的 state.json 更新接口
+1. 提供结构化的 STATE.json 更新接口
 2. 自动验证 JSON 格式和数据完整性
 3. 自动备份（带时间戳）
 4. 支持部分更新（不影响其他字段）
@@ -69,7 +69,7 @@ if sys.platform == "win32":
     enable_windows_utf8_stdio()
 
 class StateUpdater:
-    """state.json 安全更新器"""
+    """STATE.json 安全更新器"""
 
     def __init__(self, state_file: str, dry_run: bool = False):
         self.state_file = state_file
@@ -78,7 +78,7 @@ class StateUpdater:
         self.state = None
 
     def _validate_schema(self, state: Dict) -> bool:
-        """验证 state.json 的基本结构（v5.0 引入，v5.4 沿用）"""
+        """验证 STATE.json 的基本结构（v5.0 引入，v5.4 沿用）"""
         required_keys = [
             "project_info",
             "progress",
@@ -137,7 +137,7 @@ class StateUpdater:
         return True
 
     def load(self) -> bool:
-        """加载并验证 state.json"""
+        """加载并验证 STATE.json"""
         if not os.path.exists(self.state_file):
             print(f"❌ 状态文件不存在: {self.state_file}")
             return False
@@ -147,7 +147,7 @@ class StateUpdater:
                 self.state = json.load(f)
 
             if not self._validate_schema(self.state):
-                print("❌ state.json 结构不完整，请检查")
+                print("❌ STATE.json 结构不完整，请检查")
                 return False
 
             return True
@@ -157,7 +157,7 @@ class StateUpdater:
             return False
 
     def backup(self) -> bool:
-        """备份当前 state.json"""
+        """备份当前 STATE.json"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_dir = Path(self.state_file).parent / "backups"
         # ============================================================================
@@ -178,7 +178,7 @@ class StateUpdater:
             return False
 
     def save(self) -> bool:
-        """保存更新后的 state.json（原子化写入）"""
+        """保存更新后的 STATE.json（原子化写入）"""
         if self.dry_run:
             print("\n⚠️  Dry-run 模式，不执行实际写入")
             print("\n📄 预览更新后的内容：")
@@ -404,7 +404,7 @@ class StateUpdater:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="安全更新 state.json",
+        description="安全更新 STATE.json",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例：
@@ -437,13 +437,13 @@ def main():
     parser.add_argument(
         '--project-root',
         default=None,
-        help='项目根目录（包含 .webnovel/state.json）。不提供时自动搜索（支持 story-project/、webnovel-project/ 与父目录）。'
+        help='项目根目录（包含 STATE.json）。不提供时自动搜索（支持 story-project/、webnovel-project/ 与父目录）。'
     )
 
     parser.add_argument(
         '--state-file',
         default=None,
-        help='state.json 文件路径（可选）。不提供时从项目根目录自动定位为 .webnovel/state.json。'
+        help='STATE.json 文件路径（可选）。不提供时从项目根目录自动定位为 STATE.json。'
     )
 
     parser.add_argument(

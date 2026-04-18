@@ -8,7 +8,7 @@
 
 恢复判定优先级：
 
-1. `project_state.yaml`
+1. `STATE.json`
 2. `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml`、`0-Init/story-source-manifest.yaml`
 3. `governance-state.yaml`（若存在）
 4. `mission-brief.yaml`、`route-plan.yaml`（若存在）

@@ -7,7 +7,7 @@
 - 项目根目录：`projects/aigc/<项目名>/`
 - 项目级核心真源：
   - `projects/aigc/<项目名>/team.yaml`
-  - `projects/aigc/<项目名>/project_state.yaml`
+  - `projects/aigc/<项目名>/STATE.json`
 - 项目级辅助资产库：
   - `projects/aigc/<项目名>/Assets/`
   - `projects/aigc/<项目名>/Assets/角色/`
@@ -28,7 +28,7 @@
 
 ## Governance Snapshot Contract
 
-- `projects/aigc/<项目名>/project_state.yaml`
+- `projects/aigc/<项目名>/STATE.json`
   - 面向人和主路由的简明项目摘要。
   - 负责给出当前阶段、推荐下一入口和用户可读状态。
   - 是轻量初始化态的最低治理入口，`0-Init` 默认必须生成。
@@ -40,9 +40,9 @@
 
 硬规则：
 
-1. 对创作起盘来说，`team.yaml + project_state.yaml` 是项目根最低治理配置；不应为了首次初始化强绑整套 HARNESS 载体。
-2. `project_state.yaml` 与 `governance-state.yaml` 不是二选一；前者是默认入口，后者是按需补上的结构化控制面。
-3. 若 `query / resume / review` 需要判断断点、治理缺口或唯一回接入口，优先读取 `governance-state.yaml`；若其缺失，则退回 `project_state.yaml` 并显式说明当前处于轻量初始化态。
+1. 对创作起盘来说，`team.yaml + STATE.json` 是项目根最低治理配置；不应为了首次初始化强绑整套 HARNESS 载体。
+2. `STATE.json` 与 `governance-state.yaml` 不是二选一；前者是默认入口，后者是按需补上的结构化控制面。
+3. 若 `query / resume / review` 需要判断断点、治理缺口或唯一回接入口，优先读取 `governance-state.yaml`；若其缺失，则退回 `STATE.json` 并显式说明当前处于轻量初始化态。
 4. `Assets/` 是项目级辅助资产库，不是阶段业务真源；它用于沉淀可复用参考图、选角图、道具图、场景图和分镜画板资产，不替代 `4-Design/`、`5-Image/`、`6-Video/` 的 canonical 输出。
 5. 不新增 `CHANGELOGS.md` 作为一级项目治理真源；如需时间序列说明，应由 `validation-report.md`、`learning-record.md` 与 `governance-state.yaml` 派生，而不是再造并行状态本。
 6. 若项目经历“回到初始化态重来”的 `rebootstrap`，应把保留/归档/失效边界记录到 `governance-state.yaml.reset_bridge`，而不是让 `query / resume` 靠目录猜当前是否仍在旧周期。

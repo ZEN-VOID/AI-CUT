@@ -372,7 +372,7 @@ def atomic_write_json(
         AtomicWriteError: 写入失败时抛出
 
     示例:
-        >>> atomic_write_json('.webnovel/state.json', {'progress': {'chapter': 10}})
+        >>> atomic_write_json('STATE.json', {'progress': {'chapter': 10}})
 
     安全验证:
         - ✅ 防止写入中断导致的数据损坏（先写临时文件）
@@ -458,7 +458,7 @@ def read_json_safe(
         解析后的字典，或默认值
 
     示例:
-        >>> state = read_json_safe('.webnovel/state.json', {})
+        >>> state = read_json_safe('STATE.json', {})
     """
     file_path = Path(file_path)
     if default is None:
@@ -486,7 +486,7 @@ def restore_from_backup(file_path: Union[str, Path]) -> bool:
         是否成功恢复
 
     示例:
-        >>> restore_from_backup('.webnovel/state.json')
+        >>> restore_from_backup('STATE.json')
         True
     """
     file_path = Path(file_path)

@@ -24,7 +24,7 @@ governance_tier: lite
 - 当前 branch 内部固定采用：
   - prelude：`watermoon_inheritance + shot_count_plan + shot_slot_map`
   - leaf serial：`构图形式 -> 景别景深 -> 镜头类型`
-- `镜头类型` 叶子负责锁 POV、观看姿态与 descriptor 组合；字段名虽然叫 `镜头类型`，但其节点职责同时覆盖 `镜头框架 / 镜头视角` 等镜头描述子。
+- `镜头类型` 叶子负责锁 POV、观看姿态、镜头角度家族与 descriptor 组合；字段名虽然叫 `镜头类型`，但其节点职责同时覆盖 `镜头框架 / 镜头视角` 等镜头描述子。
 - `景别景深` 在本技能内指观看距离、景深层级与心理距离，不指精确光圈参数。
 - canonical 输出有两个：
   - `projects/aigc/<项目名>/3-Detail/镜花/分镜构图/第N集.branch-patch.json`
@@ -59,7 +59,8 @@ governance_tier: lite
   - 不越权写 `摄影美学 / 运镜手法 / 转场特效`。
   - 每个构图判断都必须能回指到 `剧本正文` 或 `水月`。
 - `success_criteria`
-  - 每一镜都能回答“谁在看谁、谁压谁、镜头怎么站住”。
+  - 每一镜都能回答“谁在看谁、谁压谁、观众从什么角度理解故事、镜头怎么站住”。
+  - `构图形式` 优先写画面组织范式与几何任务，而不是重复角色站位走位。
   - `构图形式 / 景别景深 / 镜头类型` 三个叶子沿同一 `shot_slot_map` 串行吸收，不各自另开主线。
   - 后三支读取当前 root 后，不需要反向重判骨架。
   - branch sidecar 中的 `thinking_process` 与 `patch_payload` 一一对应。
@@ -73,7 +74,7 @@ flowchart TD
     A["S1 锁输入与前置"] --> B["S2 锁水月承接 + 镜窗/slot"]
     B --> C["S3 构图形式"]
     C --> D["S4 景别景深"]
-    D --> E["S5 镜头类型"]
+    D --> E["S5 镜头类型：戏剧任务 -> 角度家族 -> POV/descriptor"]
     E --> F["S6 汇流为 shot spine patch"]
     F --> G{{"可读且可承接后续三支?"}}
     G -->|"Yes"| H["写 branch sidecar + progressive commit"]
@@ -86,7 +87,7 @@ flowchart LR
     B["水月承接或 slot 说不清"] --> R2["回到 S2"]
     C["构图形式一落就破坏动作/空间"] --> R3["回到 S3"]
     D["景别景深漂成摄影参数"] --> R4["回到 S4"]
-    E["镜头类型漂成器材或运镜"] --> R5["回到 S5"]
+    E["镜头类型漂成器材、空话或失去角度任务"] --> R5["回到 S5"]
     F["branch review 发现越权"] --> R6["回到对应思行节点"]
     R1 --> Z["重新生成 patch"]
     R2 --> Z
@@ -108,7 +109,7 @@ stateDiagram-v2
     ReadyToCommit --> [*]
     FormLocked --> AnchorSlotLocked: 空间几何失真
     SizeDepthLocked --> FormLocked: 景别或景深层级不支撑构图
-    TypeLocked --> SizeDepthLocked: POV 或 descriptor 漂移
+    TypeLocked --> SizeDepthLocked: 角度任务 / POV / descriptor 漂移
     BranchReviewed --> TypeLocked: review 未通过
 ```
 
@@ -171,9 +172,9 @@ sidecar 最低要求：
 | --- | --- | --- | --- | --- | --- | --- |
 | `SHOT-N1-INPUT-LOCK` | 锁定当前 root、`水月` bundle 与固定镜数前置 | `第N集.json`、`水月.field-patch.json`、父层顺序门 | 读取并确认 `剧本正文`、`分镜切换`、`水月` 是否齐备；锁当前 root 快照 | `input_lock_note` | pass -> `SHOT-N2-ANCHOR-SLOT` | 任一前置缺失则不得继续 |
 | `SHOT-N2-ANCHOR-SLOT` | 形成 `watermoon_inheritance + shot_count_plan + shot_slot_map` | root 当前组窗口、`水月` 的动作/情绪/空间/关系 evidence | 提炼组级主动作、主情绪、主空间关系、主视线/冲突；继承固定镜数并落镜窗/slot | `anchor_slot_note` | pass -> `SHOT-N3-FORM` | 若不能一句话说清承接内容，或 slot 一落就破坏动作连续，必须返工 |
-| `SHOT-N3-FORM` | 用 `构图形式` 叶子锁画面站姿 | `shot_slot_map`、`watermoon_inheritance`、`构图形式` 叶子合同 | 为每镜锁 `主体/陪体/背景`、空间锚点、轴线、几何关系与 frame task，生成 `composition_skeleton` | `form_lock_note` | pass -> `SHOT-N4-SIZE-DEPTH` / fail -> `SHOT-N2-ANCHOR-SLOT` | 若形式一落就发明新空间或新关系，必须回退 |
+| `SHOT-N3-FORM` | 用 `构图形式` 叶子锁画面站姿 | `shot_slot_map`、`watermoon_inheritance`、`构图形式` 叶子合同 | 为每镜锁经典/稳定的画面组织范式、`主体/陪体/背景`、留白/安全区、关系型站姿、空间锚点、轴线、几何关系、深度线索与 frame task，生成 `composition_skeleton` | `form_lock_note` | pass -> `SHOT-N4-SIZE-DEPTH` / fail -> `SHOT-N2-ANCHOR-SLOT` | 若形式一落就发明新空间或新关系，或开始重复走位说明，必须回退 |
 | `SHOT-N4-SIZE-DEPTH` | 用 `景别景深` 叶子锁观看距离与深度层级 | `composition_skeleton`、组级 mission/情绪引导、`景别景深` 叶子合同 | 生成 `shot_size_rhythm_preview`，回答景别曲线、景深层级与心理距离 | `size_depth_note` | pass -> `SHOT-N5-TYPE` / fail -> `SHOT-N3-FORM` | 若景别景深漂成摄影参数，或不再支撑画面任务，不得继续 |
-| `SHOT-N5-TYPE` | 用 `镜头类型` 叶子锁 POV、descriptor 与观看姿态 | `shot_size_rhythm_preview`、`composition_skeleton`、`镜头类型` 叶子合同 | 生成 `pov_strategy_preview`、`shot_descriptor_lock`、`focus_spatial_logic`，并锁定 `镜头类型 / 镜头框架 / 镜头视角` 等槽位 | `type_lock_note` | pass -> `SHOT-N6-CONVERGE` / fail -> `SHOT-N4-SIZE-DEPTH` | 若把镜头类型写成器材型号、运镜路线或光影话术，不得汇流 |
+| `SHOT-N5-TYPE` | 用 `镜头类型` 叶子锁戏剧任务、角度家族、POV、descriptor 与观看姿态 | `shot_size_rhythm_preview`、`composition_skeleton`、`镜头类型` 叶子合同 | 先回答本组要让观众感到什么，再生成 `pov_strategy_preview`、`shot_descriptor_lock`、`focus_spatial_logic`，并锁定 `镜头类型 / 镜头框架 / 镜头视角` 等槽位 | `type_lock_note` | pass -> `SHOT-N6-CONVERGE` / fail -> `SHOT-N4-SIZE-DEPTH` | 若把镜头类型写成器材型号、运镜路线、光影话术或空泛“电影感”，不得汇流 |
 | `SHOT-N6-CONVERGE` | 汇流为单一 `shot_spine_patch` 并准备 review/commit | 前五节点输出、branch review contract | 组装 `patch_payload`，校验 target path 只命中 `分镜构图`，写 sidecar 并准备 progressive commit | `branch_review_trace` | pass -> complete | 若 thinking 与 patch 不一致、或 target path 越权，必须返工 |
 
 ## Lite Field Mapping
@@ -184,7 +185,7 @@ sidecar 最低要求：
 | `S2` | `FIELD-COMP-02` | `SHOT-N2-ANCHOR-SLOT` | 锁 `watermoon_inheritance + shot_count_plan + shot_slot_map` | `anchor_slot_note` | 说不清主动作、主情绪、主空间关系或 slot 破坏动作连续 | `S2` |
 | `S3` | `FIELD-COMP-03` | `SHOT-N3-FORM` | 锁 `构图形式` | `composition_skeleton` | 主陪背景关系失真、空间轴线断裂、frame task 不成立 | `S3` |
 | `S4` | `FIELD-COMP-04` | `SHOT-N4-SIZE-DEPTH` | 锁 `景别景深` | `shot_size_rhythm_preview` | 把景别景深写成摄影参数、心理距离不可复核 | `S4` |
-| `S5` | `FIELD-COMP-05` | `SHOT-N5-TYPE` | 锁 `镜头类型` 的 POV、descriptor 与观看姿态 | `pov_strategy_preview` / `shot_descriptor_lock` / `focus_spatial_logic` | descriptor 留给下游临场决定，或属性漂成器材/运镜 | `S5` |
+| `S5` | `FIELD-COMP-05` | `SHOT-N5-TYPE` | 锁 `镜头类型` 的戏剧任务、角度家族、POV、descriptor 与观看姿态 | `pov_strategy_preview` / `shot_descriptor_lock` / `focus_spatial_logic` | descriptor 留给下游临场决定，或属性漂成器材/运镜/空泛角度口号 | `S5` |
 | `S6` | `FIELD-COMP-06` | `SHOT-N6-CONVERGE` | 生成单一 `shot_spine_patch` 并完成 branch review 输入 | `patch_payload` / `review_trace` / `target_json_paths[]` | `thinking_process` 不支撑 patch、target path 越权、未写 sidecar | `S6` |
 
 ## Root-Cause Execution Contract
@@ -194,7 +195,9 @@ sidecar 最低要求：
 - `SKILL.md` 只剩 scope/字段说明，真正的节点逻辑漂到 `module-guide.md`
 - 还没锁 `watermoon_inheritance + shot_slot_map` 就开始写摄影、运镜、转场语汇
 - `构图形式 / 景别景深 / 镜头类型` 三个叶子各写一套目标，无法汇流回同一 shot spine
+- `构图形式` 把角色站位走位复述了一遍，却没有说清画面组织范式、几何关系与 frame task
 - 把 `景别景深` 写成光圈、焦段、器材参数，把 `镜头类型` 写成摄影机型号或器材目录
+- `镜头类型` 只写“故事感 / 电影感 / 更有张力”，却没有明确角度任务与关系站位
 - `thinking_process` 只写审美口号，无法解释 `patch_payload`
 
 固定上溯链：

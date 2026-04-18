@@ -49,9 +49,9 @@
 
 ## State Contract
 
-- `workflow_state.json`
+- `STATE.json.workflow_runtime.workflow_state`
   - `current_task.command` 必须写入 canonical `story-*`。
-- `execution_state.json`
+- `STATE.json.workflow_runtime.execution_state`
   - `runs[].command`、`latest_resume_point.command`、`stage_progress[*].latest_command` 必须写入 canonical `story-*`。
 - 读取旧状态时，允许在脚本入口自动把 legacy alias 归一化为 canonical 名。
 

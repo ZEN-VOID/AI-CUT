@@ -1,0 +1,93 @@
+{
+  "schema_version": "story2026/cards/character/v2",
+  "meta": {
+    "skill_id": "story-cards",
+    "source_skill_id": "story-cards-character",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
+    "template_version": "2.0.0"
+  },
+  "content": {
+    "module_route": "",
+    "loaded_references": [],
+    "writeback_plan": {
+      "mode": "",
+      "target_paths": [],
+      "upstream_patch_required": false,
+      "boundary_notes": []
+    },
+    "card_schema": {
+      "character_card": {
+        "card_id": "",
+        "card_type": "character",
+        "group": "protagonist",
+        "core": {
+          "identity": {
+            "name": "",
+            "aliases": [],
+            "public_role": "",
+            "hidden_role": ""
+          },
+          "narrative_function": [],
+          "desire_flaw_arc": {
+            "surface_goal": "",
+            "true_desire": "",
+            "flaw": "",
+            "arc_blueprint": []
+          },
+          "voice_and_presence": {
+            "speech_texture": [],
+            "gesture_habits": [],
+            "outfit_view": []
+          },
+          "relationship_ports": [],
+          "exclusive_item_hooks": []
+        },
+        "current_state": {
+          "status": "",
+          "active_pressure": [],
+          "current_relationships": [],
+          "current_resources": [],
+          "timeline_anchor": {
+            "latest_map_node_id": "",
+            "latest_episode_ref": "",
+            "latest_space_ref": "",
+            "experience_phase": ""
+          }
+        },
+        "experience_timeline": {
+          "time_model": "experience-centric",
+          "current_growth_stage": "",
+          "growth_log": [],
+          "relationship_turning_points": [],
+          "belief_shift_track": []
+        },
+        "history": []
+      }
+    },
+    "card_groups": {
+      "protagonists": [],
+      "antagonists": [],
+      "supporting": [],
+      "ensemble": []
+    },
+    "relationship_edges": [],
+    "current_focus": {
+      "confirmed_facts": [],
+      "inferred_defaults": [],
+      "active_pressures": []
+    }
+  },
+  "gate_summary": {
+    "status": "REVIEW_REQUIRED",
+    "total_score": 0,
+    "max_score": 60,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

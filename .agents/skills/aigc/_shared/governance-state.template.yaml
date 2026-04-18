@@ -21,7 +21,7 @@ last_stable_checkpoint:
   source_artifacts:
     - "0-Init/north_star.yaml"
     - "0-Init/init_handoff.yaml"
-    - "project_state.yaml"
+    - "STATE.json"
   verified_by:
     carrier: "validation-report.md"
     status: "seeded"

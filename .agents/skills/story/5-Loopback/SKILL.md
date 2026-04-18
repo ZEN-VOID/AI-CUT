@@ -26,7 +26,7 @@ governance_tier: lite
 
 ## Stage Position
 
-- `2-Planning` 的 canonical planning truth 仍是 `Planning/8-全息地图.json`。
+- `2-Planning` 的 canonical planning truth 仍是 `Planning/全息地图.json`。
 - `5-Loopback` 不另造第二张“执行 MAP”，而是在 `story_map` 内补入 `actualization / validated_*` 执行态字段。
 - `5-Loopback` 只在 `4-Validation = PASS` 后执行 actualization 主流程。
 - 若当前诉求是查询或恢复，而不是 episode validated actualization，则路由到卫星技能：
@@ -50,7 +50,7 @@ actualization 主流程的正式主产物：
 - `manuscript_ref`
 - `validation_ref`
 - `validation_status=PASS`
-- `story_map_ref`，默认指向 `Planning/8-全息地图.json`
+- `story_map_ref`，默认指向 `Planning/全息地图.json`
 
 可选输入：
 

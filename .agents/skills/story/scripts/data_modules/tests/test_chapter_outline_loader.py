@@ -16,9 +16,6 @@ def _write_project(tmp_path: Path) -> Path:
     project_root = tmp_path / "book"
     planning_dir = project_root / "Planning"
     planning_dir.mkdir(parents=True, exist_ok=True)
-    webnovel_dir = project_root / ".webnovel"
-    webnovel_dir.mkdir(parents=True, exist_ok=True)
-
     state = {
         "project_info": {
             "title": "笑傲江湖之风云再再起",
@@ -27,7 +24,7 @@ def _write_project(tmp_path: Path) -> Path:
             "antagonist_tiers": "地方恶压、幕府鹰犬与东方残意共同织成追杀之网。",
         }
     }
-    (webnovel_dir / "state.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    (project_root / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     holomap = {
         "holomap": {
@@ -67,7 +64,7 @@ def _write_project(tmp_path: Path) -> Path:
             ],
         }
     }
-    (planning_dir / "8-全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
     return project_root
 
 

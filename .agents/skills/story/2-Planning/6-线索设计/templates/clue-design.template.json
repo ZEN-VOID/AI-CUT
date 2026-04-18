@@ -1,0 +1,48 @@
+{
+  "schema_version": "story2026/planning-pass-artifact/v1",
+  "meta": {
+    "schema_version": "story2026/planning-pass-artifact/v1",
+    "skill_id": "story-plan-clue-design",
+    "module_id": "6-线索设计",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > 6-线索设计",
+    "template_version": "3.0.0"
+  },
+  "content": {
+    "clue_design": {
+      "scope": "full-series",
+      "clue_network": [],
+      "discovery_routes": [],
+      "false_leads": [],
+      "resolution_windows": [],
+      "downstream_hooks": []
+    }
+  },
+  "story_map_patch": {
+    "owned_slots": [
+      "content.holomap.clue_threads",
+      "content.holomap.chapter_boards[].bundled_elements.clues"
+    ],
+    "patch_payload": {
+      "clue_threads": [],
+      "chapter_board_clue_refs": []
+    },
+    "target_json_paths": [
+      "content.holomap.clue_threads",
+      "content.holomap.chapter_boards"
+    ],
+    "write_policy": "progressive-commit"
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

@@ -1,4 +1,4 @@
-# AIGC-DREAMER 三省六部制改造升级复评包
+# AIGC-DREAM-MAKER 三省六部制改造升级复评包
 
 ## 1. 任务模式与目标边界
 
@@ -24,8 +24,8 @@
 关键证据：
 
 - `AGENTS.md` 已将三省六部、bootstrap_compat、runtime canonical 与 rollout 标准固化。
-- [HARNESS.md](/Volumes/AIGC/AIGC-DREAMER/HARNESS.md:5) 明确自己是派生总览，而不是第一真源。
-- [scripts/aigc_harness_audit.py](/Volumes/AIGC/AIGC-DREAMER/scripts/aigc_harness_audit.py:11) 将 HARNESS bootstrap carrier 纳入严格检查。
+- [HARNESS.md](/Volumes/AIGC/AIGC-DREAM-MAKER/HARNESS.md:5) 明确自己是派生总览，而不是第一真源。
+- [scripts/aigc_harness_audit.py](/Volumes/AIGC/AIGC-DREAM-MAKER/scripts/aigc_harness_audit.py:11) 将 HARNESS bootstrap carrier 纳入严格检查。
 
 ### 2.2 宪章层结论
 
@@ -42,9 +42,9 @@
 
 关键证据：
 
-- [office-governance-contract.md](/Volumes/AIGC/AIGC-DREAMER/.codex/templates/harness/office-governance-contract.md:15) 已定义 canonical carriers、entry gates、handoff 与 closure。
-- [中书省.md](/Volumes/AIGC/AIGC-DREAMER/.codex/agents/harness治理/中书省.md:29)、[门下省.md](/Volumes/AIGC/AIGC-DREAMER/.codex/agents/harness治理/门下省.md:27)、[尚书省.md](/Volumes/AIGC/AIGC-DREAMER/.codex/agents/harness治理/尚书省.md:26) 都已从目录骨架进化为执行合同。
-- [aigc 根技能](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/SKILL.md:162) 已把项目级治理工件、卫星桥接与根闭环写入总合同。
+- [office-governance-contract.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/templates/harness/office-governance-contract.md:15) 已定义 canonical carriers、entry gates、handoff 与 closure。
+- [中书省.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/agents/harness治理/中书省.md:29)、[门下省.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/agents/harness治理/门下省.md:27)、[尚书省.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/agents/harness治理/尚书省.md:26) 都已从目录骨架进化为执行合同。
+- [aigc 根技能](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/SKILL.md:162) 已把项目级治理工件、卫星桥接与根闭环写入总合同。
 
 ### 3.2 三省层结论
 
@@ -56,7 +56,7 @@
 | 能力域 | 当前落点 | 评估 |
 | --- | --- | --- |
 | 吏部 | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml` | 强。已能登记 stage、satellite、legacy mapping 与 bootstrap_compat。 |
-| 户部 | `projects/aigc/<项目名>/project_state.yaml`、`governance-state.yaml`、`team.yaml` | 强。已经有项目控制面，不再只有聊天态。 |
+| 户部 | `projects/aigc/<项目名>/STATE.json`、`governance-state.yaml`、`team.yaml` | 强。已经有项目控制面，不再只有聊天态。 |
 | 礼部 | `.codex/templates/harness/*`、`_shared/project-runtime-layout.md`、阶段/卫星 `SKILL.md` | 强。carrier 与 shared contract 已成体系。 |
 | 兵部 | `resume/`、`task-lifecycle.md`、项目级 `resume_contract` | 中强。已能恢复和续跑，但 preflight 普遍未进入真实项目闭环。 |
 | 刑部 | `review/`、两个 audit 脚本、阶段 `validation-report.md` | 中强。已有验收和审计，但 review scope-carrier 有局部漂移。 |
@@ -68,14 +68,14 @@
 
 - HARNESS bootstrap audit 已通过，说明真源载体完整。
 - AIGC skill audit 已通过，说明根/阶段/卫星/registry/runtime 的大框架一致。
-- 样本项目已经把 `project_state.yaml + governance-state.yaml + validation-report.md` 用起来，不是纸面合同。
+- 样本项目已经把 `STATE.json + governance-state.yaml + validation-report.md` 用起来，不是纸面合同。
 
 关键证据：
 
 - `python3 scripts/aigc_harness_audit.py --strict`：通过。
 - `python3 scripts/aigc_skill_audit.py --strict`：通过，仅 2 条 context hygiene warning。
-- [project_state.yaml](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/project_state.yaml:1) 能给出当前阶段、下一入口与主产物索引。
-- [governance-state.yaml](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:32) 能给出 checkpoint、resume_contract 与 artifact_status。
+- [STATE.json](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/STATE.json:1) 能给出当前阶段、下一入口与主产物索引。
+- [governance-state.yaml](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:32) 能给出 checkpoint、resume_contract 与 artifact_status。
 
 ### 5.2 闭环仍未完全打通的部分
 
@@ -84,8 +84,8 @@
 
 关键证据：
 
-- [governance-state.yaml](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:40) 中 `mandate / mission_brief / route_plan / preflight_verdict / learning_record` 仍为 `absent`。
-- 同文件 [51-54 行](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:51) 显示 `review_bridge` 仍是 `not_started`。
+- [governance-state.yaml](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:40) 中 `mandate / mission_brief / route_plan / preflight_verdict / learning_record` 仍为 `absent`。
+- 同文件 [51-54 行](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/governance-state.yaml:51) 显示 `review_bridge` 仍是 `not_started`。
 
 结论：
 
@@ -126,15 +126,15 @@
 - 直接原因：
   - `review/`、`acceptance-review/`、`review-modes.md`、`council-runtime`、`team.template.yaml` 与项目样本没有同步完。
 - Rule Source：
-  - [review/SKILL.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/review/SKILL.md:97)
-  - [acceptance-review/SKILL.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md:15)
-  - [review-modes.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/review/references/review-modes.md:31)
-  - [council-runtime/module-spec.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/_shared/council-runtime/module-spec.md:32)
-  - [team.template.yaml](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/_shared/council-runtime/team.template.yaml:57)
+  - [review/SKILL.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/review/SKILL.md:97)
+  - [acceptance-review/SKILL.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/review/subtypes/acceptance-review/SKILL.md:15)
+  - [review-modes.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/review/references/review-modes.md:31)
+  - [council-runtime/module-spec.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/_shared/council-runtime/module-spec.md:32)
+  - [team.template.yaml](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/_shared/council-runtime/team.template.yaml:57)
 - Meta Rule Source：
-  - [scripts/aigc_skill_audit.py](/Volumes/AIGC/AIGC-DREAMER/scripts/aigc_skill_audit.py:91)
-  - [project_state.yaml](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/project_state.yaml:25)
-  - [2-Global/validation-report.md](/Volumes/AIGC/AIGC-DREAMER/projects/aigc/2049退休老头的快乐生活/2-Global/validation-report.md:1)
+  - [scripts/aigc_skill_audit.py](/Volumes/AIGC/AIGC-DREAM-MAKER/scripts/aigc_skill_audit.py:91)
+  - [STATE.json](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/STATE.json:25)
+  - [2-Global/validation-report.md](/Volumes/AIGC/AIGC-DREAM-MAKER/projects/aigc/2049退休老头的快乐生活/2-Global/validation-report.md:1)
 - 立即修复：
   - 统一 `2-Global` acceptance carrier 到单一真源。
   - 我建议以 `2-Global/validation-report.md` 为准，因为运行样本、project_state 与 audit 已经站在这一侧。
@@ -148,12 +148,12 @@
 - 直接原因：
   - 总览投影没有跟 `AGENTS.md + registry + runbook + root skill` 的路径口径同步完。
 - Rule Source：
-  - [HARNESS.md](/Volumes/AIGC/AIGC-DREAMER/HARNESS.md:40)
-  - [HARNESS.md](/Volumes/AIGC/AIGC-DREAMER/HARNESS.md:92)
+  - [HARNESS.md](/Volumes/AIGC/AIGC-DREAM-MAKER/HARNESS.md:40)
+  - [HARNESS.md](/Volumes/AIGC/AIGC-DREAM-MAKER/HARNESS.md:92)
 - Meta Rule Source：
-  - [AGENTS.md](/Volumes/AIGC/AIGC-DREAMER/AGENTS.md:50)
-  - [registry/skills.yaml](/Volumes/AIGC/AIGC-DREAMER/.codex/registry/skills.yaml:12)
-  - [routes.yaml](/Volumes/AIGC/AIGC-DREAMER/.codex/registry/routes.yaml:30)
+  - [AGENTS.md](/Volumes/AIGC/AIGC-DREAM-MAKER/AGENTS.md:50)
+  - [registry/skills.yaml](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/registry/skills.yaml:12)
+  - [routes.yaml](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/registry/routes.yaml:30)
 - 立即修复：
   - 把 `HARNESS.md` 全量同步为 `projects/aigc/<项目名>/`。
 - 系统预防修复：
@@ -166,11 +166,11 @@
 - 直接原因：
   - 当前仓库处于 `bootstrap_compat`，执行链优先、治理工件后补。
 - Rule Source：
-  - [aigc/SKILL.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/SKILL.md:160)
-  - [project-runtime-layout.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/_shared/project-runtime-layout.md:15)
+  - [aigc/SKILL.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/SKILL.md:160)
+  - [project-runtime-layout.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/_shared/project-runtime-layout.md:15)
 - Meta Rule Source：
-  - [task-lifecycle.md](/Volumes/AIGC/AIGC-DREAMER/.codex/runbooks/task-lifecycle.md:8)
-  - [office-governance-contract.md](/Volumes/AIGC/AIGC-DREAMER/.codex/templates/harness/office-governance-contract.md:24)
+  - [task-lifecycle.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/runbooks/task-lifecycle.md:8)
+  - [office-governance-contract.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/templates/harness/office-governance-contract.md:24)
 - 立即修复：
   - 至少选一个真实项目，把 `preflight-verdict.yaml` 和 `learning-record.md` 正式跑通。
 - 系统预防修复：
@@ -183,10 +183,10 @@
 - 直接原因：
   - 当前质量证明仍依赖静态审计 + 单项目样本。
 - Rule Source：
-  - [aigc/SKILL.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/SKILL.md:178)
-  - [creative-skill-package-evaluation.md](/Volumes/AIGC/AIGC-DREAMER/.codex/runbooks/creative-skill-package-evaluation.md:22)
+  - [aigc/SKILL.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/SKILL.md:178)
+  - [creative-skill-package-evaluation.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/runbooks/creative-skill-package-evaluation.md:22)
 - Meta Rule Source：
-  - [AIGC技能质量评估专家](/Volumes/AIGC/AIGC-DREAMER/.codex/agents/aigc/质评组/AIGC技能质量评估专家.md:118)
+  - [AIGC技能质量评估专家](/Volumes/AIGC/AIGC-DREAM-MAKER/.codex/agents/aigc/质评组/AIGC技能质量评估专家.md:118)
 - 立即修复：
   - 增加根级 benchmark suite，先覆盖 `baseline + regression`。
 - 系统预防修复：
@@ -199,8 +199,8 @@
 - 直接原因：
   - `CONTEXT.md` 已切知识库模式，但局部仍保留 milestone case。
 - Rule Source：
-  - [全能参照/CONTEXT.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md:1)
-  - [首帧参照/CONTEXT.md](/Volumes/AIGC/AIGC-DREAMER/.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md:1)
+  - [全能参照/CONTEXT.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/CONTEXT.md:1)
+  - [首帧参照/CONTEXT.md](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/CONTEXT.md:1)
 - Meta Rule Source：
   - 根 `AGENTS.md` 的 rollout / context hygiene 规则
   - `scripts/aigc_skill_audit.py`
@@ -217,7 +217,7 @@
 | `HARNESS.md` | 总览投影 | 路径口径未完全同步 | 派生层 | 同步到 `projects/aigc/<项目名>/` |
 | `.agents/skills/aigc/SKILL.md` | suite router + root closure | 正在快速进化，仍有未提交改动 | 中书/总控层 | 继续承担唯一下一入口与根投影同步 |
 | `query / resume / review` | 卫星桥接 | 已成立，但 `review` carrier 口径漂移 | 尚书/门下旁路层 | 统一 carrier 真源 |
-| `project_state.yaml + governance-state.yaml` | 项目控制面 | 强，但三省全工件未普及 | 户部控制面 | 在实战中补 preflight / learning |
+| `STATE.json + governance-state.yaml` | 项目控制面 | 强，但三省全工件未普及 | 户部控制面 | 在实战中补 preflight / learning |
 | `validation-report.md` 链 | 阶段验收证据 | `2-Global` carrier 有歧义 | 刑部 carrier | 统一 scope-carrier mapping |
 | audit 脚本 | bootstrap 与 skill 树审计 | 强，但不等于 benchmark | 工部 | 增补动态评测 |
 

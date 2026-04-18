@@ -25,9 +25,10 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 补充治理约束：
 
+- 书项目 canonical runtime root 固定为 `projects/story/<项目名>/`。
 - repo 级复杂任务治理真源固定回指 `.codex/schemas/`、`.codex/runbooks/`、`.codex/registry/`。
-- 书项目级 tracked run 的 shadow 工件固定落在 `<project_root>/.webnovel/tasks/<run_id>/`。
-- 第一阶段不拿 shadow 工件替代 `.webnovel/workflow_state.json / execution_state.json / task_log.jsonl`，只把它们作为三省证据层增强。
+- 书项目级 tracked run 运行态固定内联到 `STATE.json.workflow_runtime`。
+- `workflow_state / execution_state / task_log / governance_index` 均属于 `STATE.json.workflow_runtime` 的内联子层，不再拆成 `.webnovel/tasks/` 或旧独立状态文件。
 
 硬边界：
 
@@ -93,14 +94,29 @@ allowed-tools: Read Grep Bash Write Edit Task
 | 层 | 拥有的真源 | 不拥有的真源 |
 | --- | --- | --- |
 | 根级 `story2026` | 跨阶段拓扑、总路由、共享载体边界、默认加载顺序 | 各阶段内部执行细则、局部 reference 专业判断 |
-| `0-Init` | 立项合同、`north_star_contract`、初始 seeds | 对象真源、规划真源、validated actualization |
+| `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-Cards` | 角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
-| `2-Planning` | `Planning/8-全息地图.json` 为核心的规划真源 | 对象当前态、validated actualization |
-| `3-Drafting` | 章节草稿、润色闭环、章节级写作执行包 | 评估判断权、validated truth writeback |
+| `2-Planning` | `Planning/全息地图.json` 为核心的规划真源 | 对象当前态、validated actualization |
+| `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md + 写作日志.yaml` 为核心的章节正文真源与工序账本 | 评估判断权、validated truth writeback |
 | `4-Validation` | 隔离评估团队与 `validation_status` 判定 | 报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
 | `5-Loopback` | validated actualization 与 truth writeback | 未通过验证的修改写回 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
+
+## Canonical Runtime Root
+
+- 书项目正式业务根目录：`projects/story/<项目名>/`
+- 根层项目入口文件固定写在：
+  - `projects/story/<项目名>/STATE.json`
+  - `projects/story/<项目名>/team.yaml`
+  - `projects/story/<项目名>/CHANGELOG.md`
+- 阶段业务产物固定落在：
+  - `projects/story/<项目名>/0-Init/`
+  - `projects/story/<项目名>/Cards/`
+  - `projects/story/<项目名>/Planning/`
+  - `projects/story/<项目名>/3-Drafting/`
+  - `projects/story/<项目名>/Validation/`
+  - `projects/story/<项目名>/Loopback/`
 
 ## Shared Carrier Contract
 
@@ -131,7 +147,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - workflow / state / status 管理
 - shared CLI entrypoint
 - 多阶段共用的数据访问与校验
-- shadow governance task artifact 写入与引用回填
+- 内联 governance bundle 写入与引用回填
 
 规则：
 
@@ -146,21 +162,24 @@ repo 级 authoritative source：
 - `.codex/runbooks/`
 - `.codex/registry/`
 
-书项目级 shadow artifact chain：
+书项目级 runtime artifact chain：
 
-- `<project_root>/.webnovel/tasks/<run_id>/mandate.yaml`
-- `<project_root>/.webnovel/tasks/<run_id>/mission_brief.yaml`
-- `<project_root>/.webnovel/tasks/<run_id>/route_plan.yaml`
-- `<project_root>/.webnovel/tasks/<run_id>/preflight_verdict.yaml`
-- `<project_root>/.webnovel/tasks/<run_id>/artifact_manifest.json`
-- `<project_root>/.webnovel/tasks/<run_id>/validation_report.md`
-- `<project_root>/.webnovel/tasks/<run_id>/learning_record.md`
+- `STATE.json.workflow_runtime.workflow_state`
+- `STATE.json.workflow_runtime.execution_state`
+- `STATE.json.workflow_runtime.task_log`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.mandate`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.mission_brief`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.route_plan`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.preflight_verdict`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.artifact_manifest`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.validation_report`
+- `STATE.json.workflow_runtime.governance_index.<run_id>.learning_record`
 
 解释：
 
-- tracked workflow 当前通过根级 `scripts/workflow_manager.py + task_artifacts.py` 旁路写入这些工件。
-- 阶段技能必须承认这些工件是 review / trace / closure 的共享证据层。
-- 在 cutover 前，`.webnovel/workflow_state.json / execution_state.json / task_log.jsonl` 仍是运行态主链。
+- tracked workflow 当前通过根级 `scripts/workflow_manager.py` 直接把这些工件内联写入 `STATE.json`。
+- 阶段技能必须承认这些对象是 review / trace / closure 的共享证据层。
+- `.webnovel/` 继续只保留 `index.db`、`vectors.db`、`summaries/`、`archive/` 与 `observability/` 这类辅助 runtime 载体。
 
 ### 根级 `templates/`
 
@@ -199,8 +218,8 @@ repo 级 authoritative source：
 3. 若问题涉及共享合同，先读根级 `references/README.md`；若问题命中命令、skill id、workflow 命名漂移，再优先补读 `command-naming-contract.md`。
 4. 路由到目标阶段的 `SKILL.md`。
 5. 读取目标阶段 `CONTEXT.md`。
-6. 若阶段采用 governed `references/`，固定顺序为：
-   - `module-spec.md`
+6. 若阶段采用 governed child skills 或 governed `references/`，固定顺序为：
+   - 当前命中的子技能 `SKILL.md` 或 `module-spec.md`
    - 同目录 `CONTEXT.md`
    - 对应模板 / 脚本
 
@@ -251,6 +270,6 @@ repo 级 authoritative source：
 - 已能明确把任一泛化 `story2026` 请求路由到唯一默认入口。
 - 已能说明该请求应读的 canonical truth 与不该误读的非真源层。
 - 已区分根级 `references/`、`scripts/`、`templates/` 的共享职责。
-- 已能指出 repo 级 `.codex/` 真源与项目级 `.webnovel/tasks/<run_id>/` shadow 工件链的分工。
+- 已能指出 repo 级 `.codex/` 真源与项目级 `STATE.json.workflow_runtime` 内联工件链的分工。
 - 出现跨阶段问题时，已给出完整 layered trace。
 - 没有把根级入口写成“阶段细则大杂烩”。

@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
 from planning_paths import canonical_planning_artifact_relpath, resolve_planning_artifact_path
-from project_locator import resolve_project_root
+from project_locator import resolve_project_root, resolve_state_file
 from runtime_compat import enable_windows_utf8_stdio
 from security_utils import atomic_write_json, create_secure_directory, sanitize_filename
 
@@ -337,7 +337,7 @@ def _build_artifact(
 
 def actualize(args: argparse.Namespace) -> int:
     project_root = resolve_project_root(str(args.project_root))
-    state_path = project_root / ".webnovel" / "state.json"
+    state_path = resolve_state_file(explicit_project_root=str(project_root))
     requested_story_map_rel = str(args.story_map_ref or "").strip()
     story_map_rel = requested_story_map_rel or canonical_planning_artifact_relpath("holomap")
     if requested_story_map_rel:
@@ -346,7 +346,7 @@ def actualize(args: argparse.Namespace) -> int:
         story_map_path = resolve_planning_artifact_path(project_root, "holomap")
 
     if not state_path.is_file():
-        raise SystemExit(f"缺少 state.json: {state_path}")
+        raise SystemExit(f"缺少 STATE.json: {state_path}")
     if not story_map_path.is_file():
         raise SystemExit(f"缺少 story_map: {story_map_path}")
 

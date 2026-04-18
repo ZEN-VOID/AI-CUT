@@ -28,7 +28,7 @@ def _write_json(path: Path, payload: dict) -> None:
 
 def _build_project(project_root: Path) -> None:
     _write_json(
-        project_root / ".webnovel" / "state.json",
+        project_root / "STATE.json",
         {
             "project_info": {"title": "凡人资本论"},
             "progress": {"current_chapter": 12, "total_words": 32000},
@@ -36,7 +36,7 @@ def _build_project(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "Planning" / "8-全息地图.json",
+        project_root / "Planning" / "全息地图.json",
         {
             "schema_version": "story2026/holomap/v1",
             "content": {
@@ -216,13 +216,13 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert card["history"][-1]["loopback_ref"] == "Loopback/第12集.loopback.json"
 
     holomap = json.loads(
-        (project_root / "Planning" / "8-全息地图.json").read_text(encoding="utf-8")
+        (project_root / "Planning" / "全息地图.json").read_text(encoding="utf-8")
     )
     actual_nodes = holomap["content"]["holomap"]["actualization"]["episode_nodes"]
     assert actual_nodes[0]["episode_ref"] == "第12集"
     assert actual_nodes[0]["execution_status"] == "completed"
 
-    state = json.loads((project_root / ".webnovel" / "state.json").read_text(encoding="utf-8"))
+    state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     assert state["setting_route_packet"]["writer_context_projection"]["memory_projection"]["focus"] == [
         "突破后余波",
         "宗门立场",

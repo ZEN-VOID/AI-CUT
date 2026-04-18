@@ -1,0 +1,106 @@
+{
+  "schema_version": "story2026/story-map/v3",
+  "meta": {
+    "schema_version": "story2026/story-map/v3",
+    "skill_id": "story-plan",
+    "module_id": "story-map-root",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning",
+    "template_version": "3.0.0",
+    "truth_role": "planning-canonical-map"
+  },
+  "content": {
+    "holomap": {
+      "scope": "full-series",
+      "story_promise": {
+        "reader_promise": [],
+        "platform_fit": [],
+        "forbidden_zone": []
+      },
+      "genre_corridor": {
+        "primary_genre": "",
+        "secondary_genres": [],
+        "allowed_modes": [],
+        "tone_band": "",
+        "narrative_density": "",
+        "downstream_hooks": []
+      },
+      "story_spine": {
+        "core_question": "",
+        "outline_spine": [],
+        "volume_progressions": [],
+        "major_turns": [],
+        "downstream_hooks": []
+      },
+      "timeline_axis": [],
+      "space_axis": [],
+      "episode_sequence_axis": [],
+      "volume_boards": [],
+      "chapter_boards": [],
+      "conflict_threads": [],
+      "mission_threads": [],
+      "clue_threads": [],
+      "foreshadow_threads": [],
+      "lifecycle_lexicon": {
+        "canonical_stages": [
+          {
+            "stage": "appear",
+            "label": "出现",
+            "definition": ""
+          },
+          {
+            "stage": "activate",
+            "label": "激活",
+            "definition": ""
+          },
+          {
+            "stage": "transfer",
+            "label": "转移",
+            "definition": ""
+          },
+          {
+            "stage": "resolve",
+            "label": "解决",
+            "definition": ""
+          },
+          {
+            "stage": "payoff",
+            "label": "兑现",
+            "definition": ""
+          },
+          {
+            "stage": "exit",
+            "label": "退场",
+            "definition": ""
+          }
+        ],
+        "mapping_contract": []
+      },
+      "cross_thread_indexes": [],
+      "actualization": {
+        "write_policy": "actualization-only",
+        "episode_nodes": [],
+        "clue_points": [],
+        "foreshadow_points": [],
+        "promise_threads": [],
+        "suspense_threads": [],
+        "tasklines": [],
+        "threads": []
+      },
+      "state_transitions": [],
+      "navigation_rules": []
+    }
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 80,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

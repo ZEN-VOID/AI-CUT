@@ -14,25 +14,20 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 ```
 项目根目录/
 ├── 正文/           # 正文章节文件（第0001章.md 或 第1卷/第001章-标题.md）
-├── Planning/legacy/           # 卷纲/章纲/场景纲（legacy fallback）
+├── Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
 ├── Planning/
-│   └── 8-全息地图/
-│       └── 全息地图.json   # 规划真源（drafting/query/resume 默认先读）
-├── Init/
-│   ├── north_star_contract.json # 初始化主文件（含 story_kernel / reader_promise / aesthetic_axes / ip_boundary / cards）
-│   ├── 初始化简报.json           # companion handoff（cards_seed / planning_seed / unknowns）
-│   ├── 访谈摘要.md
-│   └── 确认卡.md
-├── Cards/         # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
-├── Drafting/           # drafting 阶段中间产物
+│   └── 全息地图.json      # 规划真源（drafting/query/resume 默认先读）
+├── 0-Init/
+│   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
+│   ├── story-source-manifest.yaml # 故事主源登记与 readiness
+│   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
+├── Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
+├── 3-Drafting/           # drafting 阶段正文真源（如 3-Drafting/第1集.md）
 ├── Loopback/
 │   └── 第N集.loopback.json   # PASS 后 validated actualization artifact
+├── STATE.json             # 项目入口与内联执行态唯一状态文件
 └── .webnovel/
-    ├── state.json          # 精简状态 (< 5KB)：进度/主角/strand_tracker/消歧
     ├── index.db            # SQLite 主存储：实体/别名/关系/状态变化/章节/场景
-    ├── workflow_state.json # 当前 run 断点 + 兼容 history（resume 首读）
-    ├── execution_state.json # 全阶段执行状态：run registry / stage_progress / artifacts_index
-    ├── task_log.jsonl      # 追加式任务日志：启动、心跳、失败、清理、恢复
     ├── vectors.db          # RAG 向量数据库
     ├── summaries/          # 章节摘要（chNNNN.md）
     └── archive/            # 归档数据（不活跃角色/已回收伏笔）
@@ -40,38 +35,38 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 ## 架构变更说明
 
-**核心变化**: 解决 state.json 膨胀问题（20章后 token 爆炸）
+**核心变化**: 解决 `STATE.json` 膨胀问题（20章后 token 爆炸）
 
 | 数据类型 | 旧版存储位置 | 当前存储位置 |
 |----------|--------------|--------------|
-| entities_v3 | state.json | **index.db** (entities 表) |
-| alias_index | state.json | **index.db** (aliases 表) |
-| state_changes | state.json | **index.db** (state_changes 表) |
-| structured_relationships | state.json | **index.db** (relationships 表) |
-| progress | state.json | state.json (保留) |
-| protagonist_state | state.json | state.json (保留) |
-| strand_tracker | state.json | state.json (保留) |
-| disambiguation_* | state.json | state.json (保留) |
-| current run / completed step order | 无统一真源 | **workflow_state.json** |
-| stage progress / runs / resume marker | 无统一真源 | **execution_state.json** |
-| append-only task events | 无统一真源 | **task_log.jsonl** |
+| entities_v3 | `STATE.json` | **index.db** (entities 表) |
+| alias_index | `STATE.json` | **index.db** (aliases 表) |
+| state_changes | `STATE.json` | **index.db** (state_changes 表) |
+| structured_relationships | `STATE.json` | **index.db** (relationships 表) |
+| progress | STATE.json | STATE.json (保留) |
+| protagonist_state | STATE.json | STATE.json (保留) |
+| strand_tracker | STATE.json | STATE.json (保留) |
+| disambiguation_* | STATE.json | STATE.json (保留) |
+| current run / completed step order | 无统一真源 | **STATE.json.workflow_runtime.workflow_state** |
+| stage progress / runs / resume marker | 无统一真源 | **STATE.json.workflow_runtime.execution_state** |
+| append-only task events | 无统一真源 | **STATE.json.workflow_runtime.task_log** |
 
 ## 双 Agent 架构
 
 ```
 写作前: Context Agent 读取数据 → 组装上下文包
         ├── 先读 全息地图（章节节点/任务/线索/伏笔/章节功能）
-        ├── 从 state.json 读取精简数据（进度/配置）
+        ├── 从 STATE.json 读取精简数据（进度/配置）
         └── 从 index.db SQL 按需查询（实体/关系）
 
 写作中: Writer 使用上下文包生成纯正文（无 XML 标签）
 
 写作后: Data Agent 处理正文 → AI 提取实体 → 写入数据链
         ├── 写入 index.db（实体/别名/状态变化/关系）
-        ├── 更新 state.json（进度/主角快照 + chapter_meta）
+        ├── 更新 STATE.json（进度/主角快照 + chapter_meta）
         └── 写入 summaries/chNNNN.md（章节摘要）
 
-Context Agent (读) ←→ index.db + state.json ←→ Data Agent (写)
+Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 ```
 
 ## 阶段总线（最新 0-5 系统）
@@ -79,18 +74,21 @@ Context Agent (读) ←→ index.db + state.json ←→ Data Agent (写)
 ```text
 0-Init
   → 收集项目承诺与禁飞区
-  → 生成 `north_star_contract.json`
-  → 其中 `north_star_contract.cards` 承担原“全局卡/全局总览”的长期对象总规范
+  → 生成 `0-Init/north_star.yaml + story-source-manifest.yaml + init_handoff.yaml`
+  → 其中 `north_star.yaml.cards` 承担长期对象总规范
 
 1-Cards
-  → 基于 `north_star_contract.cards` 建立角色/场景/物品真源：core / current_state / history
+  → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
 2-Planning
-  → 1-7 planning passes 收敛为 `Planning/8-全息地图.json`
+  → 1-7 planning child skills progressive commit 到 `Planning/全息地图.json`
 
 3-Drafting
-  → 读取 MAP + Cards + runtime state 生成章节，并把章节数据写回 state/index
-  → 同步推进 `workflow_state.json + execution_state.json + task_log.jsonl`
+  → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
+  → 固定串行执行 1-7 工序，并同步 `3-Drafting/写作日志.yaml`
+  → 当 `N>1` 时额外加载上一集最终正文 `3-Drafting/第N-1集.md`
+  → 并把章节数据写回 state/index
+  → 同步推进 `STATE.json.workflow_runtime`
 
 4-Validation
   → 新后台隔离团队做客观检验，决定是否 PASS
@@ -114,18 +112,18 @@ query / resume
 
 | 脚本 | 输入 | 输出 |
 |------|------|------|
-| `init_project.py` | 项目信息 | 生成 `.webnovel/state.json` + 初始化 `index.db` |
-| `update_state.py` | 参数 | 原子更新 `state.json` 字段（进度/主角/strand_tracker） |
+| `init_project.py` | 项目信息 | 生成五件套 + `STATE.json.workflow_runtime` + 初始化 `index.db` |
+| `update_state.py` | 参数 | 原子更新 `STATE.json` 字段（进度/主角/strand_tracker） |
 | `backup_manager.py` | 章节号 | 自动 Git 备份 |
 | `status_reporter.py` | 无 | 生成健康报告/伏笔紧急度 |
 | `archive_manager.py` | 无 | 归档不活跃数据 |
-| `data_modules/migrate_state_to_sqlite.py` | 项目路径 | 迁移旧 state.json 到 SQLite |
+| `data_modules/migrate_state_to_sqlite.py` | 项目路径 | 迁移旧 `STATE.json` 到 SQLite |
 
 ### data_modules 模块
 
 | 模块 | 职责 |
 |------|------|
-| `state_manager.py` | 实体状态管理（精简 state.json + SQLite 同步） |
+| `state_manager.py` | 实体状态管理（精简 `STATE.json` + SQLite 同步） |
 | `sql_state_manager.py` | SQLite 状态管理（替代 JSON 写入） |
 | `index_manager.py` | SQLite 索引管理（实体/别名/关系/状态变化/章节/场景） |
 | `entity_linker.py` | 别名注册与消歧 |
@@ -138,8 +136,8 @@ query / resume
 
 ```
 1. Context Agent 组装创作任务书
-   → 先读取 `Planning/8-全息地图.json`（规划真源）
-   → 读取 state.json（精简版：进度/配置）
+   → 先读取 `Planning/全息地图.json`（规划真源）
+   → 读取 `STATE.json`（精简版：进度/配置）
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
 
@@ -163,7 +161,7 @@ query / resume
    → AI 实体提取（替代 XML 标签解析）
    → 实体消歧（置信度策略）
    → 写入 index.db（实体/别名/状态变化/关系）
-   → 更新 state.json（进度/主角快照 + chapter_meta）
+   → 更新 `STATE.json`（进度/主角快照 + chapter_meta）
    → 写入 summaries/chNNNN.md（章节摘要）
    → 向量嵌入 (RAG)
    → 风格样本评估
@@ -181,9 +179,9 @@ query / resume
 
 ## 规划真源优先级
 
-1. `Planning/8-全息地图.json`
+1. `Planning/全息地图.json`
 2. `Cards/**/*.json`
-3. `.webnovel/state.json`
+3. `STATE.json`
 4. `Planning/legacy/`（仅 legacy fallback）
 
 说明：
@@ -194,9 +192,10 @@ query / resume
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `Planning/8-全息地图.json` | 只回答 planned，不代表已发生 |
+| planning truth | 原计划如何编排、哪章承载什么 | `Planning/全息地图.json` | 只回答 planned，不代表已发生 |
+| drafting truth | 当前集正文写成什么样、已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `Cards/**/*.json` | 优先区分 `core / current_state / history` |
-| runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `.webnovel/state.json` | 是快照，不是完整证据库 |
+| runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
 | validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `content.holomap.actualization` + `5-Loopback/*.loopback.json` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Validation + review` 生成 |
@@ -208,7 +207,7 @@ query / resume
 - 问“已经发生了吗” -> validated actualization
 - 问“证据是什么” -> indexed evidence
 
-## state.json 精简结构
+## `STATE.json` 精简结构
 
 ```json
 {
@@ -239,11 +238,22 @@ query / resume
 }
 ```
 
-> **当前结构说明**: entities_v3、alias_index、state_changes、structured_relationships 已迁移到 index.db，不再存储在 state.json 中。
+## workflow_runtime 内联结构
 
-> **查询注意**: `state.json` 仍然保留 `review_checkpoints`、`chapter_meta`、`strand_tracker` 等快照字段，但它不是 `Cards`、`MAP.actualization` 或 `index.db` 的替代品。
+`STATE.json.workflow_runtime` 固定承载三块执行态：
 
-## execution_state.json 结构（全阶段执行状态）
+- `workflow_state`
+  - 当前 run 的兼容断点与 history
+- `execution_state`
+  - 全阶段 run registry / stage_progress / latest_resume_point / governance_index
+- `task_log`
+  - 追加式事件证据链
+
+> **当前结构说明**: entities_v3、alias_index、state_changes、structured_relationships 已迁移到 index.db，不再存储在 `STATE.json` 中。
+
+> **查询注意**: `STATE.json` 仍然保留 `review_checkpoints`、`chapter_meta`、`strand_tracker` 等快照字段，但它不是 `Cards`、`MAP.actualization` 或 `index.db` 的替代品。
+
+## `STATE.json.workflow_runtime.execution_state` 结构（全阶段执行状态）
 
 ```json
 {
@@ -261,9 +271,9 @@ query / resume
 }
 ```
 
-- `workflow_state.json` 负责“当前 run 的断点与兼容 history”。
-- `execution_state.json` 负责“全阶段 run 注册表、stage_progress、resume marker”。
-- `task_log.jsonl` 负责“追加式事件证据链”，适合追踪心跳、失败、清理与人工诊断。
+- `STATE.json.workflow_runtime.workflow_state` 负责“当前 run 的断点与兼容 history”。
+- `STATE.json.workflow_runtime.execution_state` 负责“全阶段 run 注册表、stage_progress、resume marker”。
+- `STATE.json.workflow_runtime.task_log` 负责“追加式事件证据链”，适合追踪心跳、失败、清理与人工诊断。
 
 ## index.db 表结构
 
@@ -361,7 +371,7 @@ CREATE TABLE appearances (...);
 <input>查询当前进度</input>
 <output>
 ```bash
-cat "$PROJECT_ROOT/.webnovel/state.json" | jq '.progress'
+cat "$PROJECT_ROOT/STATE.json" | jq '.progress'
 # 输出: { "current_chapter": 45, "total_words": 135000 }
 ```
 </output>
@@ -429,11 +439,11 @@ python "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-app
 </example>
 
 <example>
-<input>迁移旧 state.json 到 SQLite</input>
+<input>迁移旧 `STATE.json` 到 SQLite</input>
 <output>
 ```bash
 python "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" migrate -- --backup
-# 自动备份 state.json，迁移数据到 index.db，精简 state.json
+# 自动备份 `STATE.json`，迁移数据到 index.db，精简 `STATE.json`
 ```
 </output>
 </example>
@@ -447,7 +457,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" migrate -- --bac
 ❌ alias_index 期望单对象 → ✅ 当前结构使用数组格式（一对多）
 ❌ 期望 XML 标签提取 → ✅ 当前主流程由 Data Agent AI 自动提取
 ❌ 使用旧版 data_modules.state_manager schema → ✅ 统一使用 entities_v3 结构
-❌ 仍从 state.json 读取 entities_v3 → ✅ 改用 SQL 查询 index.db
-❌ 仍写入 state.json 大数据 → ✅ 改用 SQLite 增量写入
-❌ 让 state.json 持续膨胀 → ✅ 运行迁移脚本: `python "${SCRIPTS_DIR}/story.py" migrate`
+❌ 仍从 `STATE.json` 读取 entities_v3 → ✅ 改用 SQL 查询 index.db
+❌ 仍写入 `STATE.json` 大数据 → ✅ 改用 SQLite 增量写入
+❌ 让 `STATE.json` 持续膨胀 → ✅ 运行迁移脚本: `python "${SCRIPTS_DIR}/story.py" migrate`
 </errors>

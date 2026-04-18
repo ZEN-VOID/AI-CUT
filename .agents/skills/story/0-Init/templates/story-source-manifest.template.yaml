@@ -1,0 +1,32 @@
+manifest_version: "story2026-story-source/v1"
+source_root: "Story/"
+
+primary_story_source:
+  status: "missing"  # missing | ready
+  source_type: ""  # novel_original | outline | world_bible | hybrid_story_text
+  path: ""
+  coverage_scope: ""
+  preset_retention_mode: "standard"
+  detail_expansion_mode: "free_expansion"
+  locked_preset_axes: []
+  preset_registry: []
+  authoritative_for:
+    - "2-Planning"
+  notes: ""
+
+auxiliary_sources: []
+
+development_briefs: []
+
+readiness:
+  can_enter_cards: true
+  can_enter_planning: true
+  planning_scope: "seed_first"  # blocked | seed_first | source_grounded
+  blocking_reason: ""
+  partial_limitations: []
+  allowed_next_entries_when_blocked: []
+  required_user_action: []
+
+missing_prompt:
+  summary: ""
+  ask_user_to_provide: []

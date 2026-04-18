@@ -12,12 +12,12 @@
   - 用户卡在创意阶段，需要候选卖点、钩子或约束提示。
   - 用户显式要求“参考当下趋势”或“按当前平台风向校准”。
 - 不负责项：
-  - 不重新定义三种 `init_mode` 的选择与执行。
+  - 不重新定义 `team代入模式` 与 `auto/custom` 编组的选择与执行。
   - 不替代 `templates/genres/` 与 `templates/worldbuilding/` 的共享真源角色。
   - 不把 `2-Planning` 的 canonical 编排真源提前拍死。
 - 与兄弟模块边界：
-  - `advisor-council-mode / fast-mode / autonomous-mode` 决定执行形态。
-  - 本模块只负责创意相关资料的最小读取与槽位回写，不决定模式本身。
+  - 上层 `0-Init` 的 `team代入模式 + auto/custom` 决定执行形态。
+  - 本模块只负责创意相关资料的最小读取与槽位回写，不决定 team 路由本身。
 
 ## 2. 预加载上下文
 
@@ -34,7 +34,7 @@
   4. 当前 `CONTEXT.md`
 - 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` / 元规则 > 根 `SKILL.md` > 当前 `module-spec.md` > 根 `CONTEXT.md` > 当前 `CONTEXT.md`
 - 默认不并入的上下文：
-  - 未命中的 mode-playbook `CONTEXT.md`
+  - 未命中的 team roster 子技能上下文
   - 不相关题材与 worldbuilding 叶子资料
   - `market-trends-2026.md`，除非命中趋势校准闸门
 
@@ -52,8 +52,8 @@
   - `think-think/references/chain-optimization.md`
   - `think-think/templates/think-quadrant-template.md`
 - downstream_consumers:
-  - `0-Init/SKILL.md` 的 `Reference Loading Guide`
-  - 三个 mode-playbook 的 `Shared Dependency Contract`
+  - `0-Init/SKILL.md` 的 `Execution Procedure`
+  - `planning interview` 生成的创意缺口 patch
   - `project_contract.creative_mandate / planning_seed / unknowns`
 
 #### 优化模式事实 / 推断分层
@@ -147,7 +147,7 @@
 
 - 思维链如何作用于执行流程：先判缺口类型，再读最小 leaf references，最后只回写结构化槽位。
 - 思维链如何作用于交付：所有输出都必须落到 `project_contract.creative_mandate / planning_seed / unknowns`，而不是把参考文档内容原样搬进 handoff。
-- 思维链如何作用于验收：若父 `SKILL.md` 或 mode-playbook 继续直接点名 leaf references，或趋势资料在未授权时被读取，视为模块失效。
+- 思维链如何作用于验收：若父 `SKILL.md` 继续直接点名 leaf references，或趋势资料在未授权时被读取，视为模块失效。
 
 ## 4. 执行流程
 
@@ -216,14 +216,14 @@
 
 ### Phase 4 路由验收与回接
 
-- 目标：确认上层入口、mode-playbook 与本模块已形成单一真源链路。
+- 目标：确认上层入口、planning interview 与本模块已形成单一真源链路。
 - 输入：
   - 更新后的父 `SKILL.md`
-  - 三个 mode-playbook 的共享依赖段
+  - `0-Init/SKILL.md` 的创意缺口路由段
   - 当前模块 `CONTEXT.md`
 - 动作：
   - 验证父 `SKILL.md` 已显式写明何时进入本模块。
-  - 验证 mode-playbook 不再直连本模块内部 leaf references。
+  - 验证上层入口不再直连本模块内部 leaf references。
   - 验证趋势资料仍受用户显式请求闸门约束。
 - 产出：
   - `routing_gate_summary`
@@ -241,7 +241,7 @@
   - `unknowns.deferred_to_planning / risk_notes`
 - 上层消费方式：
   - 父 `SKILL.md` 把本模块视为唯一创意 references 入口。
-  - mode-playbook 只声明依赖本模块，不再点名内部 leaf docs。
+  - planning interview 与 synthesis 只声明依赖本模块，不再点名内部 leaf docs。
 - 若为内容输出型，输出模板/字段骨架：N/A
 - 若为非内容输出型，执行模式/状态推进方式：
   - `判型 -> 最小读取 -> 槽位回写 -> 路由验收`
@@ -252,8 +252,8 @@
 | 裁决层 | 服务字段 / 决策槽 | 具体落盘位置 | 采用理由 | 被排除候选为何不成立 | 失败返工入口 |
 | --- | --- | --- | --- | --- | --- |
 | `粗裁决 / Base Range` | `creative_route_plan` / `loaded_references` | 当前模块执行记录、父 `SKILL.md` 的 `Reference Loading Guide` | 先决定是否命中本模块以及命中哪类子路由 | 非创意缺口、本不该进入本模块的问题不成立 | 回到 `Phase 1` |
-| `细裁决 / Range Narrowing` | `loaded_leaf_references` / `anti_trope_mapping` / `trend_gate` | 当前模块 `Phase 2`、三个 mode-playbook 的 `Shared Dependency Contract` | 保证上层只看统一入口，但本模块内部能追踪最小读取 | 读取过多、映射错位、未授权趋势引用不成立 | 回到 `Phase 2` |
-| `离散裁决 / Final Selection` | `creative_mandate_update` / `planning_seed_update` / `unknowns_update` / `sources_breakdown` | `Init/初始化简报.json`、`Init/north_star_contract.json` 的上游输入槽位 | 让创意参考真正进入 handoff，而不是停在解释层 | 仍是资料墙、来源不清或越权拍死 planning canonical 不成立 | 回到 `Phase 3` |
+| `细裁决 / Range Narrowing` | `loaded_leaf_references` / `anti_trope_mapping` / `trend_gate` | 当前模块 `Phase 2`、`0-Init` 的创意缺口路由合同 | 保证上层只看统一入口，但本模块内部能追踪最小读取 | 读取过多、映射错位、未授权趋势引用不成立 | 回到 `Phase 2` |
+| `离散裁决 / Final Selection` | `creative_mandate_update` / `planning_seed_update` / `unknowns_update` / `sources_breakdown` | `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml` 的上游输入槽位 | 让创意参考真正进入 handoff，而不是停在解释层 | 仍是资料墙、来源不清或越权拍死 planning canonical 不成立 | 回到 `Phase 3` |
 
 ### 验证矩阵
 
@@ -269,7 +269,7 @@
 | 分重差异 | 三重是否分别在做判型、缩读和写回，而不是换句话说同一件事 | `判缺口`、`选叶子`、`落槽位` 已明确分层 | PASS |  |  |
 | 字段落盘追踪 | 每一重是否至少能追到一个字段、步骤或槽位 | 已补 `分重字段落盘映射` 表 | PASS |  |  |
 | 落盘扰动测试 | 若移除 `sources_breakdown` 或 `trend_gate`，下游是否会真实变化 | 会直接损伤 provenance 与 L3 趋势门禁 | PASS |  |  |
-| 下游有效性 | 是否能指导父 `SKILL.md`、mode-playbook 与 handoff 槽位一起收敛 | 上层入口、mode 依赖、handoff 槽位三处都能回指本模块 | PASS |  |  |
+| 下游有效性 | 是否能指导父 `SKILL.md`、planning interview 与 handoff 槽位一起收敛 | 上层入口、team 路由依赖、handoff 槽位三处都能回指本模块 | PASS |  |  |
 
 ### Gate Summary
 
@@ -289,12 +289,12 @@
   - 趋势资料仍是 L3 资料，不会被默认加载。
 - acceptance checklist：
   - [ ] 父 `SKILL.md` 已显式声明何时进入本模块。
-  - [ ] 三个 mode-playbook 都只依赖本模块入口，不再散点点名 leaf references。
+  - [ ] `0-Init` 与 planning interview 都只依赖本模块入口，不再散点点名 leaf references。
   - [ ] `planning_seed / creative_mandate / unknowns` 的写回位点明确。
   - [ ] 题材到反套路映射只在本模块维护。
   - [ ] 全仓不再出现活跃 `references/creativity/` 直连路径。
 - fail signal：
-  - 父技能与 mode-playbook 继续各自维护 leaf reference 触发规则。
+  - 父技能与 interview sidecar 继续各自维护 leaf reference 触发规则。
   - 趋势校准在未获用户授权时被默认读取。
   - leaf references 被当成正文资料墙写回 handoff。
 - rework entry：
@@ -307,4 +307,4 @@
 
 - 父 `SKILL.md` 是否已写明当前模块触发机制：是
 - 若为多模块场景，是否已有统一路由段落：是，父技能新增 `Reference Loading Guide`
-- 父 `SKILL.md` 中的模块关系：三种 mode-playbook 互斥；`creative-seed-routing` 与题材/worldbuilding 为按需串行
+- 父 `SKILL.md` 中的模块关系：`team代入模式` 固定为单主路径；`creative-seed-routing` 与题材/worldbuilding 为按需串行

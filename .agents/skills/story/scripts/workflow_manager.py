@@ -19,11 +19,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from chapter_paths import default_chapter_draft_path, find_chapter_file
-from project_locator import resolve_project_root
+from chapter_paths import default_chapter_draft_path, drafting_root_md_path, find_chapter_file
+from project_locator import resolve_project_root, resolve_state_file
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
 from security_utils import atomic_write_json, create_secure_directory
-from task_artifacts import bootstrap_story_task_artifacts, finalize_story_task_artifacts, record_story_step_artifacts
 
 
 logger = logging.getLogger(__name__)
@@ -105,27 +104,27 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_id": "2-planning",
         "stage_label": "规划层",
         "steps": [
-            ("Step 1", "题材选型（references/genre-selection）", "story-plan"),
-            ("Step 2", "章节规划（references/chapter-planning）", "story-plan"),
-            ("Step 3", "故事大纲（references/story-outline）", "story-plan"),
-            ("Step 4", "冲突设计（references/conflict-design）", "story-plan"),
-            ("Step 5", "任务设计（references/mission-design）", "story-plan"),
-            ("Step 6", "线索设计（references/clue-design）", "story-plan"),
-            ("Step 7", "伏笔设计（references/foreshadow-design）", "story-plan"),
-            ("Step 8", "全息地图（references/holomap）", "story-plan"),
+            ("Step 1", "题材选型（1-题材选型）", "story-plan"),
+            ("Step 2", "章节规划（2-章节规划）", "story-plan"),
+            ("Step 3", "故事大纲（3-故事大纲）", "story-plan"),
+            ("Step 4", "冲突设计（4-冲突设计）", "story-plan"),
+            ("Step 5", "任务设计（5-任务设计）", "story-plan"),
+            ("Step 6", "线索设计（6-线索设计）", "story-plan"),
+            ("Step 7", "伏笔设计（7-伏笔设计）", "story-plan"),
+            ("Step 8", "父层收束全息地图（shared root normalize）", "story-plan"),
         ],
     },
     "story-write": {
         "stage_id": "3-drafting",
         "stage_label": "起草层",
         "steps": [
-            ("Step 1", "Context Agent", "context-agent"),
-            ("Step 2A", "正文起草", "writer-draft"),
-            ("Step 2B", "风格适配", "style-adapter"),
-            ("Step 3", "审查", "review-agents"),
-            ("Step 4", "润色", "polish-agent"),
-            ("Step 5", "Data Agent", "data-agent"),
-            ("Step 6", "Git/备份收尾", "backup-agent"),
+            ("Step 1", "单集叙事起盘", "drafting-episode-kickoff"),
+            ("Step 2", "节奏优化", "drafting-pacing"),
+            ("Step 3", "场景和氛围渲染", "drafting-scene-atmosphere"),
+            ("Step 4", "角色形象刻画", "drafting-character-rendering"),
+            ("Step 5", "对白个性化和声口优化", "drafting-dialogue-voice"),
+            ("Step 6", "叙事张力强化", "drafting-tension"),
+            ("Step 7", "润色", "drafting-polish"),
         ],
     },
     "story-validate": {
@@ -203,19 +202,42 @@ def _get_active_project_root() -> Path:
     return find_project_root()
 
 
+def _project_state_path() -> Path:
+    return resolve_state_file(explicit_project_root=str(_get_active_project_root()))
+
+
+def _load_project_state_payload() -> dict[str, Any]:
+    state_path = _project_state_path()
+    if not state_path.exists():
+        return {}
+    with open(state_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, dict) else {}
+
+
+def _save_project_state_payload(payload: dict[str, Any]) -> None:
+    state_path = _project_state_path()
+    atomic_write_json(state_path, payload, use_lock=True, backup=False)
+
+
+def _workflow_runtime_bucket(payload: dict[str, Any]) -> dict[str, Any]:
+    bucket = payload.setdefault("workflow_runtime", {})
+    if not isinstance(bucket, dict):
+        bucket = {}
+        payload["workflow_runtime"] = bucket
+    return bucket
+
+
 def get_workflow_state_path() -> Path:
-    project_root = _get_active_project_root()
-    return project_root / ".webnovel" / "workflow_state.json"
+    return _project_state_path()
 
 
 def get_execution_state_path() -> Path:
-    project_root = _get_active_project_root()
-    return project_root / ".webnovel" / "execution_state.json"
+    return _project_state_path()
 
 
 def get_task_log_path() -> Path:
-    project_root = _get_active_project_root()
-    return project_root / ".webnovel" / "task_log.jsonl"
+    return _project_state_path()
 
 
 def get_call_trace_path() -> Path:
@@ -241,11 +263,15 @@ def safe_append_call_trace(event: str, payload: Optional[Dict[str, Any]] = None)
 
 def append_task_log(event: str, payload: Optional[Dict[str, Any]] = None):
     payload = payload or {}
-    log_path = get_task_log_path()
-    create_secure_directory(str(log_path.parent))
     row = {"timestamp": now_iso(), "event": event, "payload": payload}
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    project_state = _load_project_state_payload()
+    runtime_bucket = _workflow_runtime_bucket(project_state)
+    task_log = runtime_bucket.setdefault("task_log", [])
+    if not isinstance(task_log, list):
+        task_log = []
+        runtime_bucket["task_log"] = task_log
+    task_log.append(row)
+    _save_project_state_payload(project_state)
 
 
 def safe_append_task_log(event: str, payload: Optional[Dict[str, Any]] = None):
@@ -406,13 +432,6 @@ def expected_step_owner(command: str, step_id: str) -> str:
 
 
 def optional_steps_for_command(command: str, task_args: Optional[Dict[str, Any]] = None) -> set[str]:
-    if normalize_command_name(command) != "story-write":
-        return set()
-    mode = str((task_args or {}).get("mode") or "").strip().lower()
-    if mode in {"fast", "minimal"}:
-        return {"Step 2B"}
-    if not mode:
-        return {"Step 2B"}
     return set()
 
 
@@ -605,35 +624,33 @@ def _mark_task_failed(state: Dict[str, Any], reason: str):
 
 
 def load_state():
-    state_file = get_workflow_state_path()
-    if not state_file.exists():
-        return build_initial_workflow_state()
-    with open(state_file, "r", encoding="utf-8") as f:
-        state = json.load(f)
+    payload = _load_project_state_payload()
+    runtime_bucket = _workflow_runtime_bucket(payload)
+    state = runtime_bucket.get("workflow_state", {})
     return _ensure_workflow_state_schema(state)
 
 
 def save_state(state):
-    state_file = get_workflow_state_path()
-    create_secure_directory(str(state_file.parent))
-    state = _ensure_workflow_state_schema(state)
-    atomic_write_json(state_file, state, use_lock=True, backup=False)
+    payload = _load_project_state_payload()
+    runtime_bucket = _workflow_runtime_bucket(payload)
+    runtime_bucket["workflow_state"] = _ensure_workflow_state_schema(state)
+    _save_project_state_payload(payload)
 
 
 def load_execution_state():
-    state_file = get_execution_state_path()
-    if not state_file.exists():
-        return build_initial_execution_state()
-    with open(state_file, "r", encoding="utf-8") as f:
-        state = json.load(f)
+    payload = _load_project_state_payload()
+    runtime_bucket = _workflow_runtime_bucket(payload)
+    state = runtime_bucket.get("execution_state", {})
     return _ensure_execution_state_schema(state)
 
 
 def save_execution_state(state):
-    state_file = get_execution_state_path()
-    create_secure_directory(str(state_file.parent))
-    state = _ensure_execution_state_schema(state)
-    atomic_write_json(state_file, state, use_lock=True, backup=False)
+    payload = _load_project_state_payload()
+    runtime_bucket = _workflow_runtime_bucket(payload)
+    normalized = _ensure_execution_state_schema(state)
+    runtime_bucket["execution_state"] = normalized
+    runtime_bucket["governance_index"] = normalized.get("governance_index", {})
+    _save_project_state_payload(payload)
 
 
 def extract_stable_state(task):
@@ -646,6 +663,61 @@ def extract_stable_state(task):
         "artifacts": task.get("artifacts", {}),
         "governance_refs": task.get("governance_refs", {}),
     }
+
+
+def _bootstrap_governance_bundle(*, run_id: str, command: str, stage_id: str, stage_label: str, args: Dict[str, Any], route_steps: list[tuple[str, str, str]]) -> tuple[dict[str, str], dict[str, Any]]:
+    refs = {
+        "governance_bundle_ref": f"STATE.json#workflow_runtime.governance_index.{run_id}",
+        "validation_report_ref": f"STATE.json#workflow_runtime.governance_index.{run_id}.validation_report",
+        "learning_record_ref": f"STATE.json#workflow_runtime.governance_index.{run_id}.learning_record",
+        "artifact_manifest_ref": f"STATE.json#workflow_runtime.governance_index.{run_id}.artifact_manifest",
+        "mission_brief_ref": f"STATE.json#workflow_runtime.governance_index.{run_id}.mission_brief",
+    }
+    bundle = {
+        "task_id": run_id,
+        "command": command,
+        "stage_id": stage_id,
+        "stage_label": stage_label,
+        "args": args,
+        "generated_at": now_iso(),
+        "mandate": {
+            "task_id": run_id,
+            "task_type": "story2026-stage-run",
+            "objective": f"以内联 workflow runtime 执行 {command}",
+            "command": command,
+            "stage_id": stage_id,
+            "stage_label": stage_label,
+        },
+        "mission_brief": {
+            "task_id": run_id,
+            "summary": f"{command} run {run_id}",
+            "args": args,
+        },
+        "route_plan": {
+            "task_id": run_id,
+            "steps": [
+                {"step_id": step_id, "step_name": step_name, "owner": owner}
+                for step_id, step_name, owner in route_steps
+            ],
+        },
+        "preflight_verdict": {
+            "task_id": run_id,
+            "status": "inline-pass",
+            "can_execute": True,
+        },
+        "artifact_manifest": {
+            "task_id": run_id,
+            "status": "running",
+            "generated_at": now_iso(),
+            "updated_at": now_iso(),
+            "step_artifacts": {},
+        },
+        "validation_report": "",
+        "learning_record": "",
+        "root_cause_trace": "",
+        "refs": refs,
+    }
+    return refs, bundle
 
 
 def start_task(command, args):
@@ -661,8 +733,7 @@ def start_task(command, args):
 
     if current and current.get("status") == TASK_STATUS_RUNNING:
         if not current.get("governance_refs"):
-            current["governance_refs"] = bootstrap_story_task_artifacts(
-                project_root=_get_active_project_root(),
+            refs, bundle = _bootstrap_governance_bundle(
                 run_id=str(current.get("run_id")),
                 command=str(current.get("command")),
                 stage_id=str(current.get("stage_id")),
@@ -670,6 +741,8 @@ def start_task(command, args):
                 args=dict(current.get("args", {})),
                 route_steps=list((get_command_spec(str(current.get("command"))) or {}).get("steps", [])),
             )
+            current["governance_refs"] = refs
+            execution_state.setdefault("governance_index", {})[str(current.get("run_id"))] = bundle
         current["retry_count"] = int(current.get("retry_count", 0)) + 1
         current["last_heartbeat"] = now_iso()
         state["current_task"] = current
@@ -692,8 +765,7 @@ def start_task(command, args):
 
     run_id = _next_run_id(execution_state, str(spec["stage_id"]))
     task = _new_task(command, args, run_id)
-    task["governance_refs"] = bootstrap_story_task_artifacts(
-        project_root=_get_active_project_root(),
+    refs, bundle = _bootstrap_governance_bundle(
         run_id=run_id,
         command=command,
         stage_id=str(spec["stage_id"]),
@@ -701,11 +773,12 @@ def start_task(command, args):
         args=args,
         route_steps=list(spec.get("steps", [])),
     )
+    task["governance_refs"] = refs
     state["current_task"] = task
 
     execution_state["active_run_id"] = run_id
     execution_state.setdefault("runs", []).append(_new_run_record(task))
-    execution_state.setdefault("governance_index", {})[run_id] = dict(task.get("governance_refs", {}))
+    execution_state.setdefault("governance_index", {})[run_id] = bundle
     _trim_runs(execution_state)
     _sync_stage_progress(execution_state, task, status=TASK_STATUS_RUNNING)
     _update_latest_resume_point(execution_state, task, reason="task_started")
@@ -872,13 +945,15 @@ def complete_step(step_id, artifacts_json=None):
     task["completed_steps"].append(current_step)
     task["current_step"] = None
     task["last_heartbeat"] = now_iso()
-    record_story_step_artifacts(
-        project_root=_get_active_project_root(),
-        run_id=str(task.get("run_id")),
-        step_id=step_id,
-        step_name=str(current_step.get("name") or step_id),
-        artifacts=step_artifacts,
-    )
+    run_id = str(task.get("run_id"))
+    governance_bundle = execution_state.setdefault("governance_index", {}).setdefault(run_id, {})
+    artifact_manifest = governance_bundle.setdefault("artifact_manifest", {"step_artifacts": {}, "updated_at": now_iso()})
+    artifact_manifest.setdefault("step_artifacts", {})[step_id] = {
+        "step_name": str(current_step.get("name") or step_id),
+        "artifacts": step_artifacts or {},
+        "updated_at": now_iso(),
+    }
+    artifact_manifest["updated_at"] = now_iso()
 
     _sync_run_from_task(execution_state, task)
     _sync_stage_progress(execution_state, task, status=TASK_STATUS_RUNNING)
@@ -931,20 +1006,23 @@ def complete_task(final_artifacts_json=None):
         }
     )
     state["current_task"] = None
-    refs = finalize_story_task_artifacts(
-        project_root=_get_active_project_root(),
-        run_id=str(task.get("run_id")),
-        command=str(task.get("command")),
-        status=TASK_STATUS_COMPLETED,
-        completed_steps=list(task.get("completed_steps", [])),
-        failed_steps=list(task.get("failed_steps", [])),
-        final_artifacts=final_artifacts,
-    )
+    run_id = str(task.get("run_id"))
+    governance_bundle = execution_state.setdefault("governance_index", {}).setdefault(run_id, {})
+    governance_bundle["artifact_manifest"] = {
+        **governance_bundle.get("artifact_manifest", {}),
+        "status": TASK_STATUS_COMPLETED,
+        "updated_at": now_iso(),
+        "completed_steps": [row.get("id") for row in task.get("completed_steps", [])],
+        "failed_steps": [row.get("id") for row in task.get("failed_steps", [])],
+        "final_artifacts": final_artifacts or {},
+    }
+    governance_bundle["validation_report"] = f"{task.get('command')} 已完成，run_id={run_id}"
+    governance_bundle["learning_record"] = "completed"
+    refs = governance_bundle.get("refs", task.get("governance_refs", {}))
     task["governance_refs"] = refs
 
     _sync_run_from_task(execution_state, task)
     _sync_stage_progress(execution_state, task, status=TASK_STATUS_COMPLETED)
-    execution_state.setdefault("governance_index", {})[str(task.get("run_id"))] = dict(task.get("governance_refs", {}))
     _update_artifacts_index(execution_state, task.get("run_id"), "final", final_artifacts)
     execution_state["active_run_id"] = None
     execution_state["latest_resume_point"] = None
@@ -974,18 +1052,20 @@ def fail_current_task(reason: str = "manual_fail"):
     _mark_task_failed(state, reason=reason)
     task = state.get("current_task")
     if task:
-        task["governance_refs"] = finalize_story_task_artifacts(
-            project_root=_get_active_project_root(),
-            run_id=str(task.get("run_id")),
-            command=str(task.get("command")),
-            status=TASK_STATUS_FAILED,
-            completed_steps=list(task.get("completed_steps", [])),
-            failed_steps=list(task.get("failed_steps", [])),
-            failure_reason=reason,
-        )
+        run_id = str(task.get("run_id"))
+        governance_bundle = execution_state.setdefault("governance_index", {}).setdefault(run_id, {})
+        governance_bundle["artifact_manifest"] = {
+            **governance_bundle.get("artifact_manifest", {}),
+            "status": TASK_STATUS_FAILED,
+            "updated_at": now_iso(),
+            "completed_steps": [row.get("id") for row in task.get("completed_steps", [])],
+            "failed_steps": [row.get("id") for row in task.get("failed_steps", [])],
+            "failure_reason": reason,
+        }
+        governance_bundle["root_cause_trace"] = reason
+        task["governance_refs"] = governance_bundle.get("refs", task.get("governance_refs", {}))
         _sync_run_from_task(execution_state, task)
         _sync_stage_progress(execution_state, task, status=TASK_STATUS_FAILED)
-        execution_state.setdefault("governance_index", {})[str(task.get("run_id"))] = dict(task.get("governance_refs", {}))
         _update_latest_resume_point(execution_state, task, reason=reason)
     execution_state["active_run_id"] = None
     save_state(state)
@@ -1115,6 +1195,44 @@ def _generic_recovery_options(interrupt_info: dict[str, Any]) -> list[dict[str, 
     ]
 
 
+def _normalize_chapter_num(value: Any) -> Optional[int]:
+    try:
+        chapter_num = int(value)
+    except (TypeError, ValueError):
+        return None
+    return chapter_num if chapter_num > 0 else None
+
+
+def _drafting_resume_targets(project_root: Path, chapter_num: Any) -> list[Path]:
+    normalized = _normalize_chapter_num(chapter_num)
+    if normalized is None:
+        return []
+
+    targets: list[Path] = []
+    canonical = drafting_root_md_path(project_root, normalized)
+    targets.append(canonical)
+
+    legacy_draft = default_chapter_draft_path(project_root, normalized)
+    if legacy_draft.exists() and legacy_draft not in targets:
+        targets.append(legacy_draft)
+
+    published = find_chapter_file(project_root, normalized)
+    if published and published not in targets:
+        targets.append(published)
+
+    return targets
+
+
+def _primary_drafting_target(project_root: Path, chapter_num: Any) -> Optional[Path]:
+    targets = _drafting_resume_targets(project_root, chapter_num)
+    if not targets:
+        return None
+    for path in targets:
+        if path.exists():
+            return path
+    return targets[0]
+
+
 def analyze_recovery_options(interrupt_info):
     current_step = interrupt_info["current_step"]
     command = interrupt_info["command"]
@@ -1142,40 +1260,56 @@ def analyze_recovery_options(interrupt_info):
                 "option": "A",
                 "label": "从 Step 1 重新开始",
                 "risk": "low",
-                "description": "重新加载上下文",
+                "description": "重新起盘当前集，并重新装配 Init/Cards/Planning/上一集终稿上下文",
                 "actions": ["清理中断状态", f"执行 /{command} {chapter_num}"],
             }
         ]
 
-    if step_id in {"Step 2", "Step 2A", "Step 2B"}:
+    if normalize_command_name(command) == "story-write" and step_id in {"Step 2", "Step 3", "Step 4", "Step 5", "Step 6", "Step 7"}:
         project_root = find_project_root()
-        existing_chapter = find_chapter_file(project_root, chapter_num)
-        draft_path = None
-        if existing_chapter:
-            chapter_path = str(existing_chapter.relative_to(project_root))
-        else:
-            draft_path = default_chapter_draft_path(project_root, chapter_num)
-            chapter_path = str(draft_path.relative_to(project_root))
+        current_target = _primary_drafting_target(project_root, chapter_num)
+        chapter_path = (
+            str(current_target.relative_to(project_root))
+            if current_target is not None
+            else f"3-Drafting/第{chapter_num}集.md"
+        )
+        sequence = get_pending_steps(command)
+        next_step = None
+        if step_id in sequence:
+            idx = sequence.index(step_id)
+            if idx + 1 < len(sequence):
+                next_step = sequence[idx + 1]
+        step_name = next((name for sid, name, _owner in (get_command_spec(command) or {}).get("steps", []) if sid == step_id), step_id)
 
         options = [
             {
                 "option": "A",
-                "label": "删除半成品，从 Step 1 重启",
+                "label": f"继续 {step_name}",
                 "risk": "low",
-                "description": f"清理 {chapter_path}，重新生成章节",
+                "description": f"保留 {chapter_path}，继续当前工序",
                 "actions": [
-                    f"删除 {chapter_path}（如存在）",
+                    f"打开并继续加工 {chapter_path}",
+                    "保存正文与写作日志",
+                    (f"继续 {next_step}" if next_step else "完成当前集 3-Drafting，并准备交接 4-Validation"),
+                ],
+            },
+            {
+                "option": "B",
+                "label": "删除当前集正文，从 Step 1 重启",
+                "risk": "medium",
+                "description": f"清理 {chapter_path}（以及兼容旧路径正文，如存在），重新起盘当前集",
+                "actions": [
+                    f"删除 {chapter_path}（及 legacy 正文，如存在）",
                     "清理 Git 暂存区",
                     "清理中断状态",
                     f"执行 /{command} {chapter_num}",
                 ],
-            }
+            },
         ]
-        candidate = existing_chapter or draft_path
-        if candidate and candidate.exists():
+        if current_target and current_target.exists():
             options.append(
                 {
-                    "option": "B",
+                    "option": "C",
                     "label": "保留半成品做人工检查",
                     "risk": "medium",
                     "description": "不自动删除正文文件，只清理 workflow 中断状态，便于人工比对和决定下一步",
@@ -1188,77 +1322,21 @@ def analyze_recovery_options(interrupt_info):
             )
         return options
 
-    if step_id == "Step 3":
+    if normalize_command_name(command) == "story-review" and step_id in {"Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6"}:
         return [
             {
                 "option": "A",
-                "label": "重新执行审查",
-                "risk": "medium",
-                "description": "重新调用审查员并生成报告",
-                "actions": ["重新执行审查", "生成审查报告", "继续 Step 4 润色"],
-            },
-            {
-                "option": "B",
-                "label": "跳过审查直接润色",
+                "label": "从当前步骤继续",
                 "risk": "low",
-                "description": "后续可用 /story-review 补审",
-                "actions": ["标记审查已跳过", "继续 Step 4 润色"],
-            },
-        ]
-
-    if step_id == "Step 4":
-        project_root = find_project_root()
-        existing_chapter = find_chapter_file(project_root, chapter_num)
-        draft_path = None
-        if existing_chapter:
-            chapter_path = str(existing_chapter.relative_to(project_root))
-        else:
-            draft_path = default_chapter_draft_path(project_root, chapter_num)
-            chapter_path = str(draft_path.relative_to(project_root))
-
-        return [
-            {
-                "option": "A",
-                "label": "继续润色",
-                "risk": "low",
-                "description": f"继续润色 {chapter_path}，完成后进入 Step 5",
-                "actions": [f"打开并继续润色 {chapter_path}", "保存文件", "继续 Step 5（Data Agent）"],
-            },
-            {
-                "option": "B",
-                "label": "删除润色稿，从 Step 2A 重写",
-                "risk": "medium",
-                "description": f"删除 {chapter_path} 并重新生成章节内容",
-                "actions": [f"删除 {chapter_path}", "清理 Git 暂存区", "清理中断状态", f"执行 /{command} {chapter_num}"],
-            },
-        ]
-
-    if step_id == "Step 5":
-        return [
-            {
-                "option": "A",
-                "label": "从 Step 5 重新开始",
-                "risk": "low",
-                "description": "重新运行 Data Agent（幂等）",
-                "actions": ["重新调用 Data Agent", "继续 Step 6（Git 备份）"],
-            }
-        ]
-
-    if step_id == "Step 6":
-        return [
-            {
-                "option": "A",
-                "label": "继续 Git 提交",
-                "risk": "low",
-                "description": "完成未完成的 Git commit + tag",
-                "actions": ["检查 Git 暂存区", "重新执行 backup_manager.py", "继续 complete-task"],
+                "description": "保持当前 review 输入不变，继续后续聚合/报告/落库",
+                "actions": ["保留当前 review 现场", f"继续 {command}"],
             },
             {
                 "option": "B",
                 "label": "保留工作区，退出恢复流程",
                 "risk": "medium",
-                "description": "不自动删除章节文件，也不做 destructive git reset，交给人工决定后续 Git 操作",
-                "actions": ["记录当前 git status", "清理中断状态", "人工决定是提交、拆分提交还是手动回退"],
+                "description": "清理 workflow 中断状态，但保留报告与现场供人工判断",
+                "actions": ["记录当前现场", "清理中断状态", "人工决定是否重跑或继续"],
             },
         ]
 
@@ -1280,14 +1358,10 @@ def cleanup_artifacts(chapter_num, *, confirm: bool = False):
     planned_actions = []
 
     project_root = find_project_root()
-    chapter_path = find_chapter_file(project_root, chapter_num)
-    if chapter_path is None:
-        draft_path = default_chapter_draft_path(project_root, chapter_num)
-        if draft_path.exists():
-            chapter_path = draft_path
+    cleanup_targets = [path for path in _drafting_resume_targets(project_root, chapter_num) if path.exists()]
 
-    if chapter_path and chapter_path.exists():
-        planned_actions.append(f"删除章节文件: {chapter_path.relative_to(project_root)}")
+    for target in cleanup_targets:
+        planned_actions.append(f"删除章节文件: {target.relative_to(project_root)}")
     planned_actions.append("重置 Git 暂存区: git reset HEAD .")
 
     if not confirm:
@@ -1298,7 +1372,7 @@ def cleanup_artifacts(chapter_num, *, confirm: bool = False):
         print("⚠️ 检测到高风险清理操作，当前仅预览。若确认执行，请追加 --confirm。")
         return preview_items or ["[预览] 无可清理项"]
 
-    if chapter_path and chapter_path.exists():
+    for chapter_path in cleanup_targets:
         try:
             backup_path = _backup_chapter_for_cleanup(project_root, chapter_num, chapter_path)
         except OSError as exc:

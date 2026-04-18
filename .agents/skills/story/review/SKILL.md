@@ -37,7 +37,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 ## Project Root Guard（必须先确认）
 
 - Codex / Claude Code 的“工作区根目录”不一定等于“书项目根目录”。
-- 必须先解析真实书项目根（必须包含 `.webnovel/state.json`），后续所有读写路径都以该目录为准。
+- 必须先解析真实书项目根（必须包含 `STATE.json`），后续所有读写路径都以该目录为准。
 
 环境设置（bash 命令执行前）：
 ```bash
@@ -96,9 +96,9 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
 
 - `4-Validation` 聚合结果
   - 是本 skill 的唯一审查判断真源。
-- `.webnovel/state.json`
+- `STATE.json`
   - 只承担轻量运行态与 checkpoint 摘要，不承载大体量实体/关系数据。
-- `Planning/8-全息地图.json`
+- `Planning/全息地图.json`
   - 是规划真源；若需要定位问题落点、说明后续影响、或给 `5-Loopback`/`3-Drafting` 回流说明，应优先读 holomap，而不是回退到旧 `Planning/legacy/`。
 - `index.db.review_metrics`
   - 是趋势统计与横向比较数据源；不替代本轮聚合结果。
@@ -133,7 +133,7 @@ Step 映射（必须与 `workflow_manager.py get_pending_steps("story-review")` 
 - Step 3：汇总评估结果并组装审查工件
 - Step 4：生成审查报告
 - Step 5：保存审查指标到 index.db
-- Step 6：写回审查记录到 state.json
+- Step 6：写回审查记录到 `STATE.json`
 - Step 7：处理关键问题升级 / 修复分流
 - Step 8：收尾（完成任务）
 
@@ -156,12 +156,12 @@ Step 映射（必须与 `workflow_manager.py get_pending_steps("story-review")` 
 ```bash
 cat "${REPO_ROOT}/.agents/skills/story/references/shared/core-constraints.md"
 cat "${REPO_ROOT}/.agents/skills/story/references/context-contract-v2.md"
-cat "$PROJECT_ROOT/.webnovel/state.json"
+cat "$PROJECT_ROOT/STATE.json"
 ```
 
 按需：
 ```bash
-cat "$PROJECT_ROOT/Planning/8-全息地图.json"
+cat "$PROJECT_ROOT/Planning/全息地图.json"
 cat "${SKILL_ROOT}/references/common-mistakes.md"
 cat "${SKILL_ROOT}/references/pacing-control.md"
 python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-recent-review-metrics --limit 5
@@ -171,7 +171,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
 
 - 定位本轮问题本体：先读 `4-Validation` 聚合结果。
 - 解释规划影响与下游回流：优先读 `全息地图.json`。
-- 查看运行态和历史 checkpoint：读 `state.json`。
+- 查看运行态和历史 checkpoint：读 `STATE.json`。
 - 做趋势叙述或横向比较：读 `index.db.review_metrics`。
 
 ## Step 3：汇总评估结果并组装审查工件
@@ -277,7 +277,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index save-rev
 - `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk` 必须真实写入 SQLite 正式列，而不是只存在于 JSON 示例或 `notes`。
 - 若落库失败的根因是 schema 缺列或 CLI 丢字段，先修持久化源层，再重试本轮落库。
 
-## Step 6：写回审查记录到 state.json（必做）
+## Step 6：写回审查记录到 `STATE.json`（必做）
 
 ```bash
 python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" update-state -- \
@@ -290,12 +290,12 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" update-state -
 
 写回原则：
 
-- `state.json.review_checkpoints` 只保存摘要指针：
+- `STATE.json.review_checkpoints` 只保存摘要指针：
   - 章节范围
   - 报告路径
   - 时间戳
   - `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk`
-- 不把完整 issues / 分数明细重新塞回 `state.json`，但上述四个一等风险字段必须作为轻量摘要同步回写，供 resume / status / trend 快速读取。
+- 不把完整 issues / 分数明细重新塞回 `STATE.json`，但上述四个一等风险字段必须作为轻量摘要同步回写，供 resume / status / trend 快速读取。
 
 ## Step 7：处理关键问题升级 / 修复分流
 
@@ -345,7 +345,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 - `review_metrics_ref`
   - 指向已落库指标记录或其对应的章节范围。
 - `review_checkpoint_ref`
-  - 指向 `state.json.review_checkpoints` 的新增摘要项。
+  - 指向 `STATE.json.review_checkpoints` 的新增摘要项。
 - `review_handoff_summary`
   - 只做结果桥接，不改写 `4-Validation` 的 upstream gate packet。
 
@@ -356,7 +356,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
   - 当前 `review/SKILL.md`
   - `4-Validation/SKILL.md`
   - `../references/validation-team-contract.md`
-  - `3-Drafting/references/step-3-review-gate/appendix-review-gate.md`
+  - `3-Drafting/step-3-review-gate/appendix-review-gate.md`
   - `scripts/data_modules/index_manager.py`
   - `scripts/data_modules/index_reading_mixin.py`
 - `Meta Rule Source` 默认上溯到仓库 `AGENTS.md` 与相关 meta skill。
@@ -370,7 +370,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 |---|---|---|---|---|---|
 | FIELD-REV-INTAKE-01 | Step 1 | 确认输入来自 `4-Validation` 新团队，且 gate 信息完整 | 上游聚合结果确认、`validation_status`、`routing_decision`、`handoff_targets` | FAIL-REV-INTAKE-01 | 回到 `4-Validation` 补跑或补齐聚合字段 |
-| FIELD-REV-LOAD-02 | Step 2 | 按最新系统读取轻量状态、规划真源与趋势数据 | `state.json`、holomap、必要参考加载确认 | FAIL-REV-LOAD-02 | 修正路径或数据流入口，禁止回退旧 `Planning/legacy/` 冒充真源 |
+| FIELD-REV-LOAD-02 | Step 2 | 按最新系统读取轻量状态、规划真源与趋势数据 | `STATE.json`、holomap、必要参考加载确认 | FAIL-REV-LOAD-02 | 修正路径或数据流入口，禁止回退旧 `Planning/legacy/` 冒充真源 |
 | FIELD-REV-AGG-03 | Step 3 | 保真汇总上游评估结论并生成闭环工件 | `issues`、`severity_counts`、`critical_issues`、`overall_score`、`review_handoff_summary` | FAIL-REV-AGG-03 | 回到聚合接口检查缺字段、矛盾或 gate 被改写 |
 | FIELD-REV-PERSIST-04 | Step 4-6 | 生成报告并完成落库回写 | 审查报告、`review_metrics`、`review_checkpoints` | FAIL-REV-PERSIST-04 | 重做报告或修复 SQLite/state 持久化 |
 | FIELD-REV-ESCALATE-05 | Step 7 | 对 critical 做人工升级与返工引导 | 返工清单或延期处理决定 | FAIL-REV-ESCALATE-05 | 重新执行关键问题升级流程 |
@@ -379,7 +379,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 
 - 本轮报告基于 `4-Validation` 的新后台隔离团队输出。
 - `review_metrics` 已落库，且四个风险字段已写入正式列。
-- `state.json.review_checkpoints` 已回写摘要记录。
+- `STATE.json.review_checkpoints` 已回写摘要记录。
 - 已生成 `review_handoff_summary`，且未改写上游 `validation_status / routing_decision / handoff_targets`。
 - critical 问题已触发人工升级或记录延期决定。
 - 若进入修复闭环，已明确“修复后必须重新走一轮新的隔离评估”，且本轮结果不得直接进入 `5-Loopback`。

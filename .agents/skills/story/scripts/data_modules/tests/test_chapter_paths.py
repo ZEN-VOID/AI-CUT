@@ -20,7 +20,7 @@ def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
 
     planning_dir = tmp_path / "Planning"
     planning_dir.mkdir(parents=True, exist_ok=True)
-    (planning_dir / "8-全息地图.json").write_text(
+    (planning_dir / "全息地图.json").write_text(
         """
         {
           "schema_version": "story2026/holomap/v1",
@@ -63,3 +63,11 @@ def test_find_chapter_file_supports_titled_flat_filename(tmp_path):
     found = module.find_chapter_file(tmp_path, 3)
 
     assert found == chapter_path
+
+
+def test_drafting_root_md_path_uses_ascii_chapter_workspace(tmp_path):
+    module = _load_module()
+
+    root_path = module.drafting_root_md_path(tmp_path, 7)
+
+    assert root_path == tmp_path / "3-Drafting" / "第7集.md"

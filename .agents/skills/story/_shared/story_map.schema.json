@@ -1,0 +1,450 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "story/_shared/story_map.schema.json",
+  "title": "Story2026 Story Map Output Schema",
+  "description": "用于 `2-Planning` 子技能串行写回 `Planning/全息地图.json` 的共享结构真源。保持 `content.holomap` 作为运行时兼容入口，同时把它明确视为 story_map carrier。",
+  "type": "object",
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "skill_id",
+        "module_id",
+        "project_name",
+        "created_at",
+        "source_route",
+        "template_version"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "skill_id": {
+          "type": "string"
+        },
+        "module_id": {
+          "type": "string"
+        },
+        "project_name": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "source_route": {
+          "type": "string"
+        },
+        "template_version": {
+          "type": "string"
+        },
+        "truth_role": {
+          "type": "string"
+        }
+      }
+    },
+    "gate_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "total_score",
+        "max_score",
+        "fail_codes",
+        "repair_entry"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "total_score": {
+          "type": "number"
+        },
+        "max_score": {
+          "type": "number"
+        },
+        "fail_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "repair_entry": {
+          "type": "string"
+        }
+      }
+    },
+    "execution_notes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "design_rationale",
+        "risk_notes"
+      ],
+      "properties": {
+        "design_rationale": {
+          "type": "string"
+        },
+        "risk_notes": {
+          "type": "string"
+        }
+      }
+    },
+    "thread_entry": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "thread_id",
+        "thread_type"
+      ],
+      "properties": {
+        "thread_id": {
+          "type": "string"
+        },
+        "thread_type": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "owned_by_pass": {
+          "type": "string"
+        }
+      }
+    },
+    "chapter_board_entry": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "node_id",
+        "episode_ref",
+        "timeline_ref",
+        "primary_space_ref",
+        "active_space_refs",
+        "bundled_elements",
+        "planned_state"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string"
+        },
+        "episode_ref": {
+          "type": "string"
+        },
+        "timeline_ref": {
+          "type": "string"
+        },
+        "primary_space_ref": {
+          "type": "string"
+        },
+        "active_space_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bundled_elements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "events",
+            "conflicts",
+            "missions",
+            "clues",
+            "foreshadows",
+            "characters",
+            "scenes",
+            "items",
+            "rule_impacts"
+          ],
+          "properties": {
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "missions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "clues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "foreshadows": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "characters": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scenes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rule_impacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "planned_state": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "story_map_patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owned_slots",
+        "patch_payload",
+        "target_json_paths",
+        "write_policy"
+      ],
+      "properties": {
+        "owned_slots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "patch_payload": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "target_json_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "write_policy": {
+          "type": "string",
+          "enum": [
+            "progressive-commit",
+            "normalize-only"
+          ]
+        }
+      }
+    },
+    "planning_pass_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "meta",
+        "content",
+        "story_map_patch",
+        "gate_summary",
+        "execution_notes"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "story2026/planning-pass-artifact/v1"
+        },
+        "meta": {
+          "$ref": "#/$defs/meta"
+        },
+        "content": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "story_map_patch": {
+          "$ref": "#/$defs/story_map_patch"
+        },
+        "gate_summary": {
+          "$ref": "#/$defs/gate_summary"
+        },
+        "execution_notes": {
+          "$ref": "#/$defs/execution_notes"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "meta",
+    "content",
+    "gate_summary",
+    "execution_notes"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "story2026/story-map/v3"
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "holomap"
+      ],
+      "properties": {
+        "holomap": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "scope",
+            "story_promise",
+            "genre_corridor",
+            "story_spine",
+            "timeline_axis",
+            "space_axis",
+            "episode_sequence_axis",
+            "volume_boards",
+            "chapter_boards",
+            "conflict_threads",
+            "mission_threads",
+            "clue_threads",
+            "foreshadow_threads",
+            "cross_thread_indexes",
+            "actualization",
+            "state_transitions",
+            "navigation_rules"
+          ],
+          "properties": {
+            "scope": {
+              "type": "string"
+            },
+            "story_promise": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "genre_corridor": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "story_spine": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "timeline_axis": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "space_axis": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "episode_sequence_axis": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "volume_boards": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "chapter_boards": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/chapter_board_entry"
+              }
+            },
+            "conflict_threads": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/thread_entry"
+              }
+            },
+            "mission_threads": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/thread_entry"
+              }
+            },
+            "clue_threads": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/thread_entry"
+              }
+            },
+            "foreshadow_threads": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/thread_entry"
+              }
+            },
+            "lifecycle_lexicon": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "cross_thread_indexes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "actualization": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "state_transitions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "navigation_rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "gate_summary": {
+      "$ref": "#/$defs/gate_summary"
+    },
+    "execution_notes": {
+      "$ref": "#/$defs/execution_notes"
+    }
+  }
+}

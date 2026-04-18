@@ -47,7 +47,7 @@
 - `review_metrics`
 - `chapter_reading_power`
 
-### `state.json` 负责的内容
+### `STATE.json` 负责的内容
 
 - 当前进度
 - 主角运行态快照
