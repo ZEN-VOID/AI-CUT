@@ -1,6 +1,6 @@
 ---
 name: minimax
-description: Use when the task must submit MiniMax Hailuo video generation jobs via FineAPI `POST /v1/video/generations`, especially for text-to-video, image-to-video, and first-last-frame requests that should default to the highest registered Hailuo version and use `.env` `ANYFAST_VIDEO_API_KEY`.
+description: Use when the task must submit MiniMax Hailuo video generation jobs via FineAPI `POST /v1/video/generations`, especially for text-to-video, image-to-video, and first-last-frame requests using `.env` `ANYFAST_VIDEO_API_KEY`.
 governance_tier: full
 ---
 
@@ -46,7 +46,7 @@ API Key：
 
 可选输入：
 
-- `model`：默认自动选择当前已登记 Hailuo 系列最高版本（当前解析为 `Hailuo-2.3`）
+- `model`：默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族；脚本共享骨架使用 `../shared/default_model_policy.py`，MiniMax 的 provider 特有差异是只让 `Hailuo-*` 家族参与默认值解析；当前解析结果为 `Hailuo-2.3`
 - `scene-type`
 - `negative-prompt`
 - `enhance-prompt`
@@ -80,8 +80,9 @@ API Key：
    - `Prompt / ImageUrl / ImageInfos` 至少填一项。
    - 不得把三项都空的请求静默发出。
 4. **默认模型必须跟随当前已登记 Hailuo 系列最高版本**
-   - 当前解析结果为 `Hailuo-2.3`。
-   - 所有技能文档、脚本默认值、样例与 UI 元数据都必须围绕这一自动选择规则保持一致，而不是再散落硬编码。
+   - 默认模型治理统一遵循父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族。
+   - 共享算法骨架由 `../shared/default_model_policy.py` 提供；`scripts/minimax_video_generate.py` 只补 Hailuo 家族过滤条件。
+   - 当前解析结果为 `Hailuo-2.3`；所有技能文档、脚本默认值、样例与 UI 元数据都必须引用这一解析结果，而不是再散落硬编码。
 5. **统一以 `.env` 的 `ANYFAST_VIDEO_API_KEY` 为主事实源**
    - `MINIMAX` 技能不再以 `MINIMAX_API_KEY` 作为主合同真源。
    - 不在技能文件、脚本样例、报告中写明文 token。

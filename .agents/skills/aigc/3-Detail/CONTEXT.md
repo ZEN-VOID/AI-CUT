@@ -18,7 +18,7 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | `3-Detail` 仍沿用双次 markdown 扩写，导致 shared root 不收束 | 阶段总合同层 | 把父层切到 `JSON root + patch sidecar + parent merge` | 在父 `SKILL.md` 固化字段 ownership 与 sidecar merge 契约 | `剧本正文` 不再被二次重写 |
-| `水月` 与 `镜花` 因目录序号被误判为关系不清 | 调度语义层 | 移除目录序号，并在父层显式写顺序门 | 把调度裁决固定到 `分镜切换 -> 水月 -> 镜花` | `3-Detail` 不再靠目录观感理解顺序 |
+| `水月` 与 `镜花` 的先后顺序只写在正文，目录层缺少显式信号 | 调度语义层 | 为子技能目录补上 `1-水月 / 2-镜花` 顺序标签，并保留父层顺序门 | 把“目录顺序标签 + 父层显式 dispatch gate”同时固定到 `3-Detail/SKILL.md` | 读技能树时能直观看到先后，但不会覆盖父层调度真源 |
 | `剧本正文` 在 detail 阶段被再次改写 | 真源边界层 | 回退到上游继承版本，只允许补字段 | 在父层与子层合同共同固定 `script_body_policy = inherit_only` | shared root 中 `剧本正文` 保持稳定 |
 | `水月` 开始写 `分镜ID / 时间段 / 摄影美学` | 字段 ownership 层 | 回退到 factual patch，仅保留 `出场角色及穿搭 + beat factual fields` | 在 `director_episode_output.schema.json#/$defs/detail_patch_sidecar` 与 validator 中固化 owner 边界 | `水月` sidecar 无 cinematic 字段 |
 | `镜花` 开始写 `出场角色及穿搭` 或 factual 字段 | 字段 ownership 层 | 回退到 cinematic patch，仅保留 shot skeleton 与导演/摄影字段 | 在 `director_episode_output.schema.json#/$defs/detail_patch_sidecar` 与 validator 中固化 owner 边界 | `镜花` sidecar 无 group/factual 字段 |
@@ -26,10 +26,12 @@
 | 子技能 sidecar 很完整，但父层不会 merge | 父级聚合层 | 回到父 skill 做 `beat_refs[] -> shot merge` | 在父 `SKILL.md` 固化 `beat_id / beat_refs[]` 对齐规则 | `分镜明细[]` 不再停留为空数组 |
 | `beat_id` 不稳定，导致 factual/cinematic sidecar 无法对齐 | patch 对齐层 | 回退到共享 `beat_id = <group_id>-bNN` 规则 | 在 shared schema 与父层 merge 契约固化 beat id 规则 | merge 不再靠临场猜测 |
 | shared root 缺 `分镜切换`，却直接开始 `镜花` 落镜 | 上游 seed 层 | 先报告 `2-Global` seed 缺口，再决定是否兼容修复 | 在父层把 `分镜切换` 设为 `镜花` 前置门 | `镜花` 不再代替上游决定镜数 |
-| 把 `水月 / 镜花` 的“允许并发”误读成 `镜花` 内部也能乱序展开 | 调度边界层 | 回到父层顺序 gate、子层阶段串行的双层规则 | 在父 `SKILL.md` 和 `镜花/SKILL.md` 同步固定“先 seed，再水月，再镜花；镜花内部先 `分镜构图`” | `镜花` 后续模块不再反向改镜数 |
+| 把 `水月 / 镜花` 的“允许并发”误读成 `镜花` 内部也能乱序展开 | 调度边界层 | 回到父层顺序 gate、子层阶段串行的双层规则 | 在父 `SKILL.md` 和 `2-镜花/SKILL.md` 同步固定“先 seed，再水月，再镜花；镜花内部先 `分镜构图`” | `镜花` 后续模块不再反向改镜数 |
 | `3-Detail` 重构后共享 reference 真源断链 | 真源同步层 | 将共享节点包/创作引导合同上收 `_shared/` 并统一回指 | 在 validator 中固定共享 reference 存在性与新路径检查 | 子技能 preload 与 `module-index` 不再落死路径 |
 | 校验脚本只验子目录内部，导致父子拓扑断裂仍给绿灯 | 防回归门层 | 把父层 `镜花` 路由、共享 reference 存在性、旧叶子残留纳入校验 | 在阶段 validator 中增加父层和共享真源检查 | 旧拓扑或死链再次出现时能直接报错 |
 | 父层 `validation-report` 声称 merge/ready 已完成，但缺少等价 stage validator | 阶段验收门层 | 增加 `scripts/validate_stage_output.py`，统一校验 episode root、child sidecar、`document_phase` 与 `validation-report.md` | 把 `ready` 门槛收束成可复跑脚本，而不是 prose 自证 | 父层完成态可以直接复验 |
+| stage validator 只看 report token，不验证 branch review 是否真的闭环 | 验收脚本层 | 在 `validate_stage_output.py` 里继续下钻 `branch_sidecars[]`，检查 sidecar 存在、`review_status`、`requested_reviewers[]` 与非 pending `apply_decision` | 把 branch review gate 从“文档自述”升级成“sidecar 结构 + review trace”双验收 | `ready` 阶段不能再靠手写 report 冒充 branch review 已完成 |
+| canonical 语义已切到“人物表演锚点 / 动作路径 / 视觉抓手 / 构图骨架”，但 shared schema 仍只有旧字段名 | schema 真源层 | 在 `director_episode_output.schema.json` 先补新语义字段名，并把旧名降成兼容别名 | 让 shared schema 与 consumer/validator 都支持新旧双读，再逐步推动全树真名迁移 | 不再出现“新语义只能靠旧字段名承载”的长期过渡态 |
 | `3-Detail` 质评若只看单样本或只读合同，容易误判稳定性 | 证据治理层 | 每轮评估至少同时抽取当前 shared root、child sidecar、stage validator 与一个代表性 episode 做交叉复验 | 将“即时样本 + validator + 合同对照”固定为默认动态评测组合，而不是依赖单独维护的固定 benchmark 文档 | 每轮质评都能直接从当前项目状态复验 `shared root / sidecar / report` 一致性 |
 | `组间设计` 在 detail 阶段被无故改写 | 继承边界层 | 恢复上游 seed，只允许回填 `出场角色及穿搭` | 在 `group_design_seed_contract.md` 与父层合同共同固化“默认继承不重写” | `全局风格 / 类型元素` 保持稳定 |
 | `出场角色及穿搭` 长期留空 | 组级回填层 | 从 `水月` group patch 回填，不再等下游猜 | 在父 `SKILL.md` 把该字段列为最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
@@ -41,17 +43,24 @@
 | 监制强化只审最后一个 `validation-report.md`，忽略 `第N集.json` 主输出 | review target bundle 层 | 将 `第N集.json` 固定为主目标，report 仅作次目标 | 在 `3-Detail/SKILL.md` 写死 `Review Target Bundle`，不允许 report 抢占 episode root 的主评审地位 | reviewer 结论能直接指向业务真源字段 |
 | `team.yaml` 没有显式 `监制 members` 时，阶段要么静默跳过，要么臆造整团 reviewer | reviewer 解析层 | 先按 `shared_agents -> roles.supervision.members -> roles.supervision.source_skill_refs` 解析，再做 `1-3` 位受限补选 | 把 `master-check-team` 的补选规则缩窄到 `3-Detail` 专用：导演必选，摄影/编剧按 issue 类型补入，并显式标记 `team-inferred` | reviewer roster 既不空转，也不无边界膨胀 |
 | stage validator 首次失败只报 sidecar / report 文件不存在，但 shared root seed 本身完好 | 执行完整度层 | 先把缺失的 canonical artifact 补齐到 `S4~S7`，不要把“文件缺失”误判成脚本入口损坏 | 将 `validate_stage_output.py` 作为 `3-Detail` 的前置缺件探针：先判断是 artifact 缺口还是合同失效，再决定是否上溯修源层 | 当 sidecar 与 report 补齐后，validator 应直接转绿；若仍失败再进入合同/脚本追因 |
+| shared schema 在同一 object `properties` 下保留重复键，导致后写 legacy 定义静默覆盖前写 canonical 定义 | schema 真源层 | 删除重复键，只保留 canonical 定义；legacy 兼容内容改成独立兼容槽或明确 legacy carrier | 对 schema 增加“compatibility 字段不得与 canonical 同名重复声明”的治理口径，并在审计时抽检关键字段解析结果 | `json.loads` 后读取到的字段形状与设计合同一致，不再出现 canonical `oneOf` 被覆盖成 plain string |
+| `project_state.yaml`、项目根报告或 `2-Global` 验收报告声称 `3-Detail/第N集.json` 已存在，但 shared root 在 runtime 中缺失 | runtime artifact drift 层 | 先回读 `2-Global` seed 证据与下游 `source_file` 反证，重建同一路径 shared root，再继续当前 owner 执行 | 在进入 `4-Design / 5-Image / 6-Video` 前增加 `3-Detail/第N集.json` 文件存在性检查，并把 project/state/report 的 carrier 真值校验前移 | shared root 真正落盘，且下游引用路径不再悬空 |
+| 输出结构完整、validator 全绿，但成片气质仍显平庸和机械 | 父级聚合与验收门层 | 回读 shared root，检查 `分镜表现` 是否大量直接投影 `镜头消费提示`、多 beat shot 是否只做字段拼接、以及重复句法是否已经压过真实镜头差异 | 在父层 `merge / ready / 监制强化` 合同中补“反模板化”审读门：至少抽检 `分镜表现` 是否过度复用 hint suffix、`角色背景面/站位/道具` 是否因多 `beat_refs[]` 退化为分号拼接、stage validator 或 review checklist 必须覆盖低重复度与镜头差异性 | shared root 中不再出现大量 “镜头画面句 + 原样消费提示” 结构，且多 beat shot 的 factual 字段不是简单拼串 |
+| 多个 branch 同时围绕同一 root 写入，导致后写分支看不到前写分支已形成的语法与状态 | branch 调度与上下文层 | 改为按当前序号串行执行，并在每一序号 branch 开始前回读已经部分写好的当前 root | 在 `branch-output-contract + 3-Detail/SKILL.md + owner parent SKILL.md` 固定“序号即顺序信号 + progressive commit + next branch must reread current root” | 后一序号 branch 的输出能明显承接前序已写回字段，镜头/表演/空间语法更连贯 |
+| 兼容恢复或 reverse-build 把上游具体画面句压成 `…` 半截短语、模板尾巴与抽象占位 | runtime repair 层 | 停止在坏句上续写，回到 `1-Planning/3-分组` 的 `动作画面 / 对白画面` 顺序句重建 shot 级具像表达 | 在 stage/bundle validator 增加“禁止硬截断”门，并把 planning visual lines 设为兼容恢复的优先证据源 | shared root 的 `表演目标 / 分镜构图 / compatibility projection` 不再带 `…` 或模板残片 |
+| branch child package 名、leaf module 名与 shared root 字段名不一致，导致父层与 consumer 不断做映射补丁 | canonical field governance 层 | 让 shared root canonical 字段直接对齐 child package 名，leaf slot 直接对齐 leaf module 名 | 在 schema、父 skill、branch validator、shared consumer contract 与 prompt normalizer 同步回收同名字段合同 | 子技能不再“输出一套、落盘另一套”，映射漂移显著下降 |
 
 ## Repair Playbook
 
 1. 先检查 `projects/aigc/<项目名>/3-Detail/第N集.json` 是否存在、是否符合 shared schema、`document_phase` 当前处于什么状态。
-2. 再检查 shared root 是否已经具备 `剧本正文 + 组间设计 + 分镜切换`；缺 `分镜切换` 时先报 seed 缺口。
-3. 若需要 `组间设计.出场角色及穿搭` 或 factual 字段，先检查 `水月` sidecar 是否提供 beat-level evidence。
-4. 若需要 shot skeleton 或导演/摄影字段，只有在既定 `分镜切换 + 水月 evidence` 稳定后才检查或重跑 `镜花` sidecar。
-5. 做 shared root writeback 时，先保住 `剧本正文` 与 `分镜切换` 不变，再做 `beat_refs[]` merge 与 `镜头消费提示 -> 分镜表现` 投影。
-6. 先用 `document_phase + validation-report.md + scripts/validate_stage_output.py` 形成可被审看的输出包，再决定是否进入 `监制强化`。
-7. 若项目根 `team.yaml` 启用 `监制` 且命中 `3-Detail`，必须读取其 supervision 配置，先解 reviewer roster 与 mode，再决定真实 subagents 还是显式 fallback/skip。
-8. 监制强化结束后要再次跑 validator；若 findings 命中 child owner 字段，则回流 `S4/S5`，而不是在收尾节点偷改。
+2. 若 project state / validation report 声称 shared root 已存在但磁盘缺失，先回读 `2-Global` seed 载体与下游 `source_file` 证据重建 root，再继续 owner dispatch。
+3. 再检查 shared root 是否已经具备 `剧本正文 + 组间设计 + 分镜切换`；缺 `分镜切换` 时先报 seed 缺口。
+4. 若需要 `组间设计.出场角色及穿搭` 或 factual 字段，先检查 `水月` sidecar 是否提供 beat-level evidence。
+5. 若需要 shot skeleton 或导演/摄影字段，只有在既定 `分镜切换 + 水月 evidence` 稳定后才检查或重跑 `镜花` sidecar。
+6. 做 shared root writeback 时，先保住 `剧本正文` 与 `分镜切换` 不变，再做 `beat_refs[]` merge 与 `镜头消费提示 -> 分镜表现` 投影。
+7. 先用 `document_phase + validation-report.md + scripts/validate_stage_output.py` 形成可被审看的输出包，再决定是否进入 `监制强化`。
+8. 若项目根 `team.yaml` 启用 `监制` 且命中 `3-Detail`，必须读取其 supervision 配置，先解 reviewer roster 与 mode，再决定真实 subagents 还是显式 fallback/skip。
+9. 监制强化结束后要再次跑 validator；若 findings 命中 child owner 字段，则回流 `S4/S5`，而不是在收尾节点偷改。
 
 ## Reusable Heuristics
 
@@ -63,7 +72,7 @@
 - `3-Detail` 最稳的顺序不是“谁先想到谁先跑”，而是 `2-Global` 先落固定 `分镜切换`，`水月` 先落 beat-level evidence，`镜花` 再按既定镜数落真实切镜和镜头语言。
 - 父层真正要守的是 shared root 单线写回和顺序 gate，而不是追求表面上的 owner 并发。
 - `镜花` 内部仍必须先锁 `分镜构图` 的实际切镜窗口，再让后续模块消费这个骨架。
-- 子技能 `references/` 若共享同一套节点包或创作引导规则，真源应显式上收 `_shared/`；否则目录重构后最容易出现局部自洽、整体断链。
+- 子技能 package-local 模块若共享同一套节点包或创作引导规则，真源应显式上收 `_shared/`；否则目录重构后最容易出现局部自洽、整体断链。
 - `ready` 的真实含义不是 sidecar 都存在，而是 shared root 已可被下游稳定消费且 validation 已给出通过结论。
 - 当 `4-Design/1-清单` 成为 detail 阶段的首个稳定下游时，应把它的字段消费矩阵显式回链到 `3-Detail` 父合同；否则上游 schema 虽然完整，下游 leaf 仍会各自演化一套“我以为该怎么读”的解释。
 - `3-Detail` 的动态质评最稳的做法，是直接绑定当前真实 validator、样本项目和最小对抗场景即时取证；否则很容易退化成只解读固定文档。
@@ -73,3 +82,11 @@
 - `shared_agents -> supervision.members -> supervision.source_skill_refs -> stage-aware 补选` 是 `3-Detail` 最稳的 reviewer 解析顺序；没有稳定 reviewer 时，应显式 skip，而不是制造伪顾问团。
 - 监制强化最容易越界的地方不是 review 本身，而是“图省事直接修 child-owned 字段”；一旦 findings 命中 `水月/镜花` ownership，就应回流 owner step，而不是在父层收尾节点偷改。
 - `validate_stage_output.py` 如果最先报的是 `水月/镜花 sidecar` 或 `validation-report.md` 缺失，而不是 schema / ownership / beat_refs 错误，优先把它视为 canonical bundle 未落盘，而不是源层合同坏掉；补齐 bundle 后再决定是否要追脚本或规则。
+- 当 shot-level canonical 的命名语义已经升级时，shared schema 必须先反映这种升级；否则下游就会长期停在“旧字段名装新语义”的隐性漂移态。
+- `3-Detail` 最容易“看起来像跑了很多高级技能，读起来却很机械”的位置，不在 child sidecar 本身，而在父层 merge：一旦把 `镜头消费提示` 近乎原样投影成 `分镜表现`，再把多 beat factual 字段用分号串接，输出就会从“可拍”迅速滑向“可交付但无惊喜”。
+- 对 `3-Detail` 来说，`ready + validator 通过 + used_subagents: true` 只能证明结构、流程和监督记录成立，不能自动证明作品气质成立；凡是追求“惊艳绝伦”的项目，都需要额外检查镜头间句法差异、物件/空间回声是否真正转译进 shot，而不是只被记在 hint 或 report 里。
+- 当多个 branch 需要围绕同一 root 逐步形成统一气质时，默认并发往往不如“按序号串行 + 每步先写回 root + 下一步重读当前 root”稳定；这样更容易让后续 branch 真正承接前序已形成的局部语法，而不是各写各的再靠末端收束。
+- 兼容恢复场景下，`1-Planning/3-分组` 的具体画面句比下游 prompt packet 更适合拿来重建 `3-Detail` 的具像字段；后者可做事实校验，不适合继续充当 prose 压缩源。
+- shared root 的字段命名若与 child package / leaf module 命名不一致，迟早会把高质量 branch 输出压扁成映射层；更稳的做法是 `package name = root field name`，`leaf module name = object slot name`。
+- 做 detail 字段升级时，最稳 rollout 不是先砍 shared schema，再逼下游适配；而是先把 `4-Design / 5-Image / 6-Video` 的 consumer contract、prompt spec 和 runner 全部切到 canonical 字段，再按 residual grep 缩 schema alias 面。
+- shared schema 若保留 `景别 / 镜头类型兼容 / 镜头框架 / 镜头类型 / 镜头视角 / 镜头速度` 这类 optional descriptor 槽，它们也只能作为“可选补充”存在；canonical example 不应把这些补充槽示范成默认镜级输出，否则下游会把它们误读成主合同。

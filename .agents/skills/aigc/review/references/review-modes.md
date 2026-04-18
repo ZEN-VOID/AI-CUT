@@ -4,6 +4,10 @@
 
 定义 `aigc/review` 的三种 review mode、carrier 与边界。
 
+本文件只定义 mode 与 carrier；专业审查方法、findings 分级、证据包与 verdict 映射统一以下列真源为准：
+
+- `references/menxia-review-protocol.md`
+
 ## Modes
 
 | mode | trigger | carrier | subtype | boundary |
@@ -25,6 +29,7 @@
 
 1. 只做 mode 判定与唯一路由。
 2. 具体 carrier 写法、边界与局部 heuristics 统一下沉到对应 subtype。
+3. findings 分级、review dimensions、evidence pack 与 verdict mapping 统一服从 `menxia-review-protocol.md`。
 
 ## Scope Mapping
 
@@ -45,3 +50,4 @@
 - 没有 `mission-brief / route-plan` 时，不得放行高风险执行
 - scope 已搁浅时，只返回 blocker，不给 acceptance pass
 - `governance-state.yaml` 只是 review 摘要同步位，不得替代 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` 本体
+- findings 必须先于概述出现；高风险结论必须带 severity 与 evidence path

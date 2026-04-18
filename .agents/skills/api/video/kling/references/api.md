@@ -34,7 +34,7 @@
 
 | 字段 | 类型 | 必填 | 来源 | 说明 |
 | --- | --- | --- | --- | --- |
-| `model_name` | string | 否 | 新版页 | 新版页枚举含 `kling-v3`；旧版页未出现 `kling-v3`；本地默认应从允许列表自动选最高版本 |
+| `model_name` | string | 否 | 新版页 | 新版页枚举含 `kling-v3`；旧版页未出现 `kling-v3`；默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族 |
 | `mode` | string | 否 | 新版页 | `std / pro` |
 | `duration` | string | 否 | 新版页 | `3-15` |
 | `image` | string | 否 | 新旧页 | URL 或裸 Base64，和 `image_tail` 至少二选一 |
@@ -84,7 +84,8 @@
 ### 2.7 本地默认值与文档默认值的差异
 
 - FineAPI 新版页写的 `model_name` 默认值仍是 `kling-v1`
-- 本任务要求：**本技能默认模型始终自动选择当前允许列表中的最高版本**
+- 本任务要求：默认模型治理统一回指 `../../runbooks/default-model-policy.md`
+- Kling 当前归属 `highest-available-general` 规则族；脚本通过 `../../shared/default_model_policy.py` 从允许列表解析当前结果 `kling-v3`
 - 截至 `2026-04-17`，本地白名单解析结果为 `kling-v3`
 - 这属于本地技能合同覆写，不代表 FineAPI 页面默认值已经变更
 

@@ -107,7 +107,7 @@ governance_tier: full
 - 默认：写 JSON 后自动执行生图。
 - `--foreground`：前台等待 nano-banana 完成；未传时默认后台批量并发提交。
 - `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar、bridge report 与 manifest，不调用 API。
-- `--dry-run`：写 JSON 与 request sidecar，并让 nano-banana/general 只打印/验证 payload，不真实调用 API。
+- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并让 nano-banana/general 只打印/验证 payload，不真实调用 API。
 
 ## Visual Maps (Mermaid)
 

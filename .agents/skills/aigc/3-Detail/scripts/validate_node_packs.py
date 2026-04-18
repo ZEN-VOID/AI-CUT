@@ -29,7 +29,7 @@ def discover_skill_roots(stage_root: Path) -> list[Path]:
     return sorted(
         child
         for child in stage_root.iterdir()
-        if child.is_dir() and (child / "references" / "module-index.md").exists()
+        if child.is_dir() and (child / "module-index.md").exists()
     )
 
 
@@ -65,19 +65,14 @@ def validate_spec_file(skill_root: Path, spec_path: Path) -> list[str]:
 
 def validate_skill_root(skill_root: Path) -> list[str]:
     errors: list[str] = []
-    references_root = skill_root / "references"
-
-    if not references_root.exists():
-        return [f"{skill_root.name}: 缺少 references/ 目录。"]
-
-    spec_files = sorted(references_root.rglob("module-spec.yaml"))
+    spec_files = sorted(skill_root.rglob("module-spec.yaml"))
     if not spec_files:
-        return [f"{skill_root.name}: references/ 下未找到 module-spec.yaml。"]
+        return [f"{skill_root.name}: 技能包内未找到 module-spec.yaml。"]
 
     for spec_path in spec_files:
         errors.extend(validate_spec_file(skill_root, spec_path))
 
-    for contract_file in (skill_root / "SKILL.md", references_root / "module-index.md"):
+    for contract_file in (skill_root / "SKILL.md", skill_root / "module-index.md"):
         text = contract_file.read_text(encoding="utf-8")
         rel_path = contract_file.relative_to(skill_root)
         if REQUIRED_SHARED_NODE_PACK_REF not in text:
@@ -106,7 +101,7 @@ def build_parser() -> argparse.ArgumentParser:
         "skill_roots",
         nargs="*",
         type=Path,
-        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/水月`.",
+        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/1-水月`.",
     )
     return parser
 

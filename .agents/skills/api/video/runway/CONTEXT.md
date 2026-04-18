@@ -23,7 +23,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 | `TM-RUNWAY-PROXY-TASK-PATH` | 创建成功但状态查询 404 | 代理路径契约层 | 先核对是否应走 `/runwayml/v1/tasks/{id}` | 在 `references/api.md` 显式标记“该路径来自官方 Runway 任务模型 + 代理前缀推导” | `status --task-id ...` 能返回任务状态或清晰 404 诊断 |
 | `TM-RUNWAY-LOCAL-IMAGE` | 本地图片路径直接塞进 `promptImage`，接口拒绝 | 输入归一化层 | 将本地图转成 Data URI | 脚本统一图片归一化：HTTPS URL 保留，Data URI 透传，本地图转 Data URI | `submit --dry-run` 中 `promptImage` 为 Data URI 而不是本地路径 |
 | `TM-RUNWAY-RATIO-DRIFT` | `gen4_turbo + 1280:768` 是否合法出现冲突信息 | 文档漂移层 | 不直接硬拒，先记录 `validation_notes` | 把 FineAPI 示例和官方 Runway ratio 表同时写入参考文档，脚本只做提示不做误杀 | 报告里能看到漂移提示 |
-| `TM-RUNWAY-DEFAULT-COUPLING` | 默认模型升级后，默认 ratio 仍停留在旧组合，导致“不传 ratio 的默认请求”自相矛盾 | 默认参数层 | 让 `ratio` 默认值按 `model` 动态补齐 | 默认模型不再硬编码单点；脚本统一从模型集合推导当前最高版本，并给每个已知模型绑定自洽默认 ratio | 不传 `--ratio` 时，请求体里的 `model` 与 `ratio` 组合仍落在官方支持表内 |
+| `TM-RUNWAY-DEFAULT-COUPLING` | 默认模型升级后，默认 ratio 仍停留在旧组合，导致“不传 ratio 的默认请求”自相矛盾 | 默认参数层 | 让 `ratio` 默认值按 `model` 动态补齐 | 默认模型治理先回到父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族；脚本经 `../shared/default_model_policy.py` 解析模型后，再由 Runway 本地映射补齐自洽 ratio | 不传 `--ratio` 时，请求体里的 `model` 与 `ratio` 组合仍落在官方支持表内 |
 | `TM-RUNWAY-OUTPUT-FIELD-DRIFT` | 任务完成后字段不只 `output[]`，还可能出现 `video / video_raw` | 输出兼容层 | 下载逻辑兼容多种视频 URL 字段 | `download` 先查 `output[]`，再回退 `video / video_raw / video_url` | 成功任务能稳定下载成片 |
 | `TM-RUNWAY-SECRET-HYGIENE` | 技能文档或报告里出现明文 token | 安全层 | 文档只保留环境变量名，报告里脱敏 Authorization | 统一以 `.env` 的 `ANYFAST_VIDEO_API_KEY` 为真源，不回写明文密钥 | 仓内 grep 不出现新增明文 token |
 | `TM-RUNWAY-TERMINAL-STATE` | 任务完成但轮询一直不停，或失败状态被当成 pending | 状态机层 | 明确区分 `pending/running/processing` 与 `SUCCEEDED/FAILED/CANCELED` | 在脚本中统一状态规范化，并把终态集合放成显式常量 | `run` 能在成功或失败终态退出，而不是无限轮询 |
@@ -63,5 +63,5 @@ last_checked_at: 2026-04-17T00:00:00Z
 - 视频任务完成后的下载字段常会漂移；脚本层应优先兼容多个候选视频 URL 字段，而不是把单一字段当绝对真源。
 - 对带子命令的 CLI，`submit/status/download/run` 都应生成结构化报告，这样路径漂移或字段漂移时更容易定位根因。
 - 在 Python 3.12+ 环境下，dry-run 或报告脚本不要再用 `datetime.utcnow()`；统一改为时区感知 UTC 时间，能少掉一类无意义告警。
-- 对 Runway 图生视频，当前官方文档可见的最高版本默认位应视为 `gen4.5`；只有当官方文档新增更高版本且模型集合同步更新后，默认值才应再次抬升。
+- 对 Runway 图生视频，当前官方文档可见的最高版本默认位应视为 `gen4.5`；但“如何选最高版本”的算法不再在本地重复展开，而是回指父级共享 runbook 与 helper。
 - 当某个视频 provider 尚未验证通用 `ANYFAST_API_BASE_URL` 路由时，不要沿用其他技能的通用 host 回退链；应要求 provider 专用 Base URL 或显式 `--base-url`。

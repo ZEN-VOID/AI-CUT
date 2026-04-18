@@ -226,6 +226,14 @@ python3 .agents/skills/aigc/6-Video/2-参照引用/scripts/bind_reference_assets
 | FIELD-VIDREF-AUDIT-04 | `_manifest.json / validation` | 记录匹配数量、跳过数量、歧义数量与最终 verdict | N7 | 审计可读性 | `FAIL-VIDREF-AUDIT-04` |
 | FIELD-VIDREF-REPORT-05 | `match-report.md` | 写清每个 packet 的绑定依据与跳过理由 | N7 | 人工复核性 | `FAIL-VIDREF-REPORT-05` |
 
+## Thought Pass Map
+
+| step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
+| --- | --- | --- | --- | --- |
+| `N1` | `FIELD-VIDREF-ROOT-01` | 当前输入来自哪条上游链、要落到哪个 mode | 锁定 tranche 与 episode | 输入路径或来源不清 |
+| `N2-N4` | `FIELD-VIDREF-SLOT-02` / `FIELD-VIDREF-MARK-03` | 哪些 `Assets/` 文件能安全绑定，绑定后结构是否稳定 | 推导候选、匹配本地文件、重建引用字段 | 歧义候选被默选，或路径/字段结构漂移 |
+| `N7` | `FIELD-VIDREF-AUDIT-04` / `FIELD-VIDREF-REPORT-05` | 当前三件套是否足以继续 handoff | 生成 manifest 与 match-report，并写最终 verdict | 报告无法解释绑定、跳过与歧义 |
+
 ## Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |

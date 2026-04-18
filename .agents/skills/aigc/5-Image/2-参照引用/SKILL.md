@@ -306,6 +306,35 @@ stateDiagram-v2
 6. `第N集.json` 与 `_manifest.json` 必须同时包含 `next_entry`；`match-report.md` 必须展示下一入口。
 7. `match-report.md` 不得只列已绑定资产，还必须列 `ambiguous_candidates / rejected_candidates`，否则不能证明 R2/R3 门已执行。
 
+## Field Master
+
+| field_id | 输出位置/字段 | 内容要求 | 默认责任 Node | 质量维度 | 失败码 |
+| --- | --- | --- | --- | --- | --- |
+| `FIELD-IMGREF-ROOT-01` | `第N集.json / mode + source_tranche` | 明确当前绑定输出属于哪种 provider mode 与 source tranche | `R0` | 路径可追溯性 | `FAIL-IMGREF-ROOT-01` |
+| `FIELD-IMGREF-CANDIDATE-02` | `match-report.md / candidate_requests` | 候选必须带 `match_reason / evidence_level / evidence_field / confidence` | `R2` | 候选推导可解释性 | `FAIL-IMGREF-CANDIDATE-02` |
+| `FIELD-IMGREF-SLOT-03` | `reference_images / image_markers` | provider-neutral 引用真源完整且顺序稳定 | `R3-R4` | 引用真值完整性 | `FAIL-IMGREF-SLOT-03` |
+| `FIELD-IMGREF-PROVIDER-04` | `provider_variants.*` | `jimeng_cli / nano_banana / dual_mode` 槽位与解析状态正确 | `R4` | provider 兼容性 | `FAIL-IMGREF-PROVIDER-04` |
+| `FIELD-IMGREF-AUDIT-05` | `_manifest.json + match-report.md` | 三件套能解释绑定、跳过、歧义与下一入口 | `R5` | 审计可读性 | `FAIL-IMGREF-AUDIT-05` |
+
+## Thought Pass Map
+
+| step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
+| --- | --- | --- | --- | --- |
+| `R0` | `FIELD-IMGREF-ROOT-01` | 当前请求对象来自哪条上游链、要落到哪个 mode | 锁定输入与 provider mode | 输入来源不清、mode 未锁 |
+| `R1-R2` | `FIELD-IMGREF-CANDIDATE-02` | 哪些候选真的有结构化证据支撑 | 生成候选与歧义清单 | 只靠 prompt 全文或泛词绑定 |
+| `R3-R4` | `FIELD-IMGREF-SLOT-03` / `FIELD-IMGREF-PROVIDER-04` | 哪些图片可安全绑定，provider 槽位如何解析 | 绑定真实本地引用并写 provider 兼容槽位 | 路径虚构、重复、provider 语义错位 |
+| `R5` | `FIELD-IMGREF-AUDIT-05` | 当前三件套是否足以继续 handoff | 写回 JSON/manifest/report 与 next_entry | 绑定结果不可复核或缺下一入口 |
+
+## Pass Table
+
+| field_id | Pass Standard | Fail Code | Rework Entry |
+| --- | --- | --- | --- |
+| `FIELD-IMGREF-ROOT-01` | 输出位于 `5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/` | `FAIL-IMGREF-ROOT-01` | `R0` |
+| `FIELD-IMGREF-CANDIDATE-02` | 候选来源与证据字段可回读，不靠猜测绑定 | `FAIL-IMGREF-CANDIDATE-02` | `R1-R2` |
+| `FIELD-IMGREF-SLOT-03` | `reference_images / image_markers` 只含真实本地引用且顺序稳定 | `FAIL-IMGREF-SLOT-03` | `R3-R4` |
+| `FIELD-IMGREF-PROVIDER-04` | provider-specific 槽位与解析状态符合当前 mode | `FAIL-IMGREF-PROVIDER-04` | `R4` |
+| `FIELD-IMGREF-AUDIT-05` | `_manifest.json + match-report.md` 可解释绑定、跳过、歧义与下一入口 | `FAIL-IMGREF-AUDIT-05` | `R5` |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 当出现以下症状时，先修本技能源层：

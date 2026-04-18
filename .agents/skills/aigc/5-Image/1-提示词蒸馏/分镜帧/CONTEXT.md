@@ -33,6 +33,7 @@ last_checked_at: 2026-04-12T21:20:00-07:00
 | 汇流前已经写回，导致 JSON 和 manifest 口径漂移 | 汇流审计层 | 在落盘前增加统一审计门，先判 `json_only/full_trace` 再写回 | 将 `N7-CONVERGENCE-AUDIT` 固化为写回前硬门槛 | 输出模式与落盘文件保持一致 |
 | `3-Detail` phase 未就绪却直接锁镜 | 阶段就绪层 | 在 `N1` 输入门先查 `metadata.document_phase` | 在 `SKILL.md` 固化 `detail_in_progress | ready` 才允许进入 `N2` | 不再从未完成 detail 根文件取镜 |
 | 单帧上下文漏掉 `出场角色及穿搭` 或镜级 canonical 字段 | 上下文打包层 | 回到 `N3` 补齐组级穿搭与 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` | 在 `SKILL.md` 固化 frame context pack 最低覆盖面 | `single_frame_shot` 不再只有抽象镜头描述 |
+| 父层已切到 branch-owned，但单帧叶子仍把 legacy 四字段当最低镜级壳 | schema handoff 层 | 把单帧输入门改成 branch-owned 八字段优先，legacy 四字段仅作补证 | 在 `SKILL.md` 固化 `branch-owned first, legacy fallback` | 单帧上下文不再默认从 compatibility projection 起步 |
 
 ## Repair Playbook
 
@@ -52,4 +53,4 @@ last_checked_at: 2026-04-12T21:20:00-07:00
 - 当固定前缀已经定义“单帧、无多格、无文字覆盖”的页面约束时，最稳的做法是不再并行维护第二套私有 prompt 模板。
 - 对这种边界稳定、字段数有限的叶子技能，`思行节点 + 汇流门 + 一次性输出` 通常比“长 checklist + 多张表”更抗漂移。
 - 若一个节点不能同时回答“我处理了什么事实”和“我为什么可以流向下一步”，它通常还不是合格的叶子思行节点。
-- 单帧 prompt 若不显式承接 `出场角色及穿搭` 与 `分镜表现`，通常会丢失服装锚点和镜头抓手，后续一致性也更容易漂移。
+- 单帧 prompt 若不显式承接 `出场角色及穿搭` 与 branch-owned 八字段，通常会退回旧投影心智，丢失真正稳定的服装锚点、空间关系和镜头抓手。

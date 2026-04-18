@@ -1,0 +1,32 @@
+{
+  "schema_version": "story2026/conflict-design/v2",
+  "meta": {
+    "skill_id": "story-plan",
+    "module_id": "conflict-design",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > references/conflict-design/module-spec",
+    "template_version": "2.0.0"
+  },
+  "content": {
+    "conflict_design": {
+      "scope": "full-series",
+      "conflict_system": [],
+      "escalation_ladder": [],
+      "conflict_owners": [],
+      "release_windows": [],
+      "downstream_hooks": []
+    }
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

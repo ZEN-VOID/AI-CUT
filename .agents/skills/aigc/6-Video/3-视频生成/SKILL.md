@@ -236,7 +236,7 @@ governance_tier: full
 
 ## Migration And Compatibility
 
-- 旧写法 `2-视频生成` 与 `subtypes/2-视频生成` 已退出当前 canonical path。
+- 旧写法 `2-视频生成` 与其它历史旧路径写法已退出当前 canonical path。
 - 当前唯一磁盘路径为 `.agents/skills/aigc/6-Video/3-视频生成/`。
 - 若文档中仍出现 `tranche-3`，只能作为历史语义背景，不得被解释为当前 filesystem path。
 - 本轮升格已把 `references/*.md` 规范内容收束回本 `SKILL.md`；旧 `references/` 文件将在同轮任务中移除。

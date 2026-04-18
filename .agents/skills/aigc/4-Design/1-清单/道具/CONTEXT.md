@@ -25,6 +25,7 @@
 | 清单阶段只有三份业务 JSON，没有统一 `_manifest.json`，导致 sibling leaf 审计层不齐 | canonical output 治理层 | 让 runner 默认补写 `_manifest.json`，并在共享合同中明确其 audit sidecar 身份 | 统一到 `<领域>清单.json + _manifest.json + 按需派生 sidecar` | 道具链与角色/服装/场景的清单阶段输出层级一致 |
 | 叶子合同必须依赖 references 才能看懂执行顺序 | 合同真源层 | 把输入锁定、抽取、聚合、研究、bridge、写回验证全部收回主 `SKILL.md` | 固化“1-清单的核心节点在主文档直写”规则 | 只读 `SKILL.md` 也能完整执行该叶子技能 |
 | 用户要求道具与场景/角色统一三真源 | 输出治理层 | 将 `道具研究.json / prop_design_bridge.json` 改为默认业务真源成员 | 明确清单管对象池，研究管证据与属性，bridge 管设计直参；脚本默认写三份 JSON | 默认输出三份业务 JSON |
+| shared schema 已切到 `动作路径 / 视觉抓手 / 人物表演锚点`，但道具链仍只把 `道具及状态` 当唯一镜级语境 | schema handoff 层 | 保留 `道具及状态` 作为 prop state 主补证，同时把 `动作路径 / 视觉抓手 / 人物表演锚点 / 空间氛围` 引入 scene/role/context 语境 | 在 `SKILL.md + extract_episode_props.py + build_prop_research.py` 固定 `branch-owned context first, prop_state fallback` | 道具研究不再只有物件状态句，而能回链到人物动作与视觉组织语境 |
 
 ## Repair Playbook
 
@@ -38,6 +39,7 @@
 ## Reusable Heuristics
 
 - 道具链的第一事实不是“这个物件看起来多酷”，而是“它在第几个镜头、以什么状态出现”。
+- 在 branch-owned 重构后，道具链最稳的做法不是抛弃 `道具及状态`，而是把它降成“物件状态主补证”，同时用 `动作路径 / 视觉抓手 / 人物表演锚点 / 空间氛围` 提供人物与镜头语境。
 - 只要上游已经把道具信息落在 `道具及状态`，设计阶段就不该再回到旧 markdown 分镜块里猜。
 - 对 `4-Design` 来说，研究不是终点；研究必须在同一轮里折叠成 `design_context`，否则下游仍然会退回手工理解。
 - 当某个道具承担身份确认、记忆回收、关键动作触发或持续空间限制时，应在 `1-清单` 就判定为特殊叙事道具，而不是留给 `2-设计` 后补。

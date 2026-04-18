@@ -6,11 +6,31 @@
 - reviewer:
 - verdict:
 
+## Review Frame
+
+- review_scope:
+- review_dimensions:
+- evidence_status:
+
+## Findings Summary
+
+- P0:
+- P1:
+- P2:
+- P3:
+
 ## Evidence
 
 - 
 
 ## Findings
+
+- [P?][dimension=][confidence=] summary
+  - evidence_path:
+  - impact:
+  - recommended_action:
+
+## Decision Rationale
 
 - 
 

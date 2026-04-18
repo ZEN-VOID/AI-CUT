@@ -50,7 +50,7 @@ python3 .agents/skills/api/video/luma/scripts/luma_video_generate.py ...
 
 可选输入：
 
-- `model`：默认自动选择当前已登记 Ray 系列最高版本（当前解析为 `ray-2`）；若当前网关只接受旧别名，脚本自动回退到 `ray-v2`
+- `model`：默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族；脚本共享骨架使用 `../shared/default_model_policy.py`，Luma 的 provider 特有差异是 `ray-2 / ray-v2 / ray2` 同版本偏好与别名回退；当前解析结果为 `ray-2`
 - `resolution`：默认 `720p`
 - `duration`：当前固定 `5s`
 - `expand_prompt`

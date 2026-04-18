@@ -37,6 +37,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_highest_model
+
 
 DEFAULT_DURATION = 5
 DEFAULT_PROJECT_NAME = "测试"
@@ -129,15 +135,11 @@ def _model_sort_key(model: str) -> tuple[int, int, int, int, str]:
     return (family_rank, major, minor, variant_rank, model)
 
 
-def _highest_allowed_model(models: Iterable[str]) -> str:
-    return max(models, key=_model_sort_key)
-
-
 def _default_ratio_for_model(model: str) -> str:
     return DEFAULT_RATIO_BY_MODEL.get(model, "1280:720")
 
 
-DEFAULT_MODEL = _highest_allowed_model(KNOWN_MODELS)
+DEFAULT_MODEL = select_highest_model(KNOWN_MODELS, sort_key=_model_sort_key)
 DEFAULT_RATIO = _default_ratio_for_model(DEFAULT_MODEL)
 
 

@@ -1,6 +1,6 @@
 ---
 name: kling
-description: Use when the task must submit Kling image-to-video jobs through FineAPI, especially for `POST /kling/v1/videos/image2video`, async status polling via `GET /kling/v1/videos/image2video/{task_id}`, and projectized report/video download handling. Default model: auto-select the highest allowed version (currently `kling-v3`).
+description: Use when the task must submit Kling image-to-video jobs through FineAPI, especially for `POST /kling/v1/videos/image2video`, async status polling via `GET /kling/v1/videos/image2video/{task_id}`, and projectized report/video download handling.
 governance_tier: full
 ---
 
@@ -26,7 +26,9 @@ governance_tier: full
 python3 .agents/skills/api/video/kling/scripts/kling_video_generate.py ...
 ```
 
-- 默认模型按本任务要求 **总是自动选择当前允许列表中的最高版本**，截至 2026-04-17 本地白名单解析结果为 `kling-v3`。
+- 默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族。
+  - 脚本共享骨架使用 `../shared/default_model_policy.py`
+  - Kling 的 provider 特有差异是：从 `ALLOWED_MODELS` 中按版本与 `master/turbo` 档位排序；截至 2026-04-17 当前解析结果为 `kling-v3`
 - 覆盖动作：
   - `submit/create`：创建图生视频任务
   - `status`：查询 `image2video` 任务状态
@@ -108,11 +110,11 @@ python3 .agents/skills/api/video/kling/scripts/kling_video_generate.py ...
    - 查询端点模板是 `GET /kling/v1/{action}/{action2}/{task_id}`
    - 本技能固定在 `action=videos`、`action2=image2video`
    - 不得擅自把本技能扩写成 text2video、lip-sync 或其他 Kling 子能力
-7. **默认模型覆写文档默认值**
+7. **默认模型覆写统一回指父级真源**
    - 新版创建页写的默认值仍是 `kling-v1`
-   - 但本任务要求本地默认模型始终自动前移到当前允许列表中的最高版本
-   - 截至 2026-04-17，本地最高版本解析结果为 `kling-v3`
-   - 技能、脚本、样例、报告必须统一遵守这条“自动选最高版本”的本地覆写规则，并在文档中显式说明这不是 FineAPI 页面的原始默认
+   - 本地默认模型如何前移，不再在本文件重复展开算法；统一遵循父级 `../runbooks/default-model-policy.md`
+   - Kling 当前使用其中的 `highest-available-general` 规则族，脚本经 `../shared/default_model_policy.py` 解析后当前结果为 `kling-v3`
+   - 技能、脚本、样例、报告只允许引用当前解析结果，不再各自维护一份“最高版本选择逻辑”
 8. **高级字段只做“受控透传”**
    - 对 `multi_prompt / dynamic_masks / camera_control / element_list / voice_list` 这类复杂结构，优先通过 JSON 文件或 JSON 字符串透传
    - 不要在 `SKILL.md` 或脚本中发明额外子 schema

@@ -34,6 +34,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_highest_model
+
 
 DEFAULT_BASE_URL = "https://fw2afus.ent.acc.kurtisasia.com"
 DEFAULT_PROJECT_NAME = "测试"
@@ -81,18 +87,12 @@ def _vidu_model_sort_key(model: str) -> tuple[int, int, str]:
     return (major, variant_rank, model.lower())
 
 
-def _highest_general_vidu_model(models: set[str]) -> str:
-    general_models = {
-        model
-        for model in models
-        if model.startswith("Vidu-") and "mix" not in model.lower()
-    }
-    if not general_models:
-        raise ValueError("未找到可作为默认值的通用 Vidu 模型")
-    return max(general_models, key=_vidu_model_sort_key)
-
-
-DEFAULT_MODEL = _highest_general_vidu_model(KNOWN_MODELS)
+DEFAULT_MODEL = select_highest_model(
+    KNOWN_MODELS,
+    sort_key=_vidu_model_sort_key,
+    predicate=lambda model: model.startswith("Vidu-") and "mix" not in model.lower(),
+    error_message="未找到可作为默认值的通用 Vidu 模型",
+)
 
 
 def _now_stamp() -> str:

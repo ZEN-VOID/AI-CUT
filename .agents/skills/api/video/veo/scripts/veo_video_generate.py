@@ -34,6 +34,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_highest_model
+
 
 DEFAULT_PROJECT_NAME = "测试"
 DEFAULT_TIMEOUT = 180
@@ -105,18 +111,12 @@ def _model_sort_key(model: str) -> tuple[int, int, int, int, str]:
     return (major, minor, capability_rank, variant_rank, model)
 
 
-def _highest_general_model(models: set[str]) -> str:
-    general_models = {
-        model
-        for model in models
-        if "frames" not in model and "components" not in model
-    }
-    if not general_models:
-        raise ValueError("未找到可作为默认值的通用 Veo 模型")
-    return max(general_models, key=_model_sort_key)
-
-
-DEFAULT_MODEL = _highest_general_model(ALLOWED_MODELS)
+DEFAULT_MODEL = select_highest_model(
+    ALLOWED_MODELS,
+    sort_key=_model_sort_key,
+    predicate=lambda model: "frames" not in model and "components" not in model,
+    error_message="未找到可作为默认值的通用 Veo 模型",
+)
 
 
 def _now_stamp() -> str:

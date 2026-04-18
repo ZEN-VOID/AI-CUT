@@ -25,6 +25,8 @@
 | `display_profile` 只是字段拼接，前端不可读 | 展示层 | 重写 `tagline / short_bio / visual_bible / costume_story / performance_hook` | 在 `FIELD-ROLE-04` 固化人读门槛 | 研究 JSON 可直接渲染角色卡 |
 | 研究结论只有词项，没有句子级判断 | 输出表达层 | 回到研究步骤，把字段收束成句子级结论 | 在 `FIELD-ROLE-03` 固化句子门禁 | 最终输出不再是词表 |
 | 共享合同曾把角色降为单清单，但角色 leaf 保留三文件 | 输出治理层 | 将共享合同改为 `角色清单 / 角色研究 / role_design_bridge` 三业务真源 | 明确三文件职责：清单管 identity，研究管 evidence/display，bridge 管 design handoff | 角色三文件与场景/道具同构 |
+| leaf 已标记 active，但没有实际脚本入口 | 执行入口层 | 补齐 `run_role_list_pipeline.py + extract_episode_roles.py + build_role_research.py` | 在 `SKILL.md` 固化 `Execution Entrypoints`，并以 dry-run 作为最小验收 | active leaf 可直接执行，不再只剩合同 |
+| shared schema 已切到 `人物表演锚点 / 动作路径 / 视觉抓手`，但角色链仍把 legacy 镜级句字段当主证据 | schema handoff 层 | 优先读取 `人物表演锚点 / 动作路径 / 视觉抓手 / 空间氛围`，再把 `角色站位走位 / 分镜表现 / 角色背景面` 降为 fallback | 在 `SKILL.md + detail-role-normalization.md + extract_episode_roles.py` 同时固定 `branch-owned first, legacy fallback` | 角色清单主路径不再锚在 compatibility projection |
 
 ## Repair Playbook
 
@@ -39,6 +41,8 @@
 - `出场角色及穿搭` 最适合作为 canonical 角色名与主服装锚，不适合作为唯一证据。
 - 角色清单最容易丢失的信息不是“有没有这个角色”，而是“这个角色在第几镜以哪套造型出现过”。
 - `角色站位走位` 通常比 `角色背景面` 更适合判断出场和走位；背景字段更适合补空间与氛围。
+- 在 branch-owned 重构后，`动作路径` 应接替 `角色站位走位` 成为镜级 presence/motion 第一证据；`人物表演锚点` 和 `视觉抓手` 分别负责表演成立度与视觉识别强化。
 - 同一角色 canonical 名称可以统一，但服装状态、身份态与群像语义不应被统一掉。
 - 若桥接字段需要人工补全，应把缺口留在 `quality_flags`，不要伪装成稳定结论。
 - 角色链的三真源边界要稳定：`角色清单.json` 不承载长研究，`角色研究.json` 不重建对象池，`role_design_bridge.json` 不反向发明角色。
+- 对 active leaf 来说，“有字段合同但没有 pipeline” 本身就是源层故障；应先补入口，再谈单次 episode 执行。

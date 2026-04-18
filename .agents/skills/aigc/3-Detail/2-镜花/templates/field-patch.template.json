@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "schema_version": "aigc/detail-branch-bundle-sidecar/v1",
+    "skill_id": "aigc-detail-jinghua",
+    "episode_id": "第N集",
+    "patch_owner": "镜花",
+    "source_root": "projects/aigc/<项目名>/3-Detail/第N集.json",
+    "script_body_policy": "inherit_only",
+    "generated_at": "2026-04-17T10:00:00-07:00",
+    "bundle_mode": "assembly_only"
+  },
+  "branch_sidecars": [
+    "projects/aigc/<项目名>/3-Detail/镜花/分镜构图/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/镜花/摄影美学/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/镜花/运镜手法/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/镜花/转场特效/第N集.branch-patch.json"
+  ],
+  "group_patches": [
+    {
+      "group_id": "<group_id>",
+      "target_fields": [
+        "分镜明细[].分镜构图",
+        "分镜明细[].摄影美学",
+        "分镜明细[].运镜手法",
+        "分镜明细[].转场特效"
+      ],
+      "branch_patches": {
+        "分镜构图": {
+          "景别景深": "<观众离多远、前后层怎么分>",
+          "镜头类型": "<这一拍如何看、POV 与 descriptor 怎样锁定>",
+          "构图形式": "<主体/陪体/背景怎样站住>"
+        },
+        "摄影美学": {
+          "光影": "<光位、明暗与观看压力>",
+          "色彩": "<色温与色彩组织>",
+          "质感": "<表面与质感策略>"
+        },
+        "运镜手法": {
+          "变化": "<镜头怎么动或为什么不动>",
+          "速度": "<镜头速度与节奏收益>",
+          "组合": "<运动与主体关系如何成立>"
+        },
+        "转场特效": "<仅在确实需要镜间衔接或特效桥接时填写>"
+      },
+      "compatibility_projection": {
+        "构图策略": "<从 分镜构图 保守派生>",
+        "摄影策略": "<从 摄影美学 保守派生>",
+        "运镜策略": "<从 运镜手法 保守派生>",
+        "转场策略": "<从 转场特效 保守派生>",
+        "分镜表现": "<仅在旧下游必须读取时保守摘要，不得重新压缩四支结论>"
+      },
+      "merge_hints": [
+        "先写四个 cinematic canonical 字段，再按需要派生旧字段。",
+        "compatibility_projection 只作旧下游 fallback，不得反向盖 canonical。"
+      ]
+    }
+  ]
+}

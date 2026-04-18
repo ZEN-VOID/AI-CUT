@@ -1,0 +1,36 @@
+version: 1
+module_id: jinghua-composition-form
+module_level: leaf
+purpose: 在既定 `shot_slot_map` 上锁每镜的空间几何、主陪背景关系、视线组织和 frame task，让画面先站住。
+triggers:
+  - 已锁定 `watermoon_inheritance + shot_count_plan + shot_slot_map`
+  - 需要回答“这一镜为什么这样站、这样压、这样看”
+must_answer:
+  - 每镜主体、陪体、背景三层如何分工
+  - 空间锚点、镜头轴线和主体几何关系是否成立
+  - 当前画面更适合对称、偏轴、封闭、开放、前压后退还是其他几何组织
+  - 这镜的 frame task 是揭示、对压、旁观、隔断还是悬置
+  - 视线组织如何与动作连续和主冲突保持一致
+patch_contract:
+  target_slot: composition_skeleton
+  required_elements:
+    - frame_task
+    - subject_support_background
+    - axis_and_geometry
+    - spatial_anchor
+    - eyeline_organization
+merge_policy:
+  preserve_first:
+    - spatial readability
+    - conflict axis stability
+    - subject/background hierarchy
+    - action continuity
+  trim_first:
+    - 发明新空间
+    - 一镜承担多个互相打架的画面任务
+quality_gates:
+  - 必须回指 `shot_slot_map` 与 `watermoon_inheritance`
+  - 不得提前写景别、景深、器材、运镜、光影和色彩
+  - 主体/陪体/背景三层必须可解释
+  - 轴线、几何和空间锚点必须自洽
+  - frame task 必须能回答“这一镜为什么这样摆”

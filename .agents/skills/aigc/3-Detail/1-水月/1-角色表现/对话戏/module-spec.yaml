@@ -1,0 +1,33 @@
+version: 1
+module_id: watermoon-character-dialogue
+module_level: leaf
+branch_key: character
+leaf_key: dialogue_drama
+purpose: 参照共享 `角色表现` 细则，把当前拍的对白、话轮攻守、抢话、吞话、截断、失口与气口控制压成可演策略；若当前拍无明确对话，则本叶子默认不出 patch。
+triggers:
+  - 当前拍存在明确对白、问答、抢话、吞话、截断、改口或失口
+  - 当前桥段的戏剧收益明显来自话轮攻守，而不是单人动作
+must_answer:
+  - 谁在掌控话语节奏，谁在被迫接话、吞话或改口
+  - 哪一句先发、哪一句被截断、哪一句被吞回
+  - 情绪该通过哪种断句、气口、停顿或抢话方式显形
+patch_contract:
+  target_slot: character_patch
+  append_fields:
+    - speech_turn_control
+    - interruption_pattern
+    - swallowed_reply
+    - delivery_strategy
+merge_policy:
+  keep:
+    - 抢话与截断
+    - 吞话与改口
+    - 气口与断句
+  avoid:
+    - 台词赏析
+    - 摄影/运镜判断
+quality_gates:
+  - 必须落成演员可执行策略
+  - 不得只说“对白很有张力”
+  - 无明确对话时不得硬造 `对话戏`
+  - 有台词时不得只复述对白内容，必须写出情绪发法与话语攻守

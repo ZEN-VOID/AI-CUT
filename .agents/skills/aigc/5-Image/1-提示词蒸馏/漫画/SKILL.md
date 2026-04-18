@@ -111,7 +111,9 @@ parallel_sibling_dispatch: false
 
 1. `metadata.document_phase in {detail_in_progress, ready}`
 2. 目标组具备 `组间设计.出场角色及穿搭`
-3. 目标组的 `分镜明细[]` 至少能回链 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`
+3. 目标组的 `分镜明细[]` 至少能回链 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
+
+若当前项目仍处于兼容迁移期，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`，但它们只允许作为漫画 panel 的补证，不得重新定义当前组的镜级真相。
 
 ### 禁止输入
 
@@ -270,7 +272,7 @@ graph LR
 | N1-INTAKE-LOCK | S1 | `FIELD-SB-COMIC-01` | 锁定当前任务是否确实命中 `漫画`，并确定 `episode_id / group_id / output_mode` | 读取父级路由结论、用户显式要求与目标单元 | 路由结论、目标组锚点、输出模式 | 成功 -> N2；对象混杂 -> 回父级；缺锚点 -> 阻塞 | 只有对象唯一时才可继续 |
 | N2-SOURCE-SHELL-GATE | S2 | `FIELD-SB-COMIC-01` | 验证 `3-Detail/第N集.json` 是否具备 shared schema 字段壳与组列表 | 检查 `metadata.document_phase`、`final_output`、`分镜组列表[]` 与模板读取可用性 | 源壳通过/失败结论 | 通过 -> N3；失败 -> 阻塞 | shared schema 不成立不得继续 |
 | N3-GROUP-RESOLVE | S3 | `FIELD-SB-COMIC-01` | 锁定唯一 `分镜组` 与有序 `source_shot_ids` | 按 `分镜组ID` 与组内 `分镜明细[]` 排序回链 | 目标组对象、`source_shot_ids`、冲突说明 | 唯一 -> N4；冲突/缺失 -> 阻塞 | 组与镜头顺序唯一后才可继续 |
-| N4-CONTENT-EXTRACT | S4 | `FIELD-SB-COMIC-02` | 提取 `comic_page_group` 的事实基座 | 抽取 `剧本正文 + 组间设计（含 出场角色及穿搭） + 分镜明细[]`，保留原顺序与原文措辞，并保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` | `comic_page_group` 原始内容块 | 完整 -> N5；部分缺口 -> N5 | 提取结果必须可回链上游字段 |
+| N4-CONTENT-EXTRACT | S4 | `FIELD-SB-COMIC-02` | 提取 `comic_page_group` 的事实基座 | 抽取 `剧本正文 + 组间设计（含 出场角色及穿搭） + 分镜明细[]`，优先保留 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`，legacy `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 只作补证 | `comic_page_group` 原始内容块 | 完整 -> N5；部分缺口 -> N5 | 提取结果必须可回链上游字段 |
 | N5-COMIC-RULE-BIND | S5 | `FIELD-SB-COMIC-02` | 把漫画页特有硬约束绑定到内容块与 `prompt_style` | 明确 `1 shot = 1 panel`、对白/独白/旁白只能落在对应 panel、`prompt_style.type/language` | 漫画约束清单、`prompt_style` 草案 | 成功 -> N6；约束缺失 -> 回到 N4/N5 | 硬约束进入 prompt 前必须齐备 |
 | N6-PROMPT-ASSEMBLY | S6 | `FIELD-SB-COMIC-03` | 生成唯一合法的 `prompt` 与 `prompt_char_count` | 逐字保留固定前缀并直接拼接 `comic_page_group` | 最终 `prompt`、字数统计 | 成功 -> N7；前缀/顺序错误 -> 回到 N5/N6 | prompt 完整后才可填模板 |
 | N7-TEMPLATE-FILL | S7 | `FIELD-SB-COMIC-04` | 以共享模板为骨架填充 `meta + model`，并保留参照图槽位 | 填充 `shot_level/group_id/source_shot_ids`、保留 `reference_images / image_markers`、接入可选参考图 | 结构完整的请求对象草案 | 成功 -> N8；模板漂移 -> 回到 N2/N7 | 模板骨架必须兼容共享真源 |

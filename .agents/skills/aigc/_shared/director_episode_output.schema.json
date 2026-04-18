@@ -423,17 +423,14 @@
     },
     "shot_detail": {
       "type": "object",
-      "description": "镜级 final factual 槽位。`3-Detail/水月` 先产 beat-level factual evidence，`镜花` 再基于既定 `分镜切换 + beat_refs[]` 落出 shot skeleton；父层将两者合成为这些 canonical 字段，不得把内部链名直接投影为并列输出字段。",
+      "description": "镜级 canonical 槽位。自 `3-Detail` branch-owned 重构起，shared root 的主命名应直接对齐 child skill 包名：`角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`。旧字段名中仅 `人物表演锚点 / 动作路径 / 空间氛围 / 视觉抓手 / 构图骨架 / 分镜表现` 与 descriptor 兼容槽继续保留为兼容别名或过渡投影；`人物表演 / 动作调度 / 视觉焦点 / 构图策略 / 摄影策略 / 运镜策略 / 转场策略` 已从 schema 主兼容层下收，不再作为 shared root 合法键。所有镜级文本默认执行反抽象写法，应优先呈现可见动作、位置、物件、光气与构图证据。",
       "additionalProperties": false,
       "required": [
         "分镜ID",
         "时间段",
         "角色背景面",
         "角色站位走位",
-        "道具及状态",
-        "分镜表现",
-        "运镜手法",
-        "摄影美学"
+        "道具及状态"
       ],
       "properties": {
         "分镜ID": {
@@ -471,49 +468,434 @@
         "道具及状态": {
           "type": "string"
         },
+        "角色表现": {
+          "$ref": "#/$defs/watermoon_character_design"
+        },
+        "人物表演锚点": {
+          "description": "deprecated alias；新流程优先写入 `角色表现`。",
+          "$ref": "#/$defs/watermoon_character_design"
+        },
+        "运动表现": {
+          "$ref": "#/$defs/watermoon_motion_design"
+        },
+        "动作路径": {
+          "description": "deprecated alias；新流程优先写入 `运动表现`。",
+          "$ref": "#/$defs/watermoon_motion_design"
+        },
+        "氛围表现": {
+          "$ref": "#/$defs/watermoon_atmosphere_design"
+        },
+        "空间氛围": {
+          "description": "deprecated alias；新流程优先写入 `氛围表现`。",
+          "$ref": "#/$defs/watermoon_atmosphere_design"
+        },
+        "视觉强化": {
+          "$ref": "#/$defs/watermoon_visual_design"
+        },
+        "视觉抓手": {
+          "description": "deprecated alias；新流程优先写入 `视觉强化`。",
+          "$ref": "#/$defs/watermoon_visual_design"
+        },
+        "分镜构图": {
+          "description": "canonical 构图字段，直接对齐 `1-分镜构图` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/jinghua_composition_design"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
         "分镜表现": {
           "type": "string",
-          "description": "镜级最终视觉抓手槽；只保留可被镜头直接消费的结果，不回显内部分析链名或并列思考维度。"
+          "description": "deprecated legacy 兼容投影槽。若仍填写，只能是对 `分镜构图` 的具像摘要，不得再与 canonical 并行演化。"
+        },
+        "构图骨架": {
+          "description": "deprecated alias；新流程优先写入 `分镜构图`。",
+          "$ref": "#/$defs/jinghua_composition_design"
+        },
+        "摄影美学": {
+          "description": "canonical 摄影字段，直接对齐 `2-摄影美学` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/jinghua_cinematography_design"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "运镜手法": {
+          "description": "canonical 运镜字段，直接对齐 `3-运镜手法` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/jinghua_camera_design"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "转场特效": {
+          "description": "canonical 转场字段。只有确实需要显式组内/组间转场或特效桥接时才填写；bootstrap_compat 期允许 legacy object 过渡值。",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/jinghua_transition_design"
+            }
+          ]
         },
         "景别": {
           "type": "string",
-          "description": "可选镜头描述子槽；例如 `中景`、`近景`、`特写`。示例值仅用于说明字段形状，不代表默认推荐值。"
+          "description": "可选镜头描述子槽；例如 `中景`、`近景`、`特写`。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
         },
-        "镜头属性": {
+        "镜头类型兼容": {
           "type": "string",
-          "description": "可选镜头描述子槽；例如 `定场镜头`、`关系建立镜头`、`反应镜头`。示例值仅用于说明字段形状，不代表默认推荐值。"
+          "description": "deprecated compatibility slot；旧数据中用于承载定场镜头/关系建立镜头等信息。新流程优先使用 `镜头类型` 与 `分镜构图` 对象；canonical example 默认省略。"
         },
         "镜头框架": {
           "type": "string",
-          "description": "可选镜头描述子槽；压缩主体/陪体/背景关系与构图结果。示例值仅用于说明字段形状，不代表默认推荐值。"
+          "description": "可选镜头描述子槽；压缩主体/陪体/背景关系与构图结果。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
         },
         "镜头类型": {
           "type": "string",
-          "description": "可选镜头描述子槽；说明当前镜头在叙事链中的职责。示例值仅用于说明字段形状，不代表默认推荐值。"
+          "description": "可选镜头描述子槽；说明当前镜头在叙事链中的职责。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
         },
         "镜头视角": {
           "type": "string",
-          "description": "可选镜头描述子槽；例如 `平视`、`俯视`、`仰视`、`过肩视角`。示例值仅用于说明字段形状，不代表默认推荐值。"
-        },
-        "运镜手法": {
-          "type": "string"
+          "description": "可选镜头描述子槽；例如 `平视`、`俯视`、`仰视`、`过肩视角`。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
         },
         "镜头速度": {
           "type": "string",
-          "description": "可选镜头运动速度槽；用于把运动路线与速度档分离，例如 `慢速压近`、`中速跟随`、`急停后极慢收束`。旧数据允许缺省，新数据若填写应与 `运镜手法` 保持一致。"
+          "description": "可选镜头运动速度槽；用于把运动路线与速度档分离，例如 `慢速压近`、`中速跟随`、`急停后极慢收束`。旧数据允许缺省，新数据若填写应与 `运镜手法` 保持一致；canonical example 默认省略。"
+        }
+      }
+    },
+    "watermoon_character_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "动作戏",
+        "内心戏"
+      ],
+      "properties": {
+        "动作戏": {
+          "type": "string",
+          "description": "直接对齐 `1-角色表现/动作戏` 叶子，回答“这一拍身体或外显动作怎样成立”。不得写成景别、机位、运镜或镜头速度术语。"
         },
-        "摄影美学": {
+        "对话戏": {
+          "type": "string",
+          "description": "直接对齐 `1-角色表现/对话戏` 叶子。仅在当前拍存在明确对白、话轮攻守、抢话、吞话、截断或失口时填写，回答“谁先发、谁截断、谁吞回、哪句怎样带压”。若当前拍无明确对话，则默认省略。不得与 `动作戏 / 内心戏` 机械同句。"
+        },
+        "对手戏": {
+          "type": "string",
+          "description": "deprecated alias；旧数据中用于承载互动攻守。新流程优先使用可选 `对话戏`，且 canonical example 默认省略此槽。"
+        },
+        "内心戏": {
+          "type": "string",
+          "description": "直接对齐 `1-角色表现/内心戏` 叶子，回答“人物内里哪股情绪或意图被压在动作底下”。不得退化成抽象空话。"
+        }
+      }
+    },
+    "watermoon_motion_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "逻辑性",
+        "位置和方向",
+        "一致性"
+      ],
+      "properties": {
+        "逻辑性": {
+          "type": "string",
+          "description": "直接对齐 `2-运动表现/逻辑性` 叶子，回答“为什么现在发生、这拍怎样接向下一拍”。"
+        },
+        "位置和方向": {
+          "type": "string",
+          "description": "直接对齐 `2-运动表现/位置和方向` 叶子，回答“谁相对什么锚点、往哪里动、方向怎么变”。"
+        },
+        "一致性": {
+          "type": "string",
+          "description": "直接对齐 `2-运动表现/一致性` 叶子，回答“这一拍接住了上一拍什么状态，避免模型漂移什么”。"
+        }
+      }
+    },
+    "watermoon_atmosphere_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "层次",
+        "空间诗学",
+        "意境"
+      ],
+      "properties": {
+        "层次": {
           "type": "string"
         },
-        "转场特效": {
+        "空间诗学": {
+          "type": "string"
+        },
+        "意境": {
+          "type": "string"
+        }
+      }
+    },
+    "watermoon_visual_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "冲击力",
+        "观赏性",
+        "品味"
+      ],
+      "properties": {
+        "冲击力": {
           "type": "string",
-          "description": "非必须；仅在该镜头需要显式转场或特效桥接时填写。"
+          "description": "直接对齐 `4-视觉强化/冲击力` 叶子，回答“镜头第一眼必须被什么打到”。应唯一、具体、可见。"
+        },
+        "观赏性": {
+          "type": "string",
+          "description": "直接对齐 `4-视觉强化/观赏性` 叶子，回答“这一拍该怎么顺着看、看多久、怎么不拖”。"
+        },
+        "品味": {
+          "type": "string",
+          "description": "直接对齐 `4-视觉强化/品味` 叶子，回答“哪些具像细节让这一拍不落俗”。不得写成空泛高级感。"
+        }
+      }
+    },
+    "jinghua_composition_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "景别景深",
+        "镜头类型",
+        "构图形式"
+      ],
+      "properties": {
+        "景别景深": {
+          "type": "string"
+        },
+        "镜头类型": {
+          "type": "string"
+        },
+        "构图形式": {
+          "type": "string"
+        }
+      }
+    },
+    "jinghua_cinematography_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "光影",
+        "色彩",
+        "质感"
+      ],
+      "properties": {
+        "光影": {
+          "type": "string"
+        },
+        "色彩": {
+          "type": "string"
+        },
+        "质感": {
+          "type": "string"
+        }
+      }
+    },
+    "jinghua_camera_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "变化",
+        "速度",
+        "组合"
+      ],
+      "properties": {
+        "变化": {
+          "type": "string"
+        },
+        "速度": {
+          "type": "string"
+        },
+        "组合": {
+          "type": "string"
+        }
+      }
+    },
+    "jinghua_transition_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "切接逻辑",
+        "组内衔接",
+        "组间或特效策略"
+      ],
+      "properties": {
+        "切接逻辑": {
+          "type": "string"
+        },
+        "组内衔接": {
+          "type": "string"
+        },
+        "组间或特效策略": {
+          "type": "string"
+        }
+      }
+    },
+    "detail_branch_process_sidecar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "group_branch_patches"
+      ],
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "skill_id",
+            "episode_id",
+            "parent_owner",
+            "branch_owner",
+            "source_root",
+            "generated_at",
+            "review_status"
+          ],
+          "properties": {
+            "schema_version": {
+              "type": "string",
+              "const": "aigc/detail-branch-process-sidecar/v1"
+            },
+            "skill_id": {
+              "type": "string"
+            },
+            "episode_id": {
+              "type": "string"
+            },
+            "parent_owner": {
+              "type": "string",
+              "enum": [
+                "水月",
+                "镜花"
+              ]
+            },
+            "branch_owner": {
+              "type": "string"
+            },
+            "source_root": {
+              "type": "string"
+            },
+            "generated_at": {
+              "type": "string"
+            },
+            "review_status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "reviewed",
+                "blocked"
+              ]
+            }
+          }
+        },
+        "group_branch_patches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/detail_branch_group_patch"
+          }
+        }
+      }
+    },
+    "detail_branch_group_patch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group_id",
+        "target_json_paths",
+        "thinking_process",
+        "patch_payload",
+        "review_trace"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string"
+        },
+        "target_json_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thinking_process": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "context_anchor",
+            "creative_thesis",
+            "execution_steps",
+            "self_check"
+          ],
+          "properties": {
+            "context_anchor": {
+              "type": "string"
+            },
+            "creative_thesis": {
+              "type": "string"
+            },
+            "execution_steps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "self_check": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "patch_payload": {
+          "type": "object"
+        },
+        "review_trace": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested_reviewers",
+            "key_findings",
+            "apply_decision"
+          ],
+          "properties": {
+            "requested_reviewers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "key_findings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "apply_decision": {
+              "type": "string"
+            }
+          }
         }
       }
     },
     "detail_patch_sidecar": {
       "type": "object",
-      "description": "`3-Detail` 子技能 sidecar 投影定义。唯一真源已收束到当前 schema：`水月` 负责 group/beat factual evidence，`镜花` 负责 shot skeleton 与 cinematic patch；父层负责 merge 回 canonical `final_output.main_content.分镜组列表[]`。",
+      "description": "`3-Detail` parent bundle sidecar 投影定义。在 branch-owned 重构后，它不再承担语义压缩式 merge，而只负责 owner 级 patch assembly、branch sidecar 引用与 compatibility projection 汇总。",
       "additionalProperties": false,
       "required": [
         "metadata",
@@ -535,7 +917,10 @@
           "properties": {
             "schema_version": {
               "type": "string",
-              "const": "aigc/detail-patch-sidecar/v1"
+              "enum": [
+                "aigc/detail-patch-sidecar/v1",
+                "aigc/detail-branch-bundle-sidecar/v1"
+              ]
             },
             "skill_id": {
               "type": "string"
@@ -559,7 +944,20 @@
             },
             "generated_at": {
               "type": "string"
+            },
+            "bundle_mode": {
+              "type": "string",
+              "enum": [
+                "legacy_merge",
+                "assembly_only"
+              ]
             }
+          }
+        },
+        "branch_sidecars": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         },
         "group_patches": {
@@ -572,6 +970,7 @@
     },
     "detail_group_patch": {
       "type": "object",
+      "description": "legacy compatibility group patch carrier。只保留给旧 `detail_patch_sidecar/v1` 迁移 adapter；新 `3-Detail` writer 应优先写 `branch_patches` 与 canonical episode root，不再新增 `beat_patches / shot_patches`。",
       "additionalProperties": false,
       "required": [
         "group_id",
@@ -597,16 +996,51 @@
           }
         },
         "beat_patches": {
+          "description": "legacy-only beat patch list。只用于 adapter 读取旧 `detail_patch_sidecar/v1`，新 writer 不应再新增。",
           "type": "array",
           "items": {
             "$ref": "#/$defs/detail_beat_patch"
           }
         },
         "shot_patches": {
+          "description": "legacy-only shot patch list。只用于 adapter 读取旧 `detail_patch_sidecar/v1`，新 writer 不应再新增。",
           "type": "array",
           "items": {
             "$ref": "#/$defs/detail_shot_patch"
           }
+        },
+        "branch_patches": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "角色表现": {
+              "$ref": "#/$defs/watermoon_character_design"
+            },
+            "运动表现": {
+              "$ref": "#/$defs/watermoon_motion_design"
+            },
+            "氛围表现": {
+              "$ref": "#/$defs/watermoon_atmosphere_design"
+            },
+            "视觉强化": {
+              "$ref": "#/$defs/watermoon_visual_design"
+            },
+            "分镜构图": {
+              "$ref": "#/$defs/jinghua_composition_design"
+            },
+            "摄影美学": {
+              "$ref": "#/$defs/jinghua_cinematography_design"
+            },
+            "运镜手法": {
+              "$ref": "#/$defs/jinghua_camera_design"
+            },
+            "转场特效": {
+              "$ref": "#/$defs/jinghua_transition_design"
+            }
+          }
+        },
+        "compatibility_projection": {
+          "type": "object"
         },
         "merge_hints": {
           "type": "array",
@@ -618,6 +1052,7 @@
     },
     "detail_beat_patch": {
       "type": "object",
+      "description": "legacy compatibility beat patch carrier。只保留给旧 `detail_patch_sidecar/v1` 与迁移期 adapter；新 `3-Detail` canonical 不再以它作为第一真相，也不应再新增此对象。",
       "additionalProperties": false,
       "required": [
         "beat_id",
@@ -646,10 +1081,21 @@
         "镜头消费提示": {
           "type": "string"
         }
-      }
+      },
+      "examples": [
+        {
+          "beat_id": "1-1-1-b01",
+          "anchor_summary": "角色A推门入长廊，角色B在远端停住。",
+          "角色背景面": "长廊西端入口朝东的一侧墙面与尽头出口方向同时作为对峙背景。",
+          "角色站位走位": "角色A从前景左侧推门入画向中轴压近半步，角色B留在远端居中后撤半步。",
+          "道具及状态": "门把轻晃，旧灯管间歇闪烁。",
+          "镜头消费提示": "入口推进感与对峙距离同时成立。"
+        }
+      ]
     },
     "detail_shot_patch": {
       "type": "object",
+      "description": "legacy compatibility shot patch carrier。只保留给旧 `detail_patch_sidecar/v1` 与迁移期 adapter；新 `3-Detail` canonical 应优先读取 `shot_detail` 与 branch-owned objects，不再新增此 descriptor-only patch。",
       "additionalProperties": false,
       "required": [
         "slot_id",
@@ -657,7 +1103,6 @@
         "beat_refs",
         "时间段",
         "景别",
-        "镜头属性",
         "镜头框架",
         "镜头类型",
         "镜头视角",
@@ -698,7 +1143,7 @@
         "景别": {
           "type": "string"
         },
-        "镜头属性": {
+        "镜头类型兼容": {
           "type": "string"
         },
         "镜头框架": {
@@ -722,7 +1167,29 @@
         "转场特效": {
           "type": "string"
         }
-      }
+      },
+      "examples": [
+        {
+          "slot_id": "1-1-1-s01",
+          "分镜ID": "1-1-1-1",
+          "beat_refs": [
+            "1-1-1-b01"
+          ],
+          "时间段": {
+            "开始秒": 0,
+            "结束秒": 6
+          },
+          "景别": "中景",
+          "镜头类型兼容": "定场镜头",
+          "镜头框架": "双主体对峙，前后景分层。",
+          "镜头类型": "叙事镜头",
+          "镜头视角": "平视",
+          "运镜手法": "轻微前压后停顿。",
+          "镜头速度": "前段轻慢，停顿后极慢收束。",
+          "摄影美学": "冷色主导，边缘高光克制，阴影层次保留。",
+          "转场特效": ""
+        }
+      ]
     }
   },
   "examples": [
@@ -764,7 +1231,7 @@
       "metadata": {
         "schema_version": "aigc/director-episode-output/v1",
         "skill_id": "aigc-detail",
-        "template_version": "v1",
+        "template_version": "detail-canonical-v2",
         "source_route": "2-Global/导演意图 -> 3-Detail",
         "episode_id": "第1集",
         "document_phase": "detail_in_progress",
@@ -794,15 +1261,40 @@
                   "角色背景面": "长廊西端入口朝东的一侧墙面与尽头出口方向同时作为角色对峙背景。",
                   "角色站位走位": "角色A从前景左侧推门入画并向中轴压近半步；角色B留在远端居中，先停住后微微后撤。",
                   "道具及状态": "门把仍在轻微晃动，墙边旧灯管间歇闪烁。",
-                  "分镜表现": "用前后景纵深压出进入感与未知距离。",
-                  "景别": "中景",
-                  "镜头属性": "定场镜头",
-                  "镜头框架": "双主体对峙，前后景分层。",
-                  "镜头类型": "叙事镜头",
-                  "镜头视角": "平视",
-                  "运镜手法": "轻微前压后停顿，最后以极慢速收束。",
-                  "镜头速度": "前段轻慢，停顿后极慢速收束。",
-                  "摄影美学": "冷色主导，边缘高光克制，阴影层次保留。",
+                  "角色表现": {
+                    "动作戏": "角色A推门入画后压近半步，角色B停住后微微后撤，对峙动作清楚可见。",
+                    "内心戏": "A的试探推进与B的迟疑后撤共同成立。"
+                  },
+                  "运动表现": {
+                    "逻辑性": "从入口推进到对峙站定的动作链完整可读。",
+                    "位置和方向": "A由前景左侧向中轴推进，B留在远端居中朝入口方向回应。",
+                    "一致性": "推进、停顿、后撤三段动作与对峙关系保持同一轴线。"
+                  },
+                  "氛围表现": {
+                    "层次": "入口门面、长廊中段与尽头出口形成前中后景压迫层次。",
+                    "空间诗学": "长廊纵深把未知距离拉长，让进入动作带出迟滞不安。",
+                    "意境": "低照度与闪烁旧灯管把迟到的危险感悬在空气里。"
+                  },
+                  "视觉强化": {
+                    "冲击力": "推门瞬间与远端停住形成一前一后的强落位。",
+                    "观赏性": "前后景对峙与门把轻晃的细节同时可看。",
+                    "品味": "克制冷色与低照度不靠夸张效果，保持悬疑质感。"
+                  },
+                  "分镜构图": {
+                    "景别景深": "中景起势，保留前后景纵深与角色距离。",
+                    "镜头类型": "定场镜头",
+                    "构图形式": "双主体前后景对峙，入口与尽头出口形成一轴两端。"
+                  },
+                  "摄影美学": {
+                    "光影": "旧灯管冷白闪烁，阴影层次保持克制不塌黑。",
+                    "色彩": "冷灰与旧白主导，压低饱和度维持心理悬疑基调。",
+                    "质感": "墙面旧漆、门把金属反光与空气颗粒共同保持胶片化粗粝。"
+                  },
+                  "运镜手法": {
+                    "变化": "轻微前压后停顿。",
+                    "速度": "前段轻慢，停顿后极慢速收束。",
+                    "组合": "前压后停顿再极慢收束。"
+                  },
                   "转场特效": ""
                 }
               ]
@@ -810,9 +1302,9 @@
           ]
         },
         "acceptance_notes": [
-          "所有组级字段必须能直接被 3-Detail 继承。",
+          "现行 canonical 以 branch-owned object 为主；`角色背景面 / 角色站位走位 / 道具及状态` 仍是 shot_detail 主槽，`景别 / 镜头类型兼容 / 镜头框架 / 镜头类型 / 镜头视角 / 镜头速度` 只作 descriptor 与 compatibility 补充，canonical example 默认省略。",
           "转场特效为空时不应强行补写。",
-          "本 example 中的镜头描述子槽只用于展示 schema 形状，不代表默认值，后续任务必须按当前镜头重填。"
+          "本 example 只用于展示当前 canonical 形状，不代表默认文案，后续任务必须按当前镜头重填。"
         ]
       }
     },

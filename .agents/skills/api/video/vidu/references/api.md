@@ -7,7 +7,7 @@
 - 文档页：`https://docs.fineapi.cloud/403045611e0`
 - 用户提供的 4 张接口截图
 - 用户明确要求：
-  - 默认模型总是调整为最高版本
+  - 默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族
   - 统一引用 `.env` 中的 `ANYFAST_VIDEO_API_KEY`
 - 官方补充真源：
   - `https://platform.vidu.com/docs/pricing`
@@ -36,7 +36,7 @@ Authorization: Bearer <token>
 
 | 字段 | 类型 | 必填 | 已确认说明 |
 | --- | --- | --- | --- |
-| `Model` | string | 否 | 文档展示支持多个模型；本技能默认由脚本自动裁决当前最高通用 Vidu 型号，当前为 `Vidu-q3-pro` |
+| `Model` | string | 否 | 文档展示支持多个模型；默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族，当前解析结果为 `Vidu-q3-pro` |
 | `SceneType` | string | 否 | 场景类型 |
 | `Prompt` | string | 否 | 正向提示词；与 `ImageUrl / ImageInfos` 至少填一项 |
 | `NegativePrompt` | string | 否 | 负向提示词 |

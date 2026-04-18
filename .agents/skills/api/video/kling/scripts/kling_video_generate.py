@@ -36,6 +36,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_highest_model
+
 
 ALLOWED_MODELS = {
     "kling-v1",
@@ -71,15 +77,11 @@ def _model_sort_key(model: str) -> Tuple[int, int, int, str]:
     return (major, minor, variant_rank, model)
 
 
-def _highest_allowed_model(models: set[str]) -> str:
-    return max(models, key=_model_sort_key)
-
-
 def _model_is_at_least(model: str, minimum: str) -> bool:
     return _model_sort_key(model) >= _model_sort_key(minimum)
 
 
-DEFAULT_MODEL = _highest_allowed_model(ALLOWED_MODELS)
+DEFAULT_MODEL = select_highest_model(ALLOWED_MODELS, sort_key=_model_sort_key)
 SOUND_MIN_MODEL = "kling-v2-6"
 SOUND_SUPPORTED_MODELS = {model for model in ALLOWED_MODELS if _model_is_at_least(model, SOUND_MIN_MODEL)}
 DEFAULT_MODE = "std"

@@ -12,7 +12,7 @@
 
 - 当前轮输入稳定确认的是创建接口 `POST /v1/video/create`。
 - 旧版 `/v1/videos`、`input_reference` multipart、状态查询与下载链路不再视为本轮校正的当前真源。
-- 本技能本地默认模型另有覆写：按允许列表自动选择最高版本的通用模型，不直接沿用页面示例值；截至 2026-04-17 本地解析结果为 `veo3.1-pro`。
+- 本技能本地默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族，不直接沿用页面示例值；截至 2026-04-17 当前解析结果为 `veo3.1-pro`。
 - 2026-04-17 本地 live probe 补充结论：
   - 当前 `.env` 的 `ANYFAST_API_BASE_URL` 上，`POST /v1/video/create` 返回 `404 Invalid URL`
   - 同一 host 上，`POST /v1/video/generations` 会进入鉴权/额度校验，说明这是当前环境的有效视频创建路径
@@ -188,7 +188,7 @@ ANYFAST_API_KEY=
 
 ## 6. 本技能默认模型覆写
 
-- 覆写目标：让本地默认值总是自动前移到当前允许列表中的最高版本通用模型。
+- 覆写目标：遵循父级共享 runbook，让本地默认值总是自动前移到当前允许列表中的最高版本通用模型。
 - 解析规则：
   - 先按 `major.minor` 比较版本号
   - 再在同版本内按 `pro > 基础版 > fast`

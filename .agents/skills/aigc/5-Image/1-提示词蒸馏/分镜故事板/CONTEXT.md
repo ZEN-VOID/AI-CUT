@@ -25,6 +25,7 @@
 | 绕过 `5-Image/SKILL.md`，把叶子误当阶段入口 | 上游回链层 | 改回根 `aigc` + `5-Image` 阶段父级 + 父级 `1-提示词蒸馏` 加载顺序 | 在 `Total Input Contract` 固化真实加载链 | 本包内不再跳过阶段父级 |
 | 仍把补证入口写成 `3-Detail/evidence/` | 补证路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在 `SKILL.md` 固化真实 sidecar 路径与只读补证边界 | 证据入口与 `3-Detail` 总输出一致 |
 | 组级蒸馏忽略 `document_phase` 或 `出场角色及穿搭` | 阶段就绪层 | 在 `N1` 前增加 readiness gate，先查 phase 与组级穿搭槽 | 在 `SKILL.md` 固化 `detail_in_progress | ready` 与 `出场角色及穿搭` 必检 | 不再把未就绪 detail 结果误当可消费输入 |
+| 父层已切到 branch-owned，但叶子仍把 legacy shot shell 当最低输入 | schema handoff 层 | 把 readiness gate 改成 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效` 优先，legacy 仅 fallback | 在叶子 `SKILL.md` 固化 `branch-owned first, legacy fallback` | 组级蒸馏不再默认依赖 compatibility projection |
 
 ## Repair Playbook
 
@@ -45,4 +46,4 @@
 - 对本技能来说，最常见漂移不是画风，而是把“图像请求 JSON 蒸馏”误做成“直接图片落盘”或“只写线性步骤不写汇流门”。
 - 最稳的节点主干是：`组边界 -> storyboard_group -> 固定前缀 -> 模板骨架 -> 落盘汇流`。
 - `思考过程` 应留在调用侧摘要或 `full_trace` 侧车，不要写进 canonical JSON 业务真源。
-- 组级故事板若没显式消费 `出场角色及穿搭` 与 `分镜表现`，后续 prompt 往往会只剩空泛画风，缺少角色服装与镜头抓手。
+- 组级故事板若没显式消费 `出场角色及穿搭` 与 branch-owned 八字段，后续 prompt 往往会退回 compatibility projection，缺少真正稳定的角色、空间和镜头抓手。

@@ -140,7 +140,7 @@ python3 .agents/skills/aigc/4-Design/3-面板/场景/scripts/generate_scene_pane
 - `--foreground`：前台等待 nano-banana 完成；未传时默认后台批量并发提交。
 - `--smart-mode auto|continuous-batch|single-doc-t2i|natural-language-t2i|off`：SMART 模式。
 - `--reference <path-or-url>`：显式参考图，可重复。
-- `--dry-run`：写 JSON 与 request sidecar，并 dry-run nano payload，不真正调用 API。
+- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并 dry-run nano payload，不真正调用 API。
 - `--force`：覆盖已存在输出。
 
 ## Visual Maps

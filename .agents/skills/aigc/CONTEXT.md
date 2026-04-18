@@ -34,6 +34,8 @@
 | 根技能若把固定评测文档写成前置证据源，容易与真实运行样本和即时 validator 结果脱节                                         | 质量证据同步层         | 把根 `SKILL.md` 的 Quality Evidence Source 改成当前真实证据，优先回指样本项目、审计结果与阶段报告                                         | 对根级 evidence source 做“文件存在性 + live evidence relevance”双检查；默认只回链当前可复验的审计、validator 与样本运行结果                                                                             | 根入口的质评证据只引用当前存在且可复验的动态证据                                                       |
 | 用户想“回到初始化态重来”，根路由却把它送进 `resume`                                                                      | 根路由判型层           | 将“主动重置式重新初始化”上收到根技能使用场景与硬规则，并回路由到 `0-Init`                                                               | 在根 `aigc`、`0-Init`、`resume` 三层同时固定“续跑 vs 回炉重起”边界                                                                                                                                        | 明确要求重起时，根入口只会推荐 `0-Init`                                                               |
 | AIGC 项目 runtime 被平铺到 `projects/` 根层，导致技能合同、registry 与脚本发现口径不一致                                 | 项目命名空间治理层     | 统一回收到 `projects/aigc/<项目名>/` 并同步迁移 discovery / audit / registry / script carriers                                           | 把 `projects/aigc/` 写成根 `AGENTS.md`、根 `aigc/SKILL.md`、共享模板、registry、runbook 与脚本入口的单一命名空间真源                                                                                     | 路径发现、文档示例、审计规则与实际项目目录都指向同一层                                                 |
+| `bootstrap_compat` 下的 strict audit 只审 stage parent，导致 active leaf 可能假绿 | 审计覆盖层 | 在兼容模式下把 review subtypes、5-Image / 6-Video active leaf 与 registry leaf 一并纳入严格审计 | 审计输出必须同时报告 discovered / checked / skipped 覆盖度，不再把“只审父层”包装成整树全绿 | `python3 scripts/aigc_skill_audit.py --strict` 能显式说明覆盖度，并在 leaf 漂移时报错 |
+| `6-Video` shared runtime 真源仍残留 `2-视频生成` 旧口径 | canonical runtime mapping 层 | 同步修正 `_shared/project-runtime-layout.md`、`0-Init/SKILL.md` 与审计 marker 到 `2-参照引用 -> 3-视频生成` | 把 `6-Video` 技能树->runtime 映射纳入 bootstrap_compat 下的 targeted audit，而不是等全树 cutover 后再检查 | shared layout、init skeleton、6-Video parent 与审计脚本对当前链路说法一致 |
 
 ## Repair Playbook
 
@@ -54,9 +56,11 @@
 - 当某个阶段已经从“骨架”升级为真实可执行入口时，必须把这次变化同步回根技能；否则根路由会继续把可执行阶段误判为待补。
 - 对 `aigc` 项目工作流，`projects/aigc/<项目名>/` 不是普通内容目录，而是三省六部控制面认可的 canonical runtime；只有把它同步写进 runbook / registry / audit，技能树才算真正接上 harness。
 - 对正在重大重构的 suite skill，不要先清空 harness；更稳的做法是保留 runtime / registry / review gate，再给审计增加显式 `bootstrap_compat` 模式开关。
+- `bootstrap_compat` 不等于“刑部看不见叶子”；更稳的做法是让审计器只跳过未纳入当前 active contract 的深层路径，而继续严格检查真实可执行 leaf。
 - 对跨兄弟阶段共同消费的治理工件，真源应优先放项目根；对跨兄弟阶段共同执行的运行规则，真源应优先放 `_shared/`。
 - 当技能阶段名本身带序号时，不要默认把这个序号投影到项目 runtime 目录；项目目录应优先服从 `_shared/project-runtime-layout.md` 的映射。
 - 一旦 `_shared/project-runtime-layout.md` 已明确采用技能树真实目录名，`0-Init`、共享模板、governance-state、query/resume 和 backfill 脚本都必须直接复用同一组阶段名：`0-Init / 1-Planning / 2-Global / 3-Detail / 4-Design / 5-Image / 6-Video / 7-Cut`。
+- 只要 shared runtime 仍是 canonical source，就不能容忍它在 active 链路上保留旧叶子名；否则 query / resume / init / review 会继续围着旧口径打转。
 - `4-Design` 新 leaf 回迁不能只改 leaf 自身；根技能 stage row、阶段父级、tranche parent、registry 与 HARNESS 总览都需要同轮同步，避免路由层继续认为该 leaf 未开放。
 - 若某项能力横跨所有阶段，但它只负责读取、恢复、复核或桥接，而不拥有阶段内容真源，最稳的落点是根级卫星技能，而不是再加一个伪 stage。
 - 在 `aigc` 里，`query / resume / review` 的最稳分工分别是：尚书省+户部读真源、尚书省+兵部续跑、门下省+刑部做预审与验收桥接。

@@ -1,0 +1,42 @@
+# CONTEXT.md
+
+## Purpose & Loading Contract
+
+- 本文件保存 `1-角色表现` 的经验层知识库，不是过程日志。
+- 命中本 skill 时必须和同目录 `SKILL.md` 一起加载。
+- 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > `3-Detail` 父合同 > 本 `SKILL.md` > 本 `CONTEXT.md`。
+
+## Context Health
+
+- soft_limit_chars: 12000
+- hard_limit_chars: 24000
+- status: ok
+- last_checked_at: 2026-04-17
+
+## Type Map
+
+| failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
+| --- | --- | --- | --- | --- |
+| `SKILL.md` 只剩 scope 文案，真正路由和节点判断藏在 `module-guide.md` | 执行真源层 | 把主问题判型、主链/辅链路由、双槽汇流和对话槽条件门回收进 `SKILL.md` | 保持 `SKILL.md` 作为节点骨架真源，`module-guide.md` 只做解释层 | 只看 `SKILL.md` 也能完整执行 |
+| 角色判断写成剧情摘要或人物小传 | patch 收束层 | 回到 `动作戏 / 对话戏 / 内心戏` 槽位，删掉解释句 | 在 `N4-PATCH-CONVERGE` 固定“不是第二份 prose”门 | patch 可直接入 schema，且不再像正文 |
+| 未先判主问题就默认三条叶子平均展开 | 路由层 | 先锁主链，再选最多一条辅链；第三条只补关键缺口 | 在 `N2-PRESSURE-ROUTE` 固定主链/辅链门禁 | `route_decision_note` 明确主链与辅链 |
+| 偷写运动表现、空间承载或镜头语言 | ownership 层 | 删除越权内容，回交 `2-运动表现 / 3-氛围表现 / 镜花` | 在 `FIELD-CHAR-05` 固定 target path 与越权检查 | target path 只命中 `角色表现` |
+| `内心戏` 只有情绪标签，没有演员入口 | 表演入口层 | 回到 `内心戏` 或 `动作戏` 叶子，补可见露馅点或行为意图 | 在 `FIELD-CHAR-04` 固定“可演而非可懂”标准 | `内心戏` 能直接指导演员或镜头消费 |
+| `对话戏` 只有结论，没有谁先发/谁截断/谁吞回的当前打法 | 互动策略层 | 回到 `对话戏` 叶子，把抢话、吞话、断句、失口等对白发法重新压回一句 | 在 `N3-LEAF-EVIDENCE` 固定对白证据必须可演 | `对话戏` 能回答当前对白怎么发生 |
+| sidecar 缺 `thinking_process / patch_payload / review_trace` | sidecar 完整性层 | 补齐 shared contract 最低槽位 | 在 `N5-SIDECAR-REVIEW` 固定 sidecar 完整门 | branch review 输入完整 |
+
+## Repair Playbook
+
+1. 先确认当前 root 与命中 scope 是否唯一，避免在旧快照上做表演判断。
+2. 再判断这一拍的主问题到底是露馅、出手，还是攻守试探；不要先写字段。
+3. 只选一条主链和最多一条辅链，先提证据，再压回 schema 必填双槽；有明确对白时再补 `对话戏`。
+4. 若 `动作戏` 已成立但需要精确位移或走位，立即回交 `运动表现`，不要继续往 `角色表现` 里塞路径。
+5. sidecar 写回前，最后检查一次 target path 是否只命中 `角色表现`。
+
+## Reusable Heuristics
+
+- `角色表现` 最稳的写法不是“把三条叶子都写一遍”，而是“先判主问题，再把最有戏的一条主链和一条辅链压成必填双槽；有明确对白时再补 `对话戏`”。
+- `动作戏` 回答“这一拍身体或外显动作怎样成立”；`对话戏` 回答“这一拍谁先发、谁截断、谁吞回、哪句怎么带压”；`内心戏` 回答“哪股意图被压在动作底下”。
+- 只要一句话还能直接替换成“他很难过/她很紧张/他们关系复杂”，通常就还没落成可演证据。
+- `角色表现` 不再承担识别锚点；服装/身份识别应优先回读 `出场角色及穿搭` 或交给组级/下游消费层。
+- 如果一个判断需要位置、动线或景别才能成立，那通常已经越过 `角色表现` 的字段边界。

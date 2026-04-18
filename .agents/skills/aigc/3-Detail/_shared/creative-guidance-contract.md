@@ -4,14 +4,14 @@
 
 本文件是 `aigc/3-Detail` 阶段共享创作引导包的真源合同。
 
-它统一约束 `水月` 与 `镜花` 如何使用 `route-profile.yaml`、`examples.md` 与 `creative-review-rubric.md` 这些创作指导载体，避免每个子技能各自发明第二套创作引导规则。
+它统一约束 `水月` 与 `镜花` 如何使用 package-local `route-profile.yaml`、`examples.md` 与 `creative-review-rubric.md` 这些创作指导载体，避免每个子技能各自发明第二套创作引导规则。
 
 ## Canonical Scope
 
 - canonical 路径固定为：`.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
 - 适用对象：
-  - `.agents/skills/aigc/3-Detail/水月/references/{route-profile.yaml,examples.md,creative-review-rubric.md}`
-  - `.agents/skills/aigc/3-Detail/镜花/references/{route-profile.yaml,examples.md,creative-review-rubric.md}`
+  - `.agents/skills/aigc/3-Detail/1-水月/{route-profile.yaml,examples.md,creative-review-rubric.md}`
+  - `.agents/skills/aigc/3-Detail/2-镜花/{route-profile.yaml,examples.md,creative-review-rubric.md}`
 - 子技能自己的 `module-index.md`、`SKILL.md` 只能回指本合同，不得再回指已删除的 `.agents/skills/aigc/3-Detail/references/creative-guidance-contract.md`
 
 ## Artifact Ownership

@@ -217,6 +217,35 @@ stateDiagram-v2
 6. 本层不得在 `Assets/` 有可用图片且引用字段为空时自行补猜、静默忽略或直接提交；唯一合法路径是回到 `2-参照引用` 产出通过审计的绑定 JSON，除非本轮显式声明 `prompt_only / no_reference`。
 7. 默认 submit-plan 不得写成前台逐个串行生成；除非用户显式要求同步等待，否则必须采用后台批量并发 handoff，并把 `background_submitted` 与最终产图成功区分开。
 
+## Field Master
+
+| field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
+| --- | --- | --- | --- | --- | --- |
+| `FIELD-IMGGEN-ROOT-01` | `submit-brief.md / tranche 判定` | 说明当前任务为何属于图像生成提交前组织层 | `G0` | 边界清晰度 | `FAIL-IMGGEN-ROOT-01` |
+| `FIELD-IMGGEN-INPUT-02` | `submit-plan.json / source_request` | 记录稳定请求对象来源、版本与 readiness verdict | `G1` | 输入可追溯性 | `FAIL-IMGGEN-INPUT-02` |
+| `FIELD-IMGGEN-REF-03` | `submit-plan.json / input_mode + provider_input_resolution` | 区分 `reference_driven / prompt_only / unresolved` 并写清 provider-specific 解析 | `G1-G3` | 引用处理准确性 | `FAIL-IMGGEN-REF-03` |
+| `FIELD-IMGGEN-PROVIDER-04` | `submit-plan.json / provider` | 锁定唯一 provider 或明确推荐主案 | `G2` | 路由准确性 | `FAIL-IMGGEN-PROVIDER-04` |
+| `FIELD-IMGGEN-PACK-05` | `submit-plan.json + submit-brief.md` | 提交计划、输出目录、执行说明、返工入口完整 | `G4-G5` | handoff 完整性 | `FAIL-IMGGEN-PACK-05` |
+
+## Thought Pass Map
+
+| step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
+| --- | --- | --- | --- | --- |
+| `G0` | `FIELD-IMGGEN-ROOT-01` | 当前任务是不是提交前组织层 | 锁定叶子边界与排除项 | 本层开始重写 prompt 或重绑引用 |
+| `G1` | `FIELD-IMGGEN-INPUT-02` / `FIELD-IMGGEN-REF-03` | 当前请求对象是否可提交、引用状态是否明确 | 审计 source request 与 input_mode | 没有稳定请求对象却继续向下 |
+| `G2-G3` | `FIELD-IMGGEN-PROVIDER-04` / `FIELD-IMGGEN-REF-03` | 应该交给哪个 provider、provider 如何消费引用 | 锁定 provider 与 provider-specific 输入解析 | provider 不唯一，或把 neutral 引用直接当 provider 私有字段 |
+| `G4-G5` | `FIELD-IMGGEN-PACK-05` | handoff 包是否足以继续执行 | 生成 `submit-plan.json + submit-brief.md` 与唯一下一入口 | 只留口头说明，或缺 output_dir / rework entry |
+
+## Pass Table
+
+| field_id | Pass Standard | Fail Code | Rework Entry |
+| --- | --- | --- | --- |
+| `FIELD-IMGGEN-ROOT-01` | 叶子边界与排除项清楚 | `FAIL-IMGGEN-ROOT-01` | `G0` |
+| `FIELD-IMGGEN-INPUT-02` | source request 可追溯且 readiness verdict 明确 | `FAIL-IMGGEN-INPUT-02` | `G1` |
+| `FIELD-IMGGEN-REF-03` | `input_mode`、引用状态与 provider-specific 解析策略清楚 | `FAIL-IMGGEN-REF-03` | `G1-G3` |
+| `FIELD-IMGGEN-PROVIDER-04` | provider 唯一或推荐主案明确 | `FAIL-IMGGEN-PROVIDER-04` | `G2` |
+| `FIELD-IMGGEN-PACK-05` | `submit-plan.json + submit-brief.md` 可直接供下游 handoff | `FAIL-IMGGEN-PACK-05` | `G4-G5` |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 当出现以下症状时，先修本技能源层：

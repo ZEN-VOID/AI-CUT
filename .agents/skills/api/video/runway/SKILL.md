@@ -52,7 +52,9 @@ python3 .agents/skills/api/video/runway/scripts/runway_video_generate.py ...
 - `model`
   - FineAPI 页面截图当前明确给出：`gen4_turbo / gen3a_turbo`
   - 官方 Runway `POST /v1/image_to_video` 文档当前接受值还包含：`gen4.5 / veo3.1 / veo3.1_fast / veo3`
-  - 本技能默认按**当前已知最高版本**自动取 `gen4.5`；若官方文档后续新增更高版本，应先同步更新模型集合，再由脚本自动抬升默认值
+  - 默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族
+  - 脚本共享骨架使用 `../shared/default_model_policy.py`；Runway 的 provider 特有差异是 `family_rank` 排序与默认 `ratio` 绑定
+  - 截至 2026-04-17 当前解析结果为 `gen4.5`；若官方文档后续新增更高版本，应先同步更新模型集合，再由脚本自动抬升默认值
   - 本技能允许按官方超集显式传入，但代理网关是否放行要以实际响应为准
 - `ratio`
 - `duration`
@@ -91,7 +93,7 @@ python3 .agents/skills/api/video/runway/scripts/runway_video_generate.py ...
    - 用户给的 FineAPI 示例使用 `gen4_turbo + 1280:768`。
    - 官方 Runway 文档把 `1280:768` 归到 `gen3a_turbo`，把 `gen4_turbo` 归到 `1280:720 / 1584:672 / 1104:832 / 720:1280 / 832:1104 / 960:960`。
    - 官方文档还将 `gen4.5` 归到 `1280:720 / 1584:672 / 1104:832 / 720:1280 / 832:1104 / 672:1584 / 960:960`。
-   - 脚本默认必须保证“默认模型”和“默认 ratio”自洽：当前默认 `gen4.5 + 1280:720`。
+  - 脚本默认必须保证“默认模型”和“默认 ratio”自洽：默认模型治理遵循父级共享规则，当前默认 `gen4.5 + 1280:720`。
    - 对旧示例组合不得直接硬拒，而要保留兼容，同时在报告里给出漂移提示。
 6. **结果 URL 是临时地址**
    - 官方输出文档说明成功任务会在 `output[]` 返回临时 URL，通常 24-48 小时内失效。

@@ -64,6 +64,7 @@ governance_tier: full
 4. 批量 `4-Design` 调度默认启用 `continuous-batch`，自动扫描 `2-设计` 目录中同主体同 stem 图片作为参照。
 5. 单独指定文件、目录、layout JSON 或自然语言生图默认启用 `single-doc-t2i / natural-language-t2i`，除非用户显式传 `--reference`，否则不自动绑定参照图。
 6. `layout-only / json-only` 仍必须写出 `generated/requests/panel_auto_generate_batch.json` 与 bridge report；只是不调用 nano。
+7. 跨 leaf 的“写 layout + request sidecar，但不真实调 provider”停点参数应兼容 `--generation-dry-run`；旧 `--dry-run` 仍保留为别名。
 
 ## Visual Maps
 

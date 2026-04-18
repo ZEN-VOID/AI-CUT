@@ -85,11 +85,11 @@ route_policies:
     trigger: 命中剧集海报、漫画海报、episode poster、海报 JSON、短剧风漫画海报、或需要为当前集设计标题/主体/氛围/配色清晰的海报合同
     rule: "进入 `.agents/skills/comic/4-剧集海报/SKILL.md`；优先读取 `1-漫画小说改编` 与 `2-九刀流漫画提示词` 真源，必要时参考 `3-漫画生成` 图片，默认输出到 `projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json`。"
   - id: team-screenwriter-dazai-osamu-entry
-    trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
-    rule: "进入 `.agents/skills/team/编剧组/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"
+    trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或小说组/编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
+    rule: "进入 `.agents/skills/team/小说组/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"
   - id: team-screenwriter-watanabe-junichi-entry
-    trigger: 命中渡边淳一视角、渡边淳一会怎么写、Watanabe Junichi perspective、失乐园式、钝感力、熟年恋爱、婚外恋题材、医学恋爱小说，或编剧组需要处理中年情欲、医疗题材、医生角色、身体真实、禁忌关系、情色边界与死亡结尾风险
-    rule: "进入 `.agents/skills/team/编剧组/渡边淳一/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出身体事实、禁忌账单、熟年时间、医学/伦理边界、女性主体检查与死亡浪漫化风险提醒。"
+    trigger: 命中渡边淳一视角、渡边淳一会怎么写、Watanabe Junichi perspective、失乐园式、钝感力、熟年恋爱、婚外恋题材、医学恋爱小说，或小说组/编剧组需要处理中年情欲、医疗题材、医生角色、身体真实、禁忌关系、情色边界与死亡结尾风险
+    rule: "进入 `.agents/skills/team/小说组/渡边淳一/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出身体事实、禁忌账单、熟年时间、医学/伦理边界、女性主体检查与死亡浪漫化风险提醒。"
   - id: team-actor-leslie-cheung-entry
     trigger: 命中张国荣、哥哥表演法、Leslie Cheung actor perspective，或演员组需要处理角色气质、镜头特写、亲密戏、性别表达、舞台/银幕魅力
     rule: "进入 `.agents/skills/team/演员组/张国荣/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出角色核心、身体方案、镜头方案与安全边界。"

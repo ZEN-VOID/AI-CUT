@@ -6,6 +6,8 @@
 - scope:
 - promotion_scope:
 - milestone_type:
+- source_review_mode:
+- finding_classes:
 
 ## Durable Heuristic
 

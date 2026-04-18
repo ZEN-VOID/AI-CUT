@@ -87,6 +87,137 @@ def combine_clauses(*parts: str, sep: str = "，") -> str:
     return ensure_sentence(sep.join(clauses))
 
 
+def join_non_empty(parts: list[str]) -> str:
+    return "，".join(item.strip() for item in parts if isinstance(item, str) and item.strip())
+
+
+def stringify_branch_design(value: Any, ordered_keys: tuple[str, ...]) -> str:
+    if not isinstance(value, dict):
+        return ""
+    return join_non_empty([str(value.get(key, "")).strip() for key in ordered_keys])
+
+
+def first_non_empty(*values: str) -> str:
+    for value in values:
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
+def pick_branch_object(shot: dict[str, Any], *field_names: str) -> Any:
+    for field_name in field_names:
+        value = shot.get(field_name)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(shot)
+    normalized["角色表现"] = first_non_empty(
+        stringify_branch_design(
+            pick_branch_object(normalized, "角色表现", "人物表演锚点", "人物表演"),
+            ("动作戏", "对话戏", "内心戏", "对手戏", "表演目标", "关系施压", "服装锚点"),
+        ),
+        str(normalized.get("角色表现", "")).strip(),
+        str(normalized.get("人物表演锚点", "")).strip(),
+        str(normalized.get("人物表演", "")).strip(),
+    )
+    normalized["运动表现"] = first_non_empty(
+        stringify_branch_design(
+            pick_branch_object(normalized, "运动表现", "动作路径", "动作调度"),
+            ("逻辑性", "位置和方向", "一致性", "位置基线", "动作路径", "连续性说明"),
+        ),
+        str(normalized.get("运动表现", "")).strip(),
+        str(normalized.get("动作路径", "")).strip(),
+        str(normalized.get("动作调度", "")).strip(),
+        str(normalized.get("角色站位走位", "")).strip(),
+    )
+    normalized["分镜构图"] = first_non_empty(
+        stringify_branch_design(
+            pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"),
+            ("景别景深", "镜头类型", "构图形式", "构图骨架", "视线组织"),
+        ),
+        str(normalized.get("分镜构图", "")).strip(),
+        str(normalized.get("构图骨架", "")).strip(),
+        str(normalized.get("构图策略", "")).strip(),
+        str(normalized.get("镜头框架", "")).strip(),
+        str(normalized.get("分镜表现", "")).strip(),
+    )
+    normalized["氛围表现"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "氛围表现", "空间氛围"), ("层次", "空间诗学", "意境", "空间支架", "空气层", "物象压力")),
+        str(normalized.get("氛围表现", "")).strip(),
+        str(normalized.get("空间氛围", "")).strip(),
+        str(normalized.get("场景氛围", "")).strip(),
+        str(normalized.get("角色背景面", "")).strip(),
+    )
+    normalized["摄影美学"] = first_non_empty(
+        stringify_branch_design(
+            pick_branch_object(normalized, "摄影美学", "摄影策略"),
+            ("光影", "色彩", "质感", "视觉控制线", "光影策略", "色彩策略", "质感策略"),
+        ),
+        str(normalized.get("摄影美学", "")).strip(),
+        str(normalized.get("摄影策略", "")).strip(),
+    )
+    normalized["运镜手法"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "运镜手法", "运镜策略"), ("变化", "组合", "运动动机", "运动路径")),
+        str(normalized.get("运镜手法", "")).strip(),
+        str(normalized.get("运镜策略", "")).strip(),
+    )
+    normalized["镜头速度"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "运镜手法", "运镜策略"), ("速度", "速度设计")),
+        str(normalized.get("镜头速度", "")).strip(),
+    )
+    normalized["视觉强化"] = first_non_empty(
+        stringify_branch_design(
+            pick_branch_object(normalized, "视觉强化", "视觉抓手", "视觉焦点"),
+            ("冲击力", "观赏性", "品味", "第一抓手", "观看节奏", "镜头消费提示"),
+        ),
+        str(normalized.get("视觉强化", "")).strip(),
+        str(normalized.get("视觉抓手", "")).strip(),
+        str(normalized.get("视觉焦点", "")).strip(),
+        str(normalized.get("分镜表现", "")).strip(),
+    )
+    normalized["转场特效"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "转场特效", "转场策略"), ("切接逻辑", "组内衔接", "组间或特效策略")),
+        str(normalized.get("转场特效", "")).strip(),
+        str(normalized.get("转场策略", "")).strip(),
+    )
+
+    normalized["角色站位走位"] = first_non_empty(normalized["运动表现"], str(normalized.get("角色站位走位", "")).strip())
+    normalized["角色背景面"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "氛围表现", "空间氛围"), ("层次", "空间支架")),
+        stringify_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("构图形式", "构图骨架")),
+        str(normalized.get("角色背景面", "")).strip(),
+    )
+    normalized["场景氛围"] = first_non_empty(normalized["氛围表现"], str(normalized.get("场景氛围", "")).strip())
+    normalized["镜头框架"] = first_non_empty(
+        str(normalized.get("镜头框架", "")).strip(),
+        stringify_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("构图形式", "构图骨架", "视线组织")),
+    )
+    normalized["分镜表现"] = first_non_empty(str(normalized.get("分镜表现", "")).strip(), normalized["视觉强化"], normalized["分镜构图"])
+    normalized["景别"] = first_non_empty(
+        stringify_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("景别景深",)),
+        str(normalized.get("景别", "")).strip(),
+    )
+    normalized["镜头类型"] = first_non_empty(
+        str(normalized.get("镜头类型", "")).strip(),
+        stringify_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("镜头类型",)),
+    )
+    normalized["镜头类型兼容"] = first_non_empty(
+        str(normalized.get("镜头类型兼容", "")).strip(),
+        str(normalized.get("镜头属性", "")).strip(),
+    )
+    normalized["人物表演"] = normalized["角色表现"]
+    normalized["动作调度"] = normalized["运动表现"]
+    normalized["空间氛围"] = normalized["氛围表现"]
+    normalized["视觉焦点"] = normalized["视觉强化"]
+    normalized["构图策略"] = normalized["分镜构图"]
+    normalized["摄影策略"] = normalized["摄影美学"]
+    normalized["运镜策略"] = normalized["运镜手法"]
+    return normalized
+
+
 def transform_text(value: str, transform: str) -> str:
     if transform == "strip_tail_punct":
         return strip_tail_punct(value)
@@ -175,8 +306,21 @@ def validate_shot_ready(group_id: str, shot: dict[str, Any]) -> None:
     timing = require_dict(shot.get("时间段"), f"{group_id}.{shot_id}.时间段")
     require_numeric_seconds(timing.get("开始秒"), f"{group_id}.{shot_id}.时间段.开始秒")
     require_numeric_seconds(timing.get("结束秒"), f"{group_id}.{shot_id}.时间段.结束秒")
-    for field in ("角色背景面", "角色站位走位", "道具及状态", "分镜表现", "景别", "运镜手法", "摄影美学", "镜头视角"):
-        require_non_empty_text(shot.get(field), f"{group_id}.{shot_id}.{field}")
+    branch_fields = (
+        ("角色表现", "人物表演锚点", "人物表演"),
+        ("运动表现", "动作路径", "动作调度"),
+        ("氛围表现", "空间氛围"),
+        ("视觉强化", "视觉抓手", "视觉焦点"),
+        ("分镜构图", "构图骨架", "构图策略"),
+        ("摄影美学", "摄影策略"),
+        ("运镜手法", "运镜策略"),
+    )
+    for field_names in branch_fields:
+        branch_value = pick_branch_object(shot, *field_names)
+        require_dict(branch_value, f"{group_id}.{shot_id}.{'/'.join(field_names)}")
+    normalized = normalize_shot_for_prompt(shot)
+    for field in ("角色表现", "运动表现", "氛围表现", "视觉强化", "分镜构图", "摄影美学", "运镜手法", "景别", "镜头视角"):
+        require_non_empty_text(normalized.get(field), f"{group_id}.{shot_id}.{field}")
 
 
 def validate_group_ready(group: dict[str, Any]) -> None:
@@ -258,15 +402,16 @@ def extract_script_blocks(script: str) -> list[str]:
 
 
 def build_min_visible_fact(shot: dict[str, Any]) -> str:
+    shot = normalize_shot_for_prompt(shot)
     sentences = []
     first = combine_clauses(
-        shot.get("角色站位走位", ""),
-        shot.get("角色背景面", ""),
+        shot.get("运动表现", ""),
+        shot.get("分镜构图", ""),
     )
     second = combine_clauses(
         shot.get("道具及状态", ""),
         shot.get("角色表现", ""),
-        shot.get("场景氛围", ""),
+        shot.get("氛围表现", ""),
     )
     if first:
         sentences.append(first)
@@ -339,6 +484,7 @@ def build_camera_sentence(shot: dict[str, Any], level: str, spec: dict[str, Any]
 
 
 def build_shot_text(shot: dict[str, Any], level: str, spec: dict[str, Any]) -> str:
+    shot = normalize_shot_for_prompt(shot)
     shot_spec = require_dict(spec["shot"], "spec.shot")
     sentences: list[str] = [build_camera_sentence(shot, level, spec)]
 
@@ -478,15 +624,32 @@ def validate_packet(packet: dict[str, Any], group: dict[str, Any], shot: dict[st
         "时间段：",
         "角色背景面：",
         "角色站位走位：",
+        "人物表演：",
+        "人物表演锚点：",
+        "动作调度：",
+        "动作路径：",
+        "空间氛围：",
+        "视觉焦点：",
+        "视觉抓手：",
+        "构图策略：",
+        "构图骨架：",
+        "摄影策略：",
+        "运镜策略：",
+        "转场策略：",
         "景别：",
         "运镜手法：",
         "镜头速度：",
         "镜头视角：",
         "角色表现：",
+        "运动表现：",
+        "氛围表现：",
+        "视觉强化：",
+        "分镜构图：",
         "场景氛围：",
         "道具及状态：",
         "摄影美学：",
         "镜头属性：",
+        "镜头类型兼容：",
         "镜头框架：",
         "镜头类型：",
         "分镜表现：",

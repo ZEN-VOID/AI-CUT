@@ -28,8 +28,9 @@ governance_tier: full
 python3 .agents/skills/api/video/veo/scripts/veo_video_generate.py submit ...
 ```
 
-- 默认模型按本地覆写规则 **总是自动选择当前允许列表中的最高版本通用模型**。
-  - 解析时会排除 `frames / components` 这类要求图片输入的模型。
+- 默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族。
+  - 脚本共享骨架使用 `../shared/default_model_policy.py`
+  - Veo 的 provider 特有差异是：排除 `frames / components` 这类要求图片输入的专用模型
   - 截至 2026-04-17，本地白名单解析结果为 `veo3.1-pro`。
 
 ## 2. 已确认接口契约
@@ -98,9 +99,9 @@ python3 .agents/skills/api/video/veo/scripts/veo_video_generate.py submit ...
    - 当前材料只给相对路径 `/v1/video/create`
    - 调用时必须通过 `.env` 或 `--base-url` 提供 API Base URL
 9. **默认模型总是前移到当前最高版本通用模型**
-   - 脚本默认值不得再写死旧模型
-   - 默认解析时只在通用文生模型集合里比较版本，不把 `frames / components` 变体当作默认值
-   - 截至 2026-04-17，本地自动解析结果为 `veo3.1-pro`
+   - 具体选择算法不再在本文件重复展开，统一遵循父级 `../runbooks/default-model-policy.md`
+   - 脚本默认值不得再写死旧模型；共享骨架通过 `../shared/default_model_policy.py` 执行
+   - Veo 本地过滤条件是“不把 `frames / components` 变体当作默认值”；截至 2026-04-17 当前自动解析结果为 `veo3.1-pro`
 10. **环境变量回退链必须对齐仓库视频技能基线**
    - Key 优先级：`VEO_API_KEY -> ANYFAST_VIDEO_API_KEY -> ANYFAST_API_KEY -> FINEAPI_API_KEY`
    - Base URL 优先级：`VEO_API_BASE_URL -> ANYFAST_API_BASE_URL -> FINEAPI_API_BASE_URL`

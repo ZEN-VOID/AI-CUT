@@ -55,7 +55,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--reference", action="append", default=[], help="显式参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100)
     parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
-    parser.add_argument("--dry-run", action="store_true", help="写 JSON 与 request sidecar，但 nano 只 dry-run")
+    parser.add_argument(
+        "--dry-run",
+        "--generation-dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="写 JSON 与 request sidecar，但 nano 只 dry-run",
+    )
     parser.add_argument("--print-payload", action="store_true", help="打印 nano payload")
     parser.add_argument("--no-report", action="store_true", help="调用 nano 时跳过 report")
     parser.add_argument("--force", action="store_true", help="覆盖已存在 layout/manifest")

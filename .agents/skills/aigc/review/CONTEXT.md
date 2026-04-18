@@ -24,6 +24,7 @@
 | learning 只停在聊天说明，没有落 `learning-record.md` | learning bridge | 进入 `learning-bridge` mode | 把 learning record 固定为 canonical carrier | 学习沉淀能在项目目录读回 |
 | review 只写 report，不同步断点治理摘要 | governance snapshot sync | 同步更新 `governance-state.yaml.review_bridge` 与 `resume_contract` | 在 review contract 固定“carrier 本体 + governance-state 摘要”双写位 | review 结束后 `resume/query` 能读到最新 gate 状态 |
 | 父级 `review/` 同时承载 preflight / acceptance / learning 细则，导致边界再次混层 | subtype governance | 将三种 mode 下沉到 `subtypes/` | 父级只保留 mode router，局部合同放到 subtype | review 根合同不再平行复制三套细则 |
+| 门下省只给笼统结论，没有 severity、证据包与 findings 次序 | review protocol layer | 引入 `menxia-review-protocol.md`，固定 `severity + dimension + evidence_path + impact + recommended_action + confidence` | 让 `review/` 与各 subtype 的输出顺序统一为 findings -> verdict -> layered trace -> closure | 高风险 verdict 可回链到明确 finding，而不是主观语气 |
 
 ## Repair Playbook
 
@@ -31,7 +32,8 @@
 2. 再锁定 scope 对应的 canonical carrier。
 3. 若问题涉及高风险执行，先查 `mission-brief / route-plan / preflight-verdict`。
 4. 若问题涉及阶段验收，先查该 scope 的 `validation-report.md`。
-5. 只有 carrier 锁定后，才给出 verdict 与下一入口。
+5. 先列 findings，再给 verdict；高风险问题不能藏在概述后面。
+6. 只有 carrier 锁定后，才给出 verdict 与下一入口。
 
 ## Reusable Heuristics
 
@@ -42,3 +44,5 @@
 - 若 review 发现的是治理链缺口，最稳的下一入口通常不是阶段 skill，而是根 `aigc` 或 `resume/`。
 - `governance-state.yaml` 只记录 review 摘要和下一入口投影，真正 verdict 仍应回到 `preflight-verdict.yaml`、`validation-report.md`、`learning-record.md`。
 - 当 `review` 同时拥有 3 种长期模式时，最稳的演化方向不是继续给父技能加段落，而是提升为 `subtypes/preflight-review / acceptance-review / learning-bridge`。
+- 对这个仓库，最有价值的 review 维度通常不是“代码风格”，而是 `canonical source consistency / runtime mapping alignment / audit coverage / doc-runner parity`。
+- `python3 scripts/aigc_skill_audit.py --strict` 可以作为证据的一部分，但不能单独替代门下省 verdict；若审计覆盖范围本身存疑，门下省必须先质疑审计器。

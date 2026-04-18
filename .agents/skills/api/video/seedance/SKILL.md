@@ -44,6 +44,7 @@ python3 .agents/skills/api/video/seedance/scripts/seedance_video_generate.py ...
   - 核心字段：`model / content / generate_audio / resolution / ratio / duration / tools`
   - 异步模式：先 create，再轮询，成功后拿到 `video_url`
 - 已稳定确认的模型策略：
+  - 默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `rolling-latest-quality-alias` 规则族。
   - 默认模型始终使用 `seedance`，因为这是 AnyFast 当前“最新质量优先”滚动别名。
   - `seedance-fast` 保留为“最新速度优先”滚动别名，适用于低时延或低成本试跑。
   - 若未来官方继续升级 2.x/3.x，只要 AnyFast 保持该别名语义，本技能默认值无需改成新的长模型号即可继续落在最高版本。

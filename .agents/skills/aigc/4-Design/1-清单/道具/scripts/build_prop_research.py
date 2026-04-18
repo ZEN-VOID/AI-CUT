@@ -311,12 +311,36 @@ def compose_analysis_text(prop: dict, rows: Sequence[dict], group_index: Dict[st
         for shot in shot_list:
             if str(shot.get("分镜ID", "")) != str(row.get("shot_id", "")):
                 continue
+            branch_scene = ""
+            if isinstance(shot.get("氛围表现"), dict) or isinstance(shot.get("空间氛围"), dict):
+                atmosphere_obj = shot.get("氛围表现") if isinstance(shot.get("氛围表现"), dict) else shot.get("空间氛围")
+                branch_scene = "；".join(
+                    str(atmosphere_obj.get(key, "")).strip()
+                    for key in ("层次", "空间诗学", "意境", "空间支架", "空气层", "物象压力")
+                    if str(atmosphere_obj.get(key, "")).strip()
+                )
+            branch_motion = ""
+            if isinstance(shot.get("运动表现"), dict) or isinstance(shot.get("动作路径"), dict):
+                motion_obj = shot.get("运动表现") if isinstance(shot.get("运动表现"), dict) else shot.get("动作路径")
+                branch_motion = "；".join(
+                    str(motion_obj.get(key, "")).strip()
+                    for key in ("一致性", "位置和方向", "逻辑性", "位置基线", "动作路径", "连续性说明")
+                    if str(motion_obj.get(key, "")).strip()
+                )
+            branch_visual = ""
+            if isinstance(shot.get("视觉强化"), dict) or isinstance(shot.get("视觉抓手"), dict):
+                visual_obj = shot.get("视觉强化") if isinstance(shot.get("视觉强化"), dict) else shot.get("视觉抓手")
+                branch_visual = "；".join(
+                    str(visual_obj.get(key, "")).strip()
+                    for key in ("冲击力", "观赏性", "品味", "第一抓手", "观看节奏", "镜头消费提示")
+                    if str(visual_obj.get(key, "")).strip()
+                )
             parts.extend(
                 [
-                    str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip(),
-                    str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip(),
+                    branch_scene or str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip(),
+                    branch_motion or str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip(),
                     str(shot.get("道具及状态", "")).strip(),
-                    str(shot.get("分镜表现", "")).strip(),
+                    branch_visual or str(shot.get("分镜表现", "")).strip(),
                     str(shot.get("角色表现", "")).strip(),
                     str(shot.get("摄影美学", "")).strip(),
                 ]

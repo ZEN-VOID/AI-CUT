@@ -71,6 +71,19 @@ governance_tier: full
 9. `projects/aigc/<项目名>/2-Global/全局风格.md`（若存在）
 10. `projects/aigc/<项目名>/2-Global/全集类型元素.md`（若存在）
 
+## Execution Entrypoints
+
+- `scripts/run_role_list_pipeline.py`
+- `scripts/extract_episode_roles.py`
+- `scripts/build_role_research.py`
+
+硬规则：
+
+1. active leaf 必须拥有可运行的 pipeline 入口，不得只保留合同文本。
+2. `run_role_list_pipeline.py` 负责串联抽取、研究、bridge 与报告落盘。
+3. `extract_episode_roles.py` 只负责生成 `角色清单.json` 的对象池与 trace 根。
+4. `build_role_research.py` 负责生成 `角色研究.json`、`role_design_bridge.json` 并更新 `validation-report.md`。
+
 ## Business Requirement Analysis Contract (Mandatory)
 
 | analysis_slot | 当前结论 |
@@ -104,9 +117,10 @@ governance_tier: full
 
 1. 只消费 `final_output.main_content.分镜组列表[]`。
 2. `组间设计.出场角色及穿搭` 是角色名与服装的高精锚点。
-3. `分镜明细[].角色站位走位` 是镜级出场与走位的首选证据。
-4. `分镜明细[].分镜表现 / 道具及状态 / 角色背景面` 只作为辅助证据，不得单独臆造角色。
-5. `剧本正文` 只在角色命名或关系解歧时回退使用。
+3. `分镜明细[].运动表现` 是镜级出场与走位的首选证据，兼容别名 `动作路径` 只作 alias 读取。
+4. `分镜明细[].角色表现 / 视觉强化 / 氛围表现` 是角色表演、识别与空间压力的第一补强证据。
+5. `分镜明细[].分镜表现 / 道具及状态 / 角色背景面` 只作为辅助证据，不得单独臆造角色。
+6. `剧本正文` 只在角色命名或关系解歧时回退使用。
 
 ## Output Contract (Mandatory)
 
@@ -221,10 +235,11 @@ stateDiagram-v2
 
 1. 先组级，后镜级，再回退正文。
 2. `出场角色及穿搭` 优先提供 canonical 名称与服装主锚。
-3. `角色站位走位` 优先提供镜级 presence、站位和 motion vector。
-4. `分镜表现` 只负责动作/表演/情绪证据，不单独造角色。
-5. 同一角色跨镜多套造型必须保留为 `costume_variants[]`。
-6. 群像主体不强拆；关系称谓只有在显式锚定时才升级成新角色。
+3. `运动表现` 优先提供镜级 presence、站位和 motion vector。
+4. `角色表现` 优先提供动作/表演/情绪证据，`视觉强化` 提供识别强化。
+5. `分镜表现` 只作 compatibility projection 辅证，不单独造角色。
+6. 同一角色跨镜多套造型必须保留为 `costume_variants[]`。
+7. 群像主体不强拆；关系称谓只有在显式锚定时才升级成新角色。
 
 ## One-Shot Output Contract (Mandatory)
 

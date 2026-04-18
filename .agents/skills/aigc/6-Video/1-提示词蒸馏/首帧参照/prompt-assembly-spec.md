@@ -16,7 +16,7 @@
 - 镜级句式槽：
   - `P1`：镜头起势 + 当前画面的动作与空间关系
   - `P2`：人物状态、环境、道具与光感
-  - `P3`：构图组织与视觉焦点
+  - `P3`：构图组织与视觉强化
 - 压缩预算：
   - `full`
   - `normal`
@@ -28,7 +28,7 @@
 ## Image-to-Video Specialization
 
 - 单镜模式优先把富余字数转成“当前首帧可见内容”的密度，而不是扩写抽象修辞。
-- 句法顺序更偏 `图生视频`：先锁定人物识别与镜头起势，再写当前动作与空间，再落环境、光感与视觉焦点。
+- 句法顺序更偏 `图生视频`：先锁定人物识别与镜头起势，再写当前动作与空间，再落环境、光感与视觉强化。
 - 内容来源保持当前设定：只重排和重写句法，不改变桥段来源与上游字段口径。
 
 ## Compression Contract
@@ -78,7 +78,7 @@
       "separator": "，",
       "clauses": [
         {
-          "field": "镜头属性",
+          "field": "镜头类型兼容",
           "template": "{value}",
           "transform": "strip_tail_punct"
         },
@@ -140,7 +140,7 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -150,7 +150,7 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色背景面",
+              "field": "分镜构图",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -170,7 +170,7 @@
           "bucket": "P2",
           "parts": [
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
@@ -195,13 +195,13 @@
           "bucket": "P3",
           "parts": [
             {
-              "field": "镜头框架",
+              "field": "分镜构图",
               "template": "画面组织为{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "分镜表现",
-              "template": "视觉焦点落在{value}",
+              "field": "视觉强化",
+              "template": "视觉重心落在{value}",
               "transform": "strip_tail_punct"
             }
           ]
@@ -222,12 +222,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "角色背景面",
+              "field": "分镜构图",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -242,7 +242,7 @@
               "transform": "strip_tail_punct"
             },
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -267,13 +267,13 @@
           "bucket": "P3",
           "parts": [
             {
-              "field": "镜头框架",
+              "field": "分镜构图",
               "template": "画面组织为{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "分镜表现",
-              "template": "视觉焦点落在{value}",
+              "field": "视觉强化",
+              "template": "视觉重心落在{value}",
               "transform": "strip_tail_punct"
             }
           ],
@@ -291,12 +291,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "角色背景面",
+              "field": "分镜构图",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -311,7 +311,7 @@
               "transform": "strip_tail_punct"
             },
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
@@ -331,7 +331,7 @@
           "bucket": "P3",
           "parts": [
             {
-              "field": "分镜表现",
+              "field": "视觉强化",
               "template": "{value}",
               "transform": "compact_clause"
             }
@@ -355,12 +355,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "compact_clause"
             },
             {
-              "field": "角色背景面",
+              "field": "分镜构图",
               "template": "{value}",
               "transform": "compact_clause"
             }
@@ -377,7 +377,7 @@
           ],
           "fallback_parts": [
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "compact_clause"
             }

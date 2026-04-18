@@ -23,6 +23,14 @@ governance_tier: lite
 - canonical carrier: `projects/aigc/<项目名>/learning-record.md`
 - sync summary: `projects/aigc/<项目名>/governance-state.yaml.review_bridge.latest_learning_status`
 
+carrier 最小字段应包含：
+
+- `milestone_type`
+- `source_review_mode`
+- `finding_classes`
+- `durable_heuristic`
+- `promotion_decision`
+
 ## When to Use
 
 - 一轮 review 已经结束，需要把 heuristic、promotion scope 或 blocker lesson 沉淀为项目学习记录。
@@ -36,16 +44,18 @@ governance_tier: lite
 ## Workflow
 
 1. 读取当前 `validation-report.md`、`preflight-verdict.yaml`、`governance-state.yaml` 与现有 `learning-record.md`。
-2. 提炼里程碑结论、heuristic 与 promotion scope。
-3. 写回 `learning-record.md`。
-4. 同步 `governance-state.yaml.review_bridge.latest_learning_status`。
-5. 返回唯一下一入口或 promotion 说明。
+2. 汇总上一轮 findings summary、severity 分布与 closure triad。
+3. 提炼里程碑结论、heuristic 与 promotion scope。
+4. 写回 `learning-record.md`。
+5. 同步 `governance-state.yaml.review_bridge.latest_learning_status`。
+6. 返回唯一下一入口或 promotion 说明。
 
 ## Hard Rules
 
 1. `learning-record.md` 只沉淀经验，不替代 verdict carrier。
 2. `governance-state.yaml` 只记摘要，不替代 `learning-record.md` 本体。
 3. 没有上一轮 preflight 或 acceptance 证据时，不应伪造 learning 结论。
+4. learning 结论必须能回链到上一轮 findings class 或 success pattern，不能只剩模糊感想。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -58,6 +68,7 @@ governance_tier: lite
 - `Rule Source`
   - `.agents/skills/aigc/review/subtypes/learning-bridge/SKILL.md`
   - `.agents/skills/aigc/review/references/review-modes.md`
+  - `.agents/skills/aigc/review/references/menxia-review-protocol.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/review/SKILL.md`
   - `.codex/templates/harness/office-governance-contract.md`

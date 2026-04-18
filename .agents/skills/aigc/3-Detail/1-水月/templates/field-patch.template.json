@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "schema_version": "aigc/detail-branch-bundle-sidecar/v1",
+    "skill_id": "aigc-detail-watermoon",
+    "episode_id": "第N集",
+    "patch_owner": "水月",
+    "source_root": "projects/aigc/<项目名>/3-Detail/第N集.json",
+    "script_body_policy": "inherit_only",
+    "generated_at": "2026-04-17T10:00:00-07:00",
+    "bundle_mode": "assembly_only"
+  },
+  "branch_sidecars": [
+    "projects/aigc/<项目名>/3-Detail/水月/角色表现/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/水月/运动表现/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/水月/氛围表现/第N集.branch-patch.json",
+    "projects/aigc/<项目名>/3-Detail/水月/视觉强化/第N集.branch-patch.json"
+  ],
+  "group_patches": [
+    {
+      "group_id": "<group_id>",
+      "target_fields": [
+        "分镜明细[].角色表现",
+        "分镜明细[].运动表现",
+        "分镜明细[].氛围表现",
+        "分镜明细[].视觉强化"
+      ],
+      "branch_patches": {
+        "角色表现": {
+          "动作戏": "<这一拍身体或外显动作怎样成立>",
+          "内心戏": "<内里哪股情绪或意图被压在动作底下>"
+        },
+        "运动表现": {
+          "逻辑性": "<为什么现在发生、这一拍怎样接向下一拍>",
+          "位置和方向": "<谁相对什么锚点、往哪里动、方向怎么变>",
+          "一致性": "<这一拍接住了上一拍什么状态>"
+        },
+        "氛围表现": {
+          "层次": "<哪一层空间在拦、承、托>",
+          "空间诗学": "<哪个结构特征最值得被记住，它如何参与人物处境>",
+          "意境": "<温度、湿度、光气、声气怎样显影>"
+        },
+        "视觉强化": {
+          "冲击力": "<镜头第一眼必须被什么打到>",
+          "观赏性": "<这一拍该怎么顺着看、看多久、怎么不拖>",
+          "品味": "<哪些具像细节让这一拍不落俗>"
+        }
+      },
+      "compatibility_projection": {
+        "角色背景面": "<从 氛围表现/运动表现 保守派生>",
+        "角色站位走位": "<从 运动表现 保守派生>",
+        "道具及状态": "<从 角色表现/运动表现 保守派生>",
+        "分镜表现": "<仅在旧下游必须读取时保守摘要，不得重做语义压缩>"
+      },
+      "merge_hints": [
+        "先写 branch-owned canonical 字段，再按需要派生 compatibility projection。",
+        "若当前镜存在明确对白、话轮攻守、抢话、吞话、截断或失口，再补 `角色表现.对话戏`；无明确对话时默认省略。",
+        "compatibility_projection 仅用于旧下游消费，不得反向决定 canonical 内容。"
+      ]
+    }
+  ]
+}

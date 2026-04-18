@@ -1,0 +1,35 @@
+version: 1
+module_id: jinghua-shot-size-depth
+module_level: leaf
+purpose: 在已稳定的 `composition_skeleton` 上锁每镜的观看距离、景别曲线、景深层级与心理距离，让观众离故事多近、看得多深都先成立。
+triggers:
+  - 已存在 `composition_skeleton`
+  - 需要判断 close / medium / wide 与前中后景层级如何服务叙事
+must_answer:
+  - 当前组更适合哪种景别曲线，为什么
+  - 每镜的观看距离如何服务主动作、主情绪与主视线
+  - 前中后景的景深层级如何帮助观众读取冲突和空间
+  - 心理距离怎样随着情绪升降变化
+  - `景深` 在本叶子中如何被理解为观看深度层级，而不是器材参数
+patch_contract:
+  target_slot: shot_size_rhythm_preview
+  required_elements:
+    - rhythm_template
+    - per_shot_size_curve
+    - depth_emphasis
+    - psychological_distance_note
+merge_policy:
+  preserve_first:
+    - shot readability
+    - emotional distance
+    - foreground_midground_background layering
+    - conflict emphasis
+  trim_first:
+    - 为了变化而变化的景别跳跃
+    - 把景深写成焦段/光圈值
+quality_gates:
+  - 必须依附 `composition_skeleton`，不得重写画面几何与主陪背景
+  - 必须完成景别曲线、景深层级与心理距离的预判
+  - 不得写成精确摄影器材或光圈参数
+  - 景别变化必须服务主冲突、主情绪或主视线
+  - 若 close / medium / wide 仍说不清，不得进入 `镜头类型`

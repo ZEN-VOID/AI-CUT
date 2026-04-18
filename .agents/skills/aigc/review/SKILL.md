@@ -19,6 +19,24 @@ governance_tier: lite
 - 它现在主要承担 mode router：具体 `preflight / acceptance / learning` 合同已下沉到受治理 `subtypes/`。
 - 它不替代阶段执行，也不替代阶段内部的内容设计判断。
 
+## Review Method
+
+`review/` 默认采用适配本仓库的 `code-reviewer` 式审查协议：
+
+- findings 优先于概述
+- 先证据、后结论
+- 默认输出 `severity + dimension + evidence_path + impact + recommended_action + confidence`
+- verdict 不再只靠主观语气，而由 severity 与证据包映射
+
+对本仓库，重点审查对象不是单纯业务代码，而是：
+
+- `SKILL.md / CONTEXT.md`
+- shared contracts / templates
+- registry / routes
+- runtime mapping
+- audit / validator scripts
+- `projects/aigc/<项目名>/` 下的治理载体
+
 ## Stage Position
 
 - 挂载位置：根 `aigc` 同级卫星技能。
@@ -58,6 +76,7 @@ flowchart TD
 1. 根 `review/` 负责 mode 判定与唯一路由，不再在父级平行复制三套详细合同。
 2. 一旦 mode 明确，就应进入对应 `subtypes/<mode>/SKILL.md`，再继续执行。
 3. `governance-state.yaml` 只承接三个子技能的摘要同步，不作为独立 review 本体。
+4. findings 分级、evidence pack 与 verdict 映射统一以 `references/menxia-review-protocol.md` 为准。
 
 ## When to Use
 
@@ -93,6 +112,7 @@ flowchart TD
 L1 必读：
 
 - [review-modes.md](references/review-modes.md)
+- [menxia-review-protocol.md](references/menxia-review-protocol.md)
 - [office-governance-contract.md](../../../../.codex/templates/harness/office-governance-contract.md)
 
 L2 按需：
@@ -120,10 +140,11 @@ L2 按需：
 review 进度：
 - [ ] Step 0: 解析 PROJECT_ROOT 与 review scope
 - [ ] Step 1: 选择 preflight / acceptance / learning-bridge
-- [ ] Step 2: 进入对应 governed subtype
-- [ ] Step 3: 由子技能更新 canonical carrier
-- [ ] Step 4: 同步 governance-state 摘要
-- [ ] Step 5: 回接根 aigc、目标阶段或 resume
+- [ ] Step 2: 组装 evidence pack 并锁 review dimensions
+- [ ] Step 3: 进入对应 governed subtype
+- [ ] Step 4: 由子技能输出 findings + 更新 canonical carrier
+- [ ] Step 5: 同步 governance-state 摘要
+- [ ] Step 6: 回接根 aigc、目标阶段或 resume
 ```
 
 ## Step 0：解析 `PROJECT_ROOT` 与 scope
@@ -145,7 +166,26 @@ review 进度：
 
 根父技能只负责路由，不在这里平行重写三套详细写法。
 
-## Step 2：交给子技能读取证据
+## Step 2：组装 evidence pack 与 review dimensions
+
+进入 subtype 前，先锁最小证据包：
+
+- `carrier evidence`
+- `runtime evidence`
+- `rule evidence`
+- `execution evidence`
+
+默认 review dimensions：
+
+- `contract_integrity`
+- `canonical_source_consistency`
+- `runtime_mapping_alignment`
+- `audit_coverage`
+- `doc_runner_parity`
+- `governance_carrier_sync`
+- `regression_risk`
+
+## Step 3：交给子技能读取证据
 
 推荐读取：
 
@@ -160,21 +200,30 @@ sed -n '1,220p' "$PROJECT_ROOT/learning-record.md"
 
 若 mode 已明确，应立即继续加载对应 `subtypes/<mode>/SKILL.md + CONTEXT.md`。
 
-## Step 3：由子技能给出 verdict / heuristic
+## Step 4：由子技能给出 findings / verdict / heuristic
 
 `review/` 输出时必须显式包含：
+
+1. `findings`
+2. `severity summary`
+3. `decision rationale`
+4. `root cause location`
+5. `immediate fix`
+6. `systemic prevention fix`
+
+若是正向沉淀，则输出：
 
 1. `root cause location`
 2. `immediate fix`
 3. `systemic prevention fix`
 
-若是正向沉淀，则输出：
+或：
 
 1. `success pattern location`
 2. `extracted heuristic`
 3. `promotion scope`
 
-## Step 4：同步 governance-state 摘要
+## Step 5：同步 governance-state 摘要
 
 - `preflight-review` 同步 `review_bridge.latest_preflight_status`
 - `acceptance-review` 同步 `review_bridge.latest_acceptance_status`
@@ -183,7 +232,7 @@ sed -n '1,220p' "$PROJECT_ROOT/learning-record.md"
 
 若本轮发现的是 stage scope blocker，不要越权改 stage 业务真源，只记录 verdict 与下一入口。
 
-## Step 5：回接
+## Step 6：回接
 
 默认只给唯一下一入口：
 
@@ -201,6 +250,8 @@ sed -n '1,220p' "$PROJECT_ROOT/learning-record.md"
 - 把 stage 业务内容修改权拿到自己手里
 - 只写口头结论，不更新 canonical carrier
 - 项目 runtime 已变更，但 review scope 仍写旧路径
+- findings 没有 severity / dimension / evidence path
+- audit 全绿被直接当成唯一放行证据
 
 必经链路：
 

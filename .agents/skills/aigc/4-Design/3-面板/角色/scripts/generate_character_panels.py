@@ -533,7 +533,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON 和 request sidecar，不调用生图")
     parser.add_argument("--json-only", action="store_true", help="同 --layout-only")
     parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
-    parser.add_argument("--dry-run", action="store_true", help="调用 nano-banana/general dry-run，不真实请求 API")
+    parser.add_argument(
+        "--dry-run",
+        "--generation-dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="调用 nano-banana/general dry-run，不真实请求 API",
+    )
     parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
     parser.add_argument("--max-concurrent", type=int, default=100, help="生图并发，默认 100")
     parser.add_argument("--timeout", type=int, default=180, help="单任务超时秒数")

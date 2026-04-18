@@ -11,7 +11,7 @@
 ## 输入
 
 - 必需输入：
-  - 一个目标根目录，例如 `.agents/skills/story2026/stages/3-Drafting`
+  - 一个目标根目录，例如 `.agents/skills/story/stages/3-Drafting`
   - 该目录对应的组级 `SKILL.md` 或上游合同
 - 可选输入：
   - 用户指定的额外提示语、耗时说明、推荐顺序说明

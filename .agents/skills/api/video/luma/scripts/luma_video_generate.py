@@ -35,6 +35,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_latest_by_version
+
 
 DEFAULT_RESOLUTION = "720p"
 DEFAULT_DURATION = "5s"
@@ -80,16 +86,11 @@ def _version_key_from_model(model: str) -> tuple[int, ...]:
     return tuple(int(part) for part in match.group(1).split("."))
 
 
-def _select_latest_known_model() -> str:
-    latest_version = max((_version_key_from_model(model) for model in KNOWN_MODELS), default=(0,))
-    same_version = [model for model in KNOWN_MODELS if _version_key_from_model(model) == latest_version]
-    for preferred in ("ray-2", "ray-v2", "ray2"):
-        if preferred in same_version:
-            return preferred
-    return sorted(same_version)[0]
-
-
-DEFAULT_MODEL = _select_latest_known_model()
+DEFAULT_MODEL = select_latest_by_version(
+    KNOWN_MODELS,
+    version_key=_version_key_from_model,
+    preferred_order=("ray-2", "ray-v2", "ray2"),
+)
 
 
 def _env_api_key() -> Optional[str]:

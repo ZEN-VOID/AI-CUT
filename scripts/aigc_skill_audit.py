@@ -224,6 +224,49 @@ BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
 BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
     "aigc-bootstrap-compat-mode",
 }
+BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
+    ROOT / "5-Image": (
+        ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md",
+        ROOT / "5-Image" / "1-提示词蒸馏" / "分镜故事板" / "SKILL.md",
+        ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md",
+        ROOT / "5-Image" / "1-提示词蒸馏" / "漫画" / "SKILL.md",
+        ROOT / "5-Image" / "2-参照引用" / "SKILL.md",
+        ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
+    ),
+    ROOT / "6-Video": (
+        ROOT / "6-Video" / "1-提示词蒸馏" / "全能参照" / "SKILL.md",
+        ROOT / "6-Video" / "1-提示词蒸馏" / "首帧参照" / "SKILL.md",
+        ROOT / "6-Video" / "2-参照引用" / "SKILL.md",
+        ROOT / "6-Video" / "3-视频生成" / "SKILL.md",
+    ),
+    ROOT / "review": (
+        ROOT / "review" / "subtypes" / "preflight-review" / "SKILL.md",
+        ROOT / "review" / "subtypes" / "acceptance-review" / "SKILL.md",
+        ROOT / "review" / "subtypes" / "learning-bridge" / "SKILL.md",
+    ),
+}
+BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
+    ROOT / "_shared" / "project-runtime-layout.md": (
+        ".agents/skills/aigc/6-Video/2-参照引用",
+        ".agents/skills/aigc/6-Video/3-视频生成",
+        "projects/aigc/<项目名>/6-Video/2-参照引用/",
+        "projects/aigc/<项目名>/6-Video/生成任务/",
+    ),
+    ROOT / "0-Init" / "SKILL.md": (
+        "1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成",
+        "6-Video/2-参照引用/",
+        "6-Video/生成任务/",
+    ),
+}
+BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN = {
+    ROOT / "_shared" / "project-runtime-layout.md": (
+        ".agents/skills/aigc/6-Video/2-视频生成",
+    ),
+    ROOT / "0-Init" / "SKILL.md": (
+        "技能树 active 路径：`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-视频生成`",
+        "`生成任务/` 是 `2-视频生成` 的业务语义落盘名",
+    ),
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -354,7 +397,9 @@ def audit_all_context_hygiene(warnings: list[str]) -> None:
         audit_context_quality(context_path, context_path.read_text(encoding="utf-8"), warnings)
 
 
-def audit_skill_file(path: Path, failures: list[str]) -> None:
+def audit_skill_file(path: Path, failures: list[str], checked_paths: set[Path] | None = None) -> None:
+    if checked_paths is not None:
+        checked_paths.add(path)
     content = ""
     tier = None
 
@@ -519,6 +564,22 @@ def audit_runtime_alignment(contract_mode: str, failures: list[str]) -> None:
             failures.append(f"{ROOT_SKILL}: missing project governance artifact `{governance_file}`")
 
     if contract_mode == BOOTSTRAP_COMPAT_MODE:
+        for path, expected_markers in BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS.items():
+            if not path.exists():
+                failures.append(f"{path}: missing")
+                continue
+            content = path.read_text(encoding="utf-8")
+            for marker in expected_markers:
+                if marker not in content:
+                    failures.append(f"{path}: missing bootstrap runtime marker `{marker}`")
+
+        for path, forbidden_markers in BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN.items():
+            if not path.exists():
+                continue
+            content = path.read_text(encoding="utf-8")
+            for marker in forbidden_markers:
+                if marker in content:
+                    failures.append(f"{path}: contains stale bootstrap runtime marker `{marker}`")
         return
 
     for stage_name, runtime_root in SHARED_RUNTIME_ROWS.items():
@@ -905,7 +966,9 @@ def audit_stage_index(stage_index: list[dict], contract_mode: str, failures: lis
             continue
 
 
-def audit_bootstrap_compat_active_stage_parents(stage_index: list[dict], failures: list[str]) -> None:
+def audit_bootstrap_compat_active_stage_parents(
+    stage_index: list[dict], failures: list[str], checked_paths: set[Path]
+) -> None:
     """Keep active stage parent contracts auditable during bootstrap_compat."""
     for stage in stage_index:
         if stage.get("contract_status") != "active":
@@ -913,7 +976,34 @@ def audit_bootstrap_compat_active_stage_parents(stage_index: list[dict], failure
         skill_path = Path(stage["path"]) / "SKILL.md"
         if not skill_path.exists():
             continue
-        audit_skill_file(skill_path, failures)
+        audit_skill_file(skill_path, failures, checked_paths)
+
+
+def bootstrap_compat_governed_leaf_skills(stage_index: list[dict]) -> set[Path]:
+    governed: set[Path] = set()
+
+    for stage in stage_index:
+        for leaf in stage.get("leaf_index", []):
+            if leaf.get("contract_status") not in {"active", "partial-active"}:
+                continue
+            governed.add(Path(leaf["path"]) / "SKILL.md")
+
+    for stage_root, child_skills in BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS.items():
+        if not stage_root.exists():
+            continue
+        governed.update(child_skills)
+
+    return governed
+
+
+def audit_bootstrap_compat_governed_leaf_skills(
+    stage_index: list[dict], failures: list[str], checked_paths: set[Path]
+) -> None:
+    for skill_path in sorted(bootstrap_compat_governed_leaf_skills(stage_index)):
+        if not skill_path.exists():
+            failures.append(f"{skill_path}: missing for bootstrap_compat governed leaf")
+            continue
+        audit_skill_file(skill_path, failures, checked_paths)
 
 
 def audit_satellite_index(satellite_index: list[dict], failures: list[str]) -> None:
@@ -936,6 +1026,16 @@ def audit_satellite_index(satellite_index: list[dict], failures: list[str]) -> N
             failures.append(f"{context_path}: missing for satellite `{satellite_id}`")
 
 
+def audit_bootstrap_compat_satellite_roots(
+    satellite_index: list[dict], failures: list[str], checked_paths: set[Path]
+) -> None:
+    for entry in satellite_index:
+        skill_path = Path(entry["path"]) / "SKILL.md"
+        if not skill_path.exists():
+            continue
+        audit_skill_file(skill_path, failures, checked_paths)
+
+
 def shelved_stage_roots(stage_index: list[dict]) -> list[Path]:
     return [Path(stage["path"]) for stage in stage_index if stage.get("contract_status") == "shelved"]
 
@@ -944,6 +1044,7 @@ def main() -> int:
     args = parse_args()
     failures: list[str] = []
     warnings: list[str] = []
+    checked_skill_paths: set[Path] = set()
 
     if not ROOT_SKILL.exists():
         failures.append(f"{ROOT_SKILL}: missing")
@@ -973,27 +1074,35 @@ def main() -> int:
     skipped_roots = shelved_stage_roots(stage_index)
 
     if ROOT_SKILL.exists():
-        audit_skill_file(ROOT_SKILL, failures)
+        audit_skill_file(ROOT_SKILL, failures, checked_skill_paths)
 
     if contract_mode == BOOTSTRAP_COMPAT_MODE:
         if stage_index:
-            audit_bootstrap_compat_active_stage_parents(stage_index, failures)
+            audit_bootstrap_compat_active_stage_parents(stage_index, failures, checked_skill_paths)
+            audit_bootstrap_compat_governed_leaf_skills(stage_index, failures, checked_skill_paths)
+        if satellite_index:
+            audit_bootstrap_compat_satellite_roots(satellite_index, failures, checked_skill_paths)
     else:
         for skill_path in sorted(ROOT.rglob("SKILL.md")):
             if skill_path == ROOT_SKILL:
                 continue
             if any(root in skill_path.parents for root in skipped_roots):
                 continue
-            audit_skill_file(skill_path, failures)
+            audit_skill_file(skill_path, failures, checked_skill_paths)
 
     if stage_index:
         audit_stage_index(stage_index, contract_mode, failures)
     if satellite_index:
         audit_satellite_index(satellite_index, failures)
 
+    discovered_skill_docs = sorted(ROOT.rglob("SKILL.md"))
+    skipped_skill_docs = [path for path in discovered_skill_docs if path not in checked_skill_paths]
+
     print("AIGC skill tree audit")
     print(f"repo_root: {Path.cwd()}")
-    print(f"discovered_skill_docs: {len(list(ROOT.rglob('SKILL.md')))}")
+    print(f"discovered_skill_docs: {len(discovered_skill_docs)}")
+    print(f"checked_skill_docs: {len(checked_skill_paths)}")
+    print(f"skipped_skill_docs: {len(skipped_skill_docs)}")
     print(f"registry_stage_entries: {len(stage_index)}")
     print(f"registry_satellite_entries: {len(satellite_index)}")
     print(f"failures: {len(failures)}")

@@ -1,0 +1,39 @@
+version: 1
+module_id: jinghua-shot-type
+module_level: leaf
+purpose: 在已锁 `composition_skeleton + shot_size_rhythm_preview` 的前提下，确定 POV、观看姿态与镜头类型槽位，让这组镜头“怎么被看”稳定下来。
+triggers:
+  - 已存在 `composition_skeleton`
+  - 已存在 `shot_size_rhythm_preview`
+  - 需要锁 POV、镜头类型与 focus/spatial logic
+must_answer:
+  - 这组更适合旁观、贴身、主观、压视、窥视还是其他观看姿态
+  - POV 应站在哪一边，是否允许局部偏置
+  - `镜头类型` 叶子应如何锁定并协调 `镜头类型 / 镜头框架 / 镜头视角` 等专门镜头概念
+  - `景别 / 镜头框架 / 镜头类型 / 镜头视角` 这些 descriptor 槽位怎样锁住
+  - 当前组的 focus/spatial logic 如何让后续摄影、运镜直接承接
+  - 字段名叫 `镜头类型`，但本叶子同时负责锁定 `镜头框架 / 镜头视角 / 观看姿态`，不指摄影器材型号
+patch_contract:
+  target_slot: shot_descriptor_lock
+  required_elements:
+    - pov_strategy_preview
+    - shot_descriptor_lock
+    - focus_spatial_logic
+    - viewing_stance_note
+merge_policy:
+  preserve_first:
+    - readable POV
+    - descriptor coherence
+    - viewing stance stability
+    - downstream compatibility
+  trim_first:
+    - 把镜头类型写成器材
+    - 把镜头类型写成运镜路线
+    - 把 descriptor 留给后续临场猜测
+quality_gates:
+  - 必须依附 `composition_skeleton + shot_size_rhythm_preview`
+  - 必须完成 POV、观看姿态与 descriptor 锁定
+  - `镜头类型` 必须覆盖 `镜头类型 / 镜头框架 / 镜头视角` 等镜头概念的收束
+  - 不得把镜头类型模块写成摄影机型号、镜头焦段或运动方式
+  - 不得越权写光影、色彩、器材和运镜
+  - 若 descriptor 仍模糊，不得进入最终汇流

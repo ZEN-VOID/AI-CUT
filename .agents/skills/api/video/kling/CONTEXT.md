@@ -21,7 +21,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 | 类型 | 症状 | 根因层 | 立即修复 | 系统性预防 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
 | `TM-KLING-PAGE-DRIFT` | 调用或维护时继续引用 `403045611e0` | 真源映射层 | 改回 `422568253e0 / 403045624e0 / 403045626e0` | 在 `SKILL.md` 与 `references/api.md` 固定写明 2026-04-17 页面映射 | 技能文档不再把 Veo 页当 Kling |
-| `TM-KLING-DEFAULT-MODEL` | 脚本或文档仍把默认模型写死在旧版本，或新增高版本后默认值没有前移 | 默认值治理层 | 改为从允许列表自动选择最高版本 | 在技能、脚本、样例、openai 元数据中统一使用“自动选最高版本”合同 | `--help`、dry-run 请求体和入口文案都显示当前最高版本 |
+| `TM-KLING-DEFAULT-MODEL` | 脚本或文档仍把默认模型写死在旧版本，或新增高版本后默认值没有前移 | 默认值治理层 | 改回父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族 | 让脚本通过 `../shared/default_model_policy.py` 负责共享骨架，子技能文档只声明 Kling 的排序差异与当前解析结果 | `--help`、dry-run 请求体和入口文案都显示当前最高版本 |
 | `TM-KLING-ANYFAST-SHARED-ENV` | 同系列技能已统一走 AnyFast，但 `kling` 仍只读取自有 env 键或让 `KLING_*` 抢在共享网关前面 | 环境回退层 | 把 `ANYFAST_VIDEO_API_KEY / ANYFAST_API_KEY / ANYFAST_API_BASE_URL` 作为 `kling` 的主回退链 | 在脚本、技能合同、参考文档里同步声明 AnyFast 体系优先级，`KLING_*` 只作局部覆盖 | 与 `seedance / veo / vidu / minimax` 共用同一套 AnyFast env 时可直接运行 |
 | `TM-KLING-WRONG-HOST-INFERENCE` | 参考了 `grok` 的历史报告把 `https://ai.ai666.net` 当成 `kling` 真正 host | 真源映射层 | 回到同系列已跑通技能与 AnyFast env，把 Base URL 改回 `ANYFAST_API_BASE_URL=https://fw2afus.ent.acc.kurtisasia.com` | 以后优先以上游 AnyFast env 和同系列成功报告为真源，不再用跨 provider 历史 host 反推 | `kling` 的真实请求 host 与 `seedance` 成功链路对齐 |
 | `TM-KLING-QUOTA-AUTH-SPLIT` | AnyFast `kling` 真实请求报 401，但实际错误文本是“令牌额度已用尽” | 诊断分流层 | 从响应文本中拆分额度/配额与纯鉴权两类提示 | 在脚本里把 `quota / RemainQuota / 额度` 识别为余额问题，避免只返回笼统鉴权提示 | 报告中的 `diagnostic_hint` 能明确指出是额度不足而非 host/path 错误 |
@@ -54,7 +54,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 
 ## Reusable Heuristics
 
-- FineAPI 同一模型族经常出现“旧页 + 新页并存”，最稳的做法不是把某个模型常量写死，而是用允许列表自动选当前最高版本，再用旧页补边界说明。
+- FineAPI 同一模型族经常出现“旧页 + 新页并存”，最稳的做法不是让 `SKILL.md / references / openai.yaml` 各自解释默认值，而是回到父级 runbook，再由脚本共享 helper 解析当前最高版本。
 - 当用户给的文档页和截图冲突时，先按截图主题定位真实页面，再把“错页映射”写进技能真源，避免后续重复踩坑。
 - 图生视频这类 JSON 接口如果支持 Base64，就应该优先把本地文件归一成裸 Base64，而不是要求调用者手工预处理。
 - 查询页没有独立下载端点时，`download` 子命令就应当围绕查询结果中的 URL 工作，不要为追求和别的 provider 一致而虚构 `/content`。

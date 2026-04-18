@@ -22,6 +22,7 @@
 | 只输出 prompt，不输出请求字段与落点 | 输出契约层 | 补写 episode JSON 与 manifest | 在父级与命中叶子的输出合同中固化“prompt 不是唯一交付” | JSON 能直接进入视频工具或 handoff |
 | 继续沿用 `6-视频` 搁浅旧认知 | 根级状态同步层 | 同步更新根技能、registry、routes 与 HARNESS | 把“阶段由搁浅转为部分可执行”视为必须向上同步的元修复 | 根技能与控制面不再把 `6-视频` 视为 frozen |
 | 父合同仍把提交前组织层写成 `2-视频生成`，但真实链路已经扩展为 `2-参照引用 -> 3-视频生成` | 子路径合同层 | 把父级与根级路由统一收束到真实链路，并把 provider 空目录继续降级为 `providers/` 槽位 | 在阶段父合同固定“先绑定引用，再进入生成 handoff”的显式分流 | `2-参照引用` 与 `3-视频生成` 的文档、磁盘与路由口径一致 |
+| shared runtime 真源仍把 `3-视频生成` 写成旧的 `2-视频生成` | canonical runtime mapping 层 | 同步修正 `_shared/project-runtime-layout.md` 与 `0-Init` 的技能树->runtime 映射 | 对 active video leaf 的技能树路径与 runtime 落盘名建立 targeted audit，避免 shared layout 成为旧口径扩音器 | `query / resume / init / review` 通过 shared runtime 读取到的 `6-Video` 映射一致 |
 | 组级与帧级叶子各自微调 prompt 风格，导致 `图生视频` 句法顺序开始分叉 | 共享句法治理层 | 把跨兄弟叶子的 `图生视频` 句法原则提升到 `6-Video/_shared/image-to-video-prompt-principles.md`，叶子 spec 只写本地 specialization | 当同一 tranche 的多个叶子共享 prompt 取向时，先建立 shared principles 真源，再允许子 spec 做局部特化 | 两个叶子的整体句法顺序和压缩原则保持同源 |
 | 共享模板把参照图字段写死成 `image_url`，导致阶段真源提前绑定某个 provider 的入参语义 | 共享输入模板层 | 把 `image_markers` 升级为 `image_ref + ref_kind + related_subject + image_no` 的中性骨架 | 在父级合同固定“阶段模板 provider-neutral，provider-specific 解析下沉到 `3-视频生成` 或外部 provider skill” | 请求对象既能承接 Dreamina 本地路径，也不把其他 provider 锁死在 URL 语义 |
 | 已有请求 JSON，但 `Assets/` 中选定好的参考图仍未回写进请求对象 | 参照绑定层 | 先进入 `2-参照引用`，完成从 `Assets/` 到 `reference_images / image_markers` 的绑定与严检 | 在父级 `Route Summary` 固定“参照图绑定不再临时下沉到 provider 命令层” | `3-视频生成` 收到的请求对象不再混有空骨架与临时引用 |
@@ -51,3 +52,4 @@
 - 当请求对象与参照图都已稳定、任务目标也已转向真实生成时，最稳的做法不是直接跳到 provider 命令，而是先通过 `3-视频生成` 产出可复核的 handoff 包。
 - 阶段级请求对象只应表达“参照图引用是什么”，不应提前假设它一定是 URL 或本地路径；把 `image_ref` 的最终落地格式交给 provider handoff 层解析，才能同时兼容 Dreamina 这类本地上传 CLI 和其他远程 API。
 - `bootstrap_compat` 允许放松深层子路径细节，但不等于允许 active stage 父合同继续挂着失效引用；父级入口断链应继续被严格审计。
+- 只要 `_shared/project-runtime-layout.md` 仍是 canonical source，`6-Video` 的 active leaf 重命名就必须同轮同步到 shared layout、`0-Init` 与审计脚本，否则最先漂的不是 leaf 自己，而是 query / resume / review 的解释层。

@@ -61,14 +61,14 @@ governance_tier: full
 ### 输入硬门槛
 
 1. 输入 JSON 必须能被 `director_episode_output.schema.json` 解释。
-2. 抽取源只认 `分镜组列表 / 分镜明细 / 道具及状态` 一类导演事实，不认手工脑补。
+2. 抽取源优先认 `分镜组列表 / 分镜明细 / 运动表现 / 视觉强化 / 角色表现` 这些 branch-owned 事实，并把 `道具及状态` 留作 prop state 主补证，不认手工脑补。
 3. 若主路径不存在，允许做 `3-Detail <-> 编导` 兼容回退；若两者都不存在则 hard fail。
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
-    A["读取 3-Detail/第N集.json"] --> B["锁定 group/shot 与 道具及状态"]
+    A["读取 3-Detail/第N集.json"] --> B["锁定 group/shot 与 运动表现/视觉强化/道具及状态"]
     B --> C["clause 级道具抽取"]
     C --> D["canonical prop 聚合"]
     D --> E["道具研究 synthesis"]
@@ -158,11 +158,12 @@ stateDiagram-v2
 ### NODE-PROP-LIST-02 分镜级道具抽取
 
 - `objective`
-  - 从 `道具及状态` 中抽出镜头级道具 mention，不吞掉状态信息。
+  - 从 `道具及状态` 中抽出镜头级道具 mention，同时用 `运动表现 / 视觉强化 / 角色表现` 补足角色与镜头语境。
 - `inputs`
   - `分镜组列表[]`
   - `分镜明细[]`
   - 每个 shot 的 `道具及状态`
+  - 可选 `运动表现 / 视觉强化 / 角色表现`
 - `actions`
   1. 遍历 group 和 shot，读取 `group_id / shot_id / raw_prop_text`。
   2. 对 `raw_prop_text` 做 clause 级拆分，优先命中 stable noun，再拆出 `prop_name + state`。

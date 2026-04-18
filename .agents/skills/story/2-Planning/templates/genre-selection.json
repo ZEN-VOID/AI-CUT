@@ -1,0 +1,42 @@
+{
+  "schema_version": "story2026/genre-selection/v2",
+  "meta": {
+    "skill_id": "story-plan",
+    "module_id": "genre-selection",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > 1-Cards > 2-Planning > references/genre-selection/module-spec",
+    "template_version": "2.0.0"
+  },
+  "content": {
+    "genre_selection": {
+      "scope": "full-series",
+      "promise_matrix": {
+        "primary_genre": "",
+        "secondary_genres": [],
+        "reader_promise": [],
+        "platform_fit": []
+      },
+      "genre_corridor": {
+        "allowed_modes": [],
+        "tone_band": "",
+        "narrative_density": ""
+      },
+      "anti_cliche_bans": [],
+      "drift_corrections": [],
+      "activated_card_clusters": [],
+      "downstream_hooks": []
+    }
+  },
+  "gate_summary": {
+    "status": "PASS",
+    "total_score": 0,
+    "max_score": 50,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

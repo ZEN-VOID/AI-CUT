@@ -4,14 +4,14 @@
 
 本文件是 `aigc/3-Detail` 阶段共享节点包的真源合同。
 
-它统一约束 `水月` 与 `镜花` 两个子技能在 `references/` 下如何组织可执行节点包，避免各自再长出第二套节点包规则。
+它统一约束 `水月` 与 `镜花` 两个子技能在各自 package 内如何组织可执行节点包，避免各自再长出第二套节点包规则。
 
 ## Canonical Scope
 
 - canonical 路径固定为：`.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 - 适用对象：
-  - `.agents/skills/aigc/3-Detail/水月/references/**`
-  - `.agents/skills/aigc/3-Detail/镜花/references/**`
+  - `.agents/skills/aigc/3-Detail/1-水月/**`
+  - `.agents/skills/aigc/3-Detail/2-镜花/**`
 - 子技能自己的 `module-index.md`、`SKILL.md` 只能回指本合同，不得再回指已删除的 `.agents/skills/aigc/3-Detail/references/node-pack-contract.md`
 
 ## Layer Split
@@ -57,9 +57,9 @@
 ## Structural Rules
 
 1. 每个 branch / leaf 目录都必须同时存在 `module-spec.yaml` 与 `module-guide.md`。
-2. `references/` 下不得再用 `README.md` 充当唯一规范真源。
-3. branch 节点若声明 child modules，必须显式列出 `child_modules.path`，且路径必须可解析。
-4. 子技能只能在本地 `references/` 下维护自己的节点包；跨子技能共享规则必须上收 `_shared/`。
+2. package-local 模块不得再用 `README.md` 充当唯一规范真源。
+3. branch 节点若声明 child modules，必须显式列出 `child_modules.path`，且路径必须以 package root 为基准可解析。
+4. 子技能只能在自己的 package 内维护节点包；跨子技能共享规则必须上收 `_shared/`。
 
 ## Validation Gate
 

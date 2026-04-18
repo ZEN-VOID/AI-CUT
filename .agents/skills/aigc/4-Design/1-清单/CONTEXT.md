@@ -26,6 +26,7 @@
 | leaf 输出存在，但 `2-设计` 仍需重猜主键 | canonical source 层 | 回查对象池主键与 shot/group 回链 | 在父层验收中强制检查 catalog 与 bridge 的 traceability | 下游直接消费，不再补猜 identity |
 | 旧单 catalog 场景口径与当前三真源口径并存 | sibling output 治理层 | 统一回到 `清单 / 研究 / bridge` 三业务真源 | 在 `_shared/list-output-contract.md` 与父层治理表固定三文件字段边界 | `2-设计/场景` 默认读取 `场景清单.json + 场景研究.json + scene_design_bridge.json` |
 | 用户要求 `场景/道具/角色` 统一三真源 | canonical output 治理层 | 将 shared contract 从单 catalog 口径改为 `清单 / 研究 / bridge` 三业务真源 | 明确三文件字段边界：清单管 identity，研究管 evidence/research，bridge 管 design handoff，manifest 只做审计 | 三个 leaf 默认输出三份业务 JSON |
+| 父层把 leaf 标为 active，但 leaf 实际没有可执行入口 | stage runtime 层 | 先补 leaf pipeline，再做 tri-domain build | 在 leaf `SKILL.md` 固化 `Execution Entrypoints`，并把 dry-run 纳入最小验收 | active coverage 与真实可执行状态一致 |
 
 ## Repair Playbook
 
@@ -44,3 +45,4 @@
 - `全量构建` 不等于“所有 leaf 都串行”; 真正的顺序约束只有依赖门，剩余应以 selective dispatch 降低成本。
 - stage-level `validation-report.md` 只应记录 coverage、缺口和 handoff，不应回写 domain 事实。
 - 当用户明确要求三真源时，不能只改 leaf；必须同步 shared output contract、父层 governance、leaf manifest 与脚本默认输出，且三文件要用字段边界避免互相抢真源。
+- 父层 coverage 表只能声明“已可执行”的 leaf；active 状态至少要有一个稳定的 run 脚本和 dry-run 自检路径。

@@ -7,7 +7,7 @@
 - 文档页：`https://docs.fineapi.cloud/403045611e0`
 - 用户提供的接口截图（请求头、Body 字段、ExtraParameters、成功回执）
 - 用户明确要求：
-  - 默认模型：自动选择当前已登记 Hailuo 系列最高版本（当前解析为 `Hailuo-2.3`）
+  - 默认模型：治理规则统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族，当前解析结果为 `Hailuo-2.3`
   - 统一引用 `.env` 中的 `ANYFAST_VIDEO_API_KEY`
 
 说明：
@@ -33,7 +33,7 @@ Authorization: Bearer <token>
 
 | 字段 | 类型 | 必填 | 已确认说明 |
 | --- | --- | --- | --- |
-| `Model` | string | 否 | 文档展示支持多个模型；本技能默认自动选择当前已登记 Hailuo 系列最高版本（当前解析为 `Hailuo-2.3`） |
+| `Model` | string | 否 | 文档展示支持多个模型；默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族，当前解析结果为 `Hailuo-2.3` |
 | `SceneType` | string | 否 | 场景类型 |
 | `Prompt` | string | 否 | 正向提示词；与 `ImageUrl / ImageInfos` 至少填一项 |
 | `NegativePrompt` | string | 否 | 负向提示词 |
@@ -75,7 +75,7 @@ Authorization: Bearer <token>
 - `OS-2.0`
 - `GV-3.1`
 
-本技能默认值按“已登记 Hailuo 系列最高版本”自动推导，当前解析为：
+本技能默认值按父级共享 runbook 的 `highest-available-general` 规则族自动推导，当前解析为：
 
 ```text
 Hailuo-2.3

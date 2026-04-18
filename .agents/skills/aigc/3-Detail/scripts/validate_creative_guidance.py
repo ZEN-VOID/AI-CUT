@@ -37,7 +37,7 @@ def discover_skill_roots(stage_root: Path) -> list[Path]:
     return sorted(
         child
         for child in stage_root.iterdir()
-        if child.is_dir() and (child / "references" / "module-index.md").exists()
+        if child.is_dir() and (child / "module-index.md").exists()
     )
 
 
@@ -73,15 +73,13 @@ def validate_module_index(skill_root: Path, module_index_path: Path) -> list[str
 
 def validate_skill_root(skill_root: Path) -> list[str]:
     errors: list[str] = []
-    references_root = skill_root / "references"
-
     for filename in REQUIRED_REFERENCE_FILES:
-        file_path = references_root / filename
+        file_path = skill_root / filename
         if not file_path.exists():
-            errors.append(f"{skill_root.name}: 缺少 references/{filename}。")
+            errors.append(f"{skill_root.name}: 缺少 {filename}。")
 
-    module_index_path = references_root / "module-index.md"
-    route_profile_path = references_root / "route-profile.yaml"
+    module_index_path = skill_root / "module-index.md"
+    route_profile_path = skill_root / "route-profile.yaml"
 
     if module_index_path.exists():
         errors.extend(validate_module_index(skill_root, module_index_path))
@@ -134,13 +132,13 @@ def validate_stage_contracts(stage_root: Path) -> list[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Validate `3-Detail` creative-guidance references (`module-index.md`, `route-profile.yaml`, `examples.md`, `creative-review-rubric.md`)."
+        description="Validate `3-Detail` creative-guidance carriers (`module-index.md`, `route-profile.yaml`, `examples.md`, `creative-review-rubric.md`)."
     )
     parser.add_argument(
         "skill_roots",
         nargs="*",
         type=Path,
-        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/水月`.",
+        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/1-水月`.",
     )
     return parser
 

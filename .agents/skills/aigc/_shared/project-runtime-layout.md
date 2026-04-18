@@ -71,7 +71,7 @@
 尤其对 `3-Detail`、`4-Design`、`5-Image` 与 `6-Video`，当前仓存在“技能树执行层”和“项目 runtime 落盘层”不完全同构的情况：
 
 1. 技能树执行入口层
-   例如 `水月 / 镜花`、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`2-参照引用`、`3-图像生成`、`1-提示词蒸馏/首帧参照`、`2-视频生成`
+   例如 `水月 / 镜花`、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`2-参照引用`、`3-图像生成`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
 2. 项目 runtime 落盘层
    例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/`、`projects/aigc/<项目名>/6-Video/生成任务/`
 
@@ -85,14 +85,14 @@
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/水月/`、`projects/aigc/<项目名>/3-Detail/镜花/` |
 | `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
 | `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
-| `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
+| `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/2-参照引用/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
 
 ### Skill Tree To Runtime Mapping
 
 | 技能树 active 路径 | 项目 runtime 预建路径 | 说明 |
 | --- | --- | --- |
-| `.agents/skills/aigc/3-Detail/水月` | `projects/aigc/<项目名>/3-Detail/水月/` | 子技能名与 runtime sidecar 目录同名，可直接预建 |
-| `.agents/skills/aigc/3-Detail/镜花` | `projects/aigc/<项目名>/3-Detail/镜花/` | 同上 |
+| `.agents/skills/aigc/3-Detail/1-水月` | `projects/aigc/<项目名>/3-Detail/水月/` | 技能树目录带顺序前缀；runtime sidecar 保持业务语义名 `水月/` |
+| `.agents/skills/aigc/3-Detail/2-镜花` | `projects/aigc/<项目名>/3-Detail/镜花/` | 技能树目录带顺序前缀；runtime sidecar 保持业务语义名 `镜花/` |
 | `.agents/skills/aigc/4-Design/1-清单/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/1-清单/` | `1-清单` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
 | `.agents/skills/aigc/4-Design/2-设计/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/2-设计/` | `2-设计` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
 | `.agents/skills/aigc/4-Design/3-面板/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/3-面板/` | `3-面板` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
@@ -104,7 +104,8 @@
 | `.agents/skills/aigc/5-Image/3-图像生成` | `projects/aigc/<项目名>/5-Image/3-图像生成/` | provider/source/episode 目录在执行时下钻创建；`submit-plan`、`submit-brief` 与真实输出图像同目录落盘 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照` | `projects/aigc/<项目名>/6-Video/全能参照/` | `1-提示词蒸馏` 只属于技能树执行层 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` | `projects/aigc/<项目名>/6-Video/首帧参照/` | 同上 |
-| `.agents/skills/aigc/6-Video/2-视频生成` | `projects/aigc/<项目名>/6-Video/生成任务/` | runtime 采用业务语义落点，不沿用技能树编号名 |
+| `.agents/skills/aigc/6-Video/2-参照引用` | `projects/aigc/<项目名>/6-Video/2-参照引用/` | mode/episode 目录在执行时下钻创建；初始化只预建稳定根目录 |
+| `.agents/skills/aigc/6-Video/3-视频生成` | `projects/aigc/<项目名>/6-Video/生成任务/` | runtime 采用业务语义落点，不沿用技能树编号名 |
 
 硬规则：
 
@@ -127,7 +128,7 @@
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 优先继承 `2-Global` 已 seed 的 episode root，再围绕同一份 `第N集.json` 完成 shot-level patch-in-place |
 | `4-Design` | `projects/aigc/<项目名>/4-Design/` | design-source 阶段产物 |
 | `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路是 `分镜故事板 / 分镜帧 / 漫画 -> 2-参照引用 -> 3-图像生成` |
-| `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 生成任务` |
+| `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 2-参照引用 / 生成任务` |
 | `7-Cut` | `projects/aigc/<项目名>/7-Cut/` | 后期阶段 |
 
 ## Canonical Director Root File

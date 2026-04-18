@@ -15,6 +15,7 @@
 - `seedance` / `seedance-fast` 在 AnyFast 当前文档中是滚动别名：
   - `seedance` = 当前最新质量优先档（`Seedance 2.0`）
   - `seedance-fast` = 当前最新速度优先档（`Seedance 2.0 Fast`）
+  - 默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `rolling-latest-quality-alias` 规则族
 
 ## 2. 创建任务
 
@@ -238,7 +239,7 @@ Authorization: Bearer <token>
 
 - AnyFast 官方 `Seedance 2.0` 页面当前只公开 `model=seedance`
 - 因此本技能默认值固定为 `seedance`
-- 该默认值的语义不是“某个旧常量”，而是“当前最新质量优先版本”
+- 该默认值的语义不是“某个旧常量”，而是父级共享 runbook 定义的“当前最新质量优先版本”
 
 ### 6.2 速度优先可选值
 

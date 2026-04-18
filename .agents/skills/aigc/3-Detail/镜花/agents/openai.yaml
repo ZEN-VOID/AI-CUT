@@ -1,4 +1,0 @@
-model: gpt-5
-metadata:
-  short_description: "围绕固定 `剧本正文`、shared-root `分镜切换` 与 `水月` evidence 生成 shot skeleton 与导演/摄影 patch，输出到 `3-Detail/镜花/第N集.field-patch.json`"
-  default_prompt: "Use $aigc-detail-jinghua as the stage-local child skill under `3-Detail`: lock `projects/aigc/<项目名>/3-Detail/第N集.json` as the primary truth source, require inherited `分镜切换` plus `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json` as the factual input layer, preserve `剧本正文` exactly as inherited, run `分镜构图` first, then let `摄影美学 / 运镜手法 / 转场特效` default to parallel branches over the same stable shot spine, treat fixed shot count acceptance as already internalized by `2-Global`, and emit only cinematic patch content (`shot_patches[]` with `分镜ID / 时间段 / 景别 / 镜头属性 / 镜头框架 / 镜头类型 / 镜头视角 / 运镜手法 / 镜头速度 / 摄影美学 / 转场特效 / beat_refs[]`) to `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`."

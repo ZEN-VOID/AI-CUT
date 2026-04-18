@@ -22,6 +22,7 @@
 | `1-提示词蒸馏` 只加载根 `aigc`，没把 `5-Image` 阶段父层纳入 preload | 上下文装配层 | 把 preload 顺序改成 `aigc -> 5-Image -> 具体子路径` | 阶段父层成为图像链路的统一 context bridge | 子路径能先获得阶段边界与路由约束 |
 | routes 里没有图像阶段入口策略，外部编排只能靠根技能兜底 | 控制面路由层 | 在 `routes.yaml` 补 `aigc-image-stage-entry` | 把 active stage 的入口策略显式写进 route policies | 控制面可直接识别图像阶段入口 |
 | 生成结果被写到 `Assets/` 或 provider cache，和 `submit-plan` 分离 | 输出治理层 | 把 canonical 输出图像回收到 `5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/` | 在阶段父层与 `3-图像生成` 局部合同共同声明“提交包与结果同目录” | 查询生成结果时能从 submit 包目录直接找到本地图像 |
+| active leaf 在 `bootstrap_compat` 下长期缺 `Field Master / Thought Pass / Pass Table`，以前被 parent-only audit 掩盖 | 叶子合同完备层 | 为 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 补齐字段表、思行表与返工表 | 让 `aigc_skill_audit.py` 在兼容模式也覆盖 active 图像 leaf，而不是只审阶段父层 | strict audit 能直接指出图像阶段 leaf 的合同缺口 |
 
 ## Repair Playbook
 
@@ -38,3 +39,4 @@
 - 图像阶段父层最稳的职责是路由、runtime 对齐和 handoff 边界，而不是再造 stage-level 总稿。
 - 生成结果的 canonical 路径应跟着 `3-图像生成` 的 submit 包走；`Assets/` 可以留派生副本，但不能成为唯一业务真源。
 - live 路径名、registry 路由和审计脚本必须一起升级；只改一个面，`5-Image` 很快又会退回逻辑桶状态。
+- `bootstrap_compat` 下的 active leaf 也要维持 full-tier 最低合同密度；否则父层再完整，真正执行时仍会在 leaf 层断掉思行和返工入口。

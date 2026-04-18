@@ -42,6 +42,8 @@ last_checked_at: 2026-04-17T00:00:00Z
 | `TM-VIDEO-API-UNSPECIFIED-PROVIDER` | 用户没点名 provider，只说“做个图生视频”，主代理在多个子技能间摇摆 | 默认裁决层 | 先按 `full-loop`、输入媒体拓扑、多模态需求做裁决 | 父技能把未指定 provider 时的默认选择表写死 | 模糊需求下也能稳定下钻 |
 | `TM-VIDEO-API-MISSING-CHILD` | 当前目录已有子技能，但父级索引漏掉，例如 `kling/` 变成隐形能力 | 索引维护层 | 先补父级索引，再继续执行下游任务 | 每次子技能新增、删除、迁移时都同步更新父级真源 | 父级索引与目录清单一致 |
 | `TM-VIDEO-API-RCA-LANDING` | 问题明明出在父级误路由，却只去改某个子技能文案 | 根因落点层 | 先判断问题属于父级路由还是子技能契约 | 把“路由问题修父级、字段问题修子技能”写入 Repair Playbook | 相同误路由问题不会在兄弟子技能重复修补 |
+| `TM-VIDEO-API-DEFAULT-MODEL-TRUTH-SPLIT` | 多个 provider 都写“默认模型自动选最高版本”，但过滤条件、别名语义或当前值在兄弟子技能间各写一套 | Canonical source 层 | 先回收到父级 `runbooks/default-model-policy.md` 与 `shared/default_model_policy.py`，再让子技能回指 | 把默认模型治理拆成共享规则族；子技能只保留 provider 特有过滤条件、别名回退与当前解析结果 | 受影响 provider 的 `SKILL.md / CONTEXT.md / references/api.md / 脚本` 都指回同一父级真源 |
+| `TM-VIDEO-API-ROLLING-ALIAS-MISREAD` | 像 `seedance` 这种滚动别名被误当成“写死旧常量”，或者被错误改成长模型号 | 规则族判别层 | 先确认该 provider 是否属于 `rolling-latest-quality-alias` 规则族 | 在父级 runbook 显式区分“动态最高版本”和“滚动最新质量别名”，避免强行套同一排序算法 | 遇到滚动别名 provider 时，不再误要求本地写死长版本号 |
 | `TM-VIDEO-API-GENERIC-HOST-DRIFT` | 子技能直接沿用通用 `ANYFAST_API_BASE_URL`，真实请求却拿到前端 HTML 或无关壳页 | 环境配置层 | 回退到 provider 专用 `*_API_BASE_URL` 或 `FINEAPI_API_BASE_URL` | 当某 provider 的通用 host 未验证时，在对应子技能中禁止把 `ANYFAST_API_BASE_URL` 当真实请求默认回退 | 真实请求不再出现 `200 + HTML` 被误判成成功 |
 | `TM-VIDEO-API-PLATFORM-VS-GATEWAY` | 技能文档把平台站点、文档站点和 API 网关混写，导致新环境默认打错域名 | 真源治理层 | 显式拆开 `ANYFAST_PLATFORM_URL / ANYFAST_DOCS_URL / ANYFAST_API_BASE_URL`，并把脚本默认值只留给已验证 API 网关 | 在父技能经验层固定“平台页不等于 API Base URL”的跨 provider 规则，再回落到各子技能合同与脚本 | `rg` 不再把平台域名误命中为默认 API host |
 
@@ -56,7 +58,11 @@ last_checked_at: 2026-04-17T00:00:00Z
    - 只要创建回执的 Veo / Grok / Vidu / Hailuo 任务，不要冒充闭环执行
 5. 一旦完成路由，立即切换到目标子技能字段语义，不再保留父级抽象字段。
 6. 若问题属于 provider 特有脚本、字段或接口漂移，下钻修子技能。
-7. 若问题属于误路由、索引缺失、闭环分类错误或共享术语漂移，先修父级真源。
+7. 若问题属于误路由、索引缺失、闭环分类错误、默认模型规则族漂移或共享术语漂移，先修父级真源。
+8. 若问题涉及“默认模型如何选”，先判断是共享规则族问题还是 provider 本地过滤条件问题：
+   - 规则族问题修 `runbooks/default-model-policy.md`
+   - 共享算法骨架问题修 `shared/default_model_policy.py`
+   - provider 过滤条件 / 别名兼容 / 当前解析结果问题再修子技能
 
 ## Reusable Heuristics
 
@@ -64,6 +70,8 @@ last_checked_at: 2026-04-17T00:00:00Z
 - 当多个 provider 共享相似路径名时，单看端点字符串不够；必须把 provider 名、模型族和字段形态一起看。
 - `create-only` 与 `full-loop` 是父级必须先裁决的第一类边界；如果这一步不清楚，后面的输出说明几乎必漂。
 - 父级技能不应该发明通用视频 payload。它的职责是路由，而不是把兄弟子技能压平成一个假统一接口。
+- 默认模型治理也不能让每个 provider 各写一份“最高版本”算法；共享规则族应该先在父级建模，再让子技能只补本地差异。
+- “当前可用最高版本”至少有两种合法实现：一类是本地模型集合上的动态排序，另一类是官方保证语义的滚动质量别名；不要把两者混成同一硬编码常量。
 - 当用户未点名 provider 时，默认优先选择当前已有稳定闭环的子技能；只有任务目标本身就是“创建回执”，才进入 `create-only` 子技能。
 - 父级索引缺失本身就是源层问题。目录里已经有的子技能，如果没出现在父级真源里，应优先补父技能而不是让主代理靠记忆兜底。
 - 同类误路由一旦在两个以上 provider 间重复出现，说明问题不在某个子技能，而在父级路由规则或命名索引。

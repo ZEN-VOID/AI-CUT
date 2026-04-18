@@ -47,7 +47,7 @@ API Key：
 
 可选输入：
 
-- `model`：默认由 `scripts/vidu_video_generate.py` 自动裁决为当前已知最高通用 Vidu 型号；当前解析结果为 `Vidu-q3-pro`
+- `model`：默认模型治理统一回指父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族；脚本共享骨架使用 `../shared/default_model_policy.py`，Vidu 的 provider 特有差异是只允许 `Vidu-*` 通用模型作为默认值并排除 `mix` 变体；当前解析结果为 `Vidu-q3-pro`
 - `scene-type`
 - `negative-prompt`
 - `enhance-prompt`
@@ -81,7 +81,8 @@ API Key：
    - `Prompt / ImageUrl / ImageInfos` 至少填一项。
    - 不得把三项都空的请求静默发出。
 4. **默认模型必须自动跟随当前已知最高通用 Vidu 型号**
-   - 默认模型的单一真源是 `scripts/vidu_video_generate.py` 的自动裁决逻辑。
+   - 默认模型治理统一遵循父级 `../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族。
+   - 共享算法骨架由 `../shared/default_model_policy.py` 提供；`scripts/vidu_video_generate.py` 只补 Vidu 的本地过滤条件。
    - 当前解析结果为 `Vidu-q3-pro`；文档与 UI 元数据只能引用该裁决结果，不再各自写死旧型号。
 5. **统一以 `.env` 的 `ANYFAST_VIDEO_API_KEY` 为主事实源**
    - 不在技能文件、脚本样例、报告中写明文 token。

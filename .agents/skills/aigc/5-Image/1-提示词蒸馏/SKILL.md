@@ -129,10 +129,16 @@ governance_tier: full
    - `分镜明细[]`
 4. `分镜明细[]` 中的镜级 canonical 字段可被叶子消费：
    - `分镜ID`
-   - `角色背景面`
-   - `角色站位走位`
-   - `道具及状态`
-   - `分镜表现`
+   - `角色表现`
+   - `运动表现`
+   - `氛围表现`
+   - `视觉强化`
+   - `分镜构图`
+   - `摄影美学`
+   - `运镜手法`
+   - `转场特效`
+
+若叶子仍处于过渡态，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 等 compatibility projection，但不得把它们重新声明为第一真相。
 
 若 `document_phase` 仍是 `bootstrapped / directing_in_progress`，或 group / shot canonical 字段壳未成立，必须停止在本层并回报上游缺口。
 
@@ -152,15 +158,16 @@ governance_tier: full
 ### 补证规则
 
 1. `水月` sidecar 只补：
-   - `出场角色及穿搭`
-   - `角色背景面`
-   - `角色站位走位`
-   - `道具及状态`
-   - `镜头消费提示`
+   - `角色表现`
+   - `运动表现`
+   - `氛围表现`
+   - `视觉强化`
 2. `镜花` sidecar 只补：
-   - shot skeleton
-   - `beat_refs[]`
-   - cinematic 字段
+   - `分镜构图`
+   - `摄影美学`
+   - `运镜手法`
+   - `转场特效`
+   - 以及必要时的 compatibility projection
 3. 若 canonical JSON 已具备完整可消费字段，父层不得优先读 sidecar。
 4. 若 sidecar 与 canonical JSON 冲突，以 `3-Detail/第N集.json` 为准，并回报 `3-Detail` 源层缺口。
 
@@ -257,6 +264,16 @@ erDiagram
 | `P2` | `FIELD-VPD-ROUTE-03` | 当前对象到底属于哪个叶子 | 裁决唯一叶子与排除理由 | 同时命中多个对象类型 |
 | `P3` | `FIELD-VPD-SUPPLEMENT-04` | 是否需要 sidecar 补证，以及补到什么边界 | 登记只读补证说明 | sidecar 被误当主真源 |
 | `P5` | `FIELD-VPD-HANDOFF-05` | 当前结果是否已形成可交接的 image-request JSON | 写明下游入口与模式 | 叶子产物变成图片或缺少下一入口 |
+
+## Pass Table
+
+| field_id | Pass Standard | Fail Code | Rework Entry |
+| --- | --- | --- | --- |
+| `FIELD-VPD-STAGE-01` | `3-Detail` phase 已达到 `detail_in_progress | ready` | `FAIL-VPD-STAGE-01` | `P0` |
+| `FIELD-VPD-INPUT-02` | 组级与镜级 canonical 字段足以支撑唯一叶子蒸馏 | `FAIL-VPD-INPUT-02` | `P1` |
+| `FIELD-VPD-ROUTE-03` | 父层只命中一个叶子，且排除理由明确 | `FAIL-VPD-ROUTE-03` | `P2` |
+| `FIELD-VPD-SUPPLEMENT-04` | sidecar 只作补证，不替代主真源 | `FAIL-VPD-SUPPLEMENT-04` | `P3` |
+| `FIELD-VPD-HANDOFF-05` | handoff 主产物为 image-request JSON，且下一入口唯一 | `FAIL-VPD-HANDOFF-05` | `P5` |
 
 ## Root-Cause Execution Contract (Mandatory)
 

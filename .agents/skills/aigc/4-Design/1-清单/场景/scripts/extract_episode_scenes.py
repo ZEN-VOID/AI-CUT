@@ -25,6 +25,12 @@ SCENE_SUFFIXES: Tuple[str, ...] = (
     "电梯门口",
     "门厅",
     "玄关",
+    "宴会厅",
+    "消防通道",
+    "车内",
+    "阁楼外间",
+    "阁楼里间",
+    "深巷酒吧一楼",
     "出租屋卧室",
     "出租屋卫生间",
     "小出租屋",
@@ -42,6 +48,7 @@ SCENE_SUFFIXES: Tuple[str, ...] = (
     "床头墙面",
     "床头",
     "地砖",
+    "车内",
     "广场",
     "步道",
     "池边",
@@ -141,6 +148,22 @@ LEADING_NOISE_RE = re.compile(
 TRAILING_NOISE_RE = re.compile(r"(?:方向|一侧|外缘|环境|空间|位置|关系|状态|背景面|背景)$")
 SENTENCE_NOISE_RE = re.compile(
     r"(?:静姐|老刘|张飞|刘星宇|人物|视觉中心|生怕|仍|已经|突然|忽然|重新|现场|关系|异物|投射|退场|回归|睡前|擦干|拧紧|确认|报警|冲回|显示|播放|低语)"
+)
+SCRIPT_SCENE_HEADING_RE = re.compile(
+    r"^###\s*场景\d+[：:](?P<scene>.+?)(?:\s+(?:清晨|早晨|白天|日|夜|黄昏|傍晚|内/外|外/内|内|外).*)?$"
+)
+UNTRUSTWORTHY_SCENE_RE = re.compile(
+    r"(?:^###|动作画面|对白|写成|形成|强化|主动选择|反向气压|私人角落|保护而非|暧昧)"
+)
+MICRO_ANCHOR_HINTS: Tuple[str, ...] = (
+    "墙面",
+    "门板",
+    "门框",
+    "吊顶",
+    "洗手池",
+    "水龙头",
+    "床头",
+    "地砖",
 )
 EPISODE_FILE_RE = re.compile(r"第0*(?P<episode>\d+)集\.json$")
 NO_SCENE_TOKENS = {"", "unknown", "无", "暂无"}
@@ -253,13 +276,115 @@ def extract_scene_candidates(text: str) -> List[str]:
     return unique_preserve(matches)
 
 
-def choose_scene_name(role_background_face: str, fallback_text: str) -> Tuple[str, List[str]]:
-    candidates = extract_scene_candidates(role_background_face)
-    if not candidates and fallback_text:
+def extract_script_heading_scene(script_body: str) -> str:
+    first_line = str(script_body or "").splitlines()[0].strip() if str(script_body or "").strip() else ""
+    if not first_line:
+        return ""
+    match = SCRIPT_SCENE_HEADING_RE.match(first_line)
+    if not match:
+        return ""
+    return normalize_scene_fragment(match.group("scene").strip())
+
+
+def is_untrustworthy_scene(scene_name: str) -> bool:
+    text = str(scene_name or "").strip()
+    if not text or text in NO_SCENE_TOKENS:
+        return True
+    if UNTRUSTWORTHY_SCENE_RE.search(text):
+        return True
+    if "被" in text and any(hint in text for hint in SCENE_HINT_WORDS):
+        return True
+    return False
+
+
+def join_non_empty(parts: Iterable[str]) -> str:
+    return " ".join(item.strip() for item in parts if isinstance(item, str) and item.strip())
+
+
+def stringify_branch_design(value: object, ordered_keys: Sequence[str]) -> str:
+    if not isinstance(value, dict):
+        return ""
+    return join_non_empty(str(value.get(key, "")).strip() for key in ordered_keys)
+
+
+def pick_branch_object(shot: dict, *field_names: str) -> object:
+    for field_name in field_names:
+        value = shot.get(field_name)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def derive_scene_inputs(shot: dict) -> dict:
+    atmosphere_anchor = stringify_branch_design(
+        pick_branch_object(shot, "氛围表现", "空间氛围"),
+        ("层次", "空间诗学", "意境", "空间支架", "空气层", "物象压力"),
+    )
+    composition_anchor = stringify_branch_design(
+        pick_branch_object(shot, "分镜构图", "构图骨架", "构图策略"),
+        ("景别景深", "镜头类型", "构图形式", "构图骨架", "视线组织"),
+    )
+    cinematography_anchor = stringify_branch_design(
+        pick_branch_object(shot, "摄影美学", "摄影策略"),
+        ("光影", "色彩", "质感", "视觉控制线", "光影策略", "色彩策略", "质感策略"),
+    )
+    visual_anchor = stringify_branch_design(
+        pick_branch_object(shot, "视觉强化", "视觉抓手", "视觉焦点"),
+        ("冲击力", "观赏性", "品味", "第一抓手", "观看节奏", "镜头消费提示"),
+    )
+    legacy_background_face = str(shot.get("角色背景面", "")).strip()
+    legacy_expression = str(shot.get("分镜表现", "")).strip()
+    legacy_cinematography = str(shot.get("摄影美学", "")).strip()
+    primary_scene_anchor = join_non_empty(
+        (atmosphere_anchor, composition_anchor, legacy_background_face)
+    )
+    fallback_scene_text = join_non_empty(
+        (
+            composition_anchor,
+            cinematography_anchor,
+            visual_anchor,
+            legacy_expression,
+            legacy_cinematography,
+        )
+    )
+    return {
+        "primary_scene_anchor": primary_scene_anchor,
+        "fallback_scene_text": fallback_scene_text,
+        "legacy_background_face": legacy_background_face,
+        "legacy_expression": legacy_expression,
+        "legacy_cinematography": legacy_cinematography,
+        "atmosphere_anchor": atmosphere_anchor,
+        "composition_anchor": composition_anchor,
+        "cinematography_anchor": cinematography_anchor,
+        "visual_anchor": visual_anchor,
+    }
+
+
+def choose_scene_name(primary_scene_anchor: str, fallback_text: str, script_body: str) -> Tuple[str, List[str]]:
+    primary_candidates = extract_scene_candidates(primary_scene_anchor)
+    script_scene = extract_script_heading_scene(script_body)
+    script_candidates = extract_scene_candidates(script_scene) if script_scene else []
+    if script_scene and not script_candidates and script_scene not in NO_SCENE_TOKENS:
+        script_candidates = [script_scene]
+
+    if script_candidates:
+        merged = unique_preserve([*script_candidates, *primary_candidates])
+        return merged[0], merged
+
+    if primary_candidates:
+        primary = primary_candidates[0]
+        if not is_untrustworthy_scene(primary):
+            return primary, unique_preserve(primary_candidates)
+
+    if fallback_text:
         fallback_candidates = extract_scene_candidates(fallback_text)
-        candidates = [item for item in fallback_candidates if not SENTENCE_NOISE_RE.search(item)]
-    if candidates:
-        return candidates[0], candidates
+        fallback_candidates = [
+            item
+            for item in fallback_candidates
+            if not SENTENCE_NOISE_RE.search(item) and not is_untrustworthy_scene(item)
+        ]
+        if fallback_candidates:
+            return fallback_candidates[0], fallback_candidates
     return "unknown", []
 
 
@@ -308,15 +433,29 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
 
         for shot in shots:
             shot_id = str(shot.get("分镜ID", "unknown"))
-            role_background_face = str(shot.get("角色背景面", "")).strip()
-            shot_expression = str(shot.get("分镜表现", "")).strip()
-            cinematography = str(shot.get("摄影美学", "")).strip()
+            scene_inputs = derive_scene_inputs(shot)
             time_range = shot.get("时间段", {})
-            fallback_text = " ".join(
-                item for item in (shot_expression, cinematography, director_intent, script_body) if item
+            fallback_text = join_non_empty(
+                (
+                    scene_inputs["fallback_scene_text"],
+                    director_intent,
+                    script_body,
+                )
             )
-            scene_name, candidates = choose_scene_name(role_background_face, fallback_text)
-            scene_variant = next((item for item in candidates[1:] if item != scene_name), role_background_face[:48] or "unknown")
+            scene_name, candidates = choose_scene_name(
+                scene_inputs["primary_scene_anchor"],
+                fallback_text,
+                script_body,
+            )
+            scene_variant_seed = (
+                scene_inputs["legacy_background_face"]
+                or scene_inputs["primary_scene_anchor"]
+                or "unknown"
+            )
+            scene_variant = next(
+                (item for item in candidates[1:] if item != scene_name),
+                scene_variant_seed[:48] or "unknown",
+            )
 
             row = {
                 "scene_name": scene_name,
@@ -324,9 +463,13 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
                 "scene_variant": scene_variant,
                 "group_id": group_id,
                 "shot_id": shot_id,
-                "role_background_face": role_background_face,
-                "shot_expression": shot_expression,
-                "cinematography": cinematography,
+                "space_anchor": scene_inputs["atmosphere_anchor"],
+                "composition_anchor": scene_inputs["composition_anchor"],
+                "cinematography_anchor": scene_inputs["cinematography_anchor"],
+                "visual_anchor": scene_inputs["visual_anchor"],
+                "role_background_face": scene_inputs["legacy_background_face"],
+                "shot_expression": scene_inputs["legacy_expression"],
+                "cinematography": scene_inputs["legacy_cinematography"],
                 "director_intent": director_intent,
                 "script_body_excerpt": script_body[:120],
                 "time_range": {

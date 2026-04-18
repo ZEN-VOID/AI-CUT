@@ -131,7 +131,7 @@ FINEAPI_API_BASE_URL=...
 | 字段 | 类型 | 必填 | 当前处理 |
 | --- | --- | --- | --- |
 | `promptImage` | string | 是 | HTTPS URL、Data URI；本地图由脚本转成 Data URI |
-| `model` | string | 是 | 默认按当前已知最高版本自动解析，当前为 `gen4.5` |
+| `model` | string | 是 | 默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族；当前解析结果为 `gen4.5` |
 | `promptText` | string | 是 | 非空提示词 |
 | `watermark` | boolean | 否 | 显式传值时才发送 |
 | `duration` | integer | 否 | 页面截图显示 `5 / 10` |
@@ -143,7 +143,8 @@ FINEAPI_API_BASE_URL=...
 ### 5.1 FineAPI 页面/用户示例
 
 - FineAPI 用户示例仍是 `gen4_turbo`
-- 本技能默认已切到当前官方图生视频已知最高版本 `gen4.5`
+- 本技能默认模型治理统一回指 `../../runbooks/default-model-policy.md`
+- Runway 当前归属 `highest-available-general` 规则族；脚本通过 `../../shared/default_model_policy.py` 解析出当前结果 `gen4.5`
 - 本技能默认 ratio 改为随模型动态补齐；当前默认组合为 `gen4.5 + 1280:720`
 
 ### 5.2 官方 Runway ratio 说明

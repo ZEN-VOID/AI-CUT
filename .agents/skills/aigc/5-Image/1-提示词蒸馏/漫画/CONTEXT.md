@@ -33,6 +33,7 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 | 合同只剩字段表与 workflow 摘要，节点没有做到“想清楚即执行” | 编排表达层 | 把业务分析、思行节点网络、节点执行 playbook、汇流门和一次性输出门补回 `SKILL.md` | 在主合同显式声明 `skeleton_detail_split: false`，并要求每个节点写清输入、动作、证据、路由与完成信号 | 执行者无需查额外细则即可完成整条漫画蒸馏链 |
 | 仍把补证入口写成 `3-Detail/evidence/` | 补证路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在 `SKILL.md` 固化真实 sidecar 路径与只读补证边界 | 不再引用不存在的补证目录 |
 | 漫画页蒸馏没查 `document_phase` 或漏掉 `出场角色及穿搭` | 阶段就绪层 | 在 `N2/N4` 之前先查 phase、组级穿搭槽与镜级 canonical 字段 | 在 `SKILL.md` 固化 readiness gate 与内容抽取最低覆盖面 | 漫画页 prompt 不再建立在未就绪或空壳 detail 上 |
+| 父层已切到 branch-owned，但漫画叶子仍把 legacy 四字段当基础镜级事实 | schema handoff 层 | 把 readiness gate 与内容抽取改成 branch-owned 八字段优先，legacy 四字段只作 panel 补证 | 在 `SKILL.md` 固化 `branch-owned first, legacy fallback` | 漫画页不再以 compatibility projection 充当主真相 |
 
 ## Repair Playbook
 
@@ -52,4 +53,4 @@ last_checked_at: 2026-04-12T20:25:00-07:00
 - 漫画子技能最常见的漂移不是画风，而是把“漫画图像请求 JSON 蒸馏”误做成“直接页图落盘”。
 - 对这种已经是叶子且又有多道判断门的蒸馏技能，最稳的知行合一改造不是继续拆 `references/`，而是把节点细则直接写进主 `SKILL.md`。
 - 如果用户明确要求 `复杂链路的骨架 / 细则分层 = false`，就要把“可扫描性”交给 Mermaid 和节点表，而不是把执行细节外包给另一个文档。
-- 漫画页 prompt 若没显式承接 `出场角色及穿搭` 与镜级 `分镜表现`，通常只剩版式约束，缺少角色服装与镜头视觉抓手。
+- 漫画页 prompt 若没显式承接 `出场角色及穿搭` 与 branch-owned 八字段，通常只剩版式约束和旧投影残句，缺少稳定的角色服装、空间关系与镜头视觉抓手。

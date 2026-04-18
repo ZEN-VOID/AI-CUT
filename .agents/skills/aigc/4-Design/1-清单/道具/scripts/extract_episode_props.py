@@ -77,6 +77,20 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def stringify_branch_design(value: object, ordered_keys: Sequence[str]) -> str:
+    if not isinstance(value, dict):
+        return ""
+    return "；".join(str(value.get(key, "")).strip() for key in ordered_keys if str(value.get(key, "")).strip())
+
+
+def pick_branch_object(shot: dict, *field_names: str) -> object:
+    for field_name in field_names:
+        value = shot.get(field_name)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
 def infer_project_name(input_path: Path) -> str:
     parts = input_path.resolve().parts
     if "projects" in parts:
@@ -263,8 +277,16 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
 
         for shot in shots:
             shot_id = str(shot.get("分镜ID", "unknown"))
-            scene_value = str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip()
-            roles_value = str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip()
+            scene_value = (
+                stringify_branch_design(pick_branch_object(shot, "氛围表现", "空间氛围"), ("层次", "空间诗学", "意境", "空间支架", "空气层"))
+                or stringify_branch_design(pick_branch_object(shot, "分镜构图", "构图骨架"), ("景别景深", "镜头类型", "构图形式", "构图骨架"))
+                or str(shot.get("角色背景面") or shot.get("场景及方位") or "").strip()
+            )
+            roles_value = (
+                stringify_branch_design(pick_branch_object(shot, "运动表现", "动作路径"), ("位置和方向", "逻辑性", "一致性", "位置基线", "动作路径"))
+                or stringify_branch_design(pick_branch_object(shot, "角色表现", "人物表演锚点"), ("动作戏", "对话戏", "内心戏", "对手戏", "表演目标", "关系施压"))
+                or str(shot.get("角色站位走位") or shot.get("角色及站位和穿搭") or "").strip()
+            )
             prop_value = str(shot.get("道具及状态", "")).strip()
             mentions = parse_prop_mentions(prop_value)
             if mentions:

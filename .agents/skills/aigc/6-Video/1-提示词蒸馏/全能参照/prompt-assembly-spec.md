@@ -15,8 +15,8 @@
   - `出场角色及穿搭`
 - 镜级句式槽：
   - `P1`：镜头起势 + 主体动作与空间关系
-  - `P2`：状态、氛围、道具与光感
-  - `P3`：构图组织与视觉焦点
+  - `P2`：表演、氛围、道具与光感
+  - `P3`：构图组织与视觉强化
 - 压缩预算：
   - `full`
   - `normal`
@@ -79,7 +79,7 @@
       "separator": "，",
       "clauses": [
         {
-          "field": "镜头属性",
+          "field": "镜头类型兼容",
           "template": "{value}",
           "transform": "strip_tail_punct"
         },
@@ -141,12 +141,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "角色背景面",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -166,7 +166,7 @@
           "bucket": "P2",
           "parts": [
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
@@ -191,13 +191,13 @@
           "bucket": "P3",
           "parts": [
             {
-              "field": "镜头框架",
+              "field": "分镜构图",
               "template": "画面组织为{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "分镜表现",
-              "template": "视觉焦点落在{value}",
+              "field": "视觉强化",
+              "template": "视觉重心落在{value}",
               "transform": "strip_tail_punct"
             },
             {
@@ -213,12 +213,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "角色背景面",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -233,7 +233,7 @@
               "transform": "strip_tail_punct"
             },
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
@@ -253,13 +253,13 @@
               "transform": "strip_tail_punct"
             },
             {
-              "field": "镜头框架",
+              "field": "分镜构图",
               "template": "画面组织为{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "分镜表现",
-              "template": "视觉焦点落在{value}",
+              "field": "视觉强化",
+              "template": "视觉重心落在{value}",
               "transform": "strip_tail_punct"
             }
           ],
@@ -277,12 +277,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
             {
-              "field": "角色背景面",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             }
@@ -297,7 +297,7 @@
               "transform": "strip_tail_punct"
             },
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "strip_tail_punct"
             },
@@ -317,7 +317,7 @@
           "bucket": "P3",
           "parts": [
             {
-              "field": "分镜表现",
+              "field": "视觉强化",
               "template": "{value}",
               "transform": "compact_clause"
             }
@@ -336,12 +336,12 @@
           "bucket": "P1",
           "parts": [
             {
-              "field": "角色站位走位",
+              "field": "运动表现",
               "template": "{value}",
               "transform": "compact_clause"
             },
             {
-              "field": "角色背景面",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "compact_clause"
             }
@@ -358,7 +358,7 @@
           ],
           "fallback_parts": [
             {
-              "field": "场景氛围",
+              "field": "氛围表现",
               "template": "{value}",
               "transform": "compact_clause"
             }

@@ -65,7 +65,7 @@ Authorization: Bearer <token>
 | 字段 | 类型 | 必填 | 已确认说明 |
 | --- | --- | --- | --- |
 | `user_prompt` | string | 是 | FineAPI 创建接口的提示词字段 |
-| `model_name` | string | 是 | 官方当前模型文档以 `ray-2` 为最新稳定名；FineAPI 既有样例/截图曾出现 `ray-v1 / ray-v2`，因此技能默认自动取已登记 Ray 系列最高版本（当前解析为 `ray-2`），并保留对 `ray-v2` 的兼容回退 |
+| `model_name` | string | 是 | 官方当前模型文档以 `ray-2` 为最新稳定名；FineAPI 既有样例/截图曾出现 `ray-v1 / ray-v2`，默认模型治理统一回指 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族，当前解析结果为 `ray-2`，并保留对 `ray-v2` 的兼容回退 |
 | `duration` | string | 是 | 截图明确“时长只支持 5s” |
 | `resolution` | string | 是 | 截图显示 `720p` 或 `1080p`，默认 `720p` |
 | `expand_prompt` | boolean | 否 | 提示词优化开关 |
@@ -185,7 +185,7 @@ ANYFAST_VIDEO_API_KEY=
 
 因此脚本层建议保留候选模型重试策略：
 
-1. 先尝试用户指定值；未指定时自动取当前已登记 Ray 系列最高版本（当前为 `ray-2`）
+1. 先尝试用户指定值；未指定时按 `../../runbooks/default-model-policy.md` 的 `highest-available-general` 规则族取当前已登记 Ray 系列最高版本（当前为 `ray-2`）
 2. 若创建报模型不可用，再回退 `ray-v2`
 3. 若使用旧模型链路，可尝试 `ray-v1 -> ray-1.6`
 

@@ -69,6 +69,12 @@ governance_tier: full
   - bridge-first 装配、文化原型保守模式、输出映射细则
 - `templates/character_masterprompt.structured.v2.md`
   - 单角色 Markdown projection 的固定模板真源
+- `scripts/build_character_design_packets.py`
+  - 角色 `1-清单` 三真源到 `character_design.json + [角色名].md` 的唯一批量渲染入口；必须从模板填槽生成 Markdown，并负责对接共享 auto-image guard。
+- `scripts/run_character_design_pipeline.py`
+  - 当前 leaf 的统一执行入口；默认调用 builder、validator 与 auto-image fast path。
+- `scripts/validate_character_design_projection.py`
+  - 角色 projection 与 `character_design.json` 的硬校验入口。
 
 ## Reference Loading Guide
 
@@ -94,6 +100,28 @@ governance_tier: full
 18. `projects/aigc/<项目名>/2-Global/全集类型元素.md`
 19. `projects/aigc/<项目名>/2-Global/导演意图.md`
 20. `projects/aigc/<项目名>/team.yaml`（若存在）
+
+## Executable Entrypoints
+
+默认批量生成：
+
+```bash
+python3 .agents/skills/aigc/4-Design/2-设计/角色/scripts/run_character_design_pipeline.py \
+  --catalog "projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json"
+```
+
+默认投影校验：
+
+```bash
+python3 .agents/skills/aigc/4-Design/2-设计/角色/scripts/validate_character_design_projection.py \
+  --output-dir "projects/aigc/<项目名>/4-Design/角色/2-设计/第N集"
+```
+
+脚本硬规则：
+
+1. `run_character_design_pipeline.py` 必须串联 builder、validator 与共享 auto-image guard。
+2. `build_character_design_packets.py` 必须读取 `templates/character_masterprompt.structured.v2.md` 并填槽生成 Markdown。
+3. `validate_character_design_projection.py` 必须在当前轮结束前通过；失败时不得把输出交给 `3-面板/角色`。
 
 ## Business Requirement Analysis Contract (Mandatory)
 

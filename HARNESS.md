@@ -33,11 +33,11 @@
   - 礼部：模板、合同、移交载体
   - 兵部：运行、调度、生命周期
   - 刑部：审计、风险控制、反回归
-- 工部：脚本、评测、基础设施
+  - 工部：脚本、评测、基础设施
 
 这一构思的核心目标不是“先把业务技能补齐”，而是先把业务技能未来必须依附的治理骨架、工件真源、状态面与审计入口建立起来。
 
-当前针对 `.agents/skills/aigc/` 的重大改造，还额外启用了显式 `bootstrap_compat` 模式：
+当前针对 `.agents/skills/aigc/` 的重大改造，仍处于显式 `bootstrap_compat` 模式：
 
 - 不清空 HARNESS 真源，只把它收缩为兼容骨架。
 - 保留 `projects/aigc/<项目名>/`、registry、runbook、template、audit、卫星技能入口与 review gate。
@@ -45,17 +45,19 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-16`，当前仓库已经完成了 HARNESS 引导期的最小真源收束，并开始把 `aigc` 根级卫星技能、`4-Design` 局部 active leaf、项目治理状态快照、根级 benchmark suite、repo-local 漫画链路与团队能力 skill 纳入受治理注册：
+截至 `2026-04-17`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
 - 根 `AGENTS.md` 已明确：
   - 执行深度默认规则
   - 三省六部制编排治理基线
+  - `HARNESS.md` 总览同步责任
+  - `bootstrap_compat` 改造兼容模式
   - 批量技能调度默认规则
   - `subagents` 默认真实启动与降级显式报告口径
   - Rollout 标准
-  - 根因优先、根因学习回路、真源治理、复合型输出治理等全局合同
+  - 根因优先、根因学习回路、真源治理与复合型输出治理
 
 ### 2. 三省治理层
 
@@ -63,13 +65,15 @@
 - `.codex/agents/harness治理/门下省.md`
 - `.codex/agents/harness治理/尚书省.md`
 
-三省角色合同已经从“目录骨架”推进到“有共享上位合同、各自写差异职责”的状态。
+三省角色合同已经从“目录骨架”推进到“共享上位合同 + office 差异职责”的状态。
+
+其中，门下省已进一步吸收 `code-reviewer` 式 findings discipline：对技能树、shared contract、runtime mapping 与审计脚本的 review，默认要求 `severity + dimension + evidence path + impact + recommended action + confidence`，不再满足于泛化结论。
 
 ### 3. 共享治理合同
 
 - `.codex/templates/harness/office-governance-contract.md`
 
-该文件已经承担跨 office 的单一共享真源职责，覆盖：
+该文件已承担跨 office 的单一共享真源职责，覆盖：
 
 - canonical priority
 - canonical carriers
@@ -85,41 +89,43 @@
 - `.codex/registry/skills.yaml`
 - `.codex/registry/routes.yaml`
 
-当前已显式声明：
+当前注册表与路由表已经稳定承载以下事实：
 
-- `aigc` 为仓库级总入口技能
-- `aigc` 根下的 `query / resume / review` 已作为卫星技能登记到 `active_skills[id=aigc].satellite_index`
-- `4-Design` 已在 `active_skills[id=aigc].stage_index[id=aigc-4-subject].leaf_index` 登记 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}` 与 `3-面板/{场景,角色,道具}` 的 active leaf；`3-面板` tranche parent 处于 `partial-active`，仍处于 `bootstrap_compat` 局部迁移窗口
-- `comic` 已登记为 repo-local 漫画项目父级总入口，固定 canonical runtime 为 `projects/comic/[项目名]/`
-- `comic-script-adaptation` 已登记为 repo-local 改编技能，负责把文本、图片、视频、新闻事件与网络热搜改编为后续漫画生成可消费的剧本真源与 `formatted_source_script.json`
-- `comic-nine-blade-prompts` 已登记为 repo-local 提示词蒸馏技能，负责把漫画剧本、`formatted_source_script.json` 或漫画剧本桥接包输出为 `nine_blade_comic_prompts.v1` JSON
-- `comic-generation` 已登记为 repo-local 执行技能，负责校验九刀流 JSON 并通过 Seedream 单次连续多图请求生成 9 张竖版漫画页
-- `team-screenwriter-dazai-osamu` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/太宰治/`，其自包含调研载体为 `references/research/`
-- `team-screenwriter-watanabe-junichi` 已登记为编剧组 repo-local 人物叙事视角 skill，固定 skill 根为 `.agents/skills/team/编剧组/渡边淳一/`，其自包含调研载体为 `references/research/`
-- `team-actor-leslie-cheung` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/张国荣/`，其自包含调研载体为 `references/research/`
-- `team-actor-anita-mui` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梅艳芳/`，其自包含调研载体为 `references/research/`
-- `team-actor-leung-ka-fai` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/梁家辉/`，其自包含调研载体为 `references/research/`
-- `team-actor-maggie-cheung` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/张曼玉/`，其自包含调研载体为 `references/research/`
-- `team-actor-brigitte-lin` 已登记为演员组 repo-local 人物表演视角 skill，固定 skill 根为 `.agents/skills/team/演员组/林青霞/`，其自包含调研载体为 `references/research/`
-- `team-director-park-chan-wook` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/朴赞郁/`，其自包含调研载体为 `references/research/`
-- `team-director-ang-lee` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/李安/`，其自包含调研载体为 `references/research/`
-- `team-director-hou-hsiao-hsien` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/侯孝贤/`，其自包含调研载体为 `references/research/`
-- `team-director-jiang-wen` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/姜文/`，其自包含调研载体为 `references/research/`
-- `team-director-bong-joon-ho` 已登记为导演组 repo-local 人物导演视角 skill，固定 skill 根为 `.agents/skills/team/导演组/奉俊昊/`，其自包含调研载体为 `references/research/`
-- `team-cinematography-christopher-doyle` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杜可风/`，其自包含调研载体为 `references/research/`
-- `team-cinematography-wing-shya` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/夏永康/`，其自包含调研载体为 `references/research/`
-- `team-cinematography-hiroshi-sugimoto` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/杉本博司/`，其自包含调研载体为 `references/research/`
-- `team-cinematography-peter-pau` 已登记为摄影组 repo-local 人物摄影视角 skill，固定 skill 根为 `.agents/skills/team/摄影组/鲍德熹/`，其自包含调研载体为 `references/research/`
-- `team-action-ching-siu-tung` 已登记为武术组 repo-local 人物动作设计视角 skill，固定 skill 根为 `.agents/skills/team/武术组/程小东/`，其自包含调研载体为 `references/research/`
-- `team-anime-ogino-makoto` 已登记为动漫组 repo-local 人物漫画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/荻野真/`，其自包含调研载体为 `references/research/`
-- `team-anime-yoshiaki-kawajiri` 已登记为动漫组 repo-local 人物动作动画视角 skill，固定 skill 根为 `.agents/skills/team/动漫组/川尻善昭/`，其自包含调研载体为 `references/research/`
-- `projects/aigc/<项目名>/` 是 `aigc` 项目工作流的 canonical runtime
-- `projects/aigc/<项目名>/governance-state.yaml` 已被定位为结构化治理快照与断点真源
-- `.codex/state/tasks/<task_id>/` 只作为治理镜像或通用账本
-- `5-Image` 已升级为真实阶段父合同，当前统一收口 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成`
-- `6-Video` 已升级为部分可执行阶段，当前 `1-提示词蒸馏/全能参照 / 首帧参照` 可路由
-- `7-Cut` 仍处于 `shelved` 状态
-- `AIGC-ZEN-VOID` 作为 design source 通过 mapping 管理，而不是直接整仓继承
+- `aigc` 仍是仓库级总入口技能，`contract_mode: bootstrap_compat`，并显式声明：
+  - `projects/aigc/<项目名>/` 为 canonical project runtime
+  - `project_state.yaml` 与 `governance-state.yaml` 为项目内控制面
+  - `.codex/state/tasks/<task_id>/` 仅作治理镜像或非项目任务账本
+- `aigc.stage_index` 当前已登记：
+  - `0-Init`、`1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 为 `active`
+  - `7-Cut` 为 `shelved`
+  - `4-Design` 下的 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}`、`3-面板/{场景,角色,道具}` 已进入 leaf/tranche 注册，其中 `3-面板` tranche parent 为 `partial-active`
+- `aigc.satellite_index` 当前已登记并启用：
+  - `query`
+  - `resume`
+  - `review`
+- `routes.yaml` 已显式声明：
+  - `aigc-root-entry`
+  - `aigc-project-runtime-canonical`
+  - `aigc-bootstrap-compat-mode`
+  - `aigc-query / resume / review` 卫星入口
+  - `aigc-image-stage-entry`
+  - `aigc-video-stage-entry`
+  - `high-risk-review-gate`
+  - `aigc-shelved-stages`
+- `comic` 已作为 repo-local 漫画项目父级入口接入治理，固定项目根为 `projects/comic/[项目名]/`
+- 漫画链路已拆成受注册子入口：
+  - `comic-novel-adaptation`
+  - `comic-nine-blade-prompts`
+  - `comic-generation`
+  - `comic-episode-poster`
+- 团队能力类 repo-local skill 已进入注册与路由，当前覆盖：
+  - 小说组
+  - 演员组
+  - 导演组
+  - 摄影组
+  - 武术组
+  - 动漫组
+- `AIGC-ZEN-VOID` 继续只作为 design source，通过 `legacy_mapping` 管理，而不是直接整仓继承。
 
 ### 5. 生命周期与任务工件真源
 
@@ -135,15 +141,29 @@
 
 `受命 -> 起草 -> 预审 -> 执行 -> 验收 -> 沉淀`
 
+并且当前 runbook 已明确：
+
+- 通用默认控制面：`.codex/state/tasks/<task_id>/`
+- `aigc` 项目控制面：`projects/aigc/<项目名>/`
+- 若工作流已声明项目内 canonical runtime，镜像状态面不得反向覆盖主真源
+
 ### 6. 审计与验证入口
 
 - `scripts/aigc_harness_audit.py`
+- `scripts/aigc_skill_audit.py`
 - `.codex/evals/`
+- `.codex/state/tasks/README.md`
+- `.codex/evals/README.md`
 
-当前审计能力已经能检查引导期最小 HARNESS 载体是否存在，以及关键合同锚点是否缺失。
-同时，`scripts/aigc_skill_audit.py --strict` 已开始校验 `aigc` 的根级卫星技能是否完成目录、registry 与 route policy 对齐，并对 `CONTEXT.md` 的超 soft-limit、Case 失衡与日志化回流给出软警告；在 `bootstrap_compat` 下，至少仍会检查 active stage 父合同，避免父级 `SKILL.md` 的断链回指被误判为全绿。
-同时，AIGC 项目运行时已经开始把 `project_state.yaml + governance-state.yaml` 视为“人类摘要 + 结构化控制面”的双状态组合。
-同时，根级 `.agents/skills/aigc/benchmark-suite.yaml` 已落盘，作为后续动态评测的最小基线入口。
+当前审计能力至少已经能检查：
+
+- HARNESS 引导期最小 carrier 是否存在
+- 根 `AGENTS.md` 与 `HARNESS.md` 的关键合同锚点是否存在
+- 三省 office 合同是否显式回指共享治理合同
+- runbook、template、registry 是否保留 `bootstrap_compat` 与 canonical runtime 口径
+- `aigc` 技能树的 tier / CONTEXT / 注册状态与阶段合同基线
+- `bootstrap_compat` 下的 checked / skipped 审计覆盖度，不再把 parent-only 通过包装成整树全绿
+- `6-Video` 等 active 链路的 shared runtime 映射是否仍残留旧叶子口径
 
 ### 7. 架构初始化方案
 
@@ -166,8 +186,8 @@
 
 当 `aigc` 处于 `bootstrap_compat` 改造窗口时，额外执行一条兼容约束：
 
-- harness 继续守住项目 runtime、治理工件 carriers、卫星技能入口与高风险预审。
-- `scripts/aigc_skill_audit.py` 可降级深层阶段细节检查，不用旧叶子细节去卡住正在进行的结构重构；但仍需覆盖 active stage 父 `SKILL.md`，防止父级路由、真源或本地引用断链被静默放行。
+- HARNESS 继续守住项目 runtime、治理工件 carriers、卫星技能入口与高风险预审。
+- `scripts/aigc_skill_audit.py` 可降级深层阶段细节检查，不用旧叶子细节去卡住正在进行的结构重构；但仍需覆盖 active stage 父合同，防止父级路由、真源或本地引用断链被静默放行。
 
 对当前仓库而言，最重要的运行约束是：
 
@@ -175,31 +195,37 @@
 - 高风险任务不能跳过预审。
 - 非平凡失败不能跳过分层上溯。
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
-- 团队能力类 skill 不默认创建项目 runtime；其 canonical carrier 是对应 `.agents/skills/team/<组名>/<技能名>/` 根目录和自包含 `references/` 材料。
-- 对由 `skill-subagents` 治理的多子智能体 skill，父 skill、`team.md`、agent docs、子路径合同与相关 review / audit / route 工件必须保持联动同步，不能只改其中一层就宣称源层收束。
-- 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须把降级来源、替代路径与未真实启动部分显式写出。
+- `projects/aigc/<项目名>/` 始终优先于 `.codex/state/tasks/<task_id>/`，后者仅为治理镜像或通用账本。
+- `query / resume / review` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明。
+- `comic` 项目链路已经是受 registry / routes 管理的 repo-local workflow，不再只是临时脚本集合。
+- 团队能力类 skill 的 canonical carrier 是其 skill 根目录与自包含研究载体，不默认创建项目 runtime。
+- 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须显式报告降级来源与替代路径。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
 
 ## 现状判断
 
-当前 HARNESS 的成熟度判断为：`引导期已落地，但仍处于 bootstrap-to-shadow 之间的工程化早期阶段；其中 aigc 主技能树当前运行在 bootstrap_compat 改造窗口。`
+当前 HARNESS 的成熟度判断为：
 
-已经完成的不是“概念宣言”，而是以下几类关键收束：
+`引导期已落地，当前位于 bootstrap-to-shadow 之间的工程化早期阶段；其中 aigc 主技能树仍运行在 bootstrap_compat 改造窗口，但 registry / route / runtime / template / audit 五条主骨架已稳定存在。`
+
+已经完成的关键收束包括：
 
 - 有宪章层，不再只靠零散 prompt 口头约束。
 - 有三省角色合同，不再只有一个模糊 orchestrator。
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
-- 已出现多类受 registry 管理的 repo-local 非 `aigc` 技能，包括漫画项目链路、编剧组人物叙事视角、演员组人物表演视角、导演组人物导演视角、摄影组人物摄影视角、武术组人物动作设计视角与动漫组人物漫画/动作动画视角；编剧组已纳入太宰治、渡边淳一等自包含人物叙事视角，演员组当前已有张国荣、梅艳芳、梁家辉、张曼玉、林青霞五个自包含人物表演视角，导演组已继续纳入朴赞郁、李安、侯孝贤、姜文、奉俊昊等自包含人物导演视角，摄影组已纳入杜可风、夏永康、杉本博司与鲍德熹四个自包含人物摄影视角，武术组已纳入程小东动作设计视角，动漫组已纳入荻野真与川尻善昭人物视角，用来验证“非项目型/团队能力型技能也能走受治理注册与路由”。
+- `aigc` 的主入口、卫星入口、项目内控制面与阶段状态已经纳入同一张注册表。
+- `comic` 已成为独立受治理的 repo-local workflow，而不是根层手工串接。
+- 团队能力类 skill 已不是“散落人物卡”，而是开始进入统一的注册、路由与真源口径。
 
-仍然明显未完成的部分也很清楚：
+仍然明显未完成的部分包括：
 
-- 业务级 suite skill 还没有 fully cut over 到本地 HARNESS 真源。
-- 门下省已经有 `review` 卫星技能作为项目级 preflight / validation / learning bridge 入口，且其下已开始拆分 `preflight-review / acceptance-review / learning-bridge` 三个受治理子技能；更细分的内容专项 reviewer 仍未系统展开。
-- 兵部侧已有 `resume` 卫星技能作为续跑与安全回接入口，但自动化 hook、批量恢复与更细粒度调度能力仍在待接入阶段。
-- `6-Video` 已从纯预留升级为部分可执行阶段，但其余视频子路径仍待补齐。
-- `7-Cut` 仍然是架构上预留、执行上搁浅的阶段。
-- 面向真实项目任务的项目内工件落盘与审计闭环，还需要持续在 `projects/aigc/<项目名>/` 实战固化；当前已不再停留在纯 `validation-report` 单点闭环，首个项目已补入 `preflight-verdict.yaml` 与 `learning-record.md`。
+- `aigc` 虽已完成主骨架注册，但阶段内部合同仍在重构，尚未 fully cut over 到稳定影子态。
+- `6-Video` 已升级为 active stage，但内部子路径和 provider 级执行面仍需继续收束。
+- `7-Cut` 仍是注册层已声明、执行层未落地的搁浅阶段。
+- 门下省的 `review` 已作为统一入口存在，但更细的专项 reviewer 席位仍未系统展开。
+- 兵部侧 `resume` 已是受治理入口，但自动化 hook、批量恢复和更细粒度调度能力仍待补齐。
+- 更大范围的 cross-skill eval、hook、auto-remediation 仍主要停留在骨架期。
 
 ## 可期发展方向
 
@@ -207,10 +233,8 @@
 
 ### 1. 从 bootstrap 走向 shadow
 
-- 在 `comic` 父级总入口与 `comic-script-adaptation / comic-nine-blade-prompts / comic-generation` 三段链基础上，继续补齐项目状态、续跑、验收与批量任务能力。
-- 继续把 `aigc` 根级卫星技能从“已注册”推进到“可稳定复用的标准治理入口”。
-- 继续把 `governance-state.yaml` 从 AIGC 项目内的专项控制面推广为更稳定的复用治理模式。
-- 让更多真实任务以 `projects/aigc/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
+- 继续把 `aigc` 各阶段父合同从“已注册可路由”推进到“可稳定执行且审计可覆盖”。
+- 让更多真实项目任务以 `projects/aigc/<项目名>/` 为主控制面闭环，而不是停留在根层治理准备态。
 - 把阶段状态、局部可执行声明、项目控制面与审计覆盖进一步联动。
 
 ### 2. 从通用治理走向专项治理
@@ -222,7 +246,7 @@
 ### 3. 从人工驱动走向半自动化治理
 
 - 将更多校验沉到 `scripts/`、`.codex/evals/` 与未来 hooks。
-- 让 registry / route / template / audit 之间具备更强的一致性校验，包括根级卫星技能与主阶段链的协同审计。
+- 让 registry / route / template / audit 之间具备更强的一致性校验，包括主链阶段、卫星技能与 repo-local workflow 的协同审计。
 - 为 HARNESS 关键变更建立更明确的同步检查与升级路径。
 
 ### 4. 从设计源继承走向制度化继承

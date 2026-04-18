@@ -24,6 +24,10 @@ governance_tier: full
   - 维护 provider 专属接口契约、字段映射、脚本入口、轮询/下载闭环与本地经验层。
 - 父技能不拥有第二份平行 payload 模板。
   - 具体请求体、脚本参数和 provider 特有字段，始终以下钻后的子技能 `SKILL.md` 为准。
+- 跨 provider 的默认模型治理，不再散落在各子技能自述中。
+  - 规范真源统一回收到 `runbooks/default-model-policy.md`。
+  - 脚本级共享骨架统一回收到 `shared/default_model_policy.py`。
+  - 子技能只允许声明 provider 特有过滤条件、别名兼容链和当前解析结果。
 
 ## 2. 子技能索引
 
@@ -89,6 +93,22 @@ governance_tier: full
   4. 子技能当前真源是否稳定且与用户目标完全贴合。
   5. 若仍并列，优先路由到约束更少、闭环更完整的子技能。
 
+## 3.5 默认模型治理总则（Mandatory）
+
+- 本技能树下的默认模型治理分为共享规则族，不允许每个 provider 再各写一份完整选择算法。
+- 当前共享真源：
+  - 规范层：`runbooks/default-model-policy.md`
+  - 脚本层：`shared/default_model_policy.py`
+- 当前规则族分工：
+  - `highest-available-general`：`kling / runway / veo / luma / vidu / minimax`
+  - `rolling-latest-quality-alias`：`seedance`
+  - `highest-verified-available`：`grok`
+  - `highest-tier-candidate-ladder`：`sora`
+- 进入子技能后，若该 provider 属于共享规则族：
+  - 子技能必须显式回指父级 runbook。
+  - 当前解析结果可以在子技能里展示，但算法本身不得在多个载体平行演化。
+- 用户显式传入 `model` 时，始终优先尊重用户意图；默认模型治理只处理“未显式传模型”的场景。
+
 ## 4. 统一输入与输出契约（Mandatory）
 
 ### 4.1 输入收束
@@ -147,8 +167,8 @@ governance_tier: full
    - 再按子技能合同执行并解释输出。
 5. **Step 5 / 失败上溯与修源层**
    - 若问题出在 provider 特有字段、脚本或接口漂移，优先修子技能。
-   - 若问题出在多个 provider 共享的 Base URL 回退链、通用 host 误用或 `200 + HTML` 伪成功模式，优先把该模式上提到父级经验层，再回落到受影响子技能。
-   - 若问题出在 provider 误路由、父级索引缺失、闭环类型误判或共享表述漂移，优先修本父技能。
+   - 若问题出在多个 provider 共享的 Base URL 回退链、通用 host 误用、`200 + HTML` 伪成功模式，或默认模型治理分裂，优先把该模式上提到父级经验层 / 共享 runbook / 共享 helper，再回落到受影响子技能。
+   - 若问题出在 provider 误路由、父级索引缺失、闭环类型误判、共享表述漂移或默认模型规则族定义缺失，优先修本父技能。
 
 ### 6.2 思维导引表
 
@@ -178,13 +198,13 @@ governance_tier: full
 
 ## 8. Root-Cause 执行契约（Mandatory）
 
-当出现 provider 误路由、把创建回执误说成闭环结果、把多个 provider 字段拼成一份伪通用 payload、父级索引漏掉现有子技能，或跨 provider 的共享说明发生漂移时，按以下链路上溯：
+当出现 provider 误路由、把创建回执误说成闭环结果、把多个 provider 字段拼成一份伪通用 payload、父级索引漏掉现有子技能、默认模型算法在兄弟子技能间重复分裂，或跨 provider 的共享说明发生漂移时，按以下链路上溯：
 
 `Symptom/Failure`
--> `Direct Cause`：provider 判断错误、闭环类型误判、父级索引缺失、共享术语漂移、父级与子技能边界不清
--> `规则源`：`.agents/skills/api/video/SKILL.md`、`.agents/skills/api/video/CONTEXT.md`、目标子技能 `SKILL.md`
+-> `Direct Cause`：provider 判断错误、闭环类型误判、父级索引缺失、共享术语漂移、默认模型规则族缺失、子技能各写一份选择逻辑、父级与子技能边界不清
+-> `规则源`：`.agents/skills/api/video/SKILL.md`、`.agents/skills/api/video/CONTEXT.md`、`runbooks/default-model-policy.md`、`shared/default_model_policy.py`、目标子技能 `SKILL.md`
 -> `规则源的规则源`：仓库根 `AGENTS.md` 中的 Root-Cause First / Canonical Source / Composite Output / Context Loading 治理契约
--> `Fix Landing Points`：优先修父级路由真源、子技能索引、闭环分类和共享表述；若是 provider 专属字段或脚本问题，再下钻修对应子技能
+-> `Fix Landing Points`：优先修父级路由真源、默认模型共享 runbook / helper、子技能索引、闭环分类和共享表述；若是 provider 专属字段或脚本问题，再下钻修对应子技能
 
 用户侧关闭语必须至少包含：
 

@@ -2,8 +2,8 @@
 name: team-perspective-root
 governance_tier: full
 description: |
-  Use when a creative task needs routing across director, screenwriter, actor,
-  cinematography, design, action, aesthetic, or work-based perspective skills
+  Use when a creative task needs routing across director, novelist,
+  actor, cinematography, design, action, aesthetic, or work-based perspective skills
   under the team skill tree, or when shared rules for those persona skills
   must be inspected, repaired, or governed from the root.
 ---
@@ -36,7 +36,7 @@ description: |
 
 使用本根技能的场景：
 
-- 用户要求“用某某视角”“导演组/编剧组/演员组怎么看”“让团队顾问会诊”等跨部门或人物视角任务。
+- 用户要求“用某某视角”“导演组/小说组/编剧组/演员组怎么看”“让团队顾问会诊”等跨部门或人物视角任务。
 - 用户明确点名某部作品，希望“像《2046》那样处理”“用某作品做镜片”“拆某部作品的方法”。
 - 用户没有指定人物，但任务明显需要在导演、编剧、演员、摄影、设计、动作、美学之间选择最合适的视角。
 - 用户要求维护、审计、批量补齐或修复 `.agents/skills/team/` 下的共享规范。
@@ -50,10 +50,15 @@ description: |
 
 ## Department Taxonomy
 
+命名兼容规则：
+
+- `小说组/` 是当前 canonical 目录与显示名。
+- `编剧组` 作为旧称保留输入兼容；凡命中旧称，默认等价路由到 `小说组/`。
+
 | department_id | 目录 | 主要问题 | 默认交付 |
 | --- | --- | --- | --- |
 | `director` | `导演组/` | 剧本方向、场面调度、类型策略、制作判断 | 导演诊断、分镜/调度建议、制作取舍 |
-| `screenwriter` | `编剧组/` | 结构、人物、叙事、母题、改编 | 剧作诊断、结构重写方向、段落钩子 |
+| `screenwriter` | `小说组/` | 结构、人物、叙事、母题、改编 | 剧作诊断、结构重写方向、段落钩子 |
 | `actor` | `演员组/` | 表演、角色气质、身体、镜头关系 | 表演方案、角色处理、镜头表演建议 |
 | `cinematography` | `摄影组/` | 光线、镜头、色彩、质感、影像组织 | 摄影诊断、镜头/光色策略 |
 | `design` | `设计组/` | 空间、服装、美术、材料、建筑/场景 | 设计诊断、视觉系统、提示词字段 |
@@ -116,7 +121,7 @@ description: |
 | `三池崇史` | 邪典类型、暴力禁忌、漫改/游戏改编 |
 | `关锦鹏` | 女性/酷儿视角、旧时代记忆、演员导向 |
 
-### 编剧组
+### 小说组
 
 | 成员 | 适配场景 |
 | --- | --- |
@@ -255,9 +260,9 @@ stateDiagram-v2
 路由必须使用证据，而不是只凭关键词联想：
 
 1. 用户明确点名人物时，优先进入对应人物子技能。
-2. 用户明确点名作品时，优先进入 `作品维度/` 下对应条目，而不是强行改路由到导演组或编剧组。
+2. 用户明确点名作品时，优先进入 `作品维度/` 下对应条目，而不是强行改路由到导演组或小说组。
 3. 用户只给部门时，在该部门内选择最贴合任务对象的人物技能；若无法确定，先说明选择假设。
-4. 用户给创作症状时，按主问题路由：结构进编剧组，调度进导演组，表演进演员组，影像进摄影组，空间/服装/美术进设计组，打戏进武术组，整体视觉气质进美学组；若症状明显是在索取单部作品的结构镜片或风格迁移，则进 `作品维度/`。
+4. 用户给创作症状时，按主问题路由：结构进小说组（兼容旧称“编剧组”），调度进导演组，表演进演员组，影像进摄影组，空间/服装/美术进设计组，打戏进武术组，整体视觉气质进美学组；若症状明显是在索取单部作品的结构镜片或风格迁移，则进 `作品维度/`。
 5. 需要多视角时使用 council mode，但默认只选 `2-4` 个必要视角；不得全量调度所有人物技能。
 6. 事实依赖问题必须先核验再进入人物或作品视角；不得伪造本人言论、私人记忆或未公开立场。
 

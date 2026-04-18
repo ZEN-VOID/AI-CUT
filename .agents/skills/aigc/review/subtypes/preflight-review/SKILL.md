@@ -23,6 +23,14 @@ governance_tier: lite
 - canonical carrier: `projects/aigc/<项目名>/preflight-verdict.yaml`
 - sync summary: `projects/aigc/<项目名>/governance-state.yaml.review_bridge.latest_preflight_status`
 
+carrier 最小字段应包含：
+
+- `review_dimensions`
+- `finding_summary`
+- `findings`
+- `decision_rationale`
+- `evidence_status`
+
 ## When to Use
 
 - 任务涉及重构、批量迁移、状态修复、基础规则变更。
@@ -39,16 +47,19 @@ governance_tier: lite
 
 1. 锁定 `PROJECT_ROOT` 与高风险 scope。
 2. 读取 `mission-brief.yaml`、`route-plan.yaml`、`governance-state.yaml` 与现有 `preflight-verdict.yaml`。
-3. 判定 `pass / blocked / revise_before_execute`。
-4. 写回 `preflight-verdict.yaml`。
-5. 同步 `governance-state.yaml.review_bridge.latest_preflight_status` 与 `resume_contract`。
-6. 返回唯一下一入口。
+3. 按 `menxia-review-protocol.md` 组装 evidence pack，并输出 findings。
+4. 判定 `pass / blocked / revise_before_execute`。
+5. 写回 `preflight-verdict.yaml`。
+6. 同步 `governance-state.yaml.review_bridge.latest_preflight_status` 与 `resume_contract`。
+7. 返回唯一下一入口。
 
 ## Hard Rules
 
 1. 没有 `mission-brief.yaml` 与 `route-plan.yaml` 时，不得放行高风险执行。
 2. 只写门下省 verdict，不得越权改阶段业务真源。
 3. `governance-state.yaml` 只记摘要，不替代 `preflight-verdict.yaml` 本体。
+4. 至少一个 `P0/P1` finding 未缓释时，不得给 `pass`。
+5. 结论不得只有 blocker 列表，必须同时给 `decision_rationale` 与 `evidence_status`。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -61,6 +72,7 @@ governance_tier: lite
 - `Rule Source`
   - `.agents/skills/aigc/review/subtypes/preflight-review/SKILL.md`
   - `.agents/skills/aigc/review/references/review-modes.md`
+  - `.agents/skills/aigc/review/references/menxia-review-protocol.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/review/SKILL.md`
   - `.codex/templates/harness/office-governance-contract.md`

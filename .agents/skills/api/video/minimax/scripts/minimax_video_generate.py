@@ -34,6 +34,12 @@ except ImportError:
     print("❌ 缺少依赖: pip install requests python-dotenv")
     sys.exit(1)
 
+VIDEO_SKILL_ROOT = Path(__file__).resolve().parents[2]
+if str(VIDEO_SKILL_ROOT) not in sys.path:
+    sys.path.insert(0, str(VIDEO_SKILL_ROOT))
+
+from shared.default_model_policy import select_latest_by_version
+
 
 DEFAULT_BASE_URL = "https://fw2afus.ent.acc.kurtisasia.com"
 DEFAULT_PROJECT_NAME = "测试"
@@ -76,14 +82,12 @@ def _version_key_from_model(model: str) -> tuple[int, ...]:
     return tuple(int(part) for part in match.group(1).split("."))
 
 
-def _select_latest_family_model(prefix: str) -> str:
-    family_models = [model for model in KNOWN_MODELS if model.startswith(prefix)]
-    if not family_models:
-        raise ValueError(f"未找到 {prefix} 系列模型，无法推导默认模型")
-    return max(family_models, key=lambda model: (_version_key_from_model(model), model))
-
-
-DEFAULT_MODEL = _select_latest_family_model("Hailuo")
+DEFAULT_MODEL = select_latest_by_version(
+    KNOWN_MODELS,
+    version_key=_version_key_from_model,
+    predicate=lambda model: model.startswith("Hailuo"),
+    error_message="未找到 Hailuo 系列模型，无法推导默认模型",
+)
 
 
 def _env_api_key() -> Optional[str]:
