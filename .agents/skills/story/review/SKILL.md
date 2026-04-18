@@ -98,8 +98,8 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
   - 是本 skill 的唯一审查判断真源。
 - `STATE.json`
   - 只承担轻量运行态与 checkpoint 摘要，不承载大体量实体/关系数据。
-- `Planning/全息地图.json`
-  - 是规划真源；若需要定位问题落点、说明后续影响、或给 `5-Loopback`/`3-Drafting` 回流说明，应优先读 holomap，而不是回退到旧 `Planning/legacy/`。
+- `2-Planning/全息地图.json`
+  - 是规划真源；若需要定位问题落点、说明后续影响、或给 `5-Loopback`/`3-Drafting` 回流说明，应优先读 holomap，而不是回退到旧 `2-Planning/legacy/`。
 - `index.db.review_metrics`
   - 是趋势统计与横向比较数据源；不替代本轮聚合结果。
 
@@ -109,12 +109,12 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
 
 - 读取并保留 `mission_brief_ref / preflight_verdict_ref / validation_report_ref`
 - 生成正式审查报告后，允许把报告路径、状态与 next action 写回同一 `<run_id>` 的工件索引
-- 不得因为 task dir 已有 `validation_report.md` 就跳过正式 `Validation/第X章审查报告.md` 的业务报告输出
+- 不得因为 task dir 已有 `validation_report.md` 就跳过正式 `4-Validation/第X章审查报告.md` 的业务报告输出
 
 边界：
 
 - task dir 是治理闭环证据层。
-- `Validation/第X章审查报告.md` 是书项目业务报告层。
+- `4-Validation/第X章审查报告.md` 是书项目业务报告层。
 - 两者必须互相回指，但不能互相替代。
 
 ## 0.5 工作流断点（best-effort，不得阻断主流程）
@@ -162,7 +162,7 @@ cat "$PROJECT_ROOT/STATE.json"
 
 按需：
 ```bash
-cat "$PROJECT_ROOT/Planning/全息地图.json"
+cat "$PROJECT_ROOT/2-Planning/全息地图.json"
 cat "${SKILL_ROOT}/references/common-mistakes.md"
 cat "${SKILL_ROOT}/references/pacing-control.md"
 python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-recent-review-metrics --limit 5
@@ -207,7 +207,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
 
 ## Step 4：生成审查报告
 
-保存到：`Validation/第{start_chapter}-{end_chapter}章审查报告.md`
+保存到：`4-Validation/第{start_chapter}-{end_chapter}章审查报告.md`
 
 报告结构（精简版）：
 ```markdown
@@ -262,7 +262,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
   "cold_commentary_risk": "low",
   "severity_counts": {"critical": 0, "high": 1, "medium": 2, "low": 0},
   "critical_issues": ["问题描述"],
-  "report_file": "Validation/第100-100章审查报告.md",
+  "report_file": "4-Validation/第100-100章审查报告.md",
   "notes": "单个字符串；selected_agents / validation_mode / routing_decision / handoff_targets 等扩展信息压成单行文本写入此字段"
 }
 ```
@@ -282,7 +282,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index save-rev
 
 ```bash
 python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" update-state -- \
-  --add-review "{start_chapter}-{end_chapter}" "Validation/第{start_chapter}-{end_chapter}章审查报告.md" \
+  --add-review "{start_chapter}-{end_chapter}" "4-Validation/第{start_chapter}-{end_chapter}章审查报告.md" \
   --review-anti-ai-force-check "{anti_ai_force_check}" \
   --review-spoiler-risk "{spoiler_risk}" \
   --review-contrivance-risk "{contrivance_risk}" \
@@ -371,7 +371,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 |---|---|---|---|---|---|
 | FIELD-REV-INTAKE-01 | Step 1 | 确认输入来自 `4-Validation` 新团队，且 gate 信息完整 | 上游聚合结果确认、`validation_status`、`routing_decision`、`handoff_targets` | FAIL-REV-INTAKE-01 | 回到 `4-Validation` 补跑或补齐聚合字段 |
-| FIELD-REV-LOAD-02 | Step 2 | 按最新系统读取轻量状态、规划真源与趋势数据 | `STATE.json`、holomap、必要参考加载确认 | FAIL-REV-LOAD-02 | 修正路径或数据流入口，禁止回退旧 `Planning/legacy/` 冒充真源 |
+| FIELD-REV-LOAD-02 | Step 2 | 按最新系统读取轻量状态、规划真源与趋势数据 | `STATE.json`、holomap、必要参考加载确认 | FAIL-REV-LOAD-02 | 修正路径或数据流入口，禁止回退旧 `2-Planning/legacy/` 冒充真源 |
 | FIELD-REV-AGG-03 | Step 3 | 保真汇总上游评估结论并生成闭环工件 | `issues`、`severity_counts`、`critical_issues`、`overall_score`、`review_handoff_summary` | FAIL-REV-AGG-03 | 回到聚合接口检查缺字段、矛盾或 gate 被改写 |
 | FIELD-REV-PERSIST-04 | Step 4-6 | 生成报告并完成落库回写 | 审查报告、`review_metrics`、`review_checkpoints` | FAIL-REV-PERSIST-04 | 重做报告或修复 SQLite/state 持久化 |
 | FIELD-REV-ESCALATE-05 | Step 7 | 对 critical 做人工升级与返工引导 | 返工清单或延期处理决定 | FAIL-REV-ESCALATE-05 | 重新执行关键问题升级流程 |

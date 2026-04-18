@@ -2,6 +2,18 @@
 
 本文件记录 `.agents/skills/aigc/0-Init/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-04-18
+
+- `Case-20260418-AIGC-INIT-PROJECT-ROOT-CHANGELOG`
+  - 将项目根 `projects/aigc/<项目名>/CHANGELOG.md` 补入 `0-Init` 的默认初始化合同。
+  - 明确它是项目级时间序记录入口，由 `0-Init` 首次创建，但不承载 live route truth、断点治理或 review verdict。
+  - 同步把这条规则上收到 shared runtime layout，并在 `scripts/aigc_skill_audit.py` 新增审计检查，防止后续 skeleton 再次漏建。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+    - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+    - `scripts/aigc_skill_audit.py`
+
 ## 2026-04-15
 
 - `Case-20260415-AIGC-INIT-SMART-ADVISOR-SINGLE-MODE`

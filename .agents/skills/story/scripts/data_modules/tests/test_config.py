@@ -14,7 +14,7 @@ def test_config_paths_and_defaults(tmp_path):
     cfg = DataModulesConfig.from_project_root(tmp_path)
     assert cfg.project_root == tmp_path
     assert cfg.webnovel_dir.name == ".webnovel"
-    assert cfg.state_file.name == "state.json"
+    assert cfg.state_file.name == "STATE.json"
     assert cfg.index_db.name == "index.db"
     assert cfg.rag_db.name == "rag.db"
     assert cfg.vector_db.name == "vectors.db"

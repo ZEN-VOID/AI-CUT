@@ -1,7 +1,7 @@
 {
   "chapter": 12,
   "manuscript_ref": "3-Drafting/第12集.md",
-  "validation_ref": "Validation/第12集.validation.json",
+  "validation_ref": "4-Validation/第12集.validation.json",
   "validation_mode": "normal_review",
   "validation_status": "FAIL-QUALITY",
   "selected_agents": [
@@ -52,7 +52,7 @@
         "6-追读力强化"
       ],
       "source_trace": [],
-      "report_ref": "Validation/第12集/结构兑现.md"
+      "report_ref": "4-Validation/第12集/结构兑现.md"
     },
     "character-validator": {
       "validation_context": "final_acceptance",
@@ -93,15 +93,15 @@
         "5-对白个性化和声口优化"
       ],
       "source_trace": [],
-      "report_ref": "Validation/第12集/人物一致性.md"
+      "report_ref": "4-Validation/第12集/人物一致性.md"
     }
   },
   "dimension_report_refs": {
-    "structure-validator": "Validation/第12集/结构兑现.md",
-    "continuity-validator": "Validation/第12集/连续性.md",
-    "logic-validator": "Validation/第12集/逻辑自洽校验.md",
-    "character-validator": "Validation/第12集/人物一致性.md",
-    "timeline-validator": "Validation/第12集/时间线.md"
+    "structure-validator": "4-Validation/第12集/结构兑现.md",
+    "continuity-validator": "4-Validation/第12集/连续性.md",
+    "logic-validator": "4-Validation/第12集/逻辑自洽校验.md",
+    "character-validator": "4-Validation/第12集/人物一致性.md",
+    "timeline-validator": "4-Validation/第12集/时间线.md"
   },
   "issues": [
     {
@@ -169,7 +169,7 @@
   "source_trace": [],
   "evidence_refs": [
     "3-Drafting/第12集.md",
-    "Validation/第12集/结构兑现.md",
-    "Validation/第12集/人物一致性.md"
+    "4-Validation/第12集/结构兑现.md",
+    "4-Validation/第12集/人物一致性.md"
   ]
 }

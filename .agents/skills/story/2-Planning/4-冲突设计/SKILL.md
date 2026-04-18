@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`Planning/全息地图.json` 与当前 `Planning/全息地图.json`。
+- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
 
 ## Parent Positioning
 
@@ -34,14 +34,14 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把故事推进翻译成可持续升级的对抗网络。 |
-| `business_object` | `Planning/全息地图.json` 与 `story_map.conflict_threads / board.conflicts`。 |
+| `business_object` | `2-Planning/全息地图.json` 与 `story_map.conflict_threads / board.conflicts`。 |
 | `constraint_profile` | 只写冲突，不越权代做任务与线索。 |
 | `success_criteria` | 冲突 threads 稳定，board 能追踪“本章谁压迫谁”。 |
 
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/pass-artifacts/4-冲突设计.json`
+  - `2-Planning/pass-artifacts/4-冲突设计.json`
 - owned story_map slots：
   - `content.holomap.conflict_threads`
   - `content.holomap.chapter_boards[].bundled_elements.conflicts`

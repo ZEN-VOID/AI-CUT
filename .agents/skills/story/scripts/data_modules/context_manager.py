@@ -739,7 +739,7 @@ class ContextManager:
         return appearances or []
 
     def _load_global_cards_context(self) -> Dict[str, Any]:
-        index_path = self.config.project_root / "Cards" / "0-全局卡" / "全局索引.json"
+        index_path = self.config.project_root / "1-Cards" / "0-全局卡" / "全局索引.json"
         index_payload = self._load_json_optional(index_path)
         content = index_payload.get("content", {}) if isinstance(index_payload, dict) else {}
         groups = content.get("card_groups", {}) if isinstance(content, dict) else {}

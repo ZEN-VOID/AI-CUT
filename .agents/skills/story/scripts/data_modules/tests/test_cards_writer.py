@@ -15,8 +15,9 @@ def _load_modules():
 
     import cards_coverage_validator
     import cards_writer
+    import security_utils
 
-    return cards_writer, cards_coverage_validator
+    return cards_writer, cards_coverage_validator, security_utils
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -132,7 +133,7 @@ def _build_payload() -> dict:
         "sections": {
             "globals": {
                 "global_contract_refs": [
-                    {"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}
+                    {"card_id": "世界总卡", "path": "1-Cards/0-全局卡/总设定/世界总卡.json"}
                 ],
                 "current_focus": {
                     "confirmed_facts": ["世界规则与金手指合同已锁定"],
@@ -195,7 +196,7 @@ def _build_payload() -> dict:
             },
             "styles": {
                 "style_contract_refs": [
-                    {"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}
+                    {"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}
                 ],
                 "current_focus": {
                     "confirmed_facts": ["读者承诺与审美轴已锁定"],
@@ -239,7 +240,7 @@ def _build_payload() -> dict:
                                 "style_gate": {
                                     "anti_ai_required": True,
                                     "no_poison_required": True,
-                                    "style_contract_ref": "Cards/1-风格卡/总风格/整书风格卡.json",
+                                    "style_contract_ref": "1-Cards/1-风格卡/总风格/整书风格卡.json",
                                 }
                             },
                             "current_state": {
@@ -608,7 +609,7 @@ def _build_payload() -> dict:
 
 
 def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
-    cards_writer, cards_coverage_validator = _load_modules()
+    cards_writer, cards_coverage_validator, _security_utils = _load_modules()
     project_root = _make_project_root(tmp_path)
 
     report = cards_writer.write_cards_payload(project_root, _build_payload(), run_gate=True)
@@ -616,7 +617,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert report["ok"] is True
     assert report["mode"] == "full-build"
 
-    global_path = project_root / "Cards" / "0-全局卡" / "总设定" / "世界总卡.json"
+    global_path = project_root / "1-Cards" / "0-全局卡" / "总设定" / "世界总卡.json"
     global_card = json.loads(global_path.read_text(encoding="utf-8"))
     assert global_card["meta"]["source_skill_id"] == "story-cards-global"
     assert global_card["meta"]["source_route"] == "0-Init > story-cards > 全局卡/SKILL.md"
@@ -630,7 +631,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "全局卡/references/golden-finger-templates.md",
     ]
 
-    style_path = project_root / "Cards" / "1-风格卡" / "总风格" / "整书风格卡.json"
+    style_path = project_root / "1-Cards" / "1-风格卡" / "总风格" / "整书风格卡.json"
     style_card = json.loads(style_path.read_text(encoding="utf-8"))
     assert style_card["meta"]["source_skill_id"] == "story-cards-style"
     assert style_card["meta"]["source_route"] == "0-Init > story-cards > 风格卡/SKILL.md"
@@ -643,7 +644,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "风格卡/templates/style-card.json",
     ]
 
-    protagonist_path = project_root / "Cards" / "2-角色卡" / "主要角色" / "林舟.json"
+    protagonist_path = project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林舟.json"
     protagonist = json.loads(protagonist_path.read_text(encoding="utf-8"))
     assert protagonist["meta"]["source_skill_id"] == "story-cards-character"
     assert protagonist["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
@@ -658,8 +659,8 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     ]
     assert protagonist["content"]["writeback_plan"]["mode"] == "full-build"
     assert protagonist["content"]["writeback_plan"]["target_paths"] == [
-        "Cards/2-角色卡/主要角色/林舟.json",
-        "Cards/2-角色卡/角色索引.json",
+        "1-Cards/2-角色卡/主要角色/林舟.json",
+        "1-Cards/2-角色卡/角色索引.json",
     ]
     assert protagonist["content"]["card_schema"]["character_card"]["card_scope"]["scope_type"] == "full-series"
     assert protagonist["content"]["card_schema"]["character_card"]["core"]["cast_markers"] == {
@@ -670,7 +671,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "is_ensemble": False,
     }
 
-    character_index_path = project_root / "Cards" / "2-角色卡" / "角色索引.json"
+    character_index_path = project_root / "1-Cards" / "2-角色卡" / "角色索引.json"
     character_index = json.loads(character_index_path.read_text(encoding="utf-8"))
     assert character_index["meta"]["source_skill_id"] == "story-cards-character"
     assert character_index["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
@@ -684,13 +685,13 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "角色卡/templates/character-card.json",
     ]
     assert character_index["content"]["writeback_plan"]["target_paths"] == [
-        "Cards/2-角色卡/角色索引.json",
-        "Cards/2-角色卡/角色关系图谱.md",
+        "1-Cards/2-角色卡/角色索引.json",
+        "1-Cards/2-角色卡/角色关系图谱.md",
     ]
-    assert character_index["content"]["relationship_graph"]["path"] == "Cards/2-角色卡/角色关系图谱.md"
+    assert character_index["content"]["relationship_graph"]["path"] == "1-Cards/2-角色卡/角色关系图谱.md"
     assert character_index["gate_summary"]["status"] == "PASS"
 
-    relationship_graph_path = project_root / "Cards" / "2-角色卡" / "角色关系图谱.md"
+    relationship_graph_path = project_root / "1-Cards" / "2-角色卡" / "角色关系图谱.md"
     relationship_graph = relationship_graph_path.read_text(encoding="utf-8")
     assert "# 角色关系图谱" in relationship_graph
     assert "## 文字说明" in relationship_graph
@@ -703,3 +704,32 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert coverage_report["sections"]["globals"]["trace"]["module_route"] == "story-cards > 全局卡/SKILL.md"
     assert coverage_report["sections"]["styles"]["trace"]["module_route"] == "story-cards > 风格卡/SKILL.md"
     assert coverage_report["sections"]["characters"]["trace"]["module_route"] == "story-cards > 角色卡/SKILL.md"
+
+
+def test_cards_writer_cleans_empty_lock_files_by_default(tmp_path):
+    cards_writer, _cards_coverage_validator, security_utils = _load_modules()
+    project_root = _make_project_root(tmp_path)
+
+    if not security_utils.HAS_FILELOCK:
+        return
+
+    report = cards_writer.write_cards_payload(project_root, _build_payload(), run_gate=False)
+
+    assert report["cleanup_empty_lock_on_release"] is True
+    assert list(project_root.rglob("*.lock")) == []
+
+
+def test_cards_writer_can_keep_empty_lock_files_when_requested(tmp_path):
+    cards_writer, _cards_coverage_validator, security_utils = _load_modules()
+    project_root = _make_project_root(tmp_path)
+    payload = _build_payload()
+    payload["cleanup_empty_lock_on_release"] = False
+
+    if not security_utils.HAS_FILELOCK:
+        return
+
+    report = cards_writer.write_cards_payload(project_root, payload, run_gate=False)
+
+    lock_files = list(project_root.rglob("*.lock"))
+    assert report["cleanup_empty_lock_on_release"] is False
+    assert lock_files

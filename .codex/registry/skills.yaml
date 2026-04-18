@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-16
+last_updated: 2026-04-18
 
 active_skills:
   - id: aigc
@@ -194,6 +194,15 @@ active_skills:
       canonical_skill_root: ".agents/skills/team/aigc/编剧组/罗伯特·麦基/"
       research_carrier: ".agents/skills/team/aigc/编剧组/罗伯特·麦基/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-story-yoshikawa-eiji
+    path: .agents/skills/team/story/武侠类/吉川英治
+    owner_office: shangshu
+    purpose: "story 组 repo-local 小说家叙事视角 skill，用吉川英治式求道成长、史料缝隙推理、国民文学可读性、时代群像与侠义修身分析武侠、历史长篇、英雄叙事和章节推进。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/story/武侠类/吉川英治/"
+      research_carrier: ".agents/skills/team/story/武侠类/吉川英治/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
   - id: team-actor-leslie-cheung
     path: .agents/skills/team/演员组/张国荣
     owner_office: shangshu
@@ -355,6 +364,15 @@ active_skills:
     runtime_control:
       canonical_skill_root: ".agents/skills/team/武术组/程小东/"
       research_carrier: ".agents/skills/team/武术组/程小东/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-aesthetic-wang-guowei
+    path: .agents/skills/team/aigc/美学组/王国维
+    owner_office: shangshu
+    purpose: "美学组 repo-local 人物美学视角 skill，用王国维式境界论、有我/无我、入乎其内出乎其外、古雅与悲剧美学分析诗性影像、场景、台词、古典改编与整体气质。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/aigc/美学组/王国维/"
+      research_carrier: ".agents/skills/team/aigc/美学组/王国维/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
   - id: team-anime-ogino-makoto
     path: .agents/skills/team/动漫组/荻野真

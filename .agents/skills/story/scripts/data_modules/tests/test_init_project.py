@@ -22,10 +22,9 @@ def _load_yaml(path: Path):
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
-def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_path, monkeypatch):
+def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_path, monkeypatch, capsys):
     module = _load_module()
 
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "测试小说"
@@ -59,8 +58,6 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     source_manifest = _load_yaml(project_root / "0-Init" / "story-source-manifest.yaml")
     init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
     changelog = (project_root / "CHANGELOG.md").read_text(encoding="utf-8")
-    legacy_outline = (project_root / "Planning" / "legacy" / "总纲.md").read_text(encoding="utf-8")
-
     assert state["project_name"] == "测试小说"
     assert state["current_stage"] == "0-Init"
     assert state["recommended_next_stage"] == "1-Cards"
@@ -76,6 +73,9 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert team_manifest["init_contract"]["init_mode"] == "team_roleplay"
     assert team_manifest["init_contract"]["team_lineup_mode"] == "custom"
     assert team_manifest["init_contract"]["selector_scope_root"] == ".agents/skills/team/"
+    assert team_manifest["runtime_policy"]["require_subagents_for_init_execution"] is True
+    assert team_manifest["runtime_policy"]["init_execution_owner_role"] == "planning"
+    assert team_manifest["roles"]["planning"]["init_execution"]["execution_mode"] == "direct-answer-packet"
     assert team_manifest["roles"]["planning"]["members"] == [
         ".codex/agents/小说家/金庸.md",
         ".codex/agents/导演/徐克.md",
@@ -102,19 +102,32 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert init_handoff["stage_entry_seeds"]["cards_seed"]["character_seed"]["protagonist"]["name"] == "林默"
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["story_engine"]["golden_finger_growth_rhythm"] == "慢热"
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["type_stack"]["primary"] == "网文高冲击"
+    assert (project_root / "3-Drafting").is_dir()
+    assert (project_root / "1-Cards" / "1-风格卡" / "总风格").is_dir()
+    assert (project_root / "2-Planning").is_dir()
+    assert (project_root / "4-Validation").is_dir()
+    assert (project_root / "5-Loopback").is_dir()
+    assert not (project_root / "Drafting").exists()
+    assert not (project_root / "正文").exists()
+    assert not (project_root / "1-Cards" / "其他设定").exists()
+    assert not (project_root / ".webnovel").exists()
+    assert not (project_root / ".env.example").exists()
+    assert not (project_root / "2-Planning" / "legacy").exists()
+    assert not (project_root / ".git").exists()
 
     assert "写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。" in changelog
-    assert "## 初始化合同快照" in legacy_outline
 
-    assert not (project_root / ".webnovel" / "workflow_state.json").exists()
-    assert not (project_root / ".webnovel" / "execution_state.json").exists()
-    assert not (project_root / ".webnovel" / "task_log.jsonl").exists()
-    assert not (project_root / ".webnovel" / "tasks").exists()
+    captured = capsys.readouterr()
+    assert "Generated files:" in captured.out
+    assert " - 1-Cards/" in captured.out
+    assert " - 2-Planning/" in captured.out
+    assert " - 4-Validation/" in captured.out
+    assert " - 5-Loopback/" in captured.out
+    assert "2-Planning/全息地图.json is not created during /story-init; generate it via /story-plan." in captured.out
 
 
 def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "快速模式书"
@@ -144,7 +157,6 @@ def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatc
 
 def test_init_project_infers_expanded_legacy_type_packs(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "旧题材映射书"
@@ -168,7 +180,6 @@ def test_init_project_infers_expanded_legacy_type_packs(tmp_path, monkeypatch):
 
 def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "共享班底书"
@@ -198,9 +209,50 @@ def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_pa
     assert team_manifest["roles"]["planning"]["members"] == expected
 
 
+def test_init_project_reinit_refreshes_team_manifest(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
+
+    project_root = tmp_path / "projects" / "story" / "重跑初始化书"
+    module.init_project(
+        str(project_root),
+        "重跑初始化书",
+        "历史古代+悬疑脑洞",
+    )
+
+    module.init_project(
+        str(project_root),
+        "重跑初始化书",
+        "历史古代+悬疑脑洞",
+        mode_source="inferred",
+        decision_owner="assistant",
+        planning_agents=".agents/skills/team/study/历史系/易中天/SKILL.md,.agents/skills/team/aigc/编剧组/罗伯特·麦基/SKILL.md",
+        production_agents=".agents/skills/team/aigc/导演组/杜琪峰/SKILL.md",
+        review_agents=".agents/skills/team/study/历史系/易中天/SKILL.md",
+        one_liner="史官在刺客档案中发现自己的死期。",
+        core_conflict="他要在被写死前找出写传者。",
+    )
+
+    team_manifest = _load_yaml(project_root / "team.yaml")
+    assert team_manifest["init_contract"]["team_lineup_mode"] == "custom"
+    assert team_manifest["init_contract"]["mode_source"] == "inferred"
+    assert team_manifest["decision_policy"]["decision_owner"] == "assistant"
+    assert team_manifest["decision_policy"]["conflict_rule"] == "user_confirmed > review_gate > planning_direct_answer_consensus > role_consensus > main_agent_inferred"
+    assert team_manifest["roles"]["planning"]["enabled"] is True
+    assert team_manifest["roles"]["planning"]["members"] == [
+        ".agents/skills/team/study/历史系/易中天/SKILL.md",
+        ".agents/skills/team/aigc/编剧组/罗伯特·麦基/SKILL.md",
+    ]
+    assert team_manifest["roles"]["production"]["members"] == [
+        ".agents/skills/team/aigc/导演组/杜琪峰/SKILL.md",
+    ]
+    assert team_manifest["roles"]["review"]["members"] == [
+        ".agents/skills/team/study/历史系/易中天/SKILL.md",
+    ]
+
+
 def test_init_project_allows_explicit_type_stack_override(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "显式类型包书"
@@ -228,7 +280,6 @@ def test_init_project_allows_explicit_type_stack_override(tmp_path, monkeypatch)
 
 def test_init_project_defaults_mode_source_and_user_confirmed(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "自主模式书"
@@ -252,9 +303,114 @@ def test_init_project_defaults_mode_source_and_user_confirmed(tmp_path, monkeypa
     assert "protagonist.name" in init_handoff["sources_breakdown"]["user_confirmed"]
 
 
+def test_init_project_defaults_unassigned_fields_to_assistant_inferred_when_assistant_owns_decisions(
+    tmp_path, monkeypatch
+):
+    module = _load_module()
+    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
+
+    project_root = tmp_path / "projects" / "story" / "助手拍板书"
+    module.init_project(
+        str(project_root),
+        "助手拍板书",
+        "武侠",
+        mode_source="inferred",
+        decision_owner="assistant",
+        user_confirmed_fields="project.title",
+        one_liner="一个剑客在无敌后反向追索失败的意义。",
+        core_conflict="他越接近天下第一，越无法和任何人真正相遇。",
+        protagonist_name="独孤某",
+    )
+
+    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    payload = module._build_init_handoff_payload(
+        now_iso="2026-04-18T11:11:00",
+        init_mode="team代入模式",
+        mode_source="inferred",
+        decision_owner="assistant",
+        advisor_agents="",
+        shared_council_agents="",
+        planning_agents="",
+        production_agents="",
+        review_agents="",
+        research_policy="none",
+        user_confirmed_fields="project.title",
+        council_advised_fields="",
+        assistant_inferred_fields="",
+        title="助手拍板书",
+        genre="武侠",
+        protagonist_name="独孤某",
+        target_words=2000000,
+        target_chapters=600,
+        one_liner="一个剑客在无敌后反向追索失败的意义。",
+        core_conflict="他越接近天下第一，越无法和任何人真正相遇。",
+        golden_finger_name="",
+        golden_finger_type="",
+        golden_finger_style="",
+        golden_finger_growth_rhythm="",
+        core_selling_points="",
+        protagonist_structure="",
+        heroine_config="",
+        heroine_names="",
+        heroine_role="",
+        co_protagonists="",
+        co_protagonist_roles="",
+        antagonist_tiers="",
+        antagonist_mirror="",
+        world_scale="",
+        factions="",
+        power_system_type="",
+        social_class="",
+        resource_distribution="",
+        gf_visibility="",
+        gf_irreversible_cost="",
+        protagonist_desire="",
+        protagonist_flaw="",
+        protagonist_archetype="",
+        antagonist_level="",
+        target_reader="",
+        platform="",
+        anti_trope="",
+        hard_constraints="",
+        opening_hook="",
+        currency_system="",
+        currency_exchange="",
+        sect_hierarchy="",
+        cultivation_chain="",
+        cultivation_subtiers="",
+        story_kernel_why_now="",
+        story_kernel_ending_vector="",
+        tone="",
+        violence_texture="",
+        mystery_density="",
+        worldline_mode="",
+        old_character_policy="",
+        must_keep="",
+        must_not_do="",
+        no_fly_zones="",
+        type_pack_method_kernel="",
+        type_pack_primary="",
+        type_pack_secondary="",
+        type_pack_platform="",
+        type_pack_audience="",
+        type_pack_notes="",
+    )
+    confirmation = payload["confirmation"]
+
+    assert init_handoff["sources_breakdown"]["user_confirmed"] == ["project.title"]
+    assert "project.one_liner" in init_handoff["sources_breakdown"]["assistant_inferred"]
+    assert "project.core_conflict" in init_handoff["sources_breakdown"]["assistant_inferred"]
+    assert "protagonist.name" in init_handoff["sources_breakdown"]["assistant_inferred"]
+    assert "project" not in confirmation["user_confirmed"] or "one_liner" not in confirmation["user_confirmed"].get(
+        "project", {}
+    )
+    assert confirmation["assistant_inferred"]["project"]["one_liner"] == "一个剑客在无敌后反向追索失败的意义。"
+    assert confirmation["assistant_inferred"]["project"]["core_conflict"] == "他越接近天下第一，越无法和任何人真正相遇。"
+    assert confirmation["assistant_inferred"]["protagonist"]["name"] == "独孤某"
+
+
 def test_init_project_legacy_advisor_agents_fallbacks_to_planning_team(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     project_root = tmp_path / "projects" / "story" / "兼容旧字段书"
@@ -277,7 +433,6 @@ def test_init_project_legacy_advisor_agents_fallbacks_to_planning_team(tmp_path,
 
 def test_init_project_rejects_skill_directory_target(monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     forbidden_root = Path(module.__file__).resolve().parents[1] / "tmp-init"
@@ -291,7 +446,6 @@ def test_init_project_rejects_skill_directory_target(monkeypatch):
 
 def test_init_project_normalizes_hidden_project_leaf(tmp_path, monkeypatch):
     module = _load_module()
-    monkeypatch.setattr(module, "is_git_available", lambda: False)
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
 
     hidden_root = tmp_path / ".draft"

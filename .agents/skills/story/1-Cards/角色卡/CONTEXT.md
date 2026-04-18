@@ -13,7 +13,7 @@
 | 角色很多但撞位 | role bucket | 先修 `narrative_function`，再补设定 | 角色职责先于人设浓度 | 主角色能说明自己推进哪类戏 |
 | 成长时间线变成事件流水账 | timeline contract | 改写为成长阶段与认知转折 | 固定 `experience_timeline + timeline_anchor` 双锚点 | 时间线能回答“角色因此变成什么” |
 | 专属物接口空心 | downstream interface | 回补 `exclusive_item_hooks` | 角色卡先留接口，物品卡再做适配 | 专属物能一眼看出角色归属 |
-| 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `Cards/2-角色卡/**/角色名.json` 能逐个被引用 |
+| 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `1-Cards/2-角色卡/**/角色名.json` 能逐个被引用 |
 | 角色桶和角色属性标识不一致 | cast marker mapping | 以 bucket 回写 `cast_markers` 并校验唯一主标识 | 角色桶与属性标识共治，不允许一个角色同时多主标 | `group` 与 `cast_markers.primary_alignment` 一致 |
 | 只有关系边 JSON 没有正式图谱输出 | graph projection | 生成 `角色关系图谱.md` 并补文字摘要 | 关系图谱固定成为角色索引的 side output | Markdown 同时包含文字说明和 Mermaid |
 | 增量修复把角色卡缩成单集临时视角 | full-series scope | 回补 `card_scope=full-series` 与全书角色覆盖 | 角色卡允许增量刷新，但不允许缩窄业务作用域 | 单卡 `card_scope.scope_type` 恒为 `full-series` |

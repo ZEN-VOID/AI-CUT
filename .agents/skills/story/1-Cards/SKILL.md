@@ -31,7 +31,7 @@ color: amber
 
 - `0-Init/north_star.yaml`
   - 长期共同约束与世界/人物/对象总体边界。
-- `Cards/**/*.json`
+- `1-Cards/**/*.json`
   - 正式对象真源。
 - `1-Cards/SKILL.md`
   - 父层路由、并发/串行裁决、shared writeback/gate、系统完善度裁决。
@@ -68,16 +68,16 @@ color: amber
 
 | child_skill | canonical owner | 正式输出 |
 | --- | --- | --- |
-| `全局卡` | 世界观、`rule_system`、年代约束、文化艺术、科技/武功、金手指、`global_contract_refs` | `Cards/0-全局卡/**/*.json` |
-| `风格卡` | 整书风格契约、`reader_promise`、`aesthetic_axes`、`style_system`、`style_gate` | `Cards/1-风格卡/**/*.json` |
-| `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、角色关系图谱 | `Cards/2-角色卡/**/*.json` + `Cards/2-角色卡/角色关系图谱.md` |
-| `场景卡` | 场景对象真源、规则与风险、`scene_links`、复用策略 | `Cards/3-场景卡/**/*.json` |
-| `物品卡` | 物品对象真源、归属链、使用规则、代价、专属适配 | `Cards/4-物品卡/**/*.json` |
+| `全局卡` | 世界观、`rule_system`、年代约束、文化艺术、科技/武功、金手指、`global_contract_refs` | `1-Cards/0-全局卡/**/*.json` |
+| `风格卡` | 整书风格契约、`reader_promise`、`aesthetic_axes`、`style_system`、`style_gate` | `1-Cards/1-风格卡/**/*.json` |
+| `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、角色关系图谱 | `1-Cards/2-角色卡/**/*.json` + `1-Cards/2-角色卡/角色关系图谱.md` |
+| `场景卡` | 场景对象真源、规则与风险、`scene_links`、复用策略 | `1-Cards/3-场景卡/**/*.json` |
+| `物品卡` | 物品对象真源、归属链、使用规则、代价、专属适配 | `1-Cards/4-物品卡/**/*.json` |
 
 硬规则：
 
 1. 没有 `水月 / 镜花` 这种中间 parent；`1-Cards` 直接调五个子技能。
-2. 五个子技能都必须输出正式 `.json` card payload；其中 `角色卡` 额外允许一个正式图谱 side output：`Cards/2-角色卡/角色关系图谱.md`。
+2. 五个子技能都必须输出正式 `.json` card payload；其中 `角色卡` 额外允许一个正式图谱 side output：`1-Cards/2-角色卡/角色关系图谱.md`。
 3. 根层不再维护对象私有 `references/` 或 `templates/`。
 4. 技能包名称不承载调度语义；是否串行或并发只由依赖关系和父层路由决定。
 
@@ -121,15 +121,15 @@ color: amber
 
 ## Canonical Output Root
 
-- `1-Cards` 的正式业务落盘根目录固定为 `projects/story/<项目名>/Cards/`
+- `1-Cards` 的正式业务落盘根目录固定为 `projects/story/<项目名>/1-Cards/`
 - 五类正式 card JSON 必须写到：
-  - `projects/story/<项目名>/Cards/0-全局卡/**/*.json`
-  - `projects/story/<项目名>/Cards/1-风格卡/**/*.json`
-  - `projects/story/<项目名>/Cards/2-角色卡/**/*.json`
-  - `projects/story/<项目名>/Cards/3-场景卡/**/*.json`
-  - `projects/story/<项目名>/Cards/4-物品卡/**/*.json`
+  - `projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`
+  - `projects/story/<项目名>/1-Cards/1-风格卡/**/*.json`
+  - `projects/story/<项目名>/1-Cards/2-角色卡/**/*.json`
+  - `projects/story/<项目名>/1-Cards/3-场景卡/**/*.json`
+  - `projects/story/<项目名>/1-Cards/4-物品卡/**/*.json`
 - 角色体系额外正式 side output 固定为：
-  - `projects/story/<项目名>/Cards/2-角色卡/角色关系图谱.md`
+  - `projects/story/<项目名>/1-Cards/2-角色卡/角色关系图谱.md`
 - 不得把技能目录、临时 sidecar 或 repo 根层模板当成项目业务输出根。
 
 ## Business Requirement Analysis Contract
@@ -137,7 +137,7 @@ color: amber
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把 `0-Init` 交出的世界、风格与对象种子收敛为可长期维护的 cards 体系，并通过五个直连子技能把全局/风格/角色/场景/物品正式落盘。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/Cards/**/*.json`、cards writer/validator/tests、五个 child skill package。 |
+| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/**/*.json`、cards writer/validator/tests、五个 child skill package。 |
 | `constraint_profile` | 父层必须保持单一总线；子技能必须直接输出 `.json`；正式 writeback 只能走 shared writer；coverage gate 必须覆盖 trace、单卡结构、规模密度与 child-skill parity。 |
 | `success_criteria` | 五个子技能都能独立解释自己的对象成立条件，writer/validator/test 全部识别新子技能路径，cards 系统可通过定向 gate。 |
 | `non_goals` | 不把 cards 真源挪回 `references/`；不新造第二套平行 schema；不把项目级对象真源落回技能目录。 |
@@ -181,11 +181,11 @@ flowchart LR
     E --> J["角色卡/templates/character-card.json"]
     F --> K["场景卡/templates/scene-card.json"]
     G --> L["物品卡/templates/item-card.json"]
-    H --> M["Cards/0-全局卡/**/*.json"]
-    I --> N["Cards/1-风格卡/**/*.json"]
-    J --> O["Cards/2-角色卡/**/*.json"]
-    K --> P["Cards/3-场景卡/**/*.json"]
-    L --> Q["Cards/4-物品卡/**/*.json"]
+    H --> M["1-Cards/0-全局卡/**/*.json"]
+    I --> N["1-Cards/1-风格卡/**/*.json"]
+    J --> O["1-Cards/2-角色卡/**/*.json"]
+    K --> P["1-Cards/3-场景卡/**/*.json"]
+    L --> Q["1-Cards/4-物品卡/**/*.json"]
     M --> R["cards-check"]
     N --> R
     O --> R
@@ -221,7 +221,7 @@ stateDiagram-v2
 10. `物品卡/SKILL.md + CONTEXT.md`
 11. 命中的子技能包本地 `templates/*.json`
 12. 命中的子技能包 `references/*.md`
-13. 既有 `Cards/**/*.json`
+13. 既有 `1-Cards/**/*.json`
 
 ## Total Input Contract
 
@@ -233,11 +233,11 @@ stateDiagram-v2
 ### 推荐输入
 
 - `team.yaml`
-- 既有 `Cards/0-全局卡/**/*.json`
-- 既有 `Cards/1-风格卡/**/*.json`
-- 既有 `Cards/2-角色卡/**/*.json`
-- 既有 `Cards/3-场景卡/**/*.json`
-- 既有 `Cards/4-物品卡/**/*.json`
+- 既有 `1-Cards/0-全局卡/**/*.json`
+- 既有 `1-Cards/1-风格卡/**/*.json`
+- 既有 `1-Cards/2-角色卡/**/*.json`
+- 既有 `1-Cards/3-场景卡/**/*.json`
+- 既有 `1-Cards/4-物品卡/**/*.json`
 
 ### 硬规则
 
@@ -277,7 +277,7 @@ stateDiagram-v2
 
 父层最终只允许向用户与运行时交付一套收束结果：
 
-1. 正式 `Cards/**/*.json`
+1. 正式 `1-Cards/**/*.json`
 2. `cards-check` gate 结论
 3. 系统完善度评估
 4. `root cause location + immediate fix + systemic prevention fix`
@@ -328,11 +328,11 @@ stateDiagram-v2
 | `FIELD-CD-ROUTE-01` | STR | `content.module_route` | parent + writer | `FAIL-CD-ROUTE-01` |
 | `FIELD-CD-TRACE-01` | CTX | `content.loaded_references` | child + writer + validator | `FAIL-CD-TRACE-01` |
 | `FIELD-CD-WRITE-01` | BHV | `content.writeback_plan` | parent + writer | `FAIL-CD-WRITE-01` |
-| `FIELD-CD-MAT-00` | MAT | `Cards/0-全局卡/**/*.json` | `全局卡` | `FAIL-CD-MAT-00` |
-| `FIELD-CD-MAT-01` | MAT | `Cards/1-风格卡/**/*.json` | `风格卡` | `FAIL-CD-MAT-01` |
-| `FIELD-CD-MAT-02` | MAT | `Cards/2-角色卡/**/*.json` | `角色卡` | `FAIL-CD-MAT-02` |
-| `FIELD-CD-MAT-03` | MAT | `Cards/3-场景卡/**/*.json` | `场景卡` | `FAIL-CD-MAT-03` |
-| `FIELD-CD-MAT-04` | MAT | `Cards/4-物品卡/**/*.json` | `物品卡` | `FAIL-CD-MAT-04` |
+| `FIELD-CD-MAT-00` | MAT | `1-Cards/0-全局卡/**/*.json` | `全局卡` | `FAIL-CD-MAT-00` |
+| `FIELD-CD-MAT-01` | MAT | `1-Cards/1-风格卡/**/*.json` | `风格卡` | `FAIL-CD-MAT-01` |
+| `FIELD-CD-MAT-02` | MAT | `1-Cards/2-角色卡/**/*.json` | `角色卡` | `FAIL-CD-MAT-02` |
+| `FIELD-CD-MAT-03` | MAT | `1-Cards/3-场景卡/**/*.json` | `场景卡` | `FAIL-CD-MAT-03` |
+| `FIELD-CD-MAT-04` | MAT | `1-Cards/4-物品卡/**/*.json` | `物品卡` | `FAIL-CD-MAT-04` |
 | `FIELD-CD-GATE-01` | CST | `gate_summary.status` | validator | `FAIL-CD-GATE-01` |
 
 ## Step To Field Mapping

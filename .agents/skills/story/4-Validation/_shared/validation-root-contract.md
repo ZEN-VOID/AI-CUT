@@ -10,9 +10,9 @@
 ## Canonical Paths
 
 - 聚合验收包：
-  - `projects/story/<项目名>/Validation/第N集.validation.json`
+  - `projects/story/<项目名>/4-Validation/第N集.validation.json`
 - 维度证据目录：
-  - `projects/story/<项目名>/Validation/第N集/`
+  - `projects/story/<项目名>/4-Validation/第N集/`
 - 维度 sidecar：
   - `结构兑现.md`
   - `连续性.md`

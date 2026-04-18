@@ -2,7 +2,7 @@
 name: story-plan
 governance_tier: full
 description: |
-  Use when story2026 needs whole-book planning passes, story_map rebuild, planning sequence repair, or source-layer fixes that must converge into `Planning/全息地图.json`.
+  Use when story2026 needs whole-book planning passes, story_map rebuild, planning sequence repair, or source-layer fixes that must converge into `2-Planning/全息地图.json`.
 tools: [Read, Write, Edit, Grep, Bash]
 color: indigo
 ---
@@ -13,7 +13,7 @@ color: indigo
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 本技能已从“单技能 + references 模块”重构为“父 skill + 7 个受治理子技能包 + shared story_map root”。
-- 所有 planning 写入必须优先回读当前 `Planning/全息地图.json`；若 root 不存在，先用 shared bootstrap template 建立。
+- 所有 planning 写入必须优先回读当前 `2-Planning/全息地图.json`；若 root 不存在，先用 shared bootstrap template 建立。
 
 ## Overview
 
@@ -30,9 +30,9 @@ color: indigo
 7. `7-伏笔设计`
 新的 canonical 路线是：
 
-1. 每个子技能产出自己的 `story_map_patch`，并把本地 evidence artifact 落到 `Planning/pass-artifacts/`。
-2. 父层按固定顺序 `1 -> 7` 串行 progressive commit 到 `Planning/全息地图.json`。
-3. `Planning/全息地图.json` 是唯一规划真源，不再独立落盘第二份 `story_map.json`。
+1. 每个子技能产出自己的 `story_map_patch`，并把本地 evidence artifact 落到 `2-Planning/pass-artifacts/`。
+2. 父层按固定顺序 `1 -> 7` 串行 progressive commit 到 `2-Planning/全息地图.json`。
+3. `2-Planning/全息地图.json` 是唯一规划真源，不再独立落盘第二份 `story_map.json`。
 4. 父层最后只做 normalize / validate，不再额外引入其他派生视图写回。
 
 ## Parent Positioning
@@ -58,13 +58,13 @@ color: indigo
 
 | order | child skill | 正式落盘 | owned story_map slots |
 | --- | --- | --- | --- |
-| 1 | `1-题材选型` | `Planning/全息地图.json` | `story_promise`、`genre_corridor`、题材导航规则 |
-| 2 | `2-章节规划` | `Planning/全息地图.json` | `volume_boards`、`chapter_boards` skeleton、`episode_sequence_axis` |
-| 3 | `3-故事大纲` | `Planning/全息地图.json` | `story_spine`、章节主干事件挂载 |
-| 4 | `4-冲突设计` | `Planning/全息地图.json` | `conflict_threads`、章节冲突挂载 |
-| 5 | `5-任务设计` | `Planning/全息地图.json` | `mission_threads`、章节任务挂载 |
-| 6 | `6-线索设计` | `Planning/全息地图.json` | `clue_threads`、章节线索挂载 |
-| 7 | `7-伏笔设计` | `Planning/全息地图.json` | `foreshadow_threads`、章节伏笔挂载 |
+| 1 | `1-题材选型` | `2-Planning/全息地图.json` | `story_promise`、`genre_corridor`、题材导航规则 |
+| 2 | `2-章节规划` | `2-Planning/全息地图.json` | `volume_boards`、`chapter_boards` skeleton、`episode_sequence_axis` |
+| 3 | `3-故事大纲` | `2-Planning/全息地图.json` | `story_spine`、章节主干事件挂载 |
+| 4 | `4-冲突设计` | `2-Planning/全息地图.json` | `conflict_threads`、章节冲突挂载 |
+| 5 | `5-任务设计` | `2-Planning/全息地图.json` | `mission_threads`、章节任务挂载 |
+| 6 | `6-线索设计` | `2-Planning/全息地图.json` | `clue_threads`、章节线索挂载 |
+| 7 | `7-伏笔设计` | `2-Planning/全息地图.json` | `foreshadow_threads`、章节伏笔挂载 |
 
 ## Shared Canonical Sources
 
@@ -82,9 +82,9 @@ color: indigo
 
 ## Canonical Output Root
 
-- `2-Planning` 的正式业务落盘根目录固定为 `projects/story/<项目名>/Planning/`
+- `2-Planning` 的正式业务落盘根目录固定为 `projects/story/<项目名>/2-Planning/`
 - 唯一规划真源固定为：
-  - `projects/story/<项目名>/Planning/全息地图.json`
+  - `projects/story/<项目名>/2-Planning/全息地图.json`
 - `1-7` 子技能虽按顺序生成 patch，但不得各自再起 sibling story_map JSON 作为平行真源。
 
 ## Template Layering Contract
@@ -102,10 +102,10 @@ color: indigo
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把整书 planning 从“8 份并列说明”升级为“7 个受治理子技能串行写入同一个 story_map carrier”，并保持 `projects/story/<项目名>/Planning/全息地图.json` 为唯一规划真源。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/Cards/**/*.json`、`projects/story/<项目名>/Planning/全息地图.json`。 |
+| `business_goal` | 把整书 planning 从“8 份并列说明”升级为“7 个受治理子技能串行写入同一个 story_map carrier”，并保持 `projects/story/<项目名>/2-Planning/全息地图.json` 为唯一规划真源。 |
+| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/1-Cards/**/*.json`、`projects/story/<项目名>/2-Planning/全息地图.json`。 |
 | `constraint_profile` | 1-7 固定串行；后一 child 必须读取当前 root；1-7 只写自己的 owned patch；父层只做 normalize 与收束；下游继续 holomap-first。 |
-| `success_criteria` | 任一 child 都能回答“我拥有 story_map 哪一段”；父层能 progressive commit；`Planning/全息地图.json` 同时具备题材、容器、主干、四条长线与三轴导航；validator 通过。 |
+| `success_criteria` | 任一 child 都能回答“我拥有 story_map 哪一段”；父层能 progressive commit；`2-Planning/全息地图.json` 同时具备题材、容器、主干、四条长线与三轴导航；validator 通过。 |
 | `non_goals` | 不制造第二份 `story_map.json` 平行真源；不要求每个 child 各自维护一套独立大纲；不把 `references/*` 保留为隐式执行入口。 |
 | `complexity_source` | 复杂度来自顺序依赖、story_map 槽位 ownership、progressive commit 连续性，以及 downstream holomap-first 兼容。 |
 | `topology_fit` | 固定为 `input lock -> root bootstrap -> serial child dispatch -> progressive commit -> normalize -> validate -> close`。 |
@@ -121,9 +121,9 @@ color: indigo
 6. `./_shared/planning-branch-output-contract.md`
 7. `0-Init/north_star.yaml`
 8. `0-Init/init_handoff.yaml`
-9. `Cards/0-全局卡/**/*.json`
-10. `Cards/**/*.json`
-11. 当前 `Planning/全息地图.json`（若存在）
+9. `1-Cards/0-全局卡/**/*.json`
+10. `1-Cards/**/*.json`
+11. 当前 `2-Planning/全息地图.json`（若存在）
 12. `1-题材选型/SKILL.md + CONTEXT.md`
 13. `2-章节规划/SKILL.md + CONTEXT.md`
 14. `3-故事大纲/SKILL.md + CONTEXT.md`
@@ -138,24 +138,24 @@ color: indigo
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- `Cards/0-全局卡/**/*.json`
-- `Cards/**/*.json`
+- `1-Cards/0-全局卡/**/*.json`
+- `1-Cards/**/*.json`
 
 ### 可选输入
 
-- 当前 `Planning/全息地图.json`
-- 当前 `Planning/pass-artifacts/*.json`
+- 当前 `2-Planning/全息地图.json`
+- 当前 `2-Planning/pass-artifacts/*.json`
 - `STATE.json`
 - `team.yaml`（若项目存在）
 
 ### 硬规则
 
-1. `Planning/全息地图.json` 存在时，必须把它当当前 story_map root 回读。
+1. `2-Planning/全息地图.json` 存在时，必须把它当当前 story_map root 回读。
 2. 若 root 缺失，必须先建立 bootstrap root，再进入 Step 1。
 3. 任一 child 开始前，都必须重新读取当前 root，而不是复用前一步缓存。
 4. 任一 child 只允许写自己的 owned `story_map_patch`。
 5. 只有父层允许补齐三轴、cross-thread index、lifecycle 和 normalize 结构。
-7. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指，默认优先取自 `Cards/0-全局卡/**/*.json`；只有全局卡缺失时，才允许回退到 `north_star.yaml.cards`。
+7. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指，默认优先取自 `1-Cards/0-全局卡/**/*.json`；只有全局卡缺失时，才允许回退到 `north_star.yaml.cards`。
 
 ## Dispatch Order Contract
 
@@ -165,7 +165,7 @@ color: indigo
 
 ### 当前 root 回读规则
 
-1. 每个 child 开始前，必须重新读取当前 `Planning/全息地图.json`。
+1. 每个 child 开始前，必须重新读取当前 `2-Planning/全息地图.json`。
 2. 该 root 必须已经包含前序 child 审核通过并写回的 patch。
 3. 后序 child 可以把当前 root 当一致性上下文，但不得改写前序 owned slots。
 
@@ -179,13 +179,13 @@ color: indigo
 
 ### canonical root
 
-- `projects/story/<项目名>/Planning/全息地图.json`
-- `projects/story/<项目名>/Planning/pass-artifacts/*.json`
+- `projects/story/<项目名>/2-Planning/全息地图.json`
+- `projects/story/<项目名>/2-Planning/pass-artifacts/*.json`
 
 ### hard rules
 
 1. 1-7 child 必须同时保留本地 evidence artifact 与 `story_map_patch`，但不得制造第二份 story_map root。
-2. `Planning/全息地图.json` 必须保持 `content.holomap` 兼容入口。
+2. `2-Planning/全息地图.json` 必须保持 `content.holomap` 兼容入口。
 3. 父层 normalize 后的 root 必须兼容 `query / 3-Drafting / 5-Loopback` 的 holomap-first 读取。
 
 ## Visual Maps
@@ -227,7 +227,7 @@ graph LR
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INPUT-LOCK` | `FIELD-PL-01` | 锁定本轮输入真源与任务模式 | 读取 Init/Cards/Planning 现状 | `input_lock_note` | -> `N2` | 输入齐备 |
+| `N1-INPUT-LOCK` | `FIELD-PL-01` | 锁定本轮输入真源与任务模式 | 读取 Init/1-Cards/Planning 现状 | `input_lock_note` | -> `N2` | 输入齐备 |
 | `N2-ROOT-BOOTSTRAP` | `FIELD-PL-02` | 建立或回读唯一 story_map root | 读取或生成 bootstrap root | `root_bootstrap_note` | -> `N3` | root 唯一 |
 | `N3-SERIAL-DISPATCH` | `FIELD-PL-03` | 按顺序运行 7 个 child skills | 每步先回读当前 root，再调度 child | `dispatch_log` | -> `N4` | 固定顺序成立 |
 | `N4-PROGRESSIVE-COMMIT` | `FIELD-PL-04` | 把 child patch 写回 root | 校验 ownership、写回 patch、刷新 root | `commit_trace` | -> `N5` | 不越权、不冲突 |
@@ -238,7 +238,7 @@ graph LR
 
 | field_id | output_slot | 内容要求 | default_step | quality_dimension | fail_code |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-PL-01` | 输入锁定 | Init/Cards/Planning 真源齐备 | `S1` | 输入稳定性 | `FAIL-PL-01` |
+| `FIELD-PL-01` | 输入锁定 | Init/1-Cards/Planning 真源齐备 | `S1` | 输入稳定性 | `FAIL-PL-01` |
 | `FIELD-PL-02` | root bootstrap | story_map root 唯一且可回读 | `S1` | 真源唯一性 | `FAIL-PL-02` |
 | `FIELD-PL-03` | serial dispatch | 7 个 child 串行顺序成立 | `S2` | 顺序完整性 | `FAIL-PL-03` |
 | `FIELD-PL-04` | progressive commit | child 只写 owned slots | `S3-S7` | ownership 一致性 | `FAIL-PL-04` |
@@ -280,6 +280,6 @@ graph LR
 只有同时满足以下条件，`2-Planning` 才允许宣布完成：
 
 1. 1-7 child patch 已完成 progressive commit。
-2. `Planning/全息地图.json` 已完成父层 normalize。
+2. `2-Planning/全息地图.json` 已完成父层 normalize。
 3. validator 通过。
 4. story_map 仍可被下游 holomap-first 消费。

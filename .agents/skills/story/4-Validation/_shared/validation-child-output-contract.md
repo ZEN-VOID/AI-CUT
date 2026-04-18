@@ -48,6 +48,6 @@
 1. 子技能不得独立写 `validation_status`、`routing_decision` 或 `handoff_targets`。
 2. 子技能不得直接改写 `第N集.validation.json`。
 3. 子技能若识别到 source truth 冲突，必须通过 `source_layer_owner` 明示，而不是把所有问题都归为正文质量。
-4. `dimension_report_ref` 必须落在 `Validation/第N集/` 目录下。
+4. `dimension_report_ref` 必须落在 `4-Validation/第N集/` 目录下。
 5. 子技能可以给出默认返工节点，但最终 route 仍由父层聚合裁决。
 6. 同一 validator 在 `drafting_inline` 与 `final_acceptance` 两种上下文下都必须使用同一套字段骨架，不允许长出平行输出协议。

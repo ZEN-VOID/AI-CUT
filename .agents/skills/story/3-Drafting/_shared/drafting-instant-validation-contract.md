@@ -25,6 +25,22 @@
 3. 立即运行这些 inline validators
 4. 若 hook 失败，先在当前 step 或最早受影响 step 修复
 5. 只有当前 step 对应 hook 通过，才允许进入下一个 step
+6. 下一个 step 的正式执行，必须以上一个 step“已写回且已通过 hook”的 root 为输入；不得跳过 gate 做批量串改。
+
+## True Serial Gate
+
+`3-Drafting` 的正式运行模式固定为：
+
+- `Step 1` 单独起盘、单独写回、单独跑 `Step 1` hook
+- `Step 2` 单独改稿、单独写回、单独跑 `Step 2` hook
+- 依此类推直到 `Step 7`
+
+以下行为一律视为违约：
+
+- 把多个 step 合并成一次总改稿后再统一写回
+- 在 `Step N` hook 未通过前提前执行 `Step N+1` 的正式写回
+- 先生成 `Step 1-7` 全套正式 patch，再倒序或批量补跑 hooks
+- 把“step 内部草稿比较”伪装成“已完成正式 step”
 
 ## Failure Routing Order
 

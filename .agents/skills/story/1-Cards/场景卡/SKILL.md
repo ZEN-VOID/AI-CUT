@@ -28,7 +28,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair sc
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把“可看场景”收束成“可写戏空间”。 |
-| `business_object` | `Cards/3-场景卡/**/*.json`、`scene_links`、场景索引。 |
+| `business_object` | `1-Cards/3-场景卡/**/*.json`、`scene_links`、场景索引。 |
 | `constraint_profile` | 规则先于奇观，复用先于一次性布景。 |
 | `success_criteria` | 场景能回答谁来、做什么、代价是什么、为什么值得返场。 |
 
@@ -64,7 +64,7 @@ flowchart LR
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- 既有 `Cards/3-场景卡/**/*.json`（若存在）
+- 既有 `1-Cards/3-场景卡/**/*.json`（若存在）
 - mixed/full-build 时来自角色卡的进入者与关系压力
 
 ## Thinking-Action Network

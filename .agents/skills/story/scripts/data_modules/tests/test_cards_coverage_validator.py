@@ -43,7 +43,7 @@ def _write_character_graph(project_root: Path, node_names: list[str], edge_count
         edges.append(f"    {left} -->|关联| {right}")
     body = "\n".join(edges)
     _write_text(
-        project_root / "Cards" / "2-角色卡" / "角色关系图谱.md",
+        project_root / "1-Cards" / "2-角色卡" / "角色关系图谱.md",
         "\n".join(
             [
                 "# 角色关系图谱",
@@ -77,7 +77,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                 "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
             },
             "content": {
-                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "1-Cards/0-全局卡"),
                 "card_schema": {
                     "global_card": {
                         "card_id": name,
@@ -132,7 +132,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                     }
                 },
                 "global_contract_refs": [
-                    {"card_id": name, "path": f"Cards/0-全局卡/总设定/{name}.json"}
+                    {"card_id": name, "path": f"1-Cards/0-全局卡/总设定/{name}.json"}
                 ],
                 "current_focus": {"confirmed_facts": [name]},
             },
@@ -147,7 +147,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                 "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
             },
             "content": {
-                **_trace_payload("story-cards > 风格卡/SKILL.md", "Cards/1-风格卡"),
+                **_trace_payload("story-cards > 风格卡/SKILL.md", "1-Cards/1-风格卡"),
                 "card_schema": {
                     "style_card": {
                         "card_id": name,
@@ -177,7 +177,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                             "style_gate": {
                                 "anti_ai_required": True,
                                 "no_poison_required": True,
-                                "style_contract_ref": f"Cards/1-风格卡/总风格/{name}.json",
+                                "style_contract_ref": f"1-Cards/1-风格卡/总风格/{name}.json",
                             },
                         },
                         "current_state": {
@@ -189,7 +189,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                     }
                 },
                 "style_contract_refs": [
-                    {"card_id": name, "path": f"Cards/1-风格卡/总风格/{name}.json"}
+                    {"card_id": name, "path": f"1-Cards/1-风格卡/总风格/{name}.json"}
                 ],
                 "current_focus": {"confirmed_facts": [name]},
             },
@@ -211,7 +211,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                 "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
             },
             "content": {
-                **_trace_payload("story-cards > 角色卡/SKILL.md", "Cards/2-角色卡"),
+                **_trace_payload("story-cards > 角色卡/SKILL.md", "1-Cards/2-角色卡"),
                 "card_schema": {
                     "character_card": {
                         "card_id": name,
@@ -260,7 +260,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                 "source_route": "0-Init > story-cards > 场景卡/SKILL.md",
             },
             "content": {
-                **_trace_payload("story-cards > 场景卡/SKILL.md", "Cards/3-场景卡"),
+                **_trace_payload("story-cards > 场景卡/SKILL.md", "1-Cards/3-场景卡"),
                 "card_schema": {
                     "scene_card": {
                         "card_id": name,
@@ -289,7 +289,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                 "source_route": "0-Init > story-cards > 物品卡/SKILL.md",
             },
             "content": {
-                **_trace_payload("story-cards > 物品卡/SKILL.md", "Cards/4-物品卡"),
+                **_trace_payload("story-cards > 物品卡/SKILL.md", "1-Cards/4-物品卡"),
                 "card_schema": {
                     "item_card": {
                         "card_id": name,
@@ -341,17 +341,17 @@ def _trace_payload(module_route: str, target_path: str) -> dict:
 
 
 def _write_global_fixture(project_root: Path) -> None:
-    _touch_card(project_root, "Cards/0-全局卡/总设定/世界总卡.json")
+    _touch_card(project_root, "1-Cards/0-全局卡/总设定/世界总卡.json")
     _write_json(
-        project_root / "Cards" / "0-全局卡" / "全局索引.json",
+        project_root / "1-Cards" / "0-全局卡" / "全局索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "1-Cards/0-全局卡"),
                 "card_groups": {
-                    "master_globals": ["Cards/0-全局卡/总设定/世界总卡.json"],
+                    "master_globals": ["1-Cards/0-全局卡/总设定/世界总卡.json"],
                 },
                 "global_contract_refs": [
-                    {"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}
+                    {"card_id": "世界总卡", "path": "1-Cards/0-全局卡/总设定/世界总卡.json"}
                 ],
                 "current_focus": {"confirmed_facts": ["世界总设定已锁定"]},
             }
@@ -461,77 +461,77 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     _write_global_fixture(project_root)
 
     for rel_path in (
-        "Cards/1-风格卡/总风格/整书风格卡.json",
-        "Cards/2-角色卡/主要角色/甲.json",
-        "Cards/2-角色卡/主要角色/乙.json",
-        "Cards/2-角色卡/反派角色/丙.json",
-        "Cards/2-角色卡/反派角色/丁.json",
-        "Cards/2-角色卡/反派角色/戊.json",
-        "Cards/2-角色卡/次要角色/己.json",
-        "Cards/2-角色卡/次要角色/庚.json",
-        "Cards/2-角色卡/群像角色/辛.json",
-        "Cards/3-场景卡/室内/酒肆.json",
-        "Cards/3-场景卡/室外/港町.json",
-        "Cards/3-场景卡/自然/海岛.json",
-        "Cards/3-场景卡/自然/断崖.json",
-        "Cards/3-场景卡/超现实/镜庭.json",
-        "Cards/3-场景卡/超现实/残意海.json",
-        "Cards/4-物品卡/武器装备/佩剑.json",
-        "Cards/4-物品卡/武器装备/短刀.json",
-        "Cards/4-物品卡/线索物品/密账.json",
-        "Cards/4-物品卡/线索物品/海图.json",
-        "Cards/4-物品卡/重要叙事物品/残篇.json",
-        "Cards/4-物品卡/重要叙事物品/铃牌.json",
-        "Cards/4-物品卡/文物/旧袍.json",
-        "Cards/4-物品卡/点缀物/酒壶.json",
+        "1-Cards/1-风格卡/总风格/整书风格卡.json",
+        "1-Cards/2-角色卡/主要角色/甲.json",
+        "1-Cards/2-角色卡/主要角色/乙.json",
+        "1-Cards/2-角色卡/反派角色/丙.json",
+        "1-Cards/2-角色卡/反派角色/丁.json",
+        "1-Cards/2-角色卡/反派角色/戊.json",
+        "1-Cards/2-角色卡/次要角色/己.json",
+        "1-Cards/2-角色卡/次要角色/庚.json",
+        "1-Cards/2-角色卡/群像角色/辛.json",
+        "1-Cards/3-场景卡/室内/酒肆.json",
+        "1-Cards/3-场景卡/室外/港町.json",
+        "1-Cards/3-场景卡/自然/海岛.json",
+        "1-Cards/3-场景卡/自然/断崖.json",
+        "1-Cards/3-场景卡/超现实/镜庭.json",
+        "1-Cards/3-场景卡/超现实/残意海.json",
+        "1-Cards/4-物品卡/武器装备/佩剑.json",
+        "1-Cards/4-物品卡/武器装备/短刀.json",
+        "1-Cards/4-物品卡/线索物品/密账.json",
+        "1-Cards/4-物品卡/线索物品/海图.json",
+        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
+        "1-Cards/4-物品卡/文物/旧袍.json",
+        "1-Cards/4-物品卡/点缀物/酒壶.json",
     ):
         _touch_card(project_root, rel_path)
 
     _write_json(
-        project_root / "Cards" / "1-风格卡" / "风格索引.json",
+        project_root / "1-Cards" / "1-风格卡" / "风格索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 风格卡/SKILL.md",
-                    "Cards/1-风格卡",
+                    "1-Cards/1-风格卡",
                 ),
                 "card_groups": {
-                    "global_styles": ["Cards/1-风格卡/总风格/整书风格卡.json"],
+                    "global_styles": ["1-Cards/1-风格卡/总风格/整书风格卡.json"],
                 },
                 "style_contract_refs": [
-                    {"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}
+                    {"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}
                 ],
                 "current_focus": {"confirmed_facts": ["整书风格契约已锁定"]},
             }
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "角色索引.json",
+        project_root / "1-Cards" / "2-角色卡" / "角色索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 角色卡/SKILL.md",
-                    "Cards/2-角色卡",
+                    "1-Cards/2-角色卡",
                 ),
                 "card_groups": {
                     "protagonists": [
-                        "Cards/2-角色卡/主要角色/甲.json",
-                        "Cards/2-角色卡/主要角色/乙.json",
+                        "1-Cards/2-角色卡/主要角色/甲.json",
+                        "1-Cards/2-角色卡/主要角色/乙.json",
                     ],
                     "antagonists": [
-                        "Cards/2-角色卡/反派角色/丙.json",
-                        "Cards/2-角色卡/反派角色/丁.json",
-                        "Cards/2-角色卡/反派角色/戊.json",
+                        "1-Cards/2-角色卡/反派角色/丙.json",
+                        "1-Cards/2-角色卡/反派角色/丁.json",
+                        "1-Cards/2-角色卡/反派角色/戊.json",
                     ],
                     "supporting": [
-                        "Cards/2-角色卡/次要角色/己.json",
-                        "Cards/2-角色卡/次要角色/庚.json",
+                        "1-Cards/2-角色卡/次要角色/己.json",
+                        "1-Cards/2-角色卡/次要角色/庚.json",
                     ],
-                    "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
+                    "ensemble": ["1-Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
                 "relationship_graph": {
-                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "path": "1-Cards/2-角色卡/角色关系图谱.md",
                     "format": "markdown+mermaid",
                     "scope": "full-series",
                 },
@@ -541,23 +541,23 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     )
     _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
-        project_root / "Cards" / "3-场景卡" / "场景索引.json",
+        project_root / "1-Cards" / "3-场景卡" / "场景索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 场景卡/SKILL.md",
-                    "Cards/3-场景卡",
+                    "1-Cards/3-场景卡",
                 ),
                 "card_groups": {
-                    "indoor": ["Cards/3-场景卡/室内/酒肆.json"],
-                    "outdoor": ["Cards/3-场景卡/室外/港町.json"],
+                    "indoor": ["1-Cards/3-场景卡/室内/酒肆.json"],
+                    "outdoor": ["1-Cards/3-场景卡/室外/港町.json"],
                     "natural": [
-                        "Cards/3-场景卡/自然/海岛.json",
-                        "Cards/3-场景卡/自然/断崖.json",
+                        "1-Cards/3-场景卡/自然/海岛.json",
+                        "1-Cards/3-场景卡/自然/断崖.json",
                     ],
                     "surreal": [
-                        "Cards/3-场景卡/超现实/镜庭.json",
-                        "Cards/3-场景卡/超现实/残意海.json",
+                        "1-Cards/3-场景卡/超现实/镜庭.json",
+                        "1-Cards/3-场景卡/超现实/残意海.json",
                     ],
                 },
                 "scene_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
@@ -565,28 +565,28 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
         },
     )
     _write_json(
-        project_root / "Cards" / "4-物品卡" / "物品索引.json",
+        project_root / "1-Cards" / "4-物品卡" / "物品索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 物品卡/SKILL.md",
-                    "Cards/4-物品卡",
+                    "1-Cards/4-物品卡",
                 ),
                 "card_groups": {
                     "weapons_equipment": [
-                        "Cards/4-物品卡/武器装备/佩剑.json",
-                        "Cards/4-物品卡/武器装备/短刀.json",
+                        "1-Cards/4-物品卡/武器装备/佩剑.json",
+                        "1-Cards/4-物品卡/武器装备/短刀.json",
                     ],
                     "clue_items": [
-                        "Cards/4-物品卡/线索物品/密账.json",
-                        "Cards/4-物品卡/线索物品/海图.json",
+                        "1-Cards/4-物品卡/线索物品/密账.json",
+                        "1-Cards/4-物品卡/线索物品/海图.json",
                     ],
                     "narrative_items": [
-                        "Cards/4-物品卡/重要叙事物品/残篇.json",
-                        "Cards/4-物品卡/重要叙事物品/铃牌.json",
+                        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+                        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
                     ],
-                    "relics": ["Cards/4-物品卡/文物/旧袍.json"],
-                    "adornments": ["Cards/4-物品卡/点缀物/酒壶.json"],
+                    "relics": ["1-Cards/4-物品卡/文物/旧袍.json"],
+                    "adornments": ["1-Cards/4-物品卡/点缀物/酒壶.json"],
                 },
                 "ownership_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
                 "exclusive_item_hooks": [{"owner": "甲"}, {"owner": "乙"}],
@@ -612,49 +612,49 @@ def test_cards_coverage_report_fails_when_series_cards_are_too_thin(tmp_path):
     _write_global_fixture(project_root)
 
     for rel_path in (
-        "Cards/1-风格卡/总风格/整书风格卡.json",
-        "Cards/2-角色卡/主要角色/甲.json",
-        "Cards/2-角色卡/反派角色/丙.json",
-        "Cards/3-场景卡/室内/酒肆.json",
-        "Cards/4-物品卡/武器装备/佩剑.json",
+        "1-Cards/1-风格卡/总风格/整书风格卡.json",
+        "1-Cards/2-角色卡/主要角色/甲.json",
+        "1-Cards/2-角色卡/反派角色/丙.json",
+        "1-Cards/3-场景卡/室内/酒肆.json",
+        "1-Cards/4-物品卡/武器装备/佩剑.json",
     ):
         _touch_card(project_root, rel_path)
 
     _write_json(
-        project_root / "Cards" / "1-风格卡" / "风格索引.json",
+        project_root / "1-Cards" / "1-风格卡" / "风格索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 风格卡/SKILL.md",
-                    "Cards/1-风格卡",
+                    "1-Cards/1-风格卡",
                 ),
                 "card_groups": {
-                    "global_styles": ["Cards/1-风格卡/总风格/整书风格卡.json"],
+                    "global_styles": ["1-Cards/1-风格卡/总风格/整书风格卡.json"],
                 },
                 "style_contract_refs": [
-                    {"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}
+                    {"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}
                 ],
                 "current_focus": {"confirmed_facts": ["风格契约已锁定"]},
             }
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "角色索引.json",
+        project_root / "1-Cards" / "2-角色卡" / "角色索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 角色卡/SKILL.md",
-                    "Cards/2-角色卡",
+                    "1-Cards/2-角色卡",
                 ),
                 "card_groups": {
-                    "protagonists": ["Cards/2-角色卡/主要角色/甲.json"],
-                    "antagonists": ["Cards/2-角色卡/反派角色/丙.json"],
+                    "protagonists": ["1-Cards/2-角色卡/主要角色/甲.json"],
+                    "antagonists": ["1-Cards/2-角色卡/反派角色/丙.json"],
                     "supporting": [],
                     "ensemble": [],
                 },
                 "relationship_edges": [{"ok": 1}],
                 "relationship_graph": {
-                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "path": "1-Cards/2-角色卡/角色关系图谱.md",
                     "format": "markdown+mermaid",
                     "scope": "full-series",
                 },
@@ -664,15 +664,15 @@ def test_cards_coverage_report_fails_when_series_cards_are_too_thin(tmp_path):
     )
     _write_character_graph(project_root, ["甲", "丙"], 1)
     _write_json(
-        project_root / "Cards" / "3-场景卡" / "场景索引.json",
+        project_root / "1-Cards" / "3-场景卡" / "场景索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 场景卡/SKILL.md",
-                    "Cards/3-场景卡",
+                    "1-Cards/3-场景卡",
                 ),
                 "card_groups": {
-                    "indoor": ["Cards/3-场景卡/室内/酒肆.json"],
+                    "indoor": ["1-Cards/3-场景卡/室内/酒肆.json"],
                     "outdoor": [],
                     "natural": [],
                     "surreal": [],
@@ -682,15 +682,15 @@ def test_cards_coverage_report_fails_when_series_cards_are_too_thin(tmp_path):
         },
     )
     _write_json(
-        project_root / "Cards" / "4-物品卡" / "物品索引.json",
+        project_root / "1-Cards" / "4-物品卡" / "物品索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 物品卡/SKILL.md",
-                    "Cards/4-物品卡",
+                    "1-Cards/4-物品卡",
                 ),
                 "card_groups": {
-                    "weapons_equipment": ["Cards/4-物品卡/武器装备/佩剑.json"],
+                    "weapons_equipment": ["1-Cards/4-物品卡/武器装备/佩剑.json"],
                     "clue_items": [],
                     "narrative_items": [],
                     "relics": [],
@@ -719,67 +719,67 @@ def test_cards_coverage_report_fails_when_trace_fields_are_missing(tmp_path):
     _write_global_fixture(project_root)
 
     for rel_path in (
-        "Cards/1-风格卡/总风格/整书风格卡.json",
-        "Cards/2-角色卡/主要角色/甲.json",
-        "Cards/2-角色卡/主要角色/乙.json",
-        "Cards/2-角色卡/反派角色/丙.json",
-        "Cards/2-角色卡/反派角色/丁.json",
-        "Cards/2-角色卡/反派角色/戊.json",
-        "Cards/2-角色卡/次要角色/己.json",
-        "Cards/2-角色卡/次要角色/庚.json",
-        "Cards/2-角色卡/群像角色/辛.json",
-        "Cards/3-场景卡/室内/酒肆.json",
-        "Cards/3-场景卡/室外/港町.json",
-        "Cards/3-场景卡/自然/海岛.json",
-        "Cards/3-场景卡/自然/断崖.json",
-        "Cards/3-场景卡/超现实/镜庭.json",
-        "Cards/3-场景卡/超现实/残意海.json",
-        "Cards/4-物品卡/武器装备/佩剑.json",
-        "Cards/4-物品卡/武器装备/短刀.json",
-        "Cards/4-物品卡/线索物品/密账.json",
-        "Cards/4-物品卡/线索物品/海图.json",
-        "Cards/4-物品卡/重要叙事物品/残篇.json",
-        "Cards/4-物品卡/重要叙事物品/铃牌.json",
-        "Cards/4-物品卡/文物/旧袍.json",
-        "Cards/4-物品卡/点缀物/酒壶.json",
+        "1-Cards/1-风格卡/总风格/整书风格卡.json",
+        "1-Cards/2-角色卡/主要角色/甲.json",
+        "1-Cards/2-角色卡/主要角色/乙.json",
+        "1-Cards/2-角色卡/反派角色/丙.json",
+        "1-Cards/2-角色卡/反派角色/丁.json",
+        "1-Cards/2-角色卡/反派角色/戊.json",
+        "1-Cards/2-角色卡/次要角色/己.json",
+        "1-Cards/2-角色卡/次要角色/庚.json",
+        "1-Cards/2-角色卡/群像角色/辛.json",
+        "1-Cards/3-场景卡/室内/酒肆.json",
+        "1-Cards/3-场景卡/室外/港町.json",
+        "1-Cards/3-场景卡/自然/海岛.json",
+        "1-Cards/3-场景卡/自然/断崖.json",
+        "1-Cards/3-场景卡/超现实/镜庭.json",
+        "1-Cards/3-场景卡/超现实/残意海.json",
+        "1-Cards/4-物品卡/武器装备/佩剑.json",
+        "1-Cards/4-物品卡/武器装备/短刀.json",
+        "1-Cards/4-物品卡/线索物品/密账.json",
+        "1-Cards/4-物品卡/线索物品/海图.json",
+        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
+        "1-Cards/4-物品卡/文物/旧袍.json",
+        "1-Cards/4-物品卡/点缀物/酒壶.json",
     ):
         _touch_card(project_root, rel_path)
 
     _write_json(
-        project_root / "Cards" / "1-风格卡" / "风格索引.json",
+        project_root / "1-Cards" / "1-风格卡" / "风格索引.json",
         {
             "content": {
                 "card_groups": {
-                    "global_styles": ["Cards/1-风格卡/总风格/整书风格卡.json"],
+                    "global_styles": ["1-Cards/1-风格卡/总风格/整书风格卡.json"],
                 },
-                "style_contract_refs": [{"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}],
+                "style_contract_refs": [{"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}],
                 "current_focus": {"confirmed_facts": ["风格契约已锁定"]},
             }
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "角色索引.json",
+        project_root / "1-Cards" / "2-角色卡" / "角色索引.json",
         {
             "content": {
                 "card_groups": {
                     "protagonists": [
-                        "Cards/2-角色卡/主要角色/甲.json",
-                        "Cards/2-角色卡/主要角色/乙.json",
+                        "1-Cards/2-角色卡/主要角色/甲.json",
+                        "1-Cards/2-角色卡/主要角色/乙.json",
                     ],
                     "antagonists": [
-                        "Cards/2-角色卡/反派角色/丙.json",
-                        "Cards/2-角色卡/反派角色/丁.json",
-                        "Cards/2-角色卡/反派角色/戊.json",
+                        "1-Cards/2-角色卡/反派角色/丙.json",
+                        "1-Cards/2-角色卡/反派角色/丁.json",
+                        "1-Cards/2-角色卡/反派角色/戊.json",
                     ],
                     "supporting": [
-                        "Cards/2-角色卡/次要角色/己.json",
-                        "Cards/2-角色卡/次要角色/庚.json",
+                        "1-Cards/2-角色卡/次要角色/己.json",
+                        "1-Cards/2-角色卡/次要角色/庚.json",
                     ],
-                    "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
+                    "ensemble": ["1-Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
                 "relationship_graph": {
-                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "path": "1-Cards/2-角色卡/角色关系图谱.md",
                     "format": "markdown+mermaid",
                     "scope": "full-series",
                 },
@@ -789,19 +789,19 @@ def test_cards_coverage_report_fails_when_trace_fields_are_missing(tmp_path):
     )
     _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
-        project_root / "Cards" / "3-场景卡" / "场景索引.json",
+        project_root / "1-Cards" / "3-场景卡" / "场景索引.json",
         {
             "content": {
                 "card_groups": {
-                    "indoor": ["Cards/3-场景卡/室内/酒肆.json"],
-                    "outdoor": ["Cards/3-场景卡/室外/港町.json"],
+                    "indoor": ["1-Cards/3-场景卡/室内/酒肆.json"],
+                    "outdoor": ["1-Cards/3-场景卡/室外/港町.json"],
                     "natural": [
-                        "Cards/3-场景卡/自然/海岛.json",
-                        "Cards/3-场景卡/自然/断崖.json",
+                        "1-Cards/3-场景卡/自然/海岛.json",
+                        "1-Cards/3-场景卡/自然/断崖.json",
                     ],
                     "surreal": [
-                        "Cards/3-场景卡/超现实/镜庭.json",
-                        "Cards/3-场景卡/超现实/残意海.json",
+                        "1-Cards/3-场景卡/超现实/镜庭.json",
+                        "1-Cards/3-场景卡/超现实/残意海.json",
                     ],
                 },
                 "scene_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}],
@@ -809,24 +809,24 @@ def test_cards_coverage_report_fails_when_trace_fields_are_missing(tmp_path):
         },
     )
     _write_json(
-        project_root / "Cards" / "4-物品卡" / "物品索引.json",
+        project_root / "1-Cards" / "4-物品卡" / "物品索引.json",
         {
             "content": {
                 "card_groups": {
                     "weapons_equipment": [
-                        "Cards/4-物品卡/武器装备/佩剑.json",
-                        "Cards/4-物品卡/武器装备/短刀.json",
+                        "1-Cards/4-物品卡/武器装备/佩剑.json",
+                        "1-Cards/4-物品卡/武器装备/短刀.json",
                     ],
                     "clue_items": [
-                        "Cards/4-物品卡/线索物品/密账.json",
-                        "Cards/4-物品卡/线索物品/海图.json",
+                        "1-Cards/4-物品卡/线索物品/密账.json",
+                        "1-Cards/4-物品卡/线索物品/海图.json",
                     ],
                     "narrative_items": [
-                        "Cards/4-物品卡/重要叙事物品/残篇.json",
-                        "Cards/4-物品卡/重要叙事物品/铃牌.json",
+                        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+                        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
                     ],
-                    "relics": ["Cards/4-物品卡/文物/旧袍.json"],
-                    "adornments": ["Cards/4-物品卡/点缀物/酒壶.json"],
+                    "relics": ["1-Cards/4-物品卡/文物/旧袍.json"],
+                    "adornments": ["1-Cards/4-物品卡/点缀物/酒壶.json"],
                 },
                 "ownership_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}],
                 "exclusive_item_hooks": [{"owner": "甲"}, {"owner": "乙"}],
@@ -852,91 +852,91 @@ def test_cards_coverage_report_fails_when_card_files_are_shell_payloads(tmp_path
     module = _load_module()
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
-    _write_json(project_root / "Cards" / "0-全局卡" / "总设定" / "世界总卡.json", {"ok": True})
+    _write_json(project_root / "1-Cards" / "0-全局卡" / "总设定" / "世界总卡.json", {"ok": True})
     _write_json(
-        project_root / "Cards" / "0-全局卡" / "全局索引.json",
+        project_root / "1-Cards" / "0-全局卡" / "全局索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "1-Cards/0-全局卡"),
                 "card_groups": {
-                    "master_globals": ["Cards/0-全局卡/总设定/世界总卡.json"],
+                    "master_globals": ["1-Cards/0-全局卡/总设定/世界总卡.json"],
                 },
-                "global_contract_refs": [{"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}],
+                "global_contract_refs": [{"card_id": "世界总卡", "path": "1-Cards/0-全局卡/总设定/世界总卡.json"}],
                 "current_focus": {"confirmed_facts": ["世界总设定已锁定"]},
             }
         },
     )
 
     for rel_path in (
-        "Cards/1-风格卡/总风格/整书风格卡.json",
-        "Cards/2-角色卡/主要角色/甲.json",
-        "Cards/2-角色卡/主要角色/乙.json",
-        "Cards/2-角色卡/反派角色/丙.json",
-        "Cards/2-角色卡/反派角色/丁.json",
-        "Cards/2-角色卡/反派角色/戊.json",
-        "Cards/2-角色卡/次要角色/己.json",
-        "Cards/2-角色卡/次要角色/庚.json",
-        "Cards/2-角色卡/群像角色/辛.json",
-        "Cards/3-场景卡/室内/酒肆.json",
-        "Cards/3-场景卡/室外/港町.json",
-        "Cards/3-场景卡/自然/海岛.json",
-        "Cards/3-场景卡/自然/断崖.json",
-        "Cards/3-场景卡/超现实/镜庭.json",
-        "Cards/3-场景卡/超现实/残意海.json",
-        "Cards/4-物品卡/武器装备/佩剑.json",
-        "Cards/4-物品卡/武器装备/短刀.json",
-        "Cards/4-物品卡/线索物品/密账.json",
-        "Cards/4-物品卡/线索物品/海图.json",
-        "Cards/4-物品卡/重要叙事物品/残篇.json",
-        "Cards/4-物品卡/重要叙事物品/铃牌.json",
-        "Cards/4-物品卡/文物/旧袍.json",
-        "Cards/4-物品卡/点缀物/酒壶.json",
+        "1-Cards/1-风格卡/总风格/整书风格卡.json",
+        "1-Cards/2-角色卡/主要角色/甲.json",
+        "1-Cards/2-角色卡/主要角色/乙.json",
+        "1-Cards/2-角色卡/反派角色/丙.json",
+        "1-Cards/2-角色卡/反派角色/丁.json",
+        "1-Cards/2-角色卡/反派角色/戊.json",
+        "1-Cards/2-角色卡/次要角色/己.json",
+        "1-Cards/2-角色卡/次要角色/庚.json",
+        "1-Cards/2-角色卡/群像角色/辛.json",
+        "1-Cards/3-场景卡/室内/酒肆.json",
+        "1-Cards/3-场景卡/室外/港町.json",
+        "1-Cards/3-场景卡/自然/海岛.json",
+        "1-Cards/3-场景卡/自然/断崖.json",
+        "1-Cards/3-场景卡/超现实/镜庭.json",
+        "1-Cards/3-场景卡/超现实/残意海.json",
+        "1-Cards/4-物品卡/武器装备/佩剑.json",
+        "1-Cards/4-物品卡/武器装备/短刀.json",
+        "1-Cards/4-物品卡/线索物品/密账.json",
+        "1-Cards/4-物品卡/线索物品/海图.json",
+        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
+        "1-Cards/4-物品卡/文物/旧袍.json",
+        "1-Cards/4-物品卡/点缀物/酒壶.json",
     ):
         _write_json(project_root / rel_path, {"ok": True})
 
     _write_json(
-        project_root / "Cards" / "1-风格卡" / "风格索引.json",
+        project_root / "1-Cards" / "1-风格卡" / "风格索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 风格卡/SKILL.md",
-                    "Cards/1-风格卡",
+                    "1-Cards/1-风格卡",
                 ),
                 "card_groups": {
-                    "global_styles": ["Cards/1-风格卡/总风格/整书风格卡.json"],
+                    "global_styles": ["1-Cards/1-风格卡/总风格/整书风格卡.json"],
                 },
-                "style_contract_refs": [{"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}],
+                "style_contract_refs": [{"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}],
                 "current_focus": {"confirmed_facts": ["风格契约已锁定"]},
             }
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "角色索引.json",
+        project_root / "1-Cards" / "2-角色卡" / "角色索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 角色卡/SKILL.md",
-                    "Cards/2-角色卡",
+                    "1-Cards/2-角色卡",
                 ),
                 "card_groups": {
                     "protagonists": [
-                        "Cards/2-角色卡/主要角色/甲.json",
-                        "Cards/2-角色卡/主要角色/乙.json",
+                        "1-Cards/2-角色卡/主要角色/甲.json",
+                        "1-Cards/2-角色卡/主要角色/乙.json",
                     ],
                     "antagonists": [
-                        "Cards/2-角色卡/反派角色/丙.json",
-                        "Cards/2-角色卡/反派角色/丁.json",
-                        "Cards/2-角色卡/反派角色/戊.json",
+                        "1-Cards/2-角色卡/反派角色/丙.json",
+                        "1-Cards/2-角色卡/反派角色/丁.json",
+                        "1-Cards/2-角色卡/反派角色/戊.json",
                     ],
                     "supporting": [
-                        "Cards/2-角色卡/次要角色/己.json",
-                        "Cards/2-角色卡/次要角色/庚.json",
+                        "1-Cards/2-角色卡/次要角色/己.json",
+                        "1-Cards/2-角色卡/次要角色/庚.json",
                     ],
-                    "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
+                    "ensemble": ["1-Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
                 "relationship_graph": {
-                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "path": "1-Cards/2-角色卡/角色关系图谱.md",
                     "format": "markdown+mermaid",
                     "scope": "full-series",
                 },
@@ -946,23 +946,23 @@ def test_cards_coverage_report_fails_when_card_files_are_shell_payloads(tmp_path
     )
     _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
-        project_root / "Cards" / "3-场景卡" / "场景索引.json",
+        project_root / "1-Cards" / "3-场景卡" / "场景索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 场景卡/SKILL.md",
-                    "Cards/3-场景卡",
+                    "1-Cards/3-场景卡",
                 ),
                 "card_groups": {
-                    "indoor": ["Cards/3-场景卡/室内/酒肆.json"],
-                    "outdoor": ["Cards/3-场景卡/室外/港町.json"],
+                    "indoor": ["1-Cards/3-场景卡/室内/酒肆.json"],
+                    "outdoor": ["1-Cards/3-场景卡/室外/港町.json"],
                     "natural": [
-                        "Cards/3-场景卡/自然/海岛.json",
-                        "Cards/3-场景卡/自然/断崖.json",
+                        "1-Cards/3-场景卡/自然/海岛.json",
+                        "1-Cards/3-场景卡/自然/断崖.json",
                     ],
                     "surreal": [
-                        "Cards/3-场景卡/超现实/镜庭.json",
-                        "Cards/3-场景卡/超现实/残意海.json",
+                        "1-Cards/3-场景卡/超现实/镜庭.json",
+                        "1-Cards/3-场景卡/超现实/残意海.json",
                     ],
                 },
                 "scene_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
@@ -970,28 +970,28 @@ def test_cards_coverage_report_fails_when_card_files_are_shell_payloads(tmp_path
         },
     )
     _write_json(
-        project_root / "Cards" / "4-物品卡" / "物品索引.json",
+        project_root / "1-Cards" / "4-物品卡" / "物品索引.json",
         {
             "content": {
                 **_trace_payload(
                     "story-cards > 物品卡/SKILL.md",
-                    "Cards/4-物品卡",
+                    "1-Cards/4-物品卡",
                 ),
                 "card_groups": {
                     "weapons_equipment": [
-                        "Cards/4-物品卡/武器装备/佩剑.json",
-                        "Cards/4-物品卡/武器装备/短刀.json",
+                        "1-Cards/4-物品卡/武器装备/佩剑.json",
+                        "1-Cards/4-物品卡/武器装备/短刀.json",
                     ],
                     "clue_items": [
-                        "Cards/4-物品卡/线索物品/密账.json",
-                        "Cards/4-物品卡/线索物品/海图.json",
+                        "1-Cards/4-物品卡/线索物品/密账.json",
+                        "1-Cards/4-物品卡/线索物品/海图.json",
                     ],
                     "narrative_items": [
-                        "Cards/4-物品卡/重要叙事物品/残篇.json",
-                        "Cards/4-物品卡/重要叙事物品/铃牌.json",
+                        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+                        "1-Cards/4-物品卡/重要叙事物品/铃牌.json",
                     ],
-                    "relics": ["Cards/4-物品卡/文物/旧袍.json"],
-                    "adornments": ["Cards/4-物品卡/点缀物/酒壶.json"],
+                    "relics": ["1-Cards/4-物品卡/文物/旧袍.json"],
+                    "adornments": ["1-Cards/4-物品卡/点缀物/酒壶.json"],
                 },
                 "ownership_links": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
                 "exclusive_item_hooks": [{"owner": "甲"}, {"owner": "乙"}],
@@ -1031,52 +1031,52 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
     _write_global_fixture(project_root)
 
     for rel_path in (
-        "Cards/1-风格卡/总风格/整书风格卡.json",
-        "Cards/2-角色卡/主要角色/甲.json",
-        "Cards/2-角色卡/主要角色/乙.json",
-        "Cards/2-角色卡/反派角色/丙.json",
-        "Cards/2-角色卡/次要角色/己.json",
-        "Cards/3-场景卡/室内/酒肆.json",
-        "Cards/3-场景卡/室外/港町.json",
-        "Cards/3-场景卡/自然/海岛.json",
-        "Cards/4-物品卡/武器装备/佩剑.json",
-        "Cards/4-物品卡/线索物品/密账.json",
-        "Cards/4-物品卡/重要叙事物品/残篇.json",
-        "Cards/4-物品卡/文物/旧袍.json",
-        "Cards/4-物品卡/点缀物/酒壶.json",
+        "1-Cards/1-风格卡/总风格/整书风格卡.json",
+        "1-Cards/2-角色卡/主要角色/甲.json",
+        "1-Cards/2-角色卡/主要角色/乙.json",
+        "1-Cards/2-角色卡/反派角色/丙.json",
+        "1-Cards/2-角色卡/次要角色/己.json",
+        "1-Cards/3-场景卡/室内/酒肆.json",
+        "1-Cards/3-场景卡/室外/港町.json",
+        "1-Cards/3-场景卡/自然/海岛.json",
+        "1-Cards/4-物品卡/武器装备/佩剑.json",
+        "1-Cards/4-物品卡/线索物品/密账.json",
+        "1-Cards/4-物品卡/重要叙事物品/残篇.json",
+        "1-Cards/4-物品卡/文物/旧袍.json",
+        "1-Cards/4-物品卡/点缀物/酒壶.json",
     ):
         _touch_card(project_root, rel_path)
 
     _write_json(
-        project_root / "Cards" / "1-风格卡" / "风格索引.json",
+        project_root / "1-Cards" / "1-风格卡" / "风格索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 风格卡/SKILL.md", "Cards/1-风格卡"),
+                **_trace_payload("story-cards > 风格卡/SKILL.md", "1-Cards/1-风格卡"),
                 "card_groups": {
-                    "global_styles": ["Cards/1-风格卡/总风格/整书风格卡.json"],
+                    "global_styles": ["1-Cards/1-风格卡/总风格/整书风格卡.json"],
                 },
-                "style_contract_refs": [{"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}],
+                "style_contract_refs": [{"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}],
                 "current_focus": {"confirmed_facts": ["现实题材风格契约"]},
             }
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "角色索引.json",
+        project_root / "1-Cards" / "2-角色卡" / "角色索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 角色卡/SKILL.md", "Cards/2-角色卡"),
+                **_trace_payload("story-cards > 角色卡/SKILL.md", "1-Cards/2-角色卡"),
                 "card_groups": {
                     "protagonists": [
-                        "Cards/2-角色卡/主要角色/甲.json",
-                        "Cards/2-角色卡/主要角色/乙.json",
+                        "1-Cards/2-角色卡/主要角色/甲.json",
+                        "1-Cards/2-角色卡/主要角色/乙.json",
                     ],
-                    "antagonists": ["Cards/2-角色卡/反派角色/丙.json"],
-                    "supporting": ["Cards/2-角色卡/次要角色/己.json"],
+                    "antagonists": ["1-Cards/2-角色卡/反派角色/丙.json"],
+                    "supporting": ["1-Cards/2-角色卡/次要角色/己.json"],
                     "ensemble": [],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}],
                 "relationship_graph": {
-                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "path": "1-Cards/2-角色卡/角色关系图谱.md",
                     "format": "markdown+mermaid",
                     "scope": "full-series",
                 },
@@ -1086,14 +1086,14 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
     )
     _write_character_graph(project_root, ["甲", "乙", "丙", "己"], 2)
     _write_json(
-        project_root / "Cards" / "3-场景卡" / "场景索引.json",
+        project_root / "1-Cards" / "3-场景卡" / "场景索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 场景卡/SKILL.md", "Cards/3-场景卡"),
+                **_trace_payload("story-cards > 场景卡/SKILL.md", "1-Cards/3-场景卡"),
                 "card_groups": {
-                    "indoor": ["Cards/3-场景卡/室内/酒肆.json"],
-                    "outdoor": ["Cards/3-场景卡/室外/港町.json"],
-                    "natural": ["Cards/3-场景卡/自然/海岛.json"],
+                    "indoor": ["1-Cards/3-场景卡/室内/酒肆.json"],
+                    "outdoor": ["1-Cards/3-场景卡/室外/港町.json"],
+                    "natural": ["1-Cards/3-场景卡/自然/海岛.json"],
                     "surreal": [],
                 },
                 "scene_links": [{"ok": 1}, {"ok": 2}],
@@ -1101,16 +1101,16 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
         },
     )
     _write_json(
-        project_root / "Cards" / "4-物品卡" / "物品索引.json",
+        project_root / "1-Cards" / "4-物品卡" / "物品索引.json",
         {
             "content": {
-                **_trace_payload("story-cards > 物品卡/SKILL.md", "Cards/4-物品卡"),
+                **_trace_payload("story-cards > 物品卡/SKILL.md", "1-Cards/4-物品卡"),
                 "card_groups": {
-                    "weapons_equipment": ["Cards/4-物品卡/武器装备/佩剑.json"],
-                    "clue_items": ["Cards/4-物品卡/线索物品/密账.json"],
-                    "narrative_items": ["Cards/4-物品卡/重要叙事物品/残篇.json"],
-                    "relics": ["Cards/4-物品卡/文物/旧袍.json"],
-                    "adornments": ["Cards/4-物品卡/点缀物/酒壶.json"],
+                    "weapons_equipment": ["1-Cards/4-物品卡/武器装备/佩剑.json"],
+                    "clue_items": ["1-Cards/4-物品卡/线索物品/密账.json"],
+                    "narrative_items": ["1-Cards/4-物品卡/重要叙事物品/残篇.json"],
+                    "relics": ["1-Cards/4-物品卡/文物/旧袍.json"],
+                    "adornments": ["1-Cards/4-物品卡/点缀物/酒壶.json"],
                 },
                 "ownership_links": [{"ok": 1}, {"ok": 2}],
                 "exclusive_item_hooks": [{"owner": "甲"}, {"owner": "乙"}],

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "story/_shared/story_map.schema.json",
   "title": "Story2026 Story Map Output Schema",
-  "description": "用于 `2-Planning` 子技能串行写回 `Planning/全息地图.json` 的共享结构真源。保持 `content.holomap` 作为运行时兼容入口，同时把它明确视为 story_map carrier。",
+  "description": "用于 `2-Planning` 子技能串行写回 `2-Planning/全息地图.json` 的共享结构真源。保持 `content.holomap` 作为运行时兼容入口，同时把它明确视为 story_map carrier。",
   "type": "object",
   "$defs": {
     "meta": {

@@ -73,7 +73,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `previous_episode_bridge`、`transition_breaks`、`thread_drop_count`、`carryover_gaps`
 - `dimension_report_ref`:
-  - `Validation/第N集/连续性.md`
+  - `4-Validation/第N集/连续性.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `2-节奏优化`

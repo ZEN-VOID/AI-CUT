@@ -345,9 +345,8 @@ class StatusReporter:
             print(f"⚠️  Drafting 目录不存在: {self.chapters_dir}")
             return
 
-        # 支持两种目录结构：
-        # 1) 正文/第0001章.md
-        # 2) 正文/第1卷/第001章-标题.md
+        # 当前 canonical：3-Drafting/第N集.md
+        # 旧项目兼容：正文/第0001章.md、正文/第1卷/第001章-标题.md
         chapter_files = sorted(self.chapters_dir.rglob("第*.md"))
 
         # v5.1 引入: 从 SQLite 获取已知角色名

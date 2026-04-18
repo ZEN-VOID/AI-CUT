@@ -1,6 +1,6 @@
 ---
 name: story-init
-description: "Use when initializing or reinitializing a story2026 project through the always-on team-roleplay mode, with auto/custom lineup selection, planning-led subagent interview, and `team.yaml` as the canonical team manifest."
+description: "Use when initializing or reinitializing a story2026 project through the always-on team-roleplay mode, with auto/custom lineup selection, planning-led subagent direct-answer packets, and `team.yaml` as the canonical team manifest."
 governance_tier: full
 allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ---
@@ -21,7 +21,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 - 主模式只有一个：`team代入模式`
 - 仅允许两种编组子路径：`自动组队`、`自定义组队`
-- `planning` 角色必须先以真实 subagents 执行 interview，再综合写回 `0-Init/north_star.yaml`
+- `planning` 角色必须先以真实 subagents 执行固定题包直答，再综合写回 `0-Init/north_star.yaml`
 - 项目根 `team.yaml` 是团队治理唯一真源
 - 初始化不再允许退回问卷调查或“快速补完”平行路径
 
@@ -37,7 +37,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 - 需要新建一个 `story2026` 小说项目。
 - 已初始化项目因方向失效，需要退回初始化层重新起盘。
-- 需要先锁团队代入阵容，再通过 interview 产出初始化长期合同与阶段种子。
+- 需要先锁团队代入阵容，再通过固定题包直答 产出初始化长期合同与阶段种子。
 - 需要把项目级团队治理稳定落到 `team.yaml`，并生成 `0-Init` 三件套。
 
 ## When Not to Use
@@ -52,7 +52,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 - 固定只走 `team代入模式`，避免初始化入口再次长出平行模式。
 - 让用户只在 `自动组队 / 自定义组队` 间拍板，而不是在“是否问卷”之间摇摆。
-- 让 `planning` 角色顾问团先做初始化 interview，再综合产出长期合同与下游种子。
+- 让 `planning` 角色顾问团先执行固定题包直答，再综合产出长期合同与下游种子。
 - 把团队治理真源固定在 `team.yaml`，避免并行 manifest 再次长出来。
 
 ### business_object
@@ -67,7 +67,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 - `init_mode` 固定归一到 `team代入模式`
 - 子路径只允许 `auto | custom`
 - `selector_scope_root` 固定为 `.agents/skills/team/`
-- 初始化问题必须先经 `roles.planning.members` 的 subagents interview 收束
+- 初始化问题必须先经 `roles.planning.members` 的 subagents 固定题包直答执行 收束
 - `team.yaml` 必须先于 `0-Init/north_star.yaml` 锁定
 - 初始化不得退回问卷调查、长表单或快速补全平行路径
 - 未经用户明确授权，不删除项目故事主源与不可再生资产
@@ -78,12 +78,12 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 - 已锁定 `team_lineup_mode == auto|custom`
 - `team.yaml` 已生成，且记录 `.agents/skills/team/` 为唯一选人范围
 - `team.yaml` 是唯一团队真源
-- `planning` 顾问团 interview 已作为初始化主路径被声明
+- `planning` 顾问团固定题包直答已作为初始化主路径被声明
 - `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 已同步 team provenance
 
 ### topology_fit
 
-- 主干固定串行：模式锁定 -> runtime bootstrap -> 组队 -> planning interview -> synthesis -> sufficiency audit -> 写回
+- 主干固定串行：模式锁定 -> runtime bootstrap -> 组队 -> planning 固定题包直答 -> synthesis -> sufficiency audit -> 写回
 - 唯一分支只发生在 `team_lineup_mode`
 - 创意缺口由 `creative-seed-routing` 作为 sidecar 路由，不参与模式分叉
 
@@ -102,7 +102,7 @@ flowchart TD
     C --> D["N2 Runtime Bootstrap: 预建项目骨架"]
     D --> E["N3 Team Router: auto/custom"]
     E --> F["N4 Team Lock: 先写 team.yaml"]
-    F --> G["N5 Planning Interview: roles.planning subagents"]
+    F --> G["N5 Planning Direct-Answer Packet: roles.planning subagents"]
     G --> H["N6 Synthesis: north_star + source_manifest + init_handoff + state"]
     H --> I["N7 Sufficiency Audit"]
     I --> J["One-shot writeback"]
@@ -116,7 +116,7 @@ flowchart LR
     C --> E["team.yaml patch"]
     D --> E
     E --> F["roles.planning.members"]
-    F --> G["planning interview patches"]
+    F --> G["planning 固定题包直答 patches"]
     G --> H["north_star / source_manifest / init_handoff / state patches"]
 ```
 
@@ -186,15 +186,15 @@ flowchart LR
 | `internal_router` | 裁剪本轮问题包、证据包、禁问项 | `route_plan_patch` | 命中 `0-Init` 后立即执行 |
 | `team_auto_formation_engine` | 先读 `.agents/skills/team/` 根索引，再自动挑选顾问阵容 | `team_manifest_patch`、`selection_rationale` | `team_lineup_mode == auto` |
 | `team_custom_formation_engine` | 校验用户自定义 roster 是否都位于 `.agents/skills/team/` | `team_manifest_patch`、`custom_lineup_validation_note` | `team_lineup_mode == custom` |
-| `planning_interview_engine` | 以 `roles.planning.members` 为 kickoff owner 执行 interview | `interview_report`、`north_star_patch`、`init_handoff_patch` | `team.yaml` 已锁定后 |
-| `creative_seed_routing` | 为创意缺口补最小参考组合，不改模式 | `creative_mandate_patch`、`planning_seed_patch` | interview 暴露创意缺口时 |
-| `synthesis_engine` | 聚合 `team + interview + state` patch | `artifact_patch_set` | interview 结束后 |
+| `planning_direct_answer_engine` | 以 `roles.planning.members` 为 kickoff owner 执行固定题包直答 | `direct_answer_report`、`north_star_patch`、`init_handoff_patch` | `team.yaml` 已锁定后 |
+| `creative_seed_routing` | 为创意缺口补最小参考组合，不改模式 | `creative_mandate_patch`、`planning_seed_patch` | 固定题包直答暴露创意缺口时 |
+| `synthesis_engine` | 聚合 `team + direct-answer + state` patch | `artifact_patch_set` | 直答完成后 |
 | `sufficiency_audit_engine` | 检查充分性、来源分层、下一入口一致性 | `audit_report`、`reentry_decision` | 写回前 |
 
 硬规则：
 
 1. 所有能力面都内收到当前 `SKILL.md`，不是新的 mode-playbook。
-2. `planning_interview_engine` 必须要求真实 subagents；若环境不允许，必须阻塞并报告。
+2. `planning_direct_answer_engine` 必须要求真实 subagents；若环境不允许，必须阻塞并报告。
 3. `creative_seed_routing` 只负责创意缺口，不得抢 team 路由与模式裁决。
 
 ## Initialization Mode Contract (Mandatory)
@@ -225,14 +225,14 @@ B. 自定义组队
 3. 如果选 A
 - 我会先从 `.agents/skills/team/` 根索引里做 shortlist，再自动选策划 / 监制 / 评审阵容
 - 结果先写入 `team.yaml`
-- 再由 `roles.planning.members` 真实执行初始化 interview
+- 再由 `roles.planning.members` 围绕固定题包真实执行初始化直答
 
 4. 如果选 B
 - 你可以直接给 `策划 / 监制 / 评审` 的成员
 - 也可以给 team skill 路径列表
 - 所有候选都必须位于 `.agents/skills/team/`
 
-5. interview 执行方式（固定）
+5. 固定题包执行方式（固定）
 - 由 `roles.planning.members` 作为 kickoff owner
 - 必须使用真实 subagents
 ```
@@ -261,9 +261,9 @@ B. 自定义组队
 - `init_contract.init_mode_display == team代入模式`
 - `init_contract.team_lineup_mode == auto|custom`
 - `init_contract.selector_scope_root == ".agents/skills/team/"`
-- `runtime_policy.require_subagents_for_init_interview == true`
-- `runtime_policy.init_interview_owner_role == planning`
-- `roles.planning.init_interview.*`
+- `runtime_policy.require_subagents_for_init_execution == true`
+- `runtime_policy.init_execution_owner_role == planning`
+- `roles.planning.init_execution.*`
 
 硬规则：
 
@@ -273,9 +273,9 @@ B. 自定义组队
 4. 自动组队必须把自动选择理由写入 `init_contract.auto_selection_notes`。
 5. 自定义组队必须把用户裁定理由写入 `init_contract.custom_selection_notes`。
 
-## Question Framing Contract (Mandatory)
+## Prompt Packet Contract (Mandatory)
 
-初始化问题必须先由 `roles.planning.members` 的 subagents interview 收束，而不是再走问卷调查。
+初始化必须先由 `roles.planning.members` 围绕既定题包执行固定题包直答，而不是再走模拟访谈或旧式问卷调查。
 
 至少覆盖：
 
@@ -287,7 +287,7 @@ B. 自定义组队
 
 硬规则：
 
-1. 第一轮问题由 `planning` 顾问团提出并经父技能收束。
+1. 第一轮题包由父技能固定，并交给 `planning` 顾问团并行直答后由父技能收束。
 2. 只问当前最阻塞长期合同与阶段 seed 的缺口。
 3. 更适合下游阶段解决的问题直接写入 `unknowns`。
 4. 不允许回退到“每轮 4-8 题问卷卡”的旧路径。
@@ -315,11 +315,11 @@ B. 自定义组队
    - 若 `auto`，先读 `.agents/skills/team/SKILL.md + CONTEXT.md`
 5. `N4 Team Lock`
    - 先起草并锁定 `team.yaml`
-6. `N5 Planning Interview`
-   - 以 `roles.planning.members` 为 kickoff owner 真实执行 subagents interview
+6. `N5 Planning Direct-Answer Packet`
+   - 以 `roles.planning.members` 为 kickoff owner 真实执行 subagents 固定题包直答
    - 必要时按需进入 `creative-seed-routing`
 7. `N6 Synthesis`
-   - 聚合 interview patch 与初始化输入，收束到 `0-Init/north_star.yaml + 0-Init/story-source-manifest.yaml + 0-Init/init_handoff.yaml + STATE.json`
+   - 聚合 直答 patch 与初始化输入，收束到 `0-Init/north_star.yaml + 0-Init/story-source-manifest.yaml + 0-Init/init_handoff.yaml + STATE.json`
 8. `N7 Sufficiency Audit`
    - 检查 team provenance、来源分层、唯一下一入口
    - 通过后一次性写回
@@ -331,12 +331,12 @@ B. 自定义组队
 - 已锁定 `team_lineup_mode`
 - `team.yaml` 已生成
 - `team.yaml` 已声明 `.agents/skills/team/` 为唯一选人范围
-- `planning` interview 已作为初始化主路径声明
+- `planning` 固定题包直答已作为初始化主路径声明
 - `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 的 team provenance 一致
 
 ## Root-Cause Execution Contract (Mandatory)
 
-当出现模式漂移、team manifest 双真源、interview 未收口、下游找不到团队真源等问题时，必须按下列链路上溯：
+当出现模式漂移、team manifest 双真源、固定题包直答未收口、下游找不到团队真源等问题时，必须按下列链路上溯：
 
 `Symptom / Failure -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
@@ -344,7 +344,7 @@ B. 自定义组队
 
 1. `Initialization Mode Contract`
 2. `Team Manifest Contract`
-3. `Question Framing Contract`
+3. `Prompt Packet Contract`
 4. `Execution Procedure`
 5. `init_project.py`
 6. 仓库 `AGENTS.md`
@@ -381,7 +381,7 @@ test -f "./projects/story/示例小说/0-Init/init_handoff.yaml"
 | --- | --- | --- |
 | `FIELD-INIT-01` | `init_mode / team_lineup_mode` | 单一模式与编组子路径是否已锁定 |
 | `FIELD-INIT-02` | `team.yaml` | 团队治理唯一真源是否成立 |
-| `FIELD-INIT-03` | `planning interview provenance` | kickoff owner 与 subagents 主路径是否明确 |
+| `FIELD-INIT-03` | `planning 固定题包直答 provenance` | kickoff owner 与 subagents 主路径是否明确 |
 | `FIELD-INIT-04` | `north_star + handoff + state` | 下游交接物是否同步 team provenance |
 | `FIELD-INIT-05` | `single team truth` | `team.yaml` 是否保持唯一团队真源 |
 
@@ -391,7 +391,7 @@ test -f "./projects/story/示例小说/0-Init/init_handoff.yaml"
 | --- | --- | --- | --- | --- |
 | `N1-mode-gate` | `FIELD-INIT-01` | 锁单一模式与 `auto/custom` | 仍出现快速/问卷分叉 | 回到 `Initialization Mode Contract` |
 | `N4-team-lock` | `FIELD-INIT-02` | 先锁 `team.yaml` 再综合 | 先写三件套，后补 team | 回到 `Team Manifest Contract` |
-| `N5-planning-interview` | `FIELD-INIT-03` | 固定 planning kickoff owner | interview 未被声明为主路径 | 回到 `Question Framing Contract` |
+| `N5-planning-direct-answer` | `FIELD-INIT-03` | 固定 planning kickoff owner | 固定题包直答未被声明为主路径 | 回到 `Prompt Packet Contract` |
 | `N6-synthesis` | `FIELD-INIT-04` | 同步各工件 provenance | state/handoff/team 不一致 | 回到 `Execution Procedure` |
 | `N7-audit` | `FIELD-INIT-05` | 压制双真源漂移 | 出现并行 team 真源或 init 三件套分工混线 | 回到 `Sufficiency Gate` |
 
@@ -401,6 +401,6 @@ test -f "./projects/story/示例小说/0-Init/init_handoff.yaml"
 | --- | --- | --- | --- |
 | `FIELD-INIT-01` | 模式治理清晰度 | `FAIL-INIT-01` | `Initialization Mode Contract` |
 | `FIELD-INIT-02` | 团队真源单一性 | `FAIL-INIT-02` | `Team Manifest Contract` |
-| `FIELD-INIT-03` | interview 主路径完整性 | `FAIL-INIT-03` | `Question Framing Contract` |
+| `FIELD-INIT-03` | 直答主路径完整性 | `FAIL-INIT-03` | `Prompt Packet Contract` |
 | `FIELD-INIT-04` | 初始化交接一致性 | `FAIL-INIT-04` | `Execution Procedure` |
 | `FIELD-INIT-05` | 兼容迁移稳定性 | `FAIL-INIT-05` | `Sufficiency Gate` |

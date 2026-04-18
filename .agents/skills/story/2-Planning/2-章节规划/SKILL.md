@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、当前 `Planning/全息地图.json`。
+- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、当前 `2-Planning/全息地图.json`。
 
 ## Parent Positioning
 
@@ -37,16 +37,16 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把体量判断翻译成稳定章节容器，为后续 3-8 提供挂载骨架。 |
-| `business_object` | `Planning/全息地图.json` 与 `story_map.volume_boards / chapter_boards / episode_sequence_axis`。 |
+| `business_object` | `2-Planning/全息地图.json` 与 `story_map.volume_boards / chapter_boards / episode_sequence_axis`。 |
 | `constraint_profile` | 只负责容器，不代写主干与长线。 |
 | `success_criteria` | chapter/volume blocks 稳定，后续 child 可以直接在 board 上挂内容。 |
 
 ## Total Input Contract
 
 - 必需输入：
-  - `Planning/全息地图.json`
-  - `Cards/**/*.json`
-  - 当前 `Planning/全息地图.json`
+  - `2-Planning/全息地图.json`
+  - `1-Cards/**/*.json`
+  - 当前 `2-Planning/全息地图.json`
 - 硬规则：
   - 先锁功能槽，再谈章节数量。
   - density contract 必须是区间带，不是死数。
@@ -54,7 +54,7 @@ governance_tier: lite
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/pass-artifacts/2-章节规划.json`
+  - `2-Planning/pass-artifacts/2-章节规划.json`
 - owned story_map slots：
   - `content.holomap.volume_boards`
   - `content.holomap.chapter_boards`

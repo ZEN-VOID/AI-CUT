@@ -17,6 +17,8 @@ color: rose
 - 所有子技能正式处理前，都必须先回读当前 `第N集.md` 与 `写作日志.yaml`；若 `第N集.md` 不存在，由父层先用 `_shared/episode-root.template.md` 初始化。
 - 每个子技能写回后，父层必须按照 `../4-Validation/_shared/validation-dimension-registry.yaml` 触发对应的即时审计 hook；未通过则不得进入下一步。
 - runtime 默认先尝试调用 `.agents/skills/story/scripts/validation_runner.py` 自动执行当前 step 的 inline validators；只有当 manuscript / context 不足时，才降级为 pending batch，等待显式回填或手动重跑。
+- 本阶段的正式执行模式固定为“真正串行版”：`Step 1` 单独起盘并写回 `第N集.md`，随后立即跑 `Step 1` 对应 hook；只有 hook 通过，才允许开始 `Step 2`。同理一直执行到 `Step 7`。
+- 禁止把 `Step 1-7` 合并成一次大改稿、一次总生成、预先产出多步结果后再统一写回，或跳过中间 hook 直到最后统一审计。
 
 ## Overview
 
@@ -31,8 +33,9 @@ color: rose
 5. 若当前 hook 失败，立即在当前 step、最早受影响 step、或 source-contract 层修复，不允许把问题累积到最后。
 6. `7-润色` + 其 inline hooks 通过后，只形成 `candidate_final_draft`，随后仍必须进入 `4-Validation` 终验层。
 7. `写作日志.yaml` 记录当前集已经过哪些工序、每步摘要、即时审计结果、可恢复位置与连续性证据。
+8. 每个 step 都是独立执行单元：`start current step -> 读取当前 root -> 仅做本 step 改动 -> 写回 root/log -> 跑当前 step hook -> 决定进入下一步或回退`。
 
-本阶段对 `Planning/全息地图.json` 的核心理解必须固定：
+本阶段对 `2-Planning/全息地图.json` 的核心理解必须固定：
 
 - 它不是“写作灵感参考”，而是规划真源。
 - `chapter_boards` 决定本集承担什么功能、容器和兑现义务。
@@ -61,7 +64,7 @@ color: rose
 ### 父层不拥有
 
 - 替任一子技能重复做本地强化判断
-- 越权修改 `Cards`、`Planning/全息地图.json`、`validation_status`
+- 越权修改 `Cards`、`2-Planning/全息地图.json`、`validation_status`
 - 在根层再制造第二份 episode 草稿、第二份 phase report、第二份“局部正文真源”
 - 把 7 道工序重新压成“先写完再统一润色”的单次生成
 
@@ -101,7 +104,7 @@ color: rose
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 以“单集单根文件 + 七道工序复合加工 + 每步即时审计”的方式，把规划真源翻译成可连读的章节正文，并尽早阻断早期错误向后累积。 |
-| `business_object` | `0-Init/*.yaml`、`Cards/0-全局卡/**/*.json`、`Cards/**/*.json`、`Planning/全息地图.json`、上一集最终正文、`projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`validation-dimension-registry.yaml`。 |
+| `business_object` | `0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、上一集最终正文、`projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`validation-dimension-registry.yaml`。 |
 | `constraint_profile` | `story_map` 是法律不是灵感；第 2 集起必须加载上一集终稿；7 道工序必须固定串行；每步写回后必须过对应 inline hooks；正式真源只有一个 episode markdown。 |
 | `success_criteria` | 当前集正文已通过 1-7 全链加工与每步即时审计；日志可说明每步与每轮 hook 是否完成；`7-润色` 后产出的是可送 `4-Validation` 的候选终稿。 |
 | `non_goals` | 不在 drafting 阶段越权改 Cards / MAP；不再维护 `Drafting/chNNNN/chapter-root.md`；不让每个子技能各自产出一份平行完整版。 |
@@ -122,9 +125,9 @@ color: rose
 9. `../_shared/core-constraints.md`
 10. `0-Init/north_star.yaml`
 11. `0-Init/init_handoff.yaml`
-12. `Cards/0-全局卡/**/*.json`
-13. `Cards/**/*.json`
-14. `Planning/全息地图.json`
+12. `1-Cards/0-全局卡/**/*.json`
+13. `1-Cards/**/*.json`
+14. `2-Planning/全息地图.json`
 15. 若 `N > 1`：上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
 16. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`（若存在）
 17. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`（若存在）
@@ -142,9 +145,9 @@ color: rose
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- `Cards/0-全局卡/**/*.json`
-- `Cards/**/*.json`
-- `Planning/全息地图.json`
+- `1-Cards/0-全局卡/**/*.json`
+- `1-Cards/**/*.json`
+- `2-Planning/全息地图.json`
 - 当前 episode id / 集号
 
 ### 条件必需输入
@@ -153,7 +156,7 @@ color: rose
 
 ### 硬规则
 
-1. `Planning/全息地图.json` 必须优先于任何兼容大纲或临时摘要。
+1. `2-Planning/全息地图.json` 必须优先于任何兼容大纲或临时摘要。
 2. `第N集.md` 是单一章节业务真源；不得再并行维护 second draft、pass-2 draft、chapter-root 等第二正文根文件。
 3. `写作日志.yaml` 是唯一工序日志；不得把 step 状态散落到多个 sidecar。
 4. 每个子技能开始前都必须回读当前 `第N集.md` 与 `写作日志.yaml`。
@@ -161,7 +164,10 @@ color: rose
 6. 未经 `4-Validation` 通过前，drafting 不得回写 `Cards.current_state/history` 或 `story_map.actualization`。
 7. 每个 step 写回后，必须立即运行 registry 声明的 inline validation hooks。
 8. `7-润色` 后即使 inline hooks 全部通过，也只获得 `candidate_final_draft` 状态，不得视为最终 PASS。
-9. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指的长期约束，默认优先取自 `Cards/0-全局卡/**/*.json`；不得由正文工序自行补发明。
+9. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指的长期约束，默认优先取自 `1-Cards/0-全局卡/**/*.json`；不得由正文工序自行补发明。
+10. `Step 2-7` 的正式输入，必须是“上一 step 已写回且已通过 hook 的当前 `第N集.md`”；不得读取未过 gate 的临时版本当作正式输入。
+11. 单个 step 的正式执行边界固定为“一次 step，一次写回，一次 hook gate”；不得把多个 step 的正文改动累积到一次统一写回中。
+12. 若当前环境只能做候选比较、草稿实验或 reviewer 会诊，这些内容必须停留在 step 内部，不得冒充已完成的正式 step 写回。
 
 ## Dispatch Order Contract
 
@@ -176,6 +182,7 @@ color: rose
 3. 父层把该结果写回同一 `第N集.md` 后，必须立刻运行当前 step 对应的 inline validation hooks。
 4. 只有当前 step 的 inline hooks 通过，下一子技能才能开始。
 5. 任意时刻只允许一个子技能对正式正文执行写回。
+6. 不允许在 `Step 1` 写回前提前生成 `Step 2-7` 的正式 patch，也不允许在 `Step N` hook 未通过前提前执行 `Step N+1` 的正式写回。
 
 ### Inline Validation 回退规则
 
@@ -285,7 +292,7 @@ stateDiagram-v2
 | field_id | output_slot | 内容要求 | default_step | quality_dimension | fail_code |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-DR-01` | episode scope | 当前写的是哪一集、何种模式 | `S1` | 目标稳定性 | `FAIL-DR-01` |
-| `FIELD-DR-02` | upstream context pack | Init/Cards/Planning 已装配 | `S1` | 输入完整性 | `FAIL-DR-02` |
+| `FIELD-DR-02` | upstream context pack | Init/1-Cards/Planning 已装配 | `S1` | 输入完整性 | `FAIL-DR-02` |
 | `FIELD-DR-03` | continuity pack | 第 2 集起已读取上一集终稿 | `S2` | 连续性 | `FAIL-DR-03` |
 | `FIELD-DR-04` | episode root + process log | 根文件与日志唯一 | `S2` | 真源唯一性 | `FAIL-DR-04` |
 | `FIELD-DR-05` | serial pass plan | 1-7 固定顺序成立 | `S3` | 工序完整性 | `FAIL-DR-05` |
@@ -308,7 +315,7 @@ stateDiagram-v2
 | field_id | pass_standard | fail_code | rework_entry |
 | --- | --- | --- | --- |
 | `FIELD-DR-01` | 集号、模式、目标明确 | `FAIL-DR-01` | `S1` |
-| `FIELD-DR-02` | Init/Cards/Planning 已齐备 | `FAIL-DR-02` | `S1` |
+| `FIELD-DR-02` | Init/1-Cards/Planning 已齐备 | `FAIL-DR-02` | `S1` |
 | `FIELD-DR-03` | `N>1` 时上一集终稿已加载 | `FAIL-DR-03` | `S2` |
 | `FIELD-DR-04` | `第N集.md + 写作日志.yaml` 唯一 | `FAIL-DR-04` | `S2` |
 | `FIELD-DR-05` | 1-7 顺序成立 | `FAIL-DR-05` | `S3` |

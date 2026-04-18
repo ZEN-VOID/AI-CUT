@@ -22,7 +22,7 @@
 
 | symptom | root_cause_layer | immediate_fix | systemic_prevention | verification |
 | --- | --- | --- | --- | --- |
-| 查询到章节规划、任务、线索、伏笔时仍只读 `STATE.json` 或旧 `大纲/` | skill contract / data-flow doc | 把规划类问题默认入口切到 `Planning/全息地图.json` | 在 `SKILL.md` 与 `system-data-flow.md` 固定 holomap-first | 规划类查询说明明确写出 holomap 为优先数据源 |
+| 查询到章节规划、任务、线索、伏笔时仍只读 `STATE.json` 或旧 `大纲/` | skill contract / data-flow doc | 把规划类问题默认入口切到 `2-Planning/全息地图.json` | 在 `SKILL.md` 与 `system-data-flow.md` 固定 holomap-first | 规划类查询说明明确写出 holomap 为优先数据源 |
 | 把 `planned_state` 当成“已经发生的事实” | truth-role contract | 改为同时检查 `actualization + loopback artifact + validation PASS` | 在 `SKILL.md` 固定 `planned/current/validated_actual` 三分法 | 查询“已经发生了吗”时不会再拿计划冒充结果 |
 | 把 `Cards.core` 当作当前默认有效状态 | cards contract | 当前态问题先看 `current_state`，再用 `history` 和 `state/index` 补证 | 在 query 合同里写死 `core != current_state` | “现在怎样了”类问题优先命中 `current_state` |
 | 问角色成长历程时只给当前快照 | cross-stage semantic split | 读取 `experience_timeline + history + state_changes` | 把“事件时间”与“经历时间”分开写进查询规则 | 角色弧光查询能同时给出现在与形成过程 |
@@ -57,3 +57,4 @@
 - 若 query 结果需要同时引用计划与实绩，优先用“原计划 / 已验证实绩 / 当前状态”三栏拆开，最不容易误导。
 - 卫星拓扑发生增删时，`query/` 的 stage-position 文案与 data-flow 图也要同步缩表，不能继续挂着已下线的 peer。
 - 如果 `3-Drafting` 改成了新的正文根文件路径，query 的 truth-layer 和 data-flow 文档要一起改，不然查询会默认读错 drafting 真源。
+- 目录树示例只能展示当前 canonical runtime；旧路径若仍需保留，只能放在 fallback 注释里，不能和现行目录并列成双真源。

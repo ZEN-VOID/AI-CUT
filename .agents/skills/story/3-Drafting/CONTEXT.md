@@ -15,9 +15,10 @@
 | drafting 仍回退到 `Drafting/chNNNN/chapter-root.md` | stage canonical runtime | 改回 `projects/story/<项目名>/3-Drafting/第N集.md` | 在父技能与 `_shared` 合同中固定单一正文根文件 | 任何子技能都只回写 `第N集.md` |
 | 第 2 集之后直接开写，没读上一集终稿 | continuity contract | 阻塞当前集，先补上一集终稿读取 | 在父技能 Total Input Contract 写死 `N>1` 必需连续性输入 | 当前集日志能记录 `previous_episode_ref` |
 | 子技能各自写一份完整稿，父层没有统一收束 | composite output governance | 改为 child 只返回 `manuscript_patch + process_log_entry` | 在 `_shared/drafting-child-output-contract.md` 固化输出协议 | `写作日志.yaml` 能回放 1-7 的 progressive rewrite |
-| 把 `Planning/全息地图.json` 当摘要参考，而不是规划法律 | planning truth drift | 回到 `chapter_boards / story_spine / threads / navigation_rules` 逐项吸收 | 在父技能 Overview 固定 story_map 语义与禁飞区 | 当前正文能对照 board 功能与 thread 债务 |
+| 把 `2-Planning/全息地图.json` 当摘要参考，而不是规划法律 | planning truth drift | 回到 `chapter_boards / story_spine / threads / navigation_rules` 逐项吸收 | 在父技能 Overview 固定 story_map 语义与禁飞区 | 当前正文能对照 board 功能与 thread 债务 |
 | 只有剧情起盘，没有后续层层加工 | process under-spec | 回到 1-7 固定顺序补工序 | 在父技能 Dispatch Order Contract 固定串行 7 步 | 当前集日志可显示所有已完成工序 |
 | 某一步明明已经暴露早期结构/逻辑问题，却继续往后写到最后才返工 | inline validation gap | 在当前 step 写回后立即跑 registry 声明的即时审计 hook | 把即时审计合同固化进 `drafting-instant-validation-contract.md` 与 process log | 更早的问题不会无声滚到 Step 7 |
+| 运行时把 1-7 当成“连续大改稿”，没有严格执行“一步写回一步 hook” | serial gate ambiguity | 回到真正串行版：当前 step 单独写回，立刻跑当前 step hook，通过后才准进入下一步 | 在父 `SKILL.md` 与 `_shared` 合同中明确“一 step 一提交一 gate”，并禁止多步合批正式写回 | `写作日志.yaml` 能逐步对齐 `Step 1 -> hook -> Step 2 -> hook ... -> Step 7` |
 | `7-润色` 被误当成最终通过成品 | stage boundary drift | 把 `7-润色` 收回到 `candidate_final_draft` 边界 | 在父技能与终修子技能写死“最终 PASS 只归 4-Validation” | drafting 不再自我盖章放行 |
 | 已写了 inline hook 合同，但 `workflow_manager.py` 没有真实触发与阻断逻辑 | runtime landing gap | 把 registry 接到 `complete-step / start-step / record-inline-validation` 运行时链路 | 以后遇到“合同化新机制”时，同时检查 `story.py / workflow_manager.py / tests` 是否已落地 | step 完成后会自动生成 inline validation batch，并真实阻断下一步 |
 | inline validation 已触发，但仍完全依赖人工逐条回填结果 | validator runner gap | 增加 `validation_runner.py`，让 `complete-step` 先尝试自动批跑当前 validators | 新增 validator 维度时，同时补 registry、runner handler、workflow 挂接与 tests | manuscript 存在时，Step 完成后可直接自动写回当前 batch |
@@ -34,7 +35,7 @@
 6. 收尾固定核对：
    - `第N集.md`
    - `写作日志.yaml`
-   - `Planning/全息地图.json`
+   - `2-Planning/全息地图.json`
    - `第N-1集.md`（当 `N>1`）
 
 ## Reusable Heuristics
@@ -44,6 +45,7 @@
 - 第 2 集之后的连续性，通常不是靠“总结上一集”解决，而是靠回读上一集终稿里的情绪、动作和信息停点。
 - `写作日志.yaml` 的价值不只是断点恢复，它还能防止某一步被误以为“已经做过了”。
 - 即时审计 hook 的价值，不是提前做最终验收，而是在当前步刚写完时立刻拦截会污染后续步骤的早期错误。
+- `3-Drafting` 的“串行”不是口头顺序，而是严格 gate：上一 step 没写回且没过 hook，下一 step 就还不存在正式执行资格。
 - `7-润色` 之后最合理的状态是“高置信候选终稿”，不是“自判最终 PASS”。
 - `6-追读力强化` 最稳的做法不是把“张力”写得更大声，而是把共享 taxonomy 投影为当前章的主钩、微兑现和章末单一主牵引。
 - 爽点设计最容易漂移的不是“名字”，而是“强度、频率、组合和防疲劳规则”；这些更适合独立成共享 guide，而不是混进 taxonomy 表。

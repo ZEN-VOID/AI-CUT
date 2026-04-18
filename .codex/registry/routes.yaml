@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-16
+last_updated: 2026-04-18
 
 default_flow:
   - step: mandate
@@ -93,6 +93,9 @@ route_policies:
   - id: team-screenwriter-robert-mckee-entry
     trigger: 命中罗伯特·麦基视角、麦基会怎么写、Robert McKee perspective、Story 方法、inciting incident、控制性观点、场景设计、对白不是聊天，或编剧组需要处理结构失焦、场景不起伏、角色选择无压力、对白解释、类型承诺不稳
     rule: "进入 `.agents/skills/team/aigc/编剧组/罗伯特·麦基/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出价值转变、关键选择、场景转折、对白动作、结尾控制性观点与不要做清单。"
+  - id: team-story-yoshikawa-eiji-entry
+    trigger: 命中吉川英治视角、吉川英治会怎么写、Yoshikawa Eiji perspective、宫本武藏式成长、新平家物语式群像、国民文学武侠、把历史写得好看但不假，或 story 组需要处理武侠历史长篇、英雄求道成长、章回推进、史料缝隙推理、时代群像通俗化
+    rule: "进入 `.agents/skills/team/story/武侠类/吉川英治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出主角成长线、时代大势、史实与演义边界、章回钩子、场面人格变化与不要做清单。"
   - id: team-actor-leslie-cheung-entry
     trigger: 命中张国荣、哥哥表演法、Leslie Cheung actor perspective，或演员组需要处理角色气质、镜头特写、亲密戏、性别表达、舞台/银幕魅力
     rule: "进入 `.agents/skills/team/演员组/张国荣/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，表演型问题必须输出角色核心、身体方案、镜头方案与安全边界。"
@@ -147,6 +150,9 @@ route_policies:
   - id: team-action-ching-siu-tung-entry
     trigger: 命中程小东视角、程小东会怎么设计动作、Ching Siu-tung perspective、wire-fu、倩女幽魂式动作、轻功威亚、神怪武侠动作，或武术组需要处理飘逸轻功、剑舞、竹林追逐、威亚动作、AIGC 动作分镜与动作安全
     rule: "进入 `.agents/skills/team/武术组/程小东/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，动作型问题必须输出动作气质、人物关系、空间路线、威亚/落点/镜头节奏、安全护栏和不要做清单。"
+  - id: team-aesthetic-wang-guowei-entry
+    trigger: 命中王国维视角、王国维会怎么看美学、Wang Guowei perspective、境界说、有我之境、无我之境、入乎其内出乎其外、古雅、真景物真感情，或美学组需要处理诗性影像、古典文本改编、情景交融、悲剧美感、台词气质与整体审美结构
+    rule: "进入 `.agents/skills/team/aigc/美学组/王国维/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出一句裁决、境界核心、观看位置、有我/无我判断、古雅/悲剧/文体校正与删改建议。"
   - id: team-anime-ogino-makoto-entry
     trigger: 命中荻野真视角、荻野真会怎么画、Ogino Makoto perspective、孔雀王式、密教传奇漫画、退魔动作漫画，或动漫组需要处理密教/妖怪设定、青年漫画黑暗娱乐、历史奇想、旧 IP 重启、漫画分镜、原稿密度、动画/游戏改编
     rule: "进入 `.agents/skills/team/动漫组/荻野真/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出资料根、邪气来源、人物使命、漫画动作场面、读者入口与商业连载边界。"

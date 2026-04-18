@@ -1,6 +1,6 @@
 ---
 name: aigc-init
-description: Use when initializing or reinitializing an AIGC film project through the single smart-advisor mode, with auto/custom lineup selection from `.agents/skills/team/`, `team.yaml` as the team manifest, and a planning-led subagent interview before `north_star` synthesis.
+description: Use when initializing or reinitializing an AIGC film project through the single smart-advisor mode, with auto/custom lineup selection from `.agents/skills/team/`, `team.yaml` as the team manifest, and planning-led subagent direct-answer packets before `north_star` synthesis.
 governance_tier: full
 ---
 
@@ -19,7 +19,7 @@ governance_tier: full
 当前合同采用单技能真源模式：
 
 - 所有初始化能力都内收在本 `SKILL.md`
-- `智能顾问模式 -> 自动组队 / 自定义组队 -> planning interview -> synthesis -> sufficiency audit` 都属于父 skill 的内部能力面
+- `智能顾问模式 -> 自动组队 / 自定义组队 -> planning 固定题包直答 -> synthesis -> sufficiency audit` 都属于父 skill 的内部能力面
 - 不再依赖任何外置初始组合同作为执行真源
 - 最终只允许父 skill 写回 canonical 初始化工件
 
@@ -30,7 +30,7 @@ governance_tier: full
 - `agents/openai.yaml` 只承载入口元数据，不得扩写执行规则。
 - `CHANGELOG.md` 只承载迁移与结构变更索引，不参与默认运行时预加载。
 - `templates/` 只保留本地模板真源；共享模板继续回指 `.agents/skills/aigc/_shared/`。
-- `复杂链路的骨架 / 细则分层 = false`；单一 `智能顾问模式`、其编组子模式、planning interview 与 gate 必须全部留在本 `SKILL.md`。
+- `复杂链路的骨架 / 细则分层 = false`；单一 `智能顾问模式`、其编组子模式、planning 固定题包直答 与 gate 必须全部留在本 `SKILL.md`。
 - 已删除旧的 `references/*-mode/module-spec.md` 迁移 stub；后续不得在本目录重建平行 mode reference 真源。
 
 ## When to Use
@@ -54,10 +54,10 @@ governance_tier: full
 
 - 先锁定唯一 `智能顾问模式`，再让用户在 `自动组队 / 自定义组队` 间拍板。
 - 让队伍选择范围严格限制在 `.agents/skills/team/`。
-- 队伍锁定后，先按 `planning` 角色配置以真实 subagents 执行 interview 初始化，再综合产出核心五件套。
+- 队伍锁定后，先按 `planning` 角色配置以真实 subagents 围绕既定题包执行直答，再综合产出核心五件套。
 - 以 `north_star` 为主产物，而不是堆一批散乱访谈文档。
 - 让问题方式按当前 `aigc` 阶段体系组织，输出也按当前 `projects/aigc/<项目名>/` 治理落点组织。
-- 让编组、interview、充分性检查全部成为父 skill 的内部能力，而不是外置规则面。
+- 让编组、固定题包直答、充分性检查全部成为父 skill 的内部能力，而不是外置规则面。
 - 当旧方向已经失效时，把项目安全降回 `0-Init`，而不是带着下游旧 seed 继续硬修。
 
 ### business_object
@@ -66,6 +66,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/CHANGELOG.md`
 - `projects/aigc/<项目名>/STATE.json`
 - 按需补齐的 `governance-state.yaml` 与 HARNESS 治理载体
 
@@ -85,15 +86,16 @@ governance_tier: full
 - 已明确项目根目录与唯一推荐下一阶段入口
 - 已锁定 `init_mode == smart_advisor` 与 `team_lineup_mode`
 - 核心五件套已经落盘
+- 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth
 - `north_star`、`init_handoff`、`story-source-manifest`、`team`、`project_state` 之间无双真源冲突
-- `team.yaml` 已记录编组来源、选择范围与 planning interview subagents 合同
-- planning 顾问团 interview 已真实执行，且未降级为本地顺序扮演
+- `team.yaml` 已记录编组来源、选择范围与 planning 固定题包直答 subagents 合同
+- planning 顾问团固定题包直答已真实执行，且未降级为本地顺序扮演
 - 若惰性治理工件已生成，其推荐入口与根工件保持一致
 - 若本轮属于重置式重新初始化，旧下游产物已按保留/归档/清退边界处理，且项目主入口已回到 `0-Init`
 
 ### topology_fit
 
-- 主干是固定串行：模式锁定 -> runtime bootstrap -> 路由裁剪 -> 编组/ interview 执行 -> 聚合 -> 审计 -> 写回
+- 主干是固定串行：模式锁定 -> runtime bootstrap -> 路由裁剪 -> 编组/直答执行 -> 聚合 -> 审计 -> 写回
 - 分支只发生在 `team_lineup_mode` 命中的内部编组路径
 - 汇流门固定在父 skill 的 `Sufficiency Gate` 与 `One-Shot Output Contract`
 
@@ -114,7 +116,7 @@ flowchart TD
     E --> F["N4 Smart Advisor Engine"]
     F --> F1["自动组队能力"]
     F --> F2["自定义组队能力"]
-    F1 --> G["N4A Planning Interview: roles.planning subagents interview"]
+    F1 --> G["N4A Planning Direct-Answer Packet: roles.planning subagents 固定题包直答执行"]
     F2 --> G
     G --> H["N5 Synthesis: 聚合核心五件套"]
     H --> I["N6 Lazy Governance: 按需补治理工件"]
@@ -130,11 +132,11 @@ flowchart LR
     C --> E["team.yaml lineup patch"]
     D --> E
     E --> F["roles.planning.members"]
-    F --> G["subagents interview"]
+    F --> G["subagents 固定题包直答执行"]
     G --> H["north_star / handoff / sources patch"]
     H --> I{{"Sufficiency Gate"}}
     I -->|"Pass"| J["写回核心五件套"]
-    I -->|"Need more evidence"| K["回退至 Team Router / Planning Interview"]
+    I -->|"Need more evidence"| K["回退至 Team Router / Planning Direct-Answer Packet"]
     I -->|"Lineup conflict"| L["回退至 Mode Gate"]
 ```
 
@@ -160,7 +162,7 @@ flowchart LR
     A["north_star.yaml"] --> A1["长期项目约束"]
     B["init_handoff.yaml"] --> B1["阶段入口种子 + unknowns"]
     C["story-source-manifest.yaml"] --> C1["故事主源 readiness"]
-    D["team.yaml"] --> D1["智能顾问编组真源 + planning interview 合同"]
+    D["team.yaml"] --> D1["智能顾问编组真源 + planning 固定题包直答 合同"]
     E["STATE.json"] --> E1["当前阶段 + 唯一下一入口"]
     F["governance-state.yaml (lazy)"] --> F1["resume_contract + artifact_status"]
     A --> E
@@ -189,7 +191,7 @@ flowchart LR
 硬规则：
 
 1. 模式锁定前，允许做合同读取、模板核对与风险诊断；不得起草任何初始化主工件。
-2. 内部编组 / interview 能力只消费当前轮次必需的最小上下文。
+2. 内部编组 / 固定题包直答能力只消费当前轮次必需的最小上下文。
 3. 已有 shared template / contract 时，优先回指，不复制第二份 schema。
 4. `selector_scope_root` 固定为 `.agents/skills/team/`；任何编组项都不得越出该树。
 
@@ -202,7 +204,7 @@ flowchart LR
 | `internal_router` | 裁剪本轮问题包、上下文包、字段优先级与禁问项 | `route_plan_patch`、`context_packet_plan` | 编组锁定后，进入任一内部能力前 |
 | `team_auto_formation_engine` | 根据故事源、题材、约束与用户目标，先读取 `team/SKILL.md + team/CONTEXT.md` 的根级成员索引，再从 `.agents/skills/team/` 自动挑选顾问阵容 | `team_manifest_patch`、`selection_rationale`、`lineup_risk_note` | `team_lineup_mode == auto` |
 | `team_custom_formation_engine` | 校验用户自定义顾问阵容是否只引用 `.agents/skills/team/`，并按角色落位 | `team_manifest_patch`、`custom_lineup_validation_note` | `team_lineup_mode == custom` |
-| `planning_interview_engine` | 以 `roles.planning.members` 为初始化顾问团，真实启动 subagents 执行 interview 并压缩成可吸收 patch | `interview_question_pack`、`north_star_patch`、`init_handoff_patch`、`sources_breakdown_patch`、`interview_report` | `team.yaml` 已锁定后 |
+| `planning_direct_answer_engine` | 以 `roles.planning.members` 为初始化顾问团，真实启动 subagents 执行固定题包直答 并压缩成可吸收 patch | `direct_answer_packet`、`north_star_patch`、`init_handoff_patch`、`sources_breakdown_patch`、`direct_answer_report` | `team.yaml` 已锁定后 |
 | `rebootstrap_reset_engine` | 对已有项目执行“退回初始化态”的边界裁定，生成保留/归档/清退计划并把项目主入口降回 `0-Init` | `reset_scope_note`、`archive_plan`、`stale_scope_note` | `rebootstrap_requested == true` |
 | `sufficiency_audit_engine` | 检查充分性、来源分层与下一步一致性 | `audit_report`、`alignment_note`、`blocking_note` | 聚合草案后、写回前 |
 
@@ -210,8 +212,8 @@ flowchart LR
 
 1. 这些能力面是当前 `SKILL.md` 的内部节点，不是外置真源。
 2. 任何能力面都不得绕过父 skill 直接写 canonical 工件。
-3. planning interview 必须真实使用 subagents；若环境不可用或被上层策略阻断，本轮初始化应阻塞并报告，而不是降级为本地主 agent 顺序扮演。
-4. 未来如新增编组子模式或 interview gate，必须直接扩写本 `SKILL.md` 的模式合同与节点网络，不得再长出平行外置 agent 合同。
+3. planning 固定题包直答 必须真实使用 subagents；若环境不可用或被上层策略阻断，本轮初始化应阻塞并报告，而不是降级为本地主 agent 顺序扮演。
+4. 未来如新增编组子模式或直答 gate，必须直接扩写本 `SKILL.md` 的模式合同与节点网络，不得再长出平行外置 agent 合同。
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -245,10 +247,10 @@ flowchart LR
 | `N1-mode-gate` | `init_mode == smart_advisor`、`team_lineup_mode`、`decision_owner` | 不启动 subagents | 只允许 `mode_lock_note` 与元选项展示 | 用户未确认 `auto/custom` 时不得继续 | 若编组选择变化，回到 `N1` |
 | `N2-runtime-bootstrap` | `project_root`、`canonical_runtime_layout` | 不启动 subagents | 只允许目录骨架与 `runtime_bootstrap_note` | runtime 路径与 shared layout 冲突时必须阻塞 | 若项目名或 runtime mapping 变化，回到 `N2` |
 | `N3-internal-router` | `selector_scope_root`、`team_context_budget`、`story_source_status` | 不启动 subagents | 只允许 `route_plan_patch + context_packet_plan + team_context_packet` | 顾问候选越出 `.agents/skills/team/` 或故事源状态未标明时必须阻塞 | 若 team 候选或故事源补入，回到 `N3` |
-| `N4-mode-engine` | `team.yaml` 编组初稿、`roles.planning.members` roster | 必须在 `planning_interview_engine` 真实启动 subagents；owner 固定为 `roles.planning`，不允许本地顺序模拟降级 | 只允许 `team_manifest_patch`、`interview_report`、`north_star_patch`、`init_handoff_patch` 等 patch，不允许直接跳过 synthesis 写主文件 | subagents 不可用、planning roster 为空、或 roster 非 `.agents/skills/team/` 成员时必须阻塞 | 若用户改队、故事源补入、或 interview 需要重跑，回到 `N3` 或 `N4` |
-| `N5-synthesis` | `source-light/source-grounded`、`artifact_ownership_split` | 不启动新的 planning subagents；只消费已完成 interview patch | 允许起草 `team / story-source / north_star / handoff / project_state`，禁止补写未命中编组路径的占位内容 | 若 patch provenance 不全或 team 还未锁定，不得综合 | 若 interview patch 或故事源状态变化，回到 `N4` 或 `N5` |
+| `N4-mode-engine` | `team.yaml` 编组初稿、`roles.planning.members` roster | 必须在 `planning_direct_answer_engine` 真实启动 subagents；owner 固定为 `roles.planning`，不允许本地顺序模拟降级 | 只允许 `team_manifest_patch`、`direct_answer_report`、`north_star_patch`、`init_handoff_patch` 等 patch，不允许直接跳过 synthesis 写主文件 | subagents 不可用、planning roster 为空、或 roster 非 `.agents/skills/team/` 成员时必须阻塞 | 若用户改队、故事源补入、或固定题包需要重跑，回到 `N3` 或 `N4` |
+| `N5-synthesis` | `source-light/source-grounded`、`artifact_ownership_split` | 不启动新的 planning subagents；只消费已完成的直答 patch | 允许起草 `team / story-source / north_star / handoff / project_state`，禁止补写未命中编组路径的占位内容 | 若 patch provenance 不全或 team 还未锁定，不得综合 | 若直答 patch 或故事源状态变化，回到 `N4` 或 `N5` |
 | `N6-lazy-governance` | `governance_trigger_set` | 不启动初始化顾问 subagents | 只允许补治理 sidecar，不改写五件套 business truth | 若治理需求不足，不得为了完整性硬补全部 carrier | 若治理触发条件变化，回到 `N6` |
-| `N7-internal-audit` | `sufficiency_status`、`next_entry_truth` | 不启动 subagents；只做审计与回退裁决 | 只允许输出 `audit_report` 与回退路径裁决 | 任一关键字段来源不明、planning interview 未实跑、或下一入口不唯一时必须阻塞 | Fail 回 `N1/N3/N4/N5`，取决于缺口层级 |
+| `N7-internal-audit` | `sufficiency_status`、`next_entry_truth` | 不启动 subagents；只做审计与回退裁决 | 只允许输出 `audit_report` 与回退路径裁决 | 任一关键字段来源不明、planning 固定题包直答未实跑、或下一入口不唯一时必须阻塞 | Fail 回 `N1/N3/N4/N5`，取决于缺口层级 |
 
 ## Topology Contract (Mandatory)
 
@@ -257,11 +259,11 @@ flowchart LR
 | `N0-intake` | 确认这是首次初始化、重置式重新初始化，还是续跑/局部补档 | 用户请求、项目路径、现有工件 | 识别任务性质、锁定项目名、作用域与是否命中 `rebootstrap` | `project_scope_note + reset_intent_note + task_entry_decision` | 到 `N1-mode-gate`；若属续跑则回 `resume/` 或根 `aigc` | 否 |
 | `N1-mode-gate` | 锁定唯一 `init_mode == smart_advisor` 与 `team_lineup_mode` | 用户意图、编组信号、元选项卡 | 固定主模式，判定或发放 auto/custom 元选项卡，记录模式元数据 | `mode_lock_note + lineup_mode_decision` | 到 `N2-runtime-bootstrap`；编组冲突回自身 | 否 |
 | `N2-runtime-bootstrap` | 锁定项目根与 runtime skeleton | 项目名、shared runtime layout | 预建项目根、阶段根目录与 active child skeleton | `runtime_bootstrap_note + canonical_path_check` | 到 `N3-internal-router` | 否 |
-| `N3-internal-router` | 只保留本轮最需要的编组字段、故事源证据与 interview 缺口 | 已锁模式、当前缺口、上下文预算 | 产出 `route_plan_patch + context_packet_plan + team_context_packet` | `route_plan_patch + lineup_scope_check + story_source_state_note` | 到 `N4-mode-engine`；若模式未锁回 `N1` | 否 |
-| `N4-mode-engine` | 锁定 team 编组并执行 planning interview | router packet、模板、用户证据、`.agents/skills/team/` 候选 | 命中 1 个编组能力并启动 `planning_interview_engine`，产生 mode-specific patch | `team_manifest_patch + planning_subagent_roster + interview_report + north_star_patch + init_handoff_patch + note` | 到 `N5-synthesis`；若编组越权或 subagents 不可用回 `N1` | 否 |
-| `N5-synthesis` | 聚合核心五件套草案 | team patch、interview patch、模板、shared contracts | 起草 `team / story-source / north_star / handoff / project_state` | `artifact_patch_set + provenance_merge_note` | 到 `N6-lazy-governance` | 条件通过 |
+| `N3-internal-router` | 只保留本轮最需要的编组字段、故事源证据与题包缺口 | 已锁模式、当前缺口、上下文预算 | 产出 `route_plan_patch + context_packet_plan + team_context_packet` | `route_plan_patch + lineup_scope_check + story_source_state_note` | 到 `N4-mode-engine`；若模式未锁回 `N1` | 否 |
+| `N4-mode-engine` | 锁定 team 编组并执行 planning 固定题包直答 | router packet、模板、用户证据、`.agents/skills/team/` 候选 | 命中 1 个编组能力并启动 `planning_direct_answer_engine`，产生 mode-specific patch | `team_manifest_patch + planning_subagent_roster + direct_answer_report + north_star_patch + init_handoff_patch + note` | 到 `N5-synthesis`；若编组越权或 subagents 不可用回 `N1` | 否 |
+| `N5-synthesis` | 聚合核心五件套草案 | team patch、直答 patch、模板、shared contracts | 起草 `team / story-source / north_star / handoff / project_state` | `artifact_patch_set + provenance_merge_note` | 到 `N6-lazy-governance` | 条件通过 |
 | `N6-lazy-governance` | 只在触发时补治理工件 | 核心五件套、治理触发条件 | 按需起草 `governance-state` 与 HARNESS carriers | `governance_patch_set + governance_trigger_note` | 到 `N7-internal-audit` | 条件通过 |
-| `N7-internal-audit` | 审计充分性、来源、planning interview 与下一步一致性 | 全部草案、审计规则、来源分层 | 执行内部充分性审计并判定可写回/补问/回退 | `audit_report + reentry_decision` | Pass 写回；Fail 回 `N1/N3/N4/N5` 的对应缺口层 | 是 |
+| `N7-internal-audit` | 审计充分性、来源、planning 固定题包直答 与下一步一致性 | 全部草案、审计规则、来源分层 | 执行内部充分性审计并判定可写回/补问/回退 | `audit_report + reentry_decision` | Pass 写回；Fail 回 `N1/N3/N4/N5` 的对应缺口层 | 是 |
 
 ### Ordered / Unordered Rules
 
@@ -269,9 +271,9 @@ flowchart LR
 - `N4-mode-engine` 只允许命中 1 个编组子路径：
   - `自动组队`
   - `自定义组队`
-- `N4` 一旦锁定 `team.yaml`，必须先命中 `roles.planning.members` 的 `planning_interview_engine`；监制与评审不抢占初始化首轮 interview owner。
-- `planning_interview_engine` 必须真实启动 subagents；`0-Init` 在此节点没有普通顺序模拟降级路径。
-- 无论当前是固定串行、planning interview 内并发还是单编组路径，都由父 skill 统一收束；只有显式用户确认节点才前台阻塞。
+- `N4` 一旦锁定 `team.yaml`，必须先命中 `roles.planning.members` 的 `planning_direct_answer_engine`；监制与评审不抢占初始化首轮直答 owner。
+- `planning_direct_answer_engine` 必须真实启动 subagents；`0-Init` 在此节点没有普通顺序模拟降级路径。
+- 无论当前是固定串行、planning 固定题包直答 内并发还是单编组路径，都由父 skill 统一收束；只有显式用户确认节点才前台阻塞。
 
 ## Canonical Landing
 
@@ -368,7 +370,14 @@ flowchart LR
 ### Project Governance Artifacts
 
 - 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
+- 项目级变更记录入口：`projects/aigc/<项目名>/CHANGELOG.md`
 - 轻量项目状态入口：`projects/aigc/<项目名>/STATE.json`
+
+硬规则：
+
+1. `CHANGELOG.md` 是项目级时间序记录入口，初始化默认必须创建。
+2. `CHANGELOG.md` 不承载 live route truth、断点治理或阶段验收结论；这些信息仍分别属于 `STATE.json`、`governance-state.yaml` 与各级 `validation-report.md`。
+3. 后续阶段可继续追加 `CHANGELOG.md`，但不得把它演化为新的治理真源或状态本。
 
 ### Auxiliary Asset Library
 
@@ -423,6 +432,7 @@ flowchart LR
 ### `0-Init` 首次生成但不独占
 
 - `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/CHANGELOG.md`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 
 ### `0-Init` 不拥有
@@ -488,9 +498,9 @@ flowchart LR
 
 ### 单一主模式
 
-| 模式 | 触发条件 | 执行形态 | 是否前台交互 | 队伍真源 | interview owner | subagents |
+| 模式 | 触发条件 | 执行形态 | 是否前台交互 | 队伍真源 | execution owner | subagents |
 | --- | --- | --- | --- | --- | --- | --- |
-| 智能顾问模式 | 所有 `0-Init` 首次初始化与重置式重新初始化 | 开场锁 `auto/custom`，再定队、再 interview、再 synthesis | 是 | `projects/aigc/<项目名>/team.yaml` | `roles.planning` | 必须 |
+| 智能顾问模式 | 所有 `0-Init` 首次初始化与重置式重新初始化 | 开场锁 `auto/custom`，再定队、再固定题包直答、再 synthesis | 是 | `projects/aigc/<项目名>/team.yaml` | `roles.planning` | 必须 |
 
 ### 组队子模式
 
@@ -541,8 +551,8 @@ B. 自定义组队
 - 可提供人物名、skill 路径或“部门 + 人物”组合
 - 所有候选都必须位于 `.agents/skills/team/`
 
-5. 初始化 interview 执行方式（固定）
-- 先由 `roles.planning.members` 以真实 subagents 执行 interview 初始化
+5. 初始化 固定题包执行方式（固定）
+- 先由 `roles.planning.members` 以真实 subagents 执行固定题包直答 初始化
 - 若 subagents 不可用，本轮初始化停止并报告阻塞
 ```
 
@@ -561,9 +571,9 @@ B. 自定义组队
 - `init_contract.init_mode == smart_advisor`
 - `init_contract.team_lineup_mode == auto|custom`
 - `init_contract.selector_scope_root == ".agents/skills/team/"`
-- `runtime_policy.require_subagents_for_init_interview == true`
-- `runtime_policy.init_interview_owner_role == planning`
-- `roles.planning.init_interview.*`
+- `runtime_policy.require_subagents_for_init_execution == true`
+- `runtime_policy.init_execution_owner_role == planning`
+- `roles.planning.init_execution.*`
 
 硬规则：
 
@@ -571,7 +581,7 @@ B. 自定义组队
 2. 自动组队必须把自动挑选依据写进 `init_contract.auto_selection_notes`；至少包括治理角色归属、必选部门覆盖、黄金组合说明、可选部门取舍、已知短板与 `todos/` 补记路径。
 3. 自定义组队必须把用户指定或裁定说明写进 `init_contract.custom_selection_notes`。
 4. `roles.*.members` 只允许引用 `.agents/skills/team/` 下的 skill；不允许混入 `.codex/agents/`、外部 URL 或其他仓外路径。
-5. `roles.planning.init_interview.kickoff_owner` 必须为 `true`，且 `requires_subagents` 必须为 `true`。
+5. `roles.planning.init_execution.kickoff_owner` 必须为 `true`，且 `requires_subagents` 必须为 `true`。
 6. 自动组队的部门覆盖结果必须写进 `team_setup.required_departments`、`team_setup.optional_departments_considered`、`team_setup.department_lineup_notes` 与 `team_setup.recommendation_todo_paths`。
 7. `策划 / 监制 / 评审` 可以复用同一批人，也可以拆成不同人；默认允许重叠，不允许默认强制互斥。
 8. 若同一人同时承担多个治理角色，必须在 `team_setup.role_overlap_notes` 或对应 selection notes 里写清“同一人兼任哪些角色、为何兼任、在哪些阶段生效”。
@@ -580,7 +590,7 @@ B. 自定义组队
 
 | 角色 | 权属阶段 | 介入时机 | 核心职能 | 非权属说明 |
 | --- | --- | --- | --- | --- |
-| `策划` | `0-Init` | 初始化首轮 interview、北极星综合前 | 收敛题材、故事核、情绪核、边界与阶段入口 seed；负责问题压缩、unknowns 裁剪、初始化编组理由说明 | 不拥有 `1-Planning` 及以后阶段的前置顾问权；后续阶段仅消费其在 `0-Init` 留下的 seed |
+| `策划` | `0-Init` | 初始化首轮固定题包直答、北极星综合前 | 收敛题材、故事核、情绪核、边界与阶段入口 seed；负责问题压缩、unknowns 裁剪、初始化编组理由说明 | 不拥有 `1-Planning` 及以后阶段的前置顾问权；后续阶段仅消费其在 `0-Init` 留下的 seed |
 | `监制` | `2-Global`、`3-Detail`、`4-Design` | 阶段前置 advisory 与关键收束点 | `2-Global` 控制风格/类型/导演意图一致性；`3-Detail` 控制剧情执行、可拍性、节奏与资源感；`4-Design` 控制角色/场景/道具设计与前两阶段的连续性、生产可执行性 | 不抢 `0-Init` 的 kickoff owner，也不替代阶段 canonical 写回 |
 | `评审` | `5-Image`、`6-Video` | 图像/视频阶段的阶段终稿与 `validation-report` 前后 | `5-Image` 核对提示词到出图的一致性、角色/场景 continuity、参考绑定与返工门槛；`6-Video` 核对首帧参照、镜头运动、时长节奏、跨镜 continuity、provider 风险与交付质量闸门 | 默认不参与前置发散创作；只做收口与否决判断 |
 
@@ -644,9 +654,9 @@ B. 自定义组队
 5. 与当前制作约束的可执行性
 6. 可选组增益是否足以覆盖复杂度成本
 
-## Question Framing Contract (Mandatory)
+## Prompt Packet Contract (Mandatory)
 
-初始化问题方式必须先由 `roles.planning.members` 的 subagents interview 收束，再围绕当前 `aigc` 阶段体系组织，而不是沿用旧式单人问卷字段。
+初始化必须先由 `roles.planning.members` 围绕既定题包执行固定题包直答，再围绕当前 `aigc` 阶段体系组织，而不是沿用旧式单人问卷字段。
 
 至少覆盖：
 
@@ -661,7 +671,7 @@ B. 自定义组队
 
 硬规则：
 
-1. 第一轮 interview 由 `planning` 顾问团提出并经父 skill 收束，主代理不直接跳过顾问团自拟问卷。
+1. 第一轮题包由父技能固定，并交给 `planning` 顾问团并行直答后由父 skill 收束。
 2. 只问当前最阻塞 `north_star` 或阶段入口种子的缺口。
 3. 若问题更适合下游阶段收敛，直接写入 `unknowns`，不得硬问到底。
 4. 问题必须服务当前技能包系列：`1-Planning -> 2-Global -> 3-Detail -> 4-Design -> 5-Image -> 6-Video -> 7-Cut`。
@@ -794,17 +804,17 @@ B. 自定义组队
 
 ## Synthesis Contract (Mandatory)
 
-1. 父 skill 只吸收本轮命中的 `route_plan_patch`、team formation patch、planning interview patch 与 `audit_report`。
+1. 父 skill 只吸收本轮命中的 `route_plan_patch`、team formation patch、planning 固定题包直答 patch 与 `audit_report`。
 2. 未命中的编组路径不得补空字段或占位输出。
 3. 写回前必须做统一来源分层：
    - `user_confirmed`
    - `council_advised`
    - `assistant_inferred`
-4. 必须把 `team_ref`、`sources_breakdown`、`planning interview provenance` 与唯一下一阶段入口同步写回到相关工件。
+4. 必须把 `team_ref`、`sources_breakdown`、`planning 固定题包直答 provenance` 与唯一下一阶段入口同步写回到相关工件。
 5. 若当前处于 `source-light bootstrap`，所有剧情级推断必须降级为 provisional note，不得提升为稳定 seed。
 6. 若检测到“旧 seed 与新故事源冲突”，先进入 `Story Source Reconciliation Contract`，再做最终写回。
 7. 若当前属于 `rebootstrap`，必须先消费 `reset_scope_note / archive_plan / stale_scope_note`，再允许旧项目目录里的残留工件参与任何引用。
-8. `team.yaml` 必须先于 `north_star.yaml / init_handoff.yaml` 锁定，以便 planning interview provenance 成为后续工件的上游输入。
+8. `team.yaml` 必须先于 `north_star.yaml / init_handoff.yaml` 锁定，以便 planning 固定题包直答 provenance 成为后续工件的上游输入。
 
 ## Sufficiency Gate (Mandatory)
 
@@ -817,7 +827,7 @@ B. 自定义组队
 - 已锁定 `team_lineup_mode`
 - `team.yaml` 已生成
 - `team.yaml` 已记录 `.agents/skills/team/` 作为唯一编组范围
-- planning 顾问团 interview 已真实使用 subagents 执行
+- planning 顾问团固定题包直答已真实使用 subagents 执行
 - `north_star.yaml` 已具备最小核心字段
 - `init_handoff.yaml` 已具备阶段入口种子与 `unknowns`
 - `story-source-manifest.yaml` 已生成并标明 readiness
@@ -837,7 +847,7 @@ B. 自定义组队
 
 - 本轮锁定的 `init_mode`
 - 本轮锁定的 `team_lineup_mode`
-- planning interview 是否使用 subagents，以及是否存在阻塞
+- planning 固定题包直答 是否使用 subagents，以及是否存在阻塞
 - 核心五件套是否已齐
 - 是否补了惰性治理工件
 - 唯一推荐的下一阶段入口
@@ -853,19 +863,19 @@ B. 自定义组队
 3. 先在 `N0-intake` 判定本轮属于首次初始化还是 `rebootstrap`；若属于续跑/补断点，则回 `resume/` 或根 `aigc`。
 4. 若命中 `rebootstrap`，先锁定 `reset_mode + reset_reason`，生成 `reset_scope_note`，并处理旧下游工件的保留/归档/清退计划。
 5. 固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。未锁定前不得起草初始化主工件。
-6. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录与 active child skeleton。
+6. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录、active child skeleton，并同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
 7. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan`、`route_plan_patch` 与 `team_context_packet`。
 8. 只命中 1 个编组能力：
    - `team_auto_formation_engine`
    - `team_custom_formation_engine`
 9. 校验编组结果仅引用 `.agents/skills/team/`，并先起草项目根 `team.yaml`。
 10. 读取模板与 shared contracts。
-11. 以 `roles.planning.members` 为唯一首轮顾问团，真实启动 `planning_interview_engine` 的 subagents；若 subagents 不可用，停止并报告阻塞。
-12. 收集 planning interview patch，并生成 `story-source-manifest.yaml`。
-13. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 interview patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `STATE.json`。
+11. 以 `roles.planning.members` 为唯一首轮顾问团，真实启动 `planning_direct_answer_engine` 的 subagents；若 subagents 不可用，停止并报告阻塞。
+12. 收集 planning 固定题包直答 patch，并生成 `story-source-manifest.yaml`。
+13. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 直答 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `STATE.json`。
 14. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
 15. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
-16. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 与 planning interview provenance 做统一检查。
+16. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 与 planning 固定题包直答 provenance 做统一检查。
 17. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
 
 ## Completion Standard
@@ -875,7 +885,8 @@ B. 自定义组队
 - 已明确 `自动组队` 或 `自定义组队`
 - 已产出 `projects/aigc/<项目名>/team.yaml`
 - `team.yaml` 已声明编组只来自 `.agents/skills/team/`
-- planning 顾问团已以真实 subagents 完成 interview 初始化
+- 已产出 `projects/aigc/<项目名>/CHANGELOG.md`
+- planning 顾问团已以真实 subagents 完成固定题包直答初始化
 - 已产出 `projects/aigc/<项目名>/STATE.json`
 - 已产出 `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - 已产出 `north_star.yaml`
@@ -913,7 +924,7 @@ B. 自定义组队
 
 1. 先修父 `SKILL.md` 的 topology / mode contract / audit gate，再修本次输出。
 2. 若没有更高一层治理合同，必须明确说明 trace 停在 `Rule Source`。
-3. 若未来新增编组子模式或 interview gate，必须直接扩写当前 `SKILL.md`，不得恢复外置初始组 agent 合同。
+3. 若未来新增编组子模式或直答 gate，必须直接扩写当前 `SKILL.md`，不得恢复外置初始组 agent 合同。
 
 ## Field Master
 
@@ -922,10 +933,10 @@ B. 自定义组队
 | FIELD-INIT-01 | `north_star.yaml` | 锁定长期不应漂移的项目总约束，含 `adaptation_strategy` | N5 | north star 稳定性 | FAIL-INIT-01 |
 | FIELD-INIT-02 | `init_handoff.yaml` | 提供阶段入口种子与 `unknowns` | N5 | handoff 清晰度 | FAIL-INIT-02 |
 | FIELD-INIT-03 | 模式元数据与来源分层 | `init_mode / team_lineup_mode / mode_source / team_ref / sources_breakdown` 可追溯 | N1 / N3 | provenance 完整性 | FAIL-INIT-03 |
-| FIELD-INIT-04 | `projects/aigc/<项目名>/team.yaml` | 顾问团队角色、初始化编组 provenance、planning interview 与最终闸门明确 | N4 / N5 | 团队治理清晰度 | FAIL-INIT-04 |
-| FIELD-INIT-05 | `projects/aigc/<项目名>/*.yaml|*.md` | 核心初始化工件与项目状态入口齐全；惰性治理工件按触发条件补齐 | N2 / N5 / N6 | 落盘规范性 | FAIL-INIT-05 |
+| FIELD-INIT-04 | `projects/aigc/<项目名>/team.yaml` | 顾问团队角色、初始化编组 provenance、planning 固定题包直答 与最终闸门明确 | N4 / N5 | 团队治理清晰度 | FAIL-INIT-04 |
+| FIELD-INIT-05 | `projects/aigc/<项目名>/*.yaml|*.md` | 核心初始化工件、项目状态入口与项目级 `CHANGELOG.md` 齐全；惰性治理工件按触发条件补齐 | N2 / N5 / N6 | 落盘规范性 | FAIL-INIT-05 |
 | FIELD-INIT-06 | 下一阶段建议 | 只推荐一个当前主入口阶段 | N7 | 路由确定性 | FAIL-INIT-06 |
-| FIELD-INIT-07 | 内部模式拓扑与审计门 | 路由、单一智能顾问模式、自动/自定义编组、planning interview subagents 与充分性审计都内收到父 skill | N3 / N4 / N7 | 治理可执行性 | FAIL-INIT-07 |
+| FIELD-INIT-07 | 内部模式拓扑与审计门 | 路由、单一智能顾问模式、自动/自定义编组、planning 固定题包直答 subagents 与充分性审计都内收到父 skill | N3 / N4 / N7 | 治理可执行性 | FAIL-INIT-07 |
 | FIELD-INIT-08 | `rebootstrap` 边界与 trace | 重置诉求被正确识别，保留/归档/清退边界清晰，旧周期工件不再混入 active truth | N0 / N6 / N7 | 重置边界清晰度 | FAIL-INIT-08 |
 
 ## Thought Pass Map
@@ -934,12 +945,12 @@ B. 自定义组队
 | --- | --- | --- | --- | --- |
 | N0 | FIELD-INIT-08 | 本轮是首次初始化、重置式重新初始化，还是续跑诉求 | 锁定 `rebootstrap_requested / reset_mode / reset_reason` 与边界，并写 `task_entry_decision` | 把主动回炉误判为 `resume`，或直接清空故事主源 |
 | N1 | FIELD-INIT-03 | `smart_advisor` 与 `auto/custom` 是否已锁定且来源可追溯 | 记录 `init_mode / team_lineup_mode / mode_source / decision_owner / research_policy / lineup_mode_decision` | 编组未锁就开始起草主工件 |
-| N2 | FIELD-INIT-05 | 项目根与 skeleton 是否已按 shared truth 预建 | 建目录骨架并锁定 canonical landing，同时写 `canonical_path_check` | runtime 路径漂移或沿用旧口径 |
-| N3 | FIELD-INIT-03 / FIELD-INIT-07 | 当前该走 auto 还是 custom，编组与 interview 预算如何裁剪 | 产出 `route_plan_patch + context_packet_plan + team_context_packet + lineup_scope_check` | 路由能力散在外部真源、候选越权到 team 树外，或 story source 状态未标明 |
-| N4 | FIELD-INIT-01 / FIELD-INIT-02 / FIELD-INIT-04 / FIELD-INIT-07 | 哪些编组与 planning interview 补料足以形成可吸收 patch | 产出 `team patch + planning_subagent_roster + interview patch + note / report` | patch 变成平行主稿、成员越权到 team 树外，planning roster 为空，或 interview 未走 subagents |
+| N2 | FIELD-INIT-05 | 项目根、skeleton 与项目级 `CHANGELOG.md` 是否已按 shared truth 预建 | 建目录骨架、创建 `CHANGELOG.md` 并锁定 canonical landing，同时写 `canonical_path_check` | runtime 路径漂移、漏建 `CHANGELOG.md` 或沿用旧口径 |
+| N3 | FIELD-INIT-03 / FIELD-INIT-07 | 当前该走 auto 还是 custom，编组与题包预算如何裁剪 | 产出 `route_plan_patch + context_packet_plan + team_context_packet + lineup_scope_check` | 路由能力散在外部真源、候选越权到 team 树外，或 story source 状态未标明 |
+| N4 | FIELD-INIT-01 / FIELD-INIT-02 / FIELD-INIT-04 / FIELD-INIT-07 | 哪些编组与 planning 固定题包直答补料足以形成可吸收 patch | 产出 `team patch + planning_subagent_roster + 直答 patch + note / report` | patch 变成平行主稿、成员越权到 team 树外，planning roster 为空，或固定题包直答未走 subagents |
 | N5 | FIELD-INIT-01 / FIELD-INIT-02 / FIELD-INIT-04 / FIELD-INIT-05 | 核心五件套如何分工写回 | 聚合 `team / story-source / north_star / handoff / project_state`，并写 `provenance_merge_note` | `north_star` 与 handoff 混层，team 不成编组真源，或 provenance 合流不完整 |
 | N6 | FIELD-INIT-05 / FIELD-INIT-08 | 是否需要补惰性治理工件与 reset trace | 按触发条件补 `governance-state`、HARNESS carriers、`reset_bridge` 与 `governance_trigger_note` | 轻量起盘被全量治理阻塞，或重置后没有结构化 trace |
-| N7 | FIELD-INIT-06 / FIELD-INIT-07 / FIELD-INIT-08 | 是否已满足充分性、planning interview provenance、下一步一致性与重置边界 | 审计、对齐、给唯一推荐入口，并写 `reentry_decision` | 多入口冲突、来源不明、interview 未实跑 subagents，或旧周期工件仍混入 active truth |
+| N7 | FIELD-INIT-06 / FIELD-INIT-07 / FIELD-INIT-08 | 是否已满足充分性、planning 固定题包直答 provenance、下一步一致性与重置边界 | 审计、对齐、给唯一推荐入口，并写 `reentry_decision` | 多入口冲突、来源不明、固定题包直答未实跑 subagents，或旧周期工件仍混入 active truth |
 
 ## Pass Table
 
@@ -948,10 +959,10 @@ B. 自定义组队
 | FIELD-INIT-01 | `north_star.yaml` 只承接长期总约束，结构完整 | FAIL-INIT-01 | N4 / N5 |
 | FIELD-INIT-02 | `init_handoff.yaml` 已含种子、`unknowns`、`sources` | FAIL-INIT-02 | N4 / N5 |
 | FIELD-INIT-03 | 模式来源、编组来源、字段来源、`team_ref` 与 `lineup_mode_decision` 均可追溯 | FAIL-INIT-03 | N1 / N3 |
-| FIELD-INIT-04 | 项目根 `team.yaml` 已明确三角色成员、初始化编组 provenance、planning interview、`selector_scope_root` 与评审最终闸门 | FAIL-INIT-04 | N3 / N4 / N5 |
-| FIELD-INIT-05 | `0-Init/` 与项目根工件齐全且路径正确；惰性治理按需补齐 | FAIL-INIT-05 | N2 / N5 / N6 |
+| FIELD-INIT-04 | 项目根 `team.yaml` 已明确三角色成员、初始化编组 provenance、planning 固定题包直答、`selector_scope_root` 与评审最终闸门 | FAIL-INIT-04 | N3 / N4 / N5 |
+| FIELD-INIT-05 | `0-Init/`、项目根工件与 `CHANGELOG.md` 齐全且路径正确；惰性治理按需补齐 | FAIL-INIT-05 | N2 / N5 / N6 |
 | FIELD-INIT-06 | 只返回一个当前主入口阶段 | FAIL-INIT-06 | N7 |
-| FIELD-INIT-07 | 路由、单一智能顾问模式、自动/自定义编组、planning interview subagents、`planning_subagent_roster` 与充分性审计均内收到父 skill | FAIL-INIT-07 | N3 / N4 / N7 |
+| FIELD-INIT-07 | 路由、单一智能顾问模式、自动/自定义编组、planning 固定题包直答 subagents、`planning_subagent_roster` 与充分性审计均内收到父 skill | FAIL-INIT-07 | N3 / N4 / N7 |
 | FIELD-INIT-08 | `rebootstrap` 被正确识别并留痕；旧周期工件已按 reset contract 退场 | FAIL-INIT-08 | N0 / N6 / N7 |
 
 ## Context Preload (Mandatory)

@@ -28,7 +28,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair it
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把“有名字的道具”收束成“有剧情杠杆、有归属链、有代价”的正式物品卡。 |
-| `business_object` | `Cards/4-物品卡/**/*.json`、`ownership_links`、`exclusive_item_hooks` 的下游消费。 |
+| `business_object` | `1-Cards/4-物品卡/**/*.json`、`ownership_links`、`exclusive_item_hooks` 的下游消费。 |
 | `constraint_profile` | 物品卡不能绕过角色接口和场景规则自说自话。 |
 | `success_criteria` | 每张物品卡都能回答属于谁、怎样启用、付什么代价、为什么非它不可。 |
 
@@ -64,7 +64,7 @@ flowchart LR
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- 既有 `Cards/4-物品卡/**/*.json`（若存在）
+- 既有 `1-Cards/4-物品卡/**/*.json`（若存在）
 - mixed/full-build 时来自角色卡的 `exclusive_item_hooks`
 - mixed/full-build 时来自场景卡的 `rule_and_risk`
 

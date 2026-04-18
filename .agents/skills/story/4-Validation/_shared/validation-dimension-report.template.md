@@ -10,7 +10,7 @@ severity_counts:
   medium: 0
   low: 0
 default_rework_targets: []
-report_ref: "Validation/第0集/<dimension>.md"
+report_ref: "4-Validation/第0集/<dimension>.md"
 ---
 
 # 第0集 <dimension> 验收报告

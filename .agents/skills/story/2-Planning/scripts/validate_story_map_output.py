@@ -81,7 +81,7 @@ def _validate(path: Path, strict: bool) -> list[str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate Story2026 story_map output")
-    parser.add_argument("path", help="Path to Planning/全息地图.json")
+    parser.add_argument("path", help="Path to 2-Planning/全息地图.json")
     parser.add_argument("--strict", action="store_true", help="Require non-empty thread indexes")
     args = parser.parse_args()
 

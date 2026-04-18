@@ -100,7 +100,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 2", "预建项目骨架与运行时入口", "init-project"),
             ("Step 3", "完成自动/自定义组队路由", "story-init-skill"),
             ("Step 4", "先写 team.yaml 并锁团队真源", "story-init-skill"),
-            ("Step 5", "执行 planning 顾问团 interview", "story-init-skill"),
+            ("Step 5", "执行 planning 固定题包直答", "story-init-skill"),
             ("Step 6", "综合写回 0-Init 三件套与 STATE.json", "story-init-skill"),
             ("Step 7", "做 sufficiency audit 与 closure", "story-init-skill"),
         ],
@@ -1870,7 +1870,7 @@ def analyze_recovery_options(interrupt_info):
                 "option": "A",
                 "label": "从 Step 1 重新开始",
                 "risk": "low",
-                "description": "重新起盘当前集，并重新装配 Init/Cards/Planning/上一集终稿上下文",
+                "description": "重新起盘当前集，并重新装配 Init/1-Cards/2-Planning/上一集终稿上下文",
                 "actions": ["清理中断状态", f"执行 /{command} {chapter_num}"],
             }
         ]

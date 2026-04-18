@@ -25,7 +25,7 @@
 | Step 2 参考路径仍指向旧上级目录，导致 shared reference 实际读不到 | path contract | 改为 repo-local 正确路径 | 在技能中优先使用 `${REPO_ROOT}/.agents/skills/story/...` 绝对约定 | shell 中能成功读取 shared reference |
 | `review/` 试图代替 `5-Loopback` 做 gate 裁决或 actualization 决策 | stage split contract | 把 `review/` 收回到报告/持久化/升级层 | 在 `SKILL.md` 写死 `4-Validation` 判 gate、`5-Loopback` 写 truth、`review/` 只做 handoff summary | `review_handoff_summary` 不改写 `validation_status` |
 | 修复后沿用旧评估结果继续推进 | workflow closure | 触发新一轮 `4-Validation` 复核 | 在 Completion Gate 写死“修复后重新隔离评估” | 修复后存在新的团队输出与报告 |
-| 审查报告已经落到业务目录，但 task dir 没有形成对应的治理证据回指 | governance artifact observation | 在 `review/` 合同中把 task dir 视为治理承接层，要求报告层与证据层互相回指 | 让 `Validation/*.md` 业务报告与 `<run_id>` task artifacts 保持可追溯关系，避免出现两套互不相认的报告路径 | report、state、task dir 三处都能定位同一轮审查结论 |
+| 审查报告已经落到业务目录，但 task dir 没有形成对应的治理证据回指 | governance artifact observation | 在 `review/` 合同中把 task dir 视为治理承接层，要求报告层与证据层互相回指 | 让 `4-Validation/*.md` 业务报告与 `<run_id>` task artifacts 保持可追溯关系，避免出现两套互不相认的报告路径 | report、state、task dir 三处都能定位同一轮审查结论 |
 
 ## Repair Playbook
 
@@ -46,4 +46,4 @@
 - 解释规划影响时，优先读 `全息地图.json`；解释运行态时，优先读 `STATE.json`；解释历史趋势时，优先读 `index.db.review_metrics`。
 - 当文档已经宣称“新字段是正式字段”，第一反应应是去核对 schema / save / read / tests 四层是否真的同步，而不是只修文字。
 - 正式字段若只存在数据库、却不出现在观察面，实际仍会退化成“隐形字段”；至少要让趋势报告与 state checkpoint 能看见它。
-- 业务报告和治理工件都叫“report”时，最稳的区分是：`Validation/*.md` 面向书项目阅读，`<run_id>/validation_report.md` 面向三省闭环审计。
+- 业务报告和治理工件都叫“report”时，最稳的区分是：`4-Validation/*.md` 面向书项目阅读，`<run_id>/validation_report.md` 面向三省闭环审计。

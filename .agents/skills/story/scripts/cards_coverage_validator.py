@@ -21,40 +21,40 @@ from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio
 
 
-GLOBAL_INDEX_REL = Path("Cards") / "0-全局卡" / "全局索引.json"
-STYLE_INDEX_REL = Path("Cards") / "1-风格卡" / "风格索引.json"
-CHARACTER_INDEX_REL = Path("Cards") / "2-角色卡" / "角色索引.json"
-CHARACTER_GRAPH_REL = Path("Cards") / "2-角色卡" / "角色关系图谱.md"
-SCENE_INDEX_REL = Path("Cards") / "3-场景卡" / "场景索引.json"
-ITEM_INDEX_REL = Path("Cards") / "4-物品卡" / "物品索引.json"
+GLOBAL_INDEX_REL = Path("1-Cards") / "0-全局卡" / "全局索引.json"
+STYLE_INDEX_REL = Path("1-Cards") / "1-风格卡" / "风格索引.json"
+CHARACTER_INDEX_REL = Path("1-Cards") / "2-角色卡" / "角色索引.json"
+CHARACTER_GRAPH_REL = Path("1-Cards") / "2-角色卡" / "角色关系图谱.md"
+SCENE_INDEX_REL = Path("1-Cards") / "3-场景卡" / "场景索引.json"
+ITEM_INDEX_REL = Path("1-Cards") / "4-物品卡" / "物品索引.json"
 STATE_REL = Path("STATE.json")
 NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
 INIT_HANDOFF_REL = Path("0-Init") / "init_handoff.yaml"
 
 GLOBAL_BUCKETS = {
-    "master_globals": Path("Cards") / "0-全局卡" / "总设定",
+    "master_globals": Path("1-Cards") / "0-全局卡" / "总设定",
 }
 STYLE_BUCKETS = {
-    "global_styles": Path("Cards") / "1-风格卡" / "总风格",
+    "global_styles": Path("1-Cards") / "1-风格卡" / "总风格",
 }
 CHARACTER_BUCKETS = {
-    "protagonists": Path("Cards") / "2-角色卡" / "主要角色",
-    "antagonists": Path("Cards") / "2-角色卡" / "反派角色",
-    "supporting": Path("Cards") / "2-角色卡" / "次要角色",
-    "ensemble": Path("Cards") / "2-角色卡" / "群像角色",
+    "protagonists": Path("1-Cards") / "2-角色卡" / "主要角色",
+    "antagonists": Path("1-Cards") / "2-角色卡" / "反派角色",
+    "supporting": Path("1-Cards") / "2-角色卡" / "次要角色",
+    "ensemble": Path("1-Cards") / "2-角色卡" / "群像角色",
 }
 SCENE_BUCKETS = {
-    "indoor": Path("Cards") / "3-场景卡" / "室内",
-    "outdoor": Path("Cards") / "3-场景卡" / "室外",
-    "natural": Path("Cards") / "3-场景卡" / "自然",
-    "surreal": Path("Cards") / "3-场景卡" / "超现实",
+    "indoor": Path("1-Cards") / "3-场景卡" / "室内",
+    "outdoor": Path("1-Cards") / "3-场景卡" / "室外",
+    "natural": Path("1-Cards") / "3-场景卡" / "自然",
+    "surreal": Path("1-Cards") / "3-场景卡" / "超现实",
 }
 ITEM_BUCKETS = {
-    "weapons_equipment": Path("Cards") / "4-物品卡" / "武器装备",
-    "clue_items": Path("Cards") / "4-物品卡" / "线索物品",
-    "narrative_items": Path("Cards") / "4-物品卡" / "重要叙事物品",
-    "relics": Path("Cards") / "4-物品卡" / "文物",
-    "adornments": Path("Cards") / "4-物品卡" / "点缀物",
+    "weapons_equipment": Path("1-Cards") / "4-物品卡" / "武器装备",
+    "clue_items": Path("1-Cards") / "4-物品卡" / "线索物品",
+    "narrative_items": Path("1-Cards") / "4-物品卡" / "重要叙事物品",
+    "relics": Path("1-Cards") / "4-物品卡" / "文物",
+    "adornments": Path("1-Cards") / "4-物品卡" / "点缀物",
 }
 
 TRACE_SPECS = {

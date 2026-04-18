@@ -92,8 +92,8 @@ Copy and track progress:
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 |---|---|---|---|
-| “原计划哪章发生 / 这条线原本怎么排” | `Planning/全息地图.json` 的 `chapter_boards / cross_thread_indexes / planned_state` | `Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
-| “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
+| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `chapter_boards / cross_thread_indexes / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
+| “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `1-Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
 | “这个人是怎么变成现在的 / 这段关系怎么演化的” | `角色卡.experience_timeline + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
 | “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
 | “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
@@ -178,10 +178,10 @@ cat "${SKILL_ROOT}/references/tag-specification.md"
 ### A. 规划查询
 
 ```bash
-cat "$PROJECT_ROOT/Planning/全息地图.json"
+cat "$PROJECT_ROOT/2-Planning/全息地图.json"
 ```
 
-如需追溯某条规划为何这样安排，再补读对应 `Planning/1-7/*.json`。
+如需追溯某条规划为何这样安排，再补读对应 `2-Planning/1-7/*.json`。
 
 ### B. 对象 / 当前态 / 历程查询
 
@@ -204,8 +204,8 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 
 必须同时检查：
 
-1. `Planning/全息地图.json` 的 `content.holomap.actualization`
-2. `Loopback/第N集.loopback.json`
+1. `2-Planning/全息地图.json` 的 `content.holomap.actualization`
+2. `5-Loopback/第N集.loopback.json`
 3. `validation_ref` / `review_metrics` / `review_checkpoints`
 
 可用下面的命令定位 loopback artifact：

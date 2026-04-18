@@ -419,7 +419,7 @@ def _issue(
 
 
 def _report_ref(chapter: int, role_id: str, report_filename: str) -> str:
-    return f"Validation/第{chapter}集/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
+    return f"4-Validation/第{chapter}集/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
 
 
 def _write_report(

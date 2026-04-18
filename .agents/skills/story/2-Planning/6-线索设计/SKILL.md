@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`Planning/全息地图.json` 与当前 `Planning/全息地图.json`。
+- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
 
 ## Parent Positioning
 
@@ -34,14 +34,14 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把任务链翻译成证据链、发现链与公平误导链。 |
-| `business_object` | `Planning/全息地图.json` 与 `story_map.clue_threads / board.clues`。 |
+| `business_object` | `2-Planning/全息地图.json` 与 `story_map.clue_threads / board.clues`。 |
 | `constraint_profile` | 只写线索，不把线索和伏笔混写。 |
 | `success_criteria` | board 能回答“这一章获得了什么信息，误导如何服从证据”。 |
 
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/pass-artifacts/6-线索设计.json`
+  - `2-Planning/pass-artifacts/6-线索设计.json`
 - owned story_map slots：
   - `content.holomap.clue_threads`
   - `content.holomap.chapter_boards[].bundled_elements.clues`

@@ -75,7 +75,7 @@ def _relpath(path: Path, project_root: Path) -> str:
 
 
 def _build_artifact_path(project_root: Path, state: Dict[str, Any], episode: int) -> Path:
-    output_dir = project_root / "Loopback"
+    output_dir = project_root / "5-Loopback"
     create_secure_directory(str(output_dir))
     return output_dir / f"第{episode}集.loopback.json"
 

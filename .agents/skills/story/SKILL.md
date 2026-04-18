@@ -183,7 +183,7 @@ canonical contracts：
 | 根级 `type-packs/` | 类型包 schema、resolver、composition 规则、pack canonical source | 章节正文、validation gate、loopback writeback |
 | `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-Cards` | 角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
-| `2-Planning` | `Planning/全息地图.json` 为核心的规划真源 | 对象当前态、validated actualization |
+| `2-Planning` | `2-Planning/全息地图.json` 为核心的规划真源 | 对象当前态、validated actualization |
 | `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md + 写作日志.yaml` 为核心的章节正文真源与工序账本 | 评估判断权、validated truth writeback |
 | `4-Validation` | 隔离评估团队与 `validation_status` 判定 | 报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
@@ -199,11 +199,11 @@ canonical contracts：
   - `projects/story/<项目名>/CHANGELOG.md`
 - 阶段业务产物固定落在：
   - `projects/story/<项目名>/0-Init/`
-  - `projects/story/<项目名>/Cards/`
-  - `projects/story/<项目名>/Planning/`
+  - `projects/story/<项目名>/1-Cards/`
+  - `projects/story/<项目名>/2-Planning/`
   - `projects/story/<项目名>/3-Drafting/`
-  - `projects/story/<项目名>/Validation/`
-  - `projects/story/<项目名>/Loopback/`
+  - `projects/story/<项目名>/4-Validation/`
+  - `projects/story/<项目名>/5-Loopback/`
 
 ## Shared Carrier Contract
 

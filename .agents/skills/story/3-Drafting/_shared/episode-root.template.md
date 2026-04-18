@@ -1,7 +1,7 @@
 ---
 episode_num: N
 episode_title: ""
-planning_ref: "Planning/全息地图.json"
+planning_ref: "2-Planning/全息地图.json"
 previous_episode_ref: ""
 processed_steps: []
 ---

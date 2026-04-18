@@ -18,7 +18,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 题材选型只剩标签堆叠 | child contract | 回到题材承诺句与主副题材配比裁决 | 在子技能合同固化四层承诺与禁飞区 | `Planning/全息地图.json` 能解释后续结构为什么成立 |
+| 题材选型只剩标签堆叠 | child contract | 回到题材承诺句与主副题材配比裁决 | 在子技能合同固化四层承诺与禁飞区 | `2-Planning/全息地图.json` 能解释后续结构为什么成立 |
 | 副题材越权改写主题材方向盘 | boundary control | 降回 `主驱动 + 辅增压` 结构 | 在输出中显式区分主副题材职责 | 后续 child 不再出现双主题材互抢 |
 | 题材知识被复制进本 child | asset layering | 改回读取共享 `templates/genres/` | 把共享资产边界写成子技能硬合同 | 本 child 不维护私有 trope 库 |
 

@@ -17,7 +17,7 @@ governance_tier: lite
 - `resume/` 是 `story2026` 在 `5-Loopback` 侧的卫星恢复技能，不负责写入 truth，也不冒充 drafting / review / loopback actualization 主流程。
 - 它的职责是：定位真实中断点、给出安全恢复选项、清理或保留现场、把后续执行重新接回当前 canonical truth。
 - 当前 canonical truth 约定保持一致：
-  - 规划真源：`Planning/全息地图.json`
+  - 规划真源：`2-Planning/全息地图.json`
   - 运行态真源：`STATE.json`
   - 实体/关系/状态变化主存储：`.webnovel/index.db`
   - 工作流断点：`STATE.json.workflow_runtime.workflow_state`
@@ -162,7 +162,7 @@ cat "${REPO_ROOT}/.agents/skills/story/_shared/context-loading-contract.md"
 - 禁止猜断点。
 - 禁止把 `workflow detect` 输出中的动作文本原样当执行脚本。
 - 禁止为了“省事”直接做 destructive Git 操作。
-- 恢复后必须重新接回当前 canonical truth，而不是退回旧 `Planning/legacy/` 默认路径。
+- 恢复后必须重新接回当前 canonical truth，而不是退回旧 `2-Planning/legacy/` 默认路径。
 
 ## Step 2：检测中断状态
 
@@ -288,7 +288,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ### 继续 `story-write`
 
 - 恢复后默认继续走 `3-Drafting` 当前合同。
-- 章节级上下文恢复必须重新以 `Planning/全息地图.json` 为默认规划真源。
+- 章节级上下文恢复必须重新以 `2-Planning/全息地图.json` 为默认规划真源。
 - 若用户要先检查恢复后的上下文包，可执行：
 
 ```bash

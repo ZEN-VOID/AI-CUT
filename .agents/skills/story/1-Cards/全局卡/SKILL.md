@@ -47,7 +47,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair gl
 1. `references/golden-finger-templates.md`
 2. `0-Init/north_star.yaml`
 3. `0-Init/init_handoff.yaml`
-4. 既有 `Cards/0-全局卡/**/*.json`
+4. 既有 `1-Cards/0-全局卡/**/*.json`
 
 按需推荐加载：
 
@@ -57,14 +57,14 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair gl
 
 硬规则：
 
-- 上述 `worldbuilding` 文件只提供共享 craft support，不得复制降格为本地 `references/`，也不得替代 `Cards/0-全局卡/**/*.json` 的正式真源地位。
+- 上述 `worldbuilding` 文件只提供共享 craft support，不得复制降格为本地 `references/`，也不得替代 `1-Cards/0-全局卡/**/*.json` 的正式真源地位。
 
 ## Business Requirement Analysis Contract
 
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把整书级世界设定、规则系统、年代边界、文化艺术、科技/武功与金手指压成可长期复用的全局卡。 |
-| `business_object` | `Cards/0-全局卡/**/*.json`、全局索引、供风格卡/规划/正文/验证引用的总设定 ref。 |
+| `business_object` | `1-Cards/0-全局卡/**/*.json`、全局索引、供风格卡/规划/正文/验证引用的总设定 ref。 |
 | `constraint_profile` | 全局卡记录“这是什么世界、靠什么规则运行、主角拥有什么特殊优势以及要付什么代价”，不替具体角色或场景写局部戏。 |
 | `success_criteria` | 全局卡能回答世界怎么运作、有哪些硬规则、时代与文化气味是什么、力量/科技边界在哪、金手指如何服务主线且付代价。 |
 | `non_goals` | 不替风格卡写 prose 语感；不替角色卡写人物弧线；不替场景卡写单空间规则；不替物品卡写具体道具代价。 |
@@ -104,7 +104,7 @@ flowchart LR
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
 - `references/golden-finger-templates.md`
-- 既有 `Cards/0-全局卡/**/*.json`（若存在）
+- 既有 `1-Cards/0-全局卡/**/*.json`（若存在）
 
 ## Thinking-Action Network
 
@@ -151,7 +151,7 @@ flowchart LR
 
 本技能只交付一套正式全局卡 payload：
 
-- `Cards/0-全局卡/**/*.json`
+- `1-Cards/0-全局卡/**/*.json`
 - 可进入索引的 `global_contract_refs`
 - 明确引用 `references/golden-finger-templates.md` 的 `golden_finger`
 

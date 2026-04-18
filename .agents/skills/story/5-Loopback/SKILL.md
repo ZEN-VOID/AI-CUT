@@ -26,9 +26,9 @@ governance_tier: full
 3. 提纯统一 `loopback_delta`。
 4. 串行写回：
    - `Cards.current_state/history`
-   - `Planning/全息地图.json.content.holomap.actualization`
+   - `2-Planning/全息地图.json.content.holomap.actualization`
 5. 刷新 `STATE.json` 中下一轮要消费的 projection 与 runtime markers。
-6. 生成唯一正式产物 `Loopback/第N集.loopback.json`。
+6. 生成唯一正式产物 `5-Loopback/第N集.loopback.json`。
 
 补充定位：
 
@@ -54,7 +54,7 @@ governance_tier: full
 - `loopback_delta` 提纯与边界裁决
 - `Cards` 与 `story_map.actualization` 的 truth split
 - projection refresh 与 runtime marker 刷新
-- `Loopback/第N集.loopback.json` 唯一正式 artifact
+- `5-Loopback/第N集.loopback.json` 唯一正式 artifact
 - `query/`、`resume/` 的卫星路由裁决
 - workflow step 与 skill step 的对齐责任
 
@@ -65,7 +65,7 @@ governance_tier: full
 - 代替 `review/` 产出正式审查报告
 - 代替 `3-Drafting` 修改正文
 - 覆盖 `Cards.core`
-- 覆盖 `Planning/全息地图.json` 内的 `planned_*` 规划理由层
+- 覆盖 `2-Planning/全息地图.json` 内的 `planned_*` 规划理由层
 
 ## Shared Canonical Sources
 
@@ -91,7 +91,7 @@ governance_tier: full
 - `5-Loopback/SKILL.md`
   - 裁定 actualization 总流程、truth split、卫星路由与完成 gate。
 - `templates/loopback.json`
-  - `Loopback/第N集.loopback.json` 的唯一结构模板。
+  - `5-Loopback/第N集.loopback.json` 的唯一结构模板。
 - `loopback_manager.py`
   - 当前阶段的脚本执行入口与写回实现。
 
@@ -100,7 +100,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把已经通过终验且被明确交接给 loopback 的 episode 变化，稳定写回未来会继续被消费的 truth 层。 |
-| `business_object` | `Validation/第N集.validation.json`、`Cards/**/*.json`、`Planning/全息地图.json`、`STATE.json`、`Loopback/第N集.loopback.json`、workflow governance refs。 |
+| `business_object` | `4-Validation/第N集.validation.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、`STATE.json`、`5-Loopback/第N集.loopback.json`、workflow governance refs。 |
 | `constraint_profile` | 必须同时满足 `PASS` 与 `handoff_to_review_and_loopback` 语义；不得覆盖 `planned_*`；不得改 `Cards.core`；不得把 query/resume 诉求混入 actualization 主流程。 |
 | `success_criteria` | 只在合法 handoff 下写回 truth；Cards 与 MAP 没有互相串层；projection 已刷新；loopback artifact 能回指 validation 与 governance evidence。 |
 | `non_goals` | 不做审查报告；不重跑 validation；不把历史复核 PASS 直接写回；不生成第二张执行 MAP；不把单集文面技巧写成长期对象态。 |
@@ -121,7 +121,7 @@ flowchart TD
     D1 --> D2["story_map.actualization"]
     D2 --> E["N3 Projection refresh"]
     E --> F["N4 PASS-only closure"]
-    F --> G["Loopback/第N集.loopback.json"]
+    F --> G["5-Loopback/第N集.loopback.json"]
 ```
 
 ```mermaid
@@ -130,8 +130,8 @@ flowchart LR
     B --> C["card_deltas"]
     B --> D["map_deltas"]
     B --> E["projection_refresh"]
-    C --> F["Cards/**/*.json current_state/history"]
-    D --> G["Planning/全息地图.json content.holomap.actualization"]
+    C --> F["1-Cards/**/*.json current_state/history"]
+    D --> G["2-Planning/全息地图.json content.holomap.actualization"]
     E --> H["STATE.json projections + runtime markers"]
     A --> I["routing_decision + handoff_targets"]
     I --> J["PASS-only + handoff-granted gate"]
@@ -185,11 +185,11 @@ flowchart TD
 12. `templates/loopback.json`
 13. `../scripts/loopback_manager.py`
 14. `../scripts/workflow_manager.py`
-15. `projects/story/<项目名>/Validation/第N集.validation.json`
+15. `projects/story/<项目名>/4-Validation/第N集.validation.json`
 16. `projects/story/<项目名>/3-Drafting/第N集.md`
-17. `projects/story/<项目名>/Planning/全息地图.json`
+17. `projects/story/<项目名>/2-Planning/全息地图.json`
 18. `projects/story/<项目名>/STATE.json`
-19. 本集涉及的 `Cards/**/*.json`
+19. 本集涉及的 `1-Cards/**/*.json`
 20. 若存在：当前 run 的 governance refs
 
 ## Total Input Contract
@@ -201,7 +201,7 @@ flowchart TD
 - `manuscript_ref`
 - `validation_ref`
 - 当前轮 `4-Validation` 聚合 JSON
-- `story_map_ref`，默认 `Planning/全息地图.json`
+- `story_map_ref`，默认 `2-Planning/全息地图.json`
 - `STATE.json`
 
 ### validation aggregate JSON 必需字段
@@ -307,16 +307,16 @@ flowchart TD
 
 禁止事项：
 
-- 禁止把 `query/` 或 `resume/` 的输出伪装成 `Loopback/第N集.loopback.json`
+- 禁止把 `query/` 或 `resume/` 的输出伪装成 `5-Loopback/第N集.loopback.json`
 - 禁止把 `review_handoff_summary` 当成 actualization 主产物
 
 ## Output Contract
 
 ### Canonical runtime
 
-- `projects/story/<项目名>/Loopback/第N集.loopback.json`
-- `projects/story/<项目名>/Cards/**/*.json`
-- `projects/story/<项目名>/Planning/全息地图.json`
+- `projects/story/<项目名>/5-Loopback/第N集.loopback.json`
+- `projects/story/<项目名>/1-Cards/**/*.json`
+- `projects/story/<项目名>/2-Planning/全息地图.json`
 - `projects/story/<项目名>/STATE.json`
 
 ### One-shot canonical final output
@@ -359,7 +359,7 @@ flowchart TD
 | `N1-VALIDATION-AND-DELTA` | 锁定 PASS 与 handoff gate，并提纯 delta | validation aggregate、manuscript_ref、story_map_ref | 校验 `validation_status / routing_decision / handoff_targets`，规范化 `loopback_delta` | `gate_note`、`delta_payload` | `FAIL-LOOP-GATE-01`、`FAIL-LOOP-DELTA-02` | `N2` |
 | `N2-TRUTH-WRITEBACK` | 把 validated 变化分别写回 Cards 与 MAP | `card_deltas`、`map_deltas`、现有 Cards、story_map | 先写 `Cards.current_state/history`，再写 `story_map.actualization` | `written_card_refs`、`written_map_refs` | `FAIL-LOOP-CARD-03`、`FAIL-LOOP-MAP-04` | `N3` |
 | `N3-PROJECTION-REFRESH` | 刷新下一轮默认上下文 | `projection_refresh`、`STATE.json` | 更新 writer/query/planning projection 与 runtime marker | `refreshed_projection_refs` | `FAIL-LOOP-CTX-05` | `N4` |
-| `N4-PASS-ONLY-CLOSURE` | 收束 artifact 与 governance 回指 | loopback template、validation ref、governance refs、writeback summary | 生成 `Loopback/第N集.loopback.json`，校验 closure | `loopback_ref`、`closure_note` | `FAIL-LOOP-CLOSE-06` | done |
+| `N4-PASS-ONLY-CLOSURE` | 收束 artifact 与 governance 回指 | loopback template、validation ref、governance refs、writeback summary | 生成 `5-Loopback/第N集.loopback.json`，校验 closure | `loopback_ref`、`closure_note` | `FAIL-LOOP-CLOSE-06` | done |
 
 ## Field Master
 
@@ -392,7 +392,7 @@ flowchart TD
 | `FIELD-LOOP-03` | `Cards` 仅改 `current_state/history`，无 `core` 漂移 | `FAIL-LOOP-CARD-03` | `N2` |
 | `FIELD-LOOP-04` | `story_map` 仅补执行态，无 `planned_*` 覆盖 | `FAIL-LOOP-MAP-04` | `N2` |
 | `FIELD-LOOP-05` | 下游读取 projection 时无需猜测本集后默认态 | `FAIL-LOOP-CTX-05` | `N3` |
-| `FIELD-LOOP-06` | `Loopback/第N集.loopback.json` 能追溯 validation 与治理证据 | `FAIL-LOOP-CLOSE-06` | `N4` |
+| `FIELD-LOOP-06` | `5-Loopback/第N集.loopback.json` 能追溯 validation 与治理证据 | `FAIL-LOOP-CLOSE-06` | `N4` |
 
 ## Root-Cause 执行合同
 
@@ -416,7 +416,7 @@ flowchart TD
 - 当前 intake 已同时满足：
   - `validation_status == PASS`
   - `routing_decision == handoff_to_review_and_loopback` 或 `handoff_targets` 包含 `5-Loopback`
-- 已生成 `Loopback/第N集.loopback.json`
+- 已生成 `5-Loopback/第N集.loopback.json`
 - 已明确区分：
   - `Cards.current_state/history`
   - `story_map.actualization`

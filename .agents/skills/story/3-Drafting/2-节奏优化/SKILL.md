@@ -70,7 +70,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让章节具备推进节奏、呼吸感和章内脉冲，而不是只把事情按时间顺序摆出来。 |
-| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`Planning/全息地图.json` 的本章义务、shared core constraints，以及项目已显式启用时才注入的类型化提示。 |
+| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、shared core constraints，以及项目已显式启用时才注入的类型化提示。 |
 | `constraint_profile` | 不换故事骨架，只重排密度和脉冲；必须继续遵守规划真源、设定边界、推进下限、上章承诺回应与章末期待约束。 |
 | `success_criteria` | 读者能明显感知推进、停顿、加压和章末牵引，同时章节仍能回答“发生了什么/为什么现在这样”。 |
 | `non_goals` | 不重写 chapter board、本章主事件序列、设定系统、世界规则或终修文风。 |
@@ -83,7 +83,7 @@ governance_tier: lite
 - 必需输入：
   - 当前 `第N集.md`
   - `写作日志.yaml`
-  - `Planning/全息地图.json`
+  - `2-Planning/全息地图.json`
   - `../../_shared/core-constraints.md`
 - 硬规则：
   - 必须先保住 Step 1 的事件逻辑，再谈节奏优化。

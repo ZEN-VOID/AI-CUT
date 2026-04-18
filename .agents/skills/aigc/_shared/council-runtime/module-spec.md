@@ -11,7 +11,7 @@
 本模块只负责跨阶段共享的顾问团运行时：
 
 - 读取并解释项目根 `team.yaml`
-- 保留 `0-Init` 写入的 `init_contract.*` 与 `planning.init_interview.*` 初始化 provenance
+- 保留 `0-Init` 写入的 `init_contract.*` 与 `planning.init_execution.*` 初始化 provenance
 - 判断当前阶段是否启用智能顾问团模式
 - 决定当前阶段先调用 `监制` 还是 `评审`
 - 对 `2-Global / 3-Detail / 4-Design`，在 output-related canonical 首次落盘后触发一次 `监制` stage-end refine
@@ -43,7 +43,7 @@
 
 1. 进入阶段根技能或其可直达子技能时，先读取 `projects/aigc/<项目名>/team.yaml`。
 2. 若文件不存在、`enabled != true`、或所有角色成员都为空，走普通路径。
-3. `init_contract.*` 与 `roles.planning.init_interview.*` 主要由 `0-Init` 消费；后续阶段只把它们视为 provenance，不重写其初始化裁决。
+3. `init_contract.*` 与 `roles.planning.init_execution.*` 主要由 `0-Init` 消费；后续阶段只把它们视为 provenance，不重写其初始化裁决。
 4. 若 `enabled == true` 但当前阶段默认角色成员为空，则跳过前置顾问，仅保留已配置的 `评审` 闸门。
 5. 若启用且当前阶段默认角色成员非空：
    - `2-Global / 3-Detail / 4-Design` 先调用 `roles.supervision.members`
@@ -62,7 +62,7 @@
     - 用户显式要求不要启用 subagents
 11. 在 `5-Image / 6-Video` 的阶段级 `validation-report.md` 写作前后，若 `roles.review.members` 非空，则调用 `评审` 给出 PASS/返工意见。
 12. 无论顾问是否启用，主代理都保留最终 canonical 写回权。
-13. `0-Init` 若读取到 `runtime_policy.require_subagents_for_init_interview == true`，则其 planning interview 不得使用本条普通降级路径；后续阶段才允许按本模块的普通 fallback 规则处理。
+13. `0-Init` 若读取到 `runtime_policy.require_subagents_for_init_execution == true`，则其 planning 固定题包直答不得使用本条普通降级路径；后续阶段才允许按本模块的普通 fallback 规则处理。
 
 ## Subagent Contract
 

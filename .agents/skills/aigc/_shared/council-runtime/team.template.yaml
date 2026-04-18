@@ -36,12 +36,12 @@ roles:
     label: "策划"
     enabled: true
     members: []
-    init_interview:
+    init_execution:
       stage: "0-Init"
       kickoff_owner: true
       requires_subagents: true
-      execution_mode: "parallel-council"
-      interview_focus:
+      execution_mode: "direct-answer-packet"
+      prompt_packet_focus:
         - "故事核、情绪核与结构种子"
         - "题材边界、受众、平台与制作约束"
         - "优先进入阶段与 planning handoff 关键 unknowns"
@@ -59,12 +59,12 @@ roles:
     label: "监制"
     enabled: true
     members: []
-    init_interview:
+    init_execution:
       stage: "0-Init"
       kickoff_owner: false
       requires_subagents: false
       execution_mode: "on_demand"
-      interview_focus: []
+      prompt_packet_focus: []
     source_skill_refs:
       - ".agents/skills/aigc/2-Global/SKILL.md"
       - ".agents/skills/aigc/3-Detail/SKILL.md"
@@ -83,12 +83,12 @@ roles:
     label: "评审"
     enabled: true
     members: []
-    init_interview:
+    init_execution:
       stage: "0-Init"
       kickoff_owner: false
       requires_subagents: false
       execution_mode: "on_demand"
-      interview_focus: []
+      prompt_packet_focus: []
     source_skill_refs:
       - ".agents/skills/aigc/5-Image/SKILL.md"
       - ".agents/skills/aigc/6-Video/SKILL.md"
@@ -101,14 +101,14 @@ roles:
 
 runtime_policy:
   use_subagents_by_default: true
-  require_subagents_for_init_interview: true
-  init_interview_owner_role: "planning"
-  init_interview_subagents_policy: "required"
+  require_subagents_for_init_execution: true
+  init_execution_owner_role: "planning"
+  init_execution_subagents_policy: "required"
   ordinary_path_when_disabled_or_empty: true
-  fallback_when_subagents_unavailable: "block_and_report_for_init_interview"
+  fallback_when_subagents_unavailable: "block_and_report_for_init_execution"
   canonical_owner: "main_agent"
   review_timing: "before_and_after_stage_validation_report"
 
 decision_policy:
   decision_owner: ""
-  conflict_rule: "user_confirmed > review_gate > planning_interview_consensus > role_consensus > main_agent_inferred"
+  conflict_rule: "user_confirmed > review_gate > planning_direct_answer_consensus > role_consensus > main_agent_inferred"

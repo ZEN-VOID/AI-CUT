@@ -48,7 +48,7 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `Cards/3-场景卡/**/*.json`
+  - `1-Cards/3-场景卡/**/*.json`
   - `写作日志.yaml`
 - 硬规则：
   - 场景描写必须跟 scene function 绑定，不能独立自嗨。

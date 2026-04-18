@@ -11,7 +11,7 @@ governance_tier: lite
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、`../../_shared/story_map.schema.json`。
 - 若当前项目要进入类型化题材锁定，还必须回读 `../../_shared/type-pack-loading-contract.md` 与 `../../type-packs/网文/`。
-- 正式写入前，必须读取当前 `Planning/全息地图.json`；若不存在，由父层负责先 bootstrap。
+- 正式写入前，必须读取当前 `2-Planning/全息地图.json`；若不存在，由父层负责先 bootstrap。
 
 ## Parent Positioning
 
@@ -44,7 +44,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 先锁整书阅读承诺与题材方向盘，再让后续 child 在同一题材走廊里工作。 |
-| `business_object` | `Planning/全息地图.json` 与 `Planning/全息地图.json.content.holomap.story_promise / genre_corridor`。 |
+| `business_object` | `2-Planning/全息地图.json` 与 `2-Planning/全息地图.json.content.holomap.story_promise / genre_corridor`。 |
 | `constraint_profile` | 只定方向盘，不越权写章节/主干；若题材名能直接命中 `type-packs/网文/<题材>/`，除非特别说明，否则默认走该目录作为入口知识源，再按小说设定补读必要的 family craft。 |
 | `success_criteria` | evidence artifact 能解释“为什么是这组题材承诺、默认挂到了哪些 `type-packs/网文/` 入口与 family craft”；story_map 已有 promise/corridor/hook。 |
 | `topology_fit` | `root reread -> promise lock -> corridor narrowing -> forbidden zone -> patch write` |
@@ -54,8 +54,8 @@ governance_tier: lite
 - 必需输入：
   - `0-Init/north_star.yaml`
   - `0-Init/init_handoff.yaml`
-  - `Cards/**/*.json`
-  - 当前 `Planning/全息地图.json`
+  - `1-Cards/**/*.json`
+  - 当前 `2-Planning/全息地图.json`
 - 硬规则：
   - 必须先锁 `reader_promise`，再谈辅题材。
   - 辅题材只有在会改变后续结构时才允许保留。
@@ -65,7 +65,7 @@ governance_tier: lite
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/pass-artifacts/1-题材选型.json`
+  - `2-Planning/pass-artifacts/1-题材选型.json`
 - owned story_map slots：
   - `content.holomap.story_promise`
   - `content.holomap.genre_corridor`
@@ -87,7 +87,7 @@ flowchart TD
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-GEN-01` | 回读当前 root 与上游真源 | 读取 `0-Init/Cards/current root` | `input_note` | -> `N2` | root 最新 |
+| `N1-ROOT-REREAD` | `FIELD-GEN-01` | 回读当前 root 与上游真源 | 读取 `0-Init/1-Cards/current root` | `input_note` | -> `N2` | root 最新 |
 | `N2-PROMISE-LOCK` | `FIELD-GEN-02` | 锁定读者承诺与平台承诺 | 提炼 `reader_promise/platform_fit` | `promise_note` | -> `N3` | 承诺可执行 |
 | `N3-CORRIDOR-NARROW` | `FIELD-GEN-03` | 确定主副题材与禁飞区 | 排除只改包装的副题材 | `corridor_note` | -> `N4` | 题材不漂移 |
 | `N4-PATCH-WRITE` | `FIELD-GEN-04` | 写本地 artifact 与 patch | 生成 `story_map_patch` | `patch_note` | done | 只命中 owned slots |
@@ -103,6 +103,6 @@ flowchart TD
 
 ## Completion Contract
 
-- `Planning/全息地图.json` 已生成。
+- `2-Planning/全息地图.json` 已生成。
 - `story_map_patch` 已写明 owned slots。
 - 父层可直接 progressive commit。

@@ -91,7 +91,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `cause_effect_breaks`、`state_conflicts`、`capability_conflicts`、`world_rule_conflicts`、`exception_cost_gaps`、`social_ecology_conflicts`、`contrivance_risk`
 - `dimension_report_ref`:
-  - `Validation/第N集/逻辑自洽校验.md`
+  - `4-Validation/第N集/逻辑自洽校验.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
 - 可能上溯层：

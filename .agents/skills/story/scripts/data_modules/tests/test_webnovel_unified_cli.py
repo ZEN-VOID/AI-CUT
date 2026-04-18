@@ -178,7 +178,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
             "--validation-data",
             "@validation.json",
             "--manuscript-ref",
-            "正文/第0012章.md",
+            "3-Drafting/第12集.md",
         ],
     )
 
@@ -196,7 +196,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
         "--validation-data",
         "@validation.json",
         "--manuscript-ref",
-        "正文/第0012章.md",
+        "3-Drafting/第12集.md",
     ]
 
 
@@ -295,7 +295,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     project_root = tmp_path / "book"
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
-    planning_dir = project_root / "Planning"
+    planning_dir = project_root / "2-Planning"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text("{}", encoding="utf-8")
 
@@ -308,7 +308,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     assert int(exc.value.code or 0) == 0
     assert "OK project_root" in captured.out
     assert "OK planning_source" in captured.out
-    assert "默认规划真源：Planning/全息地图.json" in captured.out
+    assert "默认规划真源：2-Planning/全息地图.json" in captured.out
     assert str(project_root.resolve()) in captured.out
 
 
@@ -340,7 +340,7 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
     project_root = tmp_path / "book"
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
-    outline_dir = project_root / "Planning" / "legacy"
+    outline_dir = project_root / "2-Planning" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "总纲.md").write_text("# 总纲\n", encoding="utf-8")
 
@@ -352,7 +352,7 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
     captured = capsys.readouterr()
     assert int(exc.value.code or 0) == 0
     assert '"status": "legacy_fallback"' in captured.out
-    assert "Planning/legacy/总纲.md" in captured.out
+    assert "2-Planning/legacy/总纲.md" in captured.out
 
 
 def test_preflight_fails_when_planning_source_is_missing(monkeypatch, tmp_path, capsys):

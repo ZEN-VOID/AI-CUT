@@ -35,7 +35,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair fu
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把初始化阶段已经稳定的读者承诺、审美轴和风格系统收束为整书风格契约。 |
-| `business_object` | `Cards/1-风格卡/**/*.json`、风格索引、下游可引用的风格契约路径。 |
+| `business_object` | `1-Cards/1-风格卡/**/*.json`、风格索引、下游可引用的风格契约路径。 |
 | `constraint_profile` | 风格卡只消费上游风格真源，不再自行发明第二套美学合同。 |
 | `success_criteria` | 风格卡能回答“整体气质是什么、哪些表达是禁区、下游写作必须守哪些风格约束”。 |
 | `non_goals` | 不重写角色/场景/物品对象；不替 Drafting 或 Validation 写风格评审结论。 |
@@ -73,7 +73,7 @@ flowchart LR
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- 既有 `Cards/1-风格卡/**/*.json`（若存在）
+- 既有 `1-Cards/1-风格卡/**/*.json`（若存在）
 
 ## Thinking-Action Network
 
@@ -90,7 +90,7 @@ flowchart LR
 
 本技能只交付一套正式风格卡 payload：
 
-- `Cards/1-风格卡/**/*.json`
+- `1-Cards/1-风格卡/**/*.json`
 - 可进入索引的 `style_contract_refs`
 - 可被下游消费的 `style_gate`
 

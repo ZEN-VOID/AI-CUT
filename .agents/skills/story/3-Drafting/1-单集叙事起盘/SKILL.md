@@ -16,7 +16,7 @@ governance_tier: lite
 
 本 child 负责：
 
-- 把 `Planning/全息地图.json` 的本集功能债、事件骨架、threads 债务翻译成可读的首轮叙事结构
+- 把 `2-Planning/全息地图.json` 的本集功能债、事件骨架、threads 债务翻译成可读的首轮叙事结构
 - 生成本集第一版完整正文
 - 锁定本集的 scene-by-scene 推进主干
 
@@ -43,7 +43,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 先让本集有完整、可读、可继续加工的叙事底座，而不是直接追求完美文笔。 |
-| `business_object` | `Planning/全息地图.json`、上一集终稿、当前 `第N集.md`。 |
+| `business_object` | `2-Planning/全息地图.json`、上一集终稿、当前 `第N集.md`。 |
 | `constraint_profile` | 必须执行规划义务；必须回应上一集停点；不得提前替后续工序做过度装饰。 |
 | `success_criteria` | 当前集已经是一篇完整可读初稿，能回答“发生了什么、谁在做什么、为什么要继续看”。 |
 | `topology_fit` | `root reread -> board decode -> continuity bridge -> scene chain -> first full draft` |
@@ -51,7 +51,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - `Planning/全息地图.json`
+  - `2-Planning/全息地图.json`
   - 当前 `第N集.md`
   - `写作日志.yaml`
 - 条件必需输入：

@@ -71,7 +71,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `time_anchor_conflicts`、`sequence_breaks`、`duration_conflicts`、`spoiler_risk`
 - `dimension_report_ref`:
-  - `Validation/第N集/时间线.md`
+  - `4-Validation/第N集/时间线.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `2-节奏优化`

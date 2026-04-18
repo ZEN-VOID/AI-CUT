@@ -53,7 +53,7 @@
   - `think-think/templates/think-quadrant-template.md`
 - downstream_consumers:
   - `0-Init/SKILL.md` 的 `Execution Procedure`
-  - `planning interview` 生成的创意缺口 patch
+  - `planning 固定题包直答` 生成的创意缺口 patch
   - `project_contract.creative_mandate / planning_seed / unknowns`
 
 #### 优化模式事实 / 推断分层
@@ -216,7 +216,7 @@
 
 ### Phase 4 路由验收与回接
 
-- 目标：确认上层入口、planning interview 与本模块已形成单一真源链路。
+- 目标：确认上层入口、planning 固定题包直答与本模块已形成单一真源链路。
 - 输入：
   - 更新后的父 `SKILL.md`
   - `0-Init/SKILL.md` 的创意缺口路由段
@@ -241,7 +241,7 @@
   - `unknowns.deferred_to_planning / risk_notes`
 - 上层消费方式：
   - 父 `SKILL.md` 把本模块视为唯一创意 references 入口。
-  - planning interview 与 synthesis 只声明依赖本模块，不再点名内部 leaf docs。
+  - planning 固定题包直答 与 synthesis 只声明依赖本模块，不再点名内部 leaf docs。
 - 若为内容输出型，输出模板/字段骨架：N/A
 - 若为非内容输出型，执行模式/状态推进方式：
   - `判型 -> 最小读取 -> 槽位回写 -> 路由验收`
@@ -269,7 +269,7 @@
 | 分重差异 | 三重是否分别在做判型、缩读和写回，而不是换句话说同一件事 | `判缺口`、`选叶子`、`落槽位` 已明确分层 | PASS |  |  |
 | 字段落盘追踪 | 每一重是否至少能追到一个字段、步骤或槽位 | 已补 `分重字段落盘映射` 表 | PASS |  |  |
 | 落盘扰动测试 | 若移除 `sources_breakdown` 或 `trend_gate`，下游是否会真实变化 | 会直接损伤 provenance 与 L3 趋势门禁 | PASS |  |  |
-| 下游有效性 | 是否能指导父 `SKILL.md`、planning interview 与 handoff 槽位一起收敛 | 上层入口、team 路由依赖、handoff 槽位三处都能回指本模块 | PASS |  |  |
+| 下游有效性 | 是否能指导父 `SKILL.md`、planning 固定题包直答 与 handoff 槽位一起收敛 | 上层入口、team 路由依赖、handoff 槽位三处都能回指本模块 | PASS |  |  |
 
 ### Gate Summary
 
@@ -289,12 +289,12 @@
   - 趋势资料仍是 L3 资料，不会被默认加载。
 - acceptance checklist：
   - [ ] 父 `SKILL.md` 已显式声明何时进入本模块。
-  - [ ] `0-Init` 与 planning interview 都只依赖本模块入口，不再散点点名 leaf references。
+  - [ ] `0-Init` 与 planning 固定题包直答 都只依赖本模块入口，不再散点点名 leaf references。
   - [ ] `planning_seed / creative_mandate / unknowns` 的写回位点明确。
   - [ ] 题材到反套路映射只在本模块维护。
   - [ ] 全仓不再出现活跃 `references/creativity/` 直连路径。
 - fail signal：
-  - 父技能与 interview sidecar 继续各自维护 leaf reference 触发规则。
+  - 父技能与直答 sidecar 继续各自维护 leaf reference 触发规则。
   - 趋势校准在未获用户授权时被默认读取。
   - leaf references 被当成正文资料墙写回 handoff。
 - rework entry：

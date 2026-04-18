@@ -33,9 +33,9 @@ allowed-tools: Read Grep Write Edit Bash Task
 本阶段的单一真源裁决固定为：
 
 - 父层正式 gate truth：
-  - `projects/story/<项目名>/Validation/第N集.validation.json`
+  - `projects/story/<项目名>/4-Validation/第N集.validation.json`
 - 子技能局部证据层：
-  - `projects/story/<项目名>/Validation/第N集/{结构兑现,连续性,逻辑自洽校验,人物一致性,时间线,类型兑现}.md`
+  - `projects/story/<项目名>/4-Validation/第N集/{结构兑现,连续性,逻辑自洽校验,人物一致性,时间线,类型兑现}.md`
 
 一句话裁决：
 
@@ -51,7 +51,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 - `validation_fact_pack` 组装与 covenant gate
 - 六个子技能的并发调度与收束
 - `validation_status / routing_decision / handoff_targets` 唯一判定权
-- `Validation/第N集.validation.json` 正式落盘
+- `4-Validation/第N集.validation.json` 正式落盘
 - issue 级 `rework_targets` 与 `source_trace` 汇总
 - `candidate_final_draft -> validated_final_draft` 的最终放行裁决
 
@@ -103,7 +103,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 用 6 个维度对候选终稿做并发终验，确认它是否真的兑现了 `0-Init / 1-Cards / 2-Planning` 的共同约束与 active `type-pack` 承诺，并形成可被 `review / 5-Loopback` 直接消费的 gate packet。 |
-| `business_object` | `projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`0-Init/*.yaml`、`Cards/0-全局卡/**/*.json`、`Cards/**/*.json`、`Planning/全息地图.json`、`Validation/第N集.validation.json`、6 份维度 MD report。 |
+| `business_object` | `projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、`4-Validation/第N集.validation.json`、6 份维度 MD report。 |
 | `constraint_profile` | 子技能必须并发可跑；正式 gate truth 只能是一份聚合 JSON；缺 slice 必须 `FAIL-COVENANT`；源层冲突不得伪装成 drafting 质量问题；`7-润色` 的通过不等于最终 PASS。 |
 | `success_criteria` | 六个维度都能给出可追溯 verdict；父层只产出一份 aggregate JSON；失败能精确回流到 drafting 节点或 upstream source；通过后能把 `candidate_final_draft` 升格为 `validated_final_draft` 并稳定 handoff 到 `review/` 与 `5-Loopback`。 |
 | `non_goals` | 不在本阶段生成正式审查报告；不做 loopback 写回；不把 6 份局部报告当成平行 canonical truth；不使用旧轮次 validation 包。 |
@@ -126,9 +126,9 @@ allowed-tools: Read Grep Write Edit Bash Task
 11. `../3-Drafting/_shared/drafting-instant-validation-contract.md`
 12. `0-Init/north_star.yaml`
 13. `0-Init/init_handoff.yaml`
-14. `Cards/0-全局卡/**/*.json`
-15. `Cards/**/*.json`
-16. `Planning/全息地图.json`
+14. `1-Cards/0-全局卡/**/*.json`
+15. `1-Cards/**/*.json`
+16. `2-Planning/全息地图.json`
 17. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`
 18. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`
 19. 若 `N > 1`，上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
@@ -149,9 +149,9 @@ allowed-tools: Read Grep Write Edit Bash Task
 - 当前写作日志 `projects/story/<项目名>/3-Drafting/写作日志.yaml`
 - `candidate_final_draft` 状态说明（来自写作日志或 handoff note）
 - `0-Init/north_star.yaml`
-- `Cards/0-全局卡/**/*.json`
-- `Cards/**/*.json`
-- `Planning/全息地图.json`
+- `1-Cards/0-全局卡/**/*.json`
+- `1-Cards/**/*.json`
+- `2-Planning/全息地图.json`
 - 本轮动态生成的 `validation_fact_pack`
 
 ### 条件必需输入
@@ -171,7 +171,7 @@ allowed-tools: Read Grep Write Edit Bash Task
    - 无 `FAIL-COVENANT / FAIL-RUNTIME`
 6. 一旦发现上游 truth 自相矛盾，必须优先走 `back_to_source_contract`，而不是要求 `3-Drafting` 瞎改正文。
 7. 本阶段输入正文默认应已完成 drafting 的 inline hooks；若不是，必须先回到 drafting 完成即时审计，再进入终验。
-8. 世界与规则层 truth 默认优先取自 `Cards/0-全局卡/**/*.json`；若全局卡与 `north_star.yaml.cards` 冲突，应先判定 source owner，而不是直接把矛盾记成正文逻辑错误。
+8. 世界与规则层 truth 默认优先取自 `1-Cards/0-全局卡/**/*.json`；若全局卡与 `north_star.yaml.cards` 冲突，应先判定 source owner，而不是直接把矛盾记成正文逻辑错误。
 
 ## Dispatch Order Contract
 
@@ -224,14 +224,14 @@ allowed-tools: Read Grep Write Edit Bash Task
 ### Canonical runtime
 
 - 聚合 gate packet：
-  - `projects/story/<项目名>/Validation/第N集.validation.json`
+  - `projects/story/<项目名>/4-Validation/第N集.validation.json`
 - 子技能 evidence sidecars：
-  - `projects/story/<项目名>/Validation/第N集/结构兑现.md`
-  - `projects/story/<项目名>/Validation/第N集/连续性.md`
-  - `projects/story/<项目名>/Validation/第N集/逻辑自洽校验.md`
-  - `projects/story/<项目名>/Validation/第N集/人物一致性.md`
-  - `projects/story/<项目名>/Validation/第N集/时间线.md`
-  - `projects/story/<项目名>/Validation/第N集/类型兑现.md`
+  - `projects/story/<项目名>/4-Validation/第N集/结构兑现.md`
+  - `projects/story/<项目名>/4-Validation/第N集/连续性.md`
+  - `projects/story/<项目名>/4-Validation/第N集/逻辑自洽校验.md`
+  - `projects/story/<项目名>/4-Validation/第N集/人物一致性.md`
+  - `projects/story/<项目名>/4-Validation/第N集/时间线.md`
+  - `projects/story/<项目名>/4-Validation/第N集/类型兑现.md`
 
 ### Canonical final output
 
@@ -290,12 +290,12 @@ flowchart TD
 flowchart LR
     A["0-Init"] --> P["validation_fact_pack"]
     B["Cards"] --> P
-    C["Planning/全息地图"] --> P
+    C["2-Planning/全息地图"] --> P
     D["3-Drafting candidate_final_draft"] --> P
     E["写作日志 + 上一集终稿"] --> P
     P --> S["6 个维度子技能并发"]
-    S --> R["Validation/第N集.validation.json"]
-    S --> M["Validation/第N集/*.md"]
+    S --> R["4-Validation/第N集.validation.json"]
+    S --> M["4-Validation/第N集/*.md"]
     R --> V["review/"]
     R --> L["5-Loopback"]
     R --> D2["3-Drafting 对应节点返工"]
@@ -370,7 +370,7 @@ stateDiagram-v2
 
 ## Completion Contract
 
-- 当前轮只产生一份 `Validation/第N集.validation.json`。
+- 当前轮只产生一份 `4-Validation/第N集.validation.json`。
 - 六个子技能都已生成本地 MD sidecar。
 - `validation_status / routing_decision / handoff_targets` 已唯一收束。
 - 若失败，`rework_targets` 已定位到具体 drafting 节点或 upstream source。

@@ -56,7 +56,7 @@ governance_tier: lite
   - 当前 `第N集.md`
   - `写作日志.yaml`
 - 条件必需输入：
-  - `Cards/1-风格卡/**/*.json`
+  - `1-Cards/1-风格卡/**/*.json`
   - `team.yaml`（若项目已锁监制/评审偏好）
 - 硬规则：
   - 润色是终修，不是再起一篇。

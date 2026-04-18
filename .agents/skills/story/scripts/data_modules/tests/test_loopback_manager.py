@@ -36,7 +36,7 @@ def _build_project(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "Planning" / "全息地图.json",
+        project_root / "2-Planning" / "全息地图.json",
         {
             "schema_version": "story2026/holomap/v1",
             "content": {
@@ -57,7 +57,7 @@ def _build_project(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "Cards" / "2-角色卡" / "主要角色" / "林辰.json",
+        project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json",
         {
             "core": {"name": "林辰"},
             "current_state": {"realm": "炼气", "stance": "中立"},
@@ -98,7 +98,7 @@ def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "正文/第0012章.md",
+            "3-Drafting/第12集.md",
         ],
     )
 
@@ -106,7 +106,7 @@ def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
 
 
 def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeypatch):
@@ -121,7 +121,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_only",
             "handoff_targets": ["review/"],
-            "validation_ref": "Validation/第12章审查报告.md",
+            "validation_ref": "4-Validation/第12集.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -142,7 +142,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "正文/第0012章.md",
+            "3-Drafting/第12集.md",
         ],
     )
 
@@ -150,7 +150,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
 
 
 def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monkeypatch):
@@ -165,7 +165,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "Validation/第12章审查报告.md",
+            "validation_ref": "4-Validation/第12集.validation.json",
             "governance_refs": {
                 "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
                 "artifact_manifest_ref": "STATE.json#workflow_runtime.governance_index.run-12.artifact_manifest",
@@ -173,7 +173,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             },
             "card_deltas": [
                 {
-                    "target_ref": "Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {
                         "realm": "筑基",
@@ -181,11 +181,11 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                     },
                     "history_append": {
                         "episode_ref": "第12集",
-                        "validation_ref": "Validation/第12章审查报告.md",
+                        "validation_ref": "4-Validation/第12集.validation.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
-                        "evidence_refs": ["正文/第0012章-破境.md"],
+                        "evidence_refs": ["3-Drafting/第12集.md"],
                         "timestamp": "2026-04-06T10:00:00",
                     },
                 }
@@ -199,10 +199,10 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                         "episode_ref": "第12集",
                         "execution_status": "completed",
                         "validated_at": "2026-04-06T10:00:00",
-                        "manuscript_ref": "正文/第0012章-破境.md",
-                        "validation_ref": "Validation/第12章审查报告.md",
+                        "manuscript_ref": "3-Drafting/第12集.md",
+                        "validation_ref": "4-Validation/第12集.validation.json",
                         "actual_outcome_summary": "本集完成破境并公开立场。",
-                        "carry_forward_refs": ["Cards/2-角色卡/主要角色/林辰.json"],
+                        "carry_forward_refs": ["1-Cards/2-角色卡/主要角色/林辰.json"],
                     },
                 }
             ],
@@ -222,10 +222,10 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                 },
             ],
             "evidence_refs": [
-                {"ref_type": "manuscript", "ref_path": "正文/第0012章-破境.md", "note": "正文真源"},
+                {"ref_type": "manuscript", "ref_path": "3-Drafting/第12集.md", "note": "正文真源"},
                 {
                     "ref_type": "validation_packet",
-                    "ref_path": "Validation/第12章审查报告.md",
+                    "ref_path": "4-Validation/第12集.validation.json",
                     "note": "验证报告",
                 },
             ],
@@ -245,7 +245,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "正文/第0012章-破境.md",
+            "3-Drafting/第12集.md",
         ],
     )
 
@@ -254,27 +254,27 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
 
     assert int(exc.value.code or 0) == 0
 
-    artifact_path = project_root / "Loopback" / "第12集.loopback.json"
+    artifact_path = project_root / "5-Loopback" / "第12集.loopback.json"
     assert artifact_path.is_file()
 
     artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert artifact["inputs"]["validation_status"] == "PASS"
     assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_loopback"
     assert artifact["inputs"]["handoff_targets"] == ["review/", "5-Loopback"]
-    assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["Cards/2-角色卡/主要角色/林辰.json"]
+    assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["1-Cards/2-角色卡/主要角色/林辰.json"]
     assert artifact["content"]["writeback_summary"]["written_map_refs"] == ["episode_nodes:episode-12"]
     assert artifact["execution_notes"]["governance_refs"]["mission_brief_ref"] == (
         "STATE.json#workflow_runtime.governance_index.run-12.mission_brief"
     )
 
-    card = json.loads((project_root / "Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     assert card["current_state"]["realm"] == "筑基"
     assert card["current_state"]["stance"] == "结盟"
     assert card["history"][-1]["episode_ref"] == "第12集"
-    assert card["history"][-1]["loopback_ref"] == "Loopback/第12集.loopback.json"
+    assert card["history"][-1]["loopback_ref"] == "5-Loopback/第12集.loopback.json"
 
     holomap = json.loads(
-        (project_root / "Planning" / "全息地图.json").read_text(encoding="utf-8")
+        (project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8")
     )
     actual_nodes = holomap["content"]["holomap"]["actualization"]["episode_nodes"]
     assert actual_nodes[0]["episode_ref"] == "第12集"

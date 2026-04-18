@@ -73,7 +73,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `type_pack_enabled`、`active_packs`、`required_hooks`、`drafting_required_hooks`、`hard_fail_signals`
 - `dimension_report_ref`:
-  - `Validation/第N集/类型兑现.md`
+  - `4-Validation/第N集/类型兑现.md`
 - 默认返工节点：
   - `2-节奏优化`
   - `5-对白个性化和声口优化`

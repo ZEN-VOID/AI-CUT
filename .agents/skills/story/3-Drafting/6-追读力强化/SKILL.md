@@ -62,7 +62,7 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `Planning/全息地图.json`
+  - `2-Planning/全息地图.json`
   - `写作日志.yaml`
 - 可选增强输入：
   - `reader signal`

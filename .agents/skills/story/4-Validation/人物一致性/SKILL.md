@@ -70,7 +70,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `severe_ooc`、`motivation_breaks`、`speech_violations`、`relationship_pressure_drops`
 - `dimension_report_ref`:
-  - `Validation/第N集/人物一致性.md`
+  - `4-Validation/第N集/人物一致性.md`
 - 默认返工节点：
   - `4-角色形象刻画`
   - `5-对白个性化和声口优化`

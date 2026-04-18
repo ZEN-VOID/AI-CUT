@@ -46,7 +46,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系。 |
-| `business_object` | `Cards/2-角色卡/**/*.json`、`Cards/2-角色卡/角色索引.json`、`Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
+| `business_object` | `1-Cards/2-角色卡/**/*.json`、`1-Cards/2-角色卡/角色索引.json`、`1-Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
 | `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单集临时卡。 |
 | `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
 | `non_goals` | 不替场景卡写空间规则，不替物品卡写代价。 |
@@ -91,9 +91,9 @@ flowchart LR
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
 - `references/character-shaping-bridge.md`
-- 既有 `Cards/2-角色卡/**/*.json`（若存在）
-- 既有 `Cards/2-角色卡/角色索引.json`（若存在）
-- 既有 `Cards/2-角色卡/角色关系图谱.md`（若存在）
+- 既有 `1-Cards/2-角色卡/**/*.json`（若存在）
+- 既有 `1-Cards/2-角色卡/角色索引.json`（若存在）
+- 既有 `1-Cards/2-角色卡/角色关系图谱.md`（若存在）
 - mixed/full-build 时的父层路由结论
 
 ## Thinking-Action Network
@@ -125,12 +125,12 @@ flowchart LR
 
 本技能只交付一套正式角色卡 payload 与一个正式图谱 side output：
 
-- `Cards/2-角色卡/主要角色/*.json`
-- `Cards/2-角色卡/反派角色/*.json`
-- `Cards/2-角色卡/次要角色/*.json`
-- `Cards/2-角色卡/群像角色/*.json`
-- `Cards/2-角色卡/角色索引.json`
-- `Cards/2-角色卡/角色关系图谱.md`
+- `1-Cards/2-角色卡/主要角色/*.json`
+- `1-Cards/2-角色卡/反派角色/*.json`
+- `1-Cards/2-角色卡/次要角色/*.json`
+- `1-Cards/2-角色卡/群像角色/*.json`
+- `1-Cards/2-角色卡/角色索引.json`
+- `1-Cards/2-角色卡/角色关系图谱.md`
 - 可进入索引的 `relationship_edges`
 - 可被物品卡消费的 `exclusive_item_hooks`
 

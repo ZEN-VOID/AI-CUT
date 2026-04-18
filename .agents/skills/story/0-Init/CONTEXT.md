@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | 初始化技能路径仍指向旧插件目录 | skill contract | 改为 repo-local `story2026` 路径约定 | 在技能文档内固定 `REPO_ROOT/.agents/skills/story` | 预检命令可解析 `SCRIPTS_DIR` |
 | 初始化仍沿用问卷调查或旧三模式入口 | mode contract | 把入口收口到单一 `team代入模式 -> 自动组队 / 自定义组队` | 在 `0-Init/SKILL.md` 删除问卷/快速/顾问团平行模式，只保留 `team_lineup_mode` 分支 | 全文与脚本不再出现 active `快速模式 / 自主模式 / 顾问团模式` 执行真源 |
-| 初始化完成后没有稳定交给 Cards 层 | stage handoff contract | 在 `0-Init` 明确写入 `Cards Handoff Contract` | 固化 `访谈 -> north_star.cards -> 角色卡 -> 场景卡 -> 物品卡` 的顺序与加载边界 | `1-Cards` 能只凭初始化简报顺序建卡 |
+| 初始化完成后没有稳定交给 Cards 层 | stage handoff contract | 在 `0-Init` 明确写入 `Cards Handoff Contract` | 固化 `固定题包直答 -> north_star.cards -> 角色卡 -> 场景卡 -> 物品卡` 的顺序与加载边界 | `1-Cards` 能只凭初始化简报顺序建卡 |
 | 题材资料出现 `templates/genres` 与 `story2026/genres` 双根并存 | genre asset governance | 将旧分片并入 `templates/genres/details/` 并删除平行根目录 | 在 `0-Init` 固化 `templates/genres/` 为唯一 canonical 根，并用 README 记录入口模板与 detail pack 映射 | 全仓检索不存在 `.agents/skills/story/genres` 活跃路径 |
 | `0-Init/references/` 仍残留题材套路私有副本，和共享 `templates/genres/` 职责重叠 | genre asset governance | 将套路内容拆并进对应题材模板，并删除 `genre-tropes.md` | 在 `0-Init` 固化 L1 只读 `templates/genres/README.md`，具体题材工法统一从共享根目录按需读取 | 全仓检索不再出现 `0-Init/references/genre-tropes.md` 与其活跃引用 |
 | `0-Init/references/worldbuilding/` 继续承载跨阶段世界构建工法，和 `1-Cards` 对象层职责混线 | worldbuilding asset governance | 将人物/势力/力量体系/世界规则/一致性检查迁入 `templates/worldbuilding/` 并删除旧私有副本 | 在 `0-Init` 固化 worldbuilding 只从共享 `templates/worldbuilding/` 根目录按需读取 | 全仓检索不再出现活跃 `0-Init/references/worldbuilding/*.md` 引用 |
@@ -27,13 +27,16 @@
 | `team.yaml` 被并行镜像或 fallback 路径稀释 | team governance contract | 将初始化元数据统一写入 `team.yaml` 单文件 | 在 `SKILL.md`、`init_project.py`、测试与下游 stage 合同中同步固化“只读 team.yaml” | 初始化后 `team.yaml` 能表达 `init_mode / team_lineup_mode / selector_scope_root / roles.*` |
 | 初始化阶段被错误压缩成单主文件，导致故事源登记与阶段 handoff 丢边界 | stage handoff contract | 固化五件套：`team.yaml + STATE.json + 0-Init/north_star.yaml + story-source-manifest.yaml + init_handoff.yaml` | 在 `0-Init`、下游 stage 合同、脚本和测试中同时固定五文件分工 | `1-Cards / 2-Planning / resume` 读取边界一致，不再互相挤占 |
 | 初始化元信息未同步写入 `STATE.json / north_star.yaml / init_handoff.yaml / team.yaml` | handoff metadata contract | 在 `init_project.py` 与 `0-Init` 合同中同步写入 `init_mode / team_lineup_mode / selector_scope_root / advisor_agents(legacy)` | 让 `north_star.yaml`、`init_handoff.yaml`、`STATE.json` 与 `team.yaml` 共用同一份初始化 provenance | 初始化完成后可追溯这本书是 `team代入模式` 下的 `auto/custom` 哪条子路径起盘 |
-| `planning` 顾问团未成为初始化 kickoff owner | planning interview topology | 明确 `roles.planning.members` 必须先执行 interview，再允许综合 `north_star` | 在 `0-Init/SKILL.md` 固化 `team -> planning interview -> synthesis` 顺序 | 初始化不会再先写 handoff 再补 interview 说明 |
+| `decision_owner=assistant` 时，`init_handoff.sources_breakdown` 仍把大量代填字段默认记成 `user_confirmed` | provenance attribution contract | 将 `init_project.py` 的默认归桶改为依据 `decision_owner` 选择 `assistant_inferred` 或 `user_confirmed`，并让内部 `confirmation` 明细跟随 `sources_breakdown` 分层 | 以后只要 assistant 代填初始化字段，未显式声明来源的剩余非空字段就默认落 `assistant_inferred`，不再污染 `user_confirmed` provenance | assistant 主导初始化时，`project.title` 等少数显式用户字段仍留在 `user_confirmed`，其余种子字段进入 `assistant_inferred` |
+| `planning` 顾问团未成为初始化 kickoff owner | planning 固定题包直答 topology | 明确 `roles.planning.members` 必须先执行固定题包直答，再允许综合 `north_star` | 在 `0-Init/SKILL.md` 固化 `team -> planning 固定题包直答 -> synthesis` 顺序 | 初始化不会再先写 handoff 再补直答说明 |
 | 初始化元选项在多个章节重复出现，执行者容易在不同位置读到不同入口定义 | mode entry contract | 将入口收口到单一 `team代入模式 + 自动/自定义组队` 元选项卡 | 其他章节只允许引用该入口，不得再次枚举模式分支 | 全文检索只保留一个正式展示位 |
-| `0-Init` 合同升级后，脚本 stdout 与测试入口仍保留旧式默认认知 | init/script/test drift | 将 `init_project.py` 的终端输出分成 primary 与 optional seed/legacy-compat 两组，并在 tests 加统一 `conftest.py` 注入 scripts 路径 | 每次升级 `0-Init` 合同时，同时审计 CLI 输出、测试入口与全量 pytest 执行路径，而不是只看 handoff JSON | 从仓库根执行 `pytest .agents/skills/story/scripts/data_modules/tests` 可完成收集并进入真实断言阶段 |
+| `0-Init` 合同升级后，脚本 stdout 与测试入口仍保留旧式默认认知，甚至把未生成的 `2-Planning/全息地图.json` 列成 primary file | init/script/test drift | 将 `init_project.py` 的终端输出限制为真实已生成文件，并显式提示 `2-Planning/全息地图.json` 应由 `/story-plan` 生成；同时在 tests 固化 stdout 断言 | 每次升级 `0-Init` 合同时，同时审计 CLI 输出、测试入口与全量 pytest 执行路径，而不是只看 handoff JSON | 从仓库根执行 `pytest .agents/skills/story/scripts/data_modules/tests/test_init_project.py` 可验证 stdout 与真实落盘保持一致 |
 | CLI 测试 fixture 只建目录不建 `STATE.json`，与严格 `project_root` 契约冲突 | project locator / test fixture drift | 统一用测试基座补写最小 `STATE.json`，让 `--project-root` 真正满足 `resolve_project_root()` 的合法条件 | 任何 CLI 测试若显式传 `--project-root`，都必须通过共享 helper 构造合法项目根，而不是各测例手搓半成品目录 | 全量 pytest 不再因 `Not a webnovel project root` 这类 fixture 失配而成片失败 |
-| 初始化合同已经要求 legacy `总纲.md` 带初始化快照，但脚本生成的骨架缺字段或标签名漂移 | init artifact drift | 同步修正 `_build_master_outline()` 与快照注入逻辑 | 把 legacy 总纲快照纳入正式 contract regression test | 初始化后 `Planning/legacy/总纲.md` 与 handoff 合同字段保持一致 |
+| 用户已明确新项目不需要 `2-Planning/legacy/`，但初始化脚本仍默认生成 `总纲.md / 爽点规划.md` | init artifact scope drift | 从 `init_project.py` 移除 legacy planning 骨架默认生成，并把 stdout/test 断言切到阶段目录骨架 | 以后凡初始化交付清单未列出的 planning sidecar，一律不得默认落盘；legacy 只允许由旧项目迁移或显式补建产生 | 新项目初始化后不存在 `2-Planning/legacy/` |
 | 用户级口径已改成五件套，但脚本或文档仍继续落旧 Init companion 文件 | init artifact contract drift | 删除旧 `Init/*` JSON/MD 默认落盘，并把测试改成断言五件套路径 | 以后升级 `0-Init` 时，凡正式交付清单未列出的 Init 文件，一律在脚本与测试双层禁止默认生成 | 新项目只保留 `0-Init/*.yaml` 三件套 |
 | 初始化信息重新被压回“north_star 单主文件”，导致五件套边界失效 | init primary-artifact drift | 把长期约束、故事源登记、阶段入口种子重新分回 `north_star.yaml / story-source-manifest.yaml / init_handoff.yaml` | 以后调整 init handoff 时，必须同时审计脚本写入路径、测试断言、`0-Init/1-Cards/2-Planning/3-Drafting` 契约 | 新项目五件套边界稳定，不再回退到单文件大杂烩 |
+| 重跑初始化后 `STATE.json / north_star.yaml / init_handoff.yaml` 已更新，但 `team.yaml` 仍停在旧 skeleton | team manifest reinit drift | 将 `team.yaml` 从 `_write_text_if_missing(...)` 改为覆盖写入，并补一条 re-init 回归测试 | 以后凡初始化真源支持重跑，都必须把 `team.yaml` 纳入同一覆盖写回批次，避免项目级唯一 team 真源滞后于其余工件 | 对同一项目连跑两次初始化后，`team.yaml` 中的 `team_lineup_mode / roles.*.members / decision_owner` 与 `STATE.json`、`init_handoff.yaml` 保持一致 |
+| 初始化项目骨架仍停留在旧 runtime：生成 `Drafting/`、`正文/`、无序号阶段目录、`.env.example`、`.webnovel`，还顺手建项目内 `.git` | runtime skeleton contract | 按根 `story/SKILL.md` 的 canonical runtime root 改写 `init_project.py`，只预建 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation / 5-Loopback` 与当前 cards 子树，并补回归测试 | 以后凡阶段路径或 cards 子树发生 canonical 迁移，必须同步审计 `init_project.py` 的 `directories` 骨架、默认 sidecar 与“自动 git 初始化”副作用，防止新项目继续落旧版结构 | 新项目初始化后不再出现 `Drafting/`、`正文/`、`1-Cards/其他设定/`、`.env.example`、`.webnovel/`、项目内 `.git/`，且存在 `1-Cards/1-风格卡/总风格/`、`2-Planning/`、`4-Validation/` 与 `5-Loopback/` |
 | 用户级 registry 与全局 `.env` 仍停留在 `~/.claude/webnovel-writer/`，而用户层命令已切到 `story-*` | shared script compatibility layer | 改成 `~/.claude/story2026/` 新路径优先读写，旧路径双读兼容并自动迁移 | 在 `project_locator.py` 与 `data_modules/config.py` 固化“新路径优先、旧路径兼容、命中旧路径即 best-effort 迁移”的共享策略，并用测试锁住 | 旧用户目录不丢配置，新目录能自动接管后续写入 |
 
 ## Reusable Heuristics
@@ -41,19 +44,20 @@
 - 初始化阶段先保证路径、脚本入口和模板入口都在本仓库内闭合，再继续扩展交互深度。
 - 用户一旦给出自由叙述，优先做信息归并和缺口标记，而不是要求对方重填整份表。
 - 对当前 `0-Init`，最稳的入口不是再造交互模式，而是固定 `team代入模式`，只让用户决定 `自动组队 / 自定义组队`。
-- 初始化真正的下游不是“停在 Markdown 总结”，而是把结构化访谈结果交给 `1-Cards` 做整书卡片建模。
+- 初始化真正的下游不是“停在 Markdown 总结”，而是把结构化直答结果交给 `1-Cards` 做整书卡片建模。
 - 对当前 `0-Init`，最稳的初始化骨架不是单一主文件，而是五件套：`team.yaml + STATE.json + north_star.yaml + story-source-manifest.yaml + init_handoff.yaml`。
-- 初始化阶段最多只产出 legacy 兼容骨架，不产出规划真源；正式规划入口必须留给 `2-Planning` 收敛出的 `Planning/全息地图.json`。
+- 初始化阶段最多只产出 legacy 兼容骨架，不产出规划真源；正式规划入口必须留给 `2-Planning` 收敛出的 `2-Planning/全息地图.json`。
 - 题材资产允许“入口模板 + 细粒度分片”两层形态，但必须共存于 `templates/genres/` 一个根目录下，不能再拆成第二套平行路径。
 - 如果某份题材知识同时服务初始化与规划，就应优先提升到 `templates/genres/`，不要在 stage 私有 `references/` 之间横向调拨。
 - 如果某份人物/势力/力量/规则知识同时服务初始化与对象建卡，就应优先提升到 `templates/worldbuilding/`，不要继续挂在 `0-Init` 私有目录。
-- 如果一组创意资料会被父技能与 team interview 共享消费，就不该让多个入口散点点名 leaf docs，而应先升格成 `references/<module-name>/module-spec.md + CONTEXT.md` 统一路由。
+- 如果一组创意资料会被父技能与 team 固定题包直答共享消费，就不该让多个入口散点点名 leaf docs，而应先升格成 `references/<module-name>/module-spec.md + CONTEXT.md` 统一路由。
 - 当用户提供旧项目的 `preset`、`1-设定` 卡和 `2-规划` 包时，初始化最稳的做法不是整包照搬，而是提炼“故事核 + 风格锚点 + 角色压力结构”后写回当前项目真源。
 - `data_modules/webnovel.py` 适合被其他入口转发，不适合直接当命令入口执行；初始化脚本优先使用 `scripts/story.py init`。
-- 单模式初始化最稳的落地顺序是：先锁 `team_lineup_mode`，再锁 `team.yaml`，随后先做 `planning interview`，最后综合 `project_contract / cards_seed / planning_seed / unknowns`。
+- 单模式初始化最稳的落地顺序是：先锁 `team_lineup_mode`，再锁 `team.yaml`，随后先做 `planning 固定题包直答`，最后综合 `project_contract / cards_seed / planning_seed / unknowns`。
 - 初始化元选项卡必须只有一个正式展示位；Quick Reference、执行流程和参考目录只能引用它，不能再复制第二入口。
 - 对 `0-Init` 这类 governed module，`think-think` 执行完成的最低证据是：目标模块内看得到优化模式矩阵，且同目录 `reports/` 下有正式思维链设计报告；两者缺一，都只能算“参考了方法”。
-- team 代入模式的价值不在“顾问更像角色扮演”，而在把稳定立场转成 `planning interview` 可吸收的 patch；因此必须保留来源分层，而不是只给一段混合结论。
+- team 代入模式的价值不在“顾问更像角色扮演”，而在把稳定立场转成 `planning 固定题包直答` 可吸收的 patch；因此必须保留来源分层，而不是只给一段混合结论。
+- 当 `decision_owner=assistant` 且用户只明确给了少数字段时，初始化 provenance 的默认桶应切到 `assistant_inferred`；否则脚本只要收到了代填参数，就会把助手推断误记成用户确认。
 - 当前结构下，初始化最重要的不是“问得多”，而是“路由对”：哪些东西现在就该定，哪些东西应该明确留给 `1-Cards / 2-Planning` 收敛。
 - 如果 `1-Cards` 子技能开始把 `planning_seed` 当对象真源读，说明 handoff slice 还没写清；应回修每张子卡的输入优先级，而不是继续扩大初始化问卷。
 - 当用户不想再保留“全局卡/全局总览”这个中间层时，最稳的落点不是再造新卡，而是把长期对象总规范直接并入 `north_star.yaml.cards`。

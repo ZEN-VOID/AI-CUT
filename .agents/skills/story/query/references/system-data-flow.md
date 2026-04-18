@@ -13,17 +13,16 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 ```
 项目根目录/
-├── 正文/           # 正文章节文件（第0001章.md 或 第1卷/第001章-标题.md）
-├── Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
-├── Planning/
+├── 2-Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
+├── 2-Planning/
 │   └── 全息地图.json      # 规划真源（drafting/query/resume 默认先读）
 ├── 0-Init/
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
-├── Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
+├── 1-Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
 ├── 3-Drafting/           # drafting 阶段正文真源（第N集.md + 写作日志.yaml）
-├── Loopback/
+├── 5-Loopback/
 │   └── 第N集.loopback.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
 └── .webnovel/
@@ -32,6 +31,10 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
     ├── summaries/          # 章节摘要（chNNNN.md）
     └── archive/            # 归档数据（不活跃角色/已回收伏笔）
 ```
+
+说明：
+- `3-Drafting/` 是当前唯一正文真源目录。
+- `正文/` 仅作为旧项目兼容回退，不再属于新项目 runtime 骨架，也不应在默认查询路径中当作现行结构展示。
 
 ## 架构变更说明
 
@@ -81,7 +84,7 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
   → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
 2-Planning
-  → 1-7 planning child skills progressive commit 到 `Planning/全息地图.json`
+  → 1-7 planning child skills progressive commit 到 `2-Planning/全息地图.json`
 
 3-Drafting
   → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
@@ -135,7 +138,7 @@ query / resume
 
 ```
 1. Context Agent 组装创作任务书
-   → 先读取 `Planning/全息地图.json`（规划真源）
+   → 先读取 `2-Planning/全息地图.json`（规划真源）
    → 读取 `STATE.json`（精简版：进度/配置）
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
@@ -157,7 +160,7 @@ query / resume
 4. 隔离终验
    → `4-Validation` 组装 `validation_fact_pack`
    → 并发 5 个维度子技能
-   → 聚合为 `Validation/第N集.validation.json`
+   → 聚合为 `4-Validation/第N集.validation.json`
 
 5. review / 审查落盘
    → `review/` 生成业务报告
@@ -176,7 +179,7 @@ query / resume
 7. 通过 `5-Loopback` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
    → 写 `content.holomap.actualization`
-   → 写 `Loopback/第N集.loopback.json`
+   → 写 `5-Loopback/第N集.loopback.json`
    → 刷新 query / writer / planning projection
 
 8. 如需清理中断工件，由 `workflow_manager.py cleanup` 生成恢复备份后再执行安全清理
@@ -186,22 +189,22 @@ query / resume
 
 ## 规划真源优先级
 
-1. `Planning/全息地图.json`
-2. `Cards/**/*.json`
+1. `2-Planning/全息地图.json`
+2. `1-Cards/**/*.json`
 3. `STATE.json`
-4. `Planning/legacy/`（仅 legacy fallback）
+4. `2-Planning/legacy/`（仅 legacy fallback）
 
 说明：
 - 涉及章节编排、任务、线索、伏笔、冲突落点的问题，默认先查 `全息地图.json`。
-- `Planning/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
+- `2-Planning/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
 
 ## Query Truth Layers（查询时必须区分）
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `Planning/全息地图.json` | 只回答 planned，不代表已发生 |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` | 只回答 planned，不代表已发生 |
 | drafting truth | 当前集正文写成什么样、已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
-| object truth | 对象长期定义、当前默认状态、历史变化 | `Cards/**/*.json` | 优先区分 `core / current_state / history` |
+| object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |

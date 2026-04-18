@@ -347,6 +347,7 @@ def atomic_write_json(
     data: Dict[str, Any],
     *,
     use_lock: bool = True,
+    cleanup_empty_lock_on_release: bool = False,
     backup: bool = True,
     indent: int = 2
 ) -> None:
@@ -365,6 +366,7 @@ def atomic_write_json(
         file_path: 目标文件路径
         data: 要写入的字典数据
         use_lock: 是否使用文件锁（需要 filelock 库）
+        cleanup_empty_lock_on_release: 释放锁后是否清理空 `.lock` 文件
         backup: 是否在写入前备份原文件
         indent: JSON 缩进（默认 2）
 
@@ -430,6 +432,12 @@ def atomic_write_json(
         finally:
             if lock is not None:
                 lock.release()
+                if cleanup_empty_lock_on_release:
+                    try:
+                        if lock_path.exists() and lock_path.stat().st_size == 0:
+                            lock_path.unlink()
+                    except OSError:
+                        pass
 
     except Exception as e:
         raise AtomicWriteError(f"原子写入失败: {e}")

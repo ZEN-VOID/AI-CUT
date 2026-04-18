@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -28,7 +27,7 @@ from typing import Any, Dict, List
 import re
 
 # 安全修复：导入安全工具函数
-from security_utils import sanitize_commit_message, atomic_write_json, is_git_available
+from security_utils import atomic_write_json
 from project_locator import write_current_project_pointer
 from data_modules.type_pack_resolver import infer_type_stack
 
@@ -82,6 +81,11 @@ def _write_text_if_missing(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         return
+    path.write_text(content, encoding="utf-8")
+
+
+def _write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
 
 
@@ -547,7 +551,7 @@ def _build_master_outline(target_chapters: int, *, chapters_per_volume: int = 50
     lines: list[str] = [
         "# 总纲",
         "",
-        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 Planning/全息地图.json。",
+        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-Planning/全息地图.json。",
         "",
         "## 卷结构",
         "",
@@ -600,7 +604,7 @@ def _prepend_init_seed_notice(content: str) -> str:
     notice = "\n".join(
         [
             "> 说明：本文件是 `0-Init` 阶段生成的 seed / legacy-compat 材料，不是项目 canonical 真源。",
-            "> 正式真源统一以 `Cards/**/*.json` 为准；后续阶段禁止继续人工维护本文件，除非做一次性迁移。",
+            "> 正式真源统一以 `1-Cards/**/*.json` 为准；后续阶段禁止继续人工维护本文件，除非做一次性迁移。",
             "",
         ]
     )
@@ -909,16 +913,29 @@ def _collect_nonempty_field_paths(payload: Dict[str, Any]) -> List[str]:
     return _unique_preserve_order(ordered_paths)
 
 
+def _collect_nonempty_field_values(payload: Dict[str, Any]) -> Dict[str, Any]:
+    values: Dict[str, Any] = {}
+    for section in ("project", "protagonist", "relationship", "golden_finger", "world", "constraints"):
+        section_values = payload.get(section, {})
+        if not isinstance(section_values, dict):
+            continue
+        for key, value in section_values.items():
+            if value not in ("", [], {}, None):
+                values[f"{section}.{key}"] = value
+    return values
+
+
 def _build_sources_breakdown(
     payload: Dict[str, Any],
     *,
     normalized_mode: str,
+    decision_owner: str,
     user_confirmed_fields: str,
     council_advised_fields: str,
     assistant_inferred_fields: str,
 ) -> Dict[str, List[str]]:
     all_fields = _collect_nonempty_field_paths(payload)
-    default_bucket = "user_confirmed"
+    default_bucket = "assistant_inferred" if decision_owner == "assistant" else "user_confirmed"
     breakdown = {
         "user_confirmed": [field for field in _normalize_field_paths(user_confirmed_fields) if field in all_fields],
         "council_advised": [field for field in _normalize_field_paths(council_advised_fields) if field in all_fields],
@@ -945,6 +962,17 @@ def _build_sources_breakdown(
     breakdown[default_bucket].extend(field for field in all_fields if field not in assigned)
     breakdown[default_bucket] = _unique_preserve_order(breakdown[default_bucket])
     return breakdown
+
+
+def _group_confirmation_fields(payload: Dict[str, Any], field_paths: List[str]) -> Dict[str, Dict[str, Any]]:
+    field_values = _collect_nonempty_field_values(payload)
+    grouped: Dict[str, Dict[str, Any]] = {}
+    for field_path in field_paths:
+        section, _, key = field_path.partition(".")
+        if not section or not key or field_path not in field_values:
+            continue
+        grouped.setdefault(section, {})[key] = field_values[field_path]
+    return grouped
 
 
 def _build_init_handoff_payload(
@@ -1107,7 +1135,7 @@ def _build_init_handoff_payload(
             "source_stage": "0-Init",
             "generated_at": now_iso,
             "canonical_consumer": "1-Cards",
-            "canonical_truth": "Cards/**/*.json",
+            "canonical_truth": "1-Cards/**/*.json",
             "seed_policy": "新项目默认不生成额外 Init seed 文档；若历史项目存在旧 Init/*.md，仅视为 legacy-compat，不得持续维护",
             "contract_model": "project_contract + cards_seed + planning_seed + unknowns",
         },
@@ -1249,19 +1277,21 @@ def _build_init_handoff_payload(
         if field.startswith(("project.", "constraints.", "golden_finger."))
     ]
 
-    user_confirmed: Dict[str, Dict[str, Any]] = {}
-    for section in ("project", "protagonist", "relationship", "golden_finger", "world", "constraints"):
-        section_values = payload[section]
-        confirmed = {key: value for key, value in section_values.items() if value not in ("", [], {}, None)}
-        if confirmed:
-            user_confirmed[section] = confirmed
-    payload["confirmation"]["user_confirmed"] = user_confirmed
     payload["sources_breakdown"] = _build_sources_breakdown(
         payload,
         normalized_mode=normalized_mode,
+        decision_owner=normalized_decision_owner,
         user_confirmed_fields=user_confirmed_fields,
         council_advised_fields=council_advised_fields,
         assistant_inferred_fields=assistant_inferred_fields,
+    )
+    payload["confirmation"]["user_confirmed"] = _group_confirmation_fields(
+        payload,
+        payload["sources_breakdown"]["user_confirmed"],
+    )
+    payload["confirmation"]["assistant_inferred"] = _group_confirmation_fields(
+        payload,
+        payload["sources_breakdown"]["assistant_inferred"],
     )
     return payload
 
@@ -1286,7 +1316,7 @@ def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
         "sources_breakdown": payload["sources_breakdown"],
         "risk_notes": [
             "当前未绑定正式故事主源，planning 只能按 seed-first 模式推进。",
-            "初始化 interview 的结论已折叠进 seeds；后续若补入正式故事源，应先回刷 `0-Init` 三文件。",
+            "初始化固定题包直答的结论已折叠进 seeds；后续若补入正式故事源，应先回刷 `0-Init` 三文件。",
         ],
         "init_session": {
             "mode": init_session["mode"],
@@ -1324,7 +1354,7 @@ def _render_init_readme() -> str:
                 "- 项目根目录的 `CHANGELOG.md`：项目级变更记录入口。",
                 "- 新项目默认不再生成额外 `Init/*.md` seed 文档或并行 init companion 文件。",
                 "- 原“全局卡/全局总览”概念已废弃；长期总规范统一归入 `north_star.yaml.cards`。",
-                "- 一旦 `1-Cards` 完成建卡，人物、场景、物品的正式真源统一以 `Cards/**/*.json` 为准。",
+                "- 一旦 `1-Cards` 完成建卡，人物、场景、物品的正式真源统一以 `1-Cards/**/*.json` 为准。",
                 "",
             ]
         )
@@ -1373,8 +1403,8 @@ def _build_project_state_manifest(
         "truth_layers": {
             "project_entry": str(PROJECT_STATE_MANIFEST_REL),
             "runtime_snapshot": str(RUNTIME_STATE_REL),
-            "object_truth": "Cards/**/*.json",
-            "planning_truth": "Planning/全息地图.json",
+            "object_truth": "1-Cards/**/*.json",
+            "planning_truth": "2-Planning/全息地图.json",
         },
     }
 
@@ -1423,7 +1453,7 @@ def _render_team_manifest_yaml(
     if team_lineup_mode == "auto":
         auto_notes = [
             "默认由 0-Init 根据题材与故事核从 .agents/skills/team/ 里自动挑选代入顾问。",
-            "当前脚本只负责写入初始化真源；实际自动选人与 interview 调度由 0-Init 主技能执行。",
+            "当前脚本只负责写入初始化真源；实际自动选人与固定题包直答调度由 0-Init 主技能执行。",
         ]
     else:
         custom_notes = [
@@ -1479,10 +1509,10 @@ def _render_team_manifest_yaml(
                 f"    enabled: {_yaml_bool(bool(role['members']))}",
                 f"    members: {_yaml_inline_list(role['members'])}",
                 f"    governs: {_yaml_inline_list(role['governs'])}",
-                "    init_interview:",
+                "    init_execution:",
                 f"      kickoff_owner: {_yaml_bool(kickoff_owner)}",
                 f"      requires_subagents: {_yaml_bool(requires_subagents)}",
-                f"      execution_mode: {_yaml_quote('parallel-council' if kickoff_owner else 'on_demand')}",
+                f"      execution_mode: {_yaml_quote('direct-answer-packet' if kickoff_owner else 'on_demand')}",
                 f"    source_skill_refs: {_yaml_inline_list(role.get('source_skill_refs', []))}",
             ]
         )
@@ -1492,15 +1522,15 @@ def _render_team_manifest_yaml(
             "",
             "runtime_policy:",
             f"  use_subagents_by_default: {_yaml_bool(True)}",
-            f"  require_subagents_for_init_interview: {_yaml_bool(True)}",
-            f"  init_interview_owner_role: {_yaml_quote('planning')}",
-            f"  init_interview_subagents_policy: {_yaml_quote('required')}",
-            f"  fallback_when_subagents_unavailable: {_yaml_quote('block_and_report_for_init_interview')}",
+            f"  require_subagents_for_init_execution: {_yaml_bool(True)}",
+            f"  init_execution_owner_role: {_yaml_quote('planning')}",
+            f"  init_execution_subagents_policy: {_yaml_quote('required')}",
+            f"  fallback_when_subagents_unavailable: {_yaml_quote('block_and_report_for_init_execution')}",
             f"  canonical_owner: {_yaml_quote('main_agent')}",
             "",
             "decision_policy:",
             f"  decision_owner: {_yaml_quote(decision_owner)}",
-            f"  conflict_rule: {_yaml_quote('user_confirmed > review_gate > planning_interview_consensus > role_consensus > main_agent_inferred')}",
+            f"  conflict_rule: {_yaml_quote('user_confirmed > review_gate > planning_direct_answer_consensus > role_consensus > main_agent_inferred')}",
             "",
             "meta:",
             f"  generated_at: {_yaml_quote(now_iso)}",
@@ -1610,32 +1640,27 @@ def init_project(
 
     # 目录结构：内容输出统一进入 stage 目录；初始化真源对齐到根五文件
     directories = [
-        ".webnovel/backups",
-        ".webnovel/archive",
-        ".webnovel/summaries",
-        ".webnovel/observability",
         "0-Init",
-        "Cards/0-全局卡/总设定",
-        "Cards/2-角色卡/主要角色",
-        "Cards/2-角色卡/次要角色",
-        "Cards/2-角色卡/反派角色",
-        "Cards/2-角色卡/群像角色",
-        "Cards/3-场景卡/室内",
-        "Cards/3-场景卡/室外",
-        "Cards/3-场景卡/自然",
-        "Cards/3-场景卡/超现实",
-        "Cards/4-物品卡/武器装备",
-        "Cards/4-物品卡/线索物品",
-        "Cards/4-物品卡/重要叙事物品",
-        "Cards/4-物品卡/文物",
-        "Cards/4-物品卡/点缀物",
-        "Cards/4-物品卡",
-        "Cards/其他设定",
-        "Planning/legacy",
-        "Drafting",
-        "正文",
-        "Validation",
-        "Loopback",
+        "1-Cards/0-全局卡/总设定",
+        "1-Cards/1-风格卡/总风格",
+        "1-Cards/2-角色卡/主要角色",
+        "1-Cards/2-角色卡/次要角色",
+        "1-Cards/2-角色卡/反派角色",
+        "1-Cards/2-角色卡/群像角色",
+        "1-Cards/3-场景卡/室内",
+        "1-Cards/3-场景卡/室外",
+        "1-Cards/3-场景卡/自然",
+        "1-Cards/3-场景卡/超现实",
+        "1-Cards/4-物品卡/武器装备",
+        "1-Cards/4-物品卡/线索物品",
+        "1-Cards/4-物品卡/重要叙事物品",
+        "1-Cards/4-物品卡/文物",
+        "1-Cards/4-物品卡/点缀物",
+        "1-Cards/4-物品卡",
+        "2-Planning",
+        "3-Drafting",
+        "4-Validation",
+        "5-Loopback",
     ]
     for dir_path in directories:
         (project_path / dir_path).mkdir(parents=True, exist_ok=True)
@@ -1943,7 +1968,7 @@ def init_project(
     _write_yaml(project_path / INIT_STAGE_REL / "story-source-manifest.yaml", story_source_manifest)
     _write_yaml(project_path / INIT_STAGE_REL / "init_handoff.yaml", init_handoff_payload)
     atomic_write_json(state_path, state, use_lock=True, backup=False)
-    _write_text_if_missing(
+    _write_text(
         project_path / TEAM_MANIFEST_REL,
         _render_team_manifest_yaml(
             title=title,
@@ -1964,124 +1989,6 @@ def init_project(
     ):
         _cleanup_lock_file(lock_target)
 
-    # 读取内置模板（可选）
-    script_dir = Path(__file__).resolve().parent
-    templates_dir = script_dir.parent / "templates"
-    output_templates_dir = templates_dir / "output"
-    output_outline = _read_text_if_exists(output_templates_dir / "大纲-总纲.md")
-
-    outline_content = output_outline.strip() if output_outline else ""
-    if outline_content:
-        outline_content = _inject_volume_rows(outline_content, int(target_chapters)).rstrip() + "\n"
-    else:
-        outline_content = _build_master_outline(int(target_chapters))
-    outline_content = _inject_legacy_outline_contract_snapshot(outline_content, init_payload)
-    _write_text_if_missing(project_path / "Planning" / "legacy" / "总纲.md", outline_content)
-
-    _write_text_if_missing(
-        project_path / "Planning" / "legacy" / "爽点规划.md",
-        "\n".join(
-            [
-                "# 爽点规划",
-                "",
-                f"> 项目：{title}｜题材：{genre}｜创建：{now}",
-                "",
-                "## 核心卖点（来自初始化输入）",
-                f"- {core_selling_points or '（待填写，建议 1-3 条，用逗号分隔）'}",
-                "",
-                "## 密度目标（建议）",
-                "- 每章至少 1 个小爽点",
-                "- 每 5 章至少 1 个大爽点",
-                "",
-                "## 分布表（示例，可改）",
-                "",
-                "| 章节范围 | 主导爽点类型 | 备注 |",
-                "|---|---|---|",
-                "| 1-5 | 金手指/打脸/反转 | 开篇钩子 + 立人设 |",
-                "| 6-10 | 升级/收获 | 进入主线节奏 |",
-                "",
-            ]
-        ),
-    )
-
-    # 生成环境变量模板（不写入真实密钥）
-    _write_text_if_missing(
-        project_path / ".env.example",
-        "\n".join(
-            [
-                "# story2026 配置示例（复制为 .env 后填写）",
-                "# 注意：请勿将包含真实 API_KEY 的 .env 提交到版本库。",
-                "",
-                "# Embedding",
-                "EMBED_BASE_URL=https://api-inference.modelscope.cn/v1",
-                "EMBED_MODEL=Qwen/Qwen3-Embedding-8B",
-                "EMBED_API_KEY=",
-                "",
-                "# Rerank",
-                "RERANK_BASE_URL=https://api.jina.ai/v1",
-                "RERANK_MODEL=jina-reranker-v3",
-                "RERANK_API_KEY=",
-                "",
-            ]
-        )
-        + "\n",
-    )
-
-    # Git 初始化（仅当项目目录内尚无 .git 且 Git 可用）
-    git_dir = project_path / ".git"
-    if not git_dir.exists():
-        if not is_git_available():
-            print("\n⚠️  Git 不可用，跳过版本控制初始化")
-            print("💡 如需启用 Git 版本控制，请安装 Git: https://git-scm.com/")
-        else:
-            print("\nInitializing Git repository...")
-            try:
-                subprocess.run(["git", "init"], cwd=project_path, check=True, capture_output=True, text=True)
-
-                gitignore_file = project_path / ".gitignore"
-                if not gitignore_file.exists():
-                    gitignore_file.write_text(
-                        """# Python
-__pycache__/
-*.py[cod]
-*.so
-
-# Env (keep .env.example)
-.env
-.env.*
-!.env.example
-
-# Temporary files
-*.tmp
-*.bak
-.DS_Store
-
-# IDE
-.vscode/
-.idea/
-
-# Don't ignore .webnovel (we need to track STATE.json)
-# But ignore cache files
-.webnovel/context_cache.json
-.webnovel/*.lock
-.webnovel/*.bak
-""",
-                        encoding="utf-8",
-                    )
-
-                subprocess.run(["git", "add", "."], cwd=project_path, check=True, capture_output=True)
-                # 安全修复：清理 title 防止命令注入
-                safe_title = sanitize_commit_message(title)
-                subprocess.run(
-                    ["git", "commit", "-m", f"初始化网文项目：{safe_title}"],
-                    cwd=project_path,
-                    check=True,
-                    capture_output=True,
-                )
-                print("Git initialized.")
-            except subprocess.CalledProcessError as e:
-                print(f"Git init failed (non-fatal): {e}")
-
     # 记录工作区默认项目指针（非阻断）
     try:
         pointer_file = write_current_project_pointer(project_path)
@@ -2091,16 +1998,20 @@ __pycache__/
         print(f"Default project pointer update failed (non-fatal): {e}")
 
     print(f"\nProject initialized at: {project_path}")
-    print("Primary files:")
+    print("Generated files:")
     print(" - STATE.json")
     print(" - team.yaml")
     print(" - CHANGELOG.md")
     print(" - 0-Init/north_star.yaml")
     print(" - 0-Init/story-source-manifest.yaml")
     print(" - 0-Init/init_handoff.yaml")
-    print(" - Planning/全息地图.json")
-    print(" - Planning/legacy/总纲.md")
-    print(" - Planning/legacy/爽点规划.md")
+    print("Generated directories:")
+    print(" - 1-Cards/")
+    print(" - 2-Planning/")
+    print(" - 3-Drafting/")
+    print(" - 4-Validation/")
+    print(" - 5-Loopback/")
+    print("2-Planning/全息地图.json is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 
 

@@ -43,3 +43,6 @@
 5. 当前 step 写回后，父层必须按 registry 为该 `step_id` 触发即时审计 hook；若 hook 未通过，下一 child 不得开始。
 6. `7-润色` 通过 inline hooks 后只形成 `candidate_final_draft`，不是最终 `PASS`。
 7. 若当前项目启用了 `type-pack`，子技能应把实际采用的 pack rule 摘要写入 `type_pack_projection_summary` 或 `process_log_entry.type_pack_rules_applied`，便于 validation/review 追溯。
+8. 正式执行必须是一 step 一提交：当前 child 只处理当前 `step_id`，只输出当前 step 的 `manuscript_patch + process_log_entry`，不得顺手预生成后续 steps 的正式 patch。
+9. `Step 2-7` 只能消费“上一 step 已写回且已通过 hook 的当前 root”；不得消费尚未过 gate 的临时稿、内存稿或候选稿。
+10. 允许存在 step 内部的候选版本、比较稿、reviewer 意见或句式实验，但这些内容在当前 step hook 通过前都不是正式写回结果。

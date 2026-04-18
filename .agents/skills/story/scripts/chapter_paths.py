@@ -2,9 +2,12 @@
 """
 Chapter file path helpers.
 
-This project has seen multiple chapter filename conventions:
-1) Legacy flat layout: 正文/第0007章.md
-2) Volume layout:    正文/第1卷/第007章-章节标题.md
+This project currently uses the canonical drafting layout:
+1) Canonical layout: 3-Drafting/第7集.md
+
+Legacy published-manuscript layouts may still exist in older projects:
+2) Legacy flat layout: 正文/第0007章.md
+3) Volume layout:      正文/第1卷/第007章-章节标题.md
 
 To keep scripts robust, always resolve chapter files via these helpers instead of hardcoding a format.
 """
@@ -16,7 +19,7 @@ from pathlib import Path
 from typing import Optional
 
 
-_CHAPTER_NUM_RE = re.compile(r"第(?P<num>\d+)章")
+_CHAPTER_NUM_RE = re.compile(r"第(?P<num>\d+)(?:章|集)")
 _OUTLINE_HEADING_RE = re.compile(r"^#{1,6}\s*第\s*(?P<num>\d+)\s*章[：:]\s*(?P<title>.+?)\s*$", re.MULTILINE)
 _SPLIT_OUTLINE_FILENAME_RE = re.compile(r"^第0*(?P<num>\d+)章[-—_ ]+(?P<title>.+?)\.md$")
 
@@ -92,7 +95,7 @@ def extract_chapter_title(project_root: Path, chapter_num: int) -> str:
         if title:
             return title
 
-    outline_dir = project_root / "Planning" / "legacy"
+    outline_dir = project_root / "2-Planning" / "legacy"
     if outline_dir.exists():
         return _extract_title_from_split_outline_filename(outline_dir, chapter_num)
     return ""
@@ -108,9 +111,18 @@ def _build_chapter_filename(project_root: Path, chapter_num: int, *, use_volume_
 
 def find_chapter_file(project_root: Path, chapter_num: int) -> Optional[Path]:
     """
-    Find an existing chapter file for chapter_num under project_root/正文.
+    Find an existing chapter file for chapter_num.
+
+    Resolution order:
+    1) canonical 3-Drafting root
+    2) legacy 正文 flat layout
+    3) legacy 正文 volume/custom layout
     Returns the first match (stable sorted order) or None if not found.
     """
+    canonical = drafting_root_md_path(project_root, chapter_num)
+    if canonical.exists():
+        return canonical
+
     chapters_dir = project_root / "正文"
     if not chapters_dir.exists():
         return None
@@ -138,21 +150,16 @@ def find_chapter_file(project_root: Path, chapter_num: int) -> Optional[Path]:
 
 def default_chapter_draft_path(project_root: Path, chapter_num: int, *, use_volume_layout: bool = False) -> Path:
     """
-    Preferred draft path when creating a new chapter file.
+    Preferred canonical draft path when creating a new chapter file.
 
     Args:
         project_root: 项目根目录
         chapter_num: 章节号
-        use_volume_layout: True 使用卷布局 (正文/第N卷/第NNN章-章节标题.md)，False 使用平坦布局 (正文/第NNNN章-章节标题.md)
+        use_volume_layout: legacy arg; ignored for canonical 3-Drafting layout
 
-    Default is flat layout. If the planning source already has a chapter title,
-    append it to the filename for better discoverability.
+    Current canonical root is `3-Drafting/第N集.md`.
     """
-    if use_volume_layout and chapter_num > 0:
-        vol_dir = project_root / "正文" / f"第{volume_num_for_chapter(chapter_num)}卷"
-        return vol_dir / _build_chapter_filename(project_root, chapter_num, use_volume_layout=True)
-    else:
-        return project_root / "正文" / _build_chapter_filename(project_root, chapter_num, use_volume_layout=False)
+    return drafting_root_md_path(project_root, chapter_num)
 
 
 def drafting_root_md_path(project_root: Path, chapter_num: int) -> Path:

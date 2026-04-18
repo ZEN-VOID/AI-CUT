@@ -125,7 +125,7 @@ def cmd_where(args: argparse.Namespace) -> int:
 def _detect_planning_source(project_root: Path) -> dict[str, str]:
     holomap_path = resolve_planning_artifact_path(project_root, "holomap")
     legacy_holomap_path = legacy_planning_artifact_path(project_root, "holomap")
-    legacy_outline_path = project_root / "Planning" / "legacy" / "总纲.md"
+    legacy_outline_path = project_root / "2-Planning" / "legacy" / "总纲.md"
 
     if holomap_path.is_file():
         detail = f"默认规划真源：{canonical_planning_artifact_relpath('holomap')}"
@@ -142,7 +142,7 @@ def _detect_planning_source(project_root: Path) -> dict[str, str]:
             "status": "legacy_fallback",
             "label": "WARN",
             "path": str(legacy_outline_path),
-            "detail": "仅检测到 Planning/legacy/总纲.md，尚未切到全息地图真源",
+            "detail": "仅检测到 2-Planning/legacy/总纲.md，尚未切到全息地图真源",
         }
     return {
         "status": "missing",

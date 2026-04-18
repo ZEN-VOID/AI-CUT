@@ -29,6 +29,7 @@ last_checked_at: 2026-04-08T00:00:00Z
 | `story2026` 用户命令已切到 `/story-*`，但 skill frontmatter、workflow registry、模板 metadata 仍残留 `webnovel-*` / `story2026-*`，导致命名双真源 | canonical naming governance | 先对齐 `scripts/workflow_manager.py` 的 canonical alias，再同步改写 skill/frontmatter、模板与命令文档 | 将命名迁移固定为“workflow alias -> 文档/技能 -> 状态/测试”的单一升级顺序，旧名只留 alias 层 | 用户侧、状态层与模板层都只写 canonical `story-*`，旧名仅能被兼容读取 |
 | workflow runtime 已改为内联写入 `STATE.json`，但根/阶段合同仍沿用 `.webnovel/tasks` 与旧独立状态文件口径 | governance artifact governance | 在根级与关键阶段 skill 中显式改成 `STATE.json.workflow_runtime` | 把 runtime artifact chain 固化成跨阶段共享证据层，并要求命令文档、阶段技能、CONTEXT 同步承认 | 运行脚本、技能合同、命令文档对执行态口径一致 |
 | `3-Drafting` 已切换到 `projects/story/<项目名>/3-Drafting/第N集.md` 单根文件模式，但共享文档与 helper 还在讲 `Drafting/chNNNN/chapter-root.md` | drafting runtime governance | 把根 skill、query data-flow、path helper、旧 shared 合同统一切回新路径 | 将 `3-Drafting/_shared/episode-root-contract.md` 固定为唯一 drafting runtime 真源，旧 `chapter-root` 降级为迁移回指 | 相关文档与 helper 不再并行描述两套 drafting 路径 |
+| 项目 runtime 仍把阶段目录写成无序号 `Cards / Planning / Validation / Loopback`，而 stage owner 已按 `1/2/4/5-*` 编排 | canonical runtime naming | 统一把项目级阶段目录收口为 `1-Cards / 2-Planning / 4-Validation / 5-Loopback`，并同步脚本、tests、stage contracts 与示例树 | 以后凡 stage 命名迁移，必须执行“root contract -> stage contract -> shared script -> tests/fixtures -> init skeleton”五层同步 | 新项目目录、脚本 relpath、stage 文档与回归测试对阶段命名保持一致 |
 | 阶段 `SKILL.md` 已完成 0-5 重构，但 `workflow_manager` 步骤注册和统一 CLI 仍保留旧模式/旧脚本/旧对象名 | shared script registry drift | 先改 `scripts/workflow_manager.py` 与 `scripts/data_modules/webnovel.py`，再清理失效脚本与文档回指 | 每次阶段重构后都执行“skill contracts -> workflow registry -> CLI forwarding -> docs/tests”四层 parity 审计 | `resume`/workflow runtime 展示的步骤与最新阶段合同一致，仓内不再暴露 ghost scripts |
 | 题材资料文件被当成通用基座必读，导致“类型化增强”误升格为“系统硬依赖” | base-vs-typed layering | 将 `genre-profiles.md`、`reading-power-taxonomy.md` 从根/阶段合同的必读列表中降级为可选增强材料 | 统一要求：通用基座只依赖共性合同，类型化知识只在启用 `type-pack` 时投影到相关阶段 | 缺少题材资料时，context pack 仍能正常生成，且阶段合同不再把类型化素材误写成必读 |
 | 追读力 taxonomy 只有几条压缩摘要，Step 6、context builder、query 各自补充解释，形成隐性多真源 | shared reading-power taxonomy drift | 把完整 taxonomy 收束回根级 `_shared/reading-power-taxonomy.md`，兄弟阶段与脚本统一回读该文件 | 共享分类只放根级 `_shared/`，阶段子技能只写执行映射，不再各自复制 hook / payoff 词典 | Step 6、context builder、query / status 对钩子与爽点的叫法保持一致 |
@@ -63,6 +64,7 @@ last_checked_at: 2026-04-08T00:00:00Z
 - 若某个命令只剩用户命令层入口、已不再对应 tracked workflow 或正式 skill，必须在命名合同与根级路由合同里显式标成“auxiliary command”，不要让它继续挂在卫星技能表里伪装成正式阶段。
 - 当共享脚本已把治理工件内联到 `STATE.json.workflow_runtime`，而阶段合同还没承认这些对象时，优先补根 skill 与命令文档，再补关键阶段 skill，避免脚本能力再次沦为隐形层。
 - 当某阶段的 canonical runtime 已从“技术根文件”升级到“业务根文件”后，shared docs 与 path helper 必须同轮同步，不然旧路径会很快长成第二真源。
+- 当 canonical runtime 路径发生迁移时，除了主合同和脚本，还要同轮更新示例字符串、fixture、CLI 转发测试与目录树文档；这些“看起来只是例子”的载体最容易把旧路径重新固化成默认认知。
 - 当阶段合同把旧脚本降级出正式流程后，不要只删文件本体；必须同步清掉 CLI 转发、workflow registry、调用矩阵和测试，否则 ghost entry 会继续制造“看似可用”的第二真源。
 - 类型化知识默认属于增强层，不属于基座层；只有在项目显式启用 `type-pack` 后，才应把这些知识投影到 planning/drafting/validation。
 - 最稳的类型化方案不是给每个题材重写一套 workflow，而是维持固定方法核，把题材/平台/受众差异压缩进可组合 `type-pack`。

@@ -71,7 +71,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `required_events_hit`、`missed_obligations`、`promise_breaks`、`undramatized_exposition_hits`、`anti_ai_force_check`
 - `dimension_report_ref`:
-  - `Validation/第N集/结构兑现.md`
+  - `4-Validation/第N集/结构兑现.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `6-追读力强化`

@@ -357,7 +357,7 @@ def _find_split_outline_file(outline_dir: Path, chapter_num: int) -> Path | None
 
 
 def _find_volume_outline_file(project_root: Path, chapter_num: int) -> Path | None:
-    outline_dir = project_root / "Planning" / "legacy"
+    outline_dir = project_root / "2-Planning" / "legacy"
     volume_num = volume_num_for_chapter_from_state(project_root, chapter_num) or volume_num_for_chapter(chapter_num)
     candidates = [
         outline_dir / f"第{volume_num}卷-详细大纲.md",
@@ -387,7 +387,7 @@ def load_chapter_outline(project_root: Path, chapter_num: int, max_chars: int | 
             return outline[:max_chars] + "\n...(已截断)"
         return outline
 
-    outline_dir = project_root / "Planning" / "legacy"
+    outline_dir = project_root / "2-Planning" / "legacy"
 
     split_outline = _find_split_outline_file(outline_dir, chapter_num)
     if split_outline is not None:

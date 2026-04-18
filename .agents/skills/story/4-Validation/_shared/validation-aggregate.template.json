@@ -1,7 +1,7 @@
 {
   "chapter": 0,
   "manuscript_ref": "3-Drafting/第0集.md",
-  "validation_ref": "Validation/第0集.validation.json",
+  "validation_ref": "4-Validation/第0集.validation.json",
   "validation_mode": "normal_review",
   "validation_status": "FAIL-COVENANT",
   "selected_agents": [
@@ -14,11 +14,11 @@
   ],
   "dimension_packets": {},
   "dimension_report_refs": {
-    "structure-validator": "Validation/第0集/结构兑现.md",
-    "continuity-validator": "Validation/第0集/连续性.md",
-    "logic-validator": "Validation/第0集/逻辑自洽校验.md",
-    "character-validator": "Validation/第0集/人物一致性.md",
-    "timeline-validator": "Validation/第0集/时间线.md"
+    "structure-validator": "4-Validation/第0集/结构兑现.md",
+    "continuity-validator": "4-Validation/第0集/连续性.md",
+    "logic-validator": "4-Validation/第0集/逻辑自洽校验.md",
+    "character-validator": "4-Validation/第0集/人物一致性.md",
+    "timeline-validator": "4-Validation/第0集/时间线.md"
   },
   "issues": [],
   "severity_counts": {

@@ -1,6 +1,6 @@
 episode_num: 0
 manuscript_path: ""
-planning_ref: "Planning/全息地图.json"
+planning_ref: "2-Planning/全息地图.json"
 previous_episode_ref: ""
 instant_validation_registry_ref: ".agents/skills/story/4-Validation/_shared/validation-dimension-registry.yaml"
 type_stack_ref:

@@ -9,7 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`Planning/全息地图.json` 与当前 `Planning/全息地图.json`。
+- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
 - 必须同时读取 `references/mission-strand-system.md`，把“主线/支线 + 明线/暗线”视为本 child 的任务织线真源，而不是自由发挥的补充说明。
 
 ## Parent Positioning
@@ -39,7 +39,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把对抗压力翻译成可持续推进的任务织网，让章节同时拥有台面目标与潜台词目标。 |
-| `business_object` | `Planning/全息地图.json` 与 `story_map.mission_threads / chapter_boards[].bundled_elements.missions`。 |
+| `business_object` | `2-Planning/全息地图.json` 与 `story_map.mission_threads / chapter_boards[].bundled_elements.missions`。 |
 | `constraint_profile` | 只写任务，不越权代做冲突、线索、伏笔；所有任务线必须回挂 chapter board。 |
 | `success_criteria` | `mission_threads` 能区分 `主线/支线` 与 `明线/暗线`，board 能回答“本章在做什么”和“本章真正要逼出什么”。 |
 | `non_goals` | 不把每个章节都塞满四象限；不把支线当 filler；不把暗线写成作者旁白。 |
@@ -50,7 +50,7 @@ governance_tier: full
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/pass-artifacts/5-任务设计.json`
+  - `2-Planning/pass-artifacts/5-任务设计.json`
 - owned story_map slots：
   - `content.holomap.mission_threads`
   - `content.holomap.chapter_boards[].bundled_elements.missions`

@@ -10,7 +10,7 @@
 ## Writeback Targets
 
 - `Cards.current_state/history`
-- `Planning/全息地图.json.content.holomap.actualization`
+- `2-Planning/全息地图.json.content.holomap.actualization`
 - `STATE.json` projections / runtime markers
 
 ## Hard Rules

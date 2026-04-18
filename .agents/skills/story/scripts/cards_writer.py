@@ -4,7 +4,7 @@
 Formal writer for story2026 1-Cards outputs.
 
 The writer turns a normalized cards payload into canonical JSON files under
-`Cards/`, while stamping the trace contract required by 1-Cards:
+`1-Cards/`, while stamping the trace contract required by 1-Cards:
 - `content.module_route`
 - `content.loaded_references`
 - `content.writeback_plan`
@@ -31,7 +31,7 @@ SKILL_ID = "story-cards"
 CARDS_SKILL_ROOT = Path(__file__).resolve().parent.parent / "1-Cards"
 STATE_REL = Path("STATE.json")
 NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
-CHARACTER_GRAPH_REL = Path("Cards") / "2-角色卡" / "角色关系图谱.md"
+CHARACTER_GRAPH_REL = Path("1-Cards") / "2-角色卡" / "角色关系图谱.md"
 
 
 SECTION_SPECS: Dict[str, Dict[str, Any]] = {
@@ -45,7 +45,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_template_path": "全局卡/templates/global-card.json",
         "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
         "module_route": "story-cards > 全局卡/SKILL.md",
-        "index_rel": Path("Cards") / "0-全局卡" / "全局索引.json",
+        "index_rel": Path("1-Cards") / "0-全局卡" / "全局索引.json",
         "bucket_dirs": {
             "master_globals": "总设定",
         },
@@ -67,7 +67,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_template_path": "风格卡/templates/style-card.json",
         "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
         "module_route": "story-cards > 风格卡/SKILL.md",
-        "index_rel": Path("Cards") / "1-风格卡" / "风格索引.json",
+        "index_rel": Path("1-Cards") / "1-风格卡" / "风格索引.json",
         "bucket_dirs": {
             "global_styles": "总风格",
         },
@@ -86,7 +86,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_template_path": "角色卡/templates/character-card.json",
         "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
         "module_route": "story-cards > 角色卡/SKILL.md",
-        "index_rel": Path("Cards") / "2-角色卡" / "角色索引.json",
+        "index_rel": Path("1-Cards") / "2-角色卡" / "角色索引.json",
         "bucket_dirs": {
             "protagonists": "主要角色",
             "antagonists": "反派角色",
@@ -111,7 +111,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_template_path": "场景卡/templates/scene-card.json",
         "source_route": "0-Init > story-cards > 场景卡/SKILL.md",
         "module_route": "story-cards > 场景卡/SKILL.md",
-        "index_rel": Path("Cards") / "3-场景卡" / "场景索引.json",
+        "index_rel": Path("1-Cards") / "3-场景卡" / "场景索引.json",
         "bucket_dirs": {
             "indoor": "室内",
             "outdoor": "室外",
@@ -136,7 +136,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_template_path": "物品卡/templates/item-card.json",
         "source_route": "0-Init > story-cards > 物品卡/SKILL.md",
         "module_route": "story-cards > 物品卡/SKILL.md",
-        "index_rel": Path("Cards") / "4-物品卡" / "物品索引.json",
+        "index_rel": Path("1-Cards") / "4-物品卡" / "物品索引.json",
         "bucket_dirs": {
             "weapons_equipment": "武器装备",
             "clue_items": "线索物品",
@@ -245,6 +245,13 @@ def _normalize_sections(payload: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         if section_payload:
             normalized[section_name] = section_payload
     return normalized
+
+
+def _resolve_lock_cleanup_policy(payload: Dict[str, Any]) -> bool:
+    raw = payload.get("cleanup_empty_lock_on_release")
+    if raw is None:
+        return True
+    return bool(raw)
 
 
 def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str, Any]]) -> str:
@@ -646,6 +653,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
     mode = _require_valid_payload(payload, sections)
     project_name = _project_name(project_root, payload)
     created_at = _now_iso()
+    cleanup_empty_lock_on_release = _resolve_lock_cleanup_policy(payload)
 
     written_files: List[str] = []
     section_reports: Dict[str, Dict[str, Any]] = {}
@@ -666,7 +674,13 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
                 section_payload=section_payload,
                 entry=entry,
             )
-            atomic_write_json(project_root / card_rel, card_payload, use_lock=True, backup=False)
+            atomic_write_json(
+                project_root / card_rel,
+                card_payload,
+                use_lock=True,
+                cleanup_empty_lock_on_release=cleanup_empty_lock_on_release,
+                backup=False,
+            )
             written_files.append(str(card_rel))
             card_refs_by_bucket[bucket].append(str(card_rel))
 
@@ -679,7 +693,13 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
             section_payload=section_payload,
             card_refs_by_bucket=card_refs_by_bucket,
         )
-        atomic_write_json(project_root / spec["index_rel"], index_payload, use_lock=True, backup=False)
+        atomic_write_json(
+            project_root / spec["index_rel"],
+            index_payload,
+            use_lock=True,
+            cleanup_empty_lock_on_release=cleanup_empty_lock_on_release,
+            backup=False,
+        )
         written_files.append(str(spec["index_rel"]))
 
         if section_name == "characters":
@@ -691,7 +711,13 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
             content = _safe_dict(index_payload.get("content"))
             content["relationship_graph"] = relationship_graph
             index_payload["content"] = content
-            atomic_write_json(project_root / spec["index_rel"], index_payload, use_lock=True, backup=False)
+            atomic_write_json(
+                project_root / spec["index_rel"],
+                index_payload,
+                use_lock=True,
+                cleanup_empty_lock_on_release=cleanup_empty_lock_on_release,
+                backup=False,
+            )
 
         section_reports[section_name] = {
             "index_path": str(spec["index_rel"]),
@@ -728,7 +754,13 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
             gate_summary["fail_codes"] = [str(item.get("code")) for item in blocking_findings if isinstance(item, dict) and item.get("code")]
             gate_summary["repair_entry"] = gate_summary["fail_codes"][0] if gate_summary["fail_codes"] else ""
             index_payload["gate_summary"] = gate_summary
-            atomic_write_json(index_path, index_payload, use_lock=True, backup=False)
+            atomic_write_json(
+                index_path,
+                index_payload,
+                use_lock=True,
+                cleanup_empty_lock_on_release=cleanup_empty_lock_on_release,
+                backup=False,
+            )
 
     ok = bool(gate_report["ok"]) if gate_report is not None else True
     return {
@@ -736,6 +768,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
         "project_root": str(project_root),
         "project_name": project_name,
         "mode": mode,
+        "cleanup_empty_lock_on_release": cleanup_empty_lock_on_release,
         "written_files": written_files,
         "sections": section_reports,
         "gate_report": gate_report,
@@ -747,6 +780,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument("--project-root", help="书项目根目录或工作区根目录（可选，默认自动检测）")
     parser.add_argument("--data", required=True, help="cards payload，支持 JSON 字符串或 @payload.json")
     parser.add_argument("--run-gate", action="store_true", help="写入后立即执行 cards-check，并回填索引 gate_summary")
+    parser.add_argument(
+        "--keep-empty-locks",
+        action="store_true",
+        help="保留空 `.lock` 文件；默认在写卡流程释放锁后清理空锁文件",
+    )
     parser.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
     return parser.parse_args(argv)
 
@@ -768,6 +806,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     payload = load_json_arg(args.data)
     if not isinstance(payload, dict):
         raise ValueError("cards payload 顶层必须是 JSON object。")
+    if args.keep_empty_locks:
+        payload["cleanup_empty_lock_on_release"] = False
     report = write_cards_payload(project_root, payload, run_gate=args.run_gate)
     if args.format == "json":
         print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -104,6 +104,9 @@ PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/aigc/<项目名>/STATE.json",
     "projects/aigc/<项目名>/governance-state.yaml",
 )
+PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
+    "projects/aigc/<项目名>/CHANGELOG.md",
+)
 COUNCIL_STAGE_REVIEW_PATHS = {
     "1-Planning": "projects/aigc/<项目名>/1-Planning/validation-report.md",
     "2-Global": "projects/aigc/<项目名>/2-Global/validation-report.md",
@@ -123,6 +126,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/Assets/分镜画板/分镜帧/",
         "projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/",
         "projects/aigc/<项目名>/Assets/分镜画板/漫画/",
+        "projects/aigc/<项目名>/CHANGELOG.md",
         "projects/aigc/<项目名>/1-Planning/",
         "projects/aigc/<项目名>/1-Planning/1-分集/",
         "projects/aigc/<项目名>/1-Planning/2-格式/",
@@ -557,6 +561,9 @@ def audit_runtime_alignment(contract_mode: str, failures: list[str]) -> None:
     for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
         if governance_file not in shared_content:
             failures.append(f"{shared_layout}: missing project governance artifact `{governance_file}`")
+    for support_file in PROJECT_ROOT_SUPPORTING_ARTIFACTS:
+        if support_file not in shared_content:
+            failures.append(f"{shared_layout}: missing project root supporting artifact `{support_file}`")
 
     root_content = ROOT_SKILL.read_text(encoding="utf-8") if ROOT_SKILL.exists() else ""
     for governance_file in PROJECT_GOVERNANCE_ARTIFACTS:
@@ -745,8 +752,14 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(f"{init_skill}: missing explicit gate that `team_lineup_mode` must be user-confirmed")
     if "固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。" not in init_content:
         failures.append(f"{init_skill}: missing execution-step lock for `smart_advisor` plus `auto/custom` lineup choice")
-    if "planning interview 必须真实使用 subagents" not in init_content:
-        failures.append(f"{init_skill}: missing mandatory subagent rule for the planning interview")
+    if (
+        "planning interview 必须真实使用 subagents" not in init_content
+        and "planning 固定题包直答必须真实使用 subagents" not in init_content
+        and "planning 固定题包直答 必须真实使用 subagents" not in init_content
+    ):
+        failures.append(
+            f"{init_skill}: missing mandatory subagent rule for the planning direct-answer execution"
+        )
     if "若 subagents 不可用，本轮初始化停止并报告阻塞" not in init_content:
         failures.append(f"{init_skill}: missing block-and-report rule when init interview subagents are unavailable")
     if "selector_scope_root" not in init_content or ".agents/skills/team/" not in init_content:
@@ -769,6 +782,14 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(
             f"{init_skill}: missing explicit prohibition that `north_star.yaml` must not own stage-entry or reset-state fields"
         )
+    if "项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth" not in init_content:
+        failures.append(
+            f"{init_skill}: missing explicit success criterion for project-root `CHANGELOG.md` bootstrap"
+        )
+    if "同步创建项目根 `CHANGELOG.md` 作为时间序记录入口" not in init_content:
+        failures.append(
+            f"{init_skill}: missing runtime-bootstrap step for project-root `CHANGELOG.md`"
+        )
 
     north_star_template = ROOT / "0-Init" / "templates" / "north-star.template.yaml"
     if north_star_template.exists():
@@ -790,11 +811,25 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             'init_mode: "smart_advisor"',
             'team_lineup_mode: "auto"',
             'selector_scope_root: ".agents/skills/team/"',
-            'require_subagents_for_init_interview: true',
-            'init_interview_owner_role: "planning"',
         ):
             if required_marker not in team_template_content:
                 failures.append(f"{team_template}: missing smart-advisor team marker `{required_marker}`")
+        if (
+            'require_subagents_for_init_interview: true' not in team_template_content
+            and 'require_subagents_for_init_execution: true' not in team_template_content
+        ):
+            failures.append(
+                f"{team_template}: missing smart-advisor team marker "
+                "`require_subagents_for_init_interview: true` or `require_subagents_for_init_execution: true`"
+            )
+        if (
+            'init_interview_owner_role: "planning"' not in team_template_content
+            and 'init_execution_owner_role: "planning"' not in team_template_content
+        ):
+            failures.append(
+                f"{team_template}: missing smart-advisor team marker "
+                "`init_interview_owner_role: \"planning\"` or `init_execution_owner_role: \"planning\"`"
+            )
 
     refs_root = ROOT / "0-Init" / "references"
     if refs_root.exists():

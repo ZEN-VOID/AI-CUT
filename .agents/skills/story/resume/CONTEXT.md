@@ -55,3 +55,4 @@
 - `resume/` 的正式支持清单必须跟 `workflow_manager.py` registry 同步缩放；命令下线后，不保留“理论上还能恢复”的幽灵入口。
 - `query` 这种轻量 tracked run 要和 `write/review` 这种重型恢复对象分开写；前者可以有 run 记录，但不能套章节 cleanup 模板。
 - 只要 `3-Drafting` 的正文真源换了路径，恢复链路里所有“删除半成品/继续加工”的目标文件都要一起换，否则用户会清理错对象。
+- 恢复文档里的目录树和快速参考必须只呈现当前 canonical runtime；legacy 路径只能作为兼容说明，不能伪装成现行结构。

@@ -48,7 +48,7 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `Cards/2-角色卡/**/*.json`
+  - `1-Cards/2-角色卡/**/*.json`
   - `写作日志.yaml`
 - 硬规则：
   - 对白不能替代动作与场景独自承担全部信息。
