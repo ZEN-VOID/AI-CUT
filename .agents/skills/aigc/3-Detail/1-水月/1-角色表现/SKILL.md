@@ -65,8 +65,8 @@ governance_tier: lite
 | --- | --- |
 | `business_goal` | 把当前分镜组/分镜中的人物压力、行为目的和内里意图，稳定收束成 `角色表现.动作戏 / 内心戏` 必填双槽，并在存在明确对白或话轮攻守时补 `对话戏`，而不是生成第二份 prose。 |
 | `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 当前 root、命中组/镜 scope、`projects/aigc/<项目名>/3-Detail/水月/角色表现/第N集.branch-patch.json`。 |
-| `constraint_profile` | 只写 `角色表现`；必须先回读最新 root；三叶子只能作为 route 与证据来源，不得平均展开；必填双槽必须可演、可见、可回指当前戏，对话槽只在明确对白存在时补入。 |
-| `success_criteria` | patch 可直接落入 schema 必填双槽；能回答“这一拍身体怎么动、哪股意图被压在动作底下”，并在有明确对白时补“谁先发、谁截断、谁吞回”；sidecar 含 `thinking_process / patch_payload / review_trace`；target path 无越权。 |
+| `constraint_profile` | 只写 `角色表现`；必须先回读最新 root；三叶子只能作为 route 与证据来源，不得平均展开；必填双槽必须可演、可见、可回指当前戏；对话槽只在明确对白存在时补入，且若对白收益依赖门槛、障碍、逼近、孤立、混乱或私密贴近，必须先翻译成演员/空间压强信号，不得直接写镜头术语。 |
+| `success_criteria` | patch 可直接落入 schema 必填双槽；能回答“这一拍身体怎么动、哪股意图被压在动作底下”，并在有明确对白时补“谁先发、谁截断、谁吞回，以及对白压强属于哪类可拍模式”；sidecar 含 `thinking_process / patch_payload / review_trace`，且需要时可为 `运镜手法` 留下 handoff clue；target path 无越权。 |
 | `non_goals` | 不补运动表现、不补空间抒情、不补镜头语言、不总结人物关系史。 |
 | `complexity_source` | 复杂度来自“先判当前主问题，再选择主链/辅链，再把叶子证据压回 schema 必填双槽与可选对话槽”，而不是字段数量。 |
 | `topology_fit` | 固定为 `scope lock -> 压强判型 -> 叶子选路 -> 证据提炼 -> 双槽汇流 + 可选对话槽 -> sidecar 写回/自检`。 |
@@ -113,6 +113,7 @@ governance_tier: lite
 3. 必须先判断当前主问题，再决定 `内心戏 / 动作戏 / 对话戏` 的主链和辅链；不得默认三线平均发力。
 4. canonical 主槽固定为 `动作戏 / 内心戏`；若当前拍存在明确对白、话轮攻守、抢话、吞话、截断或失口，再补可选 `对话戏`。不得再把旧 `表演目标 / 关系施压 / 服装锚点` 当 canonical。
 5. 若结果需要精确位置/位移/调度说明，必须回交 `2-运动表现`，不能在本 branch 越权吸收。
+6. 若对白张力明显依赖门槛、障碍、逼近、孤立、混乱或私密贴近，只能在本 branch 写成演员/空间压强信号，并在 `review_trace` 标记回交 `运镜手法`；不得在 patch 里直接写推拉摇移、越轴、焦段或机位。
 
 ## Output Contract
 
@@ -127,7 +128,7 @@ governance_tier: lite
 - `动作戏`
   - 直接对齐 `动作戏` 叶子，回答这一拍身体或外显动作怎样成立。
 - `对话戏`（可选）
-  - 直接对齐 `对话戏` 叶子。仅在当前拍存在明确对白、话轮攻守、抢话、吞话、截断或失口时填写。重点不是复述对白内容，而是回答谁先发、谁截断、谁吞回，以及这一拍用什么腔调、语态、断句、气口、停顿与潜台词带压。
+  - 直接对齐 `对话戏` 叶子。仅在当前拍存在明确对白、话轮攻守、抢话、吞话、截断或失口时填写。重点不是复述对白内容，而是回答谁先发、谁截断、谁吞回，以及这一拍用什么腔调、语态、断句、气口、停顿与潜台词带压。若当前张力明显依赖门槛、障碍、逼近、孤立、混乱或私密贴近，只写演员/空间信号，不写镜头裁决。
 - `内心戏`
   - 直接对齐 `内心戏` 叶子，回答哪股内里情绪或意图被压在动作底下。
 
@@ -201,15 +202,27 @@ graph LR
     I --> J
 ```
 
+```mermaid
+flowchart TD
+    A["对话戏命中"] --> B{"对白收益是否依赖空间压强?"}
+    B -- "否" --> C["直接写话轮攻守与发法"]
+    B -- "是" --> D["把门槛/障碍/逼近/孤立/混乱/私密贴近译成演员/空间信号"]
+    D --> E["在 review_trace 标记回交运镜手法"]
+    C --> F{"patch 内是否出现镜头术语?"}
+    E --> F
+    F -- "否" --> G["保留到 character_patch / sidecar"]
+    F -- "是" --> H["删除镜头词并回到 N3/N4 返工"]
+```
+
 ## Thinking-Action Network
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-SCOPE-LOCK` | `FIELD-CHAR-01` | 锁定当前 episode/group/shot 与最新 root | 读取当前 root、命中 scope、已有 sidecar 与 `出场角色及穿搭` | `scope_lock_note` | -> `N2` | scope 唯一，且 root 为最新 |
 | `N2-PRESSURE-ROUTE` | `FIELD-CHAR-02` | 判断这一拍的主问题与主链/辅链 | 识别谁承压、谁主动、关系往哪边偏；确定主链 + 最多一条辅链 | `route_decision_note` | -> `N3` | 禁止三线平均展开 |
-| `N3-LEAF-EVIDENCE` | `FIELD-CHAR-03` | 从叶子模块提炼可见证据 | 按选中路由抽取 `visible_emotion_signal / action_intent / relation_shift` | `leaf_evidence_pack` | -> `N4` | 证据必须可见、可演、非越权 |
-| `N4-PATCH-CONVERGE` | `FIELD-CHAR-04` | 把叶子证据收束成 schema 双槽 + 可选对话槽 | 将证据压成 `动作戏 / 内心戏`，若存在明确对白或话轮攻守再补 `对话戏`，删掉解释句与剧情摘要 | `character_patch` | -> `N5` | 必填双槽齐全，且不是第二份 prose |
-| `N5-SIDECAR-REVIEW` | `FIELD-CHAR-05` | 写 branch sidecar 并完成自检 | 写 `thinking_process / patch_payload / target_json_paths / review_trace`；核对 target path | `branch_review_note` | pass -> done | sidecar 完整，且只命中 `角色表现` |
+| `N3-LEAF-EVIDENCE` | `FIELD-CHAR-03` | 从叶子模块提炼可见证据 | 按选中路由抽取 `visible_emotion_signal / action_intent / relation_shift`；若命中 `对话戏`，额外锁定 `dialogue_pressure_geometry` | `leaf_evidence_pack` | -> `N4` | 证据必须可见、可演、非越权；对话路由需有可拍压强信号 |
+| `N4-PATCH-CONVERGE` | `FIELD-CHAR-04` | 把叶子证据收束成 schema 双槽 + 可选对话槽 | 将证据压成 `动作戏 / 内心戏`，若存在明确对白或话轮攻守再补 `对话戏`；若对话张力依赖镜头放大，只保留演员/空间信号，删掉解释句、剧情摘要和镜头术语 | `character_patch` | -> `N5` | 必填双槽齐全，且不是第二份 prose |
+| `N5-SIDECAR-REVIEW` | `FIELD-CHAR-05` | 写 branch sidecar 并完成自检 | 写 `thinking_process / patch_payload / target_json_paths / review_trace`；若需要镜花放大，在 `review_trace` 补 handoff clue；核对 target path | `branch_review_note` | pass -> done | sidecar 完整，且只命中 `角色表现` |
 
 ## Lite Field Contract
 
@@ -217,9 +230,9 @@ graph LR
 | --- | --- | --- | --- | --- |
 | `FIELD-CHAR-01` | 当前 root + scope | 命中 episode/group/shot 唯一，且使用最新 root | `FAIL-CHAR-01` | `N1-SCOPE-LOCK` |
 | `FIELD-CHAR-02` | route decision | 已锁定主链和辅链，不做三线平均展开 | `FAIL-CHAR-02` | `N2-PRESSURE-ROUTE` |
-| `FIELD-CHAR-03` | leaf evidence pack | 至少有可见表演证据与关系证据；若缺行为入口，回补对应叶子 | `FAIL-CHAR-03` | `N3-LEAF-EVIDENCE` |
+| `FIELD-CHAR-03` | leaf evidence pack | 至少有可见表演证据与关系证据；若命中 `对话戏`，还要有可被镜头消费的压强几何；若缺行为入口，回补对应叶子 | `FAIL-CHAR-03` | `N3-LEAF-EVIDENCE` |
 | `FIELD-CHAR-04` | `分镜明细[].角色表现` | `动作戏 / 内心戏` 必填，`对话戏` 按需出现，且每槽回答的问题不同 | `FAIL-CHAR-04` | `N4-PATCH-CONVERGE` |
-| `FIELD-CHAR-05` | branch process sidecar | `thinking_process / patch_payload / review_trace / target_json_paths` 完整，且 target path 不越权 | `FAIL-CHAR-05` | `N5-SIDECAR-REVIEW` |
+| `FIELD-CHAR-05` | branch process sidecar | `thinking_process / patch_payload / review_trace / target_json_paths` 完整；若需要镜花放大，`review_trace` 含 handoff clue；target path 不越权 | `FAIL-CHAR-05` | `N5-SIDECAR-REVIEW` |
 
 ## Root-Cause Execution Contract
 
@@ -229,6 +242,7 @@ graph LR
 - 默认把 `内心戏 / 动作戏 / 对话戏` 三条叶子平均展开
 - `角色表现` 开始承担 `运动表现 / 氛围表现 / 镜头语言`
 - `动作戏` 写成机位、景别或镜头运动说明
+- `对话戏` 直接抄写推拉摇移、越轴、焦段或机位，而没有先落成演员/空间压强信号
 - `动作戏` 与 `对话戏` 反复复用同一句，导致槽位失去分工
 - sidecar 缺 `thinking_process / patch_payload / review_trace`
 
@@ -244,3 +258,4 @@ graph LR
 2. `patch_payload` 只命中 `分镜明细[].角色表现`。
 3. `角色表现` 满足 schema 必填槽：`动作戏 / 内心戏`；若当前拍有明确对白或话轮攻守，再补 `对话戏`。
 4. `thinking_process / patch_payload / review_trace / target_json_paths` 完整。
+5. 若对白收益需要镜头放大，patch 中没有镜头术语，且 `review_trace` 已留下回交 `运镜手法` 的 handoff clue。

@@ -16,13 +16,13 @@
 ### 1. Child evidence artifact
 
 - 路径模式：
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
-  - `Planning/全息地图.json`
+  - `Planning/pass-artifacts/1-题材选型.json`
+  - `Planning/pass-artifacts/2-章节规划.json`
+  - `Planning/pass-artifacts/3-故事大纲.json`
+  - `Planning/pass-artifacts/4-冲突设计.json`
+  - `Planning/pass-artifacts/5-任务设计.json`
+  - `Planning/pass-artifacts/6-线索设计.json`
+  - `Planning/pass-artifacts/7-伏笔设计.json`
 - 用途：
   - 保留对应子技能的领域分析结论
   - 保留 `story_map_patch`
@@ -52,13 +52,13 @@
 
 | child skill | evidence artifact | owned story_map slots |
 | --- | --- | --- |
-| `1-题材选型` | `Planning/全息地图.json` | `content.holomap.story_promise`、`content.holomap.genre_corridor`、`content.holomap.navigation_rules[]` 的题材门 |
-| `2-章节规划` | `Planning/全息地图.json` | `content.holomap.volume_boards`、`chapter_boards` skeleton、`episode_sequence_axis` |
-| `3-故事大纲` | `Planning/全息地图.json` | `content.holomap.story_spine`、`chapter_boards[].bundled_elements.events` 的主干挂载 |
-| `4-冲突设计` | `Planning/全息地图.json` | `content.holomap.conflict_threads`、`chapter_boards[].bundled_elements.conflicts` |
-| `5-任务设计` | `Planning/全息地图.json` | `content.holomap.mission_threads`、`chapter_boards[].bundled_elements.missions` |
-| `6-线索设计` | `Planning/全息地图.json` | `content.holomap.clue_threads`、`chapter_boards[].bundled_elements.clues` |
-| `7-伏笔设计` | `Planning/全息地图.json` | `content.holomap.foreshadow_threads`、`chapter_boards[].bundled_elements.foreshadows` |
+| `1-题材选型` | `Planning/pass-artifacts/1-题材选型.json` | `content.holomap.story_promise`、`content.holomap.genre_corridor`、`content.holomap.navigation_rules[]` 的题材门 |
+| `2-章节规划` | `Planning/pass-artifacts/2-章节规划.json` | `content.holomap.volume_boards`、`chapter_boards` skeleton、`episode_sequence_axis` |
+| `3-故事大纲` | `Planning/pass-artifacts/3-故事大纲.json` | `content.holomap.story_spine`、`chapter_boards[].bundled_elements.events` 的主干挂载 |
+| `4-冲突设计` | `Planning/pass-artifacts/4-冲突设计.json` | `content.holomap.conflict_threads`、`chapter_boards[].bundled_elements.conflicts` |
+| `5-任务设计` | `Planning/pass-artifacts/5-任务设计.json` | `content.holomap.mission_threads`、`chapter_boards[].bundled_elements.missions` |
+| `6-线索设计` | `Planning/pass-artifacts/6-线索设计.json` | `content.holomap.clue_threads`、`chapter_boards[].bundled_elements.clues` |
+| `7-伏笔设计` | `Planning/pass-artifacts/7-伏笔设计.json` | `content.holomap.foreshadow_threads`、`chapter_boards[].bundled_elements.foreshadows` |
 
 ## Progressive Commit Rules
 

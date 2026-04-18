@@ -76,6 +76,52 @@ def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
         validation_path,
         {
             "validation_status": "FAIL-QUALITY",
+            "routing_decision": "back_to_drafting_nodes",
+            "handoff_targets": ["review/"],
+            "card_deltas": [],
+            "map_deltas": [],
+            "projection_refresh": [],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "正文/第0012章.md",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 1
+    assert not (project_root / "Loopback" / "第12集.loopback.json").exists()
+
+
+def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_only",
+            "handoff_targets": ["review/"],
+            "validation_ref": "Validation/第12章审查报告.md",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -117,7 +163,14 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
         validation_path,
         {
             "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
             "validation_ref": "Validation/第12章审查报告.md",
+            "governance_refs": {
+                "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
+                "artifact_manifest_ref": "STATE.json#workflow_runtime.governance_index.run-12.artifact_manifest",
+                "mission_brief_ref": "STATE.json#workflow_runtime.governance_index.run-12.mission_brief",
+            },
             "card_deltas": [
                 {
                     "target_ref": "Cards/2-角色卡/主要角色/林辰.json",
@@ -206,8 +259,13 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
 
     artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert artifact["inputs"]["validation_status"] == "PASS"
+    assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_loopback"
+    assert artifact["inputs"]["handoff_targets"] == ["review/", "5-Loopback"]
     assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["Cards/2-角色卡/主要角色/林辰.json"]
     assert artifact["content"]["writeback_summary"]["written_map_refs"] == ["episode_nodes:episode-12"]
+    assert artifact["execution_notes"]["governance_refs"]["mission_brief_ref"] == (
+        "STATE.json#workflow_runtime.governance_index.run-12.mission_brief"
+    )
 
     card = json.loads((project_root / "Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     assert card["current_state"]["realm"] == "筑基"

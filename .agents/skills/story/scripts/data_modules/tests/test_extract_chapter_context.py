@@ -171,10 +171,47 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第1卷 详细大纲.md").write_text("### 第3章：测试标题\n测试大纲", encoding="utf-8")
 
-    refs_dir = tmp_path / ".agents" / "skills" / "story2026" / "references"
+    refs_dir = tmp_path / ".agents" / "skills" / "story" / "_shared"
     refs_dir.mkdir(parents=True, exist_ok=True)
     (refs_dir / "genre-profiles.md").write_text("## xuanhuan\n- 升级线清晰", encoding="utf-8")
     (refs_dir / "reading-power-taxonomy.md").write_text("## xuanhuan\n- 悬念钩优先", encoding="utf-8")
+
+    global_card_dir = tmp_path / "Cards" / "0-全局卡" / "总设定"
+    global_card_dir.mkdir(parents=True, exist_ok=True)
+    global_card_ref = "Cards/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "Cards" / "0-全局卡" / "全局索引.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_groups": {"master_globals": [global_card_ref]},
+                    "global_contract_refs": [{"card_id": "世界总卡", "path": global_card_ref}],
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / global_card_ref).write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "global_card": {
+                            "core": {
+                                "worldview": {"genre": "xuanhuan"},
+                                "rule_system": [{"label": "铁律", "value": "越级有代价"}],
+                                "golden_finger": {"name": "系统", "limits": ["每日一次"]},
+                            }
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     idx = IndexManager(cfg)
     idx.save_chapter_reading_power(
@@ -184,20 +221,24 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
         ReviewMetrics(start_chapter=1, end_chapter=2, overall_score=71, dimension_scores={"plot": 71})
     )
 
-    payload = build_chapter_context_payload(tmp_path, 3)
+    payload = build_chapter_context_payload(tmp_path, 3, current_step_id="Step 2")
     assert payload["context_contract_version"] == "v2"
     assert payload.get("context_weight_stage") in {"early", "mid", "late"}
     assert "writing_guidance" in payload
     assert "validation_fact_pack" in payload
     fact_pack = payload["validation_fact_pack"]
-    assert {"promise_slice", "chapter_board", "cards_state_history_slice", "foreshadow_silence_slice", "style_gate"}.issubset(fact_pack.keys())
+    assert {"promise_slice", "chapter_board", "cards_state_history_slice", "foreshadow_silence_slice", "style_gate", "global_truth_slice"}.issubset(fact_pack.keys())
+    assert fact_pack["promise_slice"]["global_contract_refs"] == [global_card_ref]
+    assert fact_pack["global_truth_slice"]["global_contract_summary"]["golden_finger"]["name"] == "系统"
     assert isinstance(payload["writing_guidance"].get("guidance_items"), list)
     assert isinstance(payload["writing_guidance"].get("checklist"), list)
     assert isinstance(payload["writing_guidance"].get("checklist_score"), dict)
     assert payload["genre_profile"].get("genre") == "xuanhuan"
+    assert "_base" in (payload["type_pack_profile"].get("active_packs") or [])
     assert "rag_assist" in payload
     assert isinstance(payload["rag_assist"], dict)
     assert payload["rag_assist"].get("invoked") is False
+    assert payload["current_step_id"] == "Step 2"
 
 
 def test_render_text_contains_writing_guidance_section(tmp_path):
@@ -214,6 +255,7 @@ def test_render_text_contains_writing_guidance_section(tmp_path):
         "state_summary": "状态",
         "context_contract_version": "v2",
         "context_weight_stage": "early",
+        "current_step_id": "Step 6",
         "reader_signal": {"review_trend": {"overall_avg": 72}, "low_score_ranges": [{"start_chapter": 8, "end_chapter": 9}]},
         "genre_profile": {
             "genre": "xuanhuan",
@@ -256,6 +298,7 @@ def test_render_text_contains_writing_guidance_section(tmp_path):
 
     text = _render_text(payload)
     assert "## 本章规划节点" in text
+    assert "## 当前工序" in text
     assert "## 写作执行建议" in text
     assert "先修低分" in text
     assert "## Contract (v2)" in text

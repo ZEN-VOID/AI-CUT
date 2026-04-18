@@ -73,7 +73,7 @@ governance_tier: lite
 flowchart TD
     A["S1 锁输入与前置"] --> B["S2 锁水月承接 + 镜窗/slot"]
     B --> C["S3 构图形式"]
-    C --> D["S4 景别景深"]
+    C --> D["S4 景别景深：距离/层级/焦点/画外策略"]
     D --> E["S5 镜头类型：戏剧任务 -> 角度家族 -> POV/descriptor"]
     E --> F["S6 汇流为 shot spine patch"]
     F --> G{{"可读且可承接后续三支?"}}
@@ -160,6 +160,17 @@ sidecar 最低要求：
 - `景别景深`：`shot_size_rhythm_preview`
 - `镜头类型`：`pov_strategy_preview + shot_descriptor_lock + focus_spatial_logic`
 
+`shot_size_rhythm_preview` 最低应能收束：
+
+- `rhythm_template`
+- `per_shot_size_curve`
+- `lens_space_bias`
+- `depth_emphasis`
+- `z_axis_layering_note`
+- `focus_attention_rule`
+- `frame_enclosure_policy`
+- `psychological_distance_note`
+
 写回 `分镜明细[].分镜构图` 的最小字段至少包含：
 
 - `景别景深`
@@ -173,7 +184,7 @@ sidecar 最低要求：
 | `SHOT-N1-INPUT-LOCK` | 锁定当前 root、`水月` bundle 与固定镜数前置 | `第N集.json`、`水月.field-patch.json`、父层顺序门 | 读取并确认 `剧本正文`、`分镜切换`、`水月` 是否齐备；锁当前 root 快照 | `input_lock_note` | pass -> `SHOT-N2-ANCHOR-SLOT` | 任一前置缺失则不得继续 |
 | `SHOT-N2-ANCHOR-SLOT` | 形成 `watermoon_inheritance + shot_count_plan + shot_slot_map` | root 当前组窗口、`水月` 的动作/情绪/空间/关系 evidence | 提炼组级主动作、主情绪、主空间关系、主视线/冲突；继承固定镜数并落镜窗/slot | `anchor_slot_note` | pass -> `SHOT-N3-FORM` | 若不能一句话说清承接内容，或 slot 一落就破坏动作连续，必须返工 |
 | `SHOT-N3-FORM` | 用 `构图形式` 叶子锁画面站姿 | `shot_slot_map`、`watermoon_inheritance`、`构图形式` 叶子合同 | 为每镜锁经典/稳定的画面组织范式、`主体/陪体/背景`、留白/安全区、关系型站姿、空间锚点、轴线、几何关系、深度线索与 frame task，生成 `composition_skeleton` | `form_lock_note` | pass -> `SHOT-N4-SIZE-DEPTH` / fail -> `SHOT-N2-ANCHOR-SLOT` | 若形式一落就发明新空间或新关系，或开始重复走位说明，必须回退 |
-| `SHOT-N4-SIZE-DEPTH` | 用 `景别景深` 叶子锁观看距离与深度层级 | `composition_skeleton`、组级 mission/情绪引导、`景别景深` 叶子合同 | 生成 `shot_size_rhythm_preview`，回答景别曲线、景深层级与心理距离 | `size_depth_note` | pass -> `SHOT-N5-TYPE` / fail -> `SHOT-N3-FORM` | 若景别景深漂成摄影参数，或不再支撑画面任务，不得继续 |
+| `SHOT-N4-SIZE-DEPTH` | 用 `景别景深` 叶子锁观看距离、空间偏置、深度层级、焦点与画外策略 | `composition_skeleton`、组级 mission/情绪引导、`景别景深` 叶子合同 | 生成 `shot_size_rhythm_preview`，回答景别曲线、空间纳入/压缩倾向、Z 轴层级、视觉焦点、开放/封闭景框与心理距离 | `size_depth_note` | pass -> `SHOT-N5-TYPE` / fail -> `SHOT-N3-FORM` | 若景别景深漂成摄影参数、开放景框没有画外引导、焦点层级不清或不再支撑画面任务，不得继续 |
 | `SHOT-N5-TYPE` | 用 `镜头类型` 叶子锁戏剧任务、角度家族、POV、descriptor 与观看姿态 | `shot_size_rhythm_preview`、`composition_skeleton`、`镜头类型` 叶子合同 | 先回答本组要让观众感到什么，再生成 `pov_strategy_preview`、`shot_descriptor_lock`、`focus_spatial_logic`，并锁定 `镜头类型 / 镜头框架 / 镜头视角` 等槽位 | `type_lock_note` | pass -> `SHOT-N6-CONVERGE` / fail -> `SHOT-N4-SIZE-DEPTH` | 若把镜头类型写成器材型号、运镜路线、光影话术或空泛“电影感”，不得汇流 |
 | `SHOT-N6-CONVERGE` | 汇流为单一 `shot_spine_patch` 并准备 review/commit | 前五节点输出、branch review contract | 组装 `patch_payload`，校验 target path 只命中 `分镜构图`，写 sidecar 并准备 progressive commit | `branch_review_trace` | pass -> complete | 若 thinking 与 patch 不一致、或 target path 越权，必须返工 |
 
@@ -184,7 +195,7 @@ sidecar 最低要求：
 | `S1` | `FIELD-COMP-01` | `SHOT-N1-INPUT-LOCK` | 锁输入、顺序门与 factual 前置 | `input_lock_note` | 缺 `剧本正文 / 分镜切换 / 水月` 任一前置 | `S1` |
 | `S2` | `FIELD-COMP-02` | `SHOT-N2-ANCHOR-SLOT` | 锁 `watermoon_inheritance + shot_count_plan + shot_slot_map` | `anchor_slot_note` | 说不清主动作、主情绪、主空间关系或 slot 破坏动作连续 | `S2` |
 | `S3` | `FIELD-COMP-03` | `SHOT-N3-FORM` | 锁 `构图形式` | `composition_skeleton` | 主陪背景关系失真、空间轴线断裂、frame task 不成立 | `S3` |
-| `S4` | `FIELD-COMP-04` | `SHOT-N4-SIZE-DEPTH` | 锁 `景别景深` | `shot_size_rhythm_preview` | 把景别景深写成摄影参数、心理距离不可复核 | `S4` |
+| `S4` | `FIELD-COMP-04` | `SHOT-N4-SIZE-DEPTH` | 锁 `景别景深` | `shot_size_rhythm_preview` | 把景别景深写成摄影参数、焦点/画外策略失真、心理距离不可复核 | `S4` |
 | `S5` | `FIELD-COMP-05` | `SHOT-N5-TYPE` | 锁 `镜头类型` 的戏剧任务、角度家族、POV、descriptor 与观看姿态 | `pov_strategy_preview` / `shot_descriptor_lock` / `focus_spatial_logic` | descriptor 留给下游临场决定，或属性漂成器材/运镜/空泛角度口号 | `S5` |
 | `S6` | `FIELD-COMP-06` | `SHOT-N6-CONVERGE` | 生成单一 `shot_spine_patch` 并完成 branch review 输入 | `patch_payload` / `review_trace` / `target_json_paths[]` | `thinking_process` 不支撑 patch、target path 越权、未写 sidecar | `S6` |
 
@@ -197,6 +208,7 @@ sidecar 最低要求：
 - `构图形式 / 景别景深 / 镜头类型` 三个叶子各写一套目标，无法汇流回同一 shot spine
 - `构图形式` 把角色站位走位复述了一遍，却没有说清画面组织范式、几何关系与 frame task
 - 把 `景别景深` 写成光圈、焦段、器材参数，把 `镜头类型` 写成摄影机型号或器材目录
+- `景别景深` 写了开放景框却没有说明观众该被引向哪一侧画外，或前中后景同时抢焦点
 - `镜头类型` 只写“故事感 / 电影感 / 更有张力”，却没有明确角度任务与关系站位
 - `thinking_process` 只写审美口号，无法解释 `patch_payload`
 

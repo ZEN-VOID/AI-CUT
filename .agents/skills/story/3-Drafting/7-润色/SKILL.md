@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `3-Drafting/SKILL.md` 与 `_shared/drafting-child-output-contract.md`。
+- 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
 - 正式处理前，必须读取 Step 6 已写回后的当前 `第N集.md`。
 - 必须同时按需读取以下局部子模块：
   - `反评论腔/module-spec.md`
@@ -38,7 +38,7 @@ governance_tier: lite
 - `反重复用词/module-spec.md`
 - `自然感/module-spec.md`
 - `文笔优化/module-spec.md`
-- `../../references/shared/core-constraints.md`
+- `../../_shared/core-constraints.md`
 
 ## Business Requirement Analysis Contract
 
@@ -65,7 +65,7 @@ governance_tier: lite
 ## Output Contract
 
 - `manuscript_patch`
-  - 最终润色版正文
+  - 候选终稿正文
 - `process_log_entry`
   - `step_id: 7`
   - `focus_dimension: integrated_polish`
@@ -74,6 +74,11 @@ governance_tier: lite
   - 反重复用词
   - 自然感
   - 文笔优化
+
+## Immediate Validation Hook Contract
+
+- 本 step 写回后，父层必须按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
+- 该 step 的 hook 全部通过后，只形成 `candidate_final_draft`，仍必须进入 `4-Validation` 才能获得最终 PASS。
 
 ## Visual Map
 
@@ -108,4 +113,5 @@ flowchart TD
 ## Completion Contract
 
 - 当前正文已通过四个局部子模块的终修。
+- 当前正文只达到 `candidate_final_draft` 边界，而不是最终 `validated_final_draft`。
 - `process_log_entry` 已记录终修聚焦点与留给 validation 的注意事项。

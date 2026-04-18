@@ -13,6 +13,16 @@ project_identity:
   target_platforms: []
   target_audience: []
 
+type_stack:
+  method_kernel: "story-core-v1"
+  resolver_ref: ".agents/skills/story/_shared/type-pack-loading-contract.md"
+  base: "_base"
+  primary: ""
+  secondary: []
+  platform: []
+  audience: []
+  notes: []
+
 creative_mandate:
   story_kernel: ""
   emotional_core: ""

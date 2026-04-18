@@ -9,20 +9,31 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 本技能只负责角色对象判断与正式角色卡 payload，不替父层承担总线路由与最终 gate。
+- 本技能只负责角色对象判断、全剧集角色 roster 收束、正式角色卡 payload 与关系图谱 side output，不替父层承担总线路由与最终 gate。
 - 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` > `1-Cards/SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。
 
 ## Overview
 
-`角色卡` 是 `1-Cards` 的直连 child skill，负责把人物问题收束为正式角色卡 JSON。
+`角色卡` 是 `1-Cards` 的直连 child skill，负责把人物问题收束为全剧集级正式角色卡真源。
+
+本技能的人物塑形输入真源固定为：
+
+- `references/character-shaping-bridge.md`
+
+该桥接文档只负责把“人物如何长出来”的设计工法映射到正式角色卡字段，不得与 `templates/character-card.json` 形成第二套平行输出真源。
 
 它必须直接产出以下能力：
 
+- `一个角色一个 JSON`
 - `角色桶归属`
+- `cast_markers`
 - `relationship_edges`
 - `experience_timeline`
+- `card_scope=full-series`
 - `current_state.timeline_anchor`
 - `exclusive_item_hooks`
+- `角色关系图谱.md`
+- `wound / need / mirror_axis / highlight_moment / memory_point` 等人物塑形字段的正式落位
 
 它不负责：
 
@@ -34,46 +45,55 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把人物设定、关系与成长判断收束成可长期消费的角色卡。 |
-| `business_object` | `Cards/2-角色卡/**/*.json`、角色索引、`exclusive_item_hooks`。 |
-| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水。 |
-| `success_criteria` | 每张角色卡都能回答职责、关系、成长和专属物接口。 |
+| `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系。 |
+| `business_object` | `Cards/2-角色卡/**/*.json`、`Cards/2-角色卡/角色索引.json`、`Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
+| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单集临时卡。 |
+| `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
 | `non_goals` | 不替场景卡写空间规则，不替物品卡写代价。 |
-| `topology_fit` | `route confirm -> role bucket -> closure -> template mapping -> writeback payload` |
+| `topology_fit` | `route confirm -> full-series roster census -> bucket and cast markers -> closure -> single-card mapping -> relationship graph projection` |
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
     A["人物诉求"] --> B["确认进入角色卡 child skill"]
-    B --> C["锁角色桶与 narrative_function"]
-    C --> D["压实关系边与成长时间线"]
-    D --> E["补 exclusive_item_hooks"]
-    E --> F["映射 character-card.json"]
+    B --> C["锁全剧集角色 roster"]
+    C --> D["锁角色桶与 cast_markers"]
+    D --> E["压实关系边与成长时间线"]
+    E --> F["补 exclusive_item_hooks 与 timeline_anchor"]
+    F --> G["一个角色一个 JSON 映射"]
+    G --> H["投影 角色关系图谱.md"]
 ```
 
 ```mermaid
 stateDiagram-v2
     [*] --> Routed
-    Routed --> Bucketed
+    Routed --> RosterClosed
+    RosterClosed --> Bucketed
     Bucketed --> Closed
     Closed --> Mapped
-    Mapped --> ReadyForWriteback
+    Mapped --> Graphed
+    Graphed --> ReadyForWriteback
 ```
 
 ```mermaid
 flowchart LR
-    A["narrative_function"] --> B["relationship_edges"]
-    B --> C["experience_timeline"]
-    C --> D["timeline_anchor"]
-    D --> E["exclusive_item_hooks"]
+    A["bucket / group"] --> B["cast_markers"]
+    B --> C["narrative_function"]
+    C --> D["relationship_edges"]
+    D --> E["experience_timeline + card_scope"]
+    E --> F["timeline_anchor + exclusive_item_hooks"]
+    F --> G["角色关系图谱.md"]
 ```
 
 ## Total Input Contract
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
+- `references/character-shaping-bridge.md`
 - 既有 `Cards/2-角色卡/**/*.json`（若存在）
+- 既有 `Cards/2-角色卡/角色索引.json`（若存在）
+- 既有 `Cards/2-角色卡/角色关系图谱.md`（若存在）
 - mixed/full-build 时的父层路由结论
 
 ## Thinking-Action Network
@@ -81,21 +101,45 @@ flowchart LR
 | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- |
 | `C1` | 确认当前真的是角色问题 | `module_route=story-cards > 角色卡/SKILL.md` | `FAIL-CD-CHAR-ROUTE` | 回父技能重路由 |
-| `C2` | 锁角色桶与职责 | `narrative_function + group` | `FAIL-CD-CHAR-BUCKET` | 回角色分桶 |
-| `C3` | 闭合关系与成长 | `relationship_edges + experience_timeline` | `FAIL-CD-CHAR-CLOSURE` | 回成长/关系 |
-| `C4` | 补当前态与时间锚点 | `timeline_anchor + current_state` | `FAIL-CD-CHAR-TIMELINE` | 回当前态 |
-| `C5` | 输出专属物接口 | `exclusive_item_hooks` | `FAIL-CD-CHAR-HOOKS` | 回角色接口 |
-| `C6` | 映射模板 | `character-card payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `C2` | 锁全剧集 roster 边界 | `series roster + no episode-only role card` | `FAIL-CD-CHAR-ROSTER` | 回 roster 清点 |
+| `C3` | 锁角色桶与职责 | `narrative_function + group + cast_markers` | `FAIL-CD-CHAR-BUCKET` | 回角色分桶 |
+| `C4` | 把人物工法映射为正式字段 | `desire / flaw / wound / need / change / mirror_axis / highlight_moment / memory_point` | `FAIL-CD-CHAR-SHAPING` | 回人物塑形映射 |
+| `C5` | 闭合关系与成长 | `relationship_edges + experience_timeline + card_scope` | `FAIL-CD-CHAR-CLOSURE` | 回成长/关系 |
+| `C6` | 补当前态与时间锚点 | `timeline_anchor + current_state + exclusive_item_hooks` | `FAIL-CD-CHAR-TIMELINE` | 回当前态 |
+| `C7` | 映射单角色模板 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `C8` | 投影角色关系图谱 | `角色关系图谱.md（文字说明 + Mermaid）` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
+
+人物塑形硬映射：
+
+- `Desire` -> `core.desire_flaw_arc.surface_goal` / `true_desire`
+- `Flaw` -> `core.desire_flaw_arc.flaw`
+- `Wound` -> `core.desire_flaw_arc.wound`
+- `Need` -> `core.desire_flaw_arc.need`
+- `Change` -> `core.desire_flaw_arc.change_payoff` + `experience_timeline.current_growth_stage`
+- 反派镜像原则 -> `core.antagonism_design.mirror_axis`
+- 反派等级/压迫感 -> `core.antagonism_design.antagonist_rank` / `pressure_profile`
+- 女主高光时刻 -> `core.role_setpiece.highlight_moment`
+- 配角记忆点 -> `core.role_setpiece.memory_point`
 
 ## One-Shot Output Contract
 
-本技能只交付一套正式角色卡 payload：
+本技能只交付一套正式角色卡 payload 与一个正式图谱 side output：
 
-- `Cards/2-角色卡/**/*.json`
+- `Cards/2-角色卡/主要角色/*.json`
+- `Cards/2-角色卡/反派角色/*.json`
+- `Cards/2-角色卡/次要角色/*.json`
+- `Cards/2-角色卡/群像角色/*.json`
+- `Cards/2-角色卡/角色索引.json`
+- `Cards/2-角色卡/角色关系图谱.md`
 - 可进入索引的 `relationship_edges`
 - 可被物品卡消费的 `exclusive_item_hooks`
 
-禁止交付平行 Markdown 卡与临时解释稿。
+硬规则：
+
+1. 任何角色都必须是独立 `.json`，不得把多个角色并入同一角色总表。
+2. 每张角色卡都必须带 `group + cast_markers + card_scope=full-series`。
+3. `角色关系图谱.md` 只允许作为关系投影 side output，不得反向替代角色 JSON 真源。
+4. 禁止交付单集角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
 
 ## Root-Cause Execution Contract
 
@@ -105,26 +149,34 @@ flowchart LR
 
 优先修：
 
-1. 分桶错误
-2. 关系/成长闭合
-3. 专属物接口
-4. 模板映射
+1. 全剧集 roster 漏角或出现单集临时卡
+2. 分桶与 `cast_markers` 不一致
+3. 人物塑形工法没有落到正式字段
+4. 关系/成长闭合
+5. 专属物接口
+6. 图谱投影与模板映射
 
 ## Lite Field Mapping
 
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-CD-CHAR-01` | `C1` | 角色路由正确 | `content.module_route` | `FAIL-CD-CHAR-ROUTE` | 回父技能 |
-| `FIELD-CD-CHAR-02` | `C2-C4` | 角色成立 | `narrative_function + relationship_edges + experience_timeline + timeline_anchor` | `FAIL-CD-CHAR-CLOSURE` | 回角色闭合 |
-| `FIELD-CD-CHAR-03` | `C5` | 下游接口成立 | `exclusive_item_hooks` | `FAIL-CD-CHAR-HOOKS` | 回角色接口 |
-| `FIELD-CD-CHAR-04` | `C6` | 正式模板可写回 | `character-card payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-CHAR-02` | `C2` | 全剧集覆盖成立 | `series roster + no episode-only role card` | `FAIL-CD-CHAR-ROSTER` | 回 roster |
+| `FIELD-CD-CHAR-03` | `C3-C4` | 角色塑形成立 | `group + cast_markers + narrative_function + desire_flaw_arc + antagonism_design + role_setpiece` | `FAIL-CD-CHAR-SHAPING` | 回塑形映射 |
+| `FIELD-CD-CHAR-04` | `C5-C6` | 关系与时间闭合 | `relationship_edges + experience_timeline + timeline_anchor + card_scope + exclusive_item_hooks` | `FAIL-CD-CHAR-CLOSURE` | 回角色闭合 |
+| `FIELD-CD-CHAR-05` | `C7` | 正式模板可写回 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-CHAR-06` | `C8` | 图谱 side output 成立 | `角色关系图谱.md` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
 
 ## Completion Gate
 
-- 角色桶明确且不撞位。
-- `experience_timeline + timeline_anchor` 已成立。
+- 全剧集角色 roster 已闭合，且没有多角色合并 JSON。
+- 角色桶明确且 `cast_markers` 不撞位。
+- `Desire / Flaw / Wound / Need / Change` 已落到正式字段，而不是停留在 prose 备注。
+- 反派镜像轴、女主高光时刻、配角记忆点等塑形信息已按角色适用性落到结构字段。
+- `experience_timeline + timeline_anchor + card_scope=full-series` 已成立。
 - `relationship_edges` 可解释当前戏剧关系。
 - `exclusive_item_hooks` 可供 `物品卡` 消费。
+- `角色关系图谱.md` 同时包含文字说明与 Mermaid 图表。
 
 ## Dispatch Note
 

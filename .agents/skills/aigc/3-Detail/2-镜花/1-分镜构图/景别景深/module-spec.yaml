@@ -1,14 +1,19 @@
 version: 1
 module_id: jinghua-shot-size-depth
 module_level: leaf
-purpose: 在已稳定的 `composition_skeleton` 上锁每镜的观看距离、景别曲线、景深层级与心理距离，让观众离故事多近、看得多深都先成立。
+purpose: 在已稳定的 `composition_skeleton` 上锁每镜的观看距离、空间纳入/排除倾向、景别曲线、景深层级、视觉焦点与心理距离，让观众离故事多近、看得多深、该看哪里都先成立。
 triggers:
   - 已存在 `composition_skeleton`
   - 需要判断 close / medium / wide 与前中后景层级如何服务叙事
 must_answer:
   - 当前组更适合哪种景别曲线，为什么
   - 每镜的观看距离如何服务主动作、主情绪与主视线
+  - 当前镜更需要纳入环境还是压缩关系；这种空间取向如何表述为观看空间偏置，而不是具体焦段参数
   - 前中后景的景深层级如何帮助观众读取冲突和空间
+  - 前景遮挡、主体重叠、相对尺寸差异是否需要承担 Z 轴深度提示与叙事任务
+  - 当前镜更适合封闭景框还是开放景框；若开放，观众该被引向哪一侧画外、画外未知是什么
+  - 视觉焦点如何保持唯一或主次清晰，避免前中后景同时抢戏
+  - 团体镜头或多人镜头中，关系读法更适合拉长 Z 轴还是压缩 Z 轴
   - 心理距离怎样随着情绪升降变化
   - `景深` 在本叶子中如何被理解为观看深度层级，而不是器材参数
 patch_contract:
@@ -16,20 +21,34 @@ patch_contract:
   required_elements:
     - rhythm_template
     - per_shot_size_curve
+    - lens_space_bias
     - depth_emphasis
+    - z_axis_layering_note
+    - focus_attention_rule
+    - frame_enclosure_policy
     - psychological_distance_note
 merge_policy:
   preserve_first:
     - shot readability
     - emotional distance
+    - space inclusion bias
     - foreground_midground_background layering
+    - visual focus clarity
+    - offscreen guidance readability
     - conflict emphasis
   trim_first:
     - 为了变化而变化的景别跳跃
     - 把景深写成焦段/光圈值
+    - 没有叙事任务的前景遮挡
+    - 只有“留白感”却没有画外引导的开放景框
 quality_gates:
   - 必须依附 `composition_skeleton`，不得重写画面几何与主陪背景
-  - 必须完成景别曲线、景深层级与心理距离的预判
+  - 必须完成景别曲线、空间偏置、景深层级、焦点组织与心理距离的预判
   - 不得写成精确摄影器材或光圈参数
   - 景别变化必须服务主冲突、主情绪或主视线
+  - 若使用开放景框，必须明确画外方向与未知对象；不得只写“留白”或“悬念感”
+  - 若使用前景遮挡、重叠或相对尺寸，必须说明它承担的是偷窥、压迫、引导还是深度提示
+  - 视觉焦点必须唯一或有清晰主次，不得让前中后景同时争主位
+  - 团体镜头必须先锁关系读法，再判断拉长 Z 轴还是压缩 Z 轴
+  - 若需要“宽视野 + 浅景深”，必须先用层级设计解决，不得退化成参数堆砌
   - 若 close / medium / wide 仍说不清，不得进入 `镜头类型`

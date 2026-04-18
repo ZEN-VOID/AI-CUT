@@ -2,13 +2,17 @@ version: 1
 module_id: jinghua-camera-speed
 module_level: leaf
 purpose: 为镜头运动和镜间节奏确定默认速度档、变速方式与停顿强度，让 `镜头速度` 明确服务既定运镜路线。
+reference_paths:
+  - 3-运镜手法/references/电影镜头调度-运镜判型.md
 triggers:
   - 当前组需要明确紧张、迟疑、凝视或爆发的节奏
   - 默认运镜路线已成立，需要把运动压成可执行速度信号
 must_answer:
   - 默认速度应该快、缓、停、骤变还是渐进，为什么
+  - 当前节奏更像 slow creep、escort pace、pause push、hold then burst、speed contrast 还是 counter-flow
   - 这种速度如何呼应动作、情绪和揭示节拍
   - 哪些位置需要留白停顿
+  - 是否真的需要速度对比或变速，而不是只靠默认速度档
   - 速度如何与 `运镜手法` 分工，而不是替代运动路径本身
 patch_contract:
   target_slot: speed_profile
@@ -17,9 +21,20 @@ patch_contract:
     - pace_choice
     - hold_or_burst_point
     - rhythm_reason
+  recommended_subelements:
+    default_pace:
+      - pace_envelope
+      - movement_support_mode
+    pace_choice:
+      - single_key_shift
+      - speed_contrast_type
+    rhythm_reason:
+      - action_or_reveal_anchor
+      - why_not_flatter
 merge_policy:
   preserve_first:
     - narrative speed baseline
+    - single pace envelope
     - emotional tempo
     - readable breathing room
   trim_first:
@@ -28,5 +43,7 @@ merge_policy:
 quality_gates:
   - 速度必须能被剪辑和摄影执行想象
   - "`镜头速度` 只能回答“动多快 / 如何变速”，不得回写运动路径"
+  - 必须先有默认速度档，再允许速度对比或关键变速
   - 默认速度必须先于挑战变速存在
   - 不得全程同速或无必要骤变
+  - 速度对比、反流、停后爆发等模式只有在收益明确时才允许成立

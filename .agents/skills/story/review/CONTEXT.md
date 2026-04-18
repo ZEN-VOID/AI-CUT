@@ -18,7 +18,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 |---|---|---|---|---|
-| `review/` 绕过 `4-Validation` 直接起 checker | skill contract | 回到 `4-Validation` 创建新隔离团队 | 在 `review/SKILL.md` 写死 intake gate | 直接调用 `/story-review` 时仍先进入 `4-Validation` |
+| `review/` 在没有当前轮 aggregate 时绕过 `4-Validation`，或明明已显式提供当前轮 aggregate 还被要求无条件重跑 | skill contract | 按“有当前轮 aggregate 就校验后消费；没有才回 `4-Validation`”修 intake gate | 在 `review/SKILL.md` 固定 direct-call 的双分支 intake | 直接调用 `/story-review` 时，不会既跳过 aggregate 校验，也不会无意义重跑 |
 | 报告内容与聚合结果不一致 | aggregation | 以上游聚合结果重建报告 | 禁止在 `review/` 层主观重估分数或改写 issue | 报告中的 `issues / severity_counts / overall_score` 可追溯 |
 | `anti_ai_force_check` 等新质控字段只写进文档和 JSON 示例，SQLite 实际没存 | persistence contract | 同步修 `index_manager.py`、`index_reading_mixin.py`、CLI 解析与测试 | 凡是一等趋势字段，必须“文档 + schema + save/read + tests”四处同改 | `get-recent-review-metrics` 可直接返回四个风险字段 |
 | 风险字段已落库，但 `STATE.json.review_checkpoints` 与趋势报告仍看不见 | state/index observation | 给 review checkpoint 增加四个轻量风险字段，并让趋势报告直接展示风险雷达 | 一等风险字段至少要贯穿 `review_metrics`、`review_checkpoints`、趋势报告三层观察面 | resume/status/trend 都能直接看到 `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk` |
@@ -40,6 +40,7 @@
 - `review/` 的职责是“承接、落盘、升级、桥接”，不是“再做一遍判断”。
 - 只要某个字段要进入趋势统计，它就必须成为 SQLite 正式列，而不是停留在示例 JSON 或 `notes`。
 - `validation_status` 的所有权只在 `4-Validation`；`review/` 只能说明它、不能改写它。
+- `review/` 的 intake gate 要先判“当前轮 aggregate 是否已经存在且可证明有效”，再决定是消费还是回 `4-Validation` 重建。
 - `STATE.json.review_checkpoints` 最适合保存“章节范围 + 报告路径 + 时间戳”的轻量摘要，不适合塞回完整 issue 列表。
 - 轻量摘要不等于盲摘要；凡是需要被 `resume / status / trend` 快速识别的一等风险字段，应与报告路径一起回写到 `review_checkpoints`。
 - 解释规划影响时，优先读 `全息地图.json`；解释运行态时，优先读 `STATE.json`；解释历史趋势时，优先读 `index.db.review_metrics`。

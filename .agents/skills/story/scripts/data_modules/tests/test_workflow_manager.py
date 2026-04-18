@@ -22,12 +22,40 @@ def _seed_project_root(project_root: Path) -> None:
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
 
+def _seed_manuscript(project_root: Path, chapter_num: int, text: str) -> None:
+    drafting_dir = project_root / "3-Drafting"
+    drafting_dir.mkdir(parents=True, exist_ok=True)
+    (drafting_dir / f"第{chapter_num}集.md").write_text(text, encoding="utf-8")
+
+
+def _pass_all_active_inline_validators(module) -> None:
+    state = module.load_state()
+    task = state.get("current_task") or {}
+    batch = ((task.get("inline_validation") or {}) if isinstance(task, dict) else {}).get("active_batch")
+    assert batch is not None
+    step_id = batch["step_id"]
+    for validator in batch.get("validators", []):
+        module.record_inline_validation(
+            step_id,
+            validator["role_id"],
+            json.dumps(
+                {
+                    "validation_context": "drafting_inline",
+                    "pass": True,
+                    "issues": [],
+                    "summary": "ok",
+                },
+                ensure_ascii=False,
+            ),
+        )
+
+
 def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    module.start_task("story-write", {"chapter_num": 7})
+    module.start_task("story-plan", {"chapter_num": 7})
     module.start_step("Step 1", "Context")
     module.complete_step("Step 1", json.dumps({"state_json_modified": True}, ensure_ascii=False))
     module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
@@ -43,7 +71,7 @@ def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     )
     assert execution_state["active_run_id"] is None
     assert execution_state["runs"][-1]["status"] == module.TASK_STATUS_COMPLETED
-    assert execution_state["stage_progress"]["3-drafting"]["status"] == module.TASK_STATUS_COMPLETED
+    assert execution_state["stage_progress"]["2-planning"]["status"] == module.TASK_STATUS_COMPLETED
     assert execution_state["runs"][-1]["governance_refs"]["validation_report_ref"] == (
         f"STATE.json#workflow_runtime.governance_index.{run_id}.validation_report"
     )
@@ -74,7 +102,7 @@ def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     assert governance_bundle["route_plan"]["task_id"] == run_id
     assert governance_bundle["preflight_verdict"]["task_id"] == run_id
     assert governance_bundle["artifact_manifest"]["status"] == module.TASK_STATUS_COMPLETED
-    assert governance_bundle["validation_report"] == f"story-write 已完成，run_id={run_id}"
+    assert governance_bundle["validation_report"] == f"story-plan 已完成，run_id={run_id}"
     assert governance_bundle["learning_record"] == "completed"
 
 
@@ -115,6 +143,7 @@ def test_complete_step_rejects_mismatch_step_id(tmp_path, monkeypatch):
     module.start_task("story-write", {"chapter_num": 9})
     module.start_step("Step 1", "Context")
     module.complete_step("Step 1")
+    _pass_all_active_inline_validators(module)
     module.start_step("Step 2", "Pacing")
     module.complete_step("Step 3")
 
@@ -123,6 +152,151 @@ def test_complete_step_rejects_mismatch_step_id(tmp_path, monkeypatch):
     assert current_step is not None
     assert current_step["id"] == "Step 2"
     assert current_step["status"] == module.STEP_STATUS_RUNNING
+
+
+def test_story_write_step_completion_triggers_inline_validation_batch(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    module.start_task("story-write", {"chapter_num": 14})
+    module.start_step("Step 1", "Context")
+    module.complete_step("Step 1")
+
+    state = module.load_state()
+    task = state["current_task"]
+    inline_state = task["inline_validation"]
+    active_batch = inline_state["active_batch"]
+
+    assert active_batch is not None
+    assert active_batch["step_id"] == "Step 1"
+    assert active_batch["status"] == module.INLINE_VALIDATION_STATUS_PENDING
+    assert {item["role_id"] for item in active_batch["validators"]} == {
+        "structure-validator",
+        "continuity-validator",
+        "logic-validator",
+        "timeline-validator",
+    }
+
+
+def test_story_write_complete_step_auto_runs_inline_validation_when_manuscript_exists(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+    _seed_manuscript(
+        tmp_path,
+        19,
+        "清晨，李青还站在山门前。长老拦住他，问他为何执意下山。李青没有解释太多，只说自己要把昨夜留下的线索查清。",
+    )
+
+    module.start_task("story-write", {"chapter_num": 19})
+    module.start_step("Step 1", "单集叙事起盘")
+    module.complete_step("Step 1")
+
+    state = module.load_state()
+    inline_state = state["current_task"]["inline_validation"]
+    assert inline_state["active_batch"] is None
+    assert inline_state["history"]
+    assert inline_state["latest_summary"]["reason"] == "auto_runner_recorded"
+
+
+def test_story_write_next_step_blocked_until_inline_validation_finishes(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    module.start_task("story-write", {"chapter_num": 15})
+    module.start_step("Step 1", "Context")
+    module.complete_step("Step 1")
+    module.start_step("Step 2", "Pacing")
+
+    state = module.load_state()
+    assert state["current_task"]["current_step"] is None
+    assert state["current_task"]["inline_validation"]["active_batch"] is not None
+
+
+def test_story_write_passed_inline_validation_allows_next_step(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    module.start_task("story-write", {"chapter_num": 16})
+    module.start_step("Step 1", "Context")
+    module.complete_step("Step 1")
+    _pass_all_active_inline_validators(module)
+    module.start_step("Step 2", "Pacing")
+
+    state = module.load_state()
+    assert state["current_task"]["current_step"]["id"] == "Step 2"
+    assert state["current_task"]["inline_validation"]["active_batch"] is None
+    assert state["current_task"]["inline_validation"]["blocking_gate"] is None
+
+
+def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    module.start_task("story-write", {"chapter_num": 17})
+    module.start_step("Step 1", "单集叙事起盘")
+    module.complete_step("Step 1")
+    _pass_all_active_inline_validators(module)
+    module.start_step("Step 2", "节奏优化")
+    module.complete_step("Step 2")
+    _pass_all_active_inline_validators(module)
+    module.start_step("Step 3", "场景和氛围渲染")
+    module.complete_step("Step 3")
+    module.start_step("Step 4", "角色形象刻画")
+    module.complete_step("Step 4")
+
+    state = module.load_state()
+    batch = state["current_task"]["inline_validation"]["active_batch"]
+    assert batch is not None
+
+    for validator in batch["validators"]:
+        payload = {
+            "validation_context": "drafting_inline",
+            "pass": validator["role_id"] != "logic-validator",
+            "issues": [],
+            "summary": "ok",
+        }
+        if validator["role_id"] == "logic-validator":
+            payload["issues"] = [
+                {
+                    "id": "LG-017-001",
+                    "severity": "high",
+                    "rework_target_step": "1-单集叙事起盘",
+                    "source_layer_owner": "3-Drafting",
+                }
+            ]
+        module.record_inline_validation("Step 4", validator["role_id"], json.dumps(payload, ensure_ascii=False))
+
+    module.start_step("Step 5", "对白个性化和声口优化")
+    state = module.load_state()
+    assert state["current_task"]["current_step"] is None
+    gate = state["current_task"]["inline_validation"]["blocking_gate"]
+    assert gate["allowed_rework_step_id"] == "Step 1"
+
+    module.start_step("Step 1", "单集叙事起盘")
+    state = module.load_state()
+    assert state["current_task"]["current_step"]["id"] == "Step 1"
+    assert state["current_task"]["inline_validation"]["blocking_gate"] is None
+
+
+def test_story_write_complete_task_requires_candidate_final_draft(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    module.start_task("story-write", {"chapter_num": 18})
+    module.start_step("Step 1", "单集叙事起盘")
+    module.complete_step("Step 1")
+    _pass_all_active_inline_validators(module)
+    module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
+
+    state = module.load_state()
+    assert state["current_task"] is not None
+    assert state["current_task"]["status"] == module.TASK_STATUS_RUNNING
 
 
 def test_workflow_step_owner_and_order_violation_trace(tmp_path, monkeypatch):

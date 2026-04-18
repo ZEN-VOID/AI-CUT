@@ -87,6 +87,9 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert north_star["story_kernel"]["opening_hook"] == "开篇第一夜就有人因误读规则暴毙"
     assert north_star["reader_promise"]["anti_trope"] == "不用无脑碾压升级，而用规则理解差建立压迫感"
     assert north_star["cards"]["world_system"]["worldview"]["genre"] == "修仙+规则怪谈"
+    assert north_star["type_stack"]["primary"] == "网文高冲击"
+    assert "修仙" in north_star["type_stack"]["secondary"]
+    assert "规则怪谈" in north_star["type_stack"]["secondary"]
 
     assert source_manifest["primary_story_source"]["status"] == "missing"
     assert source_manifest["readiness"]["can_enter_cards"] is True
@@ -98,6 +101,7 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert init_handoff["project_contract"]["recommended_next_stage"] == "1-Cards"
     assert init_handoff["stage_entry_seeds"]["cards_seed"]["character_seed"]["protagonist"]["name"] == "林默"
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["story_engine"]["golden_finger_growth_rhythm"] == "慢热"
+    assert init_handoff["stage_entry_seeds"]["planning_seed"]["type_stack"]["primary"] == "网文高冲击"
 
     assert "写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。" in changelog
     assert "## 初始化合同快照" in legacy_outline
@@ -138,6 +142,30 @@ def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatc
     assert "constraints.anti_trope" in init_handoff["sources_breakdown"]["assistant_inferred"]
 
 
+def test_init_project_infers_expanded_legacy_type_packs(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "is_git_available", lambda: False)
+    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
+
+    project_root = tmp_path / "projects" / "story" / "旧题材映射书"
+    module.init_project(
+        str(project_root),
+        "旧题材映射书",
+        "古言+狗血言情+末世+知乎短篇",
+        target_reader="女频",
+        target_words=120000,
+        target_chapters=36,
+        one_liner="一座失控古城里，皇族遗脉在规则崩塌后求生并复仇。",
+    )
+
+    north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
+    stack = north_star["type_stack"]
+    assert "古言剧" in stack["secondary"]
+    assert "狗血言情" in stack["secondary"]
+    assert "末世" in stack["secondary"]
+    assert "知乎短篇" in stack["secondary"]
+
+
 def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "is_git_available", lambda: False)
@@ -168,6 +196,34 @@ def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_pa
     assert init_handoff["init_session"]["team_setup"]["roles"]["production"]["members"] == expected
     assert init_handoff["init_session"]["team_setup"]["roles"]["review"]["members"] == expected
     assert team_manifest["roles"]["planning"]["members"] == expected
+
+
+def test_init_project_allows_explicit_type_stack_override(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "is_git_available", lambda: False)
+    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
+
+    project_root = tmp_path / "projects" / "story" / "显式类型包书"
+    module.init_project(
+        str(project_root),
+        "显式类型包书",
+        "都市",
+        target_reader="大众",
+        platform="任意平台",
+        type_pack_primary="网文高冲击",
+        type_pack_secondary="都市复仇,规则悬疑",
+        type_pack_platform="起点连载",
+        type_pack_audience="男频快节奏",
+        type_pack_notes="user_override",
+    )
+
+    north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
+    stack = north_star["type_stack"]
+    assert stack["primary"] == "网文高冲击"
+    assert stack["secondary"] == ["都市复仇", "规则悬疑"]
+    assert stack["platform"] == ["起点连载"]
+    assert stack["audience"] == ["男频快节奏"]
+    assert stack["inferred"] is False
 
 
 def test_init_project_defaults_mode_source_and_user_confirmed(tmp_path, monkeypatch):

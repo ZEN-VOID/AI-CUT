@@ -22,7 +22,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 |---|---|---|---|---|
-| `resume/` 仍把 query 当成正式断点恢复对象 | skill contract | 在 `SKILL.md` 明确只正式支持 `story-write` / `story-review` | 把 unsupported scope 写成显式表格，禁止伪造断点续跑 | `resume` 文档不再把 query 描述成 tracked workflow |
+| `resume/` 把 `story-query` 误写成“完全不支持”或误抬成 `story-write` 级重型恢复 | skill contract | 把 `story-query` 改成“light tracked + generic recovery only” | 在 `SKILL.md` / `workflow-resume.md` 同步写死 query 只提供 generic continue / rerun / diagnosis | `resume` 文档能说明 query 有 tracked run，但不会误导到章节 cleanup |
 | 恢复建议仍引用 `git reset --hard` 或假定存在章节 tag | script gate + reference contract | 同时修 `workflow_manager.py` 与 `workflow-resume.md`，改成 preview-confirm cleanup / manual inspection | 在 skill 与脚本双层写死“禁止 destructive 默认动作” | `detect`/参考文档/skill 文档都不再出现默认硬回滚 |
 | 恢复后默认退回旧 `大纲/` | shared data-flow contract | 在 `resume` 写死 holomap-first | 在 `resume` 与共享 data-flow 文档中同步固定 | 恢复继续 drafting/query 时明确优先 `全息地图.json` |
 | `resume/` 与 `5-Loopback` actualization 职责混淆 | stage contract | 在 `resume/SKILL.md` 明确其是 satellite recovery skill | 在 `5-Loopback` 与 `resume` 同时固定边界 | 不再把恢复动作描述成 truth writeback |
@@ -53,4 +53,5 @@
 - 当 `detect` 输出只是诊断原料时，`resume/` 还必须做人类可执行的二次归一化，不能把脚本内部动作说明直接当 SOP。
 - 一旦仓库已经把三件套内联进 `STATE.json.workflow_runtime`，恢复判断就不该再只靠单一 `current_task`；优先看 run registry，再看兼容断点，再看事件链。
 - `resume/` 的正式支持清单必须跟 `workflow_manager.py` registry 同步缩放；命令下线后，不保留“理论上还能恢复”的幽灵入口。
+- `query` 这种轻量 tracked run 要和 `write/review` 这种重型恢复对象分开写；前者可以有 run 记录，但不能套章节 cleanup 模板。
 - 只要 `3-Drafting` 的正文真源换了路径，恢复链路里所有“删除半成品/继续加工”的目标文件都要一起换，否则用户会清理错对象。

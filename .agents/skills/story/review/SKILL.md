@@ -17,7 +17,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 
 - `review/` 是**评估结果承接层**，负责报告生成、评分落库、状态回写、关键问题升级，以及向后续闭环提供稳定的审查持久化结果。
 - 它不是 canonical checker 调度入口；canonical 调度入口始终是 [`4-Validation`](../4-Validation/SKILL.md)。
-- 当用户直接调用 `/story-review` 时，也必须先进入 `4-Validation` 创建新的后台隔离评估团队，再由 `review/` 消费聚合结果。
+- 当用户直接调用 `/story-review` 且未显式提供当前轮聚合结果时，必须先进入 `4-Validation` 创建新的后台隔离评估团队；若当前轮聚合结果已存在且仍有效，可直接由 `review/` 消费。
 
 ## Stage Alignment（必须遵守）
 
@@ -143,7 +143,8 @@ Step 映射（必须与 `workflow_manager.py get_pending_steps("story-review")` 
 
 - 若当前没有 `4-Validation` 的聚合输出，必须先回到 `4-Validation` 创建新的后台多智能体团队。
 - 不得在 `review/` 内直接复用旧 checker 线程或直接产出“自审”结论。
-- 若用户是直接调用 `/story-review`，本 skill 的第一动作仍然是触发 `4-Validation`，而不是跳过隔离评估。
+- 若用户是直接调用 `/story-review` 且未给出当前轮聚合结果，本 skill 的第一动作仍然是触发 `4-Validation`，而不是跳过隔离评估。
+- 若用户已显式提供当前轮聚合 JSON / `validation_ref`，可直接进入 `review/`，但必须先校验字段完整性与当前轮有效性。
 - 若 `validation_status=PASS`：
   - 必须保留上游的 `routing_decision=handoff_to_review_and_loopback`
   - 必须保留 `handoff_targets` 中的 `review/` 与 `5-Loopback`
@@ -154,8 +155,8 @@ Step 映射（必须与 `workflow_manager.py get_pending_steps("story-review")` 
 
 必读：
 ```bash
-cat "${REPO_ROOT}/.agents/skills/story/references/shared/core-constraints.md"
-cat "${REPO_ROOT}/.agents/skills/story/references/context-contract-v2.md"
+cat "${REPO_ROOT}/.agents/skills/story/_shared/core-constraints.md"
+cat "${REPO_ROOT}/.agents/skills/story/_shared/context-loading-contract.md"
 cat "$PROJECT_ROOT/STATE.json"
 ```
 
@@ -355,8 +356,8 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 - `Rule Source` 默认优先检查：
   - 当前 `review/SKILL.md`
   - `4-Validation/SKILL.md`
-  - `../references/validation-team-contract.md`
-  - `3-Drafting/step-3-review-gate/appendix-review-gate.md`
+  - `../4-Validation/_shared/validation-team-contract.md`
+  - `../3-Drafting/_shared/drafting-instant-validation-contract.md`
   - `scripts/data_modules/index_manager.py`
   - `scripts/data_modules/index_reading_mixin.py`
 - `Meta Rule Source` 默认上溯到仓库 `AGENTS.md` 与相关 meta skill。
@@ -377,7 +378,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow compl
 
 ## Completion Gate
 
-- 本轮报告基于 `4-Validation` 的新后台隔离团队输出。
+- 本轮报告基于当前轮 `4-Validation` 聚合输出，且该输出已确认仍有效。
 - `review_metrics` 已落库，且四个风险字段已写入正式列。
 - `STATE.json.review_checkpoints` 已回写摘要记录。
 - 已生成 `review_handoff_summary`，且未改写上游 `validation_status / routing_decision / handoff_targets`。

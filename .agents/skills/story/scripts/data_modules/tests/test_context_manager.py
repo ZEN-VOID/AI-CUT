@@ -97,6 +97,60 @@ def test_context_manager_build_and_filter(temp_project):
     assert payload["sections"]["preferences"]["content"].get("tone") == "热血"
 
 
+def test_context_manager_explicitly_loads_global_cards(temp_project):
+    state = {
+        "protagonist_state": {"name": "萧炎"},
+        "chapter_meta": {},
+        "disambiguation_warnings": [],
+        "disambiguation_pending": [],
+    }
+    temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+
+    global_card_dir = temp_project.project_root / "Cards" / "0-全局卡" / "总设定"
+    global_card_dir.mkdir(parents=True, exist_ok=True)
+    global_card_ref = "Cards/0-全局卡/总设定/世界总卡.json"
+    (temp_project.project_root / "Cards" / "0-全局卡" / "全局索引.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_groups": {"master_globals": [global_card_ref]},
+                    "global_contract_refs": [{"card_id": "世界总卡", "path": global_card_ref}],
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (temp_project.project_root / global_card_ref).write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "global_card": {
+                            "core": {
+                                "worldview": {"genre": "玄幻"},
+                                "rule_system": [{"label": "铁律", "value": "越级有代价"}],
+                                "golden_finger": {"name": "残卷系统"},
+                            }
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    manager = ContextManager(temp_project)
+    payload = manager.build_context(1, use_snapshot=False, save_snapshot=False)
+    global_ctx = payload["sections"]["global"]["content"]
+    assert global_ctx["global_contract_refs"] == [global_card_ref]
+    assert global_ctx["global_card_count"] == 1
+    assert global_ctx["global_contract_summary"]["golden_finger"]["name"] == "残卷系统"
+
+
 def test_context_manager_loads_volume_outline_file(temp_project):
     state = {
         "progress": {
@@ -173,7 +227,7 @@ def test_context_manager_applies_ranker_and_contract_meta(temp_project):
     temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
     manager = ContextManager(temp_project)
-    payload = manager.build_context(4, use_snapshot=False, save_snapshot=False)
+    payload = manager.build_context(4, use_snapshot=False, save_snapshot=False, current_step_id="Step 2")
 
     assert payload["meta"].get("context_contract_version") == "v2"
     recent_meta = payload["sections"]["core"]["content"]["recent_meta"]
@@ -229,10 +283,16 @@ def test_context_manager_includes_reader_signal_and_genre_profile(temp_project):
     assert genre_profile.get("genre") == "xuanhuan"
     assert "profile_excerpt" in genre_profile
     assert "taxonomy_excerpt" in genre_profile
+    type_pack_profile = payload["sections"]["type_pack_profile"]["content"]
+    assert "_base" in (type_pack_profile.get("active_packs") or [])
+    assert type_pack_profile.get("resolver_ref")
+    guidance = payload["sections"]["writing_guidance"]["content"]
+    assert any("Type-Pack" in str(item) for item in (guidance.get("guidance_items") or []))
+    assert isinstance(guidance.get("checklist"), list)
 
 
 def test_context_manager_genre_section_and_refs_extraction(temp_project):
-    refs_dir = temp_project.project_root / ".agents" / "skills" / "story2026" / "references"
+    refs_dir = temp_project.project_root / ".agents" / "skills" / "story" / "_shared"
     refs_dir.mkdir(parents=True, exist_ok=True)
 
     (refs_dir / "genre-profiles.md").write_text(
@@ -267,6 +327,26 @@ def test_context_manager_genre_section_and_refs_extraction(temp_project):
 
     fallback_excerpt = manager._extract_genre_section("## a\n1\n## b\n2", "unknown")
     assert fallback_excerpt.startswith("## a")
+
+
+def test_context_manager_genre_profile_gracefully_degrades_without_reference_files(temp_project):
+    state = {
+        "project": {"genre": "xuanhuan"},
+        "protagonist_state": {"name": "萧炎"},
+        "chapter_meta": {},
+        "disambiguation_warnings": [],
+        "disambiguation_pending": [],
+    }
+    temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+
+    manager = ContextManager(temp_project)
+    manager._reference_roots = lambda: []  # type: ignore[method-assign]
+    profile = manager._load_genre_profile(state)
+
+    assert profile.get("genre") == "xuanhuan"
+    assert profile.get("profile_excerpt") == ""
+    assert profile.get("taxonomy_excerpt") == ""
+    assert profile.get("reference_hints") == []
 
 
 def test_context_manager_reader_signal_with_debt_and_disable_switch(temp_project):
@@ -314,7 +394,7 @@ def test_context_manager_includes_writing_guidance(temp_project):
     )
 
     manager = ContextManager(temp_project)
-    payload = manager.build_context(4, use_snapshot=False, save_snapshot=False)
+    payload = manager.build_context(4, use_snapshot=False, save_snapshot=False, current_step_id="Step 5")
 
     guidance = payload["sections"]["writing_guidance"]["content"]
     assert guidance.get("chapter") == 4
@@ -328,6 +408,7 @@ def test_context_manager_includes_writing_guidance(temp_project):
     checklist_score = guidance.get("checklist_score") or {}
     assert isinstance(checklist_score, dict)
     assert "score" in checklist_score
+    assert guidance.get("signals_used", {}).get("current_step_id") == "Step 5"
     assert "completion_rate" in checklist_score
     first_item = checklist[0]
     assert isinstance(first_item, dict)
@@ -340,7 +421,7 @@ def test_context_manager_includes_writing_guidance(temp_project):
 
 
 def test_context_manager_dynamic_weights_and_composite_genre(temp_project):
-    refs_dir = temp_project.project_root / ".agents" / "skills" / "story2026" / "references"
+    refs_dir = temp_project.project_root / ".agents" / "skills" / "story" / "_shared"
     refs_dir.mkdir(parents=True, exist_ok=True)
     (refs_dir / "genre-profiles.md").write_text(
         """
@@ -391,7 +472,7 @@ def test_context_manager_dynamic_weights_and_composite_genre(temp_project):
 
 
 def test_context_manager_genre_alias_guidance_and_heading_extraction(temp_project):
-    refs_dir = temp_project.project_root / ".agents" / "skills" / "story2026" / "references"
+    refs_dir = temp_project.project_root / ".agents" / "skills" / "story" / "_shared"
     refs_dir.mkdir(parents=True, exist_ok=True)
     (refs_dir / "genre-profiles.md").write_text(
         """
@@ -434,7 +515,7 @@ def test_context_manager_genre_alias_guidance_and_heading_extraction(temp_projec
 
 
 def test_context_manager_genre_aliases_normalized_for_profile_lookup(temp_project):
-    refs_dir = temp_project.project_root / ".agents" / "skills" / "story2026" / "references"
+    refs_dir = temp_project.project_root / ".agents" / "skills" / "story" / "_shared"
     refs_dir.mkdir(parents=True, exist_ok=True)
     (refs_dir / "genre-profiles.md").write_text(
         """

@@ -47,6 +47,10 @@ __all__ = [
     "ContextRanker",
     "SnapshotManager",
     "QueryRouter",
+    "TypePackResolver",
+    "normalize_drafting_step_id",
+    "resolve_stage_projection",
+    "resolve_type_pack_profile",
     # Style Sampler
     "StyleSampler",
     "StyleSample",
@@ -83,6 +87,10 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "ContextRanker": (".context_ranker", "ContextRanker"),
     "SnapshotManager": (".snapshot_manager", "SnapshotManager"),
     "QueryRouter": (".query_router", "QueryRouter"),
+    "TypePackResolver": (".type_pack_resolver", "TypePackResolver"),
+    "normalize_drafting_step_id": (".type_pack_resolver", "normalize_drafting_step_id"),
+    "resolve_stage_projection": (".type_pack_resolver", "resolve_stage_projection"),
+    "resolve_type_pack_profile": (".type_pack_resolver", "resolve_type_pack_profile"),
     # Style Sampler
     "StyleSampler": (".style_sampler", "StyleSampler"),
     "StyleSample": (".style_sampler", "StyleSample"),
@@ -103,4 +111,3 @@ def __getattr__(name: str) -> Any:  # pragma: no cover
 
 def __dir__() -> list[str]:  # pragma: no cover
     return sorted(set(list(globals().keys()) + list(_LAZY_EXPORTS.keys())))
-

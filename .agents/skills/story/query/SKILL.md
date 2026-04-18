@@ -24,6 +24,7 @@ allowed-tools: Read Grep Bash
 - `MAP` 回答“原计划如何编排”。
 - `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”。
 - `STATE/index` 回答“当前运行态和索引证据是什么”。
+- `workflow_runtime` 回答“当前跑到哪、最近哪个 run 卡住、恢复点在哪里”。
 - `actualization + loopback` 回答“哪些计划已经被 PASS 后正式兑现”。
 - `review_metrics` 回答“质量与风险最近怎样”。
 
@@ -97,6 +98,7 @@ Copy and track progress:
 | “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
 | “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
 | “最近质量如何 / 哪些风险在抬头” | `index.db.review_metrics` / `reading_power` | `STATE.json.review_checkpoints` | 不能只凭主观总结 |
+| “当前跑到哪 / 最近哪个 stage 卡住 / 最新 run / 恢复点在哪” | `STATE.json.workflow_runtime.execution_state / task_log` | `workflow_state`、`workflow status/list-runs` | 不能只看 `workflow_state.current_task` |
 | “关系图谱 / 某角色最近出场 / 状态变化证据” | `index.db` | `Cards` / `STATE.json` | 不能只扫 Markdown |
 | “XML 标签怎么写 / 手动补标规范” | `references/tag-specification.md` | 无 | 不能把它当普通剧情查询入口 |
 
@@ -105,6 +107,7 @@ Copy and track progress:
 - `计划问题` 优先问 `MAP`。
 - `对象问题` 优先问 `Cards`。
 - `运行态问题` 优先问 `STATE.json + index.db`。
+- `执行态问题` 优先问 `STATE.json.workflow_runtime.execution_state + task_log`。
 - `是否已正式发生` 优先问 `actualization + loopback + validation PASS`。
 
 ## Reference Loading Levels（strict, lazy）
@@ -122,7 +125,7 @@ Copy and track progress:
 - 伏笔紧急度 / 静默区 / 回收窗口：
   - [foreshadowing.md](references/advanced/foreshadowing.md)
 - Strand / 节奏结构 / 章节织线：
-  - [strand-weave-pattern.md](../references/shared/strand-weave-pattern.md)
+  - [strand-weave-pattern.md](../_shared/strand-weave-pattern.md)
 - 手动标签 / XML 兼容查询：
   - [tag-specification.md](references/tag-specification.md)
 
@@ -139,6 +142,7 @@ Copy and track progress:
 | 实际、已经发生、兑现了没、最后在哪集 | 实绩查询 | `MAP actualization + loopback artifact` |
 | 伏笔、紧急度、静默区、回收、兑现窗口 | 伏笔查询 | `伏笔设计 + MAP + status_reporter` |
 | 节奏、Strand、追读力、评分、风险 | 质量/节奏查询 | `status_reporter + index review_metrics` |
+| run、执行态、卡住、断点、恢复点、最近任务、心跳、task log | 执行态查询 | `workflow_runtime.execution_state + task_log` |
 | 标签、XML、手动标注 | 规范查询 | `tag-specification.md` |
 
 若一句话同时命中多个类型，先回答主问题，再补次要问题；不要把多种 truth 混成一个来源。
@@ -160,7 +164,7 @@ cat "${SKILL_ROOT}/references/advanced/foreshadowing.md"
 Strand / 节奏类问题额外读取：
 
 ```bash
-cat "${SKILL_ROOT}/../references/shared/strand-weave-pattern.md"
+cat "${SKILL_ROOT}/../_shared/strand-weave-pattern.md"
 ```
 
 仅当用户明确问标签/手动补标时读取：
@@ -233,6 +237,25 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-relat
 python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-appearances --entity "{entity_id}" --limit 20
 ```
 
+### F. 执行态 / run / 恢复点查询
+
+优先读取全阶段执行态，再用兼容断点补充：
+
+```bash
+python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow status --format json
+python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow list-runs --limit 10 --format json
+python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow detect
+```
+
+解释规则：
+
+- `execution_state`
+  - 回答“最近有哪些 run、各 stage 最新状态是什么、最新 resume point 在哪”。
+- `task_log`
+  - 回答“最近发生了哪些心跳、失败、清理、重入事件”。
+- `workflow_state`
+  - 只回答“当前兼容断点指针长什么样”，不能单独冒充全阶段执行真源。
+
 ## Step 4：交叉校验规则（Mandatory）
 
 以下冲突必须显式拆开，而不是混着回答：
@@ -249,6 +272,9 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-ap
 4. `STATE.json` 快照 与 `index.db` 证据
    - `STATE.json` 更像运行快照
    - `index.db` 更像细粒度索引与证据层
+5. `workflow_state` 与 `execution_state/task_log`
+   - `workflow_state` 更像当前 run 的兼容断点
+   - `execution_state + task_log` 才是全阶段执行真源与事件链
 
 若多个来源冲突，必须在输出中显式写：
 
@@ -265,6 +291,7 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-ap
 
 ## 类型判定
 - truth_role: {planned/current/validated_actual/quality/manual-spec/...}
+- truth_role: {planned/current/validated_actual/quality/execution/manual-spec/...}
 - 主真源: {source}
 - 辅助证据: {source}
 
@@ -299,6 +326,8 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index entity-ap
 | 实体状态变化 | `python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state-changes --entity "{entity_id}" --limit 20` |
 | 关系图谱 | `python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-relationship-graph --center "{entity_id}" --depth 2 --format mermaid` |
 | 最近评分趋势 | `python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-review-trend-stats --last-n 5` |
+| workflow 状态快照 | `python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow status --format json` |
+| 最近 run 列表 | `python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow list-runs --limit 10 --format json` |
 
 ## Root-Cause 执行合同
 

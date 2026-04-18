@@ -30,10 +30,10 @@ color: indigo
 7. `7-伏笔设计`
 新的 canonical 路线是：
 
-1. 每个子技能只产出自己的 `story_map_patch`。
+1. 每个子技能产出自己的 `story_map_patch`，并把本地 evidence artifact 落到 `Planning/pass-artifacts/`。
 2. 父层按固定顺序 `1 -> 7` 串行 progressive commit 到 `Planning/全息地图.json`。
-3. `Planning/全息地图.json` 是唯一规划真源，不再独立落盘 `Planning/1-7*.json`。
-4. 父层最后只做 normalize / validate，不再额外调度独立“第 8 份产物”。
+3. `Planning/全息地图.json` 是唯一规划真源，不再独立落盘第二份 `story_map.json`。
+4. 父层最后只做 normalize / validate，不再额外引入其他派生视图写回。
 
 ## Parent Positioning
 
@@ -68,10 +68,10 @@ color: indigo
 
 ## Shared Canonical Sources
 
-- `.agents/skills/story/_shared/story_map.schema.json`
-- `.agents/skills/story/_shared/story_map_bootstrap.template.json`
-- `.agents/skills/story/2-Planning/_shared/planning-branch-output-contract.md`
-- `.agents/skills/story/2-Planning/scripts/validate_story_map_output.py`
+- `../_shared/story_map.schema.json`
+- `../_shared/story_map_bootstrap.template.json`
+- `./_shared/planning-branch-output-contract.md`
+- `./scripts/validate_story_map_output.py`
 - `1-题材选型/SKILL.md`
 - `2-章节规划/SKILL.md`
 - `3-故事大纲/SKILL.md`
@@ -85,7 +85,7 @@ color: indigo
 - `2-Planning` 的正式业务落盘根目录固定为 `projects/story/<项目名>/Planning/`
 - 唯一规划真源固定为：
   - `projects/story/<项目名>/Planning/全息地图.json`
-- `1-7` 子技能虽按顺序生成 patch，但不得各自再起 sibling JSON 作为平行真源。
+- `1-7` 子技能虽按顺序生成 patch，但不得各自再起 sibling story_map JSON 作为平行真源。
 
 ## Template Layering Contract
 
@@ -96,14 +96,14 @@ color: indigo
 1. 各 planning child 的 artifact 模板必须跟随各自子技能包落在本地 `templates/`。
 2. 父层只保留 shared schema、bootstrap template、branch output contract 与 validator。
 3. 若某模板只服务某一个 planning child，不得再上提回 `2-Planning/templates/`。
-4. 若未来出现真正跨多个 planning child 复用的模板，应优先评估是否进入 `.agents/skills/story/_shared/`，而不是重新建立根层 `templates/`。
+4. 若未来出现真正跨多个 planning child 复用的模板，应优先评估是否进入 `../_shared/`，而不是重新建立根层 `templates/`。
 
 ## Business Requirement Analysis Contract
 
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把整书 planning 从“8 份并列说明”升级为“7 个受治理子技能串行写入同一个 story_map carrier”，并保持 `projects/story/<项目名>/Planning/全息地图.json` 为唯一规划真源。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/Cards/**/*.json`、`projects/story/<项目名>/Planning/全息地图.json`。 |
+| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/Cards/**/*.json`、`projects/story/<项目名>/Planning/全息地图.json`。 |
 | `constraint_profile` | 1-7 固定串行；后一 child 必须读取当前 root；1-7 只写自己的 owned patch；父层只做 normalize 与收束；下游继续 holomap-first。 |
 | `success_criteria` | 任一 child 都能回答“我拥有 story_map 哪一段”；父层能 progressive commit；`Planning/全息地图.json` 同时具备题材、容器、主干、四条长线与三轴导航；validator 通过。 |
 | `non_goals` | 不制造第二份 `story_map.json` 平行真源；不要求每个 child 各自维护一套独立大纲；不把 `references/*` 保留为隐式执行入口。 |
@@ -116,20 +116,21 @@ color: indigo
 1. 根 `AGENTS.md`
 2. `.agents/skills/story/SKILL.md + CONTEXT.md`
 3. 本 `SKILL.md + CONTEXT.md`
-4. `.agents/skills/story/_shared/story_map.schema.json`
-5. `.agents/skills/story/_shared/story_map_bootstrap.template.json`
-6. `.agents/skills/story/2-Planning/_shared/planning-branch-output-contract.md`
+4. `../_shared/story_map.schema.json`
+5. `../_shared/story_map_bootstrap.template.json`
+6. `./_shared/planning-branch-output-contract.md`
 7. `0-Init/north_star.yaml`
 8. `0-Init/init_handoff.yaml`
-9. `Cards/**/*.json`
-10. 当前 `Planning/全息地图.json`（若存在）
-11. `1-题材选型/SKILL.md + CONTEXT.md`
-12. `2-章节规划/SKILL.md + CONTEXT.md`
-13. `3-故事大纲/SKILL.md + CONTEXT.md`
-14. `4-冲突设计/SKILL.md + CONTEXT.md`
-15. `5-任务设计/SKILL.md + CONTEXT.md`
-16. `6-线索设计/SKILL.md + CONTEXT.md`
-17. `7-伏笔设计/SKILL.md + CONTEXT.md`
+9. `Cards/0-全局卡/**/*.json`
+10. `Cards/**/*.json`
+11. 当前 `Planning/全息地图.json`（若存在）
+12. `1-题材选型/SKILL.md + CONTEXT.md`
+13. `2-章节规划/SKILL.md + CONTEXT.md`
+14. `3-故事大纲/SKILL.md + CONTEXT.md`
+15. `4-冲突设计/SKILL.md + CONTEXT.md`
+16. `5-任务设计/SKILL.md + CONTEXT.md`
+17. `6-线索设计/SKILL.md + CONTEXT.md`
+18. `7-伏笔设计/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -137,11 +138,13 @@ color: indigo
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
+- `Cards/0-全局卡/**/*.json`
 - `Cards/**/*.json`
 
 ### 可选输入
 
 - 当前 `Planning/全息地图.json`
+- 当前 `Planning/pass-artifacts/*.json`
 - `STATE.json`
 - `team.yaml`（若项目存在）
 
@@ -152,6 +155,7 @@ color: indigo
 3. 任一 child 开始前，都必须重新读取当前 root，而不是复用前一步缓存。
 4. 任一 child 只允许写自己的 owned `story_map_patch`。
 5. 只有父层允许补齐三轴、cross-thread index、lifecycle 和 normalize 结构。
+7. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指，默认优先取自 `Cards/0-全局卡/**/*.json`；只有全局卡缺失时，才允许回退到 `north_star.yaml.cards`。
 
 ## Dispatch Order Contract
 
@@ -176,10 +180,11 @@ color: indigo
 ### canonical root
 
 - `projects/story/<项目名>/Planning/全息地图.json`
+- `projects/story/<项目名>/Planning/pass-artifacts/*.json`
 
 ### hard rules
 
-1. 1-7 child 只返回 `story_map_patch`，不独立落盘 sibling JSON。
+1. 1-7 child 必须同时保留本地 evidence artifact 与 `story_map_patch`，但不得制造第二份 story_map root。
 2. `Planning/全息地图.json` 必须保持 `content.holomap` 兼容入口。
 3. 父层 normalize 后的 root 必须兼容 `query / 3-Drafting / 5-Loopback` 的 holomap-first 读取。
 

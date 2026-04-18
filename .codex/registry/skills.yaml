@@ -168,22 +168,31 @@ active_skills:
       bridge_output: "`comic_episode_poster_design.v1` JSON，作为海报设计与后续生图的唯一真源"
       mirror_policy: "4 号目录只保存海报设计 JSON；不把海报设计回写到 1/2/3 号阶段。"
   - id: team-screenwriter-dazai-osamu
-    path: .agents/skills/team/小说组/太宰治
+    path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu
     purpose: "小说组 repo-local 人物叙事视角 skill，用太宰治式道化防御、羞耻自白、没落家庭、女性旁观与旧故事反写分析剧本人物、旁白、独白和失败者叙事。"
     contract_mode: active
     runtime_control:
-      canonical_skill_root: ".agents/skills/team/小说组/太宰治/"
-      research_carrier: ".agents/skills/team/小说组/太宰治/references/research/"
+      canonical_skill_root: ".agents/skills/team/study/文学系/太宰治/"
+      research_carrier: ".agents/skills/team/study/文学系/太宰治/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
   - id: team-screenwriter-watanabe-junichi
-    path: .agents/skills/team/小说组/渡边淳一
+    path: .agents/skills/team/study/文学系/渡边淳一
     owner_office: shangshu
     purpose: "小说组 repo-local 人物叙事视角 skill，用渡边淳一式医学观察、情欲伦理、熟年恋爱、身体真实、社会禁忌与钝感力分析剧本人物、婚恋关系、医疗题材、情色边界和中老年叙事。"
     contract_mode: active
     runtime_control:
-      canonical_skill_root: ".agents/skills/team/小说组/渡边淳一/"
-      research_carrier: ".agents/skills/team/小说组/渡边淳一/references/research/"
+      canonical_skill_root: ".agents/skills/team/study/文学系/渡边淳一/"
+      research_carrier: ".agents/skills/team/study/文学系/渡边淳一/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-screenwriter-robert-mckee
+    path: .agents/skills/team/aigc/编剧组/罗伯特·麦基
+    owner_office: shangshu
+    purpose: "编剧组 repo-local 人物工艺视角 skill，用罗伯特·麦基式价值转变、场景设计、压力下选择、对白动作与控制性观点分析剧本、大纲、人物弧线和改稿路径。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/aigc/编剧组/罗伯特·麦基/"
+      research_carrier: ".agents/skills/team/aigc/编剧组/罗伯特·麦基/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
   - id: team-actor-leslie-cheung
     path: .agents/skills/team/演员组/张国荣

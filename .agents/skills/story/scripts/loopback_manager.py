@@ -108,6 +108,50 @@ def _normalize_delta_payload(
     }
 
 
+def _normalize_handoff_targets(raw: Any) -> List[str]:
+    if not isinstance(raw, list):
+        return []
+    normalized: List[str] = []
+    for item in raw:
+        value = str(item or "").strip()
+        if value:
+            normalized.append(value)
+    return normalized
+
+
+def _normalize_handoff_target_token(raw: str) -> str:
+    return raw.strip().rstrip("/").replace("\\", "/").lower()
+
+
+def _loopback_handoff_granted(
+    validation_payload: Dict[str, Any],
+) -> tuple[str, List[str], bool]:
+    routing_decision = str(validation_payload.get("routing_decision") or "").strip()
+    handoff_targets = _normalize_handoff_targets(validation_payload.get("handoff_targets"))
+    normalized_targets = {_normalize_handoff_target_token(item) for item in handoff_targets}
+    loopback_aliases = {
+        "5-loopback",
+        "story-loopback",
+    }
+    target_granted = bool(normalized_targets & loopback_aliases)
+    routing_granted = routing_decision == "handoff_to_review_and_loopback"
+    return routing_decision, handoff_targets, bool(target_granted or routing_granted)
+
+
+def _extract_governance_refs(validation_payload: Dict[str, Any]) -> Dict[str, str]:
+    source = (
+        validation_payload.get("governance_refs")
+        if isinstance(validation_payload.get("governance_refs"), dict)
+        else {}
+    )
+    refs: Dict[str, str] = {}
+    for key in ("validation_report_ref", "artifact_manifest_ref", "mission_brief_ref"):
+        raw = source.get(key, validation_payload.get(key))
+        value = str(raw or "").strip()
+        refs[key] = value
+    return refs
+
+
 def _map_bucket_key(bucket: str) -> str:
     mapping = {
         "episode_nodes": "episode_ref",
@@ -291,10 +335,13 @@ def _build_artifact(
     episode: int,
     manuscript_ref: str,
     validation_ref: str,
+    routing_decision: str,
+    handoff_targets: List[str],
     draft_packet_ref: str,
     story_map_ref: str,
     delta_payload: Dict[str, List[Dict[str, Any]]],
     artifact_ref: str,
+    governance_refs: Dict[str, str],
 ) -> Dict[str, Any]:
     artifact = copy.deepcopy(template)
     meta = artifact.setdefault("meta", {})
@@ -310,6 +357,8 @@ def _build_artifact(
     inputs["draft_packet_ref"] = draft_packet_ref
     inputs["story_map_ref"] = story_map_ref
     inputs["validation_status"] = "PASS"
+    inputs["routing_decision"] = routing_decision
+    inputs["handoff_targets"] = copy.deepcopy(handoff_targets)
 
     content = artifact.setdefault("content", {})
     loopback_delta = content.setdefault("loopback_delta", {})
@@ -325,12 +374,14 @@ def _build_artifact(
     gate_summary = artifact.setdefault("gate_summary", {})
     gate_summary["status"] = "PASS"
     gate_summary["validation_gate"] = "PASS-only"
+    gate_summary["handoff_grant"] = "granted"
     gate_summary.setdefault("fail_codes", [])
     gate_summary.setdefault("repair_entry", "")
 
     execution_notes = artifact.setdefault("execution_notes", {})
     execution_notes["actual_outcome_summary"] = _derive_actual_outcome_summary(delta_payload["map_deltas"])
     execution_notes.setdefault("risk_notes", "")
+    execution_notes["governance_refs"] = copy.deepcopy(governance_refs)
 
     return artifact
 
@@ -367,6 +418,23 @@ def actualize(args: argparse.Namespace) -> int:
         )
         return 1
 
+    routing_decision, handoff_targets, loopback_granted = _loopback_handoff_granted(validation_payload)
+    if not loopback_granted:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "loopback_handoff_not_granted",
+                    "validation_status": validation_status,
+                    "routing_decision": routing_decision or "missing",
+                    "handoff_targets": handoff_targets,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 1
+
     delta_payload = _normalize_delta_payload(
         validation_payload,
         _load_json_arg(args.loopback_delta) if args.loopback_delta else None,
@@ -387,10 +455,13 @@ def actualize(args: argparse.Namespace) -> int:
         episode=args.episode,
         manuscript_ref=args.manuscript_ref,
         validation_ref=validation_ref,
+        routing_decision=routing_decision,
+        handoff_targets=handoff_targets,
         draft_packet_ref=str(args.draft_packet_ref or ""),
         story_map_ref=story_map_rel,
         delta_payload=delta_payload,
         artifact_ref=artifact_ref,
+        governance_refs=_extract_governance_refs(validation_payload),
     )
 
     written_card_refs = _apply_card_deltas(
@@ -420,6 +491,8 @@ def actualize(args: argparse.Namespace) -> int:
                 "episode_ref": f"第{args.episode}集",
                 "validation_ref": validation_ref,
                 "validation_status": "PASS",
+                "routing_decision": routing_decision,
+                "handoff_targets": handoff_targets,
                 "card_deltas": delta_payload["card_deltas"],
                 "map_deltas": delta_payload["map_deltas"],
                 "projection_refresh": delta_payload["projection_refresh"],

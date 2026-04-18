@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,11 @@ from chapter_paths import default_chapter_draft_path, drafting_root_md_path, fin
 from project_locator import resolve_project_root, resolve_state_file
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
 from security_utils import atomic_write_json, create_secure_directory
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
 
 
 logger = logging.getLogger(__name__)
@@ -41,6 +47,17 @@ STEP_STATUS_STARTED = "started"
 STEP_STATUS_RUNNING = "running"
 STEP_STATUS_COMPLETED = "completed"
 STEP_STATUS_FAILED = "failed"
+
+INLINE_VALIDATION_STATUS_PENDING = "pending"
+INLINE_VALIDATION_STATUS_PASSED = "passed"
+INLINE_VALIDATION_STATUS_FAILED = "failed"
+INLINE_VALIDATION_STATUS_BLOCKED = "blocked"
+INLINE_VALIDATION_STATUS_NOT_RUN = "not_run"
+
+CANDIDATE_FINAL_STATUS_NOT_READY = "not_ready"
+CANDIDATE_FINAL_STATUS_READY = "candidate_final_draft"
+CANDIDATE_FINAL_STATUS_VALIDATED = "validated_final_draft"
+CANDIDATE_FINAL_STATUS_BLOCKED = "blocked"
 
 
 COMMAND_ALIASES: dict[str, str] = {
@@ -79,13 +96,13 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_id": "0-init",
         "stage_label": "初始化",
         "steps": [
-            ("Step 1", "选择初始化模式与采集策略", "story-init-skill"),
-            ("Step 2", "收集问卷与故事核", "story-init-skill"),
-            ("Step 3", "归一化关键字段", "story-init-skill"),
-            ("Step 4", "一致性与约束校验", "story-init-skill"),
-            ("Step 5", "写入期初文件", "init-project"),
-            ("Step 6", "生成初始化简报", "story-init-skill"),
-            ("Step 7", "验证项目骨架", "story-init-skill"),
+            ("Step 1", "锁定 team代入模式与组队子路径", "story-init-skill"),
+            ("Step 2", "预建项目骨架与运行时入口", "init-project"),
+            ("Step 3", "完成自动/自定义组队路由", "story-init-skill"),
+            ("Step 4", "先写 team.yaml 并锁团队真源", "story-init-skill"),
+            ("Step 5", "执行 planning 顾问团 interview", "story-init-skill"),
+            ("Step 6", "综合写回 0-Init 三件套与 STATE.json", "story-init-skill"),
+            ("Step 7", "做 sufficiency audit 与 closure", "story-init-skill"),
         ],
     },
     "story-cards": {
@@ -93,11 +110,11 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_label": "卡片层",
         "steps": [
             ("Step 1", "路由与输入校验", "story-cards"),
-            ("Step 2", "读取 north star 对象约束", "story-init-skill"),
-            ("Step 3", "角色卡（references/character）", "story-cards"),
-            ("Step 4", "场景卡（references/scene）", "story-cards"),
-            ("Step 5", "物品卡（references/item）", "story-cards"),
-            ("Step 6", "覆盖率校验", "cards-coverage-validator"),
+            ("Step 2", "生成/修复风格卡", "story-cards"),
+            ("Step 3", "生成/修复角色卡", "story-cards"),
+            ("Step 4", "生成/修复场景卡", "story-cards"),
+            ("Step 5", "生成/修复物品卡", "story-cards"),
+            ("Step 6", "shared writeback 与 coverage gate", "cards-coverage-validator"),
         ],
     },
     "story-plan": {
@@ -123,7 +140,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 3", "场景和氛围渲染", "drafting-scene-atmosphere"),
             ("Step 4", "角色形象刻画", "drafting-character-rendering"),
             ("Step 5", "对白个性化和声口优化", "drafting-dialogue-voice"),
-            ("Step 6", "叙事张力强化", "drafting-tension"),
+            ("Step 6", "追读力强化", "drafting-reading-power"),
             ("Step 7", "润色", "drafting-polish"),
         ],
     },
@@ -155,10 +172,10 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_id": "5-loopback",
         "stage_label": "回写层",
         "steps": [
-            ("Step 1", "解析 validation 与 delta", "loopback-manager"),
-            ("Step 2", "构建对象/规划回写", "loopback-manager"),
+            ("Step 1", "锁 validation/handoff gate 并提纯 delta", "loopback-manager"),
+            ("Step 2", "执行 validated truth writeback", "loopback-manager"),
             ("Step 3", "刷新 projection 与 runtime marker", "loopback-manager"),
-            ("Step 4", "验证 PASS-only writeback", "loopback-manager"),
+            ("Step 4", "收束 PASS-only artifact 与 closure", "loopback-manager"),
         ],
     },
     "story-query": {
@@ -185,6 +202,13 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
 
 def now_iso() -> str:
     return datetime.now().isoformat()
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except Exception:
+        return default
 
 
 def find_project_root(override: Optional[Path] = None) -> Path:
@@ -358,6 +382,7 @@ def _ensure_workflow_state_schema(state: dict[str, Any]) -> dict[str, Any]:
         state["current_task"].setdefault("retry_count", 0)
         state["current_task"].setdefault("run_id", None)
         state["current_task"].setdefault("governance_refs", {})
+        state["current_task"] = _ensure_task_runtime_fields(state["current_task"])
     if not isinstance(state.get("history"), list):
         state["history"] = []
     else:
@@ -427,8 +452,403 @@ def _step_owner_map(command: str) -> dict[str, str]:
     return {step_id: owner for step_id, _step_name, owner in spec.get("steps", [])}
 
 
+def _step_name_map(command: str) -> dict[str, str]:
+    spec = get_command_spec(command) or {}
+    return {step_id: step_name for step_id, step_name, _owner in spec.get("steps", [])}
+
+
+def expected_step_name(command: str, step_id: str) -> str:
+    return _step_name_map(command).get(step_id, step_id)
+
+
 def expected_step_owner(command: str, step_id: str) -> str:
     return _step_owner_map(command).get(step_id, command or "unknown")
+
+
+def _fresh_inline_validation_state() -> dict[str, Any]:
+    return {
+        "active_batch": None,
+        "history": [],
+        "blocking_gate": None,
+        "latest_summary": {
+            "status": INLINE_VALIDATION_STATUS_NOT_RUN,
+            "step_id": None,
+            "step_name": None,
+            "updated_at": None,
+        },
+        "batch_counter": 0,
+    }
+
+
+def _fresh_candidate_final_state() -> dict[str, Any]:
+    return {
+        "status": CANDIDATE_FINAL_STATUS_NOT_READY,
+        "updated_at": None,
+        "source_step_id": None,
+        "reason": "validation_not_started",
+    }
+
+
+def _ensure_task_runtime_fields(task: dict[str, Any]) -> dict[str, Any]:
+    inline_validation = task.setdefault("inline_validation", _fresh_inline_validation_state())
+    if not isinstance(inline_validation, dict):
+        inline_validation = _fresh_inline_validation_state()
+        task["inline_validation"] = inline_validation
+    inline_validation.setdefault("active_batch", None)
+    inline_validation.setdefault("history", [])
+    inline_validation.setdefault("blocking_gate", None)
+    inline_validation.setdefault(
+        "latest_summary",
+        {
+            "status": INLINE_VALIDATION_STATUS_NOT_RUN,
+            "step_id": None,
+            "step_name": None,
+            "updated_at": None,
+        },
+    )
+    inline_validation.setdefault("batch_counter", 0)
+
+    candidate_state = task.setdefault("candidate_final_state", _fresh_candidate_final_state())
+    if not isinstance(candidate_state, dict):
+        candidate_state = _fresh_candidate_final_state()
+        task["candidate_final_state"] = candidate_state
+    candidate_state.setdefault("status", CANDIDATE_FINAL_STATUS_NOT_READY)
+    candidate_state.setdefault("updated_at", None)
+    candidate_state.setdefault("source_step_id", None)
+    candidate_state.setdefault("reason", "validation_not_started")
+    return task
+
+
+def _validation_registry_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "4-Validation" / "_shared" / "validation-dimension-registry.yaml"
+
+
+def _load_validation_dimension_registry() -> dict[str, Any]:
+    if yaml is None:
+        raise RuntimeError("PyYAML is required to load validation-dimension-registry.yaml")
+    path = _validation_registry_path()
+    if not path.is_file():
+        raise FileNotFoundError(f"missing validation registry: {path}")
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def _resolve_workflow_step_id(command: str, target: Optional[str]) -> Optional[str]:
+    raw = str(target or "").strip()
+    if not raw:
+        return None
+    normalized = re.sub(r"^\d+\s*[-.、]\s*", "", raw)
+    spec = get_command_spec(command) or {}
+    for step_id, step_name, _owner in spec.get("steps", []):
+        if raw == step_id or raw == step_name or normalized == step_name:
+            return step_id
+    return None
+
+
+def _inline_dimensions_for_step(command: str, step_id: str) -> list[dict[str, Any]]:
+    if normalize_command_name(command) != "story-write":
+        return []
+    registry = _load_validation_dimension_registry()
+    matches: list[dict[str, Any]] = []
+    for dimension in registry.get("dimensions", []):
+        drafting_inline = dimension.get("drafting_inline") or {}
+        if not drafting_inline.get("enabled", False):
+            continue
+        for checkpoint in drafting_inline.get("checkpoints", []) or []:
+            checkpoint_step_id = _resolve_workflow_step_id(command, checkpoint.get("step_id"))
+            if checkpoint_step_id == step_id:
+                matches.append(
+                    {
+                        "role_id": str(dimension.get("role_id") or ""),
+                        "dimension": str(dimension.get("dimension") or ""),
+                        "skill_path": str(dimension.get("skill_path") or ""),
+                        "report_filename": str(dimension.get("report_filename") or ""),
+                        "fail_action": str(checkpoint.get("fail_action") or ""),
+                        "default_rework_targets": list(dimension.get("default_rework_targets") or []),
+                        "upstream_source_owners": list(dimension.get("upstream_source_owners") or []),
+                    }
+                )
+                break
+    return matches
+
+
+def _trigger_inline_validation_batch(task: dict[str, Any], completed_step: dict[str, Any]) -> Optional[dict[str, Any]]:
+    task = _ensure_task_runtime_fields(task)
+    command = str(task.get("command") or "")
+    step_id = str(completed_step.get("id") or "")
+    validators = _inline_dimensions_for_step(command, step_id)
+    inline_state = task["inline_validation"]
+    latest_summary = inline_state.setdefault("latest_summary", {})
+    latest_summary.update(
+        {
+            "step_id": step_id,
+            "step_name": expected_step_name(command, step_id),
+            "updated_at": now_iso(),
+        }
+    )
+
+    if not validators:
+        latest_summary["status"] = INLINE_VALIDATION_STATUS_PASSED
+        latest_summary["reason"] = "no_inline_validators"
+        inline_state["active_batch"] = None
+        inline_state["blocking_gate"] = None
+        return None
+
+    inline_state["batch_counter"] = int(inline_state.get("batch_counter", 0)) + 1
+    batch_id = f"{task.get('run_id')}:{step_id}:inline:{inline_state['batch_counter']:03d}"
+    batch = {
+        "batch_id": batch_id,
+        "status": INLINE_VALIDATION_STATUS_PENDING,
+        "validation_context": "drafting_inline",
+        "triggered_at": now_iso(),
+        "step_id": step_id,
+        "step_name": expected_step_name(command, step_id),
+        "validators": [
+            {
+                "role_id": validator["role_id"],
+                "dimension": validator["dimension"],
+                "skill_path": validator["skill_path"],
+                "report_filename": validator["report_filename"],
+                "fail_action": validator["fail_action"],
+                "default_rework_targets": list(validator["default_rework_targets"]),
+                "upstream_source_owners": list(validator["upstream_source_owners"]),
+                "status": INLINE_VALIDATION_STATUS_PENDING,
+                "result": None,
+                "recorded_at": None,
+            }
+            for validator in validators
+        ],
+    }
+    inline_state["active_batch"] = batch
+    inline_state["blocking_gate"] = {
+        "status": INLINE_VALIDATION_STATUS_PENDING,
+        "batch_id": batch_id,
+        "step_id": step_id,
+        "step_name": expected_step_name(command, step_id),
+        "reason": "inline_validation_pending",
+        "allowed_rework_step_id": None,
+        "allowed_rework_step_name": None,
+        "source_layer_owners": [],
+        "issue_ids": [],
+        "updated_at": now_iso(),
+    }
+    latest_summary["status"] = INLINE_VALIDATION_STATUS_PENDING
+    latest_summary["reason"] = "inline_validation_triggered"
+    return batch
+
+
+def _append_inline_validation_history(task: dict[str, Any], batch: dict[str, Any]) -> None:
+    task = _ensure_task_runtime_fields(task)
+    history = task["inline_validation"].setdefault("history", [])
+    history.append(json.loads(json.dumps(batch)))
+    if len(history) > 50:
+        del history[:-50]
+
+
+def _step_sequence_index(command: str, step_id: Optional[str]) -> int:
+    sequence = get_pending_steps(command)
+    if not step_id or step_id not in sequence:
+        return -1
+    return sequence.index(step_id)
+
+
+def _aggregate_inline_validation_batch(task: dict[str, Any], batch: dict[str, Any]) -> dict[str, Any]:
+    command = str(task.get("command") or "")
+    validators = batch.get("validators", [])
+    results = [validator.get("result") for validator in validators if isinstance(validator.get("result"), dict)]
+    issues: list[dict[str, Any]] = []
+    source_layer_owners: set[str] = set()
+    target_candidates: list[str] = []
+    for result in results:
+        for issue in result.get("issues", []) or []:
+            if not isinstance(issue, dict):
+                continue
+            issues.append(issue)
+            owner = str(issue.get("source_layer_owner") or "").strip()
+            if owner:
+                source_layer_owners.add(owner)
+            target = _resolve_workflow_step_id(command, issue.get("rework_target_step"))
+            if target:
+                target_candidates.append(target)
+
+    non_drafting_owners = sorted(owner for owner in source_layer_owners if owner and owner != "3-Drafting")
+    if non_drafting_owners:
+        return {
+            "status": INLINE_VALIDATION_STATUS_FAILED,
+            "reason": "source_fix_required",
+            "allowed_rework_step_id": None,
+            "allowed_rework_step_name": None,
+            "source_layer_owners": non_drafting_owners,
+            "issue_ids": [str(issue.get("id") or "") for issue in issues if issue.get("id")],
+            "updated_at": now_iso(),
+        }
+
+    if target_candidates:
+        earliest = min(target_candidates, key=lambda item: _step_sequence_index(command, item))
+    else:
+        earliest = batch.get("step_id")
+
+    return {
+        "status": INLINE_VALIDATION_STATUS_FAILED,
+        "reason": "inline_validation_failed",
+        "allowed_rework_step_id": earliest,
+        "allowed_rework_step_name": expected_step_name(command, str(earliest or "")),
+        "source_layer_owners": [],
+        "issue_ids": [str(issue.get("id") or "") for issue in issues if issue.get("id")],
+        "updated_at": now_iso(),
+    }
+
+
+def _record_inline_validation_result(task: dict[str, Any], step_id: str, role_id: str, result: dict[str, Any]) -> dict[str, Any]:
+    task = _ensure_task_runtime_fields(task)
+    inline_state = task["inline_validation"]
+    batch = inline_state.get("active_batch")
+    if not isinstance(batch, dict):
+        raise RuntimeError("no_active_inline_validation_batch")
+    if str(batch.get("step_id") or "") != step_id:
+        raise RuntimeError("step_id_mismatch_for_inline_validation")
+
+    target: Optional[dict[str, Any]] = None
+    for validator in batch.get("validators", []):
+        if str(validator.get("role_id") or "") == role_id:
+            target = validator
+            break
+    if target is None:
+        raise RuntimeError("unknown_inline_validator")
+
+    target["result"] = result
+    target["status"] = INLINE_VALIDATION_STATUS_PASSED if bool(result.get("pass")) else INLINE_VALIDATION_STATUS_FAILED
+    target["recorded_at"] = now_iso()
+
+    latest_summary = inline_state.setdefault("latest_summary", {})
+    latest_summary.update(
+        {
+            "step_id": step_id,
+            "step_name": batch.get("step_name"),
+            "updated_at": now_iso(),
+            "last_role_id": role_id,
+        }
+    )
+
+    if any(str(validator.get("status")) == INLINE_VALIDATION_STATUS_PENDING for validator in batch.get("validators", [])):
+        batch["status"] = INLINE_VALIDATION_STATUS_PENDING
+        latest_summary["status"] = INLINE_VALIDATION_STATUS_PENDING
+        return {
+            "batch_status": INLINE_VALIDATION_STATUS_PENDING,
+            "remaining": [
+                validator.get("role_id")
+                for validator in batch.get("validators", [])
+                if str(validator.get("status")) == INLINE_VALIDATION_STATUS_PENDING
+            ],
+        }
+
+    batch["completed_at"] = now_iso()
+    all_pass = all(bool((validator.get("result") or {}).get("pass")) for validator in batch.get("validators", []))
+    if all_pass:
+        batch["status"] = INLINE_VALIDATION_STATUS_PASSED
+        inline_state["active_batch"] = None
+        inline_state["blocking_gate"] = None
+        latest_summary["status"] = INLINE_VALIDATION_STATUS_PASSED
+        latest_summary["reason"] = "all_inline_validators_passed"
+        _append_inline_validation_history(task, batch)
+        if normalize_command_name(task.get("command")) == "story-write" and step_id == "Step 7":
+            task["candidate_final_state"] = {
+                "status": CANDIDATE_FINAL_STATUS_READY,
+                "updated_at": now_iso(),
+                "source_step_id": step_id,
+                "reason": "step7_inline_validation_passed",
+            }
+        return {"batch_status": INLINE_VALIDATION_STATUS_PASSED, "remaining": []}
+
+    batch["status"] = INLINE_VALIDATION_STATUS_FAILED
+    gate = _aggregate_inline_validation_batch(task, batch)
+    gate["batch_id"] = batch.get("batch_id")
+    gate["step_id"] = step_id
+    gate["step_name"] = batch.get("step_name")
+    inline_state["active_batch"] = None
+    inline_state["blocking_gate"] = gate
+    latest_summary["status"] = INLINE_VALIDATION_STATUS_FAILED
+    latest_summary["reason"] = gate.get("reason")
+    _append_inline_validation_history(task, batch)
+    task["candidate_final_state"] = {
+        "status": CANDIDATE_FINAL_STATUS_BLOCKED,
+        "updated_at": now_iso(),
+        "source_step_id": step_id,
+        "reason": str(gate.get("reason") or "inline_validation_failed"),
+    }
+    return {"batch_status": INLINE_VALIDATION_STATUS_FAILED, "gate": gate}
+
+
+def _auto_run_inline_validation_batch(task: dict[str, Any]) -> dict[str, Any]:
+    task = _ensure_task_runtime_fields(task)
+    inline_state = task.get("inline_validation") or {}
+    batch = inline_state.get("active_batch")
+    if not isinstance(batch, dict):
+        return {"status": "noop", "reason": "no_active_batch"}
+
+    chapter_num = _safe_int((task.get("args") or {}).get("chapter_num"), 0)
+    if chapter_num <= 0:
+        return {"status": "deferred", "reason": "missing_chapter_num"}
+
+    project_root = _get_active_project_root()
+    manuscript_path = drafting_root_md_path(project_root, chapter_num)
+    if not manuscript_path.is_file():
+        inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_deferred_missing_manuscript"
+        return {
+            "status": "deferred",
+            "reason": "missing_manuscript",
+            "chapter": chapter_num,
+            "manuscript_path": str(manuscript_path),
+        }
+
+    try:
+        from validation_runner import run_batch
+    except Exception as exc:  # pragma: no cover
+        inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_import_failed"
+        return {"status": "deferred", "reason": f"import_error:{exc.__class__.__name__}"}
+
+    role_ids = [str(item.get("role_id") or "") for item in batch.get("validators", []) if str(item.get("role_id") or "").strip()]
+    if not role_ids:
+        return {"status": "noop", "reason": "empty_batch"}
+
+    try:
+        payload = run_batch(
+            project_root=project_root,
+            chapter_num=chapter_num,
+            role_ids=role_ids,
+            validation_context=str(batch.get("validation_context") or "drafting_inline"),
+            current_step_id=str(batch.get("step_id") or ""),
+        )
+    except Exception as exc:
+        inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_runtime_failed"
+        return {"status": "deferred", "reason": f"runtime_error:{exc.__class__.__name__}"}
+
+    results = payload.get("results", []) if isinstance(payload, dict) else []
+    applied = []
+    for item in results:
+        if not isinstance(item, dict):
+            continue
+        role_id = str(item.get("role_id") or "")
+        result = item.get("result")
+        if not role_id or not isinstance(result, dict):
+            continue
+        summary = _record_inline_validation_result(task, str(batch.get("step_id") or ""), role_id, result)
+        applied.append({"role_id": role_id, "batch_status": summary.get("batch_status")})
+
+    inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_recorded"
+    return {"status": "recorded", "results": applied}
+
+
+def _load_json_arg(raw: str) -> Any:
+    text = str(raw or "").strip()
+    if not text:
+        raise ValueError("missing json arg")
+    if text.startswith("@"):
+        target = text[1:].strip()
+        if not target:
+            raise ValueError("invalid json arg path")
+        return json.loads(Path(target).read_text(encoding="utf-8"))
+    return json.loads(text)
 
 
 def optional_steps_for_command(command: str, task_args: Optional[Dict[str, Any]] = None) -> set[str]:
@@ -462,7 +882,7 @@ def _new_task(command: str, args: Dict[str, Any], run_id: str) -> Dict[str, Any]
     started_at = now_iso()
     command = normalize_command_name(command)
     spec = get_command_spec(command) or {}
-    return {
+    task = {
         "run_id": run_id,
         "command": command,
         "stage_id": spec.get("stage_id"),
@@ -485,9 +905,11 @@ def _new_task(command: str, args: Dict[str, Any], run_id: str) -> Dict[str, Any]
         },
         "governance_refs": {},
     }
+    return _ensure_task_runtime_fields(task)
 
 
 def _new_run_record(task: Dict[str, Any]) -> Dict[str, Any]:
+    task = _ensure_task_runtime_fields(task)
     return {
         "run_id": task["run_id"],
         "command": task["command"],
@@ -503,6 +925,8 @@ def _new_run_record(task: Dict[str, Any]) -> Dict[str, Any]:
         "retry_count": task.get("retry_count", 0),
         "artifacts": dict(task.get("artifacts", {})),
         "governance_refs": dict(task.get("governance_refs", {})),
+        "inline_validation": json.loads(json.dumps(task.get("inline_validation", {}))),
+        "candidate_final_state": dict(task.get("candidate_final_state", {})),
     }
 
 
@@ -554,6 +978,7 @@ def _update_latest_resume_point(execution_state: dict[str, Any], task: Optional[
 
 
 def _sync_run_from_task(execution_state: dict[str, Any], task: dict[str, Any]):
+    task = _ensure_task_runtime_fields(task)
     run = _find_run(execution_state, task.get("run_id"))
     if not run:
         run = _new_run_record(task)
@@ -566,6 +991,8 @@ def _sync_run_from_task(execution_state: dict[str, Any], task: dict[str, Any]):
     run["retry_count"] = int(task.get("retry_count", 0))
     run["artifacts"] = dict(task.get("artifacts", {}))
     run["governance_refs"] = dict(task.get("governance_refs", {}))
+    run["inline_validation"] = json.loads(json.dumps(task.get("inline_validation", {})))
+    run["candidate_final_state"] = dict(task.get("candidate_final_state", {}))
     if task.get("completed_at"):
         run["completed_at"] = task.get("completed_at")
     if task.get("failed_at"):
@@ -732,6 +1159,7 @@ def start_task(command, args):
     current = state.get("current_task")
 
     if current and current.get("status") == TASK_STATUS_RUNNING:
+        current = _ensure_task_runtime_fields(current)
         if not current.get("governance_refs"):
             refs, bundle = _bootstrap_governance_bundle(
                 run_id=str(current.get("run_id")),
@@ -806,6 +1234,7 @@ def start_step(step_id, step_name, progress_note=None):
         print("⚠️ 无活动任务，请先使用 start-task")
         return
 
+    task = _ensure_task_runtime_fields(task)
     command = str(task.get("command") or "")
     sequence = get_pending_steps(command)
     if step_id not in sequence:
@@ -839,13 +1268,75 @@ def start_step(step_id, step_name, progress_note=None):
         print(f"⚠️ Step 顺序非法: {step_id}，缺少前置步骤: {', '.join(missing_before)}")
         return
 
+    inline_state = task.get("inline_validation") or {}
+    active_batch = inline_state.get("active_batch") if isinstance(inline_state, dict) else None
+    if isinstance(active_batch, dict):
+        payload = {
+            "command": command,
+            "requested_step_id": step_id,
+            "blocking_step_id": active_batch.get("step_id"),
+            "remaining_validators": [
+                validator.get("role_id")
+                for validator in active_batch.get("validators", [])
+                if str(validator.get("status")) == INLINE_VALIDATION_STATUS_PENDING
+            ],
+        }
+        safe_append_call_trace("inline_validation_blocked_start", payload)
+        safe_append_task_log("inline_validation_blocked_start", payload)
+        print(f"⚠️ 当前 step 后的 inline validation 尚未完成，不能开始 {step_id}")
+        return
+
+    blocking_gate = inline_state.get("blocking_gate") if isinstance(inline_state, dict) else None
+    if isinstance(blocking_gate, dict):
+        source_layer_owners = list(blocking_gate.get("source_layer_owners") or [])
+        if source_layer_owners:
+            payload = {
+                "command": command,
+                "requested_step_id": step_id,
+                "reason": "source_fix_required",
+                "source_layer_owners": source_layer_owners,
+                "blocking_step_id": blocking_gate.get("step_id"),
+            }
+            safe_append_call_trace("inline_validation_source_fix_required", payload)
+            safe_append_task_log("inline_validation_source_fix_required", payload)
+            print(f"⚠️ 当前 inline validation 指向上游 source fix：{', '.join(source_layer_owners)}，不能继续 drafting")
+            return
+
+        allowed_rework_step_id = str(blocking_gate.get("allowed_rework_step_id") or "").strip()
+        allowed_index = _step_sequence_index(command, allowed_rework_step_id)
+        requested_index = _step_sequence_index(command, step_id)
+        if allowed_index >= 0 and requested_index > allowed_index:
+            payload = {
+                "command": command,
+                "requested_step_id": step_id,
+                "allowed_rework_step_id": allowed_rework_step_id,
+                "reason": "must_rewind_to_earliest_rework_step",
+            }
+            safe_append_call_trace("inline_validation_rework_rejected", payload)
+            safe_append_task_log("inline_validation_rework_rejected", payload)
+            print(f"⚠️ 当前必须先回到 {allowed_rework_step_id} 或更早 step，不能直接开始 {step_id}")
+            return
+
+        inline_state["blocking_gate"] = None
+        inline_state.setdefault("latest_summary", {})["status"] = INLINE_VALIDATION_STATUS_BLOCKED
+        inline_state["latest_summary"]["reason"] = "rework_started"
+        payload = {
+            "command": command,
+            "requested_step_id": step_id,
+            "cleared_blocking_gate": True,
+        }
+        safe_append_call_trace("inline_validation_rework_started", payload)
+        safe_append_task_log("inline_validation_rework_started", payload)
+
     owner = expected_step_owner(command, step_id)
+    canonical_step_name = expected_step_name(command, step_id)
     _finalize_current_step_as_failed(task, reason="step_replaced_before_completion")
 
     started_at = now_iso()
     task["current_step"] = {
         "id": step_id,
         "name": step_name,
+        "canonical_name": canonical_step_name,
         "status": STEP_STATUS_RUNNING,
         "started_at": started_at,
         "running_at": started_at,
@@ -930,6 +1421,7 @@ def complete_step(step_id, artifacts_json=None):
         print(f"⚠️ 当前 Step 为 {current_step.get('id')}，与 {step_id} 不一致，拒绝完成")
         return
 
+    task = _ensure_task_runtime_fields(task)
     current_step["status"] = STEP_STATUS_COMPLETED
     current_step["completed_at"] = now_iso()
 
@@ -955,6 +1447,11 @@ def complete_step(step_id, artifacts_json=None):
     }
     artifact_manifest["updated_at"] = now_iso()
 
+    inline_batch = _trigger_inline_validation_batch(task, current_step)
+    auto_run_result = None
+    if inline_batch:
+        auto_run_result = _auto_run_inline_validation_batch(task)
+
     _sync_run_from_task(execution_state, task)
     _sync_stage_progress(execution_state, task, status=TASK_STATUS_RUNNING)
     _update_latest_resume_point(execution_state, task, reason="step_completed")
@@ -970,7 +1467,101 @@ def complete_step(step_id, artifacts_json=None):
     }
     safe_append_call_trace("step_completed", payload)
     safe_append_task_log("step_completed", payload)
+    if inline_batch:
+        hook_payload = {
+            "command": task.get("command"),
+            "run_id": task.get("run_id"),
+            "step_id": step_id,
+            "batch_id": inline_batch.get("batch_id"),
+            "validators": [validator.get("role_id") for validator in inline_batch.get("validators", [])],
+        }
+        safe_append_call_trace("inline_validation_triggered", hook_payload)
+        safe_append_task_log("inline_validation_triggered", hook_payload)
+        if isinstance(auto_run_result, dict):
+            auto_payload = {
+                "command": task.get("command"),
+                "run_id": task.get("run_id"),
+                "step_id": step_id,
+                "batch_id": inline_batch.get("batch_id"),
+                **auto_run_result,
+            }
+            if auto_run_result.get("status") == "recorded":
+                safe_append_call_trace("inline_validation_auto_run_recorded", auto_payload)
+                safe_append_task_log("inline_validation_auto_run_recorded", auto_payload)
+            elif auto_run_result.get("status") == "deferred":
+                safe_append_call_trace("inline_validation_auto_run_deferred", auto_payload)
+                safe_append_task_log("inline_validation_auto_run_deferred", auto_payload)
     print(f"✅ {step_id} 完成")
+
+
+def record_inline_validation(step_id: str, role_id: str, result_json: str):
+    state = load_state()
+    execution_state = load_execution_state()
+    task = state.get("current_task")
+    if not task:
+        print("⚠️ 无活动任务")
+        return
+
+    task = _ensure_task_runtime_fields(task)
+    try:
+        result = _load_json_arg(result_json)
+    except Exception as exc:
+        print(f"⚠️ inline validation result 解析失败: {exc}")
+        return
+
+    if not isinstance(result, dict):
+        print("⚠️ inline validation result 必须是 JSON object")
+        return
+
+    try:
+        summary = _record_inline_validation_result(task, step_id, role_id, result)
+    except Exception as exc:
+        print(f"⚠️ inline validation 记录失败: {exc}")
+        return
+
+    _sync_run_from_task(execution_state, task)
+    _sync_stage_progress(execution_state, task, status=TASK_STATUS_RUNNING)
+    _update_latest_resume_point(execution_state, task, reason="inline_validation_recorded")
+    save_state(state)
+    save_execution_state(execution_state)
+
+    payload = {
+        "command": task.get("command"),
+        "run_id": task.get("run_id"),
+        "step_id": step_id,
+        "role_id": role_id,
+        "batch_status": summary.get("batch_status"),
+    }
+    safe_append_call_trace("inline_validation_recorded", payload)
+    safe_append_task_log("inline_validation_recorded", payload)
+    print(f"✅ inline validation 已记录: {role_id} / {summary.get('batch_status')}")
+
+
+def run_inline_validation_batch():
+    state = load_state()
+    execution_state = load_execution_state()
+    task = state.get("current_task")
+    if not task:
+        print("⚠️ 无活动任务")
+        return
+
+    task = _ensure_task_runtime_fields(task)
+    result = _auto_run_inline_validation_batch(task)
+
+    _sync_run_from_task(execution_state, task)
+    _sync_stage_progress(execution_state, task, status=TASK_STATUS_RUNNING)
+    _update_latest_resume_point(execution_state, task, reason="inline_validation_auto_run")
+    save_state(state)
+    save_execution_state(execution_state)
+
+    payload = {
+        "command": task.get("command"),
+        "run_id": task.get("run_id"),
+        **(result if isinstance(result, dict) else {}),
+    }
+    safe_append_call_trace("inline_validation_auto_run_manual", payload)
+    safe_append_task_log("inline_validation_auto_run_manual", payload)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 def complete_task(final_artifacts_json=None):
@@ -980,6 +1571,25 @@ def complete_task(final_artifacts_json=None):
     if not task:
         print("⚠️ 无活动任务")
         return
+
+    task = _ensure_task_runtime_fields(task)
+    if normalize_command_name(task.get("command")) == "story-write":
+        inline_state = task.get("inline_validation") or {}
+        active_batch = inline_state.get("active_batch") if isinstance(inline_state, dict) else None
+        blocking_gate = inline_state.get("blocking_gate") if isinstance(inline_state, dict) else None
+        candidate_state = task.get("candidate_final_state") or {}
+        if active_batch:
+            print("⚠️ 当前存在待完成的 inline validation，不能完成 story-write")
+            return
+        if blocking_gate:
+            print("⚠️ 当前存在未解决的 inline validation 失败门，不能完成 story-write")
+            return
+        if str(candidate_state.get("status") or "") not in {
+            CANDIDATE_FINAL_STATUS_READY,
+            CANDIDATE_FINAL_STATUS_VALIDATED,
+        }:
+            print("⚠️ 当前正文尚未达到 candidate_final_draft，不能完成 story-write")
+            return
 
     _finalize_current_step_as_failed(task, reason="task_completed_with_active_step")
     task["status"] = TASK_STATUS_COMPLETED
@@ -1415,6 +2025,8 @@ def get_status_snapshot() -> dict[str, Any]:
         "active_run_id": execution_state.get("active_run_id"),
         "stage_progress": execution_state.get("stage_progress", {}),
         "recent_runs": execution_state.get("runs", [])[-5:],
+        "inline_validation": (current_task or {}).get("inline_validation"),
+        "candidate_final_state": (current_task or {}).get("candidate_final_state"),
     }
     return snapshot
 
@@ -1429,6 +2041,25 @@ def print_status(format_name: str = "text"):
     if current_task:
         print(f"当前任务: {current_task.get('command')} ({current_task.get('run_id')})")
         print(f"状态: {current_task.get('status')} | 当前步骤: {(current_task.get('current_step') or {}).get('id') or '无'}")
+        inline_state = current_task.get("inline_validation") or {}
+        active_batch = inline_state.get("active_batch") if isinstance(inline_state, dict) else None
+        blocking_gate = inline_state.get("blocking_gate") if isinstance(inline_state, dict) else None
+        if active_batch:
+            pending = [
+                validator.get("role_id")
+                for validator in active_batch.get("validators", [])
+                if str(validator.get("status")) == INLINE_VALIDATION_STATUS_PENDING
+            ]
+            print(f"即时审计: pending after {active_batch.get('step_id')} | 待处理={', '.join(pending) or '-'}")
+        elif blocking_gate:
+            print(
+                "即时审计: blocked"
+                f" | after={blocking_gate.get('step_id')}"
+                f" | rework={blocking_gate.get('allowed_rework_step_id') or 'source-fix'}"
+            )
+        candidate_state = current_task.get("candidate_final_state") or {}
+        if candidate_state:
+            print(f"候选终稿状态: {candidate_state.get('status')} | reason={candidate_state.get('reason')}")
     else:
         print("当前任务: 无")
 
@@ -1496,6 +2127,15 @@ if __name__ == "__main__":
     p_complete_step.add_argument("--step-id", required=True, help="Step ID")
     p_complete_step.add_argument("--artifacts", help="Artifacts JSON")
 
+    p_inline_record = subparsers.add_parser("record-inline-validation", help="记录当前 step 的 inline validation 结果")
+    add_project_root_arg(p_inline_record)
+    p_inline_record.add_argument("--step-id", required=True, help="触发该 hook batch 的 workflow Step ID")
+    p_inline_record.add_argument("--role-id", required=True, help="validator role_id")
+    p_inline_record.add_argument("--result", required=True, help="validator 结构化结果 JSON 或 @文件路径")
+
+    p_inline_run = subparsers.add_parser("run-inline-validation-batch", help="自动执行当前 active inline validation batch")
+    add_project_root_arg(p_inline_run)
+
     p_complete_task = subparsers.add_parser("complete-task", help="完成任务")
     add_project_root_arg(p_complete_task)
     p_complete_task.add_argument("--artifacts", help="Final artifacts JSON")
@@ -1541,6 +2181,10 @@ if __name__ == "__main__":
         heartbeat(args.note, args.progress)
     elif args.action == "complete-step":
         complete_step(args.step_id, args.artifacts)
+    elif args.action == "record-inline-validation":
+        record_inline_validation(args.step_id, args.role_id, args.result)
+    elif args.action == "run-inline-validation-batch":
+        run_inline_validation_batch()
     elif args.action == "complete-task":
         complete_task(args.artifacts)
     elif args.action == "fail-task":

@@ -293,7 +293,7 @@ def _load_rag_assist(project_root: Path, chapter_num: int, outline: str) -> Dict
         return base_payload
 
 
-def _load_contract_context(project_root: Path, chapter_num: int) -> Dict[str, Any]:
+def _load_contract_context(project_root: Path, chapter_num: int, current_step_id: str | None = None) -> Dict[str, Any]:
     """Build context via ContextManager and return selected sections."""
     _ensure_scripts_path()
     from data_modules.config import DataModulesConfig
@@ -307,6 +307,7 @@ def _load_contract_context(project_root: Path, chapter_num: int) -> Dict[str, An
         use_snapshot=True,
         save_snapshot=True,
         max_chars=8000,
+        current_step_id=current_step_id,
     )
 
     sections = payload.get("sections", {})
@@ -320,7 +321,9 @@ def _load_contract_context(project_root: Path, chapter_num: int) -> Dict[str, An
     promise_slice = {
         "genre": ((sections.get("genre_profile") or {}).get("content", {}) or {}).get("genre", ""),
         "style_contract_ref": global_ctx.get("style_contract_ref", ""),
+        "global_contract_refs": global_ctx.get("global_contract_refs", []),
         "project_preferences": (sections.get("preferences") or {}).get("content", {}) or {},
+        "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}) or {},
     }
     chapter_board = {
         "outline": story_skeleton_first.get("summary", "") if isinstance(story_skeleton_first, dict) else "",
@@ -346,11 +349,19 @@ def _load_contract_context(project_root: Path, chapter_num: int) -> Dict[str, An
         "checklist": writing_guidance.get("checklist", []),
         "guidance_items": writing_guidance.get("guidance_items", []),
     }
+    global_truth_slice = {
+        "global_contract_index_ref": global_ctx.get("global_contract_index_ref", ""),
+        "global_contract_refs": global_ctx.get("global_contract_refs", []),
+        "global_card_count": global_ctx.get("global_card_count", 0),
+        "global_contract_summary": global_ctx.get("global_contract_summary", {}),
+    }
     return {
         "context_contract_version": (payload.get("meta") or {}).get("context_contract_version"),
         "context_weight_stage": (payload.get("meta") or {}).get("context_weight_stage"),
+        "current_step_id": str((payload.get("meta") or {}).get("current_step_id") or current_step_id or ""),
         "reader_signal": (sections.get("reader_signal") or {}).get("content", {}),
         "genre_profile": (sections.get("genre_profile") or {}).get("content", {}),
+        "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}),
         "writing_guidance": writing_guidance,
         "validation_fact_pack": {
             "promise_slice": promise_slice,
@@ -358,11 +369,16 @@ def _load_contract_context(project_root: Path, chapter_num: int) -> Dict[str, An
             "cards_state_history_slice": cards_state_history_slice,
             "foreshadow_silence_slice": foreshadow_silence_slice,
             "style_gate": style_gate,
+            "global_truth_slice": global_truth_slice,
         },
     }
 
 
-def build_chapter_context_payload(project_root: Path, chapter_num: int) -> Dict[str, Any]:
+def build_chapter_context_payload(
+    project_root: Path,
+    chapter_num: int,
+    current_step_id: str | None = None,
+) -> Dict[str, Any]:
     """Assemble full chapter context payload for text/json output."""
     outline = extract_chapter_outline(project_root, chapter_num)
 
@@ -372,7 +388,7 @@ def build_chapter_context_payload(project_root: Path, chapter_num: int) -> Dict[
         prev_summaries.append(f"### 第{prev_ch}章摘要\n{summary}")
 
     state_summary = extract_state_summary(project_root)
-    contract_context = _load_contract_context(project_root, chapter_num)
+    contract_context = _load_contract_context(project_root, chapter_num, current_step_id=current_step_id)
     rag_assist = _load_rag_assist(project_root, chapter_num, outline)
 
     payload = {
@@ -382,8 +398,10 @@ def build_chapter_context_payload(project_root: Path, chapter_num: int) -> Dict[
         "state_summary": state_summary,
         "context_contract_version": contract_context.get("context_contract_version"),
         "context_weight_stage": contract_context.get("context_weight_stage"),
+        "current_step_id": contract_context.get("current_step_id", str(current_step_id or "")),
         "reader_signal": contract_context.get("reader_signal", {}),
         "genre_profile": contract_context.get("genre_profile", {}),
+        "type_pack_profile": contract_context.get("type_pack_profile", {}),
         "writing_guidance": contract_context.get("writing_guidance", {}),
         "validation_fact_pack": contract_context.get("validation_fact_pack", {}),
         "rag_assist": rag_assist,
@@ -417,6 +435,13 @@ def _render_text(payload: Dict[str, Any]) -> str:
     lines.append("")
     lines.append(str(payload.get("state_summary", "")))
     lines.append("")
+
+    current_step_id = str(payload.get("current_step_id") or "").strip()
+    if current_step_id:
+        lines.append("## 当前工序")
+        lines.append("")
+        lines.append(f"- drafting_step: {current_step_id}")
+        lines.append("")
 
     contract_version = payload.get("context_contract_version")
     if contract_version:
@@ -529,6 +554,21 @@ def _render_text(payload: Dict[str, Any]) -> str:
             lines.append(f"- {row}")
         lines.append("")
 
+    type_pack_profile = payload.get("type_pack_profile") or {}
+    active_packs = type_pack_profile.get("active_packs") or []
+    if active_packs:
+        lines.append("## Type-Pack")
+        lines.append("")
+        lines.append(f"- 方法核: {type_pack_profile.get('method_kernel') or 'story-core-v1'}")
+        lines.append(f"- 激活包: {', '.join(str(item) for item in active_packs)}")
+        knowledge_refs = type_pack_profile.get("knowledge_refs") or []
+        if knowledge_refs:
+            lines.append(f"- pack 知识载体: {', '.join(str(item) for item in knowledge_refs[:3])}")
+        knowledge_digest = type_pack_profile.get("knowledge_digest") or []
+        for row in knowledge_digest[:2]:
+            lines.append(f"- craft 提要: {row}")
+        lines.append("")
+
     rag_assist = payload.get("rag_assist") or {}
     hits = rag_assist.get("hits") or []
     if rag_assist.get("invoked") and hits:
@@ -555,6 +595,7 @@ def main():
     parser.add_argument("--chapter", type=int, required=True, help="目标章节号")
     parser.add_argument("--project-root", type=str, help="项目根目录")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
+    parser.add_argument("--step-id", type=str, help="当前 drafting step_id，可选")
 
     args = parser.parse_args()
 
@@ -564,7 +605,7 @@ def main():
             if args.project_root
             else find_project_root()
         )
-        payload = build_chapter_context_payload(project_root, args.chapter)
+        payload = build_chapter_context_payload(project_root, args.chapter, current_step_id=args.step_id)
 
         if args.format == "json":
             print(json.dumps(payload, ensure_ascii=False, indent=2))

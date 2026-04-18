@@ -58,6 +58,8 @@ governance_tier: lite
 - 若完全不用显式转场，这里是否反而更干净、更狠或更清楚。
 - 当前需要解决的是组内连续性、组界送入，还是普通画面手段无法承接的感知异常。
 - 如果删掉特效或显式转场，观众到底会损失什么。
+- 若命中 `组间`，当前组 `尾出帧 -> 首入锚` 的主导 delta 是什么，以及为什么要用依赖型 / 流动型 / 变形型 / 复合型中的这一类。
+- 若命中 `组间`，是否存在需要显式说明的透视适应；若没有，是否能明确证明“保持一致”。
 
 ## Input Contract
 
@@ -110,7 +112,7 @@ flowchart TD
     C -->|"是"| D["N9 输出空 patch 或极轻 note"]
     C -->|"否"| E["N4 选择命中叶子"]
     E --> F["N5 组内"]
-    E --> G["N6 组间"]
+    E --> G["N6 组间: 尾出帧→首入锚 / 四类连接"]
     E --> H["N7 特效"]
     F --> I["N8 汇流削减"]
     G --> I
@@ -122,10 +124,10 @@ flowchart TD
 flowchart LR
     A["衔接缺口"] --> B{"问题类型"}
     B -->|"动作/视线/节奏/情绪切接"| C["组内"]
-    B -->|"组尾送入下一组"| D["组间"]
+    B -->|"组尾送入下一组"| D["组间: 双锚解构 -> 四类连接"]
     B -->|"梦境/记忆/主观感知/异象"| E["特效"]
     C --> F["保留 cut clarity"]
-    D --> G["保留 clean boundary"]
+    D --> G["保留 exit-entry anchoring"]
     E --> H["保留 narrative necessity"]
     F --> I["最小有效转场"]
     G --> I
@@ -155,7 +157,7 @@ stateDiagram-v2
 | `N3-CUT-FIRST-GATE` | 比较直切、普通收尾与显式转场收益 | `transition_problem_frame` | 写 `cut_priority_decision`，先测试“不补是否更强” | `cut_priority_decision` | 直切最强 -> `N9`；否则 -> `N4` | 没有直切比较不得继续 |
 | `N4-LEAF-ROUTER` | 只选择必要叶子 | `cut_priority_decision`、叶子模块触发条件 | 在 `组内 / 组间 / 特效` 中做最小命中集路由 | `execution_steps` 路由说明 | -> `N5/N6/N7` | 不得三个叶子无差别全开 |
 | `N5-INTRA-GROUP` | 解决组内相邻分镜切接 | `组内/module-spec.yaml` | 生成 `intra_group_transition` | 局部 patch | -> `N8` | 只解决组内连续性 |
-| `N6-INTER-GROUP` | 解决当前组结尾到下一组的送入问题 | `组间/module-spec.yaml` | 生成 `inter_group_hook` | 局部 patch | -> `N8` | 不得发明下一组事实 |
+| `N6-INTER-GROUP` | 解决当前组结尾到下一组的送入问题 | `组间/module-spec.yaml`、当前组尾出状态、下一组首入锚 | 锁定 `尾出帧 -> 首入锚` 的主导 delta，在 `依赖型 / 流动型 / 变形型 / 复合型` 中选最轻语法，并补齐必要的透视适应说明，生成 `inter_group_hook` | 局部 patch、`execution_steps` | -> `N8` | 不得发明下一组事实，也不得把四类连接膨胀成完整视频 prompt，且不得越界回填 `connection_optimization` |
 | `N7-FX-GATE` | 只在非特效方案不足时补必要特效 | `特效/module-spec.yaml` | 先写“不需要”，只有不足时才进入特效 | `fx_decision` | -> `N8` | 默认答案优先是不需要 |
 | `N8-CONVERGE-TRIM` | 汇流并删除过度设计 | 已命中叶子 patch | 只保留最小有效转场，删冗余特效与重复解释 | `self_check` | -> `N9` | 转场不得抢走主戏 |
 | `N9-MINIMAL-OUTPUT` | 输出 branch sidecar 与 canonical patch | `thinking_process`、`transition_fx_patch` | 写 sidecar、检查 target path、准备 review trace | `patch_payload`、`review_trace` | done | 可为空 patch，但理由必须可复核 |

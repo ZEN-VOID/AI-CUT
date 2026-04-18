@@ -6,7 +6,7 @@
     "project_name": "",
     "created_at": "",
     "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
-    "template_version": "2.0.0"
+    "template_version": "2.2.0"
   },
   "content": {
     "module_route": "",
@@ -22,6 +22,11 @@
         "card_id": "",
         "card_type": "character",
         "group": "protagonist",
+        "card_scope": {
+          "scope_type": "full-series",
+          "episode_span": "all-planned-episodes",
+          "refresh_policy": "incremental-writeback extends but never narrows scope"
+        },
         "core": {
           "identity": {
             "name": "",
@@ -29,12 +34,32 @@
             "public_role": "",
             "hidden_role": ""
           },
+          "cast_markers": {
+            "primary_alignment": "protagonist",
+            "is_protagonist": true,
+            "is_antagonist": false,
+            "is_supporting": false,
+            "is_ensemble": false
+          },
           "narrative_function": [],
           "desire_flaw_arc": {
             "surface_goal": "",
             "true_desire": "",
             "flaw": "",
+            "wound": "",
+            "need": "",
+            "change_payoff": "",
             "arc_blueprint": []
+          },
+          "antagonism_design": {
+            "mirror_axis": "",
+            "antagonist_rank": "",
+            "self_justification": "",
+            "pressure_profile": []
+          },
+          "role_setpiece": {
+            "highlight_moment": "",
+            "memory_point": ""
           },
           "voice_and_presence": {
             "speech_texture": [],
@@ -71,6 +96,13 @@
       "antagonists": [],
       "supporting": [],
       "ensemble": []
+    },
+    "relationship_graph": {
+      "path": "",
+      "format": "markdown+mermaid",
+      "scope": "full-series",
+      "node_count": 0,
+      "edge_count": 0
     },
     "relationship_edges": [],
     "current_focus": {

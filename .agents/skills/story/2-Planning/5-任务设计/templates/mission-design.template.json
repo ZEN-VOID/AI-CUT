@@ -7,15 +7,61 @@
     "project_name": "",
     "created_at": "",
     "source_route": "0-Init > 1-Cards > 2-Planning > 5-任务设计",
-    "template_version": "3.0.0"
+    "template_version": "4.0.0"
   },
   "content": {
     "mission_design": {
       "scope": "full-series",
-      "mission_system": [],
+      "mission_axes": {
+        "tier_axis": [
+          "mainline",
+          "sideline"
+        ],
+        "visibility_axis": [
+          "explicit",
+          "hidden"
+        ],
+        "progress_states": [
+          "activated",
+          "advancing",
+          "blocked",
+          "revealed",
+          "reversed",
+          "closed"
+        ]
+      },
+      "mission_quadrants": [
+        {
+          "quadrant_id": "mainline-explicit",
+          "design_focus": "",
+          "delivery_rule": ""
+        },
+        {
+          "quadrant_id": "mainline-hidden",
+          "design_focus": "",
+          "delivery_rule": ""
+        },
+        {
+          "quadrant_id": "sideline-explicit",
+          "design_focus": "",
+          "delivery_rule": ""
+        },
+        {
+          "quadrant_id": "sideline-hidden",
+          "design_focus": "",
+          "delivery_rule": ""
+        }
+      ],
+      "mission_system": {
+        "mainline_explicit": [],
+        "mainline_hidden": [],
+        "sideline_explicit": [],
+        "sideline_hidden": []
+      },
       "task_graph": [],
       "reward_penalty_matrix": [],
       "gating_rules": [],
+      "reveal_rules": [],
       "downstream_hooks": []
     }
   },
@@ -26,7 +72,8 @@
     ],
     "patch_payload": {
       "mission_threads": [],
-      "chapter_board_mission_refs": []
+      "chapter_board_mission_refs": [],
+      "single_line_exceptions": []
     },
     "target_json_paths": [
       "content.holomap.mission_threads",
@@ -43,6 +90,7 @@
   },
   "execution_notes": {
     "design_rationale": "",
-    "risk_notes": ""
+    "risk_notes": "",
+    "weave_notes": ""
   }
 }

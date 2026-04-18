@@ -42,6 +42,7 @@ from .writing_guidance_builder import (
     build_writing_checklist,
     is_checklist_item_completed,
 )
+from .type_pack_resolver import resolve_type_pack_profile
 
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,7 @@ class ContextManager:
         "alerts",
         "reader_signal",
         "genre_profile",
+        "type_pack_profile",
         "writing_guidance",
     }
     SECTION_ORDER = [
@@ -66,6 +68,7 @@ class ContextManager:
         "global",
         "reader_signal",
         "genre_profile",
+        "type_pack_profile",
         "writing_guidance",
         "story_skeleton",
         "memory",
@@ -103,6 +106,7 @@ class ContextManager:
         use_snapshot: bool = True,
         save_snapshot: bool = True,
         max_chars: Optional[int] = None,
+        current_step_id: str | None = None,
     ) -> Dict[str, Any]:
         template = template or self.DEFAULT_TEMPLATE
         self._active_template = template
@@ -114,18 +118,22 @@ class ContextManager:
             try:
                 cached = self.snapshot_manager.load_snapshot(chapter)
                 if cached and self._is_snapshot_compatible(cached, template):
-                    return cached.get("payload", cached)
+                    cached_meta = cached.get("meta") if isinstance(cached, dict) else {}
+                    cached_step = str((cached_meta or {}).get("current_step_id") or "").strip()
+                    requested_step = str(current_step_id or "").strip()
+                    if cached_step == requested_step:
+                        return cached.get("payload", cached)
             except SnapshotVersionMismatch:
                 # Snapshot incompatible; rebuild below.
                 pass
 
-        pack = self._build_pack(chapter)
+        pack = self._build_pack(chapter, current_step_id=current_step_id)
         if getattr(self.config, "context_ranker_enabled", True):
             pack = self.context_ranker.rank_pack(pack, chapter)
         assembled = self.assemble_context(pack, template=template, max_chars=max_chars)
 
         if save_snapshot:
-            meta = {"template": template}
+            meta = {"template": template, "current_step_id": str(current_step_id or "")}
             self.snapshot_manager.save_snapshot(chapter, assembled, meta=meta)
 
         return assembled
@@ -186,7 +194,7 @@ class ContextManager:
                 filtered.append(item)
         return filtered
 
-    def _build_pack(self, chapter: int) -> Dict[str, Any]:
+    def _build_pack(self, chapter: int, *, current_step_id: str | None = None) -> Dict[str, Any]:
         state = self._load_state()
         core = {
             "chapter_outline": self._load_outline(chapter),
@@ -217,6 +225,7 @@ class ContextManager:
             "power_system_skeleton": self._load_setting("力量体系"),
             "style_contract_ref": self._load_setting("风格契约"),
         }
+        global_ctx.update(self._load_global_cards_context())
 
         preferences = self._load_json_optional(self.config.webnovel_dir / "preferences.json")
         memory = self._load_json_optional(self.config.webnovel_dir / "project_memory.json")
@@ -224,15 +233,23 @@ class ContextManager:
         alert_slice = max(0, int(self.config.context_alerts_slice))
         reader_signal = self._load_reader_signal(chapter)
         genre_profile = self._load_genre_profile(state)
-        writing_guidance = self._build_writing_guidance(chapter, reader_signal, genre_profile)
+        type_pack_profile = self._load_type_pack_profile()
+        writing_guidance = self._build_writing_guidance(
+            chapter,
+            reader_signal,
+            genre_profile,
+            type_pack_profile,
+            current_step_id=current_step_id,
+        )
 
         return {
-            "meta": {"chapter": chapter},
+            "meta": {"chapter": chapter, "current_step_id": str(current_step_id or "")},
             "core": core,
             "scene": scene,
             "global": global_ctx,
             "reader_signal": reader_signal,
             "genre_profile": genre_profile,
+            "type_pack_profile": type_pack_profile,
             "writing_guidance": writing_guidance,
             "story_skeleton": story_skeleton,
             "preferences": preferences,
@@ -290,6 +307,8 @@ class ContextManager:
     def _reference_roots(self) -> List[Path]:
         story_root = Path(__file__).resolve().parents[2]
         return [
+            self.config.project_root / ".agents" / "skills" / "story" / "_shared",
+            story_root / "_shared",
             self.config.project_root / ".agents" / "skills" / "story2026" / "references",
             story_root / "references",
             self.config.project_root / ".claude" / "references",
@@ -332,7 +351,7 @@ class ContextManager:
             secondary_taxonomies.append(self._extract_genre_section(taxonomy_text, extra))
 
         refs = self._extract_markdown_refs(
-            "\n".join([profile_excerpt] + secondary_profiles),
+            "\n".join([profile_excerpt, taxonomy_excerpt] + secondary_profiles + secondary_taxonomies),
             max_items=int(getattr(self.config, "context_genre_profile_max_refs", 8)),
         )
 
@@ -352,16 +371,51 @@ class ContextManager:
             "composite_hints": composite_hints,
         }
 
+    def _load_type_pack_profile(self) -> Dict[str, Any]:
+        try:
+            return resolve_type_pack_profile(self.config.project_root)
+        except Exception:
+            return {
+                "method_kernel": "story-core-v1",
+                "type_stack": {
+                    "method_kernel": "story-core-v1",
+                    "base": "_base",
+                    "primary": "",
+                    "secondary": [],
+                    "platform": [],
+                    "audience": [],
+                    "notes": ["resolver_fallback"],
+                    "inferred": True,
+                },
+                "active_packs": ["_base"],
+                "reader_promise": {},
+                "narrative_engine": {},
+                "forbidden_patterns": [],
+                "stage_projection": {},
+                "knowledge_refs": [],
+                "knowledge_indexes": [],
+                "knowledge_digest": [],
+                "knowledge_entries": [],
+                "legacy_source_refs": [],
+                "resolution_trace": [{"pack_id": "_base", "status": "fallback"}],
+                "resolver_ref": ".agents/skills/story/_shared/type-pack-loading-contract.md",
+            }
+
     def _build_writing_guidance(
         self,
         chapter: int,
         reader_signal: Dict[str, Any],
         genre_profile: Dict[str, Any],
+        type_pack_profile: Dict[str, Any],
+        *,
+        current_step_id: str | None = None,
     ) -> Dict[str, Any]:
         if not getattr(self.config, "context_writing_guidance_enabled", True):
             return {}
 
         limit = max(1, int(getattr(self.config, "context_writing_guidance_max_items", 6)))
+        if type_pack_profile.get("active_packs"):
+            limit = max(limit, 8)
         low_score_threshold = float(
             getattr(self.config, "context_writing_guidance_low_score_threshold", 75.0)
         )
@@ -370,6 +424,8 @@ class ContextManager:
             chapter=chapter,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
+            type_pack_profile=type_pack_profile,
+            current_step_id=current_step_id,
             low_score_threshold=low_score_threshold,
             hook_diversify_enabled=bool(
                 getattr(self.config, "context_writing_guidance_hook_diversify", True)
@@ -393,6 +449,8 @@ class ContextManager:
             guidance_items=guidance,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
+            type_pack_profile=type_pack_profile,
+            current_step_id=current_step_id,
             strategy_card=methodology_strategy,
         )
 
@@ -429,6 +487,8 @@ class ContextManager:
                 "top_patterns": top_patterns,
                 "genre": genre,
                 "methodology_enabled": bool(methodology_strategy.get("enabled")),
+                "active_type_packs": list(type_pack_profile.get("active_packs") or []),
+                "current_step_id": str(current_step_id or ""),
             },
         }
 
@@ -575,6 +635,8 @@ class ContextManager:
         guidance_items: List[str],
         reader_signal: Dict[str, Any],
         genre_profile: Dict[str, Any],
+        type_pack_profile: Dict[str, Any],
+        current_step_id: str | None,
         strategy_card: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         _ = chapter
@@ -591,6 +653,8 @@ class ContextManager:
             guidance_items=guidance_items,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
+            type_pack_profile=type_pack_profile,
+            current_step_id=current_step_id,
             strategy_card=strategy_card,
             min_items=min_items,
             max_items=max_items,
@@ -673,6 +737,57 @@ class ContextManager:
     def _load_recent_appearances(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         appearances = self.index_manager.get_recent_appearances(limit=limit)
         return appearances or []
+
+    def _load_global_cards_context(self) -> Dict[str, Any]:
+        index_path = self.config.project_root / "Cards" / "0-全局卡" / "全局索引.json"
+        index_payload = self._load_json_optional(index_path)
+        content = index_payload.get("content", {}) if isinstance(index_payload, dict) else {}
+        groups = content.get("card_groups", {}) if isinstance(content, dict) else {}
+        refs = content.get("global_contract_refs", []) if isinstance(content, dict) else {}
+
+        resolved_refs: List[str] = []
+        if isinstance(refs, list):
+            for row in refs:
+                if isinstance(row, dict):
+                    path = str(row.get("path") or "").strip()
+                    if path:
+                        resolved_refs.append(path)
+                elif isinstance(row, str) and row.strip():
+                    resolved_refs.append(row.strip())
+
+        if not resolved_refs and isinstance(groups, dict):
+            for bucket_refs in groups.values():
+                if not isinstance(bucket_refs, list):
+                    continue
+                for ref in bucket_refs:
+                    if isinstance(ref, str) and ref.strip():
+                        resolved_refs.append(ref.strip())
+
+        global_cards: List[Dict[str, Any]] = []
+        for ref in resolved_refs:
+            payload = self._load_json_optional(self.config.project_root / ref)
+            if payload:
+                global_cards.append(payload)
+
+        first_card = global_cards[0] if global_cards else {}
+        first_content = first_card.get("content", {}) if isinstance(first_card, dict) else {}
+        card_schema = first_content.get("card_schema", {}) if isinstance(first_content, dict) else {}
+        global_card = card_schema.get("global_card", {}) if isinstance(card_schema, dict) else {}
+        core = global_card.get("core", {}) if isinstance(global_card, dict) else {}
+
+        return {
+            "global_contract_index_ref": str(index_path.relative_to(self.config.project_root)) if index_payload else "",
+            "global_contract_refs": resolved_refs,
+            "global_card_count": len(global_cards),
+            "global_contract_summary": {
+                "worldview": core.get("worldview", {}) if isinstance(core, dict) else {},
+                "rule_system": core.get("rule_system", []) if isinstance(core, dict) else [],
+                "era_constraints": core.get("era_constraints", {}) if isinstance(core, dict) else {},
+                "culture_and_arts": core.get("culture_and_arts", {}) if isinstance(core, dict) else {},
+                "power_or_technology": core.get("power_or_technology", {}) if isinstance(core, dict) else {},
+                "golden_finger": core.get("golden_finger", {}) if isinstance(core, dict) else {},
+            },
+        }
 
     def _load_setting(self, keyword: str) -> str:
         settings_dir = self.config.settings_dir

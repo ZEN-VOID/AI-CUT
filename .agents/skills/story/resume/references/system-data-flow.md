@@ -11,12 +11,12 @@ purpose: 重定向到权威版本
 
 ## 权威版本位置
 
-`../query/references/system-data-flow.md`
+`../../query/references/system-data-flow.md`
 
 ## 加载方式
 
 ```bash
-cat "${SKILL_ROOT}/../query/references/system-data-flow.md"
+cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 ```
 
 ## 快速参考
@@ -36,7 +36,7 @@ cat "${SKILL_ROOT}/../query/references/system-data-flow.md"
 ```
 
 ### 当前结构核心变化
-- **七道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-张力强化 -> 7-润色`
+- **七道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-追读力强化 -> 7-润色`
 - **规划入口切换**: drafting/query/resume 默认先读 `Planning/全息地图.json`
 - **无 XML 标签**: 纯正文写作，Data Agent AI 自动提取实体
 - **SQLite 存储**: entities/aliases/state_changes 迁移到 index.db

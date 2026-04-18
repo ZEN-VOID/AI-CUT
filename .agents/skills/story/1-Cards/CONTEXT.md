@@ -21,6 +21,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
+| 初始化已经有 `world_system / golden_finger`，但 cards 没有正式全局卡 | cards object coverage | 新增 `全局卡` 子技能包、模板、writer/validator/tests 接口 | 固定“世界观、规则体系、年代、文化艺术、科技/武功、金手指都属于 1-Cards 对象真源” | `Cards/0-全局卡/**/*.json` 可正式落盘 |
 | 初始化已经有 `reader_promise / aesthetic_axes / style_system`，但 cards 没有正式风格卡 | cards object coverage | 新增 `风格卡` 子技能包、模板、writer/validator/tests 接口 | 固定“整书风格契约也属于 1-Cards 对象真源” | `Cards/1-风格卡/**/*.json` 可正式落盘 |
 | 仍把角色/场景/物品当 `references` 模块加载 | parent routing contract | 回到 `1-Cards/SKILL.md`，改为直连 child skill dispatch | 在父技能、writer、validator、tests 同时锁定 child skill 路由 | `module_route` 不再出现 `references/*-module` |
 | 子技能文档已改，但 writer/validator 仍写旧 route | runtime parity | 同步改 `cards_writer.py`、`cards_coverage_validator.py` 与 tests 常量 | 把 route parity 提升为 completeness audit 必检项 | 文档、脚本、测试命中同一 child path |
@@ -41,8 +42,10 @@ last_checked_at: 2026-04-17T00:00:00Z
 ## Reusable Heuristics
 
 - `1-Cards` 的高杠杆不是把对象细则放在根文档里，而是让父 skill 只做总线，把判断权稳定下沉到 child skills。
+- 对 `story2026` 来说，世界观、规则体系、年代约束、文化艺术、科技/武功与金手指不该散落在 `0-Init` 旁注里，而应进入正式 cards 真源，通过 `全局卡` 持有。
 - 对 `story2026` 来说，`reader_promise / aesthetic_axes / cards.style_system` 不是抽象上游附录，而应进入正式 cards 真源，通过 `风格卡` 持有。
 - cards 体系一旦从 `references` 迁到 child skills，最容易漏掉的不是文档，而是 writer/validator/tests 的 route 常量。
+- 风格卡不应该替全局卡兜底世界设定；一旦风格卡开始承载力量体系和金手指，说明 cards 真源分层又塌了。
 - `module_route` 只检查“存在”不够，必须检查“是否指向正确 child skill”。
 - 角色、场景、物品三类卡的强依赖关系没有变，变的是承载它们的源层形态：从 governed reference 升格为 governed child skill。
 - 真正的系统完善度，不是“新增了 child skills”，而是 template / writer / validator / tests / child contracts 五层同时对齐。

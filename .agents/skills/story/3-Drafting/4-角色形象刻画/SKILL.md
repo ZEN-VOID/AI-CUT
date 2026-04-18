@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `3-Drafting/SKILL.md` 与 `_shared/drafting-child-output-contract.md`。
+- 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
 - 正式处理前，必须读取 Step 3 已写回后的当前 `第N集.md`。
 
 ## Parent Positioning
@@ -31,8 +31,8 @@ governance_tier: lite
 - `../SKILL.md`
 - `../CONTEXT.md`
 - `../_shared/drafting-child-output-contract.md`
-- `../../references/context-contract-v2.md`
-- `../../references/entity-management-spec.md`
+- `../../_shared/context-loading-contract.md`
+- `../../_shared/entity-management-spec.md`
 - `../../1-Cards/角色卡/`
 
 ## Business Requirement Analysis Contract
@@ -66,6 +66,11 @@ governance_tier: lite
   - 人物动作与细节
   - 行为习惯与应激反应
   - 个性与关系显影
+
+## Immediate Validation Hook Contract
+
+- 本 step 写回后，父层必须按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
+- 若 hook 失败，不得直接进入 Step 5；必须在当前 step 本地重写，或回退到 registry 指向的更早受影响 step。
 
 ## Visual Map
 

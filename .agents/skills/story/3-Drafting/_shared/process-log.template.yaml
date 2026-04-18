@@ -2,7 +2,22 @@ episode_num: 0
 manuscript_path: ""
 planning_ref: "Planning/全息地图.json"
 previous_episode_ref: ""
+instant_validation_registry_ref: ".agents/skills/story/4-Validation/_shared/validation-dimension-registry.yaml"
+type_stack_ref:
+  method_kernel: "story-core-v1"
+  base: "_base"
+  primary: ""
+  secondary: []
+  platform: []
+  audience: []
 completed_steps: []
+latest_inline_validation:
+  last_checked_step: ""
+  status: "not_run"
+  failed_dimensions: []
+candidate_final_state:
+  status: "not_ready"
+  reason: "validation_not_started"
 current_resume_pointer:
   next_step: "1-单集叙事起盘"
   reason: "not_started"

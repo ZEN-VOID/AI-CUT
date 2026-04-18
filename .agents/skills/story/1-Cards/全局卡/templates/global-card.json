@@ -1,0 +1,94 @@
+{
+  "schema_version": "story2026/cards/global/v1",
+  "meta": {
+    "skill_id": "story-cards",
+    "source_skill_id": "story-cards-global",
+    "project_name": "",
+    "created_at": "",
+    "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
+    "template_version": "1.0.0"
+  },
+  "content": {
+    "module_route": "",
+    "loaded_references": [],
+    "writeback_plan": {
+      "mode": "",
+      "target_paths": [],
+      "upstream_patch_required": false,
+      "boundary_notes": []
+    },
+    "card_schema": {
+      "global_card": {
+        "card_id": "",
+        "card_type": "global",
+        "group": "master_global",
+        "core": {
+          "identity": {
+            "name": "",
+            "scope": "full-series"
+          },
+          "worldview": {
+            "world_scale": "",
+            "genre": "",
+            "target_reader": "",
+            "platform": "",
+            "summary": ""
+          },
+          "rule_system": [],
+          "era_constraints": {
+            "era_anchor": "",
+            "worldline_mode": "",
+            "hard_boundaries": []
+          },
+          "culture_and_arts": {
+            "culture": [],
+            "arts": []
+          },
+          "power_or_technology": {
+            "system_type": [],
+            "tech_or_martial": [],
+            "resources": []
+          },
+          "golden_finger": {
+            "name": "",
+            "type": "",
+            "style": "",
+            "core_function": "",
+            "trigger_conditions": [],
+            "costs": [],
+            "limits": [],
+            "counterplay": [],
+            "growth_path": [],
+            "design_template_ref": "全局卡/references/golden-finger-templates.md"
+          }
+        },
+        "current_state": {
+          "active_focus": [],
+          "downstream_targets": [],
+          "revision_policy": ""
+        },
+        "history": []
+      }
+    },
+    "card_groups": {
+      "master_globals": []
+    },
+    "global_contract_refs": [],
+    "current_focus": {
+      "confirmed_facts": [],
+      "inferred_defaults": [],
+      "active_constraints": []
+    }
+  },
+  "gate_summary": {
+    "status": "REVIEW_REQUIRED",
+    "total_score": 0,
+    "max_score": 60,
+    "fail_codes": [],
+    "repair_entry": ""
+  },
+  "execution_notes": {
+    "design_rationale": "",
+    "risk_notes": ""
+  }
+}

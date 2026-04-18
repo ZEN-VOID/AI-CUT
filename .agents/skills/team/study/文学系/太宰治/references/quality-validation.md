@@ -7,8 +7,8 @@
 命令：
 
 ```bash
-python3 .agents/skills/team/小说组/太宰治/scripts/quality_check.py .agents/skills/team/小说组/太宰治/SKILL.md
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-女娲/scripts/quality_check.py .agents/skills/team/小说组/太宰治/SKILL.md
+python3 .agents/skills/team/study/文学系/太宰治/scripts/quality_check.py .agents/skills/team/study/文学系/太宰治/SKILL.md
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-女娲/scripts/quality_check.py .agents/skills/team/study/文学系/太宰治/SKILL.md
 python3 scripts/aigc_skill_audit.py --strict
 ```
 
@@ -65,9 +65,9 @@ python3 scripts/aigc_skill_audit.py --strict
 
 验证时发现 `quality_check.py` 的来源区正则存在跨标题贪婪匹配问题，会导致一手来源漏计。已修复：
 
-- `.agents/skills/team/小说组/太宰治/scripts/quality_check.py`
+- `.agents/skills/team/study/文学系/太宰治/scripts/quality_check.py`
 - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-女娲/scripts/quality_check.py`
-- `.agents/skills/team/小说组/太宰治/CONTEXT.md` Type Map
+- `.agents/skills/team/study/文学系/太宰治/CONTEXT.md` Type Map
 
 分层追踪：
 

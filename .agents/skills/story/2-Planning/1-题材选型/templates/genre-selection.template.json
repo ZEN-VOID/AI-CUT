@@ -10,12 +10,21 @@
     "template_version": "3.0.0"
   },
   "content": {
-    "genre_selection": {
-      "scope": "full-series",
-      "promise_matrix": {
-        "primary_genre": "",
-        "secondary_genres": [],
-        "reader_promise": [],
+      "genre_selection": {
+        "scope": "full-series",
+        "type_pack_projection": {
+          "method_kernel": "story-core-v1",
+          "active_packs": [],
+          "source_root": ".agents/skills/story/type-packs/网文/",
+          "selected_type_refs": [],
+          "family_refs": [],
+          "planning_hooks": [],
+          "validation_bias": []
+        },
+        "promise_matrix": {
+          "primary_genre": "",
+          "secondary_genres": [],
+          "reader_promise": [],
         "platform_fit": []
       },
       "genre_corridor": {
@@ -39,7 +48,13 @@
       "story_promise": {
         "reader_promise": [],
         "platform_fit": [],
-        "forbidden_zone": []
+        "forbidden_zone": [],
+        "type_stack_ref": {
+          "method_kernel": "story-core-v1",
+          "active_packs": [],
+          "selected_type_refs": [],
+          "family_refs": []
+        }
       },
       "genre_corridor": {
         "primary_genre": "",
@@ -47,9 +62,11 @@
         "allowed_modes": [],
         "tone_band": "",
         "narrative_density": "",
-        "downstream_hooks": []
+        "downstream_hooks": [],
+        "type_pack_projection": []
       },
-      "navigation_rules": []
+      "navigation_rules": [],
+      "type_pack_projection_notes": []
     },
     "target_json_paths": [
       "content.holomap.story_promise",

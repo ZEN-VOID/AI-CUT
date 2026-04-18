@@ -51,6 +51,14 @@ def _make_project_root(tmp_path: Path) -> Path:
                 "genre": "都市成长",
                 "target_chapters": 10,
             },
+            "type_stack": {
+                "method_kernel": "story-core-v1",
+                "base": "_base",
+                "primary": "网文高冲击",
+                "secondary": ["都市复仇"],
+                "platform": [],
+                "audience": [],
+            },
             "reader_promise": {
                 "hard_constraints": [],
                 "primary_pleasures": ["现实压力下的成长"],
@@ -122,6 +130,69 @@ def _build_payload() -> dict:
         "mode": "full-build",
         "boundary_notes": ["cards-writer-test"],
         "sections": {
+            "globals": {
+                "global_contract_refs": [
+                    {"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}
+                ],
+                "current_focus": {
+                    "confirmed_facts": ["世界规则与金手指合同已锁定"],
+                    "inferred_defaults": [],
+                    "active_constraints": ["金手指必须付代价"],
+                },
+                "cards": [
+                    {
+                        "bucket": "master_globals",
+                        "file_name": "世界总卡.json",
+                        "card": {
+                            "core": {
+                                "identity": {"name": "世界总卡", "scope": "full-series"},
+                                "worldview": {
+                                    "world_scale": "都市边缘区",
+                                    "genre": "都市成长",
+                                    "target_reader": "网文读者",
+                                    "platform": "连载平台",
+                                    "summary": "现实债务压力下存在可追溯但有代价的异常规则。",
+                                },
+                                "rule_system": [
+                                    {"label": "旧案规则", "value": "每次回溯都必须牺牲一段即时记忆"},
+                                    {"label": "现实边界", "value": "不能直接改写已公开发生的事件"},
+                                ],
+                                "era_constraints": {
+                                    "era_anchor": "当代都市",
+                                    "worldline_mode": "单线现实",
+                                    "hard_boundaries": ["智能手机与监控系统普遍存在"],
+                                },
+                                "culture_and_arts": {
+                                    "culture": ["旧城借贷文化", "档案制度与人情社会并存"],
+                                    "arts": ["冷白霓虹", "旧纸张与磁带质感"],
+                                },
+                                "power_or_technology": {
+                                    "system_type": ["有限回溯"],
+                                    "tech_or_martial": ["监控系统", "旧式录音设备"],
+                                    "resources": ["记忆", "时间窗口"],
+                                },
+                                "golden_finger": {
+                                    "name": "旧怀表回溯",
+                                    "type": "记忆代价型",
+                                    "style": "冷硬工具型",
+                                    "core_function": "短时间读取与旧案相关的残留记忆",
+                                    "trigger_conditions": ["逆时针拨动怀表一格"],
+                                    "costs": ["失去一段当日记忆"],
+                                    "limits": ["每天最多一次", "无法读取与自己无关的现场"],
+                                    "counterplay": ["对手可通过噪声信息污染记忆残留"],
+                                    "growth_path": ["从单点回溯升级为链式回溯"],
+                                },
+                            },
+                            "current_state": {
+                                "active_focus": ["旧案回溯规则"],
+                                "downstream_targets": ["1-Cards", "2-Planning", "3-Drafting"],
+                                "revision_policy": "只有 north_star 的世界设定改动时才重写",
+                            },
+                            "history": [],
+                        },
+                    }
+                ],
+            },
             "styles": {
                 "style_contract_refs": [
                     {"card_id": "整书风格卡", "path": "Cards/1-风格卡/总风格/整书风格卡.json"}
@@ -545,6 +616,20 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert report["ok"] is True
     assert report["mode"] == "full-build"
 
+    global_path = project_root / "Cards" / "0-全局卡" / "总设定" / "世界总卡.json"
+    global_card = json.loads(global_path.read_text(encoding="utf-8"))
+    assert global_card["meta"]["source_skill_id"] == "story-cards-global"
+    assert global_card["meta"]["source_route"] == "0-Init > story-cards > 全局卡/SKILL.md"
+    assert global_card["content"]["module_route"] == "story-cards > 全局卡/SKILL.md"
+    assert global_card["content"]["loaded_references"] == [
+        "SKILL.md",
+        "CONTEXT.md",
+        "全局卡/SKILL.md",
+        "全局卡/CONTEXT.md",
+        "全局卡/templates/global-card.json",
+        "全局卡/references/golden-finger-templates.md",
+    ]
+
     style_path = project_root / "Cards" / "1-风格卡" / "总风格" / "整书风格卡.json"
     style_card = json.loads(style_path.read_text(encoding="utf-8"))
     assert style_card["meta"]["source_skill_id"] == "story-cards-style"
@@ -563,6 +648,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert protagonist["meta"]["source_skill_id"] == "story-cards-character"
     assert protagonist["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
     assert protagonist["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
+    assert protagonist["content"]["type_stack_ref"]["primary"] == "网文高冲击"
     assert protagonist["content"]["loaded_references"] == [
         "SKILL.md",
         "CONTEXT.md",
@@ -575,12 +661,21 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "Cards/2-角色卡/主要角色/林舟.json",
         "Cards/2-角色卡/角色索引.json",
     ]
+    assert protagonist["content"]["card_schema"]["character_card"]["card_scope"]["scope_type"] == "full-series"
+    assert protagonist["content"]["card_schema"]["character_card"]["core"]["cast_markers"] == {
+        "primary_alignment": "protagonist",
+        "is_protagonist": True,
+        "is_antagonist": False,
+        "is_supporting": False,
+        "is_ensemble": False,
+    }
 
     character_index_path = project_root / "Cards" / "2-角色卡" / "角色索引.json"
     character_index = json.loads(character_index_path.read_text(encoding="utf-8"))
     assert character_index["meta"]["source_skill_id"] == "story-cards-character"
     assert character_index["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
     assert character_index["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
+    assert character_index["content"]["type_stack_ref"]["primary"] == "网文高冲击"
     assert character_index["content"]["loaded_references"] == [
         "SKILL.md",
         "CONTEXT.md",
@@ -588,10 +683,23 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "角色卡/CONTEXT.md",
         "角色卡/templates/character-card.json",
     ]
-    assert character_index["content"]["writeback_plan"]["target_paths"] == ["Cards/2-角色卡/角色索引.json"]
+    assert character_index["content"]["writeback_plan"]["target_paths"] == [
+        "Cards/2-角色卡/角色索引.json",
+        "Cards/2-角色卡/角色关系图谱.md",
+    ]
+    assert character_index["content"]["relationship_graph"]["path"] == "Cards/2-角色卡/角色关系图谱.md"
     assert character_index["gate_summary"]["status"] == "PASS"
+
+    relationship_graph_path = project_root / "Cards" / "2-角色卡" / "角色关系图谱.md"
+    relationship_graph = relationship_graph_path.read_text(encoding="utf-8")
+    assert "# 角色关系图谱" in relationship_graph
+    assert "## 文字说明" in relationship_graph
+    assert "```mermaid" in relationship_graph
+    assert "[主角] 林舟" in relationship_graph
+    assert "[反派] 赵竞" in relationship_graph
 
     coverage_report = cards_coverage_validator.build_cards_coverage_report(project_root)
     assert coverage_report["ok"] is True
+    assert coverage_report["sections"]["globals"]["trace"]["module_route"] == "story-cards > 全局卡/SKILL.md"
     assert coverage_report["sections"]["styles"]["trace"]["module_route"] == "story-cards > 风格卡/SKILL.md"
     assert coverage_report["sections"]["characters"]["trace"]["module_route"] == "story-cards > 角色卡/SKILL.md"

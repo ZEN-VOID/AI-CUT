@@ -16,7 +16,15 @@
       "story_promise": {
         "reader_promise": [],
         "platform_fit": [],
-        "forbidden_zone": []
+        "forbidden_zone": [],
+        "type_stack_ref": {
+          "method_kernel": "story-core-v1",
+          "base": "_base",
+          "primary": "",
+          "secondary": [],
+          "platform": [],
+          "audience": []
+        }
       },
       "genre_corridor": {
         "primary_genre": "",
@@ -24,7 +32,8 @@
         "allowed_modes": [],
         "tone_band": "",
         "narrative_density": "",
-        "downstream_hooks": []
+        "downstream_hooks": [],
+        "type_pack_projection": []
       },
       "story_spine": {
         "core_question": "",
@@ -89,7 +98,8 @@
         "threads": []
       },
       "state_transitions": [],
-      "navigation_rules": []
+      "navigation_rules": [],
+      "type_pack_projection_notes": []
     }
   },
   "gate_summary": {

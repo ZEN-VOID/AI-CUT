@@ -1,0 +1,48 @@
+{
+  "chapter": 0,
+  "manuscript_ref": "3-Drafting/第0集.md",
+  "validation_ref": "Validation/第0集.validation.json",
+  "validation_mode": "normal_review",
+  "validation_status": "FAIL-COVENANT",
+  "selected_agents": [
+    "context-agent",
+    "structure-validator",
+    "continuity-validator",
+    "logic-validator",
+    "character-validator",
+    "timeline-validator"
+  ],
+  "dimension_packets": {},
+  "dimension_report_refs": {
+    "structure-validator": "Validation/第0集/结构兑现.md",
+    "continuity-validator": "Validation/第0集/连续性.md",
+    "logic-validator": "Validation/第0集/逻辑自洽校验.md",
+    "character-validator": "Validation/第0集/人物一致性.md",
+    "timeline-validator": "Validation/第0集/时间线.md"
+  },
+  "issues": [],
+  "severity_counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "critical_issues": [],
+  "overall_score": 0,
+  "dimension_scores": {
+    "structure": 0,
+    "continuity": 0,
+    "logic": 0,
+    "character": 0,
+    "timeline": 0
+  },
+  "anti_ai_force_check": "pending",
+  "spoiler_risk": "low",
+  "contrivance_risk": "low",
+  "cold_commentary_risk": "low",
+  "routing_decision": "back_to_source_contract",
+  "handoff_targets": [],
+  "rework_targets": [],
+  "source_trace": [],
+  "evidence_refs": []
+}

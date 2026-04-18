@@ -26,7 +26,7 @@ governance_tier: lite
 ## Canonical Sources
 
 - `../SKILL.md`
-- `../../_shared/planning-branch-output-contract.md`
+- `../_shared/planning-branch-output-contract.md`
 - `templates/conflict-design.template.json`
 
 ## Business Requirement Analysis Contract
@@ -41,7 +41,7 @@ governance_tier: lite
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/全息地图.json`
+  - `Planning/pass-artifacts/4-冲突设计.json`
 - owned story_map slots：
   - `content.holomap.conflict_threads`
   - `content.holomap.chapter_boards[].bundled_elements.conflicts`

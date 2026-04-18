@@ -84,7 +84,7 @@ def sanitize_commit_message(message: str, max_length: int = 200) -> str:
     """
     清理Git提交消息，防止命令注入 (CWE-77)
 
-    安全关键函数 - 修复backup_manager.py命令注入漏洞
+    安全关键函数 - 清理 Git 提交消息，防止命令注入
 
     Args:
         message: 原始提交消息（可能包含Git标志）

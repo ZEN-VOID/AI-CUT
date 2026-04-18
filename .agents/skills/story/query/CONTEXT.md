@@ -39,8 +39,9 @@
 3. 若涉及“已经发生了吗”，先检查 `MAP.actualization` 与 loopback artifact，再看 `validation_ref`。
 4. 若涉及“现在怎样”，先看 `Cards.current_state`，再用 `STATE.json` 和 `index.db` 校验。
 5. 若涉及“怎么变成现在”，优先给 `experience_timeline/history/state_changes` 的组合答案。
-6. 若发现来源冲突，明确写出各来源说了什么、当前谁优先、谁可能过期。
-7. 只有在真源合同确认无误后，才修本次具体回答。
+6. 若涉及“跑到哪了 / 最近哪个 run 卡住 / 能否恢复”，先看 `workflow status/list-runs`，再把 `workflow_state` 作为兼容断点补充。
+7. 若发现来源冲突，明确写出各来源说了什么、当前谁优先、谁可能过期。
+8. 只有在真源合同确认无误后，才修本次具体回答。
 
 ## Reusable Heuristics
 
@@ -51,6 +52,7 @@
 - 角色问题里，`experience_timeline` 回答“这个人怎么一路变成这样”，`MAP` 回答“那些事件按什么顺序发生”。
 - `STATE.json` 是快照，不是总真源；`index.db` 是证据层，不是对象设计层；`Cards` 是对象真源，不是计划真源。
 - `STATE.json.workflow_runtime.workflow_state` 是当前 run 兼容断点；`STATE.json.workflow_runtime.execution_state` 是全阶段执行真源；`STATE.json.workflow_runtime.task_log` 是事件证据链。
+- 一旦问题涉及“当前流程卡在哪”，优先跑 `workflow status --format json` / `workflow list-runs --format json`，不要手抠 `STATE.json` 原文再自己猜 stage 状态。
 - 普通查询默认不需要加载 `tag-specification.md`；只有当用户明确问“标签怎么写 / 手动补标怎么做”时才读它。
 - 若 query 结果需要同时引用计划与实绩，优先用“原计划 / 已验证实绩 / 当前状态”三栏拆开，最不容易误导。
 - 卫星拓扑发生增删时，`query/` 的 stage-position 文案与 data-flow 图也要同步缩表，不能继续挂着已下线的 peer。

@@ -14,7 +14,9 @@
     "validation_ref": "",
     "draft_packet_ref": "",
     "story_map_ref": "Planning/全息地图.json",
-    "validation_status": "PASS"
+    "validation_status": "PASS",
+    "routing_decision": "",
+    "handoff_targets": []
   },
   "content": {
     "loopback_delta_schema": {
@@ -67,11 +69,17 @@
   "gate_summary": {
     "status": "PASS",
     "validation_gate": "PASS-only",
+    "handoff_grant": "granted",
     "fail_codes": [],
     "repair_entry": ""
   },
   "execution_notes": {
     "actual_outcome_summary": "",
-    "risk_notes": ""
+    "risk_notes": "",
+    "governance_refs": {
+      "validation_report_ref": "",
+      "artifact_manifest_ref": "",
+      "mission_brief_ref": ""
+    }
   }
 }

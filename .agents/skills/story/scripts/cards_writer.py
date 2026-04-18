@@ -31,9 +31,32 @@ SKILL_ID = "story-cards"
 CARDS_SKILL_ROOT = Path(__file__).resolve().parent.parent / "1-Cards"
 STATE_REL = Path("STATE.json")
 NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
+CHARACTER_GRAPH_REL = Path("Cards") / "2-角色卡" / "角色关系图谱.md"
 
 
 SECTION_SPECS: Dict[str, Dict[str, Any]] = {
+    "globals": {
+        "kind": "global",
+        "schema_key": "global_card",
+        "template_name": "global-card.json",
+        "source_skill_id": "story-cards-global",
+        "child_skill_path": "全局卡/SKILL.md",
+        "child_context_path": "全局卡/CONTEXT.md",
+        "child_template_path": "全局卡/templates/global-card.json",
+        "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
+        "module_route": "story-cards > 全局卡/SKILL.md",
+        "index_rel": Path("Cards") / "0-全局卡" / "全局索引.json",
+        "bucket_dirs": {
+            "master_globals": "总设定",
+        },
+        "bucket_labels": {
+            "master_globals": "master_global",
+        },
+        "link_fields": ("global_contract_refs",),
+        "extra_loaded_references": [
+            "全局卡/references/golden-finger-templates.md",
+        ],
+    },
     "styles": {
         "kind": "style",
         "schema_key": "style_card",
@@ -174,13 +197,15 @@ def _now_iso() -> str:
 
 
 def _build_loaded_references(spec: Dict[str, Any]) -> List[str]:
-    return [
+    refs = [
         "SKILL.md",
         "CONTEXT.md",
         str(spec["child_skill_path"]),
         str(spec["child_context_path"]),
         str(spec["child_template_path"]),
     ]
+    refs.extend(str(item) for item in spec.get("extra_loaded_references", []))
+    return refs
 
 
 def _normalize_boundary_notes(payload: Dict[str, Any], section_payload: Dict[str, Any]) -> List[str]:
@@ -231,7 +256,7 @@ def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str
     if mode == "full-build":
         missing = [name for name in SECTION_SPECS if name not in sections]
         if missing:
-            raise ValueError(f"`full-build` 必须同时提供 styles/characters/scenes/items；当前缺少: {missing}")
+            raise ValueError(f"`full-build` 必须同时提供 globals/styles/characters/scenes/items；当前缺少: {missing}")
     return mode
 
 
@@ -257,6 +282,151 @@ def _default_execution_notes(template: Dict[str, Any], override: Dict[str, Any])
 def _safe_file_stem(raw: str) -> str:
     stem = str(raw or "").strip().replace("/", "-").replace("\\", "-")
     return stem or "unnamed-card"
+
+
+def _character_cast_markers(group: str) -> Dict[str, Any]:
+    return {
+        "primary_alignment": group,
+        "is_protagonist": group == "protagonist",
+        "is_antagonist": group == "antagonist",
+        "is_supporting": group == "supporting",
+        "is_ensemble": group == "ensemble",
+    }
+
+
+def _sanitize_mermaid_node_id(raw_id: str) -> str:
+    safe = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in str(raw_id or "node"))
+    if not safe:
+        safe = "node"
+    if safe[0].isdigit():
+        safe = f"n_{safe}"
+    return safe
+
+
+def _character_bucket_title(bucket: str) -> str:
+    return {
+        "protagonists": "主角",
+        "antagonists": "反派",
+        "supporting": "配角",
+        "ensemble": "群像",
+    }.get(bucket, bucket)
+
+
+def _edge_source(edge: Dict[str, Any]) -> str:
+    return str(edge.get("source") or edge.get("from") or "").strip()
+
+
+def _edge_target(edge: Dict[str, Any]) -> str:
+    return str(edge.get("target") or edge.get("to") or "").strip()
+
+
+def _edge_type(edge: Dict[str, Any]) -> str:
+    return str(edge.get("type") or edge.get("relation") or edge.get("label") or "关联").strip() or "关联"
+
+
+def _edge_polarity(edge: Dict[str, Any]) -> int:
+    raw = edge.get("polarity")
+    if raw not in (None, ""):
+        try:
+            return int(raw)
+        except (TypeError, ValueError):
+            return 0
+    edge_type = _edge_type(edge)
+    negative_keywords = ("敌", "反", "恨", "rival", "enemy", "opponent", "hostile")
+    return -1 if any(keyword in edge_type for keyword in negative_keywords) else 0
+
+
+def _build_character_relationship_graph_markdown(project_root: Path, index_payload: Dict[str, Any]) -> tuple[str, Dict[str, Any]]:
+    content = _safe_dict(index_payload.get("content"))
+    groups = _safe_dict(content.get("card_groups"))
+    relationship_edges = [_safe_dict(item) for item in _safe_list(content.get("relationship_edges")) if isinstance(item, dict)]
+    current_focus = _safe_dict(content.get("current_focus"))
+
+    nodes: List[Dict[str, str]] = []
+    node_alias: Dict[str, str] = {}
+    bucket_lines: List[str] = []
+    total_roles = 0
+
+    for bucket in ("protagonists", "antagonists", "supporting", "ensemble"):
+        refs = [str(item) for item in _safe_list(groups.get(bucket)) if isinstance(item, str) and str(item).strip()]
+        names: List[str] = []
+        for ref in refs:
+            payload = _load_json(project_root / ref)
+            card = _safe_dict(_safe_dict(_safe_dict(payload.get("content")).get("card_schema")).get("character_card"))
+            core = _safe_dict(card.get("core"))
+            identity = _safe_dict(core.get("identity"))
+            name = str(identity.get("name") or card.get("card_id") or Path(ref).stem).strip() or Path(ref).stem
+            group = str(card.get("group") or SECTION_SPECS["characters"]["bucket_labels"].get(bucket) or "").strip()
+            alias = _sanitize_mermaid_node_id(name)
+            node_alias[name] = alias
+            nodes.append({"name": name, "alias": alias, "group": group})
+            names.append(name)
+            total_roles += 1
+        bucket_lines.append(f"- {_character_bucket_title(bucket)}（{len(names)}）：" + ("、".join(names) if names else "无"))
+
+    summary_lines = [
+        "# 角色关系图谱",
+        "",
+        "## 文字说明",
+        "- 作用域：全剧集级角色卡网络，不退化为单集出场名单。",
+        f"- 角色总数：{total_roles}",
+        f"- 关系边数：{len(relationship_edges)}",
+        *bucket_lines,
+    ]
+    confirmed_facts = [str(item) for item in _safe_list(current_focus.get("confirmed_facts")) if str(item).strip()]
+    active_pressures = [str(item) for item in _safe_list(current_focus.get("active_pressures")) if str(item).strip()]
+    if confirmed_facts:
+        summary_lines.append("- 当前确认事实：" + "；".join(confirmed_facts))
+    if active_pressures:
+        summary_lines.append("- 当前人物压力：" + "；".join(active_pressures))
+
+    summary_lines.extend(["", "## 关系摘要"])
+    if relationship_edges:
+        for edge in relationship_edges:
+            source = _edge_source(edge)
+            target = _edge_target(edge)
+            if not source or not target:
+                continue
+            relation = _edge_type(edge)
+            note = str(edge.get("note") or edge.get("summary") or edge.get("evidence") or "").strip()
+            line = f"- {source} -> {target}：{relation}"
+            if note:
+                line += f"；{note}"
+            summary_lines.append(line)
+    else:
+        summary_lines.append("- 暂无关系边。")
+
+    summary_lines.extend(["", "## Mermaid", "```mermaid", "graph LR"])
+    if nodes:
+        for node in nodes:
+            badge = {
+                "protagonist": "主角",
+                "antagonist": "反派",
+                "supporting": "配角",
+                "ensemble": "群像",
+            }.get(node["group"], "角色")
+            label = f"[{badge}] {node['name']}".replace('"', "'")
+            summary_lines.append(f'    {node["alias"]}["{label}"]')
+    else:
+        summary_lines.append("    EMPTY[暂无角色数据]")
+
+    for edge in relationship_edges:
+        source = _edge_source(edge)
+        target = _edge_target(edge)
+        if source not in node_alias or target not in node_alias:
+            continue
+        relation = _edge_type(edge).replace('"', "'")
+        connector = "-.->" if _edge_polarity(edge) < 0 else "-->"
+        summary_lines.append(f"    {node_alias[source]} {connector}|{relation}| {node_alias[target]}")
+    summary_lines.append("```")
+
+    return "\n".join(summary_lines) + "\n", {
+        "path": str(CHARACTER_GRAPH_REL),
+        "format": "markdown+mermaid",
+        "scope": "full-series",
+        "node_count": len(nodes),
+        "edge_count": len(relationship_edges),
+    }
 
 
 def _card_filename(card: Dict[str, Any], entry: Dict[str, Any]) -> str:
@@ -292,10 +462,12 @@ def _prepare_trace_block(
     target_paths: List[str],
     upstream_patch_required: bool,
     boundary_notes: List[str],
+    type_stack_ref: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     return {
         "module_route": str(spec["module_route"]),
         "loaded_references": _build_loaded_references(spec),
+        "type_stack_ref": copy.deepcopy(type_stack_ref or {}),
         "writeback_plan": {
             "mode": mode,
             "target_paths": target_paths,
@@ -307,6 +479,7 @@ def _prepare_trace_block(
 
 def _build_card_payload(
     *,
+    project_root: Path,
     project_name: str,
     created_at: str,
     mode: str,
@@ -331,6 +504,8 @@ def _build_card_payload(
     bucket_dir = spec["bucket_dirs"][bucket]
     card_rel = spec["index_rel"].parent / bucket_dir / file_name
     boundary_notes = _normalize_boundary_notes(section_payload, entry)
+    north_star = _load_json(project_root / NORTH_STAR_REL)
+    type_stack_ref = _safe_dict(north_star.get("type_stack"))
     upstream_patch_required = bool(
         entry.get("upstream_patch_required", section_payload.get("upstream_patch_required", False))
     )
@@ -349,6 +524,7 @@ def _build_card_payload(
             target_paths=[str(card_rel), str(spec["index_rel"])],
             upstream_patch_required=upstream_patch_required,
             boundary_notes=boundary_notes,
+            type_stack_ref=type_stack_ref,
         )
     )
     content["card_groups"] = _new_index_groups(spec)
@@ -358,6 +534,20 @@ def _build_card_payload(
     raw_card.setdefault("card_id", Path(file_name).stem)
     raw_card.setdefault("card_type", spec["kind"])
     raw_card.setdefault("group", spec["bucket_labels"][bucket])
+    if section_name == "characters":
+        raw_card["card_scope"] = _deep_merge(
+            {
+                "scope_type": "full-series",
+                "episode_span": "all-planned-episodes",
+                "refresh_policy": "incremental-writeback extends but never narrows scope",
+            },
+            _safe_dict(raw_card.get("card_scope")),
+        )
+        core = _safe_dict(raw_card.setdefault("core", {}))
+        core["cast_markers"] = _deep_merge(
+            _safe_dict(core.get("cast_markers")),
+            _character_cast_markers(str(raw_card["group"])),
+        )
     card_schema[spec["schema_key"]] = raw_card
 
     content_patch = _safe_dict(entry.get("content_patch"))
@@ -383,6 +573,8 @@ def _build_index_payload(
     template = _load_template(str(spec["child_template_path"]))
     existing = _load_json(project_root / spec["index_rel"])
     replace_existing = bool(section_payload.get("replace_existing", mode != "incremental-writeback"))
+    north_star = _load_json(project_root / NORTH_STAR_REL)
+    type_stack_ref = _safe_dict(north_star.get("type_stack"))
 
     payload = copy.deepcopy(template)
     if existing and not replace_existing:
@@ -395,13 +587,18 @@ def _build_index_payload(
     payload["meta"]["created_at"] = created_at
     payload["meta"]["source_route"] = str(spec["source_route"])
 
+    target_paths = [str(spec["index_rel"])]
+    if section_name == "characters":
+        target_paths.append(str(CHARACTER_GRAPH_REL))
+
     content.update(
         _prepare_trace_block(
             spec=spec,
             mode=mode,
-            target_paths=[str(spec["index_rel"])],
+            target_paths=target_paths,
             upstream_patch_required=bool(section_payload.get("upstream_patch_required", False)),
             boundary_notes=_normalize_boundary_notes({"boundary_notes": []}, section_payload),
+            type_stack_ref=type_stack_ref,
         )
     )
     content["card_schema"] = {}
@@ -431,6 +628,10 @@ def _build_index_payload(
     else:
         content["current_focus"] = _safe_dict(content.get("current_focus"))
 
+    if section_name == "characters":
+        _, relationship_graph = _build_character_relationship_graph_markdown(project_root, payload)
+        content["relationship_graph"] = relationship_graph
+
     content_patch = _safe_dict(section_payload.get("content_patch"))
     if content_patch:
         _deep_merge(content, content_patch)
@@ -457,6 +658,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
         for entry_value in cards:
             entry = _safe_dict(entry_value)
             card_rel, card_payload, bucket = _build_card_payload(
+                project_root=project_root,
                 project_name=project_name,
                 created_at=created_at,
                 mode=mode,
@@ -480,6 +682,17 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
         atomic_write_json(project_root / spec["index_rel"], index_payload, use_lock=True, backup=False)
         written_files.append(str(spec["index_rel"]))
 
+        if section_name == "characters":
+            graph_markdown, relationship_graph = _build_character_relationship_graph_markdown(project_root, index_payload)
+            graph_path = project_root / CHARACTER_GRAPH_REL
+            graph_path.parent.mkdir(parents=True, exist_ok=True)
+            graph_path.write_text(graph_markdown, encoding="utf-8")
+            written_files.append(str(CHARACTER_GRAPH_REL))
+            content = _safe_dict(index_payload.get("content"))
+            content["relationship_graph"] = relationship_graph
+            index_payload["content"] = content
+            atomic_write_json(project_root / spec["index_rel"], index_payload, use_lock=True, backup=False)
+
         section_reports[section_name] = {
             "index_path": str(spec["index_rel"]),
             "written_cards": sum(len(refs) for refs in card_refs_by_bucket.values()),
@@ -487,11 +700,14 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
             "loaded_references": _build_loaded_references(spec),
             "card_refs_by_bucket": card_refs_by_bucket,
         }
+        if section_name == "characters":
+            section_reports[section_name]["relationship_graph_path"] = str(CHARACTER_GRAPH_REL)
 
     gate_report: Optional[Dict[str, Any]] = None
     if run_gate:
         gate_report = build_cards_coverage_report(project_root)
         section_to_report_key = {
+            "globals": "globals",
             "styles": "styles",
             "characters": "characters",
             "scenes": "scenes",

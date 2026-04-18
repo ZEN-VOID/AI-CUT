@@ -26,7 +26,7 @@ governance_tier: lite
 ## Canonical Sources
 
 - `../SKILL.md`
-- `../../_shared/planning-branch-output-contract.md`
+- `../_shared/planning-branch-output-contract.md`
 - `templates/foreshadow-design.template.json`
 
 ## Business Requirement Analysis Contract
@@ -41,7 +41,7 @@ governance_tier: lite
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/全息地图.json`
+  - `Planning/pass-artifacts/7-伏笔设计.json`
 - owned story_map slots：
   - `content.holomap.foreshadow_threads`
   - `content.holomap.chapter_boards[].bundled_elements.foreshadows`

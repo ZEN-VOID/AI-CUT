@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from .genre_aliases import to_profile_key
+from .type_pack_resolver import resolve_stage_projection
 
 
 GENRE_GUIDANCE_TEXT: dict[str, str] = {
@@ -76,6 +77,14 @@ GENRE_METHOD_ANCHORS: dict[str, dict[str, str]] = {
         "release_target": "数值突破并暴露更高层级威胁",
     },
 }
+
+
+def _safe_dict(value: Any) -> Dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _safe_list(value: Any) -> List[Any]:
+    return value if isinstance(value, list) else []
 
 
 def build_methodology_strategy_card(
@@ -208,10 +217,34 @@ def build_guidance_items(
     chapter: int,
     reader_signal: Dict[str, Any],
     genre_profile: Dict[str, Any],
+    type_pack_profile: Dict[str, Any] | None,
+    current_step_id: str | None,
     low_score_threshold: float,
     hook_diversify_enabled: bool,
 ) -> Dict[str, Any]:
     guidance: List[str] = []
+
+    type_pack_profile = type_pack_profile or {}
+    active_packs = _safe_list(type_pack_profile.get("active_packs"))
+    drafting_projection = resolve_stage_projection(
+        type_pack_profile,
+        "drafting",
+        current_step_id=current_step_id,
+    )
+    required_hooks = [str(item).strip() for item in _safe_list(drafting_projection.get("required_hooks")) if str(item).strip()]
+    hard_fail_signals = [str(item).strip() for item in _safe_list(drafting_projection.get("hard_fail_signals")) if str(item).strip()]
+    step_label = str(drafting_projection.get("current_step_id") or current_step_id or "").strip()
+    if active_packs:
+        guidance.append(f"Type-Pack 激活：{', '.join(str(item) for item in active_packs)}。")
+    knowledge_digest = [str(item).strip() for item in _safe_list(type_pack_profile.get("knowledge_digest")) if str(item).strip()]
+    if knowledge_digest:
+        guidance.append(f"Type-Pack craft：{'；'.join(knowledge_digest[:2])}")
+    if required_hooks:
+        prefix = f"Type-Pack {step_label} hooks" if step_label else "Type-Pack drafting hooks"
+        guidance.append(f"{prefix}：{'；'.join(required_hooks[:2])}")
+    if hard_fail_signals:
+        prefix = f"Type-Pack {step_label} hard-fail" if step_label else "Type-Pack hard-fail 关注"
+        guidance.append(f"{prefix}：{hard_fail_signals[0]}")
 
     low_ranges = reader_signal.get("low_score_ranges") or []
     if low_ranges:
@@ -239,7 +272,7 @@ def build_guidance_items(
 
     review_trend = reader_signal.get("review_trend") or {}
     overall_avg = review_trend.get("overall_avg")
-    if isinstance(overall_avg, (int, float)) and float(overall_avg) < low_score_threshold:
+    if isinstance(overall_avg, (int, float)) and float(overall_avg) > 0 and float(overall_avg) < low_score_threshold:
         guidance.append(
             f"最近审查均分{overall_avg:.1f}低于阈值{low_score_threshold:.1f}，建议先保稳：减少跳场、每段补动作结果闭环。"
         )
@@ -249,7 +282,7 @@ def build_guidance_items(
     if genre:
         guidance.append(f"题材锚定：按“{genre}”叙事主线推进，保持题材读者预期稳定兑现。")
     if refs:
-        guidance.append(f"题材策略可执行提示：{refs[0]}")
+        guidance.append(f"题材策略可执行提示：{'；'.join(str(item) for item in refs[:2])}")
 
     guidance.append("网文节奏基线：章首300字内给出目标与阻力，章末保留未闭合问题。")
     guidance.append("兑现密度基线：每600-900字给一次微兑现，并确保本章至少1处可量化变化。")
@@ -272,6 +305,7 @@ def build_guidance_items(
         "hook_usage": hook_usage,
         "pattern_usage": pattern_usage,
         "genre": genre,
+        "type_pack_step": step_label,
     }
 
 
@@ -280,6 +314,8 @@ def build_writing_checklist(
     guidance_items: List[str],
     reader_signal: Dict[str, Any],
     genre_profile: Dict[str, Any],
+    type_pack_profile: Dict[str, Any] | None,
+    current_step_id: str | None,
     strategy_card: Dict[str, Any] | None = None,
     min_items: int,
     max_items: int,
@@ -374,6 +410,40 @@ def build_writing_checklist(
             required=True,
             source="genre_profile.genre",
             verify_hint="主冲突与题材核心承诺保持一致。",
+        )
+
+    type_pack_profile = type_pack_profile or {}
+    drafting_projection = resolve_stage_projection(
+        type_pack_profile,
+        "drafting",
+        current_step_id=current_step_id,
+    )
+    step_label = str(drafting_projection.get("current_step_id") or current_step_id or "").strip()
+    step_source_prefix = f"type_pack.drafting.step_hooks.{step_label}" if step_label else "type_pack.drafting"
+    for idx, hook in enumerate(_safe_list(drafting_projection.get("required_hooks"))[:3], start=1):
+        hook_text = str(hook).strip()
+        if not hook_text:
+            continue
+        _add_item(
+            f"type_pack_hook_{idx}",
+            f"Type-Pack hook：{hook_text}",
+            weight=max(default_weight, 1.15),
+            required=True,
+            source=f"{step_source_prefix}.required_hooks",
+            verify_hint="正文中能定位到对应执行痕迹或结果。",
+        )
+
+    for idx, signal in enumerate(_safe_list(drafting_projection.get("hard_fail_signals"))[:2], start=1):
+        signal_text = str(signal).strip()
+        if not signal_text:
+            continue
+        _add_item(
+            f"type_pack_fail_guard_{idx}",
+            f"避免 Type-Pack hard fail：{signal_text}",
+            weight=max(default_weight, 1.1),
+            required=True,
+            source=f"{step_source_prefix}.hard_fail_signals",
+            verify_hint="检查正文是否触发该禁区信号。",
         )
 
     if isinstance(strategy_card, dict) and strategy_card.get("enabled"):

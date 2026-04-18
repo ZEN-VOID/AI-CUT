@@ -85,7 +85,8 @@ def main() -> None:
     parser.add_argument("--strict", action="store_true", help="Require non-empty thread indexes")
     args = parser.parse_args()
 
-    errors = _validate(Path(args.path), strict=args.strict)
+    target_path = Path(args.path).resolve()
+    errors = _validate(target_path, strict=args.strict)
     if errors:
         for err in errors:
             print(f"FAIL: {err}")

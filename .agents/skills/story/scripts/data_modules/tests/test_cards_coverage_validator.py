@@ -27,10 +27,118 @@ def _write_yaml(path: Path, payload: dict) -> None:
     path.write_text(yaml.safe_dump(payload, allow_unicode=True, sort_keys=False), encoding="utf-8")
 
 
+def _write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def _write_character_graph(project_root: Path, node_names: list[str], edge_count: int) -> None:
+    labels = "\n".join(
+        f'    n_{index}["{name}"]' for index, name in enumerate(node_names, start=1)
+    ) or "    EMPTY[暂无角色数据]"
+    edges = []
+    for index in range(max(edge_count, 0)):
+        left = f"n_{(index % max(len(node_names), 1)) + 1}"
+        right = f"n_{((index + 1) % max(len(node_names), 1)) + 1}"
+        edges.append(f"    {left} -->|关联| {right}")
+    body = "\n".join(edges)
+    _write_text(
+        project_root / "Cards" / "2-角色卡" / "角色关系图谱.md",
+        "\n".join(
+            [
+                "# 角色关系图谱",
+                "",
+                "## 文字说明",
+                "- 作用域：全剧集级角色卡网络，不退化为单集出场名单。",
+                f"- 角色总数：{len(node_names)}",
+                f"- 关系边数：{edge_count}",
+                "",
+                "## Mermaid",
+                "```mermaid",
+                "graph LR",
+                labels,
+                body,
+                "```",
+                "",
+            ]
+        ),
+    )
+
+
 def _touch_card(project_root: Path, rel_path: str) -> None:
     path = project_root / rel_path
     name = Path(rel_path).stem
-    if "1-风格卡" in rel_path:
+    if "0-全局卡" in rel_path:
+        payload = {
+            "schema_version": "story2026/cards/global/v1",
+            "meta": {
+                "skill_id": "story-cards",
+                "source_skill_id": "story-cards-global",
+                "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
+            },
+            "content": {
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                "card_schema": {
+                    "global_card": {
+                        "card_id": name,
+                        "card_type": "global",
+                        "group": "master_global",
+                        "core": {
+                            "identity": {"name": name, "scope": "full-series"},
+                            "worldview": {
+                                "world_scale": "跨海江湖与港町",
+                                "genre": "武侠+规则怪谈",
+                                "target_reader": "网文读者",
+                                "platform": "连载平台",
+                                "summary": "规则会反噬，武学与异域武道并存。",
+                            },
+                            "rule_system": [
+                                {"label": "旧港规则", "value": "夜里不能直呼真名"},
+                                {"label": "武学代价", "value": "越级催动会伤身"},
+                            ],
+                            "era_constraints": {
+                                "era_anchor": "架空近代港町",
+                                "worldline_mode": "单线",
+                                "hard_boundaries": ["航路贸易仍是主要物流方式"],
+                            },
+                            "culture_and_arts": {
+                                "culture": ["码头行会", "江湖旧礼"],
+                                "arts": ["戏台唱段", "海港灯彩"],
+                            },
+                            "power_or_technology": {
+                                "system_type": ["中原武学", "异域武道"],
+                                "tech_or_martial": ["刀术", "火器", "航海术"],
+                                "resources": ["门派传承", "航路情报"],
+                            },
+                            "golden_finger": {
+                                "name": "残意回响",
+                                "type": "规则代价型",
+                                "style": "半明牌",
+                                "core_function": "读取旧港残留意志",
+                                "trigger_conditions": ["进入规则节点"],
+                                "costs": ["损耗当日记忆"],
+                                "limits": ["一天一次"],
+                                "counterplay": ["可被规则噪声污染"],
+                                "growth_path": ["从单点读取升级为链式追踪"],
+                                "design_template_ref": "全局卡/references/golden-finger-templates.md",
+                            },
+                        },
+                        "current_state": {
+                            "active_focus": ["旧港规则"],
+                            "downstream_targets": ["Planning", "Drafting", "Validation"],
+                            "revision_policy": "north_star 改动才刷新",
+                        },
+                        "history": [],
+                    }
+                },
+                "global_contract_refs": [
+                    {"card_id": name, "path": f"Cards/0-全局卡/总设定/{name}.json"}
+                ],
+                "current_focus": {"confirmed_facts": [name]},
+            },
+            "gate_summary": {"status": "PASS", "fail_codes": [], "repair_entry": ""},
+        }
+    elif "1-风格卡" in rel_path:
         payload = {
             "schema_version": "story2026/cards/style/v1",
             "meta": {
@@ -88,6 +196,13 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
             "gate_summary": {"status": "PASS", "fail_codes": [], "repair_entry": ""},
         }
     elif "2-角色卡" in rel_path:
+        group = "protagonist"
+        if "反派角色" in rel_path:
+            group = "antagonist"
+        elif "次要角色" in rel_path:
+            group = "supporting"
+        elif "群像角色" in rel_path:
+            group = "ensemble"
         payload = {
             "schema_version": "story2026/cards/character/v2",
             "meta": {
@@ -101,9 +216,21 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                     "character_card": {
                         "card_id": name,
                         "card_type": "character",
-                        "group": "protagonist",
+                        "group": group,
+                        "card_scope": {
+                            "scope_type": "full-series",
+                            "episode_span": "all-planned-episodes",
+                            "refresh_policy": "incremental-writeback extends but never narrows scope",
+                        },
                         "core": {
                             "identity": {"name": name},
+                            "cast_markers": {
+                                "primary_alignment": group,
+                                "is_protagonist": group == "protagonist",
+                                "is_antagonist": group == "antagonist",
+                                "is_supporting": group == "supporting",
+                                "is_ensemble": group == "ensemble",
+                            },
                             "narrative_function": ["承载主线压力"],
                             "relationship_ports": ["同盟"],
                             "exclusive_item_hooks": ["角色专属物"],
@@ -186,6 +313,7 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
 
 def _trace_payload(module_route: str, target_path: str) -> dict:
     template_name = {
+        "story-cards > 全局卡/SKILL.md": "全局卡/templates/global-card.json",
         "story-cards > 风格卡/SKILL.md": "风格卡/templates/style-card.json",
         "story-cards > 角色卡/SKILL.md": "角色卡/templates/character-card.json",
         "story-cards > 场景卡/SKILL.md": "场景卡/templates/scene-card.json",
@@ -201,7 +329,8 @@ def _trace_payload(module_route: str, target_path: str) -> dict:
             child_path,
             f"{child_dir}/CONTEXT.md",
             template_name,
-        ],
+        ]
+        + (["全局卡/references/golden-finger-templates.md"] if module_route == "story-cards > 全局卡/SKILL.md" else []),
         "writeback_plan": {
             "mode": "full-build",
             "target_paths": [target_path],
@@ -209,6 +338,25 @@ def _trace_payload(module_route: str, target_path: str) -> dict:
             "boundary_notes": ["tests"],
         },
     }
+
+
+def _write_global_fixture(project_root: Path) -> None:
+    _touch_card(project_root, "Cards/0-全局卡/总设定/世界总卡.json")
+    _write_json(
+        project_root / "Cards" / "0-全局卡" / "全局索引.json",
+        {
+            "content": {
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                "card_groups": {
+                    "master_globals": ["Cards/0-全局卡/总设定/世界总卡.json"],
+                },
+                "global_contract_refs": [
+                    {"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}
+                ],
+                "current_focus": {"confirmed_facts": ["世界总设定已锁定"]},
+            }
+        },
+    )
 
 
 def _make_project_root(tmp_path: Path) -> Path:
@@ -240,6 +388,14 @@ def _write_upstream_truth(project_root: Path, *, genre: str = "规则怪谈", ta
             "project_identity": {
                 "genre": genre,
                 "target_chapters": target_chapters,
+            },
+            "type_stack": {
+                "method_kernel": "story-core-v1",
+                "base": "_base",
+                "primary": "网文高冲击",
+                "secondary": ["规则悬疑"] if "规则" in genre or "悬疑" in genre else [],
+                "platform": [],
+                "audience": [],
             },
             "reader_promise": {
                 "hard_constraints": hard_constraints,
@@ -302,6 +458,7 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     module = _load_module()
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
+    _write_global_fixture(project_root)
 
     for rel_path in (
         "Cards/1-风格卡/总风格/整书风格卡.json",
@@ -373,10 +530,16 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
                     "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
+                "relationship_graph": {
+                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "format": "markdown+mermaid",
+                    "scope": "full-series",
+                },
                 "current_focus": {"confirmed_facts": ["双主角成立"]},
             }
         },
     )
+    _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
         project_root / "Cards" / "3-场景卡" / "场景索引.json",
         {
@@ -434,6 +597,7 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     report = module.build_cards_coverage_report(project_root)
 
     assert report["ok"] is True
+    assert report["sections"]["globals"]["total_count"] == 1
     assert report["sections"]["styles"]["total_count"] == 1
     assert report["sections"]["characters"]["counts"]["protagonists"] == 2
     assert report["sections"]["scenes"]["total_count"] == 6
@@ -445,6 +609,7 @@ def test_cards_coverage_report_fails_when_series_cards_are_too_thin(tmp_path):
     module = _load_module()
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
+    _write_global_fixture(project_root)
 
     for rel_path in (
         "Cards/1-风格卡/总风格/整书风格卡.json",
@@ -488,10 +653,16 @@ def test_cards_coverage_report_fails_when_series_cards_are_too_thin(tmp_path):
                     "ensemble": [],
                 },
                 "relationship_edges": [{"ok": 1}],
+                "relationship_graph": {
+                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "format": "markdown+mermaid",
+                    "scope": "full-series",
+                },
                 "current_focus": {"confirmed_facts": ["过薄"]},
             }
         },
     )
+    _write_character_graph(project_root, ["甲", "丙"], 1)
     _write_json(
         project_root / "Cards" / "3-场景卡" / "场景索引.json",
         {
@@ -545,6 +716,7 @@ def test_cards_coverage_report_fails_when_trace_fields_are_missing(tmp_path):
     module = _load_module()
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
+    _write_global_fixture(project_root)
 
     for rel_path in (
         "Cards/1-风格卡/总风格/整书风格卡.json",
@@ -606,10 +778,16 @@ def test_cards_coverage_report_fails_when_trace_fields_are_missing(tmp_path):
                     "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
+                "relationship_graph": {
+                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "format": "markdown+mermaid",
+                    "scope": "full-series",
+                },
                 "current_focus": {"confirmed_facts": ["双主角成立"]},
             }
         },
     )
+    _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
         project_root / "Cards" / "3-场景卡" / "场景索引.json",
         {
@@ -674,6 +852,20 @@ def test_cards_coverage_report_fails_when_card_files_are_shell_payloads(tmp_path
     module = _load_module()
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
+    _write_json(project_root / "Cards" / "0-全局卡" / "总设定" / "世界总卡.json", {"ok": True})
+    _write_json(
+        project_root / "Cards" / "0-全局卡" / "全局索引.json",
+        {
+            "content": {
+                **_trace_payload("story-cards > 全局卡/SKILL.md", "Cards/0-全局卡"),
+                "card_groups": {
+                    "master_globals": ["Cards/0-全局卡/总设定/世界总卡.json"],
+                },
+                "global_contract_refs": [{"card_id": "世界总卡", "path": "Cards/0-全局卡/总设定/世界总卡.json"}],
+                "current_focus": {"confirmed_facts": ["世界总设定已锁定"]},
+            }
+        },
+    )
 
     for rel_path in (
         "Cards/1-风格卡/总风格/整书风格卡.json",
@@ -743,10 +935,16 @@ def test_cards_coverage_report_fails_when_card_files_are_shell_payloads(tmp_path
                     "ensemble": ["Cards/2-角色卡/群像角色/辛.json"],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}, {"ok": 3}, {"ok": 4}],
+                "relationship_graph": {
+                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "format": "markdown+mermaid",
+                    "scope": "full-series",
+                },
                 "current_focus": {"confirmed_facts": ["双主角成立"]},
             }
         },
     )
+    _write_character_graph(project_root, ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛"], 4)
     _write_json(
         project_root / "Cards" / "3-场景卡" / "场景索引.json",
         {
@@ -830,6 +1028,7 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
         },
     )
     _write_upstream_truth(project_root, genre="现实题材", target_chapters=12, hard_constraints=["夜里不能说真名", "每次破局都要付出代价", "港区规则不可违背"])
+    _write_global_fixture(project_root)
 
     for rel_path in (
         "Cards/1-风格卡/总风格/整书风格卡.json",
@@ -876,10 +1075,16 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
                     "ensemble": [],
                 },
                 "relationship_edges": [{"ok": 1}, {"ok": 2}],
+                "relationship_graph": {
+                    "path": "Cards/2-角色卡/角色关系图谱.md",
+                    "format": "markdown+mermaid",
+                    "scope": "full-series",
+                },
                 "current_focus": {"confirmed_facts": ["现实题材"]},
             }
         },
     )
+    _write_character_graph(project_root, ["甲", "乙", "丙", "己"], 2)
     _write_json(
         project_root / "Cards" / "3-场景卡" / "场景索引.json",
         {
@@ -917,7 +1122,9 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
 
     assert report["upstream_truth"]["north_star_loaded"] is True
     assert report["upstream_truth"]["init_handoff_loaded"] is True
+    assert report["upstream_truth"]["type_stack"]["primary"] == "网文高冲击"
     assert report["profile"]["rule_rigidity"] == "strong"
+    assert report["sections"]["globals"]["ok"] is True
     assert report["sections"]["styles"]["ok"] is True
     codes = {item["code"] for item in report["blocking_findings"]}
     assert "FAIL-CARDS-SCENE-SURREAL" in codes

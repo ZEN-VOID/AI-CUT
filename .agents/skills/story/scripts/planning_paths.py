@@ -2,7 +2,10 @@
 """
 Canonical + legacy planning artifact path helpers.
 
-2-Planning now writes sibling JSON files directly under `Planning/`.
+Canonical planning now keeps:
+- one machine-readable holomap truth
+- child-side pass artifacts under `Planning/pass-artifacts/`
+
 Legacy directory-style paths are still supported as read fallback during migration.
 """
 
@@ -13,6 +16,16 @@ from pathlib import Path
 
 _CANONICAL_REL_PATHS: dict[str, str] = {
     "holomap": "Planning/全息地图.json",
+}
+
+_CANONICAL_PASS_ARTIFACT_REL_PATHS: dict[str, str] = {
+    "genre_selection": "Planning/pass-artifacts/1-题材选型.json",
+    "chapter_planning": "Planning/pass-artifacts/2-章节规划.json",
+    "story_outline": "Planning/pass-artifacts/3-故事大纲.json",
+    "conflict_design": "Planning/pass-artifacts/4-冲突设计.json",
+    "mission_design": "Planning/pass-artifacts/5-任务设计.json",
+    "clue_design": "Planning/pass-artifacts/6-线索设计.json",
+    "foreshadow_design": "Planning/pass-artifacts/7-伏笔设计.json",
 }
 
 _LEGACY_REL_PATHS: dict[str, str] = {
@@ -45,6 +58,26 @@ def legacy_planning_artifact_path(project_root: Path, artifact_key: str) -> Path
 
 def resolve_planning_artifact_path(project_root: Path, artifact_key: str) -> Path:
     canonical = canonical_planning_artifact_path(project_root, artifact_key)
+    if canonical.is_file():
+        return canonical
+
+    legacy = legacy_planning_artifact_path(project_root, artifact_key)
+    if legacy.is_file():
+        return legacy
+
+    return canonical
+
+
+def canonical_planning_pass_artifact_relpath(artifact_key: str) -> str:
+    return _CANONICAL_PASS_ARTIFACT_REL_PATHS[artifact_key]
+
+
+def canonical_planning_pass_artifact_path(project_root: Path, artifact_key: str) -> Path:
+    return project_root / canonical_planning_pass_artifact_relpath(artifact_key)
+
+
+def resolve_planning_pass_artifact_path(project_root: Path, artifact_key: str) -> Path:
+    canonical = canonical_planning_pass_artifact_path(project_root, artifact_key)
     if canonical.is_file():
         return canonical
 

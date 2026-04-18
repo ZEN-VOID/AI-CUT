@@ -22,7 +22,7 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
 ├── Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
-├── 3-Drafting/           # drafting 阶段正文真源（如 3-Drafting/第1集.md）
+├── 3-Drafting/           # drafting 阶段正文真源（第N集.md + 写作日志.yaml）
 ├── Loopback/
 │   └── 第N集.loopback.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
@@ -114,9 +114,8 @@ query / resume
 |------|------|------|
 | `init_project.py` | 项目信息 | 生成五件套 + `STATE.json.workflow_runtime` + 初始化 `index.db` |
 | `update_state.py` | 参数 | 原子更新 `STATE.json` 字段（进度/主角/strand_tracker） |
-| `backup_manager.py` | 章节号 | 自动 Git 备份 |
 | `status_reporter.py` | 无 | 生成健康报告/伏笔紧急度 |
-| `archive_manager.py` | 无 | 归档不活跃数据 |
+| `workflow_manager.py` | stage 命令 + chapter | 维护 `STATE.json.workflow_runtime`、恢复检测与 cleanup 备份 |
 | `data_modules/migrate_state_to_sqlite.py` | 项目路径 | 迁移旧 `STATE.json` 到 SQLite |
 
 ### data_modules 模块
@@ -141,23 +140,31 @@ query / resume
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
 
-2. Step 1 章节设计
-   → 选开头/钩子/爽点模式（避开最近3章）
+2. `3-Drafting` 七道工序 progressive rewrite
+   → Step 1 起盘
+   → Step 2 节奏
+   → Step 3 场景和氛围
+   → Step 4 角色形象
+   → Step 5 对白声口
+   → Step 6 叙事张力
+   → Step 7 润色
+   → 每一步都写回 `3-Drafting/第N集.md + 写作日志.yaml`
 
-3. Writer 生成章节内容
-   → 2A 粗稿（纯正文）
-   → 2B 风格适配（可选）
+3. inline validation hooks
+   → 每个 drafting step 写回后，立即运行 registry 声明的即时审计
+   → 通过后才允许继续下一个工序
 
-4. 隔离评估
-   → `4-Validation` 创建新后台隔离团队
-   → 聚合一致性/连续性/OOC/追读力/高潮/节奏/反剧透/反刻意/反冷评等结论
+4. 隔离终验
+   → `4-Validation` 组装 `validation_fact_pack`
+   → 并发 5 个维度子技能
+   → 聚合为 `Validation/第N集.validation.json`
 
-5. review / 网文化润色
-   → `review/` 生成报告并落库 `review_metrics`
-   → 基于审查报告修复问题
-   → 强化口感规则
+5. review / 审查落盘
+   → `review/` 生成业务报告
+   → 落库 `review_metrics`
+   → 回写 `STATE.json.review_checkpoints`
 
-6. Data Agent 处理数据链
+6. Data Agent / runtime 数据链
    → AI 实体提取（替代 XML 标签解析）
    → 实体消歧（置信度策略）
    → 写入 index.db（实体/别名/状态变化/关系）
@@ -172,7 +179,7 @@ query / resume
    → 写 `Loopback/第N集.loopback.json`
    → 刷新 query / writer / planning projection
 
-8. Git 备份（强制）
+8. 如需清理中断工件，由 `workflow_manager.py cleanup` 生成恢复备份后再执行安全清理
 ```
 
 > `update_state.py` 用于手动/脚本化更新 `progress`/`protagonist_state`/`strand_tracker` 等字段；主流程通常由 Data Agent 在处理数据链时同步推进进度。
@@ -196,6 +203,7 @@ query / resume
 | drafting truth | 当前集正文写成什么样、已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
+| execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
 | validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `content.holomap.actualization` + `5-Loopback/*.loopback.json` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Validation + review` 生成 |
@@ -205,6 +213,7 @@ query / resume
 - 问“原计划” -> planning truth
 - 问“现在怎样” -> object truth / runtime snapshot
 - 问“已经发生了吗” -> validated actualization
+- 问“当前跑到哪 / 最近哪个 run 卡住” -> execution truth
 - 问“证据是什么” -> indexed evidence
 
 ## `STATE.json` 精简结构

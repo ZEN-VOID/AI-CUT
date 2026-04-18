@@ -313,12 +313,6 @@ def main() -> None:
     p_update_state = sub.add_parser("update-state", help="转发到 update_state.py")
     p_update_state.add_argument("args", nargs=argparse.REMAINDER)
 
-    p_backup = sub.add_parser("backup", help="转发到 backup_manager.py")
-    p_backup.add_argument("args", nargs=argparse.REMAINDER)
-
-    p_archive = sub.add_parser("archive", help="转发到 archive_manager.py")
-    p_archive.add_argument("args", nargs=argparse.REMAINDER)
-
     p_loopback = sub.add_parser("loopback", help="转发到 loopback_manager.py")
     p_loopback.add_argument("args", nargs=argparse.REMAINDER)
 
@@ -328,6 +322,10 @@ def main() -> None:
     p_extract_context = sub.add_parser("extract-context", help="转发到 extract_chapter_context.py")
     p_extract_context.add_argument("--chapter", type=int, required=True, help="目标章节号")
     p_extract_context.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
+    p_extract_context.add_argument("--step-id", help="当前 drafting step_id，可选")
+
+    p_validate = sub.add_parser("validate", help="转发到 validation_runner.py")
+    p_validate.add_argument("args", nargs=argparse.REMAINDER)
 
     # 兼容：允许 `--project-root` 出现在任意位置（减少 agents/skills 拼命令的出错率）
     from .cli_args import normalize_global_project_root
@@ -376,10 +374,6 @@ def main() -> None:
         raise SystemExit(_run_script("status_reporter.py", [*forward_args, *rest]))
     if tool == "update-state":
         raise SystemExit(_run_script("update_state.py", [*forward_args, *rest]))
-    if tool == "backup":
-        raise SystemExit(_run_script("backup_manager.py", [*forward_args, *rest]))
-    if tool == "archive":
-        raise SystemExit(_run_script("archive_manager.py", [*forward_args, *rest]))
     if tool == "loopback":
         raise SystemExit(_run_script("loopback_manager.py", [*forward_args, *rest]))
     if tool == "cards-check":
@@ -391,7 +385,11 @@ def main() -> None:
         raise SystemExit(_run_script("cards_writer.py", write_args))
     if tool == "extract-context":
         return_args = [*forward_args, "--chapter", str(args.chapter), "--format", str(args.format)]
+        if getattr(args, "step_id", None):
+            return_args.extend(["--step-id", str(args.step_id)])
         raise SystemExit(_run_script("extract_chapter_context.py", return_args))
+    if tool == "validate":
+        raise SystemExit(_run_script("validation_runner.py", [*forward_args, *rest]))
 
     raise SystemExit(2)
 

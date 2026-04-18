@@ -47,12 +47,13 @@ governance_tier: lite
 | `story-validate` | 读取 validation run、继续/清理/重跑建议 | `workflow_manager.py` + `4-Validation` 合同 |
 | `story-review` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `review/` Step 合同 |
 | `story-loopback` | 读取 actualization run、继续/清理/重跑建议 | `workflow_manager.py` + `5-Loopback` 合同 |
-| `story-query` | 读取 query run、继续/清理/重跑建议 | `workflow_manager.py` + `query/` 合同 |
+| `story-query` | 读取 query run、给出轻量 generic 继续 / 重跑 / 人工诊断建议 | `workflow_manager.py` + `query/` 合同 |
 
 降级支持：
 
 | 场景 | 支持方式 | 限制 |
 |---|---|---|
+| `story-query` 的恢复 | 有 tracked run 时可读取中断信息并给 generic 方案 | 不提供 `story-write` 式章节 cleanup，也不宣称“从查询内部断点继续生成答案” |
 | 手工 Bash / 临时调试任务被打断 | 只做诊断与安全建议 | 不伪造 `STATE.json.workflow_runtime` |
 | 未注册的自定义命令被打断 | 只做诊断与安全建议 | 不伪造内联 workflow runtime |
 
@@ -110,7 +111,7 @@ L1（必读）：
 L2（按需）：
 
 - [system-data-flow.md](references/system-data-flow.md)
-- [context-contract-v2.md](../references/context-contract-v2.md)
+- [context-loading-contract.md](../_shared/context-loading-contract.md)
 
 ## Workflow Checklist
 
@@ -153,7 +154,7 @@ cat "${SKILL_ROOT}/references/workflow-resume.md"
 
 ```bash
 cat "${SKILL_ROOT}/references/system-data-flow.md"
-cat "${REPO_ROOT}/.agents/skills/story/references/context-contract-v2.md"
+cat "${REPO_ROOT}/.agents/skills/story/_shared/context-loading-contract.md"
 ```
 
 核心原则：
@@ -175,13 +176,14 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 - 输出 `✅ 无中断任务`：
   - 说明当前没有 workflow-tracked 断点。
-  - 对 `story-query` / 手工任务，只能提供“安全重跑建议”，不能伪造断点续跑。
+  - 对手工任务只能提供“安全重跑建议”，不能伪造断点续跑。
 - 输出 JSON 中断信息：
   - 读取 `command`
   - 读取 `current_step.id`
   - 读取 `completed_steps`
   - 读取 `artifacts`
   - 读取 `elapsed_seconds`
+  - 若 `command=story-query`，默认按轻量 tracked run 解释：只允许 generic continue / rerun / manual diagnosis，不进入章节 cleanup 流程
 
 ## Step 3：归一化恢复选项
 
@@ -196,7 +198,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 | `Step 3` | 场景和氛围渲染 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 4` | 角色形象刻画 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 5` | 对白个性化和声口优化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
-| `Step 6` | 叙事张力强化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 6` | 追读力强化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 7` | 润色 | 优先继续润色收束；若终稿已明显漂移，再清理当前集正文并回 Step 1 |
 | `Step 1.5` | legacy 旧断点 | 视为 Step 1 兼容处理，不再单独追踪 |
 
@@ -206,6 +208,16 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 - `Step 3-6`：可从当前聚合/报告/落库位置继续，但必须先确认输入未变。
 - `Step 7`：关键问题处理未完成，必须重新向用户确认，不自动替用户裁决。
 - `Step 8`：只做收尾，可重新完成任务。
+
+### `story-query` 与其他轻量 tracked run 的默认解释
+
+- `story-query`
+  - 可读取 `current_step / completed_steps / elapsed_seconds`
+  - 但默认只给 generic 继续 / 重跑 / 人工诊断建议
+  - 不提供章节 cleanup，不宣称“从半句查询答案继续生成”
+- `story-init / story-cards / story-plan / story-validate / story-loopback`
+  - 若脚本只提供 generic recovery options，就按 generic 方案解释
+  - 不擅自套用 `story-write` / `story-review` 的重型恢复模板
 
 ### 统一安全策略
 
@@ -292,7 +304,8 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 
 ### 继续 `story-query`
 
-- 只做安全重跑，不宣称“从断点续查”。
+- 若 `workflow detect` 已记录 query run，可基于该 run_id 说明最近卡在 truth-role / source locate / evidence assemble 的哪一步。
+- 只做 generic 继续 / 安全重跑 / 人工诊断，不宣称“从断点续查”。
 - 若查询涉及规划类问题，继续默认先读 `全息地图.json`。
 
 ## Step 7：验证 Closure
@@ -356,3 +369,4 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 - 恢复选项已去除过时或 destructive 默认动作。
 - 已明确“下一跳回哪个 stage”，而不是把 `resume/` 冒充主执行器。
 - 若恢复继续写作/查询，已明确使用 holomap-first。
+- 若恢复对象是轻量 tracked run，已明确说明它只支持 generic 恢复，而不是章节级 cleanup。

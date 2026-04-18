@@ -30,6 +30,7 @@ import re
 # 安全修复：导入安全工具函数
 from security_utils import sanitize_commit_message, atomic_write_json, is_git_available
 from project_locator import write_current_project_pointer
+from data_modules.type_pack_resolver import infer_type_stack
 
 
 RUNTIME_STATE_REL = Path("STATE.json")
@@ -250,6 +251,54 @@ def _apply_label_replacements(text: str, replacements: Dict[str, str]) -> str:
                 leading = line[: len(line) - len(stripped)]
                 lines[i] = f"{leading}{prefix}{value}"
     return "\n".join(lines)
+
+
+def infer_type_stack_defaults(
+    *,
+    genre: str,
+    platform: str,
+    target_reader: str,
+) -> Dict[str, Any]:
+    result = infer_type_stack(
+        genre=genre,
+        platform=platform,
+        target_reader=target_reader,
+    )
+    result["resolver_ref"] = ".agents/skills/story/_shared/type-pack-loading-contract.md"
+    notes = list(result.get("notes") or [])
+    if "auto-inferred by 0-Init" not in notes:
+        notes.append("auto-inferred by 0-Init")
+    result["notes"] = notes
+    return result
+
+
+def _apply_type_stack_overrides(
+    *,
+    base_stack: Dict[str, Any],
+    method_kernel: str = "",
+    primary: str = "",
+    secondary: str = "",
+    platform: str = "",
+    audience: str = "",
+    notes: str = "",
+) -> Dict[str, Any]:
+    result = dict(base_stack)
+    if method_kernel.strip():
+        result["method_kernel"] = method_kernel.strip()
+    if primary.strip():
+        result["primary"] = primary.strip()
+    if secondary.strip():
+        result["secondary"] = _split_list_values(secondary)
+    if platform.strip():
+        result["platform"] = _split_list_values(platform)
+    if audience.strip():
+        result["audience"] = _split_list_values(audience)
+    extra_notes = _split_list_values(notes)
+    if extra_notes:
+        result["notes"] = list(result.get("notes") or []) + extra_notes
+    if any(token.strip() for token in (method_kernel, primary, secondary, platform, audience, notes)):
+        result["inferred"] = False
+    return result
 
 
 def _parse_tier_map(raw: str) -> Dict[str, str]:
@@ -662,6 +711,7 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
     story_engine = payload["planning_seed"]["story_engine"]
     world_seed = payload["cards_seed"]["global_seed"]
     north_star_inputs = payload.get("north_star_inputs", {})
+    type_stack = payload.get("type_stack") or {}
     macro_factions = _split_list_values(world_seed.get("factions", ""))
     rule_system = [
         {"label": "力量体系", "value": world_seed["power_system_type"]},
@@ -765,6 +815,7 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
             "target_reader": creative["target_reader"],
             "platform": creative["platform"],
         },
+        "type_stack": type_stack,
         "story_kernel": {
             "premise": creative["one_liner"],
             "opening_hook": promise["opening_hook"],
@@ -961,6 +1012,12 @@ def _build_init_handoff_payload(
     must_keep: str,
     must_not_do: str,
     no_fly_zones: str,
+    type_pack_method_kernel: str,
+    type_pack_primary: str,
+    type_pack_secondary: str,
+    type_pack_platform: str,
+    type_pack_audience: str,
+    type_pack_notes: str,
     now_iso: str,
 ) -> Dict[str, Any]:
     normalized_mode = _normalize_init_mode(init_mode)
@@ -1030,6 +1087,19 @@ def _build_init_handoff_payload(
         "core_selling_points": _split_list_values(core_selling_points),
         "opening_hook": opening_hook,
     }
+    type_stack = _apply_type_stack_overrides(
+        base_stack=infer_type_stack_defaults(
+        genre=genre,
+        platform=platform,
+        target_reader=target_reader,
+        ),
+        method_kernel=type_pack_method_kernel,
+        primary=type_pack_primary,
+        secondary=type_pack_secondary,
+        platform=type_pack_platform,
+        audience=type_pack_audience,
+        notes=type_pack_notes,
+    )
 
     payload = {
         "schema_version": "story2026/init-handoff/v2",
@@ -1059,6 +1129,7 @@ def _build_init_handoff_payload(
                 "team_setup": team_setup,
                 "mode_source": normalized_mode_source,
             },
+            "type_stack": type_stack,
             "promise_surface": {
                 "core_selling_points": legacy_constraints["core_selling_points"],
                 "anti_trope": anti_trope,
@@ -1117,6 +1188,7 @@ def _build_init_handoff_payload(
                 "hard_constraints": normalized_hard_constraints,
                 "core_selling_points": legacy_constraints["core_selling_points"],
             },
+            "type_stack": type_stack,
         },
         "unknowns": {
             "unresolved_questions": [],
@@ -1145,6 +1217,7 @@ def _build_init_handoff_payload(
             "must_not_do": _split_list_values(must_not_do),
             "no_fly_zones": _split_list_values(no_fly_zones),
         },
+        "type_stack": type_stack,
         # legacy mirror: 保留一层兼容字段，避免老合同与新 handoff 一次断裂
         "project": legacy_project,
         "protagonist": legacy_protagonist,
@@ -1525,6 +1598,12 @@ def init_project(
     must_keep: str = "",
     must_not_do: str = "",
     no_fly_zones: str = "",
+    type_pack_method_kernel: str = "",
+    type_pack_primary: str = "",
+    type_pack_secondary: str = "",
+    type_pack_platform: str = "",
+    type_pack_audience: str = "",
+    type_pack_notes: str = "",
 ) -> None:
     project_path = _resolve_project_path(project_dir, title)
     project_path.mkdir(parents=True, exist_ok=True)
@@ -1536,6 +1615,7 @@ def init_project(
         ".webnovel/summaries",
         ".webnovel/observability",
         "0-Init",
+        "Cards/0-全局卡/总设定",
         "Cards/2-角色卡/主要角色",
         "Cards/2-角色卡/次要角色",
         "Cards/2-角色卡/反派角色",
@@ -1833,6 +1913,12 @@ def init_project(
         must_keep=must_keep,
         must_not_do=must_not_do,
         no_fly_zones=no_fly_zones,
+        type_pack_method_kernel=type_pack_method_kernel,
+        type_pack_primary=type_pack_primary,
+        type_pack_secondary=type_pack_secondary,
+        type_pack_platform=type_pack_platform,
+        type_pack_audience=type_pack_audience,
+        type_pack_notes=type_pack_notes,
         now_iso=now_iso,
     )
     north_star_payload = _build_north_star_contract(init_payload)
@@ -2080,6 +2166,12 @@ def main() -> None:
     parser.add_argument("--must-keep", default="", help="IP 边界：必须保留项，逗号分隔")
     parser.add_argument("--must-not-do", default="", help="IP 边界：禁止做的事，逗号分隔")
     parser.add_argument("--no-fly-zones", default="", help="读者承诺：禁飞区，逗号分隔")
+    parser.add_argument("--type-pack-method-kernel", default="", help="显式指定 type-pack 方法核")
+    parser.add_argument("--type-pack-primary", default="", help="显式指定 primary type-pack")
+    parser.add_argument("--type-pack-secondary", default="", help="显式指定 secondary type-packs，逗号分隔")
+    parser.add_argument("--type-pack-platform", default="", help="显式指定 platform type-packs，逗号分隔")
+    parser.add_argument("--type-pack-audience", default="", help="显式指定 audience type-packs，逗号分隔")
+    parser.add_argument("--type-pack-notes", default="", help="type-pack 备注，逗号分隔")
 
     # 初始化扩展字段（统一 team 代入模式下均可预填）
     parser.add_argument("--protagonist-desire", default="", help="主角核心欲望（初始化扩展字段）")
@@ -2159,6 +2251,12 @@ def main() -> None:
         must_keep=args.must_keep,
         must_not_do=args.must_not_do,
         no_fly_zones=args.no_fly_zones,
+        type_pack_method_kernel=args.type_pack_method_kernel,
+        type_pack_primary=args.type_pack_primary,
+        type_pack_secondary=args.type_pack_secondary,
+        type_pack_platform=args.type_pack_platform,
+        type_pack_audience=args.type_pack_audience,
+        type_pack_notes=args.type_pack_notes,
     )
 
 

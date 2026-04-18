@@ -1,25 +1,29 @@
 version: 1
 module_id: jinghua-lighting
 module_level: leaf
-purpose: 在既有 `visual_control_line + cinematography_strategy_note` 上，确定每组画面的主光源、辅助光、逆光、照明类型与组内光影推进逻辑。
+purpose: 在既有 `visual_control_line + cinematography_strategy_note` 上，确定每组画面的主光源、辅助光、逆光、照明类型、主亮区、暗部边界与组内光影推进逻辑。
 triggers:
   - 需要明确画面明暗、光源方向、空间剥离或压迫感
   - 已收束 `cinematography_brief + visual_control_line + cinematography_strategy_note`
 must_answer:
   - 哪条光影判断必须稳定贯穿整组镜序
   - 主光来自哪里
+  - 画面最亮处落在哪，为什么必须落在这里
   - 辅助光和逆光怎样服务人物轮廓、空间剥离或观看压力
   - 当前组采用什么照明类型，以及它承担什么戏剧功能
-  - 阴影和高光如何服务人物或空间
+  - 阴影和高光如何服务人物或空间，哪些暗部可以合并、哪些必须保留
   - 光影推进如何对应组内情绪变化
 patch_contract:
   target_slot: lighting_strategy
   required_elements:
     - key_light_logic
+    - brightest_anchor
     - support_light_logic
     - back_light_logic
+    - light_ratio_note
     - lighting_type
     - shadow_use
+    - highlight_retention
     - lighting_progression
 merge_policy:
   preserve_first:
@@ -32,8 +36,10 @@ merge_policy:
 quality_gates:
   - 光影必须回指 `visual_control_line + cinematography_strategy_note`，不得自立审美目标
   - 不得给出无来源的唯美光
+  - 必须说明主亮区为何落在该处，不能让背景亮区抢走主收益
   - 主光、辅助光、逆光之间的逻辑必须自洽
   - 照明类型必须说清戏剧用途，不能只写“有层次”
+  - 高调/低调不能只剩标签；高调要有深色锚点，低调要有高光层次
   - 光影推进必须能回收到组级统一语法，不能各镜各打一套
-  - 必须能回答主光源 / 辅助光 / 逆光 / 照明类型 / 组内光影流动五件事
+  - 必须能回答主光源 / 主亮区 / 辅助光 / 逆光 / 照明类型 / 暗部边界 / 组内光影流动
   - 光影必须解释故事收益

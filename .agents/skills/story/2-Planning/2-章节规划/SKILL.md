@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `2-Planning/SKILL.md`、`_shared/planning-branch-output-contract.md`、当前 `Planning/全息地图.json`。
+- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、当前 `Planning/全息地图.json`。
 
 ## Parent Positioning
 
@@ -28,8 +28,8 @@ governance_tier: lite
 ## Canonical Sources
 
 - `../SKILL.md`
-- `../../_shared/planning-branch-output-contract.md`
-- `.agents/skills/story/_shared/story_map.schema.json`
+- `../_shared/planning-branch-output-contract.md`
+- `../../_shared/story_map.schema.json`
 - `templates/chapter-planning.template.json`
 
 ## Business Requirement Analysis Contract
@@ -54,7 +54,7 @@ governance_tier: lite
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/全息地图.json`
+  - `Planning/pass-artifacts/2-章节规划.json`
 - owned story_map slots：
   - `content.holomap.volume_boards`
   - `content.holomap.chapter_boards`

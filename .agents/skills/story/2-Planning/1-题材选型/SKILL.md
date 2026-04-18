@@ -9,7 +9,8 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `2-Planning/SKILL.md`、`_shared/planning-branch-output-contract.md`、`.agents/skills/story/_shared/story_map.schema.json`。
+- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、`../../_shared/story_map.schema.json`。
+- 若当前项目要进入类型化题材锁定，还必须回读 `../../_shared/type-pack-loading-contract.md` 与 `../../type-packs/网文/`。
 - 正式写入前，必须读取当前 `Planning/全息地图.json`；若不存在，由父层负责先 bootstrap。
 
 ## Parent Positioning
@@ -32,10 +33,11 @@ governance_tier: lite
 
 - `../SKILL.md`
 - `../CONTEXT.md`
-- `../../_shared/planning-branch-output-contract.md`
-- `.agents/skills/story/_shared/story_map.schema.json`
+- `../_shared/planning-branch-output-contract.md`
+- `../../_shared/story_map.schema.json`
+- `../../_shared/type-pack-loading-contract.md`
+- `../../type-packs/网文/`
 - `templates/genre-selection.template.json`
-- `.agents/skills/story/templates/genres/README.md`
 
 ## Business Requirement Analysis Contract
 
@@ -43,8 +45,8 @@ governance_tier: lite
 | --- | --- |
 | `business_goal` | 先锁整书阅读承诺与题材方向盘，再让后续 child 在同一题材走廊里工作。 |
 | `business_object` | `Planning/全息地图.json` 与 `Planning/全息地图.json.content.holomap.story_promise / genre_corridor`。 |
-| `constraint_profile` | 只定方向盘，不越权写章节/主干；共享题材知识只能读 `story/templates/genres/`。 |
-| `success_criteria` | evidence artifact 能解释“为什么是这组题材承诺”；story_map 已有 promise/corridor/hook。 |
+| `constraint_profile` | 只定方向盘，不越权写章节/主干；若题材名能直接命中 `type-packs/网文/<题材>/`，除非特别说明，否则默认走该目录作为入口知识源，再按小说设定补读必要的 family craft。 |
+| `success_criteria` | evidence artifact 能解释“为什么是这组题材承诺、默认挂到了哪些 `type-packs/网文/` 入口与 family craft”；story_map 已有 promise/corridor/hook。 |
 | `topology_fit` | `root reread -> promise lock -> corridor narrowing -> forbidden zone -> patch write` |
 
 ## Total Input Contract
@@ -57,11 +59,13 @@ governance_tier: lite
 - 硬规则：
   - 必须先锁 `reader_promise`，再谈辅题材。
   - 辅题材只有在会改变后续结构时才允许保留。
+  - 若题材命名与 `type-packs/网文/` 下某个目录同名，除非人工显式覆盖，否则默认把该目录视为当前题材入口知识源。
+  - 细分 family 只按小说实际设定补读，不因为目录存在就机械全量加载。
 
 ## Output Contract
 
 - evidence artifact：
-  - `Planning/全息地图.json`
+  - `Planning/pass-artifacts/1-题材选型.json`
 - owned story_map slots：
   - `content.holomap.story_promise`
   - `content.holomap.genre_corridor`
