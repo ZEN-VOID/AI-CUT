@@ -23,6 +23,7 @@
 | 任务很多但没有主支关系 | topology design | 先做 `mainline/sideline` 判型，再删掉 filler 支线 | 在主合同固定四象限诊断节点 | 支线能明确改变主线资源、关系或时间差 |
 | 暗线任务像作者私设 | reveal contract | 为每条暗线补 `surface_goal + true_intent + reveal_trigger` | 在模板固定明暗成对槽位 | 暗线都有明确 reveal / reversal 时机 |
 | 每章只有事件没有目标 | board binding | 把任务 refs 回挂到 `bundled_elements.missions`，并说明单线收束例外 | 在子技能固定章节必答问题 | 任一章节都能回答“台面任务 + 里层任务” |
+| 任务 thread 直接复制人物卡/关系图正文 | cross-stage bridge | 只保留 `owners / counterparts / relationship_edge_refs` | 共享桥固定任务 child 只写角色/关系引用与 hook | 任务线可追溯到角色与关系，但不会变成第二份人物设定 |
 
 ## Repair Playbook
 
@@ -40,3 +41,5 @@
 - 主线任务负责决定读者为什么继续追，支线任务负责让主线付出更具体的代价。
 - 暗线任务不是“保密信息”，而是“暂不公开的真实任务”；没有 reveal trigger 的暗线几乎必废。
 - 当一章只保留单线时，必须是刻意聚焦，而不是因为设计者忘了检查四象限。
+- 任务设计最稳的角色绑定方式是写 `owners / counterparts / relationship_edge_refs`，而不是把人物卡摘要直接塞进 thread。
+- 十集分片模式下，`mission_threads` 留在 global root，章节目标挂载与 window 明细写入 slice；否则 drafting 会拿到两份不一致的任务债务。

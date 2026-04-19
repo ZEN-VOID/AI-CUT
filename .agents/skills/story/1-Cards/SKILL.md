@@ -70,7 +70,7 @@ color: amber
 | --- | --- | --- |
 | `全局卡` | 世界观、`rule_system`、年代约束、文化艺术、科技/武功、金手指、`global_contract_refs` | `1-Cards/0-全局卡/**/*.json` |
 | `风格卡` | 整书风格契约、`reader_promise`、`aesthetic_axes`、`style_system`、`style_gate` | `1-Cards/1-风格卡/**/*.json` |
-| `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、角色关系图谱 | `1-Cards/2-角色卡/**/*.json` + `1-Cards/2-角色卡/角色关系图谱.md` |
+| `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、`growth_contract / growth_state` 三轴成长系统、角色关系图谱 | `1-Cards/2-角色卡/**/*.json` + `1-Cards/2-角色卡/角色关系图谱.md` |
 | `场景卡` | 场景对象真源、规则与风险、`scene_links`、复用策略 | `1-Cards/3-场景卡/**/*.json` |
 | `物品卡` | 物品对象真源、归属链、使用规则、代价、专属适配 | `1-Cards/4-物品卡/**/*.json` |
 
@@ -136,9 +136,9 @@ color: amber
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把 `0-Init` 交出的世界、风格与对象种子收敛为可长期维护的 cards 体系，并通过五个直连子技能把全局/风格/角色/场景/物品正式落盘。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/**/*.json`、cards writer/validator/tests、五个 child skill package。 |
-| `constraint_profile` | 父层必须保持单一总线；子技能必须直接输出 `.json`；正式 writeback 只能走 shared writer；coverage gate 必须覆盖 trace、单卡结构、规模密度与 child-skill parity。 |
+| `business_goal` | 把 `0-Init` 交出的世界、风格与对象种子收敛为可长期维护的 cards 体系，并通过五个直连子技能把全局/风格/角色/场景/物品正式落盘；其中角色卡必须承载可被 `5-Loopback` 递增 actualize 的成长系统真源。 |
+| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/**/*.json`、cards writer/validator/tests、五个 child skill package，以及 active `type-pack` 的 cards projection。 |
+| `constraint_profile` | 父层必须保持单一总线；子技能必须直接输出 `.json`；正式 writeback 只能走 shared writer；coverage gate 必须覆盖 trace、单卡结构、规模密度、child-skill parity 与 type-pack 差异化要求。 |
 | `success_criteria` | 五个子技能都能独立解释自己的对象成立条件，writer/validator/test 全部识别新子技能路径，cards 系统可通过定向 gate。 |
 | `non_goals` | 不把 cards 真源挪回 `references/`；不新造第二套平行 schema；不把项目级对象真源落回技能目录。 |
 | `complexity_source` | 复杂度来自父子技能分工、shared runtime parity、trace 合同、长篇密度门禁，而不是单张卡的 prose 丰富度。 |
@@ -222,6 +222,7 @@ stateDiagram-v2
 11. 命中的子技能包本地 `templates/*.json`
 12. 命中的子技能包 `references/*.md`
 13. 既有 `1-Cards/**/*.json`
+14. 若启用 `type-pack`：`../type-packs/pack-catalog.yaml`
 
 ## Total Input Contract
 
@@ -246,6 +247,7 @@ stateDiagram-v2
 3. 角色、场景、物品的依赖链固定顺序：`角色 -> 场景 -> 物品`。
 3. 物品卡不得绕过角色卡与场景卡的稳定接口直接发明专属逻辑。
 4. 所有正式写回都必须经 `cards_writer.py`。
+5. cards 阶段的规模/密度 gate 不得只看原始 `type_stack` 文本；若项目启用了 `type-pack`，必须同时消费 resolved pack 的 `cards_projection / semantic_tags`。
 
 ## Route Contract
 

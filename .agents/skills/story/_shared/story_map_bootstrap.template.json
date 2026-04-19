@@ -45,6 +45,13 @@
       "timeline_axis": [],
       "space_axis": [],
       "episode_sequence_axis": [],
+      "character_roster_projection": [],
+      "relationship_graph_projection": {
+        "source_graph_path": "",
+        "scope": "full-series",
+        "node_refs": [],
+        "edge_projections": []
+      },
       "volume_boards": [],
       "chapter_boards": [],
       "conflict_threads": [],

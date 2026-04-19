@@ -193,6 +193,65 @@ def _build_rag_query(outline: str, chapter_num: int, min_chars: int, max_chars: 
     return f"第{chapter_num}章 {topic}：{plain[:clean_max]}"
 
 
+def _load_protagonist_growth_snapshot(project_root: Path) -> Dict[str, Any]:
+    protagonist_dir = project_root / "1-Cards" / "2-角色卡" / "主要角色"
+    if not protagonist_dir.is_dir():
+        return {}
+
+    for path in sorted(protagonist_dir.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        card = (
+            ((payload.get("content") or {}).get("card_schema") or {}).get("character_card")
+            if isinstance(payload, dict)
+            else None
+        )
+        if not isinstance(card, dict):
+            continue
+
+        core = card.get("core") or {}
+        current_state = card.get("current_state") or {}
+        growth_contract = core.get("growth_contract") or {}
+        growth_state = current_state.get("growth_state") or {}
+        cast_markers = core.get("cast_markers") or {}
+        if growth_contract.get("growth_enabled") is not True and cast_markers.get("is_protagonist") is not True:
+            continue
+
+        identity = core.get("identity") or {}
+        skill = growth_state.get("skill") or {}
+        heart = growth_state.get("heart") or {}
+        emotion = growth_state.get("emotion") or {}
+        carry_signals: List[str] = []
+        for value in (
+            skill.get("focus"),
+            skill.get("recent_gain"),
+            skill.get("current_tension"),
+            heart.get("recent_shift"),
+            heart.get("current_tension"),
+            emotion.get("recent_shift"),
+            emotion.get("current_tension"),
+        ):
+            text = str(value or "").strip()
+            if text and text not in carry_signals:
+                carry_signals.append(text)
+
+        return {
+            "character_name": str(identity.get("name") or card.get("card_id") or path.stem),
+            "growth_enabled": bool(growth_contract.get("growth_enabled")),
+            "growth_role": str(growth_contract.get("growth_role") or ""),
+            "active_arc_phase": str(growth_state.get("active_arc_phase") or ""),
+            "latest_growth_episode": str(growth_state.get("latest_growth_episode") or ""),
+            "skill_stage": str((skill or {}).get("stage") or ""),
+            "heart_stage": str((heart or {}).get("stage") or ""),
+            "emotion_stage": str((emotion or {}).get("stage") or ""),
+            "carry_signals": carry_signals,
+        }
+    return {}
+
+
 def _search_with_rag(
     project_root: Path,
     chapter_num: int,
@@ -336,6 +395,7 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "recent_entities": core.get("recent_entities", []),
         "current_location": core.get("location", ""),
         "recent_state_changes": core.get("recent_state_changes", []),
+        "protagonist_growth_snapshot": _load_protagonist_growth_snapshot(project_root),
     }
     foreshadow_silence_slice = {
         "has_active_foreshadowing": bool(active_foreshadowing),
@@ -364,12 +424,31 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}),
         "writing_guidance": writing_guidance,
         "validation_fact_pack": {
-            "promise_slice": promise_slice,
-            "chapter_board": chapter_board,
-            "cards_state_history_slice": cards_state_history_slice,
-            "foreshadow_silence_slice": foreshadow_silence_slice,
-            "style_gate": style_gate,
-            "global_truth_slice": global_truth_slice,
+            "draft_snapshot": {
+                "chapter": chapter_num,
+                "current_step_id": str((payload.get("meta") or {}).get("current_step_id") or current_step_id or ""),
+            },
+            "cards_truth": {
+                "cards_state_history_slice": cards_state_history_slice,
+                "global_truth_slice": global_truth_slice,
+            },
+            "planning_truth": {
+                "promise_slice": promise_slice,
+                "chapter_board": chapter_board,
+                "foreshadow_silence_slice": foreshadow_silence_slice,
+            },
+            "init_truth": {
+                "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}) or {},
+                "project_preferences": (sections.get("preferences") or {}).get("content", {}) or {},
+                "genre_profile": (sections.get("genre_profile") or {}).get("content", {}) or {},
+                "style_contract_ref": global_ctx.get("style_contract_ref", ""),
+                "global_contract_refs": global_ctx.get("global_contract_refs", []),
+            },
+            "runtime_context": {
+                "style_gate": style_gate,
+                "reader_signal": (sections.get("reader_signal") or {}).get("content", {}) or {},
+                "writing_guidance": writing_guidance,
+            },
         },
     }
 
@@ -391,6 +470,20 @@ def build_chapter_context_payload(
     contract_context = _load_contract_context(project_root, chapter_num, current_step_id=current_step_id)
     rag_assist = _load_rag_assist(project_root, chapter_num, outline)
 
+    validation_fact_pack = contract_context.get("validation_fact_pack", {})
+    if isinstance(validation_fact_pack, dict):
+        draft_snapshot = validation_fact_pack.get("draft_snapshot")
+        if isinstance(draft_snapshot, dict):
+            draft_snapshot.setdefault("manuscript_ref", f"3-Drafting/第{chapter_num}集.md")
+            if chapter_num > 1:
+                draft_snapshot.setdefault("previous_episode_ref", f"3-Drafting/第{chapter_num - 1}集.md")
+            draft_snapshot.setdefault("outline_excerpt", str(outline or "")[:240])
+
+        runtime_context = validation_fact_pack.get("runtime_context")
+        if isinstance(runtime_context, dict):
+            runtime_context.setdefault("state_summary", state_summary)
+            runtime_context.setdefault("previous_summaries", prev_summaries)
+
     payload = {
         "chapter": chapter_num,
         "outline": outline,
@@ -403,7 +496,7 @@ def build_chapter_context_payload(
         "genre_profile": contract_context.get("genre_profile", {}),
         "type_pack_profile": contract_context.get("type_pack_profile", {}),
         "writing_guidance": contract_context.get("writing_guidance", {}),
-        "validation_fact_pack": contract_context.get("validation_fact_pack", {}),
+        "validation_fact_pack": validation_fact_pack,
         "rag_assist": rag_assist,
     }
     return payload

@@ -17,8 +17,8 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 仍把图片落盘当主产物 | 输出合同层 | 回退到 `第N集.json` 图像请求集合 | 在 `SKILL.md` 固化“json 为主，生成后置” | 主产物指向 `第N集.json` |
-| prompt 没有固定英文前缀 | Prompt 合同层 | 重新按固定前缀 + `storyboard_group` 拼接 | 在 `N4` 与 `FIELD-SB-SHEET-02` 固化前缀逐字保留与拼接顺序 | prompt 开头逐字一致 |
-| `storyboard_group` 漏掉组级或镜级内容 | 输入覆盖层 | 回到 director schema 重新提取分镜组内容 | 在 `N3` 固化字段覆盖检查 | prompt 可回链 `剧本正文 + 组间设计 + 分镜明细[]` |
+| prompt 没有固定英文前缀，或重新恢复独立 A 段整组 `剧本正文` | Prompt 合同层 | 重新按固定前缀 + 组级设计块 + 多镜融写列拼接 | 在 `N4` 与 `FIELD-SB-SHEET-02` 固化前缀逐字保留与 `BC` 结构 | prompt 开头逐字一致，且不再单列整组剧本文本 |
+| 组级设计块或多镜融写列漏掉组级或镜级内容 | 输入覆盖层 | 回到 director schema 重新提取分镜组内容，并检查 `正文切分参考[] -> 正文回指` | 在 `N3` 固化字段覆盖检查 | prompt 可回链组级设计与全部镜级行 |
 | 图像侧模板字段被删掉或乱改 | 请求模板层 | 恢复共享模板骨架 | 在 `.agents/skills/aigc/5-Image/_shared` 固定共享 JSON 模板 | `model` 骨架与共享模板一致 |
 | 规范又被拆回 `references` 或其他副本 | 真源治理层 | 回收规范到当前 `SKILL.md` | 固化“单文件真源 + `复杂链路的骨架 / 细则分层: false`” | 目录下不再存在第二套规范载体 |
 | 节点只有动作没有路由与门禁 | 思行网络层 | 给对应节点补 `route_out / gate` | 在 `Thinking-Action Node Contract` 强制六槽位 | 每个关键节点都可回退或汇流 |
@@ -33,7 +33,7 @@
 2. 再查 `N1` 的 shared schema、`metadata.document_phase` 与 `分镜组列表[]` 是否成立。
 3. 再查 `N2` 的 `group_id + source_shot_ids` 是否唯一且有序。
 4. 再查 `N3` 是否已经覆盖 `剧本正文 + 组间设计（含 出场角色及穿搭） + 分镜明细[]`。
-5. 再查 `N4` 是否严格等于“固定英文前缀 + storyboard_group”。
+5. 再查 `N4` 是否严格等于“固定英文前缀 + 组级设计块 + 多镜融写列”。
 6. 再查 `N5` 是否仍以共享模板骨架承接，并确认 `reference_images / image_markers` 没被删。
 7. 最后查 `N6` 是否正确落 `第N集.json`，以及 `full_trace` 时 `_manifest.json` 是否与之互相追溯。
 
@@ -44,6 +44,7 @@
 - 上游进入 `分镜故事板` 时，优先把 `projects/aigc/<项目名>/3-Detail/第N集.json` 视为第一事实源；`水月 / 镜花` sidecar 只作为人工可读补证。
 - 当 `复杂链路的骨架 / 细则分层` 固定为 `false` 时，复杂节点细则必须直接留在 `SKILL.md`，不能再借 `references/` 旁路外包。
 - 对本技能来说，最常见漂移不是画风，而是把“图像请求 JSON 蒸馏”误做成“直接图片落盘”或“只写线性步骤不写汇流门”。
-- 最稳的节点主干是：`组边界 -> storyboard_group -> 固定前缀 -> 模板骨架 -> 落盘汇流`。
+- 最稳的节点主干是：`组边界 -> 组级设计块与多镜融写列 -> 固定前缀 -> 模板骨架 -> 落盘汇流`。
+- `分镜故事板` 与 `全能参照` 现在共享同一桥接心智：不再独立保留整组 A 段 `剧本正文`，而是把原剧本信息经 `正文切分参考[] -> 正文回指` 融入各镜对应行。
 - `思考过程` 应留在调用侧摘要或 `full_trace` 侧车，不要写进 canonical JSON 业务真源。
 - 组级故事板若没显式消费 `出场角色及穿搭` 与 branch-owned 八字段，后续 prompt 往往会退回 compatibility projection，缺少真正稳定的角色、空间和镜头抓手。

@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
-"""Validate the minimum structure of Story2026 planning story_map output."""
+"""Validate Story2026 planning output for monolith and decile-slice layouts."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 
-REQUIRED_HOLOMAP_KEYS = [
+LEGACY_REQUIRED_HOLOMAP_KEYS = [
     "story_promise",
     "genre_corridor",
     "story_spine",
     "timeline_axis",
     "space_axis",
     "episode_sequence_axis",
+    "character_roster_projection",
+    "relationship_graph_projection",
     "volume_boards",
     "chapter_boards",
     "conflict_threads",
@@ -28,6 +31,48 @@ REQUIRED_HOLOMAP_KEYS = [
     "navigation_rules",
 ]
 
+SPLIT_REQUIRED_HOLOMAP_KEYS = [
+    "story_promise",
+    "genre_corridor",
+    "story_spine",
+    "timeline_axis",
+    "space_axis",
+    "episode_sequence_axis",
+    "episode_slice_manifest",
+    "character_roster_projection",
+    "relationship_graph_projection",
+    "volume_boards",
+    "conflict_threads",
+    "mission_threads",
+    "clue_threads",
+    "foreshadow_threads",
+    "cross_thread_indexes",
+    "actualization",
+    "state_transitions",
+    "navigation_rules",
+]
+
+SPLIT_SLICE_REQUIRED_KEYS = [
+    "slice_scope",
+    "chapter_boards",
+    "episode_sequence_axis",
+    "thread_window_slice",
+    "foreshadow_silence_slice",
+    "actualization",
+]
+
+PROHIBITED_ROOT_ACTUALIZATION_DETAIL_KEYS = [
+    "episode_nodes",
+    "clue_points",
+    "foreshadow_points",
+    "promise_threads",
+    "suspense_threads",
+    "tasklines",
+    "threads",
+]
+
+SLICE_FILENAME_RE = re.compile(r"^第(\d{3})-(\d{3})集\.json$")
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as f:
@@ -37,8 +82,28 @@ def _load_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def _validate(path: Path, strict: bool) -> list[str]:
-    data = _load_json(path)
+def _extract_episode_num(value: Any) -> int | None:
+    if isinstance(value, int):
+        return value
+    if not isinstance(value, str):
+        return None
+    match = re.search(r"(\d+)", value)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def _validate_bundled_elements(board: dict[str, Any], errors: list[str], prefix: str) -> None:
+    bundled = board.get("bundled_elements", {})
+    if not isinstance(bundled, dict):
+        errors.append(f"{prefix}.bundled_elements 必须是 object")
+        return
+    for key in ("events", "conflicts", "missions", "clues", "foreshadows", "characters"):
+        if key not in bundled:
+            errors.append(f"{prefix}.bundled_elements 缺少 {key}")
+
+
+def _validate_legacy(data: dict[str, Any], strict: bool) -> list[str]:
     errors: list[str] = []
 
     if data.get("schema_version") != "story2026/story-map/v3":
@@ -47,16 +112,15 @@ def _validate(path: Path, strict: bool) -> list[str]:
     meta = data.get("meta")
     if not isinstance(meta, dict):
         errors.append("缺少 meta object")
-    else:
-        if meta.get("skill_id") != "story-plan":
-            errors.append("meta.skill_id 必须为 story-plan")
+    elif meta.get("skill_id") != "story-plan":
+        errors.append("meta.skill_id 必须为 story-plan")
 
     holomap = data.get("content", {}).get("holomap")
     if not isinstance(holomap, dict):
         errors.append("缺少 content.holomap object")
         return errors
 
-    for key in REQUIRED_HOLOMAP_KEYS:
+    for key in LEGACY_REQUIRED_HOLOMAP_KEYS:
         if key not in holomap:
             errors.append(f"content.holomap 缺少 {key}")
 
@@ -68,15 +132,195 @@ def _validate(path: Path, strict: bool) -> list[str]:
         if not isinstance(first, dict):
             errors.append("chapter_boards[] 必须是 object")
         else:
-            bundled = first.get("bundled_elements", {})
-            for key in ("events", "conflicts", "missions", "clues", "foreshadows"):
-                if key not in bundled:
-                    errors.append(f"chapter_boards[].bundled_elements 缺少 {key}")
+            _validate_bundled_elements(first, errors, "chapter_boards[0]")
 
     if strict and not holomap.get("cross_thread_indexes"):
         errors.append("strict 模式要求 cross_thread_indexes 非空")
 
     return errors
+
+
+def _validate_split(root_path: Path, data: dict[str, Any], strict: bool) -> list[str]:
+    errors: list[str] = []
+
+    if data.get("schema_version") != "story2026/story-map/v3":
+        errors.append("split 模式下 schema_version 必须为 story2026/story-map/v3")
+
+    meta = data.get("meta")
+    if not isinstance(meta, dict):
+        errors.append("缺少 meta object")
+        return errors
+    if meta.get("skill_id") != "story-plan":
+        errors.append("meta.skill_id 必须为 story-plan")
+    if meta.get("layout_mode") != "total-index-plus-deciles":
+        errors.append("split 模式要求 meta.layout_mode = total-index-plus-deciles")
+
+    holomap = data.get("content", {}).get("holomap")
+    if not isinstance(holomap, dict):
+        errors.append("缺少 content.holomap object")
+        return errors
+
+    for key in SPLIT_REQUIRED_HOLOMAP_KEYS:
+        if key not in holomap:
+            errors.append(f"split 模式下 content.holomap 缺少 {key}")
+
+    chapter_boards = holomap.get("chapter_boards")
+    if chapter_boards not in (None, []):
+        errors.append("split 模式下 root 不得再承载完整 chapter_boards；应改用 episode_slice_manifest + slices")
+
+    actualization = holomap.get("actualization")
+    if not isinstance(actualization, dict):
+        errors.append("split 模式下 content.holomap.actualization 必须是 object")
+    else:
+        for key in PROHIBITED_ROOT_ACTUALIZATION_DETAIL_KEYS:
+            if key in actualization and actualization.get(key):
+                errors.append(f"split 模式下 root.actualization 不得承载明细字段 {key}")
+
+    manifest = holomap.get("episode_slice_manifest")
+    if not isinstance(manifest, list) or not manifest:
+        errors.append("split 模式下 episode_slice_manifest 必须为非空数组")
+        return errors
+
+    root_dir = root_path.parent
+    seen_episodes: set[int] = set()
+    manifest_ids: dict[str, tuple[int, int, Path]] = {}
+    ordered_ranges: list[tuple[int, int]] = []
+
+    for idx, entry in enumerate(manifest):
+        prefix = f"episode_slice_manifest[{idx}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{prefix} 必须是 object")
+            continue
+        slice_id = entry.get("slice_id")
+        start = entry.get("episode_start")
+        end = entry.get("episode_end")
+        file_ref = entry.get("file_ref")
+        if not isinstance(slice_id, str):
+            errors.append(f"{prefix}.slice_id 必须是 string")
+        if not isinstance(start, int) or not isinstance(end, int):
+            errors.append(f"{prefix}.episode_start / episode_end 必须是 int")
+            continue
+        if start > end:
+            errors.append(f"{prefix} 的 episode_start 不能大于 episode_end")
+            continue
+        if not isinstance(file_ref, str):
+            errors.append(f"{prefix}.file_ref 必须是 string")
+            continue
+        match = SLICE_FILENAME_RE.match(Path(file_ref).name)
+        if not match:
+            errors.append(f"{prefix}.file_ref 命名不合法，应为 第001-010集.json")
+            continue
+        name_start = int(match.group(1))
+        name_end = int(match.group(2))
+        if (name_start, name_end) != (start, end):
+            errors.append(f"{prefix}.file_ref 与 episode range 不一致")
+
+        slice_path = (root_dir / file_ref).resolve()
+        manifest_ids[slice_id] = (start, end, slice_path)
+        ordered_ranges.append((start, end))
+
+        for episode in range(start, end + 1):
+            if episode in seen_episodes:
+                errors.append(f"{prefix} 与其他 slice 存在 episode {episode} 重叠")
+            seen_episodes.add(episode)
+
+        if not slice_path.exists():
+            errors.append(f"{prefix}.file_ref 指向的 slice 文件不存在: {slice_path}")
+            continue
+
+        slice_data = _load_json(slice_path)
+        if slice_data.get("schema_version") != "story2026/story-map-slice/v1":
+            errors.append(f"{slice_path.name} 的 schema_version 必须为 story2026/story-map-slice/v1")
+        slice_content = slice_data.get("content", {}).get("holomap_slice")
+        if not isinstance(slice_content, dict):
+            errors.append(f"{slice_path.name} 缺少 content.holomap_slice")
+            continue
+
+        for key in SPLIT_SLICE_REQUIRED_KEYS:
+            if key not in slice_content:
+                errors.append(f"{slice_path.name}.content.holomap_slice 缺少 {key}")
+
+        slice_scope = slice_content.get("slice_scope")
+        if isinstance(slice_scope, dict):
+            if slice_scope.get("slice_id") != slice_id:
+                errors.append(f"{slice_path.name}.slice_scope.slice_id 与 manifest 不一致")
+            if slice_scope.get("episode_start") != start or slice_scope.get("episode_end") != end:
+                errors.append(f"{slice_path.name}.slice_scope episode range 与 manifest 不一致")
+
+        slice_axis = slice_content.get("episode_sequence_axis")
+        if not isinstance(slice_axis, list) or not slice_axis:
+            errors.append(f"{slice_path.name}.episode_sequence_axis 必须为非空数组")
+        else:
+            for axis_entry in slice_axis:
+                if not isinstance(axis_entry, dict):
+                    errors.append(f"{slice_path.name}.episode_sequence_axis[] 必须是 object")
+                    continue
+                if axis_entry.get("slice_ref") != slice_id:
+                    errors.append(f"{slice_path.name}.episode_sequence_axis[].slice_ref 必须回指 {slice_id}")
+
+        slice_boards = slice_content.get("chapter_boards")
+        if not isinstance(slice_boards, list) or not slice_boards:
+            errors.append(f"{slice_path.name}.chapter_boards 必须为非空数组")
+        else:
+            for board_idx, board in enumerate(slice_boards):
+                if not isinstance(board, dict):
+                    errors.append(f"{slice_path.name}.chapter_boards[{board_idx}] 必须是 object")
+                    continue
+                episode_ref = board.get("episode_ref")
+                episode_num = _extract_episode_num(episode_ref)
+                if episode_num is not None and not (start <= episode_num <= end):
+                    errors.append(
+                        f"{slice_path.name}.chapter_boards[{board_idx}].episode_ref={episode_ref} 超出 manifest range"
+                    )
+                if strict:
+                    _validate_bundled_elements(
+                        board,
+                        errors,
+                        f"{slice_path.name}.chapter_boards[{board_idx}]",
+                    )
+
+    if ordered_ranges:
+        ordered_ranges.sort()
+        expected = ordered_ranges[0][0]
+        for start, end in ordered_ranges:
+            if start != expected:
+                errors.append(f"slice coverage 不连续：期望从 episode {expected} 开始，实际从 {start} 开始")
+                expected = start
+            expected = end + 1
+
+    root_axis = holomap.get("episode_sequence_axis")
+    if not isinstance(root_axis, list) or not root_axis:
+        errors.append("split 模式下 root.episode_sequence_axis 必须为非空数组")
+    else:
+        for idx, axis_entry in enumerate(root_axis):
+            if not isinstance(axis_entry, dict):
+                errors.append(f"root episode_sequence_axis[{idx}] 必须是 object")
+                continue
+            slice_ref = axis_entry.get("slice_ref")
+            if slice_ref not in manifest_ids:
+                errors.append(f"root episode_sequence_axis[{idx}].slice_ref 未命中 manifest")
+                continue
+            episode_num = _extract_episode_num(axis_entry.get("episode_ref"))
+            if episode_num is not None:
+                start, end, _ = manifest_ids[slice_ref]
+                if not (start <= episode_num <= end):
+                    errors.append(
+                        f"root episode_sequence_axis[{idx}] 的 episode_ref 不在 slice_ref={slice_ref} 的区间内"
+                    )
+
+    if strict and not holomap.get("cross_thread_indexes"):
+        errors.append("strict 模式要求 cross_thread_indexes 非空")
+
+    return errors
+
+
+def _validate(path: Path, strict: bool) -> list[str]:
+    data = _load_json(path)
+    meta = data.get("meta", {})
+    layout_mode = meta.get("layout_mode") if isinstance(meta, dict) else None
+    if layout_mode == "total-index-plus-deciles":
+        return _validate_split(path, data, strict=strict)
+    return _validate_legacy(data, strict=strict)
 
 
 def main() -> None:

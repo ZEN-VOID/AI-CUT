@@ -24,6 +24,7 @@
 | 风险字段已落库，但 `STATE.json.review_checkpoints` 与趋势报告仍看不见 | state/index observation | 给 review checkpoint 增加四个轻量风险字段，并让趋势报告直接展示风险雷达 | 一等风险字段至少要贯穿 `review_metrics`、`review_checkpoints`、趋势报告三层观察面 | resume/status/trend 都能直接看到 `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk` |
 | Step 2 参考路径仍指向旧上级目录，导致 shared reference 实际读不到 | path contract | 改为 repo-local 正确路径 | 在技能中优先使用 `${REPO_ROOT}/.agents/skills/story/...` 绝对约定 | shell 中能成功读取 shared reference |
 | `review/` 试图代替 `5-Loopback` 做 gate 裁决或 actualization 决策 | stage split contract | 把 `review/` 收回到报告/持久化/升级层 | 在 `SKILL.md` 写死 `4-Validation` 判 gate、`5-Loopback` 写 truth、`review/` 只做 handoff summary | `review_handoff_summary` 不改写 `validation_status` |
+| validation 已给出 `type_pack_fit_summary`，但 review/report/index 没有承接，导致人工审查层看不见类型兑现 | review pack carry gap | 在 `review_metrics` 与 `review_handoff_summary` 增加 type-pack 字段，并在报告中单列“类型兑现” | 终验的关键维度要贯穿 aggregate JSON、review_metrics、报告三层，不允许在 review 静默丢失 | 审查报告和 index 记录都能看见 active packs、fit score 与 fail signals |
 | 修复后沿用旧评估结果继续推进 | workflow closure | 触发新一轮 `4-Validation` 复核 | 在 Completion Gate 写死“修复后重新隔离评估” | 修复后存在新的团队输出与报告 |
 | 审查报告已经落到业务目录，但 task dir 没有形成对应的治理证据回指 | governance artifact observation | 在 `review/` 合同中把 task dir 视为治理承接层，要求报告层与证据层互相回指 | 让 `4-Validation/*.md` 业务报告与 `<run_id>` task artifacts 保持可追溯关系，避免出现两套互不相认的报告路径 | report、state、task dir 三处都能定位同一轮审查结论 |
 
@@ -44,6 +45,7 @@
 - `STATE.json.review_checkpoints` 最适合保存“章节范围 + 报告路径 + 时间戳”的轻量摘要，不适合塞回完整 issue 列表。
 - 轻量摘要不等于盲摘要；凡是需要被 `resume / status / trend` 快速识别的一等风险字段，应与报告路径一起回写到 `review_checkpoints`。
 - 解释规划影响时，优先读 `全息地图.json`；解释运行态时，优先读 `STATE.json`；解释历史趋势时，优先读 `index.db.review_metrics`。
+- 若 validation 已经单列 `type-pack-fit-validator`，review 就不该再把类型兑现藏进“综合评分备注”；应该显式写出来，方便人工判断“写得不错但不像这个题材”的问题。
 - 当文档已经宣称“新字段是正式字段”，第一反应应是去核对 schema / save / read / tests 四层是否真的同步，而不是只修文字。
 - 正式字段若只存在数据库、却不出现在观察面，实际仍会退化成“隐形字段”；至少要让趋势报告与 state checkpoint 能看见它。
 - 业务报告和治理工件都叫“report”时，最稳的区分是：`4-Validation/*.md` 面向书项目阅读，`<run_id>/validation_report.md` 面向三省闭环审计。

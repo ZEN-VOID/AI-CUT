@@ -34,3 +34,4 @@
 - Step 3 的高杠杆不在“写更多剧情”，而在“让所有后续长线挂在同一条主干上”。
 - 如果转折不能改向，后续冲突/任务/线索都会变成外挂层。
 - 章节容器稳了但 board 没事件，说明 Step 3 还没有真正完成 progressive commit。
+- 十集分片模式下，主干事件必须写入命中的 slice board，而不是重新把 event payload 塞回 global root。

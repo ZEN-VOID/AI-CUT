@@ -1,6 +1,8 @@
 {
   "chapter": 0,
   "manuscript_ref": "3-Drafting/第0集.md",
+  "planning_ref": "2-Planning/全息地图.json",
+  "planning_slice_ref": "",
   "validation_ref": "4-Validation/第0集.validation.json",
   "validation_mode": "normal_review",
   "validation_status": "FAIL-COVENANT",
@@ -10,7 +12,8 @@
     "continuity-validator",
     "logic-validator",
     "character-validator",
-    "timeline-validator"
+    "timeline-validator",
+    "type-pack-fit-validator"
   ],
   "dimension_packets": {},
   "dimension_report_refs": {
@@ -18,7 +21,8 @@
     "continuity-validator": "4-Validation/第0集/连续性.md",
     "logic-validator": "4-Validation/第0集/逻辑自洽校验.md",
     "character-validator": "4-Validation/第0集/人物一致性.md",
-    "timeline-validator": "4-Validation/第0集/时间线.md"
+    "timeline-validator": "4-Validation/第0集/时间线.md",
+    "type-pack-fit-validator": "4-Validation/第0集/类型兑现.md"
   },
   "issues": [],
   "severity_counts": {
@@ -34,7 +38,8 @@
     "continuity": 0,
     "logic": 0,
     "character": 0,
-    "timeline": 0
+    "timeline": 0,
+    "type-pack-fit": 0
   },
   "anti_ai_force_check": "pending",
   "spoiler_risk": "low",

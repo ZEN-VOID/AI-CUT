@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 漫画提示词蒸馏"
-  short_description: "把分镜组蒸馏为漫画页图像请求 JSON"
-  default_prompt: "Use $aigc-storyboard-comic to keep the parent skill as the execution owner, read `projects/aigc/<项目名>/3-Detail/第N集.json`, and distill exactly one storyboard group into the canonical comic-page image request JSON under `projects/aigc/<项目名>/5-Image/漫画/第N集/` without generating images or rewriting source facts."

@@ -31,6 +31,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 | 物品卡重新绕过角色/场景接口直接补设定 | cross-skill consistency | 回到 `物品卡`，强制读取角色接口与场景规则 | 在父技能写死 mixed/full-build 顺序为 `角色 -> 场景 -> 物品` | 物品 blocking finding 能指回缺失上游 |
 | 只改文档，不改 tests | source-layer closure | 反查 `test_cards_writer.py` 与 `test_cards_coverage_validator.py` | cards 系统改动视为“文档 + runtime + tests”三件套 | pytest 覆盖 route parity 与 schema parity |
 | cards 系统看起来有卡，但 route trace 不可信 | completeness audit | 跑 `cards-check` 并核对 trace 输出 | validator 既查存在，也查 route/source parity | 报告里能看到正确 child skill trace |
+| cards gate 只读取原始 `type_stack`，没有消费 resolved pack bias，导致不同类型包在 Cards 侧几乎没有差异 | cards type-pack projection gap | 让 `cards_coverage_validator.py` 消费 resolved `type_pack_profile.semantic_tags / cards_projection` | pack 差异必须进入 cards 的规模/密度/线索/关系 gate，而不只停在 trace block | 规则悬疑、女频悬疑、修仙等 pack 会拉高对应 cards coverage 门槛 |
 
 ## Repair Playbook
 
@@ -52,3 +53,4 @@ last_checked_at: 2026-04-17T00:00:00Z
 - 角色、场景、物品三类卡的强依赖关系没有变，变的是承载它们的源层形态：从 governed reference 升格为 governed child skill。
 - 真正的系统完善度，不是“新增了 child skills”，而是 template / writer / validator / tests / child contracts 五层同时对齐。
 - 对 `1-Cards` 来说，模板若还挂在父层，就说明真源分层还没收完；最稳的形态是“父层管总线，模板跟着对象子技能走”。
+- 若 pack 已经能改变 planning/drafting/validation 的判断，却还进不了 cards coverage，系统很快会出现“正文像这个题材，但对象支撑不像这个题材”的断层。

@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
+- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的十集分片。
 
 ## Parent Positioning
 
@@ -35,7 +35,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把题材走廊与章节容器转成整书主干，并给 4-7 提供挂载骨架。 |
-| `business_object` | `2-Planning/全息地图.json` 与 `story_map.story_spine / chapter_boards[].bundled_elements.events`。 |
+| `business_object` | global root 的 `story_map.story_spine` 与目标 slice 的 `chapter_boards[].bundled_elements.events`。 |
 | `constraint_profile` | 不代做冲突、任务、线索、伏笔系统。 |
 | `success_criteria` | 每个章节板块都能看见主干事件挂载，后续 4-7 可继续往上叠。 |
 
@@ -45,7 +45,7 @@ governance_tier: lite
   - `2-Planning/pass-artifacts/3-故事大纲.json`
 - owned story_map slots：
   - `content.holomap.story_spine`
-  - `content.holomap.chapter_boards[].bundled_elements.events`
+  - `content.holomap_slice.chapter_boards[].bundled_elements.events`
 
 ## Visual Map
 

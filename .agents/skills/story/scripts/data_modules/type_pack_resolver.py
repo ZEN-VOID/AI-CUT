@@ -109,8 +109,22 @@ def _read_yaml(path: Path) -> Dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _catalog_path() -> Path:
+    return _canonical_pack_root() / "pack-catalog.yaml"
+
+
+def _load_pack_catalog() -> Dict[str, Any]:
+    return _read_yaml(_catalog_path())
+
+
 def _normalize_text_list(value: Any) -> List[str]:
     return [str(item).strip() for item in _safe_list(value) if str(item).strip()]
+
+
+def _catalog_pack_entry(pack_id: str) -> Dict[str, Any]:
+    catalog = _load_pack_catalog()
+    packs = _safe_dict(catalog.get("packs"))
+    return _safe_dict(packs.get(pack_id))
 
 
 def _digest_markdown_refs(pack_root: Path, refs: List[str]) -> List[str]:
@@ -191,7 +205,21 @@ def _knowledge_refs_for_dir(dir_path: Path) -> List[str]:
     return refs
 
 
+def _knowledge_refs_for_source_dirs(pack_root: Path, dir_names: List[str]) -> List[str]:
+    refs: List[str] = []
+    library_root = pack_root / WEBNOVEL_LIBRARY_DIR
+    for dir_name in dir_names:
+        dir_path = library_root / dir_name
+        refs = _append_dedup(refs, _knowledge_refs_for_dir(dir_path))
+    return refs
+
+
 def _pack_layer(pack_id: str) -> str:
+    catalog_pack = _catalog_pack_entry(pack_id)
+    layer = str(catalog_pack.get("layer") or "").strip()
+    if layer:
+        return layer
+
     pack = _read_yaml(_canonical_pack_root() / pack_id / "pack.yaml")
     layer = str(pack.get("layer") or "").strip()
     if layer:
@@ -390,20 +418,38 @@ class TypePackResolver:
 
     def load_pack(self, pack_id: str) -> Dict[str, Any]:
         yaml_pack = _read_yaml(self._pack_root() / pack_id / "pack.yaml")
-        if yaml_pack:
-            return yaml_pack
+        catalog_pack = deepcopy(_catalog_pack_entry(pack_id))
 
-        library_dir = self._pack_root() / WEBNOVEL_LIBRARY_DIR / pack_id
-        if not library_dir.is_dir():
+        if yaml_pack:
+            pack = _deep_merge(catalog_pack, yaml_pack)
+        else:
+            pack = catalog_pack
+
+        source_dirs = _normalize_text_list(pack.get("source_dirs"))
+        if not source_dirs:
+            library_dir = self._pack_root() / WEBNOVEL_LIBRARY_DIR / pack_id
+            if library_dir.is_dir():
+                source_dirs = [pack_id]
+
+        knowledge_refs = _normalize_text_list(pack.get("knowledge_refs"))
+        if source_dirs:
+            knowledge_refs = _append_dedup(
+                knowledge_refs,
+                _knowledge_refs_for_source_dirs(self._pack_root(), source_dirs),
+            )
+
+        if not pack and not knowledge_refs:
             return {}
 
-        return {
-            "pack_id": pack_id,
-            "display_name": pack_id,
-            "layer": _pack_layer(pack_id) or "secondary",
-            "summary": f"{pack_id} 知识目录",
-            "knowledge_refs": _knowledge_refs_for_dir(library_dir),
-        }
+        pack.setdefault("pack_id", pack_id)
+        pack.setdefault("display_name", pack_id)
+        pack.setdefault("layer", _pack_layer(pack_id) or "secondary")
+        pack.setdefault("summary", f"{pack_id} 类型包")
+        if source_dirs:
+            pack["source_dirs"] = source_dirs
+        if knowledge_refs:
+            pack["knowledge_refs"] = knowledge_refs
+        return pack
 
     def load_knowledge_index(self, pack_id: str) -> Dict[str, Any]:
         return _read_yaml(self._pack_root() / pack_id / "knowledge" / "legacy-index.yaml")
@@ -415,10 +461,13 @@ class TypePackResolver:
             "method_kernel": str(stack.get("method_kernel") or DEFAULT_METHOD_KERNEL),
             "type_stack": deepcopy(stack),
             "active_packs": active_pack_ids,
+            "semantic_tags": [],
             "reader_promise": {},
             "narrative_engine": {},
             "forbidden_patterns": [],
             "stage_projection": {},
+            "planning_projection": {},
+            "cards_projection": {},
             "knowledge_refs": [],
             "knowledge_indexes": [],
             "knowledge_digest": [],
@@ -426,6 +475,7 @@ class TypePackResolver:
             "legacy_source_refs": [],
             "resolution_trace": [],
             "resolver_ref": ".agents/skills/story/_shared/type-pack-loading-contract.md",
+            "pack_catalog_ref": ".agents/skills/story/type-packs/pack-catalog.yaml",
             "pack_root": str(self._pack_root()),
         }
 
@@ -440,7 +490,19 @@ class TypePackResolver:
             merged["reader_promise"] = _deep_merge(_safe_dict(merged["reader_promise"]), _safe_dict(pack.get("reader_promise")))
             merged["narrative_engine"] = _deep_merge(_safe_dict(merged["narrative_engine"]), _safe_dict(pack.get("narrative_engine")))
             merged["stage_projection"] = _deep_merge(_safe_dict(merged["stage_projection"]), _safe_dict(pack.get("stage_projection")))
+            merged["planning_projection"] = _deep_merge(
+                _safe_dict(merged["planning_projection"]),
+                _safe_dict(pack.get("planning_projection")),
+            )
+            merged["cards_projection"] = _deep_merge(
+                _safe_dict(merged["cards_projection"]),
+                _safe_dict(pack.get("cards_projection")),
+            )
             merged["forbidden_patterns"] = _append_dedup(_safe_list(merged["forbidden_patterns"]), _safe_list(pack.get("forbidden_patterns")))
+            merged["semantic_tags"] = _append_dedup(
+                _safe_list(merged["semantic_tags"]),
+                _normalize_text_list(pack.get("semantic_tags")),
+            )
             merged["knowledge_refs"] = _append_dedup(_safe_list(merged["knowledge_refs"]), _safe_list(pack.get("knowledge_refs")))
 
             knowledge_index = self.load_knowledge_index(pack_id)

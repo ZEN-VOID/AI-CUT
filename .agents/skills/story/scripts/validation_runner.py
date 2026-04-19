@@ -79,6 +79,28 @@ EXPLANATION_DIALOGUE_MARKERS = (
     "我之所以",
 )
 
+REQUIRED_FACT_PACK_SLICES = (
+    "draft_snapshot",
+    "cards_truth",
+    "planning_truth",
+    "init_truth",
+    "runtime_context",
+)
+
+SEVERITY_ORDER = {
+    "critical": 4,
+    "high": 3,
+    "medium": 2,
+    "low": 1,
+}
+
+RISK_ORDER = {
+    "low": 1,
+    "medium": 2,
+    "high": 3,
+    "critical": 4,
+}
+
 
 def _registry_path() -> Path:
     return Path(__file__).resolve().parent.parent / "4-Validation" / "_shared" / "validation-dimension-registry.yaml"
@@ -100,6 +122,52 @@ def _role_spec(role_id: str) -> dict[str, Any]:
         if str(item.get("role_id") or "") == role_id:
             return item if isinstance(item, dict) else {}
     raise KeyError(f"unknown validator role_id: {role_id}")
+
+
+def _strip_markdown_frontmatter(text: str) -> str:
+    if not text.startswith("---"):
+        return text
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        if lines[index].strip() == "---":
+            return "\n".join(lines[index + 1 :]).lstrip()
+    return text
+
+
+def _final_acceptance_specs() -> list[dict[str, Any]]:
+    registry = _load_registry()
+    specs: list[dict[str, Any]] = []
+    for item in registry.get("dimensions", []) or []:
+        spec = item if isinstance(item, dict) else {}
+        if bool(_safe_dict(spec.get("final_acceptance")).get("mandatory")):
+            specs.append(spec)
+    return specs
+
+
+def _final_acceptance_role_ids() -> list[str]:
+    return [str(spec.get("role_id") or "").strip() for spec in _final_acceptance_specs() if str(spec.get("role_id") or "").strip()]
+
+
+def _aggregate_template_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "4-Validation" / "_shared" / "validation-aggregate.template.json"
+
+
+def _load_aggregate_template() -> dict[str, Any]:
+    path = _aggregate_template_path()
+    if not path.is_file():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def _aggregate_output_ref(chapter_num: int) -> str:
+    return f"4-Validation/第{chapter_num}集.validation.json"
+
+
+def _aggregate_output_path(project_root: Path, chapter_num: int) -> Path:
+    return project_root / _aggregate_output_ref(chapter_num)
 
 
 def _resolve_project_root(raw: Optional[str]) -> Path:
@@ -132,6 +200,43 @@ def _previous_manuscript_path(project_root: Path, chapter_num: int) -> Optional[
     return path if path.is_file() else None
 
 
+def _fact_pack_missing_slices(raw_fact_pack: dict[str, Any]) -> list[str]:
+    return [slice_name for slice_name in REQUIRED_FACT_PACK_SLICES if not _safe_dict(raw_fact_pack.get(slice_name))]
+
+
+def _derive_fact_pack_views(raw_fact_pack: dict[str, Any]) -> dict[str, Any]:
+    draft_snapshot = _safe_dict(raw_fact_pack.get("draft_snapshot"))
+    cards_truth = _safe_dict(raw_fact_pack.get("cards_truth"))
+    planning_truth = _safe_dict(raw_fact_pack.get("planning_truth"))
+    init_truth = _safe_dict(raw_fact_pack.get("init_truth"))
+    runtime_context = _safe_dict(raw_fact_pack.get("runtime_context"))
+
+    promise_slice = _safe_dict(planning_truth.get("promise_slice"))
+    if not promise_slice and init_truth:
+        promise_slice = {
+            "type_pack_profile": _safe_dict(init_truth.get("type_pack_profile")),
+            "project_preferences": _safe_dict(init_truth.get("project_preferences")),
+            "style_contract_ref": str(init_truth.get("style_contract_ref") or "").strip(),
+            "global_contract_refs": list(init_truth.get("global_contract_refs") or []),
+            "genre": str(_safe_dict(init_truth.get("genre_profile")).get("genre") or "").strip(),
+        }
+
+    return {
+        "draft_snapshot": draft_snapshot,
+        "cards_truth": cards_truth,
+        "planning_truth": planning_truth,
+        "init_truth": init_truth,
+        "runtime_context": runtime_context,
+        "promise_slice": promise_slice,
+        "chapter_board": _safe_dict(planning_truth.get("chapter_board")),
+        "cards_state_history_slice": _safe_dict(cards_truth.get("cards_state_history_slice")),
+        "foreshadow_silence_slice": _safe_dict(planning_truth.get("foreshadow_silence_slice")),
+        "style_gate": _safe_dict(runtime_context.get("style_gate")),
+        "global_truth_slice": _safe_dict(cards_truth.get("global_truth_slice")),
+        "type_pack_profile": _safe_dict(init_truth.get("type_pack_profile")) or _safe_dict(promise_slice.get("type_pack_profile")),
+    }
+
+
 def _build_runtime_context(project_root: Path, chapter_num: int, current_step_id: str | None = None) -> dict[str, Any]:
     manuscript_path = drafting_root_md_path(project_root, chapter_num)
     previous_path = _previous_manuscript_path(project_root, chapter_num)
@@ -153,6 +258,9 @@ def _build_runtime_context(project_root: Path, chapter_num: int, current_step_id
     fact_pack = context_payload.get("validation_fact_pack", {}) if isinstance(context_payload, dict) else {}
     if not isinstance(fact_pack, dict):
         fact_pack = {}
+    missing_slices = _fact_pack_missing_slices(fact_pack)
+    if missing_slices:
+        warnings.append("missing_fact_pack_slices:" + ",".join(missing_slices))
 
     return {
         "project_root": project_root,
@@ -163,14 +271,9 @@ def _build_runtime_context(project_root: Path, chapter_num: int, current_step_id
         "previous_manuscript_path": previous_path,
         "previous_manuscript_text": previous_text,
         "context_payload": context_payload,
-        "fact_pack": {
-            "promise_slice": fact_pack.get("promise_slice", {}) or {},
-            "chapter_board": fact_pack.get("chapter_board", {}) or {},
-            "cards_state_history_slice": fact_pack.get("cards_state_history_slice", {}) or {},
-            "foreshadow_silence_slice": fact_pack.get("foreshadow_silence_slice", {}) or {},
-            "style_gate": fact_pack.get("style_gate", {}) or {},
-            "type_pack_profile": fact_pack.get("promise_slice", {}).get("type_pack_profile", {}) or {},
-        },
+        "raw_fact_pack": fact_pack,
+        "fact_pack_missing_slices": missing_slices,
+        "fact_pack": _derive_fact_pack_views(fact_pack),
         "warnings": warnings,
     }
 
@@ -223,12 +326,83 @@ def _severity_counts(issues: list[dict[str, Any]]) -> dict[str, int]:
     return counts
 
 
+def _semantic_tags(profile: dict[str, Any]) -> set[str]:
+    return {
+        str(item).strip()
+        for item in (profile.get("semantic_tags") or [])
+        if str(item).strip()
+    }
+
+
+def _merge_severity_counts(values: list[dict[str, int]]) -> dict[str, int]:
+    merged = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    for counts in values:
+        for key in merged:
+            merged[key] += _safe_int(_safe_dict(counts).get(key), 0)
+    return merged
+
+
+def _max_risk(*values: Any) -> str:
+    best = "low"
+    for raw in values:
+        value = str(raw or "").strip().lower()
+        if value in RISK_ORDER and RISK_ORDER[value] > RISK_ORDER[best]:
+            best = value
+    return best
+
+
+def _covenant_issues(ctx: dict[str, Any], *, role_id: str = "context-agent") -> list[dict[str, Any]]:
+    chapter = _safe_int(ctx.get("chapter"), 0)
+    issues: list[dict[str, Any]] = []
+    owner_map = {
+        "draft_snapshot": "3-Drafting",
+        "cards_truth": "1-Cards",
+        "planning_truth": "2-Planning",
+        "init_truth": "0-Init",
+        "runtime_context": "STATE",
+    }
+    for idx, slice_name in enumerate(ctx.get("fact_pack_missing_slices") or [], start=1):
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=idx,
+                issue_type="验收契约",
+                severity="critical",
+                location=f"validation_fact_pack.{slice_name}",
+                description=f"终验统一事实包缺少必需 slice：{slice_name}",
+                suggestion="先修 pack producer 与上游 truth 装配，再重新进入 validation。",
+                rework_target_step="source-contract-fix",
+                source_layer_owner=owner_map.get(str(slice_name), "4-Validation"),
+                can_override=False,
+            )
+        )
+    return issues
+
+
+def _runtime_issue(chapter: int, role_id: str, exc: Exception, index: int) -> dict[str, Any]:
+    return _issue(
+        role_id=role_id,
+        chapter=chapter,
+        index=index,
+        issue_type="运行时失败",
+        severity="critical",
+        location=f"{role_id}.runtime",
+        description=f"{role_id} 在终验过程中抛出 {exc.__class__.__name__}",
+        suggestion="先修复 validator runtime，再重新执行终验聚合。",
+        rework_target_step="source-contract-fix",
+        source_layer_owner="4-Validation",
+        can_override=False,
+    )
+
+
 def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fit-validator") -> dict[str, Any]:
     text = str(ctx.get("manuscript_text") or "")
     chapter = _safe_int(ctx.get("chapter"), 0)
     current_step_id = normalize_drafting_step_id(ctx.get("current_step_id"))
     profile = _safe_dict(ctx.get("fact_pack", {}).get("type_pack_profile"))
     active_packs = [str(item) for item in (profile.get("active_packs") or []) if str(item).strip()]
+    semantic_tags = _semantic_tags(profile)
     validation_projection = resolve_stage_projection(profile, "validation")
     drafting_projection = resolve_stage_projection(profile, "drafting", current_step_id=current_step_id)
     required_hooks = [str(item).strip() for item in (validation_projection.get("required_hooks") or []) if str(item).strip()]
@@ -240,6 +414,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
         return {
             "enabled": False,
             "active_packs": [],
+            "semantic_tags": [],
             "required_hooks": [],
             "hard_fail_signals": [],
             "fit_score": 100,
@@ -251,7 +426,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
     paragraphs = [row for row in _paragraphs(text) if row]
     long_paragraphs = sum(1 for row in paragraphs if len(row) >= 120)
 
-    if "网文高冲击" in active_packs:
+    if "high-impact-webnovel" in semantic_tags or "网文高冲击" in active_packs:
         if not any(token in tail for token in ("？", "!", "！", "……", "却", "但", "然而", "下一")):
             issues.append(
                 _issue(
@@ -281,7 +456,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 )
             )
 
-    if "玄幻升级" in active_packs and not any(token in text for token in ("境界", "修为", "突破", "灵石", "资源", "宗门", "机缘")):
+    if "upgrade-fantasy" in semantic_tags and not any(token in text for token in ("境界", "修为", "突破", "灵石", "资源", "宗门", "机缘")):
         issues.append(
             _issue(
                 role_id=role_id,
@@ -290,13 +465,13 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 issue_type="类型兑现",
                 severity="low",
                 location=f"第{chapter}集正文",
-                description="已启用玄幻升级，但本章缺少明显升级/资源/势力信号。",
+                description="已启用升级型玄幻/修仙 pack，但本章缺少明显升级/资源/势力信号。",
                 suggestion="补足升级链、资源争夺或势力压迫中的至少一项。",
                 rework_target_step="1-单集叙事起盘",
             )
         )
 
-    if "规则悬疑" in active_packs and not any(token in text for token in ("规则", "线索", "真相", "疑点", "禁忌", "代价")):
+    if "rules-mystery" in semantic_tags and not any(token in text for token in ("规则", "线索", "真相", "疑点", "禁忌", "代价")):
         issues.append(
             _issue(
                 role_id=role_id,
@@ -305,13 +480,13 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 issue_type="类型兑现",
                 severity="medium",
                 location=f"第{chapter}集正文",
-                description="已启用规则悬疑，但本章缺少规则/线索/代价的显性支点。",
+                description="已启用规则悬疑/规则怪谈 pack，但本章缺少规则/线索/代价的显性支点。",
                 suggestion="补足可验证线索或规则代价，不要只保留抽象悬念。",
                 rework_target_step="1-单集叙事起盘",
             )
         )
 
-    if "都市复仇" in active_packs and not any(token in text for token in ("打脸", "反击", "羞辱", "压迫", "翻盘", "反压")):
+    if "urban-revenge" in semantic_tags and not any(token in text for token in ("打脸", "反击", "羞辱", "压迫", "翻盘", "反压")):
         issues.append(
             _issue(
                 role_id=role_id,
@@ -320,13 +495,13 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 issue_type="类型兑现",
                 severity="low",
                 location=f"第{chapter}集正文",
-                description="已启用都市复仇，但压迫/回击链条不够显性。",
+                description="已启用都市复仇/豪门强冲突 pack，但压迫/回击链条不够显性。",
                 suggestion="补足压迫者、见证者与回击后果。",
                 rework_target_step="6-追读力强化",
             )
         )
 
-    if "女频强情绪" in active_packs and not any(token in text for token in ("情绪", "心口", "眼神", "误会", "关系", "拉扯")):
+    if "female-emotion-suspense" in semantic_tags and not any(token in text for token in ("情绪", "心口", "眼神", "误会", "关系", "拉扯")):
         issues.append(
             _issue(
                 role_id=role_id,
@@ -335,7 +510,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 issue_type="类型兑现",
                 severity="low",
                 location=f"第{chapter}集正文",
-                description="已启用女频强情绪，但情绪与关系张力显影不足。",
+                description="已启用女频悬疑/强情绪 pack，但情绪与关系张力显影不足。",
                 suggestion="补足关系位移、误解或情绪代价。",
                 rework_target_step="4-角色形象刻画",
             )
@@ -379,6 +554,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
     return {
         "enabled": True,
         "active_packs": active_packs,
+        "semantic_tags": sorted(semantic_tags),
         "required_hooks": required_hooks,
         "drafting_required_hooks": drafting_required_hooks,
         "hard_fail_signals": hard_fail_signals,
@@ -566,8 +742,8 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
 
 def _run_continuity(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validation_context: str) -> dict[str, Any]:
     chapter = ctx["chapter"]
-    text = str(ctx["manuscript_text"] or "")
-    previous_text = str(ctx["previous_manuscript_text"] or "")
+    text = _strip_markdown_frontmatter(str(ctx["manuscript_text"] or ""))
+    previous_text = _strip_markdown_frontmatter(str(ctx["previous_manuscript_text"] or ""))
     cards_slice = ctx["fact_pack"]["cards_state_history_slice"]
     recent_entities = [str(item) for item in cards_slice.get("recent_entities", []) if str(item).strip()]
 
@@ -624,9 +800,33 @@ def _run_continuity(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], val
 def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validation_context: str) -> dict[str, Any]:
     chapter = ctx["chapter"]
     text = str(ctx["manuscript_text"] or "")
-    cards_slice = ctx["fact_pack"]["cards_state_history_slice"]
+    fact_pack = _safe_dict(ctx.get("fact_pack"))
+    cards_slice = _safe_dict(fact_pack.get("cards_state_history_slice"))
+    cards_truth = _safe_dict(fact_pack.get("cards_truth"))
+    planning_truth = _safe_dict(fact_pack.get("planning_truth"))
+    init_truth = _safe_dict(fact_pack.get("init_truth"))
+    global_truth = _safe_dict(fact_pack.get("global_truth_slice"))
+    global_summary = _safe_dict(global_truth.get("global_contract_summary"))
+    chapter_board = _safe_dict(fact_pack.get("chapter_board"))
     current_location = str(cards_slice.get("current_location") or "").strip()
     contrivance_hits = sum(text.count(marker) for marker in CONTRIVANCE_MARKERS)
+    recent_state_changes = [str(item) for item in (cards_slice.get("recent_state_changes") or []) if str(item).strip()]
+    rule_system = global_summary.get("rule_system") or []
+    rule_text = " ".join(
+        str(
+            _safe_dict(item).get("value")
+            or _safe_dict(item).get("label")
+            or item
+        )
+        for item in rule_system
+    )
+    golden_finger = _safe_dict(global_summary.get("golden_finger"))
+    golden_finger_name = str(golden_finger.get("name") or "").strip()
+    golden_finger_limits = [str(item) for item in (golden_finger.get("limits") or []) if str(item).strip()]
+    cannot_change = [str(item) for item in (chapter_board.get("cannot_change") or []) if str(item).strip()]
+    exception_tokens = ("越级", "禁术", "破例", "强开", "透支", "系统", "作弊")
+    cost_tokens = ("代价", "反噬", "损耗", "后遗症", "负担", "受伤", "崩裂", "失控")
+    no_limit_tokens = ("毫无代价", "毫发无伤", "不受限制", "无限", "随意", "轻易", "完全无视")
 
     issues: list[dict[str, Any]] = []
     if current_location and current_location not in text:
@@ -644,6 +844,73 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
             )
         )
 
+    state_change_misses = [item for item in recent_state_changes[:3] if item not in text]
+    if state_change_misses:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="逻辑自洽校验",
+                severity="medium",
+                location=f"第{chapter}集状态层",
+                description=f"近期对象状态变更未在正文中得到承接：{state_change_misses[0]}",
+                suggestion="补上状态延续或明确说明为什么当前状态已变化。",
+                rework_target_step="1-单集叙事起盘",
+            )
+        )
+
+    explicit_no_cost = any(token in text for token in no_limit_tokens)
+    if ("代价" in rule_text or "限制" in rule_text) and any(token in text for token in exception_tokens) and (explicit_no_cost or not any(token in text for token in cost_tokens)):
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="逻辑自洽校验",
+                severity="high" if validation_context == "final_acceptance" else "medium",
+                location=f"第{chapter}集世界规则层",
+                description="上游真源已声明规则存在代价/限制，但正文在触发破例动作时没有体现对应成本。",
+                suggestion="补足触发条件、代价或先例解释；若上游规则本身冲突，改走 source-contract 修复。",
+                rework_target_step="1-单集叙事起盘",
+                source_layer_owner="1-Cards",
+            )
+        )
+
+    if golden_finger_name and golden_finger_name in text and golden_finger_limits and any(token in text for token in no_limit_tokens):
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="逻辑自洽校验",
+                severity="medium",
+                location=f"第{chapter}集能力边界层",
+                description=f"`{golden_finger_name}` 在上游真源中带有限制，但正文把它写成了近乎无上限能力。",
+                suggestion="把能力使用改回限制内，或明确补写限制失效的条件与代价。",
+                rework_target_step="1-单集叙事起盘",
+                source_layer_owner="0-Init",
+            )
+        )
+
+    if cannot_change:
+        misses = [item for item in cannot_change[:3] if item not in text]
+        if misses:
+            issues.append(
+                _issue(
+                    role_id=role_id,
+                    chapter=chapter,
+                    index=len(issues) + 1,
+                    issue_type="逻辑自洽校验",
+                    severity="medium",
+                    location=f"第{chapter}集规划约束层",
+                    description=f"planning truth 声明了本集不可擅自改写的约束，但正文没有给出清晰锚点：{misses[0]}",
+                    suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-Planning` 修源。",
+                    rework_target_step="source-contract-fix",
+                    source_layer_owner="2-Planning",
+                )
+            )
+
     if contrivance_hits >= 3:
         issues.append(
             _issue(
@@ -659,6 +926,22 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
             )
         )
 
+    world_rule_conflicts = sum(
+        1
+        for issue in issues
+        if str(issue.get("source_layer_owner") or "") in {"0-Init", "1-Cards"}
+    )
+    capability_conflicts = sum(
+        1
+        for issue in issues
+        if "能力边界" in str(issue.get("location") or "")
+    )
+    exception_cost_gaps = 1 if any(token in text for token in exception_tokens) and (explicit_no_cost or not any(token in text for token in cost_tokens)) else 0
+    social_ecology_conflicts = sum(
+        1
+        for issue in issues
+        if str(issue.get("source_layer_owner") or "") == "2-Planning"
+    )
     score = _clamp_score(91 - len(issues) * 18 - contrivance_hits * 3)
     return {
         "overall_score": score,
@@ -666,11 +949,11 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
         "issues": issues,
         "metrics": {
             "cause_effect_breaks": 1 if contrivance_hits >= 3 else 0,
-            "state_conflicts": 1 if current_location and current_location not in text else 0,
-            "capability_conflicts": 0,
-            "world_rule_conflicts": 0,
-            "exception_cost_gaps": 0,
-            "social_ecology_conflicts": 0,
+            "state_conflicts": int(bool((current_location and current_location not in text) or state_change_misses)),
+            "capability_conflicts": capability_conflicts,
+            "world_rule_conflicts": world_rule_conflicts,
+            "exception_cost_gaps": exception_cost_gaps,
+            "social_ecology_conflicts": social_ecology_conflicts,
             "contrivance_risk": "high" if contrivance_hits >= 3 else ("medium" if contrivance_hits >= 1 else "low"),
         },
         "summary": "逻辑与设定链条基本自洽。" if len(issues) == 0 else "存在状态锚不足、设定破例未受约束或强行推进的逻辑风险。",
@@ -680,8 +963,11 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
 def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validation_context: str) -> dict[str, Any]:
     chapter = ctx["chapter"]
     text = str(ctx["manuscript_text"] or "")
+    current_step_id = normalize_drafting_step_id(ctx.get("current_step_id"))
     dialogue = _dialogue_lines(text)
-    recent_entities = [str(item) for item in (ctx["fact_pack"]["cards_state_history_slice"].get("recent_entities", []) or []) if str(item).strip()]
+    cards_slice = ctx["fact_pack"]["cards_state_history_slice"]
+    recent_entities = [str(item) for item in (cards_slice.get("recent_entities", []) or []) if str(item).strip()]
+    growth_snapshot = _safe_dict(cards_slice.get("protagonist_growth_snapshot"))
 
     issues: list[dict[str, Any]] = []
     speech_violations = sum(
@@ -689,7 +975,10 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
         for line in dialogue
         if len(line) >= 55 or any(marker in line for marker in EXPLANATION_DIALOGUE_MARKERS)
     )
-    if speech_violations >= 2:
+    should_block_speech = validation_context == "final_acceptance" or current_step_id in {"Step 5", "Step 7", ""}
+    deferred_speech_to_step5 = validation_context == "drafting_inline" and current_step_id == "Step 4" and speech_violations >= 2
+
+    if speech_violations >= 2 and should_block_speech:
         issues.append(
             _issue(
                 role_id=role_id,
@@ -719,7 +1008,35 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
             )
         )
 
+    growth_continuity_checked = bool(growth_snapshot.get("growth_enabled"))
+    growth_signal_hits = 0
+    if growth_continuity_checked:
+        protagonist_name = str(growth_snapshot.get("character_name") or "").strip()
+        carry_signals = [str(item) for item in (growth_snapshot.get("carry_signals") or []) if str(item).strip()]
+        if protagonist_name and protagonist_name in text and carry_signals:
+            growth_signal_hits = sum(1 for signal in carry_signals[:4] if signal in text)
+        if protagonist_name and protagonist_name in text and carry_signals and growth_signal_hits == 0:
+            issues.append(
+                _issue(
+                    role_id=role_id,
+                    chapter=chapter,
+                    index=len(issues) + 1,
+                    issue_type="人物一致性",
+                    severity="medium",
+                    location=f"第{chapter}集成长轴",
+                    description="主角已启用成长系统，但本集正文几乎看不见技能/心路/情感三轴的承接信号，成长连续性偏弱。",
+                    suggestion="回到角色刻画或追读力强化，把当前 validated 的成长 tension 写进动作、选择、反应或代价里。",
+                    rework_target_step="4-角色形象刻画",
+                )
+            )
+
     score = _clamp_score(92 - len(issues) * 16 - speech_violations * 4)
+    if len(issues) == 0 and deferred_speech_to_step5:
+        summary = "人物行为未见明显失真；对白声口问题留待 Step 5 处理。"
+    elif len(issues) == 0:
+        summary = "人物行为与对白未见明显失真。"
+    else:
+        summary = "存在对白声口或人物承接偏弱的问题。"
     return {
         "overall_score": score,
         "pass": len(issues) == 0,
@@ -729,8 +1046,10 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
             "motivation_breaks": 0,
             "speech_violations": speech_violations,
             "relationship_pressure_drops": 1 if recent_entities and not any(entity in text for entity in recent_entities[:3]) else 0,
+            "growth_continuity_checked": growth_continuity_checked,
+            "growth_signal_hits": growth_signal_hits,
         },
-        "summary": "人物行为与对白未见明显失真。" if len(issues) == 0 else "存在对白声口或人物承接偏弱的问题。",
+        "summary": summary,
     }
 
 
@@ -843,39 +1162,56 @@ ROLE_RUNNERS: dict[str, Callable[[dict[str, Any], str, dict[str, Any], str], dic
 }
 
 
-def run_validator(
+def _run_validator_with_context(
     *,
-    project_root: Path,
-    chapter_num: int,
+    ctx: dict[str, Any],
     role_id: str,
     validation_context: str,
-    current_step_id: str | None = None,
 ) -> dict[str, Any]:
     spec = _role_spec(role_id)
     runner = ROLE_RUNNERS.get(role_id)
     if runner is None:
         raise KeyError(f"missing runner for role_id={role_id}")
 
-    ctx = _build_runtime_context(project_root, chapter_num, current_step_id=current_step_id)
+    chapter_num = _safe_int(ctx.get("chapter"), 0)
+    project_root = Path(ctx["project_root"])
+    current_step_id = str(ctx.get("current_step_id") or "")
     manuscript_path = ctx["manuscript_path"]
     if not manuscript_path.is_file():
         raise FileNotFoundError(f"missing manuscript: {manuscript_path}")
 
-    result_core = runner(ctx, role_id, spec, validation_context)
+    covenant_issues = _covenant_issues(ctx)
+    if covenant_issues:
+        result_core = {
+            "overall_score": 0,
+            "pass": False,
+            "issues": covenant_issues,
+            "metrics": {
+                "missing_fact_pack_slices": list(ctx.get("fact_pack_missing_slices") or []),
+            },
+            "summary": "validation_fact_pack 缺少必需 slice，当前维度不具备可靠验收条件。",
+        }
+    else:
+        result_core = runner(ctx, role_id, spec, validation_context)
+
     issues = list(result_core.get("issues", []) or [])
     type_pack_fit = _evaluate_type_pack_fit(ctx)
     severity_counts = _severity_counts(issues)
-    dimension_label = ROLE_ID_TO_DIMENSION.get(role_id, str(spec.get("dimension") or role_id))
+    dimension_key = str(spec.get("dimension") or role_id).strip() or role_id
+    dimension_label = ROLE_ID_TO_DIMENSION.get(role_id, dimension_key)
     report_filename = str(spec.get("report_filename") or f"{dimension_label}.md")
     overall_score = _safe_int(result_core.get("overall_score"), 0)
     passed = bool(result_core.get("pass")) and not any(str(item.get("severity")) in {"critical", "high"} for item in issues)
 
     result = {
         "agent": role_id,
+        "role_id": role_id,
+        "dimension": dimension_key,
         "validation_context": validation_context,
         "chapter": chapter_num,
         "current_step_id": normalize_drafting_step_id(current_step_id),
         "overall_score": overall_score,
+        "score": overall_score,
         "pass": passed,
         "issues": issues,
         "metrics": result_core.get("metrics", {}) or {},
@@ -884,6 +1220,7 @@ def run_validator(
         "type_pack_fit_summary": {
             "enabled": bool(type_pack_fit.get("enabled")),
             "active_packs": list(type_pack_fit.get("active_packs") or []),
+            "semantic_tags": list(type_pack_fit.get("semantic_tags") or []),
             "fit_score": _safe_int(type_pack_fit.get("fit_score"), 0),
             "required_hooks": list(type_pack_fit.get("required_hooks") or []),
         },
@@ -907,7 +1244,24 @@ def run_validator(
         warnings=list(ctx["warnings"]),
     )
     result["report_ref"] = report_ref
+    result["dimension_report_ref"] = report_ref
     return result
+
+
+def run_validator(
+    *,
+    project_root: Path,
+    chapter_num: int,
+    role_id: str,
+    validation_context: str,
+    current_step_id: str | None = None,
+) -> dict[str, Any]:
+    ctx = _build_runtime_context(project_root, chapter_num, current_step_id=current_step_id)
+    return _run_validator_with_context(
+        ctx=ctx,
+        role_id=role_id,
+        validation_context=validation_context,
+    )
 
 
 def run_batch(
@@ -919,16 +1273,15 @@ def run_batch(
     current_step_id: str | None = None,
 ) -> dict[str, Any]:
     results = []
+    ctx = _build_runtime_context(project_root, chapter_num, current_step_id=current_step_id)
     for role_id in role_ids:
         results.append(
             {
                 "role_id": role_id,
-                "result": run_validator(
-                    project_root=project_root,
-                    chapter_num=chapter_num,
+                "result": _run_validator_with_context(
+                    ctx=ctx,
                     role_id=role_id,
                     validation_context=validation_context,
-                    current_step_id=current_step_id,
                 ),
             }
         )
@@ -938,6 +1291,210 @@ def run_batch(
         "current_step_id": normalize_drafting_step_id(current_step_id),
         "results": results,
     }
+
+
+def _dimension_score(result: dict[str, Any]) -> float:
+    return round(_safe_int(result.get("overall_score"), 0) / 10.0, 2)
+
+
+def _aggregate_rework_targets(issues: list[dict[str, Any]], routing_decision: str) -> list[dict[str, Any]]:
+    groups: dict[str, list[str]] = {}
+    for issue in issues:
+        key = ""
+        if routing_decision == "back_to_source_contract":
+            key = str(issue.get("source_layer_owner") or "").strip()
+        else:
+            key = str(issue.get("rework_target_step") or "").strip()
+        if not key:
+            continue
+        groups.setdefault(key, []).append(str(issue.get("id") or ""))
+
+    targets = []
+    for key, issue_ids in groups.items():
+        if not issue_ids:
+            continue
+        reason = "上游真源存在缺口或冲突，需先修 source contract。" if routing_decision == "back_to_source_contract" else "当前节点是最早受影响的返工入口。"
+        targets.append(
+            {
+                "step_id": key,
+                "issue_ids": issue_ids,
+                "reason": reason,
+            }
+        )
+    return targets
+
+
+def _write_aggregate_json(project_root: Path, chapter_num: int, payload: dict[str, Any]) -> str:
+    output_path = _aggregate_output_path(project_root, chapter_num)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return _aggregate_output_ref(chapter_num)
+
+
+def run_final_acceptance(
+    *,
+    project_root: Path,
+    chapter_num: int,
+    current_step_id: str | None = None,
+) -> dict[str, Any]:
+    ctx = _build_runtime_context(project_root, chapter_num, current_step_id=current_step_id)
+    manuscript_path = Path(ctx["manuscript_path"])
+    if not manuscript_path.is_file():
+        raise FileNotFoundError(f"missing manuscript: {manuscript_path}")
+
+    specs = _final_acceptance_specs()
+    role_ids = [str(spec.get("role_id") or "").strip() for spec in specs if str(spec.get("role_id") or "").strip()]
+    template = _load_aggregate_template()
+    manuscript_ref = str(manuscript_path.relative_to(project_root))
+    aggregate_ref = _aggregate_output_ref(chapter_num)
+
+    payload: dict[str, Any] = template if isinstance(template, dict) else {}
+    payload.update(
+        {
+            "chapter": chapter_num,
+            "manuscript_ref": manuscript_ref,
+            "validation_ref": aggregate_ref,
+            "validation_mode": "final_acceptance",
+            "selected_agents": ["context-agent", *role_ids],
+            "dimension_packets": {},
+            "dimension_report_refs": {},
+            "issues": [],
+            "severity_counts": {"critical": 0, "high": 0, "medium": 0, "low": 0},
+            "critical_issues": [],
+            "overall_score": 0.0,
+            "dimension_scores": {},
+            "anti_ai_force_check": "pending",
+            "spoiler_risk": "low",
+            "contrivance_risk": "low",
+            "cold_commentary_risk": "low",
+            "routing_decision": "back_to_source_contract",
+            "handoff_targets": [],
+            "rework_targets": [],
+            "source_trace": [],
+            "evidence_refs": [manuscript_ref],
+        }
+    )
+
+    covenant_issues = _covenant_issues(ctx)
+    if covenant_issues:
+        payload["validation_status"] = "FAIL-COVENANT"
+        payload["issues"] = covenant_issues
+        payload["severity_counts"] = _severity_counts(covenant_issues)
+        payload["critical_issues"] = list(covenant_issues)
+        payload["source_trace"] = [{"source_layer_owner": issue.get("source_layer_owner"), "issue_id": issue.get("id")} for issue in covenant_issues]
+        payload["rework_targets"] = _aggregate_rework_targets(covenant_issues, "back_to_source_contract")
+        _write_aggregate_json(project_root, chapter_num, payload)
+        return payload
+
+    dimension_packets: dict[str, Any] = {}
+    dimension_report_refs: dict[str, str] = {}
+    issues: list[dict[str, Any]] = []
+    per_dimension_scores: dict[str, float] = {}
+    severity_list: list[dict[str, int]] = []
+    source_trace: list[dict[str, Any]] = []
+    runtime_issues: list[dict[str, Any]] = []
+    weighted_score = 0.0
+    total_weight = 0.0
+    anti_ai_force_check = "pass"
+    spoiler_risk = "low"
+    contrivance_risk = "low"
+    cold_commentary_risk = "low"
+
+    for idx, spec in enumerate(specs, start=1):
+        role_id = str(spec.get("role_id") or "").strip()
+        if not role_id:
+            continue
+        try:
+            result = _run_validator_with_context(
+                ctx=ctx,
+                role_id=role_id,
+                validation_context="final_acceptance",
+            )
+        except Exception as exc:
+            runtime_issues.append(_runtime_issue(chapter_num, role_id or "context-agent", exc, idx))
+            continue
+
+        dimension_packets[role_id] = result
+        dimension_report_refs[role_id] = str(result.get("dimension_report_ref") or result.get("report_ref") or "")
+        issues.extend(list(result.get("issues") or []))
+        severity_list.append(_safe_dict(result.get("severity_counts")))
+        dimension_key = str(result.get("dimension") or role_id)
+        per_dimension_scores[dimension_key] = _dimension_score(result)
+        weight = float(_safe_dict(spec.get("final_acceptance")).get("weight") or 0.0)
+        weighted_score += _safe_int(result.get("overall_score"), 0) * weight
+        total_weight += weight
+
+        metrics = _safe_dict(result.get("metrics"))
+        anti_ai_force_check = "fail" if str(metrics.get("anti_ai_force_check") or "").strip().lower() == "fail" else anti_ai_force_check
+        spoiler_risk = _max_risk(spoiler_risk, metrics.get("spoiler_risk"))
+        contrivance_risk = _max_risk(contrivance_risk, metrics.get("contrivance_risk"))
+        cold_commentary_risk = _max_risk(cold_commentary_risk, metrics.get("cold_commentary_risk"))
+
+        result_source_trace = _safe_dict(result.get("source_trace"))
+        owners = [str(item).strip() for item in (result_source_trace.get("upstream_source_owners") or []) if str(item).strip()]
+        if owners or result_source_trace.get("runtime_warnings"):
+            source_trace.append(
+                {
+                    "role_id": role_id,
+                    "upstream_source_owners": owners,
+                    "runtime_warnings": list(result_source_trace.get("runtime_warnings") or []),
+                }
+            )
+
+    if runtime_issues:
+        issues.extend(runtime_issues)
+        severity_list.append(_severity_counts(runtime_issues))
+
+    severity_counts = _merge_severity_counts(severity_list)
+    critical_issues = [issue for issue in issues if str(issue.get("severity") or "") == "critical"]
+    source_owners = {
+        str(issue.get("source_layer_owner") or "").strip()
+        for issue in issues
+        if str(issue.get("source_layer_owner") or "").strip()
+    }
+    upstream_owners = {owner for owner in source_owners if owner in {"0-Init", "1-Cards", "2-Planning", "STATE"}}
+
+    if runtime_issues:
+        validation_status = "FAIL-RUNTIME"
+        routing_decision = "back_to_source_contract"
+        handoff_targets: list[str] = []
+    elif upstream_owners:
+        validation_status = "FAIL-COVENANT"
+        routing_decision = "back_to_source_contract"
+        handoff_targets = []
+    elif issues:
+        validation_status = "FAIL-QUALITY"
+        routing_decision = "back_to_drafting_nodes"
+        handoff_targets = ["3-Drafting"]
+    else:
+        validation_status = "PASS"
+        routing_decision = "handoff_to_review_and_loopback"
+        handoff_targets = ["review/", "5-Loopback"]
+
+    payload.update(
+        {
+            "validation_status": validation_status,
+            "dimension_packets": dimension_packets,
+            "dimension_report_refs": dimension_report_refs,
+            "issues": issues,
+            "severity_counts": severity_counts,
+            "critical_issues": critical_issues,
+            "overall_score": round(weighted_score / total_weight, 2) if total_weight else 0.0,
+            "dimension_scores": per_dimension_scores,
+            "anti_ai_force_check": anti_ai_force_check,
+            "spoiler_risk": spoiler_risk,
+            "contrivance_risk": contrivance_risk,
+            "cold_commentary_risk": cold_commentary_risk,
+            "routing_decision": routing_decision,
+            "handoff_targets": handoff_targets,
+            "rework_targets": _aggregate_rework_targets(issues, routing_decision),
+            "source_trace": source_trace,
+            "evidence_refs": [manuscript_ref, *[ref for ref in dimension_report_refs.values() if ref]],
+        }
+    )
+
+    _write_aggregate_json(project_root, chapter_num, payload)
+    return payload
 
 
 def _parse_args() -> argparse.Namespace:
@@ -958,6 +1515,11 @@ def _parse_args() -> argparse.Namespace:
     p_batch.add_argument("--step-id", help="当前 drafting step_id，可选")
     p_batch.add_argument("--role-id", action="append", dest="role_ids", required=True, help="可重复传入多个 role_id")
     p_batch.add_argument("--format", choices=["text", "json"], default="json")
+
+    p_final = sub.add_parser("run-final-acceptance", help="执行 4-Validation 父层终验聚合")
+    p_final.add_argument("--chapter", type=int, required=True, help="集号")
+    p_final.add_argument("--step-id", help="当前 drafting step_id，可选")
+    p_final.add_argument("--format", choices=["text", "json"], default="json")
     return parser.parse_args()
 
 
@@ -994,12 +1556,18 @@ def main() -> int:
             validation_context=args.context,
             current_step_id=args.step_id,
         )
-    else:
+    elif args.action == "run-batch":
         payload = run_batch(
             project_root=project_root,
             chapter_num=args.chapter,
             role_ids=list(args.role_ids or []),
             validation_context=args.context,
+            current_step_id=args.step_id,
+        )
+    else:
+        payload = run_final_acceptance(
+            project_root=project_root,
+            chapter_num=args.chapter,
             current_step_id=args.step_id,
         )
 

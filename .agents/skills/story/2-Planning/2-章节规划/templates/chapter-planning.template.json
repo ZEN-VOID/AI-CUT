@@ -24,6 +24,18 @@
       "chapter_function_slots": [],
       "rhythm_windows": [],
       "buffer_rules": [],
+      "type_pack_projection_summary": {
+        "active_packs": [],
+        "semantic_tags": [],
+        "chapter_board_bias": [],
+        "validation_bias": []
+      },
+      "character_bridge_usage": {
+        "roster_slot": "content.holomap.character_roster_projection",
+        "relationship_slot": "content.holomap.relationship_graph_projection",
+        "board_seed_rules": [],
+        "relationship_focus_rules": []
+      },
       "downstream_hooks": []
     }
   },

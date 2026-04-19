@@ -1,0 +1,13 @@
+pack_id: "男频快节奏"
+display_name: "男频快节奏"
+layer: "audience"
+summary: "减少无推进停滞，优先动作结果闭环。"
+stage_projection:
+  validation:
+    required_hooks:
+      - "长段说明不得压过动作推进"
+  drafting:
+    step_hooks:
+      "Step 2":
+        required_hooks:
+          - "删减无推进段"

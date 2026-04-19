@@ -14,6 +14,7 @@
 | --- | --- | --- | --- | --- |
 | drafting 仍回退到 `Drafting/chNNNN/chapter-root.md` | stage canonical runtime | 改回 `projects/story/<项目名>/3-Drafting/第N集.md` | 在父技能与 `_shared` 合同中固定单一正文根文件 | 任何子技能都只回写 `第N集.md` |
 | 第 2 集之后直接开写，没读上一集终稿 | continuity contract | 阻塞当前集，先补上一集终稿读取 | 在父技能 Total Input Contract 写死 `N>1` 必需连续性输入 | 当前集日志能记录 `previous_episode_ref` |
+| 当前集 scope 已锁定，但仍无法从 `story_map` 命中唯一 chapter board | board locating contract | 先按 `episode_num / episode_id` 回查 `chapter_boards[].episode_ref`，必要时再用 `episode_sequence_axis -> node_id` 回指 | 在 `3-Drafting/_shared/chapter-board-locating-contract.md` 固化定位顺序，并禁止用数组顺序猜本集 board | 当前 step 的 `process_log_entry` 能写出唯一 `chapter_board.node_id` |
 | 子技能各自写一份完整稿，父层没有统一收束 | composite output governance | 改为 child 只返回 `manuscript_patch + process_log_entry` | 在 `_shared/drafting-child-output-contract.md` 固化输出协议 | `写作日志.yaml` 能回放 1-7 的 progressive rewrite |
 | 把 `2-Planning/全息地图.json` 当摘要参考，而不是规划法律 | planning truth drift | 回到 `chapter_boards / story_spine / threads / navigation_rules` 逐项吸收 | 在父技能 Overview 固定 story_map 语义与禁飞区 | 当前正文能对照 board 功能与 thread 债务 |
 | 只有剧情起盘，没有后续层层加工 | process under-spec | 回到 1-7 固定顺序补工序 | 在父技能 Dispatch Order Contract 固定串行 7 步 | 当前集日志可显示所有已完成工序 |
@@ -49,3 +50,4 @@
 - `7-润色` 之后最合理的状态是“高置信候选终稿”，不是“自判最终 PASS”。
 - `6-追读力强化` 最稳的做法不是把“张力”写得更大声，而是把共享 taxonomy 投影为当前章的主钩、微兑现和章末单一主牵引。
 - 爽点设计最容易漂移的不是“名字”，而是“强度、频率、组合和防疲劳规则”；这些更适合独立成共享 guide，而不是混进 taxonomy 表。
+- 十集分片模式下，当前集真正要读的是“global index + active slice”；只读 `全息地图.json` 而不解 slice，会让 `chapter_board`、静默窗口和本集线程债务全部失真。

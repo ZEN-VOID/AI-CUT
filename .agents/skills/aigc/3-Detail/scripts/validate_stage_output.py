@@ -12,9 +12,9 @@ EPISODE_SCHEMA_VERSION = "aigc/director-episode-output/v1"
 ALLOWED_PHASES = {"detail_in_progress", "ready"}
 LEGACY_PATCH_SCHEMA_VERSION = "aigc/detail-patch-sidecar/v1"
 BRANCH_BUNDLE_SCHEMA_VERSION = "aigc/detail-branch-bundle-sidecar/v1"
-REQUIRED_GROUP_KEYS = ("分镜组ID", "总时长", "剧本正文", "组间设计", "分镜切换", "分镜明细")
+REQUIRED_GROUP_KEYS = ("分镜组ID", "总时长", "剧本正文", "正文切分参考", "组间设计", "分镜切换", "分镜明细")
 REQUIRED_DESIGN_KEYS = ("全局风格", "类型元素", "导演意图", "出场角色及穿搭")
-REQUIRED_SHOT_KEYS = ("分镜ID", "时间段", "角色背景面", "角色站位走位", "道具及状态")
+REQUIRED_SHOT_KEYS = ("分镜ID", "时间段", "正文回指", "角色背景面", "角色站位走位", "道具及状态")
 REQUIRED_BRANCH_SHOT_KEYS = (
     ("角色表现", "人物表演锚点", "人物表演"),
     ("运动表现", "动作路径", "动作调度"),
@@ -121,6 +121,85 @@ def resolve_repo_relative_path(path_text: str) -> Path:
     return (ROOT / candidate).resolve()
 
 
+def validate_script_segments(group_id: str, script_body: str, references: object) -> tuple[list[str], dict[str, dict[str, object]]]:
+    errors: list[str] = []
+    segments_by_id: dict[str, dict[str, object]] = {}
+
+    if not isinstance(references, list) or not references:
+        return [f"{group_id}: `正文切分参考` 必须是非空数组。"], segments_by_id
+
+    body_length = len(script_body)
+    for index, raw_item in enumerate(references, start=1):
+        if not isinstance(raw_item, dict):
+            errors.append(f"{group_id}: `正文切分参考[{index}]` 必须是对象。")
+            continue
+        beat_id = str(raw_item.get("beat_id", "")).strip()
+        if not beat_id:
+            errors.append(f"{group_id}: `正文切分参考[{index}]` 缺少 `beat_id`。")
+            continue
+        if beat_id in segments_by_id:
+            errors.append(f"{group_id}: `正文切分参考` 出现重复 beat_id `{beat_id}`。")
+            continue
+
+        excerpt = raw_item.get("原文片段")
+        if not isinstance(excerpt, str) or not excerpt:
+            errors.append(f"{group_id}/{beat_id}: `原文片段` 不能为空。")
+            continue
+
+        segment_type = raw_item.get("segment_type")
+        if segment_type not in {"动作", "对白", "反应", "环境", "转折", "复合"}:
+            errors.append(f"{group_id}/{beat_id}: `segment_type` 非法。")
+
+        char_range = raw_item.get("char_range")
+        if not isinstance(char_range, dict):
+            errors.append(f"{group_id}/{beat_id}: `char_range` 必须是对象。")
+            continue
+        start = char_range.get("start")
+        end = char_range.get("end")
+        if not isinstance(start, int) or not isinstance(end, int):
+            errors.append(f"{group_id}/{beat_id}: `char_range.start/end` 必须是整数。")
+            continue
+        if start < 0 or end <= start or end > body_length:
+            errors.append(f"{group_id}/{beat_id}: `char_range` 超出 `剧本正文` 范围。")
+            continue
+        if script_body[start:end] != excerpt:
+            errors.append(f"{group_id}/{beat_id}: `原文片段` 与 `char_range` 指向的 `剧本正文` 子串不一致。")
+            continue
+
+        segments_by_id[beat_id] = raw_item
+
+    return errors, segments_by_id
+
+
+def validate_shot_script_reference(group_id: str, shot_id: str, shot: dict[str, object], segments_by_id: dict[str, dict[str, object]]) -> list[str]:
+    errors: list[str] = []
+    script_ref = shot.get("正文回指")
+    if not isinstance(script_ref, dict):
+        return [f"{group_id}/{shot_id}: `正文回指` 必须是对象。"]
+
+    beat_refs = script_ref.get("beat_refs")
+    if not isinstance(beat_refs, list) or not beat_refs:
+        errors.append(f"{group_id}/{shot_id}: `正文回指.beat_refs` 必须是非空数组。")
+    else:
+        seen: set[str] = set()
+        for beat_id in beat_refs:
+            if not isinstance(beat_id, str) or not beat_id.strip():
+                errors.append(f"{group_id}/{shot_id}: `正文回指.beat_refs[]` 只能包含非空字符串。")
+                continue
+            if beat_id in seen:
+                errors.append(f"{group_id}/{shot_id}: `正文回指.beat_refs[]` 出现重复 `{beat_id}`。")
+                continue
+            seen.add(beat_id)
+            if beat_id not in segments_by_id:
+                errors.append(f"{group_id}/{shot_id}: `正文回指` 指向未知 beat_id `{beat_id}`。")
+
+    coverage_mode = script_ref.get("coverage_mode")
+    if coverage_mode not in {"direct", "reaction", "insert", "bridge", "composite"}:
+        errors.append(f"{group_id}/{shot_id}: `正文回指.coverage_mode` 非法。")
+
+    return errors
+
+
 def validate_branch_sidecar_paths(data: object, phase: str, owner_label: str) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -215,6 +294,12 @@ def validate_episode_shell(data: object) -> tuple[list[str], dict[str, dict[str,
             for key in REQUIRED_DESIGN_KEYS:
                 if key not in design:
                     errors.append(f"{group_id}: `组间设计` 缺少 `{key}`。")
+        script_body = group.get("剧本正文")
+        if isinstance(script_body, str):
+            segment_errors, segments_by_id = validate_script_segments(group_id, script_body, group.get("正文切分参考"))
+            errors.extend(segment_errors)
+        else:
+            segments_by_id = {}
         details = group.get("分镜明细")
         shot_count = group.get("分镜切换")
         if not isinstance(details, list):
@@ -235,6 +320,7 @@ def validate_episode_shell(data: object) -> tuple[list[str], dict[str, dict[str,
             for key in REQUIRED_SHOT_KEYS:
                 if key not in shot:
                     errors.append(f"{group_id}/{shot_id}: 缺少 `{key}`。")
+            errors.extend(validate_shot_script_reference(group_id, shot_id, shot, segments_by_id))
             if "分镜构图" not in shot and "分镜表现" not in shot:
                 errors.append(f"{group_id}/{shot_id}: 缺少 `分镜构图 / 分镜表现` 兼容构图摘要。")
             time_range = shot.get("时间段")

@@ -22,6 +22,10 @@ def _seed_project_root(project_root: Path) -> None:
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
 
 
+def _write_project_state(project_root: Path, payload: dict) -> None:
+    (project_root / "STATE.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def _seed_manuscript(project_root: Path, chapter_num: int, text: str) -> None:
     drafting_dir = project_root / "3-Drafting"
     drafting_dir.mkdir(parents=True, exist_ok=True)
@@ -543,3 +547,110 @@ def test_generic_recovery_options_for_non_write_review(tmp_path, monkeypatch):
     labels = [option.get("label") for option in options]
     assert "从当前步骤继续" in labels
     assert "清理中断状态并整段重跑" in labels
+
+
+def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _write_project_state(
+        tmp_path,
+        {
+            "carryover_context": {"next_episode": "第2集"},
+            "runtime_markers": {"loopback": {"last_actualized_episode": "第1集"}},
+        },
+    )
+
+    loopback_dir = tmp_path / "5-Loopback"
+    loopback_dir.mkdir(parents=True, exist_ok=True)
+    (loopback_dir / "第1集.loopback.json").write_text(
+        json.dumps(
+            {
+                "meta": {"loopback_ref": "5-Loopback/第1集.loopback.json"},
+                "inputs": {"validation_ref": "4-Validation/第1集.validation.json"},
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-write"
+    assert interrupt["args"]["chapter_num"] == 2
+    assert interrupt["resume_reason"] == "loopback_completed_next_episode_ready"
+
+    options = module.analyze_recovery_options(interrupt)
+    assert any(option.get("label") == "开始第2集 drafting" for option in options)
+
+
+def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _write_project_state(
+        tmp_path,
+        {
+            "review_checkpoints": [
+                {
+                    "chapters": "1-1",
+                    "report": "4-Validation/第1-1章审查报告.md",
+                }
+            ]
+        },
+    )
+
+    validation_dir = tmp_path / "4-Validation"
+    validation_dir.mkdir(parents=True, exist_ok=True)
+    (validation_dir / "第1集.validation.json").write_text(
+        json.dumps(
+            {
+                "validation_status": "PASS",
+                "routing_decision": "handoff_to_review_and_loopback",
+                "handoff_targets": ["review/", "5-Loopback"],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (validation_dir / "第1-1章审查报告.md").write_text("# report\n", encoding="utf-8")
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-loopback"
+    assert interrupt["args"]["chapter_num"] == 1
+    assert interrupt["resume_reason"] == "validation_pass_review_persisted_loopback_pending"
+
+
+def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir.mkdir(parents=True, exist_ok=True)
+    (drafting_dir / "写作日志.yaml").write_text(
+        "\n".join(
+            [
+                "episode_num: 1",
+                "candidate_final_state:",
+                "  status: candidate_final_draft",
+                "current_resume_pointer:",
+                "  next_step: 4-Validation",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-validate"
+    assert interrupt["args"]["chapter_num"] == 1
+    assert interrupt["resume_reason"] == "candidate_final_draft_waiting_validation"

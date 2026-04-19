@@ -1,7 +1,7 @@
 ---
 name: story-cards-character
 governance_tier: lite
-description: Use when story2026 1-Cards needs to generate, rebuild, or repair character cards, relationship edges, experience timelines, or exclusive item hooks.
+description: Use when story2026 1-Cards needs to generate, rebuild, or repair character cards, relationship edges, experience timelines, growth systems, or exclusive item hooks.
 ---
 
 # 角色卡
@@ -19,8 +19,11 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 本技能的人物塑形输入真源固定为：
 
 - `references/character-shaping-bridge.md`
+- `../../_shared/character-planning-bridge.md`
 
 该桥接文档只负责把“人物如何长出来”的设计工法映射到正式角色卡字段，不得与 `templates/character-card.json` 形成第二套平行输出真源。
+
+`../../_shared/character-planning-bridge.md` 则负责定义角色卡到 `2-Planning` 的最小消费投影与写回边界；它不授予本 child 直接写 `story_map` 的权限。
 
 它必须直接产出以下能力：
 
@@ -29,11 +32,14 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 - `cast_markers`
 - `relationship_edges`
 - `experience_timeline`
+- `core.growth_contract`
+- `current_state.growth_state`
 - `card_scope=full-series`
 - `current_state.timeline_anchor`
 - `exclusive_item_hooks`
 - `角色关系图谱.md`
 - `wound / need / mirror_axis / highlight_moment / memory_point` 等人物塑形字段的正式落位
+- `技能 / 心路 / 情感` 三轴成长合同与当前态
 
 它不负责：
 
@@ -45,9 +51,9 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系。 |
+| `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系；其中主角默认必须具备可被 `5-Loopback` 逐集 actualize 的三轴成长系统。 |
 | `business_object` | `1-Cards/2-角色卡/**/*.json`、`1-Cards/2-角色卡/角色索引.json`、`1-Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
-| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单集临时卡。 |
+| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单集临时卡；成长系统只记录经过 validation + loopback 确认的阶段变化。 |
 | `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
 | `non_goals` | 不替场景卡写空间规则，不替物品卡写代价。 |
 | `topology_fit` | `route confirm -> full-series roster census -> bucket and cast markers -> closure -> single-card mapping -> relationship graph projection` |
@@ -91,6 +97,7 @@ flowchart LR
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
 - `references/character-shaping-bridge.md`
+- `../../_shared/character-planning-bridge.md`
 - 既有 `1-Cards/2-角色卡/**/*.json`（若存在）
 - 既有 `1-Cards/2-角色卡/角色索引.json`（若存在）
 - 既有 `1-Cards/2-角色卡/角色关系图谱.md`（若存在）
@@ -105,9 +112,10 @@ flowchart LR
 | `C3` | 锁角色桶与职责 | `narrative_function + group + cast_markers` | `FAIL-CD-CHAR-BUCKET` | 回角色分桶 |
 | `C4` | 把人物工法映射为正式字段 | `desire / flaw / wound / need / change / mirror_axis / highlight_moment / memory_point` | `FAIL-CD-CHAR-SHAPING` | 回人物塑形映射 |
 | `C5` | 闭合关系与成长 | `relationship_edges + experience_timeline + card_scope` | `FAIL-CD-CHAR-CLOSURE` | 回成长/关系 |
-| `C6` | 补当前态与时间锚点 | `timeline_anchor + current_state + exclusive_item_hooks` | `FAIL-CD-CHAR-TIMELINE` | 回当前态 |
-| `C7` | 映射单角色模板 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
-| `C8` | 投影角色关系图谱 | `角色关系图谱.md（文字说明 + Mermaid）` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
+| `C6` | 构建成长系统三轴 | `core.growth_contract + current_state.growth_state` | `FAIL-CD-CHAR-GROWTH` | 回成长系统 |
+| `C7` | 补当前态与时间锚点 | `timeline_anchor + current_state + exclusive_item_hooks` | `FAIL-CD-CHAR-TIMELINE` | 回当前态 |
+| `C8` | 映射单角色模板 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `C9` | 投影角色关系图谱 | `角色关系图谱.md（文字说明 + Mermaid）` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
 
 人物塑形硬映射：
 
@@ -121,6 +129,20 @@ flowchart LR
 - 女主高光时刻 -> `core.role_setpiece.highlight_moment`
 - 配角记忆点 -> `core.role_setpiece.memory_point`
 
+成长系统三轴硬映射：
+
+- `技能` -> `core.growth_contract.axes.skill` + `current_state.growth_state.skill`
+- `心路` -> `core.growth_contract.axes.heart` + `current_state.growth_state.heart`
+- `情感` -> `core.growth_contract.axes.emotion` + `current_state.growth_state.emotion`
+- 统一成长阶段 -> `experience_timeline.current_growth_stage`
+- 三轴阶段投影 -> `experience_timeline.axis_stage_map`
+
+成长系统硬规则：
+
+1. 当前仅 `主角` 默认强制启用三轴成长系统。
+2. `反派` 仅在父技能或用户显式要求时启用；未启用时允许 `growth_contract.growth_enabled=false`。
+3. `5-Loopback` 只允许写回 `current_state.growth_state / experience_timeline / history[].growth_delta` 的 validated 变化，不得越权改写 `core.growth_contract` 的长期 ceiling 设计。
+
 ## One-Shot Output Contract
 
 本技能只交付一套正式角色卡 payload 与一个正式图谱 side output：
@@ -133,13 +155,42 @@ flowchart LR
 - `1-Cards/2-角色卡/角色关系图谱.md`
 - 可进入索引的 `relationship_edges`
 - 可被物品卡消费的 `exclusive_item_hooks`
+- 可被 `5-Loopback` 消费的 `growth_contract / growth_state`
 
 硬规则：
 
 1. 任何角色都必须是独立 `.json`，不得把多个角色并入同一角色总表。
 2. 每张角色卡都必须带 `group + cast_markers + card_scope=full-series`。
 3. `角色关系图谱.md` 只允许作为关系投影 side output，不得反向替代角色 JSON 真源。
-4. 禁止交付单集角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
+4. 供 `2-Planning` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 投影进入 `story_map`，本 child 不直接写 `2-Planning/全息地图.json`。
+5. 禁止交付单集角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
+6. 主角卡必须具备 `core.growth_contract`、`current_state.growth_state` 与 `experience_timeline.axis_stage_map`。
+
+## Downstream Planning Consumption Contract
+
+`2-Planning` 只允许把以下最小人物信息投影进入 `story_map`：
+
+- `card_id / card_path / name / group / primary_alignment`
+- `narrative_function`
+- `surface_goal / true_desire / need / change_payoff`
+- `growth_projection.enabled / role / active_arc_phase / skill_stage / heart_stage / emotion_stage / latest_growth_episode`
+- `current_state.status / active_pressure / timeline_anchor`
+- `experience_timeline.current_growth_stage`
+- `highlight_moment / memory_point`
+- 关系图谱的 `source_graph_path + node_refs + edge_projections`
+
+以下字段必须继续留在角色卡侧，不得复制进 `story_map`：
+
+- `history`
+- `voice_and_presence`
+- `relationship_ports`
+- `growth_log / belief_shift_track`
+- `core.growth_contract.axes.*` 的完整 ceiling / initial_state 设计
+- `current_state.growth_state.*` 的完整 tension / recent_shift / primary_bond 细节
+- `history[].growth_delta`
+- `current_resources`
+- `exclusive_item_hooks` 的完整对象
+- `角色关系图谱.md` 的文字说明与 Mermaid 正文
 
 ## Root-Cause Execution Contract
 
@@ -163,15 +214,16 @@ flowchart LR
 | `FIELD-CD-CHAR-01` | `C1` | 角色路由正确 | `content.module_route` | `FAIL-CD-CHAR-ROUTE` | 回父技能 |
 | `FIELD-CD-CHAR-02` | `C2` | 全剧集覆盖成立 | `series roster + no episode-only role card` | `FAIL-CD-CHAR-ROSTER` | 回 roster |
 | `FIELD-CD-CHAR-03` | `C3-C4` | 角色塑形成立 | `group + cast_markers + narrative_function + desire_flaw_arc + antagonism_design + role_setpiece` | `FAIL-CD-CHAR-SHAPING` | 回塑形映射 |
-| `FIELD-CD-CHAR-04` | `C5-C6` | 关系与时间闭合 | `relationship_edges + experience_timeline + timeline_anchor + card_scope + exclusive_item_hooks` | `FAIL-CD-CHAR-CLOSURE` | 回角色闭合 |
-| `FIELD-CD-CHAR-05` | `C7` | 正式模板可写回 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
-| `FIELD-CD-CHAR-06` | `C8` | 图谱 side output 成立 | `角色关系图谱.md` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
+| `FIELD-CD-CHAR-04` | `C5-C7` | 关系、成长与当前态闭合 | `relationship_edges + experience_timeline + growth_contract + growth_state + timeline_anchor + card_scope + exclusive_item_hooks` | `FAIL-CD-CHAR-CLOSURE` | 回角色闭合 |
+| `FIELD-CD-CHAR-05` | `C8` | 正式模板可写回 | `one-character-one-json payload` | `FAIL-CD-CHAR-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-CHAR-06` | `C9` | 图谱 side output 成立 | `角色关系图谱.md` | `FAIL-CD-CHAR-GRAPH` | 回图谱投影 |
 
 ## Completion Gate
 
 - 全剧集角色 roster 已闭合，且没有多角色合并 JSON。
 - 角色桶明确且 `cast_markers` 不撞位。
 - `Desire / Flaw / Wound / Need / Change` 已落到正式字段，而不是停留在 prose 备注。
+- 主角卡的 `技能 / 心路 / 情感` 三轴成长合同与当前态已经成立，且能解释“登场初始态 -> 当前 validated 状态 -> ceiling 去向”。
 - 反派镜像轴、女主高光时刻、配角记忆点等塑形信息已按角色适用性落到结构字段。
 - `experience_timeline + timeline_anchor + card_scope=full-series` 已成立。
 - `relationship_edges` 可解释当前戏剧关系。

@@ -199,6 +199,10 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
     },
 }
 
+VALIDATION_REF_RE = re.compile(r"第(\d+)集\.validation\.json$")
+LOOPBACK_REF_RE = re.compile(r"第(\d+)集\.loopback\.json$")
+REVIEW_REPORT_RE = re.compile(r"第(\d+)-(\d+)章审查报告\.md$")
+
 
 def now_iso() -> str:
     return datetime.now().isoformat()
@@ -1723,11 +1727,11 @@ def clear_current_task():
 def detect_interruption():
     state = load_state()
     if not state or "current_task" not in state or state["current_task"] is None:
-        return None
+        return _detect_artifact_fallback()
 
     task = state["current_task"]
     if task.get("status") == TASK_STATUS_COMPLETED:
-        return None
+        return _detect_artifact_fallback()
 
     last_heartbeat = datetime.fromisoformat(task["last_heartbeat"])
     elapsed = (datetime.now() - last_heartbeat).total_seconds()
@@ -1759,6 +1763,275 @@ def detect_interruption():
     safe_append_call_trace("interruption_detected", payload)
     safe_append_task_log("interruption_detected", payload)
     return interrupt_info
+
+
+def _optional_json(path: Path) -> Optional[dict[str, Any]]:
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _optional_yaml(path: Path) -> Optional[dict[str, Any]]:
+    if not path.is_file() or yaml is None:
+        return None
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _latest_episode_file(project_root: Path, relative_dir: str, pattern: re.Pattern[str]) -> tuple[Optional[int], Optional[Path]]:
+    folder = project_root / relative_dir
+    if not folder.is_dir():
+        return None, None
+
+    latest_episode: Optional[int] = None
+    latest_path: Optional[Path] = None
+    for path in folder.iterdir():
+        if not path.is_file():
+            continue
+        match = pattern.fullmatch(path.name)
+        if not match:
+            continue
+        episode = _safe_int(match.group(1), 0)
+        if episode <= 0:
+            continue
+        if latest_episode is None or episode > latest_episode:
+            latest_episode = episode
+            latest_path = path
+    return latest_episode, latest_path
+
+
+def _review_checkpoint_for_episode(project_payload: dict[str, Any], episode: int) -> Optional[dict[str, Any]]:
+    checkpoints = project_payload.get("review_checkpoints")
+    if not isinstance(checkpoints, list):
+        return None
+
+    matched: Optional[dict[str, Any]] = None
+    for item in checkpoints:
+        if not isinstance(item, dict):
+            continue
+        chapters = str(item.get("chapters") or "").strip()
+        match = re.fullmatch(r"(\d+)-(\d+)", chapters)
+        if not match:
+            continue
+        start = _safe_int(match.group(1), 0)
+        end = _safe_int(match.group(2), 0)
+        if start == episode and end == episode:
+            matched = item
+    return matched
+
+
+def _review_report_for_episode(project_root: Path, episode: int) -> Optional[Path]:
+    review_dir = project_root / "4-Validation"
+    if not review_dir.is_dir():
+        return None
+
+    for path in review_dir.glob("第*-*章审查报告.md"):
+        match = REVIEW_REPORT_RE.fullmatch(path.name)
+        if not match:
+            continue
+        start = _safe_int(match.group(1), 0)
+        end = _safe_int(match.group(2), 0)
+        if start == episode and end == episode:
+            return path
+    return None
+
+
+def _artifact_resume_packet(
+    *,
+    command: str,
+    chapter_num: Optional[int],
+    reason: str,
+    summary: str,
+    artifact_refs: dict[str, Any],
+    evidence_refs: list[str],
+) -> dict[str, Any]:
+    normalized_command = normalize_command_name(command)
+    spec = get_command_spec(normalized_command) or {}
+    payload = {
+        "detection_mode": "artifact_fallback",
+        "run_id": None,
+        "command": normalized_command,
+        "stage_id": spec.get("stage_id"),
+        "stage_label": spec.get("stage_label"),
+        "args": {},
+        "task_status": "not_tracked",
+        "current_step": None,
+        "completed_steps": [],
+        "failed_steps": [],
+        "elapsed_seconds": None,
+        "artifacts": artifact_refs,
+        "started_at": None,
+        "retry_count": 0,
+        "resume_reason": reason,
+        "summary": summary,
+        "evidence_refs": evidence_refs,
+    }
+    if chapter_num is not None:
+        payload["args"]["chapter_num"] = chapter_num
+    return payload
+
+
+def _route_source_fix_command(validation_payload: dict[str, Any]) -> str:
+    owners: list[str] = []
+    for item in validation_payload.get("source_trace", []) or []:
+        if not isinstance(item, dict):
+            continue
+        for owner in item.get("upstream_source_owners", []) or []:
+            owner_text = str(owner or "").strip()
+            if owner_text and owner_text not in owners:
+                owners.append(owner_text)
+    for issue in validation_payload.get("issues", []) or []:
+        if not isinstance(issue, dict):
+            continue
+        owner_text = str(issue.get("source_layer_owner") or "").strip()
+        if owner_text and owner_text not in owners:
+            owners.append(owner_text)
+
+    if "0-Init" in owners:
+        return "story-init"
+    if "1-Cards" in owners:
+        return "story-cards"
+    return "story-plan"
+
+
+def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
+    project_root = _get_active_project_root()
+    project_payload = _load_project_state_payload()
+
+    loopback_episode, loopback_path = _latest_episode_file(project_root, "5-Loopback", LOOPBACK_REF_RE)
+    if loopback_episode is not None and loopback_path is not None:
+        loopback_payload = _optional_json(loopback_path) or {}
+        next_episode = loopback_episode + 1
+        packet = _artifact_resume_packet(
+            command="story-write",
+            chapter_num=next_episode,
+            reason="loopback_completed_next_episode_ready",
+            summary=f"未检测到 tracked 中断，但第{loopback_episode}集已完成 loopback actualization；下一稳定入口是第{next_episode}集 drafting。",
+            artifact_refs={
+                "loopback_ref": str(loopback_path.relative_to(project_root)),
+                "validation_ref": str(loopback_payload.get("inputs", {}).get("validation_ref") or ""),
+                "carryover_context": project_payload.get("carryover_context", {}),
+                "runtime_markers": project_payload.get("runtime_markers", {}),
+            },
+            evidence_refs=[str(loopback_path.relative_to(project_root))],
+        )
+        safe_append_call_trace("artifact_resume_detected", packet)
+        safe_append_task_log("artifact_resume_detected", packet)
+        return packet
+
+    validation_episode, validation_path = _latest_episode_file(project_root, "4-Validation", VALIDATION_REF_RE)
+    if validation_episode is not None and validation_path is not None:
+        validation_payload = _optional_json(validation_path) or {}
+        validation_status = str(validation_payload.get("validation_status") or "").strip()
+        review_checkpoint = _review_checkpoint_for_episode(project_payload, validation_episode)
+        review_report_path = _review_report_for_episode(project_root, validation_episode)
+        evidence_refs = [str(validation_path.relative_to(project_root))]
+        if review_report_path is not None:
+            evidence_refs.append(str(review_report_path.relative_to(project_root)))
+        if review_checkpoint:
+            evidence_refs.append(f"STATE.json#review_checkpoints[{validation_episode}]")
+
+        if validation_status == "PASS":
+            if review_report_path is not None or review_checkpoint is not None:
+                packet = _artifact_resume_packet(
+                    command="story-loopback",
+                    chapter_num=validation_episode,
+                    reason="validation_pass_review_persisted_loopback_pending",
+                    summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS 且 review 已落盘，下一稳定入口是 5-Loopback actualization。",
+                    artifact_refs={
+                        "validation_ref": str(validation_path.relative_to(project_root)),
+                        "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
+                        "review_checkpoint": review_checkpoint or {},
+                    },
+                    evidence_refs=evidence_refs,
+                )
+            else:
+                packet = _artifact_resume_packet(
+                    command="story-review",
+                    chapter_num=validation_episode,
+                    reason="validation_pass_review_pending",
+                    summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS 且尚未发现 review 持久化证据，下一稳定入口是 review。",
+                    artifact_refs={
+                        "validation_ref": str(validation_path.relative_to(project_root)),
+                    },
+                    evidence_refs=evidence_refs,
+                )
+            safe_append_call_trace("artifact_resume_detected", packet)
+            safe_append_task_log("artifact_resume_detected", packet)
+            return packet
+
+        routing_decision = str(validation_payload.get("routing_decision") or "").strip()
+        if routing_decision == "back_to_drafting_nodes":
+            packet = _artifact_resume_packet(
+                command="story-write",
+                chapter_num=validation_episode,
+                reason="validation_failed_back_to_drafting",
+                summary=f"未检测到 tracked 中断，但第{validation_episode}集终验未通过；下一稳定入口回到 drafting 修订。",
+                artifact_refs={
+                    "validation_ref": str(validation_path.relative_to(project_root)),
+                    "routing_decision": routing_decision,
+                    "rework_targets": validation_payload.get("rework_targets", []),
+                },
+                evidence_refs=evidence_refs,
+            )
+            safe_append_call_trace("artifact_resume_detected", packet)
+            safe_append_task_log("artifact_resume_detected", packet)
+            return packet
+
+        if routing_decision == "back_to_source_contract":
+            command = _route_source_fix_command(validation_payload)
+            packet = _artifact_resume_packet(
+                command=command,
+                chapter_num=validation_episode,
+                reason="validation_failed_back_to_source_contract",
+                summary=f"未检测到 tracked 中断，但第{validation_episode}集终验指向 source fix；下一稳定入口是 {command}。",
+                artifact_refs={
+                    "validation_ref": str(validation_path.relative_to(project_root)),
+                    "routing_decision": routing_decision,
+                    "source_trace": validation_payload.get("source_trace", []),
+                },
+                evidence_refs=evidence_refs,
+            )
+            safe_append_call_trace("artifact_resume_detected", packet)
+            safe_append_task_log("artifact_resume_detected", packet)
+            return packet
+
+    write_log_path = project_root / "3-Drafting" / "写作日志.yaml"
+    write_log_payload = _optional_yaml(write_log_path) or {}
+    if write_log_payload:
+        episode_num = _normalize_chapter_num(write_log_payload.get("episode_num"))
+        candidate_state = write_log_payload.get("candidate_final_state")
+        resume_pointer = write_log_payload.get("current_resume_pointer")
+        candidate_status = str(candidate_state.get("status") or "").strip() if isinstance(candidate_state, dict) else ""
+        next_step = str(resume_pointer.get("next_step") or "").strip() if isinstance(resume_pointer, dict) else ""
+        if episode_num and (
+            candidate_status == CANDIDATE_FINAL_STATUS_READY
+            or next_step == "4-Validation"
+        ):
+            packet = _artifact_resume_packet(
+                command="story-validate",
+                chapter_num=episode_num,
+                reason="candidate_final_draft_waiting_validation",
+                summary=f"未检测到 tracked 中断，但第{episode_num}集写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
+                artifact_refs={
+                    "writing_log_ref": str(write_log_path.relative_to(project_root)),
+                    "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
+                    "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
+                },
+                evidence_refs=[str(write_log_path.relative_to(project_root))],
+            )
+            safe_append_call_trace("artifact_resume_detected", packet)
+            safe_append_task_log("artifact_resume_detected", packet)
+            return packet
+
+    return None
 
 
 def _generic_recovery_options(interrupt_info: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1844,6 +2117,153 @@ def _primary_drafting_target(project_root: Path, chapter_num: Any) -> Optional[P
 
 
 def analyze_recovery_options(interrupt_info):
+    if str(interrupt_info.get("detection_mode") or "") == "artifact_fallback":
+        command = str(interrupt_info.get("command") or "")
+        chapter_num = interrupt_info.get("args", {}).get("chapter_num", "?")
+        summary = str(interrupt_info.get("summary") or "")
+        artifacts = interrupt_info.get("artifacts") or {}
+
+        if command == "story-loopback":
+            return [
+                {
+                    "option": "A",
+                    "label": "进入 5-Loopback actualization",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第N集.validation.json'}",
+                        f"按第{chapter_num}集执行 PASS-only loopback actualization",
+                        "回写 Cards.current_state/history、story_map.actualization 与 runtime projections",
+                    ],
+                },
+                {
+                    "option": "B",
+                    "label": "先人工核对 review 证据",
+                    "risk": "low",
+                    "description": "保留当前现场，先确认审查报告与 checkpoint 后再 actualize。",
+                    "actions": [
+                        f"查看 {artifacts.get('review_report_ref') or '4-Validation/第N章审查报告.md'}",
+                        "核对 review_checkpoints 与 validation packet 是否一致",
+                        "确认后再进入 loopback",
+                    ],
+                },
+            ]
+
+        if command == "story-review":
+            return [
+                {
+                    "option": "A",
+                    "label": "进入 review 持久化",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"消费 {artifacts.get('validation_ref') or '4-Validation/第N集.validation.json'}",
+                        "生成审查报告、写 review metrics、回写 review checkpoint",
+                        "完成后再判断是否交给 5-Loopback",
+                    ],
+                },
+                {
+                    "option": "B",
+                    "label": "仅做人审核对",
+                    "risk": "low",
+                    "description": "先核 aggregate JSON，再决定是否立即 review 落盘。",
+                    "actions": [
+                        "检查 validation_status / routing_decision / handoff_targets",
+                        "确认 aggregate 字段完整后再进入 review",
+                    ],
+                },
+            ]
+
+        if command == "story-validate":
+            return [
+                {
+                    "option": "A",
+                    "label": "进入 4-Validation 终验",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"读取 {artifacts.get('writing_log_ref') or '3-Drafting/写作日志.yaml'}",
+                        f"对第{chapter_num}集执行正式 4-Validation 聚合验收",
+                        "根据 PASS / FAIL 决定交 review、loopback 或打回 drafting/source",
+                    ],
+                },
+                {
+                    "option": "B",
+                    "label": "先核 candidate_final_draft 现场",
+                    "risk": "low",
+                    "description": "保留写作终稿与写作日志，人工确认后再进终验。",
+                    "actions": [
+                        f"查看 {artifacts.get('writing_log_ref') or '3-Drafting/写作日志.yaml'}",
+                        f"查看 3-Drafting/第{chapter_num}集.md",
+                        "确认无额外改动后进入 4-Validation",
+                    ],
+                },
+            ]
+
+        if command == "story-write":
+            if str(interrupt_info.get("resume_reason") or "") == "loopback_completed_next_episode_ready":
+                return [
+                    {
+                        "option": "A",
+                        "label": f"开始第{chapter_num}集 drafting",
+                        "risk": "low",
+                        "description": summary,
+                        "actions": [
+                            "读取 carryover_context / writer_projection / runtime_marker",
+                            f"进入第{chapter_num}集 drafting",
+                            "承接上一集 validated threads 与 clue 状态",
+                        ],
+                    },
+                    {
+                        "option": "B",
+                        "label": "先核 carryover_context",
+                        "risk": "low",
+                        "description": "先确认下一集开场压力与开放线程，再开始写作。",
+                        "actions": [
+                            "查看 STATE.json.carryover_context",
+                            "确认下一集开场压力、开放线程与携带物件",
+                        ],
+                    },
+                ]
+
+            return [
+                {
+                    "option": "A",
+                    "label": f"回到第{chapter_num}集 drafting 修订",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第N集.validation.json'}",
+                        "按 rework_targets 回到对应 drafting 节点修稿",
+                        "修完后重新进入 4-Validation",
+                    ],
+                },
+                {
+                    "option": "B",
+                    "label": "先核 fail packet",
+                    "risk": "low",
+                    "description": "先确认 routing 与 fail signal，再决定是否立即重写。",
+                    "actions": [
+                        "检查 validation issues / rework_targets / source_trace",
+                        "确认是正文问题还是 source-contract 问题",
+                    ],
+                },
+            ]
+
+        if command in {"story-plan", "story-cards", "story-init"}:
+            return [
+                {
+                    "option": "A",
+                    "label": f"进入 {command}",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第N集.validation.json'}",
+                        "按 source_trace 指向的上游真源补修后，再重回 validation",
+                    ],
+                }
+            ]
+
     current_step = interrupt_info["current_step"]
     command = interrupt_info["command"]
     chapter_num = interrupt_info["args"].get("chapter_num", "?")
@@ -2192,7 +2612,10 @@ if __name__ == "__main__":
     elif args.action == "detect":
         interrupt = detect_interruption()
         if interrupt:
-            print("\n🔶 检测到中断任务:")
+            if str(interrupt.get("detection_mode") or "") == "artifact_fallback":
+                print("\nℹ️ 未检测到 tracked 中断，但发现可证明的 artifact continuation:")
+            else:
+                print("\n🔶 检测到中断任务:")
             print(json.dumps(interrupt, ensure_ascii=False, indent=2))
             print("\n📕 恢复选项:")
             options = analyze_recovery_options(interrupt)

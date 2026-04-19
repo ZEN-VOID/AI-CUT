@@ -1,0 +1,18 @@
+pack_id: "网文高冲击"
+display_name: "网文高冲击"
+layer: "primary"
+summary: "章节必须保持强推进和章末牵引。"
+stage_projection:
+  validation:
+    required_hooks:
+      - "章末必须留下下一步动机、悬念或回报预告"
+    hard_fail_signals:
+      - "整章平推收束且没有续读牵引"
+  drafting:
+    step_hooks:
+      "Step 2":
+        required_hooks:
+          - "删减无推进段"
+      "Step 6":
+        required_hooks:
+          - "章末必须留下下一步动机或悬念"

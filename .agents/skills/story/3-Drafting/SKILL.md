@@ -35,10 +35,11 @@ color: rose
 7. `写作日志.yaml` 记录当前集已经过哪些工序、每步摘要、即时审计结果、可恢复位置与连续性证据。
 8. 每个 step 都是独立执行单元：`start current step -> 读取当前 root -> 仅做本 step 改动 -> 写回 root/log -> 跑当前 step hook -> 决定进入下一步或回退`。
 
-本阶段对 `2-Planning/全息地图.json` 的核心理解必须固定：
+本阶段对 `2-Planning` planning truth 的核心理解必须固定：
 
-- 它不是“写作灵感参考”，而是规划真源。
-- `chapter_boards` 决定本集承担什么功能、容器和兑现义务。
+- `2-Planning/全息地图.json` 不是“写作灵感参考”，而是规划总索引真源。
+- `episode_slice_manifest + episode_sequence_axis` 负责把当前集命中到唯一十集分片。
+- 当前集真正要消费的 `chapter_board / thread_window_slice / foreshadow_silence_slice` 必须从命中的 `2-Planning/十集分片/*.json` 读取。
 - `story_spine` 决定主干事件次序。
 - `conflict / mission / clue / foreshadow threads` 决定本集必须承接哪些张力、任务、线索和伏笔债务。
 - `navigation_rules / genre_corridor / story_promise` 决定叙事风格边界和禁飞区。
@@ -104,7 +105,7 @@ color: rose
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 以“单集单根文件 + 七道工序复合加工 + 每步即时审计”的方式，把规划真源翻译成可连读的章节正文，并尽早阻断早期错误向后累积。 |
-| `business_object` | `0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、上一集最终正文、`projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`validation-dimension-registry.yaml`。 |
+| `business_object` | `0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、当前 episode 命中的 `2-Planning/十集分片/*.json`、上一集最终正文、`projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`validation-dimension-registry.yaml`。 |
 | `constraint_profile` | `story_map` 是法律不是灵感；第 2 集起必须加载上一集终稿；7 道工序必须固定串行；每步写回后必须过对应 inline hooks；正式真源只有一个 episode markdown。 |
 | `success_criteria` | 当前集正文已通过 1-7 全链加工与每步即时审计；日志可说明每步与每轮 hook 是否完成；`7-润色` 后产出的是可送 `4-Validation` 的候选终稿。 |
 | `non_goals` | 不在 drafting 阶段越权改 Cards / MAP；不再维护 `Drafting/chNNNN/chapter-root.md`；不让每个子技能各自产出一份平行完整版。 |
@@ -118,26 +119,28 @@ color: rose
 2. `.agents/skills/story/SKILL.md + CONTEXT.md`
 3. 本 `SKILL.md + CONTEXT.md`
 4. `./_shared/episode-root-contract.md`
-5. `./_shared/drafting-child-output-contract.md`
-6. `./_shared/drafting-instant-validation-contract.md`
-7. `../4-Validation/_shared/validation-dimension-registry.yaml`
-8. `../_shared/context-loading-contract.md`
-9. `../_shared/core-constraints.md`
-10. `0-Init/north_star.yaml`
-11. `0-Init/init_handoff.yaml`
-12. `1-Cards/0-全局卡/**/*.json`
-13. `1-Cards/**/*.json`
-14. `2-Planning/全息地图.json`
-15. 若 `N > 1`：上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
-16. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`（若存在）
-17. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`（若存在）
-18. `1-单集叙事起盘/SKILL.md + CONTEXT.md`
-19. `2-节奏优化/SKILL.md + CONTEXT.md`
-20. `3-场景和氛围渲染/SKILL.md + CONTEXT.md`
-21. `4-角色形象刻画/SKILL.md + CONTEXT.md`
-22. `5-对白个性化和声口优化/SKILL.md + CONTEXT.md`
-23. `6-追读力强化/SKILL.md + CONTEXT.md`
-24. `7-润色/SKILL.md + CONTEXT.md`
+5. `./_shared/chapter-board-locating-contract.md`
+6. `./_shared/drafting-child-output-contract.md`
+7. `./_shared/drafting-instant-validation-contract.md`
+8. `../4-Validation/_shared/validation-dimension-registry.yaml`
+9. `../_shared/context-loading-contract.md`
+10. `../_shared/core-constraints.md`
+11. `0-Init/north_star.yaml`
+12. `0-Init/init_handoff.yaml`
+13. `1-Cards/0-全局卡/**/*.json`
+14. `1-Cards/**/*.json`
+15. `2-Planning/全息地图.json`
+16. 当前 episode 命中的 `2-Planning/十集分片/*.json`
+17. 若 `N > 1`：上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
+18. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`（若存在）
+19. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`（若存在）
+20. `1-单集叙事起盘/SKILL.md + CONTEXT.md`
+21. `2-节奏优化/SKILL.md + CONTEXT.md`
+22. `3-场景和氛围渲染/SKILL.md + CONTEXT.md`
+23. `4-角色形象刻画/SKILL.md + CONTEXT.md`
+24. `5-对白个性化和声口优化/SKILL.md + CONTEXT.md`
+25. `6-追读力强化/SKILL.md + CONTEXT.md`
+26. `7-润色/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -148,6 +151,7 @@ color: rose
 - `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
 - `2-Planning/全息地图.json`
+- 当前 episode 命中的 `2-Planning/十集分片/*.json`
 - 当前 episode id / 集号
 
 ### 条件必需输入
@@ -156,7 +160,7 @@ color: rose
 
 ### 硬规则
 
-1. `2-Planning/全息地图.json` 必须优先于任何兼容大纲或临时摘要。
+1. `2-Planning/全息地图.json` 必须优先于任何兼容大纲或临时摘要；当前集命中的十集分片是唯一可读的 episode-local dense planning。
 2. `第N集.md` 是单一章节业务真源；不得再并行维护 second draft、pass-2 draft、chapter-root 等第二正文根文件。
 3. `写作日志.yaml` 是唯一工序日志；不得把 step 状态散落到多个 sidecar。
 4. 每个子技能开始前都必须回读当前 `第N集.md` 与 `写作日志.yaml`。
@@ -168,6 +172,7 @@ color: rose
 10. `Step 2-7` 的正式输入，必须是“上一 step 已写回且已通过 hook 的当前 `第N集.md`”；不得读取未过 gate 的临时版本当作正式输入。
 11. 单个 step 的正式执行边界固定为“一次 step，一次写回，一次 hook gate”；不得把多个 step 的正文改动累积到一次统一写回中。
 12. 若当前环境只能做候选比较、草稿实验或 reviewer 会诊，这些内容必须停留在 step 内部，不得冒充已完成的正式 step 写回。
+13. 当前 `episode_num / episode_id` 必须先按 `./_shared/chapter-board-locating-contract.md` 解析成唯一 `chapter_board`，才允许任何 child 消费“本集义务 / chapter debt / board 功能”。
 
 ## Dispatch Order Contract
 
@@ -279,7 +284,7 @@ stateDiagram-v2
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | `FIELD-DR-01` | 锁定集号与任务模式 | 判定当前是新写、续写、返工还是断点续跑 | `episode_scope_note` | -> `N2` | episode 唯一 |
-| `N2-CONTEXT-ASSEMBLY` | `FIELD-DR-02` | 收束上游真源 | 读取 `0-Init / Cards / Planning` | `context_stack_note` | -> `N3` | 上游齐备 |
+| `N2-CONTEXT-ASSEMBLY` | `FIELD-DR-02` | 收束上游真源 | 读取 `0-Init / Cards / Planning`，并按 shared contract 解析当前 `chapter_board` | `context_stack_note` | -> `N3` | 上游齐备且 board 唯一 |
 | `N3-CONTINUITY-LOAD` | `FIELD-DR-03` | 装配跨集连续性 | `N>1` 时回读上一集终稿 | `continuity_note` | -> `N4` | 连续性证据在手 |
 | `N4-EPISODE-BOOTSTRAP` | `FIELD-DR-04` | 初始化或回读本集根文件与日志 | 创建或读取 `第N集.md + 写作日志.yaml` | `bootstrap_note` | -> `N5` | 真源唯一 |
 | `N5-SERIAL-DISPATCH` | `FIELD-DR-05` | 固定顺序调度 1-7 子技能 | 每步前回读当前 root，再进入 child | `dispatch_log` | -> `N6` | 顺序稳定 |
@@ -292,7 +297,7 @@ stateDiagram-v2
 | field_id | output_slot | 内容要求 | default_step | quality_dimension | fail_code |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-DR-01` | episode scope | 当前写的是哪一集、何种模式 | `S1` | 目标稳定性 | `FAIL-DR-01` |
-| `FIELD-DR-02` | upstream context pack | Init/1-Cards/Planning 已装配 | `S1` | 输入完整性 | `FAIL-DR-02` |
+| `FIELD-DR-02` | upstream context pack | Init/1-Cards/Planning 已装配，且当前 board 已唯一解析 | `S1` | 输入完整性 | `FAIL-DR-02` |
 | `FIELD-DR-03` | continuity pack | 第 2 集起已读取上一集终稿 | `S2` | 连续性 | `FAIL-DR-03` |
 | `FIELD-DR-04` | episode root + process log | 根文件与日志唯一 | `S2` | 真源唯一性 | `FAIL-DR-04` |
 | `FIELD-DR-05` | serial pass plan | 1-7 固定顺序成立 | `S3` | 工序完整性 | `FAIL-DR-05` |
@@ -304,7 +309,7 @@ stateDiagram-v2
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `S1` | `FIELD-DR-01~02` | 当前集与上游上下文锁定了吗 | 锁定 scope 并组装 context | 上游缺失或 episode 漂移 |
+| `S1` | `FIELD-DR-01~02` | 当前集与上游上下文锁定了吗 | 锁定 scope、组装 context，并解析唯一 chapter board | 上游缺失、episode 漂移或 board 不唯一 |
 | `S2` | `FIELD-DR-03~04` | 连续性与根文件唯一性成立了吗 | 读上一集并 bootstrap 当前集 | 缺上一集终稿或多真源 |
 | `S3` | `FIELD-DR-05` | 7 道工序顺序是否稳定 | 生成 serial run list | 仍想并发正式写回 |
 | `S4-S10` | `FIELD-DR-06~07` | 当前 child 是否只增强自己的维度，并通过当前 step hook | progressive rewrite 到同一正文，再执行 inline hooks | 产出第二正文、未写日志、hook 失败仍硬推进 |

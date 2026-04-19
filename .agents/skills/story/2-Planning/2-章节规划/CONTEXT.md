@@ -21,6 +21,7 @@
 | 章节规划只有数量没有功能槽 | child contract | 补齐 chapter / volume blocks 与 function slots | 在子技能合同固化章节容器优先级 | Step 3-8 能稳定挂入章节容器 |
 | 体量与对象密度失衡 | density contract | 回修 density contract 的区间带 | 在 Step 2 统一裁决密度，不让后序重发明 | holomap 能回指各类对象负荷 |
 | drafting 无法挂章 | handoff contract | 回到本 child 修章节容器，而非直接补 holomap | 固化“挂章失败先回 Step 2” | 下游不再出现临时拼章板 |
+| 章节板直接复制角色卡正文 | cross-stage bridge | 只保留 `bundled_elements.characters + planned_state.character_focus` | 通过共享桥合同固定 board 只写角色/关系 refs | board 可引用角色，但不膨胀成第二份角色卡 |
 
 ## Repair Playbook
 
@@ -34,3 +35,5 @@
 - 章节规划最怕“平均主义”，真正稳定的是功能槽而不是均分章数。
 - 当长线负荷上升时，应优先增加稳定挂点，而不是只增加章节总量。
 - Step 2 如果没站稳，后面的故事大纲和 holomap 通常都会看起来“像对的”，但用起来发虚。
+- 章节板对角色最好的写法不是复制人物设定，而是锁 `谁在场 + 此章承受哪段角色/关系推进`。
+- 十集分片模式下，Step 2 既拥有 manifest/薄 axis，也拥有 slice `chapter_boards`；若这两层不同步，后续所有 episode 定位都会漂。

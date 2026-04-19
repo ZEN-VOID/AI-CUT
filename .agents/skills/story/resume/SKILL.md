@@ -175,8 +175,17 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 解释规则：
 
 - 输出 `✅ 无中断任务`：
-  - 说明当前没有 workflow-tracked 断点。
+  - 说明当前既没有 workflow-tracked 断点，也没有命中 artifact fallback。
   - 对手工任务只能提供“安全重跑建议”，不能伪造断点续跑。
+- 输出 `artifact_fallback` JSON：
+  - 说明当前没有 tracked 中断，但系统已从真实业务产物中识别出唯一下一入口。
+  - 必须继续核对：
+    - `4-Validation/*.validation.json`
+    - `4-Validation/*章审查报告.md`
+    - `STATE.json.review_checkpoints`
+    - `3-Drafting/写作日志.yaml`
+    - `5-Loopback/*.loopback.json`
+  - 禁止把这类情况误写成“无中断所以无事可做”。
 - 输出 JSON 中断信息：
   - 读取 `command`
   - 读取 `current_step.id`
@@ -188,6 +197,17 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ## Step 3：归一化恢复选项
 
 恢复选项必须由 `resume/` 再归一化一次，不直接照搬 `workflow detect` 的原始文本。
+
+### `artifact_fallback` 的默认解释
+
+| fallback reason | 语义 | 默认恢复策略 |
+|---|---|---|
+| `loopback_completed_next_episode_ready` | 上一集已完成 validated actualization，下一稳定入口是下一集 drafting | 进入 `story-write` 下一集，先读 `carryover_context` |
+| `validation_pass_review_pending` | 当前集已 PASS，但还没发现 review 持久化证据 | 进入 `review/` |
+| `validation_pass_review_persisted_loopback_pending` | 当前集已 PASS 且 review 已落盘，但还没 actualize | 进入 `5-Loopback/` |
+| `candidate_final_draft_waiting_validation` | 当前集已到 `candidate_final_draft`，但还没有正式终验包 | 进入 `4-Validation` |
+| `validation_failed_back_to_drafting` | 当前集终验已明确打回 drafting | 按 `rework_targets` 回到对应 drafting 节点 |
+| `validation_failed_back_to_source_contract` | 当前集终验已明确打回 source contract | 按 `source_trace` 进入 `0-Init / 1-Cards / 2-Planning` 的唯一入口 |
 
 ### `story-write` 的当前 Step 解释
 
@@ -308,6 +328,12 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 - 只做 generic 继续 / 安全重跑 / 人工诊断，不宣称“从断点续查”。
 - 若查询涉及规划类问题，继续默认先读 `全息地图.json`。
 
+### 处理 `artifact_fallback`
+
+- 若 `workflow detect` 返回 `artifact_fallback`，必须显式列出命中的业务证据链。
+- `resume/` 的职责是把它归一化成“唯一下一入口”，而不是继续输出模糊建议列表。
+- 只有在 artifact 证据彼此冲突时，才允许降级回“人工诊断优先”。
+
 ## Step 7：验证 Closure
 
 至少核对：
@@ -366,6 +392,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 
 - 已确认真实 `PROJECT_ROOT`，不是误用工作区父目录。
 - 已执行 `workflow detect`，而不是主观猜测中断点。
+- 若无 tracked 中断但有业务产物链，已执行 artifact fallback 检测并给出唯一下一入口。
 - 恢复选项已去除过时或 destructive 默认动作。
 - 已明确“下一跳回哪个 stage”，而不是把 `resume/` 冒充主执行器。
 - 若恢复继续写作/查询，已明确使用 holomap-first。

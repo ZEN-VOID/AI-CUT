@@ -30,6 +30,10 @@
 | 已定义 validator registry，但 runtime 不会自动 dispatch drafting inline validations | runtime landing gap | 把 registry 接到 `workflow_manager.py`，在 `complete-step` 后自动触发 batch，并通过 `record-inline-validation` 写回结果 | 新增 validation 机制时，必须同时核对“合同 + registry + runtime + tests”四层是否已联通 | `story-write` 在 inline validation 未过时会真实阻断下一 step |
 | hook batch 已能自动触发，但没有本地 baseline validator runner，仍要人工逐条补结果 | runner automation gap | 补 `validation_runner.py`，先以 rule-based baseline 自动产出 sidecar + structured result，再由 workflow 自动写回 batch | 新增/调整维度时，把“registry + child skill + runner handler + CLI/test”视为同一套真源联动 | manuscript 存在时，inline validation 可以自动完成记录；缺 evidence 时再降级为 pending |
 | type-pack 已进入 runtime，但类型兑现问题仍被结构维度吞并，导致返工节点与错误归因不稳定 | validation dimension boundary | 把 `type-pack-fit-validator` 提升为 registry 中的独立维度，并为其补 child skill + runner handler | pack.validation、registry、runner、child skill 四层一起维护独立维度，不再让结构维度顺带背锅 | aggregate JSON 中能单独看到 `类型兑现` verdict，且回流节点更稳定 |
+| `validation-fact-pack-spec.md` 的 required slices 与 runtime 实际生成的 pack 字段不一致，导致 `FAIL-COVENANT` 只停留在合同层 | canonical pack drift | 先统一 spec / extractor / runner 的 slice 命名与字段骨架，再补缺 slice 校验 | pack 变更必须同时更新 spec、`extract_chapter_context.py`、`validation_runner.py` 与对应测试，禁止“文档一套、运行时一套” | `validation_fact_pack` 的 required slices 能被测试与 runner 同时验证，缺 slice 会真实阻断 child dispatch |
+| 规划阶段已进入十集分片模式，但 validation 仍只装配 `全息地图.json`，没有 active slice | planning pack drift | 在 `planning_truth` 中同时锁定 `global_index_ref + active_slice_ref + chapter_board + slice windows` | 在 `validation-fact-pack-spec.md` 固定 planning 双层读取合同，并让 extractor/runner 同步遵守 | 子 validator 不会再拿 root 摘要冒充本集规划债务 |
+| 终验父层声明了 aggregate gate JSON，但 runtime 只有 child runner / batch 结果，没有正式聚合写盘器 | final acceptance landing gap | 增加父层 aggregate writer，收束 `dimension_packets -> validation_status / routing_decision / handoff_targets -> 第N集.validation.json` | 把“终验可落地”作为独立校验面：合同、template、runtime、review/loopback 接口与 tests 必须同轮闭合 | `review/` 与 `5-Loopback` 能消费当轮新生成的 `4-Validation/第N集.validation.json`，而不是只依赖模板或手工构造 |
+| active packs 与 validator 里硬编码 pack 名并不一致，导致某些类型兑现分支永远命不中 | validator semantic drift | 让 runner 改按 `type_pack_profile.semantic_tags` 判定 pack 语义，而不是只盯某个 pack id 字面量 | pack 语义统一由 `pack-catalog -> resolver -> semantic_tags` 链路承载，validator 只看标签 | pack 改名或 alias 迁移后，validator 仍能命中同一语义 |
 
 ## Repair Playbook
 
@@ -50,3 +54,6 @@
 - 如果 aggregate JSON 已经存在，但没有 issue 级 `rework_targets`，那它仍然不是一个可执行的验收结论。
 - 最省维护成本的做法不是减少 validator，而是把“哪些 validator 在什么 step/什么阶段运行”收束到单一 registry。
 - 当一个质量问题是“写得不差但完全不像当前项目声明的类型”时，不要继续塞给结构兑现；这类问题要交给独立的类型兑现维度。
+- 在 `4-Validation` 里，“文档声明会聚合”不等于“终验已可执行”；必须同时看到 aggregate writer、JSON 落盘路径、下游消费点和测试证据，才算真正落地。
+- 对验收层来说，最危险的漂移不是某个 heuristic 不准，而是 canonical pack 命名和 runtime pack 命名各说各话；这种漂移会让 source-trace、covenant gate 和 child validator 同时失真。
+- 对 pack 维度来说，最稳的终验消费方式不是把每个 pack 名都写进 validator，而是用 semantic tags 把“pack 名变化”和“pack 语义变化”拆开。

@@ -26,6 +26,7 @@ governance_tier: lite
 - 检查角色行为、动机、情绪、关系压力是否与 card 真源一致
 - 检查对白与角色声口是否仍然像“这个人会说的话”
 - 检查重要关系变化是否有前因、触发和后果
+- 对已启用成长系统的主角，检查 `技能 / 心路 / 情感` 三轴是否仍沿着当前 validated 状态连续推进
 
 它不负责：
 
@@ -51,7 +52,7 @@ governance_tier: lite
 | `business_goal` | 判断角色是不是还像自己，以及关系推进是不是建立在已知状态和动机上。 |
 | `business_object` | 人物/关系相关 card 切片、当前正文。 |
 | `constraint_profile` | 先锁人物当前态与关系压力，再判行为与对白；不能只凭“感觉像不像”打分。 |
-| `success_criteria` | 能指出哪段行为 OOC、哪句对白失声口、哪条关系变化缺乏铺垫。 |
+| `success_criteria` | 能指出哪段行为 OOC、哪句对白失声口、哪条关系变化缺乏铺垫；对启用成长系统的主角，能说明当前集是否接住了既有成长轴。 |
 | `topology_fit` | `character state read -> behavior check -> dialogue/persona check -> report packet` |
 
 ## Total Input Contract
@@ -62,13 +63,14 @@ governance_tier: lite
 - 硬规则：
   - 先看当前态和关系压力，再判行为。
   - 对白问题必须区分“失声口”与“剧情解释过量”。
+  - 若主角已启用成长系统，至少要检查当前正文是否仍看得见对应 `growth_state` 的承接信号。
 
 ## Output Contract
 
 - `role_id`:
   - `character-validator`
 - `dimension_packet`:
-  - 至少包含 `severe_ooc`、`motivation_breaks`、`speech_violations`、`relationship_pressure_drops`
+  - 至少包含 `severe_ooc`、`motivation_breaks`、`speech_violations`、`relationship_pressure_drops`、`growth_continuity_checked`
 - `dimension_report_ref`:
   - `4-Validation/第N集/人物一致性.md`
 - 默认返工节点：
@@ -90,8 +92,9 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-CHAR-STATE-READ` | `FIELD-CH-01` | 锁人物当前态与关系压力 | 读取相关 `Cards.current_state/history` | `state_note` | -> `N2` | 当前态明确 |
 | `N2-BEHAVIOR-CHECK` | `FIELD-CH-02` | 检查行为与动机是否一致 | 识别 OOC、动机跳跃、关系突变 | `behavior_note` | -> `N3` | 行为成立 |
-| `N3-DIALOGUE-CHECK` | `FIELD-CH-03` | 检查对白与声口 | 标记失声口、解释过量、角色混声 | `dialogue_note` | -> `N4` | 声口清晰 |
-| `N4-PACKET-WRITE` | `FIELD-CH-04` | 输出人物维度结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |
+| `N3-GROWTH-CONTINUITY` | `FIELD-CH-03` | 检查成长三轴承接 | 对照主角 `growth_state` 看技能/心路/情感是否仍连续 | `growth_note` | -> `N4` | 成长没断轴 |
+| `N4-DIALOGUE-CHECK` | `FIELD-CH-04` | 检查对白与声口 | 标记失声口、解释过量、角色混声 | `dialogue_note` | -> `N5` | 声口清晰 |
+| `N5-PACKET-WRITE` | `FIELD-CH-05` | 输出人物维度结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |
 
 ## Lite Field Contract
 
@@ -99,10 +102,11 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `FIELD-CH-01` | character state slice | 当前态与关系压力已锁定 | `FAIL-CH-01` | `N1` |
 | `FIELD-CH-02` | behavior verdict | 关键行为无严重 OOC 或动机断裂 | `FAIL-CH-02` | `N2` |
-| `FIELD-CH-03` | dialogue verdict | 关键对白没有明显失声口 | `FAIL-CH-03` | `N3` |
-| `FIELD-CH-04` | dimension packet | 报告完整、可聚合 | `FAIL-CH-04` | `N4` |
+| `FIELD-CH-03` | growth verdict | 已启用成长系统时，主角三轴没有突然断线 | `FAIL-CH-03` | `N3` |
+| `FIELD-CH-04` | dialogue verdict | 关键对白没有明显失声口 | `FAIL-CH-04` | `N4` |
+| `FIELD-CH-05` | dimension packet | 报告完整、可聚合 | `FAIL-CH-05` | `N5` |
 
 ## Completion Contract
 
-- 已给出行为、动机、对白三类人物问题。
+- 已给出行为、成长连续性、对白三类人物问题。
 - 报告已定位返工应回到角色刻画还是对白优化。

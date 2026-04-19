@@ -132,7 +132,7 @@ governance_tier: full
 | --- | --- |
 | `business_goal` | 在同一份 `projects/aigc/<项目名>/3-Detail/第N集.json` 上继承 `2-Global` 已写入的 episode root，再把 `水月 / 镜花` branch-owned 结果稳定写回与 child skill 同名的镜级八字段，并只在需要下游兼容时派生旧字段投影。 |
 | `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/validation-report.md`。 |
-| `constraint_profile` | shared episode root 是唯一业务真源；`剧本正文` 保持不动；`分镜切换` 只继承不重判；branch 只写自己字段；compatibility projection 只能派生不能反向盖 canonical。 |
+| `constraint_profile` | shared episode root 是唯一业务真源；`剧本正文` 保持不动；`分镜切换` 只继承不重判；本阶段必须补出 `正文切分参考[] + 分镜明细[].正文回指` 作为 `剧本正文 -> 分镜明细[]` 的唯一桥接层；branch 只写自己字段；compatibility projection 只能派生不能反向盖 canonical。 |
 | `success_criteria` | 命中 scope 的镜头都具备可消费的 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`；owner bundle 与 branch process sidecar 可追踪；legacy 投影若存在也不反向压扁 canonical；阶段 validator 与 review gate 通过。 |
 | `non_goals` | 不生成第二份 episode 主文件；不把 branch 结果压成统一 prose；不直接生成 design/image/video 请求；不重写上游分镜数与剧情事实。 |
 | `complexity_source` | 复杂度来自 owner dispatch、branch review、compatibility projection 和下游 handoff，而不是再做一次创作性 merge。 |
@@ -182,9 +182,10 @@ governance_tier: full
 1. shared root 存在时，必须优先继承它，而不是重新从 Markdown 长文抽结构。
 2. `剧本正文` 在 `3-Detail` 阶段只读继承。
 3. `分镜切换` 只继承检查，不由本阶段重判。
-4. 若用户只要求局部组或局部字段，本轮只 patch 命中 scope，不默认全量重跑所有 group。
-5. compatibility projection 允许为空；branch-owned canonical 字段不允许被省略成只有旧字段。
-6. 整个 `3-Detail/第N集.json` 默认执行“反抽象、具像化、细致化”写法：canonical 与 compatibility 字段都必须优先给出可见动作、位置关系、物件状态、空间承载、光气条件和构图抓手，不得用抽象总结句冒充 detail。
+4. `正文切分参考[]` 与 `分镜明细[].正文回指` 是 `剧本正文 -> 分镜明细[]` 的唯一桥接层；镜头不得复制整段正文作为平行真源。
+5. 若用户只要求局部组或局部字段，本轮只 patch 命中 scope，不默认全量重跑所有 group。
+6. compatibility projection 允许为空；branch-owned canonical 字段不允许被省略成只有旧字段。
+7. 整个 `3-Detail/第N集.json` 默认执行“反抽象、具像化、细致化”写法：canonical 与 compatibility 字段都必须优先给出可见动作、位置关系、物件状态、空间承载、光气条件和构图抓手，不得用抽象总结句冒充 detail。
 
 ## Root Input Gate (Mandatory)
 
@@ -195,6 +196,7 @@ governance_tier: full
 3. 命中组具备：
    - `分镜组ID`
    - `剧本正文`
+   - `正文切分参考[]`（缺槽时本阶段必须补齐）
    - `组间设计.全局风格`
    - `组间设计.类型元素`
    - `组间设计.导演意图`
@@ -298,11 +300,13 @@ governance_tier: full
 ### `5-Image`
 
 - prompt distillation 默认先读 branch-owned canonical 字段
+- 需要做正文到镜头的精确桥接时，先读 `正文切分参考[]` 与 `分镜明细[].正文回指`，再回退整组 `剧本正文`
 - 若某个叶子仍依赖旧字段，可短期读 compatibility projection，但不得反向要求 `3-Detail` 只输出旧字段
 
 ### `6-Video`
 
 - 视频 prompt 总原则应优先消费 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
+- 需要做正文到镜头的精确桥接时，先读 `正文切分参考[]` 与 `分镜明细[].正文回指`，再回退整组 `剧本正文`
 - `分镜表现 / 摄影美学 / 运镜手法 / 转场特效` 只作为压缩句法或 provider 兼容的 fallback
 
 ## Review Contract (Mandatory)
@@ -339,7 +343,7 @@ governance_tier: full
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-LOCK` | `S1` | `FIELD-DETAIL-01` | 锁定 episode / group / field scope | 读取 root 与 scope | `input_lock_note` | -> `N2` | scope 唯一 |
-| `N2-SEED-CHECK` | `S2` | `FIELD-DETAIL-02` | 检查 root 是否可继承 | 校验 `剧本正文 / 组间设计 / 分镜切换 / document_phase` | `seed_check_note` | -> `N3` | root 可用 |
+| `N2-SEED-CHECK` | `S2` | `FIELD-DETAIL-02` | 检查 root 是否可继承 | 校验 `剧本正文 / 组间设计 / 分镜切换 / document_phase`，并确认本轮需要补齐 `正文切分参考[] / 分镜明细[].正文回指` | `seed_check_note` | -> `N3` | root 可用 |
 | `N3-WM-DISPATCH` | `S3` | `FIELD-DETAIL-03` | 决定是否运行或复用 `水月` | 读取/执行 `1-水月` | `watermoon_dispatch_note` | -> `N4` | `水月` owner 完整 |
 | `N4-JH-DISPATCH` | `S4` | `FIELD-DETAIL-04` | 决定是否运行或复用 `镜花` | 读取/执行 `2-镜花` | `jinghua_dispatch_note` | -> `N5` | `分镜构图` 先稳 |
 | `N5-BRANCH-REVIEW` | `S5` | `FIELD-DETAIL-05` | 完成 branch-aware review | 收 findings，必要时回流 branch | `branch_review_packet` | -> `N6` | findings 已闭环 |
@@ -384,7 +388,7 @@ governance_tier: full
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
 | `FIELD-DETAIL-01` | shared root 与 selected scope 唯一 | `FAIL-DETAIL-01` | `S1` |
-| `FIELD-DETAIL-02` | `剧本正文 + 组间设计 + 分镜切换` 可直接继承 | `FAIL-DETAIL-02` | `S2` |
+| `FIELD-DETAIL-02` | `剧本正文 + 组间设计 + 分镜切换` 可直接继承，且 `正文切分参考[] / 分镜明细[].正文回指` 已纳入本阶段待补结构槽位 | `FAIL-DETAIL-02` | `S2` |
 | `FIELD-DETAIL-03` | `水月` owner bundle 为 `assembly_only` 且 branch sidecars 完整 | `FAIL-DETAIL-03` | `S3` |
 | `FIELD-DETAIL-04` | `镜花` owner bundle 为 `assembly_only` 且 `分镜构图` 已先稳 | `FAIL-DETAIL-04` | `S4` |
 | `FIELD-DETAIL-05` | branch review findings 已回流对应 owner | `FAIL-DETAIL-05` | `S5` |
@@ -429,9 +433,10 @@ governance_tier: full
 
 1. `projects/aigc/<项目名>/3-Detail/第N集.json` 仍是唯一业务真源。
 2. 本轮命中 group 的 `剧本正文` 未被改写。
-3. 命中镜头已具备八个 branch-owned canonical 字段，或显式标记 `blocked` 并给出原因。
-4. owner bundle 与 branch process sidecar 可追踪。
-5. `document_phase` 与实际完成度一致。
-6. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
-7. 若 `projects/aigc/<项目名>/team.yaml` 启用 `roles.supervision` 且当前阶段命中 `3-Detail`，已完成一次 branch-aware review 或显式降级说明。
-8. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过；若启用监制强化校验，再追加 `--team-yaml projects/aigc/<项目名>/team.yaml`。
+3. 命中 group 已具备 `正文切分参考[]`，且每条命中镜头都具备 `正文回指`。
+4. 命中镜头已具备八个 branch-owned canonical 字段，或显式标记 `blocked` 并给出原因。
+5. owner bundle 与 branch process sidecar 可追踪。
+6. `document_phase` 与实际完成度一致。
+7. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
+8. 若 `projects/aigc/<项目名>/team.yaml` 启用 `roles.supervision` 且当前阶段命中 `3-Detail`，已完成一次 branch-aware review 或显式降级说明。
+9. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过；若启用监制强化校验，再追加 `--team-yaml projects/aigc/<项目名>/team.yaml`。

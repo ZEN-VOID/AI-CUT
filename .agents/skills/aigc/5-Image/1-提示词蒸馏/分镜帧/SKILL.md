@@ -30,7 +30,7 @@ governance_tier: full
 1. 共享模板兼容的 `meta`
 2. 面向单帧图像的 `prompt_style`
 3. 图像生成侧 `model` 参数骨架与参照图预留位
-4. 由固定单帧前缀与 `single_frame_shot` 内容块拼成的 `prompt`
+4. 由固定英文前缀、组级设计块与单镜融写行拼成的 `prompt`
 5. 对应的 `prompt_char_count`
 
 ## When to Use
@@ -52,8 +52,8 @@ governance_tier: full
 ### `分镜帧` 拥有
 
 - 单一 `分镜ID -> 1 条图像请求对象` 的转换合同
-- `single_frame_shot` 的单帧内容归纳规则
-- 固定单帧前缀 + `single_frame_shot` 的 prompt 组织规则
+- `正文切分参考[] -> 正文回指 -> 单镜融写行` 的桥接规则
+- 固定英文前缀 + 组级设计块 + 单镜融写行 的 prompt 组织规则
 - 对 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 的局部填充规则
 - `json_only / full_trace` 两种输出模式下的单集落盘合同
 
@@ -70,6 +70,9 @@ governance_tier: full
 - 当前 `SKILL.md` 是本技能唯一规范真源。
 - `CONTEXT.md` 仅承载经验层：Type Map、Repair Playbook、Reusable Heuristics。
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json` 是共享模板真源；本技能只做局部填充，不复制平行模板。
+- `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/prompt-assembly-spec.md` 是本叶子的句法装配真源。
+- `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py` 是本叶子的 canonical runner。
+- `.agents/skills/aigc/5-Image/1-提示词蒸馏/_shared/prompt_bridge_helpers.py` 是 `分镜帧 / 分镜故事板` 共享的 script bridge runtime 真源。
 - 相关“子技能包能力面”当前以内收节点方式治理，不另起本地子目录；若未来真有稳定独立边界，应显式升格为父级声明的受治理子技能，而不是重新拆回多份文档。
 
 ## Total Input Contract (Mandatory)
@@ -82,14 +85,14 @@ governance_tier: full
 
 - 第一结构化真源：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - 目标对象：`final_output.main_content.分镜组列表[].分镜明细[]` 中的单一 `分镜ID`
-- 业务投影：`single_frame_shot`
+- 业务投影：`组级设计块 + 单镜融写行`
 - 最终载体：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
 
 ### Constraints
 
 1. 目标 `分镜ID` 必须可唯一定位。
-2. `single_frame_shot` 只能服务当前唯一 `分镜ID`，不得扩写为整组多镜头摘要。
-3. `prompt` 必须严格由固定单帧前缀开头，并直接拼接 `single_frame_shot`。
+2. 单镜融写行只能服务当前唯一 `分镜ID`，不得扩写为整组多镜头摘要。
+3. `prompt` 必须严格由固定英文前缀开头，并继续组织为 `组级设计块 + xx秒-xx秒｜分镜<组内序号>：...`。
 4. 共享模板字段骨架必须完整保留，尤其是 `reference_images` 与 `image_markers`。
 5. 缺失字段允许保守留空，不得虚构新镜头事实。
 
@@ -104,7 +107,7 @@ governance_tier: full
 ### Success Criteria
 
 1. `分镜ID`、`group_id`、`source_shot_ids` 可完整回链到唯一目标分镜。
-2. `prompt` 满足“固定单帧前缀 + single_frame_shot”。
+2. `prompt` 满足“固定英文前缀 + 组级设计块 + 单镜融写行”。
 3. `model` 骨架完整，空参照槽位仍保留。
 4. `第N集.json` 可被后续阶段直接消费。
 5. 若要求 `full_trace`，则 `_manifest.json` 与 `第N集.json` 互相可追溯。
@@ -133,7 +136,8 @@ governance_tier: full
 
 1. `metadata.document_phase in {detail_in_progress, ready}`
 2. 目标分镜所属组具备 `组间设计.出场角色及穿搭`
-3. 目标分镜至少具备 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
+3. 目标分镜所属组具备 `正文切分参考[]`，且目标分镜具备 `正文回指`
+4. 目标分镜至少具备 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
 
 若当前项目仍在兼容过渡期，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`，但它们只允许作为补证，不得重新定义单帧上下文的第一真相。
 
@@ -143,6 +147,14 @@ governance_tier: full
 - 单集目录：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/`
 - 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
 - 汇总清单：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
+
+### Script Entrypoint
+
+- canonical runner：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py`
+- 句法 spec：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/prompt-assembly-spec.md`
+- 标准执行命令：
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集`
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --shot-id <分镜ID>`
 
 ## Visual Maps
 
@@ -252,7 +264,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-GATE` | S1 | `FIELD-SB-FRAME-01` | 锁定当前任务确属帧级蒸馏，且核心输入存在 | 读取父级合同、episode JSON、共享模板、可选 sidecar 与目标 `分镜ID`，检查阶段边界与文件存在性 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并回报缺口 | 输入齐备前不得继续 |
 | `N2-SHOT-LOCK` | S2 | `FIELD-SB-FRAME-01` | 在 `分镜组列表[].分镜明细[]` 中唯一定位目标分镜 | 遍历分镜组，锁定 `group_id + shot_id + source_shot_ids`，排除重号或缺号 | `shot_lock_record` | pass -> `N3`；fail -> 回 `S1/S2` | 唯一定位成立后才可蒸馏 |
-| `N3-CONTEXT-PACK` | S3 | `FIELD-SB-FRAME-02` | 打包当前帧需要继承的组级与镜级上下文 | 提取 `分镜组ID / 剧本正文 / 组间设计 / 目标分镜明细`，形成 `frame_context_pack` | `frame_context_pack`、字段覆盖清单 | pass -> `N4`；fail -> 回 `S2/S3` | 上下文包须可回链真实上游 |
+| `N3-CONTEXT-PACK` | S3 | `FIELD-SB-FRAME-02` | 打包当前帧需要继承的组级与镜级上下文 | 提取 `分镜组ID / 剧本正文 / 正文切分参考[] / 组间设计 / 目标分镜明细.正文回指`，形成 `frame_context_pack` | `frame_context_pack`、字段覆盖清单 | pass -> `N4`；fail -> 回 `S2/S3` | 上下文包须可回链真实上游 |
 | `N4-SINGLE-FRAME-DISTILL` | S4 | `FIELD-SB-FRAME-02` | 生成只服务当前帧的 `single_frame_shot` | 按单帧可见事实收缩内容块，区分 `ready / partial` 两种完整度 | `single_frame_shot`、`coverage_note` | ready/partial -> `N5`；fail -> 回 `S3/S4` | 不得写成整组剧情摘要 |
 | `N5-PROMPT-ASSEMBLY` | S5 | `FIELD-SB-FRAME-02` | 让 prompt 严格满足固定前缀合同与字数统计 | 逐字保留固定前缀，拼接 `single_frame_shot`，计算 `prompt_char_count` | `prompt_draft`、`prompt_char_count` | pass -> `N6`；fail -> 回 `S4/S5` | 固定前缀与内容顺序不得漂移 |
 | `N6-TEMPLATE-FILL` | S6 | `FIELD-SB-FRAME-01` `FIELD-SB-FRAME-03` | 以共享模板为骨架填充 `meta / prompt_style / model` | 写入 `shot_level / group_id / source_shot_ids / prompt_style / model`，保留空参照槽位 | `request_entry_patch` | pass -> `N7`；fail -> 回 `S5/S6` | 模板字段骨架必须完整 |
@@ -281,7 +293,8 @@ stateDiagram-v2
 
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
-| 组级事实 | 1. 提取 `分镜组ID`。2. 提取 `剧本正文`。3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`。 | 组级关键字段缺失 |
+| 组级事实 | 1. 提取 `分镜组ID`。2. 提取 `剧本正文 / 正文切分参考[]`。3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`。 | 组级关键字段缺失 |
+| 正文桥接 | 1. 读取目标分镜 `正文回指`。2. 用 `beat_refs[]` 回链 `正文切分参考[]`。3. 只在桥接失败时回退整组 `剧本正文`。 | 仍靠整组正文临场猜边界 |
 | 镜级事实 | 1. 提取目标 `分镜明细`。2. 优先保留 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`。3. legacy `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 只作补证。4. 不改写镜头事实。 | 镜级字段被压成模糊摘要或退回 compatibility projection 主路径 |
 | 证据打包 | 1. 把组级与镜级合成 `frame_context_pack`。2. 标记缺失字段。3. 为 `N4` 提供可审计输入。 | 上下文包无法解释后续 prompt 来源 |
 
@@ -331,7 +344,7 @@ stateDiagram-v2
 2. 读取 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`，确认本轮明确命中 `分镜帧`。
 3. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，锁定 `final_output.main_content.分镜组列表`。
 4. 遍历分镜组并按 `分镜明细[].分镜ID` 唯一锁定目标分镜，同时记录所属 `分镜组ID / 剧本正文 / 组间设计`。
-5. 以目标分镜与所属组上下文组织 `single_frame_shot`，只保留当前帧所需组级上下文与镜级事实。
+5. 以目标分镜与所属组上下文组织“组级设计块 + 单镜融写行”，并通过 `正文切分参考[] -> 正文回指` 融入原剧本片段，只保留当前帧所需组级上下文与镜级事实。
 6. 以共享模板为骨架填充 `meta + prompt_style + model + prompt + prompt_char_count`。
 7. 若存在 `4-Design` 参考资产，只登记到 `model.reference_images / image_markers` 的预留位。
 8. 写入单集 `第N集.json`；仅在任务要求 `full_trace` 时额外输出 `_manifest.json`。
@@ -347,8 +360,8 @@ stateDiagram-v2
    Preserve the shot's composition, camera angle, subject positions, and atmosphere as the primary visual focus.
    ```
 
-2. `single_frame_shot` 必须紧随其后，不插入额外模板说明。
-3. `single_frame_shot` 只允许服务当前唯一 `分镜ID`，不得扩写成整组多镜头摘要。
+2. 固定前缀之后必须先写组级设计块，再写 `xx秒-xx秒｜分镜<组内序号>：` 单镜融写行，不插入额外模板说明。
+3. 单镜融写行只允许服务当前唯一 `分镜ID`，不得扩写成整组多镜头摘要，也不得单独保留 A 段整组 `剧本正文`。
 4. 若上游内容存在空缺，允许保守留空，不得为凑完整度虚构镜头事实。
 
 ## Type System
@@ -448,7 +461,7 @@ stateDiagram-v2
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | FIELD-SB-FRAME-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 以独立 `prompt_style` 声明单帧图像提示词约束，并锁定组级归属与单一目标 `分镜ID` | S1-S2-S6 | 输入覆盖完整度 | FAIL-SB-FRAME-01 |
-| FIELD-SB-FRAME-02 | `prompt / prompt_char_count` | prompt 必须由固定单帧前缀与完整或保守退化后的 `single_frame_shot` 组成，且顶层字数统计一致 | S3-S4-S5 | Prompt 蒸馏稳定性 | FAIL-SB-FRAME-02 |
+| FIELD-SB-FRAME-02 | `prompt / prompt_char_count` | prompt 必须由固定英文前缀、组级设计块与完整或保守退化后的单镜融写行组成，且顶层字数统计一致；镜级行必须显式消费 `正文回指`，并以 `xx秒-xx秒｜分镜<组内序号>：` 起行 | S3-S4-S5 | Prompt 蒸馏稳定性 | FAIL-SB-FRAME-02 |
 | FIELD-SB-FRAME-03 | `model.model_version / model.ratio / model.image_size / model.output_format / model.num_images / model.reference_images / model.image_markers` | `model` 必须保持图像侧模板骨架完整；无图时也保留参照槽位 | S6 | 模板兼容性 | FAIL-SB-FRAME-03 |
 | FIELD-SB-FRAME-04 | `第N集.json / _manifest.json` | 输出文件可追溯、可 handoff，且模式路由与说明一致 | S7-S8 | 输出可消费性 | FAIL-SB-FRAME-04 |
 
@@ -480,8 +493,8 @@ stateDiagram-v2
 
 - `分镜ID` 仍停留在组内局部编号，无法全局回链
 - 仍把图片落盘当主产物，而不是单帧图像请求 JSON
-- `single_frame_shot` 变成整组剧情梗概或大段对白
-- prompt 没有以固定单帧前缀开头
+- 单镜融写行变成整组剧情梗概或大段对白
+- prompt 没有以固定英文前缀开头，或恢复了独立 A 段整组 `剧本正文`
 - 共享模板字段被删改，尤其是 `reference_images` 或 `image_markers`
 - 已有步骤很多，但无法说明每一步为什么能继续往下走
 

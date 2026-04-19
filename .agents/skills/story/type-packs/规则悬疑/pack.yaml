@@ -1,0 +1,15 @@
+pack_id: "规则悬疑"
+display_name: "规则悬疑"
+layer: "secondary"
+summary: "规则、线索、代价必须可验证。"
+stage_projection:
+  validation:
+    required_hooks:
+      - "规则、线索或代价至少有一项显性落地"
+    hard_fail_signals:
+      - "只有悬念气氛，没有可验证规则或线索"
+  drafting:
+    step_hooks:
+      "Step 1":
+        required_hooks:
+          - "至少埋入一处可回收规则/线索"

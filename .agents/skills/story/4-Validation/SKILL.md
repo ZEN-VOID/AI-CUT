@@ -103,7 +103,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 用 6 个维度对候选终稿做并发终验，确认它是否真的兑现了 `0-Init / 1-Cards / 2-Planning` 的共同约束与 active `type-pack` 承诺，并形成可被 `review / 5-Loopback` 直接消费的 gate packet。 |
-| `business_object` | `projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、`4-Validation/第N集.validation.json`、6 份维度 MD report。 |
+| `business_object` | `projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、当前 episode 命中的 `2-Planning/十集分片/*.json`、`4-Validation/第N集.validation.json`、6 份维度 MD report。 |
 | `constraint_profile` | 子技能必须并发可跑；正式 gate truth 只能是一份聚合 JSON；缺 slice 必须 `FAIL-COVENANT`；源层冲突不得伪装成 drafting 质量问题；`7-润色` 的通过不等于最终 PASS。 |
 | `success_criteria` | 六个维度都能给出可追溯 verdict；父层只产出一份 aggregate JSON；失败能精确回流到 drafting 节点或 upstream source；通过后能把 `candidate_final_draft` 升格为 `validated_final_draft` 并稳定 handoff 到 `review/` 与 `5-Loopback`。 |
 | `non_goals` | 不在本阶段生成正式审查报告；不做 loopback 写回；不把 6 份局部报告当成平行 canonical truth；不使用旧轮次 validation 包。 |
@@ -129,15 +129,16 @@ allowed-tools: Read Grep Write Edit Bash Task
 14. `1-Cards/0-全局卡/**/*.json`
 15. `1-Cards/**/*.json`
 16. `2-Planning/全息地图.json`
-17. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`
-18. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`
-19. 若 `N > 1`，上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
-20. `结构兑现/SKILL.md + CONTEXT.md`
-21. `连续性/SKILL.md + CONTEXT.md`
-22. `逻辑自洽校验/SKILL.md + CONTEXT.md`
-23. `人物一致性/SKILL.md + CONTEXT.md`
-24. `时间线/SKILL.md + CONTEXT.md`
-25. `类型兑现/SKILL.md + CONTEXT.md`
+17. 当前 episode 命中的 `2-Planning/十集分片/*.json`
+18. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`
+19. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`
+20. 若 `N > 1`，上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
+21. `结构兑现/SKILL.md + CONTEXT.md`
+22. `连续性/SKILL.md + CONTEXT.md`
+23. `逻辑自洽校验/SKILL.md + CONTEXT.md`
+24. `人物一致性/SKILL.md + CONTEXT.md`
+25. `时间线/SKILL.md + CONTEXT.md`
+26. `类型兑现/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -152,6 +153,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 - `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
 - `2-Planning/全息地图.json`
+- 当前 episode 命中的 `2-Planning/十集分片/*.json`
 - 本轮动态生成的 `validation_fact_pack`
 
 ### 条件必需输入

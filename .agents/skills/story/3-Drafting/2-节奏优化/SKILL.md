@@ -10,6 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
+- 若当前 step 要引用本集 chapter board，必须先读取 `../_shared/chapter-board-locating-contract.md`，禁止靠数组顺序猜本集 board。
 - 必须同时读取 `../../_shared/core-constraints.md`，把 shared 章节硬约束投影到当前 pacing pass，而不是只做局部字面调快。
 - 正式处理前，必须读取 Step 1 已写回后的当前 `第N集.md`。
 
@@ -32,7 +33,9 @@ governance_tier: lite
 
 - `../SKILL.md`
 - `../CONTEXT.md`
+- `../_shared/chapter-board-locating-contract.md`
 - `../_shared/drafting-child-output-contract.md`
+- `../../_shared/type-pack-loading-contract.md`
 - `../../_shared/context-loading-contract.md`
 - `../../_shared/core-constraints.md`
 
@@ -70,7 +73,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让章节具备推进节奏、呼吸感和章内脉冲，而不是只把事情按时间顺序摆出来。 |
-| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、shared core constraints，以及项目已显式启用时才注入的类型化提示。 |
+| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、shared core constraints，以及当前项目的 `type-pack drafting projection`。 |
 | `constraint_profile` | 不换故事骨架，只重排密度和脉冲；必须继续遵守规划真源、设定边界、推进下限、上章承诺回应与章末期待约束。 |
 | `success_criteria` | 读者能明显感知推进、停顿、加压和章末牵引，同时章节仍能回答“发生了什么/为什么现在这样”。 |
 | `non_goals` | 不重写 chapter board、本章主事件序列、设定系统、世界规则或终修文风。 |
@@ -109,6 +112,7 @@ governance_tier: lite
     - 保留了哪些本章规划义务
     - 修复了哪些空转段/跳切段
     - 章末期待如何被保留或增强
+    - 若启用 `type-pack`，本轮采用了哪些 `required_hooks / hard_fail_signals`
 - owned manuscript dimension：
   - 段落脉冲
   - 推进节奏

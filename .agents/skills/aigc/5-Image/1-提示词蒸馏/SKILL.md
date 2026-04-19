@@ -75,7 +75,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把 `3-Detail` 已稳定落位的组级/镜级事实，路由到唯一正确的图像请求 JSON 蒸馏叶子入口，并确保产物可继续 handoff 给 `2-参照引用 / 3-图像生成`。 |
-| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 中的 `metadata.document_phase`、`final_output.main_content.分镜组列表[]`、组级 `组间设计`、组级 `分镜切换`、镜级 `分镜明细[]`，以及可选 `水月 / 镜花` sidecar。 |
+| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 中的 `metadata.document_phase`、`final_output.main_content.分镜组列表[]`、组级 `剧本正文 / 正文切分参考[] / 组间设计 / 分镜切换`、镜级 `分镜明细[]`，以及可选 `水月 / 镜花` sidecar。 |
 | `constraint_profile` | 只消费 `detail_in_progress | ready` 的 `3-Detail` 输出；只命中一个叶子；sidecar 只作补证；主产物必须是 image-request JSON；不得改写上游字段。 |
 | `success_criteria` | 路由唯一、输入真源成立、对象锚点稳定、叶子收到的事实足以蒸馏，并且 handoff 指向后续阶段时无歧义。 |
 | `non_goals` | 不直接出图、不在父层拼叶子 prompt、不并发三份叶子产物、不替 `3-Detail` 修复缺口。 |
@@ -121,6 +121,7 @@ governance_tier: full
 3. 命中组至少具备：
    - `分镜组ID`
    - `剧本正文`
+   - `正文切分参考[]`
    - `组间设计.全局风格`
    - `组间设计.类型元素`
    - `组间设计.导演意图`
@@ -129,6 +130,7 @@ governance_tier: full
    - `分镜明细[]`
 4. `分镜明细[]` 中的镜级 canonical 字段可被叶子消费：
    - `分镜ID`
+   - `正文回指`
    - `角色表现`
    - `运动表现`
    - `氛围表现`
@@ -139,6 +141,7 @@ governance_tier: full
    - `转场特效`
 
 若叶子仍处于过渡态，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 等 compatibility projection，但不得把它们重新声明为第一真相。
+5. 需要做正文到镜头的精确桥接时，父层与叶子必须优先读取 `正文切分参考[] -> 分镜明细[].正文回指`，而不是再从整组 `剧本正文` 临场猜边界。
 
 若 `document_phase` 仍是 `bootstrapped / directing_in_progress`，或 group / shot canonical 字段壳未成立，必须停止在本层并回报上游缺口。
 

@@ -15,6 +15,14 @@
       "conflict_system": [],
       "escalation_ladder": [],
       "conflict_owners": [],
+      "type_pack_projection_summary": {
+        "active_packs": [],
+        "semantic_tags": [],
+        "conflict_bias": [],
+        "validation_bias": []
+      },
+      "relationship_pressure_map": [],
+      "character_conflict_bindings": [],
       "release_windows": [],
       "downstream_hooks": []
     }

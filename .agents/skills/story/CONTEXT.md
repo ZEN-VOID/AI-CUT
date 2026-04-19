@@ -39,6 +39,7 @@ last_checked_at: 2026-04-08T00:00:00Z
 | legacy 覆盖审计把 `.agents/skills/story_backup/...` 与 `story_backup/...` 直接比对，导致 72/72 假缺失 | path normalization in absorption audit | 在覆盖测试中先把 legacy 路径统一归一化到 `story_backup/...` 相对层再比较 | 以后凡是做技能根相对路径审计，都先锁定统一相对基准，避免 `.agents/skills/` 前缀差异制造假失败 | 覆盖测试返回真实 missing 列表，而不是全量假告警 |
 | `type-pack` 已可加载，但 drafting 七工序仍共享同一套提示，导致 step hook 没有真正进入执行层 | step-specific projection gap | 把 `current_step_id` 透传到 context / extract / validation，并让 runtime 从 `drafting.step_hooks.Step X` 读取当前工序规则 | 固定“step hook 只在 pack 真源定义，runtime 统一按 `current_step_id` 消费”的链路，禁止 7 个 drafting 子技能各抄一份类型表 | `Step 2 / Step 5 / Step 7` 能收到不同 type-pack checklist 与 fail signal |
 | 类型兑现只是结构兑现的附注，导致返工入口在“剧情没写成”和“题材没写像”之间漂移 | validation dimension boundary | 在 `4-Validation` 增加独立 `type-pack-fit-validator` 维度，并把 registry / runner / child skill 同轮接上 | pack.validation、registry、runner 与子技能共同承认“类型兑现”是独立维度，不再静默并入 `structure-validator` | aggregate JSON 与 sidecar 可单独追踪 type-pack fit 问题与返工节点 |
+| `type-pack` 目录知识、alias pack、stage projection 分散在 consumer 硬编码里，导致同一 pack 在 resolver / planning / validation / cards 中语义不一致 | canonical pack semantics drift | 抽 `type-packs/pack-catalog.yaml` 为系统级 pack 真源，让 resolver 与各 consumer 共读 | pack 语义、别名、阶段投影、cards bias 都先落 catalog，再允许 consumer 消费 | pack 新增或别名迁移时，主要只需改 catalog 与少量 consumer tests |
 
 ## Repair Playbook
 
@@ -77,3 +78,4 @@ last_checked_at: 2026-04-08T00:00:00Z
 - `type-packs` 若已重构为 `网文/<题材目录或family目录>/`，至少要保证三件事同时成立：`_shared/type-pack-loading-contract.md` 已更新、`infer_type_stack/init_project` 不再硬指向旧 `resolver.md`、`resolve()` 至少能回收当前目录下的 `knowledge_refs`；缺任一项都说明重构还停在目录层。
 - 当题材命名已经与 `type-packs/网文/<题材>/` 对齐时，默认入口不该再靠人工临场猜；除非特别说明，`1-题材选型` 就应该先命中同名目录，再决定补读哪些 family。
 - 做 legacy 覆盖审计时，路径比较必须先统一到同一相对根；`.agents/skills/story_backup/...` 和 `story_backup/...` 语义相同，但若不先归一化，测试会制造全量假告警。
+- 当 pack 既有目录知识又有跨阶段执行语义时，目录只负责“写什么”，catalog 负责“系统怎么用”；不要再让 validation/cards/planning 各自维护另一套 pack 名判断。

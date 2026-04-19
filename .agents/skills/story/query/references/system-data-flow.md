@@ -15,7 +15,9 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 项目根目录/
 ├── 2-Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
 ├── 2-Planning/
-│   └── 全息地图.json      # 规划真源（drafting/query/resume 默认先读）
+│   ├── 全息地图.json      # 规划总索引真源（drafting/query/resume 默认先读）
+│   └── 十集分片/          # episode-local dense planning / actualization
+│       └── 第001-010集.json
 ├── 0-Init/
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
@@ -178,7 +180,8 @@ query / resume
 
 7. 通过 `5-Loopback` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
-   → 写 `content.holomap.actualization`
+   → 写 `content.holomap_slice.actualization`
+   → 回刷 `content.holomap.actualization` summary/index
    → 写 `5-Loopback/第N集.loopback.json`
    → 刷新 query / writer / planning projection
 
@@ -202,13 +205,13 @@ query / resume
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` | 只回答 planned，不代表已发生 |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` + 命中的 `2-Planning/十集分片/*.json` | root 只负责索引与导航，episode-local dense planning 在 slice |
 | drafting truth | 当前集正文写成什么样、已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `content.holomap.actualization` + `5-Loopback/*.loopback.json` | 没有 PASS 证据时不能冒充 actual |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | root `content.holomap.actualization` summary/index + slice `content.holomap_slice.actualization` + `5-Loopback/*.loopback.json` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Validation + review` 生成 |
 
 固定判定：

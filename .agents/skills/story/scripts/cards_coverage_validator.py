@@ -19,6 +19,7 @@ import yaml
 
 from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio
+from data_modules.type_pack_resolver import resolve_type_pack_profile
 
 
 GLOBAL_INDEX_REL = Path("1-Cards") / "0-全局卡" / "全局索引.json"
@@ -221,9 +222,20 @@ def _load_upstream_truth(project_root: Path) -> Dict[str, Dict[str, Any]]:
     }
 
 
-def _infer_profile(info: Dict[str, Any], upstream_truth: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+def _infer_profile(
+    info: Dict[str, Any],
+    upstream_truth: Dict[str, Dict[str, Any]],
+    type_pack_profile: Dict[str, Any],
+) -> Dict[str, Any]:
     north_star = _safe_dict(upstream_truth.get("north_star"))
     type_stack = _safe_dict(north_star.get("type_stack"))
+    type_pack_profile = _safe_dict(type_pack_profile)
+    semantic_tags = {
+        str(item).strip()
+        for item in _safe_list(type_pack_profile.get("semantic_tags"))
+        if str(item).strip()
+    }
+    cards_projection = _safe_dict(type_pack_profile.get("cards_projection"))
     project_identity = _safe_dict(north_star.get("project_identity"))
     story_kernel = _safe_dict(north_star.get("story_kernel"))
     reader_promise = _safe_dict(north_star.get("reader_promise"))
@@ -348,10 +360,37 @@ def _infer_profile(info: Dict[str, Any], upstream_truth: Dict[str, Dict[str, Any
     elif rule_rigidity == "medium":
         scene_link_min = max(scene_link_min, 3)
 
+    if "rules-mystery" in semantic_tags:
+        clue_min = max(clue_min, 2)
+        rule_rigidity = "strong"
+        scene_link_min = max(scene_link_min, 4)
+    if "female-emotion-suspense" in semantic_tags:
+        relationship_min += 1
+    if "urban-revenge" in semantic_tags:
+        relationship_min += 1
+        item_total_min += 1
+    if "upgrade-fantasy" in semantic_tags:
+        weapons_min = max(weapons_min, 1)
+        narrative_min = max(narrative_min, 1)
+
+    relationship_min += max(0, int(cards_projection.get("relationship_min_boost") or 0))
+    clue_min += max(0, int(cards_projection.get("clue_min_boost") or 0))
+    scene_link_min += max(0, int(cards_projection.get("scene_link_min_boost") or 0))
+    item_total_min += max(0, int(cards_projection.get("item_total_min_boost") or 0))
+    weapons_min += max(0, int(cards_projection.get("weapons_min_boost") or 0))
+    narrative_min += max(0, int(cards_projection.get("narrative_min_boost") or 0))
+    rigidity_floor = str(cards_projection.get("rule_rigidity_floor") or "").strip()
+    if rigidity_floor == "strong":
+        rule_rigidity = "strong"
+    elif rigidity_floor == "medium" and rule_rigidity == "weak":
+        rule_rigidity = "medium"
+
     return {
         "target_chapters": chapters,
         "span": span,
         "type_stack": type_stack,
+        "active_packs": list(type_pack_profile.get("active_packs") or []),
+        "semantic_tags": sorted(semantic_tags),
         "rule_rigidity": rule_rigidity,
         "protagonist_min": protagonist_min,
         "antagonist_min": antagonist_min,
@@ -896,7 +935,8 @@ def _validate_items(project_root: Path, profile: Dict[str, Any]) -> Dict[str, An
 def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
     info = _project_info(project_root)
     upstream_truth = _load_upstream_truth(project_root)
-    profile = _infer_profile(info, upstream_truth)
+    type_pack_profile = resolve_type_pack_profile(project_root)
+    profile = _infer_profile(info, upstream_truth, type_pack_profile)
 
     sections = {
         "globals": _validate_globals(project_root, upstream_truth),
@@ -927,6 +967,10 @@ def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
             "north_star_loaded": bool(upstream_truth["north_star"]),
             "init_handoff_loaded": bool(upstream_truth["init_handoff"]),
             "type_stack": _safe_dict(_safe_dict(upstream_truth["north_star"]).get("type_stack")),
+            "type_pack_profile": {
+                "active_packs": list(type_pack_profile.get("active_packs") or []),
+                "semantic_tags": list(type_pack_profile.get("semantic_tags") or []),
+            },
         },
         "sections": sections,
         "blocking_findings": blocking_findings,

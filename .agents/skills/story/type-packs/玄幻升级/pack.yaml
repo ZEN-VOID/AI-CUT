@@ -1,0 +1,10 @@
+pack_id: "玄幻升级"
+display_name: "玄幻升级"
+layer: "secondary"
+summary: "升级链、资源争夺与势力压迫需显性落地。"
+stage_projection:
+  validation:
+    required_hooks:
+      - "升级、资源或势力压迫至少命中一项"
+    hard_fail_signals:
+      - "缺少任何升级与资源逻辑"

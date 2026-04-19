@@ -59,6 +59,14 @@
         "sideline_hidden": []
       },
       "task_graph": [],
+      "type_pack_projection_summary": {
+        "active_packs": [],
+        "semantic_tags": [],
+        "mission_bias": [],
+        "validation_bias": []
+      },
+      "character_task_bindings": [],
+      "relationship_dependency_map": [],
       "reward_penalty_matrix": [],
       "gating_rules": [],
       "reveal_rules": [],

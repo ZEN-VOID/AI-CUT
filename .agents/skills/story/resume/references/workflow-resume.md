@@ -52,6 +52,36 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `2-Planning/全息地图.json`。
 7. 优先读取 `STATE.json.workflow_runtime.execution_state + task_log` 辅助判断全阶段 run 与 resume marker，不把 `workflow_state` 当唯一线索。
 8. `story-query` 若存在 tracked run，可读其 run 信息；但默认只给 generic continue / rerun / diagnosis，不提供章节 cleanup。
+9. 若 `workflow detect` 没有 tracked 中断，必须继续执行 artifact fallback 检测，而不是立刻返回“无中断任务”。
+
+## No-Interrupt Artifact Fallback
+
+当 `workflow detect` 没命中 `current_task` 时，继续按以下顺序寻找可证明的下一入口：
+
+1. `5-Loopback/第N集.loopback.json`
+2. `4-Validation/第N集.validation.json`
+3. `4-Validation/第N-N章审查报告.md` + `STATE.json.review_checkpoints`
+4. `3-Drafting/写作日志.yaml`
+
+默认解释：
+
+- 命中最新 `loopback`：
+  - 视为上一集已完成 validated actualization
+  - 下一稳定入口：`story-write` 下一集
+- 命中 `validation PASS`，但无 review 持久化：
+  - 下一稳定入口：`story-review`
+- 命中 `validation PASS + review 持久化`，但无 loopback：
+  - 下一稳定入口：`story-loopback`
+- 命中 `candidate_final_draft` 写作日志，但无 validation 包：
+  - 下一稳定入口：`story-validate`
+- 命中 `validation FAIL`：
+  - 按 `routing_decision` 回 `story-write` 或 source contract owner
+
+禁止：
+
+- 把 artifact fallback 当成 tracked interruption 伪装输出
+- 在已存在 `validation / review / loopback` 业务证据时仍简单打印“无中断任务”
+- 只看 `STATE.current_stage` 就给结论；它只能作为弱摘要，不是 fallback 真源
 
 ## Step 语义与默认策略
 
@@ -160,6 +190,19 @@ B) 仅清理 workflow 状态，保留当前报告与落库结果供人工复查
 A) 若输入未变，按当前 query run 继续或直接重跑查询
 B) 若担心上下文漂移，先确认当前规划真源仍是 `全息地图.json`
 C) 若需要保留证据链，先 `workflow fail-task --reason "manual_inspection"` 再人工诊断
+</output>
+</example>
+
+<example>
+<input>workflow detect 显示无中断，但项目里已有 `4-Validation/第1集.validation.json` 和 `4-Validation/第1-1章审查报告.md`，还没有 `5-Loopback/第1集.loopback.json`</input>
+<output>
+说明：
+- 当前没有 tracked interruption
+- 但 artifact fallback 已命中：`validation PASS + review persisted + loopback pending`
+
+建议：
+A) 进入 `story-loopback` 执行第1集 actualization（推荐）
+B) 先人工核对 validation packet 与 review checkpoint，再执行 actualization
 </output>
 </example>
 

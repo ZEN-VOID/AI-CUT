@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-branch-output-contract.md`、`../../_shared/story_map.schema.json`。
+- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-slice-layout-contract.md`、`../_shared/planning-branch-output-contract.md`、`../../_shared/story_map.schema.json`。
 - 若当前项目要进入类型化题材锁定，还必须回读 `../../_shared/type-pack-loading-contract.md` 与 `../../type-packs/网文/`。
 - 正式写入前，必须读取当前 `2-Planning/全息地图.json`；若不存在，由父层负责先 bootstrap。
 
@@ -44,7 +44,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 先锁整书阅读承诺与题材方向盘，再让后续 child 在同一题材走廊里工作。 |
-| `business_object` | `2-Planning/全息地图.json` 与 `2-Planning/全息地图.json.content.holomap.story_promise / genre_corridor`。 |
+| `business_object` | `2-Planning/全息地图.json` 与其 `content.holomap.story_promise / genre_corridor`；本 child 不直接拥有十集分片。 |
 | `constraint_profile` | 只定方向盘，不越权写章节/主干；若题材名能直接命中 `type-packs/网文/<题材>/`，除非特别说明，否则默认走该目录作为入口知识源，再按小说设定补读必要的 family craft。 |
 | `success_criteria` | evidence artifact 能解释“为什么是这组题材承诺、默认挂到了哪些 `type-packs/网文/` 入口与 family craft”；story_map 已有 promise/corridor/hook。 |
 | `topology_fit` | `root reread -> promise lock -> corridor narrowing -> forbidden zone -> patch write` |
@@ -70,6 +70,8 @@ governance_tier: lite
   - `content.holomap.story_promise`
   - `content.holomap.genre_corridor`
   - `content.holomap.navigation_rules[]` 的题材门
+- slice ownership：
+  - 无；本 child 只写 global root
 - 本地模板：
   - `templates/genre-selection.template.json`
 

@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+SHARED_DIR = SCRIPT_DIR.parent.parent / "_shared"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
+from prompt_bridge_helpers import (  # noqa: E402
+    ROOT,
+    SOURCE_SCHEMA,
+    TEMPLATE_JSON,
+    build_camera_clauses,
+    build_group_design_block,
+    build_prompt_prefix,
+    build_script_bridge_text,
+    build_script_segment_map,
+    build_shot_display_index,
+    build_time_range,
+    ensure_sentence,
+    load_prompt_assembly_spec,
+    normalize_shot_for_prompt,
+    read_json,
+    render_sentence_group,
+    require_dict,
+    require_list,
+    require_non_empty_text,
+    resolve_project_root,
+    strip_tail_punct,
+    validate_source_ready,
+    write_json,
+)
+
+
+PROMPT_ASSEMBLY_SPEC = SCRIPT_DIR.parent / "prompt-assembly-spec.md"
+TARGET_MAX = 2200
+ALLOWED_PHASES = {"detail_in_progress", "ready"}
+
+
+def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, bridge: str, level: str, spec: dict[str, Any]) -> str:
+    shot_spec = require_dict(spec["shot"], "spec.shot")
+    normalized_shot = normalize_shot_for_prompt(shot)
+    normalized_shot["剧情桥段"] = bridge
+    normalized_shot["shot_index"] = build_shot_display_index(shot_index)
+    opening = shot_spec["opening_template"].format(
+        shot_index=normalized_shot["shot_index"],
+        time_range=build_time_range(normalized_shot),
+        分镜ID=normalized_shot.get("分镜ID", ""),
+    )
+    body_parts: list[str] = []
+    script_bridge = require_dict(shot_spec["script_bridge"], "spec.shot.script_bridge")
+    bridge_text = strip_tail_punct(script_bridge["templates"][level].format(value=strip_tail_punct(bridge)))
+    if bridge_text:
+        body_parts.append(bridge_text)
+    body_parts.extend(build_camera_clauses(normalized_shot, level, spec))
+    detail_sentences = require_dict(shot_spec["detail_sentences"], "spec.shot.detail_sentences")
+    for sentence_group in require_list(detail_sentences[level], f"spec.shot.detail_sentences.{level}"):
+        rendered = render_sentence_group(require_dict(sentence_group, "detail_sentence_group"), normalized_shot, level)
+        clean = strip_tail_punct(rendered)
+        if clean:
+            body_parts.append(clean)
+    for hook in require_list(shot_spec.get("optional_hooks", []), "spec.shot.optional_hooks"):
+        hook_spec = require_dict(hook, "optional_hook")
+        level_spec = require_dict(require_dict(hook_spec["levels"], "optional_hook.levels").get(level, {}), f"optional_hook.levels.{level}")
+        template = level_spec.get("template", "")
+        if not template:
+            continue
+        raw_value = normalized_shot.get(hook_spec["field"], "")
+        if not isinstance(raw_value, str) or not raw_value.strip():
+            continue
+        body_parts.append(strip_tail_punct(template.format(value=strip_tail_punct(raw_value), **normalized_shot)))
+    body = ensure_sentence("，".join(part for part in body_parts if part))
+    return f"{opening}{body}" if body else opening
+
+
+def compose_prompt(group: dict[str, Any], shot: dict[str, Any], shot_index: int, bridge: str, detail_level: str, spec: dict[str, Any]) -> str:
+    sections = [
+        build_prompt_prefix(spec),
+        build_group_design_block(group, spec),
+        build_shot_text(require_non_empty_text(group.get("分镜组ID"), "分镜组ID"), shot, shot_index, bridge, detail_level, spec),
+    ]
+    return "\n".join(section for section in sections if section).strip()
+
+
+def choose_detail_level(group: dict[str, Any], shot: dict[str, Any], shot_index: int, bridge: str, spec: dict[str, Any]) -> tuple[str, str]:
+    for level, budget in (("full", "normal"), ("normal", "normal"), ("tight", "tight"), ("ultra", "tight")):
+        prompt = compose_prompt(group, shot, shot_index, bridge, level, spec)
+        if len(prompt) <= TARGET_MAX:
+            return level, budget
+    raise ValueError(f"分镜 {shot.get('分镜ID')} 在 ultra 压缩后仍超过 {TARGET_MAX} 字。")
+
+
+def build_request_packet(
+    template: dict[str, Any],
+    episode_id: str,
+    source_rel: str,
+    group: dict[str, Any],
+    shot: dict[str, Any],
+    shot_index: int,
+    prompt: str,
+) -> dict[str, Any]:
+    packet = copy.deepcopy(template)
+    packet["meta"]["episode_id"] = episode_id
+    packet["meta"]["source_tranche"] = "分镜帧"
+    packet["meta"]["shot_level"] = "storyboard_frame"
+    packet["meta"]["group_id"] = group["分镜组ID"]
+    packet["meta"]["source_shot_ids"] = [shot["分镜ID"]]
+    packet["meta"]["shot_display_index"] = build_shot_display_index(shot_index)
+    packet["meta"]["source_file"] = source_rel
+    packet["meta"]["source_schema"] = SOURCE_SCHEMA
+    packet["meta"]["template_version"] = "v2"
+    packet["prompt_style"]["type"] = "storyboard_frame"
+    packet["prompt_style"]["language"] = "mixed"
+    packet["prompt_style"]["char_limit"] = TARGET_MAX
+    packet["model"]["provider"] = ""
+    packet["model"]["model_version"] = ""
+    packet["model"]["ratio"] = "16:9"
+    packet["model"]["image_size"] = "1920x1080"
+    packet["model"]["output_format"] = "png"
+    packet["model"]["num_images"] = 1
+    if "reference_images" not in packet["model"]:
+        packet["model"]["reference_images"] = []
+    if "image_markers" not in packet["model"] or not isinstance(packet["model"]["image_markers"], list):
+        packet["model"]["image_markers"] = [
+            {
+                "image_ref": "<图片引用>",
+                "ref_kind": "pending",
+                "related_subject": "<关联主体>",
+                "image_no": "图1",
+            }
+        ]
+    packet["prompt"] = prompt
+    packet["prompt_char_count"] = len(prompt)
+    return packet
+
+
+def validate_frame_packet(packet: dict[str, Any], group: dict[str, Any], shot: dict[str, Any], prefix: str) -> None:
+    prompt = require_non_empty_text(packet.get("prompt"), "packet.prompt")
+    shot_id = shot["分镜ID"]
+    group_id = group["分镜组ID"]
+    shot_index = next(
+        idx
+        for idx, candidate in enumerate(require_list(group.get("分镜明细"), f"{group_id}.分镜明细"))
+        if require_dict(candidate, f"{group_id}.分镜明细[]")["分镜ID"] == shot_id
+    )
+    expected_anchor = f"{build_time_range(shot)}｜分镜{build_shot_display_index(shot_index)}："
+    forbidden_labels = [
+        "剧本正文：",
+        "正文切分参考：",
+        "正文回指：",
+        "类型元素：",
+        "导演意图：",
+        "出场角色及穿搭：",
+        "时间段：",
+        "角色表现：",
+        "运动表现：",
+        "氛围表现：",
+        "视觉强化：",
+        "分镜构图：",
+        "摄影美学：",
+        "运镜手法：",
+        "镜头速度：",
+        "镜头视角：",
+        "道具及状态：",
+        "镜头类型兼容：",
+    ]
+    if packet["prompt_char_count"] != len(prompt):
+        raise ValueError(f"{shot_id} 的 prompt_char_count 与实际长度不一致。")
+    if not prompt.startswith(prefix):
+        raise ValueError(f"{shot_id} 未保留固定英文前缀。")
+    if expected_anchor not in prompt:
+        raise ValueError(f"{shot_id} 缺少时间锚点 {expected_anchor}。")
+    if any(label in prompt for label in forbidden_labels):
+        raise ValueError(f"{shot_id} 泄露了字段标题。")
+    if f"分镜{shot_id}：" in prompt or f"分镜 {shot_id} " in prompt:
+        raise ValueError(f"{shot_id} 泄露了完整四段式分镜ID。")
+    style_anchor = strip_tail_punct(str(group["组间设计"]["全局风格"]).strip())
+    if style_anchor and style_anchor not in prompt:
+        raise ValueError(f"{shot_id} 未保留组级设计块中的全局风格。")
+    if packet["meta"]["group_id"] != group_id:
+        raise ValueError(f"{shot_id} 的 group_id 回链错误。")
+    if packet["meta"]["source_shot_ids"] != [shot_id]:
+        raise ValueError(f"{shot_id} 的 source_shot_ids 必须仅包含自身。")
+    if packet["meta"]["shot_display_index"] != build_shot_display_index(shot_index):
+        raise ValueError(f"{shot_id} 的 shot_display_index 不正确。")
+
+
+def render_episode(project_name: str, episode_id: str, shot_id: str | None = None, output_mode: str = "json_only") -> dict[str, Any]:
+    project_root = resolve_project_root(project_name)
+    source_path = project_root / "3-Detail" / f"{episode_id}.json"
+    output_dir = project_root / "5-Image" / "分镜帧" / episode_id
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    source_data = require_dict(read_json(source_path), str(source_path))
+    prompt_spec = load_prompt_assembly_spec(PROMPT_ASSEMBLY_SPEC)
+    prefix = build_prompt_prefix(prompt_spec)
+    detected_episode_id, groups = validate_source_ready(source_data, ALLOWED_PHASES)
+    if detected_episode_id != episode_id:
+        raise ValueError(f"文件内 episode_id={detected_episode_id}，但执行参数为 {episode_id}。")
+    template = read_json(TEMPLATE_JSON)
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    source_rel = str(source_path.relative_to(ROOT))
+
+    request_packets: list[dict[str, Any]] = []
+    manifest_shots: list[dict[str, Any]] = []
+    budget_strategy_summary = {"normal": 0, "tight": 0}
+    bridge_strategy_summary = {"direct_match": 0, "ambiguous": 0}
+    target_shot_found = shot_id is None
+
+    for group in groups:
+        segment_map = build_script_segment_map(group)
+        shots = require_list(group.get("分镜明细"), f"{group['分镜组ID']}.分镜明细")
+        for index, raw_shot in enumerate(shots):
+            shot = require_dict(raw_shot, f"{group['分镜组ID']}.分镜明细[]")
+            current_shot_id = shot["分镜ID"]
+            if shot_id and current_shot_id != shot_id:
+                continue
+            target_shot_found = True
+            bridge = build_script_bridge_text(group["分镜组ID"], shot, segment_map)
+            coverage_mode = require_dict(shot.get("正文回指"), f"{group['分镜组ID']}.{current_shot_id}.正文回指").get("coverage_mode")
+            bridge_strategy = "direct_match" if coverage_mode == "direct" else "ambiguous"
+            bridge_note = str(require_dict(shot.get("正文回指"), f"{group['分镜组ID']}.{current_shot_id}.正文回指").get("strategy_note", "")).strip()
+            detail_level, budget_strategy = choose_detail_level(group, shot, index, bridge, prompt_spec)
+            prompt = compose_prompt(group, shot, index, bridge, detail_level, prompt_spec)
+            packet = build_request_packet(template, episode_id, source_rel, group, shot, index, prompt)
+            validate_frame_packet(packet, group, shot, prefix)
+            request_packets.append(packet)
+            bridge_strategy_summary[bridge_strategy] += 1
+            budget_strategy_summary[budget_strategy] += 1
+            exception_notes = [bridge_note] if bridge_note else []
+            if budget_strategy == "tight":
+                exception_notes.append("为命中单帧字数窗，已压缩部分镜级细节表达。")
+            manifest_shots.append(
+                {
+                    "group_id": group["分镜组ID"],
+                    "shot_id": current_shot_id,
+                    "shot_display_index": build_shot_display_index(index),
+                    "coverage_mode": coverage_mode,
+                    "beat_refs": require_dict(shot.get("正文回指"), f"{group['分镜组ID']}.{current_shot_id}.正文回指")["beat_refs"],
+                    "prompt_char_count": packet["prompt_char_count"],
+                    "bridge_strategy": bridge_strategy,
+                    "has_reference_slots": True,
+                    "exception_note": " ".join(note for note in exception_notes if note).strip(),
+                }
+            )
+
+    if not target_shot_found:
+        raise ValueError(f"在 {episode_id} 中未找到目标分镜 {shot_id}。")
+    if not request_packets:
+        raise ValueError(f"{episode_id} 没有生成任何分镜帧请求。")
+
+    output_payload = {
+        "episode_id": episode_id,
+        "project_name": project_name,
+        "source_file": source_rel,
+        "source_schema": SOURCE_SCHEMA,
+        "tranche": "5-Image/分镜帧",
+        "request_type": "frame_request_packets",
+        "output_mode": output_mode,
+        "generated_at": generated_at,
+        "shot_count": len(request_packets),
+        "request_packets": request_packets,
+    }
+    write_json(output_dir / f"{episode_id}.json", output_payload)
+
+    if output_mode == "full_trace":
+        manifest_payload = {
+            "episode_id": episode_id,
+            "project_name": project_name,
+            "source_file": source_rel,
+            "generated_at": generated_at,
+            "output_mode": output_mode,
+            "json_file": str((output_dir / f"{episode_id}.json").relative_to(ROOT)),
+            "shot_count": len(request_packets),
+            "bridge_strategy_summary": bridge_strategy_summary,
+            "budget_strategy_summary": budget_strategy_summary,
+            "shots": manifest_shots,
+        }
+        write_json(output_dir / "_manifest.json", manifest_payload)
+
+    return {
+        "episode_id": episode_id,
+        "shot_count": len(request_packets),
+        "bridge_strategy_summary": bridge_strategy_summary,
+        "budget_strategy_summary": budget_strategy_summary,
+        "max_prompt_chars": max(packet["prompt_char_count"] for packet in request_packets),
+        "min_prompt_chars": min(packet["prompt_char_count"] for packet in request_packets),
+        "output_dir": str(output_dir),
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="重建 5-Image/分镜帧 的 episode 请求 JSON。")
+    parser.add_argument("--project", required=True, help="项目名，例如 晴深不渝")
+    parser.add_argument("--episode", required=True, help="集名，例如 第1集")
+    parser.add_argument("--shot-id", help="可选，只生成单个分镜ID")
+    parser.add_argument("--output-mode", choices=["json_only", "full_trace"], default="json_only")
+    args = parser.parse_args()
+    print(json.dumps(render_episode(args.project, args.episode, args.shot_id, args.output_mode), ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

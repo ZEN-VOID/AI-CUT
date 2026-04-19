@@ -22,7 +22,7 @@ allowed-tools: Read Grep Bash
 一句话裁决：
 
 - `MAP` 回答“原计划如何编排”。
-- `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”。
+- `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”；对主角，还回答 `技能 / 心路 / 情感` 三轴成长现在走到哪。
 - `STATE/index` 回答“当前运行态和索引证据是什么”。
 - `workflow_runtime` 回答“当前跑到哪、最近哪个 run 卡住、恢复点在哪里”。
 - `actualization + loopback` 回答“哪些计划已经被 PASS 后正式兑现”。
@@ -92,9 +92,9 @@ Copy and track progress:
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 |---|---|---|---|
-| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `chapter_boards / cross_thread_indexes / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
+| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `episode_slice_manifest / episode_sequence_axis / cross_thread_indexes`，再命中对应 `2-Planning/十集分片/*.json` 的 `chapter_boards / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
 | “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `1-Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
-| “这个人是怎么变成现在的 / 这段关系怎么演化的” | `角色卡.experience_timeline + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
+| “这个人是怎么变成现在的 / 这段关系怎么演化的 / 成长到哪了” | `角色卡.experience_timeline + current_state.growth_state + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
 | “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
 | “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
 | “最近质量如何 / 哪些风险在抬头” | `index.db.review_metrics` / `reading_power` | `STATE.json.review_checkpoints` | 不能只凭主观总结 |
@@ -181,6 +181,8 @@ cat "${SKILL_ROOT}/references/tag-specification.md"
 cat "$PROJECT_ROOT/2-Planning/全息地图.json"
 ```
 
+若问题落到具体 episode，再按 `episode_slice_manifest / episode_sequence_axis` 命中对应 `2-Planning/十集分片/*.json`，再读取其中的 `chapter_boards / thread_window_slice / foreshadow_silence_slice`。
+
 如需追溯某条规划为何这样安排，再补读对应 `2-Planning/1-7/*.json`。
 
 ### B. 对象 / 当前态 / 历程查询
@@ -204,9 +206,10 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 
 必须同时检查：
 
-1. `2-Planning/全息地图.json` 的 `content.holomap.actualization`
-2. `5-Loopback/第N集.loopback.json`
-3. `validation_ref` / `review_metrics` / `review_checkpoints`
+1. `2-Planning/全息地图.json` 的 `content.holomap.actualization` summary/index
+2. 命中 episode 的 `2-Planning/十集分片/*.json` 中 `content.holomap_slice.actualization`
+3. `5-Loopback/第N集.loopback.json`
+4. `validation_ref` / `review_metrics` / `review_checkpoints`
 
 可用下面的命令定位 loopback artifact：
 

@@ -245,6 +245,7 @@ canonical contracts：
 
 - 题材入口目录
 - family craft 目录
+- 系统级 pack catalog
 - 类型化知识引用规则
 - 扩维与目录治理说明
 

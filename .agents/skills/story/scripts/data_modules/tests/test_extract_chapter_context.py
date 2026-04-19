@@ -213,6 +213,42 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
         encoding="utf-8",
     )
 
+    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "李青.json"
+    protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
+    protagonist_card_path.write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "character_card": {
+                            "card_id": "李青",
+                            "core": {
+                                "identity": {"name": "李青"},
+                                "cast_markers": {"primary_alignment": "protagonist", "is_protagonist": True},
+                                "growth_contract": {
+                                    "growth_enabled": True,
+                                    "growth_role": "protagonist",
+                                },
+                            },
+                            "current_state": {
+                                "growth_state": {
+                                    "active_arc_phase": "破局前夜",
+                                    "latest_growth_episode": "第2集",
+                                    "skill": {"stage": "稳固", "focus": "先稳手上余劲"},
+                                    "heart": {"stage": "裂开", "recent_shift": "开始怀疑自己赢得是否太快"},
+                                    "emotion": {"stage": "松动", "current_tension": "不敢再把同门推远"},
+                                }
+                            },
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
     idx = IndexManager(cfg)
     idx.save_chapter_reading_power(
         ChapterReadingPowerMeta(chapter=2, hook_type="悬念钩", hook_strength="strong", coolpoint_patterns=["身份掉马"])
@@ -227,9 +263,16 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert "writing_guidance" in payload
     assert "validation_fact_pack" in payload
     fact_pack = payload["validation_fact_pack"]
-    assert {"promise_slice", "chapter_board", "cards_state_history_slice", "foreshadow_silence_slice", "style_gate", "global_truth_slice"}.issubset(fact_pack.keys())
-    assert fact_pack["promise_slice"]["global_contract_refs"] == [global_card_ref]
-    assert fact_pack["global_truth_slice"]["global_contract_summary"]["golden_finger"]["name"] == "系统"
+    assert {"draft_snapshot", "cards_truth", "planning_truth", "init_truth", "runtime_context"}.issubset(fact_pack.keys())
+    assert fact_pack["draft_snapshot"]["manuscript_ref"] == "3-Drafting/第3集.md"
+    assert fact_pack["planning_truth"]["promise_slice"]["global_contract_refs"] == [global_card_ref]
+    assert fact_pack["cards_truth"]["global_truth_slice"]["global_contract_summary"]["golden_finger"]["name"] == "系统"
+    growth_snapshot = fact_pack["cards_truth"]["cards_state_history_slice"]["protagonist_growth_snapshot"]
+    assert growth_snapshot["character_name"] == "李青"
+    assert growth_snapshot["growth_enabled"] is True
+    assert growth_snapshot["latest_growth_episode"] == "第2集"
+    assert "开始怀疑自己赢得是否太快" in growth_snapshot["carry_signals"]
+    assert fact_pack["runtime_context"]["state_summary"]
     assert isinstance(payload["writing_guidance"].get("guidance_items"), list)
     assert isinstance(payload["writing_guidance"].get("checklist"), list)
     assert isinstance(payload["writing_guidance"].get("checklist_score"), dict)

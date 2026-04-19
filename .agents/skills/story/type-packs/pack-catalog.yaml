@@ -1,0 +1,214 @@
+aliases:
+  玄幻升级: 修仙
+  规则悬疑: 规则怪谈
+  女频强情绪: 女频悬疑
+  都市复仇: 豪门总裁
+
+packs:
+  网文高冲击:
+    layer: primary
+    summary: 长连载网文的高冲击方法核，强调高频局面变化、章末牵引与即时回报。
+    semantic_tags:
+      - high-impact-webnovel
+    planning_projection:
+      story_spine_bias:
+        - 主干推进要尽量前置冲突与回报，不把关键转折拖到章末之后才解释。
+      chapter_board_bias:
+        - 每章至少保留一处可量化的局面变化。
+        - 章节结尾默认保留下一步动机、悬念或回报预告。
+      conflict_bias:
+        - 冲突升级要有见证者、压迫者和主角反制后的外部反馈。
+      mission_bias:
+        - 任务设计要让目标、代价与收益在单章内至少显影一次。
+      validation_bias:
+        - 关注章末牵引是否成立。
+        - 关注长段说明是否拖慢推进。
+    stage_projection:
+      drafting:
+        required_hooks:
+          - 章首目标与阻力前置
+          - 章末保留未闭合问题
+        hard_fail_signals:
+          - 整章平收无牵引
+          - 长段说明堆叠导致推进迟缓
+        step_hooks:
+          Step 2:
+            required_hooks:
+              - 删减无推进段
+            hard_fail_signals:
+              - 长段说明滞留
+          Step 6:
+            required_hooks:
+              - 章末主钩清晰
+            hard_fail_signals:
+              - 只留坑不兑现
+      validation:
+        required_hooks:
+          - 章末主钩清晰
+          - 长段说明不过载
+        hard_fail_signals:
+          - 章末牵引信号偏弱
+          - 长段过多导致推进失速
+    cards_projection:
+      scene_link_min_boost: 1
+
+  起点连载:
+    layer: platform
+    summary: 起点连载平台偏好，强调男频爽点效率、推进可复述性与任务回报闭环。
+    semantic_tags:
+      - qidian-serial
+    planning_projection:
+      chapter_board_bias:
+        - 章节板块应尽量避免纯解释段长期占位。
+      mission_bias:
+        - 主线任务优先做成可被追更读者复述的目标句。
+
+  男频快节奏:
+    layer: audience
+    summary: 男频快节奏读者偏好，强调压迫-反击-回报链与高密度局面改向。
+    semantic_tags:
+      - male-fast-paced
+    planning_projection:
+      chapter_board_bias:
+        - 压力与回报要尽量在同章形成闭环，不把所有兑现都延后。
+      conflict_bias:
+        - 冲突升级默认优先考虑压迫链、翻盘链和资源回弹。
+    cards_projection:
+      scene_link_min_boost: 1
+
+  修仙:
+    layer: secondary
+    source_dirs:
+      - 修仙
+      - 玄幻剧
+    summary: 升级、资源、势力与机缘驱动的长程玄幻成长线。
+    semantic_tags:
+      - upgrade-fantasy
+    planning_projection:
+      story_spine_bias:
+        - 主干至少周期性回到境界、资源、势力和机缘其中之一。
+      chapter_board_bias:
+        - 章节应显影升级压力、资源争夺或势力压制的至少一项。
+      conflict_bias:
+        - 冲突更适合围绕境界压制、资源争夺、宗门秩序和机缘抢夺展开。
+      mission_bias:
+        - 任务更适合绑定突破、夺宝、历练、宗门委派与势力晋升。
+      validation_bias:
+        - 关注升级链、资源链和势力链是否可见。
+    stage_projection:
+      drafting:
+        required_hooks:
+          - 升级链或资源势力支点可见
+        hard_fail_signals:
+          - 只有情绪没有升级资源势力支点
+      validation:
+        required_hooks:
+          - 升级链或资源势力支点可见
+        hard_fail_signals:
+          - 缺少明显升级或资源势力信号
+    cards_projection:
+      weapons_min_boost: 1
+      narrative_min_boost: 1
+
+  规则怪谈:
+    layer: secondary
+    source_dirs:
+      - 规则怪谈
+      - 侦探剧
+    summary: 规则、代价、线索与真相并进的规则悬疑/怪谈解谜线。
+    semantic_tags:
+      - rules-mystery
+    planning_projection:
+      story_spine_bias:
+        - 规则和真相要同步推进，不要只保留抽象悬念。
+      chapter_board_bias:
+        - 章节至少保留一项规则、线索或代价支点。
+      conflict_bias:
+        - 冲突更适合围绕规则冲突、禁忌触发、线索回收与代价兑现设计。
+      mission_bias:
+        - 任务更适合绑定验证规则、规避代价、追查真相和破解禁忌。
+      validation_bias:
+        - 关注规则/线索/代价是否显性落地。
+    stage_projection:
+      drafting:
+        required_hooks:
+          - 规则/线索/代价显性支点
+        hard_fail_signals:
+          - 只留抽象悬念没有规则代价
+      validation:
+        required_hooks:
+          - 规则/线索/代价显性支点
+        hard_fail_signals:
+          - 缺少规则/线索/代价支点
+    cards_projection:
+      clue_min_boost: 1
+      scene_link_min_boost: 1
+      rule_rigidity_floor: strong
+
+  女频悬疑:
+    layer: secondary
+    source_dirs:
+      - 女频悬疑
+    summary: 关系迷雾、情绪代价与真相揭示并行的女性向悬疑线。
+    semantic_tags:
+      - female-emotion-suspense
+    planning_projection:
+      chapter_board_bias:
+        - 章节应能同时回答关系表层目标与情绪代价。
+      conflict_bias:
+        - 冲突更适合围绕信任危机、关系反转、误解代价与亲密控制展开。
+      mission_bias:
+        - 任务更适合绑定接近真相、试探关系、揭穿伪装与情绪交换。
+      validation_bias:
+        - 关注情绪升级是否伴随行动、代价或关系位移。
+    stage_projection:
+      drafting:
+        required_hooks:
+          - 情绪与关系张力显影
+        hard_fail_signals:
+          - 情绪宣告没有行动或代价
+        step_hooks:
+          Step 5:
+            required_hooks:
+              - 情绪升级必须伴随行动或代价
+            hard_fail_signals:
+              - 只写情绪宣告没有关系位移
+      validation:
+        required_hooks:
+          - 情绪与关系张力显影
+        hard_fail_signals:
+          - 情绪与关系张力显影不足
+    cards_projection:
+      relationship_min_boost: 1
+
+  豪门总裁:
+    layer: secondary
+    source_dirs:
+      - 豪门总裁
+      - 狗血言情
+    summary: 压迫、反击、身份差与关系拉扯并行的都市强冲突线。
+    semantic_tags:
+      - urban-revenge
+    planning_projection:
+      chapter_board_bias:
+        - 章节应显影压迫链、回击链或关系反噬其中之一。
+      conflict_bias:
+        - 冲突更适合围绕压迫者、见证者、翻盘后果与关系反压设计。
+      mission_bias:
+        - 任务更适合绑定拿资源、夺话语权、逼真相与反向羞辱。
+      validation_bias:
+        - 关注压迫与回击链是否显性存在。
+    stage_projection:
+      drafting:
+        required_hooks:
+          - 压迫与回击链显性存在
+        hard_fail_signals:
+          - 只有情绪拉扯没有外部后果
+      validation:
+        required_hooks:
+          - 压迫与回击链显性存在
+        hard_fail_signals:
+          - 压迫/回击链条不够显性
+    cards_projection:
+      relationship_min_boost: 1
+      item_total_min_boost: 1

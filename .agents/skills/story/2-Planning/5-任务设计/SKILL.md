@@ -9,7 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
+- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的十集分片。
 - 必须同时读取 `references/mission-strand-system.md`，把“主线/支线 + 明线/暗线”视为本 child 的任务织线真源，而不是自由发挥的补充说明。
 
 ## Parent Positioning
@@ -31,6 +31,8 @@ governance_tier: full
 
 - `../SKILL.md`
 - `../_shared/planning-branch-output-contract.md`
+- `../../_shared/character-planning-bridge.md`
+- `../../_shared/type-pack-loading-contract.md`
 - `references/mission-strand-system.md`
 - `templates/mission-design.template.json`
 
@@ -39,9 +41,9 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把对抗压力翻译成可持续推进的任务织网，让章节同时拥有台面目标与潜台词目标。 |
-| `business_object` | `2-Planning/全息地图.json` 与 `story_map.mission_threads / chapter_boards[].bundled_elements.missions`。 |
+| `business_object` | global root 的 `story_map.mission_threads / mission_threads[].owners / mission_threads[].counterparts / mission_threads[].relationship_edge_refs`，目标 slice 的 `thread_window_slice.missions / chapter_boards[].bundled_elements.missions`，以及当前 `type-pack` 的任务偏好。 |
 | `constraint_profile` | 只写任务，不越权代做冲突、线索、伏笔；所有任务线必须回挂 chapter board。 |
-| `success_criteria` | `mission_threads` 能区分 `主线/支线` 与 `明线/暗线`，board 能回答“本章在做什么”和“本章真正要逼出什么”。 |
+| `success_criteria` | `mission_threads` 能区分 `主线/支线` 与 `明线/暗线`，并能回指角色/关系投影；board 能回答“本章在做什么”和“本章真正要逼出什么”。 |
 | `non_goals` | 不把每个章节都塞满四象限；不把支线当 filler；不把暗线写成作者旁白。 |
 | `complexity_source` | 复杂度来自任务线的双轴判型、章节挂载、reveal 时机、代价闭环与后续可持续推进。 |
 | `topology_fit` | 采用 `当前 root 回读 -> 四象限判型 -> gate/cost/reveal 设计 -> chapter 回挂 -> patch 写回` 的树状思行网络。 |
@@ -53,7 +55,8 @@ governance_tier: full
   - `2-Planning/pass-artifacts/5-任务设计.json`
 - owned story_map slots：
   - `content.holomap.mission_threads`
-  - `content.holomap.chapter_boards[].bundled_elements.missions`
+  - `content.holomap_slice.thread_window_slice.missions`
+  - `content.holomap_slice.chapter_boards[].bundled_elements.missions`
 
 ### Mission Thread Hard Expectations
 
@@ -66,6 +69,7 @@ governance_tier: full
 - `surface_goal`
 - `true_intent`
 - `owners / counterparts`
+- `relationship_edge_refs`
 - `entry_requirement / cost / reward / failure_consequence`
 - `reveal_trigger / reversal_trigger / closure_condition`
 - `board_refs`
@@ -81,6 +85,8 @@ governance_tier: full
 ## Reference Loading Guide
 
 - 进入四象限设计前，先读 `references/mission-strand-system.md` 的 `任务四象限矩阵` 与 `章节挂载规则`。
+- 进入角色/关系绑定前，先读 `../../_shared/character-planning-bridge.md`，确认只能写 `character_id / edge_id / hook`。
+- 若项目已启用 `type-pack`，进入 gate/cost/reveal 设计前，还要回读 `genre_corridor.type_pack_projection` 的 `mission_bias / validation_bias`。
 - 需要决定哪些章节应只保留单线时，回看 `references/mission-strand-system.md` 的 `收束例外规则`。
 - 需要生成 artifact 结构时，使用 `templates/mission-design.template.json`，不得自造并行模板。
 
@@ -139,9 +145,9 @@ erDiagram
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-MIS-01` | 回读当前 root、主干与冲突系统 | 读取 `story_spine`、`conflict_threads`、当前 `chapter_boards` | `input_note` | -> `N2` | root 最新且冲突系统可用 |
+| `N1-ROOT-REREAD` | `FIELD-MIS-01` | 回读当前 root、主干与冲突系统 | 读取 `story_spine`、`conflict_threads`、`character_roster_projection`、`relationship_graph_projection`、当前 `chapter_boards` | `input_note` | -> `N2` | root 最新且冲突系统可用 |
 | `N2-QUADRANT-DIAGNOSIS` | `FIELD-MIS-02` | 判断哪些任务应落入四象限 | 为章节和长线任务打 `mainline/sideline + explicit/hidden` 标签 | `quadrant_note` | -> `N3` | 不是所有任务都被塞成主线 |
-| `N3-DRIVE-CHAIN` | `FIELD-MIS-03` | 设计推进链与依附链 | 生成主线/支线任务 thread，锁 owner、counterpart、target state | `drive_chain_note` | -> `N4` | 主支关系清楚，支线不是 filler |
+| `N3-DRIVE-CHAIN` | `FIELD-MIS-03` | 设计推进链与依附链 | 生成主线/支线任务 thread，锁 `owners / counterparts / relationship_edge_refs / target state` | `drive_chain_note` | -> `N4` | 主支关系清楚，支线不是 filler |
 | `N4-REVEAL-CHAIN` | `FIELD-MIS-04` | 设计明暗转换与 reveal 节奏 | 写 `surface_goal/true_intent/reveal_trigger/reversal_trigger` | `reveal_note` | -> `N5` | 暗线存在可验证 reveal，不是作者知道读者不知道 |
 | `N5-COST-GATE-LOCK` | `FIELD-MIS-05` | 锁门槛、代价、收益、失败后果 | 写 `entry_requirement/cost/reward/failure_consequence/closure_condition` | `cost_gate_note` | -> `N6` | 风险闭环成立 |
 | `N6-BOARD-BINDING` | `FIELD-MIS-06` | 把任务挂回章节 boards | 为各 board 生成 `mission refs` 并说明单线收束例外 | `board_binding_note` | -> `N7` | 每章都能回答任务台面与里层 |

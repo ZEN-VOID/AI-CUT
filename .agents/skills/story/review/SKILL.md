@@ -187,6 +187,7 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
 - `overall_score` 必须来自聚合结果，不可在 `review/` 层主观重估。
 - `issues / severity_counts / critical_issues` 必须原样可追溯到上游聚合结果。
 - `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk` 必须原样进入 `review_metrics` 正式字段。
+- 若 aggregate JSON 已包含 `type_pack_fit_summary / type_pack_fail_signals`，必须原样进入 `review_metrics` 与 `review_handoff_summary`，不得在 review 层静默丢失。
 - `validation_status / routing_decision / handoff_targets` 只可复制进辅助工件，不可在 `review/` 层改写。
 - 若发现聚合结果缺字段或相互矛盾，应阻断并回溯 `4-Validation` / checker 合同，而不是在 `review/` 层自行补猜。
 
@@ -204,6 +205,8 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
      - `review_checkpoint_written`
      - `critical_blockers`
      - `next_action`
+     - `type_pack_fit_summary`
+     - `type_pack_fail_signals`
 
 ## Step 4：生成审查报告
 
@@ -233,6 +236,11 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
 - spoiler_risk
 - contrivance_risk
 - cold_commentary_risk
+
+## 类型兑现
+- active packs
+- type_pack_fit_score
+- type_pack_fail_signals
 
 ## 下游影响
 - 是否允许进入 `5-Loopback`

@@ -1,0 +1,15 @@
+pack_id: "女频强情绪"
+display_name: "女频强情绪"
+layer: "secondary"
+summary: "情绪推进必须伴随关系位移、动作或代价。"
+stage_projection:
+  validation:
+    required_hooks:
+      - "情绪推进必须对应关系位移或行动后果"
+    hard_fail_signals:
+      - "整章停留在情绪宣告，没有行动与代价"
+  drafting:
+    step_hooks:
+      "Step 5":
+        required_hooks:
+          - "情绪升级必须伴随行动或代价"

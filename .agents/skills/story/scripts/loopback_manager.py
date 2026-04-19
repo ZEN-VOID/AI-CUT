@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
+import re
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Tuple
 
 from planning_paths import canonical_planning_artifact_relpath, resolve_planning_artifact_path
 from project_locator import resolve_project_root, resolve_state_file
@@ -108,6 +110,19 @@ def _normalize_delta_payload(
     }
 
 
+def _validate_allowed_keys(payload: Dict[str, Any], allowed_keys: set[str], context: str) -> None:
+    extra_keys = sorted(set(payload.keys()) - allowed_keys)
+    if extra_keys:
+        raise ValueError(f"{context} 存在未授权字段: {', '.join(extra_keys)}")
+
+
+def _ensure_json_like(value: Any, context: str) -> None:
+    try:
+        json.dumps(value, ensure_ascii=False)
+    except TypeError as exc:
+        raise ValueError(f"{context} 不是合法 JSON 值") from exc
+
+
 def _normalize_handoff_targets(raw: Any) -> List[str]:
     if not isinstance(raw, list):
         return []
@@ -125,17 +140,22 @@ def _normalize_handoff_target_token(raw: str) -> str:
 
 def _loopback_handoff_granted(
     validation_payload: Dict[str, Any],
-) -> tuple[str, List[str], bool]:
+) -> tuple[str, List[str], bool, List[str]]:
     routing_decision = str(validation_payload.get("routing_decision") or "").strip()
     handoff_targets = _normalize_handoff_targets(validation_payload.get("handoff_targets"))
     normalized_targets = {_normalize_handoff_target_token(item) for item in handoff_targets}
-    loopback_aliases = {
-        "5-loopback",
-        "story-loopback",
-    }
-    target_granted = bool(normalized_targets & loopback_aliases)
-    routing_granted = routing_decision == "handoff_to_review_and_loopback"
-    return routing_decision, handoff_targets, bool(target_granted or routing_granted)
+    loopback_aliases = {"5-loopback", "story-loopback"}
+    review_aliases = {"review", "story-review"}
+
+    fail_codes: List[str] = []
+    if routing_decision != "handoff_to_review_and_loopback":
+        fail_codes.append("routing_decision_must_be_handoff_to_review_and_loopback")
+    if not (normalized_targets & review_aliases):
+        fail_codes.append("handoff_targets_missing_review")
+    if not (normalized_targets & loopback_aliases):
+        fail_codes.append("handoff_targets_missing_loopback")
+
+    return routing_decision, handoff_targets, not fail_codes, fail_codes
 
 
 def _extract_governance_refs(validation_payload: Dict[str, Any]) -> Dict[str, str]:
@@ -150,6 +170,119 @@ def _extract_governance_refs(validation_payload: Dict[str, Any]) -> Dict[str, st
         value = str(raw or "").strip()
         refs[key] = value
     return refs
+
+
+def _validate_card_delta(item: Dict[str, Any]) -> None:
+    _validate_allowed_keys(
+        item,
+        {"target_ref", "target_type", "write_policy", "current_state_patch", "history_append", "expected_revision"},
+        "card_delta",
+    )
+    if item.get("write_policy") not in (None, "", "validated-current-state-history-only"):
+        raise ValueError("card_delta.write_policy 非法")
+    current_state_patch = item.get("current_state_patch") or {}
+    if current_state_patch and not isinstance(current_state_patch, dict):
+        raise ValueError("card_delta.current_state_patch 必须是对象")
+    forbidden_current_state_keys = {
+        "core",
+        "card_schema",
+        "history",
+        "current_state",
+        "writeback_plan",
+        "gate_summary",
+        "execution_notes",
+        "meta",
+        "content",
+        "review_metrics",
+        "review_handoff_summary",
+        "validation_status",
+        "routing_decision",
+        "handoff_targets",
+    }
+    current_state_keys = set(current_state_patch.keys()) if isinstance(current_state_patch, dict) else set()
+    illegal_current_state = sorted(current_state_keys & forbidden_current_state_keys)
+    if illegal_current_state:
+        raise ValueError(f"card_delta.current_state_patch 存在越权字段: {', '.join(illegal_current_state)}")
+    _ensure_json_like(current_state_patch, "card_delta.current_state_patch")
+
+    history_append = item.get("history_append") or {}
+    if history_append and not isinstance(history_append, dict):
+        raise ValueError("card_delta.history_append 必须是对象")
+    if history_append:
+        _validate_allowed_keys(
+            history_append,
+            {
+                "episode_ref",
+                "loopback_ref",
+                "validation_ref",
+                "changed_fields",
+                "change_summary",
+                "impact_scope",
+                "evidence_refs",
+                "timestamp",
+                "growth_delta",
+            },
+            "card_delta.history_append",
+        )
+        _ensure_json_like(history_append, "card_delta.history_append")
+
+
+def _validate_map_delta(item: Dict[str, Any]) -> None:
+    _validate_allowed_keys(
+        item,
+        {"target_bucket", "target_ref", "slice_ref", "write_policy", "actualization_patch", "expected_revision"},
+        "map_delta",
+    )
+    if item.get("write_policy") not in (None, "", "actualization-only"):
+        raise ValueError("map_delta.write_policy 非法")
+    actualization_patch = item.get("actualization_patch") or {}
+    if actualization_patch and not isinstance(actualization_patch, dict):
+        raise ValueError("map_delta.actualization_patch 必须是对象")
+    forbidden_map_keys = {
+        "issues",
+        "severity_counts",
+        "critical_issues",
+        "overall_score",
+        "review_metrics",
+        "review_handoff_summary",
+        "validation_status",
+        "routing_decision",
+        "handoff_targets",
+        "suggested_fix",
+        "source_fix",
+        "draft_rewrite",
+    }
+    illegal_map_keys = sorted(
+        key for key in actualization_patch.keys() if key in forbidden_map_keys or key.startswith("planned_")
+    )
+    if illegal_map_keys:
+        raise ValueError(f"map_delta.actualization_patch 存在越权字段: {', '.join(illegal_map_keys)}")
+    _ensure_json_like(actualization_patch, "map_delta.actualization_patch")
+
+
+def _validate_projection_refresh_entry(item: Dict[str, Any]) -> None:
+    _validate_allowed_keys(
+        item,
+        {"target_ref", "target_type", "refresh_mode", "payload", "expected_revision"},
+        "projection_refresh",
+    )
+    if not str(item.get("target_type") or "").strip():
+        raise ValueError("projection_refresh.target_type 不能为空")
+    _ensure_json_like(item.get("payload"), "projection_refresh.payload")
+    if item.get("target_type") == "runtime_marker" and not isinstance(item.get("payload") or {}, dict):
+        raise ValueError("runtime_marker payload 必须是对象")
+
+
+def _validate_delta_payload(delta_payload: Dict[str, List[Dict[str, Any]]]) -> None:
+    for item in delta_payload["card_deltas"]:
+        if isinstance(item, dict):
+            _validate_card_delta(item)
+    for item in delta_payload["map_deltas"]:
+        if isinstance(item, dict):
+            _validate_map_delta(item)
+    for item in delta_payload["projection_refresh"]:
+        if isinstance(item, dict):
+            _validate_projection_refresh_entry(item)
 
 
 def _map_bucket_key(bucket: str) -> str:
@@ -179,6 +312,40 @@ def _default_projection_path(target_type: str) -> list[str]:
     return list(mapping[target_type])
 
 
+def _get_loopback_state_owner(payload: Dict[str, Any], target_path: Path) -> Dict[str, Any]:
+    content = payload.get("content")
+    card_schema = content.get("card_schema") if isinstance(content, dict) else None
+    if isinstance(card_schema, dict):
+        for schema_key in (
+            "character_card",
+            "item_card",
+            "scene_card",
+            "style_card",
+            "global_card",
+        ):
+            candidate = card_schema.get(schema_key)
+            if isinstance(candidate, dict):
+                return candidate
+        raise ValueError(f"Card 缺少受支持的 card_schema 节点: {target_path}")
+    return payload
+
+
+def _projection_path_suffix(target_ref: str) -> List[str]:
+    ref = str(target_ref or "").strip()
+    if not ref:
+        return []
+    return [part for part in re.split(r"[/.]+", ref) if part]
+
+
+def _get_nested_value(payload: Dict[str, Any], path: Iterable[str]) -> Any:
+    current: Any = payload
+    for part in path:
+        if not isinstance(current, dict) or part not in current:
+            return None
+        current = current[part]
+    return copy.deepcopy(current)
+
+
 def _set_nested_value(payload: Dict[str, Any], path: Iterable[str], value: Any) -> None:
     parts = [part for part in path if part]
     if not parts:
@@ -194,38 +361,54 @@ def _set_nested_value(payload: Dict[str, Any], path: Iterable[str], value: Any) 
     current[parts[-1]] = copy.deepcopy(value)
 
 
-def _apply_projection_refresh(
-    state: Dict[str, Any],
-    projection_refresh: List[Dict[str, Any]],
-) -> List[str]:
-    refreshed_refs: List[str] = []
-    for item in projection_refresh:
-        if not isinstance(item, dict):
-            continue
-
-        target_type = str(item.get("target_type") or "").strip()
-        payload = copy.deepcopy(item.get("payload") or {})
-        target_ref = str(item.get("target_ref") or "").strip()
-
-        if target_type == "runtime_marker":
-            state.setdefault("runtime_markers", {})
-            if not isinstance(state["runtime_markers"], dict):
-                state["runtime_markers"] = {}
-            marker_name = target_ref or "loopback"
-            state["runtime_markers"][marker_name] = payload
-            refreshed_refs.append(f"runtime_markers.{marker_name}")
-            continue
-
-        nested_path = _default_projection_path(target_type)
-        _set_nested_value(state, nested_path, payload)
-        refreshed_refs.append(".".join(nested_path))
-
-    return refreshed_refs
+def _apply_refresh_mode(existing: Any, refresh_mode: str, payload: Any) -> Any:
+    mode = str(refresh_mode or "replace").strip().lower() or "replace"
+    if mode == "replace":
+        return copy.deepcopy(payload)
+    if mode == "merge":
+        if existing is None:
+            existing = {}
+        if not isinstance(existing, dict) or not isinstance(payload, dict):
+            raise ValueError("merge 模式要求 existing/payload 都是对象")
+        return _deep_merge(existing, payload)
+    if mode == "append":
+        if existing is None:
+            existing = []
+        if not isinstance(existing, list):
+            raise ValueError("append 模式要求 existing 是数组")
+        merged = copy.deepcopy(existing)
+        if isinstance(payload, list):
+            merged.extend(copy.deepcopy(payload))
+        else:
+            merged.append(copy.deepcopy(payload))
+        return merged
+    raise ValueError(f"不支持的 refresh_mode: {refresh_mode}")
 
 
-def _apply_map_deltas(holomap: Dict[str, Any], map_deltas: List[Dict[str, Any]]) -> List[str]:
-    holomap_root = holomap.setdefault("content", {}).setdefault("holomap", {})
-    actualization = holomap_root.setdefault(
+def _normalize_revision(value: Any, context: str) -> int:
+    if value in (None, ""):
+        return 0
+    try:
+        revision = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{context} 必须是整数 revision") from exc
+    if revision < 0:
+        raise ValueError(f"{context} 不能为负数")
+    return revision
+
+
+def _get_card_revision(payload: Dict[str, Any], target_path: Path) -> int:
+    state_owner = _get_loopback_state_owner(payload, target_path)
+    return _normalize_revision(state_owner.get("loopback_revision"), f"{target_path} loopback_revision")
+
+
+def _set_card_revision(payload: Dict[str, Any], target_path: Path, revision: int) -> None:
+    state_owner = _get_loopback_state_owner(payload, target_path)
+    state_owner["loopback_revision"] = revision
+
+
+def _get_map_actualization_root(holomap: Dict[str, Any]) -> Dict[str, Any]:
+    return holomap.setdefault("content", {}).setdefault("holomap", {}).setdefault(
         "actualization",
         {
             "write_policy": "actualization-only",
@@ -238,6 +421,105 @@ def _apply_map_deltas(holomap: Dict[str, Any], map_deltas: List[Dict[str, Any]])
             "threads": [],
         },
     )
+
+
+def _get_map_revision(holomap: Dict[str, Any]) -> int:
+    actualization = _get_map_actualization_root(holomap)
+    return _normalize_revision(actualization.get("revision"), "story_map.actualization.revision")
+
+
+def _set_map_revision(holomap: Dict[str, Any], revision: int) -> None:
+    actualization = _get_map_actualization_root(holomap)
+    actualization["revision"] = revision
+
+
+def _get_state_revision(state: Dict[str, Any]) -> int:
+    runtime_markers = state.get("runtime_markers")
+    if not isinstance(runtime_markers, dict):
+        return 0
+    return _normalize_revision(runtime_markers.get("loopback_state_revision"), "runtime_markers.loopback_state_revision")
+
+
+def _set_state_revision(state: Dict[str, Any], revision: int) -> None:
+    runtime_markers = state.setdefault("runtime_markers", {})
+    if not isinstance(runtime_markers, dict):
+        runtime_markers = {}
+        state["runtime_markers"] = runtime_markers
+    runtime_markers["loopback_state_revision"] = revision
+
+
+def _apply_projection_refresh(
+    state: Dict[str, Any],
+    projection_refresh: List[Dict[str, Any]],
+) -> List[str]:
+    refreshed_refs: List[str] = []
+    for item in projection_refresh:
+        if not isinstance(item, dict):
+            continue
+
+        target_type = str(item.get("target_type") or "").strip()
+        payload = copy.deepcopy(item.get("payload") or {})
+        target_ref = str(item.get("target_ref") or "").strip()
+        refresh_mode = str(item.get("refresh_mode") or "replace").strip()
+
+        if target_type == "runtime_marker":
+            nested_path = ["runtime_markers", target_ref or "loopback"]
+        else:
+            nested_path = _default_projection_path(target_type) + _projection_path_suffix(target_ref)
+
+        existing = _get_nested_value(state, nested_path)
+        refreshed_value = _apply_refresh_mode(existing, refresh_mode, payload)
+        _set_nested_value(state, nested_path, refreshed_value)
+        refreshed_refs.append(".".join(nested_path))
+
+    return refreshed_refs
+
+
+def _build_commit_manifest(
+    *,
+    episode: int,
+    validation_ref: str,
+    artifact_ref: str,
+    written_card_refs: List[str],
+    written_map_refs: List[str],
+    refreshed_projection_refs: List[str],
+    observed_revisions: Dict[str, Any],
+    next_revisions: Dict[str, Any],
+    phase: str,
+) -> Dict[str, Any]:
+    manifest_seed = json.dumps(
+        {
+            "episode": episode,
+            "validation_ref": validation_ref,
+            "artifact_ref": artifact_ref,
+            "written_card_refs": written_card_refs,
+            "written_map_refs": written_map_refs,
+            "refreshed_projection_refs": refreshed_projection_refs,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+    manifest_id = f"loopback-{episode}-{hashlib.sha1(manifest_seed.encode('utf-8')).hexdigest()[:12]}"
+    return {
+        "manifest_id": manifest_id,
+        "phase": phase,
+        "episode_ref": f"第{episode}集",
+        "validation_ref": validation_ref,
+        "artifact_ref": artifact_ref,
+        "written_card_refs": copy.deepcopy(written_card_refs),
+        "written_map_refs": copy.deepcopy(written_map_refs),
+        "refreshed_projection_refs": copy.deepcopy(refreshed_projection_refs),
+        "observed_revisions": copy.deepcopy(observed_revisions),
+        "next_revisions": copy.deepcopy(next_revisions),
+    }
+
+
+def _apply_map_deltas(
+    holomap: Dict[str, Any],
+    map_deltas: List[Dict[str, Any]],
+) -> Tuple[Dict[str, Any], List[str]]:
+    staged_holomap = copy.deepcopy(holomap)
+    actualization = _get_map_actualization_root(staged_holomap)
 
     written_refs: List[str] = []
     for item in map_deltas:
@@ -271,7 +553,7 @@ def _apply_map_deltas(holomap: Dict[str, Any], map_deltas: List[Dict[str, Any]])
 
         written_refs.append(f"{bucket}:{target_ref or match_value}")
 
-    return written_refs
+    return staged_holomap, written_refs
 
 
 def _apply_card_deltas(
@@ -279,7 +561,8 @@ def _apply_card_deltas(
     artifact_ref: str,
     validation_ref: str,
     card_deltas: List[Dict[str, Any]],
-) -> List[str]:
+) -> Tuple[Dict[Path, Dict[str, Any]], List[str]]:
+    staged_payloads: Dict[Path, Dict[str, Any]] = {}
     written_refs: List[str] = []
     for item in card_deltas:
         if not isinstance(item, dict):
@@ -293,27 +576,33 @@ def _apply_card_deltas(
         if not target_path.is_file():
             raise FileNotFoundError(f"Card 文件不存在: {target_path}")
 
-        payload = _load_json_file(target_path)
+        payload = staged_payloads.get(target_path)
+        if payload is None:
+            payload = _load_json_file(target_path)
         if not isinstance(payload, dict):
             raise ValueError(f"Card JSON 非对象: {target_path}")
 
-        payload.setdefault("current_state", {})
-        payload.setdefault("history", [])
+        payload = copy.deepcopy(payload)
+        state_owner = _get_loopback_state_owner(payload, target_path)
+
+        state_owner.setdefault("current_state", {})
+        state_owner.setdefault("history", [])
 
         current_patch = item.get("current_state_patch") or {}
         if isinstance(current_patch, dict):
-            payload["current_state"] = _deep_merge(payload["current_state"], current_patch)
+            state_owner["current_state"] = _deep_merge(state_owner["current_state"], current_patch)
 
         history_append = copy.deepcopy(item.get("history_append") or {})
         if history_append:
             history_append.setdefault("validation_ref", validation_ref)
             history_append["loopback_ref"] = artifact_ref
-            payload["history"].append(history_append)
+            state_owner["history"].append(history_append)
 
-        atomic_write_json(target_path, payload, use_lock=True, backup=True)
-        written_refs.append(target_ref)
+        staged_payloads[target_path] = payload
+        if target_ref not in written_refs:
+            written_refs.append(target_ref)
 
-    return written_refs
+    return staged_payloads, written_refs
 
 
 def _derive_actual_outcome_summary(map_deltas: List[Dict[str, Any]]) -> str:
@@ -386,6 +675,35 @@ def _build_artifact(
     return artifact
 
 
+def _commit_json_writes(
+    write_plan: List[Tuple[Path, Dict[str, Any], bool, bool]],
+    originals: Dict[Path, Dict[str, Any] | None],
+) -> None:
+    written_paths: List[Path] = []
+    try:
+        for path, payload, use_lock, backup in write_plan:
+            atomic_write_json(path, payload, use_lock=use_lock, backup=backup)
+            written_paths.append(path)
+    except Exception as exc:
+        rollback_errors: List[str] = []
+        for path in reversed(written_paths):
+            original_payload = originals.get(path)
+            try:
+                if original_payload is None:
+                    if path.exists():
+                        path.unlink()
+                else:
+                    atomic_write_json(path, original_payload, use_lock=True, backup=False)
+            except Exception as rollback_exc:  # pragma: no cover - 极端 I/O 故障
+                rollback_errors.append(f"{path}: {rollback_exc}")
+
+        if rollback_errors:
+            raise RuntimeError(
+                "loopback writeback 失败，且回滚未完全成功: " + "; ".join(rollback_errors)
+            ) from exc
+        raise
+
+
 def actualize(args: argparse.Namespace) -> int:
     project_root = resolve_project_root(str(args.project_root))
     state_path = resolve_state_file(explicit_project_root=str(project_root))
@@ -418,7 +736,7 @@ def actualize(args: argparse.Namespace) -> int:
         )
         return 1
 
-    routing_decision, handoff_targets, loopback_granted = _loopback_handoff_granted(validation_payload)
+    routing_decision, handoff_targets, loopback_granted, gate_fail_codes = _loopback_handoff_granted(validation_payload)
     if not loopback_granted:
         print(
             json.dumps(
@@ -428,6 +746,7 @@ def actualize(args: argparse.Namespace) -> int:
                     "validation_status": validation_status,
                     "routing_decision": routing_decision or "missing",
                     "handoff_targets": handoff_targets,
+                    "fail_codes": gate_fail_codes,
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -439,6 +758,31 @@ def actualize(args: argparse.Namespace) -> int:
         validation_payload,
         _load_json_arg(args.loopback_delta) if args.loopback_delta else None,
     )
+    _validate_delta_payload(delta_payload)
+    if not (
+        delta_payload["card_deltas"]
+        or delta_payload["map_deltas"]
+        or delta_payload["projection_refresh"]
+    ):
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "loopback_delta_empty",
+                    "validation_ref": str(
+                        args.validation_ref
+                        or validation_payload.get("validation_ref")
+                        or validation_payload.get("report_file")
+                        or ""
+                    ).strip(),
+                    "message": "未提供任何 card/map/projection actualization delta，禁止把空 loopback 冒充成功写回。",
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 1
+
     artifact_path = _build_artifact_path(project_root, state, args.episode)
     artifact_ref = _relpath(artifact_path, project_root)
     validation_ref = str(
@@ -447,6 +791,41 @@ def actualize(args: argparse.Namespace) -> int:
         or validation_payload.get("report_file")
         or ""
     ).strip()
+
+    observed_card_revisions: Dict[str, int] = {}
+    next_card_revisions: Dict[str, int] = {}
+    for item in delta_payload["card_deltas"]:
+        if not isinstance(item, dict):
+            continue
+        target_ref = str(item.get("target_ref") or "").strip()
+        if not target_ref or target_ref in observed_card_revisions:
+            continue
+        payload = _load_json_file((project_root / target_ref).resolve())
+        current_revision = _get_card_revision(payload, (project_root / target_ref).resolve())
+        expected_revision = item.get("expected_revision")
+        if expected_revision not in (None, ""):
+            if current_revision != _normalize_revision(expected_revision, f"{target_ref}.expected_revision"):
+                raise ValueError(f"{target_ref} revision 已漂移，拒绝 loopback 写回")
+        observed_card_revisions[target_ref] = current_revision
+        next_card_revisions[target_ref] = current_revision + 1
+
+    observed_map_revision = _get_map_revision(_load_json_file(story_map_path))
+    map_expected_revisions = {
+        _normalize_revision(item.get("expected_revision"), "map_delta.expected_revision")
+        for item in delta_payload["map_deltas"]
+        if isinstance(item, dict) and item.get("expected_revision") not in (None, "")
+    }
+    if map_expected_revisions and map_expected_revisions != {observed_map_revision}:
+        raise ValueError("story_map actualization revision 已漂移，拒绝 loopback 写回")
+
+    observed_state_revision = _get_state_revision(state)
+    state_expected_revisions = {
+        _normalize_revision(item.get("expected_revision"), "projection_refresh.expected_revision")
+        for item in delta_payload["projection_refresh"]
+        if isinstance(item, dict) and item.get("expected_revision") not in (None, "")
+    }
+    if state_expected_revisions and state_expected_revisions != {observed_state_revision}:
+        raise ValueError("STATE projection revision 已漂移，拒绝 loopback 写回")
 
     artifact = _build_artifact(
         _load_template(),
@@ -464,24 +843,114 @@ def actualize(args: argparse.Namespace) -> int:
         governance_refs=_extract_governance_refs(validation_payload),
     )
 
-    written_card_refs = _apply_card_deltas(
+    staged_card_payloads, written_card_refs = _apply_card_deltas(
         project_root,
         artifact_ref,
         validation_ref,
         delta_payload["card_deltas"],
     )
+    for card_path, payload in staged_card_payloads.items():
+        target_ref = _relpath(card_path, project_root)
+        if target_ref in next_card_revisions:
+            _set_card_revision(payload, card_path, next_card_revisions[target_ref])
 
     holomap = _load_json_file(story_map_path)
-    written_map_refs = _apply_map_deltas(holomap, delta_payload["map_deltas"])
-    atomic_write_json(story_map_path, holomap, use_lock=True, backup=True)
+    staged_holomap, written_map_refs = _apply_map_deltas(holomap, delta_payload["map_deltas"])
+    next_map_revision = observed_map_revision + (1 if written_map_refs else 0)
+    if written_map_refs:
+        _set_map_revision(staged_holomap, next_map_revision)
 
-    refreshed_projection_refs = _apply_projection_refresh(state, delta_payload["projection_refresh"])
-    atomic_write_json(state_path, state, use_lock=True, backup=True)
+    staged_state = copy.deepcopy(state)
+    refreshed_projection_refs = _apply_projection_refresh(staged_state, delta_payload["projection_refresh"])
+    next_state_revision = observed_state_revision + 1
+    _set_state_revision(staged_state, next_state_revision)
+
+    commit_manifest = _build_commit_manifest(
+        episode=args.episode,
+        validation_ref=validation_ref,
+        artifact_ref=artifact_ref,
+        written_card_refs=written_card_refs,
+        written_map_refs=written_map_refs,
+        refreshed_projection_refs=refreshed_projection_refs,
+        observed_revisions={
+            "cards": observed_card_revisions,
+            "story_map_actualization": observed_map_revision,
+            "state_projection": observed_state_revision,
+        },
+        next_revisions={
+            "cards": next_card_revisions,
+            "story_map_actualization": next_map_revision,
+            "state_projection": next_state_revision,
+        },
+        phase="committed",
+    )
+
+    runtime_markers = staged_state.setdefault("runtime_markers", {})
+    if not isinstance(runtime_markers, dict):
+        runtime_markers = {}
+        staged_state["runtime_markers"] = runtime_markers
+    loopback_marker = runtime_markers.setdefault("loopback", {})
+    if not isinstance(loopback_marker, dict):
+        loopback_marker = {}
+        runtime_markers["loopback"] = loopback_marker
+    loopback_marker["last_actualized_episode"] = f"第{args.episode}集"
+    loopback_marker["last_commit_manifest"] = copy.deepcopy(commit_manifest)
+    runtime_markers.pop("loopback_pending", None)
 
     artifact["content"]["writeback_summary"]["written_card_refs"] = written_card_refs
     artifact["content"]["writeback_summary"]["written_map_refs"] = written_map_refs
     artifact["content"]["writeback_summary"]["refreshed_projection_refs"] = refreshed_projection_refs
-    atomic_write_json(artifact_path, artifact, use_lock=True, backup=False)
+    artifact["execution_notes"]["commit_manifest"] = copy.deepcopy(commit_manifest)
+
+    artifact_original = _load_json_file(artifact_path) if artifact_path.is_file() else None
+    write_plan: List[Tuple[Path, Dict[str, Any], bool, bool]] = []
+    originals: Dict[Path, Dict[str, Any] | None] = {
+        state_path: copy.deepcopy(state),
+        story_map_path: copy.deepcopy(holomap),
+        artifact_path: artifact_original,
+    }
+
+    for card_path, payload in staged_card_payloads.items():
+        originals[card_path] = _load_json_file(card_path)
+        write_plan.append((card_path, payload, True, True))
+
+    write_plan.extend(
+        [
+            (story_map_path, staged_holomap, True, True),
+            (state_path, staged_state, True, True),
+            (artifact_path, artifact, True, False),
+        ]
+    )
+    pending_state = copy.deepcopy(state)
+    pending_runtime_markers = pending_state.setdefault("runtime_markers", {})
+    if not isinstance(pending_runtime_markers, dict):
+        pending_runtime_markers = {}
+        pending_state["runtime_markers"] = pending_runtime_markers
+    pending_runtime_markers["loopback_pending"] = _build_commit_manifest(
+        episode=args.episode,
+        validation_ref=validation_ref,
+        artifact_ref=artifact_ref,
+        written_card_refs=written_card_refs,
+        written_map_refs=written_map_refs,
+        refreshed_projection_refs=refreshed_projection_refs,
+        observed_revisions={
+            "cards": observed_card_revisions,
+            "story_map_actualization": observed_map_revision,
+            "state_projection": observed_state_revision,
+        },
+        next_revisions={
+            "cards": next_card_revisions,
+            "story_map_actualization": next_map_revision,
+            "state_projection": next_state_revision,
+        },
+        phase="pending",
+    )
+    atomic_write_json(state_path, pending_state, use_lock=True, backup=True)
+    try:
+        _commit_json_writes(write_plan, originals)
+    except Exception:
+        atomic_write_json(state_path, state, use_lock=True, backup=False)
+        raise
 
     print(
         json.dumps(

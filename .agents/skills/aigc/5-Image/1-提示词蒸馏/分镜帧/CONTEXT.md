@@ -24,22 +24,22 @@ last_checked_at: 2026-04-12T21:20:00-07:00
 | --- | --- | --- | --- | --- |
 | `分镜ID` 仍是局部编号 | ID 归一层 | 重新归一为四段式 canonical ID | 在 `SKILL.md` 输入合同中固化四段式要求 | 单帧条目可全局回链 |
 | 下游仍按旧 detail markdown sidecar 读取上游 | 输入真源层 | 切换到 `projects/aigc/<项目名>/3-Detail/第N集.json` 并按 shared schema 锁定目标分镜 | 在 `SKILL.md` 固化 `final_output.main_content.分镜组列表[].分镜明细[]` 取数路径 | 单帧条目能回链 shared director schema |
-| `single_frame_shot` 混入整组剧情或大段对白 | 内容归纳层 | 收缩到当前目标分镜与其必要组级上下文 | 把 `single_frame_shot` 定义为单帧内容块，而非整组剧情摘要 | 内容块不再复述整段台词 |
-| prompt 没有固定单帧前缀 | Prompt 合同层 | 重新按固定前缀 + `single_frame_shot` 拼接 | 在 `SKILL.md` 固化前缀逐字保留 | prompt 开头逐字一致 |
+| 单镜融写行混入整组剧情或大段对白 | 内容归纳层 | 收缩到当前目标分镜与其必要组级上下文 | 把单镜融写行定义为只服务当前帧的镜级块，而非整组剧情摘要 | 内容块不再复述整段台词 |
+| prompt 没有固定英文前缀，或重新恢复独立 A 段整组 `剧本正文` | Prompt 合同层 | 重新按固定前缀 + 组级设计块 + 单镜融写行拼接 | 在 `SKILL.md` 与 `prompt-assembly-spec.md` 固化前缀逐字保留与 `BC` 结构 | prompt 开头逐字一致，且不再单列整组剧本文本 |
 | 仍把图片落盘当主产物 | 输出契约层 | 回退到 `第N集.json` 单帧图像请求集合 | 将 JSON 视为必要 completeness carrier | 主产物指向 `第N集.json` |
 | 图像侧模板字段被删掉或乱改 | 请求模板层 | 恢复共享模板骨架 | 在 `5-Image/_shared` 固定共享 JSON 模板 | `model` 骨架与共享模板一致 |
 | 叶子 skill 规范被切碎到多个 `references/*.md` | 真源治理层 | 把思维链、workflow、VSM、输出契约回收到单一 `SKILL.md` | 将 `SKILL.md` 设为叶子技能唯一规范真源，`CONTEXT.md` 只保留经验层 | 不再需要依赖 `references/` 才能完整执行 |
 | 步骤不少，但每一步没有 `route_out` 或回退入口 | 节点合同层 | 把线性步骤改写为知行合一思行节点 | 在 `SKILL.md` 固化 `Topology + Node Network + Convergence` 三联合同 | 出错时能准确回到具体节点 |
 | 汇流前已经写回，导致 JSON 和 manifest 口径漂移 | 汇流审计层 | 在落盘前增加统一审计门，先判 `json_only/full_trace` 再写回 | 将 `N7-CONVERGENCE-AUDIT` 固化为写回前硬门槛 | 输出模式与落盘文件保持一致 |
 | `3-Detail` phase 未就绪却直接锁镜 | 阶段就绪层 | 在 `N1` 输入门先查 `metadata.document_phase` | 在 `SKILL.md` 固化 `detail_in_progress | ready` 才允许进入 `N2` | 不再从未完成 detail 根文件取镜 |
-| 单帧上下文漏掉 `出场角色及穿搭` 或镜级 canonical 字段 | 上下文打包层 | 回到 `N3` 补齐组级穿搭与 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` | 在 `SKILL.md` 固化 frame context pack 最低覆盖面 | `single_frame_shot` 不再只有抽象镜头描述 |
+| 单帧上下文漏掉 `出场角色及穿搭`、`正文回指` 或镜级 canonical 字段 | 上下文打包层 | 回到 `N3` 补齐组级穿搭、`正文切分参考[] -> 正文回指` 桥接与镜级字段 | 在 `SKILL.md` 固化 frame context pack 最低覆盖面 | 单镜融写行不再只有抽象镜头描述 |
 | 父层已切到 branch-owned，但单帧叶子仍把 legacy 四字段当最低镜级壳 | schema handoff 层 | 把单帧输入门改成 branch-owned 八字段优先，legacy 四字段仅作补证 | 在 `SKILL.md` 固化 `branch-owned first, legacy fallback` | 单帧上下文不再默认从 compatibility projection 起步 |
 
 ## Repair Playbook
 
 1. 先查 `metadata.document_phase` 是否已到 `detail_in_progress | ready`，再锁唯一 `分镜ID`。
-2. 再检查 `single_frame_shot` 是否只服务当前目标分镜与其必要组级上下文。
-3. 再检查 `prompt` 是否严格等于“固定单帧前缀 + single_frame_shot”。
+2. 再检查单镜融写行是否只服务当前目标分镜与其必要组级上下文。
+3. 再检查 `prompt` 是否严格等于“固定英文前缀 + 组级设计块 + 单镜融写行”。
 4. 再确认共享模板骨架是否完整，尤其是 `reference_images / image_markers`。
 5. 最后确认 JSON 是否为主产物，manifest 是否按需成立。
 6. 若步骤无法说明“为什么能继续往下走”，优先修 `Topology / Node Network / Convergence Contract`，而不是继续堆补文字说明。
@@ -47,7 +47,8 @@ last_checked_at: 2026-04-12T21:20:00-07:00
 ## Reusable Heuristics
 
 - 单帧技能最容易漂移的不是画风，而是“对象边界”。
-- 先锁 ID，再写 `single_frame_shot`，否则所有单帧内容块都会失真。
+- 先锁 ID，再走 `正文切分参考[] -> 正文回指 -> 单镜融写行`，否则所有单帧内容块都会失真。
+- `分镜帧` 与 `首帧参照` 现在共享同一桥接心智：不再保留独立 A 段整组 `剧本正文`，而是把原剧本信息融到镜级行里。
 - 当上游导演真源已切到 `director_episode_output.schema.json` 后，`分镜帧` 必须先从 `final_output.main_content.分镜组列表[].分镜明细[]` 取镜，再做本地单帧投影。
 - 对单帧技能来说，JSON / manifest 比图片更能证明这张图到底对应哪一镜。
 - 当固定前缀已经定义“单帧、无多格、无文字覆盖”的页面约束时，最稳的做法是不再并行维护第二套私有 prompt 模板。

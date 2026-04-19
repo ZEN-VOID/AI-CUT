@@ -2,4 +2,4 @@ version: 1
 interface:
   display_name: "AIGC 分镜帧"
   short_description: "把单一分镜ID收束为知行合一节点驱动的单帧图像请求 JSON"
-  default_prompt: "Use $aigc-storyboard-frame to read `projects/aigc/<项目名>/3-Detail/第N集.json`, lock one canonical `分镜ID`, run the thinking-action node network for `single_frame_shot`, and write one frame-level image request JSON under `projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`."
+  default_prompt: "Use $aigc-storyboard-frame to read `projects/aigc/<项目名>/3-Detail/第N集.json`, lock one canonical `分镜ID`, consume `正文切分参考[] -> 正文回指`, assemble one frame prompt as fixed English prefix + group design block + single shot line, and write one frame-level image request JSON under `projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`."

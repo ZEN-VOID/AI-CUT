@@ -10,6 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md`、`../_shared/drafting-child-output-contract.md`、`../_shared/drafting-instant-validation-contract.md`。
+- 若当前 step 要引用本集 chapter board 债务，必须先读取 `../_shared/chapter-board-locating-contract.md`，禁止靠数组顺序猜本集 board。
 - 正式处理前，必须读取 Step 5 已写回后的当前 `第N集.md`。
 - 必须按需读取根级共享真源 `../../_shared/reading-power-taxonomy.md`。
 - 必须按需读取根级共享工程指南 `../../_shared/cool-points-guide.md`。
@@ -33,6 +34,7 @@ governance_tier: lite
 
 - `../SKILL.md`
 - `../CONTEXT.md`
+- `../_shared/chapter-board-locating-contract.md`
 - `../_shared/drafting-child-output-contract.md`
 - `../_shared/drafting-instant-validation-contract.md`
 - `../../_shared/core-constraints.md`

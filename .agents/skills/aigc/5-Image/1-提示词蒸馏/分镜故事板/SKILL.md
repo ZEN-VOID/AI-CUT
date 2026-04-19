@@ -29,7 +29,7 @@ governance_tier: full
 1. 共享模板兼容的 `meta`
 2. 面向多格 storyboard 的 `prompt_style`
 3. 图像生成侧 `model` 参数骨架与参照图预留位
-4. 由固定英文前缀与 `storyboard_group` 内容块拼成的 `prompt`
+4. 由固定英文前缀、组级设计块与组内多镜融写列拼成的 `prompt`
 5. 对应的 `prompt_char_count`
 
 固定边界：
@@ -60,7 +60,7 @@ governance_tier: full
 ### `分镜故事板` 拥有
 
 - 分镜组 -> 图像请求条目的一对一转换合同
-- 固定英文前缀 + `storyboard_group` 的 prompt 组织规则
+- 固定英文前缀 + 组级设计块 + 组内多镜融写列 的 prompt 组织规则
 - 对 `5-Image/_shared` 图像入参模板的局部填充规则
 - `json_only / full_trace` 的组级输出模式裁决
 - 组级蒸馏所需的思维·执行节点、回退门和汇流门
@@ -82,7 +82,7 @@ governance_tier: full
 | `task_goal` | 生成 `meta + prompt_style + model + prompt + prompt_char_count` 并写入单集 `第N集.json` |
 | `constraints` | 不压缩镜头事实、不虚构信息、不直接生成图片、不引入第二真源、不破坏共享模板骨架 |
 | `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏、不做一致性处理、不做模型提交 |
-| `success_criteria` | 分镜组可唯一回链；`storyboard_group` 覆盖完整；固定前缀逐字保留；共享模板骨架完整；输出可 handoff |
+| `success_criteria` | 分镜组可唯一回链；组级设计块与组内多镜融写列覆盖完整；固定前缀逐字保留；共享模板骨架完整；输出可 handoff |
 | `evidence_sources` | `3-Detail/第N集.json`、shared schema、shared image template、可选 `3-Detail/水月/第N集.field-patch.json`、`3-Detail/镜花/第N集.field-patch.json` 与 `4-Design/` |
 | `canonical_output` | `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json` |
 
@@ -117,7 +117,7 @@ governance_tier: full
 
 1. `metadata.document_phase in {detail_in_progress, ready}`
 2. 目标组具备 `组间设计.出场角色及穿搭`
-3. 目标组的 `分镜明细[]` 至少能回链：
+3. 目标组的 `正文切分参考[]` 与 `分镜明细[].正文回指` 先成立，再检查 `分镜明细[]` 至少能回链：
    - `分镜ID`
    - `角色表现`
    - `运动表现`
@@ -137,6 +137,14 @@ governance_tier: full
 - 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
 - 汇总清单：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
 
+### Script Entrypoint
+
+- canonical runner：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py`
+- 句法 spec：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/prompt-assembly-spec.md`
+- 标准执行命令：
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集`
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --group-id <分镜组ID>`
+
 ## Business Requirement Analysis Contract
 
 ### 业务复杂度判断
@@ -151,12 +159,12 @@ governance_tier: full
 ### 选择该拓扑而不是其他拓扑的理由
 
 - 不采用纯线性 checklist：因为本技能存在 `json_only / full_trace`、证据补读、缺口回退等条件路由，不能把它们伪装成一条无分叉路径。
-- 不采用网状并行：因为 `storyboard_group`、`prompt`、`model`、落盘之间有严格前后依赖，并行只会制造半成品竞争。
+- 不采用网状并行：因为组级设计块、组内多镜融写列、`prompt`、`model`、落盘之间有严格前后依赖，并行只会制造半成品竞争。
 - 不采用多智能体：因为主要矛盾不是角色隔离，而是单对象蒸馏的节点门禁和口径收束。
 
 ## Topology Contract
 
-- 主干节点固定为：`N0 入口锁定 -> N1 上游完整性校验 -> N2 分镜组定位 -> N3 storyboard_group 组织 -> N4 prompt 装配 -> N5 模板映射 -> N6 落盘与验收`
+- 主干节点固定为：`N0 入口锁定 -> N1 上游完整性校验 -> N2 分镜组定位 -> N3 组级设计块与多镜融写列组织 -> N4 prompt 装配 -> N5 模板映射 -> N6 落盘与验收`
 - 条件支路只有两类：
   - `B1 证据补读支路`：仅在 `3-Detail/第N集.json` 组级或镜级 canonical 字段不足以支撑人工核对时，按需补读 `水月 / 镜花` sidecar
   - `B2 full_trace 支路`：仅在用户或父级明确要求时输出 `_manifest.json`
@@ -229,8 +237,8 @@ stateDiagram-v2
 | `N0-intake-lock` | 锁定本轮就是“组级 storyboard 请求 JSON 蒸馏” | 用户意图、父级路由结论、本技能合同 | 冻结对象类型、输出模式默认值、非目标 | 路由结论、对象边界说明 | `success -> N1`；`wrong_object -> 回父级重路由` | 未锁定对象不得进入主干 |
 | `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema | 检查 `document_phase`、结构壳、`分镜组列表[]`、关键字段存在性 | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> B1/N2`；`broken -> 停止` | 上游结构不成立不得继续 |
 | `N2-group-lock` | 锁定当前要蒸馏的分镜组与镜头顺序 | `分镜组列表[]`、父级或用户提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认顺序 | 目标 `group_id`、有序 `source_shot_ids` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
-| `N3-block-synthesize` | 组织完整 `storyboard_group` 内容块 | 目标组、可选 evidence sidecar | 提取组级字段与全部 `分镜明细[]`，必要时保守留空 | `storyboard_group` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
-| `N4-prompt-assemble` | 生成固定前缀 + `storyboard_group` 的 prompt | 固定英文前缀、内容块 | 逐字保留前缀、直接拼接、统计字数 | `prompt`、`prompt_char_count` | `success -> N5`；`prefix_drift -> 回 N4` | prompt 结构成立 |
+| `N3-block-synthesize` | 组织完整“组级设计块 + 组内多镜融写列”内容块 | 目标组、可选 evidence sidecar | 提取组级字段、`正文切分参考[]`、全部 `分镜明细[].正文回指` 与全部 `分镜明细[]`，并按原顺序融写多镜行，必要时保守留空 | `storyboard_prompt_block` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
+| `N4-prompt-assemble` | 生成固定前缀 + 组级设计块 + 多镜融写列 的 prompt | 固定英文前缀、内容块 | 逐字保留前缀、直接拼接、统计字数 | `prompt`、`prompt_char_count` | `success -> N5`；`prefix_drift -> 回 N4` | prompt 结构成立 |
 | `N5-template-map` | 将 prompt 与组信息映射到共享模板骨架 | shared image template、prompt、组信息、可选 design refs | 填充 `meta/prompt_style/model`，登记参照图槽位 | 单条 image request 对象 | `success -> N6`；`template_drift -> 回 N5` | 模板骨架完整且兼容 |
 | `N6-land-audit` | 形成唯一 canonical output 并通过汇流门 | image request 对象、输出模式 | 写 `第N集.json`，按需补 `_manifest.json`，执行最终验收 | 落盘路径、审计结果、handoff 结论 | `pass -> 完成`；`fail -> 回具体失败节点` | 只有本节点可以宣告完成 |
 
@@ -297,7 +305,7 @@ stateDiagram-v2
 1. 若父级或用户指定了 `group_id`，优先按该锚点定位。
 2. 若没有显式锚点，则以当前任务上下文默认消费“本轮命中分镜组”。
 3. 读取目标组的 `分镜明细[]`，按原顺序抽取 `source_shot_ids`。
-4. 检查是否存在镜头顺序冲突、重复 `group_id`、空 `分镜明细[]`。
+4. 检查是否存在镜头顺序冲突、重复 `group_id`、空 `分镜明细[]`，以及 `正文切分参考[] -> 正文回指` 断链。
 5. 只有在组唯一且顺序稳定时，才允许进入 `N3`。
 
 #### 回退门
@@ -323,7 +331,7 @@ stateDiagram-v2
    - `组间设计.类型元素`
    - `组间设计.导演意图`
    - `组间设计.出场角色及穿搭`
-2. 按上游原顺序拼入全部 `分镜明细[]`，并保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
+2. 按上游原顺序拼入全部 `分镜明细[]`，并显式保留 `正文切分参考[]` 与 `正文回指`；同时保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
 3. 严禁压缩、重写或脑补镜头事实；只允许做结构化整理。
 4. 若某组级字段为空，但镜头顺序和组边界仍成立，则显式保守留空。
 5. 形成 `storyboard_group` 内容块，并做字段覆盖检查。
@@ -464,9 +472,9 @@ Auto-adapt the panel layout grid based on the total number of shots.
 ### 硬规则
 
 1. 每个分镜组在 `第N集.json` 中只生成 1 条请求对象。
-2. `prompt` 必须严格由固定英文前缀开头，并直接拼接 `storyboard_group`。
-3. `storyboard_group` 必须覆盖该分镜组的 `分镜组ID`、`剧本正文`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭` 与全部按原顺序排列的 `分镜明细[]`；镜级至少保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
-4. `storyboard_group` 的内容允许直接使用上游信息，不做文字压缩，也不虚构补写上游没有的镜头事实。
+2. `prompt` 必须严格由固定英文前缀开头，并继续组织为 `组级设计块 + 多镜融写列`。
+3. 组级设计块必须覆盖该分镜组的 `分镜组ID`、`正文切分参考[]`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭`，并把全部按原顺序排列的 `分镜明细[]` 通过 `正文回指` 融写为镜级行；镜级至少保留 `正文回指` 与 branch-owned 八字段。
+4. prompt 不再独立保留整组 A 段 `剧本正文`；原剧本信息必须融入各镜对应行，不虚构补写上游没有的镜头事实。
 5. `meta.shot_level` 固定为 `storyboard_group`；`meta.group_id` 与 `meta.source_shot_ids` 必须能完整回链该组。
 6. `prompt_style.type` 固定服务多格故事板；`prompt_style.language` 默认标记为 `mixed`。
 7. `model` 必须保持图像侧参数骨架完整；`reference_images` 与 `image_markers` 在缺图时也必须保留空骨架。
@@ -504,7 +512,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 | var_id | 变量层级 | 观测信号 | 状态集合 | 检测方法 | 优先级 |
 | --- | --- | --- | --- | --- | --- |
-| V-SB-SHEET-01 | 输入 | 分镜组结构是否完整 | `ready/incomplete` | 检查 `分镜组ID/剧本正文/组间设计/分镜明细` | P0 |
+| V-SB-SHEET-01 | 输入 | 分镜组结构是否完整 | `ready/incomplete` | 检查 `分镜组ID/剧本正文/正文切分参考/组间设计/分镜明细` | P0 |
 | V-SB-SHEET-02 | prompt 内容块 | `storyboard_group` 内容块是否完整 | `ready/partial` | 检查组级字段与镜级顺序是否齐全 | P1 |
 | V-SB-SHEET-03 | 输出要求 | 本轮只要 JSON 还是 JSON+manifest | `json_only/full_trace` | 结合用户目标与父级要求 | P1 |
 | V-SB-SHEET-04 | 模板骨架 | shared image template 是否完整 | `stable/drifted` | 检查 `meta/prompt_style/model` 槽位 | P0 |
@@ -534,7 +542,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Node | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | FIELD-SB-SHEET-01 | `prompt_style.type / prompt_style.language / prompt_style.char_limit / meta.shot_level / meta.group_id / meta.source_shot_ids` | 以独立 `prompt_style` 声明多格故事板提示词约束，并锁定组级来源与镜头顺序 | N2-N5 | 输入覆盖完整度 | FAIL-SB-SHEET-01 |
-| FIELD-SB-SHEET-02 | `prompt / prompt_char_count` | prompt 必须由固定英文前缀与完整 `storyboard_group` 内容块组成，且字数统计位于顶层 | N3-N4 | Prompt 蒸馏稳定性 | FAIL-SB-SHEET-02 |
+| FIELD-SB-SHEET-02 | `prompt / prompt_char_count` | prompt 必须由固定英文前缀、组级设计块与完整多镜融写列组成，且字数统计位于顶层；镜级行必须显式消费 `正文回指`，并以 `xx秒-xx秒｜分镜<组内序号>：` 起行 | N3-N4 | Prompt 蒸馏稳定性 | FAIL-SB-SHEET-02 |
 | FIELD-SB-SHEET-03 | `model.model_version / model.ratio / model.image_size / model.output_format / model.num_images / model.reference_images / model.image_markers` | `model` 必须保持图像侧模板骨架完整；无图时也保留参照槽位 | N5 | 模板兼容性 | FAIL-SB-SHEET-03 |
 | FIELD-SB-SHEET-04 | `第N集.json / _manifest.json` | 输出文件可追溯、可继续 handoff 给后续一致性处理与图像生成 | N6 | 输出可消费性 | FAIL-SB-SHEET-04 |
 
@@ -545,7 +553,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 | N0 | 输入边界 | 当前任务是不是组级 storyboard JSON 蒸馏 | 锁定对象、输出模式与非目标 | 对象混判、输出目标漂移 |
 | N1 | 上游输入 | `3-Detail/第N集.json` 与 shared schema 是否可消费 | 校验 shared 壳与组列表完整性 | 组列表缺失、schema 壳破坏 |
 | N2 | FIELD-SB-SHEET-01 | 当前目标分镜组是谁，组内镜头顺序是否稳定 | 锁定 `group_id + source_shot_ids` | 组定位冲突或镜头顺序缺失 |
-| N3 | FIELD-SB-SHEET-02 | `storyboard_group` 需要覆盖哪些上游字段 | 提取 `剧本正文 + 组间设计 + 全部 分镜明细[]` | 漏掉组级字段或镜级字段 |
+| N3 | FIELD-SB-SHEET-02 | `storyboard_group` 需要覆盖哪些上游字段 | 提取 `剧本正文 + 正文切分参考[] + 组间设计 + 全部 分镜明细[]` | 漏掉组级字段或镜级字段 |
 | N4 | FIELD-SB-SHEET-02 | prompt 是否严格满足“固定前缀 + storyboard_group” | 逐字保留固定前缀并拼接内容块 | 前缀缺失、顺序错误或额外插入说明 |
 | N5 | FIELD-SB-SHEET-01/FIELD-SB-SHEET-03 | 图像请求模板字段是否完整且不虚构参照图 | 保留图像侧参数骨架与参照图槽位 | 删字段、乱序或擅自补图 |
 | N6 | FIELD-SB-SHEET-04 | 输出是否已形成可 handoff 的单集 JSON | 写 `第N集.json`，按需补 `_manifest.json` 并执行审计 | 仍把图片落盘当主产物或缺少 JSON |
@@ -583,7 +591,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 - 仍把图片落盘当主产物，而不是组级图像请求 JSON
 - prompt 没有以固定英文前缀开头
-- `storyboard_group` 没覆盖完整组级与镜级信息
+- 组级设计块或多镜融写列没覆盖完整组级与镜级信息
 - 共享模板字段被删改，尤其是 `reference_images` 或 `image_markers`
 - 输出规则又被拆回第二套局部规范载体
 - 仍绕过 `.agents/skills/aigc/5-Image/SKILL.md`，把本叶子误当成阶段入口

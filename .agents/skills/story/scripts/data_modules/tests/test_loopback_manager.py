@@ -66,6 +66,24 @@ def _build_project(project_root: Path) -> None:
     )
 
 
+def _build_nested_cards_project(project_root: Path) -> None:
+    _build_project(project_root)
+    _write_json(
+        project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json",
+        {
+            "content": {
+                "card_schema": {
+                    "character_card": {
+                        "core": {"identity": {"name": "林辰"}},
+                        "current_state": {"realm": "炼气", "stance": "中立"},
+                        "history": [],
+                    }
+                }
+            }
+        },
+    )
+
+
 def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
     module = _load_loopback_module()
     project_root = (tmp_path / "book").resolve()
@@ -120,7 +138,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_only",
-            "handoff_targets": ["review/"],
+            "handoff_targets": ["review/", "5-Loopback"],
             "validation_ref": "4-Validation/第12集.validation.json",
             "card_deltas": [],
             "map_deltas": [],
@@ -153,6 +171,128 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
     assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
 
 
+def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [],
+            "map_deltas": [],
+            "projection_refresh": [],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 1
+    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+
+
+def test_loopback_manager_applies_projection_refresh_modes(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    state_path = project_root / "STATE.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["setting_route_packet"] = {
+        "writer_context_projection": {
+            "memory_projection": {
+                "existing": ["keep"],
+                "nested": {"old": "value"},
+            }
+        }
+    }
+    state["carryover_context"] = {"open_threads": ["旧线索"]}
+    _write_json(state_path, state)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [],
+            "map_deltas": [],
+            "projection_refresh": [
+                {
+                    "target_type": "writer_projection",
+                    "refresh_mode": "merge",
+                    "payload": {
+                        "nested": {"new": "value"},
+                        "new_focus": ["突破后余波"],
+                    },
+                },
+                {
+                    "target_type": "carryover_context",
+                    "target_ref": "open_threads",
+                    "refresh_mode": "append",
+                    "payload": ["新支线"],
+                },
+            ],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 0
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    writer_projection = state["setting_route_packet"]["writer_context_projection"]["memory_projection"]
+    assert writer_projection["existing"] == ["keep"]
+    assert writer_projection["nested"] == {"old": "value", "new": "value"}
+    assert writer_projection["new_focus"] == ["突破后余波"]
+    assert state["carryover_context"]["open_threads"] == ["旧线索", "新支线"]
+    assert state["runtime_markers"]["loopback_state_revision"] == 1
+
+
 def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monkeypatch):
     module = _load_loopback_module()
     project_root = (tmp_path / "book").resolve()
@@ -178,6 +318,11 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                     "current_state_patch": {
                         "realm": "筑基",
                         "stance": "结盟",
+                        "growth_state": {
+                            "active_arc_phase": "破局初成",
+                            "latest_growth_episode": "第12集",
+                            "skill": {"stage": "稳固", "recent_gain": "学会在破境后压住手上余劲"},
+                        },
                     },
                     "history_append": {
                         "episode_ref": "第12集",
@@ -187,6 +332,11 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                         "impact_scope": "cross-episode",
                         "evidence_refs": ["3-Drafting/第12集.md"],
                         "timestamp": "2026-04-06T10:00:00",
+                        "growth_delta": {
+                            "skill": {"before": "莽冲", "after": "稳固"},
+                            "heart": {},
+                            "emotion": {},
+                        },
                     },
                 }
             ],
@@ -266,12 +416,19 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert artifact["execution_notes"]["governance_refs"]["mission_brief_ref"] == (
         "STATE.json#workflow_runtime.governance_index.run-12.mission_brief"
     )
+    assert artifact["execution_notes"]["commit_manifest"]["phase"] == "committed"
+    assert artifact["execution_notes"]["commit_manifest"]["next_revisions"]["cards"] == {
+        "1-Cards/2-角色卡/主要角色/林辰.json": 1
+    }
 
     card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     assert card["current_state"]["realm"] == "筑基"
     assert card["current_state"]["stance"] == "结盟"
+    assert card["current_state"]["growth_state"]["skill"]["stage"] == "稳固"
     assert card["history"][-1]["episode_ref"] == "第12集"
     assert card["history"][-1]["loopback_ref"] == "5-Loopback/第12集.loopback.json"
+    assert card["history"][-1]["growth_delta"]["skill"]["after"] == "稳固"
+    assert card["loopback_revision"] == 1
 
     holomap = json.loads(
         (project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8")
@@ -279,6 +436,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     actual_nodes = holomap["content"]["holomap"]["actualization"]["episode_nodes"]
     assert actual_nodes[0]["episode_ref"] == "第12集"
     assert actual_nodes[0]["execution_status"] == "completed"
+    assert holomap["content"]["holomap"]["actualization"]["revision"] == 1
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     assert state["setting_route_packet"]["writer_context_projection"]["memory_projection"]["focus"] == [
@@ -287,3 +445,261 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     ]
     assert state["carryover_context"]["next_episode"] == "第13集"
     assert state["runtime_markers"]["loopback"]["last_actualized_episode"] == "第12集"
+    assert state["runtime_markers"]["loopback"]["last_commit_manifest"]["phase"] == "committed"
+    assert state["runtime_markers"]["loopback_state_revision"] == 1
+
+
+def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [
+                {
+                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_type": "character_card",
+                    "current_state_patch": {"realm": "筑基"},
+                    "history_append": {"episode_ref": "第12集"},
+                }
+            ],
+            "map_deltas": [
+                {
+                    "target_bucket": "episode_nodes",
+                    "target_ref": "episode-12",
+                    "actualization_patch": {
+                        "episode_ref": "第12集",
+                        "execution_status": "completed",
+                    },
+                }
+            ],
+            "projection_refresh": [
+                {
+                    "target_type": "runtime_marker",
+                    "target_ref": "loopback",
+                    "payload": {"last_actualized_episode": "第12集"},
+                }
+            ],
+            "evidence_refs": [],
+        },
+    )
+
+    original_atomic_write_json = module.atomic_write_json
+
+    def flaky_atomic_write_json(path, payload, use_lock=True, backup=True):
+        path_obj = Path(path)
+        if path_obj.name == "第12集.loopback.json":
+            raise OSError("simulated artifact write failure")
+        return original_atomic_write_json(path_obj, payload, use_lock=use_lock, backup=backup)
+
+    monkeypatch.setattr(module, "atomic_write_json", flaky_atomic_write_json)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(OSError, match="simulated artifact write failure"):
+        module.main()
+
+    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    assert card["current_state"]["realm"] == "炼气"
+    assert card["history"] == []
+
+    holomap = json.loads((project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8"))
+    assert holomap["content"]["holomap"]["actualization"]["episode_nodes"] == []
+
+    state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
+    assert "runtime_markers" not in state
+    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+
+
+def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_nested_cards_project(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [
+                {
+                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_type": "character_card",
+                    "current_state_patch": {
+                        "realm": "筑基",
+                        "stance": "结盟",
+                    },
+                    "history_append": {
+                        "episode_ref": "第12集",
+                        "validation_ref": "4-Validation/第12集.validation.json",
+                        "changed_fields": ["realm", "stance"],
+                        "change_summary": "林辰完成突破并转向结盟。",
+                        "impact_scope": "cross-episode",
+                        "evidence_refs": ["3-Drafting/第12集.md"],
+                        "timestamp": "2026-04-06T10:00:00",
+                    },
+                }
+            ],
+            "map_deltas": [],
+            "projection_refresh": [],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 0
+
+    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    nested = card["content"]["card_schema"]["character_card"]
+    assert nested["current_state"]["realm"] == "筑基"
+    assert nested["current_state"]["stance"] == "结盟"
+    assert nested["history"][-1]["episode_ref"] == "第12集"
+    assert nested["loopback_revision"] == 1
+    assert "current_state" not in card
+    assert "history" not in card
+
+
+def test_loopback_manager_rejects_revision_drift(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    card_path = project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json"
+    card = json.loads(card_path.read_text(encoding="utf-8"))
+    card["loopback_revision"] = 3
+    _write_json(card_path, card)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [
+                {
+                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_type": "character_card",
+                    "expected_revision": 2,
+                    "current_state_patch": {"realm": "筑基"},
+                }
+            ],
+            "map_deltas": [],
+            "projection_refresh": [],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(ValueError, match="revision 已漂移"):
+        module.main()
+
+
+def test_loopback_manager_rejects_non_whitelisted_delta_fields(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [
+                {
+                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_type": "character_card",
+                    "current_state_patch": {
+                        "realm": "筑基",
+                        "core": {"identity": {"name": "越权"}},
+                    },
+                }
+            ],
+            "map_deltas": [],
+            "projection_refresh": [],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(ValueError, match="越权字段"):
+        module.main()

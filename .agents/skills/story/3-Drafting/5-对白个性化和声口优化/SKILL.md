@@ -31,6 +31,7 @@ governance_tier: lite
 - `../SKILL.md`
 - `../CONTEXT.md`
 - `../_shared/drafting-child-output-contract.md`
+- `../../_shared/type-pack-loading-contract.md`
 - `../../_shared/context-loading-contract.md`
 - `../../1-Cards/角色卡/`
 
@@ -39,8 +40,8 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让不同角色一开口就有差异，让对白既自然又带动作与潜台词。 |
-| `business_object` | Step 4 后正文、角色卡、关系变化上下文。 |
-| `constraint_profile` | 对白必须服务人物与关系，而不是变成说明渠道；声口差异必须建立在角色设定上。 |
+| `business_object` | Step 4 后正文、角色卡、关系变化上下文，以及当前项目的 `type-pack drafting projection`。 |
+| `constraint_profile` | 对白必须服务人物与关系，而不是变成说明渠道；声口差异必须建立在角色设定上；若 pack 要求“情绪升级必须伴随行动或代价”，必须在本 step 兑现。 |
 | `success_criteria` | 对手戏读起来能分辨谁是谁、谁在试探谁、谁在回避什么。 |
 | `topology_fit` | `root reread -> dialogue sampling -> voice split -> subtext rewrite` |
 
@@ -61,6 +62,7 @@ governance_tier: lite
 - `process_log_entry`
   - `step_id: 5`
   - `focus_dimension: dialogue_and_voice`
+  - 若启用 `type-pack`，必须补 `type_pack_rules_applied`
 - owned manuscript dimension：
   - 对白个性化
   - 断句与气口

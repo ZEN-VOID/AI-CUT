@@ -6,7 +6,7 @@
     "project_name": "",
     "created_at": "",
     "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
-    "template_version": "2.2.0"
+    "template_version": "2.3.0"
   },
   "content": {
     "module_route": "",
@@ -67,13 +67,65 @@
             "outfit_view": []
           },
           "relationship_ports": [],
-          "exclusive_item_hooks": []
+          "exclusive_item_hooks": [],
+          "growth_contract": {
+            "growth_enabled": false,
+            "growth_role": "none",
+            "entry_anchor": "",
+            "destiny_ceiling": "",
+            "loopback_write_policy": "validated-growth-state-history-only",
+            "axes": {
+              "skill": {
+                "theme": "",
+                "initial_state": "",
+                "ceiling": "",
+                "stage_ladder": []
+              },
+              "heart": {
+                "theme": "",
+                "initial_state": "",
+                "ceiling": "",
+                "stage_ladder": []
+              },
+              "emotion": {
+                "theme": "",
+                "initial_state": "",
+                "ceiling": "",
+                "stage_ladder": []
+              }
+            }
+          }
         },
         "current_state": {
           "status": "",
           "active_pressure": [],
           "current_relationships": [],
           "current_resources": [],
+          "growth_state": {
+            "active_arc_phase": "",
+            "latest_growth_episode": "",
+            "skill": {
+              "stage": "",
+              "focus": "",
+              "bottleneck": "",
+              "recent_gain": "",
+              "current_tension": ""
+            },
+            "heart": {
+              "stage": "",
+              "current_belief": "",
+              "fracture_point": "",
+              "recent_shift": "",
+              "current_tension": ""
+            },
+            "emotion": {
+              "stage": "",
+              "primary_bond": "",
+              "emotional_mode": "",
+              "recent_shift": "",
+              "current_tension": ""
+            }
+          },
           "timeline_anchor": {
             "latest_map_node_id": "",
             "latest_episode_ref": "",
@@ -84,6 +136,11 @@
         "experience_timeline": {
           "time_model": "experience-centric",
           "current_growth_stage": "",
+          "axis_stage_map": {
+            "skill": "",
+            "heart": "",
+            "emotion": ""
+          },
           "growth_log": [],
           "relationship_turning_points": [],
           "belief_shift_track": []

@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`2-Planning/全息地图.json` 与当前 `2-Planning/全息地图.json`。
+- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的十集分片。
 
 ## Parent Positioning
 
@@ -27,6 +27,8 @@ governance_tier: lite
 
 - `../SKILL.md`
 - `../_shared/planning-branch-output-contract.md`
+- `../../_shared/character-planning-bridge.md`
+- `../../_shared/type-pack-loading-contract.md`
 - `templates/conflict-design.template.json`
 
 ## Business Requirement Analysis Contract
@@ -34,9 +36,9 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把故事推进翻译成可持续升级的对抗网络。 |
-| `business_object` | `2-Planning/全息地图.json` 与 `story_map.conflict_threads / board.conflicts`。 |
+| `business_object` | global root 的 `story_map.conflict_threads / conflict_threads[].character_refs / conflict_threads[].relationship_edge_refs`，目标 slice 的 `thread_window_slice.conflicts / board.conflicts`，以及当前 `type-pack` 的冲突偏好。 |
 | `constraint_profile` | 只写冲突，不越权代做任务与线索。 |
-| `success_criteria` | 冲突 threads 稳定，board 能追踪“本章谁压迫谁”。 |
+| `success_criteria` | 冲突 threads 稳定，board 能追踪“本章谁压迫谁”，且角色/关系引用能回指共享桥投影。 |
 
 ## Output Contract
 
@@ -44,7 +46,15 @@ governance_tier: lite
   - `2-Planning/pass-artifacts/4-冲突设计.json`
 - owned story_map slots：
   - `content.holomap.conflict_threads`
-  - `content.holomap.chapter_boards[].bundled_elements.conflicts`
+  - `content.holomap_slice.thread_window_slice.conflicts`
+  - `content.holomap_slice.chapter_boards[].bundled_elements.conflicts`
+
+### Relationship Bridge Consumption Contract
+
+- `conflict_threads` 允许写 `character_refs / relationship_edge_refs`，但它们只能引用共享桥中的 `character_id / edge_id`。
+- 冲突 child 可在 `planned_state.conflict_pressure_map` 写章节压力映射，但不得复制完整关系边正文。
+- 若共享桥无法解释冲突归属，再回读单角色 JSON，而不是在 `conflict_threads` 里塞人物履历。
+- 若项目已启用 `type-pack`，冲突设计必须把采用的 `conflict_bias / validation_bias` 记录到 artifact 的 `type_pack_projection_summary`。
 
 ## Visual Map
 
@@ -60,8 +70,8 @@ flowchart TD
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-CON-01` | 回读当前 root 与 Step 3 | 读取主干与 root | `input_note` | -> `N2` | root 最新 |
-| `N2-OWNER-LOCK` | `FIELD-CON-02` | 锁冲突 owner 与压力源 | 生成 `conflict_owners` | `owner_note` | -> `N3` | 对抗归属清楚 |
+| `N1-ROOT-REREAD` | `FIELD-CON-01` | 回读当前 root 与 Step 3 | 读取主干、root 与 `character_roster_projection / relationship_graph_projection` | `input_note` | -> `N2` | root 最新 |
+| `N2-OWNER-LOCK` | `FIELD-CON-02` | 锁冲突 owner 与压力源 | 生成 `conflict_owners` 与 `relationship_edge_refs` | `owner_note` | -> `N3` | 对抗归属清楚 |
 | `N3-LADDER-LOCK` | `FIELD-CON-03` | 锁升级链与解决窗口 | 生成 `escalation_ladder/release_windows` | `ladder_note` | -> `N4` | 梯度成立 |
 | `N4-PATCH-WRITE` | `FIELD-CON-04` | 写 threads 和 board refs | 输出 patch | `patch_note` | done | 只写 owned slots |
 
