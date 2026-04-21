@@ -1,6 +1,6 @@
 ---
 name: story-validation-continuity
-description: Use when `4-Validation` needs the governed child skill that checks chapter-to-chapter carryover, scene transition continuity, and thread persistence.
+description: Use when `4-Validation` needs the governed child skill that checks volume-internal carryover, chapter-to-chapter continuity, and thread persistence.
 governance_tier: lite
 ---
 
@@ -10,14 +10,14 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`。
-- 审查前必须读取当前 `第N集.md`、写作日志，以及 `N > 1` 时的上一集终稿。
+- 审查前必须读取卷级 `validation_fact_pack`、当前卷正文集合、卷级写作日志，以及可用的前序章节快照。
 
 ## Invocation Modes
 
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，用于阻断承接断带和转场失衡继续向后扩散。
 - `final_acceptance`
-  - 被 `4-Validation` 父层在章节末端并发调用，参与最终 `validation_status` 聚合。
+  - 被 `4-Validation` 父层在卷级终验中并发调用，参与最终 `validation_status` 聚合。
 
 ## Parent Positioning
 
@@ -48,23 +48,24 @@ governance_tier: lite
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 判断这集是不是从上一集真的长出来，并且本集内部推进没有断带。 |
-| `business_object` | 上一集终稿、当前 `第N集.md`、写作日志、`chapter_board`。 |
-| `constraint_profile` | 先看承接点，再看本集内部 transition；不能只靠“读起来还行”给通过。 |
-| `success_criteria` | 能指出哪条线接得上、哪条线中途断了、哪个转场突兀。 |
+| `business_goal` | 判断这卷是不是按卷地图 continuity pack 长出来，卷内各章承接与线程推进没有断带。 |
+| `business_object` | 卷级 continuity matrix、当前卷正文集合、卷级写作日志、`episode_boards`。 |
+| `constraint_profile` | 先看卷级 entry/exit 关系，再看卷内相邻章节 transition；不能只靠“读起来还行”给通过。 |
+| `success_criteria` | 能指出哪条线接得上、哪一章中途断了、哪个转场突兀、哪个卷内 carryover 漂移。 |
 | `topology_fit` | `carryover load -> transition trace -> thread continuity -> report packet` |
 
 ## Total Input Contract
 
 - 必需输入：
-  - 当前 `第N集.md`
-  - `写作日志.yaml`
-  - `validation_fact_pack.chapter_board`
+  - 当前卷正文集合
+  - `第V卷.写作日志.yaml`
+  - `validation_fact_pack.cross_chapter_continuity_matrix`
 - 条件必需输入：
-  - `N > 1` 时的上一集终稿
+  - 当前卷内已完成前序章节的正文快照
 - 硬规则：
-  - 第 2 集及之后，缺上一集终稿则不能给高分连续性 verdict。
-  - 连续性问题要指出“断在什么线”。
+  - 缺卷级 continuity matrix 时直接降为 `FAIL-COVENANT`。
+  - 前序章节终稿是增强输入，不再是卷级终验的绝对硬门槛。
+  - 连续性问题要指出“断在第几章、断在什么线”。
 
 ## Output Contract
 
@@ -73,7 +74,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `previous_episode_bridge`、`transition_breaks`、`thread_drop_count`、`carryover_gaps`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/连续性.md`
+  - `4-Validation/第V卷/连续性.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `2-节奏优化`

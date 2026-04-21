@@ -16,16 +16,16 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 ├── 2-Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
 ├── 2-Planning/
 │   ├── 全息地图.json      # 规划总索引真源（drafting/query/resume 默认先读）
-│   └── 十集分片/          # episode-local dense planning / actualization
-│       └── 第001-010集.json
+│   └── 卷分片/          # volume-local dense planning / actualization（固定 10 章 = 1 卷时即卷分片）
+│       └── 第1卷.json
 ├── 0-Init/
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
 ├── 1-Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
-├── 3-Drafting/           # drafting 阶段正文真源（第N集.md + 写作日志.yaml）
+├── 3-Drafting/           # drafting 阶段正文真源（第N集.md + 第V卷.写作日志.yaml）
 ├── 5-Loopback/
-│   └── 第N集.loopback.json   # PASS 后 validated actualization artifact
+│   └── 第V卷.loopback.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
 └── .webnovel/
     ├── index.db            # SQLite 主存储：实体/别名/关系/状态变化/章节/场景
@@ -90,8 +90,8 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 
 3-Drafting
   → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
-  → 固定串行执行 1-8 工序，并同步 `3-Drafting/写作日志.yaml`
-  → 当 `N>1` 时额外加载上一集最终正文 `3-Drafting/第N-1集.md`
+  → 卷级父流程调度 episode workers，并同步 `3-Drafting/第V卷.写作日志.yaml`
+  → 当前卷 continuity pack 为硬输入；若前序章已完成，可额外加载其正文做增强校准
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
 
@@ -154,7 +154,7 @@ query / resume
    → Step 6 心理活动描写
    → Step 7 追读力强化
    → Step 8 润色
-   → 每一步都写回 `3-Drafting/第N集.md + 写作日志.yaml`
+   → 每一步都写回 `3-Drafting/第N集.md + 第V卷.写作日志.yaml`
 
 3. inline validation hooks
    → 每个 drafting step 写回后，立即运行 registry 声明的即时审计
@@ -162,8 +162,8 @@ query / resume
 
 4. 隔离终验
    → `4-Validation` 组装 `validation_fact_pack`
-   → 并发 5 个维度子技能
-   → 聚合为 `4-Validation/第N集.validation.json`
+   → 并发 6 个维度子技能
+   → 聚合为 `4-Validation/第V卷.validation.json`
 
 5. review / 审查落盘
    → `review/` 生成业务报告
@@ -183,7 +183,7 @@ query / resume
    → 写 `Cards.current_state/history`
    → 写 `content.holomap_slice.actualization`
    → 回刷 `content.holomap.actualization` summary/index
-   → 写 `5-Loopback/第N集.loopback.json`
+   → 写 `5-Loopback/第V卷.loopback.json`
    → 刷新 query / writer / planning projection
 
 8. 如需清理中断工件，由 `workflow_manager.py cleanup` 生成恢复备份后再执行安全清理
@@ -206,8 +206,8 @@ query / resume
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` + 命中的 `2-Planning/十集分片/*.json` | root 只负责索引与导航，episode-local dense planning 在 slice |
-| drafting truth | 当前集正文写成什么样、已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` + 命中的 `2-Planning/卷分片/*.json` | root 只负责索引与导航，volume-local dense planning 在 slice |
+| drafting truth | 当前集正文写成什么样、当前卷已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/第V卷.写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |

@@ -64,7 +64,7 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
 最小输入：
 
 - `project_root`
-- `chapter` 或 `{start_chapter, end_chapter}`
+- `volume` 或兼容的 `{start_chapter, end_chapter}`
 - 来自 `4-Validation` 的聚合评估结果
 
 聚合评估结果至少必须包含：
@@ -86,7 +86,7 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
 
 推荐附带：
 
-- `chapter`、`start_chapter`、`end_chapter`
+- `volume`、`chapter`、`start_chapter`、`end_chapter`
 - `validation_ref`
 - 各 checker 原始输出
 - 章节文件路径
@@ -109,12 +109,12 @@ export PROJECT_ROOT="$(python "${SCRIPTS_DIR}/story.py" --project-root "${WORKSP
 
 - 读取并保留 `mission_brief_ref / preflight_verdict_ref / validation_report_ref`
 - 生成正式审查报告后，允许把报告路径、状态与 next action 写回同一 `<run_id>` 的工件索引
-- 不得因为 task dir 已有 `validation_report.md` 就跳过正式 `4-Validation/第X章审查报告.md` 的业务报告输出
+- 不得因为 task dir 已有 `validation_report.md` 就跳过正式 `4-Validation/第X卷审查报告.md` 的业务报告输出
 
 边界：
 
 - task dir 是治理闭环证据层。
-- `4-Validation/第X章审查报告.md` 是书项目业务报告层。
+- `4-Validation/第X卷审查报告.md` 是书项目业务报告层。
 - 两者必须互相回指，但不能互相替代。
 
 ## 0.5 工作流断点（best-effort，不得阻断主流程）
@@ -210,11 +210,11 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index get-rece
 
 ## Step 4：生成审查报告
 
-保存到：`4-Validation/第{start_chapter}-{end_chapter}章审查报告.md`
+保存到：`4-Validation/第{volume}卷审查报告.md`
 
 报告结构（精简版）：
 ```markdown
-# 第 {start_chapter}-{end_chapter} 章质量审查报告
+# 第 {volume} 卷质量审查报告
 
 ## 评估团队
 - 验证模式
@@ -290,7 +290,8 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" index save-rev
 
 ```bash
 python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" update-state -- \
-  --add-review "{start_chapter}-{end_chapter}" "4-Validation/第{start_chapter}-{end_chapter}章审查报告.md" \
+  --add-review "{start_chapter}-{end_chapter}" "4-Validation/第{volume}卷审查报告.md" \
+  --review-volume "{volume}" \
   --review-anti-ai-force-check "{anti_ai_force_check}" \
   --review-spoiler-risk "{spoiler_risk}" \
   --review-contrivance-risk "{contrivance_risk}" \
@@ -300,7 +301,9 @@ python "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" update-state -
 写回原则：
 
 - `STATE.json.review_checkpoints` 只保存摘要指针：
-  - 章节范围
+  - 卷号 / 卷引用
+  - 章节范围（兼容字段）
+  - 章节列表
   - 报告路径
   - 时间戳
   - `anti_ai_force_check / spoiler_risk / contrivance_risk / cold_commentary_risk`

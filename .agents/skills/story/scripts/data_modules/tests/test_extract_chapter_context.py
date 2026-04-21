@@ -97,7 +97,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
-    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir = tmp_path / "2-Planning" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
     holomap = {
         "schema_version": "story2026/holomap/v1",
@@ -115,7 +115,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
                     {
                         "slice_id": "slice-001-010",
                         "episode_refs": ["第001集"],
-                        "file_ref": "十集分片/第001-010集.json",
+                        "file_ref": "卷分片/第1卷.json",
                     }
                 ],
             }
@@ -140,7 +140,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
         }
     }
     (tmp_path / "2-Planning" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
-    (planning_dir / "第001-010集.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "第1卷.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
 
     outline = extract_chapter_outline(tmp_path, 1)
     assert "### 第1章：港雨买酒" in outline
@@ -472,7 +472,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
         encoding="utf-8",
     )
 
-    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir = tmp_path / "2-Planning" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
     init_dir = tmp_path / "0-Init"
     init_dir.mkdir(parents=True, exist_ok=True)
@@ -503,7 +503,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                     {
                         "slice_id": "slice-001-010",
                         "episode_refs": ["第001集"],
-                        "file_ref": "十集分片/第001-010集.json",
+                        "file_ref": "卷分片/第1卷.json",
                     }
                 ],
             }
@@ -561,7 +561,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
         }
     }
     (tmp_path / "2-Planning" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
-    (planning_dir / "第001-010集.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "第1卷.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
 
     payload = build_chapter_context_payload(tmp_path, 1, current_step_id="Step 1")
     planning_truth = payload["validation_fact_pack"]["planning_truth"]
@@ -662,7 +662,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
         encoding="utf-8",
     )
 
-    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir = tmp_path / "2-Planning" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (tmp_path / "2-Planning" / "全息地图.json").write_text(
         json.dumps(
@@ -670,7 +670,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
                 "content": {
                     "holomap": {
                         "episode_sequence_axis": [{"episode_ref": "第001集", "slice_ref": "slice-001-010", "chapter_board_ref": "ep-001"}],
-                        "episode_slice_manifest": [{"slice_id": "slice-001-010", "episode_refs": ["第001集"], "file_ref": "十集分片/第001-010集.json"}],
+                        "episode_slice_manifest": [{"slice_id": "slice-001-010", "episode_refs": ["第001集"], "file_ref": "卷分片/第1卷.json"}],
                     }
                 }
             },
@@ -678,7 +678,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
         ),
         encoding="utf-8",
     )
-    (planning_dir / "第001-010集.json").write_text(
+    (planning_dir / "第1卷.json").write_text(
         json.dumps(
             {
                 "content": {

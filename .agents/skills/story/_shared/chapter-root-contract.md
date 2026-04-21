@@ -10,6 +10,6 @@
 当前正式合同固定为：
 
 - 正文真源：`projects/story/<项目名>/3-Drafting/第N集.md`
-- 工序真源：`projects/story/<项目名>/3-Drafting/写作日志.yaml`
+- 工序真源：`projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml`
 
 旧的 `Drafting/ch{chapter_padded}/chapter-root.md` 不再是阶段正式正文根文件。

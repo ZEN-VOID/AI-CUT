@@ -11,7 +11,7 @@
 - 父层先从 `1-Cards/2-角色卡` 导入 `character_roster_projection / relationship_graph_projection`
 - 父层只做 `route lock / serial dispatch / review gate / progressive commit / normalize / validate`
 - `2-Planning/全息地图.json` 是唯一 global index truth
-- `2-Planning/十集分片/*.json` 是唯一 episode-local dense planning truth
+- `2-Planning/卷分片/*.json` 是唯一 volume-local dense planning truth
 
 global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice-layout-contract.md` 为第一真源；本文件只定义 branch patch 如何落到这两层。
 
@@ -44,8 +44,8 @@ global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice
 ### 3. Shared episode slices
 
 - 路径模式：
-  - `2-Planning/十集分片/第001-010集.json`
-  - `2-Planning/十集分片/第011-020集.json`
+  - `2-Planning/卷分片/第1卷.json`
+  - `2-Planning/卷分片/第2卷.json`
 - 用途：
   - 接收 2-7 子技能的 episode-local dense patch progressive commit
   - 承载 `chapter_boards / thread_window_slice / foreshadow_silence_slice / actualization`
@@ -76,7 +76,7 @@ global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice
 | child skill | evidence artifact | owned story_map slots |
 | --- | --- | --- |
 | `1-题材选型` | `2-Planning/pass-artifacts/1-题材选型.json` | global: `content.holomap.story_promise`、`content.holomap.genre_corridor`、`content.holomap.navigation_rules[]` 的题材门 |
-| `2-章节规划` | `2-Planning/pass-artifacts/2-章节规划.json` | global: `content.holomap.volume_boards`、`content.holomap.episode_slice_manifest`、薄 `content.holomap.episode_sequence_axis`；slice: `content.holomap_slice.slice_style_contract`、`content.holomap_slice.chapter_boards`、`content.holomap_slice.episode_sequence_axis` |
+| `2-章节规划` | `2-Planning/pass-artifacts/2-章节规划.json` | global: `content.holomap.volume_boards`、`content.holomap.episode_slice_manifest`、薄 `content.holomap.episode_sequence_axis`；slice: `content.holomap_slice.slice_style_contract`、`content.holomap_slice.chapter_boards`、`content.holomap_slice.episode_sequence_axis`、`content.holomap_slice.cross_chapter_continuity_matrix` |
 | `3-故事大纲` | `2-Planning/pass-artifacts/3-故事大纲.json` | global: `content.holomap.story_spine`；slice: `content.holomap_slice.chapter_boards[].bundled_elements.events` |
 | `4-冲突设计` | `2-Planning/pass-artifacts/4-冲突设计.json` | global: `content.holomap.conflict_threads`（含 `character_refs / relationship_edge_refs`）；slice: `content.holomap_slice.thread_window_slice.conflicts`、`content.holomap_slice.chapter_boards[].bundled_elements.conflicts` |
 | `5-任务设计` | `2-Planning/pass-artifacts/5-任务设计.json` | global: `content.holomap.mission_threads`（含 `owners / counterparts / relationship_edge_refs`）；slice: `content.holomap_slice.thread_window_slice.missions`、`content.holomap_slice.chapter_boards[].bundled_elements.missions` |
@@ -86,11 +86,11 @@ global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice
 ## Progressive Commit Rules
 
 1. `1-题材选型` 之后，story_map 至少要有 `story_promise + genre_corridor`。
-2. `2-章节规划` 之后，global root 必须出现稳定 `volume_boards + episode_slice_manifest + thin episode_sequence_axis`，且 `volume_boards` 已达到卷级 planning contract 密度；对应 slice 必须出现 `slice_style_contract + chapter_boards skeleton`。
+2. `2-章节规划` 之后，global root 必须出现稳定 `volume_boards + episode_slice_manifest + thin episode_sequence_axis`，且 `volume_boards` 已达到卷级 planning contract 密度；对应 slice 必须出现 `slice_style_contract + chapter_boards skeleton + cross_chapter_continuity_matrix`。
 3. `3-故事大纲` 之后，slice 内 `chapter_board` 必须能看见主干事件挂载。
 4. `4-7` 每步都只补自己拥有的 thread master 与 slice bundled_elements 槽位。
 5. 父层在 1-7 完成后，负责补齐 three-axis、cross-thread indexes、lifecycle、global actualization summary/index 与 navigation rules。
-6. `2-Planning/全息地图.json` 不是独立 child 的产物，而是 1-7 progressive commit 自然长出来的 shared global root；十集分片同理是 episode-local shared slices。
+6. `2-Planning/全息地图.json` 不是独立 child 的产物，而是 1-7 progressive commit 自然长出来的 shared global root；卷分片同理是 volume-local shared slices。
 7. 角色/关系 projection 在 Step 2 前就必须已经导入 root，后续 child 只消费 id / hook。
 8. 若项目已启用 `type-pack`，各 child 的 evidence artifact 至少应记录本轮采用的 `type_pack_projection_summary`，便于后续 drafting / validation / review 回溯。
 

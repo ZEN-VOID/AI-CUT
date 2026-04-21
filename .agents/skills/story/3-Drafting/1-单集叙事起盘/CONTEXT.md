@@ -19,7 +19,7 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 起盘只剩提纲，没有完整正文 | child contract | 回到 scene chain，直接写完整初稿 | 在子技能合同固定“首轮必须完整可读” | `第N集.md` 已可通读 |
-| 本集像凭空开始，没接上一集 | continuity bridge | 先抽上一集终稿的停点，再重写开篇 | 把上一集终稿设成 `N>1` 必需输入 | 开篇能回答“从哪接上” |
+| 本集像凭空开始，没接上卷级 continuity pack | continuity bridge | 先抽当前卷 `entry_state / carryover_threads / expected_exit_delta`，必要时再参考已完成前序集终稿 | 把“卷地图 continuity pack 为硬输入，上一集终稿为增强输入”写死 | 开篇能回答“从哪接上” |
 | 读到了 `story_map`，但仍不知道哪块 board 属于本集 | board locating contract | 先按 `episode_num / episode_id -> chapter_boards[].episode_ref` 定位唯一 board，再解码债务 | 在 shared contract 固定“直连 episode_ref，必要时 axis 回指，禁止数组顺序猜测” | `process_log_entry` 能说明本集 board 如何命中 |
 | 只写事件，不写角色目标和阻力 | board decode | 重读 chapter board 的功能债与 threads 债务 | 先锁目标/阻力/代价，再写场景 | 初稿能回答“为什么现在要做这件事” |
 | 为了兑现 planning，把“卷次/阶段/时间压力”等外部规划语言直接写进正文 | planning language leak | 改写成人物当下能感到的风险、代价、局势收紧或退路消失 | 起盘时先问“这句是谁能感觉到”，不是先问“planning 想表达什么” | 正文读起来仍在戏里，不会突然跳到提纲口吻 |

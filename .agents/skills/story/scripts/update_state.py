@@ -48,6 +48,7 @@ import os
 import sys
 import argparse
 import shutil
+import re
 from pathlib import Path
 
 from runtime_compat import enable_windows_utf8_stdio
@@ -333,6 +334,7 @@ class StateUpdater:
         self,
         chapters_range: str,
         report_file: str,
+        volume: int | None = None,
         anti_ai_force_check: str = "pending",
         spoiler_risk: str = "low",
         contrivance_risk: str = "low",
@@ -342,7 +344,26 @@ class StateUpdater:
         if "review_checkpoints" not in self.state:
             self.state["review_checkpoints"] = []
 
-        self.state["review_checkpoints"].append({
+        chapter_refs = []
+        start_chapter = None
+        end_chapter = None
+        match = re.fullmatch(r"(\d+)-(\d+)", chapters_range.strip())
+        if match:
+            start_chapter = int(match.group(1))
+            end_chapter = int(match.group(2))
+            chapter_refs = list(range(start_chapter, end_chapter + 1))
+
+        inferred_volume = volume
+        if inferred_volume is None:
+            report_match = re.fullmatch(r".*第(\d+)卷审查报告\.md", report_file.strip())
+            if report_match:
+                inferred_volume = int(report_match.group(1))
+            elif start_chapter is not None and end_chapter is not None and end_chapter >= start_chapter:
+                chapter_count = end_chapter - start_chapter + 1
+                if chapter_count == 10 and (start_chapter - 1) % 10 == 0:
+                    inferred_volume = ((start_chapter - 1) // 10) + 1
+
+        checkpoint = {
             "chapters": chapters_range,
             "report": report_file,
             "reviewed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -350,7 +371,14 @@ class StateUpdater:
             "spoiler_risk": spoiler_risk,
             "contrivance_risk": contrivance_risk,
             "cold_commentary_risk": cold_commentary_risk,
-        })
+        }
+        if inferred_volume is not None and inferred_volume > 0:
+            checkpoint["volume"] = inferred_volume
+            checkpoint["volume_ref"] = f"第{inferred_volume}卷"
+        if chapter_refs:
+            checkpoint["chapter_refs"] = chapter_refs
+
+        self.state["review_checkpoints"].append(checkpoint)
         print(f"📝 添加审查记录: 第{chapters_range}章 → {report_file}")
 
     def update_strand_tracker(self, strand: str, chapter: int):
@@ -529,6 +557,12 @@ def main():
         help='添加审查记录（章节范围 报告文件）'
     )
     parser.add_argument(
+        '--review-volume',
+        type=int,
+        metavar='VOLUME',
+        help='审查记录对应卷号（推荐卷级审查时显式提供）'
+    )
+    parser.add_argument(
         '--review-anti-ai-force-check',
         choices=['pending', 'pass', 'fail'],
         default='pending',
@@ -642,6 +676,7 @@ def main():
             updater.add_review_checkpoint(
                 chapters_range,
                 report_file,
+                volume=args.review_volume,
                 anti_ai_force_check=args.review_anti_ai_force_check,
                 spoiler_risk=args.review_spoiler_risk,
                 contrivance_risk=args.review_contrivance_risk,

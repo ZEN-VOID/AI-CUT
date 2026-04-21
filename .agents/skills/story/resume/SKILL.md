@@ -183,7 +183,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
     - `4-Validation/*.validation.json`
     - `4-Validation/*章审查报告.md`
     - `STATE.json.review_checkpoints`
-    - `3-Drafting/写作日志.yaml`
+    - `3-Drafting/第V卷.写作日志.yaml`
     - `5-Loopback/*.loopback.json`
   - 禁止把这类情况误写成“无中断所以无事可做”。
 - 输出 JSON 中断信息：
@@ -202,12 +202,17 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 | fallback reason | 语义 | 默认恢复策略 |
 |---|---|---|
-| `loopback_completed_next_episode_ready` | 上一集已完成 validated actualization，下一稳定入口是下一集 drafting | 进入 `story-write` 下一集，先读 `carryover_context` |
-| `validation_pass_review_pending` | 当前集已 PASS，但还没发现 review 持久化证据 | 进入 `review/` |
-| `validation_pass_review_persisted_loopback_pending` | 当前集已 PASS 且 review 已落盘，但还没 actualize | 进入 `5-Loopback/` |
-| `candidate_final_draft_waiting_validation` | 当前集已到 `candidate_final_draft`，但还没有正式终验包 | 进入 `4-Validation` |
-| `validation_failed_back_to_drafting` | 当前集终验已明确打回 drafting | 按 `rework_targets` 回到对应 drafting 节点 |
-| `validation_failed_back_to_source_contract` | 当前集终验已明确打回 source contract | 按 `source_trace` 进入 `0-Init / 1-Cards / 2-Planning` 的唯一入口 |
+| `loopback_completed_next_volume_ready` | 上一卷已完成 validated actualization，下一稳定入口是下一卷 drafting | 进入 `story-write` 下一卷首章 worker，先读 `carryover_context` |
+| `validation_pass_review_pending` | 当前卷已 PASS，但还没发现 review 持久化证据 | 进入 `review/` |
+| `validation_pass_review_persisted_loopback_pending` | 当前卷已 PASS 且 review 已落盘，但还没 actualize | 进入 `5-Loopback/` |
+| `candidate_volume_draft_waiting_validation` | 当前卷已到 `candidate_volume_draft`，但还没有正式终验包 | 进入 `4-Validation` |
+| `validation_failed_back_to_drafting` | 当前卷终验已明确打回 drafting | 按 `rework_targets` 回到对应 drafting 节点 |
+| `validation_failed_back_to_source_contract` | 当前卷终验已明确打回 source contract | 按 `source_trace` 进入 `0-Init / 1-Cards / 2-Planning` 的唯一入口 |
+
+Legacy compatibility only:
+
+- `loopback_completed_next_episode_ready`
+- `candidate_final_draft_waiting_validation`
 
 ### `story-write` 的当前 Step 解释
 

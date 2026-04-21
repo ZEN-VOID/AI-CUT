@@ -196,6 +196,13 @@ def _load_holomap_slice(project_root: Path, slice_ref: str, holomap: dict | None
         raw = slice_ref.removeprefix("slice-")
         if "-" in raw:
             start, end = raw.split("-", 1)
+            try:
+                start_num = int(start)
+            except ValueError:
+                start_num = 0
+            volume_num = ((start_num - 1) // 10) + 1 if start_num > 0 else 0
+            if volume_num > 0:
+                candidate_paths.append(project_root / "2-Planning" / "卷分片" / f"第{volume_num}卷.json")
             candidate_paths.append(project_root / "2-Planning" / "十集分片" / f"第{start}-{end}集.json")
 
     seen: set[str] = set()

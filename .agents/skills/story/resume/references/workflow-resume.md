@@ -58,21 +58,21 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 当 `workflow detect` 没命中 `current_task` 时，继续按以下顺序寻找可证明的下一入口：
 
-1. `5-Loopback/第N集.loopback.json`
-2. `4-Validation/第N集.validation.json`
-3. `4-Validation/第N-N章审查报告.md` + `STATE.json.review_checkpoints`
-4. `3-Drafting/写作日志.yaml`
+1. `5-Loopback/第V卷.loopback.json`
+2. `4-Validation/第V卷.validation.json`
+3. `4-Validation/第V卷审查报告.md` + `STATE.json.review_checkpoints`
+4. `3-Drafting/第V卷.写作日志.yaml`
 
 默认解释：
 
 - 命中最新 `loopback`：
-  - 视为上一集已完成 validated actualization
-  - 下一稳定入口：`story-write` 下一集
+  - 视为上一卷已完成 validated actualization
+  - 下一稳定入口：`story-write` 下一卷首章 worker
 - 命中 `validation PASS`，但无 review 持久化：
   - 下一稳定入口：`story-review`
 - 命中 `validation PASS + review 持久化`，但无 loopback：
   - 下一稳定入口：`story-loopback`
-- 命中 `candidate_final_draft` 写作日志，但无 validation 包：
+- 命中 `candidate_volume_draft` 写作日志，但无 validation 包：
   - 下一稳定入口：`story-validate`
 - 命中 `validation FAIL`：
   - 按 `routing_decision` 回 `story-write` 或 source contract owner

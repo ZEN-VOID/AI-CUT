@@ -23,15 +23,15 @@
 | symptom | root_cause_layer | immediate_fix | systemic_prevention | verification |
 | --- | --- | --- | --- | --- |
 | 查询到章节规划、任务、线索、伏笔时仍只读 `STATE.json` 或旧 `大纲/` | skill contract / data-flow doc | 把规划类问题默认入口切到 `2-Planning/全息地图.json` | 在 `SKILL.md` 与 `system-data-flow.md` 固定 holomap-first | 规划类查询说明明确写出 holomap 为优先数据源 |
-| 规划阶段已进入十集分片模式，但 query 仍把 `chapter_boards / actualization detail` 当成只存在于 `全息地图.json` | planning truth layering | 先读 `全息地图.json` 解析 manifest/axis，再命中具体 `十集分片` | 在 query 合同与 data-flow 文档固定“holomap-first, slice-second” | 查询具体 episode 规划或实绩时不再误读 root 摘要 |
+| 规划阶段已进入卷分片模式，但 query 仍把 `chapter_boards / actualization detail` 当成只存在于 `全息地图.json` | planning truth layering | 先读 `全息地图.json` 解析 manifest/axis，再命中具体 `卷分片` | 在 query 合同与 data-flow 文档固定“holomap-first, slice-second” | 查询具体 episode 规划或实绩时不再误读 root 摘要 |
 | 把 `planned_state` 当成“已经发生的事实” | truth-role contract | 改为同时检查 `actualization + loopback artifact + validation PASS` | 在 `SKILL.md` 固定 `planned/current/validated_actual` 三分法 | 查询“已经发生了吗”时不会再拿计划冒充结果 |
 | 把 `Cards.core` 当作当前默认有效状态 | cards contract | 当前态问题先看 `current_state`，再用 `history` 和 `state/index` 补证 | 在 query 合同里写死 `core != current_state` | “现在怎样了”类问题优先命中 `current_state` |
 | 问角色成长历程时只给当前快照 | cross-stage semantic split | 读取 `experience_timeline + history + state_changes` | 把“事件时间”与“经历时间”分开写进查询规则 | 角色弧光查询能同时给出现在与形成过程 |
-| 实绩查询忽略 `5-Loopback` 的 PASS-only gate | stage contract | 把 `actualization` 与 `第N集.loopback.json` 设为必须校验项 | 在 query 规则中写明“无 PASS 证据只能回答尚无 validated actual” | 实绩类回答会带 `validation_ref` 或明确缺口 |
+| 实绩查询忽略 `5-Loopback` 的 PASS-only gate | stage contract | 把 `actualization` 与 `第V卷.loopback.json` 设为必须校验项 | 在 query 规则中写明“无 PASS 证据只能回答尚无 validated actual” | 实绩类回答会带 `validation_ref` 或明确缺口 |
 | 把 XML 标签规范当成普通剧情查询主入口 | query intent routing | 降级 `tag-specification.md` 为显式手动补标场景 | 在 L2 引用策略中固定“标签查询 only on demand” | 普通角色/剧情查询不再误读标签规范 |
 | 节奏、评分、风险查询仍停留在老式“Strand/紧急度”两类 | review data-flow | 补读 `review_metrics / reading_power / review_checkpoints` | 固定质量查询入口包含 `status + index review metrics` 双层 | 能回答“最近质量趋势”和“风险项” |
 | 任务进度、恢复点、最近 run 查询仍只读旧独立状态文件或完全无入口 | execution truth contract | 把执行态问题切到 `STATE.json.workflow_runtime.{execution_state,task_log}` | 在共享 data-flow 文档明确 `STATE.json` 内联执行态分工 | 能回答“当前跑到哪了 / 最近哪个 stage 卡住了 / 最新恢复点在哪” |
-| query 数据流文档仍把 drafting 真源写成 `Drafting/chNNNN/chapter-root.md` | drafting data-flow drift | 改回 `3-Drafting/第N集.md + 写作日志.yaml` | 在 `system-data-flow.md` 固定新 drafting 根文件与跨集连续性加载规则 | 查询解释 drafting 时不再混用旧路径 |
+| query 数据流文档仍把 drafting 真源写成 `Drafting/chNNNN/chapter-root.md` | drafting data-flow drift | 改回 `3-Drafting/第N集.md + 第V卷.写作日志.yaml` | 在 `system-data-flow.md` 固定新 drafting 根文件与卷级批次日志规则 | 查询解释 drafting 时不再混用旧路径 |
 
 ## Repair Playbook
 

@@ -37,6 +37,8 @@ def test_update_state_cli_add_review_writes_checkpoint(tmp_path, monkeypatch):
             "--add-review",
             "1-2",
             report_file,
+            "--review-volume",
+            "1",
             "--review-anti-ai-force-check",
             "fail",
             "--review-spoiler-risk",
@@ -53,6 +55,9 @@ def test_update_state_cli_add_review_writes_checkpoint(tmp_path, monkeypatch):
     checkpoints = updated.get("review_checkpoints")
     assert isinstance(checkpoints, list)
     assert checkpoints[-1]["chapters"] == "1-2"
+    assert checkpoints[-1]["volume"] == 1
+    assert checkpoints[-1]["volume_ref"] == "第1卷"
+    assert checkpoints[-1]["chapter_refs"] == [1, 2]
     assert checkpoints[-1]["report"] == report_file
     assert checkpoints[-1]["anti_ai_force_check"] == "fail"
     assert checkpoints[-1]["spoiler_risk"] == "high"

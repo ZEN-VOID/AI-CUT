@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-slice-layout-contract.md`、`../_shared/planning-branch-output-contract.md`、`references/volume-rhythm-framework.md`、`references/volume-planning-contract.md`、`references/episode-rhythm-rules.md`、当前 `2-Planning/全息地图.json` 与受影响十集分片。
+- 必须回读父层 `2-Planning/SKILL.md`、`../_shared/planning-slice-layout-contract.md`、`../_shared/planning-branch-output-contract.md`、`references/volume-rhythm-framework.md`、`references/volume-planning-contract.md`、`references/episode-rhythm-rules.md`、当前 `2-Planning/全息地图.json` 与受影响卷分片。
 
 ## Parent Positioning
 
@@ -43,10 +43,10 @@ governance_tier: lite
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把体量判断翻译成稳定章节容器、整书节奏骨架、卷级规划合同与集节奏规则，为后续 3-7 提供“可挂内容、可控波形、可查拍点、可落卷级表现与集节奏包”的 planning 基座。 |
-| `business_object` | global root 的 `volume_boards / episode_slice_manifest / thin episode_sequence_axis`，目标 slice 的 `slice_style_contract / chapter_boards / episode_sequence_axis / chapter_boards[].bundled_elements.characters / chapter_boards[].planned_state.character_focus`，以及 `story_promise.type_stack_ref / genre_corridor.type_pack_projection / 主题线索`。 |
+| `business_goal` | 把体量判断翻译成稳定章节容器、整书节奏骨架、卷级规划合同、卷内 continuity pack 与集节奏规则，为后续 3-7 提供“可挂内容、可控波形、可查拍点、可落卷级表现与集节奏包”的 planning 基座。 |
+| `business_object` | global root 的 `volume_boards / episode_slice_manifest / thin episode_sequence_axis`，目标 slice 的 `slice_style_contract / chapter_boards / episode_sequence_axis / cross_chapter_continuity_matrix / chapter_boards[].bundled_elements.characters / chapter_boards[].planned_state.character_focus`，以及 `story_promise.type_stack_ref / genre_corridor.type_pack_projection / 主题线索`。 |
 | `constraint_profile` | 只负责容器，不代写主干与长线。 |
-| `success_criteria` | chapter/volume blocks 稳定，`macro_rhythm_scaffold` 已锁住整书波形与关键拍点，`volume_boards` 已达到卷级规划合同密度，slice 已有 `slice_style_contract`，board 已能通过角色/关系投影锁定角色焦点，后续 child 可以直接在 board 上挂内容与事件。 |
+| `success_criteria` | chapter/volume blocks 稳定，`macro_rhythm_scaffold` 已锁住整书波形与关键拍点，`volume_boards` 已达到卷级规划合同密度，slice 已有足够厚的 `slice_style_contract` 与 `cross_chapter_continuity_matrix`，board 已能通过角色/关系投影锁定角色焦点并携带 `chapter_promise / entry_state / carryover_threads / expected_exit_delta`，后续 child 可以直接在 board 上挂内容与事件。 |
 
 ## Total Input Contract
 
@@ -69,6 +69,7 @@ governance_tier: lite
   - `content.holomap.episode_sequence_axis`
   - `content.holomap_slice.slice_style_contract`
   - `content.holomap_slice.chapter_boards`
+  - `content.holomap_slice.cross_chapter_continuity_matrix`
   - `content.holomap_slice.episode_sequence_axis`
 
 ### Character Bridge Consumption Contract
@@ -118,8 +119,25 @@ governance_tier: lite
   - 这一卷如何区别于前后卷，而不是只换地点和对手
   - 这一卷的动作、悬疑、情感各自怎么表现
   - 这一卷绝对不能写成什么样
-- `slice_style_contract` 是卷级合同在当前十集分片的 episode-local 镜像，不是第二份平行创作稿；它只负责把当前 slice 必须 obey 的卷级风格规则送到 `chapter_boards`。
+- `slice_style_contract` 是卷级合同在当前卷分片的 episode-local 镜像，不是第二份平行创作稿；它必须至少镜像 `contract_ref / volume_ref / volume_promise / wave_duty / entry_promise / exit_hook / visual_climate / action_grammar / mystery_mode / emotional_temperature / scene_materials / performance_axis / taboo_writeups`，把当前 slice 必须 obey 的卷级 promise、波形和表现规则送到 `chapter_boards`。
 - 若一卷横跨多个 slice，允许多个 slice 复用同一份 `slice_style_contract` 核心字段，但不得各自静默漂移。
+
+### Continuity Pack Contract
+
+- Step 2 必须在当前 slice 直接产出 `cross_chapter_continuity_matrix`，它不是等 Step 3-7 自动浮现的副产品。
+- `cross_chapter_continuity_matrix` 至少要回答：
+  - 相邻章节如何承接
+  - 哪些 `carryover_threads` 在本卷仍处于活跃状态
+  - 本章 `entry_state` 如何接住上一章停点
+  - 本章 `expected_exit_delta` 会把什么压力、信息或关系状态推给下一章
+- `chapter_boards[].planned_state` 不得只有抽象 notes；至少应携带：
+  - `chapter_promise`
+  - `entry_state`
+  - `carryover_threads`
+  - `expected_exit_delta`
+  - `character_focus`
+  - `relationship_focus`
+- 若当前 slice 没有 continuity pack 或 board planned_state continuity 锚，视为 Step 2 handoff 不可被卷内并发 drafting 稳定消费。
 
 ### Episode Rhythm Projection Contract
 
@@ -184,12 +202,12 @@ stateDiagram-v2
 
 | node_id | field_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-CHP-01` | 读取 root / slice / Step 1 输出，锁本轮 planning 真实输入面 | 当前 `全息地图.json`、命中的十集分片、`character_roster_projection / relationship_graph_projection`、Step 1 题材结果 | 校验 root 最新、定位当前 slice、读取角色/关系桥与题材上下文 | `input_note` | pass -> `N2`；root/slice 不明 -> 留在 `N1` | 只有 root、slice 与角色桥都可定位时才可进入下一节点 |
-| `N2-CONTAINER-LOCK` | `FIELD-CHP-02` | 先锁卷/集容器，再锁每卷 duty 与卷级规划合同，避免先谈数量后补功能 | `N1` 输入、体量判断、type-pack 章节密度偏好、`references/volume-planning-contract.md` | 设计 `volume_blocks / chapter_function_slots / volume wave duty / volume planning contract`，明确每卷承诺什么、回收什么、怎么表现、不能怎么写 | `container_note` | pass -> `N3`；容器先后倒置或卷级合同过薄 -> 回 `N2` | 容器与 function slots 成立，且每卷 duty 不是平均主义、每卷有可执行表现合同 |
+| `N1-ROOT-REREAD` | `FIELD-CHP-01` | 读取 root / slice / Step 1 输出，锁本轮 planning 真实输入面 | 当前 `全息地图.json`、命中的卷分片、`character_roster_projection / relationship_graph_projection`、Step 1 题材结果 | 校验 root 最新、定位当前 slice、读取角色/关系桥与题材上下文 | `input_note` | pass -> `N2`；root/slice 不明 -> 留在 `N1` | 只有 root、slice 与角色桥都可定位时才可进入下一节点 |
+| `N2-CONTAINER-LOCK` | `FIELD-CHP-02` | 先锁卷/集容器，再锁每卷 duty 与卷级规划合同，避免先谈数量后补功能 | `N1` 输入、体量判断、type-pack 章节密度偏好、`references/volume-planning-contract.md` | 设计 `volume_blocks / chapter_function_slots / volume wave duty / volume planning contract`，明确每卷承诺什么、回收什么、怎么表现、不能怎么写 | `container_note` | pass -> `N3`；容器先后倒置或卷级合同过薄 -> 回 `N2` | 容器与 function slots 成立，且每卷 duty 不是平均主义、每卷有可执行表现合同，volume board 已能回答卷内连续性从哪里起、往哪里收 |
 | `N3-MACRO-RHYTHM-SCAFFOLD` | `FIELD-CHP-03` | 用现有部节奏真源锁整书波形与关键拍点，不改写部节奏方法 | `N2` 容器、`references/volume-rhythm-framework.md` | 生成 `macro_rhythm_scaffold`，明确 `theme_carrier / b_story_carrier / midpoint_shift / all_is_lost_corridor / finale_acceleration_rules` | `macro_rhythm_note` | pass -> `N4`；拍点无法解释整书改向 -> 回 `N3` | 部节奏骨架能回答 promise、转向、见底与尾段加速 |
 | `N4-EPISODE-RHYTHM-PROJECTION` | `FIELD-CHP-04` | 把统一七步骨架与 `动静结合` pack 投影到集层，而不动部节奏 | `N3` 部节奏骨架、`references/episode-rhythm-rules.md`、当前卷波形 | 生成 `scale_density_contract / rhythm_windows / episode_rhythm_framework / episode_rhythm_roles`，为关键集写 `pack + mode + polarity + seven-step projection` | `density_note` | pass -> `N5`；只有抽象 role 没有七步投影 -> 回 `N4` | 集节奏可被 downstream drafting 直接消费，且阴阳编排成立 |
-| `N5-PATCH-WRITE` | `FIELD-CHP-05` | 把部节奏、卷级规划合同与集节奏共同写回 skeleton，避免停留在说明层 | `N4` 集节奏投影、`story_map_patch` write policy | 生成 `volume_boards / episode_slice_manifest / thin axis / slice_style_contract / chapter_boards skeleton`，确保 board 带节奏职责摘要与 hook，slice 带卷级风格镜像 | `patch_note` | pass -> `N6`；写位越权或 board/volume contract 漏职责 -> 回 `N5` | 只命中 owned slots，且 chapter board 已可挂 downstream 内容 |
-| `N6-HANDOFF-AUDIT` | `FIELD-CHP-05` | 做 planning -> drafting handoff 审计，确认集节奏不是纸面设计 | `N5` patch、`episode_rhythm_framework / roles`、downstream 需求 | 检查 `chapter_boards` 是否携带节奏职责、pack/mode 是否能被 Step 2 直接消费、证据工件是否完整 | `handoff_note` | pass -> done；handoff 不可消费 -> 回 `N4` 或 `N5` | 只有当节奏框架、集职责和 board 摘要三者一致时才允许收束 |
+| `N5-PATCH-WRITE` | `FIELD-CHP-05` | 把部节奏、卷级规划合同、卷内 continuity pack 与集节奏共同写回 skeleton，避免停留在说明层 | `N4` 集节奏投影、`story_map_patch` write policy | 生成 `volume_boards / episode_slice_manifest / thin axis / slice_style_contract / chapter_boards skeleton / cross_chapter_continuity_matrix`，确保 board 带节奏职责摘要、promise、entry/exit 差分，slice 带卷级风格镜像与 continuity pack | `patch_note` | pass -> `N6`；写位越权或 board/volume contract 漏职责 -> 回 `N5` | 只命中 owned slots，且 chapter board 已可挂 downstream 内容 |
+| `N6-HANDOFF-AUDIT` | `FIELD-CHP-05` | 做 planning -> drafting handoff 审计，确认集节奏与 continuity pack 不是纸面设计 | `N5` patch、`episode_rhythm_framework / roles`、downstream 需求 | 检查 `chapter_boards` 是否携带节奏职责与 continuity 锚、pack/mode 是否能被 Step 2 直接消费、`cross_chapter_continuity_matrix` 是否完整、证据工件是否完整 | `handoff_note` | pass -> done；handoff 不可消费 -> 回 `N4` 或 `N5` | 只有当节奏框架、集职责、board continuity 锚与 slice continuity pack 四者一致时才允许收束 |
 
 ## Lite Field Contract
 
@@ -199,4 +217,4 @@ stateDiagram-v2
 | `FIELD-CHP-02` | `volume_boards` | 容器、功能槽与卷级规划合同成立 | `FAIL-CHP-02` | `N2` |
 | `FIELD-CHP-03` | `macro_rhythm_scaffold` | 关键拍点、B Story、主题承载与整书波形清楚 | `FAIL-CHP-03` | `N3` |
 | `FIELD-CHP-04` | density contract | 密度、爽点梯度与节奏窗口清楚 | `FAIL-CHP-04` | `N4` |
-| `FIELD-CHP-05` | `slice_style_contract + chapter_boards skeleton` | skeleton 可供后续挂载，且 board/axis 已带节奏职责摘要、角色/关系焦点引用成立，slice 已携带卷级合同镜像 | `FAIL-CHP-05` | `N5` |
+| `FIELD-CHP-05` | `slice_style_contract + chapter_boards skeleton + continuity pack` | skeleton 可供后续挂载，且 board/axis 已带节奏职责摘要、角色/关系焦点引用成立、`planned_state` continuity 锚齐全，slice 已携带卷级合同镜像与 `cross_chapter_continuity_matrix` | `FAIL-CHP-05` | `N5` |

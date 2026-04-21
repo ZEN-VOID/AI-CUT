@@ -17,7 +17,7 @@ governance_tier: lite
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，用于尽早阻断“规则只为剧情服务”与 source truth 冲突。
 - `final_acceptance`
-  - 被 `4-Validation` 父层在章节末端并发调用，参与最终 `validation_status` 聚合。
+  - 被 `4-Validation` 父层在卷级终验中并发调用，参与最终 `validation_status` 聚合。
 
 ## Parent Positioning
 
@@ -74,7 +74,7 @@ governance_tier: lite
 - 必需输入：
   - `validation_fact_pack.cards_state_history_slice`
   - `validation_fact_pack.chapter_board`
-  - 当前 `第N集.md`
+  - 当前卷正文集合或命中的受审章节集合
 - 条件必需输入：
   - 本轮 pack 中能解释世界规则、角色能力、资源约束的 `init/cards/planning truth`
 - 硬规则：
@@ -91,7 +91,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `cause_effect_breaks`、`state_conflicts`、`capability_conflicts`、`world_rule_conflicts`、`exception_cost_gaps`、`social_ecology_conflicts`、`contrivance_risk`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/逻辑自洽校验.md`
+  - `4-Validation/第V卷/逻辑自洽校验.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
 - 可能上溯层：

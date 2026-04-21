@@ -42,4 +42,4 @@
 - 暗线任务不是“保密信息”，而是“暂不公开的真实任务”；没有 reveal trigger 的暗线几乎必废。
 - 当一章只保留单线时，必须是刻意聚焦，而不是因为设计者忘了检查四象限。
 - 任务设计最稳的角色绑定方式是写 `owners / counterparts / relationship_edge_refs`，而不是把人物卡摘要直接塞进 thread。
-- 十集分片模式下，`mission_threads` 留在 global root，章节目标挂载与 window 明细写入 slice；否则 drafting 会拿到两份不一致的任务债务。
+- 卷分片模式下，`mission_threads` 留在 global root，章节目标挂载与 window 明细写入 slice；否则 drafting 会拿到两份不一致的任务债务。

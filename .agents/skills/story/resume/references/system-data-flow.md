@@ -24,7 +24,7 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 ### 目录结构
 ```
 项目根目录/
-├── 3-Drafting/         # drafting 阶段正文真源（第N集.md + 写作日志.yaml）
+├── 3-Drafting/         # drafting 阶段正文真源（第N集.md + 第V卷.写作日志.yaml）
 ├── 2-Planning/legacy/           # 卷纲/章纲（legacy fallback）
 ├── 2-Planning/全息地图.json  # 规划真源
 ├── 0-Init/        # north_star.yaml / story-source-manifest.yaml / init_handoff.yaml

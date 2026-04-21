@@ -1,6 +1,6 @@
 ---
 name: story-validation-structure-realization
-description: Use when `4-Validation` needs the governed child skill that checks whether the manuscript fulfills chapter-board obligations, promise delivery, and dramatic realization.
+description: Use when `4-Validation` needs the governed child skill that checks whether the locked volume manuscript set fulfills volume-board and episode-board obligations, promise delivery, and dramatic realization.
 governance_tier: lite
 ---
 
@@ -10,14 +10,14 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`。
-- 正式审查前，必须读取锁定后的 `validation_fact_pack` 与当前 `第N集.md`。
+- 正式审查前，必须读取锁定后的 `validation_fact_pack` 与当前卷正文集合。
 
 ## Invocation Modes
 
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，只判断当前快照是否允许继续下一步。
 - `final_acceptance`
-  - 被 `4-Validation` 父层在章节末端并发调用，参与最终 `validation_status` 聚合。
+  - 被 `4-Validation` 父层在卷级终验中并发调用，参与最终 `validation_status` 聚合。
 
 ## Parent Positioning
 
@@ -49,7 +49,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断正文是否真的兑现了这集该发生的事，而不是只“提到过”或“总结过”。 |
-| `business_object` | `validation_fact_pack.promise_slice`、`chapter_board`、当前 `第N集.md`。 |
+| `business_object` | `validation_fact_pack.promise_slice`、`volume_board / episode_boards`、当前卷正文集合。 |
 | `constraint_profile` | 先看 board 义务，再看正文戏剧化落点；结构未兑现不能靠其他维度补救。 |
 | `success_criteria` | 能明确回答“这一集 promised 什么、planned 什么、正文到底有没有完成”。 |
 | `topology_fit` | `obligation decode -> manuscript compare -> dramatization gate -> report packet` |
@@ -59,7 +59,7 @@ governance_tier: lite
 - 必需输入：
   - `validation_fact_pack.promise_slice`
   - `validation_fact_pack.chapter_board`
-  - 当前 `第N集.md`
+  - 当前卷正文集合
 - 硬规则：
   - 先锁“必须发生什么”，再判正文是否实现。
   - 只出现摘要式复述、不形成戏剧场面，也视为未充分兑现。
@@ -71,7 +71,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `required_events_hit`、`missed_obligations`、`promise_breaks`、`undramatized_exposition_hits`、`anti_ai_force_check`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/结构兑现.md`
+  - `4-Validation/第V卷/结构兑现.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `7-追读力强化`

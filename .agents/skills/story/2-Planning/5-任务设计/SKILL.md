@@ -9,7 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的十集分片。
+- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的卷分片。
 - 必须同时读取 `references/mission-strand-system.md`，把“主线/支线 + 明线/暗线”视为本 child 的任务织线真源，而不是自由发挥的补充说明。
 
 ## Parent Positioning

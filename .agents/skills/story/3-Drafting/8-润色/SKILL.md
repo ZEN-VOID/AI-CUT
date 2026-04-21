@@ -58,7 +58,7 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `写作日志.yaml`
+  - `第V卷.写作日志.yaml`
 - 条件必需输入：
   - `1-Cards/1-风格卡/**/*.json`
   - `team.yaml`（若项目已锁监制/评审偏好）

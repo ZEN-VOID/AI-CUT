@@ -92,7 +92,7 @@ Copy and track progress:
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 |---|---|---|---|
-| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `episode_slice_manifest / episode_sequence_axis / cross_thread_indexes`，再命中对应 `2-Planning/十集分片/*.json` 的 `chapter_boards / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
+| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `episode_slice_manifest / episode_sequence_axis / cross_thread_indexes`，再命中对应 `2-Planning/卷分片/*.json` 的 `chapter_boards / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
 | “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `1-Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
 | “这个人是怎么变成现在的 / 这段关系怎么演化的 / 成长到哪了” | `角色卡.experience_timeline + current_state.growth_state + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
 | “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
@@ -181,7 +181,7 @@ cat "${SKILL_ROOT}/references/tag-specification.md"
 cat "$PROJECT_ROOT/2-Planning/全息地图.json"
 ```
 
-若问题落到具体 episode，再按 `episode_slice_manifest / episode_sequence_axis` 命中对应 `2-Planning/十集分片/*.json`，再读取其中的 `chapter_boards / thread_window_slice / foreshadow_silence_slice`。
+若问题落到具体 episode，再按 `episode_slice_manifest / episode_sequence_axis` 命中对应 `2-Planning/卷分片/*.json`，再读取其中的 `chapter_boards / thread_window_slice / foreshadow_silence_slice`。
 
 如需追溯某条规划为何这样安排，再补读对应 `2-Planning/1-7/*.json`。
 
@@ -207,14 +207,14 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 必须同时检查：
 
 1. `2-Planning/全息地图.json` 的 `content.holomap.actualization` summary/index
-2. 命中 episode 的 `2-Planning/十集分片/*.json` 中 `content.holomap_slice.actualization`
-3. `5-Loopback/第N集.loopback.json`
+2. 命中 episode 的 `2-Planning/卷分片/*.json` 中 `content.holomap_slice.actualization`
+3. `5-Loopback/第V卷.loopback.json`
 4. `validation_ref` / `review_metrics` / `review_checkpoints`
 
 可用下面的命令定位 loopback artifact：
 
 ```bash
-rg --files "$PROJECT_ROOT/Loopback" | rg '\\.loopback\\.json$'
+rg --files "$PROJECT_ROOT/5-Loopback" | rg '\\.loopback\\.json$'
 ```
 
 如缺 `actualization` 或缺 loopback artifact，只能回答“尚无 validated actual evidence”，不能擅自把计划当结果。

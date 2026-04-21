@@ -17,7 +17,7 @@ governance_tier: lite
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，用于及时拦截人物失声口、OOC 和关系压力塌缩。
 - `final_acceptance`
-  - 被 `4-Validation` 父层在章节末端并发调用，参与最终 `validation_status` 聚合。
+  - 被 `4-Validation` 父层在卷级终验中并发调用，参与最终 `validation_status` 聚合。
 
 ## Parent Positioning
 
@@ -62,7 +62,7 @@ governance_tier: lite
 
 - 必需输入：
   - `validation_fact_pack.cards_state_history_slice`
-  - 当前 `第N集.md`
+  - 当前卷正文集合或命中的受审章节集合
 - 硬规则：
   - 先看当前态和关系压力，再判行为。
   - 若关键角色承担了关系变化、价值选择或压力升级，必须检查正文里是否存在至少一个可追踪的人物偏移信号；若没有，优先回 Step 4。
@@ -78,7 +78,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `severe_ooc`、`motivation_breaks`、`speech_violations`、`relationship_pressure_drops`、`growth_continuity_checked`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/人物一致性.md`
+  - `4-Validation/第V卷/人物一致性.md`
 - 默认返工节点：
   - `4-角色形象刻画`
   - `5-对白个性化`

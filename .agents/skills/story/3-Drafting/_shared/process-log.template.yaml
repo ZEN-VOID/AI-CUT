@@ -1,8 +1,11 @@
-episode_num: 0
-manuscript_path: ""
+volume_num: 0
+volume_ref: ""
 planning_ref: "2-Planning/全息地图.json"
 planning_slice_ref: ""
-previous_episode_ref: ""
+continuity_pack_ref: ""
+monitoring_team_ref: "team.yaml"
+dispatch_mode: "team-supervised-parallel-workers"
+chapter_refs: []
 instant_validation_registry_ref: ".agents/skills/story/4-Validation/_shared/validation-dimension-registry.yaml"
 type_stack_ref:
   method_kernel: "story-core-v1"
@@ -11,15 +14,18 @@ type_stack_ref:
   secondary: []
   platform: []
   audience: []
-completed_steps: []
+worker_status: {}
+completed_chapters: []
 latest_inline_validation:
+  last_checked_worker: ""
   last_checked_step: ""
   status: "not_run"
   failed_dimensions: []
 candidate_final_state:
   status: "not_ready"
-  reason: "validation_not_started"
+  reason: "volume_not_complete"
 current_resume_pointer:
+  next_worker: ""
   next_step: "1-单集叙事起盘"
   reason: "not_started"
-step_history: []
+chapter_step_history: {}

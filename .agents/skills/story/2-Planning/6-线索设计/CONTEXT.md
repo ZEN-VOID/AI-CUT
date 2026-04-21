@@ -33,4 +33,4 @@
 - 线索 child 的关键不是“信息量多”，而是“信息怎么被公平获得”。
 - 如果误导不服从证据，后续揭晓很容易像作者强行解释。
 - board 没有 clue refs 时，query 很难回答“这章多知道了什么”。
-- 十集分片模式下，线索 master 留在 global，章节 clue refs 与发现窗口写入 slice；不要把整套 clue detail 再复制回 root。
+- 卷分片模式下，线索 master 留在 global，章节 clue refs 与发现窗口写入 slice；不要把整套 clue detail 再复制回 root。

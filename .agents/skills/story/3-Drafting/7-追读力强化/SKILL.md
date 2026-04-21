@@ -68,7 +68,7 @@ governance_tier: lite
 - 必需输入：
   - 当前 `第N集.md`
   - `2-Planning/全息地图.json`
-  - `写作日志.yaml`
+  - `第V卷.写作日志.yaml`
 - 可选增强输入：
   - `reader signal`
   - `type-pack` 对 drafting stage 的当前投影

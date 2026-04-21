@@ -10,14 +10,14 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`。
-- 正式审查前，必须读取 `chapter_board`、`foreshadow_silence_slice`、当前正文与必要的上一集终稿。
+- 正式审查前，必须读取 `volume_board / episode_boards`、`foreshadow_silence_slice`、当前卷正文集合与必要的前序章节快照。
 
 ## Invocation Modes
 
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，用于尽早阻断时间锚错位和伏笔窗口越线。
 - `final_acceptance`
-  - 被 `4-Validation` 父层在章节末端并发调用，参与最终 `validation_status` 聚合。
+  - 被 `4-Validation` 父层在卷级终验中并发调用，参与最终 `validation_status` 聚合。
 
 ## Parent Positioning
 
@@ -59,7 +59,7 @@ governance_tier: lite
 - 必需输入：
   - `validation_fact_pack.chapter_board`
   - `validation_fact_pack.foreshadow_silence_slice`
-  - 当前 `第N集.md`
+  - 当前卷正文集合
 - 硬规则：
   - 时间线判断不能只凭模糊阅读感受，必须回指时间锚或明确时序证据。
   - 伏笔窗口提前揭晓必须单独出 issue，不得埋进 notes。
@@ -71,7 +71,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `time_anchor_conflicts`、`sequence_breaks`、`duration_conflicts`、`spoiler_risk`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/时间线.md`
+  - `4-Validation/第V卷/时间线.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
   - `2-节奏优化`

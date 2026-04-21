@@ -10,14 +10,14 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`。
-- 审查前必须读取当前 `type_pack_profile`、`validation_fact_pack` 与 `第N集.md`。
+- 审查前必须读取当前 `type_pack_profile`、`validation_fact_pack` 与当前卷正文集合。
 
 ## Invocation Modes
 
 - `drafting_inline`
   - 被 `3-Drafting` 在 registry 指定 step 写回后立即调用，重点检查当前工序是否兑现 step-specific pack hook。
 - `final_acceptance`
-  - 被 `4-Validation` 父层并发调用，判断整章是否兑现 active `type_stack` 的类型承诺。
+  - 被 `4-Validation` 父层并发调用，判断整卷是否兑现 active `type_stack` 的类型承诺。
 
 ## Parent Positioning
 
@@ -50,7 +50,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断“当前写得通不通用”之外，再判断“像不像当前项目声明要写的那一类东西”。 |
-| `business_object` | `type_pack_profile`、当前 `第N集.md`、必要时 `current_step_id`。 |
+| `business_object` | `type_pack_profile`、当前卷正文集合、必要时 `current_step_id`。 |
 | `constraint_profile` | 无显式 pack 时本维度降级为观察态；有 pack 时必须检查 active packs、章级兑现与 step hook。 |
 | `success_criteria` | 能回答 active packs 是什么、当前 step 该兑现什么、正文到底有没有做到。 |
 | `topology_fit` | `load type_stack -> resolve pack promise -> compare manuscript -> emit fit packet` |
@@ -59,7 +59,7 @@ governance_tier: lite
 
 - 必需输入：
   - `validation_fact_pack.promise_slice.type_pack_profile`
-  - 当前 `第N集.md`
+  - 当前卷正文集合
 - 条件必需输入：
   - `current_step_id`（在 drafting inline 模式下）
 - 硬规则：
@@ -73,7 +73,7 @@ governance_tier: lite
 - `dimension_packet`:
   - 至少包含 `type_pack_enabled`、`active_packs`、`required_hooks`、`drafting_required_hooks`、`hard_fail_signals`
 - `dimension_report_ref`:
-  - `4-Validation/第N集/类型兑现.md`
+  - `4-Validation/第V卷/类型兑现.md`
 - 默认返工节点：
   - `2-节奏优化`
   - `5-对白个性化`

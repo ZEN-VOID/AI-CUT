@@ -49,8 +49,8 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 先让本集有完整、可读、可继续加工的叙事底座，而不是直接追求完美文笔。 |
-| `business_object` | `2-Planning/全息地图.json`、上一集终稿、当前 `第N集.md`。 |
-| `constraint_profile` | 必须执行规划义务；必须回应上一集停点；不得提前替后续工序做过度装饰。 |
+| `business_object` | `2-Planning/全息地图.json`、当前卷 continuity pack、当前 `第N集.md`。 |
+| `constraint_profile` | 必须执行规划义务；必须优先回应当前卷 continuity pack；若前序集终稿已存在，可用作增强校准；不得提前替后续工序做过度装饰。 |
 | `success_criteria` | 当前集已经是一篇完整可读初稿，能回答“发生了什么、谁在做什么、为什么要继续看”。 |
 | `topology_fit` | `root reread -> board locate -> board decode -> continuity bridge -> scene chain -> first full draft` |
 
@@ -61,9 +61,9 @@ governance_tier: lite
   - `0-Init/story-source-manifest.yaml`
   - 当前 `episode_num / episode_id`
   - 当前 `第N集.md`
-  - `写作日志.yaml`
+  - 当前卷 `第V卷.写作日志.yaml`
 - 条件必需输入：
-  - `N > 1` 时的上一集终稿
+  - 若当前卷前序集已完成，可选读取上一集终稿
 - 硬规则：
   - 必须先按 shared locating contract 命中唯一 `chapter_board`，再抽取本集债务。
   - 禁止用 `chapter_boards` 数组顺序或标题文案猜测“哪一个是本集”。
@@ -124,7 +124,7 @@ flowchart TD
 | `FIELD-DR1-01` | 当前 root | 已回读 root / log / episode scope | `FAIL-DR1-01` | `N1` |
 | `FIELD-DR1-02` | 本集 board 定位 | 当前集已命中唯一 `chapter_board` | `FAIL-DR1-02` | `N2` |
 | `FIELD-DR1-03` | 本集功能锁定 | 功能债与 threads 债务清楚 | `FAIL-DR1-03` | `N3` |
-| `FIELD-DR1-04` | 连续性承接 | 上一集停点已接上 | `FAIL-DR1-04` | `N4` |
+| `FIELD-DR1-04` | 连续性承接 | 卷级 entry state 已接上；若前序集终稿存在，则已完成二次校准 | `FAIL-DR1-04` | `N4` |
 | `FIELD-DR1-05` | 首轮完整正文 | 非占位、可读、可继续加工 | `FAIL-DR1-05` | `N5` |
 
 ## Completion Contract
@@ -132,4 +132,4 @@ flowchart TD
 - 当前集已形成完整初稿。
 - 初稿已回应本集 chapter board 的核心功能。
 - `process_log_entry` 已能说明本集 board 如何被定位。
-- `process_log_entry` 已能说明起盘如何承接上一集。
+- `process_log_entry` 已能说明起盘如何承接卷级 entry state；若前序集终稿存在，也能说明如何完成二次校准。

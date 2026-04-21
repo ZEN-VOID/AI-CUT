@@ -5,7 +5,7 @@
 本文件把 `story/2-Planning` 的 canonical planning truth 从“单一大 root”收束为：
 
 - 一个全局总索引根：`2-Planning/全息地图.json`
-- 一组按十集切分的 episode slice：`2-Planning/十集分片/第001-010集.json` 等
+- 一组按卷切分的 planning slice：`2-Planning/卷分片/第1卷.json` 等
 
 它是 `2-Planning / 3-Drafting / 4-Validation / 5-Loopback / query` 共享的数据分层真源。任何 sibling skill 不得再各自定义第二套“root 放什么、slice 放什么”的平行规则。
 
@@ -26,9 +26,9 @@
 
 ### 2. Episode Slice Files
 
-- 路径模式：`2-Planning/十集分片/第001-010集.json`
+- 路径模式：`2-Planning/卷分片/第1卷.json`
 - 每个 slice 固定覆盖 10 集；最后一个 slice 允许小于 10 集
-- truth role：episode-local dense planning truth
+- truth role：volume-local dense planning truth
 
 ### 3. Child Evidence Artifacts
 
@@ -59,19 +59,20 @@
 | `state_transitions` | 全局状态转移语义 | `4-Validation / 5-Loopback` |
 | `navigation_rules` | 导航与读法规则 | 全阶段 |
 | `episode_sequence_axis` | episode -> slice -> chapter_board 的薄索引 | `3-Drafting / 4-Validation / query` |
-| `episode_slice_manifest` | 十集分片清单与命名真源 | `3-Drafting / 4-Validation / 5-Loopback / validator` |
+| `episode_slice_manifest` | 卷分片清单与命名真源 | `3-Drafting / 4-Validation / 5-Loopback / validator` |
 | `actualization` | 只保留 write policy、slice summary、episode status index | `5-Loopback / query` |
 
 ## Episode Slice Slots
 
-以下字段必须下沉到 `2-Planning/十集分片/第XXX-YYY集.json.content.holomap_slice`，不得继续把完整 payload 塞回 root：
+以下字段必须下沉到 `2-Planning/卷分片/第N卷.json.content.holomap_slice`，不得继续把完整 payload 塞回 root：
 
 | slot | payload shape | owner |
 | --- | --- | --- |
 | `slice_scope` | `slice_id / episode_start / episode_end / episode_refs / file_ref` | 父层 |
-| `slice_style_contract` | 当前十集 obey 的卷级规划镜像，至少含 `contract_ref / visual_climate / action_grammar / mystery_mode / emotional_temperature / taboo_writeups` | `2-章节规划` |
+| `slice_style_contract` | 当前十集 obey 的卷级规划镜像，至少含 `contract_ref / volume_ref / volume_promise / wave_duty / entry_promise / exit_hook / visual_climate / action_grammar / mystery_mode / emotional_temperature / scene_materials / performance_axis / taboo_writeups` | `2-章节规划` |
 | `chapter_boards` | 当前十集的 board 全量密集载荷 | `2-章节规划` 起步，`3-7` 挂载 |
 | `episode_sequence_axis` | 当前十集的轴明细，至少含 `episode_ref / chapter_board_ref / slice_ref` | `2-章节规划` |
+| `cross_chapter_continuity_matrix` | 当前十集的 continuity pack，至少含相邻章节承接、活跃线程延续、预期出场/退场差分 | `2-章节规划` |
 | `thread_window_slice` | 当前十集的 conflict / mission / clue / foreshadow window | `4-7` |
 | `foreshadow_silence_slice` | 当前十集的伏笔静默窗口 | `7-伏笔设计` |
 | `actualization` | 当前十集 episode-local actualization 明细 | `5-Loopback` |
@@ -81,8 +82,8 @@
 | consumer | 先读哪层 | 再读哪层 | 只从哪层取关键 payload |
 | --- | --- | --- | --- |
 | `2-Planning` 父层 | global index root | 本轮命中的 slice | dense `chapter_boards / actualization` 只从 slice 取 |
-| `3-Drafting` | global index root | 当前集命中的 slice | `chapter_board / thread_window_slice / foreshadow_silence_slice` |
-| `4-Validation` | global index root | 当前集命中的 slice | `chapter_board / planning debt / foreshadow_silence_slice` |
+| `3-Drafting` | global index root | 当前集命中的 slice | `chapter_board / cross_chapter_continuity_matrix / thread_window_slice / foreshadow_silence_slice` |
+| `4-Validation` | global index root | 当前集命中的 slice | `chapter_board / cross_chapter_continuity_matrix / planning debt / foreshadow_silence_slice` |
 | `5-Loopback` | global index root | 当前集命中的 slice | `actualization` 细节只写 slice，root 只刷 summary/index |
 | `query` | global index root | 仅在问题涉及 episode-local board 或 actualization detail 时再读 slice | local board / actualization detail |
 
@@ -101,7 +102,7 @@
 
 ## Naming Rules
 
-1. slice 目录固定：`2-Planning/十集分片/`
+1. slice 目录固定：`2-Planning/卷分片/`
 2. 文件名固定：`第%03d-%03d集.json`
 3. `slice_id` 固定：`slice-%03d-%03d`
 4. `episode_slice_manifest[].file_ref` 必须与文件名完全一致。
@@ -120,7 +121,10 @@
 5. 所有 slice 的 episode coverage 连续、无重叠、无漏集
 6. `episode_sequence_axis[].slice_ref` 能命中 manifest
 7. slice 内 `chapter_boards[].episode_ref` 必须全部落在本 slice 范围内
-8. `5-Loopback` 写回后，root 只更新 summary/index，slice 才更新 actualization 明细
+8. slice 必须存在 `slice_style_contract`，且至少镜像卷级 promise / wave / style / taboo 核心字段
+9. slice 必须存在非空 `cross_chapter_continuity_matrix`
+10. slice 内 `chapter_boards[].planned_state` 必须带 `chapter_promise / entry_state / carryover_threads / expected_exit_delta`
+11. `5-Loopback` 写回后，root 只更新 summary/index，slice 才更新 actualization 明细
 
 ## Compatibility Rule
 

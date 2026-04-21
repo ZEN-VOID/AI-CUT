@@ -35,4 +35,4 @@
 - 如果 board 上看不到 conflict refs，后续任务链通常会漂成被动应对。
 - 强冲突过早耗尽，往往不是内容太弱，而是 Step 4 提前把梯度用光了。
 - 冲突最好绑在“哪对角色关系正在被扭曲”上，而不是额外再造一份人物背景说明。
-- 进入十集分片模式后，冲突 master 仍留 global，章节冲突挂载与窗口细节必须落 slice；不要两边各保一份完整 conflict payload。
+- 进入卷分片模式后，冲突 master 仍留 global，章节冲突挂载与窗口细节必须落 slice；不要两边各保一份完整 conflict payload。

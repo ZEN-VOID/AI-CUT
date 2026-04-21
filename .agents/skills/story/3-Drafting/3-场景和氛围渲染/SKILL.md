@@ -58,7 +58,7 @@ governance_tier: lite
 - 必需输入：
   - 当前 `第N集.md`
   - `1-Cards/3-场景卡/**/*.json`
-  - `写作日志.yaml`
+  - `第V卷.写作日志.yaml`
 - 可选增强输入：
   - `1-Cards/0-全局卡/**/*.json`
   - 当前项目 `type-pack` 对 drafting stage 的投影

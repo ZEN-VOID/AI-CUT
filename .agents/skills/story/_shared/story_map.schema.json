@@ -117,6 +117,123 @@
         }
       }
     },
+    "string_or_string_array": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "volume_board_entry": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "volume_ref",
+        "chapter_range",
+        "core_function",
+        "volume_promise",
+        "wave_duty",
+        "entry_promise",
+        "exit_hook",
+        "visual_climate",
+        "action_grammar",
+        "mystery_mode",
+        "emotional_temperature",
+        "scene_materials",
+        "performance_axis",
+        "taboo_writeups"
+      ],
+      "properties": {
+        "volume_ref": {
+          "type": "string"
+        },
+        "chapter_range": {
+          "type": "string"
+        },
+        "core_function": {
+          "type": "string"
+        },
+        "volume_promise": {
+          "type": "string"
+        },
+        "wave_duty": {
+          "type": "string"
+        },
+        "entry_promise": {
+          "type": "string"
+        },
+        "exit_hook": {
+          "type": "string"
+        },
+        "visual_climate": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "action_grammar": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "mystery_mode": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "emotional_temperature": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "scene_materials": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "performance_axis": {
+          "$ref": "#/$defs/string_or_string_array"
+        },
+        "taboo_writeups": {
+          "$ref": "#/$defs/string_or_string_array"
+        }
+      }
+    },
+    "chapter_planned_state_entry": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "chapter_promise",
+        "entry_state",
+        "carryover_threads",
+        "expected_exit_delta",
+        "character_focus",
+        "relationship_focus"
+      ],
+      "properties": {
+        "chapter_promise": {
+          "type": "string"
+        },
+        "entry_state": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "carryover_threads": {
+          "type": "array",
+          "items": {}
+        },
+        "expected_exit_delta": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "character_focus": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "relationship_focus": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
     "character_roster_projection_entry": {
       "type": "object",
       "additionalProperties": false,
@@ -433,8 +550,7 @@
           }
         },
         "planned_state": {
-          "type": "object",
-          "additionalProperties": true
+          "$ref": "#/$defs/chapter_planned_state_entry"
         }
       }
     },
@@ -601,7 +717,7 @@
             "volume_boards": {
               "type": "array",
               "items": {
-                "type": "object"
+                "$ref": "#/$defs/volume_board_entry"
               }
             },
             "chapter_boards": {

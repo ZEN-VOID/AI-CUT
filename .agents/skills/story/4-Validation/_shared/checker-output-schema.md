@@ -11,15 +11,20 @@
 - `rework_targets`
 - `source_trace`
 - `dimension_report_ref`
+- `volume_ref`
+- `chapter_refs`
 
 ## Aggregate JSON Required Fields
 
 - `validation_status`
 - `validation_mode`
+- `volume_ref`
+- `chapter_refs`
 - `selected_agents`
 - `dimension_packets`
 - `dimension_report_refs`
 - `issues`
+- `chapter_issue_index`
 - `severity_counts`
 - `critical_issues`
 - `overall_score`

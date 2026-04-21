@@ -207,11 +207,11 @@ canonical contracts：
 | 根级 `type-packs/` | `网文/<题材>/` 目录知识、family craft、type-pack loading contract、resolver 装载口径 | 章节正文、validation gate、loopback writeback |
 | `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-Cards` | 角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
-| `2-Planning` | `2-Planning/全息地图.json` 的 index/dispatch/navigation 根真源 + `2-Planning/十集分片/*.json` 的 episode-local dense planning truth | 对象当前态、validated actualization |
-| `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md + 写作日志.yaml` 为核心的章节正文真源与工序账本 | 评估判断权、validated truth writeback |
-| `4-Validation` | `validation_fact_pack` covenant、6 维隔离评估、父层 `4-Validation/第N集.validation.json` 聚合 gate | 审查报告持久化、actualization 写回 |
+| `2-Planning` | `2-Planning/全息地图.json` 的 index/dispatch/navigation 根真源 + `2-Planning/卷分片/*.json` 的卷级 dense planning truth（固定 10 章 = 1 卷时，卷分片即卷分片） | 对象当前态、validated actualization |
+| `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md` 的集级正文真源 + `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 的卷级批次账本 | 评估判断权、validated truth writeback |
+| `4-Validation` | `validation_fact_pack` covenant、6 维隔离评估、父层 `4-Validation/第V卷.validation.json` 卷级聚合 gate | 审查报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
-| `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第N集.loopback.json`、PASS+handoff-granted writeback | 未通过验证或未被 handoff 授权的修改写回 |
+| `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第V卷.loopback.json`、PASS+handoff-granted writeback | 未通过验证或未被 handoff 授权的修改写回 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
 | `doubao` | 风格分析、中文表达强化、候选润色正文与用户显式授权下的单点覆写 | `Cards / Planning / validation_status / actualization` 判定权 |
 
@@ -339,9 +339,9 @@ repo 级 authoritative source：
   - navigation
   - episode slice manifest
   - episode sequence axis
-- dense episode-local planning 与 local actualization detail 当前落在：
-  - `2-Planning/十集分片/*.json`
-- downstream 若要读取当前集义务，必须优先通过：
+- dense volume-local planning 与 local actualization detail 当前落在：
+  - `2-Planning/卷分片/*.json`
+- downstream 若要读取当前卷或当前集义务，必须优先通过：
   - `planning_slice_ref`
   - `story_map_slice_ref`
   - `episode_sequence_axis / chapter_board_ref`
@@ -350,7 +350,7 @@ repo 级 authoritative source：
 ### Validation Aggregate Gate
 
 - `4-Validation` 的父层真源不是 child sidecar，而是：
-  - `4-Validation/第N集.validation.json`
+  - `4-Validation/第V卷.validation.json`
 - canonical `validation_fact_pack` 目前必须同时具备：
   - `draft_snapshot`
   - `cards_truth`

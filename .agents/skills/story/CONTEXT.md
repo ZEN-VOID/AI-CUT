@@ -41,8 +41,8 @@ last_checked_at: 2026-04-19T00:00:00Z
 | `type-pack` 已可加载，但 drafting 八工序仍共享同一套提示，导致 step hook 没有真正进入执行层 | step-specific projection gap | 把 `current_step_id` 透传到 context / extract / validation，并让 runtime 从 `drafting.step_hooks.Step X` 读取当前工序规则 | 固定“step hook 只在 pack 真源定义，runtime 统一按 `current_step_id` 消费”的链路，禁止 8 个 drafting 子技能各抄一份类型表 | `Step 2 / Step 5 / Step 6 / Step 7 / Step 8` 能收到不同 type-pack checklist 与 fail signal |
 | 类型兑现只是结构兑现的附注，导致返工入口在“剧情没写成”和“题材没写像”之间漂移 | validation dimension boundary | 在 `4-Validation` 增加独立 `type-pack-fit-validator` 维度，并把 registry / runner / child skill 同轮接上 | pack.validation、registry、runner 与子技能共同承认“类型兑现”是独立维度，不再静默并入 `structure-validator` | aggregate JSON 与 sidecar 可单独追踪 type-pack fit 问题与返工节点 |
 | 根层与 shared contract 把 `pack-catalog.yaml` 写成当前强依赖，但 runtime 其实仍处于目录优先的 bootstrap 模式 | type-pack bootstrap contract drift | 先把根 `SKILL.md`、`CONTEXT.md`、`_shared/type-pack-loading-contract.md` 与 resolver 返回口径统一到 `directory-first-bootstrap` | 在 catalog 未落地前，固定“目录知识 + resolver 内置推断 + tests”才是当前真源，禁止让文档先于运行时宣称 catalog 已生效 | 根层合同、resolver 输出与 tests 对 `pack_catalog_ref / resolution_mode` 的口径一致 |
-| 下游读取 planning truth 时只盯 `全息地图.json` 根层，不显式命中 `planning_slice_ref / story_map_slice_ref`，导致当前集 board 解析靠猜 | planning root-vs-slice drift | 先回 `chapter-board-locating-contract.md`，用 `episode_sequence_axis / slice_ref / chapter_board_ref` 收束到唯一 slice 与唯一 board | 固定“root 只做 dispatch/index，dense local truth 在十集分片”的根层说明，并要求下游显式携带 `planning_slice_ref / story_map_slice_ref` | drafting / validation / loopback 不再用 root-only 路径或数组顺序猜当前集 |
-| 终验已经产出 child sidecar，但根层仍把 `4-Validation` 理解成抽象判断层，没有把父层 aggregate JSON 当成唯一 gate | validation aggregate landing gap | 把 `4-Validation/第N集.validation.json` 明确写成父层 canonical sink，并强制 pack covenant 与 routing/handoff 字段一起落盘 | 固定“child report 只是维度证据，aggregate JSON 才是真正 gate”的根层认知；review/loopback 只消费父层聚合结果 | 出现 PASS/FAIL 问题时，定位会先落到 aggregate JSON，而不是散落 child sidecar |
+| 下游读取 planning truth 时只盯 `全息地图.json` 根层，不显式命中 `planning_slice_ref / story_map_slice_ref`，导致当前卷或当前集 board 解析靠猜 | planning root-vs-slice drift | 先回 `chapter-board-locating-contract.md`，用 `episode_sequence_axis / slice_ref / chapter_board_ref` 收束到唯一 slice 与唯一 board | 固定“root 只做 dispatch/index，dense local truth 在卷分片” 的根层说明，并要求下游显式携带 `planning_slice_ref / story_map_slice_ref` | drafting / validation / loopback 不再用 root-only 路径或数组顺序猜当前集 |
+| 终验已经产出 child sidecar，但根层仍把 `4-Validation` 理解成抽象判断层，没有把父层 aggregate JSON 当成唯一 gate | validation aggregate landing gap | 把 `4-Validation/第V卷.validation.json` 明确写成父层 canonical sink，并强制 pack covenant 与 routing/handoff 字段一起落盘 | 固定“child report 只是维度证据，aggregate JSON 才是真正 gate”的根层认知；review/loopback 只消费父层聚合结果 | 出现 PASS/FAIL 问题时，定位会先落到 aggregate JSON，而不是散落 child sidecar |
 | loopback 被理解成“PASS 后自然回写”，忽略了 `handoff_targets`、`expected_revision` 与 staged commit 纪律 | loopback authorization drift | 把根层说明改成 `PASS + handoff granted + revision guard + pending manifest` 的完整闭环 | 固定“PASS 不是充分条件，Cards -> MAP slice -> MAP root -> STATE -> artifact 才是提交顺序”的跨阶段总则 | review-only PASS 不再被当作可 actualize，crash 后也能从 pending marker 识别半完成态 |
 
 ## Repair Playbook
@@ -52,7 +52,7 @@ last_checked_at: 2026-04-19T00:00:00Z
 3. 若同一规则在多个阶段重复出现，优先找根级 canonical source，而不是逐个阶段补丁。
 4. 若共享脚本或共享 reference 失配，先修共享层，再让阶段合同回指共享层。
 5. 若问题涉及当前集 planning truth，先分清 root dispatch 与 slice dense truth，再判断是 locate 失败还是 root/slice 边界写错。
-6. 若问题涉及验收或回写，先确认是否已有 `4-Validation/第N集.validation.json` 与 `5-Loopback/第N集.loopback.json`，不要先看 child sidecar 或手工说明。
+6. 若问题涉及验收或回写，先确认是否已有 `4-Validation/第V卷.validation.json` 与 `5-Loopback/第V卷.loopback.json`，不要先看 child sidecar 或手工说明。
 7. 收尾验证固定检查：
    - 根级 `SKILL.md` 是否能解释主链与卫星关系
    - 根级 `CONTEXT.md` 是否记录跨阶段经验
@@ -79,9 +79,9 @@ last_checked_at: 2026-04-19T00:00:00Z
 - 若 pack 已定义 `drafting.step_hooks`，runtime 就必须同时拿到 `current_step_id`；否则只是把规则写进了真源，却没有真正变成执行约束。
 - 类型兑现应当独立成 validator 维度，而不是继续借住在结构兑现里；否则最终只会得到一个模糊低分，拿不到稳定返工入口。
 - 在 `pack-catalog.yaml` 还没真正落地前，最危险的漂移不是“没写 catalog”，而是文档先把 catalog 写成已生效真源；这种情况下要优先让根合同、shared contract、resolver 输出和 tests 四者对齐。
-- `2-Planning/全息地图.json` 最适合承载 index/dispatch/navigation；只要当前集的 dense truth 已经切到十集分片，就不要再让 drafting、validation、loopback 从 root-only 视角猜本集义务。
-- `4-Validation` 真正能给下游授权的不是 child 维度报告，而是父层 `第N集.validation.json` 里的 `validation_status / routing_decision / handoff_targets` 组合。
-- `5-Loopback` 最容易被误写成“PASS 后自然收尾”，但真正需要盯住的是：handoff 是否完整、delta 是否过期、pending manifest 是否留下了 crash 痕迹。
+- `2-Planning/全息地图.json` 最适合承载 index/dispatch/navigation；只要 dense truth 已经切到卷分片，就不要再让 drafting、validation、loopback 从 root-only 视角猜当前卷或当前集义务。
+- `4-Validation` 真正能给下游授权的不是 child 维度报告，而是父层 `第V卷.validation.json` 里的 `validation_status / routing_decision / handoff_targets` 组合。
+- 卷级 loopback 最容易被误写成“PASS 后自然收尾”，但真正需要盯住的是：handoff 是否完整、delta 是否过期、pending manifest 是否留下了 crash 痕迹。
 - 当共享 taxonomy 已经存在于根级 `_shared/` 时，阶段技能应该消费它，而不是在本地重复定义另一套分类解释；阶段只保留“怎么用”，共享层才保留“是什么”。
 - 当一个 reference 更像“工程方法手册”而不是“定义字典”时，应单独成为 shared guide，而不是硬塞进 taxonomy；否则定义层和编排层会重新缠在一起。
 - 当根级 `_shared/` 中某组前端资产已经形成“模板 + 样式 + 脚本”的稳定组件时，应收进独立子目录，而不是继续在 `_shared/` 根层平铺多个同名前缀文件。

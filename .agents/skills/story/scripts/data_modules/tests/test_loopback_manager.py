@@ -83,7 +83,7 @@ def _build_project_with_slice(project_root: Path) -> None:
                     "episode_slice_manifest": [
                         {
                             "slice_id": "slice-011-020",
-                            "file_ref": "十集分片/第011-020集.json",
+                            "file_ref": "卷分片/第2卷.json",
                         }
                     ],
                     "chapter_boards": [],
@@ -104,7 +104,7 @@ def _build_project_with_slice(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "2-Planning" / "十集分片" / "第011-020集.json",
+        project_root / "2-Planning" / "卷分片" / "第2卷.json",
         {
             "schema_version": "story2026/holomap-slice/v1",
             "content": {
@@ -570,13 +570,13 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
     assert int(exc.value.code or 0) == 0
 
     artifact = json.loads((project_root / "5-Loopback" / "第12集.loopback.json").read_text(encoding="utf-8"))
-    assert artifact["inputs"]["story_map_slice_ref"] == "2-Planning/十集分片/第011-020集.json"
+    assert artifact["inputs"]["story_map_slice_ref"] == "2-Planning/卷分片/第2卷.json"
     assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
     assert "episode_status_index:第012集" in artifact["content"]["writeback_summary"]["written_map_refs"]
     assert "slice_status_index:slice-011-020" in artifact["content"]["writeback_summary"]["written_map_refs"]
 
     slice_payload = json.loads(
-        (project_root / "2-Planning" / "十集分片" / "第011-020集.json").read_text(encoding="utf-8")
+        (project_root / "2-Planning" / "卷分片" / "第2卷.json").read_text(encoding="utf-8")
     )
     slice_nodes = slice_payload["content"]["holomap_slice"]["actualization"]["episode_nodes"]
     assert slice_nodes[0]["episode_ref"] == "第012集"

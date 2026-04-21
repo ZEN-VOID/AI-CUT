@@ -54,11 +54,63 @@ SPLIT_REQUIRED_HOLOMAP_KEYS = [
 
 SPLIT_SLICE_REQUIRED_KEYS = [
     "slice_scope",
+    "slice_style_contract",
     "chapter_boards",
     "episode_sequence_axis",
+    "cross_chapter_continuity_matrix",
     "thread_window_slice",
     "foreshadow_silence_slice",
     "actualization",
+]
+
+VOLUME_BOARD_REQUIRED_FIELDS = [
+    "volume_ref",
+    "chapter_range",
+    "core_function",
+    "volume_promise",
+    "wave_duty",
+    "entry_promise",
+    "exit_hook",
+    "visual_climate",
+    "action_grammar",
+    "mystery_mode",
+    "emotional_temperature",
+    "scene_materials",
+    "performance_axis",
+    "taboo_writeups",
+]
+
+SLICE_STYLE_REQUIRED_FIELDS = [
+    "contract_ref",
+    "volume_ref",
+    "volume_promise",
+    "wave_duty",
+    "entry_promise",
+    "exit_hook",
+    "visual_climate",
+    "action_grammar",
+    "mystery_mode",
+    "emotional_temperature",
+    "scene_materials",
+    "performance_axis",
+    "taboo_writeups",
+]
+
+CHAPTER_PLANNED_STATE_REQUIRED_FIELDS = [
+    "chapter_promise",
+    "entry_state",
+    "carryover_threads",
+    "expected_exit_delta",
+    "character_focus",
+    "relationship_focus",
+]
+
+CONTINUITY_MATRIX_REQUIRED_FIELDS = [
+    "from_episode_ref",
+    "to_episode_ref",
+    "bridge_summary",
+    "carryover_threads",
+    "expected_shift",
 ]
 
 PROHIBITED_ROOT_ACTUALIZATION_DETAIL_KEYS = [
@@ -71,7 +123,8 @@ PROHIBITED_ROOT_ACTUALIZATION_DETAIL_KEYS = [
     "threads",
 ]
 
-SLICE_FILENAME_RE = re.compile(r"^第(\d{3})-(\d{3})集\.json$")
+SLICE_RANGE_FILENAME_RE = re.compile(r"^第(\d{3})-(\d{3})集\.json$")
+SLICE_VOLUME_FILENAME_RE = re.compile(r"^第(\d+)卷\.json$")
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -103,6 +156,81 @@ def _validate_bundled_elements(board: dict[str, Any], errors: list[str], prefix:
             errors.append(f"{prefix}.bundled_elements 缺少 {key}")
 
 
+def _is_non_empty_value(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, list):
+        return any(_is_non_empty_value(item) for item in value)
+    if isinstance(value, dict):
+        return bool(value)
+    return True
+
+
+def _validate_required_fields(
+    payload: Any,
+    required_fields: list[str],
+    errors: list[str],
+    prefix: str,
+) -> None:
+    if not isinstance(payload, dict):
+        errors.append(f"{prefix} 必须是 object")
+        return
+    for field in required_fields:
+        if field not in payload:
+            errors.append(f"{prefix} 缺少 {field}")
+            continue
+        if not _is_non_empty_value(payload.get(field)):
+            errors.append(f"{prefix}.{field} 不得为空")
+
+
+def _validate_volume_boards(holomap: dict[str, Any], errors: list[str], *, strict: bool) -> None:
+    volume_boards = holomap.get("volume_boards")
+    if not isinstance(volume_boards, list) or not volume_boards:
+        errors.append("volume_boards 必须为非空数组")
+        return
+    if not strict:
+        return
+    for idx, board in enumerate(volume_boards):
+        _validate_required_fields(board, VOLUME_BOARD_REQUIRED_FIELDS, errors, f"volume_boards[{idx}]")
+
+
+def _validate_chapter_board_planned_state(board: dict[str, Any], errors: list[str], prefix: str) -> None:
+    planned_state = board.get("planned_state")
+    _validate_required_fields(
+        planned_state,
+        CHAPTER_PLANNED_STATE_REQUIRED_FIELDS,
+        errors,
+        f"{prefix}.planned_state",
+    )
+
+
+def _validate_slice_style_contract(slice_content: dict[str, Any], errors: list[str], prefix: str, *, strict: bool) -> None:
+    contract = slice_content.get("slice_style_contract")
+    if not isinstance(contract, dict):
+        errors.append(f"{prefix}.slice_style_contract 必须是 object")
+        return
+    if strict:
+        _validate_required_fields(contract, SLICE_STYLE_REQUIRED_FIELDS, errors, f"{prefix}.slice_style_contract")
+
+
+def _validate_continuity_matrix(slice_content: dict[str, Any], errors: list[str], prefix: str, *, strict: bool) -> None:
+    matrix = slice_content.get("cross_chapter_continuity_matrix")
+    if not isinstance(matrix, list) or not matrix:
+        errors.append(f"{prefix}.cross_chapter_continuity_matrix 必须为非空数组")
+        return
+    if not strict:
+        return
+    for idx, entry in enumerate(matrix):
+        _validate_required_fields(
+            entry,
+            CONTINUITY_MATRIX_REQUIRED_FIELDS,
+            errors,
+            f"{prefix}.cross_chapter_continuity_matrix[{idx}]",
+        )
+
+
 def _validate_legacy(data: dict[str, Any], strict: bool) -> list[str]:
     errors: list[str] = []
 
@@ -124,15 +252,18 @@ def _validate_legacy(data: dict[str, Any], strict: bool) -> list[str]:
         if key not in holomap:
             errors.append(f"content.holomap 缺少 {key}")
 
+    _validate_volume_boards(holomap, errors, strict=strict)
+
     chapter_boards = holomap.get("chapter_boards", [])
     if not isinstance(chapter_boards, list) or not chapter_boards:
         errors.append("chapter_boards 必须为非空数组")
     elif strict:
-        first = chapter_boards[0]
-        if not isinstance(first, dict):
-            errors.append("chapter_boards[] 必须是 object")
-        else:
-            _validate_bundled_elements(first, errors, "chapter_boards[0]")
+        for idx, board in enumerate(chapter_boards):
+            if not isinstance(board, dict):
+                errors.append(f"chapter_boards[{idx}] 必须是 object")
+                continue
+            _validate_bundled_elements(board, errors, f"chapter_boards[{idx}]")
+            _validate_chapter_board_planned_state(board, errors, f"chapter_boards[{idx}]")
 
     if strict and not holomap.get("cross_thread_indexes"):
         errors.append("strict 模式要求 cross_thread_indexes 非空")
@@ -163,6 +294,8 @@ def _validate_split(root_path: Path, data: dict[str, Any], strict: bool) -> list
     for key in SPLIT_REQUIRED_HOLOMAP_KEYS:
         if key not in holomap:
             errors.append(f"split 模式下 content.holomap 缺少 {key}")
+
+    _validate_volume_boards(holomap, errors, strict=strict)
 
     chapter_boards = holomap.get("chapter_boards")
     if chapter_boards not in (None, []):
@@ -206,14 +339,22 @@ def _validate_split(root_path: Path, data: dict[str, Any], strict: bool) -> list
         if not isinstance(file_ref, str):
             errors.append(f"{prefix}.file_ref 必须是 string")
             continue
-        match = SLICE_FILENAME_RE.match(Path(file_ref).name)
-        if not match:
-            errors.append(f"{prefix}.file_ref 命名不合法，应为 第001-010集.json")
+        filename = Path(file_ref).name
+        range_match = SLICE_RANGE_FILENAME_RE.match(filename)
+        volume_match = SLICE_VOLUME_FILENAME_RE.match(filename)
+        if range_match:
+            name_start = int(range_match.group(1))
+            name_end = int(range_match.group(2))
+            if (name_start, name_end) != (start, end):
+                errors.append(f"{prefix}.file_ref 与 episode range 不一致")
+        elif volume_match:
+            volume_num = int(volume_match.group(1))
+            expected_volume = ((start - 1) // 10) + 1
+            if volume_num != expected_volume:
+                errors.append(f"{prefix}.file_ref 与卷号不一致，期望第{expected_volume}卷.json")
+        else:
+            errors.append(f"{prefix}.file_ref 命名不合法，应为 第N卷.json（或 legacy 第001-010集.json）")
             continue
-        name_start = int(match.group(1))
-        name_end = int(match.group(2))
-        if (name_start, name_end) != (start, end):
-            errors.append(f"{prefix}.file_ref 与 episode range 不一致")
 
         slice_path = (root_dir / file_ref).resolve()
         manifest_ids[slice_id] = (start, end, slice_path)
@@ -239,6 +380,9 @@ def _validate_split(root_path: Path, data: dict[str, Any], strict: bool) -> list
         for key in SPLIT_SLICE_REQUIRED_KEYS:
             if key not in slice_content:
                 errors.append(f"{slice_path.name}.content.holomap_slice 缺少 {key}")
+
+        _validate_slice_style_contract(slice_content, errors, f"{slice_path.name}.content.holomap_slice", strict=strict)
+        _validate_continuity_matrix(slice_content, errors, f"{slice_path.name}.content.holomap_slice", strict=strict)
 
         slice_scope = slice_content.get("slice_scope")
         if isinstance(slice_scope, dict):
@@ -274,6 +418,11 @@ def _validate_split(root_path: Path, data: dict[str, Any], strict: bool) -> list
                     )
                 if strict:
                     _validate_bundled_elements(
+                        board,
+                        errors,
+                        f"{slice_path.name}.chapter_boards[{board_idx}]",
+                    )
+                    _validate_chapter_board_planned_state(
                         board,
                         errors,
                         f"{slice_path.name}.chapter_boards[{board_idx}]",

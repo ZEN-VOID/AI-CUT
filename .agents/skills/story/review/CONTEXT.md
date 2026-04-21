@@ -42,7 +42,7 @@
 - 只要某个字段要进入趋势统计，它就必须成为 SQLite 正式列，而不是停留在示例 JSON 或 `notes`。
 - `validation_status` 的所有权只在 `4-Validation`；`review/` 只能说明它、不能改写它。
 - `review/` 的 intake gate 要先判“当前轮 aggregate 是否已经存在且可证明有效”，再决定是消费还是回 `4-Validation` 重建。
-- `STATE.json.review_checkpoints` 最适合保存“章节范围 + 报告路径 + 时间戳”的轻量摘要，不适合塞回完整 issue 列表。
+- `STATE.json.review_checkpoints` 最适合保存“卷号/卷引用 + 章节范围兼容字段 + 报告路径 + 时间戳”的轻量摘要，不适合塞回完整 issue 列表。
 - 轻量摘要不等于盲摘要；凡是需要被 `resume / status / trend` 快速识别的一等风险字段，应与报告路径一起回写到 `review_checkpoints`。
 - 解释规划影响时，优先读 `全息地图.json`；解释运行态时，优先读 `STATE.json`；解释历史趋势时，优先读 `index.db.review_metrics`。
 - 若 validation 已经单列 `type-pack-fit-validator`，review 就不该再把类型兑现藏进“综合评分备注”；应该显式写出来，方便人工判断“写得不错但不像这个题材”的问题。

@@ -27,6 +27,8 @@
       "volume_planning_contract": {
         "contract_version": "volume-planning-v1",
         "required_volume_board_fields": [
+          "volume_ref",
+          "chapter_range",
           "core_function",
           "volume_promise",
           "wave_duty",
@@ -40,11 +42,39 @@
           "performance_axis",
           "taboo_writeups"
         ],
+        "required_slice_style_contract_fields": [
+          "contract_ref",
+          "volume_ref",
+          "volume_promise",
+          "wave_duty",
+          "entry_promise",
+          "exit_hook",
+          "visual_climate",
+          "action_grammar",
+          "mystery_mode",
+          "emotional_temperature",
+          "scene_materials",
+          "performance_axis",
+          "taboo_writeups"
+        ],
+        "required_chapter_planned_state_fields": [
+          "chapter_promise",
+          "entry_state",
+          "carryover_threads",
+          "expected_exit_delta",
+          "character_focus",
+          "relationship_focus"
+        ],
+        "required_continuity_pack_slots": [
+          "content.holomap_slice.cross_chapter_continuity_matrix"
+        ],
         "slice_mirror_slot": "content.holomap_slice.slice_style_contract",
         "anti_drift_rules": [
           "卷级规划不得退化成只有卷名与一句摘要。",
           "当前项目若已有总风格基调，必须下沉为每卷的表现合同。",
-          "slice_style_contract 只镜像卷级合同，不另造第二份卷级真源。"
+          "slice_style_contract 只镜像卷级合同，不另造第二份卷级真源。",
+          "chapter_boards[].planned_state 不得缺失 continuity anchors。",
+          "卷分片必须携带 cross_chapter_continuity_matrix。"
         ]
       },
       "volume_blocks": [],
@@ -195,6 +225,7 @@
       "content.holomap.episode_sequence_axis",
       "content.holomap_slice.slice_style_contract",
       "content.holomap_slice.chapter_boards",
+      "content.holomap_slice.cross_chapter_continuity_matrix",
       "content.holomap_slice.episode_sequence_axis"
     ],
     "patch_payload": {
@@ -211,6 +242,7 @@
       "content.holomap.episode_sequence_axis",
       "content.holomap_slice.slice_style_contract",
       "content.holomap_slice.chapter_boards",
+      "content.holomap_slice.cross_chapter_continuity_matrix",
       "content.holomap_slice.episode_sequence_axis"
     ],
     "write_policy": "progressive-commit"

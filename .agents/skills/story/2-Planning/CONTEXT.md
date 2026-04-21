@@ -27,7 +27,7 @@ last_checked_at: 2026-04-17T23:40:00-07:00
 | 父层 normalize 越权重写 1-7 的领域判断 | ownership gate | 把父层压回 normalize-only | 在 shared contract 固定父层只拥有三轴 / cross-thread / lifecycle / actualization | 1-7 的领域结论只会在对应 child 中修改 |
 | story_map root 丢失 `content.holomap` 兼容入口 | compatibility contract | 恢复 `content.holomap` 根槽 | 在 shared schema 中把 `content.holomap` 固化为 required | query / drafting 仍可 holomap-first |
 | planning 系统只有文档，没有 stage validator | stage completeness | 增加 `validate_story_map_output.py` 最小校验器 | 在父技能 completion contract 与 shared contract 中固定验证入口 | `--help` 可用，样例 root 可被校验 |
-| `2-Planning` 继续把完整 `chapter_boards / actualization` 堆在 `全息地图.json`，导致百集项目根文件继续膨胀 | layout contract drift | 把 root 改为 global index，把 dense board / silence / actualization 下沉到十集分片 | 在 `planning-slice-layout-contract.md` 固定 global-vs-slice 边界，并让 validator 检查 manifest、coverage 和 root payload 漂移 | 新合同下 root 只保留索引与 summary，slice 才保留 episode-local dense payload |
+| `2-Planning` 继续把完整 `chapter_boards / actualization` 堆在 `全息地图.json`，导致百集项目根文件继续膨胀 | layout contract drift | 把 root 改为 global index，把 dense board / silence / continuity pack / actualization 下沉到卷分片 | 在 `planning-slice-layout-contract.md` 固定 global-vs-slice 边界，并让 validator 检查 manifest、coverage 和 root payload 漂移 | 新合同下 root 只保留索引与 summary，slice 才保留 volume-local dense payload |
 | child skill 把 shared branch contract 写成跨出父阶段的一层更高路径，导致读到不存在的 `_shared` | child path governance | 统一改回 `../_shared/planning-branch-output-contract.md` | 约定 child 只可回读父阶段 `_shared/`，不得直接猜根级 `_shared/` 承载 stage-local contract | 7 个 planning child 的 shared contract 路径全部落到 `2-Planning/_shared/` |
 | 7 个 child artifact 没有稳定落点，最后只能把 evidence 混回 root JSON | branch artifact carrier | 统一改为 `2-Planning/pass-artifacts/1-7*.json` | 在 `planning_paths.py` 与 shared contract 固定 pass-artifacts 路径组 | 每个 child 的分析结论、patch、gate summary 都可单独回读 |
 | 规划阶段把角色卡完整复制进 root，导致 `story_map` 变成第二份角色册 | cross-stage bridge | 只在父层导入 `character_roster_projection / relationship_graph_projection` | 用共享桥合同固定“parent import / child ref-only”边界 | root 只保留角色与关系的最小 planning projection |
@@ -52,5 +52,6 @@ last_checked_at: 2026-04-17T23:40:00-07:00
 - 角色进入 planning 时，最稳的是导入 projection；冲突/任务/章节只拿 id 和 hook，不要再造一份 planning 版角色卡。
 - planning 里最容易漏的不是 pack 已不在 root，而是 pack 已在 root 却没有进入深层 child；看起来像“已经锁题材”，实际上 chapter/conflict/mission 仍按通用模板跑。
 - 当集数进入百集量级后，`全息地图.json` 最稳的角色是“总索引 + 导航锚点”，而不是继续承载每一集的 dense board payload。
+- 对下游来说，`卷分片` 不是“十集缓存”，而是卷级 contract；只要 `10 章 = 1 卷`，就必须把它当作卷地图真源来消费。
 - 只要 loopback 要写 episode-local actualization，就应该先落 slice，再回刷 root summary；反过来会重新制造 root/slice 双真源。
 - chapter board 只要挂了某条 `mission`，就至少要让一名 owner 真正在 `bundled_elements.characters` 里在场；否则宁可把 mission 从本章移出，也不要留下任务归属漂移。

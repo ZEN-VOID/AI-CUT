@@ -77,7 +77,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让章节具备推进节奏、呼吸感和章内脉冲，而不是只把事情按时间顺序摆出来。 |
-| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、当前集 `episode_rhythm_roles` / `episode_rhythm_framework`、shared core constraints，以及当前项目的 `type-pack drafting projection`。 |
+| `business_object` | Step 1 后的当前正文、当前 `第V卷.写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、当前集 `episode_rhythm_roles` / `episode_rhythm_framework`、shared core constraints，以及当前项目的 `type-pack drafting projection`。 |
 | `constraint_profile` | 不换故事骨架，只重排密度和脉冲；必须继续遵守规划真源、设定边界、推进下限、上章承诺回应与章末期待约束。 |
 | `success_criteria` | 读者能明显感知推进、停顿、加压和章末牵引，同时章节仍能回答“发生了什么/为什么现在这样”。 |
 | `non_goals` | 不重写 chapter board、本章主事件序列、设定系统、世界规则或终修文风。 |
@@ -89,7 +89,7 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `写作日志.yaml`
+  - `第V卷.写作日志.yaml`
   - `2-Planning/全息地图.json`
   - `../../_shared/core-constraints.md`
 - 硬规则：
@@ -220,7 +220,7 @@ stateDiagram-v2
 
 | node_id | field_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-DR2-01` | 回读当前正文、日志与 planning handoff，锁当前 step 的真实输入面 | Step 1 正文、`写作日志.yaml`、chapter board、`episode_rhythm_framework / roles`、reader signal | 读取 Step 1 结果、最近 hook 摘要、当前集 pack/mode 与上一集承诺承接位 | `input_note` | pass -> `N2`；正文/pack 缺失 -> 留在 `N1` | 只有正文、日志和集节奏 handoff 同时可读时才允许继续 |
+| `N1-ROOT-REREAD` | `FIELD-DR2-01` | 回读当前正文、日志与 planning handoff，锁当前 step 的真实输入面 | Step 1 正文、`第V卷.写作日志.yaml`、chapter board、`episode_rhythm_framework / roles`、reader signal | 读取 Step 1 结果、最近 hook 摘要、当前集 pack/mode 与上一章承诺承接位 | `input_note` | pass -> `N2`；正文/pack 缺失 -> 留在 `N1` | 只有正文、日志和集节奏 handoff 同时可读时才允许继续 |
 | `N2-CONSTRAINT-AND-PACK-PROJECTION` | `FIELD-DR2-02` | 把法律、物理、上章承诺与当前集节奏包同时投影进本 step | `N1` 输入、`core-constraints`、planning 义务 | 对齐 chapter board、上章承诺、设定边界、Hard/Soft/Style 约束，并锁当前集 `selected_pack / selected_mode` | `constraint_note` | pass -> `N3`；法律/pack 任一不清 -> 回 `N2` | 只有“规划没丢、设定没破、pack 已锁”三者同时成立时才可进入骨架映射 |
 | `N3-SEVEN-STEP-SPINE-MAP` | `FIELD-DR2-03` | 把本集剧情映射到统一七步骨架，而不是直接凭感觉裁字 | `N2` 约束、集节奏七步投影 | 逐一锁定 `入场 / 推动 / 转折 / 发展 / 升级 / 高潮 / 尾钩`，并叠加现有语义检查位 | `spine_note` | pass -> `N4`；只有 role 没有七步 -> 回 `N3` | 七步骨架必须被具体落位，不能只剩抽象“这集偏阴/偏阳” |
 | `N4-MODE-BRANCH-LOCK` | `FIELD-DR2-04` | 根据 planning 已选 mode 决定本集是势能式还是动能式编排 | `N3` 七步骨架、`selected_mode` | 若为 `势能式`，锁“快闪入场 -> 平静表面 -> 矛盾显形 -> 戏谑/逃避 -> 陷深 -> 不可逆高点”；若为 `动能式`，锁“激突 -> 迷阵 -> 反转 -> 发展 -> 再升压 -> 冲突高潮” | `mode_note` | 势能式 -> `N5`；动能式 -> `N5`；mode 与正文不符 -> 回 `N4` | mode 不是审美标签，必须能解释本集的推进路径 |

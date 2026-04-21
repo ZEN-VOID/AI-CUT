@@ -1,18 +1,19 @@
 {
-  "schema_version": "story2026/loopback/v1",
+  "schema_version": "story2026/loopback/v2",
   "meta": {
     "skill_id": "story-loopback",
     "project_name": "",
-    "episode_ref": "",
+    "volume_ref": "",
+    "chapter_refs": [],
     "created_at": "",
-    "template_version": "1.1.0",
+    "template_version": "2.0.0",
     "truth_role": "validated-actualization-loopback"
   },
   "inputs": {
     "project_root": "",
-    "manuscript_ref": "",
     "validation_ref": "",
-    "draft_packet_ref": "",
+    "manuscript_refs": [],
+    "volume_log_ref": "",
     "story_map_ref": "2-Planning/全息地图.json",
     "story_map_slice_ref": "",
     "validation_status": "PASS",
@@ -28,19 +29,13 @@
         "expected_revision": 0,
         "current_state_patch": {},
         "history_append": {
-          "episode_ref": "",
-          "loopback_ref": "",
+          "volume_ref": "",
           "validation_ref": "",
           "changed_fields": [],
           "change_summary": "",
           "impact_scope": "",
           "evidence_refs": [],
-          "timestamp": "",
-          "growth_delta": {
-            "skill": {},
-            "heart": {},
-            "emotion": {}
-          }
+          "timestamp": ""
         }
       },
       "map_delta_entry": {
@@ -57,11 +52,6 @@
         "refresh_mode": "replace|merge|append",
         "expected_revision": 0,
         "payload": {}
-      },
-      "evidence_ref_entry": {
-        "ref_type": "manuscript|validation_packet|draft_packet|chapter_report|card|story_map",
-        "ref_path": "",
-        "note": ""
       }
     },
     "loopback_delta": {
@@ -70,12 +60,12 @@
       "projection_refresh": [],
       "evidence_refs": []
     },
-      "writeback_summary": {
-        "written_card_refs": [],
-        "written_map_refs": [],
-        "written_map_slice_refs": [],
-        "refreshed_projection_refs": []
-      }
+    "writeback_summary": {
+      "written_card_refs": [],
+      "written_map_refs": [],
+      "written_map_slice_refs": [],
+      "refreshed_projection_refs": []
+    }
   },
   "gate_summary": {
     "status": "PASS",
@@ -90,7 +80,7 @@
     "commit_manifest": {
       "manifest_id": "",
       "phase": "pending|committed",
-      "episode_ref": "",
+      "volume_ref": "",
       "validation_ref": "",
       "artifact_ref": "",
       "written_card_refs": [],

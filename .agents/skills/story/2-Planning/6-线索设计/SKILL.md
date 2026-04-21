@@ -9,7 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的十集分片。
+- 必须回读父层合同、`../_shared/planning-slice-layout-contract.md`、`2-Planning/全息地图.json` 与当前命中的卷分片。
 
 ## Parent Positioning
 

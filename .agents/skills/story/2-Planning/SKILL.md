@@ -13,7 +13,7 @@ color: indigo
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 本技能已从“单技能 + references 模块”重构为“父 skill + 7 个受治理子技能包 + shared story_map root”。
-- 所有 planning 写入必须先回读当前 `2-Planning/全息地图.json`，再按 `episode_slice_manifest` 回读受影响 slice；若 root 不存在，先用 shared bootstrap template 建立 global root，再建立所需十集分片。
+- 所有 planning 写入必须先回读当前 `2-Planning/全息地图.json`，再按 `episode_slice_manifest` 回读受影响 slice；若 root 不存在，先用 shared bootstrap template 建立 global root，再建立所需卷分片。
 
 ## Overview
 
@@ -33,7 +33,7 @@ color: indigo
 1. 每个子技能产出自己的 `story_map_patch`，并把本地 evidence artifact 落到 `2-Planning/pass-artifacts/`。
 2. 父层先把 `1-Cards/2-角色卡` 导入为 `character_roster_projection / relationship_graph_projection`。
 3. 父层按固定顺序 `1 -> 7` 串行 progressive commit 到“global index root + 受影响 slice”。
-4. `2-Planning/全息地图.json` 是唯一全局索引真源；episode-local dense planning 必须落在 `2-Planning/十集分片/*.json`。
+4. `2-Planning/全息地图.json` 是唯一全局索引真源；episode-local dense planning 必须落在 `2-Planning/卷分片/*.json`。
 5. 父层最后只做 normalize / validate，不再额外引入其他派生视图写回。
 
 ## Parent Positioning
@@ -61,7 +61,7 @@ color: indigo
 | order | child skill | 正式落盘 | owned story_map slots |
 | --- | --- | --- | --- |
 | 1 | `1-题材选型` | global root | `story_promise`、`genre_corridor`、题材导航规则 |
-| 2 | `2-章节规划` | global root + slices | 卷级 planning contract `volume_boards`、`episode_slice_manifest`、薄 `episode_sequence_axis`、slice `slice_style_contract`、slice `chapter_boards` skeleton |
+| 2 | `2-章节规划` | global root + slices | 卷级 planning contract `volume_boards`、`episode_slice_manifest`、薄 `episode_sequence_axis`、slice `slice_style_contract`、slice `chapter_boards` skeleton、卷级 continuity pack |
 | 3 | `3-故事大纲` | global root + slices | `story_spine`、slice 章节主干事件挂载 |
 | 4 | `4-冲突设计` | global root + slices | `conflict_threads`、slice 冲突挂载 |
 | 5 | `5-任务设计` | global root + slices | `mission_threads`、slice 任务挂载 |
@@ -95,9 +95,10 @@ color: indigo
 - `2-Planning` 的正式业务落盘根目录固定为 `projects/story/<项目名>/2-Planning/`
 - canonical planning truth 固定为两层：
   - 全局索引根：`projects/story/<项目名>/2-Planning/全息地图.json`
-  - 十集分片：`projects/story/<项目名>/2-Planning/十集分片/第001-010集.json` 等
+  - 卷分片：`projects/story/<项目名>/2-Planning/卷分片/第1卷.json` 等
+- 在当前制度下，`卷分片` 是卷级 planning carrier；固定 `10 章 = 1 卷` 时，下游 `3-Drafting / 4-Validation / 5-Loopback` 都必须把它当作卷地图真源来消费。
 - `1-7` 子技能虽按顺序生成 patch，但不得各自再起 sibling story_map JSON 作为平行真源。
-- `全息地图.json` 是单一 dispatch anchor；十集分片是唯一 episode-local dense planning carrier，不是“临时缓存”。
+- `全息地图.json` 是单一 dispatch anchor；卷分片是唯一 volume-local dense planning carrier，不是“临时缓存”。
 
 ## Template Layering Contract
 
@@ -114,10 +115,10 @@ color: indigo
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把整书 planning 从“单一大 root”升级为“总索引 + 按十集分片”的双层 canonical truth，并保持全局索引与 episode-local dense planning 的边界清晰。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/1-Cards/**/*.json`、`projects/story/<项目名>/1-Cards/2-角色卡/角色关系图谱.md`、`projects/story/<项目名>/2-Planning/全息地图.json`、`projects/story/<项目名>/2-Planning/十集分片/*.json`、以及 active `type-pack` 的 root projection。 |
+| `business_goal` | 把整书 planning 收束成“总索引 + 按卷分片”的双层 canonical truth，并保持全局索引与 volume-local dense planning 的边界清晰。 |
+| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/1-Cards/**/*.json`、`projects/story/<项目名>/1-Cards/2-角色卡/角色关系图谱.md`、`projects/story/<项目名>/2-Planning/全息地图.json`、`projects/story/<项目名>/2-Planning/卷分片/*.json`、以及 active `type-pack` 的 root projection。 |
 | `constraint_profile` | 1-7 固定串行；后一 child 必须读取当前 root 与受影响 slice；1-7 只写自己的 owned patch；父层只做角色/关系 projection 导入、manifest / thin axis / normalize 与收束；下游继续 holomap-first，再按 episode 命中 slice。 |
-| `success_criteria` | 任一 child 都能回答“我拥有 global 哪一段、slice 哪一段”；父层能 progressive commit；global root 保留题材、容器、主干、四条长线、角色/关系投影、pack projection 与导航；dense board / silence / actualization 进入十集分片；validator 通过。 |
+| `success_criteria` | 任一 child 都能回答“我拥有 global 哪一段、卷分片哪一段”；父层能 progressive commit；global root 保留题材、容器、主干、四条长线、角色/关系投影、pack projection 与导航；dense board / silence / continuity pack / actualization 进入卷分片；validator 通过。 |
 | `non_goals` | 不制造第二份 `story_map.json` 平行真源；不要求每个 child 各自维护一套独立大纲；不把 slice 当临时缓存；不把 `references/*` 保留为隐式执行入口。 |
 | `complexity_source` | 复杂度来自顺序依赖、global-vs-slice ownership、progressive commit 连续性，以及 downstream holomap-first + slice-second 兼容。 |
 | `topology_fit` | 固定为 `input lock -> root bootstrap -> slice resolve -> serial child dispatch -> progressive commit -> normalize -> validate -> close`。 |
@@ -139,7 +140,7 @@ color: indigo
 12. `1-Cards/0-全局卡/**/*.json`
 13. `1-Cards/**/*.json`
 14. 当前 `2-Planning/全息地图.json`（若存在）
-15. 当前 `2-Planning/十集分片/*.json`（若存在）
+15. 当前 `2-Planning/卷分片/*.json`（若存在）
 16. `1-题材选型/SKILL.md + CONTEXT.md`
 17. `2-章节规划/SKILL.md + CONTEXT.md`
 18. `3-故事大纲/SKILL.md + CONTEXT.md`
@@ -160,7 +161,7 @@ color: indigo
 ### 可选输入
 
 - 当前 `2-Planning/全息地图.json`
-- 当前 `2-Planning/十集分片/*.json`
+- 当前 `2-Planning/卷分片/*.json`
 - 当前 `2-Planning/pass-artifacts/*.json`
 - `STATE.json`
 - `team.yaml`（若项目存在）
@@ -201,14 +202,14 @@ color: indigo
 ### canonical root
 
 - `projects/story/<项目名>/2-Planning/全息地图.json`
-- `projects/story/<项目名>/2-Planning/十集分片/第001-010集.json` 等
+- `projects/story/<项目名>/2-Planning/卷分片/第1卷.json` 等
 - `projects/story/<项目名>/2-Planning/pass-artifacts/*.json`
 
 ### hard rules
 
 1. 1-7 child 必须同时保留本地 evidence artifact 与 `story_map_patch.global_patch / slice_patches`，但不得制造第二份 story_map root。
 2. `2-Planning/全息地图.json` 必须保持 `content.holomap` 兼容入口，并声明 `episode_slice_manifest`。
-3. 十集分片必须使用 `content.holomap_slice` 作为 episode-local dense carrier。
+3. 卷分片必须使用 `content.holomap_slice` 作为 episode-local dense carrier。
 4. 父层 normalize 后的 root 与 slice 必须兼容 `query / 3-Drafting / 4-Validation / 5-Loopback` 的“holomap-first，再命中 slice”读取。
 
 ## Visual Maps
