@@ -66,12 +66,12 @@ allowed-tools: Read Grep Write Edit Bash Task
 
 | child skill | role_id | 审查维度 | 默认回流 |
 | --- | --- | --- | --- |
-| `结构兑现` | `structure-validator` | 本集是否兑现 `promise_slice + chapter_board` 的结构义务、事件债务与戏剧化落点 | `1-单集叙事起盘`、`6-追读力强化` |
+| `结构兑现` | `structure-validator` | 本集是否兑现 `promise_slice + chapter_board` 的结构义务、事件债务与戏剧化落点 | `1-单集叙事起盘`、`7-追读力强化` |
 | `连续性` | `continuity-validator` | 与上一集、当前集内部段落、threads 承接是否连续 | `1-单集叙事起盘`、`2-节奏优化` |
 | `逻辑自洽校验` | `logic-validator` | 因果、设定、状态、能力边界、例外代价与世界规则是否自洽 | `1-单集叙事起盘`，必要时上溯 `0-Init / 1-Cards / 2-Planning` |
-| `人物一致性` | `character-validator` | 角色行为、动机、声口、关系压力是否与 card 真源一致 | `4-角色形象刻画`、`5-对白个性化和声口优化` |
+| `人物一致性` | `character-validator` | 角色行为、动机、声口、关系压力与心理活动是否与 card 真源一致 | `4-角色形象刻画`、`5-对白个性化`、`6-心理活动描写` |
 | `时间线` | `timeline-validator` | 时间锚、顺序、持续时长、回收窗口是否成立 | `1-单集叙事起盘`、`2-节奏优化` |
-| `类型兑现` | `type-pack-fit-validator` | active `type-pack` 的章级承诺、step hook 与 hard-fail 是否真的被正文兑现 | `2-节奏优化`、`5-对白个性化和声口优化`、`6-追读力强化` |
+| `类型兑现` | `type-pack-fit-validator` | active `type-pack` 的章级承诺、step hook 与 hard-fail 是否真的被正文兑现 | `2-节奏优化`、`5-对白个性化`、`6-心理活动描写`、`7-追读力强化` |
 
 硬规则：
 
@@ -104,7 +104,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 | --- | --- |
 | `business_goal` | 用 6 个维度对候选终稿做并发终验，确认它是否真的兑现了 `0-Init / 1-Cards / 2-Planning` 的共同约束与 active `type-pack` 承诺，并形成可被 `review / 5-Loopback` 直接消费的 gate packet。 |
 | `business_object` | `projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、当前 episode 命中的 `2-Planning/十集分片/*.json`、`4-Validation/第N集.validation.json`、6 份维度 MD report。 |
-| `constraint_profile` | 子技能必须并发可跑；正式 gate truth 只能是一份聚合 JSON；缺 slice 必须 `FAIL-COVENANT`；源层冲突不得伪装成 drafting 质量问题；`7-润色` 的通过不等于最终 PASS。 |
+| `constraint_profile` | 子技能必须并发可跑；正式 gate truth 只能是一份聚合 JSON；缺 slice 必须 `FAIL-COVENANT`；源层冲突不得伪装成 drafting 质量问题；`8-润色` 的通过不等于最终 PASS。 |
 | `success_criteria` | 六个维度都能给出可追溯 verdict；父层只产出一份 aggregate JSON；失败能精确回流到 drafting 节点或 upstream source；通过后能把 `candidate_final_draft` 升格为 `validated_final_draft` 并稳定 handoff 到 `review/` 与 `5-Loopback`。 |
 | `non_goals` | 不在本阶段生成正式审查报告；不做 loopback 写回；不把 6 份局部报告当成平行 canonical truth；不使用旧轮次 validation 包。 |
 | `complexity_source` | 复杂度来自 shared pack 锁定、6 子技能并发、issue 级 routing、以及 `PASS / FAIL-QUALITY / FAIL-COVENANT / FAIL-RUNTIME` 的分层 gate。 |

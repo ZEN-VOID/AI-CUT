@@ -76,9 +76,10 @@
   - 导演组 1 位
   - 视情况补摄影组 1 位
 
-### 只允许补 2-4 位 reviewer
+### 补选 reviewer 不设硬上限
 
 - 不全量拉起整个 `team` 技能树。
+- 补选 reviewer 以“覆盖必要问题域”为准，通常 `2-4` 位已足够，但这只是经验值，不是硬上限。
 - 若需要推断具体人物，必须在结论里说明这是推断选择，不是 `team.yaml` 的显式声明。
 
 ## `2-Global/全局风格.md` 专项评审协议
@@ -153,7 +154,7 @@
 
 默认逻辑：
 
-1. `team.yaml.runtime_policy.use_subagents_by_default == true` 且 reviewer 为 2-4 个
+1. `team.yaml.runtime_policy.use_subagents_by_default == true` 且 reviewer 为 `2` 个及以上
    - 优先 `parallel-council`
 2. 目标明显需要链式 refine
    - 改为 `serial-refine`
@@ -163,7 +164,7 @@
 ### Subagent Dispatch Gate
 
 - `master-check-team` 的默认执行语义是：只要项目 `team.yaml` 给出 `runtime_policy.use_subagents_by_default: true`，且已解析出 reviewer，就应真实启动 reviewer 对应的 subagents，而不是先默认本地模拟。
-- 当 reviewer 为 `2-4` 个时，subagent 分发是默认硬门槛；模式裁决只决定并行、串行还是独立，不决定“要不要真的起 subagents”。
+- 当 reviewer 为 `2` 个及以上时，subagent 分发默认生效；若 reviewer 较多，可分批并行或分层串行。模式裁决只决定并行、串行还是独立，不决定“要不要真的起 subagents”。
 - 仅在以下情况允许降级：
   - 当前环境无法真实使用 subagents
   - 更高优先级策略明确阻断 subagent 调度
@@ -237,7 +238,7 @@ master_check_team_result:
   - 显式说明
   - 进入无 `team.yaml` 回退模式
 - 若 `team.yaml` 存在但无法解析出任何可用 reviewer：
-  - 先尝试基于目标类型补选 2-4 个 reviewer
+  - 先尝试基于目标类型补选必要 reviewer，不设硬上限
   - 若仍失败，停止并说明该项目缺少可执行的 reviewer 映射
 
 ## 稳定经验

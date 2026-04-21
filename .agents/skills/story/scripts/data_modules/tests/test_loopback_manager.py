@@ -66,6 +66,66 @@ def _build_project(project_root: Path) -> None:
     )
 
 
+def _build_project_with_slice(project_root: Path) -> None:
+    _write_json(
+        project_root / "2-Planning" / "全息地图.json",
+        {
+            "schema_version": "story2026/holomap/v1",
+            "content": {
+                "holomap": {
+                    "episode_sequence_axis": [
+                        {
+                            "episode_ref": "第012集",
+                            "slice_ref": "slice-011-020",
+                            "chapter_board_ref": "ep-012",
+                        }
+                    ],
+                    "episode_slice_manifest": [
+                        {
+                            "slice_id": "slice-011-020",
+                            "file_ref": "十集分片/第011-020集.json",
+                        }
+                    ],
+                    "chapter_boards": [],
+                    "actualization": {
+                        "write_policy": "actualization-only",
+                        "episode_nodes": [],
+                        "clue_points": [],
+                        "foreshadow_points": [],
+                        "promise_threads": [],
+                        "suspense_threads": [],
+                        "tasklines": [],
+                        "threads": [],
+                        "episode_status_index": [],
+                        "slice_status_index": [],
+                    },
+                }
+            },
+        },
+    )
+    _write_json(
+        project_root / "2-Planning" / "十集分片" / "第011-020集.json",
+        {
+            "schema_version": "story2026/holomap-slice/v1",
+            "content": {
+                "holomap_slice": {
+                    "chapter_boards": [],
+                    "actualization": {
+                        "write_policy": "actualization-only",
+                        "episode_nodes": [],
+                        "clue_points": [],
+                        "foreshadow_points": [],
+                        "promise_threads": [],
+                        "suspense_threads": [],
+                        "tasklines": [],
+                        "threads": [],
+                    },
+                }
+            },
+        },
+    )
+
+
 def _build_nested_cards_project(project_root: Path) -> None:
     _build_project(project_root)
     _write_json(
@@ -447,6 +507,88 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert state["runtime_markers"]["loopback"]["last_actualized_episode"] == "第12集"
     assert state["runtime_markers"]["loopback"]["last_commit_manifest"]["phase"] == "committed"
     assert state["runtime_markers"]["loopback_state_revision"] == 1
+
+
+def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, monkeypatch):
+    module = _load_loopback_module()
+    project_root = (tmp_path / "book").resolve()
+    _build_project(project_root)
+    _build_project_with_slice(project_root)
+
+    validation_path = project_root / ".webnovel" / "tmp" / "validation.json"
+    _write_json(
+        validation_path,
+        {
+            "validation_status": "PASS",
+            "routing_decision": "handoff_to_review_and_loopback",
+            "handoff_targets": ["review/", "5-Loopback"],
+            "validation_ref": "4-Validation/第12集.validation.json",
+            "card_deltas": [],
+            "map_deltas": [
+                {
+                    "target_bucket": "episode_nodes",
+                    "target_ref": "episode-12",
+                    "slice_ref": "slice-011-020",
+                    "actualization_patch": {
+                        "node_id": "ep-012",
+                        "episode_ref": "第012集",
+                        "execution_status": "completed",
+                        "actual_outcome_summary": "本集完成 validated actualization。",
+                    },
+                }
+            ],
+            "projection_refresh": [
+                {
+                    "target_type": "carryover_context",
+                    "payload": {"next_episode": "第013集"},
+                }
+            ],
+            "evidence_refs": [],
+        },
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "loopback_manager",
+            "--project-root",
+            str(project_root),
+            "actualize",
+            "--episode",
+            "12",
+            "--validation-data",
+            f"@{validation_path}",
+            "--manuscript-ref",
+            "3-Drafting/第12集.md",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 0
+
+    artifact = json.loads((project_root / "5-Loopback" / "第12集.loopback.json").read_text(encoding="utf-8"))
+    assert artifact["inputs"]["story_map_slice_ref"] == "2-Planning/十集分片/第011-020集.json"
+    assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
+    assert "episode_status_index:第012集" in artifact["content"]["writeback_summary"]["written_map_refs"]
+    assert "slice_status_index:slice-011-020" in artifact["content"]["writeback_summary"]["written_map_refs"]
+
+    slice_payload = json.loads(
+        (project_root / "2-Planning" / "十集分片" / "第011-020集.json").read_text(encoding="utf-8")
+    )
+    slice_nodes = slice_payload["content"]["holomap_slice"]["actualization"]["episode_nodes"]
+    assert slice_nodes[0]["episode_ref"] == "第012集"
+    assert slice_payload["content"]["holomap_slice"]["actualization"]["revision"] == 1
+
+    holomap = json.loads((project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8"))
+    status_index = holomap["content"]["holomap"]["actualization"]["episode_status_index"]
+    slice_index = holomap["content"]["holomap"]["actualization"]["slice_status_index"]
+    assert status_index[0]["episode_ref"] == "第012集"
+    assert status_index[0]["status"] == "completed"
+    assert slice_index[0]["slice_id"] == "slice-011-020"
+    assert slice_index[0]["status"] == "completed"
 
 
 def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):

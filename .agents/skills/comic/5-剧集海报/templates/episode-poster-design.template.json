@@ -1,6 +1,41 @@
 {
   "schema_version": "comic_episode_poster_design.v1",
   "project_name": "项目名",
+  "type_stack_ref": {
+    "method_kernel": "comic-core-v1",
+    "base": "_base",
+    "primary": "漫画高冲击",
+    "secondary": ["狗血言情"],
+    "platform": ["漫剧平台"],
+    "audience": ["情绪强冲突受众"],
+    "active_packs": ["_base", "漫画高冲击", "狗血言情", "漫剧平台", "情绪强冲突受众"]
+  },
+  "type_pack_context": {
+    "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+    "knowledge_refs": [
+      ".agents/skills/comic/type-packs/漫画/狗血言情/狗血言情.md"
+    ],
+    "knowledge_digest": [
+      "关系必须比设定更狠。",
+      "误解、背叛、占有、回头和翻脸要能快速落地。"
+    ],
+    "semantic_tags": ["betrayal", "high-emotion", "relationship-whiplash"],
+    "pack_revisions": {
+      "狗血言情": "dynamic-runtime"
+    },
+    "projection_summary": {
+      "episode_poster": "标题优先痛感、背叛感和关系翻脸感。"
+    },
+    "stage_projection": {
+      "script_adaptation": {},
+      "nine_blade_prompting": {},
+      "image_generation": {},
+      "animation_generation": {},
+      "episode_poster": {
+        "poster_bias": ["pain-title", "betrayal-title", "relationship-shock"]
+      }
+    }
+  },
   "episode": {
     "number": 1,
     "display_text": "第1集"

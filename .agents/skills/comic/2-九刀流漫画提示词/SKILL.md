@@ -16,7 +16,7 @@ governance_tier: full
 
 本技能把上游 `1-漫画剧本改编` 的漫画剧本主稿、`formatted_source_script.json`、漫画剧本桥接包，或用户直接提供的任意剧本片段，先切成若干 `page-group`，再把每个组分别转成可被下游 `3-漫画生成` 消费的 `nine_blade_comic_prompts.v1` JSON。
 
-同一份组级 JSON 也是 `4-动画生成` 的上游 prompt 真源：4 号技能会逐页读取其中的 `positive_prompt / panels / layout / active_character_ids / scene_id / continuity_context`，为每一页提炼对应的 `sora-2` 图生视频 prompt。
+同一份组级 JSON 也是 `4-动画生成` 的上游 prompt 真源：4 号技能会逐页读取其中的 `positive_prompt / panels / layout / active_character_ids / scene_id / continuity_context`，为每一页提炼对应的 `man-tui sora` 图生视频 prompt。
 
 核心目标不是把整份上游剧本粗暴压成 9 页，也不是写 9 个互不相关的文生图 prompt，而是生成一组组**单次 Seedream 连续多图请求**可理解的九页漫画提示词包：
 
@@ -43,6 +43,8 @@ governance_tier: full
 ## 3. Context Preload
 
 - 每次使用先读取同目录 `CONTEXT.md`。
+- 先读取 [../_shared/type-pack-loading-contract.md](../_shared/type-pack-loading-contract.md)，确认当前 comic 类型包装载合同。
+- 若需要推断或解释 active packs，读取 [../scripts/data_modules/comic_type_pack_resolver.py](../scripts/data_modules/comic_type_pack_resolver.py)。
 - 复杂提示词结构细则读取 [references/nine-blade-prompt-contract.md](references/nine-blade-prompt-contract.md)。
 - 输出 JSON 必须遵守 [templates/nine-blade-comic-prompts.schema.json](templates/nine-blade-comic-prompts.schema.json)。
 - 可从 [templates/nine-blade-template.json](templates/nine-blade-template.json) 复制骨架后填充。
@@ -60,6 +62,10 @@ governance_tier: full
   - 上游输出的角色、场景、道具、冲击画面候选、旁白密度等桥接信息。
 - `formatted_source_script`
   - 若上游已经提供格式化好的剧本源包，可作为前奏跳过候选；但仍必须先通过本技能的来源格式化验证门，不能盲信。
+- `type_stack_ref`
+  - 若 1 号已锁定，优先直接继承。
+- `type_pack_context`
+  - 应至少包含 `active_packs / knowledge_refs / stage_projection.nine_blade_prompting`。
 - `style_profile`
   - 默认 `cinematic_comic_realism`，可指定国风连环画、美漫电影感、韩漫、暗黑写实等。
 - `text_language`
@@ -156,6 +162,7 @@ governance_tier: full
 5. 每个 group 必须具备完整的开场、推进、阻力、钩子或余波节奏，不能只截一半动作或只留解释段。
 6. 每个 group 必须继承同一套 `main_character_lock / style_bible / character_locks / scene_continuity_bible` 的 continuity 规则；组间只允许剧情推进变化，不允许角色视觉 DNA 或风格媒介断层变化。
 7. 新口径下，`2-九刀流漫画提示词` 的 canonical 交付物是“组级 JSON 集合”，不是“整集唯一 JSON”。
+8. 若上游已带 `type_stack_ref / type_pack_context`，每个 group JSON 必须原样透传，并在本段按 `stage_projection.nine_blade_prompting` 追加版式、文字、风格与钩子偏置。
 
 ## 5. 思行网络
 
@@ -312,7 +319,7 @@ flowchart TD
 | `N5-PAGE-PROMPTS` | 写 9 个完整页 prompt | `story_beat_map`、主角锚定锁、群像角色锁、场景锁、风格词、layout plan、文字系统、页码覆盖层 | 为每页写 `positive_prompt / panels / text_slots`，prompt 固定顺序必须为：`版式 -> 全局 style anchor -> 主角锚定 -> 群像锚定 -> 场景锚定 -> 页码 -> 一致性语义 -> panel 动作 -> 文字可读性/字型规则 -> overall mood`。每页都必须重复同一套全局 style anchor，禁止把风格锁只放在顶层 `style_bible` 里隐含表达 | 9 个 page objects | pass -> `N6`；缺页、缺 panel 或风格锁未逐页注入 -> 回本节点 | 每页含 9:16、独立页、非拼图约束、漫画版式、全局风格锁、主角锚定语句、群像可区分语句、场景锚定语句、右下角数字页码 |
 | `N6-ASSEMBLY` | 汇流为当前 group 的 `nine_blade_comic_prompts.v1` JSON | 9 个 page objects、schema、模板、当前组 metadata | 按 schema 填充顶层合同、`page_group`、`continuity_context`、style、locks、pages、negative prompt | 当前 group JSON 文件 | pass -> `N7`；结构缺失 -> 本节点修复 | JSON 可解析且组身份明确 |
 | `N7-VALIDATE` | 脚本与人工双门验收 | JSON 文件、validator、reference 门禁 | 运行 validator；检查 9 页、分组 metadata、风格词、layout 多样性、文字系统、负向提示词 | validator 输出、人工风险摘要 | pass -> `N8`；fail -> 按失败码回对应节点 | 可被 3 号技能消费 |
-| `N8-HANDOFF` | 交付下游生成所需真源 | 已验证当前 group JSON、思考过程摘要、输出路径 | 单集项目按组写入 `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等；多集项目默认写入 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-02-nine_blade_comic_prompts.json` 等，并同步落盘 `page_group_plan.json` / `第N集-page_group_plan.json` 与同前缀思考摘要；同一组 JSON 后续同时交给 3 号技能生图、交给 4 号技能逐页提炼 sora prompt | 组级 JSON 集合、思考过程 | 完成或交给 3/4 号技能 | 当前 episode/group canonical 输出明确且不互相覆盖 |
+| `N8-HANDOFF` | 交付下游生成所需真源 | 已验证当前 group JSON、思考过程摘要、输出路径 | 单集项目按组写入 `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等；多集项目默认写入 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-02-nine_blade_comic_prompts.json` 等，并同步落盘 `page_group_plan.json` / `第N集-page_group_plan.json` 与同前缀思考摘要；同一组 JSON 后续同时交给 3 号技能生图、交给 4 号技能逐页提炼 video prompt | 组级 JSON 集合、思考过程 | 完成或交给 3/4 号技能 | 当前 episode/group canonical 输出明确且不互相覆盖 |
 
 ## 7. 输出合同
 
@@ -366,7 +373,7 @@ page_group_plan.json
 
 - `4-动画生成` 默认把每页 `panels[]` 视为 `one panel -> one shot` 的多分镜输入。
 - 因此 `pages[].positive_prompt` 不得只写单幅插画描述；必须保留版式、panel 动作、角色锁、场景锁与文字系统语义。
-- `pages[].page_number_overlay`、`active_character_ids`、`scene_id` 和 `continuity_context` 不是仅供 3 号技能使用；4 号技能也会把这些字段编译进每页 `sora-2` prompt。
+- `pages[].page_number_overlay`、`active_character_ids`、`scene_id` 和 `continuity_context` 不是仅供 3 号技能使用；4 号技能也会把这些字段编译进每页 `video_prompt`。
 
 ## 8. 版式与文字硬规则
 
@@ -431,6 +438,7 @@ Character locked across all panels: Sun Wukong, a muscular monkey demon, covered
 | `FIELD-NB-09` | `main_character_lock` | 唯一主要角色锚定对象，含 `name` 与高密度 `anchor_prompt` | `FAIL-NB-MAIN-LOCK` |
 | `FIELD-NB-10` | `scene_continuity_bible` | 具名场景锁完整，含 `scene_locks[]` 与稳定地标/光线/空间语义 | `FAIL-NB-SCENE-LOCK` |
 | `FIELD-NB-11` | `character_locks` | 其他跨页角色外观、服装、关键识别物稳定，且具名可回指 | `FAIL-NB-LOCKS` |
+| `FIELD-NB-11A` | `type_stack_ref / type_pack_context` | active packs、knowledge refs 与 `nine_blade_prompting` 阶段投影完整透传 | `FAIL-NB-TYPE-PACK` |
 | `FIELD-NB-12` | `comic_text_system` | 四类文字系统齐备；每类含 `visual_form / placement_rule / legibility_rule / max_chars`；九页整体至少覆盖一次 | `FAIL-NB-TEXT` |
 | `FIELD-NB-13` | `pages[]` | 恰好 9 页；每页含 panel 布局、prompt、文本槽、`active_character_ids`、`scene_id`、`page_number_overlay`，且 `positive_prompt` 显式包含主角锚定语句、群像区分语义、场景锚定语义与右下角数字页码语义 | `FAIL-NB-PAGES` |
 | `FIELD-NB-14` | `global_negative_prompt` | 禁止拼图、变体、文字错误、错手、logo、水印 | `FAIL-NB-NEGATIVE` |

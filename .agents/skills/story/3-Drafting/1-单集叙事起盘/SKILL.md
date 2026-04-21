@@ -10,6 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md`、`../_shared/episode-root-contract.md`、`../_shared/drafting-child-output-contract.md`。
+- 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
 - 必须同时读取 `../_shared/chapter-board-locating-contract.md`，先把当前集解析成唯一 `chapter_board`，再解码本集义务。
 - 正式处理前，必须读取当前 `第N集.md`；若是新集首轮，可由父层先用 template bootstrap。
 
@@ -37,6 +38,7 @@ governance_tier: lite
 - `../_shared/episode-root-contract.md`
 - `../_shared/chapter-board-locating-contract.md`
 - `../_shared/drafting-child-output-contract.md`
+- `../_shared/drafting-instant-validation-contract.md`
 - `../../_shared/context-loading-contract.md`
 - `../../_shared/core-constraints.md`
 
@@ -64,6 +66,9 @@ governance_tier: lite
   - 禁止用 `chapter_boards` 数组顺序或标题文案猜测“哪一个是本集”。
   - 先锁本集功能和承接义务，再写 scene chain。
   - 起盘阶段必须直接形成完整正文，不允许只写提纲占位。
+  - 起盘阶段不得把 planning 的外部总结语言原样写进正文；chapter goal / must happen / pressure 等字段必须翻译成人物视角中的局面、动作、代价或预感。
+  - 若同一画面需要连续两句落地，第一句负责交代身份或处境，第二句必须推进构图、动作、空间或情绪，不得重复命名同一批人/物。
+  - 若需要桥接前作或旧作互文，只能通过当前角色的记忆、旧伤、自嘲或情绪触发进场，不得写成作者说明或作品外注释。
 
 ## Output Contract
 
@@ -79,8 +84,11 @@ governance_tier: lite
 
 ## Immediate Validation Hook Contract
 
-- 本 step 写回后，父层必须按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
-- 若 hook 失败，不得直接进入 Step 2；必须在当前 step 本地重写，或回退到 registry 指向的更早受影响 step。
+- 本 child 在正式 runtime 中只占据 `start-step -> complete-step -> inline validation` 这一个 step 区段；整条链由父层按 `start-task -> start-step -> complete-step -> inline validation -> pass or block` 驱动。
+- 当前 step 写回后，父层必须立刻按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
+- 只有当前 gate 明确 `pass`，Step 2 的 `start-step` 才成立。
+- 若 hook 失败且 `rework_target_step == Step 1`，必须留在 Step 1 重写并重跑 gate。
+- 若 hook 指向更早受影响 drafting step 或上游 `source_layer_owner`，必须按 shared contract 回卷或停止 drafting 转 source fix；不得把 block 态伪装成“已自然进入 Step 2”。
 
 ## Visual Map
 

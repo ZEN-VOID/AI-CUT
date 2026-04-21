@@ -1,6 +1,6 @@
 # Drafting Child Output Contract
 
-本文件定义 `3-Drafting` 七个子技能包的统一输出协议。
+本文件定义 `3-Drafting` 八个子技能包的统一输出协议。
 
 即时审计 hook 的维度注册真源固定回指：
 
@@ -44,9 +44,9 @@
 3. 父层写回正文与日志后，下一子技能才能开始。
 4. 若某子技能认为应回退前序工序，必须在 `process_log_entry` 中明确指出 `rework_target_step`，而不是静默重写路线。
 5. 当前 step 写回后，父层必须按 registry 为该 `step_id` 触发即时审计 hook；若 hook 未通过，下一 child 不得开始。
-6. `7-润色` 通过 inline hooks 后只形成 `candidate_final_draft`，不是最终 `PASS`。
+6. `8-润色` 通过 inline hooks 后只形成 `candidate_final_draft`，不是最终 `PASS`。
 7. 若当前项目启用了 `type-pack`，子技能应把实际采用的 pack rule 摘要写入 `type_pack_projection_summary` 或 `process_log_entry.type_pack_rules_applied`，便于 validation/review 追溯。
 8. 正式执行必须是一 step 一提交：当前 child 只处理当前 `step_id`，只输出当前 step 的 `manuscript_patch + process_log_entry`，不得顺手预生成后续 steps 的正式 patch。
-9. `Step 2-7` 只能消费“上一 step 已写回且已通过 hook 的当前 root”；不得消费尚未过 gate 的临时稿、内存稿或候选稿。
+9. `Step 2-8` 只能消费“上一 step 已写回且已通过 hook 的当前 root”；不得消费尚未过 gate 的临时稿、内存稿或候选稿。
 10. 允许存在 step 内部的候选版本、比较稿、reviewer 意见或句式实验，但这些内容在当前 step hook 通过前都不是正式写回结果。
-11. 若项目主角启用了成长系统，则 `Step 4` 与 `Step 6` 应优先产出结构化 `growth_axis_evidence`，供后续 validation / loopback 提纯，不要把成长变化只藏在 prose 摘要里。
+11. 若项目主角启用了成长系统，则 `Step 4 / Step 6 / Step 7` 应优先产出结构化 `growth_axis_evidence`，供后续 validation / loopback 提纯，不要把成长变化只藏在 prose 摘要里。

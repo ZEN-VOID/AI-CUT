@@ -16,12 +16,13 @@ governance_tier: full
 
 本技能把任意资料改编为“可直接指导后续 `2-九刀流漫画提示词`”的漫画剧本真源，而不是只把原材料换一种说法复述。
 
-核心目标有三个：
+核心目标有六个：
 
-- 保住来源材料的有效事实、情绪核与卖点。
-- 把素材改造成场景化、剧本化、强钩子化、可分页分页感明确的漫画剧本。
+- 保住来源材料真正不能丢的核：事实核、情绪核、人物关系核与卖点核，而不是机械保留所有细节顺序。
+- 把素材改造成场景化、剧本化、强钩子化、可分页感明确的漫画剧本。
+- 允许为了后续漫画效果主动重排、并戏、拔高、夸张与制造奇观，只要不把核心卖点改没。
 - 让成稿天然具备后续漫画分镜、角色立绘与画面提示词蒸馏所需的视觉锚点与结构化 handoff。
-- 让氛围层与视觉冲击点在正文阶段就被预先设计，而不是写完后才被动补桥接。
+- 让氛围层、视觉冲击点与节奏刺激点在正文阶段就被预先设计，而不是写完后才被动补桥接。
 - 在需要兼容解说漫时，让正文描述既能成为漫画画面母稿，也能成为可直接朗读的沉浸式旁白素材。
 
 默认概念：
@@ -31,6 +32,8 @@ governance_tier: full
 - 默认最终真源同时包含：`漫画剧本主稿.md`、`formatted_source_script.json`、`漫画剧本桥接包.md`、`思行裁决摘要.md`。
 - 默认格式化层需要与 `.agents/skills/aigc/1-Planning/2-格式` 的基础字段纪律对齐，再叠加漫画专属表现字段；不得只交自由 prose。
 - 默认每个场景单元都要为下游提供至少一个可切页动作、一个可入镜情绪点、一个页末悬停点或翻页停笔点。
+- 对虚构原著、故事梗概、小说片段、网文与影视剧情类输入，默认采用 `comic-first` 立场：优先保住人物关系核、情绪核和名场面潜力，不把原叙事顺序与局部细节视为硬门槛。
+- 对现实新闻、热搜、纪实事件类输入，继续受 `truth_boundary` 约束；允许戏剧组织，但不允许把虚构写成事实。
 
 ## Skill Execution Rule (Mandatory)
 
@@ -40,9 +43,11 @@ governance_tier: full
 - 先锁定“这是给 `2-九刀流漫画提示词` 继续消费的漫画剧本真源”，再决定格式、节奏与场景密度。
 - 先做格式裁决，再写正文。原始输入必须先被裁决为 `scene-script / narration-script / compare` 之一。
 - 先锁定高冲击画面候选与氛围压力场，再决定正文的展开顺序与停笔位置。
+- 对虚构输入，默认先决定“哪里要炸、哪里要急停、哪里要留白”，再决定哪些信息前置、后置、并戏或删减。
 - 若用户要求兼容解说漫，正文必须同时满足“可画”和“可念”：画面要清，旁白要顺，句子要短，声压要稳。
 - 主稿写成 Markdown，结构化 handoff 写成 `formatted_source_script.json`；两者必须同口径，不得互相打架。
-- 改编不是照抄。可以重组、压缩、扩写、补桥，但不得把核心卖点改没。
+- 改编不是照抄。可以重组、压缩、扩写、补桥、换序、并戏、拔高、夸张，但不得把核心卖点改没。
+- 当“信息解释完备”与“漫画页冲击力/节奏刺激性”冲突时，优先保住画面势能与翻页驱动力，再把必要信息拆散回补。
 - 图片/视频输入不得直接写成空泛描述，必须先还原事件链、冲突链与视觉锚点。
 - 新闻/热搜输入默认进入“事实锚定”模式：已知事实与虚构扩写必须可区分，不能把虚构段落冒充现实事实。
 - 若用户未指定类型，优先按素材天然势能选择：悬疑、甜宠、复仇、玄幻、穿越重生、都市成长等最能放大原素材冲突的路由。
@@ -61,9 +66,15 @@ governance_tier: full
 | `success_criteria` | 什么叫改编成功 | 读得下去、看得见、能分页、有钩子、可直接进入九刀流 |
 | `topology_fit` | 哪种思行网络最合适 | 单源走串行主干，多源与新闻热点走“归一 + 分支 + 汇流” |
 | `step_strategy` | 本轮重点在哪 | 事实抽取、格式裁决、场景骨架、正文落地、钩子强化 |
+| `adaptation_posture` | 本轮更偏保核重构还是高烈度奇观化 | 默认虚构输入取 `comic-first`，现实输入按 `truth_boundary` 收紧 |
+| `fidelity_floor` | 哪些部分绝不能被改丢 | 默认锁定 `人物关系核 / 情绪核 / 卖点核 / 关键代价` |
+| `type_stack_ref` | 当前项目激活了哪些漫画类型包 | 默认经 `comic_type_pack_resolver.py` 锁定 `base / primary / secondary / platform / audience` |
+| `type_pack_projection` | 本段该继承什么类型化写法 | 默认读取 `type_pack_context.stage_projection.script_adaptation` |
 | `manga_impact_profile` | 哪几处必须具备页级/格级冲击力 | 默认至少锁定 3 个高冲击画面候选 + 1 个翻页停笔点 |
+| `spectacle_priority` | 视觉奇观要压到什么强度 | 默认给出 `balanced / high / maximal` 之一 |
 | `voice_immersion_profile` | 如果要兼容解说漫，旁白读出来靠什么成立 | 默认锁定 旁白节奏、句长控制、声画同命题、冗余剔除 |
 | `page_pacing_profile` | 当前剧本更适合什么页节奏 | 默认给出 `slow-burn / balanced / aggressive-turns` |
+| `stimulus_curve` | 爽感、刺激性和钩子应该如何分布 | 默认锁定 `首段抓停 -> 中段抬升 -> 章末急停` |
 | `panel_text_budget` | 当前剧本的文字负载上限是多少 | 默认给出 `dialogue / narration / sfx` 三类预算 |
 | `continuity_lock_profile` | 哪些角色/场景/道具必须稳定回指 | 默认输出 `character_locks / scene_locks / prop_locks` |
 
@@ -78,13 +89,25 @@ governance_tier: full
 主合同只保留骨架、门禁与字段真源。长细则下沉到 `references/`：
 
 - [references/source-intake-and-mode-selection.md](references/source-intake-and-mode-selection.md)
-  - 来源归一、模式选择、多源合并、类型判型。
+  - 来源归一、模式选择、多源合并、类型判型，以及“原著保核但允许重排”的进入姿态。
 - [references/comic-script-writing-spec.md](references/comic-script-writing-spec.md)
   - 漫画剧本成稿规格、格式裁决、结构化 handoff 字段、页节奏与文字负载纪律。
+- [references/visual-spectacle-engine.md](references/visual-spectacle-engine.md)
+  - 画面冲击力、视觉奇观、页级炸点、大格/跨页/静默爆点的设计方法。
+- [references/pacing-hook-thrill-engine.md](references/pacing-hook-thrill-engine.md)
+  - 节奏优化、钩子链、爽感、刺激性、信息延后与快节奏推进的设计方法。
+- [references/chunibyo-intensity-engine.md](references/chunibyo-intensity-engine.md)
+  - 中二感、命名势能、誓言感、宿命感、绝对化修辞与角色自我神话的强化方法。
+- [references/thinking-action-node-design.md](references/thinking-action-node-design.md)
+  - 本技能 `N1-N9` 思维·执行节点的细化门禁、返工信号、路由说明与节点级验收。
 - [references/hook-ending-playbook.md](references/hook-ending-playbook.md)
   - 章末钩子公式、分类型示例、强化与避坑。
 - [references/hotsearch-news-adaptation.md](references/hotsearch-news-adaptation.md)
   - 新闻/热搜改编的事实边界、热点选题公式与近期参考。
+- [../_shared/type-pack-loading-contract.md](../_shared/type-pack-loading-contract.md)
+  - comic 根级类型包加载合同；用于锁 `type_stack_ref / type_pack_context`。
+- [../scripts/data_modules/comic_type_pack_resolver.py](../scripts/data_modules/comic_type_pack_resolver.py)
+  - 根据 `genre / platform / target_audience / tone` 推断 active comic packs，并读取 `script_adaptation` 阶段投影。
 - [.agents/skills/aigc/1-Planning/2-格式/SKILL.md](../../aigc/1-Planning/2-格式/SKILL.md)
   - 继承其“先判模、再整形、再写回 canonical 主稿”的格式裁决思路，并对齐其 `对白 / 内心独白 / 旁白 + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化纪律；本技能额外叠加漫画专属表现字段，不直接退化成纯规划剧本。
 - [/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md](/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md)
@@ -105,14 +128,26 @@ governance_tier: full
   - `text | image | video | news_event | hot_search | mixed`
 - `target_genre`
   - `言情甜宠 | 虐恋 | 悬疑惊悚 | 玄幻修仙 | 系统 | 穿越重生 | 复仇 | 都市成长 | 科幻 | 校园`
+- `type_stack_ref`
+  - 若已由 comic 根层锁定，优先直接继承。
+- `type_pack_context`
+  - 包含 `active_packs / knowledge_refs / stage_projection.script_adaptation`。
 - `target_audience`
 - `length_target`
   - `short_burst | mini_serial | medium_arc`
 - `chapter_count`
 - `truth_boundary`
   - `faithful | inspired_by | free_reimagining`
+- `adaptation_posture`
+  - `faithful-core | comic-first | spectacle-first`
+- `narrative_reorder_policy`
+  - `preserve | adaptive | aggressive`
 - `hook_intensity`
   - `balanced | strong | relentless`
+- `spectacle_priority`
+  - `balanced | high | maximal`
+- `pacing_drive`
+  - `stable | punchy | relentless`
 - `delivery_flavor`
   - `standard_comic | explainer_comic_compatible`
 - `narration_density`
@@ -139,6 +174,22 @@ governance_tier: full
 3. 新闻/热搜先抽“已知事实 + 公共情绪 + 未解问题”，再决定是纪实改编还是灵感衍生。
 4. 多源输入必须先定权重与主锚点，避免一稿多主。
 5. 若输入已经是半成品剧本或摘要，不得直接润色交差；仍需补齐漫画剧本格式字段与结构化 handoff。
+6. 对虚构来源，若用户未强制要求保真，默认采用 `comic-first + adaptive`：允许重排叙事顺序、合并桥段、强化反转、前置炸点。
+7. 对现实来源，即使启用强节奏与强视觉设计，也只能在叙事组织层夸张，不能改写已知事实本体。
+8. 若上游或用户未显式给 `type_stack_ref`，默认调用 `comic_type_pack_resolver.py` 推断，并把结果写入结构化输出。
+
+## Comic-First Adaptation Contract (Mandatory)
+
+除非用户明确要求“尽量忠于原著/原顺序/原细节”，本技能对虚构来源默认采用 `comic-first` 改编立场。
+
+硬规则：
+
+- 优先保住 `人物关系核 / 情绪核 / 卖点核 / 关键代价`，不优先保住每一个原情节细节与原叙事顺序。
+- 允许为了漫画传播效率主动执行：`换序 / 并戏 / 省略过桥信息 / 前置名场面 / 延后解释 / 放大情绪反差 / 提高视觉奇观密度`。
+- 当“形式冲击力”与“内容解释完整度”冲突时，优先让读者停住、翻页、被炸到，再把解释拆回后续场景。
+- 所谓“形式大于内容”在本技能内的具体含义，是：优先让页级冲击、钩子、节奏、构图势能成立，而不是堆更多说明句。
+- 漫画化增强不等于失控胡改；若改写导致角色动机断裂、代价失真、主题核漂移，则视为失败。
+- 现实新闻、热搜、纪实事件不适用“任意改写事实”这一许可；相关场景仍以 `truth_boundary` 为硬边界。
 
 ## Comic Script Format Arbitration Contract (Mandatory)
 
@@ -227,8 +278,8 @@ B. 漫画专属扩展字段：
 flowchart TD
     A["N1 锁定任务与素材"] --> B["N2 来源归一与抽取事实/画面/情绪"]
     B --> C["N3 锁定事实边界与改编模式"]
-    C --> D["N4 放大类型卖点与角色冲突"]
-    D --> E["N5 生成章节骨架与节奏表"]
+    C --> D["N4 锁定保核范围与漫画优先改写姿态"]
+    D --> E["N5 生成章节骨架、节奏表与炸点落位"]
     E --> F["N6 写场景正文"]
     F --> G["N7 注入章末钩子"]
     G --> H["N8 补漫画可视化锚点"]
@@ -238,11 +289,15 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["source_type"] --> B{{"类型判型"}}
-    B -->|"text"| C["剧情强化改编"]
+    B -->|"text"| C["剧情强化改编 / 原著重排改编"]
     B -->|"image"| D["单帧推演改编"]
     B -->|"video"| E["镜头序列改编"]
     B -->|"news_event / hot_search"| F["事实锚定改编"]
     B -->|"mixed"| G["多源归一改编"]
+    C --> L{{"adaptation_posture"}}
+    L -->|"faithful-core"| M["保核保卖点，谨慎重排"]
+    L -->|"comic-first"| N["重排节奏，前置炸点，保住核心关系"]
+    L -->|"spectacle-first"| O["最大化奇观与刺激曲线，再回补解释"]
     F --> H{{"truth_boundary"}}
     H -->|"faithful"| I["纪实外壳 + 戏剧组织"]
     H -->|"inspired_by"| J["事实锚点 + 虚构人物线"]
@@ -267,13 +322,15 @@ erDiagram
 - 图片/视频源：需要在“来源归一”阶段增加视觉转事件分支。
 - 新闻/热搜源：必须在“事实边界”处增加强门禁。
 - 多源混合：采用“多源归一 -> 主锚点裁决 -> 统一骨架 -> 汇流验收”。
+- 原著/长文本改编：在 `N4-N5` 之间必须显式决定是否换序、并戏、前置炸点与延后解释。
 
 ### Route Priority (Mandatory)
 
 1. 先判定 `source_type`。
 2. 再判定 `truth_boundary`。
-3. 再判定 `target_genre` 与 `core_sell_point`。
-4. 最后才决定章节长度、语言风格与钩子强度。
+3. 再判定 `adaptation_posture / narrative_reorder_policy / spectacle_priority / pacing_drive`。
+4. 再判定 `target_genre` 与 `core_sell_point`。
+5. 最后才决定章节长度、语言风格与钩子强度。
 
 ### Variable Register
 
@@ -281,9 +338,13 @@ erDiagram
 | --- | --- | --- |
 | `source_type` | `text / image / video / news_event / hot_search / mixed` | 决定素材归一路由 |
 | `truth_boundary` | `faithful / inspired_by / free_reimagining` | 决定事实与虚构的分界 |
+| `adaptation_posture` | `faithful-core / comic-first / spectacle-first` | 决定本轮是否主动重排与夸张 |
+| `narrative_reorder_policy` | `preserve / adaptive / aggressive` | 决定原顺序保留程度 |
 | `length_target` | `short_burst / mini_serial / medium_arc` | 决定章节数与场景密度 |
 | `hook_intensity` | `balanced / strong / relentless` | 决定每章结尾的悬停力度 |
 | `impact_density` | `lean / standard / heavy` | 决定高冲击画面候选与大格镜头密度 |
+| `spectacle_priority` | `balanced / high / maximal` | 决定视觉奇观和炸点密度 |
+| `pacing_drive` | `stable / punchy / relentless` | 决定快节奏推进与刺激曲线 |
 | `delivery_flavor` | `standard_comic / explainer_comic_compatible` | 决定正文是否兼容解说漫旁白朗读 |
 | `narration_density` | `lean / standard / rich` | 决定旁白浓度与句长节奏 |
 | `dialogue_policy` | `verbatim / lightly-shaped` | 决定对白保真与整理边界 |
@@ -295,9 +356,9 @@ erDiagram
 
 | 场景 | 默认路由 | 风险 |
 | --- | --- | --- |
-| 原文故事/帖文/梗概 | 剧情强化改编 | 复述味过重 |
+| 原文故事/帖文/梗概 | 剧情强化改编 / 原著重排改编 | 复述味过重、太守原顺序 |
 | 一张图/海报/角色照 | 单帧推演改编 | 情节空心化 |
-| 短视频/采访/直播片段 | 镜头序列改编 | 时间线混乱 |
+| 短视频/采访/直播片段 | 镜头序列改编 | 时间线混乱、炸点被埋没 |
 | 新闻事件/网络热搜 | 事实锚定改编 | 虚构越界、立场漂移 |
 | 多图 + 文本 + 热搜评论 | 多源归一改编 | 多主线互相污染 |
 
@@ -305,12 +366,12 @@ erDiagram
 
 | source_type | 第一优先 | 第二优先 | 第三优先 |
 | --- | --- | --- | --- |
-| `text` | 冲突主线 | 角色欲望 | 章末钩子 |
+| `text` | 冲突主线 | 重排潜力与炸点前置 | 章末钩子 |
 | `image` | 画面奇点 | 事件前因后果 | 人物关系 |
-| `video` | 场景序列 | 情绪推进 | 节点反转 |
+| `video` | 场景序列 | 节奏切点 | 节点反转 |
 | `news_event` | 事实边界 | 公共情绪 | 议题戏剧化 |
 | `hot_search` | 爆点命名 | 社会讨论缺口 | 虚构承载角色 |
-| `mixed` | 主锚点裁决 | 素材去重归一 | 风格统一 |
+| `mixed` | 主锚点裁决 | 素材去重归一 | 风格统一与刺激曲线 |
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -325,6 +386,10 @@ erDiagram
 | `route_out` | 下一步去哪 |
 | `rework_trigger` | 何时返工 |
 
+详细节点细则、节点间返工路由与 comic-first 变体见：
+
+- [references/thinking-action-node-design.md](references/thinking-action-node-design.md)
+
 ## Thinking-Action Node Network
 
 | node_id | 状态 | 目标 |
@@ -332,8 +397,8 @@ erDiagram
 | `N1-INTAKE-LOCK` | intake | 锁定任务目标、素材范围与默认输出 |
 | `N2-SOURCE-NORMALIZE` | normalize | 把不同来源压成统一素材摘要 |
 | `N3-TRUTH-BOUNDARY` | guard | 锁定事实边界、改编模式与禁区 |
-| `N4-STORY-ENGINE` | design | 生成人物关系、冲突核、卖点核 |
-| `N5-CHAPTER-SCAFFOLD` | structure | 生成章节骨架与节奏表 |
+| `N4-STORY-ENGINE` | design | 生成人物关系、冲突核、卖点核与改写许可范围 |
+| `N5-CHAPTER-SCAFFOLD` | structure | 生成章节骨架、节奏表、炸点与重排方案 |
 | `N6-SCENE-WRITE` | draft | 写成漫画剧本正文 |
 | `N7-HOOK-INJECT` | tension | 为每章收束钩子 |
 | `N8-VISUAL-READY-POLISH` | bridge | 补足漫画生成所需的视觉锚点 |
@@ -378,30 +443,30 @@ erDiagram
 
 | 槽位 | 内容 |
 | --- | --- |
-| `must_lock` | 主角、对手、欲望、代价、反转潜力 |
-| `actions` | 把来源摘要转成可连载的剧情发动机，并预锁高冲击画面候选、氛围压力场与旁白沉浸口径 |
-| `outputs` | `adaptation_brief`、`impact_beats`、`voice_brief` |
+| `must_lock` | 主角、对手、欲望、代价、反转潜力，以及“哪些可改、哪些不能改” |
+| `actions` | 把来源摘要转成可连载的剧情发动机；显式决定 `adaptation_posture / fidelity_floor / narrative_reorder_policy`，并预锁高冲击画面候选、氛围压力场与旁白沉浸口径 |
+| `outputs` | `adaptation_brief`、`impact_beats`、`voice_brief`、`adaptation_posture_note` |
 | `evidence` | 卖点核、情绪核、关系核 |
 | `route_out` | 进入 `N5` |
-| `rework_trigger` | 只有设定没有冲突，或只有情节没有角色驱动，或读完仍说不出哪几格应该炸开，或旁白读出来会拖、会虚、会绕 |
+| `rework_trigger` | 只有设定没有冲突，或只有情节没有角色驱动，或仍执着原顺序导致节奏发平，或读完仍说不出哪几格应该炸开，或旁白读出来会拖、会虚、会绕 |
 
 ### Step 5. `N5-CHAPTER-SCAFFOLD`
 
 | 槽位 | 内容 |
 | --- | --- |
 | `must_lock` | 章节目标、每章推进点、章末缺口 |
-| `actions` | 按长度目标生成章节骨架、场景顺序与冲击镜头落位 |
-| `outputs` | `chapter_plan`、`impact_map` |
+| `actions` | 按长度目标生成章节骨架、场景顺序、信息延后点、冲击镜头落位与页末急停链；必要时重排原叙事顺序、合并桥段或前置名场面 |
+| `outputs` | `chapter_plan`、`impact_map`、`stimulus_curve` |
 | `evidence` | 类型节奏、读者期待、后续漫画消费需求 |
 | `route_out` | 进入 `N6` |
-| `rework_trigger` | 章节互相重复，或章末没有未闭合问题，或高冲击画面全堆在同一区段 |
+| `rework_trigger` | 章节互相重复，或章末没有未闭合问题，或高冲击画面全堆在同一区段，或前两场仍未给出足够抓停点 |
 
 ### Step 6. `N6-SCENE-WRITE`
 
 | 槽位 | 内容 |
 | --- | --- |
 | `must_lock` | 正文必须是“可见场景”，不是纯摘要 |
-| `actions` | 写对话、动作、环境、冲突升级与情绪推进；同步把正文整理为 `对白（主体）/内心独白（主体）/旁白（主体） + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化层，并让氛围层服务于可拆镜头的压迫感、翻页张力和旁白朗读时的沉浸声压 |
+| `actions` | 写对话、动作、环境、冲突升级与情绪推进；优先按页势能落笔，再回补必要信息；同步把正文整理为 `对白（主体）/内心独白（主体）/旁白（主体） + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化层，并让氛围层服务于可拆镜头的压迫感、翻页张力和旁白朗读时的沉浸声压 |
 | `outputs` | `comic_novel_draft`、`aligned_scene_script` |
 | `evidence` | `chapter_plan` 与写作规格 |
 | `route_out` | 进入 `N7` |
@@ -444,8 +509,8 @@ erDiagram
 
 1. 先判型，不直接写。
 2. 先归一来源，再做文学化。
-3. 先锁定事实边界，再放大戏剧性。
-4. 先有章节骨架，再写正文。
+3. 先锁定事实边界与改写许可，再放大戏剧性。
+4. 先决定保核范围、重排姿态与刺激曲线，再排章节骨架。
 5. 先锁高冲击画面候选与翻页停笔点，再细写正文。
 6. 每章必须带钩子。
 7. 交付前必须补视觉桥接层。
@@ -457,9 +522,14 @@ erDiagram
   - `3` 处高冲击画面候选
   - `1` 处翻页停笔点
   - `1` 条贯穿性的氛围母题
+- 当形式冲击力与解释完备度冲突时，优先保留“看见即停住”的页势能，再把解释拆散回填到后续格或后续章。
 - 高冲击画面优先落在：异常首次显形、关系突然失衡、真相半揭、危险逼近、代价显影。
 - 氛围句若只提升“文气”却不能帮助分镜、构图、明暗或页节奏，一律视为低增益句，必须删改。
 - 对恐怖、悬疑、惊悚题材，优先用“声源不见、空间逼仄、物件失常、光线异常、动作迟滞”制造压迫，而不是堆砌抽象形容词。
+
+视觉奇观细则真源见：
+
+- [references/visual-spectacle-engine.md](references/visual-spectacle-engine.md)
 
 ## Explainer-Comic Compatibility Contract (Mandatory)
 
@@ -491,6 +561,8 @@ erDiagram
 钩子类型与例句真源见：
 
 - [references/hook-ending-playbook.md](references/hook-ending-playbook.md)
+- [references/pacing-hook-thrill-engine.md](references/pacing-hook-thrill-engine.md)
+- [references/chunibyo-intensity-engine.md](references/chunibyo-intensity-engine.md)
 
 ## Convergence Contract (Mandatory)
 
@@ -498,6 +570,7 @@ erDiagram
 
 - 来源摘要只保留一份 `source_digest`
 - 改编意图只保留一份 `adaptation_brief`
+- 类型包只保留一份 `type_stack_ref + type_pack_context`
 - 正文只保留一份 `漫画剧本主稿`
 - 视觉桥接只保留一份 `visual_bridge`
 - 思行裁决摘要只保留一份精简结论，不外挂第二主稿
@@ -518,6 +591,7 @@ erDiagram
 4. 角色卡
 5. 格式裁决说明
 6. `dialogue_policy / narration_policy / inner_monologue_policy / 旁白主体`
+7. `type_stack_ref / script_adaptation stage projection`
 7. 场景化剧本正文
 8. 对齐格式化条目：`对白（主体）/内心独白（主体）/旁白（主体）` 与对应 `*画面`
 9. 漫画专属表现条目：`分格建议 / 视觉焦点 / 跨页或大格建议 / 气泡负载建议 / SFX建议`
@@ -537,6 +611,8 @@ erDiagram
 4. `narration_policy`
 5. `inner_monologue_policy`
 6. `speaker_registry[]`
+7. `type_stack_ref`
+8. `type_pack_context`
 7. `canonical_story_summary`
 8. `ordered_story_units[]`
 9. `aligned_scene_script[]`
@@ -595,6 +671,8 @@ erDiagram
 | `FIELD-COMIC-01` | `source_digest` | 把原始素材归一为事实、画面、情绪、关系、未解点 | `S1-S2` | 来源要点保真度 | `FAIL-COMIC-01` |
 | `FIELD-COMIC-02` | `boundary_note / adaptation_mode` | 明确事实边界与虚构许可范围 | `S3` | 契约遵循 | `FAIL-COMIC-02` |
 | `FIELD-COMIC-03` | `adaptation_brief` | 锁定类型、卖点、主角、对手、欲望与代价 | `S4` | 类型卖点与冲突强度 | `FAIL-COMIC-03` |
+| `FIELD-COMIC-03A` | `adaptation_posture_note / fidelity_floor / stimulus_curve` | 明确本轮允许怎样重排、夸张、延后解释，以及哪些核心不能改丢 | `S4-S5` | 契约遵循 | `FAIL-COMIC-03A` |
+| `FIELD-COMIC-03B` | `type_stack_ref / type_pack_context.stage_projection.script_adaptation` | 锁定当前激活 pack 组合与本段类型化投影，不让后续阶段回到默认猜测 | `S1-S4` | 契约遵循 | `FAIL-COMIC-03B` |
 | `FIELD-COMIC-04` | `script_variant / dialogue_policy / narration_policy / inner_monologue_policy / aligned_scene_script[]` | 对齐 `2-格式` 的基础格式化字段，文本条目显式带主体并就近配对 `*画面` | `S4-S6` | 基础格式化合法性 | `FAIL-COMIC-04` |
 | `FIELD-COMIC-05` | `speaker_registry[] / character_locks[]` | 说话者主体命名一致，角色、讲述者、别名与代称不漂移 | `S4-S6` | 主体一致性 | `FAIL-COMIC-05` |
 | `FIELD-COMIC-06` | `chapter_plan / hook_pack / 漫画剧本主稿.md` | 章节推进清晰，正文场景化，可连续追读，页末留钩子 | `S5-S9` | 节奏与钩子有效性 | `FAIL-COMIC-06` |
@@ -610,10 +688,11 @@ erDiagram
 | `S1` | `FIELD-COMIC-01` | 本轮到底在改编什么 | 锁定目标与素材 | 连素材类型都不清楚就开写 |
 | `S2` | `FIELD-COMIC-01` | 来源如何统一成可写基座 | 生成 `source_digest` | 只有形容词，没有事件与关系 |
 | `S3` | `FIELD-COMIC-02` | 哪些能虚构，哪些不能 | 写 `boundary_note` | 现实事实与虚构混淆 |
-| `S4` | `FIELD-COMIC-03` | 为什么这稿值得追更 | 生成 `adaptation_brief` | 卖点弱、冲突平 |
+| `S4` | `FIELD-COMIC-03/03A` | 为什么这稿值得追更，且哪些地方允许为了漫画感重排 | 生成 `adaptation_brief` 与改写许可说明 | 卖点弱、冲突平、改写边界不清 |
+| `S4A` | `FIELD-COMIC-03B` | 本轮类型包要求什么漫画语法 | 锁 `type_stack_ref` 并吸收 `script_adaptation` 投影 | pack 已声明但正文仍像默认稿 |
 | `S5` | `FIELD-COMIC-04` | 基础格式化字段是否对齐 `2-格式` | 生成 `aligned_scene_script[]` 与配套策略字段 | 文本无主体或无对应画面 |
 | `S6` | `FIELD-COMIC-05` | 说话者主体是否统一可追溯 | 锁定 `speaker_registry[]` 并回收漂移命名 | 同一角色多名字并存 |
-| `S7` | `FIELD-COMIC-07` | 哪几处必须先被设计成炸点画面 | 生成 `impact_map` 与漫画专属表现层 | 全文读完没有大格候选 |
+| `S7` | `FIELD-COMIC-07` | 哪几处必须先被设计成炸点画面与页末急停 | 生成 `impact_map` 与漫画专属表现层 | 全文读完没有大格候选或刺激曲线过平 |
 | `S8` | `FIELD-COMIC-08` | 正文是否同时具备场景感与朗读感 | 写正文场景、压实朗读节奏与文字负载 | 画面有了但念出来拖沓 |
 | `S9` | `FIELD-COMIC-06` | 结尾有没有把缺口留住 | 注入 `hook_pack` | 章节收得太满 |
 | `S10` | `FIELD-COMIC-09` | 下游能否直接继续做漫画 | 生成 `visual_bridge` | 无法拆角色/场景/动作锚点 |
@@ -626,6 +705,8 @@ erDiagram
 | `FIELD-COMIC-01` | `source_digest` 同时覆盖事实、画面、情绪、关系、未解点 | `FAIL-COMIC-01` | `S1-S2` |
 | `FIELD-COMIC-02` | 事实边界明确，现实事实不被伪造 | `FAIL-COMIC-02` | `S3` |
 | `FIELD-COMIC-03` | 改编摘要能说明类型、卖点、冲突与代价 | `FAIL-COMIC-03` | `S4` |
+| `FIELD-COMIC-03A` | 已明确 `comic-first / spectacle-first` 的适用范围，且保核边界可追溯 | `FAIL-COMIC-03A` | `S4-S5` |
+| `FIELD-COMIC-03B` | 已明确 active packs，且 `script_adaptation` 投影被写入结构化输出 | `FAIL-COMIC-03B` | `S1-S4A` |
 | `FIELD-COMIC-04` | `对白/内心独白/旁白 + 对应画面 + 动作画面 + 镜头语言预设` 对齐且可机读 | `FAIL-COMIC-04` | `S5` |
 | `FIELD-COMIC-05` | 同一说话者主体在全文与结构化包中保持单一 canonical 命名 | `FAIL-COMIC-05` | `S6` |
 | `FIELD-COMIC-06` | 章节推进清楚、正文场景化、章末有钩子 | `FAIL-COMIC-06` | `S8-S9` |
@@ -659,6 +740,12 @@ erDiagram
   - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
   - `.agents/skills/comic/1-漫画剧本改编/CONTEXT.md`
   - `.agents/skills/comic/1-漫画剧本改编/references/source-intake-and-mode-selection.md`
+  - `.agents/skills/comic/1-漫画剧本改编/references/visual-spectacle-engine.md`
+  - `.agents/skills/comic/1-漫画剧本改编/references/pacing-hook-thrill-engine.md`
+  - `.agents/skills/comic/1-漫画剧本改编/references/chunibyo-intensity-engine.md`
+  - `.agents/skills/comic/1-漫画剧本改编/references/thinking-action-node-design.md`
+  - `.agents/skills/comic/_shared/type-pack-loading-contract.md`
+  - `.agents/skills/comic/scripts/data_modules/comic_type_pack_resolver.py`
   - `.agents/skills/comic/1-漫画剧本改编/references/hook-ending-playbook.md`
   - `.agents/skills/comic/1-漫画剧本改编/references/hotsearch-news-adaptation.md`
 - `Meta Rule Source`

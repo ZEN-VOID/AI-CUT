@@ -49,7 +49,7 @@
       },
       "default_rework_targets": [
         "1-单集叙事起盘",
-        "6-追读力强化"
+        "7-追读力强化"
       ],
       "source_trace": [],
       "report_ref": "4-Validation/第12集/结构兑现.md"
@@ -90,7 +90,7 @@
       },
       "default_rework_targets": [
         "4-角色形象刻画",
-        "5-对白个性化和声口优化"
+        "5-对白个性化"
       ],
       "source_trace": [],
       "report_ref": "4-Validation/第12集/人物一致性.md"

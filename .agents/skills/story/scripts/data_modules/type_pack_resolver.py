@@ -26,9 +26,10 @@ CANONICAL_DRAFTING_STEPS = {
     "Step 2": ("2-节奏优化", "节奏优化"),
     "Step 3": ("3-场景和氛围渲染", "场景和氛围渲染"),
     "Step 4": ("4-角色形象刻画", "角色形象刻画"),
-    "Step 5": ("5-对白个性化和声口优化", "对白个性化和声口优化"),
-    "Step 6": ("6-追读力强化", "追读力强化"),
-    "Step 7": ("7-润色", "润色"),
+    "Step 5": ("5-对白个性化", "对白个性化"),
+    "Step 6": ("6-心理活动描写", "心理活动描写"),
+    "Step 7": ("7-追读力强化", "追读力强化"),
+    "Step 8": ("8-润色", "润色"),
 }
 
 
@@ -457,6 +458,7 @@ class TypePackResolver:
     def resolve(self) -> Dict[str, Any]:
         stack = self._raw_type_stack()
         active_pack_ids = self.active_pack_ids()
+        catalog_path = _catalog_path()
         merged: Dict[str, Any] = {
             "method_kernel": str(stack.get("method_kernel") or DEFAULT_METHOD_KERNEL),
             "type_stack": deepcopy(stack),
@@ -475,9 +477,12 @@ class TypePackResolver:
             "legacy_source_refs": [],
             "resolution_trace": [],
             "resolver_ref": ".agents/skills/story/_shared/type-pack-loading-contract.md",
-            "pack_catalog_ref": ".agents/skills/story/type-packs/pack-catalog.yaml",
             "pack_root": str(self._pack_root()),
+            "resolution_mode": "directory-first-bootstrap",
         }
+        if catalog_path.is_file():
+            merged["pack_catalog_ref"] = ".agents/skills/story/type-packs/pack-catalog.yaml"
+            merged["resolution_mode"] = "catalog-overlay"
 
         for pack_id in active_pack_ids:
             pack = self.load_pack(pack_id)

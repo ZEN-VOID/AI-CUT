@@ -93,9 +93,10 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 | `Step 2` | 节奏优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 3` | 场景和氛围渲染 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 4` | 角色形象刻画 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 5` | 对白个性化和声口优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 6` | 追读力强化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 7` | 润色 | 优先继续终修，必要时清理当前集正文后回到 Step 1 |
+| `Step 5` | 对白个性化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 6` | 心理活动描写 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 7` | 追读力强化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 8` | 润色 | 优先继续终修，必要时清理当前集正文后回到 Step 1 |
 | `Step 1.5` | legacy 旧断点 | 兼容视为 Step 1 |
 
 ### `story-review`
@@ -112,7 +113,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ### 模板 A：删除当前集正文并重跑（推荐）
 
 - 风险：`low`
-- 适用：`story-write` 的 `Step 2-7`
+- 适用：`story-write` 的 `Step 2-8`
 - 动作：
   - 先 `workflow cleanup --chapter {N}` 预览
   - 用户确认后 `workflow cleanup --chapter {N} --confirm`
@@ -132,7 +133,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ### 模板 C：继续当前后置步骤
 
 - 风险：`low` 到 `medium`
-- 适用：`Step 4 / Step 5 / Step 6`，或 `story-review` 中后段
+- 适用：`Step 4 / Step 5 / Step 6 / Step 7`，或 `story-review` 中后段
 - 动作：
   - 核对输入文件仍存在且未被外部改坏
   - 从当前 stage 继续，而不是回滚全部流程

@@ -90,7 +90,7 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 
 3-Drafting
   → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
-  → 固定串行执行 1-7 工序，并同步 `3-Drafting/写作日志.yaml`
+  → 固定串行执行 1-8 工序，并同步 `3-Drafting/写作日志.yaml`
   → 当 `N>1` 时额外加载上一集最终正文 `3-Drafting/第N-1集.md`
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
@@ -145,14 +145,15 @@ query / resume
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
 
-2. `3-Drafting` 七道工序 progressive rewrite
+2. `3-Drafting` 八道工序 progressive rewrite
    → Step 1 起盘
    → Step 2 节奏
    → Step 3 场景和氛围
    → Step 4 角色形象
    → Step 5 对白声口
-   → Step 6 叙事张力
-   → Step 7 润色
+   → Step 6 心理活动描写
+   → Step 7 追读力强化
+   → Step 8 润色
    → 每一步都写回 `3-Drafting/第N集.md + 写作日志.yaml`
 
 3. inline validation hooks

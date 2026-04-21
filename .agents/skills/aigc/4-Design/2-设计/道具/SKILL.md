@@ -313,7 +313,7 @@ stateDiagram-v2
   1. 从 Markdown `**prompt整合**` 提取主体 prompt。
   2. 自动加载统一全局风格前缀，生成 `full_generation_prompt`。
   3. 生图前复验 `isolated pure prop view / no hands / no characters`，并复核 prompt 不正向要求手、身体局部、持有者、角色或复杂场景。
-  4. 默认后台批量并发调用 `.agents/skills/api/image/nano-banana/general`，目标输出 `<prop_id>-<canonical_name>.<ext>`。
+  4. 默认后台批量并发调用 `.agents/skills/api/anyfast/image/nano-banana/general`，目标输出 `<prop_id>-<canonical_name>.<ext>`。
   5. 在 `_manifest.json.auto_image` 记录 provider、prompt 字段、输出路径、状态与 `reference_cleanliness_note`。
 - `evidence`
   - `full_generation_prompt`

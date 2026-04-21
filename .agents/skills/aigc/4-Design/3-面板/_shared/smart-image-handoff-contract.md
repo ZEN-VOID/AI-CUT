@@ -1,6 +1,6 @@
 # SMART Image Handoff Contract
 
-本文件是 `4-Design/3-面板` 到 `api/image/nano-banana/general` 的共享 handoff 真源。
+本文件是 `4-Design/3-面板` 到 `api/anyfast/image/nano-banana/general` 的共享 handoff 真源。
 
 ## Canonical Rule
 

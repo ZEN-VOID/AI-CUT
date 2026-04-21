@@ -20,6 +20,46 @@ ROOT = find_repo_root()
 PROJECTS_ROOT = ROOT / "projects" / "aigc"
 SOURCE_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
 TEMPLATE_JSON = ROOT / ".agents/skills/aigc/5-Image/_shared/image-generation-input.template.json"
+SHOT_SCALE_TOKENS = (
+    "超大全景",
+    "大全景",
+    "大远景",
+    "中远景",
+    "中近景",
+    "全景",
+    "远景",
+    "中景",
+    "近景",
+    "特写",
+)
+SHOT_ANGLE_TOKENS = (
+    "略后侧视角",
+    "后侧视角",
+    "略侧平视",
+    "侧平视",
+    "侧视角",
+    "低角度仰视",
+    "高角度俯视",
+    "平视",
+    "俯视",
+    "仰视",
+    "过肩",
+    "主观视角",
+    "鸟瞰",
+)
+SHOT_SPEED_TOKENS = (
+    "极慢推近",
+    "极慢速收束",
+    "慢速压近",
+    "缓慢推进",
+    "极慢速推进",
+    "慢速推进",
+    "静止",
+    "极慢",
+    "慢速",
+    "缓慢",
+    "定镜",
+)
 
 
 def read_json(path: Path) -> Any:
@@ -118,6 +158,29 @@ def pick_branch_object(shot: dict[str, Any], *field_names: str) -> Any:
     return {}
 
 
+def extract_token(text: str, candidates: tuple[str, ...]) -> str:
+    for candidate in candidates:
+        if candidate in text:
+            return candidate
+    return ""
+
+
+def infer_shot_descriptor(normalized: dict[str, Any], candidates: tuple[str, ...]) -> str:
+    sources = (
+        str(normalized.get("运镜手法", "")).strip(),
+        str(normalized.get("分镜构图", "")).strip(),
+        str(normalized.get("分镜表现", "")).strip(),
+        str(normalized.get("镜头框架", "")).strip(),
+        str(normalized.get("镜头类型", "")).strip(),
+        str(normalized.get("镜头类型兼容", "")).strip(),
+    )
+    for source in sources:
+        token = extract_token(source, candidates)
+        if token:
+            return token
+    return ""
+
+
 def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(shot)
     normalized["角色表现"] = first_non_empty(
@@ -185,6 +248,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized["镜头速度"] = first_non_empty(
         compact_branch_design(pick_branch_object(normalized, "运镜手法", "运镜策略"), ("速度", "速度设计"), limit=1),
         str(normalized.get("镜头速度", "")).strip(),
+        infer_shot_descriptor(normalized, SHOT_SPEED_TOKENS),
     )
     normalized["视觉强化"] = first_non_empty(
         compact_branch_design(
@@ -217,6 +281,11 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized["景别"] = first_non_empty(
         compact_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("景别景深",), limit=1),
         str(normalized.get("景别", "")).strip(),
+        infer_shot_descriptor(normalized, SHOT_SCALE_TOKENS),
+    )
+    normalized["镜头视角"] = first_non_empty(
+        str(normalized.get("镜头视角", "")).strip(),
+        infer_shot_descriptor(normalized, SHOT_ANGLE_TOKENS),
     )
     normalized["镜头类型"] = first_non_empty(
         str(normalized.get("镜头类型", "")).strip(),
@@ -225,6 +294,8 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized["镜头类型兼容"] = first_non_empty(
         str(normalized.get("镜头类型兼容", "")).strip(),
         str(normalized.get("镜头属性", "")).strip(),
+        normalized["镜头类型"],
+        normalized["镜头框架"],
     )
     normalized["人物表演"] = normalized["角色表现"]
     normalized["动作调度"] = normalized["运动表现"]
@@ -483,4 +554,3 @@ def build_camera_clauses(shot: dict[str, Any], level: str, spec: dict[str, Any])
 def build_prompt_prefix(spec: dict[str, Any]) -> str:
     prefix_lines = require_list(spec["prefix_lines"], "spec.prefix_lines")
     return "\n".join(require_non_empty_text(line, "spec.prefix_line") for line in prefix_lines)
-

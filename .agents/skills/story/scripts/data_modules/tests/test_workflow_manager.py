@@ -275,7 +275,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
             ]
         module.record_inline_validation("Step 4", validator["role_id"], json.dumps(payload, ensure_ascii=False))
 
-    module.start_step("Step 5", "对白个性化和声口优化")
+    module.start_step("Step 5", "对白个性化")
     state = module.load_state()
     assert state["current_task"]["current_step"] is None
     gate = state["current_task"]["inline_validation"]["blocking_gate"]
@@ -309,7 +309,9 @@ def test_workflow_step_owner_and_order_violation_trace(tmp_path, monkeypatch):
     _seed_project_root(tmp_path)
 
     assert module.expected_step_owner("story-write", "Step 1") == "drafting-episode-kickoff"
-    assert module.expected_step_owner("story-write", "Step 7") == "drafting-polish"
+    assert module.expected_step_owner("story-write", "Step 6") == "drafting-inner-life"
+    assert module.expected_step_owner("story-write", "Step 7") == "drafting-reading-power"
+    assert module.expected_step_owner("story-write", "Step 8") == "drafting-polish"
 
     module.start_task("story-write", {"chapter_num": 12})
     module.start_step("Step 3", "Review")
@@ -478,7 +480,7 @@ def test_analyze_recovery_options_polish_step_keeps_new_drafting_target(tmp_path
     interrupt_info = {
         "command": "story-write",
         "args": {"chapter_num": 12},
-        "current_step": {"id": "Step 7"},
+        "current_step": {"id": "Step 8"},
     }
 
     options = module.analyze_recovery_options(interrupt_info)
@@ -653,4 +655,38 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
     assert interrupt["detection_mode"] == "artifact_fallback"
     assert interrupt["command"] == "story-validate"
     assert interrupt["args"]["chapter_num"] == 1
+    assert interrupt["resume_reason"] == "candidate_final_draft_waiting_validation"
+
+
+def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    loopback_dir = tmp_path / "5-Loopback"
+    loopback_dir.mkdir(parents=True, exist_ok=True)
+    (loopback_dir / "第1集.loopback.json").write_text("{}", encoding="utf-8")
+
+    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir.mkdir(parents=True, exist_ok=True)
+    (drafting_dir / "写作日志.yaml").write_text(
+        "\n".join(
+            [
+                "episode_num: 2",
+                "candidate_final_state:",
+                "  status: candidate_final_draft",
+                "current_resume_pointer:",
+                "  next_step: 4-Validation",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-validate"
+    assert interrupt["args"]["chapter_num"] == 2
     assert interrupt["resume_reason"] == "candidate_final_draft_waiting_validation"

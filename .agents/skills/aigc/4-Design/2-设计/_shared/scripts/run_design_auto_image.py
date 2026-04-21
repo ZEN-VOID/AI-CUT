@@ -14,7 +14,7 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[7]
-NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py"
+NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
 SCRIPT_DIR = Path(__file__).resolve().parent
 if SCRIPT_DIR.as_posix() not in sys.path:
     sys.path.insert(0, SCRIPT_DIR.as_posix())

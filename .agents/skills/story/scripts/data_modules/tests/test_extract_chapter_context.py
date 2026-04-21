@@ -90,6 +90,64 @@ def test_extract_chapter_outline_prefers_holomap_over_legacy_outline(tmp_path):
     assert "旧大纲内容" not in outline
 
 
+def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
+    scripts_dir = Path(__file__).resolve().parents[2]
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    from extract_chapter_context import extract_chapter_outline
+
+    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir.mkdir(parents=True, exist_ok=True)
+    holomap = {
+        "schema_version": "story2026/holomap/v1",
+        "content": {
+            "holomap": {
+                "story_spine": {"headline": "测试主线"},
+                "episode_sequence_axis": [
+                    {
+                        "episode_ref": "第001集",
+                        "slice_ref": "slice-001-010",
+                        "chapter_board_ref": "ep-001",
+                    }
+                ],
+                "episode_slice_manifest": [
+                    {
+                        "slice_id": "slice-001-010",
+                        "episode_refs": ["第001集"],
+                        "file_ref": "十集分片/第001-010集.json",
+                    }
+                ],
+            }
+        },
+    }
+    slice_payload = {
+        "content": {
+            "holomap_slice": {
+                "chapter_boards": [
+                    {
+                        "node_id": "ep-001",
+                        "episode_ref": "第001集",
+                        "chapter_title": "港雨买酒",
+                        "chapter_goal": "令狐冲先看见税线恶压，再决定要不要拔剑。",
+                        "bundled_elements": {
+                            "events": ["港口税线逼民跪雨中", "阿真向令狐冲递出求救眼色"],
+                            "characters": ["令狐冲", "任盈盈", "阿真"],
+                        },
+                    }
+                ]
+            }
+        }
+    }
+    (tmp_path / "2-Planning" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "第001-010集.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
+
+    outline = extract_chapter_outline(tmp_path, 1)
+    assert "### 第1章：港雨买酒" in outline
+    assert "港口税线逼民跪雨中" in outline
+    assert "港口税线逼民跪雨中" in outline
+
+
 def test_extract_chapter_outline_prefers_state_volume_mapping(tmp_path):
     scripts_dir = Path(__file__).resolve().parents[2]
     if str(scripts_dir) not in sys.path:
@@ -282,6 +340,312 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert isinstance(payload["rag_assist"], dict)
     assert payload["rag_assist"].get("invoked") is False
     assert payload["current_step_id"] == "Step 2"
+
+
+def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
+    scripts_dir = Path(__file__).resolve().parents[2]
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    from extract_chapter_context import build_chapter_context_payload
+    from data_modules.config import DataModulesConfig
+
+    cfg = DataModulesConfig.from_project_root(tmp_path)
+    cfg.ensure_dirs()
+
+    state = {
+        "project": {"genre": "wuxia"},
+        "project_info": {"genre": "wuxia"},
+        "progress": {"current_chapter": 1, "total_words": 0},
+        "protagonist_state": {
+            "power": {"realm": "见招", "layer": 1},
+            "location": "那霸港",
+            "golden_finger": {"name": "无", "level": 0},
+        },
+        "chapter_meta": {},
+        "disambiguation_warnings": [],
+        "disambiguation_pending": [],
+    }
+    (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+
+    refs_dir = tmp_path / ".agents" / "skills" / "story" / "_shared"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+    (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
+    (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
+
+    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir.mkdir(parents=True, exist_ok=True)
+    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_groups": {"master_globals": [global_card_ref]},
+                    "global_contract_refs": [{"card_id": "世界总卡", "path": global_card_ref}],
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / global_card_ref).write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "global_card": {
+                            "core": {
+                                "worldview": {"genre": "wuxia"},
+                                "rule_system": [{"label": "铁律", "value": "拔剑要付代价"}],
+                            }
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "令狐冲.json"
+    protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
+    protagonist_card_path.write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "character_card": {
+                            "card_id": "令狐冲",
+                            "core": {
+                                "identity": {"name": "令狐冲"},
+                                "cast_markers": {"is_protagonist": True},
+                                "growth_contract": {"growth_enabled": True, "growth_role": "protagonist"},
+                            },
+                            "current_state": {
+                                "growth_state": {
+                                    "active_arc_phase": "避世将破",
+                                    "latest_growth_episode": "初始化",
+                                    "skill": {"stage": "见招", "focus": "先识局再出剑"},
+                                    "heart": {"stage": "避世", "recent_shift": "不愿再装作没看见"},
+                                    "emotion": {"stage": "互护", "current_tension": "怕把盈盈再拖回风浪"},
+                                }
+                            },
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir.mkdir(parents=True, exist_ok=True)
+    holomap = {
+        "schema_version": "story2026/holomap/v1",
+        "content": {
+            "holomap": {
+                "story_spine": {"headline": "港口看见不平 -> 拔剑 -> 卷入大局"},
+                "episode_sequence_axis": [
+                    {
+                        "episode_ref": "第001集",
+                        "slice_ref": "slice-001-010",
+                        "chapter_board_ref": "ep-001",
+                    }
+                ],
+                "episode_slice_manifest": [
+                    {
+                        "slice_id": "slice-001-010",
+                        "episode_refs": ["第001集"],
+                        "file_ref": "十集分片/第001-010集.json",
+                    }
+                ],
+            }
+        },
+    }
+    slice_payload = {
+        "content": {
+            "holomap_slice": {
+                "chapter_boards": [
+                    {
+                        "node_id": "ep-001",
+                        "episode_ref": "第001集",
+                        "chapter_title": "港雨买酒",
+                        "chapter_goal": "令狐冲在那霸港的雨里看见税线恶压，第一次意识到自己避不开这盘棋。",
+                        "bundled_elements": {
+                            "events": ["港口税线逼平民下跪", "阿真把求救目光递给令狐冲"],
+                            "conflicts": ["conf-001"],
+                            "missions": ["mission-001"],
+                            "clues": ["clue-003"],
+                            "characters": ["令狐冲", "任盈盈", "阿真", "久武平四郎"],
+                        },
+                        "planned_state": {
+                            "action_beat_plan": {
+                                "turning_point": "令狐冲第一次不是为旧怨，而是为眼前人的屈辱动心。",
+                                "relationship_change": "两人从隐居同伴切回并肩看局的战友。",
+                                "injury_or_cost": "一旦出手，就再也不是过路人。",
+                            }
+                        },
+                    }
+                ],
+                "thread_window_slice": {
+                    "conflicts": ["conf-001"],
+                    "missions": ["mission-001"],
+                    "clues": ["clue-003"],
+                    "foreshadows": ["foe-002"],
+                },
+                "foreshadow_silence_slice": {
+                    "has_active_foreshadowing": True,
+                    "active_foreshadowing": ["foe-002"],
+                    "silence_windows": [],
+                    "payoff_windows": ["第006集"],
+                },
+            }
+        }
+    }
+    (tmp_path / "2-Planning" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (planning_dir / "第001-010集.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
+
+    payload = build_chapter_context_payload(tmp_path, 1, current_step_id="Step 1")
+    planning_truth = payload["validation_fact_pack"]["planning_truth"]
+    chapter_board = planning_truth["chapter_board"]
+
+    assert chapter_board["node_id"] == "ep-001"
+    assert chapter_board["outline"] == "港雨买酒"
+    assert "港口税线逼平民下跪" in chapter_board["must_happen"]
+    assert planning_truth["thread_window_slice"]["conflicts"] == ["conf-001"]
+    assert planning_truth["foreshadow_silence_slice"]["active_foreshadowing"] == ["foe-002"]
+    assert planning_truth["story_spine"]["headline"] == "港口看见不平 -> 拔剑 -> 卷入大局"
+
+
+def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path):
+    scripts_dir = Path(__file__).resolve().parents[2]
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    from extract_chapter_context import build_chapter_context_payload
+    from data_modules.config import DataModulesConfig
+
+    cfg = DataModulesConfig.from_project_root(tmp_path)
+    cfg.ensure_dirs()
+
+    (tmp_path / "STATE.json").write_text(
+        json.dumps(
+            {
+                "project": {"genre": "wuxia"},
+                "project_info": {"genre": "wuxia"},
+                "progress": {"current_chapter": 1, "total_words": 0},
+                "protagonist_state": {
+                    "power": {"realm": "见招", "layer": 1},
+                    "location": "港口",
+                    "golden_finger": {"name": "无", "level": 0},
+                },
+                "chapter_meta": {},
+                "disambiguation_warnings": [],
+                "disambiguation_pending": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    refs_dir = tmp_path / ".agents" / "skills" / "story" / "_shared"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+    (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
+    (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
+
+    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir.mkdir(parents=True, exist_ok=True)
+    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_groups": {"master_globals": [global_card_ref]},
+                    "global_contract_refs": [{"card_id": "世界总卡", "path": global_card_ref}],
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / global_card_ref).write_text(
+        json.dumps({"content": {"card_schema": {"global_card": {"core": {"worldview": {"genre": "wuxia"}}}}}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "令狐冲.json"
+    protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
+    protagonist_card_path.write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_schema": {
+                        "character_card": {
+                            "card_id": "令狐冲",
+                            "core": {
+                                "identity": {"name": "令狐冲"},
+                                "cast_markers": {"is_protagonist": True},
+                                "growth_contract": {"growth_enabled": True, "growth_role": "protagonist"},
+                            },
+                            "current_state": {"growth_state": {}},
+                        }
+                    }
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    planning_dir = tmp_path / "2-Planning" / "十集分片"
+    planning_dir.mkdir(parents=True, exist_ok=True)
+    (tmp_path / "2-Planning" / "全息地图.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "holomap": {
+                        "episode_sequence_axis": [{"episode_ref": "第001集", "slice_ref": "slice-001-010", "chapter_board_ref": "ep-001"}],
+                        "episode_slice_manifest": [{"slice_id": "slice-001-010", "episode_refs": ["第001集"], "file_ref": "十集分片/第001-010集.json"}],
+                    }
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (planning_dir / "第001-010集.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "holomap_slice": {
+                        "chapter_boards": [
+                            {
+                                "node_id": "ep-001",
+                                "episode_ref": "第001集",
+                                "chapter_title": "港雨买酒",
+                                "chapter_goal": "令狐冲与任盈盈只想买酒避世，第一卷的时间压力由此落锁。",
+                                "bundled_elements": {"events": ["令狐冲本只想买酒避世，却看见税线恶压。"]},
+                                "planned_state": {"action_beat_plan": {"injury_or_cost": "代价是两人再也不可能只当过路人。"}},
+                            }
+                        ]
+                    }
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    payload = build_chapter_context_payload(tmp_path, 1)
+    chapter_board = payload["validation_fact_pack"]["planning_truth"]["chapter_board"]
+    flat = " ".join(chapter_board["chapter_goals"] + chapter_board["must_happen"])
+    assert "第一卷的时间压力" not in flat
+    assert "由此落锁" not in flat
+    assert "只想买酒避世" in flat
 
 
 def test_render_text_contains_writing_guidance_section(tmp_path):

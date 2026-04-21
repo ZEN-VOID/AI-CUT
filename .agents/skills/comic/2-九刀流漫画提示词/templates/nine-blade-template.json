@@ -37,6 +37,51 @@
         "Place a small page number in the bottom-right corner of every page, using digits 1-9 only."
       ]
   },
+  "type_stack_ref": {
+    "method_kernel": "comic-core-v1",
+    "base": "_base",
+    "primary": "漫画高冲击",
+    "secondary": ["中二战斗"],
+    "platform": ["条漫平台"],
+    "audience": ["少年热血受众"],
+    "active_packs": ["_base", "漫画高冲击", "中二战斗", "条漫平台", "少年热血受众"]
+  },
+  "type_pack_context": {
+    "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+    "knowledge_refs": [
+      ".agents/skills/comic/type-packs/漫画/中二战斗/中二战斗.md",
+      ".agents/skills/comic/type-packs/漫画/中二战斗/命名体系.md"
+    ],
+    "knowledge_digest": [
+      "名字、誓言、禁忌和宿命必须带压强。",
+      "每次炫技都要带代价。"
+    ],
+    "semantic_tags": ["oath", "destiny", "page-impact"],
+    "pack_revisions": {
+      "中二战斗": "dynamic-runtime"
+    },
+    "projection_summary": {
+      "nine_blade_prompting": "优先 splash、diagonal、绝对化对白和高势能命名。"
+    },
+    "stage_projection": {
+      "script_adaptation": {
+        "adaptation_posture": "comic-first"
+      },
+      "nine_blade_prompting": {
+        "layout_bias": ["splash", "diagonal", "border-breaking"],
+        "dialogue_bias": ["oath lines", "destiny lines"]
+      },
+      "image_generation": {
+        "render_bias": ["sharp comic contrast", "ritual silhouette"]
+      },
+      "animation_generation": {
+        "motion_bias": ["charged pause", "impact release"]
+      },
+      "episode_poster": {
+        "poster_bias": ["forbidden-title", "destiny-title"]
+      }
+    }
+  },
   "main_character_lock": {
     "character_id": "protagonist",
     "name": "角色名",

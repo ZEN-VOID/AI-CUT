@@ -16,7 +16,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
 VALIDATOR = REPO_ROOT / ".agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_blade_prompt_json.py"
-SEEDREAM_SCRIPT = REPO_ROOT / ".agents/skills/api/image/seedream/scripts/seedream_generate.py"
+SEEDREAM_SCRIPT = REPO_ROOT / ".agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py"
 
 
 def _now_stamp() -> str:
@@ -176,6 +176,32 @@ def _self_test_data() -> dict[str, Any]:
                 "Place a small page number in the bottom-right corner of every page, using digits 1-9 only.",
             ],
         },
+        "type_stack_ref": {
+            "method_kernel": "comic-core-v1",
+            "base": "_base",
+            "primary": "漫画高冲击",
+            "secondary": ["中二战斗"],
+            "platform": ["条漫平台"],
+            "audience": ["少年热血受众"],
+            "active_packs": ["_base", "漫画高冲击", "中二战斗", "条漫平台", "少年热血受众"],
+        },
+        "type_pack_context": {
+            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+            "knowledge_refs": [
+                ".agents/skills/comic/type-packs/漫画/中二战斗/中二战斗.md"
+            ],
+            "pack_revisions": {
+                "中二战斗": "dynamic-runtime"
+            },
+            "semantic_tags": ["oath", "destiny", "page-impact"],
+            "stage_projection": {
+                "script_adaptation": {"adaptation_posture": "comic-first"},
+                "nine_blade_prompting": {"layout_bias": ["splash", "diagonal"]},
+                "image_generation": {"render_bias": ["sharp comic contrast", "ritual silhouette"]},
+                "animation_generation": {"motion_bias": ["charged pause", "impact release"]},
+                "episode_poster": {"poster_bias": ["forbidden-title"]}
+            },
+        },
         "main_character_lock": {
             "character_id": "protagonist",
             "name": "Sun Wukong",
@@ -265,6 +291,135 @@ def _text_block(title: str, value: Any) -> str:
     return f"\n## {title}\n{body}\n"
 
 
+def _compact_text(value: Any) -> str:
+    if value in (None, "", [], {}):
+        return ""
+    if isinstance(value, str):
+        return re.sub(r"\s+", " ", value).strip()
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def _bullet_block(title: str, lines: list[str]) -> str:
+    cleaned = [line.strip() for line in lines if line and line.strip()]
+    if not cleaned:
+        return ""
+    body = "\n".join(f"- {line}" for line in cleaned)
+    return f"\n## {title}\n{body}\n"
+
+
+def _summarize_type_pack_context(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    lines: list[str] = []
+    active_packs = value.get("active_packs")
+    if isinstance(active_packs, list) and active_packs:
+        lines.append(f"active_packs: {', '.join(str(item) for item in active_packs)}")
+    semantic_tags = value.get("semantic_tags")
+    if isinstance(semantic_tags, list) and semantic_tags:
+        lines.append(f"semantic_tags: {', '.join(str(item) for item in semantic_tags[:10])}")
+    projection_summary = value.get("projection_summary")
+    if isinstance(projection_summary, dict):
+        for key in ("nine_blade_prompting", "image_generation", "animation_generation"):
+            summary = _compact_text(projection_summary.get(key))
+            if summary:
+                lines.append(f"{key}: {summary}")
+    stage_projection = value.get("stage_projection")
+    if isinstance(stage_projection, dict):
+        for key in ("nine_blade_prompting", "image_generation"):
+            projection = stage_projection.get(key)
+            summary = _compact_text(projection)
+            if summary:
+                lines.append(f"{key}_detail: {summary}")
+    return lines
+
+
+def _summarize_style_bible(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    lines: list[str] = []
+    for key in (
+        "base_style",
+        "layout_directive",
+        "style_anchor_prompt",
+        "style_continuity_rule",
+        "rendering",
+        "color_script",
+        "quality_tags",
+    ):
+        summary = _compact_text(value.get(key))
+        if summary:
+            lines.append(f"{key}: {summary}")
+    keywords = value.get("manga_style_keywords")
+    if isinstance(keywords, list) and keywords:
+        lines.append(f"manga_style_keywords: {', '.join(str(item) for item in keywords[:12])}")
+    shifts = value.get("forbidden_style_shifts")
+    if isinstance(shifts, list) and shifts:
+        lines.append(f"forbidden_style_shifts: {', '.join(str(item) for item in shifts[:8])}")
+    return lines
+
+
+def _summarize_text_system(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    lines: list[str] = []
+    for key in ("dialogue", "narration", "inner_monologue", "sfx"):
+        entry = value.get(key)
+        if not isinstance(entry, dict):
+            continue
+        lines.append(
+            f"{key}: form={_compact_text(entry.get('visual_form'))}; "
+            f"placement={_compact_text(entry.get('placement_rule'))}; "
+            f"legibility={_compact_text(entry.get('legibility_rule'))}; "
+            f"max_chars={entry.get('max_chars')}"
+        )
+    return lines
+
+
+def _summarize_lock(lock: dict[str, Any], *, include_id: bool = False) -> str:
+    if not isinstance(lock, dict):
+        return ""
+    parts: list[str] = []
+    if include_id:
+        raw_id = str(lock.get("character_id") or lock.get("scene_id") or "").strip()
+        if raw_id:
+            parts.append(f"id={raw_id}")
+    name = str(lock.get("name", "")).strip()
+    if name:
+        parts.append(f"name={name}")
+    anchor_prompt = _compact_text(lock.get("anchor_prompt"))
+    if anchor_prompt:
+        parts.append(f"anchor={anchor_prompt}")
+    return "; ".join(parts)
+
+
+def _summarize_panel(panel: Any) -> str:
+    if not isinstance(panel, dict):
+        return ""
+    panel_id = str(panel.get("panel_id", "")).strip()
+    shot = _compact_text(panel.get("shot"))
+    action = _compact_text(panel.get("action"))
+    techniques = panel.get("comic_techniques", [])
+    technique_text = ", ".join(str(item) for item in techniques[:4]) if isinstance(techniques, list) else ""
+    slot_summaries: list[str] = []
+    text_slots = panel.get("text_slots", [])
+    if isinstance(text_slots, list):
+        for slot in text_slots[:4]:
+            if not isinstance(slot, dict):
+                continue
+            slot_type = str(slot.get("type", "")).strip()
+            slot_text = _compact_text(slot.get("text"))
+            if slot_type and slot_text:
+                slot_summaries.append(f"{slot_type}={slot_text}")
+    parts = [
+        f"{panel_id}" if panel_id else "",
+        f"shot={shot}" if shot else "",
+        f"action={action}" if action else "",
+        f"techniques={technique_text}" if technique_text else "",
+        f"text={'; '.join(slot_summaries)}" if slot_summaries else "",
+    ]
+    return " | ".join(part for part in parts if part)
+
+
 def _character_map(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     main_character_lock = data.get("main_character_lock", {})
@@ -304,6 +459,8 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
     page_group = data.get("page_group", {})
     continuity_context = data.get("continuity_context", {})
     contract = data.get("generation_contract", {})
+    type_stack_ref = data.get("type_stack_ref", {})
+    type_pack_context = data.get("type_pack_context", {})
     hard_constraints = contract.get("hard_constraints", [])
     main_character_lock = data.get("main_character_lock", {})
     scene_continuity_bible = data.get("scene_continuity_bible", {})
@@ -322,14 +479,58 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
         "The nine images are consecutive comic pages from the same story, in page order from Page 1 to Page 9. "
         "Place a small page number in the bottom-right corner of every page, using digits 1-9 only."
     ]
-    parts.append(_text_block("Hard Constraints", hard_constraints))
-    parts.append(_text_block("Page Group Meta", page_group))
-    parts.append(_text_block("Continuity Context", continuity_context))
-    parts.append(_text_block("Main Character Lock", main_character_lock))
-    parts.append(_text_block("Scene Continuity Bible", scene_continuity_bible))
-    parts.append(_text_block("Global Style Bible", style_bible))
-    parts.append(_text_block("Character Locks", character_locks))
-    parts.append(_text_block("Comic Text System", comic_text_system))
+    parts.append(_bullet_block("Hard Constraints", [str(item) for item in hard_constraints]))
+    parts.append(
+        _bullet_block(
+            "Page Group Meta",
+            [
+                f"group_id: {page_group.get('group_id')}",
+                f"group_index: {page_group.get('group_index')}/{page_group.get('total_groups')}",
+                f"source_span_summary: {_compact_text(page_group.get('source_span_summary'))}",
+                f"rhythm_rationale: {_compact_text(page_group.get('rhythm_rationale'))}",
+            ],
+        )
+    )
+    parts.append(
+        _bullet_block(
+            "Continuity Context",
+            [
+                f"inherit_global_locks: {continuity_context.get('inherit_global_locks')}",
+                f"same_visual_dna_rule: {_compact_text(continuity_context.get('same_visual_dna_rule'))}",
+                f"previous_group_hook: {_compact_text(continuity_context.get('previous_group_hook'))}",
+                f"next_group_hook: {_compact_text(continuity_context.get('next_group_hook'))}",
+            ],
+        )
+    )
+    parts.append(
+        _bullet_block(
+            "Type Stack Ref",
+            [
+                f"method_kernel: {type_stack_ref.get('method_kernel')}",
+                f"active_packs: {', '.join(str(item) for item in type_stack_ref.get('active_packs', []))}",
+                f"secondary: {', '.join(str(item) for item in type_stack_ref.get('secondary', []))}",
+                f"platform: {', '.join(str(item) for item in type_stack_ref.get('platform', []))}",
+                f"audience: {', '.join(str(item) for item in type_stack_ref.get('audience', []))}",
+            ],
+        )
+    )
+    parts.append(_bullet_block("Type Pack Context", _summarize_type_pack_context(type_pack_context)))
+    parts.append(_bullet_block("Main Character Lock", [_summarize_lock(main_character_lock, include_id=True)]))
+    scene_bible_lines = [
+        f"default_rule: {_compact_text(scene_continuity_bible.get('default_rule'))}"
+    ]
+    scene_locks = scene_continuity_bible.get("scene_locks", [])
+    if isinstance(scene_locks, list):
+        scene_bible_lines.extend(_summarize_lock(lock, include_id=True) for lock in scene_locks[:6])
+    parts.append(_bullet_block("Scene Continuity Bible", scene_bible_lines))
+    parts.append(_bullet_block("Global Style Bible", _summarize_style_bible(style_bible)))
+    parts.append(
+        _bullet_block(
+            "Character Locks",
+            [_summarize_lock(lock, include_id=True) for lock in character_locks[:10] if isinstance(lock, dict)],
+        )
+    )
+    parts.append(_bullet_block("Comic Text System", _summarize_text_system(comic_text_system)))
 
     for page in pages:
         page_number = page.get("page_number")
@@ -346,29 +547,46 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
             if isinstance(active_character_ids, list) and character_id in character_map
         ]
         scene_lock = scene_map.get(scene_id, {})
-        parts.append(
-            "\n## Page {page_number}: {page_role}\n"
-            "This output image must be Page {page_number} only, a complete vertical 9:16 comic page, not a collage.\n"
-            "Active character ids: {active_character_ids}\n"
-            "Active character locks: {active_character_locks}\n"
-            "Scene continuity lock: {scene_lock}\n"
-            "Page number overlay: {page_number_overlay}\n"
-            "Layout: {layout}\n"
-            "Panels and text slots: {panels}\n"
-            "Positive prompt: {prompt}\n".format(
-                page_number=page_number,
-                page_role=page_role,
-                active_character_ids=json.dumps(active_character_ids, ensure_ascii=False),
-                active_character_locks=json.dumps(active_character_locks, ensure_ascii=False),
-                scene_lock=json.dumps(scene_lock, ensure_ascii=False),
-                page_number_overlay=json.dumps(page_number_overlay, ensure_ascii=False),
-                layout=json.dumps(layout, ensure_ascii=False),
-                panels=json.dumps(panels, ensure_ascii=False),
-                prompt=prompt,
-            )
+        page_lines = [
+            f"This output image must be Page {page_number} only, a complete vertical 9:16 comic page, not a collage.",
+            f"page_role: {page_role}",
+            f"source_fragment: {_compact_text(page.get('source_fragment'))}",
+            f"active_character_ids: {', '.join(str(item) for item in active_character_ids)}",
+            "Active character locks:",
+        ]
+        page_lines.extend(
+            f"  - {_summarize_lock(lock, include_id=True)}"
+            for lock in active_character_locks
+            if isinstance(lock, dict)
         )
+        scene_summary = _summarize_lock(scene_lock, include_id=True)
+        if scene_summary:
+            page_lines.append(f"Scene continuity lock: {scene_summary}")
+        page_lines.append(
+            "Page number overlay: "
+            f"text={_compact_text(page_number_overlay.get('text'))}; "
+            f"position={_compact_text(page_number_overlay.get('position'))}; "
+            f"style={_compact_text(page_number_overlay.get('style_prompt'))}"
+        )
+        page_lines.append(
+            "Layout: "
+            f"layout_id={_compact_text(layout.get('layout_id'))}; "
+            f"panel_count={layout.get('panel_count')}; "
+            f"panel_ratios={', '.join(str(item) for item in layout.get('panel_ratios', [])) if isinstance(layout.get('panel_ratios'), list) else ''}"
+        )
+        page_lines.append("Panels and text slots:")
+        page_lines.extend(f"  - {_summarize_panel(panel)}" for panel in panels if _summarize_panel(panel))
+        page_lines.append(
+            "Page focus prompt: "
+            f"highlight {_compact_text(page.get('source_fragment'))}; "
+            f"use {_compact_text(layout.get('layout_id'))}; "
+            f"respect all active character locks and the active scene lock; "
+            f"show bottom-right digits-only page number {page_number}; "
+            f"keep readable visual storytelling for {scene_lock.get('name', scene_id)}."
+        )
+        parts.append(f"\n## Page {page_number}: {page_role}\n" + "\n".join(page_lines) + "\n")
 
-    parts.append(_text_block("Global Negative Prompt", negative))
+    parts.append(_bullet_block("Global Negative Prompt", [negative]))
     return "\n".join(part for part in parts if part)
 
 

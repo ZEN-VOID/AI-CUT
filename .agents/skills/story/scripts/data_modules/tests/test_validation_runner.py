@@ -125,6 +125,57 @@ def test_validation_runner_writes_structure_report(tmp_path):
     assert (tmp_path / result["report_ref"]).is_file()
 
 
+def test_text_contains_candidate_accepts_split_scene_realization():
+    module = _load_module()
+    text = (
+        "令狐冲本只想买酒避世，却先看见税线恶压，"
+        "又看见晨雾未散前平民被逼得跪成一排。"
+    )
+
+    assert module._text_contains_candidate(
+        text,
+        "却看见税线在晨雾未散前逼平民下跪",
+    )
+
+
+def test_structure_validator_scores_checked_obligations_only(tmp_path):
+    module = _load_module()
+    result = module._run_structure(
+        ctx={
+            "chapter": 1,
+            "manuscript_text": (
+                "令狐冲与任盈盈在那霸港雨脚与潮气里，只想买酒避世。"
+                "他们抵达那霸港后，却先看见税线恶压。"
+                "令狐冲本只想买酒避世，却先看见税线恶压，又看见晨雾未散前平民被逼得跪成一排。"
+            ),
+            "fact_pack": {
+                "chapter_board": {
+                    "chapter_goals": [
+                        "令狐冲与任盈盈在那霸港雨脚与潮气里",
+                        "只想买酒避世",
+                        "却看见税线在晨雾未散前逼平民下跪",
+                    ],
+                    "must_happen": [
+                        "令狐冲与任盈盈抵达那霸港",
+                        "只想买酒避世",
+                        "却先看见税线恶压",
+                        "第一次不是因仇而动",
+                        "而是因看见眼前人被迫在雨里折腰而动心",
+                    ],
+                }
+            },
+        },
+        role_id="structure-validator",
+        spec={},
+        validation_context="final_acceptance",
+    )
+
+    assert result["pass"] is True
+    assert result["metrics"]["required_events_hit"] == 6
+    assert result["metrics"]["missed_obligations"] == 0
+    assert result["overall_score"] > 0
+
+
 def test_validation_runner_logic_detects_contrivance_markers(tmp_path):
     module = _load_module()
     _seed_project(
@@ -247,7 +298,7 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
         chapter_num=2,
         role_id="continuity-validator",
         validation_context="drafting_inline",
-        current_step_id="Step 7",
+        current_step_id="Step 8",
     )
 
     assert result["pass"] is True
@@ -288,7 +339,10 @@ def test_validation_runner_type_pack_fit_validator_uses_step_specific_hooks(tmp_
 
     assert result["pass"] is False
     assert result["current_step_id"] == "Step 5"
-    assert any(item.get("rework_target_step") == "5-对白个性化和声口优化" for item in result["issues"])
+    assert any(
+        item.get("rework_target_step") in {"5-对白个性化", "6-心理活动描写", "7-追读力强化"}
+        for item in result["issues"]
+    )
 
 
 def test_character_validator_reports_growth_continuity_metrics_when_growth_enabled(tmp_path):
@@ -423,7 +477,7 @@ def test_character_validator_defers_dialogue_only_issues_until_step5(tmp_path):
     assert step4_result["metrics"]["speech_violations"] >= 2
     assert "留待 Step 5" in step4_result["summary"]
     assert step5_result["pass"] is False
-    assert any(item.get("rework_target_step") == "5-对白个性化和声口优化" for item in step5_result["issues"])
+    assert any(item.get("rework_target_step") == "5-对白个性化" for item in step5_result["issues"])
 
 
 def test_validation_runner_final_acceptance_writes_aggregate_json(tmp_path):

@@ -1,7 +1,7 @@
 ---
 name: story-cards-style
 governance_tier: lite
-description: Use when story2026 1-Cards needs to generate, rebuild, or repair full-series style cards from reader promise, aesthetic axes, and style-system constraints.
+description: Use when story2026 1-Cards needs to generate, rebuild, or repair full-series style cards that turn upstream promise/style seeds into a writing-style contract covering tone, narration, dialogue, visual texture, prose, and scene rendering.
 ---
 
 # 风格卡
@@ -14,13 +14,17 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair fu
 
 ## Overview
 
-`风格卡` 是 `1-Cards` 的直连 child skill，负责把 `reader_promise / aesthetic_axes / cards.style_system` 收束为整书风格卡 JSON。
+`风格卡` 是 `1-Cards` 的直连 child skill，负责把 `reader_promise / aesthetic_axes / cards.style_system` 等上游风格真源，投射成“这本小说该怎么写”的整书风格卡 JSON。
 
 它必须直接产出：
 
-- `reader_promise`
-- `aesthetic_axes`
-- `style_system`
+- `style_identity`
+- `experience_contract`
+- `narrative_style`
+- `dialogue_style`
+- `visual_style`
+- `prose_style`
+- `scene_style`
 - `style_gate`
 - `style_contract_refs`
 
@@ -34,37 +38,37 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair fu
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把初始化阶段已经稳定的读者承诺、审美轴和风格系统收束为整书风格契约。 |
+| `business_goal` | 把初始化阶段已经稳定的读者承诺、审美轴和风格系统，收束成可直接约束写作的整书风格契约。 |
 | `business_object` | `1-Cards/1-风格卡/**/*.json`、风格索引、下游可引用的风格契约路径。 |
-| `constraint_profile` | 风格卡只消费上游风格真源，不再自行发明第二套美学合同。 |
-| `success_criteria` | 风格卡能回答“整体气质是什么、哪些表达是禁区、下游写作必须守哪些风格约束”。 |
+| `constraint_profile` | 风格卡消费上游风格真源，但不能只复述 pitch 卖点；必须把它们转成写法合同。 |
+| `success_criteria` | 风格卡能回答“总体基调是什么、叙事怎么讲、对白怎么说、画面感怎么写、语言节奏怎么跑、哪些写法一出线就算漂移”。 |
 | `non_goals` | 不重写角色/场景/物品对象；不替 Drafting 或 Validation 写风格评审结论。 |
-| `topology_fit` | `truth confirm -> promise lock -> aesthetic closure -> style gate -> template mapping -> writeback payload` |
+| `topology_fit` | `truth confirm -> tone closure -> writing-style closure -> drift gate -> template mapping -> writeback payload` |
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
     A["风格诉求 / full-build"] --> B["确认进入风格卡 child skill"]
-    B --> C["锁 reader_promise"]
-    C --> D["闭合 aesthetic_axes"]
-    D --> E["收束 style_system 与 style_gate"]
+    B --> C["锁总体基调与读者体验"]
+    C --> D["闭合叙事 / 对白 / 画面 / 语言 / 场面风格"]
+    D --> E["收束 style_gate"]
     E --> F["映射 style-card.json"]
 ```
 
 ```mermaid
 stateDiagram-v2
     [*] --> Routed
-    Routed --> PromiseLocked
-    PromiseLocked --> AestheticClosed
-    AestheticClosed --> StyleGated
+    Routed --> ToneLocked
+    ToneLocked --> WritingStyleClosed
+    WritingStyleClosed --> StyleGated
     StyleGated --> ReadyForWriteback
 ```
 
 ```mermaid
 flowchart LR
-    A["reader_promise"] --> B["aesthetic_axes"]
-    B --> C["style_system"]
+    A["style_identity"] --> B["experience_contract"]
+    B --> C["narrative / dialogue / visual / prose / scene"]
     C --> D["style_gate"]
     D --> E["style_contract_refs"]
 ```
@@ -80,9 +84,9 @@ flowchart LR
 | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- |
 | `T1` | 确认当前真的是风格问题 | `module_route=story-cards > 风格卡/SKILL.md` | `FAIL-CD-STYLE-ROUTE` | 回父技能重路由 |
-| `T2` | 锁读者承诺 | `reader_promise` | `FAIL-CD-STYLE-PROMISE` | 回承诺锁定 |
-| `T3` | 闭合审美轴 | `aesthetic_axes` | `FAIL-CD-STYLE-AESTHETIC` | 回审美轴 |
-| `T4` | 收束风格系统与禁飞区 | `style_system + style_gate` | `FAIL-CD-STYLE-SYSTEM` | 回风格系统 |
+| `T2` | 锁整书基调与读者体验 | `style_identity + experience_contract` | `FAIL-CD-STYLE-TONE` | 回基调闭合 |
+| `T3` | 闭合写法主骨架 | `narrative_style + dialogue_style + visual_style + prose_style + scene_style` | `FAIL-CD-STYLE-WRITING` | 回写法闭合 |
+| `T4` | 收束禁区、漂移信号与修复动作 | `style_gate` | `FAIL-CD-STYLE-GATE` | 回风格 gate |
 | `T5` | 输出风格契约引用 | `style_contract_refs` | `FAIL-CD-STYLE-REF` | 回契约引用 |
 | `T6` | 映射模板 | `style-card payload` | `FAIL-CD-STYLE-TEMPLATE` | 回模板映射 |
 
@@ -104,9 +108,9 @@ flowchart LR
 
 优先修：
 
-1. `reader_promise`
-2. `aesthetic_axes`
-3. `style_system / style_gate`
+1. `style_identity / experience_contract`
+2. `narrative / dialogue / visual / prose / scene`
+3. `style_gate`
 4. 模板映射
 
 ## Lite Field Mapping
@@ -114,14 +118,16 @@ flowchart LR
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-CD-STYLE-01` | `T1` | 风格路由正确 | `content.module_route` | `FAIL-CD-STYLE-ROUTE` | 回父技能 |
-| `FIELD-CD-STYLE-02` | `T2-T4` | 风格契约成立 | `reader_promise + aesthetic_axes + style_system + style_gate` | `FAIL-CD-STYLE-SYSTEM` | 回风格闭合 |
-| `FIELD-CD-STYLE-03` | `T5` | 下游引用成立 | `style_contract_refs` | `FAIL-CD-STYLE-REF` | 回契约引用 |
-| `FIELD-CD-STYLE-04` | `T6` | 正式模板可写回 | `style-card payload` | `FAIL-CD-STYLE-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-STYLE-02` | `T2` | 基调与读者体验成立 | `style_identity + experience_contract` | `FAIL-CD-STYLE-TONE` | 回基调闭合 |
+| `FIELD-CD-STYLE-03` | `T3-T4` | 写法合同成立 | `narrative_style + dialogue_style + visual_style + prose_style + scene_style + style_gate` | `FAIL-CD-STYLE-WRITING` | 回写法闭合 |
+| `FIELD-CD-STYLE-04` | `T5` | 下游引用成立 | `style_contract_refs` | `FAIL-CD-STYLE-REF` | 回契约引用 |
+| `FIELD-CD-STYLE-05` | `T6` | 正式模板可写回 | `style-card payload` | `FAIL-CD-STYLE-TEMPLATE` | 回模板映射 |
 
 ## Completion Gate
 
-- `reader_promise`、`aesthetic_axes`、`style_system` 都已落到正式风格卡。
+- `style_identity`、`experience_contract`、`narrative_style`、`dialogue_style`、`visual_style`、`prose_style`、`scene_style` 都已落到正式风格卡。
 - `style_gate` 能明确下游写作/验证的硬约束。
+- 风格卡能直接回答“总体基调、叙事风格、对白风格、画面风格”。
 - `style_contract_refs` 能指向当前正式风格卡。
 
 ## Dispatch Note

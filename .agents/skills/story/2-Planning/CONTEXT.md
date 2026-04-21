@@ -53,3 +53,4 @@ last_checked_at: 2026-04-17T23:40:00-07:00
 - planning 里最容易漏的不是 pack 已不在 root，而是 pack 已在 root 却没有进入深层 child；看起来像“已经锁题材”，实际上 chapter/conflict/mission 仍按通用模板跑。
 - 当集数进入百集量级后，`全息地图.json` 最稳的角色是“总索引 + 导航锚点”，而不是继续承载每一集的 dense board payload。
 - 只要 loopback 要写 episode-local actualization，就应该先落 slice，再回刷 root summary；反过来会重新制造 root/slice 双真源。
+- chapter board 只要挂了某条 `mission`，就至少要让一名 owner 真正在 `bundled_elements.characters` 里在场；否则宁可把 mission 从本章移出，也不要留下任务归属漂移。

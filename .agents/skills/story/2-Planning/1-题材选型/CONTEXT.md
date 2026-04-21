@@ -20,13 +20,13 @@
 | --- | --- | --- | --- | --- |
 | 题材选型只剩标签堆叠 | child contract | 回到题材承诺句与主副题材配比裁决 | 在子技能合同固化四层承诺与禁飞区 | `2-Planning/全息地图.json` 能解释后续结构为什么成立 |
 | 副题材越权改写主题材方向盘 | boundary control | 降回 `主驱动 + 辅增压` 结构 | 在输出中显式区分主副题材职责 | 后续 child 不再出现双主题材互抢 |
-| 题材知识被复制进本 child | asset layering | 改回读取共享 `templates/genres/` | 把共享资产边界写成子技能硬合同 | 本 child 不维护私有 trope 库 |
+| 题材知识被复制进本 child，或回退到旧 `templates/genres/` 口径 | asset layering | 改回读取共享 `../../_shared/type-pack-loading-contract.md` 与 `../../type-packs/网文/` | 把共享资产边界写成子技能硬合同，固定“目录同名题材入口 + 按需补读 family” | 本 child 不维护私有 trope 库，也不再把旧题材模板树当成当前真源 |
 
 ## Repair Playbook
 
 1. 先抽取读者承诺、平台语义与禁飞区三类硬信号。
 2. 再判定主题材负责什么，副题材具体增压什么。
-3. 若题材知识不足，按需读取共享 `templates/genres/`，不在本地复制。
+3. 若题材知识不足，按需读取共享 `../../type-packs/网文/` 与 `../../_shared/type-pack-loading-contract.md`，不在本地复制，也不回退到旧 `templates/genres/` 口径。
 4. 收尾确认 Step 2-8 能从本 child 读取到明确 hooks。
 
 ## Reusable Heuristics
@@ -35,3 +35,4 @@
 - 真正有效的副题材必须能改变章节、冲突、任务或线索中的至少一层。
 - 平台热词可以帮助包装，但不能反客为主改写核心题材承诺。
 - 进入十集分片模式后，题材选型仍只写 global root，不要为了“每个 slice 都完整”去复制 promise/corridor。
+- 当前 `1-题材选型` 读的是 `type-packs/网文/<题材>/` 目录知识，不是旧 `templates/genres/` 题材模板树；若两套口径冲突，以 `type-packs` 真源为准。

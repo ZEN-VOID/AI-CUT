@@ -14,7 +14,7 @@ governance_tier: full
 
 ## 概述
 
-`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/image/nano-banana/general` 生图。
+`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/anyfast/image/nano-banana/general` 生图。
 
 本技能完全继承 `/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/3-设定/4-面板/道具面板` 的核心配置口径：
 

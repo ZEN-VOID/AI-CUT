@@ -261,6 +261,39 @@ def _self_test_data() -> dict[str, Any]:
                 "Place a small page number in the bottom-right corner of every page, using digits 1-9 only.",
             ],
         },
+        "type_stack_ref": {
+            "method_kernel": "comic-core-v1",
+            "base": "_base",
+            "primary": "漫画高冲击",
+            "secondary": ["悬疑惊悚"],
+            "platform": ["条漫平台"],
+            "audience": ["情绪强冲突受众"],
+            "active_packs": ["_base", "漫画高冲击", "悬疑惊悚", "条漫平台", "情绪强冲突受众"],
+        },
+        "type_pack_context": {
+            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+            "knowledge_refs": [
+                ".agents/skills/comic/type-packs/漫画/悬疑惊悚/悬疑惊悚.md"
+            ],
+            "knowledge_digest": [
+                "危险要比解释先到。",
+                "真相必须分层释放。"
+            ],
+            "semantic_tags": ["withheld-truth", "threat"],
+            "pack_revisions": {
+                "悬疑惊悚": "dynamic-runtime"
+            },
+            "projection_summary": {
+                "nine_blade_prompting": "多用静默格、细节特写、翻页机关。"
+            },
+            "stage_projection": {
+                "script_adaptation": {"adaptation_posture": "comic-first"},
+                "nine_blade_prompting": {"layout_bias": ["silent beat", "detail close-up"]},
+                "image_generation": {"render_bias": ["shadow pressure"]},
+                "animation_generation": {"motion_bias": ["slow push", "threat pause"]},
+                "episode_poster": {"poster_bias": ["door-title"]}
+            },
+        },
         "main_character_lock": {
             "character_id": "protagonist",
             "name": "Sun Wukong",
@@ -459,6 +492,37 @@ def validate(data: dict[str, Any]) -> list[str]:
         errors.append("generation_contract.image_count must be 9")
     if contract.get("page_aspect_ratio") != "9:16":
         errors.append("generation_contract.page_aspect_ratio must be 9:16")
+
+    type_stack_ref = data.get("type_stack_ref")
+    if not isinstance(type_stack_ref, dict):
+        errors.append("type_stack_ref must be an object")
+        type_stack_ref = {}
+    if type_stack_ref.get("method_kernel") != "comic-core-v1":
+        errors.append("type_stack_ref.method_kernel must be comic-core-v1")
+    active_packs = type_stack_ref.get("active_packs")
+    if not isinstance(active_packs, list) or len(active_packs) < 2:
+        errors.append("type_stack_ref.active_packs must contain at least base and primary packs")
+
+    type_pack_context = data.get("type_pack_context")
+    if not isinstance(type_pack_context, dict):
+        errors.append("type_pack_context must be an object")
+        type_pack_context = {}
+    resolution_mode = str(type_pack_context.get("resolution_mode", "")).strip()
+    if len(resolution_mode) < 8:
+        errors.append("type_pack_context.resolution_mode must be a descriptive string")
+    knowledge_refs = type_pack_context.get("knowledge_refs")
+    if not isinstance(knowledge_refs, list) or not knowledge_refs:
+        errors.append("type_pack_context.knowledge_refs must be a non-empty array")
+    semantic_tags = type_pack_context.get("semantic_tags")
+    if not isinstance(semantic_tags, list) or not semantic_tags:
+        errors.append("type_pack_context.semantic_tags must be a non-empty array")
+    stage_projection = type_pack_context.get("stage_projection")
+    if not isinstance(stage_projection, dict):
+        errors.append("type_pack_context.stage_projection must be an object")
+    else:
+        for stage_name in ("script_adaptation", "nine_blade_prompting", "image_generation", "animation_generation", "episode_poster"):
+            if not isinstance(stage_projection.get(stage_name), dict):
+                errors.append(f"type_pack_context.stage_projection.{stage_name} must be an object")
 
     hard_constraints = contract.get("hard_constraints")
     if not isinstance(hard_constraints, list) or not all(isinstance(x, str) for x in hard_constraints):

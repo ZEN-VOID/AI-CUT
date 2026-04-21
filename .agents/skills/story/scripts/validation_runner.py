@@ -16,6 +16,7 @@ validation_runner.py - story2026 validation runtime baseline runner
 from __future__ import annotations
 
 import argparse
+from difflib import SequenceMatcher
 import json
 import re
 from pathlib import Path
@@ -303,14 +304,34 @@ def _keyword_candidates(raw: Any) -> list[str]:
     return [item.strip() for item in candidates if isinstance(item, str) and len(item.strip()) >= 2]
 
 
+def _normalize_match_text(text: str) -> str:
+    return re.sub(r"[^\u4e00-\u9fffA-Za-z0-9]", "", str(text or ""))
+
+
+def _has_similar_sentence(text: str, candidate: str) -> bool:
+    normalized_candidate = _normalize_match_text(candidate)
+    if len(normalized_candidate) < 8:
+        return False
+
+    for row in _paragraphs(text):
+        normalized_row = _normalize_match_text(row)
+        if len(normalized_row) < 8:
+            continue
+        ratio = SequenceMatcher(None, normalized_candidate, normalized_row).ratio()
+        if ratio >= 0.5:
+            return True
+    return False
+
+
 def _text_contains_candidate(text: str, candidate: str) -> bool:
     if candidate and candidate in text:
         return True
     keywords = [word for word in _keyword_candidates(candidate) if len(word) >= 2]
-    if not keywords:
-        return False
-    hits = sum(1 for word in keywords if word in text)
-    return hits >= min(2, len(keywords))
+    if keywords:
+        hits = sum(1 for word in keywords if word in text)
+        if hits >= min(2, len(keywords)):
+            return True
+    return _has_similar_sentence(text, candidate)
 
 
 def _clamp_score(score: float) -> int:
@@ -438,7 +459,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                     location=f"第{chapter}集结尾",
                     description="已启用网文高冲击，但章末牵引信号偏弱。",
                     suggestion="在章末补足下一步动机、悬念或回报预告。",
-                    rework_target_step="6-追读力强化",
+                    rework_target_step="7-追读力强化",
                 )
             )
         if long_paragraphs >= 4:
@@ -497,7 +518,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 location=f"第{chapter}集正文",
                 description="已启用都市复仇/豪门强冲突 pack，但压迫/回击链条不够显性。",
                 suggestion="补足压迫者、见证者与回击后果。",
-                rework_target_step="6-追读力强化",
+                rework_target_step="7-追读力强化",
             )
         )
 
@@ -511,8 +532,8 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                 severity="low",
                 location=f"第{chapter}集正文",
                 description="已启用女频悬疑/强情绪 pack，但情绪与关系张力显影不足。",
-                suggestion="补足关系位移、误解或情绪代价。",
-                rework_target_step="4-角色形象刻画",
+                suggestion="补足关系位移、误解或情绪代价，并让心理波动落进人物可感的内心层。",
+                rework_target_step="6-心理活动描写",
             )
         )
 
@@ -546,7 +567,7 @@ def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fi
                     location=f"第{chapter}集 Step 5",
                     description="当前启用了强情绪 pack，但情绪表达未转化为角色动作或代价。",
                     suggestion="让情绪显影落实到对白/动作/关系后果，不只停在心情宣告。",
-                    rework_target_step="5-对白个性化和声口优化",
+                    rework_target_step="5-对白个性化",
                 )
             )
 
@@ -685,10 +706,11 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
     obligations.extend(chapter_board.get("chapter_goals", []) or [])
     obligations.extend(chapter_board.get("must_happen", []) or [])
     obligations = [item for item in obligations if item]
+    checked_obligations = obligations[:6]
 
     issues: list[dict[str, Any]] = []
     hits = 0
-    for item in obligations[:6]:
+    for item in checked_obligations:
         if _text_contains_candidate(text, str(item)):
             hits += 1
             continue
@@ -719,18 +741,18 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 location=f"第{chapter}集正文段落层",
                 description="说明腔/总结腔偏多，结构更像提纲复述而不是戏剧场面。",
                 suggestion="减少摘要式解释，补足动作、冲突和即时反馈。",
-                rework_target_step="6-追读力强化",
+                rework_target_step="7-追读力强化",
             )
         )
 
-    score = _clamp_score(92 - (len(obligations) - hits) * 18 - summary_hits * 5)
+    score = _clamp_score(92 - (len(checked_obligations) - hits) * 18 - summary_hits * 5)
     return {
         "overall_score": score,
         "pass": len(issues) == 0,
         "issues": issues,
         "metrics": {
             "required_events_hit": hits,
-            "missed_obligations": max(0, len(obligations) - hits),
+            "missed_obligations": max(0, len(checked_obligations) - hits),
             "promise_breaks": 0 if len(issues) == 0 else min(1, len(issues)),
             "undramatized_exposition_hits": summary_hits,
             "anti_ai_force_check": "fail" if summary_hits >= 3 else "pass",
@@ -975,7 +997,7 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
         for line in dialogue
         if len(line) >= 55 or any(marker in line for marker in EXPLANATION_DIALOGUE_MARKERS)
     )
-    should_block_speech = validation_context == "final_acceptance" or current_step_id in {"Step 5", "Step 7", ""}
+    should_block_speech = validation_context == "final_acceptance" or current_step_id in {"Step 5", "Step 6", "Step 8", ""}
     deferred_speech_to_step5 = validation_context == "drafting_inline" and current_step_id == "Step 4" and speech_violations >= 2
 
     if speech_violations >= 2 and should_block_speech:
@@ -989,7 +1011,7 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 location=f"第{chapter}集对白层",
                 description="对白偏长或解释性过强，角色声口区分度不足。",
                 suggestion="回到对白优化，压缩解释，改成更像角色本人会说的话。",
-                rework_target_step="5-对白个性化和声口优化",
+                rework_target_step="5-对白个性化",
             )
         )
 

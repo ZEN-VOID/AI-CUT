@@ -25,7 +25,7 @@
 | 子技能直接给出总分或总路由，抢了父层裁决权 | parent-child boundary | 将子技能收回到 `dimension_packet + report_ref` | 在 child output contract 写死“不得判定最终 validation_status” | 聚合字段只在父层出现 |
 | `PASS` 后只生成审查报告，没有 machine-readable gate packet | canonical output design | 把 aggregate JSON 设为正式 gate sink | 采用“JSON canonical + MD sidecar”双层输出 | `review/5-Loopback` 可以直接消费结构化字段 |
 | 失败只写“打回 drafting”，没有节点级返工入口 | rework routing contract | 聚合 `rework_targets` 到 step 级别 | 在子技能 issue 字段中要求 `rework_target_step` | 每个 high/critical issue 都能精确回流 |
-| `7-润色` 被误当成最终通过，而 `4-Validation` 被降成可选参考 | stage boundary drift | 把 drafting 的终点收回为 `candidate_final_draft` | 在 `3-Drafting` 与 `4-Validation` 合同中明确“最终 PASS 只归终验层” | loopback 不再直接消费 drafting 终稿 |
+| `8-润色` 被误当成最终通过，而 `4-Validation` 被降成可选参考 | stage boundary drift | 把 drafting 的终点收回为 `candidate_final_draft` | 在 `3-Drafting` 与 `4-Validation` 合同中明确“最终 PASS 只归终验层” | loopback 不再直接消费 drafting 终稿 |
 | 新增 validation 维度时，需要在多个兄弟文件里手动同步 | canonical registry gap | 抽出维度注册表并让父层回指 | 以 `validation-dimension-registry.yaml` 作为 step hook 与终验 mandatory 的单一真源 | 增删维度主要只改 registry + child package |
 | 已定义 validator registry，但 runtime 不会自动 dispatch drafting inline validations | runtime landing gap | 把 registry 接到 `workflow_manager.py`，在 `complete-step` 后自动触发 batch，并通过 `record-inline-validation` 写回结果 | 新增 validation 机制时，必须同时核对“合同 + registry + runtime + tests”四层是否已联通 | `story-write` 在 inline validation 未过时会真实阻断下一 step |
 | hook batch 已能自动触发，但没有本地 baseline validator runner，仍要人工逐条补结果 | runner automation gap | 补 `validation_runner.py`，先以 rule-based baseline 自动产出 sidecar + structured result，再由 workflow 自动写回 batch | 新增/调整维度时，把“registry + child skill + runner handler + CLI/test”视为同一套真源联动 | manuscript 存在时，inline validation 可以自动完成记录；缺 evidence 时再降级为 pending |

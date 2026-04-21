@@ -34,6 +34,19 @@ def validate(data: dict[str, Any]) -> list[str]:
     errors: list[str] = []
 
     expect(data.get("schema_version") == "comic_episode_poster_design.v1", "schema_version must be comic_episode_poster_design.v1", errors)
+    type_stack_ref = data.get("type_stack_ref", {})
+    expect(isinstance(type_stack_ref, dict), "type_stack_ref must be an object", errors)
+    if isinstance(type_stack_ref, dict):
+        expect(type_stack_ref.get("method_kernel") == "comic-core-v1", "type_stack_ref.method_kernel must be comic-core-v1", errors)
+        expect(isinstance(type_stack_ref.get("active_packs"), list) and len(type_stack_ref.get("active_packs")) >= 2, "type_stack_ref.active_packs must contain at least 2 packs", errors)
+    type_pack_context = data.get("type_pack_context", {})
+    expect(isinstance(type_pack_context, dict), "type_pack_context must be an object", errors)
+    if isinstance(type_pack_context, dict):
+        expect(bool(type_pack_context.get("knowledge_refs")), "type_pack_context.knowledge_refs is required", errors)
+        stage_projection = type_pack_context.get("stage_projection", {})
+        expect(isinstance(stage_projection, dict), "type_pack_context.stage_projection must be an object", errors)
+        if isinstance(stage_projection, dict):
+            expect(isinstance(stage_projection.get("episode_poster"), dict), "type_pack_context.stage_projection.episode_poster must be an object", errors)
 
     episode = data.get("episode", {})
     expect(isinstance(episode.get("number"), int) and episode["number"] >= 1, "episode.number must be an integer >= 1", errors)

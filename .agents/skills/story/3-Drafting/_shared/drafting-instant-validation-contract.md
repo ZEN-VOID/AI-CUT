@@ -12,7 +12,7 @@
 
 - `3-Drafting` 如何消费 registry
 - step 失败后的回退与重写顺序
-- `7-润色` 完成后的候选终稿边界
+- `8-润色` 完成后的候选终稿边界
 
 ## Core Rule
 
@@ -27,19 +27,36 @@
 5. 只有当前 step 对应 hook 通过，才允许进入下一个 step
 6. 下一个 step 的正式执行，必须以上一个 step“已写回且已通过 hook”的 root 为输入；不得跳过 gate 做批量串改。
 
+## Runtime Command Chain
+
+`3-Drafting` 在 workflow runtime 中的正式命令链固定为：
+
+`start-task -> start-step -> complete-step -> inline validation -> pass or block -> current-step rewrite / rewind / source-fix routing`
+
+约束解释：
+
+1. `start-task` 锁当前集 drafting run，但不放松任一步的串行 gate。
+2. `start-step` 只允许进入“当前 registry 与 runtime 判定可进入”的 step。
+3. `complete-step` 必须直接触发当前 step 的 inline validation batch；不得先记完成、后补 gate。
+4. 若 batch 结果为 `block`，runtime 必须阻断后续 `start-step`，直到：
+   - 当前 step 重写后重跑通过，或
+   - 回卷到最早受影响 step 并重新执行，或
+   - 改走 source fix。
+5. 因此，“step 完成”在 drafting 语义里等于“写回并进入 gate”，不等于“天然可以开始下一步”。
+
 ## True Serial Gate
 
 `3-Drafting` 的正式运行模式固定为：
 
 - `Step 1` 单独起盘、单独写回、单独跑 `Step 1` hook
 - `Step 2` 单独改稿、单独写回、单独跑 `Step 2` hook
-- 依此类推直到 `Step 7`
+- 依此类推直到 `Step 8`
 
 以下行为一律视为违约：
 
 - 把多个 step 合并成一次总改稿后再统一写回
 - 在 `Step N` hook 未通过前提前执行 `Step N+1` 的正式写回
-- 先生成 `Step 1-7` 全套正式 patch，再倒序或批量补跑 hooks
+- 先生成 `Step 1-8` 全套正式 patch，再倒序或批量补跑 hooks
 - 把“step 内部草稿比较”伪装成“已完成正式 step”
 
 ## Failure Routing Order
@@ -73,7 +90,7 @@
 
 ## Candidate Final Draft Rule
 
-- `7-润色` 完成后，如果它对应的 inline hooks 通过：
+- `8-润色` 完成后，如果它对应的 inline hooks 通过：
   - 当前集获得 `candidate_final_draft` 状态
 - 这不等于最终 `PASS`
 - 只有进入 `4-Validation` 终验层并拿到 `validation_status = PASS`：
@@ -86,6 +103,7 @@
 - `instant_validation_summary`
 - `instant_validation_refs`
 - `rework_route_hint`
+- 若项目主角启用了成长系统，且当前 step 为 `4 / 6 / 7`，优先补 `growth_axis_evidence`
 
 目的：
 
@@ -98,4 +116,4 @@
 
 1. 优先改 `validation-dimension-registry.yaml`
 2. 再改对应 validator child package
-3. `3-Drafting` 父层只需要继续按 registry 取 hook，不应手工扩写 7 个 step 的维度名单
+3. `3-Drafting` 父层只需要继续按 registry 取 hook，不应手工扩写 8 个 step 的维度名单

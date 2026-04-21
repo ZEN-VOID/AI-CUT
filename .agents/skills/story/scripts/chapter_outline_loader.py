@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover
 
 
 _CHAPTER_RANGE_RE = re.compile(r"^\s*(\d+)\s*-\s*(\d+)\s*$")
-_CHAPTER_REF_RE = re.compile(r"第\s*(\d+)\s*章(?:[：:]\s*(.+))?")
+_CHAPTER_REF_RE = re.compile(r"第\s*(\d+)\s*[章节集](?:[：:]\s*(.+))?")
 
 
 def _parse_chapters_range(value: object) -> tuple[int, int] | None:
@@ -108,6 +108,30 @@ def _extract_holomap_root(data: dict) -> dict:
     return holomap if isinstance(holomap, dict) else {}
 
 
+def _extract_holomap_slice_root(data: dict) -> dict:
+    content = data.get("content")
+    if isinstance(content, dict):
+        holomap_slice = content.get("holomap_slice")
+        if isinstance(holomap_slice, dict):
+            return holomap_slice
+    holomap_slice = data.get("holomap_slice")
+    return holomap_slice if isinstance(holomap_slice, dict) else {}
+
+
+def _normalize_episode_ref(chapter_num: int) -> str:
+    return f"第{chapter_num:03d}集"
+
+
+def _load_json_file(path: Path) -> dict | None:
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
 def _extract_chapter_num(value: object) -> int | None:
     if isinstance(value, int):
         return value if value > 0 else None
@@ -146,6 +170,166 @@ def _collect_holomap_chapter_boards(holomap: dict) -> list[dict]:
                 if isinstance(nested, list):
                     boards.extend(item for item in nested if isinstance(item, dict))
     return boards
+
+
+def _load_holomap_slice(project_root: Path, slice_ref: str, holomap: dict | None = None) -> tuple[dict | None, Path | None]:
+    if holomap is None:
+        data = _load_holomap(project_root)
+        holomap = _extract_holomap_root(data or {})
+
+    manifest = holomap.get("episode_slice_manifest")
+    slice_file_ref = ""
+    if isinstance(manifest, list):
+        for item in manifest:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("slice_id") or "").strip() != slice_ref:
+                continue
+            slice_file_ref = str(item.get("file_ref") or "").strip()
+            break
+
+    candidate_paths: list[Path] = []
+    if slice_file_ref:
+        candidate_paths.append(project_root / "2-Planning" / slice_file_ref)
+
+    if slice_ref.startswith("slice-"):
+        raw = slice_ref.removeprefix("slice-")
+        if "-" in raw:
+            start, end = raw.split("-", 1)
+            candidate_paths.append(project_root / "2-Planning" / "十集分片" / f"第{start}-{end}集.json")
+
+    seen: set[str] = set()
+    for path in candidate_paths:
+        key = str(path)
+        if key in seen:
+            continue
+        seen.add(key)
+        data = _load_json_file(path)
+        if not data:
+            continue
+        holomap_slice = _extract_holomap_slice_root(data)
+        if holomap_slice:
+            return holomap_slice, path
+    return None, None
+
+
+def _find_holomap_slice_board(project_root: Path, chapter_num: int) -> tuple[dict | None, dict | None]:
+    data = _load_holomap(project_root)
+    if not data:
+        return None, None
+
+    holomap = _extract_holomap_root(data)
+    if not holomap:
+        return None, None
+
+    episode_ref = _normalize_episode_ref(chapter_num)
+    axis = holomap.get("episode_sequence_axis")
+    axis_entry: dict | None = None
+    if isinstance(axis, list):
+        for item in axis:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get("episode_ref") or "").strip() == episode_ref:
+                axis_entry = item
+                break
+
+    slice_ref = str((axis_entry or {}).get("slice_ref") or "").strip()
+    board_ref = str((axis_entry or {}).get("chapter_board_ref") or "").strip()
+
+    if not slice_ref:
+        manifest = holomap.get("episode_slice_manifest")
+        if isinstance(manifest, list):
+            for item in manifest:
+                if not isinstance(item, dict):
+                    continue
+                refs = item.get("episode_refs")
+                if isinstance(refs, list) and episode_ref in refs:
+                    slice_ref = str(item.get("slice_id") or "").strip()
+                    break
+
+    if not slice_ref:
+        return None, None
+
+    holomap_slice, slice_path = _load_holomap_slice(project_root, slice_ref, holomap=holomap)
+    if not holomap_slice:
+        return None, None
+
+    chapter_boards = holomap_slice.get("chapter_boards")
+    if not isinstance(chapter_boards, list):
+        return None, None
+
+    matched_board: dict | None = None
+    if board_ref:
+        for board in chapter_boards:
+            if not isinstance(board, dict):
+                continue
+            if str(board.get("node_id") or "").strip() == board_ref:
+                matched_board = board
+                break
+
+    if matched_board is None:
+        for board in chapter_boards:
+            if not isinstance(board, dict):
+                continue
+            if str(board.get("episode_ref") or "").strip() == episode_ref:
+                matched_board = board
+                break
+
+    if matched_board is None:
+        for board in chapter_boards:
+            if not isinstance(board, dict):
+                continue
+            if _board_chapter_num(board) == chapter_num:
+                matched_board = board
+                break
+
+    if matched_board is None:
+        return None, None
+
+    context = {
+        "slice_ref": slice_ref,
+        "chapter_board_ref": board_ref or str(matched_board.get("node_id") or "").strip(),
+        "slice_path": slice_path,
+        "holomap": holomap,
+        "holomap_slice": holomap_slice,
+        "axis_entry": axis_entry or {},
+    }
+    return matched_board, context
+
+
+def load_holomap_chapter_context(project_root: Path, chapter_num: int) -> dict:
+    data = _load_holomap(project_root)
+    if not data:
+        return {}
+
+    holomap = _extract_holomap_root(data)
+    if not holomap:
+        return {}
+
+    board, slice_context = _find_holomap_slice_board(project_root, chapter_num)
+    if board is None:
+        board = _find_holomap_chapter_board(project_root, chapter_num)
+        slice_context = {}
+
+    return {
+        "chapter_board": board or {},
+        "story_spine": holomap.get("story_spine") if isinstance(holomap.get("story_spine"), dict) else {},
+        "slice_ref": str((slice_context or {}).get("slice_ref") or ""),
+        "chapter_board_ref": str((slice_context or {}).get("chapter_board_ref") or ""),
+        "slice_path": str((slice_context or {}).get("slice_path") or ""),
+        "thread_window_slice": (
+            ((slice_context or {}).get("holomap_slice") or {}).get("thread_window_slice")
+            if isinstance((slice_context or {}).get("holomap_slice"), dict)
+            else {}
+        )
+        or {},
+        "foreshadow_silence_slice": (
+            ((slice_context or {}).get("holomap_slice") or {}).get("foreshadow_silence_slice")
+            if isinstance((slice_context or {}).get("holomap_slice"), dict)
+            else {}
+        )
+        or {},
+    }
 
 
 def _extract_board_value(board: dict, *keys: str) -> object:
@@ -205,6 +389,9 @@ def _find_holomap_chapter_board(project_root: Path, chapter_num: int) -> dict | 
     for board in _collect_holomap_chapter_boards(holomap):
         if _board_chapter_num(board) == chapter_num:
             return board
+    board, _context = _find_holomap_slice_board(project_root, chapter_num)
+    if board is not None:
+        return board
     return None
 
 

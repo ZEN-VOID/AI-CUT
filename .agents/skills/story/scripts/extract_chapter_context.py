@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-from chapter_outline_loader import load_chapter_outline
+from chapter_outline_loader import load_chapter_outline, load_holomap_chapter_context
 
 from runtime_compat import enable_windows_utf8_stdio
 
@@ -252,6 +252,63 @@ def _load_protagonist_growth_snapshot(project_root: Path) -> Dict[str, Any]:
     return {}
 
 
+def _split_planning_obligation_fragments(value: Any) -> List[str]:
+    fragments: List[str] = []
+    if isinstance(value, list):
+        for item in value:
+            fragments.extend(_split_planning_obligation_fragments(item))
+        return fragments
+
+    text = str(value or "").strip()
+    if not text:
+        return fragments
+
+    normalized = text
+    for token in (
+        "而是",
+        "代价是",
+        "由此",
+        "却先",
+        "却看见",
+        "却",
+        "只想",
+        "第一次",
+        "切回",
+    ):
+        normalized = normalized.replace(token, f"|{token}")
+
+    for chunk in re.split(r"[|，,；;。]+", normalized):
+        item = chunk.strip("“”\"' \t\r\n")
+        if len(item) >= 4 and item not in fragments:
+            fragments.append(item)
+    if not fragments and len(text) >= 4:
+        fragments.append(text)
+    return fragments
+
+
+def _is_actionable_planning_fragment(fragment: str) -> bool:
+    text = str(fragment or "").strip()
+    if len(text) < 4:
+        return False
+
+    meta_markers = (
+        "第一卷",
+        "第二卷",
+        "第三卷",
+        "第四卷",
+        "第五卷",
+        "第六卷",
+        "时间压力",
+        "由此落锁",
+        "本章承担",
+        "本章关键角色",
+    )
+    if any(marker in text for marker in meta_markers):
+        return False
+
+    return True
+
+
 def _search_with_rag(
     project_root: Path,
     chapter_num: int,
@@ -374,6 +431,7 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
     global_ctx = (sections.get("global") or {}).get("content", {})
     story_skeleton = (sections.get("story_skeleton") or {}).get("content", {})
     writing_guidance = (sections.get("writing_guidance") or {}).get("content", {})
+    planning_ctx = load_holomap_chapter_context(project_root, chapter_num)
     active_foreshadowing = core.get("active_foreshadowing") or []
     story_skeleton_items = story_skeleton if isinstance(story_skeleton, list) else []
     story_skeleton_first = story_skeleton_items[0] if story_skeleton_items and isinstance(story_skeleton_items[0], dict) else {}
@@ -391,6 +449,43 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "cannot_change": story_skeleton_first.get("cannot_change", []) if isinstance(story_skeleton_first, dict) else [],
         "story_skeleton_samples": story_skeleton_items,
     }
+    slice_board = planning_ctx.get("chapter_board") if isinstance(planning_ctx.get("chapter_board"), dict) else {}
+    if slice_board:
+        bundled = slice_board.get("bundled_elements") if isinstance(slice_board.get("bundled_elements"), dict) else {}
+        planned_state = slice_board.get("planned_state") if isinstance(slice_board.get("planned_state"), dict) else {}
+        action_plan = planned_state.get("action_beat_plan") if isinstance(planned_state.get("action_beat_plan"), dict) else {}
+        chapter_goal = str(slice_board.get("chapter_goal") or "").strip()
+        must_happen = []
+        for item in bundled.get("events", []) if isinstance(bundled.get("events"), list) else []:
+            for fragment in _split_planning_obligation_fragments(item):
+                if _is_actionable_planning_fragment(fragment) and fragment not in must_happen:
+                    must_happen.append(fragment)
+        for key in ("turning_point", "relationship_change", "injury_or_cost"):
+            text = str(action_plan.get(key) or "").strip()
+            for fragment in _split_planning_obligation_fragments(text):
+                if _is_actionable_planning_fragment(fragment) and fragment not in must_happen:
+                    must_happen.append(fragment)
+
+        chapter_goal_fragments = [
+            fragment
+            for fragment in _split_planning_obligation_fragments(chapter_goal)
+            if _is_actionable_planning_fragment(fragment)
+        ]
+
+        chapter_board = {
+            "outline": str(slice_board.get("chapter_title") or chapter_goal or chapter_board.get("outline") or "").strip(),
+            "chapter_goals": chapter_goal_fragments or chapter_board.get("chapter_goals", []),
+            "must_happen": must_happen or chapter_board.get("must_happen", []),
+            "cannot_change": chapter_board.get("cannot_change", []),
+            "story_skeleton_samples": [slice_board],
+            "node_id": str(slice_board.get("node_id") or "").strip(),
+            "episode_ref": str(slice_board.get("episode_ref") or "").strip(),
+            "chapter_title": str(slice_board.get("chapter_title") or "").strip(),
+            "bundled_elements": bundled,
+            "planned_state": planned_state,
+            "planning_slice_ref": str(planning_ctx.get("slice_ref") or "").strip(),
+            "planning_slice_path": str(planning_ctx.get("slice_path") or "").strip(),
+        }
     cards_state_history_slice = {
         "recent_entities": core.get("recent_entities", []),
         "current_location": core.get("location", ""),
@@ -403,6 +498,9 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "silence_windows": story_skeleton_first.get("silence_windows", []) if isinstance(story_skeleton_first, dict) else [],
         "payoff_windows": story_skeleton_first.get("payoff_windows", []) if isinstance(story_skeleton_first, dict) else [],
     }
+    slice_foreshadow = planning_ctx.get("foreshadow_silence_slice")
+    if isinstance(slice_foreshadow, dict) and slice_foreshadow:
+        foreshadow_silence_slice = slice_foreshadow
     style_gate = {
         "anti_ai_required": True,
         "no_poison_required": True,
@@ -435,6 +533,10 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
             "planning_truth": {
                 "promise_slice": promise_slice,
                 "chapter_board": chapter_board,
+                "story_spine": planning_ctx.get("story_spine") if isinstance(planning_ctx.get("story_spine"), dict) else {},
+                "thread_window_slice": planning_ctx.get("thread_window_slice")
+                if isinstance(planning_ctx.get("thread_window_slice"), dict)
+                else {},
                 "foreshadow_silence_slice": foreshadow_silence_slice,
             },
             "init_truth": {

@@ -24,6 +24,7 @@
 | 真实输出图像落到 provider cache、`Assets/` 或阶段根，和 `submit-plan` 不在同一目录 | 输出路径合同层 | 在 `submit-plan` 写入同目录 `output_dir / expected_outputs`，执行后把 `result_outputs` 回填到同目录 | 在主合同和 provider references 固化“提交包与结果同目录”，`Assets/` 只允许派生副本 | 打开 `5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/` 即可同时看到计划、简报与本地图像 |
 | `Assets/` 中已有可用图片，但空引用请求仍被直接落成 provider 计划 | 引用模式分流层 | 停止生成计划，先回 `2-参照引用` 运行保守绑定和严格审计 | 在 Readiness Gate 固化“Assets 非空 + 未显式 prompt-only = unresolved” | submit-plan 只消费通过审计的绑定 JSON，或明确记录显式 prompt-only |
 | submit-plan 只写 provider，却没写默认后台批量并发执行参数 | 执行 handoff 层 | 在计划中补 `execution_mode / max_concurrent / request_batch_path / foreground_override` | 共享 `image-generation-execution-contract.md` 成为 `3-图像生成` 与 provider references 的执行模式真源 | submit-plan 能区分 `background_submitted` 与真实 `result_outputs` |
+| 技能合同存在，但没有 canonical runner，导致执行者只能临场手写 submit-plan | 执行入口层 | 使用 `scripts/generate_submit_plan.py` 统一生成 `request-batch.json + submit-plan.json + submit-brief.md` | 在 `SKILL.md` 固化 Script Entrypoint，并让 runner 默认继承后台批量并发执行合同 | handoff 包结构不再因人工习惯漂移 |
 
 ## Repair Playbook
 
@@ -47,3 +48,4 @@
 - provider 执行结果不要只留在外部工具默认下载目录或 `Assets/`；最稳的 canonical 落点是 submit 包所在目录，后续资产库副本再从这里派生。
 - `Assets` 非空时，空引用不能自动等同 prompt-only；除非用户或上游明确声明不用参照图，否则它代表绑定链路未完成。
 - `3-图像生成` 的完成口径是稳定 handoff，不是 provider 结果；后台批量并发提交态必须写成 `background_submitted`，最终产图由 `result_outputs` 或本地文件复核。
+- 若 `2-参照引用` 已严格执行且确认 `0` 可绑定引用，但用户仍要求继续推进当前 provider handoff，必须把这一步显式记录为 `prompt-only override`，而不是假装请求天然没有参照图。

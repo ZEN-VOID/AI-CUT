@@ -7,7 +7,7 @@ policies:
       - "优先在当前 step 本地修复后重跑当前 hook"
       - "若 issue 指向更早 step，则回退到最早受影响 step 并从该 step onward 重跑"
       - "若 issue 指向 source_layer_owner=0-Init|1-Cards|2-Planning，则立即停止 drafting，转 source-contract 修复"
-    candidate_final_gate: "7-润色完成且该 step 对应 inline hooks 全部通过"
+    candidate_final_gate: "8-润色完成且该 step 对应 inline hooks 全部通过"
   final_acceptance:
     final_pass_gate: "仅当 4-Validation 聚合 JSON 判定 PASS 时，当前集才算 validated final draft"
 dimensions:
@@ -23,13 +23,13 @@ dimensions:
       checkpoints:
         - step_id: "1-单集叙事起盘"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "6-追读力强化"
+        - step_id: "7-追读力强化"
           fail_action: "rewind_to_earliest_rework_step"
-        - step_id: "7-润色"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "1-单集叙事起盘"
-      - "6-追读力强化"
+      - "7-追读力强化"
     upstream_source_owners:
       - "2-Planning"
   - role_id: "continuity-validator"
@@ -46,7 +46,7 @@ dimensions:
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "2-节奏优化"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "7-润色"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "1-单集叙事起盘"
@@ -66,7 +66,7 @@ dimensions:
           fail_action: "block_and_rewrite_current_or_route_source_fix"
         - step_id: "4-角色形象刻画"
           fail_action: "rewind_to_earliest_rework_step"
-        - step_id: "7-润色"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "1-单集叙事起盘"
@@ -85,13 +85,16 @@ dimensions:
       checkpoints:
         - step_id: "4-角色形象刻画"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "5-对白个性化和声口优化"
+        - step_id: "5-对白个性化"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "7-润色"
+        - step_id: "6-心理活动描写"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "4-角色形象刻画"
-      - "5-对白个性化和声口优化"
+      - "5-对白个性化"
+      - "6-心理活动描写"
     upstream_source_owners:
       - "1-Cards"
   - role_id: "timeline-validator"
@@ -108,7 +111,7 @@ dimensions:
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "2-节奏优化"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "7-润色"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "1-单集叙事起盘"
@@ -127,14 +130,19 @@ dimensions:
       checkpoints:
         - step_id: "2-节奏优化"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "5-对白个性化和声口优化"
+        - step_id: "5-对白个性化"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "7-润色"
+        - step_id: "6-心理活动描写"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "7-追读力强化"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
       - "2-节奏优化"
-      - "5-对白个性化和声口优化"
-      - "6-追读力强化"
+      - "5-对白个性化"
+      - "6-心理活动描写"
+      - "7-追读力强化"
     upstream_source_owners:
       - "0-Init"
       - "2-Planning"

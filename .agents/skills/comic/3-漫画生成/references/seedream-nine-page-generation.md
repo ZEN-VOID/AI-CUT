@@ -54,7 +54,7 @@ Seedream 报告必须满足：
 | --- | --- |
 | JSON 不合格 | `2-九刀流漫画提示词` validator |
 | prompt 缺少硬约束 | 本技能 master prompt 编译器 |
-| Seedream 认证/解析失败 | `.agents/skills/api/image/seedream` |
+| Seedream 认证/解析失败 | `.agents/skills/api/anyfast/image/seedream` |
 | 少于 9 张 | 重跑 Seedream；若复现，检查服务端限制与 prompt |
 | 九宫格拼图 | 2 号 `hard_constraints` + 本技能 execution contract |
 | 九个变体 | 2 号 `story_beat_map / pages[]` |

@@ -620,18 +620,30 @@ def _validate_card_payloads(
                     _append_issue(issues, "blocking", "FAIL-CARDS-ITEM-CARD-CONTENT", f"{ref} 缺少归属信息。")
             elif card_kind == "style":
                 identity = _safe_dict(core.get("identity"))
-                reader_promise = _safe_dict(core.get("reader_promise"))
-                aesthetic_axes = _safe_dict(core.get("aesthetic_axes"))
-                style_system = _safe_dict(core.get("style_system"))
+                style_identity = _safe_dict(core.get("style_identity"))
+                experience_contract = _safe_dict(core.get("experience_contract"))
+                narrative_style = _safe_dict(core.get("narrative_style"))
+                dialogue_style = _safe_dict(core.get("dialogue_style"))
+                visual_style = _safe_dict(core.get("visual_style"))
+                prose_style = _safe_dict(core.get("prose_style"))
+                scene_style = _safe_dict(core.get("scene_style"))
                 style_gate = _safe_dict(core.get("style_gate"))
                 if not _has_material(identity.get("name")):
                     _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少风格卡名。")
-                if not _has_material(reader_promise):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `reader_promise`。")
-                if not _has_material(aesthetic_axes):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `aesthetic_axes`。")
-                if not _has_material(style_system):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `style_system`。")
+                if not _has_material(style_identity):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `style_identity`。")
+                if not _has_material(experience_contract):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `experience_contract`。")
+                if not _has_material(narrative_style):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `narrative_style`。")
+                if not _has_material(dialogue_style):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `dialogue_style`。")
+                if not _has_material(visual_style):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `visual_style`。")
+                if not _has_material(prose_style):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `prose_style`。")
+                if not _has_material(scene_style):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `scene_style`。")
                 if not _has_material(style_gate):
                     _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `style_gate`。")
 

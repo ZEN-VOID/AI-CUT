@@ -1,0 +1,4 @@
+interface:
+  display_name: "Man-Tui Grok 视频"
+  short_description: "提交 Grok 异步视频任务，轮询状态并下载 MP4"
+  default_prompt: "使用漫涂 Man-Tui 的 grok-imagine-video 接口创建视频任务，必要时等待完成并下载结果。"

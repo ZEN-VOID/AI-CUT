@@ -8,16 +8,16 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: ~5200
-current_lines: ~95
-current_cases: 1
+current_chars: ~7600
+current_lines: ~110
+current_cases: 0
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-13T18:30:00Z
+last_checked_at: 2026-04-19T10:20:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
-本文件用于沉淀 `漫画剧本改编` 的来源适配经验、钩子经验、失败类型与可晋升 heuristic，不记录过程流水。
+本文件用于沉淀 `漫画剧本改编` 的来源适配经验、失败类型、节奏与奇观 heuristic，不记录过程流水。
 
 ## Type Map
 
@@ -34,20 +34,42 @@ last_checked_at: 2026-04-13T18:30:00Z
 | `TM-COMIC-09` | 1 号已经写出主稿，但 2 号仍要重新格式化原文，导致双真源 | 阶段边界层 | 在 1 号直接产出 `formatted_source_script.json`，并要求 2 号优先消费该包 | 在 1/2 号技能合同同时固化 `formatted_source_script` 交接优先级 | 2 号可直接按 stage-1 结构化包切页，而不是回退自由 prose |
 | `TM-COMIC-10` | 漫画稿有剧情，但格式化层无法复用 `2-格式` 的理解 | 基础格式化层 | 回到 `aligned_scene_script[]`，补齐 `对白/内心独白/旁白 + 对应画面 + 动作画面 + 镜头语言预设` | 在主合同和写作规格中固定与 `2-格式` 对齐的字段标题与结构层 | 结构化包可直接辨认文本条目、画面条目与最小镜头预设 |
 | `TM-COMIC-11` | 同一角色在正文、桥接包、JSON 中主体名称不一致 | 主体命名层 | 建立 `speaker_registry[]`，统一 `角色名 / 讲述者 / 代称` 的 canonical 命名 | 在主合同中增加“说话者主体单一真源”规则，并把 `speaker_registry[]` 设为必填 | 任一角色在全文和结构化包中只保留一个主体键 |
+| `TM-COMIC-12` | 过度忠于原著顺序，导致前段平、后段挤 | 改写姿态层 | 先锁 `adaptation_posture` 与 `stimulus_curve`，允许前置炸点与后移解释 | 在 `source-intake-and-mode-selection` 固化 `comic-first` 默认姿态 | 前 3 场内至少有一个抓停点 |
+| `TM-COMIC-13` | 画面很炸，但角色动机断裂 | 奇观约束层 | 回到 `fidelity_floor`，补回关系核、情绪核与关键代价 | 在 `visual-spectacle-engine` 固化“奇观必须服务关系或代价” | 大格成立且角色行为说得通 |
+| `TM-COMIC-14` | 全文一直很急，但没有峰谷差，刺激变钝 | 节奏曲线层 | 重排 `chapter_plan`，补“抓停 -> 抬升 -> 急停”的波形 | 在 `pacing-hook-thrill-engine` 固化三种驱动模式与重排工具箱 | 能明确指出中段抬升点与章末急停点 |
+| `TM-COMIC-15` | 文稿在喊“很燃很酷”，但没有真正的中二感 | 风格强化层 | 回到角色宣言、命名势能、宿命关系与代价誓言重写 | 在 `chunibyo-intensity-engine` 固化中二感四件套 | 能指出一句立角色的宣言、一个带势能的命名和一个带代价的誓言 |
+| `TM-COMIC-16` | 根层已经锁了类型包，但 1 号结构化输出没有写回，2 号开始又回到默认类型猜测 | type-pack handoff 层 | 把 `type_stack_ref / type_pack_context` 写进 `formatted_source_script.json` 和桥接包摘要 | 在 1 号合同中把 type pack 设为结构化真源字段 | 2 号读取 1 号输出时能直接看到 active packs |
 
 ## Repair Playbook
 
-1. 先判定失败点在来源归一、事实边界、剧情发动机、章末钩子还是视觉桥接。
-2. 若稿子发虚，先回 `source_digest` 与 `adaptation_brief`，不要只补辞藻。
+1. 若稿子发虚，先回 `source_digest` 与 `adaptation_brief`，不要只补辞藻。
+2. 若稿子太守原顺序，优先重做 `adaptation_posture / narrative_reorder_policy / stimulus_curve`。
 3. 若新闻/热搜类稿子失真，优先修 `truth_boundary`，不要直接重写剧情。
 4. 若“有情节没追更欲”，优先重写章末钩子，而不是扩写整章。
 5. 若“能读不能画”，优先补视觉桥接层，而不是继续堆解释性内心戏。
+6. 若“能画但不够炸”，回到 `impact_map` 和 `visual-spectacle-engine`，先补最贵的一格，再删解释。
+7. 若“很炸但不成立”，回到 `fidelity_floor`，补角色动机、关系位和代价链。
+8. 若“很快但没爽感”，检查是否只有速度没有峰谷、只有钩子没有兑现。
+9. 若“设定很多但不中二”，优先补命名势能、角色宣言和宿命性关系，而不是继续堆术语。
+10. 若本轮明确命中某题材包，优先先看 `type_pack_context.stage_projection.script_adaptation`，不要靠临场印象写。
+
+## Adaptation Posture Map
+
+| posture | 适用场景 | 默认动作 | 不可突破 |
+| --- | --- | --- | --- |
+| `faithful-core` | 现实议题、用户要求较高保真 | 尽量保留关键事实与主结构，只强化叙事组织 | 不伪造事实、不篡改现实关键结论 |
+| `comic-first` | 大多数虚构故事、梗概、网文、剧情摘要 | 重排节奏、前置炸点、后移解释、并戏 | 不改丢关系核、情绪核、卖点核 |
+| `spectacle-first` | 视觉驱动题材、海报/图片/高概念设定 | 最大化奇观、动作、尺度反差、页势能 | 不让奇观脱离角色代价与剧情推进 |
 
 ## Reusable Heuristics
 
 - 对漫画剧本而言，真正稀缺的不是文采，而是“每一场都能拆成几页漫画”的可视化密度。
 - 来源是图片或视频时，最稳的做法不是描述画面，而是推断“这幅画面之前刚发生了什么、之后最可能发生什么”。
 - 热搜/新闻最适合改成“事实锚点 + 虚构人物承载线”，既保住讨论度，也避免伪纪实滑坡。
+- 对虚构原著，最该保住的通常不是原顺序，而是人物关系核、情绪核和最值钱的名场面潜力。
+- 中二感最稳的来源不是堆黑话，而是“角色把自己当成某种命运/禁忌/王座/灾厄的承担者”。
+- 好的中二命名应该一眼可记、朗读有势、进对白不拗口，而不是无限拉长专有名词。
+- 真正有用的中二对白，通常同时包含：绝对化立场、代价意识、关系指向。
 - 钩子不等于硬拐弯；它更像是在冲突最贵的位置故意停笔。
 - 同一篇稿子里，钩子类型最好轮换使用：危险逼近、真相留白、身份反转、代价升级交替出现会更稳。
 - 如果正文中几乎没有动作节点、目光变化、场景切换和能入镜的细节，后续漫画生成一定会吃力。
@@ -56,102 +78,19 @@ last_checked_at: 2026-04-13T18:30:00Z
 - 解说漫兼容的关键，不是先写 prose 再硬切旁白，而是在正文生成时就让句子同时承担“带观众看”与“替镜头压气”的双重职责。
 - 最好的旁白句往往也是最好的漫画说明句：短、准、带一个可见物和一个正在发生的变化。
 - 当 1 号技能已经能稳定产出 `formatted_source_script.json` 时，这份结构化包就应成为 2 号技能的优先文本真源，不要再让 2 号从 Markdown 主稿自由猜 scene units。
+- 类型包在 1 号最值钱的地方，不是“给题材贴标签”，而是提前锁定改写姿态、钩子强度、奇观阈值和对白口气。
 - 漫画技能若想与 `2-格式` 对齐，不是把正文写得更像电视剧，而是先补齐共享的“文本条目 + 画面条目 + 主体规范”底座，再在其上叠漫画专属表现层。
 - `对白（主体）`、`内心独白（主体）`、`旁白（主体）` 的关键不是多一个括号，而是让主体名在 Markdown、JSON、桥接包里始终同名，避免下游把一个角色误拆成多个 speaker。
 
-## Case Log
+## Node Tuning Notes
 
-## [20260413-001] 2026-04-13 11:30 PDT - 初始化“漫画剧本改编”技能真源
-
-### 元信息
-
-- milestone_type: new_success_class
-- 范围/目标: 为 `.agents/skills/comic/1-漫画剧本改编` 建立可执行的单技能真源，覆盖文本、图片、视频、新闻热搜到漫画剧本真源的改编链。
-- 触发（用户原话或摘要）: “完善 `.agents/skills/comic/1-漫画剧本改编`，将任意资料改编为精彩的漫画剧本，默认概念包含多类章末钩子、类型化示例以及网络热搜参照。”
-- 涉及技能:
-  - `.agents/skills/comic/1-漫画剧本改编`
-  - `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-知行合一`
-- layered_trace:
-  - symptom/failure: 目标目录存在但没有实际技能合同，无法稳定处理多来源改编与章末钩子控制。
-  - direct technical cause: 缺少 `SKILL.md`、`CONTEXT.md`、入口元数据与来源/钩子/热搜细则真源。
-  - rule source: `.agents/skills/comic/1-漫画剧本改编/SKILL.md` 及 `references/*`
-  - meta rule source: 仓库 `AGENTS.md` 的 Rollout Standard、Root-Cause First、Canonical Source Governance，以及 `skill-知行合一` 的 skeleton-first 合同
-- 产出物/变更路径:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/comic/1-漫画剧本改编/CONTEXT.md`
-  - `.agents/skills/comic/1-漫画剧本改编/agents/openai.yaml`
-  - `.agents/skills/comic/1-漫画剧本改编/references/source-intake-and-mode-selection.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/hook-ending-playbook.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/hotsearch-news-adaptation.md`
-- evidence paths:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/hook-ending-playbook.md`
-- 用户反馈: 希望技能能处理任意来源，默认强调漫画生成友好的剧本化改编与高强度章末钩子。
-
-### Feature / Positive（可复用经验）
-
-- F1:
-  - 证据: 将“来源归一 -> 事实边界 -> 剧情发动机 -> 章节正文 -> 钩子 -> 视觉桥接”写成单一思行网络后，文本/图像/视频/热搜输入终于能走同一条可复用执行链。
-  - 复用方式: 以后凡是“任意来源 -> 剧本/结构化底稿”的技能，都应先做来源归一与边界裁决，再进入文学化与结构化写作。
-  - 适用边界: 适用于需要面向后续视觉生成、分镜或长链内容消费的改编型技能。
-
-## [20260413-002] 2026-04-13 12:20 PDT - 将“画面冲击预演”前置为漫画剧本真源合同
-
-### 元信息
-
-- milestone_type: source_contract_change
-- 范围/目标: 解决“正文有氛围但漫画冲击点后置、只能事后补桥接”的执行缺口。
-- 触发（用户原话或摘要）: “氛围感再加强一点……在创作时预先考虑到相应漫画表现时画面冲击力的方便？”
-- 涉及技能:
-  - `.agents/skills/comic/1-漫画剧本改编`
-  - `.agents/skills/aigc2026/1-编剧/6-氛围感`
-- layered_trace:
-  - symptom/failure: 当前合同强调视觉锚点和桥接包，但没有把“高冲击画面候选”前置到正文设计阶段。
-  - direct technical cause: `SKILL.md` 与 `comic-script-writing-spec.md` 缺少强制性的 `impact_beats / impact_map / 翻页点` 预演要求。
-  - rule source: `.agents/skills/comic/1-漫画剧本改编/SKILL.md`、`.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-  - meta rule source: 仓库 `AGENTS.md` 的 Root-Cause First、Canonical Source Governance 与 `atmosphere-elevation` 的“氛围必须可拍摄、可分镜、可回收”约束
-- 产出物/变更路径:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-  - `.agents/skills/comic/1-漫画剧本改编/CONTEXT.md`
-- evidence paths:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-- 用户反馈: 希望氛围感更强，同时在创作时就考虑漫画表现的画面冲击力。
-
-### Root Cause / Fix / Prevention
-
-- 根因位置: `漫画剧本改编` 的真源更偏“写完后桥接”，缺少“写前先锁炸点画面”的门禁。
-- 立即修复: 在主合同加入 `manga_impact_profile`、`impact_beats`、`impact_map`、大格/翻页点要求，并将氛围定义为可分镜的情绪压力场。
-- 系统预防修复: 在写作规格中固定“冲击画面预演”，并在经验层沉淀“氛围不足不等于多写形容词，而是要前置冲击页设计”的 heuristic。
-
-## [20260413-003] 2026-04-13 12:45 PDT - 为漫画剧本改编加入“解说漫兼容”双栈合同
-
-### 元信息
-
-- milestone_type: source_contract_change
-- 范围/目标: 让 `漫画剧本改编` 在保持漫画画面感的同时，能直接产出适合解说漫朗读的沉浸式描述。
-- 触发（用户原话或摘要）: “能否设计为兼容解说漫的创作逻辑……既要有漫画画面感，还要有解说的声音沉浸感……不啰嗦，不冗余，沉浸式。”
-- 涉及技能:
-  - `.agents/skills/comic/1-漫画剧本改编`
-  - `.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧`
-- layered_trace:
-  - symptom/failure: 当前技能能产出强画面稿，但缺少“作为旁白直接读出来也成立”的声音栈约束。
-  - direct technical cause: `SKILL.md` 与写作规格未定义 `delivery_flavor / narration_density / voice_brief`，也未继承解说剧的同命题声画约束。
-  - rule source: `.agents/skills/comic/1-漫画剧本改编/SKILL.md`、`.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-  - meta rule source: 仓库 `AGENTS.md` 的 Root-Cause First、Canonical Source Governance，以及 `解说剧` 技能的“旁白主导 + 同命题配对”约束
-- 产出物/变更路径:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/comic/1-漫画剧本改编/references/comic-script-writing-spec.md`
-  - `.agents/skills/comic/1-漫画剧本改编/CONTEXT.md`
-- evidence paths:
-  - `.agents/skills/comic/1-漫画剧本改编/SKILL.md`
-  - `.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md`
-- 用户反馈: 要求同时兼容漫画画面感与解说旁白沉浸感，且语言不啰嗦、不冗余。
-
-### Root Cause / Fix / Prevention
-
-- 根因位置: 旧合同只有视觉栈，没有声音栈，导致“能画不能念”的隐性质量缺口。
-- 立即修复: 加入 `delivery_flavor=explainer_comic_compatible`、`narration_density`、`voice_brief`、`narration_ready_passages` 与朗读门禁。
-- 系统预防修复: 显式引用 `解说剧` 技能作为旁白约束来源，并在写作规格里固化“句长控制、停顿设计、去冗余解释”的声画双栈规则。
+| node | 最常见偏差 | 调整动作 |
+| --- | --- | --- |
+| `N2` | 只提炼氛围，不提炼事件链 | 强制补“谁想要什么、谁阻止他/她” |
+| `N3` | 虚构与现实边界没分清 | 先写 `boundary_note` 再写正文 |
+| `N4` | 没锁改写姿态，导致要么太守、要么乱改 | 先写 `adaptation_posture_note` 与 `fidelity_floor` |
+| `N5` | 刺激曲线过平或全挤到结尾 | 重做 `stimulus_curve`，补中段抬升 |
+| `N6` | 先写解释再写画面 | 改成先落动作和主视觉，再回补必要信息 |
+| `N7` | 钩子像总结句 | 把收尾点换成未完成动作或半揭信息 |
+| `N8` | 只有桥接词，没有真正大格候选 | 回正文删解释、抬页势能 |
+| `N6-N7` | 想写中二感却只剩设定名词堆砌 | 先补角色宣言、命名势能和誓言代价，再决定是否加长术语 |

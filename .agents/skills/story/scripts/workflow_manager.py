@@ -139,9 +139,10 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 2", "节奏优化", "drafting-pacing"),
             ("Step 3", "场景和氛围渲染", "drafting-scene-atmosphere"),
             ("Step 4", "角色形象刻画", "drafting-character-rendering"),
-            ("Step 5", "对白个性化和声口优化", "drafting-dialogue-voice"),
-            ("Step 6", "追读力强化", "drafting-reading-power"),
-            ("Step 7", "润色", "drafting-polish"),
+            ("Step 5", "对白个性化", "drafting-dialogue-personalization"),
+            ("Step 6", "心理活动描写", "drafting-inner-life"),
+            ("Step 7", "追读力强化", "drafting-reading-power"),
+            ("Step 8", "润色", "drafting-polish"),
         ],
     },
     "story-validate": {
@@ -755,12 +756,12 @@ def _record_inline_validation_result(task: dict[str, Any], step_id: str, role_id
         latest_summary["status"] = INLINE_VALIDATION_STATUS_PASSED
         latest_summary["reason"] = "all_inline_validators_passed"
         _append_inline_validation_history(task, batch)
-        if normalize_command_name(task.get("command")) == "story-write" and step_id == "Step 7":
+        if normalize_command_name(task.get("command")) == "story-write" and step_id == "Step 8":
             task["candidate_final_state"] = {
                 "status": CANDIDATE_FINAL_STATUS_READY,
                 "updated_at": now_iso(),
                 "source_step_id": step_id,
-                "reason": "step7_inline_validation_passed",
+                "reason": "step8_inline_validation_passed",
             }
         return {"batch_status": INLINE_VALIDATION_STATUS_PASSED, "remaining": []}
 
@@ -1904,9 +1905,40 @@ def _route_source_fix_command(validation_payload: dict[str, Any]) -> str:
 def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
     project_root = _get_active_project_root()
     project_payload = _load_project_state_payload()
+    write_log_path = project_root / "3-Drafting" / "写作日志.yaml"
+    write_log_payload = _optional_yaml(write_log_path) or {}
+    write_log_episode: Optional[int] = None
+    write_log_packet: Optional[dict[str, Any]] = None
+    if write_log_payload:
+        episode_num = _normalize_chapter_num(write_log_payload.get("episode_num"))
+        candidate_state = write_log_payload.get("candidate_final_state")
+        resume_pointer = write_log_payload.get("current_resume_pointer")
+        candidate_status = str(candidate_state.get("status") or "").strip() if isinstance(candidate_state, dict) else ""
+        next_step = str(resume_pointer.get("next_step") or "").strip() if isinstance(resume_pointer, dict) else ""
+        if episode_num and (
+            candidate_status == CANDIDATE_FINAL_STATUS_READY
+            or next_step == "4-Validation"
+        ):
+            write_log_episode = episode_num
+            write_log_packet = _artifact_resume_packet(
+                command="story-validate",
+                chapter_num=episode_num,
+                reason="candidate_final_draft_waiting_validation",
+                summary=f"未检测到 tracked 中断，但第{episode_num}集写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
+                artifact_refs={
+                    "writing_log_ref": str(write_log_path.relative_to(project_root)),
+                    "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
+                    "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
+                },
+                evidence_refs=[str(write_log_path.relative_to(project_root))],
+            )
 
     loopback_episode, loopback_path = _latest_episode_file(project_root, "5-Loopback", LOOPBACK_REF_RE)
     if loopback_episode is not None and loopback_path is not None:
+        if write_log_packet is not None and write_log_episode is not None and write_log_episode > loopback_episode:
+            safe_append_call_trace("artifact_resume_detected", write_log_packet)
+            safe_append_task_log("artifact_resume_detected", write_log_packet)
+            return write_log_packet
         loopback_payload = _optional_json(loopback_path) or {}
         next_episode = loopback_episode + 1
         packet = _artifact_resume_packet(
@@ -1928,6 +1960,10 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
 
     validation_episode, validation_path = _latest_episode_file(project_root, "4-Validation", VALIDATION_REF_RE)
     if validation_episode is not None and validation_path is not None:
+        if write_log_packet is not None and write_log_episode is not None and write_log_episode > validation_episode:
+            safe_append_call_trace("artifact_resume_detected", write_log_packet)
+            safe_append_task_log("artifact_resume_detected", write_log_packet)
+            return write_log_packet
         validation_payload = _optional_json(validation_path) or {}
         validation_status = str(validation_payload.get("validation_status") or "").strip()
         review_checkpoint = _review_checkpoint_for_episode(project_payload, validation_episode)
@@ -2003,33 +2039,10 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             safe_append_task_log("artifact_resume_detected", packet)
             return packet
 
-    write_log_path = project_root / "3-Drafting" / "写作日志.yaml"
-    write_log_payload = _optional_yaml(write_log_path) or {}
-    if write_log_payload:
-        episode_num = _normalize_chapter_num(write_log_payload.get("episode_num"))
-        candidate_state = write_log_payload.get("candidate_final_state")
-        resume_pointer = write_log_payload.get("current_resume_pointer")
-        candidate_status = str(candidate_state.get("status") or "").strip() if isinstance(candidate_state, dict) else ""
-        next_step = str(resume_pointer.get("next_step") or "").strip() if isinstance(resume_pointer, dict) else ""
-        if episode_num and (
-            candidate_status == CANDIDATE_FINAL_STATUS_READY
-            or next_step == "4-Validation"
-        ):
-            packet = _artifact_resume_packet(
-                command="story-validate",
-                chapter_num=episode_num,
-                reason="candidate_final_draft_waiting_validation",
-                summary=f"未检测到 tracked 中断，但第{episode_num}集写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
-                artifact_refs={
-                    "writing_log_ref": str(write_log_path.relative_to(project_root)),
-                    "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
-                    "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
-                },
-                evidence_refs=[str(write_log_path.relative_to(project_root))],
-            )
-            safe_append_call_trace("artifact_resume_detected", packet)
-            safe_append_task_log("artifact_resume_detected", packet)
-            return packet
+    if write_log_packet is not None:
+        safe_append_call_trace("artifact_resume_detected", write_log_packet)
+        safe_append_task_log("artifact_resume_detected", write_log_packet)
+        return write_log_packet
 
     return None
 
@@ -2295,7 +2308,7 @@ def analyze_recovery_options(interrupt_info):
             }
         ]
 
-    if normalize_command_name(command) == "story-write" and step_id in {"Step 2", "Step 3", "Step 4", "Step 5", "Step 6", "Step 7"}:
+    if normalize_command_name(command) == "story-write" and step_id in {"Step 2", "Step 3", "Step 4", "Step 5", "Step 6", "Step 7", "Step 8"}:
         project_root = find_project_root()
         current_target = _primary_drafting_target(project_root, chapter_num)
         chapter_path = (

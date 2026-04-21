@@ -1,4 +1,0 @@
-interface:
-  display_name: "Vidu 生视频"
-  short_description: "通过 /v1/video/generations 提交 Vidu 创建任务，支持文生、图生、多图参考与首尾帧"
-  default_prompt: "使用 Vidu 创建视频任务。优先校验 Prompt / ImageUrl / ImageInfos 三选一输入，默认模型治理遵循父级共享 runbook 的 highest-available-general 规则族，当前解析结果为 Vidu-q3-pro，并统一使用 .env 中的 ANYFAST_VIDEO_API_KEY。"

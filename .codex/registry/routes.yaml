@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 
 default_flow:
   - step: mandate
@@ -50,10 +50,10 @@ route_policies:
     rule: "进入 `.agents/skills/aigc/4-Design/3-面板/道具/SKILL.md`；默认先写 `PropPanel-layout.json`，再经 `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py` 调用 `nano-banana/general`。批量 4-Design 上下文自动绑定设计已有图片，单文件或自然语言上下文默认不绑定参照。"
   - id: aigc-design-role-panel-entry
     trigger: 命中 `4-Design/3-面板/角色`、角色面板、CharacterPanel、角色 panel layout、或批量 4-Design 角色面板生图
-    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md`；默认先写 `CharacterPanel-layout.json`，再调用 `.agents/skills/api/image/nano-banana/general`。批量 4-Design 上下文自动绑定对应已有设计图片，单文件或自然语言上下文默认无参照 T2I。"
+    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md`；默认先写 `CharacterPanel-layout.json`，再调用 `.agents/skills/api/anyfast/image/nano-banana/general`。批量 4-Design 上下文自动绑定对应已有设计图片，单文件或自然语言上下文默认无参照 T2I。"
   - id: aigc-design-scene-panel-entry
     trigger: 命中 `4-Design/3-面板/场景`、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成 layout JSON 后生图
-    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/场景/SKILL.md`；默认通过 SMART 桥调用 `.agents/skills/api/image/nano-banana/general`，单文件/自然语言直调默认不隐式带参考图"
+    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/场景/SKILL.md`；默认通过 SMART 桥调用 `.agents/skills/api/anyfast/image/nano-banana/general`，单文件/自然语言直调默认不隐式带参考图"
   - id: aigc-video-stage-entry
     trigger: 命中 `6-Video` 或需要把 `3-Detail/第N集.json` 蒸馏成视频工具入参 JSON
     rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若任务是按分镜组组织视频请求，默认路由 `1-提示词蒸馏/全能参照`"
@@ -80,10 +80,19 @@ route_policies:
     rule: "进入 `.agents/skills/comic/2-九刀流漫画提示词/SKILL.md`；默认落到 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`，输出 `nine_blade_comic_prompts.v1` JSON，固定 9 页、9:16、单请求连续生成、非九宫格拼图、非同图九变体。"
   - id: comic-generation-entry
     trigger: 命中漫画生成、已有 `nine_blade_comic_prompts.v1` JSON 需要生图、或需要 Seedream 一次生成 9 张连续竖版漫画页
-    rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再合成单次 master prompt 调用 `.agents/skills/api/image/seedream`，默认输出到 `projects/comic/[项目名]/3-漫画生成/`，并使用 `--max-images 9 --stream --size 2K`。"
+    rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再合成单次 master prompt 调用 `.agents/skills/api/anyfast/image/seedream`，默认输出到 `projects/comic/[项目名]/3-漫画生成/`，并使用 `--max-images 9 --stream --size 2K`。"
   - id: comic-episode-poster-entry
     trigger: 命中剧集海报、漫画海报、episode poster、海报 JSON、短剧风漫画海报、或需要为当前集设计标题/主体/氛围/配色清晰的海报合同
     rule: "进入 `.agents/skills/comic/4-剧集海报/SKILL.md`；优先读取 `1-漫画小说改编` 与 `2-九刀流漫画提示词` 真源，必要时参考 `3-漫画生成` 图片，默认输出到 `projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json`。"
+  - id: api-man-tui-grok-video-entry
+    trigger: 命中 `man-tui`、`漫涂`、`grok 视频`、`grok-imagine-video`、异步视频生成、漫涂视频轮询或根据 `task_id` 下载 Grok 视频结果
+    rule: "进入 `.agents/skills/api/man-tui/video/grok/SKILL.md`；使用 `scripts/grok_video.py` 执行 create / status / content 三段式接口，默认输出到 `output/影片/[项目名]/5-API/video/man-tui/grok/`。"
+  - id: api-man-tui-sora-entry
+    trigger: 命中 `man-tui sora`、`漫涂 sora`、`POST /v1/videos`、`GET /v1/videos/{task_id}`、`watermark_free_url` 下载，或需要通过 Man-Tui 执行 Sora 2 异步视频提交/轮询/下载
+    rule: "进入 `.agents/skills/api/man-tui/video/sora/SKILL.md`；按 `submit -> status/poll -> watermark_free_url download` 执行，默认输出到 `output/影片/[项目名]/5-API/video/man-tui/sora/`。"
+  - id: api-man-tui-nano-banana-image-entry
+    trigger: 命中 `man-tui`、`漫涂`、`nano_banana_2`、`nano_banana_pro`、香蕉2、香蕉Pro、chat-format 图片生成、OpenAI Chat Completions 兼容生图，或需要通过 `/v1/chat/completions` 完成文生图 / 图生图
+    rule: "进入 `.agents/skills/api/man-tui/image/nano-banana/SKILL.md`；使用 Chat Completions 兼容格式构造 `messages`，默认 `model=nano_banana_2`、`stream=true`、`aspect_ratio=3:4`、`n=1`，图生图时按 `content=[text,image_url...]` 组织参考图，并通过 `scripts/man_tui_nano_banana_generate.py` 执行。"
   - id: team-screenwriter-dazai-osamu-entry
     trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或小说组/编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
     rule: "进入 `.agents/skills/team/study/文学系/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"
@@ -162,6 +171,9 @@ route_policies:
   - id: team-anime-tsai-chih-chung-entry
     trigger: 命中蔡志忠视角、蔡志忠会怎么画、Tsai Chih-chung perspective、庄子说式、老子说式、国学漫画、哲思漫画、用漫画讲经典，或动漫组需要处理经典改编、教育漫画、传统文化 IP、知识型漫画、跨语言传播、系列策划或内容优先的动画前期
     rule: "进入 `.agents/skills/team/动漫组/蔡志忠/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出主题锚点、可漫画化单元、系列结构、传播转译、内容底盘与不要做清单。"
+  - id: team-anime-takehiko-inoue-entry
+    trigger: 命中井上雄彦视角、井上雄彦会怎么画、Takehiko Inoue perspective、井上雄彦式分镜、灌篮高手感、SLAM DUNK 式运动、REAL 式痛感、浪客行式笔墨，或动漫组需要处理体育漫画、身体运动、人物成长、痛感与复原、青年群像、漫画改动画/电影、墨笔大画面与现场取材型创作
+    rule: "进入 `.agents/skills/team/aigc/动漫组/井上雄彦/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出身体真实、视点选择、人物缺口、现场取材、画面节奏、媒介重写与不要做清单。"
 
 legacy_mapping:
   - legacy_object: /Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026

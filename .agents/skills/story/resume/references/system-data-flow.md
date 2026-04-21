@@ -39,7 +39,7 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 - `正文/` 仅在旧项目兼容检测或 fallback 搜索时出现，不再作为默认目录树的一部分。
 
 ### 当前结构核心变化
-- **七道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-追读力强化 -> 7-润色`
+- **八道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-心理活动 -> 7-追读力强化 -> 8-润色`
 - **规划入口切换**: drafting/query/resume 默认先读 `2-Planning/全息地图.json`
 - **无 XML 标签**: 纯正文写作，Data Agent AI 自动提取实体
 - **SQLite 存储**: entities/aliases/state_changes 迁移到 index.db

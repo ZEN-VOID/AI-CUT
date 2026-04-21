@@ -1,4 +1,4 @@
 interface:
   display_name: "漫画剧本改编"
   short_description: "把文本、图片、视频或热点事件改编为可直接指导九刀流的漫画剧本真源"
-  default_prompt: "Use $comic-script-adaptation to normalize arbitrary source material, lock the truth boundary, arbitrate the comic script variant, align the formatting layer with `对白（主体）/内心独白（主体）/旁白（主体） + 对应画面 + 动作画面 + 镜头语言预设`, keep speaker naming canonical, and then add comic-only fields for panel split, focus, splash, balloon load, SFX, and hook-driven downstream bridge notes for $comic-nine-blade-prompts."
+  default_prompt: "Use $comic-script-adaptation to normalize arbitrary source material, lock the truth boundary, choose a comic-first adaptation posture when fiction allows it, aggressively optimize for page impact and pacing, reorder or amplify scenes when useful without breaking the core relationship/emotion/sell-point, align the formatting layer with `对白（主体）/内心独白（主体）/旁白（主体） + 对应画面 + 动作画面 + 镜头语言预设`, keep speaker naming canonical, and then add comic-only fields for panel split, focus, splash, balloon load, SFX, stimulus curve, and hook-driven downstream bridge notes for $comic-nine-blade-prompts."

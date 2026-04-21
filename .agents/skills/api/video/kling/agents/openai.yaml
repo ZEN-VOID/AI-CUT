@@ -1,4 +1,0 @@
-interface:
-  display_name: "FineAPI Kling 图生视频"
-  short_description: "通过 FineAPI 的 Kling image2video 接口提交、轮询并下载图生视频任务；默认模型治理遵循父级共享规则，当前解析结果为 kling-v3"
-  default_prompt: "使用 FineAPI Kling 接口生成图生视频。优先按创建任务、轮询 image2video 状态、从查询结果提取视频 URL 并落盘报告/MP4 的流程执行。默认模型治理遵循父级共享 runbook 的 highest-available-general 规则族；当前本地解析结果为 kling-v3。"

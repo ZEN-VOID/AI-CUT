@@ -1,6 +1,6 @@
 ---
 name: aigc-design-role-panel
-description: Use when `4-Design/3-面板/角色` needs to consume role design artifacts under `projects/aigc/<项目名>/4-Design/角色/2-设计/`, directly reuse the prompt portion, emit CharacterPanel layout JSON, and automatically call `api/image/nano-banana/general`.
+description: Use when `4-Design/3-面板/角色` needs to consume role design artifacts under `projects/aigc/<项目名>/4-Design/角色/2-设计/`, directly reuse the prompt portion, emit CharacterPanel layout JSON, and automatically call `api/anyfast/image/nano-banana/general`.
 governance_tier: full
 ---
 
@@ -20,7 +20,7 @@ governance_tier: full
 
 - 上游：`projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/`
 - 输出：`projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`
-- 生图：`.agents/skills/api/image/nano-banana/general`，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
+- 生图：`.agents/skills/api/anyfast/image/nano-banana/general`，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 
 本技能只做：
 
@@ -45,7 +45,7 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/2-设计/角色/SKILL.md`
 - `templates/角色面板-提示词.json`
 - `scripts/generate_character_panels.py`
-- `.agents/skills/api/image/nano-banana/general/SKILL.md`
+- `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
 
 真源分工：
 
@@ -243,7 +243,7 @@ erDiagram
 2. `templates/角色面板-提示词.json`
 3. `.agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md`
 4. 本 `SKILL.md`
-5. `.agents/skills/api/image/nano-banana/general/SKILL.md`
+5. `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
 6. `AGENTS.md`
 
 ## Completion Criteria

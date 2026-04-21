@@ -24,6 +24,7 @@
 | 父层仍按旧的 `3-Detail/evidence/` 读取补证 | 真源路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在父子合同共同固定 sidecar 真实路径与只读补证边界 | 不再引用不存在的补证目录 |
 | `3-Detail` 还未进入可消费 phase 就直接开始蒸馏 | 阶段就绪层 | 回退到 `metadata.document_phase` 门，拒绝消费 `bootstrapped/directing_in_progress` | 在父级 `Readiness Gate` 固化 `detail_in_progress | ready` 才可路由 | 父层不再越过 detail 阶段门 |
 | 父层只判对象，不检查 canonical 字段是否齐备 | 输入门层 | 在路由前加 `组间设计.出场角色及穿搭` 与 shot canonical 字段检查 | 在父级输入门固定 `出场角色及穿搭 + 角色背景面/角色站位走位/道具及状态/分镜表现` | 叶子收到的输入不再只有空壳 |
+| `3-Detail` 仍处于兼容 prose 投影态，缺少显式 `景别 / 镜头视角 / 镜头速度` descriptor，导致 `分镜帧` validator 卡死 | prompt 归一层 | 在 `_shared/prompt_bridge_helpers.py` 用 `运镜手法 / 分镜构图 / 分镜表现` 推断 descriptor 槽位 | 把 descriptor fallback 视为 `5-Image` 兼容读取的一部分，而不是要求旧项目先批量重写所有 shot | 兼容态 detail root 也能被 `分镜帧` 正常消费 |
 
 ## Repair Playbook
 
@@ -40,6 +41,7 @@
 - `1-提示词蒸馏` 的核心不是“写 prompt”，而是“先判对象，再把 prompt 蒸馏收口到正确的请求 JSON”。
 - 当一层目录下全是语义 sibling 且彼此互斥时，必须由父级显式覆写“无序默认并发”的仓库级默认规则。
 - 对 `5-Image` 来说，`分镜故事板` 是最宽容的默认入口；`分镜帧` 和 `漫画` 只在对象信号足够明确时再切入。
+- 当旧 detail root 还没把 descriptor 槽位拆干净时，优先让 prompt helper 从 `运镜手法 / 分镜构图` 里推断 `景别 / 镜头视角 / 镜头速度`，不要把兼容负担倒灌回项目层逐镜手补。
 - 父级提示词蒸馏层不应自建第二套 prompt 模板；对象内细节继续留在叶子子技能。
 - 若问题表现为“叶子都对，但整体还是接不上”，通常根因在父级路由或 handoff 合同缺失，而不在叶子 prompt 内容。
 - `1-提示词蒸馏` 的第一输入门不是“有没有 JSON”，而是“`3-Detail` 是否已经到 `detail_in_progress | ready` 且 canonical 字段足够下游消费”。

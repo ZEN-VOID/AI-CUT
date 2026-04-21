@@ -27,37 +27,76 @@
             "name": "",
             "scope": "full-series"
           },
-          "reader_promise": {
-            "primary_pleasures": [],
-            "anti_trope": "",
-            "hard_constraints": [],
+          "style_identity": {
+            "one_line_definition": "",
+            "overall_tone": {
+              "base_tone": "",
+              "emotional_temperature": "",
+              "dark_bright_balance": "",
+              "tragic_comic_ratio": "",
+              "gravity_level": ""
+            }
+          },
+          "experience_contract": {
+            "core_pleasures": [],
+            "expected_aftertaste": [],
+            "anti_trope": [],
             "no_fly_zones": []
           },
-          "aesthetic_axes": {
-            "tone": "",
-            "violence_texture": "",
-            "mystery_density": "",
-            "romance_policy": ""
+          "narrative_style": {
+            "pov_mode": "",
+            "narrator_distance": "",
+            "chronology_mode": "",
+            "information_release_style": "",
+            "suspense_method": "",
+            "chapter_hook_style": "",
+            "chapter_end_style": "",
+            "pacing_profile": ""
           },
-          "style_system": {
-            "text_style": {
-              "tone": "",
-              "genre_corridor": "",
-              "anti_trope": ""
-            },
-            "narrative_style": {
-              "opening_hook": "",
-              "mystery_density": "",
-              "romance_policy": ""
-            },
-            "tone_promises": [],
-            "taboo_styles": [],
-            "downstream_constraints": []
+          "dialogue_style": {
+            "dialogue_density": "",
+            "speech_rhythm": "",
+            "subtext_level": "",
+            "wit_sharpness": "",
+            "register_policy": "",
+            "character_voice_separation": [],
+            "inner_monologue_ratio": "",
+            "forbidden_dialogue_patterns": []
+          },
+          "visual_style": {
+            "image_texture": "",
+            "color_palette": [],
+            "light_shadow_tendency": "",
+            "motion_texture": "",
+            "spatial_feeling": "",
+            "violence_imagery": "",
+            "romance_imagery": "",
+            "landmark_images": []
+          },
+          "prose_style": {
+            "sentence_length_tendency": "",
+            "paragraph_rhythm": "",
+            "diction_register": "",
+            "metaphor_density": "",
+            "sensory_bias": [],
+            "description_density": "",
+            "exposition_policy": ""
+          },
+          "scene_style": {
+            "action_rendering": "",
+            "emotion_rendering": "",
+            "atmosphere_rendering": "",
+            "transition_style": "",
+            "set_piece_policy": ""
           },
           "style_gate": {
             "anti_ai_required": false,
             "no_poison_required": false,
-            "style_contract_ref": ""
+            "style_contract_ref": "",
+            "must_keep": [],
+            "must_avoid": [],
+            "drift_signals": [],
+            "repair_actions": []
           }
         },
         "current_state": {

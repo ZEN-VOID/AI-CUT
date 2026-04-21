@@ -1,0 +1,211 @@
+method_kernel: comic-core-v1
+default_stack:
+  base: _base
+  primary: 漫画高冲击
+  platform:
+    - 条漫平台
+  audience: []
+base_profile:
+  semantic_tags:
+    - comic-kernel
+    - continuity
+    - panel-readability
+  stage_projection:
+    script_adaptation:
+      must_keep:
+        - 角色关系核
+        - 情绪核
+        - 关键代价
+      default_contracts:
+        - 场景先于解释
+        - 页势能先于表层顺序
+    nine_blade_prompting:
+      must_keep:
+        - page readability
+        - character continuity
+        - scene continuity
+        - page-number overlay
+    image_generation:
+      must_keep:
+        - one request nine pages
+        - no collage
+        - stable visual dna
+    animation_generation:
+      must_keep:
+        - preserve source composition
+        - one panel one shot default
+        - preserve chinese text and page number
+    episode_poster:
+      must_keep:
+        - representative scene
+        - current-episode subjects only
+        - centered title stack
+primary_profiles:
+  漫画高冲击:
+    aliases:
+      - 高冲击漫画
+      - 爆点漫画
+    semantic_tags:
+      - page-impact
+      - cliffhanger
+      - spectacle
+      - rapid-escalation
+    stage_projection:
+      script_adaptation:
+        adaptation_posture: comic-first
+        hook_intensity: relentless
+        spectacle_priority: high
+        pacing_drive: punchy
+        focus:
+          - 前置炸点
+          - 中段抬升
+          - 章末急停
+      nine_blade_prompting:
+        layout_bias:
+          - splash
+          - diagonal
+          - border-breaking
+          - asymmetric
+      image_generation:
+        render_bias:
+          - sharp comic contrast
+          - strong visual silhouette
+          - obvious panel hierarchy
+      animation_generation:
+        motion_bias:
+          - snap-in camera push
+          - impact hold then release
+          - preserve explosive shot order
+      episode_poster:
+        poster_bias:
+          - single explosive beat
+          - immediate hook title
+          - threat or reversal first
+platform_profiles:
+  条漫平台:
+    aliases:
+      - 条漫
+      - webtoon
+      - vertical-scroll-comic
+    semantic_tags:
+      - mobile-reading
+      - vertical-scroll
+      - legible-text
+    stage_projection:
+      script_adaptation:
+        page_density_target: balanced
+        panel_text_budget_bias: concise
+      nine_blade_prompting:
+        layout_bias:
+          - vertical clarity
+          - clean reading path
+      image_generation:
+        render_bias:
+          - legible balloon placement
+          - clean gutters
+      animation_generation:
+        motion_bias:
+          - readable transitions
+          - keep text stable
+      episode_poster:
+        poster_bias:
+          - mobile-first title hierarchy
+          - clear focal order
+  漫剧平台:
+    aliases:
+      - 漫剧
+      - 短剧
+      - short-drama-comic
+    semantic_tags:
+      - trailer-hook
+      - episode-poster
+      - short-drama-beat
+    stage_projection:
+      script_adaptation:
+        hook_intensity: relentless
+        pacing_drive: punchy
+      nine_blade_prompting:
+        layout_bias:
+          - close-up reaction
+          - reveal panels
+          - cliffhanger ending page
+      image_generation:
+        render_bias:
+          - emotional close-up
+          - face readability
+      animation_generation:
+        motion_bias:
+          - reaction push-ins
+          - threat reveal pauses
+      episode_poster:
+        poster_bias:
+          - identity threat
+          - relationship reversal
+          - one-line clickable title
+audience_profiles:
+  少年热血受众:
+    aliases:
+      - 少年
+      - 男频
+      - 热血受众
+      - battle-shonen
+    semantic_tags:
+      - rivalry
+      - oath
+      - breakthrough
+    stage_projection:
+      script_adaptation:
+        emotional_axis:
+          - 不服
+          - 宣言
+          - 反击
+      nine_blade_prompting:
+        dialogue_bias:
+          - short oath lines
+          - victory-leaning challenge lines
+      image_generation:
+        render_bias:
+          - power silhouettes
+          - impact bursts
+      animation_generation:
+        motion_bias:
+          - forward attack motion
+          - charged pauses before impact
+      episode_poster:
+        poster_bias:
+          - oath-title
+          - challenge-title
+  情绪强冲突受众:
+    aliases:
+      - 女频
+      - 高情绪
+      - 强冲突
+      - melodrama-audience
+    semantic_tags:
+      - betrayal
+      - misunderstanding
+      - emotional-whiplash
+    stage_projection:
+      script_adaptation:
+        emotional_axis:
+          - 背叛
+          - 误解
+          - 反转
+      nine_blade_prompting:
+        dialogue_bias:
+          - hurt lines
+          - betrayal lines
+          - emotional reversal lines
+      image_generation:
+        render_bias:
+          - face contrast
+          - tear / anger readable acting
+      animation_generation:
+        motion_bias:
+          - hesitation then break
+          - slow emotional push-in
+      episode_poster:
+        poster_bias:
+          - pain-title
+          - betrayal-title
+          - relationship-shock

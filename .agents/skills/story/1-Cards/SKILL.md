@@ -69,7 +69,7 @@ color: amber
 | child_skill | canonical owner | 正式输出 |
 | --- | --- | --- |
 | `全局卡` | 世界观、`rule_system`、年代约束、文化艺术、科技/武功、金手指、`global_contract_refs` | `1-Cards/0-全局卡/**/*.json` |
-| `风格卡` | 整书风格契约、`reader_promise`、`aesthetic_axes`、`style_system`、`style_gate` | `1-Cards/1-风格卡/**/*.json` |
+| `风格卡` | 整书风格契约、总体基调、叙事风格、对白风格、画面风格、语言风格、场面风格、`style_gate` | `1-Cards/1-风格卡/**/*.json` |
 | `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、`growth_contract / growth_state` 三轴成长系统、角色关系图谱 | `1-Cards/2-角色卡/**/*.json` + `1-Cards/2-角色卡/角色关系图谱.md` |
 | `场景卡` | 场景对象真源、规则与风险、`scene_links`、复用策略 | `1-Cards/3-场景卡/**/*.json` |
 | `物品卡` | 物品对象真源、归属链、使用规则、代价、专属适配 | `1-Cards/4-物品卡/**/*.json` |
@@ -222,7 +222,7 @@ stateDiagram-v2
 11. 命中的子技能包本地 `templates/*.json`
 12. 命中的子技能包 `references/*.md`
 13. 既有 `1-Cards/**/*.json`
-14. 若启用 `type-pack`：`../type-packs/pack-catalog.yaml`
+14. 若启用 `type-pack`：先读 `../_shared/type-pack-loading-contract.md`，再按 active packs 回读 `../type-packs/网文/<题材>/`
 
 ## Total Input Contract
 
@@ -254,7 +254,7 @@ stateDiagram-v2
 | request_shape | target_child | route_reason |
 | --- | --- | --- |
 | 世界观、规则体系、年代、文化艺术、科技、武功、金手指、总设定 | `全局卡` | 全局卡负责整书级稳定设定与金手指合同 |
-| 风格、读者承诺、审美轴、风格禁区、整体气质 | `风格卡` | 风格卡负责整书风格契约与下游风格 gate |
+| 风格、总体基调、叙事风格、对白风格、画面风格、语言风格、风格禁区、整体气质 | `风格卡` | 风格卡负责整书写法合同与下游风格 gate |
 | 人物、关系、弧光、专属物接口 | `角色卡` | 角色是物品专属适配的强上游 |
 | 地点、规则、危险、常驻空间、复用策略 | `场景卡` | 场景负责“谁来做什么、代价是什么” |
 | 武器、线索、重要叙事物、遗物、代价、归属 | `物品卡` | 物品负责剧情杠杆、归属链和成本 |

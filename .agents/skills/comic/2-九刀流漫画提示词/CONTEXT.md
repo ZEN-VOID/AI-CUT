@@ -45,7 +45,8 @@ last_checked_at: 2026-04-17T07:20:00Z
 | `TM-NB-20` | 在 Coze/扣子这类 Agent 平台上，9 页成品的漫画风格断层漂移：有页像黑白港漫，有页像儿童彩图，有页像影视概念图 | 全局风格锁缺失层 | 在 `style_bible` 和每页 `positive_prompt` 前段同时注入同一条 `global style anchor`，锁死渲染媒介、线条体系、明暗方法、上色策略、lettering 质感与角色年龄比例，并显式写 `forbidden style shifts` | 在 `SKILL.md`、reference 与导出的 Agent system prompt 同步提升“全局风格锁”优先级；把页间风格稳定看作高于单页炫技 | 页 1-9 允许构图变化，但不再出现儿童绘本 / Q 版 / 写实概念图的断层混切 |
 | `TM-NB-21` | 把整段上游剧本直接压成一个 9 页包后，节奏忽快忽慢：有时 9 页塞太多事件，有时又被拉得过空 | 分组真源缺失层 | 在 `formatted_source_script` 之后强制生成 `page_group_plan`，按约 500 字原文切 `page-group`，再逐组跑九刀 | `SKILL.md`、reference、template、父子技能 handoff 同步提升 `page-group` 为 canonical 输出规则 | 每个 group 的 9 页都能成立完整小节奏，且 episode 不再只有一个过载或过空 JSON |
 | `TM-NB-22` | 分组后单组节奏合理，但组与组之间人物、风格、场景像换了作品 | 组间 continuity 合同缺失层 | 在每个组级 JSON 中显式加入 `page_group / continuity_context`，并要求继承同一套 `main_character_lock / style_bible / character_locks / scene_continuity_bible` | schema/template/validator 与下游技能同步识别组级 metadata，防止多组输出退化成多个独立短篇 | page-group-01 与 page-group-02 的视觉 DNA、角色锚点和场景锚点可连续对读 |
-| `TM-NB-23` | 4 号动画阶段能读到页级 prompt，但抽不出稳定的多分镜视频节奏，结果像单镜头动态海报 | 结构可动画化层 | 在 `pages[].panels[]` 中补齐 `shot / action / text_slots`，并让 `positive_prompt` 先写版式、再写 panel 级动作 | 4 号技能默认按 `one panel -> one shot` 编译 sora prompt；2 号模板与人工验收同步把 panel 结构当作视频 storyboard 输入 | 4 号 dry-run 的 `shot_plan` 能逐格展开，而不是只剩一个大句子 |
+| `TM-NB-23` | 4 号动画阶段能读到页级 prompt，但抽不出稳定的多分镜视频节奏，结果像单镜头动态海报 | 结构可动画化层 | 在 `pages[].panels[]` 中补齐 `shot / action / text_slots`，并让 `positive_prompt` 先写版式、再写 panel 级动作 | 4 号技能默认按 `one panel -> one shot` 编译 video prompt；2 号模板与人工验收同步把 panel 结构当作视频 storyboard 输入 | 4 号 dry-run 的 `shot_plan` 能逐格展开，而不是只剩一个大句子 |
+| `TM-NB-24` | 上游已经锁了类型包，但组级 JSON 没透传，结果 3/4/5 段又回到默认题材语法 | type-pack handoff 层 | 把 `type_stack_ref / type_pack_context` 设为组级 JSON 的强制字段，并按 `stage_projection.nine_blade_prompting` 写入布局/对白/风格偏置 | schema、template、validator 和 child handoff 同步要求 pack 字段存在 | 任一 group JSON 都能回指 active packs 和九刀阶段投影 |
 
 ## Repair Playbook
 
@@ -58,6 +59,7 @@ last_checked_at: 2026-04-17T07:20:00Z
 7. 若用户要求“更有冲击力”，先判定冲击点类型：构图冲击、动作冲击、明暗冲击、情绪冲击、文字/SFX 冲击；每页只主打一到两类，避免词堆叠互相稀释。
 8. 若用户要求“布局更像漫画”，不要只新增 layout 名称；必须补 `panel_ratios`、dominant panel 位置、inset 位置、gutter 颜色/宽度、阅读路径和页末停顿点。
 9. 若用户反馈“风格不稳定”，先不要急着加更多风格词；先检查是否缺少“同一套视觉 DNA 必须逐页重复”的硬门禁。单靠顶层 `style_bible`，很多 Agent 平台会把 9 页当 9 次独立创作。
+10. 若用户反馈“这一组突然不像前一组那个题材了”，先检查 `type_pack_context` 是否丢失，而不是先重写 page prompt。
 
 ## Reusable Heuristics
 
@@ -81,7 +83,7 @@ last_checked_at: 2026-04-17T07:20:00Z
 - 中文气泡要短，旁白比对白更适合承载解释，SFX 只承载动作声音。
 - 文字系统如果只存在于顶层说明文而不进入 `text_slots` 结构字段，生成时就会退化为“模型自由发挥的气泡”。要把 `speaker_id / placement / bubble_style / inside_panel` 当成执行合同，而不是备注。
 - 9 页漫画足够覆盖对白、旁白、独白、SFX 四类文字形态；若最终 JSON 缺其中一类，通常不是“题材不需要”，而是文字系统在切页或模板阶段被压扁了。
-- 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链与 Seedream 单请求机制成立；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换。
+- 正向验证：`滴滴滴` 项目完整链路顺畅，说明三段链与 Seedream 单请求机制成立；下一层质量杠杆应转向 `style_bible` 的漫画风格锐化词和 `pages[].layout` 的经典漫画版式轮换，并继续保证这些字段足够支撑 4 号阶段的 Sora 动画编译。
 - 对 Seedream 连续 9 页漫画，`cinematic realism` 只能保证画面质感，不能保证漫画语法；必须显式写入 `dynamic manga paneling / screentone shadows / high contrast black gutters / oversized SFX / irregular gutters` 这类词。
 - 对 Coze/扣子这类 Agent 平台，只在顶层定义画风通常不够。最稳的做法是：`style_bible` 有全局风格锁，且每页 `positive_prompt` 再重复同一条 `global style anchor + forbidden style shifts`，让模型没有机会把 9 页当成 9 次试风格。
 - 当质量优化点已经明确为“漫画感”和“布局感”时，思行网络不能继续维持单线 `Comic Grammar` 节点；应拆成 `STYLE-SHARPEN / LAYOUT-DIVERSIFY / TEXT-SYSTEM` 三支路，并在汇流门阻断缺风格词、缺动态版式或文字槽失控的 JSON。

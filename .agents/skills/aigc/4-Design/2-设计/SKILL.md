@@ -72,7 +72,7 @@ governance_tier: full
 3. `3-面板` 的默认上游是 `2-设计` 的结构化设计真源，而不是 `1-清单` 直接越级输入。
 4. 每个主体 prompt 必须自动加载 `_shared/design-output-contract.md` 规定的统一全局风格前缀，并让 `Integrated prompt` 保持完全英文、约 2000 UTF-8 bytes 的整合 brief。
 5. 每个主体自动图必须遵守参照图防污染模式：场景为空镜头、角色为纯色背景、道具为纯道具图。
-6. 设计文件生成后必须继续调用 `.agents/skills/api/image/nano-banana/general` 的单主体快路径；默认通过 `_shared/image-generation-execution-contract.md` 规定的后台批量并发模式提交，图片与设计文件同目录同 stem。
+6. 设计文件生成后必须继续调用 `.agents/skills/api/anyfast/image/nano-banana/general` 的单主体快路径；默认通过 `_shared/image-generation-execution-contract.md` 规定的后台批量并发模式提交，图片与设计文件同目录同 stem。
 7. 父层只路由真实存在的 leaf，不为未迁回 sibling 伪造 active 状态。
 
 ## Context Preload (Mandatory)

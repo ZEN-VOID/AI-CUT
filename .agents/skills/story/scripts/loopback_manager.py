@@ -76,6 +76,10 @@ def _relpath(path: Path, project_root: Path) -> str:
         return str(path)
 
 
+def _episode_ref_candidates(episode: int) -> List[str]:
+    return [f"第{episode}集", f"第{episode:03d}集"]
+
+
 def _build_artifact_path(project_root: Path, state: Dict[str, Any], episode: int) -> Path:
     output_dir = project_root / "5-Loopback"
     create_secure_directory(str(output_dir))
@@ -407,30 +411,179 @@ def _set_card_revision(payload: Dict[str, Any], target_path: Path, revision: int
     state_owner["loopback_revision"] = revision
 
 
-def _get_map_actualization_root(holomap: Dict[str, Any]) -> Dict[str, Any]:
-    return holomap.setdefault("content", {}).setdefault("holomap", {}).setdefault(
-        "actualization",
-        {
-            "write_policy": "actualization-only",
-            "episode_nodes": [],
-            "clue_points": [],
-            "foreshadow_points": [],
-            "promise_threads": [],
-            "suspense_threads": [],
-            "tasklines": [],
-            "threads": [],
-        },
-    )
+def _actualization_defaults() -> Dict[str, Any]:
+    return {
+        "write_policy": "actualization-only",
+        "episode_nodes": [],
+        "clue_points": [],
+        "foreshadow_points": [],
+        "promise_threads": [],
+        "suspense_threads": [],
+        "tasklines": [],
+        "threads": [],
+    }
 
 
-def _get_map_revision(holomap: Dict[str, Any]) -> int:
-    actualization = _get_map_actualization_root(holomap)
+def _get_map_actualization_root(payload: Dict[str, Any]) -> Dict[str, Any]:
+    content = payload.setdefault("content", {})
+    holomap_slice = content.get("holomap_slice")
+    if isinstance(holomap_slice, dict):
+        return holomap_slice.setdefault("actualization", _actualization_defaults())
+    return content.setdefault("holomap", {}).setdefault("actualization", _actualization_defaults())
+
+
+def _get_map_revision(payload: Dict[str, Any]) -> int:
+    actualization = _get_map_actualization_root(payload)
     return _normalize_revision(actualization.get("revision"), "story_map.actualization.revision")
 
 
-def _set_map_revision(holomap: Dict[str, Any], revision: int) -> None:
-    actualization = _get_map_actualization_root(holomap)
+def _set_map_revision(payload: Dict[str, Any], revision: int) -> None:
+    actualization = _get_map_actualization_root(payload)
     actualization["revision"] = revision
+
+
+def _resolve_slice_ref(
+    holomap_payload: Dict[str, Any],
+    episode: int,
+    map_deltas: List[Dict[str, Any]],
+) -> str:
+    explicit_refs = {
+        str(item.get("slice_ref") or "").strip()
+        for item in map_deltas
+        if isinstance(item, dict) and str(item.get("slice_ref") or "").strip()
+    }
+    if len(explicit_refs) > 1:
+        raise ValueError("map_deltas 指向多个 slice_ref，当前 loopback 只支持单集写回一个 slice")
+    if explicit_refs:
+        return next(iter(explicit_refs))
+
+    holomap = _safe_holomap(holomap_payload)
+    episode_axis = holomap.get("episode_sequence_axis") or []
+    candidates = set(_episode_ref_candidates(episode))
+    for row in episode_axis:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("episode_ref") or "").strip() in candidates:
+            return str(row.get("slice_ref") or "").strip()
+    return ""
+
+
+def _safe_holomap(holomap_payload: Dict[str, Any]) -> Dict[str, Any]:
+    content = holomap_payload.get("content")
+    if not isinstance(content, dict):
+        return {}
+    holomap = content.get("holomap")
+    return holomap if isinstance(holomap, dict) else {}
+
+
+def _resolve_slice_path(
+    project_root: Path,
+    holomap_payload: Dict[str, Any],
+    slice_ref: str,
+) -> Path | None:
+    if not slice_ref:
+        return None
+
+    holomap = _safe_holomap(holomap_payload)
+    manifest = holomap.get("episode_slice_manifest") or []
+    file_ref = ""
+    for row in manifest:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("slice_id") or "").strip() == slice_ref:
+            file_ref = str(row.get("file_ref") or "").strip()
+            break
+    if not file_ref:
+        return None
+
+    rel = file_ref if file_ref.startswith("2-Planning/") else f"2-Planning/{file_ref}"
+    path = project_root / rel
+    return path if path.is_file() else None
+
+
+def _resolve_episode_ref_for_summary(holomap_payload: Dict[str, Any], episode: int) -> str:
+    holomap = _safe_holomap(holomap_payload)
+    episode_axis = holomap.get("episode_sequence_axis") or []
+    candidates = set(_episode_ref_candidates(episode))
+    for row in episode_axis:
+        if not isinstance(row, dict):
+            continue
+        value = str(row.get("episode_ref") or "").strip()
+        if value in candidates:
+            return value
+    return f"第{episode:03d}集"
+
+
+def _upsert_status_entry(entries: List[Dict[str, Any]], key: str, value: str, patch: Dict[str, Any]) -> None:
+    match = None
+    for row in entries:
+        if isinstance(row, dict) and str(row.get(key) or "").strip() == value:
+            match = row
+            break
+    if match is None:
+        item = {key: value}
+        item.update(copy.deepcopy(patch))
+        entries.append(item)
+    else:
+        match.update(copy.deepcopy(patch))
+
+
+def _refresh_root_actualization_indexes(
+    holomap_payload: Dict[str, Any],
+    *,
+    episode: int,
+    slice_ref: str,
+    validation_ref: str,
+    artifact_ref: str,
+) -> List[str]:
+    actualization = _get_map_actualization_root(holomap_payload)
+    episode_entries = actualization.setdefault("episode_status_index", [])
+    slice_entries = actualization.setdefault("slice_status_index", [])
+    if not isinstance(episode_entries, list) or not isinstance(slice_entries, list):
+        raise ValueError("story_map.actualization status index 必须为数组")
+
+    episode_ref = _resolve_episode_ref_for_summary(holomap_payload, episode)
+    _upsert_status_entry(
+        episode_entries,
+        "episode_ref",
+        episode_ref,
+        {
+            "status": "completed",
+            "validation_ref": validation_ref,
+            "loopback_ref": artifact_ref,
+        },
+    )
+
+    written_refs = [f"episode_status_index:{episode_ref}"]
+
+    if slice_ref:
+        holomap = _safe_holomap(holomap_payload)
+        episode_axis = holomap.get("episode_sequence_axis") or []
+        slice_episode_refs = [
+            str(row.get("episode_ref") or "").strip()
+            for row in episode_axis
+            if isinstance(row, dict) and str(row.get("slice_ref") or "").strip() == slice_ref
+        ]
+        completed_refs = {
+            str(row.get("episode_ref") or "").strip()
+            for row in episode_entries
+            if isinstance(row, dict) and str(row.get("status") or "").strip() == "completed"
+        }
+        slice_status = "completed" if slice_episode_refs and set(slice_episode_refs).issubset(completed_refs) else "in_progress"
+        _upsert_status_entry(
+            slice_entries,
+            "slice_id",
+            slice_ref,
+            {
+                "status": slice_status,
+                "last_episode_ref": episode_ref,
+                "validation_ref": validation_ref,
+                "loopback_ref": artifact_ref,
+            },
+        )
+        written_refs.append(f"slice_status_index:{slice_ref}")
+
+    return written_refs
 
 
 def _get_state_revision(state: Dict[str, Any]) -> int:
@@ -628,6 +781,7 @@ def _build_artifact(
     handoff_targets: List[str],
     draft_packet_ref: str,
     story_map_ref: str,
+    story_map_slice_ref: str,
     delta_payload: Dict[str, List[Dict[str, Any]]],
     artifact_ref: str,
     governance_refs: Dict[str, str],
@@ -645,6 +799,7 @@ def _build_artifact(
     inputs["validation_ref"] = validation_ref
     inputs["draft_packet_ref"] = draft_packet_ref
     inputs["story_map_ref"] = story_map_ref
+    inputs["story_map_slice_ref"] = story_map_slice_ref
     inputs["validation_status"] = "PASS"
     inputs["routing_decision"] = routing_decision
     inputs["handoff_targets"] = copy.deepcopy(handoff_targets)
@@ -838,6 +993,7 @@ def actualize(args: argparse.Namespace) -> int:
         handoff_targets=handoff_targets,
         draft_packet_ref=str(args.draft_packet_ref or ""),
         story_map_ref=story_map_rel,
+        story_map_slice_ref="",
         delta_payload=delta_payload,
         artifact_ref=artifact_ref,
         governance_refs=_extract_governance_refs(validation_payload),
@@ -855,10 +1011,33 @@ def actualize(args: argparse.Namespace) -> int:
             _set_card_revision(payload, card_path, next_card_revisions[target_ref])
 
     holomap = _load_json_file(story_map_path)
-    staged_holomap, written_map_refs = _apply_map_deltas(holomap, delta_payload["map_deltas"])
-    next_map_revision = observed_map_revision + (1 if written_map_refs else 0)
-    if written_map_refs:
-        _set_map_revision(staged_holomap, next_map_revision)
+    original_holomap = copy.deepcopy(holomap)
+    slice_ref = _resolve_slice_ref(holomap, args.episode, delta_payload["map_deltas"])
+    slice_path = _resolve_slice_path(project_root, holomap, slice_ref)
+    written_map_slice_refs: List[str] = []
+
+    if slice_path is not None:
+        slice_payload = _load_json_file(slice_path)
+        staged_slice_payload, written_map_slice_refs = _apply_map_deltas(slice_payload, delta_payload["map_deltas"])
+        if written_map_slice_refs:
+            _set_map_revision(staged_slice_payload, _get_map_revision(slice_payload) + 1)
+        written_map_refs = _refresh_root_actualization_indexes(
+            holomap,
+            episode=args.episode,
+            slice_ref=slice_ref,
+            validation_ref=validation_ref,
+            artifact_ref=artifact_ref,
+        )
+        next_map_revision = observed_map_revision + (1 if written_map_refs else 0)
+        if written_map_refs:
+            _set_map_revision(holomap, next_map_revision)
+    else:
+        staged_slice_payload = None
+        staged_holomap, written_map_refs = _apply_map_deltas(holomap, delta_payload["map_deltas"])
+        holomap = staged_holomap
+        next_map_revision = observed_map_revision + (1 if written_map_refs else 0)
+        if written_map_refs:
+            _set_map_revision(holomap, next_map_revision)
 
     staged_state = copy.deepcopy(state)
     refreshed_projection_refs = _apply_projection_refresh(staged_state, delta_payload["projection_refresh"])
@@ -870,7 +1049,7 @@ def actualize(args: argparse.Namespace) -> int:
         validation_ref=validation_ref,
         artifact_ref=artifact_ref,
         written_card_refs=written_card_refs,
-        written_map_refs=written_map_refs,
+        written_map_refs=[*written_map_refs, *written_map_slice_refs],
         refreshed_projection_refs=refreshed_projection_refs,
         observed_revisions={
             "cards": observed_card_revisions,
@@ -899,14 +1078,16 @@ def actualize(args: argparse.Namespace) -> int:
 
     artifact["content"]["writeback_summary"]["written_card_refs"] = written_card_refs
     artifact["content"]["writeback_summary"]["written_map_refs"] = written_map_refs
+    artifact["content"]["writeback_summary"]["written_map_slice_refs"] = written_map_slice_refs
     artifact["content"]["writeback_summary"]["refreshed_projection_refs"] = refreshed_projection_refs
     artifact["execution_notes"]["commit_manifest"] = copy.deepcopy(commit_manifest)
+    artifact["inputs"]["story_map_slice_ref"] = _relpath(slice_path, project_root) if slice_path is not None else ""
 
     artifact_original = _load_json_file(artifact_path) if artifact_path.is_file() else None
     write_plan: List[Tuple[Path, Dict[str, Any], bool, bool]] = []
     originals: Dict[Path, Dict[str, Any] | None] = {
         state_path: copy.deepcopy(state),
-        story_map_path: copy.deepcopy(holomap),
+        story_map_path: original_holomap,
         artifact_path: artifact_original,
     }
 
@@ -914,9 +1095,13 @@ def actualize(args: argparse.Namespace) -> int:
         originals[card_path] = _load_json_file(card_path)
         write_plan.append((card_path, payload, True, True))
 
+    if slice_path is not None and staged_slice_payload is not None:
+        originals[slice_path] = _load_json_file(slice_path)
+        write_plan.append((slice_path, staged_slice_payload, True, True))
+
     write_plan.extend(
         [
-            (story_map_path, staged_holomap, True, True),
+            (story_map_path, holomap, True, True),
             (state_path, staged_state, True, True),
             (artifact_path, artifact, True, False),
         ]
@@ -931,7 +1116,7 @@ def actualize(args: argparse.Namespace) -> int:
         validation_ref=validation_ref,
         artifact_ref=artifact_ref,
         written_card_refs=written_card_refs,
-        written_map_refs=written_map_refs,
+        written_map_refs=[*written_map_refs, *written_map_slice_refs],
         refreshed_projection_refs=refreshed_projection_refs,
         observed_revisions={
             "cards": observed_card_revisions,
@@ -968,6 +1153,7 @@ def actualize(args: argparse.Namespace) -> int:
                 "evidence_refs": delta_payload["evidence_refs"],
                 "written_card_refs": written_card_refs,
                 "written_map_refs": written_map_refs,
+                "written_map_slice_refs": written_map_slice_refs,
                 "refreshed_projection_refs": refreshed_projection_refs,
             },
             ensure_ascii=False,

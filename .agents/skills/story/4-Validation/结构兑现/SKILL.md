@@ -74,7 +74,7 @@ governance_tier: lite
   - `4-Validation/第N集/结构兑现.md`
 - 默认返工节点：
   - `1-单集叙事起盘`
-  - `6-追读力强化`
+  - `7-追读力强化`
 
 ## Visual Map
 

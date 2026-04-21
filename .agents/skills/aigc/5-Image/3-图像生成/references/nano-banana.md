@@ -2,7 +2,7 @@
 
 ## 目标 provider
 
-- handoff skill: `.agents/skills/api/image/nano-banana/SKILL.md`
+- handoff skill: `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`
 
 ## 固定输入语义
 
@@ -25,7 +25,7 @@
   - `status_after_submit = background_submitted`
   - `foreground_override = --foreground`
   - `request_batch_path` 指向本目录内 provider-ready `{ "tasks": [...] }` sidecar 或 submit-plan 内等价 batch section
-- `next_entry = .agents/skills/api/image/nano-banana/SKILL.md`
+- `next_entry = .agents/skills/api/anyfast/image/nano-banana/SKILL.md`
 
 ## 审计点
 

@@ -36,6 +36,7 @@
 | `组间设计` 在 detail 阶段被无故改写 | 继承边界层 | 恢复上游 seed，只允许回填 `出场角色及穿搭` | 在 `group_design_seed_contract.md` 与父层合同共同固化“默认继承不重写” | `全局风格 / 类型元素` 保持稳定 |
 | `出场角色及穿搭` 长期留空 | 组级回填层 | 从 `水月` group patch 回填，不再等下游猜 | 在父 `SKILL.md` 把该字段列为最低负责槽位 | 进入 `4-Design` 前已有基础角色穿搭摘要 |
 | `document_phase` 被直接写成 `ready`，但 shot patch 仍不完整 | phase 管理层 | 回退到 `detail_in_progress`，先补完 `分镜明细[]` | 在父 skill 的 phase gate 固定 `ready` 必须有 merge 完成与 validation | `ready` 与实际完成度一致 |
+| `3-Detail` 已有 `剧本正文 + 分镜明细[]`，但漏落 `正文切分参考[] / 正文回指`，导致 `5-Image` 和 `6-Video` 叶子无法消费 | bridge 回填层 | 用 `3-Detail/scripts/backfill_script_bridge.py` 从 shared root 的 `剧本正文` 回填 bridge 层，再复跑下游 runner | 把“bridge 缺失先修 root，再跑图像/视频叶子”固化为兼容恢复默认路径 | `分镜帧 / 首帧参照 / 全能参照` 不再因 `正文切分参考` 缺失直接卡死 |
 | `场景` 下游只拿到 `角色背景面`，导致旧仓研究/bridge 迁移时证据过薄 | downstream handoff 层 | 把 `分镜表现 / 摄影美学 / 时间段 / 导演意图` 显式纳入 `场景` 的补证字段 | 在 `3-Detail/SKILL.md` 与 `4-Design/1-清单/_shared/detail-output-consumption-contract.md` 同步固定场景补证口径 | `场景清单.json.scenes[].design_context` 能直接回链到镜头表现与摄影证据 |
 | `3-Detail` 已写出 canonical 输出，却没有按项目 `team.yaml` 执行 `监制` 强化 | 阶段收尾合同层 | 在父 skill 追加 `S8/S9` 监制强化节点，输出后先做 supervision runtime 判定，再决定真实 subagents / fallback / skip | 将 `master-check-team` 的 reviewer 解析与 subagents gate 收束进 `3-Detail/SKILL.md`，并把 `team.yaml` 纳入默认预加载与 evidence source | 阶段收尾能回读 `监制强化` 记录与 patched targets |
 | 项目 `team.yaml` 已启用 `监制`，但阶段仍把本地顺序模拟表述成正常主路径 | subagent gate 层 | 把 `runtime_policy.use_subagents_by_default` 写成 `3-Detail` 的真实分发门，而不是可有可无提示 | 在 `FIELD-DETAIL-09` 与 `Subagents 监制强化合同` 固定“满足条件就必须真实启动 subagents；降级必须显式说明” | `validation-report.md` 能读到 `used_subagents` 与降级原因 |
@@ -71,6 +72,7 @@
 - `组间设计` 在 `3-Detail` 的默认姿势是“继承 + 回填穿搭”，不是“重新定义设计”。
 - `出场角色及穿搭` 最适合在 `3-Detail` 回填，因为这时镜级事实已经足够稳定，早填容易空泛，晚填会把负担转嫁给下游。
 - `3-Detail` 最稳的顺序不是“谁先想到谁先跑”，而是 `2-Global` 先落固定 `分镜切换`，`水月` 先落 beat-level evidence，`镜花` 再按既定镜数落真实切镜和镜头语言。
+- 若 shared root 里已经有完整 `剧本正文`，bridge recovery 应优先直接在 root 内生成 `正文切分参考[] -> 正文回指.beat_refs[]`，不要先去下游 packet 里猜回上游正文边界。
 - 父层真正要守的是 shared root 单线写回和顺序 gate，而不是追求表面上的 owner 并发。
 - `镜花` 内部仍必须先锁 `分镜构图` 的实际切镜窗口，再让后续模块消费这个骨架。
 - 子技能 package-local 模块若共享同一套节点包或创作引导规则，真源应显式上收 `_shared/`；否则目录重构后最容易出现局部自洽、整体断链。

@@ -1,0 +1,35 @@
+pack_id: 中二战斗
+aliases:
+  - 中二
+  - 中二感
+  - 命名战斗
+semantic_tags:
+  - oath
+  - destiny
+  - forbidden-name
+  - self-myth
+stage_projection:
+  script_adaptation:
+    focus:
+      - 命名势能
+      - 角色宣言
+      - 宿命关系
+  nine_blade_prompting:
+    layout_bias:
+      - ritual frame
+      - forbidden seal
+      - heroic close-up
+  image_generation:
+    render_bias:
+      - symbolic marks
+      - ritual contrast
+      - sacrifice traces
+  animation_generation:
+    motion_bias:
+      - pre-release hold
+      - ability invocation pause
+  episode_poster:
+    poster_bias:
+      - 禁令
+      - 誓言
+      - 宿命对决

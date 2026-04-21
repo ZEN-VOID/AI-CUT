@@ -28,7 +28,7 @@
 | `resume/` 与 `5-Loopback` actualization 职责混淆 | stage contract | 在 `resume/SKILL.md` 明确其是 satellite recovery skill | 在 `5-Loopback` 与 `resume` 同时固定边界 | 不再把恢复动作描述成 truth writeback |
 | 旧文档仍把 `Step 1.5` 当当前正式 tracked step | drafting contract drift | 改成 legacy compatibility note | 在 `resume` 文档中区分“当前 tracked step”与“旧状态兼容” | 当前 step 表以 `workflow_manager.get_pending_steps()` 为准 |
 | `resume` 仍按旧独立文件找断点，看不到内联全阶段 run / stage_progress / task log | execution-state contract | 为 `resume` 增加 `STATE.json.workflow_runtime` 读取语义，并把 registry 扩到全阶段 commands | 在脚本与参考文档同步固定内联三件套分工 | `resume/status` 可判断 init/cards/plan/validate/loopback/query 等非 drafting run |
-| `resume` / `workflow_manager` 仍按 `Step 2A/2B + 正文发布稿` 恢复 `story-write` | drafting runtime drift | 把 `story-write` tracked steps 改成 1-7 工序，并把 cleanup 目标切到 `3-Drafting/第N集.md` | 在 `resume` 合同、恢复 runbook、workflow manager 与测试里同步固定新 drafting runtime | 恢复建议会围绕 `第N集.md` 与对应工序，而不是旧发布稿 |
+| `resume` / `workflow_manager` 仍按 `Step 2A/2B + 正文发布稿` 恢复 `story-write` | drafting runtime drift | 把 `story-write` tracked steps 改成 1-8 工序，并把 cleanup 目标切到 `3-Drafting/第N集.md` | 在 `resume` 合同、恢复 runbook、workflow manager 与测试里同步固定新 drafting runtime | 恢复建议会围绕 `第N集.md` 与对应工序，而不是旧发布稿 |
 | `workflow detect` 一旦看不到 `current_task` 就直接输出“无中断任务”，忽略 validation/review/loopback/写作日志等业务产物链 | no-interrupt artifact fallback contract | 为 `resume` 增加 artifact fallback：按 `loopback -> validation -> review -> writing_log` 顺序继续判定唯一下一入口 | 在 `workflow_manager.py`、`resume/SKILL.md` 与 `workflow-resume.md` 同步写死 fallback 证据顺序与解释规则，并补回归测试 | 无 tracked 中断但有稳定业务证据时，`detect` 返回 `artifact_fallback` 而不是“无中断任务” |
 
 ## Repair Playbook

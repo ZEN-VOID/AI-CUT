@@ -1,6 +1,38 @@
 {
   "schema_version": "comic_page_animation_prompts.v1",
   "source_nine_blade_json": "projects/comic/项目名/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json",
+  "type_stack_ref": {
+    "method_kernel": "comic-core-v1",
+    "base": "_base",
+    "primary": "漫画高冲击",
+    "secondary": ["悬疑惊悚"],
+    "platform": ["漫剧平台"],
+    "audience": ["情绪强冲突受众"],
+    "active_packs": ["_base", "漫画高冲击", "悬疑惊悚", "漫剧平台", "情绪强冲突受众"]
+  },
+  "type_pack_context": {
+    "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+    "knowledge_refs": [
+      ".agents/skills/comic/type-packs/漫画/悬疑惊悚/悬疑惊悚.md"
+    ],
+    "knowledge_digest": ["危险要比解释先到。"],
+    "semantic_tags": ["withheld-truth", "threat"],
+    "pack_revisions": {
+      "悬疑惊悚": "dynamic-runtime"
+    },
+    "projection_summary": {
+      "animation_generation": "镜头缓推、停顿、窥视感优先。"
+    },
+    "stage_projection": {
+      "script_adaptation": {},
+      "nine_blade_prompting": {},
+      "image_generation": {},
+      "animation_generation": {
+        "motion_bias": ["slow push", "threat pause"]
+      },
+      "episode_poster": {}
+    }
+  },
   "source_images_dir": "projects/comic/项目名/3-漫画生成/page-group-01",
   "prompt_prefix": "Animate this vertical comic strip into a seamless, continuous cinematic video. Chronological sequence from right to left, top to bottom panels. Advanced camera movement transitioning smoothly between scenes. High-fidelity motion physics, 4K resolution, masterpiece quality.",
   "page_group": {
@@ -10,11 +42,12 @@
   },
   "continuity_context": {},
   "video_generation_contract": {
-    "provider": "sora",
+    "provider": "man-tui",
     "mode": "image_to_video",
     "model": "sora-2",
-    "seconds": 12,
+    "seconds": 10,
     "size": "720x1280",
+    "input_reference_mode": "public_url_required",
     "aspect_ratio": "9:16"
   },
   "pages": [
@@ -22,6 +55,7 @@
       "page_number": 1,
       "page_role": "opening hook",
       "source_image": "projects/comic/项目名/3-漫画生成/page-group-01/page01.png",
+      "input_reference_url": "https://example.com/page01.png",
       "active_character_ids": [
         "protagonist"
       ],
@@ -53,7 +87,7 @@
           "text_handling": "preserve caption and page number without distortion"
         }
       ],
-      "sora_prompt": "Animate this vertical comic strip into a seamless, continuous cinematic video. Chronological sequence from right to left, top to bottom panels. Advanced camera movement transitioning smoothly between scenes. High-fidelity motion physics, 4K resolution, masterpiece quality. Preserve the exact composition, character identity, scene continuity, Chinese lettering, and page number from the source image."
+      "video_prompt": "Animate this vertical comic strip into a seamless, continuous cinematic video. Chronological sequence from right to left, top to bottom panels. Advanced camera movement transitioning smoothly between scenes. High-fidelity motion physics, 4K resolution, masterpiece quality. Preserve the exact composition, character identity, scene continuity, Chinese lettering, and page number from the source image."
     }
   ]
 }

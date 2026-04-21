@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 
 active_skills:
   - id: aigc
@@ -167,6 +167,37 @@ active_skills:
       canonical_output: "projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json"
       bridge_output: "`comic_episode_poster_design.v1` JSON，作为海报设计与后续生图的唯一真源"
       mirror_policy: "4 号目录只保存海报设计 JSON；不把海报设计回写到 1/2/3 号阶段。"
+  - id: api-man-tui-grok-video
+    path: .agents/skills/api/man-tui/video/grok
+    owner_office: shangshu
+    purpose: "repo-local provider skill，用漫涂 Man-Tui 的 `grok-imagine-video` 异步接口提交视频任务、查询状态并获取最终 MP4 内容。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/man-tui/video/grok/"
+      env_source: ".env: MAN_TUI_API_KEY / MAN_TUI_API_BASE_URL"
+      default_output_root: "output/影片/[项目名]/5-API/video/man-tui/grok/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、根 `.env` 与默认项目化输出目录。"
+  - id: api-man-tui-sora
+    path: .agents/skills/api/man-tui/video/sora
+    owner_office: shangshu
+    purpose: "repo-local provider skill，通过 Man-Tui 的 Sora 2 异步接口提交视频任务、轮询状态，并优先从 `watermark_free_url` 下载最终 MP4。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/man-tui/video/sora/"
+      env_source: ".env: MAN_TUI_API_KEY / MAN_TUI_API_BASE_URL"
+      default_output_root: "output/影片/[项目名]/5-API/video/man-tui/sora/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、根 `.env` 与默认项目化输出目录。"
+  - id: api-man-tui-nano-banana-image
+    path: .agents/skills/api/man-tui/image/nano-banana
+    owner_office: shangshu
+    purpose: "repo-local provider skill，用 Man-Tui 的 Chat Completions 兼容图片接口执行 `nano_banana_2 / nano_banana_pro` 文生图与图生图，支持 SSE 流式解析、本地图片 base64 桥接与项目化落盘。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/man-tui/image/nano-banana/"
+      env_source: ".env: MAN_TUI_API_KEY / MAN_TUI_API_BASE_URL"
+      script_entry: ".agents/skills/api/man-tui/image/nano-banana/scripts/man_tui_nano_banana_generate.py"
+      default_output_root: "output/影片/[项目名]/5-API/image/man-tui/nano-banana/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu
@@ -400,6 +431,15 @@ active_skills:
     runtime_control:
       canonical_skill_root: ".agents/skills/team/动漫组/蔡志忠/"
       research_carrier: ".agents/skills/team/动漫组/蔡志忠/references/research/"
+      mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
+  - id: team-anime-takehiko-inoue
+    path: .agents/skills/team/aigc/动漫组/井上雄彦
+    owner_office: shangshu
+    purpose: "动漫组 repo-local 人物漫画视角 skill，用井上雄彦式身体运动、人物成长、痛感与复原、现场取材、墨笔大画面与媒介重写方法分析漫画、动画、分镜、体育题材与跨媒介改编。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/team/aigc/动漫组/井上雄彦/"
+      research_carrier: ".agents/skills/team/aigc/动漫组/井上雄彦/references/research/"
       mirror_policy: "这是团队能力 skill，不创建项目 runtime；调用时直接读取 skill 根合同与自包含调研材料。"
 
 planned_skills:

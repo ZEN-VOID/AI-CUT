@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-17`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
+截至 `2026-04-19`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
@@ -112,12 +112,17 @@
   - `aigc-video-stage-entry`
   - `high-risk-review-gate`
   - `aigc-shelved-stages`
+  - `api-man-tui-nano-banana-image-entry`
 - `comic` 已作为 repo-local 漫画项目父级入口接入治理，固定项目根为 `projects/comic/[项目名]/`
 - 漫画链路已拆成受注册子入口：
   - `comic-novel-adaptation`
   - `comic-nine-blade-prompts`
   - `comic-generation`
   - `comic-episode-poster`
+- provider API 类 repo-local skill 已开始进入注册与路由：
+  - `api-man-tui-grok-video`
+  - `api-man-tui-sora`
+  - `api-man-tui-nano-banana-image`
 - 团队能力类 repo-local skill 已进入注册与路由，当前覆盖：
   - 小说组
   - 演员组
@@ -198,6 +203,7 @@
 - `projects/aigc/<项目名>/` 始终优先于 `.codex/state/tasks/<task_id>/`，后者仅为治理镜像或通用账本。
 - `query / resume / review` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明。
 - `comic` 项目链路已经是受 registry / routes 管理的 repo-local workflow，不再只是临时脚本集合。
+- provider API skill 已开始按 registry / routes 管理，而不再只是散落脚本目录。
 - 团队能力类 skill 的 canonical carrier 是其 skill 根目录与自包含研究载体，不默认创建项目 runtime。
 - 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须显式报告降级来源与替代路径。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。

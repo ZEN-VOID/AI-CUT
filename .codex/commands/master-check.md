@@ -103,7 +103,7 @@ output: auto|review-only|synthesize-only|synthesize-and-patch
 
 - 本命令的默认执行语义不是“本地主 agent 模拟多位顾问”，而是“一个 reviewer skill 对应一个 subagent，由主 agent 汇流”。
 - 只要命中 reviewer skill，且当前环境真实支持 subagents、又不存在更高优先级策略阻断，就应实际启动 subagents，而不是留在本地主 agent 顺序扮演。
-- 当 reviewer 为 `2-4` 个时，subagent 分发是默认硬门槛，不应因为“可以本地串行分析”就跳过。
+- 当 reviewer 为 `2` 个及以上时，subagent 分发默认生效；若 reviewer 较多，可按批次并行或按层串行，但不得因为人数超过某个固定阈值就自动跳过 subagent 路径。
 - 仅在以下情况允许降级为本地顺序纪要：
   - 当前环境无法真实使用 subagents
   - 更高优先级策略明确阻断 subagent 调度
@@ -118,7 +118,7 @@ output: auto|review-only|synthesize-only|synthesize-and-patch
 
 满足以下条件时优先：
 
-- reviewer 为 2-4 个
+- reviewer 为 `2` 个及以上，且当前资源允许并行
 - 各 reviewer 对同一目标做相对独立的判断
 - 不需要先由前一个 reviewer 改完，后一个 reviewer 才能继续
 
@@ -182,8 +182,10 @@ output: auto|review-only|synthesize-only|synthesize-and-patch
    - 显式路径优先
    - 名称匹配次之
    - `team.yaml` 再按显式映射和必要推断补齐
-5. 将 reviewer 数量限制在 `1-4`：
-   - 超过 4 个时，只保留最必要的 2-4 个，并说明裁剪理由。
+5. 确认 reviewer 集合，不设硬上限：
+   - 用户显式给定或 `team.yaml` 显式映射出的 reviewer 默认保留。
+   - 若 reviewer 明显重复、与目标无关或超出当前资源预算，可按必要性裁剪，并说明裁剪理由。
+   - 当 reviewer 较多时，优先按问题域分组后分批并行或分层串行执行，而不是直接硬裁到固定人数。
 6. 读取每个命中 reviewer 的 `SKILL.md`，再读取其同目录 `CONTEXT.md`。
 7. 读取目标文件，并只补充最必要的相邻上下文。
 8. 判定 `mode` 和 `output`。

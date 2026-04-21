@@ -38,6 +38,7 @@ last_checked_at: 2026-04-17T07:55:00Z
 | `TM-CG-13` | 同一集多个 page-group 连续执行后，`generation_plan`、report 或图片互相覆盖 | group 目标解析层 | 从上游 JSON 读取 `page_group.group_id`，派生 `group_slug`；默认落到 `3-漫画生成/<group_slug>/`，只有多个 group 明确共用同一 `output_dir` 时才切换到 `group_slug-page01..page09` 命名 | 3 号思维节点新增 `Group Target Resolve`，脚本固定生成 group 级计划、master prompt、pending/completed report 与图片命名 | dry-run 或实跑时，组级产物位于独立 group 子目录或具备独立 group 前缀 |
 | `TM-CG-14` | 4 号动画阶段能拿到 group JSON，却找不到对应页图 | 3/4 号 handoff 层 | 优先检查 3 号是否仍按 `page01..page09` 或 `group_slug-page01..page09` 落盘；不要让文件名继续继承冗长 JSON stem | 3 号默认短命名 + 4 号按页码解析 固化为跨阶段合同 | 4 号 dry-run 中 9 页都能定位到 source_image |
 | `TM-CG-15` | `--self-test` 返回通过，但样例 JSON 实际过不了 2 号 validator，导致离线门禁给出假阳性 | 自检门禁层 | 自检先把样例落成临时 JSON，再真实跑 2 号 validator，最后才检查 master prompt 编译结果 | 3 号脚本的自检必须覆盖“样例 payload 合法 + 编译结果含关键约束”两层 | `--self-test` 通过时，样例 JSON 必须同时能被 2 号 validator 接受 |
+| `TM-CG-16` | 2 号 JSON 带了类型包，但 3 号 master prompt 没编进去，导致生图只剩默认漫画感 | type-pack 编译层 | 在 master prompt 里显式加入 `Type Stack Ref / Type Pack Context` 块 | 3 号编译器把 pack context 与 style_bible 同级注入 | dry-run master prompt 能直接看到 active packs 与 image_generation 投影 |
 
 ## Repair Playbook
 
@@ -49,6 +50,7 @@ last_checked_at: 2026-04-17T07:55:00Z
 6. 若 9 页长请求执行较久，先看 `comic_generation_report.json` 是否已是 `pending`；有 `pending` 说明子进程已发出，优先判断是否继续等待，而不是误判脚本未启动。
 7. 若 episode 有多个 `page-group`，先确认当前输出是否落在 `<group_slug>/` 子目录，或显式共享目录下是否启用了 `group_slug-page01..` 命名，再继续批量执行。
 8. 若脚本自检通过，但真实输入仍在 2 号门禁前失败，优先排查自检样例是否覆盖了当前 schema/validator，而不是先怀疑 Seedream。
+9. 若风格像是“题材掉线”，先看 master prompt 里是否仍然有 `Type Stack Ref / Type Pack Context`。
 
 ## Reusable Heuristics
 

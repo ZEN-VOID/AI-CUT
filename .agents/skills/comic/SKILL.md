@@ -1,6 +1,6 @@
 ---
 name: comic
-description: Use when 漫画项目需要从任意来源或剧本进入完整五段链：漫画剧本改编、九刀流 9 页漫画提示词 JSON、Seedream 一次生成 9 张连续竖版漫画页、基于页图的 Sora 动画生成，以及当前剧集海报设计 JSON，并需要统一落盘到 projects/comic/[项目名]/。
+description: Use when 漫画项目需要从任意来源或剧本进入完整五段链：漫画剧本改编、九刀流 9 页漫画提示词 JSON、Seedream 一次生成 9 张连续竖版漫画页、基于页图的 Man-Tui Sora 动画生成，以及当前剧集海报设计 JSON，并需要统一落盘到 projects/comic/[项目名]/。
 governance_tier: full
 ---
 
@@ -27,6 +27,69 @@ projects/comic/[项目名]/
 
 父技能只拥有路由、项目根、交接真源与验收总口径，不直接替代子技能写正文、写 JSON 或调用 Seedream。
 
+## 1.1 Type-Pack Mechanism
+
+`comic` 现在采用：
+
+- 固定 `method kernel`
+- 可注入 `type-pack`
+
+二层架构。
+
+### Method Kernel
+
+固定主链不变：
+
+1. `1-漫画剧本改编`
+2. `2-九刀流漫画提示词`
+3. `3-漫画生成`
+4. `4-动画生成`
+5. `5-剧集海报`
+
+### Type-Pack
+
+`type-pack` 不是新的 stage，而是对固定五段主链的漫画型增强包，按项目当前 `type_stack` 注入：
+
+- 题材承诺
+- 视觉语法
+- 页面语法
+- 传播语法
+- 阶段 hook
+- 风格连续性和传播标题倾向
+
+canonical root：
+
+- `comic/type-packs/`
+
+当前分类：
+
+- 当前活跃知识库根：`漫画/`
+- 当前目录真源按题材分类，不再拆 `系统 / 维度 / 工艺`
+- 当前动态配置真源：`type-packs/runtime.yaml + 漫画/<题材>/meta.yaml`
+
+canonical contracts：
+
+- `comic/_shared/type-pack-loading-contract.md`
+- `comic/type-packs/扩维与调整指南.md`
+- `comic/scripts/data_modules/comic_type_pack_resolver.py`
+
+当前 active stack 固定为：
+
+- `method_kernel`
+- `base`
+- `primary`
+- `secondary[]`
+- `platform[]`
+- `audience[]`
+
+默认规则：
+
+- 未显式声明时，默认 `method_kernel = comic-core-v1`
+- `base = _base`
+- `primary = 漫画高冲击`
+- `platform[] / audience[] / secondary[]` 由 resolver 在任务执行时动态扫描 `runtime.yaml + 各题材 meta.yaml` 推断
+- 1 号技能拥有第一次锁定 `type_stack_ref` 的责任；2/3/4/5 段必须继续透传，不得静默丢失
+
 ## 2. 总输入合同
 
 ### 必需输入
@@ -41,6 +104,10 @@ projects/comic/[项目名]/
 - `source_material`
   - 原始素材、漫画剧本主稿、`formatted_source_script.json`、漫画剧本桥接包或已生成的 `nine_blade_comic_prompts.v1` JSON。
 - `style_profile`
+- `type_stack_request`
+  - 可选的显式类型包输入。允许直接给：
+    - `base / primary / secondary[] / platform[] / audience[]`
+    - 或给 `genre / platform / target_audience / tone` 让 resolver 推断
 - `output_root`
   - 默认固定为 `projects/comic/[项目名]/`。
 
@@ -107,9 +174,10 @@ erDiagram
 | node_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- |
 | `N1-PROJECT-LOCK` | 锁定项目名与项目根 | 建立或确认 `projects/comic/[项目名]/` | 用户请求、已有路径 | N2 | 项目根明确 |
-| `N2-ROUTE` | 判断进入哪一段 | 按输入类型和任务目标路由 1/2/3/4/5 | 输入文件/文本类型 | 对应子技能 | 路由唯一 |
-| `N3-HANDOFF` | 维护交接真源 | 确认上游输出是否满足下游输入 | 文件路径与 schema | 下一段或返工 | 不跳过必需 artifact |
-| `N4-ACCEPTANCE` | 项目级验收 | 检查目标阶段产物是否落到项目根 | 子技能报告 | 完成或返工 | 路径和数量正确 |
+| `N2-TYPE-STACK-LOCK` | 锁 active type stack | 调 resolver 推断或吸收显式 `type_stack_request` | `type_stack_ref`、`type_pack_context` | N3 | 类型包口径唯一 |
+| `N3-ROUTE` | 判断进入哪一段 | 按输入类型和任务目标路由 1/2/3/4/5 | 输入文件/文本类型 | 对应子技能 | 路由唯一 |
+| `N4-HANDOFF` | 维护交接真源 | 确认上游输出是否满足下游输入，并保留 `type_stack_ref/type_pack_context` | 文件路径与 schema | 下一段或返工 | 不跳过必需 artifact |
+| `N5-ACCEPTANCE` | 项目级验收 | 检查目标阶段产物是否落到项目根，且类型包上下文仍然可追溯 | 子技能报告 | 完成或返工 | 路径和数量正确 |
 
 ## 6. 默认执行策略
 
@@ -117,11 +185,19 @@ erDiagram
 - 用户要求“做漫画动画 / 漫画页变视频”：走 `full_pipeline_with_animation`，依次走 1 -> 2 -> 3 -> 4。
 - 用户要求“做完整漫画项目”或明确要海报：走 `full_pipeline_with_poster`，依次走 1 -> 2 -> 3 -> 5。
 - 用户要求“完整链路含动画和海报”：走 `full_pipeline_with_video_and_poster`，依次走 1 -> 2 -> 3 -> 4 -> 5。
+- 若用户未给 `type_stack_request`，默认先用 `comic_type_pack_resolver.py` 根据 `genre / style_profile / platform / target_audience / tone` 推断 `type_stack_ref`。
+- 若用户显式给出 pack 组合，优先采用显式组合，不覆盖成默认推断。
 - 用户给剧本并要求“出 9 张图提示词”：走 2。
 - 用户给某个 `page-group` JSON（或 legacy `nine_blade_comic_prompts.json`）并要求“生成漫画”：走 3。
 - 用户给某个 `page-group` JSON 和对应页图并要求“做动画 / 图生视频”：走 4。
 - 用户要求“给这集做海报 / 海报 JSON / 剧集 poster”：走 5。
 - 用户只问状态或路径：走 `inspect`，不改写内容。
+
+## 6.1 Shared Canonical Sources
+
+- `comic/_shared/type-pack-loading-contract.md`
+- `comic/type-packs/扩维与调整指南.md`
+- `comic/scripts/data_modules/comic_type_pack_resolver.py`
 
 ## 7. 路径硬规则
 
@@ -144,6 +220,6 @@ erDiagram
 
 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-- `Rule Source`：本父级 `SKILL.md`、对应子技能 `SKILL.md`、registry/routes。
+- `Rule Source`：本父级 `SKILL.md`、对应子技能 `SKILL.md`、`comic/_shared/type-pack-loading-contract.md`、`comic_type_pack_resolver.py`、`comic/type-packs/漫画/`、registry/routes。
 - `Meta Rule Source`：仓库 `AGENTS.md` 的 Canonical Source Governance、`skill-知行合一` 的父子技能与一次性输出合同。
 - 优先修父级路径/路由真源，再修子技能局部文案或脚本默认值。

@@ -10,6 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
+- 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
 - 正式处理前，必须读取 Step 3 已写回后的当前 `第N集.md`。
 
 ## Parent Positioning
@@ -32,6 +33,7 @@ governance_tier: lite
 - `../SKILL.md`
 - `../CONTEXT.md`
 - `../_shared/drafting-child-output-contract.md`
+- `../_shared/drafting-instant-validation-contract.md`
 - `../../_shared/context-loading-contract.md`
 - `../../_shared/entity-management-spec.md`
 - `../../1-Cards/角色卡/`
@@ -72,8 +74,11 @@ governance_tier: lite
 
 ## Immediate Validation Hook Contract
 
-- 本 step 写回后，父层必须按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
-- 若 hook 失败，不得直接进入 Step 5；必须在当前 step 本地重写，或回退到 registry 指向的更早受影响 step。
+- 本 child 在正式 runtime 中只占据 `start-step -> complete-step -> inline validation` 这一个 step 区段；整条链由父层按 `start-task -> start-step -> complete-step -> inline validation -> pass or block` 驱动。
+- 当前 step 写回后，父层必须立刻按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
+- 只有当前 gate 明确 `pass`，Step 5 的 `start-step` 才成立。
+- 若 hook 失败且 `rework_target_step == Step 4`，必须留在 Step 4 重写并重跑 gate。
+- 若 hook 指向更早受影响 drafting step 或上游 `source_layer_owner`，必须按 shared contract 回卷或停止 drafting 转 source fix；不得把 block 态伪装成“已自然进入 Step 5”。
 
 ## Visual Map
 

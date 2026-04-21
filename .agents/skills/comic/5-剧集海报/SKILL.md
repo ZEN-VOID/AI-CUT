@@ -44,6 +44,7 @@ governance_tier: full
 ## 3. Context Preload
 
 - 每次使用先读取同目录 `CONTEXT.md`。
+- 先读取 [../_shared/type-pack-loading-contract.md](../_shared/type-pack-loading-contract.md)，确认当前 comic 类型包装载合同。
 - 海报字段细则读取 [references/episode-poster-design-contract.md](references/episode-poster-design-contract.md)。
 - 输出 JSON 优先遵守 [templates/episode-poster-design.schema.json](templates/episode-poster-design.schema.json)。
 - 需要起草骨架时，可从 [templates/episode-poster-design.template.json](templates/episode-poster-design.template.json) 复制后填充。
@@ -75,6 +76,7 @@ governance_tier: full
 - 格式阶段继承：优先继承 `formatted_source_script.json` 中的 `scene_cards / impact_beats / page_turn_candidates / character_locks / scene_locks`
 - 场景继承：优先继承 `scene_continuity_bible` 与桥接包中的场景锚点
 - 风格继承：优先继承 `style_bible` 的漫画风格词、线条/明暗/媒介气质，不得另起一套断层风格
+- 类型包继承：必须优先继承上游 artifact 中的 `type_stack_ref / type_pack_context.stage_projection.episode_poster`，不得重新凭直觉决定标题气质和构图取向。
 - 高光点发现：必须先在上游中列出 `3-5` 个本集高光候选，再按“剧情命题价值 + 视觉冲击力 + 海报传播性 + 风格承接度”选择最终海报核心场面
 
 ## 4. 总输入合同
@@ -181,6 +183,8 @@ projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json
 {
   "schema_version": "comic_episode_poster_design.v1",
   "project_name": "项目名",
+  "type_stack_ref": {},
+  "type_pack_context": {},
   "episode": {
     "number": 1,
     "display_text": "第1集"
@@ -209,6 +213,7 @@ projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json
 
 - 上游加载级：必须在 `upstream_context.loaded_artifacts` 中显式记录已读取的项目上游真源，且至少包含桥接包与九刀流 JSON。
 - 风格继承级：必须在 `upstream_context.style_inheritance` 中显式写出从上游继承的角色阶段、场景连续性和风格锚点。
+- 类型包继承级：必须显式记录 `type_stack_ref` 与 `type_pack_context.stage_projection.episode_poster`，说明本集海报是否更偏“宣战 / 威胁 / 背叛 / 心动 / 中二誓言”等哪类标题和画面倾向。
 - 高光点发现级：必须在 `upstream_context.highlight_discovery` 中先列候选，再给出选中项和筛选理由。
 - 角色边界级：`subject_lock.primary_subjects` 中所有角色必须属于当前剧集实际出场角色。
 - 剧情绑定级：`creative_direction.representative_scene` 必须能回指到当前集真实事件、情绪或冲突。
@@ -227,6 +232,7 @@ projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json
 | `FIELD-CEP-01` | `episode.display_text` | 严格为 `第N集` | `FAIL-CEP-EPISODE-LABEL` |
 | `FIELD-CEP-02` | `upstream_context.loaded_artifacts` | 至少实际加载桥接包与九刀流 JSON | `FAIL-CEP-UPSTREAM` |
 | `FIELD-CEP-03` | `upstream_context.style_inheritance` | 角色阶段、场景连续、风格锚点齐备 | `FAIL-CEP-STYLE-INHERIT` |
+| `FIELD-CEP-03A` | `type_stack_ref / type_pack_context.stage_projection.episode_poster` | 当前海报可回指 active packs 与 poster 阶段投影 | `FAIL-CEP-TYPE-PACK` |
 | `FIELD-CEP-04` | `upstream_context.highlight_discovery` | 候选高光点、选中高光点、筛选理由齐备 | `FAIL-CEP-HIGHLIGHT` |
 | `FIELD-CEP-05` | `thinking_process` | 有精简思考过程，不是空对象 | `FAIL-CEP-THINKING` |
 | `FIELD-CEP-06` | `creative_direction.creative_core` | 一句话讲清本海报卖点 | `FAIL-CEP-CREATIVE` |
@@ -263,6 +269,6 @@ python3 .agents/skills/comic/5-剧集海报/scripts/validate_episode_poster_json
 
 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-- `Rule Source`：本 `SKILL.md`、`references/episode-poster-design-contract.md`、模板、validator、comic 父技能路由合同。
+- `Rule Source`：本 `SKILL.md`、`references/episode-poster-design-contract.md`、模板、validator、`comic/_shared/type-pack-loading-contract.md`、comic 父技能路由合同。
 - `Meta Rule Source`：仓库 `AGENTS.md` 的 Root-Cause First、Canonical Source Governance，以及 `skill-知行合一` 的单一输出真源合同。
 - 优先修本集事实抽取、主体锁与文字层级真源，再修局部 prompt 文案。

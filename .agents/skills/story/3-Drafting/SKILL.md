@@ -2,7 +2,7 @@
 name: story-drafting
 governance_tier: full
 description: |
-  Use when story2026 needs episode-by-episode manuscript drafting through a seven-pass composite rewrite pipeline that converges into `projects/story/<项目名>/3-Drafting/第N集.md`.
+  Use when story2026 needs episode-by-episode manuscript drafting through an eight-pass composite rewrite pipeline that converges into `projects/story/<项目名>/3-Drafting/第N集.md`.
 tools: [Read, Write, Edit, Grep, Bash]
 color: rose
 ---
@@ -12,13 +12,14 @@ color: rose
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 本阶段采用“父 skill + 7 个受治理子技能包 + `_shared` 单一落盘合同”的结构，不再沿用 `Drafting/ch0007/chapter-root.md` 模式作为 drafting 真源。
+- 本阶段采用“父 skill + 8 个受治理子技能包 + `_shared` 单一落盘合同”的结构，不再沿用 `Drafting/ch0007/chapter-root.md` 模式作为 drafting 真源。
 - 正式写作根文件固定为 `projects/story/<项目名>/3-Drafting/第N集.md`；同目录 `写作日志.yaml` 是唯一工序账本。
 - 所有子技能正式处理前，都必须先回读当前 `第N集.md` 与 `写作日志.yaml`；若 `第N集.md` 不存在，由父层先用 `_shared/episode-root.template.md` 初始化。
 - 每个子技能写回后，父层必须按照 `../4-Validation/_shared/validation-dimension-registry.yaml` 触发对应的即时审计 hook；未通过则不得进入下一步。
 - runtime 默认先尝试调用 `.agents/skills/story/scripts/validation_runner.py` 自动执行当前 step 的 inline validators；只有当 manuscript / context 不足时，才降级为 pending batch，等待显式回填或手动重跑。
-- 本阶段的正式执行模式固定为“真正串行版”：`Step 1` 单独起盘并写回 `第N集.md`，随后立即跑 `Step 1` 对应 hook；只有 hook 通过，才允许开始 `Step 2`。同理一直执行到 `Step 7`。
-- 禁止把 `Step 1-7` 合并成一次大改稿、一次总生成、预先产出多步结果后再统一写回，或跳过中间 hook 直到最后统一审计。
+- 父层 runtime gate 命令链固定为：`start-task -> start-step -> complete-step -> inline validation -> pass or block -> current-step rewrite / rewind / source-fix routing`；不得把 block 态伪装成“已自然进入下一步”。
+- 本阶段的正式执行模式固定为“真正串行版”：`Step 1` 单独起盘并写回 `第N集.md`，随后立即跑 `Step 1` 对应 hook；只有 hook 通过，才允许开始 `Step 2`。同理一直执行到 `Step 8`。
+- 禁止把 `Step 1-8` 合并成一次大改稿、一次总生成、预先产出多步结果后再统一写回，或跳过中间 hook 直到最后统一审计。
 
 ## Overview
 
@@ -26,14 +27,16 @@ color: rose
 
 它继承 `0-Init / 1-Cards / 2-Planning` 的配置机制，但输出形态不是再落第二份规划 JSON，而是把同一集的正文反复加工到一个 Markdown 根文件里：
 
-1. 父层锁输入、组装上下文、裁决固定顺序 `1 -> 7`。
+1. 父层锁输入、组装上下文、裁决固定顺序 `1 -> 8`。
 2. 每个子技能只拥有自己的“复合加工维度”，并返回 `manuscript_patch + process_log_entry`。
 3. 父层按顺序 progressive rewrite 到 `projects/story/<项目名>/3-Drafting/第N集.md`。
 4. 每一步写回后，父层立即运行 registry 声明的 inline validation hooks。
 5. 若当前 hook 失败，立即在当前 step、最早受影响 step、或 source-contract 层修复，不允许把问题累积到最后。
-6. `7-润色` + 其 inline hooks 通过后，只形成 `candidate_final_draft`，随后仍必须进入 `4-Validation` 终验层。
+6. `8-润色` + 其 inline hooks 通过后，只形成 `candidate_final_draft`，随后仍必须进入 `4-Validation` 终验层。
 7. `写作日志.yaml` 记录当前集已经过哪些工序、每步摘要、即时审计结果、可恢复位置与连续性证据。
 8. 每个 step 都是独立执行单元：`start current step -> 读取当前 root -> 仅做本 step 改动 -> 写回 root/log -> 跑当前 step hook -> 决定进入下一步或回退`。
+9. `6-心理活动描写` 是专门的内心层加工：它必须把情绪、迟疑、判断、羞耻、欲望、恐惧等心理运动，翻译成 POV 内可感的知觉、身体反应、联想和半显性自我辩护，而不是作者评论。
+10. 若项目主角启用了成长系统，`Step 4 / Step 6 / Step 7` 分别承担行为、心路与压力牵引三类成长证据产出。
 
 本阶段对 `2-Planning` planning truth 的核心理解必须固定：
 
@@ -57,7 +60,8 @@ color: rose
 - `episode scope` 锁定与输入齐备判定
 - `story_map -> prose` 的总装配策略
 - 上一集连续性加载与缺口裁决
-- `1 -> 7` 固定串行门
+- 主角成长系统在 drafting 阶段的证据承接与三步产出边界
+- `1 -> 8` 固定串行门
 - 每个 step 写回后的 inline validation hook 调度与回退裁决
 - `第N集.md + 写作日志.yaml` 的唯一正式写回
 - 子技能 ownership gate、断点恢复入口与 handoff 说明
@@ -67,7 +71,7 @@ color: rose
 - 替任一子技能重复做本地强化判断
 - 越权修改 `Cards`、`2-Planning/全息地图.json`、`validation_status`
 - 在根层再制造第二份 episode 草稿、第二份 phase report、第二份“局部正文真源”
-- 把 7 道工序重新压成“先写完再统一润色”的单次生成
+- 把 8 道工序重新压成“先写完再统一润色”的单次生成
 
 ## Governed Child Skills
 
@@ -77,9 +81,10 @@ color: rose
 | 2 | `2-节奏优化` | 建立章内节奏矩阵与脉冲 | 段落密度、推进点、收放节奏 |
 | 3 | `3-场景和氛围渲染` | 强化写景、空间、感官与情景交融 | 场景质感、气氛、环境叙事 |
 | 4 | `4-角色形象刻画` | 强化人物鲜活度与行为细节 | 人物动作、习惯、反应、个性落点 |
-| 5 | `5-对白个性化和声口优化` | 区分角色声口与对白潜台词 | 对话、断句、气口、语言差异 |
-| 6 | `6-追读力强化` | 强化章内牵引、微兑现与章末续读 pull | 压力梯度、钩子、微兑现、章末牵引 |
-| 7 | `7-润色` | 统一去 AI 味、去评语腔、去机械复写、文笔收束 | 全文终修、风格统一、自然感校正 |
+| 5 | `5-对白个性化` | 把对白深度绑定角色个性、关系位置与说话习惯 | 对话、个性化表达、关系张力、语言差异 |
+| 6 | `6-心理活动描写` | 把人物内心运动翻译成戏内可感的心理层文本 | POV 锚定、内心波动、身体化知觉、半显性自辩 |
+| 7 | `7-追读力强化` | 强化章内牵引、微兑现与章末续读 pull | 压力梯度、钩子、微兑现、章末牵引 |
+| 8 | `8-润色` | 统一去 AI 味、去评语腔、去机械复写、文笔收束 | 全文终修、风格统一、自然感校正 |
 
 ## Shared Canonical Sources
 
@@ -104,10 +109,10 @@ color: rose
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 以“单集单根文件 + 七道工序复合加工 + 每步即时审计”的方式，把规划真源翻译成可连读的章节正文，并尽早阻断早期错误向后累积。 |
+| `business_goal` | 以“单集单根文件 + 八道工序复合加工 + 每步即时审计”的方式，把规划真源翻译成可连读的章节正文，并尽早阻断早期错误向后累积。 |
 | `business_object` | `0-Init/*.yaml`、`1-Cards/0-全局卡/**/*.json`、`1-Cards/**/*.json`、`2-Planning/全息地图.json`、当前 episode 命中的 `2-Planning/十集分片/*.json`、上一集最终正文、`projects/story/<项目名>/3-Drafting/第N集.md`、`写作日志.yaml`、`validation-dimension-registry.yaml`。 |
-| `constraint_profile` | `story_map` 是法律不是灵感；第 2 集起必须加载上一集终稿；7 道工序必须固定串行；每步写回后必须过对应 inline hooks；正式真源只有一个 episode markdown。 |
-| `success_criteria` | 当前集正文已通过 1-7 全链加工与每步即时审计；日志可说明每步与每轮 hook 是否完成；`7-润色` 后产出的是可送 `4-Validation` 的候选终稿。 |
+| `constraint_profile` | `story_map` 是法律不是灵感；第 2 集起必须加载上一集终稿；8 道工序必须固定串行；每步写回后必须过对应 inline hooks；正式真源只有一个 episode markdown。 |
+| `success_criteria` | 当前集正文已通过 1-8 全链加工与每步即时审计；日志可说明每步与每轮 hook 是否完成；`8-润色` 后产出的是可送 `4-Validation` 的候选终稿。 |
 | `non_goals` | 不在 drafting 阶段越权改 Cards / MAP；不再维护 `Drafting/chNNNN/chapter-root.md`；不让每个子技能各自产出一份平行完整版。 |
 | `complexity_source` | 复杂度来自规划翻译、跨集连续性、同一根文件的渐进式复写、7 个加工维度的 ownership 协同，以及 step-after-write 即时审计的回退裁决。 |
 | `topology_fit` | `input lock -> context assembly -> serial child dispatch -> progressive rewrite -> inline validation hooks -> candidate final draft -> final acceptance handoff` |
@@ -138,9 +143,10 @@ color: rose
 21. `2-节奏优化/SKILL.md + CONTEXT.md`
 22. `3-场景和氛围渲染/SKILL.md + CONTEXT.md`
 23. `4-角色形象刻画/SKILL.md + CONTEXT.md`
-24. `5-对白个性化和声口优化/SKILL.md + CONTEXT.md`
-25. `6-追读力强化/SKILL.md + CONTEXT.md`
-26. `7-润色/SKILL.md + CONTEXT.md`
+24. `5-对白个性化/SKILL.md + CONTEXT.md`
+25. `6-心理活动描写/SKILL.md + CONTEXT.md`
+26. `7-追读力强化/SKILL.md + CONTEXT.md`
+27. `8-润色/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -167,18 +173,42 @@ color: rose
 5. 第 2 集及之后若上一集终稿缺失，必须阻塞当前集正式写作。
 6. 未经 `4-Validation` 通过前，drafting 不得回写 `Cards.current_state/history` 或 `story_map.actualization`。
 7. 每个 step 写回后，必须立即运行 registry 声明的 inline validation hooks。
-8. `7-润色` 后即使 inline hooks 全部通过，也只获得 `candidate_final_draft` 状态，不得视为最终 PASS。
+8. `8-润色` 后即使 inline hooks 全部通过，也只获得 `candidate_final_draft` 状态，不得视为最终 PASS。
 9. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指的长期约束，默认优先取自 `1-Cards/0-全局卡/**/*.json`；不得由正文工序自行补发明。
-10. `Step 2-7` 的正式输入，必须是“上一 step 已写回且已通过 hook 的当前 `第N集.md`”；不得读取未过 gate 的临时版本当作正式输入。
+10. `Step 2-8` 的正式输入，必须是“上一 step 已写回且已通过 hook 的当前 `第N集.md`”；不得读取未过 gate 的临时版本当作正式输入。
 11. 单个 step 的正式执行边界固定为“一次 step，一次写回，一次 hook gate”；不得把多个 step 的正文改动累积到一次统一写回中。
 12. 若当前环境只能做候选比较、草稿实验或 reviewer 会诊，这些内容必须停留在 step 内部，不得冒充已完成的正式 step 写回。
 13. 当前 `episode_num / episode_id` 必须先按 `./_shared/chapter-board-locating-contract.md` 解析成唯一 `chapter_board`，才允许任何 child 消费“本集义务 / chapter debt / board 功能”。
+14. 若项目主角启用了成长系统，`Step 4 / Step 6 / Step 7` 的 `process_log_entry` 不得只写抽象 prose 摘要；应优先留下可供 validation / loopback 提纯的结构化 `growth_axis_evidence`。
+15. 规划层、验证层、workflow 层的术语不得直接落入正文；诸如“第几卷 / 阶段 / 时间压力落锁 / 节点完成”这类外部语言，必须翻译成人物可感知的风险、代价、预感或局势变化。
+16. 同一画面中的身份信息不得在相邻句重复命名；第一句负责交代“谁在场”，后一句应只推进构图、动作、空间关系或身体感，不得把同一批人/物再原样点名一次。
+17. 章末续读牵引优先采用“危险逼近 / 余波未平 / 新债将至 / 消息将到”的戏内收束；若使用发问句，必须像人物当下自然生出的疑念，不得写成提纲式“问题只剩一个”。
 
 ## Dispatch Order Contract
 
 ### 固定顺序
 
-`1-单集叙事起盘 -> inline hooks -> 2-节奏优化 -> inline hooks -> 3-场景和氛围渲染 -> inline hooks -> 4-角色形象刻画 -> inline hooks -> 5-对白个性化和声口优化 -> inline hooks -> 6-追读力强化 -> inline hooks -> 7-润色 -> inline hooks -> candidate_final_draft -> 4-Validation`
+`1-单集叙事起盘 -> inline hooks -> 2-节奏优化 -> inline hooks -> 3-场景和氛围渲染 -> inline hooks -> 4-角色形象刻画 -> inline hooks -> 5-对白个性化 -> inline hooks -> 6-心理活动描写 -> inline hooks -> 7-追读力强化 -> inline hooks -> 8-润色 -> inline hooks -> candidate_final_draft -> 4-Validation`
+
+## Runtime Gate Contract
+
+### 命令链真源
+
+`3-Drafting` 的正式 runtime 命令链固定为：
+
+`start-task -> start-step -> complete-step -> inline validation -> pass or block -> current-step rewrite / rewind / source-fix routing`
+
+解释：
+
+1. `start-task` 只负责锁当前 episode drafting run，不授予任何 step 越级资格。
+2. `start-step` 只允许开始“当前可进入”的那一个 step；若上一步 inline gate 未过，runtime 必须拒绝更晚 step。
+3. `complete-step` 不是“本 step 已完成”的终局声明，而是“本 step 已写回并立即进入 inline validation”的触发点。
+4. `inline validation` 是 step-after-write 的硬 gate，不是可选 review。
+5. 若 validation `block`：
+   - 先在当前 step 重写，或
+   - 回卷到最早受影响 drafting step，或
+   - 停止 drafting 并转 `0-Init / 1-Cards / 2-Planning` 的 source fix。
+6. 只有当前 step 的 gate 明确 `pass`，下一步 `start-step` 才成立。
 
 ### Progressive Rewrite 规则
 
@@ -187,7 +217,7 @@ color: rose
 3. 父层把该结果写回同一 `第N集.md` 后，必须立刻运行当前 step 对应的 inline validation hooks。
 4. 只有当前 step 的 inline hooks 通过，下一子技能才能开始。
 5. 任意时刻只允许一个子技能对正式正文执行写回。
-6. 不允许在 `Step 1` 写回前提前生成 `Step 2-7` 的正式 patch，也不允许在 `Step N` hook 未通过前提前执行 `Step N+1` 的正式写回。
+6. 不允许在 `Step 1` 写回前提前生成 `Step 2-8` 的正式 patch，也不允许在 `Step N` hook 未通过前提前执行 `Step N+1` 的正式写回。
 
 ### Inline Validation 回退规则
 
@@ -219,8 +249,9 @@ color: rose
    - 每步摘要
    - 即时审计摘要与引用
    - 下一步建议/断点恢复指针
-4. `7-润色` 后的产物只应声明为 `candidate_final_draft`。
-5. 若本轮未完成 1-7 全链，或任何一步 inline hook 未通过，日志必须能说明精确停在何处。
+   - 主角启用成长系统时由 `Step 4 / Step 6 / Step 7` 产出的 `growth_axis_evidence`
+4. `8-润色` 后的产物只应声明为 `candidate_final_draft`。
+5. 若本轮未完成 1-8 全链，或任何一步 inline hook 未通过，日志必须能说明精确停在何处。
 
 ## Visual Maps
 
@@ -229,7 +260,7 @@ flowchart TD
     A["N1 Intake"] --> B["N2 Assemble upstream context"]
     B --> C["N3 Load previous episode if N > 1"]
     C --> D["N4 Bootstrap or reread 第N集.md"]
-    D --> E["N5 Serial child dispatch 1 -> 7"]
+    D --> E["N5 Serial child dispatch 1 -> 8"]
     E --> F["N6 Progressive rewrite + 写作日志.yaml"]
     F --> G["N7 Inline validation hooks"]
     G --> H["N8 Candidate final draft"]
@@ -253,12 +284,14 @@ flowchart LR
     I --> I1["即时审计 hook"]
     I1 --> J["5-对白声口"]
     J --> J1["即时审计 hook"]
-    J1 --> K["6-追读力强化"]
+    J1 --> K["6-心理活动"]
     K --> K1["即时审计 hook"]
-    K1 --> L["7-润色"]
+    K1 --> L["7-追读力"]
     L --> L1["即时审计 hook"]
-    L1 --> M["candidate_final_draft"]
-    M --> N["4-Validation 终验"]
+    L1 --> M["8-润色"]
+    M --> M1["即时审计 hook"]
+    M1 --> N["candidate_final_draft"]
+    N --> O["4-Validation 终验"]
 ```
 
 ```mermaid
@@ -287,7 +320,7 @@ stateDiagram-v2
 | `N2-CONTEXT-ASSEMBLY` | `FIELD-DR-02` | 收束上游真源 | 读取 `0-Init / Cards / Planning`，并按 shared contract 解析当前 `chapter_board` | `context_stack_note` | -> `N3` | 上游齐备且 board 唯一 |
 | `N3-CONTINUITY-LOAD` | `FIELD-DR-03` | 装配跨集连续性 | `N>1` 时回读上一集终稿 | `continuity_note` | -> `N4` | 连续性证据在手 |
 | `N4-EPISODE-BOOTSTRAP` | `FIELD-DR-04` | 初始化或回读本集根文件与日志 | 创建或读取 `第N集.md + 写作日志.yaml` | `bootstrap_note` | -> `N5` | 真源唯一 |
-| `N5-SERIAL-DISPATCH` | `FIELD-DR-05` | 固定顺序调度 1-7 子技能 | 每步前回读当前 root，再进入 child | `dispatch_log` | -> `N6` | 顺序稳定 |
+| `N5-SERIAL-DISPATCH` | `FIELD-DR-05` | 固定顺序调度 1-8 子技能 | 每步前回读当前 root，再进入 child | `dispatch_log` | -> `N6` | 顺序稳定 |
 | `N6-PROGRESSIVE-REWRITE` | `FIELD-DR-06` | 把 child patch 写回同一正文 | 更新 `第N集.md` 与 `写作日志.yaml` | `rewrite_trace` | -> `N7` | 无平行正文 |
 | `N7-INLINE-VALIDATION` | `FIELD-DR-07` | 运行当前 step 对应的即时审计 hook | 读取 registry，执行 dimensions，决定前进/重写/回退 | `inline_validation_note` | -> `N8` | 当前 step 通过 |
 | `N8-HANDOFF-READY` | `FIELD-DR-08` | 输出候选终稿并交接终验 | 生成 `candidate_final_draft` note 与下一跳建议 | `handoff_note` | done | 可交给 4-Validation |
@@ -300,10 +333,10 @@ stateDiagram-v2
 | `FIELD-DR-02` | upstream context pack | Init/1-Cards/Planning 已装配，且当前 board 已唯一解析 | `S1` | 输入完整性 | `FAIL-DR-02` |
 | `FIELD-DR-03` | continuity pack | 第 2 集起已读取上一集终稿 | `S2` | 连续性 | `FAIL-DR-03` |
 | `FIELD-DR-04` | episode root + process log | 根文件与日志唯一 | `S2` | 真源唯一性 | `FAIL-DR-04` |
-| `FIELD-DR-05` | serial pass plan | 1-7 固定顺序成立 | `S3` | 工序完整性 | `FAIL-DR-05` |
-| `FIELD-DR-06` | rewritten manuscript | 同一正文被渐进式复写 | `S4-S10` | 复合加工质量 | `FAIL-DR-06` |
-| `FIELD-DR-07` | inline validation result | 当前 step 对应 hook 已通过或已明确回退位置 | `S4-S10` | 过程内验收稳定性 | `FAIL-DR-07` |
-| `FIELD-DR-08` | candidate final draft | 已形成候选终稿，可进入 `4-Validation` 终验 | `S11` | 可交付性 | `FAIL-DR-08` |
+| `FIELD-DR-05` | serial pass plan | 1-8 固定顺序成立 | `S3` | 工序完整性 | `FAIL-DR-05` |
+| `FIELD-DR-06` | rewritten manuscript | 同一正文被渐进式复写 | `S4-S11` | 复合加工质量 | `FAIL-DR-06` |
+| `FIELD-DR-07` | inline validation result | 当前 step 对应 hook 已通过或已明确回退位置 | `S4-S11` | 过程内验收稳定性 | `FAIL-DR-07` |
+| `FIELD-DR-08` | candidate final draft | 已形成候选终稿，可进入 `4-Validation` 终验 | `S12` | 可交付性 | `FAIL-DR-08` |
 
 ## Thought Pass Map
 
@@ -311,9 +344,9 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `S1` | `FIELD-DR-01~02` | 当前集与上游上下文锁定了吗 | 锁定 scope、组装 context，并解析唯一 chapter board | 上游缺失、episode 漂移或 board 不唯一 |
 | `S2` | `FIELD-DR-03~04` | 连续性与根文件唯一性成立了吗 | 读上一集并 bootstrap 当前集 | 缺上一集终稿或多真源 |
-| `S3` | `FIELD-DR-05` | 7 道工序顺序是否稳定 | 生成 serial run list | 仍想并发正式写回 |
-| `S4-S10` | `FIELD-DR-06~07` | 当前 child 是否只增强自己的维度，并通过当前 step hook | progressive rewrite 到同一正文，再执行 inline hooks | 产出第二正文、未写日志、hook 失败仍硬推进 |
-| `S11` | `FIELD-DR-08` | 当前正文是否已经达到候选终稿状态 | 输出 `candidate_final_draft` handoff note | 仍是半成品或越权宣称最终 PASS |
+| `S3` | `FIELD-DR-05` | 8 道工序顺序是否稳定 | 生成 serial run list | 仍想并发正式写回 |
+| `S4-S11` | `FIELD-DR-06~07` | 当前 child 是否只增强自己的维度，并通过当前 step hook | progressive rewrite 到同一正文，再执行 inline hooks | 产出第二正文、未写日志、hook 失败仍硬推进 |
+| `S12` | `FIELD-DR-08` | 当前正文是否已经达到候选终稿状态 | 输出 `candidate_final_draft` handoff note | 仍是半成品或越权宣称最终 PASS |
 
 ## Pass Table
 
@@ -323,10 +356,10 @@ stateDiagram-v2
 | `FIELD-DR-02` | Init/1-Cards/Planning 已齐备 | `FAIL-DR-02` | `S1` |
 | `FIELD-DR-03` | `N>1` 时上一集终稿已加载 | `FAIL-DR-03` | `S2` |
 | `FIELD-DR-04` | `第N集.md + 写作日志.yaml` 唯一 | `FAIL-DR-04` | `S2` |
-| `FIELD-DR-05` | 1-7 顺序成立 | `FAIL-DR-05` | `S3` |
+| `FIELD-DR-05` | 1-8 顺序成立 | `FAIL-DR-05` | `S3` |
 | `FIELD-DR-06` | 同一正文完成渐进式复写 | `FAIL-DR-06` | 对应 child |
 | `FIELD-DR-07` | 当前 step 已通过 inline hooks 或已明确回退目标 | `FAIL-DR-07` | 当前 step 或最早受影响 step |
-| `FIELD-DR-08` | 仅形成候选终稿并交给 `4-Validation` | `FAIL-DR-08` | `S11` |
+| `FIELD-DR-08` | 仅形成候选终稿并交给 `4-Validation` | `FAIL-DR-08` | `S12` |
 
 ## Root-Cause Execution Contract
 
@@ -338,14 +371,14 @@ stateDiagram-v2
 - 子技能各自产出一份完整正文，父层没有统一 progressive rewrite
 - `写作日志.yaml` 缺失，导致无法判断断点或已完成工序
 - drafting 写完 step 却没有立即跑对应 inline validation hook
-- `7-润色` 被误当成最终 PASS，而不是候选终稿
+- `8-润色` 被误当成最终 PASS，而不是候选终稿
 
 ## Completion Contract
 
 只有同时满足以下条件，`3-Drafting` 才允许宣布当前集完成：
 
 1. 当前集正文已收束到 `projects/story/<项目名>/3-Drafting/第N集.md`。
-2. `写作日志.yaml` 已明确记录 1-7 工序完成情况与每步 inline validation 结果。
+2. `写作日志.yaml` 已明确记录 1-8 工序完成情况与每步 inline validation 结果。
 3. 第 2 集起，连续性证据已引用上一集终稿。
-4. `7-润色` 后的当前正文只可声明为 `candidate_final_draft`。
+4. `8-润色` 后的当前正文只可声明为 `candidate_final_draft`。
 5. 当前正文可明确 handoff 到 `4-Validation`，或日志能精准说明待续工序 / 回退节点。

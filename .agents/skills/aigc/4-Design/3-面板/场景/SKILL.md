@@ -21,7 +21,7 @@ governance_tier: full
 1. 消费 `4-Design/场景/2-设计` 的各种设计产物。
 2. 只直接引用设计产物中的 prompt 部分，尤其是 Markdown 的 `**prompt整合**` 段。
 3. 生成 `16:9 + 3x3 + 9 panels` 的 `*_ScenePanel-layout.json`。
-4. JSON 落盘后默认写 request sidecar，并按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/image/nano-banana/general` 自动生图。
+4. JSON 落盘后默认写 request sidecar，并按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/anyfast/image/nano-banana/general` 自动生图。
 5. SMART 批量模式自动获取设计中已有图片作为对应参照图；单独指定文件或自然语言要求生图时默认无参照图 T2I。
 
 本技能不拥有：
@@ -38,7 +38,7 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/场景/SKILL.md`
-- `.agents/skills/api/image/nano-banana/general/SKILL.md`
+- `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
 - `templates/场景面板-提示词.json`
 
 真源分工：

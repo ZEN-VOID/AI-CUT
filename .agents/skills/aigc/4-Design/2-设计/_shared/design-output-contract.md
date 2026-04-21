@@ -14,7 +14,7 @@ slot 级 carrier 映射、review bundle 与 rework 落点统一下沉到：
 | 人读投影 | `[场景名].md`、`[角色名].md`、`<prop_id>-<canonical_name>.md` | 文件名按 leaf 主键规则生成 |
 | 全局风格前缀 | `projects/aigc/<项目名>/2-Global/全局风格.md` 中 `## JSON 直接提取字段` 下 `- 全局风格：...` 的字段值 | 只允许提取该字段值；不得压缩整份 Markdown，不得混入 frontmatter、章节说明、类型元素或设计元素；进入 `prompt整合` 时应转写为英文自然语句 |
 | 生图提示词 | `full_generation_prompt = prompt整合` 的完整英文段落 | leaf 可保留 `design_prompt / final_prompt / prompt_integration` 等兼容字段，但最终入参必须是英文 integrated prompt，而不是局部字段拼接；`Integrated prompt` 正文目标为约 2000 UTF-8 bytes |
-| 自动图片 | 调用 `.agents/skills/api/image/nano-banana/general` 的单主体 T2I 快路径，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 可显式关闭、dry-run 或 `--foreground` 等待；默认后台批量并发提交，不得把提交态伪装成已产图成功 |
+| 自动图片 | 调用 `.agents/skills/api/anyfast/image/nano-banana/general` 的单主体 T2I 快路径，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 可显式关闭、dry-run 或 `--foreground` 等待；默认后台批量并发提交，不得把提交态伪装成已产图成功 |
 
 ## Markdown Template Registry
 
@@ -124,7 +124,7 @@ python3 .agents/skills/aigc/4-Design/2-设计/_shared/scripts/ensure_design_auto
 该 helper 必须调用：
 
 ```bash
-python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
+python3 .agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py \
   --input-json "<设计目录>/generated/requests/design_auto_image_batch.json" \
   --max-concurrent 100 \
   --no-report
@@ -156,7 +156,7 @@ python3 .agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py \
 ```json
 {
   "auto_image": {
-    "provider_skill": ".agents/skills/api/image/nano-banana/general",
+    "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
     "mode": "single-subject-t2i",
     "execution_mode": "background-batch-concurrent",
     "max_concurrent": 100,

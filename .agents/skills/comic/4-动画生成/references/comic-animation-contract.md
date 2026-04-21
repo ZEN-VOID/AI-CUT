@@ -4,11 +4,13 @@
 
 ## 1. Prompt 编译原则
 
-- 固定前缀必须原样作为每页 `sora_prompt` 的开头。
+- 固定前缀必须原样作为每页 `video_prompt` 的开头。
 - 4 号阶段不重新发明剧情；它只把 2 号已经存在的页级信息转成更适合图生视频的形式。
 - `panels[]` 默认按 `右到左、上到下` 的阅读顺序编成 `shot_plan[]`。
+- 保真不等于冻结整页。应保住剧情顺序、角色身份、道具、中文文字、页码、风格 DNA 和关键构图逻辑，但必须把“静止漫画页”翻译成“有景深、有表演、有环境运动的动画电影镜头”。
+- 必须显式反对：`slideshow / PPT animation / simple pan-zoom / Ken Burns / motion poster / paper cut-out drift`。
 - 每页 prompt 要先保真，再谈动态化：
-  - 保真：角色、服装、场景、版式、中文文字、页码、风格 DNA 不漂。
+  - 保真：角色、服装、场景、版式、中文文字、页码和风格 DNA 不漂。
   - 动态化：角色动作更自然、镜头更平滑、环境更有生命力。
 
 ## 2. 页级 Prompt 结构
@@ -17,12 +19,13 @@
 
 1. 固定前缀
 2. 当前页角色和页面职责
-3. 保留原页构图、角色、场景、文字和风格的保真句
+3. 把当前页当成 storyboard truth，而不是 frozen poster
 4. 当前页 `positive_prompt` 摘要
 5. `layout` 摘要
 6. `shot_plan` 逐条展开
-7. 文字与页码保真要求
-8. 禁止项
+7. 景深、环境运动、角色表演和转场要求
+8. 文字与页码保真要求
+9. 禁止项
 
 ## 3. Shot Plan 原则
 
@@ -34,6 +37,8 @@
   - `action`
   - `camera_motion`
   - `subject_motion`
+- `camera_motion` 不能长期停留在“轻微推镜 + 平移”层；应尽量使用有动机的推进、景深穿越、rack focus、foreground wipe、parallax、crane/glide 等真实镜头语言。
+- `subject_motion` 不能只写“slight motion”；应尽量给出身体重心、头部转向、视线变化、手部动作、服装/头发/雨水等 secondary motion。
 - `text_slots` 不是纯装饰。若 panel 中有对白、旁白或 SFX，应在 `text_handling` 里明确“保留位置与可读性，不做文字形变”。
 
 ## 4. 图片匹配原则
@@ -42,8 +47,9 @@
 - 回退匹配 `group_slug-page01..page09`
 - 不允许按图像内容猜图，因为这会引入第二套不可审计真源
 
-## 5. 与 sora 的边界
+## 5. 与 man-tui sora 的边界
 
-- 4 号阶段可以调用 sora，但不重写 sora 的三段异步合同。
-- `sora` 的职责是：创建任务、轮询状态、下载结果。
+- 4 号阶段可以调用 `man-tui/video/sora`，但不重写其三段异步合同。
+- `man-tui sora` 的职责是：创建任务、轮询状态、下载结果。
+- `man-tui sora` 的图生视频参考图只能使用公网 URL；4 号阶段若只有本地 `page01..page09`，默认只能完成编译与 dry-run。
 - 4 号的职责是：生成 prompt、匹配页图、组织逐页执行与组级汇总报告。

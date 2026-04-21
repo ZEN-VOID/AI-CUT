@@ -1,0 +1,36 @@
+pack_id: 狗血言情
+aliases:
+  - 狗血
+  - 虐恋
+  - 豪门拉扯
+semantic_tags:
+  - betrayal
+  - misunderstanding
+  - high-emotion
+  - relationship-whiplash
+stage_projection:
+  script_adaptation:
+    focus:
+      - 关系先打
+      - 情绪反差
+      - 站位翻转
+  nine_blade_prompting:
+    layout_bias:
+      - close face
+      - doorway confrontation
+      - push away / pull close
+  image_generation:
+    render_bias:
+      - face acting
+      - distance tension
+      - tear readable close-up
+  animation_generation:
+    motion_bias:
+      - hesitation
+      - turn away
+      - slow emotional push-in
+  episode_poster:
+    poster_bias:
+      - 他终于慌了
+      - 她不装了
+      - 这婚必须离

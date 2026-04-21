@@ -7,11 +7,23 @@
     "project_name": "",
     "created_at": "",
     "source_route": "0-Init > 1-Cards > 2-Planning > 2-章节规划",
-    "template_version": "3.0.0"
+    "template_version": "3.1.0"
   },
   "content": {
     "chapter_planning": {
       "scope": "full-series",
+      "macro_rhythm_scaffold": {
+        "selected_framework": "save-the-cat-extended-serial",
+        "framework_mode": "beat-checkpoint-plus-volume-wave",
+        "theme_carrier": "",
+        "b_story_carrier": "",
+        "beat_checkpoints": [],
+        "volume_wave_distribution": [],
+        "midpoint_shift": {},
+        "all_is_lost_corridor": {},
+        "finale_acceleration_rules": [],
+        "anti_sagging_rules": []
+      },
       "volume_blocks": [],
       "scale_density_contract": {
         "selected_band": "",
@@ -23,6 +35,7 @@
       "density_bands": [],
       "chapter_function_slots": [],
       "rhythm_windows": [],
+      "episode_rhythm_roles": [],
       "buffer_rules": [],
       "type_pack_projection_summary": {
         "active_packs": [],
@@ -42,25 +55,32 @@
   "story_map_patch": {
     "owned_slots": [
       "content.holomap.volume_boards",
-      "content.holomap.chapter_boards",
-      "content.holomap.episode_sequence_axis"
+      "content.holomap.episode_slice_manifest",
+      "content.holomap.episode_sequence_axis",
+      "content.holomap_slice.chapter_boards",
+      "content.holomap_slice.episode_sequence_axis"
     ],
     "patch_payload": {
-      "volume_boards": [],
-      "chapter_boards": [],
-      "episode_sequence_axis": []
+      "global_patch": {
+        "volume_boards": [],
+        "episode_slice_manifest": [],
+        "episode_sequence_axis": []
+      },
+      "slice_patches": []
     },
     "target_json_paths": [
       "content.holomap.volume_boards",
-      "content.holomap.chapter_boards",
-      "content.holomap.episode_sequence_axis"
+      "content.holomap.episode_slice_manifest",
+      "content.holomap.episode_sequence_axis",
+      "content.holomap_slice.chapter_boards",
+      "content.holomap_slice.episode_sequence_axis"
     ],
     "write_policy": "progressive-commit"
   },
   "gate_summary": {
     "status": "PASS",
     "total_score": 0,
-    "max_score": 50,
+    "max_score": 60,
     "fail_codes": [],
     "repair_entry": ""
   },

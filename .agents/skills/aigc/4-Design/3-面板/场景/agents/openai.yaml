@@ -1,4 +1,4 @@
 model: gpt-5
 metadata:
   short_description: "把场景设计产物转成 16:9 九宫格场景面板 layout JSON，并默认后台批量并发调用 nano-banana/general 生图。"
-  default_prompt: "Use $aigc-design-scene-panel to consume scene design outputs from `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/`, quote only the prompt section such as `prompt整合`, write scene panel layout JSON under `projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/`, and submit `.agents/skills/api/image/nano-banana/general` through SMART in the default background batch concurrent mode unless JSON-only is explicitly requested."
+  default_prompt: "Use $aigc-design-scene-panel to consume scene design outputs from `projects/aigc/<项目名>/4-Design/场景/2-设计/第N集/`, quote only the prompt section such as `prompt整合`, write scene panel layout JSON under `projects/aigc/<项目名>/4-Design/场景/3-面板/第N集/`, and submit `.agents/skills/api/anyfast/image/nano-banana/general` through SMART in the default background batch concurrent mode unless JSON-only is explicitly requested."

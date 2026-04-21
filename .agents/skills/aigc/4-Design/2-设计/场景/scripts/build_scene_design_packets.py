@@ -920,7 +920,7 @@ def main() -> int:
             "status": "pending_validation",
         },
         "auto_image": {
-            "provider_skill": ".agents/skills/api/image/nano-banana/general",
+            "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
             "mode": "single-subject-t2i",
             "prompt_field": "full_generation_prompt",
             "output_dir_policy": "same_directory_as_design_file",

@@ -37,6 +37,19 @@ def validate(data: dict[str, Any]) -> list[str]:
         "schema_version must be comic_page_animation_prompts.v1",
         errors,
     )
+    type_stack_ref = data.get("type_stack_ref", {})
+    expect(isinstance(type_stack_ref, dict), "type_stack_ref must be an object", errors)
+    if isinstance(type_stack_ref, dict):
+        expect(type_stack_ref.get("method_kernel") == "comic-core-v1", "type_stack_ref.method_kernel must be comic-core-v1", errors)
+        expect(isinstance(type_stack_ref.get("active_packs"), list) and len(type_stack_ref.get("active_packs")) >= 2, "type_stack_ref.active_packs must contain at least 2 packs", errors)
+    type_pack_context = data.get("type_pack_context", {})
+    expect(isinstance(type_pack_context, dict), "type_pack_context must be an object", errors)
+    if isinstance(type_pack_context, dict):
+        expect(bool(type_pack_context.get("knowledge_refs")), "type_pack_context.knowledge_refs is required", errors)
+        stage_projection = type_pack_context.get("stage_projection", {})
+        expect(isinstance(stage_projection, dict), "type_pack_context.stage_projection must be an object", errors)
+        if isinstance(stage_projection, dict):
+            expect(isinstance(stage_projection.get("animation_generation"), dict), "type_pack_context.stage_projection.animation_generation must be an object", errors)
     expect(
         data.get("prompt_prefix") == FIXED_PROMPT_PREFIX,
         "prompt_prefix must equal the fixed animation prefix",
@@ -46,13 +59,19 @@ def validate(data: dict[str, Any]) -> list[str]:
     contract = data.get("video_generation_contract", {})
     expect(isinstance(contract, dict), "video_generation_contract must be an object", errors)
     if isinstance(contract, dict):
-        expect(contract.get("provider") == "sora", "provider must be sora", errors)
+        expect(contract.get("provider") == "man-tui", "provider must be man-tui", errors)
         expect(contract.get("mode") == "image_to_video", "mode must be image_to_video", errors)
+        expect(contract.get("model") == "sora-2", "model must be sora-2", errors)
         expect(contract.get("aspect_ratio") == "9:16", "aspect_ratio must be 9:16", errors)
-        expect(contract.get("seconds") in {4, 8, 12}, "seconds must be one of 4/8/12", errors)
+        expect(contract.get("seconds") in {10, 15}, "seconds must be one of 10/15", errors)
         expect(
-            contract.get("size") in {"720x1280", "1280x720", "1024x1792", "1792x1024"},
+            contract.get("size") in {"720x1280", "1280x720"},
             "size must be one of the sora supported dimensions",
+            errors,
+        )
+        expect(
+            contract.get("input_reference_mode") == "public_url_required",
+            "input_reference_mode must be public_url_required",
             errors,
         )
 
@@ -126,20 +145,21 @@ def validate(data: dict[str, Any]) -> list[str]:
                         errors,
                     )
 
-        sora_prompt = str(page.get("sora_prompt", ""))
+        video_prompt = str(page.get("video_prompt", ""))
         expect(
-            sora_prompt.startswith(FIXED_PROMPT_PREFIX),
-            f"pages[{expected_page_number - 1}].sora_prompt must start with the fixed animation prefix",
+            video_prompt.startswith(FIXED_PROMPT_PREFIX),
+            f"pages[{expected_page_number - 1}].video_prompt must start with the fixed animation prefix",
             errors,
         )
         for snippet in (
-            "Preserve the exact source image composition",
+            "animated film sequence",
             "one panel becomes one cinematic shot by default",
             "Do not add new panels, characters, props, or story beats",
+            "not a slideshow, PPT animation",
         ):
             expect(
-                snippet in sora_prompt,
-                f"pages[{expected_page_number - 1}].sora_prompt missing required snippet: {snippet}",
+                snippet in video_prompt,
+                f"pages[{expected_page_number - 1}].video_prompt missing required snippet: {snippet}",
                 errors,
             )
 

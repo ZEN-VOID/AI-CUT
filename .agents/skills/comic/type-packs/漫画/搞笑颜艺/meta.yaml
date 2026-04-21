@@ -1,0 +1,35 @@
+pack_id: 搞笑颜艺
+aliases:
+  - 搞笑
+  - 喜剧
+  - 颜艺
+semantic_tags:
+  - reaction-face
+  - comic-timing
+  - exaggeration
+  - sfx-punch
+stage_projection:
+  script_adaptation:
+    focus:
+      - 信息差
+      - 反应差
+      - 包袱突停
+  nine_blade_prompting:
+    layout_bias:
+      - reaction grid
+      - sudden giant sfx
+      - deformed panel break
+  image_generation:
+    render_bias:
+      - high-expression stretch
+      - timing contrast
+  animation_generation:
+    motion_bias:
+      - sudden stop
+      - snap cut
+      - reaction pop
+  episode_poster:
+    poster_bias:
+      - 离谱
+      - 别笑
+      - 真绷不住了

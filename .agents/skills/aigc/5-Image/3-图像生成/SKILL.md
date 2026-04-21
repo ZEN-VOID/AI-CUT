@@ -53,7 +53,7 @@ governance_tier: full
 - `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `.agents/skills/cli/dreamina-cli/SKILL.md`
-- `.agents/skills/api/image/nano-banana/SKILL.md`
+- `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - [references/jimeng-cli.md](references/jimeng-cli.md)
 - [references/nano-banana.md](references/nano-banana.md)
@@ -114,6 +114,30 @@ governance_tier: full
 - 计划文件：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/submit-plan.json`
 - 简报文件：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/submit-brief.md`
 - 输出图像：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/<image_id>.<ext>`
+
+## Script Entrypoint
+
+本技能的 canonical runner 为：
+
+```bash
+python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.py --help
+python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.py \
+  --project "<项目名>" \
+  --episode 第N集 \
+  --source-tranche 分镜帧 \
+  --provider nano_banana
+```
+
+若 `2-参照引用` 已严格执行但仍无可唯一绑定的本地图片，且当前轮次明确接受 prompt-only handoff，则必须显式传入：
+
+```bash
+python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.py \
+  --project "<项目名>" \
+  --episode 第N集 \
+  --source-tranche 分镜帧 \
+  --provider nano_banana \
+  --allow-prompt-only
+```
 
 ## Output Image Path Contract (Mandatory)
 

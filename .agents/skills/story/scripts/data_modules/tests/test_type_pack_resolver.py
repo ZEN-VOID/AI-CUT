@@ -52,6 +52,8 @@ def test_type_pack_resolver_uses_explicit_north_star_stack(tmp_path):
         "起点连载",
         "男频快节奏",
     ]
+    assert profile.get("resolution_mode") == "directory-first-bootstrap"
+    assert not profile.get("pack_catalog_ref")
     refs = profile.get("knowledge_refs") or []
     assert any("网文/修仙/修仙.md" in str(item) for item in refs)
 

@@ -734,7 +734,7 @@ def main() -> int:
         "role_count": len(packets),
         "selected_roles": [packet["role_name"] for packet in packets],
         "auto_image": {
-            "provider_skill": ".agents/skills/api/image/nano-banana/general",
+            "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
             "mode": "single-subject-t2i",
             "status": "skipped_by_user" if args.skip_auto_image else ("dry_run" if args.auto_image_dry_run else "pending"),
             "prompt_field": "full_generation_prompt",

@@ -14,7 +14,7 @@ governance_tier: full
 
 ## 1. 定位
 
-本技能消费 `2-九刀流漫画提示词` 输出的某个 `page-group` 级 `nine_blade_comic_prompts.v1` JSON，并调用 `.agents/skills/api/image/seedream` 执行生图。
+本技能消费 `2-九刀流漫画提示词` 输出的某个 `page-group` 级 `nine_blade_comic_prompts.v1` JSON，并调用 `.agents/skills/api/anyfast/image/seedream` 执行生图。
 
 硬目标：
 
@@ -23,7 +23,7 @@ governance_tier: full
 - 一次 Seedream 连续多图请求完成，不拆成 9 次单图请求。
 - 明确禁止九宫格拼图、contact sheet、同一画面九个版本。
 - 每张图右下角必须带对应页码，严格使用数字 `1-9`。
-- 默认把图片命名稳定为 `page01..page09`，供 `4-动画生成` 直接按页匹配 sora prompt。
+- 默认把图片命名稳定为 `page01..page09`，供 `4-动画生成` 直接按页匹配 video prompt。
 - 保留 Seedream 报告与本技能生成摘要，便于追溯。
 - 多组执行时，不同 group 的计划、master prompt、报告和图片不得互相覆盖。
 
@@ -40,7 +40,8 @@ governance_tier: full
 ## 3. Context Preload
 
 - 每次使用先读取同目录 `CONTEXT.md`。
-- Seedream 调用细则继承 [.agents/skills/api/image/seedream/SKILL.md](../../api/image/seedream/SKILL.md)。
+- 先读取 [../_shared/type-pack-loading-contract.md](../_shared/type-pack-loading-contract.md)，确认当前 comic 类型包装载合同。
+- Seedream 调用细则继承 [.agents/skills/api/anyfast/image/seedream/SKILL.md](../../api/anyfast/image/seedream/SKILL.md)。
 - 2 号 JSON 合同继承 [../2-九刀流漫画提示词/SKILL.md](../2-九刀流漫画提示词/SKILL.md)。
 - 执行细则读取 [references/seedream-nine-page-generation.md](references/seedream-nine-page-generation.md)。
 
@@ -51,6 +52,7 @@ governance_tier: full
 - `prompt_json`
   - 符合 `nine_blade_comic_prompts.v1` 的单个 group JSON 文件路径。
   - 新口径下优先使用 `page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-01-nine_blade_comic_prompts.json` 这类组级文件；legacy 单文件仍可兼容读取。
+  - 该 JSON 现在必须携带 `type_stack_ref / type_pack_context`，供 3/4/5 段继续继承。
 
 ### 可选输入
 
@@ -119,7 +121,7 @@ erDiagram
 | `N1-INTAKE` | 读取并锁定 group JSON | 解析 JSON、读取 `page_group / continuity_context`，识别当前 group 身份 | JSON 路径、group metadata | N2 | JSON 可读且 group 可识别 |
 | `N2-VALIDATE` | 确保可消费 | 调用 2 号 validator；检查 9 页、9:16、hard constraints、group metadata | validator 输出 | N3 或退回 2 号技能 | 零错误 |
 | `N3-GROUP-TARGET-RESOLVE` | 锁定当前 group 的执行目标 | 解析 `group_slug`、默认输出目录、默认文件名前缀；若未指定 `output_dir` 则落到 group 子目录 | `group_slug`、目标目录、命名方案 | N4 | 多组执行时不会覆盖 |
-| `N4-COMPILE` | 合成当前 group 的单次 master prompt | 把 `page_group / continuity_context`、顶层合同、风格、角色锁、9 页 prompt、负向提示词汇总为一个 prompt | JSON 字段 | N5 | prompt 含 group 上下文与 9 separate pages |
+| `N4-COMPILE` | 合成当前 group 的单次 master prompt | 把 `page_group / continuity_context / type_stack_ref / type_pack_context`、顶层合同、风格、角色锁、9 页 prompt、负向提示词汇总为一个 prompt | JSON 字段 | N5 | prompt 含 group 上下文、type pack 上下文与 9 separate pages |
 | `N5-PLAN` | 形成 group 级执行计划 | 写当前 group 的 `generation_plan.json`、master prompt、pending report；dry-run 打印命令 | plan 文件、pending report | dry-run 结束或 N6 | 命令含 `--max-images 9 --stream` |
 | `N6-SEEDREAM` | 执行单请求生图 | 调用 seedream 脚本 | seedream report | N7 | 请求成功 |
 | `N7-VERIFY` | 校验 9 张独立页 | 读取 report；检查 `result_count=9` 与保存文件数；必要时按当前 group 重命名文件 | seedream report、文件列表 | N8 或返工 | 9 张文件且命名不覆盖其他组 |
@@ -146,7 +148,7 @@ python3 .agents/skills/comic/3-漫画生成/scripts/run_seedream_comic_generatio
 脚本会调用：
 
 ```bash
-python3 .agents/skills/api/image/seedream/scripts/seedream_generate.py \
+python3 .agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py \
   --prompt "<compiled master prompt>" \
   --max-images 9 \
   --size 2K \
@@ -175,6 +177,7 @@ Generate exactly 9 separate images. Each image is one complete vertical 9:16 com
 | --- | --- | --- | --- |
 | `FIELD-CG-01` | `input_json` | `nine_blade_comic_prompts.v1` 可解析且 9 页有效 | `FAIL-CG-INPUT` |
 | `FIELD-CG-02` | `page_group / group_slug` | 当前执行目标明确，group 身份可被报告与文件命名复用 | `FAIL-CG-GROUP-TARGET` |
+| `FIELD-CG-02A` | `type_stack_ref / type_pack_context` | 当前 group 仍能回指 active packs 与 `image_generation` 阶段投影 | `FAIL-CG-TYPE-PACK` |
 | `FIELD-CG-03` | `master_prompt` | 含 group 上下文、单请求 9 图、9:16、非拼图、非变体、群像/场景连续性和右下角数字页码约束 | `FAIL-CG-PROMPT` |
 | `FIELD-CG-04` | `seedream_command` | `--max-images 9 --stream --size 2K` 默认齐备 | `FAIL-CG-CMD` |
 | `FIELD-CG-05` | `seedream_report` | `ok=true result_count=9` | `FAIL-CG-SEEDREAM` |
@@ -199,4 +202,4 @@ Generate exactly 9 separate images. Each image is one complete vertical 9:16 com
 - 九张变体：回到 2 号的 `story_beat_map / pages[]`。
 - 角色漂移、场景漂移或页码缺失：回到 2 号的 `main_character_lock / character_locks / scene_continuity_bible / pages[].page_number_overlay`。
 
-规则源：本 `SKILL.md`、`references/seedream-nine-page-generation.md`、`scripts/run_seedream_comic_generation.py`、Seedream 技能合同。
+规则源：本 `SKILL.md`、`references/seedream-nine-page-generation.md`、`scripts/run_seedream_comic_generation.py`、`comic/_shared/type-pack-loading-contract.md`、Seedream 技能合同。

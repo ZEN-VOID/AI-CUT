@@ -210,37 +210,76 @@ def _build_payload() -> dict:
                         "card": {
                             "core": {
                                 "identity": {"name": "整书风格卡", "scope": "full-series"},
-                                "reader_promise": {
-                                    "primary_pleasures": ["现实压力下的成长"],
-                                    "anti_trope": "不用说教胜利学",
-                                    "hard_constraints": [],
+                                "style_identity": {
+                                    "one_line_definition": "冷静克制的现实成长叙事，靠压力、旧案与关系裂缝推着人物前行。",
+                                    "overall_tone": {
+                                        "base_tone": "冷静克制",
+                                        "emotional_temperature": "冷中带灼",
+                                        "dark_bright_balance": "七冷三暖",
+                                        "tragic_comic_ratio": "八二",
+                                        "gravity_level": "中高",
+                                    },
+                                },
+                                "experience_contract": {
+                                    "core_pleasures": ["现实压力下的成长"],
+                                    "expected_aftertaste": ["压抑后的清醒", "迟到但成立的尊严"],
+                                    "anti_trope": ["不用说教胜利学"],
                                     "no_fly_zones": ["鸡汤式自白"],
                                 },
-                                "aesthetic_axes": {
-                                    "tone": "冷静克制",
-                                    "violence_texture": "现实痛感",
-                                    "mystery_density": "中高",
-                                    "romance_policy": "克制慢热",
+                                "narrative_style": {
+                                    "pov_mode": "近距离第三人称",
+                                    "narrator_distance": "贴身但不自怜",
+                                    "chronology_mode": "顺时序推进，关键处短回溯补压",
+                                    "information_release_style": "先给压力结果，再逐步揭露旧案因果",
+                                    "suspense_method": "债务、旧案、关系三线并压",
+                                    "chapter_hook_style": "以现实困局切入",
+                                    "chapter_end_style": "留半步真相，不做硬悬浮",
+                                    "pacing_profile": "中速推进，关键节点骤然收紧",
                                 },
-                                "style_system": {
-                                    "text_style": {
-                                        "tone": "冷静克制",
-                                        "genre_corridor": "都市成长",
-                                        "anti_trope": "不用说教胜利学",
-                                    },
-                                    "narrative_style": {
-                                        "opening_hook": "债务与旧案双压",
-                                        "mystery_density": "中高",
-                                        "romance_policy": "克制慢热",
-                                    },
-                                    "tone_promises": ["现实压力下的成长"],
-                                    "taboo_styles": ["鸡汤式自白"],
-                                    "downstream_constraints": [],
+                                "dialogue_style": {
+                                    "dialogue_density": "中高",
+                                    "speech_rhythm": "短句试探后突然摊牌",
+                                    "subtext_level": "高",
+                                    "wit_sharpness": "克制锋利",
+                                    "register_policy": "都市口语为底，关键对峙时拔高",
+                                    "character_voice_separation": ["林舟压句省词", "周岚冷静拆解", "赵竞礼貌压迫"],
+                                    "inner_monologue_ratio": "中低",
+                                    "forbidden_dialogue_patterns": ["直白讲道理", "鸡汤总结局面"],
+                                },
+                                "visual_style": {
+                                    "image_texture": "冷白霓虹、旧纸张、潮湿墙皮",
+                                    "color_palette": ["冷白", "锈黄", "深蓝"],
+                                    "light_shadow_tendency": "偏暗，局部硬光切面",
+                                    "motion_texture": "缓压突刺",
+                                    "spatial_feeling": "逼仄都市夹缝",
+                                    "violence_imagery": "现实钝痛，不做热血夸饰",
+                                    "romance_imagery": "冷光下的迟疑靠近",
+                                    "landmark_images": ["档案馆冷灯", "旧怀表金属反光"],
+                                },
+                                "prose_style": {
+                                    "sentence_length_tendency": "短中句为主",
+                                    "paragraph_rhythm": "短段推进，关键段落突然拉长",
+                                    "diction_register": "克制现代汉语",
+                                    "metaphor_density": "低到中",
+                                    "sensory_bias": ["视觉", "触觉"],
+                                    "description_density": "中等偏省",
+                                    "exposition_policy": "解释服从情境压力，不做讲义化展开",
+                                },
+                                "scene_style": {
+                                    "action_rendering": "动作少而准，重后果",
+                                    "emotion_rendering": "情绪不喊口号，靠停顿和错位动作显形",
+                                    "atmosphere_rendering": "先空间压迫，再情绪上脸",
+                                    "transition_style": "用物件或动作切场",
+                                    "set_piece_policy": "大场面服务人物选择，不只拼刺激",
                                 },
                                 "style_gate": {
                                     "anti_ai_required": True,
                                     "no_poison_required": True,
                                     "style_contract_ref": "1-Cards/1-风格卡/总风格/整书风格卡.json",
+                                    "must_keep": ["冷静克制", "现实压迫", "人物尊严感"],
+                                    "must_avoid": ["鸡汤式自白", "无代价逆转"],
+                                    "drift_signals": ["人物突然大段讲道理", "画面忽然热血漫画化"],
+                                    "repair_actions": ["收短句子", "把解释改回动作与场景承压"],
                                 }
                             },
                             "current_state": {
@@ -345,6 +384,7 @@ def _build_payload() -> dict:
                 "scene_links": [
                     {"source": "旧公寓", "target": "天桥", "type": "escape"},
                     {"source": "天桥", "target": "档案室", "type": "clue"},
+                    {"source": "档案室", "target": "河堤", "type": "reveal"},
                 ],
                 "current_focus": {
                     "confirmed_facts": ["都市常驻场景已锁定"],

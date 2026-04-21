@@ -14,7 +14,7 @@ governance_tier: full
 
 ## 概述
 
-`3-面板` 是 `4-Design` 的展示与派生生图 tranche。它只消费 `2-设计` 已稳定的设计产物，把其中可直接下游使用的 `full_generation_prompt / prompt整合` 收束为面板 layout JSON，并在默认路径下自动桥接 `.agents/skills/api/image/nano-banana/general` 生图。
+`3-面板` 是 `4-Design` 的展示与派生生图 tranche。它只消费 `2-设计` 已稳定的设计产物，把其中可直接下游使用的 `full_generation_prompt / prompt整合` 收束为面板 layout JSON，并在默认路径下自动桥接 `.agents/skills/api/anyfast/image/nano-banana/general` 生图。
 
 `2-设计` 当前会为单一主体生成同目录同 stem 概念图；`3-面板` 在批量上下文中可把这些图片作为 SMART 连续性参照，但不得把它们升格为面板 layout 真源。
 
@@ -60,7 +60,7 @@ governance_tier: full
 
 1. `3-面板` 不拥有设计事实，只引用上游 `full_generation_prompt / prompt整合`。
 2. `layout.json` 必须先落盘，再调用图片生成。
-3. 自动生图统一走 `.agents/skills/api/image/nano-banana/general` 的结构化请求承接。
+3. 自动生图统一走 `.agents/skills/api/anyfast/image/nano-banana/general` 的结构化请求承接。
 4. 批量 `4-Design` 调度默认启用 `continuous-batch`，自动扫描 `2-设计` 目录中同主体同 stem 图片作为参照。
 5. 单独指定文件、目录、layout JSON 或自然语言生图默认启用 `single-doc-t2i / natural-language-t2i`，除非用户显式传 `--reference`，否则不自动绑定参照图。
 6. `layout-only / json-only` 仍必须写出 `generated/requests/panel_auto_generate_batch.json` 与 bridge report；只是不调用 nano。
@@ -118,7 +118,7 @@ stateDiagram-v2
 | 场景 leaf | `.agents/skills/aigc/4-Design/3-面板/场景/SKILL.md` | 当前 active leaf |
 | 角色 leaf | `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md` | 当前 active leaf |
 | 道具 leaf | `.agents/skills/aigc/4-Design/3-面板/道具/SKILL.md` | 当前 active leaf |
-| API 契约 | `.agents/skills/api/image/nano-banana/general/SKILL.md` | 生图请求承接真源 |
+| API 契约 | `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md` | 生图请求承接真源 |
 
 ## Route And Topology Contract
 

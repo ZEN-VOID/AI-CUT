@@ -38,6 +38,7 @@ last_checked_at: 2026-04-16T08:44:00Z
 | `TM-CEP-13` | 海报风格和项目已有页面、角色、场景气质断层 | 风格继承层 | 从桥接包和 `style_bible` 提炼角色阶段、场景连续性、漫画风格锚点，并写进 `style_inheritance` | 把风格继承变成必填字段，不再靠执行者自由发挥 | 海报 prompt 和项目已有风格可连续阅读 |
 | `TM-CEP-14` | 选了一个好看的画面，但不是本集真正的剧情高光点 | 高光点发现层 | 先列 3-5 个高光候选，再按命题价值/视觉冲击/传播性/风格承接筛选 | 模板和 validator 固定 `highlight_discovery` 结构 | 选中的高光点能解释“为什么是它，不是其他候选” |
 | `TM-CEP-15` | 用户已经给了标题，但输出时被系统擅自改写成另一句 | 标题输入优先级层 | 把用户标题直接作为 `hook_title.text` 主来源，只保留最小必要的排版化处理 | 主合同和 reference 明确“用户标题优先” | 输出标题与用户输入同义且可直接比对 |
+| `TM-CEP-16` | 海报标题和画面都很完整，但完全看不出本项目当前类型包取向 | type-pack 继承层 | 回到上游 artifact，补 `type_stack_ref / type_pack_context.stage_projection.episode_poster` | schema、template、validator 同步要求海报 JSON 记录 pack 投影 | 海报 JSON 能说明自己更偏宣战、威胁、背叛、心动还是中二誓言 |
 
 ## Repair Playbook
 
@@ -57,6 +58,7 @@ last_checked_at: 2026-04-16T08:44:00Z
 11. 若用户说“风格不一致”，先回 `style_inheritance`，不要直接改 prompt 词面。
 12. 若用户说“这个画面不是本集最值钱的”，先回 `highlight_discovery`，重新比较候选高光点。
 13. 若用户已经给了标题，先锁 `user_title_text -> hook_title.text`，不要先按模板重写一版再回头覆盖。
+14. 若海报像另一个题材，先检查是不是没继承 `episode_poster` 阶段投影，而不是先重写标题。
 
 ## Reusable Heuristics
 

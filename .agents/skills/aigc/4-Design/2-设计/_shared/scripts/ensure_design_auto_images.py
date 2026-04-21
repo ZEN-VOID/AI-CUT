@@ -15,7 +15,7 @@ from typing import Any, Iterable
 REPO_ROOT = Path(__file__).resolve().parents[7]
 SCRIPT_DIR = Path(__file__).resolve().parent
 RUN_DESIGN_AUTO_IMAGE = SCRIPT_DIR / "run_design_auto_image.py"
-NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/image/nano-banana/scripts/nano_banana_generate.py"
+NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 ACTIVE_DOMAINS = ("场景", "角色", "道具")
 if SCRIPT_DIR.as_posix() not in sys.path:
@@ -315,7 +315,7 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         status = "success"
 
     auto_image = {
-        "provider_skill": ".agents/skills/api/image/nano-banana/general",
+        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",

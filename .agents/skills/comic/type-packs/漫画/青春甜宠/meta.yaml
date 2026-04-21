@@ -1,0 +1,38 @@
+pack_id: 青春甜宠
+aliases:
+  - 甜宠
+  - 校园
+  - 校园恋爱
+  - 青春恋爱
+semantic_tags:
+  - chemistry
+  - soft-glow
+  - heartbeat
+  - awkward-closeness
+stage_projection:
+  script_adaptation:
+    focus:
+      - 化学反应
+      - 试探靠近
+      - 轻甜抬升
+  nine_blade_prompting:
+    layout_bias:
+      - soft close-up
+      - eye contact
+      - hand detail
+  image_generation:
+    render_bias:
+      - expression readability
+      - soft glow
+      - small gesture focus
+  animation_generation:
+    motion_bias:
+      - light push-in
+      - breathing beat
+      - tiny gesture hold
+  episode_poster:
+    poster_bias:
+      - 靠近
+      - 心动
+      - 别躲了
+      - 被看见

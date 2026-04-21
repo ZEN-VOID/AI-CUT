@@ -82,7 +82,7 @@ def update_auto_image_manifest(output_dir: Path, manifest_name: str = "_manifest
                 image_paths.append(image_path.as_posix())
                 break
     payload["auto_image"] = {
-        "provider_skill": ".agents/skills/api/image/nano-banana/general",
+        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",
@@ -103,7 +103,7 @@ def mark_auto_image_skipped(output_dir: Path, manifest_name: str = "_manifest.js
         return
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     payload["auto_image"] = {
-        "provider_skill": ".agents/skills/api/image/nano-banana/general",
+        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",

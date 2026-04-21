@@ -1,0 +1,37 @@
+pack_id: 黑暗奇幻
+aliases:
+  - 黑暗
+  - 黑暗奇幻
+  - dark fantasy
+  - 灾厄
+semantic_tags:
+  - curse
+  - abyss
+  - sacrifice
+  - gothic-pressure
+stage_projection:
+  script_adaptation:
+    focus:
+      - 异常显形
+      - 代价前置
+      - 世界压迫
+  nine_blade_prompting:
+    layout_bias:
+      - ritual space
+      - deep shadow
+      - silent large panel
+  image_generation:
+    render_bias:
+      - material darkness
+      - cold light
+      - crack / blood motif
+  animation_generation:
+    motion_bias:
+      - slow devour
+      - ritual reveal
+  episode_poster:
+    poster_bias:
+      - 献祭
+      - 深渊
+      - 王座
+      - 诅咒
