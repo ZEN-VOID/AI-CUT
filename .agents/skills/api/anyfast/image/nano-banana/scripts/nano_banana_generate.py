@@ -52,7 +52,7 @@ except ImportError:
 
 
 DEFAULT_MODEL = "gemini-3.1-flash-image-preview"
-DEFAULT_API_BASE_URL = "https://fw2afus.ent.acc.kurtisasia.com"
+DEFAULT_API_BASE_URL = "https://www.anyfast.ai"
 DEFAULT_OUTPUT_ROOT = Path("output/影片")
 DEFAULT_ASPECT_RATIO = "16:9"
 DEFAULT_IMAGE_SIZE = "4K"
@@ -528,12 +528,18 @@ def _env_api_key() -> Optional[str]:
 
 
 def _env_default_model() -> str:
-    return os.getenv("DXJ2_DEFAULT_MODEL") or DEFAULT_MODEL
+    return (
+        os.getenv("ANYFAST_DEFAULT_MODEL")
+        or os.getenv("ANYFAST_MODEL")
+        or os.getenv("DXJ2_DEFAULT_MODEL")
+        or DEFAULT_MODEL
+    )
 
 
 def _env_api_base_url() -> str:
     return (
-        os.getenv("ANYFAST_API_BASE_URL")
+        os.getenv("ANYFAST_BASE_URL")
+        or os.getenv("ANYFAST_API_BASE_URL")
         or os.getenv("ANYFAST_ACCEL_BASE_URL")
         or DEFAULT_API_BASE_URL
     )
@@ -1007,8 +1013,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--prompt", help="提示词")
     parser.add_argument("--input-json", help="上游结构化请求 JSON 文件；支持对象、对象数组或 {\"tasks\": [...]} ")
-    parser.add_argument("--model", default=_env_default_model(), help="模型名（默认读取 DXJ2_DEFAULT_MODEL）")
-    parser.add_argument("--api-url", help="完整 API URL；不传则根据 ANYFAST_API_BASE_URL + model 组装")
+    parser.add_argument(
+        "--model",
+        default=_env_default_model(),
+        help="模型名（默认读取 ANYFAST_DEFAULT_MODEL，兼容旧 DXJ2_DEFAULT_MODEL）",
+    )
+    parser.add_argument(
+        "--api-url",
+        help="完整 API URL；不传则根据 ANYFAST_BASE_URL（兼容旧 ANYFAST_API_BASE_URL）+ model 组装",
+    )
     parser.add_argument("--api-key", help="API Key（不传则读取 .env）")
     parser.add_argument("--project-name", help="项目名；未传时测试任务映射为“测试”，临时任务映射为“临时”")
     parser.add_argument(

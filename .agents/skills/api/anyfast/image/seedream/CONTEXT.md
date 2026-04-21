@@ -20,7 +20,8 @@ last_checked_at: 2026-03-10T00:00:00Z
 
 | 类型 | 症状 | 根因层 | 立即修复 | 系统性预防 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
-| `TM-SDR-AUTH-MISSING` | 脚本启动即报"缺少 API Key"并退出 | 环境配置层 | 在根目录 `.env` 中配置 `SEEDREAM_API_KEY=...` | 保持 `.env` 为 API Key 单一事实源；脚本支持 `SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY` 三级回退 | `--dry-run` 不报认证错误 |
+| `TM-SDR-AUTH-MISSING` | 真实请求启动即报"缺少 API Key"并退出 | 环境配置层 | 在根目录 `.env` 中配置 `SEEDREAM_API_KEY=...` | 保持 `.env` 为 API Key 单一事实源；脚本支持 `SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY` 三级回退 | 非 dry-run 调用时不再报认证错误 |
+| `TM-SDR-DRYRUN-NOAUTH` | 只想看 payload，却因为没有 API Key 连 dry-run 都跑不起来 | 执行入口层 | 让 `--dry-run --print-payload` 跳过认证检查 | 固化“真实请求强认证，dry-run 只验结构”的入口合同 | 无 key 时 dry-run 仍能输出 payload |
 | `TM-SDR-STREAM-HANG` | 启用 `--stream` 后请求挂起或无输出 | 网络/SSE 层 | 去掉 `--stream` 回退非流式模式重试 | 在技能文档与排错流程中固化"流式不稳定时优先回退非流式"策略 | 非流式模式下正常返回图片 |
 | `TM-SDR-PAYLOAD-MISMATCH` | 请求返回 4xx，错误信息指示字段不合法 | 请求体构造层 | 使用 `--dry-run --print-payload` 检查最终 payload，与 `references/api.md` 对照 | 保持脚本 payload 构造与 Ark API 文档同步；新增字段时先更新 `references/api.md` | payload 中所有字段在 API 文档中有对应 |
 | `TM-SDR-IMAGE-URL-INVALID` | 参考图生图失败，错误信息指示图片 URL 不可访问 | 输入层 | 确认 `--image-url` 传入的 URL 可公网访问；必要时将图片上传到可访问的存储 | 在调用前增加 URL 可达性预检查（HEAD 请求） | 参考图 URL 返回 200 |
@@ -38,6 +39,7 @@ last_checked_at: 2026-03-10T00:00:00Z
 2. **Dry Run 验证**：
    - 运行 `python3 .agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py --prompt "test" --dry-run --print-payload`
    - 核查 payload 中 `model / prompt / size / sequential_image_generation` 等字段
+   - 该步骤允许在无 key 情况下执行；只有真实请求才要求认证
 3. **流式回退**：
    - 若 `--stream` 挂起或无输出，先去掉 `--stream` 重试
    - 非流式成功后再排查流式问题
@@ -60,7 +62,7 @@ last_checked_at: 2026-03-10T00:00:00Z
 
 ## Reusable Heuristics
 
-- 首次使用前，务必先跑一次 `--dry-run --print-payload` 确认 payload 结构和 API Key 是否正确加载。
+- 首次使用前，务必先跑一次 `--dry-run --print-payload` 确认 payload 结构；真实请求前再确认 API Key 是否正确加载。
 - `response_format=url` 是默认且最稳定的模式；`b64_json` 适用于不方便从外部 URL 下载的场景。
 - 连续多图（`sequential_image_generation=auto`）是 SEEDREAM 5.0 的核心差异化能力，适合生成同一主题的系列图片。
 - `--max-images` 控制连续图上限，但实际输出数量可能少于该值（取决于模型判断）。

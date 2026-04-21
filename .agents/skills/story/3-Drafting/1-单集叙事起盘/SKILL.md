@@ -12,6 +12,7 @@ governance_tier: lite
 - 必须回读父层 `3-Drafting/SKILL.md`、`../_shared/episode-root-contract.md`、`../_shared/drafting-child-output-contract.md`。
 - 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
 - 必须同时读取 `../_shared/chapter-board-locating-contract.md`，先把当前集解析成唯一 `chapter_board`，再解码本集义务。
+- 若项目存在续作 / 前作 / 旧 IP 余波信号，必须同时读取 `../_shared/sequel-continuity-contract.md` 与 `0-Init/story-source-manifest.yaml`。
 - 正式处理前，必须读取当前 `第N集.md`；若是新集首轮，可由父层先用 template bootstrap。
 
 ## Parent Positioning
@@ -39,6 +40,7 @@ governance_tier: lite
 - `../_shared/chapter-board-locating-contract.md`
 - `../_shared/drafting-child-output-contract.md`
 - `../_shared/drafting-instant-validation-contract.md`
+- `../_shared/sequel-continuity-contract.md`
 - `../../_shared/context-loading-contract.md`
 - `../../_shared/core-constraints.md`
 
@@ -56,6 +58,7 @@ governance_tier: lite
 
 - 必需输入：
   - `2-Planning/全息地图.json`
+  - `0-Init/story-source-manifest.yaml`
   - 当前 `episode_num / episode_id`
   - 当前 `第N集.md`
   - `写作日志.yaml`
@@ -65,10 +68,13 @@ governance_tier: lite
   - 必须先按 shared locating contract 命中唯一 `chapter_board`，再抽取本集债务。
   - 禁止用 `chapter_boards` 数组顺序或标题文案猜测“哪一个是本集”。
   - 先锁本集功能和承接义务，再写 scene chain。
+  - 起盘必须显式消费 `chapter_goal + action_beat_plan.turning_point + emotion_beat`，并把它们压成最少三拍：开场局面、局势改向、当前集承诺的终端碰撞。
   - 起盘阶段必须直接形成完整正文，不允许只写提纲占位。
   - 起盘阶段不得把 planning 的外部总结语言原样写进正文；chapter goal / must happen / pressure 等字段必须翻译成人物视角中的局面、动作、代价或预感。
+  - 起盘阶段不得保留影视分镜残留；诸如“画面骤碎 / 蒙太奇交叉闪现 / 画面猛断 / 人名单独成段报幕”默认视为未完成小说化转换。
   - 若同一画面需要连续两句落地，第一句负责交代身份或处境，第二句必须推进构图、动作、空间或情绪，不得重复命名同一批人/物。
   - 若需要桥接前作或旧作互文，只能通过当前角色的记忆、旧伤、自嘲或情绪触发进场，不得写成作者说明或作品外注释。
+  - 若本集依赖续作 continuity 才能成立，必须在首轮正文里至少落下一处“旧事正在改变当前选择”的戏内证据，不得把关键旧债拖到后续工序才补。
 
 ## Output Contract
 

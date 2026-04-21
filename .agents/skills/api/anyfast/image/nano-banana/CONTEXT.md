@@ -32,7 +32,7 @@ last_checked_at: 2026-03-20T00:00:00Z
 | 类型 | 症状 | 根因层 | 立即修复 | 系统性预防 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
 | `TM-DXJ2-DEFAULTS-MISSING` | 未指定比例/清晰度时请求体缺少 `aspectRatio` 或 `imageSize` | 默认值逻辑层 | 在脚本中强制补齐 `16:9 / 4K` | 保持 `FIELD-DXJ2-02` 与脚本常量同源 | `--dry-run --print-payload` 中能看到 `16:9 / 4K` |
-| `TM-DXJ2-ENV-DRIFT` | 技能文档、脚本与真实端点不一致 | 环境配置层 | 统一从根目录 `.env` 读取 `ANYFAST_API_BASE_URL / ANYFAST_API_KEY / DXJ2_DEFAULT_MODEL` | 把端点与模型的单一事实源收口到 `.env` | 报告中的 `api_url` 与 `.env` 一致 |
+| `TM-DXJ2-ENV-DRIFT` | 技能文档、脚本与真实端点不一致 | 环境配置层 | 统一从根目录 `.env` 读取 `ANYFAST_BASE_URL / ANYFAST_API_KEY`，模型默认值固定为内建常量，可选回退 `ANYFAST_DEFAULT_MODEL / DXJ2_DEFAULT_MODEL` | 把端点与模型的单一事实源收口到 `.env` 与脚本常量 | 报告中的 `api_url` 与 `.env` 一致 |
 | `TM-DXJ2-OUTPUT-PATH` | 产物落到固定 `5-API` 根目录，忽略调用方 skill 的运行时路径 | 输出路由层 | 改为 `output_dir > input_json.output_dir > caller_skill 推导 > general 兜底` | 由脚本集中维护 caller-skill 路径解析，测试/临时任务仅作为项目名兜底 | 报告中的 `caller_skill / episode_id / output_dir` 与调用方合同一致 |
 | `TM-DXJ2-TASK-KIND-PRECEDENCE` | `input_json.task_kind=project` 被 CLI 默认 `test` 覆盖，导致报告元数据漂移 | 输入优先级层 | 取消 CLI parser 的 `task_kind` 默认值，让 `input_json.task_kind` 先参与解析 | 固化优先级：显式 CLI > input_json > 缺省 `test` | `--input-json` 单独运行时 report 保留 JSON 内的 `task_kind` |
 | `TM-DXJ2-BATCH-SERIAL` | 明明给了多个任务，但脚本仍一张一张串行执行 | 调度层 | 把 `--input-json` 扩展为支持对象数组 / `tasks[]`，任务数 `>1` 时自动并发执行 | 在脚本与 `SKILL.md` 同步固化“默认最大并发 100、硬上限 100”的同源合同 | 多任务运行时出现批量汇总报告，且 `effective_max_concurrent <= 100` |
@@ -52,8 +52,8 @@ last_checked_at: 2026-03-20T00:00:00Z
 1. 先跑：
    - `python3 .agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py --prompt "test" --dry-run --print-payload`
 2. 先核查 `.env`：
-   - `ANYFAST_API_BASE_URL=https://fw2afus.ent.acc.kurtisasia.com`
-   - `DXJ2_DEFAULT_MODEL=gemini-3.1-flash-image-preview`
+   - `ANYFAST_BASE_URL=https://www.anyfast.ai`
+   - 可选：`ANYFAST_DEFAULT_MODEL=gemini-3.1-flash-image-preview`
 3. 核查输出路径：
    - 先看是否传了 `--output-dir` 或 `input_json.output_dir`
    - 再看是否传了 `caller_skill / episode_id`
@@ -108,7 +108,7 @@ last_checked_at: 2026-03-20T00:00:00Z
 - AnyFast 这版接口的参考图不是 URL 直传，而是 `inline_data`；这是与旧版 `nano-banana` 包最关键的差异点。
 - AnyFast 平台这边生成的图片可直接视为 `BASE64` 返回；当下一环节引用生成结果或执行二改时，优先直接按 `BASE64` 方式传入，不额外改写成文件路径或 URL。
 - 若调用方传了带后缀的 `--output-filename`，最终落盘后缀仍必须以接口真实返回的 MIME 为准，不能盲信调用方传入的后缀。
-- 端点、默认模型、密钥优先从根目录 `.env` 读取，避免技能文档和脚本各自维护一份配置。
+- 端点优先从根目录 `.env` 的 `ANYFAST_BASE_URL` 读取，兼容旧 `ANYFAST_API_BASE_URL / ANYFAST_ACCEL_BASE_URL`；默认模型固定为 `gemini-3.1-flash-image-preview`，可选回退 `ANYFAST_DEFAULT_MODEL / DXJ2_DEFAULT_MODEL`。
 - 控制台与 report 是可分享诊断面，任何来自 HTTP 异常的完整 URL 都必须先脱敏；`key=...` 泄露不是单次日志问题，而是脚本错误处理层的问题。
 - 当调用方只关心图片结果、不需要复盘 JSON 时，应优先开启 `--no-report`，减少标准布局阶段冗余文件。
 - 当目标只是验证结构、映射和默认值时，`--dry-run` 不应被参考图可达性阻塞；最稳妥的做法是让 dry-run 保留 `inline_data` 同形占位，而把真实下载留给正式调用阶段。

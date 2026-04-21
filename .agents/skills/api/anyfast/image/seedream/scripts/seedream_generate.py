@@ -298,11 +298,6 @@ def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
-    api_key = args.api_key or _env_api_key()
-    if not api_key:
-        print("❌ 缺少 API Key。请设置 SEEDREAM_API_KEY/ARK_API_KEY 或传 --api-key")
-        return 1
-
     payload: Dict[str, Any] = {
         "model": args.model,
         "prompt": args.prompt,
@@ -335,6 +330,11 @@ def main() -> int:
     if args.dry_run:
         print("✅ dry-run 完成，未发起远端请求。")
         return 0
+
+    api_key = args.api_key or _env_api_key()
+    if not api_key:
+        print("❌ 缺少 API Key。请设置 SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY，或传 --api-key")
+        return 1
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

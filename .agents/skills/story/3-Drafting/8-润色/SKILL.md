@@ -14,6 +14,7 @@ governance_tier: lite
 - 正式处理前，必须读取 Step 7 已写回后的当前 `第N集.md`。
 - 必须同时按需读取以下局部子模块：
   - `反评论腔/module-spec.md`
+  - `反镜头说明腔/module-spec.md`
   - `反重复用词/module-spec.md`
   - `自然感/module-spec.md`
   - `文笔优化/module-spec.md`
@@ -37,6 +38,7 @@ governance_tier: lite
 - `../_shared/drafting-child-output-contract.md`
 - `../_shared/drafting-instant-validation-contract.md`
 - `反评论腔/module-spec.md`
+- `反镜头说明腔/module-spec.md`
 - `反重复用词/module-spec.md`
 - `自然感/module-spec.md`
 - `文笔优化/module-spec.md`
@@ -64,8 +66,10 @@ governance_tier: lite
   - 润色是终修，不是再起一篇。
   - 模仿只能借“文笔判断和气质控制”，不能复制已知固定桥段。
   - 润色阶段必须专门清扫破次元语句；凡出现“第几卷 / 阶段 / 节点 / 时间压力落锁 / 任务完成”这类作品外术语，必须改写成人物能感觉到的风险、余波、局势或预感。
+  - 润色阶段必须专门清扫影视分镜残留；诸如“画面骤碎 / 蒙太奇交叉闪现 / 镜头猛断 / 某角色单独成段报幕”这类句法默认不合格，必须改写成 prose 过渡。
   - 润色阶段不得用提纲式发问替代章末牵引；诸如“问题只剩一个”这类外部点题句默认视为不合格 hook，应改成危险逼近、声音将至、消息未到先压人等戏内收束。
   - 若某句的主要作用是替读者总结“这一切意味着什么”，而不是让场面或人物自己成立，则该句默认优先删除或改写。
+  - 若同一画面的身份信息在相邻句里重复点名，终修必须改成“首句交代谁在场，后句推进动作/空间/身体感”的句法，而不是保留 prompt 式平铺。
 
 ## Output Contract
 
@@ -104,9 +108,10 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-ROOT-REREAD` | `FIELD-DR8-01` | 回读当前正文 | 读取 Step 7 结果、风格卡、team 偏向 | `input_note` | -> `N2` | 正文最新 |
 | `N2-ANTI-COMMENTARY` | `FIELD-DR8-02` | 去评论腔与上帝评语口吻 | 清理直白点评与代替读者作答 | `commentary_note` | -> `N3` | 叙述不过界 |
-| `N3-ANTI-REPETITION` | `FIELD-DR8-03` | 减少机械复用 | 检查重复词、重复句式、重复表达路径 | `repeat_note` | -> `N4` | 用词不机械 |
-| `N4-NATURALNESS` | `FIELD-DR8-04` | 去 AI 工业感 | 调整衔接、留白、轻微不规则感 | `natural_note` | -> `N5` | 真人感成立 |
-| `N5-PROSE-FINISH` | `FIELD-DR8-05` | 做文笔总收束 | 统一句法、韵律、风格气质 | `finish_note` | done | 最终版成立 |
+| `N3-ANTI-SCREENPLAY` | `FIELD-DR8-03` | 去镜头说明腔 | 清理镜头切换词、角色报幕段、分镜残留过渡 | `screenplay_note` | -> `N4` | 句法已小说化 |
+| `N4-ANTI-REPETITION` | `FIELD-DR8-04` | 减少机械复用 | 检查重复词、重复句式、重复表达路径 | `repeat_note` | -> `N5` | 用词不机械 |
+| `N5-NATURALNESS` | `FIELD-DR8-05` | 去 AI 工业感 | 调整衔接、留白、轻微不规则感 | `natural_note` | -> `N6` | 真人感成立 |
+| `N6-PROSE-FINISH` | `FIELD-DR8-06` | 做文笔总收束 | 统一句法、韵律、风格气质 | `finish_note` | done | 最终版成立 |
 
 ## Lite Field Contract
 
@@ -114,9 +119,10 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `FIELD-DR8-01` | 当前正文 | 已回读追读力强化版正文 | `FAIL-DR8-01` | `N1` |
 | `FIELD-DR8-02` | 评论腔修正 | 明显减少上帝评语与直白代答 | `FAIL-DR8-02` | `N2` |
-| `FIELD-DR8-03` | 重复修正 | 机械重复词/句显著减少 | `FAIL-DR8-03` | `N3` |
-| `FIELD-DR8-04` | 自然感修正 | 工业平滑感明显下降 | `FAIL-DR8-04` | `N4` |
-| `FIELD-DR8-05` | 最终润色版正文 | 文笔稳定、自然、可交接 | `FAIL-DR8-05` | `N5` |
+| `FIELD-DR8-03` | 分镜残留修正 | 明显减少镜头说明腔、角色报幕段与分镜过渡词 | `FAIL-DR8-03` | `N3` |
+| `FIELD-DR8-04` | 重复修正 | 机械重复词/句显著减少，近邻重复命名已下降 | `FAIL-DR8-04` | `N4` |
+| `FIELD-DR8-05` | 自然感修正 | 工业平滑感明显下降 | `FAIL-DR8-05` | `N5` |
+| `FIELD-DR8-06` | 最终润色版正文 | 文笔稳定、自然、可交接 | `FAIL-DR8-06` | `N6` |
 
 ## Completion Contract
 

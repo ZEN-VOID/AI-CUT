@@ -56,8 +56,8 @@ version: "v1.0"
 ## 3. 核心约束（Mandatory）
 
 1. **API 认证刚性**
-   - 必须在 `.env` 中配置 `SEEDREAM_API_KEY`（或 `ARK_API_KEY` / `VOLCENGINE_ARK_API_KEY`）。
-   - 脚本启动时自动从 `.env` 加载，无密钥时硬退出。
+   - 真实请求必须在 `.env` 中配置 `SEEDREAM_API_KEY`（或 `ARK_API_KEY` / `VOLCENGINE_ARK_API_KEY`）。
+   - 脚本启动时自动从 `.env` 加载；无密钥时真实请求硬退出，但 `--dry-run --print-payload` 允许跳过认证，仅用于结构校验。
 2. **模型锁定**
    - 默认模型为 `doubao-seedream-5-0-260128`，除非用户显式传 `--model` 覆盖。
 3. **连续多图契约**
@@ -102,7 +102,7 @@ version: "v1.0"
 2. **Step 2 / 参数解析**
    - 解析并确认：`--model`（默认 `doubao-seedream-5-0-260128`）、`--size`（默认 `2K`）、`--max-images`（默认 `4`）、`--response-format`（默认 `url`）、`--stream`、`--watermark`
    - 从 `.env` 读取 `SEEDREAM_API_KEY`（回退 `ARK_API_KEY` / `VOLCENGINE_ARK_API_KEY`）
-   - 无 API Key 时硬退出
+   - 无 API Key 时真实请求硬退出；若只是 `--dry-run`，允许继续打印 payload
 3. **Step 3 / 请求体构造**
    - 组装 Ark API payload：
      - `model`、`prompt`、`sequential_image_generation`、`sequential_image_generation_options.max_images`
@@ -228,6 +228,7 @@ python3 .agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py \
 ## 10. 失败排查
 
 1. 检查 `.env` 是否存在 `SEEDREAM_API_KEY`（或 `ARK_API_KEY` / `VOLCENGINE_ARK_API_KEY`）
+   - 若只是 `--dry-run --print-payload`，可在无 key 情况下先验证 payload
 2. 使用 `--dry-run --print-payload` 确认请求参数正确
 3. 若返回 4xx/5xx，查看报告文件中的 `error` 字段和 HTTP body
 4. 若启用 `--stream` 无输出，先切到非流式重试（去掉 `--stream`）

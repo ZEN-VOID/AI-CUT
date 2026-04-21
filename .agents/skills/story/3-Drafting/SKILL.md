@@ -93,6 +93,7 @@ color: rose
 - `./_shared/process-log.template.yaml`
 - `./_shared/drafting-child-output-contract.md`
 - `./_shared/drafting-instant-validation-contract.md`
+- `./_shared/sequel-continuity-contract.md`
 - `../4-Validation/_shared/validation-dimension-registry.yaml`
 - `../_shared/context-loading-contract.md`
 - `../_shared/core-constraints.md`
@@ -127,26 +128,28 @@ color: rose
 5. `./_shared/chapter-board-locating-contract.md`
 6. `./_shared/drafting-child-output-contract.md`
 7. `./_shared/drafting-instant-validation-contract.md`
-8. `../4-Validation/_shared/validation-dimension-registry.yaml`
-9. `../_shared/context-loading-contract.md`
-10. `../_shared/core-constraints.md`
-11. `0-Init/north_star.yaml`
-12. `0-Init/init_handoff.yaml`
-13. `1-Cards/0-全局卡/**/*.json`
-14. `1-Cards/**/*.json`
-15. `2-Planning/全息地图.json`
-16. 当前 episode 命中的 `2-Planning/十集分片/*.json`
-17. 若 `N > 1`：上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
-18. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`（若存在）
-19. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`（若存在）
-20. `1-单集叙事起盘/SKILL.md + CONTEXT.md`
-21. `2-节奏优化/SKILL.md + CONTEXT.md`
-22. `3-场景和氛围渲染/SKILL.md + CONTEXT.md`
-23. `4-角色形象刻画/SKILL.md + CONTEXT.md`
-24. `5-对白个性化/SKILL.md + CONTEXT.md`
-25. `6-心理活动描写/SKILL.md + CONTEXT.md`
-26. `7-追读力强化/SKILL.md + CONTEXT.md`
-27. `8-润色/SKILL.md + CONTEXT.md`
+8. `./_shared/sequel-continuity-contract.md`
+9. `../4-Validation/_shared/validation-dimension-registry.yaml`
+10. `../_shared/context-loading-contract.md`
+11. `../_shared/core-constraints.md`
+12. `0-Init/north_star.yaml`
+13. `0-Init/init_handoff.yaml`
+14. `0-Init/story-source-manifest.yaml`
+15. `1-Cards/0-全局卡/**/*.json`
+16. `1-Cards/**/*.json`
+17. `2-Planning/全息地图.json`
+18. 当前 episode 命中的 `2-Planning/十集分片/*.json`
+19. 若 `N > 1`：上一集最终正文 `projects/story/<项目名>/3-Drafting/第N-1集.md`
+20. 当前 `projects/story/<项目名>/3-Drafting/第N集.md`（若存在）
+21. 当前 `projects/story/<项目名>/3-Drafting/写作日志.yaml`（若存在）
+22. `1-单集叙事起盘/SKILL.md + CONTEXT.md`
+23. `2-节奏优化/SKILL.md + CONTEXT.md`
+24. `3-场景和氛围渲染/SKILL.md + CONTEXT.md`
+25. `4-角色形象刻画/SKILL.md + CONTEXT.md`
+26. `5-对白个性化/SKILL.md + CONTEXT.md`
+27. `6-心理活动描写/SKILL.md + CONTEXT.md`
+28. `7-追读力强化/SKILL.md + CONTEXT.md`
+29. `8-润色/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -154,6 +157,7 @@ color: rose
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
+- `0-Init/story-source-manifest.yaml`
 - `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
 - `2-Planning/全息地图.json`
@@ -183,6 +187,9 @@ color: rose
 15. 规划层、验证层、workflow 层的术语不得直接落入正文；诸如“第几卷 / 阶段 / 时间压力落锁 / 节点完成”这类外部语言，必须翻译成人物可感知的风险、代价、预感或局势变化。
 16. 同一画面中的身份信息不得在相邻句重复命名；第一句负责交代“谁在场”，后一句应只推进构图、动作、空间关系或身体感，不得把同一批人/物再原样点名一次。
 17. 章末续读牵引优先采用“危险逼近 / 余波未平 / 新债将至 / 消息将到”的戏内收束；若使用发问句，必须像人物当下自然生出的疑念，不得写成提纲式“问题只剩一个”。
+18. 当前集命中的 `chapter_goal / action_beat_plan.turning_point / emotion_beat` 视为本集最低 beat 覆盖合同；`Step 1` 至少要让起手局面、反切/转场后的新局面、以及本集承诺的终端碰撞三者都进入正式正文，缺任一项都不得视为“已完整起盘”。
+19. 若项目存在明确续作/前作承接信号，父层必须按 `./_shared/sequel-continuity-contract.md` 额外加载 `0-Init/story-source-manifest.yaml` 的 relevant source refs，并优先把前作回响落到人物记忆、旧伤、旧物或旧称呼触发，而不是作者说明。
+20. 起盘与终修阶段都不得保留明显影视分镜残留；诸如“画面骤碎 / 蒙太奇交叉闪现 / 镜头猛断 / 某角色单独成段报幕”这类句法默认视为未完成小说化转换。
 
 ## Dispatch Order Contract
 

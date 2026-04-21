@@ -149,6 +149,7 @@ def test_structure_validator_scores_checked_obligations_only(tmp_path):
                 "令狐冲本只想买酒避世，却先看见税线恶压，又看见晨雾未散前平民被逼得跪成一排。"
             ),
             "fact_pack": {
+                "cards_state_history_slice": {"recent_entities": ["令狐冲", "任盈盈"]},
                 "chapter_board": {
                     "chapter_goals": [
                         "令狐冲与任盈盈在那霸港雨脚与潮气里",
@@ -162,8 +163,15 @@ def test_structure_validator_scores_checked_obligations_only(tmp_path):
                         "第一次不是因仇而动",
                         "而是因看见眼前人被迫在雨里折腰而动心",
                     ],
+                    "beat_checkpoints": [
+                        "令狐冲与任盈盈在那霸港雨脚与潮气里",
+                        "只想买酒避世",
+                        "却看见税线在晨雾未散前逼平民下跪",
+                    ],
+                    "terminal_beat": "却看见税线在晨雾未散前逼平民下跪",
                 }
             },
+            "current_step_id": "Step 1",
         },
         role_id="structure-validator",
         spec={},
@@ -174,6 +182,76 @@ def test_structure_validator_scores_checked_obligations_only(tmp_path):
     assert result["metrics"]["required_events_hit"] == 6
     assert result["metrics"]["missed_obligations"] == 0
     assert result["overall_score"] > 0
+
+
+def test_structure_validator_flags_screenplay_residue_and_outline_hook():
+    module = _load_module()
+    result = module._run_structure(
+        ctx={
+            "chapter": 1,
+            "manuscript_text": "\n".join(
+                [
+                    "画面骤碎。",
+                    "",
+                    "令狐冲。",
+                    "",
+                    "海风把酒气和潮气一起吹到船头，他却还像没睡醒似的笑着。",
+                    "",
+                    "问题只剩一个：这片假安稳还能保多久？",
+                ]
+            ),
+            "fact_pack": {
+                "cards_state_history_slice": {"recent_entities": ["令狐冲"]},
+                "chapter_board": {
+                    "chapter_goals": ["令狐冲暂得片刻安稳"],
+                    "must_happen": ["港雨恶压即将逼近"],
+                    "beat_checkpoints": ["令狐冲暂得片刻安稳", "港雨恶压即将逼近"],
+                    "terminal_beat": "港雨恶压即将逼近",
+                    "bundled_elements": {"characters": ["令狐冲"]},
+                },
+            },
+            "current_step_id": "Step 8",
+        },
+        role_id="structure-validator",
+        spec={},
+        validation_context="drafting_inline",
+    )
+
+    assert result["pass"] is False
+    assert result["metrics"]["screenplay_residue_hits"] >= 2
+    assert result["metrics"]["outline_hook_hits"] >= 1
+    assert any(item.get("rework_target_step") == "8-润色" for item in result["issues"])
+
+
+def test_structure_validator_flags_missing_terminal_beat():
+    module = _load_module()
+    result = module._run_structure(
+        ctx={
+            "chapter": 1,
+            "manuscript_text": (
+                "丰臣棋局先压得人心口发冷，转眼又切到东海上令狐冲与任盈盈买酒漂流。"
+                "两人像真过上了小日子，却还没真正撞上港口那套会把礼法变成刑具的恶压。"
+            ),
+            "fact_pack": {
+                "cards_state_history_slice": {"recent_entities": ["令狐冲", "任盈盈"]},
+                "chapter_board": {
+                    "chapter_goals": ["疯邪楔子压场", "反切东海漂流", "港口恶压落地"],
+                    "must_happen": ["港口恶压落地"],
+                    "beat_checkpoints": ["疯邪楔子压场", "反切东海漂流", "港口恶压落地"],
+                    "terminal_beat": "港口恶压落地",
+                },
+            },
+            "current_step_id": "Step 1",
+        },
+        role_id="structure-validator",
+        spec={},
+        validation_context="drafting_inline",
+    )
+
+    assert result["pass"] is False
+    assert result["metrics"]["beat_checkpoints"] == 3
+    assert result["metrics"]["terminal_beat_hit"] is False
+    assert any(item.get("rework_target_step") == "1-单集叙事起盘" for item in result["issues"])
 
 
 def test_validation_runner_logic_detects_contrivance_markers(tmp_path):

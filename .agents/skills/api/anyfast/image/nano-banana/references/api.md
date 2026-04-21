@@ -1,19 +1,19 @@
 # nano-banana / AnyFast 接口摘要
 
 基于以下配置与官方文档：
-- 平台地址：`https://www.anyfas.ai`
-- API 基础端点：`https://fw2afus.ent.acc.kurtisasia.com`
+- 平台地址：`https://www.anyfast.ai`
+- API 基础端点：优先读取 `.env: ANYFAST_BASE_URL`，兼容旧 `ANYFAST_API_BASE_URL`
 - 文档：`https://docs.anyfast.ai`
 - 默认模型：`gemini-3.1-flash-image-preview`
 
 ## 1. 基本信息
 
 - 平台地址：
-  - `https://www.anyfas.ai`
+  - `https://www.anyfast.ai`
 - API 基础端点：
-  - `https://fw2afus.ent.acc.kurtisasia.com`
+  - `.env: ANYFAST_BASE_URL`
 - 请求地址模板：
-  - `<ANYFAST_API_BASE_URL>/v1beta/models/<model>:generateContent`
+  - `<ANYFAST_BASE_URL>/v1beta/models/<model>:generateContent`
 - 认证方式：
   - query 参数 `?key=YOUR_API_KEY`
 - 请求方式：
@@ -40,8 +40,8 @@
 - 若 `aspect_ratio` 未明确指定，默认注入：`16:9`
 - 若 `image_size` 未明确指定，默认注入：`4K`
 - 若 `image_size` 输入为小写 `k`，调用前规范化为大写 `K`
-- 若未显式传 `--model`，默认使用 `.env` 中的 `DXJ2_DEFAULT_MODEL=gemini-3.1-flash-image-preview`
-- API URL 从 `.env` 中的 `ANYFAST_API_BASE_URL` 组装
+- 若未显式传 `--model`，默认使用脚本内建的 `gemini-3.1-flash-image-preview`；可选回退 `.env: ANYFAST_DEFAULT_MODEL`（兼容旧 `DXJ2_DEFAULT_MODEL`）
+- API URL 从 `.env` 中的 `ANYFAST_BASE_URL` 组装，兼容旧 `ANYFAST_API_BASE_URL`
 - 默认输出目录为 `output/影片/[项目名]/5-API/image/nano-banana/`
 - 若未传 `project_name`：
   - `task_kind=test` -> `[项目名]=测试`
@@ -64,7 +64,7 @@
 ## 5. 示例请求
 
 ```bash
-curl -X POST "https://fw2afus.ent.acc.kurtisasia.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=YOUR_API_KEY" \
+curl -X POST "https://www.anyfast.ai/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "contents": [

@@ -72,6 +72,33 @@ SUMMARYISH_PATTERNS = (
     r"(总而言之|换句话说|事情的经过是)",
 )
 
+SCREENPLAY_RESIDUE_MARKERS = (
+    "画面骤碎",
+    "画面猛断",
+    "镜头一转",
+    "镜头猛然",
+    "蒙太奇",
+    "交叉闪现",
+    "切回",
+    "CUT TO",
+)
+
+META_RESIDUE_MARKERS = (
+    "第几卷",
+    "阶段",
+    "节点",
+    "时间压力落锁",
+    "任务完成",
+)
+
+OUTLINE_HOOK_PATTERNS = (
+    r"问题只剩一个",
+    r"答案只剩一个",
+    r"接下来(会)?发生什么[？?]",
+    r"接下来又会如何[？?]",
+    r"究竟会怎样[？?]",
+)
+
 EXPLANATION_DIALOGUE_MARKERS = (
     "其实是因为",
     "你要知道",
@@ -288,6 +315,10 @@ def _dialogue_lines(text: str) -> list[str]:
     return [row.strip() for row in lines if row.strip()]
 
 
+def _paragraph_blocks(text: str) -> list[str]:
+    return [row.strip() for row in re.split(r"\n\s*\n", str(text or "")) if row.strip()]
+
+
 def _keyword_candidates(raw: Any) -> list[str]:
     if isinstance(raw, str):
         candidates = re.split(r"[，,、；;：:\s/|]+", raw)
@@ -336,6 +367,37 @@ def _text_contains_candidate(text: str, candidate: str) -> bool:
 
 def _clamp_score(score: float) -> int:
     return max(0, min(100, int(round(score))))
+
+
+def _screenplay_residue_stats(text: str, entity_candidates: list[str]) -> dict[str, Any]:
+    marker_hits = sum(text.count(marker) for marker in SCREENPLAY_RESIDUE_MARKERS)
+    tag_like_paragraphs = 0
+    tag_examples: list[str] = []
+    blocks = _paragraph_blocks(text)
+    entity_set = {str(item).strip() for item in entity_candidates if str(item).strip()}
+
+    for index, block in enumerate(blocks):
+        plain = block.strip()
+        if len(plain) > 8 or "“" in plain or any(ch in plain for ch in "，；：、"):
+            continue
+        bare = plain.rstrip("。！？!?. ")
+        if len(bare) < 2 or len(bare) > 6:
+            continue
+        if entity_set and bare not in entity_set and not re.fullmatch(r"[\u4e00-\u9fffA-Za-z]{2,6}", bare):
+            continue
+        prev_len = len(blocks[index - 1]) if index > 0 else 0
+        next_len = len(blocks[index + 1]) if index + 1 < len(blocks) else 0
+        if max(prev_len, next_len) < 16:
+            continue
+        tag_like_paragraphs += 1
+        if plain not in tag_examples:
+            tag_examples.append(plain)
+
+    return {
+        "marker_hits": marker_hits,
+        "tag_like_paragraphs": tag_like_paragraphs,
+        "examples": tag_examples[:3],
+    }
 
 
 def _severity_counts(issues: list[dict[str, Any]]) -> dict[str, int]:
@@ -702,11 +764,18 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
     chapter = ctx["chapter"]
     text = str(ctx["manuscript_text"] or "")
     chapter_board = ctx["fact_pack"]["chapter_board"]
+    cards_slice = ctx["fact_pack"]["cards_state_history_slice"]
+    current_step_id = normalize_drafting_step_id(ctx.get("current_step_id"))
     obligations = []
     obligations.extend(chapter_board.get("chapter_goals", []) or [])
     obligations.extend(chapter_board.get("must_happen", []) or [])
     obligations = [item for item in obligations if item]
     checked_obligations = obligations[:6]
+    beat_checkpoints = [str(item).strip() for item in (chapter_board.get("beat_checkpoints") or []) if str(item).strip()]
+    terminal_beat = str(chapter_board.get("terminal_beat") or "").strip()
+    bundled_entities = [str(item).strip() for item in ((_safe_dict(chapter_board.get("bundled_elements")).get("characters") or [])) if str(item).strip()]
+    recent_entities = [str(item).strip() for item in (cards_slice.get("recent_entities") or []) if str(item).strip()]
+    entity_candidates = list(dict.fromkeys([*bundled_entities, *recent_entities]))
 
     issues: list[dict[str, Any]] = []
     hits = 0
@@ -745,7 +814,98 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
             )
         )
 
-    score = _clamp_score(92 - (len(checked_obligations) - hits) * 18 - summary_hits * 5)
+    beat_hits = sum(1 for item in beat_checkpoints if _text_contains_candidate(text, item))
+    if len(beat_checkpoints) >= 3 and beat_hits < len(beat_checkpoints) - 1:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="结构兑现",
+                severity="high" if validation_context == "final_acceptance" else "medium",
+                location=f"第{chapter}集 beat coverage",
+                description="本集承诺的关键 beat 覆盖不足，正文只落了前半段或中段，尚未真正抵达 chapter board 承诺的终端碰撞。",
+                suggestion="回到起盘，至少把开场局面、局势改向和当前集承诺的终端碰撞都写入正式正文。",
+                rework_target_step="1-单集叙事起盘",
+            )
+        )
+
+    terminal_beat_hit = bool(terminal_beat) and _text_contains_candidate(text, terminal_beat)
+    if terminal_beat and not terminal_beat_hit:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="结构兑现",
+                severity="medium",
+                location=f"第{chapter}集终端承诺",
+                description=f"本集终端承诺尚未真正落地：{terminal_beat}",
+                suggestion="回到起盘，把当前集 promised collision 写成场面，而不是停在前置铺垫。",
+                rework_target_step="1-单集叙事起盘",
+            )
+        )
+
+    screenplay_stats = _screenplay_residue_stats(text, entity_candidates)
+    screenplay_hits = _safe_int(screenplay_stats.get("marker_hits"), 0) + _safe_int(screenplay_stats.get("tag_like_paragraphs"), 0)
+    if screenplay_hits >= 2:
+        residue_examples = " / ".join(screenplay_stats.get("examples") or [])
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="结构兑现",
+                severity="medium",
+                location=f"第{chapter}集 prose 句法层",
+                description="正文残留明显影视分镜语法或角色报幕段，仍像脚本/分镜中间态而不是小说句法。"
+                + (f" 例：{residue_examples}" if residue_examples else ""),
+                suggestion="把镜头切换词和角色报幕段改成物象、动作、声音或人物感知过渡。",
+                rework_target_step="1-单集叙事起盘" if current_step_id == "Step 1" else "8-润色",
+            )
+        )
+
+    meta_residue_hits = sum(text.count(marker) for marker in META_RESIDUE_MARKERS)
+    if meta_residue_hits:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="结构兑现",
+                severity="medium",
+                location=f"第{chapter}集破次元术语层",
+                description="正文仍残留规划/工作流层 meta 术语，破坏戏内沉浸。",
+                suggestion="把外部术语翻译成人物能感觉到的风险、余波、局势或预感。",
+                rework_target_step="8-润色",
+            )
+        )
+
+    outline_hook_hits = sum(1 for row in paragraphs if any(re.search(pattern, row) for pattern in OUTLINE_HOOK_PATTERNS))
+    if outline_hook_hits:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="结构兑现",
+                severity="medium",
+                location=f"第{chapter}集章末 hook",
+                description="章末存在明显提纲式发问，像作者替故事点题，而不是故事自己把麻烦推近。",
+                suggestion="把尾问改成危险逼近、余波未平、消息将到或脚步声临近的戏内收束。",
+                rework_target_step="8-润色",
+            )
+        )
+
+    score = _clamp_score(
+        92
+        - (len(checked_obligations) - hits) * 18
+        - summary_hits * 5
+        - max(0, len(beat_checkpoints) - beat_hits) * 4
+        - screenplay_hits * 4
+        - meta_residue_hits * 4
+        - outline_hook_hits * 6
+    )
     return {
         "overall_score": score,
         "pass": len(issues) == 0,
@@ -755,8 +915,14 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
             "missed_obligations": max(0, len(checked_obligations) - hits),
             "promise_breaks": 0 if len(issues) == 0 else min(1, len(issues)),
             "undramatized_exposition_hits": summary_hits,
+            "beat_checkpoints": len(beat_checkpoints),
+            "beat_hits": beat_hits,
+            "terminal_beat_hit": terminal_beat_hit,
+            "screenplay_residue_hits": screenplay_hits,
+            "meta_residue_hits": meta_residue_hits,
+            "outline_hook_hits": outline_hook_hits,
             "anti_ai_force_check": "fail" if summary_hits >= 3 else "pass",
-            "cold_commentary_risk": "medium" if summary_hits >= 3 else "low",
+            "cold_commentary_risk": "high" if summary_hits >= 3 or screenplay_hits >= 2 else ("medium" if meta_residue_hits or outline_hook_hits else "low"),
         },
         "summary": "结构义务已基本兑现。" if len(issues) == 0 else "存在结构兑现缺口或摘要式假兑现。",
     }

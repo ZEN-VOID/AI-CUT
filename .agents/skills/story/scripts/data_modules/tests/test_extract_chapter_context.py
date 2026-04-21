@@ -220,6 +220,31 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
         "disambiguation_pending": [],
     }
     (project_root := tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    init_dir = tmp_path / "0-Init"
+    init_dir.mkdir(parents=True, exist_ok=True)
+    (init_dir / "story-source-manifest.yaml").write_text(
+        "\n".join(
+            [
+                "manifest_version: story2026-story-source/v1",
+                "primary_story_source:",
+                "  status: partial",
+                "  coverage_scope: 上卷正文仍在补齐。",
+                "auxiliary_sources:",
+                "  - source_type: style_card",
+                "    title: 旧作风格母本",
+                "    authoritative_for: [3-Drafting]",
+                "    coverage_scope: 旧作的冷压美学与续作语感。",
+                "    paths:",
+                "      - /tmp/legacy-style.md",
+                "development_briefs:",
+                "  - brief_id: brief-sequel-bridge",
+                "    title: 续作桥接简报",
+                "    source_refs:",
+                "      - /tmp/legacy-bridge.md",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
     summaries_dir = cfg.webnovel_dir / "summaries"
     summaries_dir.mkdir(parents=True, exist_ok=True)
@@ -331,6 +356,11 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert growth_snapshot["latest_growth_episode"] == "第2集"
     assert "开始怀疑自己赢得是否太快" in growth_snapshot["carry_signals"]
     assert fact_pack["runtime_context"]["state_summary"]
+    sequel = fact_pack["runtime_context"]["sequel_continuity"]
+    assert sequel["manifest_ref"] == "0-Init/story-source-manifest.yaml"
+    assert sequel["sequel_mode"] is True
+    assert "旧作风格母本" in sequel["drafting_auxiliary_titles"]
+    assert "/tmp/legacy-style.md" in sequel["legacy_source_refs"]
     assert isinstance(payload["writing_guidance"].get("guidance_items"), list)
     assert isinstance(payload["writing_guidance"].get("checklist"), list)
     assert isinstance(payload["writing_guidance"].get("checklist_score"), dict)
@@ -444,6 +474,19 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
 
     planning_dir = tmp_path / "2-Planning" / "十集分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
+    init_dir = tmp_path / "0-Init"
+    init_dir.mkdir(parents=True, exist_ok=True)
+    (init_dir / "story-source-manifest.yaml").write_text(
+        "\n".join(
+            [
+                "manifest_version: story2026-story-source/v1",
+                "primary_story_source:",
+                "  status: missing",
+                "  coverage_scope: 当前未绑定正式正文主源。",
+            ]
+        ),
+        encoding="utf-8",
+    )
     holomap = {
         "schema_version": "story2026/holomap/v1",
         "content": {
@@ -487,7 +530,18 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                                 "turning_point": "令狐冲第一次不是为旧怨，而是为眼前人的屈辱动心。",
                                 "relationship_change": "两人从隐居同伴切回并肩看局的战友。",
                                 "injury_or_cost": "一旦出手，就再也不是过路人。",
-                            }
+                            },
+                            "style_execution": {
+                                "visual_target": "先写海上松气，再让港雨税线把假安稳撕开。",
+                                "anti_drift": ["不要写成旅游开场或海岛观光"],
+                            },
+                            "emotion_execution": {
+                                "couple_axis": "先让夫妻像真的过上了日子。",
+                            },
+                            "emotion_beat": {
+                                "beat_title": "归隐像真的发生过",
+                                "trigger": "东海松气之后才看见港口恶压。",
+                            },
                         },
                     }
                 ],
@@ -516,6 +570,13 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
     assert chapter_board["node_id"] == "ep-001"
     assert chapter_board["outline"] == "港雨买酒"
     assert "港口税线逼平民下跪" in chapter_board["must_happen"]
+    assert chapter_board["action_beat_plan"]["turning_point"] == "令狐冲第一次不是为旧怨，而是为眼前人的屈辱动心。"
+    assert chapter_board["style_execution"]["visual_target"] == "先写海上松气，再让港雨税线把假安稳撕开。"
+    assert chapter_board["emotion_execution"]["couple_axis"] == "先让夫妻像真的过上了日子。"
+    assert chapter_board["emotion_beat"]["beat_title"] == "归隐像真的发生过"
+    assert "不要写成旅游开场或海岛观光" in chapter_board["anti_drift"]
+    assert len(chapter_board["beat_checkpoints"]) >= 1
+    assert chapter_board["terminal_beat"]
     assert planning_truth["thread_window_slice"]["conflicts"] == ["conf-001"]
     assert planning_truth["foreshadow_silence_slice"]["active_foreshadowing"] == ["foe-002"]
     assert planning_truth["story_spine"]["headline"] == "港口看见不平 -> 拔剑 -> 卷入大局"
@@ -628,7 +689,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
                                 "episode_ref": "第001集",
                                 "chapter_title": "港雨买酒",
                                 "chapter_goal": "令狐冲与任盈盈只想买酒避世，第一卷的时间压力由此落锁。",
-                                "bundled_elements": {"events": ["令狐冲本只想买酒避世，却看见税线恶压。"]},
+                                "bundled_elements": {"events": ["event-001", "令狐冲本只想买酒避世，却看见税线恶压。"]},
                                 "planned_state": {"action_beat_plan": {"injury_or_cost": "代价是两人再也不可能只当过路人。"}},
                             }
                         ]
@@ -645,6 +706,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
     flat = " ".join(chapter_board["chapter_goals"] + chapter_board["must_happen"])
     assert "第一卷的时间压力" not in flat
     assert "由此落锁" not in flat
+    assert "event-001" not in flat
     assert "只想买酒避世" in flat
 
 

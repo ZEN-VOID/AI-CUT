@@ -167,6 +167,37 @@ active_skills:
       canonical_output: "projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json"
       bridge_output: "`comic_episode_poster_design.v1` JSON，作为海报设计与后续生图的唯一真源"
       mirror_policy: "4 号目录只保存海报设计 JSON；不把海报设计回写到 1/2/3 号阶段。"
+  - id: api-anyfast-image
+    path: .agents/skills/api/anyfast/image
+    owner_office: shangshu
+    purpose: "repo-local provider family router，统一承接 AnyFast 图像能力入口，并在 `nano-banana` 与 `seedream` 之间做路由裁决。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/image/"
+      env_source: "nano-banana -> .env: ANYFAST_API_KEY / ANYFAST_BASE_URL；seedream -> .env: SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY"
+      mirror_policy: "这是 provider family router，不直接发 HTTP 请求；调用时先读取父级合同，再切入被命中的子技能与其 script_entry/default_output_root。"
+  - id: api-anyfast-nano-banana-image
+    path: .agents/skills/api/anyfast/image/nano-banana
+    owner_office: shangshu
+    purpose: "repo-local provider skill，用 AnyFast Gemini 原生图像接口执行 `gemini-3.1-flash-image-preview` 文生图 / 图生图，支持 inline_data、批量并发与项目化落盘。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/image/nano-banana/"
+      env_source: ".env: ANYFAST_API_KEY / ANYFAST_BASE_URL"
+      script_entry: ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
+      default_output_root: "output/影片/[项目名]/5-API/image/nano-banana/general/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取父级路由合同、子技能 references、根 `.env` 与调用方输出策略。"
+  - id: api-anyfast-seedream-image
+    path: .agents/skills/api/anyfast/image/seedream
+    owner_office: shangshu
+    purpose: "repo-local provider skill，通过火山引擎 Ark `images/generations` 调用 `doubao-seedream-5-0-260128`，支持连续多图、SSE 与项目化落盘。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/image/seedream/"
+      env_source: ".env: SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY"
+      script_entry: ".agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py"
+      default_output_root: "output/影片/[项目名]/5-API/image/seedream/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取父级路由合同、子技能 references、根 `.env` 与默认项目化输出目录。"
   - id: api-man-tui-grok-video
     path: .agents/skills/api/man-tui/video/grok
     owner_office: shangshu
@@ -198,6 +229,17 @@ active_skills:
       script_entry: ".agents/skills/api/man-tui/image/nano-banana/scripts/man_tui_nano_banana_generate.py"
       default_output_root: "output/影片/[项目名]/5-API/image/man-tui/nano-banana/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
+  - id: api-anyfast-doubao-seed-2.0-pro
+    path: .agents/skills/api/anyfast/llm/doubao-seed-2.0-pro
+    owner_office: shangshu
+    purpose: "repo-local provider skill，通过 AnyFast OpenAI 兼容 Chat Completions 接口调用 `doubao-seed-2.0-pro`，执行高推理中文分析、结构化 messages 直传与流式对话，并输出文本 sidecar 与报告 JSON。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/"
+      env_source: ".env: ANYFAST_API_KEY / ANYFAST_BASE_URL / ANYFAST_API_BASE_URL"
+      script_entry: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py"
+      default_output_root: "output/影片/[项目名]/5-API/llm/doubao-seed-2.0-pro/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: api-vidu-video
     path: .agents/skills/api/vidu
     owner_office: shangshu
@@ -209,6 +251,15 @@ active_skills:
       script_entry: ".agents/skills/api/vidu/scripts/vidu_video.py"
       default_output_root: "output/影片/[项目名]/5-API/video/vidu/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
+  - id: story-doubao
+    path: .agents/skills/story/doubao
+    owner_office: shangshu
+    purpose: "story 组 repo-local 中文小说润色与文风诊断 skill，面向豆包系中文模型，先分析文章风格，再以单技能方式吸收 `3-Drafting` 八道工序能力完成整稿提纯、去 AI 味与中文表达强化。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/story/doubao/"
+      default_target: "用户提供的文章文本，或 `projects/story/<项目名>/3-Drafting/第N集.md`"
+      mirror_policy: "这是 story 旁路润色 skill，不拥有 planning/cards/validation/actualization 真源；默认输出风格分析、润色策略与候选正文，只有用户明确要求时才覆写目标文本。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

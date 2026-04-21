@@ -21,9 +21,9 @@ color: yellow
 本文件是 nano-banana 的 **纯 API 契约层**，定义参数枚举、请求格式、并发调度与落盘规则。所有应用场景（通用生图、换脸、换装、多视图等）由子技能包承载。
 
 - AnyFast 加速端点：
-  - 平台地址：`https://www.anyfas.ai`
+  - 平台地址：`https://www.anyfast.ai`
   - 文档地址：`https://docs.anyfast.ai`
-  - API 基础端点：`https://fw2afus.ent.acc.kurtisasia.com`
+  - API 基础端点：优先读取 `.env` 中的 `ANYFAST_BASE_URL`，兼容旧 `ANYFAST_API_BASE_URL`
   - 默认请求形态：`POST /v1beta/models/<model>:generateContent?key=...`
 - 默认模型：`gemini-3.1-flash-image-preview`
 - 支持两类任务：文本生图（T2I）、参考图生图（I2I）
@@ -48,7 +48,7 @@ color: yellow
 - API Key（优先读取根目录 `.env` 中的 `ANYFAST_API_KEY`，回退 `GEMINI_API_KEY`，也可显式传 `--api-key`）
 
 可选输入：
-- `model`
+- `model`（默认 `gemini-3.1-flash-image-preview`；可通过 `ANYFAST_DEFAULT_MODEL` 覆盖，兼容旧 `DXJ2_DEFAULT_MODEL`）
 - `project_name`
 - `task_kind`（`project / test / temp`）
 - `aspect_ratio`
@@ -89,7 +89,7 @@ color: yellow
      - `generationConfig.responseModalities`
      - `generationConfig.imageConfig.aspectRatio / imageSize`
    - 禁止混入与该文档不兼容的旧字段，如 `ratio`、`quality`、`images[].url` 直接透传到 API。
-   - API URL 必须优先由 `.env` 中的 `ANYFAST_API_BASE_URL` 组装，不再把固定官网域名硬编码为唯一入口。
+   - API URL 必须优先由 `.env` 中的 `ANYFAST_BASE_URL` 组装，兼容旧 `ANYFAST_API_BASE_URL` / `ANYFAST_ACCEL_BASE_URL` 回退，不再把旧加速域名硬编码为唯一入口。
 6. **参考图统一转译**
    - 参考图若来自 URL、本地文件或 data URL，必须统一转译为：
      - `inline_data.mime_type`
@@ -152,7 +152,7 @@ color: yellow
 3. **Step 3 / 原生请求构造**
    - 参考图转为 `inline_data`
    - 若参考图体积过大，先在内存里缩边/压缩到安全预算，再写入 `inline_data`
-   - 从 `.env` 读取 `ANYFAST_API_BASE_URL`
+   - 从 `.env` 读取 `ANYFAST_BASE_URL`（兼容旧 `ANYFAST_API_BASE_URL`）
    - 组装 `/v1beta/models/<model>:generateContent`
    - 构造 `contents[].parts[]`
    - 构造 `generationConfig.responseModalities=["TEXT","IMAGE"]`
@@ -251,7 +251,8 @@ python3 .agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generat
 ## 10. 失败排查
 
 1. 检查 `.env` 是否存在 `ANYFAST_API_KEY` 或 `GEMINI_API_KEY`
-2. 检查 `.env` 是否存在 `ANYFAST_API_BASE_URL` 与 `DXJ2_DEFAULT_MODEL`
+2. 检查 `.env` 是否存在 `ANYFAST_BASE_URL`
+   - 若需要覆盖默认模型，再检查可选的 `ANYFAST_DEFAULT_MODEL`（兼容旧 `DXJ2_DEFAULT_MODEL`）
 3. 先运行 `--dry-run --print-payload` 检查最终 payload
    - 若包含参考图，`dry-run` 只验证 payload 结构，不会真实下载 URL / 读取本地图片；参考图位置会以占位 `inline_data` 保持同形结构。
 4. 确认 `aspectRatio / imageSize` 是否被正确解析：

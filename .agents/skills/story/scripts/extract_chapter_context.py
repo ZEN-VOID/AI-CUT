@@ -25,6 +25,11 @@ from chapter_outline_loader import load_chapter_outline, load_holomap_chapter_co
 from runtime_compat import enable_windows_utf8_stdio
 
 try:
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
+
+try:
     from chapter_paths import find_chapter_file
 except ImportError:  # pragma: no cover
     from scripts.chapter_paths import find_chapter_file
@@ -252,6 +257,64 @@ def _load_protagonist_growth_snapshot(project_root: Path) -> Dict[str, Any]:
     return {}
 
 
+def _load_story_source_manifest_summary(project_root: Path) -> Dict[str, Any]:
+    manifest_path = project_root / "0-Init" / "story-source-manifest.yaml"
+    if not manifest_path.is_file() or yaml is None:
+        return {}
+
+    try:
+        payload = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+
+    primary = payload.get("primary_story_source") if isinstance(payload.get("primary_story_source"), dict) else {}
+    auxiliary = payload.get("auxiliary_sources") if isinstance(payload.get("auxiliary_sources"), list) else []
+    briefs = payload.get("development_briefs") if isinstance(payload.get("development_briefs"), list) else []
+
+    drafting_titles: List[str] = []
+    coverage_notes: List[str] = []
+    source_refs: List[str] = []
+    for item in auxiliary:
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title") or "").strip()
+        authoritative_for = {str(v).strip() for v in (item.get("authoritative_for") or []) if str(v).strip()}
+        paths = [str(v).strip() for v in (item.get("paths") or []) if str(v).strip()]
+        coverage = str(item.get("coverage_scope") or "").strip()
+        if title and ("3-Drafting" in authoritative_for or item.get("source_type") in {"style_card", "character_bundle"}):
+            drafting_titles.append(title)
+        if coverage and coverage not in coverage_notes:
+            coverage_notes.append(coverage)
+        for path in paths:
+            if path and path not in source_refs:
+                source_refs.append(path)
+
+    brief_titles: List[str] = []
+    for item in briefs:
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title") or "").strip()
+        if title:
+            brief_titles.append(title)
+        for path in (item.get("source_refs") or []):
+            ref = str(path).strip()
+            if ref and ref not in source_refs:
+                source_refs.append(ref)
+
+    return {
+        "manifest_ref": "0-Init/story-source-manifest.yaml",
+        "primary_story_source_status": str(primary.get("status") or "").strip(),
+        "primary_coverage_scope": str(primary.get("coverage_scope") or "").strip(),
+        "drafting_auxiliary_titles": drafting_titles[:6],
+        "coverage_notes": coverage_notes[:8],
+        "development_brief_titles": brief_titles[:6],
+        "legacy_source_refs": source_refs[:12],
+        "sequel_mode": bool(auxiliary or briefs),
+    }
+
+
 def _split_planning_obligation_fragments(value: Any) -> List[str]:
     fragments: List[str] = []
     if isinstance(value, list):
@@ -286,9 +349,37 @@ def _split_planning_obligation_fragments(value: Any) -> List[str]:
     return fragments
 
 
+def _split_story_beats(value: Any) -> List[str]:
+    text = str(value or "").strip()
+    if not text:
+        return []
+
+    normalized = text
+    for token in ("；", ";", "再一刀反切到", "画面猛然反切到", "却很快", "随后", "最后", "接着"):
+        normalized = normalized.replace(token, "|")
+
+    beats: List[str] = []
+    for chunk in normalized.split("|"):
+        item = chunk.strip("“”\"' \t\r\n，,。")
+        if len(item) < 6:
+            continue
+        if item not in beats:
+            beats.append(item)
+    return beats
+
+
+def _is_reflective_fragment(fragment: str) -> bool:
+    text = str(fragment or "").strip()
+    return any(marker in text for marker in ("不是单一", "意味着", "核心仍是", "真正看到", "风险如果太弱"))
+
+
 def _is_actionable_planning_fragment(fragment: str) -> bool:
     text = str(fragment or "").strip()
     if len(text) < 4:
+        return False
+
+    # Planning thread ids like `event-001` / `conf-001` are routing tokens, not prose obligations.
+    if re.fullmatch(r"(?:event|conf|mission|clue|foe|edge)-\d+", text):
         return False
 
     meta_markers = (
@@ -454,6 +545,9 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         bundled = slice_board.get("bundled_elements") if isinstance(slice_board.get("bundled_elements"), dict) else {}
         planned_state = slice_board.get("planned_state") if isinstance(slice_board.get("planned_state"), dict) else {}
         action_plan = planned_state.get("action_beat_plan") if isinstance(planned_state.get("action_beat_plan"), dict) else {}
+        style_execution = planned_state.get("style_execution") if isinstance(planned_state.get("style_execution"), dict) else {}
+        emotion_execution = planned_state.get("emotion_execution") if isinstance(planned_state.get("emotion_execution"), dict) else {}
+        emotion_beat = planned_state.get("emotion_beat") if isinstance(planned_state.get("emotion_beat"), dict) else {}
         chapter_goal = str(slice_board.get("chapter_goal") or "").strip()
         must_happen = []
         for item in bundled.get("events", []) if isinstance(bundled.get("events"), list) else []:
@@ -471,6 +565,12 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
             for fragment in _split_planning_obligation_fragments(chapter_goal)
             if _is_actionable_planning_fragment(fragment)
         ]
+        beat_checkpoints = [
+            fragment
+            for fragment in _split_story_beats(chapter_goal)
+            if fragment and not _is_reflective_fragment(fragment)
+        ]
+        terminal_beat = beat_checkpoints[-1] if beat_checkpoints else ""
 
         chapter_board = {
             "outline": str(slice_board.get("chapter_title") or chapter_goal or chapter_board.get("outline") or "").strip(),
@@ -483,6 +583,13 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
             "chapter_title": str(slice_board.get("chapter_title") or "").strip(),
             "bundled_elements": bundled,
             "planned_state": planned_state,
+            "action_beat_plan": action_plan,
+            "style_execution": style_execution,
+            "emotion_execution": emotion_execution,
+            "emotion_beat": emotion_beat,
+            "beat_checkpoints": beat_checkpoints,
+            "terminal_beat": terminal_beat,
+            "anti_drift": list(style_execution.get("anti_drift") or []),
             "planning_slice_ref": str(planning_ctx.get("slice_ref") or "").strip(),
             "planning_slice_path": str(planning_ctx.get("slice_path") or "").strip(),
         }
@@ -507,6 +614,7 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "checklist": writing_guidance.get("checklist", []),
         "guidance_items": writing_guidance.get("guidance_items", []),
     }
+    sequel_continuity = _load_story_source_manifest_summary(project_root)
     global_truth_slice = {
         "global_contract_index_ref": global_ctx.get("global_contract_index_ref", ""),
         "global_contract_refs": global_ctx.get("global_contract_refs", []),
@@ -550,6 +658,7 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
                 "style_gate": style_gate,
                 "reader_signal": (sections.get("reader_signal") or {}).get("content", {}) or {},
                 "writing_guidance": writing_guidance,
+                "sequel_continuity": sequel_continuity,
             },
         },
     }

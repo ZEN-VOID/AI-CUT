@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-20`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
+截至 `2026-04-21`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
@@ -112,6 +112,11 @@
   - `aigc-video-stage-entry`
   - `high-risk-review-gate`
   - `aigc-shelved-stages`
+  - `api-anyfast-image-entry`
+  - `api-anyfast-nano-banana-image-entry`
+  - `api-anyfast-seedream-image-entry`
+  - `api-anyfast-doubao-seed-2.0-pro-entry`
+  - `story-doubao-entry`
   - `api-man-tui-nano-banana-image-entry`
   - `api-vidu-video-entry`
 - `comic` 已作为 repo-local 漫画项目父级入口接入治理，固定项目根为 `projects/comic/[项目名]/`
@@ -121,10 +126,17 @@
   - `comic-generation`
   - `comic-episode-poster`
 - provider API 类 repo-local skill 已开始进入注册与路由：
+  - `api-anyfast-image`
+  - `api-anyfast-nano-banana-image`
+  - `api-anyfast-seedream-image`
+  - `api-anyfast-doubao-seed-2.0-pro`
   - `api-man-tui-grok-video`
   - `api-man-tui-sora`
   - `api-man-tui-nano-banana-image`
   - `api-vidu-video`
+- story 侧已新增 repo-local 单技能润色入口：
+  - `story-doubao`
+  - 作为 `story` 主链旁路技能，负责中文小说文风诊断、整稿统修、去 AI 味与中文表达强化，不拥有 planning / validation / actualization 真源
 - 团队能力类 repo-local skill 已进入注册与路由，当前覆盖：
   - 小说组
   - 演员组

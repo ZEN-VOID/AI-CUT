@@ -184,10 +184,13 @@ canonical contracts：
   - 运行时事实查询。
 - `resume`
   - 中断恢复与断点续跑。
+- `doubao`
+  - 中文小说润色、文风诊断与单技能整稿统修。
 
 默认关系：
 
 - `query / resume` 与 `5-Loopback` 语义关联最强，但各自只处理自己的卫星职责。
+- `doubao` 与 `3-Drafting` 语义关联最强，但它只拥有风格分析、润色策略与候选正文/可选覆写，不拥有规划、验证与 actualization 判定权。
 - 卫星技能不改写 `Cards` / `Planning` / `validation_status` 的 canonical truth。
 
 ### Auxiliary Command
@@ -210,6 +213,7 @@ canonical contracts：
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
 | `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第N集.loopback.json`、PASS+handoff-granted writeback | 未通过验证或未被 handoff 授权的修改写回 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
+| `doubao` | 风格分析、中文表达强化、候选润色正文与用户显式授权下的单点覆写 | `Cards / Planning / validation_status / actualization` 判定权 |
 
 ## Canonical Runtime Root
 
@@ -392,6 +396,7 @@ repo 级 authoritative source：
 | PASS 后的 actualization、truth writeback、projection refresh | `5-Loopback` |
 | 查询当前态、规划态、实绩态、质量态 | `query` |
 | 查看断点、续跑、清理或重启任务 | `resume` |
+| 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化 | `doubao` |
 | 提炼成功模式或闭环修复后的负向 heuristic | `/story-learn`（辅助命令，非 tracked workflow） |
 
 裁决原则：
