@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Dynamic type-pack resolver for comic runtime."""
+"""Dynamic single-layer genre type-pack resolver for comic runtime."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ RUNTIME_CONFIG_NAME = "runtime.yaml"
 GENRE_META_NAME = "meta.yaml"
 DEFAULT_METHOD_KERNEL = "comic-core-v1"
 DEFAULT_BASE_PACK = "_base"
-DEFAULT_PRIMARY_PACK = "漫画高冲击"
+DEFAULT_PRIMARY_PACK = "经典漫画叙事"
 CANONICAL_STAGES = (
     "script_adaptation",
     "nine_blade_prompting",
@@ -69,6 +69,14 @@ def _deep_merge(base: dict[str, Any], extra: dict[str, Any]) -> dict[str, Any]:
 
 def _normalize_text_list(value: Any) -> list[str]:
     return [str(item).strip() for item in _safe_list(value) if str(item).strip()]
+
+
+def _compact_text(value: Any) -> str:
+    if value in (None, "", [], {}):
+        return ""
+    if isinstance(value, str):
+        return " ".join(value.split()).strip()
+    return str(value).strip()
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
@@ -169,19 +177,69 @@ def _knowledge_refs_for_genre(genre_id: str) -> list[str]:
     return refs
 
 
-def _digest_markdown_refs(refs: list[str]) -> list[str]:
+def _flatten_structure_lines(
+    value: Any,
+    *,
+    prefix: str = "",
+    max_lines: int = 24,
+    max_depth: int = 4,
+) -> list[str]:
+    lines: list[str] = []
+
+    def walk(node: Any, current_prefix: str, depth: int) -> None:
+        if len(lines) >= max_lines or depth > max_depth:
+            return
+        if isinstance(node, dict):
+            for key, child in node.items():
+                next_prefix = f"{current_prefix}.{key}" if current_prefix else str(key)
+                walk(child, next_prefix, depth + 1)
+                if len(lines) >= max_lines:
+                    return
+            return
+        if isinstance(node, list):
+            compact_items = [_compact_text(item) for item in node]
+            compact_items = [item for item in compact_items if item]
+            if compact_items:
+                label = current_prefix or "items"
+                lines.append(f"{label}: {', '.join(compact_items[:8])}")
+            return
+        compact = _compact_text(node)
+        if compact:
+            label = current_prefix or "value"
+            lines.append(f"{label}: {compact}")
+
+    walk(value, prefix, 0)
+    return lines[:max_lines]
+
+
+def _digest_markdown_refs(refs: list[str], *, max_lines: int = 24) -> list[str]:
     digest: list[str] = []
     repo_root = _canonical_pack_root().parents[4]
     for raw in refs:
         path = repo_root / raw
         if not path.is_file():
             continue
+        heading_stack: list[str] = []
         for line in path.read_text(encoding="utf-8").splitlines():
-            text = line.strip().lstrip("-").strip()
-            if len(text) < 2 or text.startswith("#"):
+            stripped = line.strip()
+            if not stripped:
                 continue
-            digest.append(text)
-            if len(digest) >= 8:
+            if stripped.startswith("#"):
+                heading = stripped.lstrip("#").strip()
+                if heading:
+                    level = len(stripped) - len(stripped.lstrip("#"))
+                    keep = max(level - 1, 0)
+                    heading_stack[:] = heading_stack[:keep]
+                    heading_stack.append(heading)
+                continue
+            text = stripped.lstrip("-").strip()
+            if len(text) < 2:
+                continue
+            prefix = " > ".join(heading_stack[-2:])
+            digest_line = f"{prefix}: {text}" if prefix else text
+            if digest_line not in digest:
+                digest.append(digest_line)
+            if len(digest) >= max_lines:
                 return digest
     return digest
 
@@ -256,6 +314,7 @@ class TypePackResolver:
         knowledge_refs: list[str] = []
         stage_projection: dict[str, Any] = {stage: {} for stage in CANONICAL_STAGES}
         pack_revisions: dict[str, str] = {}
+        control_surface: dict[str, Any] = {}
 
         overlays = [
             _base_overlay(),
@@ -267,6 +326,7 @@ class TypePackResolver:
 
         for overlay in overlays:
             semantic_tags = _append_dedup(semantic_tags, _normalize_text_list(_safe_dict(overlay).get("semantic_tags")))
+            control_surface = _deep_merge(control_surface, _safe_dict(overlay).get("control_surface") or {})
             for stage in CANONICAL_STAGES:
                 stage_projection[stage] = _deep_merge(
                     stage_projection[stage],
@@ -296,12 +356,14 @@ class TypePackResolver:
             "platform": platform,
             "audience": audience,
             "active_packs": active_packs,
-            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+            "resolution_mode": "single-layer-genre-comic-type-pack",
             "knowledge_refs": knowledge_refs,
             "knowledge_digest": _digest_markdown_refs(knowledge_refs),
+            "control_surface": control_surface,
+            "control_surface_digest": _flatten_structure_lines(control_surface, max_lines=28),
             "semantic_tags": semantic_tags,
             "stage_projection": stage_projection,
             "projection_summary": projection_summary,
             "pack_revisions": pack_revisions,
-            "resolver_strategy": "runtime-yaml-plus-genre-meta-autodiscovery",
+            "resolver_strategy": "runtime-yaml-plus-genre-meta-single-layer-autodiscovery",
         }

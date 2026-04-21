@@ -23,10 +23,10 @@
 `九刀流` 不再直接从任意原始剧本文本切页。当前口径固定为：
 
 1. 先把 `source_script` 做“剧本来源格式化处理”。
-2. 再用格式化后的 `formatted_source_script` 作为九刀切页的起点。
-3. 最终不再默认只交付一份整集 JSON；当前口径是“先切 `page-group`，再按组各交付一份 `nine_blade_comic_prompts.v1` JSON”。前奏与分组都不与组级 JSON 竞争 canonical 成品。
+2. 优先直接用 `1-漫画剧本改编/第N组.md` 作为九刀切页的起点。
+3. 最终不再默认只交付一份整集 JSON；当前口径是“一个 `第N组.md` 对应一份 `nine_blade_comic_prompts.v1` JSON”。兼容切组只在用户直接给 raw source 且没有 stage-1 产物时发生。
 
-若 `1-漫画剧本改编/formatted_source_script.json` 已存在且通过校验，则它优先于自由 prose，默认视为唯一上游文本真源。
+若 `1-漫画剧本改编/第N组.md` 已存在，则它优先于自由 prose，默认视为唯一上游文本真源。
 
 前奏处理机制参照 `.agents/skills/aigc/1-Planning/2-格式`，按以下顺序执行：
 
@@ -50,28 +50,34 @@
 
 ### 1.0.2 格式化真源最低要求
 
-`formatted_source_script` 推荐最少包含：
+`第N组.md` 推荐最少包含：
 
-- `source_format_variant`
-- `canonical_story_summary`
-- `ordered_story_units[]`
-- `character_seed_roster[]`
-- `scene_seed_roster[]`
-- `continuity_alerts[]`
-- `blade_ready_notes`
+- 组标题
+- 本组剧情跨度
+- 可直接切页的场景化正文
+- 组末钩子
+
+若 `第N组.md` 使用包装区块，读取优先级固定为：
+
+1. `【漫剧正文】`
+2. `【组末钩子】`
+3. `【本组跨度】`
+4. frontmatter 中的 `估算原文字数 / 尾组决议 / adaptation_posture / type_stack_summary`
+
+其中只有 `【漫剧正文】` 拥有业务正文真相权；其余区块只作为切页辅证，不得反向覆盖正文。
 
 硬规则：
 
 - 未完成前奏验证前，不得直接切 `story_beat_map`。
-- `ordered_story_units[]` 必须可视化、可顺序切刀，不能还是大段抽象 prose。
-- 若关键角色、场景、转场、高潮或余波在前奏中丢失，视为前奏失败而不是九刀失败。
+- `【漫剧正文】` 必须可拆成可顺序切刀的场景化段落，不能还是大段抽象 prose。
+- 若关键角色、场景、转场、高潮或余波在从 `第N组.md` 提取 `group_source_extract` 时丢失，视为前奏失败而不是九刀失败。
 
 ### 1.0.3 Page-Group 划分硬规则
 
-- `formatted_source_script` 通过验证后，必须先生成 `page_group_plan`，再以每个 group 为单位执行九刀。
-- 默认节奏口径：约 `500` 字原文 = 一个 9 pages 的 `page-group`。
-- 推荐软窗口：`350-650` 字；若场景、高潮、钩子需要完整保留，可小幅放宽，但不得机械按字数把同一动作截断。
-- 分组优先尊重 `ordered_story_units[]`、`scene_cards[]`、`impact_beats[]`、`page_turn_candidates[]` 的自然边界。
+- `第N组.md` 存在时，必须直接按组执行九刀，不再额外挂出 `page_group_plan` 竞争真源。
+- 默认节奏口径：约 `1000` 字原文 = 一个 9 pages 的组单元。
+- 不满 `1000` 字的一组直出；长文切分后的尾组 `300` 字以内并入上一组，`700` 字以上可自成一组，`301-699` 字默认并入上一组，除非存在明确场景或钩子闭合边界。
+- 分组优先尊重 `【边界判定】`、`【漫剧正文】` 和 `【组末钩子】` 所体现的自然边界。
 - 每个 group 至少要有：`entry_hook`、中段推进/阻力、`exit_hook` 或余波；不能只收一段长解释。
 - 每个 group 输出仍是标准 `nine_blade_comic_prompts.v1`，但建议额外包含 `page_group` 与 `continuity_context`，明确该组身份和 continuity 继承。
 - 组间 continuity 必须继承同一套 `main_character_lock`、`style_bible`、`character_locks`、`scene_continuity_bible`。允许剧情功能变化，不允许作品风格和角色造型 DNA 断层切换。

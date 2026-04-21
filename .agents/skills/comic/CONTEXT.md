@@ -48,8 +48,8 @@ last_checked_at: 2026-04-17T07:20:00Z
 ## Reusable Heuristics
 
 - `comic` 根层的价值在于项目根和交接真源，不在于复写子技能细则。
-- 五段链完整交付时，最稳的节奏是：先把小说母稿和桥接包落盘，再把九刀流 JSON 落盘，再让生图报告引用 JSON 和图片，再由 4 号技能按页提炼 video prompt 并生成页视频，最后由 5 号技能收束成单集海报设计 JSON。
-- 当 2 号技能进入多组口径后，父级最稳路由是：stage 2 先落 `page_group_plan + group JSON 集合`，stage 3 再按 `group_index` 逐组消费，而不是试图把多组 JSON 二次拼回一个超长 prompt。
+- 五段链完整交付时，最稳的节奏是：先把 `第N组.md` 分组漫剧剧本落盘，再把九刀流 JSON 落盘，再让生图报告引用 JSON 和图片，再由 4 号技能按页提炼 video prompt 并生成页视频，最后由 5 号技能收束成单集海报设计 JSON。
+- 当 2 号技能进入多组口径后，父级最稳路由是：stage 1 先落 `第N组.md`，stage 2 再逐组产出 group JSON，stage 3 再按 `group_index` 逐组消费，而不是试图把多组 JSON 二次拼回一个超长 prompt。
 - 当需要动画时，最稳的节奏是：先锁 2 号 group JSON 为 prompt 真源，再锁 3 号的 `page01..page09` 为首帧真源，4 号先完成页级 prompt 编译，再把每页补成公网 `input_reference_url` 后交给 `man-tui/video/sora` 执行，不重写剧情。
 - 当需要海报时，最稳的节奏是：先锁 1/2 号真源，3 号图片和 4 号页视频只做参考，再由 5 号生成单集 poster JSON。
 - `projects/comic/[项目名]/` 是漫画项目的业务真源；`output/` 只适合临时实验，不适合作为正式 comic 项目交付根。

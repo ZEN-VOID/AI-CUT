@@ -21,7 +21,7 @@ governance_tier: full
 默认目标：
 
 - 海报必须和当前剧集剧情有强绑定，而不是通用角色拼贴。
-- 海报不得脱离 `projects/comic/[项目名]/` 已有上游输出物单独脑补，至少要回读 `1-漫画剧本改编` 与 `2-九刀流漫画提示词` 真源。
+- 海报不得脱离 `projects/comic/[项目名]/` 已有上游输出物单独脑补，至少要回读 `1-漫画剧本改编` 的 `第N组.md` 与 `2-九刀流漫画提示词` 真源。
 - 主体人物必须与当前剧集中实际出现的主角吻合，不得偷换未出场角色。
 - 文案系统默认水平+垂直双居中：
   - `第N集` 字号略小。
@@ -55,8 +55,7 @@ governance_tier: full
 
 ### 必读真源
 
-- `projects/comic/[项目名]/1-漫画剧本改编/formatted_source_script.json`
-- `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本桥接包.md`
+- `projects/comic/[项目名]/1-漫画剧本改编/第*.组.md`
 - `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-*.json`
   - 新口径下，单集/单回项目优先读取 `page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等当前 episode 的全部组级 JSON。
   - 多集项目必须优先读取 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-*.json`，不得回退覆盖或误读其他集。
@@ -64,17 +63,15 @@ governance_tier: full
 
 ### 强建议同时读取
 
-- `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本主稿.md`
-- `projects/comic/[项目名]/1-漫画剧本改编/思行裁决摘要.md`
 - `projects/comic/[项目名]/2-九刀流漫画提示词/思考过程摘要.md`
   - 多集项目优先读取 `第N集-思考过程摘要.md`。
 - `projects/comic/[项目名]/3-漫画生成/` 下已存在的生成图或报告，若存在则只作造型与风格参考，不夺走业务真相所有权
 
 ### 继承要求
 
-- 主体阶段继承：优先继承 `1-漫画剧本改编` 的角色阶段描述与 `2-九刀流` 的 `main_character_lock / character_locks`
-- 格式阶段继承：优先继承 `formatted_source_script.json` 中的 `scene_cards / impact_beats / page_turn_candidates / character_locks / scene_locks`
-- 场景继承：优先继承 `scene_continuity_bible` 与桥接包中的场景锚点
+- 主体阶段继承：优先继承 `1-漫画剧本改编/第*.组.md` 中的角色阶段描述与 `2-九刀流` 的 `main_character_lock / character_locks`
+- 格式阶段继承：优先继承 `第*.组.md` 中的场景推进、冲击画面与组末钩子
+- 场景继承：优先继承 `第*.组.md` 与 `scene_continuity_bible` 中的场景锚点
 - 风格继承：优先继承 `style_bible` 的漫画风格词、线条/明暗/媒介气质，不得另起一套断层风格
 - 类型包继承：必须优先继承上游 artifact 中的 `type_stack_ref / type_pack_context.stage_projection.episode_poster`，不得重新凭直觉决定标题气质和构图取向。
 - 高光点发现：必须先在上游中列出 `3-5` 个本集高光候选，再按“剧情命题价值 + 视觉冲击力 + 海报传播性 + 风格承接度”选择最终海报核心场面
@@ -87,15 +84,12 @@ governance_tier: full
   - 漫画项目名。
 - `episode_source`
   - 当前剧集的真实上游素材，至少满足以下之一：
-    - `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本主稿.md`
-    - `projects/comic/[项目名]/1-漫画剧本改编/formatted_source_script.json`
-    - `projects/comic/[项目名]/1-漫画剧本改编/漫画剧本桥接包.md`
+    - `projects/comic/[项目名]/1-漫画剧本改编/第*.组.md`
     - `projects/comic/[项目名]/2-九刀流漫画提示词/page-group-*.json`
     - 多集项目应改为 `projects/comic/[项目名]/2-九刀流漫画提示词/第N集-page-group-*.json`
 - `upstream_artifacts`
   - 至少要在执行时实际读取：
-    - `1-漫画剧本改编/漫画剧本桥接包.md`
-    - `1-漫画剧本改编/formatted_source_script.json`
+    - `1-漫画剧本改编/第*.组.md`
     - `2-九刀流漫画提示词/page-group-*.json`
     - 多集项目优先读取 `第N集-page-group-*.json`
 
@@ -158,8 +152,8 @@ erDiagram
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁项目、集数、输出路径 | `project_name`、上游路径、用户要求 | 确认 `projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json`，并检查上游目录是否存在 | 项目名、集数、路径、上游路径清单 | `N2` | 输出根唯一，且上游真源可读 |
-| `N2-UPSTREAM-LOAD` | 强制加载项目上游真源 | 桥接包、九刀流 JSON、主稿、可选 3 号输出 | 记录已加载 artifact，抽取角色、场景、风格与剧情证据 | `upstream_context.loaded_artifacts`、风格锚点摘要 | `N3` | 至少实际读取桥接包和九刀流 JSON |
-| `N3-EPISODE-FACTS` | 抽取本集剧情事实与高光候选 | 剧本主稿、桥接包、九刀流 JSON、可选生成页 | 提炼本集故事钩子、实际出场角色、代表性场面、禁止越界元素，并列出 `3-5` 个剧情高光候选 | `episode_logline`、`actual_character_ids`、`highlight_discovery.candidate_highlights` | `N4` | 至少 3 个高光候选和 1 个主矛盾 |
+| `N2-UPSTREAM-LOAD` | 强制加载项目上游真源 | 分组漫剧剧本、九刀流 JSON、可选 3 号输出 | 记录已加载 artifact，抽取角色、场景、风格与剧情证据 | `upstream_context.loaded_artifacts`、风格锚点摘要 | `N3` | 至少实际读取分组剧本和九刀流 JSON |
+| `N3-EPISODE-FACTS` | 抽取本集剧情事实与高光候选 | `第*.组.md`、九刀流 JSON、可选生成页 | 提炼本集故事钩子、实际出场角色、代表性场面、禁止越界元素，并列出 `3-5` 个剧情高光候选 | `episode_logline`、`actual_character_ids`、`highlight_discovery.candidate_highlights` | `N4` | 至少 3 个高光候选和 1 个主矛盾 |
 | `N4-STYLE-HIGHLIGHT-LOCK` | 锁风格继承与最终高光点 | 上游风格词、角色锁、场景锁、高光候选 | 选定最终高光点，归纳角色阶段、场景连续性、漫画风格与情绪基调 | `upstream_context.style_inheritance`、`highlight_discovery.selected_highlight` | `N5` | 风格锚点来自上游，不另起炉灶 |
 | `N5-SUBJECT-LOCK` | 锁海报主体与角色边界 | `actual_character_ids`、角色描述、选中的高光点 | 选海报主体、次主体、排除未出场角色；写出主体关系张力 | `subject_lock` | `N6` | 主体全部出自当前剧集 |
 | `N6-HOOK-CONCEPT` | 锁创意与钩子标题 | 本集悬念、冲突、视觉奇点、选中的高光点、可选用户标题 | 优先吸收用户提供标题；未提供时再写传播钩子、标题文案、剧透级别与核心创意句 | `creative_core`、`hook_title` | `N7` | 有吸引力但不脱离本集 |
@@ -211,7 +205,7 @@ projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json
 
 ## 8. 硬规则
 
-- 上游加载级：必须在 `upstream_context.loaded_artifacts` 中显式记录已读取的项目上游真源，且至少包含桥接包与九刀流 JSON。
+- 上游加载级：必须在 `upstream_context.loaded_artifacts` 中显式记录已读取的项目上游真源，且至少包含分组剧本与九刀流 JSON。
 - 风格继承级：必须在 `upstream_context.style_inheritance` 中显式写出从上游继承的角色阶段、场景连续性和风格锚点。
 - 类型包继承级：必须显式记录 `type_stack_ref` 与 `type_pack_context.stage_projection.episode_poster`，说明本集海报是否更偏“宣战 / 威胁 / 背叛 / 心动 / 中二誓言”等哪类标题和画面倾向。
 - 高光点发现级：必须在 `upstream_context.highlight_discovery` 中先列候选，再给出选中项和筛选理由。
@@ -230,7 +224,7 @@ projects/comic/[项目名]/5-剧集海报/第N集-剧集海报.json
 | field_id | 输出位置/字段 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-CEP-01` | `episode.display_text` | 严格为 `第N集` | `FAIL-CEP-EPISODE-LABEL` |
-| `FIELD-CEP-02` | `upstream_context.loaded_artifacts` | 至少实际加载桥接包与九刀流 JSON | `FAIL-CEP-UPSTREAM` |
+| `FIELD-CEP-02` | `upstream_context.loaded_artifacts` | 至少实际加载分组剧本与九刀流 JSON | `FAIL-CEP-UPSTREAM` |
 | `FIELD-CEP-03` | `upstream_context.style_inheritance` | 角色阶段、场景连续、风格锚点齐备 | `FAIL-CEP-STYLE-INHERIT` |
 | `FIELD-CEP-03A` | `type_stack_ref / type_pack_context.stage_projection.episode_poster` | 当前海报可回指 active packs 与 poster 阶段投影 | `FAIL-CEP-TYPE-PACK` |
 | `FIELD-CEP-04` | `upstream_context.highlight_discovery` | 候选高光点、选中高光点、筛选理由齐备 | `FAIL-CEP-HIGHLIGHT` |

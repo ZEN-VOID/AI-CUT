@@ -40,25 +40,53 @@
   "type_stack_ref": {
     "method_kernel": "comic-core-v1",
     "base": "_base",
-    "primary": "漫画高冲击",
-    "secondary": ["中二战斗"],
+    "primary": "经典漫画叙事",
+    "secondary": ["少年战斗冒险"],
     "platform": ["条漫平台"],
     "audience": ["少年热血受众"],
-    "active_packs": ["_base", "漫画高冲击", "中二战斗", "条漫平台", "少年热血受众"]
+    "active_packs": ["_base", "经典漫画叙事", "少年战斗冒险", "条漫平台", "少年热血受众"]
   },
   "type_pack_context": {
-    "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+    "resolution_mode": "single-layer-genre-comic-type-pack",
     "knowledge_refs": [
-      ".agents/skills/comic/type-packs/漫画/中二战斗/中二战斗.md",
-      ".agents/skills/comic/type-packs/漫画/中二战斗/命名体系.md"
+      ".agents/skills/comic/type-packs/漫画/少年战斗冒险/少年战斗冒险.md",
+      ".agents/skills/comic/type-packs/漫画/少年战斗冒险/命名体系.md"
     ],
     "knowledge_digest": [
       "名字、誓言、禁忌和宿命必须带压强。",
       "每次炫技都要带代价。"
     ],
+    "control_surface_digest": [
+      "control_surface.conflict_engine.premise: 主角在更大的规则世界里被迫升级、立誓、结盟、翻盘。",
+      "control_surface.page_turn_mechanism.turn_trigger: 招式命名、宿敌惊讶、代价上身"
+    ],
     "semantic_tags": ["oath", "destiny", "page-impact"],
     "pack_revisions": {
-      "中二战斗": "dynamic-runtime"
+      "少年战斗冒险": "dynamic-runtime"
+    },
+    "control_surface": {
+      "conflict_engine": {
+        "premise": "主角在更大的规则世界里被迫升级、立誓、结盟、翻盘。"
+      },
+      "role_matrix": {
+        "protagonist": "主动求胜且短板可见的成长者"
+      },
+      "page_turn_mechanism": {
+        "turn_trigger": "招式命名、宿敌惊讶、代价上身"
+      },
+      "panel_grammar": {
+        "dominant_panel_shapes": ["爆点大跨页", "斜切突进格"]
+      },
+      "visual_carrier": {
+        "primary": ["身体姿态", "速度轨迹", "宿敌对视"]
+      },
+      "dialogue_register": {
+        "line_length": "short"
+      },
+      "motif_system": {
+        "recurring_motifs": ["誓言", "宿命双生", "代价印记"]
+      },
+      "failure_modes": ["设定说明压过动作因果"]
     },
     "projection_summary": {
       "nine_blade_prompting": "优先 splash、diagonal、绝对化对白和高势能命名。"

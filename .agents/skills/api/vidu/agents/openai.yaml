@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vidu 视频 API"
+  short_description: "统一驱动 Vidu 视频创建、任务查询、下载、取消、积分查询与回调验签"
+  default_prompt: "使用 $vidu-video-api 调用 Vidu 企业版视频 API，或查询/下载生成物、取消任务、查询积分与校验回调签名。"

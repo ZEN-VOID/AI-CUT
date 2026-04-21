@@ -43,6 +43,12 @@ def validate(data: dict[str, Any]) -> list[str]:
     expect(isinstance(type_pack_context, dict), "type_pack_context must be an object", errors)
     if isinstance(type_pack_context, dict):
         expect(bool(type_pack_context.get("knowledge_refs")), "type_pack_context.knowledge_refs is required", errors)
+        control_surface = type_pack_context.get("control_surface", {})
+        expect(isinstance(control_surface, dict), "type_pack_context.control_surface must be an object", errors)
+        if isinstance(control_surface, dict):
+            for key in ("conflict_engine", "role_matrix", "page_turn_mechanism", "panel_grammar", "visual_carrier", "dialogue_register", "motif_system"):
+                expect(isinstance(control_surface.get(key), dict), f"type_pack_context.control_surface.{key} must be an object", errors)
+            expect(isinstance(control_surface.get("failure_modes"), list) and bool(control_surface.get("failure_modes")), "type_pack_context.control_surface.failure_modes must be a non-empty array", errors)
         stage_projection = type_pack_context.get("stage_projection", {})
         expect(isinstance(stage_projection, dict), "type_pack_context.stage_projection must be an object", errors)
         if isinstance(stage_projection, dict):
@@ -56,7 +62,7 @@ def validate(data: dict[str, Any]) -> list[str]:
     loaded_artifacts = upstream_context.get("loaded_artifacts", [])
     expect(isinstance(loaded_artifacts, list) and len(loaded_artifacts) >= 2, "upstream_context.loaded_artifacts must contain at least 2 upstream artifacts", errors)
     loaded_roles = {item.get("role") for item in loaded_artifacts if isinstance(item, dict)}
-    expect("bridge_pack" in loaded_roles, "upstream_context.loaded_artifacts must include bridge_pack", errors)
+    expect("grouped_script" in loaded_roles, "upstream_context.loaded_artifacts must include grouped_script", errors)
     expect("nine_blade_json" in loaded_roles, "upstream_context.loaded_artifacts must include nine_blade_json", errors)
 
     style_inheritance = upstream_context.get("style_inheritance", {})

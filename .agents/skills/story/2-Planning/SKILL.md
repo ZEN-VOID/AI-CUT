@@ -61,7 +61,7 @@ color: indigo
 | order | child skill | 正式落盘 | owned story_map slots |
 | --- | --- | --- | --- |
 | 1 | `1-题材选型` | global root | `story_promise`、`genre_corridor`、题材导航规则 |
-| 2 | `2-章节规划` | global root + slices | `volume_boards`、`episode_slice_manifest`、薄 `episode_sequence_axis`、slice `chapter_boards` skeleton |
+| 2 | `2-章节规划` | global root + slices | 卷级 planning contract `volume_boards`、`episode_slice_manifest`、薄 `episode_sequence_axis`、slice `slice_style_contract`、slice `chapter_boards` skeleton |
 | 3 | `3-故事大纲` | global root + slices | `story_spine`、slice 章节主干事件挂载 |
 | 4 | `4-冲突设计` | global root + slices | `conflict_threads`、slice 冲突挂载 |
 | 5 | `5-任务设计` | global root + slices | `mission_threads`、slice 任务挂载 |

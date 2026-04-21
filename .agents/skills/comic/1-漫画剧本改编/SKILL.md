@@ -29,9 +29,9 @@ governance_tier: full
 
 - 默认输入以文本为主，但允许图片、视频、新闻事件、网络热搜与多源混合输入。
 - 默认输出不是“传统长篇纯文学”，而是“场景明确、对白/旁白纪律明确、可分页、可桥接九刀流”的漫画剧本。
-- 默认最终真源同时包含：`漫画剧本主稿.md`、`formatted_source_script.json`、`漫画剧本桥接包.md`、`思行裁决摘要.md`。
-- 默认格式化层需要与 `.agents/skills/aigc/1-Planning/2-格式` 的基础字段纪律对齐，再叠加漫画专属表现字段；不得只交自由 prose。
-- 默认每个场景单元都要为下游提供至少一个可切页动作、一个可入镜情绪点、一个页末悬停点或翻页停笔点。
+- 默认最终真源是按组落盘的漫剧剧本集合：`第1组.md`、`第2组.md`、`第3组.md`……
+- 默认输出聚焦“分组好的漫剧剧本”，不再额外挂出 `formatted_source_script.json`、桥接包或思行摘要作为并行主真源。
+- 默认每个组都要为下游提供一个完整的九页节奏单元：有开场抓停、中段推进/阻力和组末悬停点。
 - 对虚构原著、故事梗概、小说片段、网文与影视剧情类输入，默认采用 `comic-first` 立场：优先保住人物关系核、情绪核和名场面潜力，不把原叙事顺序与局部细节视为硬门槛。
 - 对现实新闻、热搜、纪实事件类输入，继续受 `truth_boundary` 约束；允许戏剧组织，但不允许把虚构写成事实。
 
@@ -45,7 +45,7 @@ governance_tier: full
 - 先锁定高冲击画面候选与氛围压力场，再决定正文的展开顺序与停笔位置。
 - 对虚构输入，默认先决定“哪里要炸、哪里要急停、哪里要留白”，再决定哪些信息前置、后置、并戏或删减。
 - 若用户要求兼容解说漫，正文必须同时满足“可画”和“可念”：画面要清，旁白要顺，句子要短，声压要稳。
-- 主稿写成 Markdown，结构化 handoff 写成 `formatted_source_script.json`；两者必须同口径，不得互相打架。
+- 最终交付写成按组 Markdown；不得再并行维护第二份结构化主稿与桥接主稿互相竞争真源。
 - 改编不是照抄。可以重组、压缩、扩写、补桥、换序、并戏、拔高、夸张，但不得把核心卖点改没。
 - 当“信息解释完备”与“漫画页冲击力/节奏刺激性”冲突时，优先保住画面势能与翻页驱动力，再把必要信息拆散回补。
 - 图片/视频输入不得直接写成空泛描述，必须先还原事件链、冲突链与视觉锚点。
@@ -58,12 +58,12 @@ governance_tier: full
 
 | analysis_field | 要回答的问题 | 默认要求 |
 | --- | --- | --- |
-| `business_goal` | 这篇稿子要服务什么后续动作 | 默认服务“`2-九刀流漫画提示词` 的直接上游剧本真源” |
+| `business_goal` | 这篇稿子要服务什么后续动作 | 默认服务“`2-九刀流漫画提示词` 的直接上游分组漫剧剧本真源” |
 | `business_object` | 原始输入到底是什么 | 文本 / 图片 / 视频 / 新闻热搜 / 多源混合 |
 | `core_sell_point` | 最值得追更的卖点是什么 | 人物关系、反转、悬念、欲望、复仇、甜虐、奇观至少锁一个 |
 | `format_goal` | 当前要写成哪种漫画剧本格式 | 默认裁决 `scene-script / narration-script / compare` |
 | `constraint_profile` | 哪些边界不能越 | 事实边界、平台安全、角色年龄、暴力尺度、用户明示禁区 |
-| `success_criteria` | 什么叫改编成功 | 读得下去、看得见、能分页、有钩子、可直接进入九刀流 |
+| `success_criteria` | 什么叫改编成功 | 分组清楚、读得下去、看得见、有钩子、每组都可直接进入九刀流 |
 | `topology_fit` | 哪种思行网络最合适 | 单源走串行主干，多源与新闻热点走“归一 + 分支 + 汇流” |
 | `step_strategy` | 本轮重点在哪 | 事实抽取、格式裁决、场景骨架、正文落地、钩子强化 |
 | `adaptation_posture` | 本轮更偏保核重构还是高烈度奇观化 | 默认虚构输入取 `comic-first`，现实输入按 `truth_boundary` 收紧 |
@@ -108,10 +108,14 @@ governance_tier: full
   - comic 根级类型包加载合同；用于锁 `type_stack_ref / type_pack_context`。
 - [../scripts/data_modules/comic_type_pack_resolver.py](../scripts/data_modules/comic_type_pack_resolver.py)
   - 根据 `genre / platform / target_audience / tone` 推断 active comic packs，并读取 `script_adaptation` 阶段投影。
+- [templates/grouped-manga-script.template.md](templates/grouped-manga-script.template.md)
+  - `第N组.md` 的 canonical 包装结构模板；用于稳定文件命名、组跨度说明与 `【漫剧正文】` 真源区块。
+- [scripts/validate_grouped_manga_script.py](scripts/validate_grouped_manga_script.py)
+  - `第N组.md` validator；用于校验单文件结构，以及目录级组集合的编号连续性、尾组决议与分组口径一致性。
 - [.agents/skills/aigc/1-Planning/2-格式/SKILL.md](../../aigc/1-Planning/2-格式/SKILL.md)
   - 继承其“先判模、再整形、再写回 canonical 主稿”的格式裁决思路，并对齐其 `对白 / 内心独白 / 旁白 + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化纪律；本技能额外叠加漫画专属表现字段，不直接退化成纯规划剧本。
 - [/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md](/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md)
-  - 当用户要求“解说漫兼容 / 旁白可朗读”时，继承其“旁白主导、同命题声画配对、动作画面承载无台词推进”的约束，但本技能仍以漫画剧本主稿为主，不直接改写成格式化对白稿。
+  - 当用户要求“解说漫兼容 / 旁白可朗读”时，继承其“旁白主导、同命题声画配对、动作画面承载无台词推进”的约束，但本技能仍以分组漫剧剧本为主，不直接改写成格式化对白稿。
 
 ## Total Input Contract
 
@@ -127,7 +131,7 @@ governance_tier: full
 - `source_type`
   - `text | image | video | news_event | hot_search | mixed`
 - `target_genre`
-  - `言情甜宠 | 虐恋 | 悬疑惊悚 | 玄幻修仙 | 系统 | 穿越重生 | 复仇 | 都市成长 | 科幻 | 校园`
+  - `青春恋爱 | 情感关系剧 | 推理悬疑 | 恐怖怪谈 | 少年战斗冒险 | 黑暗奇幻 | 喜剧 | 体育竞技 | 历史武侠 | 科幻机甲 | 日常治愈 | 社会职场`
 - `type_stack_ref`
   - 若已由 comic 根层锁定，优先直接继承。
 - `type_pack_context`
@@ -252,7 +256,7 @@ B. 漫画专属扩展字段：
 5. 每条 `对白 / 内心独白 / 旁白` 都必须就近配对 `对白画面 / 内心独白画面 / 旁白画面`；纯动作推进必须落到 `动作画面`。
 6. 引号内不得混入动作描写；动作、停顿、视线、转身、环境反应全部下沉到对应 `*画面` 或 `动作画面`。
 7. `镜头语言预设` 仅可整理来源已有运镜信号，或为漫画拆页/视觉重心做最小必要的视角提示；不得借此长出导演腔长段落。
-8. Markdown 主稿允许按场景聚合这些字段，但 `formatted_source_script.json` 必须把它们规范化为 machine-readable 结构，不得只留 prose 摘要。
+8. Markdown 组稿允许按场景聚合这些字段，但最终交付仍以 `第N组.md` 为唯一真源，不再要求并行 machine-readable 主稿。
 
 ## Comic Extension Contract (Mandatory)
 
@@ -350,7 +354,7 @@ erDiagram
 | `dialogue_policy` | `verbatim / lightly-shaped` | 决定对白保真与整理边界 |
 | `narration_policy` | `minimal / guided / narration-led` | 决定旁白主导强度 |
 | `inner_monologue_policy` | `forbid / selective / enabled` | 决定内心独白启用边界 |
-| `output_mode` | `reply_only / full_package` | 决定是仅回复还是附完整桥接包 |
+| `output_mode` | `reply_only / grouped_files` | 决定是仅回复还是按组落盘 |
 
 ### Scenario Table
 
@@ -564,6 +568,23 @@ erDiagram
 - [references/pacing-hook-thrill-engine.md](references/pacing-hook-thrill-engine.md)
 - [references/chunibyo-intensity-engine.md](references/chunibyo-intensity-engine.md)
 
+## Grouping Contract (Mandatory)
+
+本技能的 canonical output 是“按组落盘的漫剧剧本”，不是整篇主稿，也不是组外并行摘要包。
+
+硬规则：
+
+- 默认以“原文约 `1000` 字”为一组；一组就是后续 `2-九刀流漫画提示词` 处理的一个单元。
+- 若全文总量不足 `1000` 字，仍按一组处理，不额外拆小。
+- 长文切分后，最后一组若剩余 `300` 字以内，默认并入上一组。
+- 长文切分后，最后一组若剩余 `700` 字以上，可单独成组。
+- 长文切分后，最后一组若剩余 `301-699` 字，默认并入上一组；只有在存在明确场景闭合、钩子闭合或强节奏边界时才允许单独成组。
+- 分组优先尊重场景、动作、冲突、钩子和 payoff 的自然边界，禁止机械按字数把同一动作截成两半。
+- 每组都必须具备最小节奏闭环：`开场抓停 -> 中段推进/阻力 -> 组末悬停`。
+- 文件命名统一为 `第1组.md`、`第2组.md`、`第3组.md`……；不使用“第N集”语义，也不引入 `page_group_plan.json` 之类并行真源。
+- 每个组文件都必须携带最小边界证据：`估算原文字数`、`尾组决议` 与 `【边界判定】`；否则视为分组理由不可审查。
+- 每个组文件都必须携带最小类型包 handoff：`type_stack_active_packs`、`type_pack_projection_script_adaptation`、`type_pack_projection_nine_blade`；不得只留给下游一个无法稳定解析的摘要句。
+
 ## Convergence Contract (Mandatory)
 
 最终交付必须汇流成单一口径：
@@ -571,81 +592,71 @@ erDiagram
 - 来源摘要只保留一份 `source_digest`
 - 改编意图只保留一份 `adaptation_brief`
 - 类型包只保留一份 `type_stack_ref + type_pack_context`
-- 正文只保留一份 `漫画剧本主稿`
-- 视觉桥接只保留一份 `visual_bridge`
-- 思行裁决摘要只保留一份精简结论，不外挂第二主稿
+- 业务真源只保留一组 `第N组.md`
+- 不再外挂 `formatted_source_script.json`、桥接包或思行摘要作为并行主稿
 
 ## One-Shot Output Contract (Mandatory)
 
-### A. 漫画剧本主稿（Mandatory）
+### A. 分组漫剧剧本（Mandatory）
 
 当任务允许写盘且用户给出目标目录时，canonical 落点默认：
 
-`projects/comic/[项目名]/1-漫画剧本改编/漫画剧本主稿.md`
+`projects/comic/[项目名]/1-漫画剧本改编/第N组.md`
 
-若用户只要求当前回复交付，则按同样结构直接输出。最低内容要求：
+推荐采用以下稳定结构：
 
-1. 标题
-2. 一句话卖点
-3. 来源类型与事实边界说明
-4. 角色卡
-5. 格式裁决说明
-6. `dialogue_policy / narration_policy / inner_monologue_policy / 旁白主体`
-7. `type_stack_ref / script_adaptation stage projection`
-7. 场景化剧本正文
-8. 对齐格式化条目：`对白（主体）/内心独白（主体）/旁白（主体）` 与对应 `*画面`
-9. 漫画专属表现条目：`分格建议 / 视觉焦点 / 跨页或大格建议 / 气泡负载建议 / SFX建议`
-10. 每场/每章章末钩子
+```markdown
+---
+项目名: <项目名>
+组号: 第<N>组
+分组口径: 约1000字一组
+估算原文字数: <900-1100>
+尾组决议: <single_group|normal|merged_into_previous|standalone_tail>
+source_type: <text|image|video|news_event|hot_search|mixed>
+truth_boundary: <faithful|inspired_by|free_reimagining>
+adaptation_posture: <faithful-core|comic-first|spectacle-first>
+type_stack_summary: <<base> / <primary> / <secondary...>>
+type_stack_active_packs: <_base|经典漫画叙事|情感关系剧|...>
+type_pack_projection_script_adaptation: <script adaptation stage projection summary>
+type_pack_projection_nine_blade: <nine blade prompting stage projection summary>
+---
 
-### B. 结构化剧本包（Mandatory）
+# 第<N>组
 
-当任务允许写盘且用户给出目标目录时，必须同时交付：
+【本组跨度】
+<一句话说明本组覆盖的剧情推进、冲突跨度或起止状态>
 
-`projects/comic/[项目名]/1-漫画剧本改编/formatted_source_script.json`
+【边界判定】
+<说明为什么这一组在这里起止；若是尾组，必须写明是并入上一组还是独立成组，以及理由>
 
-最低字段要求：
+【漫剧正文】
+<本组可直接被 2 号技能消费的场景化漫剧正文>
 
-1. `source_format_variant`
-2. `script_variant`
-3. `dialogue_policy`
-4. `narration_policy`
-5. `inner_monologue_policy`
-6. `speaker_registry[]`
-7. `type_stack_ref`
-8. `type_pack_context`
-7. `canonical_story_summary`
-8. `ordered_story_units[]`
-9. `aligned_scene_script[]`
-10. `scene_cards[]`
-11. `impact_beats[]`
-12. `page_turn_candidates[]`
-13. `panel_text_budget`
-14. `character_locks[] / scene_locks[] / prop_locks[]`
-15. `panel_split_hints[] / panel_focus_map[] / spread_splash_hints[]`
-16. `balloon_load_plan[] / sfx_cues[]`
-17. `hook_pack[]`
+【组末钩子】
+<下一组或下一轮九刀必须承接的悬停点、危险逼近点或关系反转点>
+```
 
-### C. 漫画剧本桥接包（Mandatory）
+若用户只要求当前回复交付，则按同样结构直接输出各组正文。每个组文件最低内容要求：
 
-当 `output_mode=full_package` 或用户明确要求后续继续做漫画生成时，同时交付：
+1. 标题：`# 第N组`
+2. 本组跨度：一句话说明本组覆盖的剧情推进或冲突跨度
+3. 边界判定：写明本组为什么在这里切断，以及尾组是否并组
+4. 场景化漫剧正文：聚焦可直接进入九刀流的正文，不外挂桥接层
+5. 类型包 handoff：至少能让下游稳定读出 active packs 和 script/nine-blade 阶段投影
+6. 组末钩子：明确下一组的抓停点、悬停点或危险逼近点
 
-`projects/comic/[项目名]/1-漫画剧本改编/漫画剧本桥接包.md`
+补充规则：
 
-最低内容要求：
+- 同一目录下的所有组文件按 `第1组.md -> 第2组.md -> 第3组.md` 顺序组成唯一业务真相。
+- 组文件正文允许保留必要的对白、旁白、动作与画面提示，但必须服务正文本身，不再外置第二份结构化真源。
+- 若启用 `explainer_comic_compatible`，兼容朗读的句式要求直接写进组正文，不额外拆旁白候选包。
+- 若 `第N组.md` 使用 frontmatter 或包装区块，`【漫剧正文】` 后的正文区必须完整覆盖该组被采纳的业务内容，不得出现只写摘要、不写正文，或正文头尾被截断的情况。
+- 组文件默认必须通过：
 
-1. 章节 -> 场景 -> 视觉锚点索引
-2. 角色外观与情绪关键词
-3. 关键道具/场景清单
-4. 每章推荐钩子类型
-5. 高冲击画面候选与推荐大格/翻页点
-6. 若启用解说漫兼容：可直接朗读的旁白候选段
-7. 说话者主体规范与 `speaker_registry[]`
-8. `分格建议 / 视觉焦点 / 气泡负载建议 / SFX建议`
-
-### D. 思行裁决摘要（Mandatory, Non-sidecar）
-
-- 必须交代本轮 `source_type`、`truth_boundary`、`target_genre`、`script_variant`、`dialogue_policy`、`narration_policy`、`inner_monologue_policy`、旁白主体与钩子策略。
-- 只输出精简裁决摘要，不要求第二份完整推理草稿。
+```bash
+python3 .agents/skills/comic/1-漫画剧本改编/scripts/validate_grouped_manga_script.py path/to/第1组.md
+python3 .agents/skills/comic/1-漫画剧本改编/scripts/validate_grouped_manga_script.py path/to/1-漫画剧本改编/
+```
 
 ## Quality And Audit Contract
 
@@ -653,13 +664,13 @@ erDiagram
 
 | 维度 | 指标 | 分值 |
 | --- | --- | --- |
-| 维度0: 契约遵循 | 是否完成来源归一、事实边界、格式裁决、结构化包、桥接包与钩子合同 | __/10 |
+| 维度0: 契约遵循 | 是否完成来源归一、事实边界、分组合同与钩子合同 | __/10 |
 | 维度1 | 来源要点保真度 | __/10 |
 | 维度2 | 类型卖点与冲突发动机强度 | __/10 |
 | 维度3 | 章节节奏与追更欲 | __/10 |
 | 维度4 | 章末钩子有效性 | __/10 |
-| 维度5 | 基础格式化字段合法性 | __/10 |
-| 维度6 | 主体命名一致性与文本-画面配对 | __/10 |
+| 维度5 | 分组边界稳定性 | __/10 |
+| 维度6 | 组文件命名与顺序规范性 | __/10 |
 | 维度7 | 漫画下游可消费性 | __/10 |
 | 维度8 | 氛围压力场与高冲击画面前置设计 | __/10 |
 | 维度9 | 旁白沉浸感与朗读质感 | __/10 |
@@ -672,14 +683,14 @@ erDiagram
 | `FIELD-COMIC-02` | `boundary_note / adaptation_mode` | 明确事实边界与虚构许可范围 | `S3` | 契约遵循 | `FAIL-COMIC-02` |
 | `FIELD-COMIC-03` | `adaptation_brief` | 锁定类型、卖点、主角、对手、欲望与代价 | `S4` | 类型卖点与冲突强度 | `FAIL-COMIC-03` |
 | `FIELD-COMIC-03A` | `adaptation_posture_note / fidelity_floor / stimulus_curve` | 明确本轮允许怎样重排、夸张、延后解释，以及哪些核心不能改丢 | `S4-S5` | 契约遵循 | `FAIL-COMIC-03A` |
-| `FIELD-COMIC-03B` | `type_stack_ref / type_pack_context.stage_projection.script_adaptation` | 锁定当前激活 pack 组合与本段类型化投影，不让后续阶段回到默认猜测 | `S1-S4` | 契约遵循 | `FAIL-COMIC-03B` |
-| `FIELD-COMIC-04` | `script_variant / dialogue_policy / narration_policy / inner_monologue_policy / aligned_scene_script[]` | 对齐 `2-格式` 的基础格式化字段，文本条目显式带主体并就近配对 `*画面` | `S4-S6` | 基础格式化合法性 | `FAIL-COMIC-04` |
-| `FIELD-COMIC-05` | `speaker_registry[] / character_locks[]` | 说话者主体命名一致，角色、讲述者、别名与代称不漂移 | `S4-S6` | 主体一致性 | `FAIL-COMIC-05` |
-| `FIELD-COMIC-06` | `chapter_plan / hook_pack / 漫画剧本主稿.md` | 章节推进清晰，正文场景化，可连续追读，页末留钩子 | `S5-S9` | 节奏与钩子有效性 | `FAIL-COMIC-06` |
-| `FIELD-COMIC-07` | `impact_beats / impact_map / panel_split_hints[] / panel_focus_map[] / spread_splash_hints[]` | 预锁高冲击画面候选、氛围母题、翻页停笔点与漫画专属表现层 | `S4-S8` | 氛围与画面冲击力 | `FAIL-COMIC-07` |
-| `FIELD-COMIC-08` | `voice_brief / narration_ready_passages / balloon_load_plan[] / sfx_cues[]` | 正文描述可转为沉浸式旁白，句长与停顿适合朗读，文字负载与字效建议可用 | `S4-S8` | 旁白沉浸感 | `FAIL-COMIC-08` |
-| `FIELD-COMIC-09` | `visual_bridge / 漫画剧本桥接包.md` | 角色、场景、动作、道具与大格建议可供后续漫画消费 | `S10` | 下游可消费性 | `FAIL-COMIC-09` |
-| `FIELD-COMIC-10` | `final_delivery` | 最终交付结构完整，思行裁决摘要可追溯 | `S11` | 交付完整性 | `FAIL-COMIC-10` |
+| `FIELD-COMIC-03B` | `type_stack_active_packs / type_pack_projection_script_adaptation / type_pack_projection_nine_blade` | 锁定当前激活 pack 组合与 1->2 两段最小类型化投影，不让后续阶段回到默认猜测 | `S1-S4` | 契约遵循 | `FAIL-COMIC-03B` |
+| `FIELD-COMIC-04` | `grouping_contract / 第N组.md.frontmatter / 【边界判定】` | 已按 `1000` 字口径完成分组，并遵守尾组并组规则，且边界理由可审查 | `S4-S6` | 分组边界稳定性 | `FAIL-COMIC-04` |
+| `FIELD-COMIC-05` | `第N组.md` | 组文件命名、标题、顺序与编号连续，不混用“集”语义 | `S5-S6` | 命名规范性 | `FAIL-COMIC-05` |
+| `FIELD-COMIC-06` | `第N组.md` 正文与组末钩子 | 每组推进清晰、正文场景化、组末留钩子 | `S5-S9` | 节奏与钩子有效性 | `FAIL-COMIC-06` |
+| `FIELD-COMIC-07` | `第N组.md` 中的冲击画面与停笔设计 | 每组都能读出高冲击画面候选与翻页停笔点 | `S4-S8` | 氛围与画面冲击力 | `FAIL-COMIC-07` |
+| `FIELD-COMIC-08` | `第N组.md` 朗读质感 | 若要求解说漫兼容，正文可直接朗读且不拖沓 | `S4-S8` | 旁白沉浸感 | `FAIL-COMIC-08` |
+| `FIELD-COMIC-09` | `grouped_manga_script_set` | 组文件集合足以被 2 号技能逐组消费 | `S10` | 下游可消费性 | `FAIL-COMIC-09` |
+| `FIELD-COMIC-10` | `final_delivery` | 最终交付只保留按组漫剧剧本真源，结构完整且无并行主稿 | `S11` | 交付完整性 | `FAIL-COMIC-10` |
 
 ## Thought Pass Map
 
@@ -690,13 +701,13 @@ erDiagram
 | `S3` | `FIELD-COMIC-02` | 哪些能虚构，哪些不能 | 写 `boundary_note` | 现实事实与虚构混淆 |
 | `S4` | `FIELD-COMIC-03/03A` | 为什么这稿值得追更，且哪些地方允许为了漫画感重排 | 生成 `adaptation_brief` 与改写许可说明 | 卖点弱、冲突平、改写边界不清 |
 | `S4A` | `FIELD-COMIC-03B` | 本轮类型包要求什么漫画语法 | 锁 `type_stack_ref` 并吸收 `script_adaptation` 投影 | pack 已声明但正文仍像默认稿 |
-| `S5` | `FIELD-COMIC-04` | 基础格式化字段是否对齐 `2-格式` | 生成 `aligned_scene_script[]` 与配套策略字段 | 文本无主体或无对应画面 |
-| `S6` | `FIELD-COMIC-05` | 说话者主体是否统一可追溯 | 锁定 `speaker_registry[]` 并回收漂移命名 | 同一角色多名字并存 |
+| `S5` | `FIELD-COMIC-04` | 当前内容该如何切成稳定组单元 | 生成分组草案、边界理由与尾组决议 | 只按字数机械硬切或没有边界理由 |
+| `S6` | `FIELD-COMIC-05` | 组文件命名和顺序是否规范 | 固定 `第N组.md` 命名并校连续性 | 组号跳号或混入“第N集” |
 | `S7` | `FIELD-COMIC-07` | 哪几处必须先被设计成炸点画面与页末急停 | 生成 `impact_map` 与漫画专属表现层 | 全文读完没有大格候选或刺激曲线过平 |
 | `S8` | `FIELD-COMIC-08` | 正文是否同时具备场景感与朗读感 | 写正文场景、压实朗读节奏与文字负载 | 画面有了但念出来拖沓 |
 | `S9` | `FIELD-COMIC-06` | 结尾有没有把缺口留住 | 注入 `hook_pack` | 章节收得太满 |
-| `S10` | `FIELD-COMIC-09` | 下游能否直接继续做漫画 | 生成 `visual_bridge` | 无法拆角色/场景/动作锚点 |
-| `S11` | `FIELD-COMIC-10` | 当前交付是否达到闭环 | 验收并决定返工 | 只有文案，没有验收口径 |
+| `S10` | `FIELD-COMIC-09` | 下游能否直接逐组继续做九刀流 | 校验每组是否能独立承接 9 页节奏 | 组内只有解释没有动作驱动 |
+| `S11` | `FIELD-COMIC-10` | 当前交付是否达到闭环 | 验收并决定返工 | 仍残留并行主稿或多余产物 |
 
 ## Pass Table
 
@@ -706,21 +717,21 @@ erDiagram
 | `FIELD-COMIC-02` | 事实边界明确，现实事实不被伪造 | `FAIL-COMIC-02` | `S3` |
 | `FIELD-COMIC-03` | 改编摘要能说明类型、卖点、冲突与代价 | `FAIL-COMIC-03` | `S4` |
 | `FIELD-COMIC-03A` | 已明确 `comic-first / spectacle-first` 的适用范围，且保核边界可追溯 | `FAIL-COMIC-03A` | `S4-S5` |
-| `FIELD-COMIC-03B` | 已明确 active packs，且 `script_adaptation` 投影被写入结构化输出 | `FAIL-COMIC-03B` | `S1-S4A` |
-| `FIELD-COMIC-04` | `对白/内心独白/旁白 + 对应画面 + 动作画面 + 镜头语言预设` 对齐且可机读 | `FAIL-COMIC-04` | `S5` |
-| `FIELD-COMIC-05` | 同一说话者主体在全文与结构化包中保持单一 canonical 命名 | `FAIL-COMIC-05` | `S6` |
+| `FIELD-COMIC-03B` | 已明确 active packs，且 `script_adaptation / nine_blade` 两段投影被写入组文件 frontmatter | `FAIL-COMIC-03B` | `S1-S4A` |
+| `FIELD-COMIC-04` | 分组遵守 `1000` 字默认口径与尾组并组规则，不机械截断 scene / hook / payoff，且 `【边界判定】` 可解释起止理由 | `FAIL-COMIC-04` | `S5` |
+| `FIELD-COMIC-05` | 组文件严格按 `第N组.md` 命名，标题与 frontmatter 组号一致且顺序连续 | `FAIL-COMIC-05` | `S6` |
 | `FIELD-COMIC-06` | 章节推进清楚、正文场景化、章末有钩子 | `FAIL-COMIC-06` | `S8-S9` |
 | `FIELD-COMIC-07` | 预锁的冲击画面、氛围母题、分格与翻页点足够明确 | `FAIL-COMIC-07` | `S4-S7` |
 | `FIELD-COMIC-08` | 正文可抽出精炼旁白段，朗读时不啰嗦不泄气，文字负载可控 | `FAIL-COMIC-08` | `S4-S8` |
-| `FIELD-COMIC-09` | 桥接包足以支持角色/场景/分镜继续加工 | `FAIL-COMIC-09` | `S10` |
-| `FIELD-COMIC-10` | 主稿、桥接层与思行裁决摘要口径一致 | `FAIL-COMIC-10` | `S11` |
+| `FIELD-COMIC-09` | 每个组文件都可被 2 号技能当作独立处理单元 | `FAIL-COMIC-09` | `S10` |
+| `FIELD-COMIC-10` | 最终交付只保留 `第N组.md` 真源集合，无并行主稿竞争 | `FAIL-COMIC-10` | `S11` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
 当出现以下症状时，必须先修源层合同，再决定是否只改局部文案：
 
 - 文本改编仍像摘要，不像漫画剧本。
-- 1 号技能已经写出主稿，但 2 号技能仍要从 prose 重新猜故事单元。
+- 1 号技能已经按组落稿，但 2 号技能仍要从整篇 prose 重新猜切组。
 - 图片/视频改编后没有形成冲突链。
 - 新闻/热搜改编把虚构写成事实。
 - 章节结尾把话说完，没有钩子。
@@ -768,9 +779,9 @@ erDiagram
 满足以下条件才算完成：
 
 - 已锁定来源类型与事实边界。
-- 已把素材改造成场景化、可分页、强钩子化的漫画剧本主稿。
-- 已把正文与结构化包对齐为 `对白（主体）/内心独白（主体）/旁白（主体） + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化层。
-- 已建立 `speaker_registry[]`，保证说话者主体命名一致。
-- 已生成 `formatted_source_script.json` 作为 2 号技能的 machine-readable 真源。
-- 已生成足够继续做漫画生成的视觉桥接层。
-- 已给出思行裁决摘要与验收结论。
+- 已把素材改造成按组落盘、场景化、强钩子化的漫剧剧本集合。
+- 已按 `1000` 字默认口径完成分组，并处理最后一组的并组规则。
+- 已按 `第N组.md` 规范完成命名与顺序校验。
+- 已写明 `估算原文字数`、`尾组决议` 与 `【边界判定】`，确保分组理由可追溯。
+- 若采用包装结构，已保证 `【漫剧正文】` 区块完整覆盖该组正文真源。
+- 每个组都可被 2 号技能直接视为一个九页处理单元。

@@ -15,6 +15,12 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
+DATA_MODULES_ROOT = Path(__file__).resolve().parents[2] / "scripts"
+if str(DATA_MODULES_ROOT) not in sys.path:
+    sys.path.insert(0, str(DATA_MODULES_ROOT))
+
+from data_modules.nine_blade_prompt_normalizer import normalize_nine_blade_prompt_data
+
 VALIDATOR = REPO_ROOT / ".agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_blade_prompt_json.py"
 SEEDREAM_SCRIPT = REPO_ROOT / ".agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py"
 
@@ -179,21 +185,59 @@ def _self_test_data() -> dict[str, Any]:
         "type_stack_ref": {
             "method_kernel": "comic-core-v1",
             "base": "_base",
-            "primary": "漫画高冲击",
-            "secondary": ["中二战斗"],
+            "primary": "经典漫画叙事",
+            "secondary": ["少年战斗冒险"],
             "platform": ["条漫平台"],
             "audience": ["少年热血受众"],
-            "active_packs": ["_base", "漫画高冲击", "中二战斗", "条漫平台", "少年热血受众"],
+            "active_packs": ["_base", "经典漫画叙事", "少年战斗冒险", "条漫平台", "少年热血受众"],
         },
         "type_pack_context": {
-            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+            "resolution_mode": "single-layer-genre-comic-type-pack",
             "knowledge_refs": [
-                ".agents/skills/comic/type-packs/漫画/中二战斗/中二战斗.md"
+                ".agents/skills/comic/type-packs/漫画/少年战斗冒险/少年战斗冒险.md"
+            ],
+            "knowledge_digest": [
+                "少年战斗冒险 > 核心冲突引擎: 主角在更大的世界规则里升级、立誓、结盟、翻盘。",
+                "少年战斗冒险 > 翻页机制: 招式命名、宿敌惊讶、代价上身是高价值翻页点。",
             ],
             "pack_revisions": {
-                "中二战斗": "dynamic-runtime"
+                "少年战斗冒险": "dynamic-runtime"
             },
             "semantic_tags": ["oath", "destiny", "page-impact"],
+            "control_surface": {
+                "conflict_engine": {
+                    "premise": "主角在更大的规则世界里被迫升级、立誓、结盟、翻盘。",
+                    "escalation_loop": "压制现状 -> 立场显形 -> 新理解或新代价 -> 胜负改写",
+                },
+                "role_matrix": {
+                    "protagonist": "主动求胜且短板可见的成长者",
+                    "rival_or_counterforce": "兼具战力和价值镜像的宿敌",
+                },
+                "page_turn_mechanism": {
+                    "turn_trigger": "招式命名、宿敌惊讶、代价上身",
+                    "reveal_pattern": "翻页后先给姿态和结果，再补局部解释",
+                },
+                "panel_grammar": {
+                    "dominant_panel_shapes": ["爆点大跨页", "斜切突进格"],
+                },
+                "visual_carrier": {
+                    "primary": ["身体姿态", "速度轨迹", "宿敌对视"],
+                },
+                "dialogue_register": {
+                    "line_length": "short",
+                    "exposition_rule": "说明性台词必须让位于动作和结果",
+                },
+                "motif_system": {
+                    "recurring_motifs": ["誓言", "宿命双生", "代价印记"],
+                },
+                "failure_modes": ["设定说明压过动作因果"],
+            },
+            "control_surface_digest": [
+                "control_surface.conflict_engine.premise: 主角在更大的规则世界里被迫升级、立誓、结盟、翻盘。",
+                "control_surface.page_turn_mechanism.turn_trigger: 招式命名、宿敌惊讶、代价上身",
+                "control_surface.panel_grammar.dominant_panel_shapes: 爆点大跨页, 斜切突进格",
+                "control_surface.visual_carrier.primary: 身体姿态, 速度轨迹, 宿敌对视",
+            ],
             "stage_projection": {
                 "script_adaptation": {"adaptation_posture": "comic-first"},
                 "nine_blade_prompting": {"layout_bias": ["splash", "diagonal"]},
@@ -278,7 +322,7 @@ def _load_json(path: Path) -> dict[str, Any]:
         data = json.load(fh)
     if not isinstance(data, dict):
         raise ValueError("root must be a JSON object")
-    return data
+    return normalize_nine_blade_prompt_data(data)
 
 
 def _text_block(title: str, value: Any) -> str:
@@ -297,6 +341,41 @@ def _compact_text(value: Any) -> str:
     if isinstance(value, str):
         return re.sub(r"\s+", " ", value).strip()
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def _flatten_structure_lines(
+    value: Any,
+    *,
+    prefix: str = "",
+    max_lines: int = 20,
+    max_depth: int = 4,
+) -> list[str]:
+    lines: list[str] = []
+
+    def walk(node: Any, current_prefix: str, depth: int) -> None:
+        if len(lines) >= max_lines or depth > max_depth:
+            return
+        if isinstance(node, dict):
+            for key, child in node.items():
+                next_prefix = f"{current_prefix}.{key}" if current_prefix else str(key)
+                walk(child, next_prefix, depth + 1)
+                if len(lines) >= max_lines:
+                    return
+            return
+        if isinstance(node, list):
+            compact_items = [_compact_text(item) for item in node]
+            compact_items = [item for item in compact_items if item]
+            if compact_items:
+                label = current_prefix or "items"
+                lines.append(f"{label}: {', '.join(compact_items[:8])}")
+            return
+        compact = _compact_text(node)
+        if compact:
+            label = current_prefix or "value"
+            lines.append(f"{label}: {compact}")
+
+    walk(value, prefix, 0)
+    return lines[:max_lines]
 
 
 def _bullet_block(title: str, lines: list[str]) -> str:
@@ -330,7 +409,22 @@ def _summarize_type_pack_context(value: Any) -> list[str]:
             summary = _compact_text(projection)
             if summary:
                 lines.append(f"{key}_detail: {summary}")
+    knowledge_digest = value.get("knowledge_digest")
+    if isinstance(knowledge_digest, list) and knowledge_digest:
+        lines.append(f"knowledge_digest: {' | '.join(str(item) for item in knowledge_digest[:8])}")
     return lines
+
+
+def _summarize_control_surface(value: Any, *, max_lines: int = 20) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    digest = value.get("control_surface_digest")
+    if isinstance(digest, list) and digest:
+        return [str(item).strip() for item in digest[:max_lines] if str(item).strip()]
+    control_surface = value.get("control_surface")
+    if isinstance(control_surface, dict):
+        return _flatten_structure_lines(control_surface, prefix="control_surface", max_lines=max_lines)
+    return []
 
 
 def _summarize_style_bible(value: Any) -> list[str]:
@@ -515,6 +609,7 @@ def compile_master_prompt(data: dict[str, Any]) -> str:
         )
     )
     parts.append(_bullet_block("Type Pack Context", _summarize_type_pack_context(type_pack_context)))
+    parts.append(_bullet_block("Type Pack Control Surface", _summarize_control_surface(type_pack_context)))
     parts.append(_bullet_block("Main Character Lock", [_summarize_lock(main_character_lock, include_id=True)]))
     scene_bible_lines = [
         f"default_rule: {_compact_text(scene_continuity_bible.get('default_rule'))}"
@@ -704,6 +799,8 @@ def main() -> int:
             "digits 1-9 only",
             "Scene Continuity Bible",
             "Active character locks",
+            "Type Pack Control Surface",
+            "control_surface.conflict_engine.premise",
         ]
         missing = [text for text in required if text not in prompt]
         if missing:

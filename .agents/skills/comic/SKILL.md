@@ -64,7 +64,7 @@ canonical root：
 当前分类：
 
 - 当前活跃知识库根：`漫画/`
-- 当前目录真源按题材分类，不再拆 `系统 / 维度 / 工艺`
+- 当前目录真源采用单层题材目录：`漫画/<题材>/`
 - 当前动态配置真源：`type-packs/runtime.yaml + 漫画/<题材>/meta.yaml`
 
 canonical contracts：
@@ -86,7 +86,7 @@ canonical contracts：
 
 - 未显式声明时，默认 `method_kernel = comic-core-v1`
 - `base = _base`
-- `primary = 漫画高冲击`
+- `primary = 经典漫画叙事`
 - `platform[] / audience[] / secondary[]` 由 resolver 在任务执行时动态扫描 `runtime.yaml + 各题材 meta.yaml` 推断
 - 1 号技能拥有第一次锁定 `type_stack_ref` 的责任；2/3/4/5 段必须继续透传，不得静默丢失
 
@@ -102,7 +102,7 @@ canonical contracts：
 ### 可选输入
 
 - `source_material`
-  - 原始素材、漫画剧本主稿、`formatted_source_script.json`、漫画剧本桥接包或已生成的 `nine_blade_comic_prompts.v1` JSON。
+  - 原始素材、`1-漫画剧本改编/第N组.md`、或已生成的 `nine_blade_comic_prompts.v1` JSON。
 - `style_profile`
 - `type_stack_request`
   - 可选的显式类型包输入。允许直接给：
@@ -117,7 +117,7 @@ canonical contracts：
 flowchart TD
     A["Comic Intake: 项目名 + 任务意图"] --> B{"输入类型/任务目标"}
     B -->|"任意素材需改编为漫画剧本"| C["1-漫画剧本改编"]
-    B -->|"已有剧本/结构化包需9页提示词"| D["2-九刀流漫画提示词"]
+    B -->|"已有分组漫剧剧本或原始剧本需9页提示词"| D["2-九刀流漫画提示词"]
     B -->|"已有 nine_blade JSON 需生图"| E["3-漫画生成"]
     B -->|"已有 nine_blade JSON + page 图片需动画"| F["4-动画生成"]
     B -->|"需要当前剧集海报 JSON"| G["5-剧集海报"]
@@ -136,7 +136,7 @@ flowchart LR
     A --> D["3-漫画生成/"]
     A --> E["4-动画生成/"]
     A --> F["5-剧集海报/"]
-    B -->|"漫画剧本主稿.md + formatted_source_script.json + 漫画剧本桥接包.md"| C
+    B -->|"第1组.md + 第2组.md + ... "| C
     C -->|"page-group-*.json"| D
     C -->|"逐页动画 prompt 真源"| E
     D -->|"page01..page09"| E
@@ -163,11 +163,11 @@ erDiagram
 
 | stage | 子技能 | 输入 | 输出 | 默认落点 |
 | --- | --- | --- | --- | --- |
-| 1 | [1-漫画剧本改编](1-漫画剧本改编/SKILL.md) | 任意素材、热搜、图片/视频摘要 | `漫画剧本主稿.md`、`formatted_source_script.json`、`漫画剧本桥接包.md`、`思行裁决摘要.md` | `projects/comic/[项目名]/1-漫画剧本改编/` |
-| 2 | [2-九刀流漫画提示词](2-九刀流漫画提示词/SKILL.md) | 漫画剧本主稿、`formatted_source_script.json`、桥接包或用户原始剧本 | 先按约 500 字原文切 `page-group`，再输出 `page-group-01-nine_blade_comic_prompts.json`、`第N集-page-group-01-nine_blade_comic_prompts.json` 等组级 JSON | `projects/comic/[项目名]/2-九刀流漫画提示词/` |
+| 1 | [1-漫画剧本改编](1-漫画剧本改编/SKILL.md) | 任意素材、热搜、图片/视频摘要 | `第1组.md`、`第2组.md`、`第3组.md` …… | `projects/comic/[项目名]/1-漫画剧本改编/` |
+| 2 | [2-九刀流漫画提示词](2-九刀流漫画提示词/SKILL.md) | `第N组.md` 分组漫剧剧本，或用户原始剧本 | 每组输出一份 `page-group-01-nine_blade_comic_prompts.json`、`page-group-02-nine_blade_comic_prompts.json` 等组级 JSON | `projects/comic/[项目名]/2-九刀流漫画提示词/` |
 | 3 | [3-漫画生成](3-漫画生成/SKILL.md) | 单个 `page-group` 对应的 `nine_blade_comic_prompts.v1` JSON | 该组的 9 张漫画页、Seedream 报告、生成报告 | `projects/comic/[项目名]/3-漫画生成/` |
 | 4 | [4-动画生成](4-动画生成/SKILL.md) | 单个 `page-group` 对应的 `nine_blade_comic_prompts.v1` JSON + 对应 `page01..page09` 图片 | 组级 `comic_page_animation_prompts.v1` JSON、9 个页视频、动画执行报告 | `projects/comic/[项目名]/4-动画生成/` |
-| 5 | [5-剧集海报](5-剧集海报/SKILL.md) | 当前集剧本/结构化包/桥接包/九刀流 JSON，及可选生成页/页视频 | `第N集-剧集海报.json` | `projects/comic/[项目名]/5-剧集海报/` |
+| 5 | [5-剧集海报](5-剧集海报/SKILL.md) | 当前集分组剧本/九刀流 JSON，及可选生成页/页视频 | `第N集-剧集海报.json` | `projects/comic/[项目名]/5-剧集海报/` |
 
 ## 5. 思行节点
 

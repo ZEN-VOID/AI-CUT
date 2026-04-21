@@ -46,30 +46,22 @@
 - `compare`
   - 内部双路比较后择一，不保留双 canonical 成品。
 
-最终必须同步落出一份 `formatted_source_script.json`，至少包含：
+最终必须同步落出一组按组组织的漫剧剧本文件：
 
-- `source_format_variant`
-- `script_variant`
-- `dialogue_policy`
-- `narration_policy`
-- `inner_monologue_policy`
-- `speaker_registry[]`
-- `canonical_story_summary`
-- `ordered_story_units[]`
-- `aligned_scene_script[]`
-- `scene_cards[]`
-- `impact_beats[]`
-- `page_turn_candidates[]`
-- `panel_text_budget`
-- `character_locks[]`
-- `scene_locks[]`
-- `prop_locks[]`
-- `panel_split_hints[]`
-- `panel_focus_map[]`
-- `spread_splash_hints[]`
-- `balloon_load_plan[]`
-- `sfx_cues[]`
-- `hook_pack[]`
+- `第1组.md`
+- `第2组.md`
+- `第3组.md`
+
+分组硬规则：
+
+- 默认以“原文约 `1000` 字”为一组。
+- 不满 `1000` 字的内容也按一组处理。
+- 一次长文切分后，最后一组若剩余 `300` 字以内，归并到上一组。
+- 最后一组若剩余 `700` 字以上，可单独成组。
+- 最后一组若剩余 `301-699` 字，默认并入上一组；只有在存在明确场景闭合、钩子闭合或 payoff 边界时才允许单独成组。
+- 分组优先尊重 scene / action / hook / payoff，自然边界高于机械字数切分。
+- 每个组文件必须显式写出 `【边界判定】`，说明当前起止边界为何成立；尾组还必须写明 `尾组决议`。
+- 每个组文件必须显式写出最小类型包 handoff：`type_stack_active_packs`、`type_pack_projection_script_adaptation`、`type_pack_projection_nine_blade`。
 
 ## 1.2 对齐 `2-格式` 的基础格式化标题
 
@@ -237,27 +229,19 @@
 | `九刀可消费` | 下游无需重猜 story units 即可切页 |
 | `刺激曲线可见` | 能指出哪里抓停、哪里抬升、哪里急停 |
 
-## 4.1 漫画专项字段建议
+## 4.1 组文件写法建议
 
-推荐在 `formatted_source_script.json` 中至少补齐以下字段：
+推荐每个 `第N组.md` 至少具备以下信息密度：
 
-| 字段 | 作用 |
+| 组成 | 作用 |
 | --- | --- |
-| `scene_cards[]` | 为每个场景单元固定 `scene_id / purpose / conflict / visual_anchor / exit_hook` |
-| `impact_beats[]` | 提前声明适合做大格、破框、静默格或爆发页的节点 |
-| `page_turn_candidates[]` | 给 `2-九刀流` 明确可做页末悬停的句子或动作 |
-| `panel_text_budget` | 控制 `dialogue / narration / sfx` 三类文字密度，避免下游超载 |
-| `character_locks[]` | 固定 recurring characters 的外观、年龄、轮廓、服装与关系位 |
-| `scene_locks[]` | 固定 recurring scenes 的建筑、光线、道具、时段和空间朝向 |
-| `prop_locks[]` | 固定关键道具的形态、材质与情节意义 |
-| `speaker_registry[]` | 固定说话者主体的 canonical 命名，防止角色名/代称漂移 |
-| `aligned_scene_script[]` | 把基础格式化条目落成 machine-readable 结构 |
-| `panel_split_hints[]` | 记录每个场景或关键 beat 的分格建议 |
-| `panel_focus_map[]` | 记录格级主视觉与视线落点 |
-| `spread_splash_hints[]` | 记录适合跨页/大格/破框的节点 |
-| `balloon_load_plan[]` | 约束对白框、旁白框与静默格的文字负载 |
-| `sfx_cues[]` | 记录应进入画面或字效层的声音提示 |
-| `hook_pack[]` | 把章末/场末钩子整理成 machine-readable 候选集 |
+| `本组跨度` | 让下游快速知道这组覆盖了哪段剧情推进 |
+| `边界判定` | 让执行者和 reviewer 快速知道为什么在这里切组 |
+| `类型包 handoff` | 让 2 号技能无需重猜也能继承 active packs 与阶段投影 |
+| `场景化正文` | 直接提供可拆页、可切九刀的正文母稿 |
+| `动作与反应` | 保证每组不退化成一段纯解释 |
+| `冲击画面` | 让下游能读出至少一个高冲击画面候选 |
+| `组末钩子` | 给 `2-九刀流` 一个明确的九页收尾牵引点 |
 
 ## 5. 长度建议
 
@@ -333,7 +317,7 @@
 
 - 用未闭合动作、未回答问题、危险逼近或关系反转收尾。
 
-### 错误四：桥接包能列锚点，但正文本身没有炸点画面
+### 错误四：组文件能讲清剧情，但正文本身没有炸点画面
 
 修正：
 

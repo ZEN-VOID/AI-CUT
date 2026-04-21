@@ -1,0 +1,93 @@
+pack_id: 喜剧
+aliases:
+  - 喜剧
+  - 搞笑
+  - 颜艺
+  - 日常喜剧
+semantic_tags:
+  - reaction-face
+  - comic-timing
+  - exaggeration
+  - sfx-punch
+stage_projection:
+  script_adaptation:
+    focus:
+      - 信息差
+      - 反应差
+      - 包袱突停
+  nine_blade_prompting:
+    layout_bias:
+      - reaction grid
+      - sudden giant sfx
+      - deformed panel break
+  image_generation:
+    render_bias:
+      - high-expression stretch
+      - timing contrast
+  animation_generation:
+    motion_bias:
+      - sudden stop
+      - snap cut
+      - reaction pop
+  episode_poster:
+    poster_bias:
+      - 离谱
+      - 别笑
+      - 真绷不住了
+control_surface:
+  conflict_engine:
+    premise: 信息差、性格差和时机差不断打断角色对体面的维持。
+    escalation_loop: 正常铺垫 -> 错频或误会 -> 反应爆炸 -> 停顿补刀。
+    payoff: 笑点要同时暴露人物和关系，而不是只抛一次段子。
+  role_matrix:
+    protagonist: 自带固定丢脸机制或误判机制的人。
+    rival_or_counterforce: 拆台者、一本正经者、慢半拍者形成反差网络。
+    allies: 捧梗者、误解者、旁观者负责接力反应。
+    observers_or_pressure: 群体沉默和社会体面感负责放大尴尬。
+  page_turn_mechanism:
+    setup_pattern: 先认真铺一拍，让读者以为要进入正常逻辑。
+    turn_trigger: 语言错频、动作打脸、SFX 砸脸、一本正经突然崩坏。
+    reveal_pattern: 翻页优先给反应和停顿，再补第二层包袱。
+    carry_forward_rule: 笑点后要留下人物损伤或关系余波，不是笑完即空。
+  panel_grammar:
+    dominant_panel_shapes:
+      - 反应格
+      - 停顿格
+      - 破框夸张格
+    expansion_nodes:
+      - 崩坏表情
+      - 大字 SFX
+      - 群体齐反应
+    compression_nodes:
+      - 铺梗
+      - 错频对话
+      - 回神瞬间
+    negative_space_policy: 停顿用留白，夸张用破框，不能全页持续疯。
+  visual_carrier:
+    primary:
+      - 反应表情
+      - 身体失衡
+      - SFX 参与
+    secondary:
+      - 背景抽空
+      - 群体沉默
+      - 对照人物的平静脸
+    prohibited_shortcuts:
+      - 只写台词梗
+      - 颜艺和人物性格脱节
+  dialogue_register:
+    line_length: short
+    monologue_density: low
+    narration_role: minimal
+    exposition_rule: 对白负责铺梗和错频，真正的笑点必须由反应和停顿完成。
+  motif_system:
+    recurring_motifs:
+      - 一本正经
+      - 大字 SFX
+      - 破框脸
+      - 全员沉默
+    payoff_rule: 母题要按梯度升级，最后一次必须比第一次更丢脸或更反预期。
+  failure_modes:
+    - 全页都在疯，没有停顿。
+    - 角色反应和前一格因果断裂。
+    - 笑点不能暴露人物。

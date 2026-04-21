@@ -4,24 +4,38 @@
   "type_stack_ref": {
     "method_kernel": "comic-core-v1",
     "base": "_base",
-    "primary": "漫画高冲击",
-    "secondary": ["狗血言情"],
+    "primary": "经典漫画叙事",
+    "secondary": ["情感关系剧"],
     "platform": ["漫剧平台"],
     "audience": ["情绪强冲突受众"],
-    "active_packs": ["_base", "漫画高冲击", "狗血言情", "漫剧平台", "情绪强冲突受众"]
+    "active_packs": ["_base", "经典漫画叙事", "情感关系剧", "漫剧平台", "情绪强冲突受众"]
   },
   "type_pack_context": {
-    "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+    "resolution_mode": "single-layer-genre-comic-type-pack",
     "knowledge_refs": [
-      ".agents/skills/comic/type-packs/漫画/狗血言情/狗血言情.md"
+      ".agents/skills/comic/type-packs/漫画/情感关系剧/情感关系剧.md"
     ],
     "knowledge_digest": [
       "关系必须比设定更狠。",
       "误解、背叛、占有、回头和翻脸要能快速落地。"
     ],
+    "control_surface_digest": [
+      "control_surface.conflict_engine.premise: 关系不平等、误会和占有欲不断重排亲密权力。",
+      "control_surface.visual_carrier.primary: 面部细节, 站位高低, 手部控制动作"
+    ],
     "semantic_tags": ["betrayal", "high-emotion", "relationship-whiplash"],
     "pack_revisions": {
-      "狗血言情": "dynamic-runtime"
+      "情感关系剧": "dynamic-runtime"
+    },
+    "control_surface": {
+      "conflict_engine": {"premise": "关系不平等、误会和占有欲不断重排亲密权力。"},
+      "role_matrix": {"protagonist": "互相牵制且都能伤到对方的关系核心"},
+      "page_turn_mechanism": {"turn_trigger": "推开又回抓、当众翻脸、证据落桌、强者失控"},
+      "panel_grammar": {"dominant_panel_shapes": ["近脸压迫格", "门框对峙格"]},
+      "visual_carrier": {"primary": ["面部细节", "站位高低", "手部控制动作"]},
+      "dialogue_register": {"exposition_rule": "优先让动作和站位伤人，再用短句补刀"},
+      "motif_system": {"recurring_motifs": ["扣手腕", "推开又回抓", "门口堵人"]},
+      "failure_modes": ["只有设定，没有真实权力变化"]
     },
     "projection_summary": {
       "episode_poster": "标题优先痛感、背叛感和关系翻脸感。"
@@ -45,12 +59,7 @@
       {
         "stage": "1-漫画剧本改编",
         "path": "",
-        "role": "formatted_source_script"
-      },
-      {
-        "stage": "1-漫画剧本改编",
-        "path": "",
-        "role": "bridge_pack"
+        "role": "grouped_script"
       },
       {
         "stage": "2-九刀流漫画提示词",
@@ -71,9 +80,7 @@
     }
   },
   "source_artifacts": {
-    "script_draft_path": "",
-    "formatted_source_script_path": "",
-    "bridge_pack_path": "",
+    "grouped_script_paths": [],
     "nine_blade_json_path": "",
     "generated_pages_dir": ""
   },

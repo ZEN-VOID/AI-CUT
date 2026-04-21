@@ -1,0 +1,95 @@
+pack_id: 体育竞技
+aliases:
+  - 体育竞技
+  - 体育
+  - 竞技
+  - 运动
+  - 球类
+semantic_tags:
+  - body-rhythm
+  - training-arc
+  - rivalry
+  - comeback
+stage_projection:
+  script_adaptation:
+    focus:
+      - 技术成长
+      - 身体极限
+      - 团队与对手
+  nine_blade_prompting:
+    layout_bias:
+      - motion streak
+      - body axis
+      - scoreboard beat
+  image_generation:
+    render_bias:
+      - body tension
+      - sweat and contact
+      - arena geography
+  animation_generation:
+    motion_bias:
+      - acceleration
+      - impact pause
+      - recovery breath
+  episode_poster:
+    poster_bias:
+      - 决胜球
+      - 逆转
+      - 最后一局
+control_surface:
+  conflict_engine:
+    premise: 规则、身体极限和对手答案不断逼迫主角完成技术与人格升级。
+    escalation_loop: 暴露短板 -> 训练修正 -> 比赛验证 -> 新短板被更强对手放大。
+    payoff: 胜负成立要同时落在战术兑现、身体代价和关系变化上。
+  role_matrix:
+    protagonist: 有具体短板且渴望追上的竞技者。
+    rival_or_counterforce: 作为另一种正确答案的强敌或体系。
+    allies: 队友、教练、替补负责承载团队秩序与战术修正。
+    observers_or_pressure: 观众、比分牌、赛规和旧伤共同施压。
+  page_turn_mechanism:
+    setup_pattern: 先交代局势和身体状态，再埋一个战术或心理缺口。
+    turn_trigger: 节奏改变、得失分、旧伤、关键对位、战术识破。
+    reveal_pattern: 翻页先给身体动作或比分变化，再补战术理解。
+    carry_forward_rule: 每次翻页必须让局势可见地变化，而不是只让情绪变热。
+  panel_grammar:
+    dominant_panel_shapes:
+      - 运动轨迹格
+      - 身体接触特写格
+      - 比分/场地定位格
+    expansion_nodes:
+      - 决胜动作
+      - 逆转
+      - 极限救球
+    compression_nodes:
+      - 连续回合
+      - 训练步骤
+      - 看台反应
+    negative_space_policy: 留白用于呼吸与重置，不用于切断比赛空间关系。
+  visual_carrier:
+    primary:
+      - 身体轴线
+      - 球/器械轨迹
+      - 呼吸与汗水
+    secondary:
+      - 场地地标
+      - 计分板
+      - 观众反应
+    prohibited_shortcuts:
+      - 只喊热血口号
+      - 不交代规则与战术
+  dialogue_register:
+    line_length: short
+    monologue_density: low
+    narration_role: tactical
+    exposition_rule: 战术说明应嵌入回合节奏，不能停赛讲课。
+  motif_system:
+    recurring_motifs:
+      - 起跑/发球姿态
+      - 呼吸
+      - 计分变化
+      - 旧伤信号
+    payoff_rule: 母题要在训练、比赛和终局三处回收，形成技术成长闭环。
+  failure_modes:
+    - 只有精神力，没有具体竞技逻辑。
+    - 所有比赛一个节奏。
+    - 场地关系不清，读者看不懂局势。

@@ -241,6 +241,56 @@ def _short_text(value: Any, fallback: str) -> str:
     return text or fallback
 
 
+def _compact_text(value: Any) -> str:
+    text = str(value or "").strip()
+    return " ".join(text.split()) if text else ""
+
+
+def _flatten_structure_lines(
+    value: Any,
+    *,
+    prefix: str = "",
+    max_lines: int = 14,
+    max_depth: int = 4,
+) -> list[str]:
+    lines: list[str] = []
+
+    def walk(node: Any, current_prefix: str, depth: int) -> None:
+        if len(lines) >= max_lines or depth > max_depth:
+            return
+        if isinstance(node, dict):
+            for key, child in node.items():
+                next_prefix = f"{current_prefix}.{key}" if current_prefix else str(key)
+                walk(child, next_prefix, depth + 1)
+                if len(lines) >= max_lines:
+                    return
+            return
+        if isinstance(node, list):
+            compact_items = [_compact_text(item) for item in node]
+            compact_items = [item for item in compact_items if item]
+            if compact_items:
+                lines.append(f"{current_prefix}: {', '.join(compact_items[:8])}")
+            return
+        compact = _compact_text(node)
+        if compact:
+            lines.append(f"{current_prefix}: {compact}")
+
+    walk(value, prefix, 0)
+    return lines[:max_lines]
+
+
+def _summarize_control_surface(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return []
+    digest = value.get("control_surface_digest")
+    if isinstance(digest, list) and digest:
+        return [str(item).strip() for item in digest[:14] if str(item).strip()]
+    surface = value.get("control_surface")
+    if isinstance(surface, dict):
+        return _flatten_structure_lines(surface, prefix="control_surface", max_lines=14)
+    return []
+
+
 def _camera_motion(panel: dict[str, Any], shot_index: int) -> str:
     shot = _short_text(panel.get("shot"), "cinematic comic shot")
     lowered = shot.lower()
@@ -339,8 +389,12 @@ def _compile_page_prompt(
     overlay_text = json.dumps(overlay, ensure_ascii=False)
     continuity_text = json.dumps(continuity_context, ensure_ascii=False)
     style_text = json.dumps(style_bible, ensure_ascii=False)
-    type_stack_text = json.dumps(type_stack_ref, ensure_ascii=False)
-    type_pack_text = json.dumps(type_pack_context, ensure_ascii=False)
+    active_packs = ", ".join(str(item) for item in type_stack_ref.get("active_packs", []))
+    animation_projection = json.dumps(
+        type_pack_context.get("stage_projection", {}).get("animation_generation", {}),
+        ensure_ascii=False,
+    )
+    control_surface_lines = _summarize_control_surface(type_pack_context)
     shot_plan_text = _shot_plan_text(shot_plan)
     main_anchor = _short_text(main_character_lock.get("anchor_prompt"), "")
     active_anchor_text = " ".join([item for item in active_locks if item]).strip()
@@ -377,8 +431,8 @@ def _compile_page_prompt(
     parts.extend(
         [
             f"Continuity context: {continuity_text}",
-            f"Type stack ref: {type_stack_text}",
-            f"Type pack context: {type_pack_text}",
+            f"Type stack active packs: {active_packs}",
+            f"Type pack animation projection: {animation_projection}",
             f"Style bible: {style_text}",
             f"Page number overlay contract: {overlay_text}",
             "Use one panel becomes one cinematic shot by default, ordered from right to left and top to bottom panels.",
@@ -390,6 +444,9 @@ def _compile_page_prompt(
             ),
         ]
     )
+    if control_surface_lines:
+        parts.append("Type pack control surface:")
+        parts.extend(control_surface_lines)
     return " ".join(part for part in parts if part).strip()
 
 
@@ -757,19 +814,50 @@ def _self_test() -> int:
         "type_stack_ref": {
             "method_kernel": "comic-core-v1",
             "base": "_base",
-            "primary": "漫画高冲击",
-            "secondary": ["悬疑惊悚"],
+            "primary": "经典漫画叙事",
+            "secondary": ["推理悬疑"],
             "platform": ["漫剧平台"],
             "audience": ["情绪强冲突受众"],
-            "active_packs": ["_base", "漫画高冲击", "悬疑惊悚", "漫剧平台", "情绪强冲突受众"]
+            "active_packs": ["_base", "经典漫画叙事", "推理悬疑", "漫剧平台", "情绪强冲突受众"]
         },
         "type_pack_context": {
-            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
-            "knowledge_refs": [".agents/skills/comic/type-packs/漫画/悬疑惊悚/悬疑惊悚.md"],
+            "resolution_mode": "single-layer-genre-comic-type-pack",
+            "knowledge_refs": [".agents/skills/comic/type-packs/漫画/推理悬疑/推理悬疑.md"],
+            "knowledge_digest": [
+                "推理悬疑 > 核心冲突引擎: 线索链缓慢点亮，而真相始终晚半步抵达。"
+            ],
             "pack_revisions": {
-                "悬疑惊悚": "dynamic-runtime"
+                "推理悬疑": "dynamic-runtime"
             },
             "semantic_tags": ["withheld-truth", "threat"],
+            "control_surface": {
+                "conflict_engine": {
+                    "premise": "线索链缓慢点亮，而真相始终晚半步抵达。",
+                },
+                "role_matrix": {
+                    "protagonist": "有盲区和代价的观察者或追查者",
+                },
+                "page_turn_mechanism": {
+                    "turn_trigger": "页尾未完成动作、半露真相、证据细节",
+                },
+                "panel_grammar": {
+                    "dominant_panel_shapes": ["细节特写格", "页尾悬停格"],
+                },
+                "visual_carrier": {
+                    "primary": ["物证细节", "视线方向", "空间异常"],
+                },
+                "dialogue_register": {
+                    "exposition_rule": "解释必须晚于证据显影",
+                },
+                "motif_system": {
+                    "recurring_motifs": ["门缝", "录音", "重复场景再看"],
+                },
+                "failure_modes": ["只有反转，没有可回溯线索"],
+            },
+            "control_surface_digest": [
+                "control_surface.conflict_engine.premise: 线索链缓慢点亮，而真相始终晚半步抵达。",
+                "control_surface.page_turn_mechanism.turn_trigger: 页尾未完成动作、半露真相、证据细节",
+            ],
             "stage_projection": {
                 "script_adaptation": {},
                 "nine_blade_prompting": {},

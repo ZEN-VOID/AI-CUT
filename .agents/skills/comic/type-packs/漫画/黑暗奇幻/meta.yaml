@@ -4,6 +4,8 @@ aliases:
   - 黑暗奇幻
   - dark fantasy
   - 灾厄
+  - 诅咒
+  - 献祭
 semantic_tags:
   - curse
   - abyss
@@ -35,3 +37,60 @@ stage_projection:
       - 深渊
       - 王座
       - 诅咒
+control_surface:
+  conflict_engine:
+    premise: 世界、制度与超自然代价一起吞噬角色的人性和关系。
+    escalation_loop: 异常显形 -> 代价加深 -> 世界秩序反咬 -> 活下去变得更不人道。
+    payoff: 奇观必须同时带来恐惧、牺牲和价值选择，而不是只做美术宣示。
+  role_matrix:
+    protagonist: 带有污染、债务、诅咒或禁忌知识的求生者。
+    rival_or_counterforce: 旧神代理、王权、教团、怪物或世界规则本身。
+    allies: 同伴负责见证代价并承担牺牲维度。
+    observers_or_pressure: 神像、遗迹、尸骸和仪式空间负责持续施压。
+  page_turn_mechanism:
+    setup_pattern: 先让世界压迫先于人物行动出现。
+    turn_trigger: 代价显形、仪式启动、空间变形、同伴被吞没。
+    reveal_pattern: 翻页先给奇观后果，再给导致后果的局部机制。
+    carry_forward_rule: 每次翻页都要让世界更近、人物更小、代价更具体。
+  panel_grammar:
+    dominant_panel_shapes:
+      - 深纵深大格
+      - 仪式中心格
+      - 异化细节插格
+    expansion_nodes:
+      - 奇观显形
+      - 代价兑现
+      - 旧神/旧制降临
+    compression_nodes:
+      - 痛感确认
+      - 队伍反应
+      - 仪式步骤
+    negative_space_policy: 留白用于黑暗压迫和尺度差，而不是缓和气氛。
+  visual_carrier:
+    primary:
+      - 世界尺度
+      - 身体异化
+      - 仪式空间
+    secondary:
+      - 裂痕
+      - 冷光
+      - 王座/冠冕/法阵
+    prohibited_shortcuts:
+      - 只黑不疼
+      - 只有美术没有代价
+  dialogue_register:
+    line_length: short_to_medium
+    monologue_density: low
+    narration_role: strategic
+    exposition_rule: 世界观说明必须让位于异常显形和代价镜头，不可先讲完再让人受苦。
+  motif_system:
+    recurring_motifs:
+      - 深渊
+      - 王座
+      - 献祭
+      - 污染裂纹
+    payoff_rule: 母题要随着剧情推进从象征变成可执行威胁，并最终咬到主角关系。
+  failure_modes:
+    - 只有哥特壳，没有命题。
+    - 奇观大，但人物不疼。
+    - 把黑暗奇幻写成普通冒险换滤镜。

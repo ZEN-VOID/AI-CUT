@@ -40,13 +40,28 @@
     },
     "type_pack_context": {
       "type": "object",
-      "required": ["resolution_mode", "knowledge_refs", "semantic_tags", "stage_projection"],
+      "required": ["resolution_mode", "knowledge_refs", "semantic_tags", "stage_projection", "control_surface"],
       "properties": {
         "resolution_mode": {"type": "string"},
         "knowledge_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
         "knowledge_digest": {"type": "array", "items": {"type": "string"}},
+        "control_surface_digest": {"type": "array", "items": {"type": "string"}},
         "semantic_tags": {"type": "array", "minItems": 1, "items": {"type": "string"}},
         "projection_summary": {"type": "object"},
+        "control_surface": {
+          "type": "object",
+          "required": ["conflict_engine", "role_matrix", "page_turn_mechanism", "panel_grammar", "visual_carrier", "dialogue_register", "motif_system", "failure_modes"],
+          "properties": {
+            "conflict_engine": {"type": "object"},
+            "role_matrix": {"type": "object"},
+            "page_turn_mechanism": {"type": "object"},
+            "panel_grammar": {"type": "object"},
+            "visual_carrier": {"type": "object"},
+            "dialogue_register": {"type": "object"},
+            "motif_system": {"type": "object"},
+            "failure_modes": {"type": "array", "items": {"type": ["string", "object"]}}
+          }
+        },
         "stage_projection": {
           "type": "object",
           "required": ["script_adaptation", "nine_blade_prompting", "image_generation", "animation_generation", "episode_poster"],

@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-19`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
+截至 `2026-04-20`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
@@ -113,6 +113,7 @@
   - `high-risk-review-gate`
   - `aigc-shelved-stages`
   - `api-man-tui-nano-banana-image-entry`
+  - `api-vidu-video-entry`
 - `comic` 已作为 repo-local 漫画项目父级入口接入治理，固定项目根为 `projects/comic/[项目名]/`
 - 漫画链路已拆成受注册子入口：
   - `comic-novel-adaptation`
@@ -123,6 +124,7 @@
   - `api-man-tui-grok-video`
   - `api-man-tui-sora`
   - `api-man-tui-nano-banana-image`
+  - `api-vidu-video`
 - 团队能力类 repo-local skill 已进入注册与路由，当前覆盖：
   - 小说组
   - 演员组

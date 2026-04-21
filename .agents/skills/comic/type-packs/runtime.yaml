@@ -1,7 +1,7 @@
 method_kernel: comic-core-v1
 default_stack:
   base: _base
-  primary: 漫画高冲击
+  primary: 经典漫画叙事
   platform:
     - 条漫平台
   audience: []
@@ -41,46 +41,43 @@ base_profile:
         - current-episode subjects only
         - centered title stack
 primary_profiles:
-  漫画高冲击:
+  经典漫画叙事:
     aliases:
-      - 高冲击漫画
-      - 爆点漫画
+      - 经典漫画
+      - classic-comic
+      - genre-led-comic
     semantic_tags:
-      - page-impact
-      - cliffhanger
-      - spectacle
-      - rapid-escalation
+      - panel-causality
+      - page-turn
+      - visual-storytelling
     stage_projection:
       script_adaptation:
-        adaptation_posture: comic-first
-        hook_intensity: relentless
-        spectacle_priority: high
-        pacing_drive: punchy
+        adaptation_posture: genre-led
+        pacing_drive: elastic
         focus:
-          - 前置炸点
-          - 中段抬升
-          - 章末急停
+          - 人物行动
+          - 冲突升级
+          - 翻页因果
       nine_blade_prompting:
         layout_bias:
-          - splash
-          - diagonal
-          - border-breaking
-          - asymmetric
+          - clear-reading-path
+          - page-turn-build
+          - focal-contrast
       image_generation:
         render_bias:
-          - sharp comic contrast
-          - strong visual silhouette
-          - obvious panel hierarchy
+          - clear silhouette
+          - panel hierarchy
+          - stable acting
       animation_generation:
         motion_bias:
-          - snap-in camera push
-          - impact hold then release
-          - preserve explosive shot order
+          - preserve reading intent
+          - panel-first movement
+          - subject clarity
       episode_poster:
         poster_bias:
-          - single explosive beat
-          - immediate hook title
-          - threat or reversal first
+          - episode truth
+          - representative scene
+          - title hierarchy
 platform_profiles:
   条漫平台:
     aliases:
@@ -122,7 +119,7 @@ platform_profiles:
       - short-drama-beat
     stage_projection:
       script_adaptation:
-        hook_intensity: relentless
+        hook_intensity: heightened
         pacing_drive: punchy
       nine_blade_prompting:
         layout_bias:
@@ -162,7 +159,7 @@ audience_profiles:
       nine_blade_prompting:
         dialogue_bias:
           - short oath lines
-          - victory-leaning challenge lines
+          - challenge lines
       image_generation:
         render_bias:
           - power silhouettes
@@ -175,6 +172,70 @@ audience_profiles:
         poster_bias:
           - oath-title
           - challenge-title
+  少女恋爱受众:
+    aliases:
+      - 少女
+      - 少女漫
+      - shojo
+      - 恋爱受众
+    semantic_tags:
+      - heart-flutter
+      - proximity
+      - emotional-detail
+    stage_projection:
+      script_adaptation:
+        emotional_axis:
+          - 试探
+          - 靠近
+          - 误会化开
+      nine_blade_prompting:
+        dialogue_bias:
+          - gentle short lines
+          - subtext-heavy beats
+      image_generation:
+        render_bias:
+          - eye contact
+          - hand gesture clarity
+      animation_generation:
+        motion_bias:
+          - breathing pause
+          - tiny gesture hold
+      episode_poster:
+        poster_bias:
+          - heartbeat-title
+          - proximity-title
+  青年现实受众:
+    aliases:
+      - 青年
+      - 青年漫
+      - seinen
+      - 现实向
+    semantic_tags:
+      - ambiguity
+      - social-pressure
+      - adult-conflict
+    stage_projection:
+      script_adaptation:
+        emotional_axis:
+          - 现实压力
+          - 关系裂纹
+          - 代价选择
+      nine_blade_prompting:
+        dialogue_bias:
+          - restrained lines
+          - silence as beat
+      image_generation:
+        render_bias:
+          - material realism
+          - acting subtlety
+      animation_generation:
+        motion_bias:
+          - restrained movement
+          - pressure linger
+      episode_poster:
+        poster_bias:
+          - dilemma-title
+          - fracture-title
   情绪强冲突受众:
     aliases:
       - 女频

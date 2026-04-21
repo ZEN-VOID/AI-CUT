@@ -9,6 +9,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
+DATA_MODULES_ROOT = Path(__file__).resolve().parents[2] / "scripts"
+if str(DATA_MODULES_ROOT) not in sys.path:
+    sys.path.insert(0, str(DATA_MODULES_ROOT))
+
+from data_modules.nine_blade_prompt_normalizer import normalize_nine_blade_prompt_data
+
 
 REQUIRED_HARD_CONSTRAINTS = [
     "9 separate",
@@ -264,24 +270,37 @@ def _self_test_data() -> dict[str, Any]:
         "type_stack_ref": {
             "method_kernel": "comic-core-v1",
             "base": "_base",
-            "primary": "漫画高冲击",
-            "secondary": ["悬疑惊悚"],
+            "primary": "经典漫画叙事",
+            "secondary": ["推理悬疑"],
             "platform": ["条漫平台"],
             "audience": ["情绪强冲突受众"],
-            "active_packs": ["_base", "漫画高冲击", "悬疑惊悚", "条漫平台", "情绪强冲突受众"],
+            "active_packs": ["_base", "经典漫画叙事", "推理悬疑", "条漫平台", "情绪强冲突受众"],
         },
         "type_pack_context": {
-            "resolution_mode": "dynamic-directory-discovery-comic-type-pack",
+            "resolution_mode": "single-layer-genre-comic-type-pack",
             "knowledge_refs": [
-                ".agents/skills/comic/type-packs/漫画/悬疑惊悚/悬疑惊悚.md"
+                ".agents/skills/comic/type-packs/漫画/推理悬疑/推理悬疑.md"
             ],
             "knowledge_digest": [
                 "危险要比解释先到。",
                 "真相必须分层释放。"
             ],
+            "control_surface_digest": [
+                "control_surface.conflict_engine.premise: 线索链缓慢点亮，而真相始终晚半步抵达。"
+            ],
             "semantic_tags": ["withheld-truth", "threat"],
             "pack_revisions": {
-                "悬疑惊悚": "dynamic-runtime"
+                "推理悬疑": "dynamic-runtime"
+            },
+            "control_surface": {
+                "conflict_engine": {"premise": "线索链缓慢点亮，而真相始终晚半步抵达。"},
+                "role_matrix": {"protagonist": "有盲区和代价的观察者或追查者"},
+                "page_turn_mechanism": {"turn_trigger": "页尾未完成动作、半露真相、证据细节"},
+                "panel_grammar": {"dominant_panel_shapes": ["细节特写格", "页尾悬停格"]},
+                "visual_carrier": {"primary": ["物证细节", "视线方向", "空间异常"]},
+                "dialogue_register": {"exposition_rule": "解释必须晚于证据显影"},
+                "motif_system": {"recurring_motifs": ["门缝", "录音", "重复场景再看"]},
+                "failure_modes": ["只有反转，没有可回溯线索"]
             },
             "projection_summary": {
                 "nine_blade_prompting": "多用静默格、细节特写、翻页机关。"
@@ -434,6 +453,7 @@ def _contains_any(text: str, needles: tuple[str, ...]) -> bool:
 
 
 def validate(data: dict[str, Any]) -> list[str]:
+    data = normalize_nine_blade_prompt_data(data)
     errors: list[str] = []
 
     if data.get("schema_version") != "nine_blade_comic_prompts.v1":
@@ -516,6 +536,16 @@ def validate(data: dict[str, Any]) -> list[str]:
     semantic_tags = type_pack_context.get("semantic_tags")
     if not isinstance(semantic_tags, list) or not semantic_tags:
         errors.append("type_pack_context.semantic_tags must be a non-empty array")
+    control_surface = type_pack_context.get("control_surface")
+    if not isinstance(control_surface, dict):
+        errors.append("type_pack_context.control_surface must be an object")
+        control_surface = {}
+    else:
+        for key in ("conflict_engine", "role_matrix", "page_turn_mechanism", "panel_grammar", "visual_carrier", "dialogue_register", "motif_system"):
+            if not isinstance(control_surface.get(key), dict):
+                errors.append(f"type_pack_context.control_surface.{key} must be an object")
+        if not isinstance(control_surface.get("failure_modes"), list) or not control_surface.get("failure_modes"):
+            errors.append("type_pack_context.control_surface.failure_modes must be a non-empty array")
     stage_projection = type_pack_context.get("stage_projection")
     if not isinstance(stage_projection, dict):
         errors.append("type_pack_context.stage_projection must be an object")

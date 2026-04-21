@@ -76,7 +76,7 @@ global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice
 | child skill | evidence artifact | owned story_map slots |
 | --- | --- | --- |
 | `1-题材选型` | `2-Planning/pass-artifacts/1-题材选型.json` | global: `content.holomap.story_promise`、`content.holomap.genre_corridor`、`content.holomap.navigation_rules[]` 的题材门 |
-| `2-章节规划` | `2-Planning/pass-artifacts/2-章节规划.json` | global: `content.holomap.volume_boards`、`content.holomap.episode_slice_manifest`、薄 `content.holomap.episode_sequence_axis`；slice: `content.holomap_slice.chapter_boards`、`content.holomap_slice.episode_sequence_axis` |
+| `2-章节规划` | `2-Planning/pass-artifacts/2-章节规划.json` | global: `content.holomap.volume_boards`、`content.holomap.episode_slice_manifest`、薄 `content.holomap.episode_sequence_axis`；slice: `content.holomap_slice.slice_style_contract`、`content.holomap_slice.chapter_boards`、`content.holomap_slice.episode_sequence_axis` |
 | `3-故事大纲` | `2-Planning/pass-artifacts/3-故事大纲.json` | global: `content.holomap.story_spine`；slice: `content.holomap_slice.chapter_boards[].bundled_elements.events` |
 | `4-冲突设计` | `2-Planning/pass-artifacts/4-冲突设计.json` | global: `content.holomap.conflict_threads`（含 `character_refs / relationship_edge_refs`）；slice: `content.holomap_slice.thread_window_slice.conflicts`、`content.holomap_slice.chapter_boards[].bundled_elements.conflicts` |
 | `5-任务设计` | `2-Planning/pass-artifacts/5-任务设计.json` | global: `content.holomap.mission_threads`（含 `owners / counterparts / relationship_edge_refs`）；slice: `content.holomap_slice.thread_window_slice.missions`、`content.holomap_slice.chapter_boards[].bundled_elements.missions` |
@@ -86,7 +86,7 @@ global/slice 的字段边界、命名规则与防漂移要求以 `planning-slice
 ## Progressive Commit Rules
 
 1. `1-题材选型` 之后，story_map 至少要有 `story_promise + genre_corridor`。
-2. `2-章节规划` 之后，global root 必须出现稳定 `volume_boards + episode_slice_manifest + thin episode_sequence_axis`，对应 slice 必须出现 `chapter_boards skeleton`。
+2. `2-章节规划` 之后，global root 必须出现稳定 `volume_boards + episode_slice_manifest + thin episode_sequence_axis`，且 `volume_boards` 已达到卷级 planning contract 密度；对应 slice 必须出现 `slice_style_contract + chapter_boards skeleton`。
 3. `3-故事大纲` 之后，slice 内 `chapter_board` 必须能看见主干事件挂载。
 4. `4-7` 每步都只补自己拥有的 thread master 与 slice bundled_elements 槽位。
 5. 父层在 1-7 完成后，负责补齐 three-axis、cross-thread indexes、lifecycle、global actualization summary/index 与 navigation rules。

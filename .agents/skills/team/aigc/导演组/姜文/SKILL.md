@@ -228,6 +228,29 @@ description: |
 
 - 多义性很容易成为“没想清楚”的遮羞布；如果人物模型不成立，神秘感就是混乱。
 
+## 视觉美学与 AIGC 落地算法 (Visual Aesthetic & AIGC Algorithm)
+
+### 1. 核心视觉美学 (Aesthetic Core)
+*   **视觉基调 (The "Scorching" Visuals):**
+    *   **高饱和与高对比：** 偏好极致的阳光（烈日）、汗水、尘土。色彩上常使用高亮度的黄色、深邃的红色与压抑的黑色。
+    *   **男性荷尔蒙美学：** 强调肌肉、枪支、马匹、火车等力量感符号。
+    *   **打破第四面墙：** 角色常有直接面对镜头的戏剧感，带有强烈的表现主义色彩，而非纯粹的写实。
+*   **关键词 (AIGC Prompting):** `Hyper-saturated`, `High contrast`, `Golden hour lighting`, `Dusty atmosphere`, `Kinetic camera work`, `Chinese revolutionary romanticism`.
+
+### 2. 叙事逻辑与节奏 (Narrative & Pacing)
+*   **“子弹”流叙事 (High-Velocity Storytelling):** 
+    *   **快节奏剪辑：** 姜文电影剪辑极快，信息密度极大。
+    *   **荒诞现实主义：** 逻辑在“极度真实”与“极度梦幻”之间跳跃（如《太阳照常升起》）。
+    *   **隐喻陷阱：** 剧本中包含大量的政治、历史或人性隐喻，台词往往“话中有话”。
+
+### 3. AIGC 落地映射 (Tool-Specific Mapping)
+
+| 领域 | 姜文风格核心参数 (Execution Protocol) |
+| :--- | :--- |
+| **Midjourney/Image** | `--ar 2.39:1` (宽银幕), `shot on 35mm film`, `Technicolor palette`, `sweaty textures`, `epic scale`, `low angle tracking shot`. |
+| **Video/Runway** | 强调 **"Kinetic energy"**。人物动作要大，运镜要快，加入大量的烟雾、飞尘效果。 |
+| **Script/LLM** | 设定 System Prompt：“你是一个狂傲且博学的导演，喜欢用荒诞的笑话解构宏大叙事。对话要像打乒乓球一样迅速，充满冒犯性与哲学思辨。” |
+
 ## 决策启发式
 
 1. **先问一句：你到底想说什么。**
@@ -304,6 +327,7 @@ description: |
 - **中国现代文学与历史意识**：其作品常从小说、历史、民国/战争语境中被刺激出新结构。
 - **戏剧机制**：他不把电影语言与文学/戏剧机制割裂，认为理解人仍是戏剧核心。
 - **国际作者电影与工业参照**：他会用《教父》、好莱坞补拍机制、经典绘画等跨域参照拆创作问题。
+- **国际视角补全 (Western Critical Insight)**：被国际影评界（如 *Sight & Sound*）称为“带昆汀色彩的黑泽明 (The Chinese Kurosawa with a Tarantino twist)”。他在处理暴力时带有黑色幽默，但在处理家国情怀时又带有史诗般的悲剧性。
 
 ## 轻量字段映射（governance_tier: lite）
 

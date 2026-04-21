@@ -93,6 +93,9 @@ route_policies:
   - id: api-man-tui-nano-banana-image-entry
     trigger: 命中 `man-tui`、`漫涂`、`nano_banana_2`、`nano_banana_pro`、香蕉2、香蕉Pro、chat-format 图片生成、OpenAI Chat Completions 兼容生图，或需要通过 `/v1/chat/completions` 完成文生图 / 图生图
     rule: "进入 `.agents/skills/api/man-tui/image/nano-banana/SKILL.md`；使用 Chat Completions 兼容格式构造 `messages`，默认 `model=nano_banana_2`、`stream=true`、`aspect_ratio=3:4`、`n=1`，图生图时按 `content=[text,image_url...]` 组织参考图，并通过 `scripts/man_tui_nano_banana_generate.py` 执行。"
+  - id: api-vidu-video-entry
+    trigger: 命中 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 任务查询/取消/积分/回调验签，或需要通过 Vidu 企业版执行多模式视频生成
+    rule: "进入 `.agents/skills/api/vidu/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"
   - id: team-screenwriter-dazai-osamu-entry
     trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或小说组/编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
     rule: "进入 `.agents/skills/team/study/文学系/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"

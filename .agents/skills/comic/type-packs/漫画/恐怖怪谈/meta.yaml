@@ -1,0 +1,95 @@
+pack_id: 恐怖怪谈
+aliases:
+  - 恐怖怪谈
+  - 怪谈
+  - 恐怖
+  - 惊悚
+  - 灵异
+semantic_tags:
+  - fear-space
+  - unseen-threat
+  - uncanny
+  - dread
+stage_projection:
+  script_adaptation:
+    focus:
+      - 空间先吓人
+      - 异常逐帧显形
+      - 人比鬼更失控
+  nine_blade_prompting:
+    layout_bias:
+      - empty panel
+      - off-screen threat
+      - page-end apparition
+  image_generation:
+    render_bias:
+      - silhouette threat
+      - sickly light
+      - oppressive shadow
+  animation_generation:
+    motion_bias:
+      - creep-in
+      - stillness before scare
+      - delayed reveal
+  episode_poster:
+    poster_bias:
+      - 门后是谁
+      - 别看身后
+      - 这屋里不止一个人
+control_surface:
+  conflict_engine:
+    premise: 空间、规矩和人的失控感一起把异常逼成现实。
+    escalation_loop: 环境不对劲 -> 解释失败 -> 规矩被触犯 -> 异常迟到显形。
+    payoff: 恐怖成立要靠空间与因果反咬角色，而不是单次惊吓。
+  role_matrix:
+    protagonist: 被怪谈缠住且带着现实欲望或愧疚的人。
+    rival_or_counterforce: 怪谈规则、空间本身、知情而不全说的人。
+    allies: 陪衬者用于对照“谁先感到不对劲”。
+    observers_or_pressure: 房屋、镜子、楼道、旧物承担见证与放大功能。
+  page_turn_mechanism:
+    setup_pattern: 先让空间比人物更早露出异常。
+    turn_trigger: 画外声音、门将开启、镜面异样、规则被违背。
+    reveal_pattern: 翻页先给结果或空缺，再给异常实体的部分显形。
+    carry_forward_rule: 每次翻页都让安全感再少一层，而不是原地重复惊吓。
+  panel_grammar:
+    dominant_panel_shapes:
+      - 空镜长格
+      - 走廊纵深格
+      - 迟到显形插格
+    expansion_nodes:
+      - 门开瞬间
+      - 异常第一次确认
+      - 规则兑现
+    compression_nodes:
+      - 呼吸停顿
+      - 小范围移动
+      - 视线搜索
+    negative_space_policy: 留白是恐怖资源，要让“空的位置”承担压力。
+  visual_carrier:
+    primary:
+      - 空间深度
+      - 不完整人形
+      - 视线落空
+    secondary:
+      - 镜面
+      - 门缝
+      - 老物件
+    prohibited_shortcuts:
+      - 只靠血浆和怪脸
+      - 第一时间解释规则全貌
+  dialogue_register:
+    line_length: short
+    monologue_density: low
+    narration_role: sparse
+    exposition_rule: 解释只能比异常慢半拍，且永远不一次说满。
+  motif_system:
+    recurring_motifs:
+      - 门口
+      - 镜面
+      - 走廊拐角
+      - 不该空的位置
+    payoff_rule: 母题要通过重复和轻微偏差制造“已经见过，却更不对劲”的感觉。
+  failure_modes:
+    - 只靠猎奇镜头，没有空间逻辑。
+    - 角色和怪谈没有因果绑定。
+    - 一次把规矩和真相讲光。

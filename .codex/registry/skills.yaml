@@ -198,6 +198,17 @@ active_skills:
       script_entry: ".agents/skills/api/man-tui/image/nano-banana/scripts/man_tui_nano_banana_generate.py"
       default_output_root: "output/影片/[项目名]/5-API/image/man-tui/nano-banana/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
+  - id: api-vidu-video
+    path: .agents/skills/api/vidu
+    owner_office: shangshu
+    purpose: "repo-local provider skill，统一驱动 Vidu 企业版视频接口：参考生、文生、图生、首尾帧、智能多帧、场景模板、模板成片，以及任务查询、取消、积分查询与回调签名校验。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/vidu/"
+      env_source: ".env: VIDU_API_KEY / VIDU_API_BASE_URL"
+      script_entry: ".agents/skills/api/vidu/scripts/vidu_video.py"
+      default_output_root: "output/影片/[项目名]/5-API/video/vidu/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

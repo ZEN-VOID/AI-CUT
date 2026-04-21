@@ -13,7 +13,7 @@ governance_tier: lite
 - 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
 - 若当前 step 要引用本集 chapter board，必须先读取 `../_shared/chapter-board-locating-contract.md`，禁止靠数组顺序猜本集 board。
 - 必须同时读取 `../../_shared/core-constraints.md`，把 shared 章节硬约束投影到当前 pacing pass，而不是只做局部字面调快。
-- 必须同时读取 `references/chapter-rhythm-engine.md`，把“单章节奏七段发动机”装进本 step，而不是只靠经验裁字。
+- 必须同时读取 `../../2-Planning/2-章节规划/references/episode-rhythm-rules.md` 与 `references/chapter-rhythm-engine.md`，把 planning 已声明的集节奏骨架与 pack 规则装进本 step，而不是只靠经验裁字。
 - 正式处理前，必须读取 Step 1 已写回后的当前 `第N集.md`。
 
 ## Parent Positioning
@@ -77,13 +77,13 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让章节具备推进节奏、呼吸感和章内脉冲，而不是只把事情按时间顺序摆出来。 |
-| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、shared core constraints，以及当前项目的 `type-pack drafting projection`。 |
+| `business_object` | Step 1 后的当前正文、当前 `写作日志.yaml`、`2-Planning/全息地图.json` 的本章义务、当前集 `episode_rhythm_roles` / `episode_rhythm_framework`、shared core constraints，以及当前项目的 `type-pack drafting projection`。 |
 | `constraint_profile` | 不换故事骨架，只重排密度和脉冲；必须继续遵守规划真源、设定边界、推进下限、上章承诺回应与章末期待约束。 |
 | `success_criteria` | 读者能明显感知推进、停顿、加压和章末牵引，同时章节仍能回答“发生了什么/为什么现在这样”。 |
 | `non_goals` | 不重写 chapter board、本章主事件序列、设定系统、世界规则或终修文风。 |
 | `complexity_source` | 复杂度来自“节奏变形”很容易伤到因果承接、上章回应、章末牵引和设定物理。 |
 | `topology_fit` | `root reread -> chapter promise / constraint projection -> seven-slot rhythm engine -> drag/skip diagnosis -> pacing rewrite -> compliance audit` |
-| `step_strategy` | 先锁本章不可破坏的法律与物理，再锁“开头钩子 / 本章承诺 / 冲突轴 / 转向 / 反应决策 / 微兑现 / 尾钩”七段发动机，最后把它们编排成章内脉冲梯子并做有限重排与重写。 |
+| `step_strategy` | 先锁本章不可破坏的法律与物理，再把 planning 已选的集节奏包投影到“入场 / 推动 / 转折 / 发展 / 升级 / 高潮 / 尾钩”统一七步骨架上，最后把它们编排成章内脉冲梯子并做有限重排与重写。 |
 
 ## Total Input Contract
 
@@ -161,34 +161,55 @@ governance_tier: lite
 
 ```mermaid
 flowchart TD
-    A["回读 Step 1 正文 + 写作日志"] --> B["投影规划义务与 core constraints"]
-    B --> C["锁七段发动机前五段"]
-    C --> D["锁 micro payoff + exit hook"]
-    D --> E["建立 pulse ladder"]
-    E --> F["识别拖沓/跳切/弱钩子"]
-    F --> G["做有限节奏重排 + micro payoff / exit hook"]
-    G --> H["跑法律/物理/推进审计"]
+    A["N1 回读正文 / 日志 / planning handoff"] --> B["N2 投影法律 / 物理 / pack"]
+    B --> C["N3 映射统一七步骨架"]
+    C --> D{{"N4 当前集 mode"}}
+    D -->|"势能式"| E["势能式编排"]
+    D -->|"动能式"| F["动能式编排"]
+    E --> G["N5 建立 pulse ladder"]
+    F --> G
+    G --> H["N6 补足中段发展 / 升级"]
+    H --> I["N7 识别拖沓 / 跳切 / 弱兑现"]
+    I --> J["N8 节奏重写"]
+    J --> K["N9 合规审计 + hook gate"]
 ```
 
 ```mermaid
 flowchart LR
-    A["发现问题段"] --> B{{"问题类型"}}
-    B -->|"长铺垫空转"| C["压缩解释\n前移变化"]
-    B -->|"跳切因果断"| D["补回动作-反应-结果链"]
-    B -->|"章末平收"| E["补未闭合期待/代价余波"]
-    B -->|"靠新设定硬提速"| F["撤销新增设定\n回到既有法律/物理"]
-    C --> G["进入合规审计"]
-    D --> G
-    E --> G
-    F --> G
+    A["统一七步骨架"] --> B["入场"]
+    A --> C["推动"]
+    A --> D["转折"]
+    A --> E["发展"]
+    A --> F["升级"]
+    A --> G["高潮"]
+    A --> H["尾钩"]
+    B -. overlay .-> B2["entry_hook"]
+    C -. overlay .-> C2["chapter_promise + conflict_axis"]
+    D -. overlay .-> D2["turn_or_reversal"]
+    E -. overlay .-> E2["reaction / middle entanglement"]
+    F -. overlay .-> F2["pressure rise / deeper sink"]
+    G -. overlay .-> G2["micro_payoff / irreversible peak"]
+    H -. overlay .-> H2["exit_hook"]
+```
+
+```mermaid
+flowchart LR
+    A["mode branch"] --> B{{"selected_mode"}}
+    B -->|"势能式"| C["快闪入场 -> 平静表面 -> 矛盾显形 -> 戏谑/无所谓 -> 逃避陷深 -> 不可逆高点 -> 尾钩"]
+    B -->|"动能式"| D["爽点激突 -> 悬念迷阵 -> 首轮反转 -> 局面发展 -> 再反转/升压 -> 冲突高潮 -> 尾钩"]
+    C --> E["都必须服从 planning pack / mode"]
+    D --> E
 ```
 
 ```mermaid
 stateDiagram-v2
     [*] --> RereadCurrent
     RereadCurrent --> ConstraintProjected
-    ConstraintProjected --> PulseMapped
-    PulseMapped --> Diagnosed
+    ConstraintProjected --> SpineMapped
+    SpineMapped --> ModeSelected
+    ModeSelected --> PulseMapped
+    PulseMapped --> MiddleBuilt
+    MiddleBuilt --> Diagnosed
     Diagnosed --> Rewriting
     Rewriting --> ComplianceAudited
     ComplianceAudited --> Passed
@@ -197,17 +218,17 @@ stateDiagram-v2
 
 ## Thinking-Action Network
 
-| node_id | field_id | objective | actions | evidence | route_out | gate |
-| --- | --- | --- | --- | --- | --- | --- |
-| `N1-ROOT-REREAD` | `FIELD-DR2-01` | 回读当前正文与日志 | 读取 Step 1 结果、上一步 hook 摘要、reader signal | `input_note` | -> `N2` | 正文最新 |
-| `N2-PROMISE-CONSTRAINT-PROJECTION` | `FIELD-DR2-02` | 锁当前 step 不可破坏的法律、物理与本章交易 | 对齐 chapter board、上章承诺、设定边界、Hard/Soft/Style 约束，并锁 `chapter_promise` | `constraint_note` | -> `N3` | 约束和本章承诺清楚 |
-| `N3-HOOK-AND-PROMISE-LOCK` | `FIELD-DR2-03` | 锁开头钩子与前段吸力 | 判断第一屏是否存在 `entry_hook`，并确认前段能感知 `chapter_promise` | `hook_note` | -> `N4` | 开头能拉人，且本章交易可见 |
-| `N4-CONFLICT-REVERSAL-LOCK` | `FIELD-DR2-04` | 锁冲突轴与局势改写点 | 明确 `goal / obstruction / stakes`，并标出 `turn_or_reversal` 与关键代价 | `conflict_note` | -> `N5` | 本章不是平推，且中段有改向 |
-| `N5-REACTION-DECISION-LOCK` | `FIELD-DR2-05` | 锁反应与下一步决定 | 标出冲突后人物的反应、两难和决策，确保后续推进有因果 | `reaction_note` | -> `N6` | 人物吸收成立，不是纯噪音推进 |
-| `N6-PULSE-LADDER` | `FIELD-DR2-06` | 用七段发动机建立章内节奏梯子 | 标出推进点、冲突点、转向点、决策点、微兑现点与章末期待区 | `pulse_note` | -> `N7` | 七段已被编排成有起伏的读感 |
-| `N7-DRAG-DIAGNOSIS` | `FIELD-DR2-07` | 识别节奏问题 | 找出平推、跳切、稀薄段、弱钩子、解释堆积段与“只拉不收”段 | `diagnosis_note` | -> `N8` | 问题具体 |
-| `N8-PACING-REWRITE` | `FIELD-DR2-08` | 重写节奏 | 调整段落长度、顺序、压缩/留白、补反应桥、安装 `micro_payoff / exit_hook` | `rewrite_note` | -> `N9` | 节奏可感且有交易 |
-| `N9-COMPLIANCE-AUDIT` | `FIELD-DR2-09` | 做最终合规审计 | 检查规划义务、设定物理、推进下限、本章兑现、章末期待、占位禁令 | `compliance_note` | done | 快而不空，且未越界 |
+| node_id | field_id | objective | inputs | actions | evidence | route_out | gate |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `N1-ROOT-REREAD` | `FIELD-DR2-01` | 回读当前正文、日志与 planning handoff，锁当前 step 的真实输入面 | Step 1 正文、`写作日志.yaml`、chapter board、`episode_rhythm_framework / roles`、reader signal | 读取 Step 1 结果、最近 hook 摘要、当前集 pack/mode 与上一集承诺承接位 | `input_note` | pass -> `N2`；正文/pack 缺失 -> 留在 `N1` | 只有正文、日志和集节奏 handoff 同时可读时才允许继续 |
+| `N2-CONSTRAINT-AND-PACK-PROJECTION` | `FIELD-DR2-02` | 把法律、物理、上章承诺与当前集节奏包同时投影进本 step | `N1` 输入、`core-constraints`、planning 义务 | 对齐 chapter board、上章承诺、设定边界、Hard/Soft/Style 约束，并锁当前集 `selected_pack / selected_mode` | `constraint_note` | pass -> `N3`；法律/pack 任一不清 -> 回 `N2` | 只有“规划没丢、设定没破、pack 已锁”三者同时成立时才可进入骨架映射 |
+| `N3-SEVEN-STEP-SPINE-MAP` | `FIELD-DR2-03` | 把本集剧情映射到统一七步骨架，而不是直接凭感觉裁字 | `N2` 约束、集节奏七步投影 | 逐一锁定 `入场 / 推动 / 转折 / 发展 / 升级 / 高潮 / 尾钩`，并叠加现有语义检查位 | `spine_note` | pass -> `N4`；只有 role 没有七步 -> 回 `N3` | 七步骨架必须被具体落位，不能只剩抽象“这集偏阴/偏阳” |
+| `N4-MODE-BRANCH-LOCK` | `FIELD-DR2-04` | 根据 planning 已选 mode 决定本集是势能式还是动能式编排 | `N3` 七步骨架、`selected_mode` | 若为 `势能式`，锁“快闪入场 -> 平静表面 -> 矛盾显形 -> 戏谑/逃避 -> 陷深 -> 不可逆高点”；若为 `动能式`，锁“激突 -> 迷阵 -> 反转 -> 发展 -> 再升压 -> 冲突高潮” | `mode_note` | 势能式 -> `N5`；动能式 -> `N5`；mode 与正文不符 -> 回 `N4` | mode 不是审美标签，必须能解释本集的推进路径 |
+| `N5-PULSE-LADDER` | `FIELD-DR2-05` | 把七步骨架与 mode 编排成可感的章内脉冲梯子 | `N4` mode 路径、正文当前版本 | 标出推进点、改向点、陷深点、峰值点与尾钩区，形成初版 `pulse_ladder` | `pulse_note` | pass -> `N6`；骨架顺排无起伏 -> 回 `N5` | 章内必须出现清晰的读感起伏，而不是把七步写成提纲 |
+| `N6-MIDDLE-DEVELOPMENT-BUILD` | `FIELD-DR2-06` | 补足“发展 / 升级”这段最容易发虚的中段结构 | `N5` pulse ladder、中段正文 | 检查转折后是否有持续纠葛、继续陷深或再升压，并补足 reaction / entanglement / escalation | `middle_note` | pass -> `N7`；中段空转或直接跳高潮 -> 回 `N6` | 中段必须既有发展也有升级，不能只剩转折和高潮两头亮 |
+| `N7-DRAG-DIAGNOSIS` | `FIELD-DR2-07` | 识别本集真正的节奏故障，而不是泛泛说“还不够快” | `N6` 中段结构、正文问题段 | 定位平推、跳切、弱兑现、mode 失真、只拉不收、高潮无积累等问题 | `diagnosis_note` | pass -> `N8`；问题定位太笼统 -> 回 `N7` | 必须能回答“哪一段坏、坏在哪一层、该回哪一类动作修” |
+| `N8-PACING-REWRITE` | `FIELD-DR2-08` | 在不破法律/物理的前提下完成节奏重写 | `N7` 诊断、pack/mode、七步骨架 | 调整段落长度、顺序、留白、补反应桥、强化升级与高潮、安装 `micro_payoff / exit_hook` | `rewrite_note` | pass -> `N9`；靠删空因果或偷换 mode 提速 -> 回 `N8` | rewrite 后必须既守 planning，又让集节奏包真正落进正文 |
+| `N9-COMPLIANCE-AUDIT` | `FIELD-DR2-09` | 做当前 step 的最终汇流审计，并为 inline hook 提供证据 | `N8` 节奏版正文、当前 gate 要求 | 检查规划义务、设定物理、推进下限、本章兑现、mode 一致性、尾钩与占位禁令 | `compliance_note` | pass -> done；Step 2 自修 -> 回 `N8`；更早 step/source fix -> 回卷 | 只有“快而不空、mode 不漂、hook 可过”时才允许进入 Step 3 |
 
 ## Lite Field Contract
 
@@ -215,17 +236,18 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `FIELD-DR2-01` | 当前正文与日志 | 已回读 Step 1 正文、日志与最近 hook 摘要 | `FAIL-DR2-01` | `N1` |
 | `FIELD-DR2-02` | 约束投影 | 已锁定规划义务、设定边界、Hard/Soft/Style 门禁与 `chapter_promise` | `FAIL-DR2-02` | `N2` |
-| `FIELD-DR2-03` | hook/promise lock | 开头可感知 `entry_hook`，且前段已显出本章交易 | `FAIL-DR2-03` | `N3` |
-| `FIELD-DR2-04` | conflict/reversal lock | 已明确冲突轴、阻碍、代价与至少一次局势改写 | `FAIL-DR2-04` | `N4` |
-| `FIELD-DR2-05` | reaction/decision lock | 冲突后有可感知反应、两难与决定 | `FAIL-DR2-05` | `N5` |
-| `FIELD-DR2-06` | pulse ladder | 已有章内节奏梯子，且标出微兑现区与章末期待区 | `FAIL-DR2-06` | `N6` |
-| `FIELD-DR2-07` | 节奏问题表 | 拖沓/跳切/平推/弱钩子/只拉不收问题已定位 | `FAIL-DR2-07` | `N7` |
+| `FIELD-DR2-03` | seven-step spine map | 统一七步骨架已被具体落位，且能回指 planning 投影 | `FAIL-DR2-03` | `N3` |
+| `FIELD-DR2-04` | mode branch lock | `势能式 / 动能式` 已明确，且能解释本集推进路径 | `FAIL-DR2-04` | `N4` |
+| `FIELD-DR2-05` | pulse ladder | 已有章内节奏梯子，且标出峰值点与章末期待区 | `FAIL-DR2-05` | `N5` |
+| `FIELD-DR2-06` | middle development / escalation | 中段已有持续纠葛、陷深或再升压，不再发空 | `FAIL-DR2-06` | `N6` |
+| `FIELD-DR2-07` | 节奏问题表 | 拖沓/跳切/平推/弱钩子/只拉不收/mode 失真问题已定位 | `FAIL-DR2-07` | `N7` |
 | `FIELD-DR2-08` | 节奏版正文 | 推进与收放明显改善，且已安放 `micro_payoff / exit_hook`，未靠删空因果或硬造新设定提速 | `FAIL-DR2-08` | `N8` |
-| `FIELD-DR2-09` | 合规审计摘要 | 章节仍可读、有推进、回应承诺、冲突成立、完成至少一处局部兑现、无占位、章末保有期待 | `FAIL-DR2-09` | `N9` |
+| `FIELD-DR2-09` | 合规审计摘要 | 章节仍可读、有推进、回应承诺、mode 一致、完成至少一处局部兑现、无占位、章末保有期待 | `FAIL-DR2-09` | `N9` |
 
 ## Completion Contract
 
 - 当前正文已具备可感知的章内脉冲。
-- 当前正文已具备 `entry_hook -> chapter_promise -> conflict_axis -> turn_or_reversal -> reaction_decision -> micro_payoff -> exit_hook` 的七段发动机，并已被编排成有效 `pulse_ladder`。
+- 当前正文已具备 `入场 -> 推动 -> 转折 -> 发展 -> 升级 -> 高潮 -> 尾钩` 的统一七步骨架，并已被编排成有效 `pulse_ladder`。
+- 当前正文的 `势能式 / 动能式` mode 已与 planning 声明保持一致。
 - 当前正文仍满足 `core-constraints` 的三大定律与章节 Hard 约束。
 - `process_log_entry` 已说明本次节奏调整聚焦了哪些问题，以及如何守住规划义务、设定边界与章末期待。

@@ -47,7 +47,7 @@
 | `story_spine` | 整书主问题、卷级推进、关键转折 | `3-Drafting / query` |
 | `timeline_axis` | 全局时间轴 | `3-Drafting / 4-Validation` |
 | `space_axis` | 全局空间轴 | `3-Drafting / 4-Validation` |
-| `volume_boards` | 卷级容器 | `3-Drafting / query` |
+| `volume_boards` | 卷级容器与卷级 planning contract；不得退化成仅有卷名与摘要 | `3-Drafting / query` |
 | `character_roster_projection` | 角色 planning projection | `3-Drafting / 4-Validation` |
 | `relationship_graph_projection` | 关系 planning projection | `3-Drafting / 4-Validation` |
 | `conflict_threads` | 冲突主线程定义 | `3-Drafting / 4-Validation / query` |
@@ -69,6 +69,7 @@
 | slot | payload shape | owner |
 | --- | --- | --- |
 | `slice_scope` | `slice_id / episode_start / episode_end / episode_refs / file_ref` | 父层 |
+| `slice_style_contract` | 当前十集 obey 的卷级规划镜像，至少含 `contract_ref / visual_climate / action_grammar / mystery_mode / emotional_temperature / taboo_writeups` | `2-章节规划` |
 | `chapter_boards` | 当前十集的 board 全量密集载荷 | `2-章节规划` 起步，`3-7` 挂载 |
 | `episode_sequence_axis` | 当前十集的轴明细，至少含 `episode_ref / chapter_board_ref / slice_ref` | `2-章节规划` |
 | `thread_window_slice` | 当前十集的 conflict / mission / clue / foreshadow window | `4-7` |
@@ -90,7 +91,7 @@
 | writer | 允许写 global root | 允许写 slice | 禁止 |
 | --- | --- | --- | --- |
 | `1-题材选型` | `story_promise / genre_corridor / navigation_rules` | 否 | episode-local board payload |
-| `2-章节规划` | `volume_boards / episode_slice_manifest / 薄 episode_sequence_axis` | `chapter_boards / slice episode_sequence_axis` | 冲突/任务/线索/伏笔内容 |
+| `2-章节规划` | `volume_boards / episode_slice_manifest / 薄 episode_sequence_axis` | `slice_style_contract / chapter_boards / slice episode_sequence_axis` | 冲突/任务/线索/伏笔内容 |
 | `3-故事大纲` | `story_spine` | `chapter_boards[].bundled_elements.events` | 直接改四条长线 master 定义 |
 | `4-冲突设计` | `conflict_threads` | `thread_window_slice.conflicts`、`chapter_boards[].bundled_elements.conflicts` | 覆盖 story spine |
 | `5-任务设计` | `mission_threads` | `thread_window_slice.missions`、`chapter_boards[].bundled_elements.missions` | 覆盖 conflict/clue/foreshadow master |
