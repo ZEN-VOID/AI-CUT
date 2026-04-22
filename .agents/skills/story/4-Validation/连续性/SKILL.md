@@ -49,7 +49,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断这卷是不是按卷地图 continuity pack 长出来，卷内各章承接与线程推进没有断带。 |
-| `business_object` | 卷级 continuity matrix、当前卷正文集合、卷级写作日志、`episode_boards`。 |
+| `business_object` | 卷级 continuity matrix、当前卷正文集合、卷级写作日志、`chapter_planning_packets`。 |
 | `constraint_profile` | 先看卷级 entry/exit 关系，再看卷内相邻章节 transition；不能只靠“读起来还行”给通过。 |
 | `success_criteria` | 能指出哪条线接得上、哪一章中途断了、哪个转场突兀、哪个卷内 carryover 漂移。 |
 | `topology_fit` | `carryover load -> transition trace -> thread continuity -> report packet` |

@@ -227,7 +227,6 @@ def map_skill_from_path(path_or_stage: str) -> str:
         "7-Cut": "aigc-cut",
         "query": "aigc-query",
         "resume": "aigc-resume",
-        "review": "aigc-review",
     }
     if path_or_stage in mapping:
         return mapping[path_or_stage]

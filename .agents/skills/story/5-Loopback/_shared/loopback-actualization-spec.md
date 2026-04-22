@@ -11,6 +11,9 @@
 ## Writeback Targets
 
 - `Cards.current_state/history`
+- `2-Planning/整体规划.actualization.json`
+- `2-Planning/第N卷/卷规划.actualization.json`
+- `2-Planning/第N卷/第N章.actualization.json`
 - 当前卷命中的 `2-Planning/卷分片/*.json.content.holomap_slice.actualization`
 - `2-Planning/全息地图.json.content.holomap.actualization`
 - `STATE.json` projections / runtime markers
@@ -46,7 +49,8 @@
 ## Commit Discipline
 
 - loopback 必须先完成 gate 校验、delta normalize 与 staged patch 计算，再开始任何 truth writeback。
-- 实际写盘按 `Cards -> MAP -> STATE -> loopback artifact` 顺序提交。
+- 实际写盘按 `Cards -> Planning sidecars -> MAP -> STATE -> loopback artifact` 顺序提交。
+- 其中 Planning sidecars 固定为 `book -> volume -> chapter`。
 - 其中 MAP 再拆为 `slice actualization -> root actualization summary/index`。
 - 提交前必须先写一个 `runtime_markers.loopback_pending` manifest；成功后移除 pending，并把 committed manifest 固化到 `runtime_markers.loopback.last_commit_manifest` 与 loopback artifact。
 
@@ -54,5 +58,6 @@
 
 - 不得改写 `validation_status / routing_decision / handoff_targets`
 - 不得覆盖 `planned_*`
+- 不得把 validated actualization 直接写进三层 planning 正文
 - 不得把 query / resume 请求混入 actualization 主流程
 - 不得把卷级 actualization 明细重新写回 root-only carrier

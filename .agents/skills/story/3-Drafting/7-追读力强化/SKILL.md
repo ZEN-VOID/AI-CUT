@@ -51,14 +51,14 @@ governance_tier: lite
 - 本 child 只拥有“如何把 taxonomy 投影到当前正文重写”的执行权，不再局部复制一份分类体系。
 - 本 child 也只消费爽点工程指南，不在本地再复制一份共享爽点手册。
 - 本 child 可以在本地 execution playbook 中维护“pressure-core 投影语法”，用于把通用 taxonomy 投影到偏文学、偏人物高压的章内推进；该语法不是平行 taxonomy，也不得绕过共享 hook / payoff / cool-point 真源。
-- 若当前项目未显式启用 `type-pack` 或没有题材型投影输入，则仅使用 taxonomy 的通用部分，不强行套题材偏好。
+- 若当前项目没有明确 `类型卡` 或题材型输入不足，则仅使用 taxonomy 的通用部分，不强行套题材偏好。
 
 ## Business Requirement Analysis Contract
 
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让本集在章内持续给读者“小收获 + 新风险 + 续读牵引”，而不是只在语气上显得激烈；对偏文学章节，也要把羞耻、欲望、美感压力和公开暴露翻译成真实追读力。 |
-| `business_object` | Step 6 后正文、chapter board 债务、写作日志、当前项目的 reader signal / type-pack 投影（若存在），以及根级追读力 taxonomy。 |
+| `business_object` | Step 6 后正文、chapter board 债务、写作日志、当前项目的 reader signal / 类型卡投影（若存在），以及根级追读力 taxonomy。 |
 | `constraint_profile` | 追读力必须来自既有规划、角色选择和局势推进，不能靠硬插事故、滥用悬念或无兑现钩子。 |
 | `success_criteria` | 本章至少形成清晰推进梯度、可感知局部兑现、有效章末牵引，并能说清当前主要 hook / payoff / pressure core 是什么；若主角启用了成长系统，本 step 还能明确说出三轴分别被什么压力、选择或章末 pull 推进。 |
 | `topology_fit` | `root reread -> reading-power debt scan -> tactic bundle select -> rewrite -> ending pull audit -> regression guard` |
@@ -67,11 +67,14 @@ governance_tier: lite
 
 - 必需输入：
   - 当前 `第N集.md`
-  - `2-Planning/全息地图.json`
+  - `2-Planning/整体规划.md`
+  - 当前卷 `2-Planning/第V卷/卷规划.md`
+  - 当前章 `2-Planning/第V卷/第N章.md`
   - `第V卷.写作日志.yaml`
 - 可选增强输入：
+  - `2-Planning/全息地图.json`（兼容项目 actualization / 索引补充）
   - `reader signal`
-  - `type-pack` 对 drafting stage 的当前投影
+  - `类型卡` 对 drafting stage 的当前题材投影
   - 最近章节的 hook / cool-point 使用情况
 - 硬规则：
   - 追读力强化不能违背已建立的因果。
@@ -110,7 +113,7 @@ governance_tier: lite
 1. 先读 `../../_shared/reading-power-taxonomy.md` 的通用 taxonomy。
 2. 再读 `../../_shared/cool-points-guide.md`，判断强度梯度、主副爽点组合与防疲劳策略。
 3. 判断当前章的 reader pull 主要来自“事件/信息推进”还是“人物高压/公开暴露/身体兑现”。
-4. 若当前项目存在明确题材 / type-pack 投影，再读对应 genre section。
+4. 若当前项目存在明确题材 / `类型卡` 投影，再读对应 genre section。
 5. 最后按 `references/reading-power-execution-playbook.md` 把分类映射为本章可执行的重写动作。
 
 ## Pressure-Core Projection Contract

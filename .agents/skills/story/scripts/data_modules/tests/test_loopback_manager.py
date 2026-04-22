@@ -64,6 +64,20 @@ def _build_project(project_root: Path) -> None:
             "history": [],
         },
     )
+    (project_root / "2-Planning").mkdir(parents=True, exist_ok=True)
+    (project_root / "2-Planning" / "第2卷").mkdir(parents=True, exist_ok=True)
+    (project_root / "2-Planning" / "整体规划.md").write_text(
+        "书名：凡人资本论\n\n整体故事大纲：\n\n卷划分：\n\n整体节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n规避：\n",
+        encoding="utf-8",
+    )
+    (project_root / "2-Planning" / "第2卷" / "卷规划.md").write_text(
+        "卷标题：第二卷\n\n本卷故事大纲：\n\n章划分：\n\n本卷节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n本卷登场人物：\n\n本卷主要场景：\n\n本卷关键道具：\n\n本卷任务线\n- 主线：\n- 支线：\n\n卷末达成：\n\n规避：\n",
+        encoding="utf-8",
+    )
+    (project_root / "2-Planning" / "第2卷" / "第12章.md").write_text(
+        "章标题：第十二章\n\n本章故事概要：\n\n本章冲突：\n\n本章节奏曲线：\n- `selected_pack`：动静结合\n- `selected_mode`：势能式\n\n七步职责映射：\n- 入场：税线压迫先显影\n- 推动：林辰决定先看而不动\n- 转折：阿真被逼跪雨中\n- 发展：林辰试图压住怒意\n- 升级：税吏继续羞辱众人\n- 高潮：林辰第一次准备拔剑\n- 尾钩：真正代价被推到下一章\n\n规划义务：\n- `entry_promise`：开场先给压迫感与假安稳同时存在。\n- `conflict_axis`：林辰想忍，但税线恶压逼他表态，失败代价是心气与局面同时失守。\n- `micro_payoff`：林辰第一次真正做出要不要拔剑的决定。\n- `exit_hook`：拔剑冲动与更大代价被推向下一章。\n\n义务段位：\n- 必须兑现：前段压迫显影，中段矛盾升级，章末决意外露。\n- 可延后兑现：真正出手与后续代价。\n\n建议写法：\n- 开场处理：先给雨夜压迫，再落到人物观察。\n- 中段处理：让忍耐和怒意来回拉扯。\n- 章末处理：用未真正出手前的一步把压力送出。\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n本章登场人物：\n\n本章主要场景：\n\n本章关键道具：\n\n本章任务线\n- 主线：\n- 支线：\n\n章末达成：\n\n本章线索：\n\n本章伏笔\n- 铺设：\n- 兑现：\n\n规避：\n",
+        encoding="utf-8",
+    )
 
 
 def _build_project_with_slice(project_root: Path) -> None:
@@ -184,7 +198,7 @@ def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第2卷.loopback.json").exists()
 
 
 def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeypatch):
@@ -228,7 +242,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第2卷.loopback.json").exists()
 
 
 def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch):
@@ -272,7 +286,7 @@ def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第2卷.loopback.json").exists()
 
 
 def test_loopback_manager_applies_projection_refresh_modes(tmp_path, monkeypatch):
@@ -464,14 +478,22 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
 
     assert int(exc.value.code or 0) == 0
 
-    artifact_path = project_root / "5-Loopback" / "第12集.loopback.json"
+    artifact_path = project_root / "5-Loopback" / "第2卷.loopback.json"
     assert artifact_path.is_file()
 
     artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert artifact["inputs"]["validation_status"] == "PASS"
     assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_loopback"
     assert artifact["inputs"]["handoff_targets"] == ["review/", "5-Loopback"]
+    assert artifact["inputs"]["book_plan_ref"] == "2-Planning/整体规划.md"
+    assert artifact["inputs"]["volume_plan_ref"] == "2-Planning/第2卷/卷规划.md"
+    assert artifact["inputs"]["chapter_plan_refs"] == ["2-Planning/第2卷/第12章.md"]
     assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["1-Cards/2-角色卡/主要角色/林辰.json"]
+    assert artifact["content"]["writeback_summary"]["written_planning_actualization_refs"] == [
+        "2-Planning/整体规划.actualization.json",
+        "2-Planning/第2卷/卷规划.actualization.json",
+        "2-Planning/第2卷/第12章.actualization.json",
+    ]
     assert artifact["content"]["writeback_summary"]["written_map_refs"] == ["episode_nodes:episode-12"]
     assert artifact["execution_notes"]["governance_refs"]["mission_brief_ref"] == (
         "STATE.json#workflow_runtime.governance_index.run-12.mission_brief"
@@ -486,7 +508,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert card["current_state"]["stance"] == "结盟"
     assert card["current_state"]["growth_state"]["skill"]["stage"] == "稳固"
     assert card["history"][-1]["episode_ref"] == "第12集"
-    assert card["history"][-1]["loopback_ref"] == "5-Loopback/第12集.loopback.json"
+    assert card["history"][-1]["loopback_ref"] == "5-Loopback/第2卷.loopback.json"
     assert card["history"][-1]["growth_delta"]["skill"]["after"] == "稳固"
     assert card["loopback_revision"] == 1
 
@@ -497,6 +519,24 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert actual_nodes[0]["episode_ref"] == "第12集"
     assert actual_nodes[0]["execution_status"] == "completed"
     assert holomap["content"]["holomap"]["actualization"]["revision"] == 1
+
+    book_actualization = json.loads(
+        (project_root / "2-Planning" / "整体规划.actualization.json").read_text(encoding="utf-8")
+    )
+    assert book_actualization["volume_status_index"][0]["volume_ref"] == "第2卷"
+    assert book_actualization["volume_status_index"][0]["last_actualized_chapter_ref"] == "第12章"
+
+    volume_actualization = json.loads(
+        (project_root / "2-Planning" / "第2卷" / "卷规划.actualization.json").read_text(encoding="utf-8")
+    )
+    assert volume_actualization["volume_ref"] == "第2卷"
+    assert volume_actualization["chapter_status_index"][0]["chapter_ref"] == "第12章"
+
+    chapter_actualization = json.loads(
+        (project_root / "2-Planning" / "第2卷" / "第12章.actualization.json").read_text(encoding="utf-8")
+    )
+    assert chapter_actualization["chapter_ref"] == "第12章"
+    assert chapter_actualization["status"] == "completed"
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     assert state["setting_route_packet"]["writer_context_projection"]["memory_projection"]["focus"] == [
@@ -569,9 +609,11 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
 
     assert int(exc.value.code or 0) == 0
 
-    artifact = json.loads((project_root / "5-Loopback" / "第12集.loopback.json").read_text(encoding="utf-8"))
+    artifact = json.loads((project_root / "5-Loopback" / "第2卷.loopback.json").read_text(encoding="utf-8"))
     assert artifact["inputs"]["story_map_slice_ref"] == "2-Planning/卷分片/第2卷.json"
+    assert artifact["inputs"]["volume_plan_ref"] == "2-Planning/第2卷/卷规划.md"
     assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
+    assert "2-Planning/第2卷/第12章.actualization.json" in artifact["content"]["writeback_summary"]["written_planning_actualization_refs"]
     assert "episode_status_index:第012集" in artifact["content"]["writeback_summary"]["written_map_refs"]
     assert "slice_status_index:slice-011-020" in artifact["content"]["writeback_summary"]["written_map_refs"]
 
@@ -637,7 +679,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
 
     def flaky_atomic_write_json(path, payload, use_lock=True, backup=True):
         path_obj = Path(path)
-        if path_obj.name == "第12集.loopback.json":
+        if path_obj.name == "第2卷.loopback.json":
             raise OSError("simulated artifact write failure")
         return original_atomic_write_json(path_obj, payload, use_lock=use_lock, backup=backup)
 
@@ -671,7 +713,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     assert "runtime_markers" not in state
-    assert not (project_root / "5-Loopback" / "第12集.loopback.json").exists()
+    assert not (project_root / "5-Loopback" / "第2卷.loopback.json").exists()
 
 
 def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch):

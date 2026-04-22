@@ -81,7 +81,7 @@ governance_tier: lite
   - `4-Validation/第V卷/人物一致性.md`
 - 默认返工节点：
   - `4-角色形象刻画`
-  - `5-对白个性化`
+  - `5-对白优化`
   - `6-心理活动描写`
 
 ## Visual Map

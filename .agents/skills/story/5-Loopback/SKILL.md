@@ -26,6 +26,9 @@ governance_tier: full
 3. 提纯整卷统一 `loopback_delta`。
 4. 串行写回：
    - `Cards.current_state/history`
+   - `2-Planning/整体规划.actualization.json`
+   - `2-Planning/第N卷/卷规划.actualization.json`
+   - `2-Planning/第N卷/第N章.actualization.json`
    - 当前卷命中的 `2-Planning/卷分片/*.json.content.holomap_slice.actualization`
    - `2-Planning/全息地图.json.content.holomap.actualization` 的卷级 summary/index
 5. 刷新 `STATE.json` 中下一轮要消费的 projection 与 runtime markers。
@@ -42,6 +45,7 @@ governance_tier: full
 
 - `PASS-only + handoff-granted` intake gate
 - 整卷 `loopback_delta` 提纯与边界裁决
+- 三层规划 sidecar actualization 写回
 - `Cards` 与 `story_map_slice.actualization + story_map_root.actualization summary` 的 truth split
 - projection refresh 与 runtime marker 刷新
 - `5-Loopback/第V卷.loopback.json` 唯一正式 artifact
@@ -84,6 +88,9 @@ governance_tier: full
 - `chapter_refs`
 - `validation_ref`
 - 当前轮 `4-Validation/第V卷.validation.json`
+- `book_plan_ref`，默认 `2-Planning/整体规划.md`
+- `volume_plan_ref`，默认 `2-Planning/第N卷/卷规划.md`
+- `chapter_plan_refs`，默认命中 `2-Planning/第N卷/第N章.md`
 - `story_map_ref`，默认 `2-Planning/全息地图.json`
 - `story_map_slice_ref`
 - `STATE.json`
@@ -109,8 +116,9 @@ governance_tier: full
 2. 若当前是 `handoff_to_review_only` 的历史复核 PASS，禁止 actualization 写回。
 3. `loopback_delta` 只能包含 validated 结果，不得混入 drafting 猜测、review 主观建议或 source-fix 草案。
 4. `Cards` 回写只允许落到 `current_state/history`，默认不改 `core`。
-5. `story_map` 回写只允许把卷级 validated actualization 明细落到命中的 `story_map_slice_ref.actualization`，并把卷级 summary/index 回刷到 root `actualization`；不得覆盖 `planned_*`。
-6. 若当前诉求其实是查询、恢复或源层修复，必须改走 `query/`、`resume/` 或 upstream source fix，而不是强行 actualize。
+5. 三层规划正文 `整体规划.md / 第N卷/卷规划.md / 第N卷/第N章.md` 仍保持 planning-only，不直接混入 validated actualization；loopback 只允许写它们各自的 `.actualization.json` companion sidecar。
+6. `story_map` 回写只允许把卷级 validated actualization 明细落到命中的 `story_map_slice_ref.actualization`，并把卷级 summary/index 回刷到 root `actualization`；不得覆盖 `planned_*`。
+7. 若当前诉求其实是查询、恢复或源层修复，必须改走 `query/`、`resume/` 或 upstream source fix，而不是强行 actualize。
 
 ## Dispatch Order Contract
 

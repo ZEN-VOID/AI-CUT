@@ -14,6 +14,12 @@
     "validation_ref": "",
     "manuscript_refs": [],
     "volume_log_ref": "",
+    "book_plan_ref": "2-Planning/整体规划.md",
+    "volume_plan_ref": "",
+    "chapter_plan_refs": [],
+    "book_plan_actualization_ref": "2-Planning/整体规划.actualization.json",
+    "volume_plan_actualization_ref": "",
+    "chapter_plan_actualization_refs": [],
     "story_map_ref": "2-Planning/全息地图.json",
     "story_map_slice_ref": "",
     "validation_status": "PASS",
@@ -62,6 +68,7 @@
     },
     "writeback_summary": {
       "written_card_refs": [],
+      "written_planning_actualization_refs": [],
       "written_map_refs": [],
       "written_map_slice_refs": [],
       "refreshed_projection_refs": []

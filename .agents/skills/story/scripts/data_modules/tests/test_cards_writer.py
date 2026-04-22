@@ -52,14 +52,6 @@ def _make_project_root(tmp_path: Path) -> Path:
                 "genre": "都市成长",
                 "target_chapters": 10,
             },
-            "type_stack": {
-                "method_kernel": "story-core-v1",
-                "base": "_base",
-                "primary": "网文高冲击",
-                "secondary": ["都市复仇"],
-                "platform": [],
-                "audience": [],
-            },
             "reader_promise": {
                 "hard_constraints": [],
                 "primary_pleasures": ["现实压力下的成长"],
@@ -166,6 +158,14 @@ def _build_payload() -> dict:
                                 "culture_and_arts": {
                                     "culture": ["旧城借贷文化", "档案制度与人情社会并存"],
                                     "arts": ["冷白霓虹", "旧纸张与磁带质感"],
+                                },
+                                "faction_topology": {
+                                    "tiers": ["债务集团", "旧城街坊", "地下信息贩子"],
+                                    "rule_holders": ["债务集团"],
+                                    "resource_controllers": ["债务链", "旧案档案", "街区监控"],
+                                    "relation_patterns": ["债务压迫", "灰色交易", "短期结盟"],
+                                    "protagonist_entry_path": "主角先因债务被卷入，再因旧案线索被迫与地下信息贩子交易。",
+                                    "escalation_logic": ["从个人债务升级为街区势力与旧案真相的对撞"],
                                 },
                                 "power_or_technology": {
                                     "system_type": ["有限回溯"],
@@ -648,6 +648,63 @@ def _build_payload() -> dict:
     }
 
 
+def _build_type_only_payload() -> dict:
+    return {
+        "mode": "incremental-writeback",
+        "sections": {
+            "types": {
+                "planning_projection_refs": [
+                    {"slot": "content.holomap.story_promise", "path": "1-Cards/5-类型卡/总题材/类型总卡.json"},
+                    {"slot": "content.holomap.genre_corridor", "path": "1-Cards/5-类型卡/总题材/类型总卡.json"},
+                ],
+                "current_focus": {
+                    "confirmed_facts": ["题材方向盘已锁定"],
+                    "inferred_defaults": [],
+                    "active_constraints": ["planning 必须导入类型卡"],
+                },
+                "cards": [
+                    {
+                        "bucket": "master_types",
+                        "file_name": "类型总卡.json",
+                        "card": {
+                            "core": {
+                                "identity": {"name": "类型总卡", "scope": "full-series"},
+                                "story_promise": {
+                                    "reader_promise": ["都市夹缝里的冷硬成长"],
+                                    "platform_fit": ["连载平台现实成长线"],
+                                    "forbidden_zone": ["鸡汤式说教"],
+                                    "promise_matrix": {
+                                        "primary_genre": "都市成长",
+                                        "secondary_genres": ["悬疑旧案"],
+                                    },
+                                },
+                                "genre_corridor": {
+                                    "allowed_modes": ["冷硬现实", "旧案压迫"],
+                                    "tone_band": "冷硬克制",
+                                    "narrative_density": "中高",
+                                },
+                                "navigation_rules": ["先现实压力，后旧案揭露"],
+                                "anti_cliche_bans": ["万能逆袭"],
+                                "drift_corrections": ["禁止把副题材抬升成主题材"],
+                                "downstream_hooks": ["planning-import-required"],
+                            },
+                            "current_state": {
+                                "active_focus": ["story_promise", "genre_corridor"],
+                                "planning_projection_refs": [
+                                    "content.holomap.story_promise",
+                                    "content.holomap.genre_corridor",
+                                ],
+                                "revision_policy": "仅在类型方向盘变更时重写",
+                            },
+                            "history": [],
+                        },
+                    }
+                ],
+            }
+        },
+    }
+
+
 def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     cards_writer, cards_coverage_validator, _security_utils = _load_modules()
     project_root = _make_project_root(tmp_path)
@@ -689,7 +746,6 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert protagonist["meta"]["source_skill_id"] == "story-cards-character"
     assert protagonist["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
     assert protagonist["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
-    assert protagonist["content"]["type_stack_ref"]["primary"] == "网文高冲击"
     assert protagonist["content"]["loaded_references"] == [
         "SKILL.md",
         "CONTEXT.md",
@@ -716,7 +772,6 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert character_index["meta"]["source_skill_id"] == "story-cards-character"
     assert character_index["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
     assert character_index["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
-    assert character_index["content"]["type_stack_ref"]["primary"] == "网文高冲击"
     assert character_index["content"]["loaded_references"] == [
         "SKILL.md",
         "CONTEXT.md",
@@ -757,6 +812,25 @@ def test_cards_writer_cleans_empty_lock_files_by_default(tmp_path):
 
     assert report["cleanup_empty_lock_on_release"] is True
     assert list(project_root.rglob("*.lock")) == []
+
+
+def test_cards_writer_supports_type_cards(tmp_path):
+    cards_writer, cards_coverage_validator, _security_utils = _load_modules()
+    project_root = _make_project_root(tmp_path)
+
+    report = cards_writer.write_cards_payload(project_root, _build_type_only_payload(), run_gate=False)
+
+    assert report["ok"] is True
+    type_path = project_root / "1-Cards" / "5-类型卡" / "总题材" / "类型总卡.json"
+    type_card = json.loads(type_path.read_text(encoding="utf-8"))
+    assert type_card["meta"]["source_skill_id"] == "story-cards-type"
+    assert type_card["meta"]["source_route"] == "0-Init > story-cards > 类型卡/SKILL.md"
+    assert type_card["content"]["module_route"] == "story-cards > 类型卡/SKILL.md"
+    assert type_card["content"]["card_schema"]["type_card"]["core"]["story_promise"]["promise_matrix"]["primary_genre"] == "都市成长"
+
+    coverage_report = cards_coverage_validator.build_cards_coverage_report(project_root)
+    assert coverage_report["sections"]["types"]["ok"] is True
+    assert coverage_report["sections"]["types"]["trace"]["module_route"] == "story-cards > 类型卡/SKILL.md"
 
 
 def test_cards_writer_can_keep_empty_lock_files_when_requested(tmp_path):

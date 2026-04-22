@@ -131,6 +131,14 @@ def test_context_manager_explicitly_loads_global_cards(temp_project):
                             "core": {
                                 "worldview": {"genre": "玄幻"},
                                 "rule_system": [{"label": "铁律", "value": "越级有代价"}],
+                                "faction_topology": {
+                                    "tiers": ["宗门", "世家", "散修联盟"],
+                                    "rule_holders": ["宗门"],
+                                    "resource_controllers": ["灵脉", "秘境名额"],
+                                    "relation_patterns": ["招揽", "压制", "互市"],
+                                    "protagonist_entry_path": "主角先被世家排挤，再被散修联盟接住。",
+                                    "escalation_logic": ["从家族打压升级为宗门资源争夺"],
+                                },
                                 "golden_finger": {"name": "残卷系统"},
                             }
                         }
@@ -148,6 +156,7 @@ def test_context_manager_explicitly_loads_global_cards(temp_project):
     global_ctx = payload["sections"]["global"]["content"]
     assert global_ctx["global_contract_refs"] == [global_card_ref]
     assert global_ctx["global_card_count"] == 1
+    assert global_ctx["global_contract_summary"]["faction_topology"]["rule_holders"] == ["宗门"]
     assert global_ctx["global_contract_summary"]["golden_finger"]["name"] == "残卷系统"
 
 
@@ -283,11 +292,7 @@ def test_context_manager_includes_reader_signal_and_genre_profile(temp_project):
     assert genre_profile.get("genre") == "xuanhuan"
     assert "profile_excerpt" in genre_profile
     assert "taxonomy_excerpt" in genre_profile
-    type_pack_profile = payload["sections"]["type_pack_profile"]["content"]
-    assert "_base" in (type_pack_profile.get("active_packs") or [])
-    assert type_pack_profile.get("resolver_ref")
     guidance = payload["sections"]["writing_guidance"]["content"]
-    assert any("Type-Pack" in str(item) for item in (guidance.get("guidance_items") or []))
     assert isinstance(guidance.get("checklist"), list)
 
 

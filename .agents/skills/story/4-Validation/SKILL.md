@@ -20,7 +20,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 新的 canonical 结构固定为：
 
 1. 父层先锁项目根、卷号、卷内章节范围、卷级正文快照与 `validation_fact_pack`
-2. 六个受治理子技能并发审查整卷
+2. registry 当前 mandatory 子技能并发审查整卷；当前基线为六维卷级终验
 3. 子技能输出卷级维度 verdict，同时保留章级 issue 定位
 4. 父层聚合为唯一卷级 gate JSON
 5. 通过后交给 `review/` 与 `5-Loopback`
@@ -37,7 +37,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 
 - `volume scope / chapter_refs` 锁定
 - 卷级 `validation_fact_pack` 组装与 covenant gate
-- 六个子技能的并发调度与收束
+- registry 当前 mandatory 子技能的并发调度与收束
 - 卷级 `validation_status / routing_decision / handoff_targets` 唯一判定权
 - `4-Validation/第V卷.validation.json` 正式落盘
 - 章级 `rework_targets` 与 `source_trace` 汇总
@@ -48,24 +48,22 @@ allowed-tools: Read Grep Write Edit Bash Task
 - 直接修改任何 `第N集.md`
 - 代替 `review/` 生成正式业务审查报告
 - 代替 `5-Loopback` 回写 validated truth
-- 把六个子技能 sidecar 变成第二份 parallel canonical truth
+- 把各维度 sidecar 变成第二份 parallel canonical truth
 
 ## Governed Child Skills
 
-| child skill | role_id | 卷级审查焦点 | 默认回流 |
-| --- | --- | --- | --- |
-| `结构兑现` | `structure-validator` | 检查本卷 `volume_board + episode_boards` 是否真正写成戏 | `1-单集叙事起盘`、`7-追读力强化` |
-| `连续性` | `continuity-validator` | 检查卷内相邻章节承接、跨章线程延续、卷头卷尾收束 | `1-单集叙事起盘`、`2-节奏优化` |
-| `逻辑自洽校验` | `logic-validator` | 检查整卷因果、设定、状态、能力边界与 source truth 冲突 | `1-单集叙事起盘`，必要时上溯 upstream |
-| `人物一致性` | `character-validator` | 检查卷内人物弧线、关系压力、声口与成长连续性 | `4-角色形象刻画`、`5-对白个性化`、`6-心理活动描写` |
-| `时间线` | `timeline-validator` | 检查卷内时间锚、先后顺序、持续时长与伏笔窗口 | `1-单集叙事起盘`、`2-节奏优化` |
-| `类型兑现` | `type-pack-fit-validator` | 检查整卷是否兑现 active `type-pack` 的卷级承诺与 step hook | `2-节奏优化`、`5-对白个性化`、`6-心理活动描写`、`7-追读力强化` |
+validator roster、role_id、权重、默认返工节点与 mandatory 终验维度，统一以 `./_shared/validation-dimension-registry.yaml` 为准。
+
+父层在这里不再手写第二张维度表，只保留两条约束：
+
+- 当前 registry 落地的是六维卷级终验，其中新增 `任务汇聚`，且不再保留历史上的 `类型兑现`。
+- 父层只负责并发调度、聚合裁决与 route 判定，不接管子技能的维度内判据。
 
 硬规则：
 
-1. 六个子技能默认并发，但只能读取同一份卷级 pack 与同一批正文快照。
+1. registry 当前 mandatory 子技能默认并发，但只能读取同一份卷级 pack 与同一批正文快照。
 2. 子技能只产出局部 `dimension_packet + dimension_report_ref`，不得判定最终 `validation_status`。
-3. 父层不得跳过任一必开子技能。
+3. 父层不得跳过 registry 中任一 mandatory 子技能。
 
 ## Shared Canonical Sources
 
@@ -86,12 +84,8 @@ allowed-tools: Read Grep Write Edit Bash Task
 - 聚合 gate packet：
   - `projects/story/<项目名>/4-Validation/第V卷.validation.json`
 - 维度 sidecars：
-  - `projects/story/<项目名>/4-Validation/第V卷/结构兑现.md`
-  - `projects/story/<项目名>/4-Validation/第V卷/连续性.md`
-  - `projects/story/<项目名>/4-Validation/第V卷/逻辑自洽校验.md`
-  - `projects/story/<项目名>/4-Validation/第V卷/人物一致性.md`
-  - `projects/story/<项目名>/4-Validation/第V卷/时间线.md`
-  - `projects/story/<项目名>/4-Validation/第V卷/类型兑现.md`
+  - 统一落在 `projects/story/<项目名>/4-Validation/第V卷/`
+  - 文件名以 `validation-dimension-registry.yaml -> report_filename` 为准
 
 ## Total Input Contract
 
@@ -105,22 +99,25 @@ allowed-tools: Read Grep Write Edit Bash Task
 - `0-Init/north_star.yaml`
 - `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
-- `2-Planning/全息地图.json`
-- 当前卷命中的 `2-Planning/卷分片/*.json`
+- `2-Planning/整体规划.md`
+- 当前卷 `2-Planning/第V卷/卷规划.md`
+- 当前卷各章 `2-Planning/第V卷/第N章.md`
+- 若项目仍处于兼容态，再补读 `2-Planning/全息地图.json` 与 `卷分片/*.json`
 - 本轮动态生成的 `validation_fact_pack`
 
 ### 硬规则
 
 1. `validation_fact_pack` 缺任何 required slice，直接 `FAIL-COVENANT`。
 2. pack 必须由当前轮动态生成；不得复用旧轮残包。
-3. 六个子技能必须消费同一份卷级正文快照与同一份卷级 pack。
+3. registry 当前 mandatory 子技能必须消费同一份卷级正文快照与同一份卷级 pack。
 4. 子技能局部 sidecar 只做证据层，不拥有卷级总 gate 判定权。
 5. `PASS` 需要同时满足：
    - 无 `critical` 问题
    - 无未解决的 source-layer 冲突
    - 无 `FAIL-COVENANT / FAIL-RUNTIME`
-6. 卷级 `PASS` 不等于“卷内没有任何小问题”，而是所有剩余问题均不构成 blocking issue。
-7. 若发现 upstream truth 自相矛盾，必须优先走 `back_to_source_contract`，不得要求 `3-Drafting` 瞎改正文背锅。
+6. 若 `3-Drafting/第V卷.写作日志.yaml` 未能提供完整 `chapter_refs x 8 步` 的 `chapter_step_history` 与逐步 `chapter_hook_results`，直接判定 `FAIL-COVENANT`，不得把稀疏日志当作可接受输入。
+7. 卷级 `PASS` 不等于“卷内没有任何小问题”，而是所有剩余问题均不构成 blocking issue。
+8. 若发现 upstream truth 自相矛盾，必须优先走 `back_to_source_contract`，不得要求 `3-Drafting` 瞎改正文背锅。
 
 ## Dispatch Order Contract
 
@@ -135,7 +132,7 @@ allowed-tools: Read Grep Write Edit Bash Task
 ### 并发规则
 
 - 必须并发：
-  - 六个 validation child skills
+  - registry 当前 mandatory validation child skills
 - 必须串行：
   - pack 组装
   - 聚合裁决

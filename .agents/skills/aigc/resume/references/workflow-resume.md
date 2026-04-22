@@ -21,9 +21,9 @@
 | mode | symptom | safe action |
 | --- | --- | --- |
 | `lightweight_init_continue` | 核心初始化工件已齐，但仍处于轻量起盘态 | 允许回根 `aigc` 或低风险下一阶段继续 |
-| `governance_rebuild` | `project_state` 不完整，或高风险恢复所需治理 gate 缺失 | 回根 `aigc` 或 `review/` 补治理链 |
+| `governance_rebuild` | `project_state` 不完整，或高风险恢复所需治理 gate 缺失 | 回根 `aigc` 补治理链 |
 | `stage_continue` | 阶段产物已存在、scope 清楚、尚未完成验收 | 回目标阶段继续执行 |
-| `review_reentry` | 内容产物存在，但缺预审/验收桥接 | 进入 `review/` |
+| `gate_reentry` | 内容产物存在，但缺预审/验收桥接 | 回根 `aigc` |
 | `root_reroute` | 目标阶段不清、阶段已搁浅、技能合同缺失 | 回根 `aigc` 重判 |
 
 ## Hard Guards

@@ -10,7 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`。
-- 正式审查前，必须读取 `volume_board / episode_boards`、`foreshadow_silence_slice`、当前卷正文集合与必要的前序章节快照。
+- 正式审查前，必须读取 `volume_planning_summary / chapter_planning_packets`、`foreshadow_silence_slice`、当前卷正文集合与必要的前序章节快照。
 
 ## Invocation Modes
 
@@ -49,7 +49,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断这集的时间线是否能站住脚，以及是否提前越过了不该揭开的时间窗口。 |
-| `business_object` | `chapter_board` 的时间锚、`foreshadow_silence_slice`、当前正文。 |
+| `business_object` | `chapter_planning_packet` 的时间锚、`foreshadow_silence_slice`、当前正文。 |
 | `constraint_profile` | 先锁时间锚，再判顺序和时长；凡是提前揭晓伏笔窗口的，直接计入 spoiler risk。 |
 | `success_criteria` | 能指出时间冲突、顺序错位、时长不合理和伏笔时机越线。 |
 | `topology_fit` | `time anchor read -> sequence/duration check -> silence window check -> report packet` |
@@ -57,7 +57,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - `validation_fact_pack.chapter_board`
+  - `validation_fact_pack.chapter_planning_packet`
   - `validation_fact_pack.foreshadow_silence_slice`
   - 当前卷正文集合
 - 硬规则：
@@ -89,7 +89,7 @@ flowchart TD
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-TIME-ANCHOR-READ` | `FIELD-TM-01` | 锁本集时间锚与窗口 | 读取 `chapter_board` 和静默窗口 | `anchor_note` | -> `N2` | 时间锚明确 |
+| `N1-TIME-ANCHOR-READ` | `FIELD-TM-01` | 锁本集时间锚与窗口 | 读取 `chapter_planning_packet` 和静默窗口 | `anchor_note` | -> `N2` | 时间锚明确 |
 | `N2-SEQUENCE-CHECK` | `FIELD-TM-02` | 检查先后顺序与持续时长 | 识别逆序、跳时、时长不合理 | `sequence_note` | -> `N3` | 时序成立 |
 | `N3-WINDOW-CHECK` | `FIELD-TM-03` | 检查伏笔静默区是否越线 | 标记提前揭晓与剧透风险 | `window_note` | -> `N4` | 窗口未破 |
 | `N4-PACKET-WRITE` | `FIELD-TM-04` | 输出时间线维度结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |

@@ -465,7 +465,7 @@ def main():
     parser.add_argument(
         '--project-root',
         default=None,
-        help='项目根目录（包含 STATE.json）。不提供时自动搜索（支持 story-project/、webnovel-project/ 与父目录）。'
+        help='项目根目录（包含 STATE.json）。不提供时自动搜索（优先 `projects/story/`，兼容 `projects/aigc/`、`story-project/`、`webnovel-project/` 与父目录）。'
     )
 
     parser.add_argument(

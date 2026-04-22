@@ -5,7 +5,7 @@ Project location helpers for story2026 scripts.
 Problem this solves:
 - Many scripts assumed CWD is the project root and used relative paths like `STATE.json`.
 - In this repo, commands/scripts are often invoked from the repo root, while the actual project lives
-  in a subdirectory (canonical: `projects/story/<项目名>/`, legacy-compatible with `story-project/` and `webnovel-project/`).
+  in a subdirectory (canonical: `projects/story/<项目名>/`, legacy-compatible with `projects/aigc/<项目名>/`, `story-project/` and `webnovel-project/`).
 - Newer projects use root-level `STATE.json` as the canonical runtime state file.
 
 These helpers provide a single, consistent way to locate the active project root.
@@ -24,6 +24,7 @@ from runtime_compat import normalize_windows_path
 
 DEFAULT_PROJECT_DIR_CANDIDATES: tuple[Path, ...] = (
     Path("projects") / "story",
+    Path("projects") / "aigc",
     Path("story-project"),
     Path("webnovel-project"),
 )
@@ -434,7 +435,7 @@ def resolve_project_root(explicit_project_root: Optional[str] = None, *, cwd: Op
     Resolution order:
     1) explicit_project_root (if provided)
     2) env var STORY_PROJECT_ROOT / WEBNOVEL_PROJECT_ROOT (if set)
-    3) Search from cwd and parents, including common subdirs `projects/story/`, `story-project/` and `webnovel-project/`
+    3) Search from cwd and parents, including common subdirs `projects/story/`, legacy `projects/aigc/`, `story-project/` and `webnovel-project/`
 
     A valid project root must either contain `STATE.json` directly, or contain `STATE.json`
     whose `paths.runtime_state` points to an existing runtime state file.
@@ -511,7 +512,7 @@ def resolve_project_root(explicit_project_root: Optional[str] = None, *, cwd: Op
     raise FileNotFoundError(
         "Unable to locate story project root. Expected `STATE.json` (pointing to a runtime state file) or "
         f"`{DEFAULT_RUNTIME_STATE_REL}` under the current directory, a parent directory, `projects/story/<项目名>/`, "
-        "`story-project/`, or `webnovel-project/`. Run /story-init first or pass --project-root / set "
+        "legacy `projects/aigc/<项目名>/`, `story-project/`, or `webnovel-project/`. Run /story-init first or pass --project-root / set "
         f"{ENV_STORY_PROJECT_ROOT} (legacy-compatible with {ENV_WEBNOVEL_PROJECT_ROOT})."
     )
 

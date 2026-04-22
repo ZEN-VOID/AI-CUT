@@ -8,12 +8,12 @@ soft_limit_chars: 40000
 hard_limit_chars: 80000
 soft_limit_cases: 80
 hard_limit_cases: 140
-current_chars: 7600
-current_lines: 145
+current_chars: 0
+current_lines: 0
 current_cases: 0
 status: ok
 recommended_action: keep-target-scoped-updates
-last_checked_at: 2026-04-17T23:40:00-07:00
+last_checked_at: 2026-04-22T00:00:00Z
 ```
 <!-- CONTEXT_HEALTH_END -->
 
@@ -21,37 +21,24 @@ last_checked_at: 2026-04-17T23:40:00-07:00
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 仍把 `2-Planning` 当成 `references/*` 模块集，而不是父 skill + 子技能包 | source contract | 回到父 `SKILL.md` 的 child dispatch 合同 | 在 root docs / workflow labels / child paths 中统一使用子技能包路径 | 不再出现 `references/*/module-spec` 作为执行入口 |
-| 子技能只写本地 artifact，没有写 `story_map_patch` | child output contract | 补齐本地模板中的 `story_map_patch` | 在 shared branch contract 固化“evidence artifact + patch”双输出 | 任一 child artifact 都能指出 owned slots |
-| 后一 child 没有回读当前 root，导致连续性断裂 | progressive commit | 回到串行 dispatch，强制每步重读 `2-Planning/全息地图.json` | 在父技能硬写 reread rule，并让 validator 检查 root 必备槽位 | 后序 child 读取到前序已提交字段 |
-| 父层 normalize 越权重写 1-7 的领域判断 | ownership gate | 把父层压回 normalize-only | 在 shared contract 固定父层只拥有三轴 / cross-thread / lifecycle / actualization | 1-7 的领域结论只会在对应 child 中修改 |
-| story_map root 丢失 `content.holomap` 兼容入口 | compatibility contract | 恢复 `content.holomap` 根槽 | 在 shared schema 中把 `content.holomap` 固化为 required | query / drafting 仍可 holomap-first |
-| planning 系统只有文档，没有 stage validator | stage completeness | 增加 `validate_story_map_output.py` 最小校验器 | 在父技能 completion contract 与 shared contract 中固定验证入口 | `--help` 可用，样例 root 可被校验 |
-| `2-Planning` 继续把完整 `chapter_boards / actualization` 堆在 `全息地图.json`，导致百集项目根文件继续膨胀 | layout contract drift | 把 root 改为 global index，把 dense board / silence / continuity pack / actualization 下沉到卷分片 | 在 `planning-slice-layout-contract.md` 固定 global-vs-slice 边界，并让 validator 检查 manifest、coverage 和 root payload 漂移 | 新合同下 root 只保留索引与 summary，slice 才保留 volume-local dense payload |
-| child skill 把 shared branch contract 写成跨出父阶段的一层更高路径，导致读到不存在的 `_shared` | child path governance | 统一改回 `../_shared/planning-branch-output-contract.md` | 约定 child 只可回读父阶段 `_shared/`，不得直接猜根级 `_shared/` 承载 stage-local contract | 7 个 planning child 的 shared contract 路径全部落到 `2-Planning/_shared/` |
-| 7 个 child artifact 没有稳定落点，最后只能把 evidence 混回 root JSON | branch artifact carrier | 统一改为 `2-Planning/pass-artifacts/1-7*.json` | 在 `planning_paths.py` 与 shared contract 固定 pass-artifacts 路径组 | 每个 child 的分析结论、patch、gate summary 都可单独回读 |
-| 规划阶段把角色卡完整复制进 root，导致 `story_map` 变成第二份角色册 | cross-stage bridge | 只在父层导入 `character_roster_projection / relationship_graph_projection` | 用共享桥合同固定“parent import / child ref-only”边界 | root 只保留角色与关系的最小 planning projection |
-| `1-题材选型` 已写入 type-pack，但 `2-章节规划 / 4-冲突设计 / 5-任务设计` 仍按通用经验手写，导致 pack 差异停在 Step 1 | deep-planning pack drop | 在 child 合同与 artifact 模板补 `type_pack_projection_summary`，要求显式消费 `genre_corridor.type_pack_projection` | planning 阶段固定“Step 1 锁 pack，Step 2/4/5 消费 pack”链路，避免后续再回到题材口头猜测 | chapter/conflict/mission artifact 能回溯 active packs 与 pack bias |
+| 仍按旧 `1-7` 并列技能思考 planning | parent contract | 回到父层 `SKILL.md` 的三层结构合同 | 在根技能、workflow、bridge、脚本里统一改写为 `部级/卷级/章级` | 不再把旧六技能当成 active dispatch |
+| 先做卷或章，后补整部总纲 | fractal order | 强制补 `整体规划.md` 后再继续 | 把回读顺序写死在父技能与 validator | 卷级/章级文件都能上溯到部级 |
+| 卷级只是“章节清单 + 一句摘要” | volume design thinness | 按卷级节奏机制补强任务、人物、场景、道具与卷末达成 | 在卷级模板固定段落与节奏图 | `第N卷/卷规划.md` 能回答卷内推进与卷末兑现 |
+| 章级只有情节提要，没有节奏职责 | chapter rhythm drop | 回到章级七步结构与动静结合规则 | 在章级 reference 和模板中固定 Mermaid + 七步投影 | `第N卷/第N章.md` 能回答本章如何推进、如何转调 |
+| 把冲突/任务/线索/伏笔继续拆成平行 skill | decomposition drift | 归拢进卷级和章级必填段落 | 在 shared contract 明确旧六技能已内化，不再并列存在 | 输出只剩三层技能包 |
+| planning 直接开始写正文 | stage boundary drift | 删掉正文段落，回到规划句法 | 在父层和 child skill 都写死“planning 不产正文” | 输出文件只包含规划性内容 |
+| 角色卡/场景卡/道具卡被完整复制进规划文件 | cross-stage duplication | 回到 bridge，只保留 planning 所需最小引用与摘要 | 在 bridge 和子技能中固定最小导入边界 | planning 文件不再冒充第二套卡册 |
 
 ## Repair Playbook
 
-1. 先问问题是父层顺序门、child output、story_map ownership，还是下游兼容。
-2. 若多个 child 后果同时漂移，先查最后一个“没有回读当前 root”的 child。
-3. 若 `2-Planning/全息地图.json` 看起来像摘要页，优先区分是 1-7 没有 progressive commit，还是父层 normalize 失效。
-4. 若引用路径失效，先做全仓引用同步，不要只修当前文档。
-5. 收尾时必须同时验证：evidence artifact、story_map root、validator。
+1. 先判断问题属于层级顺序、输出结构、节奏设计还是跨阶段复制。
+2. 若卷级或章级质量漂移，先检查它有没有回读上一级，而不是直接修当前文案。
+3. 若发现旧六技能概念混回主链，优先修父层合同和 workflow 文案。
+4. 收尾时至少同时核对：父技能、三个 child、共享合同、路径脚本。
 
 ## Reusable Heuristics
 
-- 对 planning 阶段来说，“子技能包化”只有在每个 child 都拥有明确 `story_map` 槽位时才成立；否则只是把 module-spec 换了目录。
-- `2-Planning/全息地图.json` 最稳的用法不是最后一次性拼出来，而是让它从 Step 1 开始逐步长出来。
-- 若后续 child 质量看似还行但整体连续性很差，首查是否跳过了“回读当前 root”。
-- 父层 normalize 最常见的越权，是把收束当成重写前面 1-7 的自由许可；必须始终把它压回 normalize-only。
-- planning 真源要兼顾新结构和既有运行时，因此保持 `content.holomap` 比贸然改成新字段名更稳。
-- 若 child 要读取 stage-local shared contract，默认先找父阶段的 `_shared/`，不要把路径上溯到根级 `_shared/`。
-- 角色进入 planning 时，最稳的是导入 projection；冲突/任务/章节只拿 id 和 hook，不要再造一份 planning 版角色卡。
-- planning 里最容易漏的不是 pack 已不在 root，而是 pack 已在 root 却没有进入深层 child；看起来像“已经锁题材”，实际上 chapter/conflict/mission 仍按通用模板跑。
-- 当集数进入百集量级后，`全息地图.json` 最稳的角色是“总索引 + 导航锚点”，而不是继续承载每一集的 dense board payload。
-- 对下游来说，`卷分片` 不是“十集缓存”，而是卷级 contract；只要 `10 章 = 1 卷`，就必须把它当作卷地图真源来消费。
-- 只要 loopback 要写 episode-local actualization，就应该先落 slice，再回刷 root summary；反过来会重新制造 root/slice 双真源。
-- chapter board 只要挂了某条 `mission`，就至少要让一名 owner 真正在 `bundled_elements.characters` 里在场；否则宁可把 mission 从本章移出，也不要留下任务归属漂移。
+- 分形规划最容易失败的地方不是文档写少，而是层级倒置。
+- `整体规划.md` 应回答“整部书为什么成立”；`第N卷/卷规划.md` 应回答“这一卷怎样交付总承诺”；`第N卷/第N章.md` 应回答“这一章怎样承担卷内职责”。
+- 部级、卷级、章级三层节奏不能用同一把尺子缩放，必须各自有独立方法核。
+- 旧的冲突/任务/线索/伏笔并不是被删除，而是从“平铺的 skill”变成“卷级/章级规划段落里的内生维度”。

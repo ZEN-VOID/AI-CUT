@@ -2,15 +2,19 @@
 
 ## Dimension Packet Required Fields
 
+- `role_id`
 - `dimension`
-- `verdict`
+- `validation_context`
+- `pass`
 - `issues`
 - `severity_counts`
 - `critical_issues`
 - `score`
-- `rework_targets`
+- `summary`
+- `default_rework_targets`
 - `source_trace`
-- `dimension_report_ref`
+- `report_ref`
+- `blocking_scope`
 - `volume_ref`
 - `chapter_refs`
 
@@ -31,6 +35,10 @@
 - `dimension_scores`
 - `routing_decision`
 - `handoff_targets`
+- `rework_targets`
+- `validation_ref`
+- `source_trace`
+- `evidence_refs`
 
 ## Hard Rules
 

@@ -48,7 +48,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让本集不只是在“讲事情”，还通过空间、光线、材质、声音、身体感和关系温差，让读者真正进入场面。 |
-| `business_object` | Step 2 后正文、场景卡切片、当前关系压力、风格契约，以及当前项目的 `type-pack drafting projection`（若存在）。 |
+| `business_object` | Step 2 后正文、场景卡切片、当前关系压力、风格契约，以及当前项目的 `类型卡 / 题材走廊`（若存在）。 |
 | `constraint_profile` | 不能只堆辞藻；场景渲染必须服务事件、人物关系和情绪推进。安静场面不能被写成空镜堆叠，亲密或禁忌场面不能被写成无身体事实的氛围香水。 |
 | `success_criteria` | 读者能感知空间阻力、光线温度、材质与身体反应，并能看见环境怎样改变人物行动、关系距离或情绪走势。 |
 | `topology_fit` | `root reread -> scene function decode -> atmosphere vector map -> narrative binding -> lens-select rewrite -> overwrite guard` |
@@ -61,7 +61,7 @@ governance_tier: lite
   - `第V卷.写作日志.yaml`
 - 可选增强输入：
   - `1-Cards/0-全局卡/**/*.json`
-  - 当前项目 `type-pack` 对 drafting stage 的投影
+  - 当前项目 `类型卡` 对 drafting stage 的题材要求
 - 硬规则：
   - 场景描写必须跟 scene function 绑定，不能独立自嗨。
   - 氛围强化不得把节奏拖回说明文。
@@ -79,7 +79,7 @@ governance_tier: lite
 - `process_log_entry`
   - `step_id: 3`
   - `focus_dimension: scene_and_atmosphere`
-  - 若启用 `type-pack`，必须补 `type_pack_rules_applied`
+  - 若存在明确 `类型卡`，必须补 `type_card_rules_applied`
 - owned manuscript dimension：
   - 写景
   - 感官锚点

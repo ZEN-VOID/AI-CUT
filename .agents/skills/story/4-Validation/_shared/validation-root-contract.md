@@ -1,6 +1,8 @@
 # Validation Root Contract
 
-`4-Validation` 的正式 gate truth 固定为单一卷级聚合 JSON，不使用 6 份子报告并列裁决。
+`4-Validation` 的正式 gate truth 固定为单一卷级聚合 JSON，不使用多份子报告并列裁决。
+
+当前 registry 基线为六维终验：`结构兑现 / 连续性 / 逻辑自洽校验 / 人物一致性 / 时间线 / 任务汇聚`。
 
 ## Canonical Paths
 
@@ -8,13 +10,9 @@
   - `projects/story/<项目名>/4-Validation/第V卷.validation.json`
 - 维度证据目录：
   - `projects/story/<项目名>/4-Validation/第V卷/`
-- 维度 sidecar：
-  - `结构兑现.md`
-  - `连续性.md`
-  - `逻辑自洽校验.md`
-  - `人物一致性.md`
-  - `时间线.md`
-  - `类型兑现.md`
+- 维度 sidecar 文件名：
+  - 由 `validation-dimension-registry.yaml -> report_filename` 单点定义
+  - sidecar 数量由 registry 中 `final_acceptance.mandatory = true` 的维度集合决定
 
 说明：
 

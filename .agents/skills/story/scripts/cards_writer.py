@@ -57,6 +57,25 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
             "全局卡/references/golden-finger-templates.md",
         ],
     },
+    "types": {
+        "kind": "type",
+        "schema_key": "type_card",
+        "template_name": "type-card.json",
+        "source_skill_id": "story-cards-type",
+        "child_skill_path": "类型卡/SKILL.md",
+        "child_context_path": "类型卡/CONTEXT.md",
+        "child_template_path": "类型卡/templates/type-card.json",
+        "source_route": "0-Init > story-cards > 类型卡/SKILL.md",
+        "module_route": "story-cards > 类型卡/SKILL.md",
+        "index_rel": Path("1-Cards") / "5-类型卡" / "类型索引.json",
+        "bucket_dirs": {
+            "master_types": "总题材",
+        },
+        "bucket_labels": {
+            "master_types": "master_type",
+        },
+        "link_fields": ("planning_projection_refs",),
+    },
     "styles": {
         "kind": "style",
         "schema_key": "style_card",
@@ -156,6 +175,7 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
 }
 
 VALID_MODES = {"full-build", "incremental-writeback", "coverage-repair", "source-contract-fix"}
+FULL_BUILD_REQUIRED_SECTIONS = ("globals", "styles", "characters", "scenes", "items")
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -261,7 +281,7 @@ def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str
     if not sections:
         raise ValueError("至少需要提供一个 cards section。")
     if mode == "full-build":
-        missing = [name for name in SECTION_SPECS if name not in sections]
+        missing = [name for name in FULL_BUILD_REQUIRED_SECTIONS if name not in sections]
         if missing:
             raise ValueError(f"`full-build` 必须同时提供 globals/styles/characters/scenes/items；当前缺少: {missing}")
     return mode
@@ -469,12 +489,10 @@ def _prepare_trace_block(
     target_paths: List[str],
     upstream_patch_required: bool,
     boundary_notes: List[str],
-    type_stack_ref: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     return {
         "module_route": str(spec["module_route"]),
         "loaded_references": _build_loaded_references(spec),
-        "type_stack_ref": copy.deepcopy(type_stack_ref or {}),
         "writeback_plan": {
             "mode": mode,
             "target_paths": target_paths,
@@ -511,8 +529,6 @@ def _build_card_payload(
     bucket_dir = spec["bucket_dirs"][bucket]
     card_rel = spec["index_rel"].parent / bucket_dir / file_name
     boundary_notes = _normalize_boundary_notes(section_payload, entry)
-    north_star = _load_json(project_root / NORTH_STAR_REL)
-    type_stack_ref = _safe_dict(north_star.get("type_stack"))
     upstream_patch_required = bool(
         entry.get("upstream_patch_required", section_payload.get("upstream_patch_required", False))
     )
@@ -531,7 +547,6 @@ def _build_card_payload(
             target_paths=[str(card_rel), str(spec["index_rel"])],
             upstream_patch_required=upstream_patch_required,
             boundary_notes=boundary_notes,
-            type_stack_ref=type_stack_ref,
         )
     )
     content["card_groups"] = _new_index_groups(spec)
@@ -580,9 +595,6 @@ def _build_index_payload(
     template = _load_template(str(spec["child_template_path"]))
     existing = _load_json(project_root / spec["index_rel"])
     replace_existing = bool(section_payload.get("replace_existing", mode != "incremental-writeback"))
-    north_star = _load_json(project_root / NORTH_STAR_REL)
-    type_stack_ref = _safe_dict(north_star.get("type_stack"))
-
     payload = copy.deepcopy(template)
     if existing and not replace_existing:
         _deep_merge(payload, existing)
@@ -605,7 +617,6 @@ def _build_index_payload(
             target_paths=target_paths,
             upstream_patch_required=bool(section_payload.get("upstream_patch_required", False)),
             boundary_notes=_normalize_boundary_notes({"boundary_notes": []}, section_payload),
-            type_stack_ref=type_stack_ref,
         )
     )
     content["card_schema"] = {}
@@ -734,6 +745,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
         gate_report = build_cards_coverage_report(project_root)
         section_to_report_key = {
             "globals": "globals",
+            "types": "types",
             "styles": "styles",
             "characters": "characters",
             "scenes": "scenes",

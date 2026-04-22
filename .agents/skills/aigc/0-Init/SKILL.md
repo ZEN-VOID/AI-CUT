@@ -67,6 +67,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/team.yaml`
 - `projects/aigc/<项目名>/CHANGELOG.md`
+- `projects/aigc/<项目名>/CONTEXT/`
 - `projects/aigc/<项目名>/STATE.json`
 - 按需补齐的 `governance-state.yaml` 与 HARNESS 治理载体
 
@@ -371,13 +372,15 @@ flowchart LR
 
 - 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
 - 项目级变更记录入口：`projects/aigc/<项目名>/CHANGELOG.md`
+- 项目级共享附加上下文根：`projects/aigc/<项目名>/CONTEXT/`
 - 轻量项目状态入口：`projects/aigc/<项目名>/STATE.json`
 
 硬规则：
 
 1. `CHANGELOG.md` 是项目级时间序记录入口，初始化默认必须创建。
-2. `CHANGELOG.md` 不承载 live route truth、断点治理或阶段验收结论；这些信息仍分别属于 `STATE.json`、`governance-state.yaml` 与各级 `validation-report.md`。
-3. 后续阶段可继续追加 `CHANGELOG.md`，但不得把它演化为新的治理真源或状态本。
+2. 初始化默认必须同步创建 `projects/aigc/<项目名>/CONTEXT/`，供 `.agents/skills/aigc` 全阶段在项目执行时加载项目级共享附加上下文。
+3. `CHANGELOG.md` 不承载 live route truth、断点治理或阶段验收结论；这些信息仍分别属于 `STATE.json`、`governance-state.yaml` 与各级 `validation-report.md`。
+4. 后续阶段可继续追加 `CHANGELOG.md`，但不得把它演化为新的治理真源或状态本。
 
 ### Auxiliary Asset Library
 
@@ -700,7 +703,7 @@ B. 自定义组队
 
 1. 初始化完成当轮的 handoff 种子，写在 `init_handoff.yaml.project_contract.recommended_next_stage`。
 2. 当前项目的 live route truth，写在 `STATE.json.recommended_next_stage / recommended_entry_path / recommended_next_step`。
-3. 若 `governance-state.yaml` 已生成，则 `resume_contract.*` 是 `query / resume / review` 的结构化续跑真源。
+3. 若 `governance-state.yaml` 已生成，则 `resume_contract.*` 是 `query / resume` 与根 `aigc` 高风险治理 gate 的结构化续跑真源。
 4. `north_star.yaml` 不得出现 `stage_entry_contract`、`recommended_next_stage`、`stage_priority_order`、`rebootstrap_status` 等状态型字段。
 5. 项目离开 `0-Init` 之后，`init_handoff.yaml` 只保留初始化时的入口 seed；后续阶段推进不得反向要求它承担 live current-stage truth。
 
@@ -740,7 +743,7 @@ B. 自定义组队
 1. 用户显式要求治理、审计、续跑、复核或复盘。
 2. 任务即将进入复杂多步执行，需要 `mission-brief / route-plan` 承接。
 3. 任务属于高风险执行，需要 `preflight-verdict.yaml`。
-4. `query / resume / review` 需要结构化断点或验收桥接。
+4. `query / resume` 或根 `aigc` 的高风险治理 gate 需要结构化断点或验收桥接。
 5. 本轮属于 `rebootstrap`，需要为卫星技能留下 reset trace。
 
 若本轮属于 `rebootstrap`，且 `governance-state.yaml` 已存在或需要补建，则 `reset_bridge` 至少应记录：

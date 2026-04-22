@@ -61,14 +61,24 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert state["project_name"] == "测试小说"
     assert state["current_stage"] == "0-Init"
     assert state["recommended_next_stage"] == "1-Cards"
+    assert state["paths"]["story_root"] == "Story/"
+    assert state["paths"]["context_root"] == "CONTEXT/"
+    assert state["paths"]["cards_root"] == "1-Cards/"
+    assert state["paths"]["loopback_root"] == "5-Loopback/"
     assert state["main_artifacts"]["north_star"] == "0-Init/north_star.yaml"
     assert state["main_artifacts"]["story_source_manifest"] == "0-Init/story-source-manifest.yaml"
     assert state["main_artifacts"]["init_handoff"] == "0-Init/init_handoff.yaml"
     assert state["main_artifacts"]["team"] == "team.yaml"
     assert state["workflow_runtime"]["workflow_state"]["current_task"] is None
     assert state["workflow_runtime"]["execution_state"]["active_run_id"] is None
+    assert state["workflow_runtime"]["execution_state"]["schema_version"] == "1.1"
     assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["stage_label"] == "初始化"
+    assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["status"] == "completed"
+    assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["latest_command"] == "story-init"
     assert state["workflow_runtime"]["task_log"][0]["event"] == "project_initialized"
+    assert state["project_info"]["init_handoff_schema_version"] == "story2026/init-handoff/v2"
+    assert state["project_info"]["story_source_root"] == "Story/"
+    assert state["project_info"]["project_context_root"] == "CONTEXT/"
 
     assert team_manifest["init_contract"]["init_mode"] == "team_roleplay"
     assert team_manifest["init_contract"]["team_lineup_mode"] == "custom"
@@ -87,9 +97,6 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert north_star["story_kernel"]["opening_hook"] == "开篇第一夜就有人因误读规则暴毙"
     assert north_star["reader_promise"]["anti_trope"] == "不用无脑碾压升级，而用规则理解差建立压迫感"
     assert north_star["cards"]["world_system"]["worldview"]["genre"] == "修仙+规则怪谈"
-    assert north_star["type_stack"]["primary"] == "网文高冲击"
-    assert "修仙" in north_star["type_stack"]["secondary"]
-    assert "规则怪谈" in north_star["type_stack"]["secondary"]
 
     assert source_manifest["primary_story_source"]["status"] == "missing"
     assert source_manifest["readiness"]["can_enter_cards"] is True
@@ -101,9 +108,11 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert init_handoff["project_contract"]["recommended_next_stage"] == "1-Cards"
     assert init_handoff["stage_entry_seeds"]["cards_seed"]["character_seed"]["protagonist"]["name"] == "林默"
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["story_engine"]["golden_finger_growth_rhythm"] == "慢热"
-    assert init_handoff["stage_entry_seeds"]["planning_seed"]["type_stack"]["primary"] == "网文高冲击"
+    assert (project_root / "Story").is_dir()
+    assert (project_root / "CONTEXT").is_dir()
     assert (project_root / "3-Drafting").is_dir()
     assert (project_root / "1-Cards" / "1-风格卡" / "总风格").is_dir()
+    assert (project_root / "1-Cards" / "5-类型卡" / "总题材").is_dir()
     assert (project_root / "2-Planning").is_dir()
     assert (project_root / "4-Validation").is_dir()
     assert (project_root / "5-Loopback").is_dir()
@@ -115,15 +124,18 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert not (project_root / "2-Planning" / "legacy").exists()
     assert not (project_root / ".git").exists()
 
+    assert "创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。" in changelog
     assert "写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。" in changelog
 
     captured = capsys.readouterr()
     assert "Generated files:" in captured.out
+    assert " - Story/" in captured.out
+    assert " - CONTEXT/" in captured.out
     assert " - 1-Cards/" in captured.out
     assert " - 2-Planning/" in captured.out
     assert " - 4-Validation/" in captured.out
     assert " - 5-Loopback/" in captured.out
-    assert "2-Planning/全息地图.json is not created during /story-init; generate it via /story-plan." in captured.out
+    assert "2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
 
 
 def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatch):
@@ -153,29 +165,6 @@ def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatc
     assert init_handoff["init_session"]["decision_owner"] == "assistant"
     assert "project.one_liner" in init_handoff["sources_breakdown"]["assistant_inferred"]
     assert "constraints.anti_trope" in init_handoff["sources_breakdown"]["assistant_inferred"]
-
-
-def test_init_project_infers_expanded_legacy_type_packs(tmp_path, monkeypatch):
-    module = _load_module()
-    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
-
-    project_root = tmp_path / "projects" / "story" / "旧题材映射书"
-    module.init_project(
-        str(project_root),
-        "旧题材映射书",
-        "古言+狗血言情+末世+知乎短篇",
-        target_reader="女频",
-        target_words=120000,
-        target_chapters=36,
-        one_liner="一座失控古城里，皇族遗脉在规则崩塌后求生并复仇。",
-    )
-
-    north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
-    stack = north_star["type_stack"]
-    assert "古言剧" in stack["secondary"]
-    assert "狗血言情" in stack["secondary"]
-    assert "末世" in stack["secondary"]
-    assert "知乎短篇" in stack["secondary"]
 
 
 def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_path, monkeypatch):
@@ -233,6 +222,7 @@ def test_init_project_reinit_refreshes_team_manifest(tmp_path, monkeypatch):
         core_conflict="他要在被写死前找出写传者。",
     )
 
+    state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     team_manifest = _load_yaml(project_root / "team.yaml")
     assert team_manifest["init_contract"]["team_lineup_mode"] == "custom"
     assert team_manifest["init_contract"]["mode_source"] == "inferred"
@@ -249,33 +239,9 @@ def test_init_project_reinit_refreshes_team_manifest(tmp_path, monkeypatch):
     assert team_manifest["roles"]["review"]["members"] == [
         ".agents/skills/team/study/历史系/易中天/SKILL.md",
     ]
-
-
-def test_init_project_allows_explicit_type_stack_override(tmp_path, monkeypatch):
-    module = _load_module()
-    monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
-
-    project_root = tmp_path / "projects" / "story" / "显式类型包书"
-    module.init_project(
-        str(project_root),
-        "显式类型包书",
-        "都市",
-        target_reader="大众",
-        platform="任意平台",
-        type_pack_primary="网文高冲击",
-        type_pack_secondary="都市复仇,规则悬疑",
-        type_pack_platform="起点连载",
-        type_pack_audience="男频快节奏",
-        type_pack_notes="user_override",
-    )
-
-    north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
-    stack = north_star["type_stack"]
-    assert stack["primary"] == "网文高冲击"
-    assert stack["secondary"] == ["都市复仇", "规则悬疑"]
-    assert stack["platform"] == ["起点连载"]
-    assert stack["audience"] == ["男频快节奏"]
-    assert stack["inferred"] is False
+    assert state["workflow_runtime"]["task_log"][-1]["event"] == "project_reinitialized"
+    assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["status"] == "completed"
+    assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["latest_command"] == "story-init"
 
 
 def test_init_project_defaults_mode_source_and_user_confirmed(tmp_path, monkeypatch):
@@ -388,12 +354,6 @@ def test_init_project_defaults_unassigned_fields_to_assistant_inferred_when_assi
         must_keep="",
         must_not_do="",
         no_fly_zones="",
-        type_pack_method_kernel="",
-        type_pack_primary="",
-        type_pack_secondary="",
-        type_pack_platform="",
-        type_pack_audience="",
-        type_pack_notes="",
     )
     confirmation = payload["confirmation"]
 

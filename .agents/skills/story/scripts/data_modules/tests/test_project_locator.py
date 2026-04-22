@@ -66,6 +66,25 @@ def test_resolve_project_root_finds_projects_story_container_within_git_root(tmp
     assert resolved == default_project.resolve()
 
 
+def test_resolve_project_root_keeps_projects_aigc_as_legacy_container(tmp_path):
+    _ensure_scripts_on_path()
+
+    from project_locator import resolve_project_root
+
+    repo_root = tmp_path / "repo"
+    (repo_root / ".git").mkdir(parents=True, exist_ok=True)
+
+    legacy_project = repo_root / "projects" / "aigc" / "旧项目"
+    legacy_project.mkdir(parents=True, exist_ok=True)
+    (legacy_project / "STATE.json").write_text("{}", encoding="utf-8")
+
+    nested = repo_root / "sub" / "dir"
+    nested.mkdir(parents=True, exist_ok=True)
+
+    resolved = resolve_project_root(cwd=nested)
+    assert resolved == legacy_project.resolve()
+
+
 def test_resolve_project_root_finds_story_project_subdir_within_git_root(tmp_path):
     _ensure_scripts_on_path()
 

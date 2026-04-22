@@ -37,6 +37,7 @@
 | 初始化信息重新被压回“north_star 单主文件”，导致五件套边界失效 | init primary-artifact drift | 把长期约束、故事源登记、阶段入口种子重新分回 `north_star.yaml / story-source-manifest.yaml / init_handoff.yaml` | 以后调整 init handoff 时，必须同时审计脚本写入路径、测试断言、`0-Init/1-Cards/2-Planning/3-Drafting` 契约 | 新项目五件套边界稳定，不再回退到单文件大杂烩 |
 | 重跑初始化后 `STATE.json / north_star.yaml / init_handoff.yaml` 已更新，但 `team.yaml` 仍停在旧 skeleton | team manifest reinit drift | 将 `team.yaml` 从 `_write_text_if_missing(...)` 改为覆盖写入，并补一条 re-init 回归测试 | 以后凡初始化真源支持重跑，都必须把 `team.yaml` 纳入同一覆盖写回批次，避免项目级唯一 team 真源滞后于其余工件 | 对同一项目连跑两次初始化后，`team.yaml` 中的 `team_lineup_mode / roles.*.members / decision_owner` 与 `STATE.json`、`init_handoff.yaml` 保持一致 |
 | 初始化项目骨架仍停留在旧 runtime：生成 `Drafting/`、`正文/`、无序号阶段目录、`.env.example`、`.webnovel`，还顺手建项目内 `.git` | runtime skeleton contract | 按根 `story/SKILL.md` 的 canonical runtime root 改写 `init_project.py`，只预建 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation / 5-Loopback` 与当前 cards 子树，并补回归测试 | 以后凡阶段路径或 cards 子树发生 canonical 迁移，必须同步审计 `init_project.py` 的 `directories` 骨架、默认 sidecar 与“自动 git 初始化”副作用，防止新项目继续落旧版结构 | 新项目初始化后不再出现 `Drafting/`、`正文/`、`1-Cards/其他设定/`、`.env.example`、`.webnovel/`、项目内 `.git/`，且存在 `1-Cards/1-风格卡/总风格/`、`2-Planning/`、`4-Validation/` 与 `5-Loopback/` |
+| `1-Cards / 2-Planning / 3-Drafting / 4-Validation / 5-Loopback` 已更新，但初始化目录骨架与 `STATE.json` 仍停在旧阶段快照 | init project-state sync contract | 在 `init_project.py` 同步预建 `Story/` 与 `1-Cards/5-类型卡/总题材`，并把阶段根目录写入 `STATE.json.paths`、把 `0-init` 写成已完成 stage progress | 以后凡阶段树或 workflow runtime schema 演进，必须同时审计 `PROJECT_SKELETON_DIRS + STATE.json.paths + workflow_runtime.execution_state.stage_progress + re-init task_log` 四处，而不是只改目录或只改文档 | 新项目初始化后，目录骨架、`STATE.json.paths`、`workflow_runtime` 与当前阶段链一致；重初始化也会追加 `project_reinitialized` 事件 |
 | 用户级 registry 与全局 `.env` 仍停留在 `~/.claude/webnovel-writer/`，而用户层命令已切到 `story-*` | shared script compatibility layer | 改成 `~/.claude/story2026/` 新路径优先读写，旧路径双读兼容并自动迁移 | 在 `project_locator.py` 与 `data_modules/config.py` 固化“新路径优先、旧路径兼容、命中旧路径即 best-effort 迁移”的共享策略，并用测试锁住 | 旧用户目录不丢配置，新目录能自动接管后续写入 |
 
 ## Reusable Heuristics
@@ -63,3 +64,4 @@
 - 当用户不想再保留“全局卡/全局总览”这个中间层时，最稳的落点不是再造新卡，而是把长期对象总规范直接并入 `north_star.yaml.cards`。
 - 涉及用户级路径升级时，最稳的策略不是一次性硬切，而是“新路径优先 + 旧路径兼容读取 + 命中旧路径即迁移到新路径”。
 - 新项目若还没有任何具体 run，也应先创建 `STATE.json.workflow_runtime` 骨架；“先有内联执行态，再有具体 run”比让每个下游命令各自补状态更稳。
+- 当阶段树已经升级而初始化还没跟上时，优先同步四件事：`Story/ + stage roots`、`STATE.json.paths`、`workflow_runtime.execution_state.stage_progress`、`task_log` 的重初始化事件；缺一都会让下游脚本读到“目录存在但状态没跟上”或“状态更新了但目录没跟上”的半完成态。

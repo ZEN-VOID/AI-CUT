@@ -42,9 +42,6 @@ from .writing_guidance_builder import (
     build_writing_checklist,
     is_checklist_item_completed,
 )
-from .type_pack_resolver import resolve_type_pack_profile
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +56,6 @@ class ContextManager:
         "alerts",
         "reader_signal",
         "genre_profile",
-        "type_pack_profile",
         "writing_guidance",
     }
     SECTION_ORDER = [
@@ -68,7 +64,6 @@ class ContextManager:
         "global",
         "reader_signal",
         "genre_profile",
-        "type_pack_profile",
         "writing_guidance",
         "story_skeleton",
         "memory",
@@ -233,12 +228,10 @@ class ContextManager:
         alert_slice = max(0, int(self.config.context_alerts_slice))
         reader_signal = self._load_reader_signal(chapter)
         genre_profile = self._load_genre_profile(state)
-        type_pack_profile = self._load_type_pack_profile()
         writing_guidance = self._build_writing_guidance(
             chapter,
             reader_signal,
             genre_profile,
-            type_pack_profile,
             current_step_id=current_step_id,
         )
 
@@ -249,7 +242,6 @@ class ContextManager:
             "global": global_ctx,
             "reader_signal": reader_signal,
             "genre_profile": genre_profile,
-            "type_pack_profile": type_pack_profile,
             "writing_guidance": writing_guidance,
             "story_skeleton": story_skeleton,
             "preferences": preferences,
@@ -371,42 +363,11 @@ class ContextManager:
             "composite_hints": composite_hints,
         }
 
-    def _load_type_pack_profile(self) -> Dict[str, Any]:
-        try:
-            return resolve_type_pack_profile(self.config.project_root)
-        except Exception:
-            return {
-                "method_kernel": "story-core-v1",
-                "type_stack": {
-                    "method_kernel": "story-core-v1",
-                    "base": "_base",
-                    "primary": "",
-                    "secondary": [],
-                    "platform": [],
-                    "audience": [],
-                    "notes": ["resolver_fallback"],
-                    "inferred": True,
-                },
-                "active_packs": ["_base"],
-                "reader_promise": {},
-                "narrative_engine": {},
-                "forbidden_patterns": [],
-                "stage_projection": {},
-                "knowledge_refs": [],
-                "knowledge_indexes": [],
-                "knowledge_digest": [],
-                "knowledge_entries": [],
-                "legacy_source_refs": [],
-                "resolution_trace": [{"pack_id": "_base", "status": "fallback"}],
-                "resolver_ref": ".agents/skills/story/_shared/type-pack-loading-contract.md",
-            }
-
     def _build_writing_guidance(
         self,
         chapter: int,
         reader_signal: Dict[str, Any],
         genre_profile: Dict[str, Any],
-        type_pack_profile: Dict[str, Any],
         *,
         current_step_id: str | None = None,
     ) -> Dict[str, Any]:
@@ -414,8 +375,6 @@ class ContextManager:
             return {}
 
         limit = max(1, int(getattr(self.config, "context_writing_guidance_max_items", 6)))
-        if type_pack_profile.get("active_packs"):
-            limit = max(limit, 8)
         low_score_threshold = float(
             getattr(self.config, "context_writing_guidance_low_score_threshold", 75.0)
         )
@@ -424,7 +383,6 @@ class ContextManager:
             chapter=chapter,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
-            type_pack_profile=type_pack_profile,
             current_step_id=current_step_id,
             low_score_threshold=low_score_threshold,
             hook_diversify_enabled=bool(
@@ -449,7 +407,6 @@ class ContextManager:
             guidance_items=guidance,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
-            type_pack_profile=type_pack_profile,
             current_step_id=current_step_id,
             strategy_card=methodology_strategy,
         )
@@ -487,7 +444,6 @@ class ContextManager:
                 "top_patterns": top_patterns,
                 "genre": genre,
                 "methodology_enabled": bool(methodology_strategy.get("enabled")),
-                "active_type_packs": list(type_pack_profile.get("active_packs") or []),
                 "current_step_id": str(current_step_id or ""),
             },
         }
@@ -635,7 +591,6 @@ class ContextManager:
         guidance_items: List[str],
         reader_signal: Dict[str, Any],
         genre_profile: Dict[str, Any],
-        type_pack_profile: Dict[str, Any],
         current_step_id: str | None,
         strategy_card: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
@@ -653,7 +608,6 @@ class ContextManager:
             guidance_items=guidance_items,
             reader_signal=reader_signal,
             genre_profile=genre_profile,
-            type_pack_profile=type_pack_profile,
             current_step_id=current_step_id,
             strategy_card=strategy_card,
             min_items=min_items,
@@ -784,6 +738,7 @@ class ContextManager:
                 "rule_system": core.get("rule_system", []) if isinstance(core, dict) else [],
                 "era_constraints": core.get("era_constraints", {}) if isinstance(core, dict) else {},
                 "culture_and_arts": core.get("culture_and_arts", {}) if isinstance(core, dict) else {},
+                "faction_topology": core.get("faction_topology", {}) if isinstance(core, dict) else {},
                 "power_or_technology": core.get("power_or_technology", {}) if isinstance(core, dict) else {},
                 "golden_finger": core.get("golden_finger", {}) if isinstance(core, dict) else {},
             },

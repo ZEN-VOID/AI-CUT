@@ -8,9 +8,23 @@ import re
 from pathlib import Path
 
 try:
-    from planning_paths import canonical_planning_artifact_relpath, resolve_planning_artifact_path
+    from planning_paths import (
+        canonical_book_plan_path,
+        canonical_chapter_plan_path,
+        canonical_planning_artifact_relpath,
+        canonical_volume_plan_path,
+        planning_volume_num_for_chapter,
+        resolve_planning_artifact_path,
+    )
 except ImportError:  # pragma: no cover
-    from scripts.planning_paths import canonical_planning_artifact_relpath, resolve_planning_artifact_path
+    from scripts.planning_paths import (
+        canonical_book_plan_path,
+        canonical_chapter_plan_path,
+        canonical_planning_artifact_relpath,
+        canonical_volume_plan_path,
+        planning_volume_num_for_chapter,
+        resolve_planning_artifact_path,
+    )
 
 try:
     from chapter_paths import volume_num_for_chapter
@@ -85,6 +99,15 @@ def volume_num_for_chapter_from_state(project_root: Path, chapter_num: int) -> i
 
 def _holomap_path(project_root: Path) -> Path:
     return resolve_planning_artifact_path(project_root, "holomap")
+
+
+def _canonical_plan_paths(project_root: Path, chapter_num: int) -> tuple[Path, Path, Path]:
+    volume_num = planning_volume_num_for_chapter(chapter_num, project_root=project_root)
+    return (
+        canonical_book_plan_path(project_root),
+        canonical_volume_plan_path(project_root, volume_num),
+        canonical_chapter_plan_path(project_root, chapter_num, volume_num),
+    )
 
 
 def _load_holomap(project_root: Path) -> dict | None:
@@ -574,6 +597,15 @@ def _extract_outline_section(content: str, chapter_num: int) -> str | None:
 
 
 def load_chapter_outline(project_root: Path, chapter_num: int, max_chars: int | None = 1500) -> str:
+    book_plan_path, volume_plan_path, chapter_plan_path = _canonical_plan_paths(project_root, chapter_num)
+    if chapter_plan_path.is_file():
+        outline = chapter_plan_path.read_text(encoding="utf-8")
+        if volume_plan_path.is_file():
+            outline = f"> 来源：{chapter_plan_path.relative_to(project_root)}\n> 卷规划：{volume_plan_path.relative_to(project_root)}\n> 总规划：{book_plan_path.relative_to(project_root) if book_plan_path.is_file() else 'missing'}\n\n{outline}"
+        if max_chars and len(outline) > max_chars:
+            return outline[:max_chars] + "\n...(已截断)"
+        return outline
+
     holomap_board = _find_holomap_chapter_board(project_root, chapter_num)
     if holomap_board is not None:
         outline = _render_holomap_board(holomap_board, chapter_num)

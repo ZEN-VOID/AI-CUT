@@ -21,6 +21,9 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from chapter_paths import default_chapter_draft_path, drafting_root_md_path, find_chapter_file
+from drafting_manuscript_guard import validate_project_chapter
+from drafting_volume_quality_guard import validate_volume_log
+from planning_paths import planned_chapter_numbers_for_volume
 from project_locator import resolve_project_root, resolve_state_file
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
 from security_utils import atomic_write_json, create_secure_directory
@@ -110,25 +113,22 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_label": "卡片层",
         "steps": [
             ("Step 1", "路由与输入校验", "story-cards"),
-            ("Step 2", "生成/修复风格卡", "story-cards"),
-            ("Step 3", "生成/修复角色卡", "story-cards"),
-            ("Step 4", "生成/修复场景卡", "story-cards"),
-            ("Step 5", "生成/修复物品卡", "story-cards"),
-            ("Step 6", "shared writeback 与 coverage gate", "cards-coverage-validator"),
+            ("Step 2", "生成/修复类型卡", "story-cards"),
+            ("Step 3", "生成/修复风格卡", "story-cards"),
+            ("Step 4", "生成/修复角色卡", "story-cards"),
+            ("Step 5", "生成/修复场景卡", "story-cards"),
+            ("Step 6", "生成/修复物品卡", "story-cards"),
+            ("Step 7", "shared writeback 与 coverage gate", "cards-coverage-validator"),
         ],
     },
     "story-plan": {
         "stage_id": "2-planning",
         "stage_label": "规划层",
         "steps": [
-            ("Step 1", "题材选型（1-题材选型）", "story-plan"),
-            ("Step 2", "章节规划（2-章节规划）", "story-plan"),
-            ("Step 3", "故事大纲（3-故事大纲）", "story-plan"),
-            ("Step 4", "冲突设计（4-冲突设计）", "story-plan"),
-            ("Step 5", "任务设计（5-任务设计）", "story-plan"),
-            ("Step 6", "线索设计（6-线索设计）", "story-plan"),
-            ("Step 7", "伏笔设计（7-伏笔设计）", "story-plan"),
-            ("Step 8", "父层收束全息地图（shared root normalize）", "story-plan"),
+            ("Step 1", "部级规划（1-部级）", "story-plan"),
+            ("Step 2", "卷级规划（2-卷级）", "story-plan"),
+            ("Step 3", "章级规划（3-章级）", "story-plan"),
+            ("Step 4", "父层结构校验与收束", "story-plan"),
         ],
     },
     "story-write": {
@@ -139,7 +139,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 2", "节奏优化", "drafting-pacing"),
             ("Step 3", "场景和氛围渲染", "drafting-scene-atmosphere"),
             ("Step 4", "角色形象刻画", "drafting-character-rendering"),
-            ("Step 5", "对白个性化", "drafting-dialogue-personalization"),
+            ("Step 5", "对白优化", "drafting-dialogue-optimization"),
             ("Step 6", "心理活动描写", "drafting-inner-life"),
             ("Step 7", "追读力强化", "drafting-reading-power"),
             ("Step 8", "润色", "drafting-polish"),
@@ -1588,6 +1588,7 @@ def complete_task(final_artifacts_json=None):
         active_batch = inline_state.get("active_batch") if isinstance(inline_state, dict) else None
         blocking_gate = inline_state.get("blocking_gate") if isinstance(inline_state, dict) else None
         candidate_state = task.get("candidate_final_state") or {}
+        chapter_num = _safe_int((task.get("args") or {}).get("chapter_num"), 0)
         if active_batch:
             print("⚠️ 当前存在待完成的 inline validation，不能完成 story-write")
             return
@@ -1600,6 +1601,19 @@ def complete_task(final_artifacts_json=None):
         }:
             print("⚠️ 当前正文尚未达到 candidate_final_draft，不能完成 story-write")
             return
+        if chapter_num > 0:
+            guard_result = validate_project_chapter(find_project_root(), chapter_num)
+            if str(guard_result.get("status") or "") != "pass":
+                payload = {
+                    "chapter": chapter_num,
+                    "reason": str(guard_result.get("reason") or "chapter_complete_manuscript_failed"),
+                    "issues": guard_result.get("issues", []),
+                    "metrics": guard_result.get("metrics", {}),
+                }
+                safe_append_call_trace("drafting_manuscript_guard_blocked_complete", payload)
+                safe_append_task_log("drafting_manuscript_guard_blocked_complete", payload)
+                print("⚠️ 当前正文未通过 chapter-complete manuscript guard，不能完成 story-write")
+                return
 
     _finalize_current_step_as_failed(task, reason="task_completed_with_active_step")
     task["status"] = TASK_STATUS_COMPLETED
@@ -1843,8 +1857,17 @@ def _review_checkpoint_for_volume(project_payload: dict[str, Any], volume: int) 
         return None
 
     matched: Optional[dict[str, Any]] = None
+    project_root_raw = str(project_payload.get("project_root") or "").strip()
     expected_start = (volume - 1) * CHAPTERS_PER_VOLUME + 1
     expected_end = volume * CHAPTERS_PER_VOLUME
+    if project_root_raw:
+        try:
+            chapter_nums = planned_chapter_numbers_for_volume(Path(project_root_raw), volume)
+            if chapter_nums:
+                expected_start = min(chapter_nums)
+                expected_end = max(chapter_nums)
+        except Exception:
+            pass
 
     for item in checkpoints:
         if not isinstance(item, dict):
@@ -1979,22 +2002,47 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             candidate_status in {CANDIDATE_FINAL_STATUS_READY, "candidate_volume_draft"}
             or next_step == "4-Validation"
         ):
-            write_log_episode = max([_normalize_chapter_num(item) or 0 for item in chapter_refs] or [volume_num * CHAPTERS_PER_VOLUME])
-            write_log_packet = _artifact_resume_packet(
-                command="story-validate",
-                chapter_num=None,
-                volume_num=volume_num,
-                volume_ref=f"第{volume_num}卷",
-                chapter_refs=chapter_refs,
-                reason="candidate_volume_draft_waiting_validation",
-                summary=f"未检测到 tracked 中断，但第{volume_num}卷写作日志显示已到 candidate_volume_draft，下一稳定入口是 4-Validation。",
-                artifact_refs={
-                    "writing_log_ref": str(write_log_path.relative_to(project_root)),
-                    "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
-                    "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
-                },
-                evidence_refs=[str(write_log_path.relative_to(project_root))],
+            fallback_chapters = planned_chapter_numbers_for_volume(project_root, volume_num)
+            quality_guard = validate_volume_log(write_log_path, volume_num=volume_num)
+            write_log_episode = max(
+                [_normalize_chapter_num(item) or 0 for item in chapter_refs] or fallback_chapters or [volume_num * CHAPTERS_PER_VOLUME]
             )
+            if str(quality_guard.get("status") or "") == "pass":
+                write_log_packet = _artifact_resume_packet(
+                    command="story-validate",
+                    chapter_num=None,
+                    volume_num=volume_num,
+                    volume_ref=f"第{volume_num}卷",
+                    chapter_refs=chapter_refs,
+                    reason="candidate_volume_draft_waiting_validation",
+                    summary=f"未检测到 tracked 中断，但第{volume_num}卷写作日志显示已到 candidate_volume_draft 且 volume quality gate 已通过，下一稳定入口是 4-Validation。",
+                    artifact_refs={
+                        "writing_log_ref": str(write_log_path.relative_to(project_root)),
+                        "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
+                        "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
+                        "quality_gate": quality_guard,
+                    },
+                    evidence_refs=[str(write_log_path.relative_to(project_root))],
+                )
+            else:
+                rework_targets = quality_guard.get("priority_rework_targets", [])
+                target_hint = "；优先返工 " + "、".join(rework_targets) if isinstance(rework_targets, list) and rework_targets else ""
+                write_log_packet = _artifact_resume_packet(
+                    command="story-write",
+                    chapter_num=None,
+                    volume_num=volume_num,
+                    volume_ref=f"第{volume_num}卷",
+                    chapter_refs=chapter_refs,
+                    reason="drafting_quality_gate_blocked_validation",
+                    summary=f"未检测到 tracked 中断，但第{volume_num}卷写作日志显示 volume quality gate 未通过，下一稳定入口应回到 3-Drafting 返工{target_hint}。",
+                    artifact_refs={
+                        "writing_log_ref": str(write_log_path.relative_to(project_root)),
+                        "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
+                        "current_resume_pointer": resume_pointer if isinstance(resume_pointer, dict) else {},
+                        "quality_gate": quality_guard,
+                    },
+                    evidence_refs=[str(write_log_path.relative_to(project_root))],
+                )
         elif episode_num and (
             candidate_status == CANDIDATE_FINAL_STATUS_READY
             or next_step == "4-Validation"
@@ -2023,7 +2071,12 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
         chapter_refs = loopback_payload.get("meta", {}).get("chapter_refs")
         if not isinstance(chapter_refs, list):
             chapter_refs = []
-        next_episode = max([_normalize_chapter_num(item) or 0 for item in chapter_refs] or [loopback_volume * CHAPTERS_PER_VOLUME]) + 1
+        current_volume_chapters = planned_chapter_numbers_for_volume(project_root, loopback_volume)
+        next_episode = max(
+            [_normalize_chapter_num(item) or 0 for item in chapter_refs]
+            or current_volume_chapters
+            or [loopback_volume * CHAPTERS_PER_VOLUME]
+        ) + 1
         next_volume = loopback_volume + 1
         packet = _artifact_resume_packet(
             command="story-write",
@@ -2354,7 +2407,7 @@ def analyze_recovery_options(interrupt_info):
                     "actions": [
                         f"读取 {artifacts.get('validation_ref') or '4-Validation/第V卷.validation.json'}",
                         f"按{volume_label}执行 PASS-only loopback actualization",
-                        "回写 Cards.current_state/history、story_map.actualization 与 runtime projections",
+                        "回写 Cards.current_state/history、planning actualization sidecars、story_map actualization compat projection 与 runtime projections",
                     ],
                 },
                 {

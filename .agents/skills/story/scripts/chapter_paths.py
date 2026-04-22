@@ -83,7 +83,7 @@ def _extract_title_from_split_outline_filename(outline_dir: Path, chapter_num: i
 
 
 def extract_chapter_title(project_root: Path, chapter_num: int) -> str:
-    """优先从全息地图章节节点提取标题，缺失时回退到旧大纲。"""
+    """优先从 canonical chapter plan 提取标题，缺失时回退到兼容 carrier 或旧大纲。"""
     try:
         from chapter_outline_loader import load_chapter_outline
     except ImportError:  # pragma: no cover

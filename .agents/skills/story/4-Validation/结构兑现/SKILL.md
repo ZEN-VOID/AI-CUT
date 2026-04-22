@@ -49,7 +49,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断正文是否真的兑现了这集该发生的事，而不是只“提到过”或“总结过”。 |
-| `business_object` | `validation_fact_pack.promise_slice`、`volume_board / episode_boards`、当前卷正文集合。 |
+| `business_object` | `validation_fact_pack.promise_slice`、`volume_planning_summary / chapter_planning_packets`、当前卷正文集合。 |
 | `constraint_profile` | 先看 board 义务，再看正文戏剧化落点；结构未兑现不能靠其他维度补救。 |
 | `success_criteria` | 能明确回答“这一集 promised 什么、planned 什么、正文到底有没有完成”。 |
 | `topology_fit` | `obligation decode -> manuscript compare -> dramatization gate -> report packet` |
@@ -58,7 +58,7 @@ governance_tier: lite
 
 - 必需输入：
   - `validation_fact_pack.promise_slice`
-  - `validation_fact_pack.chapter_board`
+  - `validation_fact_pack.chapter_planning_packet`
   - 当前卷正文集合
 - 硬规则：
   - 先锁“必须发生什么”，再判正文是否实现。
@@ -80,7 +80,7 @@ governance_tier: lite
 
 ```mermaid
 flowchart TD
-    A["解码 promise + chapter_board"] --> B["逐段比对正文"]
+    A["解码 promise + chapter_planning_packet"] --> B["逐段比对正文"]
     B --> C["判定是否写成戏剧场面"]
     C --> D["输出结构兑现 packet + report"]
 ```

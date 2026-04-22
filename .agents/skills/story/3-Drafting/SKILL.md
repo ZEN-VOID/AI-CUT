@@ -18,20 +18,21 @@ color: rose
 
 ## Overview
 
-`3-Drafting` 现在负责把 `2-Planning` 已经定好的卷地图，翻译成卷内 10 集的成套正文。
+`3-Drafting` 现在负责把 `2-Planning` 已经定好的整书规划、当前卷规划和当前章规划，翻译成当前卷 `chapter_refs` 对应的一组成套正文。
 
 新的父层模型固定为：
 
-1. 先锁定当前卷、卷分片、卷内章节范围与 `team.yaml` 监制/生产配置。
+1. 先锁定当前卷、当前卷规划目录、卷内章节范围与 `team.yaml` 监制/生产配置。
 2. 父层为卷内每一集组装 `episode_worker_pack`：
-   - 当前集 `chapter_board`
-   - 卷级 continuity pack
+   - 当前集 `第N章.md`
+   - 当前卷 `卷规划.md`
+   - 整书 `整体规划.md`
    - 当前卷开放线程 / 伏笔窗口 / 任务债务
-   - `Cards / Init / type-pack` 必需真源
-3. 父层默认并发启动 10 个 episode workers，每个 worker 只拥有自己那一集的 `第N集.md` 写权。
+   - `Cards / Init` 中与当前题材相关的必需真源
+3. 父层默认按当前卷 `chapter_refs` 并发启动 episode workers，每个 worker 只拥有自己那一集的 `第N集.md` 写权；默认卷长是 `10`，但项目声明例外时必须服从项目映射。
 4. 每个 episode worker 内部仍严格执行 `1 -> 8` 八道工序，且单 worker 内部必须保持“一 step 一写回一 gate”的串行纪律。
 5. 父层只做卷级调度、监制、批次日志、候选终稿汇总与 volume-ready 判定，不再把“上一集正文是否存在”当作卷内所有 worker 的硬阻塞门。
-6. 当卷内 10 集都达到 `candidate_final_draft` 后，父层再把整卷交给 `4-Validation` 做卷级终验。
+6. 当卷内全部 `chapter_refs` 都达到 `candidate_final_draft` 后，父层再把整卷交给 `4-Validation` 做卷级终验。
 
 一句话裁决：
 
@@ -52,7 +53,7 @@ color: rose
 
 ### 父层不拥有
 
-- 越权改写 `2-Planning/全息地图.json` 或卷分片规划真源
+- 越权改写 `2-Planning/整体规划.md`、`第N卷/卷规划.md`、`第N卷/第N章.md`
 - 用“卷级大生成”覆盖每个 episode worker 的正式写回
 - 把 10 集并成一份总正文文件冒充 canonical manuscript
 - 在没有明确阻断说明时，把本地顺序执行说成“后台多线程并发”
@@ -64,10 +65,10 @@ color: rose
 | order | child skill | worker 内职责 |
 | --- | --- | --- |
 | 1 | `1-单集叙事起盘` | 建立本集叙事骨架与首轮可读正文 |
-| 2 | `2-节奏优化` | 校准本集推进脉冲与段落呼吸 |
+| 2 | `2-节奏优化` | 兑现 planning 已锁节奏 handoff，校准本集推进脉冲与段落呼吸 |
 | 3 | `3-场景和氛围渲染` | 强化空间、感官与情景气压 |
 | 4 | `4-角色形象刻画` | 强化动作、人物偏移、关系受压与行为选择 |
-| 5 | `5-对白个性化` | 让对白回到角色、关系与局面 |
+| 5 | `5-对白优化` | 让对话自然、鲜活，并准确服务角色、关系与叙事 |
 | 6 | `6-心理活动描写` | 写稳 POV、内心运动与身体化知觉 |
 | 7 | `7-追读力强化` | 拉高钩子、微兑现与章末牵引 |
 | 8 | `8-润色` | 统一自然感并清扫 AI 味 / meta 腔 |
@@ -84,6 +85,7 @@ color: rose
 - `./_shared/process-log.template.yaml`
 - `./_shared/drafting-child-output-contract.md`
 - `./_shared/drafting-instant-validation-contract.md`
+- `./_shared/drafting-quality-gate-contract.md`
 - `./_shared/sequel-continuity-contract.md`
 - `./_shared/chapter-board-locating-contract.md`
 - `../4-Validation/_shared/validation-dimension-registry.yaml`
@@ -112,16 +114,16 @@ color: rose
 
 新的连续性规则固定为：
 
-1. **硬输入**是 `2-Planning` 已声明的卷级 continuity pack：
-   - 当前卷 `volume_board`
-   - 每集 `chapter_board`
-   - 卷内开放线程 / 任务债务 / 伏笔静默窗口
-   - 当前集 `entry_state / carryover_threads / expected_exit_delta`
+1. **硬输入**是 `2-Planning` 已声明的三层规划真源：
+   - 整书 `整体规划.md`
+   - 当前卷 `第V卷/卷规划.md`
+   - 当前集 `第V卷/第N章.md`
+   - 其中当前集必须明确给出 `章末达成 / 本章任务线 / 本章冲突 / 本章线索 / 本章伏笔`
 2. **可选增强输入**才是上一集终稿：
    - 若前序集已完成，允许当前集 worker 读取它做二次校准
    - 若前序集尚未完成，不得因此阻塞当前集开工
-3. 当前集 worker 必须优先服从卷地图 continuity pack，而不是临场猜测上一集会怎么写。
-4. 若卷内前序集后续实际写成与 planning continuity pack 明显冲突，应在当前卷批次内触发 targeted re-sync，而不是恢复旧的“全卷串行等上一集”模型。
+3. 当前集 worker 必须优先服从三层规划真源，而不是临场猜测上一集会怎么写。
+4. 若当前章正文与章级规划、卷级规划或整书规划明显冲突，应在当前卷批次内触发 targeted re-sync，而不是恢复旧的“全卷串行等上一集”模型。
 
 ## Team / Subagent Contract
 
@@ -129,7 +131,7 @@ color: rose
 
 - `dispatch_mode = team-supervised-parallel-workers`
 - `worker_granularity = one-episode-per-worker`
-- `worker_count = 当前卷章节数，默认 10`
+- `worker_count = 当前卷章节数，默认 10，但项目声明例外时以项目映射为准`
 
 父层必须：
 
@@ -160,8 +162,9 @@ color: rose
 - `0-Init/story-source-manifest.yaml`
 - `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
-- `2-Planning/全息地图.json`
-- 当前卷命中的 `2-Planning/卷分片/*.json`
+- `2-Planning/整体规划.md`
+- 当前卷 `2-Planning/第V卷/卷规划.md`
+- 当前卷各章 `2-Planning/第V卷/第N章.md`
 - `volume_ref / volume_num`
 - 当前卷的 `chapter_refs`
 - `team.yaml`
@@ -174,14 +177,20 @@ color: rose
 
 ### 硬规则
 
-1. `2-Planning/卷分片/*.json` 在本阶段语义上等同于卷分片；固定 `10 章 = 1 卷` 时，卷分片就是卷地图 carrier。
-2. 父层必须先锁 `volume_board + chapter_refs + continuity pack`，再允许任何 worker 开始。
+1. `2-Planning/第V卷/卷规划.md + 第N章.md` 是本阶段的 primary planning carrier；默认 `10 章 = 1 卷`，但项目若在 `STATE.json.progress.volumes_planned` 或等效真源里声明例外，当前卷目录必须服从项目映射。
+2. 父层必须先锁 `整体规划 + 卷规划 + chapter_refs`，再允许任何 worker 开始。
 3. 当前卷 worker 默认并发，但单 worker 内仍必须严格串行执行 `1 -> 8`。
 4. `第N集.md` 是 worker 级单一正文真源；不得生成 `第N集-pass2.md` 等 sibling manuscript。
 5. `第V卷.写作日志.yaml` 是父层批次日志真源；不得再并行维护第二份卷级 batch ledger。
 6. “上一集终稿”从阻塞门降为可选增强门；卷内并发不得因为等待上一集全文而停摆。
 7. 若某 worker inline validation 失败，只阻断该 worker 或显式波及的受影响 workers，不得把整卷静默拖死。
 8. 当卷内全部章节达到 `candidate_final_draft` 前，不得把整卷宣布为 ready-for-validation。
+9. `第V卷.写作日志.yaml` 不是允许“Step 8 完成摘要回填”了事的稀疏台账；父层必须为当前卷每一章写满 `1 -> 8` 八条正式 `process_log_entry`，并为每一步同步落下对应 hook 结果，形成完整的 `chapter_refs x 8 步` 审计轨迹。
+10. 任一章节若缺少某一步正式 `process_log_entry`、缺少该步 hook 结果、或以汇总性补记冒充逐步留痕，则该章节不得获得 `candidate_final_draft`；父层也不得把整卷推进到 `candidate_volume_draft`。
+11. 任一章节若正文仍是“压缩剧情稿 / 摘要式成稿 / 仅够证明 planning 已落位”的密度，而未达到章节级小说正文，不得获得 `candidate_final_draft`。
+12. 默认必须通过 `scripts/drafting_manuscript_guard.py` 的 `chapter-complete manuscript` 守门，才可把当前 `第N集.md` 视为可收口正文；该守门至少检查正文主体长度、段落密度与 planning `exit_hook` 落位。
+13. 卷级 `candidate_volume_draft` 不等于“可直接进 `4-Validation`”；在准备移交终验前，父层必须先写回 `第V卷.写作日志.yaml -> quality_gate_snapshot`。
+14. 默认必须通过 `scripts/drafting_volume_quality_guard.py` 的卷级质量守门，才能把下一稳定入口写成 `4-Validation`；若 guard 判定 `rework_required_before_validation`，必须回切到 `3-Drafting`，不得继续伪装成“待 validation”。
 
 ## Dispatch Order Contract
 
@@ -196,7 +205,7 @@ color: rose
 
 ### Worker 内部固定顺序
 
-`1-单集叙事起盘 -> hook -> 2-节奏优化 -> hook -> 3-场景和氛围渲染 -> hook -> 4-角色形象刻画 -> hook -> 5-对白个性化 -> hook -> 6-心理活动描写 -> hook -> 7-追读力强化 -> hook -> 8-润色 -> hook -> candidate_final_draft`
+`1-单集叙事起盘 -> hook -> 2-节奏优化 -> hook -> 3-场景和氛围渲染 -> hook -> 4-角色形象刻画 -> hook -> 5-对白优化 -> hook -> 6-心理活动描写 -> hook -> 7-追读力强化 -> hook -> 8-润色 -> hook -> candidate_final_draft`
 
 ### 并发规则
 
@@ -222,7 +231,30 @@ color: rose
 - 当前卷全部 `chapter_refs` 都已有 `第N集.md`
 - 每个 worker 都已完成 `Step 8`
 - 每个 worker 的 inline hooks 均为 `pass`
+- 每个 `第N集.md` 都已通过 `scripts/drafting_manuscript_guard.py`，不再属于摘要式压缩稿
+- `第V卷.写作日志.yaml.chapter_step_history` 中每个 `chapter_ref` 都已写满 8 条按顺序排列的正式 step 记录
+- `第V卷.写作日志.yaml.chapter_hook_results` 中每个 `chapter_ref` 都已写满 8 条与 step 对位的一步一 gate 结果
 - 卷级日志中不存在未处理的 `block_reason`
+
+### 预终验质量门
+
+父层把 `candidate_volume_draft` 移交给 `4-Validation` 前，还必须额外满足：
+
+- `第V卷.写作日志.yaml` 已写入 `quality_gate_snapshot`
+- `quality_gate_snapshot.verdict == ready_for_validation`
+- 五个默认 guard axes 全部 `pass`：
+  - `anti_formula_progression`
+  - `relationship_friction`
+  - `spatial_separation`
+  - `antagonist_face`
+  - `volume_closure`
+- `scripts/drafting_volume_quality_guard.py` 返回 `pass`
+
+若以上任一条件不成立：
+
+- 当前卷可保留 `candidate_volume_draft`
+- 但下一稳定入口必须仍是 `3-Drafting`
+- `resume/` 与 runtime 不得把该卷误判为 ready-for-validation
 
 ## Failure Routing Contract
 
@@ -230,13 +262,13 @@ color: rose
   - 回到该 worker 的最早受影响 step
 - 卷内 continuity pack 失真：
   - 回到 `2-Planning`
-- `Cards / Init / type-pack` 真源冲突：
+- `Cards / Init` 题材真源冲突：
   - 回到相应 source owner
 - 因上层权限无法真实并发：
   - 显式报告并进入降级执行
 
 ## Completion Contract
 
-- 当前卷的章节范围、卷分片与 team 监制配置已锁定
+- 当前卷的章节范围、卷规划目录与 team 监制配置已锁定
 - 卷内每个 worker 的 step 进度与 block 状态可追踪
 - 全部章节已形成 `candidate_final_draft` 后，才把整卷交给 `4-Validation`

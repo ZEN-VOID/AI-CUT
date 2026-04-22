@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 项目复核"
-  short_description: "作为复核总入口，路由到 preflight、验收或 learning 子技能"
-  default_prompt: "Use $aigc-review to choose the correct review mode first, route into the matching governed subtype, update the canonical review carrier, and sync governance-state."

@@ -24,13 +24,13 @@ governance_tier: lite
 - 挂载位置：根 `aigc` 同级卫星技能。
 - owner office：`shangshu`
 - governance domain：`兵部`
-- 默认回接：根 `aigc`、目标阶段 skill、或 `review/`。
+- 默认回接：根 `aigc` 或目标阶段 skill。
 
 | owns | avoids |
 | --- | --- |
 | 恢复模式判定、最后稳定入口重建、安全回接建议 | 伪造不存在的断点状态 |
 | 治理工件缺口识别 | 默认给 destructive Git 建议 |
-| 将恢复结果回接根技能或目标阶段 | 代替 `review/` 做验收裁决 |
+| 将恢复结果回接根技能或目标阶段 | 越权代替根 `aigc` 做高风险预审 / 验收裁决 |
 
 ## Supported Scope
 
@@ -51,7 +51,7 @@ flowchart TD
     C --> D{"恢复模式"}
     D -->|"governance_rebuild"| E["补治理工件缺口"]
     D -->|"stage_continue"| F["锁定目标阶段与现有产物"]
-    D -->|"review_reentry"| G["转 review/ 做预审或验收桥接"]
+    D -->|"gate_reentry"| G["回根 aigc 做预审或验收桥接"]
     D -->|"root_reroute"| H["回根 aigc 重判唯一路由"]
     E --> I["给出安全操作选项"]
     F --> I
@@ -128,7 +128,7 @@ git -C "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" status --short
 | `lightweight_init_continue` | 核心初始化工件齐全，但尚未生成结构化治理快照 | 回根 `aigc` 或低风险下一阶段继续；只有需要深治理时才补快照 |
 | `governance_rebuild` | `STATE.json` 缺失、核心初始化工件缺失，或高风险恢复所需 gate 明显缺失 | 回根 `aigc` 补 `state / brief / route / verdict` |
 | `stage_continue` | 阶段产物已存在，但验收闭环未完成 | 继续当前阶段或其直接下游 |
-| `review_reentry` | 内容产物已有，但需要预审或验收 | 进入 `review/` |
+| `gate_reentry` | 内容产物已有，但需要预审或验收 | 回根 `aigc` |
 | `init_rebootstrap_reroute` | 用户明确要求“回到初始化态重来 / 推翻方向重做” | 直接回 `0-Init`，不要按续跑逻辑硬接 |
 | `root_reroute` | 当前阶段不清、阶段已搁浅或合同缺失 | 回根 `aigc` 重判唯一路由 |
 
@@ -160,7 +160,7 @@ rg --files "$PROJECT_ROOT/6-Video"
 - 回根 `aigc` 重新路由
 - 回 `0-Init` 执行重置式重新初始化
 - 回到某个已知阶段继续执行
-- 先经 `review/` 做 preflight 或验收桥接
+- 回根 `aigc` 做 preflight 或验收桥接
 - 先补治理工件，再继续内容阶段
 
 若 `governance-state.yaml` 缺失但 `STATE.json` 与核心初始化工件齐全，默认先判为 `lightweight_init_continue`；只有当用户需要结构化断点、复杂多步恢复或 review bridge 时，才升级为 `governance_rebuild`。
@@ -178,7 +178,6 @@ rg --files "$PROJECT_ROOT/6-Video"
 
 - 根 `aigc`
 - 某个阶段 skill
-- `review/`
 
 不要同时给多个无序候选。
 

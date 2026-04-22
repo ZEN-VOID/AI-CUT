@@ -1,19 +1,15 @@
 volume_num: 0
 volume_ref: ""
-planning_ref: "2-Planning/全息地图.json"
+planning_ref: ""
+planning_volume_ref: ""
+planning_global_ref: "2-Planning/整体规划.md"
 planning_slice_ref: ""
 continuity_pack_ref: ""
 monitoring_team_ref: "team.yaml"
 dispatch_mode: "team-supervised-parallel-workers"
 chapter_refs: []
 instant_validation_registry_ref: ".agents/skills/story/4-Validation/_shared/validation-dimension-registry.yaml"
-type_stack_ref:
-  method_kernel: "story-core-v1"
-  base: "_base"
-  primary: ""
-  secondary: []
-  platform: []
-  audience: []
+type_card_ref: ""
 worker_status: {}
 completed_chapters: []
 latest_inline_validation:
@@ -24,8 +20,15 @@ latest_inline_validation:
 candidate_final_state:
   status: "not_ready"
   reason: "volume_not_complete"
+audit_requirements:
+  expected_chapter_count: 10
+  expected_steps_per_chapter: 8
+  require_per_step_process_log: true
+  require_per_step_hook_result: true
+  allow_step8_only_summary_shortcut: false
 current_resume_pointer:
   next_worker: ""
   next_step: "1-单集叙事起盘"
   reason: "not_started"
 chapter_step_history: {}
+chapter_hook_results: {}

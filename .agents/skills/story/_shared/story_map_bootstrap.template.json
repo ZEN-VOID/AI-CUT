@@ -8,7 +8,7 @@
     "created_at": "",
     "source_route": "0-Init > 1-Cards > 2-Planning",
     "template_version": "3.0.0",
-    "truth_role": "planning-canonical-map"
+    "truth_role": "planning-compatibility-map"
   },
   "content": {
     "holomap": {
@@ -17,14 +17,7 @@
         "reader_promise": [],
         "platform_fit": [],
         "forbidden_zone": [],
-        "type_stack_ref": {
-          "method_kernel": "story-core-v1",
-          "base": "_base",
-          "primary": "",
-          "secondary": [],
-          "platform": [],
-          "audience": []
-        }
+        "type_card_refs": []
       },
       "genre_corridor": {
         "primary_genre": "",
@@ -32,8 +25,7 @@
         "allowed_modes": [],
         "tone_band": "",
         "narrative_density": "",
-        "downstream_hooks": [],
-        "type_pack_projection": []
+        "downstream_hooks": []
       },
       "story_spine": {
         "core_question": "",
@@ -106,7 +98,7 @@
       },
       "state_transitions": [],
       "navigation_rules": [],
-      "type_pack_projection_notes": []
+      "type_card_projection_notes": []
     }
   },
   "gate_summary": {

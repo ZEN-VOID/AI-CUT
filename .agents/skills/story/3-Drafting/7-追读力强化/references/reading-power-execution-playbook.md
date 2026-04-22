@@ -33,7 +33,7 @@
    - 事件 / 信息推进
    - 人物高压 / 假面暴露 / 身体兑现
 3. 只补最关键的 1-2 个维度，不做满配堆叠。
-4. 若项目存在 `type-pack` 投影，用对应 genre 偏好做 tie-break；否则用通用 taxonomy。
+4. 若项目存在 `类型卡` 投影，用对应 genre 偏好做 tie-break；否则用通用 taxonomy。
 
 ## Pressure-Core Projection
 

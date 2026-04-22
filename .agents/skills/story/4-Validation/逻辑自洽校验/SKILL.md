@@ -10,7 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `4-Validation/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`、`./references/setting-self-consistency-framework.md`。
-- 正式审查前，必须至少读取同一轮锁定后的 `validation_fact_pack.cards_state_history_slice`、`chapter_board` 与当前正文；若命中 source 冲突信号，再继续回指 pack 中的 `cards / init / planning truth`。
+- 正式审查前，必须至少读取同一轮锁定后的 `validation_fact_pack.cards_state_history_slice`、`chapter_planning_packet` 与当前正文；若命中 source 冲突信号，再继续回指 pack 中的 `cards / init / planning truth`。
 
 ## Invocation Modes
 
@@ -61,7 +61,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 判断正文是不是站在当前真源上自洽运转，而不是靠临场编借口、临时破例或规则失忆硬推过去。 |
-| `business_object` | `cards_state_history_slice`、`chapter_board`、当前正文，以及必要时的 `init/cards/planning truth`。 |
+| `business_object` | `cards_state_history_slice`、`chapter_planning_packet`、当前正文，以及必要时的 `init/cards/planning truth`。 |
 | `constraint_profile` | 必须区分“正文逻辑错”与“source truth 自己冲突”；必须区分“合理例外”与“只为剧情开洞”；时间线问题要路由给 `时间线`，不要在本维度越权吞并。 |
 | `success_criteria` | 能明确指出因果断点、状态冲突点、世界规则越界点、例外代价缺口、社会生态失衡点与 source owner。 |
 | `non_goals` | 不评价文风好不好，不补写剧情，不代替 `时间线/连续性/结构兑现` 做它们的主维度裁决。 |
@@ -73,7 +73,7 @@ governance_tier: lite
 
 - 必需输入：
   - `validation_fact_pack.cards_state_history_slice`
-  - `validation_fact_pack.chapter_board`
+  - `validation_fact_pack.chapter_planning_packet`
   - 当前卷正文集合或命中的受审章节集合
 - 条件必需输入：
   - 本轮 pack 中能解释世界规则、角色能力、资源约束的 `init/cards/planning truth`
@@ -150,7 +150,7 @@ graph LR
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-PACK-LOCK` | `FIELD-LSC-01` | 锁本轮事实边界 | 读取 `cards_state_history_slice + chapter_board + manuscript`，必要时补取 `init/cards/planning truth` | `pack_lock_note` | -> `N2` | 同轮事实边界清楚 |
+| `N1-PACK-LOCK` | `FIELD-LSC-01` | 锁本轮事实边界 | 读取 `cards_state_history_slice + chapter_planning_packet + manuscript`，必要时补取 `init/cards/planning truth` | `pack_lock_note` | -> `N2` | 同轮事实边界清楚 |
 | `N2-PILLAR-CHECK` | `FIELD-LSC-02` | 完成三支柱自洽核查 | 逐项检查世界铁律、力量体系、社会生态是否只在需要时生效 | `pillar_check_note` | -> `N3` | 已识别主失效类型 |
 | `N3-EXCEPTION-COST-GATE` | `FIELD-LSC-03` | 检查设定破例是否合法 | 逐条核对“触发条件 / 代价 / 先例或解释” | `exception_gate_note` | -> `N4` | 破例不再裸奔 |
 | `N4-SOURCE-TRACE` | `FIELD-LSC-04` | 区分正文问题与源层冲突 | 标记 `source_layer_owner`，决定回 drafting 还是上溯 source contract | `source_trace_note` | -> `N5` | 返工 owner 明确 |

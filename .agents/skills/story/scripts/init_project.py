@@ -29,7 +29,7 @@ import re
 # 安全修复：导入安全工具函数
 from security_utils import atomic_write_json
 from project_locator import write_current_project_pointer
-from data_modules.type_pack_resolver import infer_type_stack
+from workflow_manager import build_initial_execution_state, build_initial_workflow_state
 
 
 RUNTIME_STATE_REL = Path("STATE.json")
@@ -49,6 +49,31 @@ PRODUCTION_SKILL_PATHS = [
 REVIEW_SKILL_PATHS = [
     ".agents/skills/story/4-Validation",
     ".agents/skills/story/review",
+]
+PROJECT_SKELETON_DIRS = [
+    "Story",
+    "CONTEXT",
+    "0-Init",
+    "1-Cards/0-全局卡/总设定",
+    "1-Cards/1-风格卡/总风格",
+    "1-Cards/2-角色卡/主要角色",
+    "1-Cards/2-角色卡/次要角色",
+    "1-Cards/2-角色卡/反派角色",
+    "1-Cards/2-角色卡/群像角色",
+    "1-Cards/3-场景卡/室内",
+    "1-Cards/3-场景卡/室外",
+    "1-Cards/3-场景卡/自然",
+    "1-Cards/3-场景卡/超现实",
+    "1-Cards/4-物品卡/武器装备",
+    "1-Cards/4-物品卡/线索物品",
+    "1-Cards/4-物品卡/重要叙事物品",
+    "1-Cards/4-物品卡/文物",
+    "1-Cards/4-物品卡/点缀物",
+    "1-Cards/5-类型卡/总题材",
+    "2-Planning",
+    "3-Drafting",
+    "4-Validation",
+    "5-Loopback",
 ]
 TEAM_ROLE_SPECS = {
     "planning": {
@@ -257,54 +282,6 @@ def _apply_label_replacements(text: str, replacements: Dict[str, str]) -> str:
     return "\n".join(lines)
 
 
-def infer_type_stack_defaults(
-    *,
-    genre: str,
-    platform: str,
-    target_reader: str,
-) -> Dict[str, Any]:
-    result = infer_type_stack(
-        genre=genre,
-        platform=platform,
-        target_reader=target_reader,
-    )
-    result["resolver_ref"] = ".agents/skills/story/_shared/type-pack-loading-contract.md"
-    notes = list(result.get("notes") or [])
-    if "auto-inferred by 0-Init" not in notes:
-        notes.append("auto-inferred by 0-Init")
-    result["notes"] = notes
-    return result
-
-
-def _apply_type_stack_overrides(
-    *,
-    base_stack: Dict[str, Any],
-    method_kernel: str = "",
-    primary: str = "",
-    secondary: str = "",
-    platform: str = "",
-    audience: str = "",
-    notes: str = "",
-) -> Dict[str, Any]:
-    result = dict(base_stack)
-    if method_kernel.strip():
-        result["method_kernel"] = method_kernel.strip()
-    if primary.strip():
-        result["primary"] = primary.strip()
-    if secondary.strip():
-        result["secondary"] = _split_list_values(secondary)
-    if platform.strip():
-        result["platform"] = _split_list_values(platform)
-    if audience.strip():
-        result["audience"] = _split_list_values(audience)
-    extra_notes = _split_list_values(notes)
-    if extra_notes:
-        result["notes"] = list(result.get("notes") or []) + extra_notes
-    if any(token.strip() for token in (method_kernel, primary, secondary, platform, audience, notes)):
-        result["inferred"] = False
-    return result
-
-
 def _parse_tier_map(raw: str) -> Dict[str, str]:
     result: Dict[str, str] = {}
     if not raw:
@@ -485,11 +462,9 @@ def _ensure_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
 def _ensure_workflow_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(state, dict):
         state = {}
-    state.setdefault("schema_version", "2.0")
-    state.setdefault("updated_at", datetime.now().isoformat())
-    state.setdefault("current_task", None)
-    state.setdefault("last_stable_state", None)
-    state.setdefault("history", [])
+    base = build_initial_workflow_state()
+    for key, value in base.items():
+        state.setdefault(key, json.loads(json.dumps(value)) if isinstance(value, (list, dict)) else value)
     state["updated_at"] = datetime.now().isoformat()
     return state
 
@@ -497,45 +472,55 @@ def _ensure_workflow_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
 def _ensure_execution_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(state, dict):
         state = {}
+    base = build_initial_execution_state()
     stage_progress = state.get("stage_progress")
     if not isinstance(stage_progress, dict):
         stage_progress = {}
-    defaults = {
-        "0-init": "初始化",
-        "1-cards": "卡片层",
-        "2-planning": "规划层",
-        "3-drafting": "起草层",
-        "4-validation": "验证层",
-        "review": "审查层",
-        "5-loopback": "回写层",
-        "query": "查询层",
-        "resume": "恢复层",
-    }
-    for stage_id, label in defaults.items():
+    defaults = base.get("stage_progress", {})
+    for stage_id, default_snapshot in defaults.items():
         snapshot = stage_progress.get(stage_id)
         if not isinstance(snapshot, dict):
             snapshot = {}
-        snapshot.setdefault("stage_label", label)
-        snapshot.setdefault("status", "idle")
-        snapshot.setdefault("latest_run_id", None)
-        snapshot.setdefault("latest_command", None)
-        snapshot.setdefault("current_step", None)
-        snapshot.setdefault("resume_ready", False)
-        snapshot.setdefault("last_started_at", None)
-        snapshot.setdefault("last_completed_at", None)
-        snapshot.setdefault("last_failed_at", None)
-        snapshot.setdefault("last_cleared_at", None)
+        for key, value in default_snapshot.items():
+            snapshot.setdefault(key, value)
         stage_progress[stage_id] = snapshot
     state["stage_progress"] = stage_progress
-    state.setdefault("schema_version", "1.0")
-    state.setdefault("updated_at", datetime.now().isoformat())
-    state.setdefault("active_run_id", None)
-    state.setdefault("run_sequence", 0)
-    state.setdefault("latest_resume_point", None)
-    state.setdefault("runs", [])
-    state.setdefault("artifacts_index", {})
+    for key, value in base.items():
+        if key == "stage_progress":
+            continue
+        state.setdefault(key, json.loads(json.dumps(value)) if isinstance(value, (list, dict)) else value)
     state["updated_at"] = datetime.now().isoformat()
     return state
+
+
+def _sync_init_stage_progress(execution_state: Dict[str, Any], *, completed_at: str) -> None:
+    stage_progress = execution_state.setdefault("stage_progress", {})
+    if not isinstance(stage_progress, dict):
+        stage_progress = {}
+        execution_state["stage_progress"] = stage_progress
+
+    snapshot = stage_progress.setdefault(
+        "0-init",
+        {
+            "stage_label": "初始化",
+            "status": "idle",
+            "latest_run_id": None,
+            "latest_command": None,
+            "latest_governance_refs": None,
+            "current_step": None,
+            "resume_ready": False,
+            "last_started_at": None,
+            "last_completed_at": None,
+            "last_failed_at": None,
+            "last_cleared_at": None,
+        },
+    )
+    snapshot["stage_label"] = "初始化"
+    snapshot["status"] = "completed"
+    snapshot["latest_command"] = "story-init"
+    snapshot["current_step"] = None
+    snapshot["resume_ready"] = False
+    snapshot["last_completed_at"] = completed_at
 
 
 def _append_task_log_if_missing(log_path: Path, row: Dict[str, Any]) -> None:
@@ -551,7 +536,7 @@ def _build_master_outline(target_chapters: int, *, chapters_per_volume: int = 50
     lines: list[str] = [
         "# 总纲",
         "",
-        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-Planning/全息地图.json。",
+        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-Planning/整体规划.md，并继续展开到 第N卷/卷规划.md 与 第N卷/第N章.md。",
         "",
         "## 卷结构",
         "",
@@ -715,7 +700,6 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
     story_engine = payload["planning_seed"]["story_engine"]
     world_seed = payload["cards_seed"]["global_seed"]
     north_star_inputs = payload.get("north_star_inputs", {})
-    type_stack = payload.get("type_stack") or {}
     macro_factions = _split_list_values(world_seed.get("factions", ""))
     rule_system = [
         {"label": "力量体系", "value": world_seed["power_system_type"]},
@@ -819,7 +803,6 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
             "target_reader": creative["target_reader"],
             "platform": creative["platform"],
         },
-        "type_stack": type_stack,
         "story_kernel": {
             "premise": creative["one_liner"],
             "opening_hook": promise["opening_hook"],
@@ -1040,12 +1023,6 @@ def _build_init_handoff_payload(
     must_keep: str,
     must_not_do: str,
     no_fly_zones: str,
-    type_pack_method_kernel: str,
-    type_pack_primary: str,
-    type_pack_secondary: str,
-    type_pack_platform: str,
-    type_pack_audience: str,
-    type_pack_notes: str,
     now_iso: str,
 ) -> Dict[str, Any]:
     normalized_mode = _normalize_init_mode(init_mode)
@@ -1115,20 +1092,6 @@ def _build_init_handoff_payload(
         "core_selling_points": _split_list_values(core_selling_points),
         "opening_hook": opening_hook,
     }
-    type_stack = _apply_type_stack_overrides(
-        base_stack=infer_type_stack_defaults(
-        genre=genre,
-        platform=platform,
-        target_reader=target_reader,
-        ),
-        method_kernel=type_pack_method_kernel,
-        primary=type_pack_primary,
-        secondary=type_pack_secondary,
-        platform=type_pack_platform,
-        audience=type_pack_audience,
-        notes=type_pack_notes,
-    )
-
     payload = {
         "schema_version": "story2026/init-handoff/v2",
         "meta": {
@@ -1157,7 +1120,6 @@ def _build_init_handoff_payload(
                 "team_setup": team_setup,
                 "mode_source": normalized_mode_source,
             },
-            "type_stack": type_stack,
             "promise_surface": {
                 "core_selling_points": legacy_constraints["core_selling_points"],
                 "anti_trope": anti_trope,
@@ -1216,7 +1178,6 @@ def _build_init_handoff_payload(
                 "hard_constraints": normalized_hard_constraints,
                 "core_selling_points": legacy_constraints["core_selling_points"],
             },
-            "type_stack": type_stack,
         },
         "unknowns": {
             "unresolved_questions": [],
@@ -1245,7 +1206,6 @@ def _build_init_handoff_payload(
             "must_not_do": _split_list_values(must_not_do),
             "no_fly_zones": _split_list_values(no_fly_zones),
         },
-        "type_stack": type_stack,
         # legacy mirror: 保留一层兼容字段，避免老合同与新 handoff 一次断裂
         "project": legacy_project,
         "protagonist": legacy_protagonist,
@@ -1404,7 +1364,7 @@ def _build_project_state_manifest(
             "project_entry": str(PROJECT_STATE_MANIFEST_REL),
             "runtime_snapshot": str(RUNTIME_STATE_REL),
             "object_truth": "1-Cards/**/*.json",
-            "planning_truth": "2-Planning/全息地图.json",
+            "planning_truth": "2-Planning/整体规划.md",
         },
     }
 
@@ -1554,6 +1514,7 @@ def _render_changelog(title: str, now: str) -> str:
                 "### Added",
                 f"- 初始化项目骨架：{title}",
                 "- 建立 `STATE.json`、`team.yaml`、`CHANGELOG.md` 标准配置。",
+                "- 创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。",
                 "- 写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。",
                 "",
             ]
@@ -1628,41 +1589,12 @@ def init_project(
     must_keep: str = "",
     must_not_do: str = "",
     no_fly_zones: str = "",
-    type_pack_method_kernel: str = "",
-    type_pack_primary: str = "",
-    type_pack_secondary: str = "",
-    type_pack_platform: str = "",
-    type_pack_audience: str = "",
-    type_pack_notes: str = "",
 ) -> None:
     project_path = _resolve_project_path(project_dir, title)
     project_path.mkdir(parents=True, exist_ok=True)
 
-    # 目录结构：内容输出统一进入 stage 目录；初始化真源对齐到根五文件
-    directories = [
-        "0-Init",
-        "1-Cards/0-全局卡/总设定",
-        "1-Cards/1-风格卡/总风格",
-        "1-Cards/2-角色卡/主要角色",
-        "1-Cards/2-角色卡/次要角色",
-        "1-Cards/2-角色卡/反派角色",
-        "1-Cards/2-角色卡/群像角色",
-        "1-Cards/3-场景卡/室内",
-        "1-Cards/3-场景卡/室外",
-        "1-Cards/3-场景卡/自然",
-        "1-Cards/3-场景卡/超现实",
-        "1-Cards/4-物品卡/武器装备",
-        "1-Cards/4-物品卡/线索物品",
-        "1-Cards/4-物品卡/重要叙事物品",
-        "1-Cards/4-物品卡/文物",
-        "1-Cards/4-物品卡/点缀物",
-        "1-Cards/4-物品卡",
-        "2-Planning",
-        "3-Drafting",
-        "4-Validation",
-        "5-Loopback",
-    ]
-    for dir_path in directories:
+    # 目录结构：初始化即预建当前阶段树要求的 source/stage roots，避免下游仍按旧骨架猜目录。
+    for dir_path in PROJECT_SKELETON_DIRS:
         (project_path / dir_path).mkdir(parents=True, exist_ok=True)
 
     # STATE.json（创建或增量补齐）
@@ -1714,10 +1646,17 @@ def init_project(
             "primary_init_artifact": "0-Init/north_star.yaml",
             "north_star_schema_version": "story2026/north-star/v1",
             "story_source_manifest_schema_version": "story2026-story-source/v1",
-            "init_handoff_schema_version": "story2026/init-handoff/v1",
+            "init_handoff_schema_version": "story2026/init-handoff/v2",
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
             "changelog_file": str(CHANGELOG_REL),
+            "story_source_root": "Story/",
+            "project_context_root": "CONTEXT/",
+            "cards_root": "1-Cards/",
+            "planning_root": "2-Planning/",
+            "drafting_root": "3-Drafting/",
+            "validation_root": "4-Validation/",
+            "loopback_root": "5-Loopback/",
             "one_liner": one_liner,
             "core_conflict": core_conflict,
             "anti_trope": anti_trope,
@@ -1783,6 +1722,14 @@ def init_project(
     }
     state["paths"] = {
         "runtime_state": str(RUNTIME_STATE_REL),
+        "story_root": "Story/",
+        "context_root": "CONTEXT/",
+        "init_root": "0-Init/",
+        "cards_root": "1-Cards/",
+        "planning_root": "2-Planning/",
+        "drafting_root": "3-Drafting/",
+        "validation_root": "4-Validation/",
+        "loopback_root": "5-Loopback/",
         "north_star": "0-Init/north_star.yaml",
         "story_source_manifest": "0-Init/story-source-manifest.yaml",
         "init_handoff": "0-Init/init_handoff.yaml",
@@ -1801,15 +1748,14 @@ def init_project(
     ]
     state["user_action_items"] = [
         "如有正文、大纲或设定主源，请补入项目 `Story/` 后回刷 `0-Init/story-source-manifest.yaml`。",
+        "如有贯穿整个创作阶段的共享附加上下文，请补入项目 `CONTEXT/`。",
         "进入 `1-Cards` 建立角色、场景、物品 cards 真源。",
     ]
     state["notes"] = []
-    state["workflow_runtime"] = {
-        "workflow_state": {},
-        "execution_state": {},
-        "task_log": [],
-        "governance_index": {},
-    }
+    workflow_runtime = state.get("workflow_runtime")
+    if not isinstance(workflow_runtime, dict):
+        workflow_runtime = {}
+        state["workflow_runtime"] = workflow_runtime
 
     if protagonist_name:
         state["protagonist_state"]["name"] = protagonist_name
@@ -1831,13 +1777,17 @@ def init_project(
     # 使用原子化写入（初始化不需要备份旧文件）
     atomic_write_json(state_path, state, use_lock=True, backup=False)
 
+    init_now = datetime.now()
+    now = init_now.strftime("%Y-%m-%d")
+    now_iso = init_now.isoformat()
+
     workflow_state = _ensure_workflow_state_schema(state.get("workflow_runtime", {}).get("workflow_state", {}))
     execution_state = _ensure_execution_state_schema(state.get("workflow_runtime", {}).get("execution_state", {}))
     task_log: List[Dict[str, Any]] = state.get("workflow_runtime", {}).get("task_log", [])
     if not isinstance(task_log, list):
         task_log = []
     init_task_row = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": now_iso,
         "event": "project_initialized",
         "payload": {
             "title": title,
@@ -1863,16 +1813,14 @@ def init_project(
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
             "changelog_file": str(CHANGELOG_REL),
+            "project_context_root": "CONTEXT/",
             "one_liner": one_liner,
             "core_conflict": core_conflict,
         },
     }
-    if not task_log:
-        task_log.append(init_task_row)
+    task_log.append(init_task_row if not task_log else {**init_task_row, "event": "project_reinitialized"})
 
-    init_now = datetime.now()
-    now = init_now.strftime("%Y-%m-%d")
-    now_iso = init_now.isoformat()
+    _sync_init_stage_progress(execution_state, completed_at=now_iso)
 
     init_payload = _build_init_handoff_payload(
         init_mode=normalized_init_mode,
@@ -1938,12 +1886,6 @@ def init_project(
         must_keep=must_keep,
         must_not_do=must_not_do,
         no_fly_zones=no_fly_zones,
-        type_pack_method_kernel=type_pack_method_kernel,
-        type_pack_primary=type_pack_primary,
-        type_pack_secondary=type_pack_secondary,
-        type_pack_platform=type_pack_platform,
-        type_pack_audience=type_pack_audience,
-        type_pack_notes=type_pack_notes,
         now_iso=now_iso,
     )
     north_star_payload = _build_north_star_contract(init_payload)
@@ -2006,12 +1948,14 @@ def init_project(
     print(" - 0-Init/story-source-manifest.yaml")
     print(" - 0-Init/init_handoff.yaml")
     print("Generated directories:")
+    print(" - Story/")
+    print(" - CONTEXT/")
     print(" - 1-Cards/")
     print(" - 2-Planning/")
     print(" - 3-Drafting/")
     print(" - 4-Validation/")
     print(" - 5-Loopback/")
-    print("2-Planning/全息地图.json is not created during /story-init; generate it via /story-plan.")
+    print("2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 
 
@@ -2077,12 +2021,6 @@ def main() -> None:
     parser.add_argument("--must-keep", default="", help="IP 边界：必须保留项，逗号分隔")
     parser.add_argument("--must-not-do", default="", help="IP 边界：禁止做的事，逗号分隔")
     parser.add_argument("--no-fly-zones", default="", help="读者承诺：禁飞区，逗号分隔")
-    parser.add_argument("--type-pack-method-kernel", default="", help="显式指定 type-pack 方法核")
-    parser.add_argument("--type-pack-primary", default="", help="显式指定 primary type-pack")
-    parser.add_argument("--type-pack-secondary", default="", help="显式指定 secondary type-packs，逗号分隔")
-    parser.add_argument("--type-pack-platform", default="", help="显式指定 platform type-packs，逗号分隔")
-    parser.add_argument("--type-pack-audience", default="", help="显式指定 audience type-packs，逗号分隔")
-    parser.add_argument("--type-pack-notes", default="", help="type-pack 备注，逗号分隔")
 
     # 初始化扩展字段（统一 team 代入模式下均可预填）
     parser.add_argument("--protagonist-desire", default="", help="主角核心欲望（初始化扩展字段）")
@@ -2162,12 +2100,6 @@ def main() -> None:
         must_keep=args.must_keep,
         must_not_do=args.must_not_do,
         no_fly_zones=args.no_fly_zones,
-        type_pack_method_kernel=args.type_pack_method_kernel,
-        type_pack_primary=args.type_pack_primary,
-        type_pack_secondary=args.type_pack_secondary,
-        type_pack_platform=args.type_pack_platform,
-        type_pack_audience=args.type_pack_audience,
-        type_pack_notes=args.type_pack_notes,
     )
 
 

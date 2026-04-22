@@ -19,10 +19,10 @@ import yaml
 
 from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio
-from data_modules.type_pack_resolver import resolve_type_pack_profile
 
 
 GLOBAL_INDEX_REL = Path("1-Cards") / "0-全局卡" / "全局索引.json"
+TYPE_INDEX_REL = Path("1-Cards") / "5-类型卡" / "类型索引.json"
 STYLE_INDEX_REL = Path("1-Cards") / "1-风格卡" / "风格索引.json"
 CHARACTER_INDEX_REL = Path("1-Cards") / "2-角色卡" / "角色索引.json"
 CHARACTER_GRAPH_REL = Path("1-Cards") / "2-角色卡" / "角色关系图谱.md"
@@ -34,6 +34,9 @@ INIT_HANDOFF_REL = Path("0-Init") / "init_handoff.yaml"
 
 GLOBAL_BUCKETS = {
     "master_globals": Path("1-Cards") / "0-全局卡" / "总设定",
+}
+TYPE_BUCKETS = {
+    "master_types": Path("1-Cards") / "5-类型卡" / "总题材",
 }
 STYLE_BUCKETS = {
     "global_styles": Path("1-Cards") / "1-风格卡" / "总风格",
@@ -70,6 +73,18 @@ TRACE_SPECS = {
             "全局卡/CONTEXT.md",
             "全局卡/templates/global-card.json",
             "全局卡/references/golden-finger-templates.md",
+        ],
+    },
+    "type": {
+        "source_skill_id": "story-cards-type",
+        "source_route": "0-Init > story-cards > 类型卡/SKILL.md",
+        "module_route": "story-cards > 类型卡/SKILL.md",
+        "loaded_references": [
+            "SKILL.md",
+            "CONTEXT.md",
+            "类型卡/SKILL.md",
+            "类型卡/CONTEXT.md",
+            "类型卡/templates/type-card.json",
         ],
     },
     "style": {
@@ -225,17 +240,8 @@ def _load_upstream_truth(project_root: Path) -> Dict[str, Dict[str, Any]]:
 def _infer_profile(
     info: Dict[str, Any],
     upstream_truth: Dict[str, Dict[str, Any]],
-    type_pack_profile: Dict[str, Any],
 ) -> Dict[str, Any]:
     north_star = _safe_dict(upstream_truth.get("north_star"))
-    type_stack = _safe_dict(north_star.get("type_stack"))
-    type_pack_profile = _safe_dict(type_pack_profile)
-    semantic_tags = {
-        str(item).strip()
-        for item in _safe_list(type_pack_profile.get("semantic_tags"))
-        if str(item).strip()
-    }
-    cards_projection = _safe_dict(type_pack_profile.get("cards_projection"))
     project_identity = _safe_dict(north_star.get("project_identity"))
     story_kernel = _safe_dict(north_star.get("story_kernel"))
     reader_promise = _safe_dict(north_star.get("reader_promise"))
@@ -360,37 +366,9 @@ def _infer_profile(
     elif rule_rigidity == "medium":
         scene_link_min = max(scene_link_min, 3)
 
-    if "rules-mystery" in semantic_tags:
-        clue_min = max(clue_min, 2)
-        rule_rigidity = "strong"
-        scene_link_min = max(scene_link_min, 4)
-    if "female-emotion-suspense" in semantic_tags:
-        relationship_min += 1
-    if "urban-revenge" in semantic_tags:
-        relationship_min += 1
-        item_total_min += 1
-    if "upgrade-fantasy" in semantic_tags:
-        weapons_min = max(weapons_min, 1)
-        narrative_min = max(narrative_min, 1)
-
-    relationship_min += max(0, int(cards_projection.get("relationship_min_boost") or 0))
-    clue_min += max(0, int(cards_projection.get("clue_min_boost") or 0))
-    scene_link_min += max(0, int(cards_projection.get("scene_link_min_boost") or 0))
-    item_total_min += max(0, int(cards_projection.get("item_total_min_boost") or 0))
-    weapons_min += max(0, int(cards_projection.get("weapons_min_boost") or 0))
-    narrative_min += max(0, int(cards_projection.get("narrative_min_boost") or 0))
-    rigidity_floor = str(cards_projection.get("rule_rigidity_floor") or "").strip()
-    if rigidity_floor == "strong":
-        rule_rigidity = "strong"
-    elif rigidity_floor == "medium" and rule_rigidity == "weak":
-        rule_rigidity = "medium"
-
     return {
         "target_chapters": chapters,
         "span": span,
-        "type_stack": type_stack,
-        "active_packs": list(type_pack_profile.get("active_packs") or []),
-        "semantic_tags": sorted(semantic_tags),
         "rule_rigidity": rule_rigidity,
         "protagonist_min": protagonist_min,
         "antagonist_min": antagonist_min,
@@ -476,6 +454,8 @@ def _validate_card_payloads(
     schema_key = f"{card_kind}_card"
     if card_kind == "style":
         schema_prefix = "story2026/cards/style/v1"
+    elif card_kind == "type":
+        schema_prefix = "story2026/cards/type/v1"
     elif card_kind == "global":
         schema_prefix = "story2026/cards/global/v1"
     else:
@@ -541,6 +521,7 @@ def _validate_card_payloads(
                 worldview = _safe_dict(core.get("worldview"))
                 era_constraints = _safe_dict(core.get("era_constraints"))
                 culture_and_arts = _safe_dict(core.get("culture_and_arts"))
+                faction_topology = _safe_dict(core.get("faction_topology"))
                 power_or_technology = _safe_dict(core.get("power_or_technology"))
                 golden_finger = _safe_dict(core.get("golden_finger"))
                 if not _has_material(identity.get("name")):
@@ -553,10 +534,24 @@ def _validate_card_payloads(
                     _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `era_constraints`。")
                 if not _has_material(culture_and_arts):
                     _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `culture_and_arts`。")
+                if not _has_material(faction_topology):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `faction_topology`。")
                 if not _has_material(power_or_technology):
                     _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `power_or_technology`。")
                 if not _has_material(golden_finger):
                     _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `golden_finger`。")
+            elif card_kind == "type":
+                identity = _safe_dict(core.get("identity"))
+                story_promise = _safe_dict(core.get("story_promise"))
+                genre_corridor = _safe_dict(core.get("genre_corridor"))
+                if not _has_material(identity.get("name")):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少类型卡名。")
+                if not _has_material(story_promise):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `story_promise`。")
+                if not _has_material(genre_corridor):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `genre_corridor`。")
+                if not _has_material(core.get("navigation_rules")):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `navigation_rules`。")
             elif card_kind == "character":
                 identity = _safe_dict(core.get("identity"))
                 cast_markers = _safe_dict(core.get("cast_markers"))
@@ -744,6 +739,70 @@ def _validate_styles(project_root: Path, upstream_truth: Dict[str, Dict[str, Any
         "requirements": {
             "total_count": 1,
             "style_contract_refs": 1,
+        },
+        "blocking_findings": issues,
+        "advisory_findings": warnings,
+        "trace": trace,
+    }
+
+
+def _validate_types(project_root: Path) -> Dict[str, Any]:
+    refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, TYPE_INDEX_REL, TYPE_BUCKETS)
+    content = _safe_dict(payload.get("content"))
+    planning_projection_refs = _safe_list(content.get("planning_projection_refs"))
+    counts = {bucket: len(refs) for bucket, refs in refs_by_bucket.items()}
+    total_count = sum(counts.values())
+    issues: List[Dict[str, str]] = []
+    warnings: List[Dict[str, str]] = []
+
+    if total_count < 1:
+        _append_issue(warnings, "advisory", "WARN-CARDS-TYPE-TOTAL", "当前项目尚未生成正式类型卡；planning 将回退到上游初始化真源。")
+
+    if total_count < 1 and not payload:
+        return {
+            "ok": True,
+            "counts": counts,
+            "total_count": total_count,
+            "planning_projection_refs": len(planning_projection_refs),
+            "requirements": {
+                "total_count": "recommended>=1",
+                "planning_projection_refs": "required_when_present",
+            },
+            "blocking_findings": issues,
+            "advisory_findings": warnings,
+            "trace": {
+                "module_route": "",
+                "loaded_references": [],
+                "writeback_plan": {},
+            },
+        }
+
+    if total_count > 0 and not planning_projection_refs:
+        _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-REFS", "缺少 `planning_projection_refs`，planning 无法稳定导入类型方向盘。")
+
+    trace = _validate_trace_fields(
+        content,
+        expected_trace=TRACE_SPECS["type"],
+        issues=issues,
+        route_code="FAIL-CARDS-TYPE-ROUTE",
+        refs_code="FAIL-CARDS-TYPE-TRACE",
+        writeback_code="FAIL-CARDS-TYPE-WRITEBACK",
+    )
+
+    missing_refs = {bucket: refs for bucket, refs in missing_by_bucket.items() if refs}
+    if missing_refs:
+        _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-MISSING-REFS", f"类型索引存在失效引用：{missing_refs}")
+    if total_count > 0:
+        _validate_card_payloads(project_root=project_root, refs_by_bucket=refs_by_bucket, issues=issues, card_kind="type")
+
+    return {
+        "ok": not issues,
+        "counts": counts,
+        "total_count": total_count,
+        "planning_projection_refs": len(planning_projection_refs),
+        "requirements": {
+            "total_count": "recommended>=1",
+            "planning_projection_refs": "required_when_present",
         },
         "blocking_findings": issues,
         "advisory_findings": warnings,
@@ -947,11 +1006,11 @@ def _validate_items(project_root: Path, profile: Dict[str, Any]) -> Dict[str, An
 def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
     info = _project_info(project_root)
     upstream_truth = _load_upstream_truth(project_root)
-    type_pack_profile = resolve_type_pack_profile(project_root)
-    profile = _infer_profile(info, upstream_truth, type_pack_profile)
+    profile = _infer_profile(info, upstream_truth)
 
     sections = {
         "globals": _validate_globals(project_root, upstream_truth),
+        "types": _validate_types(project_root),
         "styles": _validate_styles(project_root, upstream_truth),
         "characters": _validate_characters(project_root, profile),
         "scenes": _validate_scenes(project_root, profile),
@@ -978,11 +1037,6 @@ def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
         "upstream_truth": {
             "north_star_loaded": bool(upstream_truth["north_star"]),
             "init_handoff_loaded": bool(upstream_truth["init_handoff"]),
-            "type_stack": _safe_dict(_safe_dict(upstream_truth["north_star"]).get("type_stack")),
-            "type_pack_profile": {
-                "active_packs": list(type_pack_profile.get("active_packs") or []),
-                "semantic_tags": list(type_pack_profile.get("semantic_tags") or []),
-            },
         },
         "sections": sections,
         "blocking_findings": blocking_findings,

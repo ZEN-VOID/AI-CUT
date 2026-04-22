@@ -18,7 +18,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 时间顺序错，但报告没有证据锚点 | time anchor read | 回到 `chapter_board` 的时间锚重新比对 | 时间线 issue 必须回指锚点或时序句 | 返工不再停留在“感觉不对” |
+| 时间顺序错，但报告没有证据锚点 | time anchor read | 回到 `chapter_planning_packet` 的时间锚重新比对 | 时间线 issue 必须回指锚点或时序句 | 返工不再停留在“感觉不对” |
 | 伏笔提前揭晓，被漏判成普通逻辑问题 | silence window check | 单独标成 `spoiler_risk` | 在维度输出中固定保留 `spoiler_risk` | 父层可直接聚合剧透风险 |
 | 时长不合理和节奏过快被混为一谈 | boundary split | 先区分时间物理矛盾与阅读速度问题 | 时间线维度只抓可回指的时序/时长冲突 | `时间线` 与 `连续性/节奏` 边界更清楚 |
 

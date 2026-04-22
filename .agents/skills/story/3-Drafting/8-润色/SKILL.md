@@ -88,7 +88,7 @@ governance_tier: lite
 
 - 本 child 在正式 runtime 中只占据 `start-step -> complete-step -> inline validation` 这一个 step 区段；整条链由父层按 `start-task -> start-step -> complete-step -> inline validation -> pass or block` 驱动。
 - 当前 step 写回后，父层必须立刻按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
-- 只有当前 gate 明确 `pass`，本集才获得 `candidate_final_draft`；这仍不等于最终 PASS。
+- 只有当前 gate 明确 `pass`，且正文同时通过 `scripts/drafting_manuscript_guard.py` 的 `chapter-complete manuscript` 守门，本集才获得 `candidate_final_draft`；这仍不等于最终 PASS。
 - 若 hook 失败且 `rework_target_step == Step 8`，必须留在 Step 8 重写并重跑 gate。
 - 若 hook 指向更早受影响 drafting step 或上游 `source_layer_owner`，必须按 shared contract 回卷或停止 drafting 转 source fix；不得把 block 态伪装成“已自然进入 4-Validation”。
 

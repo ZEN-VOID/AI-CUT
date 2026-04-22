@@ -26,7 +26,9 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 项目根目录/
 ├── 3-Drafting/         # drafting 阶段正文真源（第N集.md + 第V卷.写作日志.yaml）
 ├── 2-Planning/legacy/           # 卷纲/章纲（legacy fallback）
-├── 2-Planning/全息地图.json  # 规划真源
+├── 2-Planning/整体规划.md    # 规划真源（整书）
+├── 2-Planning/第1卷/卷规划.md # 规划真源（当前卷）
+├── 2-Planning/第1卷/第1章.md  # 规划真源（当前章）
 ├── 0-Init/        # north_star.yaml / story-source-manifest.yaml / init_handoff.yaml
 ├── 1-Cards/         # 世界观/力量体系/角色卡
 └── .webnovel/
@@ -40,7 +42,7 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 
 ### 当前结构核心变化
 - **八道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-心理活动 -> 7-追读力强化 -> 8-润色`
-- **规划入口切换**: drafting/query/resume 默认先读 `2-Planning/全息地图.json`
+- **规划入口切换**: drafting/query/resume 默认先读 `整体规划.md + 当前卷/卷规划.md + 当前章.md`
 - **无 XML 标签**: 纯正文写作，Data Agent AI 自动提取实体
 - **SQLite 存储**: entities/aliases/state_changes 迁移到 index.db
 - **STATE.json 精简**: 保持 < 5KB，主要包含 progress/protagonist_state/strand_tracker/disambiguation

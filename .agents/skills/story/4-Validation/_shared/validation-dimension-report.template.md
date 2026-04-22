@@ -37,6 +37,8 @@ report_ref: "4-Validation/第0集/<dimension>.md"
 ## 证据回指
 
 - `manuscript_ref`
+- `planning_global_ref`
+- `planning_volume_ref`
 - `planning_ref`
 - `cards_ref`
 - `validation_fact_pack_ref`

@@ -44,7 +44,7 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 让内心活动读起来像人物当场正在承受的心理运动，而不是事后总结、主题点评或 AI 味解释。 |
-| `business_object` | Step 5 后正文、当前 POV 焦点、角色卡与关系压力上下文，以及当前项目的 `type-pack drafting projection`（若存在）。 |
+| `business_object` | Step 5 后正文、当前 POV 焦点、角色卡与关系压力上下文，以及当前项目的 `类型卡 / 题材走廊`（若存在）。 |
 | `constraint_profile` | 内心描写必须服从场面、人物和视角边界；不能上帝视角串评，不能把尚未发生的理解提前判完，不能把解释性心理旁白写成概念摘要；若场面核心压力来自羞耻、欲望、恐惧、禁忌或职业伦理，必须写出至少一层身体或行动影子。 |
 | `success_criteria` | 读者能感到人物“此刻怎么被这件事压到、拉住、诱发或刺痛”，并能分清这是人物自己在经历，而不是作者替人物说明；复杂心理不再只剩抽象词，而有触发点、身体信号与未说出口的判断。 |
 | `topology_fit` | `root reread -> POV lock -> pressure typing -> inner-motion scan -> embodiment rewrite -> commentary guard -> packet write` |
@@ -72,7 +72,7 @@ governance_tier: lite
 - `process_log_entry`
   - `step_id: 6`
   - `focus_dimension: inner_life`
-  - 若启用 `type-pack`，必须补 `type_pack_rules_applied`
+  - 若存在明确 `类型卡`，必须补 `type_card_rules_applied`
   - 若启用成长系统，优先补 `growth_axis_evidence`
 - owned manuscript dimension：
   - POV 锚定

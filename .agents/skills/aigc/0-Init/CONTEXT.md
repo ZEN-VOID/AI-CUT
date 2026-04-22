@@ -25,7 +25,7 @@
 | 初始化项目根漏建 `CHANGELOG.md`，导致后续项目级时间序记录没有统一入口 | project-root trace carrier 层 | 在 `N2-runtime-bootstrap` 同步创建项目根 `CHANGELOG.md` | 将 `CHANGELOG.md` 上收到 `_shared/project-runtime-layout.md`，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查 | 新项目初始化后项目根默认具备时间序记录入口，但 query/resume 仍不会把它误当治理真源 |
 | `STATE.json`、`route-plan.yaml` 与 `init_handoff/governance-state` 给出不同下一步 | 阶段入口同步层 | 先以 `STATE.json` 的 live route truth 为主，初始化当轮再要求 `init_handoff.project_contract.recommended_next_stage` 对齐 | 在 `Stage Entry Ownership Contract` 与治理回填脚本中固定 authority order | 读取项目当前入口时，只会从 `project_state/governance-state` 得到一个主入口 |
 | 项目进入规划前没有故事主源登记 | 共享输入真源层 | 固定生成 `story-source-manifest.yaml`，区分 `primary_story_source` 与 `development_briefs` | 将故事源落点与缺失提示上收到 `_shared/story-source-contract.md` | 初始化完成后，能立刻判断 `1-分集` 是否具备增量进入条件与整季完成条件 |
-| 续跑与状态查询无法稳定重建断点 | 项目治理快照层 | 在需要时生成 `governance-state.yaml` | 用 shared template 固定 `last_stable_checkpoint + resume_contract + artifact_status` | `query / resume / review` 能从同一份结构化快照读取断点与缺口 |
+| 续跑与状态查询无法稳定重建断点 | 项目治理快照层 | 在需要时生成 `governance-state.yaml` | 用 shared template 固定 `last_stable_checkpoint + resume_contract + artifact_status` | `query / resume` 与根 `aigc` 的高风险治理 gate 能从同一份结构化快照读取断点与缺口 |
 | 创作起盘被整套治理工件压得过重 | 初始化分层合同 | 把首次必出收敛到 `north_star / init_handoff / story-source-manifest / team / project_state` | 将 `governance-state + harness carriers` 改为惰性生成 | 首次初始化不再被非必要治理载体阻塞 |
 | 路由、模式执行、充分性检查散落在外部规则真源 | 源层编排层 | 将这些能力完全吸收到父 `SKILL.md` 的内部能力合同与节点网络 | 审计脚本反向约束 `0-Init` 不得再引用 `.codex/agents/aigc/初始组/*.md` | `0-Init` 能仅凭自身 `SKILL.md` 解释完整执行链 |
 | `north_star` 混入下一阶段建议或 `rebootstrap` 状态 | 字段真源分层层 | 把 live route truth 收回 `STATE.json / governance-state.yaml`，把初始化当轮 handoff 收回 `init_handoff.yaml` | 在模板与审计脚本同时禁止 `north_star` 出现 `stage_entry_contract / rebootstrap_status` | `north_star` 只剩长期约束，续跑状态只从 `project_state/governance-state` 读取 |
@@ -68,7 +68,7 @@
 - 影视初始化最容易过度下潜到设计或分镜细节；凡是会在下游阶段形成 canonical 的内容，都只应在这里保留 seed。
 - 当前仓库的初始化落点必须优先服从 `projects/aigc/<项目名>/`，而不是借用其他项目系的 state/layout。
 - 初始化阶段如果已经知道后续 runtime 分区，就应优先同时预落“阶段根目录 + active child skeleton”。
-- 项目根 `CHANGELOG.md` 最稳的定位是“时间序记录入口”，初始化就创建，但不参与 `query / resume / review` 的 live governance 判型。
+- 项目根 `CHANGELOG.md` 最稳的定位是“时间序记录入口”，初始化就创建，但不参与 `query / resume` 或根 `aigc` 高风险治理 gate 的 live governance 判型。
 - 只要某工件会被多个兄弟阶段长期共同消费，就不该继续挂在 `0-Init/` 名下；最稳的做法是提升到项目根。
 - 对长期维护的可执行技能目录，除 `SKILL.md + CONTEXT.md` 外，还应补齐 `agents/openai.yaml`。
 - 当自动组队只收到一个极简概念时，优先先组出最小 planning 顾问团，把高分叉问题压进 `unknowns`，不要伪造完整剧情 seed。

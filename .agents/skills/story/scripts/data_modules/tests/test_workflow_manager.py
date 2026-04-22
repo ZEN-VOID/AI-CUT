@@ -275,7 +275,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
             ]
         module.record_inline_validation("Step 4", validator["role_id"], json.dumps(payload, ensure_ascii=False))
 
-    module.start_step("Step 5", "对白个性化")
+    module.start_step("Step 5", "对白优化")
     state = module.load_state()
     assert state["current_task"]["current_step"] is None
     gate = state["current_task"]["inline_validation"]["blocking_gate"]
@@ -296,6 +296,44 @@ def test_story_write_complete_task_requires_candidate_final_draft(tmp_path, monk
     module.start_step("Step 1", "单集叙事起盘")
     module.complete_step("Step 1")
     _pass_all_active_inline_validators(module)
+    module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
+
+    state = module.load_state()
+    assert state["current_task"] is not None
+    assert state["current_task"]["status"] == module.TASK_STATUS_RUNNING
+
+
+def test_story_write_complete_task_blocks_short_manuscript(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    _seed_manuscript(
+        tmp_path,
+        18,
+        "---\n"
+        "episode_title: 测试章\n"
+        "rhythm_type: 势能式\n"
+        "planning_ref: 2-Planning/第1卷/第18章.md\n"
+        "---\n\n"
+        "# 第18集\n\n"
+        "这一集只是一个压缩剧情摘要，还没有展开成完整章节。\n",
+    )
+    planning_dir = tmp_path / "2-Planning" / "第1卷"
+    planning_dir.mkdir(parents=True, exist_ok=True)
+    (planning_dir / "第18章.md").write_text(
+        "对下章的直接推动：下一场风暴已压到门前\n",
+        encoding="utf-8",
+    )
+
+    module.start_task("story-write", {"chapter_num": 18})
+    state = module.load_state()
+    state["current_task"] = module._ensure_task_runtime_fields(state["current_task"])
+    state["current_task"]["candidate_final_state"]["status"] = module.CANDIDATE_FINAL_STATUS_READY
+    state["current_task"]["inline_validation"]["active_batch"] = None
+    state["current_task"]["inline_validation"]["blocking_gate"] = None
+    module.save_state(state)
+
     module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
 
     state = module.load_state()
@@ -497,14 +535,14 @@ def test_workflow_supports_non_drafting_stage_runs(tmp_path, monkeypatch):
     _seed_project_root(tmp_path)
 
     module.start_task("story-plan", {"chapter_num": None})
-    module.start_step("Step 1", "题材选型")
-    module.heartbeat("正在收敛题材走廊", 25)
+    module.start_step("Step 1", "章节规划")
+    module.heartbeat("正在锁章节容器", 25)
 
     state = module.load_state()
     execution_state = module.load_execution_state()
     current_task = state["current_task"]
     assert current_task["command"] == "story-plan"
-    assert current_task["current_step"]["progress_note"] == "正在收敛题材走廊"
+    assert current_task["current_step"]["progress_note"] == "正在锁章节容器"
     assert current_task["current_step"]["progress_percent"] == 25
     assert current_task["governance_refs"]["governance_bundle_ref"].startswith(
         "STATE.json#workflow_runtime.governance_index."
@@ -657,6 +695,28 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
                 "  next_step: 4-Validation",
+                "quality_gate_snapshot:",
+                "  checkpoint_stage: pre_validation",
+                "  review_mode: master-check-team",
+                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
+                "  reviewer_source: team-explicit",
+                "  reviewers:",
+                "    - 金庸",
+                "    - 徐克",
+                "  verdict: ready_for_validation",
+                "  next_action: 4-Validation",
+                "  representative_chapter_refs:",
+                "    - 1",
+                "  primary_issues: []",
+                "  priority_rework_targets: []",
+                "  cross_volume_upgrade_axes:",
+                "    - 保持卷级命运闭合",
+                "  guard_axes:",
+                "    anti_formula_progression: pass",
+                "    relationship_friction: pass",
+                "    spatial_separation: pass",
+                "    antagonist_face: pass",
+                "    volume_closure: pass",
             ]
         )
         + "\n",
@@ -669,6 +729,131 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
     assert interrupt["detection_mode"] == "artifact_fallback"
     assert interrupt["command"] == "story-validate"
     assert interrupt["args"]["volume_num"] == 1
+    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
+
+
+def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_blocks(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir.mkdir(parents=True, exist_ok=True)
+    (drafting_dir / "第1卷.写作日志.yaml").write_text(
+        "\n".join(
+            [
+                "volume_num: 1",
+                "chapter_refs:",
+                "  - 3-Drafting/第5集.md",
+                "  - 3-Drafting/第8集.md",
+                "candidate_final_state:",
+                "  status: candidate_volume_draft",
+                "current_resume_pointer:",
+                "  next_step: 4-Validation",
+                "quality_gate_snapshot:",
+                "  checkpoint_stage: pre_validation",
+                "  review_mode: master-check-team",
+                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
+                "  reviewer_source: team-explicit",
+                "  reviewers:",
+                "    - 金庸",
+                "    - 徐克",
+                "  verdict: ready_for_validation",
+                "  next_action: 4-Validation",
+                "  representative_chapter_refs:",
+                "    - 11",
+                "  primary_issues: []",
+                "  priority_rework_targets: []",
+                "  cross_volume_upgrade_axes:",
+                "    - 保持场域语法分相",
+                "  guard_axes:",
+                "    anti_formula_progression: pass",
+                "    relationship_friction: pass",
+                "    spatial_separation: pass",
+                "    antagonist_face: pass",
+                "    volume_closure: pass",
+                "post_review_summary:",
+                "  review_mode: master-check-team",
+                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
+                "  reviewer_source: team-explicit",
+                "  reviewers:",
+                "    - 金庸",
+                "    - 徐克",
+                "  verdict: rework_required_before_validation",
+                "  next_action: 3-Drafting-rework",
+                "  representative_chapter_refs:",
+                "    - 3-Drafting/第5集.md",
+                "  primary_issues:",
+                "    - 程序化推进过重",
+                "  priority_rework_targets:",
+                "    - 3-Drafting/第5集.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-write"
+    assert interrupt["args"]["volume_num"] == 1
+    assert interrupt["resume_reason"] == "drafting_quality_gate_blocked_validation"
+
+
+def test_detect_interruption_uses_validation_route_after_volume_quality_gate_passes(tmp_path, monkeypatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
+    _seed_project_root(tmp_path)
+
+    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir.mkdir(parents=True, exist_ok=True)
+    (drafting_dir / "第2卷.写作日志.yaml").write_text(
+        "\n".join(
+            [
+                "volume_num: 2",
+                "chapter_refs:",
+                "  - 3-Drafting/第11集.md",
+                "  - 3-Drafting/第12集.md",
+                "candidate_final_state:",
+                "  status: candidate_volume_draft",
+                "current_resume_pointer:",
+                "  next_step: 4-Validation",
+                "quality_gate_snapshot:",
+                "  checkpoint_stage: pre_validation",
+                "  review_mode: master-check-team",
+                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
+                "  reviewer_source: team-explicit",
+                "  reviewers:",
+                "    - 金庸",
+                "    - 徐克",
+                "  verdict: ready_for_validation",
+                "  next_action: 4-Validation",
+                "  representative_chapter_refs:",
+                "    - 3-Drafting/第11集.md",
+                "  primary_issues: []",
+                "  priority_rework_targets: []",
+                "  cross_volume_upgrade_axes:",
+                "    - 保持反派私人后账",
+                "  guard_axes:",
+                "    anti_formula_progression: pass",
+                "    relationship_friction: pass",
+                "    spatial_separation: pass",
+                "    antagonist_face: pass",
+                "    volume_closure: pass",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    interrupt = module.detect_interruption()
+
+    assert interrupt is not None
+    assert interrupt["detection_mode"] == "artifact_fallback"
+    assert interrupt["command"] == "story-validate"
+    assert interrupt["args"]["volume_num"] == 2
     assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
 
 
@@ -702,6 +887,28 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
                 "  next_step: 4-Validation",
+                "quality_gate_snapshot:",
+                "  checkpoint_stage: pre_validation",
+                "  review_mode: master-check-team",
+                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
+                "  reviewer_source: team-explicit",
+                "  reviewers:",
+                "    - 金庸",
+                "    - 徐克",
+                "  verdict: ready_for_validation",
+                "  next_action: 4-Validation",
+                "  representative_chapter_refs:",
+                "    - 11",
+                "  primary_issues: []",
+                "  priority_rework_targets: []",
+                "  cross_volume_upgrade_axes:",
+                "    - 保持卷级命运闭合",
+                "  guard_axes:",
+                "    anti_formula_progression: pass",
+                "    relationship_friction: pass",
+                "    spatial_separation: pass",
+                "    antagonist_face: pass",
+                "    volume_closure: pass",
             ]
         )
         + "\n",

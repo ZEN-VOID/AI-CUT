@@ -4,7 +4,9 @@
   "chapter_refs": [],
   "manuscript_refs": [],
   "volume_log_ref": "3-Drafting/第0卷.写作日志.yaml",
-  "planning_ref": "2-Planning/全息地图.json",
+  "planning_ref": "",
+  "planning_volume_ref": "",
+  "planning_global_ref": "2-Planning/整体规划.md",
   "planning_slice_ref": "",
   "validation_ref": "4-Validation/第0卷.validation.json",
   "validation_mode": "normal_review",
@@ -16,7 +18,7 @@
     "logic-validator",
     "character-validator",
     "timeline-validator",
-    "type-pack-fit-validator"
+    "task-convergence-validator"
   ],
   "dimension_packets": {},
   "dimension_report_refs": {
@@ -25,7 +27,7 @@
     "logic-validator": "4-Validation/第0卷/逻辑自洽校验.md",
     "character-validator": "4-Validation/第0卷/人物一致性.md",
     "timeline-validator": "4-Validation/第0卷/时间线.md",
-    "type-pack-fit-validator": "4-Validation/第0卷/类型兑现.md"
+    "task-convergence-validator": "4-Validation/第0卷/任务汇聚.md"
   },
   "issues": [],
   "chapter_issue_index": {},
@@ -43,7 +45,7 @@
     "logic": 0,
     "character": 0,
     "timeline": 0,
-    "type-pack-fit": 0
+    "task_convergence": 0
   },
   "routing_decision": "back_to_source_contract",
   "handoff_targets": [],

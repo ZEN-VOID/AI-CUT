@@ -18,7 +18,7 @@
 | 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `1-Cards/2-角色卡/**/角色名.json` 能逐个被引用 |
 | 角色桶和角色属性标识不一致 | cast marker mapping | 以 bucket 回写 `cast_markers` 并校验唯一主标识 | 角色桶与属性标识共治，不允许一个角色同时多主标 | `group` 与 `cast_markers.primary_alignment` 一致 |
 | 只有关系边 JSON 没有正式图谱输出 | graph projection | 生成 `角色关系图谱.md` 并补文字摘要 | 关系图谱固定成为角色索引的 side output | Markdown 同时包含文字说明和 Mermaid |
-| 规划阶段把角色卡整份复制进 `story_map` | cross-stage bridge | 只输出最小角色/关系投影，完整人物事实留在角色卡侧 | 用 `story/_shared/character-planning-bridge.md` 固定“projection only”规则 | `story_map` 只保留 refs 与最小 planning hooks |
+| 规划阶段把角色卡整份复制进 planning 文档或兼容 `story_map` | cross-stage bridge | 只输出最小角色/关系投影，完整人物事实留在角色卡侧 | 用 `story/_shared/character-planning-bridge.md` 固定“projection only”规则 | planning 文档与兼容 `story_map` 都只保留 refs 与最小 planning hooks |
 | 增量修复把角色卡缩成单集临时视角 | full-series scope | 回补 `card_scope=full-series` 与全书角色覆盖 | 角色卡允许增量刷新，但不允许缩窄业务作用域 | 单卡 `card_scope.scope_type` 恒为 `full-series` |
 | 人物有设定感但弧光发虚 | shaping bridge | 回到 `Desire / Flaw / Wound / Need / Change` 五维重写结构字段 | 先补 `wound + need + change_payoff`，再写 prose | 主角卡能回答“他为什么会这样，最后变成什么” |
 | 反派只有坏没有成立逻辑 | antagonist mirror | 回补 `mirror_axis` 与 `self_justification` | 反派至少成立镜像关系或自我正义其一 | 反派卡不再只剩“阻碍主角” |

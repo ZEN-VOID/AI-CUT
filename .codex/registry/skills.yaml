@@ -112,13 +112,6 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 项目中断恢复、治理工件补齐与安全回接。
-      - id: aigc-review
-        path: .agents/skills/aigc/review
-        owner_office: menxia
-        governance_domain: xingbu
-        contract_status: active
-        route_role: satellite
-        purpose: 门下省侧 preflight、validation 与 learning bridge。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu
@@ -258,7 +251,7 @@ active_skills:
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/story/doubao/"
-      default_target: "用户提供的文章文本，或 `projects/story/<项目名>/3-Drafting/第N集.md`"
+      default_target: "用户提供的文章文本，或 `projects/aigc/<项目名>/3-Drafting/第N集.md`"
       mirror_policy: "这是 story 旁路润色 skill，不拥有 planning/cards/validation/actualization 真源；默认输出风格分析、润色策略与候选正文，只有用户明确要求时才覆写目标文本。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治

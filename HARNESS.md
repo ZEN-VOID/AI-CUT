@@ -40,7 +40,7 @@
 当前针对 `.agents/skills/aigc/` 的重大改造，仍处于显式 `bootstrap_compat` 模式：
 
 - 不清空 HARNESS 真源，只把它收缩为兼容骨架。
-- 保留 `projects/aigc/<项目名>/`、registry、runbook、template、audit、卫星技能入口与 review gate。
+- 保留 `projects/aigc/<项目名>/`、registry、runbook、template、audit、已启用卫星技能入口与高风险 preflight / validation gate。
 - 暂时不把 `aigc` 当前阶段内部细节视为冻结真源，允许在后续改造中重写。
 
 ## 当前已实现真源
@@ -55,7 +55,7 @@
   - `HARNESS.md` 总览同步责任
   - `bootstrap_compat` 改造兼容模式
   - 批量技能调度默认规则
-  - `subagents` 默认真实启动与降级显式报告口径
+  - `subagents` 默认真实启动、命中默认 subagent skill 即视为显式许可、以及降级显式报告口径
   - Rollout 标准
   - 根因优先、根因学习回路、真源治理与复合型输出治理
 
@@ -102,12 +102,11 @@
 - `aigc.satellite_index` 当前已登记并启用：
   - `query`
   - `resume`
-  - `review`
 - `routes.yaml` 已显式声明：
   - `aigc-root-entry`
   - `aigc-project-runtime-canonical`
   - `aigc-bootstrap-compat-mode`
-  - `aigc-query / resume / review` 卫星入口
+  - `aigc-query / resume` 卫星入口
   - `aigc-image-stage-entry`
   - `aigc-video-stage-entry`
   - `high-risk-review-gate`
@@ -215,9 +214,10 @@
 - 非平凡失败不能跳过分层上溯。
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
 - `projects/aigc/<项目名>/` 始终优先于 `.codex/state/tasks/<task_id>/`，后者仅为治理镜像或通用账本。
-- `query / resume / review` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明。
+- `query / resume` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明；高风险预审与验收则回根 `aigc` 处理。
 - `comic` 项目链路已经是受 registry / routes 管理的 repo-local workflow，不再只是临时脚本集合。
 - provider API skill 已开始按 registry / routes 管理，而不再只是散落脚本目录。
+- 当用户手动执行或仓库自动路由命中某个已声明“默认走 subagents”的 skill 时，仓库治理层将其视为对该默认分发路径的显式许可；只有更高优先级 system / developer / tool policy 或用户反向要求，才会阻断真实 dispatch。
 - 团队能力类 skill 的 canonical carrier 是其 skill 根目录与自包含研究载体，不默认创建项目 runtime。
 - 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须显式报告降级来源与替代路径。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
@@ -259,7 +259,7 @@
 
 ### 2. 从通用治理走向专项治理
 
-- 在现有 `review` 卫星技能之下继续拆出故事审计、角色一致性、镜头语法、交付质量等专项 reviewer 席位。
+- 在根 `aigc` 的高风险 preflight / validation gate 之上继续拆出故事审计、角色一致性、镜头语法、交付质量等专项 reviewer 席位。
 - 为中书省补足更细粒度的任务起草、路线裁决与阶段切换策略。
 - 为尚书省补足 `query / resume` 的深层产物索引、失败恢复与长流程执行策略。
 

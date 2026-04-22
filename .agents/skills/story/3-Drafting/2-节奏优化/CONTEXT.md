@@ -32,11 +32,12 @@
 | 开头裁字后仍然迟迟不进冲突/风险 | weak opening pulse | 前移有效脉冲，削弱长解释段 | 把“开头尽早进入风险/强情绪”纳入 soft projection | 前段已有清晰冲突、风险或强情绪 |
 | 章末只剩平收，没有未闭合期待 | flat ending after pacing | 追加代价余波、未闭合问题或下一步压力 | 章末 hook 区设为 pulse map 必填位 | 章末留有继续阅读驱动力 |
 | 尾钩像生硬断章，不像这章自然长出来的结尾 | gimmick cliffhanger | 改成 `reveal / decision / threat / pressure transfer / quiet unease` 中更自然的类型 | 在参考文档中固定“尾钩必须从正文长出来”规则 | 下一章想点开，但不会觉得被作者硬拽 |
-| 项目已启用 type-pack，但 Step 2 仍只按通用节奏规则做重排 | step-specific pack drop | 在本 step 显式读取 drafting pack projection，把 `required_hooks / hard_fail_signals` 写入 process log | 固定“Step 2 既守通用节奏，也守 pack 节奏钩子”的双层合同 | 快节奏/规则类 pack 在 Step 2 会表现出不同的节奏 gate |
+| 项目已有明确题材承诺，但 Step 2 仍只按通用节奏规则做重排 | step-specific type drop | 在本 step 显式读取 `类型卡 / genre_corridor`，把题材节奏偏置写入 process log | 固定“Step 2 既守通用节奏，也守题材节奏钩子”的双层合同 | 快节奏/规则类题材会在 Step 2 表现出不同的节奏 gate |
+| Step 1 首稿已经可读，但把节奏段位锁成了不可触碰的骨架，导致 `势能式 / 动能式` 只剩标签差异 | kickoff over-freeze | 回到 planning handoff，重新标注哪些是义务、哪些只是当前写法；在不改法律的前提下重排 reveal / reaction / escalation 顺序 | 在 Step 1/Step 2 合同同时写死“Step 1 锁义务，不锁死 mode 编排” | Step 2 可以真正做出阴阳 mode 的体感差异，而不是只裁字 |
 
 ## Repair Playbook
 
-1. 先锁 `2-Planning/全息地图.json` 本章义务、上章承诺回应位和 `core-constraints` 的三大定律，再进入节奏判断。
+1. 先锁 `2-Planning/整体规划.md + 当前卷/卷规划.md + 当前卷/第N章.md` 的本章义务、上章承诺回应位和 `core-constraints` 的三大定律，再进入节奏判断。
 2. 再判断第一屏的 `entry_hook` 和前段 `chapter_promise` 是否存在。
 3. 再锁 `conflict_axis / turn_or_reversal / reaction_decision` 是否成立。
 4. 先标所有推进点与微兑现点，再看哪些段在重复同一种功能。
@@ -47,6 +48,7 @@
 ## Reusable Heuristics
 
 - 节奏优化不是单纯加速，而是让读者感到“这一章一直在变”。
+- Step 2 守的是法律，不是 Step 1 的排版；只要本章义务、因果和 continuity 没破，局部重排就是合法动作。
 - 网文章节最稳的读感，不是每章都炸，而是每章都有一笔清楚的交易：这章答应什么，最后至少交一点什么。
 - 网文章节最常见的拖沓，不是字多，而是连续几个段落承担同一种叙事功能。
 - “冲突”不是大吵大打，而是人物意愿遇阻；没有遇阻，再多事件也只是流水。

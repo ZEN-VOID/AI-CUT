@@ -9,7 +9,8 @@ from pathlib import Path
 def _ensure_scripts_on_path() -> None:
     scripts_dir = Path(__file__).resolve().parents[2]
     planning_scripts_dir = scripts_dir.parent / "2-Planning" / "scripts"
-    for path in (scripts_dir, planning_scripts_dir):
+    planning_legacy_dir = planning_scripts_dir / "legacy"
+    for path in (scripts_dir, planning_scripts_dir, planning_legacy_dir):
         if str(path) not in sys.path:
             sys.path.insert(0, str(path))
 
@@ -170,7 +171,7 @@ def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
 
 def test_validate_story_map_output_strict_rejects_thin_volume_contract(tmp_path):
     _ensure_scripts_on_path()
-    from validate_story_map_output import _validate
+    from legacy.validate_story_map_output import _validate
 
     root_path = _write_split_story_map(tmp_path, thin_contract=True)
     errors = _validate(root_path, strict=True)
@@ -183,7 +184,7 @@ def test_validate_story_map_output_strict_rejects_thin_volume_contract(tmp_path)
 
 def test_validate_story_map_output_strict_accepts_thick_volume_contract(tmp_path):
     _ensure_scripts_on_path()
-    from validate_story_map_output import _validate
+    from legacy.validate_story_map_output import _validate
 
     root_path = _write_split_story_map(tmp_path, thin_contract=False)
     errors = _validate(root_path, strict=True)

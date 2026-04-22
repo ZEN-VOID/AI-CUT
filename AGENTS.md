@@ -36,7 +36,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - **测试**：实现改动应尽量配套测试。
 - 分镜 ID 使用四段式模式：`episode-scene-group-frame`，例如 `1-1-1-1`。
 - 小说创作的章节单位层级默认使用：`部 -> 卷 -> 章`。
-- 小说创作中固定 `10 章 = 1 卷`。
+- 小说创作中默认 `10 章 = 1 卷`。
 - 小说创作中默认 `6 卷 = 1 部`；若任务、项目设定或用户明确额外强调，则可按声明例外处理。
 - 创作项目通常以 `projects/aigc/<项目名>/` 作为主工作目录，并在其中组织文本、图片、视频及阶段产物。
 - 模板要求时，提示中的任务 ID 应保持 ASCII 安全字符。
@@ -208,11 +208,13 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 对命中 `skill-subagents`、team reviewer runtime、`master-check*`、阶段末 `supervision/review`、或其他已声明 subagent 合同的任务，默认应真实启动 subagents，而不是先由主 agent 本地模拟顾问流程。
 - 当阶段或技能合同已声明 `use_subagents_by_default == true`、`parallel-council`、`serial-refine`、`single-reviewer`、`reviewer -> subagent` 等显式分发语义时，真实 subagent dispatch 视为默认主路径，而不是可有可无的增强项。
+- 当用户手动点名执行某个 skill，或当前任务被仓库路由自动命中到某个 skill，且该 skill / 阶段合同已显式声明“默认走 subagents / parallel workers / reviewer -> subagent”，则在仓库治理口径内，这次 skill 执行本身就视为用户已对该默认 subagent 路径给出显式许可；主 agent 不得再把“用户没有额外补一句允许并行”当作默认不启动的理由。
 - 一个 reviewer skill 默认对应一个 subagent；主 agent 负责路由、汇流、裁决与最终 canonical 写回，不得把“主 agent 顺序扮演多个 reviewer”表述成正常的 subagent 执行。
 - 仅在以下情况允许降级为本地顺序纪要、顺序读取 skill 合同、或其他非真实 subagent 路径：
   - 当前会话的更高优先级 system / developer / tool policy 明确阻断
   - 当前环境或工具权限无法真实启动 subagents
   - 用户显式要求不要启用 subagents
+- 若上条“视为显式许可”的仓库口径与更高优先级 system / developer / tool policy 冲突，仍必须服从更高优先级约束；此时应报告“仓库层已视为许可，但上层策略仍阻断真实 dispatch”，不得把阻断原因误记为“用户未授权”。
 - 若发生降级，必须显式报告：
   - 阻断来源属于 `system / developer / tool / user` 的哪一层
   - 原本应执行的 subagent 路径是什么
@@ -231,6 +233,10 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
+- 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `CONTEXT/`：
+  - `projects/story/<项目名>/CONTEXT/`
+  - `projects/aigc/<项目名>/CONTEXT/`
+- 项目级 `CONTEXT/` 不替代技能同目录 `CONTEXT.md`；它是项目运行时的附加上下文根，面向整个创作阶段共享。
 - `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
@@ -273,6 +279,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `SKILL` 调用上下文加载合同（硬规则）：
   - 每次调用任意 `SKILL.md` 时，必须同时加载该 `SKILL.md` 同目录 `CONTEXT.md` 作为预加载上下文，不得只读取 `SKILL.md` 而跳过同目录经验层。
   - 若同目录 `CONTEXT.md` 缺失，则视为该 skill 基线不完整；执行前应优先补齐，或在当前任务中显式报告该缺口与临时护栏。
+  - 若当前任务已绑定具体项目根，且命中 `.agents/skills/story/` 或 `.agents/skills/aigc/` 任一技能树，则除技能同目录 `CONTEXT.md` 外，还必须加载项目根 `CONTEXT/` 中与当前任务相关的上下文文件，作为该项目整个创作阶段共享的附加上下文。
+  - 项目级 `CONTEXT/` 的标准落点仅限：
+    - `projects/story/<项目名>/CONTEXT/`
+    - `projects/aigc/<项目名>/CONTEXT/`
 - `CHANGELOG.md` 的角色（派生变更史）：
   - 承载时间序变更摘要、迁移过程、结构调整说明与长段审计/执行时间线
   - 默认不作为运行时上下文自动加载，也不拥有规范裁决权或经验裁决权
@@ -292,10 +302,11 @@ python3 -m pip install <pkg>  # 安装依赖包
   1. 每次命中任意 skill 时，先成对定位当前命中的 `SKILL.md` 与其同目录 `CONTEXT.md`；二者共同构成该 skill 的默认预加载入口。
   2. 先解析当前命中的 `SKILL.md`，锁定强制约束、总路由与真源边界。
   3. 立即加载该 `SKILL.md` 同目录 `CONTEXT.md`，用于选择策略并避开该技能已知经验性失败模式。
-  4. 若进入某个受治理子技能，按同样规则加载该子技能在父级合同中声明的局部 `SKILL.md + CONTEXT.md`；若进入某个卫星技能，按同样规则加载 `<satellite-name>/SKILL.md + CONTEXT.md`，锁定其局部合同与局部经验层。
-  5. 若当前主技能、子技能或卫星技能声明了专项细则模块、模板、schema 或 spec，则按任务需要加载相关模块；涉及同一技能的类型化处理 / 多模式策略时，优先读取被主合同显式指定的规范模块。
-  6. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
-  7. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+  4. 若当前任务已绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，则在进入具体阶段执行前，加载该项目根 `CONTEXT/` 目录中与本轮任务相关的上下文文件；该目录是项目级共享附加上下文，而不是技能经验层替代物。
+  5. 若进入某个受治理子技能，按同样规则加载该子技能在父级合同中声明的局部 `SKILL.md + CONTEXT.md`；若进入某个卫星技能，按同样规则加载 `<satellite-name>/SKILL.md + CONTEXT.md`，锁定其局部合同与局部经验层。
+  6. 若当前主技能、子技能或卫星技能声明了专项细则模块、模板、schema 或 spec，则按任务需要加载相关模块；涉及同一技能的类型化处理 / 多模式策略时，优先读取被主合同显式指定的规范模块。
+  7. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
+  8. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
@@ -474,6 +485,14 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 当前规范特指主技能、子技能与卫星技能之间的多级放置：
 
   - 主技能根层 `CONTEXT.md`：整个技能族的默认经验层，承接跨子技能、跨模式、跨工作流的经验
+  - 项目级 `CONTEXT/`：项目运行时共享附加上下文根，面向当前项目整个创作阶段；当前仅允许以下 canonical 形态：
+
+    ```text
+    projects/story/<项目名>/CONTEXT/
+    projects/aigc/<项目名>/CONTEXT/
+    ```
+
+    项目级 `CONTEXT/` 中存放的是任务执行时必须额外加载的项目共享上下文文件；它作用于整个项目创作阶段，但不替代主技能、子技能或卫星技能自身的 `CONTEXT.md`
   - 子技能 `CONTEXT.md`：用于受治理子技能的局部经验层，路径由父级合同显式声明，通常采用如下形态：
 
     ```text
@@ -502,7 +521,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 一旦某个技能采用受治理子技能结构，则范围内长期维护的子技能应在父级合同声明的子技能路径上显式暴露 `SKILL.md + CONTEXT.md`
   - 一旦某个技能出现长期维护、可直接调用、且拥有独立旁路职责的 sibling skill，则应显式表现为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`
   - 跨子技能、跨卫星或跨技能的 heuristic，仍必须回晋升到主技能根层 `CONTEXT.md` 或 `SKILL.md`
-- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 
 ### Agent 源层优化合同（强制）
 

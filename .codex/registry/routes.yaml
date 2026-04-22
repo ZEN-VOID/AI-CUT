@@ -32,16 +32,13 @@ route_policies:
     rule: "`projects/aigc/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
   - id: aigc-bootstrap-compat-mode
     trigger: 命中 `.agents/skills/aigc/` 大规模重构、阶段合同重写、子路径迁移或 schema 重建
-    rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、卫星技能入口与 review gate；不把当前阶段内细节视为冻结真源"
+    rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、已启用卫星技能入口与高风险 preflight / validation gate；不把当前阶段内细节视为冻结真源"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
   - id: aigc-resume-satellite-entry
     trigger: 命中中断项目续跑、阶段恢复、治理工件缺口补齐、重建最后稳定入口
     rule: "优先进入 `.agents/skills/aigc/resume/SKILL.md`；先修 canonical runtime 与治理工件，再回接根技能或目标阶段"
-  - id: aigc-review-satellite-entry
-    trigger: 命中高风险预审、阶段验收、项目级 validation-report 更新、learning bridge
-    rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；由门下省侧卫星技能判定 mode 后再路由到 `preflight-review / acceptance-review / learning-bridge` 子技能"
   - id: aigc-image-stage-entry
     trigger: 命中 `5-Image`，或需要把 `3-Detail/第N集.json` / `4-Design` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
     rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；再由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"
@@ -107,7 +104,7 @@ route_policies:
     rule: "进入 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/SKILL.md`；默认使用 `https://www.anyfast.ai/v1/chat/completions` 与 `model=doubao-seed-2.0-pro`，简单文本走 `prompt/system` 组装，复杂上下文走 `messages` 直传，并通过 `scripts/doubao_seed_chat.py` 执行。"
   - id: story-doubao-entry
     trigger: 命中 `story/doubao`、`豆包小说润色`、`中文小说润色`、`文风诊断`、`分析文章风格`、`整稿统修`、`去 AI 味`、`中文表达强化`，或需要把已有正文按单技能方式集成 `3-Drafting` 八步能力完成重写
-    rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/story/<项目名>/3-Drafting/第N集.md`；未明确覆写时只产出候选正文和诊断摘要。"
+    rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/aigc/<项目名>/3-Drafting/第N集.md`；legacy `projects/story/<项目名>/3-Drafting/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
   - id: api-vidu-video-entry
     trigger: 命中 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 任务查询/取消/积分/回调验签，或需要通过 Vidu 企业版执行多模式视频生成
     rule: "进入 `.agents/skills/api/vidu/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"

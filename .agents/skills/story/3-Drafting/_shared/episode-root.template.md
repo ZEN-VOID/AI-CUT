@@ -1,9 +1,13 @@
 ---
 episode_num: N
 episode_title: ""
-planning_ref: "2-Planning/全息地图.json"
+story_name: ""
+planning_ref: ""
+planning_volume_ref: ""
+planning_global_ref: "2-Planning/整体规划.md"
 planning_slice_ref: ""
 previous_episode_ref: ""
+rhythm_type: ""
 processed_steps: []
 ---
 

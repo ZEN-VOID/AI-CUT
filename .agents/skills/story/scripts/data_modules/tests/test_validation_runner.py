@@ -26,13 +26,9 @@ def _seed_project(project_root: Path, chapter: int, manuscript_text: str) -> Non
     (init_dir / "north_star.yaml").write_text(
         "\n".join(
             [
-                "type_stack:",
-                "  method_kernel: story-core-v1",
-                "  base: _base",
-                "  primary: 网文高冲击",
-                "  secondary: [规则悬疑]",
-                "  platform: []",
-                "  audience: []",
+                "type_seed:",
+                "  primary_genre: 规则悬疑",
+                "  secondary_genres: []",
             ]
         ),
         encoding="utf-8",
@@ -91,6 +87,14 @@ def _seed_validation_truth(project_root: Path, chapter: int) -> None:
                             "core": {
                                 "worldview": {"genre": "xuanhuan"},
                                 "rule_system": [{"label": "铁律", "value": "越级有代价"}],
+                                "faction_topology": {
+                                    "tiers": ["宗门", "散修联盟", "地方豪强"],
+                                    "rule_holders": ["宗门"],
+                                    "resource_controllers": ["秘境名额", "药田"],
+                                    "relation_patterns": ["压制", "拉拢", "交易"],
+                                    "protagonist_entry_path": "主角先被地方豪强逼迫，再被宗门外门注意到。",
+                                    "escalation_logic": ["从个人突破升级为宗门压力与资源争夺"],
+                                },
                                 "golden_finger": {"name": "系统", "limits": ["每日一次", "越级要付出代价"]},
                             }
                         }
@@ -309,7 +313,7 @@ def test_validation_runner_batch_returns_all_results(tmp_path):
     payload = module.run_batch(
         project_root=tmp_path,
         chapter_num=5,
-        role_ids=["structure-validator", "timeline-validator", "type-pack-fit-validator"],
+        role_ids=["structure-validator", "timeline-validator"],
         validation_context="drafting_inline",
         current_step_id="Step 2",
     )
@@ -318,30 +322,78 @@ def test_validation_runner_batch_returns_all_results(tmp_path):
     assert {item["role_id"] for item in payload["results"]} == {
         "structure-validator",
         "timeline-validator",
-        "type-pack-fit-validator",
     }
 
 
-def test_validation_runner_emits_type_pack_fit_summary(tmp_path):
+def test_task_convergence_validator_passes_when_branch_returns_to_main_task():
     module = _load_module()
-    _seed_project(
-        tmp_path,
-        6,
-        "李青走进旧楼，却只做情绪回忆，没有给出任何规则、线索或下一步牵引。",
-    )
-
-    result = module.run_validator(
-        project_root=tmp_path,
-        chapter_num=6,
-        role_id="structure-validator",
+    result = module._run_task_convergence(
+        ctx={
+            "chapter": 7,
+            "manuscript_text": (
+                "李青一边追查血书线索，一边稳住沈舟。"
+                "沈舟终于交出昨夜那张纸角，让血书线索重新并入旧案主轴。"
+            ),
+            "fact_pack": {
+                "volume_planning_summary": {
+                    "上承部级主任务": "揭开宗门旧案",
+                    "主线": "查清血书线索",
+                    "支线": ["稳住沈舟"],
+                    "汇聚回主线": "血书与纸角都指向旧案真相",
+                    "story_spine": {"headline": "查清血书线索并牵出旧案"},
+                },
+                "chapter_planning_packet": {
+                    "story_overview": "李青追查血书线索，同时稳住沈舟。",
+                    "chapter_goals": ["查清血书线索", "稳住沈舟"],
+                    "上承卷级任务": "查清血书线索",
+                    "主线": "查清血书线索",
+                    "支线": ["稳住沈舟"],
+                    "汇聚动作": "沈舟交出昨夜那张纸角，让血书线索重新并入旧案主轴",
+                    "未汇聚任务去向": "无",
+                    "terminal_beat": "纸角把线索重新拉回旧案",
+                },
+            },
+        },
+        role_id="task-convergence-validator",
+        spec={},
         validation_context="final_acceptance",
     )
 
-    summary = result["type_pack_fit_summary"]
-    assert summary["enabled"] is True
-    assert "网文高冲击" in summary["active_packs"]
-    assert "规则悬疑" in summary["active_packs"]
-    assert isinstance(result["type_pack_fail_signals"], list)
+    assert result["pass"] is True
+    assert result["metrics"]["branch_merge_gaps"] == 0
+    assert result["metrics"]["orphan_branch_count"] == 0
+
+
+def test_task_convergence_validator_flags_branch_without_route():
+    module = _load_module()
+    result = module._run_task_convergence(
+        ctx={
+            "chapter": 8,
+            "manuscript_text": "李青忙着安抚沈舟，也去查血书，但这一章没有说明这条支线最后如何回到主任务。",
+            "fact_pack": {
+                "volume_planning_summary": {
+                    "上承部级主任务": "揭开宗门旧案",
+                    "主线": "查清血书线索",
+                    "支线": ["稳住沈舟"],
+                    "汇聚回主线": "血书与纸角都指向旧案真相",
+                },
+                "chapter_planning_packet": {
+                    "story_overview": "李青追查血书线索，同时稳住沈舟。",
+                    "chapter_goals": ["查清血书线索", "稳住沈舟"],
+                    "上承卷级任务": "查清血书线索",
+                    "主线": "查清血书线索",
+                    "支线": ["稳住沈舟"],
+                },
+            },
+        },
+        role_id="task-convergence-validator",
+        spec={},
+        validation_context="final_acceptance",
+    )
+
+    assert result["pass"] is False
+    assert result["metrics"]["orphan_branch_count"] >= 1
+    assert any(item.get("source_layer_owner") == "2-Planning" for item in result["issues"])
 
 
 def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(tmp_path):
@@ -354,6 +406,8 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
                 "---",
                 "episode_num: 2",
                 'episode_title: "承接测试"',
+                'story_name: "临江旧事"',
+                'rhythm_type: "势能式"',
                 "processed_steps:",
                 '  - "1-单集叙事起盘"',
                 "---",
@@ -381,46 +435,6 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
 
     assert result["pass"] is True
     assert result["metrics"]["previous_episode_bridge"] == "strong"
-
-
-def test_validation_runner_type_pack_fit_validator_uses_step_specific_hooks(tmp_path):
-    module = _load_module()
-    _seed_project(
-        tmp_path,
-        7,
-        "她只是反复说自己很难受、很委屈，眼泪一直掉下来，整章都停在情绪宣告里，没有任何实际转折。",
-    )
-
-    north_star = tmp_path / "0-Init" / "north_star.yaml"
-    north_star.write_text(
-        "\n".join(
-            [
-                "type_stack:",
-                "  method_kernel: story-core-v1",
-                "  base: _base",
-                "  primary: 网文高冲击",
-                "  secondary: [女频强情绪]",
-                "  platform: []",
-                "  audience: []",
-            ]
-        ),
-        encoding="utf-8",
-    )
-
-    result = module.run_validator(
-        project_root=tmp_path,
-        chapter_num=7,
-        role_id="type-pack-fit-validator",
-        validation_context="drafting_inline",
-        current_step_id="Step 5",
-    )
-
-    assert result["pass"] is False
-    assert result["current_step_id"] == "Step 5"
-    assert any(
-        item.get("rework_target_step") in {"5-对白个性化", "6-心理活动描写", "7-追读力强化"}
-        for item in result["issues"]
-    )
 
 
 def test_character_validator_reports_growth_continuity_metrics_when_growth_enabled(tmp_path):
@@ -555,7 +569,7 @@ def test_character_validator_defers_dialogue_only_issues_until_step5(tmp_path):
     assert step4_result["metrics"]["speech_violations"] >= 2
     assert "留待 Step 5" in step4_result["summary"]
     assert step5_result["pass"] is False
-    assert any(item.get("rework_target_step") == "5-对白个性化" for item in step5_result["issues"])
+    assert any(item.get("rework_target_step") == "5-对白优化" for item in step5_result["issues"])
 
 
 def test_validation_runner_final_acceptance_writes_aggregate_json(tmp_path):
@@ -575,7 +589,4 @@ def test_validation_runner_final_acceptance_writes_aggregate_json(tmp_path):
     aggregate_path = tmp_path / "4-Validation" / "第9集.validation.json"
     assert aggregate_path.is_file()
     assert payload["validation_ref"] == "4-Validation/第9集.validation.json"
-    assert "type-pack-fit-validator" in payload["selected_agents"]
-    assert "type-pack-fit-validator" in payload["dimension_report_refs"]
-    assert "type-pack-fit" in payload["dimension_scores"]
     assert payload["validation_status"] in {"PASS", "FAIL-QUALITY", "FAIL-COVENANT", "FAIL-RUNTIME"}

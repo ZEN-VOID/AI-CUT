@@ -26,7 +26,6 @@ from chapter_paths import drafting_root_md_path
 from extract_chapter_context import build_chapter_context_payload
 from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
-from data_modules.type_pack_resolver import normalize_drafting_step_id, resolve_stage_projection
 
 try:
     import yaml
@@ -40,7 +39,18 @@ ROLE_ID_TO_DIMENSION = {
     "logic-validator": "逻辑自洽校验",
     "character-validator": "人物一致性",
     "timeline-validator": "时间线",
-    "type-pack-fit-validator": "类型兑现",
+    "task-convergence-validator": "任务汇聚",
+}
+
+CANONICAL_DRAFTING_STEPS = {
+    "Step 1": ("1-单集叙事起盘", "单集叙事起盘"),
+    "Step 2": ("2-节奏优化", "节奏优化"),
+    "Step 3": ("3-场景和氛围渲染", "场景和氛围渲染"),
+    "Step 4": ("4-角色形象刻画", "角色形象刻画"),
+    "Step 5": ("5-对白优化", "对白优化"),
+    "Step 6": ("6-心理活动描写", "心理活动描写"),
+    "Step 7": ("7-追读力强化", "追读力强化"),
+    "Step 8": ("8-润色", "润色"),
 }
 
 TIME_MARKER_ORDER = {
@@ -164,6 +174,29 @@ def _strip_markdown_frontmatter(text: str) -> str:
     return text
 
 
+def _parse_markdown_frontmatter(text: str) -> dict[str, str]:
+    if not text.startswith("---"):
+        return {}
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+    out: dict[str, str] = {}
+    for index in range(1, len(lines)):
+        line = lines[index]
+        if line.strip() == "---":
+            return out
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        normalized_key = key.strip()
+        if not normalized_key:
+            continue
+        normalized_value = value.strip().strip('"').strip("'")
+        if normalized_value:
+            out[normalized_key] = normalized_value
+    return out
+
+
 def _final_acceptance_specs() -> list[dict[str, Any]]:
     registry = _load_registry()
     specs: list[dict[str, Any]] = []
@@ -215,6 +248,16 @@ def _safe_dict(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def normalize_drafting_step_id(raw: Any) -> str | None:
+    text = str(raw or "").strip()
+    if not text:
+        return None
+    for canonical, aliases in CANONICAL_DRAFTING_STEPS.items():
+        if text == canonical or text in aliases:
+            return canonical
+    return text
+
+
 def _read_text_if_exists(path: Path) -> str:
     if not path.is_file():
         return ""
@@ -242,12 +285,18 @@ def _derive_fact_pack_views(raw_fact_pack: dict[str, Any]) -> dict[str, Any]:
     promise_slice = _safe_dict(planning_truth.get("promise_slice"))
     if not promise_slice and init_truth:
         promise_slice = {
-            "type_pack_profile": _safe_dict(init_truth.get("type_pack_profile")),
             "project_preferences": _safe_dict(init_truth.get("project_preferences")),
             "style_contract_ref": str(init_truth.get("style_contract_ref") or "").strip(),
             "global_contract_refs": list(init_truth.get("global_contract_refs") or []),
             "genre": str(_safe_dict(init_truth.get("genre_profile")).get("genre") or "").strip(),
         }
+    chapter_planning_packet = _safe_dict(planning_truth.get("chapter_planning_packet"))
+    if not chapter_planning_packet:
+        packets = planning_truth.get("chapter_planning_packets")
+        if isinstance(packets, list) and packets:
+            chapter_planning_packet = _safe_dict(packets[0])
+    if not chapter_planning_packet:
+        chapter_planning_packet = _safe_dict(planning_truth.get("chapter_board"))
 
     return {
         "draft_snapshot": draft_snapshot,
@@ -256,12 +305,14 @@ def _derive_fact_pack_views(raw_fact_pack: dict[str, Any]) -> dict[str, Any]:
         "init_truth": init_truth,
         "runtime_context": runtime_context,
         "promise_slice": promise_slice,
+        "volume_planning_summary": _safe_dict(planning_truth.get("volume_planning_summary")),
+        "chapter_planning_packet": chapter_planning_packet,
         "chapter_board": _safe_dict(planning_truth.get("chapter_board")),
+        "episode_rhythm_handoff": _safe_dict(planning_truth.get("episode_rhythm_handoff")),
         "cards_state_history_slice": _safe_dict(cards_truth.get("cards_state_history_slice")),
         "foreshadow_silence_slice": _safe_dict(planning_truth.get("foreshadow_silence_slice")),
         "style_gate": _safe_dict(runtime_context.get("style_gate")),
         "global_truth_slice": _safe_dict(cards_truth.get("global_truth_slice")),
-        "type_pack_profile": _safe_dict(init_truth.get("type_pack_profile")) or _safe_dict(promise_slice.get("type_pack_profile")),
     }
 
 
@@ -365,6 +416,90 @@ def _text_contains_candidate(text: str, candidate: str) -> bool:
     return _has_similar_sentence(text, candidate)
 
 
+def _text_list(value: Any) -> list[str]:
+    items: list[str] = []
+    if isinstance(value, str):
+        raw = value.strip()
+        if raw:
+            parts = [segment.strip(" -") for segment in re.split(r"(?:\n+|；|;)", raw) if segment.strip(" -")]
+            items.extend(parts or [raw])
+    elif isinstance(value, list):
+        for item in value:
+            items.extend(_text_list(item))
+    elif isinstance(value, dict):
+        for item in value.values():
+            items.extend(_text_list(item))
+    unique: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        if item and item not in seen:
+            unique.append(item)
+            seen.add(item)
+    return unique
+
+
+def _relation_sources(raw: dict[str, Any]) -> list[dict[str, Any]]:
+    sources = [raw]
+    for key in ("task_relation", "task_lineage", "task_convergence", "任务关系", "任务从属", "任务汇聚"):
+        nested = _safe_dict(raw.get(key))
+        if nested:
+            sources.append(nested)
+    return sources
+
+
+def _pick_task_values(sources: list[dict[str, Any]], *keys: str) -> list[str]:
+    for source in sources:
+        for key in keys:
+            values = _text_list(source.get(key))
+            if values:
+                return values
+    return []
+
+
+def _pick_task_scalar(sources: list[dict[str, Any]], *keys: str) -> str:
+    values = _pick_task_values(sources, *keys)
+    return values[0] if values else ""
+
+
+def _task_related(lhs: str, rhs: str) -> bool:
+    left = str(lhs or "").strip()
+    right = str(rhs or "").strip()
+    if not left or not right:
+        return False
+    if left in right or right in left:
+        return True
+    left_keywords = set(_keyword_candidates(left))
+    right_keywords = set(_keyword_candidates(right))
+    return bool(left_keywords and right_keywords and left_keywords.intersection(right_keywords))
+
+
+def _extract_task_relation(
+    raw: dict[str, Any],
+    *,
+    upstream_keys: tuple[str, ...],
+    main_keys: tuple[str, ...],
+    branch_keys: tuple[str, ...],
+    merge_keys: tuple[str, ...],
+    open_keys: tuple[str, ...],
+    fallback_main: list[str] | None = None,
+    fallback_branches: list[str] | None = None,
+    fallback_merge: list[str] | None = None,
+    fallback_open: list[str] | None = None,
+) -> dict[str, Any]:
+    sources = _relation_sources(_safe_dict(raw))
+    main_tasks = _pick_task_values(sources, *main_keys) or [item for item in (fallback_main or []) if str(item).strip()]
+    branch_tasks = _pick_task_values(sources, *branch_keys) or [item for item in (fallback_branches or []) if str(item).strip()]
+    merge_targets = _pick_task_values(sources, *merge_keys) or [item for item in (fallback_merge or []) if str(item).strip()]
+    open_routes = _pick_task_values(sources, *open_keys) or [item for item in (fallback_open or []) if str(item).strip() and str(item).strip() != "无"]
+    return {
+        "upstream_task": _pick_task_scalar(sources, *upstream_keys),
+        "main_tasks": main_tasks,
+        "branch_tasks": branch_tasks,
+        "merge_targets": merge_targets,
+        "open_routes": open_routes,
+    }
+
+
 def _clamp_score(score: float) -> int:
     return max(0, min(100, int(round(score))))
 
@@ -407,14 +542,6 @@ def _severity_counts(issues: list[dict[str, Any]]) -> dict[str, int]:
         if severity in counts:
             counts[severity] += 1
     return counts
-
-
-def _semantic_tags(profile: dict[str, Any]) -> set[str]:
-    return {
-        str(item).strip()
-        for item in (profile.get("semantic_tags") or [])
-        if str(item).strip()
-    }
 
 
 def _merge_severity_counts(values: list[dict[str, int]]) -> dict[str, int]:
@@ -477,174 +604,6 @@ def _runtime_issue(chapter: int, role_id: str, exc: Exception, index: int) -> di
         source_layer_owner="4-Validation",
         can_override=False,
     )
-
-
-def _evaluate_type_pack_fit(ctx: dict[str, Any], *, role_id: str = "type-pack-fit-validator") -> dict[str, Any]:
-    text = str(ctx.get("manuscript_text") or "")
-    chapter = _safe_int(ctx.get("chapter"), 0)
-    current_step_id = normalize_drafting_step_id(ctx.get("current_step_id"))
-    profile = _safe_dict(ctx.get("fact_pack", {}).get("type_pack_profile"))
-    active_packs = [str(item) for item in (profile.get("active_packs") or []) if str(item).strip()]
-    semantic_tags = _semantic_tags(profile)
-    validation_projection = resolve_stage_projection(profile, "validation")
-    drafting_projection = resolve_stage_projection(profile, "drafting", current_step_id=current_step_id)
-    required_hooks = [str(item).strip() for item in (validation_projection.get("required_hooks") or []) if str(item).strip()]
-    hard_fail_signals = [str(item).strip() for item in (validation_projection.get("hard_fail_signals") or []) if str(item).strip()]
-    drafting_required_hooks = [str(item).strip() for item in (drafting_projection.get("required_hooks") or []) if str(item).strip()]
-
-    issues: list[dict[str, Any]] = []
-    if not active_packs:
-        return {
-            "enabled": False,
-            "active_packs": [],
-            "semantic_tags": [],
-            "required_hooks": [],
-            "hard_fail_signals": [],
-            "fit_score": 100,
-            "issues": issues,
-            "current_step_id": current_step_id,
-        }
-
-    tail = text[-180:]
-    paragraphs = [row for row in _paragraphs(text) if row]
-    long_paragraphs = sum(1 for row in paragraphs if len(row) >= 120)
-
-    if "high-impact-webnovel" in semantic_tags or "网文高冲击" in active_packs:
-        if not any(token in tail for token in ("？", "!", "！", "……", "却", "但", "然而", "下一")):
-            issues.append(
-                _issue(
-                    role_id=role_id,
-                    chapter=chapter,
-                    index=len(issues) + 1,
-                    issue_type="类型兑现",
-                    severity="medium",
-                    location=f"第{chapter}集结尾",
-                    description="已启用网文高冲击，但章末牵引信号偏弱。",
-                    suggestion="在章末补足下一步动机、悬念或回报预告。",
-                    rework_target_step="7-追读力强化",
-                )
-            )
-        if long_paragraphs >= 4:
-            issues.append(
-                _issue(
-                    role_id=role_id,
-                    chapter=chapter,
-                    index=len(issues) + 1,
-                    issue_type="类型兑现",
-                    severity="medium",
-                    location=f"第{chapter}集段落层",
-                    description="已启用网文高冲击，但长段过多，推进节奏偏慢。",
-                    suggestion="拆分长段，前置冲突和结果，减少说明性拖沓。",
-                    rework_target_step="2-节奏优化",
-                )
-            )
-
-    if "upgrade-fantasy" in semantic_tags and not any(token in text for token in ("境界", "修为", "突破", "灵石", "资源", "宗门", "机缘")):
-        issues.append(
-            _issue(
-                role_id=role_id,
-                chapter=chapter,
-                index=len(issues) + 1,
-                issue_type="类型兑现",
-                severity="low",
-                location=f"第{chapter}集正文",
-                description="已启用升级型玄幻/修仙 pack，但本章缺少明显升级/资源/势力信号。",
-                suggestion="补足升级链、资源争夺或势力压迫中的至少一项。",
-                rework_target_step="1-单集叙事起盘",
-            )
-        )
-
-    if "rules-mystery" in semantic_tags and not any(token in text for token in ("规则", "线索", "真相", "疑点", "禁忌", "代价")):
-        issues.append(
-            _issue(
-                role_id=role_id,
-                chapter=chapter,
-                index=len(issues) + 1,
-                issue_type="类型兑现",
-                severity="medium",
-                location=f"第{chapter}集正文",
-                description="已启用规则悬疑/规则怪谈 pack，但本章缺少规则/线索/代价的显性支点。",
-                suggestion="补足可验证线索或规则代价，不要只保留抽象悬念。",
-                rework_target_step="1-单集叙事起盘",
-            )
-        )
-
-    if "urban-revenge" in semantic_tags and not any(token in text for token in ("打脸", "反击", "羞辱", "压迫", "翻盘", "反压")):
-        issues.append(
-            _issue(
-                role_id=role_id,
-                chapter=chapter,
-                index=len(issues) + 1,
-                issue_type="类型兑现",
-                severity="low",
-                location=f"第{chapter}集正文",
-                description="已启用都市复仇/豪门强冲突 pack，但压迫/回击链条不够显性。",
-                suggestion="补足压迫者、见证者与回击后果。",
-                rework_target_step="7-追读力强化",
-            )
-        )
-
-    if "female-emotion-suspense" in semantic_tags and not any(token in text for token in ("情绪", "心口", "眼神", "误会", "关系", "拉扯")):
-        issues.append(
-            _issue(
-                role_id=role_id,
-                chapter=chapter,
-                index=len(issues) + 1,
-                issue_type="类型兑现",
-                severity="low",
-                location=f"第{chapter}集正文",
-                description="已启用女频悬疑/强情绪 pack，但情绪与关系张力显影不足。",
-                suggestion="补足关系位移、误解或情绪代价，并让心理波动落进人物可感的内心层。",
-                rework_target_step="6-心理活动描写",
-            )
-        )
-
-    if current_step_id == "Step 2" and "删减无推进段" in drafting_required_hooks:
-        if long_paragraphs >= 3:
-            issues.append(
-                _issue(
-                    role_id=role_id,
-                    chapter=chapter,
-                    index=len(issues) + 1,
-                    issue_type="类型兑现",
-                    severity="medium",
-                    location=f"第{chapter}集 Step 2",
-                    description="当前是节奏优化步骤，但长段仍然偏多，未满足快节奏 pack 的 step hook。",
-                    suggestion="继续拆分长段，前置动作结果闭环，减少说明段滞留。",
-                    rework_target_step="2-节奏优化",
-                )
-            )
-
-    if current_step_id == "Step 5" and "情绪升级必须伴随行动或代价" in drafting_required_hooks:
-        emotion_tokens = ("情绪", "心口", "眼神", "关系", "难受", "委屈", "心酸", "痛苦")
-        action_tokens = ("推开", "离开", "拒绝", "拥抱", "转身", "代价", "选择", "决定", "行动")
-        if any(token in text for token in emotion_tokens) and not any(token in text for token in action_tokens):
-            issues.append(
-                _issue(
-                    role_id=role_id,
-                    chapter=chapter,
-                    index=len(issues) + 1,
-                    issue_type="类型兑现",
-                    severity="medium",
-                    location=f"第{chapter}集 Step 5",
-                    description="当前启用了强情绪 pack，但情绪表达未转化为角色动作或代价。",
-                    suggestion="让情绪显影落实到对白/动作/关系后果，不只停在心情宣告。",
-                    rework_target_step="5-对白个性化",
-                )
-            )
-
-    fit_score = _clamp_score(100 - len(issues) * 12)
-    return {
-        "enabled": True,
-        "active_packs": active_packs,
-        "semantic_tags": sorted(semantic_tags),
-        "required_hooks": required_hooks,
-        "drafting_required_hooks": drafting_required_hooks,
-        "hard_fail_signals": hard_fail_signals,
-        "fit_score": fit_score,
-        "issues": issues,
-        "current_step_id": current_step_id,
-    }
 
 
 def _issue(
@@ -1177,7 +1136,7 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 location=f"第{chapter}集对白层",
                 description="对白偏长或解释性过强，角色声口区分度不足。",
                 suggestion="回到对白优化，压缩解释，改成更像角色本人会说的话。",
-                rework_target_step="5-对白个性化",
+                rework_target_step="5-对白优化",
             )
         )
 
@@ -1305,38 +1264,158 @@ def _run_timeline(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], valid
     }
 
 
-def _run_type_pack_fit(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validation_context: str) -> dict[str, Any]:
-    fit = _evaluate_type_pack_fit(ctx, role_id=role_id)
-    if not fit.get("enabled"):
-        return {
-            "overall_score": 100,
-            "pass": True,
-            "issues": [],
-            "metrics": {
-                "type_pack_enabled": False,
-                "active_packs": [],
-                "required_hooks": [],
-                "drafting_required_hooks": [],
-                "current_step_id": normalize_drafting_step_id(ctx.get("current_step_id")),
-            },
-            "summary": "当前项目未启用显式 type-pack，类型兑现维度降级为观察态。",
-        }
+def _run_task_convergence(
+    ctx: dict[str, Any],
+    role_id: str,
+    spec: dict[str, Any],
+    validation_context: str,
+) -> dict[str, Any]:
+    chapter = ctx["chapter"]
+    text = str(ctx["manuscript_text"] or "")
+    fact_pack = _safe_dict(ctx.get("fact_pack"))
+    volume_summary = _safe_dict(fact_pack.get("volume_planning_summary"))
+    chapter_packet = _safe_dict(fact_pack.get("chapter_planning_packet"))
+    story_spine = _safe_dict(volume_summary.get("story_spine"))
+    episode_handoff = _safe_dict(chapter_packet.get("episode_rhythm_handoff"))
+    chapter_goals = [str(item).strip() for item in (chapter_packet.get("chapter_goals") or []) if str(item).strip()]
 
-    score = _safe_int(fit.get("fit_score"), 100)
-    issues = list(fit.get("issues") or [])
+    volume_view = _extract_task_relation(
+        volume_summary,
+        upstream_keys=("上承部级主任务", "book_main_task", "upstream_book_task"),
+        main_keys=("主线", "main_task", "volume_main_task", "本卷主线"),
+        branch_keys=("支线", "branch_tasks", "volume_branches", "本卷支线"),
+        merge_keys=("汇聚回主线", "convergence_target", "merge_back_to_main", "关键汇聚里程碑"),
+        open_keys=("未汇聚任务去向", "open_branch_route", "branch_route"),
+        fallback_main=[str(story_spine.get("headline") or "").strip()],
+    )
+    chapter_view = _extract_task_relation(
+        chapter_packet,
+        upstream_keys=("上承卷级任务", "upstream_volume_task"),
+        main_keys=("主线", "main_task", "chapter_main_task", "本章主线"),
+        branch_keys=("支线", "branch_tasks", "chapter_branches", "本章支线"),
+        merge_keys=("汇聚动作", "convergence_action", "merge_action"),
+        open_keys=("未汇聚任务去向", "open_branch_route", "branch_route"),
+        fallback_main=[str(chapter_packet.get("story_overview") or "").strip(), *chapter_goals[:1]],
+        fallback_branches=chapter_goals[1:3],
+        fallback_merge=[
+            str(chapter_packet.get("terminal_beat") or "").strip(),
+            str(episode_handoff.get("exit_hook") or "").strip(),
+        ],
+    )
+
+    issues: list[dict[str, Any]] = []
+    unanchored_chapter_tasks = 0
+    branch_merge_gaps = 0
+    orphan_branch_count = 0
+    open_branch_without_route = 0
+
+    if not volume_view["main_tasks"]:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="任务汇聚",
+                severity="high",
+                location=f"第{chapter}集 volume planning truth",
+                description="卷级 planning truth 没有显式主任务，无法判断本卷支流到底服务哪条主线。",
+                suggestion="回到 `2-Planning/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
+                rework_target_step="source-contract-fix",
+                source_layer_owner="2-Planning",
+                can_override=False,
+            )
+        )
+
+    if not chapter_view["main_tasks"]:
+        unanchored_chapter_tasks += 1
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="任务汇聚",
+                severity="high",
+                location=f"第{chapter}集 chapter planning truth",
+                description="章级 planning truth 没有显式主任务，无法判断本章推进是否仍挂在卷级主线之下。",
+                suggestion="回到 `2-Planning/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
+                rework_target_step="source-contract-fix",
+                source_layer_owner="2-Planning",
+                can_override=False,
+            )
+        )
+
+    if chapter_view["upstream_task"] and volume_view["main_tasks"]:
+        if not any(_task_related(chapter_view["upstream_task"], task) for task in volume_view["main_tasks"]):
+            unanchored_chapter_tasks += 1
+            issues.append(
+                _issue(
+                    role_id=role_id,
+                    chapter=chapter,
+                    index=len(issues) + 1,
+                    issue_type="任务汇聚",
+                    severity="high",
+                    location=f"第{chapter}集 task lineage",
+                    description="章级 `上承卷级任务` 无法回指卷级主线，任务从属关系失锚。",
+                    suggestion="统一卷级/章级任务命名与挂靠关系，避免章级支流写成独立副本。",
+                    rework_target_step="source-contract-fix",
+                    source_layer_owner="2-Planning",
+                    can_override=False,
+                )
+            )
+
+    if chapter_view["branch_tasks"] and not chapter_view["merge_targets"] and not chapter_view["open_routes"]:
+        orphan_branch_count += len(chapter_view["branch_tasks"])
+        open_branch_without_route += len(chapter_view["branch_tasks"])
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="任务汇聚",
+                severity="high",
+                location=f"第{chapter}集支流任务合同",
+                description="章级支流任务存在，但 planning truth 没有声明它们如何汇聚、转挂或保留开放。",
+                suggestion="为每条支流补 `汇聚动作` 或 `未汇聚任务去向`，不要把未回收任务留成隐形账。",
+                rework_target_step="source-contract-fix",
+                source_layer_owner="2-Planning",
+                can_override=False,
+            )
+        )
+
+    branch_visible = sum(1 for task in chapter_view["branch_tasks"][:4] if _text_contains_candidate(text, task))
+    merge_visible = sum(1 for target in chapter_view["merge_targets"][:3] if _text_contains_candidate(text, target))
+    open_visible = sum(1 for route in chapter_view["open_routes"][:3] if _text_contains_candidate(text, route))
+    if branch_visible and chapter_view["merge_targets"] and merge_visible == 0 and open_visible == 0:
+        branch_merge_gaps += 1
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="任务汇聚",
+                severity="medium" if validation_context == "final_acceptance" else "low",
+                location=f"第{chapter}集正文任务汇聚",
+                description="正文已展开支流任务，但没有把它明确汇回主线，也没有显式写成转挂/保留开放。",
+                suggestion="回到起盘或追读力强化，把支流的回主线动作、转挂节点或保留开放信号写入正文。",
+                rework_target_step="7-追读力强化",
+            )
+        )
+
+    score = _clamp_score(92 - unanchored_chapter_tasks * 18 - orphan_branch_count * 10 - branch_merge_gaps * 14)
     return {
         "overall_score": score,
         "pass": len(issues) == 0,
         "issues": issues,
         "metrics": {
-            "type_pack_enabled": True,
-            "active_packs": list(fit.get("active_packs") or []),
-            "required_hooks": list(fit.get("required_hooks") or []),
-            "drafting_required_hooks": list(fit.get("drafting_required_hooks") or []),
-            "hard_fail_signals": list(fit.get("hard_fail_signals") or []),
-            "current_step_id": fit.get("current_step_id"),
+            "unanchored_chapter_tasks": unanchored_chapter_tasks,
+            "branch_merge_gaps": branch_merge_gaps,
+            "orphan_branch_count": orphan_branch_count,
+            "open_branch_without_route": open_branch_without_route,
+            "branch_tasks_visible": branch_visible,
+            "merge_targets_visible": merge_visible,
+            "open_routes_visible": open_visible,
         },
-        "summary": "类型兑现基本达标。" if len(issues) == 0 else "存在 type-pack 兑现不足或 step hook 未落地的问题。",
+        "summary": "支流任务仍与主线保持挂靠并具备明确去向。" if len(issues) == 0 else "存在任务失锚、支流无去向或正文未完成汇聚的问题。",
     }
 
 
@@ -1346,7 +1425,7 @@ ROLE_RUNNERS: dict[str, Callable[[dict[str, Any], str, dict[str, Any], str], dic
     "logic-validator": _run_logic,
     "character-validator": _run_character,
     "timeline-validator": _run_timeline,
-    "type-pack-fit-validator": _run_type_pack_fit,
+    "task-convergence-validator": _run_task_convergence,
 }
 
 
@@ -1383,7 +1462,6 @@ def _run_validator_with_context(
         result_core = runner(ctx, role_id, spec, validation_context)
 
     issues = list(result_core.get("issues", []) or [])
-    type_pack_fit = _evaluate_type_pack_fit(ctx)
     severity_counts = _severity_counts(issues)
     dimension_key = str(spec.get("dimension") or role_id).strip() or role_id
     dimension_label = ROLE_ID_TO_DIMENSION.get(role_id, dimension_key)
@@ -1405,14 +1483,6 @@ def _run_validator_with_context(
         "metrics": result_core.get("metrics", {}) or {},
         "summary": str(result_core.get("summary") or ""),
         "severity_counts": severity_counts,
-        "type_pack_fit_summary": {
-            "enabled": bool(type_pack_fit.get("enabled")),
-            "active_packs": list(type_pack_fit.get("active_packs") or []),
-            "semantic_tags": list(type_pack_fit.get("semantic_tags") or []),
-            "fit_score": _safe_int(type_pack_fit.get("fit_score"), 0),
-            "required_hooks": list(type_pack_fit.get("required_hooks") or []),
-        },
-        "type_pack_fail_signals": list(type_pack_fit.get("hard_fail_signals") or []),
         "critical_issues": [item for item in issues if str(item.get("severity")) == "critical"],
         "default_rework_targets": list(spec.get("default_rework_targets") or []),
         "source_trace": {

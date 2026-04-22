@@ -3,7 +3,7 @@
 ## Purpose & Loading Contract
 
 - 本文件是 `4-Validation` 父技能的经验层知识库，不是第二份阶段合同。
-- 每次调用 `4-Validation` 时，应与 `SKILL.md` 一起加载，用于识别卷级 pack 缺口、并发聚合错误、章级回流漂移与 review/loopback 接驳问题。
+- 每次调用 `4-Validation` 时，应与 `SKILL.md` 一起加载，用于识别卷级 fact pack 缺口、并发聚合错误、章级回流漂移与 review/loopback 接驳问题。
 - 冲突优先级固定为：用户显式请求 > AGENTS.md / 元规则 > `SKILL.md` > `CONTEXT.md`。
 
 ## Context Health
@@ -19,7 +19,8 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 仍把 `4-Validation` 当成单集终验 | stage unit contract | 把父层 aggregate sink 改成卷级 `第V卷.validation.json` | 固定“卷级 gate，章级 issue index”双层模型 | review/loopback 只消费卷级 aggregate |
-| 六个子技能并发时读取了不同卷快照 | concurrency contract | 统一重锁卷级 pack 与正文快照 | 父层合同写死“同一快照、同一 pack、先锁后并发” | 六维报告的 `pack_ref / manuscript_refs` 一致 |
+| registry 已定义的子技能并发时读取了不同卷快照 | concurrency contract | 统一重锁卷级 pack 与正文快照 | 父层合同写死“同一快照、同一 pack、先锁后并发” | 各维报告的 `pack_ref / manuscript_refs` 一致 |
+| 支流任务明明没回主线，却被误判成普通节奏松弛 | task convergence drift | 单列 `任务汇聚` 维度 | 固定检查 `从属 / 汇聚 / 转挂 / 保留开放` 四种去向 | validation 不再把悬空支流吞进模糊总评 |
 | 卷级 aggregate 只有总分，没有章级返工入口 | routing granularity | 补 `chapter_issue_index` 与 step 级 `rework_targets` | 固定卷级父裁决必须带章级定位 | drafting 能精确回到受影响 worker |
 | 明明是 planning continuity pack 漂移，却被打回 drafting | source trace routing | 改判为 `back_to_source_contract` | 让 issue 强制带 `source_layer_owner` | drafting 不再背 upstream 的锅 |
 | 维度 sidecar 被误当成总 gate | composite output contract | 强调 sidecar 只作证据层 | 在 root/shared/template 中固定单一卷级 gate truth | 下游只认 aggregate JSON |
@@ -27,7 +28,7 @@
 ## Repair Playbook
 
 1. 先确认这是卷级验收，不要先回到单集思维。
-2. 再确认 pack 是否锁对了当前卷的 `volume_board / chapter_refs / continuity matrix`。
+2. 再确认 pack 是否锁对了当前卷的 `volume_planning_summary / chapter_planning_packets / chapter_refs / continuity matrix`。
 3. 若 aggregate 与 sidecar 冲突，优先修 child output contract 或聚合模板，不先改 prose。
 4. 若问题看起来像正文缺陷，先问一句：upstream truth 是否本身冲突。
 5. 若 `PASS` 了却无法接到 `review/5-Loopback`，优先检查 aggregate JSON 字段齐全度与 route 值。

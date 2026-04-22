@@ -2,7 +2,7 @@
 name: story-plan
 governance_tier: full
 description: |
-  Use when story2026 needs whole-book planning passes, story_map rebuild, planning sequence repair, or source-layer fixes that must converge into `2-Planning/全息地图.json` plus governed ten-episode planning slices.
+  Use when story2026 needs fractal planning passes that converge into `2-Planning/整体规划.md` + `2-Planning/第N卷/卷规划.md` + `2-Planning/第N卷/第N章.md`, with optional compatibility projection kept outside the primary business truth.
 tools: [Read, Write, Edit, Grep, Bash]
 color: indigo
 ---
@@ -12,142 +12,109 @@ color: indigo
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 本技能已从“单技能 + references 模块”重构为“父 skill + 7 个受治理子技能包 + shared story_map root”。
-- 所有 planning 写入必须先回读当前 `2-Planning/全息地图.json`，再按 `episode_slice_manifest` 回读受影响 slice；若 root 不存在，先用 shared bootstrap template 建立 global root，再建立所需卷分片。
+- `2-Planning` 现行结构固定为“父 skill + 3 个受治理子技能包”：
+  1. `1-部级`
+  2. `2-卷级`
+  3. `3-章级`
+- 旧的 `章节规划 / 故事大纲 / 冲突设计 / 任务设计 / 线索设计 / 伏笔设计` 已被吸收进这三层内部，不再作为并列 active skill 存在。
+- planning 阶段当前只负责规划型内容，不直接产出正文。
 
 ## Overview
 
-`2-Planning` 现在是 `story2026` 的 planning 阶段父 skill。
+`2-Planning` 现在采用分形规划方法：
 
-它不再把 `references/*/module-spec.md` 当作执行主体，而是显式治理 7 个直接子技能包：
+1. 先做 `1-部级`，锁整部作品的总纲、卷划分和整部节奏曲线。
+2. 再做 `2-卷级`，把整部规划下钻到单卷任务、人物、场景、道具、卷级节奏与主支线汇聚方案。
+3. 最后做 `3-章级`，把单章故事概要、节奏、线索、伏笔与支流汇聚动作落到可直接供 drafting 消费的章级规划。
 
-1. `1-题材选型`
-2. `2-章节规划`
-3. `3-故事大纲`
-4. `4-冲突设计`
-5. `5-任务设计`
-6. `6-线索设计`
-7. `7-伏笔设计`
-新的 canonical 路线是：
+递进原则固定为：
 
-1. 每个子技能产出自己的 `story_map_patch`，并把本地 evidence artifact 落到 `2-Planning/pass-artifacts/`。
-2. 父层先把 `1-Cards/2-角色卡` 导入为 `character_roster_projection / relationship_graph_projection`。
-3. 父层按固定顺序 `1 -> 7` 串行 progressive commit 到“global index root + 受影响 slice”。
-4. `2-Planning/全息地图.json` 是唯一全局索引真源；episode-local dense planning 必须落在 `2-Planning/卷分片/*.json`。
-5. 父层最后只做 normalize / validate，不再额外引入其他派生视图写回。
+- 层级越高，回答“整部书为什么成立”。
+- 层级越低，回答“这一卷 / 这一章具体怎样成立”。
+- 颗粒度随着层级递进持续放大，不得倒序生成。
 
 ## Parent Positioning
 
 ### 父层拥有
 
-- root bootstrap / root lock
-- 从 `1-Cards/2-角色卡` 导入 `character_roster_projection / relationship_graph_projection`
-- mode routing
-- 7 个子技能的固定顺序门
-- progressive commit 与 ownership gate
-- 统一 story_map 写回
-- 最终 normalize / validate / close
+- 三层规划的先后顺序裁决
+- 输入真源锁定与层级回读
+- `类型卡 / 角色卡 / 场景卡 / 物品卡` 到 planning 的最小导入边界
+- canonical output 路径与命名规则
+- 最终结构校验与闭环
 
 ### 父层不拥有
 
-- 替任一子技能重写领域判断
-- 把 1-7 的证据层再压缩成“更顺的一篇大纲 prose”
-- 越权修改子技能拥有的 `story_map` 槽位
-- 跳过上游 child 直接补下游 child 的正式写入
-- 在 `.agents/skills/story/2-Planning/` 根层维护 stage 私有 `templates/`
+- 越权代写某一层内部内容
+- 把三层规划再压缩成第二份平行总纲
+- 在 planning 阶段直接产出正文
 
 ## Governed Child Skills
 
-| order | child skill | 正式落盘 | owned story_map slots |
+| order | child skill | 正式落盘 | 层级职责 |
 | --- | --- | --- | --- |
-| 1 | `1-题材选型` | global root | `story_promise`、`genre_corridor`、题材导航规则 |
-| 2 | `2-章节规划` | global root + slices | 卷级 planning contract `volume_boards`、`episode_slice_manifest`、薄 `episode_sequence_axis`、slice `slice_style_contract`、slice `chapter_boards` skeleton、卷级 continuity pack |
-| 3 | `3-故事大纲` | global root + slices | `story_spine`、slice 章节主干事件挂载 |
-| 4 | `4-冲突设计` | global root + slices | `conflict_threads`、slice 冲突挂载 |
-| 5 | `5-任务设计` | global root + slices | `mission_threads`、slice 任务挂载 |
-| 6 | `6-线索设计` | global root + slices | `clue_threads`、slice 线索挂载 |
-| 7 | `7-伏笔设计` | global root + slices | `foreshadow_threads`、slice 伏笔挂载与静默窗口 |
-
-父层 normalize-only import slots：
-
-- `content.holomap.character_roster_projection`
-- `content.holomap.relationship_graph_projection`
+| 1 | `1-部级` | `2-Planning/整体规划.md` | 锁书名、整体故事大纲、卷划分、整部节奏曲线、总规避项 |
+| 2 | `2-卷级` | `2-Planning/第N卷/卷规划.md` | 锁单卷标题、卷故事大纲、章划分、卷节奏、卷人物/场景/道具/任务线、卷末达成、卷规避 |
+| 3 | `3-章级` | `2-Planning/第N卷/第N章.md` | 锁单章标题、章故事概要、章节奏、章人物/场景/道具/任务线、线索、伏笔、章末达成、章规避 |
 
 ## Shared Canonical Sources
 
-- `../_shared/story_map.schema.json`
-- `../_shared/story_map_bootstrap.template.json`
+- `../_shared/core-constraints.md`
 - `../_shared/character-planning-bridge.md`
-- `../_shared/type-pack-loading-contract.md`
-- `./_shared/planning-slice-layout-contract.md`
-- `./_shared/planning-branch-output-contract.md`
-- `./scripts/validate_story_map_output.py`
-- `1-题材选型/SKILL.md`
-- `2-章节规划/SKILL.md`
-- `3-故事大纲/SKILL.md`
-- `4-冲突设计/SKILL.md`
-- `5-任务设计/SKILL.md`
-- `6-线索设计/SKILL.md`
-- `7-伏笔设计/SKILL.md`
+- `./_shared/fractal-planning-layout-contract.md`
+- `./_shared/fractal-planning-output-contract.md`
+- `./_shared/rhythm-design-field-matrix.md`
+- `../_shared/chapter-rhythm-handoff-contract.md`
+- `./scripts/validate_planning_outputs.py`
+- `../1-Cards/类型卡/SKILL.md`
+- `../1-Cards/角色卡/SKILL.md`
+- `../1-Cards/场景卡/SKILL.md`
+- `../1-Cards/物品卡/SKILL.md`
+- `1-部级/SKILL.md`
+- `2-卷级/SKILL.md`
+- `3-章级/SKILL.md`
 
 ## Canonical Output Root
 
 - `2-Planning` 的正式业务落盘根目录固定为 `projects/story/<项目名>/2-Planning/`
-- canonical planning truth 固定为两层：
-  - 全局索引根：`projects/story/<项目名>/2-Planning/全息地图.json`
-  - 卷分片：`projects/story/<项目名>/2-Planning/卷分片/第1卷.json` 等
-- 在当前制度下，`卷分片` 是卷级 planning carrier；固定 `10 章 = 1 卷` 时，下游 `3-Drafting / 4-Validation / 5-Loopback` 都必须把它当作卷地图真源来消费。
-- `1-7` 子技能虽按顺序生成 patch，但不得各自再起 sibling story_map JSON 作为平行真源。
-- `全息地图.json` 是单一 dispatch anchor；卷分片是唯一 volume-local dense planning carrier，不是“临时缓存”。
-
-## Template Layering Contract
-
-`2-Planning` 根层不再维护 stage 私有 `templates/` 目录。
-
-规则固定为：
-
-1. 各 planning child 的 artifact 模板必须跟随各自子技能包落在本地 `templates/`。
-2. 父层只保留 shared schema、bootstrap template、branch output contract 与 validator。
-3. 若某模板只服务某一个 planning child，不得再上提回 `2-Planning/templates/`。
-4. 若未来出现真正跨多个 planning child 复用的模板，应优先评估是否进入 `../_shared/`，而不是重新建立根层 `templates/`。
+- primary business truth 固定为三层 Markdown：
+  - `projects/story/<项目名>/2-Planning/整体规划.md`
+  - `projects/story/<项目名>/2-Planning/第N卷/卷规划.md`
+  - `projects/story/<项目名>/2-Planning/第N卷/第N章.md`
+- 若当前项目仍保留 `全息地图.json / 卷分片/*.json`，它们只视为兼容期 projection，不再视为本轮 planning 的 primary business truth。
 
 ## Business Requirement Analysis Contract
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把整书 planning 收束成“总索引 + 按卷分片”的双层 canonical truth，并保持全局索引与 volume-local dense planning 的边界清晰。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`、`projects/story/<项目名>/1-Cards/**/*.json`、`projects/story/<项目名>/1-Cards/2-角色卡/角色关系图谱.md`、`projects/story/<项目名>/2-Planning/全息地图.json`、`projects/story/<项目名>/2-Planning/卷分片/*.json`、以及 active `type-pack` 的 root projection。 |
-| `constraint_profile` | 1-7 固定串行；后一 child 必须读取当前 root 与受影响 slice；1-7 只写自己的 owned patch；父层只做角色/关系 projection 导入、manifest / thin axis / normalize 与收束；下游继续 holomap-first，再按 episode 命中 slice。 |
-| `success_criteria` | 任一 child 都能回答“我拥有 global 哪一段、卷分片哪一段”；父层能 progressive commit；global root 保留题材、容器、主干、四条长线、角色/关系投影、pack projection 与导航；dense board / silence / continuity pack / actualization 进入卷分片；validator 通过。 |
-| `non_goals` | 不制造第二份 `story_map.json` 平行真源；不要求每个 child 各自维护一套独立大纲；不把 slice 当临时缓存；不把 `references/*` 保留为隐式执行入口。 |
-| `complexity_source` | 复杂度来自顺序依赖、global-vs-slice ownership、progressive commit 连续性，以及 downstream holomap-first + slice-second 兼容。 |
-| `topology_fit` | 固定为 `input lock -> root bootstrap -> slice resolve -> serial child dispatch -> progressive commit -> normalize -> validate -> close`。 |
-| `step_strategy` | 父层只保留顺序门、写回门和验收门；领域思考与执行节点下沉到 7 个 child skills。 |
+| `business_goal` | 用“部级 -> 卷级 -> 章级”的分形递进，把整书规划从宏观承诺一路收束到章级执行蓝图。 |
+| `business_object` | `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml`、`1-Cards/**/*.json`、`2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md`。 |
+| `constraint_profile` | planning 阶段只写规划，不写正文；先部后卷再章；每层必须回读上层已确认输出。 |
+| `success_criteria` | 三层文档都具备稳定标题与必填段落；节奏设计在部/卷/章三层都具备明确方法论与 Mermaid 图；其中章级还能直接输出 drafting 可消费的 rhythm handoff，并且任务从属/支流/汇聚关系能从章级一路上溯回部级。 |
+| `non_goals` | 不保留旧 6 个并列规划 skill；不在 planning 阶段直接写小说正文；不把角色卡/场景卡/道具卡复制成第二真源。 |
+| `complexity_source` | 复杂度来自层级递进、节奏方法切换、跨层回读和旧分散技能的消化归拢。 |
+| `topology_fit` | 固定为 `输入锁定 -> 部级总纲 -> 卷级分解 -> 章级细化 -> 结构校验 -> 闭环`。 |
+| `step_strategy` | 父层只负责顺序门、命名门、校验门；领域写作下沉到三个 child skills。 |
 
 ## Context Preload
 
 1. 根 `AGENTS.md`
 2. `.agents/skills/story/SKILL.md + CONTEXT.md`
 3. 本 `SKILL.md + CONTEXT.md`
-4. `../_shared/story_map.schema.json`
-5. `../_shared/story_map_bootstrap.template.json`
-6. `../_shared/character-planning-bridge.md`
-7. `../_shared/type-pack-loading-contract.md`
-8. `./_shared/planning-slice-layout-contract.md`
-9. `./_shared/planning-branch-output-contract.md`
-10. `0-Init/north_star.yaml`
-11. `0-Init/init_handoff.yaml`
-12. `1-Cards/0-全局卡/**/*.json`
-13. `1-Cards/**/*.json`
-14. 当前 `2-Planning/全息地图.json`（若存在）
-15. 当前 `2-Planning/卷分片/*.json`（若存在）
-16. `1-题材选型/SKILL.md + CONTEXT.md`
-17. `2-章节规划/SKILL.md + CONTEXT.md`
-18. `3-故事大纲/SKILL.md + CONTEXT.md`
-19. `4-冲突设计/SKILL.md + CONTEXT.md`
-20. `5-任务设计/SKILL.md + CONTEXT.md`
-21. `6-线索设计/SKILL.md + CONTEXT.md`
-22. `7-伏笔设计/SKILL.md + CONTEXT.md`
+4. `0-Init/north_star.yaml`
+5. `0-Init/init_handoff.yaml`
+6. `1-Cards/**/*.json`
+7. `../_shared/core-constraints.md`
+8. `../_shared/character-planning-bridge.md`
+9. `./_shared/fractal-planning-layout-contract.md`
+10. `./_shared/fractal-planning-output-contract.md`
+11. `./_shared/rhythm-design-field-matrix.md`
+12. 已存在的 `2-Planning/整体规划.md`
+13. 已存在的 `2-Planning/第N卷/卷规划.md`
+14. 已存在的 `2-Planning/第N卷/第N章.md`
+15. `1-部级/SKILL.md + CONTEXT.md`
+16. `2-卷级/SKILL.md + CONTEXT.md`
+17. `3-章级/SKILL.md + CONTEXT.md`
 
 ## Total Input Contract
 
@@ -155,159 +122,76 @@ color: indigo
 
 - `0-Init/north_star.yaml`
 - `0-Init/init_handoff.yaml`
-- `1-Cards/0-全局卡/**/*.json`
 - `1-Cards/**/*.json`
 
 ### 可选输入
 
-- 当前 `2-Planning/全息地图.json`
-- 当前 `2-Planning/卷分片/*.json`
-- 当前 `2-Planning/pass-artifacts/*.json`
+- 已存在的 `整体规划.md / 第N卷/卷规划.md / 第N卷/第N章.md`
 - `STATE.json`
-- `team.yaml`（若项目存在）
+- `team.yaml`
 
 ### 硬规则
 
-1. `2-Planning/全息地图.json` 存在时，必须把它当当前 story_map root 回读。
-2. 若 root 缺失，必须先建立 bootstrap root，再进入 Step 1。
-3. 任一 child 开始前，都必须重新读取当前 root，并按 `episode_slice_manifest` 读取本轮受影响 slice，而不是复用前一步缓存。
-4. 任一 child 只允许写自己的 owned `story_map_patch.global_patch / slice_patches`。
-5. 只有父层允许导入 `character_roster_projection / relationship_graph_projection`，并补齐三轴、manifest、thin axis、cross-thread index、lifecycle 和 normalize 结构。
-6. 当 `story_promise.type_stack_ref.active_packs` 非空时，`2-章节规划 / 4-冲突设计 / 5-任务设计` 必须显式消费 `genre_corridor.type_pack_projection`，不得回到局部题材猜测。
-7. `2-章节规划 / 4-冲突设计 / 5-任务设计` 只允许引用角色/关系 projection 的 id 与 hook，不得复制完整角色卡字段。
-7. 世界观、规则体系、年代约束、文化艺术、科技/武功与金手指，默认优先取自 `1-Cards/0-全局卡/**/*.json`；只有全局卡缺失时，才允许回退到 `north_star.yaml.cards`。
-8. 启用 `total-index-plus-deciles` 后，global root 不得再承载 full `chapter_boards` 或 episode-local actualization 明细。
+1. 没有 `整体规划.md` 时，不得直接开始批量卷级或章级规划。
+2. 没有目标卷 `第N卷/卷规划.md` 时，不得直接生成该卷下属 `第N章.md`。
+3. 卷级与章级必须显式回读上一级已确认内容，不得凭空重猜总纲。
+4. 任何“当前层级的局部规划”都必须加载上一层级的完整总输出作为上下文，而不是只截取标题或摘要。
+5. 例如：进行“第一卷第二章”规划时，必须先完整读取 `2-Planning/第1卷/卷规划.md`，再读取 `2-Planning/整体规划.md`，然后才允许写 `2-Planning/第1卷/第2章.md`。
+6. `角色卡 / 场景卡 / 物品卡 / 类型卡` 只能作为 planning 输入真源，不能在 planning 中被平行复制成完整卡册。
+7. 部级默认使用 `Save the Cat 15 步` 表达整部节奏。
+8. 卷级必须使用卷级节奏机制，而不是把部级 15 步原封不动缩小一轮。
+9. 章级节奏必须延续当前“七步结构 + 动静结合”方法论。
+10. 章级 `本章节奏曲线` 必须显式锁 `selected_pack / selected_mode / 七步职责映射 / 规划义务 / 义务段位 / 建议写法`，不得只留一个自然语言段落让 drafting 二次猜测。
+11. 所有输出都必须包含用户要求的标题与段落，不得以表格或 JSON 偷渡替代。
+12. 部级必须显式锁定整部任务关系，不得只靠 `卷划分` 暗示主任务树。
+13. 卷级必须显式写清任务如何上承部级主任务、如何下钻到章节职责、以及如何汇聚回主线。
+14. 章级必须显式写清本章支流任务的汇聚动作或未汇聚去向，不得让下游继续猜。
 
 ## Dispatch Order Contract
 
 ### 固定顺序
 
-`1-题材选型 -> 2-章节规划 -> 3-故事大纲 -> 4-冲突设计 -> 5-任务设计 -> 6-线索设计 -> 7-伏笔设计 -> 父层 normalize/validate`
+`1-部级 -> 2-卷级 -> 3-章级 -> 父层校验`
 
-### 当前 root 回读规则
+### 回读规则
 
-1. 每个 child 开始前，必须重新读取当前 `2-Planning/全息地图.json`。
-2. 若当前 child 会命中 episode-local dense planning，父层必须先按 manifest 锁定受影响 slice。
-3. 该 root 与受影响 slice 必须已经包含前序 child 审核通过并写回的 patch。
-4. 后序 child 可以把当前 root 与已更新 slice 当一致性上下文，但不得改写前序 owned slots。
-
-### 并发规则
-
-- 正式写回：禁止并发。
-- 允许并发的只有单个 child 内部的候选比较、团队会诊或草案探索。
-- 任意时刻只允许一个 child 对 story_map 执行正式 progressive commit。
+1. 进入 `2-卷级` 前，必须回读 `2-Planning/整体规划.md`。
+2. 进入 `3-章级` 前，必须回读对应 `2-Planning/第N卷/卷规划.md` 与 `2-Planning/整体规划.md`。
+3. 对当前层级做局部续写、补写或重规划时，也必须重复执行同样的上溯回读，不得因为“只是补一章/补一段”而跳过。
+4. 若上层文档已存在，默认先增量修订，再决定是否整体重写。
 
 ## Output Contract
 
-### canonical root
+### canonical outputs
 
-- `projects/story/<项目名>/2-Planning/全息地图.json`
-- `projects/story/<项目名>/2-Planning/卷分片/第1卷.json` 等
-- `projects/story/<项目名>/2-Planning/pass-artifacts/*.json`
+- `projects/story/<项目名>/2-Planning/整体规划.md`
+- `projects/story/<项目名>/2-Planning/第N卷/卷规划.md`
+- `projects/story/<项目名>/2-Planning/第N卷/第N章.md`
 
 ### hard rules
 
-1. 1-7 child 必须同时保留本地 evidence artifact 与 `story_map_patch.global_patch / slice_patches`，但不得制造第二份 story_map root。
-2. `2-Planning/全息地图.json` 必须保持 `content.holomap` 兼容入口，并声明 `episode_slice_manifest`。
-3. 卷分片必须使用 `content.holomap_slice` 作为 episode-local dense carrier。
-4. 父层 normalize 后的 root 与 slice 必须兼容 `query / 3-Drafting / 4-Validation / 5-Loopback` 的“holomap-first，再命中 slice”读取。
+1. `整体规划.md` 至少包含：`书名 / 整体故事大纲 / 卷划分 / 整体冲突 / 整体节奏曲线 / 规避`
+2. `第N卷/卷规划.md` 至少包含：`卷标题 / 本卷故事大纲 / 章划分 / 本卷冲突 / 本卷节奏曲线 / 本卷登场人物 / 本卷主要场景 / 本卷关键道具 / 本卷任务线 / 卷末达成 / 规避`；其中 `本卷任务线` 内必须带 `上承部级主任务 / 主线 / 支线 / 支流角色 / 下钻章级任务分配 / 汇聚回主线`
+3. `第N卷/第N章.md` 至少包含：`章标题 / 本章故事概要 / 本章冲突 / 本章节奏曲线 / 本章登场人物 / 本章主要场景 / 本章关键道具 / 本章任务线 / 章末达成 / 本章线索 / 本章伏笔 / 规避`，且 `本章节奏曲线` 内必须带 `selected_pack / selected_mode / 七步职责映射 / 规划义务 / 义务段位 / 建议写法`，`本章任务线` 内必须带 `上承卷级任务 / 主线 / 支线 / 支流角色 / 汇聚动作 / 未汇聚任务去向`
+4. 三层节奏段落都必须包含 Mermaid 图。
+5. planning 输出必须是规划性文本，不得在这些文件中直接产出正文段落。
 
-## Visual Maps
-
-```mermaid
-flowchart TD
-    A["N1 Input Lock"] --> B["N2 Root Bootstrap"]
-    B --> B1["N2b Slice Resolve"]
-    B1 --> C["N3 Serial Child Dispatch"]
-    C --> D["N4 Progressive Commit"]
-    D --> E["N5 Normalize"]
-    E --> F["N6 Validate"]
-    F --> G["Close"]
-```
+## Visual Map
 
 ```mermaid
 flowchart TD
-    A["Child n starts"] --> B["Read current story_map root"]
-    B --> B1["Resolve affected decile slices"]
-    B1 --> C["Run child skill and generate evidence artifact"]
-    C --> D["Review owned slots"]
-    D --> E{"target_json_paths overlap?"}
-    E -- "Yes" --> F["Block and return fail code"]
-    E -- "No" --> G["Commit patch to root + slices"]
-    G --> H["Next child rereads refreshed root"]
+    A["输入锁定<br/>0-Init + 1-Cards"] --> B["1-部级<br/>整体规划.md"]
+    B --> C["2-卷级<br/>第N卷/卷规划.md"]
+    C --> D["3-章级<br/>第N卷/第N章.md"]
+    D --> E["父层结构校验"]
+    E --> F["planning close"]
 ```
-
-```mermaid
-graph LR
-    A["1-题材选型"] --> R["global index root"]
-    B["2-章节规划"] --> R
-    B --> S["decile slices"]
-    C["3-故事大纲"] --> S
-    D["4-冲突设计"] --> S
-    E["5-任务设计"] --> S
-    F["6-线索设计"] --> S
-    G["7-伏笔设计"] --> S
-    R --> X["3-Drafting / query / resume / 5-Loopback"]
-    S --> X
-```
-
-## Thinking-Action Network
-
-| node_id | field_id | objective | actions | evidence | route_out | gate |
-| --- | --- | --- | --- | --- | --- | --- |
-| `N1-INPUT-LOCK` | `FIELD-PL-01` | 锁定本轮输入真源与任务模式 | 读取 Init/1-Cards/Planning 现状 | `input_lock_note` | -> `N2` | 输入齐备 |
-| `N2-ROOT-BOOTSTRAP` | `FIELD-PL-02` | 建立或回读 global root，并导入角色/关系 projection 与 type-pack 根投影 | 读取或生成 bootstrap root，导入 `character_roster_projection / relationship_graph_projection`，锁 `type_stack_ref / type_pack_projection` | `root_bootstrap_note` | -> `N3` | root 唯一 |
-| `N3-SERIAL-DISPATCH` | `FIELD-PL-03` | 按顺序运行 7 个 child skills，并锁本轮受影响 slice | 每步先回读当前 root，再解析 manifest 命中 slice，再调度 child | `dispatch_log` | -> `N4` | 固定顺序成立 |
-| `N4-PROGRESSIVE-COMMIT` | `FIELD-PL-04` | 把 child patch 写回 root 与 slice | 校验 ownership、写回 patch、刷新 root 与 slice | `commit_trace` | -> `N5` | 不越权、不冲突 |
-| `N5-NORMALIZE` | `FIELD-PL-05` | 由父层收束三轴与导航结构 | 补齐 three-axis、cross-thread、lifecycle | `normalize_note` | -> `N6` | root 可消费 |
-| `N6-VALIDATE` | `FIELD-PL-06` | 校验最终 root | 运行 validator，自检 fail codes | `validation_verdict` | pass -> done | validator 通过 |
-
-## Field Master
-
-| field_id | output_slot | 内容要求 | default_step | quality_dimension | fail_code |
-| --- | --- | --- | --- | --- | --- |
-| `FIELD-PL-01` | 输入锁定 | Init/1-Cards/Planning 真源齐备 | `S1` | 输入稳定性 | `FAIL-PL-01` |
-| `FIELD-PL-02` | root bootstrap | global root 唯一且可回读 | `S1` | 真源唯一性 | `FAIL-PL-02` |
-| `FIELD-PL-03` | serial dispatch | 7 个 child 串行顺序成立 | `S2` | 顺序完整性 | `FAIL-PL-03` |
-| `FIELD-PL-04` | progressive commit | child 只写 owned root/slice slots | `S3-S7` | ownership 一致性 | `FAIL-PL-04` |
-| `FIELD-PL-05` | normalized story_map | 三轴、manifest、threads 成立，dense payload 已落 slice | `S8` | 收束质量 | `FAIL-PL-05` |
-| `FIELD-PL-06` | validation verdict | validator 通过且下游可消费 | `S8` | 可交付性 | `FAIL-PL-06` |
-
-## Thought Pass Map
-
-| step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
-| --- | --- | --- | --- | --- |
-| `S1` | `FIELD-PL-01~02` | 本轮输入齐了吗，root 是否唯一 | 锁输入并 bootstrap root | root 缺失或多真源 |
-| `S2` | `FIELD-PL-03` | child 顺序是否固定且可执行 | 生成 dispatch run list | 仍尝试并行正式写回 |
-| `S3-S7` | `FIELD-PL-04` | 当前 child 是否只写自己的槽位 | 逐 child commit patch | overlap 或越权 |
-| `S8` | `FIELD-PL-05~06` | 父层是否把 root 收束为可消费 story_map | normalize + validate | holomap 仍像摘要 |
-
-## Pass Table
-
-| field_id | pass_standard | fail_code | rework_entry |
-| --- | --- | --- | --- |
-| `FIELD-PL-01` | 输入真源齐备 | `FAIL-PL-01` | `S1` |
-| `FIELD-PL-02` | root 唯一且可回读 | `FAIL-PL-02` | `S1` |
-| `FIELD-PL-03` | child 串行顺序成立 | `FAIL-PL-03` | `S2` |
-| `FIELD-PL-04` | progressive commit 无 overlap | `FAIL-PL-04` | 对应 child |
-| `FIELD-PL-05` | root 收束完成 | `FAIL-PL-05` | `S8` |
-| `FIELD-PL-06` | validator 通过 | `FAIL-PL-06` | `S8` |
-
-## Root-Cause Execution Contract
-
-出现以下任一情况，必须先修源层：
-
-- 仍从 `references/*` 直调旧模块
-- child 未回读当前 root 就继续写入
-- 两个 child 命中同一路径
-- 父层 normalize 越权重写 1-7 的领域判断
-- story_map root 丢失 `content.holomap` 兼容入口
 
 ## Completion Contract
 
-只有同时满足以下条件，`2-Planning` 才允许宣布完成：
+完成 `2-Planning` 前，至少确认：
 
-1. 1-7 child patch 已完成 progressive commit。
-2. `2-Planning/全息地图.json` 已完成父层 normalize，并带有 `character_roster_projection / relationship_graph_projection`。
-3. validator 通过。
-4. story_map 仍可被下游 holomap-first 消费。
+1. 三层技能包都存在 `SKILL.md + CONTEXT.md`。
+2. `整体规划.md / 第N卷/卷规划.md / 第N卷/第N章.md` 的模板与必填标题已稳定。
+3. 父层、共享合同、路径脚本与上游 bridge 文档已同步到新结构。
+4. `python3 .agents/skills/story/2-Planning/scripts/validate_planning_outputs.py --help` 可执行。

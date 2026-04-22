@@ -4,7 +4,7 @@
 extract_chapter_context.py - extract chapter writing context
 
 Features:
-- chapter planning snippet (holomap-first, legacy outline fallback)
+- chapter planning snippet (chapter-plan-first, holomap compatibility fallback)
 - previous chapter summaries (prefers .webnovel/summaries)
 - compact state summary
 - ContextManager contract sections (reader_signal / genre_profile / writing_guidance)
@@ -21,6 +21,15 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from chapter_outline_loader import load_chapter_outline, load_holomap_chapter_context
+from planning_paths import (
+    canonical_book_plan_path,
+    canonical_book_plan_relpath,
+    canonical_chapter_plan_path,
+    canonical_chapter_plan_relpath,
+    canonical_volume_plan_path,
+    canonical_volume_plan_relpath,
+    planning_volume_num_for_chapter,
+)
 
 from runtime_compat import enable_windows_utf8_stdio
 
@@ -69,7 +78,7 @@ def find_project_root(start_path: Path | None = None) -> Path:
 
 
 def extract_chapter_outline(project_root: Path, chapter_num: int) -> str:
-    """Extract chapter planning segment, preferring holomap over legacy outlines."""
+    """Extract chapter planning segment, preferring canonical chapter plans over compatibility carriers."""
     return load_chapter_outline(project_root, chapter_num, max_chars=1500)
 
 
@@ -315,6 +324,115 @@ def _load_story_source_manifest_summary(project_root: Path) -> Dict[str, Any]:
     }
 
 
+def _load_json_object(path: Path) -> Dict[str, Any]:
+    if not path.is_file():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _extract_holomap_slice_root(payload: Dict[str, Any]) -> Dict[str, Any]:
+    content = payload.get("content")
+    if isinstance(content, dict):
+        holomap_slice = content.get("holomap_slice")
+        if isinstance(holomap_slice, dict):
+            return holomap_slice
+    holomap_slice = payload.get("holomap_slice")
+    return holomap_slice if isinstance(holomap_slice, dict) else {}
+
+
+def _safe_dict(value: Any) -> Dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _safe_list(value: Any) -> List[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _extract_episode_num(value: Any) -> int | None:
+    if isinstance(value, int):
+        return value if value > 0 else None
+    text = str(value or "").strip()
+    if not text:
+        return None
+    match = re.search(r"(\d+)", text)
+    if not match:
+        return None
+    parsed = int(match.group(1))
+    return parsed if parsed > 0 else None
+
+
+def _select_episode_rhythm_role(
+    roles: Any,
+    *,
+    chapter_num: int,
+    episode_ref: str,
+) -> Dict[str, Any]:
+    best_match: Dict[str, Any] = {}
+    for item in _safe_list(roles):
+        role = _safe_dict(item)
+        if not role:
+            continue
+        selector = str(
+            role.get("episode_selector")
+            or role.get("episode_ref")
+            or role.get("chapter_ref")
+            or role.get("chapter_selector")
+            or ""
+        ).strip()
+        if selector == episode_ref:
+            return role
+        if selector and _extract_episode_num(selector) == chapter_num:
+            best_match = role
+    if best_match:
+        return best_match
+    if len(_safe_list(roles)) == 1:
+        return _safe_dict(_safe_list(roles)[0])
+    return {}
+
+
+def _load_episode_rhythm_handoff(project_root: Path, planning_ctx: Dict[str, Any], chapter_num: int) -> Dict[str, Any]:
+    episode_ref = f"第{chapter_num}集"
+    board = _safe_dict(planning_ctx.get("chapter_board"))
+    slice_path_raw = str(planning_ctx.get("slice_path") or "").strip()
+    slice_root = _extract_holomap_slice_root(_load_json_object(Path(slice_path_raw))) if slice_path_raw else {}
+
+    framework = _safe_dict(slice_root.get("episode_rhythm_framework")) or _safe_dict(board.get("episode_rhythm_framework"))
+    role = _select_episode_rhythm_role(
+        slice_root.get("episode_rhythm_roles"),
+        chapter_num=chapter_num,
+        episode_ref=episode_ref,
+    ) or _safe_dict(board.get("episode_rhythm_role"))
+    slice_style_contract = _safe_dict(slice_root.get("slice_style_contract"))
+
+    if not framework and not role and not slice_style_contract:
+        return {}
+
+    entry_promise = str(role.get("entry_promise") or slice_style_contract.get("entry_promise") or "").strip()
+    exit_hook = str(role.get("exit_hook") or slice_style_contract.get("exit_hook") or "").strip()
+
+    return {
+        "episode_ref": episode_ref,
+        "framework_ref": str(planning_ctx.get("slice_ref") or "").strip(),
+        "framework_path": slice_path_raw,
+        "framework": framework,
+        "role": role,
+        "selected_pack_id": str(role.get("selected_pack_id") or framework.get("default_pack_id") or "").strip(),
+        "selected_pack_label": str(role.get("selected_pack_label") or framework.get("default_pack_label") or "").strip(),
+        "selected_mode_id": str(role.get("selected_mode_id") or "").strip(),
+        "selected_mode_label": str(role.get("selected_mode_label") or "").strip(),
+        "yin_yang_polarity": str(role.get("yin_yang_polarity") or "").strip(),
+        "polarity_sequence_note": str(role.get("polarity_sequence_note") or "").strip(),
+        "why_this_pack": str(role.get("why_this_pack") or "").strip(),
+        "entry_promise": entry_promise,
+        "exit_hook": exit_hook,
+        "base_spine_projection": [item for item in _safe_list(role.get("base_spine_projection")) if isinstance(item, dict)],
+    }
+
+
 def _split_planning_obligation_fragments(value: Any) -> List[str]:
     fragments: List[str] = []
     if isinstance(value, list):
@@ -523,6 +641,7 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
     story_skeleton = (sections.get("story_skeleton") or {}).get("content", {})
     writing_guidance = (sections.get("writing_guidance") or {}).get("content", {})
     planning_ctx = load_holomap_chapter_context(project_root, chapter_num)
+    episode_rhythm_handoff = _load_episode_rhythm_handoff(project_root, planning_ctx, chapter_num)
     active_foreshadowing = core.get("active_foreshadowing") or []
     story_skeleton_items = story_skeleton if isinstance(story_skeleton, list) else []
     story_skeleton_first = story_skeleton_items[0] if story_skeleton_items and isinstance(story_skeleton_items[0], dict) else {}
@@ -531,8 +650,15 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "style_contract_ref": global_ctx.get("style_contract_ref", ""),
         "global_contract_refs": global_ctx.get("global_contract_refs", []),
         "project_preferences": (sections.get("preferences") or {}).get("content", {}) or {},
-        "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}) or {},
     }
+    volume_num = planning_volume_num_for_chapter(chapter_num, project_root=project_root)
+    book_plan_ref = canonical_book_plan_relpath() if canonical_book_plan_path(project_root).is_file() else ""
+    volume_plan_ref = canonical_volume_plan_relpath(volume_num) if canonical_volume_plan_path(project_root, volume_num).is_file() else ""
+    chapter_plan_ref = (
+        canonical_chapter_plan_relpath(chapter_num, volume_num, project_root=project_root)
+        if canonical_chapter_plan_path(project_root, chapter_num, volume_num).is_file()
+        else ""
+    )
     chapter_board = {
         "outline": story_skeleton_first.get("summary", "") if isinstance(story_skeleton_first, dict) else "",
         "chapter_goals": story_skeleton_first.get("chapter_goals", []) if isinstance(story_skeleton_first, dict) else [],
@@ -593,6 +719,89 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
             "planning_slice_ref": str(planning_ctx.get("slice_ref") or "").strip(),
             "planning_slice_path": str(planning_ctx.get("slice_path") or "").strip(),
         }
+    if episode_rhythm_handoff:
+        chapter_board["episode_rhythm_handoff"] = episode_rhythm_handoff
+        chapter_board["selected_mode_id"] = episode_rhythm_handoff.get("selected_mode_id", "")
+        chapter_board["selected_mode_label"] = episode_rhythm_handoff.get("selected_mode_label", "")
+        chapter_board["entry_promise"] = episode_rhythm_handoff.get("entry_promise", "")
+        chapter_board["exit_hook"] = episode_rhythm_handoff.get("exit_hook", "")
+        chapter_board["base_spine_projection"] = episode_rhythm_handoff.get("base_spine_projection", [])
+
+    def _collect_task_texts(*values: object) -> list[str]:
+        items: list[str] = []
+        for value in values:
+            if isinstance(value, str):
+                text = value.strip()
+                if text:
+                    items.append(text)
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, str) and item.strip():
+                        items.append(item.strip())
+        unique: list[str] = []
+        seen: set[str] = set()
+        for item in items:
+            if item not in seen:
+                unique.append(item)
+                seen.add(item)
+        return unique
+
+    planning_task_lineage = planning_ctx.get("task_lineage") if isinstance(planning_ctx.get("task_lineage"), dict) else {}
+    planning_task_convergence = (
+        planning_ctx.get("task_convergence") if isinstance(planning_ctx.get("task_convergence"), dict) else {}
+    )
+    chapter_task_relation = {
+        "上承卷级任务": str(
+            slice_board.get("upstream_volume_task")
+            or planning_task_lineage.get("upstream_volume_task")
+            or planning_task_lineage.get("upstream_task")
+            or ""
+        ).strip(),
+        "主线": _collect_task_texts(
+            slice_board.get("main_task"),
+            planning_task_lineage.get("main_task"),
+            chapter_board.get("outline"),
+        )[:1],
+        "支线": _collect_task_texts(
+            slice_board.get("branch_tasks"),
+            slice_board.get("tasks"),
+            planning_task_lineage.get("branch_tasks"),
+        ),
+        "汇聚动作": str(
+            slice_board.get("merge_action")
+            or planning_task_convergence.get("merge_action")
+            or chapter_board.get("terminal_beat")
+            or _safe_dict(chapter_board.get("episode_rhythm_handoff")).get("exit_hook")
+            or ""
+        ).strip(),
+        "未汇聚任务去向": str(
+            slice_board.get("open_branch_route")
+            or planning_task_convergence.get("open_branch_route")
+            or ""
+        ).strip(),
+    }
+    volume_task_relation = {
+        "上承部级主任务": str(
+            planning_ctx.get("upstream_book_task")
+            or planning_task_lineage.get("upstream_book_task")
+            or ""
+        ).strip(),
+        "主线": _collect_task_texts(
+            planning_ctx.get("main_task"),
+            planning_task_lineage.get("main_task"),
+            _safe_dict(planning_ctx.get("story_spine")).get("headline"),
+        )[:1],
+        "支线": _collect_task_texts(
+            planning_ctx.get("branch_tasks"),
+            planning_ctx.get("tasks"),
+            planning_task_lineage.get("branch_tasks"),
+        ),
+        "汇聚回主线": str(
+            planning_ctx.get("merge_back_to_main")
+            or planning_task_convergence.get("merge_back_to_main")
+            or ""
+        ).strip(),
+    }
     cards_state_history_slice = {
         "recent_entities": core.get("recent_entities", []),
         "current_location": core.get("location", ""),
@@ -621,13 +830,43 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
         "global_card_count": global_ctx.get("global_card_count", 0),
         "global_contract_summary": global_ctx.get("global_contract_summary", {}),
     }
+    chapter_planning_packet = {
+        "chapter_ref": f"第{chapter_num}章",
+        "chapter_title": str(chapter_board.get("chapter_title") or chapter_board.get("outline") or "").strip(),
+        "story_overview": str(chapter_board.get("outline") or "").strip(),
+        "chapter_goals": chapter_board.get("chapter_goals", []),
+        "must_happen": chapter_board.get("must_happen", []),
+        "cannot_change": chapter_board.get("cannot_change", []),
+        "beat_checkpoints": chapter_board.get("beat_checkpoints", []),
+        "terminal_beat": chapter_board.get("terminal_beat", ""),
+        "bundled_elements": chapter_board.get("bundled_elements", {}),
+        "planned_state": chapter_board.get("planned_state", {}),
+        "action_beat_plan": chapter_board.get("action_beat_plan", {}),
+        "style_execution": chapter_board.get("style_execution", {}),
+        "emotion_execution": chapter_board.get("emotion_execution", {}),
+        "emotion_beat": chapter_board.get("emotion_beat", {}),
+        "anti_drift": chapter_board.get("anti_drift", []),
+        "episode_rhythm_handoff": chapter_board.get("episode_rhythm_handoff", {}),
+        "task_relation": chapter_task_relation,
+    }
+    chapter_planning_packet.update({key: value for key, value in chapter_task_relation.items() if value})
+    volume_planning_summary = {
+        "volume_ref": f"第{volume_num}卷",
+        "book_plan_ref": book_plan_ref,
+        "volume_plan_ref": volume_plan_ref,
+        "story_spine": planning_ctx.get("story_spine") if isinstance(planning_ctx.get("story_spine"), dict) else {},
+        "thread_window_slice": planning_ctx.get("thread_window_slice")
+        if isinstance(planning_ctx.get("thread_window_slice"), dict)
+        else {},
+        "task_relation": volume_task_relation,
+    }
+    volume_planning_summary.update({key: value for key, value in volume_task_relation.items() if value})
     return {
         "context_contract_version": (payload.get("meta") or {}).get("context_contract_version"),
         "context_weight_stage": (payload.get("meta") or {}).get("context_weight_stage"),
         "current_step_id": str((payload.get("meta") or {}).get("current_step_id") or current_step_id or ""),
         "reader_signal": (sections.get("reader_signal") or {}).get("content", {}),
         "genre_profile": (sections.get("genre_profile") or {}).get("content", {}),
-        "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}),
         "writing_guidance": writing_guidance,
         "validation_fact_pack": {
             "draft_snapshot": {
@@ -639,8 +878,15 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
                 "global_truth_slice": global_truth_slice,
             },
             "planning_truth": {
+                "book_plan_ref": book_plan_ref,
+                "volume_plan_ref": volume_plan_ref,
+                "chapter_plan_refs": [chapter_plan_ref] if chapter_plan_ref else [],
+                "volume_planning_summary": volume_planning_summary,
+                "chapter_planning_packets": [chapter_planning_packet],
+                "chapter_planning_packet": chapter_planning_packet,
                 "promise_slice": promise_slice,
                 "chapter_board": chapter_board,
+                "episode_rhythm_handoff": episode_rhythm_handoff,
                 "story_spine": planning_ctx.get("story_spine") if isinstance(planning_ctx.get("story_spine"), dict) else {},
                 "thread_window_slice": planning_ctx.get("thread_window_slice")
                 if isinstance(planning_ctx.get("thread_window_slice"), dict)
@@ -648,7 +894,6 @@ def _load_contract_context(project_root: Path, chapter_num: int, current_step_id
                 "foreshadow_silence_slice": foreshadow_silence_slice,
             },
             "init_truth": {
-                "type_pack_profile": (sections.get("type_pack_profile") or {}).get("content", {}) or {},
                 "project_preferences": (sections.get("preferences") or {}).get("content", {}) or {},
                 "genre_profile": (sections.get("genre_profile") or {}).get("content", {}) or {},
                 "style_contract_ref": global_ctx.get("style_contract_ref", ""),
@@ -705,7 +950,6 @@ def build_chapter_context_payload(
         "current_step_id": contract_context.get("current_step_id", str(current_step_id or "")),
         "reader_signal": contract_context.get("reader_signal", {}),
         "genre_profile": contract_context.get("genre_profile", {}),
-        "type_pack_profile": contract_context.get("type_pack_profile", {}),
         "writing_guidance": contract_context.get("writing_guidance", {}),
         "validation_fact_pack": validation_fact_pack,
         "rag_assist": rag_assist,
@@ -856,21 +1100,6 @@ def _render_text(payload: Dict[str, Any]) -> str:
         refs = genre_profile.get("reference_hints") or []
         for row in refs[:3]:
             lines.append(f"- {row}")
-        lines.append("")
-
-    type_pack_profile = payload.get("type_pack_profile") or {}
-    active_packs = type_pack_profile.get("active_packs") or []
-    if active_packs:
-        lines.append("## Type-Pack")
-        lines.append("")
-        lines.append(f"- 方法核: {type_pack_profile.get('method_kernel') or 'story-core-v1'}")
-        lines.append(f"- 激活包: {', '.join(str(item) for item in active_packs)}")
-        knowledge_refs = type_pack_profile.get("knowledge_refs") or []
-        if knowledge_refs:
-            lines.append(f"- pack 知识载体: {', '.join(str(item) for item in knowledge_refs[:3])}")
-        knowledge_digest = type_pack_profile.get("knowledge_digest") or []
-        for row in knowledge_digest[:2]:
-            lines.append(f"- craft 提要: {row}")
         lines.append("")
 
     rag_assist = payload.get("rag_assist") or {}

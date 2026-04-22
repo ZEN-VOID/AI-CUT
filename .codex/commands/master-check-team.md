@@ -26,6 +26,10 @@
 
 禁止把目录、会话摘要或纯描述文本误判成评审对象。
 
+例外：
+
+- 若用户显式点名 `projects/story/<项目名>/3-Drafting/` 或同义卷级 drafting 目录，可将其解释为“当前卷正文群 + 最新 `第V卷.写作日志.yaml`”这一组评审对象，而不是机械报错要求单文件。
+
 ## 项目与 `team.yaml` 解析
 
 确定目标文件后，向上查找最近的项目根：
@@ -203,6 +207,7 @@
    - 默认一个 subagent 对应一个 reviewer skill
    - 并行或串行执行
 10. 主 agent 做 synthesis，并在适合时直接 patch 目标文件。
+10a. 若目标是 `projects/story/<项目名>/3-Drafting/` 或 `第V卷.写作日志.yaml`，且本轮结论影响“能否进入 `4-Validation`”，主 agent 应优先把结论压成 `第V卷.写作日志.yaml -> quality_gate_snapshot`，让 runtime 能直接消费。
 11. 若目标是 `2-Global/全局风格.md`，额外输出“摄影总则 / team 锚点 / AIGC 可执行构词 / 应删抽象词”四项收束。
 12. 输出 reviewer 来源、模式、关键结论、已实施的优化或未落盘原因。
 

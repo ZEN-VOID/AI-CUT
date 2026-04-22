@@ -60,6 +60,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 - `projects/story/<项目名>/team.yaml`
 - `projects/story/<项目名>/STATE.json`
 - `projects/story/<项目名>/CHANGELOG.md`
+- `projects/story/<项目名>/CONTEXT/`
 - `projects/story/<项目名>/0-Init/{north_star.yaml,story-source-manifest.yaml,init_handoff.yaml}`
 
 ### constraint_profile
@@ -297,9 +298,36 @@ B. 自定义组队
 - `STATE.json`
 - `team.yaml`
 - `CHANGELOG.md`
+- `CONTEXT/`
 - `0-Init/north_star.yaml`
 - `0-Init/story-source-manifest.yaml`
 - `0-Init/init_handoff.yaml`
+
+## Project State Synchronization Contract
+
+初始化完成态不只等于“写出三件套”，还必须把当前阶段树对应的目录与运行时状态一次性同步到位。
+
+至少同步以下对象：
+
+- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Validation/`、`5-Loopback/`
+- 当前 cards 子树最小骨架：`1-Cards/0-全局卡/总设定`、`1-Cards/1-风格卡/总风格`、`1-Cards/2-角色卡/*`、`1-Cards/3-场景卡/*`、`1-Cards/4-物品卡/*`、`1-Cards/5-类型卡/总题材`
+- `STATE.json.paths`
+  - 至少包含 `story_root / context_root / init_root / cards_root / planning_root / drafting_root / validation_root / loopback_root`
+- `STATE.json.workflow_runtime.execution_state.stage_progress`
+  - `0-init` 必须被写成 `completed`
+  - `latest_command` 必须标记为 `story-init`
+  - 重初始化后也必须刷新 `last_completed_at`
+- `STATE.json.workflow_runtime.task_log`
+  - 首次初始化记录 `project_initialized`
+  - 重初始化追加 `project_reinitialized`
+
+硬规则：
+
+1. 目录骨架与 `STATE.json.paths` 必须同轮同步，不允许只建目录不写状态，或只写状态不建目录。
+2. `story-source-manifest.yaml` 既然声明 `source_root = Story/`，初始化就必须真实创建 `Story/`。
+3. 初始化必须同步创建项目级 `CONTEXT/`，供整个创作阶段加载项目共享附加上下文。
+4. 只要 `1-Cards` 当前仍以 `5-类型卡` 作为正式子树，初始化骨架就不得漏掉 `1-Cards/5-类型卡/总题材`。
+5. `workflow_runtime` 的 schema 与 stage snapshot 必须跟 `workflow_manager.py` 当前合同对齐，不得在 `0-Init` 内部保留旧版私有快照。
 
 ## Execution Procedure
 
@@ -370,6 +398,7 @@ python3 .agents/skills/story/scripts/init_project.py \
 ```bash
 test -f "./projects/story/示例小说/team.yaml"
 test -f "./projects/story/示例小说/STATE.json"
+test -d "./projects/story/示例小说/CONTEXT"
 test -f "./projects/story/示例小说/0-Init/north_star.yaml"
 test -f "./projects/story/示例小说/0-Init/story-source-manifest.yaml"
 test -f "./projects/story/示例小说/0-Init/init_handoff.yaml"

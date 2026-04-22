@@ -85,7 +85,7 @@ dimensions:
       checkpoints:
         - step_id: "4-角色形象刻画"
           fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "5-对白个性化"
+        - step_id: "5-对白优化"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "6-心理活动描写"
           fail_action: "block_and_rewrite_current_or_earliest"
@@ -93,7 +93,7 @@ dimensions:
           fail_action: "regression_guard"
     default_rework_targets:
       - "4-角色形象刻画"
-      - "5-对白个性化"
+      - "5-对白优化"
       - "6-心理活动描写"
     upstream_source_owners:
       - "1-Cards"
@@ -118,33 +118,21 @@ dimensions:
       - "2-节奏优化"
     upstream_source_owners:
       - "2-Planning"
-  - role_id: "type-pack-fit-validator"
-    dimension: "type-pack-fit"
-    skill_path: ".agents/skills/story/4-Validation/类型兑现"
-    report_filename: "类型兑现.md"
+  - role_id: "task-convergence-validator"
+    dimension: "task_convergence"
+    skill_path: ".agents/skills/story/4-Validation/任务汇聚"
+    report_filename: "任务汇聚.md"
     final_acceptance:
       mandatory: true
-      weight: 0.15
+      weight: 0.20
     drafting_inline:
-      enabled: true
-      checkpoints:
-        - step_id: "2-节奏优化"
-          fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "5-对白个性化"
-          fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "6-心理活动描写"
-          fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "7-追读力强化"
-          fail_action: "block_and_rewrite_current_or_earliest"
-        - step_id: "8-润色"
-          fail_action: "regression_guard"
+      enabled: false
+      checkpoints: []
     default_rework_targets:
-      - "2-节奏优化"
-      - "5-对白个性化"
-      - "6-心理活动描写"
+      - "source-contract-fix"
+      - "1-单集叙事起盘"
       - "7-追读力强化"
     upstream_source_owners:
-      - "0-Init"
       - "2-Planning"
 fast_extension_rule:
   add_or_adjust_dimension:

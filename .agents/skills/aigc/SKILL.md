@@ -32,10 +32,10 @@ governance_tier: full
 - 在这个窗口内，harness 对 `aigc` 根技能固定的真源只有四类：
   - `projects/aigc/<项目名>/` 项目 runtime 与根层治理工件
   - `.codex/registry/skills.yaml` / `.codex/registry/routes.yaml` 的根注册与路由入口
-  - `query / resume / review` 三个根级卫星技能入口
+  - `query / resume` 两个根级卫星技能入口
   - 高风险任务的 `preflight-verdict` 与完成闭环的 `validation-report`
 - 在这个窗口内，主阶段链、阶段状态表与子路径说明仍然可用，但它们默认视为“路由投影”，不是冻结的阶段内部 schema；后续重大改造可重写阶段内合同，只要不破坏上述根层真源。
-- 若旧的阶段细节合同与当前重构目标冲突，优先保住项目 runtime、治理 carriers 与 review gate，再以目标阶段的当前显式本地合同为准。
+- 若旧的阶段细节合同与当前重构目标冲突，优先保住项目 runtime、治理 carriers 与高风险 preflight / validation gate，再以目标阶段的当前显式本地合同为准。
 
 ## 使用场景
 
@@ -57,7 +57,7 @@ governance_tier: full
 2. `mainline-stage-routing`
    - 当前任务要把项目推进到 `0-Init -> 7-Cut` 主链中的唯一下一入口
 3. `satellite-bridge`
-   - 当前任务本质是 `query / resume / review`，不应被伪装成主阶段执行
+   - 当前任务本质是 `query / resume`，不应被伪装成主阶段执行
 4. `root-sync-repair`
    - 当前任务要修根入口、registry、runtime layout 或治理投影漂移
 
@@ -90,7 +90,7 @@ flowchart TD
     C --> D{"N3 入口判型"}
     D -->|"project-bootstrap"| E["0-Init"]
     D -->|"mainline-stage-routing"| F["主阶段链路由"]
-    D -->|"satellite-bridge"| G["query / resume / review"]
+    D -->|"satellite-bridge"| G["query / resume"]
     D -->|"root-sync-repair"| H["修根入口与控制面投影"]
     E --> I["N4 门禁与存在性检查"]
     F --> I
@@ -110,7 +110,6 @@ flowchart LR
     H --> I["阶段技能"]
     H --> J["query"]
     H --> K["resume"]
-    H --> L["review"]
 ```
 
 ```mermaid
@@ -143,6 +142,7 @@ erDiagram
 
 - 创作项目根目录：`projects/aigc/<项目名>/`
 - 项目级团队真源：`projects/aigc/<项目名>/team.yaml`
+- 项目级共享附加上下文根：`projects/aigc/<项目名>/CONTEXT/`
 - 项目级辅助资产库：`projects/aigc/<项目名>/Assets/`
 - 项目运行时目录：`projects/aigc/<项目名>/`，并以此作为 AIGC 项目运行时唯一真源
 
@@ -238,17 +238,12 @@ erDiagram
   - 根级续跑恢复卫星技能
   - 默认挂在尚书省执行侧，治理分域偏 `兵部`
   - 负责重建最后稳定入口、检查治理工件缺口、提出安全恢复方案，并把任务回接到根技能或目标阶段；不处理“主动回到初始化态重来”
-- `review`
-  - 根级复核承接卫星技能
-  - 默认挂在门下省复核侧，治理分域偏 `刑部`
-  - 负责 `preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md` 的 project/stage review bridge，不替代阶段执行
 
 卫星技能默认关系：
 
-- 三个卫星技能与根 `aigc` 同根同级，不并入主阶段串行链。
+- 两个卫星技能与根 `aigc` 同根同级，不并入主阶段串行链。
 - `query` 只拥有检索与证据综合权，不拥有项目或阶段内容真源改写权。
 - `resume` 只拥有恢复裁决与回接权，不拥有伪造断点或跳过治理 gate 的权力。
-- `review` 只拥有门下省侧预审/验收/学习桥接权，不拥有阶段执行或内容生成权。
 
 ### 当前合同覆盖状态
 
@@ -269,7 +264,6 @@ erDiagram
 | --- | --- | --- | --- | --- | --- |
 | `query` | 是 | `shangshu` | `户部` | active | runtime / project / artifact / governance truth retrieval |
 | `resume` | 是 | `shangshu` | `兵部` | active | interruption recovery / safe re-entry / governance artifact repair |
-| `review` | 是 | `menxia` | `刑部` | active | preflight / validation / learning bridge |
 
 ### 子技能调度规则
 
@@ -353,7 +347,7 @@ erDiagram
 | 户部 | 根 `CONTEXT.md`、`projects/aigc/<项目名>/STATE.json` 与 `projects/aigc/<项目名>/governance-state.yaml`；必要时镜像到 `.codex/state/tasks/`；`query` 负责读取与综合证据 |
 | 礼部 | `.codex/templates/harness/` 与项目级工件合同 |
 | 兵部 | 主阶段链与子技能调度；`resume` 负责续跑与恢复回接 |
-| 刑部 | 根验收闭环、阶段审计、失败上溯；`review` 负责门下省侧 preflight / validation / learning bridge |
+| 刑部 | 根验收闭环、阶段审计、失败上溯；高风险任务通过 `preflight-verdict` 与 `validation-report` 落治理结论 |
 | 工部 | `scripts/`、`.codex/evals/`、后续阶段工具链接入 |
 
 ## 强制工作流
@@ -362,7 +356,7 @@ erDiagram
 2. 在 `projects/aigc/<项目名>/` 中建立或读取运行时工件，并检查项目根 `team.yaml`、`STATE.json`、`governance-state.yaml` 是否存在。
 3. 优先读取 `.agents/skills/aigc/_shared/project-runtime-layout.md`，锁定当前项目的 runtime 根目录映射。
 4. 若后续进入 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，先加载 `.agents/skills/aigc/_shared/council-runtime/module-spec.md`。
-5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、图像、视频、后期，还是 `query / resume / review` 卫星诉求中的哪一类
+5. 判断当前任务属于首次初始化、重置式重新初始化、规划、组间、明细、设计、图像、视频、后期，还是 `query / resume` 卫星诉求中的哪一类
 6. 只推荐一个当前主入口阶段或卫星技能，不输出模糊候选列表
 7. 若目标阶段既没有阶段根合同，也没有可回接的 governed entry，停止向下伪造，返回缺口与补建落点
 8. 若目标阶段被标记为 `搁浅`，显式返回搁浅状态与恢复前置，不向下生成伪执行链
@@ -398,16 +392,16 @@ erDiagram
 
 1. `aigc` 根技能是总控面，不是替代各阶段产物的第二真源。
 2. 创作项目的 canonical workspace 必须优先落在 `projects/aigc/<项目名>/`。
-3. 当前 `bootstrap_compat` 模式下，不得把旧阶段细节合同当作冻结真源去阻断 `aigc` 系列重构；需要保留的是根 runtime、治理工件与 review gate。
+3. 当前 `bootstrap_compat` 模式下，不得把旧阶段细节合同当作冻结真源去阻断 `aigc` 系列重构；需要保留的是根 runtime、治理工件与高风险 preflight / validation gate。
 4. 没有 `mission-brief` 与 `route-plan`，复杂任务不得直接跳入阶段执行。
 5. 高风险任务没有 `preflight-verdict`，不得宣布进入正式执行。
 6. 对尚未补齐或已搁浅的阶段，必须报告“待补合同/搁浅”，不得伪造其工作流。
 7. 子技能经验优先写入最窄作用域；跨阶段经验再晋升到根 `CONTEXT.md`。
 8. 对 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`，若项目根 `team.yaml.enabled == true`，必须先交给共享 `council-runtime` 判定是否启用顾问团运行时。
-9. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑、`review` 做门下省桥接，各自边界必须显式保持。
-10. `review` 只承接 preflight / validation / learning 侧治理工件，不得替代尚书省执行或各阶段内容生成。
+9. 根级卫星技能不得冒充新的主阶段；`query` 读真源、`resume` 接续跑，各自边界必须显式保持。
+10. 高风险任务的预审、验收与学习闭环应直接回根 `aigc`，通过 `preflight-verdict / validation-report / learning-record` 落治理结论，不再依赖独立 `review` 卫星。
 11. `resume` 不得伪造断点状态、不得跳过 `mission-brief / route-plan / preflight-verdict` 等硬 gate；缺治理工件时优先回到根技能补齐。
-12. `STATE.json` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 review/resume 同步。两者不得各自演化成平行真源。
+12. `STATE.json` 是轻量起盘的默认治理入口；`governance-state.yaml` 负责按需补上的结构化断点、治理缺口与 query/resume 同步。两者不得各自演化成平行真源。
 13. 用户若明确要求“回到初始化态 / 重新起盘 / 推翻当前方向重来”，根路由必须回 `0-Init`；不得把这类诉求误判为 `resume` 的续跑恢复。
 
 ## 完成标准
@@ -490,8 +484,9 @@ erDiagram
 4. `.codex/registry/routes.yaml`
 5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`）
-7. `projects/aigc/<项目名>/STATE.json`（若存在）
-8. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
-9. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
+7. `projects/aigc/<项目名>/CONTEXT/` 下与本轮任务相关的项目级上下文文件（若存在）
+8. `projects/aigc/<项目名>/STATE.json`（若存在）
+9. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
+10. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
 
-冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > `CONTEXT.md`。
+冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > 项目级 `CONTEXT/` > 同目录 `CONTEXT.md`。

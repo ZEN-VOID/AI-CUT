@@ -340,6 +340,36 @@ def write_report(args: argparse.Namespace, slug: str, report: dict[str, Any], ou
     return report_path
 
 
+def write_create_failure_report(
+    args: argparse.Namespace,
+    api_key: str,
+    base_url: str,
+    endpoint: str,
+    payload: dict[str, Any],
+    output_dir: Path,
+    *,
+    status_code: int | None = None,
+    error_body: Any = None,
+    error_message: str | None = None,
+) -> Path:
+    timestamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    report: dict[str, Any] = {
+        "command": "create",
+        "mode": args.mode,
+        "base_url": base_url,
+        "endpoint": endpoint,
+        "request_body": payload,
+        "status": "create_failed",
+    }
+    if status_code is not None:
+        report["http_status"] = status_code
+    if error_body is not None:
+        report["error_response"] = error_body
+    if error_message is not None:
+        report["error"] = error_message
+    return write_report(args, f"create-{args.mode}-failed-{timestamp}", report, output_dir, api_key)
+
+
 def resolve_creation_url(task_result: dict[str, Any], creation_index: int, watermarked: bool) -> tuple[str, dict[str, Any]]:
     creations = task_result.get("creations")
     if not isinstance(creations, list) or not creations:
@@ -410,13 +440,46 @@ def handle_create(args: argparse.Namespace, dotenv: dict[str, str]) -> int:
 
     status_code, body = request_json("POST", f"{base_url}{endpoint}", api_key, payload=payload)
     if status_code >= 400:
-        raise CliError(f"创建任务失败（HTTP {status_code}）：{json.dumps(sanitize(body, api_key), ensure_ascii=False)}")
+        report_path = write_create_failure_report(
+            args,
+            api_key,
+            base_url,
+            endpoint,
+            payload,
+            output_dir,
+            status_code=status_code,
+            error_body=body,
+        )
+        raise CliError(
+            f"创建任务失败（HTTP {status_code}）：{json.dumps(sanitize(body, api_key), ensure_ascii=False)}；"
+            f"报告已写入 {report_path}"
+        )
     if not isinstance(body, dict):
-        raise CliError("创建任务响应不是 JSON object。")
+        report_path = write_create_failure_report(
+            args,
+            api_key,
+            base_url,
+            endpoint,
+            payload,
+            output_dir,
+            error_message="创建任务响应不是 JSON object。",
+            error_body=body,
+        )
+        raise CliError(f"创建任务响应不是 JSON object。报告已写入 {report_path}")
 
     task_id = str(body.get("id") or body.get("task_id") or "")
     if not task_id:
-        raise CliError("创建任务成功，但响应里缺少 `id/task_id`。")
+        report_path = write_create_failure_report(
+            args,
+            api_key,
+            base_url,
+            endpoint,
+            payload,
+            output_dir,
+            error_message="创建任务成功，但响应里缺少 `id/task_id`。",
+            error_body=body,
+        )
+        raise CliError(f"创建任务成功，但响应里缺少 `id/task_id`。报告已写入 {report_path}")
 
     report: dict[str, Any] = {
         "command": "create",

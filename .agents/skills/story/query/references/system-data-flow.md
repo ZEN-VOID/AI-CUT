@@ -15,8 +15,12 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 项目根目录/
 ├── 2-Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
 ├── 2-Planning/
-│   ├── 全息地图.json      # 规划总索引真源（drafting/query/resume 默认先读）
-│   └── 卷分片/          # volume-local dense planning / actualization（固定 10 章 = 1 卷时即卷分片）
+│   ├── 整体规划.md         # 当前 primary planning truth（宏观）
+│   ├── 第1卷/
+│   │   ├── 卷规划.md       # 当前 primary planning truth（中观）
+│   │   └── 第1章.md        # 当前 primary planning truth（微观）
+│   ├── 全息地图.json      # 兼容投影 / 历史工件
+│   └── 卷分片/            # 兼容投影 / actualization carrier
 │       └── 第1卷.json
 ├── 0-Init/
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
@@ -60,7 +64,7 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 ```
 写作前: Context Agent 读取数据 → 组装上下文包
-        ├── 先读 全息地图（章节节点/任务/线索/伏笔/章节功能）
+        ├── 先读 部级/卷级/章级规划，兼容项目再回退到 全息地图
         ├── 从 STATE.json 读取精简数据（进度/配置）
         └── 从 index.db SQL 按需查询（实体/关系）
 
@@ -86,7 +90,9 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
   → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
 2-Planning
-  → 1-7 planning child skills progressive commit 到 `2-Planning/全息地图.json`
+  → `1-部级 -> 2-卷级 -> 3-章级` 分形递进
+  → primary truth 落到 `整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
+  → `全息地图.json / 卷分片/*.json` 仅保留兼容投影价值
 
 3-Drafting
   → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
@@ -102,9 +108,10 @@ review
   → 汇总聚合评估，落库 review_metrics / checkpoints
 
 5-Loopback
-  → 仅对 PASS episode 写 validated actualization
+  → 仅对 PASS volume 写 validated actualization
   → 更新 Cards.current_state/history
-  → 更新 MAP.actualization
+  → 更新 planning actualization sidecars
+  → 更新 MAP.actualization compat projection
   → 刷新 writer/planning/query projection
 
 query / resume
@@ -140,7 +147,7 @@ query / resume
 
 ```
 1. Context Agent 组装创作任务书
-   → 先读取 `2-Planning/全息地图.json`（规划真源）
+   → 先读取 `2-Planning/整体规划.md + 第V卷/卷规划.md + 第V卷/第N章.md`（规划真源）
    → 读取 `STATE.json`（精简版：进度/配置）
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
@@ -181,8 +188,9 @@ query / resume
 
 7. 通过 `5-Loopback` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
-   → 写 `content.holomap_slice.actualization`
-   → 回刷 `content.holomap.actualization` summary/index
+   → 写 `整体规划.actualization.json / 卷规划.actualization.json / 第N章.actualization.json`
+   → 兼容项目再写 `content.holomap_slice.actualization`
+   → 并回刷 `content.holomap.actualization` summary/index
    → 写 `5-Loopback/第V卷.loopback.json`
    → 刷新 query / writer / planning projection
 
@@ -193,26 +201,28 @@ query / resume
 
 ## 规划真源优先级
 
-1. `2-Planning/全息地图.json`
-2. `1-Cards/**/*.json`
-3. `STATE.json`
-4. `2-Planning/legacy/`（仅 legacy fallback）
+1. `2-Planning/整体规划.md`
+2. `2-Planning/第V卷/卷规划.md`
+3. `2-Planning/第V卷/第N章.md`
+4. `1-Cards/**/*.json`
+5. `STATE.json`
+6. `2-Planning/legacy/`（仅 legacy fallback）
 
 说明：
-- 涉及章节编排、任务、线索、伏笔、冲突落点的问题，默认先查 `全息地图.json`。
+- 涉及章节编排、任务、线索、伏笔、冲突落点的问题，默认先查三层规划文档。
 - `2-Planning/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
 
 ## Query Truth Layers（查询时必须区分）
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/全息地图.json` + 命中的 `2-Planning/卷分片/*.json` | root 只负责索引与导航，volume-local dense planning 在 slice |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/整体规划.md` + `2-Planning/第V卷/卷规划.md` + `2-Planning/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
 | drafting truth | 当前集正文写成什么样、当前卷已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/第V卷.写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | root `content.holomap.actualization` summary/index + slice `content.holomap_slice.actualization` + `5-Loopback/*.loopback.json` | 没有 PASS 证据时不能冒充 actual |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-Planning/整体规划.actualization.json` + `2-Planning/第V卷/卷规划.actualization.json` + `2-Planning/第V卷/第N章.actualization.json` + `5-Loopback/*.loopback.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Validation + review` 生成 |
 
 固定判定：

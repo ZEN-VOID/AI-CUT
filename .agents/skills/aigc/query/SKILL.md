@@ -23,7 +23,7 @@ governance_tier: lite
 - 挂载位置：根 `aigc` 同级卫星技能。
 - owner office：`shangshu`
 - governance domain：`户部`
-- 默认回接：若查询暴露出需要实际修复、续跑或复核，再回接根 `aigc`、`resume/` 或 `review/`。
+- 默认回接：若查询暴露出需要实际修复、续跑或高风险预审/验收，再回接根 `aigc` 或 `resume/`。
 
 | owns | avoids |
 | --- | --- |
@@ -42,7 +42,7 @@ governance_tier: lite
 
 - 需要生成、修改、修补项目内容时，应回到根 `aigc` 或具体阶段。
 - 需要恢复中断执行时，应进入 `resume/`。
-- 需要给出预审 / 验收 verdict 或更新 `validation-report.md` 时，应进入 `review/`。
+- 需要给出预审 / 验收 verdict 或更新 `validation-report.md` 时，应回到根 `aigc`。
 
 ## Workflow
 
@@ -183,7 +183,7 @@ sed -n '1,220p' "$PROJECT_ROOT/team.yaml"
 1. 结论
 2. 证据路径
 3. 当前缺口或冲突
-4. 若用户下一步要执行，唯一推荐入口是根 `aigc`、`resume/` 还是 `review/`
+4. 若用户下一步要执行，唯一推荐入口是根 `aigc` 还是 `resume/`
 
 ## Root-Cause Execution Contract (Mandatory)
 

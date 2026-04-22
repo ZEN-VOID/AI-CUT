@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 验收复核"
-  short_description: "写回项目级或阶段级 validation-report，并同步验收摘要"
-  default_prompt: "Use $aigc-review-acceptance to validate an AIGC project or stage, update the correct validation-report carrier, and sync acceptance status into governance-state."

@@ -49,7 +49,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 3. 删除正文前必须由脚本自动备份。
 4. 不默认执行 `git reset --hard`。
 5. 不假定存在 `ch0007` 之类 tag/commit。
-6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `2-Planning/全息地图.json`。
+6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
 7. 优先读取 `STATE.json.workflow_runtime.execution_state + task_log` 辅助判断全阶段 run 与 resume marker，不把 `workflow_state` 当唯一线索。
 8. `story-query` 若存在 tracked run，可读其 run 信息；但默认只给 generic continue / rerun / diagnosis，不提供章节 cleanup。
 9. 若 `workflow detect` 没有 tracked 中断，必须继续执行 artifact fallback 检测，而不是立刻返回“无中断任务”。
@@ -93,7 +93,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 | `Step 2` | 节奏优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 3` | 场景和氛围渲染 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 4` | 角色形象刻画 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 5` | 对白个性化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
+| `Step 5` | 对白优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 6` | 心理活动描写 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 7` | 追读力强化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
 | `Step 8` | 润色 | 优先继续终修，必要时清理当前集正文后回到 Step 1 |
@@ -162,7 +162,7 @@ C) 保留半成品做人工检查，再手动决定是否重跑（medium）
 
 下一跳：
 - 若选 A：继续当前 `Step 5`
-- 继续写作时默认重新读取 `2-Planning/全息地图.json`
+- 继续写作时默认重新读取 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
 </output>
 </example>
 
@@ -189,7 +189,7 @@ B) 仅清理 workflow 状态，保留当前报告与落库结果供人工复查
 
 建议：
 A) 若输入未变，按当前 query run 继续或直接重跑查询
-B) 若担心上下文漂移，先确认当前规划真源仍是 `全息地图.json`
+B) 若担心上下文漂移，先确认当前规划真源仍是 `整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
 C) 若需要保留证据链，先 `workflow fail-task --reason "manual_inspection"` 再人工诊断
 </output>
 </example>

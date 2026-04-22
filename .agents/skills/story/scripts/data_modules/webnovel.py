@@ -36,6 +36,8 @@ from project_locator import resolve_project_root, write_current_project_pointer,
 
 try:
     from planning_paths import (
+        canonical_book_plan_path,
+        canonical_book_plan_relpath,
         canonical_planning_artifact_relpath,
         legacy_planning_artifact_path,
         legacy_planning_artifact_relpath,
@@ -43,6 +45,8 @@ try:
     )
 except ImportError:  # pragma: no cover
     from scripts.planning_paths import (
+        canonical_book_plan_path,
+        canonical_book_plan_relpath,
         canonical_planning_artifact_relpath,
         legacy_planning_artifact_path,
         legacy_planning_artifact_relpath,
@@ -123,32 +127,40 @@ def cmd_where(args: argparse.Namespace) -> int:
 
 
 def _detect_planning_source(project_root: Path) -> dict[str, str]:
+    book_plan_path = canonical_book_plan_path(project_root)
     holomap_path = resolve_planning_artifact_path(project_root, "holomap")
     legacy_holomap_path = legacy_planning_artifact_path(project_root, "holomap")
     legacy_outline_path = project_root / "2-Planning" / "legacy" / "总纲.md"
 
+    if book_plan_path.is_file():
+        return {
+            "status": "canonical",
+            "label": "OK",
+            "path": str(book_plan_path),
+            "detail": f"默认规划真源：{canonical_book_plan_relpath()}",
+        }
     if holomap_path.is_file():
         detail = f"默认规划真源：{canonical_planning_artifact_relpath('holomap')}"
         if holomap_path == legacy_holomap_path:
             detail += f"（当前命中 legacy fallback：{legacy_planning_artifact_relpath('holomap')}）"
         return {
-            "status": "canonical",
-            "label": "OK",
+            "status": "compatibility_fallback",
+            "label": "WARN",
             "path": str(holomap_path),
-            "detail": detail,
+            "detail": f"未检测到 {canonical_book_plan_relpath()}，当前回退到兼容规划真源：{detail}",
         }
     if legacy_outline_path.is_file():
         return {
             "status": "legacy_fallback",
             "label": "WARN",
             "path": str(legacy_outline_path),
-            "detail": "仅检测到 2-Planning/legacy/总纲.md，尚未切到全息地图真源",
+            "detail": "仅检测到 2-Planning/legacy/总纲.md，尚未切到新的三层规划真源",
         }
     return {
         "status": "missing",
         "label": "INFO",
-        "path": str(project_root / canonical_planning_artifact_relpath("holomap")),
-        "detail": f"尚未生成规划真源；完成 2-Planning 后应落盘 {canonical_planning_artifact_relpath('holomap')}",
+        "path": str(book_plan_path),
+        "detail": f"尚未生成规划真源；完成 2-Planning 后应落盘 {canonical_book_plan_relpath()}",
     }
 
 
@@ -181,7 +193,7 @@ def _build_preflight_report(explicit_project_root: Optional[str]) -> dict:
         project_root = str(resolved_root)
         checks.append({"name": "project_root", "ok": True, "path": project_root})
         planning_source = _detect_planning_source(resolved_root)
-        planning_ok = planning_source["status"] in {"canonical", "legacy_fallback"}
+        planning_ok = planning_source["status"] == "canonical"
         checks.append(
             {
                 "name": "planning_source",
@@ -327,6 +339,17 @@ def main() -> None:
     p_validate = sub.add_parser("validate", help="转发到 validation_runner.py")
     p_validate.add_argument("args", nargs=argparse.REMAINDER)
 
+    p_drafting_guard = sub.add_parser("drafting-guard", help="转发到 drafting_manuscript_guard.py")
+    p_drafting_guard.add_argument("--chapter", type=int, help="目标章节号")
+    p_drafting_guard.add_argument("--manuscript", help="显式正文路径")
+    p_drafting_guard.add_argument("--planning", help="显式 planning 章路径")
+    p_drafting_guard.add_argument("--min-body-chars", type=int, help="最小正文字符数")
+    p_drafting_guard.add_argument("--min-paragraphs", type=int, help="最小段落数")
+
+    p_drafting_volume_guard = sub.add_parser("drafting-volume-guard", help="转发到 drafting_volume_quality_guard.py")
+    p_drafting_volume_guard.add_argument("--volume", type=int, help="目标卷号")
+    p_drafting_volume_guard.add_argument("--write-log", help="显式卷级写作日志路径")
+
     # 兼容：允许 `--project-root` 出现在任意位置（减少 agents/skills 拼命令的出错率）
     from .cli_args import normalize_global_project_root
 
@@ -390,6 +413,26 @@ def main() -> None:
         raise SystemExit(_run_script("extract_chapter_context.py", return_args))
     if tool == "validate":
         raise SystemExit(_run_script("validation_runner.py", [*forward_args, *rest]))
+    if tool == "drafting-guard":
+        guard_args = [*forward_args]
+        if getattr(args, "chapter", None) is not None:
+            guard_args.extend(["--chapter", str(args.chapter)])
+        if getattr(args, "manuscript", None):
+            guard_args.extend(["--manuscript", str(args.manuscript)])
+        if getattr(args, "planning", None):
+            guard_args.extend(["--planning", str(args.planning)])
+        if getattr(args, "min_body_chars", None) is not None:
+            guard_args.extend(["--min-body-chars", str(args.min_body_chars)])
+        if getattr(args, "min_paragraphs", None) is not None:
+            guard_args.extend(["--min-paragraphs", str(args.min_paragraphs)])
+        raise SystemExit(_run_script("drafting_manuscript_guard.py", guard_args))
+    if tool == "drafting-volume-guard":
+        guard_args = [*forward_args]
+        if getattr(args, "volume", None) is not None:
+            guard_args.extend(["--volume", str(args.volume)])
+        if getattr(args, "write_log", None):
+            guard_args.extend(["--write-log", str(args.write_log)])
+        raise SystemExit(_run_script("drafting_volume_quality_guard.py", guard_args))
 
     raise SystemExit(2)
 

@@ -162,13 +162,13 @@ flowchart LR
 1. 任何角色都必须是独立 `.json`，不得把多个角色并入同一角色总表。
 2. 每张角色卡都必须带 `group + cast_markers + card_scope=full-series`。
 3. `角色关系图谱.md` 只允许作为关系投影 side output，不得反向替代角色 JSON 真源。
-4. 供 `2-Planning` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 投影进入 `story_map`，本 child 不直接写 `2-Planning/全息地图.json`。
+4. 供 `2-Planning` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 进入规划文档，本 child 不直接写 `2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md` 或 `2-Planning/第N卷/第N章.md`。
 5. 禁止交付单集角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
 6. 主角卡必须具备 `core.growth_contract`、`current_state.growth_state` 与 `experience_timeline.axis_stage_map`。
 
 ## Downstream Planning Consumption Contract
 
-`2-Planning` 只允许把以下最小人物信息投影进入 `story_map`：
+`2-Planning` 只允许把以下最小人物信息导入规划文档：
 
 - `card_id / card_path / name / group / primary_alignment`
 - `narrative_function`
@@ -179,7 +179,7 @@ flowchart LR
 - `highlight_moment / memory_point`
 - 关系图谱的 `source_graph_path + node_refs + edge_projections`
 
-以下字段必须继续留在角色卡侧，不得复制进 `story_map`：
+以下字段必须继续留在角色卡侧，不得复制进 planning 文档；兼容 `story_map` 也不得承载这些完整人物事实：
 
 - `history`
 - `voice_and_presence`

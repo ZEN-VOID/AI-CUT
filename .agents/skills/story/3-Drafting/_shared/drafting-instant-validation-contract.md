@@ -93,6 +93,10 @@
 - `8-润色` 完成后，如果它对应的 inline hooks 通过：
   - 当前集获得 `candidate_final_draft` 状态
 - 这不等于最终 `PASS`
+- 额外硬门槛：
+  - 当前集在 `第V卷.写作日志.yaml.chapter_step_history[chapter_ref]` 中已收满 8 条正式 step 记录
+  - 当前集在 `第V卷.写作日志.yaml.chapter_hook_results[chapter_ref]` 中已收满 8 条对位 hook 结果
+  - 不存在以 Step 8 汇总、批量补记或事后倒填冒充逐步留痕的情况
 - 只有进入 `4-Validation` 终验层并拿到 `validation_status = PASS`：
   - 才能变成 `validated_final_draft`
 
@@ -102,6 +106,9 @@
 
 - `instant_validation_summary`
 - `instant_validation_refs`
+- `hook_status`
+- `hook_checked_dimensions`
+- `hook_checked_at`
 - `rework_route_hint`
 - 若项目主角启用了成长系统，且当前 step 为 `4 / 6 / 7`，优先补 `growth_axis_evidence`
 
@@ -109,6 +116,27 @@
 
 - 让 `resume/` 能知道当前 step 是否已通过 inline gate
 - 让 `4-Validation` 能看到 drafting 阶段已经做过哪些即时修复
+- 让父层能够证明当前卷真实完成了 `chapter_refs x 8 步`，而不是只在卷末回填若干摘要
+
+### Volume-Ready Gate Addendum
+
+卷级 `candidate_volume_draft` 额外必须满足：
+
+1. `chapter_step_history` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条正式 step 记录。
+2. `chapter_hook_results` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条对位 hook 结果。
+3. 任一章节若缺 step 记录、缺 hook 结果、顺序错位、或出现“卷末统一补记”的稀疏日志模式，卷级 gate 必须直接 `block`，不得移交 `4-Validation`。
+
+### Pre-Validation Quality Gate Addendum
+
+在卷级 `candidate_volume_draft` 之后、正式 handoff `4-Validation` 之前，父层还必须追加一轮卷级质量闸门：
+
+1. 把结论写入 `第V卷.写作日志.yaml -> quality_gate_snapshot`
+2. `quality_gate_snapshot` 的字段规范以 `./drafting-quality-gate-contract.md` 为准
+3. 默认必须经过 `scripts/drafting_volume_quality_guard.py`
+4. 若 guard 返回 `block`：
+   - runtime / resume 下一稳定入口必须仍是 `3-Drafting`
+   - 不得把 `next_step` 继续写成 `4-Validation`
+5. 若 guard 返回 `pass`，才允许把当前卷交给 `4-Validation`
 
 ## Extension Rule
 

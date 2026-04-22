@@ -1,0 +1,43 @@
+# Book Rhythm Save the Cat
+
+## 默认方法
+
+整部节奏默认使用 `Save the Cat 15 步`，但在长篇小说里固定采用“拍点走廊”表达，而不是银幕百分比硬切。
+
+## 15 步最小清单
+
+1. Opening Image
+2. Theme Stated
+3. Set-Up
+4. Catalyst
+5. Debate
+6. Break into Two
+7. B Story
+8. Fun and Games
+9. Midpoint
+10. Bad Guys Close In
+11. All Is Lost
+12. Dark Night of the Soul
+13. Break into Three
+14. Finale
+15. Final Image
+
+## 书级输出要求
+
+- 必须解释哪几卷承担前半承诺交付。
+- 必须说明 `Midpoint` 怎样改写整部游戏规则。
+- 必须说明 `All Is Lost` 与 `Finale` 分别落在哪段卷级走廊。
+- Mermaid 图至少能看出承诺、转折、见底、收束四个高点。
+
+## 部级节奏真正要回答的规划问题
+
+- 这本书的长期承诺如何按卷分配，而不是只在开头立 promise、结尾才回收。
+- 哪一卷负责“开局可追”，哪一卷负责“规则改写”，哪一卷负责“见底翻身”，哪一卷负责“终局收束”。
+- 长线冲突和主题压力怎样跨卷升压，避免中段多卷只是重复同一强度。
+- `Midpoint / All Is Lost / Finale` 是怎样改变整部走势的，而不是只列拍点名词。
+
+## 强化方向
+
+- 部级节奏优先处理“全书波形”，不是卷内场面密度。
+- 输出时应显式写清各卷的 `promise duty / reversal duty / collapse duty / payoff duty`。
+- 若某卷只是过桥卷，必须说清它为后续哪一个高点准备条件，避免卷职责失焦。

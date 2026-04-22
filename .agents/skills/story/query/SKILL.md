@@ -1,6 +1,6 @@
 ---
 name: story-query
-description: Use when story2026 needs factual retrieval about cards, MAP planning, runtime state, validated actualization, relationships, foreshadow urgency, or review metrics in an existing novel project.
+description: Use when story2026 needs factual retrieval about cards, fractal planning truth, runtime state, validated actualization, relationships, foreshadow urgency, or review metrics in an existing novel project.
 governance_tier: lite
 allowed-tools: Read Grep Bash
 ---
@@ -92,11 +92,11 @@ Copy and track progress:
 
 | 问题形状 | 主真源 | 辅助真源 | 禁止偷懒 |
 |---|---|---|---|
-| “原计划哪章发生 / 这条线原本怎么排” | `2-Planning/全息地图.json` 的 `episode_slice_manifest / episode_sequence_axis / cross_thread_indexes`，再命中对应 `2-Planning/卷分片/*.json` 的 `chapter_boards / planned_state` | `2-Planning/1-7/*.json` 追溯 | 不能只读 `STATE.json` |
+| “原计划哪章发生 / 这条线原本怎么排” | 优先读取 `2-Planning/整体规划.md`、对应 `2-Planning/第N卷/卷规划.md` 与 `2-Planning/第N卷/第N章.md`；兼容项目再回退到 `全息地图.json + 卷分片/*.json` | `类型卡 / 角色卡 / 场景卡 / 物品卡` | 不能只读 `STATE.json` |
 | “现在谁持有 / 当前关系 / 当前地点 / 当前默认状态” | `1-Cards/**/*.json` 的 `current_state` | `STATE.json`、`index.db` | 不能把 `core` 当当前态 |
 | “这个人是怎么变成现在的 / 这段关系怎么演化的 / 成长到哪了” | `角色卡.experience_timeline + current_state.growth_state + history` | `index.db state_changes / relationship_events` | 不能只给当前快照 |
-| “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `全息地图.actualization` + `5-Loopback` artifact | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
-| “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `全息地图` + `7-伏笔设计` 结果 + `status_reporter` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
+| “这件事实际上已经发生了吗 / 最终在哪集兑现了” | `整体规划.actualization.json + 卷规划.actualization.json + 第N章.actualization.json + 5-Loopback`；兼容项目再补 `全息地图.actualization` | `validation_ref / review_metrics / STATE.json.review_checkpoints` | 不能用 `planned_state` 冒充已发生 |
+| “这条伏笔还活着吗 / 紧急度怎样 / 静默区是否过长” | `2-Planning/第N卷/第N章.md` 的 `本章伏笔` + 上游 `2-Planning/第N卷/卷规划.md` + `status_reporter`；兼容项目再回退到 `全息地图` | `STATE.json.plot_threads.foreshadowing` | 不能只读老式伏笔列表 |
 | “最近质量如何 / 哪些风险在抬头” | `index.db.review_metrics` / `reading_power` | `STATE.json.review_checkpoints` | 不能只凭主观总结 |
 | “当前跑到哪 / 最近哪个 stage 卡住 / 最新 run / 恢复点在哪” | `STATE.json.workflow_runtime.execution_state / task_log` | `workflow_state`、`workflow status/list-runs` | 不能只看 `workflow_state.current_task` |
 | “关系图谱 / 某角色最近出场 / 状态变化证据” | `index.db` | `Cards` / `STATE.json` | 不能只扫 Markdown |
@@ -104,7 +104,7 @@ Copy and track progress:
 
 固定裁决：
 
-- `计划问题` 优先问 `MAP`。
+- `计划问题` 优先问三层规划文档；兼容项目再问 `MAP`。
 - `对象问题` 优先问 `Cards`。
 - `运行态问题` 优先问 `STATE.json + index.db`。
 - `执行态问题` 优先问 `STATE.json.workflow_runtime.execution_state + task_log`。
@@ -138,9 +138,9 @@ Copy and track progress:
 | 角色、人物、配角、别名、身份、关系 | 对象 / 关系查询 | `Cards + index.db` |
 | 当前、现在、默认状态、持有、地点、境界 | 当前态查询 | `Cards.current_state + STATE.json` |
 | 怎么变成、经历、成长、一路、时间线 | 历程查询 | `experience_timeline + history + state_changes` |
-| 原计划、哪章安排、落在哪章、编排、章节板 | 规划查询 | `MAP planned_state` |
-| 实际、已经发生、兑现了没、最后在哪集 | 实绩查询 | `MAP actualization + loopback artifact` |
-| 伏笔、紧急度、静默区、回收、兑现窗口 | 伏笔查询 | `伏笔设计 + MAP + status_reporter` |
+| 原计划、哪章安排、落在哪章、编排、章节板 | 规划查询 | `三层 planning 文档` |
+| 实际、已经发生、兑现了没、最后在哪集 | 实绩查询 | `planning actualization sidecars + loopback artifact + MAP actualization compat` |
+| 伏笔、紧急度、静默区、回收、兑现窗口 | 伏笔查询 | `章级/卷级 planning + status_reporter` |
 | 节奏、Strand、追读力、评分、风险 | 质量/节奏查询 | `status_reporter + index review_metrics` |
 | run、执行态、卡住、断点、恢复点、最近任务、心跳、task log | 执行态查询 | `workflow_runtime.execution_state + task_log` |
 | 标签、XML、手动标注 | 规范查询 | `tag-specification.md` |
@@ -178,12 +178,12 @@ cat "${SKILL_ROOT}/references/tag-specification.md"
 ### A. 规划查询
 
 ```bash
-cat "$PROJECT_ROOT/2-Planning/全息地图.json"
+cat "$PROJECT_ROOT/2-Planning/整体规划.md"
 ```
 
-若问题落到具体 episode，再按 `episode_slice_manifest / episode_sequence_axis` 命中对应 `2-Planning/卷分片/*.json`，再读取其中的 `chapter_boards / thread_window_slice / foreshadow_silence_slice`。
+若问题落到具体卷或章，再继续读取对应 `2-Planning/第N卷/卷规划.md` 与 `2-Planning/第N卷/第N章.md`。
 
-如需追溯某条规划为何这样安排，再补读对应 `2-Planning/1-7/*.json`。
+若项目仍停留在兼容态，再补读 `2-Planning/全息地图.json` 与 `2-Planning/卷分片/*.json`。
 
 ### B. 对象 / 当前态 / 历程查询
 
@@ -206,10 +206,12 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 
 必须同时检查：
 
-1. `2-Planning/全息地图.json` 的 `content.holomap.actualization` summary/index
-2. 命中 episode 的 `2-Planning/卷分片/*.json` 中 `content.holomap_slice.actualization`
-3. `5-Loopback/第V卷.loopback.json`
-4. `validation_ref` / `review_metrics` / `review_checkpoints`
+1. `2-Planning/整体规划.actualization.json`
+2. 命中卷的 `2-Planning/第V卷/卷规划.actualization.json`
+3. 命中章的 `2-Planning/第V卷/第N章.actualization.json`
+4. `5-Loopback/第V卷.loopback.json`
+5. 兼容项目再补 `2-Planning/全息地图.json` 与 `2-Planning/卷分片/*.json` 的 actualization
+6. `validation_ref` / `review_metrics` / `review_checkpoints`
 
 可用下面的命令定位 loopback artifact：
 
@@ -339,7 +341,7 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" workflow detect
   - 当前 `query/SKILL.md`
   - `query/references/system-data-flow.md`
   - `2-Planning/SKILL.md`
-  - `2-Planning/_shared/planning-branch-output-contract.md`
+  - `2-Planning/_shared/fractal-planning-output-contract.md`
   - `1-Cards/SKILL.md`
   - `5-Loopback/SKILL.md`
 - `Meta Rule Source` 默认上溯到仓库 `AGENTS.md` 与相关 meta skill。

@@ -1,6 +1,6 @@
 ---
 name: story-drafting-episode-kickoff
-description: Use when `3-Drafting` needs the governed child skill that turns `story_map` obligations and continuity context into the first complete episode draft.
+description: Use when `3-Drafting` needs the governed child skill that turns chapter-plan obligations and continuity context into the first complete episode draft.
 governance_tier: lite
 ---
 
@@ -19,13 +19,14 @@ governance_tier: lite
 
 本 child 负责：
 
-- 把 `2-Planning/全息地图.json` 的本集功能债、事件骨架、threads 债务翻译成可读的首轮叙事结构
+- 把 `2-Planning/第V卷/第N章.md` 的本集功能债、事件骨架、任务/线索/伏笔债务翻译成可读的首轮叙事结构
 - 生成本集第一版完整正文
-- 锁定本集的 scene-by-scene 推进主干
+- 锁定本集必须兑现的义务、连续性锚与首轮推进主干，但不抢占 Step 2 对节奏 mode 与脉冲编排的 owning 权
 
 它不负责：
 
 - 细调节奏矩阵
+- 把当前首轮推进顺序伪装成后续不可重排的硬骨架
 - 重点写景与氛围修饰
 - 角色细部鲜活度增强
 - 对白声口差异化
@@ -49,15 +50,17 @@ governance_tier: lite
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 先让本集有完整、可读、可继续加工的叙事底座，而不是直接追求完美文笔。 |
-| `business_object` | `2-Planning/全息地图.json`、当前卷 continuity pack、当前 `第N集.md`。 |
+| `business_object` | `2-Planning/整体规划.md`、当前卷 `卷规划.md`、当前章 `第N章.md`、当前 `第N集.md`。 |
 | `constraint_profile` | 必须执行规划义务；必须优先回应当前卷 continuity pack；若前序集终稿已存在，可用作增强校准；不得提前替后续工序做过度装饰。 |
-| `success_criteria` | 当前集已经是一篇完整可读初稿，能回答“发生了什么、谁在做什么、为什么要继续看”。 |
+| `success_criteria` | 当前集已经是一篇章节级、完整可读的小说初稿，能回答“发生了什么、谁在做什么、为什么要继续看”，而不是压缩剧情稿。 |
 | `topology_fit` | `root reread -> board locate -> board decode -> continuity bridge -> scene chain -> first full draft` |
 
 ## Total Input Contract
 
 - 必需输入：
-  - `2-Planning/全息地图.json`
+  - `2-Planning/整体规划.md`
+  - 当前卷 `2-Planning/第V卷/卷规划.md`
+  - 当前章 `2-Planning/第V卷/第N章.md`
   - `0-Init/story-source-manifest.yaml`
   - 当前 `episode_num / episode_id`
   - 当前 `第N集.md`
@@ -65,12 +68,15 @@ governance_tier: lite
 - 条件必需输入：
   - 若当前卷前序集已完成，可选读取上一集终稿
 - 硬规则：
-  - 必须先按 shared locating contract 命中唯一 `chapter_board`，再抽取本集债务。
+  - 必须先按 shared locating contract 命中唯一 `第N章.md`，必要时再命中兼容 `chapter_board`。
   - 禁止用 `chapter_boards` 数组顺序或标题文案猜测“哪一个是本集”。
   - 先锁本集功能和承接义务，再写 scene chain。
   - 起盘必须显式消费 `chapter_goal + action_beat_plan.turning_point + emotion_beat`，并把它们压成最少三拍：开场局面、局势改向、当前集承诺的终端碰撞。
-  - 起盘阶段必须直接形成完整正文，不允许只写提纲占位。
-  - 起盘阶段不得把 planning 的外部总结语言原样写进正文；chapter goal / must happen / pressure 等字段必须翻译成人物视角中的局面、动作、代价或预感。
+  - 起盘阶段锁的是“必须发生什么、从哪接上、至少怎样抵达 promised collision”，不是最终的段位密度、前后呼吸或 `势能式 / 动能式` 编排。
+  - 只要不破坏 planning 义务、因果链与 continuity pack，Step 2 允许对首轮 scene chain 做有限重排、并段、拆段、前移 reveal / 后置反应。
+- 起盘阶段必须直接形成完整正文，不允许只写提纲占位。
+- 起盘阶段产出的正文必须具备章节级小说密度；禁止用“把 planning 翻成几段可读摘要”的方式冒充完整初稿。
+- 起盘阶段不得把 planning 的外部总结语言原样写进正文；chapter goal / must happen / pressure 等字段必须翻译成人物视角中的局面、动作、代价或预感。
   - 起盘阶段不得保留影视分镜残留；诸如“画面骤碎 / 蒙太奇交叉闪现 / 画面猛断 / 人名单独成段报幕”默认视为未完成小说化转换。
   - 若同一画面需要连续两句落地，第一句负责交代身份或处境，第二句必须推进构图、动作、空间或情绪，不得重复命名同一批人/物。
   - 若需要桥接前作或旧作互文，只能通过当前角色的记忆、旧伤、自嘲或情绪触发进场，不得写成作者说明或作品外注释。
@@ -80,6 +86,10 @@ governance_tier: lite
 
 - `manuscript_patch`
   - 第一版完整正文
+  - 若当前集 root 由本 step 首次 bootstrap 或重写，必须确保 frontmatter 至少显式包含：
+    - `story_name`
+    - `rhythm_type`
+  - `story_name` 必须写入当前小说名；`rhythm_type` 若尚未进入 Step 2 判定，可先保留空字符串或沿用已有值
 - `process_log_entry`
   - `step_id: 1`
   - `focus_dimension: narrative_kickoff`
@@ -130,6 +140,7 @@ flowchart TD
 ## Completion Contract
 
 - 当前集已形成完整初稿。
-- 初稿已回应本集 chapter board 的核心功能。
+- 初稿已回应本集章级规划的核心功能。
+- 当前 root frontmatter 已显式带上 `story_name`，并已保留 `rhythm_type` 键位供 Step 2 回填正式值。
 - `process_log_entry` 已能说明本集 board 如何被定位。
 - `process_log_entry` 已能说明起盘如何承接卷级 entry state；若前序集终稿存在，也能说明如何完成二次校准。

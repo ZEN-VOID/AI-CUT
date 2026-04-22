@@ -17,7 +17,7 @@ governance_tier: lite
 - `resume/` 是 `story2026` 在 `5-Loopback` 侧的卫星恢复技能，不负责写入 truth，也不冒充 drafting / review / loopback actualization 主流程。
 - 它的职责是：定位真实中断点、给出安全恢复选项、清理或保留现场、把后续执行重新接回当前 canonical truth。
 - 当前 canonical truth 约定保持一致：
-  - 规划真源：`2-Planning/全息地图.json`
+  - 规划真源：`2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md`
   - 运行态真源：`STATE.json`
   - 实体/关系/状态变化主存储：`.webnovel/index.db`
   - 工作流断点：`STATE.json.workflow_runtime.workflow_state`
@@ -42,7 +42,7 @@ governance_tier: lite
 |---|---|---|
 | `story-init` | 读取初始化 run、查看当前步骤、继续/清理/重跑建议 | `workflow_manager.py` + `0-Init` 合同 |
 | `story-cards` | 读取 cards run、查看子卡步骤、继续/清理/重跑建议 | `workflow_manager.py` + `1-Cards` 合同 |
-| `story-plan` | 读取 1-8 planning pass 进度、继续/清理/重跑建议 | `workflow_manager.py` + `2-Planning` 合同 |
+| `story-plan` | 读取部级/卷级/章级 planning pass 进度、继续/清理/重跑建议 | `workflow_manager.py` + `2-Planning` 合同 |
 | `story-write` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `3-Drafting` 当前 Step 合同 |
 | `story-validate` | 读取 validation run、继续/清理/重跑建议 | `workflow_manager.py` + `4-Validation` 合同 |
 | `story-review` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `review/` Step 合同 |
@@ -162,7 +162,7 @@ cat "${REPO_ROOT}/.agents/skills/story/_shared/context-loading-contract.md"
 - 禁止猜断点。
 - 禁止把 `workflow detect` 输出中的动作文本原样当执行脚本。
 - 禁止为了“省事”直接做 destructive Git 操作。
-- 恢复后必须重新接回当前 canonical truth，而不是退回旧 `2-Planning/legacy/` 默认路径。
+- 恢复后必须重新接回当前 canonical truth，而不是退回旧 `2-Planning/legacy/` 或兼容 `holomap` 默认路径。
 
 ## Step 2：检测中断状态
 
@@ -222,7 +222,7 @@ Legacy compatibility only:
 | `Step 2` | 节奏优化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 3` | 场景和氛围渲染 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 4` | 角色形象刻画 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
-| `Step 5` | 对白个性化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
+| `Step 5` | 对白优化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 6` | 心理活动描写 | 优先继续当前工序；若 POV / 内心层明显失真，再清理当前集正文并回 Step 1 |
 | `Step 7` | 追读力强化 | 优先继续当前工序；若正文失真，再清理当前集正文并回 Step 1 |
 | `Step 8` | 润色 | 优先继续润色收束；若终稿已明显漂移，再清理当前集正文并回 Step 1 |
@@ -314,7 +314,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 ### 继续 `story-write`
 
 - 恢复后默认继续走 `3-Drafting` 当前合同。
-- 章节级上下文恢复必须重新以 `2-Planning/全息地图.json` 为默认规划真源。
+- 章节级上下文恢复必须重新以 `2-Planning/整体规划.md + 当前卷/卷规划.md + 当前卷/第N章.md` 为默认规划真源。
 - 若用户要先检查恢复后的上下文包，可执行：
 
 ```bash
@@ -332,7 +332,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 
 - 若 `workflow detect` 已记录 query run，可基于该 run_id 说明最近卡在 truth-role / source locate / evidence assemble 的哪一步。
 - 只做 generic 继续 / 安全重跑 / 人工诊断，不宣称“从断点续查”。
-- 若查询涉及规划类问题，继续默认先读 `全息地图.json`。
+- 若查询涉及规划类问题，继续默认先读 `整体规划.md + 当前卷/卷规划.md + 当前章.md`。
 
 ### 处理 `artifact_fallback`
 
@@ -350,7 +350,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
   - 真正删除前已自动备份当前集正文根文件
 - 若恢复后继续写作：
   - 明确说明下一跳回到 `3-Drafting`
-  - 继续以 holomap-first 方式加载上下文
+  - 继续以 fractal-planning-first 方式加载上下文
 - 若恢复后继续审查：
   - 明确说明下一跳回到 `review/`
 - 若只是退出恢复流程：
@@ -401,5 +401,5 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 - 若无 tracked 中断但有业务产物链，已执行 artifact fallback 检测并给出唯一下一入口。
 - 恢复选项已去除过时或 destructive 默认动作。
 - 已明确“下一跳回哪个 stage”，而不是把 `resume/` 冒充主执行器。
-- 若恢复继续写作/查询，已明确使用 holomap-first。
+- 若恢复继续写作/查询，已明确使用 fractal-planning-first。
 - 若恢复对象是轻量 tracked run，已明确说明它只支持 generic 恢复，而不是章节级 cleanup。

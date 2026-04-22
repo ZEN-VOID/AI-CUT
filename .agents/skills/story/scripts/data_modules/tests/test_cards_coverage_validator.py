@@ -105,6 +105,14 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
                                 "culture": ["码头行会", "江湖旧礼"],
                                 "arts": ["戏台唱段", "海港灯彩"],
                             },
+                            "faction_topology": {
+                                "tiers": ["海关总署", "码头行会", "走私帮派"],
+                                "rule_holders": ["海关总署", "码头行会"],
+                                "resource_controllers": ["航路情报", "港口税线"],
+                                "relation_patterns": ["明面合作", "暗地互相掣肘"],
+                                "protagonist_entry_path": "主角先被码头行会雇佣，再被走私帮派盯上。",
+                                "escalation_logic": ["从码头争夺升级为航路控制权争夺"],
+                            },
                             "power_or_technology": {
                                 "system_type": ["中原武学", "异域武道"],
                                 "tech_or_martial": ["刀术", "火器", "航海术"],
@@ -435,14 +443,6 @@ def _write_upstream_truth(project_root: Path, *, genre: str = "规则怪谈", ta
             "project_identity": {
                 "genre": genre,
                 "target_chapters": target_chapters,
-            },
-            "type_stack": {
-                "method_kernel": "story-core-v1",
-                "base": "_base",
-                "primary": "网文高冲击",
-                "secondary": ["规则悬疑"] if "规则" in genre or "悬疑" in genre else [],
-                "platform": [],
-                "audience": [],
             },
             "reader_promise": {
                 "hard_constraints": hard_constraints,
@@ -1169,7 +1169,6 @@ def test_cards_coverage_report_uses_north_star_truth_for_rule_rigidity(tmp_path)
 
     assert report["upstream_truth"]["north_star_loaded"] is True
     assert report["upstream_truth"]["init_handoff_loaded"] is True
-    assert report["upstream_truth"]["type_stack"]["primary"] == "网文高冲击"
     assert report["profile"]["rule_rigidity"] == "strong"
     assert report["sections"]["globals"]["ok"] is True
     assert report["sections"]["styles"]["ok"] is True

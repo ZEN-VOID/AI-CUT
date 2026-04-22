@@ -24,7 +24,7 @@
 |---|---|---|---|---|
 | `resume/` 把 `story-query` 误写成“完全不支持”或误抬成 `story-write` 级重型恢复 | skill contract | 把 `story-query` 改成“light tracked + generic recovery only” | 在 `SKILL.md` / `workflow-resume.md` 同步写死 query 只提供 generic continue / rerun / diagnosis | `resume` 文档能说明 query 有 tracked run，但不会误导到章节 cleanup |
 | 恢复建议仍引用 `git reset --hard` 或假定存在章节 tag | script gate + reference contract | 同时修 `workflow_manager.py` 与 `workflow-resume.md`，改成 preview-confirm cleanup / manual inspection | 在 skill 与脚本双层写死“禁止 destructive 默认动作” | `detect`/参考文档/skill 文档都不再出现默认硬回滚 |
-| 恢复后默认退回旧 `大纲/` | shared data-flow contract | 在 `resume` 写死 holomap-first | 在 `resume` 与共享 data-flow 文档中同步固定 | 恢复继续 drafting/query 时明确优先 `全息地图.json` |
+| 恢复后默认退回旧 `大纲/` 或兼容 `holomap` | shared data-flow contract | 在 `resume` 写死 fractal-planning-first | 在 `resume` 与共享 data-flow 文档中同步固定 | 恢复继续 drafting/query 时明确优先 `整体规划.md + 卷规划.md + 第N章.md` |
 | `resume/` 与 `5-Loopback` actualization 职责混淆 | stage contract | 在 `resume/SKILL.md` 明确其是 satellite recovery skill | 在 `5-Loopback` 与 `resume` 同时固定边界 | 不再把恢复动作描述成 truth writeback |
 | 旧文档仍把 `Step 1.5` 当当前正式 tracked step | drafting contract drift | 改成 legacy compatibility note | 在 `resume` 文档中区分“当前 tracked step”与“旧状态兼容” | 当前 step 表以 `workflow_manager.get_pending_steps()` 为准 |
 | `resume` 仍按旧独立文件找断点，看不到内联全阶段 run / stage_progress / task log | execution-state contract | 为 `resume` 增加 `STATE.json.workflow_runtime` 读取语义，并把 registry 扩到全阶段 commands | 在脚本与参考文档同步固定内联三件套分工 | `resume/status` 可判断 init/cards/plan/validate/loopback/query 等非 drafting run |

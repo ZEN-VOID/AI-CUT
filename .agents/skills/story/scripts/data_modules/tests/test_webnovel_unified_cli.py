@@ -148,6 +148,90 @@ def test_validate_forwards_with_resolved_project_root(monkeypatch, tmp_path):
     ]
 
 
+def test_drafting_guard_forwards_with_resolved_project_root(monkeypatch, tmp_path):
+    module = _load_webnovel_module()
+
+    book_root = (tmp_path / "book").resolve()
+    called = {}
+
+    def _fake_resolve(explicit_project_root=None):
+        return book_root
+
+    def _fake_run_script(script_name, argv):
+        called["script_name"] = script_name
+        called["argv"] = list(argv)
+        return 0
+
+    monkeypatch.setattr(module, "_resolve_root", _fake_resolve)
+    monkeypatch.setattr(module, "_run_script", _fake_run_script)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "webnovel",
+            "--project-root",
+            str(tmp_path),
+            "drafting-guard",
+            "--chapter",
+            "12",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 0
+    assert called["script_name"] == "drafting_manuscript_guard.py"
+    assert called["argv"] == [
+        "--project-root",
+        str(book_root),
+        "--chapter",
+        "12",
+    ]
+
+
+def test_drafting_volume_guard_forwards_with_resolved_project_root(monkeypatch, tmp_path):
+    module = _load_webnovel_module()
+
+    book_root = (tmp_path / "book").resolve()
+    called = {}
+
+    def _fake_resolve(explicit_project_root=None):
+        return book_root
+
+    def _fake_run_script(script_name, argv):
+        called["script_name"] = script_name
+        called["argv"] = list(argv)
+        return 0
+
+    monkeypatch.setattr(module, "_resolve_root", _fake_resolve)
+    monkeypatch.setattr(module, "_run_script", _fake_run_script)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "webnovel",
+            "--project-root",
+            str(tmp_path),
+            "drafting-volume-guard",
+            "--volume",
+            "2",
+        ],
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+
+    assert int(exc.value.code or 0) == 0
+    assert called["script_name"] == "drafting_volume_quality_guard.py"
+    assert called["argv"] == [
+        "--project-root",
+        str(book_root),
+        "--volume",
+        "2",
+    ]
+
+
 def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
     module = _load_webnovel_module()
 
@@ -297,7 +381,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
     planning_dir = project_root / "2-Planning"
     planning_dir.mkdir(parents=True, exist_ok=True)
-    (planning_dir / "全息地图.json").write_text("{}", encoding="utf-8")
+    (planning_dir / "整体规划.md").write_text("书名：\n\n整体故事大纲：\n\n卷划分：\n\n整体节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n规避：\n", encoding="utf-8")
 
     monkeypatch.setattr(sys, "argv", ["webnovel", "--project-root", str(project_root), "preflight"])
 
@@ -308,7 +392,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     assert int(exc.value.code or 0) == 0
     assert "OK project_root" in captured.out
     assert "OK planning_source" in captured.out
-    assert "默认规划真源：2-Planning/全息地图.json" in captured.out
+    assert "默认规划真源：2-Planning/整体规划.md" in captured.out
     assert str(project_root.resolve()) in captured.out
 
 
@@ -350,8 +434,9 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
         module.main()
 
     captured = capsys.readouterr()
-    assert int(exc.value.code or 0) == 0
+    assert int(exc.value.code or 0) == 1
     assert '"status": "legacy_fallback"' in captured.out
+    assert '"ok": false' in captured.out
     assert "2-Planning/legacy/总纲.md" in captured.out
 
 

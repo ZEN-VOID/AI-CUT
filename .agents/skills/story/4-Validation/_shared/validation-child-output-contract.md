@@ -1,6 +1,6 @@
 # Validation Child Output Contract
 
-本文件定义 `4-Validation` 六个子技能包的统一输出协议。
+本文件定义 `4-Validation` 全部受治理子技能包的统一输出协议。
 
 ## Canonical Output Shape
 

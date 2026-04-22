@@ -143,9 +143,8 @@ class IndexReadingMixin:
                 INSERT INTO review_metrics
                 (start_chapter, end_chapter, overall_score, dimension_scores,
                  anti_ai_force_check, spoiler_risk, contrivance_risk, cold_commentary_risk,
-                 type_pack_enabled, type_pack_active_packs, type_pack_fit_score, type_pack_fail_signals,
                  severity_counts, critical_issues, report_file, notes, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ON CONFLICT(start_chapter, end_chapter)
                 DO UPDATE SET
                     overall_score = excluded.overall_score,
@@ -154,10 +153,6 @@ class IndexReadingMixin:
                     spoiler_risk = excluded.spoiler_risk,
                     contrivance_risk = excluded.contrivance_risk,
                     cold_commentary_risk = excluded.cold_commentary_risk,
-                    type_pack_enabled = excluded.type_pack_enabled,
-                    type_pack_active_packs = excluded.type_pack_active_packs,
-                    type_pack_fit_score = excluded.type_pack_fit_score,
-                    type_pack_fail_signals = excluded.type_pack_fail_signals,
                     severity_counts = excluded.severity_counts,
                     critical_issues = excluded.critical_issues,
                     report_file = excluded.report_file,
@@ -173,10 +168,6 @@ class IndexReadingMixin:
                     metrics.spoiler_risk,
                     metrics.contrivance_risk,
                     metrics.cold_commentary_risk,
-                    int(bool(metrics.type_pack_enabled)),
-                    json.dumps(metrics.type_pack_active_packs, ensure_ascii=False),
-                    metrics.type_pack_fit_score,
-                    json.dumps(metrics.type_pack_fail_signals, ensure_ascii=False),
                     json.dumps(metrics.severity_counts, ensure_ascii=False),
                     json.dumps(metrics.critical_issues, ensure_ascii=False),
                     metrics.report_file,
@@ -198,15 +189,13 @@ class IndexReadingMixin:
                 (limit,),
             )
             return [
-                self._row_to_dict(
-                    row,
-                    parse_json=[
-                        "dimension_scores",
-                        "type_pack_active_packs",
-                        "type_pack_fail_signals",
-                        "severity_counts",
-                        "critical_issues",
-                    ],
+                    self._row_to_dict(
+                        row,
+                        parse_json=[
+                            "dimension_scores",
+                            "severity_counts",
+                            "critical_issues",
+                        ],
                 )
                 for row in cursor.fetchall()
             ]

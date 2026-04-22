@@ -203,10 +203,6 @@ class ReviewMetrics:
     spoiler_risk: str = "low"
     contrivance_risk: str = "low"
     cold_commentary_risk: str = "low"
-    type_pack_enabled: bool = False
-    type_pack_active_packs: List[str] = field(default_factory=list)
-    type_pack_fit_score: float = 0.0
-    type_pack_fail_signals: List[str] = field(default_factory=list)
     severity_counts: Dict[str, int] = field(default_factory=dict)
     critical_issues: List[str] = field(default_factory=list)
     report_file: str = ""
@@ -551,10 +547,6 @@ class IndexManager(IndexChapterMixin, IndexEntityMixin, IndexDebtMixin, IndexRea
                     spoiler_risk TEXT DEFAULT 'low',
                     contrivance_risk TEXT DEFAULT 'low',
                     cold_commentary_risk TEXT DEFAULT 'low',
-                    type_pack_enabled INTEGER DEFAULT 0,
-                    type_pack_active_packs TEXT,
-                    type_pack_fit_score REAL DEFAULT 0,
-                    type_pack_fail_signals TEXT,
                     severity_counts TEXT,
                     critical_issues TEXT,
                     report_file TEXT,
@@ -575,10 +567,6 @@ class IndexManager(IndexChapterMixin, IndexEntityMixin, IndexDebtMixin, IndexRea
                     "spoiler_risk": "TEXT DEFAULT 'low'",
                     "contrivance_risk": "TEXT DEFAULT 'low'",
                     "cold_commentary_risk": "TEXT DEFAULT 'low'",
-                    "type_pack_enabled": "INTEGER DEFAULT 0",
-                    "type_pack_active_packs": "TEXT",
-                    "type_pack_fit_score": "REAL DEFAULT 0",
-                    "type_pack_fail_signals": "TEXT",
                 },
             )
 
@@ -1184,10 +1172,6 @@ def main():
             spoiler_risk=data.get("spoiler_risk", "low"),
             contrivance_risk=data.get("contrivance_risk", "low"),
             cold_commentary_risk=data.get("cold_commentary_risk", "low"),
-            type_pack_enabled=bool(data.get("type_pack_enabled", False)),
-            type_pack_active_packs=data.get("type_pack_active_packs", []),
-            type_pack_fit_score=data.get("type_pack_fit_score", 0.0),
-            type_pack_fail_signals=data.get("type_pack_fail_signals", []),
             severity_counts=data.get("severity_counts", {}),
             critical_issues=data.get("critical_issues", []),
             report_file=data.get("report_file", ""),

@@ -106,6 +106,7 @@ PROJECT_GOVERNANCE_ARTIFACTS = (
 )
 PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
     "projects/aigc/<项目名>/CHANGELOG.md",
+    "projects/aigc/<项目名>/CONTEXT/",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
     "1-Planning": "projects/aigc/<项目名>/1-Planning/validation-report.md",
@@ -118,6 +119,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
         "projects/aigc/<项目名>/0-Init/",
         "projects/aigc/<项目名>/Story/",
+        "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/Assets/",
         "projects/aigc/<项目名>/Assets/角色/",
         "projects/aigc/<项目名>/Assets/道具/",
@@ -213,12 +215,10 @@ STAGE_RUNTIME_FORBIDDEN = {
 REQUIRED_SATELLITES = {
     "aigc-query": ROOT / "query",
     "aigc-resume": ROOT / "resume",
-    "aigc-review": ROOT / "review",
 }
 REQUIRED_ROUTE_POLICIES = {
     "aigc-query-satellite-entry",
     "aigc-resume-satellite-entry",
-    "aigc-review-satellite-entry",
     "aigc-image-stage-entry",
 }
 REQUIRED_STAGE_AGENT_DOCS = {
@@ -244,9 +244,6 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "6-Video" / "3-视频生成" / "SKILL.md",
     ),
     ROOT / "review": (
-        ROOT / "review" / "subtypes" / "preflight-review" / "SKILL.md",
-        ROOT / "review" / "subtypes" / "acceptance-review" / "SKILL.md",
-        ROOT / "review" / "subtypes" / "learning-bridge" / "SKILL.md",
     ),
 }
 BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {

@@ -20,10 +20,30 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
-from planning_paths import canonical_planning_artifact_relpath, resolve_planning_artifact_path
+from planning_paths import (
+    canonical_book_plan_actualization_path,
+    canonical_book_plan_actualization_relpath,
+    canonical_book_plan_path,
+    canonical_book_plan_relpath,
+    canonical_chapter_plan_actualization_path,
+    canonical_chapter_plan_actualization_relpath,
+    canonical_chapter_plan_path,
+    canonical_chapter_plan_relpath,
+    canonical_planning_artifact_relpath,
+    canonical_volume_plan_actualization_path,
+    canonical_volume_plan_actualization_relpath,
+    canonical_volume_plan_path,
+    canonical_volume_plan_relpath,
+    planned_chapter_numbers_for_volume,
+    planning_volume_num_for_chapter,
+    resolve_planning_artifact_path,
+)
 from project_locator import resolve_project_root, resolve_state_file
 from runtime_compat import enable_windows_utf8_stdio
 from security_utils import atomic_write_json, create_secure_directory, sanitize_filename
+
+
+VOLUME_REF_RE = re.compile(r"第(?P<num>\d+)卷")
 
 
 def _scripts_dir() -> Path:
@@ -80,10 +100,41 @@ def _episode_ref_candidates(episode: int) -> List[str]:
     return [f"第{episode}集", f"第{episode:03d}集"]
 
 
-def _build_artifact_path(project_root: Path, state: Dict[str, Any], episode: int) -> Path:
+def _episode_ref(chapter_num: int) -> str:
+    return f"第{chapter_num}集"
+
+
+def _normalize_chapter_num(raw: Any) -> int | None:
+    if isinstance(raw, int):
+        return raw if raw > 0 else None
+    text = str(raw or "").strip()
+    if not text:
+        return None
+    if text.isdigit():
+        value = int(text)
+        return value if value > 0 else None
+    match = re.search(r"第(?P<num>\d+)(?:章|集)?", text)
+    if match:
+        value = int(match.group("num"))
+        return value if value > 0 else None
+    return None
+
+
+def _normalize_chapter_nums(raw: Any) -> List[int]:
+    if not isinstance(raw, list):
+        return []
+    chapter_nums: List[int] = []
+    for item in raw:
+        chapter_num = _normalize_chapter_num(item)
+        if chapter_num is not None and chapter_num not in chapter_nums:
+            chapter_nums.append(chapter_num)
+    return sorted(chapter_nums)
+
+
+def _build_artifact_path(project_root: Path, state: Dict[str, Any], volume_num: int) -> Path:
     output_dir = project_root / "5-Loopback"
     create_secure_directory(str(output_dir))
-    return output_dir / f"第{episode}集.loopback.json"
+    return output_dir / f"第{volume_num}卷.loopback.json"
 
 
 def _load_template() -> Dict[str, Any]:
@@ -424,6 +475,171 @@ def _actualization_defaults() -> Dict[str, Any]:
     }
 
 
+def _planning_actualization_defaults(level: str, plan_ref: str) -> Dict[str, Any]:
+    payload = {
+        "schema_version": f"story2026/planning-actualization/{level}/v1",
+        "level": level,
+        "plan_ref": plan_ref,
+        "revision": 0,
+    }
+    if level == "book":
+        payload["volume_status_index"] = []
+    elif level == "volume":
+        payload["chapter_status_index"] = []
+    elif level == "chapter":
+        payload["status"] = "planned"
+    return payload
+
+
+def _load_json_file_or_default(path: Path, default_payload: Dict[str, Any]) -> Dict[str, Any]:
+    if path.is_file():
+        payload = _load_json_file(path)
+        if isinstance(payload, dict):
+            return payload
+    return copy.deepcopy(default_payload)
+
+
+def _get_plain_revision(payload: Dict[str, Any], context: str) -> int:
+    return _normalize_revision(payload.get("revision"), context)
+
+
+def _set_plain_revision(payload: Dict[str, Any], revision: int) -> None:
+    payload["revision"] = revision
+
+
+def _resolve_volume_num(
+    validation_payload: Dict[str, Any],
+    *,
+    project_root: Path,
+    chapter_num: int | None,
+    requested_volume: int | None = None,
+) -> int:
+    if requested_volume is not None and requested_volume > 0:
+        return requested_volume
+    volume_ref = str(validation_payload.get("volume_ref") or "").strip()
+    match = VOLUME_REF_RE.search(volume_ref)
+    if match:
+        return int(match.group("num"))
+    chapter_nums = _normalize_chapter_nums(validation_payload.get("chapter_refs"))
+    if chapter_nums:
+        return planning_volume_num_for_chapter(chapter_nums[0], project_root=project_root)
+    if chapter_num is not None:
+        return planning_volume_num_for_chapter(chapter_num, project_root=project_root)
+    raise ValueError("无法解析目标卷号；请提供 validation.volume_ref、chapter_refs、--volume 或 --episode")
+
+
+def _chapter_ref(episode: int) -> str:
+    return f"第{episode}章"
+
+
+def _volume_ref(volume_num: int) -> str:
+    return f"第{volume_num}卷"
+
+
+def _expected_chapter_numbers_for_volume(project_root: Path, volume_num: int) -> List[int]:
+    return planned_chapter_numbers_for_volume(project_root, volume_num)
+
+
+def _upsert_book_planning_actualization(
+    payload: Dict[str, Any],
+    *,
+    volume_ref: str,
+    chapter_ref: str,
+    validation_ref: str,
+    artifact_ref: str,
+    actual_outcome_summary: str,
+    status: str,
+) -> None:
+    entries = payload.setdefault("volume_status_index", [])
+    if not isinstance(entries, list):
+        raise ValueError("book planning actualization.volume_status_index 必须是数组")
+    match = None
+    for row in entries:
+        if isinstance(row, dict) and str(row.get("volume_ref") or "").strip() == volume_ref:
+            match = row
+            break
+    patch = {
+        "volume_ref": volume_ref,
+        "status": status,
+        "last_actualized_chapter_ref": chapter_ref,
+        "validation_ref": validation_ref,
+        "loopback_ref": artifact_ref,
+        "actual_outcome_summary": actual_outcome_summary,
+    }
+    if match is None:
+        entries.append(copy.deepcopy(patch))
+    else:
+        match.update(copy.deepcopy(patch))
+
+
+def _upsert_volume_planning_actualization(
+    payload: Dict[str, Any],
+    *,
+    chapter_ref: str,
+    episode_ref: str,
+    manuscript_ref: str,
+    validation_ref: str,
+    artifact_ref: str,
+    actual_outcome_summary: str,
+    status: str,
+) -> None:
+    entries = payload.setdefault("chapter_status_index", [])
+    if not isinstance(entries, list):
+        raise ValueError("volume planning actualization.chapter_status_index 必须是数组")
+    match = None
+    for row in entries:
+        if isinstance(row, dict) and str(row.get("chapter_ref") or "").strip() == chapter_ref:
+            match = row
+            break
+    patch = {
+        "chapter_ref": chapter_ref,
+        "episode_ref": episode_ref,
+        "status": status,
+        "manuscript_ref": manuscript_ref,
+        "validation_ref": validation_ref,
+        "loopback_ref": artifact_ref,
+        "actual_outcome_summary": actual_outcome_summary,
+    }
+    if match is None:
+        entries.append(copy.deepcopy(patch))
+    else:
+        match.update(copy.deepcopy(patch))
+
+
+def _set_chapter_planning_actualization(
+    payload: Dict[str, Any],
+    *,
+    chapter_ref: str,
+    episode_ref: str,
+    manuscript_ref: str,
+    validation_ref: str,
+    artifact_ref: str,
+    actual_outcome_summary: str,
+) -> None:
+    payload.update(
+        {
+            "chapter_ref": chapter_ref,
+            "episode_ref": episode_ref,
+            "status": "completed",
+            "manuscript_ref": manuscript_ref,
+            "validation_ref": validation_ref,
+            "loopback_ref": artifact_ref,
+            "actual_outcome_summary": actual_outcome_summary,
+        }
+    )
+
+
+def _is_volume_actualization_completed(payload: Dict[str, Any], expected_chapters: Iterable[int]) -> bool:
+    expected_refs = {f"第{chapter_num}章" for chapter_num in expected_chapters}
+    entries = payload.get("chapter_status_index") or []
+    completed_refs = {
+        str(row.get("chapter_ref") or "").strip()
+        for row in entries
+        if isinstance(row, dict) and str(row.get("status") or "").strip() == "completed"
+    }
+    return bool(expected_refs) and expected_refs.issubset(completed_refs)
+
+
 def _get_map_actualization_root(payload: Dict[str, Any]) -> Dict[str, Any]:
     content = payload.setdefault("content", {})
     holomap_slice = content.get("holomap_slice")
@@ -630,7 +846,8 @@ def _apply_projection_refresh(
 
 def _build_commit_manifest(
     *,
-    episode: int,
+    volume_num: int,
+    chapter_nums: List[int],
     validation_ref: str,
     artifact_ref: str,
     written_card_refs: List[str],
@@ -642,7 +859,8 @@ def _build_commit_manifest(
 ) -> Dict[str, Any]:
     manifest_seed = json.dumps(
         {
-            "episode": episode,
+            "volume_ref": _volume_ref(volume_num),
+            "chapter_refs": [_chapter_ref(chapter_num) for chapter_num in chapter_nums],
             "validation_ref": validation_ref,
             "artifact_ref": artifact_ref,
             "written_card_refs": written_card_refs,
@@ -652,11 +870,12 @@ def _build_commit_manifest(
         ensure_ascii=False,
         sort_keys=True,
     )
-    manifest_id = f"loopback-{episode}-{hashlib.sha1(manifest_seed.encode('utf-8')).hexdigest()[:12]}"
+    manifest_id = f"loopback-volume-{volume_num}-{hashlib.sha1(manifest_seed.encode('utf-8')).hexdigest()[:12]}"
     return {
         "manifest_id": manifest_id,
         "phase": phase,
-        "episode_ref": f"第{episode}集",
+        "volume_ref": _volume_ref(volume_num),
+        "chapter_refs": [_chapter_ref(chapter_num) for chapter_num in chapter_nums],
         "validation_ref": validation_ref,
         "artifact_ref": artifact_ref,
         "written_card_refs": copy.deepcopy(written_card_refs),
@@ -774,12 +993,20 @@ def _build_artifact(
     *,
     project_root: Path,
     state: Dict[str, Any],
-    episode: int,
+    anchor_chapter_num: int,
+    chapter_nums: List[int],
+    volume_num: int,
     manuscript_ref: str,
     validation_ref: str,
     routing_decision: str,
     handoff_targets: List[str],
     draft_packet_ref: str,
+    book_plan_ref: str,
+    volume_plan_ref: str,
+    chapter_plan_refs: List[str],
+    book_plan_actualization_ref: str,
+    volume_plan_actualization_ref: str,
+    chapter_plan_actualization_refs: List[str],
     story_map_ref: str,
     story_map_slice_ref: str,
     delta_payload: Dict[str, List[Dict[str, Any]]],
@@ -789,15 +1016,26 @@ def _build_artifact(
     artifact = copy.deepcopy(template)
     meta = artifact.setdefault("meta", {})
     meta["project_name"] = _project_name(project_root, state)
-    meta["episode_ref"] = f"第{episode}集"
+    meta["episode_ref"] = _episode_ref(anchor_chapter_num)
+    meta["volume_ref"] = _volume_ref(volume_num)
+    meta["chapter_refs"] = copy.deepcopy([_chapter_ref(chapter_num) for chapter_num in chapter_nums])
     meta["created_at"] = ""
     meta["loopback_ref"] = artifact_ref
 
     inputs = artifact.setdefault("inputs", {})
     inputs["project_root"] = str(project_root)
     inputs["manuscript_ref"] = manuscript_ref
+    inputs["manuscript_refs"] = [manuscript_ref]
+    inputs["volume_ref"] = _volume_ref(volume_num)
+    inputs["chapter_refs"] = copy.deepcopy([_chapter_ref(chapter_num) for chapter_num in chapter_nums])
     inputs["validation_ref"] = validation_ref
     inputs["draft_packet_ref"] = draft_packet_ref
+    inputs["book_plan_ref"] = book_plan_ref
+    inputs["volume_plan_ref"] = volume_plan_ref
+    inputs["chapter_plan_refs"] = copy.deepcopy(chapter_plan_refs)
+    inputs["book_plan_actualization_ref"] = book_plan_actualization_ref
+    inputs["volume_plan_actualization_ref"] = volume_plan_actualization_ref
+    inputs["chapter_plan_actualization_refs"] = copy.deepcopy(chapter_plan_actualization_refs)
     inputs["story_map_ref"] = story_map_ref
     inputs["story_map_slice_ref"] = story_map_slice_ref
     inputs["validation_status"] = "PASS"
@@ -812,6 +1050,7 @@ def _build_artifact(
     loopback_delta["evidence_refs"] = copy.deepcopy(delta_payload["evidence_refs"])
     writeback_summary = content.setdefault("writeback_summary", {})
     writeback_summary.setdefault("written_card_refs", [])
+    writeback_summary.setdefault("written_planning_actualization_refs", [])
     writeback_summary.setdefault("written_map_refs", [])
     writeback_summary.setdefault("refreshed_projection_refs", [])
 
@@ -938,7 +1177,22 @@ def actualize(args: argparse.Namespace) -> int:
         )
         return 1
 
-    artifact_path = _build_artifact_path(project_root, state, args.episode)
+    requested_volume = int(args.volume) if getattr(args, "volume", None) else None
+    requested_episode = int(args.episode) if getattr(args, "episode", None) else None
+    volume_num = _resolve_volume_num(
+        validation_payload,
+        project_root=project_root,
+        chapter_num=requested_episode,
+        requested_volume=requested_volume,
+    )
+    chapter_nums = _normalize_chapter_nums(validation_payload.get("chapter_refs"))
+    if not chapter_nums:
+        if requested_episode is not None:
+            chapter_nums = [requested_episode]
+        else:
+            chapter_nums = _expected_chapter_numbers_for_volume(project_root, volume_num)
+    anchor_chapter_num = requested_episode or max(chapter_nums)
+    artifact_path = _build_artifact_path(project_root, state, volume_num)
     artifact_ref = _relpath(artifact_path, project_root)
     validation_ref = str(
         args.validation_ref
@@ -946,6 +1200,37 @@ def actualize(args: argparse.Namespace) -> int:
         or validation_payload.get("report_file")
         or ""
     ).strip()
+    chapter_ref = _chapter_ref(anchor_chapter_num)
+    volume_ref = _volume_ref(volume_num)
+    book_plan_path = canonical_book_plan_path(project_root)
+    volume_plan_path = canonical_volume_plan_path(project_root, volume_num)
+    book_plan_ref = canonical_book_plan_relpath() if book_plan_path.is_file() else ""
+    volume_plan_ref = canonical_volume_plan_relpath(volume_num) if volume_plan_path.is_file() else ""
+    chapter_plan_refs: List[str] = []
+    chapter_plan_actualization_refs: List[str] = []
+    chapter_plan_actualization_paths: Dict[int, Path] = {}
+    for chapter_num in chapter_nums:
+        chapter_plan_path = canonical_chapter_plan_path(project_root, chapter_num, volume_num)
+        if not chapter_plan_path.is_file():
+            continue
+        chapter_plan_refs.append(canonical_chapter_plan_relpath(chapter_num, volume_num, project_root=project_root))
+        chapter_plan_actualization_paths[chapter_num] = canonical_chapter_plan_actualization_path(
+            project_root,
+            chapter_num,
+            volume_num,
+        )
+        chapter_plan_actualization_refs.append(
+            canonical_chapter_plan_actualization_relpath(chapter_num, volume_num, project_root=project_root)
+        )
+    book_plan_actualization_path = canonical_book_plan_actualization_path(project_root)
+    volume_plan_actualization_path = canonical_volume_plan_actualization_path(project_root, volume_num)
+    book_plan_actualization_ref = (
+        canonical_book_plan_actualization_relpath() if book_plan_ref else ""
+    )
+    volume_plan_actualization_ref = (
+        canonical_volume_plan_actualization_relpath(volume_num) if volume_plan_ref else ""
+    )
+    actual_outcome_summary = _derive_actual_outcome_summary(delta_payload["map_deltas"])
 
     observed_card_revisions: Dict[str, int] = {}
     next_card_revisions: Dict[str, int] = {}
@@ -986,12 +1271,20 @@ def actualize(args: argparse.Namespace) -> int:
         _load_template(),
         project_root=project_root,
         state=state,
-        episode=args.episode,
+        anchor_chapter_num=anchor_chapter_num,
+        chapter_nums=chapter_nums,
+        volume_num=volume_num,
         manuscript_ref=args.manuscript_ref,
         validation_ref=validation_ref,
         routing_decision=routing_decision,
         handoff_targets=handoff_targets,
         draft_packet_ref=str(args.draft_packet_ref or ""),
+        book_plan_ref=book_plan_ref,
+        volume_plan_ref=volume_plan_ref,
+        chapter_plan_refs=chapter_plan_refs,
+        book_plan_actualization_ref=book_plan_actualization_ref,
+        volume_plan_actualization_ref=volume_plan_actualization_ref,
+        chapter_plan_actualization_refs=chapter_plan_actualization_refs,
         story_map_ref=story_map_rel,
         story_map_slice_ref="",
         delta_payload=delta_payload,
@@ -1012,7 +1305,91 @@ def actualize(args: argparse.Namespace) -> int:
 
     holomap = _load_json_file(story_map_path)
     original_holomap = copy.deepcopy(holomap)
-    slice_ref = _resolve_slice_ref(holomap, args.episode, delta_payload["map_deltas"])
+    planning_sidecar_payloads: Dict[Path, Dict[str, Any]] = {}
+    written_planning_actualization_refs: List[str] = []
+
+    if book_plan_ref:
+        payload = _load_json_file_or_default(
+            book_plan_actualization_path,
+            _planning_actualization_defaults("book", book_plan_ref),
+        )
+        _upsert_book_planning_actualization(
+            payload,
+            volume_ref=volume_ref,
+            chapter_ref=chapter_ref,
+            validation_ref=validation_ref,
+            artifact_ref=artifact_ref,
+            actual_outcome_summary=actual_outcome_summary,
+            status="in_progress",
+        )
+        current_revision = _get_plain_revision(payload, "book planning actualization.revision")
+        _set_plain_revision(payload, current_revision + 1)
+        planning_sidecar_payloads[book_plan_actualization_path] = payload
+        written_planning_actualization_refs.append(book_plan_actualization_ref)
+
+    expected_chapters = _expected_chapter_numbers_for_volume(project_root, volume_num)
+    if volume_plan_ref:
+        payload = _load_json_file_or_default(
+            volume_plan_actualization_path,
+            _planning_actualization_defaults("volume", volume_plan_ref),
+        )
+        payload["volume_ref"] = volume_ref
+        for chapter_num in chapter_nums:
+            chapter_manuscript_ref = args.manuscript_ref if chapter_num == anchor_chapter_num else f"3-Drafting/第{chapter_num}集.md"
+            _upsert_volume_planning_actualization(
+                payload,
+                chapter_ref=_chapter_ref(chapter_num),
+                episode_ref=_episode_ref(chapter_num),
+                manuscript_ref=chapter_manuscript_ref,
+                validation_ref=validation_ref,
+                artifact_ref=artifact_ref,
+                actual_outcome_summary=actual_outcome_summary,
+                status="completed",
+            )
+        payload["status"] = "completed" if _is_volume_actualization_completed(payload, expected_chapters) else "in_progress"
+        current_revision = _get_plain_revision(payload, "volume planning actualization.revision")
+        _set_plain_revision(payload, current_revision + 1)
+        planning_sidecar_payloads[volume_plan_actualization_path] = payload
+        written_planning_actualization_refs.append(volume_plan_actualization_ref)
+
+    for chapter_num, chapter_plan_actualization_path in chapter_plan_actualization_paths.items():
+        chapter_plan_ref = canonical_chapter_plan_relpath(chapter_num, volume_num, project_root=project_root)
+        payload = _load_json_file_or_default(
+            chapter_plan_actualization_path,
+            _planning_actualization_defaults("chapter", chapter_plan_ref),
+        )
+        chapter_manuscript_ref = args.manuscript_ref if chapter_num == anchor_chapter_num else f"3-Drafting/第{chapter_num}集.md"
+        _set_chapter_planning_actualization(
+            payload,
+            chapter_ref=_chapter_ref(chapter_num),
+            episode_ref=_episode_ref(chapter_num),
+            manuscript_ref=chapter_manuscript_ref,
+            validation_ref=validation_ref,
+            artifact_ref=artifact_ref,
+            actual_outcome_summary=actual_outcome_summary,
+        )
+        current_revision = _get_plain_revision(payload, "chapter planning actualization.revision")
+        _set_plain_revision(payload, current_revision + 1)
+        planning_sidecar_payloads[chapter_plan_actualization_path] = payload
+        ref = canonical_chapter_plan_actualization_relpath(chapter_num, volume_num, project_root=project_root)
+        if ref not in written_planning_actualization_refs:
+            written_planning_actualization_refs.append(ref)
+
+    if book_plan_ref and volume_plan_ref and book_plan_actualization_path in planning_sidecar_payloads:
+        planning_sidecar_payloads[book_plan_actualization_path]["volume_status_index"] = planning_sidecar_payloads[
+            book_plan_actualization_path
+        ].get("volume_status_index", [])
+        _upsert_book_planning_actualization(
+            planning_sidecar_payloads[book_plan_actualization_path],
+            volume_ref=volume_ref,
+            chapter_ref=chapter_ref,
+            validation_ref=validation_ref,
+            artifact_ref=artifact_ref,
+            actual_outcome_summary=actual_outcome_summary,
+            status=str(planning_sidecar_payloads[volume_plan_actualization_path].get("status") or "in_progress"),
+        )
+
+    slice_ref = _resolve_slice_ref(holomap, anchor_chapter_num, delta_payload["map_deltas"])
     slice_path = _resolve_slice_path(project_root, holomap, slice_ref)
     written_map_slice_refs: List[str] = []
 
@@ -1023,7 +1400,7 @@ def actualize(args: argparse.Namespace) -> int:
             _set_map_revision(staged_slice_payload, _get_map_revision(slice_payload) + 1)
         written_map_refs = _refresh_root_actualization_indexes(
             holomap,
-            episode=args.episode,
+            episode=anchor_chapter_num,
             slice_ref=slice_ref,
             validation_ref=validation_ref,
             artifact_ref=artifact_ref,
@@ -1045,7 +1422,8 @@ def actualize(args: argparse.Namespace) -> int:
     _set_state_revision(staged_state, next_state_revision)
 
     commit_manifest = _build_commit_manifest(
-        episode=args.episode,
+        volume_num=volume_num,
+        chapter_nums=chapter_nums,
         validation_ref=validation_ref,
         artifact_ref=artifact_ref,
         written_card_refs=written_card_refs,
@@ -1072,11 +1450,13 @@ def actualize(args: argparse.Namespace) -> int:
     if not isinstance(loopback_marker, dict):
         loopback_marker = {}
         runtime_markers["loopback"] = loopback_marker
-    loopback_marker["last_actualized_episode"] = f"第{args.episode}集"
+    loopback_marker["last_actualized_episode"] = _episode_ref(anchor_chapter_num)
+    loopback_marker["last_actualized_volume"] = volume_ref
     loopback_marker["last_commit_manifest"] = copy.deepcopy(commit_manifest)
     runtime_markers.pop("loopback_pending", None)
 
     artifact["content"]["writeback_summary"]["written_card_refs"] = written_card_refs
+    artifact["content"]["writeback_summary"]["written_planning_actualization_refs"] = written_planning_actualization_refs
     artifact["content"]["writeback_summary"]["written_map_refs"] = written_map_refs
     artifact["content"]["writeback_summary"]["written_map_slice_refs"] = written_map_slice_refs
     artifact["content"]["writeback_summary"]["refreshed_projection_refs"] = refreshed_projection_refs
@@ -1095,6 +1475,10 @@ def actualize(args: argparse.Namespace) -> int:
         originals[card_path] = _load_json_file(card_path)
         write_plan.append((card_path, payload, True, True))
 
+    for sidecar_path, payload in planning_sidecar_payloads.items():
+        originals[sidecar_path] = _load_json_file(sidecar_path) if sidecar_path.is_file() else None
+        write_plan.append((sidecar_path, payload, True, True))
+
     if slice_path is not None and staged_slice_payload is not None:
         originals[slice_path] = _load_json_file(slice_path)
         write_plan.append((slice_path, staged_slice_payload, True, True))
@@ -1112,7 +1496,8 @@ def actualize(args: argparse.Namespace) -> int:
         pending_runtime_markers = {}
         pending_state["runtime_markers"] = pending_runtime_markers
     pending_runtime_markers["loopback_pending"] = _build_commit_manifest(
-        episode=args.episode,
+        volume_num=volume_num,
+        chapter_nums=chapter_nums,
         validation_ref=validation_ref,
         artifact_ref=artifact_ref,
         written_card_refs=written_card_refs,
@@ -1142,7 +1527,9 @@ def actualize(args: argparse.Namespace) -> int:
             {
                 "ok": True,
                 "loopback_ref": artifact_ref,
-                "episode_ref": f"第{args.episode}集",
+                "episode_ref": _episode_ref(anchor_chapter_num),
+                "volume_ref": volume_ref,
+                "chapter_refs": [_chapter_ref(chapter_num) for chapter_num in chapter_nums],
                 "validation_ref": validation_ref,
                 "validation_status": "PASS",
                 "routing_decision": routing_decision,
@@ -1152,6 +1539,7 @@ def actualize(args: argparse.Namespace) -> int:
                 "projection_refresh": delta_payload["projection_refresh"],
                 "evidence_refs": delta_payload["evidence_refs"],
                 "written_card_refs": written_card_refs,
+                "written_planning_actualization_refs": written_planning_actualization_refs,
                 "written_map_refs": written_map_refs,
                 "written_map_slice_refs": written_map_slice_refs,
                 "refreshed_projection_refs": refreshed_projection_refs,
@@ -1169,7 +1557,8 @@ def main() -> None:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_actualize = sub.add_parser("actualize", help="执行 PASS-only loopback actualization")
-    p_actualize.add_argument("--episode", type=int, required=True, help="目标 episode/chapter 编号")
+    p_actualize.add_argument("--episode", type=int, help="目标 chapter 编号（兼容入口）")
+    p_actualize.add_argument("--volume", type=int, help="目标卷号（volume-scoped primary selector）")
     p_actualize.add_argument("--validation-data", required=True, help="验证聚合结果 JSON 或 @文件路径")
     p_actualize.add_argument("--manuscript-ref", required=True, help="正文稿件路径（相对 project_root）")
     p_actualize.add_argument("--validation-ref", help="验证报告路径（相对 project_root）")

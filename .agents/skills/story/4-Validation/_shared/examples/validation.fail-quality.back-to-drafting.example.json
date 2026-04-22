@@ -10,7 +10,8 @@
     "continuity-validator",
     "logic-validator",
     "character-validator",
-    "timeline-validator"
+    "timeline-validator",
+    "task-convergence-validator"
   ],
   "dimension_packets": {
     "structure-validator": {
@@ -90,7 +91,7 @@
       },
       "default_rework_targets": [
         "4-角色形象刻画",
-        "5-对白个性化"
+        "5-对白优化"
       ],
       "source_trace": [],
       "report_ref": "4-Validation/第12集/人物一致性.md"
@@ -101,7 +102,8 @@
     "continuity-validator": "4-Validation/第12集/连续性.md",
     "logic-validator": "4-Validation/第12集/逻辑自洽校验.md",
     "character-validator": "4-Validation/第12集/人物一致性.md",
-    "timeline-validator": "4-Validation/第12集/时间线.md"
+    "timeline-validator": "4-Validation/第12集/时间线.md",
+    "task-convergence-validator": "4-Validation/第12集/任务汇聚.md"
   },
   "issues": [
     {
@@ -140,7 +142,8 @@
     "continuity": 8.4,
     "logic": 8.2,
     "character": 7.2,
-    "timeline": 8.5
+    "timeline": 8.5,
+    "task_convergence": 8.1
   },
   "anti_ai_force_check": "pass",
   "spoiler_risk": "low",
@@ -170,6 +173,7 @@
   "evidence_refs": [
     "3-Drafting/第12集.md",
     "4-Validation/第12集/结构兑现.md",
-    "4-Validation/第12集/人物一致性.md"
+    "4-Validation/第12集/人物一致性.md",
+    "4-Validation/第12集/任务汇聚.md"
   ]
 }

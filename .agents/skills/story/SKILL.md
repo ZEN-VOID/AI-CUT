@@ -15,41 +15,33 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 ## Overview
 
-`story2026` 根级 skill 是整个小说流水线的总入口与总线合同，不是“把各阶段再抄一遍”的大目录说明书。
+`story2026` 根级 skill 是整条小说流水线的总入口与总线合同。
 
 它只统一回答四件事：
 
 1. 当前诉求应该路由到哪个阶段 skill。
 2. 哪一层才是这类问题的 canonical truth。
-3. 根级 `_shared`、`scripts`、`templates`、`type-packs` 分别承担什么共享职责。
-4. 当前项目应如何在“不改主链”的前提下启用 `type-pack` 类型化处理能力。
-
-补充治理约束：
-
-- 书项目 canonical runtime root 固定为 `projects/story/<项目名>/`。
-- repo 级复杂任务治理真源固定回指 `.codex/schemas/`、`.codex/runbooks/`、`.codex/registry/`。
-- 书项目级 tracked run 运行态固定内联到 `STATE.json.workflow_runtime`。
-- `workflow_state / execution_state / task_log / governance_index` 均属于 `STATE.json.workflow_runtime` 的内联子层，不再拆成 `.webnovel/tasks/` 或旧独立状态文件。
+3. 根级 `_shared`、`scripts`、`templates` 分别承担什么共享职责。
+4. 题材方向盘如何通过 `1-Cards/5-类型卡` 进入 planning / drafting / validation。
 
 硬边界：
 
-- 根级 `story/SKILL.md` 负责跨阶段拓扑、共享载体边界、总路由和根因追溯总则。
-- 根级 `story/SKILL.md` 负责 `type-pack` 总体机制、组合顺序、投影边界与 resolver 回指。
+- 根级 `story/SKILL.md` 只负责跨阶段拓扑、共享载体边界、总路由和根因追溯总则。
 - 各阶段目录下的 `SKILL.md` 负责本阶段的严格执行合同。
 - 根级 `CONTEXT.md` 只沉淀跨阶段经验，不吞并阶段私有故障模式。
 
-## Type-Pack Mechanism
+## 类型机制
 
-`story` 当前采用：
+`story` 现在采用：
 
-- 固定 `method kernel`
-- 可增长 `type-pack`
+- 固定主链
+- 人工维护的 `类型卡`
 
 二层架构。
 
-### Method Kernel
+### 固定主链
 
-固定主链不变：
+主链固定不变：
 
 1. `0-Init`
 2. `1-Cards`
@@ -59,99 +51,31 @@ allowed-tools: Read Grep Bash Write Edit Task
 6. `review`
 7. `5-Loopback`
 
-### Type-Pack
+### 人工类型卡
 
-`type-pack` 不是新的 stage，而是对固定主链的类型化增强包，按项目当前 `type_stack` 注入：
+题材机制不再依赖旧的“系统自动题材装配”机制。
 
-- 读者承诺
-- 叙事引擎
-- 禁写模式
-- 阶段 hook
-- 类型兑现维度
-- loopback 反馈槽
+当前规则固定为：
 
-canonical root：
-
-- `.agents/skills/story/type-packs/`
-
-canonical contracts：
-
-- `type-packs/网文/`
-- `type-packs/扩维与调整指南.md`
-- `_shared/type-pack-loading-contract.md`
-- `scripts/data_modules/type_pack_resolver.py`
-
-当前口径：
-
-- `type-pack` 运行于 `directory-first-bootstrap` 模式。
-- `type-packs/网文/<题材>/` 目录知识是当前有效入口。
-- `pack-catalog.yaml` 与 `<pack_id>/pack.yaml` 仍是预留扩展位，不是当前必需真源。
-- 若题材目录存在同名主文件 `<题材>.md`，该文件默认应被视为当前题材入口。
-
-### Active Type Stack
-
-项目当前激活 stack 固定由 `0-Init/north_star.yaml` 锁定：
-
-- `base`
-- `primary`
-- `secondary[]`
-- `platform[]`
-- `audience[]`
-
-默认规则：
-
-- 未显式声明时，只加载 `_base`
-- `0-Init` 拥有 canonical `type_stack` 锁定权
-- `5-Loopback` 只能沉淀 pack 反馈，不得改写 canonical `type_stack`
-- `infer_type_stack()` 当前默认给出：
-  - `method_kernel = story-core-v1`
-  - `base = _base`
-  - `primary = 网文高冲击`
-- `platform[] / audience[]` 当前由 resolver 内置别名规则吸收，不得把未落地的 catalog 写成强依赖前提
-
-### Stage Projection
-
-各阶段的默认投影职责固定为：
-
-- `0-Init`
-  - 锁定 `type_stack`
-- `1-Cards`
-  - 把 pack 规则翻译成角色/场景/物品卡的功能槽
-- `2-Planning`
-  - 把 pack 规则投影到 `story_promise / genre_corridor / navigation_rules`
-- `3-Drafting`
-  - 按 1-8 工序注入 step-specific hook
-- `4-Validation`
-  - 增加独立 `类型兑现` 维度与 hard fail signal
-- `review`
-  - 输出质量结论与类型兑现叙述
-- `5-Loopback`
-  - 只沉淀 validated feedback 到下一轮 projection 参考
+- `0-Init` 只提供题材 seed 与初始设定，不自动锁定题材系统。
+- `1-Cards/5-类型卡/**/*.json` 是唯一题材方向盘真源。
+- `2-Planning` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
+- `3-Drafting` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
+- `4-Validation` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度。
+- `5-Loopback` 可以沉淀反馈，但不得自动改写 `类型卡`。
 
 硬规则：
 
-- 通用基座必须能在没有任何显式 `type-pack` 的情况下独立运行
-- 类型化知识默认属于增强层，不得反向变成基座硬依赖
-- 若 pack 冲突，先报冲突，再裁决；不得静默吞并
-- 在 catalog 未落地前，任何跨阶段 pack 变更都至少要同步：
-  - `type_pack_resolver.py`
-  - 对应 tests
-  - `_shared/type-pack-loading-contract.md`
-  - 根层与阶段层引用合同
+- 通用基座必须能在没有任何题材包目录的情况下独立运行。
+- 题材判断默认属于人工创作层，不得再被系统隐式反向硬绑。
+- 若题材方向发生变化，优先修改 `类型卡`，不要在 downstream 阶段静默偷改。
 
 ## When to Use
 
 - 用户只说“用 story2026 做这件事”，但还没有明确该进哪一个阶段。
-- 需要设计、选择、组合或解释某个项目的 `type-pack` / `type_stack`。
-- 需要判断某个问题应归 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation / review / 5-Loopback / query / resume` 中的哪一层，或是否只是辅助命令 `/story-learn`。
+- 需要设计、选择或解释某个项目的 `类型卡` / 题材方向盘。
+- 需要判断某个问题应归 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation / review / 5-Loopback / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
-- 需要解释 `story2026` 的整条主链、卫星技能关系与默认加载顺序。
-
-## When Not to Use
-
-- 已经明确要执行某个阶段内的细节工作，此时应直接进入对应阶段 skill。
-- 只是阅读某个单一模块 reference 的局部细则，不涉及跨阶段路由或共享层判断。
-- 只是操作某个具体书项目的数据文件，而不是维护 `story2026` 技能体系本身。
 
 ## System Topology
 
@@ -172,69 +96,45 @@ canonical contracts：
 - 主链默认按阶段顺序串行，不得跳过上游真源直接伪造下游结论。
 - `review` 是 `4-Validation` 的承接层，不拥有评估判断权。
 - `5-Loopback` 只在 `4-Validation = PASS` 且 handoff 明确授予 `5-Loopback` 后拥有 validated truth writeback 权。
-- `PASS` 不是 loopback 的充分条件；真正授权信号是：
-  - `routing_decision == handoff_to_review_and_loopback`
-  - `handoff_targets` 同时包含 `review/` 与 `5-Loopback`
 
 ### Satellite Skills
 
 卫星技能固定挂在主链侧，不单独冒充新的 stage：
 
 - `query`
-  - 运行时事实查询。
 - `resume`
-  - 中断恢复与断点续跑。
 - `doubao`
-  - 中文小说润色、文风诊断与单技能整稿统修。
-
-默认关系：
-
-- `query / resume` 与 `5-Loopback` 语义关联最强，但各自只处理自己的卫星职责。
-- `doubao` 与 `3-Drafting` 语义关联最强，但它只拥有风格分析、润色策略与候选正文/可选覆写，不拥有规划、验证与 actualization 判定权。
-- 卫星技能不改写 `Cards` / `Planning` / `validation_status` 的 canonical truth。
-
-### Auxiliary Command
-
-- `/story-learn`
-  - 当前只保留为用户命令层的辅助入口，用于把经验沉淀进 `.webnovel/project_memory.json`。
-  - 它不是主链 stage，也不是 tracked satellite workflow；若后续恢复正式技能，必须先补根级路由合同与 `scripts/workflow_manager.py` 的 command alias。
 
 ## Root Truth Ownership Contract
 
 | 层 | 拥有的真源 | 不拥有的真源 |
 | --- | --- | --- |
 | 根级 `story2026` | 跨阶段拓扑、总路由、共享载体边界、默认加载顺序 | 各阶段内部执行细则、局部 reference 专业判断 |
-| 根级 `type-packs/` | `网文/<题材>/` 目录知识、family craft、type-pack loading contract、resolver 装载口径 | 章节正文、validation gate、loopback writeback |
 | `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
-| `1-Cards` | 角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
-| `2-Planning` | `2-Planning/全息地图.json` 的 index/dispatch/navigation 根真源 + `2-Planning/卷分片/*.json` 的卷级 dense planning truth（固定 10 章 = 1 卷时，卷分片即卷分片） | 对象当前态、validated actualization |
+| `1-Cards` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
+| `2-Planning` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
 | `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md` 的集级正文真源 + `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 的卷级批次账本 | 评估判断权、validated truth writeback |
-| `4-Validation` | `validation_fact_pack` covenant、6 维隔离评估、父层 `4-Validation/第V卷.validation.json` 卷级聚合 gate | 审查报告持久化、actualization 写回 |
+| `4-Validation` | `validation_fact_pack` covenant、卷级隔离评估、父层 `4-Validation/第V卷.validation.json` 聚合 gate | 审查报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
-| `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第V卷.loopback.json`、PASS+handoff-granted writeback | 未通过验证或未被 handoff 授权的修改写回 |
+| `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第V卷.loopback.json` | 未通过验证或未被 handoff 授权的修改写回 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
 | `doubao` | 风格分析、中文表达强化、候选润色正文与用户显式授权下的单点覆写 | `Cards / Planning / validation_status / actualization` 判定权 |
 
 ## Canonical Runtime Root
 
 - 书项目正式业务根目录：`projects/story/<项目名>/`
+- legacy `projects/aigc/<项目名>/` 仅允许作为兼容 fallback，不再是 canonical runtime。
 - 根层项目入口文件固定写在：
   - `projects/story/<项目名>/STATE.json`
   - `projects/story/<项目名>/team.yaml`
   - `projects/story/<项目名>/CHANGELOG.md`
-- 阶段业务产物固定落在：
-  - `projects/story/<项目名>/0-Init/`
-  - `projects/story/<项目名>/1-Cards/`
-  - `projects/story/<项目名>/2-Planning/`
-  - `projects/story/<项目名>/3-Drafting/`
-  - `projects/story/<项目名>/4-Validation/`
-  - `projects/story/<项目名>/5-Loopback/`
+  - `projects/story/<项目名>/CONTEXT/`
 
 ## Shared Carrier Contract
 
 ### 根级 `_shared/`
 
-根级 `_shared/` 是当前 `story` 技能树的跨阶段共享真源层；历史根级 `references/` 不再是 canonical carrier。
+根级 `_shared/` 是当前 `story` 技能树的跨阶段共享真源层。
 
 默认先读：
 
@@ -247,45 +147,12 @@ canonical contracts：
 - `_shared/story_map_bootstrap.template.json`
 - `_shared/entity-management-spec.md`
 - `_shared/strand-weave-pattern.md`
-- `_shared/type-pack-loading-contract.md`
 
-可选增强材料（不属于通用基座必读）：
+可选增强材料：
 
 - `_shared/genre-profiles.md`
 - `_shared/reading-power-taxonomy.md`
 - `_shared/cool-points-guide.md`
-
-阶段专属共享合同继续留在 owning stage：
-
-- `2-Planning/_shared/*`
-- `3-Drafting/_shared/*`
-- `4-Validation/_shared/*`
-- `5-Loopback/_shared/*`
-
-### 根级 `type-packs/`
-
-`type-packs/` 是 `story` 的类型化处理真源层。
-
-它只承载：
-
-- 题材入口目录
-- family craft 目录
-- 预留系统 pack 扩展位
-- 类型化知识引用规则
-- 扩维与目录治理说明
-
-它不承载：
-
-- 项目业务真源
-- 章节正文
-- validation gate packet
-- actualization writeback
-
-当前硬规则：
-
-- `type-packs/网文/<题材>/` 是当前有效知识入口。
-- `pack-catalog.yaml` 与 `<pack_id>/pack.yaml` 尚未在仓内落地时，不得被写成“当前一定存在”的强依赖。
-- 若题材目录下存在同名主文件，默认入口先读该文件，再按需补读同目录细化 `.md` 与 family craft。
 
 ### 根级 `scripts/`
 
@@ -295,100 +162,18 @@ canonical contracts：
 - workflow / state / status 管理
 - shared CLI entrypoint
 - 多阶段共用的数据访问与校验
-- 内联 governance bundle 写入与引用回填
-
-规则：
-
-- 若同类路径、状态或 truth 读取逻辑会被两个及以上阶段复用，应优先提升到根级 `scripts/` 统一维护。
-- 阶段 skill 不应各自复制一套共享 helper。
-
-## Governance Artifact Chain
-
-repo 级 authoritative source：
-
-- `.codex/schemas/`
-- `.codex/runbooks/`
-- `.codex/registry/`
-
-书项目级 runtime artifact chain：
-
-- `STATE.json.workflow_runtime.workflow_state`
-- `STATE.json.workflow_runtime.execution_state`
-- `STATE.json.workflow_runtime.task_log`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.mandate`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.mission_brief`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.route_plan`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.preflight_verdict`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.artifact_manifest`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.validation_report`
-- `STATE.json.workflow_runtime.governance_index.<run_id>.learning_record`
-
-解释：
-
-- tracked workflow 当前通过根级 `scripts/workflow_manager.py` 直接把这些工件内联写入 `STATE.json`。
-- 阶段技能必须承认这些对象是 review / trace / closure 的共享证据层。
-- `.webnovel/` 继续只保留 `index.db`、`vectors.db`、`summaries/`、`archive/` 与 `observability/` 这类辅助 runtime 载体。
-
-## Cross-Stage Truth Anchors
-
-### Planning Root vs Slice
-
-- `2-Planning/全息地图.json` 当前承担：
-  - index
-  - dispatch
-  - navigation
-  - episode slice manifest
-  - episode sequence axis
-- dense volume-local planning 与 local actualization detail 当前落在：
-  - `2-Planning/卷分片/*.json`
-- downstream 若要读取当前卷或当前集义务，必须优先通过：
-  - `planning_slice_ref`
-  - `story_map_slice_ref`
-  - `episode_sequence_axis / chapter_board_ref`
-  收束到唯一 slice 与唯一 `chapter_board`，不得再靠 root-only 路径或数组顺序猜当前集。
-
-### Validation Aggregate Gate
-
-- `4-Validation` 的父层真源不是 child sidecar，而是：
-  - `4-Validation/第V卷.validation.json`
-- canonical `validation_fact_pack` 目前必须同时具备：
-  - `draft_snapshot`
-  - `cards_truth`
-  - `planning_truth`
-  - `init_truth`
-  - `runtime_context`
-- `planning_truth` 不能只给 root `全息地图.json` 路径；还必须带 active slice 与当前 `chapter_board` 相关 truth。
-
-### Loopback Authorization and Writeback
-
-- `5-Loopback` 只消费被明确 handoff 的 PASS packet。
-- 实际写回顺序固定为：
-  - `Cards`
-  - `MAP slice actualization`
-  - `MAP root actualization summary/index`
-  - `STATE`
-  - `loopback artifact`
-- loopback 写回必须同时遵守：
-  - `expected_revision` guardrail
-  - delta whitelist
-  - `runtime_markers.loopback_pending` staged commit discipline
 
 ### 根级 `templates/`
 
-根级 `templates/` 只放跨阶段或跨模块共享模板、共享题材资产与统一 schema 载体。
-
-规则：
-
-- 阶段私有模板留在对应阶段目录。
-- 一旦模板被多个阶段共享消费，应优先评估是否提升为根级 canonical carrier。
+根级 `templates/` 只放跨阶段或跨模块共享模板、共享 schema 载体。
 
 ## Routing Contract
 
 | 用户诉求 / 问题形状 | 默认入口 |
 | --- | --- |
-| 设计/选择/组合 `type-pack`、解释当前 `type_stack` | 根级 `story2026`，必要时再路由到 `0-Init` |
+| 设计/选择/解释题材方向盘或 `类型卡` | 根级 `story2026`，必要时再路由到 `1-Cards/类型卡` |
 | 新建项目、确定创作立项、初始化问卷/顾问团 | `0-Init` |
-| 全局卡/风格卡/角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-Cards` |
+| 全局卡/类型卡/风格卡/角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-Cards` |
 | 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-Planning` |
 | 写章节、润色、章节级执行包、正文产出 | `3-Drafting` |
 | 隔离评估、checker 团队、`validation_status` | `4-Validation` |
@@ -397,67 +182,34 @@ repo 级 authoritative source：
 | 查询当前态、规划态、实绩态、质量态 | `query` |
 | 查看断点、续跑、清理或重启任务 | `resume` |
 | 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化 | `doubao` |
-| 提炼成功模式或闭环修复后的负向 heuristic | `/story-learn`（辅助命令，非 tracked workflow） |
-
-裁决原则：
-
-- 先判诉求的 truth role，再判阶段。
-- 若同一句话同时命中多个阶段，优先进入“最早拥有该真源的阶段”。
-- 若问题涉及跨阶段漂移，先回到根级 `story2026` 入口做总线路由与源层诊断。
 
 ## Default Loading Order
 
 1. 先读取根级 `SKILL.md`，锁定跨阶段拓扑与共享层边界。
 2. 再读取根级 `CONTEXT.md`，避免重复踩跨阶段老坑。
-3. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md`、`_shared/type-pack-loading-contract.md` 与对应阶段的 `_shared/*`；若问题命中 workflow/命名漂移，再直接核对 `scripts/workflow_manager.py` 的 canonical command alias。
-4. 若当前项目已锁定 `type_stack`，优先读取 `type-packs/网文/` 下与题材名同名的入口目录；除非特别说明，否则默认走该目录，再按设定补读必要的 family craft。
-5. 若当前诉求涉及当前集 planning truth，继续读取 `3-Drafting/_shared/chapter-board-locating-contract.md` 或等价 owning-stage shared contract，先命中唯一 `planning_slice_ref / chapter_board`。
+3. 若当前任务已绑定 `projects/story/<项目名>/`，必须先读取 `projects/story/<项目名>/CONTEXT/` 下与本轮相关的项目级上下文文件。
+4. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md` 与对应阶段的 `_shared/*`。
+5. 若当前项目已锁定题材方向盘，优先读取 `1-Cards/5-类型卡/**/*.json` 与 `2-Planning/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
    - `4-Validation/_shared/validation-fact-pack-spec.md`
    - `5-Loopback/_shared/loopback-actualization-spec.md`
-   锁定 gate 与 writeback discipline。
 7. 路由到目标阶段的 `SKILL.md`。
 8. 读取目标阶段 `CONTEXT.md`。
-9. 若阶段采用 governed child skills 或 governed `references/`，固定顺序为：
-   - 当前命中的子技能 `SKILL.md` 或 `module-spec.md`
-   - 同目录 `CONTEXT.md`
-   - 对应模板 / 脚本
 
 ## Root-Cause Execution Contract (Mandatory)
 
 当 `story2026` 出现跨阶段路由错误、真源分工混乱、共享 reference 漂移、共享脚本路径失配、根入口缺失或总线合同断裂时，必须按以下链路上溯：
 
 1. `Symptom / Failure`
-   - 明确是发现失败、路由错误、共享层漂移、还是阶段真源混淆。
 2. `Direct Technical Cause`
-   - 确认是根入口缺文件、总路由未声明、共享 carrier 边界不清、脚本 helper 缺统一入口、root-vs-slice truth 误读、validation aggregate 缺失，还是 loopback gate 被放松。
 3. `Rule Source`
-   - 优先检查当前根级 `SKILL.md`、根级 `CONTEXT.md`、根级 `_shared/*.md`、`type-packs/` 真源与相关共享脚本入口。
-   - 若涉及 planning locate / validation / loopback，还必须继续回指：
-     - `3-Drafting/_shared/chapter-board-locating-contract.md`
-     - `4-Validation/_shared/validation-fact-pack-spec.md`
-     - `5-Loopback/_shared/loopback-actualization-spec.md`
 4. `Meta Rule Source`
-   - 继续上溯到仓库 `AGENTS.md` 的 rollout、root-cause、context 治理与 canonical source governance 合同。
 5. `Fix Landing Points`
-   - 优先修复根级合同、共享 reference inventory、共享 helper，再决定是否需要修具体阶段 skill。
 
 执行顺序硬约束：
 
 - 先修总线真源，再修阶段投影。
 - 若同一条规则需要在两个以上阶段重复改写，必须先判断是否缺少根级 canonical source。
-- 收尾必须返回：`root cause location + immediate fix + systemic prevention fix`。
-
-## SKILL vs CONTEXT Placement Matrix
-
-- 放在根级 `SKILL.md`
-  - 总路由、主链拓扑、卫星关系、共享 carrier 边界、默认加载顺序、`type-pack` 机制、跨阶段 root-cause 合同。
-- 放在根级 `CONTEXT.md`
-  - 跨阶段路由漂移、共享层误放置、总入口缺失、共享 helper 失配的经验与启发式。
-- 放在阶段 `SKILL.md`
-  - 阶段级执行合同、输入输出、门禁、模块路由、阶段专属根因修复顺序。
-- 放在阶段 `CONTEXT.md`
-  - 阶段专属故障模式、返工顺序、局部可复用 heuristic。
 
 ## Lite Tier Field Mapping（Combined）
 
@@ -465,7 +217,7 @@ repo 级 authoritative source：
 | --- | --- | --- | --- | --- | --- |
 | FIELD-SYS-ROUTING-01 | Step 1 | 判定当前诉求属于哪个阶段与 truth role | `target_stage`、`truth_role` | FAIL-SYS-ROUTING-01 | 回到路由表，先判真源再判阶段 |
 | FIELD-SYS-CARRIER-02 | Step 2 | 判断应读取哪些根级共享 carrier | `shared_refs_to_load`、`shared_scripts_needed` | FAIL-SYS-CARRIER-02 | 回到根级 `_shared/*.md` 与共享层边界合同 |
-| FIELD-SYS-TYPEPACK-03 | Step 3 | 判断当前项目应激活哪些 `type-pack` | `type_stack`、`active_packs`、`source_refs` | FAIL-SYS-TYPEPACK-03 | 回到 `north_star.yaml`、`_shared/type-pack-loading-contract.md` 与 `type-packs/网文/` |
+| FIELD-SYS-TYPECARD-03 | Step 3 | 判断当前项目的题材方向盘是否已被 `类型卡` 正式承接 | `type_card_refs`、`story_promise_summary`、`genre_corridor_summary` | FAIL-SYS-TYPECARD-03 | 回到 `1-Cards/类型卡` 与 `2-Planning` 导入链 |
 | FIELD-SYS-OWNER-04 | Step 4 | 锁定该问题的 canonical owner | `canonical_owner`、`non_owner_layers_to_avoid` | FAIL-SYS-OWNER-04 | 回到真源分工表，禁止让下游冒充上游 |
 | FIELD-SYS-TRACE-05 | Step 5 | 完成跨阶段 root-cause trace | `symptom`、`direct_cause`、`rule_source`、`meta_rule_source` | FAIL-SYS-TRACE-05 | 重新补全分层 trace，不能停在局部症状 |
 | FIELD-SYS-CLOSURE-06 | Step 6 | 产出修复闭环与防回归结果 | `root_cause_location`、`immediate_fix`、`systemic_prevention_fix` | FAIL-SYS-CLOSURE-06 | 回到修复落点，优先改根级真源 |
@@ -474,9 +226,7 @@ repo 级 authoritative source：
 
 - 已能明确把任一泛化 `story2026` 请求路由到唯一默认入口。
 - 已能说明该请求应读的 canonical truth 与不该误读的非真源层。
-- 已区分根级 `_shared`、`scripts/`、`templates/`、`type-packs/` 的共享职责。
-- 已能说明当前项目的 `type_stack`、默认题材入口目录与 family craft 补读顺序，以及当前 `directory-first-bootstrap` 口径。
+- 已区分根级 `_shared`、`scripts/`、`templates/` 的共享职责。
+- 已能说明当前项目的题材方向盘如何从 `类型卡` 进入 planning / drafting / validation。
 - 已能指出 repo 级 `.codex/` 真源与项目级 `STATE.json.workflow_runtime` 内联工件链的分工。
 - 已能说明 planning root/slice 的分工、`validation_fact_pack` 的 covenant，以及 loopback 的 PASS+handoff gate。
-- 出现跨阶段问题时，已给出完整 layered trace。
-- 没有把根级入口写成“阶段细则大杂烩”。

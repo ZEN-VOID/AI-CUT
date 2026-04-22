@@ -284,6 +284,14 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
                             "core": {
                                 "worldview": {"genre": "xuanhuan"},
                                 "rule_system": [{"label": "铁律", "value": "越级有代价"}],
+                                "faction_topology": {
+                                    "tiers": ["宗门", "王朝", "散修据点"],
+                                    "rule_holders": ["宗门", "王朝"],
+                                    "resource_controllers": ["灵脉", "军粮"],
+                                    "relation_patterns": ["争夺", "附庸", "互相试探"],
+                                    "protagonist_entry_path": "主角先被地方势力驱赶，再被宗门外围吸纳。",
+                                    "escalation_logic": ["从地方生存升级为宗门资源争夺"],
+                                },
                                 "golden_finger": {"name": "系统", "limits": ["每日一次"]},
                             }
                         }
@@ -365,7 +373,6 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert isinstance(payload["writing_guidance"].get("checklist"), list)
     assert isinstance(payload["writing_guidance"].get("checklist_score"), dict)
     assert payload["genre_profile"].get("genre") == "xuanhuan"
-    assert "_base" in (payload["type_pack_profile"].get("active_packs") or [])
     assert "rag_assist" in payload
     assert isinstance(payload["rag_assist"], dict)
     assert payload["rag_assist"].get("invoked") is False
@@ -821,3 +828,169 @@ def test_render_text_contains_rag_assist_section_when_hits_exist(tmp_path):
     assert "- 模式: auto" in text
     assert "[graph_hybrid]" in text
     assert "萧炎与药老" in text
+
+
+def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path):
+    scripts_dir = Path(__file__).resolve().parents[2]
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    from extract_chapter_context import build_chapter_context_payload
+
+    (tmp_path / "STATE.json").write_text(
+        json.dumps(
+            {
+                "project": {"genre": "wuxia"},
+                "project_info": {"genre": "wuxia"},
+                "progress": {"current_chapter": 1, "total_words": 0},
+                "protagonist_state": {
+                    "power": {"realm": "见招", "layer": 1},
+                    "location": "港口",
+                    "golden_finger": {"name": "无", "level": 0},
+                },
+                "chapter_meta": {},
+                "disambiguation_warnings": [],
+                "disambiguation_pending": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    refs_dir = tmp_path / ".agents" / "skills" / "story" / "_shared"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+    (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
+    (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
+
+    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir.mkdir(parents=True, exist_ok=True)
+    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+        json.dumps(
+            {
+                "content": {
+                    "card_groups": {"master_globals": [global_card_ref]},
+                    "global_contract_refs": [{"card_id": "世界总卡", "path": global_card_ref}],
+                }
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / global_card_ref).write_text(
+        json.dumps(
+            {"content": {"card_schema": {"global_card": {"core": {"worldview": {"genre": "wuxia"}}}}}},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    planning_dir = tmp_path / "2-Planning"
+    slice_dir = planning_dir / "卷分片"
+    slice_dir.mkdir(parents=True, exist_ok=True)
+    (planning_dir / "全息地图.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "story2026/story-map/v3",
+                "content": {
+                    "holomap": {
+                        "story_spine": {"headline": "夜雨压港 -> 假安稳破裂 -> 被迫出手"},
+                        "episode_sequence_axis": [
+                            {
+                                "episode_ref": "第001集",
+                                "slice_ref": "slice-001-010",
+                                "chapter_board_ref": "board-001",
+                            }
+                        ],
+                        "episode_slice_manifest": [
+                            {
+                                "slice_id": "slice-001-010",
+                                "episode_start": 1,
+                                "episode_end": 10,
+                                "file_ref": "卷分片/第1卷.json",
+                            }
+                        ],
+                    }
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (slice_dir / "第1卷.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "story2026/story-map-slice/v1",
+                "content": {
+                    "holomap_slice": {
+                        "slice_scope": {"slice_id": "slice-001-010", "episode_start": 1, "episode_end": 10},
+                        "slice_style_contract": {
+                            "entry_promise": "开篇先给港规压迫与假安稳同时显影。",
+                            "exit_hook": "尾部把第一次被迫拔剑送进下一集。",
+                        },
+                        "episode_rhythm_framework": {
+                            "default_pack_id": "dynamic-static-duality",
+                            "default_pack_label": "动静结合",
+                            "base_spine_steps": [
+                                {"step_order": 1, "step_label": "入场"},
+                                {"step_order": 7, "step_label": "尾钩"},
+                            ],
+                        },
+                        "episode_rhythm_roles": [
+                            {
+                                "episode_selector": "第1集",
+                                "selected_pack_id": "dynamic-static-duality",
+                                "selected_pack_label": "动静结合",
+                                "selected_mode_id": "potential-mode",
+                                "selected_mode_label": "势能式",
+                                "yin_yang_polarity": "yin",
+                                "why_this_pack": "先用静压把港口恶规写成慢刀。",
+                                "entry_promise": "梦醒即见港规压迫，平静表面立刻发虚。",
+                                "exit_hook": "第一次不为旧怨而动的冲动被推向下一集。",
+                                "base_spine_projection": [
+                                    {"step_order": 1, "step_label": "入场", "projection_note": "梦醒先闻潮声，再见税线逼人低头。"},
+                                    {"step_order": 6, "step_label": "高潮", "projection_note": "在无法再装作没看见时抵达不可逆高点。"},
+                                ],
+                            }
+                        ],
+                        "chapter_boards": [
+                            {
+                                "node_id": "board-001",
+                                "episode_ref": "第1集",
+                                "chapter_title": "港雨买酒",
+                                "chapter_goal": "想买酒避世，却看见港规恶压逼人下跪，最终动了第一次不是为旧怨而出的心。",
+                                "bundled_elements": {
+                                    "events": ["主角组抵达港口", "税线恶压逼人下跪"],
+                                    "characters": ["令狐冲", "任盈盈"],
+                                },
+                                "planned_state": {
+                                    "action_beat_plan": {"turning_point": "令狐冲第一次不是因旧怨，而是因眼前人被逼折腰而动心。"},
+                                    "style_execution": {"anti_drift": ["不要写成观光开场"]},
+                                    "emotion_beat": {"beat_title": "假安稳当场破掉"},
+                                },
+                            }
+                        ],
+                        "thread_window_slice": {},
+                        "foreshadow_silence_slice": {},
+                    }
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    payload = build_chapter_context_payload(tmp_path, 1, current_step_id="Step 2")
+    planning_truth = payload["validation_fact_pack"]["planning_truth"]
+    handoff = planning_truth["episode_rhythm_handoff"]
+    chapter_board = planning_truth["chapter_board"]
+
+    assert handoff["selected_mode_label"] == "势能式"
+    assert handoff["selected_pack_label"] == "动静结合"
+    assert handoff["entry_promise"] == "梦醒即见港规压迫，平静表面立刻发虚。"
+    assert handoff["exit_hook"] == "第一次不为旧怨而动的冲动被推向下一集。"
+    assert len(handoff["base_spine_projection"]) == 2
+    assert chapter_board["selected_mode_label"] == "势能式"
+    assert chapter_board["entry_promise"] == "梦醒即见港规压迫，平静表面立刻发虚。"
