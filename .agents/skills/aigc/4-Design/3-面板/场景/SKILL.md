@@ -124,10 +124,18 @@ Prompt 字段优先级：
 
 ## CLI Contract
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `场景面板` 的 layout 决策、面板 prompt 与其他创作性面板正文，必须由 LLM 直接完成。
+- `generate_scene_panels.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的 layout JSON 投影、批量落盘与 provider bridge 辅助。
+- 当前 leaf 的默认执行路径必须是：`LLM 直出面板 canonical truth -> layout/json projector -> generation helper`。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
+
 ```bash
 python3 .agents/skills/aigc/4-Design/3-面板/场景/scripts/generate_scene_panels.py \
   --project "<项目名>" \
-  --episode "第1集"
+  --episode "第1集" \
+  --allow-legacy-script-authorship
 ```
 
 常用参数：

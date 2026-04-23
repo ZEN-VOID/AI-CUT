@@ -42,7 +42,7 @@
 ```yaml
 quality_gate_snapshot:
   checkpoint_stage: pre_validation
-  review_mode: master-check-team|quality-self-audit|custom-council
+  review_mode: subagent-review-council|quality-self-audit|custom-council
   reviewed_at: 2026-04-22T13:10:00-07:00
   reviewer_source: team-explicit|team-inferred|fallback-no-team|self-audit
   reviewers:
@@ -56,9 +56,9 @@ quality_gate_snapshot:
     antagonist_face: pass|block
     volume_closure: pass|block
   representative_chapter_refs:
-    - 3-Drafting/第5集.md
-    - 3-Drafting/第8集.md
-    - 3-Drafting/第10集.md
+    - 3-Drafting/第1卷/第5章.md
+    - 3-Drafting/第1卷/第8章.md
+    - 3-Drafting/第1卷/第10章.md
   primary_issues: []
   priority_rework_targets: []
   cross_volume_upgrade_axes: []
@@ -118,7 +118,7 @@ quality_gate_snapshot:
 
 默认推荐来源：
 
-- `master-check-team`
+- `subagent-review-council`
 - `team.yaml` 驱动的 review council
 - 若 team 不可用，则允许 `quality-self-audit`
 

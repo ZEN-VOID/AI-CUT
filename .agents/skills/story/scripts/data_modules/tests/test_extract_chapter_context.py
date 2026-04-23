@@ -106,7 +106,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
                 "story_spine": {"headline": "测试主线"},
                 "episode_sequence_axis": [
                     {
-                        "episode_ref": "第001集",
+                        "episode_ref": "第001章",
                         "slice_ref": "slice-001-010",
                         "chapter_board_ref": "ep-001",
                     }
@@ -114,7 +114,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
                 "episode_slice_manifest": [
                     {
                         "slice_id": "slice-001-010",
-                        "episode_refs": ["第001集"],
+                        "episode_refs": ["第001章"],
                         "file_ref": "卷分片/第1卷.json",
                     }
                 ],
@@ -127,7 +127,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
                 "chapter_boards": [
                     {
                         "node_id": "ep-001",
-                        "episode_ref": "第001集",
+                        "episode_ref": "第001章",
                         "chapter_title": "港雨买酒",
                         "chapter_goal": "令狐冲先看见税线恶压，再决定要不要拔剑。",
                         "bundled_elements": {
@@ -324,7 +324,7 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
                             "current_state": {
                                 "growth_state": {
                                     "active_arc_phase": "破局前夜",
-                                    "latest_growth_episode": "第2集",
+                                    "latest_growth_episode": "第2章",
                                     "skill": {"stage": "稳固", "focus": "先稳手上余劲"},
                                     "heart": {"stage": "裂开", "recent_shift": "开始怀疑自己赢得是否太快"},
                                     "emotion": {"stage": "松动", "current_tension": "不敢再把同门推远"},
@@ -355,13 +355,13 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert "validation_fact_pack" in payload
     fact_pack = payload["validation_fact_pack"]
     assert {"draft_snapshot", "cards_truth", "planning_truth", "init_truth", "runtime_context"}.issubset(fact_pack.keys())
-    assert fact_pack["draft_snapshot"]["manuscript_ref"] == "3-Drafting/第3集.md"
+    assert fact_pack["draft_snapshot"]["manuscript_ref"] == "3-Drafting/第1卷/第3章.md"
     assert fact_pack["planning_truth"]["promise_slice"]["global_contract_refs"] == [global_card_ref]
     assert fact_pack["cards_truth"]["global_truth_slice"]["global_contract_summary"]["golden_finger"]["name"] == "系统"
     growth_snapshot = fact_pack["cards_truth"]["cards_state_history_slice"]["protagonist_growth_snapshot"]
     assert growth_snapshot["character_name"] == "李青"
     assert growth_snapshot["growth_enabled"] is True
-    assert growth_snapshot["latest_growth_episode"] == "第2集"
+    assert growth_snapshot["latest_growth_episode"] == "第2章"
     assert "开始怀疑自己赢得是否太快" in growth_snapshot["carry_signals"]
     assert fact_pack["runtime_context"]["state_summary"]
     sequel = fact_pack["runtime_context"]["sequel_continuity"]
@@ -501,7 +501,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                 "story_spine": {"headline": "港口看见不平 -> 拔剑 -> 卷入大局"},
                 "episode_sequence_axis": [
                     {
-                        "episode_ref": "第001集",
+                        "episode_ref": "第001章",
                         "slice_ref": "slice-001-010",
                         "chapter_board_ref": "ep-001",
                     }
@@ -509,7 +509,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                 "episode_slice_manifest": [
                     {
                         "slice_id": "slice-001-010",
-                        "episode_refs": ["第001集"],
+                        "episode_refs": ["第001章"],
                         "file_ref": "卷分片/第1卷.json",
                     }
                 ],
@@ -522,7 +522,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                 "chapter_boards": [
                     {
                         "node_id": "ep-001",
-                        "episode_ref": "第001集",
+                        "episode_ref": "第001章",
                         "chapter_title": "港雨买酒",
                         "chapter_goal": "令狐冲在那霸港的雨里看见税线恶压，第一次意识到自己避不开这盘棋。",
                         "bundled_elements": {
@@ -562,7 +562,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
                     "has_active_foreshadowing": True,
                     "active_foreshadowing": ["foe-002"],
                     "silence_windows": [],
-                    "payoff_windows": ["第006集"],
+                    "payoff_windows": ["第006章"],
                 },
             }
         }
@@ -676,8 +676,8 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
             {
                 "content": {
                     "holomap": {
-                        "episode_sequence_axis": [{"episode_ref": "第001集", "slice_ref": "slice-001-010", "chapter_board_ref": "ep-001"}],
-                        "episode_slice_manifest": [{"slice_id": "slice-001-010", "episode_refs": ["第001集"], "file_ref": "卷分片/第1卷.json"}],
+                        "episode_sequence_axis": [{"episode_ref": "第001章", "slice_ref": "slice-001-010", "chapter_board_ref": "ep-001"}],
+                        "episode_slice_manifest": [{"slice_id": "slice-001-010", "episode_refs": ["第001章"], "file_ref": "卷分片/第1卷.json"}],
                     }
                 }
             },
@@ -693,7 +693,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
                         "chapter_boards": [
                             {
                                 "node_id": "ep-001",
-                                "episode_ref": "第001集",
+                                "episode_ref": "第001章",
                                 "chapter_title": "港雨买酒",
                                 "chapter_goal": "令狐冲与任盈盈只想买酒避世，第一卷的时间压力由此落锁。",
                                 "bundled_elements": {"events": ["event-001", "令狐冲本只想买酒避世，却看见税线恶压。"]},
@@ -897,7 +897,7 @@ def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path)
                         "story_spine": {"headline": "夜雨压港 -> 假安稳破裂 -> 被迫出手"},
                         "episode_sequence_axis": [
                             {
-                                "episode_ref": "第001集",
+                                "episode_ref": "第001章",
                                 "slice_ref": "slice-001-010",
                                 "chapter_board_ref": "board-001",
                             }
@@ -939,7 +939,7 @@ def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path)
                         },
                         "episode_rhythm_roles": [
                             {
-                                "episode_selector": "第1集",
+                                "episode_selector": "第1章",
                                 "selected_pack_id": "dynamic-static-duality",
                                 "selected_pack_label": "动静结合",
                                 "selected_mode_id": "potential-mode",
@@ -957,7 +957,7 @@ def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path)
                         "chapter_boards": [
                             {
                                 "node_id": "board-001",
-                                "episode_ref": "第1集",
+                                "episode_ref": "第1章",
                                 "chapter_title": "港雨买酒",
                                 "chapter_goal": "想买酒避世，却看见港规恶压逼人下跪，最终动了第一次不是为旧怨而出的心。",
                                 "bundled_elements": {

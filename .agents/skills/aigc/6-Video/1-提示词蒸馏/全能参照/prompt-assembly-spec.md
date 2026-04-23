@@ -15,8 +15,16 @@
   - `导演意图`
   - `出场角色及穿搭`
   - 固定音频约束
+- TXT 组级主稿骨架：
+  - `分镜组ID`
+  - `全局风格 + 类型元素 + 导演意图`
+  - `分镜N，x-y秒`
+  - `剧本正文`
+  - `主体锚定`
+  - `分镜明细`
 - 镜级融写行：
   - `正文回指 -> 正文切分参考[]`
+  - `显式对白句`
   - `P1`：剧情桥段 + 主体动作/表演
   - `P2`：镜头控制
   - `P3`：环境、摄影与视觉重心
@@ -34,7 +42,19 @@
 - 最终 prompt 采用 `BC` 结构：
   1. 组级设计块
   2. 每镜一行的融写结果
+- `第N集.txt` 必须采用“分镜组ID -> 全局风格/类型元素/导演意图 -> 分镜N，x-y秒 -> 剧本正文 -> 主体锚定 -> 分镜明细”的固定模板。
+- `第N集.txt` 的 `分镜明细` 必须展开到下一层字段后再编排成自然句：
+  - `分镜构图.构图形式 / 景别景深 / 镜头类型`
+  - `运镜手法.变化 / 速度 / 组合`
+  - `角色表现.动作戏 / 对话戏 / 内心戏`
+  - `氛围表现.层次 / 空间诗学 / 意境`
+  - `摄影表现.光影 / 色彩 / 质感`
+  - `转场特效.特效 / 组内 / 组间`
+- `剧本正文`、`主体锚定.场景`、`主体锚定.角色` 不得压缩；`主体锚定.道具` 只允许轻量压缩。
+- `分镜明细` 的二级字段只允许作为内容来源，不允许作为表层句子顺序模板；最终必须熔成镜头语言优先的整段 prose。
+- 禁止“隐性字段串联”：即便没有显式字段标题，只要文本仍能被轻易拆回 `分镜构图 -> 运镜手法 -> 角色表现 -> 氛围表现 -> 摄影表现 -> 转场特效` 的线性排布，就视为失败。
 - 每条镜级行都必须把 `正文回指` 指向的原剧本片段融进镜头句，而不是把剧本片段单独摆成段落。
+- 当当前镜头存在 `对话戏` 或明显说话信号时，应在剧情桥段后显式补一句对白句，优先表达“谁在说 / 话头落在哪里 / 若能稳定回收则保留短引号词”。
 - 每条镜级行固定以 `xx秒-xx秒｜分镜<组内序号>：` 开头；完整四段式 `分镜ID` 只保留在结构化回链字段中。
 - 除镜级序号标签外，不得泄露字段标题。
 
@@ -42,7 +62,80 @@
 
 ```json
 {
-  "version": "v3",
+  "version": "v4",
+  "txt_render_contract": {
+    "unit": "episode",
+    "group_char_window": {
+      "min": 1600,
+      "max": 1900
+    },
+    "group_block_order": [
+      "分镜组ID",
+      "全局风格",
+      "类型元素",
+      "导演意图",
+      "分镜列表"
+    ],
+    "shot_block_order": [
+      "分镜序号与时间",
+      "剧本正文",
+      "主体锚定",
+      "分镜明细"
+    ],
+    "fixed_labels": [
+      "剧本正文：",
+      "主体锚定：",
+      "分镜明细："
+    ],
+    "non_compressible": [
+      "剧本正文",
+      "主体锚定.场景",
+      "主体锚定.角色"
+    ],
+    "light_compressible": [
+      "全局风格",
+      "类型元素",
+      "导演意图",
+      "主体锚定.道具"
+    ],
+    "priority_compressible": [
+      "分镜明细"
+    ],
+    "detail_field_expansion": {
+      "分镜构图": [
+        "构图形式",
+        "景别景深",
+        "镜头类型"
+      ],
+      "运镜手法": [
+        "变化",
+        "速度",
+        "组合"
+      ],
+      "角色表现": [
+        "动作戏",
+        "对话戏",
+        "内心戏"
+      ],
+      "氛围表现": [
+        "层次",
+        "空间诗学",
+        "意境"
+      ],
+      "摄影表现": [
+        "光影",
+        "色彩",
+        "质感"
+      ],
+      "转场特效": [
+        "特效",
+        "组内",
+        "组间"
+      ]
+    },
+    "render_principle": "detail_fields_are_content_sources_not_surface_order",
+    "forbidden_surface_pattern": "field_ordered_sentence_chain"
+  },
   "budgeting": {
     "levels": [
       "full",
@@ -93,6 +186,32 @@
         "normal": "strip_tail_punct",
         "tight": "strip_tail_punct",
         "ultra": "compact_clause"
+      }
+    },
+    "dialogue_clause": {
+      "speaker_fallback": "有人",
+      "short_quote_char_limit": 8,
+      "levels": {
+        "full": {
+          "quoted_template": "{speaker}{delivery}：“{quote_text}”",
+          "focus_template": "{speaker}{delivery}，话头落在{focus}上",
+          "fallback_template": "{speaker}{delivery}"
+        },
+        "normal": {
+          "quoted_template": "{speaker}{delivery}：“{quote_text}”",
+          "focus_template": "{speaker}{delivery}，话头落在{focus}上",
+          "fallback_template": "{speaker}{delivery}"
+        },
+        "tight": {
+          "quoted_template": "{speaker}提到“{quote_text}”",
+          "focus_template": "{speaker}提到{focus}",
+          "fallback_template": "{speaker}开口"
+        },
+        "ultra": {
+          "quoted_template": "{speaker}提到“{quote_text}”",
+          "focus_template": "{speaker}提到{focus}",
+          "fallback_template": ""
+        }
       }
     },
     "camera_clauses": [

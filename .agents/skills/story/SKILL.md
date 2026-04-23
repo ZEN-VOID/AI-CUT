@@ -113,7 +113,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 | `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-Cards` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
 | `2-Planning` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
-| `3-Drafting` | `projects/story/<项目名>/3-Drafting/第N集.md` 的集级正文真源 + `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 的卷级批次账本 | 评估判断权、validated truth writeback |
+| `3-Drafting` | 默认沿用 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` 的章级正文真源 + `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 的卷级批次账本；显式命中 `3-Drafting/正文` 时，当前章直写根稿可落到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`，并以 YAML 头承载 global/style/`north_star` 摘要 | 评估判断权、validated truth writeback |
 | `4-Validation` | `validation_fact_pack` covenant、卷级隔离评估、父层 `4-Validation/第V卷.validation.json` 聚合 gate | 审查报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
 | `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第V卷.loopback.json` | 未通过验证或未被 handoff 授权的修改写回 |
@@ -127,6 +127,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - 根层项目入口文件固定写在：
   - `projects/story/<项目名>/STATE.json`
   - `projects/story/<项目名>/team.yaml`
+  - `projects/story/<项目名>/MEMORY.md`
   - `projects/story/<项目名>/CHANGELOG.md`
   - `projects/story/<项目名>/CONTEXT/`
 
@@ -176,6 +177,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 | 全局卡/类型卡/风格卡/角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-Cards` |
 | 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-Planning` |
 | 写章节、润色、章节级执行包、正文产出 | `3-Drafting` |
+| 明确要求“按章写正文”、输出到 `3-Drafting/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-Drafting/正文` |
 | 隔离评估、checker 团队、`validation_status` | `4-Validation` |
 | 审查报告、评分落库、审查结果持久化 | `review` |
 | PASS 后的 actualization、truth writeback、projection refresh | `5-Loopback` |
@@ -187,7 +189,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 1. 先读取根级 `SKILL.md`，锁定跨阶段拓扑与共享层边界。
 2. 再读取根级 `CONTEXT.md`，避免重复踩跨阶段老坑。
-3. 若当前任务已绑定 `projects/story/<项目名>/`，必须先读取 `projects/story/<项目名>/CONTEXT/` 下与本轮相关的项目级上下文文件。
+3. 若当前任务已绑定 `projects/story/<项目名>/`，必须先读取 `projects/story/<项目名>/MEMORY.md`，再读取 `projects/story/<项目名>/CONTEXT/` 下与本轮相关的项目级上下文文件。
 4. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md` 与对应阶段的 `_shared/*`。
 5. 若当前项目已锁定题材方向盘，优先读取 `1-Cards/5-类型卡/**/*.json` 与 `2-Planning/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：

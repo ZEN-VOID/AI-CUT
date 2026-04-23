@@ -24,7 +24,7 @@
 
 ## Repair Playbook
 
-1. 先读 `chapter_planning_packet`，列出本集必须兑现的义务。
+1. 先读 `chapter_planning_packet`，列出本章必须兑现的义务。
 2. 再用正文逐项对照，不要先凭阅读感受打总分。
 3. 若正文只在总结段中交代关键信息，视为结构弱兑现而非完全通过。
 

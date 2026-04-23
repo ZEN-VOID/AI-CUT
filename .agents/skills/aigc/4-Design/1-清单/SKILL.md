@@ -55,7 +55,9 @@ governance_tier: full
 ## Shared Canonical Sources (Mandatory)
 
 - 强制读取：`.agents/skills/aigc/3-Detail/SKILL.md`
-- 强制读取：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- 强制读取：`.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- 强制读取：`.agents/skills/aigc/_shared/detail_root_adapter.py`
+- 兼容读取：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
 - 强制读取：`.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
 - 强制读取：`.agents/skills/aigc/4-Design/1-清单/_shared/object-normalization-contract.md`
@@ -83,17 +85,19 @@ governance_tier: full
 4. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
 6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-7. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-8. `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
-9. `.agents/skills/aigc/4-Design/1-清单/_shared/object-normalization-contract.md`
-10. `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
-11. 命中 `场景` 时，加载 `场景/SKILL.md + CONTEXT.md`
-12. 命中 `角色` 时，加载 `角色/SKILL.md + CONTEXT.md`
-13. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
-14. 其余 sibling 迁回后，再按命中域追加加载
-15. `projects/aigc/<项目名>/3-Detail/第N集.json`
-16. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`（若存在）
-17. 各 leaf 已存在的 `1-清单` 输出物（若存在）
+7. `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+8. `.agents/skills/aigc/_shared/detail_root_adapter.py`
+9. `.agents/skills/aigc/_shared/project-runtime-layout.md`
+10. `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
+11. `.agents/skills/aigc/4-Design/1-清单/_shared/object-normalization-contract.md`
+12. `.agents/skills/aigc/4-Design/1-清单/_shared/list-output-contract.md`
+13. 命中 `场景` 时，加载 `场景/SKILL.md + CONTEXT.md`
+14. 命中 `角色` 时，加载 `角色/SKILL.md + CONTEXT.md`
+15. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
+16. 其余 sibling 迁回后，再按命中域追加加载
+17. `projects/aigc/<项目名>/3-Detail/第N集.json`
+18. `projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json`（若存在）
+19. 各 leaf 已存在的 `1-清单` 输出物（若存在）
 
 ## Total Input Contract (Mandatory)
 
@@ -115,9 +119,10 @@ governance_tier: full
 ### 硬规则
 
 1. 父层先判定命中域，再读取对应 leaf 所需最小输入。
-2. 若用户只命中单域，本轮不得补跑其余三域。
-3. 当前轮若未显式重建其余 sibling，父层允许调度 `场景 / 角色 / 道具`。
-4. 任一 leaf 输入缺失时，父层必须阻塞该域，而不是伪造空输出。
+2. canonical detail root 统一按 `meta + groups[].global/detail.分镜列表` 理解；若 leaf 运行时仍读取 `分镜组列表[] / 分镜明细[]`，必须先经过 `detail_root_adapter.py` 的兼容投影。
+3. 若用户只命中单域，本轮不得补跑其余三域。
+4. 当前轮若未显式重建其余 sibling，父层允许调度 `场景 / 角色 / 道具`。
+5. 任一 leaf 输入缺失时，父层必须阻塞该域，而不是伪造空输出。
 
 ## Route And Topology Contract (Mandatory)
 

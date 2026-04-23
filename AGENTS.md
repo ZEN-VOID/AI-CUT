@@ -82,6 +82,16 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 默认交互语言为中文；仅当任务确实需要英文输出时才切换。
 
+### 内容创作型任务的 LLM 主创规则（强制）
+
+- 对 `SKILL` 命中的内容创作型任务，核心创作环节必须由 LLM 直接完成，不得把脚本当作主创执行器。
+- 这里的“核心创作环节”包括但不限于：故事/章节正文、剧本改编、角色设定、场景设定、道具设定、研究结论、设计描述、提示词蒸馏、分镜/面板创作决策、海报文案、创作型总结与其他需要审美判断、叙事判断、风格判断的正文生成。
+- 脚本只允许承担非主创辅助职责，例如：读取、抽取、切分、组装、格式转换、模板投影、复制粘贴、路径归档、批量提交、去重、校验、审计、统计、diff、manifest 回写与其他机械性流程。
+- 脚本不得直接生成上述核心创作正文，不得以规则拼接、模板灌字、启发式补句、字段压缩扩写等方式替代 LLM 创作；即便脚本生成结果“可读”，也不得将其视为 canonical creative truth。
+- 若某个内容创作型 skill 当前仍以脚本生成创作正文、提示词、设计稿、研究稿、layout 决策或等价创作产物，必须判定为源层违规，并回收为：`LLM 直出 canonical creative truth -> 脚本仅做投影/校验/落盘/执行辅助`。
+- 对现有工作流的兼容改造，允许暂时保留脚本型 carrier、validator、runner 与 provider bridge，但不得继续扩大脚本主创覆盖面；任何新增创作链路默认必须按 `LLM-first creative authorship` 设计。
+- 审查此类问题时，必须沿链路上溯：`Symptom -> Direct Script Overreach -> Skill/Template/Runner Source -> AGENTS.md 本条规则`。
+
 ### 执行深度默认规则（强制）
 
 - 执行任务时，默认按“成熟版 engine”标准推进，不得因为习惯性谨慎而总是停在“最小补丁”或“最小闭环”。
@@ -233,9 +243,13 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须至少初始化 `SKILL.md` 与 `CONTEXT.md`，并满足上述基线；若对应元技能已将 `agents/openai.yaml` 或其他入口载体定义为默认层，也必须同步初始化，不得回退为“只有主合同 + 经验层”。
+- 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `MEMORY.md`：
+  - `projects/story/<项目名>/MEMORY.md`
+  - `projects/aigc/<项目名>/MEMORY.md`
 - 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `CONTEXT/`：
   - `projects/story/<项目名>/CONTEXT/`
   - `projects/aigc/<项目名>/CONTEXT/`
+- 项目级 `MEMORY.md` 是当前项目的创作记忆载体，用于沉淀跨阶段持续生效的偏好、口味、习惯、特殊元素、禁区与长期要求。
 - 项目级 `CONTEXT/` 不替代技能同目录 `CONTEXT.md`；它是项目运行时的附加上下文根，面向整个创作阶段共享。
 - `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
@@ -276,10 +290,19 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 保存可复用的 heuristic：成功/失败案例、陷阱、调试线索、兼容性注记、提示技巧与战术捷径
   - 作为规划/执行时的预加载上下文，但不得重定义核心合同
   - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识；同一技能的规范型类型化处理 / 多模式策略，应落在主合同显式回指的专项模块或共享 spec，而不是继续整合进 `CONTEXT.md`
+- `MEMORY.md` 的角色（项目记忆层）：
+  - 保存当前项目跨阶段持续生效的创作偏好、审美口味、表达习惯、必须保留元素、明确禁区、长期协作要求与其他“以后继续按这个项目执行”的稳定约束
+  - 只服务当前项目，不承载跨项目 heuristic、源层故障复盘、脚本调试经验或技能治理规则
+  - 当用户明确要求“记住”、给出会影响后续多个阶段的长期偏好/限制，或对既有项目偏好作出替换/撤销时，必须在同轮同步更新对应项目根 `MEMORY.md`
+  - 临时任务指令、一次性试验口味、局部实现细节与根因学习结论不得写入 `MEMORY.md`
 - `SKILL` 调用上下文加载合同（硬规则）：
   - 每次调用任意 `SKILL.md` 时，必须同时加载该 `SKILL.md` 同目录 `CONTEXT.md` 作为预加载上下文，不得只读取 `SKILL.md` 而跳过同目录经验层。
   - 若同目录 `CONTEXT.md` 缺失，则视为该 skill 基线不完整；执行前应优先补齐，或在当前任务中显式报告该缺口与临时护栏。
-  - 若当前任务已绑定具体项目根，且命中 `.agents/skills/story/` 或 `.agents/skills/aigc/` 任一技能树，则除技能同目录 `CONTEXT.md` 外，还必须加载项目根 `CONTEXT/` 中与当前任务相关的上下文文件，作为该项目整个创作阶段共享的附加上下文。
+  - 若当前任务已绑定具体项目根，且命中 `.agents/skills/story/` 或 `.agents/skills/aigc/` 任一技能树，则除技能同目录 `CONTEXT.md` 外，还必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与当前任务相关的上下文文件。
+  - 项目根 `MEMORY.md` 负责项目偏好、口味、长期要求与特殊元素；项目级 `CONTEXT/` 负责项目共享材料、项目补充事实、运行期附加上下文与非偏好型参考，不得互相替代。
+  - 项目级 `MEMORY.md` 的标准落点仅限：
+    - `projects/story/<项目名>/MEMORY.md`
+    - `projects/aigc/<项目名>/MEMORY.md`
   - 项目级 `CONTEXT/` 的标准落点仅限：
     - `projects/story/<项目名>/CONTEXT/`
     - `projects/aigc/<项目名>/CONTEXT/`
@@ -302,16 +325,19 @@ python3 -m pip install <pkg>  # 安装依赖包
   1. 每次命中任意 skill 时，先成对定位当前命中的 `SKILL.md` 与其同目录 `CONTEXT.md`；二者共同构成该 skill 的默认预加载入口。
   2. 先解析当前命中的 `SKILL.md`，锁定强制约束、总路由与真源边界。
   3. 立即加载该 `SKILL.md` 同目录 `CONTEXT.md`，用于选择策略并避开该技能已知经验性失败模式。
-  4. 若当前任务已绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，则在进入具体阶段执行前，加载该项目根 `CONTEXT/` 目录中与本轮任务相关的上下文文件；该目录是项目级共享附加上下文，而不是技能经验层替代物。
+  4. 若当前任务已绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，则在进入具体阶段执行前，先加载该项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 目录中与本轮任务相关的上下文文件；前者是项目创作记忆，后者是项目共享附加上下文。
   5. 若进入某个受治理子技能，按同样规则加载该子技能在父级合同中声明的局部 `SKILL.md + CONTEXT.md`；若进入某个卫星技能，按同样规则加载 `<satellite-name>/SKILL.md + CONTEXT.md`，锁定其局部合同与局部经验层。
   6. 若当前主技能、子技能或卫星技能声明了专项细则模块、模板、schema 或 spec，则按任务需要加载相关模块；涉及同一技能的类型化处理 / 多模式策略时，优先读取被主合同显式指定的规范模块。
   7. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
-  8. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+  8. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
   - 每个显著失败都应在 `CONTEXT.md` 中记录：症状、根因、修复与预防检查
   - 每个经用户确认的显著成功都应在 `CONTEXT.md` 中记录：结果、设计决策、提炼 heuristic 与可复制范围
+  - 当前项目内一旦出现新的稳定偏好、禁区、长期要求、特殊元素或用户明确要求“以后都按这个来”的口径，应优先写入项目根 `MEMORY.md`
+  - 若 `MEMORY.md` 中已有记录被用户替换、撤销或纠偏，必须同轮更新或删除旧条目，不得让项目记忆保留失效偏好
+  - 跨项目可复用的失败模式、修复策略、调试结论与治理规则，仍应写回技能 `CONTEXT.md` 或上升到 `SKILL.md` / `AGENTS.md`，不得写进单项目 `MEMORY.md`
   - 同一技能的类型化/多模式处理若已上升为执行前必须遵守的专项细则，应沉到主合同显式声明的规范模块；`CONTEXT.md` 只保留执行后沉淀出的经验性 Type Map、Playbook 与 Heuristics
   - 详细变更时间线、迁移流水、执行长日志应优先写入 `CHANGELOG.md` 或 `reports/`，而不是把 `CONTEXT.md` 写成时间序备忘录
   - 保持 `SKILL.md` 简洁且规范；保持 `CONTEXT.md` 可积累且经验化
@@ -475,6 +501,13 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 对类型化处理的经验性复盘、失败模式、修复策略与验证点；但不承载同一技能的规范型多模式策略主表
   - 尚未稳定到足以晋升为 `SKILL.md` 的候选经验
   - 若某次里程碑事件需要保留额外证据，`CONTEXT.md` 仅保留结论化摘要，长材料外置到 `CHANGELOG.md` 或 `reports/`
+- 以下内容应写入项目级 `MEMORY.md`（项目记忆层）：
+
+  - 用户明确要求长期保留的创作偏好、风格口味、叙事习惯、角色关系偏好、视觉/声音/氛围倾向
+  - 当前项目必须保留的特殊元素、固定母题、反复强调的钩子、明确禁区与长期执行要求
+  - 会影响后续多个阶段判断的项目级协作约定，例如“这个项目不要鸡汤式收束”“感情线始终克制表达”“视觉上固定保留雨夜霓虹”之类的长期口径
+  - 对既有项目记忆的更新、替换与撤销结论
+  - 不得写入技能调试经验、源层故障复盘、跨项目 heuristic、一次性任务说明或迁移时间线
 - 以下内容应写入 `CHANGELOG.md`（派生变更史）：
 
   - 按时间顺序组织的变更摘要、迁移记录、结构重排说明、长段执行时间线与版本差异
@@ -485,6 +518,14 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 当前规范特指主技能、子技能与卫星技能之间的多级放置：
 
   - 主技能根层 `CONTEXT.md`：整个技能族的默认经验层，承接跨子技能、跨模式、跨工作流的经验
+  - 项目级 `MEMORY.md`：项目运行时的创作记忆真源，面向当前项目整个创作阶段；当前仅允许以下 canonical 形态：
+
+    ```text
+    projects/story/<项目名>/MEMORY.md
+    projects/aigc/<项目名>/MEMORY.md
+    ```
+
+    项目级 `MEMORY.md` 中存放的是该项目已经确认、后续阶段应持续遵守的偏好、口味、特殊元素与长期要求；它不替代技能 `CONTEXT.md`，也不替代项目级 `CONTEXT/`
   - 项目级 `CONTEXT/`：项目运行时共享附加上下文根，面向当前项目整个创作阶段；当前仅允许以下 canonical 形态：
 
     ```text
@@ -521,7 +562,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 一旦某个技能采用受治理子技能结构，则范围内长期维护的子技能应在父级合同声明的子技能路径上显式暴露 `SKILL.md + CONTEXT.md`
   - 一旦某个技能出现长期维护、可直接调用、且拥有独立旁路职责的 sibling skill，则应显式表现为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`
   - 跨子技能、跨卫星或跨技能的 heuristic，仍必须回晋升到主技能根层 `CONTEXT.md` 或 `SKILL.md`
-- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > `agents/openai.yaml` > 已声明的专项模块 / 模板 / spec > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 
 ### Agent 源层优化合同（强制）
 

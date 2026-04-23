@@ -26,12 +26,12 @@ last_checked_at: 2026-04-22T00:00:00-07:00
 | prompt 只有气氛，没有页内阅读节奏 | page synthesis | 回 `N3` 补页面设计块与面板顺序列 | 在 `SKILL.md` 固化“页面设计块 + 面板顺序列” | prompt 能读出单页漫画节奏 |
 | 把漫画页 JSON 当成直接出图产物 | output contract | 回到 `第N集.json` 作为主产物 | 固定“json 为主，生成后置” | 主产物指向 `第N集.json` |
 | 共享模板骨架被删改 | template contract | 恢复 shared image template 骨架 | 在 `N5` 固化 `reference_images / image_markers` 保留 | 下游 `2-参照引用 / 3-图像生成` 可继续消费 |
-| 上游 `3-Detail` 未就绪却直接蒸馏 | readiness gate | 回 `N1` 先查 `document_phase` | 固化 `detail_in_progress | ready` 为进入条件 | 不再从未完成 detail 结果取页 |
+| 上游 `3-Detail` 未就绪却直接蒸馏 | readiness gate | 回 `N1` 先查 canonical detail root 经 compat adapter 推断的 readiness | 固化 `detail_in_progress | ready` 为进入条件 | 不再从未完成 detail 结果取页 |
 
 ## Repair Playbook
 
 1. 先查当前对象是不是明确的漫画页诉求。
-2. 再查 `3-Detail/第N集.json` 的 `document_phase` 与目标分镜组是否可消费。
+2. 再查 `3-Detail/第N集.json` 的 canonical `groups[]` 与 compat adapter 推断的 readiness 是否可消费。
 3. 再查页面设计块是否同时覆盖组级设计、镜头顺序和文字承载预留。
 4. 再查 prompt 是否严格满足“固定前缀 + 页面设计块 + 面板顺序列”。
 5. 最后查 `第N集.json` 是否仍是唯一主产物，并可继续 handoff。

@@ -45,6 +45,11 @@ from prompt_bridge_helpers import (  # noqa: E402
 PROMPT_ASSEMBLY_SPEC = SCRIPT_DIR.parent / "prompt-assembly-spec.md"
 TARGET_MAX = 2200
 ALLOWED_PHASES = {"detail_in_progress", "ready"}
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，提示词蒸馏正文不得再由脚本直接主创。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, bridge: str, level: str, spec: dict[str, Any]) -> str:
@@ -305,7 +310,14 @@ def main() -> None:
     parser.add_argument("--episode", required=True, help="集名，例如 第1集")
     parser.add_argument("--shot-id", help="可选，只生成单个分镜ID")
     parser.add_argument("--output-mode", choices=["json_only", "full_trace"], default="json_only")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成分镜帧提示词。",
+    )
     args = parser.parse_args()
+    if not args.allow_legacy_script_authorship:
+        raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
     print(json.dumps(render_episode(args.project, args.episode, args.shot_id, args.output_mode), ensure_ascii=False, indent=2))
 
 

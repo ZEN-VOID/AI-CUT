@@ -67,4 +67,4 @@
 
 - 禁止把旧模板段落整块贴进角色 JSON。
 - 禁止用“废柴流 / 冰山师尊 / 死党”之类标签直接替代 `narrative_function`。
-- 禁止把人物塑形写成单集感受，仍需维持 `card_scope=full-series`。
+- 禁止把人物塑形写成单章感受，仍需维持 `card_scope=full-series`。

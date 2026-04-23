@@ -18,6 +18,7 @@ if SHARED_SCRIPTS_DIR.as_posix() not in sys.path:
     sys.path.insert(0, SHARED_SCRIPTS_DIR.as_posix())
 
 from global_style_prefix import extract_global_style_prefix  # noqa: E402
+from project_design_fallbacks import load_project_design_fallbacks, nested_get  # noqa: E402
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -34,6 +35,21 @@ ROLE_NAME_TRANSLATIONS = {
     "林深": "Lin Shen",
     "司机": "The Driver",
 }
+
+COSTUME_STATE_TRANSLATIONS = {}
+
+PLACEHOLDER_PATTERNS = (
+    "Character ",
+    "documented continuity costume state",
+    "premium urban-drama",
+    "urban-romance",
+    "contemporary urban luxury-drama",
+)
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，核心创作环节不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移/投影场景；如确需临时执行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -57,6 +73,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
     parser.add_argument("--auto-image-dry-run", action="store_true", help="写 manifest 并验证自动生图 payload，不真实请求 API")
     parser.add_argument("--auto-image-timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成创作型角色设计内容。",
+    )
     return parser.parse_args()
 
 
@@ -155,24 +176,26 @@ def lookup_role(items: list[dict[str, Any]], role_id: str, role_name: str) -> di
     return {}
 
 
-def role_name_en(role_name: str, role_id: str) -> str:
+def role_name_en(role_name: str, role_id: str, *, project_fallbacks: dict[str, Any] | None = None) -> str:
+    registry_translation = nested_get(project_fallbacks, "roles", "name_translations", role_name, default="")
+    if registry_translation:
+        return registry_translation
     if role_name in ROLE_NAME_TRANSLATIONS:
         return ROLE_NAME_TRANSLATIONS[role_name]
     if not NON_ASCII_RE.search(role_name):
         return role_name.title()
-    return f"Character {role_id.split('-')[-1]}"
+    return role_name
 
 
 def ascii_or_fallback(value: Any, fallback: str) -> str:
     text = compact_text(value, 260)
-    if not text or NON_ASCII_RE.search(text):
+    if not text:
         return fallback
     return text
 
 
 def force_ascii(text: str) -> str:
-    ascii_text = text.encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"\s+", " ", ascii_text).strip()
+    return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
 def ascii_list_or_fallback(values: list[Any], fallback: str) -> list[str]:
@@ -183,6 +206,11 @@ def ascii_list_or_fallback(values: list[Any], fallback: str) -> list[str]:
 
 def english_style_prefix(style_text: str) -> str:
     prefix = extract_global_style_prefix(style_text, limit=220)
+    if "侍魂天草降临" in prefix or "徐克1994香港武侠电影美学" in prefix or "和田惠美" in prefix:
+        return (
+            "A gothic-romantic wuxia design language with 35mm film grain, soft halation, volumetric fog, "
+            "wind-lifted robes, floating debris, low-angle momentum, practical smoke, and operatic costume silhouettes."
+        )
     if "港风都市记忆质感" in prefix and "潮湿夜色" in prefix:
         return (
             "A restrained premium urban-drama look with humid night air, layered reflections, "
@@ -190,23 +218,24 @@ def english_style_prefix(style_text: str) -> str:
             "public glamour and private ache in the same frame."
         )
     if prefix:
-        return "A grounded cinematic urban-romance style with realistic skin detail, restrained lighting, and layered city reflections."
+        return "Follow the established project-wide cinematic style in a grounded, production-ready visual direction."
     return "Follow the documented project-wide cinematic style without inventing a different genre."
 
 
-def role_profile(role_name: str, role_tier: str) -> dict[str, str]:
+def role_profile(role_name: str, role_tier: str, *, project_fallbacks: dict[str, Any] | None = None) -> dict[str, str]:
     defaults = {
-        "identity": f"{role_name_en(role_name, 'role')} is a documented {role_tier.lower()} whose visual design must stay grounded and story-driven.",
-        "tension": "The design should show visible self-control under pressure, with private emotion pushing against a public role.",
-        "power_axis": "public composure versus private fracture",
-        "differentiation": "social polish, emotional restraint, and the precise state of the costume",
-        "face_signature": "clear eyes with a controlled but loaded gaze, natural makeup, and realistic skin texture",
-        "hair_signature": "neat real-world hair styling shaped by class, work rhythm, and emotional restraint",
-        "body_signature": "a readable silhouette with posture carrying the emotional burden before any overt gesture",
-        "costume_signature": "costume logic anchored in role, class, and continuity rather than decorative excess",
-        "continuity_signature": "small accessories and repeated costume states must remain stable across recurring scenes",
-        "story_narrative": f"{role_name_en(role_name, 'role')} should read like a character whose social role is visible at first glance, while the hidden pressure underneath keeps leaking through body language and costume state.",
+        "identity": f"{role_name_en(role_name, 'role', project_fallbacks=project_fallbacks)} should read as a documented {role_tier} whose design stays grounded in the current story world and visible role pressure.",
+        "tension": "Show discipline, fatigue, danger, and unfinished feeling inside the posture before overt action begins.",
+        "power_axis": "public restraint versus private fracture",
+        "differentiation": "status signal, costume continuity, weather exposure, and emotional containment",
+        "face_signature": "features should stay grounded in story evidence and avoid generic beauty-shot smoothing",
+        "hair_signature": "hair and head silhouette should follow travel, weather, labor, class, and sword-world continuity",
+        "body_signature": "the silhouette should stay readable, tense, and story-specific before any action flourish",
+        "costume_signature": "costume logic should reflect the documented world, status, travel condition, and continuity chain rather than modern styling tropes",
+        "continuity_signature": "repeat costume states, key accessories, and recurring prop anchors must stay stable across linked groups and shots",
+        "story_narrative": f"{role_name_en(role_name, 'role', project_fallbacks=project_fallbacks)} should carry visible role pressure, lived-in continuity, and the emotional cost of the current episode in one clean reference portrait.",
     }
+    registry_profiles = nested_get(project_fallbacks, "roles", "profiles", default={}) or {}
     profiles = {
         "苏晴": {
             "identity": "Su Qing is the heiress being publicly priced on her birthday night, carrying luxury polish as a shell while her agency struggles to return.",
@@ -269,7 +298,27 @@ def role_profile(role_name: str, role_tier: str) -> dict[str, str]:
             "story_narrative": "The Driver should be designed as the human edge of the family machine, someone who keeps the order moving but cannot fully hide his discomfort when Su Qing rejects it.",
         },
     }
-    return {**defaults, **profiles.get(role_name, {})}
+    return {**defaults, **profiles.get(role_name, {}), **registry_profiles.get(role_name, {})}
+
+
+def has_placeholder_text(text: Any) -> bool:
+    clean = compact_text(text, 320)
+    if not clean:
+        return True
+    markers = (
+        "unknown",
+        "情绪张力待补",
+        "角色表现目前最强的镜头提示是",
+        "###场景",
+    )
+    return any(marker in clean for marker in markers)
+
+
+def choose_clean_text(primary: Any, fallback: str) -> str:
+    text = compact_text(primary, 320)
+    if has_placeholder_text(text):
+        return fallback
+    return text
 
 
 def compute_quality_flags(role: dict[str, Any], bridge_role: dict[str, Any], research_role: dict[str, Any]) -> list[str]:
@@ -284,10 +333,30 @@ def english_role_tier(role_tier: str) -> str:
     return mapping.get(role_tier, "supporting")
 
 
-def build_structured_fields(role: dict[str, Any], bridge_role: dict[str, Any], profile: dict[str, str]) -> dict[str, Any]:
+def translate_costume_state(value: Any, *, project_fallbacks: dict[str, Any] | None = None) -> str:
+    text = compact_text(value, 160)
+    if not text:
+        return "documented continuity costume state"
+    registry_translation = nested_get(project_fallbacks, "roles", "costume_state_translations", text, default="")
+    if registry_translation:
+        return registry_translation
+    if text in COSTUME_STATE_TRANSLATIONS:
+        return COSTUME_STATE_TRANSLATIONS[text]
+    if NON_ASCII_RE.search(text):
+        return "documented continuity costume state"
+    return text
+
+
+def build_structured_fields(
+    role: dict[str, Any],
+    bridge_role: dict[str, Any],
+    profile: dict[str, str],
+    *,
+    project_fallbacks: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     costume_state = str(role.get("costume_state", "unknown"))
     role_name = str(role.get("canonical_name", "Character"))
-    role_en = role_name_en(role_name, str(role.get("role_id", "role-000")))
+    role_en = role_name_en(role_name, str(role.get("role_id", "role-000")), project_fallbacks=project_fallbacks)
     return {
         "face": {
             "reference": role_en,
@@ -315,21 +384,21 @@ def build_structured_fields(role: dict[str, Any], bridge_role: dict[str, Any], p
             "gender": "story-documented presentation",
             "occupation": english_role_tier(str(role.get("role_tier", "功能配角"))),
             "style": profile["body_signature"],
-            "height": "realistic contemporary-drama proportion",
+            "height": "realistic adult proportion grounded in the documented role",
             "weight": "natural build with no exaggerated stylization",
             "build": profile["body_signature"],
             "posture": "posture carries social role before overt movement",
-            "proportion": "natural fashion-shoot proportion with believable anatomy",
+            "proportion": "believable wuxia-drama anatomy with practical movement logic",
             "upper_arm": "arms follow class, work, and emotional control signals",
             "finger": "hands should look usable, not mannequin-like",
             "leg": "leg line follows costume and stance requirements",
             "foot": "footwear logic must remain continuous with costume state",
         },
         "costume": {
-            "era": "contemporary urban luxury-drama timeline",
-            "brand": "evidence-driven premium realism rather than logo-led branding",
+            "era": "historical or wuxia-inflected East Asian story world",
+            "brand": "evidence-driven costume craft rather than modern logo branding",
             "style": profile["costume_signature"],
-            "culture": "contemporary Chinese urban social hierarchy with premium realism",
+            "culture": "East Asian martial-world costume logic driven by status, travel, labor, and continuity",
             "type": costume_state,
             "attribute": bridge_role.get("costume_bridge", {}).get("costume_system", costume_state),
             "head": "minimal head accessories unless explicitly documented",
@@ -355,17 +424,19 @@ def render_template(template_text: str, values: dict[str, str]) -> str:
     return output
 
 
-def fit_integrated_prompt(sentences: list[str]) -> str:
+def fit_integrated_prompt(sentences: list[str], *, extra_reinforcements: list[str] | None = None) -> str:
     prompt = " ".join(" ".join(sentence.split()) for sentence in sentences if sentence.strip())
     reinforcements = [
-        "Keep the portrait grounded in premium urban-drama realism, with believable skin texture, disciplined tailoring logic, and emotional pressure carried by posture before gesture.",
+        "Keep the portrait grounded in cinematic wuxia realism, with believable skin texture, weathered material response, and emotional pressure carried by posture before gesture.",
         "Every visible choice must serve identity, costume continuity, and relationship pressure rather than decorative fantasy, and the image should read as one coherent production-ready design brief.",
         "Use solid color background and no scene background elements so the portrait functions as a clean downstream reference asset, not a narrative still, group tableau, or environment concept frame.",
         "Preserve the exact contrast between public polish and private fracture, using face tension, body control, and costume state as the main storytelling carriers inside the frame.",
-        "Keep accessories, costume seams, fabric response, and grooming details specific enough for panel continuity, while staying within realistic premium short-drama production logic.",
+        "Keep accessories, costume seams, fabric response, grooming details, and wear marks specific enough for panel continuity while staying within the documented world rather than drifting into modern fashion portrait logic.",
         "Do not add extra characters, props-as-environment, room context, street context, architecture, signage, or decorative scenic storytelling beyond what a pure character reference portrait can legitimately hold.",
         "Let camera distance, silhouette readability, and emotional restraint feel ready for casting sheets, design boards, and later continuity reference, with no dependence on scene geography.",
     ]
+    if extra_reinforcements:
+        reinforcements = [*reinforcements, *extra_reinforcements]
     for sentence in reinforcements:
         candidate = f"{prompt} {sentence}"
         if len(candidate.encode('utf-8')) <= INTEGRATED_PROMPT_MAX_BYTES:
@@ -399,12 +470,13 @@ def build_packet(
     design_elements_text: str,
     north_star_text: str,
     init_handoff_text: str,
+    project_fallbacks: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     role_id = str(role.get("role_id", "role-000"))
     role_name = str(role.get("canonical_name", "Character"))
-    role_en = role_name_en(role_name, role_id)
+    role_en = role_name_en(role_name, role_id, project_fallbacks=project_fallbacks)
     role_tier = str(role.get("role_tier", "功能配角"))
-    profile = role_profile(role_name, role_tier)
+    profile = role_profile(role_name, role_tier, project_fallbacks=project_fallbacks)
     bridge_profile = bridge_role.get("design_bridge_profile", {}) if isinstance(bridge_role, dict) else {}
     appearance_bridge = first_non_empty(bridge_profile.get("appearance_bridge"), bridge_role.get("appearance_bridge"), {}) or {}
     costume_bridge = first_non_empty(bridge_profile.get("costume_bridge"), bridge_role.get("costume_bridge"), {}) or {}
@@ -417,18 +489,24 @@ def build_packet(
     global_style_prefix_en = english_style_prefix(global_style_text)
     style_backbone = compact_text(global_style_prefix, 180) or compact_text(type_elements_text, 180) or "项目级风格骨架"
     character_style = (
-        "premium urban realism with restrained glamour, humid night memory, layered reflections, and emotional pressure held inside posture"
+        "grounded wuxia character realism with pressure carried by posture, weather, costume continuity, and restrained emotion"
     )
     design_guardrails = (
-        "Keep the character grounded, contemporary, emotionally legible, and continuity-safe; avoid fantasy drift, costume cosplay exaggeration, or scenic-background storytelling."
+        "Keep the character grounded, emotionally legible, and continuity-safe; avoid modern portrait drift, cosplay exaggeration, and scenic-background storytelling."
     )
-    identity_hook = ascii_or_fallback(prompt_ready.get("identity_hook"), profile["identity"])
-    narrative_tension = ascii_or_fallback(prompt_ready.get("narrative_tension"), profile["tension"])
+    identity_hook = choose_clean_text(prompt_ready.get("identity_hook"), profile["identity"])
+    if "/" in identity_hook and len(identity_hook) <= 24:
+        identity_hook = profile["identity"]
+    narrative_tension = choose_clean_text(prompt_ready.get("narrative_tension"), profile["tension"])
     power_axis = profile["power_axis"]
     differentiation_axes = profile["differentiation"]
-    costume_state_en = ascii_or_fallback(role.get("costume_state"), "documented continuity costume state")
-    continuity_items = ascii_list_or_fallback(as_list(continuity_bridge.get("core_props")), "documented continuity objects")
-    story_premise = ascii_or_fallback(
+    costume_state_en = translate_costume_state(role.get("costume_state"), project_fallbacks=project_fallbacks)
+    continuity_seed = as_list(continuity_bridge.get("core_props"))
+    if not continuity_seed or continuity_seed == ["unknown"]:
+        continuity_seed = as_list(continuity_bridge.get("recurring_states")) or [role.get("costume_state", "documented continuity objects")]
+    continuity_items = [translate_costume_state(item, project_fallbacks=project_fallbacks) for item in continuity_seed]
+    continuity_items = [item for item in continuity_items if item and item != "documented continuity costume state"] or ["documented continuity objects"]
+    story_premise = choose_clean_text(
         first_non_empty(
             research_profile.get("sentence_conclusion"),
             research_profile.get("identity_read"),
@@ -437,14 +515,14 @@ def build_packet(
         ),
         profile["story_narrative"],
     )
-    structured_fields = build_structured_fields(role, bridge_role, profile)
+    structured_fields = build_structured_fields(role, bridge_role, profile, project_fallbacks=project_fallbacks)
     reasoning_pivot = (
-        f"{role_en} must be designed as a single-subject premium urban-drama reference portrait where identity pressure, costume continuity, "
-        f"and emotional restraint are readable before action, keeping {power_axis} visible without scenic distraction."
+        f"{role_en} must be designed as a single-subject wuxia reference portrait where identity pressure, costume continuity, "
+        f"weather exposure, and emotional restraint are readable before action, keeping {power_axis} visible without scenic distraction."
     )
 
     prompt_sentences = [
-        f"Design {role_en} as a single-character premium urban-drama reference portrait, built for continuity-safe downstream use rather than a narrative still.",
+        f"Design {role_en} as a single-character wuxia reference portrait, built for continuity-safe downstream use rather than a narrative still.",
         "Keep solid color background and no scene background elements at all times, so the frame stays clean for later reference reuse.",
         f"Identity hook: {identity_hook}. Narrative tension: {narrative_tension}.",
         f"Power axis: {power_axis}. Differentiation axes: {differentiation_axes}.",
@@ -452,12 +530,13 @@ def build_packet(
         f"Costume system: {profile['costume_signature']}. Current costume state: {costume_state_en}.",
         f"Continuity guard: {profile['continuity_signature']}.",
         f"Visual style backbone: {global_style_prefix_en}",
-        "Use realistic skin detail, restrained cinematic lighting, premium tailoring logic, and believable anatomy.",
+        "Use realistic skin detail, restrained cinematic lighting, believable anatomy, and costume craft that belongs to the documented martial world.",
         f"Reference any prop pressure only as off-screen continuity through {', '.join(continuity_items[:3])}, never as an environment or hand-held action in the frame.",
         f"Story premise: {story_premise}.",
         "The portrait must feel casting-ready, design-board ready, and emotionally specific, with posture carrying social pressure before any overt dramatic gesture.",
     ]
-    prompt_integration = force_ascii(fit_integrated_prompt(prompt_sentences))
+    extra_reinforcements = list(nested_get(project_fallbacks, "roles", "prompt_reinforcements", default=[]) or [])
+    prompt_integration = force_ascii(fit_integrated_prompt(prompt_sentences, extra_reinforcements=extra_reinforcements))
     full_generation_prompt = (
         f"Global style prefix: {global_style_prefix_en}\n\n"
         f"Integrated prompt: {prompt_integration}"
@@ -504,8 +583,8 @@ def build_packet(
         "differentiation_axes": differentiation_axes,
         "reasoning_pivot_en": reasoning_pivot,
         "story_narrative": profile["story_narrative"],
-        "face_signature": appearance_bridge.get("face_signature", profile["face_signature"]),
-        "hair_signature": appearance_bridge.get("hair_signature", profile["hair_signature"]),
+        "face_signature": choose_clean_text(appearance_bridge.get("face_signature"), profile["face_signature"]),
+        "hair_signature": choose_clean_text(appearance_bridge.get("hair_signature"), profile["hair_signature"]),
         "body_reference": role_en,
         "body_signature": profile["body_signature"],
         "costume_signature": costume_bridge.get("costume_system", profile["costume_signature"]),
@@ -518,6 +597,17 @@ def build_packet(
         "midjourney_params": structured_fields["camera"]["midjourney_params"],
         "display_profile": display_profile,
     }
+
+
+def find_packet_placeholders(packet: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    serialized = json.dumps(packet, ensure_ascii=False)
+    for token in PLACEHOLDER_PATTERNS:
+        if token in serialized:
+            issues.append(token)
+    if "unknown_by_shot_evidence" in serialized:
+        issues.append("unknown_by_shot_evidence")
+    return sorted(set(issues))
 
 
 def build_markdown(packet: dict[str, Any]) -> str:
@@ -648,6 +738,9 @@ def validate_output(output_dir: Path, design_path: Path, manifest_path: Path) ->
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     catalog_path = Path(args.catalog)
     if not catalog_path.exists():
         print(f"[ERROR] catalog 不存在: {catalog_path}", file=sys.stderr)
@@ -657,6 +750,7 @@ def main() -> int:
         return 1
 
     project_root = infer_project_root(catalog_path)
+    project_fallbacks = load_project_design_fallbacks(project_root)
     episode_dir = catalog_path.parent
     episode_id = episode_dir.name
     project_name = project_root.name
@@ -692,9 +786,22 @@ def main() -> int:
             design_elements_text=read_text(design_elements_path),
             north_star_text=read_text(north_star_path),
             init_handoff_text=read_text(init_handoff_path),
+            project_fallbacks=project_fallbacks,
         )
         for role in selected
     ]
+    packet_issues = {
+        packet["canonical_name"]: find_packet_placeholders(packet)
+        for packet in packets
+    }
+    packet_issues = {name: issues for name, issues in packet_issues.items() if issues}
+    if packet_issues:
+        print(
+            "[ERROR] 角色设计包仍含占位或错域回退，已阻止继续落盘: "
+            + json.dumps(packet_issues, ensure_ascii=False),
+            file=sys.stderr,
+        )
+        return 1
 
     generated_at = datetime.now().isoformat(timespec="seconds")
     output_dir_repo = to_repo_path(output_dir)

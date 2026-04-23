@@ -21,6 +21,12 @@ DEFAULT_MODEL = "sora-2"
 DEFAULT_SIZE = "720x1280"
 SECONDS_CHOICES = [10, 15]
 SIZE_CHOICES = ["720x1280", "1280x720"]
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，`comic/4-动画生成` 的页级 video_prompt 正文不得再由脚本默认主创。"
+    "本脚本默认只允许消费 LLM 已直出的 `comic_page_animation_prompts.v1`，并负责校验、URL 映射、执行与报告。"
+    "如确需临时兼容 legacy `nine_blade_comic_prompts.v1 -> 脚本编译 video_prompt` 路径，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 FIXED_PROMPT_PREFIX = (
     "Animate this vertical comic strip into a seamless, continuous cinematic video. "
@@ -920,9 +926,16 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本从 nine_blade JSON 直接编译页级 video_prompt。",
+    )
     args = parser.parse_args()
 
     if args.self_test:
+        if not args.allow_legacy_script_authorship:
+            raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
         return _self_test()
 
     if not args.input_json:
@@ -934,6 +947,8 @@ def main() -> int:
 
     input_path = Path(args.input_json).resolve()
     raw_input = _load_json(input_path)
+    if raw_input.get("schema_version") == "nine_blade_comic_prompts.v1" and not args.allow_legacy_script_authorship:
+        raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
     group_slug = _derive_group_slug(raw_input, input_path)
     group_aliases = _group_aliases(raw_input, input_path)
     project_root = _infer_project_root(input_path, args.project_name)

@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | project governance | `STATE.json`；若已生成，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | 核心项目状态入口 + 惰性治理链 |
 | planning | `projects/aigc/<项目名>/1-Planning/` | 包括阶段产物与 `1-Planning/validation-report.md` |
-| directing | `projects/aigc/<项目名>/3-Detail/第N集.json` | `2-Global` 产出导演前置 Markdown 并 seed `组间设计`，`3-Detail` 继续补齐并维护 episode 根文件 |
+| directing | `projects/aigc/<项目名>/3-Detail/第N集.json` | `2-Global` 先产出导演前置 Markdown 与 `2-Global/episode_root.json` 组级 seed，`3-Detail` 再继续补齐并维护 detail root |
 | subject | `projects/aigc/<项目名>/4-Design/` | design-source 产物与阶段验收 |
 | media | `projects/aigc/<项目名>/5-Image/`、`6-Video/`、`7-Cut/` | 画面、视频、后期产物层 |
 | governance system | `team.yaml`、`.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`、root `aigc/SKILL.md` | 路由、顾问团、制度问题 |

@@ -36,7 +36,7 @@ def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
                 "space_axis": [],
                 "episode_sequence_axis": [
                     {
-                        "episode_ref": "第1集",
+                        "episode_ref": "第1章",
                         "slice_ref": "slice-001-010",
                         "chapter_board_ref": "board-001",
                     }
@@ -114,7 +114,7 @@ def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
                 "chapter_boards": [
                     {
                         "node_id": "board-001",
-                        "episode_ref": "第1集",
+                        "episode_ref": "第1章",
                         "timeline_ref": "timeline-001",
                         "primary_space_ref": "space-001",
                         "active_space_refs": ["space-001"],
@@ -141,15 +141,15 @@ def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
                 ],
                 "episode_sequence_axis": [
                     {
-                        "episode_ref": "第1集",
+                        "episode_ref": "第1章",
                         "chapter_board_ref": "board-001",
                         "slice_ref": "slice-001-010",
                     }
                 ],
                 "cross_chapter_continuity_matrix": [
                     {
-                        "from_episode_ref": "第1集",
-                        "to_episode_ref": "第2集",
+                        "from_episode_ref": "第1章",
+                        "to_episode_ref": "第2章",
                         "bridge_summary": "" if thin_contract else "从落地压迫接到第一次被迫出手。",
                         "carryover_threads": [] if thin_contract else ["敌网未显", "港规压迫"],
                         "expected_shift": "" if thin_contract else "从观察进入试探性反击。",

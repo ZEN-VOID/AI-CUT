@@ -25,7 +25,7 @@ governance_tier: lite
 
 - 检查时间锚、先后顺序、持续时长是否成立
 - 检查伏笔静默窗口与揭晓时机是否越线
-- 检查本集的事件时间排布是否与上游规划一致
+- 检查本章的事件时间排布是否与上游规划一致
 
 它不负责：
 
@@ -73,7 +73,7 @@ governance_tier: lite
 - `dimension_report_ref`:
   - `4-Validation/第V卷/时间线.md`
 - 默认返工节点：
-  - `1-单集叙事起盘`
+  - `1-单章叙事起盘`
   - `2-节奏优化`
 
 ## Visual Map
@@ -89,7 +89,7 @@ flowchart TD
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-TIME-ANCHOR-READ` | `FIELD-TM-01` | 锁本集时间锚与窗口 | 读取 `chapter_planning_packet` 和静默窗口 | `anchor_note` | -> `N2` | 时间锚明确 |
+| `N1-TIME-ANCHOR-READ` | `FIELD-TM-01` | 锁本章时间锚与窗口 | 读取 `chapter_planning_packet` 和静默窗口 | `anchor_note` | -> `N2` | 时间锚明确 |
 | `N2-SEQUENCE-CHECK` | `FIELD-TM-02` | 检查先后顺序与持续时长 | 识别逆序、跳时、时长不合理 | `sequence_note` | -> `N3` | 时序成立 |
 | `N3-WINDOW-CHECK` | `FIELD-TM-03` | 检查伏笔静默区是否越线 | 标记提前揭晓与剧透风险 | `window_note` | -> `N4` | 窗口未破 |
 | `N4-PACKET-WRITE` | `FIELD-TM-04` | 输出时间线维度结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |

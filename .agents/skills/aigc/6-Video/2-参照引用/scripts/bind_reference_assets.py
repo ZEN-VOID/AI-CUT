@@ -13,6 +13,12 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[6]
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import ensure_legacy_detail_payload  # noqa: E402
+
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff"}
 
 
@@ -53,7 +59,8 @@ def list_asset_files(assets_root: Path) -> list[Path]:
 
 
 def build_group_index(source_data: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    groups = source_data["final_output"]["main_content"]["分镜组列表"]
+    payload = ensure_legacy_detail_payload(source_data)
+    groups = payload["final_output"]["main_content"]["分镜组列表"]
     return {group["分镜组ID"]: group for group in groups}
 
 

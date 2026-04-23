@@ -29,6 +29,13 @@ governance_tier: full
 
 本技能遵循知行合一的单文档编排方式：业务分析、输入装配、思行节点、门禁、输出治理与返工都写在本 `SKILL.md`；`_shared/IO_CONTRACT.md` 与脚本只承担辅助真源，不再反客为主。
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `道具设计` 属于内容创作型任务；逐道具设计卡、`prompt整合`、叙事器物描述与其他创作性设计正文，必须由 LLM 直接完成。
+- `run_prop_design_pipeline.py / build_prop_design_packets.py` 不得再被视为默认主创入口；它们只允许用于受控兼容迁移、既有 LLM 真源的模板投影、批量落盘或结构校验前的机械辅助。
+- 当前 skill 的默认执行路径必须是：`LLM 直出 canonical creative truth -> validator / projector / auto-image helper`。
+- 若确需临时运行旧式脚本主创，只能以受控兼容模式显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新升回默认流程。
+
 ## Business Requirement Analysis Contract
 
 | 分析槽位 | 当前答案 |
@@ -55,7 +62,7 @@ governance_tier: full
 
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具研究.json`（兼容）
 - `projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/prop_design_bridge.json`（兼容）
-- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`（仅用于镜头事实回链或 traceability 补证，不得升为默认输入根）
 - `projects/aigc/<项目名>/2-Global/导演意图.md`
 - `.agents/skills/aigc/4-Design/2-设计/道具/_shared/IO_CONTRACT.md`
 - `.agents/skills/aigc/4-Design/2-设计/道具/templates/prop_masterprompt.structured.v2.md`
@@ -93,7 +100,7 @@ governance_tier: full
 | 全局风格 | `projects/aigc/<项目名>/2-Global/全局风格.md` | 项目级视觉母体 |
 | 类型元素 | `projects/aigc/<项目名>/2-Global/全集类型元素.md` | 类型打法与风格约束 |
 | 设计元素 | `projects/aigc/<项目名>/2-Global/导演意图.md` | 设计语言补充证据 |
-| episode 根文件 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 回链镜头事实与状态 |
+| episode 根文件 | `projects/aigc/<项目名>/3-Detail/第N集.json` | 仅用于回链镜头事实与状态；不得替代 `道具清单.json` 的 design-source 主权 |
 | shared I/O | `.agents/skills/aigc/4-Design/2-设计/道具/_shared/IO_CONTRACT.md` | 输入输出、命名与 compat 投影合同 |
 | shared output | `.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md` | 全局风格前缀、完整 prompt 与同目录同名图片快路径真源 |
 | image execution | `.agents/skills/aigc/_shared/image-generation-execution-contract.md` | 默认后台批量并发执行模式真源 |
@@ -353,37 +360,14 @@ stateDiagram-v2
 - `gate`
   - 不得把 `source_skill_refs` 误当 runtime 授权或 reviewer skill；`use_subagents_by_default=true` 时不得用本地模拟冒充 council。
 
-## Commands
+## Projection And Validation Helpers
 
-```bash
-python3 .agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py \
-  --catalog "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json"
-```
-
-默认会在设计卡写入后继续自动调用 nano-banana general 生图；显式只做设计文件时使用：
+legacy 兼容投影入口：
 
 ```bash
 python3 .agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py \
   --catalog "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json" \
-  --skip-auto-image
-```
-
-```bash
-python3 .agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py \
-  --catalog "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json" \
-  --output-dir "projects/aigc/<项目名>/4-Design/道具/2-设计/第N集"
-```
-
-```bash
-python3 .agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py \
-  --catalog "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json" \
-  --write-compat-json
-```
-
-```bash
-python3 .agents/skills/aigc/4-Design/2-设计/道具/scripts/run_prop_design_pipeline.py \
-  --catalog "projects/aigc/<项目名>/4-Design/道具/1-清单/第N集/道具清单.json" \
-  --dry-run
+  --allow-legacy-script-authorship
 ```
 
 单主体图片快路径：

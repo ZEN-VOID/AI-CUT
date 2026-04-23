@@ -2,7 +2,7 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `6-视频/3-视频生成` 的经验层知识库，不是过程日志。
+- 本文件是 `6-Video/3-视频生成` 的经验层知识库，不是过程日志。
 - 调用 `.agents/skills/aigc/6-Video/3-视频生成/SKILL.md` 时，应自动预加载本文件。
 - 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > `SKILL.md` > `CONTEXT.md`。
 

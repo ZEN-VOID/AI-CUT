@@ -19,7 +19,7 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 角色行为怪，但报告说不出为什么怪 | character state read | 回到当前态、关系压力与近期 history | issue 必须指向“违背了哪一条当前态/关系态” | OOC 结论不再只靠主观感觉 |
-| 角色没有明显 OOC，但整场戏只剩功能推进、看不见个性和偏移 | arc visibility check | 回到本集压力点，补“他想要什么、怕什么、因此怎么偏移” | 人物一致性维度把“功能性空转”单列为 Step 4 返工信号 | validation 不再只拦错，不拦空 |
+| 角色没有明显 OOC，但整场戏只剩功能推进、看不见个性和偏移 | arc visibility check | 回到本章压力点，补“他想要什么、怕什么、因此怎么偏移” | 人物一致性维度把“功能性空转”单列为 Step 4 返工信号 | validation 不再只拦错，不拦空 |
 | 多视角/证词场里人人都像作者代言人 | self-justification differentiation | 回到每个角色最想保住的体面与省略事实重写 | 在人物一致性维度固定检查“不同角色是否保护不同版本的自己” | 罗生门式结构不再写成统一口径分段复述 |
 | 宏观设定很强，但人物只负责解释系统，不负责承担系统 | system-pressure embodiment | 回到角色在命令链、装置、倒计时和集体代价中的位置重写 | 在人物一致性维度固定检查“系统压力是否压到人” | 人物不再只是灾难/科幻设定的讲解器 |
 | 对白不对劲，却被笼统写成“人物扁平” | dialogue check | 拆成 `speech_violations` 与 `manual_exposition` | 在人物维度输出中固定保留声口问题槽位 | drafting 能精确回到对白优化 |

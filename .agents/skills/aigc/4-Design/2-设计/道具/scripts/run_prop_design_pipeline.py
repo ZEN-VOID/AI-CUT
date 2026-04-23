@@ -17,7 +17,7 @@ def parse_args() -> argparse.Namespace:
         description="运行 4-Design/2-设计/道具 pipeline，默认以 `道具清单.json` 为第一输入根。"
     )
     parser.add_argument("--catalog", required=True, help="道具清单.json 路径")
-    parser.add_argument("--detail", help="3-Detail/第N集.json 路径；默认按项目根自动推断")
+    parser.add_argument("--detail", help="3-Detail/第N集.json 路径；仅用于 traceability 补证，默认按项目根自动推断")
     parser.add_argument("--research", help="道具研究.json 路径；默认按清单目录自动推断")
     parser.add_argument("--bridge", help="prop_design_bridge.json 路径；默认按清单目录自动推断")
     parser.add_argument("--global-style", help="全局风格.md 路径；默认按项目根自动推断")
@@ -40,6 +40,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
     parser.add_argument("--auto-image-dry-run", action="store_true", help="自动生图步骤只验证 payload，不真实调用 API")
     parser.add_argument("--dry-run", action="store_true", help="只预览 manifest，不写文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成创作型道具设计内容。",
+    )
     return parser.parse_args()
 
 
@@ -205,6 +210,8 @@ def main() -> int:
         argv.append("--write-compat-json")
     if args.dry_run:
         argv.append("--dry-run")
+    if args.allow_legacy_script_authorship:
+        argv.append("--allow-legacy-script-authorship")
 
     old_argv = sys.argv
     try:

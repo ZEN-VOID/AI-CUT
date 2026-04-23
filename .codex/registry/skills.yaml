@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-20
+last_updated: 2026-04-23
 
 active_skills:
   - id: aigc
@@ -160,6 +160,53 @@ active_skills:
       canonical_output: "projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json"
       bridge_output: "`comic_episode_poster_design.v1` JSON，作为海报设计与后续生图的唯一真源"
       mirror_policy: "4 号目录只保存海报设计 JSON；不把海报设计回写到 1/2/3 号阶段。"
+  - id: command-github-issue
+    path: .agents/skills/commands/github-issue
+    owner_office: shangshu
+    purpose: "命令型 repo-local skill，围绕 GitHub Issue 执行问题理解、根因上溯、修复、验证、提交与 PR 闭环。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/commands/github-issue/"
+      canonical_contract: ".agents/skills/commands/github-issue/SKILL.md"
+      mirror_policy: "命令正文已直接并入目录级 SKILL；该目录本身就是唯一技能真源。"
+  - id: command-github-push
+    path: .agents/skills/commands/github-push
+    owner_office: shangshu
+    purpose: "命令型 repo-local skill，在已有远端前提下执行清理、提交、推送与最小一致性校验。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/commands/github-push/"
+      canonical_contract: ".agents/skills/commands/github-push/SKILL.md"
+      mirror_policy: "命令正文已直接并入目录级 SKILL；该目录本身就是唯一技能真源。"
+  - id: command-next
+    path: .agents/skills/commands/next
+    owner_office: zhongshu
+    purpose: "命令型 repo-local skill，用于刷新编号技能树或工作流目录的下游交互合同。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/commands/next/"
+      canonical_contract: ".agents/skills/commands/next/SKILL.md"
+      mirror_policy: "命令正文已直接并入目录级 SKILL；该目录本身就是唯一技能真源。"
+  - id: command-subagent-review
+    path: .agents/skills/commands/subagetns/review
+    owner_office: menxia
+    purpose: "命令树内部的 reviewer subagent skill；对 bounded target 执行 findings-first 审计，并显式报告真实 subagent runtime 或降级路径。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/commands/subagetns/review/"
+      canonical_contract: ".agents/skills/commands/subagetns/review/SKILL.md"
+      invocation_role: "reviewer-subagent"
+      mirror_policy: "该技能只拥有 review findings 与 evidence summary，不拥有最终 patch 或汇流裁决权。"
+  - id: command-subagent-preview
+    path: .agents/skills/commands/subagetns/preview
+    owner_office: menxia
+    purpose: "命令树内部的 advisory council subagent skill；执行前优先解析显式顾问组，否则回退到项目 `team.yaml`，并以真实 subagents 产出 decision packet。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/commands/subagetns/preview/"
+      canonical_contract: ".agents/skills/commands/subagetns/preview/SKILL.md"
+      invocation_role: "advisory-council-subagent"
+      mirror_policy: "该技能只拥有顾问团预演、roster 解析与 decision packet 汇流权，不拥有最终执行或 canonical 写回权。"
   - id: api-anyfast-image
     path: .agents/skills/api/anyfast/image
     owner_office: shangshu
@@ -172,7 +219,7 @@ active_skills:
   - id: api-anyfast-nano-banana-image
     path: .agents/skills/api/anyfast/image/nano-banana
     owner_office: shangshu
-    purpose: "repo-local provider skill，用 AnyFast Gemini 原生图像接口执行 `gemini-3.1-flash-image-preview` 文生图 / 图生图，支持 inline_data、批量并发与项目化落盘。"
+    purpose: "repo-local provider skill，用 AnyFast Gemini 原生图像接口执行 `gemini-3.1-flash-image-preview` 文生图 / 图生图，支持 general、face-swap、costume-swap、background-swap、retouch、multiview-*、inline_data、批量并发与项目化落盘。"
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/api/anyfast/image/nano-banana/"
@@ -180,6 +227,28 @@ active_skills:
       script_entry: ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
       default_output_root: "output/影片/[项目名]/5-API/image/nano-banana/general/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取父级路由合同、子技能 references、根 `.env` 与调用方输出策略。"
+  - id: api-anyfast-nano-banana-background-swap
+    path: .agents/skills/api/anyfast/image/nano-banana/background-swap
+    owner_office: shangshu
+    purpose: "repo-local nano-banana 子技能，保留主体身份、服装、姿态与构图不变，仅替换背景环境为参照图场景。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/image/nano-banana/background-swap/"
+      parent_skill: ".agents/skills/api/anyfast/image/nano-banana/"
+      script_entry: ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
+      default_output_policy: "默认跟随第一张本地输入图目录；若无法定位本地输入图，则回退到 `output/影片/[项目名]/5-API/image/nano-banana/background-swap/`。"
+      mirror_policy: "这是输入图驱动的应用层子技能；调用时先读取父级 nano-banana API 契约，再按本技能 prompt 模板与默认输出策略执行。"
+  - id: api-anyfast-nano-banana-retouch
+    path: .agents/skills/api/anyfast/image/nano-banana/retouch
+    owner_office: shangshu
+    purpose: "repo-local nano-banana 子技能，保留主体身份、构图和叙事不变，对原图执行自然、写实的精修优化。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/anyfast/image/nano-banana/retouch/"
+      parent_skill: ".agents/skills/api/anyfast/image/nano-banana/"
+      script_entry: ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
+      default_output_policy: "默认跟随第一张本地输入图目录；若无法定位本地输入图，则回退到 `output/影片/[项目名]/5-API/image/nano-banana/retouch/`。"
+      mirror_policy: "这是输入图驱动的应用层子技能；调用时先读取父级 nano-banana API 契约，再按本技能 prompt 模板与默认输出策略执行。"
   - id: api-anyfast-seedream-image
     path: .agents/skills/api/anyfast/image/seedream
     owner_office: shangshu
@@ -234,14 +303,14 @@ active_skills:
       default_output_root: "output/影片/[项目名]/5-API/llm/doubao-seed-2.0-pro/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: api-vidu-video
-    path: .agents/skills/api/vidu
+    path: .agents/skills/api/vidu/video-generate
     owner_office: shangshu
     purpose: "repo-local provider skill，统一驱动 Vidu 企业版视频接口：参考生、文生、图生、首尾帧、智能多帧、场景模板、模板成片，以及任务查询、取消、积分查询与回调签名校验。"
     contract_mode: active
     runtime_control:
-      canonical_skill_root: ".agents/skills/api/vidu/"
+      canonical_skill_root: ".agents/skills/api/vidu/video-generate/"
       env_source: ".env: VIDU_API_KEY / VIDU_API_BASE_URL"
-      script_entry: ".agents/skills/api/vidu/scripts/vidu_video.py"
+      script_entry: ".agents/skills/api/vidu/video-generate/scripts/vidu_video.py"
       default_output_root: "output/影片/[项目名]/5-API/video/vidu/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: story-doubao
@@ -251,8 +320,17 @@ active_skills:
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/story/doubao/"
-      default_target: "用户提供的文章文本，或 `projects/aigc/<项目名>/3-Drafting/第N集.md`"
+      default_target: "用户提供的文章文本，或 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`"
       mirror_policy: "这是 story 旁路润色 skill，不拥有 planning/cards/validation/actualization 真源；默认输出风格分析、润色策略与候选正文，只有用户明确要求时才覆写目标文本。"
+  - id: story-drafting-maintext
+    path: .agents/skills/story/3-Drafting/正文
+    owner_office: shangshu
+    purpose: "story 组 repo-local 章级正文直写 skill，按章消费三层 planning、全局卡、风格卡、north_star、项目 CONTEXT 与上一章正文，并输出 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/story/3-Drafting/正文/"
+      canonical_output: "projects/story/<项目名>/3-Drafting/第N卷/第N章.md"
+      mirror_policy: "这是 `3-Drafting` 的 chapter-native 直写 child；只拥有当前章正文根稿与其 YAML 头，不拥有 planning/cards/validation/actualization 判定权。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

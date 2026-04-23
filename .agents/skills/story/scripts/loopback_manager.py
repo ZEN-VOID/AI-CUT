@@ -669,7 +669,7 @@ def _resolve_slice_ref(
         if isinstance(item, dict) and str(item.get("slice_ref") or "").strip()
     }
     if len(explicit_refs) > 1:
-        raise ValueError("map_deltas 指向多个 slice_ref，当前 loopback 只支持单集写回一个 slice")
+        raise ValueError("map_deltas 指向多个 slice_ref，当前 loopback 只支持单章写回一个 slice")
     if explicit_refs:
         return next(iter(explicit_refs))
 

@@ -31,7 +31,7 @@
 | 把 XML 标签规范当成普通剧情查询主入口 | query intent routing | 降级 `tag-specification.md` 为显式手动补标场景 | 在 L2 引用策略中固定“标签查询 only on demand” | 普通角色/剧情查询不再误读标签规范 |
 | 节奏、评分、风险查询仍停留在老式“Strand/紧急度”两类 | review data-flow | 补读 `review_metrics / reading_power / review_checkpoints` | 固定质量查询入口包含 `status + index review metrics` 双层 | 能回答“最近质量趋势”和“风险项” |
 | 任务进度、恢复点、最近 run 查询仍只读旧独立状态文件或完全无入口 | execution truth contract | 把执行态问题切到 `STATE.json.workflow_runtime.{execution_state,task_log}` | 在共享 data-flow 文档明确 `STATE.json` 内联执行态分工 | 能回答“当前跑到哪了 / 最近哪个 stage 卡住了 / 最新恢复点在哪” |
-| query 数据流文档仍把 drafting 真源写成 `Drafting/chNNNN/chapter-root.md` | drafting data-flow drift | 改回 `3-Drafting/第N集.md + 第V卷.写作日志.yaml` | 在 `system-data-flow.md` 固定新 drafting 根文件与卷级批次日志规则 | 查询解释 drafting 时不再混用旧路径 |
+| query 数据流文档仍把 drafting 真源写成 `Drafting/chNNNN/chapter-root.md` | drafting data-flow drift | 改回 `3-Drafting/第N卷/第N章.md + 第V卷.写作日志.yaml` | 在 `system-data-flow.md` 固定新 drafting 根文件与卷级批次日志规则 | 查询解释 drafting 时不再混用旧路径 |
 
 ## Repair Playbook
 

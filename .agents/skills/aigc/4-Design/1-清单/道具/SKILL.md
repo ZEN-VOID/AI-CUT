@@ -23,6 +23,13 @@ governance_tier: full
 
 本技能采用知行合一的单文档编排方式：核心思考、执行步骤、门禁、输出与返工都在本 `SKILL.md` 中锁定；`references/`、脚本和 schema 继续保留，但只作为执行支撑，不再承担主骨架真源。
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `道具研究.json`、`prop_design_bridge.json` 中的研究结论、chronicle、桥接文案与其他创作性结论，必须由 LLM 直接完成。
+- `build_prop_research.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的结构投影、批量落盘与校验辅助。
+- 当前 leaf 的默认执行路径必须是：`LLM 直出道具研究/桥接真源 -> 提取脚本与落盘脚本只做机械辅助`。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
+
 ## Business Requirement Analysis Contract
 
 | 分析槽位 | 当前答案 |
@@ -40,6 +47,8 @@ governance_tier: full
 ### 必需输入
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 
 ### 补充输入
@@ -60,15 +69,15 @@ governance_tier: full
 
 ### 输入硬门槛
 
-1. 输入 JSON 必须能被 `director_episode_output.schema.json` 解释。
-2. 抽取源优先认 `分镜组列表 / 分镜明细 / 运动表现 / 视觉强化 / 角色表现` 这些 branch-owned 事实，并把 `道具及状态` 留作 prop state 主补证，不认手工脑补。
+1. 输入 JSON 必须符合 canonical `episode_detail.json`，或能通过 `detail_root_adapter.py` 投影成 legacy consumer 视图。
+2. 抽取源优先认 canonical `groups[].detail.分镜列表[].主体锚定 / 角色表现 / 分镜构图 / 氛围表现` 这些 branch-owned 事实；compat `分镜组列表 / 分镜明细 / 运动表现 / 视觉强化 / 道具及状态` 只作适配层补证，不认手工脑补。
 3. 若主路径不存在，允许做 `3-Detail <-> 编导` 兼容回退；若两者都不存在则 hard fail。
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
-    A["读取 3-Detail/第N集.json"] --> B["锁定 group/shot 与 运动表现/视觉强化/道具及状态"]
+    A["读取 3-Detail/第N集.json"] --> B["锁定 canonical groups[].detail.分镜列表 与 compat 证据投影"]
     B --> C["clause 级道具抽取"]
     C --> D["canonical prop 聚合"]
     D --> E["道具研究 synthesis"]
@@ -136,7 +145,7 @@ stateDiagram-v2
 - `actions`
   1. 从输入路径或 episode 号推断目标集数与项目名。
   2. 先尝试主输入路径，再尝试兼容回退路径。
-  3. 校验 JSON 是否存在 `final_output.main_content.分镜组列表` 等关键结构。
+  3. 校验 JSON 是否具备 canonical `meta + groups[].detail.分镜列表`，或至少可被适配为 compat `final_output.main_content.分镜组列表`。
   4. 锁定输出根为 `4-Design/道具/1-清单/第N集/`。
 - `evidence`
   - `resolved_input_path`
@@ -303,7 +312,8 @@ stateDiagram-v2
 
 ```bash
 python3 .agents/skills/aigc/4-Design/1-清单/道具/scripts/run_prop_list_pipeline.py \
-  --input "projects/aigc/<项目名>/3-Detail/第N集.json"
+  --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
+  --allow-legacy-script-authorship
 ```
 
 ```bash
@@ -322,7 +332,8 @@ python3 .agents/skills/aigc/4-Design/1-清单/道具/scripts/run_prop_list_pipel
 ```bash
 python3 .agents/skills/aigc/4-Design/1-清单/道具/scripts/run_prop_list_pipeline.py \
   --input "projects/aigc/<项目名>/3-Detail/第N集.json" \
-  --dry-run
+  --dry-run \
+  --allow-legacy-script-authorship
 ```
 
 ## Convergence Contract

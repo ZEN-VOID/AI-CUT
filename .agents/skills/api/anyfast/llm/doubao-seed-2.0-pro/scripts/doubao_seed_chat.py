@@ -71,7 +71,7 @@ def _load_json_file(path: str) -> Any:
 
 
 def _env_api_key() -> Optional[str]:
-    return os.getenv("ANYFAST_API_KEY")
+    return os.getenv("ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY") or os.getenv("ANYFAST_API_KEY")
 
 
 def _env_base_url() -> str:
@@ -296,7 +296,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--messages-file", help="JSON 文件格式的 messages")
     parser.add_argument("--input-json", help="输入 JSON 文件，支持 messages/model/params/output_dir")
 
-    parser.add_argument("--api-key", help="AnyFast API Key；不传则读取 ANYFAST_API_KEY")
+    parser.add_argument(
+        "--api-key",
+        help="AnyFast API Key；不传则优先读取 ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY，再回退 ANYFAST_API_KEY",
+    )
     parser.add_argument("--api-url", help="完整 API URL；不传则根据 base URL 组装")
     parser.add_argument("--model", help=f"模型名，默认 {DEFAULT_MODEL}")
     parser.add_argument("--max-tokens", type=int, help="最大生成 token")
@@ -375,7 +378,10 @@ def main() -> int:
 
         api_key = args.api_key or payload_input.get("api_key") or _env_api_key()
         if not api_key:
-            raise ValueError("缺少 API Key。请设置 ANYFAST_API_KEY，或显式传入 --api-key。")
+            raise ValueError(
+                "缺少 API Key。请优先设置 ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY，"
+                "或回退 ANYFAST_API_KEY，或显式传入 --api-key。"
+            )
 
         api_url_source = args.api_url or payload_input.get("api_url") or _env_base_url()
         api_url = _normalize_api_url(api_url_source)

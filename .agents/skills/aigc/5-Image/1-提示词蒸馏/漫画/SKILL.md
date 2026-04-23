@@ -36,7 +36,7 @@ governance_tier: full
 
 - 目标是多格故事板图像请求，应进入 `分镜故事板`。
 - 目标是单一 `分镜ID` 对应的首帧、关键帧或单帧图，应进入 `分镜帧`。
-- 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表[]`，或 `metadata.document_phase` 未到 `detail_in_progress | ready`。
+- 上游 `3-Detail/第N集.json` 尚未形成合法 canonical `groups[]`，或 compat projection 未到 `detail_in_progress | ready`。
 - 任务想直接生成图片，而不是先产出请求 JSON。
 
 ## Truth Ownership
@@ -62,7 +62,8 @@ governance_tier: full
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/5-Image/SKILL.md`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（可选补证）
@@ -80,7 +81,7 @@ governance_tier: full
 | 输入槽位 | 固定要求 |
 | --- | --- |
 | `business_goal` | 把一个分镜组稳定蒸馏成后续可消费的 9:16 漫画页图像请求 JSON |
-| `business_object` | `final_output.main_content.分镜组列表[]` 中的单个可回链分镜组 |
+| `business_object` | canonical `groups[]` 中的单个可回链分镜组；若 leaf 仍需旧式 `分镜明细[]` helper，只允许由 compat projection 派生 |
 | `task_goal` | 生成 `meta + prompt_style + model + prompt + prompt_char_count` 并写入单集 `第N集.json` |
 | `constraints` | 不虚构新增剧情、不打乱镜头顺序、不直接生成图片、不破坏共享模板骨架 |
 | `non_goals` | 不做对象路由、不做单帧蒸馏、不做故事板蒸馏、不做模型提交 |
@@ -92,21 +93,26 @@ governance_tier: full
 
 进入漫画页蒸馏前，必须确认：
 
-1. `metadata.document_phase in {detail_in_progress, ready}`
-2. 目标组具备 `剧本正文`
-3. 目标组具备 `正文切分参考[]`
-4. 目标组具备 `组间设计.全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`
-5. 目标组具备有序 `分镜明细[]`，且镜级 canonical 字段至少能回链：
-   - `分镜ID`
-   - `正文回指`
+1. canonical detail root 经 `.agents/skills/aigc/_shared/detail_root_adapter.py` 适配后判定为 `detail_in_progress | ready`
+2. 目标 canonical group 至少具备：
+   - `分镜组ID`
+   - `global.剧本正文`
+   - `global.全局风格`
+   - `global.类型元素`
+   - `global.导演意图`
+   - `detail.分镜数`
+   - `detail.分镜列表`
+3. 目标 canonical shot 至少具备：
+   - `时间`
+   - `剧本正文`
+   - `主体锚定`
    - `角色表现`
-   - `运动表现`
    - `氛围表现`
-   - `视觉强化`
    - `分镜构图`
-   - `摄影美学`
+   - `摄影表现`
    - `运镜手法`
    - `转场特效`
+4. 若本叶子仍需要 `组间设计 / 正文切分参考 / 正文回指 / 分镜明细[]` 这类旧 helper，只允许由 runtime compat projection 派生，不得重新升格为第一真相。
 
 若目标组仍处于兼容过渡期，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`，但它们只允许作为 compatibility projection，不得重新升格为第一真相。
 
@@ -145,7 +151,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["读取 3-Detail/第N集.json"] --> B{"document_phase 是否可消费"}
+    A["读取 3-Detail/第N集.json"] --> B{"canonical detail root 是否可消费"}
     B -->|"no"| C["停止并回报上游 detail 缺口"]
     B -->|"yes"| D["锁定唯一分镜组"]
     D --> E["组织页面设计块"]
@@ -158,8 +164,8 @@ flowchart TD
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N0-intake-lock` | 锁定本轮就是“漫画页请求 JSON 蒸馏” | 用户意图、父级路由结论、本技能合同 | 冻结对象类型、输出模式默认值、非目标 | 路由结论、对象边界说明 | `success -> N1`；`wrong_object -> 回父级重路由` | 未锁定对象不得进入主干 |
-| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema | 检查 `document_phase`、结构壳、`分镜组列表[]` 与关键字段存在性 | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> N2`；`broken -> 停止` | 上游结构不成立不得继续 |
-| `N2-group-lock` | 锁定当前漫画页对应的唯一分镜组 | `分镜组列表[]`、用户或父级提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认镜头顺序 | `group_lock_record` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
+| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema、runtime compat adapter | 先检查 canonical `meta + groups[].global/detail.分镜列表`；再确认 runtime compat projection 可稳定派生叶子仍需的旧 helper | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> N2`；`broken -> 停止` | 上游结构不成立不得继续 |
+| `N2-group-lock` | 锁定当前漫画页对应的唯一分镜组 | canonical `groups[]`、用户或父级提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认镜头顺序；必要时仅通过 compat projection 读取旧 helper 视图 | `group_lock_record` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
 | `N3-page-block-synthesize` | 组织页面设计块与面板顺序列 | 目标组、可选 evidence sidecar | 提取组级字段、镜级顺序、阅读节奏、气泡/旁白承载预留 | `comic_page_block` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
 | `N4-prompt-assemble` | 生成固定前缀 + 页面设计块 + 面板顺序列 的 prompt | 固定英文前缀、页面内容块 | 逐字保留前缀、直接拼接、统计字数 | `prompt`、`prompt_char_count` | `success -> N5`；`prefix_drift -> 回 N4` | prompt 结构成立 |
 | `N5-template-map` | 将 prompt 与页信息映射到共享模板骨架 | shared image template、prompt、页信息、可选 design refs | 填充 `meta/prompt_style/model`，登记参照图槽位 | 单条 image request 对象 | `success -> N6`；`template_drift -> 回 N5` | 模板骨架完整且兼容 |
@@ -214,7 +220,8 @@ flowchart TD
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/CONTEXT.md`
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
-  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+  - `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+  - `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `Meta Rule Source`
   - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`

@@ -1,8 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "aigc/_shared/director_episode_output.schema.json",
-  "title": "AIGC Director Episode Output Schema",
-  "description": "用于 `1-Planning/3-分组 -> 2-Global -> 3-Detail` 的共享 JSON 输出真源。当前 canonical 输出按 `metadata / final_output` 双槽组织；`thinking_chain` 仅为兼容旧 root 的可选摘要槽，默认不输出。",
   "type": "object",
   "allOf": [
     {
@@ -118,8 +116,6 @@
   ],
   "properties": {
     "metadata": {
-      "title": "元数据",
-      "description": "声明本次导演集级结构化产物的识别、路由和追踪字段。",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -137,20 +133,16 @@
           "const": "aigc/director-episode-output/v1"
         },
         "skill_id": {
-          "type": "string",
-          "description": "生成本结构化产物的主技能标识。"
+          "type": "string"
         },
         "template_version": {
-          "type": "string",
-          "description": "当前模板版本。"
+          "type": "string"
         },
         "source_route": {
-          "type": "string",
-          "description": "上游来源或执行路由，例如 `2-Global/导演意图 -> 3-Detail`。"
+          "type": "string"
         },
         "source_profile": {
           "type": "object",
-          "description": "上游故事源类型及预设保护模式，供 `3-Detail` 读取。",
           "additionalProperties": false,
           "required": [
             "source_type",
@@ -201,8 +193,7 @@
           }
         },
         "episode_id": {
-          "type": "string",
-          "description": "集标识，例如 `第1集`。"
+          "type": "string"
         },
         "document_phase": {
           "type": "string",
@@ -212,18 +203,14 @@
             "directing_in_progress",
             "detail_in_progress",
             "ready"
-          ],
-          "description": "当前文档所处的生命周期阶段。"
+          ]
         },
         "created_at": {
-          "type": "string",
-          "description": "ISO 8601 时间戳。"
+          "type": "string"
         }
       }
     },
     "thinking_chain": {
-      "title": "思维链",
-      "description": "兼容旧 root 的可选摘要槽；默认不输出，也不作为阶段写回或验收必填项。",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -248,8 +235,6 @@
       }
     },
     "final_output": {
-      "title": "主内容",
-      "description": "真正交给下游阶段消费的导演集级结构化内容。",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -263,7 +248,6 @@
           "const": "director_episode_output"
         },
         "main_content": {
-          "title": "主内容",
           "type": "object",
           "additionalProperties": false,
           "required": [
@@ -396,16 +380,13 @@
         },
         "总时长": {
           "type": "number",
-          "minimum": 0,
-          "description": "单位：秒；表示当前分镜组的 canonical 总时长，也是该组相对时间轴的上界。"
+          "minimum": 0
         },
         "剧本正文": {
-          "type": "string",
-          "description": "该分镜组在 `1-Planning/3-分组/第N集.md` 中的完整正文整理结果；除重复组号标题外不得摘要化。"
+          "type": "string"
         },
         "正文切分参考": {
           "type": "array",
-          "description": "由 `3-Detail` 在继承整组 `剧本正文` 后补出的正文切分真源。每条切分都以 `beat_id` 稳定编号，保留完整原文片段与字符范围，供镜级 `正文回指` 统一回链；不得把同一段原文重复复制到每条 `分镜明细` 里作为第二真源。",
           "items": {
             "$ref": "#/$defs/script_segment_reference"
           }
@@ -421,27 +402,22 @@
           ],
           "properties": {
             "全局风格": {
-              "type": "string",
-              "description": "由 2-Global 直接引用 `全局风格.md` 中字段标题 `全局风格` 的项目级无污染统一风格前缀，默认不超过 220 字。"
+              "type": "string"
             },
             "类型元素": {
-              "type": "string",
-              "description": "由 2-Global 直接引用 `分组类型元素.md` 中命中组字段标题 `类型元素` 的组级类型信号，默认不超过 50 字。"
+              "type": "string"
             },
             "导演意图": {
-              "type": "string",
-              "description": "由 2-Global 直接引用 `导演意图.md` 中命中组字段标题 `导演意图` 的组级执行导向，默认不超过 100 字。"
+              "type": "string"
             },
             "出场角色及穿搭": {
-              "type": "string",
-              "description": "组级角色服装摘要槽；格式建议为 `角色名-服装简述`，多个角色用 `；` 分隔。`2-Global` 可先留空字符串占位，`3-Detail` 在镜级明细稳定后应回填。"
+              "type": "string"
             }
           }
         },
         "分镜切换": {
           "type": "integer",
-          "minimum": 1,
-          "description": "由 `2-Global` 在阶段末段根据总时长、媒介形态、平台形态、类型任务与组正文直接写入的组级固定分镜数。它是该组后续 `3-Detail` 落镜时必须接受的总导演真值，不再在 `水月` 或 `镜花` 内重判。"
+          "minimum": 1
         },
         "分镜明细": {
           "type": "array",
@@ -462,20 +438,16 @@
       "properties": {
         "start": {
           "type": "integer",
-          "minimum": 0,
-          "description": "在 `分镜组.剧本正文` 中的起始字符位置，0-based，inclusive。"
+          "minimum": 0
         },
         "end": {
           "type": "integer",
-          "minimum": 1,
-          "description": "在 `分镜组.剧本正文` 中的结束字符位置，0-based，exclusive。"
+          "minimum": 1
         }
-      },
-      "description": "正文切分片段的字符范围。推荐使用 `script_body[start:end] == 原文片段` 的精确回链语义。"
+      }
     },
     "script_segment_reference": {
       "type": "object",
-      "description": "组级正文切分参考。它是 `剧本正文` 与 `分镜明细` 之间的唯一桥接层：先把整组正文拆为稳定 `beat_id` 片段，再由镜级 `正文回指.beat_refs[]` 进行引用。",
       "additionalProperties": false,
       "required": [
         "beat_id",
@@ -485,16 +457,13 @@
       ],
       "properties": {
         "beat_id": {
-          "type": "string",
-          "description": "正文切分段的稳定标识。默认沿用 `3-Detail` 的 beat 语义，例如 `<group_id>-b01`。"
+          "type": "string"
         },
         "原文片段": {
-          "type": "string",
-          "description": "当前切分段在 `剧本正文` 中的完整保留原文，不得摘要化。"
+          "type": "string"
         },
         "anchor_summary": {
-          "type": "string",
-          "description": "对该正文片段的最小导演/调度摘要，便于 review 与 merge 理解；不得替代 `原文片段`。"
+          "type": "string"
         },
         "segment_type": {
           "type": "string",
@@ -505,21 +474,18 @@
             "环境",
             "转折",
             "复合"
-          ],
-          "description": "正文片段的主要功能类型。"
+          ]
         },
         "char_range": {
           "$ref": "#/$defs/script_segment_char_range"
         },
         "speaker_hint": {
-          "type": "string",
-          "description": "当片段以对白或话轮为主时，可选记录主要说话者。"
+          "type": "string"
         }
       }
     },
     "shot_script_reference": {
       "type": "object",
-      "description": "镜级正文回指。镜头不再复制整段 `剧本正文`，而是通过 `beat_refs[]` 回链组级 `正文切分参考[]`；若镜头属于反应镜、插入镜或组合镜，则用 `coverage_mode` 显式说明它与原文的关系。",
       "additionalProperties": false,
       "required": [
         "beat_refs",
@@ -531,8 +497,7 @@
           "minItems": 1,
           "items": {
             "type": "string"
-          },
-          "description": "当前镜头回指的正文切分段 `beat_id` 列表。"
+          }
         },
         "coverage_mode": {
           "type": "string",
@@ -542,18 +507,15 @@
             "insert",
             "bridge",
             "composite"
-          ],
-          "description": "镜头与原文片段的覆盖关系：直接承接、反应镜、插入镜、桥接镜或复合镜。"
+          ]
         },
         "strategy_note": {
-          "type": "string",
-          "description": "当 `beat_refs[]` 与可见镜头事实不是简单 1:1 时，记录当前镜头如何处理该片段。"
+          "type": "string"
         }
       }
     },
     "shot_detail": {
       "type": "object",
-      "description": "镜级 canonical 槽位。自 `3-Detail` branch-owned 重构起，shared root 的主命名应直接对齐 child skill 包名：`角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`。旧字段名中仅 `人物表演锚点 / 动作路径 / 空间氛围 / 视觉抓手 / 构图骨架 / 分镜表现` 与 descriptor 兼容槽继续保留为兼容别名或过渡投影；`人物表演 / 动作调度 / 视觉焦点 / 构图策略 / 摄影策略 / 运镜策略 / 转场策略` 已从 schema 主兼容层下收，不再作为 shared root 合法键。所有镜级文本默认执行反抽象写法，应优先呈现可见动作、位置、物件、光气与构图证据。自本版起，镜级与组级正文的关系必须通过 `正文回指 -> 正文切分参考` 显式回链，而不是让读者自行从整组 prose 逆推分镜边界。",
       "additionalProperties": false,
       "required": [
         "分镜ID",
@@ -577,27 +539,22 @@
           "properties": {
             "开始秒": {
               "type": "number",
-              "minimum": 0,
-              "description": "当前分镜组内的相对开始秒位；组内首镜通常从 0 开始，不使用全集累积时间。"
+              "minimum": 0
             },
             "结束秒": {
               "type": "number",
-              "minimum": 0,
-              "description": "当前分镜组内的相对结束秒位；最后一镜的结束秒通常应与所在组 `总时长` 对齐。"
+              "minimum": 0
             }
-          },
-          "description": "以秒为单位的组内相对闭区间；时间零点以当前分镜组起点为准，不得写成全集累积时间线。"
+          }
         },
         "正文回指": {
           "$ref": "#/$defs/shot_script_reference"
         },
         "角色背景面": {
-          "type": "string",
-          "description": "在角色中心主义下，交代当前镜头作为角色背景的具体场景方位面，例如东西南北面、入口/出口、内外侧或墙面/尽头关系。"
+          "type": "string"
         },
         "角色站位走位": {
-          "type": "string",
-          "description": "明确角色在镜头中的当前位置、相对层次与位移路径，要求包含走位/移位信息，不只写静态站位。服装信息默认上收至 `组间设计.出场角色及穿搭`。"
+          "type": "string"
         },
         "道具及状态": {
           "type": "string"
@@ -606,32 +563,27 @@
           "$ref": "#/$defs/watermoon_character_design"
         },
         "人物表演锚点": {
-          "description": "deprecated alias；新流程优先写入 `角色表现`。",
           "$ref": "#/$defs/watermoon_character_design"
         },
         "运动表现": {
           "$ref": "#/$defs/watermoon_motion_design"
         },
         "动作路径": {
-          "description": "deprecated alias；新流程优先写入 `运动表现`。",
           "$ref": "#/$defs/watermoon_motion_design"
         },
         "氛围表现": {
           "$ref": "#/$defs/watermoon_atmosphere_design"
         },
         "空间氛围": {
-          "description": "deprecated alias；新流程优先写入 `氛围表现`。",
           "$ref": "#/$defs/watermoon_atmosphere_design"
         },
         "视觉强化": {
           "$ref": "#/$defs/watermoon_visual_design"
         },
         "视觉抓手": {
-          "description": "deprecated alias；新流程优先写入 `视觉强化`。",
           "$ref": "#/$defs/watermoon_visual_design"
         },
         "分镜构图": {
-          "description": "canonical 构图字段，直接对齐 `1-分镜构图` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
           "oneOf": [
             {
               "$ref": "#/$defs/jinghua_composition_design"
@@ -642,15 +594,12 @@
           ]
         },
         "分镜表现": {
-          "type": "string",
-          "description": "deprecated legacy 兼容投影槽。若仍填写，只能是对 `分镜构图` 的具像摘要，不得再与 canonical 并行演化。"
+          "type": "string"
         },
         "构图骨架": {
-          "description": "deprecated alias；新流程优先写入 `分镜构图`。",
           "$ref": "#/$defs/jinghua_composition_design"
         },
         "摄影美学": {
-          "description": "canonical 摄影字段，直接对齐 `2-摄影美学` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
           "oneOf": [
             {
               "$ref": "#/$defs/jinghua_cinematography_design"
@@ -661,7 +610,6 @@
           ]
         },
         "运镜手法": {
-          "description": "canonical 运镜字段，直接对齐 `3-运镜手法` child skill。推荐写对象形态；bootstrap_compat 期允许 legacy string 过渡值。",
           "oneOf": [
             {
               "$ref": "#/$defs/jinghua_camera_design"
@@ -672,7 +620,6 @@
           ]
         },
         "转场特效": {
-          "description": "canonical 转场字段。只有确实需要显式组内/组间转场或特效桥接时才填写；bootstrap_compat 期允许 legacy object 过渡值。",
           "oneOf": [
             {
               "type": "string"
@@ -683,28 +630,22 @@
           ]
         },
         "景别": {
-          "type": "string",
-          "description": "可选镜头描述子槽；例如 `中景`、`近景`、`特写`。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
+          "type": "string"
         },
         "镜头类型兼容": {
-          "type": "string",
-          "description": "deprecated compatibility slot；旧数据中用于承载定场镜头/关系建立镜头等信息。新流程优先使用 `镜头类型` 与 `分镜构图` 对象；canonical example 默认省略。"
+          "type": "string"
         },
         "镜头框架": {
-          "type": "string",
-          "description": "可选镜头描述子槽；压缩主体/陪体/背景关系与构图结果。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
+          "type": "string"
         },
         "镜头类型": {
-          "type": "string",
-          "description": "可选镜头描述子槽；说明当前镜头在叙事链中的职责。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
+          "type": "string"
         },
         "镜头视角": {
-          "type": "string",
-          "description": "可选镜头描述子槽；例如 `平视`、`俯视`、`仰视`、`过肩视角`。仅在下游消费方明确需要 descriptor 补充时才填写；canonical example 默认省略。"
+          "type": "string"
         },
         "镜头速度": {
-          "type": "string",
-          "description": "可选镜头运动速度槽；用于把运动路线与速度档分离，例如 `慢速压近`、`中速跟随`、`急停后极慢收束`。旧数据允许缺省，新数据若填写应与 `运镜手法` 保持一致；canonical example 默认省略。"
+          "type": "string"
         }
       }
     },
@@ -717,20 +658,16 @@
       ],
       "properties": {
         "动作戏": {
-          "type": "string",
-          "description": "直接对齐 `1-角色表现/动作戏` 叶子，回答“这一拍身体或外显动作怎样成立”。不得写成景别、机位、运镜或镜头速度术语。"
+          "type": "string"
         },
         "对话戏": {
-          "type": "string",
-          "description": "直接对齐 `1-角色表现/对话戏` 叶子。仅在当前拍存在明确对白、话轮攻守、抢话、吞话、截断或失口时填写。重点不是复述对白内容，而是回答“谁先发、谁截断、谁吞回、这一拍的话是用什么腔调、语态、断句、气口、停顿与潜台词带压”。若当前拍无明确对话，则默认省略。不得与 `动作戏 / 内心戏` 机械同句。"
+          "type": "string"
         },
         "对手戏": {
-          "type": "string",
-          "description": "deprecated alias；旧数据中用于承载互动攻守。新流程优先使用可选 `对话戏`，且 canonical example 默认省略此槽。"
+          "type": "string"
         },
         "内心戏": {
-          "type": "string",
-          "description": "直接对齐 `1-角色表现/内心戏` 叶子，回答“人物内里哪股情绪或意图被压在动作底下”。不得退化成抽象空话。"
+          "type": "string"
         }
       }
     },
@@ -744,16 +681,13 @@
       ],
       "properties": {
         "逻辑性": {
-          "type": "string",
-          "description": "直接对齐 `2-运动表现/逻辑性` 叶子，回答“为什么现在发生、这拍怎样接向下一拍”。"
+          "type": "string"
         },
         "位置和方向": {
-          "type": "string",
-          "description": "直接对齐 `2-运动表现/位置和方向` 叶子，回答“谁相对什么锚点、往哪里动、方向怎么变”。"
+          "type": "string"
         },
         "一致性": {
-          "type": "string",
-          "description": "直接对齐 `2-运动表现/一致性` 叶子，回答“这一拍接住了上一拍什么状态，以上一拍末态的朝向、位移趋势、相对方位、持物/接触状态为锚，避免人物无理由换边、换向或瞬移”。"
+          "type": "string"
         }
       }
     },
@@ -787,16 +721,13 @@
       ],
       "properties": {
         "冲击力": {
-          "type": "string",
-          "description": "直接对齐 `4-视觉强化/冲击力` 叶子，回答“镜头第一眼必须被什么打到”。应唯一、具体、可见。"
+          "type": "string"
         },
         "观赏性": {
-          "type": "string",
-          "description": "直接对齐 `4-视觉强化/观赏性` 叶子，回答“这一拍该怎么顺着看、看多久、怎么不拖”。"
+          "type": "string"
         },
         "品味": {
-          "type": "string",
-          "description": "直接对齐 `4-视觉强化/品味` 叶子，回答“哪些具像细节让这一拍不落俗”。不得写成空泛高级感。"
+          "type": "string"
         }
       }
     },
@@ -810,16 +741,13 @@
       ],
       "properties": {
         "景别景深": {
-          "type": "string",
-          "description": "回答观看距离、景深层级与心理距离；不写光圈、焦段或器材参数。"
+          "type": "string"
         },
         "镜头类型": {
-          "type": "string",
-          "description": "回答当前镜头在叙事链中的职责、POV 立场与观看姿态；不写摄影机型号或运镜路线。"
+          "type": "string"
         },
         "构图形式": {
-          "type": "string",
-          "description": "回答画面组织范式本身，而不是重复角色站位走位。优先写经典或稳定的构图语法，再补当前镜的几何任务，例如 `中心轴对称构图`、`单点透视纵深构图`、`三角构图`、`对角线构图`、`S 型引导构图`、`黄金分割构图`、`框中框构图`、`前景遮挡构图`、`偏轴失衡构图`、`负空间悬置构图`。"
+          "type": "string"
         }
       }
     },
@@ -1032,7 +960,6 @@
     },
     "detail_patch_sidecar": {
       "type": "object",
-      "description": "`3-Detail` parent bundle sidecar 投影定义。在 branch-owned 重构后，它不再承担语义压缩式 merge，而只负责 owner 级 patch assembly、branch sidecar 引用与 compatibility projection 汇总。",
       "additionalProperties": false,
       "required": [
         "metadata",
@@ -1107,7 +1034,6 @@
     },
     "detail_group_patch": {
       "type": "object",
-      "description": "legacy compatibility group patch carrier。只保留给旧 `detail_patch_sidecar/v1` 迁移 adapter；新 `3-Detail` writer 应优先写 `branch_patches` 与 canonical episode root，不再新增 `beat_patches / shot_patches`。",
       "additionalProperties": false,
       "required": [
         "group_id",
@@ -1133,14 +1059,12 @@
           }
         },
         "beat_patches": {
-          "description": "legacy-only beat patch list。只用于 adapter 读取旧 `detail_patch_sidecar/v1`，新 writer 不应再新增。",
           "type": "array",
           "items": {
             "$ref": "#/$defs/detail_beat_patch"
           }
         },
         "shot_patches": {
-          "description": "legacy-only shot patch list。只用于 adapter 读取旧 `detail_patch_sidecar/v1`，新 writer 不应再新增。",
           "type": "array",
           "items": {
             "$ref": "#/$defs/detail_shot_patch"
@@ -1189,7 +1113,6 @@
     },
     "detail_beat_patch": {
       "type": "object",
-      "description": "legacy compatibility beat patch carrier。只保留给旧 `detail_patch_sidecar/v1` 与迁移期 adapter；新 `3-Detail` canonical 不再以它作为第一真相，也不应再新增此对象。",
       "additionalProperties": false,
       "required": [
         "beat_id",
@@ -1218,21 +1141,10 @@
         "镜头消费提示": {
           "type": "string"
         }
-      },
-      "examples": [
-        {
-          "beat_id": "1-1-1-b01",
-          "anchor_summary": "角色A推门入长廊，角色B在远端停住。",
-          "角色背景面": "长廊西端入口朝东的一侧墙面与尽头出口方向同时作为对峙背景。",
-          "角色站位走位": "角色A从前景左侧推门入画向中轴压近半步，角色B留在远端居中后撤半步。",
-          "道具及状态": "门把轻晃，旧灯管间歇闪烁。",
-          "镜头消费提示": "入口推进感与对峙距离同时成立。"
-        }
-      ]
+      }
     },
     "detail_shot_patch": {
       "type": "object",
-      "description": "legacy compatibility shot patch carrier。只保留给旧 `detail_patch_sidecar/v1` 与迁移期 adapter；新 `3-Detail` canonical 应优先读取 `shot_detail` 与 branch-owned objects，不再新增此 descriptor-only patch。",
       "additionalProperties": false,
       "required": [
         "slot_id",
@@ -1304,251 +1216,7 @@
         "转场特效": {
           "type": "string"
         }
-      },
-      "examples": [
-        {
-          "slot_id": "1-1-1-s01",
-          "分镜ID": "1-1-1-1",
-          "beat_refs": [
-            "1-1-1-b01"
-          ],
-          "时间段": {
-            "开始秒": 0,
-            "结束秒": 6
-          },
-          "景别": "中景",
-          "镜头类型兼容": "定场镜头",
-          "镜头框架": "双主体对峙，前后景分层。",
-          "镜头类型": "叙事镜头",
-          "镜头视角": "平视",
-          "运镜手法": "轻微前压后停顿。",
-          "镜头速度": "前段轻慢，停顿后极慢收束。",
-          "摄影美学": "冷色主导，边缘高光克制，阴影层次保留。",
-          "转场特效": ""
-        }
-      ]
-    }
-  },
-  "examples": [
-    {
-      "metadata": {
-        "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-global",
-        "template_version": "global-seed-v1",
-        "source_route": "2-Global group_design seed",
-        "episode_id": "第1集",
-        "document_phase": "directing_in_progress",
-        "created_at": "2026-04-12T10:00:00-07:00"
-      },
-      "final_output": {
-        "deliverable_type": "director_episode_output",
-        "main_content": {
-          "分镜组列表": [
-            {
-              "分镜组ID": "1-1-1",
-              "总时长": 18,
-              "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
-              "正文切分参考": [],
-              "组间设计": {
-                "全局风格": "低照度心理悬疑影视风格，低调照明、空气介质交互与胶片化质感统一，整体维持遮蔽、压抑、延迟揭示的不安基调。",
-                "类型元素": "悬疑压迫优先，克制抒情。",
-                "导演意图": "让进入动作与尽头停顿共同拉出一条被延迟揭示的危险轴线。",
-                "出场角色及穿搭": ""
-              },
-              "分镜切换": 2,
-              "分镜明细": []
-            }
-          ]
-        },
-        "acceptance_notes": [
-          "2-Global 阶段允许先写完整分镜组壳、组间设计与既定分镜切换，分镜明细可暂为空数组。",
-          "3-Detail 必须优先继承这三条组级上下文，再补镜级字段。"
-        ]
-      }
-    },
-    {
-      "metadata": {
-        "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-detail",
-        "template_version": "detail-canonical-v2",
-        "source_route": "2-Global/导演意图 -> 3-Detail",
-        "episode_id": "第1集",
-        "document_phase": "detail_in_progress",
-        "created_at": "2026-04-10T12:00:00-07:00"
-      },
-      "final_output": {
-        "deliverable_type": "director_episode_output",
-        "main_content": {
-          "分镜组列表": [
-            {
-              "分镜组ID": "1-1-1",
-              "总时长": 18,
-              "剧本正文": "角色A推门进入空旷长廊，角色B在尽头停住脚步。",
-              "正文切分参考": [
-                {
-                  "beat_id": "1-1-1-b01",
-                  "原文片段": "角色A推门进入空旷长廊，",
-                  "anchor_summary": "A从入口进入长廊。",
-                  "segment_type": "动作",
-                  "char_range": {
-                    "start": 0,
-                    "end": 12
-                  }
-                },
-                {
-                  "beat_id": "1-1-1-b02",
-                  "原文片段": "角色B在尽头停住脚步。",
-                  "anchor_summary": "B在尽头停住形成回应。",
-                  "segment_type": "反应",
-                  "char_range": {
-                    "start": 12,
-                    "end": 23
-                  }
-                }
-              ],
-              "组间设计": {
-                "全局风格": "低照度心理悬疑影视风格，低调照明与压抑质感统一，整体维持遮蔽、延迟揭示与不安感。",
-                "类型元素": "悬疑压迫感优先，避免抒情化稀释。",
-                "导演意图": "让入口推进与尽头停顿在同一组内形成逐步逼近的危险感。",
-                "出场角色及穿搭": "角色A-深灰风衣与黑色长靴；角色B-浅色衬衫外搭旧西装"
-              },
-              "分镜切换": 3,
-              "分镜明细": [
-                {
-                  "分镜ID": "1-1-1-1",
-                  "时间段": {
-                    "开始秒": 0,
-                    "结束秒": 6
-                  },
-                  "正文回指": {
-                    "beat_refs": [
-                      "1-1-1-b01"
-                    ],
-                    "coverage_mode": "direct"
-                  },
-                  "角色背景面": "长廊西端入口朝东的一侧墙面与尽头出口方向同时作为角色对峙背景。",
-                  "角色站位走位": "角色A从前景左侧推门入画并向中轴压近半步；角色B留在远端居中，先停住后微微后撤。",
-                  "道具及状态": "门把仍在轻微晃动，墙边旧灯管间歇闪烁。",
-                  "角色表现": {
-                    "动作戏": "角色A推门入画后压近半步，角色B停住后微微后撤，对峙动作清楚可见。",
-                    "内心戏": "A的试探推进与B的迟疑后撤共同成立。"
-                  },
-                  "运动表现": {
-                    "逻辑性": "从入口推进到对峙站定的动作链完整可读。",
-                    "位置和方向": "A由前景左侧向中轴推进，B留在远端居中朝入口方向回应。",
-                    "一致性": "承接组内开场的东西向对峙轴线，A仍由西端入口朝东压近，B仍守在东端尽头，不让两人无理由换边。"
-                  },
-                  "氛围表现": {
-                    "层次": "入口门面、长廊中段与尽头出口形成前中后景压迫层次。",
-                    "空间诗学": "长廊纵深把未知距离拉长，让进入动作带出迟滞不安。",
-                    "意境": "低照度与闪烁旧灯管把迟到的危险感悬在空气里。"
-                  },
-                  "视觉强化": {
-                    "冲击力": "推门瞬间与远端停住形成一前一后的强落位。",
-                    "观赏性": "前后景对峙与门把轻晃的细节同时可看。",
-                    "品味": "克制冷色与低照度不靠夸张效果，保持悬疑质感。"
-                  },
-                  "分镜构图": {
-                    "景别景深": "中景起势，保留前后景纵深与角色距离。",
-                    "镜头类型": "定场镜头",
-                    "构图形式": "中心轴纵深透视构图，单点消失透视把走廊压向尽头出口。"
-                  },
-                  "摄影美学": {
-                    "光影": "旧灯管冷白闪烁，阴影层次保持克制不塌黑。",
-                    "色彩": "冷灰与旧白主导，压低饱和度维持心理悬疑基调。",
-                    "质感": "墙面旧漆、门把金属反光与空气颗粒共同保持胶片化粗粝。"
-                  },
-                  "运镜手法": {
-                    "变化": "轻微前压后停顿。",
-                    "速度": "前段轻慢，停顿后极慢速收束。",
-                    "组合": "前压后停顿再极慢收束。"
-                  },
-                  "转场特效": ""
-                },
-                {
-                  "分镜ID": "1-1-1-2",
-                  "时间段": {
-                    "开始秒": 6,
-                    "结束秒": 12
-                  },
-                  "正文回指": {
-                    "beat_refs": [
-                      "1-1-1-b02"
-                    ],
-                    "coverage_mode": "reaction",
-                    "strategy_note": "镜头主体落在B停步后的反应与退缩。"
-                  },
-                  "角色背景面": "长廊尽头出口与两侧墙面把角色B压在画面深处。",
-                  "角色站位走位": "角色B停在深景中央后向后撤半步，角色A仍在前景外持续逼近。",
-                  "道具及状态": "尽头灯光更冷，地面反光把停顿放大。",
-                  "角色表现": {
-                    "动作戏": "B停住并后撤半步，把迟疑显出来。",
-                    "内心戏": "危险已经逼近，但B还在判断要不要退。"
-                  },
-                  "运动表现": {
-                    "逻辑性": "承接上一镜的进入动作，把停顿和后撤单独放大。",
-                    "位置和方向": "B留在尽头中央朝入口方向回应，后撤动作向出口一侧收。",
-                    "一致性": "仍保持东西向对峙轴线，不让B凭空换位。"
-                  },
-                  "氛围表现": {
-                    "层次": "尽头出口与两侧墙面把人物压在深景中。",
-                    "空间诗学": "长廊尽头像被封死的退路。",
-                    "意境": "冷光与空旷反射让停顿比动作更可怕。"
-                  },
-                  "视觉强化": {
-                    "冲击力": "人物停在尽头不动，反而让压迫感更重。",
-                    "观赏性": "深景停顿和冷光反射形成明确观看焦点。",
-                    "品味": "不用夸张动作，只靠位置与光线建立危险感。"
-                  },
-                  "分镜构图": {
-                    "景别景深": "中远景压深，把人物推到尽头。",
-                    "镜头类型": "反应镜头",
-                    "构图形式": "纵深透视构图继续成立，但把观看焦点压到画面深处。"
-                  },
-                  "摄影美学": {
-                    "光影": "尽头冷光更硬，人物边缘被压成薄轮廓。",
-                    "色彩": "冷灰与旧白继续主导，局部反光更刺。",
-                    "质感": "地面反射和墙面旧漆让停顿更具体。"
-                  },
-                  "运镜手法": {
-                    "变化": "前压后轻停。",
-                    "速度": "比上一镜更慢。",
-                    "组合": "极轻前压后停住观察。"
-                  },
-                  "转场特效": ""
-                }
-              ]
-            }
-          ]
-        },
-        "acceptance_notes": [
-          "现行 canonical 以 branch-owned object 为主；`角色背景面 / 角色站位走位 / 道具及状态` 仍是 shot_detail 主槽，`景别 / 镜头类型兼容 / 镜头框架 / 镜头类型 / 镜头视角 / 镜头速度` 只作 descriptor 与 compatibility 补充，canonical example 默认省略。",
-          "自当前版本起，组级 `正文切分参考[]` 与镜级 `正文回指` 是 `剧本正文 -> 分镜明细[]` 的唯一桥接层；镜头不得再复制整段正文作为平行真源。",
-          "转场特效为空时不应强行补写。",
-          "本 example 只用于展示当前 canonical 形状，不代表默认文案，后续任务必须按当前镜头重填。"
-        ]
-      }
-    },
-    {
-      "metadata": {
-        "schema_version": "aigc/director-episode-output/v1",
-        "skill_id": "aigc-detail",
-        "template_version": "bootstrap-v1",
-        "source_route": "2-Global -> 3-Detail bootstrap",
-        "episode_id": "第2集",
-        "document_phase": "bootstrapped",
-        "created_at": "2026-04-10T12:30:00-07:00"
-      },
-      "final_output": {
-        "deliverable_type": "director_episode_output",
-        "main_content": {
-          "分镜组列表": []
-        },
-        "acceptance_notes": [
-          "允许 3-Detail 在首次进入时自动创建 bootstrapped 空壳。",
-          "后续由 3-Detail 继续补全。"
-        ]
       }
     }
-  ]
+  }
 }

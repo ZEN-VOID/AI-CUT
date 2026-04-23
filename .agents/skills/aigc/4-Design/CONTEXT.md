@@ -27,10 +27,14 @@
 | `3-面板/角色` 已重建但父级仍只列场景/道具 | coverage 同步层 | 同步 `4-Design` 父层、registry 与 nano-banana 回链，把 `3-面板/{场景,角色,道具}` 标为 partial-active | 新增 panel leaf 时同轮更新父层 active leaf 列表、SMART handoff 与入口元数据 | 父级路由可进入 `3-面板/角色` |
 | pending `服装` leaf 被写成 active runtime 输出路径 | active leaf / runtime 投影层 | 将 `服装` 标成 `pending-migration`，不再声明 `4-Design/服装/*` active 输出根 | 初始化 skeleton 只从 `_shared/project-runtime-layout.md` 继承 active 三类 `场景/角色/道具`，pending sibling 不预建目录 | 新项目 `4-Design/` 下不再出现空的 `服装` runtime |
 | `2-设计` 已新增单主体自动图，但阶段父层仍只把图片交给 `3-面板` 或 `5-Image` | 输出快路径同步层 | 在 `4-Design/SKILL.md` 回指 `2-设计/_shared/design-output-contract.md` | 把 `full_generation_prompt + same-stem auto image` 写进阶段拓扑、路由和 completion | 批量 panel 可直接扫描 `2-设计` 同 stem 图片 |
-| 项目根 `team.yaml` 已启用顾问团，但 `4-Design` 父层没有在当前轮 leaf canonical 落盘后触发监制强化 | 阶段末端共享运行时层 | 在 `4-Design/SKILL.md` 追加 `S6/S7` 与 `Subagents 监制强化` 合同，围绕当前轮命中的 leaf canonical + stage report 做 refine | 将 `master-check-team` 的 reviewer 解析、mode 裁决与 subagents gate 收束进父层合同；并在 `validation-report.md` 固定 supervision 槽位 | `4-Design` 阶段收尾能回读 reviewer、mode、used_subagents 与 patched_targets |
+| 项目根 `team.yaml` 已启用顾问团，但 `4-Design` 父层没有在当前轮 leaf canonical 落盘后触发监制强化 | 阶段末端共享运行时层 | 在 `4-Design/SKILL.md` 追加 `S6/S7` 与 `Subagents 监制强化` 合同，围绕当前轮命中的 leaf canonical + stage report 做 refine | 将 `subagetns/preview + review` 的 reviewer 解析、mode 裁决与 subagents gate 收束进父层合同；并在 `validation-report.md` 固定 supervision 槽位 | `4-Design` 阶段收尾能回读 reviewer、mode、used_subagents 与 patched_targets |
 | `4-Design` 把 stage-end refine、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 把 `roles.supervision.members` 视为 stage-end refine 显式 reviewer；若 `roles.review.operates_on_final_stage_of` 显式覆盖 `4-Design`，再并入 `roles.review.members`；`source_skill_refs` 降为领域提示 | 在 `4-Design/SKILL.md`、`2-设计/_shared/subagent-supervision-contract.md` 与相关 leaf 中固定“分层裁定 + reviewer precedence + 不把 source refs 当授权” | closeout 结论能说明 refine / gate 分层，且 reviewer roster 不再漂移 |
 | `4-Design` 的监制会审把 `_manifest.json`、派生 PNG 或 request sidecar 当成主评审对象，导致 reviewer 越过业务真源 | review target bundle 层 | 将 review 主目标固定为当前轮命中的 leaf canonical truth，manifest / image / request 只作为证据目标 | 在 `4-Design/SKILL.md` 固定 `Review Target Bundle` 与 `Optimization Boundary`，防止派生资产反向抢权 | 监制强化结论直接指向 leaf canonical，而不是派生文件 |
 | `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中时，`4-Design` 仍静默退回本地模拟 | dispatch gate 层 | 把 `Subagent Dispatch Gate` 明确写进 `4-Design` 父层，而不是只依赖 shared runtime 常识 | 在父层 `FIELD-4D-06` 与 completion 中固定 `used_subagents / fallback_reason` 记录位 | 阶段 summary 能明确说明是否真实启用了 subagents |
+| `2-设计` 的角色 prompt 漂成西方面孔、现代棚拍或全球时尚广告 | worldview fallback 层 | 在角色 builder 加当前项目的人种/地域/世界观硬约束，并把东亚武侠人物画像下沉到角色级 fallback | 在 `design-output-contract.md` 固定 `Worldview Fidelity Gate`，把 `urban-drama / western-face drift` 设为 hard fail token | 角色图不再脱离东亚武侠世界观 |
+| `2-设计` 的场景 prompt 被全局词误导，夜市跑成王府/税关/赛博社区 | scene typology fallback 层 | 让场景 builder 先按 `scene_name + aliases + variants + anchors` 判型，再决定 domain defaults | 在共享合同写明场景默认 typology 只能优先跟随当前场景家族，不得被跨项目或跨场景词反向抢权 | 夜市/税关/王府各自回到正确空间家族 |
+| `2-设计` 的道具 prompt 只剩 `generic prop` 或被误画成科幻器件 | prop semantic fallback 层 | 在道具 builder 按 `canonical_name` 绑定器物级默认材质/结构/磨损逻辑，并过滤 `unknown` | 在共享合同写明木牌/税单/册子/钱袋等必须先服从器物语义，再允许风格化展开 | 道具图先对器物，再谈风格 |
+| 当前项目修好了，但修法直接写死在通用 builder，导致源层继续积累项目私货 | fallback ownership layer | 把项目专属角色/场景/道具 fallback 回收到 `projects/aigc/<项目名>/CONTEXT/4-design-fallback-registry.json`，builder 改为 registry-driven | 在共享输出合同固定“项目专属 fallback 必须归项目级 registry；通用 builder 不得长驻项目私货” | 更换项目时只需替换项目 registry，不再改通用 builder |
 
 ## Repair Playbook
 
@@ -60,3 +64,8 @@
 - 只要 `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中，`4-Design` 就不应把本地顺序模拟表述成正常主路径；降级必须显式记录。
 - `4-Design` 当前轮 closeout 里，`roles.supervision.members` 是 stage-end refine 的显式 reviewer 池；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，可并入 reviewer roster，但不替代 refine 入口。
 - `source_skill_refs` 只适合做 reviewer 映射提示，不适合做 `4-Design` 监制强化的授权字段；一旦把它升格，reviewer roster 就会随 provenance 漂移。
+- 对《笑傲江湖4之风云再再起》这类强世界观项目，`2-设计` 最大风险不是“画得不够精”，而是 leaf 在信息不足时偷吃旧项目 fallback，结果三域一起偏题。
+- 当角色缺五官实锚时，宁可用项目内角色专属画像 fallback，也不要把 `unknown_by_shot_evidence` 原样带进 prompt。
+- 当场景缺材质/拓扑实锚时，先按当前场景名判夜市/税关/王府家族，再补 typology；不要从项目全局风格里乱捞地理词。
+- 当道具缺细节时，先锁器物语义和主材质，再允许风格化；木牌先是木牌，税单先是纸单，钱袋先是布袋，不要直接漂成抽象工业件。
+- 项目专属 fallback 若已经稳定，不要继续堆进通用 builder；优先回收到项目根 `CONTEXT/4-design-fallback-registry.json`，让 builder 保持 registry-driven。

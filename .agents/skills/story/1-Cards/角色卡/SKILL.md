@@ -14,7 +14,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 
 ## Overview
 
-`角色卡` 是 `1-Cards` 的直连 child skill，负责把人物问题收束为全剧集级正式角色卡真源。
+`角色卡` 是 `1-Cards` 的直连 child skill，负责把人物问题收束为全书级正式角色卡真源。
 
 本技能的人物塑形输入真源固定为：
 
@@ -53,7 +53,7 @@ description: Use when story2026 1-Cards needs to generate, rebuild, or repair ch
 | --- | --- |
 | `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系；其中主角默认必须具备可被 `5-Loopback` 逐集 actualize 的三轴成长系统。 |
 | `business_object` | `1-Cards/2-角色卡/**/*.json`、`1-Cards/2-角色卡/角色索引.json`、`1-Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
-| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单集临时卡；成长系统只记录经过 validation + loopback 确认的阶段变化。 |
+| `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单章临时卡；成长系统只记录经过 validation + loopback 确认的阶段变化。 |
 | `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
 | `non_goals` | 不替场景卡写空间规则，不替物品卡写代价。 |
 | `topology_fit` | `route confirm -> full-series roster census -> bucket and cast markers -> closure -> single-card mapping -> relationship graph projection` |
@@ -163,7 +163,7 @@ flowchart LR
 2. 每张角色卡都必须带 `group + cast_markers + card_scope=full-series`。
 3. `角色关系图谱.md` 只允许作为关系投影 side output，不得反向替代角色 JSON 真源。
 4. 供 `2-Planning` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 进入规划文档，本 child 不直接写 `2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md` 或 `2-Planning/第N卷/第N章.md`。
-5. 禁止交付单集角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
+5. 禁止交付单章角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
 6. 主角卡必须具备 `core.growth_contract`、`current_state.growth_state` 与 `experience_timeline.axis_stage_map`。
 
 ## Downstream Planning Consumption Contract
@@ -200,7 +200,7 @@ flowchart LR
 
 优先修：
 
-1. 全剧集 roster 漏角或出现单集临时卡
+1. 全剧集 roster 漏角或出现单章临时卡
 2. 分桶与 `cast_markers` 不一致
 3. 人物塑形工法没有落到正式字段
 4. 关系/成长闭合

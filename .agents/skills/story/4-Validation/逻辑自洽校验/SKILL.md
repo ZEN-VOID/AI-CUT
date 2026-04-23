@@ -32,7 +32,7 @@ governance_tier: lite
 
 - 判定章节结构是否有戏
 - 角色声口是否有辨识度
-- 上一集到这一集的情绪承接
+- 上一章到这一章的情绪承接
 - 时间锚的精确排序与伏笔窗口越线
 
 ## Canonical Sources
@@ -93,7 +93,7 @@ governance_tier: lite
 - `dimension_report_ref`:
   - `4-Validation/第V卷/逻辑自洽校验.md`
 - 默认返工节点：
-  - `1-单集叙事起盘`
+  - `1-单章叙事起盘`
 - 可能上溯层：
   - `0-Init`
   - `1-Cards`

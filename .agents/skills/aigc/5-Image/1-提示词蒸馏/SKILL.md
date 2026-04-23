@@ -33,13 +33,20 @@ governance_tier: full
 3. 本轮只命中一个叶子入口，还是应先回上游补齐
 4. 下游收到的主产物是请求 JSON，而不是图片
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `5-Image/1-提示词蒸馏` 及其叶子属于内容创作型任务；frame / sheet / comic 的 canonical prompt 文本必须由 LLM 直接完成。
+- 任何 `generate_episode_packets.py`、prompt assembler、句法压缩器或等价脚本，都不得再作为默认主创入口；它们只允许用于受控兼容迁移、既有 LLM 真源的模板投影、格式校验、JSON 装配与落盘辅助。
+- 父层默认执行路径必须是：`LLM 直出 prompt truth -> projector / validator / handoff packer`，而不是 `script 生成 prompt -> LLM 只做修补`。
+- 若某叶子仍保留旧式脚本主创 runner，必须显式要求 `--allow-legacy-script-authorship` 才可执行，并在后续治理中优先回收。
+
 ## Parent Positioning
 
 ### `1-提示词蒸馏` 拥有
 
 - `3-Detail -> 5-Image` 的阶段入口判定
 - 三个叶子子技能之间的互斥路由合同
-- `metadata.document_phase`、`分镜组列表[]`、`分镜切换` 与镜级 canonical 字段的父级输入门
+- canonical `meta + groups[].global/detail.分镜列表` 的父级输入门，以及仅供旧 leaf 过渡使用的兼容投影门
 - `3-Detail` sidecar 只作补证、不反客为主的真源边界
 - “先请求 JSON，后做一致性 / 生成”的 handoff 总合同
 
@@ -54,7 +61,7 @@ governance_tier: full
 
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/3-Detail/SKILL.md`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/SKILL.md`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/SKILL.md`
@@ -75,8 +82,8 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把 `3-Detail` 已稳定落位的组级/镜级事实，路由到唯一正确的图像请求 JSON 蒸馏叶子入口，并确保产物可继续 handoff 给 `2-参照引用 / 3-图像生成`。 |
-| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 中的 `metadata.document_phase`、`final_output.main_content.分镜组列表[]`、组级 `剧本正文 / 正文切分参考[] / 组间设计 / 分镜切换`、镜级 `分镜明细[]`，以及可选 `水月 / 镜花` sidecar。 |
-| `constraint_profile` | 只消费 `detail_in_progress | ready` 的 `3-Detail` 输出；只命中一个叶子；sidecar 只作补证；主产物必须是 image-request JSON；不得改写上游字段。 |
+| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 中 canonical `meta + groups[].global/detail.分镜列表`，以及仅在 leaf 仍需过渡时由 runtime 适配层派生的兼容 `组间设计 / 分镜切换 / 分镜明细[]` 视图。 |
+| `constraint_profile` | 只消费结构完整、可被兼容适配层判定为 `detail_in_progress | ready` 的 `3-Detail` 输出；只命中一个叶子；sidecar 只作补证；主产物必须是 image-request JSON；不得改写上游字段。 |
 | `success_criteria` | 路由唯一、输入真源成立、对象锚点稳定、叶子收到的事实足以蒸馏，并且 handoff 指向后续阶段时无歧义。 |
 | `non_goals` | 不直接出图、不在父层拼叶子 prompt、不并发三份叶子产物、不替 `3-Detail` 修复缺口。 |
 | `complexity_source` | 复杂度主要来自阶段就绪门、对象判定门、补证边界和下游 handoff，而不是 prompt 文案本身。 |
@@ -92,7 +99,7 @@ governance_tier: full
 3. `.agents/skills/aigc/5-Image/SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/3-Detail/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
-6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+6. `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 7. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 8. `projects/aigc/<项目名>/3-Detail/第N集.json`
 9. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
@@ -104,7 +111,7 @@ governance_tier: full
 ### 必需输入
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 
 ### 推荐输入
 
@@ -116,34 +123,28 @@ governance_tier: full
 
 父层在路由前必须同时检查：
 
-1. `metadata.document_phase in {detail_in_progress, ready}`
-2. `final_output.main_content.分镜组列表[]` 存在
-3. 命中组至少具备：
+1. canonical root 至少具备 `meta + groups[]`
+2. 命中组至少具备：
    - `分镜组ID`
+   - `global.剧本正文`
+   - `global.全局风格`
+   - `global.类型元素`
+   - `global.导演意图`
+   - `detail.分镜数`
+   - `detail.分镜列表`
+3. `detail.分镜列表.<分镜ID>` 至少具备：
+   - `时间`
    - `剧本正文`
-   - `正文切分参考[]`
-   - `组间设计.全局风格`
-   - `组间设计.类型元素`
-   - `组间设计.导演意图`
-   - `组间设计.出场角色及穿搭`
-   - `分镜切换`
-   - `分镜明细[]`
-4. `分镜明细[]` 中的镜级 canonical 字段可被叶子消费：
-   - `分镜ID`
-   - `正文回指`
+   - `主体锚定`
    - `角色表现`
-   - `运动表现`
    - `氛围表现`
-   - `视觉强化`
    - `分镜构图`
-   - `摄影美学`
+   - `摄影表现`
    - `运镜手法`
    - `转场特效`
+4. 若命中的 leaf 仍需要 `组间设计 / 分镜切换 / 正文切分参考 / 正文回指 / 分镜明细[]` 这类旧 helper，只允许通过 runtime 兼容投影派生，不得把它们重新声明为 canonical。
 
-若叶子仍处于过渡态，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 等 compatibility projection，但不得把它们重新声明为第一真相。
-5. 需要做正文到镜头的精确桥接时，父层与叶子必须优先读取 `正文切分参考[] -> 分镜明细[].正文回指`，而不是再从整组 `剧本正文` 临场猜边界。
-
-若 `document_phase` 仍是 `bootstrapped / directing_in_progress`，或 group / shot canonical 字段壳未成立，必须停止在本层并回报上游缺口。
+若 canonical group / shot 壳未成立，必须停止在本层并回报上游缺口。
 
 ## Dispatch And Supplemental Evidence Contract (Mandatory)
 
@@ -203,7 +204,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["读取 3-Detail/第N集.json"] --> B{"document_phase 是否可消费"}
+    A["读取 3-Detail/第N集.json"] --> B{"canonical detail root 是否可消费"}
     B -->|"no"| C["停止并回报上游 detail 缺口"]
     B -->|"yes"| D{"对象锚点"}
     D -->|"shot_id"| E["分镜帧"]
@@ -241,8 +242,8 @@ erDiagram
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `P0-stage-gate` | 判断是否可从 `3-Detail` 进入 `5-Image` | `metadata.document_phase`、父级阶段边界 | 拦截未就绪 episode，锁定本层只做请求蒸馏 | `stage_gate_note` | `ready -> P1`；`blocked -> 停止` | phase 合法前不得继续 |
-| `P1-input-validate` | 校验 canonical JSON 是否具备组级/镜级消费壳 | episode JSON、shared schema | 检查 `分镜组列表[]`、`组间设计`、`分镜明细[]`、shot canonical 字段 | `input_audit` | `pass -> P2`；`fail -> 停止` | 输入壳不成立不得路由 |
+| `P0-stage-gate` | 判断是否可从 `3-Detail` 进入 `5-Image` | canonical `meta + groups[]`、父级阶段边界、runtime compat readiness | 拦截未就绪 episode，锁定本层只做请求蒸馏 | `stage_gate_note` | `ready -> P1`；`blocked -> 停止` | readiness 合法前不得继续 |
+| `P1-input-validate` | 校验 canonical JSON 是否具备组级/镜级消费壳 | episode JSON、shared schema | 先检查 `meta + groups[].global/detail.分镜列表`；仅当叶子仍需旧 helper 时，再确认 compat projection 可稳定派生 `组间设计 / 分镜明细[]` | `input_audit` | `pass -> P2`；`fail -> 停止` | 输入壳不成立不得路由 |
 | `P2-object-route` | 裁决组级 / 帧级 / 漫画页对象 | 用户意图、显式锚点、父层默认策略 | 锁定唯一叶子并给出排除理由 | `route_decision` | `sheet/frame/comic -> P3`；`mixed -> B2` | 只能命中一个叶子 |
 | `P3-supplement-check` | 决定是否需要读取 sidecar 补证 | canonical JSON、可选 `水月/镜花` sidecar | 仅在 canonical 字段局部缺口时登记补证入口 | `supplement_note` | `direct -> P4`；`supplement -> P4` | sidecar 不得替代主真源 |
 | `P4-leaf-dispatch` | 向唯一叶子派发对象与边界 | 路由结论、对象锚点、补证说明 | 派发唯一叶子，并附带只读边界与 handoff 目标 | `dispatch_packet` | `success -> P5`；`leaf_mismatch -> 回 P2` | 未形成唯一派发包不得继续 |
@@ -252,8 +253,8 @@ erDiagram
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任节点 | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-VPD-STAGE-01` | 父级阶段门 | 只允许消费 `detail_in_progress | ready` 的 `3-Detail` episode | `P0` | 阶段就绪性 | `FAIL-VPD-STAGE-01` |
-| `FIELD-VPD-INPUT-02` | 输入审计 | 明确 `分镜组列表[]`、`组间设计`、`分镜明细[]` 与镜级 canonical 字段是否可消费 | `P1` | 输入完备性 | `FAIL-VPD-INPUT-02` |
+| `FIELD-VPD-STAGE-01` | 父级阶段门 | 只允许消费经 runtime compat 适配后判定为 `detail_in_progress | ready` 的 `3-Detail` episode | `P0` | 阶段就绪性 | `FAIL-VPD-STAGE-01` |
+| `FIELD-VPD-INPUT-02` | 输入审计 | 明确 canonical `groups[].global/detail.分镜列表` 是否成立；若叶子仍需旧 helper，再确认 compat projection 是否可消费 | `P1` | 输入完备性 | `FAIL-VPD-INPUT-02` |
 | `FIELD-VPD-ROUTE-03` | 路由结论 | 叶子入口唯一且排除理由明确 | `P2` | 路由清晰度 | `FAIL-VPD-ROUTE-03` |
 | `FIELD-VPD-SUPPLEMENT-04` | 补证说明 | sidecar 是否读取、为何读取、读取边界 | `P3` | 真源边界稳定性 | `FAIL-VPD-SUPPLEMENT-04` |
 | `FIELD-VPD-HANDOFF-05` | handoff 说明 | 叶子产物是请求 JSON，并可继续交给后续阶段 | `P5` | 交接可执行性 | `FAIL-VPD-HANDOFF-05` |
@@ -262,8 +263,8 @@ erDiagram
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `P0` | `FIELD-VPD-STAGE-01` | 当前 `3-Detail` episode 是否已到可消费阶段 | 锁定或阻断阶段入口 | phase 仍是 `bootstrapped/directing_in_progress` |
-| `P1` | `FIELD-VPD-INPUT-02` | 组级与镜级 canonical 字段是否足以被叶子消费 | 做 shared schema 输入审计 | 只有壳没有可用组/镜字段 |
+| `P0` | `FIELD-VPD-STAGE-01` | 当前 `3-Detail` episode 是否已到可消费阶段 | 锁定或阻断阶段入口 | canonical root 经适配后仍未达到 `detail_in_progress | ready` |
+| `P1` | `FIELD-VPD-INPUT-02` | canonical `groups[]` 与必要 compat helper 是否足以被叶子消费 | 做 shared schema 输入审计 | 只有壳没有可用组/镜字段，或 compat projection 无法稳定派生 |
 | `P2` | `FIELD-VPD-ROUTE-03` | 当前对象到底属于哪个叶子 | 裁决唯一叶子与排除理由 | 同时命中多个对象类型 |
 | `P3` | `FIELD-VPD-SUPPLEMENT-04` | 是否需要 sidecar 补证，以及补到什么边界 | 登记只读补证说明 | sidecar 被误当主真源 |
 | `P5` | `FIELD-VPD-HANDOFF-05` | 当前结果是否已形成可交接的 image-request JSON | 写明下游入口与模式 | 叶子产物变成图片或缺少下一入口 |
@@ -298,7 +299,8 @@ erDiagram
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/CONTEXT.md`
   - `.agents/skills/aigc/3-Detail/SKILL.md`
-  - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+  - `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+  - `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `Meta Rule Source`
   - `.agents/skills/aigc/SKILL.md`
   - 根 `AGENTS.md`

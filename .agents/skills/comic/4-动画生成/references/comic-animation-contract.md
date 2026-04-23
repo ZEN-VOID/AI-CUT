@@ -2,10 +2,12 @@
 
 本文件补充 `.agents/skills/comic/4-动画生成/SKILL.md` 的细则，不构成第二真源。
 
-## 1. Prompt 编译原则
+## 1. Prompt 真源与兼容原则
 
 - 固定前缀必须原样作为每页 `video_prompt` 的开头。
-- 4 号阶段不重新发明剧情；它只把 2 号已经存在的页级信息转成更适合图生视频的形式。
+- 4 号阶段默认消费 LLM 已直出的 `comic_page_animation_prompts.v1`，不再把脚本编 `video_prompt` 当默认主链。
+- 若项目仍处于 legacy 兼容窗口，脚本只允许在显式开启 `--allow-legacy-script-authorship` 时，基于 2 号已有页级信息做受控投影。
+- 4 号阶段不重新发明剧情；无论是默认路径还是兼容路径，都只能继承 2 号已经存在的页级事实与结构锚点。
 - `panels[]` 默认按 `右到左、上到下` 的阅读顺序编成 `shot_plan[]`。
 - 保真不等于冻结整页。应保住剧情顺序、角色身份、道具、中文文字、页码、风格 DNA 和关键构图逻辑，但必须把“静止漫画页”翻译成“有景深、有表演、有环境运动的动画电影镜头”。
 - 必须显式反对：`slideshow / PPT animation / simple pan-zoom / Ken Burns / motion poster / paper cut-out drift`。
@@ -52,4 +54,4 @@
 - 4 号阶段可以调用 `man-tui/video/sora`，但不重写其三段异步合同。
 - `man-tui sora` 的职责是：创建任务、轮询状态、下载结果。
 - `man-tui sora` 的图生视频参考图只能使用公网 URL；4 号阶段若只有本地 `page01..page09`，默认只能完成编译与 dry-run。
-- 4 号的职责是：生成 prompt、匹配页图、组织逐页执行与组级汇总报告。
+- 4 号的默认职责是：消费动画 prompt 真源、匹配页图、组织逐页执行与组级汇总报告。

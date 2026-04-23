@@ -1,6 +1,6 @@
 # Chapter Rhythm Handoff Contract
 
-`2-Planning/3-章级` 与 `3-Drafting/2-节奏优化` 共享这一份章级节奏移交合同。
+`2-Planning/3-章级` 与 `3-Drafting` 的 `Step 2 / 2-节奏优化` 共享这一份章级节奏移交合同。
 
 ## Ownership Split
 
@@ -13,7 +13,7 @@
 - 哪些段位属于必须兑现的规划义务
 - 哪些段位只是建议写法、允许 drafting 在不破义务时重排
 
-### Drafting Owns
+### Drafting Step 2 Owns
 
 - 把已锁定 handoff 兑现成正文里的 `pulse_ladder`
 - 段落并拆、局部前后重排、`reaction bridge`、`middle build`
@@ -73,6 +73,6 @@
 
 1. planning 锁的是义务与 mode，不是 Step 1 当前写法的逐段排版。
 2. drafting 不得重新发明第二套 `selected_pack / selected_mode / 七步职责映射`。
-3. 若正文要偏离已锁 handoff，必须回源到 `2-Planning/3-章级` 修 planning，而不是在 drafting 静默改法律。
+3. 若正文要偏离已锁 handoff，必须回源到 `2-Planning/3-章级` 修 planning，而不是在 drafting 的 Step 2 静默改法律。
 4. `micro_payoff` 不等于必须大高潮；只要局面真实改变，就可视为有效兑现。
 5. `exit_hook` 必须从本章现有压力自然长出，不得靠生硬断章伪造牵引。

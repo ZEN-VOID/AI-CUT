@@ -26,8 +26,9 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
+├── MEMORY.md             # 项目级创作记忆：偏好/口味/禁区/特殊元素/长期要求
 ├── 1-Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
-├── 3-Drafting/           # drafting 阶段正文真源（第N集.md + 第V卷.写作日志.yaml）
+├── 3-Drafting/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
 ├── 5-Loopback/
 │   └── 第V卷.loopback.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
@@ -95,8 +96,8 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
   → `全息地图.json / 卷分片/*.json` 仅保留兼容投影价值
 
 3-Drafting
-  → 以 `3-Drafting/第N集.md` 作为当前集唯一正文根文件
-  → 卷级父流程调度 episode workers，并同步 `3-Drafting/第V卷.写作日志.yaml`
+  → 以 `3-Drafting/第N卷/第N章.md` 作为当前章唯一正文根文件
+  → 卷级父流程调度 chapter workers，并同步 `3-Drafting/第V卷.写作日志.yaml`
   → 当前卷 continuity pack 为硬输入；若前序章已完成，可额外加载其正文做增强校准
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
@@ -124,7 +125,7 @@ query / resume
 
 | 脚本 | 输入 | 输出 |
 |------|------|------|
-| `init_project.py` | 项目信息 | 生成五件套 + `STATE.json.workflow_runtime` + 初始化 `index.db` |
+| `init_project.py` | 项目信息 | 生成初始化主工件 + `MEMORY.md` + `STATE.json.workflow_runtime` + 初始化 `index.db` |
 | `update_state.py` | 参数 | 原子更新 `STATE.json` 字段（进度/主角/strand_tracker） |
 | `status_reporter.py` | 无 | 生成健康报告/伏笔紧急度 |
 | `workflow_manager.py` | stage 命令 + chapter | 维护 `STATE.json.workflow_runtime`、恢复检测与 cleanup 备份 |
@@ -161,7 +162,7 @@ query / resume
    → Step 6 心理活动描写
    → Step 7 追读力强化
    → Step 8 润色
-   → 每一步都写回 `3-Drafting/第N集.md + 第V卷.写作日志.yaml`
+   → 每一步都写回 `3-Drafting/第N卷/第N章.md + 第V卷.写作日志.yaml`
 
 3. inline validation hooks
    → 每个 drafting step 写回后，立即运行 registry 声明的即时审计
@@ -217,7 +218,7 @@ query / resume
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
 | planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/整体规划.md` + `2-Planning/第V卷/卷规划.md` + `2-Planning/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
-| drafting truth | 当前集正文写成什么样、当前卷已跑过哪些工序 | `3-Drafting/第N集.md` + `3-Drafting/第V卷.写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
+| drafting truth | 当前章正文写成什么样、当前卷已跑过哪些工序 | `3-Drafting/第N卷/第N章.md` + `3-Drafting/第V卷.写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |

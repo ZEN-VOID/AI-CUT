@@ -395,7 +395,7 @@ def _build_character_relationship_graph_markdown(project_root: Path, index_paylo
         "# 角色关系图谱",
         "",
         "## 文字说明",
-        "- 作用域：全剧集级角色卡网络，不退化为单集出场名单。",
+        "- 作用域：全书级角色卡网络，不退化为单章出场名单。",
         f"- 角色总数：{total_roles}",
         f"- 关系边数：{len(relationship_edges)}",
         *bucket_lines,

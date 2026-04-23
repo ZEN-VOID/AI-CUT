@@ -262,7 +262,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
             "--validation-data",
             "@validation.json",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -280,7 +280,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
         "--validation-data",
         "@validation.json",
         "--manuscript-ref",
-        "3-Drafting/第12集.md",
+        "3-Drafting/第2卷/第12章.md",
     ]
 
 

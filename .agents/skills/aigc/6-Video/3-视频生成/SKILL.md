@@ -97,7 +97,7 @@ governance_tier: full
 ## Canonical Inputs
 
 - 命中的 `6-Video` 稳定请求 JSON
-- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/第N集.json`（仅作为上游事实与返工定位证据，不作为本叶子的直接结构化主输入）
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
 - 可选：`projects/aigc/<项目名>/5-Image/` 与 `projects/aigc/<项目名>/4-Design/` 中的引用资产
 

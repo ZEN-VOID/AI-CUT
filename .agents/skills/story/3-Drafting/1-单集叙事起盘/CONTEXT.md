@@ -2,7 +2,7 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `1-单集叙事起盘` 的局部经验层，只服务 `3-Drafting` Step 1。
+- 本文件是 `1-单章叙事起盘` 的局部经验层，只服务 `3-Drafting` Step 1。
 - 加载顺序固定为：先读同目录 `SKILL.md`，再按需读取本文件。
 - 跨工序连续性经验优先回写到 `3-Drafting/CONTEXT.md`。
 
@@ -18,9 +18,9 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 起盘只剩提纲，没有完整正文 | child contract | 回到 scene chain，直接写完整初稿 | 在子技能合同固定“首轮必须完整可读” | `第N集.md` 已可通读 |
-| 本集像凭空开始，没接上卷级 continuity pack | continuity bridge | 先抽当前卷 `entry_state / carryover_threads / expected_exit_delta`，必要时再参考已完成前序集终稿 | 把“卷地图 continuity pack 为硬输入，上一集终稿为增强输入”写死 | 开篇能回答“从哪接上” |
-| 读到了 `story_map`，但仍不知道哪块 board 属于本集 | board locating contract | 先按 `episode_num / episode_id -> chapter_boards[].episode_ref` 定位唯一 board，再解码债务 | 在 shared contract 固定“直连 episode_ref，必要时 axis 回指，禁止数组顺序猜测” | `process_log_entry` 能说明本集 board 如何命中 |
+| 起盘只剩提纲，没有完整正文 | child contract | 回到 scene chain，直接写完整初稿 | 在子技能合同固定“首轮必须完整可读” | `第N章.md` 已可通读 |
+| 本章像凭空开始，没接上卷级 continuity pack | continuity bridge | 先抽当前卷 `entry_state / carryover_threads / expected_exit_delta`，必要时再参考已完成前序集终稿 | 把“卷地图 continuity pack 为硬输入，上一章终稿为增强输入”写死 | 开篇能回答“从哪接上” |
+| 读到了 `story_map`，但仍不知道哪块 board 属于本章 | board locating contract | 先按 `chapter_num / episode_id -> chapter_boards[].episode_ref` 定位唯一 board，再解码债务 | 在 shared contract 固定“直连 episode_ref，必要时 axis 回指，禁止数组顺序猜测” | `process_log_entry` 能说明本章 board 如何命中 |
 | 只写事件，不写角色目标和阻力 | board decode | 重读 chapter board 的功能债与 threads 债务 | 先锁目标/阻力/代价，再写场景 | 初稿能回答“为什么现在要做这件事” |
 | 为了兑现 planning，把“卷次/阶段/时间压力”等外部规划语言直接写进正文 | planning language leak | 改写成人物当下能感到的风险、代价、局势收紧或退路消失 | 起盘时先问“这句是谁能感觉到”，不是先问“planning 想表达什么” | 正文读起来仍在戏里，不会突然跳到提纲口吻 |
 | 同一画面连续两句重复交代同一批人/同一组物件 | scene naming repetition | 第一处交代身份，第二处只推进姿态、构图或动作 | 起盘阶段把“身份信息”和“空间落位”分成两拍写 | 不再出现“平民/鱼篓/药包”在相邻句里重复点名 |
@@ -30,15 +30,15 @@
 
 ## Repair Playbook
 
-1. 先看本集 board 功能、上一集停点、当前压力位是否都已锁定。
+1. 先看本章 board 功能、上一章停点、当前压力位是否都已锁定。
 2. 再检查 scene chain 是否形成了“起手 -> 推进 -> 变化 -> 钩子/兑现”的最小骨架。
 3. 如果正文只是说明稿，优先补“人物要做什么、被什么拦住、付出了什么”。
 
 ## Reusable Heuristics
 
 - 起盘最忌讳的是把 planning 翻译成“说明文”；它应该先长成故事，再留给后续工序精修。
-- 跨集连续性的关键不在总结，而在抓住上一集最后一个真正改变了局面的点。
-- board 未唯一命中前，不要急着写“本集要发生什么”；先解决“这到底是不是本集那块 board”。
+- 跨集连续性的关键不在总结，而在抓住上一章最后一个真正改变了局面的点。
+- board 未唯一命中前，不要急着写“本章要发生什么”；先解决“这到底是不是本章那块 board”。
 - 对 chapter board 来说，“完整起盘”不是把第一拍写顺，而是至少把开场局面、转向和终端碰撞三拍都落进正文，不然仍只是半成品。
 - 起盘阶段最危险的破次元，不是词不漂亮，而是把规划层总结直接塞进角色视角里；只要一句话不像谁会在现场这么想，它就该回炉。
 - 如果第二句的功能只是把第一句再说一遍，宁可删掉；起盘最需要的是“继续往前走”的句子，不是“确认刚才说过什么”的句子。

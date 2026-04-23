@@ -1,0 +1,5 @@
+interface:
+  display_name: "AIGC 3-Detail"
+  short_description: "以单技能固定 pass 把 `2-Global/episode_root.json` 细化成镜级 detail root，并按需接入电影学院派知识库强化分镜、导演与摄影判断。"
+  default_prompt: "Use $aigc-detail to read `projects/aigc/<项目名>/2-Global/episode_root.json`, lock `1-分镜构图` first to decide shot count, script split, timing, anchors, and composition skeleton, then fill `角色表现 / 氛围表现 / 摄影表现 / 运镜手法 / 转场特效` in fixed order, selectively load the needed academy bundles from `knowledge-base/电影学院派/导演手册`、`分镜脚本`、`电影摄影` based on the current route profile, translate every borrowed rule back into the current JSON field objects, and finally write or refresh `projects/aigc/<项目名>/3-Detail/第N集.json` plus `projects/aigc/<项目名>/3-Detail/validation-report.md` without breaking the locked skeleton."
+version: 1

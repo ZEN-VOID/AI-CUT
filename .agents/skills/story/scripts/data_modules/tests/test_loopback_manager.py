@@ -89,7 +89,7 @@ def _build_project_with_slice(project_root: Path) -> None:
                 "holomap": {
                     "episode_sequence_axis": [
                         {
-                            "episode_ref": "第012集",
+                            "episode_ref": "第012章",
                             "slice_ref": "slice-011-020",
                             "chapter_board_ref": "ep-012",
                         }
@@ -190,7 +190,7 @@ def test_loopback_manager_blocks_non_pass_validation(tmp_path, monkeypatch):
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -213,7 +213,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_only",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -234,7 +234,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -257,7 +257,7 @@ def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -278,7 +278,7 @@ def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -314,7 +314,7 @@ def test_loopback_manager_applies_projection_refresh_modes(tmp_path, monkeypatch
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [
@@ -350,7 +350,7 @@ def test_loopback_manager_applies_projection_refresh_modes(tmp_path, monkeypatch
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -379,7 +379,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "governance_refs": {
                 "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
                 "artifact_manifest_ref": "STATE.json#workflow_runtime.governance_index.run-12.artifact_manifest",
@@ -394,17 +394,17 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                         "stance": "结盟",
                         "growth_state": {
                             "active_arc_phase": "破局初成",
-                            "latest_growth_episode": "第12集",
+                            "latest_growth_episode": "第12章",
                             "skill": {"stage": "稳固", "recent_gain": "学会在破境后压住手上余劲"},
                         },
                     },
                     "history_append": {
-                        "episode_ref": "第12集",
-                        "validation_ref": "4-Validation/第12集.validation.json",
+                        "episode_ref": "第12章",
+                        "validation_ref": "4-Validation/第12章.validation.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
-                        "evidence_refs": ["3-Drafting/第12集.md"],
+                        "evidence_refs": ["3-Drafting/第2卷/第12章.md"],
                         "timestamp": "2026-04-06T10:00:00",
                         "growth_delta": {
                             "skill": {"before": "莽冲", "after": "稳固"},
@@ -420,12 +420,12 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                     "target_ref": "episode-12",
                     "actualization_patch": {
                         "node_id": "node-12",
-                        "episode_ref": "第12集",
+                        "episode_ref": "第12章",
                         "execution_status": "completed",
                         "validated_at": "2026-04-06T10:00:00",
-                        "manuscript_ref": "3-Drafting/第12集.md",
-                        "validation_ref": "4-Validation/第12集.validation.json",
-                        "actual_outcome_summary": "本集完成破境并公开立场。",
+                        "manuscript_ref": "3-Drafting/第2卷/第12章.md",
+                        "validation_ref": "4-Validation/第12章.validation.json",
+                        "actual_outcome_summary": "本章完成破境并公开立场。",
                         "carry_forward_refs": ["1-Cards/2-角色卡/主要角色/林辰.json"],
                     },
                 }
@@ -437,19 +437,19 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                 },
                 {
                     "target_type": "carryover_context",
-                    "payload": {"next_episode": "第13集", "open_threads": ["宗门震荡"]},
+                    "payload": {"next_episode": "第13章", "open_threads": ["宗门震荡"]},
                 },
                 {
                     "target_type": "runtime_marker",
                     "target_ref": "loopback",
-                    "payload": {"last_actualized_episode": "第12集", "dirty": False},
+                    "payload": {"last_actualized_episode": "第12章", "dirty": False},
                 },
             ],
             "evidence_refs": [
-                {"ref_type": "manuscript", "ref_path": "3-Drafting/第12集.md", "note": "正文真源"},
+                {"ref_type": "manuscript", "ref_path": "3-Drafting/第2卷/第12章.md", "note": "正文真源"},
                 {
                     "ref_type": "validation_packet",
-                    "ref_path": "4-Validation/第12集.validation.json",
+                    "ref_path": "4-Validation/第12章.validation.json",
                     "note": "验证报告",
                 },
             ],
@@ -469,7 +469,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -507,7 +507,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
     assert card["current_state"]["realm"] == "筑基"
     assert card["current_state"]["stance"] == "结盟"
     assert card["current_state"]["growth_state"]["skill"]["stage"] == "稳固"
-    assert card["history"][-1]["episode_ref"] == "第12集"
+    assert card["history"][-1]["episode_ref"] == "第12章"
     assert card["history"][-1]["loopback_ref"] == "5-Loopback/第2卷.loopback.json"
     assert card["history"][-1]["growth_delta"]["skill"]["after"] == "稳固"
     assert card["loopback_revision"] == 1
@@ -516,7 +516,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
         (project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8")
     )
     actual_nodes = holomap["content"]["holomap"]["actualization"]["episode_nodes"]
-    assert actual_nodes[0]["episode_ref"] == "第12集"
+    assert actual_nodes[0]["episode_ref"] == "第12章"
     assert actual_nodes[0]["execution_status"] == "completed"
     assert holomap["content"]["holomap"]["actualization"]["revision"] == 1
 
@@ -543,8 +543,8 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
         "突破后余波",
         "宗门立场",
     ]
-    assert state["carryover_context"]["next_episode"] == "第13集"
-    assert state["runtime_markers"]["loopback"]["last_actualized_episode"] == "第12集"
+    assert state["carryover_context"]["next_episode"] == "第13章"
+    assert state["runtime_markers"]["loopback"]["last_actualized_episode"] == "第12章"
     assert state["runtime_markers"]["loopback"]["last_commit_manifest"]["phase"] == "committed"
     assert state["runtime_markers"]["loopback_state_revision"] == 1
 
@@ -562,7 +562,7 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [
                 {
@@ -571,16 +571,16 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
                     "slice_ref": "slice-011-020",
                     "actualization_patch": {
                         "node_id": "ep-012",
-                        "episode_ref": "第012集",
+                        "episode_ref": "第012章",
                         "execution_status": "completed",
-                        "actual_outcome_summary": "本集完成 validated actualization。",
+                        "actual_outcome_summary": "本章完成 validated actualization。",
                     },
                 }
             ],
             "projection_refresh": [
                 {
                     "target_type": "carryover_context",
-                    "payload": {"next_episode": "第013集"},
+                    "payload": {"next_episode": "第013章"},
                 }
             ],
             "evidence_refs": [],
@@ -600,7 +600,7 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -614,20 +614,20 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
     assert artifact["inputs"]["volume_plan_ref"] == "2-Planning/第2卷/卷规划.md"
     assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
     assert "2-Planning/第2卷/第12章.actualization.json" in artifact["content"]["writeback_summary"]["written_planning_actualization_refs"]
-    assert "episode_status_index:第012集" in artifact["content"]["writeback_summary"]["written_map_refs"]
+    assert "episode_status_index:第012章" in artifact["content"]["writeback_summary"]["written_map_refs"]
     assert "slice_status_index:slice-011-020" in artifact["content"]["writeback_summary"]["written_map_refs"]
 
     slice_payload = json.loads(
         (project_root / "2-Planning" / "卷分片" / "第2卷.json").read_text(encoding="utf-8")
     )
     slice_nodes = slice_payload["content"]["holomap_slice"]["actualization"]["episode_nodes"]
-    assert slice_nodes[0]["episode_ref"] == "第012集"
+    assert slice_nodes[0]["episode_ref"] == "第012章"
     assert slice_payload["content"]["holomap_slice"]["actualization"]["revision"] == 1
 
     holomap = json.loads((project_root / "2-Planning" / "全息地图.json").read_text(encoding="utf-8"))
     status_index = holomap["content"]["holomap"]["actualization"]["episode_status_index"]
     slice_index = holomap["content"]["holomap"]["actualization"]["slice_status_index"]
-    assert status_index[0]["episode_ref"] == "第012集"
+    assert status_index[0]["episode_ref"] == "第012章"
     assert status_index[0]["status"] == "completed"
     assert slice_index[0]["slice_id"] == "slice-011-020"
     assert slice_index[0]["status"] == "completed"
@@ -645,13 +645,13 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {"realm": "筑基"},
-                    "history_append": {"episode_ref": "第12集"},
+                    "history_append": {"episode_ref": "第12章"},
                 }
             ],
             "map_deltas": [
@@ -659,7 +659,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
                     "target_bucket": "episode_nodes",
                     "target_ref": "episode-12",
                     "actualization_patch": {
-                        "episode_ref": "第12集",
+                        "episode_ref": "第12章",
                         "execution_status": "completed",
                     },
                 }
@@ -668,7 +668,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
                 {
                     "target_type": "runtime_marker",
                     "target_ref": "loopback",
-                    "payload": {"last_actualized_episode": "第12集"},
+                    "payload": {"last_actualized_episode": "第12章"},
                 }
             ],
             "evidence_refs": [],
@@ -697,7 +697,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -728,7 +728,7 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -738,12 +738,12 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
                         "stance": "结盟",
                     },
                     "history_append": {
-                        "episode_ref": "第12集",
-                        "validation_ref": "4-Validation/第12集.validation.json",
+                        "episode_ref": "第12章",
+                        "validation_ref": "4-Validation/第12章.validation.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
-                        "evidence_refs": ["3-Drafting/第12集.md"],
+                        "evidence_refs": ["3-Drafting/第2卷/第12章.md"],
                         "timestamp": "2026-04-06T10:00:00",
                     },
                 }
@@ -767,7 +767,7 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -780,7 +780,7 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
     nested = card["content"]["card_schema"]["character_card"]
     assert nested["current_state"]["realm"] == "筑基"
     assert nested["current_state"]["stance"] == "结盟"
-    assert nested["history"][-1]["episode_ref"] == "第12集"
+    assert nested["history"][-1]["episode_ref"] == "第12章"
     assert nested["loopback_revision"] == 1
     assert "current_state" not in card
     assert "history" not in card
@@ -803,7 +803,7 @@ def test_loopback_manager_rejects_revision_drift(tmp_path, monkeypatch):
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -831,7 +831,7 @@ def test_loopback_manager_rejects_revision_drift(tmp_path, monkeypatch):
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 
@@ -851,7 +851,7 @@ def test_loopback_manager_rejects_non_whitelisted_delta_fields(tmp_path, monkeyp
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12集.validation.json",
+            "validation_ref": "4-Validation/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -881,7 +881,7 @@ def test_loopback_manager_rejects_non_whitelisted_delta_fields(tmp_path, monkeyp
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-Drafting/第12集.md",
+            "3-Drafting/第2卷/第12章.md",
         ],
     )
 

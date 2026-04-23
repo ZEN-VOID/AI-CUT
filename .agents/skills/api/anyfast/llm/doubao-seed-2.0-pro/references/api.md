@@ -23,7 +23,8 @@
 - Header：
   - `Authorization: Bearer <API_KEY>`
 - 建议环境变量：
-  - `ANYFAST_API_KEY`
+  - `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY`
+  - `ANYFAST_API_KEY`（专用 key 缺失时回退）
 
 AnyFast Quickstart 还提示：模型映射到对应 channel，调用前需在控制台启用相应 channel。
 

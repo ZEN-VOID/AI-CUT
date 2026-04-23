@@ -48,6 +48,8 @@
 | 合同章节很多，但执行者仍无法判断失败后该回哪一层返工 | 思行网络层 | 把线性流程改写为带 `route_out/gate` 的思行节点网络 | 在 `SKILL.md` 固化 `N0-N8` 节点、汇流门与返工入口 | 每个节点都能回答“做什么、看什么证据、失败回哪” |
 | 三件套已写出，但对用户的结案信息只剩路径，没有思考过程和关键证据 | 结案闭环层 | 在最终闭环中补 `思考过程 + 关键证据 + 风险/例外` | 新增 `FIELD-VID-SUBJ-05` 并把闭环四段写成硬合同 | 执行结果可复核，不再只剩文件清单 |
 | `STATE.json` 已指向 `2-参照引用` 或 `3-视频生成`，但 `6-Video/全能参照/第N集/` 三件套磁盘缺失 | 项目运行时同步层 | 先重建 `第N集.json + 第N集.txt + _manifest.json`，再保持既有 video-generation handoff，不回退项目状态 | 在 `SKILL.md` 的 artifact landing 与 handoff contract 固定 recovery rerun 规则，禁止视频提示词补跑把项目路由降级 | drift 修复后磁盘产物恢复且 `STATE.json` 仍保持后续入口 |
+| runner 先把 `分镜构图 / 运镜手法` branch-owned object 覆盖成字符串，再回头提炼 `景别 / 镜头速度 / 镜头类型`，导致现行 `3-Detail` 明明有数据却被误判为空；同时把 schema 标成可选的 `镜头视角` 当成硬门 | runner compatibility 层 | 在归一化时先缓存原始 branch object，再派生 descriptor；把 `镜头视角` 改回“有则消费、无则跳过”的 schema 兼容口径 | 凡是从 branch-owned object 派生 descriptor 的 runner，都先做“覆盖前缓存 + optional descriptor gate”检查，不再把 legacy/detail_patch 的必填假设带回 canonical 主路径 | 现行只落 branch-owned object 的 `3-Detail` root 也能稳定生成 `6-Video` 三件套，且不会再因缺省 `镜头视角` 被误挡 |
+| 镜级 prompt 只剩剧情桥段和动作镜头，没有把“谁在说 / 说什么”显式化，导致对白存在感被镜头句吞没 | prompt assembly 层 | 在 `剧情桥段` 后补显式对白句；能锁到短引号词就保留，锁不到原句也至少写出说话人与话头落点 | 在 `prompt-assembly-spec.md` 固定 `dialogue_clause` 槽位，并在 runner 里用“speaker inference + focus fallback”统一生成，不再靠手工临场改 prompt | 有 `对话戏` 或说话信号的镜头，最终 packet 里能直接看到对白句而不是只剩意图摘要 |
 
 ## Repair Playbook
 

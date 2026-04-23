@@ -135,7 +135,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_id": "3-drafting",
         "stage_label": "起草层",
         "steps": [
-            ("Step 1", "单集叙事起盘", "drafting-episode-kickoff"),
+            ("Step 1", "单章叙事起盘", "drafting-episode-kickoff"),
             ("Step 2", "节奏优化", "drafting-pacing"),
             ("Step 3", "场景和氛围渲染", "drafting-scene-atmosphere"),
             ("Step 4", "角色形象刻画", "drafting-character-rendering"),
@@ -801,7 +801,7 @@ def _auto_run_inline_validation_batch(task: dict[str, Any]) -> dict[str, Any]:
         return {"status": "deferred", "reason": "missing_chapter_num"}
 
     project_root = _get_active_project_root()
-    manuscript_path = drafting_root_md_path(project_root, chapter_num)
+    manuscript_path = find_chapter_file(project_root, chapter_num) or drafting_root_md_path(project_root, chapter_num)
     if not manuscript_path.is_file():
         inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_deferred_missing_manuscript"
         return {
@@ -1990,7 +1990,9 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
     write_log_packet: Optional[dict[str, Any]] = None
     if write_log_payload:
         volume_num = _safe_int(write_log_payload.get("volume_num"), volume_log_num or 0)
-        episode_num = _normalize_chapter_num(write_log_payload.get("episode_num"))
+        write_log_chapter_num = _normalize_chapter_num(
+            write_log_payload.get("chapter_num") or write_log_payload.get("chapter_num")
+        )
         chapter_refs = write_log_payload.get("chapter_refs")
         if not isinstance(chapter_refs, list):
             chapter_refs = []
@@ -2043,16 +2045,16 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                     },
                     evidence_refs=[str(write_log_path.relative_to(project_root))],
                 )
-        elif episode_num and (
+        elif write_log_chapter_num and (
             candidate_status == CANDIDATE_FINAL_STATUS_READY
             or next_step == "4-Validation"
         ):
-            write_log_episode = episode_num
+            write_log_episode = write_log_chapter_num
             write_log_packet = _artifact_resume_packet(
                 command="story-validate",
-                chapter_num=episode_num,
+                chapter_num=write_log_chapter_num,
                 reason="candidate_final_draft_waiting_validation",
-                summary=f"未检测到 tracked 中断，但第{episode_num}集写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
+                summary=f"未检测到 tracked 中断，但第{write_log_chapter_num}章写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
                 artifact_refs={
                     "writing_log_ref": str(write_log_path.relative_to(project_root)),
                     "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
@@ -2109,7 +2111,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             command="story-write",
             chapter_num=next_episode,
             reason="loopback_completed_next_episode_ready",
-            summary=f"未检测到 tracked 中断，但第{loopback_episode}集已完成 loopback actualization；下一稳定入口是第{next_episode}集 drafting。",
+            summary=f"未检测到 tracked 中断，但第{loopback_episode}章已完成 loopback actualization；下一稳定入口是第{next_episode}章 drafting。",
             artifact_refs={
                 "loopback_ref": str(loopback_path.relative_to(project_root)),
                 "validation_ref": str(loopback_payload.get("inputs", {}).get("validation_ref") or ""),
@@ -2395,7 +2397,7 @@ def analyze_recovery_options(interrupt_info):
         summary = str(interrupt_info.get("summary") or "")
         artifacts = interrupt_info.get("artifacts") or {}
         volume_label = f"第{volume_num}卷" if volume_num not in (None, "", "?") else "当前卷"
-        chapter_label = f"第{chapter_num}集" if chapter_num not in (None, "", "?") else volume_label
+        chapter_label = f"第{chapter_num}章" if chapter_num not in (None, "", "?") else volume_label
 
         if command == "story-loopback":
             return [
@@ -2492,10 +2494,10 @@ def analyze_recovery_options(interrupt_info):
                         "option": "B",
                         "label": "先核 carryover_context",
                         "risk": "low",
-                        "description": "先确认下一集开场压力与开放线程，再开始写作。",
+                        "description": "先确认下一章开场压力与开放线程，再开始写作。",
                         "actions": [
                             "查看 STATE.json.carryover_context",
-                            "确认下一卷/下一集开场压力、开放线程与携带物件",
+                            "确认下一卷/下一章开场压力、开放线程与携带物件",
                         ],
                     },
                 ]
@@ -2564,7 +2566,7 @@ def analyze_recovery_options(interrupt_info):
                 "option": "A",
                 "label": "从 Step 1 重新开始",
                 "risk": "low",
-                "description": "重新起盘当前集，并重新装配 Init/1-Cards/2-Planning/上一集终稿上下文",
+                "description": "重新起盘当前章，并重新装配 Init/1-Cards/2-Planning/上一章终稿上下文",
                 "actions": ["清理中断状态", f"执行 /{command} {chapter_num}"],
             }
         ]
@@ -2575,7 +2577,7 @@ def analyze_recovery_options(interrupt_info):
         chapter_path = (
             str(current_target.relative_to(project_root))
             if current_target is not None
-            else f"3-Drafting/第{chapter_num}集.md"
+            else str(drafting_root_md_path(project_root, chapter_num).relative_to(project_root))
         )
         sequence = get_pending_steps(command)
         next_step = None
@@ -2594,14 +2596,14 @@ def analyze_recovery_options(interrupt_info):
                 "actions": [
                     f"打开并继续加工 {chapter_path}",
                     "保存正文与写作日志",
-                    (f"继续 {next_step}" if next_step else "完成当前集 3-Drafting，并准备交接 4-Validation"),
+                    (f"继续 {next_step}" if next_step else "完成当前章 3-Drafting，并准备交接 4-Validation"),
                 ],
             },
             {
                 "option": "B",
-                "label": "删除当前集正文，从 Step 1 重启",
+                "label": "删除当前章正文，从 Step 1 重启",
                 "risk": "medium",
-                "description": f"清理 {chapter_path}（以及兼容旧路径正文，如存在），重新起盘当前集",
+                "description": f"清理 {chapter_path}（以及兼容旧路径正文，如存在），重新起盘当前章",
                 "actions": [
                     f"删除 {chapter_path}（及 legacy 正文，如存在）",
                     "清理 Git 暂存区",

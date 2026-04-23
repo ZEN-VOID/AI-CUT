@@ -142,6 +142,7 @@ erDiagram
 
 - 创作项目根目录：`projects/aigc/<项目名>/`
 - 项目级团队真源：`projects/aigc/<项目名>/team.yaml`
+- 项目级创作记忆：`projects/aigc/<项目名>/MEMORY.md`
 - 项目级共享附加上下文根：`projects/aigc/<项目名>/CONTEXT/`
 - 项目级辅助资产库：`projects/aigc/<项目名>/Assets/`
 - 项目运行时目录：`projects/aigc/<项目名>/`，并以此作为 AIGC 项目运行时唯一真源
@@ -216,9 +217,9 @@ erDiagram
 2. `1-Planning`
    - 负责分集、格式、分组、节奏等规划合同，并在规划期登记 `bootstrap_output` 目标路径与 `source_profile` handoff
 3. `2-Global`
-   - 负责全项目共用的全局风格、类型元素、设计元素，以及按集按组展开的导演意图等全局设计真源；其中 `设计元素` 负责服装与建筑场景的时代化定调，阶段末段仍由可写入 shared root 的链路把 `组间设计` seed 写入 `第N集.json`，作为 `3-Detail` 的导演前置结构化合同
+   - 负责围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接填好 `projects/aigc/<项目名>/2-Global/episode_root.json`；阶段末段输出 `meta + project_global + groups[].global`，作为 `3-Detail` 的导演前置结构化合同
 4. `3-Detail`
-   - 负责围绕分镜组内颗粒度的明细设计，包括分镜表现、角色表现、运镜、氛围、摄影美学与转场设计；当前已改为单技能知行合一并发链，在父 `SKILL.md` 内部融合原制作组能力并继续补齐 shared `3-Detail/第N集.json`
+   - 负责围绕分镜组内颗粒度的明细设计；当前已收束为单技能知行合一根包，固定先执行 `1-分镜构图` 来决定镜数、镜级正文和镜级骨架，再在同一 `SKILL.md` 内按顺序补齐 `角色表现 / 氛围表现 / 摄影表现 / 运镜手法 / 转场特效`，并写入 `3-Detail/第N集.json`
 5. `4-Design`
    - 负责场景、角色、服装、道具的清单、设计与面板阶段
 6. `5-Image`
@@ -251,8 +252,8 @@ erDiagram
 | --- | --- | --- | --- |
 | `0-Init` | 是 | 已建合同，脚本待补 | 允许显式初始化任务进入，按 `north_star + init_handoff + project-root runtime` 合同执行 |
 | `1-Planning` | 是 | 已建阶段合同，`1-分集`、`2-格式`、`3-分组` active；`4-节奏` 已折叠进 `3-分组` 的 reviewer / gate 规则 | 默认 `1-分集 -> 2-格式 -> 3-分组`；只有命中节奏复核条件时才触发额外 gate |
-| `2-Global` | 是 | 已建阶段合同，采用单技能内收模式，在父 skill 内部融合 `全局风格 / 类型元素 / 导演意图` 三条能力链，并继续消费 `1-Planning/3-分组` handoff | 写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md`，并由当前父 skill 直接 seed shared `第N集.json` 的 `组间设计` |
-| `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一并发链，在父 skill 内部融合分镜表现、角色表现、运镜手法、场景氛围、摄影美学与转场特效能力 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部 capability route 判定 `selected_groups[] / selected_fields[] / selected_chains[]` |
+| `2-Global` | 是 | 已建阶段合同，采用单技能内收模式，以 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 为模板中心，在父 skill 内部直接填写项目级与组级导演 seed | 直接写入 `2-Global/episode_root.json` 与 `2-Global/validation-report.md`；旧 Markdown 仅允许作为 JSON 派生的兼容投影 |
+| `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一根包，固定 `分镜构图` 先行并直接围绕 `episode_detail.json` 填写 `meta + groups[].global/detail.分镜列表`；镜级骨架由 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 构成 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部固定顺序与命中 scope 完成字段填写 |
 | `4-Design` | 是 | 已建阶段父合同；当前 `1-清单/{场景,角色,道具}` 与 `2-设计/{场景,角色,道具}` 已迁回新路径，其余 tranche / leaf 仍处于 bootstrap-compatible migration | 可先进入 `1-清单` 或 `2-设计`，当前稳定命中 `场景 / 角色 / 道具`；其余 design tranche 按 source-layer 回迁状态再开放 |
 | `5-Image` | 是 | 已建阶段合同，负责统一路由 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧 / 漫画` | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成` |
 | `6-Video` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`；`首尾帧参照`、`多图参照` 与其他扩展路径仍按状态检查 |
@@ -484,9 +485,10 @@ erDiagram
 4. `.codex/registry/routes.yaml`
 5. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 6. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`（仅当后续命中 `2-Global / 3-Detail / 4-Design / 5-Image / 6-Video`）
-7. `projects/aigc/<项目名>/CONTEXT/` 下与本轮任务相关的项目级上下文文件（若存在）
-8. `projects/aigc/<项目名>/STATE.json`（若存在）
-9. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
-10. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
+7. `projects/aigc/<项目名>/MEMORY.md`（若存在）
+8. `projects/aigc/<项目名>/CONTEXT/` 下与本轮任务相关的项目级上下文文件（若存在）
+9. `projects/aigc/<项目名>/STATE.json`（若存在）
+10. `projects/aigc/<项目名>/governance-state.yaml`（若存在）
+11. 命中的阶段或卫星技能 `SKILL.md + CONTEXT.md`
 
-冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > 项目级 `CONTEXT/` > 同目录 `CONTEXT.md`。
+冲突优先级固定为：用户显式请求 > `AGENTS.md` / 元规则 > 本 `SKILL.md` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 同目录 `CONTEXT.md`。

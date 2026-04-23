@@ -101,6 +101,11 @@ SHOT_ROUTE_MAP: Sequence[Tuple[str, Sequence[str], dict]] = (
         },
     ),
 )
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，研究结论与桥接文案不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -113,6 +118,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--emit-research-json", action="store_true", help="兼容旧调用；当前默认总是导出 `道具研究.json`")
     parser.add_argument("--emit-bridge-json", action="store_true", help="兼容旧调用；当前默认总是导出 `prop_design_bridge.json`")
     parser.add_argument("--dry-run", action="store_true", help="只做解析校验，不写文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成研究结论与桥接文案。",
+    )
     return parser.parse_args()
 
 
@@ -608,6 +618,9 @@ def merge_design_context(catalog: dict, research: dict, bridge: dict) -> dict:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"[ERROR] 输入文件不存在: {input_path}", file=sys.stderr)

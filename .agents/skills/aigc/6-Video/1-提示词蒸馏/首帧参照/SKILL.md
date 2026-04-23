@@ -28,9 +28,46 @@ governance_tier: full
 
 交付类型：`内容输出型`
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `首帧参照` 的帧级提示词正文属于内容创作型输出，必须由 LLM 直接完成。
+- `第N集.txt` 的一镜版蒸馏正文同样属于内容创作型输出，必须由 LLM 直接完成；脚本不得代替 LLM 对句子质量、镜头语言连贯性与审美压缩做主创裁决。
+- `scripts/generate_episode_packets.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的 JSON/TXT 投影与校验辅助。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
+
+## TXT Distillation Contract (Mandatory)
+
+`第N集.txt` 在 `首帧参照` 中仍以集为输出单位，但每个 block 只承载一个目标分镜，固定模板为：
+
+1. `分镜组ID`
+2. `全局风格 + 类型元素 + 导演意图`
+3. `分镜N，x-y秒`
+4. `剧本正文：`
+5. `主体锚定：`
+6. `分镜明细：`
+7. `字数统计：xxx`
+
+硬规则：
+
+- 每个目标分镜都必须独立成块，不得退回“只展示 prompt 和字数统计”。
+- 每个目标分镜 block 末尾必须追加 `字数统计：xxx`，其中 `xxx` 统计的是该 block 主稿正文字符数，不把统计行本身计入。
+- `剧本正文` 必须原样保留，不得摘要、裁断、改写或重述。
+- `主体锚定.场景` 与 `主体锚定.角色` 必须原样保留，不得压缩。
+- `主体锚定.道具` 可轻量压缩，但不得改变事实。
+- `分镜明细` 必须展开到下一层字段后再吸收进镜头语言：
+  - `分镜构图.构图形式 / 景别景深 / 镜头类型`
+  - `运镜手法.变化 / 速度 / 组合`
+  - `角色表现.动作戏 / 对话戏 / 内心戏`
+  - `氛围表现.层次 / 空间诗学 / 意境`
+  - `摄影表现.光影 / 色彩 / 质感`
+  - `转场特效.特效 / 组内 / 组间`
+- 上述二级字段只能作为内容来源，最终 `分镜明细` 必须写成镜头语言优先的整段 prose，不得保留明显字段顺序痕迹。
+- `全局风格 / 类型元素 / 导演意图` 只允许轻量压缩。
+- 当字数紧张时，优先压缩 `分镜明细` 与 `主体锚定.道具`，但仍须保持自然句或自然短语。
+
 ## When To Use
 
-- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，且该 episode root 已满足 `metadata.document_phase=ready`，生成帧级视频请求对象。
+- 需要从 `projects/aigc/<项目名>/3-Detail/第N集.json` 中锁定单一 `分镜ID`，且该 episode root 已形成 canonical detail 壳、并经 compat projection 判定为 ready，生成帧级视频请求对象。
 - 需要优先通过 `正文切分参考[] -> 目标分镜.正文回指` 把目标分镜所属组的 `剧本正文` 融写为当前帧的剧情桥段，而不是直接照搬整组剧情。
 - 需要把输出组织成“组级设计块 + 单镜融写行”的 `BC` 结构，而不是保留独立 A 段。
 - 需要把目标分镜 `时间段.开始秒 / 结束秒` 落成当前分镜组内的 `xx秒-xx秒｜分镜<组内序号>：` 时间锚点，不写成 `分镜 <ID> 的 xx秒-xx秒`。
@@ -42,7 +79,7 @@ governance_tier: full
 
 - 当前任务是按整个分镜组覆盖生成视频请求对象，应进入 `6-Video/1-提示词蒸馏/全能参照`。
 - 当前任务是正式提交 provider、轮询结果或下载视频，应进入 `6-Video/3-视频生成` 或命中的 provider 技能；若还需要从 `Assets/` 绑定参考图，则先进入 `6-Video/2-参照引用`。
-- 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表[]`，或目标 `分镜ID` 不存在。
+- 上游 `3-Detail/第N集.json` 尚未形成合法 canonical `groups[]` / compat group view，或目标 `分镜ID` 不存在。
 - 上游 `3-Detail/第N集.json` 仍处于 `bootstrapped` 或 `detail_in_progress`。
 - 目标分镜所属组的 `分镜切换` 与 `分镜明细[]` 数量未对齐，说明 `3-Detail` merge/handoff 仍未稳定。
 - 任务要求把多个 `分镜ID` 混成一条请求；本技能只处理“一镜一条”。
@@ -77,8 +114,8 @@ governance_tier: full
 ### 业务对象
 
 - 上游对象：`projects/aigc/<项目名>/3-Detail/第N集.json`
-- 关键结构：`final_output.main_content.分镜组列表[]`
-- handoff gate：`metadata.document_phase=ready`，且目标分镜所属组满足 `分镜切换 == len(分镜明细[])`
+- 关键结构：canonical `groups[].detail.分镜列表`（必要时经 compat projection 暴露旧式 `分镜明细[]` helper）
+- handoff gate：canonical detail root 已成立，且目标分镜所属组经 compat projection 后满足 `ready + 分镜切换 == len(分镜明细[])`
 - 关键组级字段：`分镜组ID`、`剧本正文`、`正文切分参考[]`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭`
 - 关键镜级字段：目标 `分镜明细` 下的 `分镜ID`、`时间段.开始秒 / 结束秒`、`角色表现`、`运动表现`、`氛围表现`、`视觉强化`、`分镜构图`、`摄影美学`、`运镜手法`、`镜头视角`，以及存在时的 `镜头速度 / 道具及状态 / 镜头类型兼容 / 镜头框架 / 镜头类型`
 - 输出对象：`meta + prompt_style + model + prompt + prompt_char_count`
@@ -106,7 +143,7 @@ governance_tier: full
 - branch-owned 主镜级事实必须在最终 prompt 中保持清晰可辨，尤其是由 `运动表现 / 氛围表现 / 分镜构图 / 运镜手法` 投影出的空间关系与镜头起势；若上游存在 `镜头速度`，也不得被静默压没。
 - 在相同总字数与字段集合下，当前目标分镜的动作、空间、镜头控制与氛围细节应比组级模式更丰满，而不是沿用组级多镜分摊后的稀薄表达。
 - prompt 中除 `xx秒-xx秒｜分镜<组内序号>：` 镜级标签外，不残留显式字段标题，也不泄露完整四段式 `分镜ID`。
-- `第N集.json / 第N集.txt / _manifest.json` 三件套可继续 handoff，并对例外情况给出可追溯备注。
+- `第N集.json / 第N集.txt / _manifest.json` 三件套可继续 handoff，并对例外情况给出可追溯备注；其中 `第N集.txt` 必须是固定模板下的一镜版同构主稿，而不是 prompt 展示页。
 
 ### 拓扑判断
 
@@ -137,8 +174,9 @@ governance_tier: full
 
 ### 必需字段
 
-- `final_output.main_content.分镜组列表[]`
-- `metadata.document_phase = ready`
+- canonical 输入文件：`projects/aigc/<项目名>/3-Detail/第N集.json`
+- compat projection 后的 `final_output.main_content.分镜组列表[]`
+- compat projection 后的 `metadata.document_phase = ready`
 - 目标 `分镜ID`
 - 目标分镜所属 `分镜组ID`
 - 目标分镜所属组的 `分镜切换`
@@ -174,19 +212,20 @@ governance_tier: full
 ### 输入处理原则
 
 1. 一切剧情与镜头事实以上游 `3-Detail/第N集.json` 为准。
-2. 只有 `metadata.document_phase=ready` 且目标分镜所属组 `分镜切换 == len(分镜明细[])` 时，才允许首帧蒸馏继续。
-3. `全局风格` 只允许原文直贴，不做净化、重命名或压缩。
-4. `剧情桥段` 只负责把组级剧本切成目标帧可见事实，不负责重写剧情。
-5. `时间段` 只允许使用目标分镜所在组内的相对秒位，不得回退成全集累积时间线，也不得改写成模糊时间语。
-6. prompt 中不再保留独立 A 段整组 `剧本正文`；完整四段式 `分镜ID` 只允许留在结构化回链字段，正文显示只保留组内序号。
-7. 图片字段只保留共享模板骨架，不准编造真实图片信息。
+2. compat projection 只作为 leaf helper 视图；canonical `meta + groups[].global/detail.分镜列表` 仍是唯一业务真源。
+3. 只有 compat projection 后 `metadata.document_phase=ready` 且目标分镜所属组 `分镜切换 == len(分镜明细[])` 时，才允许首帧蒸馏继续。
+4. `全局风格` 只允许原文直贴，不做净化、重命名或压缩。
+5. `剧情桥段` 只负责把组级剧本切成目标帧可见事实，不负责重写剧情。
+6. `时间段` 只允许使用目标分镜所在组内的相对秒位，不得回退成全集累积时间线，也不得改写成模糊时间语。
+7. prompt 中不再保留独立 A 段整组 `剧本正文`；完整四段式 `分镜ID` 只允许留在结构化回链字段，正文显示只保留组内序号。
+8. 图片字段只保留共享模板骨架，不准编造真实图片信息。
 
 ### 输入完整性门禁
 
 以下任一缺失都必须停机并回报上游缺口：
 
-- `分镜组列表[]` 缺失
-- `metadata.document_phase` 不是 `ready`
+- compat projection 后 `分镜组列表[]` 缺失
+- compat projection 后 `metadata.document_phase` 不是 `ready`
 - 目标 `分镜ID` 不存在
 - 无法锁定所属 `分镜组ID`
 - 目标分镜所属组 `分镜切换` 与 `分镜明细[]` 数量不一致
@@ -406,7 +445,7 @@ stateDiagram-v2
   3. 哪些缺口会直接阻断，哪些只会进入风险备注
 - `actions`:
   1. 校验 `剧本正文 / 全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`
-  2. 校验上游 `metadata.document_phase = ready`
+  2. 通过 compat helper 校验上游 `metadata.document_phase = ready`
   3. 校验目标分镜所属组 `分镜切换 == len(分镜明细[])`
   4. 校验目标分镜是否具备 `分镜ID / 时间段.开始秒 / 时间段.结束秒 / 角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 镜头视角`
   5. 若 `镜头速度 / 道具及状态 / 镜头类型兼容 / 镜头框架 / 镜头类型 / 转场特效` 缺失，则登记为 `soft risk`；legacy `人物表演锚点 / 动作路径 / 空间氛围 / 视觉抓手 / 构图骨架 / 分镜表现 / 角色背景面 / 角色站位走位` 只作 fallback 风险提示；更老 `人物表演 / 动作调度 / 视觉焦点 / 构图策略 / 摄影策略 / 运镜策略 / 转场策略` 已退出 shared schema 主兼容层
@@ -507,11 +546,11 @@ stateDiagram-v2
   3. manifest 是否完整记录策略与例外
 - `actions`:
   1. 写出 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`
-  2. 按共享 TXT 模板写出 `第N集.txt`
+  2. 按一镜版同构模板写出 `第N集.txt`
   3. 写出 `_manifest.json`，登记 `output_mode / bridge_strategy / within_target_range / exception_note`
   4. 确保 `source_shot_ids` 仅包含 1 个目标 `分镜ID`
   5. 回读最终 JSON，确认 `len(prompt) == prompt_char_count`
-  6. 确保 `第N集.txt` 只承载 prompt 与字数统计，不承载结构化参数区块
+  6. 确保 `第N集.txt` 命中固定模板：`分镜组ID / 全局风格-类型元素-导演意图 / 分镜N，x-y秒 / 剧本正文 / 主体锚定 / 分镜明细`
 - `evidence`: 三件套路径、写回结果、结构完整性结论、JSON 回读计数结果
 - `route_out`: 写回成功进入 `N9`；若任一 carrier 缺失则回退本节点
 - `gate`: 不允许只产出其中 1 个文件冒充完成
@@ -615,7 +654,7 @@ stateDiagram-v2
 ### Hard Rules
 
 1. `第N集.json` 是 canonical completeness carrier。
-2. `第N集.txt` 只是 derived display view，只展示 `prompt` 与 `prompt_char_count`。
+2. `第N集.txt` 是一镜版同构模板下的 derived display view，展示固定模板编排后的蒸馏正文，而不是简单回显 `prompt`。
 3. `_manifest.json` 是异常、桥段策略与追溯载体，不替代 JSON 主体。
 4. 每个目标 `分镜ID` 只生成 1 条请求对象。
 5. `prompt` 必须覆盖目标分镜所属组的上下文与该目标分镜的镜级内容，且不得漏掉组级 `出场角色及穿搭` 与镜级 `P1` 高保留项；若上游已提供 `镜头速度`，也不得静默吞掉。
@@ -626,10 +665,10 @@ stateDiagram-v2
 10. 除 `xx秒-xx秒｜分镜<组内序号>：` 镜级标签外，不得出现 `字段标题：字段值` 结构，也不得泄露完整四段式 `分镜ID`。
 11. 单分镜模式下，同样总字数应优先体现为当前分镜的细节丰满度；不得机械沿用组级多镜 prompt 的稀疏表达心智。
 12. 只有当预算进入 `tight` 时，才允许把部分镜级内容收束为更精炼的自然短语；其余情况下应保持连贯自然语句。
-13. `prompt_char_count` 必须与实际 `prompt` 内容一致，且 `第N集.txt` 中的字数统计必须与 JSON 同步。
+13. `prompt_char_count` 必须与实际 `prompt` 内容一致；若 `第N集.txt` 记录附加统计，必须与 JSON 同步。
 14. `reference_images` 与 `image_markers` 仅保留共享模板骨架，不得擅自补入虚构图片信息。
 15. `reference_images` 字段本身不得缺失；`image_markers` 至少保持共享模板要求的 `image_ref / ref_kind / related_subject / image_no` 四字段结构与顺序槽位。
-16. `第N集.txt` 只承载提示词与字数统计，不承载结构化参数区块。
+16. `第N集.txt` 不得退化成“提示词 + 字数统计”展示页；它必须保持固定模板编排，且不承载结构化参数区块。
 
 ### `_manifest.json` Minimum Fields
 
@@ -680,7 +719,7 @@ stateDiagram-v2
 最小校验清单：
 
 - `group_id`、`shot_id`、`source_shot_ids` 是否能同时回链到目标分镜
-- `metadata.document_phase` 是否已经到 `ready`
+- compat projection 后 `metadata.document_phase` 是否已经到 `ready`
 - 目标分镜所属组是否满足 `分镜切换 == len(分镜明细[])`
 - `剧情桥段` 是否只包含目标分镜可见事实
 - `全局风格` 是否与上游逐字一致

@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-20
+last_updated: 2026-04-23
 
 default_flow:
   - step: mandate
@@ -66,6 +66,21 @@ route_policies:
   - id: high-risk-review-gate
     trigger: 涉及重构、批量迁移、状态修复、基础规则变更
     rule: "必须经过门下省预审"
+  - id: command-github-issue-entry
+    trigger: 命中 `/github-issue`、GitHub Issue URL、Issue 编号并要求闭环修复，或需要把 Issue 与提交/PR 关联
+    rule: "进入 `.agents/skills/commands/github-issue/SKILL.md`；直接按该目录级 skill 的 canonical 流程执行问题理解 -> 根因定位 -> 修复 -> 验证 -> 提交/PR。"
+  - id: command-github-push-entry
+    trigger: 命中 `/github-push`、要求把当前正式改动同步到 GitHub，或需要在已有远端前提下做清理+提交+推送
+    rule: "进入 `.agents/skills/commands/github-push/SKILL.md`；直接按该目录级 skill 的 canonical 流程执行清理、提交、推送与最小一致性校验。"
+  - id: command-next-entry
+    trigger: 命中 `/next`、需要刷新编号技能树下游交互、阶段链 `Interaction` 合同，或需要把旧命令式下游提示迁移成当前仓库 skills 交互
+    rule: "进入 `.agents/skills/commands/next/SKILL.md`；直接按该目录级 skill 的 canonical 流程，并按显式合同优先刷新目标目录的 `## Interaction`。"
+  - id: command-subagent-review-entry
+    trigger: 命中 `.agents/skills/commands/subagetns/review`、需要命令树内部 `single-reviewer` 审计子智能体、或父级流程显式 dispatch 一个 bounded review subagent
+    rule: "进入 `.agents/skills/commands/subagetns/review/SKILL.md`；默认按真实 reviewer subagent 运行，输出 findings-first 审计结果；若被上层策略阻断，则必须显式降级为 `degraded-local-review` 并报告阻断来源。"
+  - id: command-subagent-preview-entry
+    trigger: 命中 `.agents/skills/commands/subagetns/preview`、需要命令树内部执行前顾问团预演、或父级流程希望先用显式顾问组/项目 `team.yaml` 解析 advisor council 再正式执行
+    rule: "进入 `.agents/skills/commands/subagetns/preview/SKILL.md`；默认优先采用显式 advisor_group，否则回退到项目 `team.yaml` 解析顾问 roster，并在可行时真实启动 advisor subagents 产出 decision packet；若被上层策略阻断，则必须显式降级为 `degraded-local-council` 并报告阻断来源。"
   - id: comic-root-entry
     trigger: 命中漫画项目、完整漫画链路、从素材/小说到九页漫画图、或需要统一落盘到 `projects/comic/[项目名]/`
     rule: "优先进入 `.agents/skills/comic/SKILL.md`；先锁定 `project_name` 与 `projects/comic/[项目名]/` 项目根，再路由到 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成 / 4-剧集海报`。"
@@ -83,10 +98,16 @@ route_policies:
     rule: "进入 `.agents/skills/comic/4-剧集海报/SKILL.md`；优先读取 `1-漫画小说改编` 与 `2-九刀流漫画提示词` 真源，必要时参考 `3-漫画生成` 图片，默认输出到 `projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json`。"
   - id: api-anyfast-image-entry
     trigger: 命中 `api/anyfast/image`、`AnyFast 生图`、`AnyFast image`、`anyfast image`、或只知道要走 AnyFast 图像能力但未明确子 provider
-    rule: "进入 `.agents/skills/api/anyfast/image/SKILL.md`；按父技能路由在 `nano-banana` 与 `seedream` 之间裁决：命中 `seedream / doubao-seedream / 方舟 / Ark / sequential_image_generation` 走 `.agents/skills/api/anyfast/image/seedream/SKILL.md`，命中 `nano-banana / Gemini 图片 / gemini-3.1-flash-image-preview / face-swap / costume-swap / multiview` 走 `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`，未明确 provider 时默认 `nano-banana`。"
+    rule: "进入 `.agents/skills/api/anyfast/image/SKILL.md`；按父技能路由在 `nano-banana` 与 `seedream` 之间裁决：命中 `seedream / doubao-seedream / 方舟 / Ark / sequential_image_generation` 走 `.agents/skills/api/anyfast/image/seedream/SKILL.md`，命中 `nano-banana / Gemini 图片 / gemini-3.1-flash-image-preview / face-swap / costume-swap / background-swap / retouch / multiview` 走 `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`，未明确 provider 时默认 `nano-banana`。"
   - id: api-anyfast-nano-banana-image-entry
-    trigger: 命中 `nano-banana`、`Gemini 生图`、`gemini-3.1-flash-image-preview`、`AnyFast Gemini`、`face-swap`、`costume-swap`、`multiview-character`、`multiview-scene`、`multiview-prop`，或需要通过 Gemini 原生 `generateContent` / `inline_data` 完成图像生成
-    rule: "进入 `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`；若只是通用文生图 / 图生图，默认再路由到 `general/`；若命中换脸、换装或多视图，则继续进入对应子技能。"
+    trigger: 命中 `nano-banana`、`Gemini 生图`、`gemini-3.1-flash-image-preview`、`AnyFast Gemini`、`face-swap`、`costume-swap`、`background-swap`、`retouch`、`multiview-character`、`multiview-scene`、`multiview-prop`，或需要通过 Gemini 原生 `generateContent` / `inline_data` 完成图像生成
+    rule: "进入 `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`；若只是通用文生图 / 图生图，默认再路由到 `general/`；若命中换脸、换装、背景替换、修图或多视图，则继续进入对应子技能。"
+  - id: api-anyfast-nano-banana-background-swap-entry
+    trigger: 命中 `background-swap`、背景替换、换背景、抠图换景、保留主体换环境、保留人物换背景
+    rule: "进入 `.agents/skills/api/anyfast/image/nano-banana/background-swap/SKILL.md`；默认采用双图输入：图一锁定主体，图二提供背景环境，并让输出优先跟随第一张本地输入图目录落盘。"
+  - id: api-anyfast-nano-banana-retouch-entry
+    trigger: 命中 `retouch`、修图、精修、去瑕疵、提高清晰度、优化曝光色彩、保留构图做精修
+    rule: "进入 `.agents/skills/api/anyfast/image/nano-banana/retouch/SKILL.md`；默认采用单图输入，保留主体身份、构图和叙事不变，执行自然写实的轻量精修，并让输出优先跟随第一张本地输入图目录落盘。"
   - id: api-anyfast-seedream-image-entry
     trigger: 命中 `seedream`、`SEEDREAM 5.0`、`doubao-seedream-5-0-260128`、`方舟生图`、`Ark images/generations`、连续多图生图、或需要 `sequential_image_generation`
     rule: "进入 `.agents/skills/api/anyfast/image/seedream/SKILL.md`；使用 Ark `images/generations` 接口执行文本生图、参考图生图与连续多图生成。"
@@ -104,10 +125,13 @@ route_policies:
     rule: "进入 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/SKILL.md`；默认使用 `https://www.anyfast.ai/v1/chat/completions` 与 `model=doubao-seed-2.0-pro`，简单文本走 `prompt/system` 组装，复杂上下文走 `messages` 直传，并通过 `scripts/doubao_seed_chat.py` 执行。"
   - id: story-doubao-entry
     trigger: 命中 `story/doubao`、`豆包小说润色`、`中文小说润色`、`文风诊断`、`分析文章风格`、`整稿统修`、`去 AI 味`、`中文表达强化`，或需要把已有正文按单技能方式集成 `3-Drafting` 八步能力完成重写
-    rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/aigc/<项目名>/3-Drafting/第N集.md`；legacy `projects/story/<项目名>/3-Drafting/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
+    rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；legacy `projects/story/<项目名>/3-Drafting/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
+  - id: story-drafting-maintext-entry
+    trigger: 命中 `story/3-Drafting/正文`、`章节正文`、`按章创作`、`第N卷/第N章.md`、`章级正文根稿`，或要求从三层 planning + 全局卡/风格卡/`north_star` 直接写小说正文
+    rule: "进入 `.agents/skills/story/3-Drafting/正文/SKILL.md`；必须加载 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 1-Cards/0-全局卡 + 1-Cards/1-风格卡 + 0-Init/north_star.yaml + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；YAML 头必须包含 `global_context + style_context + north_star_chapter_brief`。"
   - id: api-vidu-video-entry
     trigger: 命中 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 任务查询/取消/积分/回调验签，或需要通过 Vidu 企业版执行多模式视频生成
-    rule: "进入 `.agents/skills/api/vidu/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"
+    rule: "进入 `.agents/skills/api/vidu/video-generate/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"
   - id: team-screenwriter-dazai-osamu-entry
     trigger: 命中太宰治视角、太宰会怎么写、Dazai perspective、人间失格式、斜阳式没落、道化、羞耻自白，或小说组/编剧组需要处理失败者叙事、第一人称旁白、家庭没落、女性旁观者、轻喜剧外壳下的绝望
     rule: "进入 `.agents/skills/team/study/文学系/太宰治/SKILL.md`；事实型问题先核对 `references/research/` 或联网来源，创作型问题必须输出面具、羞耻动作、自白罪证、家庭账目、女性旁观与边界提醒。"

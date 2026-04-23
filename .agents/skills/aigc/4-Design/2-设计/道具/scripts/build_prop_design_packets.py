@@ -17,6 +17,7 @@ if SHARED_SCRIPTS_DIR.as_posix() not in sys.path:
     sys.path.insert(0, SHARED_SCRIPTS_DIR.as_posix())
 
 from global_style_prefix import extract_global_style_prefix  # noqa: E402
+from project_design_fallbacks import load_project_design_fallbacks, nested_get  # noqa: E402
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -24,6 +25,16 @@ TEMPLATE_PATH = SCRIPT_DIR.parent / "templates" / "prop_masterprompt.structured.
 NON_ASCII_RE = re.compile(r"[^\x00-\x7F]")
 INTEGRATED_PROMPT_MIN_BYTES = 1800
 INTEGRATED_PROMPT_MAX_BYTES = 2200
+PLACEHOLDER_PATTERNS = (
+    "the catalogued prop",
+    "near-future community-life comedy",
+    "holographic",
+)
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，核心创作环节不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移/投影场景；如确需临时执行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,7 +42,7 @@ def parse_args() -> argparse.Namespace:
         description="从 `道具清单.json` 生成逐道具 Markdown 设计卡，并按需导出兼容 JSON。"
     )
     parser.add_argument("--catalog", required=True, help="道具清单.json 路径")
-    parser.add_argument("--detail", help="3-Detail/第N集.json 路径")
+    parser.add_argument("--detail", help="3-Detail/第N集.json 路径；仅用于 traceability 补证")
     parser.add_argument("--research", help="道具研究.json 路径")
     parser.add_argument("--bridge", help="prop_design_bridge.json 路径")
     parser.add_argument("--global-style", help="全局风格.md 路径")
@@ -47,6 +58,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--prop-name", action="append", dest="prop_names", help="只处理指定 canonical_name，可重复传入")
     parser.add_argument("--write-compat-json", action="store_true", help="额外导出 compat JSON")
     parser.add_argument("--dry-run", action="store_true", help="只预览 manifest，不写文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成创作型道具设计内容。",
+    )
     return parser.parse_args()
 
 
@@ -160,6 +176,11 @@ def ensure_terminal_punctuation(text: str) -> str:
 
 def translate_global_style_prefix(style_text: str) -> str:
     source = ensure_terminal_punctuation(style_text)
+    if "侍魂天草降临" in source or "徐克1994香港武侠电影美学" in source or "和田惠美" in source:
+        return (
+            "A gothic-romantic wuxia prop design language with 35mm film grain, soft halation, volumetric fog, "
+            "weathered practical materials, restrained contrast, and production-ready inspection clarity."
+        )
     if "近未来社区生活喜剧影视质感" in source and "轻量全息奇观" in source:
         return (
             "A near-future community-life comedy with cinematic realism, orderly lived-in spaces, "
@@ -247,40 +268,105 @@ PROP_NAME_TRANSLATIONS = {
 }
 
 
-def translate_prop_name(value: Any) -> str:
+def infer_project_root(catalog_path: Path) -> Path:
+    try:
+        return catalog_path.resolve().parents[4]
+    except IndexError as exc:
+        raise ValueError(f"无法从 catalog 路径推断项目根: {catalog_path}") from exc
+
+
+def translate_prop_name(value: Any, *, project_fallbacks: dict[str, Any] | None = None) -> str:
     text = str(value or "").strip()
     if not text:
         return "the catalogued prop"
+    registry_translation = nested_get(project_fallbacks, "props", "name_translations", text, default="")
+    if registry_translation:
+        return registry_translation
     translated = PROP_NAME_TRANSLATIONS.get(text)
     if translated:
         return translated
     if NON_ASCII_RE.search(text):
-        return "the catalogued prop"
+        return text
     return text
 
 
-def translate_fragment(text: str) -> str:
+def has_real_entries(items: list[Any]) -> bool:
+    for item in items:
+        text = str(item or "").strip()
+        if text and text.lower() != "unknown":
+            return True
+    return False
+
+
+def infer_prop_defaults(prop_name: str, *, project_fallbacks: dict[str, Any] | None = None) -> dict[str, Any]:
+    registry_defaults = nested_get(project_fallbacks, "props", "defaults_by_name", prop_name, default={}) or {}
+    if registry_defaults:
+        return registry_defaults
+    if "木牌" in prop_name:
+        return {
+            "prop_type": "insignia_or_token",
+            "structure_modules": ["rectangular wooden plaque body", "carrying hole or hanging point", "seal-mark reading surface"],
+            "material_and_finish": ["weathered wood", "inked or burned seal marks", "frayed cord wear"],
+            "wear_marks": ["edge abrasion", "finger polish around the carrying point", "seal-surface wear"],
+        }
+    if "税单" in prop_name or "册子" in prop_name:
+        return {
+            "prop_type": "document_or_ledger",
+            "structure_modules": ["folded paper body", "binding edge", "seal or account-writing surface"],
+            "material_and_finish": ["aged paper", "ink writing", "folded edges", "thread or stitched binding"],
+            "wear_marks": ["creased corners", "finger-darkened edges", "smudged ink and handling wear"],
+        }
+    if "钱袋" in prop_name:
+        return {
+            "prop_type": "pouch_or_currency_container",
+            "structure_modules": ["cloth pouch body", "drawstring closure", "coin-weight silhouette"],
+            "material_and_finish": ["worn cloth", "drawstring fiber", "stitching and knot wear"],
+            "wear_marks": ["pulled seams", "frayed drawstring", "pressure marks from carried coins"],
+        }
+    if "印记" in prop_name:
+        return {
+            "prop_type": "seal_or_authority_token",
+            "structure_modules": ["seal body", "engraved face", "authority-mark silhouette"],
+            "material_and_finish": ["carved wood or metal", "ink residue", "surface polish from repeated use"],
+            "wear_marks": ["engraving wear", "ink accumulation", "edge polish from handling"],
+        }
+    return {
+        "prop_type": "general_prop",
+        "structure_modules": [],
+        "material_and_finish": [],
+        "wear_marks": [],
+    }
+
+
+def translate_fragment(text: str, *, project_fallbacks: dict[str, Any] | None = None) -> str:
     clean = str(text).strip()
     if clean in PHRASE_TRANSLATIONS:
         return PHRASE_TRANSLATIONS[clean]
+    registry_translation = nested_get(project_fallbacks, "props", "name_translations", clean, default="")
+    if registry_translation:
+        return registry_translation
     if clean in PROP_NAME_TRANSLATIONS:
         return PROP_NAME_TRANSLATIONS[clean]
     if clean.endswith("的主体轮廓"):
         prop_name = clean[: -len("的主体轮廓")]
-        return f"{translate_prop_name(prop_name)} main silhouette"
+        return f"{translate_prop_name(prop_name, project_fallbacks=project_fallbacks)} main silhouette"
     match = re.search(r"优先保留(.+?)的轮廓", clean)
     if match:
-        return f"prioritize {translate_prop_name(match.group(1))} silhouette, force relationships, and documented surface treatment"
+        return (
+            "prioritize "
+            f"{translate_prop_name(match.group(1), project_fallbacks=project_fallbacks)} "
+            "silhouette, force relationships, and documented surface treatment"
+        )
     return clean
 
 
-def join_brief(items: list[str], limit: int = 4) -> str:
-    values = [translate_fragment(str(item)) for item in items if str(item).strip()]
+def join_brief(items: list[str], limit: int = 4, *, project_fallbacks: dict[str, Any] | None = None) -> str:
+    values = [translate_fragment(str(item), project_fallbacks=project_fallbacks) for item in items if str(item).strip()]
     return "; ".join(values[:limit]) if values else "TBD"
 
 
-def english_fragment(value: Any, fallback: str) -> str:
-    translated = translate_fragment(str(value))
+def english_fragment(value: Any, fallback: str, *, project_fallbacks: dict[str, Any] | None = None) -> str:
+    translated = translate_fragment(str(value), project_fallbacks=project_fallbacks)
     if not translated or translated == "TBD" or NON_ASCII_RE.search(translated):
         return fallback
     for source, replacement in (
@@ -300,8 +386,15 @@ def english_fragment(value: Any, fallback: str) -> str:
     return translated
 
 
-def english_join_brief(items: list[str], fallback: str, limit: int = 4) -> str:
-    values = [english_fragment(item, "") for item in items if str(item).strip()]
+def english_join_brief(
+    items: list[str],
+    fallback: str,
+    limit: int = 4,
+    *,
+    project_fallbacks: dict[str, Any] | None = None,
+) -> str:
+    values = [english_fragment(item, "", project_fallbacks=project_fallbacks) for item in items if str(item).strip()]
+    values = [item for item in values if item and "unknown" not in item.lower()]
     values = [item for item in values if item]
     return "; ".join(values[:limit]) if values else fallback
 
@@ -335,42 +428,96 @@ def fit_integrated_prompt(sentences: list[str]) -> str:
 
 def build_integrated_prompt_text(
     packet: dict[str, Any],
+    *,
+    project_fallbacks: dict[str, Any] | None = None,
 ) -> str:
     prop_name = packet["canonical_name"]
-    prop_name_en = translate_prop_name(prop_name)
+    prop_name_en = translate_prop_name(prop_name, project_fallbacks=project_fallbacks)
     narrative = packet["narrative_significance"]
     shot_route = packet["shot_route"]
     physical_character = packet["physical_character"]
     display_profile = packet["display_profile"]
-    structure = english_join_brief(packet["structure_modules"], f"{prop_name_en} silhouette, functional end, force points, and readable state-mark details", 3)
-    material = english_join_brief(packet["material_and_finish"], f"{prop_name_en} material finish and surface craft", 3)
-    wear = english_join_brief(packet["wear_marks"], f"{prop_name_en} wear, switch state, light state, and surface-use marks", 5)
-    negative = english_join_brief(packet["negative_constraints"], "do not invent unsupported parts or decoration", 4)
+    structure = english_join_brief(
+        packet["structure_modules"],
+        f"{prop_name_en} silhouette, functional end, force points, and readable state-mark details",
+        3,
+        project_fallbacks=project_fallbacks,
+    )
+    material = english_join_brief(
+        packet["material_and_finish"],
+        f"{prop_name_en} material finish and surface craft",
+        3,
+        project_fallbacks=project_fallbacks,
+    )
+    wear = english_join_brief(
+        packet["wear_marks"],
+        f"{prop_name_en} wear, switch state, light state, and surface-use marks",
+        5,
+        project_fallbacks=project_fallbacks,
+    )
+    negative = english_join_brief(
+        packet["negative_constraints"],
+        "do not invent unsupported parts or decoration",
+        4,
+        project_fallbacks=project_fallbacks,
+    )
     visual_obligation = english_fragment(
         narrative.get("visual_obligation", ""),
         "keep the key silhouette and readable functional logic clear",
+        project_fallbacks=project_fallbacks,
     )
-    story_function = english_fragment(narrative.get("story_function", ""), "story support")
+    story_function = english_fragment(
+        narrative.get("story_function", ""),
+        "story support",
+        project_fallbacks=project_fallbacks,
+    )
     story_text = english_fragment(
         packet["story_text"],
         f"{prop_name_en} carries the documented narrative function, visible material evidence, and cross-shot state continuity",
+        project_fallbacks=project_fallbacks,
     )
-    shot_size = english_fragment(shot_route.get("shot_size", ""), "medium hero shot")
-    camera_angle = english_fragment(shot_route.get("camera_angle", ""), "eye-level three-quarter")
-    focal_length = english_fragment(shot_route.get("focal_length", ""), "50mm")
-    lighting = english_fragment(shot_route.get("lighting", ""), "story-motivated lighting with readable edge separation")
+    shot_size = english_fragment(
+        shot_route.get("shot_size", ""),
+        "medium hero shot",
+        project_fallbacks=project_fallbacks,
+    )
+    camera_angle = english_fragment(
+        shot_route.get("camera_angle", ""),
+        "eye-level three-quarter",
+        project_fallbacks=project_fallbacks,
+    )
+    focal_length = english_fragment(
+        shot_route.get("focal_length", ""),
+        "50mm",
+        project_fallbacks=project_fallbacks,
+    )
+    lighting = english_fragment(
+        shot_route.get("lighting", ""),
+        "story-motivated lighting with readable edge separation",
+        project_fallbacks=project_fallbacks,
+    )
     surface = english_fragment(
         physical_character.get("surface_temperament", ""),
         "a readable material surface with clear primary and secondary finishes",
+        project_fallbacks=project_fallbacks,
     )
-    force_logic = english_fragment(physical_character.get("force_logic", ""), "functional interaction, display, and force logic")
+    force_logic = english_fragment(
+        physical_character.get("force_logic", ""),
+        "functional interaction, display, and force logic",
+        project_fallbacks=project_fallbacks,
+    )
     visual_signature = english_fragment(
         display_profile.get("visual_signature", "") or packet["reasoning_pivot"],
         f"{prop_name_en} silhouette, material wear, force relationship, and readable state marks",
+        project_fallbacks=project_fallbacks,
     )
     narrative_focus = ""
     if narrative.get("is_special"):
-        narrative_level = english_fragment(narrative.get("level", ""), "notable")
+        narrative_level = english_fragment(
+            narrative.get("level", ""),
+            "notable",
+            project_fallbacks=project_fallbacks,
+        )
         narrative_focus = (
             f" Treat it as a {narrative_level}-level narrative prop for {story_function}; "
             f"{visual_obligation}."
@@ -452,6 +599,7 @@ def build_packet(
     init_handoff_text: str,
     research_item: dict[str, Any],
     bridge_item: dict[str, Any],
+    project_fallbacks: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     design_context = prop.get("design_context", {})
     handoff = design_context.get("design_handoff", {})
@@ -482,11 +630,27 @@ def build_packet(
     negative_constraints = list(first_non_empty(handoff.get("negative_constraints"), bridge_item.get("negative_constraints"), []))
     prompt_anchor = str(first_non_empty(handoff.get("prompt_anchor"), bridge_item.get("prompt_anchor"), prop.get("canonical_name", "")))
     style_backbone = extract_global_style_hint(global_style_text, type_elements_text, design_elements_text)
+    prop_name = str(prop.get("canonical_name", "unnamed_prop"))
+    defaults = infer_prop_defaults(prop_name, project_fallbacks=project_fallbacks)
+    if not has_real_entries(structure_modules):
+        structure_modules = list(defaults["structure_modules"])
+    elif "木牌" in prop_name and not any("plaque" in str(item).lower() or "wood" in str(item).lower() for item in structure_modules):
+        structure_modules = [*defaults["structure_modules"], *structure_modules]
+    if not has_real_entries(material_and_finish) or ("木牌" in prop_name and "织物" in " ".join(str(item) for item in material_and_finish)):
+        material_and_finish = list(defaults["material_and_finish"])
+    if not has_real_entries(wear_marks):
+        wear_marks = list(defaults["wear_marks"])
+    else:
+        wear_marks = [item for item in wear_marks if "unknown" not in str(item).lower()] or list(defaults["wear_marks"])
+    if not english_join_brief(structure_modules, "", 3, project_fallbacks=project_fallbacks):
+        structure_modules = list(defaults["structure_modules"])
+    if not english_join_brief(wear_marks, "", 5, project_fallbacks=project_fallbacks):
+        wear_marks = list(defaults["wear_marks"])
 
     packet = {
         "prop_id": str(prop.get("prop_id", "prop")),
-        "canonical_name": str(prop.get("canonical_name", "unnamed_prop")),
-        "prop_type": str(first_non_empty(handoff.get("prop_type"), prop.get("prop_type"), "general_prop")),
+        "canonical_name": prop_name,
+        "prop_type": str(first_non_empty(handoff.get("prop_type"), prop.get("prop_type"), defaults["prop_type"], "general_prop")),
         "design_context": design_context,
         "display_profile": display_profile,
         "attribute_profile": attribute_profile,
@@ -535,9 +699,23 @@ def build_packet(
     packet["reasoning_pivot"] = build_reasoning_pivot(display_profile, narrative, physical_character)
     packet["global_style_prefix_source"] = ensure_terminal_punctuation(style_backbone or packet["style_backbone"])
     packet["global_style_prefix"] = translate_global_style_prefix(packet["global_style_prefix_source"])
-    packet["prompt_integration"] = build_integrated_prompt_text(packet)
+    packet["prompt_integration"] = build_integrated_prompt_text(packet, project_fallbacks=project_fallbacks)
     packet["prompt_text"] = build_full_prompt(packet["global_style_prefix"], packet["prompt_integration"])
     return packet
+
+
+def find_packet_placeholders(packet: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    serialized = " ".join(
+        str(packet.get(key, ""))
+        for key in ("prompt_integration", "prompt_text", "global_style_prefix")
+    )
+    for token in PLACEHOLDER_PATTERNS:
+        if token in serialized:
+            issues.append(token)
+    if re.search(r"\bunknown\b", serialized):
+        issues.append("unknown")
+    return sorted(set(issues))
 
 
 def build_compat_payloads(
@@ -628,10 +806,15 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     catalog_path = Path(args.catalog)
     if not catalog_path.exists():
         print(f"[ERROR] catalog 不存在: {catalog_path}", file=sys.stderr)
         return 1
+    project_root = infer_project_root(catalog_path)
+    project_fallbacks = load_project_design_fallbacks(project_root)
 
     catalog = read_json(catalog_path)
     props = catalog.get("props", [])
@@ -695,7 +878,16 @@ def main() -> int:
             init_handoff_text=init_handoff_text,
             research_item=lookup_by_key(research_props, prop_id, canonical_name),
             bridge_item=lookup_by_key(bridge_props, prop_id, canonical_name),
+            project_fallbacks=project_fallbacks,
         )
+        packet_issues = find_packet_placeholders(packet)
+        if packet_issues:
+            print(
+                "[ERROR] 道具设计包仍含占位或错域回退，已阻止继续落盘: "
+                + json.dumps({canonical_name: packet_issues}, ensure_ascii=False),
+                file=sys.stderr,
+            )
+            return 1
         markdown_name = markdown_filename(prop_id, canonical_name)
         markdown_path = output_dir / markdown_name
         packets.append(packet)

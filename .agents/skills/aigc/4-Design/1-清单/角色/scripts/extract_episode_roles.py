@@ -14,9 +14,18 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 
+ROOT = Path(__file__).resolve().parents[7]
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
+
 EPISODE_FILE_RE = re.compile(r"第0*(?P<episode>\d+)集\.json$")
 GROUP_SPLIT_RE = re.compile(r"[；;]\s*")
-ROLE_ANCHOR_RE = re.compile(r"(?P<name>[^：:；;，。,]{1,20})[：:](?P<desc>.+)")
+ROLE_ANCHOR_RE = re.compile(r"(?P<name>[^：:；;，。,\\-—]{1,20})[：:](?P<desc>.+)")
+ROLE_HYPHEN_ANCHOR_RE = re.compile(r"(?P<name>[^：:；;，。,\\-—]{1,20})[-—](?P<desc>.+)")
 ROLE_NAME_RE = re.compile(r"[\u4e00-\u9fffA-Za-z0-9]{1,12}")
 CLAUSE_SPLIT_RE = re.compile(r"[，,、；;。]\s*")
 COLLECTIVE_KEYWORDS = ("众人", "人群", "围观者", "宾客群", "侍卫群", "保镖群", "服务生群")
@@ -73,6 +82,9 @@ def infer_project_name(input_path: Path) -> str:
 
 
 def infer_episode_id(input_path: Path, payload: dict) -> str:
+    meta = payload.get("meta", {})
+    if isinstance(meta, dict) and meta.get("集数"):
+        return str(meta["集数"])
     metadata = payload.get("metadata", {})
     if isinstance(metadata, dict) and metadata.get("episode_id"):
         return str(metadata["episode_id"])
@@ -83,10 +95,11 @@ def infer_episode_id(input_path: Path, payload: dict) -> str:
 
 
 def get_groups(payload: dict) -> List[dict]:
+    payload = ensure_legacy_detail_payload(payload)
     try:
         groups = payload["final_output"]["main_content"]["分镜组列表"]
     except KeyError as exc:
-        raise ValueError("输入 JSON 不符合 director episode schema，缺少 `final_output.main_content.分镜组列表`。") from exc
+        raise ValueError("输入 JSON 既不符合 canonical detail root，也无法投影出 `分镜组列表` 兼容视图。") from exc
     if not isinstance(groups, list):
         raise ValueError("`分镜组列表` 必须是数组。")
     return groups
@@ -144,6 +157,8 @@ def parse_group_role_anchors(raw_text: str) -> List[Tuple[str, str, str]]:
             continue
         match = ROLE_ANCHOR_RE.match(chunk)
         if not match:
+            match = ROLE_HYPHEN_ANCHOR_RE.match(chunk)
+        if not match:
             continue
         name = normalize_role_name(match.group("name"))
         description = clean_excerpt(match.group("desc"), limit=80)
@@ -175,9 +190,9 @@ def collect_prop_hints(*texts: str) -> List[str]:
 def build_display_profile(name: str, tier: str, costume_state: str, shot_count: int) -> dict:
     return {
         "title": name,
-        "short_tagline": f"{tier} / {shot_count}镜证据",
-        "summary": f"{name}在当前集至少出现 {shot_count} 个可追溯镜头，当前主造型锚点为“{costume_state}”。",
-        "visual_hook": f"设计阶段应先锁住{name}的身份压迫与服装连续性，再做风格化细化。",
+        "short_tagline": f"{tier}|shots={shot_count}",
+        "summary": f"shot_count={shot_count}; primary_costume_state={costume_state}",
+        "visual_hook": f"canonical_name={name}; primary_costume_state={costume_state}",
     }
 
 
@@ -208,7 +223,7 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
         "primary_input": input_path.as_posix(),
         "source_input": input_path.as_posix(),
         "source_inputs": [input_path.as_posix()],
-        "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
+        "source_schema": CANONICAL_DETAIL_TEMPLATE,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
 

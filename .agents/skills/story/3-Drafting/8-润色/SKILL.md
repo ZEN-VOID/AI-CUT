@@ -11,7 +11,7 @@ governance_tier: lite
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
 - 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
-- 正式处理前，必须读取 Step 7 已写回后的当前 `第N集.md`。
+- 正式处理前，必须读取 Step 7 已写回后的当前 `第N章.md`。
 - 必须同时按需读取以下局部子模块：
   - `反评论腔/module-spec.md`
   - `反镜头说明腔/module-spec.md`
@@ -57,7 +57,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - 当前 `第N集.md`
+  - 当前 `第N章.md`
   - `第V卷.写作日志.yaml`
 - 条件必需输入：
   - `1-Cards/1-风格卡/**/*.json`
@@ -88,7 +88,7 @@ governance_tier: lite
 
 - 本 child 在正式 runtime 中只占据 `start-step -> complete-step -> inline validation` 这一个 step 区段；整条链由父层按 `start-task -> start-step -> complete-step -> inline validation -> pass or block` 驱动。
 - 当前 step 写回后，父层必须立刻按 `../../4-Validation/_shared/validation-dimension-registry.yaml` 触发当前 step 登记的 inline validators。
-- 只有当前 gate 明确 `pass`，且正文同时通过 `scripts/drafting_manuscript_guard.py` 的 `chapter-complete manuscript` 守门，本集才获得 `candidate_final_draft`；这仍不等于最终 PASS。
+- 只有当前 gate 明确 `pass`，且正文同时通过 `scripts/drafting_manuscript_guard.py` 的 `chapter-complete manuscript` 守门，本章才获得 `candidate_final_draft`；这仍不等于最终 PASS。
 - 若 hook 失败且 `rework_target_step == Step 8`，必须留在 Step 8 重写并重跑 gate。
 - 若 hook 指向更早受影响 drafting step 或上游 `source_layer_owner`，必须按 shared contract 回卷或停止 drafting 转 source fix；不得把 block 态伪装成“已自然进入 4-Validation”。
 

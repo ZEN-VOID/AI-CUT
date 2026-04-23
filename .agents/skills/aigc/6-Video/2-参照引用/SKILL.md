@@ -60,7 +60,7 @@ governance_tier: full
 | 分析项 | 结论 |
 | --- | --- |
 | `business_goal` | 将项目级 `Assets/` 中已人工选定的图像资产绑定进视频请求对象，使后续视频生成有稳定参照输入 |
-| `business_object` | `1-提示词蒸馏/*` 产出的 `第N集.json`、项目级 `Assets/` 目录、上游 `3-Detail/第N集.json` 中的主体/分镜线索 |
+| `business_object` | `1-提示词蒸馏/*` 产出的 `第N集.json`、项目级 `Assets/` 目录、以及 canonical `3-Detail/第N集.json` 中的主体/分镜线索；若脚本需要旧式 `组间设计 / 分镜明细[]` helper，只允许通过 compat helper 从 canonical detail root 派生 |
 | `constraint_profile` | 只允许绑定 `Assets/` 中真实存在的文件；不存在的可跳过；歧义候选必须阻断；不得伪造远程 URL 或不存在路径；绑定后字段必须通过严格检查 |
 | `success_criteria` | 输出请求对象中的 `reference_images / image_markers` 可回链到真实 `Assets/` 文件，顺序稳定，无占位残留，无歧义误绑，并可继续交给 `3-视频生成` |
 | `topology_fit` | 一条主干串联“输入定位 -> 候选推导 -> 资产匹配 -> 严格校验 -> 写回汇流”，其中资产匹配节点内部允许多类候选并行收敛 |
@@ -113,6 +113,11 @@ stateDiagram-v2
 - `projects/aigc/<项目名>/3-Detail/<第N集>.json`
 - `projects/aigc/<项目名>/Assets/`
 - `.agents/skills/aigc/6-Video/_shared/video-generation-input.template.json`
+
+说明：
+
+- `projects/aigc/<项目名>/3-Detail/<第N集>.json` 仍以 canonical `meta + groups[].global/detail.分镜列表` 为唯一业务真源。
+- `2-参照引用/scripts/bind_reference_assets.py` 当前会通过 compat helper 把 canonical detail root 投影成旧式 `组间设计 / 分镜明细[]` helper 视图，以便复用现有匹配逻辑；该 helper 视图不是新的第一真源。
 
 ## Canonical Landing
 

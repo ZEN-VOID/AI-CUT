@@ -30,9 +30,9 @@
 ## Repair Playbook
 
 1. 先查 `N0` 是否锁定了“组级 storyboard 请求 JSON 蒸馏”而不是其他对象。
-2. 再查 `N1` 的 shared schema、`metadata.document_phase` 与 `分镜组列表[]` 是否成立。
+2. 再查 `N1` 的 shared schema、canonical detail root 经 compat adapter 推断的 readiness，以及 canonical `groups[]` 是否成立。
 3. 再查 `N2` 的 `group_id + source_shot_ids` 是否唯一且有序。
-4. 再查 `N3` 是否已经覆盖 `剧本正文 + 组间设计（含 出场角色及穿搭） + 分镜明细[]`。
+4. 再查 `N3` 是否已经覆盖 canonical `global.* + detail.分镜列表`，以及叶子仍需时由 compat projection 派生的 `组间设计（含 出场角色及穿搭） + 分镜明细[]`。
 5. 再查 `N4` 是否严格等于“固定英文前缀 + 组级设计块 + 多镜融写列”。
 6. 再查 `N5` 是否仍以共享模板骨架承接，并确认 `reference_images / image_markers` 没被删。
 7. 最后查 `N6` 是否正确落 `第N集.json`，以及 `full_trace` 时 `_manifest.json` 是否与之互相追溯。

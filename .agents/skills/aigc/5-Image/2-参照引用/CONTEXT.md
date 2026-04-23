@@ -16,6 +16,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
+| 把 compat `组间设计.出场角色及穿搭` 误记成 `3-Detail` 第一真源 | 真源边界层 | 改回“canonical detail root -> `detail_root_adapter` -> compat 证据位”的读取顺序 | 在 `SKILL.md` 固化 `episode_detail.json + detail_root_adapter.py` 的边界说明 | 绑定阶段不再把旧 detail 壳误写为上游真源 |
 | 请求对象仍是旧 `image_url` 结构 | 共享模板层 | 升级到 `image_ref + ref_kind + provider_variants` | 在 `_shared` 模板与本技能 `R1` 固化双模式骨架 | 绑定结果不再依赖旧 URL 字段 |
 | `jimeng_cli` 槽位写成 URL | provider 解析层 | 改回真实本地路径 | 在 `references/jimeng-cli.md` 固化 `local_path only` | 即梦 CLI 侧输入可直接上传 |
 | `nano_banana` 提前写入伪 BASE64 | provider 解析层 | 回退到 `pending_encode`，让 `3-图像生成` 再做编码 | 在 `references/nano-banana.md` 固化“兼容态不伪造 base64” | 请求对象不再携带假编码 |
@@ -29,17 +30,18 @@
 
 1. 先查输入请求对象是否兼容 `v2` 模板。
 2. 再查 `provider_mode` 是 `jimeng_cli`、`nano_banana` 还是 `dual_mode`。
-3. 若需要重新绑定，先运行 `scripts/bind_reference_assets.py --dry-run` 看保守匹配摘要；不要手写宽松绑定结果。
-4. 再查 `reference_images / image_markers` 是否能回链真实本地文件。
-5. 再查候选来源是否足够强：
+3. 若需要回看 `3-Detail` 组级角色信息，先确认当前读取的是 canonical `episode_detail.json` 经 `detail_root_adapter` 投影出的 compat 证据位，而不是把旧 detail 壳当第一真源。
+4. 若需要重新绑定，先运行 `scripts/bind_reference_assets.py --dry-run` 看保守匹配摘要；不要手写宽松绑定结果。
+5. 再查 `reference_images / image_markers` 是否能回链真实本地文件。
+6. 再查候选来源是否足够强：
    - 完整角色名、组级主场景锚点、完整复合道具名才可直接绑定
    - `门 / 灯 / 卫生间 / 吊顶 / 楼道 / 洗手池 / 门板` 等泛词不得直接绑定
    - 子串命中和同 token 多候选必须进入歧义清单
-6. 再查 provider-specific 槽位是否写对：
+7. 再查 provider-specific 槽位是否写对：
    - 即梦 CLI 只收本地路径
    - NANO-banana 兼容态允许 `pending_encode`
-7. 最后查三件套落盘与下一入口是否清楚。
-8. 对已落盘结果运行：
+8. 最后查三件套落盘与下一入口是否清楚。
+9. 对已落盘结果运行：
    `python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/audit_reference_binding.py --bound-json <第N集.json> --manifest <_manifest.json> --assets <selected-4-design-assets.json> --strict`
 
 ## Reusable Heuristics

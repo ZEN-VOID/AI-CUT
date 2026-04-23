@@ -84,7 +84,8 @@ flowchart TD
   - `prompt`
   - `messages`（通过 `--messages-json` / `--messages-file` / `--input-json` 提供）
 - API Key：
-  - 优先读取根目录 `.env` 中的 `ANYFAST_API_KEY`
+  - 优先读取根目录 `.env` 中的 `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY`
+  - 若未设置则回退到 `ANYFAST_API_KEY`
   - 可显式传 `--api-key`
 
 可选输入：
@@ -112,7 +113,8 @@ flowchart TD
    - 默认模型必须是 `doubao-seed-2.0-pro`。
    - 若用户明确要求其他模型，应优先改用对应 skill，而不是静默漂移本技能语义。
 2. **认证单一事实源**
-   - 默认从根目录 `.env` 读取 `ANYFAST_API_KEY`。
+   - 本技能专用密钥默认从根目录 `.env` 的 `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY` 读取。
+   - 若专用密钥缺失，才允许回退到 `ANYFAST_API_KEY`。
    - 无密钥时必须硬退出，不得发出匿名请求。
 3. **端点解析优先级**
    - API URL 优先级：
@@ -166,7 +168,7 @@ flowchart TD
    - 否则用 `system + prompt` 构造最小消息数组
 2. **Step 2 / 参数解析**
    - 解析 `model / max_tokens / temperature / top_p / frequency_penalty / presence_penalty / stop / stream`
-   - 从 `.env` 解析 `ANYFAST_API_KEY` 与 base URL
+   - 从 `.env` 解析 `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY` / `ANYFAST_API_KEY` 与 base URL
    - 做范围校验
 3. **Step 3 / 请求体构造**
    - 构造 OpenAI 兼容 payload
@@ -295,8 +297,9 @@ python3 .agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_c
 
 ## 11. 失败排查
 
-1. 检查根目录 `.env` 是否存在 `ANYFAST_API_KEY`
-2. 检查 `.env` 是否存在 `ANYFAST_BASE_URL` 或 `ANYFAST_API_BASE_URL`
+1. 检查根目录 `.env` 是否优先存在 `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY`
+2. 若专用 key 缺失，再检查 `ANYFAST_API_KEY`
+3. 检查 `.env` 是否存在 `ANYFAST_BASE_URL` 或 `ANYFAST_API_BASE_URL`
 3. 先运行 `--dry-run --print-payload` 检查最终 payload
 4. 若流式为空，先去掉 `--stream` 回退非流式
 5. 若 `messages` 直传报错，检查 JSON 结构是否符合 OpenAI 兼容格式

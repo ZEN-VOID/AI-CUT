@@ -45,12 +45,13 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-21`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
+截至 `2026-04-23`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、命令型 wrapper skills、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
 - 根 `AGENTS.md` 已明确：
   - 执行深度默认规则
+  - 内容创作型任务的 `LLM-first creative authorship` 规则：核心创作必须由 LLM 直出，脚本仅可承担读取/组装/校验/落盘等机械辅助
   - 三省六部制编排治理基线
   - `HARNESS.md` 总览同步责任
   - `bootstrap_compat` 改造兼容模式
@@ -133,6 +134,12 @@
   - `api-man-tui-sora`
   - `api-man-tui-nano-banana-image`
   - `api-vidu-video`
+- 命令型 repo-local skills 已进入注册与路由，并直接以各自目录级 `SKILL.md` 作为唯一真源：
+  - `command-github-issue`
+  - `command-github-push`
+  - `command-next`
+  - `command-subagent-preview`
+  - `command-subagent-review`
 - story 侧已新增 repo-local 单技能润色入口：
   - `story-doubao`
   - 作为 `story` 主链旁路技能，负责中文小说文风诊断、整稿统修、去 AI 味与中文表达强化，不拥有 planning / validation / actualization 真源
@@ -220,6 +227,7 @@
 - 当用户手动执行或仓库自动路由命中某个已声明“默认走 subagents”的 skill 时，仓库治理层将其视为对该默认分发路径的显式许可；只有更高优先级 system / developer / tool policy 或用户反向要求，才会阻断真实 dispatch。
 - 团队能力类 skill 的 canonical carrier 是其 skill 根目录与自包含研究载体，不默认创建项目 runtime。
 - 命中 subagent 合同的任务默认应真实启动 subagents；若受当前会话上层策略、工具权限或用户显式边界阻断，必须显式报告降级来源与替代路径。
+- `story / aigc` 项目初始化现在除 `CONTEXT/` 外，还默认创建项目根 `MEMORY.md`，用于保存项目级创作偏好、特殊元素与长期要求；它与技能 `CONTEXT.md` 的经验层职责分离。
 - `CONTEXT.md` 必须保持知识库模式；详细时间线与迁移流水应外置到 `CHANGELOG.md` 或报告载体，而不是默认注入运行上下文。
 
 ## 现状判断
@@ -235,12 +243,15 @@
 - 有 registry / runbook / template / audit / runtime control plane，不再只是目录占位。
 - 有 legacy mapping，不再默认从旧仓无治理复制。
 - `aigc` 的主入口、卫星入口、项目内控制面与阶段状态已经纳入同一张注册表。
+- `2-Global` 已开始对齐 `3-Detail` 的模板中心模式：默认围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接写 `episode_root.json`，旧 Markdown 下沉为兼容投影。
+- `3-Detail` 阶段内合同已进一步收束为“单根技能 + references 模块 + `分镜构图` 先行”的固定主链，不再把 `1-水月 / 2-镜花` 视为当前主执行真源。
 - `comic` 已成为独立受治理的 repo-local workflow，而不是根层手工串接。
 - 团队能力类 skill 已不是“散落人物卡”，而是开始进入统一的注册、路由与真源口径。
 
 仍然明显未完成的部分包括：
 
 - `aigc` 虽已完成主骨架注册，但阶段内部合同仍在重构，尚未 fully cut over 到稳定影子态。
+- 其中 `3-Detail` 已完成一轮根包收束，但与更老 runtime sidecar、旧 child 包与部分兼容校验之间仍存在历史兼容面，需要继续逐步去枝。
 - `6-Video` 已升级为 active stage，但内部子路径和 provider 级执行面仍需继续收束。
 - `7-Cut` 仍是注册层已声明、执行层未落地的搁浅阶段。
 - 门下省的 `review` 已作为统一入口存在，但更细的专项 reviewer 席位仍未系统展开。

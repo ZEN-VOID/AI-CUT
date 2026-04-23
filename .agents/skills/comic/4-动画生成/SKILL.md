@@ -12,15 +12,23 @@ governance_tier: full
 - 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
 - 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `4-动画生成` 的页级 `video_prompt` 正文属于内容创作型输出，必须由 LLM 直接完成。
+- `scripts/run_comic_animation.py` 的默认职责仅限：读取上游 JSON、校验 schema、补齐首帧 URL 映射、生成执行计划、调用 provider、写报告。
+- 当输入已经是 LLM 直出的 `comic_page_animation_prompts.v1` 时，脚本可正常承担上述机械职责。
+- 当输入只是 `nine_blade_comic_prompts.v1`，而脚本还要继续代写页级 `video_prompt` 时，该路径视为 legacy script authorship；默认禁止，只有显式传入 `--allow-legacy-script-authorship` 才可临时兼容执行。
+- 不得再把“脚本从 2 号 JSON 编译出 4 号 video prompt”表述为默认主链。
+
 ## 1. 定位
 
 本技能是 `.agents/skills/comic/` 系列的第 4 段。
 
-它负责把 `2-九刀流漫画提示词` 产出的组级 `nine_blade_comic_prompts.v1` JSON，逐页编译成 `comic_page_animation_prompts.v1` JSON，并把 `3-漫画生成` 的对应页图作为单张首帧参考，调用 `.agents/skills/api/man-tui/video/sora` 逐页完成图生视频。
+它负责消费页级动画 prompt 真源 `comic_page_animation_prompts.v1`，并把 `3-漫画生成` 的对应页图作为单张首帧参考，调用 `.agents/skills/api/man-tui/video/sora` 逐页完成图生视频。若上游仍停留在 legacy `nine_blade_comic_prompts.v1 -> 脚本编译 4 号 prompt` 路径，只可在显式兼容模式下临时运行。
 
 硬目标：
 
-- 每个 `page-group` 固定输出一份组级动画 prompt JSON。
+- 每个 `page-group` 固定交付一份组级动画 prompt JSON；该 JSON 的创作正文默认由 LLM 直出，脚本只负责校验、投影与执行辅助。
 - 每页视频 prompt 必须以固定前缀开头：
 
 ```text
@@ -41,8 +49,8 @@ Animate this vertical comic strip into a seamless, continuous cinematic video. C
 | `business_object` | 当前输入是什么 | 单个 `page-group` 级 `nine_blade_comic_prompts.v1` JSON + 对应 `page01..page09` 图片 |
 | `success_criteria` | 什么叫成功 | 先输出可校验的组级动画 prompt JSON，再让 9 页图片逐页匹配对应 prompt；dry-run 稳定给出执行计划，execute 仅在 9 页都补齐公网 `input_reference_url` 时提交 `sora-2` 任务 |
 | `constraint_profile` | 哪些边界不可破 | prompt 固定前缀不可改；按页匹配图片；默认一个格子一个分镜；不得新增角色/场景/剧情；默认 10 秒、720x1280、9:16；真实执行必须有公网参考图 URL |
-| `topology_fit` | 最佳思行结构 | 先校验 2 号 JSON，再定位 3 号页图，再逐页生成 shot plan 和 video prompt，最后按页执行并汇总报告 |
-| `step_strategy` | 当前最值钱的思路 | 保留页级结构真源、把 panel 粒度转成 shot 粒度、稳定匹配 page 图片、将本地页图与公网 `input_reference_url` 映射后逐页调用 `man-tui/video/sora` |
+| `topology_fit` | 最佳思行结构 | 默认先校验 LLM 已直出的 4 号 JSON，再定位 3 号页图，补齐执行所需映射并逐页执行；若命中 legacy 输入，再显式进入兼容编译路径 |
+| `step_strategy` | 当前最值钱的思路 | 保留页级动画 prompt 真源、把 panel 粒度转成 shot plan 辅助执行、稳定匹配 page 图片、将本地页图与公网 `input_reference_url` 映射后逐页调用 `man-tui/video/sora` |
 
 ## 3. Context Preload
 
@@ -96,10 +104,10 @@ Animate this vertical comic strip into a seamless, continuous cinematic video. C
 
 ```mermaid
 flowchart TD
-    A["N1-INTAKE<br/>读取 group JSON / 已编译动画 JSON"] --> B["N2-UPSTREAM-VALIDATE<br/>校验 2 号 JSON 或 4 号 JSON"]
+    A["N1-INTAKE<br/>读取已编译动画 JSON 或 legacy group JSON"] --> B["N2-UPSTREAM-VALIDATE<br/>默认校验 4 号 JSON；legacy 路径校验 2 号 JSON"]
     B --> C["N3-IMAGE-RESOLVE<br/>锁 images_dir 与 page01..page09"]
     C --> D["N4-SHOT-PLAN<br/>按 panel 生成 one-panel-one-shot 计划"]
-    D --> E["N5-PROMPT-ASSEMBLY<br/>逐页编译 video prompt"]
+    D --> E["N5-PROMPT-TRUTH<br/>消费 LLM 动画 prompt 真源或显式 legacy 编译"]
     E --> F["N6-JSON-HANDOFF<br/>写 comic_page_animation_prompts.v1"]
     F --> G{"execute?"}
     G -->|"dry-run"| H["N7-PLAN-REPORT<br/>输出执行计划"]
@@ -137,7 +145,7 @@ erDiagram
 | `N2-UPSTREAM-VALIDATE` | 保证上游 JSON 可消费 | 2 号 JSON 或 4 号 JSON | 若是 2 号 JSON，先跑 2 号 validator；若是 4 号 JSON，跑 4 号 validator | validator 输出 | `N3` | 零错误 |
 | `N3-IMAGE-RESOLVE` | 逐页锁定首帧图片 | `images_dir`、`group_slug`、`page_number` | 解析 `page01..page09` 或 `group_slug-page01..09`，形成 `page_number -> source_image` 映射 | 图片路径表 | `N4` | 9 页都命中 |
 | `N4-SHOT-PLAN` | 把漫画格转成视频分镜 | `pages[].panels[]`、`layout`、`page_role` | 默认一个 panel 一个 shot，按右到左、上到下顺序写 `shot_plan` | 每页 `shot_plan[]` | `N5` | 至少 1 shot，默认等于 panel 数 |
-| `N5-PROMPT-ASSEMBLY` | 生成逐页 video prompt | 固定前缀、页级 prompt、角色锁、场景锁、shot plan、类型包投影 | 把固定前缀、`positive_prompt`、布局、角色/场景 continuity、`type_pack_context.stage_projection.animation_generation`、shot plan、动态化要求组装为每页 `video_prompt` | `pages[].video_prompt` | `N6` | 每页 prompt 以前缀开头且保留类型包偏置 |
+| `N5-PROMPT-TRUTH` | 锁逐页 video prompt 真源 | LLM 直出的 `pages[].video_prompt`，或显式 legacy 编译输入 | 默认直接消费 LLM 已写好的页级动画 prompt；只有显式兼容模式才允许把固定前缀、`positive_prompt`、布局、角色/场景 continuity、`type_pack_context.stage_projection.animation_generation`、shot plan 组装成每页 `video_prompt` | `pages[].video_prompt` | `N6` | 默认不允许脚本偷偷代写创作正文 |
 | `N6-JSON-HANDOFF` | 写组级动画 prompt 真源 | 当前 group 元数据、9 页动画 prompt | 输出 `comic_page_animation_prompts.v1` JSON、逐页 prompt txt、动画计划，并在可用时写入每页 `input_reference_url` | 动画 prompt JSON、计划文件 | `N7/N8` | JSON 可被 4 号 validator 消费 |
 | `N7-PLAN-REPORT` | Dry-run 交付 | 计划和 JSON | 写 `animation_generation_report.json` 为 `planned` | 计划报告 | 完成 | 可追溯 |
 | `N8-SORA-DISPATCH` | 逐页执行图生视频 | 每页 `video_prompt + input_reference_url` | 调用 `sora_video.py create --input-reference <public_url> --prompt ... --seconds 10 --size 720x1280 --wait --download-on-complete` | Sora 页级报告 | `N9` | 每页都有 run 报告 |
@@ -211,7 +219,7 @@ projects/comic/[项目名]/4-动画生成/
 
 ```bash
 python3 .agents/skills/comic/4-动画生成/scripts/run_comic_animation.py \
-  path/to/page-group-01-nine_blade_comic_prompts.json \
+  path/to/page-group-01-comic_page_animation_prompts.json \
   --dry-run
 ```
 
@@ -219,9 +227,20 @@ python3 .agents/skills/comic/4-动画生成/scripts/run_comic_animation.py \
 
 ```bash
 python3 .agents/skills/comic/4-动画生成/scripts/run_comic_animation.py \
-  path/to/page-group-01-nine_blade_comic_prompts.json \
+  path/to/page-group-01-comic_page_animation_prompts.json \
   --reference-url-map path/to/page-reference-urls.json \
   --execute
+```
+
+### Legacy 兼容编译
+
+只有在临时兼容旧项目、且明确接受“脚本代写 video prompt”风险时，才允许：
+
+```bash
+python3 .agents/skills/comic/4-动画生成/scripts/run_comic_animation.py \
+  path/to/page-group-01-nine_blade_comic_prompts.json \
+  --allow-legacy-script-authorship \
+  --dry-run
 ```
 
 `reference_url_map` 示例：

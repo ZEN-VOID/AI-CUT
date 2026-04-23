@@ -16,7 +16,7 @@ governance_tier: full
 
 本技能把上游 `1-漫画剧本改编` 产出的 `第N组.md` 漫剧剧本，或用户直接提供的任意剧本片段，整理成逐组进入九刀流的输入，再把每个组分别转成可被下游 `3-漫画生成` 消费的 `nine_blade_comic_prompts.v1` JSON。
 
-同一份组级 JSON 也是 `4-动画生成` 的上游 prompt 真源：4 号技能会逐页读取其中的 `positive_prompt / panels / layout / active_character_ids / scene_id / continuity_context`，为每一页提炼对应的 `man-tui sora` 图生视频 prompt。
+同一份组级 JSON 也是 `4-动画生成` 的上游结构真源：4 号阶段默认应消费 LLM 已直出的 `comic_page_animation_prompts.v1`；若项目仍处在 legacy 兼容窗口，4 号脚本才允许显式读取这里的 `positive_prompt / panels / layout / active_character_ids / scene_id / continuity_context`，临时投影为对应的 `man-tui sora` 图生视频 prompt。
 
 核心目标不是把整份上游剧本粗暴压成 9 页，也不是写 9 个互不相关的文生图 prompt，而是生成一组组**单次 Seedream 连续多图请求**可理解的九页漫画提示词包：
 
@@ -332,7 +332,7 @@ page-group-02-nine_blade_comic_prompts.json
 
 - `4-动画生成` 默认把每页 `panels[]` 视为 `one panel -> one shot` 的多分镜输入。
 - 因此 `pages[].positive_prompt` 不得只写单幅插画描述；必须保留版式、panel 动作、角色锁、场景锁与文字系统语义。
-- `pages[].page_number_overlay`、`active_character_ids`、`scene_id` 和 `continuity_context` 不是仅供 3 号技能使用；4 号技能也会把这些字段编译进每页 `video_prompt`。
+- `pages[].page_number_overlay`、`active_character_ids`、`scene_id` 和 `continuity_context` 不是仅供 3 号技能使用；它们也是 4 号动画 prompt 真源必须保留的结构锚点。若处于 legacy 兼容模式，4 号脚本也只能基于这些字段做受控投影，而不是另写第二套故事事实。
 
 ## 8. 版式与文字硬规则
 

@@ -28,7 +28,7 @@ audit_requirements:
   allow_step8_only_summary_shortcut: false
 current_resume_pointer:
   next_worker: ""
-  next_step: "1-单集叙事起盘"
+  next_step: "1-单章叙事起盘"
   reason: "not_started"
 chapter_step_history: {}
 chapter_hook_results: {}

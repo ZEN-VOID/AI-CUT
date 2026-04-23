@@ -22,7 +22,7 @@ def _load_yaml(path: Path):
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
-def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_path, monkeypatch, capsys):
+def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path, monkeypatch, capsys):
     module = _load_module()
 
     monkeypatch.setattr(module, "write_current_project_pointer", lambda *_args, **_kwargs: None)
@@ -57,18 +57,21 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
     source_manifest = _load_yaml(project_root / "0-Init" / "story-source-manifest.yaml")
     init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    memory = (project_root / "MEMORY.md").read_text(encoding="utf-8")
     changelog = (project_root / "CHANGELOG.md").read_text(encoding="utf-8")
     assert state["project_name"] == "测试小说"
     assert state["current_stage"] == "0-Init"
     assert state["recommended_next_stage"] == "1-Cards"
     assert state["paths"]["story_root"] == "Story/"
     assert state["paths"]["context_root"] == "CONTEXT/"
+    assert state["paths"]["project_memory"] == "MEMORY.md"
     assert state["paths"]["cards_root"] == "1-Cards/"
     assert state["paths"]["loopback_root"] == "5-Loopback/"
     assert state["main_artifacts"]["north_star"] == "0-Init/north_star.yaml"
     assert state["main_artifacts"]["story_source_manifest"] == "0-Init/story-source-manifest.yaml"
     assert state["main_artifacts"]["init_handoff"] == "0-Init/init_handoff.yaml"
     assert state["main_artifacts"]["team"] == "team.yaml"
+    assert state["main_artifacts"]["project_memory"] == "MEMORY.md"
     assert state["workflow_runtime"]["workflow_state"]["current_task"] is None
     assert state["workflow_runtime"]["execution_state"]["active_run_id"] is None
     assert state["workflow_runtime"]["execution_state"]["schema_version"] == "1.1"
@@ -79,6 +82,8 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert state["project_info"]["init_handoff_schema_version"] == "story2026/init-handoff/v2"
     assert state["project_info"]["story_source_root"] == "Story/"
     assert state["project_info"]["project_context_root"] == "CONTEXT/"
+    assert "项目：测试小说" in memory
+    assert "## 已确认的长期偏好" in memory
 
     assert team_manifest["init_contract"]["init_mode"] == "team_roleplay"
     assert team_manifest["init_contract"]["team_lineup_mode"] == "custom"
@@ -110,6 +115,7 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["story_engine"]["golden_finger_growth_rhythm"] == "慢热"
     assert (project_root / "Story").is_dir()
     assert (project_root / "CONTEXT").is_dir()
+    assert (project_root / "MEMORY.md").is_file()
     assert (project_root / "3-Drafting").is_dir()
     assert (project_root / "1-Cards" / "1-风格卡" / "总风格").is_dir()
     assert (project_root / "1-Cards" / "5-类型卡" / "总题材").is_dir()
@@ -124,11 +130,13 @@ def test_init_project_creates_five_init_files_and_inlines_workflow_runtime(tmp_p
     assert not (project_root / "2-Planning" / "legacy").exists()
     assert not (project_root / ".git").exists()
 
+    assert "建立 `STATE.json`、`team.yaml`、`MEMORY.md`、`CHANGELOG.md` 标准配置。" in changelog
     assert "创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。" in changelog
     assert "写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。" in changelog
 
     captured = capsys.readouterr()
     assert "Generated files:" in captured.out
+    assert " - MEMORY.md" in captured.out
     assert " - Story/" in captured.out
     assert " - CONTEXT/" in captured.out
     assert " - 1-Cards/" in captured.out

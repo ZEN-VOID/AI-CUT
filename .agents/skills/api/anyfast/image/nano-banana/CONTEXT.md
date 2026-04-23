@@ -23,6 +23,8 @@ last_checked_at: 2026-03-20T00:00:00Z
 | general | `general/CONTEXT.md` | 通用 T2I/I2I prompt 技巧 |
 | face-swap | `face-swap/CONTEXT.md` | 身份锁定/服装锁定 |
 | costume-swap | `costume-swap/CONTEXT.md` | 身份保持/服装还原 |
+| background-swap | `background-swap/CONTEXT.md` | 主体锁定/背景清除/边缘融合 |
+| retouch | `retouch/CONTEXT.md` | 自然精修/身份稳定/不过度重绘 |
 | multiview-character | `multiview-character/CONTEXT.md` | 三栏布局/身份一致性 |
 | multiview-scene | `multiview-scene/CONTEXT.md` | 九宫格/空镜头护栏 |
 | multiview-prop | `multiview-prop/CONTEXT.md` | 三栏布局/空场景护栏 |

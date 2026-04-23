@@ -28,7 +28,7 @@ version: "v1.0"
 
 | 子技能 | 路径 | 实际 provider | 默认认证/环境变量 | 典型场景 |
 | --- | --- | --- | --- | --- |
-| `nano-banana` | `nano-banana/` | AnyFast Gemini 原生图像接口 | `.env: ANYFAST_API_KEY / ANYFAST_BASE_URL` | Gemini 文生图、图生图、`general / face-swap / costume-swap / multiview-*` |
+| `nano-banana` | `nano-banana/` | AnyFast Gemini 原生图像接口 | `.env: ANYFAST_API_KEY / ANYFAST_BASE_URL` | Gemini 文生图、图生图、`general / face-swap / costume-swap / background-swap / retouch / multiview-*` |
 | `seedream` | `seedream/` | 火山引擎 Ark `images/generations` | `.env: SEEDREAM_API_KEY / ARK_API_KEY / VOLCENGINE_ARK_API_KEY` | `doubao-seedream-5-0-260128`、连续多图、SSE |
 
 说明：
@@ -48,7 +48,7 @@ version: "v1.0"
 常见判别信号：
 
 - 命中 `seedream / doubao-seedream / 方舟 / Ark / sequential_image_generation`：优先走 `seedream`
-- 命中 `nano-banana / Gemini 图片 / gemini-3.1-flash-image-preview / face-swap / costume-swap / multiview`：优先走 `nano-banana`
+- 命中 `nano-banana / Gemini 图片 / gemini-3.1-flash-image-preview / face-swap / costume-swap / background-swap / retouch / multiview`：优先走 `nano-banana`
 - 只说 “AnyFast 图像 / AnyFast 生图” 且无更强信号：默认走 `nano-banana`
 
 ## 3. 核心约束（Mandatory）

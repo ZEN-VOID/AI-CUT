@@ -49,7 +49,7 @@ def _write_character_graph(project_root: Path, node_names: list[str], edge_count
                 "# 角色关系图谱",
                 "",
                 "## 文字说明",
-                "- 作用域：全剧集级角色卡网络，不退化为单集出场名单。",
+                "- 作用域：全书级角色卡网络，不退化为单章出场名单。",
                 f"- 角色总数：{len(node_names)}",
                 f"- 关系边数：{edge_count}",
                 "",

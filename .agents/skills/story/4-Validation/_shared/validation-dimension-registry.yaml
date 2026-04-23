@@ -9,7 +9,7 @@ policies:
       - "若 issue 指向 source_layer_owner=0-Init|1-Cards|2-Planning，则立即停止 drafting，转 source-contract 修复"
     candidate_final_gate: "8-润色完成且该 step 对应 inline hooks 全部通过"
   final_acceptance:
-    final_pass_gate: "仅当 4-Validation 聚合 JSON 判定 PASS 时，当前集才算 validated final draft"
+    final_pass_gate: "仅当 4-Validation 聚合 JSON 判定 PASS 时，当前章才算 validated final draft"
 dimensions:
   - role_id: "structure-validator"
     dimension: "structure"
@@ -21,14 +21,14 @@ dimensions:
     drafting_inline:
       enabled: true
       checkpoints:
-        - step_id: "1-单集叙事起盘"
+        - step_id: "1-单章叙事起盘"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "7-追读力强化"
           fail_action: "rewind_to_earliest_rework_step"
         - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
-      - "1-单集叙事起盘"
+      - "1-单章叙事起盘"
       - "7-追读力强化"
     upstream_source_owners:
       - "2-Planning"
@@ -42,14 +42,14 @@ dimensions:
     drafting_inline:
       enabled: true
       checkpoints:
-        - step_id: "1-单集叙事起盘"
+        - step_id: "1-单章叙事起盘"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "2-节奏优化"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
-      - "1-单集叙事起盘"
+      - "1-单章叙事起盘"
       - "2-节奏优化"
     upstream_source_owners: []
   - role_id: "logic-validator"
@@ -62,14 +62,14 @@ dimensions:
     drafting_inline:
       enabled: true
       checkpoints:
-        - step_id: "1-单集叙事起盘"
+        - step_id: "1-单章叙事起盘"
           fail_action: "block_and_rewrite_current_or_route_source_fix"
         - step_id: "4-角色形象刻画"
           fail_action: "rewind_to_earliest_rework_step"
         - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
-      - "1-单集叙事起盘"
+      - "1-单章叙事起盘"
     upstream_source_owners:
       - "1-Cards"
       - "2-Planning"
@@ -107,14 +107,14 @@ dimensions:
     drafting_inline:
       enabled: true
       checkpoints:
-        - step_id: "1-单集叙事起盘"
+        - step_id: "1-单章叙事起盘"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "2-节奏优化"
           fail_action: "block_and_rewrite_current_or_earliest"
         - step_id: "8-润色"
           fail_action: "regression_guard"
     default_rework_targets:
-      - "1-单集叙事起盘"
+      - "1-单章叙事起盘"
       - "2-节奏优化"
     upstream_source_owners:
       - "2-Planning"
@@ -130,7 +130,7 @@ dimensions:
       checkpoints: []
     default_rework_targets:
       - "source-contract-fix"
-      - "1-单集叙事起盘"
+      - "1-单章叙事起盘"
       - "7-追读力强化"
     upstream_source_owners:
       - "2-Planning"

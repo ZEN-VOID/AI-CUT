@@ -3,7 +3,7 @@ name: nano-banana
 version: “v2.0”
 governance_tier: full
 description: |
-  nano-banana 图像生成 API 契约层。封装 AnyFast Gemini 原生图像接口（默认模型 `gemini-3.1-flash-image-preview`），提供参数枚举、默认值注入、原生请求构造、批量并发调度与项目化落盘。本技能为纯 API 基座，不含应用层 prompt 模板——具体生图场景由子技能包承载（general / face-swap / costume-swap / multiview-character / multiview-scene / multiview-prop）。当你需要调用 nano-banana 生图但不确定用哪个子技能时，先读本文件确认 API 契约，再路由到对应子技能。
+  nano-banana 图像生成 API 契约层。封装 AnyFast Gemini 原生图像接口（默认模型 `gemini-3.1-flash-image-preview`），提供参数枚举、默认值注入、原生请求构造、批量并发调度与项目化落盘。本技能为纯 API 基座，不含应用层 prompt 模板——具体生图场景由子技能包承载（general / face-swap / costume-swap / background-swap / retouch / multiview-character / multiview-scene / multiview-prop）。当你需要调用 nano-banana 生图但不确定用哪个子技能时，先读本文件确认 API 契约，再路由到对应子技能。
 tools: [Read, Write, Edit, Bash]
 color: yellow
 ---
@@ -36,11 +36,13 @@ color: yellow
 | general | `general/` | 通用 T2I / I2I，无特化 prompt 模板 |
 | face-swap | `face-swap/` | 保留服装姿态，替换角色面貌 |
 | costume-swap | `costume-swap/` | 保留角色形象，替换服装 |
+| background-swap | `background-swap/` | 保留主体，替换背景环境 |
+| retouch | `retouch/` | 保留内容主干，执行自然精修 |
 | multiview-character | `multiview-character/` | 角色多视图设计页（CHARACTER_DESIGN_SHEET） |
 | multiview-scene | `multiview-scene/` | 场景多视图设计页（3x3 九宫格） |
 | multiview-prop | `multiview-prop/` | 道具多视图设计页（PROP_DESIGN_SHEET） |
 
-路由规则：用户意图明确匹配某子技能时直接路由；意图模糊时默认走 `general/`。
+路由规则：用户意图明确匹配换脸、换装、背景替换、修图或多视图等子技能时直接路由；意图模糊时默认走 `general/`。
 
 ## 2. 必需输入
 
@@ -105,7 +107,7 @@ color: yellow
    - 若调用方提供 `caller_skill`，脚本必须优先遵循该技能包的输出策略，而不是回退到统一的 `5-API` 根目录。
    - `general` 直调时，默认输出路径为：
      - `output/影片/[项目名]/5-API/image/nano-banana/general/`
-   - `face-swap / costume-swap / multiview-*` 这类输入图驱动的子技能，默认输出应优先跟随第一张本地输入图所在目录；仅在无法定位本地输入图时，才回退到项目化目录。
+   - `face-swap / costume-swap / background-swap / retouch / multiview-*` 这类输入图驱动的子技能，默认输出应优先跟随第一张本地输入图所在目录；仅在无法定位本地输入图时，才回退到项目化目录。
    - `aigc/4-Design/2-设计` 系调用方若未显式传 `--output-dir`，默认输出应进入对应 `projects/aigc/<项目名>/4-Design/<域>/2-设计/<episode_id>/generated/` 运行时路径；若调用方已传 `--output-dir + --output-filename`，必须优先尊重同目录同名策略。
    - 若任务类型为测试且未显式传 `project_name`，则 `[项目名]` 自动使用 `测试`。
    - 若任务类型为临时且未显式传 `project_name`，则 `[项目名]` 自动使用 `临时`。
@@ -195,11 +197,11 @@ python3 .agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generat
 
 - 默认输出目录由调用方技能包决定：
   - `general`：`output/影片/[项目名]/5-API/image/nano-banana/general/`
-  - `face-swap / costume-swap / multiview-*`：默认与第一张本地输入图同目录
+  - `face-swap / costume-swap / background-swap / retouch / multiview-*`：默认与第一张本地输入图同目录
   - `aigc/4-Design/2-设计`：未显式传输出时为 `projects/aigc/[项目名]/4-Design/<域>/2-设计/<episode_id>/generated/`；显式传 `--output-dir + --output-filename` 时可落到设计文件同目录同名
   - 若无法识别调用方，则回退到 `output/影片/[项目名]/5-API/image/nano-banana/general/`
 - 子技能输出目录：默认与输入图（原图）同目录
-  - 命名规则：在原图文件名基础上追加子技能后缀（如 `-face-swap`、`-multiview` 等）
+  - 命名规则：在原图文件名基础上追加子技能后缀（如 `-face-swap`、`-background-swap`、`-retouch`、`-multiview` 等）
   - 若已存在同名文件，自动递增（如 `-face-swap-1.png`、`-face-swap-2.png`）
   - 若显式传入的输出文件后缀与接口实际返回 MIME 不一致，脚本自动按真实 MIME 校正后缀，避免“文件名是 PNG、内容却是 JPEG”
   - 若显式传 `--output-dir`，允许覆盖默认目录；覆盖优先级高于 `caller_skill`

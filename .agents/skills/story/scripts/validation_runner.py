@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from chapter_paths import drafting_root_md_path
+from chapter_paths import drafting_root_md_path, find_chapter_file
 from extract_chapter_context import build_chapter_context_payload
 from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
@@ -43,7 +43,7 @@ ROLE_ID_TO_DIMENSION = {
 }
 
 CANONICAL_DRAFTING_STEPS = {
-    "Step 1": ("1-单集叙事起盘", "单集叙事起盘"),
+    "Step 1": ("1-单章叙事起盘", "单章叙事起盘"),
     "Step 2": ("2-节奏优化", "节奏优化"),
     "Step 3": ("3-场景和氛围渲染", "场景和氛围渲染"),
     "Step 4": ("4-角色形象刻画", "角色形象刻画"),
@@ -78,7 +78,7 @@ CONTRIVANCE_MARKERS = (
 )
 
 SUMMARYISH_PATTERNS = (
-    r"^(首先|然后|接着|最后|总之|原来|实际上|本章|这一集|简单来说)",
+    r"^(首先|然后|接着|最后|总之|原来|实际上|本章|这一章|简单来说)",
     r"(总而言之|换句话说|事情的经过是)",
 )
 
@@ -224,7 +224,7 @@ def _load_aggregate_template() -> dict[str, Any]:
 
 
 def _aggregate_output_ref(chapter_num: int) -> str:
-    return f"4-Validation/第{chapter_num}集.validation.json"
+    return f"4-Validation/第{chapter_num}章.validation.json"
 
 
 def _aggregate_output_path(project_root: Path, chapter_num: int) -> Path:
@@ -267,8 +267,8 @@ def _read_text_if_exists(path: Path) -> str:
 def _previous_manuscript_path(project_root: Path, chapter_num: int) -> Optional[Path]:
     if chapter_num <= 1:
         return None
-    path = drafting_root_md_path(project_root, chapter_num - 1)
-    return path if path.is_file() else None
+    path = find_chapter_file(project_root, chapter_num - 1)
+    return path if path and path.is_file() else None
 
 
 def _fact_pack_missing_slices(raw_fact_pack: dict[str, Any]) -> list[str]:
@@ -317,7 +317,7 @@ def _derive_fact_pack_views(raw_fact_pack: dict[str, Any]) -> dict[str, Any]:
 
 
 def _build_runtime_context(project_root: Path, chapter_num: int, current_step_id: str | None = None) -> dict[str, Any]:
-    manuscript_path = drafting_root_md_path(project_root, chapter_num)
+    manuscript_path = find_chapter_file(project_root, chapter_num) or drafting_root_md_path(project_root, chapter_num)
     previous_path = _previous_manuscript_path(project_root, chapter_num)
 
     manuscript_text = _read_text_if_exists(manuscript_path)
@@ -637,7 +637,7 @@ def _issue(
 
 
 def _report_ref(chapter: int, role_id: str, report_filename: str) -> str:
-    return f"4-Validation/第{chapter}集/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
+    return f"4-Validation/第{chapter}章/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
 
 
 def _write_report(
@@ -659,7 +659,7 @@ def _write_report(
     severity_counts = result.get("severity_counts", {}) or {}
     metrics = result.get("metrics", {}) or {}
     lines = [
-        f"# 第{chapter}集 {dimension_label} 验收报告",
+        f"# 第{chapter}章 {dimension_label} 验收报告",
         "",
         "## 维度结论",
         "",
@@ -749,10 +749,10 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="high" if validation_context == "final_acceptance" else "medium",
-                location=f"第{chapter}集正文",
+                location=f"第{chapter}章正文",
                 description=f"规划义务未在正文中找到足够证据：{item}",
                 suggestion="回到起盘或追读力强化，把该义务写成可感知的场面、局部兑现与续读牵引。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -766,7 +766,7 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="medium",
-                location=f"第{chapter}集正文段落层",
+                location=f"第{chapter}章正文段落层",
                 description="说明腔/总结腔偏多，结构更像提纲复述而不是戏剧场面。",
                 suggestion="减少摘要式解释，补足动作、冲突和即时反馈。",
                 rework_target_step="7-追读力强化",
@@ -782,10 +782,10 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="high" if validation_context == "final_acceptance" else "medium",
-                location=f"第{chapter}集 beat coverage",
-                description="本集承诺的关键 beat 覆盖不足，正文只落了前半段或中段，尚未真正抵达 chapter board 承诺的终端碰撞。",
-                suggestion="回到起盘，至少把开场局面、局势改向和当前集承诺的终端碰撞都写入正式正文。",
-                rework_target_step="1-单集叙事起盘",
+                location=f"第{chapter}章 beat coverage",
+                description="本章承诺的关键 beat 覆盖不足，正文只落了前半段或中段，尚未真正抵达 chapter board 承诺的终端碰撞。",
+                suggestion="回到起盘，至少把开场局面、局势改向和当前章承诺的终端碰撞都写入正式正文。",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -798,10 +798,10 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="medium",
-                location=f"第{chapter}集终端承诺",
-                description=f"本集终端承诺尚未真正落地：{terminal_beat}",
-                suggestion="回到起盘，把当前集 promised collision 写成场面，而不是停在前置铺垫。",
-                rework_target_step="1-单集叙事起盘",
+                location=f"第{chapter}章终端承诺",
+                description=f"本章终端承诺尚未真正落地：{terminal_beat}",
+                suggestion="回到起盘，把当前章 promised collision 写成场面，而不是停在前置铺垫。",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -816,11 +816,11 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="medium",
-                location=f"第{chapter}集 prose 句法层",
+                location=f"第{chapter}章 prose 句法层",
                 description="正文残留明显影视分镜语法或角色报幕段，仍像脚本/分镜中间态而不是小说句法。"
                 + (f" 例：{residue_examples}" if residue_examples else ""),
                 suggestion="把镜头切换词和角色报幕段改成物象、动作、声音或人物感知过渡。",
-                rework_target_step="1-单集叙事起盘" if current_step_id == "Step 1" else "8-润色",
+                rework_target_step="1-单章叙事起盘" if current_step_id == "Step 1" else "8-润色",
             )
         )
 
@@ -833,7 +833,7 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="medium",
-                location=f"第{chapter}集破次元术语层",
+                location=f"第{chapter}章破次元术语层",
                 description="正文仍残留规划/工作流层 meta 术语，破坏戏内沉浸。",
                 suggestion="把外部术语翻译成人物能感觉到的风险、余波、局势或预感。",
                 rework_target_step="8-润色",
@@ -849,7 +849,7 @@ def _run_structure(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="结构兑现",
                 severity="medium",
-                location=f"第{chapter}集章末 hook",
+                location=f"第{chapter}章章末 hook",
                 description="章末存在明显提纲式发问，像作者替故事点题，而不是故事自己把麻烦推近。",
                 suggestion="把尾问改成危险逼近、余波未平、消息将到或脚步声临近的戏内收束。",
                 rework_target_step="8-润色",
@@ -907,10 +907,10 @@ def _run_continuity(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], val
                     index=len(issues) + 1,
                     issue_type="连续性",
                     severity="medium",
-                    location=f"第{chapter}集开头",
-                    description="本集开场缺少明显承接信号，像重新起一章而不是延续上一集停点。",
+                    location=f"第{chapter}章开头",
+                    description="本章开场缺少明显承接信号，像重新起一章而不是延续上一章停点。",
                     suggestion="在前几段补上情绪/动作/信息承接锚点。",
-                    rework_target_step="1-单集叙事起盘",
+                    rework_target_step="1-单章叙事起盘",
                 )
             )
 
@@ -922,9 +922,9 @@ def _run_continuity(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], val
                 index=len(issues) + 1,
                 issue_type="连续性",
                 severity="low",
-                location=f"第{chapter}集全文",
-                description="近期活跃实体没有在当前集得到明确承接，线程连续性偏弱。",
-                suggestion="至少让关键实体/线程在当前集获得一次显性回指。",
+                location=f"第{chapter}章全文",
+                description="近期活跃实体没有在当前章得到明确承接，线程连续性偏弱。",
+                suggestion="至少让关键实体/线程在当前章获得一次显性回指。",
                 rework_target_step="2-节奏优化",
             )
         )
@@ -984,10 +984,10 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 index=len(issues) + 1,
                 issue_type="逻辑自洽校验",
                 severity="medium",
-                location=f"第{chapter}集场景层",
+                location=f"第{chapter}章场景层",
                 description=f"当前态位置 `{current_location}` 未在正文中获得稳定锚定，状态连续性不足。",
                 suggestion="补足位置/状态锚，避免读者失去空间与行动依据。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -1000,10 +1000,10 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 index=len(issues) + 1,
                 issue_type="逻辑自洽校验",
                 severity="medium",
-                location=f"第{chapter}集状态层",
+                location=f"第{chapter}章状态层",
                 description=f"近期对象状态变更未在正文中得到承接：{state_change_misses[0]}",
                 suggestion="补上状态延续或明确说明为什么当前状态已变化。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -1016,10 +1016,10 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 index=len(issues) + 1,
                 issue_type="逻辑自洽校验",
                 severity="high" if validation_context == "final_acceptance" else "medium",
-                location=f"第{chapter}集世界规则层",
+                location=f"第{chapter}章世界规则层",
                 description="上游真源已声明规则存在代价/限制，但正文在触发破例动作时没有体现对应成本。",
                 suggestion="补足触发条件、代价或先例解释；若上游规则本身冲突，改走 source-contract 修复。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
                 source_layer_owner="1-Cards",
             )
         )
@@ -1032,10 +1032,10 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 index=len(issues) + 1,
                 issue_type="逻辑自洽校验",
                 severity="medium",
-                location=f"第{chapter}集能力边界层",
+                location=f"第{chapter}章能力边界层",
                 description=f"`{golden_finger_name}` 在上游真源中带有限制，但正文把它写成了近乎无上限能力。",
                 suggestion="把能力使用改回限制内，或明确补写限制失效的条件与代价。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
                 source_layer_owner="0-Init",
             )
         )
@@ -1050,8 +1050,8 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                     index=len(issues) + 1,
                     issue_type="逻辑自洽校验",
                     severity="medium",
-                    location=f"第{chapter}集规划约束层",
-                    description=f"planning truth 声明了本集不可擅自改写的约束，但正文没有给出清晰锚点：{misses[0]}",
+                    location=f"第{chapter}章规划约束层",
+                    description=f"planning truth 声明了本章不可擅自改写的约束，但正文没有给出清晰锚点：{misses[0]}",
                     suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-Planning` 修源。",
                     rework_target_step="source-contract-fix",
                     source_layer_owner="2-Planning",
@@ -1066,10 +1066,10 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 index=len(issues) + 1,
                 issue_type="逻辑自洽校验",
                 severity="high",
-                location=f"第{chapter}集因果链",
+                location=f"第{chapter}章因果链",
                 description="文本中出现过多强行转折/凭空推进标记，因果链有拼接感。",
                 suggestion="回到起盘，重写触发条件、过程与代价，让事件自然发生。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -1133,7 +1133,7 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="人物一致性",
                 severity="medium",
-                location=f"第{chapter}集对白层",
+                location=f"第{chapter}章对白层",
                 description="对白偏长或解释性过强，角色声口区分度不足。",
                 suggestion="回到对白优化，压缩解释，改成更像角色本人会说的话。",
                 rework_target_step="5-对白优化",
@@ -1148,7 +1148,7 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                 index=len(issues) + 1,
                 issue_type="人物一致性",
                 severity="low",
-                location=f"第{chapter}集人物层",
+                location=f"第{chapter}章人物层",
                 description="近期关键人物缺少显性出场或回指，人物连续性偏弱。",
                 suggestion="回到角色刻画，补足关键人物的动作、反应或关系压力。",
                 rework_target_step="4-角色形象刻画",
@@ -1170,8 +1170,8 @@ def _run_character(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], vali
                     index=len(issues) + 1,
                     issue_type="人物一致性",
                     severity="medium",
-                    location=f"第{chapter}集成长轴",
-                    description="主角已启用成长系统，但本集正文几乎看不见技能/心路/情感三轴的承接信号，成长连续性偏弱。",
+                    location=f"第{chapter}章成长轴",
+                    description="主角已启用成长系统，但本章正文几乎看不见技能/心路/情感三轴的承接信号，成长连续性偏弱。",
                     suggestion="回到角色刻画或追读力强化，把当前 validated 的成长 tension 写进动作、选择、反应或代价里。",
                     rework_target_step="4-角色形象刻画",
                 )
@@ -1227,7 +1227,7 @@ def _run_timeline(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], valid
                 index=len(issues) + 1,
                 issue_type="时间线",
                 severity="medium",
-                location=f"第{chapter}集时间锚",
+                location=f"第{chapter}章时间锚",
                 description="时间锚出现逆序跳动，阅读时间感不稳定。",
                 suggestion="回到节奏或起盘，理顺时间顺序与段落切换提示。",
                 rework_target_step="2-节奏优化",
@@ -1242,10 +1242,10 @@ def _run_timeline(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], valid
                 index=len(issues) + 1,
                 issue_type="时间线",
                 severity="low",
-                location=f"第{chapter}集段落时长",
+                location=f"第{chapter}章段落时长",
                 description="短篇幅内塞入过多时间段切换，可能造成时长压缩失真。",
                 suggestion="减少无必要的时间跳切，给主要场景留出连续时段。",
-                rework_target_step="1-单集叙事起盘",
+                rework_target_step="1-单章叙事起盘",
             )
         )
 
@@ -1317,7 +1317,7 @@ def _run_task_convergence(
                 index=len(issues) + 1,
                 issue_type="任务汇聚",
                 severity="high",
-                location=f"第{chapter}集 volume planning truth",
+                location=f"第{chapter}章 volume planning truth",
                 description="卷级 planning truth 没有显式主任务，无法判断本卷支流到底服务哪条主线。",
                 suggestion="回到 `2-Planning/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
                 rework_target_step="source-contract-fix",
@@ -1335,7 +1335,7 @@ def _run_task_convergence(
                 index=len(issues) + 1,
                 issue_type="任务汇聚",
                 severity="high",
-                location=f"第{chapter}集 chapter planning truth",
+                location=f"第{chapter}章 chapter planning truth",
                 description="章级 planning truth 没有显式主任务，无法判断本章推进是否仍挂在卷级主线之下。",
                 suggestion="回到 `2-Planning/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
                 rework_target_step="source-contract-fix",
@@ -1354,7 +1354,7 @@ def _run_task_convergence(
                     index=len(issues) + 1,
                     issue_type="任务汇聚",
                     severity="high",
-                    location=f"第{chapter}集 task lineage",
+                    location=f"第{chapter}章 task lineage",
                     description="章级 `上承卷级任务` 无法回指卷级主线，任务从属关系失锚。",
                     suggestion="统一卷级/章级任务命名与挂靠关系，避免章级支流写成独立副本。",
                     rework_target_step="source-contract-fix",
@@ -1373,7 +1373,7 @@ def _run_task_convergence(
                 index=len(issues) + 1,
                 issue_type="任务汇聚",
                 severity="high",
-                location=f"第{chapter}集支流任务合同",
+                location=f"第{chapter}章支流任务合同",
                 description="章级支流任务存在，但 planning truth 没有声明它们如何汇聚、转挂或保留开放。",
                 suggestion="为每条支流补 `汇聚动作` 或 `未汇聚任务去向`，不要把未回收任务留成隐形账。",
                 rework_target_step="source-contract-fix",
@@ -1394,7 +1394,7 @@ def _run_task_convergence(
                 index=len(issues) + 1,
                 issue_type="任务汇聚",
                 severity="medium" if validation_context == "final_acceptance" else "low",
-                location=f"第{chapter}集正文任务汇聚",
+                location=f"第{chapter}章正文任务汇聚",
                 description="正文已展开支流任务，但没有把它明确汇回主线，也没有显式写成转挂/保留开放。",
                 suggestion="回到起盘或追读力强化，把支流的回主线动作、转挂节点或保留开放信号写入正文。",
                 rework_target_step="7-追读力强化",

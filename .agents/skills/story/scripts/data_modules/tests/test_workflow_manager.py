@@ -194,7 +194,7 @@ def test_story_write_complete_step_auto_runs_inline_validation_when_manuscript_e
     )
 
     module.start_task("story-write", {"chapter_num": 19})
-    module.start_step("Step 1", "单集叙事起盘")
+    module.start_step("Step 1", "单章叙事起盘")
     module.complete_step("Step 1")
 
     state = module.load_state()
@@ -242,7 +242,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
     _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 17})
-    module.start_step("Step 1", "单集叙事起盘")
+    module.start_step("Step 1", "单章叙事起盘")
     module.complete_step("Step 1")
     _pass_all_active_inline_validators(module)
     module.start_step("Step 2", "节奏优化")
@@ -269,7 +269,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
                 {
                     "id": "LG-017-001",
                     "severity": "high",
-                    "rework_target_step": "1-单集叙事起盘",
+                    "rework_target_step": "1-单章叙事起盘",
                     "source_layer_owner": "3-Drafting",
                 }
             ]
@@ -281,7 +281,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
     gate = state["current_task"]["inline_validation"]["blocking_gate"]
     assert gate["allowed_rework_step_id"] == "Step 1"
 
-    module.start_step("Step 1", "单集叙事起盘")
+    module.start_step("Step 1", "单章叙事起盘")
     state = module.load_state()
     assert state["current_task"]["current_step"]["id"] == "Step 1"
     assert state["current_task"]["inline_validation"]["blocking_gate"] is None
@@ -293,7 +293,7 @@ def test_story_write_complete_task_requires_candidate_final_draft(tmp_path, monk
     _seed_project_root(tmp_path)
 
     module.start_task("story-write", {"chapter_num": 18})
-    module.start_step("Step 1", "单集叙事起盘")
+    module.start_step("Step 1", "单章叙事起盘")
     module.complete_step("Step 1")
     _pass_all_active_inline_validators(module)
     module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
@@ -312,12 +312,12 @@ def test_story_write_complete_task_blocks_short_manuscript(tmp_path, monkeypatch
         tmp_path,
         18,
         "---\n"
-        "episode_title: 测试章\n"
+        "chapter_title: 测试章\n"
         "rhythm_type: 势能式\n"
         "planning_ref: 2-Planning/第1卷/第18章.md\n"
         "---\n\n"
-        "# 第18集\n\n"
-        "这一集只是一个压缩剧情摘要，还没有展开成完整章节。\n",
+        "# 第18章\n\n"
+        "这一章只是一个压缩剧情摘要，还没有展开成完整章节。\n",
     )
     planning_dir = tmp_path / "2-Planning" / "第1卷"
     planning_dir.mkdir(parents=True, exist_ok=True)
@@ -502,7 +502,7 @@ def test_analyze_recovery_options_midpass_avoids_destructive_git_reset(tmp_path,
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
     assert "reset --hard" not in action_text
-    assert "3-Drafting/第11集.md" in action_text
+    assert "3-Drafting/第2卷/第11章.md" in action_text
     assert any(option.get("label") == "保留半成品做人工检查" for option in options)
 
 
@@ -524,7 +524,7 @@ def test_analyze_recovery_options_polish_step_keeps_new_drafting_target(tmp_path
     options = module.analyze_recovery_options(interrupt_info)
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
-    assert "3-Drafting/第12集.md" in action_text
+    assert "3-Drafting/第2卷/第12章.md" in action_text
     assert "backup_manager.py" not in action_text
     assert any(option.get("label") == "继续 润色" for option in options)
 
@@ -595,7 +595,7 @@ def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypat
     _write_project_state(
         tmp_path,
         {
-            "carryover_context": {"next_episode": "第11集", "next_volume": "第2卷"},
+            "carryover_context": {"next_episode": "第11章", "next_volume": "第2卷"},
             "runtime_markers": {"loopback": {"last_actualized_volume": "第1卷"}},
         },
     )
@@ -624,7 +624,7 @@ def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypat
     assert interrupt["resume_reason"] == "loopback_completed_next_volume_ready"
 
     options = module.analyze_recovery_options(interrupt)
-    assert any(option.get("label") == "开始第11集 drafting" for option in options)
+    assert any(option.get("label") == "开始第11章 drafting" for option in options)
 
 
 def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, monkeypatch):
@@ -697,7 +697,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "  next_step: 4-Validation",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
-                "  review_mode: master-check-team",
+                "  review_mode: subagent-review-council",
                 "  reviewed_at: '2026-04-22T13:10:00-07:00'",
                 "  reviewer_source: team-explicit",
                 "  reviewers:",
@@ -744,15 +744,15 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
             [
                 "volume_num: 1",
                 "chapter_refs:",
-                "  - 3-Drafting/第5集.md",
-                "  - 3-Drafting/第8集.md",
+                "  - 3-Drafting/第1卷/第5章.md",
+                "  - 3-Drafting/第1卷/第8章.md",
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
                 "  next_step: 4-Validation",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
-                "  review_mode: master-check-team",
+                "  review_mode: subagent-review-council",
                 "  reviewed_at: '2026-04-22T13:10:00-07:00'",
                 "  reviewer_source: team-explicit",
                 "  reviewers:",
@@ -773,7 +773,7 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "    antagonist_face: pass",
                 "    volume_closure: pass",
                 "post_review_summary:",
-                "  review_mode: master-check-team",
+                "  review_mode: subagent-review-council",
                 "  reviewed_at: '2026-04-22T13:10:00-07:00'",
                 "  reviewer_source: team-explicit",
                 "  reviewers:",
@@ -782,11 +782,11 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "  verdict: rework_required_before_validation",
                 "  next_action: 3-Drafting-rework",
                 "  representative_chapter_refs:",
-                "    - 3-Drafting/第5集.md",
+                "    - 3-Drafting/第1卷/第5章.md",
                 "  primary_issues:",
                 "    - 程序化推进过重",
                 "  priority_rework_targets:",
-                "    - 3-Drafting/第5集.md",
+                "    - 3-Drafting/第1卷/第5章.md",
             ]
         )
         + "\n",
@@ -814,15 +814,15 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
             [
                 "volume_num: 2",
                 "chapter_refs:",
-                "  - 3-Drafting/第11集.md",
-                "  - 3-Drafting/第12集.md",
+                "  - 3-Drafting/第2卷/第11章.md",
+                "  - 3-Drafting/第2卷/第12章.md",
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
                 "  next_step: 4-Validation",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
-                "  review_mode: master-check-team",
+                "  review_mode: subagent-review-council",
                 "  reviewed_at: '2026-04-22T13:10:00-07:00'",
                 "  reviewer_source: team-explicit",
                 "  reviewers:",
@@ -831,7 +831,7 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
                 "  verdict: ready_for_validation",
                 "  next_action: 4-Validation",
                 "  representative_chapter_refs:",
-                "    - 3-Drafting/第11集.md",
+                "    - 3-Drafting/第2卷/第11章.md",
                 "  primary_issues: []",
                 "  priority_rework_targets: []",
                 "  cross_volume_upgrade_axes:",
@@ -889,7 +889,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "  next_step: 4-Validation",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
-                "  review_mode: master-check-team",
+                "  review_mode: subagent-review-council",
                 "  reviewed_at: '2026-04-22T13:10:00-07:00'",
                 "  reviewer_source: team-explicit",
                 "  reviewers:",

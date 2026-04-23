@@ -388,7 +388,7 @@ class RAGAdapter:
                 "content": "场景内容...",
                 "chunk_type": "scene",
                 "parent_chunk_id": "ch0100_summary",
-                "source_file": "3-Drafting/第100集.md#scene_1"
+                "source_file": "3-Drafting/第10卷/第100章.md#scene_1"
             }
         ]
 

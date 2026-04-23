@@ -20,7 +20,7 @@
 
 新合同固定为：
 
-1. 当前 step 写回 `第N集.md`
+1. 当前 step 写回 `第N章.md`
 2. 父层读取 registry 中当前 `step_id` 对应的 validation dimensions
 3. 立即运行这些 inline validators
 4. 若 hook 失败，先在当前 step 或最早受影响 step 修复
@@ -35,7 +35,7 @@
 
 约束解释：
 
-1. `start-task` 锁当前集 drafting run，但不放松任一步的串行 gate。
+1. `start-task` 锁当前章 drafting run，但不放松任一步的串行 gate。
 2. `start-step` 只允许进入“当前 registry 与 runtime 判定可进入”的 step。
 3. `complete-step` 必须直接触发当前 step 的 inline validation batch；不得先记完成、后补 gate。
 4. 若 batch 结果为 `block`，runtime 必须阻断后续 `start-step`，直到：
@@ -91,11 +91,11 @@
 ## Candidate Final Draft Rule
 
 - `8-润色` 完成后，如果它对应的 inline hooks 通过：
-  - 当前集获得 `candidate_final_draft` 状态
+  - 当前章获得 `candidate_final_draft` 状态
 - 这不等于最终 `PASS`
 - 额外硬门槛：
-  - 当前集在 `第V卷.写作日志.yaml.chapter_step_history[chapter_ref]` 中已收满 8 条正式 step 记录
-  - 当前集在 `第V卷.写作日志.yaml.chapter_hook_results[chapter_ref]` 中已收满 8 条对位 hook 结果
+  - 当前章在 `第V卷.写作日志.yaml.chapter_step_history[chapter_ref]` 中已收满 8 条正式 step 记录
+  - 当前章在 `第V卷.写作日志.yaml.chapter_hook_results[chapter_ref]` 中已收满 8 条对位 hook 结果
   - 不存在以 Step 8 汇总、批量补记或事后倒填冒充逐步留痕的情况
 - 只有进入 `4-Validation` 终验层并拿到 `validation_status = PASS`：
   - 才能变成 `validated_final_draft`

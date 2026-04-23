@@ -1,144 +1,86 @@
 #!/usr/bin/env python3
-"""Validate `3-Detail` creative-guidance reference pack for child skills."""
+"""Validate `3-Detail` creative-guidance references for single-skill mode."""
 
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
-REQUIRED_REFERENCE_FILES = (
-    "module-index.md",
-    "route-profile.yaml",
-    "examples.md",
-    "creative-review-rubric.md",
+
+REQUIRED_FILES = (
+    "references/路由画像.yaml",
+    "references/正反例.md",
+    "references/创作评审标尺.md",
+    "references/编剧手册.md",
+    "references/镜头语言.md",
+    "references/电影学院派知识接线.md",
+)
+REQUIRED_SHARED_REF = ".agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md"
+REQUIRED_ROUTE_KEYS = (
+    "profile_goal:",
+    "default_strategy:",
+    "route_profiles:",
+    "signal_id:",
+)
+REQUIRED_SKILL_PHRASES = (
+    "references/路由画像.yaml",
+    "references/正反例.md",
+    "references/创作评审标尺.md",
+    "references/电影学院派知识接线.md",
 )
 
-ROUTE_PROFILE_KEYS = (
-    "profile_goal",
-    "default_strategy",
-    "route_profiles",
-)
 
-REQUIRED_SHARED_CREATIVE_GUIDANCE_REF = (
-    ".agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md"
-)
-LEGACY_SHARED_CREATIVE_GUIDANCE_REF = (
-    ".agents/skills/aigc/3-Detail/references/creative-guidance-contract.md"
-)
-FORBIDDEN_PARENT_TOPOLOGY_PHRASES = (
-    "1-分镜表现/1-切换",
-    "`1-切换` 的实际切镜窗口",
-)
-
-
-def discover_skill_roots(stage_root: Path) -> list[Path]:
-    return sorted(
-        child
-        for child in stage_root.iterdir()
-        if child.is_dir() and (child / "module-index.md").exists()
-    )
-
-
-def validate_route_profile(skill_root: Path, route_profile_path: Path) -> list[str]:
+def validate_stage_root(stage_root: Path) -> list[str]:
     errors: list[str] = []
-    text = route_profile_path.read_text(encoding="utf-8")
-    rel_path = route_profile_path.relative_to(skill_root)
-
-    for key in ROUTE_PROFILE_KEYS:
-        if not re.search(rf"^\s*{re.escape(key)}\s*:", text, re.MULTILINE):
-            errors.append(f"{skill_root.name}: {rel_path} 缺少必需键 `{key}`。")
-
-    if not re.search(r"^\s*-\s*signal_id\s*:", text, re.MULTILINE):
-        errors.append(f"{skill_root.name}: {rel_path} 未声明任何 `signal_id` 路由。")
-    return errors
-
-
-def validate_module_index(skill_root: Path, module_index_path: Path) -> list[str]:
-    text = module_index_path.read_text(encoding="utf-8")
-    rel_path = module_index_path.relative_to(skill_root)
-    required_phrases = (
-        "作用",
-        "汇流顺序",
-        "配置真源规则",
-    )
-
-    errors: list[str] = []
-    for phrase in required_phrases:
-        if phrase not in text:
-            errors.append(f"{skill_root.name}: {rel_path} 缺少关键章节 `{phrase}`。")
-    return errors
-
-
-def validate_skill_root(skill_root: Path) -> list[str]:
-    errors: list[str] = []
-    for filename in REQUIRED_REFERENCE_FILES:
-        file_path = skill_root / filename
-        if not file_path.exists():
-            errors.append(f"{skill_root.name}: 缺少 {filename}。")
-
-    module_index_path = skill_root / "module-index.md"
-    route_profile_path = skill_root / "route-profile.yaml"
-
-    if module_index_path.exists():
-        errors.extend(validate_module_index(skill_root, module_index_path))
-    if route_profile_path.exists():
-        errors.extend(validate_route_profile(skill_root, route_profile_path))
-
-    for contract_file in (skill_root / "SKILL.md", module_index_path):
-        if not contract_file.exists():
-            continue
-        text = contract_file.read_text(encoding="utf-8")
-        rel_path = contract_file.relative_to(skill_root)
-        if REQUIRED_SHARED_CREATIVE_GUIDANCE_REF not in text:
-            errors.append(
-                f"{skill_root.name}: {rel_path} 未回指共享创作引导真源 `{REQUIRED_SHARED_CREATIVE_GUIDANCE_REF}`。"
-            )
-        if LEGACY_SHARED_CREATIVE_GUIDANCE_REF in text:
-            errors.append(
-                f"{skill_root.name}: {rel_path} 仍引用已删除路径 `{LEGACY_SHARED_CREATIVE_GUIDANCE_REF}`。"
-            )
-    return errors
-
-
-def validate_stage_contracts(stage_root: Path) -> list[str]:
-    errors: list[str] = []
-
+    skill_path = stage_root / "SKILL.md"
     shared_contract = stage_root / "_shared" / "creative-guidance-contract.md"
+
+    if not skill_path.exists():
+        return [f"{skill_path}: 缺少根 SKILL.md。"]
     if not shared_contract.exists():
-        errors.append(
-            f"{stage_root.name}: 缺少共享创作引导真源 {shared_contract.relative_to(stage_root.parent)}。"
-        )
+        errors.append(f"{shared_contract}: 缺少共享创作引导合同。")
 
-    stage_skill = stage_root / "SKILL.md"
-    stage_context = stage_root / "CONTEXT.md"
+    skill_text = skill_path.read_text(encoding="utf-8")
+    if REQUIRED_SHARED_REF not in skill_text:
+        errors.append(f"{skill_path}: 未回指 `{REQUIRED_SHARED_REF}`。")
+    for phrase in REQUIRED_SKILL_PHRASES:
+        if phrase not in skill_text:
+            errors.append(f"{skill_path}: 缺少关键 reference 引用 `{phrase}`。")
 
-    if stage_skill.exists():
-        stage_skill_text = stage_skill.read_text(encoding="utf-8")
-        if "分镜构图" not in stage_skill_text:
-            errors.append(f"{stage_root.name}: 父层 SKILL.md 未声明 `分镜构图` 先行拓扑。")
-        for phrase in FORBIDDEN_PARENT_TOPOLOGY_PHRASES:
-            if phrase in stage_skill_text:
-                errors.append(f"{stage_root.name}: 父层 SKILL.md 仍残留已删除镜花叶子引用 `{phrase}`。")
+    route_path = stage_root / REQUIRED_FILES[0]
+    if route_path.exists():
+        route_text = route_path.read_text(encoding="utf-8")
+        for key in REQUIRED_ROUTE_KEYS:
+            if key not in route_text:
+                errors.append(f"{route_path}: 缺少路由键 `{key}`。")
 
-    if stage_context.exists():
-        stage_context_text = stage_context.read_text(encoding="utf-8")
-        for phrase in FORBIDDEN_PARENT_TOPOLOGY_PHRASES[1:]:
-            if phrase in stage_context_text:
-                errors.append(f"{stage_root.name}: 父层 CONTEXT.md 仍残留旧镜花拓扑表述 `{phrase}`。")
+    for rel_path in REQUIRED_FILES[1:]:
+        file_path = stage_root / rel_path
+        if not file_path.exists():
+            errors.append(f"{file_path}: 缺少必需 creative reference。")
+            continue
+        text = file_path.read_text(encoding="utf-8")
+        if rel_path.endswith("电影学院派知识接线.md"):
+            for marker in ("Pass Mapping", "Translation Rules", "knowledge-base/电影学院派"):
+                if marker not in text:
+                    errors.append(f"{file_path}: 缺少学院派知识接线关键段 `{marker}`。")
+            continue
+        if "分镜构图" not in text and "结构" not in text and "角色表现" not in text:
+            errors.append(f"{file_path}: 应至少回链到结构或 `分镜构图` 先行规则。")
+
     return errors
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Validate `3-Detail` creative-guidance carriers (`module-index.md`, `route-profile.yaml`, `examples.md`, `creative-review-rubric.md`)."
+        description="Validate `3-Detail` single-skill creative-guidance references."
     )
     parser.add_argument(
-        "skill_roots",
-        nargs="*",
+        "stage_root",
+        nargs="?",
         type=Path,
-        help="Optional child-skill roots like `.agents/skills/aigc/3-Detail/1-水月`.",
+        help="Optional stage root path; defaults to `.agents/skills/aigc/3-Detail`.",
     )
     return parser
 
@@ -148,26 +90,17 @@ def main() -> int:
     args = parser.parse_args()
 
     script_path = Path(__file__).resolve()
-    stage_root = script_path.parent.parent
-    skill_roots = args.skill_roots or discover_skill_roots(stage_root)
+    default_stage_root = script_path.parent.parent
+    stage_root = (args.stage_root or default_stage_root).resolve()
 
-    if not skill_roots:
-        print(f"未发现可校验的 child skill roots: {stage_root}")
-        return 1
-
-    errors: list[str] = []
-    errors.extend(validate_stage_contracts(stage_root))
-    for skill_root in skill_roots:
-        errors.extend(validate_skill_root(skill_root.resolve()))
-
+    errors = validate_stage_root(stage_root)
     if errors:
         print("校验失败:")
         for error in errors:
             print(f"- {error}")
         return 1
 
-    checked = ", ".join(path.name for path in skill_roots)
-    print(f"PASS: 创作引导校验通过。roots={checked}")
+    print(f"PASS: 3-Detail 创作引导 references 校验通过。root={stage_root.name}")
     return 0
 
 

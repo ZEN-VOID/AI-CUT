@@ -103,7 +103,7 @@ def validate_manuscript(
     body = _strip_markdown_frontmatter(text)
     body_chars = len(re.sub(r"\s+", "", body))
     paragraphs = _paragraphs(body)
-    heading_present = bool(re.search(r"^#\s+第\d+集", body, re.M))
+    heading_present = bool(re.search(r"^#\s+第\d+章", body, re.M))
     expected_hook = _expected_hook_from_planning(planning_path) if planning_path else ""
 
     issues: list[dict[str, str]] = []
@@ -130,8 +130,8 @@ def validate_manuscript(
                 "message": f"missing planning exit hook: {expected_hook}",
             }
         )
-    if not frontmatter.get("episode_title"):
-        issues.append({"code": "missing_episode_title", "message": "frontmatter missing episode_title"})
+    if not (frontmatter.get("chapter_title") or frontmatter.get("episode_title")):
+        issues.append({"code": "missing_chapter_title", "message": "frontmatter missing chapter_title"})
     if not frontmatter.get("rhythm_type"):
         issues.append({"code": "missing_rhythm_type", "message": "frontmatter missing rhythm_type"})
 

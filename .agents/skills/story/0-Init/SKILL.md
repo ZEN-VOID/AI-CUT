@@ -58,6 +58,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ### business_object
 
 - `projects/story/<项目名>/team.yaml`
+- `projects/story/<项目名>/MEMORY.md`
 - `projects/story/<项目名>/STATE.json`
 - `projects/story/<项目名>/CHANGELOG.md`
 - `projects/story/<项目名>/CONTEXT/`
@@ -78,6 +79,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 - 已锁定 `init_mode == team代入模式`
 - 已锁定 `team_lineup_mode == auto|custom`
 - `team.yaml` 已生成，且记录 `.agents/skills/team/` 为唯一选人范围
+- `MEMORY.md` 已生成，且具备项目级创作记忆骨架
 - `team.yaml` 是唯一团队真源
 - `planning` 顾问团固定题包直答已作为初始化主路径被声明
 - `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 已同步 team provenance
@@ -297,6 +299,7 @@ B. 自定义组队
 
 - `STATE.json`
 - `team.yaml`
+- `MEMORY.md`
 - `CHANGELOG.md`
 - `CONTEXT/`
 - `0-Init/north_star.yaml`
@@ -309,10 +312,10 @@ B. 自定义组队
 
 至少同步以下对象：
 
-- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Validation/`、`5-Loopback/`
+- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Validation/`、`5-Loopback/`，以及项目根 `MEMORY.md`
 - 当前 cards 子树最小骨架：`1-Cards/0-全局卡/总设定`、`1-Cards/1-风格卡/总风格`、`1-Cards/2-角色卡/*`、`1-Cards/3-场景卡/*`、`1-Cards/4-物品卡/*`、`1-Cards/5-类型卡/总题材`
 - `STATE.json.paths`
-  - 至少包含 `story_root / context_root / init_root / cards_root / planning_root / drafting_root / validation_root / loopback_root`
+  - 至少包含 `story_root / context_root / project_memory / init_root / cards_root / planning_root / drafting_root / validation_root / loopback_root`
 - `STATE.json.workflow_runtime.execution_state.stage_progress`
   - `0-init` 必须被写成 `completed`
   - `latest_command` 必须标记为 `story-init`
@@ -325,9 +328,11 @@ B. 自定义组队
 
 1. 目录骨架与 `STATE.json.paths` 必须同轮同步，不允许只建目录不写状态，或只写状态不建目录。
 2. `story-source-manifest.yaml` 既然声明 `source_root = Story/`，初始化就必须真实创建 `Story/`。
-3. 初始化必须同步创建项目级 `CONTEXT/`，供整个创作阶段加载项目共享附加上下文。
-4. 只要 `1-Cards` 当前仍以 `5-类型卡` 作为正式子树，初始化骨架就不得漏掉 `1-Cards/5-类型卡/总题材`。
-5. `workflow_runtime` 的 schema 与 stage snapshot 必须跟 `workflow_manager.py` 当前合同对齐，不得在 `0-Init` 内部保留旧版私有快照。
+3. 初始化必须同步创建项目级 `MEMORY.md`，作为跨阶段项目创作记忆载体。
+4. 初始化必须同步创建项目级 `CONTEXT/`，供整个创作阶段加载项目共享附加上下文。
+5. 只要 `1-Cards` 当前仍以 `5-类型卡` 作为正式子树，初始化骨架就不得漏掉 `1-Cards/5-类型卡/总题材`。
+6. `MEMORY.md` 只记录该项目跨阶段持续生效的偏好、口味、特殊元素与长期要求；skill 经验不得写入这里。
+7. `workflow_runtime` 的 schema 与 stage snapshot 必须跟 `workflow_manager.py` 当前合同对齐，不得在 `0-Init` 内部保留旧版私有快照。
 
 ## Execution Procedure
 
@@ -337,7 +342,7 @@ B. 自定义组队
    - 固定 `init_mode = team代入模式`
    - 锁定 `team_lineup_mode`
 3. `N2 Runtime Bootstrap`
-   - 预建项目目录、`0-Init` 目录与必要 runtime 骨架
+   - 预建项目目录、`0-Init` 目录、项目根 `MEMORY.md` 与必要 runtime 骨架
 4. `N3 Team Router`
    - 命中 `auto` 或 `custom`
    - 若 `auto`，先读 `.agents/skills/team/SKILL.md + CONTEXT.md`
@@ -347,7 +352,7 @@ B. 自定义组队
    - 以 `roles.planning.members` 为 kickoff owner 真实执行 subagents 固定题包直答
    - 必要时按需进入 `creative-seed-routing`
 7. `N6 Synthesis`
-   - 聚合 直答 patch 与初始化输入，收束到 `0-Init/north_star.yaml + 0-Init/story-source-manifest.yaml + 0-Init/init_handoff.yaml + STATE.json`
+   - 聚合 直答 patch 与初始化输入，收束到 `0-Init/north_star.yaml + 0-Init/story-source-manifest.yaml + 0-Init/init_handoff.yaml + STATE.json`，并保留项目根 `MEMORY.md` 作为持续更新位
 8. `N7 Sufficiency Audit`
    - 检查 team provenance、来源分层、唯一下一入口
    - 通过后一次性写回
@@ -358,6 +363,7 @@ B. 自定义组队
 
 - 已锁定 `team_lineup_mode`
 - `team.yaml` 已生成
+- `MEMORY.md` 已生成
 - `team.yaml` 已声明 `.agents/skills/team/` 为唯一选人范围
 - `planning` 固定题包直答已作为初始化主路径声明
 - `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 的 team provenance 一致
@@ -397,6 +403,7 @@ python3 .agents/skills/story/scripts/init_project.py \
 
 ```bash
 test -f "./projects/story/示例小说/team.yaml"
+test -f "./projects/story/示例小说/MEMORY.md"
 test -f "./projects/story/示例小说/STATE.json"
 test -d "./projects/story/示例小说/CONTEXT"
 test -f "./projects/story/示例小说/0-Init/north_star.yaml"

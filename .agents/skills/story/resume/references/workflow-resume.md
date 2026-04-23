@@ -89,14 +89,14 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 | tracked step | 当前含义 | 默认策略 |
 |---|---|---|
-| `Step 1` | 单集叙事起盘 | 重新做 Step 1 |
-| `Step 2` | 节奏优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 3` | 场景和氛围渲染 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 4` | 角色形象刻画 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 5` | 对白优化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 6` | 心理活动描写 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 7` | 追读力强化 | 优先继续当前工序，必要时清理当前集正文后回到 Step 1 |
-| `Step 8` | 润色 | 优先继续终修，必要时清理当前集正文后回到 Step 1 |
+| `Step 1` | 单章叙事起盘 | 重新做 Step 1 |
+| `Step 2` | 节奏优化（父层工序） | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 3` | 场景和氛围渲染 | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 4` | 角色形象刻画 | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 5` | 对白优化 | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 6` | 心理活动描写 | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 7` | 追读力强化 | 优先继续当前工序，必要时清理当前章正文后回到 Step 1 |
+| `Step 8` | 润色 | 优先继续终修，必要时清理当前章正文后回到 Step 1 |
 | `Step 1.5` | legacy 旧断点 | 兼容视为 Step 1 |
 
 ### `story-review`
@@ -110,7 +110,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 
 ## 推荐恢复选项模板
 
-### 模板 A：删除当前集正文并重跑（推荐）
+### 模板 A：删除当前章正文并重跑（推荐）
 
 - 风险：`low`
 - 适用：`story-write` 的 `Step 2-8`
@@ -156,8 +156,8 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 当前中断：`story-write` / `Step 5`
 
 推荐：
-A) 保留 `3-Drafting/第N集.md`，继续当前工序（推荐，low）
-B) 预览并清理当前集正文，然后从 Step 1 重跑（medium）
+A) 保留 `3-Drafting/第N卷/第N章.md`，继续当前工序（推荐，low）
+B) 预览并清理当前章正文，然后从 Step 1 重跑（medium）
 C) 保留半成品做人工检查，再手动决定是否重跑（medium）
 
 下一跳：
@@ -195,14 +195,14 @@ C) 若需要保留证据链，先 `workflow fail-task --reason "manual_inspectio
 </example>
 
 <example>
-<input>workflow detect 显示无中断，但项目里已有 `4-Validation/第1集.validation.json` 和 `4-Validation/第1-1章审查报告.md`，还没有 `5-Loopback/第1集.loopback.json`</input>
+<input>workflow detect 显示无中断，但项目里已有 `4-Validation/第1章.validation.json` 和 `4-Validation/第1-1章审查报告.md`，还没有 `5-Loopback/第1章.loopback.json`</input>
 <output>
 说明：
 - 当前没有 tracked interruption
 - 但 artifact fallback 已命中：`validation PASS + review persisted + loopback pending`
 
 建议：
-A) 进入 `story-loopback` 执行第1集 actualization（推荐）
+A) 进入 `story-loopback` 执行第1章 actualization（推荐）
 B) 先人工核对 validation packet 与 review checkpoint，再执行 actualization
 </output>
 </example>

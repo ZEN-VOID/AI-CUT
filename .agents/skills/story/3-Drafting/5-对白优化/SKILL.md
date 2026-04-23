@@ -11,7 +11,7 @@ governance_tier: lite
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md` 与 `../_shared/drafting-child-output-contract.md`。
 - 必须同时读取 `../_shared/drafting-instant-validation-contract.md`，把本 child 放回父层的 `start-step -> complete-step -> inline validation -> pass or block` 正式链位中理解。
-- 正式处理前，必须读取 Step 4 已写回后的当前 `第N集.md`。
+- 正式处理前，必须读取 Step 4 已写回后的当前 `第N章.md`。
 - 必须按需读取本地执行细则 `references/dialogue-optimization-execution-playbook.md`。
 
 ## Parent Positioning
@@ -57,7 +57,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - 当前 `第N集.md`
+  - 当前 `第N章.md`
   - `1-Cards/2-角色卡/**/*.json`
   - `第V卷.写作日志.yaml`
 - 硬规则：

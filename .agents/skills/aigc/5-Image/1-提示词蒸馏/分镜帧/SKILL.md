@@ -33,6 +33,12 @@ governance_tier: full
 4. 由固定英文前缀、组级设计块与单镜融写行拼成的 `prompt`
 5. 对应的 `prompt_char_count`
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `分镜帧` 的单帧 prompt 正文属于内容创作型输出，必须由 LLM 直接完成。
+- `scripts/generate_episode_packets.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的 JSON 投影与校验辅助。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
+
 ## When to Use
 
 - 需要把单一 `分镜ID` 整理成单帧图像生成请求 JSON。
@@ -44,7 +50,7 @@ governance_tier: full
 
 - 目标是整组多格 storyboard，应进入 `分镜故事板`。
 - 目标是漫画页、气泡文字、旁白框或漫画阅读节奏，应进入 `漫画`。
-- 上游 `3-Detail/第N集.json` 尚未形成合法 `分镜组列表`、`metadata.document_phase` 未到 `detail_in_progress | ready`，或当前无法确认唯一 `分镜ID`。
+- 上游 `3-Detail/第N集.json` 尚未形成合法 canonical `groups[]`、compat projection 未到 `detail_in_progress | ready`，或当前无法确认唯一 `分镜ID`。
 - 任务想把多个 `分镜ID` 合并成一条请求；本技能只处理“一镜一条”。
 
 ## Truth Ownership
@@ -84,7 +90,7 @@ governance_tier: full
 ### Business Object
 
 - 第一结构化真源：`projects/aigc/<项目名>/3-Detail/第N集.json`
-- 目标对象：`final_output.main_content.分镜组列表[].分镜明细[]` 中的单一 `分镜ID`
+- 目标对象：canonical `groups[].detail.分镜列表` 中的单一 `分镜ID`；若叶子内部仍用 `分镜明细[]` helper，只允许通过 compat projection 派生
 - 业务投影：`组级设计块 + 单镜融写行`
 - 最终载体：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
 
@@ -115,7 +121,8 @@ governance_tier: full
 ### Evidence Sources
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `projects/aigc/<项目名>/4-Design/` 下参考资产，仅用于 `reference_images / image_markers` 槽位登记
 
@@ -124,7 +131,7 @@ governance_tier: full
 ### Canonical Inputs
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 一个可唯一定位的 `分镜ID`
 - 可选 `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
@@ -134,10 +141,25 @@ governance_tier: full
 
 进入单帧蒸馏前，必须确认：
 
-1. `metadata.document_phase in {detail_in_progress, ready}`
-2. 目标分镜所属组具备 `组间设计.出场角色及穿搭`
-3. 目标分镜所属组具备 `正文切分参考[]`，且目标分镜具备 `正文回指`
-4. 目标分镜至少具备 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
+1. canonical detail root 经 `.agents/skills/aigc/_shared/detail_root_adapter.py` 适配后判定为 `detail_in_progress | ready`
+2. 目标 canonical group 至少具备：
+   - `分镜组ID`
+   - `global.剧本正文`
+   - `global.全局风格`
+   - `global.类型元素`
+   - `global.导演意图`
+   - `detail.分镜列表`
+3. 目标 canonical shot 至少具备：
+   - `时间`
+   - `剧本正文`
+   - `主体锚定`
+   - `角色表现`
+   - `氛围表现`
+   - `分镜构图`
+   - `摄影表现`
+   - `运镜手法`
+   - `转场特效`
+4. 若本叶子仍需要 `组间设计 / 正文切分参考 / 正文回指 / 分镜明细[]` 这类旧 helper，只允许由 runtime compat projection 派生，不得重新定义为 canonical。
 
 若当前项目仍在兼容过渡期，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`，但它们只允许作为补证，不得重新定义单帧上下文的第一真相。
 
@@ -148,13 +170,14 @@ governance_tier: full
 - 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/第N集.json`
 - 汇总清单：`projects/aigc/<项目名>/5-Image/分镜帧/第N集/_manifest.json`，仅在 `full_trace` 时输出
 
-### Script Entrypoint
+### Projection Helper
 
 - canonical runner：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py`
 - 句法 spec：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/prompt-assembly-spec.md`
-- 标准执行命令：
-  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集`
-  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --shot-id <分镜ID>`
+- runtime compat adapter：`.agents/skills/aigc/_shared/detail_root_adapter.py`
+- legacy 兼容命令：
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --allow-legacy-script-authorship`
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --shot-id <分镜ID> --allow-legacy-script-authorship`
 
 ## Visual Maps
 
@@ -203,7 +226,7 @@ stateDiagram-v2
 | 能力面 | 作用 | 典型证据 | 何时触发 |
 | --- | --- | --- | --- |
 | `input_gate_engine` | 校验当前任务是否确属帧级蒸馏，且输入真源与阶段就绪门齐备 | `input_lock_note`、缺口列表 | 每次进入本技能时必须触发 |
-| `shot_locator_engine` | 在 `分镜组列表[].分镜明细[]` 中唯一锁定目标分镜与所属分镜组 | `shot_lock_record` | 输入门禁通过后必触发 |
+| `shot_locator_engine` | 在 canonical `groups[].detail.分镜列表` 中唯一锁定目标分镜与所属分镜组；如需旧 helper，仅通过 compat projection 读取 | `shot_lock_record` | 输入门禁通过后必触发 |
 | `context_pack_engine` | 把组级事实与镜级事实打成单帧蒸馏可消费的上下文包 | `frame_context_pack` | 目标分镜锁定后必触发 |
 | `single_frame_distill_engine` | 生成只服务当前帧的 `single_frame_shot` | `single_frame_shot`、`coverage_note` | 上下文包形成后必触发 |
 | `prompt_contract_engine` | 把固定前缀与 `single_frame_shot` 组装成 prompt，并校验字数统计 | `prompt_draft`、`prompt_char_count` | 蒸馏内容块后必触发 |
@@ -263,8 +286,8 @@ stateDiagram-v2
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-GATE` | S1 | `FIELD-SB-FRAME-01` | 锁定当前任务确属帧级蒸馏，且核心输入存在 | 读取父级合同、episode JSON、共享模板、可选 sidecar 与目标 `分镜ID`，检查阶段边界与文件存在性 | `input_lock_note`、缺口列表 | pass -> `N2`；fail -> 结束并回报缺口 | 输入齐备前不得继续 |
-| `N2-SHOT-LOCK` | S2 | `FIELD-SB-FRAME-01` | 在 `分镜组列表[].分镜明细[]` 中唯一定位目标分镜 | 遍历分镜组，锁定 `group_id + shot_id + source_shot_ids`，排除重号或缺号 | `shot_lock_record` | pass -> `N3`；fail -> 回 `S1/S2` | 唯一定位成立后才可蒸馏 |
-| `N3-CONTEXT-PACK` | S3 | `FIELD-SB-FRAME-02` | 打包当前帧需要继承的组级与镜级上下文 | 提取 `分镜组ID / 剧本正文 / 正文切分参考[] / 组间设计 / 目标分镜明细.正文回指`，形成 `frame_context_pack` | `frame_context_pack`、字段覆盖清单 | pass -> `N4`；fail -> 回 `S2/S3` | 上下文包须可回链真实上游 |
+| `N2-SHOT-LOCK` | S2 | `FIELD-SB-FRAME-01` | 在 canonical `groups[].detail.分镜列表` 中唯一定位目标分镜 | 遍历 canonical 分镜组，锁定 `group_id + shot_id + source_shot_ids`，必要时仅通过 compat projection 读取旧 helper，排除重号或缺号 | `shot_lock_record` | pass -> `N3`；fail -> 回 `S1/S2` | 唯一定位成立后才可蒸馏 |
+| `N3-CONTEXT-PACK` | S3 | `FIELD-SB-FRAME-02` | 打包当前帧需要继承的组级与镜级上下文 | 先提取 canonical `分镜组ID / global.* / 目标 shot`；若需要正文桥接，再通过 compat projection 读取 `正文切分参考[] / 正文回指 / 组间设计`，形成 `frame_context_pack` | `frame_context_pack`、字段覆盖清单 | pass -> `N4`；fail -> 回 `S2/S3` | 上下文包须可回链真实上游 |
 | `N4-SINGLE-FRAME-DISTILL` | S4 | `FIELD-SB-FRAME-02` | 生成只服务当前帧的 `single_frame_shot` | 按单帧可见事实收缩内容块，区分 `ready / partial` 两种完整度 | `single_frame_shot`、`coverage_note` | ready/partial -> `N5`；fail -> 回 `S3/S4` | 不得写成整组剧情摘要 |
 | `N5-PROMPT-ASSEMBLY` | S5 | `FIELD-SB-FRAME-02` | 让 prompt 严格满足固定前缀合同与字数统计 | 逐字保留固定前缀，拼接 `single_frame_shot`，计算 `prompt_char_count` | `prompt_draft`、`prompt_char_count` | pass -> `N6`；fail -> 回 `S4/S5` | 固定前缀与内容顺序不得漂移 |
 | `N6-TEMPLATE-FILL` | S6 | `FIELD-SB-FRAME-01` `FIELD-SB-FRAME-03` | 以共享模板为骨架填充 `meta / prompt_style / model` | 写入 `shot_level / group_id / source_shot_ids / prompt_style / model`，保留空参照槽位 | `request_entry_patch` | pass -> `N7`；fail -> 回 `S5/S6` | 模板字段骨架必须完整 |
@@ -278,14 +301,14 @@ stateDiagram-v2
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
 | 阶段边界 | 1. 读取父级 `1-提示词蒸馏` 合同。2. 确认当前对象是“单一 `分镜ID`”。3. 排除故事板/漫画意图。 | 明明是组级或漫画诉求，却直接进入本技能 |
-| 真源存在性 | 1. 检查 `3-Detail/第N集.json`。2. 检查 `metadata.document_phase`。3. 检查共享 schema 与模板。4. 仅按需登记 `水月/镜花` sidecar。 | 缺少 episode JSON、phase 未就绪、模板或 schema |
+| 真源存在性 | 1. 检查 `3-Detail/第N集.json`。2. 检查 canonical root 经 compat adapter 推断的 readiness。3. 检查共享 schema 与模板。4. 仅按需登记 `水月/镜花` sidecar。 | 缺少 episode JSON、readiness 未就绪、模板或 schema |
 | 输入最小集 | 1. 检查 `分镜ID` 是否提供。2. 检查文件能否读取。3. 记录缺口。 | 没有 `分镜ID` 仍继续运行 |
 
 ### `N2-SHOT-LOCK`
 
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
-| 唯一性 | 1. 遍历 `分镜组列表[]`。2. 在 `分镜明细[]` 中匹配目标 `分镜ID`。3. 确认只命中一次。 | 命中 0 次或多次 |
+| 唯一性 | 1. 遍历 canonical `groups[]`。2. 在 `detail.分镜列表` 中匹配目标 `分镜ID`。3. 如需旧 helper，仅通过 compat projection 对照顺序。4. 确认只命中一次。 | 命中 0 次或多次 |
 | 组级归属 | 1. 记录所属 `分镜组ID`。2. 记录组内顺序。3. 回链 `source_shot_ids`。 | 只找到镜头，没找到所属组 |
 | 命名合法性 | 1. 检查 `分镜ID` 四段式。2. 标记异常 ID。3. 必要时停止。 | 仍是局部编号或非 canonical ID |
 
@@ -293,7 +316,7 @@ stateDiagram-v2
 
 | 从哪些方面着手 | 一步一步怎么做 | 未达标信号 |
 | --- | --- | --- |
-| 组级事实 | 1. 提取 `分镜组ID`。2. 提取 `剧本正文 / 正文切分参考[]`。3. 提取 `组间设计.全局风格 / 类型元素 / 导演意图 / 出场角色及穿搭`。 | 组级关键字段缺失 |
+| 组级事实 | 1. 提取 canonical `分镜组ID / global.剧本正文 / global.全局风格 / global.类型元素 / global.导演意图`。2. 若需要桥接，再通过 compat projection 读取 `正文切分参考[] / 组间设计.出场角色及穿搭`。 | 组级关键字段缺失 |
 | 正文桥接 | 1. 读取目标分镜 `正文回指`。2. 用 `beat_refs[]` 回链 `正文切分参考[]`。3. 只在桥接失败时回退整组 `剧本正文`。 | 仍靠整组正文临场猜边界 |
 | 镜级事实 | 1. 提取目标 `分镜明细`。2. 优先保留 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`。3. legacy `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 只作补证。4. 不改写镜头事实。 | 镜级字段被压成模糊摘要或退回 compatibility projection 主路径 |
 | 证据打包 | 1. 把组级与镜级合成 `frame_context_pack`。2. 标记缺失字段。3. 为 `N4` 提供可审计输入。 | 上下文包无法解释后续 prompt 来源 |
@@ -342,8 +365,8 @@ stateDiagram-v2
 
 1. 读取 `.agents/skills/aigc/SKILL.md`。
 2. 读取 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`，确认本轮明确命中 `分镜帧`。
-3. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，锁定 `final_output.main_content.分镜组列表`。
-4. 遍历分镜组并按 `分镜明细[].分镜ID` 唯一锁定目标分镜，同时记录所属 `分镜组ID / 剧本正文 / 组间设计`。
+3. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`，锁定 canonical `meta + groups[].global/detail.分镜列表`。
+4. 遍历 canonical 分镜组并按 `detail.分镜列表.<分镜ID>` 唯一锁定目标分镜；若叶子需要旧 helper，仅通过 runtime compat projection 补取 `组间设计 / 正文切分参考 / 正文回指`。
 5. 以目标分镜与所属组上下文组织“组级设计块 + 单镜融写行”，并通过 `正文切分参考[] -> 正文回指` 融入原剧本片段，只保留当前帧所需组级上下文与镜级事实。
 6. 以共享模板为骨架填充 `meta + prompt_style + model + prompt + prompt_char_count`。
 7. 若存在 `4-Design` 参考资产，只登记到 `model.reference_images / image_markers` 的预留位。

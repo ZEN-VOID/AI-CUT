@@ -1,4 +1,0 @@
-model: gpt-5
-metadata:
-  short_description: "围绕固定 `剧本正文`、shared-root `分镜切换` 与 `水月` 前置生成 `分镜构图 / 摄影美学 / 运镜手法 / 转场特效` owner bundle，输出到 `3-Detail/镜花/第N集.field-patch.json`"
-  default_prompt: "Use $aigc-detail-jinghua as the stage-local child skill under `3-Detail`: lock `projects/aigc/<项目名>/3-Detail/第N集.json` as the primary truth source, require inherited `分镜切换` plus `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json` as the factual input layer, preserve `剧本正文` exactly as inherited, run `1-分镜构图 -> 2-摄影美学 -> 3-运镜手法 -> 4-转场特效` in current numeric order, reread the current partially written root before each next branch, and emit branch process sidecars plus an `assembly_only` owner bundle whose canonical truth is `分镜明细[].分镜构图 / 摄影美学 / 运镜手法 / 转场特效`, while treating any legacy `shot_patches[] / 分镜表现 / 摄影美学 / 运镜手法 / 转场特效` content only as compatibility projection."

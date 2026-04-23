@@ -20,7 +20,7 @@ governance_tier: full
 
 ## 概述
 
-`分镜故事板` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中符合 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 的 `final_output.main_content.分镜组列表[]`，收口为 **每个分镜组 1 条多格 storyboard 图像请求 JSON**。
+`分镜故事板` 是 `5-Image / 1-提示词蒸馏` 下的组级叶子子技能，负责把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 canonical `meta + groups[].global/detail.分镜列表` 收口为 **每个分镜组 1 条多格 storyboard 图像请求 JSON**；若叶子仍需旧式 `组间设计 / 分镜明细[]` helper，只允许通过 runtime compat projection 派生。
 
 本技能只负责图像请求 JSON 蒸馏，不负责真实图片生成，也不改写上游镜头事实。
 
@@ -35,11 +35,17 @@ governance_tier: full
 固定边界：
 
 - 上游第一事实源固定为 `projects/aigc/<项目名>/3-Detail/第N集.json`
-- shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- canonical detail template 固定为 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - shared JSON 模板固定为 `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - 默认业务输出模式固定为 `json_only`
 - `full_trace` 只额外补 `_manifest.json`，不污染 canonical JSON
 - `思考过程` 属于执行闭环证据层：默认留在调用回复中；仅在 `full_trace` 时允许浓缩到 `_manifest.json` 的说明字段或调用侧审计摘要，不得反向挤入业务真源字段
+
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `分镜故事板` 的组级 storyboard prompt 正文属于内容创作型输出，必须由 LLM 直接完成。
+- `scripts/generate_episode_packets.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的 JSON 投影与校验辅助。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
 
 ## When to Use
 
@@ -52,7 +58,7 @@ governance_tier: full
 
 - 目标是按单一 `分镜ID` 生成首帧或单帧图，应进入 `分镜帧`。
 - 目标是 9:16 漫画单页、气泡文字与漫画页节奏，应进入 `漫画`。
-- 上游 `3-Detail/第N集.json` 还没有形成合法 `分镜组列表[]`。
+- 上游 `3-Detail/第N集.json` 还没有形成合法 canonical `groups[]`，或 compat projection 仍无法得到稳定分镜组视图。
 - 当前任务想直接出图，而不是先产出请求 JSON。
 
 ## Truth Ownership
@@ -78,7 +84,7 @@ governance_tier: full
 | 输入槽位 | 固定要求 |
 | --- | --- |
 | `business_goal` | 把一个分镜组稳定蒸馏成后续可消费的多格 storyboard 图像请求 JSON |
-| `business_object` | `final_output.main_content.分镜组列表[]` 中的单个可回链分镜组 |
+| `business_object` | canonical `groups[]` 中的单个可回链分镜组；若叶子仍需旧式 `组间设计 / 分镜明细[]` helper，只允许通过 runtime compat projection 派生 |
 | `task_goal` | 生成 `meta + prompt_style + model + prompt + prompt_char_count` 并写入单集 `第N集.json` |
 | `constraints` | 不压缩镜头事实、不虚构信息、不直接生成图片、不引入第二真源、不破坏共享模板骨架 |
 | `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏、不做一致性处理、不做模型提交 |
@@ -102,7 +108,7 @@ governance_tier: full
 ## Canonical Inputs
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 
 ### 推荐补充输入
@@ -115,18 +121,26 @@ governance_tier: full
 
 进入组级蒸馏前，必须确认：
 
-1. `metadata.document_phase in {detail_in_progress, ready}`
-2. 目标组具备 `组间设计.出场角色及穿搭`
-3. 目标组的 `正文切分参考[]` 与 `分镜明细[].正文回指` 先成立，再检查 `分镜明细[]` 至少能回链：
-   - `分镜ID`
+1. canonical detail root 经 `.agents/skills/aigc/_shared/detail_root_adapter.py` 适配后判定为 `detail_in_progress | ready`
+2. 目标 canonical group 至少具备：
+   - `分镜组ID`
+   - `global.剧本正文`
+   - `global.全局风格`
+   - `global.类型元素`
+   - `global.导演意图`
+   - `detail.分镜数`
+   - `detail.分镜列表`
+3. 目标 canonical shot 至少具备：
+   - `时间`
+   - `剧本正文`
+   - `主体锚定`
    - `角色表现`
-   - `运动表现`
    - `氛围表现`
-   - `视觉强化`
    - `分镜构图`
-   - `摄影美学`
+   - `摄影表现`
    - `运镜手法`
    - `转场特效`
+4. 若本叶子仍需要 `组间设计 / 正文切分参考 / 正文回指 / 分镜明细[]` 这类旧 helper，只允许由 runtime compat projection 派生，不得重新声明为 canonical。
 
 若目标组仍处于过渡项目，可短期回退读取 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`，但它们只允许作为 compatibility projection，不得重新升格为第一真相。
 
@@ -137,13 +151,14 @@ governance_tier: full
 - 汇总 JSON：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json`
 - 汇总清单：`projects/aigc/<项目名>/5-Image/分镜故事板/第N集/_manifest.json`（仅当本轮要求 `full_trace` 时）
 
-### Script Entrypoint
+### Projection Helper
 
 - canonical runner：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py`
 - 句法 spec：`.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/prompt-assembly-spec.md`
-- 标准执行命令：
-  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集`
-  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --group-id <分镜组ID>`
+- runtime compat adapter：`.agents/skills/aigc/_shared/detail_root_adapter.py`
+- legacy 兼容命令：
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --allow-legacy-script-authorship`
+  - `python3 .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/scripts/generate_episode_packets.py --project <项目名> --episode 第N集 --group-id <分镜组ID> --allow-legacy-script-authorship`
 
 ## Business Requirement Analysis Contract
 
@@ -235,9 +250,9 @@ stateDiagram-v2
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N0-intake-lock` | 锁定本轮就是“组级 storyboard 请求 JSON 蒸馏” | 用户意图、父级路由结论、本技能合同 | 冻结对象类型、输出模式默认值、非目标 | 路由结论、对象边界说明 | `success -> N1`；`wrong_object -> 回父级重路由` | 未锁定对象不得进入主干 |
-| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema | 检查 `document_phase`、结构壳、`分镜组列表[]`、关键字段存在性 | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> B1/N2`；`broken -> 停止` | 上游结构不成立不得继续 |
-| `N2-group-lock` | 锁定当前要蒸馏的分镜组与镜头顺序 | `分镜组列表[]`、父级或用户提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认顺序 | 目标 `group_id`、有序 `source_shot_ids` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
-| `N3-block-synthesize` | 组织完整“组级设计块 + 组内多镜融写列”内容块 | 目标组、可选 evidence sidecar | 提取组级字段、`正文切分参考[]`、全部 `分镜明细[].正文回指` 与全部 `分镜明细[]`，并按原顺序融写多镜行，必要时保守留空 | `storyboard_prompt_block` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
+| `N1-source-validate` | 校验 shared schema 与上游 episode JSON 是否可消费 | `3-Detail/第N集.json`、shared schema、runtime compat adapter | 先检查 canonical `meta + groups[].global/detail.分镜列表`；再确认 runtime compat projection 可稳定派生叶子仍需的 `组间设计 / 分镜明细[]` helper | 输入完整性判定、缺口说明 | `ready -> N2`；`partial -> B1/N2`；`broken -> 停止` | 上游结构不成立不得继续 |
+| `N2-group-lock` | 锁定当前要蒸馏的分镜组与镜头顺序 | canonical `groups[]`、父级或用户提供的组锚点 | 定位目标组、收集 `source_shot_ids`、确认顺序；必要时仅通过 compat projection 读取旧 helper 视图 | 目标 `group_id`、有序 `source_shot_ids` | `success -> N3`；`ambiguous -> 回父级/用户澄清` | 组定位唯一且镜头顺序稳定 |
+| `N3-block-synthesize` | 组织完整“组级设计块 + 组内多镜融写列”内容块 | 目标 canonical group、可选 evidence sidecar、可选 compat helper | 提取 canonical 组级字段；若需要脚本桥接，再读取由 compat projection 派生的 `正文切分参考[] / 分镜明细[].正文回指`，并按原顺序融写多镜行，必要时保守留空 | `storyboard_prompt_block` 草稿、字段覆盖检查 | `complete -> N4`；`partial -> N4`；`missing_core -> 回 N1/N2` | 核心组字段必须可回链 |
 | `N4-prompt-assemble` | 生成固定前缀 + 组级设计块 + 多镜融写列 的 prompt | 固定英文前缀、内容块 | 逐字保留前缀、直接拼接、统计字数 | `prompt`、`prompt_char_count` | `success -> N5`；`prefix_drift -> 回 N4` | prompt 结构成立 |
 | `N5-template-map` | 将 prompt 与组信息映射到共享模板骨架 | shared image template、prompt、组信息、可选 design refs | 填充 `meta/prompt_style/model`，登记参照图槽位 | 单条 image request 对象 | `success -> N6`；`template_drift -> 回 N5` | 模板骨架完整且兼容 |
 | `N6-land-audit` | 形成唯一 canonical output 并通过汇流门 | image request 对象、输出模式 | 写 `第N集.json`，按需补 `_manifest.json`，执行最终验收 | 落盘路径、审计结果、handoff 结论 | `pass -> 完成`；`fail -> 回具体失败节点` | 只有本节点可以宣告完成 |
@@ -270,19 +285,19 @@ stateDiagram-v2
 #### 着手面
 
 - `3-Detail/第N集.json` 是否符合 shared schema 的三段式壳
-- `metadata.document_phase` 是否已到 `detail_in_progress | ready`
-- `final_output.main_content.分镜组列表[]` 是否存在
-- 组内是否包含 `分镜组ID / 剧本正文 / 组间设计 / 分镜切换 / 分镜明细[]`
+- canonical detail root 经 compat adapter 推断的 readiness 是否已到 `detail_in_progress | ready`
+- canonical `groups[]` 是否存在
+- 组内是否包含 `分镜组ID / global / detail.分镜列表`，以及叶子仍需时可稳定派生的 `组间设计 / 分镜切换 / 分镜明细[]`
 - 缺口是“全局缺口”还是“局部缺口”
 
 #### 一步一步
 
 1. 读取 `projects/aigc/<项目名>/3-Detail/第N集.json`。
-2. 对照 `.agents/skills/aigc/_shared/director_episode_output.schema.json` 检查 shared 壳是否成立。
-3. 检查 `分镜组列表[]` 是否存在且至少含一个可消费组。
-4. 检查 `metadata.document_phase` 是否处于 `detail_in_progress | ready`；若不是，直接停止并回报上游阶段缺口。
+2. 对照 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 检查 canonical 壳是否成立。
+3. 检查 canonical `groups[]` 是否存在且至少含一个可消费组。
+4. 检查 canonical detail root 经 compat adapter 推断的 readiness 是否处于 `detail_in_progress | ready`；若不是，直接停止并回报上游阶段缺口。
 5. 将缺口拆成两类：
-   - 全局缺口：`分镜组列表[]` 缺失、shared 壳破坏
+   - 全局缺口：canonical `groups[]` 缺失、shared 壳破坏
    - 局部缺口：`出场角色及穿搭` 或镜级 canonical 字段局部缺失，但组结构仍成立
 6. 全局缺口直接停止；局部缺口可带着保守留空标记继续。
 
@@ -304,8 +319,8 @@ stateDiagram-v2
 
 1. 若父级或用户指定了 `group_id`，优先按该锚点定位。
 2. 若没有显式锚点，则以当前任务上下文默认消费“本轮命中分镜组”。
-3. 读取目标组的 `分镜明细[]`，按原顺序抽取 `source_shot_ids`。
-4. 检查是否存在镜头顺序冲突、重复 `group_id`、空 `分镜明细[]`，以及 `正文切分参考[] -> 正文回指` 断链。
+3. 先从 canonical `detail.分镜列表` 按 ID 顺序抽取 `source_shot_ids`；若叶子仍需旧 helper，只通过 compat projection 对照顺序。
+4. 检查是否存在镜头顺序冲突、重复 `group_id`、空的 canonical shot map，或 compat `正文切分参考[] -> 正文回指` 断链。
 5. 只有在组唯一且顺序稳定时，才允许进入 `N3`。
 
 #### 回退门
@@ -318,7 +333,7 @@ stateDiagram-v2
 #### 着手面
 
 - `storyboard_group` 要覆盖哪些组级字段
-- `分镜明细[]` 要如何保留原顺序
+- canonical `detail.分镜列表` 与 compat `分镜明细[]` 要如何保持同一顺序
 - 局部缺失字段如何保守留空
 - 是否需要附带人工核对证据
 
@@ -331,7 +346,7 @@ stateDiagram-v2
    - `组间设计.类型元素`
    - `组间设计.导演意图`
    - `组间设计.出场角色及穿搭`
-2. 按上游原顺序拼入全部 `分镜明细[]`，并显式保留 `正文切分参考[]` 与 `正文回指`；同时保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现`。
+2. 按 canonical shot 顺序组织镜级行；若脚本桥接仍需旧 helper，再显式保留 compat `正文切分参考[] / 正文回指 / 分镜明细[]`；同时保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现` 作为补证。
 3. 严禁压缩、重写或脑补镜头事实；只允许做结构化整理。
 4. 若某组级字段为空，但镜头顺序和组边界仍成立，则显式保守留空。
 5. 形成 `storyboard_group` 内容块，并做字段覆盖检查。
@@ -473,7 +488,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 
 1. 每个分镜组在 `第N集.json` 中只生成 1 条请求对象。
 2. `prompt` 必须严格由固定英文前缀开头，并继续组织为 `组级设计块 + 多镜融写列`。
-3. 组级设计块必须覆盖该分镜组的 `分镜组ID`、`正文切分参考[]`、`组间设计.全局风格`、`组间设计.类型元素`、`组间设计.导演意图`、`组间设计.出场角色及穿搭`，并把全部按原顺序排列的 `分镜明细[]` 通过 `正文回指` 融写为镜级行；镜级至少保留 `正文回指` 与 branch-owned 八字段。
+3. 组级设计块必须覆盖该分镜组的 canonical `分镜组ID / global.剧本正文 / global.全局风格 / global.类型元素 / global.导演意图`；若需要脚本桥接，再读取 compat `正文切分参考[] / 组间设计.出场角色及穿搭 / 分镜明细[] / 正文回指`，并将全部镜级内容按原顺序融写为镜级行；镜级至少保留 compat `正文回指` 与 branch-owned 八字段。
 4. prompt 不再独立保留整组 A 段 `剧本正文`；原剧本信息必须融入各镜对应行，不虚构补写上游没有的镜头事实。
 5. `meta.shot_level` 固定为 `storyboard_group`；`meta.group_id` 与 `meta.source_shot_ids` 必须能完整回链该组。
 6. `prompt_style.type` 固定服务多格故事板；`prompt_style.language` 默认标记为 `mixed`。
@@ -553,7 +568,7 @@ Auto-adapt the panel layout grid based on the total number of shots.
 | N0 | 输入边界 | 当前任务是不是组级 storyboard JSON 蒸馏 | 锁定对象、输出模式与非目标 | 对象混判、输出目标漂移 |
 | N1 | 上游输入 | `3-Detail/第N集.json` 与 shared schema 是否可消费 | 校验 shared 壳与组列表完整性 | 组列表缺失、schema 壳破坏 |
 | N2 | FIELD-SB-SHEET-01 | 当前目标分镜组是谁，组内镜头顺序是否稳定 | 锁定 `group_id + source_shot_ids` | 组定位冲突或镜头顺序缺失 |
-| N3 | FIELD-SB-SHEET-02 | `storyboard_group` 需要覆盖哪些上游字段 | 提取 `剧本正文 + 正文切分参考[] + 组间设计 + 全部 分镜明细[]` | 漏掉组级字段或镜级字段 |
+| N3 | FIELD-SB-SHEET-02 | `storyboard_group` 需要覆盖哪些上游字段 | 提取 canonical `global.* + detail.分镜列表`；若需要脚本桥接，再补取 compat `正文切分参考[] + 组间设计 + 全部 分镜明细[]` | 漏掉组级字段或镜级字段 |
 | N4 | FIELD-SB-SHEET-02 | prompt 是否严格满足“固定前缀 + storyboard_group” | 逐字保留固定前缀并拼接内容块 | 前缀缺失、顺序错误或额外插入说明 |
 | N5 | FIELD-SB-SHEET-01/FIELD-SB-SHEET-03 | 图像请求模板字段是否完整且不虚构参照图 | 保留图像侧参数骨架与参照图槽位 | 删字段、乱序或擅自补图 |
 | N6 | FIELD-SB-SHEET-04 | 输出是否已形成可 handoff 的单集 JSON | 写 `第N集.json`，按需补 `_manifest.json` 并执行审计 | 仍把图片落盘当主产物或缺少 JSON |

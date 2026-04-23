@@ -12,6 +12,12 @@ governance_tier: full
 - 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
 - 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `comic` 技能树下凡是承担核心创作正文的环节，例如剧本改编正文、九刀流页级 prompt、动画页级 `video_prompt`、剧集海报创意与可生图 prompt，默认都必须由 LLM 直接完成。
+- 脚本只允许承担读取、校验、投影、组装、执行、复制粘贴、报告与兼容迁移等机械职责，不得在默认路径里代写 canonical 创作真源。
+- 若某个叶子仍保留 legacy script authorship，仅允许作为显式兼容模式存在，并必须在该叶子合同与脚本入口中明确阻断条件与启用方式。
+
 ## 1. 定位
 
 本技能是 `.agents/skills/comic/` 的父级总入口，负责把漫画项目路由到五段受治理子技能，并统一项目落点：

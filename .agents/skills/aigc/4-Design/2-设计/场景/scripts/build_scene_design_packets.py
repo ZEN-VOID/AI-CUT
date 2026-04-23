@@ -18,6 +18,7 @@ if SHARED_SCRIPTS_DIR.as_posix() not in sys.path:
     sys.path.insert(0, SHARED_SCRIPTS_DIR.as_posix())
 
 from global_style_prefix import extract_global_style_prefix  # noqa: E402
+from project_design_fallbacks import load_project_design_fallbacks, nested_get  # noqa: E402
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -25,6 +26,17 @@ TEMPLATE_PATH = SCRIPT_DIR.parent / "templates" / "scene_masterprompt.structured
 NON_ASCII_RE = re.compile(r"[^\x00-\x7F]")
 INTEGRATED_PROMPT_MIN_BYTES = 1800
 INTEGRATED_PROMPT_MAX_BYTES = 2200
+PLACEHOLDER_PATTERNS = (
+    "Documented Scene",
+    "Near-future lived-in public infrastructure",
+    "holographic",
+    "a 2049 near-future Chinese community setting",
+)
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，核心创作环节不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移/投影场景；如确需临时执行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 SCENE_NAME_TRANSLATIONS = {
@@ -172,6 +184,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
     parser.add_argument("--auto-image-dry-run", action="store_true", help="写 manifest 并验证自动生图 payload，不真实请求 API")
     parser.add_argument("--auto-image-timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成创作型场景设计内容。",
+    )
     return parser.parse_args()
 
 
@@ -354,18 +371,26 @@ def fit_integrated_prompt(sentences: list[str]) -> str:
     return prompt
 
 
-def translate_scene_name(scene_name: str) -> str:
+def translate_scene_name(scene_name: str, *, project_fallbacks: dict[str, Any] | None = None) -> str:
+    registry_translation = nested_get(project_fallbacks, "scenes", "name_translations", scene_name, default="")
+    if registry_translation:
+        return registry_translation
     translated = SCENE_NAME_TRANSLATIONS.get(scene_name, "")
     if translated:
         return translated
     translated = translate_fragment(scene_name)
     if translated and not NON_ASCII_RE.search(translated):
         return translated.title()
-    return "Documented Scene"
+    return scene_name.strip() or "Unnamed Scene"
 
 
 def translate_global_style_prefix(style_text: str) -> str:
     source = compact_text(style_text, 260)
+    if "侍魂天草降临" in source or "徐克1994香港武侠电影美学" in source or "和田惠美" in source:
+        return (
+            "A gothic-romantic wuxia environment language with 35mm film grain, soft halation, volumetric fog, "
+            "wind pressure, lantern fire, damp practical surfaces, operatic spatial hierarchy, and practical smoke."
+        )
     if "黑白恐怖漫画质感" in source and "声效节拍" in source:
         return (
             "A black-and-white psychological horror comic style with dense hand-drawn linework, "
@@ -389,7 +414,98 @@ def infer_period_region(style_text: str) -> str:
         return "a contemporary old Chinese rental-apartment horror setting"
     if "近未来" in style_text or "全息" in style_text:
         return "a 2049 near-future Chinese community setting"
+    if "武侠" in style_text or "海港" in style_text or "王府" in style_text:
+        return "a historical East Asian port-city martial world"
     return "the documented project world"
+
+
+def has_real_entries(items: list[Any]) -> bool:
+    for item in items:
+        text = str(item or "").strip()
+        if text and text.lower() != "unknown":
+            return True
+    return False
+
+
+def infer_scene_defaults(
+    scene_name: str,
+    anchors: list[Any],
+    style_text: str,
+    *,
+    project_fallbacks: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    del style_text
+    registry_defaults = nested_get(project_fallbacks, "scenes", "defaults_by_scene_name", scene_name, default={}) or {}
+    if registry_defaults:
+        return registry_defaults
+    source = " ".join([scene_name, *[str(item) for item in anchors]])
+    if "夜市" in source or "港" in source:
+        return {
+            "building_types": ["dockside night market"],
+            "space_types": ["exterior trading space"],
+            "materials": ["weathered timber", "damp stone pavement", "cloth awnings", "rope", "lantern hardware"],
+            "topology": ["compressed harbor lanes", "stall fronts", "crowd-pressure chokepoints"],
+            "time_light": ["night lantern light through sea fog", "warm firelight against damp haze"],
+            "environment": ["sea wind", "damp haze", "lantern smoke"],
+            "typology_reference": "Historical East Asian dockside night-market stalls, harbor lanes, timber awnings, damp stone paving, lantern strings, and pressure-filled chokepoints; use typology as reference, not a copied single location.",
+            "style_detail": "Gothic-romantic wuxia realism with damp harbor air, lantern fire, salt haze, weathered wood, cloth canopies, and compressed pedestrian pressure.",
+            "ornament_pattern": "Weathered signs, lantern strings, ropes, cloth canopies, and evidence-backed harbor-market details.",
+            "fill_light": "soft bounce from lantern fire and damp ground surfaces",
+            "back_light": "sea-fog glow and lantern rim light behind the architecture",
+            "lighting_type": "cinematic practical lantern firelight with volumetric fog",
+            "rhythm": "compressed nocturnal pressure before open violence",
+            "momentum": "wind, haze, and blocked circulation held inside the market geometry before action breaks loose",
+        }
+    if "王府" in source or "回廊" in source:
+        return {
+            "building_types": ["palace corridor architecture"],
+            "space_types": ["interior-exterior threshold space"],
+            "materials": ["weathered timber", "stone paving", "lacquered beams", "screen-filtered lamplight"],
+            "topology": ["layered corridor depth", "ceremonial thresholds", "column-framed circulation"],
+            "time_light": ["lantern light through mist", "night palace glow"],
+            "environment": ["incense haze", "still wind pressure", "damp night air"],
+            "typology_reference": "Historical palace corridors, lacquered beams, stone thresholds, layered columns, and ritual circulation; use typology as reference, not a copied single location.",
+            "style_detail": "Gothic-romantic wuxia realism with column rhythm, lacquered shadow, damp air, and ceremonial pressure held inside the corridor depth.",
+            "ornament_pattern": "Restrained carved details, beams, screens, lantern glow, and evidence-backed ritual architecture.",
+            "fill_light": "soft reflected lantern bounce from timber and stone surfaces",
+            "back_light": "mist-softened lantern rim light through corridor depth",
+            "lighting_type": "cinematic practical lantern light with volumetric haze",
+            "rhythm": "suppressed ceremonial pressure before conflict breaks the etiquette shell",
+            "momentum": "still architectural tension holding the frame before movement cuts through it",
+        }
+    if "税关" in source or "栈口" in source:
+        return {
+            "building_types": ["tax checkpoint architecture"],
+            "space_types": ["guarded threshold exterior"],
+            "materials": ["weathered timber", "rope barriers", "damp stone", "paper notices", "iron fittings"],
+            "topology": ["narrow choke-point circulation", "checkpoint gates", "guard-facing frontage"],
+            "time_light": ["hard lantern light in sea mist", "night checkpoint glow"],
+            "environment": ["sea wind", "mist", "lantern smoke"],
+            "typology_reference": "Historical dockside tax gates, timber barriers, rope lines, posted notices, and controlled chokepoints; use typology as reference, not a copied single location.",
+            "style_detail": "Compressed wuxia realism with guarded thresholds, wind pressure, posted decrees, and rule-made violence visible in the architecture.",
+            "ornament_pattern": "Timber barriers, rope lines, tax notices, seal marks, and evidence-backed checkpoint details.",
+            "fill_light": "soft bounce from damp timber and stone",
+            "back_light": "practical lantern edge light through sea mist",
+            "lighting_type": "cinematic practical lantern light with damp volumetric haze",
+            "rhythm": "contained checkpoint pressure before violence turns public",
+            "momentum": "rule pressure, wind, and blocked circulation held inside the gate geometry",
+        }
+    return {
+        "building_types": ["historical exterior setting"],
+        "space_types": ["story-driven exterior environment"],
+        "materials": ["weathered timber", "damp stone", "cloth surfaces", "rope and metal fittings"],
+        "topology": ["readable exterior circulation", "pressure points", "story-facing boundaries"],
+        "time_light": ["night practical light through fog"],
+        "environment": ["wind", "damp haze", "practical smoke"],
+        "typology_reference": "Historical East Asian exterior architecture with practical materials, readable thresholds, and story-driven circulation; use typology as reference, not a copied single location.",
+        "style_detail": "Gothic-romantic wuxia realism with practical surfaces, damp air, and readable public pressure.",
+        "ornament_pattern": "Evidence-backed architectural details, weathered fittings, and practical light sources.",
+        "fill_light": "soft bounce from weathered practical surfaces",
+        "back_light": "mist-softened practical edge light",
+        "lighting_type": "cinematic practical light with volumetric haze",
+        "rhythm": "held environmental pressure before action breaks loose",
+        "momentum": "wind and circulation tension held inside the architecture before movement tears through it",
+    }
 
 
 def infer_project_root(catalog_path: Path) -> Path:
@@ -534,11 +650,12 @@ def build_packet(
     design_elements_text: str,
     north_star_text: str,
     init_handoff_text: str,
+    project_fallbacks: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     del type_elements_text, design_elements_text, north_star_text, init_handoff_text
     scene_id = str(scene.get("scene_id", "scene"))
     scene_name = str(scene.get("scene_name", "unnamed_scene"))
-    scene_name_en = translate_scene_name(scene_name)
+    scene_name_en = translate_scene_name(scene_name, project_fallbacks=project_fallbacks)
     period_region = infer_period_region(global_style_text)
     design_context = scene.get("design_context", {})
     research_context = research_item or {}
@@ -588,6 +705,21 @@ def build_packet(
     environment = as_list(first_non_empty(variable_state.get("environment_cues"), detail_profile.get("environment_cues")))
     space_types = as_list(detail_profile.get("space_type_candidates"))
     building_types = as_list(detail_profile.get("building_type_candidates"))
+    defaults = infer_scene_defaults(scene_name, anchors, global_style_text, project_fallbacks=project_fallbacks)
+    if not has_real_entries(materials):
+        materials = defaults["materials"]
+    if not has_real_entries(palette):
+        palette = ["warm gold-red", "cool cyan-gray"]
+    if not has_real_entries(topology):
+        topology = defaults["topology"]
+    if not has_real_entries(time_light):
+        time_light = defaults["time_light"]
+    if not has_real_entries(environment):
+        environment = defaults["environment"]
+    if not has_real_entries(space_types):
+        space_types = defaults["space_types"]
+    if not has_real_entries(building_types):
+        building_types = defaults["building_types"]
     scene_function = str(first_non_empty(narrative_layer.get("scene_function"), bible_card.get("dramatic_function"), "story support"))
     director_intent = str(first_non_empty(world_rule.get("director_intent_anchor"), ""))
     scene_type = str(scene.get("scene_type") or scene_type_from_profile(detail_profile))
@@ -614,18 +746,12 @@ def build_packet(
     scene_design = {
         "style_backbone": style_backbone,
         "design_type": translate_list([*building_types, *space_types], fallback=scene_type, limit=3),
-        "master_typology_reference": (
-            "Near-future lived-in public infrastructure, community plaza typology, and lightweight holographic "
-            "interface design; use typology as reference, not a copied single building."
-        ),
+        "master_typology_reference": defaults["typology_reference"],
         "concept_translation": (
             f"{scene_name_en} translates {translate_fragment(scene_function)} into a stable spatial anchor for "
             f"{translate_list(anchors, fallback=scene_name, limit=4)}."
         ),
-        "style_detail": (
-            "Grounded cinematic realism with practical community order, restrained holographic detail, "
-            "soft air depth, and warm absurdist timing."
-        ),
+        "style_detail": defaults["style_detail"],
         "period_region": period_region,
         "function_attribute": translate_fragment(scene_function),
         "spatial_layout": translate_list(topology, fallback="readable open layout"),
@@ -641,7 +767,7 @@ def build_packet(
         ),
         "color_theme": translate_list(palette, fallback=translate_fragment(world_rule.get("style_anchor", "")) or "project-neutral warm-cool balance"),
         "symbolic_design": translate_list(anchors, fallback=scene_name),
-        "ornament_pattern": "Restrained community wayfinding, projected interface traces, and evidence-backed local details.",
+        "ornament_pattern": defaults["ornament_pattern"],
         "lighting_design": "N/A - exterior or hybrid scene; use story-motivated environmental light.",
         "lamp_design": "N/A - do not invent interior fixtures without upstream evidence.",
         "furniture_design": "N/A unless upstream evidence explicitly requires community seating or service furniture.",
@@ -649,7 +775,7 @@ def build_packet(
         "floor_material": translate_list(materials, fallback="practical public-space ground surface", limit=2),
         "ecology_design": translate_list(environment, fallback="clean community air and stable public order"),
         "water_design": "Use visible water or wet-surface logic only when the scene evidence contains pool-edge or koi-pond cues.",
-        "art_installation": "Lightweight holographic or engineering interface elements remain secondary to environment-readable space.",
+        "art_installation": "Keep secondary set dressing grounded in evidence-backed harbor, checkpoint, or palace details rather than speculative spectacle.",
         "atmosphere": translate_list([*environment, *time_light], fallback="story-motivated atmosphere"),
         "weather": "Clean, low-pressure community air unless the episode evidence says otherwise.",
         "season_time": translate_list(time_light, fallback="story-motivated time of day"),
@@ -664,18 +790,18 @@ def build_packet(
         "line_sense": "clean public-space lines, readable access paths, no arbitrary visual clutter",
         "tonal_sense": translate_list(palette, fallback="balanced warm-cool tonal structure", limit=3),
         "focus_sense": "deep enough focus to preserve spatial layout and anchor continuity",
-        "rhythm_sense": "calm daily-life rhythm with one controlled near-future disruption layer",
-        "texture_sense": translate_list(materials, fallback="realistic surfaces with subtle projection layers", limit=3),
-        "momentum": "quiet environmental order before or around the comic technological interruption",
+        "rhythm_sense": defaults["rhythm"],
+        "texture_sense": translate_list(materials, fallback="weathered practical surfaces with readable age and damp air response", limit=3),
+        "momentum": defaults["momentum"],
         "key_light": translate_list(time_light, fallback="soft story-motivated daylight", limit=2),
-        "fill_light": "soft ambient community bounce light",
-        "back_light": "subtle rim or projection glow only where evidence supports holographic technology",
-        "lighting_type": "cinematic naturalistic lighting with restrained holographic accents",
+        "fill_light": defaults["fill_light"],
+        "back_light": defaults["back_light"],
+        "lighting_type": defaults["lighting_type"],
         "color_hue": translate_list(palette, fallback="project-balanced hue range", limit=3),
         "color_value": "clean mid-to-high value range with readable public-space contrast",
-        "color_saturation": "moderate, never neon-heavy or dystopian",
-        "color_temperature": "morning-neutral with controlled warm/cool contrast",
-        "color_psychology": "orderly, humane, lightly absurd, and emotionally warm",
+        "color_saturation": "controlled, atmospheric, and never synthetic-neon",
+        "color_temperature": "lantern-warm against fog-cool contrast",
+        "color_psychology": "pressure, weather, ritual, and public danger held inside one readable environment",
         "camera_model": "cinematic digital camera emulation",
         "aperture": "f/5.6 to f/8 design-sheet clarity",
         "shutter": "1/125s still-frame equivalent",
@@ -732,6 +858,17 @@ def build_packet(
     packet["full_generation_prompt"] = build_full_prompt(packet["global_style_prefix_en"], packet["prompt_integration"])
     packet["final_prompt"] = packet["full_generation_prompt"]
     return packet
+
+
+def find_packet_placeholders(packet: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    serialized = json.dumps(packet, ensure_ascii=False)
+    for token in PLACEHOLDER_PATTERNS:
+        if token in serialized:
+            issues.append(token)
+    if re.search(r"\bunknown\b", serialized):
+        issues.append("unknown")
+    return sorted(set(issues))
 
 
 def build_markdown_card(packet: dict[str, Any]) -> str:
@@ -806,6 +943,9 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     catalog_path = Path(args.catalog)
     if not catalog_path.exists():
         print(f"[ERROR] catalog 不存在: {catalog_path}", file=sys.stderr)
@@ -815,6 +955,7 @@ def main() -> int:
         return 1
 
     project_root = infer_project_root(catalog_path)
+    project_fallbacks = load_project_design_fallbacks(project_root)
     episode_dir = catalog_path.parent
     episode_id = episode_dir.name
     project_name = project_root.name
@@ -872,9 +1013,22 @@ def main() -> int:
             design_elements_text=read_text(design_elements_path),
             north_star_text=read_text(north_star_path),
             init_handoff_text=read_text(init_handoff_path),
+            project_fallbacks=project_fallbacks,
         )
         for scene in selected
     ]
+    packet_issues = {
+        packet["scene_name"]: find_packet_placeholders(packet)
+        for packet in packets
+    }
+    packet_issues = {name: issues for name, issues in packet_issues.items() if issues}
+    if packet_issues:
+        print(
+            "[ERROR] 场景设计包仍含占位或错域回退，已阻止继续落盘: "
+            + json.dumps(packet_issues, ensure_ascii=False),
+            file=sys.stderr,
+        )
+        return 1
 
     generated_at = datetime.now().isoformat(timespec="seconds")
     output_dir_repo = to_repo_path(output_dir)

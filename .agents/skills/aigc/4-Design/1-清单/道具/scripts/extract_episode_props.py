@@ -14,6 +14,14 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 
+ROOT = Path(__file__).resolve().parents[7]
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
+
 NO_PROP_TOKENS = {
     "",
     "无",
@@ -31,7 +39,7 @@ SPLIT_RE = re.compile(r"[，、；;|｜/]")
 PAREN_RE = re.compile(r"[（(](.*?)[）)]")
 PROP_INLINE_RE = re.compile(
     r"([\u4e00-\u9fffA-Za-z0-9]{0,8}?(?:"
-    r"刀鞘|勾魂链|糖葫芦|令牌|腰牌|玉佩|火把|灯笼|提灯|烛台|牢门|牢栏|囚车|马车|门闩|门板|车厢|车轮|"
+    r"石斑|芭蕉布|钱袋|账册|册子|税单|印记|黑牌|木牌|祖船|刀鞘|勾魂链|糖葫芦|令牌|腰牌|玉佩|火把|灯笼|提灯|烛台|牢门|牢栏|囚车|马车|门闩|门板|车厢|车轮|"
     r"衣箱|帐帘|铜镜|木梳|药瓶|药碗|药炉|文书|密信|地图|军报|卷轴|书卷|刀|剑|枪|链|盏|壶|杯|瓶|书|卷|"
     r"信|牌|印|镜|梳|门|锁|栏|车|箱|帘|灯|扇|佩|簪|冠|甲|鞘|囊|袍|衣|鞋|靴|旗|鼓|伞|炉|匣|匙|钥匙"
     r"))"
@@ -44,6 +52,14 @@ CANONICAL_PROP_RULES: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
     ("智能手环", ("智能手环", "手环")),
     ("手腕操作面板", ("手腕操作面板", "操作面板")),
     ("反物质引擎", ("反物质引擎",)),
+    ("石斑", ("石斑",)),
+    ("芭蕉布", ("芭蕉布",)),
+    ("钱袋", ("钱袋",)),
+    ("税关册子", ("账册", "册子",)),
+    ("祖船", ("祖船", "那条船", "你家那条船")),
+    ("北栈口黑印木牌", ("黑牌", "木牌")),
+    ("王府税单", ("税单", "废税单")),
+    ("王府印记", ("印记",)),
 )
 LEADING_CONTEXT_RE = re.compile(
     r"^(?:前景|后景|近景|远景|桌上|案上|柜台上|门边|地上|脚边|身旁|怀里|肩上|腰间|手中|手里|掌中|背后|画面中|镜头里)"
@@ -57,6 +73,20 @@ STATE_PREFIX_RE = re.compile(
     r"高举的|高举|摇晃的|摇晃|垂落的|垂落|未全退的|未全退|轻撞的|轻撞|紧握的|紧握|湿冷的|湿冷|斑驳的|"
     r"残破的|破损的)"
 )
+STATE_TRAIL_RE = re.compile(r"(?:都保持在镜里可见|继续留在镜里|并继续替|替.*?作证|里可见|作证)$")
+PROP_NOISE_RE = re.compile(r"(?:都保持在镜里可见|继续留在镜里|并继续替|替.*?作证)")
+PROP_STOPWORDS = {
+    "手",
+    "人群",
+    "现场小物",
+    "衣",
+    "衣角",
+    "袖子",
+    "手势",
+    "海风",
+    "灯火",
+}
+SHORT_PROP_ALLOWLIST = {"刀", "剑", "枪", "牌", "印", "船", "灯", "扇", "锁", "门"}
 EPISODE_FILE_RE = re.compile(r"第0*(?P<episode>\d+)集\.json$")
 
 
@@ -103,6 +133,9 @@ def infer_project_name(input_path: Path) -> str:
 
 
 def infer_episode_id(input_path: Path, payload: dict) -> str:
+    meta = payload.get("meta", {})
+    if isinstance(meta, dict) and meta.get("集数"):
+        return str(meta["集数"])
     metadata = payload.get("metadata", {})
     if isinstance(metadata, dict) and metadata.get("episode_id"):
         return str(metadata["episode_id"])
@@ -113,10 +146,11 @@ def infer_episode_id(input_path: Path, payload: dict) -> str:
 
 
 def get_groups(payload: dict) -> List[dict]:
+    payload = ensure_legacy_detail_payload(payload)
     try:
         groups = payload["final_output"]["main_content"]["分镜组列表"]
     except KeyError as exc:
-        raise ValueError("输入 JSON 不符合 director episode schema，缺少 `final_output.main_content.分镜组列表`。") from exc
+        raise ValueError("输入 JSON 既不符合 canonical detail root，也无法投影出 `分镜组列表` 兼容视图。") from exc
     if not isinstance(groups, list):
         raise ValueError("`分镜组列表` 必须是数组。")
     return groups
@@ -126,6 +160,7 @@ def normalize_clause_text(clause: str) -> str:
     text = clause.strip()
     text = LEADING_CONTEXT_RE.sub("", text)
     text = STATE_NOISE_RE.sub("", text)
+    text = PROP_NOISE_RE.sub("", text)
     text = text.strip(" ，。；;、/|｜")
     return text
 
@@ -156,6 +191,11 @@ def extract_candidate_names(text: str) -> List[str]:
     matches = [match.group(1).strip() for match in PROP_INLINE_RE.finditer(text) if match.group(1).strip()]
     for item in matches:
         cleaned = STATE_PREFIX_RE.sub("", item).strip(" ，。；;、")
+        cleaned = STATE_TRAIL_RE.sub("", cleaned).strip(" ，。；;、")
+        if cleaned in PROP_STOPWORDS:
+            continue
+        if len(cleaned) == 1 and cleaned not in SHORT_PROP_ALLOWLIST:
+            continue
         if any(token in cleaned for token in ("被", "作为", "成为", "进入", "可见", "运行", "游动", "察觉", "现身", "切成")):
             continue
         if cleaned and cleaned not in output:
@@ -196,7 +236,18 @@ def parse_prop_mentions(prop_text: str) -> List[dict]:
         state_base = stripped_clause
         for candidate_name in candidate_names:
             state_base = state_base.replace(candidate_name, " ")
+            if candidate_name == "北栈口黑印木牌":
+                state_base = state_base.replace("黑牌", " ").replace("木牌", " ")
+            elif candidate_name == "王府税单":
+                state_base = state_base.replace("税单", " ")
+            elif candidate_name == "王府印记":
+                state_base = state_base.replace("印记", " ")
+            elif candidate_name == "税关册子":
+                state_base = state_base.replace("册子", " ").replace("账册", " ")
+            elif candidate_name == "祖船":
+                state_base = state_base.replace("船", " ").replace("祖船", " ")
         state_base = normalize_clause_text(state_base)
+        state_base = STATE_TRAIL_RE.sub("", state_base).strip(" ，。；;、")
         states = [item for item in (state_base, paren_state) if item]
         state = " / ".join([item for item in states if item]) or "unknown"
 
@@ -231,19 +282,12 @@ def unique_preserve(items: Iterable[str]) -> List[str]:
 def build_display_profile(prop_name: str, prop_type: str, scenes: Sequence[str], states: Sequence[str]) -> dict:
     scene_anchor = next((item for item in scenes if item), "当前镜头")
     state_anchor = next((item for item in states if item and item != "unknown"), "状态稳定")
-    prop_type_title = {
-        "weapon_or_restraint": "器械型道具",
-        "document_or_token": "凭证型道具",
-        "set_piece": "场域型道具",
-        "wearable_or_handheld": "近身型道具",
-        "general_prop": "剧情道具",
-    }.get(prop_type, "剧情道具")
     return {
         "title": prop_name,
-        "short_tagline": f"{prop_type_title} / {scene_anchor}",
-        "description": f"{prop_name}在{scene_anchor}中反复出现，当前以“{state_anchor}”这一镜头状态最值得被保留到设计阶段。",
-        "visual_signature": f"{prop_name}需要保留其在{scene_anchor}中的辨识轮廓与状态痕迹。",
-        "dramatic_value": f"{prop_name}承担镜头内的动作提示、空间提示或权力提示，不宜在设计阶段被弱化为背景装饰。",
+        "short_tagline": f"type={prop_type}|scene={scene_anchor}",
+        "description": f"scene_anchor={scene_anchor}; primary_state={state_anchor}",
+        "visual_signature": f"canonical_name={prop_name}; primary_state={state_anchor}",
+        "dramatic_value": f"prop_type={prop_type}; scene_anchor={scene_anchor}",
     }
 
 
@@ -259,7 +303,7 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
         "primary_input": input_path.as_posix(),
         "source_inputs": [input_path.as_posix()],
         "source_input": input_path.as_posix(),
-        "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
+        "source_schema": CANONICAL_DETAIL_TEMPLATE,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
 

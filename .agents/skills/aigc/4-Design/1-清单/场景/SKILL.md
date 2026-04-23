@@ -28,6 +28,13 @@ governance_tier: full
 - `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/场景研究.json`
 - `projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/scene_design_bridge.json`
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `场景研究.json`、`scene_design_bridge.json` 中的研究结论、compendium、scene bible card、桥接文案与其他创作性结论，必须由 LLM 直接完成。
+- `build_scene_design_context.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的结构投影、批量落盘与校验辅助。
+- 当前 leaf 的默认执行路径必须是：`LLM 直出场景研究/桥接真源 -> 提取脚本与落盘脚本只做机械辅助`。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
+
 ## Parent Positioning
 
 - 当前 skill 是 `4-Design/1-清单` 下的场景 leaf。
@@ -41,6 +48,8 @@ governance_tier: full
 ## Shared Canonical Sources (Mandatory)
 
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/3-Detail/SKILL.md`
 - `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
@@ -58,8 +67,12 @@ governance_tier: full
   - 场景链单 catalog 输出治理真源
 - `references/detail-scene-normalization.md`
   - 旧仓三文件内容向当前单 catalog 折叠时的归一、映射与失败闭环细则
+- `episode_detail.json`
+  - `3-Detail` canonical detail root 的模板真源
+- `detail_root_adapter.py`
+  - canonical `meta + groups[].global/detail.分镜列表` 到 `分镜组列表[] / 分镜明细[]` 的兼容投影真源
 - `director_episode_output.schema.json`
-  - `3-Detail` 输入结构唯一 schema 真源
+  - 仅用于 legacy consumer 兼容校验，不再充当 canonical 输入模板
 
 ## Reference Loading Guide
 
@@ -81,9 +94,9 @@ governance_tier: full
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把 `3-Detail` 的 `氛围表现 + 分镜构图 + 摄影美学` 收束成可追溯、可研究、可桥接的场景三真源，并仅在必要时回退 `角色背景面 + 分镜表现 + 时间段 + 导演意图`，供 `4-Design/2-设计/场景` 直接消费。 |
+| `business_goal` | 把 `3-Detail` canonical `detail.分镜列表[].氛围表现 + 分镜构图 + 摄影表现` 收束成可追溯、可研究、可桥接的场景三真源，并仅在必要时回退 compat `角色背景面 + 分镜表现 + 时间段 + 导演意图`，供 `4-Design/2-设计/场景` 直接消费。 |
 | `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/4-Design/场景/1-清单/第N集/{场景清单.json,_manifest.json}`。 |
-| `constraint_profile` | 上游 `3-Detail` JSON 是唯一事实真源；`氛围表现.层次` 是主场景锚点，`分镜构图 / 摄影美学` 提供 framing 与光感补强；`角色背景面 / 分镜表现 / 时间段 / 导演意图 / 剧本正文` 只做 fallback 补证；`清单/研究/bridge` 各管自己的字段边界，不得互相复制抢真源。 |
+| `constraint_profile` | 上游 `3-Detail` JSON 是唯一事实真源；canonical `氛围表现.层次` 是主场景锚点，`分镜构图 / 摄影表现` 提供 framing 与光感补强；compat `角色背景面 / 分镜表现 / 时间段 / 导演意图 / 剧本正文` 只做 fallback 补证；`清单/研究/bridge` 各管自己的字段边界，不得互相复制抢真源。 |
 | `success_criteria` | 每个场景都具备 canonical 名称、group/shot 回链、证据账本、具像化 detail profile、scene bible card、design handoff 与 quality flags；下游无需再从长文或 sidecar 反向抽取。 |
 | `non_goals` | 不重写 `3-Detail`；不直接生成场景设计图 prompt 成品；不恢复旧仓 web-research 三文件主链；不处理角色/道具/服装业务真源。 |
 | `complexity_source` | 当前仓主输入已经从旧仓分镜 markdown 转成 `3-Detail` branch-owned shot fields；难点在于既要沿用旧仓高密度场景研究配置，又要避免让 `角色背景面` 这种 legacy projection 继续抢走 branch-owned 主锚。 |
@@ -108,10 +121,10 @@ governance_tier: full
 
 ### 硬规则
 
-1. 只消费 `final_output.main_content.分镜组列表[]`。
-2. `分镜明细[].氛围表现.层次` 是主场景实体的一号锚点。
-3. `分镜明细[].分镜构图 / 摄影美学` 负责补足场景的 framing、光感与材质判断。
-4. `角色背景面 / 分镜表现 / 摄影美学 / 时间段 / 组间设计.导演意图 / 剧本正文` 只做 evidence augmentation。
+1. canonical 输入固定为 `meta + groups[].global/detail.分镜列表`；若运行时读取 `分镜组列表[] / 分镜明细[]`，必须来自 `detail_root_adapter.py` 的兼容投影。
+2. canonical `detail.分镜列表[].氛围表现.层次` 是主场景实体的一号锚点。
+3. canonical `detail.分镜列表[].分镜构图 / 摄影表现` 负责补足场景的 framing、光感与材质判断；compat `摄影美学` 只作 alias。
+4. compat `角色背景面 / 分镜表现 / 时间段 / 组间设计.导演意图` 与 canonical `global.剧本正文` 只做 evidence augmentation。
 5. 方位、门禁、边界、气氛、时间状态默认归入 `scene_variant / design_context.variable_state_layer`，不能直接扩张 canonical scene family。
 6. 若无法稳定提取主场景实体，允许保守输出 `unknown` 或 `needs_manual_review`，不得把整句背景描述直接升格成稳定主键。
 
@@ -139,8 +152,8 @@ governance_tier: full
 
 ```mermaid
 flowchart TD
-    A["Load 3-Detail episode root"] --> B["Lock 分镜组列表[] as only source"]
-    B --> C["Extract shot-level 场景锚 from 氛围表现.层次"]
+    A["Load 3-Detail episode root"] --> B["Lock canonical meta + groups[].detail.分镜列表"]
+    B --> C["Extract shot-level 场景锚 from detail.分镜列表[].氛围表现.层次"]
     C --> D["Normalize 主场景家族 + scene_variant"]
     D --> E["Build 场景研究.json"]
     E --> F["Build scene_design_bridge.json"]

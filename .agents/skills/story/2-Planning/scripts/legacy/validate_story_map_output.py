@@ -99,7 +99,7 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _episode_number_from_ref(value: str) -> int | None:
+def _chapter_number_from_ref(value: str) -> int | None:
     if not isinstance(value, str):
         return None
     digits = "".join(ch for ch in value if ch.isdigit())
@@ -329,15 +329,15 @@ def _validate(path: Path, *, strict: bool = False) -> list[str]:
         if not isinstance(slice_boards, list) or not slice_boards:
             errors.append(f"{slice_path.name}.chapter_boards 必须为非空数组")
         else:
-            board_episode_numbers: list[int] = []
+            board_chapter_numbers: list[int] = []
             for board_idx, board in enumerate(slice_boards):
                 if not isinstance(board, dict):
                     errors.append(f"{slice_path.name}.chapter_boards[{board_idx}] 必须是 object")
                     continue
                 episode_ref = board.get("episode_ref")
-                number = _episode_number_from_ref(episode_ref) if isinstance(episode_ref, str) else None
+                number = _chapter_number_from_ref(episode_ref) if isinstance(episode_ref, str) else None
                 if number is not None:
-                    board_episode_numbers.append(number)
+                    board_chapter_numbers.append(number)
                     if number < start or number > end:
                         errors.append(
                             f"{slice_path.name}.chapter_boards[{board_idx}].episode_ref={episode_ref} 超出 manifest range"
@@ -350,11 +350,11 @@ def _validate(path: Path, *, strict: bool = False) -> list[str]:
                     strict=strict,
                 )
 
-            if board_episode_numbers:
-                board_episode_numbers = sorted(set(board_episode_numbers))
+            if board_chapter_numbers:
+                board_chapter_numbers = sorted(set(board_chapter_numbers))
                 expected = start
-                if board_episode_numbers[0] != expected:
-                    errors.append(f"slice coverage 不连续：期望从 episode {expected} 开始，实际从 {board_episode_numbers[0]} 开始")
+                if board_chapter_numbers[0] != expected:
+                    errors.append(f"slice coverage 不连续：期望从 episode {expected} 开始，实际从 {board_chapter_numbers[0]} 开始")
 
     root_axis = holomap.get("episode_sequence_axis")
     if not isinstance(root_axis, list) or not root_axis:
@@ -369,7 +369,7 @@ def _validate(path: Path, *, strict: bool = False) -> list[str]:
                 errors.append(f"root episode_sequence_axis[{idx}].slice_ref 未命中 manifest")
                 continue
             episode_ref = axis_entry.get("episode_ref")
-            number = _episode_number_from_ref(episode_ref) if isinstance(episode_ref, str) else None
+            number = _chapter_number_from_ref(episode_ref) if isinstance(episode_ref, str) else None
             if number is not None:
                 start, end, _ = manifest_ids[slice_ref]
                 if number < start or number > end:

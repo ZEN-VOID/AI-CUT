@@ -16,15 +16,15 @@ def _load_module():
 
 def test_guard_blocks_short_summary_manuscript(tmp_path):
     module = _load_module()
-    manuscript = tmp_path / "第1集.md"
-    planning = tmp_path / "第1章.md"
+    manuscript = tmp_path / "第1章.md"
+    planning = tmp_path / "第1章-规划.md"
 
     manuscript.write_text(
         "---\n"
-        "episode_title: 港雨暂安\n"
+        "chapter_title: 港雨暂安\n"
         "rhythm_type: 势能式\n"
         "---\n\n"
-        "# 第1集\n\n"
+        "# 第1章\n\n"
         "令狐冲和任盈盈在港口过日子，遇到恶霸收账，随后准备夜探王府。\n",
         encoding="utf-8",
     )
@@ -39,8 +39,8 @@ def test_guard_blocks_short_summary_manuscript(tmp_path):
 
 def test_guard_passes_chapter_complete_manuscript(tmp_path):
     module = _load_module()
-    manuscript = tmp_path / "第1集.md"
-    planning = tmp_path / "第1章.md"
+    manuscript = tmp_path / "第1章.md"
+    planning = tmp_path / "第1章-规划.md"
 
     base_paragraphs = [
         "那霸港起了潮雾，令狐冲和任盈盈在海边木屋里醒来，各自忙着把日子过成真的样子，连窗边酒壶和晾衣绳都像在替他们守住这份偷来的安稳。",
@@ -62,10 +62,10 @@ def test_guard_passes_chapter_complete_manuscript(tmp_path):
     body = "\n\n".join([f"{p}{extension}" for p in base_paragraphs])
     manuscript.write_text(
         "---\n"
-        "episode_title: 港雨暂安\n"
+        "chapter_title: 港雨暂安\n"
         "rhythm_type: 势能式\n"
         "---\n\n"
-        "# 第1集\n\n"
+        "# 第1章\n\n"
         + body
         + "\n",
         encoding="utf-8",

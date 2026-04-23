@@ -10,8 +10,8 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md`、`../_shared/drafting-child-output-contract.md`、`../_shared/drafting-instant-validation-contract.md`。
-- 若当前 step 要引用本集 chapter board 债务，必须先读取 `../_shared/chapter-board-locating-contract.md`，禁止靠数组顺序猜本集 board。
-- 正式处理前，必须读取 Step 6 已写回后的当前 `第N集.md`。
+- 若当前 step 要引用本章 chapter board 债务，必须先读取 `../_shared/chapter-board-locating-contract.md`，禁止靠数组顺序猜本章 board。
+- 正式处理前，必须读取 Step 6 已写回后的当前 `第N章.md`。
 - 必须按需读取根级共享真源 `../../_shared/reading-power-taxonomy.md`。
 - 必须按需读取根级共享工程指南 `../../_shared/cool-points-guide.md`。
 - 必须读取本地执行细则 `references/reading-power-execution-playbook.md`。
@@ -24,7 +24,7 @@ governance_tier: lite
 - 同时处理压力、钩子、微兑现、爽点与章末续读牵引
 - 让本章既有局部满足，也保留下一章的继续阅读冲动
 - 对偏文学、偏人物高压的章节，把假面裂口、羞耻暴露、欲望逼近、身体兑现与公开场面转成可读的 reader pull
-- 对主角已启用的成长系统，把本集的压力、选择、代价与章末牵引提纯成 `技能 / 心路 / 情感` 三轴的结构化追读证据
+- 对主角已启用的成长系统，把本章的压力、选择、代价与章末牵引提纯成 `技能 / 心路 / 情感` 三轴的结构化追读证据
 
 它不负责：
 
@@ -57,7 +57,7 @@ governance_tier: lite
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 让本集在章内持续给读者“小收获 + 新风险 + 续读牵引”，而不是只在语气上显得激烈；对偏文学章节，也要把羞耻、欲望、美感压力和公开暴露翻译成真实追读力。 |
+| `business_goal` | 让本章在章内持续给读者“小收获 + 新风险 + 续读牵引”，而不是只在语气上显得激烈；对偏文学章节，也要把羞耻、欲望、美感压力和公开暴露翻译成真实追读力。 |
 | `business_object` | Step 6 后正文、chapter board 债务、写作日志、当前项目的 reader signal / 类型卡投影（若存在），以及根级追读力 taxonomy。 |
 | `constraint_profile` | 追读力必须来自既有规划、角色选择和局势推进，不能靠硬插事故、滥用悬念或无兑现钩子。 |
 | `success_criteria` | 本章至少形成清晰推进梯度、可感知局部兑现、有效章末牵引，并能说清当前主要 hook / payoff / pressure core 是什么；若主角启用了成长系统，本 step 还能明确说出三轴分别被什么压力、选择或章末 pull 推进。 |
@@ -66,7 +66,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - 当前 `第N集.md`
+  - 当前 `第N章.md`
   - `2-Planning/整体规划.md`
   - 当前卷 `2-Planning/第V卷/卷规划.md`
   - 当前章 `2-Planning/第V卷/第N章.md`

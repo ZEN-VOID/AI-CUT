@@ -18,8 +18,8 @@
 
 它参照但不复制：
 
-- `.codex/commands/master-check-team.md`
-- `.codex/commands/master-check.md`
+- `.agents/skills/commands/subagetns/preview/SKILL.md`
+- `.agents/skills/commands/subagetns/review/SKILL.md`
 
 ## Canonical Sources
 
@@ -29,8 +29,8 @@
 - `.agents/skills/aigc/4-Design/2-设计/_shared/design-slot-review-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/_shared/scripts/resolve_design_slot_bundles.py`
 - `.agents/skills/team/SKILL.md`
-- `.codex/commands/master-check-team.md`
-- `.codex/commands/master-check.md`
+- `.agents/skills/commands/subagetns/preview/SKILL.md`
+- `.agents/skills/commands/subagetns/review/SKILL.md`
 
 ## Trigger Gate
 

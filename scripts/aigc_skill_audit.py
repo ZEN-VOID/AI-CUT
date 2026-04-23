@@ -105,6 +105,7 @@ PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/aigc/<项目名>/governance-state.yaml",
 )
 PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
+    "projects/aigc/<项目名>/MEMORY.md",
     "projects/aigc/<项目名>/CHANGELOG.md",
     "projects/aigc/<项目名>/CONTEXT/",
 )
@@ -128,6 +129,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/Assets/分镜画板/分镜帧/",
         "projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/",
         "projects/aigc/<项目名>/Assets/分镜画板/漫画/",
+        "projects/aigc/<项目名>/MEMORY.md",
         "projects/aigc/<项目名>/CHANGELOG.md",
         "projects/aigc/<项目名>/1-Planning/",
         "projects/aigc/<项目名>/1-Planning/1-分集/",
@@ -135,8 +137,6 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-Planning/3-分组/",
         "projects/aigc/<项目名>/2-Global/",
         "projects/aigc/<项目名>/3-Detail/",
-        "projects/aigc/<项目名>/3-Detail/水月/",
-        "projects/aigc/<项目名>/3-Detail/镜花/",
         "projects/aigc/<项目名>/4-Design/",
         "projects/aigc/<项目名>/4-Design/场景/1-清单/",
         "projects/aigc/<项目名>/4-Design/场景/2-设计/",
@@ -244,6 +244,40 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "6-Video" / "3-视频生成" / "SKILL.md",
     ),
     ROOT / "review": (
+    ),
+}
+LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
+LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
+CREATIVE_AUTHORSHIP_GUARDS = {
+    ROOT / "4-Design" / "2-设计" / "场景" / "SKILL.md": (
+        ROOT / "4-Design" / "2-设计" / "场景" / "scripts" / "build_scene_design_packets.py",
+    ),
+    ROOT / "4-Design" / "2-设计" / "角色" / "SKILL.md": (
+        ROOT / "4-Design" / "2-设计" / "角色" / "scripts" / "build_character_design_packets.py",
+    ),
+    ROOT / "4-Design" / "2-设计" / "道具" / "SKILL.md": (
+        ROOT / "4-Design" / "2-设计" / "道具" / "scripts" / "build_prop_design_packets.py",
+    ),
+    ROOT / "4-Design" / "1-清单" / "角色" / "SKILL.md": (
+        ROOT / "4-Design" / "1-清单" / "角色" / "scripts" / "build_role_research.py",
+    ),
+    ROOT / "4-Design" / "1-清单" / "场景" / "SKILL.md": (
+        ROOT / "4-Design" / "1-清单" / "场景" / "scripts" / "build_scene_design_context.py",
+    ),
+    ROOT / "4-Design" / "1-清单" / "道具" / "SKILL.md": (
+        ROOT / "4-Design" / "1-清单" / "道具" / "scripts" / "build_prop_research.py",
+    ),
+    ROOT / "4-Design" / "3-面板" / "场景" / "SKILL.md": (
+        ROOT / "4-Design" / "3-面板" / "场景" / "scripts" / "generate_scene_panels.py",
+    ),
+    ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
+        ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
+    ),
+    ROOT / "5-Image" / "1-提示词蒸馏" / "分镜故事板" / "SKILL.md": (
+        ROOT / "5-Image" / "1-提示词蒸馏" / "分镜故事板" / "scripts" / "generate_episode_packets.py",
+    ),
+    ROOT / "6-Video" / "1-提示词蒸馏" / "全能参照" / "SKILL.md": (
+        ROOT / "6-Video" / "1-提示词蒸馏" / "全能参照" / "scripts" / "generate_episode_packets.py",
     ),
 }
 BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
@@ -871,6 +905,7 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
     targets = (
         global_skill,
         global_root / "_shared" / "IO_CONTRACT.md",
+        global_root / "_shared" / "branch-output-contract.md",
         global_root / "agents" / "openai.yaml",
         global_root / "templates" / "全局风格.template.md",
         global_root / "templates" / "全集类型元素.template.md",
@@ -887,10 +922,8 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         )
 
     required_root_outputs = (
-        "projects/aigc/<项目名>/2-Global/全局风格.md",
-        "projects/aigc/<项目名>/2-Global/导演意图.md",
-        "projects/aigc/<项目名>/2-Global/全集类型元素.md",
-        "projects/aigc/<项目名>/2-Global/分组类型元素.md",
+        "projects/aigc/<项目名>/2-Global/episode_root.json",
+        "projects/aigc/<项目名>/2-Global/validation-report.md",
     )
     io_contract = global_root / "_shared" / "IO_CONTRACT.md"
     if io_contract.exists():
@@ -898,8 +931,16 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         for output_path in required_root_outputs:
             if output_path not in io_content:
                 failures.append(f"{io_contract}: missing canonical output `{output_path}`")
-        if "| derived | `projects/aigc/<项目名>/2-Global/类型元素.md`" in io_content:
-            failures.append(f"{io_contract}: old `类型元素.md` compatibility projection must not remain an output row")
+        if "唯一业务真源" not in io_content or "episode_root.json" not in io_content:
+            failures.append(f"{io_contract}: must declare `episode_root.json` as the single business truth")
+
+    branch_output = global_root / "_shared" / "branch-output-contract.md"
+    if branch_output.exists():
+        branch_content = branch_output.read_text(encoding="utf-8")
+        if "projects/aigc/<项目名>/2-Global/episode_root.json" not in branch_content:
+            failures.append(f"{branch_output}: missing canonical episode root path")
+        if "所有 pass 都直接写向同一颗 `episode_root.json`" not in branch_content:
+            failures.append(f"{branch_output}: must declare direct writeback into the shared episode root template")
 
     if (global_root / "templates" / "类型元素.template.md").exists():
         failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be split into `全集类型元素.template.md` and `分组类型元素.template.md`")
@@ -927,14 +968,38 @@ def audit_detail_single_skill_contract(failures: list[str]) -> None:
 
     refs_root = detail_root / "references"
     ref_targets = sorted(refs_root.rglob("*.md")) if refs_root.exists() else []
+    required_refs = (
+        refs_root / "思行网络.md",
+        refs_root / "模板字段填写指南.md",
+        refs_root / "编剧手册.md",
+        refs_root / "镜头语言.md",
+        refs_root / "正反例.md",
+        refs_root / "创作评审标尺.md",
+        refs_root / "电影学院派知识接线.md",
+        refs_root / "路由画像.yaml",
+        refs_root / "能力通道图谱.yaml",
+    )
 
     skill_content = detail_skill.read_text(encoding="utf-8")
     if "## Internal Capability Fusion Contract (Mandatory)" not in skill_content:
         failures.append(f"{detail_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
+    if "## Academy Knowledge Utilization Contract (Mandatory)" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Academy Knowledge Utilization Contract (Mandatory)`")
+    if "固定先执行 `1-分镜构图`" not in skill_content and "固定先做 `1-分镜构图`" not in skill_content:
+        failures.append(f"{detail_skill}: must explicitly declare `1-分镜构图` as the first fixed pass")
+    if "## Academy Knowledge Evidence" not in skill_content:
+        failures.append(f"{detail_skill}: must require `validation-report.md` to carry `## Academy Knowledge Evidence`.")
     if forbidden_marker in skill_content:
         failures.append(
             f"{detail_skill}: 3-Detail must internalize former production-team capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/制作组/`"
         )
+    for stale_ref in ("1-水月/SKILL.md", "2-镜花/SKILL.md"):
+        if stale_ref in skill_content:
+            failures.append(f"{detail_skill}: should not keep old child-skill dependency `{stale_ref}` in single-skill mode")
+
+    for ref in required_refs:
+        if not ref.exists():
+            failures.append(f"{ref}: missing required 3-Detail reference module")
 
     for path in (*targets[1:], *ref_targets):
         if not path.exists():
@@ -1038,6 +1103,24 @@ def audit_bootstrap_compat_governed_leaf_skills(
         audit_skill_file(skill_path, failures, checked_paths)
 
 
+def audit_creative_authorship_guards(failures: list[str]) -> None:
+    for skill_path, script_paths in CREATIVE_AUTHORSHIP_GUARDS.items():
+        if not skill_path.exists():
+            continue
+        skill_content = skill_path.read_text(encoding="utf-8")
+        if LLM_FIRST_CREATIVE_SECTION not in skill_content:
+            failures.append(f"{skill_path}: missing `{LLM_FIRST_CREATIVE_SECTION}`")
+        for script_path in script_paths:
+            if not script_path.exists():
+                failures.append(f"{script_path}: missing guarded creative script")
+                continue
+            script_content = script_path.read_text(encoding="utf-8")
+            if LEGACY_SCRIPT_FLAG not in script_content:
+                failures.append(f"{script_path}: missing `{LEGACY_SCRIPT_FLAG}` runtime gate")
+            if "LEGACY_SCRIPT_AUTHORSHIP_ERROR" not in script_content:
+                failures.append(f"{script_path}: missing legacy-script-authorship enforcement message")
+
+
 def audit_satellite_index(satellite_index: list[dict], failures: list[str]) -> None:
     indexed_by_id = {item.get("id"): item for item in satellite_index}
     for satellite_id, expected_root in REQUIRED_SATELLITES.items():
@@ -1100,6 +1183,7 @@ def main() -> int:
     audit_planning_internal_skill_contract(failures)
     audit_global_single_skill_contract(failures)
     audit_detail_single_skill_contract(failures)
+    audit_creative_authorship_guards(failures)
     if stage_index:
         audit_stage_subagent_contracts(stage_index, contract_mode, failures)
 

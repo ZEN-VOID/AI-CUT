@@ -74,6 +74,11 @@ ENRICHMENT_ACTION_MAP = {
     "空间拓扑": "补足主通行线、中心区、边界区或门禁收束关系。",
     "必须出镜锚点": "至少保留 2 个不可删的场景视觉锚点。",
 }
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，研究结论与桥接文案不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -84,6 +89,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--research-name", default="场景研究.json", help="场景研究文件名")
     parser.add_argument("--bridge-name", default="scene_design_bridge.json", help="场景桥接文件名")
     parser.add_argument("--dry-run", action="store_true", help="只校验，不写文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成研究结论与桥接文案。",
+    )
     return parser.parse_args()
 
 
@@ -462,6 +472,9 @@ def build_bridge_payload(catalog: dict) -> dict:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"[ERROR] 输入文件不存在: {input_path}", file=sys.stderr)

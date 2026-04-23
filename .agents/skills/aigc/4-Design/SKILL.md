@@ -88,8 +88,8 @@ governance_tier: full
 - 强制读取：`.agents/skills/aigc/4-Design/2-设计/SKILL.md`
 - 条件读取：`.agents/skills/aigc/4-Design/2-设计/_shared/design-output-contract.md`（命中 design 或 panel tranche 时）
 - 条件读取：`.agents/skills/aigc/4-Design/3-面板/SKILL.md`（命中 panel tranche 时）
-- 条件读取：`.codex/commands/master-check-team.md`（命中阶段末 `监制强化` 时）
-- 条件读取：`.codex/commands/master-check.md`（命中阶段末 `监制强化` 时）
+- 条件读取：`.agents/skills/commands/subagetns/preview/SKILL.md`（命中阶段末 `监制强化` 时）
+- 条件读取：`.agents/skills/commands/subagetns/review/SKILL.md`（命中阶段末 `监制强化` 时）
 
 硬规则：
 
@@ -117,8 +117,8 @@ governance_tier: full
 10. 命中 `2-设计` 时，加载 `4-Design/2-设计/SKILL.md + CONTEXT.md`
 11. 命中 `2-设计` 或 `3-面板` 时，加载 `4-Design/2-设计/_shared/design-output-contract.md`
 12. 命中 `3-面板` 时，加载 `4-Design/3-面板/SKILL.md + CONTEXT.md`；当前仅 `场景 / 角色 / 道具` leaf 可继续下钻
-13. `.codex/commands/master-check-team.md`（命中阶段末 `监制强化` 时）
-14. `.codex/commands/master-check.md`（命中阶段末 `监制强化` 时）
+13. `.agents/skills/commands/subagetns/preview/SKILL.md`（命中阶段末 `监制强化` 时）
+14. `.agents/skills/commands/subagetns/review/SKILL.md`（命中阶段末 `监制强化` 时）
 15. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Route And Topology Contract (Mandatory)
@@ -206,8 +206,8 @@ governance_tier: full
   - `.agents/skills/aigc/4-Design/3-面板/SKILL.md`
   - `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md`
   - `.agents/skills/aigc/4-Design/3-面板/道具/SKILL.md`
-  - `.codex/commands/master-check-team.md`
-  - `.codex/commands/master-check.md`
+  - `.agents/skills/commands/subagetns/preview/SKILL.md`
+  - `.agents/skills/commands/subagetns/review/SKILL.md`
 - `Meta Rule Source`
   - `.agents/skills/aigc/SKILL.md`
   - `AGENTS.md`
@@ -259,7 +259,7 @@ governance_tier: full
 
 ### Reviewer 解析顺序
 
-按以下顺序抽取 reviewer，规则对齐 `master-check-team`：
+按以下顺序抽取 reviewer，规则对齐 `subagetns/preview`：
 
 1. `roles.supervision.members`
 2. 若 `roles.review.operates_on_final_stage_of` 显式包含 `4-Design`，并入 `roles.review.members`

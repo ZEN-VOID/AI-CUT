@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "aigc/3-detail/detail_patch_sidecar.schema.json",
-  "title": "AIGC 3-Detail Patch Sidecar Schema Compatibility Wrapper",
-  "description": "兼容包装层。`3-Detail` sidecar 的唯一结构真源已收束到 `.agents/skills/aigc/_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar`；本文件仅为旧路径兼容保留，不再承载独立 schema 维护职责。",
-  "$ref": "../../_shared/director_episode_output.schema.json#/$defs/detail_patch_sidecar"
-}

@@ -23,8 +23,8 @@ governance_tier: lite
 
 本 child 负责：
 
-- 检查当前集如何接上上一集停点
-- 检查本集内部场景切换、threads 承接与推进连续性
+- 检查当前章如何接上上一章停点
+- 检查本章内部场景切换、threads 承接与推进连续性
 - 检查是否突然断掉读者仍在记账的压力线
 
 它不负责：
@@ -76,14 +76,14 @@ governance_tier: lite
 - `dimension_report_ref`:
   - `4-Validation/第V卷/连续性.md`
 - 默认返工节点：
-  - `1-单集叙事起盘`
-  - `2-节奏优化`
+  - `1-单章叙事起盘`
+  - `Step 2 / 2-节奏优化`
 
 ## Visual Map
 
 ```mermaid
 flowchart TD
-    A["读取上一集停点与本集开篇"] --> B["追踪本集转场"]
+    A["读取上一章停点与本章开篇"] --> B["追踪本章转场"]
     B --> C["核查 threads 是否中断"]
     C --> D["输出连续性 packet + report"]
 ```
@@ -92,8 +92,8 @@ flowchart TD
 
 | node_id | field_id | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-CARRYOVER-LOAD` | `FIELD-CT-01` | 锁上一集停点与本集开篇关系 | 抽取情绪、动作、信息停点 | `carryover_note` | -> `N2` | 承接可读 |
-| `N2-TRANSITION-TRACE` | `FIELD-CT-02` | 检查本集内转场与推进 | 标记突兀跳转、断层、硬切 | `transition_note` | -> `N3` | 转场清楚 |
+| `N1-CARRYOVER-LOAD` | `FIELD-CT-01` | 锁上一章停点与本章开篇关系 | 抽取情绪、动作、信息停点 | `carryover_note` | -> `N2` | 承接可读 |
+| `N2-TRANSITION-TRACE` | `FIELD-CT-02` | 检查本章内转场与推进 | 标记突兀跳转、断层、硬切 | `transition_note` | -> `N3` | 转场清楚 |
 | `N3-THREAD-CHECK` | `FIELD-CT-03` | 核查活跃 threads 是否中断 | 识别悬念线、任务线、关系线断带 | `thread_note` | -> `N4` | 线索不断带 |
 | `N4-PACKET-WRITE` | `FIELD-CT-04` | 输出连续性结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |
 
@@ -101,7 +101,7 @@ flowchart TD
 
 | field_id | output_slot | pass_standard | fail_code | rework_entry |
 | --- | --- | --- | --- | --- |
-| `FIELD-CT-01` | carryover bridge | 能说清上一集如何接到本集 | `FAIL-CT-01` | `N1` |
+| `FIELD-CT-01` | carryover bridge | 能说清上一章如何接到本章 | `FAIL-CT-01` | `N1` |
 | `FIELD-CT-02` | transition matrix | 关键转场没有硬断层 | `FAIL-CT-02` | `N2` |
 | `FIELD-CT-03` | thread continuity | 活跃线索/任务/关系线未被莫名放掉 | `FAIL-CT-03` | `N3` |
 | `FIELD-CT-04` | dimension packet | 报告可追溯且可聚合 | `FAIL-CT-04` | `N4` |
@@ -109,4 +109,4 @@ flowchart TD
 ## Completion Contract
 
 - 已明确指出承接点、转场点与断带点。
-- 若失败，报告已定位返工应回到起盘还是节奏优化。
+- 若失败，报告已定位返工应回到起盘还是 `Step 2 / 2-节奏优化`。

@@ -255,7 +255,7 @@ def test_structure_validator_flags_missing_terminal_beat():
     assert result["pass"] is False
     assert result["metrics"]["beat_checkpoints"] == 3
     assert result["metrics"]["terminal_beat_hit"] is False
-    assert any(item.get("rework_target_step") == "1-单集叙事起盘" for item in result["issues"])
+    assert any(item.get("rework_target_step") == "1-单章叙事起盘" for item in result["issues"])
 
 
 def test_validation_runner_logic_detects_contrivance_markers(tmp_path):
@@ -404,15 +404,15 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
         "\n".join(
             [
                 "---",
-                "episode_num: 2",
-                'episode_title: "承接测试"',
+                "chapter_num: 2",
+                'chapter_title: "承接测试"',
                 'story_name: "临江旧事"',
                 'rhythm_type: "势能式"',
                 "processed_steps:",
-                '  - "1-单集叙事起盘"',
+                '  - "1-单章叙事起盘"',
                 "---",
                 "",
-                "# 第2集",
+                "# 第2章",
                 "",
                 "从门口那张血书前离开后，李青沿着长街走了很久。",
                 "他掌心里还压着昨夜留下的纸角，也还记得自己是怎么被人一步步逼进局里的。",
@@ -420,8 +420,8 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
         ),
     )
     drafting_dir = tmp_path / "3-Drafting"
-    (drafting_dir / "第1集.md").write_text(
-        "# 第1集\n\n李青在门口看见血书，终于意识到昨夜那场赢像被人安排过。",
+    (drafting_dir / "第1章.md").write_text(
+        "# 第1章\n\n李青在门口看见血书，终于意识到昨夜那场赢像被人安排过。",
         encoding="utf-8",
     )
 
@@ -536,7 +536,7 @@ def test_character_validator_fails_when_growth_enabled_but_text_drops_all_growth
     assert result["pass"] is False
     assert result["metrics"]["growth_continuity_checked"] is True
     assert result["metrics"]["growth_signal_hits"] == 0
-    assert any(item.get("location") == "第12集成长轴" for item in result["issues"])
+    assert any(item.get("location") == "第12章成长轴" for item in result["issues"])
 
 
 def test_character_validator_defers_dialogue_only_issues_until_step5(tmp_path):
@@ -586,7 +586,7 @@ def test_validation_runner_final_acceptance_writes_aggregate_json(tmp_path):
         chapter_num=9,
     )
 
-    aggregate_path = tmp_path / "4-Validation" / "第9集.validation.json"
+    aggregate_path = tmp_path / "4-Validation" / "第9章.validation.json"
     assert aggregate_path.is_file()
-    assert payload["validation_ref"] == "4-Validation/第9集.validation.json"
+    assert payload["validation_ref"] == "4-Validation/第9章.validation.json"
     assert payload["validation_status"] in {"PASS", "FAIL-QUALITY", "FAIL-COVENANT", "FAIL-RUNTIME"}

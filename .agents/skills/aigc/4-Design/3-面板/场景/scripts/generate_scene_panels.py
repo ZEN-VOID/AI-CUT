@@ -26,6 +26,11 @@ PROMPT_KEYS = (
     "design_prompt",
     "prompt",
 )
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，面板 layout 与面板 prompt 决策不得再由脚本直接主创。"
+    "本脚本仅保留给受控兼容迁移/投影；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 @dataclass
@@ -65,6 +70,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--print-payload", action="store_true", help="打印 nano payload")
     parser.add_argument("--no-report", action="store_true", help="调用 nano 时跳过 report")
     parser.add_argument("--force", action="store_true", help="覆盖已存在 layout/manifest")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成场景面板 layout 与 prompt。",
+    )
     return parser.parse_args()
 
 
@@ -366,6 +376,9 @@ def resolve_tasks(args: argparse.Namespace) -> tuple[list[SceneTask], str]:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     tasks, project_name = resolve_tasks(args)
     template_payload = load_template()
     episode = args.episode or "direct-request"

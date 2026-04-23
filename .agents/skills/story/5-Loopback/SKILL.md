@@ -9,7 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- `5-Loopback` 的父单元已经从单集 actualization 升级为卷级 validated actualization。
+- `5-Loopback` 的父单元已经从单章 actualization 升级为卷级 validated actualization。
 - 若 `CONTEXT.md`、`templates/loopback.json`、`../scripts/loopback_manager.py`、`../scripts/workflow_manager.py` 与本合同冲突，先修这些源层载体，再修单次 artifact。
 
 ## Overview

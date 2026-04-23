@@ -1,7 +1,7 @@
 {
   "chapter": 12,
-  "manuscript_ref": "3-Drafting/第12集.md",
-  "validation_ref": "4-Validation/第12集.validation.json",
+  "manuscript_ref": "3-Drafting/第2卷/第12章.md",
+  "validation_ref": "4-Validation/第12章.validation.json",
   "validation_mode": "normal_review",
   "validation_status": "FAIL-QUALITY",
   "selected_agents": [
@@ -21,17 +21,17 @@
       "chapter": 12,
       "pass": false,
       "score": 68,
-      "summary": "本集关键 chapter board 义务被弱兑现，高潮信息被摘要式带过。",
+      "summary": "本章关键 chapter board 义务被弱兑现，高潮信息被摘要式带过。",
       "issues": [
         {
           "id": "ST-12-001",
           "type": "结构兑现",
           "severity": "high",
-          "location": "第12集，第18-24段",
+          "location": "第12章，第18-24段",
           "description": "计划中的对峙高潮只被总结式交代，没有写成可感知的戏剧场面。",
           "suggestion": "回到起盘与追读力强化，重建场面推进、局部兑现和续读牵引。",
           "can_override": false,
-          "rework_target_step": "1-单集叙事起盘",
+          "rework_target_step": "1-单章叙事起盘",
           "source_layer_owner": "3-Drafting"
         }
       ],
@@ -49,11 +49,11 @@
         "undramatized_exposition_hits": 2
       },
       "default_rework_targets": [
-        "1-单集叙事起盘",
+        "1-单章叙事起盘",
         "7-追读力强化"
       ],
       "source_trace": [],
-      "report_ref": "4-Validation/第12集/结构兑现.md"
+      "report_ref": "4-Validation/第12章/结构兑现.md"
     },
     "character-validator": {
       "validation_context": "final_acceptance",
@@ -68,7 +68,7 @@
           "id": "CH-12-002",
           "type": "人物一致性",
           "severity": "medium",
-          "location": "第12集，第25-31段",
+          "location": "第12章，第25-31段",
           "description": "主角与对手的对话都像作者统一口吻，缺少角色差异和关系压力。",
           "suggestion": "回到角色刻画与对白优化，重新拆分声口和潜台词。",
           "can_override": false,
@@ -94,34 +94,34 @@
         "5-对白优化"
       ],
       "source_trace": [],
-      "report_ref": "4-Validation/第12集/人物一致性.md"
+      "report_ref": "4-Validation/第12章/人物一致性.md"
     }
   },
   "dimension_report_refs": {
-    "structure-validator": "4-Validation/第12集/结构兑现.md",
-    "continuity-validator": "4-Validation/第12集/连续性.md",
-    "logic-validator": "4-Validation/第12集/逻辑自洽校验.md",
-    "character-validator": "4-Validation/第12集/人物一致性.md",
-    "timeline-validator": "4-Validation/第12集/时间线.md",
-    "task-convergence-validator": "4-Validation/第12集/任务汇聚.md"
+    "structure-validator": "4-Validation/第12章/结构兑现.md",
+    "continuity-validator": "4-Validation/第12章/连续性.md",
+    "logic-validator": "4-Validation/第12章/逻辑自洽校验.md",
+    "character-validator": "4-Validation/第12章/人物一致性.md",
+    "timeline-validator": "4-Validation/第12章/时间线.md",
+    "task-convergence-validator": "4-Validation/第12章/任务汇聚.md"
   },
   "issues": [
     {
       "id": "ST-12-001",
       "type": "结构兑现",
       "severity": "high",
-      "location": "第12集，第18-24段",
+      "location": "第12章，第18-24段",
       "description": "高潮场面只被摘要式交代。",
       "suggestion": "重起该场并补齐张力推进。",
       "can_override": false,
-      "rework_target_step": "1-单集叙事起盘",
+      "rework_target_step": "1-单章叙事起盘",
       "source_layer_owner": "3-Drafting"
     },
     {
       "id": "CH-12-002",
       "type": "人物一致性",
       "severity": "medium",
-      "location": "第12集，第25-31段",
+      "location": "第12章，第25-31段",
       "description": "人物声口混同。",
       "suggestion": "回到角色刻画和对白优化重做。",
       "can_override": false,
@@ -155,7 +155,7 @@
   ],
   "rework_targets": [
     {
-      "step_id": "1-单集叙事起盘",
+      "step_id": "1-单章叙事起盘",
       "issue_ids": [
         "ST-12-001"
       ],
@@ -171,9 +171,9 @@
   ],
   "source_trace": [],
   "evidence_refs": [
-    "3-Drafting/第12集.md",
-    "4-Validation/第12集/结构兑现.md",
-    "4-Validation/第12集/人物一致性.md",
-    "4-Validation/第12集/任务汇聚.md"
+    "3-Drafting/第2卷/第12章.md",
+    "4-Validation/第12章/结构兑现.md",
+    "4-Validation/第12章/人物一致性.md",
+    "4-Validation/第12章/任务汇聚.md"
   ]
 }

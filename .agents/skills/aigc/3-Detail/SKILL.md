@@ -1,6 +1,6 @@
 ---
 name: aigc-detail
-description: Use when the `3-Detail` stage needs to route `水月` and `镜花`, keep `projects/aigc/<项目名>/3-Detail/第N集.json` as the only business truth, assemble branch-owned patches, and close the stage with validation plus review gates.
+description: Use when the `3-Detail` stage must fill `projects/aigc/<项目名>/3-Detail/第N集.json` in one root skill, with `1-分镜构图` fixed as the first pass to decide shot count, script split, and shot skeleton before all other creative fields are written.
 governance_tier: full
 ---
 
@@ -9,135 +9,150 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
-- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
-- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+- 本技能默认采用 `单技能知行合一 + references 细则下沉` 模式；根 `SKILL.md` 负责主骨架、顺序门、字段真源与验收门，`references/` 负责字段细则、示例和模块配置。
+- 冲突优先级固定为：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本目录 `references/*` > 本 `CONTEXT.md`。
 
 ## 概述
 
-`3-Detail` 是 `aigc` 技能树承接 `2-Global`、连接 `4-Design / 5-Image / 6-Video` 的阶段父 skill。
+`3-Detail` 当前回到更直接的编导 detail root 结构：
 
-当前阶段的 canonical 目标不是“把 `水月 + 镜花` 再语义压缩成一段更顺的 prose”，而是：
+1. 在根技能内直接读取 `projects/aigc/<项目名>/2-Global/episode_root.json`。
+2. 以 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 为 detail 模板真源。
+3. 以 `.agents/skills/aigc/3-Detail/references/*` 作为阶段内字段细则，再按需接入 `knowledge-base/电影学院派/*` 作为导演 / 分镜 / 摄影判断的学院派知识包。
+4. 固定先执行 `1-分镜构图`，先决定：
+   - 每个分镜组的 `分镜数`
+   - 组内 `剧本正文` 的切分点
+   - 每镜 `时间 / 剧本正文 / 主体锚定 / 分镜构图`
+5. 再按固定顺序补齐其余字段：
+   - `角色表现`
+   - `氛围表现`
+   - `摄影表现`
+   - `运镜手法`
+   - `转场特效`
+6. 学院派知识库只作为“判断增强器”，不直接替代字段写作；所有知识都必须被翻译回当前 JSON 槽位，而不是把教材术语原样堆入字段。
+7. 最后只向一个主文件写回：
+   - `projects/aigc/<项目名>/3-Detail/第N集.json`
 
-1. 保持 `projects/aigc/<项目名>/3-Detail/第N集.json` 为唯一业务真源。
-2. 让 `水月 / 镜花` 各自先在 branch 层完成创作、评审与 patch。
-3. 父层只做：
-   - root 继承与 scope lock
-   - owner dispatch
-   - branch review / coherence gate
-   - serial progressive commit
-   - compatibility projection
-   - stage validation / report
+换句话说：`3-Detail` 当前主问题不是多子技能接力，而是在一套固定思行顺序里，把 `meta + groups[].global/detail.分镜列表` 里的每个字段写得艺术、逻辑、连续且一致。
 
-换句话说：`3-Detail` 现在是 `orchestrator + serial commit gate`，不是创作性聚合器。
+这里的阶段边界必须固定：
 
-## Parent Positioning
+- `2-Global/episode_root.json` 是围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接填好的组级 seed root。
+- 上游当前不提供 shot-level 字段。
+- `1-分镜构图` 负责先锁 `分镜数`、正文切分点，以及每镜 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 的骨架。
 
-### 父层拥有
+## Single-Skill Positioning
 
-- `2-Global -> 3-Detail` root 继承与缺口诊断
-- `水月 -> 镜花` 的顺序门
-- `watermoon / jinghua` owner bundle 读取与校验
-- branch-owned 字段按 owner scope 串行写回 shared root
-- branch-aware team review 与组级 coherence 审核
-- legacy compatibility projection 的生成与阻塞
-- `metadata.document_phase` 推进与 `validation-report.md` 写回
+### 本技能拥有
 
-### 父层不拥有
+- detail root 的唯一写回权
+- `1-分镜构图` 先行的硬顺序门
+- `groups[].detail.分镜列表` 的镜级骨架裁决
+- `角色表现 / 氛围表现 / 摄影表现 / 运镜手法 / 转场特效` 的内部 pass 顺序
+- 阶段级验证与 `validation-report.md` 写回
 
-- 重写 `剧本正文`
-- 重新裁决 `分镜切换`
-- 在 assembly 阶段把 branch 结论压成一条统一 prose
-- 把旧兼容字段当作新的 canonical 真相
-- 越权让父层直接代写 branch owner 字段
+### 本技能不拥有
+
+- 再拆出 `1-水月 / 2-镜花` 作为当前主链真源
+- 把字段判断外包给 package-local 子技能再回收
+- 在多个中间 bundle 之间往返压缩、转写、拼装
+- 用已移除的旧桥接字段作为当前 canonical 字段
+- 用抽象评语替代具体字段填写
 
 ## Internal Capability Fusion Contract (Mandatory)
 
-`3-Detail` 的阶段总线统一分布在父 skill、两个 owner parent、八个 branch child 与 shared contracts：
+`3-Detail` 当前内部能力按根技能内的固定 pass 治理：
 
-| 能力面 | 当前 owner | 说明 |
-| --- | --- | --- |
-| root lock / seed check / stage close | `3-Detail/SKILL.md` | 锁 root、裁决阶段门、写回 stage report |
-| `角色表现 / 运动表现 / 氛围表现 / 视觉强化` | `1-水月/SKILL.md` | 负责 performer-facing 与 scene-facing 前置真相 |
-| `分镜构图 / 摄影美学 / 运镜手法 / 转场特效` | `2-镜花/SKILL.md` | 负责 cinematic-facing 真相 |
-| branch process sidecar 形状 | `_shared/branch-output-contract.md` + schema | 约束 branch 输出与 owner bundle |
-| branch-aware review / coherence gate | `_shared/branch-review-contract.md` + `team.yaml` | 约束先审 branch 再审整体 |
-| 下游消费优先级 | `4-Design` shared contract + `5-Image/6-Video` shared contracts | 约束 branch-owned first, legacy fallback |
+| pass_id | 固定顺序 | 写入重点 | 作用 |
+| --- | --- | --- | --- |
+| `P1` | `1-分镜构图` | `detail.分镜数`、`分镜列表.<分镜ID>.时间 / 剧本正文 / 主体锚定 / 分镜构图` | 先锁镜数、正文切分点和镜级骨架 |
+| `P2` | `2-角色表现` | `角色表现` | 把人物目的、表演动作和内里压力写成可演信号 |
+| `P3` | `3-氛围表现` | `氛围表现` | 把环境压强、空间层次和诗性来源写实化 |
+| `P4` | `4-摄影表现` | `摄影表现` | 把光影、色彩、质感控制线落到当前镜头 |
+| `P5` | `5-运镜手法` | `运镜手法` | 让镜头运动服务已锁定的构图和剧情骨架 |
+| `P6` | `6-转场特效` | `转场特效` | 只在确有必要时补组内/组间衔接与特效策略 |
+| `P7` | `7-验收` | `validation-report.md` | 形成阶段闭环 |
 
 硬规则：
 
-1. `3-Detail` 不再把 `水月 + 镜花` 聚成统一导演 prose。
-2. parent 只做 serial progressive commit，不替 branch 重写结论。
-3. `1-水月 -> 2-镜花` 固定串行；每个 owner parent 内部也按当前序号串行。
-4. 若共享结构需要更新，先改 shared contract / schema，再改 parent/child 载体。
-
-## Governed Child Skills
-
-### Stage-local parents
-
-1. `1-水月`
-2. `2-镜花`
-
-### Branch-owned canonical 字段
-
-| owner_parent | branch_skill | canonical_field | 作用 |
-| --- | --- | --- | --- |
-| `1-水月` | `1-角色表现` | `角色表现` | `动作戏 / 对话戏 / 内心戏` |
-| `1-水月` | `2-运动表现` | `运动表现` | `逻辑性 / 位置和方向 / 一致性` |
-| `1-水月` | `3-氛围表现` | `氛围表现` | `层次 / 空间诗学 / 意境` |
-| `1-水月` | `4-视觉强化` | `视觉强化` | `冲击力 / 观赏性 / 品味` |
-| `2-镜花` | `1-分镜构图` | `分镜构图` | `景别景深 / 镜头类型 / 构图形式` |
-| `2-镜花` | `2-摄影美学` | `摄影美学` | `光影 / 色彩 / 质感` |
-| `2-镜花` | `3-运镜手法` | `运镜手法` | `变化 / 速度 / 组合` |
-| `2-镜花` | `4-转场特效` | `转场特效` | 仅在需要显式转场/特效时填写 |
+1. `P1-分镜构图` 必须最先执行，不得跳过。
+2. 若 `P1` 还没锁定 `分镜数 + 分镜列表` 骨架，后续所有 pass 都不得先写字段。
+3. 后续任何 pass 都不得反向改写 `P1` 已锁定的分镜数、分镜 ID、时间或分镜正文，除非本轮显式回退到 `P1` 重建。
+4. 根技能是唯一真源；`references/` 只提供细则、模块配置、示例和审读标尺。
 
 ## Shared Canonical Sources (Mandatory)
 
+- `.agents/skills/aigc/SKILL.md`
+- `.agents/skills/aigc/2-Global/SKILL.md`
+- `.agents/skills/aigc/2-Global/_shared/episode_root.json`
+- `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
 - `.agents/skills/aigc/_shared/group_design_seed_contract.md`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - `.agents/skills/aigc/3-Detail/_shared/branch-output-contract.md`
-- `.agents/skills/aigc/3-Detail/_shared/branch-review-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 - `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
-- `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
-- `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
-- `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
-- `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
-- `.agents/skills/aigc/2-Global/SKILL.md`
-- `.codex/commands/master-check-team.md`
-- `.codex/commands/master-check.md`
-- `1-水月/SKILL.md`
-- `2-镜花/SKILL.md`
+- `.agents/skills/aigc/3-Detail/references/思行网络.md`
+- `.agents/skills/aigc/3-Detail/references/能力通道图谱.yaml`
+- `.agents/skills/aigc/3-Detail/references/模板字段填写指南.md`
+- `.agents/skills/aigc/3-Detail/references/编剧手册.md`
+- `.agents/skills/aigc/3-Detail/references/镜头语言.md`
+- `.agents/skills/aigc/3-Detail/references/路由画像.yaml`
+- `.agents/skills/aigc/3-Detail/references/正反例.md`
+- `.agents/skills/aigc/3-Detail/references/创作评审标尺.md`
+- `.agents/skills/aigc/3-Detail/references/电影学院派知识接线.md`
+- `knowledge-base/电影学院派/README.md`
+- `knowledge-base/电影学院派/导演手册/电影导演方法.md`
+- `knowledge-base/电影学院派/导演手册/电影导演技术.md`
+- `knowledge-base/电影学院派/导演手册/一流对话场景.md`
+- `knowledge-base/电影学院派/分镜脚本/电影镜头设计.md`
+- `knowledge-base/电影学院派/分镜脚本/电影镜头调度.md`
+- `knowledge-base/电影学院派/分镜脚本/电影镜头语法.md`
+- `knowledge-base/电影学院派/分镜脚本/电影镜头技术.md`
+- `knowledge-base/电影学院派/电影摄影/影像的创造.md`
+- `knowledge-base/电影学院派/电影摄影/摄影创作技法.md`
 
-真源分工：
+## Academy Knowledge Utilization Contract (Mandatory)
 
-- 本 `SKILL.md`
-  - 父层路由、assembly、compatibility projection、stage review、validation
-- `1-水月/SKILL.md`
-  - `角色表现 / 运动表现 / 氛围表现 / 视觉强化` owner bundle 真源
-- `2-镜花/SKILL.md`
-  - `分镜构图 / 摄影美学 / 运镜手法 / 转场特效` owner bundle 真源
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-  - `第N集.json` 的最终字段真源
-  - 同时持有 branch process sidecar、owner bundle 与兼容投影定义
-- `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
-  - 下游 design 清单如何优先消费 branch-owned 字段
-- `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
-  - 视频 prompt 如何优先消费 branch-owned 字段并在必要时回退到兼容投影
+`3-Detail` 必须把 `knowledge-base/电影学院派/*` 视为“按需加载的学院派判断库”，而不是背景摆设。使用规则固定如下：
+
+| pass_id | 首要问题 | 必读知识包 | 允许带来的增益 | 禁止误用 |
+| --- | --- | --- | --- | --- |
+| `P1-分镜构图` | 这组戏该切几镜、如何保证空间与戏剧节拍清晰 | `导演手册/电影导演方法.md`、`导演手册/电影导演技术.md`、`分镜脚本/电影镜头设计.md`、`分镜脚本/电影镜头语法.md` | 戏剧单元切分、轴线/视线/揭示关系、镜头语句、空间方向 | 把 180°/30° 规则写成生硬教材句，或直接写器材参数 |
+| `P2-角色表现` | 人物为什么这样演、对白攻守如何外显 | `导演手册/电影导演方法.md`、`导演手册/一流对话场景.md` | 目标、障碍、气口、抢话/吞话、反应动作 | 用导演术语替代人物行为，或把对话戏写成台词复述 |
+| `P3-氛围表现` | 空间如何施压、气息如何由可见条件生成 | `导演手册/电影导演方法.md`、`电影摄影/影像的创造.md`、`电影摄影/摄影创作技法.md` | 空间层级、负空间、框式构图、影调/质感/景物承情 | 只搬运“冷/空/美/压抑”之类抽象审美词 |
+| `P4-摄影表现` | 光色质如何服务当前戏而不是泛泛“有电影感” | `电影摄影/影像的创造.md`、`电影摄影/摄影创作技法.md`、`分镜脚本/电影镜头技术.md` | 光位、影调、色彩关系、质感显影、透视和视觉重力 | 堆摄影器材、焦段数值、曝光参数，或抢写构图骨架 |
+| `P5-运镜手法` | 镜头如何带着观众看，而不破坏前面锁定的结构 | `导演手册/电影导演技术.md`、`分镜脚本/电影镜头调度.md`、`分镜脚本/电影镜头语法.md` | 机位路径、揭示、伴行、重取景、空间导览 | 后序反改镜数、正文切分或主体锚定 |
+| `P6-转场特效` | 哪里需要桥梁、重复、释放镜头或最小转场收益 | `导演手册/电影导演方法.md`、`分镜脚本/电影镜头语法.md` | 时间压缩、桥梁镜头、重复画面、组内组间顺滑挂接 | 为了炫技硬加特效，掩盖本来不稳的镜级结构 |
+| `P7-验收` | 当前字段是否真正吃到了知识包，而不是只挂名 | `references/创作评审标尺.md`、`references/电影学院派知识接线.md` | 抽检字段是否具备学院派可解释性与下游可消费性 | 只检查结构，不检查知识是否有效转译 |
+
+硬规则：
+
+1. 学院派知识库默认按需读取，不是每次全量通读；必须先看当前组的戏剧问题，再决定读哪个包。
+2. `knowledge-base/电影学院派/*` 只提供判断与术语来源，最终输出必须回写为当前字段对象语言，而不是教材摘要。
+3. 若当前问题属于“镜头如何落”和“空间如何不乱”，优先读 `分镜脚本/`；若属于“为什么这样组织”，优先读 `导演手册/`；若属于“光色质如何支撑”，优先读 `电影摄影/`。
+4. 内部 `references/*` 仍是本阶段的第一落地细则；电影学院派知识包负责给这些细则补“为什么这样写”的判断深度。
+5. 若读完知识包仍不能改善当前字段，则回到本阶段字段边界，不允许为了“用了知识库”而硬塞术语。
+6. `validation-report.md` 必须显式记录本轮学院派知识证据，至少包括：
+   - `knowledge_mode: applied | unused_with_reason`
+   - `knowledge_domain`
+   - `selected_bundles`
+   - `applied_passes`
+   - `translation_targets`
+7. `selected_bundles` 不能只列文件名；必须让 `translation_targets` 回链到本轮实际写入的字段或 shot/group scope。
 
 ## Business Requirement Analysis Contract (Mandatory)
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 在同一份 `projects/aigc/<项目名>/3-Detail/第N集.json` 上继承 `2-Global` 已写入的 episode root，再把 `水月 / 镜花` branch-owned 结果稳定写回与 child skill 同名的镜级八字段，并只在需要下游兼容时派生旧字段投影。 |
-| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`、`projects/aigc/<项目名>/3-Detail/validation-report.md`。 |
-| `constraint_profile` | shared episode root 是唯一业务真源；`剧本正文` 保持不动；`分镜切换` 只继承不重判；本阶段必须补出 `正文切分参考[] + 分镜明细[].正文回指` 作为 `剧本正文 -> 分镜明细[]` 的唯一桥接层；branch 只写自己字段；compatibility projection 只能派生不能反向盖 canonical。 |
-| `success_criteria` | 命中 scope 的镜头都具备可消费的 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`；owner bundle 与 branch process sidecar 可追踪；legacy 投影若存在也不反向压扁 canonical；阶段 validator 与 review gate 通过。 |
-| `non_goals` | 不生成第二份 episode 主文件；不把 branch 结果压成统一 prose；不直接生成 design/image/video 请求；不重写上游分镜数与剧情事实。 |
-| `complexity_source` | 复杂度来自 owner dispatch、branch review、compatibility projection 和下游 handoff，而不是再做一次创作性 merge。 |
-| `topology_fit` | 固定为“root lock -> seed check -> owner dispatch -> branch review -> assembly -> compatibility projection -> stage validation -> supervision -> close”。 |
-| `step_strategy` | 父层只保留阶段门、owner 边界、assembly 规则与验收；branch 细则留在各自 skill，不在父层重复展开。 |
+| `business_goal` | 将 `2-Global/episode_root.json` 这颗由 `2-Global` 围绕模板直接填好的组级 seed root 继续细化为可被 `4-Design / 5-Image / 6-Video` 消费的 `projects/aigc/<项目名>/3-Detail/第N集.json`，并通过固定顺序把每个 group 的分镜数、镜级正文和镜级字段一次性收成单一 detail 真源。 |
+| `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json` 与 `projects/aigc/<项目名>/3-Detail/validation-report.md`。 |
+| `constraint_profile` | `2-Global` 以 `episode_root.json` 直接提供 `project_global + groups[].global.剧本正文 / 全局风格 / 类型元素 / 导演意图` 这一层组级 seed；`3-Detail` 必须自己决定镜头切分与镜级骨架；第一步固定先做 `分镜构图`；输出结构固定为 `meta + groups[].global/detail`；运行时 detail root 必须继续保留继承来的 `groups[].global.剧本正文`，不能在 detail 阶段丢失；字段必须可见、可拍、可连续。 |
+| `success_criteria` | 每个命中 group 都具备稳定的 `detail.分镜数`、完整的 `分镜列表`、以及每镜稳定的 `时间 / 剧本正文 / 主体锚定 / 分镜构图 / 运镜手法 / 角色表现 / 氛围表现 / 摄影表现 / 转场特效`，并通过验证写回 `validation-report.md`。 |
+| `non_goals` | 不再维护 `1-水月 / 2-镜花` 作为当前主执行入口；不再把多条中间结果汇成 bundle 再回写；不重新改写 `2-Global` 的组级剧情事实。 |
+| `complexity_source` | 复杂度主要来自镜头切分、字段边界、跨字段一致性，以及艺术性与逻辑性的同时成立。 |
+| `topology_fit` | 最优拓扑固定为“输入锁定 -> 分镜构图先行 -> 表演/氛围 -> 摄影/运镜/转场 -> 验收”。 |
+| `step_strategy` | 先搭 detail skeleton，再逐字段充实；先锁结构，再做审美。 |
 
 ## Context Preload (Mandatory)
 
@@ -148,295 +163,179 @@ governance_tier: full
 3. 本 `SKILL.md + CONTEXT.md`
 4. `.agents/skills/aigc/_shared/project-runtime-layout.md`
 5. `.agents/skills/aigc/_shared/group_design_seed_contract.md`
-6. `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-7. `.agents/skills/aigc/_shared/director_episode_bootstrap.template.json`
-8. `.agents/skills/aigc/3-Detail/_shared/branch-output-contract.md`
-9. `.agents/skills/aigc/3-Detail/_shared/branch-review-contract.md`
+6. `.agents/skills/aigc/2-Global/_shared/episode_root.json`
+7. `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
+8. `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+9. `.agents/skills/aigc/3-Detail/_shared/branch-output-contract.md`
 10. `.agents/skills/aigc/3-Detail/_shared/node-pack-contract.md`
 11. `.agents/skills/aigc/3-Detail/_shared/creative-guidance-contract.md`
-12. `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
-13. `.agents/skills/aigc/2-Global/SKILL.md`
-14. `1-水月/SKILL.md + CONTEXT.md`
-15. `2-镜花/SKILL.md + CONTEXT.md`
-16. `projects/aigc/<项目名>/team.yaml`（若存在）
-17. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`（若存在）
-18. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
-19. `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（若存在）
-20. `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（若存在）
+12. `.agents/skills/aigc/3-Detail/references/思行网络.md`
+13. `.agents/skills/aigc/3-Detail/references/能力通道图谱.yaml`
+14. `.agents/skills/aigc/3-Detail/references/模板字段填写指南.md`
+15. `.agents/skills/aigc/3-Detail/references/编剧手册.md`
+16. `.agents/skills/aigc/3-Detail/references/镜头语言.md`
+17. `.agents/skills/aigc/3-Detail/references/路由画像.yaml`
+18. `.agents/skills/aigc/3-Detail/references/正反例.md`
+19. `.agents/skills/aigc/3-Detail/references/创作评审标尺.md`
+20. `.agents/skills/aigc/3-Detail/references/电影学院派知识接线.md`
+21. `knowledge-base/电影学院派/README.md`
+22. 按 `references/路由画像.yaml` 与当前 pass 选择性加载：
+   - `knowledge-base/电影学院派/导演手册/*`
+   - `knowledge-base/电影学院派/分镜脚本/*`
+   - `knowledge-base/电影学院派/电影摄影/*`
+23. `projects/aigc/<项目名>/MEMORY.md`（若项目已绑定）
+24. `projects/aigc/<项目名>/CONTEXT/` 相关文件（若存在）
+25. `projects/aigc/<项目名>/2-Global/episode_root.json`
+26. `projects/aigc/<项目名>/3-Detail/第N集.json`（若存在）
+27. `projects/aigc/<项目名>/team.yaml`（若存在）
 
 ## Total Input Contract (Mandatory)
 
 ### 必需输入
 
-- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/2-Global/episode_root.json`
 
 ### 推荐输入
 
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`
-- `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`
 - `projects/aigc/<项目名>/team.yaml`
 
 ### 硬规则
 
-1. shared root 存在时，必须优先继承它，而不是重新从 Markdown 长文抽结构。
-2. `剧本正文` 在 `3-Detail` 阶段只读继承。
-3. `分镜切换` 只继承检查，不由本阶段重判。
-4. `正文切分参考[]` 与 `分镜明细[].正文回指` 是 `剧本正文 -> 分镜明细[]` 的唯一桥接层；镜头不得复制整段正文作为平行真源。
-5. 若用户只要求局部组或局部字段，本轮只 patch 命中 scope，不默认全量重跑所有 group。
-6. compatibility projection 允许为空；branch-owned canonical 字段不允许被省略成只有旧字段。
-7. 整个 `3-Detail/第N集.json` 默认执行“反抽象、具像化、细致化”写法：canonical 与 compatibility 字段都必须优先给出可见动作、位置关系、物件状态、空间承载、光气条件和构图抓手，不得用抽象总结句冒充 detail。
+1. `2-Global/episode_root.json` 是 detail 阶段唯一上游 seed。
+2. `2-Global/episode_root.json` 当前提供 `meta + project_global + groups[].global`；`3-Detail` 的直接消费重点仍是 `groups[].global.*`。
+3. `3-Detail` 不得要求上游先给任何 shot-level 字段；这些字段必须由本阶段自己落出来。
+4. 组级 seed 只负责 `global.*`，镜级正文和主体锚定都在 `3-Detail` 内部生成；但运行时输出必须继续保留继承来的 `global.剧本正文` 作为组级全文锚点。
+5. 若只命中局部 group 或局部字段，只 patch 命中 scope，不默认全量重跑。
 
-## Root Input Gate (Mandatory)
+## One-Shot Output Contract (Mandatory)
 
-父层在调度前必须确认：
+### canonical 输出
 
-1. `metadata.document_phase in {detail_in_progress, ready}`
-2. `final_output.main_content.分镜组列表[]` 存在
-3. 命中组具备：
+- `projects/aigc/<项目名>/3-Detail/第N集.json`
+- `projects/aigc/<项目名>/3-Detail/validation-report.md`
+
+### `第N集.json` 最低要求
+
+1. 顶层结构必须与 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 同构。
+2. 顶层必须具备：
+   - `meta`
+   - `groups`
+3. `meta` 必须具备：
+   - `剧名`
+   - `集数`
+   - `组数`
+   - `总时长`
+4. 每个 group 必须具备：
    - `分镜组ID`
+   - `global.剧本正文`
+   - `global.全局风格 / 类型元素 / 导演意图`
+   - `detail.分镜数`
+   - `detail.分镜列表`
+5. 每镜至少具备：
+   - `时间`
    - `剧本正文`
-   - `正文切分参考[]`（缺槽时本阶段必须补齐）
-   - `组间设计.全局风格`
-   - `组间设计.类型元素`
-   - `组间设计.导演意图`
-   - `组间设计.出场角色及穿搭`（允许为空，但不可缺槽）
-   - `分镜切换`
-   - `分镜明细[]`
-
-若 root 缺失、损坏或仍是 bootstrap 空壳，必须先报告 `2-Global` seed 缺口，再决定是否进入兼容 repair。
-
-## Dispatch Order Contract (Mandatory)
-
-### 阶段级顺序
-
-`2-Global` 已写入的 root -> `1-水月` -> `2-镜花` -> parent assembly
-
-### Owner 内部顺序
-
-- `1-水月`
-  - 固定为：`1-角色表现 -> 2-运动表现 -> 3-氛围表现 -> 4-视觉强化`
-- `2-镜花`
-  - 固定为：`1-分镜构图 -> 2-摄影美学 -> 3-运镜手法 -> 4-转场特效`
-
-### 当前 root 回读规则
-
-1. 每一序号 branch 开始前，必须重新读取当前 `projects/aigc/<项目名>/3-Detail/第N集.json`。
-2. 该 root 必须已经包含前一序号 branch 经 review 批准并写回的 canonical 字段。
-3. 后一序号 branch 可以把当前 root 中已存在的前序字段当作一致性上下文，但不得越权改写它们。
-
-### 默认调度规则
-
-1. 若 `水月` 与 `镜花` owner bundle 都缺失，本轮先跑 `水月`，再跑 `镜花`。
-2. 若只缺 `水月` canonical 字段，本轮只跑 `水月`。
-3. 若 `水月` 已稳且只缺 `镜花` canonical 字段，本轮只跑 `镜花`。
-4. 若 `镜花` 需要重跑而 `水月` factual 前置已过期，仍必须先重跑 `水月`。
-5. shared root 的最终写回不再只发生在最后一轮；允许父层在 owner scope 内按序号逐步 commit。
-6. progressive commit 只能发生在通过 review 的 branch patch 上。
-
-## Patch Ownership And Assembly Contract (Mandatory)
-
-### Root-level ownership
-
-| owner | 允许写入 root canonical | 禁止写入 |
-| --- | --- | --- |
-| `水月 bundle` | `分镜明细[].角色表现`、`运动表现`、`氛围表现`、`视觉强化` | `分镜构图`、`摄影美学`、`运镜手法`、`转场特效` |
-| `镜花 bundle` | `分镜明细[].分镜构图`、`摄影美学`、`运镜手法`、`转场特效` | `角色表现`、`运动表现`、`氛围表现`、`视觉强化` |
-| 父层 `3-Detail` | shared root 最终写回、compatibility projection、`document_phase`、`validation-report.md` | 代写 branch 结论、重写剧情事实、重判镜数 |
-
-### Owner bundle contract
-
-1. `水月/镜花` 都必须优先写 owner bundle，而不是平行 master draft。
-2. owner bundle 必须满足：
-   - `metadata.schema_version = aigc/detail-branch-bundle-sidecar/v1`
-   - `metadata.bundle_mode = assembly_only`
-   - `branch_sidecars[]`
-   - `group_patches[].branch_patches`
-3. branch process sidecar 缺失时，不得伪造 owner bundle。
-4. 每个 branch review 通过后，允许先把该 branch canonical 字段 progressive commit 到 root，再继续下一序号 branch。
-
-### Assembly rules
-
-1. 父层按当前序号逐步写 canonical object：
-   - `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
-2. 每次 progressive commit 后，当前 root 即成为下一序号 branch 的上下文真源。
-3. 父层不得在 assembly 阶段做语义重写，只允许结构装配与 reviewer findings 吸收后的确定性写回。
-4. 若保留 `角色背景面 / 角色站位走位 / 道具及状态 / 分镜表现 / 运镜手法 / 摄影美学` 等 compatibility 字段，它们也必须是具像摘要而非抽象总评；其中 `分镜表现` 视为 deprecated alias，语义上应向“分镜构图式兼容摘要”靠拢。
-4. 若 branch findings 仍未解决，当前镜头或当前组应标记 `blocked`，不得为了完整性补空洞 prose。
-
-### Compatibility projection rules
-
-1. 旧字段只允许作为 projection：
-   - `角色背景面`
-   - `角色站位走位`
-   - `道具及状态`
-   - `分镜表现`
-   - `摄影美学`
+   - `主体锚定`
+   - `分镜构图`
    - `运镜手法`
+   - `角色表现`
+   - `氛围表现`
+   - `摄影表现`
    - `转场特效`
-2. projection 必须从 canonical 字段派生，不得成为新的真源。
-3. projection 若会造成“多路结果再压成一句总结”，宁可留空或保守摘要，也不得重新走旧式语义压缩。
-4. 任一 projection 不得反向覆盖 branch-owned canonical 字段。
 
-## Downstream Handoff Contract (Mandatory)
+## Template Fill Strategy
 
-`3-Detail` 的完成态不只等于“owner bundle 校验通过”，还等于“下游知道先读哪一层”。
-
-### `4-Design`
-
-优先消费：
-
-- `角色表现`
-- `动作路径`
-- `空间氛围`
-- `视觉抓手`
-- `构图骨架`
-- `摄影美学`
-- `运镜手法`
-- `转场特效`
-
-旧字段只作 fallback，不得回写成新的 canonical 设计真源。
-
-### `5-Image`
-
-- prompt distillation 默认先读 branch-owned canonical 字段
-- 需要做正文到镜头的精确桥接时，先读 `正文切分参考[]` 与 `分镜明细[].正文回指`，再回退整组 `剧本正文`
-- 若某个叶子仍依赖旧字段，可短期读 compatibility projection，但不得反向要求 `3-Detail` 只输出旧字段
-
-### `6-Video`
-
-- 视频 prompt 总原则应优先消费 `角色表现 / 运动表现 / 氛围表现 / 视觉强化 / 分镜构图 / 摄影美学 / 运镜手法 / 转场特效`
-- 需要做正文到镜头的精确桥接时，先读 `正文切分参考[]` 与 `分镜明细[].正文回指`，再回退整组 `剧本正文`
-- `分镜表现 / 摄影美学 / 运镜手法 / 转场特效` 只作为压缩句法或 provider 兼容的 fallback
-
-## Review Contract (Mandatory)
-
-### Review layers
-
-1. branch review
-   - 先审 branch process sidecar 与 branch-owned patch
-2. coherence review
-   - 再审 owner bundle 与 root-level 跨字段一致性
-
-### Branch-aware 默认 reviewer 偏好
-
-| branch | 默认 reviewer 偏好 |
-| --- | --- |
-| `角色表现` | 编剧 / 演员 / 导演 |
-| `运动表现` | 导演 / 动作 / 摄影 |
-| `氛围表现` | 作品维度 / 摄影 / 设计 |
-| `视觉强化` | 美学 / 摄影 / 导演 |
-| `分镜构图` | 导演 / 摄影 |
-| `摄影美学` | 摄影 / 导演 |
-| `运镜手法` | 导演 / 摄影 / 动作 |
-| `转场特效` | 导演 / 剪辑向审看 |
-
-### Stage review hard rules
-
-1. 不得只审 legacy projection 而跳过 branch-owned canonical 字段。
-2. 若 reviewer findings 命中 branch owner，必须回流到对应 branch，不得由父层静默越权代写。
-3. reviewer 可以检查“后一序号 branch 是否充分读取前序已写回 root”，并将其作为一致性信号。
-4. 只有 branch review 与 coherence review 都完成，本阶段才允许进入 `ready`。
-
-## Thinking-Action Network (Mandatory)
-
-| node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INPUT-LOCK` | `S1` | `FIELD-DETAIL-01` | 锁定 episode / group / field scope | 读取 root 与 scope | `input_lock_note` | -> `N2` | scope 唯一 |
-| `N2-SEED-CHECK` | `S2` | `FIELD-DETAIL-02` | 检查 root 是否可继承 | 校验 `剧本正文 / 组间设计 / 分镜切换 / document_phase`，并确认本轮需要补齐 `正文切分参考[] / 分镜明细[].正文回指` | `seed_check_note` | -> `N3` | root 可用 |
-| `N3-WM-DISPATCH` | `S3` | `FIELD-DETAIL-03` | 决定是否运行或复用 `水月` | 读取/执行 `1-水月` | `watermoon_dispatch_note` | -> `N4` | `水月` owner 完整 |
-| `N4-JH-DISPATCH` | `S4` | `FIELD-DETAIL-04` | 决定是否运行或复用 `镜花` | 读取/执行 `2-镜花` | `jinghua_dispatch_note` | -> `N5` | `分镜构图` 先稳 |
-| `N5-BRANCH-REVIEW` | `S5` | `FIELD-DETAIL-05` | 完成 branch-aware review | 收 findings，必要时回流 branch | `branch_review_packet` | -> `N6` | findings 已闭环 |
-| `N6-SERIAL-COMMIT` | `S6` | `FIELD-DETAIL-06` | 把 owner bundle 按序号逐步写回 root canonical | 写本轮批准的 branch-owned 字段，并刷新当前 root | `assembly_summary` | -> `N7` | 无语义压缩，且已刷新 root |
-| `N7-COMPAT-PROJECT` | `S7` | `FIELD-DETAIL-07` | 只在需要时生成兼容投影 | 写 `compatibility_projection` 与 root fallback 字段 | `projection_note` | -> `N8` | 不反盖 canonical |
-| `N8-STAGE-VALIDATE` | `S8` | `FIELD-DETAIL-08` | 形成可审看的 stage 输出包 | 写 `document_phase`、`validation-report.md`、跑 validator | `pre_review_validation_verdict` | -> `N9` | validator 过关 |
-| `N9-SUPERVISION` | `S9` | `FIELD-DETAIL-09` | 做 branch-aware team review / coherence review | 解析 `team.yaml`、启动 reviewer、回收 findings | `supervision_runtime_note` | -> `N10` | reviewer 可追踪 |
-| `N10-FINAL-CLOSE` | `S10` | `FIELD-DETAIL-10` | 完成终验闭环 | 重跑 validator，补写 closure | `final_close_verdict` | -> `done` | stage 完整闭环 |
+- 结构和顺序细则：读取 [references/思行网络.md](references/思行网络.md)
+- 字段对象的读写边界：读取 [references/能力通道图谱.yaml](references/能力通道图谱.yaml)
+- 模板每个字段怎么写：读取 [references/模板字段填写指南.md](references/模板字段填写指南.md)
+- `角色表现 / 氛围表现` 的细粒度写法：读取 [references/编剧手册.md](references/编剧手册.md)
+- `分镜构图 / 摄影表现 / 运镜手法 / 转场特效` 的细粒度写法：读取 [references/镜头语言.md](references/镜头语言.md)
+- 组型路由与策略偏置：读取 [references/路由画像.yaml](references/路由画像.yaml)
+- 学院派知识如何接入当前 pass：读取 [references/电影学院派知识接线.md](references/电影学院派知识接线.md)
+- 质量对照与反例：读取 [references/正反例.md](references/正反例.md)
+- 验收口径：读取 [references/创作评审标尺.md](references/创作评审标尺.md)
 
 ## Field Master
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-DETAIL-01` | root scope lock | 输入唯一且 scope 清晰 | `S1` | 真源稳定性 | `FAIL-DETAIL-01` |
-| `FIELD-DETAIL-02` | seed readiness | root 可继承 | `S2` | 上游完整性 | `FAIL-DETAIL-02` |
-| `FIELD-DETAIL-03` | `水月` owner bundle | 四个 `水月` canonical 字段稳定 | `S3` | owner 完整度 | `FAIL-DETAIL-03` |
-| `FIELD-DETAIL-04` | `镜花` owner bundle | 四个 `镜花` canonical 字段稳定 | `S4` | owner 完整度 | `FAIL-DETAIL-04` |
-| `FIELD-DETAIL-05` | branch review packet | branch findings 与 apply decision 可追踪 | `S5` | 评审颗粒度 | `FAIL-DETAIL-05` |
-| `FIELD-DETAIL-06` | `分镜明细[]` 八字段 canonical | 只做 serial progressive commit | `S6` | 抗压缩性 | `FAIL-DETAIL-06` |
-| `FIELD-DETAIL-07` | legacy compatibility projection | 仅投影，不反盖 canonical | `S7` | 兼容治理 | `FAIL-DETAIL-07` |
-| `FIELD-DETAIL-08` | `document_phase + validation-report.md` 初稿 | 输出包可审看 | `S8` | 预审可读性 | `FAIL-DETAIL-08` |
-| `FIELD-DETAIL-09` | supervision runtime | branch-aware reviewer 与模式可追踪 | `S9` | review runtime 正确性 | `FAIL-DETAIL-09` |
-| `FIELD-DETAIL-10` | final close | 终验、closure、patched targets 一致 | `S10` | 闭环完整性 | `FAIL-DETAIL-10` |
+| `FIELD-DETAIL-01` | `meta` | 项目、集数、组数、总时长正确 | `S1` | 结构稳定性 | `FAIL-DETAIL-01` |
+| `FIELD-DETAIL-02` | `groups[].global` | 组级 seed 与上游含义一致 | `S1` | 继承准确性 | `FAIL-DETAIL-02` |
+| `FIELD-DETAIL-03` | `detail.分镜数` | 镜数与实际分镜列表一致 | `S2` | 镜级可追溯性 | `FAIL-DETAIL-03` |
+| `FIELD-DETAIL-04` | `时间 / 剧本正文 / 主体锚定 / 分镜构图` | 每镜骨架完整且可拍 | `S2` | 构图骨架力 | `FAIL-DETAIL-04` |
+| `FIELD-DETAIL-05` | `角色表现` | 人物能演、能看、能被镜头放大 | `S3` | 表演成立度 | `FAIL-DETAIL-05` |
+| `FIELD-DETAIL-06` | `氛围表现` | 环境施压真实、有层次、有意境来源 | `S4` | 空间承载力 | `FAIL-DETAIL-06` |
+| `FIELD-DETAIL-07` | `摄影表现 / 运镜手法` | 光影与镜头运动服务既有骨架 | `S5-S6` | 视听一致性 | `FAIL-DETAIL-07` |
+| `FIELD-DETAIL-08` | `转场特效` | 有收益但不喧宾夺主 | `S7` | 衔接收益 | `FAIL-DETAIL-08` |
 
 ## Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `S1` | `FIELD-DETAIL-01` | 这轮到底补哪一集、哪几个 group、哪几个 owner 字段 | 锁定 root 与 scope | scope 漂移、输入混用 |
-| `S2` | `FIELD-DETAIL-02` | root 是否已具备可继承 seed | 做 seed readiness 检查 | 上游壳不完整却继续下游 |
-| `S3` | `FIELD-DETAIL-03` | `水月` owner bundle 是否需要重跑或复用 | 读取/执行 `1-水月` | owner 缺失或 branch 不全 |
-| `S4` | `FIELD-DETAIL-04` | `镜花` owner bundle 是否需要重跑或复用 | 读取/执行 `2-镜花` | `分镜构图` 未先稳就提前展开 |
-| `S5` | `FIELD-DETAIL-05` | review 是否先发生在 branch 粒度 | 汇总 findings 并回流 owner | 只审 bundle 不审 branch |
-| `S6` | `FIELD-DETAIL-06` | root canonical 是否按序号逐步 commit 且被后续 branch 回读 | 逐步写回八个 branch-owned 字段 | 未刷新 root 或后续 branch 仍按旧快照执行 |
-| `S7` | `FIELD-DETAIL-07` | compatibility projection 是否仍受 canonical 约束 | 按需派生旧字段 | projection 反盖 canonical |
-| `S8` | `FIELD-DETAIL-08` | stage 输出包是否已可审看和可交付 | 写 phase、report 初稿并跑 validator | validator 未过却继续 |
-| `S9` | `FIELD-DETAIL-09` | team review 是否 branch-aware 且可追踪 | 解析 reviewer、执行 review | reviewer 来源不清或静默跳过 |
-| `S10` | `FIELD-DETAIL-10` | 终验是否真正闭环 | 重跑校验、补写 closure triad | patched targets 与 closure 不一致 |
+| `S1` | `FIELD-DETAIL-01~02` | 本轮到底补哪一集、哪几个 group | 锁输入与 scope | 范围混用 |
+| `S2` | `FIELD-DETAIL-03~04` | 这组该切成几镜，每镜对应哪段正文 | 先搭 detail skeleton | 先写别的字段、后猜镜数 |
+| `S3` | `FIELD-DETAIL-05` | 角色为什么这么演 | 填 `角色表现` | 表演写成机位说明 |
+| `S4` | `FIELD-DETAIL-06` | 压力和空气从哪里来 | 填 `氛围表现` | 只剩形容词 |
+| `S5-S6` | `FIELD-DETAIL-07` | 光影和镜头运动如何服务这组戏 | 填 `摄影表现 / 运镜手法` | 反向推翻骨架 |
+| `S7` | `FIELD-DETAIL-08` | 观众怎么被顺滑带到下一拍 | 填 `转场特效` | 修饰盖过戏剧 |
+| `S8` | `FIELD-DETAIL-01~08` | 是否可被下游直接消费 | 跑 validator 并写 report | 无法复验 |
 
 ## Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
-| `FIELD-DETAIL-01` | shared root 与 selected scope 唯一 | `FAIL-DETAIL-01` | `S1` |
-| `FIELD-DETAIL-02` | `剧本正文 + 组间设计 + 分镜切换` 可直接继承，且 `正文切分参考[] / 分镜明细[].正文回指` 已纳入本阶段待补结构槽位 | `FAIL-DETAIL-02` | `S2` |
-| `FIELD-DETAIL-03` | `水月` owner bundle 为 `assembly_only` 且 branch sidecars 完整 | `FAIL-DETAIL-03` | `S3` |
-| `FIELD-DETAIL-04` | `镜花` owner bundle 为 `assembly_only` 且 `分镜构图` 已先稳 | `FAIL-DETAIL-04` | `S4` |
-| `FIELD-DETAIL-05` | branch review findings 已回流对应 owner | `FAIL-DETAIL-05` | `S5` |
-| `FIELD-DETAIL-06` | `分镜明细[]` 八字段 canonical 满足 schema，且 progressive commit 顺序正确 | `FAIL-DETAIL-06` | `S6` |
-| `FIELD-DETAIL-07` | compatibility projection 未回流到旧式语义压缩 | `FAIL-DETAIL-07` | `S7` |
-| `FIELD-DETAIL-08` | stage validator 通过 | `FAIL-DETAIL-08` | `S8` |
-| `FIELD-DETAIL-09` | supervision runtime 按 `team.yaml` / `master-check-team` 规则可追踪 | `FAIL-DETAIL-09` | `S9` |
-| `FIELD-DETAIL-10` | 重跑校验、closure triad、patched targets 一致 | `FAIL-DETAIL-10` | `S10` |
+| `FIELD-DETAIL-01` | `meta` 完整、数值正确 | `FAIL-DETAIL-01` | `S1` |
+| `FIELD-DETAIL-02` | `global` 与上游 seed 含义一致 | `FAIL-DETAIL-02` | `S1` |
+| `FIELD-DETAIL-03` | `分镜数` 与 `分镜列表` 对齐 | `FAIL-DETAIL-03` | `S2` |
+| `FIELD-DETAIL-04` | 镜级骨架完整且可拍 | `FAIL-DETAIL-04` | `S2` |
+| `FIELD-DETAIL-05` | `角色表现` 可演且不越权 | `FAIL-DETAIL-05` | `S3` |
+| `FIELD-DETAIL-06` | `氛围表现` 有环境承载与层次 | `FAIL-DETAIL-06` | `S4` |
+| `FIELD-DETAIL-07` | `摄影表现 / 运镜手法` 服务既有骨架 | `FAIL-DETAIL-07` | `S5-S6` |
+| `FIELD-DETAIL-08` | `转场特效` 有收益且不过量 | `FAIL-DETAIL-08` | `S7` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
-出现以下任一情况时，必须先修源层再继续下游：
+出现以下任一症状，必须先修源层，而不是只补单次内容：
 
-- 父层仍把 branch 结果压成 `分镜表现` 之类统一 prose
-- owner bundle 不是 `assembly_only`
-- 按序号应串行的 branch 仍被并发处理
-- 后一序号 branch 没有读取前序已写回的当前 root
-- branch sidecar 缺失却仍伪造 bundle
-- compatibility projection 反向盖过 canonical
-- 下游继续把旧字段当成唯一真源
-- review 只审旧投影、不审 branch-owned 字段
+- 还没决定镜数就先写 `角色表现 / 摄影表现 / 运镜手法`
+- 误把已移除的旧桥接字段当成当前 canonical 字段
+- `分镜构图` 不是第一步，导致后续字段反向争夺镜数和正文切分点
+- `episode_detail.json` 的字段口径与 validator / consumer 不一致
+- 摄影字段又漂回旧命名
+- 把 `剧本正文` 只留在组级，却没落到每镜
+- 把 `主体锚定` 写成抽象评语，而不是场景/角色/道具锚点
 
-强制追因链：
+固定上溯链：
 
-`Symptom/Failure -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
+`Symptom -> Direct Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-本阶段常见 landing points：
+默认排查顺序：
 
-- `.agents/skills/aigc/3-Detail/SKILL.md`
-- `.agents/skills/aigc/3-Detail/_shared/branch-output-contract.md`
-- `.agents/skills/aigc/3-Detail/_shared/branch-review-contract.md`
-- `.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
-- `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
-- `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
-- `1-水月/SKILL.md`
-- `2-镜花/SKILL.md`
+1. `P1-分镜构图` 是否真的先行。
+2. `_shared/episode_detail.json` 是否与当前 detail root 同构。
+3. `references/能力通道图谱.yaml` 的字段边界是否被遵守。
+4. `references/模板字段填写指南.md` 的写作要求是否被跳过。
+5. `validation-report.md` 是否真实反映当前 root，而不是空泛自证。
+6. `validation-report.md` 是否写出本轮学院派知识证据，而不是只说“已参考知识库”。
 
-## Completion Contract (Mandatory)
+## Completion Gate
 
 只有同时满足以下条件，`3-Detail` 才允许宣布完成：
 
-1. `projects/aigc/<项目名>/3-Detail/第N集.json` 仍是唯一业务真源。
-2. 本轮命中 group 的 `剧本正文` 未被改写。
-3. 命中 group 已具备 `正文切分参考[]`，且每条命中镜头都具备 `正文回指`。
-4. 命中镜头已具备八个 branch-owned canonical 字段，或显式标记 `blocked` 并给出原因。
-5. owner bundle 与 branch process sidecar 可追踪。
-6. `document_phase` 与实际完成度一致。
-7. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
-8. 若 `projects/aigc/<项目名>/team.yaml` 启用 `roles.supervision` 且当前阶段命中 `3-Detail`，已完成一次 branch-aware review 或显式降级说明。
-9. `scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 返回通过；若启用监制强化校验，再追加 `--team-yaml projects/aigc/<项目名>/team.yaml`。
+1. `projects/aigc/<项目名>/3-Detail/第N集.json` 已落盘。
+2. `1-分镜构图` 已先行锁定：
+   - `detail.分镜数`
+   - `分镜列表.<分镜ID>.时间`
+   - `分镜列表.<分镜ID>.剧本正文`
+   - `分镜列表.<分镜ID>.主体锚定`
+   - `分镜列表.<分镜ID>.分镜构图`
+3. 每镜都具备当前 canonical 字段对象。
+4. `projects/aigc/<项目名>/3-Detail/validation-report.md` 已写回。
+5. `validation-report.md` 已包含 `## Academy Knowledge Evidence`，并写明：
+   - `knowledge_mode`
+   - `knowledge_domain`
+   - `selected_bundles`
+   - `applied_passes`
+   - `translation_targets`
+6. `python3 .agents/skills/aigc/3-Detail/scripts/validate_stage_output.py projects/aigc/<项目名>/3-Detail/第N集.json` 通过，或显式记录阻塞。

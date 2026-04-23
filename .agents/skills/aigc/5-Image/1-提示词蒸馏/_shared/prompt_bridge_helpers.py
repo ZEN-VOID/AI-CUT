@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +19,14 @@ def find_repo_root() -> Path:
 
 ROOT = find_repo_root()
 PROJECTS_ROOT = ROOT / "projects" / "aigc"
-SOURCE_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
+
+SOURCE_SCHEMA = CANONICAL_DETAIL_TEMPLATE
 TEMPLATE_JSON = ROOT / ".agents/skills/aigc/5-Image/_shared/image-generation-input.template.json"
 SHOT_SCALE_TOKENS = (
     "超大全景",
@@ -506,16 +514,17 @@ def validate_group_ready(group: dict[str, Any]) -> None:
 
 
 def validate_source_ready(source_data: dict[str, Any], allowed_phases: set[str]) -> tuple[str, list[dict[str, Any]]]:
-    metadata = require_dict(source_data.get("metadata"), "metadata")
+    source_payload = ensure_legacy_detail_payload(source_data)
+    metadata = require_dict(source_payload.get("metadata"), "metadata")
     episode_id = require_non_empty_text(metadata.get("episode_id"), "metadata.episode_id")
     phase = metadata.get("document_phase")
     if phase not in allowed_phases:
         phase_label = ", ".join(sorted(allowed_phases))
         raise ValueError(
-            f"metadata.document_phase 当前为 {phase!r}；"
-            f"只有 {phase_label} 状态的 3-Detail shared root 才能被 5-Image 叶子消费。"
+            f"3-Detail detail root 当前推断的 readiness 为 {phase!r}；"
+            f"只有 {phase_label} 状态的 canonical detail root 才能被 5-Image 叶子消费。"
         )
-    final_output = require_dict(source_data.get("final_output"), "final_output")
+    final_output = require_dict(source_payload.get("final_output"), "final_output")
     main_content = require_dict(final_output.get("main_content"), "final_output.main_content")
     groups = require_list(main_content.get("分镜组列表"), "final_output.main_content.分镜组列表")
     if not groups:

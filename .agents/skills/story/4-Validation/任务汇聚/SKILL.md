@@ -73,7 +73,7 @@ governance_tier: lite
   - `4-Validation/第V卷/任务汇聚.md`
 - 默认返工节点：
   - `source-contract-fix`
-  - `1-单集叙事起盘`
+  - `1-单章叙事起盘`
   - `7-追读力强化`
 
 ## Visual Map

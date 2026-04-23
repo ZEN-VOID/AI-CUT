@@ -48,6 +48,8 @@ governance_tier: full
 
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `projects/aigc/<项目名>/5-Image/分镜故事板/<第N集>/<第N集>.json`
 - `projects/aigc/<项目名>/5-Image/分镜帧/<第N集>/<第N集>.json`
@@ -86,7 +88,7 @@ governance_tier: full
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把 `1-提示词蒸馏` 的 image-request JSON 绑定到真实本地图片，并保持 provider-neutral + provider-specific 双层兼容。 |
-| `business_object` | `1-提示词蒸馏` 输出 JSON、项目本地图片资产、共享 image-generation 模板。 |
+| `business_object` | `1-提示词蒸馏` 输出 JSON、项目本地图片资产、共享 image-generation 模板，以及仅在需要组级角色锚点时由 `detail_root_adapter` 从 canonical detail root 投影出的 compat group 视图。 |
 | `constraint_profile` | 只绑定本地真实文件；外部 URL 不是本阶段主真源；`即梦 CLI` 需要本地路径；`NANO-banana` 需要 BASE64-compatible 槽位；provider 未锁定时不得过早丢失兼容性。 |
 | `success_criteria` | `reference_images / image_markers` 能回链真实本地文件；`jimeng_cli` 本地路径 ready；`nano_banana` 兼容槽位 ready 或 pending_encode；三件套落盘可复核。 |
 | `non_goals` | 不生成图片、不直接提交 provider、不重新改 prompt、不伪造远程资源。 |
@@ -127,6 +129,7 @@ governance_tier: full
 2. `model.reference_images` 与 `model.image_markers` 字段存在
 3. 若 `meta.source_tranche` 缺失，可从路径或 `shot_level` 推断
 4. 引用来源必须是本地文件，不是外部 URL 主链
+5. 若需要回看 `3-Detail` 组级角色锚点，只允许通过 `.agents/skills/aigc/_shared/detail_root_adapter.py` 从 canonical `episode_detail.json` 投影 compat `组间设计.出场角色及穿搭`；不得把旧 detail 壳重新声明为第一真源
 
 ## Candidate Derivation And Ambiguity Gate (Mandatory)
 
@@ -191,6 +194,7 @@ python3 .agents/skills/aigc/5-Image/2-参照引用/scripts/bind_reference_assets
 执行脚本必须遵循保守绑定策略：
 
 1. 自动绑定只允许使用结构化强证据：`group_id / source_shot_ids / 组间设计.出场角色及穿搭 / image_markers[].related_subject`。
+   其中 `组间设计.出场角色及穿搭` 仅允许作为由 `detail_root_adapter` 从 canonical detail root 投影出的 compat 证据位。
 2. 对 `角色` 默认只接受完整角色名与 `Assets/角色/` 中唯一同名图片。
 3. 对 `场景 / 道具` 默认只接受上游已显式写入 `image_markers[].related_subject` 的完整非泛词主体；不得从 prompt 全文泛扫后直接绑定。
 4. `门 / 灯 / 墙 / 水 / 床 / 地面 / 卫生间 / 吊顶 / 楼道 / 洗手池 / 门板` 等泛词、子串、多义候选必须进入报告的 `ambiguous_candidates / rejected_candidates / skipped_candidates`，不得写入 `reference_images`。

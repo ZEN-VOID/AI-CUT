@@ -10,7 +10,7 @@ governance_tier: lite
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 必须回读父层 `3-Drafting/SKILL.md`、`../_shared/drafting-child-output-contract.md`、`../_shared/drafting-instant-validation-contract.md`。
-- 正式处理前，必须读取 Step 2 已写回后的当前 `第N集.md`。
+- 正式处理前，必须读取 Step 2 已写回后的当前 `第N章.md`。
 - 必须按需读取本地执行细则 `references/scene-atmosphere-execution-playbook.md`。
 
 ## Parent Positioning
@@ -47,7 +47,7 @@ governance_tier: lite
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 让本集不只是在“讲事情”，还通过空间、光线、材质、声音、身体感和关系温差，让读者真正进入场面。 |
+| `business_goal` | 让本章不只是在“讲事情”，还通过空间、光线、材质、声音、身体感和关系温差，让读者真正进入场面。 |
 | `business_object` | Step 2 后正文、场景卡切片、当前关系压力、风格契约，以及当前项目的 `类型卡 / 题材走廊`（若存在）。 |
 | `constraint_profile` | 不能只堆辞藻；场景渲染必须服务事件、人物关系和情绪推进。安静场面不能被写成空镜堆叠，亲密或禁忌场面不能被写成无身体事实的氛围香水。 |
 | `success_criteria` | 读者能感知空间阻力、光线温度、材质与身体反应，并能看见环境怎样改变人物行动、关系距离或情绪走势。 |
@@ -56,7 +56,7 @@ governance_tier: lite
 ## Total Input Contract
 
 - 必需输入：
-  - 当前 `第N集.md`
+  - 当前 `第N章.md`
   - `1-Cards/3-场景卡/**/*.json`
   - `第V卷.写作日志.yaml`
 - 可选增强输入：

@@ -38,7 +38,7 @@ def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
 
     draft_path = module.default_chapter_draft_path(tmp_path, 1)
 
-    assert draft_path == tmp_path / "3-Drafting" / "第1集.md"
+    assert draft_path == tmp_path / "3-Drafting" / "第1卷" / "第1章.md"
 
 
 def test_default_chapter_draft_path_falls_back_to_split_outline_filename(tmp_path):
@@ -50,13 +50,13 @@ def test_default_chapter_draft_path_falls_back_to_split_outline_filename(tmp_pat
 
     draft_path = module.default_chapter_draft_path(tmp_path, 2)
 
-    assert draft_path == tmp_path / "3-Drafting" / "第2集.md"
+    assert draft_path == tmp_path / "3-Drafting" / "第1卷" / "第2章.md"
 
 
 def test_find_chapter_file_prefers_3_drafting_root(tmp_path):
     module = _load_module()
 
-    canonical_path = tmp_path / "3-Drafting" / "第3集.md"
+    canonical_path = tmp_path / "3-Drafting" / "第3章.md"
     canonical_path.parent.mkdir(parents=True, exist_ok=True)
     canonical_path.write_text("正文", encoding="utf-8")
 
@@ -86,4 +86,4 @@ def test_drafting_root_md_path_uses_ascii_chapter_workspace(tmp_path):
 
     root_path = module.drafting_root_md_path(tmp_path, 7)
 
-    assert root_path == tmp_path / "3-Drafting" / "第7集.md"
+    assert root_path == tmp_path / "3-Drafting" / "第1卷" / "第7章.md"

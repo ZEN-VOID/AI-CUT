@@ -36,7 +36,7 @@ governance_tier: full
 
 ## When to Use
 
-- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中 `metadata.document_phase=ready` 的分镜组内容蒸馏为视频工具入参 JSON。
+- 需要把 `projects/aigc/<项目名>/3-Detail/第N集.json` 中结构完整、可被兼容适配层判定为 ready 的分镜组内容蒸馏为视频工具入参 JSON。
 - 需要在正式调用 `dreamina` 或其他视频 API 前，先整理主体参照、prompt、画幅与质量参数。
 - 需要说明 `6-Video` 与 `5-Image`、`dreamina-cli` 的边界。
 - 用户只说“做视频参照 / 做视频请求 JSON / 从 `3-Detail` 转视频入参”，但还没进入实际提交命令。
@@ -44,7 +44,7 @@ governance_tier: full
 ## When Not to Use
 
 - 任务仍在补 `3-Detail/第N集.json` 的组级或镜级事实，应回到 `2-Global` 或 `3-Detail`。
-- 上游 `3-Detail/第N集.json` 仍处于 `bootstrapped` 或 `detail_in_progress`，或组内 `分镜切换` 与 `分镜明细[]` 尚未对齐，应回到 `3-Detail` 完成 handoff gate。
+- 上游 `3-Detail/第N集.json` 仍缺 canonical `meta + groups[].global/detail.分镜列表`，或兼容适配后仍无法形成稳定组级/镜级视图，应回到 `3-Detail` 完成 handoff gate。
 - 任务仍在生成参考图、故事板或单帧图，应回到 `5-Image`。
 - 任务已经明确处于具体 provider 技能内部，只是在排查 `dreamina-cli` / `grok` 的提交、轮询、队列或下载问题，应直接进入对应 provider 技能。
 
@@ -126,7 +126,7 @@ flowchart LR
 ## Route Summary
 
 - 若任务是“按分镜组把导演 JSON 蒸馏成视频工具入参”，默认进入 `1-提示词蒸馏/全能参照`。
-- 命中任何 `1-提示词蒸馏/*` 叶子前，默认先确认 `3-Detail/第N集.json` 已进入 `metadata.document_phase=ready`，且各组 `分镜切换 == len(分镜明细[])`。
+- 命中任何 `1-提示词蒸馏/*` 叶子前，默认先确认 `3-Detail/第N集.json` 的 canonical detail root 已结构完整，并可被 runtime 兼容适配层稳定投影为 ready 视图。
 - 若任务已经明确以单一 `分镜ID` 作为首帧锚点，进入 `1-提示词蒸馏/首帧参照`。
 - 若任务已经有稳定请求 JSON，且目标是从 `Assets/` 补齐参照图字段，进入 `2-参照引用`。
 - 若任务已经有稳定请求 JSON，且当前目标是选择 provider、写提交计划并进入真实生成入口，进入 `3-视频生成`。
@@ -136,8 +136,8 @@ flowchart LR
 ## Execution Summary
 
 - 当前阶段的第一事实源是 `projects/aigc/<项目名>/3-Detail/第N集.json`。
-- 只有 `metadata.document_phase=ready` 且组内 `分镜切换` 与 `分镜明细[]` 已对齐的 episode root，才可被 `6-Video` 视作稳定 handoff 输入。
-- shared schema 固定为 `.agents/skills/aigc/_shared/director_episode_output.schema.json`。
+- 只有 canonical `meta + groups[].global/detail.分镜列表` 已成立，且 runtime 兼容适配后能形成稳定组级/镜级视图的 episode root，才可被 `6-Video` 视作稳定 handoff 输入。
+- canonical detail template 固定为 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`；`.agents/skills/aigc/_shared/director_episode_output.schema.json` 仅保留为兼容投影与旧 leaf helper 的 schema 参考。
 - 阶段级产物统一写回 `projects/aigc/<项目名>/6-Video/`，由命中的子路径承载请求对象或 handoff 包。
 - 详细输入合同、canonical landing 与 handoff 以本 `SKILL.md` 与命中叶子的本地合同为准。
 
@@ -168,7 +168,7 @@ flowchart LR
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-VIDEO-ROOT-01` | `route decision` | 任务必须被唯一归位到 `全能参照 / 首帧参照 / 2-参照引用 / 3-视频生成` 之一 | `S1` | 路由准确性 | `FAIL-VIDEO-ROOT-01` |
-| `FIELD-VIDEO-ROOT-02` | `input gate` | 只允许消费 `metadata.document_phase=ready` 且 `分镜切换 == len(分镜明细[])` 的 director root | `S2` | 输入稳定性 | `FAIL-VIDEO-ROOT-02` |
+| `FIELD-VIDEO-ROOT-02` | `input gate` | 只允许消费 canonical detail root 已成立，且经 runtime 兼容适配后可形成稳定 ready 视图的 director root | `S2` | 输入稳定性 | `FAIL-VIDEO-ROOT-02` |
 | `FIELD-VIDEO-ROOT-03` | `canonical landing` | 阶段产物必须写回 `projects/aigc/<项目名>/6-Video/` 的声明子路径 | `S3` | 真源落点一致性 | `FAIL-VIDEO-ROOT-03` |
 | `FIELD-VIDEO-ROOT-04` | `handoff entry` | 结束时必须给出唯一下一入口，且不得把 provider 槽位冒充本地执行能力 | `S4` | 交接可执行性 | `FAIL-VIDEO-ROOT-04` |
 
@@ -177,7 +177,7 @@ flowchart LR
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | `S1` | `FIELD-VIDEO-ROOT-01` | 当前任务到底属于哪个视频子路径 | 先按分镜组/单镜/参照绑定/提交前组织做唯一归位 | 同时命中多个子路径，或把 provider 故障排查误当成父级路由任务 |
-| `S2` | `FIELD-VIDEO-ROOT-02` | 上游 director root 是否达到稳定 handoff 条件 | 锁定 `3-Detail/第N集.json`，检查 `document_phase` 与镜数组对齐 | 输入仍是半成品却继续下游 |
+| `S2` | `FIELD-VIDEO-ROOT-02` | 上游 director root 是否达到稳定 handoff 条件 | 锁定 `3-Detail/第N集.json`，检查 canonical detail 壳是否完整，以及兼容适配后组镜视图是否稳定 | 输入仍是半成品却继续下游 |
 | `S3` | `FIELD-VIDEO-ROOT-03` | 当前阶段应该把产物写回哪里 | 把请求对象、绑定结果或 handoff 包落到 `projects/aigc/<项目名>/6-Video/` 的唯一子路径 | 继续混用旧仓路径、临时 sidecar 或未声明落点 |
 | `S4` | `FIELD-VIDEO-ROOT-04` | 下一入口是否唯一且真实可执行 | 显式给出命中的叶子或外部 provider handoff，不伪造未建能力 | 只留下模糊建议，或把 provider 槽位目录当成已实现子技能 |
 

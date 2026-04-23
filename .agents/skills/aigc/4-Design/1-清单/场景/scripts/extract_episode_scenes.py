@@ -14,6 +14,14 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
 
+ROOT = Path(__file__).resolve().parents[7]
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
+
 SCENE_SUFFIXES: Tuple[str, ...] = (
     "全息锦鲤池",
     "中央全息广场",
@@ -198,6 +206,9 @@ def infer_project_name(input_path: Path) -> str:
 
 
 def infer_episode_id(input_path: Path, payload: dict) -> str:
+    meta = payload.get("meta", {})
+    if isinstance(meta, dict) and meta.get("集数"):
+        return str(meta["集数"])
     metadata = payload.get("metadata", {})
     if isinstance(metadata, dict) and metadata.get("episode_id"):
         return str(metadata["episode_id"])
@@ -208,10 +219,11 @@ def infer_episode_id(input_path: Path, payload: dict) -> str:
 
 
 def get_groups(payload: dict) -> List[dict]:
+    payload = ensure_legacy_detail_payload(payload)
     try:
         groups = payload["final_output"]["main_content"]["分镜组列表"]
     except KeyError as exc:
-        raise ValueError("输入 JSON 不符合 director episode schema，缺少 `final_output.main_content.分镜组列表`。") from exc
+        raise ValueError("输入 JSON 既不符合 canonical detail root，也无法投影出 `分镜组列表` 兼容视图。") from exc
     if not isinstance(groups, list):
         raise ValueError("`分镜组列表` 必须是数组。")
     return groups
@@ -392,9 +404,9 @@ def build_display_profile(scene_name: str, variants: Sequence[str], shot_count: 
     variant_label = next((item for item in variants if item and item != scene_name), scene_name)
     return {
         "title": scene_name,
-        "short_tagline": f"{scene_name} / {shot_count}镜证据",
-        "summary": f"{scene_name}在当前集至少出现 {shot_count} 个镜头，变体主要围绕“{variant_label}”展开。",
-        "visual_hook": f"设计阶段应优先锁住 {scene_name} 的主空间识别，再处理方位与状态差分。",
+        "short_tagline": f"scene={scene_name}|shots={shot_count}",
+        "summary": f"shot_count={shot_count}; primary_variant={variant_label}",
+        "visual_hook": f"canonical_scene={scene_name}; primary_variant={variant_label}",
     }
 
 
@@ -411,7 +423,7 @@ def build_catalog(input_path: Path, payload: dict) -> dict:
         "primary_input": input_path.as_posix(),
         "source_input": input_path.as_posix(),
         "source_inputs": [input_path.as_posix()],
-        "source_schema": ".agents/skills/aigc/_shared/director_episode_output.schema.json",
+        "source_schema": CANONICAL_DETAIL_TEMPLATE,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }
 

@@ -8,4 +8,4 @@
 
 当前 `3-Drafting` 的正式正文根文件不再是 `Drafting/ch{chapter_padded}/chapter-root.md`，而是：
 
-- `projects/story/<项目名>/3-Drafting/第N集.md`
+- `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`

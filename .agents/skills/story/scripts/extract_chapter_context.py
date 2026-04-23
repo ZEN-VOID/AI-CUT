@@ -39,9 +39,9 @@ except ImportError:  # pragma: no cover
     yaml = None
 
 try:
-    from chapter_paths import find_chapter_file
+    from chapter_paths import drafting_root_md_path, find_chapter_file
 except ImportError:  # pragma: no cover
-    from scripts.chapter_paths import find_chapter_file
+    from scripts.chapter_paths import drafting_root_md_path, find_chapter_file
 
 
 def _ensure_scripts_path():
@@ -352,7 +352,7 @@ def _safe_list(value: Any) -> List[Any]:
     return value if isinstance(value, list) else []
 
 
-def _extract_episode_num(value: Any) -> int | None:
+def _extract_chapter_num(value: Any) -> int | None:
     if isinstance(value, int):
         return value if value > 0 else None
     text = str(value or "").strip()
@@ -385,7 +385,7 @@ def _select_episode_rhythm_role(
         ).strip()
         if selector == episode_ref:
             return role
-        if selector and _extract_episode_num(selector) == chapter_num:
+        if selector and _extract_chapter_num(selector) == chapter_num:
             best_match = role
     if best_match:
         return best_match
@@ -930,9 +930,11 @@ def build_chapter_context_payload(
     if isinstance(validation_fact_pack, dict):
         draft_snapshot = validation_fact_pack.get("draft_snapshot")
         if isinstance(draft_snapshot, dict):
-            draft_snapshot.setdefault("manuscript_ref", f"3-Drafting/第{chapter_num}集.md")
+            manuscript_ref = str(drafting_root_md_path(project_root, chapter_num).relative_to(project_root))
+            draft_snapshot.setdefault("manuscript_ref", manuscript_ref)
             if chapter_num > 1:
-                draft_snapshot.setdefault("previous_episode_ref", f"3-Drafting/第{chapter_num - 1}集.md")
+                previous_ref = str(drafting_root_md_path(project_root, chapter_num - 1).relative_to(project_root))
+                draft_snapshot.setdefault("previous_chapter_ref", previous_ref)
             draft_snapshot.setdefault("outline_excerpt", str(outline or "")[:240])
 
         runtime_context = validation_fact_pack.get("runtime_context")

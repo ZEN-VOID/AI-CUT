@@ -20,14 +20,14 @@
 | --- | --- | --- | --- | --- |
 | 卷内某章开篇像重启，不像承接 | carryover bridge | 先回卷级 continuity matrix 抓 entry state，必要时再参考前序章终稿 | 把卷级 continuity matrix 固定成硬输入，前序章终稿降为增强输入 | 连续性报告能具体说出“从哪里接上” |
 | 场景在切，但 reader debt 没跟着走 | thread continuity | 记录断掉的是哪条关系/任务/悬念线 | 在维度指标里固定 `thread_drop_count` | issue 不再只写“衔接一般” |
-| 连续性问题被混成节奏评价，没有明确返工入口 | rework routing | 强制标 `1-起盘` 或 `2-节奏优化` | 子技能输出固定带 `rework_target_step` | drafting 能精确返工 |
-| Markdown frontmatter 被当成开篇正文，导致承接信号被截断误判 | intro window extraction | 连续性 intro 检查前先剥离 frontmatter/title 元数据 | 所有开篇窗口类 validator 都先看正文主体，不把 YAML 头算进 intro | 带 frontmatter 的章节也能稳定识别上一集承接锚 |
+| 连续性问题被混成节奏评价，没有明确返工入口 | rework routing | 强制标 `1-起盘` 或 `Step 2 / 2-节奏优化` | 子技能输出固定带 `rework_target_step` | drafting 能精确返工 |
+| Markdown frontmatter 被当成开篇正文，导致承接信号被截断误判 | intro window extraction | 连续性 intro 检查前先剥离 frontmatter/title 元数据 | 所有开篇窗口类 validator 都先看正文主体，不把 YAML 头算进 intro | 带 frontmatter 的章节也能稳定识别上一章承接锚 |
 
 ## Repair Playbook
 
 1. 先读卷级 continuity matrix；若已有前序章终稿，再补读最后一个真正改变局面的点。
-2. 再看本集开篇是否回应了那个点，而不是只换了场景或天气。
-3. 最后检查本集内部各条活跃线是否在推进时保持可追踪。
+2. 再看本章开篇是否回应了那个点，而不是只换了场景或天气。
+3. 最后检查本章内部各条活跃线是否在推进时保持可追踪。
 4. 若正文是 Markdown 根稿，先剥掉 frontmatter 再判断开篇承接，不要让元数据吃掉 intro 窗口。
 
 ## Reusable Heuristics

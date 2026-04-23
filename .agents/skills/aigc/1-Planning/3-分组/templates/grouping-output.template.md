@@ -2,7 +2,7 @@
 项目名: <项目名>
 集数: 第1集
 上游主稿: projects/aigc/<项目名>/1-Planning/2-格式/第1集.md
-bootstrap_output: projects/aigc/<项目名>/2-Global/导演意图.md
+bootstrap_output: projects/aigc/<项目名>/2-Global/episode_root.json
 scene_unit_count: 0
 duration_policy: 默认15秒；若无显式上游时长证据则不偏离
 pace_tier: 中节奏

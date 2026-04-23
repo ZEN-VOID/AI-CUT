@@ -35,8 +35,10 @@ from workflow_manager import build_initial_execution_state, build_initial_workfl
 RUNTIME_STATE_REL = Path("STATE.json")
 PROJECT_STATE_MANIFEST_REL = Path("STATE.json")
 TEAM_MANIFEST_REL = Path("team.yaml")
+PROJECT_MEMORY_REL = Path("MEMORY.md")
 CHANGELOG_REL = Path("CHANGELOG.md")
 INIT_STAGE_REL = Path("0-Init")
+PROJECT_MEMORY_TEMPLATE = Path(__file__).resolve().parents[1] / "0-Init" / "templates" / "project-memory.template.md"
 PLANNING_SKILL_PATHS = [
     ".agents/skills/story/0-Init",
     ".agents/skills/story/1-Cards",
@@ -1513,7 +1515,7 @@ def _render_changelog(title: str, now: str) -> str:
                 f"## [{now}]",
                 "### Added",
                 f"- 初始化项目骨架：{title}",
-                "- 建立 `STATE.json`、`team.yaml`、`CHANGELOG.md` 标准配置。",
+                "- 建立 `STATE.json`、`team.yaml`、`MEMORY.md`、`CHANGELOG.md` 标准配置。",
                 "- 创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。",
                 "- 写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。",
                 "",
@@ -1521,6 +1523,22 @@ def _render_changelog(title: str, now: str) -> str:
         )
         + "\n"
     )
+
+
+def _render_project_memory(title: str, now: str) -> str:
+    template = _read_text_if_exists(PROJECT_MEMORY_TEMPLATE)
+    if not template:
+        template = (
+            "# MEMORY.md\n\n"
+            "项目：__PROJECT_TITLE__\n"
+            "初始化日期：__DATE__\n\n"
+            "## 用途\n\n"
+            "- 记录当前项目跨阶段持续生效的创作偏好、口味、习惯、特殊元素、禁区与长期要求。\n"
+            "- 这里只保存“这个项目后续还要继续遵守”的记忆，不记录 skill 调试经验、脚本故障或跨项目 heuristic。\n\n"
+            "## 已确认的长期偏好\n\n"
+            "- 暂无\n"
+        )
+    return template.replace("__PROJECT_TITLE__", title).replace("__DATE__", now)
 
 
 def init_project(
@@ -1724,6 +1742,7 @@ def init_project(
         "runtime_state": str(RUNTIME_STATE_REL),
         "story_root": "Story/",
         "context_root": "CONTEXT/",
+        "project_memory": str(PROJECT_MEMORY_REL),
         "init_root": "0-Init/",
         "cards_root": "1-Cards/",
         "planning_root": "2-Planning/",
@@ -1734,6 +1753,7 @@ def init_project(
         "story_source_manifest": "0-Init/story-source-manifest.yaml",
         "init_handoff": "0-Init/init_handoff.yaml",
         "team_manifest": str(TEAM_MANIFEST_REL),
+        "project_memory": str(PROJECT_MEMORY_REL),
         "changelog": str(CHANGELOG_REL),
     }
     state["main_artifacts"] = {
@@ -1741,6 +1761,7 @@ def init_project(
         "init_handoff": "0-Init/init_handoff.yaml",
         "story_source_manifest": "0-Init/story-source-manifest.yaml",
         "team": "team.yaml",
+        "project_memory": "MEMORY.md",
         "project_state": "STATE.json",
     }
     state["open_unknowns"] = [
@@ -1748,6 +1769,7 @@ def init_project(
     ]
     state["user_action_items"] = [
         "如有正文、大纲或设定主源，请补入项目 `Story/` 后回刷 `0-Init/story-source-manifest.yaml`。",
+        "如有需要长期记住的偏好、口味、特殊元素或禁区，请补入项目 `MEMORY.md`。",
         "如有贯穿整个创作阶段的共享附加上下文，请补入项目 `CONTEXT/`。",
         "进入 `1-Cards` 建立角色、场景、物品 cards 真源。",
     ]
@@ -1812,6 +1834,7 @@ def init_project(
             "primary_init_artifact": "0-Init/north_star.yaml",
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
+            "project_memory_file": str(PROJECT_MEMORY_REL),
             "changelog_file": str(CHANGELOG_REL),
             "project_context_root": "CONTEXT/",
             "one_liner": one_liner,
@@ -1897,6 +1920,7 @@ def init_project(
         "init_handoff": "0-Init/init_handoff.yaml",
         "story_source_manifest": "0-Init/story-source-manifest.yaml",
         "team": "team.yaml",
+        "project_memory": "MEMORY.md",
         "project_state": "STATE.json",
     }
     state["workflow_runtime"] = {
@@ -1922,6 +1946,7 @@ def init_project(
             research_policy=normalized_research_policy,
         ),
     )
+    _write_text_if_missing(project_path / PROJECT_MEMORY_REL, _render_project_memory(title, now))
     _write_text_if_missing(project_path / CHANGELOG_REL, _render_changelog(title, now))
     for lock_target in (
         state_path,
@@ -1943,6 +1968,7 @@ def init_project(
     print("Generated files:")
     print(" - STATE.json")
     print(" - team.yaml")
+    print(" - MEMORY.md")
     print(" - CHANGELOG.md")
     print(" - 0-Init/north_star.yaml")
     print(" - 0-Init/story-source-manifest.yaml")

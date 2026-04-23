@@ -31,6 +31,13 @@ governance_tier: full
 
 本技能不再拆成“面部 / 全身 / 服装”三条独立链。它要求在同一份结构化设计稿里完成角色身份、人物戏剧压力、面部、发型、身形、服装、构图摄影与最终 prompt 的统一收束。
 
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `角色设计` 属于内容创作型任务；`character_design.json`、`[角色名].md`、`prompt整合` 与其他创作性角色设计正文，必须由 LLM 直接完成。
+- `run_character_design_pipeline.py / build_character_design_packets.py` 不得再被视为默认主创入口；它们只允许用于受控兼容迁移、既有 LLM 真源的模板投影、批量落盘或结构校验前的机械辅助。
+- 当前 skill 的默认执行路径必须是：`LLM 直出 canonical creative truth -> validator / projector / auto-image helper`。
+- 若确需临时运行旧式脚本主创，只能以受控兼容模式显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新升回默认流程。
+
 ## Parent Positioning
 
 - 当前 skill 是 `4-Design/2-设计` 下的角色 leaf。
@@ -101,26 +108,27 @@ governance_tier: full
 19. `projects/aigc/<项目名>/2-Global/导演意图.md`
 20. `projects/aigc/<项目名>/team.yaml`（若存在）
 
-## Executable Entrypoints
+## Projection And Validation Helpers
 
-默认批量生成：
-
-```bash
-python3 .agents/skills/aigc/4-Design/2-设计/角色/scripts/run_character_design_pipeline.py \
-  --catalog "projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json"
-```
-
-默认投影校验：
+默认校验：
 
 ```bash
 python3 .agents/skills/aigc/4-Design/2-设计/角色/scripts/validate_character_design_projection.py \
   --output-dir "projects/aigc/<项目名>/4-Design/角色/2-设计/第N集"
 ```
 
+legacy 兼容投影入口：
+
+```bash
+python3 .agents/skills/aigc/4-Design/2-设计/角色/scripts/run_character_design_pipeline.py \
+  --catalog "projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/角色清单.json" \
+  --allow-legacy-script-authorship
+```
+
 脚本硬规则：
 
-1. `run_character_design_pipeline.py` 必须串联 builder、validator 与共享 auto-image guard。
-2. `build_character_design_packets.py` 必须读取 `templates/character_masterprompt.structured.v2.md` 并填槽生成 Markdown。
+1. `run_character_design_pipeline.py` 与 `build_character_design_packets.py` 仅可在受控兼容模式下执行，不得再作为默认主创入口。
+2. legacy builder 若被调用，仍必须读取 `templates/character_masterprompt.structured.v2.md` 并只做投影/落盘。
 3. `validate_character_design_projection.py` 必须在当前轮结束前通过；失败时不得把输出交给 `3-面板/角色`。
 
 ## Business Requirement Analysis Contract (Mandatory)

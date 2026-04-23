@@ -32,6 +32,11 @@ EMOTION_HINTS: Tuple[Tuple[str, Sequence[str]], ...] = (
     ("被迫失控", ("失控", "奔逃", "狼狈", "浑身湿透")),
     ("照料克制", ("照料", "递到她手里", "仍为她留门", "抱起")),
 )
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，研究结论与桥接文案不得再由脚本直接生成。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,6 +48,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bridge-name", default="role_design_bridge.json", help="角色桥接文件名")
     parser.add_argument("--report-name", default="validation-report.md", help="校验报告文件名")
     parser.add_argument("--dry-run", action="store_true", help="只校验，不写文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成研究结论与桥接文案。",
+    )
     return parser.parse_args()
 
 
@@ -385,6 +395,9 @@ def build_role_research_payload(catalog: dict) -> Tuple[dict, dict, dict, str]:
 
 def main() -> int:
     args = parse_args()
+    if not args.allow_legacy_script_authorship:
+        print(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}", file=sys.stderr)
+        return 2
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"[ERROR] 输入文件不存在: {input_path}", file=sys.stderr)

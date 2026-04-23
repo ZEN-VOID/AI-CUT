@@ -20,7 +20,7 @@ last_checked_at: 2026-04-21T00:00:00Z
 
 | 类型 | 症状 | 根因层 | 立即修复 | 系统性预防 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
-| `TM-DBP-AUTH-MISSING` | 启动即报缺少 API Key | 环境配置层 | 在根目录 `.env` 设置 `ANYFAST_API_KEY`，或显式传 `--api-key` | 保持密钥单一事实源，不在 skill 内硬编码密钥 | `--dry-run` 不再报认证错误 |
+| `TM-DBP-AUTH-MISSING` | 启动即报缺少 API Key | 环境配置层 | 在根目录 `.env` 优先设置 `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY`，或回退 `ANYFAST_API_KEY`，或显式传 `--api-key` | 保持密钥单一事实源，不在 skill 内硬编码密钥 | `--dry-run` 不再报认证错误 |
 | `TM-DBP-URL-DRIFT` | 实际请求地址不是 `/v1/chat/completions` | 端点组装层 | 用 base URL 自动补全 `/v1/chat/completions` | 固化优先级：显式 URL > ANYFAST_BASE_URL > ANYFAST_API_BASE_URL > 官方默认 | 报告中的 `api_url` 正确 |
 | `TM-DBP-MESSAGES-SHAPE` | `messages` 结构错误导致接口报 400 | 输入收束层 | 先用 `--dry-run --print-payload` 检查最终 `messages` | prompt 模式与 messages 直传模式分开处理，不强制互相覆盖 | payload 中 `messages` 至少一条且结构合法 |
 | `TM-DBP-STREAM-EMPTY` | `stream=true` 时控制台没有输出或最终文本为空 | SSE 解析层 | 回退非流式；同时检查最终 payload 的 `choices[].message.content` | 解析器同时支持 delta 累积和最终消息兜底 | 流式/非流式至少有一种能稳定出文本 |
@@ -34,6 +34,7 @@ last_checked_at: 2026-04-21T00:00:00Z
 1. 优先跑：
    - `python3 .agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py --prompt "test" --dry-run --print-payload`
 2. 先核查 `.env`：
+   - `ANYFAST_DOUBAO_SEED_2_0_PRO_API_KEY`
    - `ANYFAST_API_KEY`
    - `ANYFAST_BASE_URL` 或 `ANYFAST_API_BASE_URL`
 3. 若请求实际要做多模态消息：

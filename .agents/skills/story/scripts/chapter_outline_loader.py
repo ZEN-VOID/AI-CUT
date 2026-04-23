@@ -58,7 +58,10 @@ def _parse_chapters_range(value: object) -> tuple[int, int] | None:
 
 
 def volume_num_for_chapter_from_state(project_root: Path, chapter_num: int) -> int | None:
-    state_path = resolve_state_file(explicit_project_root=str(project_root))
+    try:
+        state_path = resolve_state_file(explicit_project_root=str(project_root))
+    except FileNotFoundError:
+        return None
     if not state_path.exists():
         return None
 
@@ -141,8 +144,13 @@ def _extract_holomap_slice_root(data: dict) -> dict:
     return holomap_slice if isinstance(holomap_slice, dict) else {}
 
 
-def _normalize_episode_ref(chapter_num: int) -> str:
-    return f"第{chapter_num:03d}集"
+def _episode_ref_aliases(chapter_num: int) -> set[str]:
+    return {
+        f"第{chapter_num:03d}章",
+        f"第{chapter_num}章",
+        f"第{chapter_num:03d}集",
+        f"第{chapter_num}集",
+    }
 
 
 def _load_json_file(path: Path) -> dict | None:
@@ -252,14 +260,14 @@ def _find_holomap_slice_board(project_root: Path, chapter_num: int) -> tuple[dic
     if not holomap:
         return None, None
 
-    episode_ref = _normalize_episode_ref(chapter_num)
+    episode_refs = _episode_ref_aliases(chapter_num)
     axis = holomap.get("episode_sequence_axis")
     axis_entry: dict | None = None
     if isinstance(axis, list):
         for item in axis:
             if not isinstance(item, dict):
                 continue
-            if str(item.get("episode_ref") or "").strip() == episode_ref:
+            if str(item.get("episode_ref") or "").strip() in episode_refs:
                 axis_entry = item
                 break
 
@@ -273,7 +281,7 @@ def _find_holomap_slice_board(project_root: Path, chapter_num: int) -> tuple[dic
                 if not isinstance(item, dict):
                     continue
                 refs = item.get("episode_refs")
-                if isinstance(refs, list) and episode_ref in refs:
+                if isinstance(refs, list) and any(str(ref).strip() in episode_refs for ref in refs):
                     slice_ref = str(item.get("slice_id") or "").strip()
                     break
 
@@ -301,7 +309,7 @@ def _find_holomap_slice_board(project_root: Path, chapter_num: int) -> tuple[dic
         for board in chapter_boards:
             if not isinstance(board, dict):
                 continue
-            if str(board.get("episode_ref") or "").strip() == episode_ref:
+            if str(board.get("episode_ref") or "").strip() in episode_refs:
                 matched_board = board
                 break
 
@@ -584,6 +592,23 @@ def _find_volume_outline_file(project_root: Path, chapter_num: int) -> Path | No
     return next((path for path in candidates if path.exists()), None)
 
 
+def _iter_volume_outline_files(outline_dir: Path) -> list[Path]:
+    patterns = [
+        "第*卷-详细大纲.md",
+        "第*卷 - 详细大纲.md",
+        "第*卷 详细大纲.md",
+    ]
+    seen: set[Path] = set()
+    results: list[Path] = []
+    for pattern in patterns:
+        for path in sorted(outline_dir.glob(pattern)):
+            if path in seen or not path.is_file():
+                continue
+            seen.add(path)
+            results.append(path)
+    return results
+
+
 def _extract_outline_section(content: str, chapter_num: int) -> str | None:
     patterns = [
         rf"###\s*第\s*{chapter_num}\s*章[：:]\s*(.+?)(?=###\s*第\s*\d+\s*章|##\s|$)",
@@ -620,10 +645,20 @@ def load_chapter_outline(project_root: Path, chapter_num: int, max_chars: int | 
         return split_outline.read_text(encoding="utf-8")
 
     volume_outline = _find_volume_outline_file(project_root, chapter_num)
-    if volume_outline is None:
+    candidate_files: list[Path] = []
+    if volume_outline is not None:
+        candidate_files.append(volume_outline)
+    candidate_files.extend(path for path in _iter_volume_outline_files(outline_dir) if path not in candidate_files)
+
+    if not candidate_files:
         return f"⚠️ 大纲文件不存在：第 {chapter_num} 章"
 
-    outline = _extract_outline_section(volume_outline.read_text(encoding="utf-8"), chapter_num)
+    outline = None
+    for candidate in candidate_files:
+        outline = _extract_outline_section(candidate.read_text(encoding="utf-8"), chapter_num)
+        if outline is not None:
+            break
+
     if outline is None:
         return f"⚠️ 未找到第 {chapter_num} 章的大纲"
 

@@ -67,6 +67,30 @@ slot 级 carrier 映射、review bundle 与 rework 落点统一下沉到：
 
 这些锚句是下游参照图防污染 hard gate，不得为了画面生动性删改。
 
+## Worldview Fidelity Gate
+
+`2-设计` 不只要防“主体污染”，还必须防“世界观污染”。当上游 bridge / research 信息不足时，leaf 可以做受控回退，但不得把别的项目默认值、占位名或错世界设定注入当前项目 prompt。
+
+硬规则：
+
+1. 任何 leaf 只要生成结果中出现下列占位/错域信号，必须在落盘前直接失败，不得继续自动生图：
+   - `Character 001`、`Character 002` 等编号替名
+   - `Documented Scene`
+   - `the catalogued prop`
+   - 独立 `unknown`
+   - 来自旧项目的错域风格词，如 `urban-drama`、`urban-romance`、`near-future`、`holographic`
+2. `角色` prompt 必须显式锁定当前项目的人种/地域/世界观边界；当项目属于东亚武侠语境时，人物不得漂到西方面孔、现代时装肖像或全球时尚棚拍默认值。
+3. `场景` prompt 的默认 typology 必须优先从当前 `scene_name + aliases + variants + must_show_anchors` 判型；不得因为项目级全局风格中出现其他地点词而把夜市误判成王府或把港口误判成近未来社区。
+4. `道具` prompt 的默认材质与结构必须优先服从当前 `canonical_name` 的器物语义；不得把木牌、税单、册子、钱袋等回退成金属科幻件或抽象工业构件。
+5. 当 bridge / research 仅给出“待补”“unknown”“情绪张力待补”等低质量占位时，leaf 必须使用当前项目 domain-specific fallback，而不是把占位词原样写入 prompt。
+6. 项目专属的名称翻译、角色画像、场景家族默认值、道具器物默认值，必须落在 `projects/aigc/<项目名>/CONTEXT/4-design-fallback-registry.json` 或等价项目级 registry；通用 builder 只负责读取 registry，不得把某个项目的私有 fallback 长驻硬编码在 leaf 脚本里。
+
+推荐校验点：
+
+- `角色`：检查 prompt 是否同时满足 `solid color background`、当前项目世界观、人种/地域边界与角色专属身份钩子。
+- `场景`：检查 prompt 是否能从 `scene_name` 直接回指当前空间家族，而不是只剩抽象功能。
+- `道具`：检查 prompt 是否保住主材质、主结构、受力/磨损逻辑，而不是只剩“generic prop”。
+
 ## Thinking-Action Placement Contract
 
 参照图洁净规则必须进入 leaf 的思维-执行节点，而不是只写在模板末端：

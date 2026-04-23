@@ -32,6 +32,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 | `TM-CA-07` | 4 号脚本拿到了本地 `page01..page09`，但真实 execute 直接被 provider 拒绝 | provider 输入合同层 | 识别 `man-tui/video/sora` 只接受公网 `input_reference_url`，把执行前校验前置到 4 号脚本 | 4 号合同和 plan 文件显式声明 `public_url_required`；无 URL 时只允许 dry-run | execute 前能明确指出缺哪几页的公网 URL |
 | `TM-CA-08` | 2 号 JSON 的题材味道到 4 号突然消失，video prompt 只剩技术保真句 | type-pack 编译层 | 把 `type_stack_ref / type_pack_context.stage_projection.animation_generation` 注入逐页 `video_prompt` | 4 号 schema、validator 和编译器同步要求 pack context 存在 | 编译后的 animation JSON 能回指 active packs 和 animation_generation 投影 |
 | `TM-CA-09` | 4 号阶段明明能读到 group JSON，却在 3 号阶段目录里找不到 `page01..page09` | 3/4 handoff 命名层 | 同时回退识别 `episode-prefixed group slug`、原始 `group_id` 和 `page-group-xx` 目录/文件前缀 | 4 号脚本统一维护 group alias 列表，避免把输出 slug 当成唯一查找键 | dry-run 在 `page-group-01/` 这类目录结构下也能稳定命中 9 页图片 |
+| `TM-CA-10` | 4 号阶段把脚本编 prompt 当默认主路径，导致核心创作被脚本偷写 | 主创归属层 | 把 canonical 输入切回 LLM 直出的 `comic_page_animation_prompts.v1`；脚本只保留校验、URL 映射、执行与报告 | `SKILL.md` 明确 LLM-first 合同；legacy 编译路径必须显式传 `--allow-legacy-script-authorship` | 不带兼容 flag 时，脚本只能消费已编译动画 JSON 或直接阻断 legacy 编译 |
 
 ## Repair Playbook
 
@@ -45,6 +46,7 @@ last_checked_at: 2026-04-17T00:00:00Z
 ## Reusable Heuristics
 
 - 4 号阶段的业务真相不是“再写一版剧情”，而是“把 2 号页级漫画信息翻译成可执行的 Sora 视频 prompt”。
+- 4 号阶段允许脚本做的事情是“验证、映射、执行、回报”，不再包括“默认替 LLM 把页级 video prompt 正文写出来”。
 - 最稳的页级视频 prompt 结构是：固定前缀 -> 当前页职责 -> 保留原页构图与风格 -> continuity locks -> shot plan -> 禁止项。
 - 多分镜动画能否成立，取决于 `panels[]` 是否还保留清晰的镜头和动作粒度；如果 2 号已经把页面压成单幅插画描述，4 号很难救回来。
 - 对首帧图生视频，最贵的信息不是“画得漂亮”，而是“页码、中文文字、角色和场景锚点都不漂”。

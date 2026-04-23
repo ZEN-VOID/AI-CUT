@@ -22,7 +22,7 @@
 | `1-提示词蒸馏` 被误做成直接出图 | 阶段边界层 | 回退到“请求 JSON 为主产物” | 在父级合同固定 handoff 边界 | 输出保留到 JSON / manifest，而不是直接图片 |
 | 叶子合同都存在，但后续 `2-参照引用` / `3-图像生成` 接不上 | handoff 层 | 先补父级 handoff 总合同 | 在父级锁定“先蒸馏，再参照引用/生成” | 下游可按单一请求对象继续消费 |
 | 父层仍按旧的 `3-Detail/evidence/` 读取补证 | 真源路径层 | 改回 `3-Detail/水月/第N集.field-patch.json` 与 `3-Detail/镜花/第N集.field-patch.json` | 在父子合同共同固定 sidecar 真实路径与只读补证边界 | 不再引用不存在的补证目录 |
-| `3-Detail` 还未进入可消费 phase 就直接开始蒸馏 | 阶段就绪层 | 回退到 `metadata.document_phase` 门，拒绝消费 `bootstrapped/directing_in_progress` | 在父级 `Readiness Gate` 固化 `detail_in_progress | ready` 才可路由 | 父层不再越过 detail 阶段门 |
+| `3-Detail` 还未进入可消费 phase 就直接开始蒸馏 | 阶段就绪层 | 回退到 canonical detail root 经 compat adapter 推断的 readiness 门，拒绝消费 `bootstrapped/directing_in_progress` | 在父级 `Readiness Gate` 固化 `detail_in_progress | ready` 才可路由 | 父层不再越过 detail 阶段门 |
 | 父层只判对象，不检查 canonical 字段是否齐备 | 输入门层 | 在路由前加 `组间设计.出场角色及穿搭` 与 shot canonical 字段检查 | 在父级输入门固定 `出场角色及穿搭 + 角色背景面/角色站位走位/道具及状态/分镜表现` | 叶子收到的输入不再只有空壳 |
 | `3-Detail` 仍处于兼容 prose 投影态，缺少显式 `景别 / 镜头视角 / 镜头速度` descriptor，导致 `分镜帧` validator 卡死 | prompt 归一层 | 在 `_shared/prompt_bridge_helpers.py` 用 `运镜手法 / 分镜构图 / 分镜表现` 推断 descriptor 槽位 | 把 descriptor fallback 视为 `5-Image` 兼容读取的一部分，而不是要求旧项目先批量重写所有 shot | 兼容态 detail root 也能被 `分镜帧` 正常消费 |
 
@@ -32,7 +32,7 @@
 2. 再查请求是否真的只该命中一个叶子子技能。
 3. 若用户没有给出明确对象，默认先走 `分镜故事板`。
 4. 若输出已经漂移成图片，先退回请求 JSON 合同，再继续后续阶段。
-5. 再查 `metadata.document_phase` 是否已经到 `detail_in_progress | ready`。
+5. 再查 canonical detail root 经 compat adapter 推断的 readiness 是否已经到 `detail_in_progress | ready`。
 6. 再查补证是否仍指向真实 `水月 / 镜花` sidecar，而不是不存在的 `3-Detail/evidence/`。
 7. 若下游接不上，优先修父级 handoff 边界，而不是各叶子重复补说明。
 

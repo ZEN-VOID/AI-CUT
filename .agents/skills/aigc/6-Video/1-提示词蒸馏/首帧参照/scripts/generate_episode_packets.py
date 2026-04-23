@@ -6,6 +6,7 @@ import copy
 import json
 import math
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,22 @@ def find_repo_root() -> Path:
 
 ROOT = find_repo_root()
 PROJECTS_ROOT = ROOT / "projects" / "aigc"
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
 TEMPLATE_JSON = ROOT / ".agents/skills/aigc/6-Video/_shared/video-generation-input.template.json"
 PROMPT_ASSEMBLY_SPEC = ROOT / ".agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照/prompt-assembly-spec.md"
-SOURCE_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
+SOURCE_SCHEMA = CANONICAL_DETAIL_TEMPLATE
 TARGET_MAX = 1900
 TARGET_CHAR_LIMIT = 1900
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，首帧参照提示词与 TXT 蒸馏正文不得再由脚本直接主创。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def read_json(path: Path) -> Any:
@@ -430,15 +442,16 @@ def validate_group_ready(group: dict[str, Any]) -> None:
 
 
 def validate_source_ready(source_data: dict[str, Any]) -> tuple[str, list[dict[str, Any]]]:
-    metadata = require_dict(source_data.get("metadata"), "metadata")
+    source_payload = ensure_legacy_detail_payload(source_data)
+    metadata = require_dict(source_payload.get("metadata"), "metadata")
     episode_id = require_non_empty_text(metadata.get("episode_id"), "metadata.episode_id")
     phase = metadata.get("document_phase")
     if phase != "ready":
         raise ValueError(
-            f"metadata.document_phase 当前为 {phase!r}；"
-            "只有 ready 状态的 3-Detail shared root 才能被 6-Video/首帧参照消费。"
+            f"3-Detail detail root 当前推断的 readiness 为 {phase!r}；"
+            "只有 ready 状态的 canonical detail root 才能被 6-Video/首帧参照消费。"
         )
-    final_output = require_dict(source_data.get("final_output"), "final_output")
+    final_output = require_dict(source_payload.get("final_output"), "final_output")
     main_content = require_dict(final_output.get("main_content"), "final_output.main_content")
     groups = require_list(main_content.get("分镜组列表"), "final_output.main_content.分镜组列表")
     if not groups:
@@ -636,24 +649,121 @@ def build_request_packet(
     return packet
 
 
-def build_txt_view(episode_id: str, packets: list[dict[str, Any]]) -> str:
-    sections = [f"# {episode_id} 首帧参照"]
-    for packet in packets:
-        shot_display_index = packet["meta"].get("shot_display_index", "")
-        sections.append(
-            "\n".join(
-                [
-                    f"## 分镜{shot_display_index}",
-                    "",
-                    packet["prompt"],
-                    "",
-                    f"字数统计: {packet['prompt_char_count']}",
-                    "",
-                    "---",
-                ]
+def build_txt_time_range(shot: dict[str, Any]) -> str:
+    timing = shot.get("时间段", {})
+    start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
+    end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
+    return f"{start}-{end}秒"
+
+
+def render_txt_value(value: str, *, compact: bool = False) -> str:
+    if not isinstance(value, str):
+        return ""
+    text = normalize_space(value)
+    if not text:
+        return ""
+    return compact_clause(text) if compact else text
+
+
+def build_txt_group_summary(group: dict[str, Any], *, compact: bool) -> str:
+    design = require_dict(group.get("组间设计"), f"{group.get('分镜组ID')}.组间设计")
+    parts = [
+        render_txt_value(require_non_empty_text(design.get("全局风格"), f"{group['分镜组ID']}.组间设计.全局风格"), compact=compact),
+        render_txt_value(require_non_empty_text(design.get("类型元素"), f"{group['分镜组ID']}.组间设计.类型元素"), compact=compact),
+        render_txt_value(require_non_empty_text(design.get("导演意图"), f"{group['分镜组ID']}.组间设计.导演意图"), compact=compact),
+    ]
+    return ensure_sentence("，".join(part for part in parts if part))
+
+
+def build_txt_detail_sentence(
+    shot: dict[str, Any],
+    *,
+    compact: bool,
+    include_transition: bool,
+) -> str:
+    normalized = normalize_shot_for_prompt(shot)
+    parts = [
+        render_txt_value(normalized.get("分镜构图", ""), compact=compact),
+        render_txt_value(normalized.get("运镜手法", ""), compact=compact),
+        render_txt_value(normalized.get("角色表现", ""), compact=compact),
+        render_txt_value(normalized.get("氛围表现", ""), compact=compact),
+        render_txt_value(normalized.get("摄影美学", ""), compact=compact),
+    ]
+    transition = render_txt_value(normalized.get("转场特效", ""), compact=compact) if include_transition else ""
+    if transition:
+        parts.append(transition)
+    return ensure_sentence("，".join(part for part in parts if part))
+
+
+def build_txt_shot_block(
+    group: dict[str, Any],
+    shot: dict[str, Any],
+    shot_index: int,
+    *,
+    compact_summary: bool,
+    compact_detail: bool,
+    compact_prop: bool,
+    include_transition: bool,
+) -> tuple[str, dict[str, Any]]:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
+    shot_id = require_non_empty_text(shot.get("分镜ID"), f"{group_id}.分镜明细[].分镜ID")
+    summary = build_txt_group_summary(group, compact=compact_summary)
+    script_body = require_non_empty_text(shot.get("剧本正文"), f"{shot_id}.剧本正文")
+    anchor = require_dict(shot.get("主体锚定"), f"{shot_id}.主体锚定")
+    scene = normalize_space(str(anchor.get("场景", "")).strip())
+    role = normalize_space(str(anchor.get("角色", "")).strip())
+    prop = render_txt_value(str(anchor.get("道具", "")).strip(), compact=compact_prop)
+    detail_sentence = build_txt_detail_sentence(shot, compact=compact_detail, include_transition=include_transition)
+    block_body = "\n".join(
+        [
+            group_id,
+            summary,
+            f"分镜{build_shot_display_index(shot_index)}，{build_txt_time_range(shot)}",
+            "剧本正文：",
+            script_body,
+            "主体锚定：",
+            f"- 场景：{scene}",
+            f"- 角色：{role}",
+            f"- 道具：{prop}",
+            "分镜明细：",
+            detail_sentence,
+        ]
+    )
+    char_count = len(block_body)
+    block = f"{block_body}\n字数统计：{char_count}"
+    return block, {
+        "shot_id": shot_id,
+        "txt_char_count": char_count,
+        "txt_compression_profile": "tight" if compact_summary or compact_detail or compact_prop or not include_transition else "full",
+    }
+
+
+def build_txt_view(groups: list[dict[str, Any]], packets: list[dict[str, Any]]) -> tuple[str, list[dict[str, Any]]]:
+    packet_map = {
+        require_non_empty_text(packet["meta"]["source_shot_ids"][0], "packet.meta.source_shot_ids[0]"): packet
+        for packet in packets
+    }
+    blocks: list[str] = []
+    stats: list[dict[str, Any]] = []
+    for group in groups:
+        shots = require_list(group.get("分镜明细"), f"{group.get('分镜组ID')}.分镜明细")
+        for index, raw_shot in enumerate(shots):
+            shot = require_dict(raw_shot, f"{group.get('分镜组ID')}.分镜明细[]")
+            shot_id = require_non_empty_text(shot.get("分镜ID"), "分镜ID")
+            if shot_id not in packet_map:
+                continue
+            block, meta = build_txt_shot_block(
+                group,
+                shot,
+                index,
+                compact_summary=False,
+                compact_detail=False,
+                compact_prop=False,
+                include_transition=True,
             )
-        )
-    return "\n\n".join(sections).rstrip() + "\n"
+            blocks.append(block)
+            stats.append(meta)
+    return "\n\n".join(blocks).rstrip() + "\n", stats
 
 
 def validate_packet(packet: dict[str, Any], group: dict[str, Any], shot: dict[str, Any]) -> None:
@@ -822,9 +932,16 @@ def render_episode(project_name: str, episode_id: str, shot_id: str | None = Non
         "shots": manifest_shots,
     }
 
+    txt_view, txt_shot_stats = build_txt_view(groups, request_packets)
+    for manifest_shot in manifest_shots:
+        txt_meta = next((item for item in txt_shot_stats if item["shot_id"] == manifest_shot["shot_id"]), None)
+        if txt_meta:
+            manifest_shot["txt_char_count"] = txt_meta["txt_char_count"]
+            manifest_shot["txt_compression_profile"] = txt_meta["txt_compression_profile"]
+
     write_json(output_dir / f"{episode_id}.json", episode_payload)
     write_json(output_dir / "_manifest.json", manifest_payload)
-    (output_dir / f"{episode_id}.txt").write_text(build_txt_view(episode_id, request_packets), encoding="utf-8")
+    (output_dir / f"{episode_id}.txt").write_text(txt_view, encoding="utf-8")
 
     return {
         "episode_id": episode_id,
@@ -842,7 +959,14 @@ def main() -> None:
     parser.add_argument("--project", required=True, help="项目名，例如 2049退休老头的快乐生活")
     parser.add_argument("--episode", required=True, help="集名，例如 第1集")
     parser.add_argument("--shot-id", help="可选，只生成单个分镜ID的首帧参照")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成首帧提示词与 TXT 蒸馏正文。",
+    )
     args = parser.parse_args()
+    if not args.allow_legacy_script_authorship:
+        raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
 
     print(
         json.dumps(

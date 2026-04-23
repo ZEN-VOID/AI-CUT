@@ -66,6 +66,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 - `projects/aigc/<项目名>/team.yaml`
+- `projects/aigc/<项目名>/MEMORY.md`
 - `projects/aigc/<项目名>/CHANGELOG.md`
 - `projects/aigc/<项目名>/CONTEXT/`
 - `projects/aigc/<项目名>/STATE.json`
@@ -86,7 +87,7 @@ governance_tier: full
 
 - 已明确项目根目录与唯一推荐下一阶段入口
 - 已锁定 `init_mode == smart_advisor` 与 `team_lineup_mode`
-- 核心五件套已经落盘
+- 核心五件套已经落盘，且项目根 `MEMORY.md` 已创建
 - 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth
 - `north_star`、`init_handoff`、`story-source-manifest`、`team`、`project_state` 之间无双真源冲突
 - `team.yaml` 已记录编组来源、选择范围与 planning 固定题包直答 subagents 合同
@@ -309,8 +310,7 @@ flowchart LR
    - `projects/aigc/<项目名>/1-Planning/1-分集/`
    - `projects/aigc/<项目名>/1-Planning/2-格式/`
    - `projects/aigc/<项目名>/1-Planning/3-分组/`
-   - `projects/aigc/<项目名>/3-Detail/水月/`
-   - `projects/aigc/<项目名>/3-Detail/镜花/`
+   - `projects/aigc/<项目名>/3-Detail/`
    - `projects/aigc/<项目名>/4-Design/场景/1-清单/`
    - `projects/aigc/<项目名>/4-Design/场景/2-设计/`
    - `projects/aigc/<项目名>/4-Design/场景/3-面板/`
@@ -342,9 +342,9 @@ flowchart LR
   - runtime 只预建阶段根 `2-Global/`
   - 阶段执行后必须在根层写入 `全局风格.md`、`导演意图.md`、`全集类型元素.md`、`分组类型元素.md`
 - `3-Detail`
-  - 技能树 active 路径：`水月`、`镜花`
-  - runtime 预建路径：`3-Detail/水月/`、`3-Detail/镜花/`
-  - 这些目录只锁 sidecar landing，不代表已经生成任何 `field-patch.json`
+  - 技能树 active 路径：阶段根 `3-Detail/`，内部固定 pass 为 `1-分镜构图 -> 角色表现 -> 氛围表现 -> 摄影表现 -> 运镜手法 -> 转场特效`
+  - runtime 预建路径：`3-Detail/`
+  - `legacy/compat` 仅保留在技能树侧用于历史兼容，不再把 `水月 / 镜花` 投影成项目 runtime 预建目录
 - `4-Design`
   - 技能树当前目录口径：`1-清单`、`2-设计`、`3-面板`
   - runtime 预建路径：当前只预建 active leaf 对应的 `4-Design/场景|角色|道具/{1-清单,2-设计,3-面板}/`
@@ -371,6 +371,7 @@ flowchart LR
 ### Project Governance Artifacts
 
 - 顾问团队真源：`projects/aigc/<项目名>/team.yaml`
+- 项目级创作记忆：`projects/aigc/<项目名>/MEMORY.md`
 - 项目级变更记录入口：`projects/aigc/<项目名>/CHANGELOG.md`
 - 项目级共享附加上下文根：`projects/aigc/<项目名>/CONTEXT/`
 - 轻量项目状态入口：`projects/aigc/<项目名>/STATE.json`
@@ -378,9 +379,11 @@ flowchart LR
 硬规则：
 
 1. `CHANGELOG.md` 是项目级时间序记录入口，初始化默认必须创建。
-2. 初始化默认必须同步创建 `projects/aigc/<项目名>/CONTEXT/`，供 `.agents/skills/aigc` 全阶段在项目执行时加载项目级共享附加上下文。
-3. `CHANGELOG.md` 不承载 live route truth、断点治理或阶段验收结论；这些信息仍分别属于 `STATE.json`、`governance-state.yaml` 与各级 `validation-report.md`。
-4. 后续阶段可继续追加 `CHANGELOG.md`，但不得把它演化为新的治理真源或状态本。
+2. 初始化默认必须同步创建 `projects/aigc/<项目名>/MEMORY.md`，作为跨阶段项目创作记忆载体。
+3. 初始化默认必须同步创建 `projects/aigc/<项目名>/CONTEXT/`，供 `.agents/skills/aigc` 全阶段在项目执行时加载项目级共享附加上下文。
+4. `MEMORY.md` 只记录该项目持续生效的偏好、口味、特殊元素、禁区与长期要求；不得承载治理状态、路由断点或 skill 经验。
+5. `CHANGELOG.md` 不承载 live route truth、断点治理或阶段验收结论；这些信息仍分别属于 `STATE.json`、`governance-state.yaml` 与各级 `validation-report.md`。
+6. 后续阶段可继续追加 `CHANGELOG.md`，但不得把它演化为新的治理真源或状态本。
 
 ### Auxiliary Asset Library
 
@@ -867,19 +870,20 @@ B. 自定义组队
 4. 若命中 `rebootstrap`，先锁定 `reset_mode + reset_reason`，生成 `reset_scope_note`，并处理旧下游工件的保留/归档/清退计划。
 5. 固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。未锁定前不得起草初始化主工件。
 6. 按 `.agents/skills/aigc/_shared/project-runtime-layout.md` 预建项目根、阶段根目录、active child skeleton，并同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
-7. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan`、`route_plan_patch` 与 `team_context_packet`。
-8. 只命中 1 个编组能力：
-   - `team_auto_formation_engine`
-   - `team_custom_formation_engine`
-9. 校验编组结果仅引用 `.agents/skills/team/`，并先起草项目根 `team.yaml`。
-10. 读取模板与 shared contracts。
-11. 以 `roles.planning.members` 为唯一首轮顾问团，真实启动 `planning_direct_answer_engine` 的 subagents；若 subagents 不可用，停止并报告阻塞。
-12. 收集 planning 固定题包直答 patch，并生成 `story-source-manifest.yaml`。
-13. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 直答 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `STATE.json`。
-14. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
-15. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
-16. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 与 planning 固定题包直答 provenance 做统一检查。
-17. 若通过审计，则落盘核心工件并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
+7. 同步创建项目根 `MEMORY.md`，写入项目创作记忆骨架。
+8. 运行内部 `internal_router`，组装 `mission_brief_init`、`context_packet_plan`、`route_plan_patch` 与 `team_context_packet`。
+9. 只命中 1 个编组能力：
+  - `team_auto_formation_engine`
+  - `team_custom_formation_engine`
+10. 校验编组结果仅引用 `.agents/skills/team/`，并先起草项目根 `team.yaml`。
+11. 读取模板与 shared contracts。
+12. 以 `roles.planning.members` 为唯一首轮顾问团，真实启动 `planning_direct_answer_engine` 的 subagents；若 subagents 不可用，停止并报告阻塞。
+13. 收集 planning 固定题包直答 patch，并生成 `story-source-manifest.yaml`。
+14. 根据 manifest 进入 `source-light bootstrap` 或 `source-grounded bootstrap`，聚合 直答 patch，起草 `north_star.yaml`、`init_handoff.yaml` 与 `STATE.json`。
+15. 若检测到“后补故事源”，先执行 `Story Source Reconciliation Contract`，再继续写回。
+16. 若命中治理触发条件，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md` 与 `learning-record.md`。
+17. 运行内部 `sufficiency_audit_engine` 对 sufficiency、alignment、trace 与 planning 固定题包直答 provenance 做统一检查。
+18. 若通过审计，则落盘核心工件、保留项目根 `MEMORY.md` 为持续更新位，并返回唯一推荐阶段入口；若不通过，优先回退到 `N3` 或 `N1`。
 
 ## Completion Standard
 
@@ -888,6 +892,7 @@ B. 自定义组队
 - 已明确 `自动组队` 或 `自定义组队`
 - 已产出 `projects/aigc/<项目名>/team.yaml`
 - `team.yaml` 已声明编组只来自 `.agents/skills/team/`
+- 已产出 `projects/aigc/<项目名>/MEMORY.md`
 - 已产出 `projects/aigc/<项目名>/CHANGELOG.md`
 - planning 顾问团已以真实 subagents 完成固定题包直答初始化
 - 已产出 `projects/aigc/<项目名>/STATE.json`

@@ -6,6 +6,7 @@ import copy
 import json
 import math
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,24 @@ def find_repo_root() -> Path:
 
 ROOT = find_repo_root()
 PROJECTS_ROOT = ROOT / "projects" / "aigc"
+AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
+if str(AIGC_SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(AIGC_SHARED_DIR))
+
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+
 TEMPLATE_JSON = ROOT / ".agents/skills/aigc/6-Video/_shared/video-generation-input.template.json"
 PROMPT_ASSEMBLY_SPEC = ROOT / ".agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照/prompt-assembly-spec.md"
-SOURCE_SCHEMA = ".agents/skills/aigc/_shared/director_episode_output.schema.json"
+SOURCE_SCHEMA = CANONICAL_DETAIL_TEMPLATE
 CHAR_LIMIT = 1900
+TXT_GROUP_CHAR_MIN = 1600
+TXT_GROUP_CHAR_MAX = 1900
 FIXED_AUDIO_DIRECTIVE = "不生成字幕，不生成BGM，要生成物理互动音效与环境音。"
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，组级视频提示词不得再由脚本直接主创。"
+    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
+    "`--allow-legacy-script-authorship`。"
+)
 
 
 def read_json(path: Path) -> Any:
@@ -161,6 +175,142 @@ def build_script_bridge_text(group_id: str, shot: dict[str, Any], segment_map: d
     return bridge_text
 
 
+def extract_group_character_names(group: dict[str, Any]) -> list[str]:
+    design = require_dict(group.get("组间设计"), f"{require_non_empty_text(group.get('分镜组ID'), '分镜组ID')}.组间设计")
+    cast_text = require_non_empty_text(design.get("出场角色及穿搭"), "组间设计.出场角色及穿搭")
+    names: list[str] = []
+    for chunk in re.split(r"[；;]", cast_text):
+        name = chunk.split("-", 1)[0].strip()
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def extract_quote_tokens(*texts: str) -> list[str]:
+    tokens: list[str] = []
+    for text in texts:
+        if not isinstance(text, str) or not text.strip():
+            continue
+        for token in re.findall(r"[“\"]([^”\"]+)[”\"]", text):
+            clean = strip_tail_punct(token)
+            if clean and clean not in tokens:
+                tokens.append(clean)
+    return tokens
+
+
+def infer_dialogue_delivery(*texts: str) -> str:
+    combined = " ".join(text for text in texts if isinstance(text, str) and text.strip())
+    if not combined:
+        return "开口说"
+    if any(keyword in combined for keyword in ("压低声音", "低声")):
+        return "低声说"
+    if any(keyword in combined for keyword in ("声音很轻", "轻声")):
+        return "轻声说"
+    if "笑道" in combined:
+        return "笑着说"
+    if "冷笑" in combined:
+        return "冷声说"
+    if "问" in combined and "说" not in combined:
+        return "开口问"
+    return "开口说"
+
+
+def infer_dialogue_speaker(group_characters: list[str], *texts: str) -> str:
+    for text in texts:
+        if not isinstance(text, str) or not text.strip():
+            continue
+        for pronoun in ("她", "他"):
+            if re.search(rf"{pronoun}[^。！？\n]{{0,12}}(?:开口|说|问|道|笑|低声|轻声|声音很轻|压低声音)", text):
+                return pronoun
+    for text in texts:
+        if not isinstance(text, str) or not text.strip():
+            continue
+        matches: list[tuple[int, str]] = []
+        for name in group_characters:
+            pattern = rf"{re.escape(name)}[^。！？\n]{{0,12}}(?:开口|说|问|道|笑|低声|轻声|声音很轻|压低声音)"
+            matched = re.search(pattern, text)
+            if matched:
+                matches.append((matched.start(), name))
+        if matches:
+            matches.sort(key=lambda item: item[0])
+            return matches[0][1]
+    for text in texts:
+        if not isinstance(text, str) or not text.strip():
+            continue
+        matches: list[tuple[int, str]] = []
+        for name in group_characters:
+            pos = text.find(name)
+            if pos >= 0:
+                matches.append((pos, name))
+        if len(matches) == 1:
+            return matches[0][1]
+    if len(group_characters) == 1:
+        return group_characters[0]
+    return ""
+
+
+def infer_dialogue_focus(dialogue_note: str, bridge_text: str, quote_tokens: list[str]) -> str:
+    focus_patterns = (
+        r"句子先把(.+?)摆到人前",
+        r"把(.+?)轻轻放到他们面前",
+        r"话头落在(.+?)上",
+    )
+    for source in (dialogue_note, bridge_text):
+        if not isinstance(source, str) or not source.strip():
+            continue
+        for pattern in focus_patterns:
+            matched = re.search(pattern, source)
+            if matched:
+                return strip_tail_punct(matched.group(1))
+    if quote_tokens:
+        return "、".join(quote_tokens)
+    return ""
+
+
+def has_dialogue_signal(shot: dict[str, Any], bridge_text: str) -> bool:
+    performance = pick_branch_object(shot, "角色表现", "人物表演锚点", "人物表演")
+    dialogue_note = str(performance.get("对话戏", "")).strip() if isinstance(performance, dict) else ""
+    combined = " ".join(part for part in (dialogue_note, bridge_text) if part)
+    if dialogue_note:
+        return True
+    return any(keyword in combined for keyword in ("开口", "说道", "说", "问", "笑道", "低声", "轻声", "压低声音", "声音很轻"))
+
+
+def build_dialogue_clause(
+    group_characters: list[str],
+    shot: dict[str, Any],
+    bridge_text: str,
+    level: str,
+    spec: dict[str, Any],
+) -> str:
+    if not has_dialogue_signal(shot, bridge_text):
+        return ""
+
+    shot_spec = require_dict(spec["shot"], "spec.shot")
+    dialogue_spec = require_dict(shot_spec["dialogue_clause"], "spec.shot.dialogue_clause")
+    level_spec = require_dict(require_dict(dialogue_spec["levels"], "spec.shot.dialogue_clause.levels")[level], f"spec.shot.dialogue_clause.levels.{level}")
+    performance = pick_branch_object(shot, "角色表现", "人物表演锚点", "人物表演")
+    dialogue_note = str(performance.get("对话戏", "")).strip() if isinstance(performance, dict) else ""
+    action_note = str(performance.get("动作戏", "")).strip() if isinstance(performance, dict) else ""
+    speaker = infer_dialogue_speaker(group_characters, bridge_text, dialogue_note, action_note) or str(dialogue_spec.get("speaker_fallback", "有人"))
+    delivery = infer_dialogue_delivery(dialogue_note, bridge_text, action_note)
+    quote_tokens = extract_quote_tokens(bridge_text, dialogue_note, action_note)
+    short_quote_char_limit = int(dialogue_spec.get("short_quote_char_limit", 8))
+    quote_text = ""
+    if quote_tokens and any(len(token) > short_quote_char_limit for token in quote_tokens):
+        quote_text = "，".join(quote_tokens)
+    focus = infer_dialogue_focus(dialogue_note, bridge_text, quote_tokens)
+
+    if quote_text and level_spec.get("quoted_template", ""):
+        return strip_tail_punct(level_spec["quoted_template"].format(speaker=speaker, delivery=delivery, quote_text=quote_text, focus=focus))
+    if focus and level_spec.get("focus_template", ""):
+        return strip_tail_punct(level_spec["focus_template"].format(speaker=speaker, delivery=delivery, quote_text=quote_text, focus=focus))
+    fallback_template = level_spec.get("fallback_template", "")
+    if fallback_template:
+        return strip_tail_punct(fallback_template.format(speaker=speaker, delivery=delivery, quote_text=quote_text, focus=focus))
+    return ""
+
+
 def compact_clause(text: str) -> str:
     clean = strip_tail_punct(text)
     if not clean:
@@ -228,9 +378,17 @@ def pick_branch_object(shot: dict[str, Any], *field_names: str) -> Any:
 
 def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(shot)
+    character_branch = pick_branch_object(normalized, "角色表现", "人物表演锚点", "人物表演")
+    motion_branch = pick_branch_object(normalized, "运动表现", "动作路径", "动作调度")
+    atmosphere_branch = pick_branch_object(normalized, "氛围表现", "空间氛围")
+    cinematography_branch = pick_branch_object(normalized, "摄影美学", "摄影策略")
+    camera_branch = pick_branch_object(normalized, "运镜手法", "运镜策略")
+    composition_branch = pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略")
+    visual_branch = pick_branch_object(normalized, "视觉强化", "视觉抓手", "视觉焦点")
+    transition_branch = pick_branch_object(normalized, "转场特效", "转场策略")
     performance_anchor = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "角色表现", "人物表演锚点", "人物表演"),
+            character_branch,
             ("动作戏", "对话戏", "内心戏", "对手戏", "表演目标", "关系施压", "服装锚点"),
             limit=2,
         ),
@@ -240,7 +398,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     motion_path = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "运动表现", "动作路径", "动作调度"),
+            motion_branch,
             ("位置和方向", "逻辑性", "一致性", "位置基线", "动作路径", "连续性说明"),
             limit=2,
         ),
@@ -251,7 +409,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     spatial_atmosphere = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "氛围表现", "空间氛围"),
+            atmosphere_branch,
             ("层次", "意境", "空间诗学", "空间支架", "空气层", "物象压力"),
             limit=2,
         ),
@@ -262,7 +420,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     cinematography_strategy = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "摄影美学", "摄影策略"),
+            cinematography_branch,
             ("光影", "色彩", "质感", "视觉控制线", "光影策略", "色彩策略", "质感策略"),
             limit=2,
         ),
@@ -271,7 +429,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     camera_strategy = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "运镜手法", "运镜策略"),
+            camera_branch,
             ("组合", "变化", "速度", "运动动机", "运动路径", "速度设计"),
             limit=2,
         ),
@@ -280,7 +438,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     composition_skeleton = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"),
+            composition_branch,
             ("景别景深", "构图形式", "镜头类型", "构图骨架", "视线组织"),
             limit=2,
         ),
@@ -292,7 +450,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     )
     visual_hook = first_non_empty(
         compact_branch_design(
-            pick_branch_object(normalized, "视觉强化", "视觉抓手", "视觉焦点"),
+            visual_branch,
             ("冲击力", "第一抓手", "观赏性", "品味", "观看节奏", "镜头消费提示"),
             limit=2,
         ),
@@ -302,7 +460,7 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
         str(normalized.get("分镜表现", "")).strip(),
     )
     transition_hint = first_non_empty(
-        stringify_branch_design(pick_branch_object(normalized, "转场特效", "转场策略"), ("切接逻辑", "组内衔接", "组间或特效策略")),
+        stringify_branch_design(transition_branch, ("切接逻辑", "组内衔接", "组间或特效策略")),
         str(normalized.get("转场特效", "")).strip(),
         str(normalized.get("转场策略", "")).strip(),
     )
@@ -326,29 +484,29 @@ def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
 
     normalized["角色站位走位"] = first_non_empty(motion_path, str(normalized.get("角色站位走位", "")).strip())
     normalized["角色背景面"] = first_non_empty(
-        compact_branch_design(pick_branch_object(normalized, "氛围表现", "空间氛围"), ("层次", "空间支架"), limit=1),
-        compact_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("构图形式", "构图骨架"), limit=1),
+        compact_branch_design(atmosphere_branch, ("层次", "空间支架"), limit=1),
+        compact_branch_design(composition_branch, ("构图形式", "构图骨架"), limit=1),
         str(normalized.get("角色背景面", "")).strip(),
     )
     normalized["场景氛围"] = first_non_empty(
-        compact_branch_design(pick_branch_object(normalized, "氛围表现", "空间氛围"), ("意境", "空间诗学", "空气层", "物象压力"), limit=1),
+        compact_branch_design(atmosphere_branch, ("意境", "空间诗学", "空气层", "物象压力"), limit=1),
         str(normalized.get("场景氛围", "")).strip(),
     )
     normalized["镜头速度"] = first_non_empty(
-        compact_branch_design(pick_branch_object(normalized, "运镜手法", "运镜策略"), ("速度", "速度设计"), limit=1),
+        compact_branch_design(camera_branch, ("速度", "速度设计"), limit=1),
         str(normalized.get("镜头速度", "")).strip(),
     )
     normalized["景别"] = first_non_empty(
-        compact_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("景别景深",), limit=1),
+        compact_branch_design(composition_branch, ("景别景深",), limit=1),
         str(normalized.get("景别", "")).strip(),
     )
     normalized["镜头框架"] = first_non_empty(
         str(normalized.get("镜头框架", "")).strip(),
-        compact_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("构图形式", "构图骨架", "视线组织"), limit=1),
+        compact_branch_design(composition_branch, ("构图形式", "构图骨架", "视线组织"), limit=1),
     )
     normalized["镜头类型"] = first_non_empty(
         str(normalized.get("镜头类型", "")).strip(),
-        compact_branch_design(pick_branch_object(normalized, "分镜构图", "构图骨架", "构图策略"), ("镜头类型",), limit=1),
+        compact_branch_design(composition_branch, ("镜头类型",), limit=1),
     )
     normalized["镜头类型兼容"] = first_non_empty(
         str(normalized.get("镜头类型兼容", "")).strip(),
@@ -431,7 +589,7 @@ def validate_shot_ready(group_id: str, shot: dict[str, Any], segment_map: dict[s
         branch_value = pick_branch_object(shot, *field_names)
         require_dict(branch_value, f"{group_id}.{shot_id}.{'/'.join(field_names)}")
     normalized = normalize_shot_for_prompt(shot)
-    for field in ("角色表现", "运动表现", "氛围表现", "视觉强化", "分镜构图", "摄影美学", "运镜手法", "景别", "镜头视角"):
+    for field in ("角色表现", "运动表现", "氛围表现", "视觉强化", "分镜构图", "摄影美学", "运镜手法", "景别"):
         require_non_empty_text(normalized.get(field), f"{group_id}.{shot_id}.{field}")
 
 
@@ -456,14 +614,15 @@ def validate_group_ready(group: dict[str, Any]) -> None:
 
 
 def validate_source_ready(source_data: dict[str, Any]) -> list[dict[str, Any]]:
-    metadata = require_dict(source_data.get("metadata"), "metadata")
+    source_payload = ensure_legacy_detail_payload(source_data)
+    metadata = require_dict(source_payload.get("metadata"), "metadata")
     phase = metadata.get("document_phase")
     if phase != "ready":
         raise ValueError(
-            f"metadata.document_phase 当前为 {phase!r}；"
-            "只有 ready 状态的 3-Detail shared root 才能被 6-Video/全能参照消费。"
+            f"3-Detail detail root 当前推断的 readiness 为 {phase!r}；"
+            "只有 ready 状态的 canonical detail root 才能被 6-Video/全能参照消费。"
         )
-    final_output = require_dict(source_data.get("final_output"), "final_output")
+    final_output = require_dict(source_payload.get("final_output"), "final_output")
     main_content = require_dict(final_output.get("main_content"), "final_output.main_content")
     groups = require_list(main_content.get("分镜组列表"), "final_output.main_content.分镜组列表")
     if not groups:
@@ -483,8 +642,122 @@ def build_time_range(shot: dict[str, Any]) -> str:
     return f"{start}秒-{end}秒"
 
 
+def build_txt_time_range(shot: dict[str, Any]) -> str:
+    timing = shot.get("时间段", {})
+    start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
+    end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
+    return f"{start}-{end}秒"
+
+
 def build_shot_display_index(index: int) -> str:
     return str(index + 1)
+
+
+def render_txt_value(value: str, *, compact: bool = False) -> str:
+    if not isinstance(value, str):
+        return ""
+    text = normalize_space(value)
+    if not text:
+        return ""
+    return compact_clause(text) if compact else text
+
+
+def build_txt_group_summary(group: dict[str, Any], *, compact: bool) -> str:
+    design = require_dict(group.get("组间设计"), f"{group.get('分镜组ID')}.组间设计")
+    parts = [
+        render_txt_value(require_non_empty_text(design.get("全局风格"), f"{group['分镜组ID']}.组间设计.全局风格"), compact=compact),
+        render_txt_value(require_non_empty_text(design.get("类型元素"), f"{group['分镜组ID']}.组间设计.类型元素"), compact=compact),
+        render_txt_value(require_non_empty_text(design.get("导演意图"), f"{group['分镜组ID']}.组间设计.导演意图"), compact=compact),
+    ]
+    return ensure_sentence("，".join(part for part in parts if part))
+
+
+def build_txt_detail_sentence(
+    shot: dict[str, Any],
+    *,
+    compact: bool,
+    include_transition: bool,
+) -> str:
+    normalized = normalize_shot_for_prompt(shot)
+    parts = [
+        render_txt_value(normalized.get("分镜构图", ""), compact=compact),
+        render_txt_value(normalized.get("运镜手法", ""), compact=compact),
+        render_txt_value(normalized.get("角色表现", ""), compact=compact),
+        render_txt_value(normalized.get("氛围表现", ""), compact=compact),
+        render_txt_value(normalized.get("摄影美学", ""), compact=compact),
+    ]
+    transition = render_txt_value(normalized.get("转场特效", ""), compact=compact) if include_transition else ""
+    if transition:
+        parts.append(transition)
+    return ensure_sentence("，".join(part for part in parts if part))
+
+
+def build_txt_shot_block(
+    shot: dict[str, Any],
+    shot_index: int,
+    *,
+    compact_detail: bool,
+    compact_prop: bool,
+    include_transition: bool,
+) -> str:
+    shot_id = require_non_empty_text(shot.get("分镜ID"), "分镜ID")
+    script_body = require_non_empty_text(shot.get("剧本正文"), f"{shot_id}.剧本正文")
+    anchor = require_dict(shot.get("主体锚定"), f"{shot_id}.主体锚定")
+    scene = normalize_space(str(anchor.get("场景", "")).strip())
+    role = normalize_space(str(anchor.get("角色", "")).strip())
+    prop = render_txt_value(str(anchor.get("道具", "")).strip(), compact=compact_prop)
+    detail_sentence = build_txt_detail_sentence(shot, compact=compact_detail, include_transition=include_transition)
+    lines = [
+        f"分镜{build_shot_display_index(shot_index)}，{build_txt_time_range(shot)}",
+        "剧本正文：",
+        script_body,
+        "主体锚定：",
+        f"- 场景：{scene}",
+        f"- 角色：{role}",
+        f"- 道具：{prop}",
+        "分镜明细：",
+        detail_sentence,
+    ]
+    return "\n".join(lines)
+
+
+def build_txt_group_block(group: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
+    shots = require_list(group.get("分镜明细"), f"{group_id}.分镜明细")
+    compression_profiles = [
+        {"summary_compact": False, "detail_compact": False, "prop_compact": False, "include_transition": True, "label": "full"},
+        {"summary_compact": True, "detail_compact": False, "prop_compact": False, "include_transition": True, "label": "light_global"},
+        {"summary_compact": True, "detail_compact": True, "prop_compact": False, "include_transition": True, "label": "detail_compact"},
+        {"summary_compact": True, "detail_compact": True, "prop_compact": True, "include_transition": False, "label": "tight"},
+    ]
+
+    best_block = ""
+    best_meta: dict[str, Any] = {"char_count": 0, "compression_profile": "full", "within_target_window": False}
+    for profile in compression_profiles:
+        summary = build_txt_group_summary(group, compact=profile["summary_compact"])
+        shot_blocks = [
+            build_txt_shot_block(
+                require_dict(shot, f"{group_id}.分镜明细[]"),
+                idx,
+                compact_detail=profile["detail_compact"],
+                compact_prop=profile["prop_compact"],
+                include_transition=profile["include_transition"],
+            )
+            for idx, shot in enumerate(shots)
+        ]
+        block_body = "\n".join([group_id, summary, *shot_blocks]).strip()
+        char_count = len(block_body)
+        block = f"{block_body}\n字数统计：{char_count}"
+        best_block = block
+        best_meta = {
+            "char_count": char_count,
+            "compression_profile": profile["label"],
+            "within_target_window": TXT_GROUP_CHAR_MIN <= char_count <= TXT_GROUP_CHAR_MAX,
+        }
+        if char_count <= TXT_GROUP_CHAR_MAX:
+            return block, best_meta
+
+    raise ValueError(f"{group_id} 的 TXT 蒸馏结果在最强压缩下仍超过 {TXT_GROUP_CHAR_MAX} 字。")
 
 
 def build_group_bridge(group: dict[str, Any], spec: dict[str, Any]) -> str:
@@ -507,11 +780,14 @@ def build_camera_clauses(shot: dict[str, Any], level: str, spec: dict[str, Any])
     return render_clause_parts(camera_spec, shot, level)
 
 
-def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, level: str, spec: dict[str, Any], segment_map: dict[str, dict[str, Any]]) -> str:
+def build_shot_text(group: dict[str, Any], shot: dict[str, Any], shot_index: int, level: str, spec: dict[str, Any], segment_map: dict[str, dict[str, Any]]) -> str:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
     shot_spec = require_dict(spec["shot"], "spec.shot")
     normalized_shot = normalize_shot_for_prompt(shot)
-    normalized_shot["剧情桥段"] = build_script_bridge_text(group_id, shot, segment_map)
+    bridge_text = build_script_bridge_text(group_id, shot, segment_map)
+    normalized_shot["剧情桥段"] = bridge_text
     normalized_shot["shot_index"] = build_shot_display_index(shot_index)
+    group_characters = extract_group_character_names(group)
 
     opening = shot_spec["opening_template"].format(分镜ID=normalized_shot.get("分镜ID", ""), shot_index=normalized_shot["shot_index"], time_range=build_time_range(normalized_shot))
     body_parts: list[str] = []
@@ -520,6 +796,10 @@ def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, level:
     bridge_text = render_part(bridge_spec, normalized_shot, level)
     if strip_tail_punct(bridge_text):
         body_parts.append(strip_tail_punct(bridge_text))
+
+    dialogue_clause = build_dialogue_clause(group_characters, shot, normalized_shot["剧情桥段"], level, spec)
+    if strip_tail_punct(dialogue_clause):
+        body_parts.append(strip_tail_punct(dialogue_clause))
 
     body_parts.extend(build_camera_clauses(normalized_shot, level, spec))
 
@@ -553,7 +833,7 @@ def compose_prompt(group: dict[str, Any], shot_levels: list[str], spec: dict[str
     segment_map = build_script_segment_map(group)
     sections = [build_group_bridge(group, spec)]
     shot_lines = [
-        build_shot_text(group_id, require_dict(shot, f"{group_id}.分镜明细[]"), idx, level, spec, segment_map)
+        build_shot_text(group, require_dict(shot, f"{group_id}.分镜明细[]"), idx, level, spec, segment_map)
         for idx, (shot, level) in enumerate(zip(group["分镜明细"], shot_levels, strict=True))
     ]
     sections.append("\n".join(line for line in shot_lines if line.strip()))
@@ -578,7 +858,7 @@ def choose_levels(group: dict[str, Any], spec: dict[str, Any]) -> tuple[list[str
     levels = ["normal"] * shot_count
     order = sorted(
         range(shot_count),
-        key=lambda idx: len(build_shot_text(require_non_empty_text(group.get("分镜组ID"), "分镜组ID"), require_dict(group["分镜明细"][idx], "分镜明细[]"), idx, "normal", spec, build_script_segment_map(group))),
+        key=lambda idx: len(build_shot_text(group, require_dict(group["分镜明细"][idx], "分镜明细[]"), idx, "normal", spec, build_script_segment_map(group))),
         reverse=True,
     )
     for idx in order:
@@ -606,7 +886,7 @@ def build_request_packet(template: dict[str, Any], episode_id: str, source_rel: 
     packet["meta"]["source_shot_ids"] = [shot["分镜ID"] for shot in group["分镜明细"]]
     packet["meta"]["source_file"] = source_rel
     packet["meta"]["source_schema"] = SOURCE_SCHEMA
-    packet["meta"]["template_version"] = "v1"
+    packet["meta"]["template_version"] = "v2"
     packet["prompt_style"]["type"] = "multimodal2video"
     packet["prompt_style"]["language"] = "zh-CN"
     packet["prompt_style"]["char_limit"] = CHAR_LIMIT
@@ -621,25 +901,19 @@ def build_request_packet(template: dict[str, Any], episode_id: str, source_rel: 
     return packet
 
 
-def build_txt_view(episode_id: str, packets: list[dict[str, Any]]) -> str:
-    sections = [f"# {episode_id} 全能参照"]
-    for packet in packets:
-        group_id = packet["meta"]["group_id"]
-        prompt = packet["prompt"]
-        sections.append(
-            "\n".join(
-                [
-                    f"## 分镜组 {group_id}",
-                    "",
-                    prompt,
-                    "",
-                    f"字数统计: {packet['prompt_char_count']}",
-                    "",
-                    "---",
-                ]
-            )
+def build_txt_view(groups: list[dict[str, Any]]) -> tuple[str, list[dict[str, Any]]]:
+    blocks: list[str] = []
+    stats: list[dict[str, Any]] = []
+    for group in groups:
+        block, meta = build_txt_group_block(group)
+        blocks.append(block)
+        stats.append(
+            {
+                "group_id": require_non_empty_text(group.get("分镜组ID"), "分镜组ID"),
+                **meta,
+            }
         )
-    return "\n\n".join(sections).rstrip() + "\n"
+    return "\n\n".join(blocks).rstrip() + "\n", stats
 
 
 def validate_packets(packets: list[dict[str, Any]], groups: list[dict[str, Any]]) -> None:
@@ -696,6 +970,18 @@ def validate_packets(packets: list[dict[str, Any]], groups: list[dict[str, Any]]
                 raise ValueError(f"{group['分镜组ID']} 缺少时间锚点 {anchor}。")
             if f"分镜{shot['分镜ID']}：" in prompt:
                 raise ValueError(f"{group['分镜组ID']} 泄露了完整四段式分镜ID `{shot['分镜ID']}`。")
+            start = prompt.find(anchor)
+            next_anchor = ""
+            if index + 1 < len(group["分镜明细"]):
+                next_anchor = f"{build_time_range(group['分镜明细'][index + 1])}｜分镜{build_shot_display_index(index + 1)}："
+            end = prompt.find(next_anchor, start + len(anchor)) if next_anchor else len(prompt)
+            if end < 0:
+                end = len(prompt)
+            shot_line = prompt[start:end]
+            segment_map = build_script_segment_map(group)
+            if has_dialogue_signal(shot, build_script_bridge_text(group["分镜组ID"], shot, segment_map)):
+                if not any(marker in shot_line for marker in ("低声说", "轻声说", "开口说", "开口问", "提到", "笑着说", "冷声说")):
+                    raise ValueError(f"{group['分镜组ID']} 的 {shot['分镜ID']} 有对白信号但未生成显式对白句。")
 
 
 def render_episode(project_name: str, episode_id: str) -> dict[str, Any]:
@@ -769,9 +1055,19 @@ def render_episode(project_name: str, episode_id: str) -> dict[str, Any]:
         "groups": manifest_groups,
     }
 
+    txt_view, txt_group_stats = build_txt_view(groups)
+    for manifest_group in manifest_groups:
+        txt_meta = next((item for item in txt_group_stats if item["group_id"] == manifest_group["group_id"]), None)
+        if txt_meta:
+            manifest_group["txt_char_count"] = txt_meta["char_count"]
+            manifest_group["txt_compression_profile"] = txt_meta["compression_profile"]
+            manifest_group["txt_within_target_window"] = txt_meta["within_target_window"]
+
+    manifest_payload["txt_group_char_window"] = {"min": TXT_GROUP_CHAR_MIN, "max": TXT_GROUP_CHAR_MAX}
+
     write_json(output_dir / f"{episode_id}.json", episode_payload)
     write_json(output_dir / "_manifest.json", manifest_payload)
-    (output_dir / f"{episode_id}.txt").write_text(build_txt_view(episode_id, packets), encoding="utf-8")
+    (output_dir / f"{episode_id}.txt").write_text(txt_view, encoding="utf-8")
 
     return {
         "group_count": len(groups),
@@ -785,7 +1081,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="重建 6-Video/全能参照 的 episode 三件套。")
     parser.add_argument("--project", required=True, help="项目名，例如 晴深不渝")
     parser.add_argument("--episode", required=True, help="集名，例如 第1集")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成组级视频提示词。",
+    )
     args = parser.parse_args()
+    if not args.allow_legacy_script_authorship:
+        raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
 
     print(json.dumps(render_episode(args.project, args.episode), ensure_ascii=False, indent=2))
 

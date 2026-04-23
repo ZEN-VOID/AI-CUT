@@ -1,6 +1,6 @@
 # Chapter Board Locating Contract
 
-`3-Drafting` 的任何 episode worker 只要要消费“当前集规划 / 当前章义务 / threads 债务”，都必须先把自己解析成**唯一**章级规划文档；兼容项目才继续解析到唯一 `chapter_board`。
+`3-Drafting` 的任何 chapter worker 只要要消费“当前章规划 / 当前章义务 / threads 债务”，都必须先把自己解析成**唯一**章级规划文档；兼容项目才继续解析到唯一 `chapter_board`。
 
 ## Required Runtime Keys
 
@@ -10,11 +10,11 @@
 - `planning_ref`
 - `planning_volume_ref`
 
-上述键优先从当前 `第N集.md` frontmatter 与 `第V卷.写作日志.yaml` 读取；若两处同时存在但不一致，必须阻塞并先修齐正文/批次日志。
+上述键优先从当前 `第N章.md` frontmatter 与 `第V卷.写作日志.yaml` 读取；若两处同时存在但不一致，必须阻塞并先修齐正文/批次日志。
 
 ## Locate Order
 
-1. 先锁当前集身份：
+1. 先锁当前章身份：
    - 若存在 `chapter_ref / episode_id`，优先采用它
    - 若只存在 `chapter_num`，保留其数值形态，并派生规范化 token
 2. 先读取 `2-Planning/整体规划.md`

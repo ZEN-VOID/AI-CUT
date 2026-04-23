@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 视频参照引用"
   short_description: "把 Assets 中已选定的参考图绑定进 6-Video 请求 JSON，并做严格校验"
-  default_prompt: "Use $aigc-video-reference-binding to bind selected Assets images into reference_images and image_markers for an existing 6-Video request JSON, then run strict validation before handoff."
+  default_prompt: "Use $aigc-video-reference-binding to bind selected Assets images into reference_images and image_markers for an existing 6-Video request JSON, while treating `projects/aigc/<项目名>/3-Detail/第N集.json` as the canonical evidence source and using any legacy `组间设计 / 分镜明细[]` view only through the compat helper. Rebuild image_markers into `image_ref + ref_kind + related_subject + image_no`, then run strict validation before handoff."

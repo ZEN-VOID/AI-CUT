@@ -19,13 +19,21 @@ governance_tier: full
 本技能不再沿用旧链路对 markdown 分镜长文做“第二行角色锚点”扫描。当前 canonical 输入已经切到 `3-Detail` 的结构化 JSON：
 
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
-- 真源槽位：`metadata / final_output.main_content.分镜组列表[]`
+- 真源槽位：`meta + groups[].global/detail.分镜列表`
+- compat 投影：`detail_root_adapter.py -> metadata + final_output.main_content.分镜组列表[]`
 
 本技能的目标是把 `3-Detail` 已经稳定落下的 `出场角色及穿搭 + 分镜明细[]`，收束为下游角色设计可以直接消费的三份产物：
 
 1. `角色清单.json`
 2. `角色研究.json`
 3. `role_design_bridge.json`
+
+## LLM-First Creative Authorship Contract (Mandatory)
+
+- `角色研究.json`、`role_design_bridge.json` 中的研究结论、句子级总结、桥接文案与其他创作性结论，必须由 LLM 直接完成。
+- `build_role_research.py` 不得再被视为默认主创入口；它只允许用于受控兼容迁移、既有 LLM 真源的结构投影、批量落盘与校验辅助。
+- 当前 leaf 的默认执行路径必须是：`LLM 直出角色研究/桥接真源 -> 提取脚本与落盘脚本只做机械辅助`。
+- 若确需临时运行旧式脚本主创，必须显式传入 `--allow-legacy-script-authorship`，且不得把该路径重新写回默认工作流。
 
 ## Parent Positioning
 
@@ -39,6 +47,8 @@ governance_tier: full
 ## Shared Canonical Sources (Mandatory)
 
 - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+- `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
+- `.agents/skills/aigc/_shared/detail_root_adapter.py`
 - `.agents/skills/aigc/_shared/director_episode_output.schema.json`
 - `.agents/skills/aigc/3-Detail/SKILL.md`
 - `.agents/skills/aigc/4-Design/1-清单/_shared/detail-output-consumption-contract.md`
@@ -53,8 +63,12 @@ governance_tier: full
   - `3-Detail -> 4-Design/1-清单` 的共享字段消费规则
 - `references/detail-role-normalization.md`
   - 角色归一化、证据映射与降级细则
+- `episode_detail.json`
+  - `3-Detail` canonical detail root 的模板真源
+- `detail_root_adapter.py`
+  - canonical `meta + groups[].global/detail.分镜列表` 到 legacy consumer 视图的兼容投影真源
 - `director_episode_output.schema.json`
-  - `3-Detail` 输入结构的唯一 schema 真源
+  - 仅用于 legacy consumer 兼容校验，不再充当 canonical 输入模板
 
 ## Reference Loading Guide
 
@@ -82,13 +96,13 @@ governance_tier: full
 1. active leaf 必须拥有可运行的 pipeline 入口，不得只保留合同文本。
 2. `run_role_list_pipeline.py` 负责串联抽取、研究、bridge 与报告落盘。
 3. `extract_episode_roles.py` 只负责生成 `角色清单.json` 的对象池与 trace 根。
-4. `build_role_research.py` 负责生成 `角色研究.json`、`role_design_bridge.json` 并更新 `validation-report.md`。
+4. `build_role_research.py` 仅可在受控兼容模式下执行；若被调用，必须显式传入 `--allow-legacy-script-authorship`。
 
 ## Business Requirement Analysis Contract (Mandatory)
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把 `3-Detail` 的 `出场角色及穿搭 + 分镜明细[]` 收束成可追溯、可研究、可桥接的角色清单产物，供 `4-Design/2-设计/角色` 直接消费。 |
+| `business_goal` | 把 `3-Detail` canonical `global/detail.分镜列表` 中的角色锚与镜级事实收束成可追溯、可研究、可桥接的角色清单产物，供 `4-Design/2-设计/角色` 直接消费。 |
 | `business_object` | `projects/aigc/<项目名>/3-Detail/第N集.json`、`projects/aigc/<项目名>/4-Design/角色/1-清单/第N集/{角色清单.json,角色研究.json,role_design_bridge.json}`。 |
 | `constraint_profile` | 上游 `3-Detail` JSON 是唯一事实真源；不得回退成旧式 markdown 扫描主链；角色名、服装、出镜镜头与表演证据必须可回链到 `group_id / shot_id`。 |
 | `success_criteria` | 每个角色都具备 canonical 名称、镜级证据、服装锚点、句子级研究结论与设计桥接字段；歧义主体则被保守降级而非臆造。 |
@@ -115,12 +129,12 @@ governance_tier: full
 
 ### 硬规则
 
-1. 只消费 `final_output.main_content.分镜组列表[]`。
-2. `组间设计.出场角色及穿搭` 是角色名与服装的高精锚点。
-3. `分镜明细[].运动表现` 是镜级出场与走位的首选证据，兼容别名 `动作路径` 只作 alias 读取。
-4. `分镜明细[].角色表现 / 视觉强化 / 氛围表现` 是角色表演、识别与空间压力的第一补强证据。
-5. `分镜明细[].分镜表现 / 道具及状态 / 角色背景面` 只作为辅助证据，不得单独臆造角色。
-6. `剧本正文` 只在角色命名或关系解歧时回退使用。
+1. canonical 输入固定为 `meta + groups[].global/detail.分镜列表`；若运行时读取 `分镜组列表[] / 分镜明细[]`，必须来自 `detail_root_adapter.py` 的兼容投影。
+2. `global` 派生的 compat `组间设计.出场角色及穿搭` 是角色名与服装的高精锚点。
+3. canonical `detail.分镜列表[].角色表现 + 主体锚定` 是镜级出场与走位的首选证据；compat `运动表现 / 动作路径` 只作 alias 读取。
+4. canonical `detail.分镜列表[].角色表现 / 分镜构图 / 摄影表现 / 氛围表现` 是角色表演、识别与空间压力的第一补强证据；compat `视觉强化` 仅作 derived helper。
+5. compat `分镜表现 / 道具及状态 / 角色背景面` 只作为辅助证据，不得单独臆造角色。
+6. `global.剧本正文` 只在角色命名或关系解歧时回退使用。
 
 ## Output Contract (Mandatory)
 
@@ -146,9 +160,9 @@ governance_tier: full
 
 ```mermaid
 flowchart TD
-    A["Load 3-Detail episode root"] --> B["Lock 分镜组列表[] as only source"]
-    B --> C["Scan group-level 出场角色及穿搭"]
-    C --> D["Scan shot-level 角色站位走位 / 分镜表现 / 道具及状态"]
+    A["Load 3-Detail episode root"] --> B["Lock canonical meta + groups[].detail.分镜列表"]
+    B --> C["Scan group-level compat 出场角色及穿搭"]
+    C --> D["Scan shot-level canonical 角色表现 + 主体锚定 and compat evidence"]
     D --> E["Normalize canonical roles + costume variants"]
     E --> F["Build role research + display profile"]
     F --> G["Build role design bridge"]

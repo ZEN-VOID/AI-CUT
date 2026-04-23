@@ -31,6 +31,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report-name", default="validation-report.md", help="校验报告文件名")
     parser.add_argument("--manifest-name", default="_manifest.json", help="manifest 文件名")
     parser.add_argument("--dry-run", action="store_true", help="仅校验链路，不保留输出文件")
+    parser.add_argument(
+        "--allow-legacy-script-authorship",
+        action="store_true",
+        help="受控兼容模式：允许旧式脚本直接生成研究结论与桥接文案。",
+    )
     return parser.parse_args()
 
 
@@ -110,6 +115,8 @@ def build_research_cmd(args: argparse.Namespace, output_dir: Path, dry_run: bool
     ]
     if dry_run:
         cmd.append("--dry-run")
+    if args.allow_legacy_script_authorship:
+        cmd.append("--allow-legacy-script-authorship")
     return cmd
 
 
