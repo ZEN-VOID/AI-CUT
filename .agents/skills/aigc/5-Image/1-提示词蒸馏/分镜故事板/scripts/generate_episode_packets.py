@@ -20,15 +20,14 @@ from prompt_bridge_helpers import (  # noqa: E402
     SOURCE_SCHEMA,
     TEMPLATE_JSON,
     build_camera_clauses,
-    build_group_design_block,
+    build_canonical_group_design_block,
     build_prompt_prefix,
-    build_script_bridge_text,
-    build_script_segment_map,
     build_shot_display_index,
     build_time_range,
     ensure_sentence,
     load_prompt_assembly_spec,
     normalize_shot_for_prompt,
+    ordered_canonical_shots,
     read_json,
     render_sentence_group,
     require_dict,
@@ -36,7 +35,7 @@ from prompt_bridge_helpers import (  # noqa: E402
     require_non_empty_text,
     resolve_project_root,
     strip_tail_punct,
-    validate_source_ready,
+    validate_canonical_source_ready,
     write_json,
 )
 
@@ -44,17 +43,11 @@ from prompt_bridge_helpers import (  # noqa: E402
 PROMPT_ASSEMBLY_SPEC = SCRIPT_DIR.parent / "prompt-assembly-spec.md"
 TARGET_MAX = 3800
 ALLOWED_PHASES = {"detail_in_progress", "ready"}
-LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
-    "根据 AGENTS.md 的 `内容创作型任务的 LLM 主创规则`，提示词蒸馏正文不得再由脚本直接主创。"
-    "本脚本仅保留给受控兼容迁移；如确需临时运行旧式脚本主创，请显式传入 "
-    "`--allow-legacy-script-authorship`。"
-)
 
 
-def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, bridge: str, level: str, spec: dict[str, Any]) -> str:
+def build_shot_text(shot: dict[str, Any], shot_index: int, level: str, spec: dict[str, Any]) -> str:
     shot_spec = require_dict(spec["shot"], "spec.shot")
     normalized_shot = normalize_shot_for_prompt(shot)
-    normalized_shot["剧情桥段"] = bridge
     normalized_shot["shot_index"] = build_shot_display_index(shot_index)
     opening = shot_spec["opening_template"].format(
         shot_index=normalized_shot["shot_index"],
@@ -63,9 +56,11 @@ def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, bridge
     )
     body_parts: list[str] = []
     script_bridge = require_dict(shot_spec["script_bridge"], "spec.shot.script_bridge")
-    bridge_text = strip_tail_punct(script_bridge["templates"][level].format(value=strip_tail_punct(bridge)))
-    if bridge_text:
-        body_parts.append(bridge_text)
+    script_text = strip_tail_punct(str(normalized_shot.get("剧本正文", "")).strip())
+    if script_text:
+        rendered_script = strip_tail_punct(script_bridge["templates"][level].format(value=script_text))
+        if rendered_script:
+            body_parts.append(rendered_script)
     body_parts.extend(build_camera_clauses(normalized_shot, level, spec))
     detail_sentences = require_dict(shot_spec["detail_sentences"], "spec.shot.detail_sentences")
     for sentence_group in require_list(detail_sentences[level], f"spec.shot.detail_sentences.{level}"):
@@ -88,15 +83,12 @@ def build_shot_text(group_id: str, shot: dict[str, Any], shot_index: int, bridge
 
 
 def compose_prompt(group: dict[str, Any], detail_level: str, spec: dict[str, Any]) -> str:
-    segment_map = build_script_segment_map(group)
     shot_lines = []
-    for index, raw_shot in enumerate(require_list(group.get("分镜明细"), f"{group['分镜组ID']}.分镜明细")):
-        shot = require_dict(raw_shot, f"{group['分镜组ID']}.分镜明细[]")
-        bridge = build_script_bridge_text(group["分镜组ID"], shot, segment_map)
-        shot_lines.append(build_shot_text(group["分镜组ID"], shot, index, bridge, detail_level, spec))
+    for index, shot in enumerate(ordered_canonical_shots(group)):
+        shot_lines.append(build_shot_text(shot, index, detail_level, spec))
     sections = [
         build_prompt_prefix(spec),
-        build_group_design_block(group, spec),
+        build_canonical_group_design_block(group, spec),
         "\n".join(shot_lines),
     ]
     return "\n".join(section for section in sections if section).strip()
@@ -122,7 +114,7 @@ def build_request_packet(
     packet["meta"]["source_tranche"] = "分镜故事板"
     packet["meta"]["shot_level"] = "storyboard_group"
     packet["meta"]["group_id"] = group["分镜组ID"]
-    packet["meta"]["source_shot_ids"] = [shot["分镜ID"] for shot in require_list(group.get("分镜明细"), f"{group['分镜组ID']}.分镜明细")]
+    packet["meta"]["source_shot_ids"] = [shot["分镜ID"] for shot in ordered_canonical_shots(group)]
     packet["meta"]["source_file"] = source_rel
     packet["meta"]["source_schema"] = SOURCE_SCHEMA
     packet["meta"]["template_version"] = "v2"
@@ -180,16 +172,18 @@ def validate_sheet_packet(packet: dict[str, Any], group: dict[str, Any], prefix:
     ]
     if any(label in prompt for label in forbidden_labels):
         raise ValueError(f"{group_id} 泄露了字段标题。")
-    style_anchor = strip_tail_punct(str(group["组间设计"]["全局风格"]).strip())
+    group_style_source = group.get("global") if isinstance(group.get("global"), dict) else group.get("组间设计")
+    style_anchor = strip_tail_punct(str(require_dict(group_style_source, f"{group_id}.style_source").get("全局风格", "")).strip())
     if style_anchor and style_anchor not in prompt:
         raise ValueError(f"{group_id} 未保留组级设计块中的全局风格。")
     if packet["meta"]["group_id"] != group_id:
         raise ValueError(f"{group_id} 的 group_id 回链错误。")
-    expected_ids = [shot["分镜ID"] for shot in require_list(group.get("分镜明细"), f"{group_id}.分镜明细")]
+    ordered_shots = ordered_canonical_shots(group)
+    expected_ids = [shot["分镜ID"] for shot in ordered_shots]
     if packet["meta"]["source_shot_ids"] != expected_ids:
         raise ValueError(f"{group_id} 的 source_shot_ids 与组内分镜顺序不一致。")
     for index, shot_id in enumerate(expected_ids):
-        expected_anchor = f"{build_time_range(group['分镜明细'][index])}｜分镜{build_shot_display_index(index)}："
+        expected_anchor = f"{build_time_range(ordered_shots[index])}｜分镜{build_shot_display_index(index)}："
         if expected_anchor not in prompt:
             raise ValueError(f"{group_id} 缺少镜级锚点 {expected_anchor}。")
         if f"分镜{shot_id}：" in prompt or f"分镜 {shot_id} " in prompt:
@@ -205,7 +199,7 @@ def render_episode(project_name: str, episode_id: str, group_id: str | None = No
     source_data = require_dict(read_json(source_path), str(source_path))
     prompt_spec = load_prompt_assembly_spec(PROMPT_ASSEMBLY_SPEC)
     prefix = build_prompt_prefix(prompt_spec)
-    detected_episode_id, groups = validate_source_ready(source_data, ALLOWED_PHASES)
+    detected_episode_id, groups = validate_canonical_source_ready(source_data, ALLOWED_PHASES)
     if detected_episode_id != episode_id:
         raise ValueError(f"文件内 episode_id={detected_episode_id}，但执行参数为 {episode_id}。")
     template = read_json(TEMPLATE_JSON)
@@ -290,11 +284,9 @@ def main() -> None:
     parser.add_argument(
         "--allow-legacy-script-authorship",
         action="store_true",
-        help="受控兼容模式：允许旧式脚本直接生成分镜故事板提示词。",
+        help="兼容保留参数；当前 runner 已默认按 canonical detail 直读生成，不再需要该开关。",
     )
     args = parser.parse_args()
-    if not args.allow_legacy_script_authorship:
-        raise SystemExit(f"[ERROR] {LEGACY_SCRIPT_AUTHORSHIP_ERROR}")
     print(json.dumps(render_episode(args.project, args.episode, args.group_id, args.output_mode), ensure_ascii=False, indent=2))
 
 

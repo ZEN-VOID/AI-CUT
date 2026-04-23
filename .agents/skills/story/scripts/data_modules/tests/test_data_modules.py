@@ -872,7 +872,7 @@ class TestIndexManager:
                 cold_commentary_risk="medium",
                 severity_counts={"critical": 0, "high": 1, "medium": 2, "low": 0},
                 critical_issues=[],
-                report_file="4-Validation/第1-1章审查报告.md",
+                report_file="4-Review/第1-1章审查报告.md",
             )
         )
         manager.save_review_metrics(
@@ -894,7 +894,7 @@ class TestIndexManager:
                 cold_commentary_risk="high",
                 severity_counts={"critical": 1, "high": 0, "medium": 1, "low": 2},
                 critical_issues=["设定自相矛盾"],
-                report_file="4-Validation/第2-2章审查报告.md",
+                report_file="4-Review/第2-2章审查报告.md",
             )
         )
 
@@ -1324,7 +1324,7 @@ class TestIndexManager:
             "cold_commentary_risk": "medium",
             "severity_counts": {"critical": 0, "high": 1, "medium": 2, "low": 0},
             "critical_issues": [],
-            "report_file": "4-Validation/第1-1章审查报告.md",
+            "report_file": "4-Review/第1-1章审查报告.md",
         }
         run_cli(
             [

@@ -213,7 +213,7 @@ def test_loopback_manager_blocks_pass_without_loopback_handoff(tmp_path, monkeyp
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_only",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -257,7 +257,7 @@ def test_loopback_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -314,7 +314,7 @@ def test_loopback_manager_applies_projection_refresh_modes(tmp_path, monkeypatch
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [
@@ -379,7 +379,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "governance_refs": {
                 "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
                 "artifact_manifest_ref": "STATE.json#workflow_runtime.governance_index.run-12.artifact_manifest",
@@ -400,7 +400,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                     },
                     "history_append": {
                         "episode_ref": "第12章",
-                        "validation_ref": "4-Validation/第12章.validation.json",
+                        "validation_ref": "4-Review/第12章.validation.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
@@ -424,7 +424,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                         "execution_status": "completed",
                         "validated_at": "2026-04-06T10:00:00",
                         "manuscript_ref": "3-Drafting/第2卷/第12章.md",
-                        "validation_ref": "4-Validation/第12章.validation.json",
+                        "validation_ref": "4-Review/第12章.validation.json",
                         "actual_outcome_summary": "本章完成破境并公开立场。",
                         "carry_forward_refs": ["1-Cards/2-角色卡/主要角色/林辰.json"],
                     },
@@ -449,7 +449,7 @@ def test_loopback_manager_writes_artifact_and_applies_writebacks(tmp_path, monke
                 {"ref_type": "manuscript", "ref_path": "3-Drafting/第2卷/第12章.md", "note": "正文真源"},
                 {
                     "ref_type": "validation_packet",
-                    "ref_path": "4-Validation/第12章.validation.json",
+                    "ref_path": "4-Review/第12章.validation.json",
                     "note": "验证报告",
                 },
             ],
@@ -562,7 +562,7 @@ def test_loopback_manager_writes_slice_actualization_and_root_indexes(tmp_path, 
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [
                 {
@@ -645,7 +645,7 @@ def test_loopback_manager_rolls_back_on_commit_failure(tmp_path, monkeypatch):
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -728,7 +728,7 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -739,7 +739,7 @@ def test_loopback_manager_writes_nested_card_schema_state(tmp_path, monkeypatch)
                     },
                     "history_append": {
                         "episode_ref": "第12章",
-                        "validation_ref": "4-Validation/第12章.validation.json",
+                        "validation_ref": "4-Review/第12章.validation.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
@@ -803,7 +803,7 @@ def test_loopback_manager_rejects_revision_drift(tmp_path, monkeypatch):
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
@@ -851,7 +851,7 @@ def test_loopback_manager_rejects_non_whitelisted_delta_fields(tmp_path, monkeyp
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_loopback",
             "handoff_targets": ["review/", "5-Loopback"],
-            "validation_ref": "4-Validation/第12章.validation.json",
+            "validation_ref": "4-Review/第12章.validation.json",
             "card_deltas": [
                 {
                     "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",

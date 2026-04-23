@@ -31,8 +31,8 @@
 | 空镜规则只在 prompt 末尾禁止人物，`N6-CAMERA` 仍把剧情动作当成画面主体 | thinking-action node layer | 在 `N6-CAMERA` 先把人物动作转写为空间痕迹、动线、环境状态或物体尺度线索 | `Thinking-Action Node Contract` 登记 `scene_empty_shot_note`，`N7/N10` 复验 `reference_cleanliness_note` | prompt 中没有正向人物动作，且含 `empty environmental shot / no characters` |
 | 场景 Markdown 批量输出绕过 `scene_masterprompt.structured.v2.md`，只生成简化 bullet 卡 | executable gate layer | 增加 `scripts/build_scene_design_packets.py` 从模板填槽，并用 `scripts/validate_scene_design_projection.py` 检查关键章节 | `SKILL.md` 将渲染器和校验器升为显式入口；`_manifest.json.template_validation.status` 必须为 `success` | 11 个第1集场景 Markdown 均含 `Reasoning Pivot / ## Scene Design ## / ## Cinematography ## / **prompt整合**` |
 | 场景设计脚本遇到新项目场景名时把中文透传进 `prompt整合` | prompt localization layer | 为 `build_scene_design_packets.py` 增加项目感知场景名/风格兜底、非 ASCII 过滤与恐怖出租屋 period-region 判型 | `prompt整合` 的生成链必须先转写为英文 ASCII，再进入模板和 `full_generation_prompt` | `validate_scene_design_projection.py` 不再报 Chinese/non-ASCII prompt |
-| 场景输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在 `S11/N11` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层与场景设计型 reviewer 补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 隈研吾/叶锦添补选 -> real subagents` | 当前轮场景输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
-| 场景监制强化只能指向 `scene_design.json` 或 `[场景名].md`，无法定位具体失真槽位 | slot-level review governance layer | 先把当前轮目标解析成 `SCENE-BUNDLE-01~04`，再汇流 reviewer finding | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与 patch 顺序；leaf `S11/N11` 强制读取该合同 | reviewer 结论能区分是 `story-world`、`design-structure`、`cinematography` 还是 `prompt-cleanliness` bundle 失真 |
+| 场景输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在 `S11/N11` 固定读取项目根 `team.yaml`，但只写明当前轮 closeout 已不再由 `监制` 执行 | 用 `_shared/subagent-supervision-contract.md` 固定停用边界 | 当前轮场景输出完成后可回溯 `post_write_audit_note` |
+| 场景 post-write 问题无法定位具体失真槽位 | slot-level audit governance layer | 先把当前轮目标解析成 `SCENE-BUNDLE-01~04`，再写 audit note | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与记录顺序 | audit 结论能区分是 `story-world`、`design-structure`、`cinematography` 还是 `prompt-cleanliness` bundle 失真 |
 
 ## Repair Playbook
 
@@ -44,9 +44,9 @@
 6. 运行 `scripts/validate_scene_design_projection.py --output-dir <场景设计输出目录>`；只有 `_manifest.json.template_validation.status == success` 才能进入面板或自动生图。
 7. 自动生图前检查 `reference_cleanliness_note`：缺 `empty environmental shot / no characters` 或出现正向人物、人群、手部、表演动作时，回到 `N6/N7`。
 8. 最后用 `run_design_auto_image.py --design-file <场景名>.md` 检查同目录同名图片是否能由完整 prompt 生成。
-9. 当前轮场景 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `N11-SUPERVISION-REVIEW`；图片状态只作证据。
-10. `N11` 先按 shared contract 区分 stage-end refine 与 final-stage gate；显式 reviewer 不足时，按场景目标补入 `隈研吾 + 叶锦添`。
-11. 进入 `N11` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `SCENE-BUNDLE-*`；若无法解析，先修 mapping，不直接做泛化审稿。
+9. 当前轮场景 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `N11-POST-WRITE-AUDIT-NOTE`；图片状态只作证据。
+10. `N11` 先确认 post-write closeout 已不再由 `监制` 执行，再决定是否补写 audit note / acceptance handoff。
+11. 进入 `N11` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `SCENE-BUNDLE-*`；若无法解析，先修 mapping，不直接写泛化审计意见。
 
 ## Reusable Heuristics
 
@@ -62,5 +62,5 @@
 - 场景自动图是环境参照资产，默认必须是 `empty environmental shot`；即使上游剧情含角色动作，也只能转写为空间痕迹、动线或环境状态。
 - 空镜不是 prompt 末端的否定词，而是摄影节点的取景前提；先决定“没有角色主体的空间怎么仍然可读”，再写 Integrated prompt。
 - 场景 leaf 只写“模板必须绑定”还不够；凡模板是质量门，必须同时有渲染器和 validator，否则批量任务会自然滑向临时 Markdown 拼接。
-- 场景输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏空间/设计审稿时，再补入设计组/美学组 reviewer。对场景默认是 `隈研吾 + 叶锦添`。
-- 对场景这种 machine-first truth + Markdown projection 双载体输出，最稳的监制粒度不是“评哪个文件”，而是“评哪个 slot bundle”；文件只负责承载 bundle，不负责定义 bundle。
+- 场景输出后的 post-write 问题不再看 `roles.supervision.members`；这些成员只作用于前置 advisory。
+- 对场景这种 machine-first truth + Markdown projection 双载体输出，最稳的后置审计粒度不是“评哪个文件”，而是“记哪个 slot bundle”；文件只负责承载 bundle，不负责定义 bundle。

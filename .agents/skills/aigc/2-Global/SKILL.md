@@ -24,11 +24,11 @@ governance_tier: full
 
 ## Skill Execution Rule (Mandatory)
 
-`2-Global` 采用“单技能内部生成 + 单一 JSON 直写 + 阶段末端监制强化”模式：
+`2-Global` 采用“单技能内部生成 + 单一 JSON 直写 + 可选前置监制 advisory”模式：
 
 - skill 自身负责输入读取、业务分析、约束裁决、字段生成、`episode_root.json` 直接写回、验收与下游回接
 - `全局风格`、`全集类型元素`、`分组类型元素`、`导演意图` 的生成都内收在父 skill 内部，不再通过外置导演组 contracts 生成真源
-- 若项目根 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，stage-end refine 允许按 shared `council-runtime` 规则调度 reviewer subagents，对已写出的 `episode_root.json` 与 `validation-report.md` 做一轮监制会审与最小必要优化
+- 若项目根 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，只允许在直写前消费 shared `council-runtime` 的前置 advisory；首次落盘后的收尾回到阶段审计/验收层，不再由 `监制` 执行
 - 兼容投影若被生成，也只能由已确认 JSON 派生，不得反向夺取真源地位
 
 ## When to Use
@@ -54,7 +54,7 @@ governance_tier: full
 | `non_goals` | 不生成 shot-level 明细；不把本阶段写成平行长文流水线；不再维护第二套导演组 agent 真源 |
 | `complexity_source` | 项目级稳定项与当前集组级增量并存；类型总则与组级打法要分层；又要保证 JSON 结构能直接给 `3-Detail` 消费 |
 | `topology_fit` | 串行锁输入与不变量，中段按“全局风格 + 全集类型 + 分组类型 + 导演意图”形成同一 JSON 根，后段统一审计与会审 |
-| `step_strategy` | 采用“输入锁定 -> 项目级约束 -> 组级导演判断 -> JSON 直写 -> 验收 -> 可选监制 refine”的固定主链 |
+| `step_strategy` | 采用“输入锁定 -> 项目级约束 -> 组级导演判断 -> JSON 直写 -> 验收”的固定主链；若有 `监制`，只以前置 advisory 方式介入 |
 
 ## Context Preload (Mandatory)
 
@@ -211,8 +211,8 @@ governance_tier: full
    - 唯一业务真源
 2. `projects/aigc/<项目名>/2-Global/validation-report.md`
    - 记录本轮验收、阻塞、根因上溯与 closure
-3. `supervision runtime report`
-   - 若项目根 `team.yaml` 启用且当前阶段命中 `roles.supervision`，必须给出 `reviewer_source / reviewers / mode / used_subagents / patched_targets / key_findings`
+3. `advisory note`
+   - 若项目根 `team.yaml` 启用且当前阶段命中 `roles.supervision`，只需记录前置 advisory 是否被读取、其要点与是否采纳
 4. `closure triad + handoff note`
    - 说明 `root cause location / immediate fix / systemic prevention fix`
    - 给出下一入口固定为 `3-Detail`
@@ -229,7 +229,7 @@ governance_tier: full
 5. `全集类型元素` 只写项目级类型总则，不得混入当前组临场打法。
 6. `类型元素` 与 `导演意图` 都必须对齐当前 `分镜组ID`。
 7. `episode_root.json` 的 `groups[].global.*` 由当前 skill 聚合写入，但本阶段不得发明 shot-level 字段。
-8. stage-end 会审只能围绕本轮已写出的 `episode_root.json`、`validation-report.md` 与必要兼容投影给 patch 建议；不得生成新的“监制稿”“评审稿”或旁路总稿。
+8. 首次落盘后的审计与验收必须回到阶段自己的 `validation-report.md` / audit 机制；不得再把 `监制` 用作 stage-end refine 的 owner。
 
 ## Acceptance Checklist (Mandatory)
 

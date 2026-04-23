@@ -49,7 +49,7 @@ PRODUCTION_SKILL_PATHS = [
     ".agents/skills/story/5-Loopback",
 ]
 REVIEW_SKILL_PATHS = [
-    ".agents/skills/story/4-Validation",
+    ".agents/skills/story/4-Review",
     ".agents/skills/story/review",
 ]
 PROJECT_SKELETON_DIRS = [
@@ -74,7 +74,7 @@ PROJECT_SKELETON_DIRS = [
     "1-Cards/5-类型卡/总题材",
     "2-Planning",
     "3-Drafting",
-    "4-Validation",
+    "4-Review",
     "5-Loopback",
 ]
 TEAM_ROLE_SPECS = {
@@ -1428,7 +1428,7 @@ def _render_team_manifest_yaml(
         "#",
         "# 角色：",
         "# - story2026 项目级 team 代入真源",
-        "# - 由 `0-Init` 首次生成，供 `1-Cards / 2-Planning / 3-Drafting / 4-Validation / review` 消费",
+        "# - 由 `0-Init` 首次生成，供 `1-Cards / 2-Planning / 3-Drafting / 4-Review / review` 消费",
         "# - 不替代各阶段 canonical，只提供治理角色、成员、初始化 provenance 与运行策略",
         "",
         f"enabled: {_yaml_bool(True)}",
@@ -1673,7 +1673,7 @@ def init_project(
             "cards_root": "1-Cards/",
             "planning_root": "2-Planning/",
             "drafting_root": "3-Drafting/",
-            "validation_root": "4-Validation/",
+            "validation_root": "4-Review/",
             "loopback_root": "5-Loopback/",
             "one_liner": one_liner,
             "core_conflict": core_conflict,
@@ -1747,7 +1747,7 @@ def init_project(
         "cards_root": "1-Cards/",
         "planning_root": "2-Planning/",
         "drafting_root": "3-Drafting/",
-        "validation_root": "4-Validation/",
+        "validation_root": "4-Review/",
         "loopback_root": "5-Loopback/",
         "north_star": "0-Init/north_star.yaml",
         "story_source_manifest": "0-Init/story-source-manifest.yaml",
@@ -1979,7 +1979,7 @@ def init_project(
     print(" - 1-Cards/")
     print(" - 2-Planning/")
     print(" - 3-Drafting/")
-    print(" - 4-Validation/")
+    print(" - 4-Review/")
     print(" - 5-Loopback/")
     print("2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")

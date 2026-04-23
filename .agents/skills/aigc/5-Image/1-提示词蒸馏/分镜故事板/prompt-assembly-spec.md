@@ -3,13 +3,13 @@
 本文件是 `分镜故事板` 的句法装配真源。
 
 - `SKILL.md` 负责门禁、对象边界、写回与 handoff。
-- `.agents/skills/aigc/5-Image/1-提示词蒸馏/_shared/prompt_bridge_helpers.py` 负责 `正文切分参考[] / 正文回指 / shot normalize` 的共享运行时桥接逻辑。
-- 本文件负责组级故事板 specialization：固定英文前缀、组级设计块、组内多镜融写行与压缩级别。
+- `.agents/skills/aigc/5-Image/1-提示词蒸馏/_shared/prompt_bridge_helpers.py` 负责 canonical shot normalize、字段压平与顺序读取。
+- 本文件负责组级故事板 specialization：固定英文前缀、组级设计块、按 canonical `detail.分镜列表` 顺序拼接镜级行与压缩级别。
 
 ## Composition Contract
 
-- 最终 prompt 采用：`固定英文前缀 + 组级设计块 + 多镜融写列`
-- 不保留独立 A 段整组 `剧本正文`
+- 最终 prompt 采用：`固定英文前缀 + 组级设计块 + 多镜顺序列`
+- 不依赖 `正文切分参考[] / 正文回指`
 - 每镜固定以 `xx秒-xx秒｜分镜<组内序号>：` 开头
 - 完整四段式 `分镜ID` 只保留在结构化回链字段中
 - 除镜级序号标签外，不暴露字段标题
@@ -50,18 +50,13 @@
         "field": "导演意图",
         "template": "本组导演意图聚焦{value}",
         "transform": "strip_tail_punct"
-      },
-      {
-        "field": "出场角色及穿搭",
-        "template": "出场角色及穿搭为{value}",
-        "transform": "strip_tail_punct"
       }
     ]
   },
   "shot": {
     "opening_template": "{time_range}｜分镜{shot_index}：",
     "script_bridge": {
-      "field": "剧情桥段",
+      "field": "剧本正文",
       "templates": {
         "full": "{value}",
         "normal": "{value}",

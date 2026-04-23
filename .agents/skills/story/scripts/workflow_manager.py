@@ -146,12 +146,12 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         ],
     },
     "story-validate": {
-        "stage_id": "4-validation",
-        "stage_label": "验证层",
+        "stage_id": "4-review",
+        "stage_label": "审计层",
         "steps": [
-            ("Step 1", "加载事实包", "context-agent"),
-            ("Step 2", "分发验证团队", "validation-team"),
-            ("Step 3", "聚合结论", "validation-aggregator"),
+            ("Step 1", "加载审计规范与事实包", "context-agent"),
+            ("Step 2", "后台分发 code-reviewer 审计", "validation-team"),
+            ("Step 3", "聚合 findings 与修复分流", "validation-aggregator"),
             ("Step 4", "路由交接", "validation-router"),
         ],
     },
@@ -159,7 +159,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         "stage_id": "review",
         "stage_label": "审查层",
         "steps": [
-            ("Step 1", "确认 Validation 输出", "story-review-skill"),
+            ("Step 1", "确认 4-Review 输出", "story-review-skill"),
             ("Step 2", "加载参考与项目状态", "story-review-skill"),
             ("Step 3", "汇总评估结果", "story-review-skill"),
             ("Step 4", "生成审查报告", "story-review-skill"),
@@ -530,7 +530,7 @@ def _ensure_task_runtime_fields(task: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validation_registry_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "4-Validation" / "_shared" / "validation-dimension-registry.yaml"
+    return Path(__file__).resolve().parent.parent / "4-Review" / "_shared" / "validation-dimension-registry.yaml"
 
 
 def _load_validation_dimension_registry() -> dict[str, Any]:
@@ -812,7 +812,7 @@ def _auto_run_inline_validation_batch(task: dict[str, Any]) -> dict[str, Any]:
         }
 
     try:
-        from validation_runner import run_batch
+        from review_runner import run_batch
     except Exception as exc:  # pragma: no cover
         inline_state.setdefault("latest_summary", {})["reason"] = "auto_runner_import_failed"
         return {"status": "deferred", "reason": f"import_error:{exc.__class__.__name__}"}
@@ -1890,7 +1890,7 @@ def _review_checkpoint_for_volume(project_payload: dict[str, Any], volume: int) 
 
 
 def _review_report_for_episode(project_root: Path, episode: int) -> Optional[Path]:
-    review_dir = project_root / "4-Validation"
+    review_dir = project_root / "4-Review"
     if not review_dir.is_dir():
         return None
 
@@ -1906,7 +1906,7 @@ def _review_report_for_episode(project_root: Path, episode: int) -> Optional[Pat
 
 
 def _review_report_for_volume(project_root: Path, volume: int) -> Optional[Path]:
-    review_dir = project_root / "4-Validation"
+    review_dir = project_root / "4-Review"
     if not review_dir.is_dir():
         return None
     report_path = review_dir / f"第{volume}卷审查报告.md"
@@ -2002,7 +2002,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
         next_step = str(resume_pointer.get("next_step") or "").strip() if isinstance(resume_pointer, dict) else ""
         if volume_num > 0 and (
             candidate_status in {CANDIDATE_FINAL_STATUS_READY, "candidate_volume_draft"}
-            or next_step == "4-Validation"
+            or next_step == "4-Review"
         ):
             fallback_chapters = planned_chapter_numbers_for_volume(project_root, volume_num)
             quality_guard = validate_volume_log(write_log_path, volume_num=volume_num)
@@ -2017,7 +2017,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                     volume_ref=f"第{volume_num}卷",
                     chapter_refs=chapter_refs,
                     reason="candidate_volume_draft_waiting_validation",
-                    summary=f"未检测到 tracked 中断，但第{volume_num}卷写作日志显示已到 candidate_volume_draft 且 volume quality gate 已通过，下一稳定入口是 4-Validation。",
+                    summary=f"未检测到 tracked 中断，但第{volume_num}卷写作日志显示已到 candidate_volume_draft 且 volume quality gate 已通过，下一稳定入口是 4-Review。",
                     artifact_refs={
                         "writing_log_ref": str(write_log_path.relative_to(project_root)),
                         "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
@@ -2047,14 +2047,14 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                 )
         elif write_log_chapter_num and (
             candidate_status == CANDIDATE_FINAL_STATUS_READY
-            or next_step == "4-Validation"
+            or next_step == "4-Review"
         ):
             write_log_episode = write_log_chapter_num
             write_log_packet = _artifact_resume_packet(
                 command="story-validate",
                 chapter_num=write_log_chapter_num,
                 reason="candidate_final_draft_waiting_validation",
-                summary=f"未检测到 tracked 中断，但第{write_log_chapter_num}章写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Validation。",
+                summary=f"未检测到 tracked 中断，但第{write_log_chapter_num}章写作日志显示已到 candidate_final_draft，下一稳定入口是 4-Review。",
                 artifact_refs={
                     "writing_log_ref": str(write_log_path.relative_to(project_root)),
                     "candidate_final_state": candidate_state if isinstance(candidate_state, dict) else {},
@@ -2124,7 +2124,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
         safe_append_task_log("artifact_resume_detected", packet)
         return packet
 
-    validation_volume, validation_path = _latest_numbered_file(project_root, "4-Validation", VALIDATION_VOLUME_REF_RE)
+    validation_volume, validation_path = _latest_numbered_file(project_root, "4-Review", VALIDATION_VOLUME_REF_RE)
     if validation_volume is not None and validation_path is not None:
         validation_payload = _optional_json(validation_path) or {}
         validation_status = str(validation_payload.get("validation_status") or "").strip()
@@ -2164,7 +2164,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                     volume_ref=f"第{validation_volume}卷",
                     chapter_refs=chapter_refs,
                     reason="validation_pass_review_pending",
-                    summary=f"未检测到 tracked 中断，但第{validation_volume}卷已 PASS 且尚未发现 review 持久化证据，下一稳定入口是 review。",
+                    summary=f"未检测到 tracked 中断，但第{validation_volume}卷已 PASS 且尚未发现 review 持久化证据，下一稳定入口是 story-validate 后的 review 持久化。",
                     artifact_refs={
                         "validation_ref": str(validation_path.relative_to(project_root)),
                     },
@@ -2218,7 +2218,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             safe_append_task_log("artifact_resume_detected", packet)
             return packet
 
-    validation_episode, validation_path = _latest_episode_file(project_root, "4-Validation", VALIDATION_REF_RE)
+    validation_episode, validation_path = _latest_episode_file(project_root, "4-Review", VALIDATION_REF_RE)
     if validation_episode is not None and validation_path is not None:
         if write_log_packet is not None and write_log_episode is not None and write_log_episode > validation_episode:
             safe_append_call_trace("artifact_resume_detected", write_log_packet)
@@ -2253,7 +2253,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                     command="story-review",
                     chapter_num=validation_episode,
                     reason="validation_pass_review_pending",
-                    summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS 且尚未发现 review 持久化证据，下一稳定入口是 review。",
+                    summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS 且尚未发现 review 持久化证据，下一稳定入口是 story-validate 后的 review 持久化。",
                     artifact_refs={
                         "validation_ref": str(validation_path.relative_to(project_root)),
                     },
@@ -2407,7 +2407,7 @@ def analyze_recovery_options(interrupt_info):
                     "risk": "low",
                     "description": summary,
                     "actions": [
-                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第V卷.validation.json'}",
+                        f"读取 {artifacts.get('validation_ref') or '4-Review/第V卷.validation.json'}",
                         f"按{volume_label}执行 PASS-only loopback actualization",
                         "回写 Cards.current_state/history、planning actualization sidecars、story_map actualization compat projection 与 runtime projections",
                     ],
@@ -2418,34 +2418,9 @@ def analyze_recovery_options(interrupt_info):
                     "risk": "low",
                     "description": "保留当前现场，先确认审查报告与 checkpoint 后再 actualize。",
                     "actions": [
-                        f"查看 {artifacts.get('review_report_ref') or '4-Validation/第V卷审查报告.md'}",
+                        f"查看 {artifacts.get('review_report_ref') or '4-Review/第V卷审查报告.md'}",
                         "核对 review_checkpoints 与 validation packet 是否一致",
                         "确认后再进入 loopback",
-                    ],
-                },
-            ]
-
-        if command == "story-review":
-            return [
-                {
-                    "option": "A",
-                    "label": "进入 review 持久化",
-                    "risk": "low",
-                    "description": summary,
-                    "actions": [
-                        f"消费 {artifacts.get('validation_ref') or '4-Validation/第V卷.validation.json'}",
-                        "生成审查报告、写 review metrics、回写 review checkpoint",
-                        "完成后再判断是否交给 5-Loopback",
-                    ],
-                },
-                {
-                    "option": "B",
-                    "label": "仅做人审核对",
-                    "risk": "low",
-                    "description": "先核 aggregate JSON，再决定是否立即 review 落盘。",
-                    "actions": [
-                        "检查 validation_status / routing_decision / handoff_targets",
-                        "确认 aggregate 字段完整后再进入 review",
                     ],
                 },
             ]
@@ -2454,12 +2429,37 @@ def analyze_recovery_options(interrupt_info):
             return [
                 {
                     "option": "A",
-                    "label": "进入 4-Validation 终验",
+                    "label": "进入 4-Review 终验",
+                    "risk": "low",
+                    "description": summary,
+                    "actions": [
+                        f"读取 {artifacts.get('validation_ref') or '4-Review/第V卷.validation.json'}",
+                        "执行后台 code-reviewer 审计并聚合 findings",
+                        "根据结果决定交 review、loopback 或打回 drafting/source",
+                    ],
+                },
+                {
+                    "option": "B",
+                    "label": "先核 aggregate JSON",
+                    "risk": "low",
+                    "description": "先核 aggregate JSON 与 code-reviewer 证据，再决定是否立即继续。",
+                    "actions": [
+                        "检查 validation_status / routing_decision / handoff_targets",
+                        "确认 aggregate 字段完整后再进入 4-Review",
+                    ],
+                },
+            ]
+
+        if command == "story-validate":
+            return [
+                {
+                    "option": "A",
+                    "label": "进入 4-Review 终验",
                     "risk": "low",
                     "description": summary,
                     "actions": [
                         f"读取 {artifacts.get('writing_log_ref') or '3-Drafting/第V卷.写作日志.yaml'}",
-                        f"对{volume_label}执行正式 4-Validation 聚合验收",
+                        f"对{volume_label}执行正式 4-Review 聚合验收",
                         "根据 PASS / FAIL 决定交 review、loopback 或打回 drafting/source",
                     ],
                 },
@@ -2471,7 +2471,7 @@ def analyze_recovery_options(interrupt_info):
                     "actions": [
                         f"查看 {artifacts.get('writing_log_ref') or '3-Drafting/第V卷.写作日志.yaml'}",
                         f"查看 {chapter_label}或当前卷候选终稿集合",
-                        "确认无额外改动后进入 4-Validation",
+                        "确认无额外改动后进入 4-Review",
                     ],
                 },
             ]
@@ -2509,9 +2509,9 @@ def analyze_recovery_options(interrupt_info):
                     "risk": "low",
                     "description": summary,
                     "actions": [
-                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第V卷.validation.json'}",
+                        f"读取 {artifacts.get('validation_ref') or '4-Review/第V卷.validation.json'}",
                         "按 rework_targets 回到对应 drafting 节点修稿",
-                        "修完后重新进入 4-Validation",
+                        "修完后重新进入 4-Review",
                     ],
                 },
                 {
@@ -2534,7 +2534,7 @@ def analyze_recovery_options(interrupt_info):
                     "risk": "low",
                     "description": summary,
                     "actions": [
-                        f"读取 {artifacts.get('validation_ref') or '4-Validation/第V卷.validation.json'}",
+                        f"读取 {artifacts.get('validation_ref') or '4-Review/第V卷.validation.json'}",
                         "按 source_trace 指向的上游真源补修后，再重回 validation",
                     ],
                 }
@@ -2544,7 +2544,7 @@ def analyze_recovery_options(interrupt_info):
     command = interrupt_info["command"]
     chapter_num = interrupt_info["args"].get("chapter_num", "?")
 
-    if normalize_command_name(command) not in {"story-write", "story-review"}:
+    if normalize_command_name(command) not in {"story-write", "story-validate", "story-review"}:
         return _generic_recovery_options(interrupt_info)
 
     if not current_step:
@@ -2596,7 +2596,7 @@ def analyze_recovery_options(interrupt_info):
                 "actions": [
                     f"打开并继续加工 {chapter_path}",
                     "保存正文与写作日志",
-                    (f"继续 {next_step}" if next_step else "完成当前章 3-Drafting，并准备交接 4-Validation"),
+                    (f"继续 {next_step}" if next_step else "完成当前章 3-Drafting，并准备交接 4-Review"),
                 ],
             },
             {
@@ -2627,6 +2627,24 @@ def analyze_recovery_options(interrupt_info):
                 }
             )
         return options
+
+    if normalize_command_name(command) == "story-validate" and step_id in {"Step 1", "Step 2", "Step 3", "Step 4"}:
+        return [
+            {
+                "option": "A",
+                "label": "从当前步骤继续",
+                "risk": "low",
+                "description": "保持当前 4-Review 输入不变，继续 code-reviewer 审计、聚合和路由。",
+                "actions": ["保留当前 4-Review 现场", f"继续 {command}"],
+            },
+            {
+                "option": "B",
+                "label": "保留现场并人工核对",
+                "risk": "medium",
+                "description": "保留 aggregate、报告与审计 sidecar，稍后再继续。",
+                "actions": ["记录当前现场", "清理中断状态", "人工决定是否重跑或继续"],
+            },
+        ]
 
     if normalize_command_name(command) == "story-review" and step_id in {"Step 1", "Step 2", "Step 3", "Step 4", "Step 5", "Step 6"}:
         return [

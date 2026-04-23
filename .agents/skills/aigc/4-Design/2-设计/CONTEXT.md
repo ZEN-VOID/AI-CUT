@@ -33,9 +33,9 @@
 | 参照图洁净只写在输出规则，思维·执行节点仍按剧情剧照思路装配 prompt | thinking-action contract layer | 将洁净判断前移到 leaf 的摄影/设计卡 synthesis 节点，并在 prompt 与 auto-image 节点复验 | `_shared/design-output-contract.md` 增加 Thinking-Action Placement Contract；父层与三 leaf Field/Pass/Node 表登记 `reference_cleanliness_note` | 节点证据能说明污染词已被转写，且自动生图前已复验锚句 |
 | 单主体自动生图 provider 长时间无响应，导致 `2-设计` 父级 pipeline 卡死 | provider timeout layer | 中断当前远端等待，将本轮 manifest 标为 `auto_image.failed/timeout`，继续交付可追踪设计真源与后续 layout dry-run | `run_design_auto_image.py` 增加默认 `--timeout`，超时返回 124 并输出明确错误，避免批量链路无限挂起 | 真实生图失败时命令能在超时窗内退出，manifest 与 validation-report 明确记录 provider timeout |
 | 多主体设计批量生图仍逐个前台等待，拖慢或阻塞 `2-设计` pipeline | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认后台提交 | 新增共享 `image-generation-execution-contract.md`，`ensure_design_auto_images.py` 默认 `background-batch-concurrent + max_concurrent=100`，只在 `--foreground` 时等待 | `_manifest.json.auto_image.status=background_submitted` 且含 `request_batch_path/background_pid/background_log` |
-| 设计输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在父层 `S6` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层、显式 reviewer 与设计补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 设计补选 + real subagents` | 当前轮输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
-| 把 `4-Design` 的 stage-end refine、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先区分当前轮 closeout 与阶段最终验收 gate；再把 `source_skill_refs` 降为领域提示 | shared contract、`4-Design/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“分层裁定 + reviewer precedence” | reviewer roster 稳定，且 `source_skill_refs` 不再被当成授权字段 |
-| 监制强化只能说“某个文件有问题”，无法定位到模板槽位或 canonical slot | slot-level review governance layer | 新增 `_shared/design-slot-review-contract.md`，把当前轮输出从文件级 bundle 细化到 slot bundle | 父层、leaf 与 `subagent-supervision-contract.md` 统一回指 slot bundle 真源，review finding 默认带 `bundle_id` | reviewer 结论可定位到 `SCENE/ROLE/PROP-BUNDLE-*`，不再停留在泛化文件点评 |
+| 设计输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在父层 `S6` 固定写明 `roles.supervision` 已停用为 post-write owner | 用 `_shared/subagent-supervision-contract.md` 作为停用占位真源，而不是 closeout 执行器 | 当前轮输出完成后只回溯 `post_write_audit_note` |
+| 把 `4-Design` 的 post-write audit、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先收回 closeout reviewer 语义，再把 `source_skill_refs` 降为领域提示 | shared contract、`4-Design/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“停用 closeout + 保留 slot bundle 审计语义” | reviewer roster 不再成为当前轮 closeout 前提 |
+| post-write 问题只能说“某个文件有问题”，无法定位到模板槽位或 canonical slot | slot-level audit governance layer | 保留 `_shared/design-slot-review-contract.md`，把当前轮输出从文件级 bundle 细化到 slot bundle | 父层、leaf 与占位合同统一回指 slot bundle 真源，audit note 默认带 `bundle_id` | 后置问题仍可定位到 `SCENE/ROLE/PROP-BUNDLE-*` |
 | slot-bundle 合同已经写进父层/leaf，但 audit 仍全绿，因为没有任何执行器真正消费它 | audit-execution parity layer | 新增 `_shared/scripts/resolve_design_slot_bundles.py` 作为最小执行载体，并让 `scripts/aigc_skill_audit.py --strict` 显式检查 resolver + contract + `slot_bundles/slot_bundle_findings` | 对新增 shared contract，必须同时落三处：规范文档、执行脚本、审计器；缺一都不能视为“已落地” | `aigc_skill_audit.py --strict` 能在 resolver 缺失或 contract 未被脚本消费时失败 |
 | leaf 在 coverage 表中 active，但实际缺少 builder / runner | leaf runtime layer | 先补 leaf pipeline，再运行当前 tranche | 在 leaf `SKILL.md` 补 `Executable Entrypoints`，并把 help/dry-run/validator 作为最小 runtime 验收 | active coverage 与真实可执行状态一致 |
 
@@ -50,11 +50,11 @@
 7. 最后执行 `ensure_design_auto_images.py`，逐个 Markdown 补齐同 stem 图片并回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
 8. 若 provider 超过 `run_design_auto_image.py --timeout` 仍未返回，立即按图片步骤失败处理，不得让父级 pipeline 无限等待；继续保留设计真源、request/dry-run 证据和验收缺口。
 9. 默认自动生图先看 `execution_mode`：后台批量并发提交只证明 request 已交付；需要消费真实图片时再复核同 stem 图片或用 `--foreground` 重跑。
-10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；图片状态只作证据，不作 prerequisite。
-11. `S6` 先按 shared contract 区分 stage-end refine 与 final-stage gate，再决定 reviewer roster；显式 reviewer 不足时，按父层 / 场景 / 角色 / 道具目标补入设计 reviewer。
-12. 若 `team.yaml.enabled == false` 但用户明确要求本轮启用 subagents 监制强化，按 `manual override` 走 shared contract，并在结论里说明这是人工触发复审，不是常驻运行时。
-13. 当前轮 closeout 进入 reviewer 前，先按 `_shared/design-slot-review-contract.md` 把目标文件解析成 slot bundles；若无法解析，优先修共享合同或 leaf mapping，而不是直接开始泛化审稿。
-14. 对 slot-bundle 这类 shared closeout contract，不能只看 `SKILL.md` 是否提到；必须同时检查 `_shared/scripts/resolve_design_slot_bundles.py` 和 `scripts/aigc_skill_audit.py` 是否消费了同一合同。
+10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；但 `S6` 的职责已经改成写审计边界说明。
+11. `S6` 先确认 `roles.supervision` 已不再承担当前轮 closeout，再决定是否需要把问题写入 audit note / acceptance handoff。
+12. 若用户明确要求本轮做落盘后复核，当前也只按 audit 需求记录，不回退到旧的 subagents 监制强化。
+13. 当前轮若要写 audit note，先按 `_shared/design-slot-review-contract.md` 把目标文件解析成 slot bundles；若无法解析，优先修共享合同或 leaf mapping。
+14. 对 slot-bundle 这类 shared audit contract，不能只看 `SKILL.md` 是否提到；必须同时检查 `_shared/scripts/resolve_design_slot_bundles.py` 和 `scripts/aigc_skill_audit.py` 是否消费了同一合同。
 
 ## Reusable Heuristics
 
@@ -75,8 +75,8 @@
 - `2-设计` 的单主体图片只服务主体概念锁定和 panel continuity reference；不替代 `3-面板` 的 layout 图。
 - 外部 provider 是不稳定依赖，批量设计链路必须有超时边界；超时后可以继续生成结构化设计和面板 layout，但不得把图片步骤宣布为成功。
 - AIGC 图像生成默认应以 request sidecar 为提交真源，后台批量并发执行；`background_submitted` 是可追踪提交态，不是最终产图成功态。
-- 设计输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏设计系统审稿时，再补入设计组/美学组 reviewer。对 `2-设计` 父层默认是 `张叔平 + 叶锦添`。
-- `source_skill_refs` 适合做 reviewer 映射提示，不适合当 `4-Design` 当前轮 closeout 的授权字段；一旦把它升格，reviewer roster 会随 provenance 漂移。
-- 当 `2-设计` 已经有稳定模板真源和 canonical truth 时，顾问团/监制/评审 不应继续只按文件名工作；最稳的粒度是“文件 + slot bundle”双层 target bundle。
+- `2-设计` 当前轮 closeout 已不再看 `roles.supervision.members`；它们只影响前置 advisory。
+- `source_skill_refs` 适合做领域提示，不适合当 `4-Design` 当前轮 closeout 的授权字段。
+- 当 `2-设计` 已经有稳定模板真源和 canonical truth 时，post-write 问题仍应用“文件 + slot bundle”双层粒度记录，但不再以 `监制强化` 的形式执行。
 - 对 shared closeout contract 的审计，最容易出现的假阳性是“文档全提到了，但 runner 一个都没有”；防这种漂移最稳的方式是给 contract 配一个最小 resolver，并让 audit 直接检查它。
 - `2-设计` 父层不能只看 leaf 目录和 validator 就宣布 active；真正的 active 至少要满足 builder 可运行、projection 可校验、auto-image 可受控降级三件事。

@@ -120,7 +120,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert (project_root / "1-Cards" / "1-风格卡" / "总风格").is_dir()
     assert (project_root / "1-Cards" / "5-类型卡" / "总题材").is_dir()
     assert (project_root / "2-Planning").is_dir()
-    assert (project_root / "4-Validation").is_dir()
+    assert (project_root / "4-Review").is_dir()
     assert (project_root / "5-Loopback").is_dir()
     assert not (project_root / "Drafting").exists()
     assert not (project_root / "正文").exists()
@@ -141,7 +141,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert " - CONTEXT/" in captured.out
     assert " - 1-Cards/" in captured.out
     assert " - 2-Planning/" in captured.out
-    assert " - 4-Validation/" in captured.out
+    assert " - 4-Review/" in captured.out
     assert " - 5-Loopback/" in captured.out
     assert "2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
 

@@ -41,7 +41,7 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 说明：
 - `3-Drafting/` 是当前唯一正文真源目录。
-- `正文/` 仅作为旧项目兼容回退，不再属于新项目 runtime 骨架，也不应在默认查询路径中当作现行结构展示。
+- `3-Drafting` 根技能本身就是章节正文主技能；旧的 `正文/` child 已退出现行结构。
 
 ## 架构变更说明
 
@@ -97,12 +97,13 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 
 3-Drafting
   → 以 `3-Drafting/第N卷/第N章.md` 作为当前章唯一正文根文件
-  → 卷级父流程调度 chapter workers，并同步 `3-Drafting/第V卷.写作日志.yaml`
-  → 当前卷 continuity pack 为硬输入；若前序章已完成，可额外加载其正文做增强校准
+  → 根技能直接读取三层 planning + 全局卡 + 风格卡 + north_star + 项目 CONTEXT
+  → 实际正文创作固定走 `scripts/write_chapter_via_doubao.py -> doubao-seed-2.0-pro`
+  → 若前序章已完成，可额外加载其正文做增强校准
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
 
-4-Validation
+4-Review
   → 新后台隔离团队做客观检验，决定是否 PASS
 
 review
@@ -153,25 +154,20 @@ query / resume
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
 
-2. `3-Drafting` 八道工序 progressive rewrite
-   → Step 1 起盘
-   → Step 2 节奏
-   → Step 3 场景和氛围
-   → Step 4 角色形象
-   → Step 5 对白声口
-   → Step 6 心理活动描写
-   → Step 7 追读力强化
-   → Step 8 润色
-   → 每一步都写回 `3-Drafting/第N卷/第N章.md + 第V卷.写作日志.yaml`
+2. `3-Drafting` chapter-native 豆包正文创作
+   → 锁当前章 planning / global-style / north-star / project CONTEXT / previous chapter
+   → 生成完整章节 Markdown 文件
+   → 写回 `3-Drafting/第N卷/第N章.md`
+   → 兼容 runtime 若启用，可额外同步写入 `第V卷.写作日志.yaml`
 
 3. inline validation hooks
    → 每个 drafting step 写回后，立即运行 registry 声明的即时审计
    → 通过后才允许继续下一个工序
 
 4. 隔离终验
-   → `4-Validation` 组装 `validation_fact_pack`
+   → `4-Review` 组装 `validation_fact_pack`
    → 并发 6 个维度子技能
-   → 聚合为 `4-Validation/第V卷.validation.json`
+   → 聚合为 `4-Review/第V卷.validation.json`
 
 5. review / 审查落盘
    → `review/` 生成业务报告
@@ -218,13 +214,13 @@ query / resume
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
 | planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/整体规划.md` + `2-Planning/第V卷/卷规划.md` + `2-Planning/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
-| drafting truth | 当前章正文写成什么样、当前卷已跑过哪些工序 | `3-Drafting/第N卷/第N章.md` + `3-Drafting/第V卷.写作日志.yaml` | 不再回退到旧 `chapter-root.md` |
+| drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-Drafting/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
 | validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-Planning/整体规划.actualization.json` + `2-Planning/第V卷/卷规划.actualization.json` + `2-Planning/第V卷/第N章.actualization.json` + `5-Loopback/*.loopback.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
-| quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Validation + review` 生成 |
+| quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Review + review` 生成 |
 
 固定判定：
 

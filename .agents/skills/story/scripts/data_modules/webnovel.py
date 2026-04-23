@@ -336,7 +336,7 @@ def main() -> None:
     p_extract_context.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
     p_extract_context.add_argument("--step-id", help="当前 drafting step_id，可选")
 
-    p_validate = sub.add_parser("validate", help="转发到 validation_runner.py")
+    p_validate = sub.add_parser("validate", help="转发到 review_runner.py")
     p_validate.add_argument("args", nargs=argparse.REMAINDER)
 
     p_drafting_guard = sub.add_parser("drafting-guard", help="转发到 drafting_manuscript_guard.py")
@@ -412,7 +412,7 @@ def main() -> None:
             return_args.extend(["--step-id", str(args.step_id)])
         raise SystemExit(_run_script("extract_chapter_context.py", return_args))
     if tool == "validate":
-        raise SystemExit(_run_script("validation_runner.py", [*forward_args, *rest]))
+        raise SystemExit(_run_script("review_runner.py", [*forward_args, *rest]))
     if tool == "drafting-guard":
         guard_args = [*forward_args]
         if getattr(args, "chapter", None) is not None:

@@ -30,8 +30,8 @@
 | Markdown 只有 `物语/解构/prompt整合` 摘要而缺少 structured v2 模板块 | projection validation layer | 运行 `scripts/validate_character_design_projection.py --output-dir <第N集>` 定位缺失块 | 在 `SKILL.md` 完成门中强制校验器通过，manifest 记录 `template_validation` | 缺 `Detailed Character Design / Detailed Costume Design / Cinematography` 时非零退出 |
 | `character_design.json` 的 `structured_fields` 只有 `face_body/hair/costume/camera/performance` 粗字段 | structured truth layer | 回到角色装配环节补齐 face/hair/body/costume/camera 组级字段 | 校验器检查 `structured_fields` 组级覆盖和 prompt 厚度 | `structured_fields` 不再靠单行泛词通过 |
 | Integrated prompt 先填充后按句截断，导致长度重新跌破 1800 bytes 下限 | prompt length gate layer | 截断后再次执行长度复检与短填充 | 生成器必须把 `trim -> guardrail injection -> min/max byte check` 作为最终门，而不是只在截断前补长 | `validate_character_design_projection.py` 不再报 prompt too short |
-| 角色输出写完后没有进入 `team.yaml` 驱动的监制强化 | council closeout layer | 在 `S11/N11` 固定读取项目根 `team.yaml` 并按共享合同的 refine / gate 分层与角色设计型 reviewer 补选规则起 council | 用 `_shared/subagent-supervision-contract.md` 固定 `roles.supervision.members + optional 4-Design review gate members + 张叔平/叶锦添补选 -> real subagents` | 当前轮角色输出完成后可回溯 `supervision_review_note`，且 reviewer 不是阶段 skill 误命中 |
-| 角色监制强化只能笼统说“角色稿薄”或“角色图不对”，无法指出具体槽组 | slot-level review governance layer | 先把当前轮目标解析成 `ROLE-BUNDLE-01~04`，再汇流 reviewer finding | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与 patch 顺序；leaf `S11/N11` 强制读取该合同 | reviewer 结论能区分是身份压力、视觉系统、摄影可读性还是 prompt/background bundle 失真 |
+| 角色输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在 `S11/N11` 固定读取项目根 `team.yaml`，但只写明当前轮 closeout 已不再由 `监制` 执行 | 用 `_shared/subagent-supervision-contract.md` 固定停用边界 | 当前轮角色输出完成后可回溯 `post_write_audit_note` |
+| 角色 post-write 问题只能笼统说“角色稿薄”或“角色图不对”，无法指出具体槽组 | slot-level audit governance layer | 先把当前轮目标解析成 `ROLE-BUNDLE-01~04`，再写 audit note | `_shared/design-slot-review-contract.md` 固定 bundle 命名、carrier 边界与记录顺序 | audit 结论能区分是身份压力、视觉系统、摄影可读性还是 prompt/background bundle 失真 |
 | leaf 已标 active，但缺少实际 builder / runner | executable runtime layer | 补齐 `build_character_design_packets.py + run_character_design_pipeline.py`，让角色 leaf 与场景/道具同级可执行 | 在 `SKILL.md` 固化 `Executable Entrypoints`，并以 validator + dry-run 作为最小验收 | `2-设计/角色` 可直接运行，不再只剩模板和校验器 |
 
 ## Repair Playbook
@@ -44,9 +44,9 @@
 6. 角色文件落盘后，用 `run_design_auto_image.py --design-file <角色名>.md` 验证同目录同名图片快路径。
 7. 自动生图前检查 `reference_cleanliness_note`：缺 `solid color background / no scene background elements` 或出现正向建筑、房间、街道、道具环境、叙事场景、其他人物时，回到 `N6/N7`。
 8. 在宣布 `角色/2-设计` 完成前，先跑 `scripts/validate_character_design_projection.py --output-dir <角色2-设计/第N集>`；失败时先修投影/JSON，不要让 `3-面板` 消费薄 prompt。
-9. 当前轮角色 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `N11-SUPERVISION-REVIEW`；图片状态只作证据。
-10. `N11` 先按 shared contract 区分 stage-end refine 与 final-stage gate；显式 reviewer 不足时，按角色目标补入 `张叔平 + 叶锦添`。
-11. 进入 `N11` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `ROLE-BUNDLE-*`；若无法解析，先修 mapping，不直接做泛化审稿。
+9. 当前轮角色 canonical 输出与 projection 落盘后，再读取项目根 `team.yaml` 做 `N11-POST-WRITE-AUDIT-NOTE`；图片状态只作证据。
+10. `N11` 先确认 post-write closeout 已不再由 `监制` 执行，再决定是否补写 audit note / acceptance handoff。
+11. 进入 `N11` 前，先按 `_shared/design-slot-review-contract.md` 将目标文件解析成 `ROLE-BUNDLE-*`；若无法解析，先修 mapping，不直接写泛化审计意见。
 
 ## Reusable Heuristics
 
@@ -61,6 +61,6 @@
 - 角色背景洁净要在摄影节点先确立为“单角色定妆参照”，不要等 Integrated prompt 末尾才否定场景；否则服装、姿态和表演压力很容易把剧情环境带回来。
 - 如果下游角色面板只能读到 `Global style prefix + Integrated prompt` 两行，通常说明 `2-设计` 人读投影已经被压扁；先回 `character_design.json + Markdown template validation`，不要在 `3-面板` 里补救角色本体信息。
 - 角色 prompt 生成器如果需要按句截断，必须在截断之后重新检查 1800-2200 bytes 与 `solid color background / no scene background elements`，因为保留句子边界可能删掉原本用于达标的填充段。
-- 角色输出后的监制强化优先看 `roles.supervision.members`；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，则并入 reviewer roster；当当前阶段更偏角色视觉系统审稿时，再补入设计组/美学组 reviewer。对角色默认是 `张叔平 + 叶锦添`。
-- 对角色这种多槽位高耦合输出，review 粒度过粗会直接把问题误判成“prompt 不够好”；更稳的顺序是先看 `ROLE-BUNDLE-01/02/03`，最后才看 `ROLE-BUNDLE-04`。
+- 角色输出后的 post-write 问题不再看 `roles.supervision.members`；这些成员只作用于前置 advisory。
+- 对角色这种多槽位高耦合输出，后置审计粒度过粗会直接把问题误判成“prompt 不够好”；更稳的顺序是先看 `ROLE-BUNDLE-01/02/03`，最后才看 `ROLE-BUNDLE-04`。
 - `2-设计/角色` 的 active coverage 只有在 builder、validator、auto-image guard 三者都可跑时才算真 active；单有模板和 validator 不算运行时闭环。

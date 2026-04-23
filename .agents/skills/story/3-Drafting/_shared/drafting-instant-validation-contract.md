@@ -1,12 +1,14 @@
-# Drafting Instant Validation Contract
+# Drafting Instant Validation Compatibility Contract
 
-本文件定义 `3-Drafting` 的 step-after-write 即时审计合同。
+本文件定义 `3-Drafting` 历史 step-after-write runtime 的兼容审计合同。
+
+当前正式主路径已改为根级 `3-Drafting` 直接执行 chapter-native 豆包正文创作；本文件只服务仍依赖旧批次日志/step ledger 的运行时与恢复链路，不再定义主技能的第一执行口径。
 
 ## Canonical Source
 
 即时审计维度、step hook 映射、终验 mandatory 规则的单一真源固定为：
 
-- `../../4-Validation/_shared/validation-dimension-registry.yaml`
+- `../../4-Review/_shared/validation-dimension-registry.yaml`
 
 本文件只定义：
 
@@ -97,7 +99,7 @@
   - 当前章在 `第V卷.写作日志.yaml.chapter_step_history[chapter_ref]` 中已收满 8 条正式 step 记录
   - 当前章在 `第V卷.写作日志.yaml.chapter_hook_results[chapter_ref]` 中已收满 8 条对位 hook 结果
   - 不存在以 Step 8 汇总、批量补记或事后倒填冒充逐步留痕的情况
-- 只有进入 `4-Validation` 终验层并拿到 `validation_status = PASS`：
+- 只有进入 `4-Review` 终验层并拿到 `validation_status = PASS`：
   - 才能变成 `validated_final_draft`
 
 ## Process Log Rule
@@ -115,7 +117,7 @@
 目的：
 
 - 让 `resume/` 能知道当前 step 是否已通过 inline gate
-- 让 `4-Validation` 能看到 drafting 阶段已经做过哪些即时修复
+- 让 `4-Review` 能看到 drafting 阶段已经做过哪些即时修复
 - 让父层能够证明当前卷真实完成了 `chapter_refs x 8 步`，而不是只在卷末回填若干摘要
 
 ### Volume-Ready Gate Addendum
@@ -124,19 +126,27 @@
 
 1. `chapter_step_history` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条正式 step 记录。
 2. `chapter_hook_results` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条对位 hook 结果。
-3. 任一章节若缺 step 记录、缺 hook 结果、顺序错位、或出现“卷末统一补记”的稀疏日志模式，卷级 gate 必须直接 `block`，不得移交 `4-Validation`。
+3. 任一章节若缺 step 记录、缺 hook 结果、顺序错位、或出现“卷末统一补记”的稀疏日志模式，卷级 gate 必须直接 `block`，不得移交 `4-Review`。
 
 ### Pre-Validation Quality Gate Addendum
 
-在卷级 `candidate_volume_draft` 之后、正式 handoff `4-Validation` 之前，父层还必须追加一轮卷级质量闸门：
+在卷级 `candidate_volume_draft` 之后、正式 handoff `4-Review` 之前，父层还必须追加一轮卷级质量闸门：
 
 1. 把结论写入 `第V卷.写作日志.yaml -> quality_gate_snapshot`
-2. `quality_gate_snapshot` 的字段规范以 `./drafting-quality-gate-contract.md` 为准
+2. `quality_gate_snapshot` 至少包含：
+   - `checkpoint_stage: pre_validation`
+   - `reviewed_at`
+   - `verdict: ready_for_validation|rework_required_before_validation`
+   - `guard_axes`
+   - `representative_chapter_refs`
+   - `primary_issues`
+   - `priority_rework_targets`
+   - `next_action: 4-Review|3-Drafting-rework`
 3. 默认必须经过 `scripts/drafting_volume_quality_guard.py`
 4. 若 guard 返回 `block`：
    - runtime / resume 下一稳定入口必须仍是 `3-Drafting`
-   - 不得把 `next_step` 继续写成 `4-Validation`
-5. 若 guard 返回 `pass`，才允许把当前卷交给 `4-Validation`
+   - 不得把 `next_step` 继续写成 `4-Review`
+5. 若 guard 返回 `pass`，才允许把当前卷交给 `4-Review`
 
 ## Extension Rule
 

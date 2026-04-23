@@ -18,7 +18,7 @@ governance_tier: full
 
 它的正式主干固定为：
 
-1. 只消费 `4-Validation` 的卷级聚合 JSON。
+1. 只消费 `4-Review` 的卷级聚合 JSON。
 2. 同时检查：
    - `validation_status == PASS`
    - `routing_decision == handoff_to_review_and_loopback`
@@ -64,11 +64,11 @@ governance_tier: full
 
 - `.agents/skills/story/SKILL.md + CONTEXT.md`
 - 当前 `SKILL.md + CONTEXT.md`
-- `../4-Validation/SKILL.md`
+- `../4-Review/SKILL.md`
 - `../review/SKILL.md`
 - `../query/SKILL.md`
 - `../resume/SKILL.md`
-- `../4-Validation/_shared/checker-output-schema.md`
+- `../4-Review/_shared/checker-output-schema.md`
 - `../_shared/entity-management-spec.md`
 - `./_shared/loopback-actualization-spec.md`
 - `templates/loopback.json`
@@ -87,7 +87,7 @@ governance_tier: full
 - `volume / volume_ref`
 - `chapter_refs`
 - `validation_ref`
-- 当前轮 `4-Validation/第V卷.validation.json`
+- 当前轮 `4-Review/第V卷.validation.json`
 - `book_plan_ref`，默认 `2-Planning/整体规划.md`
 - `volume_plan_ref`，默认 `2-Planning/第N卷/卷规划.md`
 - `chapter_plan_refs`，默认命中 `2-Planning/第N卷/第N章.md`
@@ -161,7 +161,7 @@ governance_tier: full
 - 恢复态：
   - `resume/`
 - 上游 source 修复：
-  - `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation`
+  - `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Review`
 
 禁止把 `query/` 或 `resume/` 的输出伪装成 `5-Loopback/第V卷.loopback.json`。
 

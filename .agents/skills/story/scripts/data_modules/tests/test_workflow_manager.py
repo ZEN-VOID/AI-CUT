@@ -606,7 +606,7 @@ def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypat
         json.dumps(
             {
                 "meta": {"loopback_ref": "5-Loopback/第1卷.loopback.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
-                "inputs": {"validation_ref": "4-Validation/第1卷.validation.json"},
+                "inputs": {"validation_ref": "4-Review/第1卷.validation.json"},
             },
             ensure_ascii=False,
             indent=2,
@@ -636,13 +636,13 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
             "review_checkpoints": [
                 {
                     "volume": 1,
-                    "report": "4-Validation/第1卷审查报告.md",
+                    "report": "4-Review/第1卷审查报告.md",
                 }
             ]
         },
     )
 
-    validation_dir = tmp_path / "4-Validation"
+    validation_dir = tmp_path / "4-Review"
     validation_dir.mkdir(parents=True, exist_ok=True)
     (validation_dir / "第1卷.validation.json").write_text(
         json.dumps(
@@ -694,7 +694,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Validation",
+                "  next_step: 4-Review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -704,7 +704,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Validation",
+                "  next_action: 4-Review",
                 "  representative_chapter_refs:",
                 "    - 1",
                 "  primary_issues: []",
@@ -749,7 +749,7 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Validation",
+                "  next_step: 4-Review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -759,7 +759,7 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Validation",
+                "  next_action: 4-Review",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",
@@ -819,7 +819,7 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Validation",
+                "  next_step: 4-Review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -829,7 +829,7 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Validation",
+                "  next_action: 4-Review",
                 "  representative_chapter_refs:",
                 "    - 3-Drafting/第2卷/第11章.md",
                 "  primary_issues: []",
@@ -886,7 +886,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Validation",
+                "  next_step: 4-Review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -896,7 +896,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Validation",
+                "  next_action: 4-Review",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",

@@ -23,7 +23,7 @@ AIGC_SHARED_DIR = ROOT / ".agents" / "skills" / "aigc" / "_shared"
 if str(AIGC_SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(AIGC_SHARED_DIR))
 
-from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload  # noqa: E402
+from detail_root_adapter import CANONICAL_DETAIL_TEMPLATE, ensure_legacy_detail_payload, sort_identifier  # noqa: E402
 
 
 SOURCE_SCHEMA = CANONICAL_DETAIL_TEMPLATE
@@ -134,6 +134,18 @@ def join_non_empty(parts: list[str]) -> str:
     return "，".join(item.strip() for item in parts if isinstance(item, str) and item.strip())
 
 
+def flatten_text_value(value: Any, preferred_keys: tuple[str, ...] = ()) -> str:
+    if isinstance(value, str):
+        return normalize_space(value)
+    if isinstance(value, list):
+        return join_non_empty([flatten_text_value(item, preferred_keys) for item in value])
+    if isinstance(value, dict):
+        ordered_keys = list(preferred_keys)
+        ordered_keys.extend(key for key in value.keys() if key not in ordered_keys)
+        return join_non_empty([flatten_text_value(value.get(key), preferred_keys) for key in ordered_keys])
+    return ""
+
+
 def compact_branch_design(value: Any, ordered_keys: tuple[str, ...], limit: int = 2) -> str:
     if not isinstance(value, dict):
         return ""
@@ -191,6 +203,15 @@ def infer_shot_descriptor(normalized: dict[str, Any], candidates: tuple[str, ...
 
 def normalize_shot_for_prompt(shot: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(shot)
+    anchor = pick_branch_object(normalized, "主体锚定")
+    normalized["主体锚定"] = first_non_empty(
+        flatten_text_value(anchor, ("场景", "角色", "道具")),
+        str(normalized.get("主体锚定", "")).strip(),
+    )
+    normalized["道具及状态"] = first_non_empty(
+        str(normalized.get("道具及状态", "")).strip(),
+        flatten_text_value(anchor.get("道具") if isinstance(anchor, dict) else ""),
+    )
     normalized["角色表现"] = first_non_empty(
         compact_branch_design(
             pick_branch_object(normalized, "角色表现", "人物表演锚点", "人物表演"),
@@ -538,10 +559,16 @@ def validate_source_ready(source_data: dict[str, Any], allowed_phases: set[str])
 
 
 def build_time_range(shot: dict[str, Any]) -> str:
-    timing = require_dict(shot.get("时间段"), "时间段")
-    start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
-    end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
-    return f"{start}秒-{end}秒"
+    if isinstance(shot.get("时间段"), dict):
+        timing = require_dict(shot.get("时间段"), "时间段")
+        start = format_seconds_label(timing.get("开始秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.开始秒")
+        end = format_seconds_label(timing.get("结束秒"), f"{shot.get('分镜ID', 'unknown')}.时间段.结束秒")
+        return f"{start}秒-{end}秒"
+    time_text = require_non_empty_text(shot.get("时间"), f"{shot.get('分镜ID', 'unknown')}.时间")
+    matched = re.match(r"^\s*(?P<start>\d+(?:\.\d+)?)\s*-\s*(?P<end>\d+(?:\.\d+)?)秒\s*$", time_text)
+    if not matched:
+        raise ValueError(f"{shot.get('分镜ID', 'unknown')}.时间 必须符合 `<开始>-<结束>秒`。")
+    return f"{matched.group('start')}秒-{matched.group('end')}秒"
 
 
 def build_group_design_block(group: dict[str, Any], spec: dict[str, Any]) -> str:
@@ -563,3 +590,117 @@ def build_camera_clauses(shot: dict[str, Any], level: str, spec: dict[str, Any])
 def build_prompt_prefix(spec: dict[str, Any]) -> str:
     prefix_lines = require_list(spec["prefix_lines"], "spec.prefix_lines")
     return "\n".join(require_non_empty_text(line, "spec.prefix_line") for line in prefix_lines)
+
+
+def ordered_canonical_groups(source_data: dict[str, Any]) -> list[dict[str, Any]]:
+    if isinstance(source_data.get("groups"), list):
+        groups = require_list(source_data.get("groups"), "groups")
+    else:
+        source_payload = ensure_legacy_detail_payload(source_data)
+        metadata = require_dict(source_payload.get("metadata"), "metadata")
+        require_non_empty_text(metadata.get("episode_id"), "metadata.episode_id")
+        final_output = require_dict(source_payload.get("final_output"), "final_output")
+        main_content = require_dict(final_output.get("main_content"), "final_output.main_content")
+        groups = require_list(main_content.get("分镜组列表"), "final_output.main_content.分镜组列表")
+    ordered = sorted(
+        (group for group in groups if isinstance(group, dict)),
+        key=lambda item: sort_identifier(str(item.get("分镜组ID", ""))),
+    )
+    if not ordered:
+        raise ValueError("groups[] 不能为空。")
+    return ordered
+
+
+def ordered_canonical_shots(group: dict[str, Any]) -> list[dict[str, Any]]:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
+    ordered: list[dict[str, Any]] = []
+    if isinstance(group.get("detail"), dict):
+        detail = require_dict(group.get("detail"), f"{group_id}.detail")
+        shot_map = require_dict(detail.get("分镜列表"), f"{group_id}.detail.分镜列表")
+        for shot_id, raw_shot in sorted(shot_map.items(), key=lambda item: sort_identifier(str(item[0]))):
+            shot = require_dict(raw_shot, f"{group_id}.detail.分镜列表.{shot_id}")
+            ordered.append({"分镜ID": str(shot_id), **shot})
+    else:
+        for raw_shot in require_list(group.get("分镜明细"), f"{group_id}.分镜明细"):
+            shot = require_dict(raw_shot, f"{group_id}.分镜明细[]")
+            ordered.append(shot)
+    if not ordered:
+        raise ValueError(f"{group_id} 未提供可消费的分镜列表。")
+    return ordered
+
+
+def validate_canonical_shot_ready(group_id: str, shot: dict[str, Any]) -> None:
+    shot_id = require_non_empty_text(shot.get("分镜ID"), f"{group_id}.detail.分镜列表[].分镜ID")
+    require_non_empty_text(shot.get("时间"), f"{group_id}.{shot_id}.时间")
+    require_non_empty_text(shot.get("剧本正文"), f"{group_id}.{shot_id}.剧本正文")
+    require_dict(shot.get("主体锚定"), f"{group_id}.{shot_id}.主体锚定")
+    for branch_field in ("分镜构图", "运镜手法", "角色表现", "氛围表现", "摄影表现", "转场特效"):
+        require_dict(shot.get(branch_field), f"{group_id}.{shot_id}.{branch_field}")
+    normalized = normalize_shot_for_prompt(shot)
+    for field in ("主体锚定", "角色表现", "运动表现", "氛围表现", "分镜构图", "摄影美学", "运镜手法", "景别", "镜头视角"):
+        require_non_empty_text(normalized.get(field), f"{group_id}.{shot_id}.{field}")
+
+
+def validate_canonical_group_ready(group: dict[str, Any]) -> None:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
+    if not isinstance(group.get("detail"), dict):
+        validate_group_ready(group)
+        return
+    global_block = require_dict(group.get("global"), f"{group_id}.global")
+    for field in ("全局风格", "类型元素", "导演意图"):
+        require_non_empty_text(global_block.get(field), f"{group_id}.global.{field}")
+    detail = require_dict(group.get("detail"), f"{group_id}.detail")
+    declared_shot_count = require_int(detail.get("分镜数"), f"{group_id}.detail.分镜数")
+    shots = ordered_canonical_shots(group)
+    if declared_shot_count != len(shots):
+        raise ValueError(
+            f"{group_id} 的 detail.分镜数={declared_shot_count}，但 detail.分镜列表 数量为 {len(shots)}；"
+            "这说明 canonical detail 仍未完成稳定 handoff。"
+        )
+    for shot in shots:
+        validate_canonical_shot_ready(group_id, shot)
+
+
+def infer_canonical_phase(groups: list[dict[str, Any]]) -> str:
+    try:
+        for group in groups:
+            validate_canonical_group_ready(group)
+    except ValueError:
+        return "detail_in_progress"
+    return "ready"
+
+
+def validate_canonical_source_ready(source_data: dict[str, Any], allowed_phases: set[str]) -> tuple[str, list[dict[str, Any]]]:
+    if isinstance(source_data.get("meta"), dict):
+        meta = require_dict(source_data.get("meta"), "meta")
+        episode_id = require_non_empty_text(meta.get("集数"), "meta.集数")
+    else:
+        source_payload = ensure_legacy_detail_payload(source_data)
+        metadata = require_dict(source_payload.get("metadata"), "metadata")
+        episode_id = require_non_empty_text(metadata.get("episode_id"), "metadata.episode_id")
+    groups = ordered_canonical_groups(source_data)
+    phase = infer_canonical_phase(groups)
+    if phase not in allowed_phases:
+        phase_label = ", ".join(sorted(allowed_phases))
+        raise ValueError(
+            f"canonical detail root 当前推断的 readiness 为 {phase!r}；"
+            f"只有 {phase_label} 状态的 canonical detail root 才能被 5-Image 叶子消费。"
+        )
+    for group in groups:
+        validate_canonical_group_ready(group)
+    return episode_id, groups
+
+
+def build_canonical_group_design_block(group: dict[str, Any], spec: dict[str, Any]) -> str:
+    group_id = require_non_empty_text(group.get("分镜组ID"), "分镜组ID")
+    global_block = (
+        require_dict(group.get("global"), f"{group_id}.global")
+        if isinstance(group.get("global"), dict)
+        else require_dict(group.get("组间设计"), f"{group_id}.组间设计")
+    )
+    bridge_spec = require_dict(spec["group_design_block"], "spec.group_design_block")
+    parts = [
+        render_part(require_dict(part, "group_design_block.part"), global_block, "group")
+        for part in require_list(bridge_spec["parts"], "spec.group_design_block.parts")
+    ]
+    return combine_clauses(*parts, sep=bridge_spec.get("separator", "；"))

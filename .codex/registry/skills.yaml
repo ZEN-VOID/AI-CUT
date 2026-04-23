@@ -112,6 +112,13 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 项目中断恢复、治理工件补齐与安全回接。
+      - id: aigc-review
+        path: .agents/skills/aigc/review
+        owner_office: menxia
+        governance_domain: xingbu
+        contract_status: active
+        route_role: satellite
+        purpose: AIGC 项目的 checkpoint / stage / package 三层结构化审计、aggregate review gate 与 repair routing。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu

@@ -25,6 +25,9 @@ DESIGN_2_CANONICAL_TEMPLATES = {
 DESIGN_SLOT_REVIEW_CONTRACT = DESIGN_2_ROOT / "_shared" / "design-slot-review-contract.md"
 DESIGN_SLOT_RESOLVER = DESIGN_2_ROOT / "_shared" / "scripts" / "resolve_design_slot_bundles.py"
 DESIGN_SUBAGENT_SUPERVISION_CONTRACT = DESIGN_2_ROOT / "_shared" / "subagent-supervision-contract.md"
+REVIEW_ROOT = ROOT / "review"
+REVIEW_RUNNER = Path("scripts/aigc_review_runner.py")
+REVIEW_AGGREGATE_TEMPLATE = REVIEW_ROOT / "_shared" / "review-aggregate.template.json"
 DESIGN_SLOT_RUNTIME_MARKERS = (
     "slot_bundles",
     "SCENE-BUNDLE-01",
@@ -116,6 +119,20 @@ COUNCIL_STAGE_REVIEW_PATHS = {
     "4-Design": "projects/aigc/<项目名>/4-Design/validation-report.md",
 }
 PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
+REVIEW_TEMPLATE_REQUIRED_MARKERS = (
+    '"review_fact_pack_ref"',
+    '"repair_plan_ref"',
+    '"review_report_ref"',
+    '"external_review"',
+    '"governance_state_synced"',
+)
+REVIEW_RUNNER_REQUIRED_MARKERS = (
+    "code-reviewer",
+    "review_fact_pack",
+    "repair_plan_ref",
+    "governance-state.yaml",
+    "resume_contract",
+)
 STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-Init" / "SKILL.md": (
         "projects/aigc/<项目名>/0-Init/",
@@ -192,6 +209,12 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/6-Video/首帧参照/",
         "projects/aigc/<项目名>/6-Video/生成任务/",
     ),
+    ROOT / "review" / "SKILL.md": (
+        "projects/aigc/<项目名>/review/",
+        "projects/aigc/<项目名>/review/checkpoints/",
+        "projects/aigc/<项目名>/review/stages/",
+        "projects/aigc/<项目名>/review/releases/",
+    ),
 }
 STAGE_RUNTIME_FORBIDDEN = {
     ROOT / "0-Init" / "SKILL.md": (
@@ -215,10 +238,12 @@ STAGE_RUNTIME_FORBIDDEN = {
 REQUIRED_SATELLITES = {
     "aigc-query": ROOT / "query",
     "aigc-resume": ROOT / "resume",
+    "aigc-review": ROOT / "review",
 }
 REQUIRED_ROUTE_POLICIES = {
     "aigc-query-satellite-entry",
     "aigc-resume-satellite-entry",
+    "aigc-review-satellite-entry",
     "aigc-image-stage-entry",
 }
 REQUIRED_STAGE_AGENT_DOCS = {
@@ -244,6 +269,12 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "6-Video" / "3-视频生成" / "SKILL.md",
     ),
     ROOT / "review": (
+        ROOT / "review" / "规划与种子兑现" / "SKILL.md",
+        ROOT / "review" / "分镜执行连续性" / "SKILL.md",
+        ROOT / "review" / "设计对位" / "SKILL.md",
+        ROOT / "review" / "图像交付就绪" / "SKILL.md",
+        ROOT / "review" / "视频交付就绪" / "SKILL.md",
+        ROOT / "review" / "治理闭环" / "SKILL.md",
     ),
 }
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
@@ -763,6 +794,25 @@ def audit_design_slot_bundle_runtime(failures: list[str]) -> None:
             )
 
 
+def audit_review_runtime_contracts(failures: list[str]) -> None:
+    """Ensure package-level review has executable runtime carriers, not doc-only wiring."""
+    if not REVIEW_RUNNER.exists():
+        failures.append(f"{REVIEW_RUNNER}: missing canonical aigc review runner")
+    else:
+        runner_content = REVIEW_RUNNER.read_text(encoding="utf-8")
+        for marker in REVIEW_RUNNER_REQUIRED_MARKERS:
+            if marker not in runner_content:
+                failures.append(f"{REVIEW_RUNNER}: missing review runtime marker `{marker}`")
+
+    if not REVIEW_AGGREGATE_TEMPLATE.exists():
+        failures.append(f"{REVIEW_AGGREGATE_TEMPLATE}: missing aggregate template")
+    else:
+        template_content = REVIEW_AGGREGATE_TEMPLATE.read_text(encoding="utf-8")
+        for marker in REVIEW_TEMPLATE_REQUIRED_MARKERS:
+            if marker not in template_content:
+                failures.append(f"{REVIEW_AGGREGATE_TEMPLATE}: missing review aggregate field `{marker}`")
+
+
 def audit_init_single_skill_contract(failures: list[str]) -> None:
     init_skill = ROOT / "0-Init" / "SKILL.md"
     if not init_skill.exists():
@@ -1179,6 +1229,7 @@ def main() -> int:
     audit_stage_review_carriers(failures)
     audit_design_2_template_registry(failures)
     audit_design_slot_bundle_runtime(failures)
+    audit_review_runtime_contracts(failures)
     audit_init_single_skill_contract(failures)
     audit_planning_internal_skill_contract(failures)
     audit_global_single_skill_contract(failures)

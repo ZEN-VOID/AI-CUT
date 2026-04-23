@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC Review"
+  short_description: "对 AIGC 项目执行 checkpoint、stage、package 三层受治理审计，并聚合成单一 review gate packet。"
+  default_prompt: "Use $aigc/review when the current AIGC task needs a governed review checkpoint, stage acceptance review, or package release gate. Assemble one `review_fact_pack`, dispatch the mandatory review child skills from the registry, aggregate their dimension packets into one review packet under `projects/aigc/<项目名>/review/`, and route either back to the current stage, back to source truth, block provider handoff, or hand off to the next stage."
+version: 1
+

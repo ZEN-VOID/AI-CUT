@@ -31,6 +31,8 @@
   - `projects/aigc/<项目名>/preflight-verdict.yaml`
   - `projects/aigc/<项目名>/validation-report.md`
   - `projects/aigc/<项目名>/learning-record.md`
+- 项目级卫星审计根（按需生成）：
+  - `projects/aigc/<项目名>/review/`
 
 ## Governance Snapshot Contract
 
@@ -56,6 +58,9 @@
 8. `MEMORY.md` 不承载治理断点、路线状态、审计结论或 skill 经验；这些内容仍分别属于 `STATE.json` / `governance-state.yaml` / `validation-report.md` / 对应 skill `CONTEXT.md`。
 9. 不新增 `CHANGELOGS.md` 作为一级项目治理真源；如需时间序列说明，应优先追加到项目根 `CHANGELOG.md` 或由 `validation-report.md`、`learning-record.md` 与 `governance-state.yaml` 派生，而不是再造并行状态本。
 10. 若项目经历“回到初始化态重来”的 `rebootstrap`，应把保留/归档/失效边界记录到 `governance-state.yaml.reset_bridge`，而不是让 `query / resume` 靠目录猜当前是否仍在旧周期。
+11. `projects/aigc/<项目名>/review/` 是 package-level 审计运行时根；它承载 `checkpoint / stage / release` aggregate review packets，不替代阶段 `validation-report.md`。
+12. `projects/aigc/<项目名>/review/` 同级还可派生 `*.review.fact-pack.json`、`*.review.repair.json`、`*.review.review.md` 与 `.code-reviewer/` provider sidecars；这些都服务 `review` 聚合与返工闭环，不是新的阶段业务真源。
+13. 当 `governance-state.yaml` 已存在时，`review` runner 应同步更新 `review_bridge.latest_review_*` 与 `resume_contract.required_repairs`，让 `query / resume` 与后续治理入口读取同一份 repair bridge。
 
 ## Canonical Runtime Roots
 
@@ -74,6 +79,10 @@
 - `projects/aigc/<项目名>/5-Image/`
 - `projects/aigc/<项目名>/6-Video/`
 - `projects/aigc/<项目名>/7-Cut/`
+
+### Satellite Runtime Roots
+
+- `projects/aigc/<项目名>/review/`
 
 ### Active Child Skeleton
 
@@ -97,6 +106,7 @@
 | `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
 | `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/2-参照引用/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
+| `review` | 懒生成目录；正式路径为 `projects/aigc/<项目名>/review/checkpoints/`、`projects/aigc/<项目名>/review/stages/`、`projects/aigc/<项目名>/review/releases/` |
 
 ### Skill Tree To Runtime Mapping
 
@@ -116,6 +126,7 @@
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` | `projects/aigc/<项目名>/6-Video/首帧参照/` | 同上 |
 | `.agents/skills/aigc/6-Video/2-参照引用` | `projects/aigc/<项目名>/6-Video/2-参照引用/` | mode/episode 目录在执行时下钻创建；初始化只预建稳定根目录 |
 | `.agents/skills/aigc/6-Video/3-视频生成` | `projects/aigc/<项目名>/6-Video/生成任务/` | runtime 采用业务语义落点，不沿用技能树编号名 |
+| `.agents/skills/aigc/review` | `projects/aigc/<项目名>/review/` | review 是卫星技能，不并入主阶段链；其 aggregate packet 分为 `checkpoints / stages / releases` 三层落点 |
 
 硬规则：
 

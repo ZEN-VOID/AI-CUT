@@ -43,7 +43,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ## When Not to Use
 
 - 已有稳定项目骨架，只需补写局部设定或单字段。
-- 当前任务是 `1-Cards / 2-Planning / 3-Drafting / 4-Validation / review / resume` 的续跑，而不是初始化。
+- 当前任务是 `1-Cards / 2-Planning / 3-Drafting / 4-Review / review / resume` 的续跑，而不是初始化。
 - 用户只需要查询项目状态，不需要重新立项。
 
 ## 业务需求分析合同
@@ -312,7 +312,7 @@ B. 自定义组队
 
 至少同步以下对象：
 
-- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Validation/`、`5-Loopback/`，以及项目根 `MEMORY.md`
+- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Review/`、`5-Loopback/`，以及项目根 `MEMORY.md`
 - 当前 cards 子树最小骨架：`1-Cards/0-全局卡/总设定`、`1-Cards/1-风格卡/总风格`、`1-Cards/2-角色卡/*`、`1-Cards/3-场景卡/*`、`1-Cards/4-物品卡/*`、`1-Cards/5-类型卡/总题材`
 - `STATE.json.paths`
   - 至少包含 `story_root / context_root / project_memory / init_root / cards_root / planning_root / drafting_root / validation_root / loopback_root`

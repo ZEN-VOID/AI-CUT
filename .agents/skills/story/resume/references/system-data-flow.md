@@ -38,10 +38,10 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 
 补充：
 - `3-Drafting/` 是当前恢复链路的唯一正文根目录。
-- `正文/` 仅在旧项目兼容检测或 fallback 搜索时出现，不再作为默认目录树的一部分。
+- `3-Drafting` 根技能直接承担正文主创；`正文/` child 不再作为默认目录树的一部分。
 
 ### 当前结构核心变化
-- **八道工序 drafting**: `1-起盘 -> 2-节奏 -> 3-场景氛围 -> 4-角色刻画 -> 5-对白声口 -> 6-心理活动 -> 7-追读力强化 -> 8-润色`
+- **chapter-native drafting**: `3-Drafting` 直接装配上下文并通过豆包生成章节正文
 - **规划入口切换**: drafting/query/resume 默认先读 `整体规划.md + 当前卷/卷规划.md + 当前章.md`
 - **无 XML 标签**: 纯正文写作，Data Agent AI 自动提取实体
 - **SQLite 存储**: entities/aliases/state_changes 迁移到 index.db

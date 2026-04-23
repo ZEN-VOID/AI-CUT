@@ -39,6 +39,9 @@ route_policies:
   - id: aigc-resume-satellite-entry
     trigger: 命中中断项目续跑、阶段恢复、治理工件缺口补齐、重建最后稳定入口
     rule: "优先进入 `.agents/skills/aigc/resume/SKILL.md`；先修 canonical runtime 与治理工件，再回接根技能或目标阶段"
+  - id: aigc-review-satellite-entry
+    trigger: 命中 checkpoint 审计点、阶段总验、package release gate、跨阶段 handoff review、或需要把阶段问题结构化聚合成 repair route
+    rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、并发调度维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
     trigger: 命中 `5-Image`，或需要把 `3-Detail/第N集.json` / `4-Design` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
     rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；再由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"

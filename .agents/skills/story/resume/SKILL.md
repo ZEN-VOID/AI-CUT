@@ -27,7 +27,7 @@ governance_tier: lite
 ## Stage Position
 
 - `resume/` 不等于 `5-Loopback` actualization。
-- `5-Loopback` 主流程只处理 `4-Validation = PASS` 后的 validated actualization。
+- `5-Loopback` 主流程只处理 `4-Review = PASS` 后的 validated actualization。
 - `resume/` 只处理“任务被打断了，如何安全恢复或安全退出恢复流程”。
 - 若诉求其实是：
   - 查询运行时信息：转 `query/`
@@ -44,7 +44,7 @@ governance_tier: lite
 | `story-cards` | 读取 cards run、查看子卡步骤、继续/清理/重跑建议 | `workflow_manager.py` + `1-Cards` 合同 |
 | `story-plan` | 读取部级/卷级/章级 planning pass 进度、继续/清理/重跑建议 | `workflow_manager.py` + `2-Planning` 合同 |
 | `story-write` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `3-Drafting` 当前 Step 合同 |
-| `story-validate` | 读取 validation run、继续/清理/重跑建议 | `workflow_manager.py` + `4-Validation` 合同 |
+| `story-review` | 读取 validation run、继续/清理/重跑建议 | `workflow_manager.py` + `4-Review` 合同 |
 | `story-review` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `review/` Step 合同 |
 | `story-loopback` | 读取 actualization run、继续/清理/重跑建议 | `workflow_manager.py` + `5-Loopback` 合同 |
 | `story-query` | 读取 query run、给出轻量 generic 继续 / 重跑 / 人工诊断建议 | `workflow_manager.py` + `query/` 合同 |
@@ -180,8 +180,8 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 - 输出 `artifact_fallback` JSON：
   - 说明当前没有 tracked 中断，但系统已从真实业务产物中识别出唯一下一入口。
   - 必须继续核对：
-    - `4-Validation/*.validation.json`
-    - `4-Validation/*章审查报告.md`
+    - `4-Review/*.validation.json`
+    - `4-Review/*章审查报告.md`
     - `STATE.json.review_checkpoints`
     - `3-Drafting/第V卷.写作日志.yaml`
     - `5-Loopback/*.loopback.json`
@@ -205,7 +205,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 | `loopback_completed_next_volume_ready` | 上一卷已完成 validated actualization，下一稳定入口是下一卷 drafting | 进入 `story-write` 下一卷首章 worker，先读 `carryover_context` |
 | `validation_pass_review_pending` | 当前卷已 PASS，但还没发现 review 持久化证据 | 进入 `review/` |
 | `validation_pass_review_persisted_loopback_pending` | 当前卷已 PASS 且 review 已落盘，但还没 actualize | 进入 `5-Loopback/` |
-| `candidate_volume_draft_waiting_validation` | 当前卷已到 `candidate_volume_draft`，但还没有正式终验包 | 进入 `4-Validation` |
+| `candidate_volume_draft_waiting_validation` | 当前卷已到 `candidate_volume_draft`，但还没有正式终验包 | 进入 `4-Review` |
 | `validation_failed_back_to_drafting` | 当前卷终验已明确打回 drafting | 按 `rework_targets` 回到对应 drafting 节点 |
 | `validation_failed_back_to_source_contract` | 当前卷终验已明确打回 source contract | 按 `source_trace` 进入 `0-Init / 1-Cards / 2-Planning` 的唯一入口 |
 
@@ -241,7 +241,7 @@ Legacy compatibility only:
   - 可读取 `current_step / completed_steps / elapsed_seconds`
   - 但默认只给 generic 继续 / 重跑 / 人工诊断建议
   - 不提供章节 cleanup，不宣称“从半句查询答案继续生成”
-- `story-init / story-cards / story-plan / story-validate / story-loopback`
+- `story-init / story-cards / story-plan / story-review / story-loopback`
   - 若脚本只提供 generic recovery options，就按 generic 方案解释
   - 不擅自套用 `story-write` / `story-review` 的重型恢复模板
 
@@ -325,7 +325,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extrac
 
 ### 继续 `story-review`
 
-- 必须重新确认 `4-Validation` 聚合结果仍然可用。
+- 必须重新确认 `4-Review` 聚合结果仍然可用。
 - 若用户选择立即继续，则重新执行 `/story-review ...`，并遵守 `review/` 当前 Step 合同。
 
 ### 继续 `story-query`

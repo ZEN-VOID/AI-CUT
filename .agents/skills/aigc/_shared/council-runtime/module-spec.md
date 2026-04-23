@@ -14,7 +14,7 @@
 - 保留 `0-Init` 写入的 `init_contract.*` 与 `planning.init_execution.*` 初始化 provenance
 - 判断当前阶段是否启用智能顾问团模式
 - 决定当前阶段先调用 `监制` 还是 `评审`
-- 对 `2-Global / 3-Detail / 4-Design`，在 output-related canonical 首次落盘后触发一次 `监制` stage-end refine
+- 对 `2-Global / 3-Detail / 4-Design`，只定义 `监制` 的前置 advisory；首次落盘后的收尾归阶段审计/验收层，不在本模块内定义
 - 规定 `评审` 只在 `5-Image / 6-Video` 的阶段级 `validation-report.md` 前后介入
 - 约束 subagents 只是参谋，不夺取 canonical 写回权
 
@@ -31,11 +31,11 @@
 
 ## Stage Role Routing
 
-| 当前阶段 | 默认前置顾问角色 | 评审时机 | canonical 写回权 |
+| 当前阶段 | 默认前置顾问角色 | 后置收口时机 | canonical 写回权 |
 | --- | --- | --- | --- |
-| `2-Global` | `监制` | canonical 首次落盘后 + `projects/aigc/<项目名>/2-Global/validation-report.md` 前后 | 主代理 |
-| `3-Detail` | `监制` | canonical 首次落盘后 + `projects/aigc/<项目名>/3-Detail/validation-report.md` 前后 | 主代理 |
-| `4-Design` | `监制` | canonical 首次落盘后 + `projects/aigc/<项目名>/4-Design/validation-report.md` 前后 | 主代理 |
+| `2-Global` | `监制` | 落盘后的收尾由阶段审计/验收层定义；本模块不再定义 `监制 refine` | 主代理 |
+| `3-Detail` | `监制` | 落盘后的收尾由阶段审计/验收层定义；本模块不再定义 `监制 refine` | 主代理 |
+| `4-Design` | `监制` | 落盘后的收尾由阶段审计/验收层定义；本模块不再定义 `监制 refine` | 主代理 |
 | `5-Image` | `评审` | `projects/aigc/<项目名>/5-Image/validation-report.md` 前后 | 主代理 |
 | `6-Video` | `评审` | `projects/aigc/<项目名>/6-Video/validation-report.md` 前后 | 主代理 |
 
@@ -49,26 +49,18 @@
    - `2-Global / 3-Detail / 4-Design` 先调用 `roles.supervision.members`
    - `5-Image / 6-Video` 先调用 `roles.review.members`
 6. 对 `2-Global / 3-Detail / 4-Design`，主代理先整合前置顾问意见，再产出本轮阶段草案与 canonical 首次写回。
-7. canonical 首次写回后，若当前阶段命中 `roles.supervision`，主代理必须围绕 output-related canonical files 再做一次 stage-end 监制 refine：
-   - 先读 `roles.supervision.members`
-   - 再读 `team_setup.shared_agents`
-   - 再读 `roles.supervision.source_skill_refs`
-   - 若显式 reviewer 仍不足，再结合 `roles.supervision.focus + target_type` 安全补选 `1-2` 个 `.agents/skills/team/` reviewer
-8. `roles.supervision.source_skill_refs` 只可作为领域提示；若条目不是 `.agents/skills/team/**/SKILL.md`，不得直接拿来当 reviewer，而必须映射到 team reviewer skill。
-9. 若 `runtime_policy.use_subagents_by_default == true` 且 reviewer 为 `1-4` 个，默认真实启动 subagents；一个 reviewer skill 对应一个 subagent。
-10. 仅在以下情况允许降级为顺序读取 agent 文档并模拟顾问纪要：
-    - 当前环境不能真实使用 subagents
-    - 更高优先级策略明确阻断 subagent 调度
-    - 用户显式要求不要启用 subagents
-11. 在 `5-Image / 6-Video` 的阶段级 `validation-report.md` 写作前后，若 `roles.review.members` 非空，则调用 `评审` 给出 PASS/返工意见。
-12. 无论顾问是否启用，主代理都保留最终 canonical 写回权。
-13. `0-Init` 若读取到 `runtime_policy.require_subagents_for_init_execution == true`，则其 planning 固定题包直答不得使用本条普通降级路径；后续阶段才允许按本模块的普通 fallback 规则处理。
+7. `2-Global / 3-Detail / 4-Design` 首次写回后的审计、验收与收尾 patch，回到各阶段自己的 `validation-report` / audit 合同；不得再由 `roles.supervision` 在本模块内发起 post-write refine。
+8. `roles.supervision.source_skill_refs` 在 `2-Global / 3-Detail / 4-Design` 中只可作为领域提示，不得被升级为落盘后收尾 reviewer。
+9. 在 `5-Image / 6-Video` 的阶段级 `validation-report.md` 写作前后，若 `roles.review.members` 非空，则调用 `评审` 给出 PASS/返工意见。
+10. 无论顾问是否启用，主代理都保留最终 canonical 写回权。
+11. `0-Init` 若读取到 `runtime_policy.require_subagents_for_init_execution == true`，则其 planning 固定题包直答不得使用本条普通降级路径；后续阶段才允许按本模块的普通 fallback 规则处理。
 
 ## Subagent Contract
 
 ### 阶段顾问
 
-- `监制` 负责 `2-Global / 3-Detail / 4-Design` 的前置 advisory 与 canonical 首次落盘后的 stage-end refine。
+- `监制` 负责 `2-Global / 3-Detail / 4-Design` 的前置 advisory。
+- `2-Global / 3-Detail / 4-Design` 首次落盘后的收尾 refine 不再属于 `监制`，而归阶段审计/验收层。
 - `评审` 负责 `5-Image / 6-Video` 的收口与 validation gate。
 - 他们不能直接落盘 canonical。
 - 主代理必须把其建议整理为：
@@ -91,7 +83,7 @@
 1. 当前阶段进入前，已读取项目根 `team.yaml`。
 2. `enabled == false` 或无成员时，没有误触发顾问团。
 3. `2-Global / 3-Detail / 4-Design` 命中的是 `监制`，`5-Image / 6-Video` 命中的是 `评审`。
-4. `2-Global / 3-Detail / 4-Design` 的 output-related canonical 首次落盘后，会按 `roles.supervision` 再做一次 refine。
-5. `roles.supervision.source_skill_refs` 若不是 team reviewer skill，只被当作映射提示，不会直接充当 reviewer。
+4. `2-Global / 3-Detail / 4-Design` 的 output-related canonical 首次落盘后，不再由本模块触发 `roles.supervision` refine。
+5. `roles.supervision.source_skill_refs` 若不是 team reviewer skill，只被当作领域提示，不会被升级为落盘后收尾 reviewer。
 6. `评审` 只在 `5-Image / 6-Video` 的阶段级 `validation-report.md` 前后介入。
 7. 主代理保留最终 canonical 写回权。

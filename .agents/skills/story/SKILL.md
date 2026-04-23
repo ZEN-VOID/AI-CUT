@@ -47,7 +47,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 2. `1-Cards`
 3. `2-Planning`
 4. `3-Drafting`
-5. `4-Validation`
+5. `4-Review`
 6. `review`
 7. `5-Loopback`
 
@@ -61,7 +61,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - `1-Cards/5-类型卡/**/*.json` 是唯一题材方向盘真源。
 - `2-Planning` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
 - `3-Drafting` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
-- `4-Validation` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度。
+- `4-Review` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度；默认后台启用 `code-reviewer` 做独立审计，再把 findings 回流为修复分流。
 - `5-Loopback` 可以沉淀反馈，但不得自动改写 `类型卡`。
 
 硬规则：
@@ -74,7 +74,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - 用户只说“用 story2026 做这件事”，但还没有明确该进哪一个阶段。
 - 需要设计、选择或解释某个项目的 `类型卡` / 题材方向盘。
-- 需要判断某个问题应归 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Validation / review / 5-Loopback / query / resume` 中的哪一层。
+- 需要判断某个问题应归 `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Review / review / 5-Loopback / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
 
 ## System Topology
@@ -87,15 +87,15 @@ allowed-tools: Read Grep Bash Write Edit Task
 2. `1-Cards`
 3. `2-Planning`
 4. `3-Drafting`
-5. `4-Validation`
+5. `4-Review`
 6. `review`
 7. `5-Loopback`
 
 执行原则：
 
 - 主链默认按阶段顺序串行，不得跳过上游真源直接伪造下游结论。
-- `review` 是 `4-Validation` 的承接层，不拥有评估判断权。
-- `5-Loopback` 只在 `4-Validation = PASS` 且 handoff 明确授予 `5-Loopback` 后拥有 validated truth writeback 权。
+- `review` 是 `4-Review` 的承接层，不拥有评估判断权。
+- `5-Loopback` 只在 `4-Review = PASS` 且 handoff 明确授予 `5-Loopback` 后拥有 validated truth writeback 权。
 
 ### Satellite Skills
 
@@ -113,8 +113,8 @@ allowed-tools: Read Grep Bash Write Edit Task
 | `0-Init` | 立项合同、`0-Init/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-Cards` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
 | `2-Planning` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
-| `3-Drafting` | 默认沿用 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` 的章级正文真源 + `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 的卷级批次账本；显式命中 `3-Drafting/正文` 时，当前章直写根稿可落到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`，并以 YAML 头承载 global/style/`north_star` 摘要 | 评估判断权、validated truth writeback |
-| `4-Validation` | `validation_fact_pack` covenant、卷级隔离评估、父层 `4-Validation/第V卷.validation.json` 聚合 gate | 审查报告持久化、actualization 写回 |
+| `3-Drafting` | 以 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` 作为章节正文唯一业务真源，由根级 `3-Drafting` 主技能直接执行 chapter-native 豆包创作；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
+| `4-Review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `4-Review/第V卷.validation.json` 聚合 gate | 审查报告持久化、actualization 写回 |
 | `review` | 审查报告、评分落库、状态持久化 | `validation_status` 判定、actualization 写回 |
 | `5-Loopback` | validated actualization、projection refresh、`5-Loopback/第V卷.loopback.json` | 未通过验证或未被 handoff 授权的修改写回 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
@@ -177,8 +177,8 @@ allowed-tools: Read Grep Bash Write Edit Task
 | 全局卡/类型卡/风格卡/角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-Cards` |
 | 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-Planning` |
 | 写章节、润色、章节级执行包、正文产出 | `3-Drafting` |
-| 明确要求“按章写正文”、输出到 `3-Drafting/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-Drafting/正文` |
-| 隔离评估、checker 团队、`validation_status` | `4-Validation` |
+| 明确要求“按章写正文”、输出到 `3-Drafting/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-Drafting` |
+| 隔离评估、checker 团队、`validation_status` | `4-Review` |
 | 审查报告、评分落库、审查结果持久化 | `review` |
 | PASS 后的 actualization、truth writeback、projection refresh | `5-Loopback` |
 | 查询当前态、规划态、实绩态、质量态 | `query` |
@@ -193,7 +193,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 4. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md` 与对应阶段的 `_shared/*`。
 5. 若当前项目已锁定题材方向盘，优先读取 `1-Cards/5-类型卡/**/*.json` 与 `2-Planning/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
-   - `4-Validation/_shared/validation-fact-pack-spec.md`
+   - `4-Review/_shared/validation-fact-pack-spec.md`
    - `5-Loopback/_shared/loopback-actualization-spec.md`
 7. 路由到目标阶段的 `SKILL.md`。
 8. 读取目标阶段 `CONTEXT.md`。

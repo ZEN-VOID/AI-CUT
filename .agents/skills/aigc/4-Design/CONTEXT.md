@@ -27,10 +27,10 @@
 | `3-面板/角色` 已重建但父级仍只列场景/道具 | coverage 同步层 | 同步 `4-Design` 父层、registry 与 nano-banana 回链，把 `3-面板/{场景,角色,道具}` 标为 partial-active | 新增 panel leaf 时同轮更新父层 active leaf 列表、SMART handoff 与入口元数据 | 父级路由可进入 `3-面板/角色` |
 | pending `服装` leaf 被写成 active runtime 输出路径 | active leaf / runtime 投影层 | 将 `服装` 标成 `pending-migration`，不再声明 `4-Design/服装/*` active 输出根 | 初始化 skeleton 只从 `_shared/project-runtime-layout.md` 继承 active 三类 `场景/角色/道具`，pending sibling 不预建目录 | 新项目 `4-Design/` 下不再出现空的 `服装` runtime |
 | `2-设计` 已新增单主体自动图，但阶段父层仍只把图片交给 `3-面板` 或 `5-Image` | 输出快路径同步层 | 在 `4-Design/SKILL.md` 回指 `2-设计/_shared/design-output-contract.md` | 把 `full_generation_prompt + same-stem auto image` 写进阶段拓扑、路由和 completion | 批量 panel 可直接扫描 `2-设计` 同 stem 图片 |
-| 项目根 `team.yaml` 已启用顾问团，但 `4-Design` 父层没有在当前轮 leaf canonical 落盘后触发监制强化 | 阶段末端共享运行时层 | 在 `4-Design/SKILL.md` 追加 `S6/S7` 与 `Subagents 监制强化` 合同，围绕当前轮命中的 leaf canonical + stage report 做 refine | 将 `subagetns/preview + review` 的 reviewer 解析、mode 裁决与 subagents gate 收束进父层合同；并在 `validation-report.md` 固定 supervision 槽位 | `4-Design` 阶段收尾能回读 reviewer、mode、used_subagents 与 patched_targets |
-| `4-Design` 把 stage-end refine、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 把 `roles.supervision.members` 视为 stage-end refine 显式 reviewer；若 `roles.review.operates_on_final_stage_of` 显式覆盖 `4-Design`，再并入 `roles.review.members`；`source_skill_refs` 降为领域提示 | 在 `4-Design/SKILL.md`、`2-设计/_shared/subagent-supervision-contract.md` 与相关 leaf 中固定“分层裁定 + reviewer precedence + 不把 source refs 当授权” | closeout 结论能说明 refine / gate 分层，且 reviewer roster 不再漂移 |
-| `4-Design` 的监制会审把 `_manifest.json`、派生 PNG 或 request sidecar 当成主评审对象，导致 reviewer 越过业务真源 | review target bundle 层 | 将 review 主目标固定为当前轮命中的 leaf canonical truth，manifest / image / request 只作为证据目标 | 在 `4-Design/SKILL.md` 固定 `Review Target Bundle` 与 `Optimization Boundary`，防止派生资产反向抢权 | 监制强化结论直接指向 leaf canonical，而不是派生文件 |
-| `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中时，`4-Design` 仍静默退回本地模拟 | dispatch gate 层 | 把 `Subagent Dispatch Gate` 明确写进 `4-Design` 父层，而不是只依赖 shared runtime 常识 | 在父层 `FIELD-4D-06` 与 completion 中固定 `used_subagents / fallback_reason` 记录位 | 阶段 summary 能明确说明是否真实启用了 subagents |
+| 项目根 `team.yaml` 已启用顾问团，但 `4-Design` 仍把首次落盘后的收尾挂在 `监制` 名下 | 角色边界层 | 在 `4-Design/SKILL.md` 明确 `roles.supervision` 只负责前置 advisory，post-write 收尾回到 audit/validation | 父层与 leaf 统一把 `监制` 从 closeout owner 名单中移除 | `validation-report.md` 只保留 audit note，不再要求 `监制强化` 槽位 |
+| `4-Design` 把 post-write audit、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先收回 `roles.supervision` 的 closeout 权，再把 `source_skill_refs` 固定为领域提示 | 在 `4-Design/SKILL.md` 与 `2-设计/_shared/subagent-supervision-contract.md` 中显式声明停用边界 | closeout 结论不再依赖 reviewer roster |
+| `4-Design` 的落盘后收尾继续把 `_manifest.json`、派生 PNG 或 request sidecar 当成“监制补丁”对象 | audit boundary layer | 将 post-write 问题收束为 `validation-report.md` 的 audit note；业务 patch 只留给后续独立审计机制 | 父层合同不再把派生资产纳入 `监制` closeout 目标 | 阶段边界不再被派生资产反向抢权 |
+| 旧经验层仍提示 `4-Design` 要在落盘后起 subagents | context drift layer | 同步更新父层与 leaf `CONTEXT.md` 的经验条目 | 角色边界变更时，同轮更新自动预加载的经验层 | 预加载经验不会把执行者带回旧路径 |
 | `2-设计` 的角色 prompt 漂成西方面孔、现代棚拍或全球时尚广告 | worldview fallback 层 | 在角色 builder 加当前项目的人种/地域/世界观硬约束，并把东亚武侠人物画像下沉到角色级 fallback | 在 `design-output-contract.md` 固定 `Worldview Fidelity Gate`，把 `urban-drama / western-face drift` 设为 hard fail token | 角色图不再脱离东亚武侠世界观 |
 | `2-设计` 的场景 prompt 被全局词误导，夜市跑成王府/税关/赛博社区 | scene typology fallback 层 | 让场景 builder 先按 `scene_name + aliases + variants + anchors` 判型，再决定 domain defaults | 在共享合同写明场景默认 typology 只能优先跟随当前场景家族，不得被跨项目或跨场景词反向抢权 | 夜市/税关/王府各自回到正确空间家族 |
 | `2-设计` 的道具 prompt 只剩 `generic prop` 或被误画成科幻器件 | prop semantic fallback 层 | 在道具 builder 按 `canonical_name` 绑定器物级默认材质/结构/磨损逻辑，并过滤 `unknown` | 在共享合同写明木牌/税单/册子/钱袋等必须先服从器物语义，再允许风格化展开 | 道具图先对器物，再谈风格 |
@@ -43,9 +43,9 @@
 3. 若未全部迁回，不要假设全阶段 active；先把状态写清，再修命中的 leaf。
 4. 最后才修具体 leaf 的业务合同。
 5. 面板相关问题先查 `3-面板` 父合同和 `_shared` SMART 桥，再查具体 leaf。
-6. 若项目根 `team.yaml` 启用顾问团，当前轮 leaf canonical 首次落盘后必须先按“stage-end refine / final-stage gate 分层”判定 reviewer roster 与 mode，再决定真实 subagents、fallback 还是 skip。
-7. 监制强化只改当前轮命中的 canonical 文本/JSON 与阶段 `validation-report.md`；若 findings 命中 leaf 业务结构，回流对应 tranche/leaf，不在父层偷改派生资产。
-8. 若 `team.yaml.enabled == false` 但用户显式要求执行本轮监制强化，按 `manual override` 进入 shared contract，并在 `validation-report.md` 标记人工触发而非常驻运行时。
+6. 若项目根 `team.yaml` 启用顾问团，先判断本轮是否需要前置 advisory；不要在首次落盘后再从 `roles.supervision` 发起 closeout。
+7. post-write 问题默认写入阶段 `validation-report.md` 的 audit note；不要在父层偷改派生资产，更不要把它包装成 `监制强化`。
+8. 若用户显式要求对 `4-Design` 做落盘后复核，当前也只能记录为 audit/acceptance 需求，不应回退成旧的 `监制` runtime。
 
 ## Reusable Heuristics
 
@@ -59,11 +59,9 @@
 - 新增 panel leaf 时，不只补 leaf 文件；必须同步父层 coverage、registry leaf_index 与 HARNESS 总览，否则入口层仍会按 pending 处理。
 - 角色面板重建时要优先兼容当前 `2-设计/角色` 的 `character_design.json + 逐角色 Markdown + 同 stem 单主体图` 组合；Markdown 只作人读投影，不能反向替代 machine-first 真源。
 - `服装` 可继续作为类目宇宙和 `Assets/服装/` 资产库存在；但只要 source leaf 没迁回 active，阶段合同和初始化 skeleton 都不能给出 `4-Design/服装/*` active 落盘路径。
-- `4-Design` 的监制强化默认主目标始终是当前轮命中的 leaf canonical truth；`validation-report.md` 只作阶段级次目标，派生 PNG、request sidecar 与 `_manifest.json` 只作证据。
-- 对 `4-Design` 来说，最稳的阶段末监制口径不是“全阶段写完才总评”，而是“本轮命中的 leaf canonical 首次落盘后，立刻按 `team.yaml` 做一次受限 stage-end refine”。
-- 只要 `runtime_policy.use_subagents_by_default == true` 且 reviewer 已稳定命中，`4-Design` 就不应把本地顺序模拟表述成正常主路径；降级必须显式记录。
-- `4-Design` 当前轮 closeout 里，`roles.supervision.members` 是 stage-end refine 的显式 reviewer 池；若项目把 `roles.review` 显式挂到 `4-Design` final-stage gate，可并入 reviewer roster，但不替代 refine 入口。
-- `source_skill_refs` 只适合做 reviewer 映射提示，不适合做 `4-Design` 监制强化的授权字段；一旦把它升格，reviewer roster 就会随 provenance 漂移。
+- `4-Design` 里最稳的分层已经改成：`监制` 只做前置 advisory，首次落盘后的收尾直接回到 audit/validation。
+- 对 `4-Design` 来说，现在最需要防的是“旧 closeout 语义借 CONTEXT 回流”，而不是再补一层 `监制 refine`。
+- `source_skill_refs` 只适合做领域提示，不适合做 `4-Design` post-write 收尾的授权字段。
 - 对《笑傲江湖4之风云再再起》这类强世界观项目，`2-设计` 最大风险不是“画得不够精”，而是 leaf 在信息不足时偷吃旧项目 fallback，结果三域一起偏题。
 - 当角色缺五官实锚时，宁可用项目内角色专属画像 fallback，也不要把 `unknown_by_shot_evidence` 原样带进 prompt。
 - 当场景缺材质/拓扑实锚时，先按当前场景名判夜市/税关/王府家族，再补 typology；不要从项目全局风格里乱捞地理词。

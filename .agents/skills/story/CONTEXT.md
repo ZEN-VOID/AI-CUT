@@ -28,7 +28,7 @@ last_checked_at: 2026-04-22T00:00:00Z
 | 题材方向盘仍停留在 planning 阶段临时 artifact，没有前移成 cards 真源 | cards-planning boundary drift | 把题材锁定迁到 `1-Cards/类型卡`，planning 改为只导入 | 固定“类型卡持有 promise/corridor，planning 只消费不拥有” | `1-Cards/5-类型卡/**/*.json` 成为题材方向盘真源 |
 | 系统把题材规则写成隐式自动机制，反过来压制人工创作判断 | creativity-governance drift | 删除旧的自动题材装配链，统一改读人工 `类型卡` | 固定“题材判断属于人工创作层，系统只负责承接与投影” | planning/drafting/validation 不再存在自动题材依赖 |
 | planning 仍停留在旧 `全息地图 + 卷分片` 惯性，没有切到 `部级 / 卷级 / 章级` 三层规划 | planning architecture drift | 回到 `2-Planning` 父技能，按三层分形结构重写 | 在根级真源与 workflow 文案同步固定三层规划 | `2-Planning` 的 primary truth 已切换到三层 Markdown |
-| 终验已经产出 child sidecar，但根层仍把 `4-Validation` 理解成抽象判断层，没有把父层 aggregate JSON 当成唯一 gate | validation aggregate landing gap | 把 `4-Validation/第V卷.validation.json` 明确写成父层 canonical sink | 固定“child report 只是维度证据，aggregate JSON 才是真正 gate”的根层认知 | 出现 PASS/FAIL 问题时，定位会先落到 aggregate JSON，而不是散落 child sidecar |
+| 终验已经产出 child sidecar，但根层仍把 `4-Review` 理解成抽象判断层，没有把父层 aggregate JSON 当成唯一 gate | validation aggregate landing gap | 把 `4-Review/第V卷.validation.json` 明确写成父层 canonical sink | 固定“child report 只是维度证据，aggregate JSON 才是真正 gate”的根层认知 | 出现 PASS/FAIL 问题时，定位会先落到 aggregate JSON，而不是散落 child sidecar |
 
 ## Repair Playbook
 
@@ -37,7 +37,7 @@ last_checked_at: 2026-04-22T00:00:00Z
 3. 若问题跨两个以上阶段，先回根级 `story/SKILL.md` 做总线诊断，再进入阶段修复。
 4. 若同一规则在多个阶段重复出现，优先找根级 canonical source，而不是逐个阶段补丁。
 5. 若问题涉及题材方向盘，先检查 `1-Cards/类型卡` 是否已经存在并被 `2-Planning` 正式导入。
-6. 若问题涉及验收或回写，先确认是否已有 `4-Validation/第V卷.validation.json` 与 `5-Loopback/第V卷.loopback.json`，不要先看 child sidecar 或口头说明。
+6. 若问题涉及验收或回写，先确认是否已有 `4-Review/第V卷.validation.json` 与 `5-Loopback/第V卷.loopback.json`，不要先看 child sidecar 或口头说明。
 
 ## Reusable Heuristics
 
@@ -46,4 +46,4 @@ last_checked_at: 2026-04-22T00:00:00Z
 - 题材判断默认属于人工创作层，系统只能承接 `类型卡`，不应替作者自动激活题材机制。
 - 最稳的题材方案不是给每个题材重写一套 workflow，而是维持固定方法核，把题材判断集中在 `类型卡`，再由 downstream 显式消费。
 - 新规划层的 primary truth 应先看 `1-部级 -> 2-卷级 -> 3-章级` 对应的 `整体规划.md / 第N卷/卷规划.md / 第N卷/第N章.md`；`全息地图.json` 只保留兼容消费价值，不再是创作主真源。
-- `4-Validation` 真正能给下游授权的不是 child 维度报告，而是父层 `第V卷.validation.json` 里的 `validation_status / routing_decision / handoff_targets` 组合。
+- `4-Review` 真正能给下游授权的不是 child 维度报告，而是父层 `第V卷.validation.json` 里的 `validation_status / routing_decision / handoff_targets` 组合。

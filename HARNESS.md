@@ -103,11 +103,23 @@
 - `aigc.satellite_index` 当前已登记并启用：
   - `query`
   - `resume`
+  - `review`
+- `aigc/review` 当前已不再只是 seeded packet 入口，而是实际 package-level 审计总线：
+  - 先写同轮 `review_fact_pack`
+  - 自动调 `[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)`
+  - 聚合六维审计 packet
+  - 自动写 `*.review.repair.json`
+  - 若项目已有 `governance-state.yaml`，再同步 `review_bridge + resume_contract.required_repairs`
+- `aigc/review` 的 canonical runtime 已固定到：
+  - `projects/aigc/<项目名>/review/checkpoints/`
+  - `projects/aigc/<项目名>/review/stages/`
+  - `projects/aigc/<项目名>/review/releases/`
+  - 并在 aggregate packet 同级目录保留 `*.review.fact-pack.json`、`*.review.repair.json`、`*.review.review.md` 与 `.code-reviewer/<scope_ref>.review/` provider sidecars
 - `routes.yaml` 已显式声明：
   - `aigc-root-entry`
   - `aigc-project-runtime-canonical`
   - `aigc-bootstrap-compat-mode`
-  - `aigc-query / resume` 卫星入口
+  - `aigc-query / resume / review` 卫星入口
   - `aigc-image-stage-entry`
   - `aigc-video-stage-entry`
   - `high-risk-review-gate`
@@ -189,6 +201,10 @@
 - `aigc` 技能树的 tier / CONTEXT / 注册状态与阶段合同基线
 - `bootstrap_compat` 下的 checked / skipped 审计覆盖度，不再把 parent-only 通过包装成整树全绿
 - `6-Video` 等 active 链路的 shared runtime 映射是否仍残留旧叶子口径
+- `aigc/review` 是否已从文档声明升级到可执行载体：
+  - `scripts/aigc_review_runner.py` 是否存在并保留 `code-reviewer + review_fact_pack + repair_plan_ref + governance-state.yaml + resume_contract` 关键标记
+  - `.agents/skills/aigc/review/_shared/review-aggregate.template.json` 是否保留 `review_fact_pack_ref / repair_plan_ref / review_report_ref / external_review / governance_state_synced`
+  - `projects/aigc/<项目名>/review/{checkpoints,stages,releases}` 这组三层 runtime 目录是否已被阶段审计合同显式覆盖
 
 ### 7. 架构初始化方案
 
@@ -209,6 +225,14 @@
 5. 门下省以 `validation-report` 完成验收。
 6. 学习结果沉淀到 `learning-record` 与对应 `CONTEXT.md`。
 
+当请求命中 `aigc/review` 时，当前仓库已经不是“只在文档里声明 review”：
+
+- 先由 `scripts/aigc_review_runner.py` 组装并写回同轮 `*.review.fact-pack.json`
+- 再自动调 `[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)` 做结构化审计
+- 六个维度子技能并发回写各自的 `dimension_packet + dimension_report_ref`
+- 父层聚合生成单一 `*.review.json`
+- 同级继续写 `*.review.repair.json`、`*.review.review.md`，并在已有 `governance-state.yaml` 时同步 `review_bridge`
+
 当 `aigc` 处于 `bootstrap_compat` 改造窗口时，额外执行一条兼容约束：
 
 - HARNESS 继续守住项目 runtime、治理工件 carriers、卫星技能入口与高风险预审。
@@ -221,7 +245,8 @@
 - 非平凡失败不能跳过分层上溯。
 - 新 skill、新 route、新模板字段、新继承映射不能绕过 registry / runbook / audit。
 - `projects/aigc/<项目名>/` 始终优先于 `.codex/state/tasks/<task_id>/`，后者仅为治理镜像或通用账本。
-- `query / resume` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明；高风险预审与验收则回根 `aigc` 处理。
+- `query / resume / review` 是 `aigc` 的卫星入口，而不是可随意绕开的旁注说明；高风险预审仍回根 `aigc` 处理，结构化 checkpoint/stage/package 审计则由 `review` 聚合。
+- `aigc/review` 当前已经拥有 package-level executable bus：不是只收 review 结论，而是会先生成 fact pack、再调 provider、再聚合 repair/handoff 决策。
 - `comic` 项目链路已经是受 registry / routes 管理的 repo-local workflow，不再只是临时脚本集合。
 - provider API skill 已开始按 registry / routes 管理，而不再只是散落脚本目录。
 - 当用户手动执行或仓库自动路由命中某个已声明“默认走 subagents”的 skill 时，仓库治理层将其视为对该默认分发路径的显式许可；只有更高优先级 system / developer / tool policy 或用户反向要求，才会阻断真实 dispatch。
@@ -254,7 +279,8 @@
 - 其中 `3-Detail` 已完成一轮根包收束，但与更老 runtime sidecar、旧 child 包与部分兼容校验之间仍存在历史兼容面，需要继续逐步去枝。
 - `6-Video` 已升级为 active stage，但内部子路径和 provider 级执行面仍需继续收束。
 - `7-Cut` 仍是注册层已声明、执行层未落地的搁浅阶段。
-- 门下省的 `review` 已作为统一入口存在，但更细的专项 reviewer 席位仍未系统展开。
+- 门下省的 `aigc/review` 已作为包级统一入口存在，并已初步落地六个专项维度席位：`规划与种子兑现 / 分镜执行连续性 / 设计对位 / 图像交付就绪 / 视频交付就绪 / 治理闭环`；更细的子维度与自动执行器仍可继续扩展。
+- `aigc/review` 已从 seeded aggregate packet 入口升级为可执行 review bus；但其 provider 仍默认锚定外部 `code-reviewer` 技能根，后续若要进一步制度化，仍应把关键 schema、runner 协议与本仓库自有审计能力继续内聚。
 - 兵部侧 `resume` 已是受治理入口，但自动化 hook、批量恢复和更细粒度调度能力仍待补齐。
 - 更大范围的 cross-skill eval、hook、auto-remediation 仍主要停留在骨架期。
 

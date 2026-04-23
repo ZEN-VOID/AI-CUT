@@ -30,7 +30,7 @@ allowed-tools: Read Grep Bash
 
 ## Stage Position
 
-`query/` 必须与 `0-Init -> 1-Cards -> 2-Planning -> 3-Drafting -> 4-Validation -> review -> 5-Loopback` 的最新链路对齐。
+`query/` 必须与 `0-Init -> 1-Cards -> 2-Planning -> 3-Drafting -> 4-Review -> review -> 5-Loopback` 的最新链路对齐。
 
 核心约束：
 

@@ -94,7 +94,7 @@ def test_quality_guard_passes_ready_snapshot(tmp_path):
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Validation",
+                "  next_action: 4-Review",
                 "  representative_chapter_refs:",
                 "    - 3-Drafting/第1卷/第5章.md",
                 "    - 3-Drafting/第1卷/第8章.md",

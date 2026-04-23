@@ -73,7 +73,7 @@
 
 ## Shared Review Bundle Resolution
 
-当 `2-设计` 或其 leaf 触发当前轮监制强化时，review target 不再只停留在文件名，而必须解析成：
+当 `2-设计` 或其 leaf 记录当前轮 post-write audit note 时，review target 不再只停留在文件名，而必须解析成：
 
 1. target files
    - `canonical truth`
@@ -111,7 +111,7 @@
 
 说明：
 
-- reviewer roster 仍由 `subagent-supervision-contract.md` 裁决。
+- 当前 post-write audit 不再依赖 reviewer roster；若未来独立审计工作流恢复 reviewer 解析，应由新的 audit contract 裁决。
 - 本表只负责告诉 reviewer 应优先盯哪些 slot bundle，不负责授权。
 
 ## Domain Extension Rule

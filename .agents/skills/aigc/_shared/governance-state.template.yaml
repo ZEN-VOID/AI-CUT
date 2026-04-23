@@ -49,6 +49,9 @@ review_bridge:
   latest_preflight_status: "seeded"
   latest_acceptance_status: "seeded"
   latest_learning_status: "seeded"
+  latest_review_status: "seeded"
+  latest_review_ref: ""
+  latest_review_checkpoint: ""
 
 reset_bridge:
   last_reset_at: ""

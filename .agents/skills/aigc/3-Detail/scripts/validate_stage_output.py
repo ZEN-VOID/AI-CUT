@@ -34,7 +34,6 @@ ACADEMY_REPORT_TOKENS = (
     "applied_passes",
     "translation_targets",
 )
-SUPERVISION_SECTIONS = ("## 监制强化", "reviewer_source", "mode", "used_subagents", "patched_targets", "synthesis")
 
 
 def load_json(path: Path) -> object:
@@ -353,7 +352,7 @@ def validate_legacy_episode(path: Path) -> list[str]:
     return errors
 
 
-def validate_report(report_path: Path, episode_path: Path, require_supervision: bool) -> list[str]:
+def validate_report(report_path: Path, episode_path: Path) -> list[str]:
     errors: list[str] = []
     if not report_path.exists():
         return [f"缺少阶段 validation-report: {report_path}"]
@@ -368,10 +367,6 @@ def validate_report(report_path: Path, episode_path: Path, require_supervision: 
     for token in ACADEMY_REPORT_TOKENS:
         if token not in text:
             errors.append(f"validation-report 缺少学院派知识证据槽位 `{token}`。")
-    if require_supervision:
-        for section in SUPERVISION_SECTIONS:
-            if section not in text:
-                errors.append(f"validation-report 缺少监制强化槽位 `{section}`。")
     return errors
 
 
@@ -379,7 +374,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate canonical `3-Detail` stage output and validation-report.")
     parser.add_argument("episode_json", type=Path, help="Path to `projects/aigc/<项目名>/3-Detail/第N集.json` or the shared template.")
     parser.add_argument("--report", type=Path, help="Override `validation-report.md` path.")
-    parser.add_argument("--team-yaml", type=Path, help="Require supervision slots when team review is active.")
+    parser.add_argument("--team-yaml", type=Path, help="Reserved compatibility flag; post-write supervision slots are no longer required.")
     args = parser.parse_args()
 
     episode_path = args.episode_json.resolve()
@@ -401,7 +396,7 @@ def main() -> int:
 
     if not is_template_mode(episode_path):
         report_path = (args.report or derive_report_path(episode_path)).resolve()
-        errors.extend(validate_report(report_path, episode_path, require_supervision=bool(args.team_yaml)))
+        errors.extend(validate_report(report_path, episode_path))
 
     if errors:
         print("校验失败:")

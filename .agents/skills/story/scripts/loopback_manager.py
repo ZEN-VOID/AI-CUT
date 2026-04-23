@@ -97,11 +97,11 @@ def _relpath(path: Path, project_root: Path) -> str:
 
 
 def _episode_ref_candidates(episode: int) -> List[str]:
-    return [f"第{episode}集", f"第{episode:03d}集"]
+    return [f"第{episode}章", f"第{episode:03d}章"]
 
 
 def _episode_ref(chapter_num: int) -> str:
-    return f"第{chapter_num}集"
+    return f"第{chapter_num}章"
 
 
 def _normalize_chapter_num(raw: Any) -> int | None:

@@ -597,8 +597,8 @@ B. 自定义组队
 | 角色 | 权属阶段 | 介入时机 | 核心职能 | 非权属说明 |
 | --- | --- | --- | --- | --- |
 | `策划` | `0-Init` | 初始化首轮固定题包直答、北极星综合前 | 收敛题材、故事核、情绪核、边界与阶段入口 seed；负责问题压缩、unknowns 裁剪、初始化编组理由说明 | 不拥有 `1-Planning` 及以后阶段的前置顾问权；后续阶段仅消费其在 `0-Init` 留下的 seed |
-| `监制` | `2-Global`、`3-Detail`、`4-Design` | 阶段前置 advisory 与关键收束点 | `2-Global` 控制风格/类型/导演意图一致性；`3-Detail` 控制剧情执行、可拍性、节奏与资源感；`4-Design` 控制角色/场景/道具设计与前两阶段的连续性、生产可执行性 | 不抢 `0-Init` 的 kickoff owner，也不替代阶段 canonical 写回 |
-| `评审` | `5-Image`、`6-Video` | 图像/视频阶段的阶段终稿与 `validation-report` 前后 | `5-Image` 核对提示词到出图的一致性、角色/场景 continuity、参考绑定与返工门槛；`6-Video` 核对首帧参照、镜头运动、时长节奏、跨镜 continuity、provider 风险与交付质量闸门 | 默认不参与前置发散创作；只做收口与否决判断 |
+| `监制` | `2-Global`、`3-Detail`、`4-Design` | 阶段前置 advisory | `2-Global` 控制风格/类型/导演意图一致性；`3-Detail` 控制剧情执行、可拍性、节奏与资源感；`4-Design` 控制角色/场景/道具设计与前两阶段的连续性、生产可执行性 | 不抢 `0-Init` 的 kickoff owner，不替代阶段 canonical 写回；首次落盘后的收尾 refine 归审计/验收层，不再归 `监制` |
+| `评审` | `5-Image`、`6-Video` | 当前仍介入图像/视频阶段的 `validation-report` 前后 | `5-Image` 核对提示词到出图的一致性、角色/场景 continuity、参考绑定与返工门槛；`6-Video` 核对首帧参照、镜头运动、时长节奏、跨镜 continuity、provider 风险与交付质量闸门 | 默认不参与前置发散创作；当前仍只做收口与否决判断，但该 gate 机制后续将再调整 |
 
 ### 自动组队部门覆盖矩阵
 

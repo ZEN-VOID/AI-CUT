@@ -144,7 +144,7 @@ governance_tier: full
 4. `_manifest.json` 只承担审计与覆盖率侧车职责。
 5. `auto_image_asset` 是由 `full_generation_prompt` 派生的单主体概念图，不得反向抢占设计真源。
 6. 父层阶段摘要只写到 `projects/aigc/<项目名>/4-Design/validation-report.md`。
-7. 监制强化只允许 patch 当前轮输出，不得生成第二份设计真源或平行 reviewer 总稿。
+7. 首次落盘后的收尾 refine 不再属于 `监制`；若需要后置审计，只能进入阶段 audit/validation 机制，不得生成第二份设计真源或平行 reviewer 总稿。
 
 ## Field Master
 
@@ -157,7 +157,7 @@ governance_tier: full
 | `FIELD-DESIGN-02-05` | handoff | 明确 `3-面板` 默认消费 `full_generation_prompt` 与同 stem 单主体图片作为批量 SMART 参照 | `S5` | closure completeness | `FAIL-DESIGN-02-05` |
 | `FIELD-DESIGN-02-06` | `full_generation_prompt + auto_image_asset` | 完整 prompt 必须含全局风格前缀；图片请求必须通过共享 guard 以后台批量并发模式提交，并能在完成后确认为每个 Markdown 同目录同名落盘 | `S5` | image fast-path completeness | `FAIL-DESIGN-02-06` |
 | `FIELD-DESIGN-02-07` | reference cleanliness policy | 父层必须把场景空镜、角色纯色背景、道具纯物图作为 leaf prompt 与自动生图前置门禁 | `S5` | reference cleanliness | `FAIL-DESIGN-02-07` |
-| `FIELD-DESIGN-02-08` | subagent supervision closeout | 输出后必须读取项目根 `team.yaml`，按共享合同裁定当前轮 closeout 的 refine / review-gate 关系、reviewer 顺序与设计型补选，并先把当前轮文件解析到 slot bundle，再只对当前轮业务文件做监制/设计向优化 | `S6` | council closeout | `FAIL-DESIGN-02-08` |
+| `FIELD-DESIGN-02-08` | post-write audit boundary | 输出后必须明确：`team.yaml.roles.supervision` 不再承担 closeout；当前轮只写阶段 audit note 与 handoff，不触发 `监制` 收尾 | `S6` | audit boundary | `FAIL-DESIGN-02-08` |
 
 ## Thought Pass Map
 
@@ -168,7 +168,7 @@ governance_tier: full
 | `S3` | 锁共享输入 | 回链 `1-清单 + 0-Init + 2-Global` 三层输入 | `input_lock_note` | `S4` | `S3` |
 | `S4` | 锁输出边界 | 固定 canonical truth、derived projection 与 slot bundle 边界 | `output_governance_note + slot_bundle_note` | `S5` | `S4` |
 | `S5` | 写 handoff、参照洁净门禁与图片快路径 | 声明 `3-面板` 默认读取 `full_generation_prompt` 与同 stem 图片；按共享输出合同锁定 `场景=empty environmental shot`、`角色=solid color background`、`道具=isolated pure prop view` 后，再触发 `ensure_design_auto_images.py` 写批量 request sidecar 并按默认后台批量并发模式提交单主体自动图 | `handoff_note + reference_cleanliness_note + auto_image_note` | `S6` | `S5` |
-| `S6` | 写 subagents 监制强化收尾 | 读取 `team.yaml`，按共享合同裁定当前轮 closeout 是否可进入、合并 `roles.supervision.members`、可选 `4-Design review gate members` 与设计型补选，并先把当前轮文件解析到 slot bundle，再真实启动 reviewer subagents 对当前轮输出做复审/优化 | `supervision_review_note + subagent_supervision_result` | `done` | `S6` |
+| `S6` | 写输出后审计边界说明 | 读取 `team.yaml` 与共享占位合同，明确 `roles.supervision` 只作前置 advisory；当前轮如需后置收尾，只在 `validation-report.md` 留 audit note 与下一入口，不触发 reviewer subagents | `post_write_audit_note` | `done` | `S6` |
 
 ## Pass Table
 
@@ -181,7 +181,7 @@ governance_tier: full
 | `FIELD-DESIGN-02-05` | `3-面板` handoff 明确 | `FAIL-DESIGN-02-05` | `S5` |
 | `FIELD-DESIGN-02-06` | `_manifest.json.auto_image.execution_mode=background-batch-concurrent` 且 `request_batch_path/background_pid/background_log` 可追踪；最终验收时每个主体文件都有含全局风格前缀的完整 prompt 与同目录同名图片 | `FAIL-DESIGN-02-06` | `S5` |
 | `FIELD-DESIGN-02-07` | 每个 leaf 的 `Integrated prompt` 都含对应洁净锚句，且自动生图前不得出现该域禁止的污染主体 | `FAIL-DESIGN-02-07` | `S5` |
-| `FIELD-DESIGN-02-08` | `team.yaml` 已读取，当前轮 closeout 已按共享合同完成 refine / gate 分层裁定，`source_skill_refs` 未被当授权字段，reviewer 解析遵循共享合同，且 `use_subagents_by_default=true` 时真实起 reviewer subagents | `FAIL-DESIGN-02-08` | `S6` |
+| `FIELD-DESIGN-02-08` | `team.yaml` 已读取，且已明确 `roles.supervision` 不再承担当前轮 closeout；输出后只写审计边界说明与 handoff | `FAIL-DESIGN-02-08` | `S6` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -197,30 +197,20 @@ governance_tier: full
 - 生图 prompt 只传了局部主体描述，缺统一全局风格前缀
 - 场景/角色/道具参照图 prompt 混入其他主体，导致下游 panel 或 image 阶段引用污染
 - `3-面板` 仍需重新猜对象主键或风格骨架
-- 当前轮监制强化仍停留在文件级，无法说明具体哪个 slot bundle 失真
-- 当前轮输出已落盘，但没有读取项目根 `team.yaml` 做监制强化收尾
-- 把 `4-Design` 的 stage-end refine 与 final-stage review gate 混成同一条权限线
-- 把 `roles.supervision.source_skill_refs` 误当 reviewer skill，导致 council 命中阶段技能而不是 `.agents/skills/team/` reviewer
-- `runtime_policy.use_subagents_by_default == true` 时，仍把本地顺序模拟伪装成正常 council
+- 当前轮输出已落盘后，仍继续触发 `监制` closeout
+- 把 `4-Design` 的 post-write 收尾继续挂在 `roles.supervision` 或 `roles.review` 名下，导致审计层与顾问层混线
+- 把 `roles.supervision.source_skill_refs` 误当落盘后收尾授权字段
 
 固定链路：
 
 `Symptom -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-## Subagents 监制强化收尾（Mandatory）
+## 输出后审计占位（Mandatory）
 
-1. 当前轮输出已稳定后，必须读取 `projects/aigc/<项目名>/team.yaml` 与 `_shared/subagent-supervision-contract.md`。
-2. 当前轮 closeout 的进入裁决、reviewer precedence、manual override 与结构化 summary 全部以 `_shared/subagent-supervision-contract.md` 为准。
-3. `4-Design` 的 stage-end refine 与 final-stage review gate 必须分层理解：前者负责当前轮 `2-设计` 输出收口，后者若在 `team.yaml` 中显式覆盖 `4-Design`，只并入 reviewer 池，不取代本地 closeout。
-4. `source_skill_refs` 只证明 provenance / 领域提示，不得充当 runtime 授权字段。
-5. 当前轮 review target 必须按 `_shared/design-slot-review-contract.md` 先解析到 slot bundle，再进入 reviewer council；不得停留在“只看文件名”的粗粒度模式。
-6. 若显式 reviewer 不足，本阶段按设计型目标补选 reviewer：
-   - 父层 / shared：`张叔平 -> 叶锦添`
-   - `场景`：`隈研吾 -> 叶锦添`
-   - `角色`：`张叔平 -> 叶锦添`
-   - `道具`：`张叔平 -> 叶锦添`
-7. `runtime_policy.use_subagents_by_default == true` 且环境支持时，必须真实启动 reviewer subagents；不得用本地模拟冒充。
-8. 监制强化只允许 patch 当前轮命中的 canonical 输出、projection、`_manifest.json` 与按需阶段 `validation-report.md`，不得新造 reviewer 总稿或第二业务真源。
+1. 当前轮输出已稳定后，不再进入 `Subagents 监制强化`。
+2. 读取 `projects/aigc/<项目名>/team.yaml` 与 `_shared/subagent-supervision-contract.md` 的目的，仅是确认 `roles.supervision` 在本轮 closeout 中已停用。
+3. `source_skill_refs` 只证明 provenance / 领域提示，不得充当 runtime 授权字段。
+4. 当前轮若需要定位问题，仍可按 `_shared/design-slot-review-contract.md` 把目标解析到 slot bundle，但这只服务审计记录，不再触发 `监制` patch。
 
 ## Completion Criteria
 
@@ -231,5 +221,5 @@ governance_tier: full
 5. 已按 `_shared/design-output-contract.md` 为每个主体输出 `full_generation_prompt`，其中场景/角色/道具分别满足空镜、纯色背景、纯道具参照洁净门禁。
 6. 已自动生成同目录同名图片，且图片 prompt 通过参照洁净复核。
 7. 若 provider 处于后台执行中，已写出 request sidecar、`background_pid/background_log` 与 `background_submitted` 状态；不得把该状态冒充为最终图片成功。
-8. 已按 `_shared/design-slot-review-contract.md` 把当前轮目标收束为 slot bundle，并据此进入 reviewer council。
-9. 已按 `team.yaml + _shared/subagent-supervision-contract.md` 完成当前轮 `subagents` 监制强化，并把有效建议回写到当前轮目标文件。
+8. 已按 `_shared/design-slot-review-contract.md` 把当前轮目标收束为 slot bundle，并据此写出审计边界说明。
+9. 已明确当前轮首次落盘后的收尾不再由 `监制` 执行。

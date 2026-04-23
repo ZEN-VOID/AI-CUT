@@ -4,7 +4,7 @@
 
 请改用：
 
-- `.agents/skills/story/3-Drafting/_shared/episode-root.template.md`
+- `.agents/skills/story/3-Drafting/templates/chapter-root.template.md`
 
 当前 `3-Drafting` 的正式正文根文件不再是 `Drafting/ch{chapter_padded}/chapter-root.md`，而是：
 

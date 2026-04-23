@@ -4,7 +4,7 @@
 drafting_volume_quality_guard.py - pre-validation quality gate for story2026 drafting
 
 用途：
-- 在卷级 `candidate_volume_draft` 之后、进入 `4-Validation` 之前，阻止“工序完整但整体写平”的卷继续下游
+- 在卷级 `candidate_volume_draft` 之后、进入 `4-Review` 之前，阻止“工序完整但整体写平”的卷继续下游
 - 统一消费 `第V卷.写作日志.yaml -> quality_gate_snapshot`
 """
 
@@ -172,11 +172,11 @@ def validate_quality_snapshot(
                 "message": f"blocked guard axes: {', '.join(blocked_axes)}",
             }
         )
-    if verdict == READY_VERDICT and next_action != "4-Validation":
+    if verdict == READY_VERDICT and next_action != "4-Review":
         issues.append(
             {
                 "code": "invalid_next_action_for_ready",
-                "message": f"ready verdict requires next_action=4-Validation, got {next_action or '<empty>'}",
+                "message": f"ready verdict requires next_action=4-Review, got {next_action or '<empty>'}",
             }
         )
     if verdict == BLOCK_VERDICT:

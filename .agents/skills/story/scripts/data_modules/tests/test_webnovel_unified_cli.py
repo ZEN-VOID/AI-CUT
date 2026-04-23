@@ -134,7 +134,7 @@ def test_validate_forwards_with_resolved_project_root(monkeypatch, tmp_path):
         module.main()
 
     assert int(exc.value.code or 0) == 0
-    assert called["script_name"] == "validation_runner.py"
+    assert called["script_name"] == "review_runner.py"
     assert called["argv"] == [
         "--project-root",
         str(book_root),
