@@ -43,6 +43,9 @@ from prompt_bridge_helpers import (  # noqa: E402
 PROMPT_ASSEMBLY_SPEC = SCRIPT_DIR.parent / "prompt-assembly-spec.md"
 TARGET_MAX = 3800
 ALLOWED_PHASES = {"detail_in_progress", "ready"}
+LEGACY_SCRIPT_AUTHORSHIP_ERROR = (
+    "legacy script authorship is deprecated: this runner may only project canonical LLM-authored prompt truth and must not replace it."
+)
 
 
 def build_shot_text(shot: dict[str, Any], shot_index: int, level: str, spec: dict[str, Any]) -> str:
@@ -287,6 +290,8 @@ def main() -> None:
         help="兼容保留参数；当前 runner 已默认按 canonical detail 直读生成，不再需要该开关。",
     )
     args = parser.parse_args()
+    if args.allow_legacy_script_authorship:
+        print(LEGACY_SCRIPT_AUTHORSHIP_ERROR, file=sys.stderr)
     print(json.dumps(render_episode(args.project, args.episode, args.group_id, args.output_mode), ensure_ascii=False, indent=2))
 
 

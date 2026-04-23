@@ -23,9 +23,12 @@ TRANSITION_KEYS = ("特效", "组内", "组间")
 LEGACY_TRANSITION_KEYS = ("切接逻辑", "组内衔接", "组间或特效策略")
 REPORT_SECTIONS = (
     "## Layered Trace",
-    "## Closure Triad",
     "## 已执行校验",
     "## Academy Knowledge Evidence",
+)
+CLOSURE_SECTION_ALIASES = (
+    "## Thinking-Action Closure",
+    "## Closure Triad",
 )
 ACADEMY_REPORT_TOKENS = (
     "knowledge_mode",
@@ -33,6 +36,12 @@ ACADEMY_REPORT_TOKENS = (
     "selected_bundles",
     "applied_passes",
     "translation_targets",
+)
+CLOSURE_REPORT_TOKENS = (
+    "思考过程",
+    "关键证据",
+    "风险/例外",
+    "下一入口",
 )
 
 
@@ -361,12 +370,23 @@ def validate_report(report_path: Path, episode_path: Path) -> list[str]:
     for section in REPORT_SECTIONS:
         if section not in text:
             errors.append(f"validation-report 缺少章节 `{section}`。")
+    if not any(section in text for section in CLOSURE_SECTION_ALIASES):
+        errors.append(
+            "validation-report 缺少知行合一 closure 章节；应包含 `## Thinking-Action Closure` 或兼容 `## Closure Triad`。"
+        )
     for token in (episode_path.name, "Layered Trace", "Closure Triad"):
+        if token == "Closure Triad":
+            if not any(section.replace("## ", "") in text for section in CLOSURE_SECTION_ALIASES):
+                errors.append("validation-report 未提及 closure section。")
+            continue
         if token not in text:
             errors.append(f"validation-report 未提及 `{token}`。")
     for token in ACADEMY_REPORT_TOKENS:
         if token not in text:
             errors.append(f"validation-report 缺少学院派知识证据槽位 `{token}`。")
+    for token in CLOSURE_REPORT_TOKENS:
+        if token not in text:
+            errors.append(f"validation-report 缺少 closure 槽位 `{token}`。")
     return errors
 
 

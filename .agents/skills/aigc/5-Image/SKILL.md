@@ -47,7 +47,7 @@ governance_tier: full
 
 | 单元 | 当前状态 | 说明 |
 | --- | --- | --- |
-| `1-提示词蒸馏` | active | 负责把 `3-Detail` canonical 输出蒸馏成图像请求 JSON，并在 `分镜故事板 / 分镜帧 / 漫画` 间做对象级路由 |
+| `1-提示词蒸馏` | active | 负责把 `3-Detail` canonical 输出蒸馏成图像请求 JSON，并在 `分镜故事板 / 分镜帧` 间做对象级路由；漫画页诉求回接 repo-local `comic` workflow |
 | `2-参照引用` | active | 负责把稳定请求 JSON 绑定到本地图片引用，并维持 provider-neutral 与 provider-specific 双层兼容 |
 | `3-图像生成` | active | 负责锁定唯一 provider，生成 `submit-plan.json + submit-brief.md`，并给出唯一下一入口 |
 
@@ -116,14 +116,14 @@ flowchart TD
 ## Canonical Output Governance (Mandatory)
 
 1. `5-Image` 阶段没有父层第二业务真源。
-2. `1-提示词蒸馏` 负责写请求 JSON 到 `分镜故事板 / 分镜帧 / 漫画` 子路径。
+2. `1-提示词蒸馏` 负责写请求 JSON 到 `分镜故事板 / 分镜帧` 子路径；漫画页诉求不再写入 `5-Image` 阶段 runtime。
 3. `2-参照引用` 负责写绑定后的 JSON、`_manifest.json` 与 `match-report.md`。
 4. `3-图像生成` 负责写 `submit-plan.json + submit-brief.md`、provider 输出图像同目录落盘合同与唯一下一入口。
 5. 父层只负责阶段路由、边界、coverage 与下一入口说明。
 
 ### Runtime Write Slots
 
-- 请求对象根：`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`
+- 请求对象根：`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`
 - 参照绑定根：`projects/aigc/<项目名>/5-Image/2-参照引用/`
 - 生成 handoff 根：`projects/aigc/<项目名>/5-Image/3-图像生成/`
 - 真实输出图像不得回写到阶段父层根或项目级 `Assets/` 作为唯一真源；它应随 `3-图像生成` 的 provider/source/episode 包同目录落盘，资产库副本只能作为派生引用。

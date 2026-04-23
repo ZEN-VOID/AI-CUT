@@ -261,7 +261,7 @@ erDiagram
 | `2-Global` | 是 | 已建阶段合同，采用单技能内收模式，以 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 为模板中心，在父 skill 内部直接填写项目级与组级导演 seed | 直接写入 `2-Global/episode_root.json` 与 `2-Global/validation-report.md`；旧 Markdown 仅允许作为 JSON 派生的兼容投影 |
 | `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一根包，固定 `分镜构图` 先行并直接围绕 `episode_detail.json` 填写 `meta + groups[].global/detail.分镜列表`；镜级骨架由 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 构成 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部固定顺序与命中 scope 完成字段填写 |
 | `4-Design` | 是 | 已建阶段父合同；当前 `1-清单/{场景,角色,道具}` 与 `2-设计/{场景,角色,道具}` 已迁回新路径，其余 tranche / leaf 仍处于 bootstrap-compatible migration | 可先进入 `1-清单` 或 `2-设计`，当前稳定命中 `场景 / 角色 / 道具`；其余 design tranche 按 source-layer 回迁状态再开放 |
-| `5-Image` | 是 | 已建阶段合同，负责统一路由 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧 / 漫画` | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成` |
+| `5-Image` | 是 | 已建阶段合同，负责统一路由 `1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧`；漫画页诉求回接 repo-local `comic` workflow | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`；若对象是漫画页，则明确 reroute |
 | `6-Video` | 是 | 已建阶段合同，`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成` 可执行，其余子路径待补 | 可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`；`首尾帧参照`、`多图参照` 与其他扩展路径仍按状态检查 |
 | `7-Cut` | 否 | 搁浅 | 当前只保留 runtime 槽位与 registry `shelved` 状态，不纳入执行链与严格审计失败项 |
 

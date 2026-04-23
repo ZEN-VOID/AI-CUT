@@ -104,7 +104,7 @@
 | `2-Global` | `projects/aigc/<项目名>/2-Global/`；阶段执行后根层写入 `episode_root.json` 与 `validation-report.md`，旧 Markdown 仅作兼容投影 |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/` |
 | `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
-| `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/漫画/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
+| `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/2-参照引用/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
 | `review` | 懒生成目录；正式路径为 `projects/aigc/<项目名>/review/checkpoints/`、`projects/aigc/<项目名>/review/stages/`、`projects/aigc/<项目名>/review/releases/` |
 
@@ -119,7 +119,6 @@
 | `.agents/skills/aigc/4-Design/*/服装` | 暂不预建 `projects/aigc/<项目名>/4-Design/服装/*` | `服装` 当前仍是 4-Design 类目宇宙和 Assets 资产库类目，但 source leaf 未迁回 active；初始化不得把 pending sibling 投影成 runtime active 目录 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板` | `projects/aigc/<项目名>/5-Image/分镜故事板/` | `1-提示词蒸馏` 是父级执行 tranche，不是 runtime 目录名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧` | `projects/aigc/<项目名>/5-Image/分镜帧/` | 叶子技能名直接投影为业务落盘名 |
-| `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画` | `projects/aigc/<项目名>/5-Image/漫画/` | 同上 |
 | `.agents/skills/aigc/5-Image/2-参照引用` | `projects/aigc/<项目名>/5-Image/2-参照引用/` | provider/mode/source/episode 目录在执行时下钻创建；初始化只预建稳定根目录 |
 | `.agents/skills/aigc/5-Image/3-图像生成` | `projects/aigc/<项目名>/5-Image/3-图像生成/` | provider/source/episode 目录在执行时下钻创建；`submit-plan`、`submit-brief` 与真实输出图像同目录落盘 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照` | `projects/aigc/<项目名>/6-Video/全能参照/` | `1-提示词蒸馏` 只属于技能树执行层 |
@@ -148,7 +147,7 @@
 | `2-Global` | `projects/aigc/<项目名>/2-Global/` | 负责围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接填好 `episode_root.json`，写出 `meta + project_global + groups[].global` 作为组级 episode seed root |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 读取 `2-Global/episode_root.json` 作为组级前置 seed，并在本阶段自己的 detail root 上首次生成 `detail.分镜数` 与每镜 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 及其余镜级字段 |
 | `4-Design` | `projects/aigc/<项目名>/4-Design/` | design-source 阶段产物 |
-| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路是 `分镜故事板 / 分镜帧 / 漫画 -> 2-参照引用 -> 3-图像生成` |
+| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路是 `分镜故事板 / 分镜帧 -> 2-参照引用 -> 3-图像生成`；漫画页诉求回接 repo-local `comic` workflow |
 | `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 2-参照引用 / 生成任务` |
 | `7-Cut` | `projects/aigc/<项目名>/7-Cut/` | 后期阶段 |
 

@@ -1,6 +1,6 @@
 ---
 name: aigc-visual-prompt-distillation
-description: Use when the `5-Image` stage needs a parent prompt-distillation contract that consumes canonical `3-Detail` episode output, routes work to `分镜故事板`、`分镜帧`、or `漫画`, and hands off image-request JSON to downstream consistency or generation stages.
+description: Use when the `5-Image` stage needs a parent prompt-distillation contract that consumes canonical `3-Detail` episode output, routes work to `分镜故事板` or `分镜帧`, and hands off image-request JSON to downstream consistency or generation stages.
 governance_tier: full
 ---
 
@@ -14,7 +14,7 @@ governance_tier: full
 
 ## Mode Selection
 
-- 当前任务属于 `既有优化`：保留 `分镜故事板 / 分镜帧 / 漫画` 三个叶子入口，但把父层升级为按 `skill-知行合一` 收束的单一 `SKILL.md` 真源。
+- 当前任务属于 `既有优化`：保留 `分镜故事板 / 分镜帧` 两个叶子入口，并把父层升级为按 `skill-知行合一` 收束的单一 `SKILL.md` 真源。
 - `复杂链路的骨架 / 细则分层 = false`：当前父层不再把路由门、输入门、handoff 门拆到平行 `references/`；规范性合同全部留在本文件。
 - 父层仍是父技能，不直接生成图片、不替代叶子 prompt 细节、不创建本地 `subagent team`。
 
@@ -29,13 +29,13 @@ governance_tier: full
 因此，父层必须同时锁定：
 
 1. 上游第一真源是否已达到可消费状态
-2. 当前对象是组级 storyboard、单一 `分镜ID`，还是漫画页
+2. 当前对象是组级 storyboard、单一 `分镜ID`，还是应转交 repo-local `comic` workflow 的漫画页诉求
 3. 本轮只命中一个叶子入口，还是应先回上游补齐
 4. 下游收到的主产物是请求 JSON，而不是图片
 
 ## LLM-First Creative Authorship Contract (Mandatory)
 
-- `5-Image/1-提示词蒸馏` 及其叶子属于内容创作型任务；frame / sheet / comic 的 canonical prompt 文本必须由 LLM 直接完成。
+- `5-Image/1-提示词蒸馏` 及其叶子属于内容创作型任务；frame / sheet 的 canonical prompt 文本必须由 LLM 直接完成。
 - 任何 `generate_episode_packets.py`、prompt assembler、句法压缩器或等价脚本，都不得再作为默认主创入口；它们只允许用于受控兼容迁移、既有 LLM 真源的模板投影、格式校验、JSON 装配与落盘辅助。
 - 父层默认执行路径必须是：`LLM 直出 prompt truth -> projector / validator / handoff packer`，而不是 `script 生成 prompt -> LLM 只做修补`。
 - 若某叶子仍保留旧式脚本主创 runner，必须显式要求 `--allow-legacy-script-authorship` 才可执行，并在后续治理中优先回收。
@@ -45,7 +45,7 @@ governance_tier: full
 ### `1-提示词蒸馏` 拥有
 
 - `3-Detail -> 5-Image` 的阶段入口判定
-- 三个叶子子技能之间的互斥路由合同
+- 两个叶子子技能之间的互斥路由合同，以及漫画页诉求的外部回接合同
 - canonical `meta + groups[].global/detail.分镜列表` 的父级输入门，以及仅供旧 leaf 过渡使用的兼容投影门
 - `3-Detail` sidecar 只作补证、不反客为主的真源边界
 - “先请求 JSON，后做一致性 / 生成”的 handoff 总合同
@@ -65,7 +65,7 @@ governance_tier: full
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板/SKILL.md`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧/SKILL.md`
-- `.agents/skills/aigc/5-Image/1-提示词蒸馏/漫画/SKILL.md`
+- `.agents/skills/comic/SKILL.md`
 - `projects/aigc/<项目名>/3-Detail/第N集.json`
 - `projects/aigc/<项目名>/3-Detail/水月/第N集.field-patch.json`（可选补证）
 - `projects/aigc/<项目名>/3-Detail/镜花/第N集.field-patch.json`（可选补证）
@@ -150,12 +150,12 @@ governance_tier: full
 
 ### 对象裁决优先级
 
-`显式 shot_id > 明确漫画页诉求 > 默认组级 storyboard`
+`显式 shot_id > 明确漫画页诉求时转 comic workflow > 默认组级 storyboard`
 
 ### 路由规则
 
 1. 用户或父级显式给出单一 `分镜ID`、首帧、关键帧、单镜头静帧：进入 `分镜帧`
-2. 用户显式要求 9:16 漫画页、气泡文字、漫画阅读节奏：进入 `漫画`
+2. 用户显式要求 9:16 漫画页、气泡文字、漫画阅读节奏：不再进入 `5-Image` 叶子，直接回接 repo-local [`comic`](/Volumes/AIGC/AIGC-DREAM-MAKER/.agents/skills/comic/SKILL.md) workflow
 3. 其余默认组级蒸馏：进入 `分镜故事板`
 4. 一个请求混有多个对象时，不在本层并发聚合；必须拆任务
 
@@ -208,10 +208,9 @@ flowchart TD
     B -->|"no"| C["停止并回报上游 detail 缺口"]
     B -->|"yes"| D{"对象锚点"}
     D -->|"shot_id"| E["分镜帧"]
-    D -->|"comic page"| F["漫画"]
+    D -->|"comic page"| F["回接 repo-local comic workflow"]
     D -->|"default group"| G["分镜故事板"]
     E --> H["唯一 image-request JSON"]
-    F --> H
     G --> H
 ```
 
@@ -244,7 +243,7 @@ erDiagram
 | --- | --- | --- | --- | --- | --- | --- |
 | `P0-stage-gate` | 判断是否可从 `3-Detail` 进入 `5-Image` | canonical `meta + groups[]`、父级阶段边界、runtime compat readiness | 拦截未就绪 episode，锁定本层只做请求蒸馏 | `stage_gate_note` | `ready -> P1`；`blocked -> 停止` | readiness 合法前不得继续 |
 | `P1-input-validate` | 校验 canonical JSON 是否具备组级/镜级消费壳 | episode JSON、shared schema | 先检查 `meta + groups[].global/detail.分镜列表`；仅当叶子仍需旧 helper 时，再确认 compat projection 可稳定派生 `组间设计 / 分镜明细[]` | `input_audit` | `pass -> P2`；`fail -> 停止` | 输入壳不成立不得路由 |
-| `P2-object-route` | 裁决组级 / 帧级 / 漫画页对象 | 用户意图、显式锚点、父层默认策略 | 锁定唯一叶子并给出排除理由 | `route_decision` | `sheet/frame/comic -> P3`；`mixed -> B2` | 只能命中一个叶子 |
+| `P2-object-route` | 裁决组级 / 帧级 / 漫画页对象 | 用户意图、显式锚点、父层默认策略 | 锁定唯一叶子或明确回接 `comic` workflow，并给出排除理由 | `route_decision` | `sheet/frame/comic-reroute -> P3`；`mixed -> B2` | 只能命中一个叶子 |
 | `P3-supplement-check` | 决定是否需要读取 sidecar 补证 | canonical JSON、可选 `水月/镜花` sidecar | 仅在 canonical 字段局部缺口时登记补证入口 | `supplement_note` | `direct -> P4`；`supplement -> P4` | sidecar 不得替代主真源 |
 | `P4-leaf-dispatch` | 向唯一叶子派发对象与边界 | 路由结论、对象锚点、补证说明 | 派发唯一叶子，并附带只读边界与 handoff 目标 | `dispatch_packet` | `success -> P5`；`leaf_mismatch -> 回 P2` | 未形成唯一派发包不得继续 |
 | `P5-handoff-converge` | 统一收束到 image-request JSON handoff | 叶子产物、输出模式、下游入口 | 检查主产物是请求 JSON，并写清下一入口 | `handoff_note` | `pass -> 完成`；`fail -> 回目标节点` | 仅本节点可结案 |

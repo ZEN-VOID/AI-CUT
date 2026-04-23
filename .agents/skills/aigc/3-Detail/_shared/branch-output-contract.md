@@ -25,6 +25,7 @@
 - 作用：
   - 记录本轮验收、阻塞、根因上溯和 closure
   - 记录学院派知识证据：`knowledge_mode / knowledge_domain / selected_bundles / applied_passes / translation_targets`
+  - 记录知行合一 closure 四段：`思考过程 / 关键证据 / 风险/例外 / 下一入口`
 
 ### 3. legacy compatibility utilities
 
@@ -42,6 +43,7 @@
 3. 当前摄影字段统一使用根模板中的 canonical 名称，不再沿用旧命名。
 4. 若 legacy/compat 中的旧 sidecar 或迁移工具仍被调用，它们只能作为补证或迁移输入，不得抢当前根技能的写回权。
 5. 若本轮实际读取 `knowledge-base/电影学院派/*`，必须把 bundle 选择与转译落点写入 `validation-report.md`；若未采用，也必须写 `unused_with_reason`，防止“挂名接入”。
+6. `思考过程` 只允许进入 `validation-report.md` 的 closure 段，不得另起第二真源 sidecar。
 
 ## Default Pass Ownership
 

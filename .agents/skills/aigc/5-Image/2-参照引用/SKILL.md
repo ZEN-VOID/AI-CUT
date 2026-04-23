@@ -53,7 +53,6 @@ governance_tier: full
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 - `projects/aigc/<项目名>/5-Image/分镜故事板/<第N集>/<第N集>.json`
 - `projects/aigc/<项目名>/5-Image/分镜帧/<第N集>/<第N集>.json`
-- `projects/aigc/<项目名>/5-Image/漫画/<第N集>/<第N集>.json`
 - `projects/aigc/<项目名>/Assets/`
 - `projects/aigc/<项目名>/4-Design/`
 - [references/jimeng-cli.md](references/jimeng-cli.md)

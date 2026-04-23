@@ -322,11 +322,11 @@ flowchart LR
    - `projects/aigc/<项目名>/4-Design/道具/3-面板/`
    - `projects/aigc/<项目名>/5-Image/分镜故事板/`
    - `projects/aigc/<项目名>/5-Image/分镜帧/`
-   - `projects/aigc/<项目名>/5-Image/漫画/`
    - `projects/aigc/<项目名>/5-Image/2-参照引用/`
    - `projects/aigc/<项目名>/5-Image/3-图像生成/`
    - `projects/aigc/<项目名>/6-Video/全能参照/`
    - `projects/aigc/<项目名>/6-Video/首帧参照/`
+   - `projects/aigc/<项目名>/6-Video/2-参照引用/`
    - `projects/aigc/<项目名>/6-Video/生成任务/`
 
 这里的“active 子路径骨架”特指 **项目 runtime 的 canonical landing**，不是技能树中的中间执行目录。
@@ -351,8 +351,8 @@ flowchart LR
   - `服装` 仍可作为项目级 `Assets/服装/` 资产沉淀类目保留，但 4-Design source leaf 尚未迁回 active 时，不预建 `4-Design/服装/*`
   - 不预建 `4-Design/1-清单/` 这类执行层 tranche 目录；它们属于技能树路由层，不是项目业务落盘层
 - `5-Image`
-  - 技能树 active 路径：`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/分镜帧`、`1-提示词蒸馏/漫画`、`2-参照引用`、`3-图像生成`
-  - runtime 预建路径：`5-Image/分镜故事板/`、`5-Image/分镜帧/`、`5-Image/漫画/`、`5-Image/2-参照引用/`、`5-Image/3-图像生成/`
+  - 技能树 active 路径：`1-提示词蒸馏/分镜故事板`、`1-提示词蒸馏/分镜帧`、`2-参照引用`、`3-图像生成`
+  - runtime 预建路径：`5-Image/分镜故事板/`、`5-Image/分镜帧/`、`5-Image/2-参照引用/`、`5-Image/3-图像生成/`
   - `2-参照引用` 与 `3-图像生成` 在初始化时只预建稳定根目录；具体 `mode/provider/source_tranche/第N集/` 下钻目录由对应技能执行时创建
 - `6-Video`
   - 技能树 active 路径：`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`

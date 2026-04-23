@@ -57,7 +57,7 @@ governance_tier: full
 ## When Not to Use
 
 - 目标是按单一 `分镜ID` 生成首帧或单帧图，应进入 `分镜帧`。
-- 目标是 9:16 漫画单页、气泡文字与漫画页节奏，应进入 `漫画`。
+- 目标是 9:16 漫画单页、气泡文字与漫画页节奏，应回父级并转交 repo-local `comic` workflow。
 - 上游 `3-Detail/第N集.json` 还没有形成合法 canonical `groups[]`，或 compat projection 仍无法得到稳定分镜组视图。
 - 当前任务想直接出图，而不是先产出请求 JSON。
 
@@ -74,7 +74,7 @@ governance_tier: full
 ### `分镜故事板` 不拥有
 
 - 单帧级输出合同
-- 漫画页文字系统与版式规划
+- repo-local `comic` workflow 的文字系统与版式回接边界
 - 一致性二次处理与真实图片生成
 - 上游镜头事实重写
 - 第二套分文件规范载体、私有模板真源或隐藏思维链文档
@@ -87,7 +87,7 @@ governance_tier: full
 | `business_object` | canonical `groups[]` 中的单个可回链分镜组；若叶子仍需旧式 `组间设计 / 分镜明细[]` helper，只允许通过 runtime compat projection 派生 |
 | `task_goal` | 生成 `meta + prompt_style + model + prompt + prompt_char_count` 并写入单集 `第N集.json` |
 | `constraints` | 不压缩镜头事实、不虚构信息、不直接生成图片、不引入第二真源、不破坏共享模板骨架 |
-| `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏、不做一致性处理、不做模型提交 |
+| `non_goals` | 不做对象路由、不做单帧蒸馏、不做漫画页蒸馏（漫画页诉求回父级并转交 `comic` workflow）、不做一致性处理、不做模型提交 |
 | `success_criteria` | 分镜组可唯一回链；组级设计块与组内多镜融写列覆盖完整；固定前缀逐字保留；共享模板骨架完整；输出可 handoff |
 | `evidence_sources` | `3-Detail/第N集.json`、shared schema、shared image template、可选 `3-Detail/水月/第N集.field-patch.json`、`3-Detail/镜花/第N集.field-patch.json` 与 `4-Design/` |
 | `canonical_output` | `projects/aigc/<项目名>/5-Image/分镜故事板/第N集/第N集.json` |
@@ -277,7 +277,7 @@ stateDiagram-v2
 
 #### 回退门
 
-- 若对象其实是单帧或漫画页，立即回父级重路由。
+- 若对象其实是单帧或漫画页，立即回父级重路由；漫画页诉求不在 `5-Image` 内继续展开。
 - 若输出期望是图片或视频，停止并指出本技能只负责请求 JSON。
 
 ### N1 `source-validate`

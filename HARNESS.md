@@ -100,13 +100,15 @@
   - `0-Init`、`1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 为 `active`
   - `7-Cut` 为 `shelved`
   - `4-Design` 下的 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}`、`3-面板/{场景,角色,道具}` 已进入 leaf/tranche 注册，其中 `3-面板` tranche parent 为 `partial-active`
+  - `5-Image` 已登记 stage-local leaf/tranche：`1-提示词蒸馏`、`分镜故事板`、`分镜帧`、`2-参照引用`、`3-图像生成`
+  - `6-Video` 已登记 stage-local leaf：`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
 - `aigc.satellite_index` 当前已登记并启用：
   - `query`
   - `resume`
   - `review`
 - `aigc/review` 当前已不再只是 seeded packet 入口，而是实际 package-level 审计总线：
   - 先写同轮 `review_fact_pack`
-  - 自动调 `[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)`
+  - 再按 `.agents/skills/aigc/review/_shared/execution-provider.yaml -> $CODEX_HOME -> ~/.codex` 解析 `code-reviewer`
   - 聚合六维审计 packet
   - 自动写 `*.review.repair.json`
   - 若项目已有 `governance-state.yaml`，再同步 `review_bridge + resume_contract.required_repairs`
@@ -203,6 +205,7 @@
 - `6-Video` 等 active 链路的 shared runtime 映射是否仍残留旧叶子口径
 - `aigc/review` 是否已从文档声明升级到可执行载体：
   - `scripts/aigc_review_runner.py` 是否存在并保留 `code-reviewer + review_fact_pack + repair_plan_ref + governance-state.yaml + resume_contract` 关键标记
+  - `.agents/skills/aigc/review/_shared/execution-provider.yaml` 是否存在，并把 provider 解析从 repo-local config 回接到 `$CODEX_HOME` 或 `~/.codex`
   - `.agents/skills/aigc/review/_shared/review-aggregate.template.json` 是否保留 `review_fact_pack_ref / repair_plan_ref / review_report_ref / external_review / governance_state_synced`
   - `projects/aigc/<项目名>/review/{checkpoints,stages,releases}` 这组三层 runtime 目录是否已被阶段审计合同显式覆盖
 
@@ -228,7 +231,7 @@
 当请求命中 `aigc/review` 时，当前仓库已经不是“只在文档里声明 review”：
 
 - 先由 `scripts/aigc_review_runner.py` 组装并写回同轮 `*.review.fact-pack.json`
-- 再自动调 `[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)` 做结构化审计
+- 再按 `.agents/skills/aigc/review/_shared/execution-provider.yaml` 与 `$CODEX_HOME / ~/.codex` 解析 `code-reviewer` 并做结构化审计
 - 六个维度子技能并发回写各自的 `dimension_packet + dimension_report_ref`
 - 父层聚合生成单一 `*.review.json`
 - 同级继续写 `*.review.repair.json`、`*.review.review.md`，并在已有 `governance-state.yaml` 时同步 `review_bridge`
@@ -270,6 +273,7 @@
 - `aigc` 的主入口、卫星入口、项目内控制面与阶段状态已经纳入同一张注册表。
 - `2-Global` 已开始对齐 `3-Detail` 的模板中心模式：默认围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接写 `episode_root.json`，旧 Markdown 下沉为兼容投影。
 - `3-Detail` 阶段内合同已进一步收束为“单根技能 + references 模块 + `分镜构图` 先行”的固定主链，不再把 `1-水月 / 2-镜花` 视为当前主执行真源。
+- `5-Image` 已把 `漫画` 从 stage-local active leaf 中退役，当前稳定链路回收到 `分镜故事板 / 分镜帧 -> 2-参照引用 -> 3-图像生成`；漫画页诉求改回 repo-local `comic` workflow。
 - `comic` 已成为独立受治理的 repo-local workflow，而不是根层手工串接。
 - 团队能力类 skill 已不是“散落人物卡”，而是开始进入统一的注册、路由与真源口径。
 
@@ -280,7 +284,7 @@
 - `6-Video` 已升级为 active stage，但内部子路径和 provider 级执行面仍需继续收束。
 - `7-Cut` 仍是注册层已声明、执行层未落地的搁浅阶段。
 - 门下省的 `aigc/review` 已作为包级统一入口存在，并已初步落地六个专项维度席位：`规划与种子兑现 / 分镜执行连续性 / 设计对位 / 图像交付就绪 / 视频交付就绪 / 治理闭环`；更细的子维度与自动执行器仍可继续扩展。
-- `aigc/review` 已从 seeded aggregate packet 入口升级为可执行 review bus；但其 provider 仍默认锚定外部 `code-reviewer` 技能根，后续若要进一步制度化，仍应把关键 schema、runner 协议与本仓库自有审计能力继续内聚。
+- `aigc/review` 已从 seeded aggregate packet 入口升级为可执行 review bus，并已收束到 repo-local provider config + `$CODEX_HOME / ~/.codex` 解析；后续若要进一步制度化，仍应把关键 schema、runner 协议与本仓库自有审计能力继续内聚。
 - 兵部侧 `resume` 已是受治理入口，但自动化 hook、批量恢复和更细粒度调度能力仍待补齐。
 - 更大范围的 cross-skill eval、hook、auto-remediation 仍主要停留在骨架期。
 

@@ -22,7 +22,7 @@
 | `1-提示词蒸馏` 只加载根 `aigc`，没把 `5-Image` 阶段父层纳入 preload | 上下文装配层 | 把 preload 顺序改成 `aigc -> 5-Image -> 具体子路径` | 阶段父层成为图像链路的统一 context bridge | 子路径能先获得阶段边界与路由约束 |
 | routes 里没有图像阶段入口策略，外部编排只能靠根技能兜底 | 控制面路由层 | 在 `routes.yaml` 补 `aigc-image-stage-entry` | 把 active stage 的入口策略显式写进 route policies | 控制面可直接识别图像阶段入口 |
 | 生成结果被写到 `Assets/` 或 provider cache，和 `submit-plan` 分离 | 输出治理层 | 把 canonical 输出图像回收到 `5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/` | 在阶段父层与 `3-图像生成` 局部合同共同声明“提交包与结果同目录” | 查询生成结果时能从 submit 包目录直接找到本地图像 |
-| active leaf 在 `bootstrap_compat` 下长期缺 `Field Master / Thought Pass / Pass Table`，以前被 parent-only audit 掩盖 | 叶子合同完备层 | 为 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 补齐字段表、思行表与返工表 | 让 `aigc_skill_audit.py` 在兼容模式也覆盖 active 图像 leaf，而不是只审阶段父层 | strict audit 能直接指出图像阶段 leaf 的合同缺口 |
+| `1-提示词蒸馏` 父层已去掉漫画叶子，但 runtime / audit / skeleton 仍保留 `5-Image/漫画/` | stage/runtime sync layer | 将漫画页诉求正式回接 repo-local `comic` workflow，并从 `5-Image` active leaf、runtime 预建和 strict audit 中移除 `漫画` | 把“叶子退役”视为跨 root skill / stage skill / runtime layout / audit / registry 的同步动作，而不是删除单个目录 | `5-Image` 不再把缺失的漫画 leaf 误判为 active contract 漂移 |
 
 ## Repair Playbook
 

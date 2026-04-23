@@ -49,7 +49,7 @@ governance_tier: full
 ## When Not to Use
 
 - 目标是整组多格 storyboard，应进入 `分镜故事板`。
-- 目标是漫画页、气泡文字、旁白框或漫画阅读节奏，应进入 `漫画`。
+- 目标是漫画页、气泡文字、旁白框或漫画阅读节奏，应回父级并转交 repo-local `comic` workflow。
 - 上游 `3-Detail/第N集.json` 尚未形成合法 canonical `groups[]`、compat projection 未到 `detail_in_progress | ready`，或当前无法确认唯一 `分镜ID`。
 - 任务想把多个 `分镜ID` 合并成一条请求；本技能只处理“一镜一条”。
 
@@ -66,7 +66,7 @@ governance_tier: full
 ### `分镜帧` 不拥有
 
 - 父级 `1-提示词蒸馏` 的对象裁决与互斥路由权
-- 组级故事板合同与漫画页合同
+- 组级故事板合同与 repo-local `comic` workflow 的回接边界
 - 一致性二次处理与真实图片生成
 - 上游导演 JSON 的事实改写
 - 第二套 `references/` 规范真源或平行私有模板

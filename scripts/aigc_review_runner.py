@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -29,11 +30,7 @@ ROOT = Path(".agents/skills/aigc/review")
 REGISTRY = ROOT / "_shared" / "review-dimension-registry.yaml"
 AGGREGATE_TEMPLATE = ROOT / "_shared" / "review-aggregate.template.json"
 REPORT_TEMPLATE = ROOT / "_shared" / "review-dimension-report.template.md"
-
-CODE_REVIEWER_ROOT = Path("/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer")
-CODE_REVIEWER_CHECKER = CODE_REVIEWER_ROOT / "scripts" / "code_quality_checker.py"
-CODE_REVIEWER_REPORTER = CODE_REVIEWER_ROOT / "scripts" / "review_report_generator.py"
-CODE_REVIEWER_TIMEOUT_SECONDS = 60.0
+EXECUTION_PROVIDER_CONFIG = ROOT / "_shared" / "execution-provider.yaml"
 
 STAGE_ACCEPTANCE_PASS_TARGETS = {
     "1-Planning": ["2-Global"],
@@ -59,6 +56,46 @@ SEVERITY_ORDER = {
     "medium": 2,
     "low": 1,
 }
+
+
+def _default_codex_home() -> Path:
+    configured = os.environ.get("CODEX_HOME")
+    if configured:
+        return Path(configured).expanduser()
+    return Path.home() / ".codex"
+
+
+def load_execution_provider() -> dict[str, Any]:
+    defaults = {
+        "provider_id": "code-reviewer",
+        "skill_relative_to_codex_home": "skills/meta/构建/架构/code-reviewer/SKILL.md",
+        "checker_script_relative_to_codex_home": "skills/meta/构建/架构/code-reviewer/scripts/code_quality_checker.py",
+        "reporter_script_relative_to_codex_home": "skills/meta/构建/架构/code-reviewer/scripts/review_report_generator.py",
+        "artifact_dir_name": ".code-reviewer",
+        "timeout_seconds": 60.0,
+    }
+    loaded: dict[str, Any] = {}
+    if EXECUTION_PROVIDER_CONFIG.is_file():
+        payload = yaml.safe_load(EXECUTION_PROVIDER_CONFIG.read_text(encoding="utf-8")) or {}
+        if isinstance(payload, dict):
+            loaded = payload
+    config = {**defaults, **loaded}
+    codex_home = _default_codex_home()
+    return {
+        **config,
+        "codex_home": codex_home,
+        "skill_path": codex_home / str(config["skill_relative_to_codex_home"]),
+        "checker_script_path": codex_home / str(config["checker_script_relative_to_codex_home"]),
+        "reporter_script_path": codex_home / str(config["reporter_script_relative_to_codex_home"]),
+        "timeout_seconds": float(config.get("timeout_seconds") or defaults["timeout_seconds"]),
+    }
+
+
+EXECUTION_PROVIDER = load_execution_provider()
+CODE_REVIEWER_PROVIDER_NAME = str(EXECUTION_PROVIDER["provider_id"])
+CODE_REVIEWER_CHECKER = Path(EXECUTION_PROVIDER["checker_script_path"])
+CODE_REVIEWER_REPORTER = Path(EXECUTION_PROVIDER["reporter_script_path"])
+CODE_REVIEWER_TIMEOUT_SECONDS = float(EXECUTION_PROVIDER["timeout_seconds"])
 
 CHECKPOINT_REQUIREMENTS = {
     "planning-handoff-ready": {
@@ -364,7 +401,8 @@ def review_report_path(output_path: Path) -> Path:
 
 
 def code_reviewer_dir(output_path: Path) -> Path:
-    directory = output_path.parent / ".code-reviewer" / output_path.stem
+    artifact_dir_name = str(EXECUTION_PROVIDER.get("artifact_dir_name") or ".code-reviewer")
+    directory = output_path.parent / artifact_dir_name / output_path.stem
     directory.mkdir(parents=True, exist_ok=True)
     return directory
 
@@ -554,8 +592,9 @@ def run_code_reviewer(
         provider_status = "degraded"
 
     return {
-        "provider": "code-reviewer",
+        "provider": CODE_REVIEWER_PROVIDER_NAME,
         "status": provider_status,
+        "provider_skill_ref": str(EXECUTION_PROVIDER.get("skill_relative_to_codex_home") or ""),
         "target_ref": relref(fact_pack_file, project_root),
         "artifact_dir_ref": relref(output_dir, project_root),
         "jobs": [checker_job, reporter_job],
@@ -692,7 +731,7 @@ def external_findings_to_issues(
                 stage=stage,
                 scope_ref=scope_ref,
                 location=str(item.get("location") or item.get("file") or dimension),
-                description=str(item.get("description") or item.get("title") or "code-reviewer 返回了需要人工确认的 findings"),
+                description=str(item.get("description") or item.get("title") or f"{CODE_REVIEWER_PROVIDER_NAME} 返回了需要人工确认的 findings"),
                 suggestion=str(item.get("suggestion") or item.get("recommendation") or "回到最早受影响的返工入口修复后重跑 review"),
                 rework_target=default_rework_target,
                 source_layer_owner=stage if stage and stage != "package" else "root-aigc",
@@ -1038,7 +1077,8 @@ def write_review_report(
         "",
         "## code-reviewer Dispatch",
         "",
-        f"- `provider`: {external_review.get('provider') or 'code-reviewer'}",
+        f"- `provider`: {external_review.get('provider') or CODE_REVIEWER_PROVIDER_NAME}",
+        f"- `provider_skill_ref`: {external_review.get('provider_skill_ref') or '-'}",
         f"- `status`: {external_review.get('status') or 'unknown'}",
         f"- `artifact_dir_ref`: {external_review.get('artifact_dir_ref') or '-'}",
         "",

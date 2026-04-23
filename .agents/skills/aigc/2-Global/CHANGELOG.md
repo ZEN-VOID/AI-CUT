@@ -2,6 +2,14 @@
 
 本文件记录 `aigc/2-Global` 的结构性改动，不参与默认预加载。
 
+## 2026-04-23
+
+- `Case-20260423-AIGC-GLOBAL-ZHI-XING-SKELETON-UPGRADE`
+  - 按 `skill-知行合一` 口径，把 `2-Global/SKILL.md` 升级为 `单技能知行合一 + skeleton-first` 主合同。
+  - 新增 `Mode Selection`、`Single-Skill Positioning`、`Thinking-Action Node Contract` 与 4 张 Mermaid，把线性说明收束为 `N1-N7` 思行网络。
+  - 新建 `references/思行网络.md`、`references/字段与验收映射.md`、`references/增量写回与兼容投影.md`，将字段表、patch 细则与 compat 规则下沉出主合同。
+  - 同步更新 `CONTEXT.md` 与 `agents/openai.yaml`，让入口摘要、经验层与新骨架保持一致。
+
 ## 2026-04-15
 
 - `Case-20260415-AIGC-GLOBAL-ROOT-FILE-CANONICALIZATION`

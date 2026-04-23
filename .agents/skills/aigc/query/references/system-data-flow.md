@@ -8,7 +8,7 @@
 
 | truth role | canonical carriers | notes |
 | --- | --- | --- |
-| project governance | `STATE.json`；若已生成，再补 `governance-state.yaml`、`mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | 核心项目状态入口 + 惰性治理链 |
+| project governance | `governance-state.yaml`（若已生成）；缺失时退回 `STATE.json`，再补 `mandate.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md` | 结构化治理快照优先，`STATE.json` 负责轻量入口与 fallback |
 | planning | `projects/aigc/<项目名>/1-Planning/` | 包括阶段产物与 `1-Planning/validation-report.md` |
 | directing | `projects/aigc/<项目名>/3-Detail/第N集.json` | `2-Global` 先产出导演前置 Markdown 与 `2-Global/episode_root.json` 组级 seed，`3-Detail` 再继续补齐并维护 detail root |
 | subject | `projects/aigc/<项目名>/4-Design/` | design-source 产物与阶段验收 |
@@ -20,7 +20,7 @@
 1. 先确认 `PROJECT_ROOT`
 2. 再识别 truth role
 3. 只读取该 truth role 的 canonical carrier
-4. 若问题涉及“当前断点 / 下一入口 / 缺治理工件”，先读 `STATE.json`；若 `governance-state.yaml` 存在，再把它视为更高优先级的结构化快照
+4. 若问题涉及“当前断点 / 下一入口 / 缺治理工件”，先读 `governance-state.yaml`；若其缺失，再退回 `STATE.json`
 5. 若问题涉及“是否通过 / 是否完成”，补读对应 `validation-report.md`
 6. 若问题涉及“为什么这么路由”，补读 registry / routes / root skill
 
@@ -33,8 +33,8 @@ rg --files "$PROJECT_ROOT/4-Design"
 rg --files "$PROJECT_ROOT/5-Image"
 rg --files "$PROJECT_ROOT/6-Video"
 rg --files "$PROJECT_ROOT/7-Cut"
-sed -n '1,220p' "$PROJECT_ROOT/STATE.json"
 test -f "$PROJECT_ROOT/governance-state.yaml" && sed -n '1,220p' "$PROJECT_ROOT/governance-state.yaml"
+sed -n '1,220p' "$PROJECT_ROOT/STATE.json"
 sed -n '1,220p' "$PROJECT_ROOT/validation-report.md"
 ```
 

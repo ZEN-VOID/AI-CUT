@@ -14,12 +14,14 @@ REQUIRED_FILES = (
     "references/模板字段填写指南.md",
     "references/编剧手册.md",
     "references/镜头语言.md",
+    "references/incremental-patch-playbook.md",
 )
 REQUIRED_SHARED_REF = ".agents/skills/aigc/3-Detail/_shared/node-pack-contract.md"
 REQUIRED_SKILL_PHRASES = (
     "固定先执行 `1-分镜构图`",
     "references/能力通道图谱.yaml",
     "references/模板字段填写指南.md",
+    "references/incremental-patch-playbook.md",
 )
 REQUIRED_YAML_KEYS = (
     "ordered_passes:",
@@ -56,6 +58,12 @@ def validate_stage_root(stage_root: Path) -> list[str]:
             for key in REQUIRED_YAML_KEYS:
                 if key not in text:
                     errors.append(f"{file_path}: 缺少 YAML 关键段 `{key}`。")
+            continue
+        if rel_path.endswith("incremental-patch-playbook.md"):
+            for marker in ("group_scope", "shot_scope", "field_scope", "closure_scope", "N2", "N7"):
+                if marker not in text:
+                    errors.append(f"{file_path}: incremental patch playbook 缺少关键段 `{marker}`。")
+            continue
         if rel_path.endswith(".md") and "分镜构图" not in text:
             errors.append(f"{file_path}: 未声明 `分镜构图` 先行规则。")
 

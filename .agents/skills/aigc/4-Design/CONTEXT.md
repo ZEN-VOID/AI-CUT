@@ -10,7 +10,7 @@
 - soft_limit_chars: 18000
 - hard_limit_chars: 36000
 - status: ok
-- last_checked_at: 2026-04-15
+- last_checked_at: 2026-04-23
 
 ## Type Map
 
@@ -30,6 +30,7 @@
 | 项目根 `team.yaml` 已启用顾问团，但 `4-Design` 仍把首次落盘后的收尾挂在 `监制` 名下 | 角色边界层 | 在 `4-Design/SKILL.md` 明确 `roles.supervision` 只负责前置 advisory，post-write 收尾回到 audit/validation | 父层与 leaf 统一把 `监制` 从 closeout owner 名单中移除 | `validation-report.md` 只保留 audit note，不再要求 `监制强化` 槽位 |
 | `4-Design` 把 post-write audit、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先收回 `roles.supervision` 的 closeout 权，再把 `source_skill_refs` 固定为领域提示 | 在 `4-Design/SKILL.md` 与 `2-设计/_shared/subagent-supervision-contract.md` 中显式声明停用边界 | closeout 结论不再依赖 reviewer roster |
 | `4-Design` 的落盘后收尾继续把 `_manifest.json`、派生 PNG 或 request sidecar 当成“监制补丁”对象 | audit boundary layer | 将 post-write 问题收束为 `validation-report.md` 的 audit note；业务 patch 只留给后续独立审计机制 | 父层合同不再把派生资产纳入 `监制` closeout 目标 | 阶段边界不再被派生资产反向抢权 |
+| `4-Design` 父层加了 Mermaid 或节点名，但没有把 tranche/domain/advisory/closure 绑定到同一思行网络 | skill topology layer | 把父层重排为 `Business Requirement + Topology + N0-N7 + One-Shot Output`，并把长矩阵下沉到 `references/` | 多 tranche 阶段升级时优先用“骨架在 SKILL、矩阵在 references”的知行合一结构 | 路由、门禁、输出口径都能在同一主文档闭环复核 |
 | 旧经验层仍提示 `4-Design` 要在落盘后起 subagents | context drift layer | 同步更新父层与 leaf `CONTEXT.md` 的经验条目 | 角色边界变更时，同轮更新自动预加载的经验层 | 预加载经验不会把执行者带回旧路径 |
 | `2-设计` 的角色 prompt 漂成西方面孔、现代棚拍或全球时尚广告 | worldview fallback 层 | 在角色 builder 加当前项目的人种/地域/世界观硬约束，并把东亚武侠人物画像下沉到角色级 fallback | 在 `design-output-contract.md` 固定 `Worldview Fidelity Gate`，把 `urban-drama / western-face drift` 设为 hard fail token | 角色图不再脱离东亚武侠世界观 |
 | `2-设计` 的场景 prompt 被全局词误导，夜市跑成王府/税关/赛博社区 | scene typology fallback 层 | 让场景 builder 先按 `scene_name + aliases + variants + anchors` 判型，再决定 domain defaults | 在共享合同写明场景默认 typology 只能优先跟随当前场景家族，不得被跨项目或跨场景词反向抢权 | 夜市/税关/王府各自回到正确空间家族 |
@@ -62,6 +63,9 @@
 - `4-Design` 里最稳的分层已经改成：`监制` 只做前置 advisory，首次落盘后的收尾直接回到 audit/validation。
 - 对 `4-Design` 来说，现在最需要防的是“旧 closeout 语义借 CONTEXT 回流”，而不是再补一层 `监制 refine`。
 - `source_skill_refs` 只适合做领域提示，不适合做 `4-Design` post-write 收尾的授权字段。
+- 对多 tranche 阶段父技能做知行合一升级时，至少要让 Mermaid 覆盖 `主干路由 / runtime-输出关系 / 状态推进` 三类信息；只有单张流程图通常说明治理还没真正落到图上。
+- `4-Design` 这类父层技能最稳的骨架是“主文档写边界、节点、汇流、输出；`references/` 承接 tranche/domain 矩阵与返工细则”，避免主 `SKILL.md` 重新膨胀成说明书。
+- 父层 `思考过程` 最适合收束到 `validation-report.md`，而不是另起 sidecar；这样不会和 leaf canonical 内容抢真源。
 - 对《笑傲江湖4之风云再再起》这类强世界观项目，`2-设计` 最大风险不是“画得不够精”，而是 leaf 在信息不足时偷吃旧项目 fallback，结果三域一起偏题。
 - 当角色缺五官实锚时，宁可用项目内角色专属画像 fallback，也不要把 `unknown_by_shot_evidence` 原样带进 prompt。
 - 当场景缺材质/拓扑实锚时，先按当前场景名判夜市/税关/王府家族，再补 typology；不要从项目全局风格里乱捞地理词。

@@ -103,7 +103,6 @@ governance_tier: full
 
 - `projects/aigc/<项目名>/5-Image/分镜故事板/<第N集>/<第N集>.json`
 - `projects/aigc/<项目名>/5-Image/分镜帧/<第N集>/<第N集>.json`
-- `projects/aigc/<项目名>/5-Image/漫画/<第N集>/<第N集>.json`
 - `projects/aigc/<项目名>/5-Image/2-参照引用/<mode>/<source_tranche>/<第N集>/<第N集>.json`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
 

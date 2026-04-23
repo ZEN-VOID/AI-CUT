@@ -167,7 +167,6 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/5-Image/分镜故事板/",
         "projects/aigc/<项目名>/5-Image/分镜帧/",
-        "projects/aigc/<项目名>/5-Image/漫画/",
         "projects/aigc/<项目名>/5-Image/2-参照引用/",
         "projects/aigc/<项目名>/5-Image/3-图像生成/",
         "projects/aigc/<项目名>/6-Video/",
@@ -187,13 +186,11 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/5-Image/分镜故事板/",
         "projects/aigc/<项目名>/5-Image/分镜帧/",
-        "projects/aigc/<项目名>/5-Image/漫画/",
     ),
     ROOT / "5-Image" / "SKILL.md": (
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/5-Image/分镜故事板/",
         "projects/aigc/<项目名>/5-Image/分镜帧/",
-        "projects/aigc/<项目名>/5-Image/漫画/",
         "projects/aigc/<项目名>/5-Image/2-参照引用/",
         "projects/aigc/<项目名>/5-Image/3-图像生成/",
     ),
@@ -258,7 +255,6 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md",
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜故事板" / "SKILL.md",
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md",
-        ROOT / "5-Image" / "1-提示词蒸馏" / "漫画" / "SKILL.md",
         ROOT / "5-Image" / "2-参照引用" / "SKILL.md",
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
     ),
@@ -1023,22 +1019,38 @@ def audit_detail_single_skill_contract(failures: list[str]) -> None:
         refs_root / "模板字段填写指南.md",
         refs_root / "编剧手册.md",
         refs_root / "镜头语言.md",
+        refs_root / "incremental-patch-playbook.md",
         refs_root / "正反例.md",
         refs_root / "创作评审标尺.md",
         refs_root / "电影学院派知识接线.md",
+        refs_root / "validation-report-closure-guide.md",
         refs_root / "路由画像.yaml",
         refs_root / "能力通道图谱.yaml",
     )
 
     skill_content = detail_skill.read_text(encoding="utf-8")
+    if "## Business Requirement Analysis Contract (Mandatory)" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Business Requirement Analysis Contract (Mandatory)`")
     if "## Internal Capability Fusion Contract (Mandatory)" not in skill_content:
         failures.append(f"{detail_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
+    if "## Topology Contract" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Topology Contract`")
+    if "## Mermaid Visual Contract" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Mermaid Visual Contract`")
+    if "## Thinking-Action Node Contract" not in skill_content:
+        failures.append(f"{detail_skill}: missing `Thinking-Action Node Contract`")
+    if "## One-Shot Output Contract (Mandatory)" not in skill_content:
+        failures.append(f"{detail_skill}: missing `One-Shot Output Contract (Mandatory)`")
     if "## Academy Knowledge Utilization Contract (Mandatory)" not in skill_content:
         failures.append(f"{detail_skill}: missing `Academy Knowledge Utilization Contract (Mandatory)`")
     if "固定先执行 `1-分镜构图`" not in skill_content and "固定先做 `1-分镜构图`" not in skill_content:
         failures.append(f"{detail_skill}: must explicitly declare `1-分镜构图` as the first fixed pass")
     if "## Academy Knowledge Evidence" not in skill_content:
         failures.append(f"{detail_skill}: must require `validation-report.md` to carry `## Academy Knowledge Evidence`.")
+    if "思考过程" not in skill_content or "关键证据" not in skill_content or "风险/例外" not in skill_content or "下一入口" not in skill_content:
+        failures.append(f"{detail_skill}: must require closure fields `思考过程 / 关键证据 / 风险/例外 / 下一入口`.")
+    if "```mermaid" not in skill_content:
+        failures.append(f"{detail_skill}: must include Mermaid topology maps after知行合一 upgrade")
     if forbidden_marker in skill_content:
         failures.append(
             f"{detail_skill}: 3-Detail must internalize former production-team capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/制作组/`"

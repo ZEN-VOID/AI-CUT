@@ -84,6 +84,9 @@ route_policies:
   - id: command-subagent-preview-entry
     trigger: 命中 `.agents/skills/commands/subagetns/preview`、需要命令树内部执行前顾问团预演、或父级流程希望先用显式顾问组/项目 `team.yaml` 解析 advisor council 再正式执行
     rule: "进入 `.agents/skills/commands/subagetns/preview/SKILL.md`；默认优先采用显式 advisor_group，否则回退到项目 `team.yaml` 解析顾问 roster，并在可行时真实启动 advisor subagents 产出 decision packet；若被上层策略阻断，则必须显式降级为 `degraded-local-council` 并报告阻断来源。"
+  - id: learn-beiming-shengong-entry
+    trigger: 命中 `北冥神功`、skills-update 自学习、升级某个 skill、把外部知识点吸收到目标 skill、或需要先研究目标 skill 当前配置与所在技能组上下文再完成技能升级
+    rule: "进入 `.agents/skills/learn/北冥神功/SKILL.md`；先锁 `target_skill + upgrade_points`，读取目标 skill 的 `SKILL.md + CONTEXT.md` 与相关父级/sibling/shared carrier，再按吸收矩阵裁决 `landing_set + sync_scope`，必要时同步 registry/routes、shared carrier 与 reviewer gate，最后完成 target + self 双重 learning deposition。"
   - id: comic-root-entry
     trigger: 命中漫画项目、完整漫画链路、从素材/小说到九页漫画图、或需要统一落盘到 `projects/comic/[项目名]/`
     rule: "优先进入 `.agents/skills/comic/SKILL.md`；先锁定 `project_name` 与 `projects/comic/[项目名]/` 项目根，再路由到 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成 / 4-剧集海报`。"

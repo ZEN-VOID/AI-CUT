@@ -12,6 +12,7 @@ REQUIRED_FILES = (
     "references/路由画像.yaml",
     "references/正反例.md",
     "references/创作评审标尺.md",
+    "references/validation-report-closure-guide.md",
     "references/编剧手册.md",
     "references/镜头语言.md",
     "references/电影学院派知识接线.md",
@@ -28,6 +29,7 @@ REQUIRED_SKILL_PHRASES = (
     "references/正反例.md",
     "references/创作评审标尺.md",
     "references/电影学院派知识接线.md",
+    "references/validation-report-closure-guide.md",
 )
 
 
@@ -65,6 +67,11 @@ def validate_stage_root(stage_root: Path) -> list[str]:
             for marker in ("Pass Mapping", "Translation Rules", "knowledge-base/电影学院派"):
                 if marker not in text:
                     errors.append(f"{file_path}: 缺少学院派知识接线关键段 `{marker}`。")
+            continue
+        if rel_path.endswith("validation-report-closure-guide.md"):
+            for marker in ("思考过程", "关键证据", "风险/例外", "下一入口"):
+                if marker not in text:
+                    errors.append(f"{file_path}: closure guide 缺少关键槽位 `{marker}`。")
             continue
         if "分镜构图" not in text and "结构" not in text and "角色表现" not in text:
             errors.append(f"{file_path}: 应至少回链到结构或 `分镜构图` 先行规则。")

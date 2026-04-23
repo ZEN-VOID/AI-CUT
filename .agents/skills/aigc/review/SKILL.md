@@ -74,8 +74,9 @@ validator roster、checkpoint 覆盖、mode 权重、默认返工入口与 manda
 
 ## Execution Provider Contract
 
-- 默认 provider：[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)
-- 默认执行方式：review child skills 定义 spec，`scripts/aigc_review_runner.py` 先写同轮 `review_fact_pack`，再自动调起 `code-reviewer` 对该 fact pack 做结构化审计
+- 默认 provider：`code-reviewer`
+- provider 解析真源：`.agents/skills/aigc/review/_shared/execution-provider.yaml`
+- 默认执行方式：review child skills 定义 spec，`scripts/aigc_review_runner.py` 先写同轮 `review_fact_pack`，再按 `execution-provider.yaml -> $CODEX_HOME -> ~/.codex` 的顺序解析 `code-reviewer` 并对该 fact pack 做结构化审计
 - 当前 repo 的 canonical runner：`scripts/aigc_review_runner.py`
 - 汇流规则：
   - runner 必须先写 `*.review.fact-pack.json`

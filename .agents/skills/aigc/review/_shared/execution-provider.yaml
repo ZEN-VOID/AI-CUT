@@ -1,0 +1,11 @@
+provider_id: "code-reviewer"
+display_name: "code-reviewer"
+skill_relative_to_codex_home: "skills/meta/构建/架构/code-reviewer/SKILL.md"
+checker_script_relative_to_codex_home: "skills/meta/构建/架构/code-reviewer/scripts/code_quality_checker.py"
+reporter_script_relative_to_codex_home: "skills/meta/构建/架构/code-reviewer/scripts/review_report_generator.py"
+artifact_dir_name: ".code-reviewer"
+timeout_seconds: 60.0
+resolution_order:
+  - "优先读取环境变量 `CODEX_HOME`"
+  - "若缺失，则回退到 `~/.codex`"
+ownership: "child skills define audit spec; provider executes review; parent aggregates and routes repair"

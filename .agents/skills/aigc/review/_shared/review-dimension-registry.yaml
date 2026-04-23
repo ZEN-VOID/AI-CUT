@@ -2,7 +2,8 @@ version: 1
 canonical_owner: ".agents/skills/aigc/review/_shared/review-dimension-registry.yaml"
 purpose: "aigc review 维度、checkpoint 审计点、stage acceptance 与 package release gate 的单一真源"
 execution_provider:
-  default_skill: "/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md"
+  config_ref: ".agents/skills/aigc/review/_shared/execution-provider.yaml"
+  default_skill_relative_to_codex_home: "skills/meta/构建/架构/code-reviewer/SKILL.md"
   mode: "background-window"
   ownership: "child skills define audit spec; provider executes review; parent aggregates and routes repair"
 policies:
@@ -353,4 +354,3 @@ dimensions:
     upstream_source_owners:
       - "root-aigc"
       - "project-runtime"
-

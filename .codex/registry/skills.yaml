@@ -87,11 +87,49 @@ active_skills:
         owner_office: shangshu
         contract_status: active
         route_role: stage
+        leaf_index:
+          - id: aigc-visual-prompt-distillation
+            path: .agents/skills/aigc/5-Image/1-提示词蒸馏
+            contract_status: active
+            route_role: tranche
+          - id: aigc-storyboard-sheet
+            path: .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板
+            contract_status: active
+            route_role: leaf
+          - id: aigc-storyboard-frame
+            path: .agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧
+            contract_status: active
+            route_role: leaf
+          - id: aigc-image-reference-binding
+            path: .agents/skills/aigc/5-Image/2-参照引用
+            contract_status: active
+            route_role: leaf
+          - id: aigc-image-generation
+            path: .agents/skills/aigc/5-Image/3-图像生成
+            contract_status: active
+            route_role: leaf
       - id: aigc-6-video
         path: .agents/skills/aigc/6-Video
         owner_office: shangshu
         contract_status: active
         route_role: stage
+        leaf_index:
+          - id: aigc-video-seedance2
+            path: .agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照
+            contract_status: active
+            route_role: leaf
+          - id: aigc-video-first-frame-reference
+            path: .agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照
+            contract_status: active
+            route_role: leaf
+          - id: aigc-video-reference-binding
+            path: .agents/skills/aigc/6-Video/2-参照引用
+            contract_status: active
+            route_role: leaf
+          - id: aigc-video-generation
+            path: .agents/skills/aigc/6-Video/3-视频生成
+            contract_status: active
+            route_role: leaf
       - id: aigc-7-post
         path: .agents/skills/aigc/7-Cut
         owner_office: shangshu
@@ -214,6 +252,15 @@ active_skills:
       canonical_contract: ".agents/skills/commands/subagetns/preview/SKILL.md"
       invocation_role: "advisory-council-subagent"
       mirror_policy: "该技能只拥有顾问团预演、roster 解析与 decision packet 汇流权，不拥有最终执行或 canonical 写回权。"
+  - id: learn-beiming-shengong
+    path: .agents/skills/learn/北冥神功
+    owner_office: zhongshu
+    purpose: "repo-local learn skill，围绕 `待升级skill + 升级点` 执行目标 skill 现状扫描、技能组上下文扫描、升级点落点裁决、有机吸收改造与 learning deposition。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/learn/北冥神功/"
+      canonical_contract: ".agents/skills/learn/北冥神功/SKILL.md"
+      mirror_policy: "该技能本身不拥有业务项目 runtime；其 canonical truth 是目标 skill 的升级载体、registry/routes 同步和 learning deposition。"
   - id: api-anyfast-image
     path: .agents/skills/api/anyfast/image
     owner_office: shangshu
