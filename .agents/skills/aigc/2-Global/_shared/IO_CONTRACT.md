@@ -48,7 +48,7 @@
 2. `projects/aigc/<项目名>/2-Global/episode_root.json` 是本阶段唯一业务真源。
 3. `episode_root.json` 必须同步维护 `meta.剧名 / 集数 / 组数 / 总时长`、`project_global.全局风格 / 全集类型元素` 与 `groups[].分镜组ID / global.剧本正文 / global.*`。
 4. `groups[].global.剧本正文` 必须完整整理自 `1-Planning/3-分组/第N集.md` 的命中组正文，只去掉重复组号标题，不得二次摘要或净化。
-5. `groups[].global.全局风格 / 类型元素 / 导演意图` 必须由当前阶段直接定稿写入 JSON，不允许先写 Markdown 再抽取。
+5. `groups[].global.全局风格 / 类型元素 / 导演意图` 必须由当前阶段直接定稿写入 JSON，不允许先写 Markdown 再抽取；其中 `导演意图` 必须具备观看策略、执行抓手和禁用方向，不得退化成剧情摘句。
 6. 本阶段的 episode seed root 只负责组级结构化 handoff，不得在本阶段发明 `分镜切换`、`正文切分参考[]`、`分镜明细[]`、`正文回指` 或任何 shot-level 字段。
 7. 兼容 Markdown 若被生成，只能从当前 JSON 派生，不得出现“兼容投影先写、canonical 后补”的逆序。
 8. `3-Detail` 后续若需要更细分的 shot-level root，应在自己的 `_shared` 下定义并维护独立模板，不得反向要求 `2-Global` 沿用 detail root 结构。

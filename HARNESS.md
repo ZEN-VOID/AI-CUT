@@ -45,7 +45,7 @@
 
 ## 当前已实现真源
 
-截至 `2026-04-23`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、命令型 wrapper skills、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
+截至 `2026-04-24`，当前仓库已经完成 HARNESS 引导期的最小真源收束，并把 `aigc` 项目工作流、repo-local 漫画链路、团队能力类 skill 注册、provider API skill 注册、命令型 wrapper skills、项目内 runtime 控制面与最小审计入口纳入同一套治理骨架。
 
 ### 1. 宪章层
 
@@ -129,6 +129,7 @@
   - `api-anyfast-image-entry`
   - `api-anyfast-nano-banana-image-entry`
   - `api-anyfast-seedream-image-entry`
+  - `api-ai666-gpt-image-2-entry`
   - `api-anyfast-doubao-seed-2.0-pro-entry`
   - `story-doubao-entry`
   - `api-man-tui-nano-banana-image-entry`
@@ -143,6 +144,7 @@
   - `api-anyfast-image`
   - `api-anyfast-nano-banana-image`
   - `api-anyfast-seedream-image`
+  - `api-ai666-gpt-image-2`
   - `api-anyfast-doubao-seed-2.0-pro`
   - `api-man-tui-grok-video`
   - `api-man-tui-sora`

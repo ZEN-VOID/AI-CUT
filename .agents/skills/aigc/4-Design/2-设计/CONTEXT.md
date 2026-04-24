@@ -21,7 +21,7 @@
 | `[角色名].md` 与 `character_design.json` 内容不一致 | output projection layer | 以结构化真源回写 Markdown 投影 | 在 leaf 合同中固定 machine-first canonical truth | 人读稿不再成为第二真源 |
 | leaf 已回迁，但父层仍宣称 pending | stage coverage layer | 更新 tranche parent 与 `4-Design` 父层 coverage 状态 | 在阶段总线上同步 stage coverage status | source-layer 状态与实体一致 |
 | 场景设计 leaf 直接复刻旧仓 `3-设定` 路径 | migration adapter layer | 把旧仓字段密度迁移到当前 `4-Design/场景/2-设计` runtime | 在 `场景/SKILL.md` 固化当前仓输入输出路径，父层只声明 active leaf 与 handoff | 输出路径不再指向旧 `output/影片/.../3-设定` |
-| 设计文件已落盘但没有自动生图，或生图 prompt 缺全局风格前缀 | output fast-path layer | 从主体设计文件生成 `full_generation_prompt`，再调用 nano-banana general 输出同目录同名图片 | 新增 `_shared/design-output-contract.md` 与 `run_design_auto_image.py`，把全局风格前缀和图片快路径沉为共享真源 | 每个主体文件旁边存在同 stem 图片，manifest 记录 `auto_image` |
+| 设计文件已落盘但没有自动生图，或生图 prompt 缺全局风格前缀 | output fast-path layer | 从主体设计文件生成 `full_generation_prompt`，再调用内置 imagegen 输出同目录同名图片 | `_shared/design-output-contract.md` 与 `run_design_auto_image.py` 只负责内置 imagegen request sidecar；Codex 会话用 `GPT-IMAGE-2` 口径生成并复制回项目 | 每个主体文件旁边存在同 stem 图片，manifest 记录 `auto_image.provider_skill=imagegen` |
 | 批量输出中只生成了部分同 stem 图片，但 manifest 仍把自动生图写成成功 | auto-image completion aggregation layer | 用 `ensure_design_auto_images.py` 逐 Markdown 检查同 stem 图片，缺图就补跑或标失败 | 批量完成判定统一为“每个设计 Markdown 都有同 stem 图片”，leaf runner 不再各自聚合成功状态 | `_manifest.json.auto_image.missing_design_files=[]` 且 `status=success` |
 | `full_generation_prompt` 的全局风格前缀混入 YAML frontmatter、章节说明、类型元素或设计元素文本 | prefix extraction layer | 只提取 `2-Global/全局风格.md` 中 `- 全局风格：` 的字段值 | 用 `_shared/scripts/global_style_prefix.py` 作为共享提取器，并让 leaf runner / auto-image helper 复用它 | prompt 中 `全局风格前缀：` 后紧跟一段项目风格正文，不出现 `project_name:`、`# 类型元素` 或模板说明 |
 | `全局风格.md` 写成裸行 `全局风格:`，导致 `4-Design/2-设计` 无法提取统一前缀 | upstream format drift layer | 将项目风格文件规范化为 `## JSON 直接提取字段` 下的 `- 全局风格：...` | 共享提取器在失败时检测非规范裸行并输出可执行修复提示；上游 `2-Global` 必须继续服从模板字段 | `global_style_prefix.py <全局风格.md>` 成功返回前缀 |
@@ -32,7 +32,7 @@
 | 单主体参照图混入人物、手部或场景背景，导致后续面板/图像阶段污染 | reference cleanliness layer | 按域固定参照图纯净模式：场景为空镜头、道具为纯道具图、角色为纯色背景 | `_shared/design-output-contract.md` 增加 Reference Image Cleanliness Contract；场景/角色 validator 检查英文锚句，场景/道具 builder 固定锚句 | prompt 含 `empty environmental shot / no characters`、`isolated pure prop view / no hands / no characters`、或 `solid color background / no scene background elements` |
 | 参照图洁净只写在输出规则，思维·执行节点仍按剧情剧照思路装配 prompt | thinking-action contract layer | 将洁净判断前移到 leaf 的摄影/设计卡 synthesis 节点，并在 prompt 与 auto-image 节点复验 | `_shared/design-output-contract.md` 增加 Thinking-Action Placement Contract；父层与三 leaf Field/Pass/Node 表登记 `reference_cleanliness_note` | 节点证据能说明污染词已被转写，且自动生图前已复验锚句 |
 | 单主体自动生图 provider 长时间无响应，导致 `2-设计` 父级 pipeline 卡死 | provider timeout layer | 中断当前远端等待，将本轮 manifest 标为 `auto_image.failed/timeout`，继续交付可追踪设计真源与后续 layout dry-run | `run_design_auto_image.py` 增加默认 `--timeout`，超时返回 124 并输出明确错误，避免批量链路无限挂起 | 真实生图失败时命令能在超时窗内退出，manifest 与 validation-report 明确记录 provider timeout |
-| 多主体设计批量生图仍逐个前台等待，拖慢或阻塞 `2-设计` pipeline | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认后台提交 | 新增共享 `image-generation-execution-contract.md`，`ensure_design_auto_images.py` 默认 `background-batch-concurrent + max_concurrent=100`，只在 `--foreground` 时等待 | `_manifest.json.auto_image.status=background_submitted` 且含 `request_batch_path/background_pid/background_log` |
+| 多主体设计批量生图仍直调 API 或远端 provider，导致 `2-设计` pipeline 依赖 API key / 网络 | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认交给内置 imagegen 执行 | 共享 `image-generation-execution-contract.md` 固定 `codex-builtin-imagegen`；`ensure_design_auto_images.py` 默认只写 request sidecar 与 `request_ready` 状态 | `_manifest.json.auto_image.status=request_ready` 且含 `provider_skill=imagegen`、`default_model=GPT-IMAGE-2`、`request_batch_path` |
 | 设计输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在父层 `S6` 固定写明 `roles.supervision` 已停用为 post-write owner | 用 `_shared/subagent-supervision-contract.md` 作为停用占位真源，而不是 closeout 执行器 | 当前轮输出完成后只回溯 `post_write_audit_note` |
 | 把 `4-Design` 的 post-write audit、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先收回 closeout reviewer 语义，再把 `source_skill_refs` 降为领域提示 | shared contract、`4-Design/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“停用 closeout + 保留 slot bundle 审计语义” | reviewer roster 不再成为当前轮 closeout 前提 |
 | post-write 问题只能说“某个文件有问题”，无法定位到模板槽位或 canonical slot | slot-level audit governance layer | 保留 `_shared/design-slot-review-contract.md`，把当前轮输出从文件级 bundle 细化到 slot bundle | 父层、leaf 与占位合同统一回指 slot bundle 真源，audit note 默认带 `bundle_id` | 后置问题仍可定位到 `SCENE/ROLE/PROP-BUNDLE-*` |
@@ -47,9 +47,9 @@
 4. 设计文件稳定后，检查 `full_generation_prompt / prompt整合` 是否是完全英文、1800-2200 UTF-8 bytes 的 integrated prompt，而不是 `global_style_prefix + subject_design_prompt` 的机械拼接。
 5. 检查 `global_style_prefix` 是否来自 `全局风格.md` 的 `- 全局风格：` 字段值；若字段被写成裸行 `全局风格:`，先把项目文件规范化到 `## JSON 直接提取字段` 下再重跑产物。
 6. 检查参照洁净是否在节点证据中完成：场景已把人物动作转写为空间痕迹，角色已锁纯色背景，道具已把手持/触碰转写为器物自身证据。
-7. 最后执行 `ensure_design_auto_images.py`，逐个 Markdown 补齐同 stem 图片并回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
-8. 若 provider 超过 `run_design_auto_image.py --timeout` 仍未返回，立即按图片步骤失败处理，不得让父级 pipeline 无限等待；继续保留设计真源、request/dry-run 证据和验收缺口。
-9. 默认自动生图先看 `execution_mode`：后台批量并发提交只证明 request 已交付；需要消费真实图片时再复核同 stem 图片或用 `--foreground` 重跑。
+7. 最后执行 `ensure_design_auto_images.py`，逐个 Markdown 补齐内置 imagegen request sidecar；Codex 会话再调用内置 `image_gen` 并复制同 stem 图片，回接 `3-面板` handoff，让面板批量链路可扫描同 stem 图片作 SMART 参照，而不是反向让面板兜底。
+8. 若内置 `image_gen` 失败或输出无法复制回项目，立即按图片步骤失败处理，不得把 request sidecar 视为已产图成功；继续保留设计真源、request/dry-run 证据和验收缺口。
+9. 默认自动生图先看 `execution_mode`：`codex-builtin-imagegen` + `request_ready` 只证明 request 已准备；需要消费真实图片时必须复核同 stem 图片。
 10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；但 `S6` 的职责已经改成写审计边界说明。
 11. `S6` 先确认 `roles.supervision` 已不再承担当前轮 closeout，再决定是否需要把问题写入 audit note / acceptance handoff。
 12. 若用户明确要求本轮做落盘后复核，当前也只按 audit 需求记录，不回退到旧的 subagents 监制强化。
@@ -62,7 +62,7 @@
 - 一旦 `1-清单` 已经输出稳定对象池，`2-设计` 就不该再重猜角色主键。
 - `0-Init` 负责世界与情绪的北极星，`2-Global` 负责视觉与类型总线；两者都不该替代角色 bridge 本身。
 - 场景设计迁回时，旧仓 `场景设计` 的价值在字段、质量门和三段式输出，不在旧 runtime 路径；当前仓必须以 `场景清单.json + 场景研究.json + scene_design_bridge.json` 为上游设计源。
-- 自动生图不要让每个 leaf 各写一套 prompt 拼接规则；统一从共享输出合同取得 `global_style_prefix -> full_generation_prompt -> same-dir same-stem image` 的单一路径。
+- 自动生图不要让每个 leaf 各写一套 prompt 拼接规则；统一从共享输出合同取得 `global_style_prefix -> full_generation_prompt -> built-in imagegen -> same-dir same-stem image` 的单一路径。
 - 自动生图完整性不要按“至少有一张图片”聚合；批量 design 目录必须逐 Markdown 对齐同 stem 图片，缺任一主体都只能是 `failed` 或 `dry_run`。
 - `全局风格.md` 是富文档，不能整文压缩进 prompt；provider-ready 前缀只认 `## JSON 直接提取字段` 下的 `- 全局风格：` 值。
 - 当全局风格字段已包含结束标点时，设计脚本不得再额外追加句号；前缀字段应被视作完整句子。
@@ -73,8 +73,8 @@
 - `2-设计` 的同名自动图首先是后续参照资产，不是叙事剧照；场景要空、道具要纯、角色要纯色背景，否则后续一致性引用会把人物、手或背景一起带走。
 - 凡会影响参照污染的规则，不能只写在 prompt 末尾；它必须进入思维·执行节点：先在摄影/设计卡 synthesis 中改写污染源，再在 prompt 节点注入锚句，最后在 auto-image 前复验。
 - `2-设计` 的单主体图片只服务主体概念锁定和 panel continuity reference；不替代 `3-面板` 的 layout 图。
-- 外部 provider 是不稳定依赖，批量设计链路必须有超时边界；超时后可以继续生成结构化设计和面板 layout，但不得把图片步骤宣布为成功。
-- AIGC 图像生成默认应以 request sidecar 为提交真源，后台批量并发执行；`background_submitted` 是可追踪提交态，不是最终产图成功态。
+- 外部 API provider 是显式 fallback，不再是默认依赖；默认链路应通过内置 imagegen 避开 API key / 网络 provider 失败。
+- AIGC 图像生成默认应以 request sidecar 为提交真源，内置 imagegen 逐资产执行；`request_ready` 是可追踪准备态，不是最终产图成功态。
 - `2-设计` 当前轮 closeout 已不再看 `roles.supervision.members`；它们只影响前置 advisory。
 - `source_skill_refs` 适合做领域提示，不适合当 `4-Design` 当前轮 closeout 的授权字段。
 - 当 `2-设计` 已经有稳定模板真源和 canonical truth 时，post-write 问题仍应用“文件 + slot bundle”双层粒度记录，但不再以 `监制强化` 的形式执行。

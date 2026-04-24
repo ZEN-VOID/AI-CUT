@@ -1,6 +1,6 @@
 ---
 name: aigc-image
-description: Use when the `aigc` workflow reaches `projects/aigc/<项目名>/5-Image/` and needs to route image-request distillation, reference binding, or provider-ready image generation handoff through one canonical stage parent.
+description: Use when the `aigc` workflow reaches `projects/aigc/<项目名>/5-Image/` and needs to route image-request distillation, reference binding, or built-in Image Gen handoff through one canonical stage parent.
 governance_tier: full
 ---
 
@@ -110,7 +110,7 @@ flowchart TD
     B -->|"已有稳定请求，需写 handoff"| E["3-图像生成"]
     C --> D
     D --> E
-    E --> F["dreamina-cli / nano-banana / 6-Video"]
+    E --> F["imagegen / provider fallback / 6-Video"]
 ```
 
 ## Canonical Output Governance (Mandatory)

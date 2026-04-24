@@ -1,6 +1,6 @@
 ---
 name: aigc-design-role-panel
-description: Use when `4-Design/3-面板/角色` needs to consume role design artifacts under `projects/aigc/<项目名>/4-Design/角色/2-设计/`, directly reuse the prompt portion, emit CharacterPanel layout JSON, and automatically call `api/anyfast/image/nano-banana/general`.
+description: Use when `4-Design/3-面板/角色` needs to consume role design artifacts under `projects/aigc/<项目名>/4-Design/角色/2-设计/`, directly reuse the prompt portion, emit CharacterPanel layout JSON, and automatically call `内置 $imagegen / image_gen`.
 governance_tier: full
 ---
 
@@ -20,7 +20,7 @@ governance_tier: full
 
 - 上游：`projects/aigc/<项目名>/4-Design/角色/2-设计/第N集/`
 - 输出：`projects/aigc/<项目名>/4-Design/角色/3-面板/第N集/`
-- 生图：`.agents/skills/api/anyfast/image/nano-banana/general`，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
+- 生图：`内置 $imagegen / image_gen`，执行模式继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 
 本技能只做：
 
@@ -28,7 +28,7 @@ governance_tier: full
 2. 直接抽取设计产物中的 `prompt整合` / `prompt_integration` / `final_prompt` 等 prompt 部分。
 3. 套用固定 16:9 `CHARACTER_ATMOSPHERIC_DOSSIER` 三栏模板。
 4. 写 `*-CharacterPanel-layout.json`。
-5. 默认写 request sidecar 后以后台批量并发模式调用 nano-banana/general 自动生图。
+5. 默认写 request sidecar 后以内置 imagegen 模式调用 built-in imagegen 自动生图。
 
 本技能不做：
 
@@ -45,23 +45,23 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/2-设计/角色/SKILL.md`
 - `templates/角色面板-提示词.json`
 - `scripts/generate_character_panels.py`
-- `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
+- `/Users/vincentlee/.codex/skills/.system/imagegen/SKILL.md`
 
 真源分工：
 
 - 本 `SKILL.md`：角色面板 leaf 的输入输出、思行网络、SMART 域内门禁。
 - `templates/角色面板-提示词.json`：固定布局与 prompt payload 模板真源。
-- `_shared/smart-image-handoff-contract.md`：批量/单例参照图策略与 nano-banana request sidecar 真源。
-- `scripts/generate_character_panels.py`：角色 layout 落盘入口；SMART mode、Assets 扫描、request sidecar 与 nano 调用统一交给 `_shared/panel_auto_generate.py`。
+- `_shared/smart-image-handoff-contract.md`：批量/单例参照图策略与 imagegen request sidecar 真源。
+- `scripts/generate_character_panels.py`：角色 layout 落盘入口；SMART mode、Assets 扫描、request sidecar 与 imagegen handoff统一交给 `_shared/panel_auto_generate.py`。
 
 ## Business Requirement Analysis Contract (Mandatory)
 
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把角色 `2-设计` 产物直接面板化，并默认生成角色面板图。 |
-| `business_object` | 逐角色 Markdown、`character_design.json`、`_manifest.json`、已有角色设计图、`*-CharacterPanel-layout.json`、nano-banana request sidecar。 |
+| `business_object` | 逐角色 Markdown、`character_design.json`、`_manifest.json`、已有角色设计图、`*-CharacterPanel-layout.json`、imagegen request sidecar。 |
 | `constraint_profile` | 上游 prompt 部分是设计主体真源；模板是布局真源；SMART 批量才自动绑参照图。 |
-| `success_criteria` | 每个角色产出 layout JSON；无停点参数时 request sidecar 可被 nano-banana/general 执行；批量模式自动使用匹配已有图。 |
+| `success_criteria` | 每个角色产出 layout JSON；无停点参数时 request sidecar 可被 built-in imagegen 执行；批量模式自动使用匹配已有图。 |
 | `non_goals` | 不补写角色设计；不把 Markdown 以外的搜索/解构全文塞入 prompt；不在 single/natural 模式自动扫图。 |
 | `complexity_source` | 输入来源多型、prompt 字段多型、批量/单例 SMART 分叉、JSON 与生图请求双产物汇流。 |
 | `topology_fit` | 混合型：输入判型 -> prompt 直引 -> 模板装配 -> SMART 参照 -> JSON 落盘 -> 自动生图。 |
@@ -99,15 +99,15 @@ governance_tier: full
 
 1. `<role_id>-<role_name>-<costume_state>-CharacterPanel-layout.json`
 2. `generated/requests/panel_auto_generate_batch.json`
-3. 默认后台提交证据：`background_submitted`、`background_pid`、`background_log`；最终图片输出到 `generated/<layout-stem>/...png`
+3. 默认内置 imagegen request_ready证据：`request_ready`、`provider_skill=imagegen`、`default_model=GPT-IMAGE-2`；最终图片输出到 `generated/<layout-stem>/...png`
 4. `_manifest.json`
 
 停点规则：
 
 - 默认：写 JSON 后自动执行生图。
-- `--foreground`：前台等待 nano-banana 完成；未传时默认后台批量并发提交。
-- `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar、bridge report 与 manifest，不调用 API。
-- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并让 nano-banana/general 只打印/验证 payload，不真实调用 API。
+- `--foreground`：兼容旧参数；内置 imagegen 由 Codex 会话前台执行。
+- `--layout-only` 或 `--json-only`：只写 layout JSON、request sidecar、bridge report 与 manifest，不调用内置 image_gen。
+- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并让 built-in imagegen 只打印/验证 imagegen request，不调用内置 image_gen。
 
 ## Visual Maps (Mermaid)
 
@@ -124,7 +124,7 @@ flowchart TD
     G --> H["Write CharacterPanel layout JSON"]
     H --> I["Call shared SMART bridge"]
     I --> J{"layout-only/json-only?"}
-    J -->|"No"| K["Run nano-banana/general"]
+    J -->|"No"| K["Run built-in imagegen"]
     J -->|"Yes"| L["Stop at JSON"]
 ```
 
@@ -186,7 +186,7 @@ erDiagram
 | `FIELD-RP-02` | `design_subject` | 只来自上游 prompt 部分，不含搜索/解构全文 | Markdown `prompt整合`、JSON prompt 字段 | `S3` | prompt inheritance | `FAIL-RP-PROMPT` |
 | `FIELD-RP-03` | `prompt_payload` | 与模板字段结构一致，固定 16:9 三栏 | `templates/角色面板-提示词.json` | `S4` | layout fidelity | `FAIL-RP-TEMPLATE` |
 | `FIELD-RP-04` | `references.reference_images` / `images` | SMART 参照符合 batch/single 边界 | SMART contract + CLI refs | `S5` | reference governance | `FAIL-RP-REFERENCES` |
-| `FIELD-RP-05` | `image_generation` / request sidecar | 可直接由 nano-banana/general 消费 | layout JSON | `S6` | generation handoff | `FAIL-RP-HANDOFF` |
+| `FIELD-RP-05` | `image_generation` / request sidecar | 可直接由 built-in imagegen 消费 | layout JSON | `S6` | generation handoff | `FAIL-RP-HANDOFF` |
 | `FIELD-RP-06` | `_manifest.json` | 记录任务数、SMART 模式、layout 与 request sidecar | 全链输出 | `S7` | audit closure | `FAIL-RP-MANIFEST` |
 
 ## Thought Pass Map
@@ -199,7 +199,7 @@ erDiagram
 | `S4` | 模板装配 | 读取固定模板并合成 `prompt_payload.prompt_text` | `template_path` | `S5` | `S4` |
 | `S5` | SMART 参照 | 按模式绑定自动/显式参照 | `references` | `S6` | `S5` |
 | `S6` | JSON 与请求汇流 | 写 layout JSON 与 request sidecar | `layout_paths`、`request_sidecar` | `S7` | `S6` |
-| `S7` | 生图与收束 | 默认后台批量并发提交 nano-banana/general 或停在 JSON | `generation_result`、`manifest` | `done` | `S6-S7` |
+| `S7` | 生图与收束 | 默认内置 imagegen 请求准备 built-in imagegen 或停在 JSON | `generation_result`、`manifest` | `done` | `S6-S7` |
 
 ## Thinking-Action Node Contract (Mandatory)
 
@@ -211,7 +211,7 @@ erDiagram
 | `N4-TEMPLATE` | 锁面板布局 | 模板 JSON | 合成三栏 layout prompt | `prompt_payload` | `N5` | 模板缺 `prompt_payload` 阻断 |
 | `N5-SMART-REF` | 锁参照图策略 | SMART mode / explicit refs / Assets | 写入 continuity roots 并调用共享 bridge 绑定 refs 或保持 T2I | `references` | `N6` | single/natural 不得隐式扫图 |
 | `N6-WRITE` | 写 JSON 与 request | `N2~N5` | 落 layout 和 sidecar | `layout_paths` | `N7` | layout 不存在不得生图 |
-| `N7-GENERATE` | 自动生图或停点 | request sidecar | 默认后台批量并发提交 nano-banana/general，或 JSON-only 停下 | `generation_result` | `done` | 默认不得漏掉生图；后台提交不得伪装为图片已完成 |
+| `N7-GENERATE` | 自动生图或停点 | request sidecar | 默认内置 imagegen 请求准备 built-in imagegen，或 JSON-only 停下 | `generation_result` | `done` | 默认不得漏掉生图；内置 imagegen request_ready不得伪装为图片已完成 |
 
 ## Pass Table
 
@@ -221,7 +221,7 @@ erDiagram
 | `FIELD-RP-02` | prompt 只来自上游 prompt 部分且非空 | `FAIL-RP-PROMPT` | `S3` |
 | `FIELD-RP-03` | 模板字段与 16:9 三栏布局稳定 | `FAIL-RP-TEMPLATE` | `S4` |
 | `FIELD-RP-04` | SMART 参照不越界 | `FAIL-RP-REFERENCES` | `S5` |
-| `FIELD-RP-05` | request sidecar 可被 nano-banana/general 消费 | `FAIL-RP-HANDOFF` | `S6` |
+| `FIELD-RP-05` | request sidecar 可被 built-in imagegen 消费 | `FAIL-RP-HANDOFF` | `S6` |
 | `FIELD-RP-06` | manifest 能说明本轮产物与停点 | `FAIL-RP-MANIFEST` | `S7` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -231,7 +231,7 @@ erDiagram
 - prompt 被截断或混入搜索/解构全文。
 - SMART 模式绑定了错误参照图。
 - `layout.json` 已写但默认未触发生图。
-- request sidecar 与 nano-banana/general 字段不兼容。
+- request sidecar 与 built-in imagegen 字段不兼容。
 
 固定链路：
 
@@ -243,7 +243,7 @@ erDiagram
 2. `templates/角色面板-提示词.json`
 3. `.agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md`
 4. 本 `SKILL.md`
-5. `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
+5. `/Users/vincentlee/.codex/skills/.system/imagegen/SKILL.md`
 6. `AGENTS.md`
 
 ## Completion Criteria
@@ -251,5 +251,5 @@ erDiagram
 - 技能基线完整：`SKILL.md + CONTEXT.md + agents/openai.yaml + skill_manifest.json + templates + scripts`。
 - 可消费项目批量、单文件和自然语言三类输入。
 - 每个任务先写 layout JSON。
-- 默认执行 nano-banana/general；JSON-only 停点显式可控。
+- 默认执行 built-in imagegen；JSON-only 停点显式可控。
 - SMART 执行符合：批量自动参照，单文件/自然语言默认无参照。

@@ -1,6 +1,6 @@
 ---
 name: aigc-image-generation
-description: Use when `5-Image` already has stable request JSON or reference-bound JSON and must route generation to `即梦 CLI` or `NANO-banana`, emit a provider-ready submit plan, and keep the provider choice explicit in one canonical skill contract.
+description: Use when `5-Image` already has stable request JSON or reference-bound JSON and must route generation to built-in Image Gen, `即梦 CLI`, or `NANO-banana`, emit a provider-ready submit plan, and keep the provider choice explicit in one canonical skill contract.
 governance_tier: full
 ---
 
@@ -25,8 +25,8 @@ governance_tier: full
 它要先回答四件事：
 
 1. 当前请求对象是否达到可提交状态
-2. 本轮到底应该走 `即梦 CLI` 还是 `NANO-banana`
-3. 引用图片应当解析成 `local_path` 还是 `BASE64-compatible`
+2. 本轮到底应该走内置 `image_gen`、`即梦 CLI` 还是 `NANO-banana`
+3. 引用图片应当走内置可见引用、`local_path` 还是 `BASE64-compatible`
 4. 下一入口是哪个 provider skill，而不是一句模糊的“去生成”
 
 ## Single Truth Boundary
@@ -37,7 +37,7 @@ governance_tier: full
 - `submit-plan.json` 与 `submit-brief.md` 的 canonical 生成入口
 - provider 执行后的真实输出图像落盘路径合同
 - provider-neutral -> provider-specific 的最后一层解析
-- `jimeng_cli / nano_banana` 双模式 handoff
+- `builtin_image_gen / jimeng_cli / nano_banana` 多模式 handoff
 
 ### `3-图像生成` 不拥有
 
@@ -52,9 +52,11 @@ governance_tier: full
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
 - `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md`
 - `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
+- `$imagegen / built-in image_gen`
 - `.agents/skills/cli/dreamina-cli/SKILL.md`
 - `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
+- [references/builtin-imagegen.md](references/builtin-imagegen.md)
 - [references/jimeng-cli.md](references/jimeng-cli.md)
 - [references/nano-banana.md](references/nano-banana.md)
 
@@ -62,25 +64,27 @@ governance_tier: full
 
 ### 固定模块
 
+- 内置 Image Gen 模块：`references/builtin-imagegen.md`，默认 `GPT-IMAGE-2`
 - `即梦 CLI` 模块：`references/jimeng-cli.md`
 - `NANO-banana` 模块：`references/nano-banana.md`
 
 ### 选择机制
 
-1. 用户显式指定 provider：直接命中对应模块
+1. 用户显式指定 provider：直接命中对应模块；若指定内置 Image Gen，则锁定 `builtin_image_gen`
 2. 输入 `meta.provider_mode` 已锁定：命中对应模块
 3. 若仍是 `dual_mode / pending`：
+   - 默认推荐内置 `image_gen`，模型口径为 `GPT-IMAGE-2`，不要求 API key
    - 需要本地路径直传、优先走 CLI 提交排队：推荐 `即梦 CLI`
    - 需要 BASE64-compatible 多图引用或走 Gemini/AnyFast API：推荐 `NANO-banana`
-4. 若上游引用仍是 `pending_encode` 且用户未指定 provider，不自动猜最终 provider，只输出推荐主案 + 备选案
+4. 若外部 provider 槽位仍是 `pending_encode` 且用户明确要求外部 provider，不自动猜最终 provider，只输出推荐主案 + 备选案；未指定时仍回到内置 Image Gen 默认路径
 
 ## Business Requirement Analysis Contract (Mandatory)
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把 `5-Image` 请求对象组织成可直接 handoff 给 `即梦 CLI` 或 `NANO-banana` 的提交计划，而不是在生成时临场拼参数。 |
+| `business_goal` | 把 `5-Image` 请求对象组织成可直接 handoff 给内置 `image_gen`、`即梦 CLI` 或 `NANO-banana` 的提交计划，而不是在生成时临场拼参数。 |
 | `business_object` | `1-提示词蒸馏` 或 `2-参照引用` 产出的 `第N集.json`、provider 模块、共享输入模板。 |
-| `constraint_profile` | provider 必须唯一；`即梦 CLI` 只收本地路径；`NANO-banana` 最终走 BASE64-compatible；上游未解析好的引用不得越权硬补。 |
+| `constraint_profile` | provider 必须唯一；内置 `image_gen` 默认 `GPT-IMAGE-2` 且不走 API；`即梦 CLI` 只收本地路径；`NANO-banana` 最终走 BASE64-compatible；上游未解析好的引用不得越权硬补。 |
 | `success_criteria` | 生成唯一 provider 结论、`submit-plan.json + submit-brief.md`、清晰的下一入口、可复核的 provider-specific 输入解析说明，以及与提交包同目录的输出图像路径。 |
 | `non_goals` | 不直接执行 provider、不假装图片已生成、不重新绑定引用、不回头重写 prompt。 |
 | `complexity_source` | 当前复杂度来自 provider 选择、双模式输入运输、上游请求兼容与 handoff 完整性。 |
@@ -109,7 +113,7 @@ governance_tier: full
 ## Canonical Landing
 
 - 根目录：`projects/aigc/<项目名>/5-Image/3-图像生成/`
-- provider 目录：`projects/aigc/<项目名>/5-Image/3-图像生成/<jimeng_cli|nano_banana>/<source_tranche>/<第N集>/`
+- provider 目录：`projects/aigc/<项目名>/5-Image/3-图像生成/<builtin_image_gen|jimeng_cli|nano_banana>/<source_tranche>/<第N集>/`
 - 计划文件：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/submit-plan.json`
 - 简报文件：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/submit-brief.md`
 - 输出图像：`projects/aigc/<项目名>/5-Image/3-图像生成/<provider>/<source_tranche>/<第N集>/<image_id>.<ext>`
@@ -124,7 +128,7 @@ python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.
   --project "<项目名>" \
   --episode 第N集 \
   --source-tranche 分镜帧 \
-  --provider nano_banana
+  --provider builtin_image_gen
 ```
 
 若 `2-参照引用` 已严格执行但仍无可唯一绑定的本地图片，且当前轮次明确接受 prompt-only handoff，则必须显式传入：
@@ -134,7 +138,7 @@ python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.
   --project "<项目名>" \
   --episode 第N集 \
   --source-tranche 分镜帧 \
-  --provider nano_banana \
+  --provider builtin_image_gen \
   --allow-prompt-only
 ```
 
@@ -142,7 +146,7 @@ python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.
 
 `submit-plan.json` 必须把 provider 执行后的目标输出目录写成与 `submit-plan.json`、`submit-brief.md` 相同的 provider/source/episode 目录。
 
-默认执行模式必须继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`：submit-plan 中写明 `execution_mode=background-batch-concurrent`、`max_concurrent=100`、request sidecar 或 provider batch section、以及后台状态回填字段。`3-图像生成` 完成只表示 handoff 包稳定，不表示 provider 已产图。
+默认执行模式必须继承 `.agents/skills/aigc/_shared/image-generation-execution-contract.md`：内置 Image Gen 路径写明 `execution_mode=codex-builtin-imagegen`、`provider_skill=imagegen`、`default_model=GPT-IMAGE-2`、`max_concurrent=1`、request sidecar 与项目复制要求；外部 provider fallback 才写明后台批量并发字段。`3-图像生成` 完成只表示 handoff 包稳定，不表示 provider 已产图。
 
 硬规则：
 
@@ -172,6 +176,7 @@ python3 .agents/skills/aigc/5-Image/3-图像生成/scripts/generate_submit_plan.
   - `G4 submit-plan 生成`
   - `G5 handoff 汇流`
 - 条件支路：
+  - `B0 内置 Image Gen`
   - `B1 即梦 CLI 模块`
   - `B2 NANO-banana 模块`
 
@@ -184,17 +189,19 @@ flowchart TD
     C --> D["G3 读取对应 provider 模块"]
     D --> E["G4 生成 submit-plan / submit-brief"]
     E --> F["G5 handoff 汇流"]
-    F --> G["下一入口: dreamina-cli / nano-banana"]
+    F --> G["下一入口: imagegen / dreamina-cli / nano-banana"]
 ```
 
 ```mermaid
 flowchart TD
     A["G2 provider 裁决"] --> B{"provider"}
+    B -->|"builtin_image_gen"| H["B0 内置 image_gen / GPT-IMAGE-2"]
     B -->|"jimeng_cli"| C["B1 读取 references/jimeng-cli.md"]
     B -->|"nano_banana"| D["B2 读取 references/nano-banana.md"]
     B -->|"pending/dual_mode"| E["输出推荐主案 + 备选案"]
     C --> F["local_path handoff"]
     D --> G["base64-compatible handoff"]
+    H --> I["prompt / visible reference handoff"]
 ```
 
 ```mermaid
@@ -214,10 +221,10 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- | --- |
 | `G0-intake-lock` | 锁定 source request 与当前 provider 选择上下文 | 读取请求对象、用户要求与上游 provider_mode | `intake_note` | `G1` | 未锁 source request 不得继续 |
 | `G1-request-audit` | 检查请求对象是否可提交 | 审计 prompt、引用字段、双模式骨架、来源路径 | `request_audit` | `G2` 或阻断 | 未就绪请求不得进入 provider |
-| `G2-provider-route` | 选择唯一 provider 或给出推荐主案 | 按选择机制锁定 `jimeng_cli` 或 `nano_banana` | `provider_decision` | `G3` 或推荐输出 | provider 不唯一不得写最终计划 |
+| `G2-provider-route` | 选择唯一 provider 或给出推荐主案 | 按选择机制锁定 `builtin_image_gen`、`jimeng_cli` 或 `nano_banana` | `provider_decision` | `G3` 或推荐输出 | provider 不唯一不得写最终计划 |
 | `G3-provider-resolve` | 解析 provider-specific 输入 | 读取命中模块，把引用解释成本地路径或 BASE64-compatible 说明 | `provider_resolution` | `G4` | 输入运输层未说清不得继续 |
 | `G4-submit-pack` | 生成提交计划与简报 | 写 `submit-plan.json + submit-brief.md`，并锁定同目录 `output_dir / expected_outputs` | `submit_pack` | `G5` | 无计划文件或输出目录不得 handoff |
-| `G5-handoff-converge` | 给出唯一下一入口 | 明确 handoff 到 `dreamina-cli` 或 `nano-banana`，并声明默认后台批量并发执行参数 | `handoff_note` | `Done` | 只有本节点可结案 |
+| `G5-handoff-converge` | 给出唯一下一入口 | 明确 handoff 到内置 `imagegen`、`dreamina-cli` 或 `nano-banana`，并声明对应执行参数 | `handoff_note` | `Done` | 只有本节点可结案 |
 
 ## Output Contract
 
@@ -228,17 +235,18 @@ stateDiagram-v2
 3. provider 选择结论
 4. 唯一下一入口
 5. 与提交包同目录的 `output_dir / expected_outputs` 路径约束
-6. `execution_mode=background-batch-concurrent`、`max_concurrent=100`、后台状态回填字段与前台覆盖方式
+6. 内置 Image Gen 路径记录 `execution_mode=codex-builtin-imagegen`、`provider_skill=imagegen`、`default_model=GPT-IMAGE-2`、`max_concurrent=1`；外部 provider fallback 记录后台批量并发字段与前台覆盖方式
 
 硬规则：
 
-1. 若 provider 为 `jimeng_cli`，计划中引用输入必须是本地路径。
-2. 若 provider 为 `nano_banana`，计划中必须写清 BASE64-compatible 解析策略。
-3. 若 provider 仍未唯一，不能写最终 provider 计划，只能输出推荐主案与缺口。
-4. 本层不得删除 provider-neutral 引用字段。
-5. 本层不得把真实输出图像的 canonical 路径写到 `Assets/`、provider 临时缓存或其它阶段目录；输出图片必须与 `submit-plan.json`、`submit-brief.md` 同目录。
-6. 本层不得在 `Assets/` 有可用图片且引用字段为空时自行补猜、静默忽略或直接提交；唯一合法路径是回到 `2-参照引用` 产出通过审计的绑定 JSON，除非本轮显式声明 `prompt_only / no_reference`。
-7. 默认 submit-plan 不得写成前台逐个串行生成；除非用户显式要求同步等待，否则必须采用后台批量并发 handoff，并把 `background_submitted` 与最终产图成功区分开。
+1. 若 provider 为 `builtin_image_gen`，计划中必须写清内置 `image_gen`、`GPT-IMAGE-2`、项目复制回填路径与 `request_ready` 状态。
+2. 若 provider 为 `jimeng_cli`，计划中引用输入必须是本地路径。
+3. 若 provider 为 `nano_banana`，计划中必须写清 BASE64-compatible 解析策略。
+4. 若 provider 仍未唯一，不能写最终 provider 计划，只能输出推荐主案与缺口。
+5. 本层不得删除 provider-neutral 引用字段。
+6. 本层不得把真实输出图像的 canonical 路径写到 `Assets/`、provider 临时缓存或其它阶段目录；输出图片必须与 `submit-plan.json`、`submit-brief.md` 同目录。
+7. 本层不得在 `Assets/` 有可用图片且引用字段为空时自行补猜、静默忽略或直接提交；唯一合法路径是回到 `2-参照引用` 产出通过审计的绑定 JSON，除非本轮显式声明 `prompt_only / no_reference`。
+8. 默认 submit-plan 不得写成 API / CLI provider 提交；除非用户显式要求 fallback，否则必须采用内置 Image Gen handoff，并把 `request_ready` 与最终产图成功区分开。
 
 ## Field Master
 

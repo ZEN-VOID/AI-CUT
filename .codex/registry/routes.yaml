@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-23
+last_updated: 2026-04-24
 
 default_flow:
   - step: mandate
@@ -117,6 +117,9 @@ route_policies:
   - id: api-anyfast-seedream-image-entry
     trigger: 命中 `seedream`、`SEEDREAM 5.0`、`doubao-seedream-5-0-260128`、`方舟生图`、`Ark images/generations`、连续多图生图、或需要 `sequential_image_generation`
     rule: "进入 `.agents/skills/api/anyfast/image/seedream/SKILL.md`；使用 Ark `images/generations` 接口执行文本生图、参考图生图与连续多图生成。"
+  - id: api-ai666-gpt-image-2-entry
+    trigger: 命中 `AI666`、`ai666 image`、`gpt-image-2`、`gpt-image-1.5`、`grok-4-1-image`、`/v1/images/generations`、OpenAI 兼容图片生成，或需要按用户提供的 AI666 OpenAPI 执行文生图/垫图生图
+    rule: "进入 `.agents/skills/api/ai666/image/gpt-image-2/SKILL.md`；使用 AI666 `/v1/images/generations` 构造 `model/size/n/prompt/image/response_format` 请求，默认模型 `gpt-image-2`，真实请求必须配置 `AI666_BASE_URL` 与 `AI666_API_KEY` 或等价 Authorization。"
   - id: api-man-tui-grok-video-entry
     trigger: 命中 `man-tui`、`漫涂`、`grok 视频`、`grok-imagine-video`、异步视频生成、漫涂视频轮询或根据 `task_id` 下载 Grok 视频结果
     rule: "进入 `.agents/skills/api/man-tui/video/grok/SKILL.md`；使用 `scripts/grok_video.py` 执行 create / status / content 三段式接口，默认输出到 `output/影片/[项目名]/5-API/video/man-tui/grok/`。"

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Ensure 4-Design/2-设计 Markdown files have same-stem auto images."""
+"""Ensure 4-Design/2-设计 Markdown files have same-stem built-in imagegen requests."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -15,7 +13,6 @@ from typing import Any, Iterable
 REPO_ROOT = Path(__file__).resolve().parents[7]
 SCRIPT_DIR = Path(__file__).resolve().parent
 RUN_DESIGN_AUTO_IMAGE = SCRIPT_DIR / "run_design_auto_image.py"
-NANO_SCRIPT = REPO_ROOT / ".agents/skills/api/anyfast/image/nano-banana/scripts/nano_banana_generate.py"
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 ACTIVE_DOMAINS = ("场景", "角色", "道具")
 if SCRIPT_DIR.as_posix() not in sys.path:
@@ -32,13 +29,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--domain", action="append", choices=ACTIVE_DOMAINS, help="限定域，可重复传入")
     parser.add_argument("--episode", action="append", help="限定 episode 目录名，如 第1集；可重复传入")
     parser.add_argument("--design-dir", action="append", default=[], help="直接指定 2-设计/第N集 输出目录，可重复传入")
-    parser.add_argument("--project-name", help="透传给 nano-banana 的项目名；默认从 --project 或路径推断")
+    parser.add_argument("--project-name", help="写入内置 imagegen 侧车的项目名；默认从 --project 或路径推断")
     parser.add_argument("--global-style", help="全局风格.md 路径；默认交给 run_design_auto_image.py 自动推断")
     parser.add_argument("--timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
-    parser.add_argument("--max-concurrent", type=int, default=100, help="批量并发上限；默认 100")
-    parser.add_argument("--foreground", action="store_true", help="前台等待批量生图完成；默认后台提交")
-    parser.add_argument("--write-report", action="store_true", help="保留 nano-banana report JSON")
-    parser.add_argument("--generation-dry-run", action="store_true", help="调用 helper dry-run，只验证 payload，不真实请求 API")
+    parser.add_argument("--max-concurrent", type=int, default=1, help="兼容旧参数；内置 imagegen 由 Codex 逐资产调用")
+    parser.add_argument("--foreground", action="store_true", help="兼容旧参数；内置 imagegen 由 Codex 会话前台执行")
+    parser.add_argument("--write-report", action="store_true", help="兼容旧参数；本 helper 始终写 request sidecar")
+    parser.add_argument("--generation-dry-run", action="store_true", help="只验证侧车生成，不代表已经调用内置 imagegen")
     parser.add_argument("--plan-only", action="store_true", help="只打印缺图计划，不调用 helper，也不写 manifest")
     parser.add_argument("--manifest-name", default="_manifest.json", help="要更新的 manifest 文件名")
     return parser.parse_args()
@@ -132,35 +129,6 @@ def update_output_files(payload: dict[str, Any], image_paths: Iterable[str]) -> 
             seen.add(image_path)
 
 
-def run_one_image(
-    design_file: Path,
-    *,
-    project_name: str,
-    global_style: Path | None,
-    timeout: int,
-    write_report: bool,
-    generation_dry_run: bool,
-) -> int:
-    cmd = [
-        sys.executable,
-        RUN_DESIGN_AUTO_IMAGE.as_posix(),
-        "--design-file",
-        design_file.as_posix(),
-        "--project-name",
-        project_name,
-        "--timeout",
-        str(timeout),
-    ]
-    if global_style is not None and global_style.exists():
-        cmd.extend(["--global-style", global_style.as_posix()])
-    if write_report:
-        cmd.append("--write-report")
-    if generation_dry_run:
-        cmd.append("--dry-run")
-    result = subprocess.run(cmd, check=False)
-    return int(result.returncode)
-
-
 def build_missing_request_docs(
     design_files: Iterable[Path],
     *,
@@ -209,13 +177,6 @@ def write_batch_request(design_dir: Path, request_docs: list[dict[str, Any]]) ->
     return request_path
 
 
-def background_log_path(design_dir: Path) -> Path:
-    log_dir = design_dir / "generated" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return log_dir / f"design_auto_image_batch_{stamp}.log"
-
-
 def run_batch_requests(
     request_path: Path,
     *,
@@ -225,47 +186,17 @@ def run_batch_requests(
     generation_dry_run: bool,
     foreground: bool,
 ) -> dict[str, Any]:
-    cmd = [
-        sys.executable,
-        NANO_SCRIPT.as_posix(),
-        "--input-json",
-        request_path.as_posix(),
-        "--timeout",
-        str(timeout),
-        "--max-concurrent",
-        str(max_concurrent),
-    ]
-    if not write_report:
-        cmd.append("--no-report")
-    if generation_dry_run:
-        cmd.extend(["--dry-run", "--print-payload"])
-
-    if foreground or generation_dry_run:
-        result = subprocess.run(cmd, check=False)
-        return {
-            "execution_mode": "dry-run" if generation_dry_run else "foreground-batch-concurrent",
-            "returncode": int(result.returncode),
-            "request_batch_path": request_path.as_posix(),
-            "max_concurrent": max_concurrent,
-        }
-
-    log_path = background_log_path(request_path.parent.parent.parent)
-    log_file = log_path.open("ab")
-    process = subprocess.Popen(
-        cmd,
-        cwd=REPO_ROOT,
-        stdout=log_file,
-        stderr=subprocess.STDOUT,
-        start_new_session=True,
-    )
-    log_file.close()
     return {
-        "execution_mode": "background-batch-concurrent",
+        "execution_mode": "codex-builtin-imagegen",
+        "status": "request_ready",
         "returncode": 0,
-        "background_pid": process.pid,
-        "background_log": log_path.as_posix(),
         "request_batch_path": request_path.as_posix(),
-        "max_concurrent": max_concurrent,
+        "provider_skill": "imagegen",
+        "provider_mode": "built-in image_gen",
+        "default_model": "GPT-IMAGE-2",
+        "foreground": bool(foreground),
+        "generation_dry_run": bool(generation_dry_run),
+        "next_step": "Call built-in image_gen once per task, then copy selected generated images into each task output_dir/output_filename.",
     }
 
 
@@ -305,8 +236,8 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
 
     if args.generation_dry_run:
         status = "dry_run"
-    elif batch_result.get("execution_mode") == "background-batch-concurrent":
-        status = "background_submitted"
+    elif batch_result.get("execution_mode") == "codex-builtin-imagegen":
+        status = "request_ready"
     elif not files:
         status = "no_markdown"
     elif missing_after:
@@ -315,7 +246,9 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         status = "success"
 
     auto_image = {
-        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
+        "provider_skill": "imagegen",
+        "provider_mode": "built-in image_gen",
+        "default_model": "GPT-IMAGE-2",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",
@@ -329,14 +262,11 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         "generated_count": max(0, len(image_paths) - sum(1 for image in initial_images.values() if image is not None)),
         "timeout_seconds": args.timeout,
         "max_concurrent": args.max_concurrent,
-        "execution_mode": batch_result.get(
-            "execution_mode",
-            "plan-only" if args.plan_only else ("foreground-batch-concurrent" if missing else "already-complete"),
-        ),
+        "execution_mode": batch_result.get("execution_mode", "plan-only" if args.plan_only else "already-complete"),
         "request_batch_path": batch_result.get("request_batch_path", ""),
-        "background_pid": batch_result.get("background_pid"),
-        "background_log": batch_result.get("background_log", ""),
+        "generated_source_path": "",
         "generation_dry_run": bool(args.generation_dry_run),
+        "next_step": batch_result.get("next_step", ""),
         "attempts": attempts,
     }
 
@@ -352,7 +282,7 @@ def ensure_dir(args: argparse.Namespace, design_dir: Path) -> tuple[dict[str, An
         update_output_files(manifest, image_paths)
         write_manifest(manifest_path, manifest)
 
-    return report, 0 if status in {"success", "dry_run", "background_submitted"} else 1
+    return report, 0 if status in {"success", "dry_run", "request_ready"} else 1
 
 
 def main() -> int:

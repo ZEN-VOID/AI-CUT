@@ -1,6 +1,6 @@
 ---
 name: aigc-design-scene-panel
-description: Use when `4-Design/3-面板/场景` needs to consume scene design outputs, quote only their prompt section, write 16:9 3x3 scene panel layout JSON, and automatically call `nano-banana/general` unless JSON-only is requested.
+description: Use when `4-Design/3-面板/场景` needs to consume scene design outputs, quote only their prompt section, write 16:9 3x3 scene panel layout JSON, and automatically call `built-in imagegen` unless JSON-only is requested.
 governance_tier: full
 ---
 
@@ -21,7 +21,7 @@ governance_tier: full
 1. 消费 `4-Design/场景/2-设计` 的各种设计产物。
 2. 只直接引用设计产物中的 prompt 部分，尤其是 Markdown 的 `**prompt整合**` 段。
 3. 生成 `16:9 + 3x3 + 9 panels` 的 `*_ScenePanel-layout.json`。
-4. JSON 落盘后默认写 request sidecar，并按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/anyfast/image/nano-banana/general` 自动生图。
+4. JSON 落盘后默认写 request sidecar，并按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 内置 imagegen 请求准备 `内置 $imagegen / image_gen` 自动生图。
 5. SMART 批量模式自动获取设计中已有图片作为对应参照图；单独指定文件或自然语言要求生图时默认无参照图 T2I。
 
 本技能不拥有：
@@ -38,7 +38,7 @@ governance_tier: full
 - `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `.agents/skills/aigc/4-Design/2-设计/场景/SKILL.md`
-- `.agents/skills/api/anyfast/image/nano-banana/general/SKILL.md`
+- `/Users/vincentlee/.codex/skills/.system/imagegen/SKILL.md`
 - `templates/场景面板-提示词.json`
 
 真源分工：
@@ -46,7 +46,7 @@ governance_tier: full
 - 本 `SKILL.md`：场景 leaf 的输入分型、思行网络、字段门、输出与 SMART 规则。
 - `templates/场景面板-提示词.json`：九宫格版式与面板提示模板真源。
 - `_shared/smart-image-handoff-contract.md`：自动生图桥与 SMART 判型真源。
-- `_shared/panel_auto_generate.py`：request sidecar 与 nano-banana 调用共享实现。
+- `_shared/panel_auto_generate.py`：request sidecar 与内置 imagegen handoff 共享实现。
 
 ## Business Requirement Analysis Contract
 
@@ -55,10 +55,10 @@ governance_tier: full
 | `business_goal` | 把场景设计 prompt 转成可直接生图的九宫格场景面板 JSON，并默认完成生图调用。 |
 | `business_object` | `scene_design.json.scenes[]`、兼容旧 `scene_designs[]`、逐场景 Markdown、用户指定 prompt 文件、自然语言 prompt、layout JSON、SMART request sidecar。 |
 | `constraint_profile` | 上游设计产物是 prompt 真源；面板模板固定 16:9/3x3；layout JSON 是业务真源；nano 输出是派生资产。 |
-| `success_criteria` | 每个场景 layout 含 `subject/prompt/images/project_name/aspect_ratio/image_size/output_dir/output_filename`，默认生成 request sidecar 并后台批量并发提交 nano-banana。 |
+| `success_criteria` | 每个场景 layout 含 `subject/prompt/images/project_name/aspect_ratio/image_size/output_dir/output_filename`，默认生成 request sidecar 并进入内置 imagegen 请求准备。 |
 | `non_goals` | 不重写场景设计、不替用户补完整设计、不在单文件直调时隐式偷扫参考图。 |
 | `complexity_source` | 输入产物类型多、旧/新字段名不同、SMART 参考图判型依赖执行上下文。 |
-| `topology_fit` | “输入分型 -> prompt 直引 -> 模板装配 -> layout 写回 -> SMART 判型 -> nano 调用 -> manifest 汇流”的单技能思行网络。 |
+| `topology_fit` | “输入分型 -> prompt 直引 -> 模板装配 -> layout 写回 -> SMART 判型 -> imagegen handoff -> manifest 汇流”的单技能思行网络。 |
 
 ## Total Input Contract
 
@@ -85,7 +85,7 @@ Prompt 字段优先级：
 2. 默认批量 `project + episode` 是 `panel-stage` 上下文，SMART `auto` 解析为 `continuous-batch`。
 3. `--prompt-file` 或 `--prompt-text` 是 `direct-request` 上下文，SMART `auto` 解析为 `single-doc-t2i`。
 4. 用户显式传 `--reference` 时，无论上下文都加入 explicit refs。
-5. `--layout-only / --json-only` 时只产出 layout、manifest、request sidecar 与 bridge report，不调用 nano；`--smart-mode off` 才完全跳过 SMART bridge。
+5. `--layout-only / --json-only` 时只产出 layout、manifest、request sidecar 与 bridge report，不调用内置 image_gen；`--smart-mode off` 才完全跳过 SMART bridge。
 
 ## Output Contract
 
@@ -98,7 +98,7 @@ Prompt 字段优先级：
 1. `*_ScenePanel-layout.json`
 2. `场景面板.json`
 3. `_manifest.json`
-4. 默认派生：`generated/requests/*.json`、`generated/requests/panel_auto_generate_batch.json`、`generated/requests/panel_auto_generate_report.json`、后台提交 pid/log；最终 nano-banana 输出图片落到 `generated/<layout-stem>/`。
+4. 默认派生：`generated/requests/*.json`、`generated/requests/panel_auto_generate_batch.json`、`generated/requests/panel_auto_generate_report.json`、内置 imagegen request_ready 状态；最终图片由内置 image_gen 生成并复制到 `generated/<layout-stem>/`。
 
 `layout.json` 至少包含：
 
@@ -144,11 +144,11 @@ python3 .agents/skills/aigc/4-Design/3-面板/场景/scripts/generate_scene_pane
 - `--design-file <path>`：显式指定设计 JSON。
 - `--prompt-file <path>`：指定单文件或目录。
 - `--prompt-text "<prompt>"`：自然语言直调。
-- `--layout-only` / `--json-only`：只写 JSON、request sidecar 与 bridge report，不调用 nano。
-- `--foreground`：前台等待 nano-banana 完成；未传时默认后台批量并发提交。
+- `--layout-only` / `--json-only`：只写 JSON、request sidecar 与 bridge report，不调用内置 image_gen。
+- `--foreground`：兼容旧参数；内置 imagegen 由 Codex 会话前台执行。
 - `--smart-mode auto|continuous-batch|single-doc-t2i|natural-language-t2i|off`：SMART 模式。
 - `--reference <path-or-url>`：显式参考图，可重复。
-- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并 dry-run nano payload，不真正调用 API。
+- `--dry-run` / `--generation-dry-run`：写 JSON 与 request sidecar，并 dry-run imagegen request，不真正调用 API。
 - `--force`：覆盖已存在输出。
 
 ## Visual Maps
@@ -165,7 +165,7 @@ flowchart TD
     F --> G["Load scene panel template"]
     G --> H["Write layout JSON"]
     H --> I["SMART bridge"]
-    I --> J["nano-banana/general"]
+    I --> J["built-in imagegen"]
     J --> K["Manifest closure"]
 ```
 
@@ -215,7 +215,7 @@ erDiagram
 | `N4-TEMPLATE` | 锁定九宫格模板 | `templates/场景面板-提示词.json` | 校验 `prompt_payload`、16:9、3x3 | `template_meta` | `N5` | 模板缺字段失败 |
 | `N5-LAYOUT` | 写 layout JSON | prompt、subject、template | 组装并落盘 per-scene layout | `layout_paths` | `N6` | 输出冲突且未 force 失败 |
 | `N6-AGGREGATE` | 写 episode carrier 与 manifest | layout 列表 | 写 `场景面板.json` 与 `_manifest.json` | `manifest_path` | `N7` | 聚合与 layout 不一致失败 |
-| `N7-SMART` | 判定并执行生图桥 | layout 列表、SMART mode | 写 request sidecar，默认后台批量并发提交 nano，或显式跳过 | `image_generation` | `N8` | 默认未提交且无跳过理由失败；后台提交不得伪装为已产图 |
+| `N7-SMART` | 判定并执行生图桥 | layout 列表、SMART mode | 写 request sidecar，默认进入内置 imagegen 请求准备，或显式跳过 | `image_generation` | `N8` | 默认未写 request 且无跳过理由失败；`request_ready` 不得伪装为已产图 |
 | `N8-CLOSURE` | 收束验收 | 全部输出 | 写 manifest 结果与失败码 | `closure` | `done` | 无根因闭环不得结案 |
 
 ## Field Master
@@ -281,6 +281,6 @@ erDiagram
 
 - `SKILL.md + CONTEXT.md + agents/openai.yaml + skill_manifest.json + templates + scripts` 齐备。
 - 可从当前仓 `scene_design.json.scenes[]` 与 Markdown `prompt整合` 生成 layout。
-- 默认 JSON 后自动调用 `nano-banana/general`。
+- 默认 JSON 后自动调用 `built-in imagegen`。
 - `--prompt-file` / `--prompt-text` 默认不扫隐式参考图。
-- `--dry-run` 可验证 JSON、request sidecar 与 nano payload，不需要真实 API key。
+- `--dry-run` 可验证 JSON、request sidecar 与 imagegen request，不需要真实 API key。

@@ -23,6 +23,7 @@ def find_repo_root() -> Path:
 
 ROOT = find_repo_root()
 PROJECTS_ROOT = ROOT / "projects" / "aigc"
+BUILTIN_ENTRY = "$imagegen / built-in image_gen"
 JIMENG_ENTRY = ".agents/skills/cli/dreamina-cli/SKILL.md"
 NANO_ENTRY = ".agents/skills/api/anyfast/image/nano-banana/SKILL.md"
 REWORK_REF_BINDING = ".agents/skills/aigc/5-Image/2-参照引用/SKILL.md"
@@ -95,6 +96,8 @@ def default_input_path(project_root: Path, source_tranche: str, episode: str, pr
 
 
 def provider_entry(provider: str) -> str:
+    if provider == "builtin_image_gen":
+        return BUILTIN_ENTRY
     if provider == "jimeng_cli":
         return JIMENG_ENTRY
     if provider == "nano_banana":
@@ -103,6 +106,8 @@ def provider_entry(provider: str) -> str:
 
 
 def provider_model_hint(provider: str) -> str:
+    if provider == "builtin_image_gen":
+        return "GPT-IMAGE-2"
     if provider == "nano_banana":
         return "gemini-3.1-flash-image-preview"
     if provider == "jimeng_cli":
@@ -205,11 +210,17 @@ def summarize_resolution(
                     "resolved_input": provider_variant.get("resolved_input", ""),
                 }
             )
+        if provider == "jimeng_cli":
+            resolution_status = "ready"
+        elif provider == "builtin_image_gen":
+            resolution_status = "visible_reference_required"
+        else:
+            resolution_status = "pending_encode_allowed"
         items.append(
             {
                 "packet_key": packet_key,
                 "reference_count": len(provider_inputs),
-                "resolution_status": "ready" if provider == "jimeng_cli" else "pending_encode_allowed",
+                "resolution_status": resolution_status,
                 "provider_inputs": provider_inputs,
             }
         )
@@ -256,6 +267,9 @@ def build_batch_task(
         "input_mode": input_mode,
         "reference_images": [],
     }
+    if provider == "builtin_image_gen":
+        task["provider_mode"] = "built-in image_gen"
+        task["default_model"] = "GPT-IMAGE-2"
 
     if input_mode == "reference_driven":
         refs = require_list(model.get("reference_images"), "packet.model.reference_images")
@@ -392,6 +406,8 @@ def run(
         risk_notes.append("nano_banana 引用若仍为 pending_encode，执行层需在提交前完成 BASE64 编码。")
     if provider == "jimeng_cli" and input_mode == "reference_driven":
         risk_notes.append("Dreamina CLI 执行前需保证所有 resolved_input 绝对路径仍可读。")
+    if provider == "builtin_image_gen":
+        risk_notes.append("内置 image_gen 不走 API / CLI；生成后必须把 `$CODEX_HOME/generated_images/...` 原始文件复制回 output_dir。")
 
     resolution_summary = summarize_resolution(packets, provider, input_mode)
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -417,17 +433,33 @@ def run(
             "resolution_summary": resolution_summary,
             "note": "prompt-only handoff" if input_mode == "prompt_only" else "provider-specific references resolved from bound request",
         },
-        "execution": {
-            "execution_mode": "background-batch-concurrent",
-            "max_concurrent": 100,
-            "status_after_submit": "background_submitted",
-            "foreground_override": "--foreground",
-            "request_batch_path": str(batch_path.resolve()),
-        },
+        "execution": (
+            {
+                "execution_mode": "codex-builtin-imagegen",
+                "max_concurrent": 1,
+                "provider_skill": "imagegen",
+                "provider_mode": "built-in image_gen",
+                "default_model": "GPT-IMAGE-2",
+                "status": "request_ready",
+                "request_sidecar_required": True,
+                "project_copy_required": True,
+                "generated_source_path": "",
+                "request_batch_path": str(batch_path.resolve()),
+            }
+            if provider == "builtin_image_gen"
+            else {
+                "execution_mode": "background-batch-concurrent",
+                "max_concurrent": 100,
+                "status_after_submit": "background_submitted",
+                "foreground_override": "--foreground",
+                "request_batch_path": str(batch_path.resolve()),
+            }
+        ),
         "output_dir": str(output_dir.resolve()),
         "expected_outputs": expected_outputs,
+        "result_outputs": [],
         "request_batch_path": str(batch_path.resolve()),
-        "status": "planned",
+        "status": "request_ready" if provider == "builtin_image_gen" else "planned",
         "next_entry": next_entry,
         "rework_entry": rework_entry,
         "risk_notes": risk_notes,
@@ -483,9 +515,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--provider",
-        default="nano_banana",
-        choices=["jimeng_cli", "nano_banana"],
-        help="锁定唯一 provider；默认 nano_banana",
+        default="builtin_image_gen",
+        choices=["builtin_image_gen", "jimeng_cli", "nano_banana"],
+        help="锁定唯一 provider；默认 builtin_image_gen（内置 image_gen / GPT-IMAGE-2）",
     )
     parser.add_argument("--input", type=Path, help="可选，直接指定输入请求 JSON")
     parser.add_argument("--allow-prompt-only", action="store_true", help="在 Assets 非空但严格绑定为空时，显式允许 prompt-only handoff")

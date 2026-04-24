@@ -181,7 +181,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene-id", action="append", dest="scene_ids", help="只处理指定 scene_id，可重复传入")
     parser.add_argument("--scene-name", action="append", dest="scene_names", help="只处理指定 scene_name，可重复传入")
     parser.add_argument("--dry-run", action="store_true", help="只打印将生成的 manifest，不写文件")
-    parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
+    parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 内置 imagegen 自动生图")
     parser.add_argument("--auto-image-dry-run", action="store_true", help="写 manifest 并验证自动生图 payload，不真实请求 API")
     parser.add_argument("--auto-image-timeout", type=int, default=300, help="单个自动生图子进程最长等待秒数")
     parser.add_argument(
@@ -1074,7 +1074,9 @@ def main() -> int:
             "status": "pending_validation",
         },
         "auto_image": {
-            "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
+            "provider_skill": "imagegen",
+            "provider_mode": "built-in image_gen",
+            "default_model": "GPT-IMAGE-2",
             "mode": "single-subject-t2i",
             "prompt_field": "full_generation_prompt",
             "output_dir_policy": "same_directory_as_design_file",

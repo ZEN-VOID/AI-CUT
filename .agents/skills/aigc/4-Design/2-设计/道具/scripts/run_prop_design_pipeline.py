@@ -37,7 +37,7 @@ def parse_args() -> argparse.Namespace:
         help="只处理指定 canonical_name，可重复传入",
     )
     parser.add_argument("--write-compat-json", action="store_true", help="额外导出 `道具设计.json` 与 `prop_design_prompt.json`")
-    parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 nano-banana 自动生图")
+    parser.add_argument("--skip-auto-image", action="store_true", help="只生成设计文件，不调用 内置 imagegen 自动生图")
     parser.add_argument("--auto-image-dry-run", action="store_true", help="自动生图步骤只验证 payload，不真实调用 API")
     parser.add_argument("--dry-run", action="store_true", help="只预览 manifest，不写文件")
     parser.add_argument(
@@ -87,7 +87,9 @@ def update_auto_image_manifest(output_dir: Path, manifest_name: str = "_manifest
                 image_paths.append(image_path.as_posix())
                 break
     payload["auto_image"] = {
-        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
+        "provider_skill": "imagegen",
+        "provider_mode": "built-in image_gen",
+        "default_model": "GPT-IMAGE-2",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",
@@ -108,7 +110,9 @@ def mark_auto_image_skipped(output_dir: Path, manifest_name: str = "_manifest.js
         return
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     payload["auto_image"] = {
-        "provider_skill": ".agents/skills/api/anyfast/image/nano-banana/general",
+        "provider_skill": "imagegen",
+        "provider_mode": "built-in image_gen",
+        "default_model": "GPT-IMAGE-2",
         "mode": "single-subject-t2i",
         "prompt_field": "full_generation_prompt",
         "output_dir_policy": "same_directory_as_design_file",

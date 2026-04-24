@@ -45,7 +45,7 @@ class SceneTask:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate scene panel layout JSON and optionally call nano-banana/general.")
+    parser = argparse.ArgumentParser(description="Generate scene panel layout JSON and optionally call built-in imagegen.")
     parser.add_argument("--project", help="项目名；默认批量模式必填")
     parser.add_argument("--episode", help="集数，如 第1集；默认批量模式必填")
     parser.add_argument("--scene-id", help="仅生成指定 scene_id / scene_key")
@@ -59,7 +59,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto")
     parser.add_argument("--reference", action="append", default=[], help="显式参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100)
-    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 内置 imagegen 完成；默认内置 imagegen 请求准备")
     parser.add_argument(
         "--dry-run",
         "--generation-dry-run",
@@ -67,7 +67,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="写 JSON 与 request sidecar，但 nano 只 dry-run",
     )
-    parser.add_argument("--print-payload", action="store_true", help="打印 nano payload")
+    parser.add_argument("--print-payload", action="store_true", help="打印 imagegen request")
     parser.add_argument("--no-report", action="store_true", help="调用 nano 时跳过 report")
     parser.add_argument("--force", action="store_true", help="覆盖已存在 layout/manifest")
     parser.add_argument(
@@ -427,7 +427,7 @@ def main() -> int:
                 "grid": layout_contract["grid"],
             },
             "image_generation": {
-                "target_skill_id": "nano-banana-general",
+                "target_skill_id": "imagegen",
                 "smart_mode_default": "continuous-batch" if source_context(args) == "panel-stage" else bridge_smart_mode(args),
                 "prompt_field": "prompt",
                 "prompt_text": prompt,
@@ -523,11 +523,12 @@ def main() -> int:
             "failed_count": result.get("failed_count", 0),
             "status": result.get("status", "completed" if result.get("success") else "failed"),
             "execution_mode": result.get("execution_mode"),
-            "background_pid": result.get("background_pid"),
-            "background_log": result.get("background_log"),
+            "provider_skill": result.get("provider_skill"),
+            "provider_mode": result.get("provider_mode"),
+            "default_model": result.get("default_model"),
+            "generated_source_path": result.get("generated_source_path"),
             "request_batch_path": result.get("request_batch_path"),
             "bridge_report_path": result.get("bridge_report_path"),
-            "nano_returncode": result.get("nano_returncode"),
             "dry_run": bool(args.dry_run),
         }
     elif args.smart_mode != "off":

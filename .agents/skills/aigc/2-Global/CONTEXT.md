@@ -26,6 +26,7 @@
 | `SKILL.md` 继续堆满字段表和长 prose，导致主骨架难扫描 | 技能骨架层 | 把字段细则、patch 细则和 compat 细则下沉到 `references/` | 在主合同固定 `skeleton-first` 与 `Reference Loading Guide` | 主 `SKILL.md` 可快速看清模式、节点、门禁与输出 |
 | `2-Global` 只有线性说明，没有真正的思行网络 | 编排表达层 | 在主合同补 `Mode Selection + Mermaid + Thinking-Action Node Contract` | 固定使用 3 张以上 Mermaid，并让节点同时承担判断与动作 | 能一眼看出 `N1-N7` 主干及其汇流顺序 |
 | 增量 patch 时不区分 `group_scope / field_scope`，导致局部修复扩大成全量覆盖 | patch scope 层 | 先锁 mode 与 scope，再做 patch-in-place | 在 `references/增量写回与兼容投影.md` 固化 scope 策略 | 局部升级不会污染未命中组或字段 |
+| `导演意图` 像剧本正文随手截句，只复述“发生了什么” | 导演导向层 | 把每组 `导演意图` 重写成“观看策略 + 执行抓手 + 禁用方向”三层导向 | 在模板、字段映射、handoff 合同和 `validate_director_intent.py` 中固定防回归 | `groups[].global.导演意图` 能直接转入 `3-Detail` 的镜头、表演、调度、节奏或空间判断 |
 
 ## Repair Playbook
 
@@ -33,7 +34,8 @@
 2. 再看 `references/思行网络.md`、`references/字段与验收映射.md`、`references/增量写回与兼容投影.md` 是否只细化主合同，没有形成第二真源。
 3. 再看 `_shared/IO_CONTRACT.md` 与 `_shared/branch-output-contract.md` 是否仍把 `episode_root.json` 定义为唯一业务真源。
 4. 再看 `_shared/group_design_seed_contract.md` 是否仍要求 `3-Detail` 从 JSON 直接继承，而不是从 Markdown 抽取。
-5. 最后才看是否需要保留兼容 Markdown 投影。
+5. 若用户反馈 `导演意图` 太弱，先检查它是否缺少“观看策略 / 执行抓手 / 禁用方向”，不要只润色句子。
+6. 最后才看是否需要保留兼容 Markdown 投影。
 
 ## Reusable Heuristics
 
@@ -45,3 +47,4 @@
 - 当 `2-Global` 变复杂后，主 `SKILL.md` 应该只保留模式、Mermaid、节点主干、输入输出和验收门；字段表、patch 细则和 compat 细则优先下沉到 `references/`。
 - 对这类阶段 skill，真正的“知行合一”不是多写一段思考说明，而是让 `mode / node / gate / writeback` 位于同一骨架里。
 - 增量升级默认优先做 `patch-in-place`，除非上游真源或项目级总则发生变化，否则不要顺手全量重写。
+- 好的 `导演意图` 应该比剧情摘要多一层导演判断：它要告诉 `3-Detail` 这一组如何组织观看、如何落到现场动作、哪些拍法会把戏拍歪。

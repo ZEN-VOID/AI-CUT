@@ -1,5 +1,5 @@
 interface:
   display_name: "AIGC 面板生成"
-  short_description: "把 4-Design/2-设计 产物转换为面板 layout JSON，并按 SMART 规则后台批量并发桥接 nano-banana/general 生图。"
-  default_prompt: "Use $aigc-design-panel to route active `4-Design/3-面板` leaves. For prop panels, read design outputs under `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`, write layout JSON under `4-Design/道具/3-面板/第N集/`, then invoke nano-banana/general through the shared SMART bridge in the default background batch concurrent mode unless layout-only is requested."
+  short_description: "把 4-Design/2-设计 产物转换为面板 layout JSON，并按 SMART 规则内置 imagegen 桥接 生图。"
+  default_prompt: "Use $aigc-design-panel to route active `4-Design/3-面板` leaves. For prop panels, read design outputs under `projects/aigc/<项目名>/4-Design/道具/2-设计/第N集/`, write layout JSON under `4-Design/道具/3-面板/第N集/`, then invoke built-in imagegen through the shared SMART bridge in the default built-in imagegen mode unless layout-only is requested."
 version: 1

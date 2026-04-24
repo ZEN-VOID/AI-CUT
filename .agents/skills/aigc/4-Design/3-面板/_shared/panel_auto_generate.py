@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-"""SMART bridge from panel layout JSON packets to nano-banana/general requests."""
+"""SMART bridge from panel layout JSON packets to built-in imagegen requests."""
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import re
-import subprocess
-import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
@@ -76,20 +72,6 @@ def _load_manifest_packet_paths(manifest_path: Path) -> list[Path]:
             candidate = (parent / item).resolve()
         resolved.append(candidate)
     return resolved
-
-
-def _load_nano_module(repo_root: Path) -> Any:
-    module_path = repo_root / ".agents" / "skills" / "api" / "image" / "nano-banana" / "scripts" / "nano_banana_generate.py"
-    spec = importlib.util.spec_from_file_location("nano_banana_generate_bridge", module_path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"无法加载 nano-banana 脚本: {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _nano_script_path(repo_root: Path) -> Path:
-    return repo_root / ".agents" / "skills" / "api" / "image" / "nano-banana" / "scripts" / "nano_banana_generate.py"
 
 
 def _normalize_token(value: str) -> str:
@@ -366,10 +348,14 @@ def build_generation_requests(
             "project_name": _project_name(packet),
             "task_kind": "project",
             "request_id": _request_id(packet, packet_path),
+            "provider_skill": "imagegen",
+            "provider_mode": "built-in image_gen",
+            "default_model": "GPT-IMAGE-2",
             "output_dir": output_dir.as_posix(),
             "output_filename": _output_filename(packet, packet_path),
             "aspect_ratio": packet.get("aspect_ratio", "16:9"),
             "image_size": packet.get("image_size", "4K"),
+            "save_policy": "Generate with built-in image_gen, then copy the selected output from $CODEX_HOME/generated_images into output_dir/output_filename. Leave the original generated image in place.",
             "prompt_reference": {
                 "smart_mode_requested": requested_mode,
                 "smart_mode_resolved": resolved_mode,
@@ -448,128 +434,57 @@ def run_panel_auto_generate(
     batch_request_path = request_root / "panel_auto_generate_batch.json"
     _write_json(batch_request_path, {"tasks": request_docs})
 
-    if not generate:
-        bridge_report_path = request_root / "panel_auto_generate_report.json"
-        bridge_report = {
-            "request_batch_path": batch_request_path.as_posix(),
-            "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",
-            "trace": trace,
-            "nano_result": {
-                "success": True,
-                "skipped": True,
-                "reason": "request-sidecar-only",
-            },
-        }
-        _write_json(bridge_report_path, bridge_report)
-        return {
-            "success": True,
-            "task_count": len(request_docs),
-            "success_count": 0,
-            "failed_count": 0,
-            "skipped": True,
-            "reason": "request-sidecar-only",
-            "request_batch_path": batch_request_path.as_posix(),
-            "bridge_report_path": bridge_report_path.as_posix(),
-            "smart_mode_requested": trace["smart_mode_requested"],
-            "smart_mode_resolved": trace["smart_mode_resolved"],
-            "trace": trace,
-        }
-
-    if background and not dry_run:
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_path = request_root / f"panel_auto_generate_background_{stamp}.log"
-        cmd = [
-            sys.executable,
-            _nano_script_path(repo_root).as_posix(),
-            "--input-json",
-            batch_request_path.as_posix(),
-            "--max-concurrent",
-            str(max_concurrent),
-            "--timeout",
-            str(timeout),
-        ]
-        if not save_images:
-            cmd.append("--no-save-images")
-        if no_report:
-            cmd.append("--no-report")
-        if print_payload:
-            cmd.append("--print-payload")
-        log_file = log_path.open("ab")
-        process = subprocess.Popen(
-            cmd,
-            cwd=repo_root,
-            stdout=log_file,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-        )
-        log_file.close()
-        nano_result = {
-            "success": True,
-            "status": "background_submitted",
-            "execution_mode": "background-batch-concurrent",
-            "task_count": len(request_docs),
-            "success_count": 0,
-            "failed_count": 0,
-            "background_pid": process.pid,
-            "background_log": log_path.as_posix(),
-            "effective_max_concurrent": min(len(request_docs), max_concurrent) if len(request_docs) > 1 else 1,
-        }
-        bridge_report_path = request_root / "panel_auto_generate_report.json"
-        bridge_report = {
-            "request_batch_path": batch_request_path.as_posix(),
-            "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",
-            "trace": trace,
-            "nano_result": nano_result,
-        }
-        _write_json(bridge_report_path, bridge_report)
-        nano_result["request_batch_path"] = batch_request_path.as_posix()
-        nano_result["bridge_report_path"] = bridge_report_path.as_posix()
-        nano_result["smart_mode_requested"] = trace["smart_mode_requested"]
-        nano_result["smart_mode_resolved"] = trace["smart_mode_resolved"]
-        nano_result["trace"] = trace
-        return nano_result
-
-    nano_module = _load_nano_module(repo_root)
-    nano_result = nano_module.run_generation_from_docs(
-        request_docs,
-        max_concurrent=max_concurrent,
-        timeout=timeout,
-        save_images=save_images,
-        dry_run=dry_run,
-        print_payload=print_payload,
-        no_report=no_report,
-    )
-
     bridge_report_path = request_root / "panel_auto_generate_report.json"
+    imagegen_result = {
+        "success": True,
+        "status": "request_sidecar_only" if not generate else "request_ready",
+        "execution_mode": "codex-builtin-imagegen",
+        "provider_skill": "imagegen",
+        "provider_mode": "built-in image_gen",
+        "default_model": "GPT-IMAGE-2",
+        "task_count": len(request_docs),
+        "success_count": 0,
+        "failed_count": 0,
+        "skipped": not generate,
+        "reason": "request-sidecar-only" if not generate else "",
+        "effective_max_concurrent": 1,
+        "foreground": not background,
+        "dry_run": dry_run,
+        "save_images": save_images,
+        "no_report": no_report,
+        "print_payload": print_payload,
+        "timeout_seconds": timeout,
+        "next_step": "Call built-in image_gen once per task, using images[] as visible conversation references when applicable, then copy selected generated images into output_dir/output_filename.",
+    }
     bridge_report = {
         "request_batch_path": batch_request_path.as_posix(),
         "manifest_path": manifest_path.resolve().as_posix() if manifest_path else "",
         "trace": trace,
-        "nano_result": nano_result,
+        "imagegen_result": imagegen_result,
     }
     _write_json(bridge_report_path, bridge_report)
-    nano_result["request_batch_path"] = batch_request_path.as_posix()
-    nano_result["bridge_report_path"] = bridge_report_path.as_posix()
-    nano_result["smart_mode_requested"] = trace["smart_mode_requested"]
-    nano_result["smart_mode_resolved"] = trace["smart_mode_resolved"]
-    nano_result["trace"] = trace
-    return nano_result
+    imagegen_result["request_batch_path"] = batch_request_path.as_posix()
+    imagegen_result["bridge_report_path"] = bridge_report_path.as_posix()
+    imagegen_result["smart_mode_requested"] = trace["smart_mode_requested"]
+    imagegen_result["smart_mode_resolved"] = trace["smart_mode_resolved"]
+    imagegen_result["trace"] = trace
+    return imagegen_result
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="把 3-面板 layout packet 按 SMART 合同桥接到 nano-banana/general。")
+    parser = argparse.ArgumentParser(description="把 3-面板 layout packet 按 SMART 合同桥接到内置 imagegen 请求侧车。")
     parser.add_argument("--manifest", help="面板 manifest 路径；若未传 layout-json，可从中解析 packet 列表")
     parser.add_argument("--layout-json", action="append", default=[], help="显式指定 panel layout JSON，可重复传入")
     parser.add_argument("--smart-mode", choices=SMART_MODE_CHOICES, default="auto", help="SMART 模式")
     parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
-    parser.add_argument("--max-concurrent", type=int, default=100, help="透传 nano-banana 最大并发")
-    parser.add_argument("--timeout", type=int, default=180, help="透传 nano-banana 单任务超时秒数")
+    parser.add_argument("--max-concurrent", type=int, default=1, help="兼容旧参数；内置 imagegen 逐资产调用")
+    parser.add_argument("--timeout", type=int, default=180, help="兼容旧参数；内置 imagegen 不由本脚本等待 provider")
     parser.add_argument("--no-save-images", action="store_true", help="只保留请求与报告，不落 PNG")
-    parser.add_argument("--no-report", action="store_true", help="跳过 nano-banana report JSON")
-    parser.add_argument("--request-only", action="store_true", help="只写 request sidecar 和 bridge report，不调用 nano")
-    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
-    parser.add_argument("--dry-run", action="store_true", help="只生成 request sidecar 并调用 nano dry-run")
-    parser.add_argument("--print-payload", action="store_true", help="打印 nano 最终 payload")
+    parser.add_argument("--no-report", action="store_true", help="兼容旧参数；本 bridge 始终写 imagegen bridge report")
+    parser.add_argument("--request-only", action="store_true", help="只写 request sidecar 和 bridge report")
+    parser.add_argument("--foreground", action="store_true", help="兼容旧参数；内置 imagegen 由 Codex 会话前台执行")
+    parser.add_argument("--dry-run", action="store_true", help="只生成 request sidecar，不代表已经调用内置 imagegen")
+    parser.add_argument("--print-payload", action="store_true", help="打印内置 imagegen 请求侧车摘要")
     parser.add_argument("--pipeline-context", choices=("panel-stage", "direct-request"), default="direct-request", help="auto 模式判型所需上下文")
     return parser.parse_args()
 

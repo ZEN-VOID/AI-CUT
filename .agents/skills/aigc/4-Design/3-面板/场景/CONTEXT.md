@@ -24,7 +24,7 @@
 | `--prompt-file` 指向目录时被数量误判为批量 | SMART 场景判型层 | direct-request 下的 `auto` 固定为 `single-doc-t2i` | 只有父级 batch 或显式 `continuous-batch` 才自动扫参照 | 目录直调 request trace 无 continuity refs |
 | JSON-only 没有 request sidecar，后续补跑不可复盘 | delivery trace 层 | layout-only 时仍调用共享 bridge 的 request-sidecar-only 停点 | request sidecar 与 bridge report 是 JSON 停点的必备派生证据 | `generated/requests/panel_auto_generate_batch.json` 存在 |
 | 批量面板脚本统一使用 `--generation-dry-run` 时，场景 leaf 直接报参数错误 | leaf CLI compatibility 层 | 为 `--dry-run` 增加 `--generation-dry-run` 别名 | 同层 leaf 的“写 layout + request sidecar + nano dry-run”停点语义统一，旧参数仅作兼容 | `generate_scene_panels.py --help` 显示 `--dry-run, --generation-dry-run` |
-| layout JSON 已写但生图失败 | 下游 API 层 | 保留 layout 与 request sidecar，按 nano-banana root-cause 链排查 API key/参数/图像编码 | 默认先写 JSON，再调用 nano，避免失败时丢业务真源 | `_manifest.json.image_generation.success=false` 且有 report |
+| layout JSON 已写但生图失败 | 下游 API 层 | 保留 layout 与 request sidecar，按 imagegen root-cause 链排查 API key/参数/图像编码 | 默认先写 JSON，再调用 nano，避免失败时丢业务真源 | `_manifest.json.image_generation.success=false` 且有 report |
 
 ## Repair Playbook
 
@@ -37,6 +37,6 @@
 ## Reusable Heuristics
 
 - 场景面板应继承设计阶段的 prompt 密度，但不继承设计阶段的推导正文。
-- `layout.json` 顶层字段应尽量直接对齐 nano-banana 输入，减少中间树重复。
+- `layout.json` 顶层字段应尽量直接对齐 imagegen 请求，减少中间树重复。
 - 批量连续链路适合自动参考图；单点 prompt 直调更适合保持 T2I，除非用户显式给参考图。
 - 与同层 sibling 做批量推进时，dry-run 停点参数必须保持同义；需要升级口径时优先加兼容别名，而不是让调用方记住多个变体。

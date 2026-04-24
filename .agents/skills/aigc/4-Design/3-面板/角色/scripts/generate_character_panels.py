@@ -447,13 +447,13 @@ def build_layout_doc(
             "explicit_references": [{"url": ref, "ref_type": "explicit_reference"} for ref in task.explicit_refs],
         },
         "render_contract": {
-            "target_skill_id": "nano-banana-general",
+            "target_skill_id": "imagegen",
             "render_mode": "CHARACTER_ATMOSPHERIC_DOSSIER",
             "aspect_ratio": DEFAULT_ASPECT_RATIO,
             "layout": "three-column",
         },
         "image_generation": {
-            "target_skill_id": "nano-banana-general",
+            "target_skill_id": "imagegen",
             "smart_mode_requested": smart_mode_requested,
             "smart_mode_resolved": smart_mode_resolved,
             "prompt_field": "prompt_payload.prompt_text",
@@ -511,7 +511,7 @@ def collect_tasks(args: argparse.Namespace, episode: str) -> list[PanelTask]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="生成角色 CharacterPanel layout JSON，并默认调用 nano-banana/general 生图")
+    parser = argparse.ArgumentParser(description="生成角色 CharacterPanel layout JSON，并默认调用 built-in imagegen 生图")
     parser.add_argument("--project", required=True, help="项目名，对应 projects/aigc/<项目名>")
     parser.add_argument("--episode", default="第1集", help="集数，默认 第1集")
     parser.add_argument("--prompt-file", help="指定 Markdown / JSON / 目录")
@@ -532,15 +532,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON 和 request sidecar，不调用生图")
     parser.add_argument("--json-only", action="store_true", help="同 --layout-only")
-    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 内置 imagegen 完成；默认内置 imagegen 请求准备")
     parser.add_argument(
         "--dry-run",
         "--generation-dry-run",
         dest="dry_run",
         action="store_true",
-        help="调用 nano-banana/general dry-run，不真实请求 API",
+        help="调用 built-in imagegen dry-run，不真实请求 API",
     )
-    parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
+    parser.add_argument("--print-payload", action="store_true", help="打印 imagegen payload")
     parser.add_argument("--max-concurrent", type=int, default=100, help="生图并发，默认 100")
     parser.add_argument("--timeout", type=int, default=180, help="单任务超时秒数")
     return parser
@@ -619,8 +619,10 @@ def main() -> int:
                 "dry_run": args.dry_run,
                 "skipped": bridge_result.get("skipped", False),
                 "execution_mode": bridge_result.get("execution_mode"),
-                "background_pid": bridge_result.get("background_pid"),
-                "background_log": bridge_result.get("background_log"),
+                "provider_skill": bridge_result.get("provider_skill"),
+                "provider_mode": bridge_result.get("provider_mode"),
+                "default_model": bridge_result.get("default_model"),
+                "generated_source_path": bridge_result.get("generated_source_path"),
             }
 
         write_json(output_dir / "_manifest.json", manifest)
@@ -628,13 +630,13 @@ def main() -> int:
         if request_sidecar:
             print(f"✅ request_sidecar: {request_sidecar}")
         if args.layout_only or args.json_only:
-            print("✅ JSON-only 完成：未调用 nano-banana/general。")
+            print("✅ JSON-only 完成：未调用 built-in imagegen。")
             return 0
         if bridge_result is not None and not bridge_result.get("success", False):
             print(f"❌ generation_failed: {bridge_result.get('failed_count', 0)}")
             return 1
         if args.dry_run:
-            print("✅ dry-run 完成：已构造 nano-banana/general 请求，未真实调用 API。")
+            print("✅ dry-run 完成：已构造 built-in imagegen 请求，未真实调用 API。")
             return 0
         failed = int((bridge_result or {}).get("failed_count", 0))
         print(f"✅ generation_success: {(bridge_result or {}).get('success_count', 0)}")

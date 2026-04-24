@@ -141,5 +141,5 @@ thinking sidecar 固定使用三层：
 - `设计之向` 与 `反向禁忌` 同时进入 thinking sidecar、structured fields 与 prompt。
 - Markdown 三段式齐全，且 `prompt整合` 可被稳定抽取。
 - `design_prompt == prompt`。
-- `full_generation_prompt` 含 `global_style_prefix`，且可直接交给 nano-banana general。
+- `full_generation_prompt` 含 `global_style_prefix`，且可直接交给 built-in imagegen。
 - `_manifest.json` 只做审计侧车。

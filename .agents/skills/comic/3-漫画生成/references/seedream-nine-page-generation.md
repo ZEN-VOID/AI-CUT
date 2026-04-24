@@ -1,15 +1,17 @@
-# Seedream 九页漫画生成执行细则
+# Legacy: Seedream 九页漫画生成执行细则
+
+> 当前 `comic-generation` 默认生图路径已经切换为 Codex built-in `image_gen`，默认模型口径为 `GPT-IMAGE-2-default`。本文仅保留为 legacy Seedream/API 追溯资料；除非用户显式要求切换 provider，或 built-in `image_gen` 不可用且用户确认 fallback，否则不得作为默认执行路径。
 
 ## 1. 单请求原则
 
-本技能默认只发起一次 Seedream 请求：
+legacy Seedream 路径曾默认只发起一次 Seedream 请求：
 
 - `sequential_image_generation=auto`
 - `max_images=9`
 - `stream=true`
 - prompt 内声明 `Generate exactly 9 separate images/pages`
 
-不得把 9 页拆成 9 次单图调用，除非用户明确要求分批重试或 API 服务端持续失败。
+该规则仅适用于 legacy Seedream provider。built-in `image_gen` 默认路径必须拆成 9 次单页调用，以避免九宫格和同图变体风险。
 
 当上游 2 号技能已经把一个 episode 切成多个 `page-group` 时：
 

@@ -48,7 +48,7 @@
   "dependencies": {
     "requires": [
       "aigc-design-role-design",
-      "nano-banana-general"
+      "imagegen"
     ],
     "optional_context": [
       ".agents/skills/aigc/4-Design/3-面板/_shared/smart-image-handoff-contract.md"
@@ -59,6 +59,6 @@
     "layout",
     "character",
     "panel",
-    "nano-banana"
+    "built-in-imagegen"
   ]
 }

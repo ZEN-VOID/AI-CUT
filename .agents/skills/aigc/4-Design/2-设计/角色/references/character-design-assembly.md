@@ -48,7 +48,7 @@ flowchart TD
     E --> F["prompt整合"]
     F --> G["character_design.json"]
     G --> H["[角色名].md projection"]
-    H --> I["nano-banana general same-dir same-stem image"]
+    H --> I["built-in imagegen same-dir same-stem image"]
 ```
 
 ## Canonical Output Rules

@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop-panel
-description: Use when `4-Design/3-面板/道具` must turn prop design outputs into `PropPanel-layout.json` files, then automatically invoke nano-banana/general; batch 4-Design runs should reuse existing design images as references, while single file or natural-language generation defaults to no references.
+description: Use when `4-Design/3-面板/道具` must turn prop design outputs into `PropPanel-layout.json` files, then automatically invoke built-in imagegen; batch 4-Design runs should reuse existing design images as references, while single file or natural-language generation defaults to no references.
 governance_tier: full
 ---
 
@@ -14,7 +14,7 @@ governance_tier: full
 
 ## 概述
 
-`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 后台批量并发调用 `.agents/skills/api/anyfast/image/nano-banana/general` 生图。
+`3-面板/道具` 承接 `2-设计/道具` 的设计产物，将每个道具的 prompt 部分直接版式化为 16:9 道具面板 JSON，并默认按 `.agents/skills/aigc/_shared/image-generation-execution-contract.md` 内置 imagegen 请求准备 `内置 $imagegen / image_gen` 生图。
 
 本技能完全继承 `/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/3-设定/4-面板/道具面板` 的核心配置口径：
 
@@ -22,7 +22,7 @@ governance_tier: full
 - 固定 16:9 / 4K / `4096x2304`
 - 三栏布局 `LEFT 15% | CENTER 50% | RIGHT 35%`
 - 左上角固定 `PROP_ID+PROP_NAME` identity badge
-- `layout.json` 先行、默认继续后台批量并发自动生图
+- `layout.json` 先行、默认继续内置 imagegen 自动生图
 
 当前仓的差异只在 runtime 与输入真源：
 
@@ -37,7 +37,7 @@ governance_tier: full
 | `business_goal` | 把道具设计产物中的 prompt 区块转成面板 layout JSON，并默认生成可审阅 PNG |
 | `business_object` | 逐道具 Markdown 设计卡、兼容 prompt JSON、兼容 design JSON、道具面板模板、SMART 参考图规则 |
 | `constraint_profile` | 不重做设计；只直引 prompt；先写 JSON 后生图；批量链路自动找参照；单文件/自然语言默认无参照 |
-| `success_criteria` | 每个道具有独立 `<prop_id>-<prop_name>-PropPanel-layout.json`、manifest、request sidecar 与默认后台提交链；最终 PNG 由输出文件或 provider report 复核 |
+| `success_criteria` | 每个道具有独立 `<prop_id>-<prop_name>-PropPanel-layout.json`、manifest、request sidecar 与默认内置 imagegen request_ready链；最终 PNG 由输出文件或 provider report 复核 |
 | `non_goals` | 不回写 `2-设计`，不把面板 prompt 反向升格为设计事实，不为未重建 sibling 定义规则 |
 | `complexity_source` | 上游文件形态多，且 SMART 参照图规则需要同时满足连续批量与单次直生图两种语义 |
 | `topology_fit` | 混合型：输入判型 -> prompt 提取 -> 模板装配 -> layout 写回 -> SMART 生图 -> manifest 汇流 |
@@ -64,7 +64,7 @@ governance_tier: full
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/<prop_id>-<prop_name>-PropPanel-layout.json`
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/_manifest.json`
 - `projects/aigc/<项目名>/4-Design/道具/3-面板/第N集/generated/requests/*.json`
-- 默认后台提交 pid/log 写入 manifest；最终 PNG 输出到 `generated/<layout-stem>/`
+- 默认内置 imagegen request_ready 状态 写入 manifest；最终 PNG 输出到 `generated/<layout-stem>/`
 
 ## Stage Boundary
 
@@ -73,14 +73,14 @@ governance_tier: full
 1. 从设计产物提取 `prompt`。
 2. 读取 `templates/道具面板-提示词.json`。
 3. 组装道具面板 layout JSON。
-4. 调用共享 SMART bridge 后台批量并发生图。
+4. 调用共享 SMART bridge 内置 imagegen 生图。
 5. 写 `_manifest.json` 记录 layout 与生图结果。
 
 ### 本阶段不拥有
 
 1. 不重新设计道具。
 2. 不回写 `2-设计` 的 Markdown 或兼容 JSON。
-3. 不直接绕过 layout JSON 调用 nano-banana。
+3. 不直接绕过 layout JSON 调用生图工具。
 4. 不在 leaf 私有脚本中复制第二套生图桥。
 
 ## Visual Maps
@@ -94,7 +94,7 @@ flowchart TD
     C --> D["组装 PROP_ATMOSPHERIC_DOSSIER"]
     D --> E["写 PropPanel-layout.json"]
     E --> F["共享 SMART bridge"]
-    F --> G["nano-banana/general"]
+    F --> G["built-in imagegen"]
 ```
 
 ```mermaid
@@ -197,15 +197,15 @@ stateDiagram-v2
 
 ### NODE-PROP-PANEL-05 自动生图
 
-- `objective`: layout 之后自动桥接 nano-banana/general。
+- `objective`: layout 之后自动桥接 built-in imagegen。
 - `actions`:
   1. 调用 `../_shared/panel_auto_generate.py`。
   2. 批量上下文自动发现 continuity refs。
   3. 单文件/自然语言上下文默认无参照。
-  4. 默认后台批量并发提交，将 bridge 结果回写 manifest。
-- `evidence`: request sidecar、bridge report、`background_pid/background_log` 或 foreground nano result。
+  4. 默认内置 imagegen 请求准备，将 bridge 结果回写 manifest。
+- `evidence`: request sidecar、bridge report、`request_ready/default_model` 或 foreground imagegen result。
 - `route_out`: 成功 -> final；失败 -> `FAIL-PROP-PANEL-GENERATION`。
-- `gate`: 失败时返回非零；后台提交只写 `background_submitted`，不伪装为图片已完成。
+- `gate`: 失败时返回非零；内置 imagegen request_ready只写 `request_ready`，不伪装为图片已完成。
 
 ## Commands
 
@@ -242,7 +242,7 @@ python3 .agents/skills/aigc/4-Design/3-面板/道具/scripts/generate_prop_panel
 | `FIELD-PROP-PANEL-02` | `prompt` | 直接引用上游 prompt 部分，非空 | `NODE-PROP-PANEL-02` | prompt 真源性 | `FAIL-PROP-PANEL-PROMPT` |
 | `FIELD-PROP-PANEL-03` | `layout_contract` | 完整继承道具面板模板 | `NODE-PROP-PANEL-03` | 模板一致性 | `FAIL-PROP-PANEL-TEMPLATE` |
 | `FIELD-PROP-PANEL-04` | `subject.identity_badge` | 固定 `<PROP_ID>+<PROP_NAME>` | `NODE-PROP-PANEL-03` | 身份稳定性 | `FAIL-PROP-PANEL-LAYOUT` |
-| `FIELD-PROP-PANEL-05` | `image_generation` | 记录 SMART 上下文与 nano-banana 目标 | `NODE-PROP-PANEL-04/05` | 生图桥接 | `FAIL-PROP-PANEL-GENERATION` |
+| `FIELD-PROP-PANEL-05` | `image_generation` | 记录 SMART 上下文与内置 imagegen 目标 | `NODE-PROP-PANEL-04/05` | 生图桥接 | `FAIL-PROP-PANEL-GENERATION` |
 | `FIELD-PROP-PANEL-06` | `_manifest.json` | 记录输入、输出、生成状态、降级 | `NODE-PROP-PANEL-04/05` | 审计完整性 | `FAIL-PROP-PANEL-MANIFEST` |
 
 ## Thought Pass Map
@@ -263,14 +263,14 @@ python3 .agents/skills/aigc/4-Design/3-面板/道具/scripts/generate_prop_panel
 | `FIELD-PROP-PANEL-02` | prompt 非空且来源可追溯 | `FAIL-PROP-PANEL-PROMPT` | `NODE-PROP-PANEL-02` |
 | `FIELD-PROP-PANEL-03` | 模板字段层级完整 | `FAIL-PROP-PANEL-TEMPLATE` | `NODE-PROP-PANEL-03` |
 | `FIELD-PROP-PANEL-04` | identity badge 与文件名一致 | `FAIL-PROP-PANEL-LAYOUT` | `NODE-PROP-PANEL-04` |
-| `FIELD-PROP-PANEL-05` | request sidecar 可由 nano-banana/general 承接 | `FAIL-PROP-PANEL-GENERATION` | `NODE-PROP-PANEL-05` |
+| `FIELD-PROP-PANEL-05` | request sidecar 可由 built-in imagegen 承接 | `FAIL-PROP-PANEL-GENERATION` | `NODE-PROP-PANEL-05` |
 | `FIELD-PROP-PANEL-06` | manifest 记录生成状态 | `FAIL-PROP-PANEL-MANIFEST` | `NODE-PROP-PANEL-04/05` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
 必经链路：
 
-`Symptom -> Direct Technical Cause -> Rule Source (本 SKILL / runner / template / _shared bridge) -> Meta Rule Source (4-Design parent / AGENTS.md / skill-知行合一 / nano-banana general) -> Fix Landing Points`
+`Symptom -> Direct Technical Cause -> Rule Source (本 SKILL / runner / template / _shared bridge) -> Meta Rule Source (4-Design parent / AGENTS.md / skill-知行合一 / built-in imagegen) -> Fix Landing Points`
 
 常见症状优先级：
 
@@ -278,7 +278,7 @@ python3 .agents/skills/aigc/4-Design/3-面板/道具/scripts/generate_prop_panel
 2. layout 缺字段：先查模板是否损坏。
 3. 单文件任务错误绑定参照：先查 SMART mode 与 pipeline context。
 4. 批量任务没用设计图：先查 `continuity_source_roots` 与 `_shared` 扫描规则。
-5. 生图失败：先查 request sidecar，再查 `nano-banana/general`。
+5. 生图失败：先查 request sidecar，再查 `built-in imagegen`。
 
 ## One-Shot Output Contract
 

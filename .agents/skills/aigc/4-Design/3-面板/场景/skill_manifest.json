@@ -63,7 +63,7 @@
   "dependencies": {
     "requires": [
       "aigc.design.scene_design",
-      "nano-banana-general"
+      "imagegen"
     ]
   },
   "scope": "episode",
@@ -72,6 +72,6 @@
     "design",
     "scene",
     "panel",
-    "nano-banana"
+    "built-in-imagegen"
   ]
 }

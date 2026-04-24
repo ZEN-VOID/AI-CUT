@@ -167,6 +167,7 @@ erDiagram
 - 强制读取：`.agents/skills/aigc/2-Global/_shared/episode_root.json`
 - 强制读取：`.agents/skills/aigc/_shared/council-runtime/module-spec.md`
 - 强制读取：`.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
+- 可选校验：`.agents/skills/aigc/2-Global/scripts/validate_director_intent.py`
 
 硬规则：
 
@@ -231,7 +232,7 @@ erDiagram
 | `FIELD-GLOBAL-04` | `groups[].分镜组ID / global.剧本正文` | `5-组正文入壳` | 保留命中组原始正文与组标识 |
 | `FIELD-GLOBAL-05` | `groups[].global.全局风格` | `1-项目级风格` | 默认继承项目级风格前缀 |
 | `FIELD-GLOBAL-06` | `groups[].global.类型元素` | `3-组级类型` | 对齐当前组的类型信号 |
-| `FIELD-GLOBAL-07` | `groups[].global.导演意图` | `4-导演意图` | 对齐当前组的导演执行导向 |
+| `FIELD-GLOBAL-07` | `groups[].global.导演意图` | `4-导演意图` | 对齐当前组的导演执行导向；必须具备观看策略、执行抓手和禁用方向，禁止写成剧情摘句 |
 | `FIELD-GLOBAL-08` | `validation-report.md` | `6-验收` | 写回验收、阻塞与根因上溯 |
 
 ## Thought Pass Map
@@ -256,7 +257,7 @@ erDiagram
 | `1-项目级风格` | `project_global.全局风格`、`groups[].global.全局风格` | 不得写成具体镜头操作或工具参数 |
 | `2-项目级类型` | `project_global.全集类型元素` | 不得混入某一组的临场打法 |
 | `3-组级类型` | `groups[].global.类型元素` | 必须逐组对齐，不得跨组混写 |
-| `4-导演意图` | `groups[].global.导演意图` | 必须可被 `3-Detail` 直接消费 |
+| `4-导演意图` | `groups[].global.导演意图` | 必须可被 `3-Detail` 直接消费；不得只是剧情复述、正文截句或情绪评语 |
 | `5-组正文入壳` | `meta`、`groups[].分镜组ID`、`groups[].global.剧本正文` | 必须完整保留命中组正文 |
 | `6-验收` | `validation-report.md` | 必须记录阻塞、根因上溯与下一阶段回接 |
 
@@ -305,8 +306,9 @@ erDiagram
 4. `全局风格` 必须服务统一画面风格锚定，不得混入具体镜头操作、具体景别或工具参数。
 5. `全集类型元素` 只写项目级类型总则，不得混入当前组临场打法。
 6. `类型元素` 与 `导演意图` 都必须对齐当前 `分镜组ID`。
-7. `episode_root.json` 的 `groups[].global.*` 由当前 skill 聚合写入，但本阶段不得发明 shot-level 字段。
-8. 首次落盘后的审计与验收必须回到阶段自己的 `validation-report.md` / audit 机制；不得再把 `监制` 用作 stage-end refine 的 owner。
+7. `导演意图` 必须回答“观众如何看、现场如何拍、什么方向禁用”三件事；推荐字段形态为“观看策略：...；执行抓手：...；禁用...”，不得从 `global.剧本正文` 截一句当成导演判断。
+8. `episode_root.json` 的 `groups[].global.*` 由当前 skill 聚合写入，但本阶段不得发明 shot-level 字段。
+9. 首次落盘后的审计与验收必须回到阶段自己的 `validation-report.md` / audit 机制；不得再把 `监制` 用作 stage-end refine 的 owner。
 
 ## Acceptance Checklist (Mandatory)
 
@@ -316,9 +318,10 @@ erDiagram
 2. `meta + project_global + groups[].global` 结构完整。
 3. `groups[].global.剧本正文` 是完整组正文，不是摘要。
 4. `groups[].global.类型元素 / 导演意图` 与命中组严格对齐。
-5. `projects/aigc/<项目名>/2-Global/validation-report.md` 已写回，或明确记录阻塞。
-6. 若生成兼容 Markdown，它们都来自已确认 JSON，而不是前置真源。
-7. 下一阶段固定回接到 `projects/aigc/<项目名>/3-Detail/`。
+5. `groups[].global.导演意图` 已通过三层导向复核或 `scripts/validate_director_intent.py` 校验，不像剧本正文随手截句。
+6. `projects/aigc/<项目名>/2-Global/validation-report.md` 已写回，或明确记录阻塞。
+7. 若生成兼容 Markdown，它们都来自已确认 JSON，而不是前置真源。
+8. 下一阶段固定回接到 `projects/aigc/<项目名>/3-Detail/`。
 
 ## Root-Cause Execution Contract (Mandatory)
 

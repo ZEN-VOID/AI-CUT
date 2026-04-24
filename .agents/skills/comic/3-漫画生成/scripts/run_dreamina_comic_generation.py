@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Generate nine comic pages with Dreamina CLI from nine_blade_comic_prompts.v1 JSON."""
+"""Legacy Dreamina runner for nine_blade_comic_prompts.v1 JSON.
+
+The comic-generation skill now defaults to Codex built-in image_gen with
+model_policy=GPT-IMAGE-2-default. Use this script only when the user explicitly
+asks for the legacy Dreamina CLI fallback.
+"""
 
 from __future__ import annotations
 
@@ -304,7 +309,9 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate nine comic pages with Dreamina CLI")
+    parser = argparse.ArgumentParser(
+        description="Legacy fallback: generate nine comic pages with Dreamina CLI"
+    )
     parser.add_argument("json_path", nargs="?", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--project-name")

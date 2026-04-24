@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate prop panel layout JSONs and optionally invoke nano-banana/general."""
+"""Generate prop panel layout JSONs and optionally invoke built-in imagegen."""
 
 from __future__ import annotations
 
@@ -356,7 +356,7 @@ def _build_layout_doc(
         "output_filename": output_filename,
         "filename_prefix": filename_prefix,
         "image_generation": {
-            "target_skill_id": "nano-banana-general",
+            "target_skill_id": "imagegen",
             "smart_mode_default": "continuous-batch" if pipeline_context == "panel-stage" else "single-doc-t2i",
             "pipeline_context": pipeline_context,
             "prompt_field": "prompt",
@@ -621,8 +621,10 @@ def _build_episode(
                     "success_count": result.get("success_count", 0),
                     "failed_count": result.get("failed_count", 0),
                     "execution_mode": result.get("execution_mode"),
-                    "background_pid": result.get("background_pid"),
-                    "background_log": result.get("background_log"),
+                    "provider_skill": result.get("provider_skill"),
+                    "provider_mode": result.get("provider_mode"),
+                    "default_model": result.get("default_model"),
+                    "generated_source_path": result.get("generated_source_path"),
                     "request_batch_path": result.get("request_batch_path"),
                     "bridge_report_path": result.get("bridge_report_path"),
                 }
@@ -650,14 +652,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--layout-only", action="store_true", help="只写 layout JSON，不调用生图")
     parser.add_argument("--json-only", action="store_true", help="兼容别名：只写 layout JSON，不调用生图")
     parser.add_argument("--dry-run", action="store_true", help="只校验输入并统计，不写文件也不调用远端")
-    parser.add_argument("--generation-dry-run", action="store_true", help="写 layout 与 request sidecar，但 nano-banana 只 dry-run")
+    parser.add_argument("--generation-dry-run", action="store_true", help="写 layout 与 request sidecar，但 内置 imagegen 只 dry-run")
     parser.add_argument("--smart-mode", choices=("auto", "continuous-batch", "single-doc-t2i", "natural-language-t2i", "off"), default="auto", help="SMART 生图模式")
     parser.add_argument("--reference", action="append", default=[], help="显式追加参考图，可重复传入")
     parser.add_argument("--max-concurrent", type=int, default=100, help="自动生图最大并发")
-    parser.add_argument("--foreground", action="store_true", help="前台等待 nano-banana 完成；默认后台批量并发提交")
-    parser.add_argument("--print-payload", action="store_true", help="打印 nano-banana payload")
+    parser.add_argument("--foreground", action="store_true", help="前台等待 内置 imagegen 完成；默认内置 imagegen 请求准备")
+    parser.add_argument("--print-payload", action="store_true", help="打印 imagegen payload")
     parser.add_argument("--no-save-images", action="store_true", help="自动生图时不落 PNG")
-    parser.add_argument("--no-report", action="store_true", help="跳过 nano-banana report JSON")
+    parser.add_argument("--no-report", action="store_true", help="跳过 imagegen report JSON")
     return parser.parse_args()
 
 

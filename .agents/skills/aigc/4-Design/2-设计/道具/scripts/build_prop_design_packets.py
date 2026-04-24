@@ -910,7 +910,7 @@ def main() -> int:
         "output_dir": output_dir_repo,
         "output_files": [f"{output_dir_repo}/{args.manifest_name}", *[item["markdown_path"] for item in design_items]],
         "source_inputs": source_inputs,
-        "selected_agents": ["物语合成", "结构材质整合", "提示词架构", "设计审计", "nano-banana-general-auto-image"],
+        "selected_agents": ["物语合成", "结构材质整合", "提示词架构", "设计审计", "imagegen-auto-image"],
         "statistics": {
             "prop_count": len(packets),
             "special_narrative_prop_count": sum(
@@ -930,7 +930,7 @@ def main() -> int:
             "第一输入根固定为 `道具清单.json`；`prop_design_bridge.json` 仅兼容 fallback。",
             "未显式开启 `--write-compat-json` 时，不再默认生成 `道具设计.json`。",
             "面板层与下游若需 prompt，统一从逐道具 Markdown 的 `**prompt整合**` 区块提取。",
-            "正式 pipeline 默认继续调用 nano-banana general 生成同目录同 stem 单主体图片。",
+            "正式 pipeline 默认继续调用 built-in imagegen 生成同目录同 stem 单主体图片。",
         ],
         "design_items": design_items,
     }

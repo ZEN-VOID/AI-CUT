@@ -7,6 +7,11 @@ license: Proprietary. Internal use only.
 
 # fanqie-download
 
+## Context Loading Contract
+
+- 每次命中本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 每次命中本技能时，必须同时加载本文件与同目录 `CONTEXT.md`。
+
 ## 角色与目标
 
 本技能是一个面向番茄内容抓取的确定性工具链。目标不是只“跑通一次”，而是围绕同一套字段化产物稳定完成以下动作：

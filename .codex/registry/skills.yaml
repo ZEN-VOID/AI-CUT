@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-23
+last_updated: 2026-04-24
 
 active_skills:
   - id: aigc
@@ -314,6 +314,17 @@ active_skills:
       script_entry: ".agents/skills/api/anyfast/image/seedream/scripts/seedream_generate.py"
       default_output_root: "output/影片/[项目名]/5-API/image/seedream/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取父级路由合同、子技能 references、根 `.env` 与默认项目化输出目录。"
+  - id: api-ai666-gpt-image-2
+    path: .agents/skills/api/ai666/image/gpt-image-2
+    owner_office: shangshu
+    purpose: "repo-local provider skill，通过 AI666 OpenAI 兼容 `/v1/images/generations` 调用 `gpt-image-2`，支持文生图、垫图、`url/base64` 返回与项目化落盘。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/ai666/image/gpt-image-2/"
+      env_source: ".env: AI666_BASE_URL / AI666_API_BASE_URL / AI666_API_KEY / AI666_AUTHORIZATION / AI666_DEFAULT_MODEL"
+      script_entry: ".agents/skills/api/ai666/image/gpt-image-2/scripts/gpt_image_2_generate.py"
+      default_output_root: "output/影片/[项目名]/5-API/image/ai666/gpt-image-2/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: api-man-tui-grok-video
     path: .agents/skills/api/man-tui/video/grok
     owner_office: shangshu

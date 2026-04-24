@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Compile nine_blade_comic_prompts.v1 JSON and run Seedream once for 9 comic pages."""
+"""Legacy Seedream runner for nine_blade_comic_prompts.v1 JSON.
+
+The comic-generation skill now defaults to Codex built-in image_gen with
+model_policy=GPT-IMAGE-2-default. Use this script only when the user explicitly
+asks for the legacy Seedream/API fallback.
+"""
 
 from __future__ import annotations
 
@@ -761,15 +766,17 @@ def _infer_project_root(json_path: Path, project_name: str | None) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run Seedream once for 9 comic pages from JSON")
+    parser = argparse.ArgumentParser(
+        description="Legacy fallback: run Seedream once for 9 comic pages from JSON"
+    )
     parser.add_argument("json_path", nargs="?", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--project-name", help="Comic project name used when JSON is outside projects/comic/<name>/")
     parser.add_argument("--filename-prefix")
     parser.add_argument("--size", default="2K")
     parser.add_argument("--timeout", type=int, default=600)
-    parser.add_argument("--dry-run", action="store_true", help="Write plan only; do not call Seedream")
-    parser.add_argument("--execute", action="store_true", help="Actually call Seedream")
+    parser.add_argument("--dry-run", action="store_true", help="Write legacy Seedream plan only")
+    parser.add_argument("--execute", action="store_true", help="Actually call legacy Seedream fallback")
     parser.add_argument("--self-test", action="store_true", help="Run an in-memory compiler self-test")
     parser.add_argument("--no-watermark", action="store_true", default=True)
     args = parser.parse_args()
