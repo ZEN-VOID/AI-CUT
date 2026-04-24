@@ -46,9 +46,9 @@
 - `group_level_recut`
   - 升级点已经超出单叶子，需回到父级技能重切结构。
 
-## 4. Code Reviewer 触发器
+## 4. Review Gate 触发器
 
-满足任一项时，建议或必须启用 `code-reviewer` 口径：
+满足任一项时，必须进入 `review/review-contract.md` 的 review gate，并默认采用 `code-reviewer` 口径；若上层策略、工具权限或用户授权阻断真实 reviewer/subagent dispatch，则降级为 `degraded-local-review` 并报告阻断来源。
 
 - 修改了 `scripts/`、validator、template 或 shared carrier
 - 修改了 registry/routes

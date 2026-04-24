@@ -27,7 +27,7 @@
 | 项目进入规划前没有故事主源登记 | 共享输入真源层 | 固定生成 `story-source-manifest.yaml`，区分 `primary_story_source` 与 `development_briefs` | 将故事源落点与缺失提示上收到 `_shared/story-source-contract.md` | 初始化完成后，能立刻判断 `1-分集` 是否具备增量进入条件与整季完成条件 |
 | 续跑与状态查询无法稳定重建断点 | 项目治理快照层 | 在需要时生成 `governance-state.yaml` | 用 shared template 固定 `last_stable_checkpoint + resume_contract + artifact_status` | `query / resume` 与根 `aigc` 的高风险治理 gate 能从同一份结构化快照读取断点与缺口 |
 | 创作起盘被整套治理工件压得过重 | 初始化分层合同 | 把首次必出收敛到 `north_star / init_handoff / story-source-manifest / team / project_state` | 将 `governance-state + harness carriers` 改为惰性生成 | 首次初始化不再被非必要治理载体阻塞 |
-| 路由、模式执行、充分性检查散落在外部规则真源 | 源层编排层 | 将这些能力完全吸收到父 `SKILL.md` 的内部能力合同与节点网络 | 审计脚本反向约束 `0-Init` 不得再引用 `.codex/agents/aigc/初始组/*.md` | `0-Init` 能仅凭自身 `SKILL.md` 解释完整执行链 |
+| 路由、模式执行、充分性检查散落在旧外部 agent 或未声明分区 | 源层编排层 | 将入口门禁保留在父 `SKILL.md`，并把细则归入 `references/steps/review/types` 的显式 owner | 审计脚本反向约束 `0-Init` 不得再引用 `.codex/agents/aigc/初始组/*.md`，且分区不得改写父入口路由 | `0-Init` 能通过 `SKILL.md` 的 Reference Loading Guide 找到完整执行链 |
 | `north_star` 混入下一阶段建议或 `rebootstrap` 状态 | 字段真源分层层 | 把 live route truth 收回 `STATE.json / governance-state.yaml`，把初始化当轮 handoff 收回 `init_handoff.yaml` | 在模板与审计脚本同时禁止 `north_star` 出现 `stage_entry_contract / rebootstrap_status` | `north_star` 只剩长期约束，续跑状态只从 `project_state/governance-state` 读取 |
 | 初始化预建目录看起来与当前技能树“不匹配” | 真源口径混层 | 明确区分“技能树执行层”与“项目 runtime 落盘层”两套命名 | 在 `_shared/project-runtime-layout.md` 建立 `Skill Tree To Runtime Mapping`，并在 `0-Init/SKILL.md` 同步注明 `5-Image / 6-Video` 的映射 | 读者不会再把 `1-提示词蒸馏/全能参照` 误读成必须预建 `projects/aigc/<项目名>/6-Video/1-提示词蒸馏/全能参照/` |
 | 把“自动组队（推荐）”当成已锁定编组 | mode gate contract | 回到 `Initialization Mode Contract`，补发初始化元选项卡并等待用户确认 | 在 `SKILL.md` 明确“推荐项 != mode_lock_note”，并用审计脚本拦截歧义表述 | 仅有项目名或极简 brief 时，不再越权进入自动组队 |
@@ -39,11 +39,11 @@
 | planning 固定题包直答没有先于北极星综合执行 | direct-answer topology 层 | 回到 `N4-mode-engine`，先锁 `team.yaml` 再运行 `roles.planning.members` 的 subagents 固定题包直答 | 在 `Topology Contract` 与 `Execution Procedure` 固定 `team -> planning 固定题包直答 -> synthesis` 顺序 | `north_star / init_handoff` 可回溯到 planning 固定题包直答 provenance |
 | planning 固定题包直答被降级成本地顺序扮演 | subagent gate 层 | 阻塞当前初始化并报告 subagents 不可用 | 在 `SKILL.md` 与 `team.template.yaml` 同时固定 `require_subagents_for_init_execution == true` | `0-Init` 不再把本地模拟表述成正常主路径 |
 | 上层模式合同已切到新口径，但 Thought Pass / Pass Table 仍是旧节点语义 | thought-action sync 层 | 把 `Thinking-Action Node Contract`、`Topology Contract`、`Thought Pass Map`、`Pass Table` 一起同步改写 | 每次模式/编组/subagent 语义变更，都强制补齐 `decision_lock / dispatch_contract / blocker_rule / reentry_rule` | 不再出现“主合同是新口径，节点检查还停在旧口径” |
-| 缺故事源时先生成了剧情级预设，后补故事源也不回刷 | source completeness / reconciliation 层 | 将缺故事源初始化降级为 `source-light bootstrap`，并在故事源后补时强制回刷 `north_star / init_handoff / project_state` | 在 `SKILL.md` 固化 `Story Source Completeness Gate + Story Source Reconciliation Contract`，审计脚本同步检查 | 不再出现“题眼推断版剧情”覆盖真实故事源的情况 |
+| 缺故事源时先生成了剧情级预设，后补故事源也不回刷 | source completeness / reconciliation 层 | 将缺故事源初始化降级为 `source-light bootstrap`，并在故事源后补时强制回刷 `north_star / init_handoff / project_state` | 在 `references/artifacts-and-sources.md` 固化 `Story Source Completeness Gate + Story Source Reconciliation Contract`，并由 `review/init-review-gate.md` 消费 | 不再出现“题眼推断版剧情”覆盖真实故事源的情况 |
 | 用户要求“回到初始化态重来”，却被误判成 `resume` 或局部补档 | 入口判型层 | 在 `N0-intake` 先锁 `rebootstrap_requested`，把主动回炉重起直接路由到 `0-Init` | 在根 `aigc`、`0-Init` 与 `resume` 三层同时固化“续跑 vs 重置式重新初始化”分工 | 明确要求回炉时，不再继续沿旧方向续跑 |
 | 重置初始化时直接清空了 `Story/` 或原始素材 | reset preservation 层 | 默认改为 `archive_reset`，只归档派生产物与旧治理工件 | 在 `Rebootstrap Contract` 固定“故事主源、原始素材默认保留” | 回炉后仍能读取原始故事源与不可再生素材 |
 | 预建阶段骨架被治理脚本误判成“已进入执行” | 轻量治理快照层 | 在治理回填脚本中只把真实文件产物视为阶段输出，不把空目录当执行证据 | 将“骨架目录 != 阶段产物”同步写入经验层，并在治理回填逻辑中固定 `is_file()` 判定 | `governance-state` 预演时，刚初始化的项目不会被误判到执行期 |
-| `0-Init` 目录仍保留旧 mode reference stub，阅读路径与真源边界变得含混 | 技能目录结构层 | 删除 `references/*-mode/module-spec.md`，把目录合同写回 `SKILL.md` 并补建 `CHANGELOG.md` | 对单技能初始化层固定 `SKILL.md + CONTEXT.md + CHANGELOG.md + agents/openai.yaml + templates/` 结构，禁止重建平行 mode 目录真源 | `find .agents/skills/aigc/0-Init -maxdepth 3` 不再出现 `references/`，且目录边界可直接从根文件读清 |
+| Skill 2.0 升级后又把旧 mode stub 当成平行真源 | 技能目录结构层 | 只允许 `references/` 下的 owner 文件承载细则，不恢复 `references/*-mode/module-spec.md` 旧模式 stub | `SKILL.md` 固定动态引用表，`references/migration-matrix.md` 记录旧段落去向，review gate 检查分区不越权 | `find .agents/skills/aigc/0-Init -maxdepth 3` 可看到标准 Skill 2.0 分区，但没有旧三模式 stub |
 | `2-Global` canonical 输出改为根层四文件后，初始化仍预建旧目录化输出骨架 | runtime skeleton 合同层 | 将 `2-Global/全局风格 + 类型元素 + 设计元素` 子目录从 bootstrap skeleton 移除，只预建 `2-Global/` 阶段根 | 让 `0-Init/SKILL.md`、`_shared/project-runtime-layout.md` 与 `aigc_skill_audit.py` 同步约束同一 runtime 真源：四个 Markdown 由 `2-Global` 阶段执行后落盘 | 新初始化项目不会再被空目录推回旧输出结构 |
 | 初始化没有同步预建项目级 `Assets/` 资产库，导致参考图和画板素材只能临时散落在各阶段目录 | project runtime asset layer | 将 `Assets/角色 / 道具 / 场景 / 服装 / 分镜画板/*` 加入默认 bootstrap skeleton | 在 shared runtime layout、`0-Init/SKILL.md` 与审计脚本固定“Assets 是辅助资产库，不是阶段真源” | 新项目初始化后立即具备统一资产沉淀目录，且不与 `5-Image` 业务输出混淆 |
 | `4-Design` source leaf 缩到 active 三类后，初始化仍预建 `4-Design/服装/*` | runtime skeleton / active leaf drift | 将初始化预建目录收敛为 `场景 / 角色 / 道具` 三类 active leaf，保留 `Assets/服装/` 作为资产库 | 以 `_shared/project-runtime-layout.md` 为单一 runtime 真源，并让 `0-Init/SKILL.md` 与 `aigc_skill_audit.py` 同步检查同一份 active skeleton | 新项目不再把 pending `服装` sibling 误判为已具备 4-Design active runtime |
@@ -57,7 +57,7 @@
 2. 优先回到 `0-Init/SKILL.md` 的 `Initialization Mode Contract`、`Internal Capability Fusion Contract`、`Topology Contract`、`North Star Contract` 与 `Sufficiency Gate`。
 3. 若是字段边界问题，先修模板真源。
 4. 若是路径问题，先回查根 `aigc/SKILL.md` 与本阶段 `Canonical Landing`。
-5. 若是能力外置或执行链断裂，先修父 `SKILL.md` 的节点网络，再修局部文字。
+5. 若是能力外置或执行链断裂，先修父 `SKILL.md` 的入口路由与 `steps/init-workflow.md` 的节点网络，再修局部文字。
 6. 只有源层合同稳定后，才修本次具体输出。
 7. 若问题发生在 `N1-mode-gate`，先区分“推荐”“默认展示项”“已锁定模式”三层状态；只有最后一层允许进入 `N2` 之后的节点。
 8. 若问题发生在故事源后补场景，先区分“概念级约束”和“剧情级 seed”；凡属剧情级 seed，先回刷再允许下游继续。
@@ -78,13 +78,13 @@
 - 项目离开 `0-Init` 之后，`init_handoff` 仍可保留初始化时的 handoff seed，但 live current-stage truth 只能看 `project_state` 与 `governance-state`。
 - 对创作起盘来说，最小闭环应先保证 `north_star / init_handoff / story-source-manifest / team / project_state`；其余治理载体只有在复杂执行或卫星技能真正需要时再补。
 - 对 `知行合一` 编排的 `0-Init`，最稳的写法不是再造第二份思考文档，而是把路由、三种模式和充分性审计直接写进同一份父 `SKILL.md`。
-- 对单技能父层初始化目录，若旧 `references/*-mode` 已无仓内回链价值，应直接删掉 stub，而不是继续让它们冒充“还在生效的模式子层”。
+- Skill 2.0 化以后，`references/` 是细则 owner，但不得恢复旧 `references/*-mode/module-spec.md` 三模式 stub；新分区必须由 `SKILL.md` 的 Reference Loading Guide 明确引用。
 - 阶段质评若要做动态检查，优先直接回读当前样本项目、模板边界与 audit/validator 结果，不必为了评估再维护一份固定评测任务 YAML。
 - 对项目初始化骨架，阶段根和阶段产物要分开；`2-Global` 这类根层文件输出只预建阶段根，四个 Markdown 等阶段执行时生成，避免空子目录反向制造旧 canonical 结构。
 - 对跨阶段都会复用的图像/素材沉淀，单独放进项目根 `Assets/` 比散落在各阶段目录更稳；但必须明确它只是资产库，不是业务真源。
 - `Assets/分镜画板/分镜帧|分镜故事板|漫画` 可以和 `5-Image/*` 同名，但语义必须拆开：前者存参考资产，后者存阶段输出。
 - `5-Image` 初始化骨架要跟随当前 active 链路：请求对象目录、`2-参照引用/` 与 `3-图像生成/` 都是稳定 runtime 根；只有 provider/mode/source/episode 的下钻目录等执行时再创建。
-- `6-Video` 初始化骨架也要跟随当前 active 链路：`全能参照/`、`首帧参照/`、`2-参照引用/` 与 `生成任务/` 都是稳定 runtime 根；其中 `生成任务/` 是 `3-视频生成` 的业务语义落盘名。
+- `6-Video` 初始化骨架也要跟随当前 active 链路：`A.分镜画面参照/`、`B.分镜故事板参照/`、`C.主体参照/`、`全能参照/`、`首帧参照/`、`2-参照引用/` 与 `生成任务/` 都是稳定 runtime 根；其中 `生成任务/` 是 `3-视频生成` 的业务语义落盘名。
 - 对 `4-Design` 这类“技能树 tranche 父层 != runtime 落盘层”的阶段，初始化应继续预建 domain-first 业务目录，而不是把 `1-清单/2-设计/3-面板` 直接投影成项目目录；但 domain-first 只覆盖当前 active leaf，pending sibling 只能保留在说明中，不应预建成 runtime。
 - 当技能树有中间 tranche，但项目 runtime 只接受业务语义落盘名时，必须优先相信 `_shared/project-runtime-layout.md`，并在阶段合同里把两套命名的映射写明；否则读者会把“技能目录现状”误当成“项目预建目录”。
 - 在 `0-Init` 里，`智能顾问模式` 是固定主模式，真正需要用户拍板的是 `自动组队 / 自定义组队`；只要用户没拍板且不存在强制路由信号，就必须停在 `N1-mode-gate`。

@@ -56,8 +56,13 @@ ip_boundary:
 
 decision_policy:
   decision_owner: ""
-  init_mode: ""
-  mode_source: ""
   research_policy: ""
+  authority_order:
+    - "story_source_user_truth"
+    - "user_confirmed"
+    - "review_gate"
+    - "planning_direct_answer_consensus"
+    - "main_agent_inferred"
+  change_control: ""
 
 long_term_open_questions: []

@@ -2,39 +2,46 @@
 
 ## Purpose & Loading Contract
 
-- 本文件是 `aigc/1-Planning` 的经验层知识库，不是过程日志。
+- 本文件是 `aigc/1-Planning` 单包融合后的经验层知识库，不是过程日志。
 - 调用 `.agents/skills/aigc/1-Planning/SKILL.md` 时，应自动预加载本文件。
-- 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。
+- 原 `1-分集 / 2-格式 / 3-分组` 的局部经验已迁入 `knowledge-base/episode-splitter-heuristics.md`、`knowledge-base/script-format-heuristics.md`、`knowledge-base/grouping-heuristics.md`。
+- 优先级遵循：用户显式请求 > `AGENTS.md` / 元规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 分区规范 > 项目记忆/项目上下文 > 本 `CONTEXT.md`。
 
 ## Context Health
 
-- soft_limit_chars: 20000
-- hard_limit_chars: 40000
+- soft_limit_chars: 24000
+- hard_limit_chars: 48000
 - status: ok
-- last_checked_at: 2026-04-12
+- last_checked_at: 2026-04-24
 
 ## Type Map
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 父 skill 仍引用已删除的 planning agent 文档 | 路由锚点层 | 收回到父 skill 或对应 stage skill | 在 audit 固化 `1-Planning` 的内化合同检查 | 旧规划组文档不再出现在运行链 |
-| `1-分集 / 2-格式 / 3-分组` 真源边界混写 | 输出治理层 | 回到 `_shared/IO_CONTRACT.md` 重新锁定边界 | 在父 skill 固化 `Story -> 1-分集 -> 2-格式 -> 3-分组` 单线结构 | 三层真源不再互相覆盖 |
-| `0-Init` 允许“执行案 + 正文”做开发式分集，但 `1-Planning` 仍把执行案视为绝对非法输入 | 父子合同错层 | 在 `_shared/IO_CONTRACT.md` 和父 `SKILL.md` 明确“development_briefs 仅在 manifest 显式登记且 `incremental` 时作为辅证输入” | 把“辅证可用但不升格为正文真源”固化进 shared I/O 和父 skill | `0-Init` 与 `1-Planning` 对开发式分集的说法一致 |
-| `2-格式` 又退回“外部判模 + 内部写回”的半断链形态 | 子阶段治理层 | 把判模与变体能力继续收回 `2-格式/SKILL.md` | 在 `2-格式` 与 audit 中固化 `Internal Capability Fusion Contract` | `2-格式` 自足执行 |
-| `3-分组` 又退回“外部 specialist/reviewer + 本地量化”的双真源形态 | stage-local 治理层 | 收回 reviewer/specialist 到 `3-分组/SKILL.md` | 在 `3-分组` 与 audit 中固化内化执行面 | `3-分组` 自足执行 |
-| 节奏复核在默认场景被滥开 | 阶段路由层 | 只在明确条件下开启 reviewer gate | 在 `1-Planning` 与 `3-分组` 同步 reviewer 进入条件 | reviewer gate 不再膨胀默认工作量 |
+| 旧 `1-分集 / 2-格式 / 3-分组` 子包入口复活 | 技能包结构层 | 删除或迁移旧子包 `SKILL.md`，改回父包 mode + reference | 在 `SKILL.md`、audit 与迁移矩阵中固定“单包三模式” | `find .agents/skills/aigc/1-Planning -name SKILL.md` 只返回父包 |
+| 原三包细则迁移后找不到去向 | legacy upgrade 层 | 回到 `references/legacy-migration-matrix.md` 补 target owner | 每次融合/重命名先写迁移矩阵，再删除旧入口 | 每个旧文件/section 均可追到 `references/`、`knowledge-base/`、`scripts/` 或 `templates/` |
+| 父 `SKILL.md` 又堆回三份长细则 | 动态引用层 | 抽回对应 `references/*-contract.md` | 根入口只保留 mode selection、引用表、门禁与输出合同 | validator 能看到 `Reference Loading Guide` 且 `SKILL.md` 可扫描 |
+| `1-分集 / 2-格式 / 3-分组` 真源边界混写 | 输出治理层 | 回到 `references/planning-io-contract.md` 重锁 runtime 输出边界 | 固化“技能包单一，项目 runtime 子路径保留” | 三类项目产物不互相覆盖 |
+| `2-格式` 又退回外部判模/标准剧/解说剧 agent | 模式内真源层 | 使用 `script_format` mode 与 `references/script-format-contract.md` | 入口元数据只推荐 `$aigc-planning`，旧别名只保留为历史说明 | 旧子技能别名不再出现在路由脚本 |
+| `3-分组` 又退回外部 specialist/reviewer 双真源 | 模式内真源层 | 使用 `grouping` mode 与 `references/grouping-contract.md` | reviewer 只作为内部 gate 或本地 review 合同，不占写回权 | grouped script 只由本包和脚本链校验 |
+| 脚本路径仍指向旧子包目录 | 引用同步层 | 更新到 `scripts/`、`templates/`、`references/` 父级路径 | 重命名时全仓 `rg` 旧路径并同步 | `rg` 不再命中旧 `.agents/skills/aigc/1-Planning/<子包>/...` 文件路径 |
+| 迁移时把项目 runtime 子目录误删 | runtime/skill tree 混淆层 | 恢复 `projects/aigc/<项目名>/1-Planning/1-分集/2-格式/3-分组` 业务落盘边界 | 在父 skill 明确“技能包融合不等于 runtime 融合” | `project-runtime-layout.md` 与 planning I/O 说法一致 |
 
 ## Repair Playbook
 
-1. 先检查 `1-Planning/SKILL.md` 是否仍清楚声明 `Story -> 1-分集 -> 2-格式 -> 3-分组`。
-2. 再检查 `_shared/IO_CONTRACT.md` 是否仍把三层真源分开。
-3. 再看 `2-格式` 与 `3-分组` 是否仍可在不依赖外部 planning docs 的情况下自足执行。
-4. 最后才看具体产物是否需要返工。
+1. 先确认问题发生在技能树结构、项目 runtime 输出，还是脚本/模板引用层。
+2. 若是技能树结构问题，先检查 `.agents/skills/aigc/1-Planning` 是否只有父级 `SKILL.md + CONTEXT.md`。
+3. 若是细则缺失，回到 `references/legacy-migration-matrix.md`，确认旧三包内容是否已迁入目标 owner。
+4. 若是输出边界问题，先读取 `references/planning-io-contract.md`，不要直接修改项目产物。
+5. 若是 `2-格式` 或 `3-分组` validator 失败，优先检查父级 `scripts/` 路径和模板路径是否已从旧子包迁出。
+6. 若是审计失败，先运行 `python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/aigc/1-Planning` 再跑仓库审计。
+7. 每次新增稳定经验，优先写入最窄有效范围：父包共性经验写本文件；分集/格式/分组局部经验写 `knowledge-base/` 对应文件。
 
 ## Reusable Heuristics
 
-- 对规划阶段来说，最容易坏的不是 leaf 本身，而是父 skill 和子阶段 skill 之间的真源边界。
-- 如果某个阶段的高分叉能力已经稳定地可以写回单一 `SKILL.md`，就不要再保留外部 agent/team 文档充当第二真源。
-- `1-Planning` 最稳的总线始终是：父 skill 负责路由与验收，子阶段 skill 负责 stage-local 执行与写回。
-- 节奏在当前规划阶段应优先作为 reviewer gate 存在，而不是默认独立执行面。
-- 当 `story-source-manifest.yaml` 已经把执行案登记为 `development_briefs`，且 readiness 明示“可开发式/增量分集”时，规划阶段可以引用 brief 辅助切分；但必须同时在机读索引和执行报告里保留“正文真源仍不完整”的提示。
+- 这次融合的核心不是取消 `1-分集 / 2-格式 / 3-分组` 的业务概念，而是取消它们作为三个可独立唤起的技能包。
+- 最稳结构是“一个 `SKILL.md` 做 mode router，三份旧细则做 `references/` 真源，三份旧经验做 `knowledge-base/` 经验层”。
+- 项目 runtime 子目录继续保留，因为它们是业务产物边界，不是技能包入口边界。
+- 对内容创作链路，脚本越强，越要把它限制在 validator、quantizer、renderer、postprocess；正文、边界、变体和组界判断仍由 LLM 直接完成。
+- `agents/openai.yaml` 只应宣传 `$aigc-planning` 一个入口；旧分集、格式、分组入口别名只作为迁移历史说明，不再出现在默认提示中。
+- 融合后最容易遗漏的是跨技能引用：comic、backfill、audit、CHANGELOG 和旧报告里可能还会指向旧 skill path；修改时要区分“技能包路径”与“项目产物路径”。

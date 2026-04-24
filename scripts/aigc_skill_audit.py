@@ -16,15 +16,29 @@ ROOT_SKILL = ROOT / "SKILL.md"
 ROOT_CONTEXT = ROOT / "CONTEXT.md"
 REGISTRY = Path(".codex/registry/skills.yaml")
 ROUTES = Path(".codex/registry/routes.yaml")
-DESIGN_2_ROOT = ROOT / "4-Design" / "2-设计"
-DESIGN_2_CANONICAL_TEMPLATES = {
-    DESIGN_2_ROOT / "角色" / "templates" / "character_masterprompt.structured.v2.md",
-    DESIGN_2_ROOT / "道具" / "templates" / "prop_masterprompt.structured.v2.md",
-    DESIGN_2_ROOT / "场景" / "templates" / "scene_masterprompt.structured.v2.md",
+DESIGN_ROOT = ROOT / "4-Design"
+DESIGN_DOMAIN_ROOTS = {
+    "场景": DESIGN_ROOT / "场景",
+    "角色": DESIGN_ROOT / "角色",
+    "道具": DESIGN_ROOT / "道具",
 }
-DESIGN_SLOT_REVIEW_CONTRACT = DESIGN_2_ROOT / "_shared" / "design-slot-review-contract.md"
-DESIGN_SLOT_RESOLVER = DESIGN_2_ROOT / "_shared" / "scripts" / "resolve_design_slot_bundles.py"
-DESIGN_SUBAGENT_SUPERVISION_CONTRACT = DESIGN_2_ROOT / "_shared" / "subagent-supervision-contract.md"
+DESIGN_CANONICAL_TEMPLATES = {
+    "场景": DESIGN_DOMAIN_ROOTS["场景"] / "templates" / "scene_masterprompt.structured.v2.md",
+    "角色": DESIGN_DOMAIN_ROOTS["角色"] / "templates" / "character_masterprompt.structured.v2.md",
+    "道具": DESIGN_DOMAIN_ROOTS["道具"] / "templates" / "prop_masterprompt.structured.v2.md",
+}
+DESIGN_SLOT_REVIEW_CONTRACTS = {
+    domain: domain_root / "references" / "design-slot-review-contract.md"
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+}
+DESIGN_SLOT_RESOLVERS = {
+    domain: domain_root / "scripts" / "resolve_design_slot_bundles.py"
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+}
+DESIGN_SUBAGENT_SUPERVISION_CONTRACTS = {
+    domain: domain_root / "references" / "subagent-supervision-contract.md"
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+}
 REVIEW_ROOT = ROOT / "review"
 REVIEW_RUNNER = Path("scripts/aigc_review_runner.py")
 REVIEW_AGGREGATE_TEMPLATE = REVIEW_ROOT / "_shared" / "review-aggregate.template.json"
@@ -155,21 +169,19 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/2-Global/",
         "projects/aigc/<项目名>/3-Detail/",
         "projects/aigc/<项目名>/4-Design/",
-        "projects/aigc/<项目名>/4-Design/场景/1-清单/",
-        "projects/aigc/<项目名>/4-Design/场景/2-设计/",
-        "projects/aigc/<项目名>/4-Design/场景/3-面板/",
-        "projects/aigc/<项目名>/4-Design/角色/1-清单/",
-        "projects/aigc/<项目名>/4-Design/角色/2-设计/",
-        "projects/aigc/<项目名>/4-Design/角色/3-面板/",
-        "projects/aigc/<项目名>/4-Design/道具/1-清单/",
-        "projects/aigc/<项目名>/4-Design/道具/2-设计/",
-        "projects/aigc/<项目名>/4-Design/道具/3-面板/",
+        "projects/aigc/<项目名>/4-Design/场景清单.md",
+        "projects/aigc/<项目名>/4-Design/角色清单.md",
+        "projects/aigc/<项目名>/4-Design/道具清单.md",
+        "projects/aigc/<项目名>/4-Design/[主体名].md",
+        "projects/aigc/<项目名>/4-Design/[主体名].json",
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/5-Image/分镜故事板/",
         "projects/aigc/<项目名>/5-Image/分镜帧/",
         "projects/aigc/<项目名>/5-Image/2-参照引用/",
         "projects/aigc/<项目名>/5-Image/3-图像生成/",
         "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
+        "projects/aigc/<项目名>/6-Video/C.主体参照/",
         "projects/aigc/<项目名>/6-Video/全能参照/",
         "projects/aigc/<项目名>/6-Video/首帧参照/",
         "projects/aigc/<项目名>/6-Video/生成任务/",
@@ -202,6 +214,8 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ),
     ROOT / "6-Video" / "SKILL.md": (
         "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
+        "projects/aigc/<项目名>/6-Video/C.主体参照/",
         "projects/aigc/<项目名>/6-Video/全能参照/",
         "projects/aigc/<项目名>/6-Video/首帧参照/",
         "projects/aigc/<项目名>/6-Video/生成任务/",
@@ -252,6 +266,8 @@ BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
 }
 BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
     ROOT / "5-Image": (
+        ROOT / "5-Image" / "A.分镜画面" / "SKILL.md",
+        ROOT / "5-Image" / "B.分镜故事板" / "SKILL.md",
         ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md",
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜故事板" / "SKILL.md",
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md",
@@ -259,6 +275,9 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
     ),
     ROOT / "6-Video": (
+        ROOT / "6-Video" / "A.分镜画面参照" / "SKILL.md",
+        ROOT / "6-Video" / "B.分镜故事板参照" / "SKILL.md",
+        ROOT / "6-Video" / "C.主体参照" / "SKILL.md",
         ROOT / "6-Video" / "1-提示词蒸馏" / "全能参照" / "SKILL.md",
         ROOT / "6-Video" / "1-提示词蒸馏" / "首帧参照" / "SKILL.md",
         ROOT / "6-Video" / "2-参照引用" / "SKILL.md",
@@ -276,26 +295,18 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
 CREATIVE_AUTHORSHIP_GUARDS = {
-    ROOT / "4-Design" / "2-设计" / "场景" / "SKILL.md": (
-        ROOT / "4-Design" / "2-设计" / "场景" / "scripts" / "build_scene_design_packets.py",
+    ROOT / "4-Design" / "场景" / "SKILL.md": (
+        ROOT / "4-Design" / "场景" / "scripts" / "build_scene_design_context.py",
+        ROOT / "4-Design" / "场景" / "scripts" / "build_scene_design_packets.py",
+        ROOT / "4-Design" / "场景" / "scripts" / "generate_scene_panels.py",
     ),
-    ROOT / "4-Design" / "2-设计" / "角色" / "SKILL.md": (
-        ROOT / "4-Design" / "2-设计" / "角色" / "scripts" / "build_character_design_packets.py",
+    ROOT / "4-Design" / "角色" / "SKILL.md": (
+        ROOT / "4-Design" / "角色" / "scripts" / "build_role_research.py",
+        ROOT / "4-Design" / "角色" / "scripts" / "build_character_design_packets.py",
     ),
-    ROOT / "4-Design" / "2-设计" / "道具" / "SKILL.md": (
-        ROOT / "4-Design" / "2-设计" / "道具" / "scripts" / "build_prop_design_packets.py",
-    ),
-    ROOT / "4-Design" / "1-清单" / "角色" / "SKILL.md": (
-        ROOT / "4-Design" / "1-清单" / "角色" / "scripts" / "build_role_research.py",
-    ),
-    ROOT / "4-Design" / "1-清单" / "场景" / "SKILL.md": (
-        ROOT / "4-Design" / "1-清单" / "场景" / "scripts" / "build_scene_design_context.py",
-    ),
-    ROOT / "4-Design" / "1-清单" / "道具" / "SKILL.md": (
-        ROOT / "4-Design" / "1-清单" / "道具" / "scripts" / "build_prop_research.py",
-    ),
-    ROOT / "4-Design" / "3-面板" / "场景" / "SKILL.md": (
-        ROOT / "4-Design" / "3-面板" / "场景" / "scripts" / "generate_scene_panels.py",
+    ROOT / "4-Design" / "道具" / "SKILL.md": (
+        ROOT / "4-Design" / "道具" / "scripts" / "build_prop_research.py",
+        ROOT / "4-Design" / "道具" / "scripts" / "build_prop_design_packets.py",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
@@ -309,13 +320,21 @@ CREATIVE_AUTHORSHIP_GUARDS = {
 }
 BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
     ROOT / "_shared" / "project-runtime-layout.md": (
+        ".agents/skills/aigc/6-Video/B.分镜故事板参照",
+        ".agents/skills/aigc/6-Video/C.主体参照",
         ".agents/skills/aigc/6-Video/2-参照引用",
         ".agents/skills/aigc/6-Video/3-视频生成",
+        "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
+        "projects/aigc/<项目名>/6-Video/C.主体参照/",
         "projects/aigc/<项目名>/6-Video/2-参照引用/",
         "projects/aigc/<项目名>/6-Video/生成任务/",
     ),
     ROOT / "0-Init" / "SKILL.md": (
+        "B.分镜故事板参照",
+        "C.主体参照",
         "1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成",
+        "6-Video/B.分镜故事板参照/",
+        "6-Video/C.主体参照/",
         "6-Video/2-参照引用/",
         "6-Video/生成任务/",
     ),
@@ -711,32 +730,44 @@ def audit_stage_review_carriers(failures: list[str]) -> None:
 
 
 def audit_design_2_template_registry(failures: list[str]) -> None:
-    """Ensure 4-Design/2-设计 has exactly one Markdown template truth per domain."""
-    if not DESIGN_2_ROOT.exists():
+    """Ensure 4-Design domain packages keep one Markdown template truth per domain."""
+    if not DESIGN_ROOT.exists():
         return
 
-    for stale_template in sorted(DESIGN_2_ROOT.rglob(AMBIGUOUS_OUTPUT_TEMPLATE_NAME)):
-        failures.append(f"{stale_template}: remove ambiguous legacy output template reference; use canonical templates instead")
+    for template_path in sorted(DESIGN_ROOT.rglob(AMBIGUOUS_OUTPUT_TEMPLATE_NAME)):
+        if template_path.parent.name == "templates":
+            continue
+        if "legacy" in template_path.parts:
+            continue
+        failures.append(
+            f"{template_path}: remove ambiguous legacy output template reference; use canonical templates instead"
+        )
 
-    shared_contract = DESIGN_2_ROOT / "_shared" / "design-output-contract.md"
-    if not shared_contract.exists():
-        failures.append(f"{shared_contract}: missing shared output contract")
-        return
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items():
+        if not domain_root.exists():
+            failures.append(f"{domain_root}: missing 4-Design domain package")
+            continue
 
-    shared_content = shared_contract.read_text(encoding="utf-8")
-    if "## Markdown Template Registry" not in shared_content:
-        failures.append(f"{shared_contract}: missing `Markdown Template Registry`")
+        contract = domain_root / "references" / "design-output-contract.md"
+        if not contract.exists():
+            failures.append(f"{contract}: missing domain design output contract")
+            continue
 
-    for template_path in sorted(DESIGN_2_CANONICAL_TEMPLATES):
+        contract_content = contract.read_text(encoding="utf-8")
+        if "## Markdown Template Registry" not in contract_content:
+            failures.append(f"{contract}: missing `Markdown Template Registry`")
+
+        template_path = DESIGN_CANONICAL_TEMPLATES[domain]
         if not template_path.exists():
             failures.append(f"{template_path}: missing canonical design Markdown template")
             continue
-        if template_path.as_posix() not in shared_content:
-            failures.append(f"{shared_contract}: missing canonical template `{template_path.as_posix()}`")
+        if template_path.as_posix() not in contract_content:
+            failures.append(f"{contract}: missing canonical template `{template_path.as_posix()}`")
 
     renderer_expectations = {
-        DESIGN_2_ROOT / "场景" / "scripts" / "build_scene_design_packets.py": "scene_masterprompt.structured.v2.md",
-        DESIGN_2_ROOT / "道具" / "scripts" / "build_prop_design_packets.py": "prop_masterprompt.structured.v2.md",
+        DESIGN_DOMAIN_ROOTS["场景"] / "scripts" / "build_scene_design_packets.py": "scene_masterprompt.structured.v2.md",
+        DESIGN_DOMAIN_ROOTS["角色"] / "scripts" / "build_character_design_packets.py": "character_masterprompt.structured.v2.md",
+        DESIGN_DOMAIN_ROOTS["道具"] / "scripts" / "build_prop_design_packets.py": "prop_masterprompt.structured.v2.md",
     }
     for renderer, template_name in renderer_expectations.items():
         if not renderer.exists():
@@ -747,8 +778,12 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
             failures.append(f"{renderer}: renderer must bind `TEMPLATE_PATH` to `{template_name}`")
 
     template_like_markers = ("```md", "**物语**", "**解构**", "**prompt整合**")
-    for path in sorted(DESIGN_2_ROOT.rglob("*.md")):
-        if path in DESIGN_2_CANONICAL_TEMPLATES:
+    for path in sorted(DESIGN_ROOT.rglob("*.md")):
+        if path in DESIGN_CANONICAL_TEMPLATES.values():
+            continue
+        if "legacy" in path.parts:
+            continue
+        if path.name == AMBIGUOUS_OUTPUT_TEMPLATE_NAME and path.parent.name == "templates":
             continue
         content = path.read_text(encoding="utf-8")
         if all(marker in content for marker in template_like_markers):
@@ -759,35 +794,40 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
 
 def audit_design_slot_bundle_runtime(failures: list[str]) -> None:
     """Ensure slot-bundle governance has a real execution carrier, not docs only."""
-    if not DESIGN_2_ROOT.exists():
+    if not DESIGN_ROOT.exists():
         return
 
-    if not DESIGN_SLOT_REVIEW_CONTRACT.exists():
-        failures.append(f"{DESIGN_SLOT_REVIEW_CONTRACT}: missing shared slot-review contract")
-        return
+    for domain in sorted(DESIGN_DOMAIN_ROOTS):
+        contract = DESIGN_SLOT_REVIEW_CONTRACTS[domain]
+        resolver = DESIGN_SLOT_RESOLVERS[domain]
+        supervision_contract = DESIGN_SUBAGENT_SUPERVISION_CONTRACTS[domain]
 
-    if not DESIGN_SLOT_RESOLVER.exists():
-        failures.append(
-            f"{DESIGN_SLOT_RESOLVER}: missing slot-bundle resolver runtime for `design-slot-review-contract.md`"
-        )
-    else:
-        resolver_content = DESIGN_SLOT_RESOLVER.read_text(encoding="utf-8")
-        for marker in DESIGN_SLOT_RUNTIME_MARKERS:
-            if marker not in resolver_content:
-                failures.append(
-                    f"{DESIGN_SLOT_RESOLVER}: missing runtime marker `{marker}` for slot-bundle resolution"
-                )
+        if not contract.exists():
+            failures.append(f"{contract}: missing domain slot-review contract")
+            continue
 
-    if not DESIGN_SUBAGENT_SUPERVISION_CONTRACT.exists():
-        failures.append(f"{DESIGN_SUBAGENT_SUPERVISION_CONTRACT}: missing shared supervision contract")
-        return
-
-    supervision_content = DESIGN_SUBAGENT_SUPERVISION_CONTRACT.read_text(encoding="utf-8")
-    for marker in ("slot_bundle_findings", "slot_bundles: []", "design-slot-review-contract.md"):
-        if marker not in supervision_content:
+        if not resolver.exists():
             failures.append(
-                f"{DESIGN_SUBAGENT_SUPERVISION_CONTRACT}: missing slot-bundle marker `{marker}`"
+                f"{resolver}: missing slot-bundle resolver runtime for `design-slot-review-contract.md`"
             )
+        else:
+            resolver_content = resolver.read_text(encoding="utf-8")
+            for marker in DESIGN_SLOT_RUNTIME_MARKERS:
+                if marker not in resolver_content:
+                    failures.append(
+                        f"{resolver}: missing runtime marker `{marker}` for slot-bundle resolution"
+                    )
+
+        if not supervision_contract.exists():
+            failures.append(f"{supervision_contract}: missing domain supervision contract")
+            continue
+
+        supervision_content = supervision_contract.read_text(encoding="utf-8")
+        for marker in ("slot_bundle_findings", "slot_bundles: []", "design-slot-review-contract.md"):
+            if marker not in supervision_content:
+                failures.append(
+                    f"{supervision_contract}: missing slot-bundle marker `{marker}`"
+                )
 
 
 def audit_review_runtime_contracts(failures: list[str]) -> None:
@@ -922,21 +962,41 @@ def audit_planning_internal_skill_contract(failures: list[str]) -> None:
         return
 
     forbidden_marker = ".codex/agents/aigc/规划组/"
+    forbidden_child_skills = (
+        planning_root / "1-分集" / "SKILL.md",
+        planning_root / "2-格式" / "SKILL.md",
+        planning_root / "3-分组" / "SKILL.md",
+    )
+    for child_skill in forbidden_child_skills:
+        if child_skill.exists():
+            failures.append(f"{child_skill}: planning subskills must be fused into the parent Skill 2.0 package")
+
     targets = (
         planning_root / "SKILL.md",
         planning_root / "agents" / "openai.yaml",
-        planning_root / "2-格式" / "SKILL.md",
-        planning_root / "2-格式" / "agents" / "openai.yaml",
-        planning_root / "3-分组" / "SKILL.md",
+        planning_root / "references" / "episode-splitter-contract.md",
+        planning_root / "references" / "script-format-contract.md",
+        planning_root / "references" / "grouping-contract.md",
+        planning_root / "references" / "planning-io-contract.md",
     )
 
     for path in targets:
         if not path.exists():
+            failures.append(f"{path}: missing planning fusion contract target")
             continue
         content = path.read_text(encoding="utf-8")
         if path.suffix == ".md" and path.name == "SKILL.md":
             if "## Internal Capability Fusion Contract (Mandatory)" not in content:
                 failures.append(f"{path}: missing `Internal Capability Fusion Contract (Mandatory)`")
+            for required_marker in (
+                "references/episode-splitter-contract.md",
+                "references/script-format-contract.md",
+                "references/grouping-contract.md",
+                "references/planning-io-contract.md",
+                "episode_split",
+            ):
+                if required_marker not in content:
+                    failures.append(f"{path}: missing planning fusion marker `{required_marker}`")
         if forbidden_marker in content:
             failures.append(f"{path}: should not reference deleted planning-agent contracts")
 
@@ -950,13 +1010,10 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
     forbidden_marker = ".codex/agents/aigc/导演组/"
     targets = (
         global_skill,
-        global_root / "_shared" / "IO_CONTRACT.md",
-        global_root / "_shared" / "branch-output-contract.md",
+        global_root / "references" / "io-contract.md",
+        global_root / "references" / "writeback-contract.md",
         global_root / "agents" / "openai.yaml",
-        global_root / "templates" / "全局风格.template.md",
-        global_root / "templates" / "全集类型元素.template.md",
-        global_root / "templates" / "分组类型元素.template.md",
-        global_root / "templates" / "导演意图.template.md",
+        global_root / "templates" / "README.md",
     )
 
     skill_content = global_skill.read_text(encoding="utf-8")
@@ -968,28 +1025,37 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         )
 
     required_root_outputs = (
-        "projects/aigc/<项目名>/2-Global/episode_root.json",
+        "projects/aigc/<项目名>/2-Global/第N集.json",
         "projects/aigc/<项目名>/2-Global/validation-report.md",
     )
-    io_contract = global_root / "_shared" / "IO_CONTRACT.md"
+    io_contract = global_root / "references" / "io-contract.md"
     if io_contract.exists():
         io_content = io_contract.read_text(encoding="utf-8")
         for output_path in required_root_outputs:
             if output_path not in io_content:
                 failures.append(f"{io_contract}: missing canonical output `{output_path}`")
-        if "唯一业务真源" not in io_content or "episode_root.json" not in io_content:
-            failures.append(f"{io_contract}: must declare `episode_root.json` as the single business truth")
+        if "唯一创作业务真源" not in io_content or "第N集.json" not in io_content:
+            failures.append(f"{io_contract}: must declare `第N集.json` as the single creative business truth")
 
-    branch_output = global_root / "_shared" / "branch-output-contract.md"
+    branch_output = global_root / "references" / "writeback-contract.md"
     if branch_output.exists():
         branch_content = branch_output.read_text(encoding="utf-8")
-        if "projects/aigc/<项目名>/2-Global/episode_root.json" not in branch_content:
-            failures.append(f"{branch_output}: missing canonical episode root path")
-        if "所有 pass 都直接写向同一颗 `episode_root.json`" not in branch_content:
-            failures.append(f"{branch_output}: must declare direct writeback into the shared episode root template")
+        if "projects/aigc/<项目名>/2-Global/第N集.json" not in branch_content:
+            failures.append(f"{branch_output}: missing canonical per-episode JSON path")
+        if "所有 pass 都直接写向当前集 `第N集.json`" not in branch_content:
+            failures.append(f"{branch_output}: must declare direct writeback into the per-episode JSON")
 
     if (global_root / "templates" / "类型元素.template.md").exists():
-        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be split into `全集类型元素.template.md` and `分组类型元素.template.md`")
+        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be removed; type fields now write directly into `第N集.json`")
+    if (global_root / "templates" / "分组类型元素.template.md").exists():
+        failures.append(f"{global_root / 'templates' / '分组类型元素.template.md'}: group type projection template should be removed; use `groups[].global.类型元素` in `第N集.json`")
+    for stale_template in (
+        global_root / "templates" / "全局风格.template.md",
+        global_root / "templates" / "全集类型元素.template.md",
+        global_root / "templates" / "导演意图.template.md",
+    ):
+        if stale_template.exists():
+            failures.append(f"{stale_template}: legacy Markdown output template should be removed; use `templates/episode-root.template.json` and `第N集.json`")
 
     for path in targets[1:]:
         if not path.exists():

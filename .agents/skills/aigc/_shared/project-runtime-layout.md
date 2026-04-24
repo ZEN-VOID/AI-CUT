@@ -91,9 +91,9 @@
 尤其对 `3-Detail`、`4-Design`、`5-Image` 与 `6-Video`，当前仓存在“技能树执行层”和“项目 runtime 落盘层”不完全同构的情况：
 
 1. 技能树执行入口层
-   例如 `3-Detail` 根技能内的固定 pass、`1-清单 / 2-设计 / 3-面板`、`1-提示词蒸馏/分镜故事板`、`2-参照引用`、`3-图像生成`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
+   例如 `3-Detail` 根技能内的固定 pass、`4-Design/场景|角色|道具` 域级包内部的 `清单 -> 设计 -> 面板提示词` 顺序、`A.分镜画面`、`1-提示词蒸馏/分镜故事板`、`2-参照引用`、`3-图像生成`、`A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
 2. 项目 runtime 落盘层
-   例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/`、`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/`、`projects/aigc/<项目名>/6-Video/生成任务/`
+   例如 `projects/aigc/<项目名>/2-Global/`、`projects/aigc/<项目名>/3-Detail/`、`projects/aigc/<项目名>/4-Design/角色清单.md`、`projects/aigc/<项目名>/4-Design/[主体名].md`、`projects/aigc/<项目名>/4-Design/[主体名].json`、`projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/`、`projects/aigc/<项目名>/6-Video/A.分镜画面参照/`、`projects/aigc/<项目名>/6-Video/B.分镜故事板参照/`、`projects/aigc/<项目名>/6-Video/C.主体参照/`、`projects/aigc/<项目名>/6-Video/生成任务/`
 
 初始化预建目录时，必须服从 **runtime 落盘层**，而不是机械复制技能树中间 tranche 名称。
 
@@ -101,11 +101,11 @@
 | --- | --- |
 | `Assets` | `projects/aigc/<项目名>/Assets/角色/`、`projects/aigc/<项目名>/Assets/道具/`、`projects/aigc/<项目名>/Assets/场景/`、`projects/aigc/<项目名>/Assets/服装/`、`projects/aigc/<项目名>/Assets/分镜画板/分镜帧/`、`projects/aigc/<项目名>/Assets/分镜画板/分镜故事板/`、`projects/aigc/<项目名>/Assets/分镜画板/漫画/` |
 | `1-Planning` | `projects/aigc/<项目名>/1-Planning/1-分集/`、`projects/aigc/<项目名>/1-Planning/2-格式/`、`projects/aigc/<项目名>/1-Planning/3-分组/` |
-| `2-Global` | `projects/aigc/<项目名>/2-Global/`；阶段执行后根层写入 `episode_root.json` 与 `validation-report.md`，旧 Markdown 仅作兼容投影 |
+| `2-Global` | `projects/aigc/<项目名>/2-Global/`；阶段执行后按集写入 `第N集.json`，`validation-report.md` 仅作治理侧车，旧 Markdown 不再作为新输出 |
 | `3-Detail` | `projects/aigc/<项目名>/3-Detail/` |
-| `4-Design` | 当前初始化只预建 active leaf：`projects/aigc/<项目名>/4-Design/场景/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/角色/1-清单/`、`2-设计/`、`3-面板/`；`projects/aigc/<项目名>/4-Design/道具/1-清单/`、`2-设计/`、`3-面板/`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
+| `4-Design` | 当前初始化只预建阶段根 `projects/aigc/<项目名>/4-Design/`；域级包执行后直接在该根输出 `场景清单.md`、`角色清单.md`、`道具清单.md`、`[主体名].md` 与 `[主体名].json`。`服装` 仍是类目宇宙的一部分，但 source leaf 尚未迁回 active，初始化不得预建 `4-Design/服装/*` 伪 active 目录。 |
 | `5-Image` | `projects/aigc/<项目名>/5-Image/分镜故事板/`、`projects/aigc/<项目名>/5-Image/分镜帧/`、`projects/aigc/<项目名>/5-Image/2-参照引用/`、`projects/aigc/<项目名>/5-Image/3-图像生成/` |
-| `6-Video` | `projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/2-参照引用/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
+| `6-Video` | `projects/aigc/<项目名>/6-Video/A.分镜画面参照/`、`projects/aigc/<项目名>/6-Video/B.分镜故事板参照/`、`projects/aigc/<项目名>/6-Video/C.主体参照/`、`projects/aigc/<项目名>/6-Video/全能参照/`、`projects/aigc/<项目名>/6-Video/首帧参照/`、`projects/aigc/<项目名>/6-Video/2-参照引用/`、`projects/aigc/<项目名>/6-Video/生成任务/` |
 | `review` | 懒生成目录；正式路径为 `projects/aigc/<项目名>/review/checkpoints/`、`projects/aigc/<项目名>/review/stages/`、`projects/aigc/<项目名>/review/releases/` |
 
 ### Skill Tree To Runtime Mapping
@@ -113,9 +113,9 @@
 | 技能树 active 路径 | 项目 runtime 预建路径 | 说明 |
 | --- | --- | --- |
 | `.agents/skills/aigc/3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 当前 `3-Detail` 已收束为单根技能；`1-分镜构图 -> 其余字段 pass` 在根技能内部完成，不再把 `1-水月 / 2-镜花` 当作 runtime 预建子目录 |
-| `.agents/skills/aigc/4-Design/1-清单/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/1-清单/` | `1-清单` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
-| `.agents/skills/aigc/4-Design/2-设计/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/2-设计/` | `2-设计` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
-| `.agents/skills/aigc/4-Design/3-面板/{场景,角色,道具}` | `projects/aigc/<项目名>/4-Design/{场景,角色,道具}/3-面板/` | `3-面板` 是父级执行 tranche，runtime 按 active domain-first 业务目录落盘 |
+| `.agents/skills/aigc/4-Design/场景` | `projects/aigc/<项目名>/4-Design/场景清单.md`、`projects/aigc/<项目名>/4-Design/[场景名].md`、`projects/aigc/<项目名>/4-Design/[场景名].json` | 域级包内部固定按 `清单 -> 设计 -> 面板提示词` 处理，runtime 不再镜像旧 tranche |
+| `.agents/skills/aigc/4-Design/角色` | `projects/aigc/<项目名>/4-Design/角色清单.md`、`projects/aigc/<项目名>/4-Design/[角色名].md`、`projects/aigc/<项目名>/4-Design/[角色名].json` | 域级包内部固定按 `清单 -> 设计 -> 面板提示词` 处理，runtime 不再镜像旧 tranche |
+| `.agents/skills/aigc/4-Design/道具` | `projects/aigc/<项目名>/4-Design/道具清单.md`、`projects/aigc/<项目名>/4-Design/[道具名].md`、`projects/aigc/<项目名>/4-Design/[道具名].json` | 域级包内部固定按 `清单 -> 设计 -> 面板提示词` 处理，runtime 不再镜像旧 tranche |
 | `.agents/skills/aigc/4-Design/*/服装` | 暂不预建 `projects/aigc/<项目名>/4-Design/服装/*` | `服装` 当前仍是 4-Design 类目宇宙和 Assets 资产库类目，但 source leaf 未迁回 active；初始化不得把 pending sibling 投影成 runtime active 目录 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜故事板` | `projects/aigc/<项目名>/5-Image/分镜故事板/` | `1-提示词蒸馏` 是父级执行 tranche，不是 runtime 目录名 |
 | `.agents/skills/aigc/5-Image/1-提示词蒸馏/分镜帧` | `projects/aigc/<项目名>/5-Image/分镜帧/` | 叶子技能名直接投影为业务落盘名 |
@@ -123,6 +123,9 @@
 | `.agents/skills/aigc/5-Image/3-图像生成` | `projects/aigc/<项目名>/5-Image/3-图像生成/` | provider/source/episode 目录在执行时下钻创建；`submit-plan`、`submit-brief` 与真实输出图像同目录落盘 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照` | `projects/aigc/<项目名>/6-Video/全能参照/` | `1-提示词蒸馏` 只属于技能树执行层 |
 | `.agents/skills/aigc/6-Video/1-提示词蒸馏/首帧参照` | `projects/aigc/<项目名>/6-Video/首帧参照/` | 同上 |
+| `.agents/skills/aigc/6-Video/A.分镜画面参照` | `projects/aigc/<项目名>/6-Video/A.分镜画面参照/` | 融合型 Skill 2.0 入口，内部按 `distill/`、`reference-binding/`、`generation-handoff/` 下钻落盘 |
+| `.agents/skills/aigc/6-Video/B.分镜故事板参照` | `projects/aigc/<项目名>/6-Video/B.分镜故事板参照/` | 组级故事板融合型 Skill 2.0 入口，内部按 `distill/`、`reference-binding/`、`generation-handoff/` 下钻落盘 |
+| `.agents/skills/aigc/6-Video/C.主体参照` | `projects/aigc/<项目名>/6-Video/C.主体参照/` | 主体识别向融合型 Skill 2.0 入口，内部按 `distill/`、`reference-binding/`、`generation-handoff/` 下钻落盘 |
 | `.agents/skills/aigc/6-Video/2-参照引用` | `projects/aigc/<项目名>/6-Video/2-参照引用/` | mode/episode 目录在执行时下钻创建；初始化只预建稳定根目录 |
 | `.agents/skills/aigc/6-Video/3-视频生成` | `projects/aigc/<项目名>/6-Video/生成任务/` | runtime 采用业务语义落点，不沿用技能树编号名 |
 | `.agents/skills/aigc/review` | `projects/aigc/<项目名>/review/` | review 是卫星技能，不并入主阶段链；其 aggregate packet 分为 `checkpoints / stages / releases` 三层落点 |
@@ -144,27 +147,27 @@
 | `0-Init` | `projects/aigc/<项目名>/0-Init/` | 初始化合同、项目种子与根布局预建 |
 | `Story` | `projects/aigc/<项目名>/Story/` | 项目级故事主源与辅助源材料落点，由 `0-Init/story-source-manifest.yaml` 统一登记 |
 | `1-Planning` | `projects/aigc/<项目名>/1-Planning/` | 规划阶段父级合同、阶段验收与多数规划子路径落点；`1-分集` 将故事正文收束到 `2-格式/第N集.md`，并为后续 `2-Global` 预留 `bootstrap_output` 目标路径 |
-| `2-Global` | `projects/aigc/<项目名>/2-Global/` | 负责围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 直接填好 `episode_root.json`，写出 `meta + project_global + groups[].global` 作为组级 episode seed root |
-| `3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 读取 `2-Global/episode_root.json` 作为组级前置 seed，并在本阶段自己的 detail root 上首次生成 `detail.分镜数` 与每镜 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 及其余镜级字段 |
+| `2-Global` | `projects/aigc/<项目名>/2-Global/` | 负责围绕 `.agents/skills/aigc/2-Global/templates/episode-root.template.json` 直接填好 `第N集.json`，写出 `meta + project_global + groups[].global` 作为组级 episode seed root |
+| `3-Detail` | `projects/aigc/<项目名>/3-Detail/` | 读取 `2-Global/第N集.json` 作为组级前置 seed，并在本阶段自己的 detail root 上首次生成 `detail.分镜数` 与每镜 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 及其余镜级字段 |
 | `4-Design` | `projects/aigc/<项目名>/4-Design/` | design-source 阶段产物 |
-| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路是 `分镜故事板 / 分镜帧 -> 2-参照引用 -> 3-图像生成`；漫画页诉求回接 repo-local `comic` workflow |
-| `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径是 `全能参照 / 首帧参照 / 2-参照引用 / 生成任务` |
+| `5-Image` | `projects/aigc/<项目名>/5-Image/` | 画面阶段；当前 active 链路包含 `A.分镜画面` 单帧融合入口，以及 `分镜故事板 / 分镜帧 -> 2-参照引用 -> 3-图像生成` 兼容链；漫画页诉求回接 repo-local `comic` workflow |
+| `6-Video` | `projects/aigc/<项目名>/6-Video/` | 视频阶段；当前 active 子路径包含融合入口 `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`，以及兼容链 `全能参照 / 首帧参照 / 2-参照引用 / 生成任务` |
 | `7-Cut` | `projects/aigc/<项目名>/7-Cut/` | 后期阶段 |
 
 ## Canonical Director Root Files
 
-- `2-Global` episode seed root：`projects/aigc/<项目名>/2-Global/episode_root.json`
-- `2-Global` seed template：`.agents/skills/aigc/2-Global/_shared/episode_root.json`
+- `2-Global` episode seed root：`projects/aigc/<项目名>/2-Global/第N集.json`
+- `2-Global` seed template：`.agents/skills/aigc/2-Global/templates/episode-root.template.json`
 - `2-Global -> 3-Detail` handoff contract：`.agents/skills/aigc/_shared/group_design_seed_contract.md`
 - `3-Detail` detailed root：`projects/aigc/<项目名>/3-Detail/第N集.json`
 - `3-Detail` detail template：`.agents/skills/aigc/3-Detail/_shared/episode_detail.json`（默认组织为 `meta + groups[].global/detail.分镜列表`；运行时建议继续保留继承自 `2-Global` 的 `groups[].global.剧本正文`）
 - `3-Detail` shared compatibility schema：`.agents/skills/aigc/_shared/director_episode_output.schema.json`
-- phase transition reading rule：`2-Global` 先稳定围绕模板写出 `episode_root.json`，`3-Detail` 再在自己的 detail root 中补齐 finer-grained shot-level 字段；下游默认按结构完整性判定是否 ready，而不再把 `document_phase` 当 canonical 字段真源。
+- phase transition reading rule：`2-Global` 先稳定围绕模板写出 `第N集.json`，`3-Detail` 再在自己的 detail root 中补齐 finer-grained shot-level 字段；下游默认按结构完整性判定是否 ready，而不再把 `document_phase` 当 canonical 字段真源。
 
 ## Ownership Contract
 
 1. `1-Planning` 只负责在 `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` 中登记每集 `bootstrap_output` 目标路径与 `source_profile` handoff，不在规划阶段默认创建 `2-Global` 兼容 Markdown。
-2. `2-Global` 负责以 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 为模板直接写入 `projects/aigc/<项目名>/2-Global/episode_root.json`，并同步写回 `projects/aigc/<项目名>/2-Global/validation-report.md`。
-3. `2-Global` 在 episode seed root 不存在时，可基于 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 创建同模板文件，并拥有 `meta`、`project_global` 与 `groups[].分镜组ID / global.剧本正文 / global.*` 的写入权。
-4. `3-Detail` 后续只允许围绕自己阶段下的 `projects/aigc/<项目名>/3-Detail/第N集.json` 做 shot-level 与 detail-level patch-in-place，并默认继承 `projects/aigc/<项目名>/2-Global/episode_root.json` 中已有的组级 seed；本地 detail root 的默认壳与字段顺序以 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 为准，逐镜实体默认组织在 `groups[].detail.分镜列表.<分镜ID>` 下。
-5. 下游阶段若消费 detail 级编导数据，默认读取 `projects/aigc/<项目名>/3-Detail/第N集.json`；若消费 `2-Global` 的组级 seed，则读取 `projects/aigc/<项目名>/2-Global/episode_root.json`，不得混淆两者 truth role。
+2. `2-Global` 负责以 `.agents/skills/aigc/2-Global/templates/episode-root.template.json` 为模板直接写入 `projects/aigc/<项目名>/2-Global/第N集.json`，并同步写回或说明 `projects/aigc/<项目名>/2-Global/validation-report.md`。
+3. `2-Global` 在当前集 seed root 不存在时，可基于 `.agents/skills/aigc/2-Global/templates/episode-root.template.json` 创建同模板文件，并拥有 `meta`、`project_global` 与 `groups[].分镜组ID / global.剧本正文 / global.*` 的写入权。
+4. `3-Detail` 后续只允许围绕自己阶段下的 `projects/aigc/<项目名>/3-Detail/第N集.json` 做 shot-level 与 detail-level patch-in-place，并默认继承 `projects/aigc/<项目名>/2-Global/第N集.json` 中已有的组级 seed；本地 detail root 的默认壳与字段顺序以 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 为准，逐镜实体默认组织在 `groups[].detail.分镜列表.<分镜ID>` 下。
+5. 下游阶段若消费 detail 级编导数据，默认读取 `projects/aigc/<项目名>/3-Detail/第N集.json`；若消费 `2-Global` 的组级 seed，则读取 `projects/aigc/<项目名>/2-Global/第N集.json`，不得混淆两者 truth role。

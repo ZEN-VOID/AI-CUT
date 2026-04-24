@@ -65,7 +65,7 @@
 
 ## 1.2 对齐 `2-格式` 的基础格式化标题
 
-漫画技能的基础格式化处理，需要对齐 `.agents/skills/aigc/1-Planning/2-格式` 的共享字段纪律。
+漫画技能的基础格式化处理，需要对齐 `.agents/skills/aigc/1-Planning/references/script-format-contract.md` 的共享字段纪律。
 
 正文与结构化包至少要能稳定表达以下标题：
 

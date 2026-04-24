@@ -1,0 +1,31 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc.design.role",
+  "skill_path": ".agents/skills/aigc/4-Design/角色",
+  "scope": "episode_or_role",
+  "order": ["list", "design", "panel"],
+  "io": {
+    "inputs": {
+      "detail_episode": {
+        "pattern": "projects/aigc/<项目名>/3-Detail/第{episode}集.json",
+        "format": "json",
+        "required": true
+      }
+    },
+    "outputs": {
+      "role_list": {
+        "pattern": "projects/aigc/<项目名>/4-Design/角色清单.md",
+        "format": "markdown"
+      },
+      "role_design_docs": {
+        "pattern": "projects/aigc/<项目名>/4-Design/[角色名].md",
+        "format": "markdown"
+      },
+      "role_panel_prompts": {
+        "pattern": "projects/aigc/<项目名>/4-Design/[角色名].json",
+        "format": "json"
+      }
+    }
+  },
+  "tags": ["aigc", "design", "role", "skill-2.0"]
+}

@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "skill_route": "B.分镜故事板参照",
+    "source_skill": "1-提示词蒸馏/全能参照",
+    "episode_id": "<第N集>",
+    "group_id": "<分镜组ID>",
+    "source_shot_ids": []
+  },
+  "prompt_style": {
+    "structure": "BC",
+    "char_window": [1600, 1900],
+    "authorship": "llm_first"
+  },
+  "model": {
+    "prompt": "<LLM-authored group-level video prompt>",
+    "prompt_char_count": 0,
+    "reference_images": [],
+    "image_markers": []
+  }
+}

@@ -1,21 +1,21 @@
 # Group Design Seed Contract
 
-本文件是 `aigc/2-Global -> 3-Detail` 之间 `episode_root.json` handoff 的单一真源。
+本文件是 `aigc/2-Global -> 3-Detail` 之间按集 JSON handoff 的单一真源。
 
 ## Purpose
 
-- 让 `2-Global` 围绕 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 模板直接生成 `projects/aigc/<项目名>/2-Global/episode_root.json`
+- 让 `2-Global` 围绕 `.agents/skills/aigc/2-Global/templates/episode-root.template.json` 模板直接生成 `projects/aigc/<项目名>/2-Global/第N集.json`
 - 让 `3-Detail` 直接继承已收束的组级 `global` 字段，而不是再次从 Markdown 长文中抽取
-- 将旧 `2-Global/*.md` 明确降级为兼容投影，而不是 handoff 真源
+- 将旧 `2-Global/*.md` 明确降级为 legacy artifacts，而不是 handoff 真源
 
 ## Canonical Carrier
 
 - template:
-  - `.agents/skills/aigc/2-Global/_shared/episode_root.json`
+  - `.agents/skills/aigc/2-Global/templates/episode-root.template.json`
 - downstream detail template:
   - `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`
 - seed root file:
-  - `projects/aigc/<项目名>/2-Global/episode_root.json`
+  - `projects/aigc/<项目名>/2-Global/第N集.json`
 - target slot:
   - `meta`
   - `project_global`
@@ -25,15 +25,15 @@
 
 | phase | owner | responsibility |
 | --- | --- | --- |
-| `2-Global` | `aigc-global` | 直接填写 `episode_root.json` 的 `meta / project_global / groups[].global` |
-| `3-Detail` | `aigc-detail` | 读取 `2-Global/episode_root.json` 作为组级前置 seed，并基于 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 在自己的 runtime 下生成更细分的 detail root |
+| `2-Global` | `aigc-global` | 直接填写当前集 `第N集.json` 的 `meta / project_global / groups[].global` |
+| `3-Detail` | `aigc-detail` | 读取 `2-Global/第N集.json` 作为组级前置 seed，并基于 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json` 在自己的 runtime 下生成更细分的 detail root |
 
 硬规则：
 
 1. `2-Global` 只拥有 `meta`、`project_global` 与 `groups[]` 的写入权，不得在本阶段发明 shot-level 字段。
 2. `3-Detail` 默认继承 `groups[].global.剧本正文` 与 `groups[].global.*`，不得在无明确返工理由时重写其含义。
-3. 跨阶段第一结构化 handoff 以 `2-Global/episode_root.json` 为准。
-4. 旧 `2-Global/*.md` 若被生成，只是兼容投影；不得再被描述为跨阶段第一真源。
+3. 跨阶段第一结构化 handoff 以 `2-Global/第N集.json` 为准。
+4. 旧 `2-Global/*.md` 不再由新执行生成；若历史项目仍存在，只是 legacy artifacts，不得再被描述为跨阶段第一真源。
 
 ## Mapping
 
@@ -66,7 +66,7 @@
 
 ## Writeback Policy
 
-1. `2-Global` 首次进入时，如 `episode_root.json` 不存在，可基于 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 创建同模板文件。
+1. `2-Global` 首次进入某集时，如 `第N集.json` 不存在，可基于 `.agents/skills/aigc/2-Global/templates/episode-root.template.json` 创建同模板文件。
 2. `2-Global` 写回时，必须同时形成完整 `meta`、`project_global` 与 `groups[]` 壳。
-3. `3-Detail` 后续读取时，应把 `2-Global/episode_root.json` 当成组级 seed root，而不是 detail root。
+3. `3-Detail` 后续读取时，应把 `2-Global/第N集.json` 当成组级 seed root，而不是 detail root。
 4. `3-Detail` 自己的 detail root 可以在 `projects/aigc/<项目名>/3-Detail/` 下独立落盘，并由 `.agents/skills/aigc/3-Detail/_shared/episode_detail.json`、其本地 schema 与 validator 负责约束。

@@ -1,0 +1,20 @@
+{
+  "source_request": {
+    "path": "projects/aigc/<项目名>/6-Video/C.主体参照/<第N集>/reference-binding/<第N集>.json",
+    "route": "C.主体参照"
+  },
+  "subject_index": {
+    "path": "projects/aigc/<项目名>/6-Video/C.主体参照/<第N集>/reference-binding/subject-index.json"
+  },
+  "provider": "<provider>",
+  "input_mode": "reference_driven",
+  "provider_input_resolution": {
+    "reference_policy": "resolve provider-neutral image_ref entries into provider-consumable inputs",
+    "subject_reference_order": []
+  },
+  "output_dir": "projects/aigc/<项目名>/6-Video/C.主体参照/<第N集>/generation-handoff/<provider>/",
+  "handoff": {
+    "next_entry": "<provider skill or manual submission>",
+    "rework_entry": "C.主体参照/reference-binding"
+  }
+}

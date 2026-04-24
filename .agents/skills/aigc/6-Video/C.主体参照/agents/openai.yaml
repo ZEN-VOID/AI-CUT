@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC Video Subject Reference"
+  short_description: "Build fused video subject reference handoffs."
+  default_prompt: "Use $aigc-video-subject-reference when a 6-Video task should create one fused subject reference package: read `projects/aigc/<项目名>/3-Detail/第N集.json`, LLM-author group-level omni-reference prompt/TXT artifacts, identify role/costume/prop/scene subject anchors, bind real subject `Assets/` references when needed, and prepare provider `submit-plan.json` plus `submit-brief.md` without deleting the legacy `全能参照`, `2-参照引用`, or `3-视频生成` skill packages."

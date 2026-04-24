@@ -2,6 +2,44 @@
 
 本文件记录 `.agents/skills/aigc/0-Init/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-04-24
+
+- `Case-20260424-AIGC-INIT-TEMPLATE-OUTPUT-CONTRACT-ALIGNMENT`
+  - 检查 `templates/` 与 `SKILL.md` 的 `Output Contract (Mandatory)` 是否匹配。
+  - 将 `north-star.template.yaml` 收紧为长期约束模板，移除 `init_mode / mode_source` 这类初始化过程 provenance 字段。
+  - 将 `init-handoff.template.yaml` 的旧阶段 seed 命名改为当前阶段链：`planning / global / detail / design / image / video / cut`。
+  - 新增 `state.template.json`、`project-changelog.template.md`、`project-context-readme.template.md`、`output-template.md` 与 `output-template-map.md`，明确本地模板、shared 模板与惰性治理输出的对应关系。
+  - 在 `Output Contract` 中补齐 `Required output / Output format / Output path / Naming convention / Completion gate` 五个显式锚点。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/templates/output-template-map.md`
+    - `.agents/skills/aigc/0-Init/templates/output-template.md`
+    - `.agents/skills/aigc/0-Init/templates/north-star.template.yaml`
+    - `.agents/skills/aigc/0-Init/templates/init-handoff.template.yaml`
+    - `.agents/skills/aigc/0-Init/templates/state.template.json`
+
+- `Case-20260424-AIGC-INIT-INPUT-OUTPUT-ANCHOR`
+  - 将 `0-Init/SKILL.md` 的入口重心进一步收束到 `Input Contract (Mandatory)` 与 `Output Contract (Mandatory)`。
+  - 明确 accepted / rejected / rerouted input，核心 writeback 输出、blocked output shape 与最终用户答复字段。
+  - 将 `Core Workflow` 与 `Execution Contract` 改为 index 口径，过程细节继续导向 `references/`、`steps/`、`types/` 与 `review/`。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+
+- `Case-20260424-AIGC-INIT-SKILL-2-0-UPGRADE`
+  - 使用 `$skill-工作车间` 将 `0-Init` 从旧的长 `SKILL.md` 入口升级为 Skill 2.0 动态引用包。
+  - 新增标准分区：`references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`scripts/`、`README.md` 与 `TODO.md`。
+  - 将运行时路径、模式与组队、源与工件、rebootstrap 分别拆到 `references/`；将节点网络拆到 `steps/init-workflow.md`；将充分性与 pass table 拆到 `review/init-review-gate.md`；将判型策略拆到 `types/init-type-map.md`。
+  - 保留旧三模式 stub 删除口径：不恢复 `references/*-mode/module-spec.md`，新 `references/` 只作为 Skill 2.0 细则分区，由 `SKILL.md` 的 Reference Loading Guide 明确读取。
+  - 同步修正 `agents/openai.yaml` 的产品描述与 `$aigc-init` 默认提示。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/references/migration-matrix.md`
+    - `.agents/skills/aigc/0-Init/steps/init-workflow.md`
+    - `.agents/skills/aigc/0-Init/review/init-review-gate.md`
+    - `.agents/skills/aigc/0-Init/types/init-type-map.md`
+    - `.agents/skills/aigc/0-Init/knowledge-base/init-heuristics.md`
+    - `.agents/skills/aigc/0-Init/README.md`
+    - `.agents/skills/aigc/0-Init/TODO.md`
+
 ## 2026-04-18
 
 - `Case-20260418-AIGC-INIT-PROJECT-ROOT-CHANGELOG`

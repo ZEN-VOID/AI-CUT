@@ -1,0 +1,22 @@
+{
+  "source_request": {
+    "path": "projects/aigc/<项目名>/6-Video/A.分镜画面参照/<第N集>/reference-binding/<第N集>.json",
+    "status": "ready"
+  },
+  "provider_selection": {
+    "provider": "<provider>",
+    "selection_mode": "explicit"
+  },
+  "input_mode": "reference_driven",
+  "provider_input_resolution": {
+    "rule": "Resolve provider-neutral image_ref/ref_kind into provider-specific inputs at handoff time.",
+    "resolved_inputs": []
+  },
+  "output_dir": "projects/aigc/<项目名>/6-Video/A.分镜画面参照/<第N集>/generation-handoff/<provider>/",
+  "handoff": {
+    "next_entry": "<provider skill or manual>",
+    "execution_status": "planned"
+  },
+  "rework_entry": "",
+  "risk_notes": []
+}

@@ -44,19 +44,19 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、并发调度维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
     trigger: 命中 `5-Image`，或需要把 `3-Detail/第N集.json` / `4-Design` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
-    rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；再由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"
-  - id: aigc-design-prop-panel-entry
-    trigger: 命中 `4-Design/3-面板/道具`、道具面板、道具 panel layout、或批量 4-Design 道具面板生图
-    rule: "进入 `.agents/skills/aigc/4-Design/3-面板/道具/SKILL.md`；默认先写 `PropPanel-layout.json`，再经 `.agents/skills/aigc/4-Design/3-面板/_shared/panel_auto_generate.py` 调用 `nano-banana/general`。批量 4-Design 上下文自动绑定设计已有图片，单文件或自然语言上下文默认不绑定参照。"
-  - id: aigc-design-role-panel-entry
-    trigger: 命中 `4-Design/3-面板/角色`、角色面板、CharacterPanel、角色 panel layout、或批量 4-Design 角色面板生图
-    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/角色/SKILL.md`；默认先写 `CharacterPanel-layout.json`，再调用 `.agents/skills/api/anyfast/image/nano-banana/general`。批量 4-Design 上下文自动绑定对应已有设计图片，单文件或自然语言上下文默认无参照 T2I。"
-  - id: aigc-design-scene-panel-entry
-    trigger: 命中 `4-Design/3-面板/场景`、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成 layout JSON 后生图
-    rule: "先进入 `.agents/skills/aigc/4-Design/3-面板/SKILL.md`，再路由到 `.agents/skills/aigc/4-Design/3-面板/场景/SKILL.md`；默认通过 SMART 桥调用 `.agents/skills/api/anyfast/image/nano-banana/general`，单文件/自然语言直调默认不隐式带参考图"
+    rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；若是单一 `分镜ID` 的端到端画面准备，路由到 `A.分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B.分镜故事板`；否则由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"
+  - id: aigc-design-prop-entry
+    trigger: 命中 `4-Design/道具`、道具清单、道具设计、道具面板、道具 panel layout、或批量 4-Design 道具设计输出
+    rule: "进入 `.agents/skills/aigc/4-Design/道具/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `道具清单.md + [道具名].md + [道具名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
+  - id: aigc-design-role-entry
+    trigger: 命中 `4-Design/角色`、角色清单、角色设计、角色面板、CharacterPanel、角色 panel layout、或批量 4-Design 角色设计输出
+    rule: "进入 `.agents/skills/aigc/4-Design/角色/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `角色清单.md + [角色名].md + [角色名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
+  - id: aigc-design-scene-entry
+    trigger: 命中 `4-Design/场景`、场景清单、场景设计、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成面板提示词
+    rule: "进入 `.agents/skills/aigc/4-Design/场景/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `场景清单.md + [场景名].md + [场景名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
   - id: aigc-video-stage-entry
     trigger: 命中 `6-Video` 或需要把 `3-Detail/第N集.json` 蒸馏成视频工具入参 JSON
-    rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若任务是按分镜组组织视频请求，默认路由 `1-提示词蒸馏/全能参照`"
+    rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若明确要求“分镜画面参照 / 首帧融合包 / 融合包 / full-chain”，路由 `A.分镜画面参照`；若明确要求“分镜故事板参照 / 组级融合包 / 故事板融合包 / full-chain”，路由 `B.分镜故事板参照`；若明确要求“主体参照 / 主体识别向 / 角色服装道具场景参照 / full-chain”，路由 `C.主体参照`；若任务只是按分镜组组织视频请求，默认路由兼容链 `1-提示词蒸馏/全能参照`"
   - id: aigc-shelved-stages
     trigger: 命中 `7-Cut / 7-后期`
     rule: "显式返回“搁浅”状态与补建落点，不得伪造执行链，也不计入当前可执行阶段审计失败"

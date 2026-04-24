@@ -25,12 +25,15 @@ governance_tier: full
 3. 视频请求对象应如何对齐具体工具的入参格式
 4. 产物应落到 `projects/aigc/<项目名>/6-Video/` 的哪里
 
-当前已建可执行子路径位于 `1-提示词蒸馏`、`2-参照引用` 与 `3-视频生成`：
+当前已建可执行子路径位于融合入口 `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`，以及兼容链 `1-提示词蒸馏`、`2-参照引用` 与 `3-视频生成`：
 
-1. `全能参照`
-2. `首帧参照`
-3. `2-参照引用`
-4. `3-视频生成`
+1. `A.分镜画面参照`
+2. `B.分镜故事板参照`
+3. `C.主体参照`
+4. `全能参照`
+5. `首帧参照`
+6. `2-参照引用`
+7. `3-视频生成`
 
 其余目录 `首尾帧参照`、`多图参照` 目前仍保留为后续扩展槽位。
 
@@ -70,6 +73,9 @@ governance_tier: full
 flowchart TD
     A["3-Detail/第N集.json"] --> B{"识别 6-Video 任务类型"}
     C["4-Design / 5-Image 资产"] --> B
+    B -->|"融合型分镜画面参照包"| A1["A.分镜画面参照"]
+    B -->|"融合型分镜故事板参照包"| SB1["B.分镜故事板参照"]
+    B -->|"融合型主体参照包"| SR1["C.主体参照"]
     B -->|"分镜组 -> 视频请求 JSON"| D["1-提示词蒸馏/全能参照"]
     B -->|"单帧主导"| E["1-提示词蒸馏/首帧参照"]
     D --> R["2-参照引用"]
@@ -78,6 +84,9 @@ flowchart TD
     B -->|"稳定请求 -> 真实生成入口"| J["3-视频生成"]
     B -->|"首尾帧双锚点"| F["1-提示词蒸馏/首尾帧参照（待补）"]
     B -->|"多图故事线"| G["1-提示词蒸馏/多图参照（待补）"]
+    A1 --> A2["projects/aigc/<项目名>/6-Video/A.分镜画面参照/"]
+    SB1 --> SB2["projects/aigc/<项目名>/6-Video/B.分镜故事板参照/"]
+    SR1 --> SR2["projects/aigc/<项目名>/6-Video/C.主体参照/"]
     D --> H["projects/aigc/<项目名>/6-Video/全能参照/"]
     E --> I["projects/aigc/<项目名>/6-Video/首帧参照/"]
     R --> M["projects/aigc/<项目名>/6-Video/2-参照引用/<模式>/"]
@@ -101,6 +110,9 @@ flowchart LR
   - `.agents/skills/aigc/6-Video/_shared/视频生成入参.template.txt`
   - `.agents/skills/aigc/6-Video/_shared/image-to-video-prompt-principles.md`
 - subtype-local canonical sources:
+  - `A.分镜画面参照/SKILL.md + references/ + steps/ + review/ + types/`
+  - `B.分镜故事板参照/SKILL.md + references/ + steps/ + review/ + types/`
+  - `C.主体参照/SKILL.md + references/ + steps/ + review/ + types/`
   - `1-提示词蒸馏/全能参照/SKILL.md + prompt-assembly-spec.md`
   - `1-提示词蒸馏/首帧参照/SKILL.md + prompt-assembly-spec.md`
   - `2-参照引用/SKILL.md + scripts/bind_reference_assets.py`
@@ -126,6 +138,9 @@ flowchart LR
 ## Route Summary
 
 - 若任务是“按分镜组把导演 JSON 蒸馏成视频工具入参”，默认进入 `1-提示词蒸馏/全能参照`。
+- 若任务明确命中“分镜画面参照 / 融合包 / 一次完成蒸馏、参照绑定和生成交接”，进入 `A.分镜画面参照`；该路径不删除旧三段包，而是把三段语义收束进一个 Skill 2.0 包。
+- 若任务明确命中“分镜故事板参照 / 组级融合包 / 故事板融合包 / 一次完成全能参照、参照绑定和生成交接”，进入 `B.分镜故事板参照`；该路径不删除旧三段包，而是把 `全能参照 + 2-参照引用 + 3-视频生成` 收束进一个 Skill 2.0 包。
+- 若任务明确命中“主体参照 / 主体识别向 / 角色服装道具场景参照 / 主体绑定融合包”，进入 `C.主体参照`；该路径不删除旧三段包，而是把 `全能参照 + 2-参照引用（主体识别向） + 3-视频生成` 收束进一个 Skill 2.0 包。
 - 命中任何 `1-提示词蒸馏/*` 叶子前，默认先确认 `3-Detail/第N集.json` 的 canonical detail root 已结构完整，并可被 runtime 兼容适配层稳定投影为 ready 视图。
 - 若任务已经明确以单一 `分镜ID` 作为首帧锚点，进入 `1-提示词蒸馏/首帧参照`。
 - 若任务已经有稳定请求 JSON，且目标是从 `Assets/` 补齐参照图字段，进入 `2-参照引用`。
@@ -144,6 +159,9 @@ flowchart LR
 ## Output Summary
 
 - 当前阶段默认交付不是视频文件，而是“请求 JSON + manifest/说明 + 下一步执行入口”。
+- 融合型分镜画面参照包 canonical 根为 `projects/aigc/<项目名>/6-Video/A.分镜画面参照/第N集/`，内部按 `distill/`、`reference-binding/`、`generation-handoff/<provider>/` 分段落盘。
+- 融合型分镜故事板参照包 canonical 根为 `projects/aigc/<项目名>/6-Video/B.分镜故事板参照/第N集/`，内部按 `distill/`、`reference-binding/`、`generation-handoff/<provider>/` 分段落盘。
+- 融合型主体参照包 canonical 根为 `projects/aigc/<项目名>/6-Video/C.主体参照/第N集/`，内部按 `distill/`、`reference-binding/`、`generation-handoff/<provider>/` 分段落盘。
 - 首个 canonical 主产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.json`。
 - 首个 canonical 文本副产物为 `projects/aigc/<项目名>/6-Video/全能参照/第N集/第N集.txt`。
 - 帧级 canonical 主产物为 `projects/aigc/<项目名>/6-Video/首帧参照/第N集/第N集.json`。
@@ -167,7 +185,7 @@ flowchart LR
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-VIDEO-ROOT-01` | `route decision` | 任务必须被唯一归位到 `全能参照 / 首帧参照 / 2-参照引用 / 3-视频生成` 之一 | `S1` | 路由准确性 | `FAIL-VIDEO-ROOT-01` |
+| `FIELD-VIDEO-ROOT-01` | `route decision` | 任务必须被唯一归位到 `A.分镜画面参照 / B.分镜故事板参照 / C.主体参照 / 全能参照 / 首帧参照 / 2-参照引用 / 3-视频生成` 之一 | `S1` | 路由准确性 | `FAIL-VIDEO-ROOT-01` |
 | `FIELD-VIDEO-ROOT-02` | `input gate` | 只允许消费 canonical detail root 已成立，且经 runtime 兼容适配后可形成稳定 ready 视图的 director root | `S2` | 输入稳定性 | `FAIL-VIDEO-ROOT-02` |
 | `FIELD-VIDEO-ROOT-03` | `canonical landing` | 阶段产物必须写回 `projects/aigc/<项目名>/6-Video/` 的声明子路径 | `S3` | 真源落点一致性 | `FAIL-VIDEO-ROOT-03` |
 | `FIELD-VIDEO-ROOT-04` | `handoff entry` | 结束时必须给出唯一下一入口，且不得把 provider 槽位冒充本地执行能力 | `S4` | 交接可执行性 | `FAIL-VIDEO-ROOT-04` |
@@ -227,7 +245,10 @@ flowchart LR
 
 ## Subtype Partition (Mandatory)
 
-- 当前 `6-Video/` 已建且可执行的子路径位于 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成`。
+- 当前 `6-Video/` 已建且可执行的子路径位于 `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`、`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成`。
+- `A.分镜画面参照` 是融合型入口，默认只在用户明确要求“分镜画面参照 / 融合包 / full-chain”时启用；旧三段包仍作为兼容链保留。
+- `B.分镜故事板参照` 是组级故事板融合型入口，默认只在用户明确要求“分镜故事板参照 / 组级融合包 / full-chain”时启用；旧三段包仍作为兼容链保留。
+- `C.主体参照` 是主体识别向融合型入口，默认只在用户明确要求“主体参照 / 主体识别向 / 角色服装道具场景参照 / full-chain”时启用；旧三段包仍作为兼容链保留。
 - `3-视频生成/providers/` 当前只保留 provider 槽位，不自动视为本地 governed leaf。
 - `首尾帧参照`、`多图参照` 与未来一致性处理路径仍为后续扩展槽位，目录存在与否都不等于合同已建。
 - `首尾帧参照`、`多图参照` 目前仍作为后续叶子槽位保留在 `1-提示词蒸馏/` 下，不因目录存在而自动视为可执行。

@@ -113,16 +113,16 @@ CHECKPOINT_REQUIREMENTS = {
         "source_truth_refs": [
             "0-Init/north_star.yaml",
             "1-Planning/",
-            "2-Global/episode_root.json",
+            "2-Global/第N集.json",
         ],
-        "runtime_artifact_refs": ["2-Global/episode_root.json"],
+        "runtime_artifact_refs": ["2-Global/第N集.json"],
         "handoff_candidate_refs": ["3-Detail/"],
     },
     "detail-episode-ready": {
         "validation_refs": ["3-Detail/validation-report.md"],
         "source_truth_refs": [
             "1-Planning/",
-            "2-Global/episode_root.json",
+            "2-Global/第N集.json",
             "3-Detail/{scope_ref}.json",
         ],
         "runtime_artifact_refs": ["3-Detail/{scope_ref}.json"],
@@ -223,7 +223,7 @@ CHECKPOINT_REQUIREMENTS = {
         "source_truth_refs": [
             "0-Init/north_star.yaml",
             "1-Planning/",
-            "2-Global/episode_root.json",
+            "2-Global/第N集.json",
             "3-Detail/",
             "4-Design/",
             "5-Image/",

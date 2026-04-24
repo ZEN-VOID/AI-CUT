@@ -1,6 +1,6 @@
 ---
 name: aigc-global
-description: Use when the global directing stage needs one root skill to write `projects/aigc/<项目名>/2-Global/episode_root.json` directly from planning grouping outputs and init presets, then hand off stable group-level seeds to `3-Detail`.
+description: Use when the global directing stage must read one episode's planning group script plus init presets, then write `projects/aigc/<项目名>/2-Global/第N集.json` as the only creative business output for that episode.
 governance_tier: full
 ---
 
@@ -9,332 +9,231 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
-- 本技能默认采用 `单技能知行合一 + skeleton-first`：根 `SKILL.md` 负责主骨架、思行网络、门禁、输入输出与验收；复杂细则下沉到 `references/`，但不得形成第二真源。
+- 本 `SKILL.md` 只咬定入口输入、出口输出、关键门禁、真源边界与目录导引；过程细则不得继续堆回主文件。
 - 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
-- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本目录 `references/*` > 本 `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本目录 `references/ steps/ review/ types/` > `templates/README.md` > 本 `CONTEXT.md`。
 
-## 概述
+## Positioning
 
 `2-Global` 是 `1-Planning` 与 `3-Detail` 之间的导演前置收束阶段。
 
-它的唯一业务目标不是再写四份平行长文，而是把规划分组结果与初始化预设直接收束为一颗组级 seed root：
+本阶段只做一件事：把当前集规划分组结果与初始化预设收束为**按集 JSON seed**。
 
-- 直接把结果写入 `projects/aigc/<项目名>/2-Global/episode_root.json`
-- `episode_root.json` 是本阶段唯一业务真源
-- `全局风格.md / 全集类型元素.md / 分组类型元素.md / 导演意图.md` 不再是默认 canonical 输出；若旧下游暂时仍依赖它们，只能作为由 JSON 派生的兼容投影
-
-## Single-Skill Positioning
-
-### 本技能拥有
-
-- `2-Global/episode_root.json` 的唯一写回权
-- 项目级 `全局风格 / 全集类型元素` 与组级 `全局风格 / 类型元素 / 导演意图 / 剧本正文` 的单技能内收裁决权
-- 前置 advisory 的消费与采纳裁决权
-- 阶段级 `validation-report.md` 的闭环写回权
-
-### 本技能不拥有
-
-- 在本阶段发明任何 shot-level 字段
-- 把四份 Markdown 重新升格为主链真源
-- 让外置导演组 contracts 或旧模板反向夺取字段写回权
-- 把落盘后的 refine owner 继续交给 `监制`
+- 输出文件固定为：`projects/aigc/<项目名>/2-Global/第N集.json`
+- 填写模板固定为：`.agents/skills/aigc/2-Global/templates/episode-root.template.json`
+- `第N集.json` 是本阶段唯一 creative business truth
+- `validation-report.md` 是治理/验收侧车，不是创作业务输出物
+- `全局风格.md / 全集类型元素.md / 分组类型元素.md / 导演意图.md` 不再生成，也不得作为新链路输入真源
 
 ## Mode Selection
 
-`2-Global` 默认按以下三种模式之一运行：
+| mode | 进入条件 | 允许动作 | 禁止动作 |
+| --- | --- | --- | --- |
+| `episode-bootstrap` | 当前集尚无 `2-Global/第N集.json` | 从必需输入首写按集 JSON | 先写 Markdown 再抽 JSON |
+| `incremental-patch` | 当前集已有 `2-Global/第N集.json`，只修局部组或字段 | 仅 patch 命中 `group / field / advisory scope` | 无 scope 全量覆盖 |
+| `blocked` | 必需输入缺失、集数不明或上游分组未稳定 | 写阻塞说明到治理侧车或最终回复 | 猜测生成业务 JSON |
 
-1. `episode-bootstrap`
-   - 当前集尚无 `2-Global/episode_root.json`，需要基于分组正文与 init 预设首写一颗完整 seed root。
-2. `incremental-patch`
-   - 当前已存在 `2-Global/episode_root.json`，需要仅对命中组或命中字段增量 patch。
-3. `compatibility-projection`
-   - 当前 canonical JSON 已确认，只因旧下游显式需要，才派生兼容 Markdown 投影。
+旧 Markdown 投影已从默认模式移除。若旧项目确需读取历史 Markdown，只能在项目迁移任务中按既有 JSON 另行派生，不能进入本阶段主合同。
 
-选择规则：
+## Input Contract
 
-- 没有现存 `episode_root.json` 时，默认进入 `episode-bootstrap`。
-- 只修局部组、局部字段、局部 advisory 采纳结果时，进入 `incremental-patch`。
-- 用户或旧下游只要求 `全局风格.md` 等衍生文件，且 JSON 已稳定时，才进入 `compatibility-projection`。
-- `compatibility-projection` 不能单独替代前两种模式；它永远依附于已确认 JSON。
+### Required Runtime Inputs
 
-## Business Requirement Analysis Contract (Mandatory)
+| input_id | path | must_contain | fail_if_missing |
+| --- | --- | --- | --- |
+| `IN-GLOBAL-01` | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | 当前集全部分组正文、分镜组 ID、组序 | 阻塞，不生成 `第N集.json` |
+| `IN-GLOBAL-02` | `projects/aigc/<项目名>/0-Init/north_star.yaml` | 项目级目标、风格方向、核心约束 | 阻塞，除非用户显式提供等价替代 |
+| `IN-GLOBAL-03` | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | 初始化阶段 handoff、长期约束、下游边界 | 阻塞，除非用户显式提供等价替代 |
 
-| analysis_slot | 当前结论 |
-| --- | --- |
-| `business_goal` | 将规划分组结果与初始化预设直接收束为 `projects/aigc/<项目名>/2-Global/episode_root.json`，并把稳定组级 seed 交给 `3-Detail` |
-| `business_object` | `0-Init` 的项目基线、`1-Planning` 的当前集分组正文、已有 `episode_root.json`、项目根 `team.yaml`（若存在） |
-| `constraint_profile` | `episode_root.json` 必须同时承载 `meta`、项目级 `project_global`、以及 `groups[].global`；`global.剧本正文` 必须完整整理自命中组正文；不得在本阶段发明 shot-level 字段；兼容 Markdown 若被生成，只能由 JSON 派生 |
-| `success_criteria` | `episode_root.json` 已稳定写入 `meta + project_global + groups[].global`，其中 `全局风格 / 类型元素 / 导演意图` 对下游可消费、可追溯、可增量 patch；`validation-report.md` 已记录验收与阻塞 |
-| `non_goals` | 不生成 shot-level 明细；不把本阶段写成平行长文流水线；不再维护第二套导演组 agent 真源 |
-| `complexity_source` | 项目级稳定项与当前集组级增量并存；类型总则与组级打法要分层；又要保证 JSON 结构能直接给 `3-Detail` 消费 |
-| `topology_fit` | 采用“输入锁定 -> 项目级判断 -> 组级判断 -> JSON 汇流 -> 阶段验收”的思行网络，而不是四条分离写作链 |
-| `step_strategy` | 先锁不变量，再做项目级 synthesis，再做组级 synthesis，最后统一 patch-in-place 与验收；必要时仅对命中 scope 增量回写 |
+### Optional Runtime Inputs
 
-## Visual Maps
+| input_id | path | use |
+| --- | --- | --- |
+| `IN-GLOBAL-04` | `projects/aigc/<项目名>/MEMORY.md` | 项目长期偏好、禁区与稳定口味 |
+| `IN-GLOBAL-05` | `projects/aigc/<项目名>/CONTEXT/` 相关文件 | 项目共享附加上下文 |
+| `IN-GLOBAL-06` | `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml` | 源文本、预设、保真模式证据 |
+| `IN-GLOBAL-07` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 当前集格式化剧本主稿 |
+| `IN-GLOBAL-08` | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | 分组决议、组序与时长 handoff |
+| `IN-GLOBAL-09` | `projects/aigc/<项目名>/team.yaml` | 仅作前置 advisory；不得接管写回 owner |
+| `IN-GLOBAL-10` | `projects/aigc/<项目名>/2-Global/第N集.json` | 增量 patch 的现存按集 JSON |
+| `IN-GLOBAL-11` | 用户显式指定的风格、类型或导演偏好 | 当前轮最高优先级补充约束 |
 
-```mermaid
-flowchart TD
-    A["用户进入 2-Global"] --> B["N1 模式锁定与 scope intake"]
-    B --> C["N2 输入与不变量锁定"]
-    C --> D["N3 项目级 synthesis: 全局风格 + 全集类型"]
-    D --> E["N4 组级 synthesis: 剧本正文 + 类型元素 + 导演意图"]
-    E --> F["N5 JSON patch / writeback"]
-    F --> G["N6 汇流审计与 compatibility 判定"]
-    G --> H["N7 验收、思考过程与 3-Detail handoff"]
-```
+### Forbidden Inputs
 
-```mermaid
-flowchart LR
-    A["episode-bootstrap"] --> D["完整首写 seed root"]
-    B["incremental-patch"] --> E["仅 patch 命中 group / field"]
-    C["compatibility-projection"] --> F["仅派生 Markdown 投影"]
-    D --> G["episode_root.json"]
-    E --> G
-    G --> H{"旧下游显式需要?"}
-    H -->|"Yes"| F
-    H -->|"No"| I["结束于 canonical JSON"]
-```
+- `2-Global/*.md` 作为新链路业务真源。
+- 与当前项目无关的外部参考文本。
+- 外置导演组 team、agent、creative method 文档作为业务真源。
+- 任何要求本阶段直接写 shot-level 字段、分镜列表或镜头 JSON 的输入。
 
-```mermaid
-stateDiagram-v2
-    [*] --> Intake
-    Intake --> InputsLocked
-    InputsLocked --> Synthesizing
-    Synthesizing --> WritebackReady
-    WritebackReady --> Audited
-    Audited --> Finalized
-    InputsLocked --> Blocked
-    Synthesizing --> Blocked
-    WritebackReady --> Blocked
-    Blocked --> Finalized
-```
+## Output Contract
 
-```mermaid
-erDiagram
-    GROUPING_DOC ||--o{ GROUP_SCOPE : provides
-    NORTH_STAR ||--|| PROJECT_GLOBAL : constrains
-    INIT_HANDOFF ||--|| PROJECT_GLOBAL : constrains
-    PROJECT_GLOBAL ||--o{ GROUP_GLOBAL : fans_out
-    GROUP_SCOPE ||--|| GROUP_GLOBAL : fills
-    EPISODE_ROOT ||--|| META : contains
-    EPISODE_ROOT ||--|| PROJECT_GLOBAL : contains
-    EPISODE_ROOT ||--o{ GROUP_GLOBAL : contains
-    VALIDATION_REPORT }o--|| EPISODE_ROOT : audits
-```
+### Required output
+
+- 必需创作业务输出：`projects/aigc/<项目名>/2-Global/第N集.json`
+- 必需治理侧车：`projects/aigc/<项目名>/2-Global/validation-report.md`，或在阻塞时于最终回复中明确说明未写入原因。
+
+### Output format
+
+- 创作业务输出格式：JSON。
+- JSON 结构必须同构于 `.agents/skills/aigc/2-Global/templates/episode-root.template.json`。
+- 治理侧车格式：Markdown。
+
+### Output path
+
+- 按集 JSON：`projects/aigc/<项目名>/2-Global/第N集.json`
+- 阶段验收：`projects/aigc/<项目名>/2-Global/validation-report.md`
+
+### Naming convention
+
+- `<项目名>` 必须等于当前项目根目录名。
+- `第N集.json` 的 `N` 必须等于输入分组正文中的当前集号。
+- 不得使用固定 `episode_root.json` 作为项目运行时创作输出名。
+
+### Completion gate
+
+- 只有 `第N集.json` 已按模板落盘且字段通过 `Output Field Gate`，本阶段才可判定完成。
+- 若必需输入缺失或 JSON 未写入，只能返回 blocked verdict。
+
+### Creative Business Output
+
+| output_id | path | owner | schema_source | must_contain |
+| --- | --- | --- | --- | --- |
+| `OUT-GLOBAL-01` | `projects/aigc/<项目名>/2-Global/第N集.json` | `aigc-global` | `.agents/skills/aigc/2-Global/templates/episode-root.template.json` | `meta + project_global + groups[].global` |
+
+`OUT-GLOBAL-01` 是本阶段唯一 creative business output。每一集一份 JSON，不使用固定 `episode_root.json` 作为项目运行时输出名。
+
+### Governance Sidecar
+
+| output_id | path | owner | role |
+| --- | --- | --- | --- |
+| `OUT-GLOBAL-02` | `projects/aigc/<项目名>/2-Global/validation-report.md` | `aigc-global` | 记录验收、阻塞、根因上溯、handoff 与可续跑状态 |
+
+`validation-report.md` 可以写回，但它不是创作业务真源，不替代 `第N集.json`。
+
+### Explicitly Removed Outputs
+
+- `projects/aigc/<项目名>/2-Global/全局风格.md`
+- `projects/aigc/<项目名>/2-Global/全集类型元素.md`
+- `projects/aigc/<项目名>/2-Global/分组类型元素.md`
+- `projects/aigc/<项目名>/2-Global/导演意图.md`
+- `projects/aigc/<项目名>/2-Global/episode_root.json` 作为运行时业务输出名
+
+历史项目中已有这些文件时，视为 legacy artifacts；新执行不得更新它们作为主链输出。
+
+## Output Field Gate
+
+`第N集.json` 最低必须满足：
+
+| field_id | target_path | requirement | detail_owner |
+| --- | --- | --- | --- |
+| `FIELD-GLOBAL-01` | `meta.剧名 / 集数 / 组数 / 总时长` | 与当前项目和当前集严格一致 | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-02` | `project_global.全局风格` | 项目级统一视觉风格前缀；真人古装影视默认遵循写实摄影基线 | `references/全局风格词最佳实践.md` |
+| `FIELD-GLOBAL-03` | `project_global.全集类型元素` | 项目级类型总则，不混入单组临场打法 | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-04` | `groups[].分镜组ID` | 与分组正文一一对应 | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-05` | `groups[].global.剧本正文` | 完整整理命中组正文，不摘要 | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-06` | `groups[].global.全局风格` | 默认继承 `project_global.全局风格` | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-07` | `groups[].global.类型元素` | 对齐当前组类型信号 | `references/字段与验收映射.md` |
+| `FIELD-GLOBAL-08` | `groups[].global.导演意图` | 至少具备观看策略、执行抓手、禁用方向 | `scripts/validate_director_intent.py`、`review/review-contract.md` |
 
 ## Reference Loading Guide
 
-- 在执行节点主干前，先读取 [references/思行网络.md](references/思行网络.md)。
-- 在核对字段、pass 与验收槽位时，读取 [references/字段与验收映射.md](references/字段与验收映射.md)。
-- 在执行增量 patch、compat projection 或 advisory 采纳裁决时，读取 [references/增量写回与兼容投影.md](references/增量写回与兼容投影.md)。
-- `references/` 只细化本技能主合同；若与本 `SKILL.md` 冲突，以本文件为准。
+- 先读本 `SKILL.md + CONTEXT.md`，锁定本轮 input/output 与 mode。
+- 需要字段细则时读 [references/字段与验收映射.md](references/字段与验收映射.md)。
+- 需要节点、scope、汇流或阻塞回路时读 [references/思行网络.md](references/思行网络.md)。
+- 需要增量 patch 或 legacy 投影处理时读 [references/增量写回与兼容投影.md](references/增量写回与兼容投影.md)。
+- 需要真人古装写实风格词时读 [references/全局风格词最佳实践.md](references/全局风格词最佳实践.md) 与 [steps/全局风格词生成流程.md](steps/全局风格词生成流程.md)。
+- 需要类型分流时读 [types/type-map.md](types/type-map.md)。
+- 需要交付审计时读 [review/review-contract.md](review/review-contract.md)。
+- `templates/` 不再承载 Markdown 业务输出内容模板；读 `templates/README.md` 确认边界，实际 JSON 填写只使用 `templates/episode-root.template.json`。
 
-## Context Preload (Mandatory)
+## Directory Guidance
 
-加载顺序固定为：
+过程细节按需进入以下 owner，不在 `SKILL.md` 展开：
 
-1. 根 `AGENTS.md`
-2. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-3. 本 `SKILL.md + CONTEXT.md`
-4. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-5. `.agents/skills/aigc/_shared/group_design_seed_contract.md`
-6. `.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
-7. `.agents/skills/aigc/2-Global/_shared/branch-output-contract.md`
-8. `.agents/skills/aigc/2-Global/_shared/episode_root.json`
-9. `.agents/skills/aigc/2-Global/references/思行网络.md`
-10. `.agents/skills/aigc/2-Global/references/字段与验收映射.md`
-11. `.agents/skills/aigc/2-Global/references/增量写回与兼容投影.md`
-12. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-13. `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
-14. `projects/aigc/<项目名>/MEMORY.md`（若项目已绑定）
-15. `projects/aigc/<项目名>/CONTEXT/` 相关文件（若存在）
-16. `projects/aigc/<项目名>/team.yaml`（若存在）
-17. `projects/aigc/<项目名>/0-Init/north_star.yaml`
-18. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-19. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-20. `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`（若存在）
-21. `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
-22. `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`（若存在）
-23. `projects/aigc/<项目名>/2-Global/episode_root.json`（若存在）
-24. `projects/aigc/<项目名>/2-Global/validation-report.md`（若存在）
-
-## Shared Canonical Sources (Mandatory)
-
-- 强制读取：`.agents/skills/aigc/2-Global/_shared/IO_CONTRACT.md`
-- 强制读取：`.agents/skills/aigc/2-Global/_shared/branch-output-contract.md`
-- 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
-- 强制读取：`.agents/skills/aigc/_shared/group_design_seed_contract.md`
-- 强制读取：`.agents/skills/aigc/2-Global/_shared/episode_root.json`
-- 强制读取：`.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-- 强制读取：`.agents/skills/aigc/_shared/council-runtime/team.template.yaml`
-- 可选校验：`.agents/skills/aigc/2-Global/scripts/validate_director_intent.py`
-
-硬规则：
-
-1. 本阶段的第一输入根固定为 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`。
-2. 项目级稳定约束优先来自 `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml` 与 `story-source-manifest.yaml`。
-3. `episode_root.json` 是本阶段唯一 canonical 业务载体。
-4. 本阶段必须把完整组级 seed 写入 `episode_root.json`，并同步维护 `meta.剧名 / 集数 / 组数 / 总时长`、`project_global.*` 与 `groups[].分镜组ID / global.剧本正文 / global.*`。
-5. `groups[].global.剧本正文` 必须完整整理自 `1-Planning/3-分组/第N集.md` 的命中组正文，除组号标题外不得二次摘要。
-6. `groups[].global.全局风格 / 类型元素 / 导演意图` 必须由本阶段直接定稿写入 JSON，不允许先写 Markdown 再抽取。
-7. 兼容投影若存在，只能由 JSON 派生；不得出现“Markdown 一套、JSON 一套”的双真源。
-
-## Total Input Contract (Mandatory)
-
-### 必需输入
-
-- `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
-- `projects/aigc/<项目名>/0-Init/north_star.yaml`
-- `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-
-### 可选输入
-
-- `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
-- `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
-- `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
-- `projects/aigc/<项目名>/team.yaml`
-- `projects/aigc/<项目名>/2-Global/episode_root.json`
-- 用户显式指定的风格、类型或导演偏好
-
-### 禁止输入
-
-- 与当前项目无关的外部参考文本
-- 要求本阶段直接写 shot-level 字段或镜头 JSON 的额外指令
-- 任何外置导演组 team、agent、creative method 文档作为业务真源
+| need | read |
+| --- | --- |
+| 输入输出、命名、JSON 写回边界 | `references/io-contract.md`、`references/writeback-contract.md` |
+| 字段槽位、验收映射、JSON 最低结构 | `references/字段与验收映射.md` |
+| 思行节点、scope、汇流、阻塞回路 | `references/思行网络.md` |
+| 增量 patch 与 legacy 投影处理 | `references/增量写回与兼容投影.md` |
+| 真人古装写实全局风格词 | `references/全局风格词最佳实践.md`、`steps/全局风格词生成流程.md` |
+| 风格类型冲突或非真人媒介例外 | `types/type-map.md` |
+| 交付审计、review verdict、降级口径 | `review/review-contract.md` |
+| 可复用经验与修复打法 | `CONTEXT.md`、`knowledge-base/global-style-heuristics.md` |
+| 模板目录边界确认 | `templates/README.md`；业务输出模板只允许是 `templates/episode-root.template.json` |
 
 ## Internal Capability Fusion Contract (Mandatory)
 
-| 能力面 | 作用 | 典型输出 | 何时触发 |
+本节只声明能力归属，不展开过程。
+
+| capability | input | output_field | detail_owner |
 | --- | --- | --- | --- |
-| `global_style_engine` | 从项目级证据中提炼稳定的媒介属性、渲染底座、摄影级总体属性与禁区 | `project_global.全局风格` | 每次进入 `2-Global` 时 |
-| `type_bible_engine` | 提炼项目级类型总则、观众合同与下游边界 | `project_global.全集类型元素` | 每次进入 `2-Global` 时 |
-| `group_type_engine` | 将当前集各组转译为组级类型信号 | `groups[].global.类型元素` | 当前集分组稳定后 |
-| `director_intent_engine` | 生成各组导演意图与 detail 放大方向 | `groups[].global.导演意图` | 当前集分组稳定后 |
-| `json_writeback_engine` | 把项目级与组级结果、完整组正文与 meta 一次性写入 `episode_root.json` | `episode_seed_patch` | 上游字段稳定后 |
-| `convergence_audit_engine` | 校验 JSON 结构、边界、长度窗与下游可消费性 | `convergence_report`、`writeback_patch_set` | 写回前必须触发 |
-| `supervision_council_engine` | 对前置 advisory 的命中与采纳做记录 | `advisory_synthesis`、`thought_summary_note` | `team.yaml` 启用且命中 `roles.supervision` 时 |
+| `global_style_engine` | `north_star / init_handoff / MEMORY / user style` | `project_global.全局风格`、`groups[].global.全局风格` | `references/全局风格词最佳实践.md` |
+| `type_bible_engine` | `north_star / init_handoff / 第N集分组正文` | `project_global.全集类型元素` | `references/字段与验收映射.md` |
+| `group_type_engine` | `project_global.全集类型元素 / 第N集分组正文` | `groups[].global.类型元素` | `references/思行网络.md` |
+| `director_intent_engine` | `groups[].global.剧本正文 / 类型元素 / project_global.*` | `groups[].global.导演意图` | `references/字段与验收映射.md`、`review/review-contract.md` |
+| `json_writeback_engine` | 全部已定稿字段 | `projects/aigc/<项目名>/2-Global/第N集.json` | `references/io-contract.md` |
+| `convergence_audit_engine` | `第N集.json` | `validation-report.md` verdict | `review/review-contract.md` |
 
-硬规则：
+## Field Mapping
 
-1. 上述能力面全部内收在当前 `SKILL.md`，不是外置真源。
-2. 任何能力面都不得绕过父 skill 直接写平行 canonical 文件。
-3. 细化说明统一下沉到 `references/`，但能力 ownership 仍以本节为准。
+字段真源与详细规则见 `Output Field Gate` 及 [references/字段与验收映射.md](references/字段与验收映射.md)。本节保留 `Field Mapping` 标记供审计器识别；不得在此复制完整字段细则。
 
-## Field Master
+### Field Master
 
-字段总表以 [references/字段与验收映射.md](references/字段与验收映射.md) 为细则承载；本节保留审计所需的最小骨架：
-
-| field_id | target_path | owner_pass | requirement |
-| --- | --- | --- | --- |
-| `FIELD-GLOBAL-01` | `meta.剧名 / 集数 / 组数 / 总时长` | `5-组正文入壳` | 必须与当前项目和当前集严格一致 |
-| `FIELD-GLOBAL-02` | `project_global.全局风格` | `1-项目级风格` | 形成项目级统一风格前缀 |
-| `FIELD-GLOBAL-03` | `project_global.全集类型元素` | `2-项目级类型` | 形成项目级类型总则 |
-| `FIELD-GLOBAL-04` | `groups[].分镜组ID / global.剧本正文` | `5-组正文入壳` | 保留命中组原始正文与组标识 |
-| `FIELD-GLOBAL-05` | `groups[].global.全局风格` | `1-项目级风格` | 默认继承项目级风格前缀 |
-| `FIELD-GLOBAL-06` | `groups[].global.类型元素` | `3-组级类型` | 对齐当前组的类型信号 |
-| `FIELD-GLOBAL-07` | `groups[].global.导演意图` | `4-导演意图` | 对齐当前组的导演执行导向；必须具备观看策略、执行抓手和禁用方向，禁止写成剧情摘句 |
-| `FIELD-GLOBAL-08` | `validation-report.md` | `6-验收` | 写回验收、阻塞与根因上溯 |
+字段 owner 以 `Output Field Gate` 为主，详细字段约束由 [references/字段与验收映射.md](references/字段与验收映射.md) 承载。
 
 ## Thought Pass Map
 
-详细节点网络见 [references/思行网络.md](references/思行网络.md)；本节保留 pass 级主干映射：
+主文件只保留 pass 首尾映射；节点细节见 [references/思行网络.md](references/思行网络.md)。
 
-| pass_id | step_name | input | output |
-| --- | --- | --- | --- |
-| `P1` | `1-项目级风格` | `north_star / init_handoff / team.yaml` | `project_global.全局风格`、`groups[].global.全局风格` |
-| `P2` | `2-项目级类型` | `north_star / init_handoff / 第N集分组正文` | `project_global.全集类型元素` |
-| `P3` | `3-组级类型` | `project_global.全集类型元素`、`第N集分组正文` | `groups[].global.类型元素` |
-| `P4` | `4-导演意图` | `第N集分组正文`、`project_global.*`、`groups[].global.类型元素` | `groups[].global.导演意图` |
-| `P5` | `5-组正文入壳` | `第N集分组正文`、全部已定稿字段 | `episode_root.json` |
-| `P6` | `6-验收` | `episode_root.json` | `validation-report.md` |
+| pass_id | input | output |
+| --- | --- | --- |
+| `P1-input-lock` | 必需输入、可选输入、用户偏好 | `mode + scope + invariant_brief` |
+| `P2-synthesis` | 已锁定输入、项目记忆、风格/类型规则 | `project_global.* + groups[].global.*` |
+| `P3-writeback` | 全部已定稿字段、`templates/episode-root.template.json` | `projects/aigc/<项目名>/2-Global/第N集.json` |
+| `P4-validation` | `第N集.json` | `validation-report.md` 或 blocked verdict |
 
 ## Pass Table
 
-更细粒度字段规则见 [references/字段与验收映射.md](references/字段与验收映射.md)；本节保留 pass 门禁骨架：
-
-| pass | direct_write_target | hard_gate |
+| pass | direct_write_target | detail_owner |
 | --- | --- | --- |
-| `1-项目级风格` | `project_global.全局风格`、`groups[].global.全局风格` | 不得写成具体镜头操作或工具参数 |
-| `2-项目级类型` | `project_global.全集类型元素` | 不得混入某一组的临场打法 |
-| `3-组级类型` | `groups[].global.类型元素` | 必须逐组对齐，不得跨组混写 |
-| `4-导演意图` | `groups[].global.导演意图` | 必须可被 `3-Detail` 直接消费；不得只是剧情复述、正文截句或情绪评语 |
-| `5-组正文入壳` | `meta`、`groups[].分镜组ID`、`groups[].global.剧本正文` | 必须完整保留命中组正文 |
-| `6-验收` | `validation-report.md` | 必须记录阻塞、根因上溯与下一阶段回接 |
-
-## Thinking-Action Node Contract
-
-| node_id | objective | actions | evidence | route_out | gate |
-| --- | --- | --- | --- | --- | --- |
-| `N1-MODE-LOCK` | 锁定 `episode-bootstrap / incremental-patch / compatibility-projection` 与命中 scope | 判断是否已有 JSON、是否只修局部、是否只派生 compat 文件 | `mode_decision_note` | `N2` | 模式唯一，scope 唯一 |
-| `N2-INPUT-LOCK` | 锁定输入与字段不变量 | 读取分组正文、init 预设、旧 JSON、team advisory 条件 | `input_lock_note`、`invariant_brief` | `N3` | 上游真源完整，禁止 shot-level 漂移 |
-| `N3-PROJECT-GLOBAL` | 形成项目级 `全局风格 / 全集类型元素` | 从 init 预设、north star、必要 advisory 提炼项目级稳定项 | `project_global_patch` | `N4` | 不得混入组级临场打法 |
-| `N4-GROUP-GLOBAL` | 形成组级 `剧本正文 / 全局风格 / 类型元素 / 导演意图` | 逐组整理正文、类型信号和导演导向 | `group_global_patch_set` | `N5` | 必须逐组对齐，不得跨组混写 |
-| `N5-WRITEBACK` | 把项目级与组级结果汇流进 JSON | 对模板做 patch-in-place，维护 `meta + project_global + groups[].global` | `episode_seed_patch`、`writeback_patch_set` | `N6` | 只写命中 scope，不发明新壳 |
-| `N6-CONVERGENCE` | 检查 canonical JSON 与 compat 条件 | 审核结构、边界、derived-only compat 资格 | `convergence_report` | `N7` | compat 只能晚于 canonical |
-| `N7-CLOSURE` | 完成阶段验收、思考过程与 handoff | 写 `validation-report.md`，输出 closure triad 与 `3-Detail` handoff | `validation-report.md`、`handoff_note`、`思考过程` | 完成 | 必须可追溯、可续跑 |
-
-硬规则：
-
-1. 所有节点都属于同一 `SKILL.md` 统辖，不得被拆成平行真源链。
-2. `N3` 先于 `N4`，`N5` 先于 `N6`，`N7` 必须最后执行。
-3. 若项目根 `team.yaml.enabled == true` 且当前阶段命中 `roles.supervision`，advisory 只能在 `N2-N4` 间作为前置输入被消费，不得在 `N5` 之后成为 refine owner。
-4. `incremental-patch` 只 patch 命中 `group / field / advisory scope`，不默认全量重跑。
+| `input-lock` | 无业务写回 | `references/思行网络.md` |
+| `project-global` | `project_global.全局风格 / 全集类型元素` | `references/全局风格词最佳实践.md`、`references/字段与验收映射.md` |
+| `group-global` | `groups[].global.*` | `references/字段与验收映射.md` |
+| `json-writeback` | `2-Global/第N集.json` | `references/io-contract.md` |
+| `validation` | `validation-report.md` | `review/review-contract.md` |
 
 ## One-Shot Output Contract (Mandatory)
 
-`2-Global` 的一次性输出固定为：
+一次执行的闭环输出为：
 
-1. `projects/aigc/<项目名>/2-Global/episode_root.json`
-   - 唯一业务真源
-2. `projects/aigc/<项目名>/2-Global/validation-report.md`
-   - 记录本轮验收、阻塞、根因上溯与 closure
-3. `思考过程`
-   - 并列说明本轮 `mode`、命中 scope、关键约束、advisory 是否采纳、为何这样 patch
-   - 只作为 operator-facing reasoning 摘要，不夺取 canonical 真源地位
-4. `closure triad + handoff note`
-   - 说明 `root cause location / immediate fix / systemic prevention fix`
-   - 给出下一入口固定为 `3-Detail`
-5. 可选兼容投影
-   - 仅当旧下游明确需要时，允许从 JSON 派生 `全局风格.md / 全集类型元素.md / 分组类型元素.md / 导演意图.md`
-   - 这些投影不拥有真源地位
+1. 必须写入或 patch：`projects/aigc/<项目名>/2-Global/第N集.json`
+2. 必须写入、更新或在最终回复中说明阻塞：`projects/aigc/<项目名>/2-Global/validation-report.md`
+3. 必须明确下一入口：`projects/aigc/<项目名>/3-Detail/`
 
-## Canonical Output Governance (Mandatory)
+若 `第N集.json` 未能写入，本阶段不得宣称完成，只能返回 blocked verdict。
 
-1. `episode_root.json` 是本阶段唯一 canonical 业务载体。
-2. `validation-report.md` 是本阶段唯一 stage 验收载体。
-3. 若生成兼容 Markdown，它们只能由 JSON 派生，不得先写 Markdown 再回填 JSON。
-4. `全局风格` 必须服务统一画面风格锚定，不得混入具体镜头操作、具体景别或工具参数。
-5. `全集类型元素` 只写项目级类型总则，不得混入当前组临场打法。
-6. `类型元素` 与 `导演意图` 都必须对齐当前 `分镜组ID`。
-7. `导演意图` 必须回答“观众如何看、现场如何拍、什么方向禁用”三件事；推荐字段形态为“观看策略：...；执行抓手：...；禁用...”，不得从 `global.剧本正文` 截一句当成导演判断。
-8. `episode_root.json` 的 `groups[].global.*` 由当前 skill 聚合写入，但本阶段不得发明 shot-level 字段。
-9. 首次落盘后的审计与验收必须回到阶段自己的 `validation-report.md` / audit 机制；不得再把 `监制` 用作 stage-end refine 的 owner。
-
-## Acceptance Checklist (Mandatory)
+## Acceptance Checklist
 
 完成本技能前，必须确认：
 
-1. `projects/aigc/<项目名>/2-Global/episode_root.json` 已落盘。
-2. `meta + project_global + groups[].global` 结构完整。
-3. `groups[].global.剧本正文` 是完整组正文，不是摘要。
-4. `groups[].global.类型元素 / 导演意图` 与命中组严格对齐。
-5. `groups[].global.导演意图` 已通过三层导向复核或 `scripts/validate_director_intent.py` 校验，不像剧本正文随手截句。
-6. `projects/aigc/<项目名>/2-Global/validation-report.md` 已写回，或明确记录阻塞。
-7. 若生成兼容 Markdown，它们都来自已确认 JSON，而不是前置真源。
-8. 下一阶段固定回接到 `projects/aigc/<项目名>/3-Detail/`。
+1. `第N集.json` 已按 `templates/episode-root.template.json` 同构落盘。
+2. `groups[].global.剧本正文` 是完整组正文，不是摘要。
+3. `groups[].global.类型元素 / 导演意图` 与当前 `分镜组ID` 严格对齐。
+4. `project_global.全局风格` 已通过全局风格词门禁；真人古装项目不得滑向动画描线、赛璐璐分层或夸张残影。
+5. 本阶段没有生成或更新四个旧 Markdown 作为业务输出。
+6. `validation-report.md` 已记录验收、阻塞或 handoff；若被上层策略阻断真实 reviewer/subagent，必须记录降级来源与实际路径。
 
 ## Root-Cause Execution Contract (Mandatory)
 
-若本阶段失败，必须按以下格式上溯：
+若本阶段失败，必须按以下链路上溯：
 
-1. `Symptom`
-2. `Direct Cause`
-3. `Rule Source`
-4. `Meta Rule Source`
+`Symptom -> Direct Cause -> Rule Source -> Meta Rule Source`
 
-最小上溯样式：
+常见定位：
 
-- `Symptom`: `episode_root.json` 字段缺失、跨组混写、compat 投影反客为主、或把组正文写成摘要
-- `Direct Cause`: `mode_decision` 错误、`json_writeback` 未锁定字段边界、或把 advisory / compat 当成真源
-- `Rule Source`: 本 `SKILL.md` 的 `Mode Selection`、`Thinking-Action Node Contract`、`Canonical Output Governance`
-- `Meta Rule Source`: 根 `AGENTS.md` 的 `LLM-first creative authorship`、`执行深度默认规则`、`复合型技能输出治理合同`
+- `Symptom`: `第N集.json` 缺失、字段缺失、跨组混写、旧 Markdown 反客为主、组正文被摘要。
+- `Direct Cause`: 输入未锁定、输出路径未按集命名、JSON 写回未对齐模板、legacy 投影被误当真源。
+- `Rule Source`: 本 `SKILL.md` 的 `Input Contract`、`Output Contract`、`Output Field Gate`、`Directory Guidance`。
+- `Meta Rule Source`: 根 `AGENTS.md` 的 `LLM-first creative authorship`、Skill 2.0 分区职责、复合型技能输出治理合同。

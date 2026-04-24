@@ -1,6 +1,6 @@
 ---
 name: aigc-image
-description: Use when the `aigc` workflow reaches `projects/aigc/<项目名>/5-Image/` and needs to route image-request distillation, reference binding, or built-in Image Gen handoff through one canonical stage parent.
+description: Use when the `aigc` workflow reaches `projects/aigc/<项目名>/5-Image/` and needs to route image-request distillation, reference binding, fused single-frame or storyboard image workflows, or built-in Image Gen handoff through one canonical stage parent.
 governance_tier: full
 ---
 
@@ -27,26 +27,36 @@ governance_tier: full
 
 `3-Detail / 4-Design -> 1-提示词蒸馏 -> 2-参照引用 -> 3-图像生成`
 
+单帧端到端画面诉求也可进入融合入口：
+
+`3-Detail / 4-Design -> A.分镜画面 -> 分镜帧 / 2-参照引用 / 3-图像生成`
+
+组级多格故事板诉求也可进入融合入口：
+
+`3-Detail / 4-Design -> B.分镜故事板 -> 分镜故事板 / 2-参照引用 / 3-图像生成`
+
 ## Stage Positioning
 
 ### `5-Image` 拥有
 
 - 图像阶段父级路由合同
 - `projects/aigc/<项目名>/5-Image/` 的 stage runtime 真源
-- `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 三段链路的进入条件
+- `A.分镜画面`、`B.分镜故事板` 融合入口与 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 三段兼容链路的进入条件
 - 图像请求 JSON、引用绑定结果、submit-plan handoff 的阶段级边界说明
 
 ### `5-Image` 不拥有
 
 - 直接生成图片文件
 - 改写 `3-Detail/第N集.json` 的导演事实
-- 越权替代 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 的局部合同
+- 越权替代 `A.分镜画面`、`B.分镜故事板` 或 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 的局部合同
 - 发明 stage-level 第二业务真源
 
 ## Stage Coverage Status
 
 | 单元 | 当前状态 | 说明 |
 | --- | --- | --- |
+| `A.分镜画面` | active | 融合 `分镜帧 -> 2-参照引用 -> 3-图像生成` 的单帧画面端到端入口；原三个技能包暂不移除 |
+| `B.分镜故事板` | active | 融合 `分镜故事板 -> 2-参照引用 -> 3-图像生成` 的组级多格 storyboard 端到端入口；原三个技能包暂不移除 |
 | `1-提示词蒸馏` | active | 负责把 `3-Detail` canonical 输出蒸馏成图像请求 JSON，并在 `分镜故事板 / 分镜帧` 间做对象级路由；漫画页诉求回接 repo-local `comic` workflow |
 | `2-参照引用` | active | 负责把稳定请求 JSON 绑定到本地图片引用，并维持 provider-neutral 与 provider-specific 双层兼容 |
 | `3-图像生成` | active | 负责锁定唯一 provider，生成 `submit-plan.json + submit-brief.md`，并给出唯一下一入口 |
@@ -56,6 +66,8 @@ governance_tier: full
 - `.agents/skills/aigc/SKILL.md`
 - `.agents/skills/aigc/3-Detail/SKILL.md`
 - `.agents/skills/aigc/4-Design/SKILL.md`
+- `.agents/skills/aigc/5-Image/A.分镜画面/SKILL.md`
+- `.agents/skills/aigc/5-Image/B.分镜故事板/SKILL.md`
 - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
 - `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md`
 - `.agents/skills/aigc/5-Image/3-图像生成/SKILL.md`
@@ -66,7 +78,7 @@ governance_tier: full
 硬规则：
 
 1. `projects/aigc/<项目名>/5-Image/` 是图像阶段唯一 runtime 根。
-2. 图像阶段父层只路由真实存在的三个子路径，不伪造平行入口。
+2. 图像阶段父层只路由真实存在的融合入口与三段兼容子路径，不伪造平行入口。
 3. 图像阶段父层不自建第二套 image-request 模板真源。
 4. 业务真源始终由命中的子路径写回；父层只保留阶段边界、coverage 与 handoff。
 
@@ -80,9 +92,11 @@ governance_tier: full
 4. `.agents/skills/aigc/4-Design/SKILL.md + CONTEXT.md`
 5. 本 `SKILL.md + CONTEXT.md`
 6. `.agents/skills/aigc/5-Image/_shared/image-generation-input.template.json`
-7. 命中 `1-提示词蒸馏` 时，加载 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
-8. 命中 `2-参照引用` 时，加载 `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md + CONTEXT.md`
-9. 命中 `3-图像生成` 时，加载 `.agents/skills/aigc/5-Image/3-图像生成/SKILL.md + CONTEXT.md`
+7. 命中 `A.分镜画面` 时，加载 `.agents/skills/aigc/5-Image/A.分镜画面/SKILL.md + CONTEXT.md`
+8. 命中 `B.分镜故事板` 时，加载 `.agents/skills/aigc/5-Image/B.分镜故事板/SKILL.md + CONTEXT.md`
+9. 命中 `1-提示词蒸馏` 时，加载 `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md + CONTEXT.md`
+10. 命中 `2-参照引用` 时，加载 `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md + CONTEXT.md`
+11. 命中 `3-图像生成` 时，加载 `.agents/skills/aigc/5-Image/3-图像生成/SKILL.md + CONTEXT.md`
 
 ## Route And Topology Contract (Mandatory)
 
@@ -91,23 +105,35 @@ governance_tier: full
 1. `detail_to_request`
 2. `request_to_reference_binding`
 3. `request_to_provider_handoff`
+4. `single_frame_image_fusion`
+5. `storyboard_sheet_image_fusion`
 
 ### 路由规则
 
-1. 当前只有 `3-Detail` canonical episode 输出，且目标是先形成图像请求对象：进入 `1-提示词蒸馏`。
-2. 当前已有稳定请求 JSON，但 `reference_images / image_markers` 仍待绑定或待规范化：进入 `2-参照引用`。
-3. 当前已有稳定请求 JSON，且目标是锁定 provider、写 `submit-plan` 并形成 handoff 包：进入 `3-图像生成`。
-4. 若 `3-Detail` 仍未到 `detail_in_progress | ready`，停止在图像阶段父层并回报上游缺口。
-5. 若目标其实是直接排查 `dreamina-cli`、`nano-banana` 或其他 provider 的提交/轮询问题，优先回到对应 provider skill，而不是重复经过阶段父层。
+1. 当前目标是单一 `分镜ID` 的端到端画面准备，且希望一次性覆盖单帧蒸馏、参照绑定与 provider handoff：进入 `A.分镜画面`。
+2. 当前目标是单一 `分镜组ID` 的多格 storyboard 端到端准备，且希望一次性覆盖组级蒸馏、参照绑定与 provider handoff：进入 `B.分镜故事板`。
+3. 当前只有 `3-Detail` canonical episode 输出，且目标是先形成图像请求对象：进入 `1-提示词蒸馏`。
+4. 当前已有稳定请求 JSON，但 `reference_images / image_markers` 仍待绑定或待规范化：进入 `2-参照引用`。
+5. 当前已有稳定请求 JSON，且目标是锁定 provider、写 `submit-plan` 并形成 handoff 包：进入 `3-图像生成`。
+6. 若 `3-Detail` 仍未到 `detail_in_progress | ready`，停止在图像阶段父层并回报上游缺口。
+7. 若目标其实是直接排查 `dreamina-cli`、`nano-banana` 或其他 provider 的提交/轮询问题，优先回到对应 provider skill，而不是重复经过阶段父层。
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
     A["3-Detail / 4-Design"] --> B{"5-Image 阶段路由"}
+    B -->|"单帧端到端画面"| X["A.分镜画面"]
+    B -->|"组级多格故事板"| Y["B.分镜故事板"]
     B -->|"从导演事实蒸馏请求对象"| C["1-提示词蒸馏"]
     B -->|"已有请求 JSON，需补参照图"| D["2-参照引用"]
     B -->|"已有稳定请求，需写 handoff"| E["3-图像生成"]
+    X --> C
+    Y --> C
+    X --> D
+    Y --> D
+    X --> E
+    Y --> E
     C --> D
     D --> E
     E --> F["imagegen / provider fallback / 6-Video"]
@@ -116,10 +142,12 @@ flowchart TD
 ## Canonical Output Governance (Mandatory)
 
 1. `5-Image` 阶段没有父层第二业务真源。
-2. `1-提示词蒸馏` 负责写请求 JSON 到 `分镜故事板 / 分镜帧` 子路径；漫画页诉求不再写入 `5-Image` 阶段 runtime。
-3. `2-参照引用` 负责写绑定后的 JSON、`_manifest.json` 与 `match-report.md`。
-4. `3-图像生成` 负责写 `submit-plan.json + submit-brief.md`、provider 输出图像同目录落盘合同与唯一下一入口。
-5. 父层只负责阶段路由、边界、coverage 与下一入口说明。
+2. `A.分镜画面` 只拥有单帧端到端融合路由和汇流审计，不拥有新的 runtime 写位。
+3. `B.分镜故事板` 只拥有组级多格 storyboard 端到端融合路由和汇流审计，不拥有新的 runtime 写位。
+4. `1-提示词蒸馏` 负责写请求 JSON 到 `分镜故事板 / 分镜帧` 子路径；漫画页诉求不再写入 `5-Image` 阶段 runtime。
+5. `2-参照引用` 负责写绑定后的 JSON、`_manifest.json` 与 `match-report.md`。
+6. `3-图像生成` 负责写 `submit-plan.json + submit-brief.md`、provider 输出图像同目录落盘合同与唯一下一入口。
+7. 父层只负责阶段路由、边界、coverage 与下一入口说明。
 
 ### Runtime Write Slots
 
@@ -133,7 +161,7 @@ flowchart TD
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-5I-01` | 阶段边界 | 明确 `5-Image` 只拥有阶段路由与 runtime 真源，不拥有第二业务真源 | `S1` | 边界清晰度 | `FAIL-5I-01` |
-| `FIELD-5I-02` | 子路径路由 | 明确何时进入 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` | `S2` | 路由稳定性 | `FAIL-5I-02` |
+| `FIELD-5I-02` | 子路径路由 | 明确何时进入 `A.分镜画面 / B.分镜故事板 / 1-提示词蒸馏 / 2-参照引用 / 3-图像生成` | `S2` | 路由稳定性 | `FAIL-5I-02` |
 | `FIELD-5I-03` | runtime 对齐 | 明确 `projects/aigc/<项目名>/5-Image/` 是唯一 stage runtime 根 | `S3` | 真源一致性 | `FAIL-5I-03` |
 | `FIELD-5I-04` | 写位治理 | 明确各子路径各自拥有的 canonical 落点 | `S4` | 输出治理 | `FAIL-5I-04` |
 | `FIELD-5I-05` | handoff | 明确图像阶段如何回接 provider skill 或下游阶段 | `S5` | 闭环完整性 | `FAIL-5I-05` |
@@ -164,7 +192,7 @@ flowchart TD
 
 - registry 把 `5-Image` 注册成 active stage，但阶段父级真源缺失
 - 模糊图像任务直接跳进 leaf，没人先裁决阶段级入口
-- `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 对同一请求各写一套并行业务主稿
+- `A.分镜画面`、`B.分镜故事板` 与 `1-提示词蒸馏 / 2-参照引用 / 3-图像生成` 对同一请求各写一套并行业务主稿
 - live 合同继续引用旧 `5-画面` 路径或把 `5-Image` 当不存在的逻辑桶
 - provider handoff 与图像阶段写位边界再次漂移
 
@@ -177,6 +205,8 @@ flowchart TD
 - `Rule Source`
   - `.agents/skills/aigc/5-Image/SKILL.md`
   - `.agents/skills/aigc/5-Image/CONTEXT.md`
+  - `.agents/skills/aigc/5-Image/A.分镜画面/SKILL.md`
+  - `.agents/skills/aigc/5-Image/B.分镜故事板/SKILL.md`
   - `.agents/skills/aigc/5-Image/1-提示词蒸馏/SKILL.md`
   - `.agents/skills/aigc/5-Image/2-参照引用/SKILL.md`
   - `.agents/skills/aigc/5-Image/3-图像生成/SKILL.md`
@@ -189,6 +219,6 @@ flowchart TD
 ## Completion Criteria
 
 - 已建立真实存在的 `5-Image` 阶段父级合同
-- 已把三个图像子路径收束到同一个 stage parent
+- 已把 `A.分镜画面`、`B.分镜故事板` 与三个图像兼容子路径收束到同一个 stage parent
 - 已明确 `projects/aigc/<项目名>/5-Image/` 的 stage runtime 真源
 - 已避免父层与子路径争夺 canonical business truth

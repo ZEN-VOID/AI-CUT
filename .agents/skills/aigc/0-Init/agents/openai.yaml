@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 项目初始化"
-  short_description: "用单技能单一真源目录统筹首次初始化或重置式重新初始化；`0-Init` 现只保留智能顾问模式，并在自动组队 / 自定义组队之间开场锁模，随后按 `team.yaml` 中的 planning 顾问团以真实 subagents 执行固定题包直答。"
-  default_prompt: "Use $aigc-init to keep the parent skill as the only canonical writeback owner, fix `init_mode` to `smart_advisor`, open with a lineup choice between `auto` and `custom`, restrict all lineup selection to `.agents/skills/team/`, write the finalized roster and init contract into `team.yaml`, run planning-role direct-answer packets with real subagents against the fixed init prompt packet, and then synthesize north_star, init_handoff, story-source-manifest, team, project_state, and optional governance-state with a single next-stage recommendation."
+  short_description: "初始化 AIGC 项目并锁定顾问组队、北极星与下一入口。"
+  default_prompt: "Use $aigc-init to initialize or reinitialize an AIGC project with smart_advisor mode, lock either auto or custom team lineup from `.agents/skills/team/`, write the init team manifest to `team.yaml`, run planning-role direct-answer packets with real subagents, then synthesize north_star, init_handoff, story-source-manifest, team, STATE, and optional governance carriers with one next-stage recommendation."

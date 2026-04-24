@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 REQUIRED_FILES = (
+    "steps/detail-thinking-action-workflow.md",
     "references/思行网络.md",
     "references/能力通道图谱.yaml",
     "references/模板字段填写指南.md",
@@ -58,6 +59,11 @@ def validate_stage_root(stage_root: Path) -> list[str]:
             for key in REQUIRED_YAML_KEYS:
                 if key not in text:
                     errors.append(f"{file_path}: 缺少 YAML 关键段 `{key}`。")
+            continue
+        if rel_path.endswith("detail-thinking-action-workflow.md"):
+            for marker in ("N0", "N8", "Convergence Gate", "分镜构图"):
+                if marker not in text:
+                    errors.append(f"{file_path}: thinking-action workflow 缺少关键段 `{marker}`。")
             continue
         if rel_path.endswith("incremental-patch-playbook.md"):
             for marker in ("group_scope", "shot_scope", "field_scope", "closure_scope", "N2", "N7"):

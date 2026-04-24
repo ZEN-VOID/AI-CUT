@@ -1,6 +1,6 @@
 ---
 name: aigc-planning
-description: Use when the planning stage needs to execute `1-分集 -> 2-格式 -> 3-分组` under one parent skill, with routing, variant control, grouping gates, and handoff governance internalized into stage-local SKILL contracts instead of external planning agent docs.
+description: Use when the AIGC planning stage needs one fused Skill 2.0 package to route episode splitting, script formatting, grouping, validation, and handoff under a single planning skill.
 governance_tier: full
 ---
 
@@ -9,196 +9,274 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若当前任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与规划阶段相关的上下文。
 - 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
-- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > `references/`、`steps/`、`types/`、`review/` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 本 `CONTEXT.md` > `knowledge-base/`。
 
-## 概述
+## Positioning
 
-`1-Planning` 是 `aigc` 技能树在 `0-Init` 之后、`2-Global` 之前的规划阶段父级真源。
+`1-Planning` 是 `aigc` 技能树在 `0-Init` 之后、`2-Global` 之前的规划阶段唯一 Skill 2.0 包。
 
-当前阶段的稳定链路固定为：
+本次融合后的稳定链路仍是：
 
-`Story/ -> 1-分集 -> 2-格式 -> 3-分组 -> 2-Global`
+`Story/ -> 分集模式 -> 格式模式 -> 分组模式 -> validation-report.md -> 2-Global`
 
-本次口径进一步收紧为：
+硬规则：
 
-- `1-分集` 继续作为 direct leaf skill
-- `2-格式` 继续作为单技能包，但其内部已内化 `格式判模 + 标准剧 + 解说剧 + 编排边界`
-- `3-分组` 继续作为 stage-local parent skill，但其内部已内化分组 specialist / 节奏复核规则
-- `1-Planning` 父 skill 只回链真实存在的阶段技能，不再依赖已废弃的旧规划组文档
+1. `.agents/skills/aigc/1-Planning/1-分集`、`2-格式`、`3-分组` 不再作为独立 `SKILL.md` 包存在。
+2. 原三包细则完整保留并增强在 `references/`：
+   - `references/episode-splitter-contract.md`
+   - `references/script-format-contract.md`
+   - `references/grouping-contract.md`
+3. 原三包经验层迁入 `knowledge-base/`，不再作为独立 sibling `CONTEXT.md`。
+4. 原脚本与模板统一收归 `scripts/` 与 `templates/`，由本包单一入口调度。
+5. 项目 runtime 输出目录不随技能包融合而合并，仍保留 `projects/aigc/<项目名>/1-Planning/1-分集/`、`2-格式/`、`3-分组/` 的业务落盘边界。
+
+## Input Contract (Mandatory)
+
+`1-Planning` 的入口只咬住“项目源、上游阶段种子、规划阶段已发生产物”。具体判断、拆分、格式化、分组过程全部导向 `references/`、`steps/`、`types/` 与 `review/`。
+
+### Required Stage Inputs
+
+| input_id | 输入位置 | 适用模式 | 作用 | 缺失处理 |
+| --- | --- | --- | --- | --- |
+| `INPUT-PLAN-ROOT` | `projects/aigc/<项目名>/` | all | 绑定项目 runtime 根 | 无项目根时不得写项目产物 |
+| `INPUT-INIT-NORTH-STAR` | `projects/aigc/<项目名>/0-Init/north_star.yaml` | all project modes | 项目方向、范围和约束 | 缺失则进入 `repair` 或返回阻塞 |
+| `INPUT-INIT-HANDOFF` | `projects/aigc/<项目名>/0-Init/init_handoff.yaml` | all project modes | 上游初始化 handoff | 缺失则进入 `repair` 或返回阻塞 |
+| `INPUT-STORY-SOURCE` | `projects/aigc/<项目名>/Story/` | `episode_split`、`full_chain` | 故事正文与源材料 | 不得用治理文档替代正文 |
+| `INPUT-STORY-MANIFEST` | `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml` | `episode_split`、`full_chain` | 输入索引、readiness、`source_profile` | 可保守降级，但必须报告缺口 |
+| `INPUT-SPLIT-SOURCE` | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | `script_format`、`full_chain` | 逐集原文真源 | 不得回退到 `Story/` 自由重切 |
+| `INPUT-SPLIT-PLAN` | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | `script_format`、`grouping`、`stage_validation` | 分集边界和 handoff 索引 | 缺失则回到 `episode_split` 或阻塞 |
+| `INPUT-FORMATTED-SCRIPT` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | `grouping`、`stage_validation` | 规划阶段逐集主稿 | 不得用 `1-分集` 或 `3-分组` 替代 |
+| `INPUT-GROUPED-SCRIPT` | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | `stage_validation` | grouped script 与组边界证据 | 缺失则只验收已发生模式 |
+
+### Input Precedence
+
+1. 用户显式指定路径或范围优先。
+2. 已存在的上游规划产物优先于重新读取更早源材料。
+3. `story-source-manifest.yaml` 是输入索引与 readiness 证据，不替代故事正文。
+4. `script_format` 只消费 `1-分集` 输出物；`grouping` 只消费 `2-格式` 主稿。
+5. 未命中模式的输入不得被硬凑、补空或伪造成 ready。
+
+## Output Contract (Mandatory)
+
+`1-Planning` 的出口只咬住“规划阶段可交付产物 + 阶段验收 handoff”。每个输出只能由本包命中的 mode 写入；未执行 mode 不得出现在最终完成声明中。
+
+### Required output
+
+| output_id | 输出位置 | owner mode | 内容要求 | 下游消费者 |
+| --- | --- | --- | --- | --- |
+| `OUTPUT-SPLIT-SOURCE` | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | `episode_split` | 逐集原文真源，只切分不改写 | `script_format` |
+| `OUTPUT-SPLIT-REPORT` | `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md` | `episode_split` | 输入清单、readiness、边界、coverage、返工入口 | 父级验收 |
+| `OUTPUT-SPLIT-PLAN` | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | `episode_split` | `source_profile`、`bootstrap_output`、边界索引 | `script_format`、`2-Global` |
+| `OUTPUT-SCRIPT` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | `script_format` | 规划阶段唯一逐集主稿 | `grouping` |
+| `OUTPUT-SCRIPT-REPORT` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | `script_format` | 变体裁决、validator、返工入口 | 父级验收 |
+| `OUTPUT-GROUPED-SCRIPT` | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | `grouping` | grouped script，三段式 `分镜组ID`，可含隐藏尾钩 | `2-Global` |
+| `OUTPUT-GROUPING-REPORT` | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | `grouping` | 组序、`source_span`、量化字段、`quantization_trace` | 父级验收、`2-Global` |
+| `OUTPUT-VALIDATION` | `projects/aigc/<项目名>/1-Planning/validation-report.md` | `stage_validation` | 只聚合已执行有效产物、verdict、handoff 与返工入口 | `2-Global` |
+
+### Output format
+
+| output_id | format |
+| --- | --- |
+| `OUTPUT-SPLIT-SOURCE`、`OUTPUT-SCRIPT`、`OUTPUT-GROUPED-SCRIPT` | Markdown 正文主稿 |
+| `OUTPUT-SPLIT-REPORT`、`OUTPUT-SCRIPT-REPORT`、`OUTPUT-GROUPING-REPORT`、`OUTPUT-VALIDATION` | Markdown 报告 |
+| `OUTPUT-SPLIT-PLAN` | JSON 机读索引 |
+
+### Output path
+
+`Required output` 表中的输出位置即唯一 canonical output path；模板不得另造平行真源路径。
+
+### Naming convention
+
+逐集文件使用 `第N集.md`，逐集格式报告使用 `第N集-执行报告.md`；分组标题使用三段式 `分镜组ID`，不得混入四段式分镜帧 ID。
+
+### Completion gate
+
+1. `OUTPUT-SCRIPT` 是规划阶段唯一逐集主稿；`OUTPUT-SPLIT-SOURCE` 是上游原文，`OUTPUT-GROUPED-SCRIPT` 是组级脚本，不互相竞争。
+2. `OUTPUT-VALIDATION` 只登记真实发生的有效 patch，不补未调度 mode 的空字段。
+3. `2-Global` 的默认入口是 `OUTPUT-GROUPED-SCRIPT + OUTPUT-GROUPING-REPORT`；若只完成部分规划，必须在 `OUTPUT-VALIDATION` 写明阻塞和下一步。
+4. 任一输出未通过对应 validator 或 review gate，不得宣布该 mode 完成。
 
 ## Internal Capability Fusion Contract (Mandatory)
 
-`1-Planning` 不再通过外部 planning team 文档持有阶段总线；阶段能力面统一分布在父 skill 与各子阶段 skill：
+`1-Planning` 采用单包内多模式融合，不再把分集、格式、分组声明为三个可独立唤起的技能包。
 
-| 能力面 | 当前 owner | 说明 |
-| --- | --- | --- |
-| 阶段入口判定 | `1-Planning/SKILL.md` | 决定本轮是单点直达还是全链规划 |
-| 分集执行 | `1-分集/SKILL.md` | 直接生成逐集原文真源与机读索引 |
-| 剧本判模与变体执行 | `2-格式/SKILL.md` | 在单技能内化 `标准剧 / 解说剧` 与主稿落盘 |
-| 分组与节奏复核 | `3-分组/SKILL.md` | 在 stage-local parent 内化组边界、量化门与节奏复核接口 |
-| 阶段验收与 handoff | `1-Planning/SKILL.md` | 聚合 leaf/stage 产物并写 `validation-report.md` |
+| 能力面 | 当前 owner | 细则真源 | 说明 |
+| --- | --- | --- | --- |
+| 阶段入口判定 | 本 `SKILL.md` | `steps/planning-workflow.md` | 决定单点直达、全链规划或验收修复 |
+| 分集执行 | 本 `SKILL.md` 的 `episode_split` 模式 | `references/episode-splitter-contract.md` | 生成逐集原文真源、机读索引与 handoff |
+| 剧本判模与变体执行 | 本 `SKILL.md` 的 `script_format` 模式 | `references/script-format-contract.md` | 内化标准剧、解说剧、双案对照和 validator 闭环 |
+| 分组与节奏复核 | 本 `SKILL.md` 的 `grouping` 模式 | `references/grouping-contract.md` | 内化组边界、量化、尾钩借焰与 reviewer gate |
+| 阶段共享 I/O | `references/planning-io-contract.md` | `references/planning-io-contract.md` | 锁定 `Story -> 1-分集 -> 2-格式 -> 3-分组` 的项目 runtime 真源关系 |
+| 场景顺序与时长策略 | `references/scene-order-duration-strategy.md` | `references/scene-order-duration-strategy.md` | 分组量化与拆并组方法论 |
+| 质量门禁 | `review/planning-review-contract.md` | `review/planning-review-contract.md` | 结构审计、语义门禁、脚本边界与 handoff verdict |
 
-硬规则：
+## Reference Loading Guide
 
-1. `1-Planning` 不得引用不存在的 planning agent 文档。
-2. 父 skill 只依赖已声明的 stage-local `SKILL.md + CONTEXT.md + agents/openai.yaml`。
-3. 任一子阶段若出现高频分叉，也必须先证明单技能内化已不足，再考虑重新升格 team/agent。
+按任务命中动态加载，不要一次性读取全部细则。
 
-## Canonical Anchors
+| 场景 | 必读文件 |
+| --- | --- |
+| 任意规划任务 | `references/planning-io-contract.md`、`steps/planning-workflow.md` |
+| 分集、故事源切分、机读索引 | `references/episode-splitter-contract.md`、`templates/episode-split-plan.template.json`、`knowledge-base/episode-splitter-heuristics.md` |
+| 剧本格式化、标准剧、解说剧、双案对照 | `references/script-format-contract.md`、`scripts/validate_script_output.py`、`knowledge-base/script-format-heuristics.md` |
+| 分组、组边界、量化、尾钩借焰 | `references/grouping-contract.md`、`references/scene-order-duration-strategy.md`、`scripts/grouping_quantizer.py`、`scripts/postprocess_grouping_output.py`、`templates/grouping-output.template.md`、`templates/grouping-report.template.md`、`knowledge-base/grouping-heuristics.md` |
+| 多模式路由、输入分型、返工分支 | `types/planning-type-map.md` |
+| 阶段验收、review gate、交付判断 | `review/planning-review-contract.md` |
+| 产品入口与默认提示 | `agents/openai.yaml` |
+| 迁移追溯与旧三包去向 | `references/legacy-migration-matrix.md`、`CHANGELOG.md`、`TODO.md` |
+
+## Mode Selection
+
+| mode | 触发信号 | 入口输入 | 出口输出 | 过程细则 |
+| --- | --- | --- | --- | --- |
+| `episode_split` | 需要从 `Story/` 或 manifest 登记源生成逐集原文 | `INPUT-STORY-SOURCE`、`INPUT-STORY-MANIFEST` | `OUTPUT-SPLIT-SOURCE`、`OUTPUT-SPLIT-REPORT`、`OUTPUT-SPLIT-PLAN` | `references/episode-splitter-contract.md` |
+| `script_format` | 需要从逐集原文生成规划阶段主稿 | `INPUT-SPLIT-SOURCE`、`INPUT-SPLIT-PLAN` | `OUTPUT-SCRIPT`、`OUTPUT-SCRIPT-REPORT` | `references/script-format-contract.md` |
+| `grouping` | 需要把规划主稿切为 grouped script | `INPUT-FORMATTED-SCRIPT`、`INPUT-SPLIT-PLAN` | `OUTPUT-GROUPED-SCRIPT`、`OUTPUT-GROUPING-REPORT` | `references/grouping-contract.md` |
+| `full_chain` | 用户要求完成完整规划阶段 | `INPUT-STORY-SOURCE` 起步，按 mode 串行承接 | 三类 mode 输出与 `OUTPUT-VALIDATION` | `steps/planning-workflow.md` |
+| `stage_validation` | 需要验收、返工定位或 handoff | 已存在的 planning outputs | `OUTPUT-VALIDATION` | `review/planning-review-contract.md` |
+| `repair` | 引用断链、旧路径漂移、输出冲突 | 技能包结构、审计失败或项目产物缺口 | 最小修复 patch 与验证记录 | `references/legacy-migration-matrix.md` |
+
+未命中的模式不得补空目录、补默认思维链、伪造全链完成或写入未发生的 handoff。
+
+## Endpoint Anchors
 
 | 载体 | 位置 | 作用 |
 | --- | --- | --- |
-| 分集真源 | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | `1-分集` 的逐集原文真源 |
-| 规划主稿 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
-| 分组主稿 | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | `3-分组` 的 grouped script |
-| 阶段验收 | `projects/aigc/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 handoff 结论 |
-| 分集执行报告 | `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md` | `1-分集` 全剧集证据侧车 |
-| 分组执行报告 | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | 分组量化、边界与 handoff 证据 |
+| 分集真源 | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | 分集模式的逐集原文真源 |
 | 分集机读索引 | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | coverage、`source_profile`、`bootstrap_output` |
-| 共享 I/O | `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md` | 阶段输入/输出、命名与 handoff 真源 |
+| 规划主稿 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
+| 规划主稿执行报告 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | 变体裁决、validator、返工入口 |
+| 分组主稿 | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | grouped script，带三段式 `分镜组ID` |
+| 分组执行报告 | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | 分组量化、组序、handoff 证据 |
+| 阶段验收 | `projects/aigc/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 `2-Global` handoff |
 
-## Stage Coverage Status
+## Visual Maps
 
-| 单元 | 当前状态 | 说明 |
-| --- | --- | --- |
-| `1-分集` | active | direct leaf 执行，已按知行合一重排 |
-| `2-格式` | active | 单技能内化判模、标准剧、解说剧与执行闭环 |
-| `3-分组` | active | stage-local parent 内化分组与节奏复核规则 |
-| `4-节奏` | folded-into-grouping | 当前不再作为独立 external agent 载体；节奏复核只作为 `3-分组` 内部 reviewer 规则或父级额外 gate |
+```mermaid
+flowchart TD
+    A["Story/ + 0-Init seeds"] --> B["episode_split"]
+    B --> C["script_format"]
+    C --> D["grouping"]
+    D --> E["stage_validation"]
+    E --> F["2-Global handoff"]
+```
 
-## Route And Topology Contract (Mandatory)
+```mermaid
+flowchart TD
+    A["1-Planning single package"] --> B{"mode"}
+    B -->|"episode_split"| C["references/episode-splitter-contract.md"]
+    B -->|"script_format"| D["references/script-format-contract.md"]
+    B -->|"grouping"| E["references/grouping-contract.md"]
+    C --> F["validation-report.md"]
+    D --> F
+    E --> F
+```
 
-### 默认 tranche
+## Process Delegation Contract
 
-`1-分集 -> 2-格式 -> 3-分组 -> 2-Global`
+`SKILL.md` 不展开中段过程，只规定入口、出口、路由和门禁。
 
-### 路由规则
+| 过程问题 | 读取位置 |
+| --- | --- |
+| 具体节点、分支、汇流与返工 | `steps/planning-workflow.md` |
+| 模式判型与输入分型 | `types/planning-type-map.md` |
+| 分集细则 | `references/episode-splitter-contract.md` |
+| 格式细则 | `references/script-format-contract.md` |
+| 分组细则 | `references/grouping-contract.md`、`references/scene-order-duration-strategy.md` |
+| 质量审计与 verdict | `review/planning-review-contract.md` |
+| 可复用经验与失败打法 | `CONTEXT.md`、`knowledge-base/` |
 
-1. 父 skill 先锁定本轮是单点直达还是全链规划。
-2. 只需切分逐集原文时，直达 `1-分集`。
-3. 需要规划阶段 canonical 主稿时，进入 `2-格式`。
-4. 需要组边界、量化与分组 handoff 时，进入 `3-分组`。
-5. 节奏复核只在以下条件满足至少一项时进入：
-   - 用户显式要求节奏预演或重排判断
-   - `3-分组` 的 `group_load_score` 与量化门长期冲突
-   - `2-Global` 需要额外的节奏影响说明
-6. 未命中的阶段不得补空路径、补占位输出或伪造全链完成。
+内容创作型正文、剧本、边界裁决、组界判断和提示性总结必须由 LLM 直接完成；`scripts/` 只承担 validator、量化、模板渲染、postprocess 等机械辅助。
 
-## Shared I/O Contract (Mandatory)
+## Script And Template Contract
 
-- 强制读取：`.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
-- 强制读取：`.agents/skills/aigc/_shared/story-source-contract.md`
-- 强制读取：`.agents/skills/aigc/_shared/project-runtime-layout.md`
+| 路径 | 职责 |
+| --- | --- |
+| `scripts/validate_script_output.py` | 校验 `2-格式` 标准剧/解说剧结构、对白冻结、声画配对与字数回填 |
+| `scripts/grouping_quantizer.py` | 计算 `3-分组` authoritative 字窗、时长、`effective_text_chars` 与 `quantization_trace` |
+| `scripts/postprocess_grouping_output.py` | 在分组结果落定后追加隐藏 `尾钩借焰` 并串联报告渲染与 validator |
+| `scripts/render_grouping_report.py` | 按 `templates/grouping-report.template.md` 回写唯一 `执行报告.md` |
+| `scripts/validate_grouping_output.py` | 校验 grouped script、三段式组 ID、场景继承、尾钩、量化与报告一致性 |
+| `templates/episode-split-plan.template.json` | 分集机读索引模板 |
+| `templates/grouping-output.template.md` | grouped script 落盘模板 |
+| `templates/grouping-report.template.md` | 分组执行报告模板 |
 
-硬规则：
+脚本不得生成核心创作正文、不得替代 LLM 做分集/变体/组界审美与叙事判断。
 
-1. `projects/aigc/<项目名>/Story/` 是 `1-分集` 的默认输入根。
-2. `story-source-manifest.yaml` 只作为输入索引与 `source_profile` 证据，不替代故事正文。
-3. 若 manifest 已显式登记 `development_briefs`，且当前项目处于 `incremental` / `开发式分集`，则 `1-分集` 可将 brief 作为边界辅证消费，但不得把其抬升为 `primary_story_source`。
-4. `1-分集/第N集.md` 是上游逐集原文真源。
-5. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
-6. `3-分组/第N集.md` 是 grouped script，不与 `2-格式` 竞争。
-7. `1-Planning` 只登记 `bootstrap_output` 与 `source_profile` handoff，不在本阶段生成 `2-Global/*.md` 或 `3-Detail/*.json`。
+## Field Mapping
 
-## Context Contract (Mandatory)
-
-### 加载顺序
-
-1. `.agents/skills/aigc/SKILL.md + CONTEXT.md`
-2. 本 `SKILL.md + CONTEXT.md`
-3. `.agents/skills/aigc/_shared/project-runtime-layout.md`
-4. `.agents/skills/aigc/_shared/story-source-contract.md`
-5. `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
-6. `projects/aigc/<项目名>/0-Init/north_star.yaml`
-7. `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
-8. `projects/aigc/<项目名>/Story/` 相关内容
-9. `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`（若存在）
-10. `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`（若存在）
-11. 命中 `1-分集` 时，加载 `1-分集/SKILL.md + CONTEXT.md`
-12. 命中 `2-格式` 时，加载 `2-格式/SKILL.md + CONTEXT.md`
-13. 命中 `3-分组` 时，加载 `3-分组/SKILL.md + CONTEXT.md`
-
-### 四层上下文
-
-1. `global charter context`
-2. `task context`
-3. `stage context`
-4. `evidence context`
-
-## Execution Workflow
-
-1. 读取 `Story/` 与 `0-Init` 相关内容，锁定项目范围。
-2. 判定本轮是单点直达还是全链规划。
-3. 命中 `1-分集` 时，确保 `1-分集/` 与 `episode-split-plan.json` 合同可用，并由 leaf skill 完成切分。
-4. 命中 `2-格式` 时，必须先读取 `1-分集` 输出物，再由其内部完成变体裁决、主稿写回与 validator。
-5. 命中 `3-分组` 时，必须先读取 `2-格式` 输出物，再由其内部完成组边界、量化与节奏复核 gate。
-6. 聚合有效结果并写入 `validation-report.md`。
-7. 返回默认下一入口：`2-Global`。
-
-## Canonical Output Governance (Mandatory)
-
-1. `2-格式/第N集.md` 是规划阶段唯一逐集主稿。
-2. `1-分集/第N集.md` 是上游原文真源，不与主稿竞争。
-3. `3-分组/第N集.md` 是 grouped script，不是第二份逐集主稿。
-4. `1-分集` 与 `3-分组` 的执行报告只承载证据与 handoff，不替代 canonical 正文。
-5. 阶段技能各自拥有本地写回权，父 skill 只负责阶段级聚合与验收。
-
-## Field Master
+### Field Master
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
-| `FIELD-PLAN-01` | 阶段定位 | 明确 `1-Planning` 是规划阶段唯一父级真源 | `S1` | 边界清晰度 | `FAIL-PLAN-01` |
-| `FIELD-PLAN-02` | 阶段路由 | 明确本轮命中的 stage 与 tranche | `S2` | 路由完整性 | `FAIL-PLAN-02` |
-| `FIELD-PLAN-03` | 共享 I/O | 明确 `Story/ -> 1-分集 -> 2-格式 -> 3-分组` 真源关系 | `S3` | 真源一致性 | `FAIL-PLAN-03` |
-| `FIELD-PLAN-04` | 聚合写回 | 明确父 skill 如何汇总 stage 产物与验证报告 | `S4` | 聚合可执行性 | `FAIL-PLAN-04` |
-| `FIELD-PLAN-05` | 验收闭环 | 明确 `validation-report`、返工入口与下游 handoff | `S5` | 闭环完整性 | `FAIL-PLAN-05` |
+| `FIELD-PLAN-01` | 阶段定位 | 明确 `1-Planning` 是唯一规划 Skill 2.0 包 | `S1` | 边界清晰度 | `FAIL-PLAN-01` |
+| `FIELD-PLAN-02` | 模式路由 | 明确本轮命中的 mode、输入和非目标 | `S2` | 路由完整性 | `FAIL-PLAN-02` |
+| `FIELD-PLAN-03` | 分集输出 | 分集真源、索引、执行报告和 handoff 一致 | `S3` | 分集可追溯性 | `FAIL-PLAN-03` |
+| `FIELD-PLAN-04` | 格式输出 | 主稿、变体裁决、validator 与 handoff 一致 | `S4` | 剧本结构稳定性 | `FAIL-PLAN-04` |
+| `FIELD-PLAN-05` | 分组输出 | grouped script、量化报告、尾钩和 validator 一致 | `S5` | 分组量化稳定性 | `FAIL-PLAN-05` |
+| `FIELD-PLAN-06` | 阶段验收 | `validation-report.md` 只聚合已执行有效产物 | `S6` | 闭环完整性 | `FAIL-PLAN-06` |
+| `FIELD-PLAN-07` | 引用治理 | 旧三包路径不再作为 skill 真源出现 | `S7` | 结构一致性 | `FAIL-PLAN-07` |
 
-## Thought Pass Map
+### Thought Pass Map
 
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
-| `S1` | `FIELD-PLAN-01` | 当前是不是规划阶段问题 | 锁定阶段边界与父子职责 | 把规划写成导演或明细阶段 |
-| `S2` | `FIELD-PLAN-02` | 本轮该走哪个阶段 skill | 写出命中阶段与 route reason | 多阶段并列但没有路由依据 |
-| `S3` | `FIELD-PLAN-03` | 真源路径是否锁死 | 回指 shared I/O 与 runtime layout | 输入/输出口径混乱 |
-| `S4` | `FIELD-PLAN-04` | 阶段产物如何聚合 | 写 `validation-report` 聚合规则 | 阶段互相争夺写回权 |
-| `S5` | `FIELD-PLAN-05` | 如何证明本轮完成或阻塞 | 写返工入口与 `2-Global` handoff | 没有返工入口或下一步 |
+| `S1` | `FIELD-PLAN-01` | 当前是否属于规划阶段 | 锁定 stage 边界和项目 runtime | 把规划写成导演或明细阶段 |
+| `S2` | `FIELD-PLAN-02` | 本轮该执行哪个 mode | 写出 route reason 与读取的 reference | 多模式并列但无裁决 |
+| `S3` | `FIELD-PLAN-03` | 故事源能否切分 | 执行分集模式或返回缺口 | readiness blocked 仍写正式分集 |
+| `S4` | `FIELD-PLAN-04` | 主稿应采用哪种剧本变体 | 执行格式模式并运行 validator | 跳过判模直接改写正文 |
+| `S5` | `FIELD-PLAN-05` | 组界能否通过量化 | 执行分组模式并运行 quantizer/validator | 用人工说明替代量化 |
+| `S6` | `FIELD-PLAN-06` | 阶段是否能 handoff | 聚合有效 patch 写验收 | 未执行模式被补空完成 |
+| `S7` | `FIELD-PLAN-07` | 包结构是否仍单一 | 扫描旧 skill 路径和引用 | 旧子包 `SKILL.md` 复活 |
 
-## Pass Table
+### Pass Table
 
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
-| `FIELD-PLAN-01` | 阶段边界、父子职责与 stage-local ownership 明确 | `FAIL-PLAN-01` | `S1` |
-| `FIELD-PLAN-02` | 路由、单点直达与全链规则明确 | `FAIL-PLAN-02` | `S2` |
-| `FIELD-PLAN-03` | `Story/`、`1-分集`、`2-格式`、`3-分组` 的真源关系明确 | `FAIL-PLAN-03` | `S3` |
-| `FIELD-PLAN-04` | 父 skill 只聚合 stage 产物，不替代子阶段写回 | `FAIL-PLAN-04` | `S4` |
-| `FIELD-PLAN-05` | `validation-report`、返工入口与 `2-Global` handoff 明确 | `FAIL-PLAN-05` | `S5` |
+| `FIELD-PLAN-01` | 阶段边界、单包职责与 runtime 子路径关系明确 | `FAIL-PLAN-01` | `S1` |
+| `FIELD-PLAN-02` | mode selection、单点直达与全链规则明确 | `FAIL-PLAN-02` | `S2` |
+| `FIELD-PLAN-03` | 分集产物与 `episode-split-plan.json` 一致 | `FAIL-PLAN-03` | `S3` |
+| `FIELD-PLAN-04` | `2-格式/第N集.md` 通过对应 validator 或有明确返工入口 | `FAIL-PLAN-04` | `S4` |
+| `FIELD-PLAN-05` | `3-分组/第N集.md` 与 `执行报告.md` 通过量化一致性校验 | `FAIL-PLAN-05` | `S5` |
+| `FIELD-PLAN-06` | `validation-report.md` 只承载已发生的有效 patch、verdict 与 handoff | `FAIL-PLAN-06` | `S6` |
+| `FIELD-PLAN-07` | 全仓不存在旧子技能入口断链，旧细则均可追到 `references/` | `FAIL-PLAN-07` | `S7` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
 当规划阶段出现以下问题时，必须先修源层而不是补临时说明：
 
-- 父 skill 仍引用已删除的 planning agent 文档
-- `1-分集`、`2-格式`、`3-分组` 真源关系再次混写
-- 子阶段把非 owned truth 写进本阶段 canonical 文件
-- `validation-report` 与真实阶段产物脱节
+- 旧 `1-分集 / 2-格式 / 3-分组` 子包 `SKILL.md` 被重新创建或引用为入口
+- `references/` 中的原细则无法追溯到迁移矩阵
+- `Story -> 1-分集 -> 2-格式 -> 3-分组` 项目 runtime 真源关系混写
+- 脚本、模板、报告或 validator 仍指向旧子技能包路径
+- 内容创作判断被脚本代替
 
 必经链路：
 
-`Symptom -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
+`Symptom -> Direct Technical Cause -> Section Owner -> Source Contract -> Meta Rule Source -> Fix Landing Points`
 
 优先检查：
 
-- `Rule Source`
-  - `.agents/skills/aigc/1-Planning/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/_shared/IO_CONTRACT.md`
-  - `.agents/skills/aigc/1-Planning/1-分集/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/2-格式/SKILL.md`
-  - `.agents/skills/aigc/1-Planning/3-分组/SKILL.md`
+- `Section Owner`
+  - `SKILL.md`
+  - `references/planning-io-contract.md`
+  - `references/episode-splitter-contract.md`
+  - `references/script-format-contract.md`
+  - `references/grouping-contract.md`
+  - `steps/planning-workflow.md`
+  - `types/planning-type-map.md`
+  - `review/planning-review-contract.md`
+  - `knowledge-base/`
+  - `scripts/`
+  - `templates/`
+  - `agents/openai.yaml`
 - `Meta Rule Source`
   - `AGENTS.md`
   - `.agents/skills/aigc/SKILL.md`
   - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+  - `.agents/skills/aigc/_shared/story-source-contract.md`
 
 面向用户的闭环固定返回：
 
@@ -208,7 +286,8 @@ governance_tier: full
 
 ## Completion Criteria
 
-- 已建立 `1-Planning` 阶段父级真源
-- 已锁定 `Story/ -> 1-分集 -> 2-格式 -> 3-分组` 单一口径
-- 已去除对已废弃旧规划组文档的运行依赖
-- 已给出 `validation-report` 与 `2-Global` handoff 闭环
+- `.agents/skills/aigc/1-Planning` 已具备完整 Skill 2.0 目录结构。
+- 原 `1-分集 / 2-格式 / 3-分组` 细则均已保留并增强于 `references/`。
+- 旧子技能入口不再作为 `SKILL.md` 包存在。
+- 父包 `SKILL.md` 只承担入口、路由、动态引用、关键门禁和输出合同。
+- `scripts/`、`templates/`、`agents/openai.yaml`、`README.md`、`TODO.md`、`CONTEXT.md` 与审计脚本均已同步。

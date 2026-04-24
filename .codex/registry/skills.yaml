@@ -42,44 +42,16 @@ active_skills:
         contract_status: active
         route_role: stage
         leaf_index:
-          - id: aigc-design-scene-list
-            path: .agents/skills/aigc/4-Design/1-清单/场景
+          - id: aigc-design-scene
+            path: .agents/skills/aigc/4-Design/场景
             contract_status: active
             route_role: leaf
-          - id: aigc-design-role-list
-            path: .agents/skills/aigc/4-Design/1-清单/角色
+          - id: aigc-design-role
+            path: .agents/skills/aigc/4-Design/角色
             contract_status: active
             route_role: leaf
-          - id: aigc-design-prop-list
-            path: .agents/skills/aigc/4-Design/1-清单/道具
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-scene-design
-            path: .agents/skills/aigc/4-Design/2-设计/场景
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-role-design
-            path: .agents/skills/aigc/4-Design/2-设计/角色
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-prop-design
-            path: .agents/skills/aigc/4-Design/2-设计/道具
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-role-panel
-            path: .agents/skills/aigc/4-Design/3-面板/角色
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-prop-panel
-            path: .agents/skills/aigc/4-Design/3-面板/道具
-            contract_status: active
-            route_role: leaf
-          - id: aigc-design-panel
-            path: .agents/skills/aigc/4-Design/3-面板
-            contract_status: partial-active
-            route_role: tranche
-          - id: aigc-design-scene-panel
-            path: .agents/skills/aigc/4-Design/3-面板/场景
+          - id: aigc-design-prop
+            path: .agents/skills/aigc/4-Design/道具
             contract_status: active
             route_role: leaf
       - id: aigc-5-visuals
@@ -88,6 +60,14 @@ active_skills:
         contract_status: active
         route_role: stage
         leaf_index:
+          - id: aigc-storyboard-frame-image
+            path: .agents/skills/aigc/5-Image/A.分镜画面
+            contract_status: active
+            route_role: leaf
+          - id: aigc-storyboard-sheet-image
+            path: .agents/skills/aigc/5-Image/B.分镜故事板
+            contract_status: active
+            route_role: leaf
           - id: aigc-visual-prompt-distillation
             path: .agents/skills/aigc/5-Image/1-提示词蒸馏
             contract_status: active
@@ -114,6 +94,18 @@ active_skills:
         contract_status: active
         route_role: stage
         leaf_index:
+          - id: aigc-video-frame-visual-reference
+            path: .agents/skills/aigc/6-Video/A.分镜画面参照
+            contract_status: active
+            route_role: leaf
+          - id: aigc-video-storyboard-reference
+            path: .agents/skills/aigc/6-Video/B.分镜故事板参照
+            contract_status: active
+            route_role: leaf
+          - id: aigc-video-subject-reference
+            path: .agents/skills/aigc/6-Video/C.主体参照
+            contract_status: active
+            route_role: leaf
           - id: aigc-video-seedance2
             path: .agents/skills/aigc/6-Video/1-提示词蒸馏/全能参照
             contract_status: active

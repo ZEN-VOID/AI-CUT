@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 分镜故事板"
+  short_description: "融合组级故事板蒸馏、参照绑定与图像生成 handoff 完整入口"
+  default_prompt: "Use $aigc-storyboard-sheet-image to run the fused storyboard sheet image workflow: lock one `分镜组ID`, produce multi-panel storyboard request JSON, optionally bind local references, and create provider-ready image handoff while preserving the legacy three package outputs."

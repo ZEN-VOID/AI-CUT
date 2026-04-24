@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 规划分集"
-  short_description: "由 leaf skill 直接完成分集边界裁决、逐集原文落盘、索引更新与 handoff 生成"
-  default_prompt: "Use $aigc-planning-episode-splitter to directly execute episode splitting inside the leaf skill: read the story source, decide boundaries, write the 1-分集 episode source truth, update the machine-readable split plan, preserve source_profile plus bootstrap_output handoff, and return evidence-backed split boundaries."

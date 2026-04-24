@@ -112,7 +112,7 @@ governance_tier: full
   - `第N组.md` 的 canonical 包装结构模板；用于稳定文件命名、组跨度说明与 `【漫剧正文】` 真源区块。
 - [scripts/validate_grouped_manga_script.py](scripts/validate_grouped_manga_script.py)
   - `第N组.md` validator；用于校验单文件结构，以及目录级组集合的编号连续性、尾组决议与分组口径一致性。
-- [.agents/skills/aigc/1-Planning/2-格式/SKILL.md](../../aigc/1-Planning/2-格式/SKILL.md)
+- [.agents/skills/aigc/1-Planning/references/script-format-contract.md](../../aigc/1-Planning/references/script-format-contract.md)
   - 继承其“先判模、再整形、再写回 canonical 主稿”的格式裁决思路，并对齐其 `对白 / 内心独白 / 旁白 + 对应画面 + 动作画面 + 镜头语言预设` 的基础格式化纪律；本技能额外叠加漫画专属表现字段，不直接退化成纯规划剧本。
 - [/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md](/Volumes/AIGC/AIGC-ZEN-VOID/.agents/skills/aigc2026/1-编剧/2-对白·独白·旁白/解说剧/SKILL.md)
   - 当用户要求“解说漫兼容 / 旁白可朗读”时，继承其“旁白主导、同命题声画配对、动作画面承载无台词推进”的约束，但本技能仍以分组漫剧剧本为主，不直接改写成格式化对白稿。
@@ -245,7 +245,7 @@ B. 漫画专属扩展字段：
 
 ## Formatting Alignment Contract (Mandatory)
 
-本技能的格式化处理必须对齐 `.agents/skills/aigc/1-Planning/2-格式` 的基础文本-画面纪律，但漫画技能仍保持自己的下游消费目标。
+本技能的格式化处理必须对齐 `.agents/skills/aigc/1-Planning/references/script-format-contract.md` 的基础文本-画面纪律，但漫画技能仍保持自己的下游消费目标。
 
 硬规则：
 

@@ -1,0 +1,19 @@
+{
+  "source_request": {
+    "path": "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/<第N集>/reference-binding/<第N集>.json",
+    "route": "B.分镜故事板参照"
+  },
+  "provider": {
+    "id": "<provider>",
+    "capability_state": "external_or_manual"
+  },
+  "input_mode": "reference_driven",
+  "provider_input_resolution": {
+    "reference_policy": "Resolve provider-neutral image_ref/ref_kind into provider-specific upload or URL inputs at handoff time."
+  },
+  "output_dir": "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/<第N集>/generation-handoff/<provider>/",
+  "handoff": {
+    "next_entry": "<provider skill or manual handoff>",
+    "rework_entry": "B.分镜故事板参照/reference-binding"
+  }
+}

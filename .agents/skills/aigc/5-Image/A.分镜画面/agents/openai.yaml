@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 分镜画面"
+  short_description: "融合单帧蒸馏、参照绑定与图像生成 handoff 完整入口"
+  default_prompt: "Use $aigc-storyboard-frame-image to run the fused single-frame image workflow: lock one `分镜ID`, produce frame request JSON, optionally bind local references, and create provider-ready image handoff while preserving the legacy three package outputs."

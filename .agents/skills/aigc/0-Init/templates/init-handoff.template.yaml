@@ -7,6 +7,8 @@
 
 north_star_ref: "0-Init/north_star.yaml"
 team_ref: "team.yaml"
+story_source_manifest_ref: "0-Init/story-source-manifest.yaml"
+state_ref: "STATE.json"
 runtime_layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
 
 project_contract:
@@ -14,38 +16,38 @@ project_contract:
   acceptance_hint: ""
   current_stage: "0-Init"
   recommended_next_stage: ""
+  source_profile: ""  # source-light | source-grounded | source-reconcile
+  handoff_status: ""  # blocked | ready | ready_with_unknowns
 
 stage_entry_seeds:
   planning_seed:
     scope: []
     structure_assumptions: []
     output_constraints: []
-  directing_seed:
+  global_seed:
     tone: []
-    directing_refs: []
-    pacing_preferences: []
-    original_adherence: false
-    reorder_authorization: ""
-    pacing_focus: []
-    pacing_skip_reason: ""
-  script_seed:
-    key_beats: []
+    visual_style_refs: []
+    type_element_priorities: []
+    director_intent_hints: []
+  detail_seed:
+    beat_priorities: []
     scene_energy_targets: []
-    dialogue_density_hint: ""
-  subject_seed:
+    camera_and_transition_hints: []
+  design_seed:
     role_pool: []
     scene_pool: []
     prop_pool: []
-    world_elements: []
-  storyboard_seed:
-    framing_preferences: []
-    motion_preferences: []
-    composition_rules: []
+    asset_constraints: []
+  image_seed:
+    storyboard_preferences: []
+    frame_prompt_preferences: []
+    reference_binding_notes: []
   video_seed:
+    reference_binding_notes: []
     render_strategy: []
     quality_tier: ""
     generation_risks: []
-  post_seed:
+  cut_seed:
     music_direction: []
     subtitle_packaging: []
     finishing_notes: []
@@ -53,16 +55,22 @@ stage_entry_seeds:
 unknowns:
   unresolved_questions: []
   deferred_to_planning: []
-  deferred_to_directing: []
-  deferred_to_script: []
-  deferred_to_subject: []
-  deferred_to_storyboard: []
+  deferred_to_global: []
+  deferred_to_detail: []
+  deferred_to_design: []
+  deferred_to_image: []
   deferred_to_video: []
-  deferred_to_post: []
+  deferred_to_cut: []
 
 sources_breakdown:
   user_confirmed: []
   council_advised: []
   assistant_inferred: []
+
+planning_direct_answer_provenance:
+  team_ref: "team.yaml"
+  role: "planning"
+  used_subagents: false
+  packet_refs: []
 
 risk_notes: []

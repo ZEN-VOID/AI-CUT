@@ -2,8 +2,9 @@
 
 本文件是 AIGC 工作流内图像生成执行模式的共享真源，覆盖：
 
-- `.agents/skills/aigc/4-Design/2-设计`
-- `.agents/skills/aigc/4-Design/3-面板`
+- `.agents/skills/aigc/4-Design/场景`
+- `.agents/skills/aigc/4-Design/角色`
+- `.agents/skills/aigc/4-Design/道具`
 - `.agents/skills/aigc/5-Image/3-图像生成`
 
 ## Default Mode
@@ -28,7 +29,7 @@
 2. 多任务仍统一写成 `{ "tasks": [...] }` 批量请求，作为逐张调用内置 `image_gen` 的执行清单。
 3. 内置 `image_gen` 默认按 `GPT-IMAGE-2` 模型口径完成生成；不要求 `OPENAI_API_KEY`，不得默认改走 API / CLI provider。
 4. 内置工具默认把原图保存到 `$CODEX_HOME/generated_images/...`；项目资产必须复制回 request sidecar 声明的 `output_dir/output_filename`，并保留原始生成文件。
-5. API / CLI / nano-banana / anyfast 只允许作为用户显式要求的 fallback，不得作为 `4-Design/2-设计`、`4-Design/3-面板` 或 `5-Image/3-图像生成` 的默认生图路径。
+5. API / CLI / nano-banana / anyfast 只允许作为用户显式要求的 fallback，不得作为 `4-Design/场景`、`4-Design/角色`、`4-Design/道具` 或 `5-Image/3-图像生成` 的默认生图路径。
 
 ## Required Trace Fields
 
@@ -49,8 +50,8 @@
 
 | stage | request sidecar | default behavior | completion meaning |
 | --- | --- | --- | --- |
-| `4-Design/2-设计` | `2-设计/第N集/generated/requests/design_auto_image_batch.json` | 汇总所有缺同 stem 图片的设计 Markdown，逐张调用内置 `image_gen` 后复制回同目录同 stem 图片 | `request_ready` 只表示可生图；图片完成必须按同 stem 文件复核 |
-| `4-Design/3-面板` | `3-面板/第N集/generated/requests/panel_auto_generate_batch.json` | layout JSON 先落盘，再按 request sidecar 逐张调用内置 `image_gen` 生成 panel 图 | `request_ready` 只表示可生图；layout/request 为当前可验收真源 |
+| `4-Design/{场景,角色,道具}` 设计图 | `4-Design/generated/requests/design_auto_image_batch.json` | 汇总所有缺同 stem 图片的设计 Markdown，逐张调用内置 `image_gen` 后复制回同目录同 stem 图片 | `request_ready` 只表示可生图；图片完成必须按同 stem 文件复核 |
+| `4-Design/{场景,角色,道具}` 面板图 | `4-Design/generated/requests/panel_auto_generate_batch.json` | `[主体名].json` 面板提示词先落盘，再按 request sidecar 逐张调用内置 `image_gen` 生成 panel 图 | `request_ready` 只表示可生图；面板提示词/request 为当前可验收真源 |
 | `5-Image/3-图像生成` | `submit-plan.json` 内的 provider request section | submit-plan 默认声明内置 imagegen 执行参数 | 本层完成表示 handoff 包稳定，不等于图片已复制回项目 |
 
 ## Overrides
@@ -66,4 +67,4 @@
 2. 若 request sidecar 未写出，不得调用内置 `image_gen`。
 3. 若内置 `image_gen` 生成失败或无法复制回项目路径，必须把 manifest 状态写为 `failed` 并保留请求侧车。
 4. 后续阶段若必须消费真实图片，必须检查本地输出文件，而不是只看 `request_ready`。
-5. 除非用户显式要求 fallback，`4-Design/2-设计`、`4-Design/3-面板` 与 `5-Image/3-图像生成` 不得默认调用 `.agents/skills/api/anyfast/image/nano-banana/general`、`nano_banana_generate.py` 或任何需要 API key 的远端脚本。
+5. 除非用户显式要求 fallback，`4-Design/场景`、`4-Design/角色`、`4-Design/道具` 与 `5-Image/3-图像生成` 不得默认调用 `.agents/skills/api/anyfast/image/nano-banana/general`、`nano_banana_generate.py` 或任何需要 API key 的远端脚本。

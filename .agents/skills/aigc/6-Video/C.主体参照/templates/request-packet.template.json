@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "skill_route": "C.主体参照",
+    "source_episode": "第N集",
+    "group_id": "<分镜组ID>",
+    "source_shot_ids": [],
+    "subject_scope": "全部主体",
+    "subject_index_path": "projects/aigc/<项目名>/6-Video/C.主体参照/<第N集>/reference-binding/subject-index.json"
+  },
+  "prompt_style": "image_to_video_subject_reference",
+  "model": {
+    "prompt": "<LLM-authored group-level prompt>",
+    "prompt_char_count": 0,
+    "reference_images": [],
+    "image_markers": []
+  }
+}

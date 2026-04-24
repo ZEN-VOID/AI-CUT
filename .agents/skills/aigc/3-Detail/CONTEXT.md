@@ -11,7 +11,7 @@
 - soft_limit_chars: 22000
 - hard_limit_chars: 44000
 - status: ok
-- last_checked_at: 2026-04-23
+- last_checked_at: 2026-04-24
 
 ## Type Map
 
@@ -33,6 +33,7 @@
 | 新模板要求 `meta + groups`，但现有运行时仍是 `metadata + final_output`，导致 validator 只会把真实项目判死 | schema 漂移层 | 让 `validate_stage_output.py` 同时识别 canonical 与 legacy runtime 结构，再逐步收敛到单一 schema | 模板升级时，validator 必须先支持受控双读，直到现有 runtime 全迁完 | 校验失败不再停在“顶层缺少 meta/groups”这类低价值报错 |
 | 只保留固定 pass 说明，没有把业务分析、拓扑、节点网和汇流门写成知行合一骨架 | 技能拓扑层 | 在根 `SKILL.md` 增加 `Business Requirement Analysis / Topology / Mermaid / Thinking-Action Node / One-Shot Output` 五层合同 | 凡命中 `skill-知行合一` 的升级，不允许只加术语不加节点与汇流 | 读 `SKILL.md` 时能直接看到主干、返工入口和唯一 closure |
 | `validation-report.md` 有知识证据，但没有 `思考过程 / 关键证据 / 风险/例外 / 下一入口` | 结案闭环层 | 把 closure 四段提升为阶段报告硬门槛，并让 validator 校验 | 任何知行合一升级都要同步补 `report token + validator + audit` | 阶段结案可以复核，不再只剩“已完成” |
+| 入口 `SKILL.md` 长到重新承载完整节点正文，Skill 2.0 分区变成摆设 | 动态引用层 | 保留关键审计标题和门禁摘要，把节点动作、review、types、模板分别迁入 `steps/ / review/ / types/ / templates/` | 升级后让 `SKILL.md` 只做入口、路由、字段总表和 Output Contract；兼容旧 validator 的 reference 路径可暂留但要标注 owner | Skill 2.0 validator 通过，且 `steps/detail-thinking-action-workflow.md` 能独立承载节点执行细则 |
 
 ## Repair Playbook
 
@@ -45,6 +46,7 @@
 7. 若字段像教材摘抄，回到 `references/电影学院派知识接线.md`，把术语翻译回当前字段语言。
 8. 若技能合同仍像线性说明书，先补 `Topology / Mermaid / Node Register`，再修局部字段 prose。
 9. 若报告只有结果没有 closure 四段，先修 `validation-report` 合同与 validator，再结案。
+10. 若 Skill 2.0 升级后发现新旧分区双写，先判断旧路径是否被 validator 或下游引用；能保留兼容索引就先保留，等引用迁移完成后再精简旧正文。
 
 ## Academy Bundle Picker
 
@@ -70,3 +72,4 @@
 - 只在 `SKILL.md` 里写“必须使用知识库”是不够的；真正可靠的落点是 `rubric + validation-report slot + validator` 同时存在。
 - 对 `3-Detail` 这类单技能阶段，`思考过程` 最稳的落点不是新建 sidecar，而是并入 `validation-report.md` 的 closure 段，和知识证据一起形成可复核结案视图。
 - 模板升级期最怕 validator 只认新模板、不认现有 runtime；双读不是妥协，而是为了把错误收束到真正有价值的层面。
+- `3-Detail` 做 Skill 2.0 化时，最稳的做法是新增 canonical `steps/review/types/templates/knowledge-base` owner，同时暂时保留 `_shared/` 与关键 `references/` 兼容路径，避免下游 schema 引用和本地 validator 同时断链。

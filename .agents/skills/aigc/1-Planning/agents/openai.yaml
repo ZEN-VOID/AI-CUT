@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 规划阶段"
-  short_description: "由父 skill 统筹规划执行，路由 1-分集、2-格式、3-分组 三个内化型阶段技能并完成阶段验收"
-  default_prompt: "Use $aigc-planning to keep the parent skill as the execution owner: route between 1-分集, 2-格式, and 3-分组 as stage-local skills with internalized capability fusion, aggregate their canonical outputs into the planning validation report, and hand off to 2-Global."
+  short_description: "单一 Skill 2.0 包统筹分集、格式、分组与阶段验收"
+  default_prompt: "Use $aigc-planning as the single fused Skill 2.0 package for the AIGC planning stage: route the request into episode_split, script_format, grouping, full_chain, stage_validation, or repair mode; load only the matching references, scripts, templates, types, review, and knowledge-base files; preserve the project runtime outputs under 1-分集/2-格式/3-分组; aggregate only executed results into validation-report.md; and hand off to 2-Global."
