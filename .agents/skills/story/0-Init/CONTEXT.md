@@ -12,6 +12,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 |---|---|---|---|---|
+| “初始化小说”误入 AIGC 影片初始化，或“初始化影片/电影”被 story 初始化截走 | 媒介语义路由层 | 在 `story-init` 入口、registry routes 与 product metadata 中显式写入 novel/book/story 正向触发和 film/movie/video 负向排除 | 把自然语义触发词分成两组：`小说/网文/书/长篇故事 -> .agents/skills/story/0-Init`，`影片/电影/影视/视频 -> .agents/skills/aigc/0-初始化` | 输入“初始化小说/网文”只落 `projects/story/<项目名>/`；输入“初始化电影/影片”只落 `projects/aigc/<项目名>/` |
 | 初始化技能路径仍指向旧插件目录 | skill contract | 改为 repo-local `story2026` 路径约定 | 在技能文档内固定 `REPO_ROOT/.agents/skills/story` | 预检命令可解析 `SCRIPTS_DIR` |
 | 初始化仍沿用问卷调查或旧三模式入口 | mode contract | 把入口收口到单一 `team代入模式 -> 自动组队 / 自定义组队` | 在 `0-Init/SKILL.md` 删除问卷/快速/顾问团平行模式，只保留 `team_lineup_mode` 分支 | 全文与脚本不再出现 active `快速模式 / 自主模式 / 顾问团模式` 执行真源 |
 | 初始化完成后没有稳定交给 Cards 层 | stage handoff contract | 在 `0-Init` 明确写入 `Cards Handoff Contract` | 固化 `固定题包直答 -> north_star.cards -> 角色卡 -> 场景卡 -> 物品卡` 的顺序与加载边界 | `1-Cards` 能只凭初始化简报顺序建卡 |

@@ -72,7 +72,7 @@ description: |
 
 ## Auto-Selection Fast Path
 
-本根技能同时承担 `.agents/skills/aigc/0-Init/` 等上游自动选人入口的“快路径真源”。
+本根技能同时承担 `.agents/skills/aigc/0-初始化/` 等上游自动选人入口的“快路径真源”。
 
 硬规则：
 

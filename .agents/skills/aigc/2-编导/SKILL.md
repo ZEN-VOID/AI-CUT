@@ -1,0 +1,179 @@
+---
+name: aigc-directing
+description: Use when adapting projects/aigc/<项目名>/1-分集/第N集.md episode source into faithful screenplay/directing Markdown under projects/aigc/<项目名>/2-编导/.
+governance_tier: full
+metadata:
+  short-description: AIGC episode screenplay adaptation
+---
+
+# aigc 2-编导
+
+`2-编导` 负责把 `1-分集` 的逐集原文投影为影视剧本化结构。它只做按集剧本化改编、场景标题解析、声画字段分流和编导级表演/镜头预设，不做剧情摘要、事实删减、因果重写、分镜组切分、摄影执行或设计资产生成。
+
+## Context Loading Contract
+
+- 每次调用 `$aigc-directing` 时，必须同时加载同目录 `CONTEXT.md`。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `附加预设/` 中与当前剧本化改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
+- 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `附加预设/` > 本 `CONTEXT.md`。
+- 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
+
+## Input Contract
+
+Accepted input:
+
+- 项目名、项目路径或单个 `projects/aigc/<项目名>/1-分集/第N集.md` 文件。
+- 用户要求“编导”“剧本化改编”“把分集改成剧本”“按集生成编导稿”“从 1-分集 到 2-编导”等任务。
+- 已完成或部分完成的 `1-分集` 输出；可按单集、集号范围或全量分集执行。
+
+Required input:
+
+- 可定位的上游逐集正文文件。
+- 至少一个目标集号，或允许默认处理 `1-分集/` 中全部 `第N集.md`。
+
+Optional input:
+
+- 项目 `MEMORY.md` 中的长期偏好、禁区、风格要求。
+- `附加预设/` 中的角色、世界观、类型和制作约束。
+- 用户额外指定的字段、标题风格、下游分组解析要求。
+
+Reject or clarify when:
+
+- 上游文件不存在、不是可读文本，或 `【剧本正文】` 后没有可承接正文。
+- 用户要求压缩、摘要、重排、删减剧情事实，且未明确这是非 canonical 候选稿。
+- 用户要求对白润色、同义替换、语序调整；此类请求与对白冻结冲突，必须先确认是否放弃本技能 canonical 输出。
+- 用户要求直接生成分镜组、图像提示词或视频请求；应分别转交下游阶段。
+
+## Mode Selection
+
+| mode | 触发信号 | 输出 |
+| --- | --- | --- |
+| `single_episode` | 指定单个 `第N集.md` 或单个集号 | `projects/aigc/<项目名>/2-编导/第N集.md` |
+| `episode_range` | 指定多个集号或范围 | 多个逐集编导稿与更新后的执行报告 |
+| `all_ready_episodes` | 未指定集号但 `1-分集/` 下有连续 `第N集.md` | 全部可读逐集编导稿 |
+| `repair` | 已有编导稿存在字段缺失、声画错配、场景标题漂移、对白不保真 | 最小修复后的逐集编导稿与问题报告 |
+| `review_only` | 用户只要求检查 `2-编导` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
+
+## Reference Loading Guide
+
+| 场景 | 必读文件 |
+| --- | --- |
+| 任意编导任务 | `references/script-adaptation-contract.md`、`steps/directing-workflow.md` |
+| 字段分流、声画配对、对白冻结 | `references/field-routing-and-audio-visual-contract.md` |
+| 好莱坞级编剧创作质量细则 | `references/hollywood-quality-spec.md` |
+| 判断输入类型与改编策略 | `types/source-to-script-type-map.md` |
+| 验收、修复和 review gate | `review/review-contract.md` |
+| 输出样板 | `templates/output-template.md`、`templates/episode-script.template.md` |
+| 脚本辅助边界与机械校验 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/directing-heuristics.md` |
+| 产品入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+### Required output
+
+1. 逐集编导稿固定写入 `projects/aigc/<项目名>/2-编导/第N集.md`。
+2. 阶段执行报告写入或更新 `projects/aigc/<项目名>/2-编导/执行报告.md`。
+3. 每个逐集编导稿必须保留新增 frontmatter、`【剧本正文】`、场景标题和字段标签；正文必须完整承接上游原文信息量与顺序。
+4. 对白逐字保真；独白、内心独白、旁白、音效必须显式带主体或来源，并使用中文双引号。
+5. 同一集内完全相同 slugline 只在首次出现时打印场景标题，后续 beat 直接接正文。
+
+### Output format
+
+| output_id | format |
+| --- | --- |
+| `OUTPUT-DIRECTING-EPISODE` | Markdown 编导稿 |
+| `OUTPUT-DIRECTING-REPORT` | Markdown 执行报告 |
+
+### Output path
+
+| output_id | canonical path |
+| --- | --- |
+| `OUTPUT-DIRECTING-EPISODE` | `projects/aigc/<项目名>/2-编导/第N集.md` |
+| `OUTPUT-DIRECTING-REPORT` | `projects/aigc/<项目名>/2-编导/执行报告.md` |
+
+### Naming convention
+
+- 逐集编导稿命名为 `第N集.md`。
+- 阶段报告命名为 `执行报告.md`。
+- 不创建 `Episode N.md`、`第N集-编导.md`、`script.md` 等平行真源。
+
+### Completion gate
+
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `附加预设/`。
+- 上游 `1-分集/第N集.md` 可回指，输出 frontmatter 记录 `source_episode_path`。
+- 上游剧情事实、信息量与顺序完整承接，无摘要、删减、自由改写或因果重排。
+- 对白逐字保真；引号内没有动作描写。
+- 声画字段就近配对：`对白 -> 对白画面`、`独白/内心独白 -> 独白画面/内心独白画面`、`旁白 -> 旁白画面`、`音效 -> 音效画面`。
+- 每个场景至少有一条正式剧本画面字段；`动作画面` 只写可拍摄身体动作或空间运动。
+- 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，且同一 slugline 不重复开新场景。
+- 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review，结果写入 `执行报告.md`。
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["projects/aigc/<项目名>/1-分集/第N集.md"] --> B["输入取证"]
+    B --> C["场景 slugline 解析"]
+    C --> D["字段分流与声画配对"]
+    D --> E["LLM 直出编导稿"]
+    E --> F["保真与质量门禁"]
+    F --> G["projects/aigc/<项目名>/2-编导/第N集.md"]
+    F --> H["执行报告.md"]
+```
+
+```mermaid
+flowchart TD
+    A["上游正文段落"] --> B{"内容类型"}
+    B -->|"可见动作/空间运动"| C["角色动作 / 动作画面"]
+    B -->|"声音/对白/系统提示"| D["声音字段 + 对应画面字段"]
+    B -->|"主观经验/恐惧/判断"| E["独白 / 心理反应 / 表演提示"]
+    B -->|"规则/道具/系统文字"| F["道具特写 / 规则显影 / 系统画面"]
+    C --> G["场景内顺序承接"]
+    D --> G
+    E --> G
+    F --> G
+```
+
+## Execution Rules
+
+- 核心剧本化改编必须由 LLM 直接完成；脚本只允许读取、统计、格式检查、字段覆盖和声画配对校验。
+- `2-编导` 是 `1-分集` 的影视剧本化结构投影，不得压缩、摘要、删减剧情事实或自由改写剧情因果。
+- 除新增 frontmatter、`【剧本正文】`、场景标题与字段标签外，必须完整承接上游原文信息量和顺序。
+- 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
+- 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
+
+## Script And Metadata Contract
+
+| path | role |
+| --- | --- |
+| `scripts/README.md` | 说明脚本只做机械辅助，不替代 LLM 剧本化创作判断 |
+| `scripts/validate_script_projection.py` | 对输出执行字段、场景标题、声画配对和基础保真标记校验 |
+| `agents/openai.yaml` | 提供产品侧入口元数据，默认提示必须显式提到 `$aigc-directing` |
+
+## Field Mapping
+
+| field_id | 输出/证据 | 内容要求 | 失败码 |
+| --- | --- | --- | --- |
+| `FIELD-DIRECT-01` | 输入取证 | source episode、项目记忆、附加预设、目标集号明确 | `FAIL-DIRECT-01` |
+| `FIELD-DIRECT-02` | 场景标题 | `### 场景N：内景/外景 场所 - 日/夜`，同 slugline 同编号 | `FAIL-DIRECT-02` |
+| `FIELD-DIRECT-03` | 文本保真 | 剧情事实、顺序、对白完整承接 | `FAIL-DIRECT-03` |
+| `FIELD-DIRECT-04` | 声画配对 | 对白/独白/旁白/音效与对应画面字段就近成组 | `FAIL-DIRECT-04` |
+| `FIELD-DIRECT-05` | 字段纯度 | 声音字段只写可听文本或声音本体，画面字段只写可见画面 | `FAIL-DIRECT-05` |
+| `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演和镜头预设清晰 | `FAIL-DIRECT-06` |
+| `FIELD-DIRECT-07` | 输出落盘 | `2-编导/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-DIRECT-07` |
+
+## Root-Cause Execution Contract (Mandatory)
+
+出现以下问题时，必须沿链路上溯并修复源层合同：
+
+- 对白被润色、改写、删减或换序。
+- 用摘要替代完整剧情承接。
+- `动作画面` 混入心理解释、章节名、抽象判断或“没有人知道”类叙述句。
+- 声音字段与画面字段混写，或没有就近配对。
+- 同一 slugline 因叙事 beat 变化反复开新场景。
+- 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
+
+必经链路：
+
+`Symptom -> Direct Script/Prompt Overreach -> 2-编导 Section Owner -> AGENTS.md LLM-first / Skill 2.0 Rule`

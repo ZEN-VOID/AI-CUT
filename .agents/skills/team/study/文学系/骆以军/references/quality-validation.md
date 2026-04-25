@@ -72,7 +72,7 @@ python3 scripts/aigc_skill_audit.py --strict
 
 `python3 scripts/aigc_skill_audit.py --strict` 返回以下非本次改动导致的失败：
 
-1. `.agents/skills/aigc/0-Init/SKILL.md` 缺少 planning interview 的 mandatory subagent rule
+1. `.agents/skills/aigc/0-初始化/SKILL.md` 缺少 planning interview 的 mandatory subagent rule
 2. `.agents/skills/aigc/_shared/council-runtime/team.template.yaml` 缺少 `require_subagents_for_init_interview: true`
 3. `.agents/skills/aigc/_shared/council-runtime/team.template.yaml` 缺少 `init_interview_owner_role: "planning"`
 

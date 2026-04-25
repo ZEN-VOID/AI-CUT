@@ -31,7 +31,6 @@
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
-├── TODO.md
 ├── SKILL.md
 └── CONTEXT.md
 ```

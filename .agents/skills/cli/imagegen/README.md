@@ -35,8 +35,7 @@ imagegen/
 ├── CONTEXT.md
 ├── LICENSE.txt
 ├── README.md
-├── SKILL.md
-└── TODO.md
+└── SKILL.md
 ```
 
 ## Quick Entry

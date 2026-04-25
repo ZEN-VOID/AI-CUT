@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说/story2026 项目初始化"
+  short_description: "初始化小说、网文、长篇故事或书项目，并锁定 team 代入阵容、北极星与下游入口。"
+  default_prompt: "Use $story-init when the user says 初始化小说, 初始化网文, 新建书, 新建长篇故事, novel project kickoff, book project kickoff, or story2026 initialization. Initialize or reinitialize a prose/story/book project under `projects/story/<项目名>/`, lock either auto or custom team lineup from `.agents/skills/team/`, write `team.yaml`, run planning-role direct-answer packets with real subagents, then synthesize north_star, story-source-manifest, init_handoff, STATE, and project MEMORY. If the user says 初始化影片, 初始化电影, 初始化影视, movie, film, video, or AIGC film project, route to $aigc-init instead."

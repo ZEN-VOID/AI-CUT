@@ -1,6 +1,6 @@
 ---
 name: story-init
-description: "Use when initializing or reinitializing a story2026 project through the always-on team-roleplay mode, with auto/custom lineup selection, planning-led subagent direct-answer packets, and `team.yaml` as the canonical team manifest."
+description: "Use when initializing or reinitializing a 小说, 网文, 长篇故事, book, novel, or story2026 project under `projects/story/<项目名>/`; do not use for 影片, 电影, 影视, video, or AIGC film-project initialization, which routes to `aigc-init`."
 governance_tier: full
 allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ---
@@ -35,6 +35,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 ## When to Use
 
+- 用户以自然语言要求“初始化小说 / 初始化网文 / 新建书 / 新建长篇故事 / 小说项目起盘 / story 项目初始化”等媒介明确为 prose/story/book 工作流的初始化。
 - 需要新建一个 `story2026` 小说项目。
 - 已初始化项目因方向失效，需要退回初始化层重新起盘。
 - 需要先锁团队代入阵容，再通过固定题包直答 产出初始化长期合同与阶段种子。
@@ -45,6 +46,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 - 已有稳定项目骨架，只需补写局部设定或单字段。
 - 当前任务是 `1-Cards / 2-Planning / 3-Drafting / 4-Review / review / resume` 的续跑，而不是初始化。
 - 用户只需要查询项目状态，不需要重新立项。
+- 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目”，且没有明确要创建小说项目；route to `.agents/skills/aigc/0-初始化/SKILL.md`.
 
 ## 业务需求分析合同
 

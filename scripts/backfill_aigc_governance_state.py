@@ -219,26 +219,41 @@ def infer_focus_path(
 
 def map_skill_from_path(path_or_stage: str) -> str:
     mapping = {
-        "0-Init": "aigc-init",
+        "0-初始化": "aigc-init",
         "1-Planning": "aigc-planning",
         "1-Planning/1-分集": "aigc-planning",
         "1-Planning/2-格式": "aigc-planning",
         "1-Planning/3-分组": "aigc-planning",
+        "1-分集": "aigc-planning",
         "1-规划": "aigc-planning",
         "1-规划/1-分集": "aigc-planning",
+        "1-规划/2-分组": "aigc-planning",
         "1-规划/2-格式": "aigc-planning",
         "1-规划/3-分组": "aigc-planning",
         "1-规划/4-节奏": "aigc-planning",
         "2-组间": "aigc-global",
         "2-Global": "aigc-global",
+        "2-全局": "aigc-global",
+        "2-编导": "aigc-detail",
         "3-明细": "aigc-detail",
         "3-Detail": "aigc-detail",
+        "3-编导": "aigc-detail",
+        "3-摄影": "aigc-detail",
         "4-Design": "aigc-design",
         "4-主体": "aigc-subject",
+        "4-摄影": "aigc-detail",
+        "4-设计": "aigc-design",
+        "5-设计": "aigc-design",
         "5-Image": "aigc-visual-prompt-distillation",
+        "5-分组": "aigc-planning",
         "5-画面": "aigc-visuals",
+        "6-分组": "aigc-planning",
+        "6-图像": "aigc-visual-prompt-distillation",
+        "7-图像": "aigc-visual-prompt-distillation",
         "6-Video": "aigc-video",
         "6-视频": "aigc-video",
+        "7-视频": "aigc-video",
+        "8-视频": "aigc-video",
         "7-Cut": "aigc-cut",
         "query": "aigc-query",
         "resume": "aigc-resume",
@@ -266,8 +281,22 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
         project_root / "5-Image",
         project_root / "6-Video",
         project_root / "7-Cut",
+        project_root / "1-分集",
+        project_root / "1-规划",
+        project_root / "2-全局",
+        project_root / "2-编导",
+        project_root / "3-编导",
+        project_root / "3-摄影",
+        project_root / "4-摄影",
+        project_root / "4-设计",
+        project_root / "5-设计",
+        project_root / "5-分组",
+        project_root / "6-分组",
+        project_root / "6-图像",
+        project_root / "7-图像",
+        project_root / "7-视频",
+        project_root / "8-视频",
         project_root / "规划",
-        project_root / "编导",
         project_root / "主体",
         project_root / "画面",
         project_root / "视频",
@@ -280,17 +309,31 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
 
     if current_stage_root in {
         "1-Planning",
+        "1-分集",
         "1-规划",
         "2-Global",
         "2-组间",
+        "2-全局",
+        "2-编导",
         "3-Detail",
         "3-明细",
+        "3-编导",
+        "3-摄影",
         "4-Design",
         "4-主体",
+        "4-摄影",
+        "4-设计",
+        "5-设计",
         "5-Image",
+        "5-分组",
         "5-画面",
+        "6-分组",
+        "6-图像",
+        "7-图像",
         "6-Video",
         "6-视频",
+        "7-视频",
+        "8-视频",
         "7-Cut",
         "7-后期",
     }:
@@ -335,7 +378,10 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template = copy.deepcopy(load_yaml(TEMPLATE_PATH))
     project_state, project_state_path = load_project_state_optional(project_root)
     route_plan = load_yaml_optional(project_root / "route-plan.yaml")
-    init_handoff = load_yaml_optional(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = (
+        load_yaml_optional(project_root / "0-初始化" / "init_handoff.yaml")
+        or load_yaml_optional(project_root / "0-Init" / "init_handoff.yaml")
+    )
     task_id = first_non_empty(
         project_state.get("task_id"),
         route_plan.get("task_id"),
@@ -345,7 +391,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     recommended_stage, recommended_path, rationale, alignment_repairs = infer_focus_path(
         project_state, route_plan, init_handoff
     )
-    current_stage = first_non_empty(project_state.get("current_stage"), recommended_path, recommended_stage, "0-Init")
+    current_stage = first_non_empty(project_state.get("current_stage"), recommended_path, recommended_stage, "0-初始化")
     active_path = first_non_empty(recommended_path, recommended_stage, current_stage)
     active_stage = stage_root_of(active_path)
     checkpoint_slug = re.sub(r"[^A-Za-z0-9]+", "-", task_id).strip("-") or "PROJECT-SYNC"
@@ -369,6 +415,8 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     source_artifacts = [
         relative.as_posix()
         for relative in [
+            Path("0-初始化/north_star.yaml"),
+            Path("0-初始化/init_handoff.yaml"),
             Path("0-Init/north_star.yaml"),
             Path("0-Init/init_handoff.yaml"),
             project_state_rel,

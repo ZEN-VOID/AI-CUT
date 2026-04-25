@@ -28,7 +28,6 @@
 | `references/upgrade-point-absorption-map.md` | `references/upgrade-point-absorption-map.md` | keep | link check |
 | missing `agents/openai.yaml` | `agents/openai.yaml` | create | validator |
 | missing `README.md` | `README.md` | create | validator |
-| missing `TODO.md` | `TODO.md` | create | validator |
 | missing `steps/` | `steps/skills-update-absorption-workflow.md` | create | review gate |
 | missing `types/` | `types/upgrade-point-type-map.md` | create | validator |
 | missing `review/` | `review/review-contract.md` | create | review gate |

@@ -16,7 +16,7 @@ ROOT_SKILL = ROOT / "SKILL.md"
 ROOT_CONTEXT = ROOT / "CONTEXT.md"
 REGISTRY = Path(".codex/registry/skills.yaml")
 ROUTES = Path(".codex/registry/routes.yaml")
-DESIGN_ROOT = ROOT / "4-Design"
+DESIGN_ROOT = ROOT / "5-设计"
 DESIGN_DOMAIN_ROOTS = {
     "场景": DESIGN_ROOT / "场景",
     "角色": DESIGN_ROOT / "角色",
@@ -85,17 +85,48 @@ REFERENCE_MODULES = (
 )
 SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
-    "0-Init": "projects/aigc/<项目名>/0-Init/",
-    "Original": "projects/aigc/<项目名>/Original/",
-    "1-Planning": "projects/aigc/<项目名>/1-Planning/",
-    "2-Global": "projects/aigc/<项目名>/2-Global/",
-    "3-Detail": "projects/aigc/<项目名>/3-Detail/",
-    "4-Design": "projects/aigc/<项目名>/4-Design/",
-    "5-Image": "projects/aigc/<项目名>/5-Image/",
-    "6-Video": "projects/aigc/<项目名>/6-Video/",
+    "0-初始化": "projects/aigc/<项目名>/0-初始化/",
+    "1-分集": "projects/aigc/<项目名>/1-分集/",
+    "2-编导": "projects/aigc/<项目名>/2-编导/",
+    "3-摄影": "projects/aigc/<项目名>/3-摄影/",
+    "4-设计": "projects/aigc/<项目名>/4-设计/",
+    "5-分组": "projects/aigc/<项目名>/5-分组/",
+    "6-图像": "projects/aigc/<项目名>/6-图像/",
+    "7-视频": "projects/aigc/<项目名>/7-视频/",
+    "源": "projects/aigc/<项目名>/源/",
+    "附加预设": "projects/aigc/<项目名>/附加预设/",
 }
 ROOT_STAGE_LANDING = (
-    "projects/aigc/<项目名>/0-Init/",
+    "projects/aigc/<项目名>/0-初始化/",
+    "projects/aigc/<项目名>/1-分集/",
+    "projects/aigc/<项目名>/2-编导/",
+    "projects/aigc/<项目名>/3-摄影/",
+    "projects/aigc/<项目名>/4-设计/",
+    "projects/aigc/<项目名>/4-设计/场景/1-清单/",
+    "projects/aigc/<项目名>/4-设计/场景/2-设计/",
+    "projects/aigc/<项目名>/4-设计/场景/3-生成/",
+    "projects/aigc/<项目名>/4-设计/道具/1-清单/",
+    "projects/aigc/<项目名>/4-设计/道具/2-设计/",
+    "projects/aigc/<项目名>/4-设计/道具/3-生成/",
+    "projects/aigc/<项目名>/4-设计/角色/1-清单/",
+    "projects/aigc/<项目名>/4-设计/角色/2-设计/",
+    "projects/aigc/<项目名>/4-设计/角色/3-生成/",
+    "projects/aigc/<项目名>/5-分组/",
+    "projects/aigc/<项目名>/6-图像/",
+    "projects/aigc/<项目名>/7-视频/",
+    "projects/aigc/<项目名>/源/",
+    "projects/aigc/<项目名>/附加预设/",
+)
+ROOT_FORBIDDEN_STAGE_LANDING = (
+    "projects/aigc/<项目名>/设定/",
+    "projects/aigc/<项目名>/2-组间/",
+    "projects/aigc/<项目名>/3-明细/",
+    "projects/aigc/<项目名>/主体/",
+    "projects/aigc/<项目名>/4-主体/",
+    "projects/aigc/<项目名>/5-画面/",
+    "projects/aigc/<项目名>/6-视频/",
+    "projects/aigc/<项目名>/7-后期/",
+    "projects/aigc/<项目名>/Story/",
     "projects/aigc/<项目名>/Original/",
     "projects/aigc/<项目名>/1-Planning/",
     "projects/aigc/<项目名>/2-Global/",
@@ -103,19 +134,15 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/4-Design/",
     "projects/aigc/<项目名>/5-Image/",
     "projects/aigc/<项目名>/6-Video/",
-)
-ROOT_FORBIDDEN_STAGE_LANDING = (
-    "projects/aigc/<项目名>/设定/",
-    "projects/aigc/<项目名>/1-规划/",
-    "projects/aigc/<项目名>/2-组间/",
-    "projects/aigc/<项目名>/3-明细/",
-    "projects/aigc/<项目名>/主体/",
-    "projects/aigc/<项目名>/4-主体/",
-    "projects/aigc/<项目名>/5-画面/",
-        "projects/aigc/<项目名>/6-视频/",
-        "projects/aigc/<项目名>/7-后期/",
-        "projects/aigc/<项目名>/Story/",
-        "projects/aigc/<项目名>/7-Cut/",
+    "projects/aigc/<项目名>/7-Cut/",
+    "projects/aigc/<项目名>/2-全局/",
+    "projects/aigc/<项目名>/3-编导/",
+    "projects/aigc/<项目名>/4-摄影/",
+    "projects/aigc/<项目名>/5-设计/",
+    "projects/aigc/<项目名>/6-分组/",
+    "projects/aigc/<项目名>/7-图像/",
+    "projects/aigc/<项目名>/8-视频/",
+    "projects/aigc/<项目名>/CONTEXT/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/aigc/<项目名>/STATE.json",
@@ -124,13 +151,16 @@ PROJECT_GOVERNANCE_ARTIFACTS = (
 PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
     "projects/aigc/<项目名>/MEMORY.md",
     "projects/aigc/<项目名>/CHANGELOG.md",
-    "projects/aigc/<项目名>/CONTEXT/",
+    "projects/aigc/<项目名>/附加预设/",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
-    "1-Planning": "projects/aigc/<项目名>/1-Planning/validation-report.md",
-    "2-Global": "projects/aigc/<项目名>/2-Global/validation-report.md",
-    "3-Detail": "projects/aigc/<项目名>/3-Detail/validation-report.md",
-    "4-Design": "projects/aigc/<项目名>/4-Design/validation-report.md",
+    "1-分集": "projects/aigc/<项目名>/1-分集/validation-report.md",
+    "2-编导": "projects/aigc/<项目名>/2-编导/validation-report.md",
+    "3-摄影": "projects/aigc/<项目名>/3-摄影/validation-report.md",
+    "4-设计": "projects/aigc/<项目名>/4-设计/validation-report.md",
+    "5-分组": "projects/aigc/<项目名>/5-分组/validation-report.md",
+    "6-图像": "projects/aigc/<项目名>/6-图像/validation-report.md",
+    "7-视频": "projects/aigc/<项目名>/7-视频/validation-report.md",
 }
 PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
 REVIEW_TEMPLATE_REQUIRED_MARKERS = (
@@ -148,24 +178,38 @@ REVIEW_RUNNER_REQUIRED_MARKERS = (
     "resume_contract",
 )
 STAGE_RUNTIME_EXPECTATIONS = {
-    ROOT / "0-Init" / "SKILL.md": (
-        "projects/aigc/<项目名>/0-Init/",
-        "projects/aigc/<项目名>/Original/",
-        "projects/aigc/<项目名>/CONTEXT/",
+    ROOT / "0-初始化" / "SKILL.md": (
+        "projects/aigc/<项目名>/0-初始化/",
+        "projects/aigc/<项目名>/1-分集/",
+        "projects/aigc/<项目名>/2-编导/",
+        "projects/aigc/<项目名>/3-摄影/",
+        "projects/aigc/<项目名>/4-设计/",
+        "projects/aigc/<项目名>/4-设计/场景/1-清单/",
+        "projects/aigc/<项目名>/4-设计/场景/2-设计/",
+        "projects/aigc/<项目名>/4-设计/场景/3-生成/",
+        "projects/aigc/<项目名>/4-设计/道具/1-清单/",
+        "projects/aigc/<项目名>/4-设计/道具/2-设计/",
+        "projects/aigc/<项目名>/4-设计/道具/3-生成/",
+        "projects/aigc/<项目名>/4-设计/角色/1-清单/",
+        "projects/aigc/<项目名>/4-设计/角色/2-设计/",
+        "projects/aigc/<项目名>/4-设计/角色/3-生成/",
+        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/6-图像/",
+        "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/源/",
+        "projects/aigc/<项目名>/附加预设/",
         "projects/aigc/<项目名>/MEMORY.md",
         "projects/aigc/<项目名>/CHANGELOG.md",
         "projects/aigc/<项目名>/STATE.json",
         "projects/aigc/<项目名>/team.yaml",
-        "5-Image/A-分镜帧/",
-        "5-Image/B-分镜故事板/",
         "Forbidden bootstrap paths",
     ),
-    ROOT / "1-Planning" / "SKILL.md": (
-        "projects/aigc/<项目名>/1-Planning/",
-        "projects/aigc/<项目名>/1-Planning/validation-report.md",
+    ROOT / "1-分集" / "SKILL.md": (
+        "projects/aigc/<项目名>/1-分集/",
+        "projects/aigc/<项目名>/1-分集/执行报告.md",
     ),
-    ROOT / "4-Design" / "SKILL.md": (
-        "projects/aigc/<项目名>/4-Design/",
+    ROOT / "5-设计" / "SKILL.md": (
+        "projects/aigc/<项目名>/4-设计/",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
         "projects/aigc/<项目名>/5-Image/",
@@ -203,7 +247,24 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ),
 }
 STAGE_RUNTIME_FORBIDDEN = {
-    ROOT / "0-Init" / "SKILL.md": (
+    ROOT / "0-初始化" / "SKILL.md": (
+        "projects/aigc/<项目名>/Original/",
+        "projects/aigc/<项目名>/Story/",
+        "projects/aigc/<项目名>/1-Planning/",
+        "projects/aigc/<项目名>/2-Global/",
+        "projects/aigc/<项目名>/3-Detail/",
+        "projects/aigc/<项目名>/4-Design/",
+        "projects/aigc/<项目名>/5-Image/",
+        "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/7-Cut/",
+        "projects/aigc/<项目名>/CONTEXT/",
+        "projects/aigc/<项目名>/2-全局/",
+        "projects/aigc/<项目名>/3-编导/",
+        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/6-分组/",
+        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/8-视频/",
         "projects/aigc/<项目名>/主体/",
         "projects/aigc/<项目名>/4-主体/",
         "projects/aigc/<项目名>/5-画面/",
@@ -211,9 +272,9 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/2-组间/validation-report.md",
         "projects/aigc/<项目名>/3-明细/validation-report.md",
     ),
-    ROOT / "1-Planning" / "SKILL.md": (
-        "runtime 根目录：`projects/aigc/<项目名>/0-Init/`",
-        "阶段验证报告：`projects/aigc/<项目名>/0-Init/validation-report.md`",
+    ROOT / "1-分集" / "SKILL.md": (
+        "projects/aigc/<项目名>/1-规划/",
+        "projects/aigc/<项目名>/1-Planning/",
     ),
     ROOT / "6-Video" / "SKILL.md": (
         "projects/aigc/<项目名>/设定/",
@@ -270,18 +331,18 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
 CREATIVE_AUTHORSHIP_GUARDS = {
-    ROOT / "4-Design" / "场景" / "SKILL.md": (
-        ROOT / "4-Design" / "场景" / "scripts" / "build_scene_design_context.py",
-        ROOT / "4-Design" / "场景" / "scripts" / "build_scene_design_packets.py",
-        ROOT / "4-Design" / "场景" / "scripts" / "generate_scene_panels.py",
+    ROOT / "5-设计" / "场景" / "SKILL.md": (
+        ROOT / "5-设计" / "场景" / "scripts" / "build_scene_design_context.py",
+        ROOT / "5-设计" / "场景" / "scripts" / "build_scene_design_packets.py",
+        ROOT / "5-设计" / "场景" / "scripts" / "generate_scene_panels.py",
     ),
-    ROOT / "4-Design" / "角色" / "SKILL.md": (
-        ROOT / "4-Design" / "角色" / "scripts" / "build_role_research.py",
-        ROOT / "4-Design" / "角色" / "scripts" / "build_character_design_packets.py",
+    ROOT / "5-设计" / "角色" / "SKILL.md": (
+        ROOT / "5-设计" / "角色" / "scripts" / "build_role_research.py",
+        ROOT / "5-设计" / "角色" / "scripts" / "build_character_design_packets.py",
     ),
-    ROOT / "4-Design" / "道具" / "SKILL.md": (
-        ROOT / "4-Design" / "道具" / "scripts" / "build_prop_research.py",
-        ROOT / "4-Design" / "道具" / "scripts" / "build_prop_design_packets.py",
+    ROOT / "5-设计" / "道具" / "SKILL.md": (
+        ROOT / "5-设计" / "道具" / "scripts" / "build_prop_research.py",
+        ROOT / "5-设计" / "道具" / "scripts" / "build_prop_design_packets.py",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
@@ -306,12 +367,18 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
         "projects/aigc/<项目名>/6-Video/C.主体参照/",
     ),
-    ROOT / "0-Init" / "SKILL.md": (
-        "projects/aigc/<项目名>/Original/",
+    ROOT / "0-初始化" / "SKILL.md": (
+        "projects/aigc/<项目名>/1-分集/",
+        "projects/aigc/<项目名>/2-编导/",
+        "projects/aigc/<项目名>/3-摄影/",
+        "projects/aigc/<项目名>/4-设计/",
+        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/6-图像/",
+        "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/源/",
+        "projects/aigc/<项目名>/附加预设/",
         "projects/aigc/<项目名>/STATE.json",
         "projects/aigc/<项目名>/team.yaml",
-        "5-Image/A-分镜帧/",
-        "5-Image/B-分镜故事板/",
         "Forbidden bootstrap paths",
     ),
 }
@@ -329,9 +396,19 @@ BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/6-Video/2-参照引用/",
         "projects/aigc/<项目名>/6-Video/生成任务/",
     ),
-    ROOT / "0-Init" / "SKILL.md": (
-        "技能树 active 路径：`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-视频生成`",
-        "`生成任务/` 是 `2-视频生成` 的业务语义落盘名",
+    ROOT / "0-初始化" / "SKILL.md": (
+        "projects/aigc/<项目名>/Original/",
+        "projects/aigc/<项目名>/Story/",
+        "projects/aigc/<项目名>/1-规划/",
+        "projects/aigc/<项目名>/2-全局/",
+        "projects/aigc/<项目名>/3-编导/",
+        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/5-Image/",
+        "projects/aigc/<项目名>/6-分组/",
+        "projects/aigc/<项目名>/6-Video/",
+        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/8-视频/",
     ),
 }
 
@@ -716,7 +793,7 @@ def audit_stage_review_carriers(failures: list[str]) -> None:
 
 
 def audit_design_2_template_registry(failures: list[str]) -> None:
-    """Ensure 4-Design domain packages keep one Markdown template truth per domain."""
+    """Ensure 5-设计 domain packages keep one Markdown template truth per domain."""
     if not DESIGN_ROOT.exists():
         return
 
@@ -731,7 +808,7 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
 
     for domain, domain_root in DESIGN_DOMAIN_ROOTS.items():
         if not domain_root.exists():
-            failures.append(f"{domain_root}: missing 4-Design domain package")
+            failures.append(f"{domain_root}: missing 5-设计 domain package")
             continue
 
         contract = domain_root / "references" / "design-output-contract.md"
@@ -836,7 +913,7 @@ def audit_review_runtime_contracts(failures: list[str]) -> None:
 
 
 def audit_init_single_skill_contract(failures: list[str]) -> None:
-    init_skill = ROOT / "0-Init" / "SKILL.md"
+    init_skill = ROOT / "0-初始化" / "SKILL.md"
     if not init_skill.exists():
         return
     init_content = init_skill.read_text(encoding="utf-8")
@@ -844,13 +921,13 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
         failures.append(f"{init_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
     if ".codex/agents/aigc/初始组/" in init_content:
         failures.append(
-            f"{init_skill}: 0-Init must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
+            f"{init_skill}: 0-初始化 must internalize init routing/mode/audit capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/初始组/`"
         )
     for removed_mode in ("主创会诊模式", "快速成案模式", "自主问答模式"):
         if f"| {removed_mode} |" in init_content:
             failures.append(f"{init_skill}: legacy init mode `{removed_mode}` should not remain in the active mode table")
-    if "`0-Init` 现只允许 `init_mode == smart_advisor`；旧的 `主创会诊模式 / 快速成案模式 / 自主问答模式` 全部失效。" not in init_content:
-        failures.append(f"{init_skill}: missing explicit single-mode smart-advisor rule for 0-Init")
+    if "`0-初始化` 现只允许 `init_mode == smart_advisor`；旧的 `主创会诊模式 / 快速成案模式 / 自主问答模式` 全部失效。" not in init_content:
+        failures.append(f"{init_skill}: missing explicit single-mode smart-advisor rule for 0-初始化")
     if "开场必须展示“初始化元选项卡”，让用户在 `自动组队 / 自定义组队` 间拍板；不得无确认自动锁 `team_lineup_mode`。" not in init_content:
         failures.append(f"{init_skill}: missing explicit gate that `team_lineup_mode` must be user-confirmed")
     if "固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。" not in init_content:
@@ -894,7 +971,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             f"{init_skill}: missing runtime-bootstrap step for project-root `CHANGELOG.md`"
         )
 
-    north_star_template = ROOT / "0-Init" / "templates" / "north-star.template.yaml"
+    north_star_template = ROOT / "0-初始化" / "templates" / "north-star.template.yaml"
     if north_star_template.exists():
         north_star_template_content = north_star_template.read_text(encoding="utf-8")
         for forbidden_marker in ("stage_entry_contract:", "rebootstrap_status:"):
@@ -902,8 +979,14 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
                 failures.append(
                     f"{north_star_template}: contains forbidden init-state field `{forbidden_marker.rstrip(':')}`"
                 )
+        for required_marker in ("全局风格:", "类型元素:", "世界观:"):
+            if required_marker not in north_star_template_content:
+                failures.append(f"{north_star_template}: missing merged global design block `{required_marker.rstrip(':')}`")
+        for duplicate_marker in ("aesthetic_axes:", "genre_corridor:", "theme_promises:", "tone_keywords:"):
+            if duplicate_marker in north_star_template_content:
+                failures.append(f"{north_star_template}: old umbrella field `{duplicate_marker.rstrip(':')}` duplicates merged global design blocks")
 
-    init_openai = ROOT / "0-Init" / "agents" / "openai.yaml"
+    init_openai = ROOT / "0-初始化" / "agents" / "openai.yaml"
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
         failures.append(f"{init_openai}: should not reference external init-agent contracts")
 
@@ -934,7 +1017,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
                 "`init_interview_owner_role: \"planning\"` or `init_execution_owner_role: \"planning\"`"
             )
 
-    refs_root = ROOT / "0-Init" / "references"
+    refs_root = ROOT / "0-初始化" / "references"
     if refs_root.exists():
         for path in sorted(refs_root.rglob("*.md")):
             content = path.read_text(encoding="utf-8")
@@ -942,53 +1025,40 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
                 failures.append(f"{path}: reference stub still points to deleted external init-agent contracts")
 
 
-def audit_planning_internal_skill_contract(failures: list[str]) -> None:
-    planning_root = ROOT / "1-Planning"
-    if not planning_root.exists():
+def audit_episode_split_skill_contract(failures: list[str]) -> None:
+    episode_root = ROOT / "1-分集"
+    if not episode_root.exists():
         return
 
-    forbidden_marker = ".codex/agents/aigc/规划组/"
-    forbidden_child_skills = (
-        planning_root / "1-分集" / "SKILL.md",
-        planning_root / "2-格式" / "SKILL.md",
-        planning_root / "3-分组" / "SKILL.md",
-    )
-    for child_skill in forbidden_child_skills:
-        if child_skill.exists():
-            failures.append(f"{child_skill}: planning subskills must be fused into the parent Skill 2.0 package")
-
     targets = (
-        planning_root / "SKILL.md",
-        planning_root / "agents" / "openai.yaml",
-        planning_root / "references" / "episode-splitter-contract.md",
-        planning_root / "references" / "script-format-contract.md",
-        planning_root / "references" / "grouping-contract.md",
-        planning_root / "references" / "planning-io-contract.md",
+        episode_root / "SKILL.md",
+        episode_root / "CONTEXT.md",
+        episode_root / "agents" / "openai.yaml",
+        episode_root / "references" / "input-output-contract.md",
+        episode_root / "templates" / "output-template.md",
     )
 
     for path in targets:
         if not path.exists():
-            failures.append(f"{path}: missing planning fusion contract target")
+            failures.append(f"{path}: missing episode split contract target")
             continue
         content = path.read_text(encoding="utf-8")
-        if path.suffix == ".md" and path.name == "SKILL.md":
-            if "## Internal Capability Fusion Contract (Mandatory)" not in content:
-                failures.append(f"{path}: missing `Internal Capability Fusion Contract (Mandatory)`")
+        if "projects/aigc/<项目名>/1-规划/1-分集/" in content:
+            failures.append(f"{path}: episode split output still points to forbidden `1-规划/1-分集` runtime")
+        if ".agents/skills/aigc/1-规划/1-分集" in content:
+            failures.append(f"{path}: episode split entry still points to deleted `1-规划/1-分集` skill path")
+        if path.name == "SKILL.md":
             for required_marker in (
-                "references/episode-splitter-contract.md",
-                "references/script-format-contract.md",
-                "references/grouping-contract.md",
-                "references/planning-io-contract.md",
-                "episode_split",
+                "projects/aigc/<项目名>/1-分集/第N集.md",
+                "projects/aigc/<项目名>/1-分集/执行报告.md",
+                "LLM 直接完成",
             ):
                 if required_marker not in content:
-                    failures.append(f"{path}: missing planning fusion marker `{required_marker}`")
-        if forbidden_marker in content:
-            failures.append(f"{path}: should not reference deleted planning-agent contracts")
+                    failures.append(f"{path}: missing episode split marker `{required_marker}`")
 
 
 def audit_global_single_skill_contract(failures: list[str]) -> None:
-    global_root = ROOT / "2-Global"
+    global_root = ROOT / "2-全局"
     global_skill = global_root / "SKILL.md"
     if not global_skill.exists():
         return
@@ -1007,12 +1077,12 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         failures.append(f"{global_skill}: missing `Internal Capability Fusion Contract (Mandatory)`")
     if forbidden_marker in skill_content:
         failures.append(
-            f"{global_skill}: 2-Global must internalize style/type/director capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/导演组/`"
+            f"{global_skill}: 2-全局 must internalize global style, type elements, and worldview capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/导演组/`"
         )
 
     required_root_outputs = (
-        "projects/aigc/<项目名>/2-Global/第N集.json",
-        "projects/aigc/<项目名>/2-Global/validation-report.md",
+        "projects/aigc/<项目名>/0-初始化/north_star.yaml",
+        "projects/aigc/<项目名>/2-编导/validation-report.md",
     )
     io_contract = global_root / "references" / "io-contract.md"
     if io_contract.exists():
@@ -1020,28 +1090,43 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
         for output_path in required_root_outputs:
             if output_path not in io_content:
                 failures.append(f"{io_contract}: missing canonical output `{output_path}`")
-        if "唯一创作业务真源" not in io_content or "第N集.json" not in io_content:
-            failures.append(f"{io_contract}: must declare `第N集.json` as the single creative business truth")
+        if "唯一创作业务真源" not in io_content or "north_star.yaml" not in io_content:
+            failures.append(f"{io_contract}: must declare `north_star.yaml` global blocks as the single creative business truth")
+        for required_context in (
+            "projects/aigc/<项目名>/0-初始化/north_star.yaml",
+            "projects/aigc/<项目名>/1-分集/",
+            "projects/aigc/<项目名>/team.yaml",
+        ):
+            if f"| 必需 | `{required_context}`" not in io_content:
+                failures.append(f"{io_contract}: must declare required context `{required_context}`")
+        if "分组正文当作必需输入" not in io_content:
+            failures.append(f"{io_contract}: must prohibit grouped prose as a required input")
 
     branch_output = global_root / "references" / "writeback-contract.md"
     if branch_output.exists():
         branch_content = branch_output.read_text(encoding="utf-8")
-        if "projects/aigc/<项目名>/2-Global/第N集.json" not in branch_content:
-            failures.append(f"{branch_output}: missing canonical per-episode JSON path")
-        if "所有 pass 都直接写向当前集 `第N集.json`" not in branch_content:
-            failures.append(f"{branch_output}: must declare direct writeback into the per-episode JSON")
+        if "projects/aigc/<项目名>/0-初始化/north_star.yaml" not in branch_content:
+            failures.append(f"{branch_output}: missing canonical north star writeback path")
+        if "所有 pass 都直接写向 `north_star.yaml`" not in branch_content:
+            failures.append(f"{branch_output}: must declare direct writeback into north star global blocks")
 
     if (global_root / "templates" / "类型元素.template.md").exists():
-        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be removed; type fields now write directly into `第N集.json`")
+        failures.append(f"{global_root / 'templates' / '类型元素.template.md'}: old combined type template should be removed; type fields now write directly into `north_star.yaml`")
     if (global_root / "templates" / "分组类型元素.template.md").exists():
-        failures.append(f"{global_root / 'templates' / '分组类型元素.template.md'}: group type projection template should be removed; use `groups[].global.类型元素` in `第N集.json`")
+        failures.append(f"{global_root / 'templates' / '分组类型元素.template.md'}: group type projection template should be removed; 2-全局 no longer writes group-level type fields")
     for stale_template in (
+        global_root / "templates" / "episode-root.template.json",
         global_root / "templates" / "全局风格.template.md",
-        global_root / "templates" / "全集类型元素.template.md",
+        global_root / "templates" / "类型元素.template.md",
         global_root / "templates" / "导演意图.template.md",
+        global_root / "templates" / "参照桥段.template.md",
     ):
         if stale_template.exists():
-            failures.append(f"{stale_template}: legacy Markdown output template should be removed; use `templates/episode-root.template.json` and `第N集.json`")
+            failures.append(f"{stale_template}: legacy output template should be removed; use `templates/global-design.template.json` and `north_star.yaml`")
+
+    global_template = global_root / "templates" / "global-design.template.json"
+    if not global_template.exists():
+        failures.append(f"{global_template}: missing global design template")
 
     for path in targets[1:]:
         if not path.exists():
@@ -1052,7 +1137,7 @@ def audit_global_single_skill_contract(failures: list[str]) -> None:
 
 
 def audit_detail_single_skill_contract(failures: list[str]) -> None:
-    detail_root = ROOT / "3-Detail"
+    detail_root = ROOT / "3-编导"
     detail_skill = detail_root / "SKILL.md"
     if not detail_skill.exists():
         return
@@ -1105,7 +1190,7 @@ def audit_detail_single_skill_contract(failures: list[str]) -> None:
         failures.append(f"{detail_skill}: must include Mermaid topology maps after知行合一 upgrade")
     if forbidden_marker in skill_content:
         failures.append(
-            f"{detail_skill}: 3-Detail must internalize former production-team capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/制作组/`"
+            f"{detail_skill}: 3-编导 must internalize former production-team capabilities into the parent SKILL instead of referencing `.codex/agents/aigc/制作组/`"
         )
     for stale_ref in ("1-水月/SKILL.md", "2-镜花/SKILL.md"):
         if stale_ref in skill_content:
@@ -1113,7 +1198,7 @@ def audit_detail_single_skill_contract(failures: list[str]) -> None:
 
     for ref in required_refs:
         if not ref.exists():
-            failures.append(f"{ref}: missing required 3-Detail reference module")
+            failures.append(f"{ref}: missing required 3-编导 reference module")
 
     for path in (*targets[1:], *ref_targets):
         if not path.exists():
@@ -1295,7 +1380,7 @@ def main() -> int:
     audit_design_slot_bundle_runtime(failures)
     audit_review_runtime_contracts(failures)
     audit_init_single_skill_contract(failures)
-    audit_planning_internal_skill_contract(failures)
+    audit_episode_split_skill_contract(failures)
     audit_global_single_skill_contract(failures)
     audit_detail_single_skill_contract(failures)
     audit_creative_authorship_guards(failures)

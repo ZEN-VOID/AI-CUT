@@ -1,6 +1,6 @@
 ---
 name: story2026
-description: Use when coordinating, routing, or repairing the overall story2026 workflow across stage skills, shared references, shared scripts, and runtime truth sources.
+description: Use when coordinating, routing, initializing, or repairing the overall story2026 小说/novel/book workflow across stage skills, shared references, shared scripts, and runtime truth sources; for 影片/电影/影视/video project initialization use `aigc-init`.
 governance_tier: lite
 allowed-tools: Read Grep Bash Write Edit Task
 ---
@@ -173,6 +173,8 @@ allowed-tools: Read Grep Bash Write Edit Task
 | 用户诉求 / 问题形状 | 默认入口 |
 | --- | --- |
 | 设计/选择/解释题材方向盘或 `类型卡` | 根级 `story2026`，必要时再路由到 `1-Cards/类型卡` |
+| 初始化小说、初始化网文、新建书、新建长篇故事、小说项目起盘 | `0-Init` |
+| 初始化影片、初始化电影、初始化影视、初始化视频项目 | 不进入 story；route to `.agents/skills/aigc/0-初始化/SKILL.md` |
 | 新建项目、确定创作立项、初始化问卷/顾问团 | `0-Init` |
 | 全局卡/类型卡/风格卡/角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-Cards` |
 | 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-Planning` |

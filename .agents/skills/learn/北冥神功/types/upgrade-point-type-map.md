@@ -22,7 +22,7 @@
 | `schema_runner` | `references/`、shared carrier、`scripts/`、`templates/` | siblings、validator、示例输入输出 | 检查脚本只做机械辅助 |
 | `group_handoff` | 父级 `SKILL.md`、目标 `SKILL.md`、shared contract | siblings、routes、runtime layout | 检查边界和回接关系 |
 | `audit_validation` | `review/`、validator、`SKILL.md` completion gate | 审计入口、reviewer 口径 | 检查 findings、severity、verdict |
-| `compat_migration` | `references/`、runner compat、`CHANGELOG.md`、`TODO.md` | old/new path 引用 | 检查旧语义可追踪 |
+| `compat_migration` | `references/`、runner compat、`CHANGELOG.md` | old/new path 引用 | 检查旧语义可追踪 |
 
 ## Fusion Rule
 

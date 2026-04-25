@@ -109,7 +109,7 @@ governance_tier: full
 
 1. 任意 `source_script` 都不得直接进入 `N2-STORY-BLADES`。
 2. 若未提供 `第N组.md`，必须先经过最小整形前奏，把原始文本归一为可切组的漫剧正文。
-3. 前奏处理机制参照 `.agents/skills/aigc/1-Planning/references/script-format-contract.md` 的思路：先 intake，再 business analyze，再 route，再整形，再 normalize，再 validate。
+3. 前奏处理机制暂以内置最小整形合同为准；原 AIGC 规划包内的 `script-format-contract.md` 已移除，后续再对接 `3-编导` 的独立格式化合同。
 4. 前奏只服务“把原始剧本或原始素材变成可切九刀的标准化输入”，不输出第二份 canonical 成品，不与最终 JSON 竞争真源。
 5. 若原始剧本是章节正文、对话体、梗概、简介、剧情摘要或混合文本，必须先判定为：
    - `scene-led`：场景动作充足，优先保留戏剧性切块。

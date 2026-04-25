@@ -136,7 +136,6 @@ python3 -m pip install <pkg>  # 安装依赖包
   ├── agents/
   │   └── openai.yaml
   ├── CHANGELOG.md
-  ├── TODO.md
   ├── SKILL.md
   ├── CONTEXT.md
   └── README.md
@@ -155,7 +154,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `templates/` 承载输出模板、脚手架模板和报告模板，不承载运行状态。
   - `scripts/` 只承载机械创建、校验、格式转换、批量处理等自动化辅助，不替代 LLM 主创判断。
   - `agents/openai.yaml` 承载产品侧入口元数据，至少包含 `interface.display_name`、`interface.short_description` 与显式提到 `$skill-name` 的 `interface.default_prompt`。
-  - `README.md` 承载目录树、快速说明和入口命令；`CHANGELOG.md` 承载版本更新与迁移摘要；`TODO.md` 承载剩余任务池。
+  - `README.md` 承载目录树、快速说明和入口命令；`CHANGELOG.md` 承载版本更新与迁移摘要。
 - Skill 2.0 的经验沉淀落点必须保持单一：执行中产生的新经验、稳定经验、失败模式、成功模式、修复打法与 reusable heuristic 均写入同目录 `CONTEXT.md`；`knowledge-base/` 只接收用户或维护者手动加入的外部知识材料，不作为自动学习、复盘或经验晋升的落点。
 - 每个长期维护的 skill 都应包含：
   - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite`
@@ -169,7 +168,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须初始化完整 Skill 2.0 目录、根文件与 `agents/openai.yaml`，并满足上述基线；不得回退为“只有主合同 + 经验层”。
 - 旧技能包升级到 Skill 2.0 时，必须先建立迁移矩阵，标注旧 `SKILL.md`、同目录资源与入口元数据中每个 section / 资源的 target owner、迁移动作、语义风险、引用更新与验证门禁；删除旧段落前必须能追到新 owner 或明确归档/丢弃理由。
-- 重命名、拆分或迁移 skill 文件/目录后，必须同步扫描并更新 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、markdown 链接、registry、routes、runbook 与项目内引用；无法自动更新的外部或二进制引用必须写入 `TODO.md` 或最终报告。
+- 重命名、拆分或迁移 skill 文件/目录后，必须同步扫描并更新 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、markdown 链接、registry、routes、runbook 与项目内引用；无法自动更新的外部或二进制引用必须写入最终报告；若形成可复用经验，再沉淀到同目录 `CONTEXT.md`。
 - 创建或升级 Skill 2.0 包后，应运行对应元技能提供的结构校验器或仓库内等价审计；脚手架类改动还应额外生成临时目标 skill 做端到端冒烟验证。
 - 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `MEMORY.md`：
   - `projects/story/<项目名>/MEMORY.md`
@@ -187,7 +186,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 技能组成与语义
 
 - 技能目录基线：
-  - 长期维护的可执行 skill 默认采用 Skill 2.0 目录结构：`SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`TODO.md`、`references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/openai.yaml`
+  - 长期维护的可执行 skill 默认采用 Skill 2.0 目录结构：`SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/openai.yaml`
   - `SKILL.md`：必需，作为入口、路由、动态引用、关键门禁和输出合同
   - `CONTEXT.md`：必需，作为预加载运行上下文和经验性知识库
   - `references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/`：作为 Skill 2.0 功能分区，不得用拼写变体平行演化
@@ -384,7 +383,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
 - 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的 Skill 2.0 分区（`references/`、`steps/`、`review/`、`types/`）、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本；仅当主合同显式引用外部资料时，才按需联查 `knowledge-base/`。
-- 对采用或正在升级为 Skill 2.0 的技能，源层修复/优化必须先做 owner 分区定位：判断问题应落在 `SKILL.md`、`CONTEXT.md`、`references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `TODO.md` 中的哪一个真源载体；不得把所有修复继续堆回 `SKILL.md` 或 `CONTEXT.md`。只有当问题涉及用户或维护者手动导入的外部知识材料、索引或摘录入口时，才允许把 `knowledge-base/` 作为修复 owner。
+- 对采用或正在升级为 Skill 2.0 的技能，源层修复/优化必须先做 owner 分区定位：判断问题应落在 `SKILL.md`、`CONTEXT.md`、`references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`agents/openai.yaml`、`README.md` 或 `CHANGELOG.md` 中的哪一个真源载体；不得把所有修复继续堆回 `SKILL.md` 或 `CONTEXT.md`。只有当问题涉及用户或维护者手动导入的外部知识材料、索引或摘录入口时，才允许把 `knowledge-base/` 作为修复 owner。
 - Skill 2.0 结构问题本身也属于源层问题：缺失 canonical 目录、存在拼写 alias、`agents/openai.yaml` 缺入口元数据、`CONTEXT.md` 缺知识库核心、分区没有说明文件、长细则未拆出、经验错写到 `knowledge-base/`、执行步骤错写到 `CONTEXT.md` 等，都应先按结构 owner 修复，再继续业务产物修复。
 - 源层诊断不仅要看“写了什么规则”，还要看“规则要求如何思考与如何执行”：凡 `SKILL.md`、`references/` 或 `steps/` 中存在思维·执行节点、思维链细则、执行流程节点、判断分叉、tie-break、字段思考顺序、聚合/回写顺序等设计，均应视为可追因、可优化的源层合同。
 - 源层追踪必须分层进行：不得停在第一个局部原因，必须继续上溯直到识别治理该行为的规则源。

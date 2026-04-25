@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-24
+last_updated: 2026-04-25
 
 active_skills:
   - id: aigc
@@ -17,43 +17,83 @@ active_skills:
       mirror_policy: 对 AIGC 项目工作流，`projects/aigc/<项目名>/` 为运行时唯一真源；`.codex/state/tasks` 仅作跨项目治理镜像或非项目任务账本。
     stage_index:
       - id: aigc-0-init
-        path: .agents/skills/aigc/0-Init
+        path: .agents/skills/aigc/0-初始化
         owner_office: zhongshu
         contract_status: active
         route_role: entry
-      - id: aigc-1-planning
-        path: .agents/skills/aigc/1-Planning
+        natural_triggers: ["初始化影片", "初始化电影", "初始化影视", "初始化视频项目", "新建电影项目", "film project kickoff", "movie project initialization"]
+      - id: aigc-1-episode-split
+        path: .agents/skills/aigc/1-分集
         owner_office: zhongshu
         contract_status: active
         route_role: stage
       - id: aigc-2-directing
-        path: .agents/skills/aigc/2-Global
+        path: .agents/skills/aigc/2-编导
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-      - id: aigc-3-detail
-        path: .agents/skills/aigc/3-Detail
+      - id: aigc-3-cinematography
+        path: .agents/skills/aigc/3-摄影
         owner_office: shangshu
         contract_status: active
         route_role: stage
-      - id: aigc-4-subject
-        path: .agents/skills/aigc/4-Design
+      - id: aigc-5-design
+        path: .agents/skills/aigc/5-设计
         owner_office: shangshu
         contract_status: active
         route_role: stage
         leaf_index:
           - id: aigc-design-scene
-            path: .agents/skills/aigc/4-Design/场景
+            path: .agents/skills/aigc/5-设计/场景
             contract_status: active
-            route_role: leaf
+            route_role: domain
+            child_index:
+              - id: aigc-design-scene-list
+                path: .agents/skills/aigc/5-设计/场景/1-清单
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-scene-design
+                path: .agents/skills/aigc/5-设计/场景/2-设计
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-scene-generate
+                path: .agents/skills/aigc/5-设计/场景/3-生成
+                contract_status: active
+                route_role: leaf
           - id: aigc-design-role
-            path: .agents/skills/aigc/4-Design/角色
+            path: .agents/skills/aigc/5-设计/角色
             contract_status: active
-            route_role: leaf
+            route_role: domain
+            child_index:
+              - id: aigc-design-role-list
+                path: .agents/skills/aigc/5-设计/角色/1-清单
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-role-design
+                path: .agents/skills/aigc/5-设计/角色/2-设计
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-role-generate
+                path: .agents/skills/aigc/5-设计/角色/3-生成
+                contract_status: active
+                route_role: leaf
           - id: aigc-design-prop
-            path: .agents/skills/aigc/4-Design/道具
+            path: .agents/skills/aigc/5-设计/道具
             contract_status: active
-            route_role: leaf
+            route_role: domain
+            child_index:
+              - id: aigc-design-prop-list
+                path: .agents/skills/aigc/5-设计/道具/1-清单
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-prop-design
+                path: .agents/skills/aigc/5-设计/道具/2-设计
+                contract_status: active
+                route_role: leaf
+              - id: aigc-design-prop-generate
+                path: .agents/skills/aigc/5-设计/道具/3-生成
+                contract_status: active
+                route_role: leaf
       - id: aigc-5-visuals
         path: .agents/skills/aigc/5-Image
         owner_office: shangshu
@@ -134,7 +174,7 @@ active_skills:
         governance_domain: hubu
         contract_status: active
         route_role: satellite
-        purpose: 项目级 runtime、阶段产物、`3-Detail` 主文件与治理工件事实查询。
+        purpose: 项目级 runtime、阶段产物、`2-编导` 主文件与治理工件事实查询。
       - id: aigc-resume
         path: .agents/skills/aigc/resume
         owner_office: shangshu
@@ -149,6 +189,65 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: AIGC 项目的 checkpoint / stage / package 三层结构化审计、aggregate review gate 与 repair routing。
+  - id: story
+    path: .agents/skills/story
+    owner_office: zhongshu
+    purpose: "仓库级 story2026 小说/网文/长篇故事工作流总入口，负责 `projects/story/<项目名>/` 项目根、阶段路由与跨阶段真源边界。"
+    contract_mode: active
+    runtime_control:
+      canonical_project_runtime: "projects/story/<项目名>/"
+      project_state_carrier: "projects/story/<项目名>/STATE.json"
+      team_carrier: "projects/story/<项目名>/team.yaml"
+      memory_carrier: "projects/story/<项目名>/MEMORY.md"
+      mirror_policy: "小说项目默认落到 `projects/story/<项目名>/`；legacy `projects/aigc/<项目名>/` 只作兼容回读，不作为新项目初始化真源。"
+    stage_index:
+      - id: story-0-init
+        path: .agents/skills/story/0-Init
+        owner_office: zhongshu
+        contract_status: active
+        route_role: entry
+        natural_triggers: ["初始化小说", "初始化网文", "新建书", "新建长篇故事", "novel project kickoff", "book project initialization"]
+      - id: story-1-cards
+        path: .agents/skills/story/1-Cards
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+      - id: story-2-planning
+        path: .agents/skills/story/2-Planning
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+      - id: story-3-drafting
+        path: .agents/skills/story/3-Drafting
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+      - id: story-4-review
+        path: .agents/skills/story/4-Review
+        owner_office: menxia
+        contract_status: active
+        route_role: stage
+      - id: story-5-loopback
+        path: .agents/skills/story/5-Loopback
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+    satellite_index:
+      - id: story-query
+        path: .agents/skills/story/query
+        contract_status: active
+        route_role: satellite
+        purpose: 小说项目状态、对象、规划、正文与质量事实查询。
+      - id: story-resume
+        path: .agents/skills/story/resume
+        contract_status: active
+        route_role: satellite
+        purpose: 小说项目断点、续跑、清理或重启任务。
+      - id: story-doubao
+        path: .agents/skills/story/doubao
+        contract_status: active
+        route_role: satellite
+        purpose: 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu

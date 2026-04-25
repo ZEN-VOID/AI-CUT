@@ -1,0 +1,76 @@
+# north_star.yaml
+
+project_identity:
+  project_name: ""
+  working_title: ""
+  # 建议写明确的媒介/节奏目标，例如：概念短片 / 短剧 / 竖屏短剧 / 漫剧 / 漫画短片
+  format: ""
+  target_runtime: ""
+  target_platforms: []
+  target_audience: []
+
+creative_mandate:
+  story_kernel: ""
+  emotional_core: ""
+  anti_goals: []
+
+viewer_promise:
+  expected_experience: []
+  hook_surface: []
+  must_keep: []
+
+全局风格:
+  基础: ""
+  视觉质感: ""
+  光影色彩: ""
+  镜头语言: ""
+  角色材质: ""
+  禁用方向: ""
+  全局风格提示词: ""
+
+类型元素:
+  题材: ""
+  叙事结构: ""
+  情绪曲线: ""
+  类型母题: ""
+  类型元素提示词: ""
+
+世界观:
+  时代: ""
+  地域: ""
+  文化: ""
+  势力: ""
+  规则: ""
+
+adaptation_strategy:
+  original_adherence: false
+  reorder_authorization: ""
+  pacing_intent: []
+  pacing_non_goals: []
+  peak_preferences: []
+
+production_envelope:
+  schedule_pressure: ""
+  budget_level: ""
+  quality_tier: ""
+  toolchain_preferences: []
+  asset_policy: []
+  model_policy: []
+
+ip_boundary:
+  allowed_inspirations: []
+  forbidden_mimicry: []
+  safety_constraints: []
+
+decision_policy:
+  decision_owner: ""
+  research_policy: ""
+  authority_order:
+    - "story_source_user_truth"
+    - "user_confirmed"
+    - "review_gate"
+    - "planning_direct_answer_consensus"
+    - "main_agent_inferred"
+  change_control: ""
+
+long_term_open_questions: []

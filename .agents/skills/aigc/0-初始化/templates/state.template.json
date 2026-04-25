@@ -1,0 +1,48 @@
+{
+  "schema_version": "aigc-state/v1",
+  "project_root": "projects/aigc/__PROJECT_NAME__/",
+  "current_stage": "0-初始化",
+  "current_stage_path": "projects/aigc/__PROJECT_NAME__/0-初始化/",
+  "recommended_next_stage": "",
+  "recommended_entry_path": "",
+  "recommended_next_step": "",
+  "init_mode": "smart_advisor",
+  "team_lineup_mode": "",
+  "source_profile": "",
+  "artifacts": {
+    "north_star": "projects/aigc/__PROJECT_NAME__/0-初始化/north_star.yaml",
+    "init_handoff": "projects/aigc/__PROJECT_NAME__/0-初始化/init_handoff.yaml",
+    "story_source_manifest": "projects/aigc/__PROJECT_NAME__/0-初始化/story-source-manifest.yaml",
+    "team": "projects/aigc/__PROJECT_NAME__/team.yaml",
+    "memory": "projects/aigc/__PROJECT_NAME__/MEMORY.md",
+    "changelog": "projects/aigc/__PROJECT_NAME__/CHANGELOG.md",
+    "preset_root": "projects/aigc/__PROJECT_NAME__/附加预设/",
+    "source_root": "projects/aigc/__PROJECT_NAME__/源/",
+    "stage_roots": [
+      "projects/aigc/__PROJECT_NAME__/0-初始化/",
+      "projects/aigc/__PROJECT_NAME__/1-分集/",
+      "projects/aigc/__PROJECT_NAME__/2-编导/",
+      "projects/aigc/__PROJECT_NAME__/3-摄影/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/场景/1-清单/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/场景/2-设计/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/场景/3-生成/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/道具/1-清单/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/道具/2-设计/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/道具/3-生成/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/角色/1-清单/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/角色/2-设计/",
+      "projects/aigc/__PROJECT_NAME__/4-设计/角色/3-生成/",
+      "projects/aigc/__PROJECT_NAME__/5-分组/",
+      "projects/aigc/__PROJECT_NAME__/6-图像/",
+      "projects/aigc/__PROJECT_NAME__/7-视频/"
+    ]
+  },
+  "governance": {
+    "governance_state": "",
+    "validation_report": "",
+    "lazy_governance_created": false
+  },
+  "reset_bridge": null,
+  "updated_at": "__DATE__"
+}

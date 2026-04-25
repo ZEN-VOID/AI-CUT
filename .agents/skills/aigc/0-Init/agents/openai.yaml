@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 项目初始化"
-  short_description: "初始化 AIGC 项目并锁定顾问组队、北极星与下一入口。"
-  default_prompt: "Use $aigc-init to initialize or reinitialize an AIGC project with smart_advisor mode, lock either auto or custom team lineup from `.agents/skills/team/`, write the init team manifest to `team.yaml`, run planning-role direct-answer packets with real subagents, then synthesize north_star, init_handoff, story-source-manifest, team, STATE, and optional governance carriers with one next-stage recommendation."

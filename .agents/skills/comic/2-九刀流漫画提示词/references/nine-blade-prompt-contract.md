@@ -28,7 +28,7 @@
 
 若 `1-漫画剧本改编/第N组.md` 已存在，则它优先于自由 prose，默认视为唯一上游文本真源。
 
-前奏处理机制参照 `.agents/skills/aigc/1-Planning/references/script-format-contract.md`，按以下顺序执行：
+前奏处理机制暂以内置最小整形合同为准；原 `.agents/skills/aigc/1-规划/references/script-format-contract.md` 已从规划包移除，后续再对接 `3-编导` 的独立格式化合同。当前按以下顺序执行：
 
 - `source intake`
 - `business analyze`

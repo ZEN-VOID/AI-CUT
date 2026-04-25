@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-24
+last_updated: 2026-04-25
 
 default_flow:
   - step: mandate
@@ -24,15 +24,33 @@ default_flow:
     carrier: .codex/templates/harness/learning-record.md
 
 route_policies:
+  - id: aigc-film-init-natural-entry
+    trigger: 命中 `初始化影片`、`初始化电影`、`初始化影视`、`初始化视频项目`、`新建电影项目`、`film project kickoff`、`movie project initialization`，且目标媒介是影片/电影/影视/视频
+    rule: "直接进入 `.agents/skills/aigc/0-初始化/SKILL.md`；canonical runtime 固定为 `projects/aigc/<项目名>/`。若用户说的是 `初始化小说 / 初始化网文 / 新建书`，不得误入本路由，应改走 `story-novel-init-natural-entry`。"
+  - id: story-novel-init-natural-entry
+    trigger: 命中 `初始化小说`、`初始化网文`、`新建书`、`新建长篇故事`、`小说项目起盘`、`novel project kickoff`、`book project initialization`，且目标媒介是小说/网文/书/长篇故事
+    rule: "直接进入 `.agents/skills/story/0-Init/SKILL.md`；canonical runtime 固定为 `projects/story/<项目名>/`。若用户说的是 `初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目`，不得误入本路由，应改走 `aigc-film-init-natural-entry`。"
   - id: aigc-root-entry
     trigger: AIGC 创作项目初始化、阶段切换、续跑、总入口判定
     rule: "优先进入 `.agents/skills/aigc/SKILL.md`，由根技能路由到一个明确阶段"
+  - id: story-root-entry
+    trigger: story2026 小说项目初始化、阶段切换、续跑、总入口判定，或命中 `projects/story/<项目名>/`
+    rule: "优先进入 `.agents/skills/story/SKILL.md`，由根技能路由到一个明确阶段；小说项目 canonical runtime 固定为 `projects/story/<项目名>/`。"
   - id: aigc-project-runtime-canonical
     trigger: 命中 `.agents/skills/aigc/SKILL.md` 及其阶段技能
     rule: "`projects/aigc/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"
   - id: aigc-bootstrap-compat-mode
     trigger: 命中 `.agents/skills/aigc/` 大规模重构、阶段合同重写、子路径迁移或 schema 重建
     rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、已启用卫星技能入口与高风险 preflight / validation gate；不把当前阶段内细节视为冻结真源"
+  - id: aigc-episode-split-entry
+    trigger: 命中 `1-分集`、小说原文分集、按集拆分、`projects/aigc/<项目名>/源`，或要求输出 `projects/aigc/<项目名>/1-分集/第N集.md`
+    rule: "进入 `.agents/skills/aigc/1-分集/SKILL.md`；默认读取 `projects/aigc/<项目名>/源/`，用户显式指定其他小说原文资料时以用户路径为准。若原资料自带集数划分，以其为准；否则默认按 2500-3000 字左右一集切分，输出到 `projects/aigc/<项目名>/1-分集/第N集.md`。"
+  - id: aigc-directing-stage-entry
+    trigger: 命中 `2-编导`、编导、剧本化改编、按集剧本、从 `1-分集` 到 `2-编导`，或要求输出 `projects/aigc/<项目名>/2-编导/第N集.md`
+    rule: "进入 `.agents/skills/aigc/2-编导/SKILL.md`；读取 `projects/aigc/<项目名>/1-分集/第N集.md`，以忠实剧本化结构投影输出到 `projects/aigc/<项目名>/2-编导/第N集.md`。不得摘要、删减、重排剧情事实；对白逐字保真；必须执行场景 slugline、字段分流与声画配对门禁。"
+  - id: aigc-cinematography-stage-entry
+    trigger: 命中 `3-摄影`、摄影、分镜摄影、镜头语言、运镜、画面句子下加镜头语言、从 `2-编导` 到 `3-摄影`，或要求输出 `projects/aigc/<项目名>/3-摄影/第N集.md`
+    rule: "进入 `.agents/skills/aigc/3-摄影/SKILL.md`；读取 `projects/aigc/<项目名>/2-编导/第N集.md`，按画面句子执行画面匹配、节拍分析和镜头语言注入，在每个命中画面句子下方新增 `镜头语言：` 与连续 `分镜N:`，输出到 `projects/aigc/<项目名>/3-摄影/第N集.md`。不得改写原编导稿事实、对白和顺序。"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -43,19 +61,19 @@ route_policies:
     trigger: 命中 checkpoint 审计点、阶段总验、package release gate、跨阶段 handoff review、或需要把阶段问题结构化聚合成 repair route
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、并发调度维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
-    trigger: 命中 `5-Image`，或需要把 `3-Detail/第N集.json` / `4-Design` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
+    trigger: 命中 `6-图像` 或 legacy `5-Image`，或需要把 `3-摄影` / `4-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
     rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；若是单一 `分镜ID` 的端到端画面准备，路由到 `A.分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B.分镜故事板`；否则由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"
   - id: aigc-design-prop-entry
-    trigger: 命中 `4-Design/道具`、道具清单、道具设计、道具面板、道具 panel layout、或批量 4-Design 道具设计输出
-    rule: "进入 `.agents/skills/aigc/4-Design/道具/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `道具清单.md + [道具名].md + [道具名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
+    trigger: 命中 `4-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 4-设计 道具输出
+    rule: "进入 `.agents/skills/aigc/5-设计/道具/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/道具/` 对应子目录。"
   - id: aigc-design-role-entry
-    trigger: 命中 `4-Design/角色`、角色清单、角色设计、角色面板、CharacterPanel、角色 panel layout、或批量 4-Design 角色设计输出
-    rule: "进入 `.agents/skills/aigc/4-Design/角色/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `角色清单.md + [角色名].md + [角色名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
+    trigger: 命中 `4-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 4-设计 角色输出
+    rule: "进入 `.agents/skills/aigc/5-设计/角色/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/角色/` 对应子目录。"
   - id: aigc-design-scene-entry
-    trigger: 命中 `4-Design/场景`、场景清单、场景设计、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成面板提示词
-    rule: "进入 `.agents/skills/aigc/4-Design/场景/SKILL.md`；按 `清单 -> 设计 -> 面板提示词` 顺序执行，输出 `场景清单.md + [场景名].md + [场景名].json` 到 `projects/aigc/<项目名>/4-Design/`。面板生图请求默认走包内 `scripts/panel_auto_generate.py` 与内置 imagegen handoff。"
+    trigger: 命中 `4-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
+    rule: "进入 `.agents/skills/aigc/5-设计/场景/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
-    trigger: 命中 `6-Video` 或需要把 `3-Detail/第N集.json` 蒸馏成视频工具入参 JSON
+    trigger: 命中 `7-视频`、legacy `6-Video`，或需要把 `2-编导/第N集.md` 蒸馏成视频工具入参 JSON
     rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若明确要求“分镜画面参照 / 首帧融合包 / 融合包 / full-chain”，路由 `A.分镜画面参照`；若明确要求“分镜故事板参照 / 组级融合包 / 故事板融合包 / full-chain”，路由 `B.分镜故事板参照`；若明确要求“主体参照 / 主体识别向 / 角色服装道具场景参照 / full-chain”，路由 `C.主体参照`；若任务只是按分镜组组织视频请求，默认路由兼容链 `1-提示词蒸馏/全能参照`"
   - id: aigc-shelved-stages
     trigger: 命中 `7-Cut / 7-后期`

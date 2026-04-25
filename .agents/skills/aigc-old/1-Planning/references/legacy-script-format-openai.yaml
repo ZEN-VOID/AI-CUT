@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 规划剧本"
+  short_description: "以单技能真源内化标准剧本投影和执行闭环，产出 canonical 2-剧本主稿（runtime: 2-格式/）"
+  default_prompt: "Archived legacy metadata. Current entry is $aigc-planning with mode=script_format."

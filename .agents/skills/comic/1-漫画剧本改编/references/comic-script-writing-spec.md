@@ -63,9 +63,9 @@
 - 每个组文件必须显式写出 `【边界判定】`，说明当前起止边界为何成立；尾组还必须写明 `尾组决议`。
 - 每个组文件必须显式写出最小类型包 handoff：`type_stack_active_packs`、`type_pack_projection_script_adaptation`、`type_pack_projection_nine_blade`。
 
-## 1.2 对齐 `2-格式` 的基础格式化标题
+## 1.2 漫画基础格式化标题
 
-漫画技能的基础格式化处理，需要对齐 `.agents/skills/aigc/1-Planning/references/script-format-contract.md` 的共享字段纪律。
+漫画技能的基础格式化处理暂以本文件为真源；原 AIGC 规划包内的 `script-format-contract.md` 已移除，后续再对接 `3-编导` 的独立格式化合同。
 
 正文与结构化包至少要能稳定表达以下标题：
 

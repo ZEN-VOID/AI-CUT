@@ -115,7 +115,7 @@ flowchart TD
 | `validation_checks[]` | 本轮执行的验证动作 | yes | `N7` | final summary |
 | `review_gate` | reviewer 或本地审计状态 | yes | `N7` | final summary |
 | `learning_writebacks[]` | 写回的学习载体 | yes | `N8` | target / self context |
-| `residual_risks[]` | 尚未收束的风险 | no | `N7` | final summary / `TODO.md` |
+| `residual_risks[]` | 尚未收束的风险 | no | `N7` | final summary |
 
 ## Root-Cause Execution Contract
 
@@ -133,5 +133,5 @@ flowchart TD
 - Required output: 升级后的目标 skill 载体改动，以及可复核的 absorption summary，包含 `upgrade_points`、`point_type`、`landing_set`、`sync_scope`、`validation_checks`、`review_gate`、`learning_writebacks`、`residual_risks`。
 - Output format: 目标文件 patch、必要的 registry/routes/shared carrier 同步、最终中文摘要；用户要求报告时可按 `templates/output-template.md` 渲染为 Markdown。
 - Output path: 默认原地修改 `target_skill` 所在目录；必要同步面落在对应父级/sibling/shared/registry 路径；报告类派生产物按用户要求写入 `reports/`。
-- Naming convention: 技能包目录沿用仓库 canonical 路径；新增 Skill 2.0 文件使用固定名称，如 `README.md`、`TODO.md`、`agents/openai.yaml`、`templates/output-template.md`；任务 ID 与脚本参数保持 ASCII 安全字符。
+- Naming convention: 技能包目录沿用仓库 canonical 路径；新增 Skill 2.0 文件使用固定名称，如 `README.md`、`agents/openai.yaml`、`templates/output-template.md`；任务 ID 与脚本参数保持 ASCII 安全字符。
 - Completion gate: 完成目标改造后，至少通过结构/引用检查和 `review/review-contract.md` 的本地 gate；若目标本身是 Skill 2.0 包，还应运行对应 validator；若真实 reviewer/subagent 被上层策略阻断，必须报告降级来源、原计划路径与实际本地审计路径。

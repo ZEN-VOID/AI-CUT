@@ -33,19 +33,19 @@ REPORT_TEMPLATE = ROOT / "_shared" / "review-dimension-report.template.md"
 EXECUTION_PROVIDER_CONFIG = ROOT / "_shared" / "execution-provider.yaml"
 
 STAGE_ACCEPTANCE_PASS_TARGETS = {
-    "1-Planning": ["2-Global"],
-    "2-Global": ["3-Detail"],
-    "3-Detail": ["4-Design", "5-Image", "6-Video"],
+    "1-规划": ["2-全局"],
+    "2-全局": ["3-编导"],
+    "3-编导": ["4-Design", "5-Image", "6-Video"],
     "4-Design": ["5-Image"],
     "5-Image": ["6-Video"],
     "6-Video": ["release"],
 }
 
 SOURCE_LAYER_OWNERS = {
-    "0-Init",
-    "1-Planning",
-    "2-Global",
-    "3-Detail",
+    "0-初始化",
+    "1-规划",
+    "2-全局",
+    "3-编导",
     "root-aigc",
     "project-runtime",
 }
@@ -99,39 +99,39 @@ CODE_REVIEWER_TIMEOUT_SECONDS = float(EXECUTION_PROVIDER["timeout_seconds"])
 
 CHECKPOINT_REQUIREMENTS = {
     "planning-handoff-ready": {
-        "validation_refs": ["1-Planning/validation-report.md"],
+        "validation_refs": ["1-规划/validation-report.md"],
         "source_truth_refs": [
-            "0-Init/north_star.yaml",
-            "0-Init/init_handoff.yaml",
-            "1-Planning/",
+            "0-初始化/north_star.yaml",
+            "0-初始化/init_handoff.yaml",
+            "1-规划/",
         ],
-        "runtime_artifact_refs": ["1-Planning/"],
-        "handoff_candidate_refs": ["2-Global/"],
+        "runtime_artifact_refs": ["1-规划/"],
+        "handoff_candidate_refs": ["2-全局/"],
     },
     "global-seed-ready": {
-        "validation_refs": ["2-Global/validation-report.md"],
+        "validation_refs": ["2-全局/validation-report.md"],
         "source_truth_refs": [
-            "0-Init/north_star.yaml",
-            "1-Planning/",
-            "2-Global/第N集.json",
+            "0-初始化/north_star.yaml",
+            "1-规划/",
+            "2-全局/全局设计.json",
         ],
-        "runtime_artifact_refs": ["2-Global/第N集.json"],
-        "handoff_candidate_refs": ["3-Detail/"],
+        "runtime_artifact_refs": ["2-全局/全局设计.json"],
+        "handoff_candidate_refs": ["3-编导/"],
     },
     "detail-episode-ready": {
-        "validation_refs": ["3-Detail/validation-report.md"],
+        "validation_refs": ["3-编导/validation-report.md"],
         "source_truth_refs": [
-            "1-Planning/",
-            "2-Global/第N集.json",
-            "3-Detail/{scope_ref}.json",
+            "1-规划/",
+            "2-全局/全局设计.json",
+            "3-编导/{scope_ref}.json",
         ],
-        "runtime_artifact_refs": ["3-Detail/{scope_ref}.json"],
+        "runtime_artifact_refs": ["3-编导/{scope_ref}.json"],
         "handoff_candidate_refs": ["4-Design/", "5-Image/", "6-Video/"],
     },
     "design-list-ready": {
         "validation_refs": ["4-Design/validation-report.md"],
         "source_truth_refs": [
-            "3-Detail/{scope_ref}.json",
+            "3-编导/{scope_ref}.json",
             "4-Design/",
         ],
         "runtime_artifact_refs": ["4-Design/"],
@@ -140,7 +140,7 @@ CHECKPOINT_REQUIREMENTS = {
     "design-truth-ready": {
         "validation_refs": ["4-Design/validation-report.md"],
         "source_truth_refs": [
-            "3-Detail/{scope_ref}.json",
+            "3-编导/{scope_ref}.json",
             "4-Design/",
         ],
         "runtime_artifact_refs": ["4-Design/"],
@@ -149,16 +149,16 @@ CHECKPOINT_REQUIREMENTS = {
     "design-panel-ready": {
         "validation_refs": ["4-Design/validation-report.md"],
         "source_truth_refs": [
-            "3-Detail/{scope_ref}.json",
+            "3-编导/{scope_ref}.json",
             "4-Design/",
         ],
         "runtime_artifact_refs": ["4-Design/"],
         "handoff_candidate_refs": ["5-Image/"],
     },
     "image-request-ready": {
-        "validation_refs": ["5-Image/validation-report.md", "3-Detail/validation-report.md"],
+        "validation_refs": ["5-Image/validation-report.md", "3-编导/validation-report.md"],
         "source_truth_refs": [
-            "3-Detail/{scope_ref}.json",
+            "3-编导/{scope_ref}.json",
             "5-Image/1-提示词蒸馏/",
         ],
         "runtime_artifact_refs": ["5-Image/1-提示词蒸馏/"],
@@ -184,9 +184,9 @@ CHECKPOINT_REQUIREMENTS = {
         "handoff_candidate_refs": ["Assets/", "5-Image/3-图像生成/"],
     },
     "video-request-ready": {
-        "validation_refs": ["6-Video/validation-report.md", "3-Detail/validation-report.md"],
+        "validation_refs": ["6-Video/validation-report.md", "3-编导/validation-report.md"],
         "source_truth_refs": [
-            "3-Detail/{scope_ref}.json",
+            "3-编导/{scope_ref}.json",
             "6-Video/1-提示词蒸馏/",
         ],
         "runtime_artifact_refs": ["6-Video/1-提示词蒸馏/"],
@@ -213,26 +213,26 @@ CHECKPOINT_REQUIREMENTS = {
     },
     "package-release-ready": {
         "validation_refs": [
-            "1-Planning/validation-report.md",
-            "2-Global/validation-report.md",
-            "3-Detail/validation-report.md",
+            "1-规划/validation-report.md",
+            "2-全局/validation-report.md",
+            "3-编导/validation-report.md",
             "4-Design/validation-report.md",
             "5-Image/validation-report.md",
             "6-Video/validation-report.md",
         ],
         "source_truth_refs": [
-            "0-Init/north_star.yaml",
-            "1-Planning/",
-            "2-Global/第N集.json",
-            "3-Detail/",
+            "0-初始化/north_star.yaml",
+            "1-规划/",
+            "2-全局/全局设计.json",
+            "3-编导/",
             "4-Design/",
             "5-Image/",
             "6-Video/",
         ],
         "runtime_artifact_refs": [
-            "1-Planning/",
-            "2-Global/",
-            "3-Detail/",
+            "1-规划/",
+            "2-全局/",
+            "3-编导/",
             "4-Design/",
             "5-Image/",
             "6-Video/",
@@ -242,12 +242,12 @@ CHECKPOINT_REQUIREMENTS = {
 }
 
 STAGE_REQUIREMENTS = {
-    "1-Planning": CHECKPOINT_REQUIREMENTS["planning-handoff-ready"],
-    "2-Global": CHECKPOINT_REQUIREMENTS["global-seed-ready"],
-    "3-Detail": CHECKPOINT_REQUIREMENTS["detail-episode-ready"],
+    "1-规划": CHECKPOINT_REQUIREMENTS["planning-handoff-ready"],
+    "2-全局": CHECKPOINT_REQUIREMENTS["global-seed-ready"],
+    "3-编导": CHECKPOINT_REQUIREMENTS["detail-episode-ready"],
     "4-Design": {
         "validation_refs": ["4-Design/validation-report.md"],
-        "source_truth_refs": ["3-Detail/{scope_ref}.json", "4-Design/"],
+        "source_truth_refs": ["3-编导/{scope_ref}.json", "4-Design/"],
         "runtime_artifact_refs": ["4-Design/"],
         "handoff_candidate_refs": ["5-Image/", "6-Video/"],
     },
@@ -267,26 +267,26 @@ STAGE_REQUIREMENTS = {
 
 DIMENSION_EXPECTATIONS = {
     "planning-seed-validator": {
-        "source_prefixes": ["0-Init/", "1-Planning/", "2-Global/", "3-Detail/"],
-        "validation_prefixes": ["1-Planning/", "2-Global/", "3-Detail/"],
+        "source_prefixes": ["0-初始化/", "1-规划/", "2-全局/", "3-编导/"],
+        "validation_prefixes": ["1-规划/", "2-全局/", "3-编导/"],
     },
     "detail-execution-validator": {
-        "source_prefixes": ["2-Global/", "3-Detail/"],
-        "runtime_prefixes": ["3-Detail/"],
-        "validation_prefixes": ["3-Detail/"],
+        "source_prefixes": ["2-全局/", "3-编导/"],
+        "runtime_prefixes": ["3-编导/"],
+        "validation_prefixes": ["3-编导/"],
     },
     "design-alignment-validator": {
-        "source_prefixes": ["3-Detail/", "4-Design/"],
+        "source_prefixes": ["3-编导/", "4-Design/"],
         "runtime_prefixes": ["4-Design/"],
         "validation_prefixes": ["4-Design/"],
     },
     "image-delivery-validator": {
-        "source_prefixes": ["3-Detail/", "4-Design/", "5-Image/"],
+        "source_prefixes": ["3-编导/", "4-Design/", "5-Image/"],
         "runtime_prefixes": ["5-Image/"],
         "validation_prefixes": ["5-Image/"],
     },
     "video-delivery-validator": {
-        "source_prefixes": ["3-Detail/", "4-Design/", "5-Image/", "6-Video/"],
+        "source_prefixes": ["3-编导/", "4-Design/", "5-Image/", "6-Video/"],
         "runtime_prefixes": ["6-Video/"],
         "validation_prefixes": ["6-Video/"],
     },

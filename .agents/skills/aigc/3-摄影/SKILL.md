@@ -1,0 +1,214 @@
+---
+name: 3-摄影
+description: Use when injecting master-level storyboard, cinematography, camera movement, transition, lighting, and color language into projects/aigc/<项目名>/2-编导/第N集.md and writing the enriched episode file under projects/aigc/<项目名>/3-摄影/.
+governance_tier: full
+metadata:
+  short-description: AIGC episode cinematography language injection
+---
+
+# aigc 3-摄影
+
+`3-摄影` 负责在 `2-编导` 逐集稿基础上，为每一个画面性句子注入大师级分镜、摄影、运镜、转场、光影和色彩语言。它不改写剧情事实、对白、场景顺序或编导字段，只在命中的画面句子下方新增 `镜头语言：` 字段。
+
+## Context Loading Contract
+
+- 每次调用 `$3-摄影` 时，必须同时加载同目录 `CONTEXT.md`。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与摄影、美术、风格或制作约束相关的上下文文件。
+- 上游正文真源固定为 `projects/aigc/<项目名>/2-编导/第N集.md`，除非用户显式指定其他编导稿文件。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
+- 核心镜头语言、节拍判断和审美设计必须由 LLM 直接完成；`scripts/` 只能做读取、标记检查、字段覆盖统计和机械校验。
+
+## Input Contract
+
+Accepted input:
+
+- 项目名、项目路径、单个 `projects/aigc/<项目名>/2-编导/第N集.md` 文件，或多个集号范围。
+- 用户要求“摄影”“分镜摄影”“镜头语言”“运镜”“画面句子下加镜头语言”“从 2-编导 到 3-摄影”等任务。
+- 已完成或部分完成的 `2-编导` 逐集稿；默认以集为单位处理 `第N集.md`。
+
+Required input:
+
+- 可定位、可读取的 `2-编导/第N集.md`。
+- 至少一个目标集号，或允许默认处理 `2-编导/` 中全部 `第N集.md`。
+- 输入正文中存在可识别的画面性字段或画面性句子。
+
+Optional input:
+
+- 项目 `MEMORY.md` 中的长期摄影偏好、禁区、色彩倾向、节奏偏好。
+- 项目 `CONTEXT/` 中的角色、美术、场景、世界观、视觉参考、镜头风格补充。
+- 用户额外指定的参考导演、摄影师、影片、画幅、镜头焦段、运动强度或制作限制。
+
+Reject or clarify when:
+
+- 上游 `2-编导/第N集.md` 不存在、不可读，或正文缺少可处理字段。
+- 用户要求重写剧情、改对白、删减原编导内容、合并集数或改变场景顺序。
+- 用户要求直接生成图像提示词、视频请求、资产设计或分组拆分；这些应转交下游阶段。
+- 用户要求脚本自动生成镜头语言正文；必须改为 LLM 主创、脚本只校验。
+
+## Mode Selection
+
+| mode | 触发信号 | 输出 |
+| --- | --- | --- |
+| `single_episode` | 指定单个 `第N集.md` 或单个集号 | `projects/aigc/<项目名>/3-摄影/第N集.md` |
+| `episode_range` | 指定多个集号或集号范围 | 多个逐集摄影稿与更新后的执行报告 |
+| `all_ready_episodes` | 未指定集号但 `2-编导/` 下有 `第N集.md` | 全部可读逐集摄影稿 |
+| `repair` | 已有摄影稿缺失 `镜头语言`、分镜编号断裂、误改原文或节拍过粗/过碎 | 最小修复后的逐集摄影稿与问题报告 |
+| `review_only` | 用户只要求检查 `3-摄影` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
+
+## Reference Loading Guide
+
+| 场景 | 必读文件 |
+| --- | --- |
+| 任意摄影注入任务 | `steps/cinematography-workflow.md`、`references/visual-matching-contract.md`、`references/beat-analysis-contract.md` |
+| 画面节奏、信息重要性、张弛有度、收敛/发散 | `references/visual-rhythm-analysis-contract.md` |
+| 镜头语言动态化表达、变化、组合运镜、流畅感 | `references/dynamic-lens-language-contract.md` |
+| 镜头连续性、临近画面回顾、轴线一致、风格一致 | `references/shot-continuity-contract.md` |
+| 景别景深、镜头视角、镜头类型、运镜速度、经典构图、高超运镜、高能转场、光影、色彩 | `references/cinematic-technique-library.md` |
+| 判断画面句子类型与镜头策略 | `types/visual-unit-type-map.md` |
+| 验收、修复和 review gate | `review/review-contract.md` |
+| 输出样板 | `templates/output-template.md`、`templates/episode-cinematography.template.md` |
+| 脚本辅助边界与机械校验 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/cinematography-heuristics.md` |
+| 产品入口元数据 | `agents/openai.yaml` |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["projects/aigc/<项目名>/2-编导/第N集.md"] --> B["画面匹配"]
+    B --> C["逐个画面句子建 visual_unit"]
+    C --> D["节拍分析"]
+    D --> E["一个节拍点 = 一个分镜切换点"]
+    E --> F["LLM 注入镜头语言"]
+    F --> G["review gate"]
+    G --> H["projects/aigc/<项目名>/3-摄影/第N集.md"]
+    G --> I["执行报告.md"]
+```
+
+```mermaid
+flowchart TD
+    A["画面性字段"] --> B{"内容驱动"}
+    B -->|"空间/环境/群像"| C["构图与调度"]
+    B -->|"身体动作/表演"| D["运动轴线与节拍切分"]
+    B -->|"特写/道具/规则显影"| E["微距、焦点与信息揭示"]
+    B -->|"声音承托画面"| F["声画转场与反应镜头"]
+    C --> G["镜头语言字段"]
+    D --> G
+    E --> G
+    F --> G
+```
+
+## Execution Contract
+
+1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
+2. 锁定上游 `2-编导/第N集.md`，保留 frontmatter、`【剧本正文】`、场景标题、字段顺序和原文。
+3. 按 `references/visual-matching-contract.md` 执行 step1：匹配包含或等价于 `画面`、`动作`、`表演`、`描写`、`特写`、`显影` 的画面性内容；每一个画面句子成为一个镜头语言处理单位。
+4. 按 `references/beat-analysis-contract.md` 执行 step2：先判断该画面句子的戏剧功能、注意力转移、动作相位、信息揭示和情绪转折，再决定分镜切换点；一个节拍点对应一个 `分镜N`。
+5. 按 `references/visual-rhythm-analysis-contract.md` 执行 step2.5：根据画面句子的类型、节奏、信息重要性、情绪压力和上下文位置，判断镜头语言应收敛还是发散，决定描述密度、运动复杂度、景别变化幅度、转场强度和停顿时长。
+6. 按 `references/shot-continuity-contract.md`、`references/dynamic-lens-language-contract.md` 与 `references/cinematic-technique-library.md` 执行 step3：在每个画面句子下方新增 `镜头语言：` 字段。写作前必须在内部回顾整集中临近至少前 3 个画面句子的镜头语言表现，延续或有动机地变化轴线、运动方向、景别梯度、景深、视角、镜头类型、运镜速度、光影和色彩；输出时集中描写当前画面本身，每个分镜写成“从 XX 到 XX”的动态变化、组合运镜和速度曲线。
+7. 写入 `projects/aigc/<项目名>/3-摄影/第N集.md`，并生成或更新 `projects/aigc/<项目名>/3-摄影/执行报告.md`。
+8. 按 `review/review-contract.md` 执行验收；脚本只能做机械字段检查，不能替代镜头语言主创。
+
+## Script And Metadata Contract
+
+| path | role |
+| --- | --- |
+| `scripts/README.md` | 说明脚本只能承担机械辅助，不替代 LLM 镜头语言创作 |
+| `scripts/validate_cinematography_markup.py` | 可选机械校验：检查画面性字段后是否就近存在 `镜头语言：` 与连续 `分镜N` |
+| `agents/openai.yaml` | 提供产品侧入口元数据，默认提示必须显式提到 `$3-摄影` |
+
+## Field Mapping
+
+| field_id | 输出/证据 | 内容要求 | 失败码 |
+| --- | --- | --- | --- |
+| `FIELD-CINE-01` | 输入取证 | source directing episode、项目记忆、相关上下文、目标集号明确 | `FAIL-CINE-01` |
+| `FIELD-CINE-02` | 画面匹配 | 所有画面性句子被识别，非画面字段不被强行注入 | `FAIL-CINE-02` |
+| `FIELD-CINE-03` | 节拍判断 | 分镜数量来自内容节拍，不按固定数量灌水 | `FAIL-CINE-03` |
+| `FIELD-CINE-04` | 镜头语言 | 每个命中句子下方有 `镜头语言：` 和连续 `分镜N:` | `FAIL-CINE-04` |
+| `FIELD-CINE-05` | 连续性 | 当前镜头语言回看临近至少前 3 个画面单位，保持轴线、运动方向、景别梯度、光色和风格连贯 | `FAIL-CINE-05` |
+| `FIELD-CINE-06` | 节奏张弛 | 根据类型、节奏和信息重要性决定收敛/发散，避免轻信息过度炫技或重信息写得太薄 | `FAIL-CINE-06` |
+| `FIELD-CINE-07` | 专业性 | 景别景深、镜头视角、镜头类型、运镜速度、构图、组合运镜、转场、光影、色彩至少按当前画面需要选择性生效，且表达呈现动态变化 | `FAIL-CINE-07` |
+| `FIELD-CINE-08` | 保真 | 不改写原 `2-编导` 字段、对白、场景顺序和剧情事实 | `FAIL-CINE-08` |
+| `FIELD-CINE-09` | 输出落盘 | `3-摄影/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-CINE-09` |
+
+## Thought Pass Map
+
+| step_id | pass_name | input | judgment | output |
+| --- | --- | --- | --- | --- |
+| `PASS-CINE-01` | 画面匹配 | `2-编导/第N集.md` 字段行 | 是否属于可被摄影机处理的画面句子 | `visual_unit list` |
+| `PASS-CINE-02` | 节拍分析 | 单个 `visual_unit` | 注意力、动作、信息、情绪、空间或声画是否需要换镜 | `beat_map` |
+| `PASS-CINE-03` | 画面节奏分析 | `visual_unit`、`beat_map`、上下文位置 | 当前画面应收敛、标准展开、发散强化还是突发断裂；该判断只影响输出密度，不显式写入分镜 | `rhythm_profile` |
+| `PASS-CINE-04` | 连续性回看 | 当前 `visual_unit` 与临近前 3 个镜头语言块 | 哪些轴线、运动方向、景别梯度、光色和风格必须延续或有动机变化 | `continuity_profile` |
+| `PASS-CINE-05` | 镜头语言注入 | `beat_map`、`rhythm_profile`、`continuity_profile`、动态表达合同与技法库 | 哪种景别、景深、视角、镜头类型、速度、构图、组合运镜、转场、光影、色彩最服务当前节拍且张弛得当 | `镜头语言` 块 |
+| `PASS-CINE-06` | 保真审查 | enriched draft | 是否只新增镜头语言而不改写上游编导稿 | review result |
+
+## Pass Table
+
+| pass_id | must_do | evidence | Rework Entry |
+| --- | --- | --- | --- |
+| `PASS-CINE-01` | 找到 `画面/动作/表演/描写/特写/显影` 等画面性内容 | 命中行清单、场景锚点 | `references/visual-matching-contract.md` |
+| `PASS-CINE-02` | 为每个画面句子判断节拍点 | `分镜N` 数量与切换理由 | `references/beat-analysis-contract.md` |
+| `PASS-CINE-03` | 判断该收敛还是发散 | rhythm profile、描述密度、运动复杂度、转场强度 | `references/visual-rhythm-analysis-contract.md` |
+| `PASS-CINE-04` | 回看临近至少前 3 个画面单位 | continuity profile、轴线/运动方向/光色/景别梯度 | `references/shot-continuity-contract.md` |
+| `PASS-CINE-05` | 写出大师级但可执行的动态镜头语言 | 从起点到终点的变化、组合运镜、速度曲线、景别、景深、镜头视角、镜头类型、转场、光影、色彩选择 | `references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md` |
+| `PASS-CINE-06` | 做覆盖率、连续编号和保真门禁 | review 结果或 validator 输出 | `review/review-contract.md` |
+
+## Root-Cause Execution Contract (Mandatory)
+
+出现以下问题时，必须沿链路上溯并修复源层合同：
+
+- 漏掉 `画面`、`动作`、`表演`、`描写`、`特写`、`显影` 等画面性字段。
+- 对每条画面句子机械固定为 1 个或 3 个分镜，而不是按节拍判断。
+- `镜头语言` 只写空泛形容词，没有景别、景深、镜头视角、镜头类型、运镜速度、构图、机位、运动、光影、色彩或转场的可执行选择。
+- `镜头语言` 只列静态参数，没有“从 XX 到 XX”的动态变化、组合运镜、速度曲线或注意力转移路径。
+- 当前镜头语言不回看临近画面，导致轴线、运动方向、光色、景别或空间位置无动机跳变。
+- 轻信息画面过度铺陈，重信息画面又过分简略，导致整集节奏没有张弛。
+- 为了镜头炫技而改写原编导稿事实、对白或场景顺序。
+- 脚本、模板拼接或规则补句替代 LLM 的摄影主创判断。
+
+必经链路：
+
+`Symptom -> Direct Script/Prompt Overreach -> 3-摄影 Section Owner -> AGENTS.md LLM-first / Skill 2.0 Rule`
+
+## Output Contract
+
+### Required output
+
+1. 逐集摄影稿固定写入 `projects/aigc/<项目名>/3-摄影/第N集.md`。
+2. 阶段执行报告写入或更新 `projects/aigc/<项目名>/3-摄影/执行报告.md`。
+3. 每个逐集摄影稿必须完整保留 `2-编导/第N集.md` 原结构，并在每个画面性句子下方新增 `镜头语言：`。
+4. `镜头语言：` 下方使用 `分镜1: ...`、`分镜2: ...` 的连续编号；分镜数量由节拍分析决定。
+5. 镜头语言必须能被摄影、分镜、现场调度或后续图像/视频阶段执行，不得只写抽象气氛词；每个分镜默认包含景别/景深、镜头视角、镜头类型、运镜速度等摄影执行参数，并以动态句法呈现运动路径和变化结果。
+6. 每个画面句子的镜头语言必须在内部回顾临近至少前 3 个画面单位；输出时不显式展示该回顾。若发生跨轴线、反向运动、光色突变、景别断崖或空间跳跃，才在镜头语言中简短给出转场、反应镜头、建立镜头、焦点转移或声画桥作为动机。
+
+### Output format
+
+| output_id | format |
+| --- | --- |
+| `OUTPUT-CINE-EPISODE` | Markdown 摄影镜头语言稿 |
+| `OUTPUT-CINE-REPORT` | Markdown 执行报告 |
+
+### Output path
+
+| output_id | canonical path |
+| --- | --- |
+| `OUTPUT-CINE-EPISODE` | `projects/aigc/<项目名>/3-摄影/第N集.md` |
+| `OUTPUT-CINE-REPORT` | `projects/aigc/<项目名>/3-摄影/执行报告.md` |
+
+### Naming convention
+
+- 逐集摄影稿命名为 `第N集.md`。
+- 阶段报告命名为 `执行报告.md`。
+- 不创建 `第N集-摄影.md`、`shot-language.md`、`cinematography.md` 等平行真源。
+- `分镜N` 从 1 开始，在单个画面句子的 `镜头语言：` 字段内连续编号；不同画面句子重新从 `分镜1` 开始。
+
+### Completion gate
+
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
+- 上游 `2-编导/第N集.md` 可回指，输出 frontmatter 记录 `source_directing_path`。
+- 所有命中的画面性句子下方均有 `镜头语言：` 字段；非画面字段没有被滥加。
+- 每个 `镜头语言：` 块至少有 `分镜1:`，多分镜编号连续，且每个分镜对应明确节拍点。
+- 镜头语言根据画面类型、节奏和信息重要性张弛有度：过场和低信息句收敛，关键揭示/强情绪/空间重置句发散强化；节奏标签留在内部判断，不显式输出。
+- 镜头语言体现景别景深、镜头视角、镜头类型、运镜速度、经典电影构图、高超运镜、高能转场、光影美学、色彩美学中的必要项，以动态变化和组合运镜形成流畅感、丝滑感；同时回看临近至少前 3 个画面单位，保持整集镜头表现的连贯性、一致性和空间方向感，并服从当前画面句子的戏剧任务。
+- 原编导稿事实、对白、场景标题和字段顺序未被改写。
+- 已运行 `scripts/validate_cinematography_markup.py` 或执行等价人工 review，结果写入 `执行报告.md`。
