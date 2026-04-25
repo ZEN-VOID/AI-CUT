@@ -42,7 +42,7 @@ governance_tier: full
 - 初始化一个新的 AIGC 创作项目
 - 对已初始化项目执行“回到初始化态重来”的重置式重新初始化
 - 在 `projects/aigc/<项目名>/` 下推进影视创作主链
-- 判断当前任务应该进入 `1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video`、`7-Cut` 的哪一个阶段
+- 判断当前任务应该进入 `1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 的哪一个阶段
 - 查询某个 AIGC 项目的 runtime 真源、阶段产物、编导根文件、设计/画面/视频资产与治理工件
 - 续跑一个中断的创作项目
 - 对某个阶段或整个项目执行门下省侧预审、验收、`validation-report.md` 更新与学习桥接
@@ -55,7 +55,7 @@ governance_tier: full
 1. `project-bootstrap`
    - 当前任务要新建项目、回到初始化态、重建项目根治理骨架
 2. `mainline-stage-routing`
-   - 当前任务要把项目推进到 `0-Init -> 7-Cut` 主链中的唯一下一入口
+   - 当前任务要把项目推进到 `0-Init -> 6-Video` 主链中的唯一下一入口
 3. `satellite-bridge`
    - 当前任务本质是 `query / resume / review`，不应被伪装成主阶段执行
 4. `root-sync-repair`
@@ -151,19 +151,19 @@ erDiagram
 ### Canonical Stage Landing
 
 - `projects/aigc/<项目名>/0-Init/`
-- `projects/aigc/<项目名>/Story/`
+- `projects/aigc/<项目名>/Original/`
 - `projects/aigc/<项目名>/1-Planning/`
 - `projects/aigc/<项目名>/2-Global/`
 - `projects/aigc/<项目名>/3-Detail/`
 - `projects/aigc/<项目名>/4-Design/`
 - `projects/aigc/<项目名>/5-Image/`
 - `projects/aigc/<项目名>/6-Video/`
-- `projects/aigc/<项目名>/7-Cut/`
 
 说明：
 
 - 技能阶段名仍沿用当前技能树口径，如 `1-Planning / 4-Design / 5-Image`。
 - 项目 runtime 目录以 `.agents/skills/aigc/_shared/project-runtime-layout.md` 为唯一真源；当前 `4-Design` 不再回退到旧的 `主体/` 目录。
+- `0-Init` 只预建 `0-Init/`、`Original/` 与项目根载体；上列下游阶段根是执行落点，不是初始化骨架。
 
 ### Canonical Runtime Artifacts
 
@@ -224,11 +224,9 @@ erDiagram
 5. `4-Design`
    - 负责场景、角色、服装、道具的清单、设计与面板阶段
 6. `5-Image`
-   - 已建阶段根合同；负责图像阶段父级路由、runtime 对齐、`A.分镜画面` 单帧融合入口与 `1-提示词蒸馏 -> 2-参照引用 -> 3-图像生成` 三段兼容链路收口
+   - 已建阶段根合同；负责图像阶段父级路由、runtime 对齐、`A.分镜画面` 单帧融合入口与 `B.分镜故事板` 组级故事板融合入口；执行落点使用 `A-分镜帧 / B-分镜故事板`
 7. `6-Video`
-   - 负责视频生成前的设计/画面参照、分镜参照、主体参照与视频执行入口；当前已建融合入口为 `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`，兼容链子路径为 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
-8. `7-Cut`
-   - 当前仅保留 runtime 槽位与 registry `shelved` 声明；技能树中尚无受治理阶段目录
+   - 负责视频生成前的设计/画面参照、分镜参照、主体参照与视频执行入口；当前已建融合入口为 `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`
 
 ### 根级卫星技能
 
@@ -261,9 +259,9 @@ erDiagram
 | `2-Global` | 是 | 已建阶段合同，采用单技能内收模式，以 `.agents/skills/aigc/2-Global/_shared/episode_root.json` 为模板中心，在父 skill 内部直接填写项目级与组级导演 seed | 直接写入 `2-Global/episode_root.json` 与 `2-Global/validation-report.md`；旧 Markdown 仅允许作为 JSON 派生的兼容投影 |
 | `3-Detail` | 是 | 已建阶段合同，采用单技能知行合一根包，固定 `分镜构图` 先行并直接围绕 `episode_detail.json` 填写 `meta + groups[].global/detail.分镜列表`；镜级骨架由 `时间 / 剧本正文 / 主体锚定 / 分镜构图` 构成 | 先进入 `.agents/skills/aigc/3-Detail/SKILL.md`，再按内部固定顺序与命中 scope 完成字段填写 |
 | `4-Design` | 是 | 已建阶段父合同；当前 `1-清单/{场景,角色,道具}` 与 `2-设计/{场景,角色,道具}` 已迁回新路径，其余 tranche / leaf 仍处于 bootstrap-compatible migration | 可先进入 `1-清单` 或 `2-设计`，当前稳定命中 `场景 / 角色 / 道具`；其余 design tranche 按 source-layer 回迁状态再开放 |
-| `5-Image` | 是 | 已建阶段合同，负责统一路由 `A.分镜画面`、`1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `A.分镜画面` 融合单帧端到端链路，`1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧`；漫画页诉求回接 repo-local `comic` workflow | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`；若是单一 `分镜ID` 的端到端画面准备，进入 `A.分镜画面`；否则按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`；若对象是漫画页，则明确 reroute |
+| `5-Image` | 是 | 已建阶段合同，负责统一路由 `A.分镜画面`、`B.分镜故事板`、`1-提示词蒸馏`、`2-参照引用`、`3-图像生成`，其中 `A.分镜画面` 融合单帧端到端链路，`B.分镜故事板` 融合组级多格 storyboard 端到端链路，`1-提示词蒸馏` 再路由 `分镜故事板 / 分镜帧`；漫画页诉求回接 repo-local `comic` workflow | 先进入 `.agents/skills/aigc/5-Image/SKILL.md`；若是单一 `分镜ID` 的端到端画面准备，进入 `A.分镜画面`；若是单一 `分镜组ID` 的多格 storyboard 准备，进入 `B.分镜故事板`；否则按对象状态进入 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`；若对象是漫画页，则明确 reroute |
 | `6-Video` | 是 | 已建阶段合同，`A.分镜画面参照`、`B.分镜故事板参照` 与 `C.主体参照` 为融合型 Skill 2.0 包；`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用` 与 `3-视频生成` 继续可执行 | 明确命中“分镜画面参照 / 融合包 / full-chain”时路由到 `A.分镜画面参照`；明确命中“分镜故事板参照 / 组级融合包 / full-chain”时路由到 `B.分镜故事板参照`；明确命中“主体参照 / 主体识别向 / 角色服装道具场景参照 / full-chain”时路由到 `C.主体参照`；兼容任务仍可路由到 `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`；`首尾帧参照`、`多图参照` 与其他扩展路径仍按状态检查 |
-| `7-Cut` | 否 | 搁浅 | 当前只保留 runtime 槽位与 registry `shelved` 状态，不纳入执行链与严格审计失败项 |
+| `7-Cut` | 否 | 搁浅 | 当前不创建项目 runtime，不纳入主链执行；registry 保留 `shelved` 声明用于阻断旧路由 |
 
 ### 卫星技能覆盖状态
 
@@ -275,11 +273,10 @@ erDiagram
 
 ### 子技能调度规则
 
-- 根入口的逻辑主阶段链仍按 `0-Init -> 1-Planning -> 2-Global -> 3-Detail -> 4-Design -> 5-Image -> 6-Video -> 7-Cut` 判型。
+- 根入口的逻辑主阶段链仍按 `0-Init -> 1-Planning -> 2-Global -> 3-Detail -> 4-Design -> 5-Image -> 6-Video` 判型。
 - 阶段内部是否串行、并行、折叠或直达，必须以目标阶段 `SKILL.md` 的显式合同为准，不靠目录名自行推断。
 - `1-Planning` 当前显式采用 `1-分集 -> 2-格式 -> 3-分组`，`4-节奏` 只作为 `3-分组` 内部 gate。
 - `5-Image` 当前已建阶段根合同；根入口应先进入 `.agents/skills/aigc/5-Image/SKILL.md`，再由阶段父层路由到三个真实子入口。
-- `7-Cut` 当前没有技能树目录；只有在后续补齐受治理合同后，才可恢复为可执行阶段。
 - 若目标阶段或子技能还没有实质合同，必须报告缺口，而不是编造下游步骤
 
 ## Topology Contract (Mandatory)

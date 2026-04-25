@@ -9,7 +9,7 @@
 - 默认输入根：`projects/aigc/<项目名>/Story/`
 - `1-分集` 逐集原文真源：`projects/aigc/<项目名>/1-Planning/1-分集/第N集.md`
 - `2-格式` 逐集主稿：`projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`
-- `2-格式` 单集执行报告：`projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md`
+- `2-格式` 总执行报告：`projects/aigc/<项目名>/1-Planning/2-格式/执行报告.md`
 - `3-分组` grouped script：`projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`
 - `3-分组` 总执行报告：`projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md`
 - 阶段验收：`projects/aigc/<项目名>/1-Planning/validation-report.md`
@@ -22,9 +22,10 @@
 2. `2-格式` 消费 `1-分集` 输出物，并写回 `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md`。
 3. `episode-split-plan.json` 只承担边界、coverage、`source_profile` 与下游 handoff，不替代 Markdown 主稿。
 4. `3-分组` 的 canonical 输出固定为 `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md`，它必须以 grouped script 形式直接继承 `2-格式` 正文，并在切口处插入三段式 `分镜组ID` 标题 `【x-x-x】`。
-5. `3-分组` 目录只保留一份 `执行报告.md` 总稿，不再为每一集长出单独报告，也不再默认生成 `.grouping.json`、`thinking/` 等平行真源。
-6. `1-分集` 最多只保留一份全剧集执行报告，不再为每一集单独生成报告侧车。
-7. `3-分组` 的 frontmatter 必须投影 `scene_unit_count / duration_policy / pace_tier / base_text_window / warn_window / hard_text_window / 默认组时长 / 分镜组时长映射 / 时长偏离证据`。
+5. `2-格式` 目录只保留一份 `执行报告.md` 总稿；每集 validator、变体裁决与返工项作为报告内 episode 区块登记，不再为每一集长出 `第N集-执行报告.md`。
+6. `3-分组` 目录只保留一份 `执行报告.md` 总稿，不再为每一集长出单独报告，也不再默认生成 `.grouping.json`、`thinking/` 等平行真源。
+7. `1-分集` 最多只保留一份全剧集执行报告，不再为每一集单独生成报告侧车。
+8. `3-分组` 的 frontmatter 必须投影 `scene_unit_count / duration_policy / pace_tier / base_text_window / warn_window / hard_text_window / 默认组时长 / 分镜组时长映射 / 时长偏离证据`。
 
 ## 3. 输入路由总规则
 

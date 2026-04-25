@@ -70,7 +70,7 @@ governance_tier: full
 | `OUTPUT-SPLIT-REPORT` | `projects/aigc/<项目名>/1-Planning/1-分集/执行报告.md` | `episode_split` | 输入清单、readiness、边界、coverage、返工入口 | 父级验收 |
 | `OUTPUT-SPLIT-PLAN` | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | `episode_split` | `source_profile`、`bootstrap_output`、边界索引 | `script_format`、`2-Global` |
 | `OUTPUT-SCRIPT` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | `script_format` | 规划阶段唯一逐集主稿 | `grouping` |
-| `OUTPUT-SCRIPT-REPORT` | `projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | `script_format` | 变体裁决、validator、返工入口 | 父级验收 |
+| `OUTPUT-SCRIPT-REPORT` | `projects/aigc/<项目名>/1-Planning/2-格式/执行报告.md` | `script_format` | 全部已执行集的变体裁决、validator、返工入口与 handoff；不得为每集另建执行报告 | 父级验收 |
 | `OUTPUT-GROUPED-SCRIPT` | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | `grouping` | grouped script，三段式 `分镜组ID`，可含隐藏尾钩 | `2-Global` |
 | `OUTPUT-GROUPING-REPORT` | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | `grouping` | 组序、`source_span`、量化字段、`quantization_trace` | 父级验收、`2-Global` |
 | `OUTPUT-VALIDATION` | `projects/aigc/<项目名>/1-Planning/validation-report.md` | `stage_validation` | 只聚合已执行有效产物、verdict、handoff 与返工入口 | `2-Global` |
@@ -89,7 +89,7 @@ governance_tier: full
 
 ### Naming convention
 
-逐集文件使用 `第N集.md`，逐集格式报告使用 `第N集-执行报告.md`；分组标题使用三段式 `分镜组ID`，不得混入四段式分镜帧 ID。
+逐集正文文件使用 `第N集.md`；`1-分集`、`2-格式`、`3-分组` 的执行报告均使用各自子目录下唯一 `执行报告.md`；分组标题使用三段式 `分镜组ID`，不得混入四段式分镜帧 ID。
 
 ### Completion gate
 
@@ -120,7 +120,7 @@ governance_tier: full
 | --- | --- |
 | 任意规划任务 | `references/planning-io-contract.md`、`steps/planning-workflow.md` |
 | 分集、故事源切分、机读索引 | `references/episode-splitter-contract.md`、`templates/episode-split-plan.template.json`、`knowledge-base/episode-splitter-heuristics.md` |
-| 剧本格式化、标准剧、解说剧、双案对照 | `references/script-format-contract.md`、`scripts/validate_script_output.py`、`knowledge-base/script-format-heuristics.md` |
+| 剧本格式化、标准剧、解说剧、双案对照 | `references/script-format-contract.md`、`templates/script-format-report.template.md`、`scripts/validate_script_output.py`、`knowledge-base/script-format-heuristics.md` |
 | 分组、组边界、量化、尾钩借焰 | `references/grouping-contract.md`、`references/scene-order-duration-strategy.md`、`scripts/grouping_quantizer.py`、`scripts/postprocess_grouping_output.py`、`templates/grouping-output.template.md`、`templates/grouping-report.template.md`、`knowledge-base/grouping-heuristics.md` |
 | 多模式路由、输入分型、返工分支 | `types/planning-type-map.md` |
 | 阶段验收、review gate、交付判断 | `review/planning-review-contract.md` |
@@ -134,11 +134,11 @@ governance_tier: full
 | `episode_split` | 需要从 `Story/` 或 manifest 登记源生成逐集原文 | `INPUT-STORY-SOURCE`、`INPUT-STORY-MANIFEST` | `OUTPUT-SPLIT-SOURCE`、`OUTPUT-SPLIT-REPORT`、`OUTPUT-SPLIT-PLAN` | `references/episode-splitter-contract.md` |
 | `script_format` | 需要从逐集原文生成规划阶段主稿 | `INPUT-SPLIT-SOURCE`、`INPUT-SPLIT-PLAN` | `OUTPUT-SCRIPT`、`OUTPUT-SCRIPT-REPORT` | `references/script-format-contract.md` |
 | `grouping` | 需要把规划主稿切为 grouped script | `INPUT-FORMATTED-SCRIPT`、`INPUT-SPLIT-PLAN` | `OUTPUT-GROUPED-SCRIPT`、`OUTPUT-GROUPING-REPORT` | `references/grouping-contract.md` |
-| `full_chain` | 用户要求完成完整规划阶段 | `INPUT-STORY-SOURCE` 起步，按 mode 串行承接 | 三类 mode 输出与 `OUTPUT-VALIDATION` | `steps/planning-workflow.md` |
+| `full_chain` | 用户要求执行/继续/完成 `1-Planning`，且未显式要求在某一 mode 停止 | `INPUT-STORY-SOURCE` 起步，或从最早缺口继续，按 mode 串行承接到 `grouping + stage_validation` | 三类 mode 输出与 `OUTPUT-VALIDATION` | `steps/planning-workflow.md` |
 | `stage_validation` | 需要验收、返工定位或 handoff | 已存在的 planning outputs | `OUTPUT-VALIDATION` | `review/planning-review-contract.md` |
 | `repair` | 引用断链、旧路径漂移、输出冲突 | 技能包结构、审计失败或项目产物缺口 | 最小修复 patch 与验证记录 | `references/legacy-migration-matrix.md` |
 
-未命中的模式不得补空目录、补默认思维链、伪造全链完成或写入未发生的 handoff。
+未命中的模式不得补空目录、补默认思维链、伪造全链完成或写入未发生的 handoff。若用户只是宽泛要求“执行/继续 `.agents/skills/aigc/1-Planning`”，且没有显式说“只做分集/只做格式/先停在分组前”，则三步子路径只是内部处理边界，不是用户交互断点；应一气呵成执行 `full_chain` 到阶段验收。
 
 ## Endpoint Anchors
 
@@ -147,7 +147,7 @@ governance_tier: full
 | 分集真源 | `projects/aigc/<项目名>/1-Planning/1-分集/第N集.md` | 分集模式的逐集原文真源 |
 | 分集机读索引 | `projects/aigc/<项目名>/1-Planning/episode-split-plan.json` | coverage、`source_profile`、`bootstrap_output` |
 | 规划主稿 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集.md` | 规划阶段唯一逐集主稿 |
-| 规划主稿执行报告 | `projects/aigc/<项目名>/1-Planning/2-格式/第N集-执行报告.md` | 变体裁决、validator、返工入口 |
+| 规划主稿执行报告 | `projects/aigc/<项目名>/1-Planning/2-格式/执行报告.md` | 全部已执行集的变体裁决、validator、返工入口 |
 | 分组主稿 | `projects/aigc/<项目名>/1-Planning/3-分组/第N集.md` | grouped script，带三段式 `分镜组ID` |
 | 分组执行报告 | `projects/aigc/<项目名>/1-Planning/3-分组/执行报告.md` | 分组量化、组序、handoff 证据 |
 | 阶段验收 | `projects/aigc/<项目名>/1-Planning/validation-report.md` | 规划阶段验收、返工与 `2-Global` handoff |
@@ -238,7 +238,7 @@ flowchart TD
 | `FIELD-PLAN-01` | 阶段边界、单包职责与 runtime 子路径关系明确 | `FAIL-PLAN-01` | `S1` |
 | `FIELD-PLAN-02` | mode selection、单点直达与全链规则明确 | `FAIL-PLAN-02` | `S2` |
 | `FIELD-PLAN-03` | 分集产物与 `episode-split-plan.json` 一致 | `FAIL-PLAN-03` | `S3` |
-| `FIELD-PLAN-04` | `2-格式/第N集.md` 通过对应 validator 或有明确返工入口 | `FAIL-PLAN-04` | `S4` |
+| `FIELD-PLAN-04` | `2-格式/第N集.md` 与唯一 `2-格式/执行报告.md` 通过对应 validator 或有明确返工入口 | `FAIL-PLAN-04` | `S4` |
 | `FIELD-PLAN-05` | `3-分组/第N集.md` 与 `执行报告.md` 通过量化一致性校验 | `FAIL-PLAN-05` | `S5` |
 | `FIELD-PLAN-06` | `validation-report.md` 只承载已发生的有效 patch、verdict 与 handoff | `FAIL-PLAN-06` | `S6` |
 | `FIELD-PLAN-07` | 全仓不存在旧子技能入口断链，旧细则均可追到 `references/` | `FAIL-PLAN-07` | `S7` |

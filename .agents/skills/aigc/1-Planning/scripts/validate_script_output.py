@@ -16,6 +16,7 @@ YAML_FRONTMATTER_RE = re.compile(r"(?s)^---\n(?P<header>.*?)\n---\n(?P<body>.*)$
 HEADER_LINE_RE = re.compile(r"^\s*([^：:]+)\s*[：:]\s*(.*?)\s*$")
 SCRIPT_BODY_RE = re.compile(r"(?m)^【剧本正文】\s*$")
 SCENE_HEADER_RE = re.compile(r"^###\s*场景(?P<label>[^：:]+)\s*[：:]\s*(?P<title>.+?)\s*$")
+SCENE_SLUGLINE_RE = re.compile(r"^(?:内景|外景|内外景)\s+.+?\s+-\s+(?:日|夜)$")
 NOTE_HEADER_RE = re.compile(
     r"^(?:#{1,6}\s*)?(?:【)?(?:附加执行备注|执行备注|风险备注|规划交接|执行报告)(?:】)?\s*(?:[：:].*)?$"
 )
@@ -164,6 +165,9 @@ def parse_scenes(body: str, *, file_path: Path, findings: list[Finding]) -> list
     scenes: list[Scene] = []
     current_scene: Scene | None = None
     note_mode = False
+    slugline_to_label: dict[str, str] = {}
+    label_to_slugline: dict[str, str] = {}
+    previous_scene_title: str | None = None
 
     for index, raw_line in enumerate(body.splitlines(), start=1):
         stripped = raw_line.strip()
@@ -177,6 +181,66 @@ def parse_scenes(body: str, *, file_path: Path, findings: list[Finding]) -> list
 
         scene_match = SCENE_HEADER_RE.match(stripped)
         if scene_match:
+            scene_label = scene_match.group("label").strip()
+            scene_title = scene_match.group("title").strip()
+            if not scene_label.isdigit():
+                add_finding(
+                    findings,
+                    level="error",
+                    code="FAIL-SCENE-LABEL",
+                    file_path=file_path,
+                    detail="场景编号必须使用阿拉伯数字，例如 `场景1`。",
+                    line_no=index,
+                )
+            if not SCENE_SLUGLINE_RE.match(scene_title):
+                add_finding(
+                    findings,
+                    level="error",
+                    code="FAIL-SCENE-SLUGLINE",
+                    file_path=file_path,
+                    detail="场景标题必须使用好莱坞标准剧本 slugline：`内景/外景 场所 - 日/夜`，不得写成剧情摘要。",
+                    line_no=index,
+                )
+            previous_label = slugline_to_label.get(scene_title)
+            if previous_label is not None and previous_label != scene_label:
+                add_finding(
+                    findings,
+                    level="error",
+                    code="FAIL-SCENE-DUPLICATE-SLUGLINE",
+                    file_path=file_path,
+                    detail=(
+                        f"相同 slugline `{scene_title}` 必须沿用同一个场景编号："
+                        f"首次为 `场景{previous_label}`，此处为 `场景{scene_label}`。"
+                    ),
+                    line_no=index,
+                )
+            previous_title = label_to_slugline.get(scene_label)
+            if previous_title is not None and previous_title != scene_title:
+                add_finding(
+                    findings,
+                    level="error",
+                    code="FAIL-SCENE-LABEL-COLLISION",
+                    file_path=file_path,
+                    detail=(
+                        f"`场景{scene_label}` 已绑定 `{previous_title}`，不得复用到不同 slugline `{scene_title}`。"
+                    ),
+                    line_no=index,
+                )
+            if previous_scene_title == scene_title:
+                add_finding(
+                    findings,
+                    level="error",
+                    code="FAIL-SCENE-REPEATED-HEADING",
+                    file_path=file_path,
+                    detail=(
+                        f"同一连续场景 `{scene_title}` 的标题只能出现一次；"
+                        "叙事 beat 不应重复打印相同场景标题。"
+                    ),
+                    line_no=index,
+                )
+            slugline_to_label.setdefault(scene_title, scene_label)
+            label_to_slugline.setdefault(scene_label, scene_title)
+            previous_scene_title = scene_title
             current_scene = Scene(title=scene_match.group("title").strip(), line_no=index, entries=[])
             scenes.append(current_scene)
             continue
@@ -432,7 +496,8 @@ def validate_variant(
     summary = {
         "variant": variant,
         "variant_label": expected_variant,
-        "scenes": len(scenes),
+        "scenes": len({scene.title for scene in scenes}),
+        "scene_sections": len(scenes),
         "dialogue_count": dialogue_count,
         "narration_count": narration_count,
         "narration_speakers": sorted(narration_speakers),

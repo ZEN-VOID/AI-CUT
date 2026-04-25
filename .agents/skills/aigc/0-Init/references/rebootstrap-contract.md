@@ -33,16 +33,16 @@ Do not use rebootstrap for continuing the current direction, repairing governanc
 
 | mode | default | purpose | default preserve | default forbidden |
 | --- | --- | --- | --- | --- |
-| `refresh_reset` | no | rewrite initialization core and mark old downstream artifacts stale without moving files | `Story/`, source, original assets, references, existing downstream files | treating old downstream outputs as active truth |
-| `archive_reset` | yes | archive old downstream derived outputs and old governance artifacts under `0-Init/rebootstrap-archive/<timestamp>/`, then rewrite init core | `Story/`, source, original assets, necessary references | silent clearing, overwriting irreplaceable materials |
-| `purge_reset` | explicit only | purge specified derived artifacts after preserve/archive confirmation | `Story/`, source, original assets unless explicitly discarded | unauthorized deletion or using Git reset as business reset |
+| `refresh_reset` | no | rewrite initialization core and mark old downstream artifacts stale without moving files | `Original/`, source, original assets, references, existing downstream files | treating old downstream outputs as active truth |
+| `archive_reset` | yes | archive old downstream derived outputs and old governance artifacts under `0-Init/rebootstrap-archive/<timestamp>/`, then rewrite init core | `Original/`, source, original assets, necessary references | silent clearing, overwriting irreplaceable materials |
+| `purge_reset` | explicit only | purge specified derived artifacts after preserve/archive confirmation | `Original/`, source, original assets unless explicitly discarded | unauthorized deletion or using Git reset as business reset |
 
 ## Preservation Rules
 
-1. Keep `Story/` and registered source by default.
+1. Keep `Original/` and registered source by default.
 2. Keep original materials, reference images, external research, and irreplaceable assets.
 3. Keep and update `story-source-manifest.yaml` rather than discarding source readiness.
-4. Archive derived outputs from `1-Planning` through `7-Cut` and old governance carriers by default.
+4. Archive derived outputs from downstream stages and old governance carriers by default.
 5. Keep `team.yaml` unless the team or advisor duties are part of the reset.
 
 ## Writeback Rules

@@ -1,10 +1,3 @@
-
-## Context Loading Contract
-
-- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
-- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
-- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
-
 ---
 name: nano-banana-multiview-character
 version: "v1.0"
@@ -13,6 +6,12 @@ description: |
   多视图布局-角色：基于参照图 + 角色描述，生成 CHARACTER_DESIGN_SHEET 多视图角色设计页（16:9 三栏布局）。当用户要求"角色多视图"、"角色设计页"、"角色转身图"、"CHARACTER_DESIGN_SHEET"时使用本技能。底层调用 nano-banana API（继承父级契约）。
 tools: [Read, Write, Edit, Bash]
 ---
+
+## Context Loading Contract
+
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 若同目录 `CONTEXT.md` 缺失，应先补齐最小知识库骨架，或向用户明确报告阻塞；不得在未检查该上下文的情况下执行技能。
+- 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > 同目录 `CONTEXT.md`。
 
 ## 触发条件
 

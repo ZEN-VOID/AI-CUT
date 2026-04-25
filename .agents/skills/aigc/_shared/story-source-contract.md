@@ -1,16 +1,16 @@
 # Story Source Contract
 
-本文件是 `aigc` 技能树中“Story/小说原文/剧本原文/分镜脚本”落盘与缺失提示的单一真源。
+本文件是 `aigc` 技能树中“Original/小说原文/剧本原文/分镜脚本”落盘与缺失提示的单一真源。
 
 ## Canonical Landing
 
-- 项目级故事目录：`projects/aigc/<项目名>/Story/`
+- 项目级故事目录：`projects/aigc/<项目名>/Original/`
 - 故事源登记真源：`projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
 
 ## Ownership
 
 - `0-Init` 负责首次生成 `story-source-manifest.yaml`。
-- 主故事源与辅助源文件本体统一落在 `projects/aigc/<项目名>/Story/`。
+- 主故事源与辅助源文件本体统一落在 `projects/aigc/<项目名>/Original/`。
 - `1-Planning/1-分集` 只消费 `story-source-manifest.yaml` 与其登记路径，不自行发明第二套源文件清单。
 
 ## Minimum Readiness Gate
@@ -91,7 +91,7 @@
 - 其他（请说明）
 
 2. 文件路径
-- 请优先放到：`projects/aigc/<项目名>/Story/`
+- 请优先放到：`projects/aigc/<项目名>/Original/`
 
 3. 覆盖范围
 - 全文

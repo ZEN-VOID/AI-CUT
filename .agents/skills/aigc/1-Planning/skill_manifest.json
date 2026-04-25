@@ -9,6 +9,7 @@
     },
     "script_format": {
       "reference": ".agents/skills/aigc/1-Planning/references/script-format-contract.md",
+      "report_template": ".agents/skills/aigc/1-Planning/templates/script-format-report.template.md",
       "validator": ".agents/skills/aigc/1-Planning/scripts/validate_script_output.py"
     },
     "grouping": {
@@ -55,6 +56,10 @@
       },
       "script_format": {
         "pattern": "projects/aigc/<项目名>/1-Planning/2-格式/第{episode}.md",
+        "format": "markdown"
+      },
+      "script_format_report": {
+        "pattern": "projects/aigc/<项目名>/1-Planning/2-格式/执行报告.md",
         "format": "markdown"
       },
       "grouping": {

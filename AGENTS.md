@@ -384,22 +384,24 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
 - 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的 Skill 2.0 分区（`references/`、`steps/`、`review/`、`types/`）、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本；仅当主合同显式引用外部资料时，才按需联查 `knowledge-base/`。
+- 对采用或正在升级为 Skill 2.0 的技能，源层修复/优化必须先做 owner 分区定位：判断问题应落在 `SKILL.md`、`CONTEXT.md`、`references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `TODO.md` 中的哪一个真源载体；不得把所有修复继续堆回 `SKILL.md` 或 `CONTEXT.md`。只有当问题涉及用户或维护者手动导入的外部知识材料、索引或摘录入口时，才允许把 `knowledge-base/` 作为修复 owner。
+- Skill 2.0 结构问题本身也属于源层问题：缺失 canonical 目录、存在拼写 alias、`agents/openai.yaml` 缺入口元数据、`CONTEXT.md` 缺知识库核心、分区没有说明文件、长细则未拆出、经验错写到 `knowledge-base/`、执行步骤错写到 `CONTEXT.md` 等，都应先按结构 owner 修复，再继续业务产物修复。
 - 源层诊断不仅要看“写了什么规则”，还要看“规则要求如何思考与如何执行”：凡 `SKILL.md`、`references/` 或 `steps/` 中存在思维·执行节点、思维链细则、执行流程节点、判断分叉、tie-break、字段思考顺序、聚合/回写顺序等设计，均应视为可追因、可优化的源层合同。
 - 源层追踪必须分层进行：不得停在第一个局部原因，必须继续上溯直到识别治理该行为的规则源。
 - 非平凡问题的强制追因链为：
-  - `Symptom/Failure` -> `Direct Technical Cause` -> `Rule Source`（skill / runbook / template / script gate）-> `Meta Rule Source`（meta-AGENT / meta-SKILL / global policy）-> `Fix Landing Points`
+  - `Symptom/Failure` -> `Runtime Artifact` -> `Direct Technical Cause` -> `Owner Partition`（Skill 2.0 owner / runbook / template / script gate）-> `Rule Source`（skill / module / runbook / template / script gate）-> `Meta Rule Source`（meta-AGENT / meta-SKILL / global policy）-> `Fix Landing Points` -> `Reference Sync` -> `Audit/Smoke`
 - `Rule Source` 通常包括：任务级 `SKILL.md`、Skill 2.0 分区、专项细则模块、`types/` 类型化模块、`steps/` 思维·执行节点设计、命令 runbook、阶段模板、验证脚本与执行入口。
 - `Meta Rule Source` 通常包括：仓库 `AGENTS.md`、`.codex/skills/meta/*/SKILL.md` 以及其他跨技能治理合同。
 - 如果诊断无法上溯到 meta 层工件，必须明确说明为什么没有更高层治理合同。
-- 对每个问题，都应给出简洁修复建议，包括：根因位置、立即修复、系统预防修复。
+- 对每个问题，都应给出简洁修复建议，包括：根因位置、owner 分区、立即修复、系统预防修复、引用同步范围与验证门禁。
 - 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、Skill 2.0 分区、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
 - 如果执行被阻塞，必须立即暂停下游动作，先完成分层追因与源层修复/增强，再恢复任务。
 - 优先修复产生该错误模式的规则或脚本，使同类问题在后续运行中不再重复。
 - 每一个非平凡修复都应视为一次源层增强机会：不仅要修症状，也要补强源层合同，降低类似问题再次发生的概率。
 - 如果在工作中发现更优的执行路径或工作流，且源层重构风险可控，则允许在继续下游工作前优先完成源层优化。
 - 如果优化的安全性、范围或预期收益不够明确，应先按 `PRPs/README.md` 记录为 `PRP`，再沿当前最安全路径继续工作，等待人工确认。
-- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、在 `types/` 中补强类型化模块与决策表、在 `steps/` 中重写失效的思维·执行节点，或在 `SKILL.md` / `references/` 中修正入口拓扑与合同说明。
-- 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新。
+- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、补齐 Skill 2.0 结构与分区说明、在 `types/` 中补强类型化模块与决策表、在 `steps/` 中重写失效的思维·执行节点、在 `review/` 中补交付门禁、在 `templates/` 中修正输出样板、在 `scripts/` 中加机械校验，或在 `SKILL.md` / `references/` 中修正入口拓扑与合同说明。
+- 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 已定位并修复最高杠杆 owner 分区 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新 + 引用同步范围已扫描或说明 + 已运行相应审计 / dry-run / smoke 验证，或明确报告验证阻塞。
 - 如果增强被权限、外部依赖或范围限制阻塞，必须显式报告阻塞项与临时防护措施。
 
 ### 多子智能体技能的源层联动（强制）
@@ -428,11 +430,12 @@ python3 -m pip install <pkg>  # 安装依赖包
 **负向触发**：当出现以下任一情况时自动触发：用户报告问题、运行失败、任务实践/测试阻塞（包括 `SKILL` 执行、dry-run 与 `pytest` 回归）、失败后返工、或用户明确要求修正。
 
 - 无需额外等待用户提示，必须自动执行以下流程：
-  1. 源层诊断（分层上溯）：从症状追到直接原因，再追到 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）；诊断时必须按需联查 `references/`、`steps/`、`review/`、`types/` 与 `SKILL.md` 中的动态引用和主流程。
-  2. 立即修复 + 增强：优先修补最高杠杆的源层工件（规则 / 脚本 / runbook / Skill 2.0 分区 / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
+  1. 源层诊断（分层上溯）：从症状追到运行产物、直接原因、`Owner Partition` 与 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）；诊断时必须按需联查 `references/`、`steps/`、`review/`、`types/` 与 `SKILL.md` 中的动态引用和主流程，并检查目标 skill 是否存在 Skill 2.0 结构错位。
+  2. 立即修复 + 增强：优先修补最高杠杆的源层 owner 分区（规则 / 脚本 / runbook / Skill 2.0 分区 / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
   3. 上下文沉淀：更新受影响技能的 `CONTEXT.md`（若缺失则创建）；优先把结论化经验写入 Type Map / Playbook / Reusable Heuristics，若需保留里程碑细节，则外置到 `CHANGELOG.md` 或 `reports/`。
-  4. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / runbook -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
-  5. 面向用户的闭环输出：必须返回三元组 `root cause location + immediate fix + systemic prevention fix`，并附上分层追踪路径 `symptom -> rule source -> meta rule source`。
+  4. 引用同步与验证：若发生重命名、拆分、迁移或 owner 分区调整，必须扫描并同步 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、registry、routes、runbook、markdown 链接和项目内引用；随后运行对应结构审计、脚本 dry-run 或 smoke 验证。
+  5. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / Skill 2.0 分区 / runbook -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
+  6. 面向用户的闭环输出：必须返回 `root cause location + owner partition + immediate fix + systemic prevention fix + validation`，并附上分层追踪路径 `symptom -> owner partition -> rule source -> meta rule source`。
 
 **正向触发**：当出现以下任一情况时自动触发：用户明确认可某输出（例如“这个很好”“以后按这个来”）、某设计决策在跨项目场景中被复用且无需重新推导、或输出质量明显超过预期基线。
 
@@ -440,7 +443,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   1. 模式识别：定位产出正向结果的设计决策，例如 prompt 结构、参数选择、工作流顺序、字段映射或架构安排。
   2. 抽象：将该决策提炼为 1-3 句可复用 heuristic，且要限定适用范围（skill、阶段、领域、主题），避免过度泛化。
   3. 上下文沉淀：将 heuristic 写入对应技能的 `CONTEXT.md` 中的 Reusable Heuristics；若需要保留里程碑级证据，只保留结论摘要在知识库章节中，长材料外置到 `CHANGELOG.md` 或 `reports/`。
-  4. 晋升（自下而上）：当同一正向模式在 >= 2 次独立执行中得到确认时，将其从 `CONTEXT.md` 晋升到 `SKILL.md`，必要时再晋升到 `AGENTS.md` 或 meta-SKILL。
+  4. 晋升（自下而上）：当同一正向模式在 >= 2 次独立执行中得到确认时，将其从 `CONTEXT.md` 晋升到 `SKILL.md` 或对应 Skill 2.0 owner 分区；若已成为跨技能治理模式，再晋升到 `AGENTS.md` 或 meta-SKILL。
   5. 面向用户的闭环输出：返回三元组：成功模式位置 + 提炼出的 heuristic + 晋升范围。
 - 若需要保留里程碑级证据，`CONTEXT.md` 仅保留结论化沉淀；详细字段、时间线与长证据材料应写入 `CHANGELOG.md`、执行报告或 `reports/`。
 - 如果只是修复了本地产物或确认了结果，却没有同步更新 `CONTEXT.md`，则视为 `Root-Cause Learning Loop` 尚未完成；若因阻塞无法更新，必须显式报告阻塞原因。

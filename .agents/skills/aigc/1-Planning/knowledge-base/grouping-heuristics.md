@@ -29,9 +29,12 @@
 | 把“独立信息落点 / 连续峰值”当成不拆组的充分理由 | 边界裁决层 | 先在同一上游场景单位内做 beat 级拆组试算，再决定是否保留单组 | 在 `SKILL.md + reference` 固化“beat 拆组检查先于保留说明” | `warn_high` 或 `warn_low` 的保留理由不再跳过同场景拆组 |
 | 同场景只做首轮拆组，不递归复查残余 beat 链 | 递归边界检查层 | 对已拆出的子组继续检查内部 beat 断点，必要时再拆一轮 | 在 `SKILL.md + reference` 固化“同场景拆组必须递归复查子组” | 不再出现“已经拆过一次，但子组仍明显过宽”的残留切口 |
 | `### 场景N` 与 `## 【episode-scene-group】` 被当成同一种标题 | 场景/分组语义边界层 | 回读 `2-格式`，把 `### 场景N` 还原为上游场景单位锚点，把组标题只作为节拍标题 | 在 `SKILL.md + reference + template + validator` 固化“场景标题逐字继承上游，分组标题不得改写场景” | validator 能发现分组阶段发明、重命名或遗漏上游场景标题 |
+| 相同 slugline 沿用同一场景号后，分组 validator 误判场景号回返为倒序 | 场景号/文本顺序混淆层 | 以文本出现顺序为准，允许同一场景号在后文再次出现；分镜组第三段按该场景内组序递增 | 在 grouping contract 与 validator 中区分“场景编号复用”和“文本倒序” | `3-3-1 -> 3-2-3` 这类回到同一教室场景的组序可通过校验 |
+| 同一分镜组内重复打印相同场景标题 | 组内标题呈现层 | 同组同场景标题只保留首次；连续正文直接续写 | validator 按 group 重置 seen titles 并拦截重复标题 | `1-1-1` 内只出现一次 `场景1` |
 | 已被下游 `分镜ID` 消费的低字数组被误并 | 锁定锚点优先级层 | 恢复原 `分镜组ID`，并回查 `2-Global / 3-Detail` 固定镜数、beat 与四段式 `分镜ID` | 在 `SKILL.md + reference + validator` 固化“锁定分镜组优先于 warn_low 并组建议” | 低于 `warn_low` 的组若保留，`judgement_basis` 必须写明并组检查或锁定分镜依据 |
 | 执行报告只写量化结果，缺少每组计算过程 | 报告证据层 | 让 quantizer 生成 canonical `quantization_trace` 并回填报告 | 在 `SKILL.md + reference + validator` 固化“每组必须登记 duration/window/effective_chars 计算链” | 报告可直接复核每组量化过程，而不必反推脚本 |
 | 复跑 `postprocess_grouping_output.py` 时，人工补充的 episode 级 handoff 元数据被 renderer 默认值静默覆盖 | 报告回写层 | renderer 优先保留已有 `handoff_summary / duration_policy / bootstrap_output`，只有缺失时才回退到 frontmatter 或默认值 | 把“保留人工 handoff 决策”写成 renderer 合同；报告重渲染只能补 canonical 字窗字段，不能重置人工 episode 级判断 | 重跑 postprocess 后，既有 handoff 决策仍存在，且组级量化字段同步更新 |
+| 用户指定 root-level `1-Planning/第N集.md` 或“只要最后分组结果”，导致 agent 绕过 canonical `3-分组/第N集.md + 执行报告.md` 门禁 | 输出适配层 | 把用户指定路径视为 output adapter，不得降级为说明稿；最终文件本身必须是 grouped script，同时额外保留量化/尾钩证据报告 | 在父 `1-Planning` 与 grouping 经验层固化“改路径不改门禁”：分组正文、量化、tail-hook、validation 仍必须执行 | 直出根文件时仍能看到三段式分组标题、非一一场景组、量化报告、非末组 tail-hook |
 
 ## Repair Playbook
 
@@ -40,6 +43,7 @@
 3. 再看 grouped script 是否保持正文结构，只在切口处新增组标题。
 4. 最后才检查 reviewer gate 是否被误开或越权。
 5. 若执行报告被重渲染，先比对 `handoff_summary / duration_policy / bootstrap_output` 是否被保留，再看组级量化字段。
+6. 若用户改成 root-level 直接交付路径，先判定这是输出适配，不是跳过 `3-分组`；仍必须完成 grouped script、量化报告、尾钩与验收回写。
 
 ## Reusable Heuristics
 
@@ -55,6 +59,9 @@
 - 对同一场景内的高压情绪戏，`独立信息落点` 只能说明“拆完后为什么保留这个子组”，不能直接说明“整场不拆”；先看 beat 断点，再看是否保留低字数组。
 - 同场景拆组不能停在“已经拆过一次”；只要某个子组内部还能自然读出新的 beat 链，就继续复查，直到边界收敛到不可再拆的子拍。
 - 读 `3-分组` 产物时，先把 `### 场景N` 当作上游锚点，把 `## 【episode-scene-group】` 当作分组边界；两者一一对应只是一种结果，不是规则本身。但一旦分镜组已经进入 `2-Global / 3-Detail` 并生成四段式 `分镜ID`，该组界就是下游锚点，不能再用 `warn_low` 并组建议取消。
+- 如果 `2-格式` 按标准剧本 slugline 复用场景号，`3-分组` 的组序仍按文本出现顺序阅读；场景号可以回到前面编号，分镜组 ID 的第三段负责表达这是该场景内第几组。
+- 分组标题负责表达 beat 切口，场景标题只负责空间/日夜锚点；同一组内相同场景标题不要重复打印，跨不同场景时再保留多个场景标题。
 - 当执行报告要给人复核时，最稳的做法不是再解释一遍结果，而是直接登记 quantizer 生成的 `quantization_trace`；这样 `duration/window/effective_chars` 三段链能保持单一真源。
 - 对 `3-分组` 来说，报告模板也应是显式真源；如果只给 grouped script 模板、不给报告模板，执行报告很容易重新退回“只写结果、不写过程”。
 - 报告 renderer 最容易误伤的是 episode 级 handoff 决策，而不是组级量化字段；组级字段应重算，episode 级人工判断应保留。
+- 用户说“直接给最后分组处理好的结果”时，正确理解是最终主稿本体已经完成分组处理，而不是“原格式化剧本 + 分组说明附录”；但这只改变呈现形态，不取消量化、tail-hook 和报告证据。

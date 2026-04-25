@@ -106,6 +106,16 @@ def first_non_empty(*values: Any) -> str:
     return ""
 
 
+def normalize_stage_path(path_or_stage: Any) -> str:
+    """Return a project-relative stage path from either relative or runtime paths."""
+    value = str(path_or_stage or "").strip().strip("`")
+    if not value:
+        return ""
+    value = value.replace("\\", "/")
+    value = re.sub(r"^projects/aigc/[^/]+/", "", value)
+    return value.strip("/")
+
+
 def extract_stage_candidates(*texts: str) -> list[str]:
     candidates: list[str] = []
     seen: set[str] = set()
@@ -126,9 +136,10 @@ def extract_preferred_entry(text: str) -> str:
 
 
 def stage_root_of(path_or_stage: str) -> str:
-    if not path_or_stage:
+    normalized = normalize_stage_path(path_or_stage)
+    if not normalized:
         return ""
-    return path_or_stage.split("/", 1)[0]
+    return normalized.split("/", 1)[0]
 
 
 def infer_focus_path(
@@ -141,7 +152,7 @@ def infer_focus_path(
     handoff_project_contract = init_handoff.get("project_contract") or {}
     step_text = str(project_state.get("recommended_next_step", ""))
     explicit_preferred_entries = [
-        entry
+        normalize_stage_path(entry)
         for entry in (
             first_non_empty(str(project_state.get("recommended_entry_path", ""))),
             extract_preferred_entry(step_text),
@@ -151,23 +162,26 @@ def infer_focus_path(
         if entry
     ]
 
-    stage_candidates = extract_stage_candidates(
+    stage_candidates = [
+        normalize_stage_path(candidate)
+        for candidate in extract_stage_candidates(
         step_text,
         route_text,
         str(project_state.get("recommended_entry_path", "")),
         str(handoff_project_contract.get("recommended_next_stage", "")),
-    )
+        )
+    ]
     recommended_stage = first_non_empty(
-        project_state.get("recommended_next_stage"),
-        handoff_project_contract.get("recommended_next_stage"),
+        normalize_stage_path(project_state.get("recommended_next_stage")),
+        normalize_stage_path(handoff_project_contract.get("recommended_next_stage")),
         stage_root_of(project_state.get("current_stage", "")),
     )
 
     preferred_path = first_non_empty(
-        project_state.get("recommended_entry_path"),
-        extract_preferred_entry(step_text),
-        extract_preferred_entry(route_text),
-        handoff_project_contract.get("recommended_next_stage"),
+        normalize_stage_path(project_state.get("recommended_entry_path")),
+        normalize_stage_path(extract_preferred_entry(step_text)),
+        normalize_stage_path(extract_preferred_entry(route_text)),
+        normalize_stage_path(handoff_project_contract.get("recommended_next_stage")),
     )
 
     if not preferred_path and recommended_stage:
@@ -190,7 +204,8 @@ def infer_focus_path(
     )
 
     required_repairs: list[str] = []
-    if len(set(explicit_preferred_entries)) > 1:
+    explicit_preferred_roots = {stage_root_of(entry) for entry in explicit_preferred_entries if entry}
+    if len(explicit_preferred_roots) > 1:
         required_repairs.append(
             "统一 `project_state / route-plan / init_handoff` 中的下一入口表达，避免多条 stage path 并存。"
         )
@@ -228,9 +243,10 @@ def map_skill_from_path(path_or_stage: str) -> str:
         "query": "aigc-query",
         "resume": "aigc-resume",
     }
-    if path_or_stage in mapping:
-        return mapping[path_or_stage]
-    return mapping.get(stage_root_of(path_or_stage), "aigc")
+    normalized = normalize_stage_path(path_or_stage)
+    if normalized in mapping:
+        return mapping[normalized]
+    return mapping.get(stage_root_of(normalized), "aigc")
 
 
 def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
@@ -299,11 +315,15 @@ def parse_preflight_status(project_root: Path) -> str:
 
 
 def parse_validation_status(project_root: Path) -> str:
-    content = read_text_optional(project_root / "validation-report.md")
+    return parse_validation_status_at(project_root / "validation-report.md")
+
+
+def parse_validation_status_at(path: Path) -> str:
+    content = read_text_optional(path)
     match = re.search(r"verdict:\s*`?([A-Za-z_-]+)`?", content)
     if match:
         return match.group(1).lower()
-    return file_status(project_root / "validation-report.md")
+    return file_status(path)
 
 
 def parse_learning_status(project_root: Path) -> str:
@@ -328,6 +348,10 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     current_stage = first_non_empty(project_state.get("current_stage"), recommended_path, recommended_stage, "0-Init")
     active_path = first_non_empty(recommended_path, recommended_stage, current_stage)
     active_stage = stage_root_of(active_path)
+    checkpoint_slug = re.sub(r"[^A-Za-z0-9]+", "-", task_id).strip("-") or "PROJECT-SYNC"
+    stage_validation_ref = Path(active_stage) / "validation-report.md" if active_stage else Path("validation-report.md")
+    if not (project_root / stage_validation_ref).exists():
+        stage_validation_ref = Path("validation-report.md")
 
     artifact_paths = {
         "team": project_root / "team.yaml",
@@ -374,14 +398,14 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template["current_focus"]["active_stage"] = active_path
     template["current_focus"]["active_scope"] = active_stage or "project"
     template["current_focus"]["active_step"] = first_non_empty(project_state.get("status"), "resume_ready")
-    template["last_stable_checkpoint"]["checkpoint_id"] = f"CHK-{re.sub(r'[^A-Za-z0-9]+', '-', task_id).strip('-')}"
+    template["last_stable_checkpoint"]["checkpoint_id"] = f"CHK-{checkpoint_slug}"
     template["last_stable_checkpoint"]["summary"] = first_non_empty(
         project_state.get("recommended_next_step"),
         f"最近稳定阶段：{current_stage}",
     )
     template["last_stable_checkpoint"]["source_artifacts"] = source_artifacts
-    template["last_stable_checkpoint"]["verified_by"]["carrier"] = "validation-report.md"
-    template["last_stable_checkpoint"]["verified_by"]["status"] = parse_validation_status(project_root)
+    template["last_stable_checkpoint"]["verified_by"]["carrier"] = stage_validation_ref.as_posix()
+    template["last_stable_checkpoint"]["verified_by"]["status"] = parse_validation_status_at(project_root / stage_validation_ref)
     template["resume_contract"]["recommended_entry_skill"] = map_skill_from_path(active_path)
     template["resume_contract"]["recommended_entry_stage"] = active_stage or recommended_stage or current_stage
     template["resume_contract"]["recommended_entry_path"] = active_path
@@ -394,7 +418,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template["artifact_status"]["governance_state"] = "present"
 
     template["review_bridge"]["latest_preflight_status"] = parse_preflight_status(project_root)
-    template["review_bridge"]["latest_acceptance_status"] = parse_validation_status(project_root)
+    template["review_bridge"]["latest_acceptance_status"] = parse_validation_status_at(project_root / stage_validation_ref)
     template["review_bridge"]["latest_learning_status"] = parse_learning_status(project_root)
     template["updated_at"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     return template

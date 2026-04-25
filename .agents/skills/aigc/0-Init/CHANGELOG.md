@@ -4,6 +4,33 @@
 
 ## 2026-04-24
 
+- `Case-20260424-AIGC-INIT-MINIMAL-BOOTSTRAP-CORRECTION`
+  - 以 `projects/aigc/校诡` 为样本，纠正 `0-Init` 把下游阶段目录和旧兼容链目录当成初始化骨架的问题。
+  - 新初始化只创建 `0-Init/`、`Original/` 与项目根载体；`1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 均由对应阶段执行时创建。
+  - `Story/` 统一更名为 `Original/`；画面阶段未来执行落点统一为 `5-Image/A-分镜帧/` 与 `5-Image/B-分镜故事板/`，不再使用无序号 `分镜帧/`、`分镜故事板/` 初始化目录。
+  - 将 `1-Planning/1-分集`、`2-格式`、`3-分组`、`episode-split-plan.json`、`validation-report.md`、`5-Image/2-参照引用`、`5-Image/3-图像生成`、旧 `6-Video` 兼容目录与 `7-Cut/` 列入 `0-Init` forbidden bootstrap paths。
+  - 本条 supersedes 同日早先的 `AIGC-INIT-RUNTIME-SKELETON-SUBSKILL-SYNC` 中关于初始化预建图像/视频兼容链目录的旧口径。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+    - `.agents/skills/aigc/0-Init/references/scope-and-runtime.md`
+    - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+    - `.agents/skills/aigc/_shared/story-source-contract.md`
+    - `scripts/aigc_skill_audit.py`
+
+- `Case-20260424-AIGC-INIT-RUNTIME-SKELETON-SUBSKILL-SYNC`
+  - 跟随 `5-Image` / `6-Video` 子技能包调整，同步初始化 bootstrap skeleton 的显式 marker。
+  - 补齐 `5-Image/分镜故事板/`、`5-Image/分镜帧/`、`6-Video/A.分镜画面参照/` 与 `6-Video/2-参照引用/` 在 `0-Init` 入口和审计脚本中的检查。
+  - 明确 `5-Image/A.分镜画面`、`5-Image/B.分镜故事板` 属于融合路由入口，不新增同名 runtime 目录；实际写位仍回到 `分镜帧/`、`分镜故事板/`、`2-参照引用/` 与 `3-图像生成/`。
+  - 同步更新共享 runtime layout、根 `aigc` 阶段状态投影与 `scope-and-runtime` reference，避免初始化目录机械镜像技能树中间层。
+  - 证据路径：
+    - `.agents/skills/aigc/0-Init/SKILL.md`
+    - `.agents/skills/aigc/0-Init/CONTEXT.md`
+    - `.agents/skills/aigc/0-Init/references/scope-and-runtime.md`
+    - `.agents/skills/aigc/_shared/project-runtime-layout.md`
+    - `.agents/skills/aigc/SKILL.md`
+    - `scripts/aigc_skill_audit.py`
+
 - `Case-20260424-AIGC-INIT-TEMPLATE-OUTPUT-CONTRACT-ALIGNMENT`
   - 检查 `templates/` 与 `SKILL.md` 的 `Output Contract (Mandatory)` 是否匹配。
   - 将 `north-star.template.yaml` 收紧为长期约束模板，移除 `init_mode / mode_source` 这类初始化过程 provenance 字段。

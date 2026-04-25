@@ -1,5 +1,5 @@
 manifest_version: "aigc-story-source/v1"
-source_root: "Story/"
+source_root: "Original/"
 
 primary_story_source:
   status: "missing"  # missing | ready

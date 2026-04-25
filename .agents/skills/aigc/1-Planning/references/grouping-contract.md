@@ -40,6 +40,8 @@ governance_tier: full
 2. authoritative 数值只允许来自 quantizer，不允许人工说明替代。
 3. 节奏复核只做 reviewer gate，不抢占 grouped script 写回权。
 4. `尾钩借焰` 只在分组结果落定后追加展示性预映，不改写本组 `source_span`、组序或 authoritative 量化结果。
+5. 上游 `### 场景N` 只是排序和回指锚点，不是分组算法；不得把“一场景一组”当作默认成功策略。候选组界必须先通过 `effective_text_chars / warn_window / hard_text_window` 的量化试算，再用 beat 断点、物理场景链或锁定锚点解释保留。
+6. 同一分镜组内相同场景标题只允许出现一次；若组内连续承接同一场景，后续正文直接续写。只有组内确实跨入不同场景时，才自然出现多个 `### 场景N：...` 标题。
 
 ## Mandatory Canonical Sources
 
@@ -149,8 +151,8 @@ stateDiagram-v2
 | node_id | 对应 Step | 聚焦字段 | objective | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INPUT-LOCK` | `S1` | `FIELD-GROUP-01` | 锁定唯一上游主稿与当前集范围 | 读取 `2-格式/第N集.md`、`episode-split-plan.json`、`north_star.yaml`、`init_handoff.yaml`、manifest | 输入清单、episode scope、上游锚点 | 成功 -> `N2`；输入漂移 -> 回到 `S1` | 输入真源唯一后方可继续 |
-| `N2-BOUNDARY-SOLVE` | `S2` | `FIELD-GROUP-02` | 形成唯一候选组序、组界与 `source_span` | 识别场景顺序、结构断点、并组/拆组候选，排除无证据切口 | 组界表、`source_span`、边界说明 | 成功 -> `N3`；边界不稳 -> 回到 `S2` | 组界稳定后方可量化 |
-| `N3-CANONICAL-QUANTIZE` | `S3` | `FIELD-GROUP-03` | 对当前候选分组执行 authoritative 量化 | 运行 quantizer 计算 `estimated_duration_seconds / base_text_window / effective_text_chars`，判断过载/过轻 | quantizer 数值、window verdict、返工信号 | 成功 -> `N4`；超载/失配 -> 回到 `S2/S3` | authoritative 数值形成后方可进入复核 |
+| `N2-BOUNDARY-SOLVE` | `S2` | `FIELD-GROUP-02` | 形成唯一候选组序、组界与 `source_span` | 识别场景顺序、beat 断点、并组/拆组候选，排除“仅因场景标题存在”的弱切口 | 候选组界表、`source_span`、边界说明 | 成功 -> `N3`；边界不稳 -> 回到 `S2` | 候选组界必须有 beat/量化预判依据后方可量化 |
+| `N3-CANONICAL-QUANTIZE` | `S3` | `FIELD-GROUP-03` | 对当前候选分组执行 authoritative 量化并裁决拆并 | 运行 quantizer 计算 `estimated_duration_seconds / base_text_window / effective_text_chars`；低于 `warn_low` 必须先并组检查，高于 `warn_high` 必须先拆组检查，超过 `hard_text_window` 必须失败 | quantizer 数值、window verdict、返工信号 | 成功 -> `N4`；超载/过轻/失配 -> 回到 `S2/S3` | authoritative 数值形成且拆并检查完成后方可进入复核 |
 | `N4-RHYTHM-REVIEW` | `S4` | `FIELD-GROUP-04` | 在必要时补充节奏 reviewer note | 仅在命中 reviewer gate 时补充节奏影响说明，不改写组界与量化真相 | reviewer note / skip 结论 | skip -> `N5`；review 完成 -> `N5` | reviewer 不能直接汇流 |
 | `N5-TAIL-HOOK-DECIDE` | `S5` | `FIELD-GROUP-05` | 判断当前组在量化结果落定后是否允许进入 `尾钩借焰` | 检查是否非末组、下一组是否存在首个叙事拍点、是否应跳过尾钩 | tail-hook eligibility、跳过理由 | enable -> `N6`；skip -> `N7`；缺拍点 -> 回到 `S5` | 未通过门禁不得注入尾钩 |
 | `N6-TAIL-HOOK-INJECT` | `S5` | `FIELD-GROUP-05` | 执行隐藏尾钩注入 | 通过 `postprocess_grouping_output.py` 注入隐藏标记，借入下一组首拍，但不回流 authoritative 量化 | 隐藏标记、借入正文、注入结果 | 成功 -> `N7`；注入失败 -> 回到 `S5` | 注入完成后方可写回 |
@@ -163,11 +165,12 @@ stateDiagram-v2
 只有同时满足以下条件，`3-分组` 才允许宣布完成：
 
 1. `FIELD-GROUP-01` 到 `FIELD-GROUP-07` 全部已落位
-2. `source_span`、组序与场景顺序一致
+2. `source_span`、组序与上游文本出现顺序一致；若相同 slugline 复用同一场景号，允许分镜组 ID 的第二段场景号在后文再次出现
 3. authoritative 量化结果只来自尾钩注入前的 canonical 分组正文
 4. 若命中 `尾钩借焰`，则隐藏标记与借入正文已落盘，但不改变 canonical 量化结果
 5. `第N集.md` 与 `执行报告.md` 已同时落盘
 6. validator 已明确返回通过
+7. 若输出呈现为“一场景一组”，所有组都必须处于 `warn_window` 内；只要存在 `warn_low / warn_high` 偏离，就必须先执行拆并组，不得用“场景完整”或“场景匹配”作为通过理由。
 
 若未满足：
 
@@ -352,21 +355,22 @@ stateDiagram-v2
 
 1. 锁定 `2-格式/第N集.md` 为唯一上游主稿。
 2. 读取 `episode-split-plan.json`、`north_star.yaml`、`init_handoff.yaml` 与 `story-source-manifest.yaml`。
-3. 形成唯一候选组序与组边界。
-4. 运行 quantizer 得到 authoritative 数值。
-5. 若满足 reviewer 条件，再追加节奏复核说明。
-6. 在 authoritative 分组结果落定后，默认通过 `postprocess_grouping_output.py` 写入隐藏 `尾钩借焰` 标记；仅在明确禁用时才使用 `--skip-tail-hook` 跳过。
-7. 通过 `render_grouping_report.py` 按模板回写 `执行报告.md`，并自动注入 `quantization_trace`。
-8. 运行 validator，失败则回退到边界、尾钩或量化节点。
-9. 生成父级 handoff。
+3. 形成候选组序与组边界，但不得直接等同上游场景标题；必须先列出 beat 断点、可并组/可拆组候选和 `source_span`。
+4. 运行 quantizer 得到 authoritative 数值，并按 `warn_low / warn_high / hard_text_window` 回刷候选组界；过轻先并组检查，过重先拆组检查，超 hard 必须失败。
+5. 只有量化通过后，才允许把结构断点、独立信息落点、连续峰值或锁定锚点写作 `judgement_basis`。
+6. 若满足 reviewer 条件，再追加节奏复核说明。
+7. 在 authoritative 分组结果落定后，默认通过 `postprocess_grouping_output.py` 写入隐藏 `尾钩借焰` 标记；仅在明确禁用时才使用 `--skip-tail-hook` 跳过。
+8. 通过 `render_grouping_report.py` 按模板回写 `执行报告.md`，并自动注入 `quantization_trace`。
+9. 运行 validator，失败则回退到边界、尾钩或量化节点。
+10. 生成父级 handoff。
 
 ## Field Master
 
 | field_id | 输出位置/字段 | 内容要求 | 默认责任 Step | 质量维度 | 失败码 |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-GROUP-01` | 输入锚点 | 锁定 `2-格式/第N集.md` 与相关索引 | `S1` | 输入真源一致性 | `FAIL-GROUP-01` |
-| `FIELD-GROUP-02` | 候选组界 | 形成唯一候选组序、组界与 `source_span` | `S2` | 结构稳定性 | `FAIL-GROUP-02` |
-| `FIELD-GROUP-03` | 量化裁决 | 通过 quantizer 得到 authoritative 数值 | `S3` | 量化正确性 | `FAIL-GROUP-03` |
+| `FIELD-GROUP-02` | 候选组界 | 形成唯一候选组序、组界与 `source_span`；不得退化为场景标题匹配 | `S2` | 结构稳定性 | `FAIL-GROUP-02` |
+| `FIELD-GROUP-03` | 量化裁决 | 通过 quantizer 得到 authoritative 数值，并根据 warn/hard 门槛完成拆并组裁决 | `S3` | 量化正确性 | `FAIL-GROUP-03` |
 | `FIELD-GROUP-04` | reviewer gate | 仅在需要时补节奏影响说明 | `S4` | 复核边界清晰度 | `FAIL-GROUP-04` |
 | `FIELD-GROUP-05` | `尾钩借焰` | 仅在分组结果落定后，于非末组尾部追加下一组首拍预映 | `S5` | 组间牵引稳定性 | `FAIL-GROUP-05` |
 | `FIELD-GROUP-06` | 主稿落盘 | 写 grouped script 与执行报告 | `S6` | 输出完整性 | `FAIL-GROUP-06` |
@@ -377,8 +381,8 @@ stateDiagram-v2
 | step_id | 聚焦字段 | 核心问题 | 生成动作 | 未达标信号 |
 | --- | --- | --- | --- | --- |
 | `S1` | `FIELD-GROUP-01` | 上游主稿是否唯一 | 锁定输入与当前集范围 | 直接读取非 `2-格式` 主稿 |
-| `S2` | `FIELD-GROUP-02` | 组界如何成立 | 输出候选组界与 `source_span` | 只给抽象说明不落边界 |
-| `S3` | `FIELD-GROUP-03` | 是否该拆/能并/是否过载 | 运行 quantizer | 继续手填说明性数字 |
+| `S2` | `FIELD-GROUP-02` | 组界如何成立 | 输出候选组界、beat 断点、拆并候选与 `source_span` | 只按 `### 场景N` 一一匹配 |
+| `S3` | `FIELD-GROUP-03` | 是否该拆/能并/是否过载 | 运行 quantizer，并用结果回刷组界 | 继续手填说明性数字，或低/高窗仍以场景完整为理由通过 |
 | `S4` | `FIELD-GROUP-04` | 是否需要节奏 reviewer | 判断并补 reviewer note | 在默认场景滥开 reviewer |
 | `S5` | `FIELD-GROUP-05` | 是否需要 `尾钩借焰` | 先做尾钩门禁判断，再执行隐藏注入 | 尾钩反向污染 authoritative 量化 |
 | `S6` | `FIELD-GROUP-06` | grouped script 如何落盘 | 写 grouped script + 执行报告 | 只返摘要稿 |
@@ -389,8 +393,8 @@ stateDiagram-v2
 | field_id | Pass Standard | Fail Code | Rework Entry |
 | --- | --- | --- | --- |
 | `FIELD-GROUP-01` | 输入只来自 `2-格式` 主稿 | `FAIL-GROUP-01` | `S1` |
-| `FIELD-GROUP-02` | 组界、组序与 `source_span` 明确 | `FAIL-GROUP-02` | `S2` |
-| `FIELD-GROUP-03` | authoritative 数值全部来自 quantizer | `FAIL-GROUP-03` | `S3` |
+| `FIELD-GROUP-02` | 组界、组序与 `source_span` 明确，且不把场景标题当作充分组界理由 | `FAIL-GROUP-02` | `S2` |
+| `FIELD-GROUP-03` | authoritative 数值全部来自 quantizer；低/高窗已完成拆并检查，超 hard 失败 | `FAIL-GROUP-03` | `S3` |
 | `FIELD-GROUP-04` | reviewer gate 只在必要时触发 | `FAIL-GROUP-04` | `S4` |
 | `FIELD-GROUP-05` | `尾钩借焰` 只出现在非末组尾部，显式回指下一组，且不改变 authoritative 数值 | `FAIL-GROUP-05` | `S5` |
 | `FIELD-GROUP-06` | grouped script 与执行报告都已落盘 | `FAIL-GROUP-06` | `S6` |

@@ -115,6 +115,30 @@ def parse_scene_headers(body: str) -> list[tuple[int, int, str]]:
     return scenes
 
 
+def validate_scene_heading_uniqueness_per_group(body: str) -> str | None:
+    current_group_id: str | None = None
+    seen_titles: dict[str, int] = {}
+    for line_no, raw_line in enumerate(body.splitlines(), start=1):
+        stripped = raw_line.strip()
+        group_match = GROUP_HEADER_RE.match(stripped)
+        if group_match:
+            current_group_id = group_match.group("group_id")
+            seen_titles = {}
+            continue
+        scene_match = SCENE_HEADER_RE.match(stripped)
+        if not scene_match or current_group_id is None:
+            continue
+        title = scene_match.group("title").strip()
+        first_line = seen_titles.get(title)
+        if first_line is not None:
+            return (
+                f"`{current_group_id}` 内重复出现相同场景标题 `{title}`："
+                f"第 {first_line} 行与第 {line_no} 行。"
+            )
+        seen_titles[title] = line_no
+    return None
+
+
 def resolve_declared_path(declared_path: str, grouped_script_path: Path) -> Path:
     path = Path(declared_path)
     if path.is_absolute() or path.exists():
@@ -135,16 +159,24 @@ def parse_upstream_scene_headers(upstream_path: Path) -> tuple[list[tuple[int, s
     upstream_text = upstream_path.read_text(encoding="utf-8")
     _frontmatter, body = parse_frontmatter(upstream_text)
     scenes: list[tuple[int, str]] = []
-    seen_scene_numbers: set[int] = set()
+    scene_number_to_title: dict[int, str] = {}
+    slugline_to_scene_number: dict[str, int] = {}
     for raw_line in body.splitlines():
         match = SCENE_HEADER_RE.match(raw_line.strip())
         if not match:
             continue
         scene_no = int(match.group("label"))
-        if scene_no in seen_scene_numbers:
-            return [], f"上游主稿存在重复场景编号：场景{scene_no}"
-        seen_scene_numbers.add(scene_no)
-        scenes.append((scene_no, match.group("title").strip()))
+        title = match.group("title").strip()
+        previous_title = scene_number_to_title.get(scene_no)
+        if previous_title is not None and previous_title != title:
+            return [], f"上游主稿 `场景{scene_no}` 被复用到不同 slugline：`{previous_title}` / `{title}`"
+        previous_scene_no = slugline_to_scene_number.get(title)
+        if previous_scene_no is not None and previous_scene_no != scene_no:
+            return [], f"上游主稿相同 slugline `{title}` 使用了多个场景编号：{previous_scene_no} / {scene_no}"
+        if previous_title is None:
+            scenes.append((scene_no, title))
+        scene_number_to_title.setdefault(scene_no, title)
+        slugline_to_scene_number.setdefault(title, scene_no)
 
     if not scenes:
         return [], f"上游主稿未发现任何 `### 场景N：...` 标题：{upstream_path}"
@@ -287,6 +319,9 @@ def validate_file(path: Path) -> tuple[bool, str]:
     scenes = parse_scene_headers(body)
     if not scenes:
         return False, "未发现任何 `### 场景N：...` 标题。"
+    duplicate_scene_error = validate_scene_heading_uniqueness_per_group(body)
+    if duplicate_scene_error:
+        return False, duplicate_scene_error
 
     upstream_path = resolve_declared_path(frontmatter["上游主稿"], path)
     upstream_scenes, upstream_scene_error = parse_upstream_scene_headers(upstream_path)
@@ -306,9 +341,8 @@ def validate_file(path: Path) -> tuple[bool, str]:
 
     seen_group_ids: set[str] = set()
     scene_group_ordinals: dict[int, int] = {}
+    group_start_scene_numbers: dict[str, int] = {}
     current_scene_index = 0
-    previous_scene_no = 0
-
     for group_id, line_no, _title in groups:
         parts = [int(part) for part in group_id.split("-")]
         if len(parts) != 3:
@@ -328,15 +362,13 @@ def validate_file(path: Path) -> tuple[bool, str]:
             current_scene_index += 1
         if next_scene_no is None:
             return False, f"{group_id} 后面没有承接任何场景标题。"
-        if next_scene_no < previous_scene_no:
-            return False, f"{group_id} 之后的场景顺序倒退。"
         if parts[1] != next_scene_no:
             return False, f"{group_id} 的第二段应等于该组起始场景号 {next_scene_no}。"
         expected_group_ordinal = scene_group_ordinals.get(next_scene_no, 0) + 1
         if parts[2] != expected_group_ordinal:
             return False, f"{group_id} 的第三段应等于场景 {next_scene_no} 内第 {expected_group_ordinal} 组。"
         scene_group_ordinals[next_scene_no] = expected_group_ordinal
-        previous_scene_no = next_scene_no
+        group_start_scene_numbers[group_id] = next_scene_no
 
     report_path = path.parent / "执行报告.md"
     if not report_path.exists():
@@ -359,6 +391,12 @@ def validate_file(path: Path) -> tuple[bool, str]:
         return False, "frontmatter `hard_text_window` 与 quantizer 计算结果不一致。"
 
     metric_by_group = {item["group_id"]: item for item in metrics["groups"]}
+    unique_scene_numbers = sorted({scene_no for _line_no, scene_no, _title in scenes})
+    one_to_one_scene_mapping = (
+        len(groups) == len(unique_scene_numbers)
+        and sorted(group_start_scene_numbers.values()) == unique_scene_numbers
+        and all(group_id.split("-")[2] == "1" for group_id, _line_no, _title in groups)
+    )
     for group_id, _line_no, _title in groups:
         block = extract_report_block(report_text, group_id)
         if block is None:
@@ -417,10 +455,27 @@ def validate_file(path: Path) -> tuple[bool, str]:
             )
 
         judgement_basis = extract_report_value(block, "judgement_basis") or ""
+        if not re.search(
+            r"量化|字窗|warn_window|warn_low|warn_high|hard_text_window|effective_text_chars|拆组|并组|过轻|过载|低于|高于|未超",
+            judgement_basis,
+        ):
+            return False, (
+                f"`{group_id}` 的 `judgement_basis` 必须说明量化门槛或拆并组检查，"
+                "不得只用场景、剧情或抽象节拍理由。"
+            )
         if expected_chars > int(group_metric["hard_text_window"]):
             return False, (
                 f"`{group_id}` 的 `effective_text_chars` 超过 hard_text_window："
                 f"{expected_chars} > {group_metric['hard_text_window']}。"
+            )
+        if one_to_one_scene_mapping and (
+            expected_chars < int(group_metric["warn_low"])
+            or expected_chars > int(group_metric["warn_high"])
+        ):
+            return False, (
+                f"`{group_id}` 属于一场景一组的场景匹配输出，但量化结果不在 warn_window 内："
+                f"{expected_chars} not in {group_metric['warn_low']}-{group_metric['warn_high']}。"
+                "必须先回到拆并组裁决，不能以场景匹配作为通过理由。"
             )
         if expected_chars < int(group_metric["warn_low"]) and not re.search(
             r"warn_low|低于|过轻|并组|不可并|明确信息落点|独立信息落点|尾组|锁定|固定镜数|分镜ID|分镜组ID|下游|2-Global|3-Detail|beat",

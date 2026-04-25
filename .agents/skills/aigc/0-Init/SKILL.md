@@ -33,7 +33,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 
 - The project already has a stable `north_star.yaml` and the user only wants local repairs in a later stage.
 - The task is a normal continuation, breakpoint recovery, governance repair, or status query; route to `aigc/resume` or the root `aigc` skill.
-- The user asks to produce canonical deliverables for `1-Planning` through `7-Cut`; this skill may only seed those stages.
+- The user asks to produce canonical deliverables for `1-Planning` through downstream stages; this skill may only seed those stages.
 - The request is a Git rollback. Rebootstrap is a business reset, not `git reset`.
 
 ## Input Contract (Mandatory)
@@ -206,43 +206,39 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - Planning direct-answer execution is required for real initialization. If real subagents are unavailable or blocked, initialization execution is blocked; local sequential imitation is not a valid substitute.
 - `source-light` projects may only write genre, tone, audience, production, and boundary constraints; story-level facts stay in `unknowns` or deferred notes.
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
-- Rebootstrap defaults to `archive_reset`; never delete `Story/`, source text, original assets, or irreplaceable references without explicit user authorization.
+- Rebootstrap defaults to `archive_reset`; never delete `Original/`, source text, original assets, or irreplaceable references without explicit user authorization.
 - `north_star.yaml` never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
 
 ## Bootstrap Runtime Markers (Mandatory)
 
-Runtime bootstrap must keep these project paths and skill-tree markers visible in this entry contract:
+Runtime bootstrap must keep only the initialization-owned project paths visible in this entry contract. Downstream stage roots and child directories are created by their owning stage when that stage actually executes; `0-Init` must not prebuild them as empty promises.
 
 - `projects/aigc/<项目名>/0-Init/`
-- `projects/aigc/<项目名>/Story/`
+- `projects/aigc/<项目名>/Original/`
 - `projects/aigc/<项目名>/CONTEXT/`
-- `projects/aigc/<项目名>/Assets/`
 - `projects/aigc/<项目名>/MEMORY.md`
 - `projects/aigc/<项目名>/CHANGELOG.md`
-- `projects/aigc/<项目名>/1-Planning/`
-- `projects/aigc/<项目名>/2-Global/`
-- `projects/aigc/<项目名>/3-Detail/`
-- `projects/aigc/<项目名>/4-Design/`
-- `projects/aigc/<项目名>/4-Design/场景清单.md`
-- `projects/aigc/<项目名>/4-Design/角色清单.md`
-- `projects/aigc/<项目名>/4-Design/道具清单.md`
-- `projects/aigc/<项目名>/4-Design/[主体名].md`
-- `projects/aigc/<项目名>/4-Design/[主体名].json`
-- `projects/aigc/<项目名>/5-Image/`
+- `projects/aigc/<项目名>/STATE.json`
+- `projects/aigc/<项目名>/team.yaml`
+
+Story source marker: `Original/` is the only project-level source landing. Historical `Story/` must be migrated or treated as a legacy alias, not created by new initialization.
+
+Downstream runtime naming marker: when `5-Image` executes, the business roots for frame and storyboard requests are `5-Image/A-分镜帧/` and `5-Image/B-分镜故事板/`. `0-Init` records this naming rule but does not create `5-Image/`.
+
+Forbidden bootstrap paths:
+
+- `projects/aigc/<项目名>/1-Planning/1-分集/`
+- `projects/aigc/<项目名>/1-Planning/2-格式/`
+- `projects/aigc/<项目名>/1-Planning/3-分组/`
+- `projects/aigc/<项目名>/1-Planning/episode-split-plan.json`
+- `projects/aigc/<项目名>/1-Planning/validation-report.md`
 - `projects/aigc/<项目名>/5-Image/2-参照引用/`
 - `projects/aigc/<项目名>/5-Image/3-图像生成/`
-- `projects/aigc/<项目名>/6-Video/`
-- `projects/aigc/<项目名>/6-Video/A.分镜画面参照/`
-- `projects/aigc/<项目名>/6-Video/B.分镜故事板参照/`
-- `projects/aigc/<项目名>/6-Video/C.主体参照/`
-- `projects/aigc/<项目名>/6-Video/全能参照/`
-- `projects/aigc/<项目名>/6-Video/首帧参照/`
 - `projects/aigc/<项目名>/6-Video/2-参照引用/`
+- `projects/aigc/<项目名>/6-Video/全能参照/`
 - `projects/aigc/<项目名>/6-Video/生成任务/`
+- `projects/aigc/<项目名>/6-Video/首帧参照/`
 - `projects/aigc/<项目名>/7-Cut/`
-
-Skill tree active path marker: `1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`.
-Skill tree fusion path marker: `A.分镜画面参照`、`B.分镜故事板参照`、`C.主体参照`.
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。
 

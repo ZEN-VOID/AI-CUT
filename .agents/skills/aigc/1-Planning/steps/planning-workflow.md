@@ -31,9 +31,9 @@
 | mode | branch steps | convergence gate |
 | --- | --- | --- |
 | `episode_split` | 锁 Story 输入 -> readiness -> `P1>P2>P3` 边界 -> 写 `1-分集` 与索引 | `episode-split-plan.json`、执行报告与 handoff 字段一致 |
-| `script_format` | 锁 `1-分集` 输出 -> 业务分析 -> 变体裁决 -> 正文整形 -> validator | `2-格式/第N集.md` 与 `第N集-执行报告.md` 通过或有返工入口 |
+| `script_format` | 锁 `1-分集` 输出 -> 业务分析 -> 变体裁决 -> 正文整形 -> validator -> 汇总报告 | `2-格式/第N集.md` 与唯一 `2-格式/执行报告.md` 通过或有返工入口 |
 | `grouping` | 锁 `2-格式` 主稿 -> 组界 -> quantizer -> 可选 reviewer -> 尾钩 -> validator | grouped script、执行报告与 quantizer 一致 |
-| `full_chain` | 串行执行前三个 mode | 三类产物均 pass 后进入 `stage_validation` |
+| `full_chain` | 串行执行前三个 mode；中间子目录是处理边界，不是默认交互断点 | 三类产物均 pass 后进入 `stage_validation` |
 | `stage_validation` | 汇总已发生产物 -> 写 verdict -> 下游 handoff | `validation-report.md` 不含伪造完成项 |
 | `repair` | 定位 owner -> 修复引用/脚本/模板/报告 -> 重跑验证 | 失败码消失且迁移矩阵同步 |
 

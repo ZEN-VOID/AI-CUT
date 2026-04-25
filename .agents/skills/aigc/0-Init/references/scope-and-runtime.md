@@ -34,66 +34,45 @@ projects/aigc/<项目名>/
 Initialization creates or verifies:
 
 - `0-Init/`
-- `Story/`
-- `Assets/`
-- `1-Planning/`
-- `2-Global/`
-- `3-Detail/`
-- `4-Design/`
-- `5-Image/`
-- `6-Video/`
-- `7-Cut/`
+- `Original/`
 - `MEMORY.md`
 - `CHANGELOG.md`
 - `CONTEXT/`
 - `STATE.json`
+- `team.yaml`
 
 ## Bootstrap Runtime Skeleton
 
-Initialization prebuilds phase roots plus currently active child skeletons:
+Initialization prebuilds only the `0-Init/` workspace, `Original/` source root, project memory/context carriers, `STATE.json`, and `team.yaml`. It does not prebuild downstream phase roots, downstream child skeletons, stage validation reports, or planning split plans.
 
-- `Assets/角色/`
-- `Assets/道具/`
-- `Assets/场景/`
-- `Assets/服装/`
-- `Assets/分镜画板/分镜帧/`
-- `Assets/分镜画板/分镜故事板/`
-- `Assets/分镜画板/漫画/`
+Forbidden bootstrap paths include:
+
 - `1-Planning/1-分集/`
 - `1-Planning/2-格式/`
 - `1-Planning/3-分组/`
-- `3-Detail/`
-- `4-Design/`
-- `4-Design/场景清单.md`
-- `4-Design/角色清单.md`
-- `4-Design/道具清单.md`
-- `4-Design/[主体名].md`
-- `4-Design/[主体名].json`
-- `5-Image/分镜故事板/`
-- `5-Image/分镜帧/`
+- `1-Planning/episode-split-plan.json`
+- `1-Planning/validation-report.md`
 - `5-Image/2-参照引用/`
 - `5-Image/3-图像生成/`
-- `6-Video/全能参照/`
-- `6-Video/A.分镜画面参照/`
-- `6-Video/B.分镜故事板参照/`
-- `6-Video/C.主体参照/`
-- `6-Video/首帧参照/`
 - `6-Video/2-参照引用/`
+- `6-Video/全能参照/`
 - `6-Video/生成任务/`
+- `6-Video/首帧参照/`
+- `7-Cut/`
 
-The active child skeleton is runtime landing, not proof that a phase has executed.
+Downstream active child skeletons are owned by their own stages and created on first execution. Empty downstream directories never count as readiness evidence.
 
 ## Runtime Interpretation
 
-- `Assets/` is an auxiliary reusable asset library, not a phase truth owner.
-- `2-Global/` is only prebuilt as a phase root. Its canonical outputs are later root-level files such as `全局风格.md`, `导演意图.md`, `全集类型元素.md`, and `分组类型元素.md`.
-- `3-Detail/` is prebuilt as a phase root; historical `水月 / 镜花` compatibility paths are not runtime truth.
-- `4-Design/` uses domain-first runtime directories for active leaves: `场景`, `角色`, and `道具`. Do not prebuild inactive `服装` design leaf paths.
-- `5-Image/` maps prompt-distillation skill leaves to runtime `分镜故事板/` and `分镜帧/`, plus stable roots `2-参照引用/` and `3-图像生成/`.
+- `Assets/` is an auxiliary reusable asset library, not a phase truth owner. It may be created by asset-facing stages or explicit user request, but is not required by the minimal init bootstrap.
+- `2-Global/` is created by the `2-Global` stage when it executes. Its canonical output is written as per-episode JSON such as `第N集.json`; old Markdown outputs are not new runtime skeleton truth.
+- `3-Detail/` is created by the `3-Detail` stage when it executes; historical `水月 / 镜花` compatibility paths are not runtime truth.
+- `4-Design/` uses domain-first runtime files for active leaves: `场景清单.md`, `角色清单.md`, `道具清单.md`, `[主体名].md`, and `[主体名].json`. Do not prebuild inactive `服装` design leaf paths.
+- `5-Image/A.分镜画面` and `5-Image/B.分镜故事板` are fusion routing entries. When the image stage executes, their business runtime roots are `5-Image/A-分镜帧/` and `5-Image/B-分镜故事板/`; `0-Init` does not create them.
 - `6-Video/A.分镜画面参照/` is the fused Skill 2.0 landing for frame visual reference packages.
 - `6-Video/B.分镜故事板参照/` is the fused Skill 2.0 landing for group-level storyboard reference packages.
 - `6-Video/C.主体参照/` is the fused Skill 2.0 landing for subject-reference packages.
-- `6-Video/生成任务/` is the business landing name for the `3-视频生成` skill stage.
+- Legacy `6-Video/全能参照/`, `6-Video/首帧参照/`, `6-Video/2-参照引用/`, and `6-Video/生成任务/` are not init bootstrap paths.
 
 ## Truth Ownership
 
