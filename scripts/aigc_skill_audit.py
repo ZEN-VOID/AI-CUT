@@ -230,15 +230,11 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "expected_outputs",
         "result_outputs",
     ),
-    ROOT / "6-Video" / "SKILL.md": (
-        "projects/aigc/<项目名>/6-Video/",
-        "projects/aigc/<项目名>/6-Video/A.分镜画面参照/",
-        "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
-        "projects/aigc/<项目名>/6-Video/C.主体参照/",
-        "projects/aigc/<项目名>/6-Video/全能参照/",
-        "projects/aigc/<项目名>/6-Video/首帧参照/",
-        "projects/aigc/<项目名>/6-Video/2-参照引用/",
-        "projects/aigc/<项目名>/6-Video/生成任务/",
+    ROOT / "7-视频" / "SKILL.md": (
+        "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
+        "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
+        "projects/aigc/<项目名>/7-视频/C-主体参照/",
     ),
     ROOT / "review" / "SKILL.md": (
         "projects/aigc/<项目名>/review/",
@@ -277,10 +273,11 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/1-规划/",
         "projects/aigc/<项目名>/1-Planning/",
     ),
-    ROOT / "6-Video" / "SKILL.md": (
+    ROOT / "7-视频" / "SKILL.md": (
         "projects/aigc/<项目名>/设定/",
         "projects/aigc/<项目名>/5-画面/",
         "projects/aigc/<项目名>/主体/",
+        "projects/aigc/<项目名>/6-Video/",
     ),
 }
 REQUIRED_SATELLITES = {
@@ -311,14 +308,10 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "2-参照引用" / "SKILL.md",
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
     ),
-    ROOT / "6-Video": (
-        ROOT / "6-Video" / "A.分镜画面参照" / "SKILL.md",
-        ROOT / "6-Video" / "B.分镜故事板参照" / "SKILL.md",
-        ROOT / "6-Video" / "C.主体参照" / "SKILL.md",
-        ROOT / "6-Video" / "1-提示词蒸馏" / "全能参照" / "SKILL.md",
-        ROOT / "6-Video" / "1-提示词蒸馏" / "首帧参照" / "SKILL.md",
-        ROOT / "6-Video" / "2-参照引用" / "SKILL.md",
-        ROOT / "6-Video" / "3-视频生成" / "SKILL.md",
+    ROOT / "7-视频": (
+        ROOT / "7-视频" / "A-分镜画面参照" / "SKILL.md",
+        ROOT / "7-视频" / "B-分镜故事板参照" / "SKILL.md",
+        ROOT / "7-视频" / "C-主体参照" / "SKILL.md",
     ),
     ROOT / "review": (
         ROOT / "review" / "规划与种子兑现" / "SKILL.md",
@@ -361,12 +354,12 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         ".agents/skills/aigc/5-Image/B.分镜故事板",
         "projects/aigc/<项目名>/5-Image/A-分镜帧/",
         "projects/aigc/<项目名>/5-Image/B-分镜故事板/",
-        ".agents/skills/aigc/6-Video/A.分镜画面参照",
-        ".agents/skills/aigc/6-Video/B.分镜故事板参照",
-        ".agents/skills/aigc/6-Video/C.主体参照",
-        "projects/aigc/<项目名>/6-Video/A.分镜画面参照/",
-        "projects/aigc/<项目名>/6-Video/B.分镜故事板参照/",
-        "projects/aigc/<项目名>/6-Video/C.主体参照/",
+        ".agents/skills/aigc/7-视频/A-分镜画面参照",
+        ".agents/skills/aigc/7-视频/B-分镜故事板参照",
+        ".agents/skills/aigc/7-视频/C-主体参照",
+        "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
+        "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
+        "projects/aigc/<项目名>/7-视频/C-主体参照/",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
         "projects/aigc/<项目名>/1-分集/",

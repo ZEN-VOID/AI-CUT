@@ -6,7 +6,7 @@
 
 必须消费：
 
-- `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`
+- `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`
 - `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - `projects/aigc/<项目名>/team.yaml`
 

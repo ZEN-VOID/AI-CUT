@@ -47,7 +47,7 @@ Treat this as a reliability-first CLI skill:
    - standalone Dreamina runs default to `output/dreamina/<项目名>/`
    - downloaded media default to `output/dreamina/<项目名>/<模型名称>/`
    - queue ledgers default to `output/dreamina/<项目名>/`
-   - when this skill is invoked by `.agents/skills/aigc2026/...`, follow the caller skill's canonical AIGC2026 output contract instead of forcing the standalone Dreamina path
+   - when this skill is invoked by `.agents/skills/aigc/...` or `.agents/skills/aigc2026/...`, follow the caller skill's canonical output contract instead of forcing the standalone Dreamina path
 6. Prefer `--poll=<seconds>` on the first submit when the user wants quick feedback.
 7. Immediately after submission, write one queue row per submitted asset or job with `submit_id`, task type, prompt summary, current status, and next check action.
 8. If polling times out, keep the returned `submit_id`, mark the ledger row as `querying` or `queued`, and switch to `dreamina query_result`.
@@ -185,7 +185,7 @@ Pending Dreamina work must be tracked as a queue when any of these are true:
 Use progressive convergence when choosing the queue file path:
 1. Base range:
    - for standalone Dreamina runs, prefer `output/dreamina/<项目名>/`
-   - if the task is invoked by `.agents/skills/aigc2026/...`, prefer the caller skill's canonical AIGC2026 output location and do not rewrite it back to `output/dreamina/`
+   - if the task is invoked by `.agents/skills/aigc/...` or `.agents/skills/aigc2026/...`, prefer the caller skill's canonical output location and do not rewrite it back to `output/dreamina/`
 2. Narrowing:
    - if the ledger is episode-scoped, include `第N集`
    - if the ledger is batch-scoped, include the batch topic or date
@@ -197,7 +197,7 @@ Use progressive convergence when choosing the queue file path:
 - Standalone queue ledger root: `output/dreamina/<项目名>/`
 - Standalone queue ledger file: `output/dreamina/<项目名>/<YYYYMMDD>-<topic>-dreamina-queue.md`
 - Standalone downloaded assets root: `output/dreamina/<项目名>/<模型名称>/`
-- If the caller is an AIGC2026 downstream skill, the queue file and downloaded assets must obey that skill's stage output rule even when Dreamina is the transport layer.
+- If the caller is an AIGC downstream skill, including current `.agents/skills/aigc/...` and legacy `.agents/skills/aigc2026/...`, the queue file and downloaded assets must obey that skill's stage output rule even when Dreamina is the transport layer.
 
 ### Minimum queue record
 
@@ -222,7 +222,7 @@ Each queue row should preserve at least:
 - `dreamina list_task` and `~/.dreamina_cli/tasks.db` are evidence sources, but the markdown queue ledger is the manual operational source of truth for the current batch.
 - If multiple outputs are produced from one creative brief, split them into multiple rows unless the user explicitly wants them grouped.
 - If no explicit override exists, downloaded assets should land under `output/dreamina/<项目名>/<模型名称>/`, not in ad hoc `./downloads/`.
-- If the job is delegated from an `aigc2026` skill, inherit that downstream stage path and record the inherited target path in the queue ledger.
+- If the job is delegated from an `aigc` or `aigc2026` skill, inherit that downstream stage path and record the inherited target path in the queue ledger.
 - If `query_result --download_dir=...` leaves a partial file behind after timeout, that partial file is invalid operational state and should be removed before retrying, otherwise later verification may read a truncated asset as if it were complete.
 
 ## Non-Obvious Command Constraints
@@ -271,7 +271,7 @@ Each queue row should preserve at least:
 | `FIELD-DRM-06` | When auth or environment breaks, local Dreamina files are inspected in the defined order | `FAIL-DRM-DIAG` | Follow the troubleshooting sequence below |
 | `FIELD-DRM-07` | Pending or multi-item tasks are written into a queue ledger with stable `submit_id`, status, and next-action fields | `FAIL-DRM-QUEUE-MISSING` | Create or repair the queue ledger from the template, then backfill rows from CLI evidence |
 | `FIELD-DRM-08` | Every later poll/query/list refresh updates the queue ledger manually instead of relying on chat memory | `FAIL-DRM-QUEUE-DRIFT` | Reconcile the ledger against `query_result`, `list_task`, and local logs/tasks.db |
-| `FIELD-DRM-09` | Standalone downloads and queue files land under the default Dreamina path, while AIGC2026 downstream calls obey the caller's stage output rule | `FAIL-DRM-OUTPUT-PATH` | Re-resolve path ownership, then move or re-record files under the correct root |
+| `FIELD-DRM-09` | Standalone downloads and queue files land under the default Dreamina path, while AIGC downstream calls obey the caller's stage output rule | `FAIL-DRM-OUTPUT-PATH` | Re-resolve path ownership, then move or re-record files under the correct root |
 | `FIELD-DRM-10` | A remote-success task that times out during `--download_dir` follow-up is retried as a download failure, with partial files removed before retry or direct-URL fallback | `FAIL-DRM-DOWNLOAD-TIMEOUT` | Remove partial output, retry `query_result --download_dir`, then fall back to direct HTTP download from the returned media URL if needed |
 
 ## Login Decision Path
@@ -297,7 +297,7 @@ Each queue row should preserve at least:
 5. If an async task does not finish within the polling window, capture `submit_id` and switch to `dreamina query_result`.
 6. If more than one async task remains pending, open or create the queue ledger and reconcile it against `list_task`, `query_result`, and `tasks.db`.
 7. If `query_result --download_dir=...` times out after the task is already `success`, inspect the target directory for a partial file, delete the partial file, retry the download, and if necessary switch to direct URL download using the returned media URL.
-8. If outputs landed in the wrong directory, first decide whether this was a standalone Dreamina run or an AIGC2026 downstream invocation, then relocate or rewrite the ledger path accordingly.
+8. If outputs landed in the wrong directory, first decide whether this was a standalone Dreamina run or an AIGC downstream invocation, then relocate or rewrite the ledger path accordingly.
 
 ## Common Mistakes
 
@@ -307,7 +307,7 @@ Each queue row should preserve at least:
 - Updating `query_result` in the terminal but forgetting to sync `last_checked_at` and `next_action`
 - Downloading media into temporary `./downloads/` paths when the batch already has a project/model destination
 - Treating a `--download_dir` timeout as if the generation itself failed, or keeping a truncated partial MP4/PNG in place and mistaking it for a valid output
-- Using standalone `output/dreamina/...` paths inside an AIGC2026 downstream call that already has its own stage output contract
+- Using standalone `output/dreamina/...` paths inside an AIGC downstream call that already has its own stage output contract
 - Passing a non-existent local image path to `image2image` or `image2video`
 - Using `image2video` when the task actually needs multiple reference images bound together; prefer `multimodal2video` for `@图N`-style all-around references
 - Using `multiframe2video` for a multi-reference editing job that really needs Seedance 2.0 multimodal control; prefer `multiframe2video` for ordered story frames, not general reference binding

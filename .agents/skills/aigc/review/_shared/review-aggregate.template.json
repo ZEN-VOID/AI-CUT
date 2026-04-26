@@ -1,0 +1,38 @@
+{
+  "review_status": "seeded",
+  "review_mode": "",
+  "checkpoint_id": "",
+  "stage": "",
+  "scope_ref": "",
+  "selected_dimensions": [],
+  "selected_agents": [],
+  "dimension_packets": [],
+  "dimension_report_refs": [],
+  "dimension_runtime": [],
+  "issues": [],
+  "severity_counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "critical_issues": [],
+  "overall_score": 0.0,
+  "dimension_scores": {},
+  "routing_decision": "",
+  "handoff_targets": [],
+  "rework_targets": [],
+  "source_trace": [],
+  "evidence_refs": [],
+  "review_ref": "",
+  "review_fact_pack_ref": "",
+  "repair_plan_ref": "",
+  "review_report_ref": "",
+  "governance_state_synced": false,
+  "external_review": {},
+  "thought_process": {
+    "mode_decision": "",
+    "checkpoint_selection": "",
+    "aggregate_reasoning": ""
+  }
+}

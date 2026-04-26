@@ -252,27 +252,24 @@ Story source marker: `源/` is the project-level source landing for new initiali
 
 Downstream runtime naming marker: `6-图像/` and `7-视频/` are stage roots only at initialization time. Concrete image/video task subdirectories are created by their owning stages when execution begins.
 
+Bootstrap runtime marker allowlist:
+
+- `projects/aigc/<项目名>/1-分集/`
+- `projects/aigc/<项目名>/2-编导/`
+- `projects/aigc/<项目名>/3-摄影/`
+- `projects/aigc/<项目名>/4-设计/`
+- `projects/aigc/<项目名>/4-分组/`
+- `projects/aigc/<项目名>/6-图像/`
+- `projects/aigc/<项目名>/7-视频/`
+- `projects/aigc/<项目名>/源/`
+- `projects/aigc/<项目名>/附加预设/`
+
 Forbidden bootstrap paths:
 
-- `projects/aigc/<项目名>/Original/`
-- `projects/aigc/<项目名>/Story/`
-- `projects/aigc/<项目名>/1-Planning/`
-- `projects/aigc/<项目名>/1-规划/`
-- `projects/aigc/<项目名>/2-Global/`
-- `projects/aigc/<项目名>/3-Detail/`
-- `projects/aigc/<项目名>/4-Design/`
-- `projects/aigc/<项目名>/5-Image/`
-- `projects/aigc/<项目名>/6-Video/`
-- `projects/aigc/<项目名>/7-Cut/`
-- `projects/aigc/<项目名>/2-全局/`
-- `projects/aigc/<项目名>/3-编导/`
-- `projects/aigc/<项目名>/4-摄影/`
-- `projects/aigc/<项目名>/5-设计/`
-- `projects/aigc/<项目名>/5-分组/`
-- `projects/aigc/<项目名>/6-分组/`
-- `projects/aigc/<项目名>/7-图像/`
-- `projects/aigc/<项目名>/8-视频/`
-- `projects/aigc/<项目名>/CONTEXT/`
+- legacy source aliases: `Original/`, `Story/`
+- legacy English stages: `1-Planning/`, `2-Global/`, `3-Detail/`, `4-Design/`, `5-Image/`, `6-Video/`, `7-Cut/`
+- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `4-摄影/`, `5-设计/`, `5-分组/`, `6-分组/`, `7-图像/`, `8-视频/`
+- legacy project context root alias: `CONTEXT/`
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。
 

@@ -11,7 +11,7 @@ The skill consumes completed upstream scene design markdown files and produces p
 Required source document:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md
+projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md
 ```
 
 Required fields or recoverable sections:
@@ -38,8 +38,8 @@ Prompt source:
 Output:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.json
+projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.<ext>
+projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.json
 ```
 
 ## Step2 Multi-View Contract
@@ -58,8 +58,8 @@ The multi-view sheet must read as views of one coherent scene, not nine unrelate
 Output:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.<ext>
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.json
+projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-多视图.<ext>
+projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-多视图.json
 ```
 
 ## JSON Prompt Record Contract

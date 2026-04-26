@@ -132,7 +132,7 @@ stateDiagram-v2
 4. 对候选角色执行 LLM 归并：识别别名、代称、同一角色不同称呼、称谓变化和身份称呼；优先保留项目已确认姓名，其次保留最具体且最早出现的稳定称呼。
 5. 首次登场使用最早出现该 canonical 角色的分镜组 ID，例如 `1-1-1`；必要时写作 `第N集.md / 1-1-1` 以便回查。
 6. `原文描述（关键词式）` 只写来自 YAML `角色` 字段与同组正文证据的关键词，不扩写成角色设定，不加入外貌、性格或剧情推断。
-7. 写入 canonical 输出 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`；如生成执行报告，写入同目录 `执行报告.md`。
+7. 写入 canonical 输出 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`；如生成执行报告，写入同目录 `执行报告.md`。
 8. 按 `review/review-contract.md` 检查三列固定、首次登场可回指、归并理由可解释、无脚本主创和无跨域内容。
 
 ## Script And Metadata Contract
@@ -195,8 +195,8 @@ stateDiagram-v2
 
 ### Required output
 
-1. 角色清单固定写入 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`。
-2. 可选执行报告写入 `projects/aigc/<项目名>/5-设计/角色/1-清单/执行报告.md`。
+1. 角色清单固定写入 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`。
+2. 可选执行报告写入 `projects/aigc/<项目名>/4-设计/角色/1-清单/执行报告.md`。
 3. 角色清单必须是 table 式 Markdown。
 4. 每个主体字段固定为：`名称`、`首次登场`、`原文描述（关键词式）`。
 5. 别名、代称和同一角色不同称呼必须归并到同一 `名称` 单元；若存在低置信度合并，应在执行报告中列为风险，不在清单中强行二创。
@@ -212,8 +212,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-CHARACTER-LIST` | `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md` |
-| `OUTPUT-CHARACTER-REPORT` | `projects/aigc/<项目名>/5-设计/角色/1-清单/执行报告.md` |
+| `OUTPUT-CHARACTER-LIST` | `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md` |
+| `OUTPUT-CHARACTER-REPORT` | `projects/aigc/<项目名>/4-设计/角色/1-清单/执行报告.md` |
 
 ### Naming convention
 

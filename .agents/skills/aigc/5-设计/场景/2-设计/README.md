@@ -39,8 +39,8 @@ find .agents/skills/aigc/5-设计/场景/2-设计 -maxdepth 2 -type f | sort
 
 ## 输出位置
 
-- 单场景设计稿：`projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`
-- 可选执行报告：`projects/aigc/<项目名>/5-设计/场景/2-设计/执行报告.md`
+- 单场景设计稿：`projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`
+- 可选执行报告：`projects/aigc/<项目名>/4-设计/场景/2-设计/执行报告.md`
 
 ## 固定画面约束
 

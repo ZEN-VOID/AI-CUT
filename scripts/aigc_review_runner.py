@@ -33,19 +33,25 @@ REPORT_TEMPLATE = ROOT / "_shared" / "review-dimension-report.template.md"
 EXECUTION_PROVIDER_CONFIG = ROOT / "_shared" / "execution-provider.yaml"
 
 STAGE_ACCEPTANCE_PASS_TARGETS = {
-    "1-规划": ["2-全局"],
-    "2-全局": ["3-编导"],
-    "3-编导": ["4-Design", "5-Image", "6-Video"],
-    "4-Design": ["5-Image"],
-    "5-Image": ["6-Video"],
-    "6-Video": ["release"],
+    "0-初始化": ["1-分集"],
+    "1-分集": ["2-编导"],
+    "2-编导": ["3-摄影"],
+    "3-摄影": ["4-分组"],
+    "4-分组": ["5-设计"],
+    "5-设计": ["6-图像"],
+    "6-图像": ["7-视频"],
+    "7-视频": ["release"],
 }
 
 SOURCE_LAYER_OWNERS = {
     "0-初始化",
-    "1-规划",
-    "2-全局",
-    "3-编导",
+    "1-分集",
+    "2-编导",
+    "3-摄影",
+    "4-分组",
+    "5-设计",
+    "6-图像",
+    "7-视频",
     "root-aigc",
     "project-runtime",
 }
@@ -98,197 +104,194 @@ CODE_REVIEWER_REPORTER = Path(EXECUTION_PROVIDER["reporter_script_path"])
 CODE_REVIEWER_TIMEOUT_SECONDS = float(EXECUTION_PROVIDER["timeout_seconds"])
 
 CHECKPOINT_REQUIREMENTS = {
-    "planning-handoff-ready": {
-        "validation_refs": ["1-规划/validation-report.md"],
+    "init-handoff-ready": {
+        "validation_refs": ["0-初始化/validation-report.md"],
         "source_truth_refs": [
             "0-初始化/north_star.yaml",
             "0-初始化/init_handoff.yaml",
-            "1-规划/",
         ],
-        "runtime_artifact_refs": ["1-规划/"],
-        "handoff_candidate_refs": ["2-全局/"],
+        "runtime_artifact_refs": ["0-初始化/"],
+        "handoff_candidate_refs": ["1-分集/"],
     },
-    "global-seed-ready": {
-        "validation_refs": ["2-全局/validation-report.md"],
+    "episode-split-ready": {
+        "validation_refs": ["1-分集/validation-report.md"],
         "source_truth_refs": [
             "0-初始化/north_star.yaml",
-            "1-规划/",
-            "2-全局/全局设计.json",
+            "1-分集/",
         ],
-        "runtime_artifact_refs": ["2-全局/全局设计.json"],
-        "handoff_candidate_refs": ["3-编导/"],
+        "runtime_artifact_refs": ["1-分集/"],
+        "handoff_candidate_refs": ["2-编导/"],
     },
-    "detail-episode-ready": {
-        "validation_refs": ["3-编导/validation-report.md"],
+    "directing-script-ready": {
+        "validation_refs": ["2-编导/validation-report.md"],
         "source_truth_refs": [
-            "1-规划/",
-            "2-全局/全局设计.json",
-            "3-编导/{scope_ref}.json",
+            "1-分集/{scope_ref}.md",
+            "2-编导/{scope_ref}.md",
         ],
-        "runtime_artifact_refs": ["3-编导/{scope_ref}.json"],
-        "handoff_candidate_refs": ["4-Design/", "5-Image/", "6-Video/"],
+        "runtime_artifact_refs": ["2-编导/{scope_ref}.md"],
+        "handoff_candidate_refs": ["3-摄影/"],
     },
-    "design-list-ready": {
-        "validation_refs": ["4-Design/validation-report.md"],
+    "cinematography-ready": {
+        "validation_refs": ["3-摄影/validation-report.md"],
         "source_truth_refs": [
-            "3-编导/{scope_ref}.json",
-            "4-Design/",
+            "2-编导/{scope_ref}.md",
+            "3-摄影/{scope_ref}.md",
         ],
-        "runtime_artifact_refs": ["4-Design/"],
-        "handoff_candidate_refs": ["4-Design/"],
+        "runtime_artifact_refs": ["3-摄影/{scope_ref}.md"],
+        "handoff_candidate_refs": ["4-分组/"],
     },
-    "design-truth-ready": {
-        "validation_refs": ["4-Design/validation-report.md"],
+    "grouping-ready": {
+        "validation_refs": ["4-分组/validation-report.md"],
         "source_truth_refs": [
-            "3-编导/{scope_ref}.json",
-            "4-Design/",
+            "3-摄影/{scope_ref}.md",
+            "4-分组/{scope_ref}.md",
         ],
-        "runtime_artifact_refs": ["4-Design/"],
-        "handoff_candidate_refs": ["4-Design/", "5-Image/2-参照引用/"],
+        "runtime_artifact_refs": ["4-分组/{scope_ref}.md"],
+        "handoff_candidate_refs": ["5-设计/"],
     },
-    "design-panel-ready": {
-        "validation_refs": ["4-Design/validation-report.md"],
+    "design-ready": {
+        "validation_refs": ["4-设计/validation-report.md"],
         "source_truth_refs": [
-            "3-编导/{scope_ref}.json",
-            "4-Design/",
+            "4-分组/{scope_ref}.md",
+            "4-设计/",
         ],
-        "runtime_artifact_refs": ["4-Design/"],
-        "handoff_candidate_refs": ["5-Image/"],
+        "runtime_artifact_refs": ["4-设计/"],
+        "handoff_candidate_refs": ["6-图像/", "7-视频/"],
     },
     "image-request-ready": {
-        "validation_refs": ["5-Image/validation-report.md", "3-编导/validation-report.md"],
+        "validation_refs": ["6-图像/validation-report.md", "4-分组/validation-report.md"],
         "source_truth_refs": [
-            "3-编导/{scope_ref}.json",
-            "5-Image/1-提示词蒸馏/",
+            "4-分组/{scope_ref}.md",
+            "6-图像/A-分镜画面/",
         ],
-        "runtime_artifact_refs": ["5-Image/1-提示词蒸馏/"],
-        "handoff_candidate_refs": ["5-Image/2-参照引用/"],
+        "runtime_artifact_refs": ["6-图像/A-分镜画面/"],
+        "handoff_candidate_refs": ["6-图像/B-分镜故事板/"],
     },
-    "image-reference-ready": {
-        "validation_refs": ["5-Image/validation-report.md"],
+    "image-storyboard-ready": {
+        "validation_refs": ["6-图像/validation-report.md"],
         "source_truth_refs": [
-            "4-Design/",
-            "5-Image/1-提示词蒸馏/",
-            "5-Image/2-参照引用/",
+            "4-分组/",
+            "4-设计/",
+            "6-图像/B-分镜故事板/",
         ],
-        "runtime_artifact_refs": ["5-Image/2-参照引用/"],
-        "handoff_candidate_refs": ["5-Image/3-图像生成/"],
+        "runtime_artifact_refs": ["6-图像/B-分镜故事板/"],
+        "handoff_candidate_refs": ["7-视频/B-分镜故事板参照/"],
     },
     "image-handoff-ready": {
-        "validation_refs": ["5-Image/validation-report.md"],
+        "validation_refs": ["6-图像/validation-report.md"],
         "source_truth_refs": [
-            "5-Image/2-参照引用/",
-            "5-Image/3-图像生成/",
+            "6-图像/A-分镜画面/",
+            "6-图像/B-分镜故事板/",
         ],
-        "runtime_artifact_refs": ["5-Image/3-图像生成/"],
-        "handoff_candidate_refs": ["Assets/", "5-Image/3-图像生成/"],
+        "runtime_artifact_refs": ["6-图像/"],
+        "handoff_candidate_refs": ["Assets/", "7-视频/"],
     },
     "video-request-ready": {
-        "validation_refs": ["6-Video/validation-report.md", "3-编导/validation-report.md"],
+        "validation_refs": ["7-视频/validation-report.md", "4-分组/validation-report.md"],
         "source_truth_refs": [
-            "3-编导/{scope_ref}.json",
-            "6-Video/1-提示词蒸馏/",
+            "4-分组/{scope_ref}.md",
+            "6-图像/B-分镜故事板/",
+            "7-视频/C-主体参照/",
         ],
-        "runtime_artifact_refs": ["6-Video/1-提示词蒸馏/"],
-        "handoff_candidate_refs": ["6-Video/2-参照引用/"],
+        "runtime_artifact_refs": ["7-视频/B-分镜故事板参照/"],
+        "handoff_candidate_refs": ["7-视频/C-主体参照/"],
     },
-    "video-reference-ready": {
-        "validation_refs": ["6-Video/validation-report.md"],
+    "video-subject-reference-ready": {
+        "validation_refs": ["7-视频/validation-report.md"],
         "source_truth_refs": [
-            "5-Image/",
-            "6-Video/1-提示词蒸馏/",
-            "6-Video/2-参照引用/",
+            "4-设计/",
+            "6-图像/",
+            "7-视频/C-主体参照/",
         ],
-        "runtime_artifact_refs": ["6-Video/2-参照引用/"],
-        "handoff_candidate_refs": ["6-Video/3-视频生成/"],
+        "runtime_artifact_refs": ["7-视频/C-主体参照/"],
+        "handoff_candidate_refs": ["7-视频/C-主体参照/"],
     },
     "video-handoff-ready": {
-        "validation_refs": ["6-Video/validation-report.md"],
+        "validation_refs": ["7-视频/validation-report.md"],
         "source_truth_refs": [
-            "6-Video/2-参照引用/",
-            "6-Video/3-视频生成/",
+            "7-视频/C-主体参照/",
         ],
-        "runtime_artifact_refs": ["6-Video/3-视频生成/"],
-        "handoff_candidate_refs": ["Assets/", "6-Video/3-视频生成/"],
+        "runtime_artifact_refs": ["7-视频/C-主体参照/"],
+        "handoff_candidate_refs": ["Assets/", "7-视频/C-主体参照/"],
     },
     "package-release-ready": {
         "validation_refs": [
-            "1-规划/validation-report.md",
-            "2-全局/validation-report.md",
-            "3-编导/validation-report.md",
-            "4-Design/validation-report.md",
-            "5-Image/validation-report.md",
-            "6-Video/validation-report.md",
+            "1-分集/validation-report.md",
+            "2-编导/validation-report.md",
+            "3-摄影/validation-report.md",
+            "4-分组/validation-report.md",
+            "4-设计/validation-report.md",
+            "6-图像/validation-report.md",
+            "7-视频/validation-report.md",
         ],
         "source_truth_refs": [
             "0-初始化/north_star.yaml",
-            "1-规划/",
-            "2-全局/全局设计.json",
-            "3-编导/",
-            "4-Design/",
-            "5-Image/",
-            "6-Video/",
+            "1-分集/",
+            "2-编导/",
+            "3-摄影/",
+            "4-分组/",
+            "4-设计/",
+            "6-图像/",
+            "7-视频/",
         ],
         "runtime_artifact_refs": [
-            "1-规划/",
-            "2-全局/",
-            "3-编导/",
-            "4-Design/",
-            "5-Image/",
-            "6-Video/",
+            "1-分集/",
+            "2-编导/",
+            "3-摄影/",
+            "4-分组/",
+            "4-设计/",
+            "6-图像/",
+            "7-视频/",
         ],
         "handoff_candidate_refs": ["Assets/", "validation-report.md"],
     },
 }
 
 STAGE_REQUIREMENTS = {
-    "1-规划": CHECKPOINT_REQUIREMENTS["planning-handoff-ready"],
-    "2-全局": CHECKPOINT_REQUIREMENTS["global-seed-ready"],
-    "3-编导": CHECKPOINT_REQUIREMENTS["detail-episode-ready"],
-    "4-Design": {
-        "validation_refs": ["4-Design/validation-report.md"],
-        "source_truth_refs": ["3-编导/{scope_ref}.json", "4-Design/"],
-        "runtime_artifact_refs": ["4-Design/"],
-        "handoff_candidate_refs": ["5-Image/", "6-Video/"],
+    "0-初始化": CHECKPOINT_REQUIREMENTS["init-handoff-ready"],
+    "1-分集": CHECKPOINT_REQUIREMENTS["episode-split-ready"],
+    "2-编导": CHECKPOINT_REQUIREMENTS["directing-script-ready"],
+    "3-摄影": CHECKPOINT_REQUIREMENTS["cinematography-ready"],
+    "4-分组": CHECKPOINT_REQUIREMENTS["grouping-ready"],
+    "5-设计": CHECKPOINT_REQUIREMENTS["design-ready"],
+    "6-图像": {
+        "validation_refs": ["6-图像/validation-report.md"],
+        "source_truth_refs": ["4-分组/", "4-设计/", "6-图像/"],
+        "runtime_artifact_refs": ["6-图像/"],
+        "handoff_candidate_refs": ["7-视频/", "Assets/"],
     },
-    "5-Image": {
-        "validation_refs": ["5-Image/validation-report.md"],
-        "source_truth_refs": ["4-Design/", "5-Image/"],
-        "runtime_artifact_refs": ["5-Image/"],
-        "handoff_candidate_refs": ["6-Video/", "Assets/"],
-    },
-    "6-Video": {
-        "validation_refs": ["6-Video/validation-report.md"],
-        "source_truth_refs": ["5-Image/", "6-Video/"],
-        "runtime_artifact_refs": ["6-Video/"],
+    "7-视频": {
+        "validation_refs": ["7-视频/validation-report.md"],
+        "source_truth_refs": ["6-图像/", "7-视频/"],
+        "runtime_artifact_refs": ["7-视频/"],
         "handoff_candidate_refs": ["Assets/", "validation-report.md"],
     },
 }
 
 DIMENSION_EXPECTATIONS = {
     "planning-seed-validator": {
-        "source_prefixes": ["0-初始化/", "1-规划/", "2-全局/", "3-编导/"],
-        "validation_prefixes": ["1-规划/", "2-全局/", "3-编导/"],
+        "source_prefixes": ["0-初始化/", "1-分集/", "2-编导/"],
+        "validation_prefixes": ["0-初始化/", "1-分集/", "2-编导/"],
     },
     "detail-execution-validator": {
-        "source_prefixes": ["2-全局/", "3-编导/"],
-        "runtime_prefixes": ["3-编导/"],
-        "validation_prefixes": ["3-编导/"],
+        "source_prefixes": ["2-编导/", "3-摄影/", "4-分组/"],
+        "runtime_prefixes": ["3-摄影/", "4-分组/"],
+        "validation_prefixes": ["3-摄影/", "4-分组/"],
     },
     "design-alignment-validator": {
-        "source_prefixes": ["3-编导/", "4-Design/"],
-        "runtime_prefixes": ["4-Design/"],
-        "validation_prefixes": ["4-Design/"],
+        "source_prefixes": ["4-分组/", "4-设计/"],
+        "runtime_prefixes": ["4-设计/"],
+        "validation_prefixes": ["4-设计/"],
     },
     "image-delivery-validator": {
-        "source_prefixes": ["3-编导/", "4-Design/", "5-Image/"],
-        "runtime_prefixes": ["5-Image/"],
-        "validation_prefixes": ["5-Image/"],
+        "source_prefixes": ["4-分组/", "4-设计/", "6-图像/"],
+        "runtime_prefixes": ["6-图像/"],
+        "validation_prefixes": ["6-图像/"],
     },
     "video-delivery-validator": {
-        "source_prefixes": ["3-编导/", "4-Design/", "5-Image/", "6-Video/"],
-        "runtime_prefixes": ["6-Video/"],
-        "validation_prefixes": ["6-Video/"],
+        "source_prefixes": ["4-分组/", "4-设计/", "6-图像/", "7-视频/"],
+        "runtime_prefixes": ["7-视频/"],
+        "validation_prefixes": ["7-视频/"],
     },
     "governance-closure-validator": {
         "use_fact_pack_validation_refs": True,
@@ -449,6 +452,44 @@ def required_missing_refs(pack: dict[str, Any]) -> list[str]:
             if packet and not packet.get("exists"):
                 missing.append(str(packet.get("ref") or ""))
     return [item for item in missing if item]
+
+
+def review_owner_for_ref(ref: str, stage: str) -> str:
+    first_segment = ref.split("/", 1)[0].strip()
+    if first_segment == "4-设计":
+        return "5-设计"
+    if first_segment in SOURCE_LAYER_OWNERS:
+        return first_segment
+    if stage and stage != "package":
+        return stage
+    return "project-runtime"
+
+
+def covenant_issues_from_fact_pack(fact_pack: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    checkpoint_id = str(fact_pack.get("checkpoint_id") or "")
+    stage = str(fact_pack.get("stage") or "")
+    scope_ref = str(fact_pack.get("scope_ref") or "")
+    for index, ref in enumerate(required_missing_refs(fact_pack), start=1):
+        owner = review_owner_for_ref(ref, stage)
+        issues.append(
+            issue_packet(
+                role_id="fact-pack-covenant",
+                issue_type="missing_required_ref",
+                severity="critical",
+                checkpoint_id=checkpoint_id,
+                stage=stage,
+                scope_ref=scope_ref,
+                location=ref,
+                description=f"review_fact_pack required slice 缺失：`{ref}`。",
+                suggestion="先补齐该 required ref 或修正对应阶段 writeback，再重跑当前 review。",
+                rework_target=owner,
+                source_layer_owner=owner,
+                index=index,
+                can_override=False,
+            )
+        )
+    return issues
 
 
 def build_fact_pack(
@@ -770,6 +811,8 @@ def run_dimension_review(
 ) -> dict[str, Any]:
     role_id = str(spec.get("role_id") or "")
     dimension = str(spec.get("dimension") or role_id)
+    skill_path = Path(str(spec.get("skill_path") or ""))
+    context_path = skill_path / "CONTEXT.md"
     checkpoint_id = str(fact_pack.get("checkpoint_id") or "")
     stage = str(fact_pack.get("stage") or "")
     scope_ref = str(fact_pack.get("scope_ref") or "")
@@ -855,6 +898,15 @@ def run_dimension_review(
         "source_trace": source_trace,
         "report_ref": relref(report_ref, project_root),
         "blocking_scope": blocking_scope,
+        "dimension_runtime": {
+            "skill_path_ref": str(skill_path),
+            "skill_exists": skill_path.is_dir(),
+            "skill_contract_ref": str(skill_path / "SKILL.md"),
+            "skill_contract_exists": (skill_path / "SKILL.md").is_file(),
+            "context_ref": str(context_path),
+            "context_exists": context_path.is_file(),
+            "execution_mode": "local-dimension-checklist",
+        },
     }
 
     recommended_action = (
@@ -885,6 +937,7 @@ def run_dimension_review(
     return {
         "dimension_packet": packet,
         "dimension_report_ref": packet["report_ref"],
+        "dimension_runtime": packet["dimension_runtime"],
     }
 
 
@@ -1133,9 +1186,12 @@ def build_packet(
         packet["thought_process"]["checkpoint_selection"] = "package-release-ready"
 
     specs = role_specs_by_ids(registry, role_ids)
-    packet["selected_agents"] = [str(spec.get("role_id") or "") for spec in specs]
+    selected_dimensions = [str(spec.get("role_id") or "") for spec in specs]
+    packet["selected_dimensions"] = selected_dimensions
+    packet["selected_agents"] = selected_dimensions
     packet["dimension_packets"] = []
     packet["dimension_report_refs"] = []
+    packet["dimension_runtime"] = []
     packet["dimension_scores"] = {}
     packet["thought_process"]["mode_decision"] = f"mode={mode}"
     packet["thought_process"]["aggregate_reasoning"] = "aggregate packet will be populated after provider dispatch and dimension review"
@@ -1201,6 +1257,73 @@ def main() -> int:
     fact_pack_file = fact_pack_path(output_path)
     write_json(fact_pack_file, fact_pack)
 
+    covenant_issues = covenant_issues_from_fact_pack(fact_pack)
+    if covenant_issues:
+        external_review = {
+            "provider": CODE_REVIEWER_PROVIDER_NAME,
+            "status": "skipped-covenant",
+            "provider_skill_ref": str(EXECUTION_PROVIDER.get("skill_relative_to_codex_home") or ""),
+            "target_ref": relref(fact_pack_file, project_root),
+            "artifact_dir_ref": "",
+            "jobs": [],
+            "findings": [],
+            "skipped_reason": "review_fact_pack required slice 缺失，按 covenant gate 早停。",
+            "executed_at": utc_now(),
+        }
+        packet["review_ref"] = relref(output_path, project_root)
+        packet["issues"] = covenant_issues
+        packet["severity_counts"] = severity_counts(covenant_issues)
+        packet["critical_issues"] = [
+            item for item in covenant_issues if str(item.get("severity") or "") == "critical"
+        ]
+        packet["overall_score"] = 0.0
+        packet["review_status"] = "FAIL-COVENANT"
+        packet["routing_decision"] = "back_to_source_contract"
+        packet["handoff_targets"] = []
+        packet["rework_targets"] = aggregate_rework_targets(covenant_issues, "back_to_source_contract")
+        packet["review_fact_pack_ref"] = relref(fact_pack_file, project_root)
+        packet["source_trace"] = [
+            {
+                "role_id": "fact-pack-covenant",
+                "upstream_source_owners": sorted(
+                    {
+                        str(item.get("source_layer_owner") or "")
+                        for item in covenant_issues
+                        if str(item.get("source_layer_owner") or "")
+                    }
+                ),
+            }
+        ]
+        packet["evidence_refs"] = list(fact_pack.get("evidence_refs") or [])
+        packet["external_review"] = external_review
+        packet["thought_process"]["aggregate_reasoning"] = (
+            f"covenant early exit: missing_required_refs={len(covenant_issues)}"
+        )
+        repair_plan = build_repair_plan(
+            packet=packet,
+            output_path=output_path,
+            project_root=project_root,
+        )
+        repair_plan_file = repair_plan_path(output_path)
+        write_json(repair_plan_file, repair_plan)
+        packet["repair_plan_ref"] = relref(repair_plan_file, project_root)
+        packet["governance_state_synced"] = sync_governance_state(
+            project_root=project_root,
+            aggregate_packet=packet,
+            repair_plan=repair_plan,
+        )
+        packet["review_report_ref"] = write_review_report(
+            project_root=project_root,
+            output_path=output_path,
+            packet=packet,
+            external_review=external_review,
+            fact_pack_file=fact_pack_file,
+            repair_plan_file=repair_plan_file,
+        )
+        write_json(output_path, packet)
+        print(output_path)
+        return 0
+
     external_review = run_code_reviewer(
         fact_pack_file=fact_pack_file,
         output_path=output_path,
@@ -1210,6 +1333,7 @@ def main() -> int:
 
     dimension_packets: list[dict[str, Any]] = []
     dimension_report_refs: list[str] = []
+    dimension_runtime: list[dict[str, Any]] = []
     dimension_scores: dict[str, float] = {}
     issues: list[dict[str, Any]] = []
     severity_list: list[dict[str, int]] = []
@@ -1230,6 +1354,9 @@ def main() -> int:
         dimension_report_ref = str(result.get("dimension_report_ref") or "")
         if dimension_report_ref:
             dimension_report_refs.append(dimension_report_ref)
+        runtime_packet = safe_dict(result.get("dimension_runtime"))
+        if runtime_packet:
+            dimension_runtime.append(runtime_packet)
         dimension_scores[str(dimension_packet.get("role_id") or "")] = float(dimension_packet.get("score") or 0.0)
         issues.extend(safe_list(dimension_packet.get("issues")))
         severity_list.append(safe_dict(dimension_packet.get("severity_counts")))
@@ -1262,6 +1389,7 @@ def main() -> int:
     packet["review_ref"] = relref(output_path, project_root)
     packet["dimension_packets"] = dimension_packets
     packet["dimension_report_refs"] = dimension_report_refs
+    packet["dimension_runtime"] = dimension_runtime
     packet["dimension_scores"] = dimension_scores
     packet["issues"] = issues
     packet["severity_counts"] = merge_severity_counts(severity_list)

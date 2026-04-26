@@ -4,7 +4,7 @@
 
 Allowed:
 
-- 枚举 `projects/aigc/<项目名>/5-设计/道具/2-设计/*.md`。
+- 枚举 `projects/aigc/<项目名>/4-设计/道具/2-设计/*.md`。
 - 检查输出目录、文件名后缀、JSON 字段和路径是否存在。
 - 统计 JSON 与图像 stem 是否一致。
 - dry-run 打印待生成主体列表。

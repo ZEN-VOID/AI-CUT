@@ -4,7 +4,7 @@
 
 ## Upstream Consumption
 
-- Canonical input: `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`。
+- Canonical input: `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`。
 - Required columns: `名称`、`首次登场`、`原文描述（关键词式）`。
 - 本技能只能为清单中存在的角色主体生成设计稿。
 - 若清单存在同名冲突、疑似漏项或角色归并错误，输出执行报告提出上游修复建议，不直接修改清单。

@@ -52,7 +52,7 @@ type_profile:
   type_id: ""
   project_root: "projects/aigc/<项目名>"
   source_design_docs: []
-  output_dir: "projects/aigc/<项目名>/5-设计/道具/3-生成"
+  output_dir: "projects/aigc/<项目名>/4-设计/道具/3-生成"
   execute_imagegen: true
   imagegen_mode: built_in_generate
   allow_cli_fallback: false

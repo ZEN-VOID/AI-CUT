@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-design
-description: Use when expanding projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md into per-scene detailed design markdown files under projects/aigc/<项目名>/5-设计/场景/2-设计.
+description: Use when expanding projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md into per-scene detailed design markdown files under projects/aigc/<项目名>/4-设计/场景/2-设计.
 governance_tier: full
 metadata:
   short-description: AIGC scene detail design
@@ -14,7 +14,7 @@ metadata:
 
 - 每次调用 `$aigc-scene-design` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与世界观、地理、年代、建筑、美术风格、摄影风格相关的上下文。
-- 必须读取上游 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
+- 必须读取上游 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取全局审美方向、故事母题、禁区和全局风格提示词。
 - 必须读取 `projects/aigc/<项目名>/team.yaml`，提取与设计、美术、建筑、摄影、导演或大师监制相关的上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
 - 固定画面约束：场景设计默认只输出纯空镜空间设计，不得出现人物、人体局部、剪影、倒影或可识别人类存在；英文提示词必须显式包含 `empty shot, no people, no human figures` 等等价约束。
@@ -31,7 +31,7 @@ Accepted input:
 
 - 项目名、项目路径或目标 `projects/aigc/<项目名>/`。
 - 单个场景名、多个场景名、场景清单行号，或“处理全部场景设计”的请求。
-- 已存在的 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`。
+- 已存在的 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`。
 - 用户补充的建筑风格、地理原型、年代、摄影倾向、禁区或参考资料。
 
 Required input:
@@ -132,7 +132,7 @@ stateDiagram-v2
 6. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计。
 7. `解构` 必须分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词和建筑风格，并输出英文提示词，长度不超过 2000 characters。
 8. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
-9. 写入 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`。
+9. 写入 `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`。
 10. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级。
 
 ## Field Mapping
@@ -209,8 +209,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-SCENE-DESIGN` | `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md` |
-| `OUTPUT-SCENE-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/场景/2-设计/执行报告.md` |
+| `OUTPUT-SCENE-DESIGN` | `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md` |
+| `OUTPUT-SCENE-DESIGN-REPORT` | `projects/aigc/<项目名>/4-设计/场景/2-设计/执行报告.md` |
 
 ### Naming convention
 

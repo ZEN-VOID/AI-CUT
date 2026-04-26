@@ -1,0 +1,31 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc.design.scene",
+  "skill_path": ".agents/skills/aigc/5-设计/场景",
+  "scope": "episode_or_scene",
+  "order": ["list", "design", "panel"],
+  "io": {
+    "inputs": {
+      "detail_episode": {
+        "pattern": "projects/aigc/<项目名>/3-Detail/第{episode}集.json",
+        "format": "json",
+        "required": true
+      }
+    },
+    "outputs": {
+      "scene_list": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景清单.md",
+        "format": "markdown"
+      },
+      "scene_design_docs": {
+        "pattern": "projects/aigc/<项目名>/4-设计/[场景名].md",
+        "format": "markdown"
+      },
+      "scene_panel_prompts": {
+        "pattern": "projects/aigc/<项目名>/4-设计/[场景名].json",
+        "format": "json"
+      }
+    }
+  },
+  "tags": ["aigc", "design", "scene", "skill-2.0"]
+}

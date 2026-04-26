@@ -6,7 +6,7 @@
 
 必须消费：
 
-- `projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md`
+- `projects/aigc/<项目名>/4-设计/道具/2-设计/<主体名称>.md`
 - `$imagegen` 的 `SKILL.md + CONTEXT.md`
 
 可按需消费：
@@ -38,7 +38,7 @@
 
 - 普通生成默认使用 `$imagegen` 的内置 `image_gen` 路由。
 - 只有用户显式选择 CLI/API/model 控制、真实透明背景或其他 `$imagegen` 合同允许的场景，才可进入 CLI fallback。
-- 项目绑定资产必须最终持久化到 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。
+- 项目绑定资产必须最终持久化到 `projects/aigc/<项目名>/4-设计/道具/3-生成/`。
 
 ## Non-Goals
 

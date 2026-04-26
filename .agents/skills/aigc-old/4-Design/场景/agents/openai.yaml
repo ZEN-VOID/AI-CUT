@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "AIGC 场景设计"
-  short_description: "融合场景清单、场景设计与场景面板提示词，输出到项目 4-Design 根目录。"
-  default_prompt: "Use $aigc-design-scene to consume `projects/aigc/<项目名>/3-Detail/第N集.json` or existing scene design inputs, run the scene list -> design -> panel order, preserve the current scene Markdown template and scene panel JSON mechanism, then write `场景清单.md`, `[场景名].md`, and `[场景名].json` directly under `projects/aigc/<项目名>/4-Design/`."

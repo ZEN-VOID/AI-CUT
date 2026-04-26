@@ -1,0 +1,5 @@
+interface:
+  display_name: "5-设计 / 1-清单"
+  short_description: "统一路由场景、角色、服装、道具四类 design-source 清单。"
+  default_prompt: "Use $aigc-design-object-list to route the current list-stage task into the right domain leaf under `5-设计/1-清单`, while keeping `3-Detail` consumption aligned."
+version: 1

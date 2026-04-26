@@ -1,0 +1,8 @@
+schema_version: "openai-agent-skill/v1"
+skill:
+  name: "aigc-video-frame-visual-reference"
+  path: ".agents/skills/aigc/7-视频/A-分镜画面参照"
+interface:
+  display_name: "AIGC 分镜画面参照视频"
+  short_description: "从 4-分组生成 Dreamina 组级视频，按四段式分镜ID绑定分镜画面图参照"
+  default_prompt: "使用 $aigc-video-frame-visual-reference 从 `projects/aigc/<项目名>/4-分组/` 提取完整分镜组内容作为视频提示词主体，把组内分镜转换为四段式 `分镜ID`，检查 `projects/aigc/<项目名>/6-图像/A-分镜画面/` 是否有同 `分镜ID` 图片并在对应 ID 后写 `@路径`，然后按 `.agents/skills/cli/dreamina-cli` 规范以分镜组为单位后台多线程批量提交 Dreamina 多图参照视频任务。"

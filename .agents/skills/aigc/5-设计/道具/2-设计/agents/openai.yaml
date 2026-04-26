@@ -6,4 +6,4 @@ interface:
 metadata:
   skill_id: "aigc-prop-design"
   governance_tier: "full"
-  output_root: "projects/aigc/<项目名>/5-设计/道具/2-设计"
+  output_root: "projects/aigc/<项目名>/4-设计/道具/2-设计"

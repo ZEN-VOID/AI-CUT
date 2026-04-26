@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 规划分组"
-  short_description: "以单技能直达执行方式完成 `3-分组`：吸收旧分组 agent 能力，在本地通过 quantizer/validator 写回 grouped script，并默认附加隐藏 `尾钩借焰` 增强组间牵引"
-  default_prompt: "Archived legacy metadata. Current entry is $aigc-planning with mode=grouping."

@@ -1,6 +1,6 @@
 # aigc 5-设计/角色/2-设计
 
-角色细目设计 Skill 2.0 包，用于从 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md` 读取角色清单，并结合 `0-初始化/north_star.yaml` 与 `team.yaml` 输出单角色设计稿。
+角色细目设计 Skill 2.0 包，用于从 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md` 读取角色清单，并结合 `0-初始化/north_star.yaml` 与 `team.yaml` 输出单角色设计稿。
 
 ## Directory Tree
 
@@ -31,9 +31,9 @@
 ## Quick Entry
 
 - 调用名：`$aigc-design-character-detail`
-- 上游真源：`projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`
+- 上游真源：`projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`
 - 项目上下文：`projects/aigc/<项目名>/0-初始化/north_star.yaml`、`projects/aigc/<项目名>/team.yaml`
-- Canonical 输出：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`
+- Canonical 输出：`projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`
 
 ## Workflow Snapshot
 

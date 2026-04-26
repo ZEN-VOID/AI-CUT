@@ -86,4 +86,4 @@ finding:
 - 英文提示词超过 2000 characters。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
 - 由脚本生成核心创作正文或提示词。
-- 写入范围越过 `projects/aigc/<项目名>/5-设计/场景/2-设计`。
+- 写入范围越过 `projects/aigc/<项目名>/4-设计/场景/2-设计`。

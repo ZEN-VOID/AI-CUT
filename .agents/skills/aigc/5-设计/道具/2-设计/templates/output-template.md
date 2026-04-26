@@ -1,6 +1,6 @@
 # {{道具名称}}
 
-source_prop_list: `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`
+source_prop_list: `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 source_team: `projects/aigc/<项目名>/team.yaml`
 
@@ -85,6 +85,6 @@ notes: ""
 | --- | --- |
 | Required output | 本模板生成单个道具主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整 Photography + Prop Design 解构、提示词设计。 |
 | Output format | Markdown 单道具设计稿；解构字段固定为 `Photography` 与 `Prop Design`；英文 prompt 放入 fenced text block。 |
-| Output path | canonical path 为 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`。 |
+| Output path | canonical path 为 `projects/aigc/<项目名>/4-设计/道具/2-设计/<安全文件名>.md`。 |
 | Naming convention | 文件名优先使用清单 `名称` 的安全化结果；同名或多状态道具追加首次登场 ID 或状态。 |
 | Completion gate | 道具来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；英文 prompt 融合全局风格和物品风格且不超过 2000 字符；画面固定为纯色背景近景特写、45 度视角，不置身具体场景。 |

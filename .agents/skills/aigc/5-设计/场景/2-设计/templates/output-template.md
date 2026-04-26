@@ -1,6 +1,6 @@
 # {{场景名称}}
 
-source_scene_list: `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`
+source_scene_list: `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 source_team: `projects/aigc/<项目名>/team.yaml`
 
@@ -131,6 +131,6 @@ notes: ""
 | --- | --- |
 | Required output | 本模板生成单个场景主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整 Scene Design + Cinematography 解构、提示词设计。 |
 | Output format | Markdown 单场景设计稿；解构字段保留固定英文槽位；英文 prompt 放入 fenced text block。 |
-| Output path | canonical path 为 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。 |
+| Output path | canonical path 为 `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`。 |
 | Naming convention | `S###` 来自上游清单顺序，场景名使用清单 canonical 名称并替换非法文件名字符。 |
 | Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；英文 prompt 融合全局风格和建筑风格且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |

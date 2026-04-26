@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character-generation
-description: Use when generating AIGC character images from upstream character design markdowns, producing one main single-subject image and one multi-view character sheet per character under projects/aigc/<项目名>/5-设计/角色/3-生成.
+description: Use when generating AIGC character images from upstream character design markdowns, producing one main single-subject image and one multi-view character sheet per character under projects/aigc/<项目名>/4-设计/角色/3-生成.
 governance_tier: full
 metadata:
   short-description: AIGC character image generation
@@ -14,7 +14,7 @@ metadata:
 
 - 每次调用 `$aigc-design-character-generation` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、视觉风格、禁区和既有生成资产相关的上下文文件。
-- 必须读取上游设计文档：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`；本技能只消费相关设计文档，不重新设计主体。
+- 必须读取上游设计文档：`projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`；本技能只消费相关设计文档，不重新设计主体。
 - 生成执行必须加载并遵守 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；默认按 imagegen 的 built-in route 或其当前合同执行。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `imagegen/SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `imagegen/CONTEXT.md`。
 - 脚本只能做读取、路径创建、JSON schema 检查、文件存在检查、manifest 汇总等机械辅助；不得生成或改写创作提示词正文。
@@ -32,7 +32,7 @@ metadata:
 Accepted input:
 
 - 项目名、项目路径、单个角色名、角色范围，或“角色 3-生成 / 角色生图 / 从角色设计稿生成主图和多视图”等任务。
-- 已存在的上游角色设计文档目录：`projects/aigc/<项目名>/5-设计/角色/2-设计/`。
+- 已存在的上游角色设计文档目录：`projects/aigc/<项目名>/4-设计/角色/2-设计/`。
 - 用户指定的生成范围、重跑策略、imagegen 执行模式或已有参考图补充。
 
 Required input:
@@ -140,7 +140,7 @@ stateDiagram-v2
 4. 按 `types/character-generation-type-map.md` 形成 `generation_profile`，决定单角色、批量、prompt-only 或重跑。
 5. Step1：依据每份设计文档生成单主体图，保存图片与 `<主体名称>-主图.json`。
 6. Step2：套用 `templates/character-multiview-prompt-template.json`，以 Step1 的单主体图为参照图，生成多视图主体设计图，保存图片与 `<主体名称>-多视图.json`。
-7. 所有输出落入 `projects/aigc/<项目名>/5-设计/角色/3-生成/`，按命名合同写入。
+7. 所有输出落入 `projects/aigc/<项目名>/4-设计/角色/3-生成/`，按命名合同写入。
 8. 按 `review/review-contract.md` 检查路径、命名、JSON 可回指、设计稿不被重写、imagegen 产物真实存在或 prompt-only 阻断清楚。
 
 ## Field Mapping
@@ -163,7 +163,7 @@ stateDiagram-v2
 - 多视图模板覆盖了角色身份、服装事实、时代、风格或叙事压力。
 - 本技能试图补写角色设定、场景设定、道具设定或视频提示词。
 - 图片没有真实生成却被报告为已生成。
-- 产物没有落到 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
+- 产物没有落到 `projects/aigc/<项目名>/4-设计/角色/3-生成/`。
 - 默认 subagents 路径被静默跳过，且没有报告阻断层级和降级路径。
 
 必经链路：
@@ -192,8 +192,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-CHARACTER-*` | `projects/aigc/<项目名>/5-设计/角色/3-生成/` |
-| `OUTPUT-CHARACTER-GENERATION-REPORT` | `projects/aigc/<项目名>/5-设计/角色/3-生成/执行报告.md` |
+| `OUTPUT-CHARACTER-*` | `projects/aigc/<项目名>/4-设计/角色/3-生成/` |
+| `OUTPUT-CHARACTER-GENERATION-REPORT` | `projects/aigc/<项目名>/4-设计/角色/3-生成/执行报告.md` |
 
 ### Naming convention
 

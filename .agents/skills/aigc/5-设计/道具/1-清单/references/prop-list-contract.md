@@ -8,7 +8,7 @@
 
 ## Canonical Output
 
-- 路径：`projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`
+- 路径：`projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`
 - 形态：Markdown table
 - 主体字段：`名称`、`首次登场`、`原文描述（关键词式）`
 

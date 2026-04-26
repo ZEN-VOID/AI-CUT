@@ -44,10 +44,10 @@ Create a multi-panel storyboard based on the following shot breakdown. Add the s
 ### Reference Subjects
 
 Characters:
-- 林寂: projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png
+- 林寂: projects/aigc/<项目名>/4-设计/角色/3-生成/林寂-多视图.png
 
 Scene:
-- 永夜私立中学二年级A班教室: projects/aigc/<项目名>/5-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png
+- 永夜私立中学二年级A班教室: projects/aigc/<项目名>/4-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png
 
 Props:
 - 厚黑窗帘: missing

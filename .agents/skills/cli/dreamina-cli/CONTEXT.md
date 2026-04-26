@@ -28,7 +28,7 @@
 | `TM-DRM-DIAG-ORDER` | 排障流程层 | 按 `config.toml -> credential.json -> tasks.db -> logs/` 顺序检查 | 在技能中固定本地文件排障顺序，避免随意翻找 | 能定位到配置、凭证或任务记录异常 |
 | `TM-DRM-QUEUE-MISSING` | 任务编排层 | 立刻创建 queue ledger，并从 `submit_id`、`list_task`、`query_result` 回填活动行 | 把“pending job 必须入清单”提升为技能硬规则 | 活跃任务都有 queue row，且可继续跟进 |
 | `TM-DRM-QUEUE-DRIFT` | 人工更新层 | 对照 `query_result` / `list_task` / `tasks.db` 校正 `remote_status`、`last_checked_at`、`next_action` | 不再把聊天记录或终端滚屏当作唯一状态来源 | queue ledger 与 CLI 查询结果一致 |
-| `TM-DRM-OUTPUT-PATH-DRIFT` | 输出路径层 | 先判断当前调用是 standalone Dreamina 还是 AIGC2026 downstream，再把下载物和 queue ledger 挪回正确根目录 | 把“standalone 默认走 output/dreamina，而 AIGC2026 下游继承调用方 stage path”写成显式规则 | 下载物与 queue ledger 都命中当前合同路径 |
+| `TM-DRM-OUTPUT-PATH-DRIFT` | 输出路径层 | 先判断当前调用是 standalone Dreamina 还是 AIGC downstream，再把下载物和 queue ledger 挪回正确根目录 | 把“standalone 默认走 output/dreamina，而 AIGC 下游继承调用方 stage path”写成显式规则 | 下载物与 queue ledger 都命中当前合同路径 |
 | `TM-DRM-MULTIMODAL-ROUTE` | 命令路由层 | 当任务需要多张参照图或 `@图N` 顺序绑定时，优先改走 `multimodal2video` 而不是 `image2video` | 在技能合同中显式纳入 `multimodal2video` / `multiframe2video`，并区分“多参照编辑”与“多帧叙事”两种场景 | 命令类型与任务的参照结构一致 |
 | `TM-DRM-VIDEO-MODEL-MISMATCH` | 子命令能力层 | 先用 `dreamina <subcommand> -h` 确认当前子命令暴露的 `model_version`，再选命令；若用户指定 `3.5pro`，优先走 `image2video` | 在技能正文和官方摘录中固化“视频子命令 != 共享同一模型集合”的矩阵 | 所选子命令的 `-h` 输出包含目标 `model_version` |
 | `TM-DRM-FRAMES2VIDEO-MIXED-UPLOAD` | 双图上传层 | 若 `frames2video` 在首尾帧混合上传时只失败其中一张，先做最小复现实验，再重试或对失败图做保守重编码 | 把“单图上传成功 != 双图上传必稳”记录进 Dreamina CLI 执行经验，遇到 mixed upload fail 时先区分单图问题与双图配对问题 | 同图双传成功、混合双传重试成功或经重编码后成功 |
@@ -47,7 +47,7 @@
    - 保留 `submit_id`
    - 用 `dreamina query_result --submit_id=...`
    - 如果仍在排队或处理中，马上写入 / 更新 queue ledger
-   - 立刻确认下载目标根目录：standalone 用 `output/dreamina/<项目名>/<模型名称>/`，AIGC2026 下游调用则继承该技能自己的 stage path
+   - 立刻确认下载目标根目录：standalone 用 `output/dreamina/<项目名>/<模型名称>/`，AIGC 下游调用则继承该技能自己的 stage path
    - 如果是 `frames2video`，且只在首尾帧其中一张上传时报错，补做“同图双传”最小复现实验，确认是不是 mixed upload 特有故障
    - 如果远端已 `success` 但 `--download_dir` 超时，先删掉半截文件再重试下载；连续超时再切媒体直链下载
 5. 如果是图像输入型命令失败：
@@ -65,7 +65,7 @@
 - 只要任务会跨过当前会话，`submit_id` 就应该立刻进入 queue ledger；否则最容易发生“任务还在排队，但人已经忘了”的漂移。
 - `list_task` 和 `tasks.db` 适合做证据校对，不适合代替人工清单；当前批次真正可操作的仍应是一份手动动态更新的 ledger。
 - standalone Dreamina 的默认根目录应该稳定收束到 `output/dreamina/<项目名>/`，不要把队列文件散落到 `reports/` 或下载结果散落到 `./downloads/`。
-- 如果 Dreamina 只是 `aigc2026` 链路里的生成运输层，输出路径所有权仍属于调用它的 stage skill，Dreamina 不应强行改写到自己的 standalone 路径。
+- 如果 Dreamina 只是 `aigc` 或 `aigc2026` 链路里的生成运输层，输出路径所有权仍属于调用它的 stage skill，Dreamina 不应强行改写到自己的 standalone 路径。
 - 需要多张参考图同时约束同一条视频时，优先选 `multimodal2video`；`image2video` 只适合单首帧驱动。
 - `multiframe2video` 适合“多帧故事过渡”，不是“多参考图锁定身份/场景”的通用替代品。
 - 视频子命令的模型面不是共享的：`text2video` 和 `multimodal2video` 当前只暴露 `seedance2.0 / seedance2.0fast`，`3.5pro` 这类模型要走 `image2video`。

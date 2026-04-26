@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-list
-description: Use when extracting and consolidating scene lists from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md.
+description: Use when extracting and consolidating scene lists from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md.
 governance_tier: full
 metadata:
   short-description: AIGC scene list extraction
@@ -124,7 +124,7 @@ stateDiagram-v2
 4. 按 `references/source-and-merge-contract.md` 执行 LLM 归并：识别别名、代称、同一地点不同区域/时段、跨场景或子空间边界。
 5. 按 `types/scene-type-map.md` 为每个候选判断处理类型：直接保留、别名归并、区域拆分、时段合并、跨空间拆分或风险待核。
 6. 输出 table 式 Markdown 清单，主体字段固定为 `名称`、`首次登场`、`原文描述（关键词式）`。
-7. 写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`，并按需写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md`。
+7. 写入 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`，并按需写入 `projects/aigc/<项目名>/4-设计/场景/1-清单/执行报告.md`。
 8. 按 `review/review-contract.md` 执行验收；可运行机械校验脚本或人工等价 review，但脚本不得替代 LLM 做归并判断。
 
 ## Script And Metadata Contract
@@ -188,13 +188,13 @@ stateDiagram-v2
 
 ### Required output
 
-1. 场景清单固定写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`。
+1. 场景清单固定写入 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`。
 2. 清单必须是 table 式 Markdown。
 3. 每个主体字段固定为：`名称`、`首次登场`、`原文描述（关键词式）`。
 4. `名称` 是归并后的 canonical 场景名；别名、代称、同一地点的区域/时段处理结果应体现在名称或关键词中，但不得新增字段破坏主体表。
 5. `首次登场` 使用最早出现该场景的分镜组 ID，必要时可附集号，例如 `第1集 1-1-1`。
 6. `原文描述（关键词式）` 只写来自 YAML `场景` 字段、同组场景标题或正文证据的关键词，不扩写成场景设计。
-7. 可选执行报告写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md`，用于记录输入范围、归并风险、待核项和校验结果。
+7. 可选执行报告写入 `projects/aigc/<项目名>/4-设计/场景/1-清单/执行报告.md`，用于记录输入范围、归并风险、待核项和校验结果。
 
 ### Output format
 
@@ -207,8 +207,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-SCENE-LIST` | `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md` |
-| `OUTPUT-SCENE-LIST-REPORT` | `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md` |
+| `OUTPUT-SCENE-LIST` | `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md` |
+| `OUTPUT-SCENE-LIST-REPORT` | `projects/aigc/<项目名>/4-设计/场景/1-清单/执行报告.md` |
 
 ### Naming convention
 

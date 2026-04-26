@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-list
-description: Use when extracting and consolidating prop inventory tables from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md.
+description: Use when extracting and consolidating prop inventory tables from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md.
 governance_tier: full
 metadata:
   short-description: AIGC prop inventory extraction
@@ -134,7 +134,7 @@ flowchart LR
 3. 当候选项存在别名、代称、材质/状态差异或同一叙事道具多种称呼时，回查同一分镜组正文取证，由 LLM 裁决是否归并。
 4. 过滤纯背景杂物；优先保留叙事道具、规则道具、视觉钩子和后续生成需要锁定的物件。
 5. 生成 table 式 Markdown 清单，主体字段固定且只包含：`名称`、`首次登场`、`原文描述（关键词式）`。
-6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`；如需记录过程，可另写 `执行报告.md`。
+6. 写入 canonical 路径 `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`；如需记录过程，可另写 `执行报告.md`。
 7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的归并与过滤判断。
 
 ## Script And Metadata Contract
@@ -196,10 +196,10 @@ flowchart LR
 
 ### Required output
 
-1. 项目级道具清单固定写入 `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`。
+1. 项目级道具清单固定写入 `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`。
 2. 清单主体必须是 table 式 Markdown。
 3. 每个主体字段固定为：`名称`、`首次登场`、`原文描述（关键词式）`。
-4. 可选执行报告写入 `projects/aigc/<项目名>/5-设计/道具/1-清单/执行报告.md`，用于记录输入范围、归并说明、过滤说明和风险。
+4. 可选执行报告写入 `projects/aigc/<项目名>/4-设计/道具/1-清单/执行报告.md`，用于记录输入范围、归并说明、过滤说明和风险。
 
 ### Output format
 
@@ -212,8 +212,8 @@ flowchart LR
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-PROP-INVENTORY` | `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md` |
-| `OUTPUT-PROP-REPORT` | `projects/aigc/<项目名>/5-设计/道具/1-清单/执行报告.md` |
+| `OUTPUT-PROP-INVENTORY` | `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md` |
+| `OUTPUT-PROP-REPORT` | `projects/aigc/<项目名>/4-设计/道具/1-清单/执行报告.md` |
 
 ### Naming convention
 

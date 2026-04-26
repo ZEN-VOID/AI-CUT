@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 项目续跑恢复"
+  short_description: "用于中断续跑时重建项目断点、识别治理缺口并安全回接唯一下一入口"
+  default_prompt: "Use $aigc-resume to reconstruct the last stable checkpoint for a project under `projects/aigc/<项目名>/`, read STATE/governance/stage evidence, identify blockers, and return one safe next entry without guessing or destructive actions."

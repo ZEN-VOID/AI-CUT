@@ -1,6 +1,6 @@
 # {{角色名称}}
 
-source_character_list: `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`
+source_character_list: `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 source_team: `projects/aigc/<项目名>/team.yaml`
 
@@ -152,6 +152,6 @@ notes: ""
 | --- | --- |
 | Required output | 本模板生成单个角色主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整角色解构字段、提示词设计。 |
 | Output format | Markdown 单角色设计稿；解构字段固定为 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
-| Output path | Canonical 路径为 `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`。 |
+| Output path | Canonical 路径为 `projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`。 |
 | Naming convention | 默认使用 `<角色名>.md`；冲突或不安全字符时使用 `<角色名>__<首次登场ID>.md`。 |
 | Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；英文 prompt 融合全局风格和服装风格且不超过 2000 字符；画面固定为纯色背景全身定妆照，不置身具体场景。 |

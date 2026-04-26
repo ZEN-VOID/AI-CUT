@@ -1,0 +1,77 @@
+{
+  "schema": "skill-manifest/v1",
+  "skill_id": "aigc.design.scene_panel",
+  "skill_path": ".agents/skills/aigc/5-设计/3-面板/场景",
+  "entrypoint": {
+    "script": ".agents/skills/aigc/5-设计/3-面板/场景/scripts/generate_scene_panels.py",
+    "runner": "python3",
+    "args": [
+      {
+        "flag": "--project",
+        "value": "{project_name}"
+      },
+      {
+        "flag": "--episode",
+        "value": "第{episode}集"
+      }
+    ]
+  },
+  "io": {
+    "inputs": {
+      "scene_design_json": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景/2-设计/第{episode}集/scene_design.json",
+        "format": "json",
+        "required": true,
+        "required_fields": [
+          "scenes",
+          "scenes[].scene_id",
+          "scenes[].scene_name"
+        ]
+      },
+      "scene_design_markdown": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景/2-设计/第{episode}集/*.md",
+        "format": "markdown",
+        "required": false
+      }
+    },
+    "outputs": {
+      "layout_json": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景/3-面板/第{episode}集/*_ScenePanel-layout.json",
+        "format": "json",
+        "required_fields": [
+          "subject",
+          "prompt",
+          "images",
+          "project_name",
+          "aspect_ratio",
+          "image_size",
+          "output_dir",
+          "output_filename"
+        ]
+      },
+      "manifest": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景/3-面板/第{episode}集/_manifest.json",
+        "format": "json"
+      },
+      "request_sidecar": {
+        "pattern": "projects/aigc/<项目名>/4-设计/场景/3-面板/第{episode}集/generated/requests/panel_auto_generate_batch.json",
+        "format": "json",
+        "required": false
+      }
+    }
+  },
+  "dependencies": {
+    "requires": [
+      "aigc.design.scene_design",
+      "imagegen"
+    ]
+  },
+  "scope": "episode",
+  "tags": [
+    "aigc",
+    "design",
+    "scene",
+    "panel",
+    "built-in-imagegen"
+  ]
+}

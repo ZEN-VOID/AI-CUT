@@ -1,0 +1,38 @@
+{
+  "schema_version": "aigc-video-subject-reference/dreamina-submit-plan/v1",
+  "project_name": "",
+  "episode_id": "",
+  "source_group_path": "",
+  "output_root": "",
+  "parallelism": 3,
+  "dreamina_self_check": {
+    "required_command": "dreamina user_credit",
+    "status": "pending"
+  },
+  "tasks": [
+    {
+      "queue_id": "",
+      "group_id": "",
+      "command": "multimodal2video",
+      "model_version": "seedance2.0",
+      "duration": 15,
+      "ratio": "16:9",
+      "video_resolution": "720p",
+      "poll": 45,
+      "prompt_path": "",
+      "images": [],
+      "image_entry_schema": [
+        {
+          "upload_index": 1,
+          "name": "",
+          "category": "",
+          "path": "",
+          "subject_inline": ""
+        }
+      ],
+      "download_dir": "",
+      "expected_output": "",
+      "status": "planned"
+    }
+  ]
+}

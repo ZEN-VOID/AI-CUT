@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character-detail
-description: Use when expanding the upstream AIGC character inventory into one detailed LLM-authored character design markdown per character under projects/aigc/<项目名>/5-设计/角色/2-设计.
+description: Use when expanding the upstream AIGC character inventory into one detailed LLM-authored character design markdown per character under projects/aigc/<项目名>/4-设计/角色/2-设计.
 governance_tier: full
 metadata:
   short-description: AIGC detailed character design
@@ -16,7 +16,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、风格、服装、禁区和既有设定相关的上下文文件。
 - 项目运行时必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，用于抽取全局风格、主题方向、影像基调和项目禁区。
 - 项目运行时必须读取 `projects/aigc/<项目名>/team.yaml`，只消费与角色、服装、美术、摄影、导演或设计监制相关的大师上下文；不得把无关成员意见硬塞进角色设计稿。
-- 上游角色入口固定为 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`；清单字段至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
+- 上游角色入口固定为 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`；清单字段至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 固定画面约束：角色设计默认是纯色背景全身定妆照，不得置身于剧情场景、建筑空间、街景、室内陈设或复杂环境中；英文提示词必须显式包含 `full-body costume fitting photo, solid color background, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 研究考据、物语、视觉解构、服装细节、摄影描述和英文提示词必须由 LLM 直接创作；`scripts/` 只能做读取、分发、字段校验、路径创建、长度检查和 manifest 汇总等机械辅助。
@@ -33,7 +33,7 @@ metadata:
 Accepted input:
 
 - 项目名、项目路径、单个角色名、角色范围，或“角色 2-设计 / 角色细目设计 / 从角色清单生成角色设计稿”等任务。
-- 已存在的 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`。
+- 已存在的 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`。
 - 项目初始化文件 `0-初始化/north_star.yaml` 与 `team.yaml`。
 
 Required input:
@@ -140,7 +140,7 @@ stateDiagram-v2
 4. 按 subagent 合同分发角色任务；若真实 dispatch 被阻断，按降级口径执行并记录。
 5. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；冷门信息可按允许条件搜索并保留来源摘要。
 6. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境。
-7. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/`。
+7. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/4-设计/角色/2-设计/`。
 8. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、LLM-first、英文提示词不超过 2000 字符。
 
 ## Field Mapping
@@ -193,8 +193,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-CHARACTER-DESIGN` | `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md` |
-| `OUTPUT-CHARACTER-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/角色/2-设计/执行报告.md` |
+| `OUTPUT-CHARACTER-DESIGN` | `projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md` |
+| `OUTPUT-CHARACTER-DESIGN-REPORT` | `projects/aigc/<项目名>/4-设计/角色/2-设计/执行报告.md` |
 
 ### Naming convention
 

@@ -2,8 +2,8 @@ schema_version: 1
 interface:
   display_name: "AIGC 角色图像生成"
   short_description: "从 角色/2-设计 设计文档调用 imagegen，生成角色主图、多视图图和同名 JSON prompt。"
-  default_prompt: "使用 $aigc-design-character-generation，从 projects/aigc/<项目名>/5-设计/角色/2-设计/ 读取角色设计文档，为每个角色调用 imagegen 生成到 5-设计/角色/3-生成/<主体名称>-主图 与 <主体名称>-多视图，并同时落同名 JSON prompt。"
+  default_prompt: "使用 $aigc-design-character-generation，从 projects/aigc/<项目名>/4-设计/角色/2-设计/ 读取角色设计文档，为每个角色调用 imagegen 生成到 5-设计/角色/3-生成/<主体名称>-主图 与 <主体名称>-多视图，并同时落同名 JSON prompt。"
 metadata:
   skill_id: "aigc-design-character-generation"
   governance_tier: "full"
-  output_root: "projects/aigc/<项目名>/5-设计/角色/3-生成"
+  output_root: "projects/aigc/<项目名>/4-设计/角色/3-生成"

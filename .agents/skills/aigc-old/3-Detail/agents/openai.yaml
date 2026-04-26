@@ -1,5 +1,0 @@
-interface:
-  display_name: "AIGC 3-Detail"
-  short_description: "单技能镜级细化，先锁分镜构图，再写字段与阶段 closure。"
-  default_prompt: "Use $aigc-detail to run the N0-N8 thinking-action network: read `projects/aigc/<项目名>/2-Global/episode_root.json`, lock scope and academy bundle selection first, then fix `1-分镜构图` before any later field, write `角色表现 / 氛围表现 / 摄影表现 / 运镜手法 / 转场特效` in order without breaking the locked skeleton, translate any borrowed academy knowledge back into the current JSON field objects, and finally refresh `projects/aigc/<项目名>/3-Detail/第N集.json` plus `projects/aigc/<项目名>/3-Detail/validation-report.md`, including `## Academy Knowledge Evidence` and the closure fields `思考过程 / 关键证据 / 风险/例外 / 下一入口`."
-version: 1

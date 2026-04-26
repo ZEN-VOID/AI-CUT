@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 规划分集"
-  short_description: "由 leaf skill 直接完成分集边界裁决、逐集原文落盘、索引更新与 handoff 生成"
-  default_prompt: "Archived legacy metadata. Current entry is $aigc-planning with mode=episode_split."

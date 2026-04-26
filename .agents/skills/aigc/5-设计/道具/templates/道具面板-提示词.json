@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "schema": "aigc/prop-panel-layout/v1",
+    "skill_id": "aigc-design-prop",
+    "version": "v1.2",
+    "doc_role": "layout_contract",
+    "updated_at": "2026-04-15",
+    "note": "完全参照 AIGC-ZEN-VOID 道具面板模板，并收敛到当前仓库 projects/aigc/<项目名>/4-设计 runtime。"
+  },
+  "prompt_payload": {
+    "layout": {
+      "template_type": "PROP_ATMOSPHERIC_DOSSIER",
+      "aspect_ratio": "16:9",
+      "resolution": "4K",
+      "canvas_type": "widescreen",
+      "canvas_size": "4096x2304",
+      "background": "#171615",
+      "grid_overlay": "#2B2826",
+      "column_ratios": {
+        "left": "15%",
+        "center": "50%",
+        "right": "35%"
+      },
+      "column_gutter_px": 20,
+      "module_spacing_px": 15
+    },
+    "layout_generation_prompt": "Create one cinematic PROP_ATMOSPHERIC_DOSSIER on a 4096x2304 widescreen canvas (16:9). Use a weathered charcoal base (#171615) with faint analog grain and restrained technical grid (#2B2826). Keep a fixed three-column layout LEFT 15% | CENTER 50% | RIGHT 35%, preserve readability for production review, and allow subdued world-coherent pedestal or threshold context behind the prop without turning the sheet into a poster.",
+    "layout_modules": {
+      "left_column": {
+        "modules": [
+          {
+            "id": "MATERIAL_PALETTE",
+            "label": "MATERIAL PALETTE (4x3)",
+            "description": "Show 12 swatches for core material families, roughness variation, and wear state references."
+          },
+          {
+            "id": "COLOR_PALETTE",
+            "label": "COLOR PALETTE (2x3)",
+            "description": "Show primary/secondary/accent color chips with tonal hierarchy suitable for the same prop identity."
+          }
+        ]
+      },
+      "center_column": {
+        "modules": [
+          {
+            "id": "HERO_OBJECT_TRIPTYCH",
+            "label": "HERO OBJECT TRIPTYCH",
+            "description": "Render one hero frontal or three-quarter view, one secondary angle proving scale or tension direction, and one silhouette verification view. Avoid sterile front/side/back turnaround logic when the prop is symbolic, organic, or ritual."
+          }
+        ]
+      },
+      "right_column": {
+        "modules": [
+          {
+            "id": "DETAIL_CLOSEUPS",
+            "label": "DETAIL CLOSE-UPS (2x3)",
+            "description": "Render six close-up cells for craftsmanship joints, surface wear, and narrative marks."
+          },
+          {
+            "id": "WORLD_CONTEXT",
+            "label": "WORLD CONTEXT (2 frames)",
+            "description": "Render two context frames showing pedestal placement, ritual threshold, environmental use, or spatial tension while keeping identical prop morphology. No human hands, no character takeover."
+          }
+        ]
+      }
+    },
+    "_prompt_text_assembly_guide": {
+      "mandatory_rules": [
+        "Output must remain a three-column prop dossier rather than a single product poster or a sterile industrial turnaround board.",
+        "The upstream prop design prompt is the primary source of truth; layout instructions organize the sheet but must not override prop identity, scale, material facts, era, style, or narrative function.",
+        "Reference images, when provided, are continuity anchors only; do not copy unrelated composition, scale, surface noise, or accidental artifacts from references.",
+        "All modules must inherit the upstream design direction and explicit anti-drift guardrails; composition can elaborate them but must not reinterpret core prop identity.",
+        "All modules must depict the same prop identity with stable silhouette, scale, and material logic.",
+        "Must reserve one fixed top-left identity badge area using matched roster text `<PROP_ID>+<PROP_NAME>`; if exact text rendering is unreliable, preserve the badge area and short ID cleanly for post-production text overlay.",
+        "Part 3 is layout-only composition; do not redesign narrative facts or core prop identity inherited from `5-设计/道具/2-设计`.",
+        "No people, no hands, no holding, and no human figure should dominate any context frame.",
+        "Include clear scale logic through non-human cues such as surface grain, pedestal proportion, table edge, tile size, measurement ticks, or environmental contact shadow.",
+        "Show functional affordance: how the object is opened, worn, placed, activated, damaged, sealed, or ritually used, while keeping the prop morphology unchanged.",
+        "Close-up cells must preserve the same material aging and construction logic as the hero object; do not invent new ornaments or extra parts in detail views.",
+        "The sheet describes one prop only; do not multiply it into a collection, emblem set, product lineup, or decorative cluster unless the upstream prop is explicitly a set.",
+        "For symbolic or mythic props, prefer threshold, pedestal, altar, water-edge, or abyss-edge context over front/side/back technical rotation.",
+        "Do not drift into luxury product ad, neutral museum packshot, enlarged emblem abstraction, multi-object cluster, or web-like substitute morphology unless the upstream prop contract explicitly demands it.",
+        "Context frames exist only to prove world logic, era anchoring, and usage tension; they must not mutate the prop into a different object class.",
+        "Micro-scale or symbolic props must still read as literal world objects first and abstract symbols second."
+      ]
+    },
+    "prompt_segments": {
+      "identity_prompt": "",
+      "layout_prompt": "",
+      "negative_prompt_global": "",
+      "negative_prompt_layout": "",
+      "negative_prompt_motion": ""
+    },
+    "prompt_text": ""
+  }
+}

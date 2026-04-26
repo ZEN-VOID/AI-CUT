@@ -69,7 +69,7 @@ finding:
 - [ ] 英文 prompt 不超过 2000 字符。
 - [ ] prompt 引用全局风格提示词，并补充物品风格。
 - [ ] prompt 明确包含 close-up prop shot、45-degree view、solid color background、no scene environment。
-- [ ] 输出路径在 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
+- [ ] 输出路径在 `projects/aigc/<项目名>/4-设计/道具/2-设计/`。
 
 ## Gate Rule
 

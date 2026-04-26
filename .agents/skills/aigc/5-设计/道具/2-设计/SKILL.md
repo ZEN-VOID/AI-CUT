@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-design
-description: Use when expanding the upstream AIGC prop inventory into per-prop detailed design markdown files under projects/aigc/<项目名>/5-设计/道具/2-设计.
+description: Use when expanding the upstream AIGC prop inventory into per-prop detailed design markdown files under projects/aigc/<项目名>/4-设计/道具/2-设计.
 governance_tier: full
 metadata:
   short-description: AIGC prop detailed design
@@ -14,7 +14,7 @@ metadata:
 
 - 每次调用 `$aigc-prop-design` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、世界观、视觉规则、风格提示词或制作约束相关的上下文文件。
-- 必须读取上游 `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
+- 必须读取上游 `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml`，抽取全局风格、主题、媒介、禁区和设计相关大师监制上下文。
 - 固定画面约束：道具设计默认是纯色背景上的单道具近景特写，采用 45 度视角，不得置身于剧情场景、桌面环境、室内陈设、街景或人物手持情境中；英文提示词必须显式包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -37,7 +37,7 @@ Accepted input:
 
 Required input:
 
-- 可定位的 `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`。
+- 可定位的 `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`。
 - 清单中每项至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 可读取的 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml`；若缺失，必须在输出中标注缺口，不得伪造监制上下文。
 
@@ -130,7 +130,7 @@ stateDiagram-v2
 3. 读取 `north_star.yaml` 与 `team.yaml`，提取全局风格提示词、项目北极星、视觉禁区、设计相关大师监制上下文。
 4. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
 5. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
-6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`；不改写父级 registry、`1-清单` 或 `3-生成`。
+6. 写入 canonical 路径 `projects/aigc/<项目名>/4-设计/道具/2-设计/<安全文件名>.md`；不改写父级 registry、`1-清单` 或 `3-生成`。
 7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。
 
 ## Field Mapping
@@ -182,8 +182,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-PROP-DESIGN` | `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md` |
-| `OUTPUT-PROP-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/道具/2-设计/执行报告.md` |
+| `OUTPUT-PROP-DESIGN` | `projects/aigc/<项目名>/4-设计/道具/2-设计/<安全文件名>.md` |
+| `OUTPUT-PROP-DESIGN-REPORT` | `projects/aigc/<项目名>/4-设计/道具/2-设计/执行报告.md` |
 
 ### Naming convention
 

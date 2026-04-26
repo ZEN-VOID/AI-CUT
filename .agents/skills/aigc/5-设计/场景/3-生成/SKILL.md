@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-generation
-description: Use when generating scene images from per-scene design documents under projects/aigc/<项目名>/5-设计/场景/2-设计 into main images and multi-view scene sheets under projects/aigc/<项目名>/5-设计/场景/3-生成.
+description: Use when generating scene images from per-scene design documents under projects/aigc/<项目名>/4-设计/场景/2-设计 into main images and multi-view scene sheets under projects/aigc/<项目名>/4-设计/场景/3-生成.
 governance_tier: full
 metadata:
   short-description: AIGC scene image generation
@@ -14,14 +14,14 @@ metadata:
 
 - 每次调用 `$aigc-scene-generation` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与场景、美术、摄影、建筑、世界观相关的上下文。
-- 必须读取目标场景的上游设计文档：`projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。
+- 必须读取目标场景的上游设计文档：`projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`。
 - 必须读取 `$imagegen` 的 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并按其默认策略调用内建 `image_gen`；CLI/API fallback 只在用户显式要求或确认时使用。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 本 skill 默认启用真实 subagents 模式；若当前工具层无法真实 dispatch，必须报告阻断层级、原计划 reviewer 路径、实际降级路径与未启动的角色。
 
 ## Positioning
 
-本阶段拥有 `projects/aigc/<项目名>/5-设计/场景/3-生成` 下场景生成资产与提示词 JSON 的交付权。它不拥有上游 `2-设计` 设计文档的业务真源权，不新增或重命名场景主体，不改 registry、父级技能、角色/道具生成技能或其他 worker 的输出。
+本阶段拥有 `projects/aigc/<项目名>/4-设计/场景/3-生成` 下场景生成资产与提示词 JSON 的交付权。它不拥有上游 `2-设计` 设计文档的业务真源权，不新增或重命名场景主体，不改 registry、父级技能、角色/道具生成技能或其他 worker 的输出。
 
 ## Input Contract
 
@@ -29,7 +29,7 @@ Accepted input:
 
 - 项目名、项目路径或目标 `projects/aigc/<项目名>/`。
 - 单个场景名、多个场景名、设计文档路径，或“处理全部场景生成”的请求。
-- 已存在的上游 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。
+- 已存在的上游 `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`。
 - 用户补充的生成轮次、重试策略、输出格式或明确的 CLI/API/model 控制要求。
 
 Required input:
@@ -134,7 +134,7 @@ stateDiagram-v2
 4. 按 `types/scene-generation-type-map.md` 形成 `generation_profile`，决定 `main_only`、`multiview_only`、`single_scene`、`batch_scene` 或 `repair`。
 5. Step1：按 `templates/scene-main-image-prompt.json` 直接引用每份设计文档的 `提示词设计` 生成单主体场景主图，保存为 `主体名称-主图`，并落同名 JSON 提示词记录。
 6. Step2：套用 `templates/scene-multiview-prompt.json`，以对应 `主体名称-主图` 作为参照图，生成 `主体名称-多视图`，并落同名 JSON 提示词记录。
-7. 所有项目交付资产写入 `projects/aigc/<项目名>/5-设计/场景/3-生成`；不得只停留在 `$CODEX_HOME/generated_images`。
+7. 所有项目交付资产写入 `projects/aigc/<项目名>/4-设计/场景/3-生成`；不得只停留在 `$CODEX_HOME/generated_images`。
 8. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，使用本地 review checklist 并显式报告降级。
 
 ## Root-Cause Execution Contract
@@ -189,11 +189,11 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-SCENE-MAIN-IMAGE` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>` |
-| `OUTPUT-SCENE-MAIN-PROMPT` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.json` |
-| `OUTPUT-SCENE-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.<ext>` |
-| `OUTPUT-SCENE-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.json` |
-| `OUTPUT-SCENE-GENERATION-REPORT` | `projects/aigc/<项目名>/5-设计/场景/3-生成/执行报告.md` |
+| `OUTPUT-SCENE-MAIN-IMAGE` | `projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.<ext>` |
+| `OUTPUT-SCENE-MAIN-PROMPT` | `projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.json` |
+| `OUTPUT-SCENE-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-多视图.<ext>` |
+| `OUTPUT-SCENE-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-多视图.json` |
+| `OUTPUT-SCENE-GENERATION-REPORT` | `projects/aigc/<项目名>/4-设计/场景/3-生成/执行报告.md` |
 
 ### Naming convention
 
@@ -208,6 +208,6 @@ stateDiagram-v2
 - 每个目标场景都能回指一个上游 `2-设计` 文档。
 - 每个主图 JSON 记录包含来源设计文档、抽取的上游提示词、imagegen 模式、输出路径和 review 状态。
 - 每个多视图 JSON 记录包含来源设计文档、主图参照路径、多视图模板版本、最终 prompt、输出路径和 review 状态。
-- 项目交付图片已持久化到 `projects/aigc/<项目名>/5-设计/场景/3-生成`。
+- 项目交付图片已持久化到 `projects/aigc/<项目名>/4-设计/场景/3-生成`。
 - 未重新设计主体，未改写上游设计，未修改边界外文件。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 subagent 降级原因。

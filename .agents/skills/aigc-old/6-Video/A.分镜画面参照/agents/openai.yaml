@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 分镜画面参照"
-  short_description: "融合首帧蒸馏、Assets参照绑定与视频生成交接入口"
-  default_prompt: "Use $aigc-video-frame-visual-reference when a 6-Video task should create one fused frame visual reference package: read `projects/aigc/<项目名>/3-Detail/第N集.json`, LLM-author first-frame prompt/TXT artifacts, bind real `Assets/` references when needed, and prepare provider `submit-plan.json` plus `submit-brief.md` without deleting the legacy `首帧参照`, `2-参照引用`, or `3-视频生成` skill packages."

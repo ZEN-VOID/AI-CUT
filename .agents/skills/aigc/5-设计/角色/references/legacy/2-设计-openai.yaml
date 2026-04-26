@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "消费 `1-清单/角色/*.json + 0-Init + 2-Global`，生成 `character_design.json` 与逐角色 Markdown"
+  default_prompt: "Use $aigc-design-role-design to consume `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/*.json` plus `0-Init` and `2-Global` truths, keep `character_design.json` as the machine-first role design source, project each role into `[角色名].md` under `projects/aigc/<项目名>/4-设计/角色/2-设计/第N集/`, then finish with the shared `subagent-supervision-contract` closeout by reading project `team.yaml` and running reviewer subagents for the current-round role outputs."

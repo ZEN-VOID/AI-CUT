@@ -1,0 +1,55 @@
+schema_version: "aigc.video.frame_reference.dreamina_batch.v1"
+project_name: "<项目名>"
+episode_id: "第N集"
+source_group_file: "projects/aigc/<项目名>/4-分组/第N集.md"
+frame_reference_root: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集"
+output_root: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集"
+execution:
+  provider: "dreamina"
+  background: true
+  max_workers: 4
+  effective_concurrency: "<min(4, job_count)>"
+  queue_ledger: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-dreamina-queue.md"
+  result_file: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-dreamina-results.json"
+defaults:
+  model_version: "seedance2.0fast"
+  duration: 10
+  ratio: "16:9"
+  video_resolution: "720p"
+  poll: 45
+jobs:
+  - queue_id: "Q-001"
+    group_id: "1-1-1"
+    source_heading: "## 1-1-1"
+    command_type: "multimodal2video"
+    reference_status: "partial"
+    shot_references:
+      - shot_id: "1-1-1-1"
+        source_label: "分镜1"
+        reference_annotation: "1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
+        reference_status: "found"
+      - shot_id: "1-1-1-2"
+        source_label: "分镜2"
+        reference_annotation: "1-1-1-2"
+        reference_status: "missing_optional"
+    reference_images:
+      - shot_id: "1-1-1-1"
+        path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
+        marker: "@图1"
+        role: "storyboard_frame"
+        source: "6-图像/A-分镜画面"
+    prompt: |
+      根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。
+
+      以下分镜画面图仅作为镜级视觉参照，用于画面连续性、角色位置、构图、镜头顺序和关键动作参考；不得把任一图片当作唯一首帧，不得覆盖以下完整分镜组内容：
+      @图1 = 1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png
+
+      <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
+    dreamina:
+      model_version: "seedance2.0fast"
+      duration: 10
+      ratio: "16:9"
+      video_resolution: "720p"
+      poll: 45
+    output:
+      expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/videos/1-1-1.mp4"

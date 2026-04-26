@@ -4,16 +4,16 @@
     "skill_id": "aigc-scene-generation",
     "version": "v1.0",
     "doc_role": "multiview_scene_prompt_template",
-    "source_legacy_template": ".agents/skills/aigc-old/4-Design/场景/templates/场景面板-提示词.json",
+    "source_legacy_template": ".agents/skills/aigc/5-设计/场景/templates/场景面板-提示词.json",
     "updated_at": "2026-04-25",
     "note": "用于 Step2：以主体主图为参照图，生成同一场景的 3x3 多视图主体设计图。"
   },
   "prompt_payload": {
     "input_slots": {
       "subject_name": "<主体名称>",
-      "source_design_document": "projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md",
+      "source_design_document": "projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md",
       "source_prompt": "<直接引用场景设计文档 ## 5. 提示词设计 中的英文提示词>",
-      "reference_main_image": "projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>"
+      "reference_main_image": "projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.<ext>"
     },
     "layout": {
       "asset_role": "scene_multiview_subject_design_sheet",

@@ -163,6 +163,26 @@ flowchart TD
 | `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演和镜头预设清晰 | `FAIL-DIRECT-06` |
 | `FIELD-DIRECT-07` | 输出落盘 | `2-编导/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-DIRECT-07` |
 
+## Thought Pass Map
+
+| step_id | pass_name | input | judgment | output |
+| --- | --- | --- | --- | --- |
+| `PASS-DIRECT-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、附加预设 | 是否具备可承接逐集正文与目标集号 | `input_lock` |
+| `PASS-DIRECT-02` | 场景解析 | 上游正文与场景线索 | slugline、场景编号和场景顺序是否稳定 | `scene_map` |
+| `PASS-DIRECT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
+| `PASS-DIRECT-04` | LLM 剧本化投影 | `field_routing_plan` 与上游正文 | 是否完整承接事实、顺序和对白 | `episode_script` |
+| `PASS-DIRECT-05` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景和输出门禁 | `review_result` |
+
+## Pass Table
+
+| pass_id | pass standard | fail code | Rework Entry |
+| --- | --- | --- | --- |
+| `PASS-DIRECT-01` | 上游逐集正文、项目记忆和目标集号明确 | `FAIL-DIRECT-01` | `Input Contract` |
+| `PASS-DIRECT-02` | 场景标题使用稳定编号和好莱坞 slugline | `FAIL-DIRECT-02` | `references/script-adaptation-contract.md` |
+| `PASS-DIRECT-03` | 声画字段分流纯净且就近配对 | `FAIL-DIRECT-04` | `references/field-routing-and-audio-visual-contract.md` |
+| `PASS-DIRECT-04` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
+| `PASS-DIRECT-05` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 出现以下问题时，必须沿链路上溯并修复源层合同：

@@ -22,7 +22,7 @@ Accepted input:
 
 - 用户命中 `6-图像`、分镜画面、生图提示词、AIGC 生图、分镜故事板或图像阶段批量生成。
 - 来自 `projects/aigc/<项目名>/4-分组/` 的分镜组稿。
-- 来自 `projects/aigc/<项目名>/5-设计/*/3-生成` 的主体生成资产。
+- 来自 `projects/aigc/<项目名>/4-设计/*/3-生成` 的主体生成资产。
 
 Required input:
 

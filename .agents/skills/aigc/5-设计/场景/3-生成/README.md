@@ -7,7 +7,7 @@ Skill 2.0 package for `aigc/5-设计/场景/3-生成`.
 `$aigc-scene-generation` consumes upstream scene design documents from:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/2-设计/
+projects/aigc/<项目名>/4-设计/场景/2-设计/
 ```
 
 It generates:
@@ -52,7 +52,7 @@ Use `$aigc-scene-generation` with a project path and one or more upstream scene 
 Required runtime output path:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/3-生成/
+projects/aigc/<项目名>/4-设计/场景/3-生成/
 ```
 
 Default flow:

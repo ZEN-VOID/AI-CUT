@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "消费角色 2-设计 产物，直引 prompt 部分生成 CharacterPanel layout JSON，并默认内置 imagegen 请求准备 built-in imagegen 生图。"
+  default_prompt: "Use $aigc-design-role-panel to consume `projects/aigc/<项目名>/4-设计/角色/2-设计/第N集/`, extract each role's prompt portion directly, write `*-CharacterPanel-layout.json` under `projects/aigc/<项目名>/4-设计/角色/3-面板/第N集/`, and submit `内置 $imagegen / image_gen` in the default built-in imagegen mode unless JSON-only is explicit."

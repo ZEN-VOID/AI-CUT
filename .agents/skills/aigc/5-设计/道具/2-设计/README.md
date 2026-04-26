@@ -33,7 +33,7 @@
 1. 读取 `SKILL.md + CONTEXT.md`。
 2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`north_star.yaml`、`team.yaml`。
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
-4. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`。
+4. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/4-设计/道具/2-设计/<安全文件名>.md`。
 5. 按 `review/review-contract.md` 执行 subagent reviewer 或降级 review。
 
 ## Visual Entry Points

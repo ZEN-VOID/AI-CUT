@@ -1,0 +1,4 @@
+model: gpt-5
+metadata:
+  short_description: "消费 `3-Detail/第N集.json`，沉淀 `角色清单.json + 角色研究.json + role_design_bridge.json`"
+  default_prompt: "Use $aigc-design-role-list to consume `projects/aigc/<项目名>/3-Detail/第N集.json`, lock canonical `meta + groups[].global/detail.分镜列表` as upstream truth, treat compat `组间设计.出场角色及穿搭 + 分镜明细[]` as derived projections only, normalize canonical roles and costume variants with `group_id / shot_id` traceability, and emit `角色清单.json + 角色研究.json + role_design_bridge.json` under `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/`."
