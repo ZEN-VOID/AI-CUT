@@ -1,6 +1,6 @@
 # Review Fact Pack Spec
 
-`review_fact_pack` 是 `aigc/review` 父层分发给全部 child skills 的同一份事实包。
+`review_fact_pack` 是 `aigc/review` 父层分发给全部维度 reviewer 的同一份事实包。
 
 runner 正式落盘时，文件名固定为当前 aggregate packet 同级：
 
@@ -43,7 +43,7 @@ runner 正式落盘时，文件名固定为当前 aggregate packet 同级：
 
 ## Hard Rules
 
-1. 同一轮 child review 必须消费同一份 `review_fact_pack`。
-2. 若缺 required slice，父层直接 `FAIL-COVENANT`，不得先跑 child skills 再猜。
+1. 同一轮 dimension review 必须消费同一份 `review_fact_pack`。
+2. 若缺 required slice，父层直接 `FAIL-COVENANT`，不得先跑维度 reviewer 再猜。
 3. `review_fact_pack` 是 evidence pack，不是第二业务真源。
 4. `review_fact_pack` 必须先于 `code-reviewer` 调度落盘，provider 只审这一份 pack，不直接越权读取零散阶段文件。

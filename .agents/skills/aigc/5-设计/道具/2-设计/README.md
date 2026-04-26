@@ -33,8 +33,9 @@
 1. 读取 `SKILL.md + CONTEXT.md`。
 2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`north_star.yaml`、`team.yaml`。
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
-4. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/4-设计/道具/2-设计/<安全文件名>.md`。
-5. 按 `review/review-contract.md` 执行 subagent reviewer 或降级 review。
+4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
+5. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`。
+6. 按 `review/review-contract.md` 执行 subagent reviewer 或降级 review。
 
 ## Visual Entry Points
 
@@ -48,6 +49,7 @@
 - 核心研究、物语、解构和提示词设计必须 LLM-first。
 - 脚本只做机械读取、路径、安全文件名和格式检查。
 - 本包不修改 registry、父级目录、角色设计、场景设计、`1-清单` 或 `3-生成`。
+- 研究必须转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain。
 - 固定为纯色背景单道具近景特写、45 度视角。
 - 不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境。
 - 英文 prompt 必须包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 等等价约束。

@@ -1,110 +1,124 @@
 ---
 name: aigc-design-prop
-description: Use when the 5-设计 stage needs one prop-domain Skill 2.0 package that runs prop list, prop design, and prop panel prompt generation in order, while writing final prop artifacts directly under `projects/aigc/<项目名>/4-设计/`.
-governance_tier: full
+description: Use when the AIGC 5-设计/道具 domain needs to route work into prop list, prop detail design, or prop image generation leaf skills under `.agents/skills/aigc/5-设计/道具/{1-清单,2-设计,3-生成}`.
+governance_tier: lite
 metadata:
-  short-description: Fuse prop list, design, and panel prompt work
+  short-description: Route the 5-设计 prop skill group
 ---
 
-# aigc-design-prop
+# aigc 5-设计/道具
+
+`道具` 是 5-设计阶段的域级组根导引。它只负责判断当前道具任务应进入 `1-清单`、`2-设计` 还是 `3-生成`，并维护道具清单、道具细目设计与道具生成资产之间的交接边界；它不直接生成道具清单正文、道具设计稿或图像提示词。
 
 ## Context Loading Contract
 
-- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
-- 若当前任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具设计有关的文件。
-- 本技能是 `.agents/skills/aigc/5-设计/` 下的道具域子技能包；清单、设计、面板不再作为独立 skill 入口展开。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/5-设计/SKILL.md` > 本 `SKILL.md` > 本目录 `references/*` / `steps/*` / `review/*` / `types/*` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
+- 每次调用 `$aigc-design-prop` 或直接命中 `.agents/skills/aigc/5-设计/道具/SKILL.md` 时，必须同时加载同目录 `CONTEXT.md`。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与规则物、关键物件、视觉钩子、禁用物件或生成锁定有关的文件。
+- 进入任一叶子技能时，必须继续加载该叶子的 `SKILL.md + CONTEXT.md`；组根上下文不得替代叶子上下文。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/5-设计/SKILL.md` > 本 `SKILL.md` > 叶子 `SKILL.md` > 叶子分区文件 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 叶子 `CONTEXT.md`。
+
+## Group Ownership
+
+| scope | owner |
+| --- | --- |
+| 道具域入口判断、叶子调度、顺序门与边界说明 | 本组根 |
+| 道具清单主体、归并、过滤和首次登场 | `1-清单` |
+| 单道具细目设计、材质/结构/功能与设计验收 | `2-设计` |
+| 道具主图、多视图、同名 JSON prompt 和生成验收 | `3-生成` |
+
+本组根不得补空道具、把背景杂物批量升格为 canonical 道具、生成默认道具设计稿，或替代叶子技能进行审美与叙事判断。
 
 ## Input Contract
 
-- Accepted input: 道具清单生成、道具主体设计、道具面板提示词生成，或要求把原 `1-清单/道具 -> 2-设计/道具 -> 3-面板/道具` 合并执行。
-- Required input: `projects/aigc/<项目名>/3-Detail/第N集.json`，或已经存在的道具清单/道具设计文件。
-- Optional input: `0-Init/*.yaml`、`2-Global/*.md`、项目 `team.yaml`、已有道具参考图、明确指定的道具主体名。
-- Reject or clarify when: 项目名、集数、上游 `3-Detail` 或可替代的道具输入根完全不可定位；用户要求脚本直接主创道具研究/设计正文。
+- Accepted input: 道具清单、道具设计、道具生成、道具面板、prop panel、道具域修复、或泛称“处理 5-设计/道具”的任务。
+- Required input: 可定位的 `projects/aigc/<项目名>/`，或足以判断目标叶子技能的文件路径、集号、道具名、清单/设计/生成缺口。
+- Optional input: 指定叶子阶段、指定道具范围、已有参考图、项目 `MEMORY.md` / `CONTEXT/`、上游 `4-分组` 文件。
+- Reject or clarify when: 无法定位项目且用户没有提供可核验输入；用户要求组根直接完成全部叶子正文；用户要求脚本替代 LLM 做道具归并、重要性过滤、设计判断或提示词主创。
 
 ## Mode Selection
 
-| mode | 触发信号 | 执行口径 |
-| --- | --- | --- |
-| `full_prop_chain` | 从 `3-Detail` 直接生成道具清单、设计文档和面板提示词 | 固定执行 `list -> design -> panel` |
-| `design_from_list` | 已有 `道具清单` 或道具对象池 | 从设计节点进入，再生成面板提示词 |
-| `panel_from_design` | 已有 `[主体名].md` 或道具设计兼容 JSON | 只生成对应 `[主体名].json` |
-| `repair_projection` | 输出路径、模板或提示词侧车漂移 | 按 `review/review-contract.md` 定位并修复 |
+| mode | 触发信号 | route_to | primary output owner |
+| --- | --- | --- | --- |
+| `prop_list` | 道具清单、从 `4-分组` YAML 提取道具、修复道具清单 | `1-清单/SKILL.md` | `道具清单.md` |
+| `prop_detail` | 道具设计、单道具细目、从道具清单扩展设计稿 | `2-设计/SKILL.md` | `<道具名>.md` |
+| `prop_generation` | 道具生成、主图、多视图、道具面板、JSON prompt | `3-生成/SKILL.md` | `<主体名称>-主图 / 多视图` 与同名 JSON |
+| `domain_repair` | 路径、registry、输出目录或叶子顺序漂移 | 按症状选择对应叶子 | 修复报告或最小 patch |
+| `domain_closeout` | 检查道具域是否可交给 6-图像/7-视频 | 已完成叶子输出的验收回查 | 域级状态摘要 |
+
+未明确阶段时采用保守判定：缺清单先走 `1-清单`；有清单缺设计走 `2-设计`；有设计缺生成资产走 `3-生成`；三者都存在时进入 `domain_closeout` 或按用户点名阶段执行。
 
 ## Reference Loading Guide
 
 | 场景 | 读取文件 |
 | --- | --- |
-| 处理顺序与融合边界 | `references/processing-order.md` |
-| 从 `3-Detail` 抽取道具对象 | `references/detail-output-consumption-contract.md`、`references/object-normalization-contract.md` |
-| 清单输出字段边界 | `references/list-output-contract.md` |
-| 道具设计装配与模板机制 | `references/design-input-contract.md`、`references/design-output-contract.md`、`references/prop-design-io-contract.md` |
-| 面板提示词与内置 imagegen handoff | `references/smart-image-handoff-contract.md` |
-| slot 级审计与返工 | `references/design-slot-review-contract.md`、`review/review-contract.md` |
-| 旧清单/设计/面板合同追溯 | `references/legacy/` |
-
-## Execution Contract
-
-1. 锁定项目根、集数、输出根：`projects/aigc/<项目名>/4-设计/`。
-2. 按 `types/type-map.md` 判定是整链、清单后半链、设计后半链还是修复。
-3. 执行 `steps/processing-workflow.md` 中的顺序门：先清单，后设计，再面板提示词。
-4. 清单阶段输出 `道具清单.md`，内部可继续保留旧 JSON 三真源作为兼容侧车，但不得把侧车升为最终交付主稿。
-5. 设计阶段完全沿用 `templates/prop_masterprompt.structured.v2.md` 的设计文档结构与既有道具设计机制，逐主体写 `[主体名].md`。
-6. 面板阶段完全沿用 `templates/道具面板-提示词.json` 与 SMART handoff 机制，逐主体写 `[主体名].json`。
-7. 若调用脚本，脚本只能承担抽取、投影、校验、格式转换、request sidecar 等机械动作；道具研究判断、设计正文和面板 prompt 决策必须由 LLM 主创。
+| 任意道具域任务 | 本 `SKILL.md + CONTEXT.md` |
+| 道具清单 | `1-清单/SKILL.md + 1-清单/CONTEXT.md` |
+| 道具细目设计 | `2-设计/SKILL.md + 2-设计/CONTEXT.md` |
+| 道具图像生成 | `3-生成/SKILL.md + 3-生成/CONTEXT.md` |
+| 叶子输出验收 | 对应叶子的 `review/review-contract.md` |
+| 叶子输出样板 | 对应叶子的 `templates/` |
+| 产品入口摘要 | 对应叶子的 `agents/openai.yaml` |
 
 ## LLM-First Creative Authorship Contract
 
-- 道具清单判断、道具研究结论、道具设计正文与面板 prompt 决策必须由 LLM 直接完成。
-- `scripts/` 中的旧 runner 只允许做抽取、投影、校验、格式转换和兼容侧车落盘。
-- 若运行旧脚本需要 `--allow-legacy-script-authorship`，该输出只能视为受控兼容材料，不得直接升为 canonical creative truth。
+- 本组根只能做路由、边界裁决、输入缺口判断和域级验收摘要。
+- 道具归并、背景杂物过滤、道具设计、审美判断、提示词蒸馏与生成策略必须由 LLM 在对应叶子技能内直接完成。
+- 脚本只允许读取、枚举、校验、投影、格式检查和文件存在性检查；不得生成 canonical 道具清单、设计正文或图像提示词主创内容。
+
+## Execution Contract
+
+1. 锁定项目根 `projects/aigc/<项目名>/` 与道具域输出根 `projects/aigc/<项目名>/5-设计/道具/`。
+2. 读取本 `SKILL.md + CONTEXT.md`；项目任务继续加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
+3. 根据用户措辞、目标路径和现有产物判定 `mode`。
+4. 只加载并执行命中的叶子技能；未命中的叶子不得补占位输出。
+5. 叶子技能按自身合同写入 `1-清单/`、`2-设计/` 或 `3-生成/` 子目录。
+6. 若发现上游缺失，按链路返回最早缺失叶子，不越级生成下游产物。
+7. 若用户要求域级验收，只汇总叶子输出状态和缺口，不改写叶子业务真源。
 
 ## Root-Cause Execution Contract (Mandatory)
 
-遇到失败时沿链路上溯：
+遇到道具域失败时沿链路上溯：
 
-`Symptom -> Direct Cause -> Section Owner -> Source Contract -> AGENTS.md / skill-工作车间`
+`Symptom -> Misrouted Prop Leaf -> 道具组根 Mode Selection -> 叶子 SKILL.md -> AGENTS.md LLM-first / Skill 2.0 Rule`
 
 优先修复顺序：
 
-1. 输出不在 `projects/aigc/<项目名>/4-设计/` 根：回到本 `Output Contract` 与 `references/processing-order.md`。
-2. 道具名把状态句、动作句或服装部件误当主体：回到 `references/object-normalization-contract.md`。
-3. 设计文档结构漂移：回到 `templates/prop_masterprompt.structured.v2.md` 与 `references/design-output-contract.md`。
-4. 面板 JSON 结构漂移：回到 `templates/道具面板-提示词.json` 与 `references/smart-image-handoff-contract.md`。
-5. 旧路径引用断链：回到 `references/legacy/` 与仓库引用扫描结果。
+1. 入口错路由：修本组根 `Mode Selection` 或 registry route 文案。
+2. 叶子顺序错乱：回到 `1-清单 -> 2-设计 -> 3-生成` 顺序门。
+3. 输出目录漂移：回到对应叶子 `Output Contract`。
+4. 背景杂物误入主清单：回到 `1-清单` 的过滤与归并合同。
+5. 脚本主创越权：回到 `LLM-First Creative Authorship Contract`。
 
 ## Field Mapping
 
 | field_id | owner | must_contain |
 | --- | --- | --- |
-| `PROP-FIELD-01` | `SKILL.md` | 输入合同、顺序门、动态引用、输出合同 |
-| `PROP-FIELD-02` | `references/processing-order.md` | 清单 -> 设计 -> 面板的融合细则 |
-| `PROP-FIELD-03` | `templates/prop_masterprompt.structured.v2.md` | 当前设计文档模板真源 |
-| `PROP-FIELD-04` | `templates/道具面板-提示词.json` | 当前面板提示词 JSON 模板真源 |
-| `PROP-FIELD-05` | `review/review-contract.md` | 清单、设计、面板三段验收门 |
+| `PROP-GROUP-01` | 本组根 | 道具域 mode、叶子路由、顺序门 |
+| `PROP-GROUP-02` | `1-清单` | 道具清单、归并、过滤、首次登场 |
+| `PROP-GROUP-03` | `2-设计` | 单道具细目设计 Markdown |
+| `PROP-GROUP-04` | `3-生成` | 道具主图、多视图与 JSON prompt |
+| `PROP-GROUP-05` | 项目根 | 关键道具偏好、禁区和长期生成锁定 |
 
 ## Thought Pass Map
 
 | step_id | thought pass | action pass | evidence |
 | --- | --- | --- | --- |
-| `PROP-PASS-01` | 判断输入类型 | 进入整链/半链/修复模式 | `prop_type_profile` |
-| `PROP-PASS-02` | 判断道具主体 | 写 `道具清单.md` | prop list rows |
-| `PROP-PASS-03` | 判断设计模板 | 写 `[道具名].md` | template structure |
-| `PROP-PASS-04` | 判断面板 handoff | 写 `[道具名].json` | same-stem JSON |
+| `PROP-PASS-01` | 判断项目与输入根 | 锁定项目路径和道具域根 | runtime path |
+| `PROP-PASS-02` | 判断缺清单/缺设计/缺生成 | 选择一个叶子技能 | selected mode |
+| `PROP-PASS-03` | 判断是否越级 | 回退到最早缺失叶子 | upstream evidence |
+| `PROP-PASS-04` | 判断是否需要域级验收 | 汇总叶子状态 | domain summary |
 
 ## Pass Table
 
 | pass_id | pass_condition | rework_entry |
 | --- | --- | --- |
-| `PROP-PASS` | 清单、设计文档、面板 JSON 都在 5-设计 根目录且同 stem 对齐 | done |
-| `PROP-REWORK-LIST` | 道具主体漂移或状态句污染 | `references/object-normalization-contract.md` |
-| `PROP-REWORK-DESIGN` | 设计文档模板漂移 | `templates/prop_masterprompt.structured.v2.md` |
-| `PROP-REWORK-PANEL` | 面板 JSON 回链失败 | `templates/道具面板-提示词.json` |
+| `PASS-PROP-GROUP` | 已命中唯一叶子，且加载叶子 `SKILL.md + CONTEXT.md` | done |
+| `REWORK-PROP-ROUTE` | 入口语义与叶子不匹配 | 本组根 `Mode Selection` |
+| `REWORK-PROP-UPSTREAM` | 下游输入缺失 | 最早缺失叶子技能 |
+| `REWORK-PROP-OUTPUT` | 输出路径或命名漂移 | 对应叶子 `Output Contract` |
 
 ## Output Contract
 
-- Required output: `道具清单.md`、N 份以道具主体名命名的设计文档 `[主体名].md`、N 份与设计文档同 stem 的面板提示词 `[主体名].json`。
-- Output format: Markdown 清单、Markdown 设计文档、JSON 面板提示词；可选保留 `_manifest.json`、旧 `道具清单.json / 道具研究.json / prop_design_bridge.json / 道具设计.json / prop_design_prompt.json` 作为兼容侧车。
-- Output path: `projects/aigc/<项目名>/4-设计/` 根目录。
-- Naming convention: 清单固定为 `道具清单.md`；主体设计文档为 `[道具名].md`；面板提示词为 `[道具名].json`，两者 stem 必须一致。
-- Completion gate: 输出文件存在且非空；设计文档遵循 `templates/prop_masterprompt.structured.v2.md`；面板 JSON 能回链同 stem 设计文档；`review/review-contract.md` 的清单、设计、面板门全部通过。
+- Required output: 路由决定、命中的叶子技能、必要的上游缺口说明；业务文件由叶子技能写入。
+- Output path: 叶子输出固定在 `projects/aigc/<项目名>/5-设计/道具/{1-清单,2-设计,3-生成}/`。
+- Completion gate: 本组根已加载同目录 `CONTEXT.md`；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收。

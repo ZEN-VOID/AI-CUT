@@ -45,8 +45,8 @@ flowchart TD
     F --> F1["1-分集"]
     F --> F2["2-编导"]
     F --> F3["3-摄影"]
-    F --> F4["4-设计 via 5-设计 skill package"]
-    F --> F5["4-分组"]
+    F --> F4["4-分组"]
+    F --> F5["5-设计"]
     F --> F6["6-图像"]
     F --> F7["7-视频"]
     F --> F8["7-Cut 搁浅"]
@@ -72,8 +72,8 @@ flowchart TD
 | `1-分集` | `.agents/skills/aigc/1-分集/` | `projects/aigc/<项目名>/1-分集/` | active |
 | `2-编导` | `.agents/skills/aigc/2-编导/` | `projects/aigc/<项目名>/2-编导/` | active |
 | `3-摄影` | `.agents/skills/aigc/3-摄影/` | `projects/aigc/<项目名>/3-摄影/` | active |
-| `4-设计` | `.agents/skills/aigc/5-设计/` | `projects/aigc/<项目名>/4-设计/` | active |
 | `4-分组` | `.agents/skills/aigc/4-分组/` | `projects/aigc/<项目名>/4-分组/` | active |
+| `5-设计` | `.agents/skills/aigc/5-设计/` | `projects/aigc/<项目名>/5-设计/` | active |
 | `6-图像` | `.agents/skills/aigc/6-图像/` | `projects/aigc/<项目名>/6-图像/` | active |
 | `7-视频` | `.agents/skills/aigc/7-视频/` | `projects/aigc/<项目名>/7-视频/` | active |
 | `7-Cut` | `.agents/skills/aigc/7-Cut/` | none | 搁浅 |

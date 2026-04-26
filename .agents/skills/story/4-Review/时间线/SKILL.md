@@ -107,3 +107,39 @@ flowchart TD
 
 - 已明确给出时间锚、顺序、时长与伏笔窗口问题。
 - `spoiler_risk` 已可被父层直接聚合。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 维度审查入口与父层边界 | `../SKILL.md`、`../references/root-runtime-contract.md` |
+| 时间线步骤网络 | `steps/validation-flow.md` |
+| 维度判据与共享字段 | `references/README.md`、`../_shared/validation-child-output-contract.md` |
+| 质量门禁与 reviewer 汇流 | `review/review-gate.md` |
+| 类型化输入画像 | `types/type-map.md` |
+| 输出样式 | `templates/output-template.md` |
+| 脚本边界 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/heuristics.md` 与 `CONTEXT.md` |
+| 产品侧入口 | `agents/openai.yaml` |
+
+## Root-Cause Execution Contract
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+若时间问题没有锚点证据，回到 `N1-TIME-ANCHOR-READ`；若问题实际属于逻辑或连续性，不在本维度吞并，转交对应维度。
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-TM-ENTRY` | `SKILL.md` | 输入、边界、维度 verdict 与父层回接 | `FAIL-TM-ENTRY` |
+| `FIELD-TM-STEPS` | `steps/` | 时间锚、事件顺序、伏笔窗口检查 | `FAIL-TM-STEPS` |
+| `FIELD-TM-REVIEW` | `review/` | 维度门禁与 packet 可聚合性 | `FAIL-TM-REVIEW` |
+
+## Skill 2.0 Output Contract
+
+- Required output: 时间线 `dimension_packet` 与 `dimension_report_ref`。
+- Output format: Markdown 维度报告 + 父层可聚合结构化 packet。
+- Output path: `projects/story/<项目名>/4-Review/第V卷/时间线.md`。
+- Naming convention: report filename 以父层 registry 的 `report_filename` 为准。
+- Completion gate: `spoiler_risk`、时间锚冲突和时序证据可被父层直接聚合。

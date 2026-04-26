@@ -7,438 +7,209 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 # story 0-Init
 
+`story-init` 是 `story2026` 小说项目初始化入口。它只负责把一个 prose/story/book 项目起盘为可继续进入 `1-Cards` 与 `2-Planning` 的稳定运行时，不负责直接生成后续阶段主稿。
+
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- `CONTEXT.md` 只承载初始化经验、返工顺序与 team 选型启发，不得覆盖本 `SKILL.md` 的单一模式合同、`team.yaml` 真源合同与写回位点。
-- 若 `init_project.py`、项目模板与本合同冲突，先修脚本与本合同，再修经验层描述。
+- 若已绑定项目根 `projects/story/<项目名>/`，必须继续加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与初始化相关的文件。
+- `CONTEXT.md` 只承载初始化经验、返工顺序与 team 选型启发，不得覆盖本 `SKILL.md` 的入口、路由、输出、`team.yaml` 真源与写回位点。
+- 若 `.agents/skills/story/scripts/init_project.py`、模板或分区文件与本合同冲突，先以本 `SKILL.md` 裁决，再回修分区或脚本。
 
-## 概述
+## Scope
 
-`story2026/0-Init` 已从旧的 `顾问团模式 / 快速模式 / 自主问卷` 三模式结构，收束为单一 `team代入模式`。
+### When To Use
 
-当前合同固定为：
+- 用户要求初始化小说、网文、长篇故事、书、novel、book、story2026 项目。
+- 需要新建或重初始化 `projects/story/<项目名>/`。
+- 需要先锁团队代入阵容，再通过 planning 固定题包直答产出初始化长期合同与阶段种子。
+- 需要生成项目级 `team.yaml`、`MEMORY.md`、`STATE.json`、`CONTEXT/` 和 `0-Init` 三件套。
 
-- 主模式只有一个：`team代入模式`
-- 仅允许两种编组子路径：`自动组队`、`自定义组队`
-- `planning` 角色必须先以真实 subagents 执行固定题包直答，再综合写回 `0-Init/north_star.yaml`
-- 项目根 `team.yaml` 是团队治理唯一真源
-- 初始化不再允许退回问卷调查或“快速补完”平行路径
+### When Not To Use
 
-## 单一真源目录合同
+- 用户要求初始化影片、电影、影视、视频或 AIGC film project；route to `.agents/skills/aigc/0-初始化/SKILL.md`。
+- 已有稳定项目骨架，只需补写局部设定或查询状态；route to `story-resume` 或对应阶段技能。
+- 当前任务是 `1-Cards / 2-Planning / 3-Drafting / 4-Review / 5-Loopback` 的续跑。
+- 用户只要求写正文、生成卡片、规划卷章或执行审查。
 
-- 本 `SKILL.md` 是 `story/0-Init` 的唯一规范真源。
-- `CONTEXT.md` 只承载经验层知识库，不再保存模式并行合同。
-- `agents/openai.yaml` 若存在，只承载入口元数据，不得扩写执行规则。
-- `references/creative-seed-routing/module-spec.md` 是创意缺口路由细则，不是模式入口。
-- `references/advisor-council-mode/`、`references/fast-mode/`、`references/autonomous-mode/` 已退出真源体系；后续不得恢复为平行 mode-playbook。
+## Input Contract
 
-## When to Use
+Accepted input:
 
-- 用户以自然语言要求“初始化小说 / 初始化网文 / 新建书 / 新建长篇故事 / 小说项目起盘 / story 项目初始化”等媒介明确为 prose/story/book 工作流的初始化。
-- 需要新建一个 `story2026` 小说项目。
-- 已初始化项目因方向失效，需要退回初始化层重新起盘。
-- 需要先锁团队代入阵容，再通过固定题包直答 产出初始化长期合同与阶段种子。
-- 需要把项目级团队治理稳定落到 `team.yaml`，并生成 `0-Init` 三件套。
+- 项目名或目标项目根。
+- 小说/网文/书项目的题材、故事核、平台、受众、偏好、禁区或已有 brief。
+- 用户明确的 `自动组队` 或 `自定义组队` 选择。
+- 自定义 roster，必须引用 `.agents/skills/team/` 下的成员技能。
+- 已有项目根中的 legacy `Init/*` 或旧初始化工件，作为证据而非当前真源。
 
-## When Not to Use
+Required input:
 
-- 已有稳定项目骨架，只需补写局部设定或单字段。
-- 当前任务是 `1-Cards / 2-Planning / 3-Drafting / 4-Review / review / resume` 的续跑，而不是初始化。
-- 用户只需要查询项目状态，不需要重新立项。
-- 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目”，且没有明确要创建小说项目；route to `.agents/skills/aigc/0-初始化/SKILL.md`.
+- 可解析的 `projects/story/<项目名>/` 目标。
+- 媒介必须为 prose/story/book/novel，而非 film/video/aigc。
+- `team_lineup_mode` 必须能锁定为 `auto` 或 `custom`；未给 roster 时默认可进入 `auto` 候选。
 
-## 业务需求分析合同
+Optional input:
 
-### business_goal
+- `decision_owner`、`mode_source`、平台、读者承诺、题材走廊、人物压力、世界约束、已有设定包、用户长期偏好。
+- 用于创意缺口补强的题材、反套路、市场定位或卖点方向。
 
-- 固定只走 `team代入模式`，避免初始化入口再次长出平行模式。
-- 让用户只在 `自动组队 / 自定义组队` 间拍板，而不是在“是否问卷”之间摇摆。
-- 让 `planning` 角色顾问团先执行固定题包直答，再综合产出长期合同与下游种子。
-- 把团队治理真源固定在 `team.yaml`，避免并行 manifest 再次长出来。
+Reject or clarify when:
 
-### business_object
+- 用户媒介意图在小说与影视之间冲突，且无法从上下文判断 canonical runtime。
+- 用户要求跳过 `team.yaml` 或要求把团队治理写入多个并行 manifest。
+- 用户要求恢复快速模式、问卷模式或旧三模式作为并行主路径。
+- 自定义 roster 越出 `.agents/skills/team/`。
+- 重初始化会覆盖不可再生故事主源，而用户没有明确授权。
 
-- `projects/story/<项目名>/team.yaml`
-- `projects/story/<项目名>/MEMORY.md`
-- `projects/story/<项目名>/STATE.json`
-- `projects/story/<项目名>/CHANGELOG.md`
-- `projects/story/<项目名>/CONTEXT/`
-- `projects/story/<项目名>/0-Init/{north_star.yaml,story-source-manifest.yaml,init_handoff.yaml}`
+## Mode Selection
 
-### constraint_profile
+`init_mode` 固定为 `team代入模式`。本技能只允许一个主模式和两个编组子路径：
 
-- `init_mode` 固定归一到 `team代入模式`
-- 子路径只允许 `auto | custom`
-- `selector_scope_root` 固定为 `.agents/skills/team/`
-- 初始化问题必须先经 `roles.planning.members` 的 subagents 固定题包直答执行 收束
-- `team.yaml` 必须先于 `0-Init/north_star.yaml` 锁定
-- 初始化不得退回问卷调查、长表单或快速补全平行路径
-- 未经用户明确授权，不删除项目故事主源与不可再生资产
+| selector | trigger | route | fallback |
+| --- | --- | --- | --- |
+| `auto` | 用户要求自动组队，或没有给 roster | 读取 `.agents/skills/team/SKILL.md + CONTEXT.md` 后 shortlist 并写 `team.yaml` | 不回退问卷 |
+| `custom` | 用户给出 roster、角色指定或 team skill 路径 | 校验成员路径后写 `team.yaml` | 不接受 team 根外成员 |
 
-### success_criteria
+## Reference Loading Guide
 
-- 已锁定 `init_mode == team代入模式`
-- 已锁定 `team_lineup_mode == auto|custom`
-- `team.yaml` 已生成，且记录 `.agents/skills/team/` 为唯一选人范围
-- `MEMORY.md` 已生成，且具备项目级创作记忆骨架
-- `team.yaml` 是唯一团队真源
-- `planning` 顾问团固定题包直答已作为初始化主路径被声明
-- `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 已同步 team provenance
-
-### topology_fit
-
-- 主干固定串行：模式锁定 -> runtime bootstrap -> 组队 -> planning 固定题包直答 -> synthesis -> sufficiency audit -> 写回
-- 唯一分支只发生在 `team_lineup_mode`
-- 创意缺口由 `creative-seed-routing` 作为 sidecar 路由，不参与模式分叉
-
-### non_goals
-
-- 不重新引入快速模式或问卷模式
-- 不在初始化阶段直接生成 `1-Cards` 之后的业务主稿
-- 不把团队治理写成多个并行 manifest
+| 场景 | 读取文件 |
+| --- | --- |
+| 初始化模式、team 真源、固定题包与 subagent 要求 | `references/mode-and-team-contract.md` |
+| 项目骨架、`STATE.json`、项目 `MEMORY.md` 与 `CONTEXT/` 写回边界 | `references/runtime-and-handoff-contract.md` |
+| planning 固定题包直答、创意缺口与下游 unknowns | `references/prompt-packet-contract.md` |
+| 创意缺口需要题材、反套路、市场或卖点路由 | `references/creative-seed-routing/module-spec.md`，再由该模块按需读取内部 leaf docs |
+| 需要执行完整初始化拓扑 | `steps/init-workflow.md` |
+| 需要判定首次初始化、重初始化、自动组队或自定义组队 | `types/init-type-map.md` |
+| 写回前验收、review provider、充分性审计 | `review/init-review-gate.md` |
+| 输出结构样板 | `templates/output-template.md`、`templates/*.template.yaml`、`templates/project-memory.template.md` |
+| 机械初始化入口或脚本边界 | `scripts/README.md` 与 `.agents/skills/story/scripts/init_project.py` |
+| 可复用初始化启发 | `knowledge-base/init-heuristics.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
-    A["用户命中 story/0-Init"] --> B["N0 Intake: 确认是初始化或重初始化"]
-    B --> C["N1 Mode Gate: 固定 team代入模式"]
-    C --> D["N2 Runtime Bootstrap: 预建项目骨架"]
-    D --> E["N3 Team Router: auto/custom"]
-    E --> F["N4 Team Lock: 先写 team.yaml"]
-    F --> G["N5 Planning Direct-Answer Packet: roles.planning subagents"]
-    G --> H["N6 Synthesis: north_star + source_manifest + init_handoff + state"]
-    H --> I["N7 Sufficiency Audit"]
-    I --> J["One-shot writeback"]
-```
-
-```mermaid
-flowchart LR
-    A["team代入模式"] --> B{{"team_lineup_mode"}}
-    B -->|"auto"| C["自动组队: 从 .agents/skills/team/ 选 roster"]
-    B -->|"custom"| D["自定义组队: 校验用户指定 roster"]
-    C --> E["team.yaml patch"]
-    D --> E
-    E --> F["roles.planning.members"]
-    F --> G["planning 固定题包直答 patches"]
-    G --> H["north_star / source_manifest / init_handoff / state patches"]
+    A["N0 Intake: prose/story/book 初始化请求"] --> B{"媒介与项目根有效?"}
+    B -->|"否"| X["转路由或追问"]
+    B -->|"是"| C["N1 Mode Gate: 固定 team代入模式"]
+    C --> D{"team_lineup_mode"}
+    D -->|"auto"| E["N2A 自动组队: team 根索引 shortlist"]
+    D -->|"custom"| F["N2B 自定义组队: roster 路径校验"]
+    E --> G["N3 Team Lock: 写 team.yaml"]
+    F --> G
+    G --> H["N4 Planning Direct Answer: roles.planning.members"]
+    H --> I{"创意缺口?"}
+    I -->|"是"| J["creative-seed-routing sidecar"]
+    I -->|"否"| K["N5 Synthesis"]
+    J --> K
+    K --> L["N6 Writeback: runtime + 0-Init 三件套"]
+    L --> M["N7 Review Gate"]
+    M -->|"pass"| N["交付并指向 1-Cards"]
+    M -->|"fail"| O["按 Root-Cause 回修"]
 ```
 
 ```mermaid
 stateDiagram-v2
     [*] --> Intake
     Intake --> ModeLocked
-    ModeLocked --> Bootstrapped
-    Bootstrapped --> TeamLocked
-    TeamLocked --> InterviewRunning
-    InterviewRunning --> Synthesized
-    Synthesized --> Audited
-    Audited --> Finalized
-    Audited --> Blocked
-    Blocked --> TeamLocked
+    ModeLocked --> TeamRouting
+    TeamRouting --> TeamLocked
+    TeamLocked --> DirectAnswer
+    DirectAnswer --> CreativeSeedRouting
+    DirectAnswer --> Synthesizing
+    CreativeSeedRouting --> Synthesizing
+    Synthesizing --> Auditing
+    Auditing --> Finalized
+    Auditing --> Rework
+    Rework --> TeamLocked
+    Finalized --> [*]
 ```
 
 ```mermaid
 flowchart LR
-    A["team.yaml"] --> B["规划/监制/评审 角色真源"]
-    A --> C["init_contract / runtime_policy / selector_scope_root"]
-    F["0-Init/north_star.yaml"] --> G["长期合同"]
-    S["0-Init/story-source-manifest.yaml"] --> T["故事主源登记"]
-    H["0-Init/init_handoff.yaml"] --> I["cards_seed / planning_seed / unknowns"]
-    J["STATE.json"] --> K["项目入口状态"]
-    A --> F
-    A --> H
-    A --> S
-    A --> J
+    T["team.yaml"] --> P["roles.planning.members"]
+    T --> R["runtime_policy.require_subagents_for_init_execution"]
+    P --> D["fixed direct-answer patches"]
+    D --> N["0-Init/north_star.yaml"]
+    D --> H["0-Init/init_handoff.yaml"]
+    D --> S["0-Init/story-source-manifest.yaml"]
+    T --> State["STATE.json"]
+    M["MEMORY.md"] --> N
+    C["CONTEXT/"] --> H
 ```
 
-## Total Input Contract (Mandatory)
-
-进入本技能前，父流程必须锁定以下总输入：
-
-1. `global charter context`
-   - 根 `AGENTS.md`
-   - `.agents/skills/story/SKILL.md`
-   - 当前目录 `SKILL.md + CONTEXT.md`
-   - `.agents/skills/team/SKILL.md + CONTEXT.md`
-2. `task context`
-   - 项目目标、题材、故事核、平台、受众、用户偏好与非目标
-3. `mode context`
-   - `init_mode == team代入模式`
-   - `team_lineup_mode`
-   - `mode_source`
-   - `decision_owner`
-   - `selector_scope_root`
-4. `evidence context`
-   - 当前项目根已有工件
-   - 用户给出的 roster 或极简 brief
-   - 任何已有 `Init/*` 旧工件仅作为 legacy 证据，不可覆盖当前真源
-
-硬规则：
-
-1. 未锁定 `team_lineup_mode` 前，不得起草初始化主工件。
-2. `selector_scope_root` 不得越出 `.agents/skills/team/`。
-3. 已有共享 team 根索引时，先读 team 根，再做 shortlist，不得直接盲扫全树。
-4. `team.yaml` 锁定前，不得综合 `north_star.yaml`。
-
-## Internal Capability Fusion Contract (Mandatory)
-
-`0-Init` 只允许以下内部能力面，不再长出平行模式模块：
-
-| 能力面 | 作用 | 典型输出 | 触发条件 |
-| --- | --- | --- | --- |
-| `internal_router` | 裁剪本轮问题包、证据包、禁问项 | `route_plan_patch` | 命中 `0-Init` 后立即执行 |
-| `team_auto_formation_engine` | 先读 `.agents/skills/team/` 根索引，再自动挑选顾问阵容 | `team_manifest_patch`、`selection_rationale` | `team_lineup_mode == auto` |
-| `team_custom_formation_engine` | 校验用户自定义 roster 是否都位于 `.agents/skills/team/` | `team_manifest_patch`、`custom_lineup_validation_note` | `team_lineup_mode == custom` |
-| `planning_direct_answer_engine` | 以 `roles.planning.members` 为 kickoff owner 执行固定题包直答 | `direct_answer_report`、`north_star_patch`、`init_handoff_patch` | `team.yaml` 已锁定后 |
-| `creative_seed_routing` | 为创意缺口补最小参考组合，不改模式 | `creative_mandate_patch`、`planning_seed_patch` | 固定题包直答暴露创意缺口时 |
-| `synthesis_engine` | 聚合 `team + direct-answer + state` patch | `artifact_patch_set` | 直答完成后 |
-| `sufficiency_audit_engine` | 检查充分性、来源分层、下一入口一致性 | `audit_report`、`reentry_decision` | 写回前 |
-
-硬规则：
-
-1. 所有能力面都内收到当前 `SKILL.md`，不是新的 mode-playbook。
-2. `planning_direct_answer_engine` 必须要求真实 subagents；若环境不允许，必须阻塞并报告。
-3. `creative_seed_routing` 只负责创意缺口，不得抢 team 路由与模式裁决。
-
-## Initialization Mode Contract (Mandatory)
-
-`0-Init` 当前只允许一个初始化主模式：
-
-- `init_mode = team代入模式`
-
-用户只需要在下列两种编组方式间拍板：
-
-| 编组子路径 | 触发 | 执行形态 | 是否允许问卷回退 | 默认拍板者 |
-| --- | --- | --- | --- | --- |
-| `自动组队` | 用户明确要求自动配队，或未给 roster | 根索引 shortlist -> 自动选人 -> 写 `team.yaml` | 否 | 用户 |
-| `自定义组队` | 用户明确给出 roster / 角色指定 | 校验路径 -> 角色落位 -> 写 `team.yaml` | 否 | 用户 |
-
-### 初始化元选项卡（唯一合法展示位）
-
-```markdown
-初始化元选项卡
-
-1. 初始化方式（固定主模式）
-A. team代入模式
-
-2. 组队方式
-A. 自动组队（推荐）
-B. 自定义组队
-
-3. 如果选 A
-- 我会先从 `.agents/skills/team/` 根索引里做 shortlist，再自动选策划 / 监制 / 评审阵容
-- 结果先写入 `team.yaml`
-- 再由 `roles.planning.members` 围绕固定题包真实执行初始化直答
-
-4. 如果选 B
-- 你可以直接给 `策划 / 监制 / 评审` 的成员
-- 也可以给 team skill 路径列表
-- 所有候选都必须位于 `.agents/skills/team/`
-
-5. 固定题包执行方式（固定）
-- 由 `roles.planning.members` 作为 kickoff owner
-- 必须使用真实 subagents
-```
-
-### 模式元数据记录
-
-一旦锁定，必须立刻记录：
-
-- `init_mode`
-- `team_lineup_mode`
-- `selector_scope_root`
-- `mode_source`
-- `decision_owner`
-- `advisor_agents`（legacy mirror：默认映射 `planning`）
-- `team_setup.roles.{planning,production,review}.members`
-
-## Team Manifest Contract (`team.yaml`，Mandatory)
-
-`team.yaml` 是项目根下的团队治理唯一真源：
-
-- `projects/story/<项目名>/team.yaml`
-
-它至少必须承载：
-
-- `init_contract.init_mode == team_roleplay`
-- `init_contract.init_mode_display == team代入模式`
-- `init_contract.team_lineup_mode == auto|custom`
-- `init_contract.selector_scope_root == ".agents/skills/team/"`
-- `runtime_policy.require_subagents_for_init_execution == true`
-- `runtime_policy.init_execution_owner_role == planning`
-- `roles.planning.init_execution.*`
-
-硬规则：
-
-1. `team.yaml` 是唯一项目级 team 真源。
-2. `roles.*.members` 只允许引用 `.agents/skills/team/` 下 skill。
-3. `planning / production / review` 可以同人复用，也可以分人治理；默认允许重叠，不允许默认强制互斥。
-4. 自动组队必须把自动选择理由写入 `init_contract.auto_selection_notes`。
-5. 自定义组队必须把用户裁定理由写入 `init_contract.custom_selection_notes`。
-
-## Prompt Packet Contract (Mandatory)
-
-初始化必须先由 `roles.planning.members` 围绕既定题包执行固定题包直答，而不是再走模拟访谈或旧式问卷调查。
-
-至少覆盖：
-
-1. 项目名 / 工作名
-2. 题材走廊与故事核
-3. 读者承诺、平台与受众
-4. 角色压力与世界约束
-5. 需要留给 `1-Cards / 2-Planning` 的 unknowns
-
-硬规则：
-
-1. 第一轮题包由父技能固定，并交给 `planning` 顾问团并行直答后由父技能收束。
-2. 只问当前最阻塞长期合同与阶段 seed 的缺口。
-3. 更适合下游阶段解决的问题直接写入 `unknowns`。
-4. 不允许回退到“每轮 4-8 题问卷卡”的旧路径。
-
-## Canonical Landing
-
-- `STATE.json`
-- `team.yaml`
-- `MEMORY.md`
-- `CHANGELOG.md`
-- `CONTEXT/`
-- `0-Init/north_star.yaml`
-- `0-Init/story-source-manifest.yaml`
-- `0-Init/init_handoff.yaml`
-
-## Project State Synchronization Contract
-
-初始化完成态不只等于“写出三件套”，还必须把当前阶段树对应的目录与运行时状态一次性同步到位。
-
-至少同步以下对象：
-
-- 项目目录骨架：`Story/`、`CONTEXT/`、`0-Init/`、`1-Cards/`、`2-Planning/`、`3-Drafting/`、`4-Review/`、`5-Loopback/`，以及项目根 `MEMORY.md`
-- 当前 cards 子树最小骨架：`1-Cards/0-全局卡/总设定`、`1-Cards/1-风格卡/总风格`、`1-Cards/2-角色卡/*`、`1-Cards/3-场景卡/*`、`1-Cards/4-物品卡/*`、`1-Cards/5-类型卡/总题材`
-- `STATE.json.paths`
-  - 至少包含 `story_root / context_root / project_memory / init_root / cards_root / planning_root / drafting_root / validation_root / loopback_root`
-- `STATE.json.workflow_runtime.execution_state.stage_progress`
-  - `0-init` 必须被写成 `completed`
-  - `latest_command` 必须标记为 `story-init`
-  - 重初始化后也必须刷新 `last_completed_at`
-- `STATE.json.workflow_runtime.task_log`
-  - 首次初始化记录 `project_initialized`
-  - 重初始化追加 `project_reinitialized`
-
-硬规则：
-
-1. 目录骨架与 `STATE.json.paths` 必须同轮同步，不允许只建目录不写状态，或只写状态不建目录。
-2. `story-source-manifest.yaml` 既然声明 `source_root = Story/`，初始化就必须真实创建 `Story/`。
-3. 初始化必须同步创建项目级 `MEMORY.md`，作为跨阶段项目创作记忆载体。
-4. 初始化必须同步创建项目级 `CONTEXT/`，供整个创作阶段加载项目共享附加上下文。
-5. 只要 `1-Cards` 当前仍以 `5-类型卡` 作为正式子树，初始化骨架就不得漏掉 `1-Cards/5-类型卡/总题材`。
-6. `MEMORY.md` 只记录该项目跨阶段持续生效的偏好、口味、特殊元素与长期要求；skill 经验不得写入这里。
-7. `workflow_runtime` 的 schema 与 stage snapshot 必须跟 `workflow_manager.py` 当前合同对齐，不得在 `0-Init` 内部保留旧版私有快照。
-
-## Execution Procedure
+## Execution Contract
 
 1. `N0 Intake`
-   - 判定这是首次初始化、重初始化，还是应转去 `resume/`
+   - 判定首次初始化、重初始化或应转去其他 story 阶段。
+   - 加载本 `SKILL.md + CONTEXT.md`，并在项目存在时加载项目 `MEMORY.md + CONTEXT/`。
 2. `N1 Mode Gate`
-   - 固定 `init_mode = team代入模式`
-   - 锁定 `team_lineup_mode`
-3. `N2 Runtime Bootstrap`
-   - 预建项目目录、`0-Init` 目录、项目根 `MEMORY.md` 与必要 runtime 骨架
-4. `N3 Team Router`
-   - 命中 `auto` 或 `custom`
-   - 若 `auto`，先读 `.agents/skills/team/SKILL.md + CONTEXT.md`
-5. `N4 Team Lock`
-   - 先起草并锁定 `team.yaml`
-6. `N5 Planning Direct-Answer Packet`
-   - 以 `roles.planning.members` 为 kickoff owner 真实执行 subagents 固定题包直答
-   - 必要时按需进入 `creative-seed-routing`
-7. `N6 Synthesis`
-   - 聚合 直答 patch 与初始化输入，收束到 `0-Init/north_star.yaml + 0-Init/story-source-manifest.yaml + 0-Init/init_handoff.yaml + STATE.json`，并保留项目根 `MEMORY.md` 作为持续更新位
-8. `N7 Sufficiency Audit`
-   - 检查 team provenance、来源分层、唯一下一入口
-   - 通过后一次性写回
+   - 固定 `init_mode = team代入模式`。
+   - 锁定 `team_lineup_mode = auto|custom`、`mode_source`、`decision_owner`。
+3. `N2 Team Routing`
+   - `auto` 先读 `.agents/skills/team/SKILL.md + CONTEXT.md`，再 shortlist。
+   - `custom` 校验 roster 均位于 `.agents/skills/team/`。
+4. `N3 Team Lock`
+   - 在综合任何 `north_star` 前先写或更新项目根 `team.yaml`。
+5. `N4 Planning Direct Answer`
+   - 由 `roles.planning.members` 执行固定题包直答。
+   - 仓库合同要求真实 subagents；若更高优先级 system/developer/tool/user 策略阻断真实 dispatch，必须阻塞或显式报告降级来源、原路径、实际路径和未启动成员。
+6. `N5 Synthesis`
+   - 汇总用户输入、team patch、planning 直答和创意缺口 sidecar。
+   - 更适合下游解决的问题写入 `unknowns`，不得用初始化问卷强行补完。
+7. `N6 Writeback`
+   - 一次性同步项目骨架、`STATE.json`、`team.yaml`、`MEMORY.md`、`CONTEXT/` 与 `0-Init` 三件套。
+8. `N7 Review Gate`
+   - 加载 `review/init-review-gate.md`，执行充分性审计后交付。
 
-## Sufficiency Gate (Mandatory)
+## Field Mapping
 
-写回前必须全部满足：
-
-- 已锁定 `team_lineup_mode`
-- `team.yaml` 已生成
-- `MEMORY.md` 已生成
-- `team.yaml` 已声明 `.agents/skills/team/` 为唯一选人范围
-- `planning` 固定题包直答已作为初始化主路径声明
-- `0-Init/north_star.yaml / 0-Init/init_handoff.yaml / STATE.json` 的 team provenance 一致
-
-## Root-Cause Execution Contract (Mandatory)
-
-当出现模式漂移、team manifest 双真源、固定题包直答未收口、下游找不到团队真源等问题时，必须按下列链路上溯：
-
-`Symptom / Failure -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
-
-本技能内的优先检查顺序：
-
-1. `Initialization Mode Contract`
-2. `Team Manifest Contract`
-3. `Prompt Packet Contract`
-4. `Execution Procedure`
-5. `init_project.py`
-6. 仓库 `AGENTS.md`
-
-用户闭环输出固定为：
-
-- 根因位置
-- 立即修复
-- 系统预防修复
-
-## Verification
-
-最小验证命令：
-
-```bash
-python3 .agents/skills/story/scripts/init_project.py \
-  "./projects/story/示例小说" "示例小说" "悬疑" \
-  --init-mode "team代入模式"
-```
-
-至少检查：
-
-```bash
-test -f "./projects/story/示例小说/team.yaml"
-test -f "./projects/story/示例小说/MEMORY.md"
-test -f "./projects/story/示例小说/STATE.json"
-test -d "./projects/story/示例小说/CONTEXT"
-test -f "./projects/story/示例小说/0-Init/north_star.yaml"
-test -f "./projects/story/示例小说/0-Init/story-source-manifest.yaml"
-test -f "./projects/story/示例小说/0-Init/init_handoff.yaml"
-```
-
-## Field Master
-
-| field_id | canonical_slot | meaning |
-| --- | --- | --- |
-| `FIELD-INIT-01` | `init_mode / team_lineup_mode` | 单一模式与编组子路径是否已锁定 |
-| `FIELD-INIT-02` | `team.yaml` | 团队治理唯一真源是否成立 |
-| `FIELD-INIT-03` | `planning 固定题包直答 provenance` | kickoff owner 与 subagents 主路径是否明确 |
-| `FIELD-INIT-04` | `north_star + handoff + state` | 下游交接物是否同步 team provenance |
-| `FIELD-INIT-05` | `single team truth` | `team.yaml` 是否保持唯一团队真源 |
-
-## Step to Field Mapping
-
-| step_id | field_id | intent | failure_signal | rework_entry |
-| --- | --- | --- | --- | --- |
-| `N1-mode-gate` | `FIELD-INIT-01` | 锁单一模式与 `auto/custom` | 仍出现快速/问卷分叉 | 回到 `Initialization Mode Contract` |
-| `N4-team-lock` | `FIELD-INIT-02` | 先锁 `team.yaml` 再综合 | 先写三件套，后补 team | 回到 `Team Manifest Contract` |
-| `N5-planning-direct-answer` | `FIELD-INIT-03` | 固定 planning kickoff owner | 固定题包直答未被声明为主路径 | 回到 `Prompt Packet Contract` |
-| `N6-synthesis` | `FIELD-INIT-04` | 同步各工件 provenance | state/handoff/team 不一致 | 回到 `Execution Procedure` |
-| `N7-audit` | `FIELD-INIT-05` | 压制双真源漂移 | 出现并行 team 真源或 init 三件套分工混线 | 回到 `Sufficiency Gate` |
-
-## Field to Quality Mapping
-
-| field_id | quality_dimension | fail_code | rework_entry |
+| field_id | owner | canonical slot | validation gate |
 | --- | --- | --- | --- |
-| `FIELD-INIT-01` | 模式治理清晰度 | `FAIL-INIT-01` | `Initialization Mode Contract` |
-| `FIELD-INIT-02` | 团队真源单一性 | `FAIL-INIT-02` | `Team Manifest Contract` |
-| `FIELD-INIT-03` | 直答主路径完整性 | `FAIL-INIT-03` | `Prompt Packet Contract` |
-| `FIELD-INIT-04` | 初始化交接一致性 | `FAIL-INIT-04` | `Execution Procedure` |
-| `FIELD-INIT-05` | 兼容迁移稳定性 | `FAIL-INIT-05` | `Sufficiency Gate` |
+| `FIELD-INIT-01` | `SKILL.md` + `references/mode-and-team-contract.md` | `init_mode / team_lineup_mode` | 单一主模式，只有 `auto/custom` 分支 |
+| `FIELD-INIT-02` | `references/mode-and-team-contract.md` | `team.yaml` | 团队治理唯一真源，不存在并行 manifest |
+| `FIELD-INIT-03` | `references/prompt-packet-contract.md` | `roles.planning.members` 固定题包直答 | planning kickoff owner 与 subagent 证据明确 |
+| `FIELD-INIT-04` | `references/runtime-and-handoff-contract.md` | `STATE.json + MEMORY.md + CONTEXT/ + 0-Init/*` | runtime、handoff、provenance 同步 |
+| `FIELD-INIT-05` | `review/init-review-gate.md` | sufficiency audit | 下游唯一下一入口可判断 |
+
+## Root-Cause Execution Contract
+
+失败时按以下链路上溯：
+
+`Symptom -> Direct Technical Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+优先修复顺序：
+
+1. 媒介路由错误：回到 `Scope`、registry routes 与 `agents/openai.yaml`。
+2. 模式漂移或旧问卷回潮：回到 `references/mode-and-team-contract.md`。
+3. `team.yaml` 不唯一或 roster 越界：回到 `references/mode-and-team-contract.md` 与 `.agents/skills/team/` 根索引。
+4. 固定题包直答未执行或 provenance 缺失：回到 `references/prompt-packet-contract.md`。
+5. 目录骨架、`STATE.json`、`MEMORY.md` 或 `CONTEXT/` 不同步：回到 `references/runtime-and-handoff-contract.md`。
+6. 创意资料散点直连：回到 `references/creative-seed-routing/module-spec.md`。
+7. 交付验收不明确：回到 `review/init-review-gate.md` 与 `templates/output-template.md`。
+8. 脚本只改了一半：回到 `.agents/skills/story/scripts/init_project.py`，脚本只能做机械落盘，不替代 LLM 初始化判断。
+
+## Output Contract
+
+- Required output:
+  - 项目根：`team.yaml`、`STATE.json`、`MEMORY.md`、`CHANGELOG.md`、`CONTEXT/`。
+  - 初始化目录：`0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml`。
+  - 验收证据：team provenance、固定题包直答来源、runtime 同步状态、下一入口建议。
+- Output format:
+  - 结构化 YAML/JSON/Markdown 项目工件，按 `templates/` 样板渲染。
+  - 用户闭环用简短中文摘要，包含已写文件、验证结果、下一阶段入口。
+- Output path:
+  - 仅写入 `projects/story/<项目名>/` 及其标准子路径。
+  - 不写入 `projects/aigc/`，不生成旧 `.webnovel/tasks/`，不生成旧 `Init/*` 平行真源。
+- Naming convention:
+  - 项目运行时路径使用 `projects/story/<项目名>/`。
+  - 初始化主工件固定为 `team.yaml`、`STATE.json`、`MEMORY.md`、`0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml`。
+  - `STATE.json.workflow_runtime.execution_state.stage_progress` 中初始化阶段标识为 `0-init`，`latest_command` 为 `story-init`。
+- Completion gate:
+  - `team_lineup_mode` 已锁定。
+  - `team.yaml` 存在且声明 `.agents/skills/team/` 为唯一选人范围。
+  - `MEMORY.md` 和项目 `CONTEXT/` 存在。
+  - `STATE.json.paths` 与实际目录骨架一致。
+  - `0-Init` 三件套存在，且 team provenance 与 `STATE.json` 一致。
+  - `review/init-review-gate.md` 的 sufficiency verdict 为 `pass` 或带明示非阻断 follow-up 的 `pass_with_followups`。

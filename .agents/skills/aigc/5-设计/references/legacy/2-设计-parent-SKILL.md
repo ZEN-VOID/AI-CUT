@@ -1,6 +1,6 @@
 ---
 name: aigc-design-object-design
-description: Use when `5-设计/2-设计` needs to consume `1-清单` design-source JSON plus `0-Init` and `2-Global` truths, then route the current design work under `projects/aigc/<项目名>/4-设计/` for downstream `3-面板`.
+description: Use when `5-设计/2-设计` needs to consume `1-清单` design-source JSON plus `0-Init` and `2-Global` truths, then route the current design work under `projects/aigc/<项目名>/5-设计/` for downstream `3-面板`.
 governance_tier: full
 ---
 
@@ -33,7 +33,7 @@ governance_tier: full
 - `2-设计` 入口判定与 selective dispatch
 - `1-清单/*.json + 0-Init + 2-Global` 的共享输入口径裁决
 - `3-面板` handoff 的设计真源约束
-- `projects/aigc/<项目名>/4-设计/validation-report.md` 的阶段级验收摘要
+- `projects/aigc/<项目名>/5-设计/validation-report.md` 的阶段级验收摘要
 
 父层不拥有：
 
@@ -103,18 +103,18 @@ governance_tier: full
 
 ### 必需输入
 
-- 命中 `场景`：`projects/aigc/<项目名>/4-设计/场景/1-清单/第N集/场景清单.json`
-- 命中 `角色`：`projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/角色清单.json`
-- 命中 `道具`：`projects/aigc/<项目名>/4-设计/道具/1-清单/第N集/道具清单.json`
+- 命中 `场景`：`projects/aigc/<项目名>/5-设计/场景/1-清单/第N集/场景清单.json`
+- 命中 `角色`：`projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/角色清单.json`
+- 命中 `道具`：`projects/aigc/<项目名>/5-设计/道具/1-清单/第N集/道具清单.json`
 
 ### 强烈建议输入
 
-- `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/role_design_bridge.json`
-- `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/角色研究.json`
-- `projects/aigc/<项目名>/4-设计/场景/1-清单/第N集/场景研究.json`
-- `projects/aigc/<项目名>/4-设计/场景/1-清单/第N集/scene_design_bridge.json`
-- `projects/aigc/<项目名>/4-设计/道具/1-清单/第N集/道具研究.json`
-- `projects/aigc/<项目名>/4-设计/道具/1-清单/第N集/prop_design_bridge.json`
+- `projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/role_design_bridge.json`
+- `projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/角色研究.json`
+- `projects/aigc/<项目名>/5-设计/场景/1-清单/第N集/场景研究.json`
+- `projects/aigc/<项目名>/5-设计/场景/1-清单/第N集/scene_design_bridge.json`
+- `projects/aigc/<项目名>/5-设计/道具/1-清单/第N集/道具研究.json`
+- `projects/aigc/<项目名>/5-设计/道具/1-清单/第N集/prop_design_bridge.json`
 - `projects/aigc/<项目名>/0-Init/north_star.yaml`
 - `projects/aigc/<项目名>/0-Init/init_handoff.yaml`
 - `projects/aigc/<项目名>/0-Init/story-source-manifest.yaml`
@@ -143,7 +143,7 @@ governance_tier: full
 3. `[场景名].md` / `[角色名].md` 是从结构化字段导出的 human projection，不得漂成第二真源。
 4. `_manifest.json` 只承担审计与覆盖率侧车职责。
 5. `auto_image_asset` 是由 `full_generation_prompt` 派生的单主体概念图，不得反向抢占设计真源。
-6. 父层阶段摘要只写到 `projects/aigc/<项目名>/4-设计/validation-report.md`。
+6. 父层阶段摘要只写到 `projects/aigc/<项目名>/5-设计/validation-report.md`。
 7. 首次落盘后的收尾 refine 不再属于 `监制`；若需要后置审计，只能进入阶段 audit/validation 机制，不得生成第二份设计真源或平行 reviewer 总稿。
 
 ## Field Master

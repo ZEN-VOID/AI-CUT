@@ -6,7 +6,7 @@
 
 必须消费：
 
-- `projects/aigc/<项目名>/4-设计/道具/1-清单/道具清单.md`
+- `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`
 - `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - `projects/aigc/<项目名>/team.yaml`
 
@@ -29,10 +29,10 @@
 | section | required content |
 | --- | --- |
 | `名称 / 首次登场 / 原文描述复述` | 清单项名称、首次登场、对上游原文描述的短复述；不得改写成新事实 |
-| `研究考据` | 与道具形制、材质、工艺、年代、文化来源或功能逻辑有关的考据；冷门信息可网络搜索 |
+| `研究考据` | 与道具形制、材质、工艺、年代、文化来源或功能逻辑有关的考据；必须附研究证据链，冷门信息可网络搜索 |
 | `物语` | 道具在故事中的压力、象征、拥有者痕迹、使用历史或情绪功能 |
 | `解构` | 至少包含 `Photography` 和 `Prop Design` 两个字段 |
-| `提示词设计` | 引用全局风格提示词、补充物品风格，并给出英文 prompt，2000 字符内 |
+| `提示词设计` | 引用全局风格提示词、补充物品风格，列出 prompt evidence chain，并给出英文 prompt，2000 字符内 |
 
 ## Fixed Visual Constraint
 
@@ -76,9 +76,48 @@ flowchart LR
 ## Research Rules
 
 - 研究必须服务可见设计，不写与造型和拍摄无关的百科段落。
+- 每条研究结论必须落到至少一个可见或可生成字段：形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性、prompt evidence token。
+- 研究证据链应区分 `source_fact`、`inference`、`inspired_by` 与 `unknown`：确定事实可直接锁定，推断和灵感只能作为设计方向，不得伪装成上游事实。
+- 研究输出优先使用短表格或短条目，避免长段抄写；每条最好能回答“它改变了哪个形状、材料、工艺、磨损、年代或 prompt token”。
 - 冷门信息允许网络搜索的条件：用户明确要求考据、项目题材依赖真实历史/工艺/地域信息、或 LLM 对事实置信度不足。
 - 使用网络搜索时应优先可靠来源，并在输出中用简短来源说明或“不确定性注记”标识，不长篇摘录。
 - 若无法验证冷门信息，设计可使用“受某类工艺启发”的措辞，避免伪造具体史实。
+- 与现实危险物、医疗器械、武器或违法用途相关的研究只能转译为外观和叙事安全描述，不得提供可执行制造、使用或伤害步骤。
+
+## Research Evidence Chain Contract
+
+研究层必须形成如下最小链路：
+
+```text
+source cue -> confidence -> visual translation -> design lock -> prompt evidence token
+```
+
+| chain slot | required decision |
+| --- | --- |
+| `source cue` | 来自清单、north_star、team、项目记忆、项目 CONTEXT、本地知识或网络来源的哪一类证据 |
+| `confidence` | `confirmed` / `probable` / `inferred` / `uncertain`，并说明不确定性 |
+| `visual translation` | 转成形制、材料、工艺、年代、使用痕迹、功能逻辑或安全边界 |
+| `design lock` | 哪些特征必须固定，哪些允许生成时微变 |
+| `prompt evidence token` | 最终英文 prompt 中应出现的紧凑 token 或短语 |
+
+推荐研究覆盖面：
+
+| research axis | output expectation |
+| --- | --- |
+| `form_factor` | 轮廓、比例、开口、接口、可动件、握持/携带方式；不得加入手或场景入镜 |
+| `material_system` | 主材、副材、表面处理、反光/吸光、透明度、重量感 |
+| `craft_process` | 手作、铸造、锻打、漆面、缝制、雕刻、磨蚀、拼接等可见工艺痕迹 |
+| `period_logic` | 年代、地域、技术水平或世界观阶段如何改变形制与装饰 |
+| `wear_trace` | 划痕、磨损、污渍、修补、包浆、断裂、氧化等叙事痕迹 |
+| `function_logic` | 道具如何被使用、储存、开启、识别或误用；只写可见逻辑，不写操作教程 |
+| `risk_uncertainty` | 事实缺口、文化误读、危险用途、生成歧义和需要保守表达的位置 |
+
+## Prompt Evidence Chain Rules
+
+- 英文 prompt 的关键名词、材质、年代、磨损、工艺、形制和禁止项，应能回指 `研究考据`、`物语` 或 `解构` 的字段。
+- `prompt evidence chain` 不要求每个英文词都溯源，但必须覆盖会影响生成结果的核心 token。
+- 若某 token 只是全局风格提示词的一部分，应标注 `global_style`；若来自物品风格，应标注 `item_style`。
+- 不得为了塞入证据链而增加场景、人物、手持、桌面、房间或街景 token。
 
 ## North Star And Team Consumption
 
@@ -99,8 +138,8 @@ flowchart LR
 `Photography` 字段应回答：
 
 - 镜头距离、角度、焦段感、景深、光线、反光、阴影、运动或静置状态。
-- 道具在画面中如何被识别，是否需要特写、边缘光、手部互动或环境对照。
-- 默认固定为近景特写、45 度视角、纯色背景；不得使用手部互动或环境对照作为默认画面，只能在文字中说明用途。
+- 道具在画面中如何被识别，是否需要特写、边缘光或轮廓隔离。
+- 默认固定为近景特写、45 度视角、纯色背景；不得把人物、手、桌面、房间、街景或环境对照写入默认画面，只能在文字中说明用途。
 
 `Prop Design` 字段应回答：
 

@@ -137,7 +137,7 @@ stateDiagram-v2
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文；提交任务前加载 `.agents/skills/cli/dreamina-cli/SKILL.md + CONTEXT.md`。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 Dreamina、并发策略和输出根。
 3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
-4. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/4-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除；有图主体必须在对应主体信息后追加 `@<图片路径>`。
+4. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除；有图主体必须在对应主体信息后追加 `@<图片路径>`。
 5. 执行 step3：根据每个分镜组的完整组正文和已绑定主体图片，生成符合 `.agents/skills/cli/dreamina-cli` 的提交计划。存在参照图时优先 `dreamina multimodal2video --image ... --prompt ...`，并在 prompt 的角色、场景、道具主体信息后以内联 `@<图片路径>` 显式绑定本地图片；无参照图时走 `dreamina text2video --prompt ...`，禁止传空图片槽。
 6. 生成前必须运行 `dreamina user_credit`；Dreamina CLI 不可用或登录失败时，写入 `blocked` 队列状态，不得伪造 submit_id。
 7. 默认以分镜组为单位后台多线程批量并发提交；每个任务只能写自己的 submit 记录、下载文件和状态行；统一报告在汇流阶段写入。

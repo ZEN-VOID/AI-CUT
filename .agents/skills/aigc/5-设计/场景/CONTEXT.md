@@ -1,10 +1,10 @@
-# CONTEXT.md
+# Context: aigc 5-设计/场景
 
 ## Purpose & Loading Contract
 
-- 本文件是 `aigc-design-scene` 的经验层知识库，不是执行日志。
+- 本文件是 `aigc-design-scene` 场景域组根的经验层，不是场景设定库，也不是执行流水日志。
 - 调用 `.agents/skills/aigc/5-设计/场景/SKILL.md` 时，必须同时加载本文件。
-- 旧 `1-清单/场景`、`2-设计/场景`、`3-面板/场景` 的经验已归档到 `references/legacy/legacy-*-CONTEXT.md`，只在追溯旧行为时读取。
+- 叶子技能经验分别沉淀在 `1-清单/CONTEXT.md`、`2-设计/CONTEXT.md`、`3-生成/CONTEXT.md`；本文件只保存跨叶子的路由和交接经验。
 
 ## Context Health
 
@@ -13,29 +13,29 @@ monitor_version: 1
 soft_limit_chars: 20000
 hard_limit_chars: 40000
 status: ok
-recommended_action: keep-domain-scoped
-last_checked_at: 2026-04-24
+recommended_action: keep-domain-router-scoped
+last_checked_at: 2026-04-26
 ```
 
 ## Type Map
 
 | type_id | 触发症状 | 立即修复 | 验证点 |
 | --- | --- | --- | --- |
-| `SCENE-TM-01` | 场景输出仍散落在 `场景/1-清单`、`场景/2-设计`、`场景/3-面板` | 收束到 `projects/aigc/<项目名>/4-设计/` 根，并保留旧 JSON 为兼容侧车 | 根目录存在 `场景清单.md`、`[场景名].md`、`[场景名].json` |
-| `SCENE-TM-02` | 场景名从角色动作句或背景整句中膨胀出来 | 回到 `object-normalization-contract.md` 和 `detail-scene-normalization.md` | 场景主体名是空间实体，不是动作描述 |
-| `SCENE-TM-03` | 设计文档缺 `Scene Design / Cinematography / prompt整合` | 回到 `templates/scene_masterprompt.structured.v2.md` 重投影 | validator 通过 |
-| `SCENE-TM-04` | 面板 JSON 重新设计场景事实 | 回到 `[主体名].md` 的 `prompt整合`，面板只做 layout/prompt handoff | JSON prompt 回链同 stem Markdown |
+| `SCENE-GROUP-TM-01` | 用户只说“场景”但没有阶段 | 先查是否存在 `场景清单.md`、设计稿和生成资产，再路由到最早缺失叶子 | 不越级生成下游 |
+| `SCENE-GROUP-TM-02` | 场景与角色/道具混写 | 场景组根只处理空间主体；角色/道具回到对应域根 | 跨域输出不污染场景目录 |
+| `SCENE-GROUP-TM-03` | 下游设计发现清单误合或误拆 | 下游只写修复建议，回到 `1-清单` 修主真源 | 清单仍为唯一上游 |
+| `SCENE-GROUP-TM-04` | 无人空镜或空间规则成为长期偏好 | 写项目根 `MEMORY.md`，不写入组根 CONTEXT | 项目记忆可回读 |
 
 ## Repair Playbook
 
-1. 先判定故障属于路径漂移、对象抽取、设计模板、面板 JSON 或 imagegen handoff。
-2. 路径漂移优先修 `SKILL.md` Output Contract 与 `references/processing-order.md`。
-3. 对象抽取错误优先修清单阶段 LLM 判断，不把脚本 heuristics 升为主创真源。
-4. 模板漂移只改 `templates/scene_masterprompt.structured.v2.md` 和 renderer/validator，不在业务文档里开第三套结构。
-5. 面板失败先确认 `[主体名].json` 是否与 `[主体名].md` 同 stem、同主体、同 prompt 来源。
+1. 先判断问题是入口路由、上游缺失、叶子输出漂移、场景边界还是 LLM-first 越权。
+2. 路由问题只修组根 `SKILL.md` 或 registry routes；叶子业务问题下钻到具体叶子。
+3. 下游缺输入时，回到最早缺失叶子，不用空文件或默认模板假装完成。
+4. 场景设计稿出现人物主体时，通常是 `2-设计` 的设计边界问题；若清单主体混入人物或道具，则回到 `1-清单`。
+5. 若经验只影响某个叶子，沉淀到该叶子 `CONTEXT.md`，不要上收到组根。
 
 ## Reusable Heuristics
 
-- 场景清单的关键不是列尽背景句，而是收束可复用空间主体。
-- 场景设计文档必须先能作为单主体环境设计卡阅读，再作为图像 prompt 被消费。
-- 面板提示词不应补写新世界观；它只把当前场景设计转成 16:9 面板请求。
+- 场景域的第一问是“这个空间是否需要被独立设计或生成锁定”，不是“文本里是否出现了一个地点词”。
+- 场景清单回答“哪些空间进入资产链”，场景设计回答“空间如何被制作”，场景生成回答“如何交付可引用资产”。
+- 组根不写空间美学；它只负责让空间美学进入正确叶子。

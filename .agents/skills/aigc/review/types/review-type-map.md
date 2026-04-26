@@ -38,6 +38,6 @@
 
 | stage owner | canonical project runtime |
 | --- | --- |
-| `5-设计` | `projects/aigc/<项目名>/4-设计/` |
+| `5-设计` | `projects/aigc/<项目名>/5-设计/` |
 
-说明：`5-设计` 是技能阶段 owner；当前项目资产根仍由既有设计技能与 routes 固定为 `4-设计/`。review runner 的 required refs 应读取 `4-设计/`，但 repair route 可回到 `5-设计` 技能 owner。
+说明：`5-设计` 同时是技能阶段 owner 与当前项目资产根。旧 `4-设计/` 只作为 transition/compat 输入，review runner 的 required refs 默认读取 `5-设计/`。

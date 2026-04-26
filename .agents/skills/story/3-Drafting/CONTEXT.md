@@ -21,6 +21,7 @@
 | `north_star_chapter_brief` 直接复制 `north_star.yaml` 大段原文 | summary synthesis | 回到“整书承诺 + 当前章义务”的压缩摘要 | 在合同中固定“必须二次综合，不得整段照抄” | YAML 头可读、短小、且明显对齐当前章 |
 | frontmatter 变成大段资料转储，压过正文 | metadata density | 只保留当前章会直接用到的约束摘要 | 固定 `global/style` 摘要为约束性短段，而非 JSON dump | YAML 头短而有用 |
 | 正文主体仍沿用 planning 标题句法 | prose conversion | 把 `本章冲突 / 任务线 / 规避` 转译成人物行动、局势压力和章末牵引 | 在 skill 中固定“planning 只给蓝图，不得原样落成正文” | 正文读起来像小说，不像设计文档 |
+| Skill 2.0 升级后 `SKILL.md` 又重新堆满执行细则 | skill package ownership drift | 把长细则下沉到 `references/steps/types/review/knowledge-base`，入口只留路由与门禁 | 在 `Reference Loading Guide` 中固定每个 owner 的读取时机 | 根 `SKILL.md` 能独立回答输入和输出，但不复制分区全文 |
 
 ## Repair Playbook
 
@@ -31,6 +32,7 @@
 5. 若文件路径错了，先修 path contract，再谈内容质量。
 6. 若执行记录里看不见 provider messages pack、豆包 sidecar 或 provider report，优先怀疑根本没走真实豆包。
 7. 若 provider 输出缺字段，不要手工就地补正文冒充成功；先修 prompt / 校验 / provider 返回格式。
+8. 若 Skill 2.0 结构校验失败，先看是否缺 `agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `templates/output-template.md`，再看内容语义。
 
 ## Reusable Heuristics
 
@@ -40,3 +42,4 @@
 - frontmatter 的最佳长度是“足够约束当前章”，不是“展示我读了多少资料”。
 - 只要正文还保留 planning 标题或条目句法，就说明小说化转换还没完成。
 - 对当前技能来说，“真正命中豆包”不是口头说明，而是能落出 messages pack、provider report、raw model output 和最终 `第N卷/第N章.md` 的同轮证据链。
+- Skill 2.0 化之后，`SKILL.md` 应像入口和裁决层；章节细则、分支、review 与类型策略各回各的 owner，后续维护才不会牵一发而动全身。

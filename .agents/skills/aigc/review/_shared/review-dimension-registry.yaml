@@ -1,12 +1,12 @@
 version: 2
 canonical_owner: ".agents/skills/aigc/review/_shared/review-dimension-registry.yaml"
 purpose: "aigc-review 维度、checkpoint 审计点、stage acceptance 与 package release gate 的 runner 兼容真源"
-dimension_module_policy: "dimension paths are governed modules under the parent review package, not standalone Skill 2.0 packages"
+dimension_module_policy: "dimensions are governed specs under references/dimensions, not standalone Skill 2.0 packages"
 execution_provider:
   config_ref: ".agents/skills/aigc/review/_shared/execution-provider.yaml"
   default_skill_relative_to_codex_home: "skills/meta/构建/架构/code-reviewer/SKILL.md"
   mode: "background-window"
-  ownership: "child skills define audit spec; provider executes review; parent aggregates and routes repair"
+  ownership: "dimension specs define audit criteria; provider executes review; parent aggregates and routes repair"
 policies:
   checkpoint_inline:
     step_failure_order:
@@ -184,7 +184,7 @@ stage_acceptance:
 dimensions:
   - role_id: "planning-seed-validator"
     dimension: "规划与种子兑现"
-    skill_path: ".agents/skills/aigc/review/规划与种子兑现"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/planning-seed.md"
     scope: "0-初始化 / 1-分集 / 2-编导 seed and handoff obligations"
     objective: "确认项目起盘、分集与编导改编之间的核心种子没有断链"
     method: "对照 north_star、分集稿、编导稿和 handoff carrier，定位 seed 漂移与 obligation 漏传"
@@ -202,7 +202,7 @@ dimensions:
     upstream_source_owners: ["0-初始化", "1-分集"]
   - role_id: "detail-execution-validator"
     dimension: "分镜执行连续性"
-    skill_path: ".agents/skills/aigc/review/分镜执行连续性"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/detail-execution-continuity.md"
     scope: "2-编导 / 3-摄影 / 4-分组 continuity and shot grouping readiness"
     objective: "确认编导事实、摄影镜头语言与分镜组可以稳定供下游消费"
     method: "读取编导稿、摄影稿和分组稿，定位镜级字段断裂、组镜不连与 handoff 不足"
@@ -220,7 +220,7 @@ dimensions:
     upstream_source_owners: ["1-分集", "2-编导", "3-摄影"]
   - role_id: "design-alignment-validator"
     dimension: "设计对位"
-    skill_path: ".agents/skills/aigc/review/设计对位"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/design-alignment.md"
     scope: "5-设计 alignment against grouping and downstream image/video handoff"
     objective: "确认设计没有脱离上游分镜组，并为图像/视频提供稳定主体与视觉 truth"
     method: "对照 4-分组 与 5-设计 各域 canonical truth，定位设计漂移与 continuity 断带"
@@ -238,7 +238,7 @@ dimensions:
     upstream_source_owners: ["4-分组", "5-设计"]
   - role_id: "image-delivery-validator"
     dimension: "图像交付就绪"
-    skill_path: ".agents/skills/aigc/review/图像交付就绪"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/image-delivery-readiness.md"
     scope: "6-图像 frame image, storyboard sheet, and image handoff readiness"
     objective: "确认图像阶段请求、分镜画面和故事板达到可信交付门"
     method: "读取 A-分镜画面、B-分镜故事板与 handoff refs，定位 continuity、asset 和 provider pack 缺口"
@@ -256,7 +256,7 @@ dimensions:
     upstream_source_owners: ["4-分组", "5-设计", "6-图像"]
   - role_id: "video-delivery-validator"
     dimension: "视频交付就绪"
-    skill_path: ".agents/skills/aigc/review/视频交付就绪"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/video-delivery-readiness.md"
     scope: "7-视频 storyboard reference, subject reference, and provider handoff readiness"
     objective: "确认视频阶段参照、主体、运动与 provider handoff 达到可信交付门"
     method: "读取 B-分镜故事板参照、C-主体参照与 handoff refs，定位 provider、motion、duration 与 continuity 缺口"
@@ -274,7 +274,7 @@ dimensions:
     upstream_source_owners: ["4-分组", "5-设计", "6-图像", "7-视频"]
   - role_id: "governance-closure-validator"
     dimension: "治理闭环"
-    skill_path: ".agents/skills/aigc/review/治理闭环"
+    dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/governance-closure.md"
     scope: "validation carriers, source trace, route uniqueness, runtime closure"
     objective: "确认阶段 validation carrier、scope、route 和 runtime carriers 没有漂移"
     method: "读取项目根治理工件、阶段 validation carriers 与当前 scope refs，定位 gate/carrier/route 漂移"

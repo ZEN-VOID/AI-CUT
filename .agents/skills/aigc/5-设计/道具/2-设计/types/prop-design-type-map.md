@@ -11,6 +11,8 @@
 | `research_need` | `low` / `medium` / `high` | 决定是否允许网络搜索冷门信息 |
 | `state_model` | `single_state` / `multi_state` / `damaged_or_transformed` | 决定命名和版本处理 |
 | `style_pressure` | `realist` / `symbolic` / `surreal` / `period_specific` / `sci_fi_or_fantasy` | 决定全局风格与物品风格融合方式 |
+| `evidence_mode` | `source_fact` / `inference` / `inspired_by` / `unknown` | 决定研究结论能否进入确定性设计锁定 |
+| `research_axis` | `form_factor` / `material_system` / `craft_process` / `period_logic` / `wear_trace` / `function_logic` / `risk_uncertainty` | 决定研究必须转译到哪些可见设计字段 |
 
 ## Routing Matrix
 
@@ -22,6 +24,7 @@
 | 历史、宗教、工艺、地域冷门物件 | `research_high` | 考据来源、形制、工艺 | 是否伪造史实或无来源断言 |
 | 武器、危险装置、医疗器械 | `safety_sensitive` | 视觉描述而非现实操作指导 | 是否包含可执行伤害步骤 |
 | 多状态或损坏变形 | `multi_state` | 状态差异、同一主体识别点 | 文件命名是否清楚 |
+| 研究结论会进入 prompt 核心 token | `evidence_chain_required` | source cue、confidence、visual translation、prompt token | prompt token 是否能回指研究/物语/解构 |
 
 ## Routing Topology
 
@@ -44,15 +47,28 @@ flowchart TD
     H --> L
     J --> L
     K --> L
-    L --> M["steps/prop-design-workflow.md:N5-DESIGN"]
+    L --> M["steps/prop-design-workflow.md:N5-RESEARCH-CHAIN"]
 ```
+
+## Research Axis Strategy
+
+| route | research axis emphasis |
+| --- | --- |
+| `ritual` | `period_logic`、`craft_process`、`symbolic wear_trace`；避免伪造宗教或族群事实 |
+| `tool` | `function_logic`、`material_system`、`wear_trace`；突出可见使用磨损，不写操作教程 |
+| `weapon` | `form_factor`、`material_system`、`risk_uncertainty`；只保留美术外观，避免现实伤害指导 |
+| `document` | `material_system`、`period_logic`、`wear_trace`；关注纸张、封缄、折痕、印迹 |
+| `container` | `form_factor`、`craft_process`、`function_logic`；关注开合结构、接口和内部不可见逻辑的外部暗示 |
+| `costume_adjacent` | `material_system`、`craft_process`、`wear_trace`；仍按单道具呈现，不让人物入镜 |
+| `device` | `form_factor`、`function_logic`、`risk_uncertainty`；保留外观机制，不输出可复现工程步骤 |
+| `misc` | 至少覆盖 `form_factor`、`material_system`、`wear_trace` 三项 |
 
 ## Prompt Strategy By Type
 
 | route | prompt strategy |
 | --- | --- |
 | `key_prop` | 强化 unique silhouette、material memory、story wear、signature detail |
-| `support_prop` | 保持紧凑，聚焦功能、材质、年代和手部互动 |
+| `support_prop` | 保持紧凑，聚焦功能逻辑、材质、年代和可见使用痕迹 |
 | `background_lock` | 降低戏剧性，明确尺度、位置关系和可识别轮廓 |
 | `research_high` | 用 verified / inspired by 语言区分确定事实和灵感转译 |
 | `safety_sensitive` | 避免操作教程、结构拆解到可复现伤害层级，只保留美术可见特征 |
@@ -68,6 +84,11 @@ function_mode: misc
 research_need: medium
 state_model: single_state
 style_pressure: realist
+evidence_mode: inference
+research_axis:
+  - form_factor
+  - material_system
+  - wear_trace
 ```
 
 并在输出中保守处理，不新增复杂机制或多状态版本。

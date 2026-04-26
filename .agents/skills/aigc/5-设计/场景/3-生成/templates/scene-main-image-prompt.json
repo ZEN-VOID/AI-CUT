@@ -11,12 +11,12 @@
     "schema": "aigc.scene_generation.prompt_record/v1",
     "skill_id": "aigc-scene-generation",
     "stage": "5-设计/场景/3-生成",
-    "source_design_document": "projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md",
+    "source_design_document": "projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md",
     "subject_name": "<主体名称>",
     "image_role": "main_image",
     "imagegen_mode": "built_in_generate",
     "reference_images": [],
-    "output_path": "projects/aigc/<项目名>/4-设计/场景/3-生成/<主体名称>-主图.<ext>",
+    "output_path": "projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>",
     "created_at": "YYYY-MM-DD"
   },
   "prompt_payload": {

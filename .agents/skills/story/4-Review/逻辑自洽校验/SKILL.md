@@ -172,3 +172,39 @@ graph LR
 - 已明确区分世界规则、能力边界、社会生态与对象状态层的问题。
 - `contrivance_risk` 与设定破例风险已可被父层直接消费。
 - 若命中 source 冲突，报告已阻止误打回 drafting。
+
+## Skill 2.0 Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 维度审查入口与父层边界 | `../SKILL.md`、`../references/root-runtime-contract.md` |
+| 逻辑自洽步骤网络 | `steps/validation-flow.md` |
+| 三支柱与 source trace 细则 | `references/setting-self-consistency-framework.md`、`references/README.md` |
+| 质量门禁与 reviewer 汇流 | `review/review-gate.md` |
+| 类型化输入画像 | `types/type-map.md` |
+| 输出样式 | `templates/output-template.md` |
+| 脚本边界 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/heuristics.md` 与 `CONTEXT.md` |
+| 产品侧入口 | `agents/openai.yaml` |
+
+## Root-Cause Execution Contract
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+若逻辑问题没有 source owner，先回 `N4-SOURCE-TRACE`；若是 source truth 自相矛盾，优先 `back_to_source_contract`，不得打回 drafting。
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-LSC-ENTRY` | `SKILL.md` | 输入、边界、维度 verdict 与父层回接 | `FAIL-LSC-ENTRY` |
+| `FIELD-LSC-STEPS` | `steps/` | pack lock、三支柱、例外代价、source trace | `FAIL-LSC-STEPS` |
+| `FIELD-LSC-REVIEW` | `review/` | 维度门禁与 packet 可聚合性 | `FAIL-LSC-REVIEW` |
+
+## Skill 2.0 Output Contract
+
+- Required output: 逻辑自洽校验 `dimension_packet` 与 `dimension_report_ref`。
+- Output format: Markdown 维度报告 + 父层可聚合结构化 packet。
+- Output path: `projects/story/<项目名>/4-Review/第V卷/逻辑自洽校验.md`。
+- Naming convention: report filename 以父层 registry 的 `report_filename` 为准。
+- Completion gate: source owner、三支柱问题和 `contrivance_risk` 均可被父层直接聚合。

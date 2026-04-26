@@ -14,5 +14,5 @@
 ## Hard Rules
 
 1. 不得把 `team.yaml.roles.supervision` 重新升级成 review 父层的 post-write closeout owner。
-2. `aigc/review` 默认通过 registry child skills + provider 执行，而不是复用 `council-runtime`。
+2. `aigc/review` 默认通过 registry dimension specs + provider 执行，而不是复用 `council-runtime`。
 3. 若未来需要人工 reviewer roster，应另建 review-specific runtime contract，不得偷渡回 `team.yaml` 顾问团。

@@ -224,7 +224,8 @@ projects/aigc/<项目名>/
 ├── 1-分集/
 ├── 2-编导/
 ├── 3-摄影/
-├── 4-设计/
+├── 4-分组/
+├── 5-设计/
 │   ├── 场景/
 │   │   ├── 1-清单/
 │   │   ├── 2-设计/
@@ -237,7 +238,6 @@ projects/aigc/<项目名>/
 │       ├── 1-清单/
 │       ├── 2-设计/
 │       └── 3-生成/
-├── 4-分组/
 ├── 6-图像/
 ├── 7-视频/
 ├── 源/
@@ -257,8 +257,8 @@ Bootstrap runtime marker allowlist:
 - `projects/aigc/<项目名>/1-分集/`
 - `projects/aigc/<项目名>/2-编导/`
 - `projects/aigc/<项目名>/3-摄影/`
-- `projects/aigc/<项目名>/4-设计/`
 - `projects/aigc/<项目名>/4-分组/`
+- `projects/aigc/<项目名>/5-设计/`
 - `projects/aigc/<项目名>/6-图像/`
 - `projects/aigc/<项目名>/7-视频/`
 - `projects/aigc/<项目名>/源/`
@@ -268,7 +268,7 @@ Forbidden bootstrap paths:
 
 - legacy source aliases: `Original/`, `Story/`
 - legacy English stages: `1-Planning/`, `2-Global/`, `3-Detail/`, `4-Design/`, `5-Image/`, `6-Video/`, `7-Cut/`
-- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `4-摄影/`, `5-设计/`, `5-分组/`, `6-分组/`, `7-图像/`, `8-视频/`
+- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `4-摄影/`, `4-设计/`, `5-分组/`, `6-分组/`, `7-图像/`, `8-视频/`
 - legacy project context root alias: `CONTEXT/`
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。

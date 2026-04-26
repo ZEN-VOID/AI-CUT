@@ -34,7 +34,7 @@
 2. 再检查 `3-Detail` 输入口径是否统一，尤其是 canonical 与 legacy fallback 是否混写。
 3. 若命中 `服装`，先检查 `角色清单.json` 是否存在并属于当前 episode。
 4. 再核对当前已落地域是否仍遵守 `清单 + 研究 + bridge + manifest` 的分层。
-5. 最后才汇总到 `projects/aigc/<项目名>/4-设计/validation-report.md`，记录当前轮 dispatch、缺口与下一入口。
+5. 最后才汇总到 `projects/aigc/<项目名>/5-设计/validation-report.md`，记录当前轮 dispatch、缺口与下一入口。
 
 ## Reusable Heuristics
 

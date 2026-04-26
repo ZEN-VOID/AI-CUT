@@ -1269,6 +1269,9 @@ def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
             "acceptance_hint": "优先进入 `1-Cards` 建卡；若已有足够故事源，再进入 `2-Planning`。",
             "current_stage": "0-Init",
             "recommended_next_stage": "1-Cards",
+            "creative_mandate": payload["project_contract"]["creative_mandate"],
+            "promise_surface": payload["project_contract"]["promise_surface"],
+            "decision_policy": payload["project_contract"]["decision_policy"],
         },
         "stage_entry_seeds": {
             "cards_seed": payload["cards_seed"],

@@ -1,10 +1,10 @@
-# CONTEXT.md
+# Context: aigc 5-设计/角色
 
 ## Purpose & Loading Contract
 
-- 本文件是 `aigc-design-role` 的经验层知识库，不是执行日志。
+- 本文件是 `aigc-design-character` 角色域组根的经验层，不是角色设定库，也不是执行流水日志。
 - 调用 `.agents/skills/aigc/5-设计/角色/SKILL.md` 时，必须同时加载本文件。
-- 旧 `1-清单/角色`、`2-设计/角色`、`3-面板/角色` 的经验已归档到 `references/legacy/legacy-*-CONTEXT.md`，只在追溯旧行为时读取。
+- 叶子技能经验分别沉淀在 `1-清单/CONTEXT.md`、`2-设计/CONTEXT.md`、`3-生成/CONTEXT.md`；本文件只保存跨叶子的路由和交接经验。
 
 ## Context Health
 
@@ -13,28 +13,29 @@ monitor_version: 1
 soft_limit_chars: 20000
 hard_limit_chars: 40000
 status: ok
-recommended_action: keep-domain-scoped
-last_checked_at: 2026-04-24
+recommended_action: keep-domain-router-scoped
+last_checked_at: 2026-04-26
 ```
 
 ## Type Map
 
 | type_id | 触发症状 | 立即修复 | 验证点 |
 | --- | --- | --- | --- |
-| `ROLE-TM-01` | 角色输出仍散落在 `角色/1-清单`、`角色/2-设计`、`角色/3-面板` | 收束到 `projects/aigc/<项目名>/4-设计/` 根，并保留旧 JSON 为兼容侧车 | 根目录存在 `角色清单.md`、`[角色名].md`、`[角色名].json` |
-| `ROLE-TM-02` | 动作、环境或服装残片被升格成角色名 | 回到 `object-normalization-contract.md` 和 `detail-role-normalization.md` | `角色清单.md` 的主体身份稳定 |
-| `ROLE-TM-03` | 设计文档缺 Personality、Costume、Cinematography 或 `prompt整合` | 回到 `templates/character_masterprompt.structured.v2.md` 重投影 | validator 通过 |
-| `ROLE-TM-04` | 面板 JSON 在角色设计后重新发明服装或身份 | 回到 `[主体名].md` 的 `prompt整合`，面板只做 layout/prompt handoff | JSON prompt 回链同 stem Markdown |
+| `CHAR-GROUP-TM-01` | 用户只说“角色”但没有阶段 | 先查是否存在 `角色清单.md`、设计稿和生成资产，再路由到最早缺失叶子 | 不越级生成下游 |
+| `CHAR-GROUP-TM-02` | 清单、设计、生成任务混在一句里 | 按 `1-清单 -> 2-设计 -> 3-生成` 串行拆解；本轮只执行用户授权范围 | 未命中叶子无占位输出 |
+| `CHAR-GROUP-TM-03` | 叶子试图改写上游真源 | 回到叶子 ownership，以下游报告形式提出上游修复建议 | 上游文件未被越权改写 |
+| `CHAR-GROUP-TM-04` | 角色长期偏好在多轮持续生效 | 写项目根 `MEMORY.md`，不写入组根 CONTEXT | 项目记忆可回读 |
 
 ## Repair Playbook
 
-1. 先判定故障属于路径漂移、角色抽取、设计模板、面板 JSON 或 imagegen handoff。
-2. 身份漂移优先修清单阶段 LLM 判断和 role alias 合并，不靠面板阶段补救。
-3. 模板漂移只改 `templates/character_masterprompt.structured.v2.md` 和 renderer/validator。
-4. 面板失败先确认 `[主体名].json` 是否与 `[主体名].md` 同 stem、同角色、同 prompt 来源。
+1. 先判断问题是入口路由、上游缺失、叶子输出漂移还是 LLM-first 越权。
+2. 路由问题只修组根 `SKILL.md` 或 registry routes；叶子业务问题下钻到具体叶子。
+3. 下游缺输入时，回到最早缺失叶子，不用空文件或默认模板假装完成。
+4. 发现项目级角色偏好、禁区或命名稳定要求时，优先写项目根 `MEMORY.md`。
+5. 若经验只影响某个叶子，沉淀到该叶子 `CONTEXT.md`，不要上收到组根。
 
 ## Reusable Heuristics
 
-- 角色清单必须保留身份、服装状态、镜头证据与别名归并。
-- 角色设计文档要让面部、发型、体态、服装和镜头可读性一起成立。
-- 面板提示词消费角色设计，不应在面板阶段新造人物关系。
+- 角色域最稳的判断不是“用户提到角色就全跑”，而是“缺哪段 truth 就进哪段叶子”。
+- 角色清单回答“有哪些主体”，角色设计回答“主体如何被制作”，角色生成回答“资产如何交付”，三者不要混写。
+- 组根的价值是少做事但把路指准；一旦开始写角色正文，通常已经越过边界。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Cards Character"
+  short_description: "Build character cards and relationship graph."
+  default_prompt: "Use $story-cards-character to generate, repair, or audit character cards for a story project."

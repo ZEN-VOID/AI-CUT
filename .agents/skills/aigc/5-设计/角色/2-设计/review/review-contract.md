@@ -14,12 +14,13 @@
 | --- | --- |
 | upstream_anchor | 角色名称、首次登场、原文描述复述是否来自 `角色清单.md` |
 | project_context | 是否读取并体现 `north_star.yaml` 和 `team.yaml` 的相关设计上下文 |
+| research_layer | 研究是否转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain |
 | llm_first | 研究、物语、解构和提示词是否由 LLM 直接完成，脚本未替代主创 |
 | required_sections | 是否包含研究考据、物语、解构、提示词设计 |
 | decomposition | 五个解构字段是否齐全且内容不互相串位 |
 | costume | 服装是否含廓形、材质、色彩、配件、使用痕迹或功能逻辑 |
 | cinematography | 是否固定为纯色背景全身定妆照，而非剧情场景或环境肖像 |
-| prompt | 英文、融合全局风格和服装风格、不超过 2000 字符 |
+| prompt | 英文、融合全局风格和服装风格、不超过 2000 字符，关键短语可回指 prompt evidence chain |
 | fixed_visual | 是否包含 full-body costume fitting photo、solid color background、no scene environment |
 | subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整 |
 | scope | 是否未修改父级、registry、上游清单或其他 worker 范围 |
@@ -38,12 +39,27 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream_anchor | project_context | llm_first | sections | costume | cinematography | prompt | fixed_visual | subagents | scope
+  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | costume | cinematography | prompt | fixed_visual | subagents | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
   rework_target: ""
 ```
+
+## Research Layer Gate
+
+研究层需逐项通过以下审查：
+
+| gate_id | blocking_when_missing | reviewer_question |
+| --- | --- | --- |
+| `RESEARCH-IDENTITY` | high | 身份和故事压力是否来自清单/项目上下文，并转化为外观或姿态？ |
+| `RESEARCH-OCCUPATION-CLASS` | high | 职业、阶层和资源痕迹是否转化为身体、面料、磨损、配饰或行动功能？ |
+| `RESEARCH-REGION-ERA` | medium/high | 地域年代是否明确，特定文化/制度信息是否避免误写？ |
+| `RESEARCH-COSTUME-CRAFT` | high | 服装是否写到剪裁、面料、层次、闭合方式、工艺或使用痕迹？ |
+| `RESEARCH-BODY-POSTURE` | high | 身体姿态是否可用于纯色背景全身定妆照，而非剧情场景动作？ |
+| `RESEARCH-TABOO` | critical | 项目禁区、安全风险、文化误读和固定画面禁区是否已写入 guardrails？ |
+| `RESEARCH-UNCERTAINTY` | high | 低证据推演是否标明置信度和待确认项？ |
+| `RESEARCH-PROMPT-CHAIN` | high | prompt 中的关键短语是否能回指 `evidence -> design decision -> prompt phrase`？ |
 
 ## Review Flow Map
 
@@ -51,7 +67,8 @@ finding:
 flowchart TD
     A["待审查角色设计稿"] --> B["检查上游清单锚点"]
     B --> C["检查 north_star.yaml / team.yaml 消费"]
-    C --> D["检查 LLM-first 与脚本边界"]
+    C --> R["检查研究层八镜头与 prompt evidence chain"]
+    R --> D["检查 LLM-first 与脚本边界"]
     D --> E["检查必填章节与五个解构字段"]
     E --> F["检查服装细节与摄影字段"]
     F --> G["检查英文 prompt 长度和固定画面约束"]
@@ -71,6 +88,9 @@ flowchart TD
 - 英文提示词超过 2000 字符。
 - 摄影字段或英文提示词把角色放进具体场景、建筑空间、街景、室内陈设或复杂环境。
 - 缺少全身定妆照、纯色背景或 no scene environment 约束。
+- 研究层缺少身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性或 prompt evidence chain 任一关键镜头。
+- 研究内容无法说明如何转化为角色外观、服装、姿态、摄影或 prompt。
+- prompt 关键短语无法回指研究证据、项目风格或固定画面合同。
 - 未消费 `north_star.yaml` 和 `team.yaml` 却声称项目风格对齐。
 - 脚本生成了创作正文。
 - 默认 subagent 路径被跳过且无降级说明。

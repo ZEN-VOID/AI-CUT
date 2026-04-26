@@ -59,7 +59,7 @@ notes: ""
 1. 核对每个 JSON 的 `source_design_path` 指向存在的 `2-设计` 文档。
 2. 核对主图 prompt 与设计文档 `提示词设计` 有明确回链，没有新增身份、服装、时代或叙事事实。
 3. 核对多视图 JSON 的 `reference_image_path` 指向同一角色主图，且不跨角色复用。
-4. 核对真实生成模式下图片文件存在，并位于 `projects/aigc/<项目名>/4-设计/角色/3-生成/`。
+4. 核对真实生成模式下图片文件存在，并位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
 5. 核对 prompt-only 模式没有伪造图片路径，且 `blocked_reason` 可解释。
 6. 核对本轮没有修改上游 `2-设计`、父级 registry、场景/道具目录或其他 worker 范围。
 

@@ -8,10 +8,10 @@
 
 | reviewer | scope | blocking checks |
 | --- | --- | --- |
-| `research-reviewer` | 研究考据、冷门信息、事实/推断边界 | 无研究依据、冷门事实无来源策略 |
+| `research-reviewer` | `research_brief`、来源姿态、冷门信息、事实/推断边界、不确定性与视觉翻译 | 无研究简报、冷门事实无来源策略、猜测伪装事实、研究无法落到可见设计 |
 | `scene-design-reviewer` | Scene Design 字段、空间结构、材质、可制作资产 | 缺空间结构、缺建筑风格、不可制作 |
 | `cinematography-reviewer` | 摄影字段、构图、光线、镜头逻辑 | 与场景无关、泛电影感、缺光线/镜头 |
-| `prompt-reviewer` | 英文 prompt、全局风格、建筑风格、字符数 | 非英文、超 2000 characters、缺引用 |
+| `prompt-reviewer` | 英文 prompt、全局风格、建筑风格、`prompt_evidence_chain`、字符数 | 非英文、超 2000 characters、缺引用、关键 token 无证据链 |
 
 若当前 system/developer/tool 层无法真实启动 subagents，允许降级为本地 checklist，但必须报告：
 
@@ -36,7 +36,8 @@ flowchart TD
     F --> H
     G --> H
     H -->|"pass / pass_with_followups"| I["delivery accepted"]
-    H -->|"needs_rework"| J["return to LLM design draft"]
+    H -->|"research needs_rework"| J["return to research brief"]
+    H -->|"design needs_rework"| L["return to LLM design draft"]
     H -->|"blocked"| K["report missing input or policy block"]
 ```
 
@@ -46,11 +47,13 @@ flowchart TD
 | --- | --- |
 | source | 每个设计稿可回指上游清单行、north star 和 team |
 | structure | 模板板块齐全，`Scene Design` / `Cinematography` 分开 |
-| research | 研究与场景类型相关，冷门信息有来源策略 |
+| research | 研究与场景类型相关，包含 `research_brief`、来源姿态、证据矩阵和不确定性处理 |
+| visual_translation | 研究判断能翻译为空间结构、材料、光线、陈设、构图或 prompt token |
 | story | 物语服务主题和人物关系，不新增剧情事实 |
 | design | 空间结构、材质、色彩、陈设、动线和资产提示明确 |
 | cinematography | 镜头、光线、构图、焦段、运动与空间匹配 |
 | prompt | 英文、<= 2000 characters、承接全局风格和建筑风格，并显式固定纯空镜/no people |
+| prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
@@ -69,7 +72,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | structure | research | story | design | cinematography | prompt | fixed_visual | boundary | llm_first
+  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | prompt_evidence_chain | fixed_visual | boundary | llm_first
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -82,8 +85,11 @@ finding:
 
 - 缺少 `north_star.yaml`、`team.yaml` 或上游 `场景清单.md`，且未报告降级。
 - 输出文件缺少 required sections。
+- 研究层缺少 `research_brief`、`source_posture`、`uncertainty_register` 或 `visual_translation`。
+- 冷门、具体或高风险事实没有来源姿态，或把 `scene_inference` / `unresolved` 写成确定事实。
 - `解构` 未拆分为 `Scene Design` 和 `Cinematography`。
 - 英文提示词超过 2000 characters。
+- `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
 - 由脚本生成核心创作正文或提示词。
-- 写入范围越过 `projects/aigc/<项目名>/4-设计/场景/2-设计`。
+- 写入范围越过 `projects/aigc/<项目名>/5-设计/场景/2-设计`。

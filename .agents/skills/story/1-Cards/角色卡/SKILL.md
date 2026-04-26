@@ -235,3 +235,24 @@ flowchart LR
 - 本技能包名称不承载串行语义。
 - 当请求只命中角色对象，或与兄弟子技能不存在共享 writeback 依赖时，允许与兄弟子技能并发执行。
 - 只有在父技能判定 mixed/full-build 需要锁上游接口时，才进入串行链。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 角色塑形、成长系统、关系图谱与 planning 桥接细则 | `references/character-shaping-bridge.md` |
+| 执行角色卡生成、修复与回写节点 | `steps/character-card-workflow.md` |
+| 判定角色字段、成长接口和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用角色卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/character-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/2-角色卡/**/*.json` 中的正式角色卡 payload；必要时额外输出 `角色关系图谱.md`。
+- Output format: 使用 `templates/character-card.json` 对齐的 JSON；图谱使用 Markdown；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/2-角色卡/`。
+- Naming convention: 角色卡文件名应使用 ASCII 安全 id 或项目既有命名规则；图谱固定命名为 `角色关系图谱.md`。
+- Completion gate: 父层 `cards_writer.py` 写回成功，角色接口可被场景卡与物品卡消费，coverage / review gate 无 blocking finding。

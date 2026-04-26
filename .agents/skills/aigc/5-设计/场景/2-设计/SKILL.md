@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-design
-description: Use when expanding projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md into per-scene detailed design markdown files under projects/aigc/<项目名>/4-设计/场景/2-设计.
+description: Use when expanding projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md into per-scene detailed design markdown files under projects/aigc/<项目名>/5-设计/场景/2-设计.
 governance_tier: full
 metadata:
   short-description: AIGC scene detail design
@@ -8,13 +8,13 @@ metadata:
 
 # aigc 5-设计 / 场景 / 2-设计
 
-`$aigc-scene-design` 消费上游 `$aigc-scene-list` 的汇总式场景清单，为每个场景主体输出可制作、可审查、可进入图像生成阶段的单场景细目设计稿。核心创作、研究判断、空间想象、摄影语汇和提示词蒸馏必须由 LLM 直接完成；脚本只允许承担读取、字段校验、文件命名归一、字数检查和目录检查等机械辅助。
+`$aigc-scene-design` 消费上游 `$aigc-scene-list` 的汇总式场景清单，为每个场景主体输出可制作、可审查、可进入图像生成阶段的单场景细目设计稿。核心创作、研究判断、空间想象、摄影语汇和提示词蒸馏必须由 LLM 直接完成；脚本只允许承担读取、字段校验、文件命名归一、字数检查和目录检查等机械辅助。研究层不是孤立考据段，必须形成 `research_brief -> source_posture -> uncertainty_register -> visual_translation -> prompt_evidence_chain` 的可追溯设计证据链。
 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-scene-design` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与世界观、地理、年代、建筑、美术风格、摄影风格相关的上下文。
-- 必须读取上游 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
+- 必须读取上游 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取全局审美方向、故事母题、禁区和全局风格提示词。
 - 必须读取 `projects/aigc/<项目名>/team.yaml`，提取与设计、美术、建筑、摄影、导演或大师监制相关的上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
 - 固定画面约束：场景设计默认只输出纯空镜空间设计，不得出现人物、人体局部、剪影、倒影或可识别人类存在；英文提示词必须显式包含 `empty shot, no people, no human figures` 等等价约束。
@@ -31,7 +31,7 @@ Accepted input:
 
 - 项目名、项目路径或目标 `projects/aigc/<项目名>/`。
 - 单个场景名、多个场景名、场景清单行号，或“处理全部场景设计”的请求。
-- 已存在的 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`。
+- 已存在的 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`。
 - 用户补充的建筑风格、地理原型、年代、摄影倾向、禁区或参考资料。
 
 Required input:
@@ -78,8 +78,9 @@ flowchart TD
     F --> J["生成 type_profile"]
     G --> J
     H --> J
-    J --> K["LLM 直出研究 / 物语 / 解构 / prompt"]
-    K --> L{"review gate"}
+    J --> K["LLM 直出 research_brief / visual_translation"]
+    K --> N["LLM 直出物语 / 解构 / prompt_evidence_chain"]
+    N --> L{"review gate"}
     I --> L
     L -->|"pass"| M["写入 canonical 单场景设计稿"]
     L -->|"needs_rework"| K
@@ -128,12 +129,13 @@ stateDiagram-v2
 2. 读取 `north_star.yaml`、`team.yaml` 和上游 `场景清单.md`，建立 `input_manifest`。
 3. 按用户指定或清单缺口选择目标场景，不新增未在上游清单出现的场景主体。
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
-5. 按 `references/scene-design-contract.md` 由 LLM 完成研究考据、物语、解构和提示词设计；冷门信息可在许可条件下网络搜索，并记录来源或检索说明。
-6. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计。
-7. `解构` 必须分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词和建筑风格，并输出英文提示词，长度不超过 2000 characters。
-8. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
-9. 写入 `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`。
-10. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级。
+5. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
+6. 按 `references/scene-design-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；提示词中的关键空间、材质、光线、构图和风格 token 必须能回指研究或设计依据。
+7. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
+8. `解构` 必须分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词和建筑风格，并输出英文提示词，长度不超过 2000 characters。
+9. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
+10. 写入 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`。
+11. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级。
 
 ## Field Mapping
 
@@ -141,13 +143,14 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-SCENE-DESIGN-01` | 输入取证 | 可回指项目根、`north_star.yaml`、`team.yaml`、上游场景清单行 | `FAIL-SCENE-DESIGN-01` |
 | `FIELD-SCENE-DESIGN-02` | 场景主体 | 主体来自上游清单，不新增平行清单真源 | `FAIL-SCENE-DESIGN-02` |
-| `FIELD-SCENE-DESIGN-03` | 研究考据 | 与场景类型、年代、地域、建筑或材质相关，冷门信息记录来源策略 | `FAIL-SCENE-DESIGN-03` |
-| `FIELD-SCENE-DESIGN-04` | 物语 | 解释空间与人物/叙事/主题的关系，不写成剧情正文 | `FAIL-SCENE-DESIGN-04` |
+| `FIELD-SCENE-DESIGN-03` | 研究层闭环 | 包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并与类型画像相关 | `FAIL-SCENE-DESIGN-03` |
+| `FIELD-SCENE-DESIGN-04` | 物语 | 解释空间与角色关系、叙事和主题的关系，不写成剧情正文，不让人物入画 | `FAIL-SCENE-DESIGN-04` |
 | `FIELD-SCENE-DESIGN-05` | 解构 | 包含 `Scene Design` 与 `Cinematography` 两组字段 | `FAIL-SCENE-DESIGN-05` |
 | `FIELD-SCENE-DESIGN-06` | 提示词 | 引用全局风格提示词和建筑风格，英文，不超过 2000 characters | `FAIL-SCENE-DESIGN-06` |
 | `FIELD-SCENE-DESIGN-07` | LLM-first | 脚本没有生成核心创作正文或提示词 | `FAIL-SCENE-DESIGN-07` |
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `5-设计/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
+| `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
 
 ## Thought Pass Map
 
@@ -156,9 +159,10 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`north_star.yaml`、`team.yaml`、`场景清单.md` | 三个核心来源是否可读，缺口是否需要降级报告 | `input_manifest` |
 | `PASS-SCENE-DESIGN-02` | 主体选择 | 用户指定项或上游清单 | 是否只处理清单已有场景，是否需要跳过已有设计稿 | `target_scene_list` |
 | `PASS-SCENE-DESIGN-03` | 类型画像 | 场景名、原文关键词、项目资料 | 场景类型、建筑风格入口、研究需求和摄影风险 | `type_profile` |
-| `PASS-SCENE-DESIGN-04` | LLM 设计 | 上游证据、north star、team、type profile | 研究、物语、解构和提示词是否由 LLM 直出 | `scene_design_draft` |
-| `PASS-SCENE-DESIGN-05` | reviewer 汇流 | 设计稿草案与 review contract | subagents 或本地 checklist 是否通过门禁 | `review_verdict` |
-| `PASS-SCENE-DESIGN-06` | 落盘验收 | accepted draft | 路径、命名、字段、prompt 字符数是否合规 | `S###-<场景名>.md` |
+| `PASS-SCENE-DESIGN-04` | 研究简报 | 上游证据、north star、team、type profile | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
+| `PASS-SCENE-DESIGN-05` | LLM 设计 | research brief、north star、team、type profile | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出 | `scene_design_draft` |
+| `PASS-SCENE-DESIGN-06` | reviewer 汇流 | 设计稿草案与 review contract | subagents 或本地 checklist 是否通过门禁 | `review_verdict` |
+| `PASS-SCENE-DESIGN-07` | 落盘验收 | accepted draft | 路径、命名、字段、prompt 字符数是否合规 | `S###-<场景名>.md` |
 
 ## Pass Table
 
@@ -167,9 +171,10 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-01` | 读取技能与项目上下文，建立来源清单 | `input_manifest` | `steps/scene-design-workflow.md` |
 | `PASS-SCENE-DESIGN-02` | 从上游 `场景清单.md` 选择目标主体 | `target_scene_list` | `references/scene-design-contract.md` |
 | `PASS-SCENE-DESIGN-03` | 生成 `type_profile` 并确定建筑/空间风格入口 | `type_profile` | `types/scene-design-type-map.md` |
-| `PASS-SCENE-DESIGN-04` | 由 LLM 直写研究考据、物语、解构和英文提示词 | `scene_design_draft` | `templates/output-template.md` |
-| `PASS-SCENE-DESIGN-05` | 执行 subagents/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
-| `PASS-SCENE-DESIGN-06` | 写入 canonical 单场景设计稿 | output file path | `SKILL.md` Output Contract |
+| `PASS-SCENE-DESIGN-04` | 由 LLM 直写 `research_brief`、来源姿态、不确定性和视觉翻译 | `research_brief` | `references/scene-design-contract.md` |
+| `PASS-SCENE-DESIGN-05` | 由 LLM 直写物语、解构、英文提示词和 `prompt_evidence_chain` | `scene_design_draft` | `templates/output-template.md` |
+| `PASS-SCENE-DESIGN-06` | 执行 subagents/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
+| `PASS-SCENE-DESIGN-07` | 写入 canonical 单场景设计稿 | output file path | `SKILL.md` Output Contract |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -178,6 +183,8 @@ stateDiagram-v2
 - 从剧情想象新增了上游清单没有的场景主体。
 - 未读取 `north_star.yaml` 或 `team.yaml` 就生成风格判断。
 - 研究考据由脚本、模板拼接或无来源断言替代 LLM 判断。
+- 研究层只有百科式段落，没有 `research_brief`、来源姿态、不确定性和视觉翻译。
+- 英文提示词关键 token 无法通过 `prompt_evidence_chain` 回指来源、推断或设计选择。
 - `解构` 缺少 `Scene Design` 或 `Cinematography` 字段。
 - 英文提示词没有引用全局风格提示词和建筑风格，或超过 2000 characters。
 - 场景 prompt 或摄影设计允许人物、人体局部、剪影、倒影或人群进入画面。
@@ -192,11 +199,12 @@ stateDiagram-v2
 ### Required output
 
 1. 每个目标场景输出一个单场景细目设计 Markdown。
-2. 每个设计稿必须包含：`名称`、`首次登场`、`原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计`。
-3. `解构` 必须包含 `Scene Design` 与 `Cinematography` 字段。
-4. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用和英文提示词；英文提示词不超过 2000 characters。
-5. 画面固定为纯空镜，不得出现人物、人体局部、剪影、倒影或可识别人类存在。
-6. 可选执行报告记录输入范围、已生成文件、降级情况、冷门信息检索情况和 review verdict。
+2. 每个设计稿必须包含：`名称`、`首次登场`、`原文描述复述`、`研究考据 / Research Brief`、`物语`、`解构`、`提示词设计`。
+3. `研究考据 / Research Brief` 必须包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并明确哪些信息来自上游资料、常识推断、网络来源或未解不确定性。
+4. `解构` 必须包含 `Scene Design` 与 `Cinematography` 字段。
+5. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用、`prompt_evidence_chain` 和英文提示词；英文提示词不超过 2000 characters。
+6. 画面固定为纯空镜，不得出现人物、人体局部、剪影、倒影或可识别人类存在。
+7. 可选执行报告记录输入范围、已生成文件、降级情况、冷门信息检索情况和 review verdict。
 
 ### Output format
 
@@ -209,8 +217,8 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-SCENE-DESIGN` | `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md` |
-| `OUTPUT-SCENE-DESIGN-REPORT` | `projects/aigc/<项目名>/4-设计/场景/2-设计/执行报告.md` |
+| `OUTPUT-SCENE-DESIGN` | `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md` |
+| `OUTPUT-SCENE-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/场景/2-设计/执行报告.md` |
 
 ### Naming convention
 
@@ -224,7 +232,9 @@ stateDiagram-v2
 - 已读取 `north_star.yaml`、`team.yaml` 和上游 `场景清单.md`。
 - 每个输出文件都能回指上游清单行的 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 每个设计稿包含 required output 中的全部板块和字段。
+- 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
 - 英文提示词不超过 2000 characters，且显式承接全局风格提示词与建筑风格。
+- `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。
 - 英文提示词和摄影字段明确固定为纯空镜，并包含 `no people / no human figures` 等负向约束。
 - 未使用脚本生成核心创作正文、研究判断、空间设计、摄影设计或提示词。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 subagent 降级原因。

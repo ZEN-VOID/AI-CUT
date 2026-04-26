@@ -114,3 +114,24 @@ flowchart LR
 - 本技能包名称不承载串行语义。
 - 当请求只命中场景对象，或与兄弟子技能不存在共享 writeback 依赖时，允许与兄弟子技能并发执行。
 - 只有在父技能判定 mixed/full-build 需要先吸收角色接口或为物品提供规则前置时，才进入串行链。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 场景规则、危险、复用策略和角色接口消费细则 | `references/scene-card-contract.md` |
+| 执行场景卡生成、修复与回写节点 | `steps/scene-card-workflow.md` |
+| 判定场景字段、复用策略和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用场景卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/scene-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/3-场景卡/**/*.json` 中的正式场景卡 payload。
+- Output format: 使用 `templates/scene-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/3-场景卡/`。
+- Naming convention: 场景卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
+- Completion gate: 父层 `cards_writer.py` 写回成功，场景规则可被物品卡和 planning 消费，coverage / review gate 无 blocking finding。

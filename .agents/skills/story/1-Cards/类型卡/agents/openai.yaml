@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Cards Type"
+  short_description: "Lock genre promise and planning import."
+  default_prompt: "Use $story-cards-type to generate, repair, or audit type cards for a story project."

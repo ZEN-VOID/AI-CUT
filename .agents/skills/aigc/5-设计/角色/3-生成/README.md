@@ -34,15 +34,15 @@ Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 imagegen，生
 
 调用 `$aigc-design-character-generation`，提供 `projects/aigc/<项目名>/` 或单个角色名。技能会读取：
 
-- `projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`
+- `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`
 - `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`
 
 输出到：
 
-- `projects/aigc/<项目名>/4-设计/角色/3-生成/<主体名称>-主图.<ext>`
-- `projects/aigc/<项目名>/4-设计/角色/3-生成/<主体名称>-主图.json`
-- `projects/aigc/<项目名>/4-设计/角色/3-生成/<主体名称>-多视图.<ext>`
-- `projects/aigc/<项目名>/4-设计/角色/3-生成/<主体名称>-多视图.json`
+- `projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-主图.<ext>`
+- `projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-主图.json`
+- `projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-多视图.<ext>`
+- `projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-多视图.json`
 
 ## Boundary
 

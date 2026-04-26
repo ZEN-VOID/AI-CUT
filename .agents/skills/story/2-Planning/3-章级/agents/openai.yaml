@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Plan Chapter Level"
+  short_description: "章级规划技能，锁定单章节奏、任务、线索、伏笔与规避"
+  default_prompt: "使用 $story-plan-chapter-level 为指定项目、卷号和章号生成或修订章级规划；先回读整体规划与目标卷规划，再输出可供 drafting 消费的第N章.md。"

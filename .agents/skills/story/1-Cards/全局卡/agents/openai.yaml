@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Cards Global"
+  short_description: "Build and repair global story cards."
+  default_prompt: "Use $story-cards-global to generate, repair, or audit global cards for a story project."

@@ -1,6 +1,6 @@
 ---
 name: aigc-design-object-list
-description: Use when the `5-设计/1-清单` tranche needs to hold the shared `3-Detail` consumption contract and route the currently landed scene/prop list leaves under `projects/aigc/<项目名>/4-设计/`.
+description: Use when the `5-设计/1-清单` tranche needs to hold the shared `3-Detail` consumption contract and route the currently landed scene/prop list leaves under `projects/aigc/<项目名>/5-设计/`.
 governance_tier: full
 ---
 
@@ -34,7 +34,7 @@ governance_tier: full
 - `3-Detail -> 1-清单` 的共享输入口径裁决
 - `角色 -> 服装` 的依赖门
 - 各 leaf canonical 输出的覆盖率检查
-- `projects/aigc/<项目名>/4-设计/validation-report.md` 的阶段级验收摘要
+- `projects/aigc/<项目名>/5-设计/validation-report.md` 的阶段级验收摘要
 
 父层不拥有：
 
@@ -70,7 +70,7 @@ governance_tier: full
 硬规则：
 
 1. `场景 / 角色 / 道具` 的第一输入根固定为 `projects/aigc/<项目名>/3-Detail/第N集.json`。
-2. `服装` 的第一输入根固定为 `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/角色清单.json`。
+2. `服装` 的第一输入根固定为 `projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/角色清单.json`。
 3. legacy `projects/aigc/<项目名>/编导/第N集.json` 只允许作为兼容 fallback，不得与 canonical 路径并列成双真源。
 4. 父层只调度与验收，不创建 stage-level 第二对象池。
 5. 全量构建时，`服装` 不得早于 `角色`。
@@ -96,7 +96,7 @@ governance_tier: full
 15. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
 16. 其余 sibling 迁回后，再按命中域追加加载
 17. `projects/aigc/<项目名>/3-Detail/第N集.json`
-18. `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/角色清单.json`（若存在）
+18. `projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/角色清单.json`（若存在）
 19. 各 leaf 已存在的 `1-清单` 输出物（若存在）
 
 ## Total Input Contract (Mandatory)
@@ -107,7 +107,7 @@ governance_tier: full
 
 ### 条件必需输入
 
-- `projects/aigc/<项目名>/4-设计/角色/1-清单/第N集/角色清单.json`
+- `projects/aigc/<项目名>/5-设计/角色/1-清单/第N集/角色清单.json`
   - 当 `服装` leaf 迁回并被命中时必须存在
 
 ### 可选输入
@@ -158,7 +158,7 @@ governance_tier: full
 父层补充规则：
 
 1. 各 leaf 只在自己的 domain runtime 下写 canonical 输出。
-2. 父层只在 `projects/aigc/<项目名>/4-设计/validation-report.md` 汇总当前轮 dispatch、缺口与 handoff。
+2. 父层只在 `projects/aigc/<项目名>/5-设计/validation-report.md` 汇总当前轮 dispatch、缺口与 handoff。
 3. 父层不得生成 `1-清单.json` 一类并列总稿。
 4. `2-设计` 只能消费 leaf 已稳定写出的 design-source outputs；对 `场景/角色/道具` 来说，默认同时读取三真源，分别用于对象池、研究证据与设计桥接。
 
@@ -229,4 +229,4 @@ governance_tier: full
 - 已建立 `1-清单` 父级阶段合同
 - 已锁定 `场景 / 角色 / 道具` 的输入与输出边界，并为 future siblings 保留共享消费真源
 - 已明确 `角色 -> 服装` 依赖门只在对应 leaf 回迁后生效
-- 已给出 `projects/aigc/<项目名>/4-设计/validation-report.md` 的阶段级验收回接
+- 已给出 `projects/aigc/<项目名>/5-设计/validation-report.md` 的阶段级验收回接

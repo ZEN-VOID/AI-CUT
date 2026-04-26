@@ -131,7 +131,7 @@ stateDiagram-v2
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 imagegen。
 3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 组装 prompt 时必须添加固定开头：`Create a multi-panel storyboard based on the following shot breakdown. Add the shot sequence number in the bottom-left corner of each panel (no other text). Auto-adapt the panel layout grid based on the total number of shots.`
-5. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/4-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照槽位移除。
+5. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照槽位移除。
 6. 执行 step3：按 `.agents/skills/cli/imagegen` 规范调用图像生成。每个分镜组是一个独立任务，prompt 必须包含完整分镜故事板信息和已绑定的角色、场景、道具参照；默认使用内置 `image_gen` 路由，执行节奏按当前工具能力顺序或受控批量处理，不设置后台并行要求。
 7. built-in `image_gen` 默认可用 `text_prompt_only` 方式生成并复制到项目 `images/`；本地 reference path 记录在 prompt / manifest / plan 中，但不得宣称已作为视觉输入传给工具。该状态不阻断生成，必须在 results/report 中写 `reference_input_status: not_passed_to_generation_tool` 或等价说明。
 8. 生成时可根据每个分镜组的分镜数量灵活布局，但必须确保所有镜头都进入 storyboard；若镜头数过多导致单图完整性风险，应在计划中标记分页或人工确认策略。

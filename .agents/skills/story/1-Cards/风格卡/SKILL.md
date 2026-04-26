@@ -135,3 +135,24 @@ flowchart LR
 - 本技能包名称不承载串行语义。
 - 风格卡默认可与 `角色卡 / 场景卡 / 物品卡` 并发执行，因为它只消费初始化真源。
 - 只有在父技能要求统一收束 shared writeback 或重建全套 cards 索引时，才在父层整体流程中被纳入同轮闭环。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 整书风格契约与写法投影细则 | `references/style-card-contract.md` |
+| 执行风格卡生成、修复与回写节点 | `steps/style-card-workflow.md` |
+| 判定风格卡字段、风格 gate 和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用风格卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/style-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/1-风格卡/**/*.json` 中的正式风格卡 payload。
+- Output format: 使用 `templates/style-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/1-风格卡/`。
+- Naming convention: 风格卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
+- Completion gate: 父层 `cards_writer.py` 写回成功，风格 gate 可被 drafting/review 消费，coverage / review gate 无 blocking finding。

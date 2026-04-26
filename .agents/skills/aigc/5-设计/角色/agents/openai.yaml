@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "AIGC 角色设计"
-  short_description: "融合角色清单、角色设计与角色面板提示词，输出到项目 5-设计 根目录。"
-  default_prompt: "Use $aigc-design-role to consume `projects/aigc/<项目名>/3-Detail/第N集.json` or existing role design inputs, run the role list -> design -> panel order, preserve the current character Markdown template and role panel JSON mechanism, then write `角色清单.md`, `[角色名].md`, and `[角色名].json` directly under `projects/aigc/<项目名>/4-设计/`."

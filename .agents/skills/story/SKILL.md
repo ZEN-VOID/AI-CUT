@@ -196,7 +196,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 5. 若当前项目已锁定题材方向盘，优先读取 `1-Cards/5-类型卡/**/*.json` 与 `2-Planning/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
    - `4-Review/_shared/validation-fact-pack-spec.md`
-   - `5-Loopback/_shared/loopback-actualization-spec.md`
+   - `5-Loopback/references/loopback-actualization-spec.md`
 7. 路由到目标阶段的 `SKILL.md`。
 8. 读取目标阶段 `CONTEXT.md`。
 

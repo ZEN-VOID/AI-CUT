@@ -9,93 +9,112 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读父层 `../SKILL.md` 与 `../CONTEXT.md`，先锁定 `story` 总线边界，再进入当前 chapter-native 正文创作。
+- 必须回读父层 `../SKILL.md` 与 `../CONTEXT.md`，先锁定 `story2026` 总线边界，再进入当前 chapter-native 正文创作。
 - 必须同时读取 `../_shared/context-loading-contract.md` 与 `../_shared/core-constraints.md`。
-- 必须读取当前项目的三层 planning 真源：
-  - `2-Planning/整体规划.md`
-  - `2-Planning/第N卷/卷规划.md`
-  - `2-Planning/第N卷/第N章.md`
-- 必须读取当前项目的对象/风格真源：
-  - `1-Cards/0-全局卡/**/*.json`
-  - `1-Cards/1-风格卡/**/*.json`
-  - `0-Init/north_star.yaml`
-- 若 `projects/story/<项目名>/CONTEXT/` 存在，必须按当前卷/章任务相关性加载对应上下文文件，不得整目录盲读后直接忽略。
-- 若上一章正文 `projects/story/<项目名>/3-Drafting/第N卷/第N-1章.md` 已存在，必须读取它作为连续性增强输入；若不存在，不得因此阻塞本章起稿。
+- 若当前任务已绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前卷/章相关性加载项目根 `CONTEXT/` 中的上下文文件。
+- 必须读取当前项目的三层 planning 真源、对象/风格真源与 `north_star.yaml`；具体清单见 `references/chapter-drafting-contract.md`。
+- 若上一章正文已存在，必须读取它作为连续性增强输入；若不存在，不得因此阻塞本章起稿。
 - 若目标文件已存在，必须先回读现有 `第N卷/第N章.md`，再决定是续写、重写还是局部重构。
-- 正式 bootstrap 时，优先参照 `templates/chapter-root.template.md` 生成 YAML 头与正文骨架。
-- 正文的实际创作步骤必须走 `scripts/write_chapter_via_doubao.py -> .agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py`；不得把本地 GPT 直写当作默认执行路径。
+- `CONTEXT.md` 只承载经验层 Type Map、Repair Playbook 与 Reusable Heuristics，不得重定义本入口合同。
 
 ## Purpose
 
-`3-Drafting` 现在直接承担 chapter-native 正文主技能职责。
+`3-Drafting` 是 `story2026` 主链上的章节正文主技能。它负责把当前章 planning 义务、全局卡、风格卡、`north_star.yaml`、项目记忆、项目上下文与上一章承接，转成可落盘的中文小说章节。
 
-它负责：
+它拥有：
 
-- 以章为单位，把当前章 planning 义务翻译成完整小说正文。
-- 把全局卡、风格卡与 `north_star.yaml` 压成可回读的 YAML 头。
-- 在正文前显式记录本章依赖的 global/style/north-star/project-context/previous-chapter 约束。
-- 把正式落点固定到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。
-- 把“实际写正文”交给 AnyFast `doubao-seed-2.0-pro` 执行，脚本只负责上下文装配、prompt 收束、结果校验与正式写回。
+- 当前章正文根文件写权：`projects/story/<项目名>/3-Drafting/第N卷/第N章.md`
+- 当前章 YAML frontmatter 的写权
+- provider artifacts 的辅助落盘权
 
-它不负责：
+它不拥有：
 
-- 改写 `2-Planning` 或 `1-Cards` 真源。
-- 代替 `4-Review` 做 PASS/FAIL 判定。
-- 代替 `5-Loopback` 回写 validated actualization。
-- 把上一章缺失伪装成“无法开写”的硬失败。
+- `0-Init`、`1-Cards`、`2-Planning` 的真源改写权
+- `4-Review` 的 PASS/FAIL 判定权
+- `5-Loopback` 的 validated actualization 写回权
 
-## Stage Position
+## Mode Selection
 
-- 当前技能是 `story` 主链上的 `3-Drafting` 正式主技能，不再通过 `正文/` child 承接。
-- 当前技能拥有当前章正文根文件与其 YAML 头的写权。
-- `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml` 等批次/恢复工件如仍存在，只视为 runtime 兼容载体，不再定义本技能的主创拓扑。
+| mode | 触发信号 | 主路径 |
+| --- | --- | --- |
+| `chapter_draft` | 当前章尚无正文，用户要求起草/写正文 | 读取上游真源后调用豆包生成完整章节 |
+| `chapter_rewrite` | 目标章已存在，用户要求重写/大修 | 先回读现有正文，再按当前 planning 与用户约束重写 |
+| `chapter_continue` | 目标章已存在，用户要求续写或补全 | 保留已成立承接，补足未完成正文 |
+| `local_repair` | 审查或用户指出局部问题 | 定位问题层，生成局部修复输入，仍不得由脚本主创正文 |
+| `dry_run` | 用户或调试要求只装配上下文包 | 只生成 messages pack 与报告，不调用 provider、不写正文真源 |
 
-## Canonical Sources
+## Reference Loading Guide
 
-- `../SKILL.md`
-- `../CONTEXT.md`
-- `../_shared/context-loading-contract.md`
-- `../_shared/core-constraints.md`
-- `./templates/chapter-root.template.md`
-- `./templates/doubao-system-prompt.md`
-- `./scripts/write_chapter_via_doubao.py`
-- `../../api/anyfast/llm/doubao-seed-2.0-pro/SKILL.md`
-- `../../api/anyfast/llm/doubao-seed-2.0-pro/CONTEXT.md`
+| 场景 | 读取文件 |
+| --- | --- |
+| 需要章节输入、frontmatter、provider 与输出细则 | `references/chapter-drafting-contract.md` |
+| 需要兼容旧 step-after-write 即时审计链路 | `_shared/drafting-instant-validation-contract.md` |
+| 需要执行拓扑、分支、汇流、失败回路 | `steps/chapter-drafting-workflow.md` |
+| 需要判定起草/重写/续写/修复/dry-run 类型 | `types/drafting-type-map.md` |
+| 需要质量门禁、provider 证据与 reviewer 规则 | `review/review-contract.md` |
+| 需要可复用写作与迁移经验 | `CONTEXT.md` 与 `knowledge-base/drafting-heuristics.md` |
+| 需要章节文件骨架或豆包系统提示 | `templates/chapter-root.template.md`、`templates/doubao-system-prompt.md`、`templates/output-template.md` |
+| 需要执行机械辅助 | `scripts/write_chapter_via_doubao.py` |
+
+## Input Contract
+
+### Required Input
+
+- 项目根：`projects/story/<项目名>/`
+- 当前卷章定位：`volume_num / chapter_num` 或可由 `chapter_num` 推导的卷号
+- 三层 planning：`2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md`
+- 对象/风格真源：`1-Cards/0-全局卡/**/*.json`、`1-Cards/1-风格卡/**/*.json`
+- 北极星：`0-Init/north_star.yaml`
+
+### Conditional Input
+
+- `projects/story/<项目名>/MEMORY.md`：项目存在时必须加载。
+- `projects/story/<项目名>/CONTEXT/**/*.md`：存在时按当前卷/章相关性加载。
+- `projects/story/<项目名>/3-Drafting/第N卷/第N-1章.md`：存在时作为承接增强。
+- 当前目标章正文：存在时必须回读后再续写、重写或修复。
+
+### Reject Or Block
+
+- 缺少任一必需 planning、全局卡、风格卡或 `north_star.yaml`。
+- 用户要求脚本、模板或本地会话直接替代实际 LLM 主创正文。
+- provider 失败、认证失败、返回格式不合法，却要求静默写回。
+- 输出路径被要求降格到平铺 `3-Drafting/第N章.md`、`正文/` 或临时 sibling 文件。
 
 ## Actual Creative Engine
 
-当前技能的执行语义固定为：
+正式创作路径固定为：
 
-1. 本地脚本负责锁路径、读 context、整理模板与约束。
+1. 本地脚本锁路径、读 context、整理模板与约束。
 2. AnyFast `doubao-seed-2.0-pro` 负责实际生成完整章节 Markdown 文件。
-3. 本地脚本负责校验返回内容是否满足 frontmatter / heading / 输出路径合同，再写回 `第N卷/第N章.md`。
+3. 本地脚本校验返回内容是否满足 frontmatter / heading / 输出路径合同，再写回 `第N卷/第N章.md`。
 
 硬边界：
 
 - “LLM-first creative authorship” 在本技能上的 owning provider 固定为 `doubao-seed-2.0-pro`。
+- `scripts/write_chapter_via_doubao.py` 只能装配上下文、调用 provider、校验返回与落盘，不得以规则拼接、模板灌字或启发式扩写替代正文主创。
 - 未经用户显式改口，不得把本地 GPT 直写、手工改写或其他 provider 伪装成当前技能的正常主路径。
-- 若豆包 provider 因认证、网络、返回格式不合法或上层策略阻断而不可用，必须硬失败并报告阻断来源；不得静默回退为本地直写。
-
-## Business Requirement Analysis Contract
-
-| analysis_slot | 当前结论 |
-| --- | --- |
-| `business_goal` | 让当前章直接形成可交付的章节级小说正文，并把影响写作判断的 global/style/north-star/project-context 显式挂进 YAML 头。 |
-| `business_object` | 当前章 planning、上游卷/整书规划、全局卡、风格卡、`north_star.yaml`、项目级 `CONTEXT/`、上一章正文。 |
-| `constraint_profile` | planning 只给义务和约束，不能原样照抄进正文；global/style 摘要必须短而可用；`north_star` 只提炼本章相关摘要；上一章是增强输入不是阻塞门。 |
-| `success_criteria` | 目标文件成功落到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`，YAML 头完整，正文具备章节级小说密度，并能读出承接、推进、章末牵引。 |
-| `topology_fit` | `source lock -> context pack -> frontmatter synthesis -> continuity bridge -> doubao chapter generation -> final writeback` |
+- 若豆包 provider 因认证、网络、返回格式不合法或上层策略阻断而不可用，必须硬失败并报告阻断来源。
 
 ## Visual Maps
 
 ```mermaid
 flowchart TD
-    A["锁定项目根与第N卷/第N章"] --> B["读取三层 planning"]
-    B --> C["读取 全局卡 + 风格卡 + north_star"]
-    C --> D["补读项目 CONTEXT 与上一章正文"]
-    D --> E["合成本章 YAML 头与 provider prompt"]
-    E --> F["调用 doubao-seed-2.0-pro 生成完整章节文件"]
-    F --> G["校验返回内容并写回 第N卷/第N章.md"]
+    A["N1 Intake: 锁定项目根与卷章"] --> B["N2 Type Profile: 判定起草/续写/重写/修复"]
+    B --> C["N3 Source Alignment: 读取 planning/cards/north_star/MEMORY/CONTEXT/上一章"]
+    C --> D{"执行分支"}
+    D -->|"chapter_draft"| E["组装新章上下文包"]
+    D -->|"chapter_rewrite"| F["回读现稿并组装重写约束"]
+    D -->|"chapter_continue"| G["回读现稿并组装续写承接"]
+    D -->|"local_repair"| H["定位局部问题与源层"]
+    E --> I["调用 doubao-seed-2.0-pro"]
+    F --> I
+    G --> I
+    H --> I
+    I --> J["校验 frontmatter / heading / 正文完整度"]
+    J --> K{"Gate"}
+    K -->|"pass"| L["写回 第N卷/第N章.md"]
+    K -->|"fail"| M["Root-Cause Route"]
+    M --> C
 ```
 
 ```mermaid
@@ -105,8 +124,8 @@ graph LR
     C["第N章.md"] --> H
     D["全局卡"] --> I["global_context"]
     E["风格卡"] --> J["style_context"]
-    F["项目 CONTEXT/"] --> K["project_context_refs"]
-    G["上一章正文"] --> L["continuity bridge"]
+    F["项目 MEMORY.md"] --> K["project_memory_constraints"]
+    G["项目 CONTEXT/ + 上一章"] --> L["continuity bridge"]
     H --> M["YAML frontmatter"]
     I --> M
     J --> M
@@ -116,116 +135,69 @@ graph LR
     N --> O
 ```
 
-## Total Input Contract
+## Core Gates
 
-### 必需输入
+- 必须先锁定当前章 planning，再读取 global/style/north-star；不得凭风格或世界观反推当前章义务。
+- YAML 头必须显式包含 `global_context`、`style_context` 与 `north_star_chapter_brief`，三者缺一不可。
+- 正文主体必须是小说 prose，不得把 planning 中的标题、任务线或规避条目原样复制成正文段落。
+- 输出路径固定为 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。
+- provider 返回内容缺完整 YAML frontmatter、必需字段或 `# 第N章｜章标题` 标题行时，禁止写回业务真源。
+- provider artifacts 可落到项目 `reports/3-Drafting/doubao/.../`，但它们不是业务真源。
 
-- `projects/story/<项目名>/0-Init/north_star.yaml`
-- `projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`
-- `projects/story/<项目名>/1-Cards/1-风格卡/**/*.json`
-- `projects/story/<项目名>/2-Planning/整体规划.md`
-- `projects/story/<项目名>/2-Planning/第N卷/卷规划.md`
-- `projects/story/<项目名>/2-Planning/第N卷/第N章.md`
-- `volume_num / chapter_num`
-- 当前项目名与目标输出路径
+## Root-Cause Execution Contract
 
-### 条件必需输入
+失败追溯链固定为：
 
-- `projects/story/<项目名>/CONTEXT/**/*.md`：若存在，必须按当前章主题与卷任务相关性加载。
-- `projects/story/<项目名>/3-Drafting/第N卷/第N-1章.md`：若存在，必须读取。
-- 当前 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`：若已存在，必须先回读。
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
 
-### 硬规则
+| symptom | direct owner | rework target |
+| --- | --- | --- |
+| 草稿跑偏或 planning 语言直贴 | 章节正文细则层 | `references/chapter-drafting-contract.md` |
+| 章节结构断裂、分支/汇流不清 | 思行网络层 | `steps/chapter-drafting-workflow.md` |
+| 起草/续写/重写/修复误判 | 类型策略层 | `types/drafting-type-map.md` |
+| 审查口号化或无法给 verdict | 质量门禁层 | `review/review-contract.md` |
+| 输出路径、命名或模板冲突 | 入口与模板层 | `SKILL.md` Output Contract + `templates/output-template.md` |
+| 脚本越权生成正文 | 自动化辅助层 | `scripts/write_chapter_via_doubao.py` + AGENTS.md LLM-first 规则 |
+| 可复用失败模式再次出现 | 经验层 | `CONTEXT.md` |
 
-1. 当前技能的最小业务单元是“章”，不是“集”或“卷批次”。
-2. 必须先锁定当前章 planning，再读取 global/style/north-star；不得反过来凭风格或世界观猜当前章该写什么。
-3. YAML 头必须显式包含 `global_context`、`style_context` 与 `north_star_chapter_brief`，三者缺一不可。
-4. `global_context` 只保留会直接影响本章判断的世界规则、势力压力或舞台约束；禁止整份全局卡照抄。
-5. `style_context` 只保留本章落笔需要的语体、气压、叙事/对白/画面抓手；禁止整份风格卡照抄。
-6. `north_star_chapter_brief` 必须是“`north_star.yaml` + 当前章 planning”的压缩摘要，不得伪装成 `north_star.yaml` 原文摘录。
-7. 若项目级 `CONTEXT/` 存在，不能只在 YAML 头里留空数组；必须留下真实命中的 `project_context_refs`，或显式写 `[]` 并说明无相关文件。
-8. 若上一章不存在，`previous_chapter_ref` 可为空，但不得因此停止本章写作。
-9. 正文主体必须是小说 prose，不得把 `本章冲突 / 本章任务线 / 章末达成 / 规避` 原样复制成正文段落。
-10. planning 中的“建议写法”只能转译成叙事动作、段落重心和章末牵引，不能原句粘贴。
-11. 输出路径固定为 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；不得降格写到 `第N章.md`、`正文/` 或临时 sibling 文件。
-12. 当前技能的 actual creative step 必须调用 `scripts/write_chapter_via_doubao.py`，并由它继续调用 `doubao_seed_chat.py`；不得把“本地会话直接写正文”当作等价执行。
-13. 若豆包返回内容不含完整 YAML frontmatter、缺少必需字段、缺少 `# 第N章｜章标题` 标题行，必须判定为 provider output invalid，禁止直接写回业务真源。
-14. provider 失败时只允许：修 provider 输入、缩减 context、重试 provider、或向用户显式报告阻断；不允许静默回退到本地 GPT 直写。
+## Field Mapping
 
-## Frontmatter Contract
+### Directory Ownership Table
 
-YAML 头至少包含：
-
-- `story_name`
-- `volume_num`
-- `chapter_num`
-- `chapter_title`
-- `planning_global_ref`
-- `planning_volume_ref`
-- `planning_chapter_ref`
-- `global_card_refs`
-- `style_card_refs`
-- `north_star_ref`
-- `project_context_refs`
-- `previous_chapter_ref`
-- `global_context`
-- `style_context`
-- `north_star_chapter_brief`
-
-其中关键槽位固定如下：
-
-- `global_context`
-  - `worldview_summary`
-  - `rule_pressure`
-  - `faction_or_system_pressure`
-- `style_context`
-  - `tone_summary`
-  - `prose_summary`
-  - `dialogue_summary`
-- `north_star_chapter_brief`
-  - 用一段 2-4 句中文，说明“这一章在整书承诺里为什么成立、要把哪种压力从 planning 推进成戏内动作、章末应把什么牵到下一章”
-
-## Thinking-Action Network
-
-| node_id | field_id | objective | actions | evidence | route_out | gate |
-| --- | --- | --- | --- | --- | --- | --- |
-| `N1-SOURCE-LOCK` | `FIELD-MT-01` | 锁定唯一卷章范围 | 定位 `第N卷/第N章.md` 与目标输出路径 | `source_lock_note` | -> `N2` | 章范围唯一 |
-| `N2-CONTEXT-PACK` | `FIELD-MT-02` | 组装写作上下文包 | 读取 planning、global/style、`north_star`、项目 `CONTEXT/`、上一章 | `context_pack_note` | -> `N3` | 输入齐备 |
-| `N3-FRONTMATTER-SYNTHESIS` | `FIELD-MT-03` | 生成 YAML 头 | 压缩 global/style 约束并生成 `north_star_chapter_brief` | `frontmatter_note` | -> `N4` | YAML 头成立 |
-| `N4-CONTINUITY-BRIDGE` | `FIELD-MT-04` | 接上本章承接 | 从上一章与当前 planning 抽取开章承接与章末目标 | `continuity_note` | -> `N5` | 承接明确 |
-| `N5-CHAPTER-DRAFT` | `FIELD-MT-05` | 通过豆包生成完整章节文件 | 把 context pack 收束成 provider prompt，调用 `write_chapter_via_doubao.py` 生成完整 Markdown 文件 | `draft_note` | -> `N6` | provider 返回完整文件 |
-| `N6-WRITEBACK` | `FIELD-MT-06` | 写回正式根稿 | 校验 frontmatter / heading / 正文完整度后，再以单文件写回 `第N卷/第N章.md` | `writeback_note` | done | 正式落盘 |
-
-## Field Contract
-
-| field_id | output_slot | pass_standard | fail_code | rework_entry |
+| field_id | directory_or_file | owner_role | must_contain | fail_code |
 | --- | --- | --- | --- | --- |
-| `FIELD-MT-01` | 卷章定位 | 已命中唯一 `第N卷/第N章.md` 与输出路径 | `FAIL-MT-01` | `N1` |
-| `FIELD-MT-02` | 上下文包 | 已读取三层 planning、global/style、`north_star`、项目 `CONTEXT`（若有）、上一章（若有） | `FAIL-MT-02` | `N2` |
-| `FIELD-MT-03` | YAML 头 | `global_context + style_context + north_star_chapter_brief` 已齐备且非照抄 | `FAIL-MT-03` | `N3` |
-| `FIELD-MT-04` | 承接桥 | 开章承接与章末牵引已明确，上一章缺失时也有 planning 替代承接 | `FAIL-MT-04` | `N4` |
-| `FIELD-MT-05` | provider 创作结果 | 豆包已返回完整章节 Markdown 文件，正文不是摘要式压缩稿或 planning 改写稿 | `FAIL-MT-05` | `N5` |
-| `FIELD-MT-06` | 正式落盘 | 文件已写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` | `FAIL-MT-06` | `N6` |
+| `FIELD-DRAFT-01` | `SKILL.md` | 入口与裁决层 | trigger、loading、mode、reference guide、root-cause、Output Contract | `FAIL-DRAFT-ENTRY` |
+| `FIELD-DRAFT-02` | `references/` | 章节细则层 | input、frontmatter、provider、正文硬规则 | `FAIL-DRAFT-REFERENCE` |
+| `FIELD-DRAFT-03` | `steps/` | 思行网络层 | node network、branch、merge、failure route | `FAIL-DRAFT-STEPS` |
+| `FIELD-DRAFT-04` | `types/` | 类型策略层 | drafting mode、type variables、route matrix | `FAIL-DRAFT-TYPES` |
+| `FIELD-DRAFT-05` | `review/` | 质量门禁层 | verdict model、finding shape、provider evidence gate | `FAIL-DRAFT-REVIEW` |
+| `FIELD-DRAFT-06` | `templates/` | 模板层 | chapter skeleton、system prompt、Output Contract Alignment | `FAIL-DRAFT-TEMPLATE` |
+| `FIELD-DRAFT-07` | `scripts/` | 自动化辅助层 | context assembly、provider bridge、validation、writeback | `FAIL-DRAFT-SCRIPT` |
+| `FIELD-DRAFT-08` | `CONTEXT.md` | 经验层 | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-DRAFT-CONTEXT` |
+| `FIELD-DRAFT-09` | `agents/openai.yaml` | 入口元数据层 | display name、short description、default prompt | `FAIL-DRAFT-AGENT` |
 
-## Output Contract
+### Node Handoff Table
 
-### Canonical output
+| node_id | input | action | output | next_gate |
+| --- | --- | --- | --- | --- |
+| `N1-SOURCE-LOCK` | 用户请求与项目根 | 锁定卷章与 canonical output | `source_lock_note` | `N2-TYPE-PROFILE` |
+| `N2-TYPE-PROFILE` | 目标章状态与用户意图 | 判定 drafting mode | `type_profile` | `N3-CONTEXT-PACK` |
+| `N3-CONTEXT-PACK` | planning/cards/north_star/MEMORY/CONTEXT/上一章 | 组装 provider context | `messages_pack` | `N4-DRAFT-BRANCH` |
+| `N4-DRAFT-BRANCH` | `type_profile` 与 context pack | 选择新章/重写/续写/修复分支 | `branch_prompt` | `N6-PROVIDER-DRAFT` |
+| `N6-PROVIDER-DRAFT` | provider prompt | 调用豆包生成完整章节 | `provider_output` | `N7-VALIDATE-WRITEBACK` |
+| `N7-VALIDATE-WRITEBACK` | provider output | 校验并写回 canonical path | `chapter_file` | done |
 
-- `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`
+### Failure Routing Table
 
-### 文件结构
-
-1. YAML frontmatter
-2. 空行
-3. `# 第N章｜章标题`
-4. 正文章节内容
-
-### 文件级硬规则
-
-- frontmatter 只记录写作约束与引用，不在正文段落中重复解释。
-- 正文主体不得保留“本章故事概要 / 本章冲突 / 规避”之类 planning 标题。
-- 章末必须对齐当前章 planning 的 `exit_hook / 对下章的直接推动 / 章末达成` 中至少一项强义务。
-- 当前技能的 provider artifacts（messages pack、raw model output、provider report）可落到项目 `reports/3-Drafting/doubao/.../`，但它们不是业务真源。
+| fail_code | symptom | rework_target |
+| --- | --- | --- |
+| `FAIL-DRAFT-ENTRY` | 入口缺 loading、mode、Output Contract 或 root-cause 合同 | `SKILL.md` |
+| `FAIL-DRAFT-REFERENCE` | 输入、frontmatter 或 provider 硬规则缺失 | `references/chapter-drafting-contract.md` |
+| `FAIL-DRAFT-STEPS` | 流程只有 checklist，没有分支、汇流或 gate | `steps/chapter-drafting-workflow.md` |
+| `FAIL-DRAFT-TYPES` | 起草、续写、重写、修复误判 | `types/drafting-type-map.md` |
+| `FAIL-DRAFT-REVIEW` | 无法给出可执行 verdict 或 provider evidence gate | `review/review-contract.md` |
+| `FAIL-DRAFT-TEMPLATE` | 模板与 Output Contract 不一致 | `templates/output-template.md` |
+| `FAIL-DRAFT-SCRIPT` | 脚本越权主创或未校验 provider 输出 | `scripts/write_chapter_via_doubao.py` |
 
 ## Standard Invocation
 
@@ -244,11 +216,12 @@ python3 .agents/skills/story/3-Drafting/scripts/write_chapter_via_doubao.py \
   --dry-run
 ```
 
-## Completion Contract
+## Output Contract
 
-- 当前章正文已按 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` 正式落盘。
-- YAML 头已显式包含 global/style 约束与 `north_star` 本章摘要。
-- 若项目级 `CONTEXT/` 存在，当前文件已能追溯命中的上下文引用。
-- 若上一章存在，当前开章已体现承接；若不存在，也已明确用 planning 补齐开章条件。
-- 当前正文已是可通读的小说章节，而不是摘要、提纲或说明稿。
-- 本次正文的实际创作 provider 已真实命中 `doubao-seed-2.0-pro`；若未命中，不得宣称当前技能已按合同完成。
+| field | contract |
+| --- | --- |
+| Required output | 当前章完整中文小说 Markdown 文件，以及必要的 provider sidecar artifacts。 |
+| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节正文；frontmatter schema 见 `references/chapter-drafting-contract.md`。 |
+| Output path | 业务真源固定写入 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；provider artifacts 可写入 `projects/story/<项目名>/reports/3-Drafting/doubao/.../`。 |
+| Naming convention | 卷目录使用 `第N卷`，章节文件使用 `第N章.md`；不得降格为平铺旧路径、`正文/` 或临时 sibling 文件。 |
+| Completion gate | 豆包 provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path；必要 sidecar 能追溯 messages pack、raw output 与 writeback。 |

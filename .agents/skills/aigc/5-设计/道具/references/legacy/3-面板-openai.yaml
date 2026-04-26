@@ -1,5 +1,0 @@
-interface:
-  display_name: "AIGC 道具面板"
-  short_description: "把道具设计产物中的 prompt 直引为 16:9 道具面板 layout JSON，并默认内置 imagegen 请求准备 built-in imagegen 生图。"
-  default_prompt: "Use $aigc-design-prop-panel to read prop design outputs from `projects/aigc/<项目名>/4-设计/道具/2-设计/第N集/`, extract each `**prompt整合**` block or compatible prompt JSON, write `PropPanel-layout.json` under `5-设计/道具/3-面板/第N集/`, then submit built-in imagegen in the default built-in imagegen mode unless `--layout-only` is requested. In batch 5-设计 context, use existing design images as SMART references; for single files or natural-language generation, default to no references."
-version: 1

@@ -1,10 +1,10 @@
-# CONTEXT.md
+# Context: aigc 5-设计/道具
 
 ## Purpose & Loading Contract
 
-- 本文件是 `aigc-design-prop` 的经验层知识库，不是执行日志。
+- 本文件是 `aigc-design-prop` 道具域组根的经验层，不是道具设定库，也不是执行流水日志。
 - 调用 `.agents/skills/aigc/5-设计/道具/SKILL.md` 时，必须同时加载本文件。
-- 旧 `1-清单/道具`、`2-设计/道具`、`3-面板/道具` 的经验已归档到 `references/legacy/legacy-*-CONTEXT.md`，只在追溯旧行为时读取。
+- 叶子技能经验分别沉淀在 `1-清单/CONTEXT.md`、`2-设计/CONTEXT.md`、`3-生成/CONTEXT.md`；本文件只保存跨叶子的路由和交接经验。
 
 ## Context Health
 
@@ -13,28 +13,29 @@ monitor_version: 1
 soft_limit_chars: 20000
 hard_limit_chars: 40000
 status: ok
-recommended_action: keep-domain-scoped
-last_checked_at: 2026-04-24
+recommended_action: keep-domain-router-scoped
+last_checked_at: 2026-04-26
 ```
 
 ## Type Map
 
 | type_id | 触发症状 | 立即修复 | 验证点 |
 | --- | --- | --- | --- |
-| `PROP-TM-01` | 道具输出仍散落在 `道具/1-清单`、`道具/2-设计`、`道具/3-面板` | 收束到 `projects/aigc/<项目名>/4-设计/` 根，并保留旧 JSON 为兼容侧车 | 根目录存在 `道具清单.md`、`[道具名].md`、`[道具名].json` |
-| `PROP-TM-02` | 状态句或使用动作被升格成道具名 | 回到 `object-normalization-contract.md` | 主体名是物件实体 |
-| `PROP-TM-03` | 设计文档缺 Photography、Prop Design 或 `prompt整合` | 回到 `templates/prop_masterprompt.structured.v2.md` 重投影 | 文档结构稳定 |
-| `PROP-TM-04` | 面板 JSON 把手、人物或使用者写进主体 | 回到 `[主体名].md` 的 pure prop guardrail | JSON prompt 保持 isolated pure prop view |
+| `PROP-GROUP-TM-01` | 用户只说“道具”但没有阶段 | 先查是否存在 `道具清单.md`、设计稿和生成资产，再路由到最早缺失叶子 | 不越级生成下游 |
+| `PROP-GROUP-TM-02` | 用户把普通布景物都要求列道具 | 进入 `1-清单` 过滤判断，保留叙事/规则/视觉/生成锁定道具 | 背景杂物不污染主清单 |
+| `PROP-GROUP-TM-03` | 下游设计发现清单漏项或误归并 | 下游只写修复建议，回到 `1-清单` 修主真源 | 清单仍为唯一上游 |
+| `PROP-GROUP-TM-04` | 关键道具成为长期项目偏好 | 写项目根 `MEMORY.md`，不写入组根 CONTEXT | 项目记忆可回读 |
 
 ## Repair Playbook
 
-1. 先判定故障属于路径漂移、道具抽取、设计模板、面板 JSON 或 imagegen handoff。
-2. 道具主体漂移优先修清单阶段 LLM 判断，不在设计阶段硬改文件名。
-3. 模板漂移只改 `templates/prop_masterprompt.structured.v2.md` 和 renderer。
-4. 面板失败先确认 `[主体名].json` 是否与 `[主体名].md` 同 stem、同道具、同 prompt 来源。
+1. 先判断问题是入口路由、上游缺失、叶子输出漂移、杂物过滤还是 LLM-first 越权。
+2. 路由问题只修组根 `SKILL.md` 或 registry routes；叶子业务问题下钻到具体叶子。
+3. 下游缺输入时，回到最早缺失叶子，不用空文件或默认模板假装完成。
+4. 背景杂物过多通常不是 `2-设计` 问题，而是 `1-清单` 的主体过滤问题。
+5. 若经验只影响某个叶子，沉淀到该叶子 `CONTEXT.md`，不要上收到组根。
 
 ## Reusable Heuristics
 
-- 道具主体必须是可被单独拍摄的物件，而不是动作或状态。
-- `prompt整合` 必须保留功能、材质、工艺、状态痕迹和无手无人约束。
-- 面板提示词消费道具设计，不反向发明道具用途。
+- 道具域的第一问是“这个物件是否需要被后续设计或生成锁定”，不是“文本里是否出现过一个名词”。
+- 道具清单回答“哪些物件进入资产链”，道具设计回答“如何制作这个物件”，道具生成回答“如何交付可引用资产”。
+- 组根越像交通标志越稳；一旦开始替道具写材质、结构或 prompt，就该下钻到叶子。

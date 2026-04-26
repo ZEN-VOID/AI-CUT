@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Cards Scene"
+  short_description: "Build reusable scene cards and rules."
+  default_prompt: "Use $story-cards-scene to generate, repair, or audit scene cards for a story project."

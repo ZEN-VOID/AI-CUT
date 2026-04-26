@@ -8,14 +8,14 @@
   },
   "source": {
     "project_root": "projects/aigc/<项目名>",
-    "source_design_doc": "projects/aigc/<项目名>/4-设计/道具/2-设计/<主体名称>.md",
+    "source_design_doc": "projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md",
     "source_prompt_section": "提示词设计",
     "subject_name": "<主体名称>"
   },
   "output": {
-    "output_dir": "projects/aigc/<项目名>/4-设计/道具/3-生成",
-    "output_image": "projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-主图.png",
-    "output_prompt_json": "projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-主图.json"
+    "output_dir": "projects/aigc/<项目名>/5-设计/道具/3-生成",
+    "output_image": "projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-主图.png",
+    "output_prompt_json": "projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-主图.json"
   },
   "imagegen": {
     "mode": "built_in_generate",

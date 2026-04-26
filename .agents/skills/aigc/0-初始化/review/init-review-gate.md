@@ -22,7 +22,7 @@ Initialization is incomplete unless all applicable items pass:
 - `init_handoff.yaml` has stage-entry seeds and `unknowns`
 - `story-source-manifest.yaml` exists and marks readiness
 - `STATE.json` points to primary init artifacts and one recommended next entry
-- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编导/`, `3-摄影/`, `4-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `4-分组/`, `6-图像/`, `7-视频/`, `源/`, and `附加预设/`
+- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编导/`, `3-摄影/`, `4-分组/`, `5-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `6-图像/`, `7-视频/`, `源/`, and `附加预设/`
 - source-light story details are downgraded to `unknowns`, `deferred`, or `risk_notes`
 - late source input triggers reconciliation before downstream work
 - rebootstrap old-cycle artifacts are preserved, archived, purged, or marked stale according to reset mode

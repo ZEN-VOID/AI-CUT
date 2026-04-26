@@ -1,0 +1,4 @@
+interface:
+  display_name: "任务汇聚"
+  short_description: "小说任务汇聚终验：主从任务、支流去向与正文收束证据"
+  default_prompt: "使用 $story-review-task-convergence 审查指定卷或章节的任务汇聚维度。"

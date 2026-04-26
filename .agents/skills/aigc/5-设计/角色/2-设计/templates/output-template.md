@@ -1,6 +1,6 @@
 # {{角色名称}}
 
-source_character_list: `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`
+source_character_list: `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 source_team: `projects/aigc/<项目名>/team.yaml`
 
@@ -19,7 +19,62 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 
 ## 2. 研究考据
 
-{{结合 north_star.yaml 中的世界观，思考当前角色符合叙事的文化属性和具象特征；若涉及冷门信息点且本地资料不足，可启用网络搜索并记录来源或不确定性。}}
+{{结合角色清单、north_star.yaml、team.yaml 和必要考据，形成可执行研究证据链。研究不得停留在资料摘抄；每个镜头都必须转化为外观、服装、姿态、摄影或 prompt 决策。}}
+
+### Identity Evidence
+
+- Evidence: {{清单身份、关系、故事压力、项目主题中的身份线索}}
+- Design Decision: {{身份如何转化为面部气质、身体状态、站姿、服装系统或视觉钩子}}
+- Prompt Phrase: {{可进入英文 prompt 的身份/主体短语}}
+
+### Occupation / Class Evidence
+
+- Evidence: {{职业、劳动方式、权力位置、阶层、资源边界、教育或消费痕迹}}
+- Design Decision: {{职业和阶层如何转化为手部痕迹、面料品质、磨损方式、配饰克制度、身体自信或拘谨}}
+- Prompt Phrase: {{可进入英文 prompt 的职业/阶层/材质短语}}
+
+### Region & Era Evidence
+
+- Evidence: {{地域、年代、气候、制度、审美环境；若为推演必须标注}}
+- Design Decision: {{地域年代如何转化为廓形、发型、色彩、鞋履、妆容和禁用元素}}
+- Prompt Phrase: {{可进入英文 prompt 的地域年代短语；低证据时保持克制}}
+
+### Costume Craft Evidence
+
+- Evidence: {{剪裁、织物、工艺、闭合方式、层次、磨损、使用痕迹或可参考来源}}
+- Design Decision: {{服饰工艺如何支撑角色身份、动作和全身定妆照辨识度}}
+- Prompt Phrase: {{可进入英文 prompt 的服装工艺短语}}
+
+### Body & Posture Evidence
+
+- Evidence: {{身体比例、重心、职业肌肉记忆、伤病或情绪防御；避免无证据医学化}}
+- Design Decision: {{身体姿态如何转化为全身站姿、手部位置、头颈角度、肩背状态}}
+- Prompt Phrase: {{可进入英文 prompt 的姿态短语}}
+
+### Taboo / Safety Constraints
+
+- Project Taboos: {{来自 north_star.yaml / MEMORY.md / 用户要求的禁区}}
+- Cultural / Identity Risks: {{文化误读、刻板化、年龄/性化、安全或版权风险}}
+- Visual Guardrails: full-body costume fitting photo, solid color background, no scene environment; {{本角色额外禁止项}}
+
+### Uncertainty Notes
+
+- Confirmed From List: {{明确来自角色清单的事实}}
+- Inferred By LLM: {{由 LLM 基于项目上下文推演的设计判断}}
+- Needs Confirmation: {{需用户或上游补充确认的信息；没有则写 none}}
+- Confidence: {{high / medium / low，并说明原因}}
+
+### Prompt Evidence Chain
+
+| Evidence | Design Decision | Prompt Phrase |
+| --- | --- | --- |
+| {{身份/清单证据}} | {{主体设计决策}} | {{英文主体短语}} |
+| {{职业/阶层证据}} | {{身体或服装决策}} | {{英文职业/阶层短语}} |
+| {{地域年代证据}} | {{廓形/色彩/发型决策}} | {{英文地域年代短语}} |
+| {{服饰工艺证据}} | {{面料/剪裁/层次决策}} | {{英文服装短语}} |
+| {{身体姿态证据}} | {{全身定妆站姿决策}} | {{英文姿态短语}} |
+| {{项目风格证据}} | {{光线/质感/影像调性决策}} | {{英文风格短语}} |
+| Skill fixed visual contract | 固定为纯色背景全身定妆照 | full-body costume fitting photo, solid color background, no scene environment |
 
 ## 3. 物语
 
@@ -45,6 +100,7 @@ Silhouette & Build: {{body_signature}}
 Costume System: {{costume_signature}}
 Accessories & Continuity: {{continuity_signature}}
 Design Guardrails: {{design_guardrails}}
+Research Transfer: {{概括研究层如何转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain}}
 
 ## Detailed Character Design
 
@@ -107,6 +163,8 @@ Occupation: {{body_occupation}}
 - Cultural Elements: {{costume_culture_cn}}
 - Type: {{costume_type_cn}}
 - Material / Attribute: {{costume_attribute_cn}}
+- Craft Logic: {{costume_craft_logic_cn}}
+- Wear / Aging Logic: {{costume_wear_logic_cn}}
 
 ### Wearing Details
 
@@ -144,14 +202,23 @@ prompt_character_count: 0
 reviewer: ""
 subagent_status: ""
 notes: ""
+research_layer:
+  identity: pending
+  occupation_class: pending
+  region_era: pending
+  costume_craft: pending
+  body_posture: pending
+  taboo_constraints: pending
+  uncertainty_notes: pending
+  prompt_evidence_chain: pending
 ```
 
 ## Output Contract Alignment
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | 本模板生成单个角色主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整角色解构字段、提示词设计。 |
+| Required output | 本模板生成单个角色主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整角色解构字段、提示词设计；研究考据必须包含八个研究镜头和 prompt evidence chain。 |
 | Output format | Markdown 单角色设计稿；解构字段固定为 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
-| Output path | Canonical 路径为 `projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`。 |
+| Output path | Canonical 路径为 `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`。 |
 | Naming convention | 默认使用 `<角色名>.md`；冲突或不安全字符时使用 `<角色名>__<首次登场ID>.md`。 |
-| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；英文 prompt 融合全局风格和服装风格且不超过 2000 字符；画面固定为纯色背景全身定妆照，不置身具体场景。 |
+| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；研究层已转化为设计证据链并标明不确定性；正文由 LLM 创作；英文 prompt 融合全局风格和服装风格且不超过 2000 字符；画面固定为纯色背景全身定妆照，不置身具体场景。 |

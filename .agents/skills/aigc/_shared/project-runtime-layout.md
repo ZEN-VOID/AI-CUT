@@ -21,8 +21,8 @@
 | `1-分集` | `projects/aigc/<项目名>/1-分集/` | episode source split |
 | `2-编导` | `projects/aigc/<项目名>/2-编导/` | screenplay/directing projection |
 | `3-摄影` | `projects/aigc/<项目名>/3-摄影/` | shot language enrichment |
-| `4-设计` | `projects/aigc/<项目名>/4-设计/` | scene, role, prop design runtime |
 | `4-分组` | `projects/aigc/<项目名>/4-分组/` | storyboard group runtime |
+| `5-设计` | `projects/aigc/<项目名>/5-设计/` | scene, role, prop design runtime |
 | `6-图像` | `projects/aigc/<项目名>/6-图像/` | current Chinese image runtime |
 | `7-视频` | `projects/aigc/<项目名>/7-视频/` | current Chinese video runtime |
 | `源` | `projects/aigc/<项目名>/源/` | source material landing |

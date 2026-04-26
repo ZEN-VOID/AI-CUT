@@ -5,65 +5,60 @@
 # - 只承接长期稳定故事约束
 # - 不吞入整轮会话原文
 
+schema_version: "story2026/north-star/v1"
+
+meta:
+  source_stage: "0-Init"
+  generated_at: ""
+  role: "primary-init-artifact"
+  scope: "full-series"
+  canonical_consumers:
+    - "1-Cards"
+    - "2-Planning"
+  cards_role: "north-star-object-constraints"
+
 project_identity:
-  project_name: ""
-  working_title: ""
-  format: "长篇小说 / 网文"
-  target_length: ""
-  target_platforms: []
-  target_audience: []
+  title: ""
+  genre: ""
+  target_words: 0
+  target_chapters: 0
+  target_reader: ""
+  platform: ""
 
-type_seed:
-  primary_genre: ""
-  secondary_genres: []
-  platform_notes: []
-  audience_notes: []
-  notes: []
+story_kernel:
+  premise: ""
+  opening_hook: ""
+  protagonist_drive: ""
+  core_conflict: ""
+  antagonist_pressure: ""
+  protagonist_wound: ""
+  value_collision: ""
+  cost_of_victory: []
+  why_this_story_now: ""
+  ending_vector: ""
 
-creative_mandate:
-  story_kernel: ""
-  emotional_core: ""
-  genre_corridor: []
-  theme_promises: []
-  anti_goals: []
-
-viewer_promise:
-  expected_experience: []
-  hook_surface: []
-  tone_keywords: []
-  must_keep: []
+reader_promise:
+  primary_pleasures: []
+  anti_trope: ""
+  hard_constraints: []
+  no_fly_zones: []
 
 aesthetic_axes:
-  prose_style_refs: []
-  narrative_distance: []
-  rhythm_profile: []
-  imagery_keywords: []
-  dialogue_posture: []
-
-adaptation_strategy:
-  original_adherence: false
-  reorder_authorization: ""
-  pacing_intent: []
-  pacing_non_goals: []
-  peak_preferences: []
-
-production_envelope:
-  schedule_pressure: ""
-  quality_tier: ""
-  toolchain_preferences: []
-  asset_policy: []
+  tone: ""
+  violence_texture: ""
+  mystery_density: ""
+  romance_policy: ""
 
 ip_boundary:
-  allowed_inspirations: []
-  forbidden_mimicry: []
-  safety_constraints: []
-
-decision_policy:
-  decision_owner: ""
-  init_mode: ""
-  mode_source: ""
-  research_policy: ""
+  worldline_mode: ""
+  old_character_policy: ""
+  must_keep: []
+  must_not_do: []
 
 cards: {}
-
-long_term_open_questions: []
+decision_policy: {}
+init_session: {}
+cards_seed: {}
+planning_seed: {}
+unknowns: {}
+sources_breakdown: {}

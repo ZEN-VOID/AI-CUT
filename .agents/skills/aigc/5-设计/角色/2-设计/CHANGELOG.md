@@ -2,6 +2,9 @@
 
 ## 2026-04-26
 
+- 升级研究层合同：研究必须转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
+- 同步更新 `references/`、`steps/`、`types/`、`review/` 与 `templates/`，把 `evidence -> design decision -> prompt phrase` 作为角色 prompt 的验收链路。
+- 强化 LLM-first 与脚本边界：脚本只能检查研究层标题、字符数和空字段，不得生成研究或 prompt 证据链正文。
 - 补强根 `SKILL.md` 的 Skill 2.0 Visual Maps：入口流程、汇流关系和状态流转。
 - 为 `types/character-design-type-map.md` 增加类型分流 Mermaid 路由图。
 - 为 `review/review-contract.md` 增加审查闭环 Mermaid 门禁图。

@@ -16,7 +16,7 @@ source_grouping_paths:
 | --- | --- |
 | Required output | 本模板生成 `场景清单.md`，主体为 table 式 Markdown 清单。 |
 | Output format | 仅使用 Markdown table 承载主体字段：`名称`、`首次登场`、`原文描述（关键词式）`。 |
-| Output path | canonical 路径为 `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`。 |
+| Output path | canonical 路径为 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`。 |
 | Naming convention | 主清单固定命名 `场景清单.md`；可选报告固定命名 `执行报告.md`。 |
 | Completion gate | 每行主体必须来自组底 YAML `场景` 字段，并完成 LLM 归并裁决与 review gate。 |
 

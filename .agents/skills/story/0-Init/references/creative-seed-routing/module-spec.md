@@ -54,7 +54,8 @@
 - downstream_consumers:
   - `0-Init/SKILL.md` 的 `Execution Procedure`
   - `planning 固定题包直答` 生成的创意缺口 patch
-  - `project_contract.creative_mandate / planning_seed / unknowns`
+  - `0-Init/north_star.yaml.project_identity / story_kernel / reader_promise`
+  - `0-Init/init_handoff.yaml.project_contract / stage_entry_seeds.planning_seed / unknowns`
 
 #### 优化模式事实 / 推断分层
 
@@ -89,7 +90,7 @@
 | 轴角色 | 当前模块轴名 | 核心判断 | 直接落点 |
 | --- | --- | --- | --- |
 | `方向轴` | `缺口驱动路由` | 当前真正阻塞的是约束包、卖点、商业定位、复合题材、反套路还是趋势校准 | `Phase 1`、触发矩阵 |
-| `成立轴` | `可写回承诺成立` | 读取到的创意资料是否能压缩成 `creative_mandate / planning_seed / unknowns`，而不是留成资料墙 | `Phase 3`、交付 |
+| `成立轴` | `可写回承诺成立` | 读取到的创意资料是否能压缩成 `north_star.story_kernel / north_star.reader_promise / init_handoff.stage_entry_seeds.planning_seed / init_handoff.unknowns`，而不是留成资料墙 | `Phase 3`、交付 |
 | `优选轴` | `最小读取最大差异化` | 在多个可用 leaf references 中，哪组最小资料组合既能补齐缺口，又不把初始化层读得过重或过时 | `Phase 2`、验收机制 |
 
 ### 每条轴常看的关键向字段
@@ -97,7 +98,7 @@
 | 主轴 | 驱动字段 | 判废字段 | 对比字段 | 说明 |
 | --- | --- | --- | --- | --- |
 | 方向轴 | `缺口类型`、`当前阻塞槽位`、`用户显式请求` | 把对象层/worldbuilding 缺口误认成创意缺口；没有真实缺口却想全读 | `约束包优先级`、`商业定位优先级`、`趋势校准必要性` | 决定“先走哪条创意路由” |
-| 成立轴 | `槽位可写回性`、`来源分层可追溯性`、`deferred_to_planning 边界` | 输出仍是资料墙；把 `2-Planning` canonical 提前拍死；来源混写 | `creative_mandate` 与 `planning_seed` 的承接稳定度 | 决定“读到的材料能不能真正进入 handoff” |
+| 成立轴 | `槽位可写回性`、`来源分层可追溯性`、`deferred_to_planning 边界` | 输出仍是资料墙；把 `2-Planning` canonical 提前拍死；来源混写 | `north_star.story_kernel / reader_promise` 与 `init_handoff.stage_entry_seeds.planning_seed` 的承接稳定度 | 决定“读到的材料能不能真正进入 handoff” |
 | 优选轴 | `读取成本`、`差异化收益`、`时效风险` | 一次加载过多 leaf references；未授权就拉趋势资料；多份资料收益重叠 | 同一缺口下哪组最小资料更划算 | 决定“在成立解里选最小而不失效的组合” |
 
 ### 三重
@@ -106,7 +107,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `粗裁决 / Base Range` | `缺口类型`、`阻塞槽位`、`显式趋势请求` | `方向轴 / 优选轴` | 该不该进入本模块、先走哪种创意子路由 | 只允许 `约束包 / 卖点 / 商业定位 / 复合题材 / 灵感救援 / 反套路 / 趋势校准` 七类缺口 | 对象层、worldbuilding、纯执行模式问题直接排出 | 保留 1-2 个最相关子路由进入下一层 | 遮掉轴名后仍能看见是“判缺口类型”，不是泛泛“先想清楚” |
 | `细裁决 / Range Narrowing` | `最小读取清单`、`题材到反套路映射`、`趋势双闸门` | `优选轴 / 方向轴 / 成立轴` | 同一缺口下到底读哪几份 leaf references 才够 | 只在上一层保留的子路由内选择最小资料集 | 4 份以上 leaf references 同时命中、未授权趋势读取、题材映射错位直接排出 | 保留 1 组可成立的最小资料集进入回写 | 改成相邻泛词后无法维持“最小读取”约束，说明字段够锋利 |
-| `离散裁决 / Final Selection` | `creative_mandate_update`、`planning_seed_update`、`unknowns_update`、`sources_breakdown` | `成立轴 / 优选轴` | 哪些候选该正式写回，哪些该延后给 `2-Planning` | 只比较已成立且来源可追溯的候选写回方案 | 资料摘要、无 provenance 的脑补、越权拍死 planning canonical 的写法全部淘汰 | 输出最终结构化槽位更新 | 调整字段后若 handoff 槽位不变，则当前“向”是假落盘 |
+| `离散裁决 / Final Selection` | `north_star_patch`、`project_contract_patch`、`planning_seed_update`、`unknowns_update`、`sources_breakdown` | `成立轴 / 优选轴` | 哪些候选该正式写回，哪些该延后给 `2-Planning` | 只比较已成立且来源可追溯的候选写回方案 | 资料摘要、无 provenance 的脑补、越权拍死 planning canonical 的写法全部淘汰 | 输出最终结构化槽位更新 | 调整字段后若 handoff 槽位不变，则当前“向”是假落盘 |
 
 ### 层内自省
 
@@ -114,7 +115,7 @@
 
 - 为什么是这个结果：
   - 方向轴判断：先确定是否真是创意缺口，避免本模块吞掉非创意问题。
-  - 成立轴判断：只有能指向 `creative_mandate / planning_seed / unknowns` 的缺口才值得进入本模块。
+  - 成立轴判断：只有能指向 `north_star.story_kernel / reader_promise`、`init_handoff.project_contract.creative_mandate`、`init_handoff.stage_entry_seeds.planning_seed` 或 `unknowns` 的缺口才值得进入本模块。
   - 优选轴判断：不先缩小缺口类型，后续一定会读多。
 - 如果不是这个结果，会不会有更好的答案：
   - 方向轴判断：若把题材细节或世界规则误归本模块，只会把边界重新弄脏。
@@ -146,7 +147,7 @@
 ### 快照落点说明
 
 - 思维链如何作用于执行流程：先判缺口类型，再读最小 leaf references，最后只回写结构化槽位。
-- 思维链如何作用于交付：所有输出都必须落到 `project_contract.creative_mandate / planning_seed / unknowns`，而不是把参考文档内容原样搬进 handoff。
+- 思维链如何作用于交付：所有输出都必须落到 `north_star.story_kernel / reader_promise`、`init_handoff.project_contract / stage_entry_seeds.planning_seed / unknowns`，而不是把参考文档内容原样搬进 handoff。
 - 思维链如何作用于验收：若父 `SKILL.md` 继续直接点名 leaf references，或趋势资料在未授权时被读取，视为模块失效。
 
 ## 4. 执行流程
@@ -179,11 +180,11 @@
 | 场景 | 最小读取 | 主写回槽位 |
 | --- | --- | --- |
 | 规划模块卡默认缺约束包 | `creativity-constraints.md` + `category-constraint-packs.md` + `selling-points.md` | `planning_seed.hard_constraints / anti_trope / opening_hook` |
-| 商业与风格模块卡缺平台语义 | `market-positioning.md` | `project_contract.target_reader / platform / creative_mandate` |
-| 用户选择复合题材 | `creative-combination.md` | `planning_seed.story_engine / creative_mandate.one_liner` |
-| 用户卡顿，需要候选刺激 | `inspiration-collection.md`，必要时补 `selling-points.md` | `creative_mandate.core_selling_points / opening_hook / unknowns` |
+| 商业与风格模块卡缺平台语义 | `market-positioning.md` | `north_star.project_identity.target_reader / platform`、`init_handoff.project_contract.creative_mandate.target_reader / platform` |
+| 用户选择复合题材 | `creative-combination.md` | `init_handoff.stage_entry_seeds.planning_seed.story_engine`、`north_star.story_kernel.premise / value_collision` |
+| 用户卡顿，需要候选刺激 | `inspiration-collection.md`，必要时补 `selling-points.md` | `north_star.reader_promise.primary_pleasures`、`init_handoff.project_contract.promise_surface.core_selling_points / opening_hook`、`unknowns` |
 | 需要 genre-specific 反套路 | 按题材映射读取对应 `anti-trope-*.md` | `planning_seed.anti_trope / hard_constraints` |
-| 用户显式要求当下趋势 | `market-trends-2026.md` + `WebSearch/WebFetch` | `creative_mandate / unknowns.risk_notes` |
+| 用户显式要求当下趋势 | `market-trends-2026.md` + `WebSearch/WebFetch` | `north_star.type_seed.platform_notes`、`init_handoff.risk_notes` |
 
   - 题材到反套路映射固定为：
     - 修仙 / 玄幻 / 高武 / 西幻 -> `anti-trope-xianxia.md`
@@ -204,11 +205,12 @@
   - 用户原始表达
   - 当前模式下的来源策略
 - 动作：
-  - 只输出 `project_contract.creative_mandate / planning_seed / unknowns` 所需字段。
+  - 只输出 `north_star.story_kernel / north_star.reader_promise / init_handoff.project_contract / init_handoff.stage_entry_seeds.planning_seed / init_handoff.unknowns` 所需字段。
   - 显式区分 `user_confirmed / assistant_inferred / council_advised`。
   - 若某项只适合 `2-Planning` 再细化，则写入 `unknowns.deferred_to_planning`。
 - 产出：
-  - `creative_mandate_update`
+  - `north_star_patch`
+  - `project_contract_patch`
   - `planning_seed_update`
   - `unknowns_update`
 - 失败信号 / 返工入口：
@@ -235,10 +237,13 @@
 - 类型：非内容输出型
 - 模式：为 `0-Init` 的创意相关缺口提供统一的 leaf reference 路由与结构化写回。
 - 正式落点：
-  - `project_contract.creative_mandate`
-  - `project_contract.target_reader / platform`
-  - `planning_seed.anti_trope / hard_constraints / story_engine / opening_hook`
-  - `unknowns.deferred_to_planning / risk_notes`
+  - `0-Init/north_star.yaml.project_identity.target_reader / platform`
+  - `0-Init/north_star.yaml.story_kernel`
+  - `0-Init/north_star.yaml.reader_promise`
+  - `0-Init/init_handoff.yaml.project_contract.creative_mandate / promise_surface`
+  - `0-Init/init_handoff.yaml.stage_entry_seeds.planning_seed.anti_trope / hard_constraints / story_engine / opening_hook`
+  - `0-Init/init_handoff.yaml.unknowns.deferred_to_planning`
+  - `0-Init/init_handoff.yaml.risk_notes`
 - 上层消费方式：
   - 父 `SKILL.md` 把本模块视为唯一创意 references 入口。
   - planning 固定题包直答 与 synthesis 只声明依赖本模块，不再点名内部 leaf docs。
@@ -253,7 +258,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `粗裁决 / Base Range` | `creative_route_plan` / `loaded_references` | 当前模块执行记录、父 `SKILL.md` 的 `Reference Loading Guide` | 先决定是否命中本模块以及命中哪类子路由 | 非创意缺口、本不该进入本模块的问题不成立 | 回到 `Phase 1` |
 | `细裁决 / Range Narrowing` | `loaded_leaf_references` / `anti_trope_mapping` / `trend_gate` | 当前模块 `Phase 2`、`0-Init` 的创意缺口路由合同 | 保证上层只看统一入口，但本模块内部能追踪最小读取 | 读取过多、映射错位、未授权趋势引用不成立 | 回到 `Phase 2` |
-| `离散裁决 / Final Selection` | `creative_mandate_update` / `planning_seed_update` / `unknowns_update` / `sources_breakdown` | `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml` 的上游输入槽位 | 让创意参考真正进入 handoff，而不是停在解释层 | 仍是资料墙、来源不清或越权拍死 planning canonical 不成立 | 回到 `Phase 3` |
+| `离散裁决 / Final Selection` | `north_star_patch` / `project_contract_patch` / `planning_seed_update` / `unknowns_update` / `sources_breakdown` | `0-Init/north_star.yaml`、`0-Init/init_handoff.yaml` 的上游输入槽位 | 让创意参考真正进入 handoff，而不是停在解释层 | 仍是资料墙、来源不清或越权拍死 planning canonical 不成立 | 回到 `Phase 3` |
 
 ### 验证矩阵
 
@@ -273,13 +278,14 @@
 
 ### Gate Summary
 
-- status: PASS
+- status: PASS_WITH_FOLLOWUPS
 - fail_codes: []
 - repair_entry: 若未来出现读多、乱映射或假落盘，按 `Phase 1 -> Phase 2 -> Phase 3 -> Phase 4` 返工
 - unknowns:
   - 未来若 leaf references 继续增多，可能需要把叶子再拆成受治理的子参考模块
-- confidence: 0.88
-- smallest_safe_patch: 维持当前三轴命名不变，仅继续在新增 leaf reference 时回写 `Phase 2` 场景矩阵与验证矩阵
+  - 当前文件包含 think-think 风格的矩阵强化，但未配套 `reports/` 正式思维链设计报告；不得把它表述为完整 think-think 执行闭环
+- confidence: 0.82
+- smallest_safe_patch: 维持当前三轴命名不变，仅继续在新增 leaf reference 时回写 `Phase 2` 场景矩阵与验证矩阵；如需宣称 think-think 完成，先补正式报告
 
 ## 6. 验收机制
 
@@ -288,11 +294,12 @@
   - 每种创意缺口都能映射到最小读取清单与明确写回槽位。
   - 趋势资料仍是 L3 资料，不会被默认加载。
 - acceptance checklist：
-  - [ ] 父 `SKILL.md` 已显式声明何时进入本模块。
-  - [ ] `0-Init` 与 planning 固定题包直答 都只依赖本模块入口，不再散点点名 leaf references。
-  - [ ] `planning_seed / creative_mandate / unknowns` 的写回位点明确。
-  - [ ] 题材到反套路映射只在本模块维护。
-  - [ ] 全仓不再出现活跃 `references/creativity/` 直连路径。
+  - [x] 父 `SKILL.md` 已显式声明何时进入本模块。
+  - [x] `0-Init` 与 planning 固定题包直答 都只依赖本模块入口，不再散点点名 leaf references。
+  - [x] `north_star / project_contract / planning_seed / unknowns` 的写回位点明确。
+  - [x] 题材到反套路映射只在本模块维护。
+  - [x] 全仓不再出现活跃 `references/creativity/` 直连路径。
+  - [ ] 若要宣称完整 think-think 执行闭环，补 `reports/` 正式思维链设计报告。
 - fail signal：
   - 父技能与直答 sidecar 继续各自维护 leaf reference 触发规则。
   - 趋势校准在未获用户授权时被默认读取。

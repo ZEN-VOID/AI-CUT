@@ -1,6 +1,6 @@
 ---
 name: aigc-design-panel
-description: Use when the `5-设计/3-面板` tranche needs to route stable design outputs into panel layout JSONs and SMART built-in imagegen generation under `projects/aigc/<项目名>/4-设计/<域>/3-面板/`.
+description: Use when the `5-设计/3-面板` tranche needs to route stable design outputs into panel layout JSONs and SMART built-in imagegen generation under `projects/aigc/<项目名>/5-设计/<域>/3-面板/`.
 governance_tier: full
 ---
 
@@ -44,17 +44,17 @@ governance_tier: full
 
 ### 默认输入
 
-- `projects/aigc/<项目名>/4-设计/<域>/2-设计/第N集/*.md`
-- `projects/aigc/<项目名>/4-设计/<域>/2-设计/第N集/_manifest.json`
-- `projects/aigc/<项目名>/4-设计/<域>/2-设计/第N集/*.{png,jpg,jpeg,webp}`（批量 SMART 参照，可选）
+- `projects/aigc/<项目名>/5-设计/<域>/2-设计/第N集/*.md`
+- `projects/aigc/<项目名>/5-设计/<域>/2-设计/第N集/_manifest.json`
+- `projects/aigc/<项目名>/5-设计/<域>/2-设计/第N集/*.{png,jpg,jpeg,webp}`（批量 SMART 参照，可选）
 - 兼容 JSON：`道具设计.json`、`prop_design_prompt.json` 等 leaf 声明的投影
 
 ### 固定输出
 
-- `projects/aigc/<项目名>/4-设计/<域>/3-面板/第N集/*-Panel-layout.json`
-- `projects/aigc/<项目名>/4-设计/<域>/3-面板/第N集/_manifest.json`
-- 自动生图请求侧车：`projects/aigc/<项目名>/4-设计/<域>/3-面板/第N集/generated/requests/*.json`
-- 派生 PNG：`projects/aigc/<项目名>/4-设计/<域>/3-面板/第N集/generated/<layout-stem>/*.png`
+- `projects/aigc/<项目名>/5-设计/<域>/3-面板/第N集/*-Panel-layout.json`
+- `projects/aigc/<项目名>/5-设计/<域>/3-面板/第N集/_manifest.json`
+- 自动生图请求侧车：`projects/aigc/<项目名>/5-设计/<域>/3-面板/第N集/generated/requests/*.json`
+- 派生 PNG：`projects/aigc/<项目名>/5-设计/<域>/3-面板/第N集/generated/<layout-stem>/*.png`
 
 ### 硬门槛
 

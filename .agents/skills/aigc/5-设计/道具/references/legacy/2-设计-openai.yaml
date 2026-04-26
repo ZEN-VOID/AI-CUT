@@ -1,5 +1,0 @@
-interface:
-  display_name: "AIGC 道具设计"
-  short_description: "把道具清单中的 design_context 升级为逐道具 Markdown 设计卡，并按需导出兼容 JSON。"
-  default_prompt: "Use $aigc-design-prop-design to read the current episode `道具清单.json` plus `0-Init` and `2-Global` presets, write canonical `prop-*.md + _manifest.json` under `projects/aigc/<项目名>/4-设计/道具/2-设计/第N集/`, only emit `道具设计.json` / `prop_design_prompt.json` when compatibility export is explicitly requested, then finish with the shared `subagent-supervision-contract` closeout by reading project `team.yaml` and running reviewer subagents for the current-round prop outputs."
-version: 1

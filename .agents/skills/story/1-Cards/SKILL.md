@@ -2,434 +2,158 @@
 name: story-cards
 governance_tier: full
 description: |
-  Use when story2026 needs whole-book cards generation, cards rebuild, incremental writeback, coverage repair, or source-layer governance for the direct child skills that own type, style, character, scene, and item cards.
+  Use when story2026 needs the 1-Cards skill-group guide: route cards tasks to global, type, style, character, scene, and item child skills; coordinate shared inputs, writeback, validation, and source-layer governance.
 tools: [Read, Write, Edit, Grep, Bash]
 color: amber
 ---
 
 # 1-Cards
 
+## Role
+
+`1-Cards` 是 `story2026` 的卡片技能组导引层。
+
+它负责判断本轮应该进入哪些子技能、以什么顺序执行、如何回读项目上下文、如何把子技能产物写回 `projects/story/<项目名>/1-Cards/` 并完成 gate。它不直接代替子技能做世界观、题材、风格、角色、场景或物品的创作判断。
+
+一句话边界：
+
+- 父层管路由、依赖、写回、验证与闭环。
+- 子技能管各自对象的创作判断、字段成立条件与正式 card payload。
+- 脚本只做读取、校验、落盘、统计等机械辅助，不得替代 LLM 主创。
+
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 根级 `CONTEXT.md` 只承载 cards 体系经验、返工顺序与成功/失败模式，不得覆盖本 `SKILL.md` 的子技能路由、写回合同与 gate。
-- 若任一子技能 `SKILL.md / CONTEXT.md` 缺失，必须先补齐该子技能包基线，再继续 cards 执行。
+- 若任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需读取项目根 `CONTEXT/` 中与本轮 cards 相关的材料。
+- 进入任一子技能前，必须加载该子技能自己的 `SKILL.md + CONTEXT.md`。
+- 根级 `CONTEXT.md` 只提供 cards 技能组经验与返工启发，不得覆盖本文件的路由、所有权与 gate。
 
-## Overview
+## Skill Group Members
 
-`1-Cards` 现在是 `story2026` 的 cards 父 skill。
-
-它不再在根层维护对象私有 `references/` 或 `templates/`，而是直接治理六个直连子技能包：
-
-1. `全局卡`
-2. `类型卡`
-3. `风格卡`
-4. `角色卡`
-5. `场景卡`
-6. `物品卡`
-
-当前阶段的 canonical truth 分工固定为：
-
-- `0-Init/north_star.yaml`
-  - 长期共同约束与世界/人物/对象总体边界。
-- `1-Cards/**/*.json`
-  - 正式对象真源。
-- `1-Cards/SKILL.md`
-  - 父层路由、并发/串行裁决、shared writeback/gate、系统完善度裁决。
-- `全局卡 / 类型卡 / 风格卡 / 角色卡 / 场景卡 / 物品卡`
-  - 各自对象类型的思行网络、字段成立条件、正式 payload 决策。
-
-一句话裁决：
-
-- 父层负责总线与闭环。
-- 子技能负责对象裁决与对应 card JSON 产出。
-- 对象私有模板与合同都收束在各自子技能包内部。
-
-## Parent Positioning
-
-### 父层拥有
-
-- 任务模式判定：`full-build / incremental-writeback / coverage-repair / source-contract-fix`
-- 对象路由裁决与直连子技能调度
-- 并发/串行策略裁决
-- shared templates / writer / validator / tests 的统一契约
-- 最终 writeback、coverage gate、系统完善度评估
-- source-layer migration 与跨子技能一致性修复
-
-### 父层不拥有
-
-- 代替 `全局卡` 判断世界观、规则体系、年代约束、文化艺术、科技/武功与金手指
-- 代替 `类型卡` 判断读者承诺、主副题材组合、题材走廊与禁飞区
-- 代替 `风格卡` 判断整书风格契约、读者承诺与审美轴
-- 代替 `角色卡` 判断角色桶、成长、关系与专属物接口
-- 代替 `场景卡` 判断场景功能、规则、危险与复用策略
-- 代替 `物品卡` 判断剧情杠杆、归属、代价与专属适配
-- 把六个子技能再压回根层 `references/` 或 `templates/`
-
-## Governed Child Skills
-
-| child_skill | canonical owner | 正式输出 |
+| 子技能 | 负责对象 | 正式输出根 |
 | --- | --- | --- |
-| `全局卡` | 世界观、`rule_system`、年代约束、文化艺术、势力格局、科技/武功、金手指、`global_contract_refs` | `1-Cards/0-全局卡/**/*.json` |
-| `类型卡` | `story_promise`、`genre_corridor`、`navigation_rules` 与 planning 导入投影 | `1-Cards/5-类型卡/**/*.json` |
-| `风格卡` | 整书风格契约、总体基调、叙事风格、对白风格、画面风格、语言风格、场面风格、`style_gate` | `1-Cards/1-风格卡/**/*.json` |
-| `角色卡` | 角色对象真源、关系边、成长时间线、`exclusive_item_hooks` 输入接口、`growth_contract / growth_state` 三轴成长系统、角色关系图谱 | `1-Cards/2-角色卡/**/*.json` + `1-Cards/2-角色卡/角色关系图谱.md` |
-| `场景卡` | 场景对象真源、规则与风险、`scene_links`、复用策略 | `1-Cards/3-场景卡/**/*.json` |
-| `物品卡` | 物品对象真源、归属链、使用规则、代价、专属适配 | `1-Cards/4-物品卡/**/*.json` |
+| `全局卡` | 世界观、规则体系、年代约束、文化艺术、势力格局、科技/武功、金手指 | `1-Cards/0-全局卡/**/*.json` |
+| `风格卡` | 整书风格契约、叙事/对白/画面/语言/场面风格、风格漂移 gate | `1-Cards/1-风格卡/**/*.json` |
+| `角色卡` | 角色对象真源、关系、成长、专属物接口、关系图谱 | `1-Cards/2-角色卡/**/*.json` + `角色关系图谱.md` |
+| `场景卡` | 场景功能、规则、危险、角色适配、复用策略 | `1-Cards/3-场景卡/**/*.json` |
+| `物品卡` | 武器、线索、遗物、重要叙事物、归属链、代价、专属适配 | `1-Cards/4-物品卡/**/*.json` |
+| `类型卡` | 读者承诺、主副题材组合、题材走廊、禁飞区、planning 导入投影 | `1-Cards/5-类型卡/**/*.json` |
 
-硬规则：
+硬边界：
 
-1. 没有 `水月 / 镜花` 这种中间 parent；`1-Cards` 直接调六个子技能。
-2. 六个子技能都必须输出正式 `.json` card payload；其中 `角色卡` 额外允许一个正式图谱 side output：`1-Cards/2-角色卡/角色关系图谱.md`。
-3. 根层不再维护对象私有 `references/` 或 `templates/`。
-4. 技能包名称不承载调度语义；是否串行或并发只由依赖关系和父层路由决定。
+1. 六个成员都是直连 child skills；父层不得把它们重新压回根层 `references/` 或根层 `templates/`。
+2. 对象私有模板、字段映射、步骤和审查规则归子技能包本地所有。
+3. 父层只聚合被实际调度的子技能产物，不为未调度子技能补空字段或占位稿。
+4. 角色、场景、物品存在强依赖：`角色卡 -> 场景卡 -> 物品卡`。
+5. `类型卡` 是 planning 默认题材方向盘；`风格卡` 是 drafting/validation 默认写法 gate。
 
-## Dispatch Policy
+## Mode Selection
 
-- 默认允许并发：
-  - 全局卡与类型卡。
-  - 风格卡与其他四个对象子技能。
-  - 单对象请求。
-  - 多个彼此独立的增量修复。
-  - 不共享同一 writeback 决议的 source-contract-fix。
-- 必须串行：
-  - `mixed` 请求。
-  - `full-build`。
-  - 任何需要先稳定类型方向盘、再稳定风格与角色接口、最后收束物品代价的请求。
-- 父层固定裁决：
-  - “名称无序号”不代表“永远并发”。
-  - “允许并发”只在对象间不存在真实上游依赖时生效。
+| request_shape | 父层动作 | 调度策略 |
+| --- | --- | --- |
+| 单一对象请求 | 只进入命中的一个子技能 | 可单独执行 |
+| 多个独立对象修复 | 只进入命中的子技能 | 无真实依赖时可并行；同一写回目标要串行收束 |
+| `mixed` 建卡 | 进入多个子技能并聚合 | `全局卡 -> 类型卡 -> 风格卡 -> 角色卡 -> 场景卡 -> 物品卡` |
+| `full-build` | 全量建卡并完成 gate | 固定按 mixed 顺序串行推进 |
+| coverage repair | 先读 validator finding，再进入相关子技能 | 只修 blocking finding 指向的对象 |
+| source-contract-fix | 修父子合同、模板、writer、validator、tests 的一致性 | 先修真源层，再跑局部 gate |
 
-## Shared Canonical Sources
+## Routing Guide
+
+| 用户诉求关键词 | 目标子技能 | 路由说明 |
+| --- | --- | --- |
+| 世界、规则、年代、文化、势力、武功、科技、金手指 | `全局卡` | 整书级设定与运行规则 |
+| 题材、类型、读者承诺、平台感、禁飞区、爽点/虐点边界 | `类型卡` | 故事方向盘和 planning 最小导入 |
+| 气质、文风、对白、镜头感、叙事口吻、语言节奏 | `风格卡` | 写法合同和风格漂移约束 |
+| 人物、关系、成长、伤口、欲望、专属物接口 | `角色卡` | 人物对象真源和关系网络 |
+| 地点、空间、危险、规矩、常驻场、返场价值 | `场景卡` | 可写戏空间与规则压力 |
+| 武器、道具、线索、遗物、钥匙、代价、归属 | `物品卡` | 剧情杠杆和使用成本 |
+
+若请求同时命中多个对象，优先用依赖链判断顺序，而不是按技能目录名称判断。
+
+## Shared Runtime Contract
+
+正式写回和验证默认经由共享脚本辅助完成：
 
 - `.agents/skills/story/scripts/cards_writer.py`
 - `.agents/skills/story/scripts/cards_coverage_validator.py`
 - `.agents/skills/story/scripts/story.py`
-- `全局卡/SKILL.md + CONTEXT.md + templates/global-card.json + references/golden-finger-templates.md`
-- `类型卡/SKILL.md + CONTEXT.md + templates/type-card.json`
-- `风格卡/SKILL.md + CONTEXT.md + templates/style-card.json`
-- `角色卡/SKILL.md + CONTEXT.md + templates/character-card.json`
-- `场景卡/SKILL.md + CONTEXT.md + templates/scene-card.json`
-- `物品卡/SKILL.md + CONTEXT.md + templates/item-card.json`
 
-真源分工：
+脚本职责仅限机械流程：
 
-- 本 `SKILL.md`
-  - 父层 topology、dispatch、writeback、gate、migration。
-- 子技能 `SKILL.md`
-  - 对象类型的思行网络与输出合同。
-- 子技能包内 templates
-  - 各自 card JSON skeleton。
-- writer / validator
-  - 运行时落盘与审计闭环。
+- 读取项目输入与既有 cards
+- 投影子技能产出的结构化 payload
+- 原子写入 JSON / Markdown side output
+- 校验 schema、trace、数量、密度与 route parity
+- 生成 gate 报告
+
+脚本不得生成核心创作正文、审美判断、故事判断或对象成立理由。
 
 ## Canonical Output Root
 
-- `1-Cards` 的正式业务落盘根目录固定为 `projects/story/<项目名>/1-Cards/`
-- 六类正式 card JSON 必须写到：
-  - `projects/story/<项目名>/1-Cards/0-全局卡/**/*.json`
-  - `projects/story/<项目名>/1-Cards/1-风格卡/**/*.json`
-  - `projects/story/<项目名>/1-Cards/2-角色卡/**/*.json`
-  - `projects/story/<项目名>/1-Cards/3-场景卡/**/*.json`
-  - `projects/story/<项目名>/1-Cards/4-物品卡/**/*.json`
-  - `projects/story/<项目名>/1-Cards/5-类型卡/**/*.json`
-- 角色体系额外正式 side output 固定为：
-  - `projects/story/<项目名>/1-Cards/2-角色卡/角色关系图谱.md`
-- 不得把技能目录、临时 sidecar 或 repo 根层模板当成项目业务输出根。
-
-## Business Requirement Analysis Contract
-
-| analysis_slot | 当前结论 |
-| --- | --- |
-| `business_goal` | 把 `0-Init` 交出的世界、题材、风格与对象种子收敛为可长期维护的 cards 体系，并通过六个直连子技能把全局/类型/风格/角色/场景/物品正式落盘；其中角色卡必须承载可被 `5-Loopback` 递增 actualize 的成长系统真源。 |
-| `business_object` | `projects/story/<项目名>/0-Init/north_star.yaml`、`projects/story/<项目名>/0-Init/init_handoff.yaml`、`projects/story/<项目名>/1-Cards/**/*.json`、cards writer/validator/tests、六个 child skill package。 |
-| `constraint_profile` | 父层必须保持单一总线；子技能必须直接输出 `.json`；正式 writeback 只能走 shared writer；coverage gate 必须覆盖 trace、单卡结构、规模密度与 child-skill parity。 |
-| `success_criteria` | 六个子技能都能独立解释自己的对象成立条件，writer/validator/test 全部识别新子技能路径，cards 系统可通过定向 gate。 |
-| `non_goals` | 不把 cards 真源挪回 `references/`；不新造第二套平行 schema；不把项目级对象真源落回技能目录。 |
-| `complexity_source` | 复杂度来自父子技能分工、shared runtime parity、trace 合同、长篇密度门禁，而不是单张卡的 prose 丰富度。 |
-| `topology_fit` | `intake -> mode lock -> child dispatch -> parallel or serial by dependency -> writeback -> coverage gate -> completeness audit -> closure` |
-| `step_strategy` | 父层只做总线与闭环，详细对象判断下沉到六个直连 child skills。 |
-
-## Visual Maps
-
-```mermaid
-flowchart TD
-    A["Intake"] --> B["Lock mode and scope"]
-    B --> C{"Object route"}
-    C -->|"global"| Q["全局卡"]
-    C -->|"type"| T["类型卡"]
-    C -->|"style"| S["风格卡"]
-    C -->|"character"| D["角色卡"]
-    C -->|"scene"| E["场景卡"]
-    C -->|"item"| F["物品卡"]
-    C -->|"mixed / full-build"| Q
-    Q --> T
-    Q --> G
-    T --> S
-    T --> G
-    S --> G["cards_writer.py"]
-    D --> E
-    E --> F
-    D --> G
-    E --> G
-    F --> G
-    G --> H["cards_coverage_validator.py"]
-    H --> I["Completeness audit + closure"]
-```
-
-```mermaid
-flowchart LR
-    A["0-Init/north_star.yaml.cards"] --> B["1-Cards Parent"]
-    B --> C["全局卡"]
-    B --> D["类型卡"]
-    B --> E["风格卡"]
-    B --> F["角色卡"]
-    B --> G["场景卡"]
-    B --> H["物品卡"]
-    C --> I["全局卡/templates/global-card.json"]
-    D --> J["类型卡/templates/type-card.json"]
-    E --> K["风格卡/templates/style-card.json"]
-    F --> L["角色卡/templates/character-card.json"]
-    G --> M["场景卡/templates/scene-card.json"]
-    H --> N["物品卡/templates/item-card.json"]
-    I --> O["1-Cards/0-全局卡/**/*.json"]
-    J --> P["1-Cards/5-类型卡/**/*.json"]
-    K --> Q["1-Cards/1-风格卡/**/*.json"]
-    L --> R["1-Cards/2-角色卡/**/*.json"]
-    M --> S["1-Cards/3-场景卡/**/*.json"]
-    N --> T["1-Cards/4-物品卡/**/*.json"]
-    O --> U["cards-check"]
-    P --> U
-    Q --> U
-    R --> U
-    S --> U
-    T --> U
-```
-
-```mermaid
-stateDiagram-v2
-    [*] --> Intake
-    Intake --> Routed
-    Routed --> ChildExecuting
-    ChildExecuting --> Writeback
-    Writeback --> CoverageGate
-    CoverageGate --> Completed
-    CoverageGate --> Rework
-    Rework --> Routed
-```
-
-## Context Preload (Mandatory)
-
-固定加载顺序：
-
-1. `.agents/skills/story/SKILL.md + CONTEXT.md`
-2. 本 `SKILL.md + CONTEXT.md`
-3. `0-Init/north_star.yaml`
-4. `0-Init/init_handoff.yaml`
-5. `team.yaml`
-6. `全局卡/SKILL.md + CONTEXT.md`
-7. `类型卡/SKILL.md + CONTEXT.md`
-8. `风格卡/SKILL.md + CONTEXT.md`
-9. `角色卡/SKILL.md + CONTEXT.md`
-10. `场景卡/SKILL.md + CONTEXT.md`
-11. `物品卡/SKILL.md + CONTEXT.md`
-12. 命中的子技能包本地 `templates/*.json`
-13. 命中的子技能包 `references/*.md`
-14. 既有 `1-Cards/**/*.json`
-15. 若项目已有 `类型卡`：回读既有 `1-Cards/5-类型卡/**/*.json` 作为题材方向盘上下文
-
-## Total Input Contract
-
-### 必需输入
-
-- `0-Init/north_star.yaml`
-- `0-Init/init_handoff.yaml`
-
-### 推荐输入
-
-- `team.yaml`
-- 既有 `1-Cards/0-全局卡/**/*.json`
-- 既有 `1-Cards/1-风格卡/**/*.json`
-- 既有 `1-Cards/2-角色卡/**/*.json`
-- 既有 `1-Cards/3-场景卡/**/*.json`
-- 既有 `1-Cards/4-物品卡/**/*.json`
-- 既有 `1-Cards/5-类型卡/**/*.json`
-
-### 硬规则
-
-1. 不得把 `planning_seed` 直接当对象 canonical。
-2. 全量建卡至少包含 `全局卡 + 类型卡 + 风格卡 + 角色卡 + 场景卡 + 物品卡`。
-3. `类型卡` 是 `2-Planning` 的默认题材方向盘；若 planning 需要导入题材承诺，优先回读 `1-Cards/5-类型卡/**/*.json`。
-4. 角色、场景、物品的依赖链固定顺序：`角色 -> 场景 -> 物品`。
-5. 物品卡不得绕过角色卡与场景卡的稳定接口直接发明专属逻辑。
-4. 所有正式写回都必须经 `cards_writer.py`。
-5. cards 阶段的规模/密度 gate 只允许依据项目设定、现有 cards 与人工类型卡，不得再消费任何自动 pack 投影。
-
-## Route Contract
-
-| request_shape | target_child | route_reason |
-| --- | --- | --- |
-| 世界观、规则体系、年代、文化艺术、势力格局、科技、武功、金手指、总设定 | `全局卡` | 全局卡负责整书级稳定设定、势力格局与金手指合同 |
-| 题材、主副类型组合、题材走廊、禁飞区、平台承诺 | `类型卡` | 类型卡负责整书题材方向盘与 planning 导入投影 |
-| 风格、总体基调、叙事风格、对白风格、画面风格、语言风格、风格禁区、整体气质 | `风格卡` | 风格卡负责整书写法合同与下游风格 gate |
-| 人物、关系、弧光、专属物接口 | `角色卡` | 角色是物品专属适配的强上游 |
-| 地点、规则、危险、常驻空间、复用策略 | `场景卡` | 场景负责“谁来做什么、代价是什么” |
-| 武器、线索、重要叙事物、遗物、代价、归属 | `物品卡` | 物品负责剧情杠杆、归属链和成本 |
-| 多个彼此独立的单对象请求 | `全局卡 / 类型卡 / 风格卡 / 角色卡 / 场景卡 / 物品卡` 可并发 | 互不共享 writeback 决议时允许并发 |
-| mixed 请求 | `全局卡 -> 类型卡 -> 风格卡 -> (角色卡 -> 场景卡 -> 物品卡)` | 题材方向盘先于风格与对象闭环 |
-| full-build | `全局卡 -> 类型卡 -> 风格卡 -> (角色卡 -> 场景卡 -> 物品卡)` | 全量建卡时先稳定世界与题材，再下游展开 |
-
-## Thinking-Action Network
-
-| step_id | objective | actions | evidence | fail_code |
-| --- | --- | --- | --- | --- |
-| S1 | 锁定任务模式 | 判定 `full-build / incremental / repair / source-contract-fix` | `mode` | `FAIL-CD-MODE-01` |
-| S2 | 锁定对象路由 | 把请求映射到 1 个或多个 child skill | `target_children` | `FAIL-CD-ROUTE-01` |
-| S3 | 读取上游真源 | 读取 `north_star.yaml / init_handoff.yaml / 既有 Cards` | `input_trace` | `FAIL-CD-INPUT-01` |
-| S4 | 调度 child skill | 进入命中的 child `SKILL.md + CONTEXT.md` | `child_dispatch` | `FAIL-CD-CHILD-01` |
-| S5 | shared writeback | 调用 `cards_writer.py` 落正式 JSON | `write_report` | `FAIL-CD-WRITE-01` |
-| S6 | coverage gate | 调用 `cards-check` 验证 trace、结构、密度 | `gate_report` | `FAIL-CD-GATE-01` |
-| S7 | completeness audit | 评估 templates/writer/validator/tests 是否与 child skill 路由一致 | `completeness_verdict` | `FAIL-CD-COMP-01` |
-| S8 | closure | 输出 `根因位置 + 立即修复 + 系统预防修复` | `closure` | `FAIL-CD-CLOSE-01` |
-
-## One-Shot Output Contract
-
-父层最终只允许向用户与运行时交付一套收束结果：
-
-1. 正式 `1-Cards/**/*.json`
-2. `cards-check` gate 结论
-3. 系统完善度评估
-4. `root cause location + immediate fix + systemic prevention fix`
-
-禁止：
-
-- 并列交付多套未收束 payload
-- 让子技能各自维护平行索引真源
-- 仅修改文档，不同步 writer / validator / tests
-
-## System Completeness Audit (Mandatory)
-
-每次非平凡重构后，父层必须评估 cards 系统至少这 6 项：
-
-| dimension | 要求 | blocking signal |
-| --- | --- | --- |
-| `child-skill topology` | 全局/类型/风格/角色/场景/物品六个模块已升格为直连 child skills | 仍存在 active `references/*-module` 业务真源 |
-| `trace parity` | child-local template / writer / validator / tests 指向同一 child skill 路径 | 文档与脚本使用不同 route |
-| `schema parity` | 正式卡、索引卡、validator 共享同一字段口径 | 单卡过不了 validator 或 validator 不检查新增 trace |
-| `runtime parity` | `cards-write` 与 `cards-check` 都消费 child skill 合同 | 只改 writer 或只改 validator |
-| `density gate` | 覆盖率仍同时检查数量、结构、规则刚性 | 只剩文件存在检查 |
-| `cross-skill consistency` | 角色接口、场景规则、物品代价之间的上游关系清晰 | 物品绕过角色/场景直接自说自话 |
-
-## Root-Cause Execution Contract
-
-非平凡问题必须上溯：
-
-`Symptom -> Direct Technical Cause -> Rule Source -> Meta Rule Source -> Fix Landing Points`
-
-本阶段固定优先级：
-
-1. 父技能路由与 child ownership
-2. shared template / writer / validator / tests
-3. child skill 合同
-4. 单张 card 内容
-
-收尾固定返回：
-
-- `根因位置`
-- `立即修复`
-- `系统预防修复`
-
-## Field Master Table
-
-| field_id | type | slot | owner | fail_code |
-| --- | --- | --- | --- | --- |
-| `FIELD-CD-IDN-01` | IDN | `meta.skill_id / meta.source_skill_id` | parent + child template | `FAIL-CD-IDN-01` |
-| `FIELD-CD-ROUTE-01` | STR | `content.module_route` | parent + writer | `FAIL-CD-ROUTE-01` |
-| `FIELD-CD-TRACE-01` | CTX | `content.loaded_references` | child + writer + validator | `FAIL-CD-TRACE-01` |
-| `FIELD-CD-WRITE-01` | BHV | `content.writeback_plan` | parent + writer | `FAIL-CD-WRITE-01` |
-| `FIELD-CD-MAT-00` | MAT | `1-Cards/0-全局卡/**/*.json` | `全局卡` | `FAIL-CD-MAT-00` |
-| `FIELD-CD-MAT-01` | MAT | `1-Cards/5-类型卡/**/*.json` | `类型卡` | `FAIL-CD-MAT-01` |
-| `FIELD-CD-MAT-02` | MAT | `1-Cards/1-风格卡/**/*.json` | `风格卡` | `FAIL-CD-MAT-02` |
-| `FIELD-CD-MAT-03` | MAT | `1-Cards/2-角色卡/**/*.json` | `角色卡` | `FAIL-CD-MAT-03` |
-| `FIELD-CD-MAT-04` | MAT | `1-Cards/3-场景卡/**/*.json` | `场景卡` | `FAIL-CD-MAT-04` |
-| `FIELD-CD-MAT-05` | MAT | `1-Cards/4-物品卡/**/*.json` | `物品卡` | `FAIL-CD-MAT-05` |
-| `FIELD-CD-GATE-01` | CST | `gate_summary.status` | validator | `FAIL-CD-GATE-01` |
-
-## Step To Field Mapping
-
-| step_id | field_id | intent | rework_entry |
-| --- | --- | --- | --- |
-| `S1` | `FIELD-CD-IDN-01` | 锁定本轮 cards 身份与模式 | 回到模式判定 |
-| `S2` | `FIELD-CD-ROUTE-01` | 锁定 child skill 路由 | 回到对象路由 |
-| `S3` | `FIELD-CD-TRACE-01` | 锁定上游输入与加载链 | 回到输入读取 |
-| `S4` | `FIELD-CD-MAT-00/01/02/03/04/05` | 进入具体 child skill 产出正式 payload | 回 child skill |
-| `S5` | `FIELD-CD-WRITE-01` | 落 shared writeback | 回 writer |
-| `S6` | `FIELD-CD-GATE-01` | coverage gate 通过 | 回 validator |
-| `S7` | `FIELD-CD-TRACE-01` | 完成 trace/runtime parity 审计 | 回 completeness audit |
-| `S8` | `FIELD-CD-GATE-01` | 输出闭环 | 回 closure |
-
-## Field Quality Mapping
-
-| field_id | quality_dimension | pass_condition | rework_entry |
-| --- | --- | --- | --- |
-| `FIELD-CD-IDN-01` | identity parity | root skill 与 child skill 身份不冲突 | 回 template/writer |
-| `FIELD-CD-ROUTE-01` | route parity | `module_route` 精确指向命中 child skill | 回 route / writer |
-| `FIELD-CD-TRACE-01` | trace completeness | `loaded_references` 至少覆盖 root + child + child-local template | 回 child contract / writer / validator |
-| `FIELD-CD-WRITE-01` | writeback hygiene | mode、target_paths、boundary_notes 完整 | 回 writer |
-| `FIELD-CD-MAT-00` | global completeness | 全局卡具备世界观/规则/年代/文化/力量/金手指 | 回 `全局卡` |
-| `FIELD-CD-MAT-01` | type completeness | 类型卡具备承诺/题材走廊/pack 命中/planning 导入投影 | 回 `类型卡` |
-| `FIELD-CD-MAT-02` | style completeness | 风格卡具备承诺/审美轴/风格系统 | 回 `风格卡` |
-| `FIELD-CD-MAT-03` | character completeness | 角色卡具备关系/成长/接口 | 回 `角色卡` |
-| `FIELD-CD-MAT-04` | scene completeness | 场景卡具备功能/规则/复用 | 回 `场景卡` |
-| `FIELD-CD-MAT-05` | item completeness | 物品卡具备归属/代价/专属适配 | 回 `物品卡` |
-| `FIELD-CD-GATE-01` | system readiness | `cards-check` 无 blocking finding | 回 validator + child repair |
-
-## Migration Contract
-
-### Retired Source Layer
-
-- 根层 `references/`
-- 根层 `templates/`
-
-这些目录不再承载 cards 业务真源。
-
-### New Structure
+正式业务输出只允许落在：
 
 ```text
-.agents/skills/story/1-Cards/
-├── SKILL.md
-├── CONTEXT.md
-├── 全局卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   ├── references/golden-finger-templates.md
-│   └── templates/global-card.json
-├── 类型卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   └── templates/type-card.json
-├── 风格卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   └── templates/style-card.json
-├── 角色卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   └── templates/character-card.json
-├── 场景卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   └── templates/scene-card.json
-├── 物品卡/
-│   ├── SKILL.md
-│   ├── CONTEXT.md
-│   └── templates/item-card.json
+projects/story/<项目名>/1-Cards/
+├── 0-全局卡/
+├── 1-风格卡/
+├── 2-角色卡/
+├── 3-场景卡/
+├── 4-物品卡/
+└── 5-类型卡/
 ```
 
-## Completion Gate
+禁止把技能目录、临时 sidecar、报告目录或 repo 根层模板当成项目 card 真源。
 
-- 父 skill 已只保留 orchestrator 职责。
-- 全局/类型/风格/角色/场景/物品六个模块已升格为直连 child skills。
-- template / writer / validator / tests 都已切到 child skill trace。
-- 覆盖率 gate 仍保留结构、数量、规则刚性与 trace parity 检查。
-- 不存在仍把 `references/*-module` 当 active business truth 的路径。
+## Operating Flow
+
+1. 锁定项目根、任务模式与输入范围。
+2. 加载本 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
+3. 根据请求路由到一个或多个子技能。
+4. 对每个命中子技能加载其 `SKILL.md + CONTEXT.md`，再按其合同读取本地模板、references、steps、review 或 types。
+5. 由 LLM 完成对象判断与 payload 创作，脚本只负责投影、落盘或校验。
+6. 经 shared writer 写回正式输出根。
+7. 经 coverage validator / cards-check 完成 gate。
+8. 若失败，按 finding 指向回到父层路由、子技能合同、模板、writer、validator 或 card 内容中最窄的真实根因。
+
+## Quality Gates
+
+| gate | 通过条件 |
+| --- | --- |
+| 路由 gate | 请求命中对象与子技能 owner 一致 |
+| 上下文 gate | 父层、项目记忆、相关项目上下文、命中子技能上下文已加载 |
+| 创作权 gate | 核心 card 判断来自 LLM，不来自脚本拼接 |
+| trace gate | payload 标记的 `source_skill_id / module_route / loaded_references` 与实际调度一致 |
+| schema gate | 输出 JSON 符合对应子技能本地模板 |
+| dependency gate | 物品卡没有绕过角色接口与场景规则 |
+| coverage gate | 数量、结构、密度、规则刚性和 route parity 通过验证 |
+
+## Root-Cause Contract
+
+非平凡问题必须沿链路上溯：
+
+`Symptom -> Direct Cause -> Source Layer -> Rule Source -> Fix Landing Point`
+
+修复落点优先级：
+
+1. 父层路由、依赖和写回 gate。
+2. 子技能 `SKILL.md + CONTEXT.md` 合同。
+3. 子技能本地模板、steps、review、types。
+4. writer / validator / tests 的运行时一致性。
+5. 单张 card 内容。
+
+最终反馈应收束为：
+
+- 根因位置
+- 已修复内容
+- 验证结果
+- 仍需用户裁决的创作选择
+
+## Completion Contract
+
+一次 `1-Cards` 任务完成时，父层只交付一套收束结果：
+
+- 命中的正式 cards 或相关合同修复。
+- gate / validation 结论。
+- 对未处理对象的明确边界说明。
+- 若发生降级或跳过子技能，说明原因和影响。

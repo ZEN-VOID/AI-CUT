@@ -32,7 +32,7 @@
 
 - 调用名：`$aigc-design-character-list`
 - 上游真源：`projects/aigc/<项目名>/4-分组/第N集.md` 的组底 YAML `角色` 字段。
-- Canonical 输出：`projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`。
+- Canonical 输出：`projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`。
 - 固定表头：`名称`、`首次登场`、`原文描述（关键词式）`。
 
 ## Visual Overview

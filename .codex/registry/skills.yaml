@@ -484,14 +484,14 @@ active_skills:
       default_target: "用户提供的文章文本，或 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`"
       mirror_policy: "这是 story 旁路润色 skill，不拥有 planning/cards/validation/actualization 真源；默认输出风格分析、润色策略与候选正文，只有用户明确要求时才覆写目标文本。"
   - id: story-drafting-maintext
-    path: .agents/skills/story/3-Drafting/正文
+    path: .agents/skills/story/3-Drafting
     owner_office: shangshu
     purpose: "story 组 repo-local 章级正文直写 skill，按章消费三层 planning、全局卡、风格卡、north_star、项目 CONTEXT 与上一章正文，并输出 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。"
     contract_mode: active
     runtime_control:
-      canonical_skill_root: ".agents/skills/story/3-Drafting/正文/"
+      canonical_skill_root: ".agents/skills/story/3-Drafting/"
       canonical_output: "projects/story/<项目名>/3-Drafting/第N卷/第N章.md"
-      mirror_policy: "这是 `3-Drafting` 的 chapter-native 直写 child；只拥有当前章正文根稿与其 YAML 头，不拥有 planning/cards/validation/actualization 判定权。"
+      mirror_policy: "这是 `3-Drafting` 的 chapter-native 根级主技能；只拥有当前章正文根稿与其 YAML 头，不拥有 planning/cards/validation/actualization 判定权。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

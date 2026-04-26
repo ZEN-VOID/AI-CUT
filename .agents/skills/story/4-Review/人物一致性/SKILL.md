@@ -117,3 +117,39 @@ flowchart TD
 
 - 已给出行为、成长连续性、对白三类人物问题。
 - 报告已定位返工应回到角色刻画还是对白优化。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 维度审查入口与父层边界 | `../SKILL.md`、`../references/root-runtime-contract.md` |
+| 人物一致性步骤网络 | `steps/validation-flow.md` |
+| 维度判据与共享字段 | `references/README.md`、`../_shared/validation-child-output-contract.md` |
+| 质量门禁与 reviewer 汇流 | `review/review-gate.md` |
+| 类型化输入画像 | `types/type-map.md` |
+| 输出样式 | `templates/output-template.md` |
+| 脚本边界 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/heuristics.md` 与 `CONTEXT.md` |
+| 产品侧入口 | `agents/openai.yaml` |
+
+## Root-Cause Execution Contract
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+若人物问题无法定位证据，优先回 `N1-CHAR-STATE-READ`；若输出不可被父层聚合，优先修 `../_shared/validation-child-output-contract.md` 与 `templates/output-template.md`。
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-CH-ENTRY` | `SKILL.md` | 输入、边界、维度 verdict 与父层回接 | `FAIL-CH-ENTRY` |
+| `FIELD-CH-STEPS` | `steps/` | 人物状态读取、行为检查、成长检查、对白检查 | `FAIL-CH-STEPS` |
+| `FIELD-CH-REVIEW` | `review/` | 维度门禁与 packet 可聚合性 | `FAIL-CH-REVIEW` |
+
+## Skill 2.0 Output Contract
+
+- Required output: 人物一致性 `dimension_packet` 与 `dimension_report_ref`。
+- Output format: Markdown 维度报告 + 父层可聚合结构化 packet。
+- Output path: `projects/story/<项目名>/4-Review/第V卷/人物一致性.md`。
+- Naming convention: report filename 以父层 registry 的 `report_filename` 为准。
+- Completion gate: packet 不写 `validation_status / routing_decision / handoff_targets`，只回传本维度 verdict。

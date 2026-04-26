@@ -4,7 +4,7 @@
 
 章级节奏的共性真源已回收到：
 
-- `../../_shared/chapter-rhythm-handoff-contract.md`
+- `../../../_shared/chapter-rhythm-handoff-contract.md`
 
 本文件只补章级 planning 自身的落盘要求，不再平行维护第二套共性发动机。
 

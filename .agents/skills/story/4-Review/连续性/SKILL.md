@@ -110,3 +110,39 @@ flowchart TD
 
 - 已明确指出承接点、转场点与断带点。
 - 若失败，报告已定位返工应回到起盘还是 `Step 2 / 2-节奏优化`。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 维度审查入口与父层边界 | `../SKILL.md`、`../references/root-runtime-contract.md` |
+| 连续性步骤网络 | `steps/validation-flow.md` |
+| 维度判据与共享字段 | `references/README.md`、`../_shared/validation-child-output-contract.md` |
+| 质量门禁与 reviewer 汇流 | `review/review-gate.md` |
+| 类型化输入画像 | `types/type-map.md` |
+| 输出样式 | `templates/output-template.md` |
+| 脚本边界 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/heuristics.md` 与 `CONTEXT.md` |
+| 产品侧入口 | `agents/openai.yaml` |
+
+## Root-Cause Execution Contract
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+若承接断带没有明确断在哪条线，回到 `N1-CARRYOVER-LOAD` 与 `N3-THREAD-CHECK`；若缺 continuity matrix，直接 route `FAIL-COVENANT`。
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-CT-ENTRY` | `SKILL.md` | 输入、边界、维度 verdict 与父层回接 | `FAIL-CT-ENTRY` |
+| `FIELD-CT-STEPS` | `steps/` | 承接、转场、线程连续性检查 | `FAIL-CT-STEPS` |
+| `FIELD-CT-REVIEW` | `review/` | 维度门禁与 packet 可聚合性 | `FAIL-CT-REVIEW` |
+
+## Skill 2.0 Output Contract
+
+- Required output: 连续性 `dimension_packet` 与 `dimension_report_ref`。
+- Output format: Markdown 维度报告 + 父层可聚合结构化 packet。
+- Output path: `projects/story/<项目名>/4-Review/第V卷/连续性.md`。
+- Naming convention: report filename 以父层 registry 的 `report_filename` 为准。
+- Completion gate: 断带位置、影响章节和返工 step 均可追溯。

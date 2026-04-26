@@ -14,7 +14,7 @@ metadata:
 
 - 每次调用 `$aigc-review` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，先加载项目根 `MEMORY.md` 与相关 `CONTEXT/`，再进入 review mode。
-- 父层必须先读取 `references/review-root-contract.md`、`references/review-child-output-contract.md`、`references/review-fact-pack-spec.md` 与 `_shared/review-dimension-registry.yaml`。
+- 父层必须先读取 `references/review-root-contract.md`、`references/review-child-output-contract.md`、`references/review-fact-pack-spec.md`、`references/dimensions/*.md` 与 `_shared/review-dimension-registry.yaml`。
 - `_shared/` 保留给 `scripts/aigc_review_runner.py` 和旧链路兼容；Skill 2.0 规范入口以 `references/`、`steps/`、`review/`、`types/`、`templates/` 为准。
 
 ## Input Contract
@@ -50,8 +50,9 @@ Reject or clarify when:
 | 场景 | 读取文件 |
 | --- | --- |
 | 根 gate、落点、字段权属 | `references/review-root-contract.md` |
-| 子维度输出协议 | `references/review-child-output-contract.md` |
+| 维度输出协议 | `references/review-child-output-contract.md` |
 | fact pack 最小字段与 required slice | `references/review-fact-pack-spec.md` |
+| 六维审计细则 | `references/dimensions/*.md` |
 | review 执行拓扑 | `steps/review-workflow.md` |
 | checkpoint / stage / package 判型 | `types/review-type-map.md` |
 | 质量门禁与 provider 降级 | `review/review-gate.md` |
@@ -65,19 +66,20 @@ Reject or clarify when:
 1. 锁定项目根、`review_mode`、`scope_ref` 和唯一 aggregate packet 落点。
 2. 按 `types/review-type-map.md` 判定本轮需要的 checkpoint、stage 或 release 维度。
 3. 按 `references/review-fact-pack-spec.md` 组装同一份 `review_fact_pack`；若 required slice 缺失，直接 `FAIL-COVENANT`。
-4. 按 `_shared/review-dimension-registry.yaml` 选择 mandatory child review skills。
+4. 按 `_shared/review-dimension-registry.yaml` 选择 mandatory dimensions，并加载其 `dimension_spec_ref` 指向的 `references/dimensions/*.md`。
 5. 若 `review_fact_pack` required slice 缺失，直接写 `FAIL-COVENANT` aggregate packet 与 repair plan，不进入 provider 或维度审计。
 6. 在上层策略允许时，使用 `review/review-gate.md` 声明的 provider 路径；若真实 subagent/provider 被阻断，降级为本地 checklist 并在 packet 中记录。
 7. 聚合 `dimension_packet + dimension_report_ref + dimension_runtime`，写出唯一 aggregate review packet。
 8. 若未通过，写 `*.review.repair.json`，并在 `governance-state.yaml` 存在时同步 `review_bridge` 与 `resume_contract.required_repairs`。
 9. 父层不得直接改写阶段业务 canonical truth；返工必须路由回阶段、source owner 或 provider handoff owner。
 
-## Dimension Module Boundary
+## Dimension Spec Boundary
 
-- `规划与种子兑现 / 分镜执行连续性 / 设计对位 / 图像交付就绪 / 视频交付就绪 / 治理闭环` 是本父包内的 governed dimension modules。
-- 这些目录只拥有局部 `SKILL.md + CONTEXT.md` 与维度 verdict 规则，不作为独立 Skill 2.0 包对外直达受理任务。
+- `规划与种子兑现 / 分镜执行连续性 / 设计对位 / 图像交付就绪 / 视频交付就绪 / 治理闭环` 是本父包内的 governed dimension specs。
+- 六维细则统一落在 `references/dimensions/*.md`，不再作为独立 Skill 2.0 包或局部 `SKILL.md + CONTEXT.md` 对外直达受理任务。
+- 维度经验统一合并到父级 `CONTEXT.md`；若某条经验稳定为强规则，再晋升到对应 `references/dimensions/*.md` 或父级合同。
 - 父包拥有完整 Skill 2.0 目录、aggregate gate、runtime 落盘与最终 route 判定权。
-- runner 必须在 aggregate packet 的 `dimension_runtime` 中记录每个维度模块的 `skill_path_ref`、`skill_contract_ref`、`context_ref` 与 `execution_mode`。
+- runner 必须在 aggregate packet 的 `dimension_runtime` 中记录每个维度的 `dimension_spec_ref`、`dimension_spec_exists` 与 `execution_mode`。
 
 ## Field Mapping
 
@@ -87,7 +89,7 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- |
 | `FIELD-REVIEW-PKG-01` | `SKILL.md` | 卫星入口与聚合裁决 | Input Contract、mode、动态引用、Output Contract | `FAIL-REVIEW-ENTRY` |
 | `FIELD-REVIEW-PKG-02` | `CONTEXT.md` | 经验层 | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-REVIEW-CONTEXT` |
-| `FIELD-REVIEW-PKG-03` | `references/` | review 强规则 | 根 gate、child output、fact pack spec | `FAIL-REVIEW-REFERENCES` |
+| `FIELD-REVIEW-PKG-03` | `references/` | review 强规则 | 根 gate、dimension output、fact pack spec、dimension specs | `FAIL-REVIEW-REFERENCES` |
 | `FIELD-REVIEW-PKG-04` | `steps/` | 思行网络 | intake、pack、dimension、aggregate、route | `FAIL-REVIEW-STEPS` |
 | `FIELD-REVIEW-PKG-05` | `review/` | 质量门禁 | provider、verdict、降级报告 | `FAIL-REVIEW-GATE` |
 | `FIELD-REVIEW-PKG-06` | `types/` | 类型策略 | checkpoint/stage/release 判型 | `FAIL-REVIEW-TYPES` |
@@ -110,7 +112,7 @@ Reject or clarify when:
 | fail_code | symptom | rework_target |
 | --- | --- | --- |
 | `FAIL-REVIEW-ENTRY` | 父 `SKILL.md` 与分区规则冲突 | `SKILL.md` + `references/review-root-contract.md` |
-| `FAIL-REVIEW-COVENANT` | child 读取了不同 scope 或 fact pack | `references/review-fact-pack-spec.md` |
+| `FAIL-REVIEW-COVENANT` | 维度 reviewer 读取了不同 scope 或 fact pack | `references/review-fact-pack-spec.md` |
 | `FAIL-REVIEW-DIMENSION` | mandatory 维度缺失或越权写 gate | `references/review-child-output-contract.md` |
 | `FAIL-REVIEW-GATE` | aggregate packet 缺 route 或 repair | `review/review-gate.md` + `_shared/review-aggregate.template.json` |
 
@@ -119,7 +121,7 @@ Reject or clarify when:
 | field_id | output_slot | requirement | owner_node | quality_dimension | fail_code |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-REVIEW-01` | review scope | mode、checkpoint、stage、scope_ref 唯一 | `N1-REVIEW-INTAKE` | scope clarity | `FAIL-REVIEW-01` |
-| `FIELD-REVIEW-02` | review fact pack | 同一轮 child review 消费同一份 pack | `N2-FACT-PACK` | pack covenant | `FAIL-REVIEW-02` |
+| `FIELD-REVIEW-02` | review fact pack | 同一轮 dimension review 消费同一份 pack | `N2-FACT-PACK` | pack covenant | `FAIL-REVIEW-02` |
 | `FIELD-REVIEW-03` | dimension dispatch | registry mandatory 维度全部命中 | `N3-DIMENSIONS` | dispatch completeness | `FAIL-REVIEW-03` |
 | `FIELD-REVIEW-04` | aggregate gate | 只有 aggregate packet 写最终 gate | `N4-AGGREGATE` | gate authority | `FAIL-REVIEW-04` |
 | `FIELD-REVIEW-05` | route handoff | 必须给出唯一返工或放行入口 | `N5-ROUTE` | closure completeness | `FAIL-REVIEW-05` |
@@ -140,7 +142,7 @@ Reject or clarify when:
 | --- | --- | --- | --- |
 | `PASS-REVIEW-01` | mode、checkpoint/stage、scope_ref 唯一 | `FAIL-REVIEW-01` | `N1-REVIEW-INTAKE` |
 | `PASS-REVIEW-02` | required slice 完整；缺失时停止 | `FAIL-REVIEW-02` | `N2-FACT-PACK` |
-| `PASS-REVIEW-03` | mandatory child dimensions 全部可聚合，且 `dimension_runtime` 记录 skill/context 证据 | `FAIL-REVIEW-03` | `N3-DIMENSIONS` |
+| `PASS-REVIEW-03` | mandatory dimensions 全部可聚合，且 `dimension_runtime` 记录 spec 证据 | `FAIL-REVIEW-03` | `N3-DIMENSIONS` |
 | `PASS-REVIEW-04` | aggregate packet 拥有唯一 gate authority | `FAIL-REVIEW-04` | `N4-AGGREGATE` |
 | `PASS-REVIEW-05` | route / handoff 唯一且可执行 | `FAIL-REVIEW-05` | `N5-ROUTE` |
 
@@ -154,14 +156,14 @@ Reject or clarify when:
 
 1. scope 或 mode 不唯一：修 `types/review-type-map.md` 与 intake。
 2. fact pack 缺 required slice：修 `references/review-fact-pack-spec.md` 或项目阶段 carrier。
-3. 子维度越权写 gate：修 `references/review-child-output-contract.md`。
+3. 维度 reviewer 越权写 gate：修 `references/review-child-output-contract.md`。
 4. aggregate 缺 route / repair：修 `review/review-gate.md` 与 `_shared/review-aggregate.template.json`。
 5. runner 与 Skill 2.0 分区断链：修 `scripts/` 说明与 `_shared/` 兼容配置。
 
 ## Output Contract
 
 - Required output: 唯一 aggregate review packet，以及按需派生的 fact pack、dimension reports、repair plan、review summary。
-- Output format: JSON aggregate packet 为 gate 真源；Markdown review summary 只作人读摘要；child dimension report 是 sidecar。
+- Output format: JSON aggregate packet 为 gate 真源；Markdown review summary 只作人读摘要；dimension report 是 sidecar。
 - Output path: `projects/aigc/<项目名>/review/checkpoints/`、`projects/aigc/<项目名>/review/stages/` 或 `projects/aigc/<项目名>/review/releases/`。
 - Naming convention: aggregate 文件名固定为 `<scope_ref>.review.json`；fact pack 为 `<scope_ref>.review.fact-pack.json`；repair 为 `<scope_ref>.review.repair.json`；summary 为 `<scope_ref>.review.review.md`。
 - Completion gate: `templates/output-template.md` 与 `_shared/review-aggregate.template.json` 字段对齐，mandatory dimensions 已聚合并有 `dimension_runtime` 证据，最终 `routing_decision` 可执行。

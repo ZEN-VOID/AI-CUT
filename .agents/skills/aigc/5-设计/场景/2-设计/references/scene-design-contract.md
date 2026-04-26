@@ -15,8 +15,9 @@
 ## LLM-First Authorship
 
 - 研究考据、物语、Scene Design、Cinematography 和英文提示词必须由 LLM 直接创作。
+- `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation` 与 `prompt_evidence_chain` 也属于核心研究/设计判断，必须由 LLM 直接完成。
 - 脚本可以检查 Markdown 标题、字段缺失、输出路径、文件名非法字符和英文提示词长度。
-- 脚本不得用模板拼接、规则扩写、关键词替换或模型外启发式生成核心正文。
+- 脚本不得用模板拼接、规则扩写、关键词替换或模型外启发式生成核心正文、研究结论、来源姿态、视觉翻译或提示词证据链。
 - 若使用网络搜索，只能作为 LLM 研究证据的来源之一；搜索结果不得被脚本无审美判断地直接灌入正文。
 
 ## Fixed Visual Constraint
@@ -34,7 +35,19 @@
 - `首次登场` 保留上游清单值。
 - `原文描述复述` 将上游 `原文描述（关键词式）` 转为短段，保留证据口径，不新增剧情事件。
 
-### 研究考据
+### 研究考据 / Research Brief
+
+研究层必须先产出可传递的 `research_brief`，再进入物语、解构和提示词。它不是百科段落，也不是给 prompt 堆名词，而是把来源、判断、不确定性和可见画面翻译成同一个证据链。
+
+`research_brief` 至少包含：
+
+| artifact | requirement |
+| --- | --- |
+| `research_questions` | 2-5 个会影响空间形制、材质、光线、仪式、时代或地域可信度的问题 |
+| `source_posture` | 标注每个关键判断来自 `project_source`、`user_source`、`common_knowledge`、`scene_inference`、`web_source` 或 `unresolved` |
+| `evidence_matrix` | 每条来源事实/推断必须说明设计影响，不写与画面无关的资料 |
+| `uncertainty_register` | 对年代、地域、建筑制式、文化符号、材质、自然地理等不确定处标注风险和处理方式 |
+| `visual_translation` | 将研究判断翻译为可见的空间结构、材料、色彩、光源、陈设、构图或空镜限制 |
 
 研究应按场景类型选择重点：
 
@@ -50,6 +63,28 @@
 - 本地项目资料不足，且信息会影响建筑、地域、材质、服饰/陈设或仪式空间。
 - 用户未禁止联网。
 - 输出中必须区分“来源事实”“合理推断”和“创作性设计选择”。
+
+来源姿态规则：
+
+- `project_source`：来自 `场景清单.md`、`north_star.yaml`、`team.yaml`、项目 `MEMORY.md` 或项目 `CONTEXT/`，可作为强约束。
+- `user_source`：来自用户本轮明确补充，优先级高但仍受根禁区和纯空镜约束限制。
+- `common_knowledge`：通用历史、建筑、自然或摄影常识；只能支撑低风险判断，不得伪装成精确出处。
+- `scene_inference`：LLM 基于场景名、关键词、母题和类型画像作出的设计推断，必须标注为推断。
+- `web_source`：联网或外部资料来源，只摘取会影响设计的事实，不复制长文。
+- `unresolved`：无法确认的信息，必须进入 `uncertainty_register`，在视觉上采用保守、可替换或非特指方案。
+
+不确定性处理规则：
+
+- 不确定性不等于缺陷；缺陷是把不确定信息写成确定事实。
+- 高风险文化符号、宗教/民俗元素、具体年代制式、地域建筑细部，若没有可靠来源，应降级为“受其启发的非特指设计”。
+- prompt 中不得出现未被证据链支撑的具体朝代、族群、宗教、地点或建筑大师名。
+- 无法确认但仍要表现氛围时，用材质、比例、光线、磨损、空间边界等可见设计语言承接，不用事实断言承接。
+
+视觉翻译规则：
+
+- 每条关键研究判断必须至少落到一个可见维度：空间结构、材料、表面老化、色彩、光源、尺度、边界、陈设密度、标识系统、地形/水体/植被、构图或镜头限制。
+- 视觉翻译必须服务纯空镜；不得通过人物、人体痕迹、影子、倒影、人群尺度参照来证明研究结论。
+- 若研究判断不能影响可见空间或 prompt token，应移出正文或降为备注。
 
 ### 物语
 
@@ -85,9 +120,20 @@
 
 - 必须记录 `全局风格提示词引用`，来自 `north_star.yaml` 或用户明确补充。
 - 必须记录 `建筑风格引用`，来自 `type_profile`、场景设计判断、`team.yaml` 或用户明确补充。
+- 必须记录 `prompt_evidence_chain`，将英文 prompt 的关键 token 组回指到 `research_brief`、`visual_translation`、`Scene Design` 或 `Cinematography`。
 - `English prompt` 必须为英文，面向图像生成，长度不超过 2000 characters。
 - 英文提示词应描述可见空间、材质、光线、构图和摄影语言；避免中文、解释性段落和不可见抽象口号。
 - 英文提示词必须明确为 pure empty shot，并排除 people、human figures、body parts、silhouettes 和 reflections of people。
+
+`prompt_evidence_chain` 至少覆盖：
+
+| chain node | must explain |
+| --- | --- |
+| `style_anchor` | 全局风格提示词和建筑/空间风格如何进入 prompt |
+| `spatial_tokens` | 空间结构、尺度、边界和动线 token 来自哪条研究或设计判断 |
+| `material_tokens` | 材质、表面、装饰、陈设 token 的来源姿态和不确定性处理 |
+| `light_camera_tokens` | 光线、镜头、构图 token 如何承接 Cinematography |
+| `empty_shot_tokens` | `empty shot, no people, no human figures` 等纯空镜约束必须原样或等价出现 |
 
 ## Subagents / Reviewer Path
 
@@ -95,9 +141,9 @@
 
 | reviewer | responsibility |
 | --- | --- |
-| `research-reviewer` | 考据来源、地域/年代/建筑合理性 |
+| `research-reviewer` | `research_brief`、来源姿态、不确定性、视觉翻译、地域/年代/建筑合理性 |
 | `scene-design-reviewer` | 空间结构、材质、陈设和可制作性 |
 | `cinematography-reviewer` | 镜头、光线、构图和摄影一致性 |
-| `prompt-reviewer` | 英文提示词、全局风格、建筑风格和 2000 character gate |
+| `prompt-reviewer` | 英文提示词、全局风格、建筑风格、`prompt_evidence_chain` 和 2000 character gate |
 
 若 system / developer / tool 层阻断真实 subagents，或用户显式要求不用 subagents，执行者必须使用本地等价 checklist，并在最终报告中说明阻断层级、原计划路径、实际路径和未真实启动的 reviewer。

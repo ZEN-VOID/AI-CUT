@@ -71,7 +71,7 @@ flowchart LR
 
 - `GATE-PROMPT`: 缺少 `提示词设计` 时停止生成，返回上游修复建议。
 - `GATE-IMAGEGEN`: imagegen 不可用时进入 `prompt_only`，只交付 JSON 与阻断说明。
-- `GATE-MAIN-PERSISTED`: 主图必须位于 `projects/aigc/<项目名>/4-设计/角色/3-生成/` 后才能作为多视图参照。
+- `GATE-MAIN-PERSISTED`: 主图必须位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/` 后才能作为多视图参照。
 - `GATE-REFERENCE`: 多视图 JSON 的 `reference_image_path` 必须指向对应角色主图。
 - `GATE-OVERWRITE`: 任何覆盖已有图片或 JSON 的行为必须有用户明确许可。
 
@@ -100,7 +100,7 @@ changed_files: []
 
 ## Evidence Gate
 
-- `changed_files` 只能包含 `projects/aigc/<项目名>/4-设计/角色/3-生成/` 下的图片、JSON 或执行报告。
+- `changed_files` 只能包含 `projects/aigc/<项目名>/5-设计/角色/3-生成/` 下的图片、JSON 或执行报告。
 - `prompt_only` 模式下 `main_image_path`、`multiview_image_path` 可以为空，但必须提供 `planned_output_image_path` 或 `blocked_reason`。
 - `real_generation` 模式下每个非空图片路径必须真实存在，并且对应 JSON 的 `output_image_path` 与文件名配对。
 - `review_only` 模式不得新增 prompt JSON 或图片；只返回 findings、verdict 和审查报告路径。

@@ -1,6 +1,6 @@
 # Review Fact Pack Spec
 
-`review_fact_pack` 是 `aigc-review` 父层分发给全部维度子技能的同一份事实包。
+`review_fact_pack` 是 `aigc-review` 父层分发给全部维度 reviewer 的同一份事实包。
 
 ## Minimum Fields
 
@@ -40,8 +40,7 @@
 
 ## Hard Rules
 
-1. 同一轮 child review 必须消费同一份 `review_fact_pack`。
+1. 同一轮 dimension review 必须消费同一份 `review_fact_pack`。
 2. 若 required slice 缺失，父层直接 `FAIL-COVENANT`。
 3. `review_fact_pack` 是 evidence pack，不是第二业务真源。
 4. provider 只能审这份 pack，不应越权拼读零散阶段文件。
-

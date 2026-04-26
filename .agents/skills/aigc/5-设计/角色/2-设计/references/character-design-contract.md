@@ -4,7 +4,7 @@
 
 ## Upstream Consumption
 
-- Canonical input: `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`。
+- Canonical input: `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`。
 - Required columns: `名称`、`首次登场`、`原文描述（关键词式）`。
 - 本技能只能为清单中存在的角色主体生成设计稿。
 - 若清单存在同名冲突、疑似漏项或角色归并错误，输出执行报告提出上游修复建议，不直接修改清单。
@@ -28,6 +28,33 @@
 - 研究考据、物语、解构、服装设计、摄影描述和提示词必须由 LLM 直接完成。
 - 脚本不得生成创作正文，不得把字段模板扩写成设计稿，不得根据关键词拼接英文 prompt。
 - 脚本允许执行：读取上游清单、列检查、路径创建、文件存在检查、prompt 字符数统计、空字段报告、manifest 汇总。
+
+## Research Layer Contract
+
+研究层不是资料堆叠，而是把上游清单、项目上下文、必要考据和 LLM 创作判断转换为后续设计可执行的证据链。每个角色必须形成 `research_profile`，并让结论回流到 `物语`、`解构`、`Cinematography` 和英文 prompt。
+
+### Required Research Lenses
+
+| lens | required question | design conversion |
+| --- | --- | --- |
+| `identity` | 这个人以什么身份被世界看见，自己又如何抵抗或认领这个身份？ | 写入 `Identity & Story Pressure`、面部气质、姿态和 prompt 主体短语 |
+| `occupation` | 角色的劳动、权力、技能或日常职能是什么？ | 转化为手部痕迹、站姿、服装功能、工具痕迹；不得把道具作为背景主元素 |
+| `class` | 角色的阶层、资源、教育、权力距离和消费痕迹如何显现？ | 转化为面料品质、磨损方式、配饰克制度、身体自信或拘谨 |
+| `region_era` | 地域、年代、气候、制度和审美环境带来什么可见限制？ | 转化为廓形、色彩、发型、鞋履、化妆和禁用元素 |
+| `costume_craft` | 服饰的剪裁、织物、工艺、闭合方式、层次和使用痕迹是什么？ | 写入 `Detailed Costume Design`，并压缩进英文 prompt 的服装短语 |
+| `body_posture` | 身体比例、重心、肌肉记忆、职业姿态和情绪防御如何呈现？ | 写入 `Detailed Character Design / Body`、`Cinematography` 和 prompt 姿态 |
+| `taboo_constraints` | 有哪些文化误读、项目禁区、年龄/性化、安全或版权风险？ | 写入 guardrails；prompt 必须避开禁区并保持定妆照约束 |
+| `uncertainty` | 哪些信息来自清单，哪些来自推演，哪些需要考据或用户确认？ | 在 `Uncertainty Notes` 标注置信度，不把低证据推演写成事实 |
+| `prompt_evidence_chain` | prompt 中每个关键主体、服装、姿态、光线、风格短语来自哪里？ | 生成 `Prompt Evidence Chain`，确保英文 prompt 可回指研究与项目风格 |
+
+### Evidence Rules
+
+- 每个研究镜头至少输出一个 `design implication`；没有设计转化的资料不得进入最终稿。
+- `Prompt Evidence Chain` 必须按 `evidence -> design decision -> prompt phrase` 写清，覆盖身份、服装、姿态、摄影、全局风格和固定画面约束。
+- 若证据薄弱，使用 `likely`、`inferred`、`open question` 等标记；中文稿中必须写明“推演”或“待确认”，不得伪装成清单事实。
+- 研究层可以参考外部资料，但 canonical 判断仍由 LLM 综合项目上下文完成；外部资料不能覆盖 `north_star.yaml`、用户禁区或清单锚点。
+- 服饰工艺必须服务角色身份与身体动作，不得只写品牌、潮流词或抽象审美。
+- 身体姿态必须服务纯色背景全身定妆照：允许写站姿、重心、手部位置和头颈角度，不得引入剧情场景或环境动作。
 
 ## Web Search Allowance
 
@@ -65,6 +92,17 @@
 - 控制在 2000 字符内。
 - 不包含 markdown 表格、中文解释或多版本堆叠。
 
+`研究考据` 固定子字段：
+
+- `Identity Evidence`
+- `Occupation / Class Evidence`
+- `Region & Era Evidence`
+- `Costume Craft Evidence`
+- `Body & Posture Evidence`
+- `Taboo / Safety Constraints`
+- `Uncertainty Notes`
+- `Prompt Evidence Chain`
+
 ## Fixed Visual Constraint
 
 - 角色设计稿默认是纯色背景全身定妆照，用于锁定角色身体、服装、比例和可重复识别点。
@@ -79,3 +117,4 @@
 - 不修改 registry、父级 skill、上游清单或其他 worker 负责的技能包。
 - 不把单角色设计稿变成项目百科。
 - 不输出环境肖像、剧情剧照、场景内角色照或半身头像作为默认主图口径。
+- 不把研究层写成百科条目、真实资料摘抄或来源汇编；研究必须转化为角色设计决策。

@@ -62,19 +62,19 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/resume/SKILL.md`；先修 canonical runtime 与治理工件，再回接根技能或目标阶段"
   - id: aigc-review-satellite-entry
     trigger: 命中 checkpoint 审计点、阶段总验、package release gate、跨阶段 handoff review、或需要把阶段问题结构化聚合成 repair route
-    rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、并发调度维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
+    rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、读取 mandatory dimension specs、执行维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
-    trigger: 命中 `6-图像` 或 legacy `5-Image`，或需要把 `3-摄影` / `4-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
+    trigger: 命中 `6-图像` 或 legacy `5-Image`，或需要把 `3-摄影` / `5-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
     rule: "优先进入 `.agents/skills/aigc/6-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/[项目名]/4-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/6-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/[项目名]/6-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `6-图像` 默认入口。"
   - id: aigc-design-prop-entry
     trigger: 命中 `5-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 5-设计 道具输出
-    rule: "道具清单任务直达 `.agents/skills/aigc/5-设计/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/4-设计/道具/` 对应子目录。"
+    rule: "道具清单任务直达 `.agents/skills/aigc/5-设计/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/道具/` 对应子目录。"
   - id: aigc-design-role-entry
     trigger: 命中 `5-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 5-设计 角色输出
-    rule: "角色清单任务直达 `.agents/skills/aigc/5-设计/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/4-设计/角色/` 对应子目录。"
+    rule: "角色清单任务直达 `.agents/skills/aigc/5-设计/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/角色/` 对应子目录。"
   - id: aigc-design-scene-entry
     trigger: 命中 `5-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
-    rule: "场景清单任务直达 `.agents/skills/aigc/5-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/4-设计/场景/` 对应子目录。"
+    rule: "场景清单任务直达 `.agents/skills/aigc/5-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
     trigger: 命中 `7-视频`、`A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、分镜画面参照视频生成、分镜故事板参照视频生成、主体参照视频生成、Dreamina 分镜组批量视频，或 legacy `6-Video`
     rule: "若明确要求“分镜画面参照 / 单帧图参照 / frame reference / 以 4-分组 + 6-图像/A-分镜画面 批量出视频 / 分镜ID@路径”，路由 `.agents/skills/aigc/7-视频/A-分镜画面参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`；若明确要求“分镜故事板参照 / 故事板图参照 / storyboard reference / 以 4-分组 + 6-图像/B-分镜故事板 批量出视频”，路由 `.agents/skills/aigc/7-视频/B-分镜故事板参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/`；若明确要求“主体参照 / 角色服装道具场景参照 / Dreamina 批量出视频”，路由 `.agents/skills/aigc/7-视频/C-主体参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/C-主体参照/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
@@ -157,8 +157,8 @@ route_policies:
     trigger: 命中 `story/doubao`、`豆包小说润色`、`中文小说润色`、`文风诊断`、`分析文章风格`、`整稿统修`、`去 AI 味`、`中文表达强化`，或需要把已有正文按单技能方式集成 `3-Drafting` 八步能力完成重写
     rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；legacy `projects/story/<项目名>/3-Drafting/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
   - id: story-drafting-maintext-entry
-    trigger: 命中 `story/3-Drafting/正文`、`章节正文`、`按章创作`、`第N卷/第N章.md`、`章级正文根稿`，或要求从三层 planning + 全局卡/风格卡/`north_star` 直接写小说正文
-    rule: "进入 `.agents/skills/story/3-Drafting/正文/SKILL.md`；必须加载 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 1-Cards/0-全局卡 + 1-Cards/1-风格卡 + 0-Init/north_star.yaml + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；YAML 头必须包含 `global_context + style_context + north_star_chapter_brief`。"
+    trigger: 命中 `story/3-Drafting`、`$story-drafting`、`章节正文`、`按章创作`、`第N卷/第N章.md`、`章级正文根稿`，或要求从三层 planning + 全局卡/风格卡/`north_star` 直接写小说正文
+    rule: "进入 `.agents/skills/story/3-Drafting/SKILL.md`；必须加载 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 1-Cards/0-全局卡 + 1-Cards/1-风格卡 + 0-Init/north_star.yaml + 项目 MEMORY + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；YAML 头必须包含 `global_context + style_context + north_star_chapter_brief`。"
   - id: api-vidu-video-entry
     trigger: 命中 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 任务查询/取消/积分/回调验签，或需要通过 Vidu 企业版执行多模式视频生成
     rule: "进入 `.agents/skills/api/vidu/video-generate/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"

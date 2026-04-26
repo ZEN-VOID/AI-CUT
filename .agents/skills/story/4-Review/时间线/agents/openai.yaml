@@ -1,0 +1,4 @@
+interface:
+  display_name: "时间线"
+  short_description: "小说时间线终验：时间锚、事件顺序、持续时长、伏笔窗口与剧透风险"
+  default_prompt: "使用 $story-review-timeline 审查指定卷或章节的时间线维度。"

@@ -1,101 +1,44 @@
 ---
 name: story-loopback
-description: Use when a PASS-validated volume has been explicitly handed off to `5-Loopback` for validated actualization into Cards, story_map actualization, and runtime projections, or when loopback-shaped requests must be rerouted to `query/` or `resume/` without rewriting truth.
+description: Use when a PASS-validated volume has been explicitly handed off to `5-Loopback` for validated actualization into Cards, planning actualization sidecars, story_map actualization, runtime projections, and the canonical loopback artifact.
 governance_tier: full
 ---
 
 # 5-Loopback
 
+`5-Loopback` is the validated actualization stage for the `story2026` mainline. It only writes truth after `4-Review` has produced a volume-level PASS aggregate and explicitly granted handoff to both `review/` and `5-Loopback`.
+
 ## Context Loading Contract
 
-- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- `5-Loopback` 的父单元已经从单章 actualization 升级为卷级 validated actualization。
-- 若 `CONTEXT.md`、`templates/loopback.json`、`../scripts/loopback_manager.py`、`../scripts/workflow_manager.py` 与本合同冲突，先修这些源层载体，再修单次 artifact。
+- Every invocation must load this `SKILL.md`; 必须同时加载同目录 `CONTEXT.md`.
+- If the task is bound to `projects/story/<项目名>/`, load project `MEMORY.md` and relevant files under project `CONTEXT/` before execution.
+- If `SKILL.md`, `CONTEXT.md`, `references/`, `steps/`, `review/`, `types/`, `templates/`, `scripts/`, `knowledge-base/`, `agents/openai.yaml`, `../scripts/loopback_manager.py`, or `../scripts/workflow_manager.py` conflict, repair the source-layer contract first, then repair single-run artifacts.
+- Conflict priority: user request > repo `AGENTS.md` > `.agents/skills/story/SKILL.md` > this `SKILL.md` > declared references and steps > `agents/openai.yaml` > project memory/context > this `CONTEXT.md`.
 
-## Overview
+## Input Contract
 
-`5-Loopback` 现在负责把已经通过卷级终验的整卷变化，稳定写回未来还会继续被消费的 truth 层。
+### Accepted Input
 
-它的正式主干固定为：
+- A request to actualize a PASS-validated volume into runtime truth.
+- A `project_root` under `projects/story/<项目名>/`.
+- A volume-level validation aggregate from `4-Review/第V卷.validation.json`.
+- A loopback-shaped request that must be routed to `query/`, `resume/`, or upstream source repair instead of actualization.
 
-1. 只消费 `4-Review` 的卷级聚合 JSON。
-2. 同时检查：
-   - `validation_status == PASS`
-   - `routing_decision == handoff_to_review_and_loopback`
-   - `handoff_targets` 同时包含 `review/` 与 `5-Loopback`
-3. 提纯整卷统一 `loopback_delta`。
-4. 串行写回：
-   - `Cards.current_state/history`
-   - `2-Planning/整体规划.actualization.json`
-   - `2-Planning/第N卷/卷规划.actualization.json`
-   - `2-Planning/第N卷/第N章.actualization.json`
-   - 当前卷命中的 `2-Planning/卷分片/*.json.content.holomap_slice.actualization`
-   - `2-Planning/全息地图.json.content.holomap.actualization` 的卷级 summary/index
-5. 刷新 `STATE.json` 中下一轮要消费的 projection 与 runtime markers。
-6. 生成唯一正式产物 `5-Loopback/第V卷.loopback.json`。
-
-一句话裁决：
-
-- `PASS` 不是唯一 gate。
-- 只有 `PASS + handoff granted` 才能进入卷级 actualization。
-
-## Parent Positioning
-
-### 父层拥有
-
-- `PASS-only + handoff-granted` intake gate
-- 整卷 `loopback_delta` 提纯与边界裁决
-- 三层规划 sidecar actualization 写回
-- `Cards` 与 `story_map_slice.actualization + story_map_root.actualization summary` 的 truth split
-- projection refresh 与 runtime marker 刷新
-- `5-Loopback/第V卷.loopback.json` 唯一正式 artifact
-- `query/`、`resume/` 的卫星路由裁决
-
-### 父层不拥有
-
-- 重写 `validation_status`
-- 重写 `routing_decision / handoff_targets`
-- 代替 `review/` 产出正式审查报告
-- 代替 `3-Drafting` 修改正文
-- 覆盖 `Cards.core`
-- 覆盖 planning 中的 `planned_*` 理由层
-
-## Shared Canonical Sources
-
-- `.agents/skills/story/SKILL.md + CONTEXT.md`
-- 当前 `SKILL.md + CONTEXT.md`
-- `../4-Review/SKILL.md`
-- `../review/SKILL.md`
-- `../query/SKILL.md`
-- `../resume/SKILL.md`
-- `../4-Review/_shared/checker-output-schema.md`
-- `../_shared/entity-management-spec.md`
-- `./_shared/loopback-actualization-spec.md`
-- `templates/loopback.json`
-- `../scripts/loopback_manager.py`
-- `../scripts/workflow_manager.py`
-
-## Canonical Runtime
-
-- `projects/story/<项目名>/5-Loopback/第V卷.loopback.json`
-
-## Total Input Contract
-
-### 必需输入
+### Required Input
 
 - `project_root`
-- `volume / volume_ref`
+- `volume` or `volume_ref`
 - `chapter_refs`
 - `validation_ref`
-- 当前轮 `4-Review/第V卷.validation.json`
-- `book_plan_ref`，默认 `2-Planning/整体规划.md`
-- `volume_plan_ref`，默认 `2-Planning/第N卷/卷规划.md`
-- `chapter_plan_refs`，默认命中 `2-Planning/第N卷/第N章.md`
-- `story_map_ref`，默认 `2-Planning/全息地图.json`
+- current `4-Review/第V卷.validation.json`
+- `book_plan_ref`, default `2-Planning/整体规划.md`
+- `volume_plan_ref`, default `2-Planning/第V卷/卷规划.md`
+- `chapter_plan_refs`, default matching `2-Planning/第V卷/第N章.md`
+- `story_map_ref`, default `2-Planning/全息地图.json`
 - `story_map_slice_ref`
 - `STATE.json`
 
-### validation aggregate JSON 必需字段
+### Validation Aggregate Required Fields
 
 - `validation_status`
 - `routing_decision`
@@ -107,67 +50,119 @@ governance_tier: full
 - `volume_ref`
 - `chapter_refs`
 
-### 硬规则
+### Reject Or Reroute When
 
-1. 仅 `validation_status == PASS` 还不够；必须同时满足：
-   - `routing_decision == handoff_to_review_and_loopback`
-   - `handoff_targets` 明确包含 `review/`
-   - `handoff_targets` 明确包含 `5-Loopback`
-2. 若当前是 `handoff_to_review_only` 的历史复核 PASS，禁止 actualization 写回。
-3. `loopback_delta` 只能包含 validated 结果，不得混入 drafting 猜测、review 主观建议或 source-fix 草案。
-4. `Cards` 回写只允许落到 `current_state/history`，默认不改 `core`。
-5. 三层规划正文 `整体规划.md / 第N卷/卷规划.md / 第N卷/第N章.md` 仍保持 planning-only，不直接混入 validated actualization；loopback 只允许写它们各自的 `.actualization.json` companion sidecar。
-6. `story_map` 回写只允许把卷级 validated actualization 明细落到命中的 `story_map_slice_ref.actualization`，并把卷级 summary/index 回刷到 root `actualization`；不得覆盖 `planned_*`。
-7. 若当前诉求其实是查询、恢复或源层修复，必须改走 `query/`、`resume/` 或 upstream source fix，而不是强行 actualize。
+- `validation_status != PASS`
+- `routing_decision != handoff_to_review_and_loopback`
+- `handoff_targets` does not contain both `review/` and `5-Loopback`
+- the request is a query, resume, cleanup, diagnosis, or source repair request
+- the provided delta mixes drafting guesses, subjective review advice, or unvalidated source-fix drafts
+- the run would overwrite `Cards.core`, `planned_*`, or planning markdown bodies
 
-## Dispatch Order Contract
+One-line gate: `PASS` is necessary but not sufficient; only `PASS + handoff granted` can enter volume-level actualization.
 
-### 固定 tracked steps
+## Mode Selection
 
-1. `N1-VALIDATION-AND-DELTA`
-2. `N2-TRUTH-WRITEBACK`
-3. `N3-PROJECTION-REFRESH`
-4. `N4-PASS-ONLY-CLOSURE`
+| mode | trigger | route |
+| --- | --- | --- |
+| `actualize_volume` | PASS aggregate explicitly grants `review/` and `5-Loopback` handoff | run `steps/loopback-workflow.md` |
+| `query_route` | user asks what happened, what is current, or where evidence lives | route to `../query/SKILL.md` |
+| `resume_route` | user asks to continue, detect interruption, cleanup, or rerun | route to `../resume/SKILL.md` |
+| `source_repair_route` | upstream planning, drafting, card, or validation source is broken | route to the owning upstream stage |
+| `contract_repair` | Loopback spec, template, scripts, or metadata are inconsistent | repair this Skill 2.0 package and shared script references |
 
-### 并发规则
+## Reference Loading Guide
 
-- 正式写回：禁止并发
-- 允许并发的仅有：
-  - `card_delta / map_delta / projection_refresh` 的 staged patch 预计算
-  - 风险分析或 commit 计划生成
+| scenario | load |
+| --- | --- |
+| Core gate, target truth layers, delta whitelist, revision guardrail, commit discipline | `references/loopback-actualization-spec.md` |
+| Truth ownership and parent/satellite boundaries | `references/truth-ownership.md` |
+| Query/resume/upstream rerouting | `references/satellite-routing.md` |
+| Execution node network, serial writeback, staged patch rules, rollback route | `steps/loopback-workflow.md` |
+| Input request classification and aggregate field strategy | `types/type-map.md` |
+| Completion gate, semantic review, provider/subagent review rules | `review/review-contract.md` |
+| Stable heuristics and common failure prevention | `knowledge-base/loopback-heuristics.md` and `CONTEXT.md` |
+| Canonical artifact shape | `templates/loopback.json` and `templates/output-template.md` |
+| Mechanical script boundary and command hints | `scripts/README.md`, `../scripts/loopback_manager.py`, `../scripts/workflow_manager.py` |
+| Product-side metadata | `agents/openai.yaml` |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["4-Review volume aggregate"] --> B{"PASS?"}
+    B -->|"No"| R1["Reject writeback"]
+    B -->|"Yes"| C{"Handoff to review/ and 5-Loopback?"}
+    C -->|"No"| R2["Reroute to review/query/resume/source repair"]
+    C -->|"Yes"| D["Normalize validated loopback_delta"]
+    D --> E["Compute staged patches"]
+    E --> F["Write Cards current_state/history"]
+    F --> G["Write planning actualization sidecars"]
+    G --> H["Write story_map slice actualization"]
+    H --> I["Refresh root summary/index and STATE projections"]
+    I --> J["Emit 5-Loopback/第V卷.loopback.json"]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> Intake
+    Intake --> GateCheck
+    GateCheck --> Rerouted: not PASS + handoff
+    GateCheck --> DeltaNormalize: granted
+    DeltaNormalize --> StagedPatch
+    StagedPatch --> PendingManifest
+    PendingManifest --> SerialWriteback
+    SerialWriteback --> CommittedManifest
+    CommittedManifest --> Artifact
+    Artifact --> [*]
+    SerialWriteback --> Rollback: write failure
+    Rollback --> Rerouted
+```
+
+## Core Execution Contract
+
+- Formal writeback is serial. Only staged patch preparation and risk analysis may run in parallel.
+- `loopback_delta` only contains validated actualization derived from the accepted aggregate and evidence.
+- Truth writeback order is fixed: `Cards -> Planning sidecars -> MAP -> STATE -> loopback artifact`.
+- Planning sidecars are fixed as `book -> volume -> chapter`; planning markdown bodies stay planning-only.
+- `Cards` writeback is limited to `current_state/history` unless the user and upstream card contract explicitly authorize a separate source repair.
+- `story_map` details go to the matched volume slice actualization; root `全息地图.json` only receives summary/index actualization and must not become a second detail store.
+- `STATE.json` receives projection refresh, runtime markers, pending manifest, and committed manifest updates.
+
+## Root-Cause Execution Contract
+
+When loopback fails, trace:
+
+`Symptom -> Direct Technical Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+| symptom | likely owner | rework target |
+| --- | --- | --- |
+| PASS-only request writes without handoff | gate contract | `references/loopback-actualization-spec.md` + `review/review-contract.md` |
+| query/resume becomes loopback artifact | satellite routing | `references/satellite-routing.md` |
+| workflow leaves half-written truth | commit discipline | `steps/loopback-workflow.md` + `../scripts/loopback_manager.py` |
+| planning markdown receives actualized state | truth ownership | `references/truth-ownership.md` |
+| template and artifact fields diverge | output template | `templates/loopback.json` + `templates/output-template.md` |
+| script behavior diverges from contract | script boundary | `scripts/README.md` + `../scripts/loopback_manager.py` |
+
+## Field Mapping
+
+| field_id | owner | must contain | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-LOOPBACK-01` | `SKILL.md` | intake, routing, gate summary, dynamic references, Output Contract | `FAIL-ENTRY-DRIFT` |
+| `FIELD-LOOPBACK-02` | `CONTEXT.md` | Type Map, Repair Playbook, Reusable Heuristics | `FAIL-CONTEXT-BASELINE` |
+| `FIELD-LOOPBACK-03` | `references/` | gate, truth ownership, delta whitelist, satellite routing | `FAIL-REFERENCE-GAP` |
+| `FIELD-LOOPBACK-04` | `steps/` | node network, serial writeback, staged patch, rollback | `FAIL-STEPS-GAP` |
+| `FIELD-LOOPBACK-05` | `review/` | completion gate, semantic findings, provider/subagent review route | `FAIL-REVIEW-GAP` |
+| `FIELD-LOOPBACK-06` | `types/` | input profile and request routing matrix | `FAIL-TYPE-GAP` |
+| `FIELD-LOOPBACK-07` | `knowledge-base/` | stable heuristics and prevention patterns | `FAIL-KB-GAP` |
+| `FIELD-LOOPBACK-08` | `templates/` | `loopback.json` and Output Contract alignment | `FAIL-TEMPLATE-GAP` |
+| `FIELD-LOOPBACK-09` | `scripts/` | mechanical helper notes, no creative/truth overreach | `FAIL-SCRIPT-GAP` |
+| `FIELD-LOOPBACK-10` | `agents/openai.yaml` | display name, short description, default prompt mentioning `$story-loopback` | `FAIL-AGENT-METADATA` |
 
 ## Output Contract
 
-### Canonical final output
-
-- `projects/story/<项目名>/5-Loopback/第V卷.loopback.json`
-
-### 至少包含
-
-- `volume_ref`
-- `chapter_refs`
-- `validation_ref`
-- `loopback_delta`
-- `writeback_summary`
-- `gate_summary`
-- `execution_notes`
-
-## Satellite Routing Contract
-
-当当前请求不是 “PASS + handoff-granted volume actualization” 时，固定路由如下：
-
-- 查询态：
-  - `query/`
-- 恢复态：
-  - `resume/`
-- 上游 source 修复：
-  - `0-Init / 1-Cards / 2-Planning / 3-Drafting / 4-Review`
-
-禁止把 `query/` 或 `resume/` 的输出伪装成 `5-Loopback/第V卷.loopback.json`。
-
-## Completion Contract
-
-- 当前卷 aggregate gate 已确认合法
-- Cards / MAP / STATE 的 validated delta 已按顺序写回
-- 已生成 `5-Loopback/第V卷.loopback.json`
-- artifact 能回指 validation 与 governance evidence
+- Required output: one canonical validated actualization artifact for the accepted volume, plus the ordered truth writebacks it records.
+- Output format: JSON artifact following `templates/loopback.json`, including `volume_ref`, `chapter_refs`, `validation_ref`, `loopback_delta`, `writeback_summary`, `gate_summary`, and `execution_notes`.
+- Output path: `projects/story/<项目名>/5-Loopback/第V卷.loopback.json`.
+- Naming convention: use `第V卷.loopback.json` for volume-level runs; references and summaries must preserve the same `volume_ref` and `validation_ref`.
+- Completion gate: aggregate gate confirmed; validated deltas written in serial order; pending marker resolved into committed manifest; artifact can point back to validation and governance evidence; `review/review-contract.md` returns `pass` or an explicitly accepted `pass_with_followups`.

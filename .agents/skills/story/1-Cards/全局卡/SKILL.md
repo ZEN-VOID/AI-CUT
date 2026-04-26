@@ -197,3 +197,24 @@ flowchart LR
 - 本技能包名称不承载串行语义。
 - 全局卡默认可与 `风格卡` 并发执行，因为两者都主要消费初始化真源。
 - 当父技能要求全量建卡时，默认采用 `全局卡 -> 类型卡 -> 风格卡 -> (角色卡 -> 场景卡 -> 物品卡)`。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 世界观、规则体系、年代、文化艺术、势力格局、科技/武功、金手指细则 | `references/golden-finger-templates.md` |
+| 执行全局卡生成、修复与回写节点 | `steps/global-card-workflow.md` |
+| 判定全局卡字段、规模和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用全局卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/global-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/0-全局卡/**/*.json` 中的正式全局卡 payload。
+- Output format: 使用 `templates/global-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/0-全局卡/`。
+- Naming convention: 全局卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
+- Completion gate: 父层 `cards_writer.py` 写回成功，`cards_coverage_validator.py` 或父层 review gate 无 blocking finding。

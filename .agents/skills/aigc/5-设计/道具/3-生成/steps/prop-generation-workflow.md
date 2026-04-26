@@ -7,7 +7,7 @@
 | slot | value |
 | --- | --- |
 | `business_goal` | 从上游道具 `2-设计` 文档稳定生成单主体图、多视图主体设计图与同名 JSON 证据。 |
-| `business_object` | `projects/aigc/<项目名>/4-设计/道具/2-设计/*.md`、`3-生成/*.json`、`3-生成/*-主图.<ext>`、`3-生成/*-多视图.<ext>`。 |
+| `business_object` | `projects/aigc/<项目名>/5-设计/道具/2-设计/*.md`、`3-生成/*.json`、`3-生成/*-主图.<ext>`、`3-生成/*-多视图.<ext>`。 |
 | `constraint_profile` | LLM-first 提示词裁决、不得重设主体、必须加载 `$imagegen` 合同、项目资产必须持久化到 canonical 输出目录。 |
 | `success_criteria` | 每个被调度主体都有主图、多视图、两份 JSON、来源回指、参照链、review verdict。 |
 | `non_goals` | 不创作新道具设定，不修改 `2-设计`，不改 registry/routes，不生成角色或场景资产。 |
@@ -94,4 +94,4 @@ sequenceDiagram
 
 - 每个 `主体名称-主图.json` 必须包含 `source_design_doc`、`source_prompt_section`、`output_image`。
 - 每个 `主体名称-多视图.json` 必须包含 `source_design_doc`、`reference_image`、`output_image`。
-- 所有输出路径必须位于 `projects/aigc/<项目名>/4-设计/道具/3-生成/`。
+- 所有输出路径必须位于 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。

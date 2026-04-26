@@ -77,8 +77,8 @@ dreamina user_credit
 
 ```bash
 dreamina multimodal2video \
-  --image "projects/aigc/<项目名>/4-设计/角色/3-生成/林寂-多视图.png" \
-  --image "projects/aigc/<项目名>/4-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png" \
+  --image "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png" \
+  --image "projects/aigc/<项目名>/5-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png" \
   --prompt "$(cat projects/aigc/<项目名>/7-视频/C-主体参照/第N集/prompts/1-1-1.txt)" \
   --model_version=seedance2.0 \
   --duration=15 \

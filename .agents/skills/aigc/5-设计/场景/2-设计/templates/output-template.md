@@ -1,6 +1,6 @@
 # {{场景名称}}
 
-source_scene_list: `projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md`
+source_scene_list: `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
 source_team: `projects/aigc/<项目名>/team.yaml`
 
@@ -16,13 +16,45 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 - 首次登场：{{复述清单中相关信息，确保来源准确}}
 - 原文描述：{{复述清单中相关信息，确保来源准确}}
 
-## 2. 研究考据
+## 2. 研究考据 / Research Brief
 
-{{结合 north_star.yaml 中的世界观，思考当前场景符合叙事的文化属性和具象特征；若涉及冷门信息点且本地资料不足，可启用网络搜索并记录来源或不确定性。}}
+{{由 LLM 直接完成研究判断，不得由脚本拼接。研究层必须服务可见空间设计，不写与画面无关的百科堆料；若涉及冷门信息点且本地资料不足，可启用网络搜索并记录来源或不确定性。}}
+
+```yaml
+research_brief:
+  research_questions:
+    - "{{会影响空间形制、材质、光线、地域、年代或仪式可信度的问题}}"
+  source_posture:
+    project_source:
+      - "{{来自场景清单 / north_star.yaml / team.yaml / MEMORY.md / CONTEXT/ 的强约束}}"
+    user_source:
+      - "{{用户本轮补充；无则写 none}}"
+    common_knowledge:
+      - "{{通用建筑 / 地理 / 摄影常识；无则写 none}}"
+    scene_inference:
+      - "{{基于场景名、关键词和 type_profile 的推断，必须标注为推断}}"
+    web_source:
+      - "{{若联网使用，记录来源名称或链接摘要；未使用写 not_used}}"
+    unresolved:
+      - "{{无法确认但会影响设计的点；无则写 none}}"
+  evidence_matrix:
+    - claim: "{{来源事实或合理推断}}"
+      posture: "project_source | user_source | common_knowledge | scene_inference | web_source | unresolved"
+      design_impact: "{{它如何影响空间结构、材料、光线、构图或 prompt token}}"
+      confidence: "high | medium | low"
+  uncertainty_register:
+    - uncertainty: "{{不确定项}}"
+      risk: "{{误用文化符号 / 年代错置 / 地域混淆 / 材质不可信 / 其他}}"
+      handling: "{{保守处理、非特指化、替代方案或需要后续确认}}"
+  visual_translation:
+    - evidence_or_inference: "{{对应 evidence_matrix 的 claim}}"
+      visible_design: "{{转译成可见空间结构、材质、表面、色彩、光源、陈设、地形或构图}}"
+      prompt_token_target: "{{后续英文 prompt 中应出现或避免的 token 方向}}"
+```
 
 ## 3. 物语
 
-{{结合以上内容展开散文式、诗意化的场景描述，说明空间如何承载人物、事件、记忆、权力、时间或情绪。}}
+{{结合以上内容展开散文式、诗意化的场景描述，说明空间如何承载事件、记忆、权力、时间或情绪；可以讨论人物关系对空间的压力，但不得让人物、人体局部、剪影或倒影出现在画面中。}}
 
 ## 4. 解构
 
@@ -110,6 +142,16 @@ Lighting Type: {{lighting_type_en}}
 - 建筑风格引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“建筑风格”}}
 - 固定画面约束：pure empty shot, no people, no human figures, no silhouettes, no reflections of people
 
+### Prompt Evidence Chain
+
+| prompt token group | evidence source | visual translation | uncertainty handling |
+| --- | --- | --- | --- |
+| style_anchor | {{north_star.yaml / team.yaml / user_source}} | {{全局风格如何转为可见色彩、质感、构图或氛围}} | {{无 / 保守化 / 非特指化}} |
+| spatial_tokens | {{research_brief.evidence_matrix}} | {{空间结构、尺度、边界、动线}} | {{无 / 保守化 / 非特指化}} |
+| material_tokens | {{research_brief.evidence_matrix}} | {{材质、表面、装饰、陈设}} | {{无 / 保守化 / 非特指化}} |
+| light_camera_tokens | {{Cinematography}} | {{光线、镜头、构图、景深}} | {{无 / 保守化 / 非特指化}} |
+| empty_shot_tokens | fixed visual constraint | empty shot, no people, no human figures | mandatory |
+
 ```text
 {{整合 4. 解构的信息，以适用于 AIGC 生图提示词的方式蒸馏组织为自然流畅的英文提示词，2000 字符以内；必须包含 pure empty shot / no people / no human figures 约束。}}
 ```
@@ -120,6 +162,11 @@ Lighting Type: {{lighting_type_en}}
 verdict: pending
 source_item: "{{场景清单中的名称}}"
 prompt_character_count: 0
+research_brief_status: "pending"
+source_posture_status: "pending"
+uncertainty_status: "pending"
+prompt_evidence_chain_status: "pending"
+fixed_visual_status: "pending"
 reviewer: ""
 subagent_status: ""
 notes: ""
@@ -129,8 +176,8 @@ notes: ""
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | 本模板生成单个场景主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整 Scene Design + Cinematography 解构、提示词设计。 |
+| Required output | 本模板生成单个场景主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据 / Research Brief、物语、完整 Scene Design + Cinematography 解构、提示词设计。 |
 | Output format | Markdown 单场景设计稿；解构字段保留固定英文槽位；英文 prompt 放入 fenced text block。 |
-| Output path | canonical path 为 `projects/aigc/<项目名>/4-设计/场景/2-设计/S###-<场景名>.md`。 |
+| Output path | canonical path 为 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。 |
 | Naming convention | `S###` 来自上游清单顺序，场景名使用清单 canonical 名称并替换非法文件名字符。 |
-| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；英文 prompt 融合全局风格和建筑风格且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |
+| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；英文 prompt 有 prompt_evidence_chain，融合全局风格和建筑风格且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |

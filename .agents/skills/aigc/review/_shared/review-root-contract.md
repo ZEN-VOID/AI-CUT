@@ -1,6 +1,6 @@
 # Review Root Contract
 
-`aigc/review` 的正式 gate truth 固定为单一 aggregate review packet，不使用多份 child sidecar 并列裁决。
+`aigc/review` 的正式 gate truth 固定为单一 aggregate review packet，不使用多份 dimension sidecar 并列裁决。
 
 当前 registry 基线为六维审计：
 
@@ -63,9 +63,9 @@
 ## Overwrite Rules
 
 1. 每一轮 review 只能写一份 aggregate review packet。
-2. 子技能只允许覆盖自己的 MD sidecar，不得覆盖 aggregate packet。
-3. 若 sidecar 与 aggregate packet 冲突，以 aggregate packet 为 gate 真源，但必须在下一轮 review 前修正 child output contract。
-4. 各阶段或 provider handoff 只能消费 aggregate packet，不得直接消费某个 child sidecar 作为最终 gate。
+2. 维度 reviewer 只允许覆盖自己的 MD sidecar，不得覆盖 aggregate packet。
+3. 若 sidecar 与 aggregate packet 冲突，以 aggregate packet 为 gate 真源，但必须在下一轮 review 前修正 dimension output contract。
+4. 各阶段或 provider handoff 只能消费 aggregate packet，不得直接消费某个 dimension sidecar 作为最终 gate。
 5. `repair_plan_ref` 与 `review_report_ref` 属于 aggregate packet 的派生闭环载体；它们可被 `query / resume` 或治理工具消费，但不得反向夺取 gate authority。
 
 ## Source Trace Rule

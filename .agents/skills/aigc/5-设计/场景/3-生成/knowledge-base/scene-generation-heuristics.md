@@ -6,7 +6,7 @@
 - The main image and multi-view image should be a pair: same subject, same design source, same output directory, and same prompt lineage.
 - Multi-view scene sheets fail when they become a moodboard. Prompt them as one space under multiple camera/view constraints.
 - JSON records are the audit trail for future video generation. Missing JSON means the output is incomplete even if the image looks good.
-- Project-bound generation is not complete until final files live under `projects/aigc/<项目名>/4-设计/场景/3-生成`.
+- Project-bound generation is not complete until final files live under `projects/aigc/<项目名>/5-设计/场景/3-生成`.
 
 ## Common Repairs
 

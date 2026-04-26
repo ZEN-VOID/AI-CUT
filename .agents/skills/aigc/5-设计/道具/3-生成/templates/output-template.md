@@ -1,7 +1,7 @@
 # 道具生成执行报告
 
 project: `projects/aigc/<项目名>`
-output_dir: `projects/aigc/<项目名>/4-设计/道具/3-生成`
+output_dir: `projects/aigc/<项目名>/5-设计/道具/3-生成`
 
 ## 生成资产
 
@@ -38,6 +38,6 @@ next_action: ""
 | --- | --- |
 | Required output | 每个主体一张单主体图、一个单主体 JSON、一张多视图主体设计图、一个多视图 JSON。 |
 | Output format | 图像资产为 PNG/JPEG/WebP；提示词为 JSON；执行报告为 Markdown。 |
-| Output path | canonical path 为 `projects/aigc/<项目名>/4-设计/道具/3-生成/`。 |
+| Output path | canonical path 为 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。 |
 | Naming convention | 单体图 `主体名称-主图`；多视图 `主体名称-多视图`；JSON 与对应图像同 stem。 |
 | Completion gate | 每组资产回指上游 `2-设计` 文档，主图引用“提示词设计”，多视图引用主图，已完成 review verdict。 |

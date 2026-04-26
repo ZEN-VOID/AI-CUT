@@ -1,5 +1,12 @@
 # Changelog: aigc 道具 2-设计
 
+## 2026-04-26
+
+- 升级研究层合同：研究必须形成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token` 链路。
+- 在 `references/`、`steps/`、`types/`、`review/` 与模板中补齐形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain 的规则与验收。
+- 强化 LLM-first 边界：脚本只能检查研究链字段和 prompt 字符数，不得判断研究置信度或代写创作正文。
+- 保持纯色背景单道具 45 度近景约束，并将该约束写入 prompt evidence chain 与 review gate。
+
 ## 2026-04-25
 
 - 初始化 Skill 2.0 包结构，补齐 canonical 分区与根文件。

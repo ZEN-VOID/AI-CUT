@@ -115,3 +115,24 @@ flowchart LR
 - 本技能包名称不承载串行语义。
 - 仅当请求完全是物品局部修复，且不要求先刷新角色接口/场景规则时，允许与兄弟子技能并发。
 - 一旦本轮需要吸收 `exclusive_item_hooks` 或场景规则最新值，必须在父技能下按依赖串行执行。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 物品归属、使用规则、代价、专属适配和上游接口消费细则 | `references/item-card-contract.md` |
+| 执行物品卡生成、修复与回写节点 | `steps/item-card-workflow.md` |
+| 判定物品字段、代价结构和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用物品卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/item-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/4-物品卡/**/*.json` 中的正式物品卡 payload。
+- Output format: 使用 `templates/item-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/4-物品卡/`。
+- Naming convention: 物品卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
+- Completion gate: 父层 `cards_writer.py` 写回成功，物品代价与角色/场景上游接口一致，coverage / review gate 无 blocking finding。

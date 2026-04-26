@@ -24,6 +24,8 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-05` | 英文 prompt 太长或未引用全局风格 | 提示词层 | 压缩到 2000 字符内并显式引用全局风格 + 物品风格 | review gate 检查字符数和引用关系 | prompt 为英文且可直接进入生成链路 |
 | `TM-PROP-DESIGN-06` | team.yaml 中的大师只被点名，未影响设计 | 监制消费层 | 把大师语境转译为材质、构图、年代感、动作性或留白策略 | steps 固定“监制上下文 -> 设计决策”证据 | 文件中能看到至少一条对应设计选择 |
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
+| `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
+| `TM-PROP-DESIGN-09` | 冷门考据被写成确定事实，后续美术和生成都跟着错 | 不确定性治理层 | 将事实分为 source_fact / inference / inspired_by / unknown | references 固定 confidence 和 risk_uncertainty 字段 | 不确定内容以 inspired by 或 uncertain 标注，不进入确定性 design lock |
 
 ## Repair Playbook
 
@@ -32,15 +34,18 @@ last_checked_at: 2026-04-25
 3. 若缺 `north_star.yaml` 或 `team.yaml`，保留道具设计可执行部分，但在文件或报告中标注监制上下文缺口。
 4. 若 prompt 超过 2000 字符，优先删解释性短语，保留主体、材质、使用痕迹、构图、光线、风格锚点和禁止项。
 5. 若研究过多，删掉不能改变造型、材质、工艺、年代、磨损或拍摄方式的事实。
-6. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
-7. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
-8. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
+6. 若 prompt token 像凭空出现，回到研究证据链补 source cue、confidence、visual translation 和 design lock。
+7. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
+8. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
+9. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
 
 ## Reusable Heuristics
 
 - 单道具设计的好坏不在信息量，而在“能否让生成和美术执行者稳定复现同一个物件”。
 - 上游 `原文描述（关键词式）` 是约束，不是天花板；可以深化材质和视觉逻辑，但不得新增与上游冲突的叙事事实。
 - 冷门考据应以“可见特征”收束：形制、材料、工艺、年代、磨损、携带方式、使用痕迹。
+- 研究进一步升级的关键不是增加资料量，而是建立 `source cue -> confidence -> visual translation -> design lock -> prompt token` 的短链路。
+- `confirmed` 才能变成硬锁定；`probable` 和 `inferred` 应写进设计倾向；`uncertain` 更适合成为风险注记或 inspired-by 表达。
 - `Photography` 关注镜头如何让物件被看见；`Prop Design` 关注物件本身如何被制造、持握、老化和辨认。
 - 物语不应替代剧情扩写；它只说明该道具的叙事压力、象征和使用痕迹。
 - 大师监制上下文要落到动作：例如材质克制、构图距离、颜色禁区、年代错位、手作痕迹、功能暴露。

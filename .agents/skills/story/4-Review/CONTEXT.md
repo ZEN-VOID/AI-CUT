@@ -40,3 +40,4 @@
 - 子技能并发成立的前提不是目录分开，而是卷级事实包先锁住了。
 - 卷级 aggregate 最怕的是只有总评没有回流入口；那样看起来高级，实际上不可执行。
 - 章级问题可以很多，但 gate truth 只能有一个。
+- 将旧 `_shared` 运行时载体升级到 Skill 2.0 时，若 runner、workflow、上游阶段和下游阶段已有硬引用，优先保留 `_shared` 并用 `references/shared-runtime-carrier.md` 固定兼容边界；只有准备好全仓引用同步时才迁移路径。

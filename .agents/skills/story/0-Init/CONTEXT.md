@@ -41,6 +41,17 @@
 | `1-Cards / 2-Planning / 3-Drafting / 4-Review / 5-Loopback` 已更新，但初始化目录骨架与 `STATE.json` 仍停在旧阶段快照 | init project-state sync contract | 在 `init_project.py` 同步预建 `Story/` 与 `1-Cards/5-类型卡/总题材`，并把阶段根目录写入 `STATE.json.paths`、把 `0-init` 写成已完成 stage progress | 以后凡阶段树或 workflow runtime schema 演进，必须同时审计 `PROJECT_SKELETON_DIRS + STATE.json.paths + workflow_runtime.execution_state.stage_progress + re-init task_log` 四处，而不是只改目录或只改文档 | 新项目初始化后，目录骨架、`STATE.json.paths`、`workflow_runtime` 与当前阶段链一致；重初始化也会追加 `project_reinitialized` 事件 |
 | 用户级 registry 与全局 `.env` 仍停留在 `~/.claude/webnovel-writer/`，而用户层命令已切到 `story-*` | shared script compatibility layer | 改成 `~/.claude/story2026/` 新路径优先读写，旧路径双读兼容并自动迁移 | 在 `project_locator.py` 与 `data_modules/config.py` 固化“新路径优先、旧路径兼容、命中旧路径即 best-effort 迁移”的共享策略，并用测试锁住 | 旧用户目录不丢配置，新目录能自动接管后续写入 |
 
+## Repair Playbook
+
+1. 媒介路由混线时，先检查 `story-init` / `aigc-init` 的 frontmatter、`agents/openai.yaml` 与 `.codex/registry/routes.yaml`，再检查脚本入口。
+2. 初始化模式漂移时，回到单一 `team代入模式 -> auto/custom`，不要用问卷或快速补全承接缺口。
+3. `team.yaml` 与其他 team manifest 并存时，保留 `team.yaml` 为唯一真源，其他载体降级为 evidence 或删除活跃读取。
+4. planning 固定题包直答缺失时，先修 `roles.planning.members` 与 subagent provenance，不用 synthesis 直接补空字段。
+5. 项目骨架与 `STATE.json.paths` 不一致时，同时回修目录、paths、stage progress 与 task log。
+6. 项目长期偏好写入项目根 `MEMORY.md`；技能复盘、失败模式和跨项目经验写回本 `CONTEXT.md` 或 `knowledge-base/`。
+7. 旧路径、旧阶段名或旧 Init companion 文件回潮时，先跑全仓 `rg` 做引用同步，再修脚本和模板。
+8. Skill 2.0 分区缺失时，先补 owner 分区和动态引用，再运行工作车间 validator。
+
 ## Reusable Heuristics
 
 - 初始化阶段先保证路径、脚本入口和模板入口都在本仓库内闭合，再继续扩展交互深度。

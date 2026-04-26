@@ -150,12 +150,12 @@ CHECKPOINT_REQUIREMENTS = {
         "handoff_candidate_refs": ["5-设计/"],
     },
     "design-ready": {
-        "validation_refs": ["4-设计/validation-report.md"],
+        "validation_refs": ["5-设计/validation-report.md"],
         "source_truth_refs": [
             "4-分组/{scope_ref}.md",
-            "4-设计/",
+            "5-设计/",
         ],
-        "runtime_artifact_refs": ["4-设计/"],
+        "runtime_artifact_refs": ["5-设计/"],
         "handoff_candidate_refs": ["6-图像/", "7-视频/"],
     },
     "image-request-ready": {
@@ -171,7 +171,7 @@ CHECKPOINT_REQUIREMENTS = {
         "validation_refs": ["6-图像/validation-report.md"],
         "source_truth_refs": [
             "4-分组/",
-            "4-设计/",
+            "5-设计/",
             "6-图像/B-分镜故事板/",
         ],
         "runtime_artifact_refs": ["6-图像/B-分镜故事板/"],
@@ -199,7 +199,7 @@ CHECKPOINT_REQUIREMENTS = {
     "video-subject-reference-ready": {
         "validation_refs": ["7-视频/validation-report.md"],
         "source_truth_refs": [
-            "4-设计/",
+            "5-设计/",
             "6-图像/",
             "7-视频/C-主体参照/",
         ],
@@ -220,7 +220,7 @@ CHECKPOINT_REQUIREMENTS = {
             "2-编导/validation-report.md",
             "3-摄影/validation-report.md",
             "4-分组/validation-report.md",
-            "4-设计/validation-report.md",
+            "5-设计/validation-report.md",
             "6-图像/validation-report.md",
             "7-视频/validation-report.md",
         ],
@@ -230,7 +230,7 @@ CHECKPOINT_REQUIREMENTS = {
             "2-编导/",
             "3-摄影/",
             "4-分组/",
-            "4-设计/",
+            "5-设计/",
             "6-图像/",
             "7-视频/",
         ],
@@ -239,7 +239,7 @@ CHECKPOINT_REQUIREMENTS = {
             "2-编导/",
             "3-摄影/",
             "4-分组/",
-            "4-设计/",
+            "5-设计/",
             "6-图像/",
             "7-视频/",
         ],
@@ -256,7 +256,7 @@ STAGE_REQUIREMENTS = {
     "5-设计": CHECKPOINT_REQUIREMENTS["design-ready"],
     "6-图像": {
         "validation_refs": ["6-图像/validation-report.md"],
-        "source_truth_refs": ["4-分组/", "4-设计/", "6-图像/"],
+        "source_truth_refs": ["4-分组/", "5-设计/", "6-图像/"],
         "runtime_artifact_refs": ["6-图像/"],
         "handoff_candidate_refs": ["7-视频/", "Assets/"],
     },
@@ -279,17 +279,17 @@ DIMENSION_EXPECTATIONS = {
         "validation_prefixes": ["3-摄影/", "4-分组/"],
     },
     "design-alignment-validator": {
-        "source_prefixes": ["4-分组/", "4-设计/"],
-        "runtime_prefixes": ["4-设计/"],
-        "validation_prefixes": ["4-设计/"],
+        "source_prefixes": ["4-分组/", "5-设计/"],
+        "runtime_prefixes": ["5-设计/"],
+        "validation_prefixes": ["5-设计/"],
     },
     "image-delivery-validator": {
-        "source_prefixes": ["4-分组/", "4-设计/", "6-图像/"],
+        "source_prefixes": ["4-分组/", "5-设计/", "6-图像/"],
         "runtime_prefixes": ["6-图像/"],
         "validation_prefixes": ["6-图像/"],
     },
     "video-delivery-validator": {
-        "source_prefixes": ["4-分组/", "4-设计/", "6-图像/", "7-视频/"],
+        "source_prefixes": ["4-分组/", "5-设计/", "6-图像/", "7-视频/"],
         "runtime_prefixes": ["7-视频/"],
         "validation_prefixes": ["7-视频/"],
     },
@@ -811,8 +811,8 @@ def run_dimension_review(
 ) -> dict[str, Any]:
     role_id = str(spec.get("role_id") or "")
     dimension = str(spec.get("dimension") or role_id)
-    skill_path = Path(str(spec.get("skill_path") or ""))
-    context_path = skill_path / "CONTEXT.md"
+    dimension_spec_ref = str(spec.get("dimension_spec_ref") or "")
+    dimension_spec_path = Path(dimension_spec_ref) if dimension_spec_ref else Path()
     checkpoint_id = str(fact_pack.get("checkpoint_id") or "")
     stage = str(fact_pack.get("stage") or "")
     scope_ref = str(fact_pack.get("scope_ref") or "")
@@ -899,12 +899,8 @@ def run_dimension_review(
         "report_ref": relref(report_ref, project_root),
         "blocking_scope": blocking_scope,
         "dimension_runtime": {
-            "skill_path_ref": str(skill_path),
-            "skill_exists": skill_path.is_dir(),
-            "skill_contract_ref": str(skill_path / "SKILL.md"),
-            "skill_contract_exists": (skill_path / "SKILL.md").is_file(),
-            "context_ref": str(context_path),
-            "context_exists": context_path.is_file(),
+            "dimension_spec_ref": dimension_spec_ref,
+            "dimension_spec_exists": bool(dimension_spec_ref and dimension_spec_path.is_file()),
             "execution_mode": "local-dimension-checklist",
         },
     }

@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "AIGC 道具设计"
-  short_description: "融合道具清单、道具设计与道具面板提示词，输出到项目 5-设计 根目录。"
-  default_prompt: "Use $aigc-design-prop to consume `projects/aigc/<项目名>/3-Detail/第N集.json` or existing prop design inputs, run the prop list -> design -> panel order, preserve the current prop Markdown template and prop panel JSON mechanism, then write `道具清单.md`, `[道具名].md`, and `[道具名].json` directly under `projects/aigc/<项目名>/4-设计/`."

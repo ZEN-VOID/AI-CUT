@@ -4,7 +4,7 @@
 
 ## Upstream Consumption
 
-- Canonical input: `projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`。
+- Canonical input: `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`。
 - 必需区块：`提示词设计`。
 - 推荐读取区块：`名称 / 首次登场 / 原文描述`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。
 - 本技能只消费设计文档，不改写设计文档，不新增 canonical 角色主体。

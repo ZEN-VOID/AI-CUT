@@ -2,6 +2,9 @@
 
 ## 2026-04-26
 
+- 升级研究层合同：将“研究考据”扩展为 `research_brief -> source_posture -> uncertainty_register -> visual_translation -> prompt_evidence_chain` 的可追溯闭环。
+- 更新 `templates/output-template.md`，增加研究简报 YAML、Prompt Evidence Chain 表格和 review verdict 中的研究层状态字段。
+- 更新 `steps/`、`types/`、`review/`、`CONTEXT.md` 与 `scripts/README.md`，把来源姿态、不确定性、视觉翻译和 prompt 证据链纳入执行流、分型和验收门禁，同时保持 LLM-first 与纯空镜约束。
 - 按 `$skill-工作车间` 精修 `$aigc-scene-design` Skill 2.0 包：在根 `SKILL.md` 补齐入口级 Mermaid 流程图、数据流图和状态图。
 - 在 `review/review-contract.md` 增加 reviewer 汇流 Mermaid 图，明确真实 subagent dispatch 受 system / developer / tool / user 优先级约束，阻断时降级为本地 checklist 并报告未启动 reviewer。
 - 收束 `references/scene-design-contract.md` 与 `types/scene-design-type-map.md` 中可能误引入人物、人流或人物动线的措辞，保持纯空镜输出合同一致。

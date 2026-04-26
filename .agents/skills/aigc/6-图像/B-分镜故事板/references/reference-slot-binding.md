@@ -19,9 +19,9 @@
 固定检查以下目录：
 
 ```text
-projects/aigc/<项目名>/4-设计/角色/3-生成
-projects/aigc/<项目名>/4-设计/场景/3-生成
-projects/aigc/<项目名>/4-设计/道具/3-生成
+projects/aigc/<项目名>/5-设计/角色/3-生成
+projects/aigc/<项目名>/5-设计/场景/3-生成
+projects/aigc/<项目名>/5-设计/道具/3-生成
 ```
 
 ## Image Priority
@@ -64,7 +64,7 @@ binding_policy:
 ```yaml
 name: "林寂"
 category: "character"
-path: "projects/aigc/<项目名>/4-设计/角色/3-生成/林寂-多视图.png"
+path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
 selected_variant: "multi_view"
 matched_by: "exact"
 ```

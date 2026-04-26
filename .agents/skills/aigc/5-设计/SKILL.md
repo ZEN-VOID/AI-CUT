@@ -1,6 +1,6 @@
 ---
 name: aigc-design
-description: Use when the AIGC 5-设计 stage needs to route work into the fused scene, role, or prop Skill 2.0 packages under `.agents/skills/aigc/5-设计/{场景,角色,道具}` and write final design artifacts under `projects/aigc/<项目名>/4-设计/`.
+description: Use when the AIGC 5-设计 stage needs to route work into the fused scene, role, or prop Skill 2.0 packages under `.agents/skills/aigc/5-设计/{场景,角色,道具}` and write final design artifacts under `projects/aigc/<项目名>/5-设计/`.
 governance_tier: full
 metadata:
   short-description: Route fused 5-设计 domain packages
@@ -41,7 +41,7 @@ metadata:
 | `single_domain` | 用户明确命中场景、角色或道具 | 加载对应域级 `SKILL.md + CONTEXT.md` 并执行 |
 | `multi_domain` | 用户要求一次处理多个域 | 按用户指定域集合顺序调度；未指定顺序时采用 `场景 -> 角色 -> 道具` 的阶段内稳定顺序 |
 | `domain_repair` | 旧路径、registry、脚本或输出合同漂移 | 进入 `references/阶段路由矩阵.md` 与对应域级 review gate |
-| `stage_closeout` | 域级输出已完成，需要阶段验收 | 汇总到 `projects/aigc/<项目名>/4-设计/validation-report.md` |
+| `stage_closeout` | 域级输出已完成，需要阶段验收 | 汇总到 `projects/aigc/<项目名>/5-设计/validation-report.md` |
 
 ## Reference Loading Guide
 
@@ -57,12 +57,12 @@ metadata:
 ## Execution Contract
 
 1. 锁定项目根：`projects/aigc/<项目名>/`。
-2. 锁定 5-设计 输出根：`projects/aigc/<项目名>/4-设计/`。
+2. 锁定 5-设计 输出根：`projects/aigc/<项目名>/5-设计/`。
 3. 根据用户请求、输入文件或现有产物判定命中域。
 4. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
 5. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 面板提示词`。
 6. 父级只验证域级最终文件是否按新合同落到 5-设计 根目录；不直接改写域级业务主稿。
-7. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/4-设计/validation-report.md`。
+7. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -86,13 +86,13 @@ metadata:
 | `DESIGN-FIELD-02` | `references/阶段路由矩阵.md` | 域级包路径、触发词、输出文件 |
 | `DESIGN-FIELD-03` | `references/思行网络.md` | 父级 route/dispatch/closeout 节点 |
 | `DESIGN-FIELD-04` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 面板顺序 |
-| `DESIGN-FIELD-05` | `projects/aigc/<项目名>/4-设计/validation-report.md` | 阶段级验收摘要 |
+| `DESIGN-FIELD-05` | `projects/aigc/<项目名>/5-设计/validation-report.md` | 阶段级验收摘要 |
 
 ## Thought Pass Map
 
 | step_id | thought pass | action pass | evidence |
 | --- | --- | --- | --- |
-| `DESIGN-PASS-01` | 判断项目根与输出根 | 锁定 `projects/aigc/<项目名>/4-设计/` | runtime path |
+| `DESIGN-PASS-01` | 判断项目根与输出根 | 锁定 `projects/aigc/<项目名>/5-设计/` | runtime path |
 | `DESIGN-PASS-02` | 判断命中域 | 路由到 `场景 / 角色 / 道具` 包 | `domain_routes` |
 | `DESIGN-PASS-03` | 判断域级输出是否完成 | 执行域级 review gate | `domain_verdicts` |
 | `DESIGN-PASS-04` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
@@ -109,6 +109,6 @@ metadata:
 
 - Required output: 父级路由结果与可选阶段验收报告；域级任务的实际输出由对应子技能写出。
 - Output format: `validation-report.md` 使用 Markdown；域级业务输出为 `[域]清单.md + [主体名].md + [主体名].json`。
-- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/4-设计/validation-report.md`；域级最终文件写到 `projects/aigc/<项目名>/4-设计/` 根目录。
+- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级最终文件写到 `projects/aigc/<项目名>/5-设计/` 根目录。
 - Naming convention: 父级报告固定名 `validation-report.md`；域级命名由各域 `SKILL.md` 的 Output Contract 裁决。
 - Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过。

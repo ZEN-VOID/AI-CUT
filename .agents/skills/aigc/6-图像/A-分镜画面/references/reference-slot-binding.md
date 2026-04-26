@@ -7,9 +7,9 @@
 固定检查以下目录：
 
 ```text
-projects/aigc/<项目名>/4-设计/角色/3-生成
-projects/aigc/<项目名>/4-设计/场景/3-生成
-projects/aigc/<项目名>/4-设计/道具/3-生成
+projects/aigc/<项目名>/5-设计/角色/3-生成
+projects/aigc/<项目名>/5-设计/场景/3-生成
+projects/aigc/<项目名>/5-设计/道具/3-生成
 ```
 
 ## Image Priority
@@ -34,13 +34,13 @@ projects/aigc/<项目名>/4-设计/道具/3-生成
 
 ```markdown
 Characters:
-- 林寂: projects/aigc/<项目名>/4-设计/角色/3-生成/林寂-多视图.png
+- 林寂: projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png
 
 Scene:
-- 永夜私立中学二年级A班教室: projects/aigc/<项目名>/4-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png
+- 永夜私立中学二年级A班教室: projects/aigc/<项目名>/5-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png
 
 Props:
-- 红苹果: projects/aigc/<项目名>/4-设计/道具/3-生成/红苹果-多视图.png
+- 红苹果: projects/aigc/<项目名>/5-设计/道具/3-生成/红苹果-多视图.png
 ```
 
 ## Manifest Requirements

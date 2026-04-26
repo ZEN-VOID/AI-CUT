@@ -189,11 +189,13 @@ def _build_messages(
     volume_num: int,
     chapter_num: int,
     chapter_title: str,
+    drafting_mode: str,
     target_path: Path,
     book_plan_path: Path,
     volume_plan_path: Path,
     chapter_plan_path: Path,
     north_star_path: Path,
+    memory_path: Path | None,
     global_cards: list[Path],
     style_cards: list[Path],
     project_context_files: list[Path],
@@ -220,13 +222,16 @@ def _build_messages(
 
     sections = [
         f"目标输出路径：{_rel(target_path, project_root)}",
-        "当前模式：chapter_native_formal_draft",
+        f"当前模式：{drafting_mode}",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),
         "north_star：\n" + _excerpt(_read_text(north_star_path), 3000),
     ]
+
+    if memory_path and memory_path.is_file():
+        sections.append(f"项目 MEMORY（{_rel(memory_path, project_root)}）：\n" + _excerpt(_read_text(memory_path), 3000))
 
     if global_cards:
         global_payload = []
@@ -248,6 +253,12 @@ def _build_messages(
 
     if previous_path and previous_path.exists():
         sections.append(f"上一章正文（{_rel(previous_path, project_root)}）：\n" + _excerpt(_read_text(previous_path), 9000))
+
+    if current_path.exists():
+        sections.append(
+            f"当前目标章现稿（必须先吸收后再按当前模式处理，{_rel(current_path, project_root)}）：\n"
+            + _excerpt(_read_text(current_path), 9000)
+        )
 
     user_prompt = (
         "请根据以下上下文直接创作并返回完整章节 Markdown 文件。"
@@ -324,6 +335,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument("--max-tokens", type=int, default=12000)
+    parser.add_argument(
+        "--mode",
+        choices=("auto", "chapter_draft", "chapter_rewrite", "chapter_continue", "local_repair"),
+        default="auto",
+        help="drafting mode; auto rewrites existing chapters and drafts missing chapters",
+    )
     parser.add_argument("--stream", action="store_true", help="use stream mode when calling provider")
     parser.add_argument("--dry-run", action="store_true", help="only emit the messages pack without calling Doubao")
     parser.add_argument("--no-writeback", action="store_true", help="call Doubao but do not write back the chapter file")
@@ -343,8 +360,12 @@ def main() -> int:
     volume_plan_path = canonical_volume_plan_path(project_root, volume_num)
     chapter_plan_path = canonical_chapter_plan_path(project_root, chapter_num, volume_num)
     north_star_path = project_root / "0-Init" / "north_star.yaml"
+    memory_path = project_root / "MEMORY.md"
     chapter_path = drafting_root_md_path(project_root, chapter_num)
     previous_path = find_chapter_file(project_root, chapter_num - 1) if chapter_num > 1 else None
+    drafting_mode = args.mode
+    if drafting_mode == "auto":
+        drafting_mode = "chapter_rewrite" if chapter_path.exists() else "chapter_draft"
 
     required_files = [book_plan_path, volume_plan_path, chapter_plan_path, north_star_path]
     missing = [str(path) for path in required_files if not path.is_file()]
@@ -365,11 +386,13 @@ def main() -> int:
         volume_num=volume_num,
         chapter_num=chapter_num,
         chapter_title=chapter_title,
+        drafting_mode=drafting_mode,
         target_path=chapter_path,
         book_plan_path=book_plan_path,
         volume_plan_path=volume_plan_path,
         chapter_plan_path=chapter_plan_path,
         north_star_path=north_star_path,
+        memory_path=memory_path if memory_path.is_file() else None,
         global_cards=global_cards,
         style_cards=style_cards,
         project_context_files=project_context_files,
@@ -388,8 +411,10 @@ def main() -> int:
             "mode": "dry_run",
             "project_root": str(project_root),
             "chapter_path": str(chapter_path),
+            "drafting_mode": drafting_mode,
             "messages_path": str(messages_path),
             "output_dir": str(output_dir),
+            "memory_ref": _rel(memory_path, project_root) if memory_path.is_file() else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -418,6 +443,7 @@ def main() -> int:
         "ok": True,
         "project_root": str(project_root),
         "chapter_path": str(chapter_path),
+        "drafting_mode": drafting_mode,
         "messages_path": str(messages_path),
         "provider_output_dir": str(output_dir),
         "generated_preview_path": str(raw_path),

@@ -4,4 +4,4 @@
 - `FAIL-COVENANT` 比普通质量 issue 更优先，因为它说明审计证据本身不可靠。
 - 父层只需要一个 aggregate packet；维度报告越多，越要防止它们并列夺权。
 - 若 `resume` 无法定位返工入口，优先检查 `*.review.repair.json` 与 `governance-state.yaml.review_bridge`。
-
+- 六维审计的局部判据应落在 `references/dimensions/*.md`；不要恢复成六个局部 `SKILL.md + CONTEXT.md`。

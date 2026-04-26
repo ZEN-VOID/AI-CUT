@@ -17,7 +17,7 @@
 | `REV-PROP-GEN-02` | 主图忠实度 | 主图 JSON 直接引用设计文档“提示词设计”，未重新设计主体 | `templates/single-subject-prompt.json` |
 | `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体名称-主图` 作为 `reference_image` | `templates/prop-multiview-prompt.json` |
 | `REV-PROP-GEN-04` | 命名 | 图像与 JSON 同 stem，包含 `-主图` 或 `-多视图` | `SKILL.md Output Contract` |
-| `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/4-设计/道具/3-生成/` | `$imagegen` persistence gate |
+| `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/5-设计/道具/3-生成/` | `$imagegen` persistence gate |
 | `REV-PROP-GEN-06` | 非越界 | 未修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件 | 根写入边界 |
 
 ## Review Flow

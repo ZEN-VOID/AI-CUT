@@ -8,4 +8,4 @@ timeout_seconds: 60.0
 resolution_order:
   - "优先读取环境变量 `CODEX_HOME`"
   - "若缺失，则回退到 `~/.codex`"
-ownership: "child skills define audit spec; provider executes review; parent aggregates and routes repair"
+ownership: "dimension specs define audit criteria; provider executes review; parent aggregates and routes repair"

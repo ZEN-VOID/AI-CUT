@@ -41,6 +41,7 @@ DESIGN_SUBAGENT_SUPERVISION_CONTRACTS = {
 }
 REVIEW_ROOT = ROOT / "review"
 REVIEW_RUNNER = Path("scripts/aigc_review_runner.py")
+REVIEW_DIMENSION_REGISTRY = REVIEW_ROOT / "_shared" / "review-dimension-registry.yaml"
 REVIEW_AGGREGATE_TEMPLATE = REVIEW_ROOT / "_shared" / "review-aggregate.template.json"
 DESIGN_SLOT_RUNTIME_MARKERS = (
     "slot_bundles",
@@ -89,8 +90,8 @@ SHARED_RUNTIME_ROWS = {
     "1-分集": "projects/aigc/<项目名>/1-分集/",
     "2-编导": "projects/aigc/<项目名>/2-编导/",
     "3-摄影": "projects/aigc/<项目名>/3-摄影/",
-    "4-设计": "projects/aigc/<项目名>/4-设计/",
     "4-分组": "projects/aigc/<项目名>/4-分组/",
+    "5-设计": "projects/aigc/<项目名>/5-设计/",
     "6-图像": "projects/aigc/<项目名>/6-图像/",
     "7-视频": "projects/aigc/<项目名>/7-视频/",
     "源": "projects/aigc/<项目名>/源/",
@@ -101,17 +102,17 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/1-分集/",
     "projects/aigc/<项目名>/2-编导/",
     "projects/aigc/<项目名>/3-摄影/",
-    "projects/aigc/<项目名>/4-设计/",
-    "projects/aigc/<项目名>/4-设计/场景/1-清单/",
-    "projects/aigc/<项目名>/4-设计/场景/2-设计/",
-    "projects/aigc/<项目名>/4-设计/场景/3-生成/",
-    "projects/aigc/<项目名>/4-设计/道具/1-清单/",
-    "projects/aigc/<项目名>/4-设计/道具/2-设计/",
-    "projects/aigc/<项目名>/4-设计/道具/3-生成/",
-    "projects/aigc/<项目名>/4-设计/角色/1-清单/",
-    "projects/aigc/<项目名>/4-设计/角色/2-设计/",
-    "projects/aigc/<项目名>/4-设计/角色/3-生成/",
     "projects/aigc/<项目名>/4-分组/",
+    "projects/aigc/<项目名>/5-设计/",
+    "projects/aigc/<项目名>/5-设计/场景/1-清单/",
+    "projects/aigc/<项目名>/5-设计/场景/2-设计/",
+    "projects/aigc/<项目名>/5-设计/场景/3-生成/",
+    "projects/aigc/<项目名>/5-设计/道具/1-清单/",
+    "projects/aigc/<项目名>/5-设计/道具/2-设计/",
+    "projects/aigc/<项目名>/5-设计/道具/3-生成/",
+    "projects/aigc/<项目名>/5-设计/角色/1-清单/",
+    "projects/aigc/<项目名>/5-设计/角色/2-设计/",
+    "projects/aigc/<项目名>/5-设计/角色/3-生成/",
     "projects/aigc/<项目名>/6-图像/",
     "projects/aigc/<项目名>/7-视频/",
     "projects/aigc/<项目名>/源/",
@@ -138,7 +139,7 @@ ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/2-全局/",
     "projects/aigc/<项目名>/3-编导/",
     "projects/aigc/<项目名>/4-摄影/",
-    "projects/aigc/<项目名>/5-设计/",
+    "projects/aigc/<项目名>/4-设计/",
     "projects/aigc/<项目名>/5-分组/",
     "projects/aigc/<项目名>/6-分组/",
     "projects/aigc/<项目名>/7-图像/",
@@ -158,8 +159,8 @@ COUNCIL_STAGE_REVIEW_PATHS = {
     "1-分集": "projects/aigc/<项目名>/1-分集/validation-report.md",
     "2-编导": "projects/aigc/<项目名>/2-编导/validation-report.md",
     "3-摄影": "projects/aigc/<项目名>/3-摄影/validation-report.md",
-    "4-设计": "projects/aigc/<项目名>/4-设计/validation-report.md",
     "4-分组": "projects/aigc/<项目名>/4-分组/validation-report.md",
+    "5-设计": "projects/aigc/<项目名>/5-设计/validation-report.md",
     "6-图像": "projects/aigc/<项目名>/6-图像/validation-report.md",
     "7-视频": "projects/aigc/<项目名>/7-视频/validation-report.md",
 }
@@ -174,6 +175,7 @@ REVIEW_TEMPLATE_REQUIRED_MARKERS = (
 REVIEW_RUNNER_REQUIRED_MARKERS = (
     "code-reviewer",
     "review_fact_pack",
+    "dimension_spec_ref",
     "repair_plan_ref",
     "governance-state.yaml",
     "resume_contract",
@@ -184,17 +186,17 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/2-编导/",
         "projects/aigc/<项目名>/3-摄影/",
-        "projects/aigc/<项目名>/4-设计/",
-        "projects/aigc/<项目名>/4-设计/场景/1-清单/",
-        "projects/aigc/<项目名>/4-设计/场景/2-设计/",
-        "projects/aigc/<项目名>/4-设计/场景/3-生成/",
-        "projects/aigc/<项目名>/4-设计/道具/1-清单/",
-        "projects/aigc/<项目名>/4-设计/道具/2-设计/",
-        "projects/aigc/<项目名>/4-设计/道具/3-生成/",
-        "projects/aigc/<项目名>/4-设计/角色/1-清单/",
-        "projects/aigc/<项目名>/4-设计/角色/2-设计/",
-        "projects/aigc/<项目名>/4-设计/角色/3-生成/",
         "projects/aigc/<项目名>/4-分组/",
+        "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/5-设计/场景/1-清单/",
+        "projects/aigc/<项目名>/5-设计/场景/2-设计/",
+        "projects/aigc/<项目名>/5-设计/场景/3-生成/",
+        "projects/aigc/<项目名>/5-设计/道具/1-清单/",
+        "projects/aigc/<项目名>/5-设计/道具/2-设计/",
+        "projects/aigc/<项目名>/5-设计/道具/3-生成/",
+        "projects/aigc/<项目名>/5-设计/角色/1-清单/",
+        "projects/aigc/<项目名>/5-设计/角色/2-设计/",
+        "projects/aigc/<项目名>/5-设计/角色/3-生成/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
@@ -210,7 +212,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-分集/执行报告.md",
     ),
     ROOT / "5-设计" / "SKILL.md": (
-        "projects/aigc/<项目名>/4-设计/",
+        "projects/aigc/<项目名>/5-设计/",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
         "projects/aigc/<项目名>/5-Image/",
@@ -258,7 +260,7 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/2-全局/",
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/4-摄影/",
-        "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/4-设计/",
         "projects/aigc/<项目名>/6-分组/",
         "projects/aigc/<项目名>/7-图像/",
         "projects/aigc/<项目名>/8-视频/",
@@ -313,14 +315,6 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "7-视频" / "B-分镜故事板参照" / "SKILL.md",
         ROOT / "7-视频" / "C-主体参照" / "SKILL.md",
     ),
-    ROOT / "review": (
-        ROOT / "review" / "规划与种子兑现" / "SKILL.md",
-        ROOT / "review" / "分镜执行连续性" / "SKILL.md",
-        ROOT / "review" / "设计对位" / "SKILL.md",
-        ROOT / "review" / "图像交付就绪" / "SKILL.md",
-        ROOT / "review" / "视频交付就绪" / "SKILL.md",
-        ROOT / "review" / "治理闭环" / "SKILL.md",
-    ),
 }
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
@@ -365,8 +359,8 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/2-编导/",
         "projects/aigc/<项目名>/3-摄影/",
-        "projects/aigc/<项目名>/4-设计/",
         "projects/aigc/<项目名>/4-分组/",
+        "projects/aigc/<项目名>/5-设计/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
@@ -397,7 +391,7 @@ BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/2-全局/",
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/4-摄影/",
-        "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/4-设计/",
         "projects/aigc/<项目名>/5-分组/",
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/6-分组/",
@@ -905,6 +899,30 @@ def audit_review_runtime_contracts(failures: list[str]) -> None:
         for marker in REVIEW_TEMPLATE_REQUIRED_MARKERS:
             if marker not in template_content:
                 failures.append(f"{REVIEW_AGGREGATE_TEMPLATE}: missing review aggregate field `{marker}`")
+
+    if not REVIEW_DIMENSION_REGISTRY.exists():
+        failures.append(f"{REVIEW_DIMENSION_REGISTRY}: missing review dimension registry")
+    else:
+        registry = yaml.safe_load(REVIEW_DIMENSION_REGISTRY.read_text(encoding="utf-8")) or {}
+        dimensions = registry.get("dimensions", []) if isinstance(registry, dict) else []
+        if not dimensions:
+            failures.append(f"{REVIEW_DIMENSION_REGISTRY}: missing review dimensions")
+        for item in dimensions:
+            if not isinstance(item, dict):
+                continue
+            role_id = item.get("role_id") or "<unknown>"
+            if "skill_path" in item:
+                failures.append(
+                    f"{REVIEW_DIMENSION_REGISTRY}: `{role_id}` uses legacy `skill_path`; "
+                    "expected `dimension_spec_ref`"
+                )
+            spec_ref = item.get("dimension_spec_ref")
+            if not spec_ref:
+                failures.append(f"{REVIEW_DIMENSION_REGISTRY}: `{role_id}` missing `dimension_spec_ref`")
+                continue
+            spec_path = Path(str(spec_ref))
+            if not spec_path.is_file():
+                failures.append(f"{spec_path}: missing review dimension spec for `{role_id}`")
 
 
 def audit_init_single_skill_contract(failures: list[str]) -> None:

@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-generation
-description: Use when generating prop images from upstream per-prop design markdown files under projects/aigc/<项目名>/4-设计/道具/2-设计 into projects/aigc/<项目名>/4-设计/道具/3-生成.
+description: Use when generating prop images from upstream per-prop design markdown files under projects/aigc/<项目名>/5-设计/道具/2-设计 into projects/aigc/<项目名>/5-设计/道具/3-生成.
 governance_tier: full
 metadata:
   short-description: AIGC prop image generation
@@ -14,7 +14,7 @@ metadata:
 
 - 每次调用 `$aigc-prop-generation` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、视觉风格、生成限制或资产命名相关的上下文文件。
-- 必须读取对应上游设计文档：`projects/aigc/<项目名>/4-设计/道具/2-设计/<主体名称>.md`。
+- 必须读取对应上游设计文档：`projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md`。
 - 必须同时读取 `$imagegen` 的 `SKILL.md + CONTEXT.md`；本阶段只负责把设计文档蒸馏为 imagegen 可执行输入并保存结果。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `$imagegen` 经验层。
 - 生成提示词必须忠实引用相应道具/主体设计文档中的“提示词设计”。用户原始口径允许直接引用“相应角色设计文档中的提示词设计”，在本技能中收束为道具生成语境：相应道具或主体设计文档。
@@ -36,7 +36,7 @@ Accepted input:
 
 Required input:
 
-- 可定位的 `projects/aigc/<项目名>/4-设计/道具/2-设计/`。
+- 可定位的 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
 - 每个被调度主体至少有一份上游 Markdown 设计文档，且包含“提示词设计”或等价英文生成提示词。
 - 可用的 `$imagegen` 路径；普通生成默认走内置 `image_gen`，除非用户显式选择 CLI/API/model 控制。
 
@@ -125,7 +125,7 @@ stateDiagram-v2
 3. 按 `types/prop-generation-type-map.md` 判型，形成 `type_profile`，进入 `steps/prop-generation-workflow.md`。
 4. Step1：抽取每份设计文档中的“提示词设计”，生成单主体图与对应 JSON 提示词。
 5. Step2：套用 `templates/prop-multiview-prompt.json`，以各个单主体图为参照图，生成多视图主体设计图与对应 JSON 提示词。
-6. 写入 canonical 路径 `projects/aigc/<项目名>/4-设计/道具/3-生成/`；不得修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件。
+6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/3-生成/`；不得修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件。
 7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 imagegen 执行或 LLM 的提示词裁决。
 
 ## Field Mapping
@@ -217,11 +217,11 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-PROP-MAIN-IMAGE` | `projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-主图.<ext>` |
-| `OUTPUT-PROP-MAIN-PROMPT` | `projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-主图.json` |
-| `OUTPUT-PROP-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-多视图.<ext>` |
-| `OUTPUT-PROP-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/4-设计/道具/3-生成/<主体名称>-多视图.json` |
-| `OUTPUT-PROP-GEN-REPORT` | `projects/aigc/<项目名>/4-设计/道具/3-生成/执行报告.md` |
+| `OUTPUT-PROP-MAIN-IMAGE` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-主图.<ext>` |
+| `OUTPUT-PROP-MAIN-PROMPT` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-主图.json` |
+| `OUTPUT-PROP-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-多视图.<ext>` |
+| `OUTPUT-PROP-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-多视图.json` |
+| `OUTPUT-PROP-GEN-REPORT` | `projects/aigc/<项目名>/5-设计/道具/3-生成/执行报告.md` |
 
 ### Naming convention
 
@@ -234,5 +234,5 @@ stateDiagram-v2
 - 已读取本 `SKILL.md + CONTEXT.md`，项目任务已加载项目 `MEMORY.md` 与相关 `CONTEXT/`，并读取 `$imagegen SKILL.md + CONTEXT.md`。
 - 每组资产都能回指一个上游 `2-设计` Markdown。
 - 单主体 JSON 引用设计文档中的“提示词设计”；多视图 JSON 引用对应单主体图路径。
-- 图像和 JSON 都落在 `projects/aigc/<项目名>/4-设计/道具/3-生成/`。
+- 图像和 JSON 都落在 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。
 - 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。

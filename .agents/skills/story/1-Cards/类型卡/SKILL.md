@@ -103,3 +103,45 @@ flowchart TD
 - `1-Cards/5-类型卡/总题材/类型总卡.json` 已生成。
 - `1-Cards/5-类型卡/类型索引.json` 已可供 planning 导入。
 - `2-Planning` 父层可直接导入 `story_promise / genre_corridor / navigation_rules`。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 题材承诺、题材走廊、禁飞区和 planning 导入细则 | `references/type-card-contract.md` |
+| 执行类型卡生成、修复与回写节点 | `steps/type-card-workflow.md` |
+| 判定类型卡字段、导入变量和 trace 变量 | `types/field-map.md` |
+| 交付前质量门禁 | `review/review-contract.md` |
+| 复用类型卡经验 | `knowledge-base/heuristics.md` |
+| 正式 JSON skeleton 与交付报告模板 | `templates/type-card.json`、`templates/output-template.md` |
+| 机械辅助说明 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Field Mapping
+
+| field_id | owner | gate |
+| --- | --- | --- |
+| `TYPE-PROMISE-01` | `类型卡` | `story_promise / genre_corridor / navigation_rules` 可被 planning 导入 |
+| `TYPE-TRACE-01` | `类型卡` + writer | `source_skill_id`、`module_route` 与 `loaded_references` 指向本子技能 |
+
+## Root-Cause Execution Contract
+
+类型卡问题上溯顺序固定为：
+
+`题材方向盘症状 -> 类型卡字段缺口 -> planning 导入边界 -> 1-Cards 父层路由 -> 仓库 AGENTS`
+
+优先修：
+
+1. `story_promise`
+2. `genre_corridor`
+3. `forbidden_zone`
+4. `navigation_rules`
+5. planning import projection
+
+## Output Contract
+
+- Required output: `projects/story/<项目名>/1-Cards/5-类型卡/**/*.json` 中的正式类型卡 payload。
+- Output format: 使用 `templates/type-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
+- Output path: 正式业务输出只写入项目根 `1-Cards/5-类型卡/`。
+- Naming convention: 类型卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
+- Completion gate: 父层 `cards_writer.py` 写回成功，planning 导入字段完整，coverage / review gate 无 blocking finding。

@@ -47,7 +47,7 @@
 canonical 输出路径：
 
 ```text
-projects/aigc/<项目名>/4-设计/场景/1-清单/场景清单.md
+projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md
 ```
 
 主体表格字段固定为：

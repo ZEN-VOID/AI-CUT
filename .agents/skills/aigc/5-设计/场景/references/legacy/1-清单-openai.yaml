@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "5-设计 / 场景清单"
-  short_description: "从 3-Detail episode JSON 抽出场景对象池，并输出场景清单、场景研究与 scene design bridge 三真源。"
-  default_prompt: "Use $aigc-design-scene-list to read `projects/aigc/<项目名>/3-Detail/第N集.json`, lock canonical `meta + groups[].global/detail.分镜列表` as upstream truth, normalize canonical scene families from `detail.分镜列表[].氛围表现.层次`, only treat `分镜明细[] / 摄影美学 / 角色背景面 / 分镜表现 / 时间段 / 导演意图` as compat evidence, and write `场景清单.json + 场景研究.json + scene_design_bridge.json` plus `_manifest.json` under `projects/aigc/<项目名>/4-设计/场景/1-清单/第N集/`."

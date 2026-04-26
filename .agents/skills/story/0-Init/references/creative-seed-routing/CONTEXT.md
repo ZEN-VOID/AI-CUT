@@ -22,7 +22,7 @@
 | 创意缺口一出现就把整个目录全读 | route classification | 先回到 `Phase 1` 判断真实缺口，再缩到最小读取清单 | 在模块合同里把“4 份以上 leaf references = 过载信号”写成返工门禁 | `loaded_leaf_references` 数量与当前缺口相称 |
 | 反套路包选错题材映射 | anti-trope mapping | 用题材映射表重选 `anti-trope-*.md` | 把 genre -> anti-trope 映射固化在模块规范里，由父技能不再重复维护 | `planning_seed.anti_trope` 与题材走廊一致 |
 | 趋势资料被当成默认参考 | trend gate | 仅在用户显式要求时读取 `market-trends-2026.md` 并配合联网校验 | 把趋势资料保持为 L3 双闸门：显式请求 + WebSearch/WebFetch | 没有显式请求时，任务日志不出现趋势校准读取 |
-| 创意参考结果停留在说明墙，没有回写结构化槽位 | slot landing contract | 将结果压缩进 `creative_mandate / planning_seed / unknowns` | 在模块中固定“非内容输出型”交付与 Phase 3 槽位回写 | 初始化 handoff 只看到结构化字段，不看到参考资料堆砌 |
+| 创意参考结果停留在说明墙，没有回写结构化槽位 | slot landing contract | 将结果压缩进 `north_star.story_kernel / reader_promise`、`init_handoff.project_contract / planning_seed / unknowns` | 在模块中固定“非内容输出型”交付与 Phase 3 槽位回写 | 初始化 handoff 只看到结构化字段，不看到参考资料堆砌 |
 | 模块写了三轴三重，但没有事实/推断分层、增强验证和落盘矩阵，看起来像用了 `think-think`，实际还没真正执行完 | think-think execution contract | 按 `chain-optimization` 补齐事实/推断表、保留/修正/重建矩阵、验证矩阵、分重落盘映射与正式报告 | 对任何被 `think-think` 强化的模块，强制满足“显式矩阵 + reports/ 正式报告”双门禁 | 仓库中可同时看到强化后的模块矩阵和 `reports/思维链设计报告-*.md` |
 
 ## Repair Playbook

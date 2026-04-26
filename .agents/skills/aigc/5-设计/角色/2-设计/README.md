@@ -1,6 +1,6 @@
 # aigc 5-设计/角色/2-设计
 
-角色细目设计 Skill 2.0 包，用于从 `projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md` 读取角色清单，并结合 `0-初始化/north_star.yaml` 与 `team.yaml` 输出单角色设计稿。
+角色细目设计 Skill 2.0 包，用于从 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md` 读取角色清单，并结合 `0-初始化/north_star.yaml` 与 `team.yaml` 输出单角色设计稿。
 
 ## Directory Tree
 
@@ -31,9 +31,10 @@
 ## Quick Entry
 
 - 调用名：`$aigc-design-character-detail`
-- 上游真源：`projects/aigc/<项目名>/4-设计/角色/1-清单/角色清单.md`
+- 上游真源：`projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`
 - 项目上下文：`projects/aigc/<项目名>/0-初始化/north_star.yaml`、`projects/aigc/<项目名>/team.yaml`
-- Canonical 输出：`projects/aigc/<项目名>/4-设计/角色/2-设计/<角色名>.md`
+- Canonical 输出：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`
+- 研究层要求：身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain 必须转化为可见设计决策。
 
 ## Workflow Snapshot
 
@@ -42,14 +43,16 @@ flowchart TD
     A["项目与角色范围"] --> B["角色清单锚点"]
     B --> C["项目风格 / team 监制上下文"]
     C --> D["类型分流"]
-    D --> E["LLM-first 角色设计"]
-    E --> F["Review Gate"]
-    F --> G["单角色 Markdown"]
+    D --> E["研究证据链"]
+    E --> F["LLM-first 角色设计"]
+    F --> G["Review Gate"]
+    G --> H["单角色 Markdown"]
 ```
 
 ## Guardrails
 
 - 研究考据、物语、解构、服装、摄影和英文提示词由 LLM 直接创作。
+- 研究考据必须形成 `evidence -> design decision -> prompt phrase`，不能只保留资料摘录。
 - 脚本只能读取、校验、统计和汇总，不能生成角色设计正文。
 - 默认启用真实 subagents；若 runtime 阻断，必须报告降级层级和未启动的角色/reviewer。
 - 本技能不修改 registry、父级目录、上游清单、场景/道具技能或最终生成阶段。

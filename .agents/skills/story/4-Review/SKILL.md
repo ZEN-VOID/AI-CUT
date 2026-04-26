@@ -1,204 +1,157 @@
 ---
 name: story-stage-review
-description: Use when story2026 needs to audit a drafted volume against init/cards/planning truths through governed review specs, with background `code-reviewer` execution feeding back into repair routing before review and loopback.
+description: Use when story2026 needs to run governed volume-level final acceptance across review dimensions, aggregate code-reviewer findings, and route repair before review and loopback.
 governance_tier: full
 allowed-tools: Read Grep Write Edit Bash Task
 ---
 
 # 4-Review
 
+`4-Review` 是 `story2026` 的卷级终验父 skill。它不直接修改正文，不替代 `review/` 写业务审查报告，也不替代 `5-Loopback` 回写 validated truth；它只锁定同一轮卷级事实包，调度 mandatory 维度审查，聚合唯一 gate JSON，并裁决返工或下游交接。
+
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 在进入任一子技能前，必须先回读本 `SKILL.md`、`_shared/validation-root-contract.md`、`_shared/validation-child-output-contract.md`。
-- 当前阶段的父单元已经从“单章终验”升级为“卷级聚合终验”；卷内逐章证据仍可保留，但最终 gate truth 只认卷级 aggregate JSON。
+- 若当前任务绑定 `projects/story/<项目名>/`，先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与终验相关的材料。
+- 进入任一子技能前，必须先回读本 `SKILL.md`、`references/root-runtime-contract.md`、`references/shared-runtime-carrier.md`、`_shared/validation-root-contract.md`、`_shared/validation-child-output-contract.md`。
+- `_shared/` 仍是当前运行时兼容载体；Skill 2.0 的入口、路由、迁移矩阵与维护说明统一从 `references/`、`steps/`、`review/`、`types/`、`templates/` 进入。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/story/SKILL.md` > 本 `SKILL.md` > 当前分区合同 > 子技能 `SKILL.md` > `CONTEXT.md`。
 
-## Overview
+## Input Contract
 
-`4-Review` 现在是 `story2026` 的卷级终验父 skill。
+- Accepted input:
+  - 对某个小说项目执行卷级终验、隔离评估、validation 聚合或返工路由。
+  - 修复 `4-Review` 的维度 registry、fact pack、aggregate JSON、child sidecar 或 reviewer 汇流问题。
+  - 升级或维护本阶段的 Skill 2.0 结构、动态引用、模板与审计门禁。
+- Required input:
+  - `project_root`
+  - `volume_ref`
+  - 当前卷正文快照：`projects/story/<项目名>/3-Drafting/第V卷/第N章.md`
+  - 当前卷写作日志：`projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml`
+  - `0-Init`、`1-Cards`、`2-Planning` 对应真源切片
+  - 当前轮动态生成的 `validation_fact_pack`
+- Optional input:
+  - 指定审查维度、指定 reviewer sidecar、指定重跑策略、历史 aggregate JSON、项目级补充上下文。
+- Reject or clarify when:
+  - 没有可定位项目根或卷号。
+  - 用户要求跳过 mandatory 维度并仍宣称正式 PASS。
+  - `validation_fact_pack` 缺 required slice，或试图复用旧轮残包。
+  - 用户要求本阶段直接改写 `3-Drafting` 正文、`review/` 报告真源或 `5-Loopback` actualization。
 
-这里的关键变化不是只把目录名从 `Validation` 改成 `Review`，而是把“子技能 = 能力执行器”的旧理解收束为：
+## Mode Selection
 
-- 子技能主要定义审计规范：范围、目标、方式、证据要求、fail code、回流入口。
-- 真正的自动审计执行默认由后台独立窗口/进程触发的 [$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md) 完成。
-- `4-Review` 父层负责把 `code-reviewer` 结果与本地维度 packet 聚合，再自动决定是放行、打回 `3-Drafting`，还是上溯到 `0-Init / 1-Cards / 2-Planning`。
-
-新的 canonical 结构固定为：
-
-1. 父层先锁项目根、卷号、卷内章节范围、卷级正文快照与 `validation_fact_pack`
-2. registry 当前 mandatory 子技能按 review spec 并发审查整卷；当前基线为六维卷级终验
-3. 子技能输出卷级维度 verdict，同时保留章级 issue 定位
-4. 父层聚合为唯一卷级 gate JSON
-5. 通过后交给 `review/` 与 `5-Loopback`
-6. 未通过时按 issue 级别打回 `3-Drafting` 对应 worker/step，或上溯到 `0-Init / 1-Cards / 2-Planning`
-
-一句话裁决：
-
-- 子技能可以并发写维度 sidecar。
-- 父层只认 `第V卷.validation.json` 作为 `validation_status / routing_decision / handoff_targets` 的唯一真源。
-
-## Parent Positioning
-
-### 父层拥有
-
-- `volume scope / chapter_refs` 锁定
-- 卷级 `validation_fact_pack` 组装与 covenant gate
-- registry 当前 mandatory 子技能的并发调度与收束
-- 卷级 `validation_status / routing_decision / handoff_targets` 唯一判定权
-- `4-Review/第V卷.validation.json` 正式落盘
-- 章级 `rework_targets` 与 `source_trace` 汇总
-- `candidate_volume_draft -> validated_volume_draft` 的最终放行裁决
-
-### 父层不拥有
-
-- 直接修改任何 `第N章.md`
-- 代替 `review/` 生成正式业务审查报告
-- 代替 `5-Loopback` 回写 validated truth
-- 把各维度 sidecar 变成第二份 parallel canonical truth
-
-## Governed Child Skills
-
-validator roster、role_id、权重、默认返工节点与 mandatory 终验维度，统一以 `./_shared/validation-dimension-registry.yaml` 为准。
-
-父层在这里不再手写第二张维度表，只保留两条约束：
-
-- 当前 registry 落地的是六维卷级终验，其中新增 `任务汇聚`，且不再保留历史上的 `类型兑现`。
-- 父层只负责并发调度、聚合裁决与 route 判定，不接管子技能的维度内判据。
-
-硬规则：
-
-1. registry 当前 mandatory 子技能默认并发，但只能读取同一份卷级 pack 与同一批正文快照。
-2. 子技能只产出局部 `dimension_packet + dimension_report_ref`，不得判定最终 `validation_status`。
-3. 父层不得跳过 registry 中任一 mandatory 子技能。
-
-## Execution Provider Contract
-
-- 默认 provider：[$code-reviewer](/Users/vincentlee/.codex/skills/meta/构建/架构/code-reviewer/SKILL.md)
-- 默认执行方式：后台独立窗口/进程运行，不把主 skill 本身伪装成审计执行器。
-- 当前 repo 的 canonical runner：`../scripts/review_runner.py`
-- 审计汇流规则：
-  - `code-reviewer` 先输出结构化 findings / report sidecar。
-  - `4-Review` 再把 findings 映射为 `issues / severity_counts / rework_targets / source_trace`。
-  - 聚合结论必须回写到 `4-Review/*.validation.json`，不能只停留在外部 reviewer sidecar。
-
-## Shared Canonical Sources
-
-- `.agents/skills/story/SKILL.md`
-- 当前 `SKILL.md + CONTEXT.md`
-- `./_shared/validation-root-contract.md`
-- `./_shared/validation-child-output-contract.md`
-- `./_shared/validation-dimension-registry.yaml`
-- `./_shared/validation-aggregate.template.json`
-- `./_shared/validation-dimension-report.template.md`
-- `./_shared/validation-fact-pack-spec.md`
-- `./_shared/validation-team-contract.md`
-- `./_shared/checker-output-schema.md`
-- `../3-Drafting/_shared/drafting-instant-validation-contract.md`
-
-## Canonical Runtime
-
-- 聚合 gate packet：
-  - `projects/story/<项目名>/4-Review/第V卷.validation.json`
-- 维度 sidecars：
-  - 统一落在 `projects/story/<项目名>/4-Review/第V卷/`
-  - 文件名以 `validation-dimension-registry.yaml -> report_filename` 为准
-
-## Total Input Contract
-
-### 必需输入
-
-- `project_root`
-- `volume / volume_ref`
-- 当前卷全部正文 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`
-- 当前卷批次日志 `projects/story/<项目名>/3-Drafting/第V卷.写作日志.yaml`
-- `candidate_volume_draft` 状态说明
-- `0-Init/north_star.yaml`
-- `1-Cards/0-全局卡/**/*.json`
-- `1-Cards/**/*.json`
-- `2-Planning/整体规划.md`
-- 当前卷 `2-Planning/第V卷/卷规划.md`
-- 当前卷各章 `2-Planning/第V卷/第N章.md`
-- 若项目仍处于兼容态，再补读 `2-Planning/全息地图.json` 与 `卷分片/*.json`
-- 本轮动态生成的 `validation_fact_pack`
-
-### 硬规则
-
-1. `validation_fact_pack` 缺任何 required slice，直接 `FAIL-COVENANT`。
-2. pack 必须由当前轮动态生成；不得复用旧轮残包。
-3. registry 当前 mandatory 子技能必须消费同一份卷级正文快照与同一份卷级 pack。
-4. 子技能局部 sidecar 只做证据层，不拥有卷级总 gate 判定权。
-5. `PASS` 需要同时满足：
-   - 无 `critical` 问题
-   - 无未解决的 source-layer 冲突
-   - 无 `FAIL-COVENANT / FAIL-RUNTIME`
-6. 若 `3-Drafting/第V卷.写作日志.yaml` 未能提供完整 `chapter_refs x 8 步` 的 `chapter_step_history` 与逐步 `chapter_hook_results`，直接判定 `FAIL-COVENANT`，不得把稀疏日志当作可接受输入。
-7. 卷级 `PASS` 不等于“卷内没有任何小问题”，而是所有剩余问题均不构成 blocking issue。
-8. 若发现 upstream truth 自相矛盾，必须优先走 `back_to_source_contract`，不得要求 `3-Drafting` 瞎改正文背锅。
-
-## Dispatch Order Contract
-
-### 固定主干
-
-1. `N1-VOLUME-INTAKE`
-2. `N2-CONTEXT-PACK`
-3. `N3-PARALLEL-VALIDATION`
-4. `N4-AGGREGATE-GATE`
-5. `N5-ROUTE-HANDOFF`
-
-### 并发规则
-
-- 必须并发：
-  - registry 当前 mandatory validation child skills
-- 必须串行：
-  - pack 组装
-  - 聚合裁决
-  - aggregate JSON 落盘
-  - handoff route 判定
-
-## Aggregate Gate Contract
-
-- 维度权重以 `validation-dimension-registry.yaml` 为准
-- `validation_status` 不以均分独裁，必须额外经过 severity / source gate：
-  - `FAIL-RUNTIME`
-  - `FAIL-COVENANT`
-  - `FAIL-QUALITY`
-  - `PASS`
-
-### Routing Decision Contract
-
-| routing_decision | 适用条件 | handoff_targets |
+| mode | trigger | route |
 | --- | --- | --- |
-| `back_to_drafting_nodes` | 问题主要落在卷内若干章节正文质量与工序执行 | `3-Drafting` 对应 workers / steps |
-| `back_to_source_contract` | 上游 truth 缺失、冲突或 pack 失效 | `0-Init` / `1-Cards` / `2-Planning` |
-| `handoff_to_review_and_loopback` | `PASS` 且允许进入完整闭环 | `review/`、`5-Loopback` |
-| `handoff_to_review_only` | 只需要业务报告 / 历史复核，不进入 actualization | `review/` |
+| `final_acceptance` | 对当前卷做正式终验 | 读取 `types/review-type-map.md`，执行 `steps/review-workflow.md` 的卷级主干 |
+| `repair_validation` | aggregate、sidecar、fact pack、registry 或 source trace 异常 | 读取 `references/root-runtime-contract.md` 与 `review/review-gate.md` |
+| `dimension_maintenance` | 新增、停用、改名或改路由某个维度 | 读取 `references/shared-runtime-carrier.md`、`扩维与调整指南.md`、registry |
+| `skill_upgrade_repair` | 修复本阶段 Skill 2.0 分区、模板、agent metadata 或文档漂移 | 读取 `references/legacy-upgrade-matrix.md` 与本包 canonical 分区 |
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 锁定父层拥有/不拥有、runtime 路径、aggregate 单一真源 | `references/root-runtime-contract.md` |
+| 理解 `_shared/` 与 Skill 2.0 canonical 分区的兼容边界 | `references/shared-runtime-carrier.md` |
+| 追溯本次旧包升级的去向、风险和验证门 | `references/legacy-upgrade-matrix.md` |
+| 执行正式终验主干、并行维度、聚合与返工路由 | `steps/review-workflow.md` |
+| 判定任务类型、输入形态、执行模式与审查方式 | `types/review-type-map.md` |
+| 执行质量门禁、provider 接入和 verdict 汇总 | `review/review-gate.md` |
+| 复用终验经验、失败模式和维护打法 | `knowledge-base/review-heuristics.md` 与 `CONTEXT.md` |
+| 生成或核对交付样式 | `templates/output-template.md` |
+| 使用本地 runner 或维护脚本边界 | `scripts/README.md` 与 `.agents/skills/story/scripts/review_runner.py` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["N1 Volume Intake"] --> B["N2 Build Fresh Fact Pack"]
+    B --> C{"Covenant Gate"}
+    C -->|"FAIL-COVENANT"| H["Route back_to_source_contract"]
+    C -->|"pass"| D["N3 Parallel Mandatory Dimensions"]
+    D --> E["N4 Merge code-reviewer + local packets"]
+    E --> F{"Aggregate Gate"}
+    F -->|"PASS"| G["handoff_to_review_and_loopback"]
+    F -->|"FAIL-QUALITY"| I["back_to_drafting_nodes"]
+    F -->|"FAIL-RUNTIME / source conflict"| H
+    G --> J["Write 第V卷.validation.json"]
+    I --> J
+    H --> J
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> Intake
+    Intake --> PackLocked
+    PackLocked --> ParallelValidation
+    PackLocked --> CovenantFailed
+    ParallelValidation --> Aggregating
+    Aggregating --> Passed
+    Aggregating --> DraftingRework
+    Aggregating --> SourceRework
+    CovenantFailed --> SourceRework
+    Passed --> [*]
+    DraftingRework --> [*]
+    SourceRework --> [*]
+```
+
+## Core Execution Contract
+
+1. 锁定 `project_root`、`volume_ref`、`chapter_refs`、正文快照和当前卷写作日志。
+2. 动态生成本轮 `validation_fact_pack`；不得复用旧包。
+3. 按 `_shared/validation-dimension-registry.yaml` 中 `final_acceptance.mandatory = true` 的维度集合并发调度子技能或 provider。
+4. 默认以 `code-reviewer` 作为独立审计 provider；其 findings 必须映射回 `issues / severity_counts / rework_targets / source_trace`。
+5. 子技能只产出 `dimension_packet + dimension_report_ref`；父层独占 `validation_status / routing_decision / handoff_targets`。
+6. 聚合结果只落到 `projects/story/<项目名>/4-Review/第V卷.validation.json`；维度 sidecar 只落到 `projects/story/<项目名>/4-Review/第V卷/`。
+7. 若上游 truth 自相矛盾，优先走 `back_to_source_contract`，不得要求 `3-Drafting` 替上游冲突背锅。
+8. 若聚合 PASS，交给 `review/` 与 `5-Loopback`；若失败，输出精确到章节、worker 或 source owner 的返工入口。
+
+## Root-Cause Execution Contract
+
+遇到失败时按以下链路上溯：
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+
+| symptom | direct cause | section owner | source contract | rework target |
+| --- | --- | --- | --- | --- |
+| 缺卷级 aggregate 或下游消费 sidecar | gate truth 漂移 | `references/root-runtime-contract.md` | `_shared/validation-root-contract.md` | 修 aggregate sink 与下游引用 |
+| 子技能并发读取不同事实包 | pack 锁定失败 | `steps/review-workflow.md` | `_shared/validation-fact-pack-spec.md` | 重建当前轮 pack 后重跑 |
+| `code-reviewer` findings 没进入 JSON | provider 汇流缺口 | `review/review-gate.md` | `_shared/checker-output-schema.md` | 映射 findings 到 issues |
+| mandatory 维度被跳过 | registry 调度失效 | `references/shared-runtime-carrier.md` | `_shared/validation-dimension-registry.yaml` | 修 registry / runner |
+| 返工错误打回 drafting | source trace 缺失 | `review/review-gate.md` | `_shared/validation-child-output-contract.md` | 补 `source_layer_owner` |
+| Skill 2.0 分区断链 | 动态引用或目录漂移 | 本 `SKILL.md` | `references/legacy-upgrade-matrix.md` | 修 canonical 分区并跑 validator |
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code | validation_gate |
+| --- | --- | --- | --- | --- |
+| `FIELD-REV-01` | `SKILL.md` | 输入边界、模式路由、动态引用、输出验收 | `FAIL-REVIEW-ENTRY` | `validate_skill_2_0.py` |
+| `FIELD-REV-02` | `references/` | 父层边界、共享载体、迁移矩阵 | `FAIL-REVIEW-REFERENCE` | 链接与语义检查 |
+| `FIELD-REV-03` | `steps/` | 卷级 intake、pack、并发、聚合、route 主干 | `FAIL-REVIEW-STEPS` | workflow gate |
+| `FIELD-REV-04` | `types/` | 任务类型与审查 profile | `FAIL-REVIEW-TYPES` | type profile gate |
+| `FIELD-REV-05` | `review/` | provider 接入、verdict model、质量门禁 | `FAIL-REVIEW-GATE` | review verdict |
+| `FIELD-REV-06` | `templates/` | aggregate 输出模板对齐 | `FAIL-REVIEW-TEMPLATE` | Output Contract Alignment |
+| `FIELD-REV-07` | `scripts/` | 机械 runner 与维护说明 | `FAIL-REVIEW-SCRIPT` | runner smoke / path check |
+| `FIELD-REV-08` | `knowledge-base/` | 复用经验与维护打法 | `FAIL-REVIEW-KB` | context health check |
+| `FIELD-REV-09` | `agents/` | 产品侧入口元数据 | `FAIL-REVIEW-AGENT` | metadata validator |
 
 ## Output Contract
 
-### Canonical final output
-
-父层最终只向下游与运行时交付一份卷级聚合 JSON，至少包含：
-
-- `validation_status`
-- `validation_mode`
-- `volume_ref`
-- `chapter_refs`
-- `selected_agents`
-- `dimension_packets`
-- `dimension_report_refs`
-- `issues`
-- `chapter_issue_index`
-- `severity_counts`
-- `critical_issues`
-- `overall_score`
-- `dimension_scores`
-- `routing_decision`
-- `handoff_targets`
-- `rework_targets`
-- `validation_ref`
-
-## Completion Contract
-
-- 当前卷 pack、正文快照与维度 sidecars 已锁定并可追溯
-- 聚合 JSON 已能把问题回流到具体章节/worker/step
-- 只有卷级 aggregate JSON 才能把本卷交给 `review/` 与 `5-Loopback`
+- Required output:
+  - 正式运行时交付唯一卷级聚合 JSON：`第V卷.validation.json`。
+  - 维护或升级任务交付本 Skill 2.0 包的 canonical 分区、迁移记录、验证结果与残余风险。
+- Output format:
+  - 运行时：JSON aggregate + 维度 MD sidecars + 可追溯 reviewer sidecar。
+  - 技能维护：Markdown 合同、YAML metadata、模板、脚本说明与验证报告。
+- Output path:
+  - 运行时 aggregate：`projects/story/<项目名>/4-Review/第V卷.validation.json`。
+  - 运行时 sidecars：`projects/story/<项目名>/4-Review/第V卷/`。
+  - 技能维护：原地更新 `.agents/skills/story/4-Review/`。
+- Naming convention:
+  - aggregate 使用 `第V卷.validation.json`。
+  - 维度报告文件名以 `_shared/validation-dimension-registry.yaml -> report_filename` 为准。
+  - 技能分区文件使用 kebab-case 英文文件名，既有中文子技能目录保持稳定。
+- Completion gate:
+  - 运行时：pack、正文快照、mandatory sidecars、provider findings 与 aggregate JSON 均可追溯；aggregate 给出 `validation_status / routing_decision / handoff_targets`。
+  - 技能维护：`python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/4-Review` 通过，并补充必要引用扫描结果。

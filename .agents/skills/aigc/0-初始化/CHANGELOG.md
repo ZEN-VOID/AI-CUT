@@ -2,6 +2,13 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-04-26
+
+- `Case-20260426-AIGC-INIT-STAGE-SEQUENCE-ALIGNMENT`
+  - 按用户确认的当前阶段序号同步初始化骨架：`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-分组/`、`5-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`6-图像/`、`7-视频/`。
+  - 将 `4-设计/` 改为 stale Chinese numbering alias；新项目初始化不再预建 `4-设计/`，设计阶段 runtime 真源统一为 `projects/aigc/<项目名>/5-设计/`。
+  - 同步更新根流程图、shared runtime layout、初始化 scope/runtime、state template、review gate、registry routes 与审计脚本。
+
 ## 2026-04-25
 
 - `Case-20260425-AIGC-INIT-GROUPING-RUNTIME-ALIGNMENT`
