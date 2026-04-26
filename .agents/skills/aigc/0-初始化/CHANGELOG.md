@@ -4,6 +4,19 @@
 
 ## 2026-04-25
 
+- `Case-20260425-AIGC-INIT-GROUPING-RUNTIME-ALIGNMENT`
+  - 同步分组阶段 canonical runtime：新项目初始化骨架中的分组根从 legacy `5-分组/` 收敛为 `4-分组/`。
+  - `5-分组/` 与 `6-分组/` 仅作为 legacy/forbidden 路径处理；实际分组阶段入口由 `.agents/skills/aigc/4-分组/` 与 `projects/aigc/<项目名>/4-分组/` 承接。
+
+- `Case-20260425-AIGC-INIT-NORTH-STAR-STYLE-LENGTH-CAPS`
+  - 按用户指定为 north-star 风格字段增加默认中文与字数上限：`全局风格提示词 <= 200 字`、`类型元素提示词 <= 30 字`、`画面风格 <= 70 字`、`服装风格 / 建筑风格 / 物品风格 <= 100 字`。
+  - 同步更新模板注释、artifact 规则、review gate、经验层与 audit marker，避免初始化阶段生成过长风格口径。
+
+- `Case-20260425-AIGC-INIT-NORTH-STAR-STYLE-SPLIT`
+  - 按用户指定重构 `templates/north-star.template.yaml` 的风格字段：`全局风格` 收敛为跨画面、角色、场景、道具等设计类型安全复用的通用风格提示词前缀。
+  - 新增 `细分风格` 组，分别承载 `画面风格 / 服装风格 / 建筑风格 / 物品风格`，避免把单一设计类型字段污染到其他设计链路。
+  - 同步更新 `SKILL.md`、`references/artifacts-and-sources.md`、`review/init-review-gate.md`、`CONTEXT.md` 与 `scripts/aigc_skill_audit.py` 的规则与审计 marker。
+
 - `Case-20260425-AIGC-INIT-TEMPLATE-RUNTIME-SOURCE`
   - 根据用户最新口径，将 `projects/aigc/[项目名]` 当前目录结构提升为初始化 runtime 真源。
   - 初始化骨架调整为：`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`5-分组/`、`6-图像/`、`7-视频/`、`源/`、`附加预设/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。

@@ -97,7 +97,7 @@ Required canonical writeback after sufficiency passes:
 | output | path | purpose | owner for detail |
 | --- | --- | --- | --- |
 | project root carriers | `projects/aigc/<项目名>/MEMORY.md`, `CHANGELOG.md`, `附加预设/`, `源/`, `STATE.json` | project memory, trace, presets/source, live route truth | `references/scope-and-runtime.md` |
-| north star | `projects/aigc/<项目名>/0-初始化/north_star.yaml` | long-lived creative and production constraints, including exact `全局风格 / 类型元素 / 世界观` global design blocks | `references/artifacts-and-sources.md` |
+| north star | `projects/aigc/<项目名>/0-初始化/north_star.yaml` | long-lived creative and production constraints, including exact `全局风格 / 细分风格 / 类型元素 / 世界观` global design blocks | `references/artifacts-and-sources.md` |
 | init handoff | `projects/aigc/<项目名>/0-初始化/init_handoff.yaml` | next-stage seeds, unknowns, source breakdown | `references/artifacts-and-sources.md` |
 | story source manifest | `projects/aigc/<项目名>/0-初始化/story-source-manifest.yaml` | source readiness and coverage truth | `references/artifacts-and-sources.md` |
 | team manifest | `projects/aigc/<项目名>/team.yaml` | lineup, roles, provenance, planning direct-answer trace | `references/mode-and-team-contract.md` |
@@ -209,7 +209,10 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - `source-light` projects may only write genre, tone, audience, production, and boundary constraints; story-level facts stay in `unknowns` or deferred notes.
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
 - Rebootstrap defaults to `archive_reset`; never delete `源/`, source text, original assets, irreplaceable references, or legacy `Original/` without explicit user authorization.
-- `north_star.yaml` owns durable project constraints and the exact global-design blocks `全局风格 / 类型元素 / 世界观`; it never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
+- `north_star.yaml` owns durable project constraints and the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`; it never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
+- `全局风格` must be a cross-design safe prompt prefix shared by image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`, and must not include single-domain payloads such as lens language, character material, scene composition, costume detail, or prop detail.
+- `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`.
+- North-star style text defaults to Chinese. `全局风格提示词` is capped at 200 Chinese characters; `类型元素提示词` is capped at 30 Chinese characters; `画面风格` is capped at 70 Chinese characters; `服装风格 / 建筑风格 / 物品风格` are each capped at 100 Chinese characters.
 
 ## Bootstrap Runtime Markers (Mandatory)
 
@@ -234,7 +237,7 @@ projects/aigc/<项目名>/
 │       ├── 1-清单/
 │       ├── 2-设计/
 │       └── 3-生成/
-├── 5-分组/
+├── 4-分组/
 ├── 6-图像/
 ├── 7-视频/
 ├── 源/
@@ -265,6 +268,7 @@ Forbidden bootstrap paths:
 - `projects/aigc/<项目名>/3-编导/`
 - `projects/aigc/<项目名>/4-摄影/`
 - `projects/aigc/<项目名>/5-设计/`
+- `projects/aigc/<项目名>/5-分组/`
 - `projects/aigc/<项目名>/6-分组/`
 - `projects/aigc/<项目名>/7-图像/`
 - `projects/aigc/<项目名>/8-视频/`
@@ -324,7 +328,7 @@ If a referenced shared contract is the source of truth, update the shared contra
 | field_id | owner | canonical output | required gate |
 | --- | --- | --- | --- |
 | `FIELD-INIT-01` | `N5` | `0-初始化/north_star.yaml` | Long-term constraints only; no route truth. |
-| `FIELD-INIT-01G` | `N5` | `0-初始化/north_star.yaml` | Exact global design blocks `全局风格 / 类型元素 / 世界观` are present in north star. |
+| `FIELD-INIT-01G` | `N5` | `0-初始化/north_star.yaml` | Exact global design blocks `全局风格 / 细分风格 / 类型元素 / 世界观` are present in north star. |
 | `FIELD-INIT-02` | `N5` | `0-初始化/init_handoff.yaml` | Stage-entry seeds, unknowns, source breakdown. |
 | `FIELD-INIT-03` | `N1/N3` | mode and provenance fields | `init_mode`, `team_lineup_mode`, source and decision owner are traceable. |
 | `FIELD-INIT-04` | `N4/N5` | project `team.yaml` | Advisor paths stay under `.agents/skills/team/`; planning provenance recorded. |
@@ -367,7 +371,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
 | `FIELD-INIT-01` | `north_star.yaml` only contains durable constraints and the exact global design blocks; it contains no live route truth | `FAIL-INIT-01` | `N4/N5` |
-| `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 类型元素 / 世界观` with the same field shape as `2-全局/templates/global-design.template.json` | `FAIL-INIT-01G` | `N4/N5` |
+| `FIELD-INIT-01G` | `north_star.yaml` contains safe `全局风格` fields plus `细分风格 / 类型元素 / 世界观`; `全局风格` contains no cross-design pollution fields; style text is Chinese by default and respects the configured character caps | `FAIL-INIT-01G` | `N4/N5` |
 | `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, unknowns, and sources | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-03` | mode and provenance are traceable | `FAIL-INIT-03` | `N1/N3` |
 | `FIELD-INIT-04` | `team.yaml` records team scope and planning provenance | `FAIL-INIT-04` | `N3/N4/N5` |

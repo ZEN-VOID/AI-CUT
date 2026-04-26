@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 场景清单"
+  short_description: "从 4-分组组底 YAML 场景字段生成 5-设计场景清单。"
+  default_prompt: "使用 $aigc-scene-list，为 projects/aigc/<项目名>/ 从 4-分组/第N集.md 的组底 YAML 场景字段生成 table 式场景清单。"

@@ -28,11 +28,18 @@ Read:
 Rules:
 
 1. `north_star.yaml` only carries long-lived project constraints.
-2. `north_star.yaml` directly owns the exact global-design blocks `全局风格 / 类型元素 / 世界观`; their field shape mirrors `.agents/skills/aigc/2-全局/templates/global-design.template.json`.
-3. Do not duplicate global-design fields in old umbrella slots such as `aesthetic_axes`, `genre_corridor`, `theme_promises`, or `tone_keywords`.
-4. `init_handoff.yaml` carries stage-entry seeds, source layers, and unknowns.
-5. Session-only information does not belong in `north_star.yaml`.
-6. `north_star.yaml` must not contain route truth or `rebootstrap` process state.
+2. `north_star.yaml` directly owns the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`.
+3. `全局风格` is a cross-design safe prompt prefix for image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`.
+4. `全局风格` must not contain fields that pollute downstream design types, such as lens language, character material, scene composition, costume details, prop details, or any single-domain style payload.
+5. `全局风格` defaults to Chinese, and the generated `全局风格提示词` must stay within 200 Chinese characters.
+6. `类型元素` defaults to Chinese, and the generated `类型元素提示词` must stay within 30 Chinese characters.
+7. `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`. Ancient architecture guidance must not force-fit modern architects or modernist labels unless the project explicitly calls for it.
+8. `画面风格` defaults to Chinese and must stay within 70 Chinese characters.
+9. `服装风格 / 建筑风格 / 物品风格` default to Chinese, and each must stay within 100 Chinese characters.
+10. Do not duplicate global-design fields in old umbrella slots such as `aesthetic_axes`, `genre_corridor`, `theme_promises`, or `tone_keywords`.
+11. `init_handoff.yaml` carries stage-entry seeds, source layers, and unknowns.
+12. Session-only information does not belong in `north_star.yaml`.
+13. `north_star.yaml` must not contain route truth or `rebootstrap` process state.
 
 ## Stage Entry Ownership
 

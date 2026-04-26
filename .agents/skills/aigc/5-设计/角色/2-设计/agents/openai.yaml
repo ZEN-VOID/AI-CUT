@@ -1,0 +1,9 @@
+schema_version: 1
+interface:
+  display_name: "AIGC 角色细目设计"
+  short_description: "从 角色/1-清单 扩展单角色细目设计稿，消费 north_star.yaml 与 team.yaml。"
+  default_prompt: "使用 $aigc-design-character-detail，从 projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md 读取角色，并结合 0-初始化/north_star.yaml 与 team.yaml，为每个角色输出纯色背景全身定妆照到 5-设计/角色/2-设计/<角色名>.md，不置身场景。"
+metadata:
+  skill_id: "aigc-design-character-detail"
+  governance_tier: "full"
+  output_root: "projects/aigc/<项目名>/5-设计/角色/2-设计"

@@ -19,7 +19,9 @@
 | --- | --- | --- | --- | --- |
 | “初始化小说”误入 AIGC 影片初始化，或“初始化影片/电影”被 story 初始化截走 | 媒介语义路由层 | 在 `aigc-init` 入口、registry routes 与 product metadata 中显式写入 film/movie/video 正向触发和 novel/book 负向排除 | 把自然语义触发词分成两组：`影片/电影/影视/视频 -> .agents/skills/aigc/0-初始化`，`小说/网文/书/长篇故事 -> .agents/skills/story/0-Init` | 输入“初始化电影/影片”只落 `projects/aigc/<项目名>/`；输入“初始化小说/网文”只落 `projects/story/<项目名>/` |
 | 初始化又长出旧三模式或平行问卷 | 模式合同层 | 把入口收口到 `智能顾问模式 -> 自动组队 / 自定义组队` 单一入口 | 模式锁定后只命中 1 个编组子路径，并由 planning 固定题包直答承接问题收束 | 全文只有一个合法模式展示位 |
-| `north_star` 与 handoff 混成一个大杂烩 | 主文件分工层 | 将长期约束与全局设计块留在 `north_star.yaml`，阶段种子与 unknowns 放入 `init_handoff.yaml` | 用模板真源固定两份文件的字段边界，`全局风格 / 类型元素 / 世界观` 原样归入 north star | 模板与最终落盘能看出清晰分工 |
+| `north_star` 与 handoff 混成一个大杂烩 | 主文件分工层 | 将长期约束与全局设计块留在 `north_star.yaml`，阶段种子与 unknowns 放入 `init_handoff.yaml` | 用模板真源固定两份文件的字段边界，`全局风格 / 细分风格 / 类型元素 / 世界观` 原样归入 north star | 模板与最终落盘能看出清晰分工 |
+| `全局风格` 混入镜头语言、角色材质、服装细节或道具细节，导致角色/场景/道具互相污染 | north-star 风格字段边界层 | 将 `全局风格` 收敛为通用安全前缀：`媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`；把画面、服装、建筑、物品分流到 `细分风格` | 在 north-star 模板、artifact 规则、review gate 与 audit 脚本同步检查 `全局风格 / 细分风格` 字段 | 初始化生成的全局前缀能被所有设计类型复用，不会把单一设计类型口径污染到其他类型 |
+| north-star 风格字段生成过长或混入英文默认口径 | 输出约束层 | 设定默认中文与字数上限：`全局风格提示词 <= 200 字`、`类型元素提示词 <= 30 字`、`画面风格 <= 70 字`、`服装风格 / 建筑风格 / 物品风格 <= 100 字` | 在模板注释、artifacts 规则、review gate 和 audit marker 同步声明 | 初始化产物可直接作为后续设计提示词前缀，不需要再压缩裁剪 |
 | 顾问团只有共享名单，没有角色职责真源 | 团队治理层 | 生成项目根 `team.yaml`，把顾问写成 `策划 / 监制 / 评审` 三角色而非平铺列表 | 用 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml` 固化角色、作用阶段与评审最终闸门 | 后续阶段能按角色读取顾问团队，而不是回猜 |
 | 工件落盘漂向旧路径或外仓 | 路径合同层 | 固定到 `projects/aigc/<项目名>/0-初始化/` 与项目根 | 在根 `aigc` 与 `0-初始化` 双层合同中同时声明 canonical landing | 全部初始化工件都位于当前仓库项目路径 |
 | 初始化目录骨架仍沿用旧英文/最小骨架 | runtime skeleton 合同层 | 把初始化目录约定改为用户指定的扁平中文项目 runtime：以 `projects/aigc/[项目名]` 当前目录结构为准，`0-初始化/` 到 `7-视频/`、`源/`、`附加预设/` 与根载体 | 让 `0-初始化`、scope/runtime 合同、模板与 `aigc_skill_audit.py` 共用同一套中文 skeleton | 初始化合同、模板、registry 与审计 marker 同步 |
@@ -72,13 +74,15 @@
 - 当自动组队只收到一个极简概念时，优先先组出最小 planning 顾问团，把高分叉问题压进 `unknowns`，不要伪造完整剧情 seed。
 - 只要用户没有明确要求“贴原作/保原顺序/保留原作节奏”，`original_adherence` 就应显式落盘为 `false`。
 - 如果项目后续要做 `1-分集`，最稳的初始化习惯不是先问“要不要分几集”，而是先把“故事主源在哪、是否完整、能否正式切分”写进 `story-source-manifest.yaml`。
-- `north_star` 可以承载 `全局风格 / 类型元素 / 世界观` 这类长期全局 context；但一旦开始承载“下一步去哪”或 `rebootstrap` 过程痕迹，就说明长期约束真源和运行时状态真源混层了，这类信息应回到 `project_state / governance-state / init_handoff`。
+- `north_star` 可以承载 `全局风格 / 细分风格 / 类型元素 / 世界观` 这类长期全局 context；但一旦开始承载“下一步去哪”或 `rebootstrap` 过程痕迹，就说明长期约束真源和运行时状态真源混层了，这类信息应回到 `project_state / governance-state / init_handoff`。
+- `全局风格` 只适合写所有设计类型都能安全继承的前缀；凡是镜头语言、角色材质、服装、建筑、物品或场景专属语义，都应落入 `细分风格` 或后续阶段，而不是塞进全局前缀。
+- north-star 风格字段默认使用中文；全局前缀要短而稳，类型元素更短，细分风格只保留各设计链路需要的高密度口径。
 - 项目离开 `0-初始化` 之后，`init_handoff` 仍可保留初始化时的 handoff seed，但 live current-stage truth 只能看 `project_state` 与 `governance-state`。
 - 对创作起盘来说，最小闭环应先保证 `north_star / init_handoff / story-source-manifest / team / project_state`；其余治理载体只有在复杂执行或卫星技能真正需要时再补。
 - 对 `知行合一` 编排的 `0-初始化`，最稳的写法不是再造第二份思考文档，而是把路由、三种模式和充分性审计直接写进同一份父 `SKILL.md`。
 - Skill 2.0 化以后，`references/` 是细则 owner，但不得恢复旧 `references/*-mode/module-spec.md` 三模式 stub；新分区必须由 `SKILL.md` 的 Reference Loading Guide 明确引用。
 - 阶段质评若要做动态检查，优先直接回读当前样本项目、模板边界与 audit/validator 结果，不必为了评估再维护一份固定评测任务 YAML。
-- 对项目初始化骨架，新项目默认生成扁平中文 runtime 容器：`1-分集`、`2-编导`、`3-摄影`、`4-设计`、`5-分组`、`6-图像`、`7-视频`。空目录只是容器，不等于阶段已执行。
+- 对项目初始化骨架，新项目默认生成扁平中文 runtime 容器：`1-分集`、`2-编导`、`3-摄影`、`4-设计`、`4-分组`、`6-图像`、`7-视频`。空目录只是容器，不等于阶段已执行。
 - 对跨阶段共享的预设和素材方向盘，优先放进 `附加预设/`；真实故事/剧本源落到 `源/`。
 - 当前技能树仍可能使用英文包名，但项目 runtime 已切到中文目录；文档中必须区分 skill package path 与 project runtime path。
 - 对 `4-Design` 这类“技能树 tranche 父层 != runtime 落盘层”的阶段，初始化只记录 runtime 规则；实际 domain-first 业务目录由设计阶段执行时创建。

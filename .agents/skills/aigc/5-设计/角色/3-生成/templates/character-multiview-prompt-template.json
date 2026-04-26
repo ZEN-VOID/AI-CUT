@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "schema": "aigc.character_generation.multiview_prompt.v1",
+    "skill_id": "aigc-design-character-generation",
+    "version": "v1.0",
+    "template_type": "CHARACTER_MULTIVIEW_PRODUCTION_SHEET",
+    "derived_from": ".agents/skills/aigc-old/4-Design/角色/templates/角色面板-提示词.json"
+  },
+  "source": {
+    "project_name": "<PROJECT_NAME>",
+    "subject_name_original": "<SUBJECT_NAME>",
+    "subject_name_safe": "<SUBJECT_NAME_SAFE>",
+    "source_design_path": "projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md",
+    "source_prompt_section": "提示词设计",
+    "reference_image_path": "projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-主图.<ext>"
+  },
+  "imagegen": {
+    "mode": "built_in_generate_with_reference",
+    "resolution_target": "2K",
+    "output_image_path": "projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-多视图.<ext>",
+    "output_prompt_path": "projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-多视图.json"
+  },
+  "prompt_payload": {
+    "layout": {
+      "template_type": "CHARACTER_MULTIVIEW_PRODUCTION_SHEET",
+      "aspect_ratio": "16:9",
+      "resolution_target": "2K",
+      "canvas_type": "landscape",
+      "background": "weathered charcoal production board with restrained technical grid",
+      "column_ratios": {
+        "left": "15%",
+        "center": "50%",
+        "right": "35%"
+      },
+      "module_spacing": "clean production-review spacing, readable at a glance"
+    },
+    "layout_generation_prompt": {
+      "canvas_setup": "Create one cinematic character multi-view production sheet on a 16:9 landscape canvas. Use a restrained charcoal production-board base with subtle analog grain and a technical grid. The character remains dominant and the layout stays readable for production review.",
+      "left_panel_instructions": {
+        "title": "LEFT COLUMN",
+        "modules": [
+          {
+            "module": "IDENTITY PALETTE",
+            "content": "A compact color and material swatch grid derived only from the upstream character design prompt."
+          },
+          {
+            "module": "STATUS TOKENS",
+            "content": "Hair structure, status markers, accessories, and one culture-coded motif that already exists in the upstream design."
+          }
+        ]
+      },
+      "center_panel_instructions": {
+        "title": "CENTER COLUMN",
+        "modules": [
+          {
+            "module": "HERO FIGURE MULTIVIEW",
+            "content": "One frontal hero view, one three-quarter view, one side view, and one rear silhouette verification view. Preserve the same identity from the reference main image."
+          }
+        ]
+      },
+      "right_panel_instructions": {
+        "title": "RIGHT COLUMN",
+        "modules": [
+          {
+            "module": "COSTUME ARCHITECTURE",
+            "content": "Costume breakdown showing inner-to-outer layering, textile construction, damage or rank markers, and functional silhouette."
+          },
+          {
+            "module": "SYMBOLIC DETAILS",
+            "content": "Close fragments of cuffs, hems, belts, ornaments, scars, makeup, or identity details already present in the design."
+          },
+          {
+            "module": "GESTURE PRESSURE",
+            "content": "Three pose slots reflecting the upstream narrative pressure, social status, restraint, judgment, fatigue, ritual, or duty."
+          },
+          {
+            "module": "FACE STATES",
+            "content": "Expression slots preserving the same face, hair, makeup, scars, ritual marks, and emotional direction."
+          }
+        ]
+      },
+      "critical_requirements": [
+        "Use the upstream character design document's Prompt Design section as the primary source of truth; it may be quoted directly into prompt_text.",
+        "The reference main image is the continuity anchor for face, hair, body proportion, costume silhouette, material logic, and render style.",
+        "Output must be a character multi-view production sheet, not a storyboard, poster, fashion editorial, or generic game turnaround.",
+        "Layout instructions organize views and modules but must not override identity, costume facts, era, style, role tier, or narrative pressure.",
+        "Preserve the same character identity across all views: same face, hair, skin tone, body proportion, costume system, and signature details.",
+        "Do not copy accidental artifacts from the reference image; preserve character continuity, not generation mistakes.",
+        "If exact text rendering is unreliable, reserve a clean top-left identity badge area without forcing long text.",
+        "Costume modules must foreground role identity, era markers, ritual or social signals, textile construction, and practical silhouette.",
+        "Gesture and face modules must reinforce upstream narrative pressure rather than random attractive posing.",
+        "No new weapons, props, symbols, tattoos, scars, social rank markers, or costume elements unless they already exist in the upstream design prompt."
+      ]
+    },
+    "views": {
+      "P1_Front": "",
+      "P2_Left": "",
+      "P3_Right": "",
+      "P4_Back": "",
+      "P5_Expression_A": "",
+      "P6_Expression_B": "",
+      "P7_Action_A": "",
+      "P8_Action_B": ""
+    },
+    "prompt_segments": {
+      "upstream_prompt_text": "<DIRECTLY_FROM_CHARACTER_DESIGN_PROMPT_SECTION>",
+      "layout_prompt": "<LAYOUT_GENERATION_PROMPT>",
+      "reference_instruction": "Use reference_image_path as the main identity and costume continuity anchor.",
+      "negative_prompt_global": "no redesign, no identity drift, no costume replacement, no unrelated scene, no extra characters, no storyboard panels, no fashion poster, no mixed rendering styles",
+      "negative_prompt_layout": "no unreadable clutter, no tiny duplicated faces, no random labels, no text-heavy blocks, no inconsistent module styles"
+    },
+    "prompt_text": "<UPSTREAM_PROMPT_TEXT + MULTIVIEW_LAYOUT_INSTRUCTIONS>"
+  },
+  "review": {
+    "verdict": "pending",
+    "notes": ""
+  }
+}

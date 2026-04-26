@@ -13,7 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$3-摄影` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与摄影、美术、风格或制作约束相关的上下文文件。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml` 与 `team.yaml`，再按需加载项目根 `CONTEXT/` 中与摄影、美术、风格或制作约束相关的上下文文件。
 - 上游正文真源固定为 `projects/aigc/<项目名>/2-编导/第N集.md`，除非用户显式指定其他编导稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 核心镜头语言、节拍判断和审美设计必须由 LLM 直接完成；`scripts/` 只能做读取、标记检查、字段覆盖统计和机械校验。
@@ -35,6 +35,8 @@ Required input:
 Optional input:
 
 - 项目 `MEMORY.md` 中的长期摄影偏好、禁区、色彩倾向、节奏偏好。
+- 项目 `0-初始化/north_star.yaml` 中的核心创作北极星、类型承诺、审美方向和不可偏离目标。
+- 项目 `team.yaml` 中的团队配置、导演/摄影/美学角色口径、协作分工和可用审美参照。
 - 项目 `CONTEXT/` 中的角色、美术、场景、世界观、视觉参考、镜头风格补充。
 - 用户额外指定的参考导演、摄影师、影片、画幅、镜头焦段、运动强度或制作限制。
 
@@ -100,7 +102,7 @@ flowchart TD
 
 ## Execution Contract
 
-1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
+1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml`、`team.yaml` 与相关 `CONTEXT/`。
 2. 锁定上游 `2-编导/第N集.md`，保留 frontmatter、`【剧本正文】`、场景标题、字段顺序和原文。
 3. 按 `references/visual-matching-contract.md` 执行 step1：匹配包含或等价于 `画面`、`动作`、`表演`、`描写`、`特写`、`显影` 的画面性内容；每一个画面句子成为一个镜头语言处理单位。
 4. 按 `references/beat-analysis-contract.md` 执行 step2：先判断该画面句子的戏剧功能、注意力转移、动作相位、信息揭示和情绪转折，再决定分镜切换点；一个节拍点对应一个 `分镜N`。
@@ -121,7 +123,7 @@ flowchart TD
 
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
-| `FIELD-CINE-01` | 输入取证 | source directing episode、项目记忆、相关上下文、目标集号明确 | `FAIL-CINE-01` |
+| `FIELD-CINE-01` | 输入取证 | source directing episode、项目记忆、north star、team 配置、相关上下文、目标集号明确 | `FAIL-CINE-01` |
 | `FIELD-CINE-02` | 画面匹配 | 所有画面性句子被识别，非画面字段不被强行注入 | `FAIL-CINE-02` |
 | `FIELD-CINE-03` | 节拍判断 | 分镜数量来自内容节拍，不按固定数量灌水 | `FAIL-CINE-03` |
 | `FIELD-CINE-04` | 镜头语言 | 每个命中句子下方有 `镜头语言：` 和连续 `分镜N:` | `FAIL-CINE-04` |
@@ -204,7 +206,7 @@ flowchart TD
 
 ### Completion gate
 
-- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml`、`team.yaml` 与相关 `CONTEXT/`。
 - 上游 `2-编导/第N集.md` 可回指，输出 frontmatter 记录 `source_directing_path`。
 - 所有命中的画面性句子下方均有 `镜头语言：` 字段；非画面字段没有被滥加。
 - 每个 `镜头语言：` 块至少有 `分镜1:`，多分镜编号连续，且每个分镜对应明确节拍点。

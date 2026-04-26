@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "schema": "aigc.scene_generation.multiview_prompt/v1",
+    "skill_id": "aigc-scene-generation",
+    "version": "v1.0",
+    "doc_role": "multiview_scene_prompt_template",
+    "source_legacy_template": ".agents/skills/aigc-old/4-Design/场景/templates/场景面板-提示词.json",
+    "updated_at": "2026-04-25",
+    "note": "用于 Step2：以主体主图为参照图，生成同一场景的 3x3 多视图主体设计图。"
+  },
+  "prompt_payload": {
+    "input_slots": {
+      "subject_name": "<主体名称>",
+      "source_design_document": "projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md",
+      "source_prompt": "<直接引用场景设计文档 ## 5. 提示词设计 中的英文提示词>",
+      "reference_main_image": "projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>"
+    },
+    "layout": {
+      "asset_role": "scene_multiview_subject_design_sheet",
+      "aspect_ratio": "16:9",
+      "resolution_target": "2K or higher",
+      "panel_count": 9,
+      "grid": "3x3"
+    },
+    "reference_policy": {
+      "reference_main_image_role": "continuity anchor for scene identity, material logic, spatial silhouette, lighting direction and color script",
+      "do_not_copy": [
+        "accidental artifacts",
+        "unrelated crop",
+        "unwanted texture glitches",
+        "random composition errors",
+        "unintended extra subjects"
+      ]
+    },
+    "layout_generation_prompt": {
+      "canvas_setup": "Create a 16:9 widescreen scene multi-view design sheet on a clean dark neutral ground using a strict 3x3 nine-grid. Keep spacing, margins, and panel ratio uniform. Treat the sheet as a production design reference board for one coherent scene.",
+      "critical_requirements": [
+        "The upstream scene design document's prompt section, especially `提示词设计`, is the primary source of truth. Use it directly for scene identity, era, style, spatial facts, architectural logic, material logic, lighting and narrative function.",
+        "Use the provided `reference_main_image` as a continuity anchor for the same scene subject; keep landmark identity, silhouette, material family, palette, lighting direction and spatial orientation consistent.",
+        "Do not redesign the scene. Do not add new architecture, new story elements, new people, creatures, silhouettes or human-shaped shadows unless the upstream design prompt explicitly requires them.",
+        "Render one coherent scene as a unified 3x3 panel sheet with strict cross-panel consistency.",
+        "Treat every panel as a view variant of the same space, not nine different scenes.",
+        "P1-P3: atmosphere plus iconography sequence: wide establishing view, medium spatial function view, close ritual or architectural detail.",
+        "P4/P5/P7/P8: structural and directional views that prove threshold design, circulation hierarchy, cosmology order, edge traversal, material joins, or sacred-light organization.",
+        "P6: low-angle up-shot emphasizing vertical authority, oppression or transcendence. P9: high-angle top-down shot revealing spatial order or cosmology logic.",
+        "Maintain one consistent spatial orientation across all panels; doors, thresholds, major landmarks and light direction must not flip randomly.",
+        "Include at least one scale-readable environmental cue such as steps, railing height, doorway size, furniture scale, floor tile rhythm or structural measurement logic, without adding people.",
+        "Panel labels, grid divisions and borders must remain clean and secondary; do not let labels, decorative UI or frame ornaments dominate the scene.",
+        "Reserve one fixed top-left identity badge area using matched roster text `<SCENE_ID>+<SCENE_NAME>`; if exact text rendering is unreliable, preserve the badge area and short ID cleanly for post-production text overlay."
+      ]
+    },
+    "layout_modules": {
+      "panel_views": [
+        {
+          "id": "P1",
+          "label": "Atmosphere Wide",
+          "description": "Eye-level wide shot establishing full spatial envelope and dominant light logic."
+        },
+        {
+          "id": "P2",
+          "label": "Atmosphere Medium",
+          "description": "Mid shot showing functional zoning, narrative center and the first clear era or culture cue."
+        },
+        {
+          "id": "P3",
+          "label": "Ritual Detail",
+          "description": "Close architectural or material detail proving iconography, ceremonial logic or world-specific ornament."
+        },
+        {
+          "id": "P4",
+          "label": "Threshold View A",
+          "description": "Directional view proving entrance, edge traversal, barrier or passage logic."
+        },
+        {
+          "id": "P5",
+          "label": "Structural View",
+          "description": "View proving architectural support, material joins, scale and spatial hierarchy."
+        },
+        {
+          "id": "P6",
+          "label": "Low-Angle Vertical Axis",
+          "description": "Low-angle up-shot emphasizing vertical authority, oppression or transcendence."
+        },
+        {
+          "id": "P7",
+          "label": "Circulation View",
+          "description": "View proving movement path, ritual route, service path or cosmology linkage."
+        },
+        {
+          "id": "P8",
+          "label": "Material / Cultural View",
+          "description": "View foregrounding material continuity, cultural threshold, ornament or era-coded detail."
+        },
+        {
+          "id": "P9",
+          "label": "High-Angle Spatial Order",
+          "description": "High-angle top-down shot revealing spatial order, zoning or cosmology logic."
+        }
+      ],
+      "consistency": [
+        {
+          "id": "lighting",
+          "label": "Lighting Continuity",
+          "description": "Primary light source direction and intensity remain physically coherent in all panels."
+        },
+        {
+          "id": "material",
+          "label": "Material Continuity",
+          "description": "Material families and texture age state remain stable across panels."
+        },
+        {
+          "id": "composition",
+          "label": "Layout Discipline",
+          "description": "Equal panel sizes, clean gutters, no overlap and no decorative frame noise."
+        }
+      ]
+    },
+    "negative_prompt": {
+      "global": "no people, no creatures, no silhouettes, no human-shaped shadows, no unrelated architecture, no scene redesign, no nine different locations, no random flipped orientation, no inconsistent era, no inconsistent materials, no unreadable clutter, no decorative UI dominance",
+      "layout": "no uneven grid, no overlapping panels, no broken gutters, no excessive labels, no ornamental frames dominating the scene",
+      "reference_drift": "do not copy artifacts from reference image, do not introduce accidental objects, do not change the canonical scene identity"
+    },
+    "prompt_assembly": {
+      "prompt_text": "Use `<source_prompt>` as the primary scene prompt. Using `<reference_main_image>` as a continuity reference, create a 16:9 3x3 multi-view production design sheet for `<subject_name>`. Follow all critical requirements and panel view modules. Preserve one coherent scene identity across all panels.",
+      "json_record_required": true
+    }
+  }
+}

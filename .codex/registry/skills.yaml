@@ -37,6 +37,11 @@ active_skills:
         owner_office: shangshu
         contract_status: active
         route_role: stage
+      - id: aigc-4-grouping
+        path: .agents/skills/aigc/4-分组
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
       - id: aigc-5-design
         path: .agents/skills/aigc/5-设计
         owner_office: shangshu
@@ -94,6 +99,20 @@ active_skills:
                 path: .agents/skills/aigc/5-设计/道具/3-生成
                 contract_status: active
                 route_role: leaf
+      - id: aigc-6-images
+        path: .agents/skills/aigc/6-图像
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+        leaf_index:
+          - id: aigc-image-storyboard-frame
+            path: .agents/skills/aigc/6-图像/A-分镜画面
+            contract_status: active
+            route_role: leaf
+          - id: aigc-image-storyboard-sheet
+            path: .agents/skills/aigc/6-图像/B-分镜故事板
+            contract_status: active
+            route_role: leaf
       - id: aigc-5-visuals
         path: .agents/skills/aigc/5-Image
         owner_office: shangshu

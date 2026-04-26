@@ -47,7 +47,7 @@ Initialization creates or verifies:
 - `4-设计/角色/1-清单/`
 - `4-设计/角色/2-设计/`
 - `4-设计/角色/3-生成/`
-- `5-分组/`
+- `4-分组/`
 - `6-图像/`
 - `7-视频/`
 - `源/`
@@ -79,7 +79,7 @@ Initialization prebuilds the full user-facing stage skeleton requested for new A
     1-清单/
     2-设计/
     3-生成/
-5-分组/
+4-分组/
 6-图像/
 7-视频/
 源/
@@ -106,6 +106,7 @@ Forbidden bootstrap paths include:
 - `3-编导/`
 - `4-摄影/`
 - `5-设计/`
+- `5-分组/`
 - `6-分组/`
 - `7-图像/`
 - `8-视频/`
@@ -118,7 +119,7 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 - `源/` is the source landing root for new projects. Historical `Original/` and `Story/` may be read during migration but are not created for new initialization.
 - `附加预设/` stores project-level preset packs and supplemental reference materials; it does not replace `MEMORY.md` and does not own live route truth.
 - `1-分集/` is the episode-splitting stage root.
-- `5-分组/` is the grouping stage root. Former nested `1-规划/2-分组/` and previous `6-分组/` roots are no longer created by initialization.
+- `4-分组/` is the grouping stage root. Former nested `1-规划/2-分组/` and previous `5-分组/` / `6-分组/` roots are no longer created by initialization.
 - `2-编导/` and `3-摄影/` separate script/directing work from cinematography/storyboard execution in the project runtime, even if the current skill tree still uses legacy package names internally.
 - `4-设计/场景|道具|角色/1-清单/` owns list outputs, `2-设计/` owns design truth, and `3-生成/` owns generated design-image outputs.
 - `6-图像/` and `7-视频/` are stage roots. Provider-specific request folders are created by image/video execution skills, not by initialization.
@@ -141,7 +142,7 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 - project `CHANGELOG.md`
 - `0-初始化/story-source-manifest.yaml`
 
-`0-初始化` does not own canonical truth for `1-分集`, `2-编导`, `3-摄影`, `4-设计`, `5-分组`, `6-图像`, or `7-视频`.
+`0-初始化` does not own canonical truth for `1-分集`, `2-编导`, `3-摄影`, `4-设计`, `4-分组`, `6-图像`, or `7-视频`.
 
 ## Project Root Carrier Rules
 

@@ -90,7 +90,7 @@ SHARED_RUNTIME_ROWS = {
     "2-编导": "projects/aigc/<项目名>/2-编导/",
     "3-摄影": "projects/aigc/<项目名>/3-摄影/",
     "4-设计": "projects/aigc/<项目名>/4-设计/",
-    "5-分组": "projects/aigc/<项目名>/5-分组/",
+    "4-分组": "projects/aigc/<项目名>/4-分组/",
     "6-图像": "projects/aigc/<项目名>/6-图像/",
     "7-视频": "projects/aigc/<项目名>/7-视频/",
     "源": "projects/aigc/<项目名>/源/",
@@ -111,7 +111,7 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/4-设计/角色/1-清单/",
     "projects/aigc/<项目名>/4-设计/角色/2-设计/",
     "projects/aigc/<项目名>/4-设计/角色/3-生成/",
-    "projects/aigc/<项目名>/5-分组/",
+    "projects/aigc/<项目名>/4-分组/",
     "projects/aigc/<项目名>/6-图像/",
     "projects/aigc/<项目名>/7-视频/",
     "projects/aigc/<项目名>/源/",
@@ -139,6 +139,7 @@ ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/3-编导/",
     "projects/aigc/<项目名>/4-摄影/",
     "projects/aigc/<项目名>/5-设计/",
+    "projects/aigc/<项目名>/5-分组/",
     "projects/aigc/<项目名>/6-分组/",
     "projects/aigc/<项目名>/7-图像/",
     "projects/aigc/<项目名>/8-视频/",
@@ -158,7 +159,7 @@ COUNCIL_STAGE_REVIEW_PATHS = {
     "2-编导": "projects/aigc/<项目名>/2-编导/validation-report.md",
     "3-摄影": "projects/aigc/<项目名>/3-摄影/validation-report.md",
     "4-设计": "projects/aigc/<项目名>/4-设计/validation-report.md",
-    "5-分组": "projects/aigc/<项目名>/5-分组/validation-report.md",
+    "4-分组": "projects/aigc/<项目名>/4-分组/validation-report.md",
     "6-图像": "projects/aigc/<项目名>/6-图像/validation-report.md",
     "7-视频": "projects/aigc/<项目名>/7-视频/validation-report.md",
 }
@@ -193,7 +194,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/4-设计/角色/1-清单/",
         "projects/aigc/<项目名>/4-设计/角色/2-设计/",
         "projects/aigc/<项目名>/4-设计/角色/3-生成/",
-        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/4-分组/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
@@ -372,7 +373,7 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/2-编导/",
         "projects/aigc/<项目名>/3-摄影/",
         "projects/aigc/<项目名>/4-设计/",
-        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/4-分组/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
@@ -404,6 +405,7 @@ BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/4-摄影/",
         "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/5-分组/",
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/6-分组/",
         "projects/aigc/<项目名>/6-Video/",
@@ -979,10 +981,40 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
                 failures.append(
                     f"{north_star_template}: contains forbidden init-state field `{forbidden_marker.rstrip(':')}`"
                 )
-        for required_marker in ("全局风格:", "类型元素:", "世界观:"):
+        for required_marker in (
+            "全局风格:",
+            "媒介属性:",
+            "时代属性:",
+            "光影逻辑:",
+            "画面质感:",
+            "避免出现:",
+            "全局风格提示词:",
+            "细分风格:",
+            "画面风格:",
+            "服装风格:",
+            "建筑风格:",
+            "物品风格:",
+            "类型元素:",
+            "世界观:",
+            "默认中文",
+            "200 字以内",
+            "30 字以内",
+            "70 字以内",
+            "100 字以内",
+        ):
             if required_marker not in north_star_template_content:
                 failures.append(f"{north_star_template}: missing merged global design block `{required_marker.rstrip(':')}`")
-        for duplicate_marker in ("aesthetic_axes:", "genre_corridor:", "theme_promises:", "tone_keywords:"):
+        for duplicate_marker in (
+            "aesthetic_axes:",
+            "genre_corridor:",
+            "theme_promises:",
+            "tone_keywords:",
+            "镜头语言:",
+            "角色材质:",
+            "视觉质感:",
+            "光影色彩:",
+            "禁用方向:",
+        ):
             if duplicate_marker in north_star_template_content:
                 failures.append(f"{north_star_template}: old umbrella field `{duplicate_marker.rstrip(':')}` duplicates merged global design blocks")
 

@@ -25,6 +25,9 @@
 
 - 技能入口：`SKILL.md`
 - 运行上下文：`CONTEXT.md`
+- 项目级必读：`projects/aigc/<项目名>/MEMORY.md`
+- 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
+- 项目团队配置：`projects/aigc/<项目名>/team.yaml`
 - 画面匹配：`references/visual-matching-contract.md`
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`

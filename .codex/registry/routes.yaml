@@ -51,6 +51,9 @@ route_policies:
   - id: aigc-cinematography-stage-entry
     trigger: 命中 `3-摄影`、摄影、分镜摄影、镜头语言、运镜、画面句子下加镜头语言、从 `2-编导` 到 `3-摄影`，或要求输出 `projects/aigc/<项目名>/3-摄影/第N集.md`
     rule: "进入 `.agents/skills/aigc/3-摄影/SKILL.md`；读取 `projects/aigc/<项目名>/2-编导/第N集.md`，按画面句子执行画面匹配、节拍分析和镜头语言注入，在每个命中画面句子下方新增 `镜头语言：` 与连续 `分镜N:`，输出到 `projects/aigc/<项目名>/3-摄影/第N集.md`。不得改写原编导稿事实、对白和顺序。"
+  - id: aigc-grouping-stage-entry
+    trigger: 命中 `4-分组`、分组、分镜组、从 `3-摄影` 到 `4-分组`、入场画面、出场画面，或要求输出 `projects/aigc/<项目名>/4-分组/第N集.md`
+    rule: "进入 `.agents/skills/aigc/4-分组/SKILL.md`；读取 `projects/aigc/<项目名>/3-摄影/第N集.md` 与 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，按真实集-场-组生成 `x-y-z` 分镜组，直引 `全局风格提示词 / 类型元素提示词 / 画面风格`，添加成对一致的入场/出场补位画面和组底 YAML 统计，输出到 `projects/aigc/<项目名>/4-分组/第N集.md`。不得改写摄影稿正文、对白、镜头语言或场景顺序。"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -62,16 +65,16 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、并发调度维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
     trigger: 命中 `6-图像` 或 legacy `5-Image`，或需要把 `3-摄影` / `4-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
-    rule: "先进入 `.agents/skills/aigc/5-Image/SKILL.md`；若是单一 `分镜ID` 的端到端画面准备，路由到 `A.分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B.分镜故事板`；否则由阶段父级路由到 `1-提示词蒸馏`、`2-参照引用` 或 `3-图像生成`"
+    rule: "优先进入 `.agents/skills/aigc/6-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/[项目名]/4-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/6-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/[项目名]/6-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `6-图像` 默认入口。"
   - id: aigc-design-prop-entry
-    trigger: 命中 `4-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 4-设计 道具输出
-    rule: "进入 `.agents/skills/aigc/5-设计/道具/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/道具/` 对应子目录。"
+    trigger: 命中 `5-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 5-设计 道具输出
+    rule: "道具清单任务直达 `.agents/skills/aigc/5-设计/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/道具/` 对应子目录。"
   - id: aigc-design-role-entry
-    trigger: 命中 `4-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 4-设计 角色输出
-    rule: "进入 `.agents/skills/aigc/5-设计/角色/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/角色/` 对应子目录。"
+    trigger: 命中 `5-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 5-设计 角色输出
+    rule: "角色清单任务直达 `.agents/skills/aigc/5-设计/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/角色/` 对应子目录。"
   - id: aigc-design-scene-entry
-    trigger: 命中 `4-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
-    rule: "进入 `.agents/skills/aigc/5-设计/场景/SKILL.md`；按 `1-清单 -> 2-设计 -> 3-生成` 顺序执行，输出到 `projects/aigc/<项目名>/4-设计/场景/` 对应子目录。"
+    trigger: 命中 `5-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
+    rule: "场景清单任务直达 `.agents/skills/aigc/5-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
     trigger: 命中 `7-视频`、legacy `6-Video`，或需要把 `2-编导/第N集.md` 蒸馏成视频工具入参 JSON
     rule: "先进入 `.agents/skills/aigc/6-Video/SKILL.md`；若明确要求“分镜画面参照 / 首帧融合包 / 融合包 / full-chain”，路由 `A.分镜画面参照`；若明确要求“分镜故事板参照 / 组级融合包 / 故事板融合包 / full-chain”，路由 `B.分镜故事板参照`；若明确要求“主体参照 / 主体识别向 / 角色服装道具场景参照 / full-chain”，路由 `C.主体参照`；若任务只是按分镜组组织视频请求，默认路由兼容链 `1-提示词蒸馏/全能参照`"
