@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "template_id": "photoGPT.多视图.角色.v1.2",
+    "edit_family": "多视图",
+    "edit_subtype": "角色",
+    "doc_role": "design_sheet_prompt_template",
+    "version": "v1.2",
+    "updated_at": "2026-04-26",
+    "aligned_with": "aigc.character_generation.multiview_prompt.v1 v1.2"
+  },
+  "required_fields": [
+    "character_id",
+    "character_short_id",
+    "character_name",
+    "desc",
+    "one_or_more_character_reference_images"
+  ],
+  "input_roles": {
+    "main_reference_image": "Locks character identity, face, hair, body proportion, costume and style.",
+    "supporting_reference_images": "Only supplement expression, pose, costume layer or local detail."
+  },
+  "subject_invariant_lock": {
+    "must_preserve": [
+      "same face identity, hair structure, skin tone and body proportion",
+      "same costume silhouette, layering, textile construction and role markers",
+      "same era, culture, social tier and narrative pressure",
+      "same signature accessories, scars, makeup, ritual marks or status details already present in the design",
+      "same render style and material logic"
+    ],
+    "may_vary": [
+      "controlled pose",
+      "front, three-quarter, side and rear angle",
+      "expression state within upstream emotional direction",
+      "detail crop for costume or identity features"
+    ],
+    "must_not_invent": [
+      "new weapons",
+      "new props",
+      "new tattoos or scars",
+      "new rank markers",
+      "costume replacement",
+      "a different face across panels"
+    ]
+  },
+  "layout": {
+    "template_type": "CHARACTER_DESIGN_SHEET",
+    "sheet_intent": "production turnaround and identity proof board for one character",
+    "aspect_ratio": "16:9",
+    "resolution": "4096x2304",
+    "background": "dark gray production board #1a1a1a with subtle grid",
+    "columns": {
+      "left": "15% color palette and hair/status tokens",
+      "center": "50% full-body turnaround",
+      "right": "35% costume architecture, accessories, gesture and face states"
+    }
+  },
+  "identity_badge": {
+    "required": true,
+    "position": "top-left",
+    "visible_text": "<character_short_id>",
+    "full_subject_name": "<character_name>",
+    "display_strategy": "visible_short_ascii_id_in_image, full_name_in_prompt_plan_or_json, post_overlay_required_if_image_text_is_unreliable",
+    "fallback": "preserve a clean top-left badge plate for post-production overlay"
+  },
+  "view_plan": [
+    {
+      "slot": "CENTER-A",
+      "role": "front hero view",
+      "purpose": "locks face, body proportion, costume silhouette and status markers"
+    },
+    {
+      "slot": "CENTER-B",
+      "role": "three-quarter view",
+      "purpose": "proves volume, layering and camera-ready identity"
+    },
+    {
+      "slot": "CENTER-C",
+      "role": "side view",
+      "purpose": "proves profile, hair structure, garment thickness and carried silhouette"
+    },
+    {
+      "slot": "CENTER-D",
+      "role": "rear silhouette verification",
+      "purpose": "proves back design, hair fall, costume closures and rear identity markers"
+    },
+    {
+      "slot": "RIGHT-DETAILS",
+      "role": "costume, symbolic detail, gesture and face states",
+      "purpose": "documents existing details without replacing the main identity"
+    }
+  ],
+  "critical_requirements": [
+    "Output must be CHARACTER_DESIGN_SHEET, not a poster, storyboard or fashion editorial.",
+    "Apply the subject invariant lock before arranging modules.",
+    "Preserve same face, hair, skin tone, body proportion and costume logic across all views.",
+    "No scene or environment narrative.",
+    "No props, weapons or hand-held objects unless explicitly required.",
+    "Top-left identity badge must show <character_short_id> or preserve a clean overlay-ready badge plate."
+  ],
+  "negative_constraints": [
+    "no multiple character identities",
+    "no complete scene narrative background",
+    "no copied identity from layout reference",
+    "no missing identity badge area",
+    "no long text hallucination"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Create one CHARACTER_DESIGN_SHEET for <character_name> (<character_short_id>) using <desc> and the reference images. Apply subject_invariant_lock, top-left identity badge, front/three-quarter/side/rear turnaround, costume and expression modules, and no-scene guardrails."
+  },
+  "review_focus": [
+    "same face identity across all views",
+    "costume architecture remains consistent",
+    "expression and gesture states serve identity proof",
+    "top-left short ID badge or overlay-ready badge plate",
+    "no invented marks, props, weapons or rank symbols"
+  ]
+}

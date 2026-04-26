@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "template_id": "photoGPT.修图.美颜美体.v1",
+    "edit_family": "修图",
+    "edit_subtype": "美颜美体",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "portrait_or_person_image",
+    "user_desc"
+  ],
+  "input_roles": {
+    "portrait_or_person_image": "Provides identity, pose, composition and real body foundation."
+  },
+  "preserve_scope": [
+    "identity",
+    "facial proportions",
+    "hair",
+    "skin tone",
+    "costume",
+    "pose",
+    "composition",
+    "scene"
+  ],
+  "change_scope": [
+    "subtle acne and blemish cleanup",
+    "mild under-eye and uneven skin tone correction",
+    "natural complexion enhancement",
+    "restrained posture and silhouette optimization"
+  ],
+  "critical_requirements": [
+    "Retouch naturally and conservatively.",
+    "Preserve real skin texture, makeup texture and facial structure.",
+    "Body retouch must preserve realistic human proportion, clothing tension, limb structure and perspective."
+  ],
+  "negative_constraints": [
+    "no face swap or identity change",
+    "no age or temperament change",
+    "no over-smoothing, liquify distortion or limb stretching",
+    "do not change clothing, background, pose relationship or scene narrative"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Perform natural restrained beauty/body retouch on portrait_or_person_image while preserving identity, facial proportions, hair, skin tone, costume, pose, composition and scene. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "identity unchanged",
+    "natural skin texture",
+    "realistic proportions",
+    "no scene or clothing drift"
+  ]
+}

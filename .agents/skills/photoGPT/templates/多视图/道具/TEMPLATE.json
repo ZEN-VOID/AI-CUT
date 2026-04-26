@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "template_id": "photoGPT.多视图.道具.v1.2",
+    "edit_family": "多视图",
+    "edit_subtype": "道具",
+    "doc_role": "design_sheet_prompt_template",
+    "version": "v1.2",
+    "updated_at": "2026-04-26",
+    "aligned_with": "aigc/prop-generation/multiview/v1 v1.2"
+  },
+  "required_fields": [
+    "prop_id",
+    "prop_short_id",
+    "prop_name",
+    "desc",
+    "one_or_more_prop_reference_images"
+  ],
+  "input_roles": {
+    "main_reference_image": "Locks prop silhouette, material, proportion and craftsmanship details.",
+    "supporting_reference_images": "Supplement wear, texture, use state or close construction detail."
+  },
+  "subject_invariant_lock": {
+    "must_preserve": [
+      "overall silhouette and proportion",
+      "functional part count and placement",
+      "construction logic, joints, seams, hinges, seals or edges",
+      "material family, color, aging, dirt, wear and markings",
+      "scale logic and narrative function"
+    ],
+    "may_vary": [
+      "view angle",
+      "design-implied opened or closed state",
+      "detail callout crop",
+      "neutral support surface or measurement cue"
+    ],
+    "must_not_invent": [
+      "new ornaments",
+      "extra functional parts",
+      "new branding or symbols",
+      "human hands",
+      "a different object in each panel"
+    ]
+  },
+  "layout": {
+    "template_type": "PROP_DESIGN_SHEET",
+    "sheet_intent": "functional proof board for one prop identity",
+    "aspect_ratio": "16:9",
+    "resolution": "4096x2304",
+    "background": "dark gray production board #1a1a1a with subtle technical grid",
+    "columns": {
+      "left": "15% material and color palette",
+      "center": "50% hero and orthographic prop views",
+      "right": "35% detail callouts and scale/state proof"
+    }
+  },
+  "identity_badge": {
+    "required": true,
+    "position": "top-left",
+    "visible_text": "<prop_short_id>",
+    "full_subject_name": "<prop_name>",
+    "display_strategy": "visible_short_ascii_id_in_image, full_name_in_prompt_plan_or_json, post_overlay_required_if_image_text_is_unreliable",
+    "fallback": "preserve a clean top-left badge plate for post-production overlay"
+  },
+  "view_plan": [
+    {
+      "slot": "H1",
+      "role": "hero front three-quarter",
+      "purpose": "locks canonical silhouette and identifying details"
+    },
+    {
+      "slot": "O1-O4",
+      "role": "front, side, back and top or functional orthographic views",
+      "purpose": "proves volume, scale and part placement"
+    },
+    {
+      "slot": "D1-D3",
+      "role": "detail callouts",
+      "purpose": "shows material, joints, wear, markings, moving parts or edge construction"
+    },
+    {
+      "slot": "S1",
+      "role": "scale or state proof",
+      "purpose": "uses non-human measurement cues or design-implied state variants"
+    }
+  ],
+  "critical_requirements": [
+    "Output must remain a PROP_DESIGN_SHEET, not a product poster or object lineup.",
+    "Apply the subject invariant lock before arranging views.",
+    "All views must depict the same prop identity with stable morphology, scale, material logic and wear state.",
+    "No humans, hands, creatures, silhouettes or character takeover.",
+    "Top-left identity badge must show <prop_short_id> or preserve a clean overlay-ready badge plate."
+  ],
+  "negative_constraints": [
+    "no people, hands, creatures or human-shaped shadows",
+    "no changed prop silhouette, proportions or material logic",
+    "no product advertisement poster",
+    "no extra parts, labels, symbols or unrelated scene facts",
+    "no missing top-left identity badge area"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Create one PROP_DESIGN_SHEET for <prop_name> (<prop_short_id>) using <desc> and the reference images. Apply subject_invariant_lock, top-left identity badge, hero/orthographic/detail/scale-state view plan, and no-human guardrails."
+  },
+  "review_focus": [
+    "same prop silhouette and construction logic across all views",
+    "orthographic or functional views prove part placement",
+    "detail callouts match source materials and wear",
+    "top-left short ID badge or overlay-ready badge plate",
+    "no human hand or character takeover"
+  ]
+}

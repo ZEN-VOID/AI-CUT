@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "template_id": "photoGPT.output.prompt_plan.v1",
+    "doc_role": "output_prompt_plan_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "output_contract_alignment": {
+    "required_output": "photoGPT_prompt_plan plus imagegen result when executed",
+    "output_format": "JSON-compatible prompt plan",
+    "output_path": "conversation by default; project-bound assets follow imagegen persistence",
+    "naming_convention": "<source-stem>-photogpt-plan.json for saved plans; image outputs use type suffixes",
+    "completion_gate": "type selected, JSON subtype template loaded, prompt reviewed, imagegen honored, verdict recorded"
+  },
+  "prompt_plan_schema": {
+    "type_profile": {
+      "edit_family": "",
+      "edit_subtype": "",
+      "template_path": "",
+      "image_role_schema": "",
+      "output_mode": "prompt_only | imagegen_execute"
+    },
+    "image_roles": {
+      "edit_target": "",
+      "references": []
+    },
+    "scope": {
+      "preserve_scope": [],
+      "change_scope": []
+    },
+    "final_prompt": "",
+    "negative_constraints": [],
+    "imagegen_handoff": {
+      "skill": ".agents/skills/cli/imagegen",
+      "mode": "",
+      "output_path": ""
+    },
+    "review_verdict": {
+      "verdict": "pending",
+      "notes": ""
+    }
+  }
+}

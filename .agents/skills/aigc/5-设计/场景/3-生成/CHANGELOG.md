@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-04-26
+
+- Upgraded `templates/scene-multiview-prompt.json` to v1.2 with a required identity badge and lower-left panel view labels.
+- Upgraded `templates/scene-multiview-prompt.json` to v1.1 as a spatial proof sheet template.
+- Added `subject_invariant_lock`, domain view grammar, drift controls and review focus fields for scene continuity.
+
 ## 2026-04-25
 
 - Initialized `$aigc-scene-generation` as a Skill 2.0 package.

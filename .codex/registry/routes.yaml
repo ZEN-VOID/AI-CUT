@@ -153,12 +153,21 @@ route_policies:
   - id: api-anyfast-doubao-seed-2.0-pro-entry
     trigger: 命中 `豆包 Seed 2.0 Pro`、`doubao-seed-2.0-pro`、`AnyFast 豆包`、`AnyFast OpenAI 兼容聊天`、`高推理中文分析`、`AnyFast chat/completions`，或需要通过 AnyFast 调用豆包旗舰推理模型完成文本分析、研究、规划、改写或结构化 messages 对话
     rule: "进入 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/SKILL.md`；默认使用 `https://www.anyfast.ai/v1/chat/completions` 与 `model=doubao-seed-2.0-pro`，简单文本走 `prompt/system` 组装，复杂上下文走 `messages` 直传，并通过 `scripts/doubao_seed_chat.py` 执行。"
+  - id: api-deepseek-entry
+    trigger: 命中 `DeepSeek`、`deepseek-v4-pro`、`DeepSeek API`、`DeepSeek 思考模式`、`deepseek chat completions`、`reasoning_effort`、`thinking enabled`，或需要通过 DeepSeek 官方 API 固定使用 deepseek-v4-pro 完成文本分析、研究、规划、改写、JSON Output、Tool Calls 或结构化 messages 对话
+    rule: "进入 `.agents/skills/api/deepseek/SKILL.md`；默认使用 `https://api.deepseek.com/chat/completions` 与 `model=deepseek-v4-pro`，简单文本走 `prompt/system` 组装，复杂上下文走 `messages` 直传，默认 `thinking=enabled` 与 `reasoning_effort=high`，并通过 `scripts/deepseek_chat.py` 执行。"
   - id: story-doubao-entry
     trigger: 命中 `story/doubao`、`豆包小说润色`、`中文小说润色`、`文风诊断`、`分析文章风格`、`整稿统修`、`去 AI 味`、`中文表达强化`，或需要把已有正文按单技能方式集成 `3-Drafting` 八步能力完成重写
     rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；legacy `projects/story/<项目名>/3-Drafting/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
   - id: story-drafting-maintext-entry
     trigger: 命中 `story/3-Drafting`、`$story-drafting`、`章节正文`、`按章创作`、`第N卷/第N章.md`、`章级正文根稿`，或要求从三层 planning + 全局卡/风格卡/`north_star` 直接写小说正文
-    rule: "进入 `.agents/skills/story/3-Drafting/SKILL.md`；必须加载 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 1-Cards/0-全局卡 + 1-Cards/1-风格卡 + 0-Init/north_star.yaml + 项目 MEMORY + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；YAML 头必须包含 `global_context + style_context + north_star_chapter_brief`。"
+    rule: "进入 `.agents/skills/story/3-Drafting/SKILL.md`；必须加载 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 1-Cards/0-全局卡 + 1-Cards/1-风格卡 + 0-Init/north_star.yaml + 项目 MEMORY + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`；YAML 头必须包含 `写作模型 + global_context + style_context + north_star_chapter_brief`，且 `写作模型` 只能取 `GPT`、`Doubao`、`Deepseek` 并与所选 lane 一致；未点名 provider 默认走 `B-Doubao流`，点名 GPT 原生走 `A-GPT原生`，点名 DeepSeek / deepseek-v4-pro / api/deepseek 走 `C-Deepseek流`。"
+  - id: story-drafting-doubao-entry
+    trigger: 命中 `story-drafting-doubao`、`B-Doubao流`、`Doubao 写章`、`豆包写章`、`doubao-seed-2.0-pro 写小说`、`AnyFast 豆包章节正文`，或未点名 provider 的 `3-Drafting` 内容创作默认 lane
+    rule: "进入 `.agents/skills/story/3-Drafting/B-Doubao流/SKILL.md`；先加载 story 根合同、3-Drafting 导引层、项目 MEMORY/CONTEXT、三层 planning、全局卡、风格卡、north_star 与上一章正文，再通过 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py` 固定调用 `doubao-seed-2.0-pro`；目标章已存在时必须显式选择 rewrite/continue/repair 且正式写回必须 `--force`，校验后写回 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。"
+  - id: story-drafting-deepseek-entry
+    trigger: 命中 `story-drafting-deepseek`、`C-Deepseek流`、`DeepSeek 写章`、`deepseek-v4-pro 写小说`、`DeepSeek 章节正文`，或明确要求 `3-Drafting` 内容创作部分调用 `.agents/skills/api/deepseek`
+    rule: "进入 `.agents/skills/story/3-Drafting/C-Deepseek流/SKILL.md`；先加载 story 根合同、3-Drafting 导引层、项目 MEMORY/CONTEXT、三层 planning、全局卡、风格卡、north_star 与上一章正文，再通过 `.agents/skills/api/deepseek/scripts/deepseek_chat.py` 固定调用 `deepseek-v4-pro`，默认 `thinking=enabled` + `reasoning_effort=high`，校验后写回 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md`。"
   - id: api-vidu-video-entry
     trigger: 命中 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 任务查询/取消/积分/回调验签，或需要通过 Vidu 企业版执行多模式视频生成
     rule: "进入 `.agents/skills/api/vidu/video-generate/SKILL.md`；使用 `scripts/vidu_video.py` 执行 `create / task / list / cancel / credits / verify-callback` 六类动作，默认输出到 `output/影片/[项目名]/5-API/video/vidu/`。"

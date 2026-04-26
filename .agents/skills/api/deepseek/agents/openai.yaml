@@ -1,0 +1,4 @@
+interface:
+  display_name: "DeepSeek API"
+  short_description: "固定调用 deepseek-v4-pro 执行思考模式对话、JSON Output 与流式输出"
+  default_prompt: "使用 $deepseek 处理当前文本或结构化 messages 任务，必要时启用思考模式、JSON Output 与流式输出"

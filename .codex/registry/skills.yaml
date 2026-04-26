@@ -463,6 +463,17 @@ active_skills:
       script_entry: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py"
       default_output_root: "output/影片/[项目名]/5-API/llm/doubao-seed-2.0-pro/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
+  - id: api-deepseek
+    path: .agents/skills/api/deepseek
+    owner_office: shangshu
+    purpose: "repo-local provider skill，通过 DeepSeek 官方 OpenAI 兼容 Chat Completions 接口固定调用 `deepseek-v4-pro`，执行思考模式对话、JSON Output、Tool Calls、结构化 messages 直传与流式输出，并输出文本 sidecar 与报告 JSON。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/api/deepseek/"
+      env_source: ".env: DEEPSEEK_API_KEY / DEEPSEEK_BASE_URL / DEEPSEEK_API_BASE_URL"
+      script_entry: ".agents/skills/api/deepseek/scripts/deepseek_chat.py"
+      default_output_root: "output/影片/[项目名]/5-API/llm/deepseek/"
+      mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
   - id: api-vidu-video
     path: .agents/skills/api/vidu/video-generate
     owner_office: shangshu
@@ -492,6 +503,30 @@ active_skills:
       canonical_skill_root: ".agents/skills/story/3-Drafting/"
       canonical_output: "projects/story/<项目名>/3-Drafting/第N卷/第N章.md"
       mirror_policy: "这是 `3-Drafting` 的 chapter-native 根级主技能；只拥有当前章正文根稿与其 YAML 头，不拥有 planning/cards/validation/actualization 判定权。"
+  - id: story-drafting-doubao
+    path: .agents/skills/story/3-Drafting/B-Doubao流
+    owner_office: shangshu
+    purpose: "story 组 repo-local Doubao 章级正文直写默认 lane，通过 AnyFast `doubao-seed-2.0-pro` 按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/story/3-Drafting/B-Doubao流/"
+      provider_skill_root: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/"
+      script_entry: ".agents/skills/story/3-Drafting/B-Doubao流/scripts/write_chapter_via_doubao.py"
+      canonical_output: "projects/story/<项目名>/3-Drafting/第N卷/第N章.md"
+      provider_artifacts_root: "projects/story/<项目名>/reports/3-Drafting/doubao/"
+      mirror_policy: "这是 `3-Drafting` 的默认 Doubao provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。覆盖已有章节必须显式 mode + `--force`。"
+  - id: story-drafting-deepseek
+    path: .agents/skills/story/3-Drafting/C-Deepseek流
+    owner_office: shangshu
+    purpose: "story 组 repo-local DeepSeek 章级正文直写 lane，通过 `.agents/skills/api/deepseek` 固定调用 `deepseek-v4-pro`，默认 `thinking=enabled` 与 `reasoning_effort=high`，按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/story/3-Drafting/C-Deepseek流/"
+      provider_skill_root: ".agents/skills/api/deepseek/"
+      script_entry: ".agents/skills/story/3-Drafting/C-Deepseek流/scripts/write_chapter_via_deepseek.py"
+      canonical_output: "projects/story/<项目名>/3-Drafting/第N卷/第N章.md"
+      provider_artifacts_root: "projects/story/<项目名>/reports/3-Drafting/deepseek/"
+      mirror_policy: "这是 `3-Drafting` 的 DeepSeek provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

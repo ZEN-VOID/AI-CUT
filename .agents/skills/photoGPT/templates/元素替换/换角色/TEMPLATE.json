@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "template_id": "photoGPT.元素替换.换角色.v1",
+    "edit_family": "元素替换",
+    "edit_subtype": "换角色",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "edit_target_image",
+    "character_reference_image",
+    "user_desc"
+  ],
+  "input_roles": {
+    "edit_target_image": "Provides composition, pose/action relation, costume/scene relationship, camera and lighting.",
+    "character_reference_image": "Provides new character identity, face, hair, body temperament and necessary costume features."
+  },
+  "preserve_scope": [
+    "composition",
+    "camera angle",
+    "action relationship",
+    "scene space",
+    "light direction",
+    "narrative position",
+    "non-target characters",
+    "costume if user says to preserve it"
+  ],
+  "change_scope": [
+    "replace target character identity with character_reference_image",
+    "fit new identity naturally into action, costume/prop relationship, perspective and lighting"
+  ],
+  "critical_requirements": [
+    "Fully restore face, hair, skin texture, body proportion and temperament from character_reference_image.",
+    "Do not alter non-target characters, background or composition.",
+    "Do not add new story, props or scene elements."
+  ],
+  "negative_constraints": [
+    "do not change non-target characters, background or composition",
+    "no mixed identity drift",
+    "no new story, props or scene elements"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Preserve composition, camera, action relation, scene and lighting from edit_target_image, and replace the target character with the identity from character_reference_image. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "new character identity accuracy",
+    "composition and scene preservation",
+    "non-target character preservation",
+    "no identity mixing"
+  ]
+}

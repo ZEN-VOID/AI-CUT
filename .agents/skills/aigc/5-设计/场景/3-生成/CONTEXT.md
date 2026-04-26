@@ -47,5 +47,7 @@ last_checked_at: 2026-04-25
 - 多视图图最容易漂成九个不同场景；模板必须反复强调同一空间、同一时代、同一材质逻辑、同一光源方向。
 - 场景图默认不加人物、动物、剪影或人形阴影，除非上游设计文档明确要求。
 - 主图是多视图的连续性锚点；它帮助锁定场景身份，但不能覆盖设计文档的提示词真源。
+- 场景多视图应先形成 `subject_invariant_lock`，再展开九宫格；每个 panel 都要证明同一空间的方向、阈限、结构、光源、材质和动线，而不是生成九个好看的镜头。
+- 场景多视图生产板必须具备可追踪身份：顶左身份牌优先显示短 ASCII 场景 ID，完整主体名进入 JSON；每个 panel 左下角应有短视角标签，用于审阅时快速区分 wide、medium、detail、threshold、structure、low-angle、path、material 和 top-down。
 - JSON prompt record 是复现、审查和后续视频阶段的证据，重要性不低于图片本身。
 - Mermaid 图在本类技能中不是装饰，而是防止 Step1/Step2、repair、review_only 和批量汇流被批量模板抹平的路由证据。

@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "template_id": "photoGPT.元素替换.换背景.v1",
+    "edit_family": "元素替换",
+    "edit_subtype": "换背景",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "edit_target_image",
+    "background_reference_image",
+    "user_desc"
+  ],
+  "input_roles": {
+    "edit_target_image": "Locks subject identity, clothing, pose, camera angle, subject scale and foreground relationship.",
+    "background_reference_image": "Provides scene space, perspective, environmental elements, color atmosphere and light direction."
+  },
+  "preserve_scope": [
+    "subject identity",
+    "expression",
+    "body shape",
+    "clothing",
+    "pose",
+    "camera angle",
+    "subject scale",
+    "foreground relationship"
+  ],
+  "change_scope": [
+    "replace original background with referenced scene space and atmosphere",
+    "remove old background remnants",
+    "match edge transition, contact shadow, reflection, depth of field and air perspective"
+  ],
+  "critical_requirements": [
+    "Only replace the background.",
+    "Do not copy people or subjects from background_reference_image.",
+    "Lighting direction and contact relationship must be natural."
+  ],
+  "negative_constraints": [
+    "do not change subject identity, expression, body, clothing or pose",
+    "no old background fragments",
+    "do not copy people or subjects from the background reference",
+    "no white edge, hard cutout edge or lighting conflict"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Keep the subject from edit_target_image unchanged and replace only the background with the space and atmosphere from background_reference_image. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "subject preservation",
+    "background replacement only",
+    "natural edges and shadows",
+    "no copied background people"
+  ]
+}

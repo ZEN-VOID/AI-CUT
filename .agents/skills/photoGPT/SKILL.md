@@ -53,7 +53,7 @@ Do not use this skill for:
 | `single_edit` | 单图修图、高清、美颜美体、滤镜 | `types/type-map.md` -> 中文子模板 -> `imagegen` edit |
 | `reference_edit` | 双图或多图换背景、换角色、换脸、换装、风格迁移 | 锁定图片角色顺序 -> 中文子模板 -> `imagegen` edit |
 | `fusion_edit` | 多图融合、电商广告、分镜构图 | 标注每张图职责 -> 中文子模板 -> `imagegen` edit/generate |
-| `design_sheet` | 多视图场景/道具/服装/角色、turnaround、sheet | 读取 `templates/多视图/<子类型>/TEMPLATE.md` -> 生成设计页 prompt -> `imagegen` generate/edit |
+| `design_sheet` | 多视图场景/道具/服装/角色、turnaround、sheet | 读取 `templates/多视图/<子类型>/TEMPLATE.json` -> 生成设计页 prompt -> `imagegen` generate/edit |
 
 ## Reference Loading Guide
 
@@ -63,12 +63,12 @@ Do not use this skill for:
 | 提示词强化原则、图序锁定、不变量和负面约束 | `references/prompt-enhancement-contract.md` |
 | 执行拓扑、分支、汇流、prompt-only 与 imagegen handoff | `steps/execution-workflow.md` |
 | 交付前质量门禁和 reviewer 降级规则 | `review/review-contract.md` |
-| 输出报告格式 | `templates/output-template.md.template` |
-| 多视图模板 | `templates/多视图/场景/TEMPLATE.md`, `templates/多视图/道具/TEMPLATE.md`, `templates/多视图/服装/TEMPLATE.md`, `templates/多视图/角色/TEMPLATE.md` |
-| 多图融合模板 | `templates/多图融合/电商广告/TEMPLATE.md`, `templates/多图融合/分镜构图/TEMPLATE.md` |
-| 风格化模板 | `templates/风格化/风格迁移/TEMPLATE.md`, `templates/风格化/滤镜/TEMPLATE.md` |
-| 修图模板 | `templates/修图/高清/TEMPLATE.md`, `templates/修图/美颜美体/TEMPLATE.md` |
-| 元素替换模板 | `templates/元素替换/换背景/TEMPLATE.md`, `templates/元素替换/换角色/TEMPLATE.md`, `templates/元素替换/换脸/TEMPLATE.md`, `templates/元素替换/换装/TEMPLATE.md` |
+| 输出报告格式 | `templates/output-template.json` |
+| 多视图模板 | `templates/多视图/场景/TEMPLATE.json`, `templates/多视图/道具/TEMPLATE.json`, `templates/多视图/服装/TEMPLATE.json`, `templates/多视图/角色/TEMPLATE.json` |
+| 多图融合模板 | `templates/多图融合/电商广告/TEMPLATE.json`, `templates/多图融合/分镜构图/TEMPLATE.json` |
+| 风格化模板 | `templates/风格化/风格迁移/TEMPLATE.json`, `templates/风格化/滤镜/TEMPLATE.json` |
+| 修图模板 | `templates/修图/高清/TEMPLATE.json`, `templates/修图/美颜美体/TEMPLATE.json` |
+| 元素替换模板 | `templates/元素替换/换背景/TEMPLATE.json`, `templates/元素替换/换角色/TEMPLATE.json`, `templates/元素替换/换脸/TEMPLATE.json`, `templates/元素替换/换装/TEMPLATE.json` |
 | 稳定经验与失败模式 | `knowledge-base/photoGPT-heuristics.md` and `CONTEXT.md` |
 | 产品入口元数据 | `agents/openai.yaml` |
 | 机械辅助边界 | `scripts/README.md` |
@@ -87,7 +87,7 @@ flowchart TD
     D -->|"风格化"| G["风格迁移 / 滤镜"]
     D -->|"修图"| H["高清 / 美颜美体"]
     D -->|"元素替换"| I["换背景 / 换角色 / 换脸 / 换装"]
-    E --> J["读取 templates/<类型>/<子类型>/TEMPLATE.md"]
+    E --> J["读取 templates/<类型>/<子类型>/TEMPLATE.json"]
     F --> J
     G --> J
     H --> J
@@ -103,7 +103,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["types/type-map.md<br/>判型真源"] --> B["templates/<类型>/<子类型>/TEMPLATE.md<br/>子类提示词模板"]
+    A["types/type-map.md<br/>判型真源"] --> B["templates/<类型>/<子类型>/TEMPLATE.json<br/>子类提示词模板"]
     B --> C["references/prompt-enhancement-contract.md<br/>强化规则与图片角色"]
     C --> D["steps/execution-workflow.md<br/>执行节点与汇流"]
     D --> E["review/review-contract.md<br/>交付门禁"]
@@ -143,13 +143,13 @@ flowchart TD
 | symptom | likely owner | repair route |
 | --- | --- | --- |
 | 编辑类型选错 | `types/type-map.md` | 修正 type signal 与子类型矩阵 |
-| 五大类或十四子类与模板路径脱节 | `types/type-map.md` + `templates/` | 恢复 `templates/<类型>/<子类型>/TEMPLATE.md` 唯一路由 |
+| 五大类或十四子类与模板路径脱节 | `types/type-map.md` + `templates/` | 恢复 `templates/<类型>/<子类型>/TEMPLATE.json` 唯一路由 |
 | 换背景/换角色/换脸/换装图序混乱 | `references/prompt-enhancement-contract.md` | 重新标注图片角色并强化图一/图二语义 |
 | 多图融合把所有参考图平均混合 | `references/prompt-enhancement-contract.md` | 逐图标注商品/主体/场景/构图/风格职责 |
-| 主体身份、服装、姿态漂移 | 对应 `templates/<类型>/<子类型>/TEMPLATE.md` | 增强 identity/composition lock 和禁止项 |
-| 多视图 sheet 变成海报或九宫格错型 | `templates/多视图/<子类型>/TEMPLATE.md` | 恢复固定 layout grammar 与身份徽章 |
+| 主体身份、服装、姿态漂移 | 对应 `templates/<类型>/<子类型>/TEMPLATE.json` | 增强 identity/composition lock 和禁止项 |
+| 多视图 sheet 变成海报或九宫格错型 | `templates/多视图/<子类型>/TEMPLATE.json` | 恢复固定 layout grammar 与身份徽章 |
 | CLI/API 路径被误用 | `.agents/skills/cli/imagegen/SKILL.md` | 回到 imagegen 模式合同，确认是否需要用户显式许可 |
-| 输出没有审计信息 | `templates/output-template.md.template` / `review/review-contract.md` | 补齐 prompt plan、mode、path、verdict |
+| 输出没有审计信息 | `templates/output-template.json` / `review/review-contract.md` | 补齐 prompt plan、mode、path、verdict |
 
 ## Field Mapping
 
@@ -160,7 +160,7 @@ flowchart TD
 | `FIELD-PGPT-01` | `SKILL.md` | Input Contract, type-first route, imagegen handoff, Output Contract | `FAIL-PGPT-ENTRY` |
 | `FIELD-PGPT-02` | `CONTEXT.md` | Type Map, Repair Playbook, Reusable Heuristics | `FAIL-PGPT-CONTEXT` |
 | `FIELD-PGPT-03` | `types/` | edit family/subtype matrix and image role rules | `FAIL-PGPT-TYPE` |
-| `FIELD-PGPT-04` | `templates/` | 用户给定中文细分类型目录、每个子类型 `TEMPLATE.md`、输出模板 | `FAIL-PGPT-TEMPLATE` |
+| `FIELD-PGPT-04` | `templates/` | 用户给定中文细分类型目录、每个子类型 `TEMPLATE.json`、输出模板 | `FAIL-PGPT-TEMPLATE` |
 | `FIELD-PGPT-05` | `references/` | prompt enhancement and invariant contract | `FAIL-PGPT-REFERENCE` |
 | `FIELD-PGPT-06` | `steps/` | thinking-action nodes and imagegen handoff | `FAIL-PGPT-STEPS` |
 | `FIELD-PGPT-07` | `review/` | prompt/output quality gate | `FAIL-PGPT-REVIEW` |
@@ -186,7 +186,7 @@ flowchart TD
 | `FAIL-PGPT-ENTRY` | 入口合同缺少输入/输出边界或 imagegen handoff | `SKILL.md` |
 | `FAIL-PGPT-CONTEXT` | `CONTEXT.md` 缺少 Type Map / Repair Playbook / Reusable Heuristics | `CONTEXT.md` |
 | `FAIL-PGPT-TYPE` | 编辑类型、子类型或图片角色无法判定 | `types/type-map.md` |
-| `FAIL-PGPT-TEMPLATE` | 命中类型没有模板或模板缺锁定项 | `templates/<类型>/<子类型>/TEMPLATE.md` |
+| `FAIL-PGPT-TEMPLATE` | 命中类型没有模板或模板缺锁定项 | `templates/<类型>/<子类型>/TEMPLATE.json` |
 | `FAIL-PGPT-REFERENCE` | 图序、保留项、负面约束规则不清 | `references/prompt-enhancement-contract.md` |
 | `FAIL-PGPT-STEPS` | 流程无法区分 prompt-only 与 imagegen execute | `steps/execution-workflow.md` |
 | `FAIL-PGPT-REVIEW` | 交付前没有 prompt/output verdict | `review/review-contract.md` |
@@ -195,7 +195,7 @@ flowchart TD
 ## Output Contract
 
 - Required output: `photoGPT_prompt_plan` and, when executable, generated/edited bitmap asset(s) created through `.agents/skills/cli/imagegen`.
-- Output format: Markdown report or JSON-compatible prompt plan containing `type_profile`, `image_roles`, `template_path`, `final_prompt`, `negative_constraints`, `imagegen_mode`, `output_path`, `review_verdict`.
+- Output format: JSON-compatible prompt plan containing `type_profile`, `image_roles`, `template_path`, `final_prompt`, `negative_constraints`, `imagegen_mode`, `output_path`, `review_verdict`.
 - Output path: prompt-only reports stay in the conversation unless the user provides a project/output path; project-bound assets follow `.agents/skills/cli/imagegen` persistence rules and must not remain only in transient generated-image storage.
-- Naming convention: prompt plans use descriptive names such as `<source-stem>-photogpt-plan.md` when saved; image outputs use stable sibling names that reflect the Chinese subtype, such as `<source-stem>-修图-高清.png`, `<source-stem>-元素替换-换背景.png`, or user-provided filenames.
+- Naming convention: prompt plans use descriptive names such as `<source-stem>-photogpt-plan.json` when saved; image outputs use stable sibling names that reflect the Chinese subtype, such as `<source-stem>-修图-高清.png`, `<source-stem>-元素替换-换背景.png`, or user-provided filenames.
 - Completion gate: type/subtype selected, template loaded, image roles clear, final prompt includes preservation and change constraints, imagegen contract honored, final asset path exists when generation was executed, and `review/review-contract.md` returns `pass` or `pass_with_followups`.

@@ -2,14 +2,17 @@
   "meta": {
     "schema": "aigc.character_generation.multiview_prompt.v1",
     "skill_id": "aigc-design-character-generation",
-    "version": "v1.0",
+    "version": "v1.2",
     "template_type": "CHARACTER_MULTIVIEW_PRODUCTION_SHEET",
-    "derived_from": ".agents/skills/aigc/5-设计/角色/templates/角色面板-提示词.json"
+    "derived_from": ".agents/skills/aigc/5-设计/角色/templates/角色面板-提示词.json",
+    "updated_at": "2026-04-26",
+    "note": "v1.2 强化角色主体不变量、turnaround 视图计划、身份牌、文字后期区和审查焦点。"
   },
   "source": {
     "project_name": "<PROJECT_NAME>",
     "subject_name_original": "<SUBJECT_NAME>",
     "subject_name_safe": "<SUBJECT_NAME_SAFE>",
+    "subject_short_id": "<CHAR_ID_ASCII_SAFE>",
     "source_design_path": "projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md",
     "source_prompt_section": "提示词设计",
     "reference_image_path": "projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-主图.<ext>"
@@ -21,8 +24,59 @@
     "output_prompt_path": "projects/aigc/<项目名>/5-设计/角色/3-生成/<主体名称>-多视图.json"
   },
   "prompt_payload": {
+    "subject_invariant_lock": {
+      "locked_from": [
+        "source_prompt_section",
+        "reference_image_path"
+      ],
+      "must_preserve": [
+        "same face identity, hair structure, skin tone and body proportion",
+        "same costume silhouette, layering, textile construction and role markers",
+        "same era, culture, social tier and narrative pressure",
+        "same signature accessories, scars, makeup, ritual marks or status details already present in the upstream design",
+        "same render style and material logic from the reference main image"
+      ],
+      "may_vary": [
+        "controlled pose",
+        "front, side, rear and three-quarter angle",
+        "expression state within upstream emotional direction",
+        "detail crop for costume or identity features"
+      ],
+      "must_not_invent": [
+        "new weapons",
+        "new props",
+        "new tattoos or scars",
+        "new rank markers",
+        "costume replacement",
+        "a different face across panels"
+      ]
+    },
+    "reference_policy": {
+      "reference_image_role": "continuity anchor for face, hair, body proportion, costume silhouette, material logic and render style",
+      "do_not_copy": [
+        "accidental artifacts",
+        "bad hands or anatomy glitches",
+        "unwanted background fragments",
+        "random crop errors",
+        "temporary lighting mistakes"
+      ]
+    },
+    "identity_badge": {
+      "required": true,
+      "position": "top-left",
+      "display_strategy": "visible_short_ascii_id_in_image, full_subject_name_in_json, post_overlay_required_if_image_text_is_unreliable",
+      "visible_text": "<CHAR_ID_ASCII_SAFE>",
+      "full_subject_name": "<SUBJECT_NAME>",
+      "badge_content_order": [
+        "short_character_id",
+        "short_character_name_or_safe_slug"
+      ],
+      "visual_style": "small clean production badge, high contrast, secondary to the character turnaround",
+      "fallback": "if exact text rendering fails, preserve a clean empty badge plate for post-production overlay and keep the full name in the JSON record"
+    },
     "layout": {
       "template_type": "CHARACTER_MULTIVIEW_PRODUCTION_SHEET",
+      "sheet_intent": "production turnaround and identity proof board for one character",
       "aspect_ratio": "16:9",
       "resolution_target": "2K",
       "canvas_type": "landscape",
@@ -34,6 +88,33 @@
       },
       "module_spacing": "clean production-review spacing, readable at a glance"
     },
+    "production_view_plan": [
+      {
+        "slot": "CENTER-A",
+        "role": "front hero view",
+        "purpose": "locks face, body proportion, costume silhouette and status markers"
+      },
+      {
+        "slot": "CENTER-B",
+        "role": "three-quarter view",
+        "purpose": "proves volume, layering and camera-ready identity"
+      },
+      {
+        "slot": "CENTER-C",
+        "role": "side view",
+        "purpose": "proves profile, hair structure, garment thickness and carried silhouette"
+      },
+      {
+        "slot": "CENTER-D",
+        "role": "rear silhouette verification",
+        "purpose": "proves back design, hair fall, costume closures and rear identity markers"
+      },
+      {
+        "slot": "RIGHT-DETAILS",
+        "role": "costume, symbolic detail, gesture and face states",
+        "purpose": "documents only design-existing details without replacing the main identity"
+      }
+    ],
     "layout_generation_prompt": {
       "canvas_setup": "Create one cinematic character multi-view production sheet on a 16:9 landscape canvas. Use a restrained charcoal production-board base with subtle analog grain and a technical grid. The character remains dominant and the layout stays readable for production review.",
       "left_panel_instructions": {
@@ -82,16 +163,30 @@
       "critical_requirements": [
         "Use the upstream character design document's Prompt Design section as the primary source of truth; it may be quoted directly into prompt_text.",
         "The reference main image is the continuity anchor for face, hair, body proportion, costume silhouette, material logic, and render style.",
+        "Apply the subject invariant lock before arranging modules; every view must prove the same character identity.",
         "Output must be a character multi-view production sheet, not a storyboard, poster, fashion editorial, or generic game turnaround.",
         "Layout instructions organize views and modules but must not override identity, costume facts, era, style, role tier, or narrative pressure.",
         "Preserve the same character identity across all views: same face, hair, skin tone, body proportion, costume system, and signature details.",
         "Do not copy accidental artifacts from the reference image; preserve character continuity, not generation mistakes.",
-        "If exact text rendering is unreliable, reserve a clean top-left identity badge area without forcing long text.",
+        "Reserve one fixed top-left identity badge area and visibly attempt the short ASCII subject ID `<CHAR_ID_ASCII_SAFE>`; if exact text rendering is unreliable, preserve the badge area for post-production overlay.",
         "Costume modules must foreground role identity, era markers, ritual or social signals, textile construction, and practical silhouette.",
         "Gesture and face modules must reinforce upstream narrative pressure rather than random attractive posing.",
         "No new weapons, props, symbols, tattoos, scars, social rank markers, or costume elements unless they already exist in the upstream design prompt."
       ]
     },
+    "negative_drift_controls": {
+      "identity_drift": "do not change face structure, hair, skin tone, body proportion or signature identity details between modules",
+      "costume_drift": "do not replace costume system, role tier, textile construction, era markers or symbolic details",
+      "pose_drift": "gestures must reinforce upstream narrative pressure instead of random glamour posing",
+      "layout_drift": "do not turn the sheet into a poster, storyboard, fashion spread or text-heavy dossier"
+    },
+    "review_focus": [
+      "same face identity across front, three-quarter, side and rear views",
+      "costume architecture remains consistent from inner to outer layers",
+      "expression and gesture states match upstream narrative pressure",
+      "detail callouts do not invent new marks, weapons, props or rank symbols",
+      "top-left identity badge has a visible short ID or a clean overlay-ready badge plate"
+    ],
     "views": {
       "P1_Front": "",
       "P2_Left": "",

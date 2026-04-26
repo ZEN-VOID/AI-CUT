@@ -1,45 +1,52 @@
 # CONTEXT.md
 
+本文件是 `story2026 / 3-Drafting` 阶段导引层的经验库。它记录父级路由、正文真源、防漂移与 lane 启用规则，不承载 `A-GPT原生`、`B-Doubao流` 或 `C-Deepseek流` 的具体主创细则。
+
 ## Context Health
 
-- soft_limit_chars: 40000
-- hard_limit_chars: 80000
-- soft_limit_cases: 80
-- hard_limit_cases: 140
-- status: ok
+```yaml
+monitor_version: 1
+soft_limit_chars: 40000
+hard_limit_chars: 80000
+soft_limit_cases: 80
+hard_limit_cases: 140
+status: ok
+recommended_action: keep-router-level-only
+last_checked_at: 2026-04-26
+```
 
 ## Type Map
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 明明是按章直写，却仍回写到平铺 `3-Drafting/第N章.md` | runtime path contract | 改回 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` | 在 `3-Drafting/SKILL.md`、桥接脚本与 registry 路由同时固定 canonical 输出路径 | 正文不会再漂到平铺旧路径 |
-| 只读三层 planning，没读全局卡/风格卡/`north_star` | context pack contract | 回补 `1-Cards/0-全局卡`、`1-Cards/1-风格卡` 与 `0-Init/north_star.yaml` | 把 `global_context + style_context + north_star_chapter_brief` 写成 YAML 头硬门槛 | 生成稿头时三类摘要都齐备 |
-| 项目有 `CONTEXT/`，但 drafting 完全没加载 | project context loading | 补读相关 `CONTEXT` 文件并记录到 `project_context_refs` | 固定“存在则按相关性加载，不存在才留空” | frontmatter 中 `project_context_refs` 与真实上下文一致 |
-| 把上一章当成硬阻塞门，上一章缺失就停工 | continuity policy | 改成“上一章增强输入，planning 是兜底硬输入” | 在 skill 合同写死“previous optional, planning mandatory” | 上一章不存在时，本章仍可开写 |
-| `3-Drafting` 看起来命中正确，但实际创作仍由本地 GPT 会话直接写出 | provider route drift | 改成通过 `write_chapter_via_doubao.py` 调用 AnyFast 豆包，再写回业务根稿 | 在主合同里写死“actual creative step = Doubao provider”，并为脚本增加 dry-run / 校验 / writeback 路径 | provider 报告、messages pack 与写回文件能互相对上 |
-| 豆包返回了正文，但缺 frontmatter / 标题行 / 必需字段，仍被直接写回 | provider output validation | 在写回前增加 frontmatter / heading / required marker 校验 | 将 provider output validation 固化到 bridge script，而不是靠人工肉眼兜底 | 非法输出会在写回前被阻断 |
-| `north_star_chapter_brief` 直接复制 `north_star.yaml` 大段原文 | summary synthesis | 回到“整书承诺 + 当前章义务”的压缩摘要 | 在合同中固定“必须二次综合，不得整段照抄” | YAML 头可读、短小、且明显对齐当前章 |
-| frontmatter 变成大段资料转储，压过正文 | metadata density | 只保留当前章会直接用到的约束摘要 | 固定 `global/style` 摘要为约束性短段，而非 JSON dump | YAML 头短而有用 |
-| 正文主体仍沿用 planning 标题句法 | prose conversion | 把 `本章冲突 / 任务线 / 规避` 转译成人物行动、局势压力和章末牵引 | 在 skill 中固定“planning 只给蓝图，不得原样落成正文” | 正文读起来像小说，不像设计文档 |
-| Skill 2.0 升级后 `SKILL.md` 又重新堆满执行细则 | skill package ownership drift | 把长细则下沉到 `references/steps/types/review/knowledge-base`，入口只留路由与门禁 | 在 `Reference Loading Guide` 中固定每个 owner 的读取时机 | 根 `SKILL.md` 能独立回答输入和输出，但不复制分区全文 |
+| 父级 `3-Drafting/SKILL.md` 为空，registry 仍把它当 stage 入口 | stage router gap | 补成导引式入口，默认路由到可执行 lane | 父级只持有 lane selection、loading、truth path 与 close gate | `$story-drafting` 能先命中父级再进入子路径 |
+| 子路径拆成 `A-GPT原生 / B-Doubao流` 后，父级仍写死单一豆包执行细则 | provider split drift | 把具体执行细则留给子路径，父级只写默认路由和激活状态 | lane matrix 固定 `B` 默认、`A` 显式、未完成 lane reserved | 父级不复制子路径 `references/steps/types/review` 全文 |
+| 未点名 provider 时误走 GPT 原生或空 lane | lane default drift | 未明确 provider 时回到 `B-Doubao流` | registry 当前 `$story-drafting` 默认仍对齐 `B-Doubao流` | 普通“写一章”请求进入 B lane |
+| 用户点名 GPT 原生，但父级仍强制豆包 | explicit lane override miss | 路由到 `A-GPT原生` | lane matrix 明确“用户显式 provider / native intent 优先于默认” | “GPT 原生/本地会话直写”进入 A lane |
+| 用户点名 DeepSeek，但父级仍强制豆包 | explicit lane override miss | 路由到 `C-Deepseek流` | lane matrix 明确“DeepSeek / deepseek-v4-pro / api/deepseek”进入 C lane | DeepSeek 写章请求进入 C lane |
+| 正文写回路径漂到平铺 `第N章.md`、`第N集.md`、`正文/` 或旧 `Drafting/chNNNN/chapter-root.md` | canonical path contract | 改回 `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` | 父级和所有子路径都把 canonical output 作为硬门禁 | writeback path 与 registry `canonical_output` 一致 |
+| 父级导引层吞掉子路径经验，导致 `CONTEXT.md` 变成 provider 细则合集 | context ownership drift | 把 provider 经验迁回对应 lane `CONTEXT.md` | 父级只保留跨 lane 的防漂移经验 | 本文件不出现 provider prompt、脚本参数细则或章节正文规则长表 |
+| 子路径执行前漏读 story 根层、项目 `MEMORY.md` 或项目 `CONTEXT/` | loading bridge gap | 在父级先列 loading plan，再交给 lane 继续加载 | 父级 Context Loading Contract 固定 shared + project + lane 三段式 | lane handoff 前已能列出必须读取的根层和项目层上下文 |
+| lane artifacts 被误认为正文真源 | evidence/truth confusion | 把 artifacts 降回 `reports/3-Drafting/<lane>/...` 证据链 | 父级 Output Contract 固定“业务真源只有第N卷/第N章.md” | query/resume/4-Review 默认读取 canonical draft |
+| 旧 step-after-write 即时审计合同又被当成当前主创拓扑 | compatibility contract overreach | 仅在恢复/兼容 runtime 时加载 `_shared/drafting-instant-validation-contract.md` | 父级写明它不是默认主创路径 | 新章节直写不再先展开旧八步 runtime |
 
 ## Repair Playbook
 
-1. 先确认失败发生在路径、加载、frontmatter、承接还是正文 prose 转写层。
-2. 若 YAML 头缺字段，先补 `global/style/north_star` 三件套，不先修句子。
-3. 若正文像摘要稿，优先检查是不是把 planning 语言直接搬进正文。
-4. 若开章发虚，先看上一章承接与 `第N章.md` 的开章义务是否真的被解码。
-5. 若文件路径错了，先修 path contract，再谈内容质量。
-6. 若执行记录里看不见 provider messages pack、豆包 sidecar 或 provider report，优先怀疑根本没走真实豆包。
-7. 若 provider 输出缺字段，不要手工就地补正文冒充成功；先修 prompt / 校验 / provider 返回格式。
-8. 若 Skill 2.0 结构校验失败，先看是否缺 `agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `templates/output-template.md`，再看内容语义。
+1. 先判断问题属于 lane selection、loading bridge、canonical path、子路径执行、还是兼容 runtime。
+2. 若 `$story-drafting` 入口失效，先修父级 `SKILL.md`，不要直接让 registry 指到某个子路径。
+3. 若普通章节创作没有点名 provider，默认进入 `B-Doubao流`；若用户显式要求 GPT 原生，进入 `A-GPT原生`；若用户显式要求 DeepSeek / deepseek-v4-pro / `.agents/skills/api/deepseek`，进入 `C-Deepseek流`。
+4. 若出现任一 provider lane，先检查是否已有非空 `SKILL.md + CONTEXT.md`、执行脚本、模板、review gate 和 `agents/openai.yaml`；缺任一关键合同都阻断执行。
+5. 若路径错，优先修父级 canonical output gate，再同步检查子路径 Output Contract、脚本 writeback 和 registry。
+6. 若正文内容像 planning 摘要、frontmatter 缺三件套或 provider 证据链缺失，转到具体 lane 的 `CONTEXT.md` 和分区细则，不在父级长篇补规则。
+7. 若恢复链或即时审计仍需要旧 step gate，加载 `_shared/drafting-instant-validation-contract.md`；若是新章直写，不让该兼容合同反向改写 lane 选择。
+8. 若本文件开始积累某个 provider 的提示词、脚本参数或正文审美细则，把该经验迁回对应 lane 的 `CONTEXT.md` 或 `knowledge-base/`。
 
 ## Reusable Heuristics
 
-- 章级直写最容易漏的不是剧情，而是“作者此章为何这样写”的约束包；YAML 头就是把这层约束固定下来。
-- `north_star` 对本技能最稳的用法不是全文引用，而是压成“这一章在整书承诺里承担什么”。
-- 若上一章缺失，最可靠的替代承接永远是 `卷规划.md + 第N章.md`，不是临场脑补。
-- frontmatter 的最佳长度是“足够约束当前章”，不是“展示我读了多少资料”。
-- 只要正文还保留 planning 标题或条目句法，就说明小说化转换还没完成。
-- 对当前技能来说，“真正命中豆包”不是口头说明，而是能落出 messages pack、provider report、raw model output 和最终 `第N卷/第N章.md` 的同轮证据链。
-- Skill 2.0 化之后，`SKILL.md` 应像入口和裁决层；章节细则、分支、review 与类型策略各回各的 owner，后续维护才不会牵一发而动全身。
+- 父级 `3-Drafting` 最该像交通枢纽：能稳定指路、锁真源、设门禁，但不替每条 lane 写完整操作手册。
+- 拆成多 provider 后，默认 lane 和显式 lane 必须同时存在；默认解决“普通请求往哪走”，显式解决“用户点名往哪走”，当前 DeepSeek 点名请求进入 C lane。
+- 空骨架比坏执行更危险：目录存在不等于 skill 可用，尤其是 provider lane。
+- `projects/story/<项目名>/3-Drafting/第N卷/第N章.md` 是所有 lane 的共同锚点；artifacts 越多，越要反复声明它们只是证据链。
+- 父级加载顺序的价值在于防漏读项目记忆和上下文；真正的章节写法、模型 prompt、review gate 应回到子路径。
+- 如果同一条规则要在 `A` 和 `B` 同时重复维护，先判断它是否属于父级；如果只影响某个 provider，就不要上升。
+- 旧即时审计合同可以服务 resume 和兼容 runtime，但不应重新把 `3-Drafting` 拉回八步主创拓扑。

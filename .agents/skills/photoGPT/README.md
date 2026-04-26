@@ -11,31 +11,31 @@ photoGPT/
 ├── scripts/
 │   └── README.md
 ├── templates/
-│   ├── output-template.md.template
+│   ├── output-template.json
 │   ├── 多视图/
 │   │   ├── README.md
-│   │   ├── 场景/TEMPLATE.md
-│   │   ├── 道具/TEMPLATE.md
-│   │   ├── 服装/TEMPLATE.md
-│   │   └── 角色/TEMPLATE.md
+│   │   ├── 场景/TEMPLATE.json
+│   │   ├── 道具/TEMPLATE.json
+│   │   ├── 服装/TEMPLATE.json
+│   │   └── 角色/TEMPLATE.json
 │   ├── 多图融合/
 │   │   ├── README.md
-│   │   ├── 电商广告/TEMPLATE.md
-│   │   └── 分镜构图/TEMPLATE.md
+│   │   ├── 电商广告/TEMPLATE.json
+│   │   └── 分镜构图/TEMPLATE.json
 │   ├── 风格化/
 │   │   ├── README.md
-│   │   ├── 风格迁移/TEMPLATE.md
-│   │   └── 滤镜/TEMPLATE.md
+│   │   ├── 风格迁移/TEMPLATE.json
+│   │   └── 滤镜/TEMPLATE.json
 │   ├── 修图/
 │   │   ├── README.md
-│   │   ├── 高清/TEMPLATE.md
-│   │   └── 美颜美体/TEMPLATE.md
+│   │   ├── 高清/TEMPLATE.json
+│   │   └── 美颜美体/TEMPLATE.json
 │   └── 元素替换/
 │       ├── README.md
-│       ├── 换背景/TEMPLATE.md
-│       ├── 换角色/TEMPLATE.md
-│       ├── 换脸/TEMPLATE.md
-│       └── 换装/TEMPLATE.md
+│       ├── 换背景/TEMPLATE.json
+│       ├── 换角色/TEMPLATE.json
+│       ├── 换脸/TEMPLATE.json
+│       └── 换装/TEMPLATE.json
 ├── review/
 │   └── review-contract.md
 ├── steps/
@@ -56,7 +56,7 @@ photoGPT/
 
 1. 读取 `SKILL.md + CONTEXT.md`。
 2. 读取 `types/type-map.md` 判定 `edit_family` / `edit_subtype`。
-3. 读取对应 `templates/<类型>/<子类型>/TEMPLATE.md` 和 `references/prompt-enhancement-contract.md`。
+3. 读取对应 `templates/<类型>/<子类型>/TEMPLATE.json` 和 `references/prompt-enhancement-contract.md`。
 4. 输出 prompt plan；若输入齐备，调用 `.agents/skills/cli/imagegen`。
 
 ## Supported Families

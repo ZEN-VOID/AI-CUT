@@ -2,6 +2,8 @@
 
 ## 2026-04-26
 
+- 升级 `templates/prop-multiview-prompt.json` 到 v1.2，增加顶左主体身份牌与短 ASCII ID / 后期叠字 fallback 合同。
+- 升级 `templates/prop-multiview-prompt.json` 到 v1.1，增加主体不变量、参考图策略、功能视图计划、漂移控制和审查焦点。
 - 对照 `$skill-工作车间` 补齐根 `SKILL.md` 的 Mermaid Visual Maps、目录 owner、节点交接和失败路由表。
 - 强化 `steps/prop-generation-workflow.md` 的 Business Requirement Analysis、混合拓扑图、sequence 图、节点 schema、分支与失败回路。
 - 强化 `types/prop-generation-type-map.md` 的类型变量、路由图和 route-to-step 映射。

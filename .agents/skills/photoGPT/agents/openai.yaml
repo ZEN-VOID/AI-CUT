@@ -1,4 +1,4 @@
 interface:
   display_name: "photoGPT"
   short_description: "按多视图、多图融合、风格化、修图、元素替换细分模板强化提示词并调用 imagegen。"
-  default_prompt: "使用 $photoGPT，先在 多视图/多图融合/风格化/修图/元素替换 五大类及其十四个子类中判型，再读取 .agents/skills/photoGPT/templates/<类型>/<子类型>/TEMPLATE.md 强化提示词，并按 .agents/skills/cli/imagegen 合同执行或输出 prompt plan。"
+  default_prompt: "使用 $photoGPT，先在 多视图/多图融合/风格化/修图/元素替换 五大类及其十四个子类中判型，再读取 .agents/skills/photoGPT/templates/<类型>/<子类型>/TEMPLATE.json 强化提示词，并按 .agents/skills/cli/imagegen 合同执行或输出 prompt plan。"

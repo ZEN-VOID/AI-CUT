@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "template_id": "photoGPT.元素替换.换装.v1",
+    "edit_family": "元素替换",
+    "edit_subtype": "换装",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "character_image",
+    "costume_reference_image",
+    "user_desc"
+  ],
+  "input_roles": {
+    "character_image": "Locks face, hair, skin tone, body proportion, pose and composition.",
+    "costume_reference_image": "Provides garment cut, fabric, color, accessories and layers."
+  },
+  "preserve_scope": [
+    "face",
+    "hair",
+    "skin tone",
+    "body proportion",
+    "pose",
+    "camera angle",
+    "composition",
+    "background unless requested"
+  ],
+  "change_scope": [
+    "replace full costume with costume_reference_image",
+    "fit clothing naturally to body shape with physical folds, drape, occlusion and motion tension"
+  ],
+  "critical_requirements": [
+    "Fully restore garment cut, fabric, color, decoration, buttons, embroidery, belt, accessories and layers from costume_reference_image.",
+    "Do not copy the model face or body from costume_reference_image.",
+    "Do not change background unless explicitly requested."
+  ],
+  "negative_constraints": [
+    "do not change character face, hair, body proportion or pose",
+    "do not copy face or body from costume reference",
+    "do not change background unless requested",
+    "do not lose key costume decoration or layers"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Preserve the character from character_image and replace only the clothing with the costume from costume_reference_image, fitting it naturally to the body and pose. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "character identity unchanged",
+    "costume reference fidelity",
+    "natural garment fit",
+    "background unchanged unless requested"
+  ]
+}

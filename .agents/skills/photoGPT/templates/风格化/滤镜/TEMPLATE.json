@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "template_id": "photoGPT.风格化.滤镜.v1",
+    "edit_family": "风格化",
+    "edit_subtype": "滤镜",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "edit_target_image",
+    "filter_style",
+    "user_desc"
+  ],
+  "input_roles": {
+    "edit_target_image": "Provides all image facts.",
+    "filter_style": "Provides tonal direction such as film, vintage, clean, cyber, grain, color temperature or contrast."
+  },
+  "preserve_scope": [
+    "subject identity",
+    "composition",
+    "scene",
+    "costume",
+    "props",
+    "narrative facts"
+  ],
+  "change_scope": [
+    "color grading",
+    "tone",
+    "temperature",
+    "contrast",
+    "saturation",
+    "grain",
+    "vignette",
+    "highlight and shadow layering"
+  ],
+  "critical_requirements": [
+    "Filter can only change color and tone.",
+    "Do not redraw faces, change background structure, replace clothing, add new objects or alter content."
+  ],
+  "negative_constraints": [
+    "do not change image content or subject identity",
+    "no over-sharpening, overexposure, color cast or plastic texture",
+    "no new text, watermark, border or decoration unless requested"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Apply <filter_style> to edit_target_image while fully preserving subject identity, composition, scene, costume, props and narrative facts. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "content preservation",
+    "filter-only scope",
+    "natural color and texture",
+    "no added elements"
+  ]
+}

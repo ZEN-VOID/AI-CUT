@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "template_id": "photoGPT.多图融合.电商广告.v1",
+    "edit_family": "多图融合",
+    "edit_subtype": "电商广告",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "product_reference_image",
+    "scene_reference_image",
+    "user_desc"
+  ],
+  "optional_fields": [
+    "style_or_composition_reference_image"
+  ],
+  "input_roles": {
+    "product_reference_image": "Locks product identity, silhouette, material, color, logo and packaging facts.",
+    "scene_reference_image": "Provides space, tabletop, environment light and advertising atmosphere.",
+    "style_or_composition_reference_image": "Only provides layout, color, lighting or camera language."
+  },
+  "preserve_scope": [
+    "product shape and proportion",
+    "brand logo and key packaging text",
+    "packaging structure",
+    "material reflection",
+    "color hierarchy"
+  ],
+  "change_scope": [
+    "integrate product into a unified commercial advertising visual",
+    "match light, shadow, reflection, depth of field and contact relation",
+    "make product the first visual center"
+  ],
+  "critical_requirements": [
+    "Product identity must come from the product image.",
+    "Scene space and atmosphere must come from the scene image.",
+    "Style reference must not copy unrelated people, watermark, props or competitors.",
+    "Background must serve the product selling point and not steal focus."
+  ],
+  "negative_constraints": [
+    "do not change product identity, logo, package structure or key text",
+    "do not copy unrelated people, watermarks, clutter or competitor products",
+    "do not let background dominate the product"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Create a unified e-commerce advertising visual. Product identity comes from product_reference_image; scene and atmosphere come from scene_reference_image; style_or_composition_reference_image may guide layout and lighting only. Preserve product identity and make it the first visual center. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "product identity lock",
+    "scene/style role separation",
+    "commercial focus",
+    "natural light, shadow and contact integration"
+  ]
+}

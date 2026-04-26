@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "template_id": "photoGPT.多视图.场景.v1.2",
+    "edit_family": "多视图",
+    "edit_subtype": "场景",
+    "doc_role": "design_sheet_prompt_template",
+    "version": "v1.2",
+    "updated_at": "2026-04-26",
+    "aligned_with": "aigc.scene_generation.multiview_prompt/v1 v1.2"
+  },
+  "required_fields": [
+    "scene_id",
+    "scene_short_id",
+    "scene_name",
+    "desc",
+    "one_or_more_scene_reference_images"
+  ],
+  "input_roles": {
+    "main_reference_image": "Provides the scene identity, spatial skeleton, architectural grammar, materials and style.",
+    "supporting_reference_images": "Only supplement local material, lighting, structure or layout; never override the main reference or upstream design facts."
+  },
+  "subject_invariant_lock": {
+    "locked_from": [
+      "main_reference_image",
+      "desc"
+    ],
+    "must_preserve": [
+      "same scene identity",
+      "spatial skeleton",
+      "entrance direction and threshold relationships",
+      "primary light direction",
+      "material family",
+      "era and culture logic",
+      "landmark anchors",
+      "scale cues"
+    ],
+    "may_vary": [
+      "camera distance",
+      "camera height",
+      "detail emphasis",
+      "crop within the same space"
+    ],
+    "must_not_invent": [
+      "new architecture",
+      "people, creatures or silhouettes",
+      "new story props",
+      "unrelated rooms",
+      "random flipped orientation"
+    ]
+  },
+  "layout": {
+    "template_type": "SCENE_DESIGN_SHEET",
+    "sheet_intent": "spatial proof board for one coherent scene, not nine separate concept shots",
+    "aspect_ratio": "16:9",
+    "resolution": "4096x2304",
+    "background": "dark neutral production board #1a1a1a",
+    "grid": "strict 3x3 with uniform gutters and clean panel divisions"
+  },
+  "identity_badge": {
+    "required": true,
+    "position": "top-left",
+    "visible_text": "<scene_short_id>",
+    "full_subject_name": "<scene_name>",
+    "display_strategy": "visible_short_ascii_id_in_image, full_name_in_prompt_plan_or_json, post_overlay_required_if_image_text_is_unreliable",
+    "fallback": "preserve a clean top-left badge plate for post-production overlay; do not hallucinate long text"
+  },
+  "panel_label_policy": {
+    "required": true,
+    "position": "lower-left inside each panel",
+    "format": "<PANEL_ID> <VIEW_CODE>",
+    "display_strategy": "short_ascii_view_label_in_image, post_overlay_required_if_image_text_is_unreliable",
+    "fallback": "reserve a clean lower-left label strip in every panel"
+  },
+  "view_plan": [
+    {
+      "id": "P1",
+      "view_code": "WIDE",
+      "lower_left_label": "P1 WIDE",
+      "purpose": "wide atmosphere view establishing full spatial envelope and dominant light"
+    },
+    {
+      "id": "P2",
+      "view_code": "MED",
+      "lower_left_label": "P2 MED",
+      "purpose": "medium function view showing zoning and narrative center"
+    },
+    {
+      "id": "P3",
+      "view_code": "DETAIL",
+      "lower_left_label": "P3 DETAIL",
+      "purpose": "ritual, architectural or material close-up proving culture and material logic"
+    },
+    {
+      "id": "P4",
+      "view_code": "THRESH",
+      "lower_left_label": "P4 THRESH",
+      "purpose": "entrance, threshold, barrier or passage relationship"
+    },
+    {
+      "id": "P5",
+      "view_code": "STRUCT",
+      "lower_left_label": "P5 STRUCT",
+      "purpose": "structure, support, scale, joins and spatial hierarchy"
+    },
+    {
+      "id": "P6",
+      "view_code": "LOW",
+      "lower_left_label": "P6 LOW",
+      "purpose": "low-angle view proving vertical axis, oppression or transcendence"
+    },
+    {
+      "id": "P7",
+      "view_code": "PATH",
+      "lower_left_label": "P7 PATH",
+      "purpose": "circulation, ritual path, service route or spatial linkage"
+    },
+    {
+      "id": "P8",
+      "view_code": "MATERIAL",
+      "lower_left_label": "P8 MATERIAL",
+      "purpose": "material, cultural threshold, ornament or era-coded detail"
+    },
+    {
+      "id": "P9",
+      "view_code": "TOP",
+      "lower_left_label": "P9 TOP",
+      "purpose": "high-angle or top-down spatial order view"
+    }
+  ],
+  "critical_requirements": [
+    "Use reference images and desc as the source of truth; do not redesign the scene.",
+    "Every panel must depict the same coherent scene with stable orientation, light direction, materials and landmarks.",
+    "No people, human shadows, creatures or silhouettes unless explicitly required by the user.",
+    "Top-left identity badge must show <scene_short_id> or preserve a clean overlay-ready badge plate.",
+    "Every panel must have a lower-left scene-view label or a clean overlay-ready label strip."
+  ],
+  "negative_constraints": [
+    "no people, no human shadows, no creatures",
+    "no storyboard or advertising poster",
+    "no nine different locations",
+    "no flipped orientation or material drift",
+    "no missing identity badge or panel label area",
+    "no long text hallucination"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Create one SCENE_DESIGN_SHEET for <scene_name> (<scene_short_id>) using <desc> and the reference images. Apply the subject_invariant_lock, strict 3x3 spatial proof layout, top-left identity badge, and lower-left panel labels for every view. Preserve one coherent scene identity across all panels."
+  },
+  "review_focus": [
+    "same scene identity across all panels",
+    "consistent orientation, light direction and materials",
+    "top-left short ID badge or overlay-ready badge plate",
+    "lower-left panel labels or overlay-ready label strips",
+    "empty-scene guardrail"
+  ]
+}

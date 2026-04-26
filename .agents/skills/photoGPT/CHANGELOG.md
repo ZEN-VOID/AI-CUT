@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-04-26
+
+- Converted all fourteen subtype templates and the output prompt-plan template from legacy Markdown carriers to JSON files, and updated all photoGPT routing references to the JSON template truth.
+- Synced `templates/多视图` with the upgraded AIGC multiview subject template v1.2 semantics.
+- Added short ASCII identity badge requirements, full-name record fallback, subject invariant locks, and post-overlay badge fallback to `场景`, `道具`, `服装`, and `角色` multiview templates.
+- Added lower-left scene-view panel label requirements to `templates/多视图/场景/TEMPLATE.json`.
+- Updated multiview README, type gates, review gates, and context heuristics for identity badge and scene panel label governance.
+
 ## 2026-04-25
 
 - Initialized `photoGPT` as a Skill 2.0 package in place.

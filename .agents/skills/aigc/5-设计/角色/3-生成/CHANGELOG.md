@@ -2,6 +2,8 @@
 
 ## 2026-04-26
 
+- 升级 `templates/character-multiview-prompt-template.json` 到 v1.2，增加顶左主体身份牌与短 ASCII ID / 后期叠字 fallback 合同。
+- 升级 `templates/character-multiview-prompt-template.json` 到 v1.1，增加角色主体不变量、turnaround 视图计划、参考图策略、漂移控制和审查焦点。
 - 补齐入口 `SKILL.md` 的 Mermaid Visual Maps，覆盖执行拓扑、证据链和状态流。
 - 强化 `steps/character-generation-workflow.md` 的 subagent/本地降级汇流图、失败恢复图和 worker 返回形状。
 - 补充 `review/review-contract.md` 的本地降级 checklist 与 review flow map，避免 reviewer subagent 被阻断时缺少可执行复核路径。

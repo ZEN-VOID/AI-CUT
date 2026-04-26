@@ -13,7 +13,7 @@ flowchart TD
     C -->|"风格化"| F["N3 Style Roles<br/>待编辑图 + 风格/滤镜来源"]
     C -->|"修图"| G["N3 Retouch Roles<br/>待修原图 + 修复范围"]
     C -->|"元素替换"| H["N3 Replacement Roles<br/>待编辑主图 + 替换来源"]
-    D --> I["N4 Load Template<br/>templates/<类型>/<子类型>/TEMPLATE.md"]
+    D --> I["N4 Load Template<br/>templates/<类型>/<子类型>/TEMPLATE.json"]
     E --> I
     F --> I
     G --> I
@@ -53,7 +53,7 @@ stateDiagram-v2
 | `N1-INTAKE` | 用户请求、图片、项目上下文 | 提取目标、约束、图片数量和输出意图 | `intake_summary` | 缺关键编辑目标则 prompt-only |
 | `N2-TYPE` | `intake_summary` | 读取 `types/type-map.md`，形成 `type_profile` | `type_profile` | family/subtype 属于五大类十四子类，且有中文模板映射 |
 | `N3-ROLES` | `type_profile` + 图片 | 按子类标注 edit target/reference roles | `image_roles` | 图片角色满足该子类 schema |
-| `N4-TEMPLATE` | `type_profile` | 读取 `templates/<类型>/<子类型>/TEMPLATE.md` 与 prompt enhancement contract | `template_context` | 模板存在且字段齐全 |
+| `N4-TEMPLATE` | `type_profile` | 读取 `templates/<类型>/<子类型>/TEMPLATE.json` 与 prompt enhancement contract | `template_context` | 模板存在且字段齐全 |
 | `N5-PROMPT` | 用户意图 + 模板 | LLM 直出 canonical final prompt | `photoGPT_prompt_plan` | preserve/change/negative 三组齐全 |
 | `N6-REVIEW` | prompt plan | 执行 `review/review-contract.md` | `review_verdict` | pass 或 pass_with_followups 才可执行 |
 | `N7-IMAGEGEN` | prompt plan + imagegen 合同 | 调用 `.agents/skills/cli/imagegen` 或输出阻断 | image asset or prompt-only report | 路径/模式可追溯 |

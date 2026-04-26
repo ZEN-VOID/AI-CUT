@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "template_id": "photoGPT.元素替换.换脸.v1",
+    "edit_family": "元素替换",
+    "edit_subtype": "换脸",
+    "doc_role": "prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-04-26"
+  },
+  "required_fields": [
+    "edit_target_image",
+    "identity_reference_image",
+    "user_desc"
+  ],
+  "input_roles": {
+    "edit_target_image": "Locks clothing, pose, composition, background and camera relationship.",
+    "identity_reference_image": "Provides facial features, hair, skin tone, age temperament and identity."
+  },
+  "preserve_scope": [
+    "clothing",
+    "pose",
+    "composition",
+    "background",
+    "camera angle",
+    "lighting",
+    "props"
+  ],
+  "change_scope": [
+    "replace face, hair, skin texture, age temperament and identity with identity_reference_image"
+  ],
+  "critical_requirements": [
+    "The replaced identity must naturally fit the target clothing, pose, lighting and scene.",
+    "Target clothing, fabric, color, decorative details, pose, background and composition must not change."
+  ],
+  "negative_constraints": [
+    "do not change target clothing, pose, background, camera or props",
+    "no mixed-face identity drift",
+    "do not change age, gender or makeup unless requested",
+    "no facial edge, skin tone or lighting mismatch"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Preserve clothing, pose, composition, background, camera and lighting from edit_target_image; replace only the face/hair/identity with identity_reference_image. Additional requirements: <user_desc>."
+  },
+  "review_focus": [
+    "identity reference accuracy",
+    "target clothing and scene unchanged",
+    "natural skin tone and lighting integration",
+    "no face mixing"
+  ]
+}

@@ -42,9 +42,12 @@ last_checked_at: 2026-04-25
 ## Reusable Heuristics
 
 - `photoGPT` 的价值不在“把提示词写长”，而在“把编辑类型、图片角色和不可漂移项写准”。
+- `photoGPT` 子类模板以 JSON 为执行真源；不要再新增 Markdown 执行模板。字段化模板更利于 LLM 补齐 `required_fields`、`input_roles`、`preserve_scope`、`change_scope`、`negative_constraints`、`prompt_assembly` 和 `review_focus`。
 - `元素替换` 模板最重要的是图序：图一通常是保留构图/主体的源图，图二是替换来源。
 - `修图` prompt 应避免“重新设计”“重绘”“换风格”等词，除非用户明确要求。
 - `多视图` sheet prompt 必须把对象类型、画幅、布局、身份徽章和禁止项写成结构化硬约束。
+- `多视图` 身份徽章使用短 ASCII ID 作为图中可视化文本，完整主体名称进入 prompt plan / JSON 记录；若图像文字不稳，保留干净 badge plate 供后期叠字。
+- `多视图/场景` 额外要求每个 panel 左下角具备短视角标签或叠字预留条，避免九宫格审阅时无法区分 wide、medium、detail、threshold、structure、low-angle、path、material 和 top-down。
 - `多图融合` 的质量取决于角色分工，不取决于参考图数量；没有 role schema 的多图融合应阻塞。
 - `风格化/滤镜` 是后期调色语义，不应偷换成 `风格化/风格迁移` 的强重绘语义。
 - 若用户只给审美方向，最终 prompt 需要补齐镜头、光线、材质、构图、主体锁定和反向约束。
