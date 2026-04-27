@@ -157,7 +157,7 @@ flowchart TD
    - 若请求实际属于润色，停止 `3-初稿` 写作流程，按分流图移交 `4-润色`；润色未显式指定 provider 时默认进入 `4-润色/B-Doubao流`。
 5. 加载该 lane 的 `SKILL.md + CONTEXT.md`，继续由子路径完成具体 context pack、主创、校验、sidecar 与 writeback。
 6. 正式写作时，要求子路径按共享合同启动 team supervision subagents；若被阻断，子路径必须留下降级报告。
-7. 子路径完成后，确认业务真源写回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`，过程 artifacts 只作为证据链。
+7. 子路径完成后，确认业务真源写回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；默认不生成项目级过程产物。
 8. 单章完成只标记 candidate draft；当前卷默认 10 章完成后，进入 `review/final_acceptance` 并汇流 `code-reviewer` findings；失败按 aggregate 的 `rework_targets` 回到原 lane。
 9. 返工闭环必须保持 lane ownership：A lane 可由 GPT 原生修复；B/C lane 必须由对应 provider 执行正文修复，GPT/subagents 只生成 repair brief 与复核结果。
 
@@ -167,7 +167,7 @@ flowchart TD
 - YAML frontmatter 只要求包含 `写作模型`；取值只能为 `GPT`、`Doubao`、`Deepseek`，并必须与所选 lane 一致。planning、cards、north-star、项目上下文和上一章引用由强上下文加载与 sidecar 承载，不重复写入正文头部。
 - 正文主体必须是中文小说 prose，不得把 planning 标题、任务线或规避条目原样贴成正文。
 - 业务真源路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
-- lane artifacts 可落到 `projects/story/<项目名>/reports/3-初稿/<lane>/.../`，但它们不是业务真源。
+- 本阶段正式产物只写入 `projects/story/<项目名>/3-初稿/`，默认不生成额外项目产物。
 - `review` 以前的 drafting 完成只表示 candidate draft 完成，不等于 validated final draft。
 - 正式写作的 lane handoff 必须携带 `supervision_packet` 路径或 subagent 降级报告；A 是 GPT 隔离监制 + GPT 主写作，B/C 是 GPT 监制层 + 外部 provider 执行层。
 
@@ -207,6 +207,6 @@ flowchart TD
 | --- | --- |
 | Required output | 对本阶段而言，必须产生唯一 lane 选择、加载计划、canonical output 路径确认，并由被选 lane 产出当前章完整中文小说 Markdown 文件。 |
 | Output format | 阶段导引输出为路由与门禁说明；正文输出格式由被选 lane 的 `Output Contract` 定义，最低要求为 YAML frontmatter、空行、`# 第N章｜章标题`、章节正文。 |
-| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；lane artifacts 仅可作为证据链写入 `projects/story/<项目名>/reports/3-初稿/<lane>/.../`。 |
+| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录使用 `第N卷`，章节文件使用 `第N章.md`；不得回退到 `第N集.md`、`Drafting/chNNNN/chapter-root.md`、`正文/` 或临时 sibling 文件。 |
-| Completion gate | 已选择唯一可执行 lane；已加载 lane `SKILL.md + CONTEXT.md`；上游 truth 与项目上下文加载齐备；被选 lane 完成 LLM-first 主创、校验与 writeback；必要 sidecar 能追溯 context pack、模型输出或 GPT-authored draft、最终落盘。 |
+| Completion gate | 已选择唯一可执行 lane；已加载 lane `SKILL.md + CONTEXT.md`；上游 truth 与项目上下文加载齐备；被选 lane 完成 LLM-first 主创、校验与 writeback；最终章节已落盘到 `3-初稿/第N卷/第N章.md`。 |

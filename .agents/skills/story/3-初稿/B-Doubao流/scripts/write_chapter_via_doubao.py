@@ -437,10 +437,6 @@ def _validate_generated_markdown(text: str, chapter_num: int, expected_previous_
             raise ValueError(f"豆包返回正文仍保留 planning 语言：{pattern}")
 
 
-def _default_output_dir(project_root: Path, volume_num: int, chapter_num: int) -> Path:
-    return project_root / "reports" / "3-初稿" / "doubao" / f"第{volume_num}卷" / f"第{chapter_num}章"
-
-
 def _run_doubao(messages_path: Path, output_dir: Path, *, temperature: float, top_p: float, max_tokens: int, stream: bool) -> str:
     cmd = [
         sys.executable,
@@ -479,7 +475,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Write chapter manuscript via AnyFast Doubao")
     parser.add_argument("--project-root", help="explicit project root; defaults to active story project")
     parser.add_argument("--chapter", type=int, required=True, help="target chapter number")
-    parser.add_argument("--output-dir", help="provider artifact output dir")
+    parser.add_argument("--output-dir", help="optional debug artifact output dir; default writes no sidecar files")
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument("--max-tokens", type=int, default=12000)
@@ -584,10 +580,12 @@ def main() -> int:
         supervision_packet_text=supervision_packet_text,
     )
 
-    output_dir = Path(args.output_dir) if args.output_dir else _default_output_dir(project_root, volume_num, chapter_num)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    messages_path = output_dir / f"chapter_{chapter_num}_doubao_messages.json"
-    messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_dir = Path(args.output_dir) if args.output_dir else None
+    messages_path: Path | None = None
+    if output_dir:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        messages_path = output_dir / f"chapter_{chapter_num}_doubao_messages.json"
+        messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
 
     if args.dry_run:
         summary = {
@@ -596,8 +594,8 @@ def main() -> int:
             "project_root": str(project_root),
             "chapter_path": str(chapter_path),
             "drafting_mode": drafting_mode,
-            "messages_path": str(messages_path),
-            "output_dir": str(output_dir),
+            "messages_path": str(messages_path) if messages_path else "",
+            "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root) if memory_path.is_file() else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
@@ -607,26 +605,48 @@ def main() -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
 
-    generated = _strip_code_fence(
-        _run_doubao(
-            messages_path,
-            output_dir,
-            temperature=args.temperature,
-            top_p=args.top_p,
-            max_tokens=args.max_tokens,
-            stream=args.stream,
+    if output_dir:
+        run_dir = output_dir
+        if messages_path is None:
+            messages_path = run_dir / f"chapter_{chapter_num}_doubao_messages.json"
+            messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+        generated = _strip_code_fence(
+            _run_doubao(
+                messages_path,
+                run_dir,
+                temperature=args.temperature,
+                top_p=args.top_p,
+                max_tokens=args.max_tokens,
+                stream=args.stream,
+            )
         )
-    )
+    else:
+        with tempfile.TemporaryDirectory(prefix="story-drafting-doubao-") as temp_output_dir:
+            run_dir = Path(temp_output_dir)
+            messages_path = run_dir / f"chapter_{chapter_num}_doubao_messages.json"
+            messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+            generated = _strip_code_fence(
+                _run_doubao(
+                    messages_path,
+                    run_dir,
+                    temperature=args.temperature,
+                    top_p=args.top_p,
+                    max_tokens=args.max_tokens,
+                    stream=args.stream,
+                )
+            )
     expected_previous_ref = _rel(previous_path, project_root) if previous_path and previous_path.exists() else ""
     _validate_generated_markdown(generated, chapter_num, expected_previous_ref)
 
-    raw_path = output_dir / f"chapter_{chapter_num}_generated.md"
-    raw_path.write_text(generated + "\n", encoding="utf-8")
+    raw_path: Path | None = None
+    if output_dir:
+        raw_path = output_dir / f"chapter_{chapter_num}_generated.md"
+        raw_path.write_text(generated + "\n", encoding="utf-8")
 
     backup_path: Path | None = None
     if not args.no_writeback:
         chapter_path.parent.mkdir(parents=True, exist_ok=True)
-        if chapter_path.exists():
+        if chapter_path.exists() and output_dir:
             backup_path = output_dir / f"chapter_{chapter_num}_backup_before_writeback.md"
             backup_path.write_text(_read_text(chapter_path), encoding="utf-8")
         chapter_path.write_text(generated + "\n", encoding="utf-8")
@@ -636,9 +656,9 @@ def main() -> int:
         "project_root": str(project_root),
         "chapter_path": str(chapter_path),
         "drafting_mode": drafting_mode,
-        "messages_path": str(messages_path),
-        "provider_output_dir": str(output_dir),
-        "generated_preview_path": str(raw_path),
+        "messages_path": str(messages_path) if output_dir else "",
+        "provider_output_dir": str(output_dir) if output_dir else "",
+        "generated_preview_path": str(raw_path) if raw_path else "",
         "writeback": not args.no_writeback,
         "backup_path": str(backup_path) if backup_path else "",
         "supervision_packet_ref": args.supervision_packet or "",

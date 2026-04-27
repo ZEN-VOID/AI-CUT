@@ -18,7 +18,7 @@ Initialization is incomplete unless all applicable items pass:
 - `team.yaml` exists or is ready to write
 - `team.yaml` records `.agents/skills/team/` as the only selector scope
 - planning direct-answer packets ran with real subagents for actual initialization
-- `north_star.yaml` has minimum long-term fields, safe `全局风格`, required `细分风格`, default Chinese style text, and configured character caps
+- `north_star.yaml` has minimum long-term fields, safe `全局风格`, required `细分风格`, default Chinese style text, configured character caps, and `全局风格提示词` explicitly contains `全局风格.媒介属性`
 - `init_handoff.yaml` has stage-entry seeds and `unknowns`
 - `story-source-manifest.yaml` exists and marks readiness
 - `STATE.json` points to primary init artifacts and one recommended next entry
@@ -35,7 +35,7 @@ Initialization is incomplete unless all applicable items pass:
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
 | `FIELD-INIT-01` | `north_star.yaml` contains only long-lived project constraints and valid adaptation policy | `FAIL-INIT-01` | `N4/N5` |
-| `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 细分风格 / 类型元素 / 世界观`; `全局风格` is a cross-design safe prefix and contains no lens, character-material, scene-composition, costume-detail, or prop-detail payload; `全局风格提示词 <= 200 字`, `类型元素提示词 <= 30 字`, `画面风格 <= 70 字`, `服装风格 / 建筑风格 / 物品风格 <= 100 字` | `FAIL-INIT-01G` | `N4/N5` |
+| `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 细分风格 / 类型元素 / 世界观`; `全局风格` is a cross-design safe prefix and contains no lens, character-material, scene-composition, costume-detail, or prop-detail payload; `全局风格提示词` explicitly includes `全局风格.媒介属性`; `全局风格提示词 <= 200 字`, `类型元素提示词 <= 30 字`, `画面风格 <= 70 字`, `服装风格 / 建筑风格 / 物品风格 <= 100 字`; `画面风格` is unified picture style, not scene-specific strategy | `FAIL-INIT-01G` | `N4/N5` |
 | `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, `unknowns`, and source/provenance breakdown | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-03` | mode, lineup, field provenance, `team_ref`, and decision source are traceable | `FAIL-INIT-03` | `N1/N3` |
 | `FIELD-INIT-04` | `team.yaml` has roles, selector root, planning direct-answer provenance, and final gate semantics | `FAIL-INIT-04` | `N3/N4/N5` |

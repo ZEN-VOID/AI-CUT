@@ -23,7 +23,7 @@ skill_role: parent_guide
 它拥有：
 
 - 当前章润色稿写权：`projects/story/<项目名>/4-润色/第N卷/第N章.md`
-- 润色 sidecar artifacts 写权：`projects/story/<项目名>/reports/4-润色/<lane>/...`
+- 当前章润色稿写权仅限：`projects/story/<项目名>/4-润色/第N卷/第N章.md`
 - 只对本次被调度 lane 的有效输出做父级聚合与最终落盘的裁决权
 
 它不拥有：
@@ -46,9 +46,9 @@ skill_role: parent_guide
 | mode | 触发信号 | 父级动作 | 子流动作 |
 | --- | --- | --- | --- |
 | `chapter_polish` | `4-润色` 目标章不存在 | 锁定源初稿、选择 lane、生成第一版润色稿 | 从 `3-初稿` 生成 `4-润色` |
-| `polish_rewrite` | `4-润色` 目标章已存在，用户要求重润、覆盖、重新润色 | 回读源初稿与既有润色稿；要求显式覆盖确认 | 重新生成完整润色稿并保留 backup sidecar |
+| `polish_rewrite` | `4-润色` 目标章已存在，用户要求重润、覆盖、重新润色 | 回读源初稿与既有润色稿；要求显式覆盖确认 | 重新生成完整润色稿 |
 | `local_repair` | 用户或 review 指出局部表达、质感、连续性或事实漂移问题 | 把 finding 路由到最小有效修复范围 | 局部修复，不扩大为整章重写，除非 finding 指向全章失效 |
-| `dry_run` | 用户或脚本只要求装配上下文 | 只产出 context/messages pack，不写正文真源 | 不调用 provider 或不落盘正文 |
+| `dry_run` | 用户或脚本只要求装配上下文 | 只返回 stdout 摘要，不写正文真源 | 不调用 provider 或不落盘正文 |
 
 ## Input Contract
 
@@ -97,7 +97,7 @@ skill_role: parent_guide
 | `G3-GENRE-TEXTURE` | 题材质感 | `north_star.yaml.genre_contract` 能落实到场景压力、情绪颗粒、对白和节奏 |
 | `G4-CONTINUITY` | 连续性 | 与上一章、当前章 planning、项目记忆不冲突 |
 | `G5-OUTPUT-SHAPE` | 输出形态 | 完整 Markdown 章节；frontmatter 至少包含 `润色模型` 与 `初稿来源` |
-| `G6-PATH-SIDECAR` | 路径与证据 | 写入 `4-润色/第N卷/第N章.md`，sidecar 可追溯源初稿与 lane 输出 |
+| `G6-PATH` | 路径 | 写入 `4-润色/第N卷/第N章.md` |
 
 ## Reference Loading Guide
 
@@ -147,7 +147,7 @@ flowchart TD
 | 题材味被磨平 | 题材质感层 | `north_star.yaml.genre_contract` + `CONTEXT.md` Type Map |
 | 输出成点评、摘要或差异说明 | 输出形态层 | `Output Contract` + lane template |
 | 覆盖既有润色稿没有确认或 backup | 写回安全层 | 对应 lane script + review gate |
-| sidecar 无法追溯源初稿或 provider/GPT 输出 | 证据链层 | lane script + `Output Contract` |
+| 输出无法追溯源初稿或 provider/GPT 执行 | 证据链层 | lane script + `Output Contract` |
 | 子流没有加载同目录 `CONTEXT.md` | Skill 2.0 加载层 | lane `Context Loading Contract` |
 
 ## Field Mapping
@@ -172,16 +172,16 @@ flowchart TD
 | `N2-SOURCE-LOCK` | `polish_task_profile` | 锁定并读取 `3-初稿` 源章与目标 `4-润色` 路径 | `source_lock` | `N3-CONTEXT-PACK` |
 | `N3-CONTEXT-PACK` | 源章、planning、north_star、MEMORY、CONTEXT、上一章 | 组装 lane 可消费上下文 | `context_pack` | `N4-LANE-ROUTE` |
 | `N4-LANE-ROUTE` | 用户 provider 意图与上下文 | 选择 A/B/C lane | `lane_selection` | `N5-LANE-EXECUTE` |
-| `N5-LANE-EXECUTE` | `context_pack`、lane 合同 | 由 LLM/provider 完成润色主创 | `polished_markdown` + sidecar | `N6-QUALITY-GATE` |
-| `N6-QUALITY-GATE` | 润色稿、源章、sidecar | 校验事实锚定、中文语感、题材质感、路径与 frontmatter | `gate_result` | `N7-WRITEBACK` |
-| `N7-WRITEBACK` | `gate_result=pass` | 写入 canonical path 并保留证据 | `4-润色/第N卷/第N章.md` | done |
+| `N5-LANE-EXECUTE` | `context_pack`、lane 合同 | 由 LLM/provider 完成润色主创 | `polished_markdown` | `N6-QUALITY-GATE` |
+| `N6-QUALITY-GATE` | 润色稿、源章 | 校验事实锚定、中文语感、题材质感、路径与 frontmatter | `gate_result` | `N7-WRITEBACK` |
+| `N7-WRITEBACK` | `gate_result=pass` | 写入 canonical path | `4-润色/第N卷/第N章.md` | done |
 
 ## Output Contract
 
 | field | contract |
 | --- | --- |
-| Required output | 当前章完整中文润色稿 Markdown 文件，以及必要 lane sidecar artifacts。 |
+| Required output | 当前章完整中文润色稿 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型` 与 `初稿来源`。 |
 | Output path | 业务真源固定写入 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | 已真实读取 `3-初稿` 源章；已执行所选 lane 的润色主创；中文表达与题材质感门禁通过；输出写回 canonical path；sidecar 可追溯源初稿、messages/context pack 与 provider/GPT 输出。 |
+| Completion gate | 已真实读取 `3-初稿` 源章；已执行所选 lane 的润色主创；中文表达与题材质感门禁通过；输出写回 canonical path。 |

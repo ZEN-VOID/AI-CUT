@@ -15,7 +15,7 @@
 | `provider_evidence` | 是否真实命中豆包 provider，并有 messages pack / raw output / report 证据 |
 | `path_contract` | 是否写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` |
 | `script_boundary` | 脚本是否只做机械辅助，没有替代 LLM 主创正文 |
-| `overwrite_safety` | 已有章节是否要求显式 mode + `--force`，并生成 backup sidecar |
+| `overwrite_safety` | 已有章节是否要求显式 mode + `--force` |
 | `repair_authorship` | 返工/修复优化是否仍由 Doubao provider 执行，subagents 是否只作为 brief 与复核层 |
 
 ## Verdict Model
@@ -64,5 +64,5 @@ finding:
 - provider 证据链缺失，却宣称按当前技能完成。
 - 返工或修复优化缺 Doubao repair messages/report，却继续保持 `写作模型: Doubao` 或宣称按 `B-Doubao流` 完成。
 - 脚本以规则拼接或模板填充替代 LLM 主创正文。
-- 覆盖已有章节时没有显式 `--force` 或 backup sidecar。
+- 覆盖已有章节时没有显式 `--force`。
 - 当前卷已完成却未触发 `review/final_acceptance` 或未说明延后原因。

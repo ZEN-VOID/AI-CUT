@@ -13,6 +13,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Iterable
 
@@ -434,10 +435,6 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
             raise ValueError(f"DeepSeek 返回正文仍保留 planning 语言：{pattern}")
 
 
-def _default_output_dir(project_root: Path, volume_num: int, chapter_num: int) -> Path:
-    return project_root / "reports" / "4-润色" / "deepseek" / f"第{volume_num}卷" / f"第{chapter_num}章"
-
-
 def _run_deepseek(messages_path: Path, output_dir: Path, *, max_tokens: int, stream: bool, timeout: int) -> str:
     cmd = [
         sys.executable,
@@ -478,7 +475,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Polish chapter manuscript via DeepSeek")
     parser.add_argument("--project-root", help="explicit project root; defaults to active story project")
     parser.add_argument("--chapter", type=int, required=True, help="target chapter number")
-    parser.add_argument("--output-dir", help="provider artifact output dir")
+    parser.add_argument("--output-dir", help="optional debug artifact output dir; default writes no sidecar files")
     parser.add_argument("--max-tokens", type=int, default=12000)
     parser.add_argument("--timeout", type=int, default=240, help="DeepSeek request timeout in seconds")
     parser.add_argument(
@@ -583,10 +580,12 @@ def main() -> int:
         supervision_packet_text=supervision_packet_text,
     )
 
-    output_dir = Path(args.output_dir) if args.output_dir else _default_output_dir(project_root, volume_num, chapter_num)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    messages_path = output_dir / f"chapter_{chapter_num}_deepseek_messages.json"
-    messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_dir = Path(args.output_dir) if args.output_dir else None
+    messages_path: Path | None = None
+    if output_dir:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        messages_path = output_dir / f"chapter_{chapter_num}_deepseek_messages.json"
+        messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
 
     if args.dry_run:
         summary = {
@@ -596,8 +595,8 @@ def main() -> int:
             "chapter_path": str(chapter_path),
             "source_draft_path": str(source_draft_path),
             "polishing_mode": polishing_mode,
-            "messages_path": str(messages_path),
-            "output_dir": str(output_dir),
+            "messages_path": str(messages_path) if messages_path else "",
+            "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root),
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
@@ -609,19 +608,40 @@ def main() -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
 
-    generated = _strip_code_fence(
-        _run_deepseek(
-            messages_path,
-            output_dir,
-            max_tokens=args.max_tokens,
-            stream=args.stream,
-            timeout=args.timeout,
+    if output_dir:
+        run_dir = output_dir
+        if messages_path is None:
+            messages_path = run_dir / f"chapter_{chapter_num}_deepseek_messages.json"
+            messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+        generated = _strip_code_fence(
+            _run_deepseek(
+                messages_path,
+                run_dir,
+                max_tokens=args.max_tokens,
+                stream=args.stream,
+                timeout=args.timeout,
+            )
         )
-    )
+    else:
+        with tempfile.TemporaryDirectory(prefix="story-polishing-deepseek-") as temp_output_dir:
+            run_dir = Path(temp_output_dir)
+            messages_path = run_dir / f"chapter_{chapter_num}_deepseek_messages.json"
+            messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+            generated = _strip_code_fence(
+                _run_deepseek(
+                    messages_path,
+                    run_dir,
+                    max_tokens=args.max_tokens,
+                    stream=args.stream,
+                    timeout=args.timeout,
+                )
+            )
     _validate_generated_markdown(generated, chapter_num)
 
-    raw_path = output_dir / f"chapter_{chapter_num}_generated.md"
-    raw_path.write_text(generated + "\n", encoding="utf-8")
+    raw_path: Path | None = None
+    if output_dir:
+        raw_path = output_dir / f"chapter_{chapter_num}_generated.md"
+        raw_path.write_text(generated + "\n", encoding="utf-8")
 
     if not args.no_writeback:
         chapter_path.parent.mkdir(parents=True, exist_ok=True)
@@ -633,9 +653,9 @@ def main() -> int:
         "chapter_path": str(chapter_path),
         "source_draft_path": str(source_draft_path),
         "polishing_mode": polishing_mode,
-        "messages_path": str(messages_path),
-        "provider_output_dir": str(output_dir),
-        "generated_preview_path": str(raw_path),
+        "messages_path": str(messages_path) if output_dir else "",
+        "provider_output_dir": str(output_dir) if output_dir else "",
+        "generated_preview_path": str(raw_path) if raw_path else "",
         "writeback": not args.no_writeback,
         "provider": "deepseek-v4-pro",
         "thinking": "enabled",

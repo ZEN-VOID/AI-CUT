@@ -391,10 +391,6 @@ def _resolve_drafting_mode(requested_mode: str, chapter_path: Path) -> str:
     )
 
 
-def _default_output_dir(project_root: Path, volume_num: int, chapter_num: int) -> Path:
-    return project_root / "reports" / "3-初稿" / "gpt-native" / f"第{volume_num}卷" / f"第{chapter_num}章"
-
-
 def _load_authored_draft(args: argparse.Namespace) -> str:
     if args.from_stdin:
         return sys.stdin.read()
@@ -410,7 +406,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate and write a GPT-native chapter manuscript")
     parser.add_argument("--project-root", help="explicit project root; defaults to active story project")
     parser.add_argument("--chapter", type=int, required=True, help="target chapter number")
-    parser.add_argument("--output-dir", help="GPT-native artifact output dir")
+    parser.add_argument("--output-dir", help="optional debug artifact output dir; default writes no sidecar files")
     parser.add_argument(
         "--mode",
         choices=("auto", "chapter_draft", "chapter_rewrite", "chapter_continue", "local_repair"),
@@ -421,7 +417,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--supervision-packet", help="team supervision packet file produced by drafting subagents")
     parser.add_argument("--draft-file", help="Markdown file already authored by the current GPT/LLM session")
     parser.add_argument("--from-stdin", action="store_true", help="read the GPT-authored Markdown from stdin")
-    parser.add_argument("--no-writeback", action="store_true", help="validate and save sidecar without writing canonical chapter")
+    parser.add_argument("--no-writeback", action="store_true", help="validate without writing canonical chapter")
     return parser
 
 
@@ -474,10 +470,12 @@ def main() -> int:
         supervision_packet_text=supervision_packet_text,
     )
 
-    output_dir = Path(args.output_dir) if args.output_dir else _default_output_dir(project_root, volume_num, chapter_num)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    messages_path = output_dir / f"chapter_{chapter_num}_gpt_native_messages.json"
-    messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_dir = Path(args.output_dir) if args.output_dir else None
+    messages_path: Path | None = None
+    if output_dir:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        messages_path = output_dir / f"chapter_{chapter_num}_gpt_native_messages.json"
+        messages_path.write_text(json.dumps(messages, ensure_ascii=False, indent=2), encoding="utf-8")
 
     if args.dry_run:
         summary = {
@@ -486,8 +484,8 @@ def main() -> int:
             "project_root": str(project_root),
             "chapter_path": str(chapter_path),
             "drafting_mode": drafting_mode,
-            "messages_path": str(messages_path),
-            "output_dir": str(output_dir),
+            "messages_path": str(messages_path) if messages_path else "",
+            "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root) if memory_path.is_file() else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
@@ -499,8 +497,10 @@ def main() -> int:
     generated = _strip_code_fence(_load_authored_draft(args))
     _validate_generated_markdown(generated, chapter_num)
 
-    raw_path = output_dir / f"chapter_{chapter_num}_gpt_authored.md"
-    raw_path.write_text(generated + "\n", encoding="utf-8")
+    raw_path: Path | None = None
+    if output_dir:
+        raw_path = output_dir / f"chapter_{chapter_num}_gpt_authored.md"
+        raw_path.write_text(generated + "\n", encoding="utf-8")
 
     if not args.no_writeback:
         chapter_path.parent.mkdir(parents=True, exist_ok=True)
@@ -511,9 +511,9 @@ def main() -> int:
         "project_root": str(project_root),
         "chapter_path": str(chapter_path),
         "drafting_mode": drafting_mode,
-        "messages_path": str(messages_path),
-        "gpt_native_output_dir": str(output_dir),
-        "authored_draft_path": str(raw_path),
+        "messages_path": str(messages_path) if messages_path else "",
+        "gpt_native_output_dir": str(output_dir) if output_dir else "",
+        "authored_draft_path": str(raw_path) if raw_path else "",
         "writeback": not args.no_writeback,
         "supervision_packet_ref": args.supervision_packet or "",
     }

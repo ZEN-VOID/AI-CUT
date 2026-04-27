@@ -6,11 +6,11 @@
 
 | field | mapping |
 | --- | --- |
-| Required output | 当前章完整中文小说 Markdown 文件；必要 provider sidecar artifacts。 |
+| Required output | 当前章完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节正文。 |
 | Output path | `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | provider 真实命中，极简 frontmatter（仅 `写作模型: Doubao`）可解析，heading/正文完整度校验通过，canonical path 写回完成；覆盖已有章节时必须有 backup sidecar。 |
+| Completion gate | provider 真实命中，极简 frontmatter（仅 `写作模型: Doubao`）可解析，heading/正文完整度校验通过，canonical path 写回完成。 |
 
 ## Markdown Skeleton
 

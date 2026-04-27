@@ -6,7 +6,7 @@
 
 | field | mapping |
 | --- | --- |
-| Required output | 基于 `3-初稿/第N卷/第N章.md` 二次改写后的完整中文小说 Markdown 文件；必要 GPT-native sidecar artifacts。 |
+| Required output | 基于 `3-初稿/第N卷/第N章.md` 二次改写后的完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿。 |
 | Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |

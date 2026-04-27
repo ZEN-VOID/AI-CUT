@@ -49,7 +49,7 @@ python3 .agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doub
   --dry-run
 ```
 
-When the target chapter already exists, formal writeback requires explicit `--mode chapter_rewrite / chapter_continue / local_repair` plus `--force`. The script injects the existing chapter into the provider context and writes a backup sidecar before overwriting.
+When the target chapter already exists, formal writeback requires explicit `--mode chapter_rewrite / chapter_continue / local_repair` plus `--force`. The script injects the existing chapter into the provider context before overwriting and does not write extra sidecar files by default.
 
 ## Truth Boundary
 

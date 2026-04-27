@@ -48,7 +48,7 @@ python3 .agents/skills/story/4-润色/B-Doubao流/scripts/polish_chapter_via_dou
   --dry-run
 ```
 
-When the target chapter already exists, formal writeback requires explicit `--mode polish_rewrite / local_repair` plus `--force`. The script injects the existing chapter into the provider context and writes a backup sidecar before overwriting.
+When the target chapter already exists, formal writeback requires explicit `--mode polish_rewrite / local_repair` plus `--force`. The script injects the existing chapter into the provider context before overwriting and does not write extra sidecar files by default.
 
 ## Truth Boundary
 

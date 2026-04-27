@@ -20,7 +20,7 @@
 | 上一章虽然被读取，但新章仍像重新开局 | continuity bridge under-specified | 把上一章末尾摘录单独置入 provider prompt，并显式要求承接既成事实、位置、情绪余波、未完成动作和悬念压力 | 将“上一章正文”升级为 `continuity bridge`，并在 dry-run summary 暴露 `previous_chapter_ref` | messages pack 中能看到连续性桥；正文开章能读出上一章之后的下一步 |
 | DeepSeek provider 返回 markdown 但缺 YAML 头 | provider output validation | 阻断写回，调整 prompt 或增大 `max_tokens` 后重试 | 写回前固定校验 `润色模型: Deepseek` | 非法输出不落到 `第N章.md` |
 | DeepSeek 返回结构字段齐全但正文仍是占位、过短或 planning 复述 | prose completeness validation | 阻断写回，要求 provider 重出完整小说 prose | validator 只要求极简 YAML 头，同时检查正文长度、占位符和 planning 术语 | `[请填充完整润色章节润色稿]`、缺 closing frontmatter、`本章冲突` 等样本均被拒绝 |
-| provider 证据链缺失 | evidence routing | 重新跑脚本，保留 messages pack、raw generated preview 和 provider sidecar | artifacts 固定落到 `reports/4-润色/deepseek/...` | 目录中可追溯 messages / raw / report |
+| provider 证据链缺失 | evidence routing | 重新跑脚本并核对 stdout 摘要、provider 命中与 canonical writeback | 默认不落盘 provider artifacts；需要调试时才显式传 `--output-dir` | 未传 `--output-dir` 时只写 `4-润色/第N卷/第N章.md` |
 | auto 模式在现有章上静默重写 | writeback safety gate | 现有章正式写回必须显式 mode + `--force` | `auto` 只允许新章直写；现稿 dry-run/no-writeback 可装配上下文但不覆盖 | 已存在 `第N章.md` 时普通 auto 调用会阻断 |
 | 卷级 review 失败后 GPT 直接改正文，导致 C lane provider ownership 失真 | review loop ownership drift | GPT/subagents 只产出 repair brief，仍由 DeepSeek 执行 `local_repair` 或 `polish_rewrite` | review aggregate 必须带 `original_polishing_lane=C-Deepseek流` 与 repair mode | 返工 sidecar 有 DeepSeek messages/provider report |
 

@@ -30,7 +30,7 @@ governance_tier: full
 
 - 当前章正文根文件写权：`projects/story/<项目名>/3-初稿/第N卷/第N章.md`
 - 当前章 YAML frontmatter 的写权
-- DeepSeek provider artifacts 的辅助落盘权
+- DeepSeek 调试信息的 stdout 摘要权；无默认辅助落盘权
 
 它不拥有：
 
@@ -137,7 +137,7 @@ flowchart TD
 - 正式写作必须有 `supervision_packet` 或明确的 subagent 降级报告；该包作为执行约束进入 DeepSeek messages，不写入正文 frontmatter。
 - 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 - provider 返回内容缺完整 YAML frontmatter、`写作模型: Deepseek` 或 `# 第N章｜章标题` 标题行时，禁止写回业务真源。
-- DeepSeek provider artifacts 可落到项目 `reports/3-初稿/deepseek/.../`，但它们不是业务真源。
+- 本 lane 正式产物只写入 `projects/story/<项目名>/3-初稿/`。
 - 单章 writeback 只代表 candidate draft；当前卷通过 `review` 的卷级 aggregate PASS 后，才可称为 validated final draft。
 
 ## Root-Cause Execution Contract
@@ -180,7 +180,7 @@ flowchart TD
 python3 .agents/skills/story/3-初稿/C-Deepseek流/scripts/write_chapter_via_deepseek.py \
   --project-root "projects/story/<项目名>" \
   --chapter 12 \
-  --supervision-packet "projects/story/<项目名>/reports/3-初稿/supervision/第2卷/第12章.yaml"
+  --supervision-packet "projects/story/<项目名>/3-初稿/supervision/第2卷/第12章.yaml"
 ```
 
 Dry run:
@@ -189,7 +189,7 @@ Dry run:
 python3 .agents/skills/story/3-初稿/C-Deepseek流/scripts/write_chapter_via_deepseek.py \
   --project-root "projects/story/<项目名>" \
   --chapter 12 \
-  --supervision-packet "projects/story/<项目名>/reports/3-初稿/supervision/第2卷/第12章.yaml" \
+  --supervision-packet "projects/story/<项目名>/3-初稿/supervision/第2卷/第12章.yaml" \
   --dry-run
 ```
 
@@ -197,8 +197,8 @@ python3 .agents/skills/story/3-初稿/C-Deepseek流/scripts/write_chapter_via_de
 
 | field | contract |
 | --- | --- |
-| Required output | 当前章完整中文小说 Markdown 文件，以及必要的 DeepSeek provider sidecar artifacts。 |
+| Required output | 当前章完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节正文；frontmatter schema 见 `references/chapter-drafting-contract.md`。 |
-| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；provider artifacts 可写入 `projects/story/<项目名>/reports/3-初稿/deepseek/.../`。 |
+| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录使用 `第N卷`，章节文件使用 `第N章.md`；不得降格为平铺旧路径、`正文/` 或临时 sibling 文件。 |
-| Completion gate | DeepSeek provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path；必要 sidecar 能追溯 messages pack、raw output 与 writeback。 |
+| Completion gate | DeepSeek provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path。 |

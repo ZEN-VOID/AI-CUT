@@ -97,4 +97,4 @@ YAML 头至少包含：
 - frontmatter 只记录 `润色模型`，不承载上下文引用或摘要。
 - 正文主体不得保留“本章故事概要 / 本章冲突 / 规避”之类 planning 标题。
 - 章末必须对齐当前章 planning 的 `exit_hook / 对下章的直接推动 / 章末达成` 中至少一项强义务。
-- 当前技能的 provider artifacts 不是业务真源。
+- 当前技能默认不落盘 provider artifacts；业务真源只有 canonical 润色章节文件。

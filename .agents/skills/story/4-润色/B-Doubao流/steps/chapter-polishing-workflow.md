@@ -65,4 +65,4 @@ flowchart TD
 - 正式创作至少应产生 messages pack、supervision packet 或降级报告、provider output、provider report 或等价 sidecar，以及 canonical chapter file。
 - 卷完成时必须产生 `review` handoff 或 aggregate 引用；未满卷时必须标记为 candidate draft。
 - 任何没有 provider 证据链的正文不得宣称按 `story-polishing-doubao` 完成。
-- 任何覆盖已有 canonical 章节的正式写回必须留下 backup sidecar。
+- 覆盖已有 canonical 章节必须显式 `--force`；默认不另写 backup sidecar。

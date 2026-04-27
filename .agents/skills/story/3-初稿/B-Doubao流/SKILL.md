@@ -29,7 +29,7 @@ governance_tier: full
 
 - 当前章正文根文件写权：`projects/story/<项目名>/3-初稿/第N卷/第N章.md`
 - 当前章 YAML frontmatter 的写权
-- provider artifacts 的辅助落盘权
+- provider 调试信息的 stdout 摘要权；无默认辅助落盘权
 
 它不拥有：
 
@@ -159,7 +159,7 @@ graph LR
 - 正式写作必须有 `supervision_packet` 或明确的 subagent 降级报告；该包作为执行约束进入 Doubao messages，不写入正文 frontmatter。
 - 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 - provider 返回内容缺完整可解析 YAML frontmatter、`写作模型: Doubao`、`# 第N章｜章标题` 标题行或正文完整度时，禁止写回业务真源。
-- provider artifacts 可落到项目 `reports/3-初稿/doubao/.../`，但它们不是业务真源。
+- 本 lane 正式产物只写入 `projects/story/<项目名>/3-初稿/`。
 - 单章 writeback 只代表 candidate draft；当前卷通过 `review` 的卷级 aggregate PASS 后，才可称为 validated final draft。
 
 ## Root-Cause Execution Contract
@@ -228,7 +228,7 @@ graph LR
 python3 .agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doubao.py \
   --project-root "projects/story/<项目名>" \
   --chapter 12 \
-  --supervision-packet "projects/story/<项目名>/reports/3-初稿/supervision/第2卷/第12章.yaml" \
+  --supervision-packet "projects/story/<项目名>/3-初稿/supervision/第2卷/第12章.yaml" \
   --mode chapter_draft
 ```
 
@@ -238,7 +238,7 @@ Dry run:
 python3 .agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doubao.py \
   --project-root "projects/story/<项目名>" \
   --chapter 12 \
-  --supervision-packet "projects/story/<项目名>/reports/3-初稿/supervision/第2卷/第12章.yaml" \
+  --supervision-packet "projects/story/<项目名>/3-初稿/supervision/第2卷/第12章.yaml" \
   --dry-run
 ```
 
@@ -249,7 +249,7 @@ python3 .agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doub
   --project-root "projects/story/<项目名>" \
   --chapter 12 \
   --mode chapter_rewrite \
-  --supervision-packet "projects/story/<项目名>/reports/3-初稿/supervision/第2卷/第12章.yaml" \
+  --supervision-packet "projects/story/<项目名>/3-初稿/supervision/第2卷/第12章.yaml" \
   --instruction "按 review finding 修正节奏断裂与人物失声口" \
   --force
 ```
@@ -258,8 +258,8 @@ python3 .agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doub
 
 | field | contract |
 | --- | --- |
-| Required output | 当前章完整中文小说 Markdown 文件，以及必要的 provider sidecar artifacts。 |
+| Required output | 当前章完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节正文；frontmatter schema 见 `references/chapter-drafting-contract.md`。 |
-| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；provider artifacts 可写入 `projects/story/<项目名>/reports/3-初稿/doubao/.../`。 |
+| Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录使用 `第N卷`，章节文件使用 `第N章.md`；不得降格为平铺旧路径、`正文/` 或临时 sibling 文件。 |
-| Completion gate | team supervision subagents 已真实启动并产出 `supervision_packet`，或有上层阻断降级报告；豆包 provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path；必要 sidecar 能追溯 messages pack、supervision packet、raw output 与 writeback；卷完成后已进入 `review` 或留下明确 handoff。 |
+| Completion gate | team supervision subagents 已真实启动并产出 `supervision_packet`，或有上层阻断降级报告；豆包 provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path；卷完成后已进入 `review` 或留下明确 handoff。 |

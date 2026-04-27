@@ -51,8 +51,8 @@ governance_tier: full
 
 | field | contract |
 | --- | --- |
-| Required output | 基于当前章 `3-初稿` 二次改写后的完整中文小说 Markdown 文件，以及必要 DeepSeek sidecar artifacts。 |
+| Required output | 基于当前章 `3-初稿` 二次改写后的完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型: Deepseek` 与 `初稿来源`。 |
-| Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`；artifacts 可写入 `projects/story/<项目名>/reports/4-润色/deepseek/.../`。 |
+| Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | `3-初稿` 源章已读取；DeepSeek provider 真实命中；输出通过 frontmatter、heading、正文完整度、中文表达与题材质感门禁；必要 sidecar 可追溯 messages、raw output 与 writeback。 |
+| Completion gate | `3-初稿` 源章已读取；DeepSeek provider 真实命中；输出通过 frontmatter、heading、正文完整度、中文表达与题材质感门禁；正式正文已写回 canonical path。 |

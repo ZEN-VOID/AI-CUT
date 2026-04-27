@@ -15,7 +15,7 @@
 | `provider_evidence` | 是否真实命中豆包 provider，并有 messages pack / raw output / report 证据 |
 | `path_contract` | 是否写入 `projects/story/<项目名>/4-润色/第N卷/第N章.md` |
 | `script_boundary` | 脚本是否只做机械辅助，没有替代 LLM 主创正文 |
-| `overwrite_safety` | 已有章节是否要求显式 mode + `--force`，并生成 backup sidecar |
+| `overwrite_safety` | 已有章节是否要求显式 mode + `--force` |
 
 ## Verdict Model
 
@@ -61,5 +61,5 @@ finding:
 - 缺少 `supervision_packet` 或 subagent 降级报告。
 - provider 证据链缺失，却宣称按当前技能完成。
 - 脚本以规则拼接或模板填充替代 LLM 主创正文。
-- 覆盖已有章节时没有显式 `--force` 或 backup sidecar。
+- 覆盖已有章节时没有显式 `--force`。
 - 当前卷已完成却未触发 `review/final_acceptance` 或未说明延后原因。

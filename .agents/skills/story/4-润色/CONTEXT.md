@@ -24,7 +24,7 @@ last_checked_at: 2026-04-26
 | `TM-POLISH-05` | 润色稿只做同义词替换，读感变化很小 | shallow rewrite | 要求重做句群节奏、段落密度、动作/感官/对白/心理层面的二次加工 | 将“不是同义词替换”上升为父级 Base Polishing Rule | 抽查三段以上能看到叙述重心和节奏变化 |
 | `TM-POLISH-06` | 润色稿为了高级感删掉爽点、压低情绪或抹平人物声音 | over-smoothing | 回到项目 `MEMORY.md` 和 `north_star`，恢复口味、人物声音、爽点/悬疑/情绪压力 | 系统提示禁止“清洗风格”为通用顺滑文本 | 润色后仍保留项目的锋芒、口味和人物辨识度 |
 | `TM-POLISH-07` | local repair 扩大成整章重写 | repair scope creep | 根据 finding 标注段落、问题类型和最小修复范围 | `local_repair` 默认不扩大；除非 finding 指向全章失效 | 修复 diff 只影响问题区域及必要上下文 |
-| `TM-POLISH-08` | 既有 `4-润色` 被覆盖但没有 backup 或显式确认 | writeback safety | 阻断正式写回，要求 `--force` 或等价确认并生成 backup sidecar | lane script 固定覆盖保护 | 覆盖前后均能追溯旧润色稿 |
+| `TM-POLISH-08` | 既有 `4-润色` 被静默覆盖 | writeback safety | 阻断正式写回，要求 `--force` 或等价确认 | lane script 固定覆盖保护 | 覆盖必须来自显式确认 |
 | `TM-POLISH-09` | frontmatter 写入大量 planning/context 摘要 | metadata density | 只保留 `润色模型` 与 `初稿来源`，其它证据写入 sidecar | 输出模板和 validator 禁止上下文摘要进正文 YAML | YAML 头极简，正文 token 留给 prose |
 | `TM-POLISH-10` | 用户要“更像中文”，但结果只是口语化、变浅 | Chinese style overcorrection | 区分自然中文与随意口语，保留文学密度、场景压力和语义层次 | 在 prompt 中同时要求自然语感与题材质感 | 文本更顺，但没有损失信息密度和气氛 |
 
@@ -32,7 +32,7 @@ last_checked_at: 2026-04-26
 
 1. 先检查当前章 `3-初稿/第N卷/第N章.md` 是否存在；缺失时硬失败，不用 planning 补写。
 2. 若用户只说“润色”，默认走 `B-Doubao流`；点名 GPT 或 DeepSeek 时进入对应 lane。
-3. 若目标 `4-润色` 已存在，先回读既有润色稿；正式覆盖必须要求显式确认并保留 backup sidecar。
+3. 若目标 `4-润色` 已存在，先回读既有润色稿；正式覆盖必须要求显式确认。
 4. 若润色稿改动了核心剧情，回到初稿事实锚点，要求“只改表达，不改事件”。
 5. 若润色稿只变顺但没质感，回读 `north_star.yaml.genre_contract` 与风格约束，把题材压力落实到段落节奏、场景密度和对白。
 6. 若输出像点评或建议，回到 lane 模板，要求只输出完整 Markdown 文件本身。

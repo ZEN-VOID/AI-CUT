@@ -43,6 +43,6 @@
 | output_type | path | truth role |
 | --- | --- | --- |
 | `canonical_draft` | `projects/story/<项目名>/4-润色/第N卷/第N章.md` | 章节润色稿业务真源 |
-| `messages_pack` | `projects/story/<项目名>/reports/4-润色/doubao/.../*messages.json` | provider 输入证据 |
-| `provider_sidecar` | `projects/story/<项目名>/reports/4-润色/doubao/.../` | provider 过程证据 |
+| `messages_pack` | 临时 provider 目录；显式 `--output-dir` 调试时才落盘 | provider 输入证据 |
+| `provider_sidecar` | 默认不落盘；显式 `--output-dir` 调试时才生成 | provider 过程证据 |
 | `repair_patch` | review 或报告工件 | 辅助修复说明，不直接夺取正文真源 |

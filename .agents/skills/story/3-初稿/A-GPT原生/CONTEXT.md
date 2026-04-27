@@ -16,7 +16,7 @@
 | 项目有 `MEMORY.md` 或 `CONTEXT/`，但正文没有吸收项目长期偏好 | project context loading | 先读项目记忆，再按相关性选项目上下文 | 固定项目根上下文加载顺序与 sidecar refs | sidecar 中 `project_context_refs` 与真实上下文一致 |
 | 把上一章当成硬阻塞门，上一章缺失就停工 | continuity policy | 改成“上一章增强输入，planning 是兜底硬输入” | 固定“previous optional, planning mandatory” | 上一章不存在时，本章仍可开写 |
 | 上一章虽然被读取，但新章仍像重新开局 | continuity bridge under-specified | 把上一章末尾摘录单独置入 context pack，并显式要求承接既成事实、位置、情绪余波、未完成动作和悬念压力 | 将“上一章正文”升级为 `continuity bridge`，并在 dry-run summary 暴露 `previous_chapter_ref` | context pack 中能看到连续性桥；正文开章能读出上一章之后的下一步 |
-| GPT 原生正文缺少 sidecar，无法证明读过哪些源 | evidence chain gap | 运行 `write_chapter_gpt_native.py --dry-run` 生成 context pack | 在 Completion gate 中固定 context pack / authored draft / writeback 证据链 | `reports/3-初稿/gpt-native/...` 能追溯输入和输出 |
+| GPT 原生正文缺少可复核加载痕迹 | evidence chain gap | 运行 `write_chapter_gpt_native.py --dry-run` 检查 context pack 摘要，正式执行只写 canonical 章节 | Completion gate 固定加载计划、GPT-authored draft 与 writeback 状态 | 最终章节仍可追溯到加载计划与 stdout 摘要 |
 | 脚本开始自动补写正文段落 | script boundary drift | 立即删除规则补写逻辑，改为只接受 `--draft-file` 或 stdin 的 LLM 已创作稿 | 在脚本和 review gate 中固定“脚本不主创” | 脚本没有任何模板灌字、启发式扩写或段落生成函数 |
 | GPT 原生主写作者自评被当成独立监制 | supervision isolation gap | 启动后台隔离 subagents 产出 `supervision_packet`，主写作者只消费汇流后的约束 | A lane 固定“同模型也要隔离上下文”，脚本支持 `--supervision-packet` | messages JSON 中含监制包；报告能列出真实 subagent 或降级原因 |
 | frontmatter 变成大段资料转储，压过正文 | metadata density | 从正文 YAML 头移除重复上下文字段 | 固定正文 YAML 头只保留 `写作模型`，引用和摘要留在 sidecar | YAML 头极简，正文 token 留给 prose |

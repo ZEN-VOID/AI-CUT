@@ -44,6 +44,6 @@
 | output_type | path | truth role |
 | --- | --- | --- |
 | `canonical_draft` | `projects/story/<项目名>/4-润色/第N卷/第N章.md` | 章节润色稿业务真源 |
-| `context_pack` | `projects/story/<项目名>/reports/4-润色/gpt-native/.../*messages.json` | GPT 原生创作输入证据 |
-| `gpt_native_sidecar` | `projects/story/<项目名>/reports/4-润色/gpt-native/.../` | GPT 原生过程证据 |
+| `context_pack` | stdout summary；显式 `--output-dir` 调试时才落盘 | GPT 原生创作输入证据 |
+| `gpt_native_sidecar` | 默认不落盘；显式 `--output-dir` 调试时才生成 | GPT 原生过程证据 |
 | `repair_patch` | review 或报告工件 | 辅助修复说明，不直接夺取正文真源 |

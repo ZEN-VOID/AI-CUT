@@ -50,8 +50,8 @@ governance_tier: full
 
 | field | contract |
 | --- | --- |
-| Required output | 基于当前章 `3-初稿` 二次改写后的完整中文小说 Markdown 文件，以及必要 Doubao sidecar artifacts。 |
+| Required output | 基于当前章 `3-初稿` 二次改写后的完整中文小说 Markdown 文件。 |
 | Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型: Doubao` 与 `初稿来源`。 |
-| Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`；artifacts 可写入 `projects/story/<项目名>/reports/4-润色/doubao/.../`。 |
+| Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | `3-初稿` 源章已读取；Doubao provider 真实命中；输出通过 frontmatter、heading、正文完整度、中文表达与题材质感门禁；覆盖已有润色稿时存在 backup sidecar。 |
+| Completion gate | `3-初稿` 源章已读取；Doubao provider 真实命中；输出通过 frontmatter、heading、正文完整度、中文表达与题材质感门禁；正式正文已写回 canonical path。 |
