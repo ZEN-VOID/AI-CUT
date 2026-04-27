@@ -14,7 +14,7 @@
 - 不负责项：
   - 不重新定义 `team代入模式` 与 `auto/custom` 编组的选择与执行。
   - 不替代 `templates/genres/` 与 `templates/worldbuilding/` 的共享真源角色。
-  - 不把 `2-卷章规划` 的 canonical 编排真源提前拍死。
+  - 不把 `2-卷章` 的 canonical 编排真源提前拍死。
 - 与兄弟模块边界：
   - 上层 `0-初始化` 的 `team代入模式 + auto/custom` 决定执行形态。
   - 本模块只负责创意相关资料的最小读取与槽位回写，不决定 team 路由本身。
@@ -98,7 +98,7 @@
 | 主轴 | 驱动字段 | 判废字段 | 对比字段 | 说明 |
 | --- | --- | --- | --- | --- |
 | 方向轴 | `缺口类型`、`当前阻塞槽位`、`用户显式请求` | 把对象层/worldbuilding 缺口误认成创意缺口；没有真实缺口却想全读 | `约束包优先级`、`商业定位优先级`、`趋势校准必要性` | 决定“先走哪条创意路由” |
-| 成立轴 | `槽位可写回性`、`来源分层可追溯性`、`deferred_to_planning 边界` | 输出仍是资料墙；把 `2-卷章规划` canonical 提前拍死；来源混写 | `north_star.story_kernel / reader_promise` 与 `init_handoff.stage_entry_seeds.planning_seed` 的承接稳定度 | 决定“读到的材料能不能真正进入 handoff” |
+| 成立轴 | `槽位可写回性`、`来源分层可追溯性`、`deferred_to_planning 边界` | 输出仍是资料墙；把 `2-卷章` canonical 提前拍死；来源混写 | `north_star.story_kernel / reader_promise` 与 `init_handoff.stage_entry_seeds.planning_seed` 的承接稳定度 | 决定“读到的材料能不能真正进入 handoff” |
 | 优选轴 | `读取成本`、`差异化收益`、`时效风险` | 一次加载过多 leaf references；未授权就拉趋势资料；多份资料收益重叠 | 同一缺口下哪组最小资料更划算 | 决定“在成立解里选最小而不失效的组合” |
 
 ### 三重
@@ -107,7 +107,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `粗裁决 / Base Range` | `缺口类型`、`阻塞槽位`、`显式趋势请求` | `方向轴 / 优选轴` | 该不该进入本模块、先走哪种创意子路由 | 只允许 `约束包 / 卖点 / 商业定位 / 复合题材 / 灵感救援 / 反套路 / 趋势校准` 七类缺口 | 对象层、worldbuilding、纯执行模式问题直接排出 | 保留 1-2 个最相关子路由进入下一层 | 遮掉轴名后仍能看见是“判缺口类型”，不是泛泛“先想清楚” |
 | `细裁决 / Range Narrowing` | `最小读取清单`、`题材到反套路映射`、`趋势双闸门` | `优选轴 / 方向轴 / 成立轴` | 同一缺口下到底读哪几份 leaf references 才够 | 只在上一层保留的子路由内选择最小资料集 | 4 份以上 leaf references 同时命中、未授权趋势读取、题材映射错位直接排出 | 保留 1 组可成立的最小资料集进入回写 | 改成相邻泛词后无法维持“最小读取”约束，说明字段够锋利 |
-| `离散裁决 / Final Selection` | `north_star_patch`、`project_contract_patch`、`planning_seed_update`、`unknowns_update`、`sources_breakdown` | `成立轴 / 优选轴` | 哪些候选该正式写回，哪些该延后给 `2-卷章规划` | 只比较已成立且来源可追溯的候选写回方案 | 资料摘要、无 provenance 的脑补、越权拍死 planning canonical 的写法全部淘汰 | 输出最终结构化槽位更新 | 调整字段后若 handoff 槽位不变，则当前“向”是假落盘 |
+| `离散裁决 / Final Selection` | `north_star_patch`、`project_contract_patch`、`planning_seed_update`、`unknowns_update`、`sources_breakdown` | `成立轴 / 优选轴` | 哪些候选该正式写回，哪些该延后给 `2-卷章` | 只比较已成立且来源可追溯的候选写回方案 | 资料摘要、无 provenance 的脑补、越权拍死 planning canonical 的写法全部淘汰 | 输出最终结构化槽位更新 | 调整字段后若 handoff 槽位不变，则当前“向”是假落盘 |
 
 ### 层内自省
 
@@ -137,7 +137,7 @@
 
 - 为什么是这个结果：
   - 方向轴判断：最终只选能直接推进初始化 handoff 的结构化写回。
-  - 成立轴判断：来源必须可追溯，且不能越权拍死 `2-卷章规划`。
+  - 成立轴判断：来源必须可追溯，且不能越权拍死 `2-卷章`。
   - 优选轴判断：优先选择能最短路径推进下游消费的写回方案。
 - 如果不是这个结果，会不会有更好的答案：
   - 方向轴判断：若还保留资料摘要，就说明本模块没有完成路由职责。
@@ -207,7 +207,7 @@
 - 动作：
   - 只输出 `north_star.story_kernel / north_star.reader_promise / init_handoff.project_contract / init_handoff.stage_entry_seeds.planning_seed / init_handoff.unknowns` 所需字段。
   - 显式区分 `user_confirmed / assistant_inferred / council_advised`。
-  - 若某项只适合 `2-卷章规划` 再细化，则写入 `unknowns.deferred_to_planning`。
+  - 若某项只适合 `2-卷章` 再细化，则写入 `unknowns.deferred_to_planning`。
 - 产出：
   - `north_star_patch`
   - `project_contract_patch`

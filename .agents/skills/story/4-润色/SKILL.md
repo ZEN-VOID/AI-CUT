@@ -28,7 +28,7 @@ skill_role: parent_guide
 
 它不拥有：
 
-- `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
+- `0-初始化`、`1-设定`、`2-卷章` 的真源改写权
 - `3-初稿` 原始正文覆盖权
 - `review` 的 PASS/FAIL 判定权
 - 未被本轮实际调度 lane 的占位输出、空字段或理论补丁生成权
@@ -57,9 +57,9 @@ skill_role: parent_guide
 - 项目根：`projects/story/<项目名>/`
 - 当前卷章定位：`volume_num / chapter_num`，或可由 `chapter_num` 推导卷号。
 - 初稿正文：`projects/story/<项目名>/3-初稿/第N卷/第N章.md`
-- 规划参考：`projects/story/<项目名>/2-卷章规划/整体规划.md`
-- 规划参考：`projects/story/<项目名>/2-卷章规划/第N卷/卷规划.md`
-- 规划参考：`projects/story/<项目名>/2-卷章规划/第N卷/第N章.md`
+- 规划参考：`projects/story/<项目名>/2-卷章/整体规划.md`
+- 规划参考：`projects/story/<项目名>/2-卷章/第N卷/卷规划.md`
+- 规划参考：`projects/story/<项目名>/2-卷章/第N卷/第N章.md`
 - 风格/题材参考：`projects/story/<项目名>/0-初始化/north_star.yaml`
 
 ### Conditional Input

@@ -576,7 +576,7 @@ def _covenant_issues(ctx: dict[str, Any], *, role_id: str = "context-agent") -> 
     owner_map = {
         "draft_snapshot": "3-初稿",
         "cards_truth": "1-设定",
-        "planning_truth": "2-卷章规划",
+        "planning_truth": "2-卷章",
         "init_truth": "0-初始化",
         "runtime_context": "STATE",
     }
@@ -1061,9 +1061,9 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                     severity="medium",
                     location=f"第{chapter}章规划约束层",
                     description=f"planning truth 声明了本章不可擅自改写的约束，但正文没有给出清晰锚点：{misses[0]}",
-                    suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-卷章规划` 修源。",
+                    suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-卷章` 修源。",
                     rework_target_step="source-contract-fix",
-                    source_layer_owner="2-卷章规划",
+                    source_layer_owner="2-卷章",
                 )
             )
 
@@ -1096,7 +1096,7 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
     social_ecology_conflicts = sum(
         1
         for issue in issues
-        if str(issue.get("source_layer_owner") or "") == "2-卷章规划"
+        if str(issue.get("source_layer_owner") or "") == "2-卷章"
     )
     score = _clamp_score(91 - len(issues) * 18 - contrivance_hits * 3)
     return {
@@ -1328,9 +1328,9 @@ def _run_task_convergence(
                 severity="high",
                 location=f"第{chapter}章 volume planning truth",
                 description="卷级 planning truth 没有显式主任务，无法判断本卷支流到底服务哪条主线。",
-                suggestion="回到 `2-卷章规划/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
+                suggestion="回到 `2-卷章/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-卷章规划",
+                source_layer_owner="2-卷章",
                 can_override=False,
             )
         )
@@ -1346,9 +1346,9 @@ def _run_task_convergence(
                 severity="high",
                 location=f"第{chapter}章 chapter planning truth",
                 description="章级 planning truth 没有显式主任务，无法判断本章推进是否仍挂在卷级主线之下。",
-                suggestion="回到 `2-卷章规划/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
+                suggestion="回到 `2-卷章/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-卷章规划",
+                source_layer_owner="2-卷章",
                 can_override=False,
             )
         )
@@ -1367,7 +1367,7 @@ def _run_task_convergence(
                     description="章级 `上承卷级任务` 无法回指卷级主线，任务从属关系失锚。",
                     suggestion="统一卷级/章级任务命名与挂靠关系，避免章级支流写成独立副本。",
                     rework_target_step="source-contract-fix",
-                    source_layer_owner="2-卷章规划",
+                    source_layer_owner="2-卷章",
                     can_override=False,
                 )
             )
@@ -1386,7 +1386,7 @@ def _run_task_convergence(
                 description="章级支流任务存在，但 planning truth 没有声明它们如何汇聚、转挂或保留开放。",
                 suggestion="为每条支流补 `汇聚动作` 或 `未汇聚任务去向`，不要把未回收任务留成隐形账。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-卷章规划",
+                source_layer_owner="2-卷章",
                 can_override=False,
             )
         )
@@ -2042,7 +2042,7 @@ def run_final_acceptance(
         for issue in issues
         if str(issue.get("source_layer_owner") or "").strip()
     }
-    upstream_owners = {owner for owner in source_owners if owner in {"0-初始化", "1-设定", "2-卷章规划", "STATE"}}
+    upstream_owners = {owner for owner in source_owners if owner in {"0-初始化", "1-设定", "2-卷章", "STATE"}}
 
     if runtime_issues:
         validation_status = "FAIL-RUNTIME"

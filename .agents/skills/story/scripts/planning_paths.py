@@ -3,9 +3,9 @@
 Canonical + compatibility planning artifact path helpers.
 
 Primary planning truth now keeps:
-- `2-卷章规划/整体规划.md`
-- `2-卷章规划/第N卷/卷规划.md`
-- `2-卷章规划/第N卷/第N章.md`
+- `2-卷章/整体规划.md`
+- `2-卷章/第N卷/卷规划.md`
+- `2-卷章/第N卷/第N章.md`
 
 Legacy `全息地图.json` and old step artifacts are still supported as compatibility fallbacks.
 """
@@ -22,19 +22,19 @@ PLANNING_CHAPTERS_PER_VOLUME = 10
 _CHAPTER_RANGE_RE = re.compile(r"^\s*(\d+)\s*-\s*(\d+)\s*$")
 
 _CANONICAL_REL_PATHS: dict[str, str] = {
-    "book_plan": "2-卷章规划/整体规划.md",
-    "holomap": "2-卷章规划/全息地图.json",
+    "book_plan": "2-卷章/整体规划.md",
+    "holomap": "2-卷章/全息地图.json",
 }
 
 _LEGACY_REL_PATHS: dict[str, str] = {
     "genre_selection": "0-初始化/north_star.yaml#genre_contract",
-    "chapter_planning": "2-卷章规划/2-章节规划/章节规划.json",
-    "story_outline": "2-卷章规划/3-故事大纲/故事大纲.json",
-    "conflict_design": "2-卷章规划/4-冲突设计/冲突设计.json",
-    "mission_design": "2-卷章规划/5-任务设计/任务设计.json",
-    "clue_design": "2-卷章规划/6-线索设计/线索设计.json",
-    "foreshadow_design": "2-卷章规划/7-伏笔设计/伏笔设计.json",
-    "holomap": "2-卷章规划/8-全息地图/全息地图.json",
+    "chapter_planning": "2-卷章/2-章节规划/章节规划.json",
+    "story_outline": "2-卷章/3-故事大纲/故事大纲.json",
+    "conflict_design": "2-卷章/4-冲突设计/冲突设计.json",
+    "mission_design": "2-卷章/5-任务设计/任务设计.json",
+    "clue_design": "2-卷章/6-线索设计/线索设计.json",
+    "foreshadow_design": "2-卷章/7-伏笔设计/伏笔设计.json",
+    "holomap": "2-卷章/8-全息地图/全息地图.json",
 }
 
 
@@ -90,7 +90,7 @@ def _state_volume_num_for_chapter(project_root: Path, chapter_num: int) -> int |
 
 
 def _planning_dir_volume_num_for_chapter(project_root: Path, chapter_num: int) -> int | None:
-    planning_root = project_root / "2-卷章规划"
+    planning_root = project_root / "2-卷章"
     if not planning_root.is_dir():
         return None
 
@@ -132,7 +132,7 @@ def planned_chapter_numbers_for_volume(project_root: Path, volume_num: int) -> l
             start, end = parsed
             return list(range(start, end + 1))
 
-    volume_dir = project_root / "2-卷章规划" / f"第{volume_num}卷"
+    volume_dir = project_root / "2-卷章" / f"第{volume_num}卷"
     chapter_nums: list[int] = []
     if volume_dir.is_dir():
         for path in volume_dir.glob("第*章.md"):
@@ -186,7 +186,7 @@ def canonical_book_plan_path(project_root: Path) -> Path:
 
 
 def canonical_volume_plan_relpath(volume_num: int) -> str:
-    return f"2-卷章规划/第{volume_num}卷/卷规划.md"
+    return f"2-卷章/第{volume_num}卷/卷规划.md"
 
 
 def canonical_volume_plan_path(project_root: Path, volume_num: int) -> Path:
@@ -199,7 +199,7 @@ def canonical_chapter_plan_relpath(
     project_root: Path | None = None,
 ) -> str:
     volume = volume_num or planning_volume_num_for_chapter(chapter_num, project_root=project_root)
-    return f"2-卷章规划/第{volume}卷/第{chapter_num}章.md"
+    return f"2-卷章/第{volume}卷/第{chapter_num}章.md"
 
 
 def canonical_chapter_plan_path(project_root: Path, chapter_num: int, volume_num: int | None = None) -> Path:
@@ -207,7 +207,7 @@ def canonical_chapter_plan_path(project_root: Path, chapter_num: int, volume_num
 
 
 def canonical_book_plan_actualization_relpath() -> str:
-    return "2-卷章规划/整体规划.actualization.json"
+    return "2-卷章/整体规划.actualization.json"
 
 
 def canonical_book_plan_actualization_path(project_root: Path) -> Path:
@@ -215,7 +215,7 @@ def canonical_book_plan_actualization_path(project_root: Path) -> Path:
 
 
 def canonical_volume_plan_actualization_relpath(volume_num: int) -> str:
-    return f"2-卷章规划/第{volume_num}卷/卷规划.actualization.json"
+    return f"2-卷章/第{volume_num}卷/卷规划.actualization.json"
 
 
 def canonical_volume_plan_actualization_path(project_root: Path, volume_num: int) -> Path:
@@ -228,7 +228,7 @@ def canonical_chapter_plan_actualization_relpath(
     project_root: Path | None = None,
 ) -> str:
     volume = volume_num or planning_volume_num_for_chapter(chapter_num, project_root=project_root)
-    return f"2-卷章规划/第{volume}卷/第{chapter_num}章.actualization.json"
+    return f"2-卷章/第{volume}卷/第{chapter_num}章.actualization.json"
 
 
 def canonical_chapter_plan_actualization_path(project_root: Path, chapter_num: int, volume_num: int | None = None) -> Path:

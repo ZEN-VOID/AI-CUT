@@ -1,6 +1,6 @@
 # Chapter Rhythm Handoff Contract
 
-`2-卷章规划/3-章级` 与 `3-初稿` 的 `Step 2 / 2-节奏优化` 共享这一份章级节奏移交合同。
+`2-卷章/3-章级` 与 `3-初稿` 的 `Step 2 / 2-节奏优化` 共享这一份章级节奏移交合同。
 
 ## Ownership Split
 
@@ -40,7 +40,7 @@
 
 ## Required Handoff Slots
 
-`2-卷章规划/第N卷/第N章.md` 的 `本章节奏曲线` 段必须至少包含以下槽位：
+`2-卷章/第N卷/第N章.md` 的 `本章节奏曲线` 段必须至少包含以下槽位：
 
 - `selected_pack`
 - `selected_mode`
@@ -73,6 +73,6 @@
 
 1. planning 锁的是义务与 mode，不是 Step 1 当前写法的逐段排版。
 2. drafting 不得重新发明第二套 `selected_pack / selected_mode / 七步职责映射`。
-3. 若正文要偏离已锁 handoff，必须回源到 `2-卷章规划/3-章级` 修 planning，而不是在 drafting 的 Step 2 静默改法律。
+3. 若正文要偏离已锁 handoff，必须回源到 `2-卷章/3-章级` 修 planning，而不是在 drafting 的 Step 2 静默改法律。
 4. `micro_payoff` 不等于必须大高潮；只要局面真实改变，就可视为有效兑现。
 5. `exit_hook` 必须从本章现有压力自然长出，不得靠生硬断章伪造牵引。

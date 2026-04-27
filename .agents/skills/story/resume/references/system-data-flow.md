@@ -25,10 +25,10 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 ```
 项目根目录/
 ├── 3-初稿/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
-├── 2-卷章规划/legacy/           # 卷纲/章纲（legacy fallback）
-├── 2-卷章规划/整体规划.md    # 规划真源（整书）
-├── 2-卷章规划/第1卷/卷规划.md # 规划真源（当前卷）
-├── 2-卷章规划/第1卷/第1章.md  # 规划真源（当前章）
+├── 2-卷章/legacy/           # 卷纲/章纲（legacy fallback）
+├── 2-卷章/整体规划.md    # 规划真源（整书）
+├── 2-卷章/第1卷/卷规划.md # 规划真源（当前卷）
+├── 2-卷章/第1卷/第1章.md  # 规划真源（当前章）
 ├── 0-初始化/        # north_star.yaml / story-source-manifest.yaml / init_handoff.yaml
 ├── 1-设定/          # 世界观/力量体系/角色卡
 └── .webnovel/

@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | `detect_state` | `tracked`, `artifact_fallback`, `none`, `conflict`, `unavailable` | workflow 检测和业务证据状态 |
 | `tracked_command` | `story-init`, `story-cards`, `story-plan`, `story-write`, `story-validate`, `story-review`, `story-context-return`, `story-query`, `unknown` | tracked run 的命令归属 |
-| `stage_owner` | `0-初始化`, `1-设定`, `2-卷章规划`, `3-初稿`, `review`, `context-return`, `query`, `manual` | 下一入口 owner |
+| `stage_owner` | `0-初始化`, `1-设定`, `2-卷章`, `3-初稿`, `review`, `context-return`, `query`, `manual` | 下一入口 owner |
 | `recovery_mode` | `tracked_workflow_resume`, `artifact_fallback_resume`, `query_light_resume`, `write_cleanup_resume`, `review_decision_resume`, `manual_diagnosis`, `blocked_safety_stop` | 本轮恢复模式 |
 | `risk_level` | `low`, `medium`, `high`, `blocked` | 执行或建议风险 |
 | `confirmation_required` | `none`, `user_choice`, `cleanup_confirm`, `manual_decision` | 是否必须等待用户确认 |
@@ -47,7 +47,7 @@
 | `validation_pass_context_return_gate_not_ready` | validation PASS 但缺 `handoff_to_review_and_context_return`、`context-return` handoff 或 accepted manuscript lock | `story-review` / `4-润色` 路由确认 | `medium` | 不把 PASS-only 当 actualization 权限 |
 | `candidate_volume_draft_waiting_validation` | `3-初稿/第V卷.写作日志.yaml` 到 candidate draft | `story-review` | `medium` | 核对 draft batch |
 | `validation_failed_back_to_drafting` | validation FAIL + drafting route | `3-初稿` rework target | `medium` | 按 rework targets |
-| `validation_failed_back_to_source_contract` | validation FAIL + source trace | `0-初始化` / `1-设定` / `2-卷章规划` | `high` | 不发明 repair 内容 |
+| `validation_failed_back_to_source_contract` | validation FAIL + source trace | `0-初始化` / `1-设定` / `2-卷章` | `high` | 不发明 repair 内容 |
 
 ## Risk Matrix
 

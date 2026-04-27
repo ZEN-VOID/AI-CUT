@@ -8,7 +8,7 @@ from pathlib import Path
 
 def _ensure_scripts_on_path() -> None:
     scripts_dir = Path(__file__).resolve().parents[2]
-    planning_scripts_dir = scripts_dir.parent / "2-卷章规划" / "scripts"
+    planning_scripts_dir = scripts_dir.parent / "2-卷章" / "scripts"
     planning_legacy_dir = planning_scripts_dir / "legacy"
     for path in (scripts_dir, planning_scripts_dir, planning_legacy_dir):
         if str(path) not in sys.path:
@@ -17,7 +17,7 @@ def _ensure_scripts_on_path() -> None:
 
 def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
     project_root = tmp_path / "story-project"
-    planning_dir = project_root / "2-卷章规划"
+    planning_dir = project_root / "2-卷章"
     slice_dir = planning_dir / "卷分片"
     slice_dir.mkdir(parents=True, exist_ok=True)
 

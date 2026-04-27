@@ -23,7 +23,7 @@ governance_tier: full
 
 ## Purpose
 
-`A-GPT原生` 是 `story2026` 主链 `3-初稿` 阶段的 GPT 原生路径。它负责根据 `projects/story/<项目名>/2-卷章规划` 中已经规划好的章级资料，结合整书/卷级规划、全局卡、风格卡、`north_star.yaml`、项目记忆、项目上下文与上一章承接，由当前 GPT/LLM 会话直接创作为中文小说章节。
+`A-GPT原生` 是 `story2026` 主链 `3-初稿` 阶段的 GPT 原生路径。它负责根据 `projects/story/<项目名>/2-卷章` 中已经规划好的章级资料，结合整书/卷级规划、全局卡、风格卡、`north_star.yaml`、项目记忆、项目上下文与上一章承接，由当前 GPT/LLM 会话直接创作为中文小说章节。
 
 它拥有：
 
@@ -33,7 +33,7 @@ governance_tier: full
 
 它不拥有：
 
-- `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
+- `0-初始化`、`1-设定`、`2-卷章` 的真源改写权
 - `review` 的 PASS/FAIL 判定权
 - `context-return` 的 validated actualization 写回权
 
@@ -68,7 +68,7 @@ governance_tier: full
 
 - 项目根：`projects/story/<项目名>/`
 - 当前卷章定位：`volume_num / chapter_num` 或可由 `chapter_num` 推导的卷号
-- 三层 planning：`2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md`
+- 三层 planning：`2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md`
 - 对象/风格真源：`0-初始化/north_star.yaml.global_contract`、`0-初始化/north_star.yaml.style_contract`
 - 北极星：`0-初始化/north_star.yaml`
 

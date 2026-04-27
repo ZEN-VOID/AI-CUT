@@ -40,7 +40,7 @@ CHANGELOG_REL = Path("CHANGELOG.md")
 INIT_STAGE_REL = Path("0-初始化")
 SOURCE_ROOT_REL = Path("源")
 SETTING_STAGE_REL = Path("1-设定")
-PLANNING_STAGE_REL = Path("2-卷章规划")
+PLANNING_STAGE_REL = Path("2-卷章")
 DRAFT_STAGE_REL = Path("3-初稿")
 POLISH_STAGE_REL = Path("4-润色")
 REVIEW_STAGE_REL = Path("review")
@@ -49,7 +49,7 @@ PROJECT_MEMORY_TEMPLATE = Path(__file__).resolve().parents[1] / "0-初始化" / 
 PLANNING_SKILL_PATHS = [
     ".agents/skills/story/0-初始化",
     ".agents/skills/story/1-设定",
-    ".agents/skills/story/2-卷章规划",
+    ".agents/skills/story/2-卷章",
 ]
 PRODUCTION_SKILL_PATHS = [
     ".agents/skills/story/3-初稿",
@@ -532,7 +532,7 @@ def _build_master_outline(target_chapters: int, *, chapters_per_volume: int = 50
     lines: list[str] = [
         "# 总纲",
         "",
-        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-卷章规划/整体规划.md，并继续展开到 第N卷/卷规划.md 与 第N卷/第N章.md。",
+        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-卷章/整体规划.md，并继续展开到 第N卷/卷规划.md 与 第N卷/第N章.md。",
         "",
         "## 卷结构",
         "",
@@ -897,7 +897,7 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
             "generated_at": payload["meta"]["generated_at"],
             "role": "primary-init-artifact",
             "scope": "full-series",
-            "canonical_consumers": ["1-设定", "2-卷章规划"],
+            "canonical_consumers": ["1-设定", "2-卷章"],
             "north_star_role": "global-style-genre-truth",
             "cards_role": "character-scene-item-seed",
         },
@@ -965,7 +965,7 @@ def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
             "detail_expansion_mode": "free_expansion",
             "locked_preset_axes": [],
             "preset_registry": [],
-            "authoritative_for": ["1-设定", "2-卷章规划"],
+            "authoritative_for": ["1-设定", "2-卷章"],
             "notes": "后续若补入正文、提纲或设定源，应先登记到本文件，再进入 planning。",
         },
         "auxiliary_sources": [],
@@ -978,7 +978,7 @@ def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
             "partial_limitations": [
                 "当前 planning 只能基于 north star seed 与用户输入推进，不能声称具备完整剧情主源。",
             ],
-            "allowed_next_entries_when_blocked": ["1-设定", "2-卷章规划"],
+            "allowed_next_entries_when_blocked": ["1-设定", "2-卷章"],
             "required_user_action": [
                 "若有正式正文、章节大纲或设定文档，请补充到项目 `源/` 后再回刷初始化源。",
             ],
@@ -1373,7 +1373,7 @@ def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
         "team_ref": "team.yaml",
         "project_contract": {
             "initialization_goal": "以 team 代入模式完成小说项目初始化，锁定北极星、故事源状态、团队编组与唯一下一入口。",
-            "acceptance_hint": "优先进入 `1-设定` 建卡；若已有足够故事源，再进入 `2-卷章规划`。",
+            "acceptance_hint": "优先进入 `1-设定` 建卡；若已有足够故事源，再进入 `2-卷章`。",
             "current_stage": "0-初始化",
             "recommended_next_stage": "1-设定",
             "creative_mandate": payload["project_contract"]["creative_mandate"],
@@ -1476,7 +1476,7 @@ def _build_project_state_manifest(
             "project_entry": str(PROJECT_STATE_MANIFEST_REL),
             "runtime_snapshot": str(RUNTIME_STATE_REL),
             "object_truth": "1-设定/**/*.json",
-            "planning_truth": "2-卷章规划/整体规划.md",
+            "planning_truth": "2-卷章/整体规划.md",
         },
     }
 
@@ -1538,7 +1538,7 @@ def _render_team_manifest_yaml(
         "#",
         "# 角色：",
         "# - story2026 项目级 team 代入真源",
-        "# - 由 `0-初始化` 首次生成，供 `1-设定 / 2-卷章规划 / 3-初稿 / context-return / review` 消费",
+        "# - 由 `0-初始化` 首次生成，供 `1-设定 / 2-卷章 / 3-初稿 / context-return / review` 消费",
         "# - 不替代各阶段 canonical，只提供治理角色、成员、初始化 provenance 与运行策略",
         "",
         f"enabled: {_yaml_bool(True)}",
@@ -1781,7 +1781,7 @@ def init_project(
             "story_source_root": "源/",
             "project_context_root": "CONTEXT/",
             "setting_root": "1-设定/",
-            "planning_root": "2-卷章规划/",
+            "planning_root": "2-卷章/",
             "drafting_root": "3-初稿/",
             "polish_root": "4-润色/",
             "review_root": "review/",
@@ -1856,7 +1856,7 @@ def init_project(
         "project_memory": str(PROJECT_MEMORY_REL),
         "init_root": "0-初始化/",
         "setting_root": "1-设定/",
-        "planning_root": "2-卷章规划/",
+        "planning_root": "2-卷章/",
         "drafting_root": "3-初稿/",
         "polish_root": "4-润色/",
         "review_root": "review/",
@@ -2089,12 +2089,12 @@ def init_project(
     print(" - 源/")
     print(" - CONTEXT/")
     print(" - 1-设定/")
-    print(" - 2-卷章规划/")
+    print(" - 2-卷章/")
     print(" - 3-初稿/")
     print(" - 4-润色/")
     print(" - review/")
     print(" - context-return/")
-    print("2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan.")
+    print("2-卷章/整体规划.md is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 
 

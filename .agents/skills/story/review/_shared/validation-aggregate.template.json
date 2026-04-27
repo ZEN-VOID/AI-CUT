@@ -9,7 +9,7 @@
   "volume_log_ref": "3-初稿/第0卷.写作日志.yaml",
   "planning_ref": "",
   "planning_volume_ref": "",
-  "planning_global_ref": "2-卷章规划/整体规划.md",
+  "planning_global_ref": "2-卷章/整体规划.md",
   "planning_slice_ref": "",
   "validation_ref": "review/第0卷.validation.json",
   "validation_mode": "normal_review",

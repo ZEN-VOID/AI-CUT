@@ -121,7 +121,7 @@ Detailed node fields, evidence requirements, branch gates, and failure loops liv
 - `story-query` 只能做轻量 generic 恢复，不套用章节 cleanup 模板。
 - 涉及正文删除时必须先 preview，再等待用户确认；真正删除前必须由脚本自动备份。
 - 不得默认执行 `git reset --hard`，不得假定存在章节 tag/commit。
-- 恢复后继续写作/查询时，默认重新接回 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
+- 恢复后继续写作/查询时，默认重新接回 `2-卷章/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
 - 输出必须说明下一跳回哪个 stage；若无法唯一裁决，输出 blocker 和最小补充信息。
 
 ## Root-Cause Execution Contract

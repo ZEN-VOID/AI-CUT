@@ -49,5 +49,5 @@
 
 ## Source Trace Rule
 
-- 若问题归属 `0-初始化 / 1-设定 / 2-卷章规划`，聚合结果必须显式保留 `source_layer_owner` 与 `back_to_source_contract`
+- 若问题归属 `0-初始化 / 1-设定 / 2-卷章`，聚合结果必须显式保留 `source_layer_owner` 与 `back_to_source_contract`
 - 若问题归属 `3-初稿` 当前卷内的若干章节，聚合结果必须保留章级 `rework_targets`

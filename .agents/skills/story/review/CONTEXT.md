@@ -30,7 +30,7 @@ last_checked_at: 2026-04-27
 | child sidecar 被误当最终 gate，`context-return` 直接消费某个维度报告 | gate ownership drift | 回到 `_shared/validation-root-contract.md`，确认 aggregate JSON 才是唯一 gate truth | 在父 `SKILL.md` 和 root contract 固定 child evidence / parent gate 分工 | PASS/FAIL 只从 `第V卷.validation.json` 读取 |
 | 维度名单在父技能、team contract、runner 和 child 目录中各写一份，互相漂移 | roster duplication | 以 `_shared/validation-dimension-registry.yaml` 为单一真源，其他文件只做导览或引用 | roster 调整必须同步 registry、child `SKILL.md + CONTEXT.md`、runner handler 与 shared schema | 维度数量、role_id、report_filename 与 registry 一致 |
 | 父层为了“结构完整”补空维度，导致 aggregate 看似完整但没有真实审查证据 | phantom dimension | 聚合时只消费本轮真实调度且通过 schema 校验的 packets | `drafting_inline` 与 `final_acceptance` 都按 selected_agents 记录真实 dispatch | aggregate 中不存在未执行维度的假 packet |
-| 子技能给出问题但没有 `source_layer_owner`，返工被错误打回 drafting | source trace missing | 父层聚合时补查 issue 是否需要上溯 `0-初始化 / 1-设定 / 2-卷章规划` | child output contract 固定 source owner 槽位，父层 schema gate 检查 | 失败 issue 能说明是上游 source 修复还是正文返工 |
+| 子技能给出问题但没有 `source_layer_owner`，返工被错误打回 drafting | source trace missing | 父层聚合时补查 issue 是否需要上溯 `0-初始化 / 1-设定 / 2-卷章` | child output contract 固定 source owner 槽位，父层 schema gate 检查 | 失败 issue 能说明是上游 source 修复还是正文返工 |
 | `drafting_inline` 与 `final_acceptance` 混用，单章即时 hook 误写卷级最终 gate | invocation mode confusion | 先判 mode；inline 只返回阻断/回退信号，终验才写 aggregate JSON | 在父 `SKILL.md` 固定 mode selection 与输出路径差异 | inline 运行不会生成或覆盖 `第V卷.validation.json` |
 | 六维审查权重或 mandatory 规则修改后，父导览表和 registry 不一致 | guide drift | 以 registry 为准修正父导览表 | 父导览表明确声明只作入口导览，冲突时回修导览 | `rg role_id` 与 registry 对齐 |
 | review 失败后只给总分，不给可执行返工入口 | route insufficiency | 聚合时保留 `routing_decision / rework_targets / handoff_targets` | 父层 Completion Gate 要求 PASS/FAIL 同时解释下一步 | 失败结果能直接路由到 source contract 或具体 drafting step |
@@ -42,7 +42,7 @@ last_checked_at: 2026-04-27
 1. 先判当前问题属于父层导引、registry、shared contract、child 输出、runner 实现还是项目运行态数据。
 2. 若问题涉及最终 PASS/FAIL，优先读取 `_shared/validation-root-contract.md` 与现有 `第V卷.validation.json`，不要先看 child sidecar。
 3. 若问题涉及维度名单、权重、sidecar 文件名或 hook，优先读取 `_shared/validation-dimension-registry.yaml`。
-4. 若问题涉及输入包缺字段，先检查 `_shared/validation-fact-pack-spec.md`，再上溯到 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿` 的 source owner。
+4. 若问题涉及输入包缺字段，先检查 `_shared/validation-fact-pack-spec.md`，再上溯到 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿` 的 source owner。
 5. 若 child 输出无法聚合，先对照 `_shared/validation-child-output-contract.md` 与 `_shared/checker-output-schema.md`，再修对应 child skill。
 6. 若 review 结果不能指导下一步，补齐 `routing_decision / source_layer_owner / rework_targets / handoff_targets`。
 7. 若要新增、删除、重命名或调整维度，先改 registry，再同步 child 包、runner handler、shared schema、父 `SKILL.md` 导览表和必要的项目文档。

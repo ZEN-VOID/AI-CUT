@@ -36,7 +36,7 @@ def _build_project(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "2-卷章规划" / "全息地图.json",
+        project_root / "2-卷章" / "全息地图.json",
         {
             "schema_version": "story2026/holomap/v1",
             "content": {
@@ -64,17 +64,17 @@ def _build_project(project_root: Path) -> None:
             "history": [],
         },
     )
-    (project_root / "2-卷章规划").mkdir(parents=True, exist_ok=True)
-    (project_root / "2-卷章规划" / "第2卷").mkdir(parents=True, exist_ok=True)
-    (project_root / "2-卷章规划" / "整体规划.md").write_text(
+    (project_root / "2-卷章").mkdir(parents=True, exist_ok=True)
+    (project_root / "2-卷章" / "第2卷").mkdir(parents=True, exist_ok=True)
+    (project_root / "2-卷章" / "整体规划.md").write_text(
         "书名：凡人资本论\n\n整体故事大纲：\n\n卷划分：\n\n整体节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n规避：\n",
         encoding="utf-8",
     )
-    (project_root / "2-卷章规划" / "第2卷" / "卷规划.md").write_text(
+    (project_root / "2-卷章" / "第2卷" / "卷规划.md").write_text(
         "卷标题：第二卷\n\n本卷故事大纲：\n\n章划分：\n\n本卷节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n本卷登场人物：\n\n本卷主要场景：\n\n本卷关键道具：\n\n本卷任务线\n- 主线：\n- 支线：\n\n卷末达成：\n\n规避：\n",
         encoding="utf-8",
     )
-    (project_root / "2-卷章规划" / "第2卷" / "第12章.md").write_text(
+    (project_root / "2-卷章" / "第2卷" / "第12章.md").write_text(
         "章标题：第十二章\n\n本章故事概要：\n\n本章冲突：\n\n本章节奏曲线：\n- `selected_pack`：动静结合\n- `selected_mode`：势能式\n\n七步职责映射：\n- 入场：税线压迫先显影\n- 推动：林辰决定先看而不动\n- 转折：阿真被逼跪雨中\n- 发展：林辰试图压住怒意\n- 升级：税吏继续羞辱众人\n- 高潮：林辰第一次准备拔剑\n- 尾钩：真正代价被推到下一章\n\n规划义务：\n- `entry_promise`：开场先给压迫感与假安稳同时存在。\n- `conflict_axis`：林辰想忍，但税线恶压逼他表态，失败代价是心气与局面同时失守。\n- `micro_payoff`：林辰第一次真正做出要不要拔剑的决定。\n- `exit_hook`：拔剑冲动与更大代价被推向下一章。\n\n义务段位：\n- 必须兑现：前段压迫显影，中段矛盾升级，章末决意外露。\n- 可延后兑现：真正出手与后续代价。\n\n建议写法：\n- 开场处理：先给雨夜压迫，再落到人物观察。\n- 中段处理：让忍耐和怒意来回拉扯。\n- 章末处理：用未真正出手前的一步把压力送出。\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n本章登场人物：\n\n本章主要场景：\n\n本章关键道具：\n\n本章任务线\n- 主线：\n- 支线：\n\n章末达成：\n\n本章线索：\n\n本章伏笔\n- 铺设：\n- 兑现：\n\n规避：\n",
         encoding="utf-8",
     )
@@ -82,7 +82,7 @@ def _build_project(project_root: Path) -> None:
 
 def _build_project_with_slice(project_root: Path) -> None:
     _write_json(
-        project_root / "2-卷章规划" / "全息地图.json",
+        project_root / "2-卷章" / "全息地图.json",
         {
             "schema_version": "story2026/holomap/v1",
             "content": {
@@ -118,7 +118,7 @@ def _build_project_with_slice(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "2-卷章规划" / "卷分片" / "第2卷.json",
+        project_root / "2-卷章" / "卷分片" / "第2卷.json",
         {
             "schema_version": "story2026/holomap-slice/v1",
             "content": {
@@ -485,14 +485,14 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     assert artifact["inputs"]["validation_status"] == "PASS"
     assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_context_return"
     assert artifact["inputs"]["handoff_targets"] == ["review/", "context-return"]
-    assert artifact["inputs"]["book_plan_ref"] == "2-卷章规划/整体规划.md"
-    assert artifact["inputs"]["volume_plan_ref"] == "2-卷章规划/第2卷/卷规划.md"
-    assert artifact["inputs"]["chapter_plan_refs"] == ["2-卷章规划/第2卷/第12章.md"]
+    assert artifact["inputs"]["book_plan_ref"] == "2-卷章/整体规划.md"
+    assert artifact["inputs"]["volume_plan_ref"] == "2-卷章/第2卷/卷规划.md"
+    assert artifact["inputs"]["chapter_plan_refs"] == ["2-卷章/第2卷/第12章.md"]
     assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["1-设定/2-角色卡/主要角色/林辰.json"]
     assert artifact["content"]["writeback_summary"]["written_planning_actualization_refs"] == [
-        "2-卷章规划/整体规划.actualization.json",
-        "2-卷章规划/第2卷/卷规划.actualization.json",
-        "2-卷章规划/第2卷/第12章.actualization.json",
+        "2-卷章/整体规划.actualization.json",
+        "2-卷章/第2卷/卷规划.actualization.json",
+        "2-卷章/第2卷/第12章.actualization.json",
     ]
     assert artifact["content"]["writeback_summary"]["written_map_refs"] == ["episode_nodes:episode-12"]
     assert artifact["execution_notes"]["governance_refs"]["mission_brief_ref"] == (
@@ -513,7 +513,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     assert card["context_return_revision"] == 1
 
     holomap = json.loads(
-        (project_root / "2-卷章规划" / "全息地图.json").read_text(encoding="utf-8")
+        (project_root / "2-卷章" / "全息地图.json").read_text(encoding="utf-8")
     )
     actual_nodes = holomap["content"]["holomap"]["actualization"]["episode_nodes"]
     assert actual_nodes[0]["episode_ref"] == "第12章"
@@ -521,19 +521,19 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     assert holomap["content"]["holomap"]["actualization"]["revision"] == 1
 
     book_actualization = json.loads(
-        (project_root / "2-卷章规划" / "整体规划.actualization.json").read_text(encoding="utf-8")
+        (project_root / "2-卷章" / "整体规划.actualization.json").read_text(encoding="utf-8")
     )
     assert book_actualization["volume_status_index"][0]["volume_ref"] == "第2卷"
     assert book_actualization["volume_status_index"][0]["last_actualized_chapter_ref"] == "第12章"
 
     volume_actualization = json.loads(
-        (project_root / "2-卷章规划" / "第2卷" / "卷规划.actualization.json").read_text(encoding="utf-8")
+        (project_root / "2-卷章" / "第2卷" / "卷规划.actualization.json").read_text(encoding="utf-8")
     )
     assert volume_actualization["volume_ref"] == "第2卷"
     assert volume_actualization["chapter_status_index"][0]["chapter_ref"] == "第12章"
 
     chapter_actualization = json.loads(
-        (project_root / "2-卷章规划" / "第2卷" / "第12章.actualization.json").read_text(encoding="utf-8")
+        (project_root / "2-卷章" / "第2卷" / "第12章.actualization.json").read_text(encoding="utf-8")
     )
     assert chapter_actualization["chapter_ref"] == "第12章"
     assert chapter_actualization["status"] == "completed"
@@ -610,21 +610,21 @@ def test_context_return_manager_writes_slice_actualization_and_root_indexes(tmp_
     assert int(exc.value.code or 0) == 0
 
     artifact = json.loads((project_root / "context-return" / "第2卷.context-return.json").read_text(encoding="utf-8"))
-    assert artifact["inputs"]["story_map_slice_ref"] == "2-卷章规划/卷分片/第2卷.json"
-    assert artifact["inputs"]["volume_plan_ref"] == "2-卷章规划/第2卷/卷规划.md"
+    assert artifact["inputs"]["story_map_slice_ref"] == "2-卷章/卷分片/第2卷.json"
+    assert artifact["inputs"]["volume_plan_ref"] == "2-卷章/第2卷/卷规划.md"
     assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
-    assert "2-卷章规划/第2卷/第12章.actualization.json" in artifact["content"]["writeback_summary"]["written_planning_actualization_refs"]
+    assert "2-卷章/第2卷/第12章.actualization.json" in artifact["content"]["writeback_summary"]["written_planning_actualization_refs"]
     assert "episode_status_index:第012章" in artifact["content"]["writeback_summary"]["written_map_refs"]
     assert "slice_status_index:slice-011-020" in artifact["content"]["writeback_summary"]["written_map_refs"]
 
     slice_payload = json.loads(
-        (project_root / "2-卷章规划" / "卷分片" / "第2卷.json").read_text(encoding="utf-8")
+        (project_root / "2-卷章" / "卷分片" / "第2卷.json").read_text(encoding="utf-8")
     )
     slice_nodes = slice_payload["content"]["holomap_slice"]["actualization"]["episode_nodes"]
     assert slice_nodes[0]["episode_ref"] == "第012章"
     assert slice_payload["content"]["holomap_slice"]["actualization"]["revision"] == 1
 
-    holomap = json.loads((project_root / "2-卷章规划" / "全息地图.json").read_text(encoding="utf-8"))
+    holomap = json.loads((project_root / "2-卷章" / "全息地图.json").read_text(encoding="utf-8"))
     status_index = holomap["content"]["holomap"]["actualization"]["episode_status_index"]
     slice_index = holomap["content"]["holomap"]["actualization"]["slice_status_index"]
     assert status_index[0]["episode_ref"] == "第012章"
@@ -708,7 +708,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
     assert card["current_state"]["realm"] == "炼气"
     assert card["history"] == []
 
-    holomap = json.loads((project_root / "2-卷章规划" / "全息地图.json").read_text(encoding="utf-8"))
+    holomap = json.loads((project_root / "2-卷章" / "全息地图.json").read_text(encoding="utf-8"))
     assert holomap["content"]["holomap"]["actualization"]["episode_nodes"] == []
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))

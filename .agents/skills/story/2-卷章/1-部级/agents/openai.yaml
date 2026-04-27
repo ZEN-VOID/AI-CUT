@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Plan Book Level"
+  short_description: "生成修订审查故事部级整体规划与整书节奏走廊及卷级交接"
+  default_prompt: "使用 $story-plan-book-level 为当前 story 项目生成、修订或审查 2-卷章/整体规划.md。"

@@ -84,7 +84,7 @@
 ### C. 上游 source truth 问题
 
 - 条件：
-  - issue 的 `source_layer_owner` 指向 `0-初始化 / 1-设定 / 2-卷章规划`
+  - issue 的 `source_layer_owner` 指向 `0-初始化 / 1-设定 / 2-卷章`
 - 动作：
   - 立即停止 drafting 主链
   - 转 `back_to_source_contract`

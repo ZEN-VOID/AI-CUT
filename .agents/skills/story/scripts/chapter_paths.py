@@ -102,7 +102,7 @@ def extract_chapter_title(project_root: Path, chapter_num: int) -> str:
         if title:
             return title
 
-    outline_dir = project_root / "2-卷章规划" / "legacy"
+    outline_dir = project_root / "2-卷章" / "legacy"
     if outline_dir.exists():
         return _extract_title_from_split_outline_filename(outline_dir, chapter_num)
     return ""

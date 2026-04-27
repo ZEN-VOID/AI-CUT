@@ -49,7 +49,7 @@ skill_role: parent_guide
 - 不直接替代六个维度子技能做细项判断。
 - 不生成正文、补写剧情、润色章节或改写上游 source truth。
 - 不让任一 child sidecar 直接成为最终 PASS/FAIL gate。
-- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `context-return` 的 handoff gate。
+- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `context-return` 的 handoff gate。
 
 ## Group Topology
 

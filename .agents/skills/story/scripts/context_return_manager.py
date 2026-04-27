@@ -771,7 +771,7 @@ def _resolve_slice_path(
     if not file_ref:
         return None
 
-    rel = file_ref if file_ref.startswith("2-卷章规划/") else f"2-卷章规划/{file_ref}"
+    rel = file_ref if file_ref.startswith("2-卷章/") else f"2-卷章/{file_ref}"
     path = project_root / rel
     return path if path.is_file() else None
 
@@ -1246,7 +1246,7 @@ def _render_carryover_markdown(
             "",
             "## Replan Rule",
             "",
-            "若上述 validated actual 要改变未来卷章安排，必须显式进入 `2-卷章规划` 重规划；不得由本文件静默改写 planning truth。",
+            "若上述 validated actual 要改变未来卷章安排，必须显式进入 `2-卷章` 重规划；不得由本文件静默改写 planning truth。",
             "",
         ]
     )

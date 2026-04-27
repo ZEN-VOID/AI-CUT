@@ -1,4 +1,0 @@
-interface:
-  display_name: Story Plan Volume Level
-  short_description: Build single-volume plans with six-beat rhythm
-  default_prompt: "Use $story-plan-volume-level to create, revise, or audit a single volume plan under 2-卷章规划."

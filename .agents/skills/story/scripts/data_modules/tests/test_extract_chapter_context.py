@@ -43,7 +43,7 @@ def test_extract_chapter_outline_supports_hyphen_filename(tmp_path):
     from extract_chapter_context import extract_chapter_outline
 
     (tmp_path / "STATE.json").write_text("{}", encoding="utf-8")
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第1卷-详细大纲.md").write_text("### 第1章：测试标题\n测试大纲", encoding="utf-8")
 
@@ -59,7 +59,7 @@ def test_extract_chapter_outline_prefers_holomap_over_legacy_outline(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
-    planning_dir = tmp_path / "2-卷章规划"
+    planning_dir = tmp_path / "2-卷章"
     planning_dir.mkdir(parents=True, exist_ok=True)
     holomap = {
         "schema_version": "story2026/holomap/v1",
@@ -79,7 +79,7 @@ def test_extract_chapter_outline_prefers_holomap_over_legacy_outline(tmp_path):
     }
     (planning_dir / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
 
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第1卷-详细大纲.md").write_text("### 第1章：旧大纲标题\n旧大纲内容", encoding="utf-8")
 
@@ -97,7 +97,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
 
     from extract_chapter_context import extract_chapter_outline
 
-    planning_dir = tmp_path / "2-卷章规划" / "卷分片"
+    planning_dir = tmp_path / "2-卷章" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
     holomap = {
         "schema_version": "story2026/holomap/v1",
@@ -139,7 +139,7 @@ def test_extract_chapter_outline_supports_slice_chapter_boards(tmp_path):
             }
         }
     }
-    (tmp_path / "2-卷章规划" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "2-卷章" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
     (planning_dir / "第1卷.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
 
     outline = extract_chapter_outline(tmp_path, 1)
@@ -165,7 +165,7 @@ def test_extract_chapter_outline_prefers_state_volume_mapping(tmp_path):
     }
     (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第2卷-详细大纲.md").write_text("### 第12章：V2标题\nV2大纲", encoding="utf-8")
 
@@ -184,7 +184,7 @@ def test_extract_chapter_outline_falls_back_when_state_has_no_match(tmp_path):
     state = {"progress": {"volumes_planned": [{"volume": 1, "chapters_range": "1-10"}]}}
     (tmp_path / "STATE.json").write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第2卷-详细大纲.md").write_text("### 第60章：V2标题\nV2大纲", encoding="utf-8")
 
@@ -250,7 +250,7 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     summaries_dir.mkdir(parents=True, exist_ok=True)
     (summaries_dir / "ch0002.md").write_text("## 剧情摘要\n上一章总结", encoding="utf-8")
 
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第1卷 详细大纲.md").write_text("### 第3章：测试标题\n测试大纲", encoding="utf-8")
 
@@ -569,7 +569,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
         encoding="utf-8",
     )
 
-    planning_dir = tmp_path / "2-卷章规划" / "卷分片"
+    planning_dir = tmp_path / "2-卷章" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
     init_dir = tmp_path / "0-初始化"
     init_dir.mkdir(parents=True, exist_ok=True)
@@ -657,7 +657,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
             }
         }
     }
-    (tmp_path / "2-卷章规划" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "2-卷章" / "全息地图.json").write_text(json.dumps(holomap, ensure_ascii=False), encoding="utf-8")
     (planning_dir / "第1卷.json").write_text(json.dumps(slice_payload, ensure_ascii=False), encoding="utf-8")
 
     payload = build_chapter_context_payload(tmp_path, 1, current_step_id="Step 1")
@@ -759,9 +759,9 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
         encoding="utf-8",
     )
 
-    planning_dir = tmp_path / "2-卷章规划" / "卷分片"
+    planning_dir = tmp_path / "2-卷章" / "卷分片"
     planning_dir.mkdir(parents=True, exist_ok=True)
-    (tmp_path / "2-卷章规划" / "全息地图.json").write_text(
+    (tmp_path / "2-卷章" / "全息地图.json").write_text(
         json.dumps(
             {
                 "content": {
@@ -975,7 +975,7 @@ def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path)
         encoding="utf-8",
     )
 
-    planning_dir = tmp_path / "2-卷章规划"
+    planning_dir = tmp_path / "2-卷章"
     slice_dir = planning_dir / "卷分片"
     slice_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text(

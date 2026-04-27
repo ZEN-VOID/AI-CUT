@@ -151,7 +151,7 @@ class DataModulesConfig:
 
     @property
     def outline_dir(self) -> Path:
-        return self.project_root / "2-卷章规划" / "legacy"
+        return self.project_root / "2-卷章" / "legacy"
 
 
     # ================= Embedding API 配置 =================

@@ -186,7 +186,7 @@ def _build_payload() -> dict:
                             },
                             "current_state": {
                                 "active_focus": ["旧案回溯规则"],
-                                "downstream_targets": ["1-设定", "2-卷章规划", "3-初稿"],
+                                "downstream_targets": ["1-设定", "2-卷章", "3-初稿"],
                                 "revision_policy": "只有 north_star 的世界设定改动时才重写",
                             },
                             "history": [],

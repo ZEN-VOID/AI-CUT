@@ -2628,7 +2628,7 @@ def analyze_recovery_options(interrupt_info):
                 "option": "A",
                 "label": "从 Step 1 重新开始",
                 "risk": "low",
-                "description": "重新起盘当前章，并重新装配 Init/1-设定/2-卷章规划/上一章终稿上下文",
+                "description": "重新起盘当前章，并重新装配 Init/1-设定/2-卷章/上一章终稿上下文",
                 "actions": ["清理中断状态", f"执行 /{command} {chapter_num}"],
             }
         ]

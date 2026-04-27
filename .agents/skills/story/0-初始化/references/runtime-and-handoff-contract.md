@@ -22,7 +22,7 @@ projects/story/<项目名>/
 ├── CONTEXT/
 ├── 0-初始化/
 ├── 1-设定/
-├── 2-卷章规划/
+├── 2-卷章/
 ├── 3-初稿/
 ├── 4-润色/
 ├── review/
@@ -46,7 +46,7 @@ projects/story/<项目名>/
 | `CHANGELOG.md` | project change history | 初始化与重初始化事件摘要 |
 | `0-初始化/north_star.yaml` | long-term contract | 读者承诺、题材走廊、长期创作约束 |
 | `0-初始化/story-source-manifest.yaml` | source registry | 故事主源根、来源层级、可追溯材料 |
-| `0-初始化/init_handoff.yaml` | stage handoff | `1-设定 / 2-卷章规划` seed、unknowns、下一入口 |
+| `0-初始化/init_handoff.yaml` | stage handoff | `1-设定 / 2-卷章` seed、unknowns、下一入口 |
 
 ## STATE.json Synchronization
 
@@ -74,6 +74,6 @@ projects/story/<项目名>/
 ## Handoff Boundary
 
 - 初始化只产出 `0-初始化` 三件套和 runtime 骨架。
-- 初始化不得生成 `2-卷章规划/整体规划.md`、`2-卷章规划/全息地图.json` 或正文主稿。
+- 初始化不得生成 `2-卷章/整体规划.md`、`2-卷章/全息地图.json` 或正文主稿。
 - 长期偏好写入项目 `MEMORY.md`；运行期共享事实写入项目 `CONTEXT/`；技能经验写回技能 `CONTEXT.md` 或 `knowledge-base/`。
 - 更适合 cards/planning 收敛的问题写入 `init_handoff.yaml.unknowns`，不得在初始化阶段强行补完。

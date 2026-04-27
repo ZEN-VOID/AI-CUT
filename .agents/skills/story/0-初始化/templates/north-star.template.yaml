@@ -14,7 +14,7 @@ meta:
   scope: "full-series"
   canonical_consumers:
     - "1-设定"
-    - "2-卷章规划"
+    - "2-卷章"
   north_star_role: "global-style-genre-truth"
   cards_role: "character-scene-item-seed"
 

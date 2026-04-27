@@ -37,7 +37,7 @@ def _seed_project(project_root: Path, chapter: int, manuscript_text: str) -> Non
 
 
 def _seed_validation_truth(project_root: Path, chapter: int) -> None:
-    planning_dir = project_root / "2-卷章规划"
+    planning_dir = project_root / "2-卷章"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text(
         json.dumps(
@@ -327,7 +327,7 @@ def test_review_runner_logic_compares_upstream_truth(tmp_path):
     assert result["pass"] is False
     assert result["metrics"]["world_rule_conflicts"] >= 1
     assert result["metrics"]["exception_cost_gaps"] >= 1
-    assert any(item.get("source_layer_owner") in {"0-初始化", "1-设定", "2-卷章规划"} for item in result["issues"])
+    assert any(item.get("source_layer_owner") in {"0-初始化", "1-设定", "2-卷章"} for item in result["issues"])
 
 
 def test_review_runner_batch_returns_all_results(tmp_path):
@@ -421,7 +421,7 @@ def test_task_convergence_validator_flags_branch_without_route():
 
     assert result["pass"] is False
     assert result["metrics"]["orphan_branch_count"] >= 1
-    assert any(item.get("source_layer_owner") == "2-卷章规划" for item in result["issues"])
+    assert any(item.get("source_layer_owner") == "2-卷章" for item in result["issues"])
 
 
 def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(tmp_path):

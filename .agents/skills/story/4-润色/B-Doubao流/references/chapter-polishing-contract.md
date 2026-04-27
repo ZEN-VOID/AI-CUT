@@ -30,9 +30,9 @@
 
 - `projects/story/<项目名>/0-初始化/north_star.yaml`
 - `projects/story/<项目名>/0-初始化/north_star.yaml`（`global_contract`、`style_contract`、`genre_contract`）
-- `projects/story/<项目名>/2-卷章规划/整体规划.md`
-- `projects/story/<项目名>/2-卷章规划/第N卷/卷规划.md`
-- `projects/story/<项目名>/2-卷章规划/第N卷/第N章.md`
+- `projects/story/<项目名>/2-卷章/整体规划.md`
+- `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`
+- `projects/story/<项目名>/2-卷章/第N卷/第N章.md`
 - `projects/story/<项目名>/3-初稿/第N卷/第N章.md`：当前章润色主输入，缺失时必须阻断。
 - `volume_num / chapter_num`
 - 当前项目名与目标输出路径

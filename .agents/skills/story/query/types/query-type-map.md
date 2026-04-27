@@ -21,7 +21,7 @@
 
 | user signal | truth_role | canonical source | review gate |
 | --- | --- | --- | --- |
-| 原计划、哪章安排、落在哪章、章节编排 | `planned` | `2-卷章规划/整体规划.md`、`第V卷/卷规划.md`、`第N章.md` | 不能只读 `STATE.json` 或 compat MAP |
+| 原计划、哪章安排、落在哪章、章节编排 | `planned` | `2-卷章/整体规划.md`、`第V卷/卷规划.md`、`第N章.md` | 不能只读 `STATE.json` 或 compat MAP |
 | 当前、现在、默认状态、持有、地点、境界 | `current` | `1-设定/**/*.json` 的 `current_state` | 不能把 `core` 当当前态 |
 | 怎么变成、经历、成长、关系演化 | `history` | `experience_timeline`、`history`、`index.db state_changes / relationship_events` | 必须同时说明现在与形成过程 |
 | 已经发生、实际兑现、最终推进到哪 | `validated_actual` | planning actualization sidecars + `context-return/*.context-return.json` + validation evidence | 无 PASS 证据时只能说未见 validated actual |
@@ -36,7 +36,7 @@
 
 | truth_role | primary carrier | secondary carrier | fallback |
 | --- | --- | --- | --- |
-| `planned` | `2-卷章规划/整体规划.md`、`第V卷/卷规划.md`、`第N章.md` | Cards | `全息地图.json`、`卷分片/*.json` |
+| `planned` | `2-卷章/整体规划.md`、`第V卷/卷规划.md`、`第N章.md` | Cards | `全息地图.json`、`卷分片/*.json` |
 | `current` | `1-设定/**/*.json.current_state` | `STATE.json`、`index.db` | none |
 | `history` | Cards `experience_timeline/history` | `index.db state_changes / relationship_events` | summaries |
 | `validated_actual` | actualization sidecars + `context-return/*.context-return.json` | `validation_ref`、`review_metrics`、`review_checkpoints` | MAP actualization compat |

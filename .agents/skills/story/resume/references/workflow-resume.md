@@ -49,7 +49,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 3. 删除正文前必须由脚本自动备份。
 4. 不默认执行 `git reset --hard`。
 5. 不假定存在 `ch0007` 之类 tag/commit。
-6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
+6. 恢复后继续 `story-write` / `story-plan` / 规划类 `query` 时，默认重新接回 `2-卷章/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
 7. 优先读取 `STATE.json.workflow_runtime.execution_state + task_log` 辅助判断全阶段 run 与 resume marker，不把 `workflow_state` 当唯一线索。
 8. `story-query` 若存在 tracked run，可读其 run 信息；但默认只给 generic continue / rerun / diagnosis，不提供章节 cleanup。
 9. 若 `workflow detect` 没有 tracked 中断，必须继续执行 artifact fallback 检测，而不是立刻返回“无中断任务”。
@@ -144,7 +144,7 @@ python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workfl
 - ❌ 自动替用户选择恢复策略
 - ❌ 未备份即删除正文
 - ❌ 把 `resume/` 冒充 `context-return` actualization 主流程
-- ❌ 恢复后继续默认退回旧 `2-卷章规划/legacy/`
+- ❌ 恢复后继续默认退回旧 `2-卷章/legacy/`
 
 </instructions>
 
@@ -162,7 +162,7 @@ C) 保留半成品做人工检查，再手动决定是否重跑（medium）
 
 下一跳：
 - 若选 A：继续当前 `Step 5`
-- 继续写作时默认重新读取 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
+- 继续写作时默认重新读取 `2-卷章/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
 </output>
 </example>
 

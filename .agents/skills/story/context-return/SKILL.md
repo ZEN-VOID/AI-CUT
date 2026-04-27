@@ -36,10 +36,10 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 - `accepted_manuscript_refs`
 - `validation_ref`
 - current `review/第V卷.validation.json`
-- `book_plan_ref`, default `2-卷章规划/整体规划.md`
-- `volume_plan_ref`, default `2-卷章规划/第V卷/卷规划.md`
-- `chapter_plan_refs`, default matching `2-卷章规划/第V卷/第N章.md`
-- `story_map_ref`, default `2-卷章规划/全息地图.json`
+- `book_plan_ref`, default `2-卷章/整体规划.md`
+- `volume_plan_ref`, default `2-卷章/第V卷/卷规划.md`
+- `chapter_plan_refs`, default matching `2-卷章/第V卷/第N章.md`
+- `story_map_ref`, default `2-卷章/全息地图.json`
 - `story_map_slice_ref`
 - `STATE.json`
 

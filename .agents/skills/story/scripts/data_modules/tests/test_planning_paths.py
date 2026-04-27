@@ -17,7 +17,7 @@ def test_planning_paths_default_volume_mapping():
     from planning_paths import canonical_chapter_plan_relpath, planning_volume_num_for_chapter
 
     assert planning_volume_num_for_chapter(12) == 2
-    assert canonical_chapter_plan_relpath(12) == "2-卷章规划/第2卷/第12章.md"
+    assert canonical_chapter_plan_relpath(12) == "2-卷章/第2卷/第12章.md"
 
 
 def test_planning_paths_respect_state_volume_override(tmp_path):
@@ -47,8 +47,8 @@ def test_planning_paths_respect_state_volume_override(tmp_path):
     )
 
     assert planning_volume_num_for_chapter(12, project_root=project_root) == 1
-    assert canonical_chapter_plan_relpath(12, project_root=project_root) == "2-卷章规划/第1卷/第12章.md"
+    assert canonical_chapter_plan_relpath(12, project_root=project_root) == "2-卷章/第1卷/第12章.md"
     assert canonical_chapter_plan_actualization_relpath(12, project_root=project_root) == (
-        "2-卷章规划/第1卷/第12章.actualization.json"
+        "2-卷章/第1卷/第12章.actualization.json"
     )
     assert planned_chapter_numbers_for_volume(project_root, 1) == list(range(1, 13))

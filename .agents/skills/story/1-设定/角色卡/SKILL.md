@@ -24,7 +24,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair c
 
 该桥接文档只负责把“人物如何长出来”的设计工法映射到正式角色卡字段，不得与 `templates/character-card.json` 形成第二套平行输出真源。
 
-`../../_shared/character-planning-bridge.md` 则负责定义角色卡到 `2-卷章规划` 的最小消费投影与写回边界；它不授予本 child 直接写 `story_map` 的权限。
+`../../_shared/character-planning-bridge.md` 则负责定义角色卡到 `2-卷章` 的最小消费投影与写回边界；它不授予本 child 直接写 `story_map` 的权限。
 
 它必须直接产出以下能力：
 
@@ -163,13 +163,13 @@ flowchart LR
 1. 任何角色都必须是独立 `.json`，不得把多个角色并入同一角色总表。
 2. 每张角色卡都必须带 `group + cast_markers + card_scope=full-series`。
 3. `角色关系图谱.md` 只允许作为关系投影 side output，不得反向替代角色 JSON 真源。
-4. 供 `2-卷章规划` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 进入规划文档，本 child 不直接写 `2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md` 或 `2-卷章规划/第N卷/第N章.md`。
+4. 供 `2-卷章` 消费的字段只能经 `../../_shared/character-planning-bridge.md` 进入规划文档，本 child 不直接写 `2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md` 或 `2-卷章/第N卷/第N章.md`。
 5. 禁止交付单章角色临时稿、平行 Markdown 角色卡与无 Mermaid 的空图谱。
 6. 主角卡必须具备 `core.growth_contract`、`current_state.growth_state` 与 `experience_timeline.axis_stage_map`。
 
 ## Downstream Planning Consumption Contract
 
-`2-卷章规划` 只允许把以下最小人物信息导入规划文档：
+`2-卷章` 只允许把以下最小人物信息导入规划文档：
 
 - `card_id / card_path / name / group / primary_alignment`
 - `narrative_function`

@@ -130,7 +130,7 @@ def _detect_planning_source(project_root: Path) -> dict[str, str]:
     book_plan_path = canonical_book_plan_path(project_root)
     holomap_path = resolve_planning_artifact_path(project_root, "holomap")
     legacy_holomap_path = legacy_planning_artifact_path(project_root, "holomap")
-    legacy_outline_path = project_root / "2-卷章规划" / "legacy" / "总纲.md"
+    legacy_outline_path = project_root / "2-卷章" / "legacy" / "总纲.md"
 
     if book_plan_path.is_file():
         return {
@@ -154,13 +154,13 @@ def _detect_planning_source(project_root: Path) -> dict[str, str]:
             "status": "legacy_fallback",
             "label": "WARN",
             "path": str(legacy_outline_path),
-            "detail": "仅检测到 2-卷章规划/legacy/总纲.md，尚未切到新的三层规划真源",
+            "detail": "仅检测到 2-卷章/legacy/总纲.md，尚未切到新的三层规划真源",
         }
     return {
         "status": "missing",
         "label": "INFO",
         "path": str(book_plan_path),
-        "detail": f"尚未生成规划真源；完成 2-卷章规划 后应落盘 {canonical_book_plan_relpath()}",
+        "detail": f"尚未生成规划真源；完成 2-卷章 后应落盘 {canonical_book_plan_relpath()}",
     }
 
 

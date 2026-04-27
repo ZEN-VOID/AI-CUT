@@ -33,7 +33,7 @@ governance_tier: full
 
 它不拥有：
 
-- `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
+- `0-初始化`、`1-设定`、`2-卷章` 的真源改写权
 - `review` 的 PASS/FAIL 判定权
 - `context-return` 的 validated actualization 写回权
 
@@ -67,7 +67,7 @@ governance_tier: full
 
 - 项目根：`projects/story/<项目名>/`
 - 当前卷章定位：`volume_num / chapter_num` 或可由 `chapter_num` 推导的卷号
-- 三层 planning：`2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md`
+- 三层 planning：`2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md`
 - 对象/风格真源：`0-初始化/north_star.yaml.global_contract`、`0-初始化/north_star.yaml.style_contract`
 - 北极星：`0-初始化/north_star.yaml`
 

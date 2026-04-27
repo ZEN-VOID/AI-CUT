@@ -66,7 +66,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert state["paths"]["context_root"] == "CONTEXT/"
     assert state["paths"]["project_memory"] == "MEMORY.md"
     assert state["paths"]["setting_root"] == "1-设定/"
-    assert state["paths"]["planning_root"] == "2-卷章规划/"
+    assert state["paths"]["planning_root"] == "2-卷章/"
     assert state["paths"]["drafting_root"] == "3-初稿/"
     assert state["paths"]["polish_root"] == "4-润色/"
     assert state["paths"]["review_root"] == "review/"
@@ -124,7 +124,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert (project_root / "CONTEXT").is_dir()
     assert (project_root / "MEMORY.md").is_file()
     assert (project_root / "1-设定").is_dir()
-    assert (project_root / "2-卷章规划").is_dir()
+    assert (project_root / "2-卷章").is_dir()
     assert (project_root / "3-初稿").is_dir()
     assert (project_root / "4-润色").is_dir()
     assert (project_root / "review").is_dir()
@@ -137,7 +137,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert not (project_root / "1-设定" / "其他设定").exists()
     assert not (project_root / ".webnovel").exists()
     assert not (project_root / ".env.example").exists()
-    assert not (project_root / "2-卷章规划" / "legacy").exists()
+    assert not (project_root / "2-卷章" / "legacy").exists()
     assert not (project_root / ".git").exists()
 
     assert "建立 `STATE.json`、`team.yaml`、`MEMORY.md`、`CHANGELOG.md` 标准配置。" in changelog
@@ -150,11 +150,11 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert " - 源/" in captured.out
     assert " - CONTEXT/" in captured.out
     assert " - 1-设定/" in captured.out
-    assert " - 2-卷章规划/" in captured.out
+    assert " - 2-卷章/" in captured.out
     assert " - 4-润色/" in captured.out
     assert " - review/" in captured.out
     assert " - context-return/" in captured.out
-    assert "2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
+    assert "2-卷章/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
 
 
 def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatch):

@@ -40,7 +40,7 @@ If the target truth is wrong because an upstream source is wrong, do not patch o
 
 - seed or project covenant: `0-初始化`
 - object truth: `1-设定`
-- plan truth: `2-卷章规划`
+- plan truth: `2-卷章`
 - manuscript truth: `3-初稿`
 - validation judgment: `review`
 - review persistence: `review/`

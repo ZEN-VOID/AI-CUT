@@ -13,8 +13,8 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 ```
 项目根目录/
-├── 2-卷章规划/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
-├── 2-卷章规划/
+├── 2-卷章/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
+├── 2-卷章/
 │   ├── 整体规划.md         # 当前 primary planning truth（宏观）
 │   ├── 第1卷/
 │   │   ├── 卷规划.md       # 当前 primary planning truth（中观）
@@ -90,7 +90,7 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 1-设定
   → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
-2-卷章规划
+2-卷章
   → `1-部级 -> 2-卷级 -> 3-章级` 分形递进
   → primary truth 落到 `整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
   → `全息地图.json / 卷分片/*.json` 仅保留兼容投影价值
@@ -149,7 +149,7 @@ query / resume
 
 ```
 1. Context Agent 组装创作任务书
-   → 先读取 `2-卷章规划/整体规划.md + 第V卷/卷规划.md + 第V卷/第N章.md`（规划真源）
+   → 先读取 `2-卷章/整体规划.md + 第V卷/卷规划.md + 第V卷/第N章.md`（规划真源）
    → 读取 `STATE.json`（精简版：进度/配置）
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
@@ -198,28 +198,28 @@ query / resume
 
 ## 规划真源优先级
 
-1. `2-卷章规划/整体规划.md`
-2. `2-卷章规划/第V卷/卷规划.md`
-3. `2-卷章规划/第V卷/第N章.md`
+1. `2-卷章/整体规划.md`
+2. `2-卷章/第V卷/卷规划.md`
+3. `2-卷章/第V卷/第N章.md`
 4. `1-设定/**/*.json`
 5. `STATE.json`
-6. `2-卷章规划/legacy/`（仅 legacy fallback）
+6. `2-卷章/legacy/`（仅 legacy fallback）
 
 说明：
 - 涉及章节编排、任务、线索、伏笔、冲突落点的问题，默认先查三层规划文档。
-- `2-卷章规划/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
+- `2-卷章/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
 
 ## Query Truth Layers（查询时必须区分）
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `2-卷章规划/整体规划.md` + `2-卷章规划/第V卷/卷规划.md` + `2-卷章规划/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-卷章/整体规划.md` + `2-卷章/第V卷/卷规划.md` + `2-卷章/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
 | drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-初稿/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-设定/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章规划/整体规划.actualization.json` + `2-卷章规划/第V卷/卷规划.actualization.json` + `2-卷章规划/第V卷/第N章.actualization.json` + `context-return/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章/整体规划.actualization.json` + `2-卷章/第V卷/卷规划.actualization.json` + `2-卷章/第V卷/第N章.actualization.json` + `context-return/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `review + review` 生成 |
 
 固定判定：

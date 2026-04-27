@@ -18,7 +18,7 @@ def _load_module():
 def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
     module = _load_module()
 
-    planning_dir = tmp_path / "2-卷章规划"
+    planning_dir = tmp_path / "2-卷章"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text(
         """
@@ -44,7 +44,7 @@ def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
 def test_default_chapter_draft_path_falls_back_to_split_outline_filename(tmp_path):
     module = _load_module()
 
-    outline_dir = tmp_path / "2-卷章规划" / "legacy"
+    outline_dir = tmp_path / "2-卷章" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第0002章-标题 文件.md").write_text("无章节标题 heading", encoding="utf-8")
 

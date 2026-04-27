@@ -47,11 +47,11 @@ It must not contain:
 ## Writeback Targets
 
 - `Cards.current_state/history`
-- `2-卷章规划/整体规划.actualization.json`
-- `2-卷章规划/第V卷/卷规划.actualization.json`
-- `2-卷章规划/第V卷/第N章.actualization.json`
-- matched `2-卷章规划/卷分片/*.json.content.holomap_slice.actualization`
-- `2-卷章规划/全息地图.json.content.holomap.actualization`
+- `2-卷章/整体规划.actualization.json`
+- `2-卷章/第V卷/卷规划.actualization.json`
+- `2-卷章/第V卷/第N章.actualization.json`
+- matched `2-卷章/卷分片/*.json.content.holomap_slice.actualization`
+- `2-卷章/全息地图.json.content.holomap.actualization`
 - `STATE.json` projections and runtime markers
 
 ## Projection Refresh Semantics

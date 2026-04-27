@@ -217,7 +217,7 @@ active_skills:
         contract_status: active
         route_role: stage
       - id: story-2-planning
-        path: .agents/skills/story/2-卷章规划
+        path: .agents/skills/story/2-卷章
         owner_office: zhongshu
         contract_status: active
         route_role: stage

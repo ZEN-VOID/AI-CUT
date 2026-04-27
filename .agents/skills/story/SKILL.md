@@ -47,7 +47,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 1. `0-初始化`
 2. `1-设定`
-3. `2-卷章规划`
+3. `2-卷章`
 
 进入正文生产后，默认按卷执行创作闭环，而不是把全书多卷同时推进到同一阶段。
 
@@ -77,7 +77,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - `0-初始化/north_star.yaml.genre_contract` 是唯一题材方向盘真源。
 - `1-设定` 不再单独设置 `类型卡`。
-- `2-卷章规划` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
+- `2-卷章` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
 - `3-初稿` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
 - `review` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度；默认后台启用 `code-reviewer` 做独立审计，再把 findings 回流为修复分流。
 - `4-润色` 可以沉淀反馈，但不得自动改写 `north_star.yaml.genre_contract`。
@@ -93,7 +93,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - 用户只说“用 story2026 做这件事”，但还没有明确该进哪一个阶段。
 - 需要设计、选择或解释某个项目的题材方向盘。
-- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / context-return / query / resume` 中的哪一层。
+- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色 / review / context-return / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
 
 ## Input Contract
@@ -111,7 +111,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 1. `0-初始化`
 2. `1-设定`
-3. `2-卷章规划`
+3. `2-卷章`
 
 正文生产从这里开始按卷循环：
 
@@ -132,7 +132,7 @@ flowchart TD
     A["用户诉求 / story2026 总入口"] --> B{"根级路由与真源判定"}
     B --> C["0-初始化<br/>north_star.yaml.genre_contract"]
     C --> D["1-设定<br/>角色 / 场景 / 物品对象真源"]
-    D --> E["2-卷章规划<br/>部级 / 卷级 / 章级规划真源"]
+    D --> E["2-卷章<br/>部级 / 卷级 / 章级规划真源"]
     E --> F["第V卷 3-初稿<br/>候选正文"]
     F --> G1["review<br/>初稿验收 / 第V卷.validation.json"]
     G1 -->|"FAIL / 修复分流"| F
@@ -161,7 +161,7 @@ flowchart TD
 | 根级 `story2026` | 跨阶段拓扑、总路由、共享载体边界、默认加载顺序 | 各阶段内部执行细则、局部 reference 专业判断 |
 | `0-初始化` | 立项合同、`0-初始化/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-设定` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
-| `2-卷章规划` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
+| `2-卷章` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
 | `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 父级导引层选择 A/B/C provider lane 执行；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
 | `review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `review/第V卷.validation.json` 聚合 gate、审查报告与状态持久化 | actualization 写回 |
 | `4-润色` | 基于 `3-初稿/第N卷/第N章.md` 的二次改写润色稿、`4-润色/第N卷/第N章.md`、润色 sidecar | `3-初稿` 原文覆盖权、planning/cards/north_star 真源、validation PASS/FAIL 判定权 |
@@ -226,7 +226,7 @@ flowchart TD
 | 新建项目、确定创作立项、初始化问卷/顾问团 | `0-初始化` |
 | 角色卡/场景卡/物品卡生成、回写、覆盖率修复 | `1-设定` |
 | 全局设定/整书风格/类型方向盘修订 | `0-初始化/north_star.yaml` |
-| 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-卷章规划` |
+| 长篇规划、MAP、章节编排、冲突/任务/线索/伏笔设计 | `2-卷章` |
 | 写章节、章节级执行包、从 planning 直接产出正文 | `3-初稿` |
 | 承接已有 `3-初稿` 做二次改写润色、中文表达强化、题材质感校准，并输出到 `4-润色/第N卷/第N章.md` | `4-润色` |
 | 明确要求“按章写正文”、输出到 `3-初稿/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-初稿` |
@@ -242,7 +242,7 @@ flowchart TD
 2. 再读取根级 `CONTEXT.md`，避免重复踩跨阶段老坑。
 3. 若当前任务已绑定 `projects/story/<项目名>/`，必须先读取 `projects/story/<项目名>/MEMORY.md`，再读取 `projects/story/<项目名>/CONTEXT/` 下与本轮相关的项目级上下文文件。
 4. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md` 与对应阶段的 `_shared/*`。
-5. 若当前项目已锁定题材方向盘，优先读取 `0-初始化/north_star.yaml.genre_contract` 与 `2-卷章规划/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
+5. 若当前项目已锁定题材方向盘，优先读取 `0-初始化/north_star.yaml.genre_contract` 与 `2-卷章/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
    - `review/_shared/validation-fact-pack-spec.md`
    - `context-return/references/context-return-spec.md`
@@ -285,7 +285,7 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- |
 | FIELD-SYS-ROUTING-01 | Step 1 | 判定当前诉求属于哪个阶段与 truth role | `target_stage`、`truth_role` | FAIL-SYS-ROUTING-01 | 回到路由表，先判真源再判阶段 |
 | FIELD-SYS-CARRIER-02 | Step 2 | 判断应读取哪些根级共享 carrier | `shared_refs_to_load`、`shared_scripts_needed` | FAIL-SYS-CARRIER-02 | 回到根级 `_shared/*.md` 与共享层边界合同 |
-| FIELD-SYS-TYPECARD-03 | Step 3 | 判断当前项目的题材方向盘是否已被 `north_star.yaml.genre_contract` 正式承接 | `genre_contract_ref`、`story_promise_summary`、`genre_corridor_summary` | FAIL-SYS-TYPECARD-03 | 回到 `0-初始化/north_star.yaml` 与 `2-卷章规划` 导入链 |
+| FIELD-SYS-TYPECARD-03 | Step 3 | 判断当前项目的题材方向盘是否已被 `north_star.yaml.genre_contract` 正式承接 | `genre_contract_ref`、`story_promise_summary`、`genre_corridor_summary` | FAIL-SYS-TYPECARD-03 | 回到 `0-初始化/north_star.yaml` 与 `2-卷章` 导入链 |
 | FIELD-SYS-OWNER-04 | Step 4 | 锁定该问题的 canonical owner | `canonical_owner`、`non_owner_layers_to_avoid` | FAIL-SYS-OWNER-04 | 回到真源分工表，禁止让下游冒充上游 |
 | FIELD-SYS-TRACE-05 | Step 5 | 完成跨阶段 root-cause trace | `symptom`、`direct_cause`、`rule_source`、`meta_rule_source` | FAIL-SYS-TRACE-05 | 重新补全分层 trace，不能停在局部症状 |
 | FIELD-SYS-CLOSURE-06 | Step 6 | 产出修复闭环与防回归结果 | `root_cause_location`、`immediate_fix`、`systemic_prevention_fix` | FAIL-SYS-CLOSURE-06 | 回到修复落点，优先改根级真源 |

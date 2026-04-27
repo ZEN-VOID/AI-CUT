@@ -55,12 +55,12 @@ L2 条件：
 优先读取：
 
 ```bash
-cat "$PROJECT_ROOT/2-卷章规划/整体规划.md"
-cat "$PROJECT_ROOT/2-卷章规划/第V卷/卷规划.md"
-cat "$PROJECT_ROOT/2-卷章规划/第V卷/第N章.md"
+cat "$PROJECT_ROOT/2-卷章/整体规划.md"
+cat "$PROJECT_ROOT/2-卷章/第V卷/卷规划.md"
+cat "$PROJECT_ROOT/2-卷章/第V卷/第N章.md"
 ```
 
-兼容项目再补读 `2-卷章规划/全息地图.json` 与 `2-卷章规划/卷分片/*.json`。
+兼容项目再补读 `2-卷章/全息地图.json` 与 `2-卷章/卷分片/*.json`。
 
 ### Cards / Current / History
 
@@ -83,9 +83,9 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 
 必须检查：
 
-1. `2-卷章规划/整体规划.actualization.json`
-2. `2-卷章规划/第V卷/卷规划.actualization.json`
-3. `2-卷章规划/第V卷/第N章.actualization.json`
+1. `2-卷章/整体规划.actualization.json`
+2. `2-卷章/第V卷/卷规划.actualization.json`
+3. `2-卷章/第V卷/第N章.actualization.json`
 4. `context-return/第V卷.context-return.json`
 5. `validation_ref` / `review_metrics` / `STATE.json.review_checkpoints`
 

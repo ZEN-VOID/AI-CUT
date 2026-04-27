@@ -314,12 +314,12 @@ def test_story_write_complete_task_blocks_short_manuscript(tmp_path, monkeypatch
         "---\n"
         "chapter_title: 测试章\n"
         "rhythm_type: 势能式\n"
-        "planning_ref: 2-卷章规划/第1卷/第18章.md\n"
+        "planning_ref: 2-卷章/第1卷/第18章.md\n"
         "---\n\n"
         "# 第18章\n\n"
         "这一章只是一个压缩剧情摘要，还没有展开成完整章节。\n",
     )
-    planning_dir = tmp_path / "2-卷章规划" / "第1卷"
+    planning_dir = tmp_path / "2-卷章" / "第1卷"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "第18章.md").write_text(
         "对下章的直接推动：下一场风暴已压到门前\n",

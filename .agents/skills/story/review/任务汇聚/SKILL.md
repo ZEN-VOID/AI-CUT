@@ -49,7 +49,7 @@ governance_tier: lite
 | --- | --- |
 | `business_goal` | 判断支流任务是否真正服务主任务，而不是写成独立飘走的副本。 |
 | `business_object` | `validation_fact_pack.volume_planning_summary`、`chapter_planning_packets`、当前卷正文集合。 |
-| `constraint_profile` | 先看 planning 是否显式声明 `从属 / 汇聚 / 转挂 / 保留开放`，再看正文是否兑现；若 planning 自身未声明，优先打回 `2-卷章规划`。 |
+| `constraint_profile` | 先看 planning 是否显式声明 `从属 / 汇聚 / 转挂 / 保留开放`，再看正文是否兑现；若 planning 自身未声明，优先打回 `2-卷章`。 |
 | `success_criteria` | 能明确回答“这条支流在服务什么主任务、在哪里汇、没汇时去哪里、正文是否给了证据”。 |
 | `topology_fit` | `task lineage decode -> branch route check -> manuscript convergence check -> report packet` |
 
@@ -60,7 +60,7 @@ governance_tier: lite
   - `validation_fact_pack.chapter_planning_packets`
   - 当前卷正文集合
 - 硬规则：
-  - 若 planning truth 缺 `上承 / 汇聚 / 去向` 槽位，直接标记 `source_layer_owner=2-卷章规划`。
+  - 若 planning truth 缺 `上承 / 汇聚 / 去向` 槽位，直接标记 `source_layer_owner=2-卷章`。
   - 允许支流本卷不完全回收，但必须显式写明 `转挂 / 延后 / 保留开放` 去向。
   - 不能把“有支线”默认等同于“已服务主线”。
 
@@ -128,7 +128,7 @@ flowchart TD
 
 `Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
 
-若支流失锚但 planning 未声明去向，优先判 `source_layer_owner=2-卷章规划`；若正文缺汇聚证据，再打回 drafting 对应 step。
+若支流失锚但 planning 未声明去向，优先判 `source_layer_owner=2-卷章`；若正文缺汇聚证据，再打回 drafting 对应 step。
 
 ## Field Mapping
 

@@ -12,7 +12,7 @@
 2. 题材走廊与故事核
 3. 读者承诺、平台与受众
 4. 角色压力与世界约束
-5. 应留给 `1-设定 / 2-卷章规划` 的 unknowns
+5. 应留给 `1-设定 / 2-卷章` 的 unknowns
 
 ## Answer Shape
 
@@ -41,7 +41,7 @@ answers:
 
 - 当前最阻塞长期合同与阶段 seed 的缺口，可以由 planning 直答或创意 seed 补齐。
 - 更适合 `1-设定` 对象建模的问题写入 `cards_seed` 或 `unknowns`。
-- 更适合 `2-卷章规划` 卷章结构解决的问题写入 `planning_seed` 或 `unknowns`。
+- 更适合 `2-卷章` 卷章结构解决的问题写入 `planning_seed` 或 `unknowns`。
 - 不允许为了显得初始化完整而补空字段、造默认剧情或压缩成单主文件。
 
 ## Provenance Rule
