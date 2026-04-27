@@ -46,7 +46,7 @@ This file records the 2026-04-24 upgrade from the former single-file `0-初始�
 | missing output-template binding | `templates/output-template-map.md` | create | Output Contract alignment |
 | missing final response template | `templates/output-template.md` | create | Output Contract alignment |
 | missing project changelog template | `templates/project-changelog.template.md` | create | Output Contract alignment |
-| missing project preset root helper | `templates/project-preset-readme.template.md` | create | Output Contract alignment |
+| missing project context root helper | `templates/project-context-readme.template.md` | create | Output Contract alignment |
 | missing project state template | `templates/state.template.json` | create | Output Contract alignment |
 | missing `README.md` | `README.md` | create | validator |
 | missing Skill 2.0 partitions | `references/`, `steps/`, `review/`, `types/`, `knowledge-base/`, `scripts/` | create | validator |

@@ -5,7 +5,7 @@
 | source_path | source_section | content_class | target_path | operation | semantic_risk | reference_updates | validation_gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `.agents/skills/aigc-old/resume/SKILL.md` | frontmatter | entry metadata | `SKILL.md` | rewrite | low | name 保持 `aigc-resume` | Skill 2.0 validator |
-| `.agents/skills/aigc-old/resume/SKILL.md` | Context Loading Contract | loading contract | `SKILL.md` | keep + adapt | low | 加入项目 `MEMORY.md`、项目 `CONTEXT/` 与 `附加预设/` 新口径 | context audit |
+| `.agents/skills/aigc-old/resume/SKILL.md` | Context Loading Contract | loading contract | `SKILL.md` | keep + adapt | low | 加入项目 `MEMORY.md`、项目 `CONTEXT/` 与 `CONTEXT/` 新口径 | context audit |
 | `.agents/skills/aigc-old/resume/SKILL.md` | Purpose / Stage Position | satellite boundary | `SKILL.md` | keep + adapt | low | 挂到新 `.agents/skills/aigc/resume` | manual semantic check |
 | `.agents/skills/aigc-old/resume/SKILL.md` | Supported Scope / Workflow | process rules | `steps/resume-workflow.md` | split | medium | 旧 `0-Init` 改为 `0-初始化` | steps review gate |
 | `.agents/skills/aigc-old/resume/SKILL.md` | Project Root Guard | runtime guard | `references/project-runtime-layout.md` | rewrite | medium | 新 runtime 使用中文目录 | runtime evidence check |

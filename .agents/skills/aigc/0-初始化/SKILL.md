@@ -15,9 +15,10 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-init` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - Every call to `$aigc-init` must load this `SKILL.md` and the same-directory `CONTEXT.md`.
-- If the task is bound to `projects/aigc/<项目名>/`, load project `MEMORY.md` first, then relevant files under project `附加预设/`; if a legacy project still has `CONTEXT/`, load only the files relevant to the current task.
-- Conflict order: user explicit request > root `AGENTS.md` / repository meta policy > this `SKILL.md` > referenced `references/`, `steps/`, `review/`, `types/`, `templates/` specs > `agents/openai.yaml` > project `MEMORY.md` > project `附加预设/` > legacy project `CONTEXT/` > same-directory `CONTEXT.md`.
+- If the task is bound to `projects/aigc/<项目名>/`, load project `MEMORY.md` first, then relevant files under project `CONTEXT/`.
+- Conflict order: user explicit request > root `AGENTS.md` / repository meta policy > this `SKILL.md` > referenced `references/`, `steps/`, `review/`, `types/`, `templates/` specs > `agents/openai.yaml` > project `MEMORY.md` > project `CONTEXT/` > same-directory `CONTEXT.md`.
 - `CHANGELOG.md` is not runtime context unless migration history is needed.
 - New reusable failures or stable tactics go to `CONTEXT.md` first; if they become mandatory, promote them to this entry contract or the correct reference partition.
 
@@ -26,7 +27,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目 / 新建电影项目 / 电影项目起盘”等媒介明确为 film/movie/video/影视工作流的初始化。
 - Create a new AIGC film/video project under `projects/aigc/<项目名>/`.
 - Reinitialize an existing AIGC project when the user wants to return to initialization state, rebuild the north star, or discard the active direction while preserving the project shell.
-- Build `0-初始化/` through `7-视频/`, project `MEMORY.md`, project `附加预设/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
+- Build `0-初始化/` through `7-视频/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
 - Lock a project-level `north_star` before entering `1-分集`, `2-编导`, or later AIGC stages.
 - Use `.agents/skills/team/` advisors to form a planning-led initialization council.
 
@@ -96,7 +97,7 @@ Required canonical writeback after sufficiency passes:
 
 | output | path | purpose | owner for detail |
 | --- | --- | --- | --- |
-| project root carriers | `projects/aigc/<项目名>/MEMORY.md`, `CHANGELOG.md`, `附加预设/`, `源/`, `STATE.json` | project memory, trace, presets/source, live route truth | `references/scope-and-runtime.md` |
+| project root carriers | `projects/aigc/<项目名>/MEMORY.md`, `CHANGELOG.md`, `CONTEXT/`, `源/`, `STATE.json` | project memory, trace, context/source, live route truth | `references/scope-and-runtime.md` |
 | north star | `projects/aigc/<项目名>/0-初始化/north_star.yaml` | long-lived creative and production constraints, including exact `全局风格 / 细分风格 / 类型元素 / 世界观` global design blocks | `references/artifacts-and-sources.md` |
 | init handoff | `projects/aigc/<项目名>/0-初始化/init_handoff.yaml` | next-stage seeds, unknowns, source breakdown | `references/artifacts-and-sources.md` |
 | story source manifest | `projects/aigc/<项目名>/0-初始化/story-source-manifest.yaml` | source readiness and coverage truth | `references/artifacts-and-sources.md` |
@@ -189,7 +190,7 @@ This is an index only. Detailed node fields, branch rules, dispatch gates, and r
 1. Read root `.agents/skills/aigc/SKILL.md`, this `SKILL.md`, this `CONTEXT.md`, and the necessary shared AIGC contracts.
 2. In `N0`, decide whether the request is first initialization, `rebootstrap`, or a resume/query task.
 3. In `N1`, lock `init_mode == smart_advisor` and exactly one `team_lineup_mode`.
-4. In `N2`, create the canonical project runtime skeleton, project `MEMORY.md`, `附加预设/`, and 同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
+4. In `N2`, create the canonical project runtime skeleton, project `MEMORY.md`, `CONTEXT/`, and 同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
 5. In `N3`, build a minimal route/context packet and lock `.agents/skills/team/` as the only advisor selector root.
 6. In `N4`, form or validate the lineup, write a `team.yaml` patch, then run `roles.planning.members` direct-answer packets with real subagents.
 7. In `N5`, synthesize only the patches produced by the actually selected path into `team.yaml`, `story-source-manifest.yaml`, `north_star.yaml`, `init_handoff.yaml`, and `STATE.json`.
@@ -241,7 +242,7 @@ projects/aigc/<项目名>/
 ├── 6-图像/
 ├── 7-视频/
 ├── 源/
-├── 附加预设/
+├── CONTEXT/
 ├── CHANGELOG.md
 ├── MEMORY.md
 ├── STATE.json
@@ -262,14 +263,14 @@ Bootstrap runtime marker allowlist:
 - `projects/aigc/<项目名>/6-图像/`
 - `projects/aigc/<项目名>/7-视频/`
 - `projects/aigc/<项目名>/源/`
-- `projects/aigc/<项目名>/附加预设/`
+- `projects/aigc/<项目名>/CONTEXT/`
 
 Forbidden bootstrap paths:
 
 - legacy source aliases: `Original/`, `Story/`
 - legacy English stages: `1-Planning/`, `2-Global/`, `3-Detail/`, `4-Design/`, `5-Image/`, `6-Video/`, `7-Cut/`
 - stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `4-摄影/`, `4-设计/`, `5-分组/`, `6-分组/`, `7-图像/`, `8-视频/`
-- legacy project context root alias: `CONTEXT/`
+- legacy project context aliases outside `projects/aigc/<项目名>/CONTEXT/`
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。
 
@@ -356,7 +357,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | --- | --- | --- | --- | --- |
 | `N0` | `FIELD-INIT-08` | first init, rebootstrap, or resume? | lock task type and reset intent | reset misread as resume, or source deletion |
 | `N1` | `FIELD-INIT-03` | is `auto/custom` confirmed? | record mode and decision owner | artifact drafting before lock |
-| `N2` | `FIELD-INIT-05` | are root carriers and skeleton ready? | create runtime roots and project support files | missing `CHANGELOG.md`, `MEMORY.md`, `STATE.json`, `team.yaml`, `源/`, or `附加预设/` |
+| `N2` | `FIELD-INIT-05` | are root carriers and skeleton ready? | create runtime roots and project support files | missing `CHANGELOG.md`, `MEMORY.md`, `STATE.json`, `team.yaml`, `源/`, or `CONTEXT/` |
 | `N3` | `FIELD-INIT-03/07` | which lineup path and context packet? | create route and team context packets | advisor scope escapes team tree |
 | `N4` | `FIELD-INIT-01/02/04/07` | does planning have enough direct-answer material? | run lineup path and planning subagents | local imitation or empty roster |
 | `N5` | `FIELD-INIT-01/02/04/05` | can patches become the five-piece set? | synthesize with provenance | north star/handoff mixed |

@@ -1,5 +1,5 @@
 version: 1
 interface:
   display_name: "AIGC 5-设计"
-  short_description: "路由到场景、角色、道具三个融合后的 Skill 2.0 设计包。"
-  default_prompt: "Use $aigc-design to route the current 5-设计 task into exactly the needed fused domain package: `$aigc-design-scene`, `$aigc-design-role`, or `$aigc-design-prop`. Each domain package runs list -> design -> panel prompt in order and writes `[域]清单.md`, `[主体名].md`, and `[主体名].json` directly under `projects/aigc/<项目名>/5-设计/`."
+  short_description: "将5-设计任务路由到场景角色道具域并汇总阶段验收。"
+  default_prompt: "Use $aigc-design to route the current 5-设计 task into exactly the needed fused domain package: `$aigc-design-scene`, `$aigc-design-character`, or `$aigc-design-prop`. Each domain package runs list -> design -> generation in order and writes leaf outputs under `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`."

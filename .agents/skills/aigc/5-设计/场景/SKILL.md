@@ -1,7 +1,7 @@
 ---
 name: aigc-design-scene
 description: Use when the AIGC 5-设计/场景 domain needs to route work into scene list, scene detail design, or scene image generation leaf skills under `.agents/skills/aigc/5-设计/场景/{1-清单,2-设计,3-生成}`.
-governance_tier: lite
+governance_tier: router
 metadata:
   short-description: Route the 5-设计 scene skill group
 ---
@@ -12,6 +12,7 @@ metadata:
 
 ## Context Loading Contract
 
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用 `$aigc-design-scene` 或直接命中 `.agents/skills/aigc/5-设计/场景/SKILL.md` 时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与场景命名、世界观地点、建筑/空间规则、无人空镜禁区或长期视觉偏好相关的文件。
 - 进入任一叶子技能时，必须继续加载该叶子的 `SKILL.md + CONTEXT.md`；组根上下文不得替代叶子上下文。
@@ -120,5 +121,7 @@ metadata:
 ## Output Contract
 
 - Required output: 路由决定、命中的叶子技能、必要的上游缺口说明；业务文件由叶子技能写入。
+- Output format: Markdown 路由说明、域级状态摘要或最小修复 patch。
 - Output path: 叶子输出固定在 `projects/aigc/<项目名>/5-设计/场景/{1-清单,2-设计,3-生成}/`。
+- Naming convention: 组根报告使用清晰的域名与叶子名；叶子产物按叶子 `Output Contract` 命名。
 - Completion gate: 本组根已加载同目录 `CONTEXT.md`；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收。

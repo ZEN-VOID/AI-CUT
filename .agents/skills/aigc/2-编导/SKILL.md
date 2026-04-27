@@ -13,9 +13,10 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-directing` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `附加预设/` 中与当前剧本化改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前剧本化改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
 - 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `附加预设/` > 本 `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
 
 ## Input Contract
@@ -34,7 +35,7 @@ Required input:
 Optional input:
 
 - 项目 `MEMORY.md` 中的长期偏好、禁区、风格要求。
-- `附加预设/` 中的角色、世界观、类型和制作约束。
+- `CONTEXT/` 中的角色、世界观、类型和制作约束。
 - 用户额外指定的字段、标题风格、下游分组解析要求。
 
 Reject or clarify when:
@@ -100,7 +101,7 @@ Reject or clarify when:
 
 ### Completion gate
 
-- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `附加预设/`。
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
 - 上游 `1-分集/第N集.md` 可回指，输出 frontmatter 记录 `source_episode_path`。
 - 上游剧情事实、信息量与顺序完整承接，无摘要、删减、自由改写或因果重排。
 - 对白逐字保真；引号内没有动作描写。
@@ -155,7 +156,7 @@ flowchart TD
 
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
-| `FIELD-DIRECT-01` | 输入取证 | source episode、项目记忆、附加预设、目标集号明确 | `FAIL-DIRECT-01` |
+| `FIELD-DIRECT-01` | 输入取证 | source episode、项目记忆、CONTEXT、目标集号明确 | `FAIL-DIRECT-01` |
 | `FIELD-DIRECT-02` | 场景标题 | `### 场景N：内景/外景 场所 - 日/夜`，同 slugline 同编号 | `FAIL-DIRECT-02` |
 | `FIELD-DIRECT-03` | 文本保真 | 剧情事实、顺序、对白完整承接 | `FAIL-DIRECT-03` |
 | `FIELD-DIRECT-04` | 声画配对 | 对白/独白/旁白/音效与对应画面字段就近成组 | `FAIL-DIRECT-04` |
@@ -167,7 +168,7 @@ flowchart TD
 
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
-| `PASS-DIRECT-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、附加预设 | 是否具备可承接逐集正文与目标集号 | `input_lock` |
+| `PASS-DIRECT-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、CONTEXT | 是否具备可承接逐集正文与目标集号 | `input_lock` |
 | `PASS-DIRECT-02` | 场景解析 | 上游正文与场景线索 | slugline、场景编号和场景顺序是否稳定 | `scene_map` |
 | `PASS-DIRECT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
 | `PASS-DIRECT-04` | LLM 剧本化投影 | `field_routing_plan` 与上游正文 | 是否完整承接事实、顺序和对白 | `episode_script` |

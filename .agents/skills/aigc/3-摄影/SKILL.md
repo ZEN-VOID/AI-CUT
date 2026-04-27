@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$3-摄影` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml` 与 `team.yaml`，再按需加载项目根 `CONTEXT/` 中与摄影、美术、风格或制作约束相关的上下文文件。
 - 上游正文真源固定为 `projects/aigc/<项目名>/2-编导/第N集.md`，除非用户显式指定其他编导稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。

@@ -1,7 +1,7 @@
 ---
 name: aigc-design
-description: Use when the AIGC 5-设计 stage needs to route work into the fused scene, role, or prop Skill 2.0 packages under `.agents/skills/aigc/5-设计/{场景,角色,道具}` and write final design artifacts under `projects/aigc/<项目名>/5-设计/`.
-governance_tier: full
+description: Use when the AIGC 5-设计 stage needs to route work into the fused scene, character, or prop Skill 2.0 packages under `.agents/skills/aigc/5-设计/{场景,角色,道具}` and validate their nested leaf outputs under `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`.
+governance_tier: router
 metadata:
   short-description: Route fused 5-设计 domain packages
 ---
@@ -12,14 +12,14 @@ metadata:
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
 - 若当前任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前设计域有关的文件。
-- 本父级只拥有阶段路由、域选择、统一输出根和阶段级验收；业务主创与最终文件写回由 `场景`、`角色`、`道具` 三个域级子技能包承担。
+- 本父级只拥有阶段路由、域选择、输出拓扑声明和阶段级验收；业务主创与最终文件写回由 `场景`、`角色`、`道具` 三个域级子技能包承担。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 域级子技能 `SKILL.md` > `references/*` / 域级分区 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Input Contract
 
-- Accepted input: 5-设计 阶段任务、场景/角色/道具清单设计面板一体化任务、旧 `1-清单 / 2-设计 / 3-面板` 路径迁移后的路由修复。
-- Required input: 项目名与集数，或可定位到 `projects/aigc/<项目名>/3-Detail/第N集.json` / 既有 5-设计 输入。
-- Optional input: 指定域、指定主体、项目 `0-Init` / `2-Global` 资料、项目 `MEMORY.md` / `CONTEXT/`、已有参考图。
+- Accepted input: 5-设计 阶段任务、场景/角色/道具清单-设计-生成一体化任务、旧 `1-清单 / 2-设计 / 3-面板` 路径迁移后的路由修复。
+- Required input: 项目名与集数，或可定位到 `projects/aigc/<项目名>/4-分组/第N集.md` / 既有 5-设计 输入。
+- Optional input: 指定域、指定主体、项目 `MEMORY.md` / `CONTEXT/`、已有参考图、域级 leaf 产物。
 - Reject or clarify when: 无法判断域且没有足够上下文自动判定；用户要求在父级直接主创全部场景/角色/道具正文；用户要求恢复旧 `1-清单/2-设计/3-面板` 子技能真源。
 
 ## Stage Structure
@@ -28,9 +28,9 @@ metadata:
 
 | domain | skill package | final required outputs |
 | --- | --- | --- |
-| `场景` | `.agents/skills/aigc/5-设计/场景` | `场景清单.md`、`[场景名].md`、`[场景名].json` |
-| `角色` | `.agents/skills/aigc/5-设计/角色` | `角色清单.md`、`[角色名].md`、`[角色名].json` |
-| `道具` | `.agents/skills/aigc/5-设计/道具` | `道具清单.md`、`[道具名].md`、`[道具名].json` |
+| `场景` | `.agents/skills/aigc/5-设计/场景` | `场景/1-清单/场景清单.md`、`场景/2-设计/S###-<场景名>.md`、`场景/3-生成/<场景名>-*.json` |
+| `角色` | `.agents/skills/aigc/5-设计/角色` | `角色/1-清单/角色清单.md`、`角色/2-设计/<角色名>.md`、`角色/3-生成/<角色名>-*.json` |
+| `道具` | `.agents/skills/aigc/5-设计/道具` | `道具/1-清单/道具清单.md`、`道具/2-设计/<道具名>.md`、`道具/3-生成/<道具名>-*.json` |
 
 旧 `1-清单`、`2-设计`、`3-面板` 合同已作为迁移资料归档到 `references/legacy/` 或各域级 `references/legacy/`；它们不再是 active skill 入口。
 
@@ -60,8 +60,8 @@ metadata:
 2. 锁定 5-设计 输出根：`projects/aigc/<项目名>/5-设计/`。
 3. 根据用户请求、输入文件或现有产物判定命中域。
 4. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
-5. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 面板提示词`。
-6. 父级只验证域级最终文件是否按新合同落到 5-设计 根目录；不直接改写域级业务主稿。
+5. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 生成`。
+6. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
 7. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`。
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -73,8 +73,8 @@ metadata:
 优先修复顺序：
 
 1. 路由仍指向旧 `1-清单/2-设计/3-面板`：修 `references/阶段路由矩阵.md`、registry、routes 和相关脚本。
-2. 域级包缺 Skill 2.0 分区：回到 `skill-工作车间` 的 canonical layout。
-3. 输出路径仍落到域内子目录：回到域级 `SKILL.md` Output Contract。
+2. 域级执行叶子缺 Skill 2.0 分区：回到对应叶子技能的 canonical layout；域级组根本身按 `governance_tier: router` 验收。
+3. 父级、registry 或 closeout 仍要求根目录平铺业务真源：回到域级 `SKILL.md` Output Contract。
 4. 设计模板或面板模板漂移：回到对应域级 `templates/` 与 `review/`。
 5. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
 
@@ -85,7 +85,7 @@ metadata:
 | `DESIGN-FIELD-01` | `SKILL.md` | 父级输入、路由、输出和 root-cause 合同 |
 | `DESIGN-FIELD-02` | `references/阶段路由矩阵.md` | 域级包路径、触发词、输出文件 |
 | `DESIGN-FIELD-03` | `references/思行网络.md` | 父级 route/dispatch/closeout 节点 |
-| `DESIGN-FIELD-04` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 面板顺序 |
+| `DESIGN-FIELD-04` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 生成顺序 |
 | `DESIGN-FIELD-05` | `projects/aigc/<项目名>/5-设计/validation-report.md` | 阶段级验收摘要 |
 
 ## Thought Pass Map
@@ -108,7 +108,7 @@ metadata:
 ## Output Contract
 
 - Required output: 父级路由结果与可选阶段验收报告；域级任务的实际输出由对应子技能写出。
-- Output format: `validation-report.md` 使用 Markdown；域级业务输出为 `[域]清单.md + [主体名].md + [主体名].json`。
-- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级最终文件写到 `projects/aigc/<项目名>/5-设计/` 根目录。
+- Output format: `validation-report.md` 使用 Markdown；域级业务输出为对应 leaf 的清单、设计稿和生成请求/结果 JSON。
+- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级业务真源写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`。
 - Naming convention: 父级报告固定名 `validation-report.md`；域级命名由各域 `SKILL.md` 的 Output Contract 裁决。
 - Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过。

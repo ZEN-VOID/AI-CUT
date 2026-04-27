@@ -21,7 +21,7 @@
 │   ├── output-template.md
 │   ├── output-template-map.md
 │   ├── project-changelog.template.md
-│   ├── project-preset-readme.template.md
+│   ├── project-context-readme.template.md
 │   ├── project-memory.template.md
 │   └── state.template.json
 ├── review/

@@ -19,7 +19,7 @@ This file owns the project scope, business object, canonical runtime layout, art
 - `projects/aigc/<项目名>/team.yaml`
 - `projects/aigc/<项目名>/MEMORY.md`
 - `projects/aigc/<项目名>/CHANGELOG.md`
-- `projects/aigc/<项目名>/附加预设/`
+- `projects/aigc/<项目名>/CONTEXT/`
 - `projects/aigc/<项目名>/STATE.json`
 - Triggered sidecars such as `governance-state.yaml`, `mandate.yaml`, `mission-brief.yaml`, `route-plan.yaml`, `preflight-verdict.yaml`, `validation-report.md`, and `learning-record.md`.
 
@@ -51,7 +51,7 @@ Initialization creates or verifies:
 - `6-图像/`
 - `7-视频/`
 - `源/`
-- `附加预设/`
+- `CONTEXT/`
 - `MEMORY.md`
 - `CHANGELOG.md`
 - `STATE.json`
@@ -83,7 +83,7 @@ Initialization prebuilds the full user-facing stage skeleton requested for new A
 6-图像/
 7-视频/
 源/
-附加预设/
+CONTEXT/
 CHANGELOG.md
 MEMORY.md
 STATE.json
@@ -110,14 +110,13 @@ Forbidden bootstrap paths include:
 - `6-分组/`
 - `7-图像/`
 - `8-视频/`
-- `CONTEXT/`
 
 Legacy English runtime roots are compatibility inputs only; new initialization writes the Chinese runtime names above.
 
 ## Runtime Interpretation
 
 - `源/` is the source landing root for new projects. Historical `Original/` and `Story/` may be read during migration but are not created for new initialization.
-- `附加预设/` stores project-level preset packs and supplemental reference materials; it does not replace `MEMORY.md` and does not own live route truth.
+- `CONTEXT/` stores project-level preset packs and supplemental reference materials; it does not replace `MEMORY.md` and does not own live route truth.
 - `1-分集/` is the episode-splitting stage root.
 - `4-分组/` is the grouping stage root. Former nested `1-规划/2-分组/` and previous `5-分组/` / `6-分组/` roots are no longer created by initialization.
 - `2-编导/` and `3-摄影/` separate script/directing work from cinematography/storyboard execution in the project runtime, even if the current skill tree still uses legacy package names internally.
@@ -147,7 +146,7 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 ## Project Root Carrier Rules
 
 1. `MEMORY.md` records only stable project preferences, tastes, special elements, exclusions, and long-term requirements.
-2. `附加预设/` stores project presets and references; it does not replace any skill `CONTEXT.md`.
+2. `CONTEXT/` stores project contexts and references; it does not replace any skill `CONTEXT.md`.
 3. `CHANGELOG.md` is a project chronological record entry, not live route truth.
 4. Live route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
 5. Empty skeleton directories never count as executed phase outputs.

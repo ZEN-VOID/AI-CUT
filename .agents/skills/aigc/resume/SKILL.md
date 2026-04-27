@@ -15,8 +15,9 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-resume` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务已绑定 `projects/aigc/<项目名>/`，先读取项目根 `MEMORY.md`，再读取项目根 `CONTEXT/` 中与恢复判断相关的上下文文件；当前中文 runtime 中的 `附加预设/` 作为项目补充材料入口，按问题需要读取。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/`、`steps/`、`types/`、`review/`、`templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 项目 `附加预设/` > 同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务已绑定 `projects/aigc/<项目名>/`，先读取项目根 `MEMORY.md`，再读取项目根 `CONTEXT/` 中与恢复判断相关的上下文文件；当前中文 runtime 中的 `CONTEXT/` 作为项目补充材料入口，按问题需要读取。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/`、`steps/`、`types/`、`review/`、`templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 项目 `CONTEXT/` > 同目录 `CONTEXT.md`。
 - `CHANGELOG.md` 只用于追溯本技能包配置变更，不作为运行时自动上下文。
 - 若恢复暴露出新的可复用失败模式，优先沉淀到同目录 `CONTEXT.md`；稳定后再晋升到本入口合同或对应分区。
 

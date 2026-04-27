@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-scene-design` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与世界观、地理、年代、建筑、美术风格、摄影风格相关的上下文。
 - 必须读取上游 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取全局审美方向、故事母题、禁区和全局风格提示词。

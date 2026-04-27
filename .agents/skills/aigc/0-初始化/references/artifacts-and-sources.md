@@ -18,7 +18,7 @@ Read:
 - `templates/init-handoff.template.yaml`
 - `templates/project-memory.template.md`
 - `templates/project-changelog.template.md`
-- `templates/project-preset-readme.template.md`
+- `templates/project-context-readme.template.md`
 - `templates/state.template.json`
 - `templates/output-template-map.md`
 - `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`

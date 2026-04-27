@@ -4,7 +4,7 @@
     "skill_id": "aigc-design-character-generation",
     "version": "v1.2",
     "template_type": "CHARACTER_MULTIVIEW_PRODUCTION_SHEET",
-    "derived_from": ".agents/skills/aigc/5-设计/角色/templates/角色面板-提示词.json",
+    "derived_from": ".agents/skills/aigc/5-设计/角色/2-设计/templates/character_masterprompt.structured.v2.md",
     "updated_at": "2026-04-26",
     "note": "v1.2 强化角色主体不变量、turnaround 视图计划、身份牌、文字后期区和审查焦点。"
   },

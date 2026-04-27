@@ -13,9 +13,10 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-grouping` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`projects/aigc/<项目名>/0-初始化/north_star.yaml`，再按需加载项目根 `CONTEXT/` 或 `附加预设/` 中与角色、场景、道具、风格和制作约束相关的上下文文件。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`projects/aigc/<项目名>/0-初始化/north_star.yaml`，再按需加载项目根 `CONTEXT/` 或 `CONTEXT/` 中与角色、场景、道具、风格和制作约束相关的上下文文件。
 - 上游正文真源固定为 `projects/aigc/<项目名>/3-摄影/第N集.md`，除非用户显式指定其他摄影稿文件。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` / `附加预设/` > 本 `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` / `CONTEXT/` > 本 `CONTEXT.md`。
 - 分组边界、补位画面、角色/场景/道具提取和组内完整性判断必须由 LLM 直接完成；`scripts/` 只能做读取、字数统计、ID/标题/YAML 结构检查和机械校验。
 
 ## Input Contract
@@ -36,7 +37,7 @@ Required input:
 Optional input:
 
 - 项目 `MEMORY.md` 中的长期偏好、禁区、衔接节奏或视觉惯性要求。
-- 项目 `CONTEXT/` 或 `附加预设/` 中的角色表、场景表、道具表、世界观、风格和制作约束。
+- 项目 `CONTEXT/` 或 `CONTEXT/` 中的角色表、场景表、道具表、世界观、风格和制作约束。
 - 用户额外指定的最大组长、对白密度、特殊桥接画面偏好或下游视频生成限制。
 
 Reject or clarify when:
@@ -100,7 +101,7 @@ flowchart TD
 
 ## Execution Contract
 
-1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `附加预设/`。
+1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `CONTEXT/`。
 2. 锁定上游 `3-摄影/第N集.md`，提取集号、场景标题、正文块、对白字段、画面字段、镜头语言块和场景顺序；不得改写原正文。
 3. 按 `references/north-star-projection-contract.md` 从 `north_star.yaml` 直引 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，以隐藏标题字段的三行纯内容写入每个分镜组组头。
 4. 按 `references/group-boundary-contract.md` 执行边界裁决：每组同时满足对白 4-6 句弹性上限、完整组构成总字数不超过 1980 字、同一画面句子及其多分镜不被截断，并通过短组回填复核；不得仅因情绪、话题或危险信息转折切出低密度短组。
@@ -206,7 +207,7 @@ flowchart TD
 
 ### Completion gate
 
-- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `附加预设/`。
+- 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `CONTEXT/`。
 - 上游 `3-摄影/第N集.md` 可回指，输出 frontmatter 记录 `source_cinematography_path` 与 `north_star_path`。
 - 每组都直引 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，且组头不显示标题字段、中文括号或装饰性连接符。
 - 每组 ID 与真实集、场、组匹配；场内组序连续。

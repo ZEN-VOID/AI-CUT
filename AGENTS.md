@@ -143,6 +143,9 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 常见目录拼写变体必须归一：`reference` / `refs` -> `references/`，`script` / `tools` -> `scripts/`，`template` -> `templates/`，`reviews` / `audit` -> `review/`，`step` / `workflow` / `workflows` -> `steps/`，`knowledge_base` / `knowledgebase` / `kb` -> `knowledge-base/`，`type` / `type-map` / `typings` -> `types/`，`agent` / `agent-config` / `agent-configs` -> `agents/`；若 alias 与 canonical 同时存在，不得自动覆盖，必须先合并再删除 alias。
 - Skill 2.0 分区可以以最小占位启动，但每个分区至少应包含一个说明文件，避免空目录在迁移、同步或版本控制中丢失。
+- 父级导引 skill 是 Skill 2.0 的轻量 tier：当某个 `SKILL.md` 只负责路由、子技能/卫星技能边界、共享真源裁决、聚合门禁和回接关系，且不直接拥有业务执行细则、类型包、模板或质量评估细则时，必须在 frontmatter 中声明 `governance_tier: router`，其本级最小结构只要求同目录 `SKILL.md + CONTEXT.md`。
+- `governance_tier: router` 只豁免本级完整分区、`README.md`、`CHANGELOG.md` 与 `agents/openai.yaml` 的强制要求，不豁免同目录 `CONTEXT.md`、Context Loading Contract、Root-Cause 合同、清晰输入/路由/输出或回接合同，也不降低子技能、卫星技能和真正执行型主技能的 Skill 2.0 要求。
+- 父级导引 skill 可以按真实需要引用共享 `_shared/`、registry、routes 或既有父级细则文件；这些共享载体不等同于本级必须拥有完整 `references/`、`steps/`、`review/`、`types/`、`templates/`、`knowledge-base/`、`scripts/`、`agents/` 分区。若父级开始直接拥有执行细则、模板、类型策略、脚本或 review 真源，应取消 `governance_tier: router` 并升级为 `lite` 或 `full`。
 - Skill 2.0 的核心 owner 边界：
   - `SKILL.md` 只保留入口、触发、路由、动态引用、关键门禁、Root-Cause 合同和输出合同。
   - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
@@ -157,14 +160,19 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `README.md` 承载目录树、快速说明和入口命令；`CHANGELOG.md` 承载版本更新与迁移摘要。
 - Skill 2.0 的经验沉淀落点必须保持单一：执行中产生的新经验、稳定经验、失败模式、成功模式、修复打法与 reusable heuristic 均写入同目录 `CONTEXT.md`；`knowledge-base/` 只接收用户或维护者手动加入的外部知识材料，不作为自动学习、复盘或经验晋升的落点。
 - 每个长期维护的 skill 都应包含：
-  - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite`
+  - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite | router`
   - 在 `SKILL.md` 中包含 `Context Loading Contract`：明确该技能每次被调用时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文
   - 在 `SKILL.md` 中包含 `Reference Loading Guide` 或等价动态引用表，声明何时加载 `references/`、`steps/`、`review/`、`types/` 与其他分区
   - 在 `SKILL.md` 中包含与本全局政策对齐的 Root-Cause 执行合同，并附带上溯到 meta 层合同的钩子
   - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
   - 在 `CONTEXT.md` 中包含知识库核心（Type Map、Repair Playbook 与/或 Reusable Heuristics）
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
-  - 在 `agents/openai.yaml` 中提供产品侧入口元数据，不得把入口摘要偷渡成强于 `SKILL.md` 的隐藏执行规则
+  - 对 `full` / `lite` 技能，在 `agents/openai.yaml` 中提供产品侧入口元数据，不得把入口摘要偷渡成强于 `SKILL.md` 的隐藏执行规则；`router` 父级导引可不设本级 `agents/openai.yaml`，由上级或叶子入口承接产品发现
+- 声明 `governance_tier: router` 的父级导引 skill 应改按轻量基线验收：
+  - 同目录必须存在 `SKILL.md + CONTEXT.md`，且 `SKILL.md` frontmatter 必须包含 `governance_tier: router`
+  - `SKILL.md` 必须包含 `Context Loading Contract`、输入边界、子技能/卫星技能索引或路由表、真源边界、Root-Cause 执行合同、Output / Handoff / Aggregation 合同
+  - `CONTEXT.md` 必须包含经验性 `Type Map`、`Repair Playbook` 与/或 `Reusable Heuristics`
+  - 本级不得虚设空分区来满足形式检查；若确有本级专属分区，必须说明其 owner 边界，且不得与子技能分区形成第二真源
 - 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
 - 由元技能生成的新技能，必须初始化完整 Skill 2.0 目录、根文件与 `agents/openai.yaml`，并满足上述基线；不得回退为“只有主合同 + 经验层”。
 - 旧技能包升级到 Skill 2.0 时，必须先建立迁移矩阵，标注旧 `SKILL.md`、同目录资源与入口元数据中每个 section / 资源的 target owner、迁移动作、语义风险、引用更新与验证门禁；删除旧段落前必须能追到新 owner 或明确归档/丢弃理由。
@@ -187,12 +195,14 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 技能目录基线：
   - 长期维护的可执行 skill 默认采用 Skill 2.0 目录结构：`SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/openai.yaml`
+  - 父级导引 skill 若声明 `governance_tier: router`，默认采用轻量结构：`SKILL.md`、`CONTEXT.md`；它通过父级合同路由到子技能、卫星技能、共享 `_shared/` 或真实脚本，不要求本级完整 Skill 2.0 分区
   - `SKILL.md`：必需，作为入口、路由、动态引用、关键门禁和输出合同
   - `CONTEXT.md`：必需，作为预加载运行上下文和经验性知识库
   - `references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/`：作为 Skill 2.0 功能分区，不得用拼写变体平行演化
   - `assets/` 仅在技能确有静态素材需要时作为业务资源目录使用，不属于 Skill 2.0 canonical 必备分区；若出现，应由 `SKILL.md` 或 `README.md` 说明所有权和加载方式
 - `SKILL` 细分定位（仓库级规范）：
   - 主技能：拥有一段业务域或一条阶段链的总入口、总路由、共享载体边界与真源裁决权。形态通常为 `<skill-root>/SKILL.md + CONTEXT.md`，也可以是技能树中的阶段根，例如 `aigc/1-规划`。
+  - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接拥有子技能的执行细则、模板、类型包或 review 真源；必须在 frontmatter 中声明 `governance_tier: router`。
   - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块，可落在 `references/`、`steps/`、`review/`、`types/`、`templates/`、schema、spec、helper 或其他被合同显式声明的专项细则载体中；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
   - 子技能：受治理的可执行下钻单元；其路径、命名与载体形态必须由父级主技能显式声明，不再绑定固定目录包裹约定。它们由父级主技能路由进入，负责局部执行合同，不得擅自越权为新的总入口。
   - 卫星技能：与主技能同根同级放置的旁路可执行 skill，推荐形态为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`；它们服务查询、恢复、复核、汇总、桥接等辅助职责，可被直接调用，但不默认冒充新的主链 stage 或新的父级总线。

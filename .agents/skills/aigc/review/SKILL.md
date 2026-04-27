@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-review` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，先加载项目根 `MEMORY.md` 与相关 `CONTEXT/`，再进入 review mode。
 - 父层必须先读取 `references/review-root-contract.md`、`references/review-child-output-contract.md`、`references/review-fact-pack-spec.md`、`references/dimensions/*.md` 与 `_shared/review-dimension-registry.yaml`。
 - `_shared/` 保留给 `scripts/aigc_review_runner.py` 和旧链路兼容；Skill 2.0 规范入口以 `references/`、`steps/`、`review/`、`types/`、`templates/` 为准。

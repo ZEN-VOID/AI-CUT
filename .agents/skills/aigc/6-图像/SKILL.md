@@ -1,7 +1,7 @@
 ---
 name: aigc-image-stage
 description: Use when routing AIGC image-stage work under projects/aigc/<项目名>/6-图像, including storyboard frame images and storyboard sheet images.
-governance_tier: lite
+governance_tier: router
 metadata:
   short-description: AIGC image stage router
 ---
@@ -13,7 +13,8 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-image-stage` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/[项目名]/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/`。
 - prompt 正文、画面裁决与主体选择由叶子技能中的 LLM 主创完成；父级只裁决路由和阶段边界。
 
 ## Input Contract
@@ -56,8 +57,8 @@ flowchart TD
     A["6-图像 request"] --> B{"target"}
     B -->|"single frame / 分镜ID"| C["A-分镜画面"]
     B -->|"storyboard sheet / 分镜组"| D["B-分镜故事板"]
-    C --> E["projects/aigc/[项目名]/6-图像/A-分镜画面"]
-    D --> F["projects/aigc/[项目名]/6-图像/B-分镜故事板"]
+    C --> E["projects/aigc/<项目名>/6-图像/A-分镜画面"]
+    D --> F["projects/aigc/<项目名>/6-图像/B-分镜故事板"]
 ```
 
 ## Execution Contract
@@ -66,6 +67,14 @@ flowchart TD
 2. 若目标是镜级单帧，进入 `A-分镜画面/SKILL.md`。
 3. 若目标是组级故事板，进入 `B-分镜故事板/SKILL.md`；若 B 叶子尚未配置，报告缺口，不伪造输出。
 4. 父级不直接写镜级 prompt、不直接生成图片、不改写 `4-分组`。
+
+## Field Mapping
+
+| field_id | owner | must_contain |
+| --- | --- | --- |
+| `IMG-STAGE-01` | 父级路由 | 项目根、任务类型、目标叶子 |
+| `IMG-STAGE-02` | 目标叶子 | 叶子 `SKILL.md + CONTEXT.md` 加载证据 |
+| `IMG-STAGE-03` | 边界 | 父级不替代 prompt 主创或 imagegen 执行 |
 
 ## Field Master
 
@@ -101,6 +110,6 @@ flowchart TD
 
 - Required output: 路由到唯一叶子技能，或报告叶子缺失/未配置。
 - Output format: 路由说明或叶子技能产物。
-- Output path: 父级不直接落业务产物；`A-分镜画面` 叶子技能固定写入 `projects/aigc/[项目名]/6-图像/A-分镜画面`。
+- Output path: 父级不直接落业务产物；`A-分镜画面` 叶子技能固定写入 `projects/aigc/<项目名>/6-图像/A-分镜画面`。
 - Naming convention: 叶子技能自定命名；父级不创建平行真源。
 - Completion gate: 目标叶子明确且已加载；若叶子缺失，明确报告缺口。

@@ -6,7 +6,7 @@ This file binds `$aigc-init` output templates to the `Output Contract (Mandatory
 | --- | --- | --- | --- |
 | project `MEMORY.md` | `projects/aigc/<项目名>/MEMORY.md` | `templates/project-memory.template.md` | local |
 | project `CHANGELOG.md` | `projects/aigc/<项目名>/CHANGELOG.md` | `templates/project-changelog.template.md` | local |
-| project `附加预设/README.md` | `projects/aigc/<项目名>/附加预设/README.md` | `templates/project-preset-readme.template.md` | local helper for non-empty preset root |
+| project `CONTEXT/README.md` | `projects/aigc/<项目名>/CONTEXT/README.md` | `templates/project-context-readme.template.md` | local helper for non-empty context root |
 | project `STATE.json` | `projects/aigc/<项目名>/STATE.json` | `templates/state.template.json` | local |
 | north star | `projects/aigc/<项目名>/0-初始化/north_star.yaml` | `templates/north-star.template.yaml` | local |
 | init handoff | `projects/aigc/<项目名>/0-初始化/init_handoff.yaml` | `templates/init-handoff.template.yaml` | local |

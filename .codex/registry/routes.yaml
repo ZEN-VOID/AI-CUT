@@ -65,11 +65,11 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、读取 mandatory dimension specs、执行维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
   - id: aigc-image-stage-entry
     trigger: 命中 `6-图像` 或 legacy `5-Image`，或需要把 `3-摄影` / `5-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
-    rule: "优先进入 `.agents/skills/aigc/6-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/[项目名]/4-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/6-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/[项目名]/6-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `6-图像` 默认入口。"
+    rule: "优先进入 `.agents/skills/aigc/6-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/4-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/6-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/6-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `6-图像` 默认入口。"
   - id: aigc-design-prop-entry
     trigger: 命中 `5-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 5-设计 道具输出
     rule: "道具清单任务直达 `.agents/skills/aigc/5-设计/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/道具/` 对应子目录。"
-  - id: aigc-design-role-entry
+  - id: aigc-design-character-entry
     trigger: 命中 `5-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 5-设计 角色输出
     rule: "角色清单任务直达 `.agents/skills/aigc/5-设计/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/角色/` 对应子目录。"
   - id: aigc-design-scene-entry
@@ -156,14 +156,11 @@ route_policies:
   - id: api-deepseek-entry
     trigger: 命中 `DeepSeek`、`deepseek-v4-pro`、`DeepSeek API`、`DeepSeek 思考模式`、`deepseek chat completions`、`reasoning_effort`、`thinking enabled`，或需要通过 DeepSeek 官方 API 固定使用 deepseek-v4-pro 完成文本分析、研究、规划、改写、JSON Output、Tool Calls 或结构化 messages 对话
     rule: "进入 `.agents/skills/api/deepseek/SKILL.md`；默认使用 `https://api.deepseek.com/chat/completions` 与 `model=deepseek-v4-pro`，简单文本走 `prompt/system` 组装，复杂上下文走 `messages` 直传，默认 `thinking=enabled` 与 `reasoning_effort=high`，并通过 `scripts/deepseek_chat.py` 执行。"
-  - id: story-doubao-entry
-    trigger: 命中 `story/doubao`、`豆包小说润色`、`中文小说润色`、`文风诊断`、`分析文章风格`、`整稿统修`、`去 AI 味`、`中文表达强化`，或需要把已有正文按单技能方式集成 `3-初稿` 八步能力完成重写
-    rule: "进入 `.agents/skills/story/doubao/SKILL.md`；默认先做文章风格分析，再按单技能真源执行结构/节奏/场景/人物/对白/心理/追读力/终修一体化重写。若目标是项目章节，默认读取 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；legacy `projects/story/<项目名>/3-初稿/第N集.md` 只作兼容 fallback；未明确覆写时只产出候选正文和诊断摘要。"
   - id: story-drafting-maintext-entry
     trigger: 命中 `story/3-初稿`、`$story-drafting`、`章节正文`、`按章创作`、`第N卷/第N章.md`、`章级正文根稿`，或要求从三层 planning + `north_star` 直接写小说正文
-    rule: "进入 `.agents/skills/story/3-初稿/SKILL.md`；必须加载 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 0-初始化/north_star.yaml(global_contract/style_contract/genre_contract) + 1-设定/2-角色卡 + 1-设定/3-场景卡 + 1-设定/4-物品卡 + 项目 MEMORY + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；YAML 头只保留 `写作模型`，且只能取 `GPT`、`Doubao`、`Deepseek` 并与所选 lane 一致；上下文引用与摘要由强加载和 sidecar 承载，不重复写入正文头部；未点名 provider 默认走 `B-Doubao流`，点名 GPT 原生走 `A-GPT原生`，点名 DeepSeek / deepseek-v4-pro / api/deepseek 走 `C-Deepseek流`。"
+    rule: "进入 `.agents/skills/story/3-初稿/SKILL.md`；必须加载 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md + 0-初始化/north_star.yaml(global_contract/style_contract/genre_contract) + 1-设定/2-角色卡 + 1-设定/3-场景卡 + 1-设定/4-物品卡 + 项目 MEMORY + 项目 CONTEXT(若有) + 上一章正文(若有)`，并写到 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`；YAML 头只保留 `写作模型`，且只能取 `GPT`、`Doubao`、`Deepseek` 并与所选 lane 一致；上下文引用与摘要由强加载和 sidecar 承载，不重复写入正文头部；未点名 provider 默认走 `C-Deepseek流`，点名 GPT 原生走 `A-GPT原生`，点名豆包 / Doubao / doubao-seed-2.0-pro 走 `B-Doubao流`。"
   - id: story-drafting-doubao-entry
-    trigger: 命中 `story-drafting-doubao`、`B-Doubao流`、`Doubao 写章`、`豆包写章`、`doubao-seed-2.0-pro 写小说`、`AnyFast 豆包章节正文`，或未点名 provider 的 `3-初稿` 内容创作默认 lane
+    trigger: 命中 `story-drafting-doubao`、`B-Doubao流`、`Doubao 写章`、`豆包写章`、`doubao-seed-2.0-pro 写小说`、`AnyFast 豆包章节正文`
     rule: "进入 `.agents/skills/story/3-初稿/B-Doubao流/SKILL.md`；先加载 story 根合同、3-初稿 导引层、项目 MEMORY/CONTEXT、三层 planning、north_star(global_contract/style_contract/genre_contract)、角色/场景/物品卡与上一章正文，再通过 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/scripts/doubao_seed_chat.py` 固定调用 `doubao-seed-2.0-pro`；目标章已存在时必须显式选择 rewrite/continue/repair 且正式写回必须 `--force`，校验后写回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。"
   - id: story-drafting-deepseek-entry
     trigger: 命中 `story-drafting-deepseek`、`C-Deepseek流`、`DeepSeek 写章`、`deepseek-v4-pro 写小说`、`DeepSeek 章节正文`，或明确要求 `3-初稿` 内容创作部分调用 `.agents/skills/api/deepseek`

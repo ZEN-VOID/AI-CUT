@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-prop-generation` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、视觉风格、生成限制或资产命名相关的上下文文件。
 - 必须读取对应上游设计文档：`projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md`。
 - 必须同时读取 `$imagegen` 的 `SKILL.md + CONTEXT.md`；本阶段只负责把设计文档蒸馏为 imagegen 可执行输入并保存结果。

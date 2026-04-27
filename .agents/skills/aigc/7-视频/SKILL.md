@@ -1,7 +1,7 @@
 ---
 name: aigc-video-stage
 description: Use when routing AIGC video-stage work under projects/aigc/<项目名>/7-视频, including frame-image referenced, storyboard-sheet referenced, and subject-reference Dreamina video generation.
-governance_tier: lite
+governance_tier: router
 metadata:
   short-description: AIGC video stage router
 ---
@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-video-stage` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/` 中与视频阶段、风格、角色、场景、主体资产或生成限制相关的上下文。
 - 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、Dreamina 提交与结果追踪由命中的 A/B/C 叶子技能负责。
 - `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
@@ -89,6 +90,15 @@ flowchart TD
 4. 父级不得直接写视频 prompt、参照 manifest、Dreamina batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。
 5. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
 6. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
+
+## Field Mapping
+
+| field_id | owner | must_contain |
+| --- | --- | --- |
+| `VID-STAGE-01` | 父级路由 | 项目根、任务类型、目标叶子、处理范围 |
+| `VID-STAGE-02` | 目标叶子 | 叶子 `SKILL.md + CONTEXT.md` 加载证据 |
+| `VID-STAGE-03` | 边界 | 父级不替代 prompt 主创、参照绑定或 Dreamina 执行 |
+| `VID-STAGE-04` | 既有真源 | query / repair / review 时能回指原所属叶子 |
 
 ## Field Master
 

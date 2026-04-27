@@ -43,7 +43,7 @@ projects/aigc/<项目名>/
 ├── 6-图像/
 ├── 7-视频/
 ├── 源/
-├── 附加预设/
+├── CONTEXT/
 ├── CONTEXT/
 ├── MEMORY.md
 ├── CHANGELOG.md
@@ -70,7 +70,7 @@ projects/aigc/<项目名>/
 
 - `MEMORY.md` 保存项目长期偏好、禁区、口味和持续要求。
 - `CONTEXT/` 是项目级共享附加上下文根；恢复时只读取与当前断点、阶段、治理缺口或用户问题相关的文件。
-- `附加预设/` 保存当前中文 runtime 的项目预设包和补充参考材料；它不替代 `MEMORY.md` 或 `CONTEXT/`。
+- `CONTEXT/` 保存当前中文 runtime 的项目预设包和补充参考材料；它不替代 `MEMORY.md` 或 `CONTEXT/`。
 
 ## Stage Evidence Hints
 

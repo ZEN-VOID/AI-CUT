@@ -11,7 +11,7 @@
 | governance state | `projects/aigc/<项目名>/governance-state.yaml` | root / resume / review |
 | memory | `projects/aigc/<项目名>/MEMORY.md` | project memory |
 | changelog | `projects/aigc/<项目名>/CHANGELOG.md` | project timeline |
-| presets | `projects/aigc/<项目名>/附加预设/` | project context |
+| context | `projects/aigc/<项目名>/CONTEXT/` | project context |
 
 ## Stage Runtime Rows
 
@@ -26,7 +26,7 @@
 | `6-图像` | `projects/aigc/<项目名>/6-图像/` | current Chinese image runtime |
 | `7-视频` | `projects/aigc/<项目名>/7-视频/` | current Chinese video runtime |
 | `源` | `projects/aigc/<项目名>/源/` | source material landing |
-| `附加预设` | `projects/aigc/<项目名>/附加预设/` | project-side supplemental context |
+| `CONTEXT` | `projects/aigc/<项目名>/CONTEXT/` | project-side supplemental context |
 
 ## Bootstrap Compatibility
 

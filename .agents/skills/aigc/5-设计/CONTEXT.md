@@ -23,14 +23,14 @@ last_checked_at: 2026-04-24
 | --- | --- | --- | --- |
 | `DESIGN-TM-01` | 用户仍按 `1-清单/2-设计/3-面板` 命中旧入口 | 路由到 `场景/角色/道具` 域级包，再在域内执行顺序门 | registry 和 routes 不再指向旧目录 |
 | `DESIGN-TM-02` | 父级试图直接写业务主体正文 | 退回域级子技能包 | 父级只写路由和 validation report |
-| `DESIGN-TM-03` | 域级输出落到旧嵌套目录 | 回到域级 Output Contract | 最终文件在 `5-设计/` 根 |
+| `DESIGN-TM-03` | 父级、registry 或 closeout 仍要求根目录平铺业务真源 | 回到域级 Output Contract | 最终文件在对应域内 `1-清单/2-设计/3-生成/` |
 | `DESIGN-TM-04` | 多域任务误补未命中域 | 只调度用户命中域或显式推断域 | 未命中域无占位输出 |
 
 ## Repair Playbook
 
 1. 先判断当前问题属于父级路由、域级业务执行、输出路径漂移还是引用同步。
 2. 父级只修 `SKILL.md`、`references/阶段路由矩阵.md`、`references/思行网络.md` 和 registry/routes。
-3. 域级清单、设计、面板问题下钻到对应域级包。
+3. 域级清单、设计、生成问题下钻到对应域级包。
 4. 旧路径引用修复后必须重新搜索 `5-设计/1-清单`、`5-设计/2-设计`、`5-设计/3-面板`。
 5. 若仍需兼容旧 JSON，必须明确标成 sidecar 或 legacy，不得恢复为 active skill 入口。
 

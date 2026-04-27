@@ -5,7 +5,7 @@
     "version": "v1.2",
     "doc_role": "imagegen_prompt_payload",
     "updated_at": "2026-04-26",
-    "derived_from": ".agents/skills/aigc/5-设计/道具/templates/道具面板-提示词.json",
+    "derived_from": ".agents/skills/aigc/5-设计/道具/2-设计/templates/prop_masterprompt.structured.v2.md",
     "note": "旧道具面板模板已重构为当前 5-设计/道具/3-生成 的多视图主体设计图模板；v1.2 强化主体不变量、功能视图、身份牌和漂移审查。"
   },
   "source": {

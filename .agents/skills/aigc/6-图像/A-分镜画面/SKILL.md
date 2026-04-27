@@ -1,6 +1,6 @@
 ---
 name: aigc-image-storyboard-frame
-description: Use when projects/aigc/[项目名]/4-分组 storyboard groups must be converted into four-part shot-level AIGC image prompts, reference-bound character/scene/prop slots, and batch imagegen handoff under projects/aigc/[项目名]/6-图像/A-分镜画面.
+description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must be converted into four-part shot-level AIGC image prompts, reference-bound character/scene/prop slots, and batch imagegen handoff under projects/aigc/<项目名>/6-图像/A-分镜画面.
 governance_tier: full
 metadata:
   short-description: AIGC shot-frame image prompts and generation
@@ -13,7 +13,8 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-image-storyboard-frame` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/[项目名]/`，必须先加载项目根 `MEMORY.md`，再加载 `projects/aigc/[项目名]/0-初始化/north_star.yaml` 与项目根 `CONTEXT/` 中和图像阶段相关的上下文。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与项目根 `CONTEXT/` 中和图像阶段相关的上下文。
 - `4-分组` 是本技能的主要剧情与镜头真源；不得回到 `3-摄影` 重新改写分组边界，除非用户显式要求修复上游。
 - prompt 正文、镜级内容整合、画面表现增量与主体选择必须由 LLM 直接完成；脚本只允许读取、拆分、统计、校验、路径索引和批量执行辅助。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/6-图像/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `.agents/skills/cli/imagegen/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -28,8 +29,8 @@ Accepted input:
 
 Required input:
 
-- 可定位的 `projects/aigc/[项目名]/4-分组/第N集.md`。
-- 可定位的 `projects/aigc/[项目名]/0-初始化/north_star.yaml`，且包含 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`。
+- 可定位的 `projects/aigc/<项目名>/4-分组/第N集.md`。
+- 可定位的 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，且包含 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`。
 - 可定位的设计生成目录：`5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成`；目录缺失时允许继续 prompt-only，但必须在报告中说明参照缺口。
 - 每个目标分镜必须能从 `4-分组` 中追溯到三段式分镜组 ID 与组内 `分镜N`。
 
@@ -83,7 +84,7 @@ Reject or clarify when:
 
 ```mermaid
 flowchart TD
-    A["projects/aigc/[项目名]/4-分组/第N集.md"] --> B["step1 镜级拆分"]
+    A["projects/aigc/<项目名>/4-分组/第N集.md"] --> B["step1 镜级拆分"]
     C["0-初始化/north_star.yaml"] --> D["三项风格直引"]
     B --> E["四段式 分镜ID"]
     D --> F["step2 英文 prompt 组装"]
@@ -135,7 +136,7 @@ stateDiagram-v2
 6. 执行 step3：检查 `5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图图片优先，缺多视图时用主图，都没有真实图片时该主体槽位保持空或移除，不得猜测引用。
 7. 执行 step4：按 `.agents/skills/cli/imagegen` 规范调用图像生成。默认使用内置 `image_gen` 路由，执行节奏按当前工具能力顺序或受控批量处理，不设置后台并行要求；CLI/API fallback 只有用户显式要求时允许。
 8. built-in `image_gen` 默认可用 `text_prompt_only` 方式生成并复制到项目 `images/`；本地 reference path 记录在 prompt / manifest / plan 中，但不得宣称已作为视觉输入传给工具。该状态不阻断生成，必须在 results/report 中写 `reference_input_status: not_passed_to_generation_tool` 或等价说明。
-9. canonical 输出根路径固定为 `projects/aigc/[项目名]/6-图像/A-分镜画面`；每集可在该根下创建 `第N集/` 子目录组织 prompt、manifest、plan、results、images 与执行报告。
+9. canonical 输出根路径固定为 `projects/aigc/<项目名>/6-图像/A-分镜画面`；每集可在该根下创建 `第N集/` 子目录组织 prompt、manifest、plan、results、images 与执行报告。
 10. 交付前执行 `review/review-contract.md`；prompt 长度、ID 追溯、north_star 直引、参照路径存在性、imagegen 输出持久化必须通过。
 
 ## Field Mapping
@@ -201,6 +202,6 @@ stateDiagram-v2
 
 - Required output: 镜级 prompt 包、参照绑定 manifest、imagegen 执行计划或生成结果、逐集执行报告。
 - Output format: Markdown prompt 文档 + JSON manifest / plan / result；生成图片为 PNG/JPEG/WebP 等 bitmap 文件，默认按 imagegen 2K 目标执行。
-- Output path: `projects/aigc/[项目名]/6-图像/A-分镜画面`。逐集产物可放在该根路径下的 `第N集/` 子目录；不得写入 `5-Image`、`6-分组`、`7-图像` 或其他平行真源。
+- Output path: `projects/aigc/<项目名>/6-图像/A-分镜画面`。逐集产物可放在该根路径下的 `第N集/` 子目录；不得写入 `5-Image`、`6-分组`、`7-图像` 或其他平行真源。
 - Naming convention: prompt 文档命名 `第N集-分镜画面-prompts.md`；索引命名 `第N集-shot-index.json`；参照清单命名 `第N集-reference-manifest.json`；生成计划命名 `第N集-imagegen-plan.json`；执行报告命名 `执行报告.md`；图片命名 `<分镜ID>.png`，例如 `1-1-1-1.png`。
 - Completion gate: 目标分镜均可从 `4-分组` 回指；每条 prompt 含模板要求的三项 north_star 直引和英文整合 prompt；每条英文 prompt 不超过 2000 字符；参照槽位只绑定存在的本地图片且多视图优先；执行 imagegen 时遵循 `.agents/skills/cli/imagegen` 的默认路由与项目持久化门禁；审查结果为 `pass` 或 `pass_with_todo`。

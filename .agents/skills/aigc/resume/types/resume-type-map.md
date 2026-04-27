@@ -1,5 +1,11 @@
 # Resume Type Map
 
+## 类型包加载边界
+
+- 每次调用本技能时，必须依据本文件识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
+
+
 本文件集中管理 `$aigc-resume` 的类型变量、恢复模式矩阵和风险策略。steps 消费这里形成的 `resume_type_profile`，不在 steps 内重复维护完整类型表。
 
 ## Type Profile Variables

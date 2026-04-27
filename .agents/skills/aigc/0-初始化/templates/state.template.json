@@ -16,7 +16,7 @@
     "team": "projects/aigc/__PROJECT_NAME__/team.yaml",
     "memory": "projects/aigc/__PROJECT_NAME__/MEMORY.md",
     "changelog": "projects/aigc/__PROJECT_NAME__/CHANGELOG.md",
-    "preset_root": "projects/aigc/__PROJECT_NAME__/附加预设/",
+    "context_root": "projects/aigc/__PROJECT_NAME__/CONTEXT/",
     "source_root": "projects/aigc/__PROJECT_NAME__/源/",
     "stage_roots": [
       "projects/aigc/__PROJECT_NAME__/0-初始化/",

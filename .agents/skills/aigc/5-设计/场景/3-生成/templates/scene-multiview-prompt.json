@@ -4,7 +4,7 @@
     "skill_id": "aigc-scene-generation",
     "version": "v1.2",
     "doc_role": "multiview_scene_prompt_template",
-    "source_legacy_template": ".agents/skills/aigc/5-设计/场景/templates/场景面板-提示词.json",
+    "source_design_template": ".agents/skills/aigc/5-设计/场景/2-设计/templates/scene_masterprompt.structured.v2.md",
     "updated_at": "2026-04-26",
     "note": "用于 Step2：以主体主图为参照图，生成同一场景的空间证明型多视图主体设计图；v1.2 增加主体身份牌和 panel 左下角场景视角标注。"
   },

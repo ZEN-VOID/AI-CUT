@@ -22,22 +22,30 @@ DESIGN_DOMAIN_ROOTS = {
     "角色": DESIGN_ROOT / "角色",
     "道具": DESIGN_ROOT / "道具",
 }
+DESIGN_DETAIL_ROOTS = {
+    domain: domain_root / "2-设计"
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+}
+DESIGN_GENERATION_ROOTS = {
+    domain: domain_root / "3-生成"
+    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+}
 DESIGN_CANONICAL_TEMPLATES = {
-    "场景": DESIGN_DOMAIN_ROOTS["场景"] / "templates" / "scene_masterprompt.structured.v2.md",
-    "角色": DESIGN_DOMAIN_ROOTS["角色"] / "templates" / "character_masterprompt.structured.v2.md",
-    "道具": DESIGN_DOMAIN_ROOTS["道具"] / "templates" / "prop_masterprompt.structured.v2.md",
+    "场景": DESIGN_DETAIL_ROOTS["场景"] / "templates" / "scene_masterprompt.structured.v2.md",
+    "角色": DESIGN_DETAIL_ROOTS["角色"] / "templates" / "character_masterprompt.structured.v2.md",
+    "道具": DESIGN_DETAIL_ROOTS["道具"] / "templates" / "prop_masterprompt.structured.v2.md",
 }
 DESIGN_SLOT_REVIEW_CONTRACTS = {
-    domain: domain_root / "references" / "design-slot-review-contract.md"
-    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+    domain: detail_root / "references" / "design-slot-review-contract.md"
+    for domain, detail_root in DESIGN_DETAIL_ROOTS.items()
 }
 DESIGN_SLOT_RESOLVERS = {
-    domain: domain_root / "scripts" / "resolve_design_slot_bundles.py"
-    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+    domain: detail_root / "scripts" / "resolve_design_slot_bundles.py"
+    for domain, detail_root in DESIGN_DETAIL_ROOTS.items()
 }
 DESIGN_SUBAGENT_SUPERVISION_CONTRACTS = {
-    domain: domain_root / "references" / "subagent-supervision-contract.md"
-    for domain, domain_root in DESIGN_DOMAIN_ROOTS.items()
+    domain: detail_root / "references" / "subagent-supervision-contract.md"
+    for domain, detail_root in DESIGN_DETAIL_ROOTS.items()
 }
 REVIEW_ROOT = ROOT / "review"
 REVIEW_RUNNER = Path("scripts/aigc_review_runner.py")
@@ -54,6 +62,7 @@ AMBIGUOUS_OUTPUT_TEMPLATE_NAME = "output-" "template.md"
 
 ROOT_CAUSE_SECTION_PATTERNS = [
     re.compile(r"^##\s+Root-Cause Execution Contract \(Mandatory\)\s*$", re.MULTILINE),
+    re.compile(r"^##\s+Root-Cause Execution Contract\s*$", re.MULTILINE),
     re.compile(r"^###\s+Root-Cause 执行契约\s*$", re.MULTILINE),
     re.compile(r"^##\s+Root-Cause 执行契约\s*$", re.MULTILINE),
 ]
@@ -95,7 +104,7 @@ SHARED_RUNTIME_ROWS = {
     "6-图像": "projects/aigc/<项目名>/6-图像/",
     "7-视频": "projects/aigc/<项目名>/7-视频/",
     "源": "projects/aigc/<项目名>/源/",
-    "附加预设": "projects/aigc/<项目名>/附加预设/",
+    "CONTEXT": "projects/aigc/<项目名>/CONTEXT/",
 }
 ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/0-初始化/",
@@ -116,7 +125,7 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/6-图像/",
     "projects/aigc/<项目名>/7-视频/",
     "projects/aigc/<项目名>/源/",
-    "projects/aigc/<项目名>/附加预设/",
+    "projects/aigc/<项目名>/CONTEXT/",
 )
 ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/设定/",
@@ -144,7 +153,6 @@ ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/6-分组/",
     "projects/aigc/<项目名>/7-图像/",
     "projects/aigc/<项目名>/8-视频/",
-    "projects/aigc/<项目名>/CONTEXT/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/aigc/<项目名>/STATE.json",
@@ -153,7 +161,7 @@ PROJECT_GOVERNANCE_ARTIFACTS = (
 PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
     "projects/aigc/<项目名>/MEMORY.md",
     "projects/aigc/<项目名>/CHANGELOG.md",
-    "projects/aigc/<项目名>/附加预设/",
+    "projects/aigc/<项目名>/CONTEXT/",
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
     "1-分集": "projects/aigc/<项目名>/1-分集/validation-report.md",
@@ -200,7 +208,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
-        "projects/aigc/<项目名>/附加预设/",
+        "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/MEMORY.md",
         "projects/aigc/<项目名>/CHANGELOG.md",
         "projects/aigc/<项目名>/STATE.json",
@@ -256,7 +264,6 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/6-Video/",
         "projects/aigc/<项目名>/7-Cut/",
-        "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/2-全局/",
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/4-摄影/",
@@ -320,17 +327,17 @@ LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
 CREATIVE_AUTHORSHIP_GUARDS = {
     ROOT / "5-设计" / "场景" / "SKILL.md": (
-        ROOT / "5-设计" / "场景" / "scripts" / "build_scene_design_context.py",
-        ROOT / "5-设计" / "场景" / "scripts" / "build_scene_design_packets.py",
-        ROOT / "5-设计" / "场景" / "scripts" / "generate_scene_panels.py",
+        ROOT / "5-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_context.py",
+        ROOT / "5-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_packets.py",
+        ROOT / "5-设计" / "场景" / "3-生成" / "scripts" / "generate_scene_panels.py",
     ),
     ROOT / "5-设计" / "角色" / "SKILL.md": (
-        ROOT / "5-设计" / "角色" / "scripts" / "build_role_research.py",
-        ROOT / "5-设计" / "角色" / "scripts" / "build_character_design_packets.py",
+        ROOT / "5-设计" / "角色" / "2-设计" / "scripts" / "build_role_research.py",
+        ROOT / "5-设计" / "角色" / "2-设计" / "scripts" / "build_character_design_packets.py",
     ),
     ROOT / "5-设计" / "道具" / "SKILL.md": (
-        ROOT / "5-设计" / "道具" / "scripts" / "build_prop_research.py",
-        ROOT / "5-设计" / "道具" / "scripts" / "build_prop_design_packets.py",
+        ROOT / "5-设计" / "道具" / "2-设计" / "scripts" / "build_prop_research.py",
+        ROOT / "5-设计" / "道具" / "2-设计" / "scripts" / "build_prop_design_packets.py",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
@@ -364,7 +371,7 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
         "projects/aigc/<项目名>/源/",
-        "projects/aigc/<项目名>/附加预设/",
+        "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/STATE.json",
         "projects/aigc/<项目名>/team.yaml",
         "Forbidden bootstrap paths",
@@ -546,7 +553,7 @@ def audit_skill_file(path: Path, failures: list[str], checked_paths: set[Path] |
             failures.append(f"{path}: {exc}")
         else:
             tier = frontmatter.get("governance_tier")
-            if tier not in {"full", "lite"}:
+            if tier not in {"full", "lite", "router"}:
                 failures.append(f"{path}: missing or invalid governance_tier")
 
         if not has_root_cause_contract(content):
@@ -800,7 +807,8 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
             failures.append(f"{domain_root}: missing 5-设计 domain package")
             continue
 
-        contract = domain_root / "references" / "design-output-contract.md"
+        detail_root = DESIGN_DETAIL_ROOTS[domain]
+        contract = detail_root / "references" / "design-output-contract.md"
         if not contract.exists():
             failures.append(f"{contract}: missing domain design output contract")
             continue
@@ -817,9 +825,9 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
             failures.append(f"{contract}: missing canonical template `{template_path.as_posix()}`")
 
     renderer_expectations = {
-        DESIGN_DOMAIN_ROOTS["场景"] / "scripts" / "build_scene_design_packets.py": "scene_masterprompt.structured.v2.md",
-        DESIGN_DOMAIN_ROOTS["角色"] / "scripts" / "build_character_design_packets.py": "character_masterprompt.structured.v2.md",
-        DESIGN_DOMAIN_ROOTS["道具"] / "scripts" / "build_prop_design_packets.py": "prop_masterprompt.structured.v2.md",
+        DESIGN_DETAIL_ROOTS["场景"] / "scripts" / "build_scene_design_packets.py": "scene_masterprompt.structured.v2.md",
+        DESIGN_DETAIL_ROOTS["角色"] / "scripts" / "build_character_design_packets.py": "character_masterprompt.structured.v2.md",
+        DESIGN_DETAIL_ROOTS["道具"] / "scripts" / "build_prop_design_packets.py": "prop_masterprompt.structured.v2.md",
     }
     for renderer, template_name in renderer_expectations.items():
         if not renderer.exists():

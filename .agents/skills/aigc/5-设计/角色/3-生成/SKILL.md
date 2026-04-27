@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-design-character-generation` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、视觉风格、禁区和既有生成资产相关的上下文文件。
 - 必须读取上游设计文档：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`；本技能只消费相关设计文档，不重新设计主体。
 - 生成执行必须加载并遵守 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；默认按 imagegen 的 built-in route 或其当前合同执行。

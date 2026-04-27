@@ -36,13 +36,13 @@ reference_images:
   characters: []
   scene: []
   props: []
-output_image_path: "projects/aigc/[项目名]/6-图像/A-分镜画面/第1集/images/1-1-1-1.png"
+output_image_path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第1集/images/1-1-1-1.png"
 reference_input_status: "not_passed_to_generation_tool"
 ```
 
 ## Output Persistence
 
-- 生成结果必须复制或持久化到 `projects/aigc/[项目名]/6-图像/A-分镜画面` 根路径下；逐集图片默认放入 `projects/aigc/[项目名]/6-图像/A-分镜画面/第N集/images/`。
+- 生成结果必须复制或持久化到 `projects/aigc/<项目名>/6-图像/A-分镜画面` 根路径下；逐集图片默认放入 `projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/`。
 - 不得把 `$CODEX_HOME/generated_images/...` 作为项目内最终路径。
 - `imagegen-plan.json` 记录预期输出；`imagegen-results.json` 记录实际生成路径、源路径、状态与审查结论。
 

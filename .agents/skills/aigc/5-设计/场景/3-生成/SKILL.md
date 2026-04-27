@@ -13,6 +13,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-scene-generation` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与场景、美术、摄影、建筑、世界观相关的上下文。
 - 必须读取目标场景的上游设计文档：`projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。
 - 必须读取 `$imagegen` 的 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并按其默认策略调用内建 `image_gen`；CLI/API fallback 只在用户显式要求或确认时使用。

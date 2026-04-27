@@ -11,7 +11,7 @@ story_source_manifest_ref: "0-初始化/story-source-manifest.yaml"
 state_ref: "STATE.json"
 runtime_layout_ref: ".agents/skills/aigc/_shared/project-runtime-layout.md"
 source_root_ref: "源/"
-preset_root_ref: "附加预设/"
+context_root_ref: "CONTEXT/"
 
 project_contract:
   initialization_goal: ""

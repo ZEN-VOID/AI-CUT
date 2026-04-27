@@ -13,9 +13,10 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-query` 时，必须同时加载同目录 `CONTEXT.md`。
-- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需读取项目根 `CONTEXT/` 或 `附加预设/` 中与当前查询相关的事实材料。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需读取项目根 `CONTEXT/` 或 `CONTEXT/` 中与当前查询相关的事实材料。
 - 查询必须先确认真实 `PROJECT_ROOT`，禁止把仓库根、技能目录或 registry 目录当成项目结果目录。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > registry / routes > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` / `附加预设/` > 本 `CONTEXT.md`。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > registry / routes > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` / `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定真源选路失败模式先沉淀到 `CONTEXT.md`；稳定为强制规则后再晋升到本 `SKILL.md` 或对应分区。
 
 ## Input Contract

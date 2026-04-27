@@ -65,20 +65,20 @@ active_skills:
                 path: .agents/skills/aigc/5-设计/场景/3-生成
                 contract_status: active
                 route_role: leaf
-          - id: aigc-design-role
+          - id: aigc-design-character
             path: .agents/skills/aigc/5-设计/角色
             contract_status: active
             route_role: domain
             child_index:
-              - id: aigc-design-role-list
+              - id: aigc-design-character-list
                 path: .agents/skills/aigc/5-设计/角色/1-清单
                 contract_status: active
                 route_role: leaf
-              - id: aigc-design-role-design
+              - id: aigc-design-character-detail
                 path: .agents/skills/aigc/5-设计/角色/2-设计
                 contract_status: active
                 route_role: leaf
-              - id: aigc-design-role-generate
+              - id: aigc-design-character-generation
                 path: .agents/skills/aigc/5-设计/角色/3-生成
                 contract_status: active
                 route_role: leaf
@@ -255,11 +255,6 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 小说项目断点、续跑、清理或重启任务。
-      - id: story-doubao
-        path: .agents/skills/story/doubao
-        contract_status: active
-        route_role: satellite
-        purpose: 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu
@@ -492,15 +487,6 @@ active_skills:
       script_entry: ".agents/skills/api/vidu/video-generate/scripts/vidu_video.py"
       default_output_root: "output/影片/[项目名]/5-API/video/vidu/"
       mirror_policy: "这是 provider skill，不创建独立项目 runtime；调用时读取 skill 根合同、references、根 `.env` 与默认项目化输出目录。"
-  - id: story-doubao
-    path: .agents/skills/story/doubao
-    owner_office: shangshu
-    purpose: "story 组 repo-local 中文小说润色与文风诊断 skill，面向豆包系中文模型，先分析文章风格，再以单技能方式吸收 `3-初稿` 八道工序能力完成整稿提纯、去 AI 味与中文表达强化。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/story/doubao/"
-      default_target: "用户提供的文章文本，或 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`"
-      mirror_policy: "这是 story 旁路润色 skill，不拥有 planning/cards/validation/actualization 真源；默认输出风格分析、润色策略与候选正文，只有用户明确要求时才覆写目标文本。"
   - id: story-drafting-maintext
     path: .agents/skills/story/3-初稿
     owner_office: shangshu
@@ -513,7 +499,7 @@ active_skills:
   - id: story-drafting-doubao
     path: .agents/skills/story/3-初稿/B-Doubao流
     owner_office: shangshu
-    purpose: "story 组 repo-local Doubao 章级正文直写默认 lane，通过 AnyFast `doubao-seed-2.0-pro` 按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
+    purpose: "story 组 repo-local Doubao 章级正文直写显式 provider lane，通过 AnyFast `doubao-seed-2.0-pro` 按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/story/3-初稿/B-Doubao流/"
@@ -521,7 +507,7 @@ active_skills:
       script_entry: ".agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doubao.py"
       canonical_output: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
       provider_artifacts_root: "projects/story/<项目名>/reports/3-初稿/doubao/"
-      mirror_policy: "这是 `3-初稿` 的默认 Doubao provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。覆盖已有章节必须显式 mode + `--force`。"
+      mirror_policy: "这是 `3-初稿` 的 Doubao provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。覆盖已有章节必须显式 mode + `--force`。"
   - id: story-drafting-deepseek
     path: .agents/skills/story/3-初稿/C-Deepseek流
     owner_office: shangshu
