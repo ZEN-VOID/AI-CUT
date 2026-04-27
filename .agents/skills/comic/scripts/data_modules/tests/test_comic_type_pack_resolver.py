@@ -65,7 +65,7 @@ def test_resolver_collects_single_layer_genre_projection():
 
 
 def test_all_genre_meta_files_expose_control_surface():
-    root = Path(__file__).resolve().parents[3] / "type-packs" / "漫画"
+    root = Path(__file__).resolve().parents[3] / "2-九刀流漫画提示词" / "types" / "漫画"
     expected_keys = {
         "conflict_engine",
         "role_matrix",
@@ -85,7 +85,7 @@ def test_all_genre_meta_files_expose_control_surface():
 
 
 def test_all_genre_main_docs_cover_control_surface_sections():
-    root = Path(__file__).resolve().parents[3] / "type-packs" / "漫画"
+    root = Path(__file__).resolve().parents[3] / "2-九刀流漫画提示词" / "types" / "漫画"
     required_headings = [
         "## 核心冲突引擎",
         "## 角色原型",
@@ -113,41 +113,7 @@ def test_seedream_master_prompt_consumes_control_surface():
     assert "control_surface.page_turn_mechanism.turn_trigger" in prompt
 
 
-def test_animation_prompt_consumes_control_surface():
-    script_path = Path(__file__).resolve().parents[3] / "4-动画生成/scripts/run_comic_animation.py"
-    module = _load_script_module(script_path, "run_comic_animation_test")
-    page = {
-        "page_number": 1,
-        "page_role": "opening hook",
-        "positive_prompt": "vertical 9:16 comic page, preserve all Chinese lettering",
-        "layout": {"layout_id": "detail-close-up", "panel_count": 2},
-        "active_character_ids": ["protagonist"],
-        "scene_id": "scene-01",
-        "page_number_overlay": {"text": "1", "position": "bottom-right"},
-        "panels": [
-            {"panel_id": "1A", "shot": "detail close-up", "action": "finds the clue"},
-            {"panel_id": "1B", "shot": "medium reaction shot", "action": "realizes something is wrong"},
-        ],
-    }
-    prompt = module._compile_page_prompt(
-        page=page,
-        shot_plan=module._shot_plan(page),
-        character_map={"protagonist": {"anchor_prompt": "Character locked across all panels: protagonist, stable silhouette."}},
-        scene_map={"scene-01": {"anchor_prompt": "Scene locked across relevant pages: same corridor geography."}},
-        continuity_context={"same_visual_dna_rule": "same rendering medium and line system"},
-        main_character_lock={"anchor_prompt": "Character locked across all panels: protagonist, stable silhouette."},
-        style_bible={"base_style": "cinematic suspense manga"},
-        type_stack_ref={"active_packs": ["_base", "经典漫画叙事", "推理悬疑"]},
-        type_pack_context={
-            "stage_projection": {"animation_generation": {"motion_bias": ["slow push", "reveal stop"]}},
-            "control_surface_digest": [
-                "control_surface.conflict_engine.premise: 线索链缓慢点亮，而真相始终晚半步抵达。",
-                "control_surface.page_turn_mechanism.turn_trigger: 页尾未完成动作、半露真相、证据细节",
-            ],
-        },
-        size="720x1280",
-        seconds=10,
-    )
-    assert "Type pack control surface:" in prompt
-    assert "control_surface.conflict_engine.premise" in prompt
-    assert "Type pack animation projection:" in prompt
+def test_episode_poster_validator_uses_imagegen_handoff():
+    script_path = Path(__file__).resolve().parents[3] / "4-剧集海报/scripts/validate_episode_poster_json.py"
+    module = _load_script_module(script_path, "validate_episode_poster_json_test")
+    assert module.IMAGEGEN_SKILL_PATH == ".agents/skills/cli/imagegen"

@@ -1,0 +1,228 @@
+---
+name: aigc-video-hybrid-board-subject-reference
+description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become Dreamina-ready group-level video prompts that combine subject reference images from 5-设计 with a matching storyboard-sheet total reference from 6-图像/B-分镜故事板.
+governance_tier: full
+metadata:
+  short-description: AIGC hybrid storyboard and subject referenced video generation
+---
+
+# aigc 7-视频 / D-主板混合参照
+
+`D-主板混合参照` 负责把 `projects/aigc/<项目名>/4-分组/` 中的分镜组转为 Dreamina 组级视频生成任务，并在同一个分镜组提示词中同时导入两类参照：`6-图像/B-分镜故事板` 中与 `group_id` 对应的故事板图作为整组总参照，`5-设计/角色|场景|道具/3-生成` 中与组底 YAML 主体对应的图片作为主体参照。主体参照图必须写在对应主体信息后，故事板参照必须作为 prompt 固定开头声明其用途。
+
+## Context Loading Contract
+
+- 每次调用 `$aigc-video-hybrid-board-subject-reference` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与项目根 `CONTEXT/` 中和视频阶段、主体资产、故事板、生成偏好相关的上下文。
+- `4-分组` 是视频 prompt 主体的主要信息来源；不得回到 `3-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
+- 分镜组视频 prompt 主体直接采用 `4-分组` 的现有分镜组正文；LLM 只负责保真组织、固定参照开头、主体后缀绑定、缺口说明和审查，不得扩写或改写剧情事实。
+- 故事板总参照只来自 `projects/aigc/<项目名>/6-图像/B-分镜故事板/` 中与 `group_id` 对应的真实本地图片；主体参照只来自组底 YAML 的 `角色 / 场景 / 道具` 与 `5-设计/*/3-生成` 的真实本地图片。
+- 调用 Dreamina 前必须加载 `.agents/skills/cli/dreamina-cli/SKILL.md + CONTEXT.md`，并遵守其登录自检、命令选择、图片上限、队列台账和异步查询规则。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/7-视频/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `.agents/skills/cli/dreamina-cli/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
+
+## Input Contract
+
+Accepted input:
+
+- 项目名、项目路径、单集或多集范围，要求从 `4-分组` 批量生成组级视频，并同时使用故事板总参照与主体参照。
+- 用户指定一个或多个三段式分镜组 ID，例如 `1-1-1`。
+- 用户要求“主体参照和分镜故事板参照合二为一”“同一分镜组提示词既导入主体参照图又导入分镜故事板”“主体后 @参照图”“故事板作为总参照”等任务。
+- 已有 `7-视频/D-主板混合参照/` prompt、参照绑定、Dreamina 计划、队列或结果需要 repair / review / rerun / query。
+
+Required input:
+
+- 可定位的 `projects/aigc/<项目名>/4-分组/第N集.md`。
+- 每个目标分镜组必须有可解析的 `## x-y-z` 标题、组正文和底部 fenced YAML。
+- 可定位的故事板候选目录：`projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/`。
+- 可定位的设计生成目录：`5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成`；目录缺失时允许 prompt-only 或缺图继续，但必须写入报告。
+- 调用 Dreamina 前必须能确定项目内输出目录，默认 `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`。
+
+Optional input:
+
+- `prompt_only`：只生成视频 prompt、参照 manifest、Dreamina 提交计划，不提交任务。
+- `episode_batch`：一次处理一集全部分镜组。
+- `group_batch`：一次处理多个指定分镜组。
+- `multi_episode_batch`：一次处理多集，每集保持独立队列与报告。
+- 用户指定 Dreamina 模型、duration、ratio、resolution、额外禁止项、输出目录、rerun / replace 策略、下载策略或并发数。
+
+Reject or clarify when:
+
+- `4-分组` 缺失、目标分镜组 ID 无法唯一追溯，或组底 YAML 缺失到无法确定主体槽位。
+- 用户要求改变 `4-分组` 的剧情核心、镜头顺序、角色事实、动作结果或组边界。
+- 用户要求脚本主创视频 prompt 正文、自动扩写剧情或用模板补写未知画面。
+- 任务目标只需要单一故事板参照，应转入 `B-分镜故事板参照`；只需要主体参照，应转入 `C-主体参照`；只需要镜级分镜画面参照，应转入 `A-分镜画面参照`。
+
+## Positioning
+
+本技能是 `7-视频` 阶段的组级混合参照视频入口，向上承接 `4-分组`，横向读取 `6-图像/B-分镜故事板` 与 `5-设计/*/3-生成`，向下调用 `.agents/skills/cli/dreamina-cli`。它拥有混合参照视频 prompt 包、故事板与主体参照 manifest、Dreamina 提交计划、队列台账、异步结果持久化和执行报告的裁决权；它不拥有上游分组改写权、故事板图生成权或主体资产重设计权。
+
+## LLM-First Creative Authorship Contract
+
+- 视频 prompt 中的参照语义说明、固定开头、主体内联绑定、运动/声音约束和失败诊断必须由 LLM 直接完成。
+- 脚本只允许承担读取、抽取、路径匹配、YAML/JSON 投影、队列台账、并发提交、状态查询、下载和校验等机械辅助职责。
+- 脚本不得把 `4-分组` 正文规则拼接成新的创作正文，不得扩写剧情、替代镜头判断或生成 canonical prompt truth。
+- 参照图路径属于机械绑定；故事板作为总参照、主体图片跟随对应主体的语义裁决，必须由本技能合同和 LLM 审查裁决。
+
+## Mode Selection
+
+| mode | 触发信号 | 主要动作 |
+| --- | --- | --- |
+| `prompt_only` | 只要求提示词、配置或提交计划 | 执行 step1-step2，写 prompt、reference manifest、Dreamina plan |
+| `single_group_generate` | 指定一个三段式分镜组 ID 且要求出视频 | 执行 step1-step3，单组调用 Dreamina |
+| `episode_batch_generate` | 指定一集或默认整集批量 | 对该集全部分镜组执行 step1-step3，默认后台多线程并发提交 |
+| `group_batch_generate` | 指定多个分镜组 ID | 只处理目标分镜组集合，保持独立 prompt、引用和 submit_id |
+| `multi_episode_batch_generate` | 指定多集或多个 `第N集.md` | 每集独立索引、计划、队列和报告，提交层可统一并发 |
+| `query_or_download` | 已有 submit_id，需要查询或下载 | 按 Dreamina queue ledger 和 `query_result` 更新结果 |
+| `repair` | prompt 缺组、固定开头缺失、主体错绑、故事板错绑、提交计划漂移 | 按 `review/review-contract.md` 定位返工节点 |
+| `review_only` | 只检查现有输出 | 审查 prompt、参照、Dreamina 计划、队列与落盘结果，不提交新任务 |
+
+## Reference Loading Guide
+
+| 场景 | 必读文件 |
+| --- | --- |
+| 从 `4-分组` 提取组级正文与底部 YAML | `references/group-source-extraction.md` |
+| 组装混合参照视频 prompt 与固定开头 | `references/hybrid-prompt-assembly-contract.md` |
+| 查找并绑定故事板总参照与主体参照图 | `references/hybrid-reference-binding.md` |
+| 调用 `.agents/skills/cli/dreamina-cli` 与批量生成交接 | `references/dreamina-handoff.md` |
+| 执行 step1-step3 主流程 | `steps/hybrid-reference-video-workflow.md` |
+| 判定单组、整集、多组、多集、查询、修复模式 | `types/type-map.md` |
+| 输出审查与返工 | `review/review-contract.md` |
+| 输出模板 | `templates/output-template.md`、`templates/dreamina-submit-plan.template.json` |
+| 脚本辅助边界 | `scripts/README.md` |
+| 可复用经验 | `knowledge-base/hybrid-reference-video-heuristics.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
+
+## Visual Maps
+
+```mermaid
+flowchart TD
+    A["4-分组/第N集.md"] --> B["提取 group_id、完整组正文、组底 YAML"]
+    C["6-图像/B-分镜故事板/<group_id>.*"] --> D["绑定故事板总参照"]
+    E["5-设计/角色|场景|道具/3-生成"] --> F["绑定 YAML 主体参照"]
+    B --> G["固定开头 + 完整组正文"]
+    D --> H["总参照: @图1 / storyboard_sheet"]
+    F --> I["主体后缀: 主体名 @参照图"]
+    G --> J["混合参照 prompt package"]
+    H --> J
+    I --> J
+    J --> K["Dreamina submit plan"]
+    K --> L{"reference images?"}
+    L -->|"yes"| M["multimodal2video"]
+    L -->|"no"| N["text2video"]
+    M --> O["queue ledger + submit_id + results"]
+    N --> O
+```
+
+## Execution Contract
+
+1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文；提交任务前加载 `.agents/skills/cli/dreamina-cli/SKILL.md + CONTEXT.md`。
+2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 Dreamina、并发策略和输出根。
+3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
+4. step2a：检查 `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/` 下是否存在与 `group_id` 对应的故事板图；优先 `images/<group_id>.*`，其次同集目录内 `<group_id>.*`，允许 `png/jpg/jpeg/webp`。
+5. step2b：读取组底 YAML 的 `角色 / 场景 / 道具`，检查 `5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除。
+6. step2c：组装 prompt 时必须使用固定开头：`请参考故事板总参照图作为本分镜组的整体构图、镜头顺序、角色站位、场景连续性与情绪节奏参考；不要把故事板参照当作单一首帧。后文每个主体名称后的 @参照图 用于锁定对应角色、场景或道具外观，不得互相替换。根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。`
+7. step2d：有主体参照图时，必须在对应主体信息后追加 `@<图片路径>` 或其 Dreamina marker 映射；故事板图不得夹在某个主体后，只能作为整组总参照写在固定开头和 manifest 的 `storyboard_total_reference`。
+8. step3：根据每个分镜组的完整组正文、故事板总参照和主体参照，生成符合 `.agents/skills/cli/dreamina-cli` 的提交计划。存在任一参照图时优先 `dreamina multimodal2video --image ... --prompt ...`；无参照图时走 `dreamina text2video --prompt ...`，禁止传空图片槽。
+9. 若故事板图和主体图总数超过 Dreamina CLI 当前图片上限，必须记录 `reference_over_limit`，按用户策略选择阻断、压缩主体图、分段提交或降级为文字 prompt，不得静默丢图。
+10. 生成前必须运行 `dreamina user_credit`；Dreamina CLI 不可用或登录失败时，写入 `blocked` 队列状态，不得伪造 submit_id。
+11. 默认以分镜组为单位后台多线程批量并发提交；每个任务只能写自己的 submit 记录、下载文件和状态行；统一报告在汇流阶段写入。
+12. 所有异步任务必须进入 queue ledger，至少记录 `queue_id / group_id / command / submit_id / local_status / remote_status / storyboard_reference / subject_references / output_path / next_action`。
+13. 每个分镜组的 canonical 输出写入 `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`，视频文件默认写入其 `videos/` 子目录。
+14. 交付前执行 `review/review-contract.md`；组 ID 追溯、组正文完整性、固定开头、YAML 主体基准、故事板路径、主体路径、Dreamina 命令合法性、队列台账和项目内持久化必须通过。
+
+## Field Mapping
+
+| field_id | 输出/证据 | 内容要求 | 失败码 |
+| --- | --- | --- | --- |
+| `FIELD-VIDHYB-01` | input manifest | 项目根、集号、`4-分组`、故事板目录、设计生成目录、Dreamina 环境可追溯 | `FAIL-VIDHYB-INPUT` |
+| `FIELD-VIDHYB-02` | group index | 三段式 `x-y-z` 可回指 `## x-y-z`，组正文和 YAML 被完整提取 | `FAIL-VIDHYB-GROUP` |
+| `FIELD-VIDHYB-03` | video prompt package | 固定总参照开头 + 现有组内容主体 + 主体后缀 `@参照图` | `FAIL-VIDHYB-PROMPT` |
+| `FIELD-VIDHYB-04` | reference manifest | 故事板总参照来自 `6-图像/B-分镜故事板`，主体参照来自 YAML 和 `5-设计` 真实图片 | `FAIL-VIDHYB-REF` |
+| `FIELD-VIDHYB-05` | Dreamina submit plan / queue | 一组一任务，合法 `text2video` 或 `multimodal2video` 命令，默认并发提交，有 submit_id 台账 | `FAIL-VIDHYB-DREAMINA` |
+| `FIELD-VIDHYB-06` | execution report | 说明 submitted / queued / downloaded / skipped / failed、缺图、查询入口和返工入口 | `FAIL-VIDHYB-REPORT` |
+
+## Field Master
+
+| field_id | owner | canonical file | must contain | fail code |
+| --- | --- | --- | --- | --- |
+| `FIELD-VIDHYB-01` | input lock | `第N集-hybrid-group-index.json` / report | 项目根、集号、`4-分组`、故事板目录、设计生成目录、Dreamina self-check | `FAIL-VIDHYB-INPUT` |
+| `FIELD-VIDHYB-02` | group extraction | `第N集-hybrid-group-index.json` | `group_id`、source heading、shot count、YAML subjects | `FAIL-VIDHYB-GROUP` |
+| `FIELD-VIDHYB-03` | prompt assembly | `第N集-主板混合参照-video-prompts.md` | 固定开头、组正文主体、故事板总参照说明、主体信息后缀 `@图片路径` | `FAIL-VIDHYB-PROMPT` |
+| `FIELD-VIDHYB-04` | reference binding | `第N集-reference-manifest.json` | storyboard_total_reference、角色/场景/道具真实图片路径、多视图优先、无空槽位 | `FAIL-VIDHYB-REF` |
+| `FIELD-VIDHYB-05` | Dreamina handoff | `第N集-dreamina-submit-plan.json` / `第N集-dreamina-queue.md` | 一组一任务、命令参数、并发策略、submit_id、查询动作 | `FAIL-VIDHYB-DREAMINA` |
+| `FIELD-VIDHYB-06` | convergence | `执行报告.md` | submitted / queued / downloaded / skipped / failed、review verdict、返工入口 | `FAIL-VIDHYB-REPORT` |
+
+## Thought Pass Map
+
+| pass_id | focus field | core question | action | evidence |
+| --- | --- | --- | --- | --- |
+| `PASS-VIDHYB-01` | `FIELD-VIDHYB-01` | 本轮处理哪个项目、集号、分镜组范围和 Dreamina 执行意图 | 锁定 mode、读取项目上下文和 Dreamina 自检要求 | input manifest |
+| `PASS-VIDHYB-02` | `FIELD-VIDHYB-02` | 如何从 `4-分组` 保真提取组正文和 YAML | 解析 `## x-y-z` 与 fenced YAML | group index |
+| `PASS-VIDHYB-03` | `FIELD-VIDHYB-03` | 如何保证故事板总参照和主体后缀都进入同一 prompt | 写固定开头、保留组正文、在主体后追加 `@参照图` | prompt markdown |
+| `PASS-VIDHYB-04` | `FIELD-VIDHYB-04` | 哪些故事板和 YAML 主体有真实本地图片可绑定 | 故事板按 group_id，主体多视图优先、主图次之、缺图移除槽位 | reference manifest |
+| `PASS-VIDHYB-05` | `FIELD-VIDHYB-05` | Dreamina 命令如何批量安全执行并可续查 | 生成一组一任务 submit plan、queue ledger 并按需调用 | plan / queue / results |
+| `PASS-VIDHYB-06` | `FIELD-VIDHYB-06` | 输出如何闭环并可返工 | 汇总审查、失败、跳过、submit_id 和下载路径 | execution report |
+
+## Pass Table
+
+| pass_id | pass standard | fail code | rework entry |
+| --- | --- | --- | --- |
+| `PASS-VIDHYB-01` | 必需输入可读，故事板与设计生成目录状态、Dreamina 执行意图已记录 | `FAIL-VIDHYB-INPUT` | `types/type-map.md` |
+| `PASS-VIDHYB-02` | 每个 `group_id` 唯一且可回指源标题、组正文和 YAML | `FAIL-VIDHYB-GROUP` | `references/group-source-extraction.md` |
+| `PASS-VIDHYB-03` | prompt 以固定总参照开头起笔，现有组内容为主体，主体参照在对应主体后 | `FAIL-VIDHYB-PROMPT` | `references/hybrid-prompt-assembly-contract.md` |
+| `PASS-VIDHYB-04` | 绑定路径存在，故事板不被当作主体，主体不从正文泛词扩展 | `FAIL-VIDHYB-REF` | `references/hybrid-reference-binding.md` |
+| `PASS-VIDHYB-05` | Dreamina plan 一组一任务，命令合法，队列可续查，输出路径在项目内 | `FAIL-VIDHYB-DREAMINA` | `references/dreamina-handoff.md` |
+| `PASS-VIDHYB-06` | 执行报告记录 verdict、处理范围、submit_id、失败/跳过与返工入口 | `FAIL-VIDHYB-REPORT` | `review/review-contract.md` |
+
+## Root-Cause Execution Contract (Mandatory)
+
+出现失败时必须沿链路上溯：
+
+`Symptom -> Direct Cause -> Section Owner -> Source Contract -> AGENTS.md / skill-工作车间`
+
+优先修复：
+
+1. 组无法追溯或 YAML 解析失败：回到 `references/group-source-extraction.md` 与 `steps/hybrid-reference-video-workflow.md`。
+2. prompt 缺固定开头、故事板用途不清、主体参照不在对应主体后：回到 `references/hybrid-prompt-assembly-contract.md`。
+3. 故事板错绑、主体槽位错绑、路径不存在、猜测引用或没有多视图优先：回到 `references/hybrid-reference-binding.md`。
+4. Dreamina 命令选错、参照图超过上限未处理、并发写位冲突、缺少 `user_credit` 或队列不可续查：回到 `.agents/skills/cli/dreamina-cli/SKILL.md` 与 `references/dreamina-handoff.md`。
+5. 输出格式不一致：回到 `templates/output-template.md`。
+6. 同类失败可复用：沉淀到同目录 `CONTEXT.md`，稳定后晋升到本文件或分区规范。
+
+## Output Contract
+
+Required output:
+
+- 组级混合参照视频 prompt 包、故事板与主体参照 manifest、Dreamina 提交计划、队列台账、生成结果记录、逐集执行报告。
+
+Output format:
+
+- Markdown prompt 文档 + JSON manifest / submit plan / results + Markdown queue ledger / report；生成视频为 MP4 或 Dreamina 返回的当前视频格式。
+
+Output path:
+
+- 技能包：`.agents/skills/aigc/7-视频/D-主板混合参照/`
+- 项目运行时：`projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`
+- 视频下载目录：`projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/videos/`
+
+Naming convention:
+
+- prompt 文档命名 `第N集-主板混合参照-video-prompts.md`
+- 索引命名 `第N集-hybrid-group-index.json`
+- 参照清单命名 `第N集-reference-manifest.json`
+- 提交计划命名 `第N集-dreamina-submit-plan.json`
+- 队列台账命名 `第N集-dreamina-queue.md`
+- 结果记录命名 `第N集-dreamina-results.json`
+- 执行报告命名 `执行报告.md`
+- 视频文件命名 `<分镜组ID>.mp4` 或 `<分镜组ID>-<submit_id>.mp4`
+
+Completion gate:
+
+- 目标分镜组均可从 `4-分组` 回指。
+- 每条 prompt 完整保留组正文主体，并以固定开头说明故事板总参照和主体参照用途。
+- 故事板参照只作为整组总参照；主体参照只来自组底 YAML，并在对应主体后追加 `@参照图`。
+- 参照槽位只绑定存在的本地图片且多视图优先；缺图不保留空路径。
+- Dreamina 命令计划符合 `.agents/skills/cli/dreamina-cli` 当前命令约束，提交前有 `user_credit` 自检策略。
+- 执行生成时有 queue ledger 和 submit_id 追踪；审查结果为 `pass` 或 `pass_with_todo`。

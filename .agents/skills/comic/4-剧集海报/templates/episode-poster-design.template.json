@@ -1,0 +1,167 @@
+{
+  "schema_version": "comic_episode_poster_design.v1",
+  "project_name": "项目名",
+  "type_stack_ref": {
+    "method_kernel": "comic-core-v1",
+    "base": "_base",
+    "primary": "经典漫画叙事",
+    "secondary": ["情感关系剧"],
+    "platform": ["漫剧平台"],
+    "audience": ["情绪强冲突受众"],
+    "active_packs": ["_base", "经典漫画叙事", "情感关系剧", "漫剧平台", "情绪强冲突受众"]
+  },
+  "type_pack_context": {
+    "resolution_mode": "single-layer-genre-comic-type-pack",
+    "knowledge_refs": [
+      ".agents/skills/comic/2-九刀流漫画提示词/types/漫画/情感关系剧/情感关系剧.md"
+    ],
+    "knowledge_digest": [
+      "关系必须比设定更狠。",
+      "误解、背叛、占有、回头和翻脸要能快速落地。"
+    ],
+    "control_surface_digest": [
+      "control_surface.conflict_engine.premise: 关系不平等、误会和占有欲不断重排亲密权力。",
+      "control_surface.visual_carrier.primary: 面部细节, 站位高低, 手部控制动作"
+    ],
+    "semantic_tags": ["betrayal", "high-emotion", "relationship-whiplash"],
+    "pack_revisions": {
+      "情感关系剧": "dynamic-runtime"
+    },
+    "control_surface": {
+      "conflict_engine": {"premise": "关系不平等、误会和占有欲不断重排亲密权力。"},
+      "role_matrix": {"protagonist": "互相牵制且都能伤到对方的关系核心"},
+      "page_turn_mechanism": {"turn_trigger": "推开又回抓、当众翻脸、证据落桌、强者失控"},
+      "panel_grammar": {"dominant_panel_shapes": ["近脸压迫格", "门框对峙格"]},
+      "visual_carrier": {"primary": ["面部细节", "站位高低", "手部控制动作"]},
+      "dialogue_register": {"exposition_rule": "优先让动作和站位伤人，再用短句补刀"},
+      "motif_system": {"recurring_motifs": ["扣手腕", "推开又回抓", "门口堵人"]},
+      "failure_modes": ["只有设定，没有真实权力变化"]
+    },
+    "projection_summary": {
+      "episode_poster": "标题优先痛感、背叛感和关系翻脸感。"
+    },
+    "stage_projection": {
+      "script_adaptation": {},
+      "nine_blade_prompting": {},
+      "image_generation": {},
+      "animation_generation": {},
+      "episode_poster": {
+        "poster_bias": ["pain-title", "betrayal-title", "relationship-shock"]
+      }
+    }
+  },
+  "episode": {
+    "number": 1,
+    "display_text": "第1集"
+  },
+  "upstream_context": {
+    "loaded_artifacts": [
+      {
+        "stage": "1-漫画剧本改编",
+        "path": "",
+        "role": "grouped_script"
+      },
+      {
+        "stage": "2-九刀流漫画提示词",
+        "path": "",
+        "role": "nine_blade_json"
+      }
+    ],
+    "style_inheritance": {
+      "character_stage_anchor": "",
+      "scene_continuity_anchor": "",
+      "style_anchor": "",
+      "consistency_rules": []
+    },
+    "highlight_discovery": {
+      "candidate_highlights": [],
+      "selected_highlight": "",
+      "selection_reason": ""
+    }
+  },
+  "source_artifacts": {
+    "grouped_script_paths": [],
+    "nine_blade_json_path": "",
+    "generated_pages_dir": ""
+  },
+  "thinking_process": {
+    "hook_reason": "",
+    "subject_reason": "",
+    "representative_scene_reason": "",
+    "highlight_selection_reason": "",
+    "style_consistency_reason": "",
+    "text_atmosphere_reason": ""
+  },
+  "creative_direction": {
+    "creative_core": "",
+    "episode_logline": "",
+    "representative_scene": "",
+    "hook_meaning": "",
+    "spoiler_level": "tease_not_reveal"
+  },
+  "subject_lock": {
+    "only_current_episode_characters": true,
+    "primary_subjects": [
+      {
+        "character_id": "",
+        "name": "",
+        "presence_evidence": "",
+        "visual_role": "primary"
+      }
+    ],
+    "secondary_subjects": [],
+    "excluded_characters": []
+  },
+  "composition": {
+    "aspect_ratio": "3:4",
+    "camera_language": "",
+    "foreground": "",
+    "subjects": "",
+    "background": "",
+    "negative_space": "",
+    "focus_order": [
+      "hook_title",
+      "primary_subjects",
+      "representative_scene"
+    ]
+  },
+  "text_system": {
+    "horizontal_alignment": "center",
+    "vertical_alignment": "center",
+    "episode_label": {
+      "text": "第1集",
+      "font_scale": "smaller",
+      "position": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "hook_title": {
+      "text": "",
+      "language": "zh-CN",
+      "font_scale": "dominant",
+      "position": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "supporting_copy": ""
+  },
+  "atmosphere_color": {
+    "mood": "",
+    "dominant_colors": [],
+    "accent_colors": [],
+    "lighting_strategy": ""
+  },
+  "prompt_package": {
+    "positive_prompt": "",
+    "negative_prompt": ""
+  },
+  "imagegen_handoff": {
+    "tool_skill_path": ".agents/skills/cli/imagegen",
+    "render_prompt_source": "prompt_package.positive_prompt",
+    "suggested_output_dir": "projects/comic/[项目名]/4-剧集海报/imagegen/",
+    "mode_policy": "Load .agents/skills/cli/imagegen/SKILL.md and CONTEXT.md after this JSON passes validation; imagegen owns built-in vs CLI fallback routing.",
+    "persist_policy": "Project-bound final poster images must be persisted under the comic project stage or a user-specified workspace path."
+  }
+}

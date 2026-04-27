@@ -1,118 +1,121 @@
-# Imagegen 九页漫画生成执行细则
+# CLI Imagegen 九页漫画生成执行细则
 
-## 1. 默认路径
+## 默认路径
 
-本技能默认使用 Codex 内置 `image_gen` 工具，而不是任何外部图像 API。
+本技能默认使用仓库内 `.agents/skills/cli/imagegen`，通过其 `scripts/image_gen.py generate-batch` 子命令生成漫画页。
 
 执行口径：
 
-- `provider`: `built-in-image_gen`
-- `model_policy`: `GPT-IMAGE-2-default`
-- `model_parameter_exposed`: `false`
-- `execution`: one built-in tool call per comic page
-- `image_count`: 9
-- `output`: project-local PNG files
+- `provider`: `cli-imagegen`
+- `skill_path`: `.agents/skills/cli/imagegen`
+- `script`: `.agents/skills/cli/imagegen/scripts/image_gen.py`
+- `subcommand`: `generate-batch`
+- `model`: `gpt-image-2`
+- `size`: `1152x2048`
+- `quality`: `medium`
+- `output_format`: `png`
+- `execution`: 9 JSONL jobs, one page per job, `n=1`
 
-说明：内置 `image_gen` 当前不暴露 `model` 参数。不得在工具调用中伪造 `model=gpt-image-2` 字段。若用户要求可审计的显式模型参数，必须先说明需要切换到 `imagegen` CLI/API fallback，并在用户确认后执行。
+真实执行需要网络与 `OPENAI_API_KEY`。Dry-run 不需要 API key。
 
-## 2. 九页原则
+## 九页原则
 
-每个 `page-group` 有 9 页。默认执行方式是 9 次单页生成：
+每个 `page-group` 固定 9 页。默认执行方式是 9 个单页 job：
 
-1. Page 1 prompt -> built-in `image_gen`
-2. Page 2 prompt -> built-in `image_gen`
+1. `page01` prompt -> CLI imagegen job 1
+2. `page02` prompt -> CLI imagegen job 2
 3. ...
-4. Page 9 prompt -> built-in `image_gen`
+4. `page09` prompt -> CLI imagegen job 9
 
-不得把 9 页合成一次 prompt 交给内置工具生成。这样会显著提高九宫格、合集、contact sheet 或同图变体风险。
+不得把 9 页合成一个 prompt，也不得使用 `--n 9` 生成九个变体。`generate-batch` 的意义是提交 9 个不同页 prompt，而不是为同一页生成 9 个候选。
 
-当上游 2 号技能已经把一个 episode 切成多个 `page-group` 时：
-
-- 3 号技能一次只消费一个 group JSON。
-- 多个 group 按 `group_index` 顺序分别执行。
-- 默认把执行产物落到 `3-漫画生成/<group_slug>/imagegen/`。
-
-## 3. 单页 Prompt 结构
+## 单页 Prompt 结构
 
 每页 prompt 按以下顺序组织：
 
-1. 原始 `pages[].positive_prompt`
-2. 本页页码与右下角数字页码要求
-3. 单页执行后缀
-4. 顶层 `generation_contract.hard_constraints`
-5. 顶层 `global_negative_prompt`
+1. 单页执行声明：只生成当前页，完整竖版 9:16 漫画页。
+2. `page_group` 与 `continuity_context`。
+3. `type_stack_ref` 与 `type_pack_context` 的 image-generation 投影。
+4. 风格、角色、场景、文字系统锁。
+5. 原始 `pages[].positive_prompt`。
+6. 本页 `layout / panels / page_number_overlay`。
+7. 顶层 `generation_contract.hard_constraints`。
+8. 顶层 `global_negative_prompt`。
 
-单页执行后缀标准文本：
-
-```text
-Execution for this single built-in image_gen call: generate only this one page, not the full 9-page set. Preserve vertical 9:16 comic-page feeling, multiple panels, readable page number overlay.
-```
-
-硬约束标准文本：
+标准执行后缀：
 
 ```text
-Hard constraints from project contract: Do not create a nine-grid collage, contact sheet, or one image containing all pages. Do not create nine variations of the same scene. Every page must contain multiple comic panels, never a single full-page illustration. Keep character and scene consistency across all pages. Place a small page number in the bottom-right corner of every page, using digits 1-9 only.
+CLI imagegen execution for this single page: generate exactly one complete vertical 9:16 comic page for this job, not the full 9-page set. Do not create a collage, contact sheet, or variants sheet. Keep multiple comic panels, consistent cast and scene continuity, and a small bottom-right page number using the exact digit for this page.
 ```
 
-## 4. 落盘与 Manifest
-
-内置工具会先把图片保存到 `$CODEX_HOME/generated_images/...`。项目型漫画生成不得只引用该默认目录。
-
-标准持久化流程：
-
-1. 生成前记录 `$CODEX_HOME/generated_images/**/*.png` baseline。
-2. 逐页生成 9 张图片。
-3. 生成后识别新增 PNG。
-4. 按生成顺序映射到 `page01..page09`。
-5. 复制到项目目录，保留默认目录原件。
-6. 写 manifest 与 `comic_generation_report.json`。
+## 标准产物
 
 默认目标：
 
 ```text
-projects/comic/[项目名]/3-漫画生成/<group_slug>/imagegen/
+projects/comic/[项目名]/3-漫画生成/<group_slug>/imagegen-cli/
+  imagegen_generation_plan.json
+  imagegen_jobs.jsonl
+  page01-imagegen_prompt.txt
+  ...
+  page09-imagegen_prompt.txt
   page01.png
-  page02.png
   ...
   page09.png
-  imagegen_generation_plan.json
   comic_generation_report.json
-  imagegen_manifest.json
 ```
 
 `projects/aigc/[项目名]/5-Image/漫画/` 项目按同级阶段目录推断，不得漂移到 `projects/comic/`。
 
-## 5. 验收标准
+## 推荐命令
+
+```bash
+python3 .agents/skills/comic/3-漫画生成/scripts/run_imagegen_cli_comic_generation.py \
+  projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json \
+  --dry-run
+```
+
+```bash
+python3 .agents/skills/comic/3-漫画生成/scripts/run_imagegen_cli_comic_generation.py \
+  projects/comic/[项目名]/2-九刀流漫画提示词/page-group-01-nine_blade_comic_prompts.json \
+  --execute \
+  --quality high
+```
+
+底层真实命令由 runner 写入 `imagegen_generation_plan.json`，默认形态为：
+
+```bash
+python3 .agents/skills/cli/imagegen/scripts/image_gen.py generate-batch \
+  --input <output_dir>/imagegen_jobs.jsonl \
+  --out-dir <output_dir> \
+  --model gpt-image-2 \
+  --size 1152x2048 \
+  --quality medium \
+  --output-format png \
+  --concurrency 3 \
+  --no-augment
+```
+
+## 验收标准
 
 完成交付至少满足：
 
-- 项目目录中存在 9 个图片文件。
-- 文件可打开。
-- 宽高为竖版比例。
-- 文件名按页码稳定排序。
-- manifest 中有 9 条 source -> target 映射。
-- 报告中明确写入 `provider=built-in-image_gen` 与 `model_policy=GPT-IMAGE-2-default`。
+- JSON validator 通过。
+- `imagegen_jobs.jsonl` 有 9 行，每行 `n=1` 或未显式设置 `n`。
+- 每页 prompt 都包含 9:16、非拼图、非变体、多格漫画、连续性和右下角数字页码约束。
+- Dry-run 写出计划和报告。
+- Execute 模式下 9 个 PNG 存在，文件名按页码稳定排序。
+- 报告明确写入 `provider=cli-imagegen`、`model=gpt-image-2`、`size=1152x2048`。
 
-视觉抽查重点：
-
-- 不是九宫格、contact sheet 或合集。
-- 不是单张海报式整页插画；每页应有多个漫画 panel。
-- 页码在右下角且使用对应数字。
-- 角色、场景和风格延续上游 JSON 锁定。
-
-## 6. 失败回退
+## 失败回退
 
 | 失败 | 回退点 |
 | --- | --- |
 | JSON 不合格 | `2-九刀流漫画提示词` validator |
-| prompt 缺少硬约束 | 本技能 page prompt plan |
-| 内置 `image_gen` 不可用 | 向用户说明并询问是否切换 CLI/API fallback |
-| 少于 9 张 | 检查 baseline、新增图片识别和 9 次工具调用完整性 |
-| 九宫格拼图 | 单页执行后缀 + 2 号 `hard_constraints` |
+| 缺少 API key | 停留 dry-run，提示配置 `OPENAI_API_KEY` |
+| prompt 缺少硬约束 | 本技能 page prompt compiler |
+| 少于 9 张 | 检查 CLI exit code、JSONL job 数和输出文件名 |
+| 九宫格拼图 | 单页 job 规则 + 单页执行后缀 |
 | 九个变体 | 2 号 `story_beat_map / pages[]` |
-| 多个 group 执行后互相覆盖 | 本技能 `group target resolve`、默认 output_dir / filename_prefix |
-| 需要显式 `model=gpt-image-2` | 用户确认后转 `imagegen` CLI/API fallback |
-
-## 7. Legacy Provider
-
-`references/seedream-nine-page-generation.md` 仅保留为 legacy Seedream/API 追溯资料。除非用户显式要求切换 provider，或当前会话没有内置 `image_gen` 且用户确认 fallback，否则不得默认调用 Seedream、Dreamina 或其他外部图像 API。
+| 多个 group 执行后互相覆盖 | `group target resolve`、默认 output_dir / filename_prefix |
+| 需要其他 provider | 用户显式确认后进入 legacy reference |

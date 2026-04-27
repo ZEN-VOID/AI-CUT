@@ -39,5 +39,6 @@ Current image and video migration keeps several legacy-compatible skill packages
 | `.agents/skills/aigc/7-视频/A-分镜画面参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/A-分镜画面参照/` |
 | `.agents/skills/aigc/7-视频/B-分镜故事板参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/` |
 | `.agents/skills/aigc/7-视频/C-主体参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/C-主体参照/` |
+| `.agents/skills/aigc/7-视频/D-主板混合参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/D-主板混合参照/` |
 
 Forbidden new bootstrap roots are maintained by `scripts/aigc_skill_audit.py`. Keep this shared layout focused on active rows and explicitly allowed compatibility aliases so stale roots do not become discoverable by copy-paste.

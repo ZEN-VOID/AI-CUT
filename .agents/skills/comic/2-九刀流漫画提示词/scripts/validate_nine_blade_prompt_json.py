@@ -253,11 +253,15 @@ def _self_test_data() -> dict[str, Any]:
             "next_group_hook": "Ritual hall first appears",
         },
         "generation_contract": {
-            "provider": "seedream",
-            "call_mode": "single_request_sequential",
+            "provider": "cli-imagegen",
+            "call_mode": "per_page_batch",
             "image_count": 9,
             "page_aspect_ratio": "9:16",
-            "seedream": {"max_images": 9, "size": "2K", "stream": True},
+            "imagegen": {
+                "tool_skill_path": ".agents/skills/cli/imagegen",
+                "model": "gpt-image-2",
+                "size": "1152x2048",
+            },
             "hard_constraints": [
                 "Generate exactly 9 separate images/pages.",
                 "Do not create a nine-grid collage.",
@@ -279,7 +283,7 @@ def _self_test_data() -> dict[str, Any]:
         "type_pack_context": {
             "resolution_mode": "single-layer-genre-comic-type-pack",
             "knowledge_refs": [
-                ".agents/skills/comic/type-packs/漫画/推理悬疑/推理悬疑.md"
+                ".agents/skills/comic/2-九刀流漫画提示词/types/漫画/推理悬疑/推理悬疑.md"
             ],
             "knowledge_digest": [
                 "危险要比解释先到。",
@@ -504,10 +508,10 @@ def validate(data: dict[str, Any]) -> list[str]:
         errors.append("generation_contract must be an object")
         contract = {}
 
-    if contract.get("provider") != "seedream":
-        errors.append("generation_contract.provider must be seedream")
-    if contract.get("call_mode") != "single_request_sequential":
-        errors.append("generation_contract.call_mode must be single_request_sequential")
+    if contract.get("provider") != "cli-imagegen":
+        errors.append("generation_contract.provider must be cli-imagegen")
+    if contract.get("call_mode") != "per_page_batch":
+        errors.append("generation_contract.call_mode must be per_page_batch")
     if contract.get("image_count") != 9:
         errors.append("generation_contract.image_count must be 9")
     if contract.get("page_aspect_ratio") != "9:16":
@@ -571,9 +575,14 @@ def validate(data: dict[str, Any]) -> list[str]:
             "hard_constraints must require a bottom-right digits-only page number on every page"
         )
 
-    seedream = contract.get("seedream", {})
-    if isinstance(seedream, dict) and seedream.get("max_images") not in (None, 9):
-        errors.append("generation_contract.seedream.max_images must be 9 when present")
+    imagegen = contract.get("imagegen", {})
+    if not isinstance(imagegen, dict):
+        errors.append("generation_contract.imagegen must be an object")
+    else:
+        if imagegen.get("tool_skill_path") != ".agents/skills/cli/imagegen":
+            errors.append("generation_contract.imagegen.tool_skill_path must be .agents/skills/cli/imagegen")
+        if imagegen.get("model") not in (None, "gpt-image-2"):
+            errors.append("generation_contract.imagegen.model should default to gpt-image-2")
 
     main_character_lock = data.get("main_character_lock")
     if not isinstance(main_character_lock, dict):

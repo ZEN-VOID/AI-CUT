@@ -1,4 +1,0 @@
-interface:
-  display_name: "剧集海报"
-  short_description: "从当前剧集的真实剧情与出场角色出发，生成一个带居中文字系统和钩子标题的海报设计 JSON；若用户提供标题文字，则优先采用"
-  default_prompt: "Use $comic-episode-poster to design a comic episode poster JSON for the current episode, lock the actual appearing protagonists, choose one representative story-bound visual hook, and if the user provides title text, use it as the primary hook title before generating a new one. Keep text centered with a smaller `第N集` label and a larger Chinese hook title, and define foreground, subjects, background, atmosphere, color script, and a poster-ready positive prompt."

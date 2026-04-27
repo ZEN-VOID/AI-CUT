@@ -39,6 +39,8 @@ last_checked_at: 2026-04-19T10:20:00Z
 | `TM-COMIC-14` | 全文一直很急，但没有峰谷差，刺激变钝 | 节奏曲线层 | 重排 `chapter_plan`，补“抓停 -> 抬升 -> 急停”的波形 | 在 `pacing-hook-thrill-engine` 固化三种驱动模式与重排工具箱 | 能明确指出中段抬升点与章末急停点 |
 | `TM-COMIC-15` | 文稿在喊“很燃很酷”，但没有真正的中二感 | 风格强化层 | 回到角色宣言、命名势能、宿命关系与代价誓言重写 | 在 `chunibyo-intensity-engine` 固化中二感四件套 | 能指出一句立角色的宣言、一个带势能的命名和一个带代价的誓言 |
 | `TM-COMIC-16` | 根层已经锁了类型包，但 1 号分组文件没有把类型语气写进正文，2 号开始又回到默认类型猜测 | type-pack handoff 层 | 把 `type_stack_ref / type_pack_context` 约束直接体现在 `第N组.md` 的正文语气和钩子写法里 | 在 1 号合同中把类型包投影视为组正文必须继承的上游语义 | 2 号读取 1 号输出时，不看额外包也能读出 active packs 的语气和节奏 |
+| `TM-COMIC-17` | 根 `SKILL.md` 又开始堆回节点细则、评分矩阵和长输出模板 | Skill 2.0 分区漂移层 | 把节点迁回 `steps/`，评分迁回 `review/`，输出样板迁回 `templates/`，类型选择迁回 `types/` | 根 `SKILL.md` 只保留输入、路由、动态引用、门禁和 Output Contract | `scripts/aigc_skill_audit.py --strict` 与工作车间 validator 均能定位到对应 owner |
+| `TM-COMIC-18` | 漫画正文里对白、旁白、音效、心理判断和规则文字混写，导致后续拆页或九刀流提示词发虚 | 编导字段桥接层 | 加载 `types/projection/directing-field-bridge.md`，把声音文本与画面承托就近配对，心理和规则转成可见格 | 在 `references/directing-field-projection-bridge.md` 固化漫画侧声画配对、字段纯度和场景锚点规则 | 任一声音/系统/规则条目附近都能找到可画承托，`scene_anchor` 能回答本组最贵一格是什么 |
 
 ## Repair Playbook
 
@@ -52,6 +54,8 @@ last_checked_at: 2026-04-19T10:20:00Z
 8. 若“很快但没爽感”，检查是否只有速度没有峰谷、只有钩子没有兑现。
 9. 若“设定很多但不中二”，优先补命名势能、角色宣言和宿命性关系，而不是继续堆术语。
 10. 若本轮明确命中某题材包，优先先看 `type_pack_context.stage_projection.script_adaptation`，不要靠临场印象写。
+11. 若维护技能结构，先检查是否是 `SKILL.md` 过厚导致的分区漂移；迁移时保证旧语义能追到 `steps/`、`review/`、`types/`、`templates/` 或 `references/` 的唯一 owner。
+12. 若素材含对白、旁白、音效、系统提示或规则文字，优先叠加编导字段桥接包；先让声音、画面、心理和规则各归其位，再追求文采和气氛。
 
 ## Adaptation Posture Map
 
@@ -81,6 +85,8 @@ last_checked_at: 2026-04-19T10:20:00Z
 - 类型包在 1 号最值钱的地方，不是“给题材贴标签”，而是提前锁定改写姿态、钩子强度、奇观阈值和对白口气。
 - 漫画技能若想与 `2-格式` 对齐，不是把正文写得更像电视剧，而是先补齐共享的“文本条目 + 画面条目 + 主体规范”底座，再在其上叠漫画专属表现层。
 - `对白（主体）`、`内心独白（主体）`、`旁白（主体）` 的关键不是多一个括号，而是让主体名在所有组文件里始终同名，避免下游把一个角色误拆成多个 speaker。
+- 维护本技能包时，`SKILL.md` 越像入口和路由越稳；详细步骤应进 `steps/adaptation-workflow.md`，质量门禁进 `review/review-contract.md`，来源和输出分型进 `types/`，输出样板进 `templates/`。
+- 从 `2-编导` 借来的不是影视 slugline，而是“可见、可听、可执行”的字段纯度：漫画稿可以更自由，但不能让抽象心理、声音文本和画面提示混成一团。
 
 ## Node Tuning Notes
 

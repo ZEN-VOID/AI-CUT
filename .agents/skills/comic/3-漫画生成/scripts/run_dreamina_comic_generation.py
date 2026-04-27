@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Legacy Dreamina runner for nine_blade_comic_prompts.v1 JSON.
 
-The comic-generation skill now defaults to Codex built-in image_gen with
-model_policy=GPT-IMAGE-2-default. Use this script only when the user explicitly
-asks for the legacy Dreamina CLI fallback.
+The comic-generation skill now defaults to .agents/skills/cli/imagegen with
+gpt-image-2. Use this script only when the user explicitly asks for the legacy
+Dreamina CLI fallback.
 """
 
 from __future__ import annotations

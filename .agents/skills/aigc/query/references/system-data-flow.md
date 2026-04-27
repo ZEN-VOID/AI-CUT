@@ -14,7 +14,7 @@
 | grouping | `projects/aigc/<项目名>/4-分组/第N集.md`、`4-分组/执行报告.md` | 分镜组、组 ID、入场/出场画面、统计 YAML |
 | subject assets | `projects/aigc/<项目名>/5-设计/场景/`、`5-设计/角色/`、`5-设计/道具/` | legacy `4-Design/` 只作兼容回读 |
 | image assets | `projects/aigc/<项目名>/6-图像/A-分镜画面/`、`6-图像/B-分镜故事板/` | legacy `5-Image/` 只作兼容回读 |
-| video assets | `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`、`7-视频/B-分镜故事板参照/`、`7-视频/C-主体参照/` | legacy `6-Video/` 只作兼容回读 |
+| video assets | `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`、`7-视频/B-分镜故事板参照/`、`7-视频/C-主体参照/`、`7-视频/D-主板混合参照/` | legacy `6-Video/` 只作兼容回读 |
 | governance system | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`、相关阶段 `SKILL.md` | 回答路由制度、技能状态、路径漂移 |
 
 ## Query Order

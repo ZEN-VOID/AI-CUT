@@ -76,11 +76,8 @@ route_policies:
     trigger: 命中 `5-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
     rule: "场景清单任务直达 `.agents/skills/aigc/5-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/5-设计/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
-    trigger: 命中 `7-视频`、`A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、分镜画面参照视频生成、分镜故事板参照视频生成、主体参照视频生成、Dreamina 分镜组批量视频，或 legacy `6-Video`
-    rule: "若明确要求“分镜画面参照 / 单帧图参照 / frame reference / 以 4-分组 + 6-图像/A-分镜画面 批量出视频 / 分镜ID@路径”，路由 `.agents/skills/aigc/7-视频/A-分镜画面参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`；若明确要求“分镜故事板参照 / 故事板图参照 / storyboard reference / 以 4-分组 + 6-图像/B-分镜故事板 批量出视频”，路由 `.agents/skills/aigc/7-视频/B-分镜故事板参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/`；若明确要求“主体参照 / 角色服装道具场景参照 / Dreamina 批量出视频”，路由 `.agents/skills/aigc/7-视频/C-主体参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/C-主体参照/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
-  - id: aigc-shelved-stages
-    trigger: 命中 `7-Cut / 7-后期`
-    rule: "显式返回“搁浅”状态与补建落点，不得伪造执行链，也不计入当前可执行阶段审计失败"
+    trigger: 命中 `7-视频`、`A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照`、分镜画面参照视频生成、分镜故事板参照视频生成、主体参照视频生成、主板混合参照视频生成、Dreamina 分镜组批量视频，或 legacy `6-Video`
+    rule: "若明确要求“分镜画面参照 / 单帧图参照 / frame reference / 以 4-分组 + 6-图像/A-分镜画面 批量出视频 / 分镜ID@路径”，路由 `.agents/skills/aigc/7-视频/A-分镜画面参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`；若明确要求“分镜故事板参照 / 故事板图参照 / storyboard reference / 以 4-分组 + 6-图像/B-分镜故事板 批量出视频”，路由 `.agents/skills/aigc/7-视频/B-分镜故事板参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/`；若明确要求“主体参照 / 角色服装道具场景参照 / Dreamina 批量出视频”，路由 `.agents/skills/aigc/7-视频/C-主体参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/C-主体参照/`；若明确要求“D-主板混合参照 / 主体参照和分镜故事板参照合二为一 / 同一分镜组 prompt 同时导入主体参照图和分镜故事板 / 主体后 @参照图 + 故事板总参照”，路由 `.agents/skills/aigc/7-视频/D-主板混合参照/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-视频/D-主板混合参照/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
   - id: bootstrap-governance-first
     trigger: 仓库初始化、架构升级、长流程治理、跨仓继承
     rule: "先走治理链，再扩业务 skill"
@@ -115,14 +112,14 @@ route_policies:
     trigger: 命中文本、图片、视频、新闻事件或网络热搜，需要改编为后续漫画生成可用的小说底稿
     rule: "进入 `.agents/skills/comic/1-漫画小说改编/SKILL.md`；默认落到 `projects/comic/[项目名]/1-漫画小说改编/`，先做来源归一与事实边界裁决，再输出 `漫画小说主稿 + 漫画桥接包 + 思行裁决摘要`。"
   - id: comic-nine-blade-prompts-entry
-    trigger: 命中九刀流漫画提示词、小说转 9 页漫画 prompt、一次生成 9 张漫画页的 JSON 提示词、或需要把漫画小说桥接包交给 Seedream 连续多图
-    rule: "进入 `.agents/skills/comic/2-九刀流漫画提示词/SKILL.md`；默认落到 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`，输出 `nine_blade_comic_prompts.v1` JSON，固定 9 页、9:16、单请求连续生成、非九宫格拼图、非同图九变体。"
+    trigger: 命中九刀流漫画提示词、小说转 9 页漫画 prompt、一次生成 9 张漫画页的 JSON 提示词、或需要把漫画小说桥接包交给 3 号 CLI imagegen 执行层
+    rule: "进入 `.agents/skills/comic/2-九刀流漫画提示词/SKILL.md`；默认落到 `projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json`，输出 `nine_blade_comic_prompts.v1` JSON，固定 9 页、9:16、逐页 CLI imagegen 可投影、非九宫格拼图、非同图九变体。"
   - id: comic-generation-entry
-    trigger: 命中漫画生成、已有 `nine_blade_comic_prompts.v1` JSON 需要生图、或需要 Seedream 一次生成 9 张连续竖版漫画页
-    rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再合成单次 master prompt 调用 `.agents/skills/api/anyfast/image/seedream`，默认输出到 `projects/comic/[项目名]/3-漫画生成/`，并使用 `--max-images 9 --stream --size 2K`。"
+    trigger: 命中漫画生成、已有 `nine_blade_comic_prompts.v1` JSON 需要生图、或需要通过 `.agents/skills/cli/imagegen` 生成 9 张连续竖版漫画页
+    rule: "进入 `.agents/skills/comic/3-漫画生成/SKILL.md`；先校验 2 号 JSON，再编译 9 个单页 CLI imagegen JSONL jobs，默认输出到 `projects/comic/[项目名]/3-漫画生成/<group_slug>/imagegen-cli/`，并使用 `.agents/skills/cli/imagegen/scripts/image_gen.py generate-batch --model gpt-image-2 --size 1152x2048`。"
   - id: comic-episode-poster-entry
     trigger: 命中剧集海报、漫画海报、episode poster、海报 JSON、短剧风漫画海报、或需要为当前集设计标题/主体/氛围/配色清晰的海报合同
-    rule: "进入 `.agents/skills/comic/4-剧集海报/SKILL.md`；优先读取 `1-漫画小说改编` 与 `2-九刀流漫画提示词` 真源，必要时参考 `3-漫画生成` 图片，默认输出到 `projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json`。"
+    rule: "进入 `.agents/skills/comic/4-剧集海报/SKILL.md`；优先读取 `1-漫画小说改编` 与 `2-九刀流漫画提示词` 真源，必要时参考 `3-漫画生成` 图片，默认输出到 `projects/comic/[项目名]/4-剧集海报/第N集-剧集海报.json`；若用户要求海报生图，先校验 JSON，再交接 `.agents/skills/cli/imagegen`。"
   - id: api-anyfast-image-entry
     trigger: 命中 `api/anyfast/image`、`AnyFast 生图`、`AnyFast image`、`anyfast image`、或只知道要走 AnyFast 图像能力但未明确子 provider
     rule: "进入 `.agents/skills/api/anyfast/image/SKILL.md`；按父技能路由在 `nano-banana` 与 `seedream` 之间裁决：命中 `seedream / doubao-seedream / 方舟 / Ark / sequential_image_generation` 走 `.agents/skills/api/anyfast/image/seedream/SKILL.md`，命中 `nano-banana / Gemini 图片 / gemini-3.1-flash-image-preview / face-swap / costume-swap / background-swap / retouch / multiview` 走 `.agents/skills/api/anyfast/image/nano-banana/SKILL.md`，未明确 provider 时默认 `nano-banana`。"

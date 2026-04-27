@@ -7,12 +7,12 @@
 | `role_id` | `video-delivery-validator` |
 | `dimension` | `视频交付就绪` |
 | `report_filename` | `视频交付就绪.md` |
-| `default_rework_targets` | `7-视频/B-分镜故事板参照`, `7-视频/C-主体参照` |
+| `default_rework_targets` | `7-视频/B-分镜故事板参照`, `7-视频/C-主体参照`, `7-视频/D-主板混合参照` |
 | `source_owners` | `4-分组`, `5-设计`, `6-图像`, `7-视频` |
 
 ## Scope
 
-本维度检查 `7-视频/B-分镜故事板参照` 请求对象是否稳定、`7-视频/C-主体参照` 是否可信、provider handoff pack 是否完整，以及 motion、duration、continuity readiness 是否达到交付门。
+本维度检查 `7-视频/B-分镜故事板参照` 请求对象是否稳定、`7-视频/C-主体参照` 是否可信、`7-视频/D-主板混合参照` 是否同时满足故事板总参照与主体参照绑定，provider handoff pack 是否完整，以及 motion、duration、continuity readiness 是否达到交付门。
 
 它不检查图像 provider 交付。
 

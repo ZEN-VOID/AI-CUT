@@ -152,17 +152,18 @@
       "type": "object",
       "required": ["provider", "call_mode", "image_count", "page_aspect_ratio", "hard_constraints"],
       "properties": {
-        "provider": {"const": "seedream"},
-        "call_mode": {"const": "single_request_sequential"},
+        "provider": {"const": "cli-imagegen"},
+        "call_mode": {"const": "per_page_batch"},
         "image_count": {"const": 9},
         "page_aspect_ratio": {"const": "9:16"},
-        "seedream": {
+        "imagegen": {
           "type": "object",
           "properties": {
             "model": {"type": "string"},
-            "max_images": {"const": 9},
             "size": {"type": "string"},
-            "stream": {"type": "boolean"}
+            "quality": {"type": "string"},
+            "output_format": {"type": "string"},
+            "tool_skill_path": {"const": ".agents/skills/cli/imagegen"}
           }
         },
         "hard_constraints": {

@@ -125,6 +125,17 @@ checkpoints:
       - "governance-closure-validator"
     default_handoff_on_pass:
       - "7-视频"
+  - id: "video-hybrid-reference-ready"
+    stage: "7-视频/D-主板混合参照"
+    trigger_node: "hybrid storyboard-subject video requests ready"
+    scope: "episode"
+    mandatory_dimensions:
+      - "design-alignment-validator"
+      - "image-delivery-validator"
+      - "video-delivery-validator"
+      - "governance-closure-validator"
+    default_handoff_on_pass:
+      - "7-视频"
   - id: "video-handoff-ready"
     stage: "7-视频"
     trigger_node: "video provider handoff pack ready"
@@ -257,20 +268,20 @@ dimensions:
   - role_id: "video-delivery-validator"
     dimension: "视频交付就绪"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/video-delivery-readiness.md"
-    scope: "7-视频 storyboard reference, subject reference, and provider handoff readiness"
+    scope: "7-视频 storyboard reference, subject reference, hybrid reference, and provider handoff readiness"
     objective: "确认视频阶段参照、主体、运动与 provider handoff 达到可信交付门"
-    method: "读取 B-分镜故事板参照、C-主体参照与 handoff refs，定位 provider、motion、duration 与 continuity 缺口"
+    method: "读取 B-分镜故事板参照、C-主体参照、D-主板混合参照与 handoff refs，定位 provider、motion、duration、reference binding 与 continuity 缺口"
     report_filename: "视频交付就绪.md"
     checkpoint_inline:
       enabled: true
-      checkpoints: ["video-request-ready", "video-subject-reference-ready", "video-handoff-ready"]
+      checkpoints: ["video-request-ready", "video-subject-reference-ready", "video-hybrid-reference-ready", "video-handoff-ready"]
     stage_acceptance:
       stages: ["7-视频"]
       weight: 0.18
     package_release:
       enabled: true
       weight: 0.17
-    default_rework_targets: ["7-视频/B-分镜故事板参照", "7-视频/C-主体参照"]
+    default_rework_targets: ["7-视频/B-分镜故事板参照", "7-视频/C-主体参照", "7-视频/D-主板混合参照"]
     upstream_source_owners: ["4-分组", "5-设计", "6-图像", "7-视频"]
   - role_id: "governance-closure-validator"
     dimension: "治理闭环"

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Legacy Seedream runner for nine_blade_comic_prompts.v1 JSON.
 
-The comic-generation skill now defaults to Codex built-in image_gen with
-model_policy=GPT-IMAGE-2-default. Use this script only when the user explicitly
-asks for the legacy Seedream/API fallback.
+The comic-generation skill now defaults to .agents/skills/cli/imagegen with
+gpt-image-2. Use this script only when the user explicitly asks for the legacy
+Seedream/API fallback.
 """
 
 from __future__ import annotations
@@ -199,7 +199,7 @@ def _self_test_data() -> dict[str, Any]:
         "type_pack_context": {
             "resolution_mode": "single-layer-genre-comic-type-pack",
             "knowledge_refs": [
-                ".agents/skills/comic/type-packs/漫画/少年战斗冒险/少年战斗冒险.md"
+                ".agents/skills/comic/2-九刀流漫画提示词/types/漫画/少年战斗冒险/少年战斗冒险.md"
             ],
             "knowledge_digest": [
                 "少年战斗冒险 > 核心冲突引擎: 主角在更大的世界规则里升级、立誓、结盟、翻盘。",

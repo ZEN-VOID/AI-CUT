@@ -16,15 +16,16 @@
     "next_group_hook": ""
   },
   "generation_contract": {
-    "provider": "seedream",
-    "call_mode": "single_request_sequential",
+    "provider": "cli-imagegen",
+    "call_mode": "per_page_batch",
     "image_count": 9,
     "page_aspect_ratio": "9:16",
-    "seedream": {
-      "model": "doubao-seedream-5-0-260128",
-      "max_images": 9,
-      "size": "2K",
-      "stream": true
+    "imagegen": {
+      "tool_skill_path": ".agents/skills/cli/imagegen",
+      "model": "gpt-image-2",
+      "size": "1152x2048",
+      "quality": "medium",
+      "output_format": "png"
     },
       "hard_constraints": [
         "Generate exactly 9 separate images/pages.",
@@ -49,8 +50,8 @@
   "type_pack_context": {
     "resolution_mode": "single-layer-genre-comic-type-pack",
     "knowledge_refs": [
-      ".agents/skills/comic/type-packs/漫画/少年战斗冒险/少年战斗冒险.md",
-      ".agents/skills/comic/type-packs/漫画/少年战斗冒险/命名体系.md"
+      ".agents/skills/comic/2-九刀流漫画提示词/types/漫画/少年战斗冒险/少年战斗冒险.md",
+      ".agents/skills/comic/2-九刀流漫画提示词/types/漫画/少年战斗冒险/命名体系.md"
     ],
     "knowledge_digest": [
       "名字、誓言、禁忌和宿命必须带压强。",

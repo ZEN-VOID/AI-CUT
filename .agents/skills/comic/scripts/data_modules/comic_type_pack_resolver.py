@@ -15,7 +15,8 @@ except ImportError:  # pragma: no cover
     yaml = None
 
 
-PACK_ROOT_REL = Path(".agents") / "skills" / "comic" / "type-packs"
+PACK_ROOT_REL = Path(".agents") / "skills" / "comic" / "2-九刀流漫画提示词" / "types"
+RUNTIME_ROOT_REL = Path(".agents") / "skills" / "comic" / "type-packs"
 COMIC_LIBRARY_DIR = "漫画"
 RUNTIME_CONFIG_NAME = "runtime.yaml"
 GENRE_META_NAME = "meta.yaml"
@@ -87,6 +88,10 @@ def _read_yaml(path: Path) -> dict[str, Any]:
 
 
 def _canonical_pack_root() -> Path:
+    return Path(__file__).resolve().parents[2] / "2-九刀流漫画提示词" / "types"
+
+
+def _runtime_pack_root() -> Path:
     return Path(__file__).resolve().parents[2] / "type-packs"
 
 
@@ -96,7 +101,7 @@ def _comic_library_root() -> Path:
 
 
 def _runtime_config() -> dict[str, Any]:
-    return _read_yaml(_canonical_pack_root() / RUNTIME_CONFIG_NAME)
+    return _read_yaml(_runtime_pack_root() / RUNTIME_CONFIG_NAME)
 
 
 def _genre_dir(genre_id: str) -> Path:

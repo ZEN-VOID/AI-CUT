@@ -5,11 +5,11 @@
 ## Current Canonical Source
 
 - 根目录：`comic/type-packs/`
-- 当前活跃知识库根：`comic/type-packs/漫画/`
+- 当前活跃知识库根：`comic/2-九刀流漫画提示词/types/漫画/`
 - 强制加载合同：`comic/_shared/type-pack-loading-contract.md`
 - 运行时装载器：`comic/scripts/data_modules/comic_type_pack_resolver.py`
 - 根级动态配置真源：`comic/type-packs/runtime.yaml`
-- 单题材元数据真源：`comic/type-packs/漫画/<题材>/meta.yaml`
+- 单题材元数据真源：`comic/2-九刀流漫画提示词/types/漫画/<题材>/meta.yaml`
 - 维护说明：`comic/type-packs/扩维与调整指南.md`
 
 当前 runtime 的有效事实来源是：
@@ -24,11 +24,11 @@
 
 形态：
 
-- `comic/type-packs/漫画/少年战斗冒险/少年战斗冒险.md`
-- `comic/type-packs/漫画/青春恋爱/青春恋爱.md`
-- `comic/type-packs/漫画/情感关系剧/情感关系剧.md`
-- `comic/type-packs/漫画/推理悬疑/推理悬疑.md`
-- `comic/type-packs/漫画/恐怖怪谈/恐怖怪谈.md`
+- `comic/2-九刀流漫画提示词/types/漫画/少年战斗冒险/少年战斗冒险.md`
+- `comic/2-九刀流漫画提示词/types/漫画/青春恋爱/青春恋爱.md`
+- `comic/2-九刀流漫画提示词/types/漫画/情感关系剧/情感关系剧.md`
+- `comic/2-九刀流漫画提示词/types/漫画/推理悬疑/推理悬疑.md`
+- `comic/2-九刀流漫画提示词/types/漫画/恐怖怪谈/恐怖怪谈.md`
 
 规则：
 
@@ -41,9 +41,9 @@
 
 形态：
 
-- `comic/type-packs/漫画/少年战斗冒险/命名体系.md`
-- `comic/type-packs/漫画/情感关系剧/关系原型.md`
-- `comic/type-packs/漫画/推理悬疑/翻页悬念.md`
+- `comic/2-九刀流漫画提示词/types/漫画/少年战斗冒险/命名体系.md`
+- `comic/2-九刀流漫画提示词/types/漫画/情感关系剧/关系原型.md`
+- `comic/2-九刀流漫画提示词/types/漫画/推理悬疑/翻页悬念.md`
 
 规则：
 
@@ -74,7 +74,7 @@
 ### 动态配置位
 
 - `comic/type-packs/runtime.yaml`
-- `comic/type-packs/漫画/<题材>/meta.yaml`
+- `comic/2-九刀流漫画提示词/types/漫画/<题材>/meta.yaml`
 
 当前规则：
 
@@ -102,7 +102,7 @@
 当前推荐加载顺序：
 
 1. 先读取本合同，确认当前是“单层题材目录 + 动态发现”的口径。
-2. 再锁定目标题材目录 `comic/type-packs/漫画/<题材>/`。
+2. 再锁定目标题材目录 `comic/2-九刀流漫画提示词/types/漫画/<题材>/`。
 3. 若存在同名主文件 `<题材>.md`，先读它。
 4. 再读同目录 `meta.yaml`。
 5. 再补读同目录下的细化 `.md`。
@@ -110,7 +110,7 @@
 
 默认题材命中规则：
 
-- 若用户或 1 号技能锁定的题材名与 `comic/type-packs/漫画/<题材>/` 同名，除非人工显式覆盖，否则默认走该目录。
+- 若用户或 1 号技能锁定的题材名与 `comic/2-九刀流漫画提示词/types/漫画/<题材>/` 同名，除非人工显式覆盖，否则默认走该目录。
 - 若用户给的是旧名称或题材内工艺词，优先通过题材 `meta.yaml` 的 alias 回收到对应题材 pack。
 
 ## Hard Rules

@@ -1,0 +1,38 @@
+{
+  "project": "<项目名>",
+  "episode": "第N集",
+  "route": "D-主板混合参照",
+  "output_root": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
+  "defaults": {
+    "model": "seedance2.0",
+    "duration": 15,
+    "ratio": "16:9",
+    "video_resolution": "1080p",
+    "poll": 30,
+    "concurrency": 4
+  },
+  "jobs": [
+    {
+      "group_id": "1-1-1",
+      "command_type": "multimodal2video",
+      "prompt_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/prompts/1-1-1.txt",
+      "reference_images": [
+        {
+          "role": "storyboard_total_reference",
+          "marker": "@图1",
+          "path": "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png"
+        },
+        {
+          "role": "subject_reference",
+          "subject_type": "角色",
+          "subject_name": "主体名",
+          "marker": "@图2",
+          "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/主体名/多视图.png"
+        }
+      ],
+      "queue_ledger": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/第N集-dreamina-queue.md",
+      "download_dir": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/videos",
+      "expected_video_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/videos/1-1-1.mp4"
+    }
+  ]
+}

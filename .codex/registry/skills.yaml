@@ -167,11 +167,10 @@ active_skills:
             path: .agents/skills/aigc/7-视频/C-主体参照
             contract_status: active
             route_role: leaf
-      - id: aigc-7-post
-        path: .agents/skills/aigc/7-Cut
-        owner_office: shangshu
-        contract_status: shelved
-        route_role: frozen
+          - id: aigc-video-hybrid-board-subject-reference
+            path: .agents/skills/aigc/7-视频/D-主板混合参照
+            contract_status: active
+            route_role: leaf
     satellite_index:
       - id: aigc-query
         path: .agents/skills/aigc/query
@@ -279,7 +278,7 @@ active_skills:
   - id: comic-nine-blade-prompts
     path: .agents/skills/comic/2-九刀流漫画提示词
     owner_office: zhongshu
-    purpose: "将漫画小说或用户指定小说蒸馏为 `nine_blade_comic_prompts.v1` JSON，用于 Seedream 一次生成 9 张连续漫画页。"
+    purpose: "将漫画小说或用户指定小说蒸馏为 `nine_blade_comic_prompts.v1` JSON，用于 3 号 CLI imagegen 执行层生成 9 张连续漫画页。"
     contract_mode: active
     runtime_control:
       canonical_output: "projects/comic/[项目名]/2-九刀流漫画提示词/nine_blade_comic_prompts.json"
@@ -288,11 +287,11 @@ active_skills:
   - id: comic-generation
     path: .agents/skills/comic/3-漫画生成
     owner_office: shangshu
-    purpose: "读取 `nine_blade_comic_prompts.v1` JSON，调用 Seedream 单次连续多图请求生成 9 张竖版漫画页。"
+    purpose: "读取 `nine_blade_comic_prompts.v1` JSON，通过 `.agents/skills/cli/imagegen` 编译并执行 9 个单页 CLI jobs，生成 9 张竖版漫画页。"
     contract_mode: active
     runtime_control:
       canonical_output: "projects/comic/[项目名]/3-漫画生成/"
-      bridge_output: "`generation_plan.json`、`seedream_master_prompt.txt`、`seedream_report_*.json`、`comic_generation_report.json` 与 9 张图片"
+      bridge_output: "`imagegen_generation_plan.json`、`imagegen_jobs.jsonl`、`pageXX-imagegen_prompt.txt`、`comic_generation_report.json` 与 9 张图片"
       mirror_policy: "3 号目录为执行证据真源；不把图片回写到上游 JSON。"
   - id: comic-episode-poster
     path: .agents/skills/comic/4-剧集海报

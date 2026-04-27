@@ -11,6 +11,7 @@ type_stack_summary: <<base> / <primary> / <secondary...>>
 type_stack_active_packs: <_base|经典漫画叙事|情感关系剧|...>
 type_pack_projection_script_adaptation: <script adaptation stage projection summary>
 type_pack_projection_nine_blade: <nine blade prompting stage projection summary>
+scene_anchor: <space/time-light/core-prop/relationship-position/most-expensive-panel>
 ---
 
 # 第<N>组
@@ -23,6 +24,9 @@ type_pack_projection_nine_blade: <nine blade prompting stage projection summary>
 
 【漫剧正文】
 <本组可直接被 2 号技能消费的场景化漫剧正文>
+
+【声画字段提示】
+<可选。命中编导字段桥接时填写：本组对白/旁白/音效/系统提示如何就近配对画面承托；哪些规则、道具或心理压力需要转成可见格。>
 
 【组末钩子】
 <下一组或下一轮九刀必须承接的悬停点、危险逼近点或关系反转点>
