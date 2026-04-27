@@ -1908,12 +1908,21 @@ def run_final_acceptance(
         ctx = _build_runtime_context(project_root, chapter_num, current_step_id=current_step_id)
         manuscript_path = Path(ctx["manuscript_path"])
         manuscript_ref = str(manuscript_path.relative_to(project_root))
+    accepted_manuscript_stage = "4-润色" if manuscript_ref.replace("\\", "/").startswith("4-润色/") else "3-初稿"
 
     payload: dict[str, Any] = template if isinstance(template, dict) else {}
     payload.update(
         {
             "chapter": chapter_num,
             "manuscript_ref": manuscript_ref,
+            "manuscript_refs": [manuscript_ref],
+            "accepted_manuscript_stage": accepted_manuscript_stage,
+            "accepted_manuscript_refs": [manuscript_ref],
+            "accepted_manuscript_note": (
+                "post-polish final acceptance"
+                if accepted_manuscript_stage == "4-润色"
+                else "candidate draft accepted for polishing handoff; not eligible for context-return unless skip-polish is explicit"
+            ),
             "validation_ref": aggregate_ref,
             "validation_mode": "final_acceptance",
             "selected_agents": ["context-agent", *role_ids],
@@ -2047,10 +2056,14 @@ def run_final_acceptance(
         validation_status = "FAIL-QUALITY"
         routing_decision = "back_to_drafting_nodes"
         handoff_targets = ["3-初稿"]
-    else:
+    elif accepted_manuscript_stage == "4-润色":
         validation_status = "PASS"
         routing_decision = "handoff_to_review_and_context_return"
-        handoff_targets = ["review/", "5-上下文回流"]
+        handoff_targets = ["review/", "context-return"]
+    else:
+        validation_status = "PASS"
+        routing_decision = "handoff_to_polishing"
+        handoff_targets = ["review/", "4-润色"]
 
     payload.update(
         {

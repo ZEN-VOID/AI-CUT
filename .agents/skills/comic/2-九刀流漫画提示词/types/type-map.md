@@ -1,15 +1,11 @@
 # Type Package Map
 
-`types/` 保存九刀流漫画提示词的固定上下文类型包。每次调用技能时，先根据输入选择一个或多个包，再把命中包作为固定上下文加载；`knowledge-base/` 只做按需经验检索。
+`types/` 保存九刀流漫画提示词的漫画题材类型包。每次调用技能时，先根据上游 `type_stack_ref`、用户题材词或剧情 tone 选择一个或多个题材包，再把命中包作为固定上下文加载；来源模式、连续性模式和 handoff 模式归 `steps/source-routing-and-handoff.md`。
 
 ## Package Index
 
-| package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
+| package_id | path | match_signals | load_mode | context_files | conflicts_with | compatible_modes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `grouped-script` | `types/grouped-script/` | 已存在 `第N组.md`、上游 1 号阶段已完成分组、用户明确要求按组跑九刀 | stackable | `types/grouped-script/grouped-script.md` | none | none |
-| `raw-source-fallback` | `types/raw-source-fallback/` | 只有 raw source，没有 `第N组.md` 或 stage-1 产物 | stackable | `types/raw-source-fallback/raw-source-fallback.md` | none | none |
-| `multi-episode-continuity` | `types/multi-episode-continuity/` | 用户提到第 2 集/第 3 集、目录已有其他集 JSON、需要保持前集角色和风格 | stackable | `types/multi-episode-continuity/multi-episode-continuity.md` | none | none |
-| `poster-aware-handoff` | `types/poster-aware-handoff/` | 下游 4 号剧集海报需要把 panels、角色、场景和风格锚点提炼为海报高光候选 | stackable | `types/poster-aware-handoff/poster-aware-handoff.md` | none | none |
 | `漫画/体育竞技` | `types/漫画/体育竞技/` | 体育竞技、运动、球类、训练、对手、逆转 | stackable | `types/漫画/体育竞技/体育竞技.md`, `types/漫画/体育竞技/meta.yaml` | none | `grouped-script` or `raw-source-fallback` |
 | `漫画/历史武侠` | `types/漫画/历史武侠/` | 武侠、江湖、侠义、门派、古风武侠 | stackable | `types/漫画/历史武侠/历史武侠.md`, `types/漫画/历史武侠/meta.yaml` | none | `grouped-script` or `raw-source-fallback` |
 | `漫画/喜剧` | `types/漫画/喜剧/` | 喜剧、搞笑、颜艺、包袱、反应、节奏停顿 | stackable | `types/漫画/喜剧/*.md`, `types/漫画/喜剧/meta.yaml` | none | `grouped-script` or `raw-source-fallback` |
@@ -25,22 +21,19 @@
 
 ## Default Package Rule
 
-1. 若 `projects/comic/[项目名]/1-漫画剧本改编/第*.组.md` 存在，默认加载 `grouped-script`。
-2. 若用户只给 raw source，加载 `raw-source-fallback`；一旦临时切出 group，后续仍按 group 单位执行。
-3. 若检测到多集命名、前序 `第N集-page-group-*` 或用户要求延续前集视觉 DNA，叠加 `multi-episode-continuity`。
-4. 若用户提到剧集海报、海报高光、4 号阶段或海报生图，叠加 `poster-aware-handoff`。
-5. 若上游 `type_stack_ref.secondary[]`、用户题材词或 tone 命中 `types/漫画/<题材>/meta.yaml` 的目录名/aliases，则叠加对应漫画题材包。
-6. 如果输入没有明确题材，默认只加载模式包；不得凭空套用漫画题材包。
-7. 如果输入没有明确模式，默认 `grouped-script`；缺少分组文件时回退 `raw-source-fallback`。
+1. 若上游 `type_stack_ref.secondary[]`、用户题材词或 tone 命中 `types/漫画/<题材>/meta.yaml` 的目录名/aliases，则叠加对应漫画题材包。
+2. 如果输入没有明确题材，默认不加载漫画题材包；不得凭空套用题材语法。
+3. 来源、连续性和下游交接 mode 的选择不在本文件处理，统一读取 `steps/source-routing-and-handoff.md`。
 
 ## Loading Flow
 
 1. `N1-INTAKE` 收集用户输入、项目路径、上游文件、输出目标和下游阶段。
-2. 读取本 `types/type-map.md`，选择命中的类型包。
-3. 加载命中包的 `context_files` 作为固定上下文。
-4. `steps/nine-blade-workflow.md` 消费类型上下文，选择来源前奏、切组、continuity 和 handoff 分支。
-5. 需要补充风格、版式、文字或提示词经验时，再检索 `knowledge-base/comic-prompt-heuristics.md`。
-6. `review/review-contract.md` 按命中类型包检查输出。
+2. 读取 `steps/source-routing-and-handoff.md`，选择来源、continuity 和 handoff mode。
+3. 读取本 `types/type-map.md`，选择命中的漫画题材类型包。
+4. 加载命中题材包的 `context_files` 作为固定上下文。
+5. `steps/nine-blade-workflow.md` 消费 mode 与题材上下文，选择来源前奏、切组、continuity 和 handoff 分支。
+6. 需要补充风格、版式、文字或提示词经验时，再检索 `knowledge-base/comic-prompt-heuristics.md`。
+7. `review/review-contract.md` 按命中 mode 和题材包检查输出。
 
 ## Anti-Patterns
 

@@ -25,6 +25,7 @@ last_checked_at: 2026-04-25
 | prompt-only 被误报为已生图 | 执行证据层 | 把 verdict 改为 blocked/prompt_only，清空不存在图片路径 | review gate 区分真实图片与 dry-run JSON | 图片路径存在性检查通过或明确阻断 |
 | 批量角色互相串图 | 批量隔离层 | 每个角色单独读取设计稿、单独生成 JSON 和参照图 | worker 只处理一个角色主体 | 每份 JSON 的 subject_name 与 source_design_path 匹配 |
 | 脚本拼接创作提示词 | LLM-first 层 | 删除脚本生成正文逻辑，仅保留校验/manifest | scripts 分区固定机械辅助边界 | 脚本不生成 prompt_text |
+| 默认执行器漂移到 nano-banana/API 子技能 | 执行器路由层 | 删除非授权执行结果，恢复为 imagegen 或 prompt-only | `SKILL.md` 固定 Executor Lock，非 imagegen 需要用户本轮显式点名 | 报告中能看到默认 `.agents/skills/cli/imagegen` 或明确授权原文 |
 
 ## Repair Playbook
 
@@ -36,10 +37,12 @@ last_checked_at: 2026-04-25
 6. 批量生成时逐角色闭环：主图 -> 主图 JSON -> 多视图 JSON -> 多视图图像 -> review，再进入下一个角色或并行汇流。
 7. 若 imagegen 不可用，保留 prompt JSON 和阻断报告，不制造假图片路径。
 8. 若需要重跑，先检查用户是否允许覆盖；未允许时使用版本化文件名或返回确认请求。
+9. 除非用户本轮显式要求替代执行器，否则不要把“多视图/参考图/批量”理解为 nano-banana、AnyFast 或其他 API 子技能授权。
 
 ## Reusable Heuristics
 
 - 角色生成阶段的创造性主要在“执行与组织画面”，不在“重新发明角色”。
+- 本技能默认执行器只有 `.agents/skills/cli/imagegen`；执行器切换是用户授权事项，不是 agent 可自行优化的实现细节。
 - 主图越忠实于 `提示词设计`，多视图参照越稳定；不要在主图阶段塞入复杂面板布局。
 - 多视图模板应像制作部门的审阅板：强调同一身份、同一服装体系、同一材质逻辑和可验证背面/侧面。
 - 角色多视图应先应用 `subject_invariant_lock`，再排 front / three-quarter / side / rear turnaround；表情、姿态和细节 callout 只能服务身份证明，不应挤占主 turnaround。

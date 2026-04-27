@@ -15,7 +15,7 @@
 | `subject_count` | `single` / `multiple` / `all_design_docs` | `N1-INTAKE` |
 | `execution_intent` | `generate` / `prompt_only` / `repair` / `review_only` | 用户请求与 `N2-TYPE` |
 | `execute_imagegen` | `true` / `false` | `type_profile` |
-| `imagegen_mode` | `built_in_generate` / `built_in_generate_with_reference` / `cli_fallback_explicit` | `$imagegen` 合同与用户显式选择 |
+| `imagegen_mode` | `imagegen_skill_default` / `imagegen_skill_with_reference` / `imagegen_cli_explicit` / `external_provider_explicit` | `.agents/skills/cli/imagegen` 合同与用户显式 provider 选择 |
 | `write_scope` | `3-生成-only` / `no_write_review` | `SKILL.md Output Contract` |
 | `repair_scope` | `main_prompt` / `main_image` / `multiview_prompt` / `multiview_image` / `json_path` | `review/review-contract.md` findings |
 
@@ -60,8 +60,9 @@ type_profile:
   source_design_docs: []
   output_dir: "projects/aigc/<项目名>/5-设计/道具/3-生成"
   execute_imagegen: true
-  imagegen_mode: built_in_generate
+  imagegen_mode: imagegen_skill_default
   allow_cli_fallback: false
+  allow_external_provider: false
   subjects: []
 ```
 
@@ -78,6 +79,7 @@ type_profile:
 ## Routing Notes
 
 - `execute_imagegen: false` 只允许在 `prompt_only` 或用户明确暂停生图时使用。
-- `allow_cli_fallback: true` 只能来自用户显式选择，不能由批量、质量或路径需求自动推导。
+- `allow_cli_fallback: true` 只能来自用户显式选择，并且默认仍通过 `.agents/skills/cli/imagegen` 入口执行，不能由批量、质量或路径需求自动推导。
+- `allow_external_provider: true` 只能来自用户显式点名其他 provider / API / model；否则不得调用 `nano-banana`、Dreamina、AnyFast 子技能或其他图像执行器。
 - 批量任务必须拆成每个主体独立 prompt 和独立 imagegen 调用。
 - `review_only` 的 `write_scope` 固定为 `no_write_review`；不得为了“修正结构完整性”补空 JSON 或占位图。

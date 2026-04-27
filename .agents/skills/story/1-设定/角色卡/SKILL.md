@@ -52,7 +52,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair c
 
 | analysis_slot | 当前结论 |
 | --- | --- |
-| `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系；其中主角默认必须具备可被 `5-上下文回流` 逐集 actualize 的三轴成长系统。 |
+| `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系；其中主角默认必须具备可被 `context-return` 逐集 actualize 的三轴成长系统。 |
 | `business_object` | `1-设定/2-角色卡/**/*.json`、`1-设定/2-角色卡/角色索引.json`、`1-设定/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
 | `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单章临时卡；成长系统只记录经过 validation + 上下文回流 确认的阶段变化。 |
 | `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
@@ -142,7 +142,7 @@ flowchart LR
 
 1. 当前仅 `主角` 默认强制启用三轴成长系统。
 2. `反派` 仅在父技能或用户显式要求时启用；未启用时允许 `growth_contract.growth_enabled=false`。
-3. `5-上下文回流` 只允许写回 `current_state.growth_state / experience_timeline / history[].growth_delta` 的 validated 变化，不得越权改写 `core.growth_contract` 的长期 ceiling 设计。
+3. `context-return` 只允许写回 `current_state.growth_state / experience_timeline / history[].growth_delta` 的 validated 变化，不得越权改写 `core.growth_contract` 的长期 ceiling 设计。
 
 ## One-Shot Output Contract
 
@@ -156,7 +156,7 @@ flowchart LR
 - `1-设定/2-角色卡/角色关系图谱.md`
 - 可进入索引的 `relationship_edges`
 - 可被物品卡消费的 `exclusive_item_hooks`
-- 可被 `5-上下文回流` 消费的 `growth_contract / growth_state`
+- 可被 `context-return` 消费的 `growth_contract / growth_state`
 
 硬规则：
 

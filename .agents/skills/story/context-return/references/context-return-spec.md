@@ -1,16 +1,35 @@
 # Context Return Actualization Spec
 
-`5-上下文回流` only handles volume-level validated actualization. It does not validate drafts, persist review reports, or repair upstream source truth.
+`context-return` only handles volume-level validated actualization. It does not validate drafts, persist review reports, or repair upstream source truth.
 
 ## Intake Gate
 
-All three conditions are mandatory:
+All four conditions are mandatory:
 
 - `validation_status == PASS`
 - `routing_decision == handoff_to_review_and_context_return`
-- `handoff_targets` contains both `review/` and `5-上下文回流`
+- `handoff_targets` contains both `review/` and `context-return`
+- `accepted_manuscript_stage` and `accepted_manuscript_refs` identify the final accepted manuscript evidence
 
-`PASS` without `5-上下文回流` handoff is a historical review result, not actualization permission.
+`PASS` without `context-return` handoff is a historical review result, not actualization permission. `PASS` that points only at an unaccepted `3-初稿` draft is also not actualization permission unless the aggregate explicitly declares polishing skipped and sets `accepted_manuscript_stage = 3-初稿`.
+
+## Accepted Manuscript Boundary
+
+Default accepted manuscript source:
+
+- `accepted_manuscript_stage == 4-润色`
+- `accepted_manuscript_refs[]` points to `4-润色/第V卷/第N章.md` files or an equivalent volume-level accepted final package
+
+Allowed exception:
+
+- `accepted_manuscript_stage == 3-初稿`
+- the aggregate includes an explicit skip-polish acceptance note, such as `polish_status == skipped` or `skip_polish_accepted == true`
+
+Forbidden:
+
+- actualizing a `3-初稿` candidate because review merely finished
+- actualizing a draft that may still be changed by `4-润色`
+- deriving actualization from a child sidecar instead of the parent aggregate
 
 ## Delta Source Boundary
 
@@ -19,6 +38,7 @@ All three conditions are mandatory:
 It must not contain:
 
 - drafting guesses
+- unaccepted draft-state facts
 - subjective review advice not accepted by the aggregate
 - source-fix drafts
 - projected future plans
@@ -69,12 +89,13 @@ Actual disk writes are committed in this order:
 4. write story_map slice actualization
 5. write root story_map actualization summary/index
 6. refresh `STATE.json` projections and runtime markers
-7. write `5-上下文回流/第V卷.context-return.json`
+7. write `context-return/第V卷.context-return.json`
 8. remove pending marker and persist committed manifest
 
 ## Hard Rules
 
 - Do not rewrite `validation_status`, `routing_decision`, or `handoff_targets`.
+- Do not actualize a draft-state manuscript. Lock `accepted_manuscript_stage` and `accepted_manuscript_refs` before delta normalization.
 - Do not overwrite `planned_*`.
 - Do not write validated actualization directly into planning markdown bodies.
 - Do not mix query or resume requests into the actualization main flow.

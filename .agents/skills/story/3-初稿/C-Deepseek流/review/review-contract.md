@@ -15,6 +15,7 @@
 | `provider_evidence` | 是否真实命中 DeepSeek provider，并有 messages pack / raw output / report 证据 |
 | `path_contract` | 是否写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` |
 | `script_boundary` | 脚本是否只做机械辅助，没有替代 LLM 主创正文 |
+| `repair_authorship` | 返工/修复优化是否仍由 DeepSeek provider 执行，subagents 是否只作为 brief 与复核层 |
 
 ## Verdict Model
 
@@ -42,6 +43,7 @@ finding:
 - 默认辅助 reviewer：team supervision subagents + `code-reviewer`。
 - 正式写作调用默认真实启动 team supervision subagents；仓库层已将本 skill 调用视为对默认 subagent 路径的许可。
 - GPT/subagents 只拥有监制、prompt 约束和返工 brief 权；正文执行层必须仍是 DeepSeek provider。
+- 对 review 失败后的 `local_repair`、`chapter_rewrite` 或卷级返工，同样要求 DeepSeek provider evidence；subagent worker 直接改写正文不能通过本 lane review gate。
 - 当前卷完成后默认进入 `.agents/skills/story/review` 的 `final_acceptance`，由 `code-reviewer` 与 registry mandatory 维度做卷级审计。
 - 若上层 system/developer/tool policy 阻断真实 reviewer/subagent，则允许降级为本地 checklist，但最终报告必须说明：
   - 阻断来源层级
@@ -59,5 +61,6 @@ finding:
 - 正文保留 planning 标题句法或流程术语。
 - 缺少 `supervision_packet` 或 subagent 降级报告。
 - provider 证据链缺失，却宣称按当前技能完成。
+- 返工或修复优化缺 DeepSeek repair messages/report，却继续保持 `写作模型: Deepseek` 或宣称按 `C-Deepseek流` 完成。
 - 脚本以规则拼接或模板填充替代 LLM 主创正文。
 - 当前卷已完成却未触发 `review/final_acceptance` 或未说明延后原因。

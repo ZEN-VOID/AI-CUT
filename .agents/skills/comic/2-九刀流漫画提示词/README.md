@@ -17,20 +17,13 @@
 ├── scripts/
 │   └── validate_nine_blade_prompt_json.py
 ├── steps/
-│   └── nine-blade-workflow.md
+│   ├── nine-blade-workflow.md
+│   └── source-routing-and-handoff.md
 ├── templates/
 │   ├── nine-blade-comic-prompts.schema.json
 │   ├── nine-blade-template.json
 │   └── output-template.md
 ├── types/
-│   ├── poster-aware-handoff/
-│   │   └── poster-aware-handoff.md
-│   ├── grouped-script/
-│   │   └── grouped-script.md
-│   ├── multi-episode-continuity/
-│   │   └── multi-episode-continuity.md
-│   ├── raw-source-fallback/
-│   │   └── raw-source-fallback.md
 │   ├── 漫画/
 │   │   ├── 少年战斗冒险/
 │   │   ├── 推理悬疑/
@@ -45,10 +38,11 @@
 ## Quick Entry
 
 1. 读取 `SKILL.md + CONTEXT.md`。
-2. 读取 `types/type-map.md` 并加载命中模式包与 `types/漫画/<题材>/` 题材包。
-3. 按需加载 `steps/nine-blade-workflow.md`、`references/nine-blade-prompt-contract.md`、`knowledge-base/comic-prompt-heuristics.md`。
-4. 复制 `templates/nine-blade-template.json` 的结构，由 LLM 填入具体创作内容。
-5. 运行校验：
+2. 读取 `steps/source-routing-and-handoff.md`，锁定 grouped/raw/multi-episode/poster-aware mode。
+3. 读取 `types/type-map.md` 并加载命中的 `types/漫画/<题材>/` 题材包。
+4. 按需加载 `steps/nine-blade-workflow.md`、`references/nine-blade-prompt-contract.md`、`knowledge-base/comic-prompt-heuristics.md`。
+5. 复制 `templates/nine-blade-template.json` 的结构，由 LLM 填入具体创作内容。
+6. 运行校验：
 
 ```bash
 python3 .agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_blade_prompt_json.py path/to/page-group-01-nine_blade_comic_prompts.json

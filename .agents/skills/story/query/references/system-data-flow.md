@@ -29,7 +29,7 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 ├── MEMORY.md             # 项目级创作记忆：偏好/口味/禁区/特殊元素/长期要求
 ├── 1-设定/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
 ├── 3-初稿/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
-├── 5-上下文回流/
+├── context-return/
 │   └── 第V卷.context-return.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
 └── .webnovel/
@@ -109,7 +109,7 @@ review
 review
   → 汇总聚合评估，落库 review_metrics / checkpoints
 
-5-上下文回流
+context-return
   → 仅对 PASS volume 写 validated actualization
   → 更新 Cards.current_state/history
   → 更新 planning actualization sidecars
@@ -117,7 +117,7 @@ review
   → 刷新 writer/planning/query projection
 
 query / resume
-  → 作为 5-上下文回流 的卫星技能消费上述 truth layers 与 execution truth
+  → 作为 context-return 的卫星技能消费上述 truth layers 与 execution truth
 ```
 
 ## 脚本/模块职责速查
@@ -183,12 +183,12 @@ query / resume
    → 向量嵌入 (RAG)
    → 风格样本评估
 
-7. 通过 `5-上下文回流` 做 PASS-only actualization
+7. 通过 `context-return` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
    → 写 `整体规划.actualization.json / 卷规划.actualization.json / 第N章.actualization.json`
    → 兼容项目再写 `content.holomap_slice.actualization`
    → 并回刷 `content.holomap.actualization` summary/index
-   → 写 `5-上下文回流/第V卷.context-return.json`
+   → 写 `context-return/第V卷.context-return.json`
    → 刷新 query / writer / planning projection
 
 8. 如需清理中断工件，由 `workflow_manager.py cleanup` 生成恢复备份后再执行安全清理
@@ -219,7 +219,7 @@ query / resume
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章规划/整体规划.actualization.json` + `2-卷章规划/第V卷/卷规划.actualization.json` + `2-卷章规划/第V卷/第N章.actualization.json` + `5-上下文回流/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章规划/整体规划.actualization.json` + `2-卷章规划/第V卷/卷规划.actualization.json` + `2-卷章规划/第V卷/第N章.actualization.json` + `context-return/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
 | quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `review + review` 生成 |
 
 固定判定：
@@ -287,7 +287,7 @@ query / resume
   "stage_progress": {
     "0-init": {"status": "idle", "latest_run_id": null, "current_step": null},
     "3-drafting": {"status": "idle", "latest_run_id": null, "current_step": null},
-    "5-context-return": {"status": "idle", "latest_run_id": null, "current_step": null}
+    "context-return": {"status": "idle", "latest_run_id": null, "current_step": null}
   },
   "runs": [],
   "artifacts_index": {}

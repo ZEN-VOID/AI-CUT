@@ -73,6 +73,8 @@
 14. DeepSeek 调用默认固定 `deepseek-v4-pro`、`thinking=enabled`、`reasoning_effort=high`。
 15. 若 DeepSeek 返回内容不含完整 YAML frontmatter、`写作模型` 不等于 `Deepseek`、缺少 `# 第N章｜章标题` 标题行，必须判定为 provider output invalid，禁止直接写回业务真源。
 16. provider 失败时只允许修 provider 输入、缩减 context、重试 provider、或向用户显式报告阻断；不允许静默回退到本地 GPT 直写。
+17. 对现有章的 `local_repair`、`chapter_rewrite`、断尾补全、review 返工和卷级修复优化，正文创作性改写仍必须由 DeepSeek provider 执行；GPT/subagents 只能输出 repair brief、patch intent、风险清单和复核意见。
+18. 若用户明确切换为 GPT 直接修复，必须退出本 lane 或改走 `A-GPT原生`，并同步调整 `写作模型` 与证据链；不得在 C lane 内静默切换主创模型。
 
 ## Frontmatter Contract
 

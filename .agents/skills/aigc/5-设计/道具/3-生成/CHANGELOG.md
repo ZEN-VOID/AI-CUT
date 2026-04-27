@@ -2,6 +2,7 @@
 
 ## 2026-04-26
 
+- 收紧默认图像执行入口：除非用户显式要求其他 provider / API / model，`道具/3-生成` 只能通过 `.agents/skills/cli/imagegen` 执行，不得直接路由到 nano-banana / Dreamina / AnyFast 子技能。
 - 升级 `templates/prop-multiview-prompt.json` 到 v1.2，增加顶左主体身份牌与短 ASCII ID / 后期叠字 fallback 合同。
 - 升级 `templates/prop-multiview-prompt.json` 到 v1.1，增加主体不变量、参考图策略、功能视图计划、漂移控制和审查焦点。
 - 对照 `$skill-工作车间` 补齐根 `SKILL.md` 的 Mermaid Visual Maps、目录 owner、节点交接和失败路由表。

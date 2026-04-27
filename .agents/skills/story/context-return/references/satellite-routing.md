@@ -9,11 +9,11 @@
 | "Has this happened?", "where is the evidence?", "current state?" | `../query/SKILL.md` | query answer only, no truth writeback |
 | "continue", "detect interruption", "rerun", "cleanup pending" | `../resume/SKILL.md` | recovery instruction or rerun plan, no direct actualization |
 | "fix the card/plan/manuscript/review source" | upstream owner stage | source repair patch or stage artifact |
-| "write PASS results back" with full handoff gate | `5-上下文回流` | canonical context-return artifact and serial truth writeback |
+| "write PASS results back" with full handoff gate | `context-return` | canonical context-return artifact and serial truth writeback |
 
 ## Non-Impersonation Rule
 
-Satellite output must not be named or presented as `5-上下文回流/第V卷.context-return.json`.
+Satellite output must not be named or presented as `context-return/第V卷.context-return.json`.
 
 If a satellite skill discovers that a valid PASS handoff is waiting for actualization, it should point back to `story-context-return` rather than performing writeback itself.
 

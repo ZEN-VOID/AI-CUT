@@ -8,7 +8,7 @@ metadata:
 
 # aigc 道具 3-生成
 
-`道具/3-生成` 负责消费上游 `道具/2-设计` 已经为目标道具细目式创建的设计文档，调用 `$imagegen` 生成图像资产：先为每份设计文档生成单主体图，再以单主体图为参照套用道具多视图模板生成多视图主体设计图。本技能不重新设计道具主体，不改写上游设计文档，不修改 registry、父级技能或其他设计线。
+`道具/3-生成` 负责消费上游 `道具/2-设计` 已经为目标道具细目式创建的设计文档，调用 `$imagegen` 生成图像资产：先为每份设计文档生成单主体图，再以单主体图为参照套用道具多视图模板生成多视图主体设计图。本技能不重新设计道具主体，不改写上游设计文档，不修改 registry、父级技能或其他设计线。除非用户显式要求其他 provider / API，本技能的唯一默认图像执行入口是 `.agents/skills/cli/imagegen`；不得直接路由到 `nano-banana`、Dreamina 或其他图像 API 技能。
 
 ## Context Loading Contract
 
@@ -16,7 +16,8 @@ metadata:
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、视觉风格、生成限制或资产命名相关的上下文文件。
 - 必须读取对应上游设计文档：`projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md`。
-- 必须同时读取 `$imagegen` 的 `SKILL.md + CONTEXT.md`；本阶段只负责把设计文档蒸馏为 imagegen 可执行输入并保存结果。
+- 必须同时读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；本阶段只负责把设计文档蒸馏为 imagegen 可执行输入并保存结果。
+- 默认执行器边界：未获得用户显式 provider / API 指令时，只能通过 `.agents/skills/cli/imagegen` 进入图像生成；不得因为批量、参考图、多视图、质量、路径持久化或便利性而改走 `nano-banana`、Dreamina、AnyFast 子技能或其他外部执行器。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `$imagegen` 经验层。
 - 生成提示词必须忠实引用相应道具/主体设计文档中的“提示词设计”。用户原始口径允许直接引用“相应角色设计文档中的提示词设计”，在本技能中收束为道具生成语境：相应道具或主体设计文档。
 
@@ -39,7 +40,8 @@ Required input:
 
 - 可定位的 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
 - 每个被调度主体至少有一份上游 Markdown 设计文档，且包含“提示词设计”或等价英文生成提示词。
-- 可用的 `$imagegen` 路径；普通生成默认走内置 `image_gen`，除非用户显式选择 CLI/API/model 控制。
+- 可用的 `.agents/skills/cli/imagegen` 路径；普通生成默认只以该 skill 作为图像执行入口，并遵循其内部路由。
+- 若用户没有显式点名其他 provider / API / model，不得把本阶段任务交给 `nano-banana`、Dreamina、AnyFast 子技能或其他图像执行器。
 
 Optional input:
 

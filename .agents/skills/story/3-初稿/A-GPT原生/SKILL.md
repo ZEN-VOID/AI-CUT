@@ -35,7 +35,7 @@ governance_tier: full
 
 - `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
 - `review` 的 PASS/FAIL 判定权
-- `5-上下文回流` 的 validated actualization 写回权
+- `context-return` 的 validated actualization 写回权
 
 ## Mode Selection
 

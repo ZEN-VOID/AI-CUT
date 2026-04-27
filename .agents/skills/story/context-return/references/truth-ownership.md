@@ -2,7 +2,7 @@
 
 This file expands the owner boundary summarized in `SKILL.md`.
 
-## Owned By 5-上下文回流
+## Owned By context-return
 
 - `PASS + handoff granted` intake gate enforcement
 - volume-level `context_return_delta` normalization
@@ -11,10 +11,10 @@ This file expands the owner boundary summarized in `SKILL.md`.
 - story_map slice actualization details
 - root story_map actualization summary/index
 - `STATE.json` projection refresh and runtime markers
-- `projects/story/<项目名>/5-上下文回流/第V卷.context-return.json`
+- `projects/story/<项目名>/context-return/第V卷.context-return.json`
 - route judgment for query/resume shaped 上下文回流 requests
 
-## Not Owned By 5-上下文回流
+## Not Owned By context-return
 
 - changing `validation_status`
 - changing `routing_decision` or `handoff_targets`
@@ -32,7 +32,7 @@ This file expands the owner boundary summarized in `SKILL.md`.
 | What is an object like now? | `Cards.current_state/history` |
 | Which planned promise has been actually fulfilled? | planning `.actualization.json` sidecars and story_map actualization |
 | What can the next runtime step consume quickly? | `STATE.json` projections |
-| What was written in this context return run? | `5-上下文回流/第V卷.context-return.json` |
+| What was written in this context return run? | `context-return/第V卷.context-return.json` |
 
 ## Source Repair Rule
 

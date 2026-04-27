@@ -45,7 +45,7 @@
 1. 每一轮验收只能写一份 `第V卷.validation.json`。
 2. 子技能只允许覆盖自己的 MD sidecar，不得覆盖 aggregate JSON。
 3. 若 MD sidecar 与 aggregate JSON 冲突，以 aggregate JSON 为 gate 真源，但必须在下一次验收前修正 child output contract。
-4. `review/` 与 `5-上下文回流` 只能消费 aggregate JSON，不得直接消费某个子技能 sidecar 作为最终 gate。
+4. `review/` 与 `context-return` 只能消费 aggregate JSON，不得直接消费某个子技能 sidecar 作为最终 gate。
 
 ## Source Trace Rule
 

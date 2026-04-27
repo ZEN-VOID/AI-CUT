@@ -65,7 +65,7 @@ flowchart TD
 | `N5-PAGE-PROMPTS` | 写 9 个完整页 prompt | story、locks、style、layout、text、页码 | 按固定顺序写 `positive_prompt / panels / text_slots`，每页重复全局风格锁、主角锚、场景锚、页码 | 9 page objects | pass -> `N6` | 每页含 9:16、多格、锚定、页码、可读中文 |
 | `N6-ASSEMBLY` | 汇流 JSON | 9 page objects、schema、模板、group metadata | 填顶层合同、group、continuity、style、locks、pages、negative prompt | group JSON | pass -> `N7` | JSON 可解析且组身份明确 |
 | `N7-VALIDATE` | 脚本与人工双门验收 | JSON、validator、review gate | 运行校验脚本，人工检查语义门 | validator 输出、人工风险摘要 | pass -> `N8`；fail -> 按失败码回源节点 | 可被 3/4 号技能消费 |
-| `N8-HANDOFF` | 交付下游真源 | 已验证 JSON、摘要、路径 | 写入单集或多集命名路径，同步交给 3 号生图和 4 号动画 | group JSON、思考摘要 | complete | canonical 输出明确 |
+| `N8-HANDOFF` | 交付下游真源 | 已验证 JSON、摘要、路径 | 写入单集或多集命名路径，同步交给 3 号生图和 4 号剧集海报 | group JSON、思考摘要 | complete | canonical 输出明确 |
 
 ## Failure Routing
 

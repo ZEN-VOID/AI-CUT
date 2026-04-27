@@ -5,7 +5,7 @@
 ## Directory Tree
 
 ```text
-5-上下文回流/
+context-return/
 ├── references/
 ├── scripts/
 ├── templates/
@@ -24,9 +24,9 @@
 ## Quick Entry
 
 - Load `SKILL.md + CONTEXT.md`.
-- Confirm `PASS + handoff_to_review_and_context_return + review/ + 5-上下文回流`.
+- Confirm `PASS + handoff_to_review_and_context_return + review/ + context-return`.
 - Run the node network in `steps/context-return-workflow.md`.
-- Emit `projects/story/<项目名>/5-上下文回流/第V卷.context-return.json`.
+- Emit `projects/story/<项目名>/context-return/第V卷.context-return.json`.
 
 ## Runtime Scripts
 

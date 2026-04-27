@@ -21,7 +21,7 @@
 | `user_confirmation` | 风险动作已等待用户确认；未确认时只输出方案 |
 | `unique_next_entry` | 输出一个唯一入口；无法唯一时输出 blocker |
 | `forbidden_actions` | 未默认建议 Git hard reset、未备份删除正文、伪造 workflow state |
-| `truth_boundary` | 未替 `3-初稿`、`review/` 或 `5-上下文回流` 写 canonical 业务真源 |
+| `truth_boundary` | 未替 `3-初稿`、`review/` 或 `context-return` 写 canonical 业务真源 |
 
 ## Verdict Model
 
@@ -54,7 +54,7 @@ finding:
 - `story-review` Step 7 自动替用户裁决。
 - cleanup 未 preview 或未确认即执行。
 - 默认建议 `git reset --hard`、假定章节 tag、未备份删除正文。
-- 把 `resume/` 冒充 `5-上下文回流` actualization。
+- 把 `resume/` 冒充 `context-return` actualization。
 
 ## Local Checklist Fallback
 

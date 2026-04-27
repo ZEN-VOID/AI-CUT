@@ -325,7 +325,7 @@ def main() -> None:
     p_update_state = sub.add_parser("update-state", help="转发到 update_state.py")
     p_update_state.add_argument("args", nargs=argparse.REMAINDER)
 
-    p_context_return = sub.add_parser("context-return", help="转发到 context_return_manager.py（5-上下文回流）")
+    p_context_return = sub.add_parser("context-return", help="转发到 context_return_manager.py（context-return）")
     p_context_return.add_argument("args", nargs=argparse.REMAINDER)
 
     p_loopback = sub.add_parser("loopback", help="legacy alias：转发到 context_return_manager.py")

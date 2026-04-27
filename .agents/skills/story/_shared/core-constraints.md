@@ -10,7 +10,7 @@
 - `planned`、`current`、`validated_actual` 必须显式区分，不得混写。
 - 共享脚本与共享合同只保留一个 canonical source；兄弟阶段不得静默复制。
 - `review` 不拥有 `validation_status` 判定权。
-- `5-上下文回流` 只在 `PASS + handoff granted` 时允许 actualization 写回。
+- `context-return` 只在 `PASS + handoff granted` 时允许 actualization 写回。
 
 ## 三大定律
 

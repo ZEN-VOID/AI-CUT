@@ -24,7 +24,7 @@ last_checked_at: 2026-04-27
 | `TM-CG-05` | 输出目录漂移到 `output/imagegen/` | 项目持久化层 | 传 `--out-dir` 指向项目 3 号目录 | runner 固定项目根推断和输出目录 | 文件位于项目根下 |
 | `TM-CG-06` | 页面比例不稳定 | CLI 参数层 | 使用 `--size 1152x2048` 并在 prompt 内重复 9:16 | Runtime Policy 固定竖版尺寸 | 报告记录 size |
 | `TM-CG-07` | 多个 group 连续执行互相覆盖 | group 目标解析层 | 默认每组独立 `imagegen-cli/` 子目录；共享目录时自动加 group 前缀 | N4 gate 检查命名冲突 | report 中 saved_files 不覆盖 |
-| `TM-CG-08` | 4 号动画阶段找不到页图 | 跨阶段命名层 | 稳定输出 `page01.png..page09.png` | Output Contract 明确图片命名 | 4 号按页码可定位首帧 |
+| `TM-CG-08` | 4 号剧集海报阶段找不到页图 | 跨阶段命名层 | 稳定输出 `page01.png..page09.png` | Output Contract 明确图片命名 | 4 号按页码可定位本集代表性画面 |
 | `TM-CG-09` | 页码缺失或不是右下角纯数字 | prompt 编译层 | 从 `page_number_overlay` 和页号字段重复写入 prompt | 单页 prompt 后缀固定页码约束 | 每页 prompt 含对应数字页码 |
 | `TM-CG-10` | 3 号脚本尝试“优化剧情” | 主创边界层 | 删除脚本中的创作性改写，只保留投影/拼装 | 遵循 LLM-first creative authorship | prompt 保留 `positive_prompt` 原文 |
 

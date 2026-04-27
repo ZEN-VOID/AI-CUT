@@ -44,7 +44,7 @@ PLANNING_STAGE_REL = Path("2-卷章规划")
 DRAFT_STAGE_REL = Path("3-初稿")
 POLISH_STAGE_REL = Path("4-润色")
 REVIEW_STAGE_REL = Path("review")
-CONTEXT_RETURN_STAGE_REL = Path("5-上下文回流")
+CONTEXT_RETURN_STAGE_REL = Path("context-return")
 PROJECT_MEMORY_TEMPLATE = Path(__file__).resolve().parents[1] / "0-初始化" / "templates" / "project-memory.template.md"
 PLANNING_SKILL_PATHS = [
     ".agents/skills/story/0-初始化",
@@ -54,7 +54,7 @@ PLANNING_SKILL_PATHS = [
 PRODUCTION_SKILL_PATHS = [
     ".agents/skills/story/3-初稿",
     ".agents/skills/story/4-润色",
-    ".agents/skills/story/5-上下文回流",
+    ".agents/skills/story/context-return",
 ]
 REVIEW_SKILL_PATHS = [
     ".agents/skills/story/review",
@@ -1538,7 +1538,7 @@ def _render_team_manifest_yaml(
         "#",
         "# 角色：",
         "# - story2026 项目级 team 代入真源",
-        "# - 由 `0-初始化` 首次生成，供 `1-设定 / 2-卷章规划 / 3-初稿 / 5-上下文回流 / review` 消费",
+        "# - 由 `0-初始化` 首次生成，供 `1-设定 / 2-卷章规划 / 3-初稿 / context-return / review` 消费",
         "# - 不替代各阶段 canonical，只提供治理角色、成员、初始化 provenance 与运行策略",
         "",
         f"enabled: {_yaml_bool(True)}",
@@ -1785,7 +1785,7 @@ def init_project(
             "drafting_root": "3-初稿/",
             "polish_root": "4-润色/",
             "review_root": "review/",
-            "context_return_root": "5-上下文回流/",
+            "context_return_root": "context-return/",
             "one_liner": one_liner,
             "core_conflict": core_conflict,
             "anti_trope": anti_trope,
@@ -1860,7 +1860,7 @@ def init_project(
         "drafting_root": "3-初稿/",
         "polish_root": "4-润色/",
         "review_root": "review/",
-        "context_return_root": "5-上下文回流/",
+        "context_return_root": "context-return/",
         "north_star": "0-初始化/north_star.yaml",
         "story_source_manifest": "0-初始化/story-source-manifest.yaml",
         "init_handoff": "0-初始化/init_handoff.yaml",
@@ -2093,7 +2093,7 @@ def init_project(
     print(" - 3-初稿/")
     print(" - 4-润色/")
     print(" - review/")
-    print(" - 5-上下文回流/")
+    print(" - context-return/")
     print("2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 

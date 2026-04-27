@@ -27,7 +27,7 @@ last_checked_at: 2026-04-27
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 父 `review/SKILL.md` 为空或只像普通维度技能，导致执行者不知道谁写最终 PASS/FAIL | parent guide contract | 把父技能改成技能组导引入口，明确 root gate ownership | 父层只保留路由、调度、聚合、输出合同；维度细则留在 child skill | 任一 review 请求都能先命中父层，再进入 registry 维度 |
-| child sidecar 被误当最终 gate，`5-上下文回流` 直接消费某个维度报告 | gate ownership drift | 回到 `_shared/validation-root-contract.md`，确认 aggregate JSON 才是唯一 gate truth | 在父 `SKILL.md` 和 root contract 固定 child evidence / parent gate 分工 | PASS/FAIL 只从 `第V卷.validation.json` 读取 |
+| child sidecar 被误当最终 gate，`context-return` 直接消费某个维度报告 | gate ownership drift | 回到 `_shared/validation-root-contract.md`，确认 aggregate JSON 才是唯一 gate truth | 在父 `SKILL.md` 和 root contract 固定 child evidence / parent gate 分工 | PASS/FAIL 只从 `第V卷.validation.json` 读取 |
 | 维度名单在父技能、team contract、runner 和 child 目录中各写一份，互相漂移 | roster duplication | 以 `_shared/validation-dimension-registry.yaml` 为单一真源，其他文件只做导览或引用 | roster 调整必须同步 registry、child `SKILL.md + CONTEXT.md`、runner handler 与 shared schema | 维度数量、role_id、report_filename 与 registry 一致 |
 | 父层为了“结构完整”补空维度，导致 aggregate 看似完整但没有真实审查证据 | phantom dimension | 聚合时只消费本轮真实调度且通过 schema 校验的 packets | `drafting_inline` 与 `final_acceptance` 都按 selected_agents 记录真实 dispatch | aggregate 中不存在未执行维度的假 packet |
 | 子技能给出问题但没有 `source_layer_owner`，返工被错误打回 drafting | source trace missing | 父层聚合时补查 issue 是否需要上溯 `0-初始化 / 1-设定 / 2-卷章规划` | child output contract 固定 source owner 槽位，父层 schema gate 检查 | 失败 issue 能说明是上游 source 修复还是正文返工 |

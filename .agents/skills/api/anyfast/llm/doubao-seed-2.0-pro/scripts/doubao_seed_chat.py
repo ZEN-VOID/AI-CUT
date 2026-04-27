@@ -157,6 +157,7 @@ def _extract_reasoning(choice: Dict[str, Any]) -> str:
 
 def _read_sse_payloads(response: requests.Response) -> List[Dict[str, Any]]:
     payloads: List[Dict[str, Any]] = []
+    response.encoding = "utf-8"
     for raw_line in response.iter_lines(decode_unicode=True):
         if not raw_line:
             continue

@@ -40,7 +40,7 @@ flowchart TD
 | `N5A-NEW-DRAFT-PROMPT` | 为新章起稿生成 provider prompt | context pack、输出模板 | 保持 planning 义务，生成完整章请求 | prompt section | `N6-PROVIDER-DRAFT` | 没有依赖现稿 |
 | `N5B-REWRITE-PROMPT` | 为重写生成 provider prompt | context pack、现有正文、用户重写约束 | 保留成立事实，重构正文 | prompt section | `N6-PROVIDER-DRAFT` | 已回读现稿 |
 | `N5C-CONTINUE-PROMPT` | 为续写/补全生成 provider prompt | context pack、现有正文、章末目标、续写边界或补充约束 | 延续既有文气并补足未完成义务 | prompt section | `N6-PROVIDER-DRAFT` | 承接点明确 |
-| `N5D-REPAIR-PROMPT` | 为局部修复生成 provider prompt | review finding / issue / instruction、现稿、源层约束 | 定位问题层并限制修复范围 | rework route note | `N6-PROVIDER-DRAFT` | 不越权改 planning |
+| `N5D-REPAIR-PROMPT` | 为局部修复生成 provider prompt | review finding / issue / instruction、现稿、源层约束、subagent repair brief | 定位问题层并限制修复范围；把 subagent brief 转成 Doubao 可执行修复约束 | rework route note、repair_brief_ref | `N6-PROVIDER-DRAFT` | 不越权改 planning；不由 GPT/subagents 直接主创正文 |
 | `N6-PROVIDER-DRAFT` | 通过豆包生成完整章节文件 | provider prompt、系统提示、输出模板、supervision packet | 调用 `write_chapter_via_doubao.py` 及豆包 bridge | provider report、raw output | `N7-VALIDATE-WRITEBACK` | provider 真实命中 |
 | `N7-VALIDATE-WRITEBACK` | 校验并写回 canonical 章节 | provider output、frontmatter contract、heading contract | 校验 YAML、必需字段、标题、正文完整度；写回目标路径 | final chapter file、sidecar refs | `N8-REVIEW-HANDOFF` 或 Root-Cause Route | 校验通过且路径正确 |
 | `N8-REVIEW-HANDOFF` | 准备卷级审计与返工闭环 | 当前卷章节集合、写作日志、sidecars、review 触发条件 | 卷完成时调用 `review/final_acceptance`，并汇流 `code-reviewer` findings；未满卷时记录 candidate 状态 | review handoff note | done | 不把单章 candidate 宣称为 validated final |
@@ -58,11 +58,13 @@ flowchart TD
 | `FAIL-DRAFT-PROVIDER` | 豆包调用失败或返回无效 | `N6-PROVIDER-DRAFT` |
 | `FAIL-DRAFT-WRITEBACK` | frontmatter、标题或输出路径不合规 | `N7-VALIDATE-WRITEBACK` |
 | `FAIL-DRAFT-REVIEW-HANDOFF` | 卷完成后未进入 `review`、`code-reviewer` findings 未汇流或返工目标缺失 | `N8-REVIEW-HANDOFF` |
+| `FAIL-DRAFT-REPAIR-AUTHORSHIP` | review 返工由 GPT/subagents 直接改写正文，缺 Doubao repair provider 证据 | `N5D-REPAIR-PROMPT`、`N6-PROVIDER-DRAFT` |
 
 ## Evidence Gate
 
 - dry-run 至少应产生 messages pack 与上下文引用摘要。
 - 正式创作至少应产生 messages pack、supervision packet 或降级报告、provider output、provider report 或等价 sidecar，以及 canonical chapter file。
+- 返工修复至少应产生 repair brief、Doubao repair messages/provider report 或等价 sidecar，以及受影响 canonical chapter file 的写回证据。
 - 卷完成时必须产生 `review` handoff 或 aggregate 引用；未满卷时必须标记为 candidate draft。
 - 任何没有 provider 证据链的正文不得宣称按 `story-drafting-doubao` 完成。
 - 任何覆盖已有 canonical 章节的正式写回必须留下 backup sidecar。

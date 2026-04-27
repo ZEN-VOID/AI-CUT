@@ -10,17 +10,23 @@
 - 新增 `templates/output-template.md`，对齐 Output Contract 五字段。
 - 新增 `README.md`，说明目录树、入口和校验命令。
 
+## 2026-04-27 - Move routing modes out of types
+
+- 新增 `steps/source-routing-and-handoff.md`，承接 `grouped-script`、`raw-source-fallback`、`multi-episode-continuity`、`poster-aware-handoff` 四类来源/连续性/交接合同。
+- 清理 `types/` 下不属于题材类型包的模式目录；`types/type-map.md` 只保留 `types/漫画/<题材>/` 题材包索引。
+- 同步更新 `SKILL.md`、`README.md` 与 `review/review-contract.md`，修复旧动画交接口径与当前 `poster-aware` 海报交接口径混杂。
+
 ### Migration Matrix
 
 | old source | target owner | operation | semantic risk |
 | --- | --- | --- | --- |
 | `SKILL.md` frontmatter / positioning / context loading | `SKILL.md` | keep and compress | low |
 | `业务需求分析合同` | `SKILL.md` + `steps/nine-blade-workflow.md` | summarize + move execution details | medium |
-| `总输入合同` / source priority | `SKILL.md` + `types/` | keep input boundary and split type-specific rules | medium |
-| `剧本来源格式化前奏合同` | `steps/` + `types/raw-source-fallback/` | move | medium |
-| `Page-Group 划分前奏合同` | `steps/` + `types/grouped-script/` | move | medium |
+| `总输入合同` / source priority | `SKILL.md` + `steps/source-routing-and-handoff.md` + `types/type-map.md` | keep input boundary and split mode rules from topic type rules | medium |
+| `剧本来源格式化前奏合同` | `steps/source-routing-and-handoff.md` + `steps/nine-blade-workflow.md` | move | medium |
+| `Page-Group 划分前奏合同` | `steps/source-routing-and-handoff.md` + `steps/nine-blade-workflow.md` | move | medium |
 | `思行网络` / `思行节点表` | `steps/nine-blade-workflow.md` | move and normalize | low |
-| `输出合同` / poster handoff | `SKILL.md` + `templates/output-template.md` + `types/poster-aware-handoff/` | keep and split | medium |
+| `输出合同` / poster handoff | `SKILL.md` + `templates/output-template.md` + `steps/source-routing-and-handoff.md` | keep and split | medium |
 | `版式与文字硬规则` | `references/` + `knowledge-base/` + `review/` | keep existing reference and add review/heuristics | low |
 | `字段映射` / `验证` / `Root-Cause 合同` | `SKILL.md` + `review/` | compress and keep gates | low |
 | `CONTEXT.md` experience layer | `CONTEXT.md` | keep, with migration heuristic added | low |

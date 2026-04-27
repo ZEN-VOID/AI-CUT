@@ -190,7 +190,7 @@ def test_context_return_manager_blocks_non_pass_validation(tmp_path, monkeypatch
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -198,7 +198,7 @@ def test_context_return_manager_blocks_non_pass_validation(tmp_path, monkeypatch
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-上下文回流" / "第2卷.context-return.json").exists()
+    assert not (project_root / "context-return" / "第2卷.context-return.json").exists()
 
 
 def test_context_return_manager_blocks_pass_without_context_return_handoff(tmp_path, monkeypatch):
@@ -212,7 +212,7 @@ def test_context_return_manager_blocks_pass_without_context_return_handoff(tmp_p
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_only",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
@@ -234,7 +234,7 @@ def test_context_return_manager_blocks_pass_without_context_return_handoff(tmp_p
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -242,7 +242,7 @@ def test_context_return_manager_blocks_pass_without_context_return_handoff(tmp_p
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-上下文回流" / "第2卷.context-return.json").exists()
+    assert not (project_root / "context-return" / "第2卷.context-return.json").exists()
 
 
 def test_context_return_manager_blocks_empty_actualization_delta(tmp_path, monkeypatch):
@@ -256,7 +256,7 @@ def test_context_return_manager_blocks_empty_actualization_delta(tmp_path, monke
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
@@ -278,7 +278,7 @@ def test_context_return_manager_blocks_empty_actualization_delta(tmp_path, monke
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -286,7 +286,7 @@ def test_context_return_manager_blocks_empty_actualization_delta(tmp_path, monke
         module.main()
 
     assert int(exc.value.code or 0) == 1
-    assert not (project_root / "5-上下文回流" / "第2卷.context-return.json").exists()
+    assert not (project_root / "context-return" / "第2卷.context-return.json").exists()
 
 
 def test_context_return_manager_applies_projection_refresh_modes(tmp_path, monkeypatch):
@@ -313,7 +313,7 @@ def test_context_return_manager_applies_projection_refresh_modes(tmp_path, monke
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [],
@@ -350,7 +350,7 @@ def test_context_return_manager_applies_projection_refresh_modes(tmp_path, monke
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -378,7 +378,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "governance_refs": {
                 "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
@@ -404,7 +404,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
-                        "evidence_refs": ["3-初稿/第2卷/第12章.md"],
+                        "evidence_refs": ["4-润色/第2卷/第12章.md"],
                         "timestamp": "2026-04-06T10:00:00",
                         "growth_delta": {
                             "skill": {"before": "莽冲", "after": "稳固"},
@@ -423,7 +423,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                         "episode_ref": "第12章",
                         "execution_status": "completed",
                         "validated_at": "2026-04-06T10:00:00",
-                        "manuscript_ref": "3-初稿/第2卷/第12章.md",
+                        "manuscript_ref": "4-润色/第2卷/第12章.md",
                         "validation_ref": "review/第12章.validation.json",
                         "actual_outcome_summary": "本章完成破境并公开立场。",
                         "carry_forward_refs": ["1-设定/2-角色卡/主要角色/林辰.json"],
@@ -446,7 +446,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                 },
             ],
             "evidence_refs": [
-                {"ref_type": "manuscript", "ref_path": "3-初稿/第2卷/第12章.md", "note": "正文真源"},
+                {"ref_type": "manuscript", "ref_path": "4-润色/第2卷/第12章.md", "note": "正文真源"},
                 {
                     "ref_type": "validation_packet",
                     "ref_path": "review/第12章.validation.json",
@@ -469,7 +469,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -478,13 +478,13 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
 
     assert int(exc.value.code or 0) == 0
 
-    artifact_path = project_root / "5-上下文回流" / "第2卷.context-return.json"
+    artifact_path = project_root / "context-return" / "第2卷.context-return.json"
     assert artifact_path.is_file()
 
     artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert artifact["inputs"]["validation_status"] == "PASS"
     assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_context_return"
-    assert artifact["inputs"]["handoff_targets"] == ["review/", "5-上下文回流"]
+    assert artifact["inputs"]["handoff_targets"] == ["review/", "context-return"]
     assert artifact["inputs"]["book_plan_ref"] == "2-卷章规划/整体规划.md"
     assert artifact["inputs"]["volume_plan_ref"] == "2-卷章规划/第2卷/卷规划.md"
     assert artifact["inputs"]["chapter_plan_refs"] == ["2-卷章规划/第2卷/第12章.md"]
@@ -508,7 +508,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     assert card["current_state"]["stance"] == "结盟"
     assert card["current_state"]["growth_state"]["skill"]["stage"] == "稳固"
     assert card["history"][-1]["episode_ref"] == "第12章"
-    assert card["history"][-1]["context_return_ref"] == "5-上下文回流/第2卷.context-return.json"
+    assert card["history"][-1]["context_return_ref"] == "context-return/第2卷.context-return.json"
     assert card["history"][-1]["growth_delta"]["skill"]["after"] == "稳固"
     assert card["context_return_revision"] == 1
 
@@ -561,7 +561,7 @@ def test_context_return_manager_writes_slice_actualization_and_root_indexes(tmp_
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [],
             "map_deltas": [
@@ -600,7 +600,7 @@ def test_context_return_manager_writes_slice_actualization_and_root_indexes(tmp_
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -609,7 +609,7 @@ def test_context_return_manager_writes_slice_actualization_and_root_indexes(tmp_
 
     assert int(exc.value.code or 0) == 0
 
-    artifact = json.loads((project_root / "5-上下文回流" / "第2卷.context-return.json").read_text(encoding="utf-8"))
+    artifact = json.loads((project_root / "context-return" / "第2卷.context-return.json").read_text(encoding="utf-8"))
     assert artifact["inputs"]["story_map_slice_ref"] == "2-卷章规划/卷分片/第2卷.json"
     assert artifact["inputs"]["volume_plan_ref"] == "2-卷章规划/第2卷/卷规划.md"
     assert artifact["content"]["writeback_summary"]["written_map_slice_refs"] == ["episode_nodes:episode-12"]
@@ -644,7 +644,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
@@ -697,7 +697,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -713,7 +713,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     assert "runtime_markers" not in state
-    assert not (project_root / "5-上下文回流" / "第2卷.context-return.json").exists()
+    assert not (project_root / "context-return" / "第2卷.context-return.json").exists()
 
 
 def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkeypatch):
@@ -727,7 +727,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
@@ -743,7 +743,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
-                        "evidence_refs": ["3-初稿/第2卷/第12章.md"],
+                        "evidence_refs": ["4-润色/第2卷/第12章.md"],
                         "timestamp": "2026-04-06T10:00:00",
                     },
                 }
@@ -767,7 +767,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -802,7 +802,7 @@ def test_context_return_manager_rejects_revision_drift(tmp_path, monkeypatch):
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
@@ -831,7 +831,7 @@ def test_context_return_manager_rejects_revision_drift(tmp_path, monkeypatch):
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 
@@ -850,7 +850,7 @@ def test_context_return_manager_rejects_non_whitelisted_delta_fields(tmp_path, m
         {
             "validation_status": "PASS",
             "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "5-上下文回流"],
+            "handoff_targets": ["review/", "context-return"],
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
@@ -881,7 +881,7 @@ def test_context_return_manager_rejects_non_whitelisted_delta_fields(tmp_path, m
             "--validation-data",
             f"@{validation_path}",
             "--manuscript-ref",
-            "3-初稿/第2卷/第12章.md",
+            "4-润色/第2卷/第12章.md",
         ],
     )
 

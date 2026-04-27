@@ -1,6 +1,6 @@
 # Context Return Review Contract
 
-This review gate verifies that `5-上下文回流` remains a Skill 2.0 package and that a context return run respects validated actualization boundaries.
+This review gate verifies that `context-return` remains a Skill 2.0 package and that a context return run respects validated actualization boundaries.
 
 ## Default Provider
 
@@ -13,6 +13,7 @@ This review gate verifies that `5-上下文回流` remains a Skill 2.0 package a
 | dimension | checks |
 | --- | --- |
 | `gate` | `PASS + handoff granted` is enforced, not replaced by PASS-only |
+| `accepted_manuscript` | accepted manuscript stage/refs are locked; draft-state refs are rejected unless skip-polish acceptance is explicit |
 | `truth_ownership` | Cards, planning sidecars, story_map, STATE, and artifact boundaries are respected |
 | `delta` | deltas use whitelist and validated evidence only |
 | `commit` | writeback is staged first and committed serially |
@@ -35,7 +36,7 @@ This review gate verifies that `5-上下文回流` remains a Skill 2.0 package a
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: gate | truth_ownership | delta | commit | satellite | template | structure | scripts
+  dimension: gate | accepted_manuscript | truth_ownership | delta | commit | satellite | template | structure | scripts
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -45,6 +46,7 @@ finding:
 ## Completion Checklist
 
 - validation aggregate gate is legal
+- accepted manuscript refs are final accepted evidence, defaulting to `4-润色`
 - normalized delta contains at least one valid actualization or projection refresh
 - revision guards pass
 - pending marker is created before truth writeback

@@ -9,7 +9,7 @@ metadata:
 
 # story2026 Query
 
-`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、`review/` 或 `5-上下文回流` 的主流程。
+`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、`review/` 或 `context-return` 的主流程。
 
 ## Context Loading Contract
 
@@ -28,7 +28,7 @@ metadata:
 - `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”；对主角，还回答 `技能 / 心路 / 情感` 三轴成长现在走到哪。
 - `STATE.json + index.db` 回答“当前运行态、索引证据和状态变化是什么”。
 - `workflow_runtime` 回答“当前跑到哪、最近哪个 run 卡住、恢复点在哪里”。
-- `actualization + 5-上下文回流` 回答“哪些计划已经被 PASS 后正式兑现”。
+- `actualization + context-return` 回答“哪些计划已经被 PASS 后正式兑现”。
 - `review_metrics` 回答“质量、阅读力和风险最近怎样”。
 
 固定禁区：
@@ -60,7 +60,7 @@ Optional input:
 Reject or clarify when:
 
 - 无法唯一定位 `PROJECT_ROOT`，且仓库内存在多个候选项目。
-- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/`、`review/` 或 `5-上下文回流`。
+- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/`、`review/` 或 `context-return`。
 - 用户要求用计划、快照或正文猜测“已经发生”，但缺少 actualization / PASS / context-return 证据。
 
 ## Mode Selection
@@ -120,7 +120,7 @@ flowchart TD
 2. 按 `steps/query-workflow.md` 解析 `PROJECT_ROOT` 并完成 preflight；若无法唯一定位，停止并要求用户给出项目名或路径。
 3. 按 `types/query-type-map.md` 判定 truth role；一句话命中多类时先回答主问题，再补次要问题。
 4. 按 `references/system-data-flow.md` 读取 canonical carrier；仅在用户或证据需要时读取 legacy / compat 路径。
-5. 若问题涉及“已经发生 / 已兑现 / 通过”，必须检查 actualization sidecar、`5-上下文回流/*.context-return.json` 与 validation evidence；缺失时只能回答“尚无 validated actual evidence”。
+5. 若问题涉及“已经发生 / 已兑现 / 通过”，必须检查 actualization sidecar、`context-return/*.context-return.json` 与 validation evidence；缺失时只能回答“尚无 validated actual evidence”。
 6. 若问题涉及“当前跑到哪 / 最近哪个 run 卡住”，优先使用 `workflow status --format json`、`workflow list-runs --format json` 与 `workflow detect`。
 7. 按 `review/review-contract.md` 做最小质量门禁，再使用 `templates/output-template.md` 的结构返回结论、证据、边界与冲突。
 
@@ -164,7 +164,7 @@ flowchart TD
 1. 查询结论：直接回答用户主问题，标明 truth role、置信度和是否存在证据缺口。
 2. 证据路径：列出实际读取或可复核的 canonical 文件、字段、CLI 输出或 index 查询。
 3. 边界与冲突：区分 planned、current、validated_actual、quality、execution 与 manual spec。
-4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/`、`review/` 或 `5-上下文回流`。
+4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/`、`review/` 或 `context-return`。
 
 ### Output format
 

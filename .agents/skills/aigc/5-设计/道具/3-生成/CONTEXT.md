@@ -20,7 +20,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-GEN-01` | 生成阶段开始补写研究、物语或解构 | 阶段越界 | 回到只消费 `2-设计` 的“提示词设计” | 在 `SKILL.md` 和 `references/` 固定非目标 | 无 `2-设计` 文件改动 |
 | `TM-PROP-GEN-02` | 多视图图像不像同一个道具 | 参考图断链 | 重跑 Step2，把 `主体名称-主图` 作为参照图 | 多视图 JSON 必填 `reference_image` | 主图和多视图共享轮廓、材质与识别点 |
 | `TM-PROP-GEN-03` | JSON 提示词无法追溯来源 | 证据字段缺失 | 补 `source_design_doc`、`source_prompt_section`、`output_image` | 模板固定追溯字段 | JSON 能回指上游 Markdown 和输出图 |
-| `TM-PROP-GEN-04` | 普通生成任务误用 CLI/API | imagegen 路由漂移 | 回到内置 `image_gen` 默认路径 | 每次读取 `$imagegen` 合同 | 无额外 API key 依赖 |
+| `TM-PROP-GEN-04` | 普通生成任务误用非 `.agents/skills/cli/imagegen` 执行器，例如直接调用 nano-banana / Dreamina / AnyFast 子技能 | 执行入口漂移 | 删除或撤回非默认执行器产物，回到 `.agents/skills/cli/imagegen` 唯一默认入口 | 每次读取 imagegen 合同，并在 `type_profile` 中显式保持 `allow_external_provider: false` | 无未经用户显式要求的外部 provider 产物 |
 | `TM-PROP-GEN-05` | 文件名丢失 `-主图` 或 `-多视图` | 命名门禁缺失 | 按 Output Contract 重命名并同步 JSON | review gate 检查命名后缀 | 图像与 JSON 同 stem |
 | `TM-PROP-GEN-06` | 输出被保存到 `$CODEX_HOME` 或临时目录 | 持久化缺口 | 复制最终资产到项目 canonical 输出目录 | 把项目路径写入 prompt/result 记录 | 报告路径在 workspace 内 |
 | `TM-PROP-GEN-07` | Skill 2.0 文件齐全但执行者仍看不出分支与汇流 | 拓扑表达不足 | 在 `SKILL.md`、`steps/`、`types/` 或 `review/` 补 Mermaid 图和节点交接表 | 结构校验之外增加语义 review gate | 可从图表追踪 single/batch/prompt-only/repair/review 路径 |
@@ -43,5 +43,5 @@ last_checked_at: 2026-04-25
 - 道具多视图生产板必须有顶左身份牌：图中优先显示短 ASCII 道具 ID，完整主体名进入 JSON；若模型文字不稳，应保留干净 badge plate 供后期叠字。
 - JSON 提示词是可复跑证据，应保存输入来源、最终 prompt、参考图和输出图路径。
 - 对道具生成，最容易漂移的是尺度、材质老化和功能部件；这些应从上游 prompt 中原样保留。
-- 普通项目生图默认使用 `$imagegen` 的内置 `image_gen` 路由；CLI/API 只在用户显式选择时使用。
+- 普通项目生图默认且唯一执行入口是 `.agents/skills/cli/imagegen`；不得直接调用 nano-banana、Dreamina 或 AnyFast 子技能，除非用户显式点名该 provider / API / model。
 - Mermaid 图不是装饰项；它承担把分型、分支、汇流和失败回路从文字清单中显形的职责。

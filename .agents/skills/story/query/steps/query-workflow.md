@@ -86,13 +86,13 @@ python3 "${SCRIPTS_DIR}/story.py" --project-root "$PROJECT_ROOT" index get-state
 1. `2-卷章规划/整体规划.actualization.json`
 2. `2-卷章规划/第V卷/卷规划.actualization.json`
 3. `2-卷章规划/第V卷/第N章.actualization.json`
-4. `5-上下文回流/第V卷.context-return.json`
+4. `context-return/第V卷.context-return.json`
 5. `validation_ref` / `review_metrics` / `STATE.json.review_checkpoints`
 
 定位 context-return artifact：
 
 ```bash
-rg --files "$PROJECT_ROOT/5-上下文回流" | rg '\\.context-return\\.json$'
+rg --files "$PROJECT_ROOT/context-return" | rg '\\.context-return\\.json$'
 ```
 
 若缺 actualization 或 context-return artifact，只能回答“尚无 validated actual evidence”。

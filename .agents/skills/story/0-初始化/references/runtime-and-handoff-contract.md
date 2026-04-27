@@ -26,7 +26,7 @@ projects/story/<项目名>/
 ├── 3-初稿/
 ├── 4-润色/
 ├── review/
-├── 5-上下文回流/
+├── context-return/
 ├── CHANGELOG.md
 ├── MEMORY.md
 ├── STATE.json

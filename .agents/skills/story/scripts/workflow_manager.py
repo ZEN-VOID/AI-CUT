@@ -88,6 +88,31 @@ COMMAND_ALIASES: dict[str, str] = {
 }
 
 
+def _normalized_tokens(raw: Any) -> set[str]:
+    if not isinstance(raw, list):
+        return set()
+    return {str(item or "").strip().rstrip("/").replace("\\", "/").lower() for item in raw if str(item or "").strip()}
+
+
+def _context_return_gate_ready(validation_payload: dict[str, Any]) -> bool:
+    if str(validation_payload.get("validation_status") or "").strip() != "PASS":
+        return False
+    if str(validation_payload.get("routing_decision") or "").strip() != "handoff_to_review_and_context_return":
+        return False
+    targets = _normalized_tokens(validation_payload.get("handoff_targets"))
+    if not (targets & {"review", "story-review"}) or not (targets & {"context-return", "story-context-return"}):
+        return False
+    stage = str(validation_payload.get("accepted_manuscript_stage") or "").strip()
+    refs = validation_payload.get("accepted_manuscript_refs")
+    if not isinstance(refs, list) or not refs:
+        return False
+    if stage == "4-润色":
+        return True
+    if stage == "3-初稿":
+        return bool(validation_payload.get("skip_polish_accepted")) or str(validation_payload.get("polish_status") or "") == "skipped"
+    return False
+
+
 def normalize_command_name(command: Optional[str]) -> str:
     raw = str(command or "").strip()
     if not raw:
@@ -171,7 +196,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
         ],
     },
     "story-context-return": {
-        "stage_id": "5-context-return",
+        "stage_id": "context-return",
         "stage_label": "上下文回流层",
         "steps": [
             ("Step 1", "锁 validation/handoff gate 并提纯 delta", "context-return-manager"),
@@ -2064,7 +2089,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
                 evidence_refs=[str(write_log_path.relative_to(project_root))],
             )
 
-    context_return_volume, context_return_path = _latest_numbered_file(project_root, "5-上下文回流", CONTEXT_RETURN_VOLUME_REF_RE)
+    context_return_volume, context_return_path = _latest_numbered_file(project_root, "context-return", CONTEXT_RETURN_VOLUME_REF_RE)
     if context_return_volume is not None and context_return_path is not None:
         if write_log_packet is not None and volume_log_num is not None and volume_log_num > context_return_volume:
             safe_append_call_trace("artifact_resume_detected", write_log_packet)
@@ -2100,7 +2125,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
         safe_append_task_log("artifact_resume_detected", packet)
         return packet
 
-    context_return_episode, context_return_path = _latest_episode_file(project_root, "5-上下文回流", CONTEXT_RETURN_REF_RE)
+    context_return_episode, context_return_path = _latest_episode_file(project_root, "context-return", CONTEXT_RETURN_REF_RE)
     if context_return_episode is not None and context_return_path is not None:
         if write_log_packet is not None and write_log_episode is not None and write_log_episode > context_return_episode:
             safe_append_call_trace("artifact_resume_detected", write_log_packet)
@@ -2142,21 +2167,38 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
 
         if validation_status == "PASS":
             if review_report_path is not None or review_checkpoint is not None:
-                packet = _artifact_resume_packet(
-                    command="story-context-return",
-                    chapter_num=None,
-                    volume_num=validation_volume,
-                    volume_ref=f"第{validation_volume}卷",
-                    chapter_refs=chapter_refs,
-                    reason="validation_pass_review_persisted_context_return_pending",
-                    summary=f"未检测到 tracked 中断，但第{validation_volume}卷已 PASS 且 review 已落盘，下一稳定入口是 5-上下文回流。",
-                    artifact_refs={
-                        "validation_ref": str(validation_path.relative_to(project_root)),
-                        "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
-                        "review_checkpoint": review_checkpoint or {},
-                    },
-                    evidence_refs=evidence_refs,
-                )
+                if _context_return_gate_ready(validation_payload):
+                    packet = _artifact_resume_packet(
+                        command="story-context-return",
+                        chapter_num=None,
+                        volume_num=validation_volume,
+                        volume_ref=f"第{validation_volume}卷",
+                        chapter_refs=chapter_refs,
+                        reason="validation_pass_review_persisted_context_return_pending",
+                        summary=f"未检测到 tracked 中断，但第{validation_volume}卷已 PASS、review 已落盘且 context-return handoff 合法，下一稳定入口是 context-return。",
+                        artifact_refs={
+                            "validation_ref": str(validation_path.relative_to(project_root)),
+                            "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
+                            "review_checkpoint": review_checkpoint or {},
+                        },
+                        evidence_refs=evidence_refs,
+                    )
+                else:
+                    packet = _artifact_resume_packet(
+                        command="story-review",
+                        chapter_num=None,
+                        volume_num=validation_volume,
+                        volume_ref=f"第{validation_volume}卷",
+                        chapter_refs=chapter_refs,
+                        reason="validation_pass_context_return_gate_not_ready",
+                        summary=f"未检测到 tracked 中断，但第{validation_volume}卷 PASS 尚未满足 context-return 的 handoff + accepted manuscript gate，下一稳定入口是 review/润色路由确认。",
+                        artifact_refs={
+                            "validation_ref": str(validation_path.relative_to(project_root)),
+                            "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
+                            "review_checkpoint": review_checkpoint or {},
+                        },
+                        evidence_refs=evidence_refs,
+                    )
             else:
                 packet = _artifact_resume_packet(
                     command="story-review",
@@ -2237,18 +2279,32 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
 
         if validation_status == "PASS":
             if review_report_path is not None or review_checkpoint is not None:
-                packet = _artifact_resume_packet(
-                    command="story-context-return",
-                    chapter_num=validation_episode,
-                    reason="validation_pass_review_persisted_context_return_pending",
-                    summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS 且 review 已落盘，下一稳定入口是 5-上下文回流 actualization。",
-                    artifact_refs={
-                        "validation_ref": str(validation_path.relative_to(project_root)),
-                        "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
-                        "review_checkpoint": review_checkpoint or {},
-                    },
-                    evidence_refs=evidence_refs,
-                )
+                if _context_return_gate_ready(validation_payload):
+                    packet = _artifact_resume_packet(
+                        command="story-context-return",
+                        chapter_num=validation_episode,
+                        reason="validation_pass_review_persisted_context_return_pending",
+                        summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS、review 已落盘且 context-return handoff 合法，下一稳定入口是 context-return actualization。",
+                        artifact_refs={
+                            "validation_ref": str(validation_path.relative_to(project_root)),
+                            "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
+                            "review_checkpoint": review_checkpoint or {},
+                        },
+                        evidence_refs=evidence_refs,
+                    )
+                else:
+                    packet = _artifact_resume_packet(
+                        command="story-review",
+                        chapter_num=validation_episode,
+                        reason="validation_pass_context_return_gate_not_ready",
+                        summary=f"未检测到 tracked 中断，但第{validation_episode}集 PASS 尚未满足 context-return 的 handoff + accepted manuscript gate，下一稳定入口是 review/润色路由确认。",
+                        artifact_refs={
+                            "validation_ref": str(validation_path.relative_to(project_root)),
+                            "review_report_ref": str(review_report_path.relative_to(project_root)) if review_report_path else "",
+                            "review_checkpoint": review_checkpoint or {},
+                        },
+                        evidence_refs=evidence_refs,
+                    )
             else:
                 packet = _artifact_resume_packet(
                     command="story-review",
@@ -2404,7 +2460,7 @@ def analyze_recovery_options(interrupt_info):
             return [
                 {
                     "option": "A",
-                    "label": "进入 5-上下文回流",
+                    "label": "进入 context-return",
                     "risk": "low",
                     "description": summary,
                     "actions": [
@@ -2421,7 +2477,7 @@ def analyze_recovery_options(interrupt_info):
                     "actions": [
                         f"查看 {artifacts.get('review_report_ref') or 'review/第V卷审查报告.md'}",
                         "核对 review_checkpoints 与 validation packet 是否一致",
-                        "确认后再进入 5-上下文回流",
+                        "确认后再进入 context-return",
                     ],
                 },
             ]
@@ -2436,7 +2492,7 @@ def analyze_recovery_options(interrupt_info):
                     "actions": [
                         f"读取 {artifacts.get('validation_ref') or 'review/第V卷.validation.json'}",
                         "执行后台 code-reviewer 审计并聚合 findings",
-                        "根据结果决定交 review、5-上下文回流或打回 drafting/source",
+                        "根据结果决定交 review、context-return或打回 drafting/source",
                     ],
                 },
                 {
@@ -2461,7 +2517,7 @@ def analyze_recovery_options(interrupt_info):
                     "actions": [
                         f"读取 {artifacts.get('writing_log_ref') or '3-初稿/第V卷.写作日志.yaml'}",
                         f"对{volume_label}执行正式 review 聚合验收",
-                        "根据 PASS / FAIL 决定交 review、5-上下文回流或打回 drafting/source",
+                        "根据 PASS / FAIL 决定交 review、context-return或打回 drafting/source",
                     ],
                 },
                 {

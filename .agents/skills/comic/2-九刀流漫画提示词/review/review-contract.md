@@ -14,13 +14,14 @@
 | --- | --- |
 | `structure` | canonical 分区、`SKILL.md + CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml` 是否齐全 |
 | `dynamic_reference` | `SKILL.md` 是否只保留入口、路由、关键门禁和 Output Contract，是否引用真实分区 |
-| `types` | `types/type-map.md` 是否能选择 grouped/raw/multi-episode/animation-aware 包，并加载具体包文件 |
+| `modes` | `steps/source-routing-and-handoff.md` 是否能选择 grouped/raw/multi-episode/poster-aware mode，并提供对应合同 |
+| `types` | `types/type-map.md` 是否只选择漫画题材类型包，并加载具体包文件 |
 | `steps` | `steps/nine-blade-workflow.md` 是否包含前奏、切组、九刀主流程、三支路汇流和失败回路 |
 | `schema` | JSON 是否符合 `templates/nine-blade-comic-prompts.schema.json` |
 | `semantic` | 9 页是否连续、非拼图、非变体、角色/场景/风格稳定 |
 | `layout_text` | 版式是否多样、每页多格、文字槽是否四类齐备且可读 |
 | `scripts` | `scripts/validate_nine_blade_prompt_json.py` 是否只做机械校验，不替代 LLM 主创 |
-| `handoff` | 是否可被 3 号生图和 4 号动画阶段消费 |
+| `handoff` | 是否可被 3 号生图和 4 号剧集海报阶段消费 |
 
 ## Review Checklist
 

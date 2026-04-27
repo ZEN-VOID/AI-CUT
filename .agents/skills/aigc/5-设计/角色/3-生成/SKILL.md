@@ -10,13 +10,21 @@ metadata:
 
 `角色/3-生成` 消费上游 `角色/2-设计` 已完成的单角色细目设计文档，调用 `imagegen` 生成角色主图与多视图主体设计图。它只执行基于设计稿的图像生成与提示词落盘，不重新设计角色主体，不改写上游设计稿，也不承担场景、道具或视频生成职责。
 
+## Executor Lock
+
+- 默认唯一执行器是 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`。
+- 除非用户本轮显式点名其他执行器、API、模型或子技能，不得改用 `nano-banana`、`seedream`、AnyFast 子技能、道具/场景多视图子技能或其他图像 API fallback。
+- “补全全部生图”“批量生成”“多视图”“参考图生成”“高清”“2K/4K”等措辞本身不构成切换执行器授权；这些需求仍由 `.agents/skills/cli/imagegen` 路由处理。
+- 若 `.agents/skills/cli/imagegen` 当前无法真实持久化项目图片，本技能必须降级为 `prompt_only` 阻断报告或等待用户显式指定替代执行器；不得自行选择其他生图技能完成交付。
+- 若用户显式要求使用其他执行器，必须在输出报告中记录：用户授权原文、执行器名称、偏离默认 imagegen 路径的原因、生成产物与回滚范围。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-design-character-generation` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、视觉风格、禁区和既有生成资产相关的上下文文件。
 - 必须读取上游设计文档：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`；本技能只消费相关设计文档，不重新设计主体。
-- 生成执行必须加载并遵守 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；默认按 imagegen 的 built-in route 或其当前合同执行。
+- 生成执行必须加载并遵守 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；默认按 imagegen 的 built-in route 或其当前合同执行，且不得在未获用户显式授权时切换到其他图像执行器。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `imagegen/SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `imagegen/CONTEXT.md`。
 - 脚本只能做读取、路径创建、JSON schema 检查、文件存在检查、manifest 汇总等机械辅助；不得生成或改写创作提示词正文。
 
@@ -46,6 +54,7 @@ Optional input:
 
 - 单角色目标、批量范围、覆盖/跳过已存在产物策略、期望图片格式、是否需要执行报告。
 - 用户额外指定的 imagegen 参数；若与 imagegen 合同冲突，按 imagegen 当前合同追问或降级。
+- 用户显式指定的替代执行器、API 或模型；若未显式指定，替代执行器不可被推断启用。
 
 Reject or clarify when:
 
@@ -137,6 +146,8 @@ stateDiagram-v2
 
 1. 读取本 `SKILL.md + CONTEXT.md`，项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 2. 读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，确认本轮 imagegen 执行路径与保存策略。
+   - 默认执行器锁定为 `.agents/skills/cli/imagegen`。
+   - 只有用户本轮显式点名替代执行器时，才允许加载和调用其他图像 API skill；否则 imagegen 不可用时进入 `prompt_only`。
 3. 读取上游 `角色/2-设计` 目标设计文档，抽取角色名称、设计锚点与 `提示词设计` 英文 prompt；不得重写角色设定。
 4. 按 `types/character-generation-type-map.md` 形成 `generation_profile`，决定单角色、批量、prompt-only 或重跑。
 5. Step1：依据每份设计文档生成单主体图，保存图片与 `<主体名称>-主图.json`。
@@ -155,6 +166,7 @@ stateDiagram-v2
 | `FIELD-CHAR-GEN-05` | 非设计边界 | 未新增、改写或重解释角色身份、服装、时代和视觉事实 | `FAIL-CHAR-GEN-05` |
 | `FIELD-CHAR-GEN-06` | imagegen 合同 | 已遵守 imagegen 的模式、2K 默认和项目持久化规则 | `FAIL-CHAR-GEN-06` |
 | `FIELD-CHAR-GEN-07` | Subagents | 默认真实 dispatch；阻断时有完整降级报告 | `FAIL-CHAR-GEN-07` |
+| `FIELD-CHAR-GEN-08` | 执行器锁定 | 未获用户显式授权时，只使用 `.agents/skills/cli/imagegen`，不调用 nano-banana / AnyFast / 其他图像 API 子技能 | `FAIL-CHAR-GEN-08` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -165,6 +177,7 @@ stateDiagram-v2
 - 本技能试图补写角色设定、场景设定、道具设定或视频提示词。
 - 图片没有真实生成却被报告为已生成。
 - 产物没有落到 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
+- 未获用户显式授权时切换到 nano-banana、AnyFast、seedream 或其他非 `.agents/skills/cli/imagegen` 执行器。
 - 默认 subagents 路径被静默跳过，且没有报告阻断层级和降级路径。
 
 必经链路：

@@ -37,7 +37,7 @@ last_checked_at: 2026-04-22T00:00:00Z
 3. 若问题跨两个以上阶段，先回根级 `story/SKILL.md` 做总线诊断，再进入阶段修复。
 4. 若同一规则在多个阶段重复出现，优先找根级 canonical source，而不是逐个阶段补丁。
 5. 若问题涉及题材方向盘，先检查 `0-初始化/north_star.yaml.genre_contract` 是否已经存在并被 `2-卷章规划` 正式导入。
-6. 若问题涉及验收或回写，先确认是否已有 `review/第V卷.validation.json` 与 `5-上下文回流/第V卷.context-return.json`，不要先看 child sidecar 或口头说明。
+6. 若问题涉及验收或回写，先确认是否已有 `review/第V卷.validation.json` 与 `context-return/第V卷.context-return.json`，不要先看 child sidecar 或口头说明。
 
 ## Reusable Heuristics
 

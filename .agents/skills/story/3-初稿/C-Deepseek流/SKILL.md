@@ -36,7 +36,7 @@ governance_tier: full
 
 - `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
 - `review` 的 PASS/FAIL 判定权
-- `5-上下文回流` 的 validated actualization 写回权
+- `context-return` 的 validated actualization 写回权
 
 ## Mode Selection
 
@@ -45,7 +45,7 @@ governance_tier: full
 | `chapter_draft` | 当前章尚无正文，用户要求起草/写正文 | 读取上游真源后调用 DeepSeek 生成完整章节 |
 | `chapter_rewrite` | 目标章已存在，用户要求重写/大修 | 先回读现有正文，再按当前 planning 与用户约束重写 |
 | `chapter_continue` | 目标章已存在，用户要求续写或补全 | 保留已成立承接，补足未完成正文 |
-| `local_repair` | 审查或用户指出局部问题 | 定位问题层，生成局部修复输入，仍不得由脚本主创正文 |
+| `local_repair` | 审查或用户指出局部问题 | 定位问题层，生成局部修复输入，由 DeepSeek 执行正文修复 |
 | `dry_run` | 用户或调试要求只装配上下文包 | 只生成 messages pack 与报告，不调用 provider、不写正文真源 |
 
 ## Reference Loading Guide
@@ -96,11 +96,13 @@ governance_tier: full
 3. `.agents/skills/api/deepseek/scripts/deepseek_chat.py` 调用固定 `deepseek-v4-pro`，默认 `thinking=enabled` 与 `reasoning_effort=high`，负责实际生成完整章节 Markdown 文件，并吸收 `supervision_packet`。
 4. 本地脚本校验返回内容是否满足 frontmatter / heading / 输出路径合同，再写回 `第N卷/第N章.md`。
 5. 当前卷完成后进入 `review/final_acceptance`，默认以 10 章为卷单位调用 `code-reviewer` 与 mandatory 维度；失败后由 GPT/subagents 生成返工 brief，再回到本 lane 的 `local_repair`、`chapter_rewrite` 或整卷重写。
+6. 返工优化时，若原稿属于本 lane，正文主创修复仍固定由 DeepSeek provider 执行；GPT/subagents 只负责拆解 review issues、生成 `repair_brief`、注入 prompt 约束、复核和聚合。
 
 硬边界：
 
 - “LLM-first creative authorship” 在本技能上的 owning provider 固定为 `.agents/skills/api/deepseek`。
 - GPT/subagents 是监制层，DeepSeek 是正文执行层；不得把 GPT 手写正文冒充本 lane 的正常输出。
+- `local_repair`、`chapter_rewrite` 与卷级返工同样适用本边界；“修复优化”不是切换到 GPT 直写的隐含许可。
 - `scripts/write_chapter_via_deepseek.py` 只能装配上下文、调用 provider、校验返回与落盘，不得以规则拼接、模板灌字或启发式扩写替代正文主创。
 - 未经用户显式改口，不得把本地 GPT 直写、手工改写或其他 provider 伪装成当前技能的正常主路径。
 - 若 DeepSeek provider 因认证、网络、返回格式不合法或上层策略阻断而不可用，必须硬失败并报告阻断来源。
@@ -152,6 +154,7 @@ flowchart TD
 | 监制 subagents 未启动、未降级说明或监制包未进入 messages | 监制调度层 | `../_shared/supervised-drafting-review-loop-contract.md` |
 | 审查口号化或无法给 verdict | 质量门禁层 | `review/review-contract.md` |
 | 卷级 `code-reviewer` 审计未触发或 findings 未回流 | review 汇流层 | `.agents/skills/story/review/SKILL.md` + `review/review-contract.md` |
+| review 后 GPT/subagents 直接改写正文，导致 `写作模型: Deepseek` 与实际主创不一致 | lane ownership 层 | 本 `Actual Creative Engine` + `../_shared/supervised-drafting-review-loop-contract.md` |
 | 输出路径、命名或模板冲突 | 入口与模板层 | `SKILL.md` Output Contract + `templates/output-template.md` |
 | 脚本越权生成正文 | 自动化辅助层 | `scripts/write_chapter_via_deepseek.py` + AGENTS.md LLM-first 规则 |
 | DeepSeek 参数或模型漂移 | provider 层 | `.agents/skills/api/deepseek/SKILL.md` |

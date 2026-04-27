@@ -600,12 +600,12 @@ def test_detect_interruption_uses_context_return_artifact_fallback(tmp_path, mon
         },
     )
 
-    context_return_dir = tmp_path / "5-上下文回流"
+    context_return_dir = tmp_path / "context-return"
     context_return_dir.mkdir(parents=True, exist_ok=True)
     (context_return_dir / "第1卷.context-return.json").write_text(
         json.dumps(
             {
-                    "meta": {"context_return_ref": "5-上下文回流/第1卷.context-return.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+                    "meta": {"context_return_ref": "context-return/第1卷.context-return.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
                 "inputs": {"validation_ref": "review/第1卷.validation.json"},
             },
             ensure_ascii=False,
@@ -646,13 +646,15 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
     validation_dir.mkdir(parents=True, exist_ok=True)
     (validation_dir / "第1卷.validation.json").write_text(
         json.dumps(
-            {
-                "volume_ref": "第1卷",
-                "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                "validation_status": "PASS",
-                "routing_decision": "handoff_to_review_and_context_return",
-                "handoff_targets": ["review/", "5-上下文回流"],
-            },
+                {
+                    "volume_ref": "第1卷",
+                    "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    "validation_status": "PASS",
+                    "routing_decision": "handoff_to_review_and_context_return",
+                    "handoff_targets": ["review/", "context-return"],
+                    "accepted_manuscript_stage": "4-润色",
+                    "accepted_manuscript_refs": ["4-润色/第1卷/第10章.md"],
+                },
             ensure_ascii=False,
             indent=2,
         ),
@@ -862,7 +864,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_context_return(tm
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    context_return_dir = tmp_path / "5-上下文回流"
+    context_return_dir = tmp_path / "context-return"
     context_return_dir.mkdir(parents=True, exist_ok=True)
     (context_return_dir / "第1卷.context-return.json").write_text("{}", encoding="utf-8")
 

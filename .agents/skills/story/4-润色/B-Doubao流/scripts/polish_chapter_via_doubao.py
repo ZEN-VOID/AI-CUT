@@ -312,7 +312,7 @@ def _build_messages(
         f"初稿来源：{_rel(source_draft_path, project_root)}",
         f"当前模式：{polishing_mode}",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
-        "待润色初稿（主输入，必须完整吸收后再二次改写）：\n" + _excerpt(_read_text(source_draft_path), 16000),
+        "待润色初稿（主输入，必须完整吸收后再二次改写）：\n" + _read_text(source_draft_path),
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),
@@ -446,7 +446,16 @@ def _default_output_dir(project_root: Path, volume_num: int, chapter_num: int) -
     return project_root / "reports" / "4-润色" / "doubao" / f"第{volume_num}卷" / f"第{chapter_num}章"
 
 
-def _run_doubao(messages_path: Path, output_dir: Path, *, temperature: float, top_p: float, max_tokens: int, stream: bool) -> str:
+def _run_doubao(
+    messages_path: Path,
+    output_dir: Path,
+    *,
+    temperature: float,
+    top_p: float,
+    max_tokens: int,
+    timeout: int,
+    stream: bool,
+) -> str:
     cmd = [
         sys.executable,
         str(DOUBAO_SCRIPT),
@@ -464,6 +473,8 @@ def _run_doubao(messages_path: Path, output_dir: Path, *, temperature: float, to
         str(top_p),
         "--max-tokens",
         str(max_tokens),
+        "--timeout",
+        str(timeout),
     ]
     if stream:
         cmd.append("--stream")
@@ -488,6 +499,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.9)
     parser.add_argument("--max-tokens", type=int, default=12000)
+    parser.add_argument("--timeout", type=int, default=600, help="provider request timeout in seconds")
     parser.add_argument(
         "--mode",
         choices=("auto", "chapter_polish", "polish_rewrite", "local_repair"),
@@ -549,7 +561,12 @@ def main() -> int:
     memory_path = project_root / "MEMORY.md"
     source_draft_path = drafting_root_md_path(project_root, chapter_num)
     chapter_path = polishing_root_md_path(project_root, chapter_num)
-    previous_path = find_chapter_file(project_root, chapter_num - 1) if chapter_num > 1 else None
+    previous_polished_path = polishing_root_md_path(project_root, chapter_num - 1) if chapter_num > 1 else None
+    previous_path = (
+        previous_polished_path
+        if previous_polished_path and previous_polished_path.exists()
+        else find_chapter_file(project_root, chapter_num - 1) if chapter_num > 1 else None
+    )
     polishing_mode = _resolve_polishing_mode(args, chapter_path)
     instruction_file_text = _read_optional_instruction_file(args.instruction_file)
     supervision_packet_text = _read_text(Path(args.supervision_packet)).strip() if args.supervision_packet else ""
@@ -620,6 +637,7 @@ def main() -> int:
             temperature=args.temperature,
             top_p=args.top_p,
             max_tokens=args.max_tokens,
+            timeout=args.timeout,
             stream=args.stream,
         )
     )

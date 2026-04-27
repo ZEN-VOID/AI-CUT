@@ -34,10 +34,11 @@
 - 用户原始口径允许直接引用“相应角色设计文档中的提示词设计”；本技能应用到道具生成时，统一解释为“相应道具/主体设计文档中的提示词设计”。
 - 允许将上游提示词拆成 subject、style、materials、negative、composition 等字段，但不得改变主体身份、材质事实、尺度逻辑、叙事功能或识别点。
 
-## Imagegen Route
+## Execution Engine Route
 
-- 普通生成默认使用 `$imagegen` 的内置 `image_gen` 路由。
-- 只有用户显式选择 CLI/API/model 控制、真实透明背景或其他 `$imagegen` 合同允许的场景，才可进入 CLI fallback。
+- 普通生成默认且唯一的执行入口是 `.agents/skills/cli/imagegen`，并由该 skill 自己决定内置 `image_gen`、显式 CLI fallback 或其他已确认路径。
+- 未获得用户显式 provider / API / model 指令时，不得直接调用 `nano-banana`、Dreamina、AnyFast 子技能或其他图像执行器。
+- 只有用户显式选择其他 provider / API / model 控制，才可离开 `.agents/skills/cli/imagegen` 入口；执行报告必须记录该显式指令与所用 provider。
 - 项目绑定资产必须最终持久化到 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。
 
 ## Non-Goals

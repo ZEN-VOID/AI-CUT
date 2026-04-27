@@ -89,11 +89,32 @@ def _state_volume_num_for_chapter(project_root: Path, chapter_num: int) -> int |
     return best[1] if best else None
 
 
+def _planning_dir_volume_num_for_chapter(project_root: Path, chapter_num: int) -> int | None:
+    planning_root = project_root / "2-卷章规划"
+    if not planning_root.is_dir():
+        return None
+
+    matches: list[int] = []
+    for volume_dir in planning_root.glob("第*卷"):
+        if not volume_dir.is_dir():
+            continue
+        volume_match = re.fullmatch(r"第(\d+)卷", volume_dir.name)
+        if not volume_match:
+            continue
+        if (volume_dir / f"第{chapter_num}章.md").is_file():
+            matches.append(int(volume_match.group(1)))
+
+    return min(matches) if matches else None
+
+
 def planning_volume_num_for_chapter(chapter_num: int, project_root: Path | None = None) -> int:
     if chapter_num <= 0:
         raise ValueError("chapter_num must be >= 1")
     if project_root is not None:
         resolved = _state_volume_num_for_chapter(project_root, chapter_num)
+        if resolved is not None:
+            return resolved
+        resolved = _planning_dir_volume_num_for_chapter(project_root, chapter_num)
         if resolved is not None:
             return resolved
     return (chapter_num - 1) // PLANNING_CHAPTERS_PER_VOLUME + 1

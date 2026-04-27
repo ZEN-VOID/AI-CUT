@@ -23,6 +23,7 @@ skill_role: parent_guide
 
 - 用户要求对小说卷、章节集合、初稿、润色稿或运行态产物做终验、质检、review、校验、验收。
 - 需要判断 `validation_status`、`routing_decision`、`handoff_targets`、`rework_targets`。
+- 需要锁定 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`，决定本轮 PASS 是否允许交给 `context-return`。
 - 需要把多个维度审查结果聚合成 `projects/story/<项目名>/review/第V卷.validation.json`。
 - 需要解释或修复 review 技能组的 roster、维度权重、sidecar 文件名、review runner 路由或聚合门禁。
 - `3-初稿` 或其他阶段需要调用 drafting inline hooks 时，按 registry 读取本技能组的维度定义。
@@ -48,7 +49,7 @@ skill_role: parent_guide
 - 不直接替代六个维度子技能做细项判断。
 - 不生成正文、补写剧情、润色章节或改写上游 source truth。
 - 不让任一 child sidecar 直接成为最终 PASS/FAIL gate。
-- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `5-上下文回流` 的 handoff gate。
+- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `context-return` 的 handoff gate。
 
 ## Group Topology
 
@@ -95,7 +96,7 @@ skill_role: parent_guide
 
 | mode | 触发信号 | 默认动作 | 输出 |
 | --- | --- | --- | --- |
-| `final_acceptance` | 卷级终验、整卷 review、PASS/FAIL gate、进入润色或回流前验收 | 锁定同一轮 `validation_fact_pack`，按 registry 调度所有 `final_acceptance.mandatory=true` 的维度，聚合为唯一卷级 JSON | `review/第V卷.validation.json` 与各维度 sidecar |
+| `final_acceptance` | 卷级终验、整卷 review、PASS/FAIL gate、进入润色或回流前验收 | 锁定同一轮 `validation_fact_pack` 与 accepted manuscript refs，按 registry 调度所有 `final_acceptance.mandatory=true` 的维度，聚合为唯一卷级 JSON | `review/第V卷.validation.json` 与各维度 sidecar |
 | `drafting_inline` | `3-初稿` 指定 step hook 触发即时审查 | 按 registry 中当前 step 的 enabled checkpoints 只调度命中的维度，返回阻断、回退或继续信号 | inline dimension packet，不直接写最终 gate |
 | `repair_route` | 已有 review 失败，需要判断返工归属 | 读取 aggregate JSON，按 `source_layer_owner / rework_targets / handoff_targets` 分流 | 返工路由建议 |
 | `governance_repair` | roster、schema、runner、sidecar 文件名或合同漂移 | 以 registry 和 shared contracts 为真源同步修复 | 技能组结构或合同补丁 |
@@ -116,6 +117,8 @@ skill_role: parent_guide
 - `validation_mode`
 - `volume_ref`
 - `chapter_refs`
+- `accepted_manuscript_stage`
+- `accepted_manuscript_refs`
 - `selected_agents`
 - `overall_score`
 - `dimension_scores`
@@ -132,7 +135,8 @@ skill_role: parent_guide
 
 - 每一轮卷级终验只能写一份 `projects/story/<项目名>/review/第V卷.validation.json`。
 - 维度 sidecar 与 aggregate JSON 冲突时，以 aggregate JSON 为 gate 真源，并在下一轮前修正 child output contract。
-- `5-上下文回流` 只能消费 aggregate JSON 中的 PASS 与 handoff，不得直接消费某个维度 sidecar 作为回写授权。
+- `context-return` 只能消费 aggregate JSON 中的 PASS 与 handoff，不得直接消费某个维度 sidecar 作为回写授权。
+- 若 aggregate 要交给 `context-return`，必须同时写明 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`；默认应为 `4-润色` 终稿。若仍指向 `3-初稿`，必须显式说明润色跳过且初稿已被接受，否则不得 handoff。
 
 ## Output Contract
 
@@ -150,7 +154,7 @@ skill_role: parent_guide
   - `report_filename` 由 `_shared/validation-dimension-registry.yaml` 单点定义。
 - Completion gate:
   - mandatory 维度已按 registry 调度或已明确记录降级原因。
-  - 父层 aggregate JSON 已生成并能解释 PASS/FAIL、返工归属和 handoff。
+  - 父层 aggregate JSON 已生成并能解释 PASS/FAIL、返工归属、accepted manuscript 和 handoff。
   - 不存在 child sidecar 覆盖父层 gate 的情况。
 
 ## Lite Field Mapping
@@ -162,7 +166,7 @@ skill_role: parent_guide
 | `FIELD-REVIEW-03` | `N3-DISPATCH` | 调度子技能并收集 packets | `dimension_packets`、`dispatch_notes` | `FAIL-REVIEW-DISPATCH` | 回到 child `SKILL.md + CONTEXT.md` |
 | `FIELD-REVIEW-04` | `N4-SCHEMA-GATE` | 校验 child 输出可聚合 | `schema_validation_result` | `FAIL-REVIEW-SCHEMA` | 回到 child output contract 与 checker schema |
 | `FIELD-REVIEW-05` | `N5-AGGREGATE` | 生成唯一父层 gate | `第V卷.validation.json` | `FAIL-REVIEW-AGGREGATE` | 回到 validation root contract |
-| `FIELD-REVIEW-06` | `N6-ROUTE` | 输出返工、handoff 或 PASS 路由 | `routing_decision`、`handoff_targets`、`rework_targets` | `FAIL-REVIEW-ROUTE` | 回到 source trace 与 aggregate fields |
+| `FIELD-REVIEW-06` | `N6-ROUTE` | 输出返工、handoff 或 PASS 路由 | `routing_decision`、`handoff_targets`、`rework_targets`、`accepted_manuscript_refs` | `FAIL-REVIEW-ROUTE` | 回到 source trace 与 aggregate fields |
 
 ## Root-Cause Execution Contract
 
@@ -183,5 +187,5 @@ skill_role: parent_guide
 - 已能把任一 review 请求路由到 `final_acceptance / drafting_inline / repair_route / governance_repair`。
 - 已按 registry 明确本轮应启动哪些维度。
 - 已区分父层 gate truth 与 child sidecar evidence。
-- 已能说明 PASS 后是否允许进入 `4-润色` 或 `5-上下文回流`。
+- 已能说明 PASS 后是否允许进入 `4-润色` 或 `context-return`，且能指出被接受的 manuscript stage。
 - 已能在失败时给出最早 source owner 与可执行返工入口。

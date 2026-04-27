@@ -26,7 +26,7 @@ truth_role：<planned|current|history|validated_actual|quality|execution|manual_
 - <none or specific gap>
 
 下一入口：
-- <specific stage | resume | review | 5-上下文回流 | no execution needed>
+- <specific stage | resume | review | context-return | no execution needed>
 ```
 
 ## Planned / Current / Actual Split

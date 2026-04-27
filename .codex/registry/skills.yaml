@@ -238,11 +238,11 @@ active_skills:
         contract_status: active
         route_role: automated_review
         natural_triggers: ["review", "终验", "质量审查", "validation aggregate", "code-reviewer 汇流", "返工路由"]
-      - id: story-5-context-return
-        path: .agents/skills/story/5-上下文回流
+      - id: story-context-return
+        path: .agents/skills/story/context-return
         owner_office: zhongshu
         contract_status: active
-        route_role: stage
+        route_role: checkpoint
     satellite_index:
       - id: story-query
         path: .agents/skills/story/query

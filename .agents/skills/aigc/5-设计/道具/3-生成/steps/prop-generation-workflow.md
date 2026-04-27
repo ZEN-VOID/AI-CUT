@@ -8,7 +8,7 @@
 | --- | --- |
 | `business_goal` | 从上游道具 `2-设计` 文档稳定生成单主体图、多视图主体设计图与同名 JSON 证据。 |
 | `business_object` | `projects/aigc/<项目名>/5-设计/道具/2-设计/*.md`、`3-生成/*.json`、`3-生成/*-主图.<ext>`、`3-生成/*-多视图.<ext>`。 |
-| `constraint_profile` | LLM-first 提示词裁决、不得重设主体、必须加载 `$imagegen` 合同、项目资产必须持久化到 canonical 输出目录。 |
+| `constraint_profile` | LLM-first 提示词裁决、不得重设主体、必须加载 `.agents/skills/cli/imagegen` 合同、默认唯一执行入口为 `.agents/skills/cli/imagegen`、项目资产必须持久化到 canonical 输出目录。 |
 | `success_criteria` | 每个被调度主体都有主图、多视图、两份 JSON、来源回指、参照链、review verdict。 |
 | `non_goals` | 不创作新道具设定，不修改 `2-设计`，不改 registry/routes，不生成角色或场景资产。 |
 | `complexity_source` | 复杂度来自批量分流、prompt-only 路径、主图到多视图的参考链、review/subagent 降级证据。 |
@@ -47,7 +47,7 @@ sequenceDiagram
     participant U as User/Main Agent
     participant P as Prop Generation Skill
     participant D as 2-设计 Markdown
-    participant I as imagegen
+    participant I as imagegen skill
     participant R as Review Gate
     U->>P: request project/subjects
     P->>D: read Prompt Design section
@@ -63,12 +63,12 @@ sequenceDiagram
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 锁定项目、主体、上游文档和权限边界 | 用户请求、项目根、`2-设计/*.md`、本 `SKILL.md + CONTEXT.md` | 读取项目 `MEMORY.md`、相关 `CONTEXT/`、上游设计文档和 `$imagegen` 合同 | `generation_scope` | `N2-TYPE` | 每个主体都有可定位设计文档，或明确进入 reject/clarify |
-| `N2-TYPE` | 形成可执行分型 | `generation_scope`、用户是否要求 dry-run/repair/review | 按 `types/prop-generation-type-map.md` 写出 `type_profile` | `type_profile` | `N3-MAIN-PROMPT`、`N7-REVIEW` 或 failed node | `execute_imagegen`、`imagegen_mode`、`subjects` 明确 |
+| `N1-INTAKE` | 锁定项目、主体、上游文档和权限边界 | 用户请求、项目根、`2-设计/*.md`、本 `SKILL.md + CONTEXT.md` | 读取项目 `MEMORY.md`、相关 `CONTEXT/`、上游设计文档和 `.agents/skills/cli/imagegen` 合同 | `generation_scope` | `N2-TYPE` | 每个主体都有可定位设计文档，或明确进入 reject/clarify |
+| `N2-TYPE` | 形成可执行分型 | `generation_scope`、用户是否要求 dry-run/repair/review | 按 `types/prop-generation-type-map.md` 写出 `type_profile`，确认默认执行入口为 `.agents/skills/cli/imagegen` | `type_profile` | `N3-MAIN-PROMPT`、`N7-REVIEW` 或 failed node | `execute_imagegen`、`imagegen_mode`、`subjects` 明确；非 imagegen provider 只能来自用户显式指令 |
 | `N3-MAIN-PROMPT` | 把上游“提示词设计”投影为主图 JSON | `type_profile`、设计文档提示词段 | 填充 `templates/single-subject-prompt.json`，保留 source quote 与输出路径 | `主体名称-主图.json` | `N4-MAIN-IMAGE` 或 `N5-MULTIVIEW-PROMPT` | JSON 不新增主体设定，能回指上游 prompt |
-| `N4-MAIN-IMAGE` | 生成并持久化单主体图 | 主图 JSON、`$imagegen` 合同 | 调用 imagegen，选择最终图，保存到 `3-生成` | `主体名称-主图.<ext>` | `N5-MULTIVIEW-PROMPT` | 主图是单个道具主体，无人物或场景接管 |
+| `N4-MAIN-IMAGE` | 生成并持久化单主体图 | 主图 JSON、`.agents/skills/cli/imagegen` 合同 | 通过 imagegen skill 调用图像生成，选择最终图，保存到 `3-生成` | `主体名称-主图.<ext>` | `N5-MULTIVIEW-PROMPT` | 主图是单个道具主体，无人物或场景接管 |
 | `N5-MULTIVIEW-PROMPT` | 建立主图到多视图的参照链 | 主图路径、上游 prompt、`prop-multiview-prompt.json` | 填写 `reference_image`、多视图布局和输出路径 | `主体名称-多视图.json` | `N6-MULTIVIEW-IMAGE` 或 `N7-REVIEW` | `reference_image` 指向对应 `主体名称-主图.<ext>` |
-| `N6-MULTIVIEW-IMAGE` | 生成并持久化多视图主体设计图 | 多视图 JSON、主图参照 | 调用 imagegen 生成正侧背、细节、尺度/功能模块 | `主体名称-多视图.<ext>` | `N7-REVIEW` | 多视图与主图保持同一主体、材质、比例和识别点 |
+| `N6-MULTIVIEW-IMAGE` | 生成并持久化多视图主体设计图 | 多视图 JSON、主图参照 | 通过 imagegen skill 生成正侧背、细节、尺度/功能模块；未显式要求时不得改走其他 provider | `主体名称-多视图.<ext>` | `N7-REVIEW` | 多视图与主图保持同一主体、材质、比例和识别点 |
 | `N7-REVIEW` | 汇流质量门禁与降级证据 | 图像、JSON、路径、命名、source evidence | 执行 `review/review-contract.md`，记录真实 reviewer 或降级状态 | `review_verdict` | done 或返工 | verdict 为 `pass` 或已路由到具体失败节点 |
 
 ## Branch Rules

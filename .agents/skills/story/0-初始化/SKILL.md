@@ -30,7 +30,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 
 - 用户要求初始化影片、电影、影视、视频或 AIGC film project；route to `.agents/skills/aigc/0-初始化/SKILL.md`。
 - 已有稳定项目骨架，只需补写局部设定或查询状态；route to `story-resume` 或对应阶段技能。
-- 当前任务是 `1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / 5-上下文回流` 的续跑。
+- 当前任务是 `1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / context-return` 的续跑。
 - 用户只要求写正文、生成卡片、规划卷章或执行审查。
 
 ## Input Contract

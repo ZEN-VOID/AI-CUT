@@ -1,6 +1,6 @@
 # Scripts Boundary
 
-`5-上下文回流/scripts/` is reserved for stage-local mechanical helpers.
+`context-return/scripts/` is reserved for stage-local mechanical helpers.
 
 Current mechanical execution is shared at the story root:
 

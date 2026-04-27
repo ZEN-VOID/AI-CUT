@@ -35,21 +35,39 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 `story` 现在采用：
 
-- 固定主链
+- 固定前置主链
+- 卷级创作闭环
 - 人工维护的 `north_star.yaml.genre_contract`
 
-二层架构。
+三层架构。
 
-### 固定主链
+### 固定前置主链
 
-主链固定不变：
+前置主链固定不变：
 
 1. `0-初始化`
 2. `1-设定`
 3. `2-卷章规划`
-4. `3-初稿`
-5. `4-润色`
-6. `5-上下文回流`
+
+进入正文生产后，默认按卷执行创作闭环，而不是把全书多卷同时推进到同一阶段。
+
+### 卷级创作闭环
+
+每卷默认闭环固定为：
+
+1. `3-初稿`
+2. `review` 初稿验收
+3. `4-润色`
+4. `review` 终稿验收
+5. `context-return`
+6. 下一卷 `3-初稿`
+
+硬规则：
+
+- `context-return` 不是全本润色后的线性终章；它是每卷最终验收后的 validated actualization checkpoint。
+- `context-return` 不因“检验完成”自动触发，只能在 `review/第V卷.validation.json` 同时满足 `validation_status == PASS`、`routing_decision == handoff_to_review_and_context_return`、`handoff_targets` 包含 `context-return` 时进入。
+- 上下文回流必须消费“最终被接受的本卷实绩”。默认应以润色后再次 review PASS 的 `4-润色/第V卷/*` 为 accepted manuscript；若项目明确跳过润色，aggregate 必须显式声明 `accepted_manuscript_stage = 3-初稿`，不得把仍可能被润色改动的初稿态直接 actualize。
+- canonical 正文生产不建议多卷并发：第 V+1 卷正式起草前，应先让第 V 卷完成 PASS + 上下文回流，使下一卷消费 validated actual，而不是过期 planning。
 
 ### 人工题材契约
 
@@ -63,7 +81,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - `3-初稿` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
 - `review` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度；默认后台启用 `code-reviewer` 做独立审计，再把 findings 回流为修复分流。
 - `4-润色` 可以沉淀反馈，但不得自动改写 `north_star.yaml.genre_contract`。
-- `5-上下文回流` 只承接 PASS 且明确 handoff 的 validated actualization，不回写规划正文。
+- `context-return` 只承接终稿 PASS 且明确 handoff 的 validated actualization，不回写规划正文。
 
 硬规则：
 
@@ -75,7 +93,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - 用户只说“用 story2026 做这件事”，但还没有明确该进哪一个阶段。
 - 需要设计、选择或解释某个项目的题材方向盘。
-- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / 5-上下文回流 / query / resume` 中的哪一层。
+- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / context-return / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
 
 ## Input Contract
@@ -87,22 +105,25 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 ## System Topology
 
-### Mainline Stages
+### Mainline Topology
 
-主链固定为：
+前置主链固定为：
 
 1. `0-初始化`
 2. `1-设定`
 3. `2-卷章规划`
-4. `3-初稿`
-5. `4-润色`
-6. `5-上下文回流`
+
+正文生产从这里开始按卷循环：
+
+`第V卷初稿 -> review -> 第V卷润色 -> review -> PASS + handoff -> context-return -> 第V+1卷初稿`
 
 执行原则：
 
-- 主链默认按阶段顺序串行，不得跳过上游真源直接伪造下游结论。
+- 前置主链默认按阶段顺序串行，不得跳过上游真源直接伪造下游结论。
+- 卷级正文生产默认一卷一卷推进；多卷并发只允许作为探索草稿、素材准备或非 canonical 支线，不得写成 validated final。
 - `review` 不再是序号化主链的一环；它是多环节自动触发的审查层，可由初稿完卷、润色返工、恢复续跑、质量查询或维护任务触发。
 - `4-润色` 只在 `review = PASS` 且 handoff 明确授予 `4-润色` 后拥有 validated truth writeback 权。
+- `context-return` 只在终稿 review aggregate 明确授予 `handoff_to_review_and_context_return` 后执行；它不是“检验完自动执行”的默认副作用。
 
 ### Workflow Map
 
@@ -112,20 +133,24 @@ flowchart TD
     B --> C["0-初始化<br/>north_star.yaml.genre_contract"]
     C --> D["1-设定<br/>角色 / 场景 / 物品对象真源"]
     D --> E["2-卷章规划<br/>部级 / 卷级 / 章级规划真源"]
-    E --> F["3-初稿<br/>章节正文唯一业务真源"]
-    F --> G["review<br/>validation_fact_pack / 第V卷.validation.json"]
-    G -->|"FAIL / 修复分流"| E
-    G -->|"PASS + handoff: 4-润色"| H["4-润色<br/>二次改写与表达强化稿"]
-    H --> G
-    G -->|"PASS + handoff: 5-上下文回流"| I["5-上下文回流<br/>actualization / projection refresh"]
+    E --> F["第V卷 3-初稿<br/>候选正文"]
+    F --> G1["review<br/>初稿验收 / 第V卷.validation.json"]
+    G1 -->|"FAIL / 修复分流"| F
+    G1 -->|"PASS + handoff: 4-润色"| H["第V卷 4-润色<br/>二次改写与表达强化稿"]
+    H --> G2["review<br/>终稿验收 / 第V卷.validation.json"]
+    G2 -->|"FAIL / 修复分流"| H
+    G2 -->|"PASS + handoff_to_review_and_context_return<br/>handoff_targets includes context-return"| I["context-return<br/>accepted actualization / projection refresh"]
+    I --> L["第V+1卷 3-初稿<br/>消费 validated actual"]
     J["query / resume"] -.状态查询 / 续跑.-> B
     K["4-润色/B-Doubao流"] -.用户显式授权的表达强化.-> H
 ```
 
-### Satellite Skills
+### Checkpoint And Satellite Skills
 
-卫星技能固定挂在主链侧，不单独冒充新的 stage：
+无序号 checkpoint / satellite 技能固定挂在主链侧，不单独冒充新的 numbered stage：
 
+- `review`
+- `context-return`
 - `query`
 - `resume`
 
@@ -140,7 +165,7 @@ flowchart TD
 | `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 父级导引层选择 A/B/C provider lane 执行；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
 | `review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `review/第V卷.validation.json` 聚合 gate、审查报告与状态持久化 | actualization 写回 |
 | `4-润色` | 基于 `3-初稿/第N卷/第N章.md` 的二次改写润色稿、`4-润色/第N卷/第N章.md`、润色 sidecar | `3-初稿` 原文覆盖权、planning/cards/north_star 真源、validation PASS/FAIL 判定权 |
-| `5-上下文回流` | PASS-gated actualization artifact、Cards current_state/history、规划 actualization sidecar、story_map actualization、项目 `CONTEXT/` carryover notes、`STATE.json` projection refresh | 规划正文改写、审查判定、正文/润色正文创作 |
+| `context-return` | 终稿 PASS-gated actualization artifact、accepted manuscript refs、Cards current_state/history、规划 actualization sidecar、story_map actualization、项目 `CONTEXT/` carryover notes、`STATE.json` projection refresh | 规划正文改写、审查判定、正文/润色正文创作、把未被终稿验收接受的初稿态 actualize |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
 
 ## Canonical Runtime Root
@@ -206,7 +231,7 @@ flowchart TD
 | 承接已有 `3-初稿` 做二次改写润色、中文表达强化、题材质感校准，并输出到 `4-润色/第N卷/第N章.md` | `4-润色` |
 | 明确要求“按章写正文”、输出到 `3-初稿/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-初稿` |
 | 隔离评估、checker 团队、`validation_status`、审查报告、评分落库、审查结果持久化 | `review` |
-| PASS 后的 actualization、truth writeback、projection refresh | `5-上下文回流` |
+| 终稿 PASS 且 `routing_decision == handoff_to_review_and_context_return`、`handoff_targets` 包含 `context-return` 后的 actualization、truth writeback、projection refresh | `context-return` |
 | 查询当前态、规划态、实绩态、质量态 | `query` |
 | 查看断点、续跑、清理或重启任务 | `resume` |
 | 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化 | `4-润色/B-Doubao流` |
@@ -220,7 +245,8 @@ flowchart TD
 5. 若当前项目已锁定题材方向盘，优先读取 `0-初始化/north_star.yaml.genre_contract` 与 `2-卷章规划/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
    - `review/_shared/validation-fact-pack-spec.md`
-   - `5-上下文回流/references/context-return-spec.md`
+   - `context-return/references/context-return-spec.md`
+   - 并确认 aggregate 指向最终 accepted manuscript，默认是 `4-润色` 终稿。
 7. 路由到目标阶段的 `SKILL.md`。
 8. 读取目标阶段 `CONTEXT.md`。
 

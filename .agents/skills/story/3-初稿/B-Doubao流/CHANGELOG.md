@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-27
+
+- Standardized repair authorship: `local_repair`, `chapter_rewrite`, review返工和卷级修复优化仍必须由 Doubao provider 执行正文创作性改写。
+- Clarified that GPT/subagents in repair mode only own diagnosis, repair brief, prompt constraints, verification, and aggregation.
+- Added gates requiring Doubao repair messages/provider reports before a repaired draft can still be claimed as `B-Doubao流` output.
+
 ## 2026-04-26
 
 - Upgraded `story-drafting` to Skill 2.0 layout.

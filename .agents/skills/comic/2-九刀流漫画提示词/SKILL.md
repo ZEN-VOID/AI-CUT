@@ -13,9 +13,10 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
-- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 每次调用本技能时，必须识别来源/连续性/交接 mode，并按 `Reference Loading Guide` 加载 `steps/source-routing-and-handoff.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包；本技能语境下类型包仅指 `types/漫画/<题材>/` 题材包，来源/连续性/交接 mode 不再归入 `types/`。
 - 若当前任务绑定具体 `projects/comic/<项目名>/`，先读取项目已存在的上游 `1-漫画剧本改编/第N组.md` 与前序 group JSON；若项目存在连续集产物，前序 JSON 视为 continuity 证据。
-- 若同目录 `CONTEXT.md`、`types/type-map.md` 或命中类型包缺失，应先补齐最小骨架或报告阻塞，不得跳过预加载继续执行。
+- 若同目录 `CONTEXT.md`、`steps/source-routing-and-handoff.md`、`types/type-map.md` 或命中题材类型包缺失，应先补齐最小骨架或报告阻塞，不得跳过预加载继续执行。
 - 冲突优先级：用户显式请求 > 仓库/全局 `AGENTS.md` > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目上下文 > `CONTEXT.md`。
 
 ## Input Contract
@@ -49,14 +50,14 @@ governance_tier: full
 
 ## Mode Selection
 
-| mode | 触发信号 | 固定加载 |
+| mode | 触发信号 | 合同位置 |
 | --- | --- | --- |
-| `grouped-script` | 已存在 `第N组.md` 或用户提供明确 group | `types/grouped-script/grouped-script.md` |
-| `raw-source-fallback` | 只有 raw source，没有 1 号阶段分组产物 | `types/raw-source-fallback/raw-source-fallback.md` |
-| `multi-episode-continuity` | 用户点名第 2 集/第 3 集，或目录已有其他集 JSON | `types/multi-episode-continuity/multi-episode-continuity.md` |
-| `poster-aware-handoff` | 下游需要 4 号剧集海报继续消费剧情高光、角色和风格锚点 | `types/poster-aware-handoff/poster-aware-handoff.md` |
+| `grouped-script` | 已存在 `第N组.md` 或用户提供明确 group | `steps/source-routing-and-handoff.md` |
+| `raw-source-fallback` | 只有 raw source，没有 1 号阶段分组产物 | `steps/source-routing-and-handoff.md` |
+| `multi-episode-continuity` | 用户点名第 2 集/第 3 集，或目录已有其他集 JSON | `steps/source-routing-and-handoff.md` |
+| `poster-aware-handoff` | 下游需要 4 号剧集海报继续消费剧情高光、角色和风格锚点 | `steps/source-routing-and-handoff.md` |
 
-类型包可叠加：多集 raw source 可同时命中 `raw-source-fallback` 与 `multi-episode-continuity`；需要强化海报交接时再叠加 `poster-aware-handoff`。
+mode 可叠加：多集 raw source 可同时命中 `raw-source-fallback` 与 `multi-episode-continuity`；需要强化海报交接时再叠加 `poster-aware-handoff`。漫画题材类型包另由 `types/type-map.md` 选择。
 
 ## Reference Loading Guide
 
@@ -66,7 +67,8 @@ governance_tier: full
 | --- | --- |
 | 九刀流字段、主角锚、场景锚、版式和文字硬规则 | `references/nine-blade-prompt-contract.md` |
 | 来源前奏、切组、九刀节点、失败回路与 handoff | `steps/nine-blade-workflow.md` |
-| 类型包选择、固定上下文加载与互斥/叠加规则 | `types/type-map.md` 与命中包 |
+| 来源模式、连续性模式与 4 号海报 handoff | `steps/source-routing-and-handoff.md` |
+| 漫画题材类型包选择、固定上下文加载与互斥/叠加规则 | `types/type-map.md` 与命中题材包 |
 | 漫画风格、版式、提示词拼装经验与反模式 | `knowledge-base/comic-prompt-heuristics.md` |
 | 输出质量、字段审计、review/provider 降级口径 | `review/review-contract.md` |
 | JSON 模板与 schema | `templates/nine-blade-template.json`、`templates/nine-blade-comic-prompts.schema.json`、`templates/output-template.md` |
@@ -75,8 +77,8 @@ governance_tier: full
 
 ## Execution Contract
 
-1. 读取 `CONTEXT.md`、`types/type-map.md` 和命中类型包，锁定 mode、上游真源和输出命名。
-2. 优先消费 `第N组.md`；若没有分组文件，先按 `raw-source-fallback` 做最小格式化和临时切组，不额外挂出第二份 canonical 组计划。
+1. 读取 `CONTEXT.md`、`steps/source-routing-and-handoff.md`、`types/type-map.md` 和命中题材类型包，锁定 mode、上游真源和输出命名。
+2. 优先消费 `第N组.md`；若没有分组文件，先按 `raw-source-fallback` mode 做最小格式化和临时切组，不额外挂出第二份 canonical 组计划。
 3. 以每个 group 为单位进入 `steps/nine-blade-workflow.md` 的 `P1 -> N8` 节点网络。
 4. 由 LLM 直接完成 `story_beat_map[9]`、`main_character_lock`、`character_locks`、`scene_continuity_bible`、`style_bible`、`comic_text_system` 与 9 个 page prompt 的主创判断。
 5. 组装 `nine_blade_comic_prompts.v1` JSON，并用 `scripts/validate_nine_blade_prompt_json.py` 进行机械校验。
@@ -110,20 +112,21 @@ governance_tier: full
 
 - `python3 .agents/skills/comic/2-九刀流漫画提示词/scripts/validate_nine_blade_prompt_json.py <json_path>` 通过。
 - 人工 review 确认：不是九宫格、不是同图九变体、每页多格、角色/场景/风格跨页稳定、右下角页码为纯数字 1-9、四类文字槽至少各覆盖一次。
-- 若下游需要动画，确认 `pages[].panels[]` 足以按 `one panel -> one shot` 编译视频提示词。
+- 若下游需要 4 号剧集海报，确认 `pages[].panels[]` 足以提炼 3-5 个剧情高光候选。
 
 ## Field Mapping
 
 | field_id | owner | output_or_rule | fail_code |
 | --- | --- | --- | --- |
 | `FIELD-NB-01` | `steps/` | 来源判模与前奏验证通过 | `FAIL-NB-SOURCE-ROUTE` |
-| `FIELD-NB-02` | `types/` | grouped / raw / multi-episode / animation-aware 类型包加载正确 | `FAIL-NB-TYPE-PACK` |
+| `FIELD-NB-02` | `steps/` | grouped / raw / multi-episode / poster-aware mode 路由正确 | `FAIL-NB-MODE-ROUTE` |
 | `FIELD-NB-03` | `steps/` | 当前 group 的 9 个连续页级剧情刀口 | `FAIL-NB-BEATS` |
 | `FIELD-NB-04` | `references/` | 主角锚、群像锚和场景锚完整 | `FAIL-NB-LOCKS` |
 | `FIELD-NB-05` | `references/` | 漫画风格锁、版式多样性和文字系统完整 | `FAIL-NB-STYLE` |
 | `FIELD-NB-06` | `templates/` | JSON 满足 schema 与输出模板 | `FAIL-NB-CONTRACT` |
 | `FIELD-NB-07` | `review/` | schema + semantic review 双门通过 | `FAIL-NB-REVIEW` |
 | `FIELD-NB-08` | `scripts/` | 校验脚本只做机械验证，不替代 LLM 主创 | `FAIL-NB-SCRIPT-OVERREACH` |
+| `FIELD-NB-09` | `types/` | 漫画题材类型包加载正确，并透传 `type_stack_ref / type_pack_context` | `FAIL-NB-TYPE-PACK` |
 
 ## Quality Gates
 
@@ -144,7 +147,8 @@ governance_tier: full
 - 角色/场景漂移：回 `references/` 的锁定规则与 `N3-CONTINUITY`。
 - 风格断层或漫画感不足：回 `knowledge-base/comic-prompt-heuristics.md` 与 `N4A/N4B/N4G`。
 - 文字槽或页码失败：回 `references/`、`templates/` 与 `scripts/validate_nine_blade_prompt_json.py`。
-- 类型包丢失：回 `types/type-map.md` 与命中包。
+- mode 路由丢失：回 `steps/source-routing-and-handoff.md`。
+- 题材类型包丢失：回 `types/type-map.md` 与命中包。
 - 输出门禁缺失：回 `review/review-contract.md`。
 
 Meta Rule Source：仓库 `AGENTS.md` 的 LLM-first creative authorship、Skill 2.0 分区 owner、脚本不得替代主创判断规则。

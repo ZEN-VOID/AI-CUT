@@ -25,6 +25,7 @@
 | 正文主体仍沿用 planning 标题句法 | prose conversion | 把 `本章冲突 / 任务线 / 规避` 转译成人物行动、局势压力和章末牵引 | 在 skill 中固定“planning 只给蓝图，不得原样落成正文” | 正文读起来像小说，不像设计文档 |
 | Skill 2.0 升级后 `SKILL.md` 又重新堆满执行细则 | skill package ownership drift | 把长细则下沉到 `references/steps/types/review/knowledge-base`，入口只留路由与门禁 | 在 `Reference Loading Guide` 中固定每个 owner 的读取时机 | 根 `SKILL.md` 能独立回答输入和输出，但不复制分区全文 |
 | 卷级 review 失败后 GPT 直接改正文，导致 B lane provider ownership 失真 | review loop ownership drift | GPT/subagents 只产出 repair brief，仍由 Doubao 执行 `local_repair` 或 `chapter_rewrite` | review aggregate 必须带 `original_drafting_lane=B-Doubao流` 与 repair mode | 返工 sidecar 有 Doubao messages/provider report |
+| 用户授权 subagents 多路修复后，误把 worker 并行当成正文主创模型切换 | subagent repair overreach | worker 负责分章/分问题 brief，Doubao 按每个 brief 执行修复并落 provider sidecar | B lane 硬写“修复优化不是 GPT 直写许可”；最终报告列出 repair creative engine | 每个受影响章节有 Doubao repair messages/provider report，正文 `写作模型: Doubao` 与证据一致 |
 
 ## Repair Playbook
 
@@ -38,6 +39,7 @@
 8. 若 provider 输出缺字段，不要手工就地补正文冒充成功；先修 prompt / 校验 / provider 返回格式。
 9. 若正式写作没有监制包，先查 subagent 是否被上层阻断；未阻断则补真实 subagents，已阻断则补降级报告。
 10. 若 Skill 2.0 结构校验失败，先看是否缺 `agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `templates/output-template.md`，再看内容语义。
+11. 若 review 触发修复，先生成 repair brief，再调用 Doubao 执行正文修复；若环境暂时无法调用 Doubao，必须报告阻断，不能为了推进而用 GPT 直接改写 Doubao lane 正文。
 
 ## Reusable Heuristics
 
@@ -50,3 +52,4 @@
 - 对当前技能来说，“真正命中豆包”不是口头说明，而是能落出 messages pack、provider report、raw model output 和最终 `第N卷/第N章.md` 的同轮证据链。
 - Skill 2.0 化之后，`SKILL.md` 应像入口和裁决层；章节细则、分支、review 与类型策略各回各的 owner，后续维护才不会牵一发而动全身。
 - B lane 的高级化关键是“GPT 监制不抢笔”：监制包越锋利，越要交给 Doubao 执行，而不是让 GPT 临场改稿。
+- 修复优化也是主创环节：只要写入 `3-初稿/第N卷/第N章.md` 的正文内容发生创作性改写，就必须遵守本 lane 的 Doubao 执行层边界。

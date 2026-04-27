@@ -3,7 +3,7 @@
 """
 story2026 validated actualization manager.
 
-只负责 `5-上下文回流` 的 PASS-only 回写闭环：
+只负责 `context-return` 的 PASS-only 回写闭环：
 - 生成 context_return artifact
 - 回写 Cards.current_state/history
 - 回写 story_map.actualization
@@ -55,7 +55,7 @@ def _story2026_root() -> Path:
 
 
 def _template_path() -> Path:
-    return _story2026_root() / "5-上下文回流" / "templates" / "context-return.json"
+    return _story2026_root() / "context-return" / "templates" / "context-return.json"
 
 
 def _load_json_file(path: Path) -> Dict[str, Any]:
@@ -132,7 +132,7 @@ def _normalize_chapter_nums(raw: Any) -> List[int]:
 
 
 def _build_artifact_path(project_root: Path, state: Dict[str, Any], volume_num: int) -> Path:
-    output_dir = project_root / "5-上下文回流"
+    output_dir = project_root / "context-return"
     create_secure_directory(str(output_dir))
     return output_dir / f"第{volume_num}卷.context-return.json"
 
@@ -202,8 +202,7 @@ def _context_return_handoff_granted(
     handoff_targets = _normalize_handoff_targets(validation_payload.get("handoff_targets"))
     normalized_targets = {_normalize_handoff_target_token(item) for item in handoff_targets}
     context_return_aliases = {
-        "5-context-return",
-        "5-上下文回流",
+        "context-return",
         "story-context-return",
         "5-loopback",
         "story-loopback",
@@ -222,6 +221,53 @@ def _context_return_handoff_granted(
         fail_codes.append("handoff_targets_missing_context_return")
 
     return routing_decision, handoff_targets, not fail_codes, fail_codes
+
+
+def _normalize_string_list(raw: Any) -> List[str]:
+    if isinstance(raw, list):
+        return [str(item).strip() for item in raw if str(item or "").strip()]
+    value = str(raw or "").strip()
+    return [value] if value else []
+
+
+def _infer_manuscript_stage(manuscript_ref: str) -> str:
+    normalized = manuscript_ref.replace("\\", "/").strip()
+    if normalized.startswith("4-润色/") or "/4-润色/" in normalized:
+        return "4-润色"
+    if normalized.startswith("3-初稿/") or "/3-初稿/" in normalized:
+        return "3-初稿"
+    return ""
+
+
+def _accepted_manuscript_gate(
+    validation_payload: Dict[str, Any],
+    manuscript_ref: str,
+) -> tuple[str, List[str], str, bool, List[str]]:
+    stage = str(validation_payload.get("accepted_manuscript_stage") or "").strip()
+    refs = _normalize_string_list(validation_payload.get("accepted_manuscript_refs"))
+    note = str(validation_payload.get("accepted_manuscript_note") or "").strip()
+    if not refs:
+        refs = [manuscript_ref] if manuscript_ref else []
+    if not stage and refs:
+        stage = _infer_manuscript_stage(refs[0])
+
+    fail_codes: List[str] = []
+    if stage not in {"4-润色", "3-初稿"}:
+        fail_codes.append("accepted_manuscript_stage_required")
+    if not refs:
+        fail_codes.append("accepted_manuscript_refs_required")
+
+    refs_stage = {_infer_manuscript_stage(ref) for ref in refs}
+    has_draft_ref = "3-初稿" in refs_stage or stage == "3-初稿"
+    skip_polish_accepted = bool(validation_payload.get("skip_polish_accepted")) or str(
+        validation_payload.get("polish_status") or ""
+    ).strip() == "skipped"
+    if has_draft_ref and not skip_polish_accepted:
+        fail_codes.append("draft_manuscript_requires_explicit_skip_polish_acceptance")
+    if stage == "4-润色" and "3-初稿" in refs_stage:
+        fail_codes.append("polished_stage_cannot_point_to_draft_refs")
+
+    return stage, refs, note, not fail_codes, fail_codes
 
 
 def _extract_governance_refs(validation_payload: Dict[str, Any]) -> Dict[str, str]:
@@ -1011,6 +1057,9 @@ def _build_artifact(
     chapter_nums: List[int],
     volume_num: int,
     manuscript_ref: str,
+    accepted_manuscript_stage: str,
+    accepted_manuscript_refs: List[str],
+    accepted_manuscript_note: str,
     validation_ref: str,
     routing_decision: str,
     handoff_targets: List[str],
@@ -1040,6 +1089,9 @@ def _build_artifact(
     inputs["project_root"] = str(project_root)
     inputs["manuscript_ref"] = manuscript_ref
     inputs["manuscript_refs"] = [manuscript_ref]
+    inputs["accepted_manuscript_stage"] = accepted_manuscript_stage
+    inputs["accepted_manuscript_refs"] = copy.deepcopy(accepted_manuscript_refs)
+    inputs["accepted_manuscript_note"] = accepted_manuscript_note
     inputs["volume_ref"] = _volume_ref(volume_num)
     inputs["chapter_refs"] = copy.deepcopy([_chapter_ref(chapter_num) for chapter_num in chapter_nums])
     inputs["validation_ref"] = validation_ref
@@ -1108,7 +1160,7 @@ def _render_validated_actuals_markdown(
         [
             f"# {volume_ref} 已验证实绩",
             "",
-            "> 本文件由 `5-上下文回流` 在 PASS + handoff 后生成，只记录 validated actual，不修改 planning 正文。",
+            "> 本文件由 `context-return` 在 PASS + handoff 后生成，只记录 validated actual，不修改 planning 正文。",
             "",
             "## Gate",
             "",
@@ -1312,6 +1364,29 @@ def actualize(args: argparse.Namespace) -> int:
         )
         return 1
 
+    accepted_stage, accepted_refs, accepted_note, accepted_ok, accepted_fail_codes = _accepted_manuscript_gate(
+        validation_payload,
+        str(args.manuscript_ref or ""),
+    )
+    if not accepted_ok:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "accepted_manuscript_not_locked",
+                    "validation_status": validation_status,
+                    "routing_decision": routing_decision,
+                    "handoff_targets": handoff_targets,
+                    "accepted_manuscript_stage": accepted_stage or "missing",
+                    "accepted_manuscript_refs": accepted_refs,
+                    "fail_codes": accepted_fail_codes,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 1
+
     delta_payload = _normalize_delta_payload(
         validation_payload,
         _load_json_arg(args.context_return_delta) if args.context_return_delta else None,
@@ -1439,6 +1514,9 @@ def actualize(args: argparse.Namespace) -> int:
         chapter_nums=chapter_nums,
         volume_num=volume_num,
         manuscript_ref=args.manuscript_ref,
+        accepted_manuscript_stage=accepted_stage,
+        accepted_manuscript_refs=accepted_refs,
+        accepted_manuscript_note=accepted_note,
         validation_ref=validation_ref,
         routing_decision=routing_decision,
         handoff_targets=handoff_targets,

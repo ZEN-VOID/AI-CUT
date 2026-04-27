@@ -379,6 +379,96 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     assert payload["current_step_id"] == "Step 2"
 
 
+def test_build_chapter_context_payload_loads_previous_volume_context_return(tmp_path):
+    scripts_dir = Path(__file__).resolve().parents[2]
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+
+    from extract_chapter_context import build_chapter_context_payload
+    from data_modules.config import DataModulesConfig
+
+    cfg = DataModulesConfig.from_project_root(tmp_path)
+    cfg.ensure_dirs()
+
+    (tmp_path / "STATE.json").write_text(
+        json.dumps(
+            {
+                "project": {"genre": "wuxia"},
+                "project_info": {"genre": "wuxia"},
+                "progress": {
+                    "current_chapter": 11,
+                    "total_words": 50000,
+                    "volumes_planned": [
+                        {"volume": 1, "chapters_range": "1-10"},
+                        {"volume": 2, "chapters_range": "11-20"},
+                    ],
+                },
+                "protagonist_state": {
+                    "power": {"realm": "见招", "layer": 1},
+                    "location": "那霸港",
+                    "golden_finger": {"name": "无", "level": 0},
+                },
+                "chapter_meta": {},
+                "disambiguation_warnings": [],
+                "disambiguation_pending": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    refs_dir = tmp_path / ".agents" / "skills" / "story" / "_shared"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+    (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
+    (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
+
+    carryover_dir = tmp_path / "CONTEXT" / "carryover"
+    validated_dir = tmp_path / "CONTEXT" / "validated-actuals"
+    artifact_dir = tmp_path / "context-return"
+    carryover_dir.mkdir(parents=True, exist_ok=True)
+    validated_dir.mkdir(parents=True, exist_ok=True)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    (carryover_dir / "第1卷-to-第2卷.md").write_text(
+        "第2卷开场必须承接：令狐冲已被港规逼出手，不能重置为旁观者。",
+        encoding="utf-8",
+    )
+    (validated_dir / "第1卷.md").write_text(
+        "第1卷实绩：任盈盈与令狐冲的避世幻觉已经破裂。",
+        encoding="utf-8",
+    )
+    (artifact_dir / "第1卷.context-return.json").write_text(
+        json.dumps(
+            {
+                "inputs": {
+                    "accepted_manuscript_stage": "4-润色",
+                    "accepted_manuscript_refs": ["4-润色/第1卷/第10章.md"],
+                },
+                "content": {
+                    "writeback_summary": {
+                        "written_project_context_refs": [
+                            "CONTEXT/validated-actuals/第1卷.md",
+                            "CONTEXT/carryover/第1卷-to-第2卷.md",
+                        ]
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    payload = build_chapter_context_payload(tmp_path, 11)
+    context_return = payload["context_return_project_context"]
+    runtime_context = payload["validation_fact_pack"]["runtime_context"]["context_return_project_context"]
+
+    assert context_return["loaded"] is True
+    assert context_return["target_volume_ref"] == "第2卷"
+    assert "CONTEXT/carryover/第1卷-to-第2卷.md" in context_return["refs"]
+    assert "不能重置为旁观者" in context_return["carryover"]["text"]
+    assert "避世幻觉已经破裂" in context_return["validated_actuals"]["text"]
+    assert context_return["context_return_artifact"]["accepted_manuscript_stage"] == "4-润色"
+    assert runtime_context == context_return
+
+
 def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
     scripts_dir = Path(__file__).resolve().parents[2]
     if str(scripts_dir) not in sys.path:

@@ -618,6 +618,82 @@ def _load_rag_assist(project_root: Path, chapter_num: int, outline: str) -> Dict
         return base_payload
 
 
+def _relative_ref(project_root: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(project_root))
+    except ValueError:
+        return str(path)
+
+
+def _load_markdown_context_ref(project_root: Path, path: Path, *, max_chars: int = 6000) -> Dict[str, Any]:
+    if not path.is_file():
+        return {}
+    text = path.read_text(encoding="utf-8")
+    return {
+        "ref": _relative_ref(project_root, path),
+        "text": text[:max_chars],
+        "truncated": len(text) > max_chars,
+    }
+
+
+def _load_context_return_project_context(project_root: Path, chapter_num: int) -> Dict[str, Any]:
+    """Load previous volume context-return notes for the current volume drafting context."""
+    volume_num = planning_volume_num_for_chapter(chapter_num, project_root=project_root)
+    previous_volume_num = volume_num - 1
+    result: Dict[str, Any] = {
+        "target_volume_ref": f"第{volume_num}卷",
+        "previous_volume_ref": f"第{previous_volume_num}卷" if previous_volume_num >= 1 else "",
+        "refs": [],
+        "loaded": False,
+    }
+    if previous_volume_num < 1:
+        result["reason"] = "first_volume_no_previous_context_return"
+        return result
+
+    validated_path = project_root / "CONTEXT" / "validated-actuals" / f"第{previous_volume_num}卷.md"
+    carryover_path = (
+        project_root
+        / "CONTEXT"
+        / "carryover"
+        / f"第{previous_volume_num}卷-to-第{volume_num}卷.md"
+    )
+    artifact_path = project_root / "context-return" / f"第{previous_volume_num}卷.context-return.json"
+
+    validated = _load_markdown_context_ref(project_root, validated_path)
+    carryover = _load_markdown_context_ref(project_root, carryover_path)
+    artifact = _load_json_object(artifact_path)
+
+    refs: List[str] = []
+    for item in (validated, carryover):
+        ref = str(item.get("ref") or "").strip()
+        if ref:
+            refs.append(ref)
+    if artifact:
+        refs.append(_relative_ref(project_root, artifact_path))
+
+    result.update(
+        {
+            "loaded": bool(refs),
+            "refs": refs,
+            "validated_actuals": validated,
+            "carryover": carryover,
+            "context_return_artifact": {
+                "ref": _relative_ref(project_root, artifact_path),
+                "accepted_manuscript_stage": str(
+                    (artifact.get("inputs") or {}).get("accepted_manuscript_stage") or ""
+                ).strip(),
+                "accepted_manuscript_refs": (artifact.get("inputs") or {}).get("accepted_manuscript_refs") or [],
+                "writeback_summary": ((artifact.get("content") or {}).get("writeback_summary") or {}),
+            }
+            if artifact
+            else {},
+        }
+    )
+    if not refs:
+        result["reason"] = "previous_volume_context_return_not_found"
+    return result
+
+
 def _load_contract_context(project_root: Path, chapter_num: int, current_step_id: str | None = None) -> Dict[str, Any]:
     """Build context via ContextManager and return selected sections."""
     _ensure_scripts_path()
@@ -925,6 +1001,7 @@ def build_chapter_context_payload(
     state_summary = extract_state_summary(project_root)
     contract_context = _load_contract_context(project_root, chapter_num, current_step_id=current_step_id)
     rag_assist = _load_rag_assist(project_root, chapter_num, outline)
+    context_return_project_context = _load_context_return_project_context(project_root, chapter_num)
 
     validation_fact_pack = contract_context.get("validation_fact_pack", {})
     if isinstance(validation_fact_pack, dict):
@@ -941,6 +1018,7 @@ def build_chapter_context_payload(
         if isinstance(runtime_context, dict):
             runtime_context.setdefault("state_summary", state_summary)
             runtime_context.setdefault("previous_summaries", prev_summaries)
+            runtime_context.setdefault("context_return_project_context", context_return_project_context)
 
     payload = {
         "chapter": chapter_num,
@@ -954,6 +1032,7 @@ def build_chapter_context_payload(
         "genre_profile": contract_context.get("genre_profile", {}),
         "writing_guidance": contract_context.get("writing_guidance", {}),
         "validation_fact_pack": validation_fact_pack,
+        "context_return_project_context": context_return_project_context,
         "rag_assist": rag_assist,
     }
     return payload
@@ -1102,6 +1181,20 @@ def _render_text(payload: Dict[str, Any]) -> str:
         refs = genre_profile.get("reference_hints") or []
         for row in refs[:3]:
             lines.append(f"- {row}")
+        lines.append("")
+
+    context_return_project_context = payload.get("context_return_project_context") or {}
+    if context_return_project_context.get("loaded"):
+        lines.append("## 卷际承接")
+        lines.append("")
+        lines.append(f"- 来源: {context_return_project_context.get('previous_volume_ref')}")
+        lines.append(f"- 目标: {context_return_project_context.get('target_volume_ref')}")
+        for ref in context_return_project_context.get("refs", [])[:4]:
+            lines.append(f"- {ref}")
+        carryover_text = ((context_return_project_context.get("carryover") or {}).get("text") or "").strip()
+        if carryover_text:
+            lines.append("")
+            lines.append(carryover_text[:1200])
         lines.append("")
 
     rag_assist = payload.get("rag_assist") or {}

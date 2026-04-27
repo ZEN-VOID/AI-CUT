@@ -23,6 +23,7 @@
 | provider 证据链缺失 | evidence routing | 重新跑脚本，保留 messages pack、raw generated preview 和 provider sidecar | artifacts 固定落到 `reports/3-初稿/deepseek/...` | 目录中可追溯 messages / raw / report |
 | auto 模式在现有章上静默重写 | writeback safety gate | 现有章正式写回必须显式 mode + `--force` | `auto` 只允许新章直写；现稿 dry-run/no-writeback 可装配上下文但不覆盖 | 已存在 `第N章.md` 时普通 auto 调用会阻断 |
 | 卷级 review 失败后 GPT 直接改正文，导致 C lane provider ownership 失真 | review loop ownership drift | GPT/subagents 只产出 repair brief，仍由 DeepSeek 执行 `local_repair` 或 `chapter_rewrite` | review aggregate 必须带 `original_drafting_lane=C-Deepseek流` 与 repair mode | 返工 sidecar 有 DeepSeek messages/provider report |
+| 用户授权 subagents 5路修复后，误把 worker 并行当成正文主创模型切换 | subagent repair overreach | worker 负责分章/分问题 brief，DeepSeek 按每个 brief 执行修复并落 provider sidecar | C lane 硬写“修复优化不是 GPT 直写许可”；最终报告列出 repair creative engine | 每个受影响章节有 DeepSeek repair messages/report，正文 `写作模型: Deepseek` 与证据一致 |
 
 ## Repair Playbook
 
@@ -35,6 +36,7 @@
 7. 若正文过短、仍含模板占位符或 planning 标题句法，先修 provider prompt / context pack，再重试，不允许写回 canonical path。
 8. 若路径不对，先修 `chapter_paths` / output contract，再重试 provider。
 9. 若正式写作没有监制包，先查 subagent 是否被上层阻断；未阻断则补真实 subagents，已阻断则补降级报告。
+10. 若 review 触发修复，先生成 repair brief，再调用 DeepSeek 执行正文修复；若环境暂时无法调用 DeepSeek，必须报告阻断，不能为了推进而用 GPT 直接改写 DeepSeek lane 正文。
 
 ## Reusable Heuristics
 
@@ -45,3 +47,4 @@
 - provider sidecar 是排查“到底有没有走 DeepSeek”的第一证据，不要只看最终正文文件。
 - 现有章是高风险写回目标；正式覆盖必须同时满足显式 mode 与 `--force`，普通 `auto` 只能在缺章时起稿。
 - C lane 的高级化关键是“GPT 监制不抢笔”：监制包越锋利，越要交给 DeepSeek 高推理执行，而不是让 GPT 临场改稿。
+- 修复优化也是主创环节：只要写入 `3-初稿/第N卷/第N章.md` 的正文内容发生创作性改写，就必须遵守本 lane 的 DeepSeek 执行层边界。

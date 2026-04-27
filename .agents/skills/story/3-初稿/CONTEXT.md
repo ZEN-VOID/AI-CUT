@@ -30,6 +30,7 @@ last_checked_at: 2026-04-27
 | 子路径执行前漏读 story 根层、项目 `MEMORY.md` 或项目 `CONTEXT/` | loading bridge gap | 在父级先列 loading plan，再交给 lane 继续加载 | 父级 Context Loading Contract 固定 shared + project + lane 三段式 | lane handoff 前已能列出必须读取的根层和项目层上下文 |
 | 正式写作没有启动 team supervision subagents，却把本地自评当监制 | supervision dispatch gap | 回读 `_shared/supervised-drafting-review-loop-contract.md`，补真实 subagent roster 或降级报告 | 父级 handoff 固定要求 `supervision_packet`，A/B/C scripts 消费 `--supervision-packet` | messages pack 中能追溯监制包或降级说明 |
 | 卷级 review 失败后跨 lane 静默改正文 | review loop ownership drift | aggregate 必须指回原 A/B/C lane 与 repair mode | review rework target 固定 `original_drafting_lane`，BC 由 provider 执行，A 由隔离监制 + GPT 执行 | `第V卷.validation.json` 含原 lane 与返工入口 |
+| 用户要求 subagents 多路修复时，执行者把“多路”误解为 GPT worker 直接主创 B/C provider 正文 | repair authorship drift | subagents 只拆分问题和写 repair brief，正文修复回原 lane provider 执行 | 父级 `Repair Lane Preservation` 固定 provider lane ownership；报告必须声明 repair creative engine | 修复后的 sidecar 有原 lane provider messages/report，正文 `写作模型` 与执行证据一致 |
 | lane artifacts 被误认为正文真源 | evidence/truth confusion | 把 artifacts 降回 `reports/3-初稿/<lane>/...` 证据链 | 父级 Output Contract 固定“业务真源只有第N卷/第N章.md” | query/resume/review 默认读取 canonical draft |
 | 旧 step-after-write 即时审计合同又被当成当前主创拓扑 | compatibility contract overreach | 仅在恢复/兼容 runtime 时加载 `_shared/drafting-instant-validation-contract.md` | 父级写明它不是默认主创路径 | 新章节直写不再先展开旧八步 runtime |
 
@@ -43,6 +44,7 @@ last_checked_at: 2026-04-27
 6. 若正文内容像 planning 摘要、frontmatter 缺 `写作模型` 或 provider 证据链缺失，转到具体 lane 的 `CONTEXT.md` 和分区细则，不在父级长篇补规则。
 7. 若恢复链或即时审计仍需要旧 step gate，加载 `_shared/drafting-instant-validation-contract.md`；若是新章直写，不让该兼容合同反向改写 lane 选择。
 8. 若本文件开始积累某个 provider 的提示词、脚本参数或正文审美细则，把该经验迁回对应 lane 的 `CONTEXT.md` 或 `knowledge-base/`。
+9. 若 review 后需要正文修复，先读取正文 `写作模型`、provider sidecar 或 aggregate 中的 `original_drafting_lane`；B/C lane 不允许由 GPT worker 直接改写后继续冒充原 provider 修复。
 
 ## Reusable Heuristics
 
@@ -55,3 +57,4 @@ last_checked_at: 2026-04-27
 - 旧即时审计合同可以服务 resume 和兼容 runtime，但不应重新把 `3-初稿` 拉回八步主创拓扑。
 - 监制层最适合沉到共享合同：三条 lane 都需要它，但 execution layer 不同；A 是 GPT 隔离监制 + GPT 主写作，B/C 是 GPT 监制 + 外部 provider 执行。
 - 返工闭环必须记住“谁写的就回到谁那里改”：review 可以裁决质量，但不应把 B/C 的 provider ownership 变成 GPT 直接改稿。
+- “启用 subagents”只授权真实分工与真实 reviewer/worker runtime，不自动授权切换正文主创模型；正文主创模型仍由 lane contract 决定。

@@ -40,7 +40,7 @@ skill_role: parent_guide
 - `0-初始化`、`1-设定`、`2-卷章规划` 的真源改写权
 - 具体 provider / GPT-native 的执行细则所有权
 - `review` 的 PASS/FAIL 判定权
-- `5-上下文回流` 的 validated actualization 写回权
+- `context-return` 的 validated actualization 写回权
 
 ## Lane Selection
 
@@ -88,6 +88,14 @@ flowchart TD
 - 润色请求未显式指定 provider / lane 时，默认选择 `../4-润色/B-Doubao流`。
 - 润色请求显式点名 GPT 原生、DeepSeek 或 Doubao 时，分别移交 `../4-润色/A-GPT原生`、`../4-润色/C-Deepseek流`、`../4-润色/B-Doubao流`。
 - 若用户点名的 lane 不存在、未激活或缺少 `SKILL.md + CONTEXT.md`，必须阻断并报告缺口，不得静默回退。
+
+### Repair Lane Preservation
+
+- 对 `review/final_acceptance`、`code-reviewer` 或用户反馈触发的初稿返工，默认必须回到原始起稿 lane 执行正文主创修复。
+- 若原正文 `frontmatter` 为 `写作模型: Deepseek` 或本阶段记录的 `original_drafting_lane=C-Deepseek流`，则修复优化的正文改写仍必须进入 `C-Deepseek流` 的 `local_repair`、`chapter_rewrite` 或逐章重写路径。
+- subagents 在返工中默认只拥有拆单、诊断、repair brief、prompt 约束、复核和聚合权；不得直接把 GPT worker 改写正文当作 B/C provider lane 的正常修复输出。
+- 只有用户显式要求切换写作模型、改走 GPT 原生、本地直写或其它 provider 时，才允许改选 lane；此时必须同步更新正文 `写作模型`、sidecar 证据与最终报告，不得继续标记为原 provider 输出。
+- 若原 lane provider 不可用，必须硬失败并报告 provider、权限、网络或认证阻断；不得静默降级为 GPT 直写。
 
 ## Input Contract
 
@@ -151,6 +159,7 @@ flowchart TD
 6. 正式写作时，要求子路径按共享合同启动 team supervision subagents；若被阻断，子路径必须留下降级报告。
 7. 子路径完成后，确认业务真源写回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`，过程 artifacts 只作为证据链。
 8. 单章完成只标记 candidate draft；当前卷默认 10 章完成后，进入 `review/final_acceptance` 并汇流 `code-reviewer` findings；失败按 aggregate 的 `rework_targets` 回到原 lane。
+9. 返工闭环必须保持 lane ownership：A lane 可由 GPT 原生修复；B/C lane 必须由对应 provider 执行正文修复，GPT/subagents 只生成 repair brief 与复核结果。
 
 ## Core Gates
 
@@ -179,6 +188,7 @@ flowchart TD
 | 起草/续写/重写/修复误判 | 子路径类型策略层 | 对应 lane 的 `types/drafting-type-map.md` |
 | 脚本越权主创正文 | 子路径脚本层 | 对应 lane 的 `scripts/` + AGENTS.md LLM-first 规则 |
 | 监制 subagents 或卷级 `code-reviewer` 闭环缺失 | 共享监制/审计合同层 | `_shared/supervised-drafting-review-loop-contract.md` + `review/SKILL.md` |
+| review 失败后 GPT/subagents 直接修复 B/C 正文并继续标记原 provider | lane ownership 层 | 本 `Repair Lane Preservation` + `_shared/supervised-drafting-review-loop-contract.md` |
 | 审查或恢复链仍依赖旧八步 runtime | 兼容合同层 | `_shared/drafting-instant-validation-contract.md` |
 
 ## Lite Tier Field Mapping

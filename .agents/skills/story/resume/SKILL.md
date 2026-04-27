@@ -8,7 +8,7 @@ metadata:
 
 # Story Resume
 
-`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`5-上下文回流`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
+`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`context-return`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
 
 本包按 Skill 2.0 工作车间结构维护：入口、触发、模式路由、动态引用、关键门禁和输出合同保留在 `SKILL.md`；恢复协议在 `references/`，思行节点在 `steps/`，恢复类型在 `types/`，质量门禁在 `review/`，经验知识库在 `knowledge-base/`，输出样板在 `templates/`，机械辅助边界在 `scripts/`，产品侧元数据在 `agents/`。
 
@@ -32,7 +32,7 @@ metadata:
 ## When Not To Use
 
 - 用户只是查询项目事实、文件位置或已有产物清单，应优先进入 `query/`。
-- 用户要求对 PASS 集做正式 actualization，应进入 `5-上下文回流/`。
+- 用户要求对 PASS 集做正式 actualization，应进入 `context-return/`。
 - 用户要求生成或修改正文，应回到 `3-初稿` 对应工序。
 - 用户要求修复审查结论或做终验，应进入 `review/`。
 - 用户要求破坏性 Git 操作、删除未备份正文、清空项目资产时，本技能只能提供风险说明和非破坏性检查路径，不得默认执行。
@@ -53,13 +53,13 @@ Accepted input:
 
 - 明确项目路径或当前目录可解析到 `STATE.json`，并要求恢复、检测、清理或继续任务。
 - 已有 `workflow detect` 输出，需要转成人类可执行恢复方案。
-- 没有 tracked 中断，但存在 `review/*.validation.json`、`review/*章审查报告.md`、`3-初稿/第V卷.写作日志.yaml` 或 `5-上下文回流/*.context-return.json` 等业务证据链。
+- 没有 tracked 中断，但存在 `review/*.validation.json`、`review/*章审查报告.md`、`3-初稿/第V卷.写作日志.yaml` 或 `context-return/*.context-return.json` 等业务证据链。
 
 Reject or reroute:
 
 - 项目根无法唯一定位 -> 先询问项目路径或要求运行 preflight。
 - 明确只是查询事实 -> `query/`。
-- 明确要求 PASS actualization -> `5-上下文回流/`。
+- 明确要求 PASS actualization -> `context-return/`。
 - 明确要求写正文或修正文稿质量 -> `3-初稿` / `review/`。
 - 请求默认执行 `git reset --hard`、未备份删除正文、清空资产 -> block，并只给非破坏性恢复路径。
 

@@ -70,7 +70,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert state["paths"]["drafting_root"] == "3-初稿/"
     assert state["paths"]["polish_root"] == "4-润色/"
     assert state["paths"]["review_root"] == "review/"
-    assert state["paths"]["context_return_root"] == "5-上下文回流/"
+    assert state["paths"]["context_return_root"] == "context-return/"
     assert state["main_artifacts"]["north_star"] == "0-初始化/north_star.yaml"
     assert state["main_artifacts"]["story_source_manifest"] == "0-初始化/story-source-manifest.yaml"
     assert state["main_artifacts"]["init_handoff"] == "0-初始化/init_handoff.yaml"
@@ -128,7 +128,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert (project_root / "3-初稿").is_dir()
     assert (project_root / "4-润色").is_dir()
     assert (project_root / "review").is_dir()
-    assert (project_root / "5-上下文回流").is_dir()
+    assert (project_root / "context-return").is_dir()
     assert not (project_root / "1-设定" / "0-全局卡").exists()
     assert not (project_root / "1-设定" / "1-风格卡").exists()
     assert not (project_root / "1-设定" / "5-类型卡").exists()
@@ -153,7 +153,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert " - 2-卷章规划/" in captured.out
     assert " - 4-润色/" in captured.out
     assert " - review/" in captured.out
-    assert " - 5-上下文回流/" in captured.out
+    assert " - context-return/" in captured.out
     assert "2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
 
 
