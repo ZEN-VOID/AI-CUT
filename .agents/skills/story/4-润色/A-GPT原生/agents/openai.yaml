@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story Polishing GPT Native"
+  short_description: "Polish existing story draft chapters through native GPT."
+  default_prompt: "Use $story-polishing-gpt-native to polish or repair an existing 3-初稿 chapter with native GPT, loading project memory, planning truth, north_star, continuity context, and writing the canonical output to projects/story/<项目名>/4-润色/第N卷/第N章.md."

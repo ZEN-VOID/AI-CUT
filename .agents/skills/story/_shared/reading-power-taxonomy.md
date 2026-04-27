@@ -2,7 +2,7 @@
 
 > 定位：`story` 当前活跃技能树的追读力共享真源。
 >
-> 用途：供 `3-Drafting` 主技能、context builder、query / status reporting、review 以及显式题材卡投影共享读取。
+> 用途：供 `3-初稿` 主技能、context builder、query / status reporting、review 以及显式题材卡投影共享读取。
 >
 > 原则：
 >

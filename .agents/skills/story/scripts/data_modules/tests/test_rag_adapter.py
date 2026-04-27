@@ -364,7 +364,7 @@ async def test_search_with_backtrack(temp_project):
             "chunk_type": "scene",
             "chunk_id": "ch0001_s1",
             "parent_chunk_id": "ch0001_summary",
-            "source_file": "3-Drafting/第1卷/第1章.md#scene_1",
+            "source_file": "3-初稿/第1卷/第1章.md#scene_1",
         },
     ]
     await adapter.store_chunks(chunks)
@@ -387,11 +387,11 @@ def test_recent_and_fetch_vectors(temp_project):
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO vectors (chunk_id, chapter, scene_index, content, embedding, parent_chunk_id, chunk_type, source_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            ("ch0001_s1", 1, 1, "内容", b"", None, "scene", "3-Drafting/第1卷/第1章.md#scene_1"),
+            ("ch0001_s1", 1, 1, "内容", b"", None, "scene", "3-初稿/第1卷/第1章.md#scene_1"),
         )
         cursor.execute(
             "INSERT INTO vectors (chunk_id, chapter, scene_index, content, embedding, parent_chunk_id, chunk_type, source_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            ("ch0002_s1", 2, 1, "后文内容", b"", None, "scene", "3-Drafting/第1卷/第2章.md#scene_1"),
+            ("ch0002_s1", 2, 1, "后文内容", b"", None, "scene", "3-初稿/第1卷/第2章.md#scene_1"),
         )
         conn.commit()
 

@@ -4,7 +4,7 @@
 drafting_volume_quality_guard.py - pre-validation quality gate for story2026 drafting
 
 用途：
-- 在卷级 `candidate_volume_draft` 之后、进入 `4-Review` 之前，阻止“工序完整但整体写平”的卷继续下游
+- 在卷级 `candidate_volume_draft` 之后、进入 `review` 之前，阻止“工序完整但整体写平”的卷继续下游
 - 统一消费 `第V卷.写作日志.yaml -> quality_gate_snapshot`
 """
 
@@ -55,7 +55,7 @@ def _resolve_write_log_path(project_root: Path, volume_num: int, explicit_path: 
         return Path(normalize_windows_path(explicit_path)).resolve()
     if volume_num <= 0:
         raise ValueError("volume_num must be positive when --write-log is omitted")
-    return project_root / "3-Drafting" / f"第{volume_num}卷.写作日志.yaml"
+    return project_root / "3-初稿" / f"第{volume_num}卷.写作日志.yaml"
 
 
 def _normalized_list(value: Any) -> list[str]:
@@ -172,19 +172,19 @@ def validate_quality_snapshot(
                 "message": f"blocked guard axes: {', '.join(blocked_axes)}",
             }
         )
-    if verdict == READY_VERDICT and next_action != "4-Review":
+    if verdict == READY_VERDICT and next_action != "review":
         issues.append(
             {
                 "code": "invalid_next_action_for_ready",
-                "message": f"ready verdict requires next_action=4-Review, got {next_action or '<empty>'}",
+                "message": f"ready verdict requires next_action=review, got {next_action or '<empty>'}",
             }
         )
     if verdict == BLOCK_VERDICT:
-        if next_action != "3-Drafting-rework":
+        if next_action != "3-初稿-rework":
             issues.append(
                 {
                     "code": "invalid_next_action_for_block",
-                    "message": f"block verdict requires next_action=3-Drafting-rework, got {next_action or '<empty>'}",
+                    "message": f"block verdict requires next_action=3-初稿-rework, got {next_action or '<empty>'}",
                 }
             )
         if not primary_issues:
@@ -270,7 +270,7 @@ def validate_project_volume(
     *,
     write_log_path: Optional[Path] = None,
 ) -> dict[str, Any]:
-    resolved = write_log_path or (project_root / "3-Drafting" / f"第{volume_num}卷.写作日志.yaml")
+    resolved = write_log_path or (project_root / "3-初稿" / f"第{volume_num}卷.写作日志.yaml")
     return validate_volume_log(resolved, volume_num=volume_num)
 
 

@@ -119,7 +119,7 @@ flowchart TD
 
 ## Drafting Projection
 
-`3-Drafting` 默认这样消费本 guide：
+`3-初稿` 默认这样消费本 guide：
 
 1. 先用 taxonomy 选“是什么”：
    - 主钩

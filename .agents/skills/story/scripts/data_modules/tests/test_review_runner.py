@@ -19,10 +19,10 @@ def _load_module():
 def _seed_project(project_root: Path, chapter: int, manuscript_text: str) -> None:
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
     (project_root / ".webnovel").mkdir(parents=True, exist_ok=True)
-    drafting_dir = project_root / "3-Drafting"
+    drafting_dir = project_root / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / f"第{chapter}集.md").write_text(manuscript_text, encoding="utf-8")
-    init_dir = project_root / "0-Init"
+    init_dir = project_root / "0-初始化"
     init_dir.mkdir(parents=True, exist_ok=True)
     (init_dir / "north_star.yaml").write_text(
         "\n".join(
@@ -37,7 +37,7 @@ def _seed_project(project_root: Path, chapter: int, manuscript_text: str) -> Non
 
 
 def _seed_validation_truth(project_root: Path, chapter: int) -> None:
-    planning_dir = project_root / "2-Planning"
+    planning_dir = project_root / "2-卷章规划"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text(
         json.dumps(
@@ -327,7 +327,7 @@ def test_review_runner_logic_compares_upstream_truth(tmp_path):
     assert result["pass"] is False
     assert result["metrics"]["world_rule_conflicts"] >= 1
     assert result["metrics"]["exception_cost_gaps"] >= 1
-    assert any(item.get("source_layer_owner") in {"0-Init", "1-Cards", "2-Planning"} for item in result["issues"])
+    assert any(item.get("source_layer_owner") in {"0-初始化", "1-Cards", "2-卷章规划"} for item in result["issues"])
 
 
 def test_review_runner_batch_returns_all_results(tmp_path):
@@ -421,7 +421,7 @@ def test_task_convergence_validator_flags_branch_without_route():
 
     assert result["pass"] is False
     assert result["metrics"]["orphan_branch_count"] >= 1
-    assert any(item.get("source_layer_owner") == "2-Planning" for item in result["issues"])
+    assert any(item.get("source_layer_owner") == "2-卷章规划" for item in result["issues"])
 
 
 def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(tmp_path):
@@ -447,7 +447,7 @@ def test_continuity_validator_ignores_markdown_frontmatter_when_checking_intro(t
             ]
         ),
     )
-    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir = tmp_path / "3-初稿"
     (drafting_dir / "第1章.md").write_text(
         "# 第1章\n\n李青在门口看见血书，终于意识到昨夜那场赢像被人安排过。",
         encoding="utf-8",
@@ -614,9 +614,9 @@ def test_review_runner_final_acceptance_writes_aggregate_json(tmp_path):
         chapter_num=9,
     )
 
-    aggregate_path = tmp_path / "4-Review" / "第9章.validation.json"
+    aggregate_path = tmp_path / "review" / "第9章.validation.json"
     assert aggregate_path.is_file()
-    assert payload["validation_ref"] == "4-Review/第9章.validation.json"
+    assert payload["validation_ref"] == "review/第9章.validation.json"
     assert payload["validation_status"] in {"PASS", "FAIL-QUALITY", "FAIL-COVENANT", "FAIL-RUNTIME"}
 
 
@@ -645,7 +645,7 @@ def test_review_runner_invokes_code_reviewer_and_records_artifacts(tmp_path, mon
     assert external_review["provider"] == "code-reviewer"
     assert len(external_review["jobs"]) == 2
     assert all(item.get("status") == "completed" for item in external_review["jobs"])
-    assert external_review["artifact_dir_ref"] == "4-Review/.code-reviewer/第11章"
+    assert external_review["artifact_dir_ref"] == "review/.code-reviewer/第11章"
     assert (tmp_path / external_review["artifact_dir_ref"] / "code_quality.json").is_file()
     assert (tmp_path / external_review["artifact_dir_ref"] / "review_report.json").is_file()
 
@@ -688,7 +688,7 @@ def test_review_runner_applies_auto_fix_from_code_reviewer_findings(tmp_path, mo
     monkeypatch.setattr(review_runner_module, "CODE_REVIEWER_REPORTER", reporter_script)
 
     payload = module.run_final_acceptance(project_root=tmp_path, chapter_num=12)
-    manuscript_text = (tmp_path / "3-Drafting" / "第12集.md").read_text(encoding="utf-8")
+    manuscript_text = (tmp_path / "3-初稿" / "第12集.md").read_text(encoding="utf-8")
 
     assert "缓缓" in manuscript_text
     assert "突然" not in manuscript_text

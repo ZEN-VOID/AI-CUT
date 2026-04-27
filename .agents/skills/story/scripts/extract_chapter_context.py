@@ -267,7 +267,7 @@ def _load_protagonist_growth_snapshot(project_root: Path) -> Dict[str, Any]:
 
 
 def _load_story_source_manifest_summary(project_root: Path) -> Dict[str, Any]:
-    manifest_path = project_root / "0-Init" / "story-source-manifest.yaml"
+    manifest_path = project_root / "0-初始化" / "story-source-manifest.yaml"
     if not manifest_path.is_file() or yaml is None:
         return {}
 
@@ -292,7 +292,7 @@ def _load_story_source_manifest_summary(project_root: Path) -> Dict[str, Any]:
         authoritative_for = {str(v).strip() for v in (item.get("authoritative_for") or []) if str(v).strip()}
         paths = [str(v).strip() for v in (item.get("paths") or []) if str(v).strip()]
         coverage = str(item.get("coverage_scope") or "").strip()
-        if title and ("3-Drafting" in authoritative_for or item.get("source_type") in {"style_card", "character_bundle"}):
+        if title and ("3-初稿" in authoritative_for or item.get("source_type") in {"style_card", "character_bundle"}):
             drafting_titles.append(title)
         if coverage and coverage not in coverage_notes:
             coverage_notes.append(coverage)
@@ -313,7 +313,7 @@ def _load_story_source_manifest_summary(project_root: Path) -> Dict[str, Any]:
                 source_refs.append(ref)
 
     return {
-        "manifest_ref": "0-Init/story-source-manifest.yaml",
+        "manifest_ref": "0-初始化/story-source-manifest.yaml",
         "primary_story_source_status": str(primary.get("status") or "").strip(),
         "primary_coverage_scope": str(primary.get("coverage_scope") or "").strip(),
         "drafting_auxiliary_titles": drafting_titles[:6],

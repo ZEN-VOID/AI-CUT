@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story 4-Review"
-  short_description: "小说卷级终验聚合、维度审查、返工路由与闭环交接治理"
-  default_prompt: "使用 $story-stage-review 对指定 story2026 项目卷执行终验聚合、返工路由或维护本阶段 Skill 2.0 结构。"

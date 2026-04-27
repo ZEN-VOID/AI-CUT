@@ -130,7 +130,7 @@ def _detect_planning_source(project_root: Path) -> dict[str, str]:
     book_plan_path = canonical_book_plan_path(project_root)
     holomap_path = resolve_planning_artifact_path(project_root, "holomap")
     legacy_holomap_path = legacy_planning_artifact_path(project_root, "holomap")
-    legacy_outline_path = project_root / "2-Planning" / "legacy" / "总纲.md"
+    legacy_outline_path = project_root / "2-卷章规划" / "legacy" / "总纲.md"
 
     if book_plan_path.is_file():
         return {
@@ -154,20 +154,20 @@ def _detect_planning_source(project_root: Path) -> dict[str, str]:
             "status": "legacy_fallback",
             "label": "WARN",
             "path": str(legacy_outline_path),
-            "detail": "仅检测到 2-Planning/legacy/总纲.md，尚未切到新的三层规划真源",
+            "detail": "仅检测到 2-卷章规划/legacy/总纲.md，尚未切到新的三层规划真源",
         }
     return {
         "status": "missing",
         "label": "INFO",
         "path": str(book_plan_path),
-        "detail": f"尚未生成规划真源；完成 2-Planning 后应落盘 {canonical_book_plan_relpath()}",
+        "detail": f"尚未生成规划真源；完成 2-卷章规划 后应落盘 {canonical_book_plan_relpath()}",
     }
 
 
 def _build_preflight_report(explicit_project_root: Optional[str]) -> dict:
     scripts_dir = _scripts_dir().resolve()
     plugin_root = scripts_dir.parent
-    skill_root = plugin_root / "3-Drafting"
+    skill_root = plugin_root / "3-初稿"
     entry_script = scripts_dir / "story.py"
     legacy_entry_script = scripts_dir / "webnovel.py"
     extract_script = scripts_dir / "extract_chapter_context.py"
@@ -325,7 +325,10 @@ def main() -> None:
     p_update_state = sub.add_parser("update-state", help="转发到 update_state.py")
     p_update_state.add_argument("args", nargs=argparse.REMAINDER)
 
-    p_loopback = sub.add_parser("loopback", help="转发到 loopback_manager.py")
+    p_context_return = sub.add_parser("context-return", help="转发到 context_return_manager.py（5-上下文回流）")
+    p_context_return.add_argument("args", nargs=argparse.REMAINDER)
+
+    p_loopback = sub.add_parser("loopback", help="legacy alias：转发到 context_return_manager.py")
     p_loopback.add_argument("args", nargs=argparse.REMAINDER)
 
     p_init = sub.add_parser("init", help="转发到 init_project.py（初始化项目）")
@@ -397,8 +400,8 @@ def main() -> None:
         raise SystemExit(_run_script("status_reporter.py", [*forward_args, *rest]))
     if tool == "update-state":
         raise SystemExit(_run_script("update_state.py", [*forward_args, *rest]))
-    if tool == "loopback":
-        raise SystemExit(_run_script("loopback_manager.py", [*forward_args, *rest]))
+    if tool in {"context-return", "loopback"}:
+        raise SystemExit(_run_script("context_return_manager.py", [*forward_args, *rest]))
     if tool == "cards-check":
         raise SystemExit(_run_script("cards_coverage_validator.py", [*forward_args, "--format", str(args.format)]))
     if tool == "cards-write":

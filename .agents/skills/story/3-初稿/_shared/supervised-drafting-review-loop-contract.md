@@ -1,0 +1,98 @@
+# Supervised Drafting Review Loop Contract
+
+本合同是 `story2026 / 3-初稿` 三条写作 lane 的共享监制与返工闭环。它只定义调度、证据与回流规则，不替代 `A-GPT原生`、`B-Doubao流`、`C-Deepseek流` 各自的 provider 合同。
+
+## Default Runtime
+
+- 正式写作调用默认启用真实 subagents 监制模式；仓库层已将调用本合同视为对默认 subagent 路径的许可。
+- 启动前必须加载 `.agents/skills/team/SKILL.md + CONTEXT.md`，再按项目类型、题材、风格卡、当前卷问题选择 `team/` 中相关成员技能的 `SKILL.md + CONTEXT.md`。
+- 若上层 system / developer / tool policy 阻断真实 subagents，才允许降级为本地顺序监制纪要；报告必须说明阻断层级、原计划 subagent 路径、实际降级路径、未启动角色。
+- subagents 不拥有正文 canonical truth；它们输出 `supervision_packet`、`execution_notes`、`risk_flags` 或 `repair_brief`，由当前 lane 聚合后交给写作执行层。
+
+## Team Supervision Roster
+
+默认组队不是固定名人表，而是按 `team/SKILL.md -> Member And Scenario Index` 动态选人：
+
+| slot | selection rule | output |
+| --- | --- | --- |
+| `narrative_supervisor` | 优先选 `story/` 或 `study/文学系/` 中最贴合题材与长篇推进的角色 | 章节推进、读者拉力、章末牵引、类型气口 |
+| `structure_supervisor` | 优先选 `aigc/编剧组/` 或能处理结构兑现的角色 | 本章承诺、卷级推进、场景价值转变 |
+| `character_supervisor` | 优先选能处理人物声口、关系压力、表演/心理的角色 | 动机、对白、情绪余波、人物弧线 |
+| `style_supervisor` | 优先选与风格卡、项目 MEMORY、审美口味匹配的美学/文学/作品维度角色 | 语体、气压、段落呼吸、禁区 |
+| `continuity_supervisor` | 可由主 agent 或专门 subagent 承担，重点看上一章、当前卷线索和规划锚点 | 承接、时间、支线去向、未完成动作 |
+
+最小可执行 roster 为 2 个 subagents：`narrative_supervisor` + `character_or_style_supervisor`。复杂卷、重写、返工或题材跨域时扩展到 3-5 个。
+
+## Lane-Specific Layering
+
+| lane | supervisor layer | execution layer | hard rule |
+| --- | --- | --- | --- |
+| `A-GPT原生` | GPT subagents 在隔离上下文中担任监制、审计与修复顾问 | 当前 GPT/LLM 会话生成 canonical draft | 即使同为 GPT，也必须用后台隔离 subagents 保持评估客观性；不得把主写作者自评伪装成独立监制。 |
+| `B-Doubao流` | GPT subagents 产出监制包、prompt 约束与返工 brief | Doubao provider 生成或重写正文 | GPT 是监制层，Doubao 是执行层；不得把 GPT 改写正文冒充 Doubao lane。 |
+| `C-Deepseek流` | GPT subagents 产出监制包、prompt 约束与返工 brief | DeepSeek provider 生成或重写正文 | GPT 是监制层，DeepSeek 是执行层；不得把 GPT 改写正文冒充 DeepSeek lane。 |
+
+## Supervision Packet
+
+subagents 汇流后必须形成一个面向执行层的 `supervision_packet`。它可以作为脚本参数 `--supervision-packet <path>` 进入 A/B/C 的 messages pack。
+
+```yaml
+supervision_packet:
+  roster:
+    - slot: narrative_supervisor
+      skill_path: ".agents/skills/team/..."
+      focus: ""
+  must_do:
+    - ""
+  must_not_do:
+    - ""
+  opening_bridge:
+    facts_to_carry: []
+    emotional_residue: []
+  chapter_obligations:
+    structural: []
+    character: []
+    style: []
+    continuity: []
+  risk_flags:
+    - severity: high | medium | low
+      issue: ""
+      prevention: ""
+  execution_brief: ""
+```
+
+约束：
+
+- `supervision_packet` 只能承载可执行要求，不写 subagent 思维过程。
+- 包内意见若与 planning、cards、north_star、项目 MEMORY 冲突，必须回到主 agent 裁决；不得让监制包改写上游 truth。
+- 执行层必须吸收监制包，但正文 frontmatter 不记录监制角色或路径。
+
+## Writing And Review Loop
+
+1. `N1-N3` 串行锁源、判型、装配上下文。
+2. 启动 team supervision subagents，产出 `supervision_packet`。
+3. A/B/C 各自执行正文主创或 provider 调用，并把 `supervision_packet` 纳入 prompt / messages。
+4. 单章完成只表示 candidate draft 完成；默认不宣称 validated final draft。
+5. 当前卷完成后进入 `.agents/skills/story/review` 的 `final_acceptance`，默认卷单位为 10 章，除非项目规划或用户另行指定。
+6. `review` 必须启用 `code-reviewer` 作为独立审计 provider，并并发执行 registry 中 `final_acceptance.mandatory = true` 的维度。
+7. `PASS` 才可进入 review / 上下文回流；`FAIL-QUALITY` 必须回到原 lane 的 `chapter_rewrite`、`local_repair` 或更大范围重写；`FAIL-COVENANT` 或 source conflict 回到上游 source contract。
+
+## Rework Routing
+
+| review result | route |
+| --- | --- |
+| 单章局部失真、声口漂移、承接轻微断带 | 原 lane `local_repair`，携带 review finding 与 `repair_brief` |
+| 多处章节共享同一结构/节奏问题 | 原 lane `chapter_rewrite`，按 affected chapters 分批重写 |
+| 整卷目标未兑现、主线支线关系错误、卷级结构失败 | 原 lane volume-level rewrite plan，然后逐章执行 `chapter_rewrite` |
+| provider evidence 缺失、模型/参数漂移 | 修 provider / script 后同 lane 重跑 |
+| cards / planning / north_star 自身冲突 | `back_to_source_contract`，不得让 drafting 背锅 |
+
+BC 返工时 GPT/subagents 只生成 `repair_brief` 与 provider prompt 约束，正文仍由对应外部 LLM 执行。A 返工时仍应把监制 subagents 放在隔离后台上下文中运行，再由主 GPT 写回。
+
+## Evidence Requirements
+
+- `supervision_packet` 路径或降级报告。
+- 被选 team skill 列表与每个角色的 focus。
+- A/B/C messages pack 中包含 `supervision_packet` 摘要或全文。
+- provider / GPT-authored draft sidecar。
+- 卷级 `review/第V卷.validation.json`，含 `code-reviewer` findings 映射结果。
+- 若返工，必须记录原 lane、rework mode、affected chapters 与 source owner。

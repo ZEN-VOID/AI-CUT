@@ -3,11 +3,11 @@
 Chapter file path helpers.
 
 This project currently uses the canonical drafting layout:
-1) Canonical layout: 3-Drafting/第1卷/第7章.md
+1) Canonical layout: 3-初稿/第1卷/第7章.md
 
 Legacy published-manuscript layouts may still exist in older projects:
-2) Legacy flat 3-Drafting layout: 3-Drafting/第7章.md
-3) Legacy flat 3-Drafting layout: 3-Drafting/第7集.md
+2) Legacy flat 3-初稿 layout: 3-初稿/第7章.md
+3) Legacy flat 3-初稿 layout: 3-初稿/第7集.md
 4) Legacy flat layout: 正文/第0007章.md
 5) Volume layout:      正文/第1卷/第007章-章节标题.md
 
@@ -102,7 +102,7 @@ def extract_chapter_title(project_root: Path, chapter_num: int) -> str:
         if title:
             return title
 
-    outline_dir = project_root / "2-Planning" / "legacy"
+    outline_dir = project_root / "2-卷章规划" / "legacy"
     if outline_dir.exists():
         return _extract_title_from_split_outline_filename(outline_dir, chapter_num)
     return ""
@@ -121,9 +121,9 @@ def find_chapter_file(project_root: Path, chapter_num: int) -> Optional[Path]:
     Find an existing chapter file for chapter_num.
 
     Resolution order:
-    1) canonical 3-Drafting root (`第N卷/第N章.md`)
-    2) legacy flat 3-Drafting root (`第N章.md`)
-    3) legacy flat 3-Drafting root (`第N集.md`)
+    1) canonical 3-初稿 root (`第N卷/第N章.md`)
+    2) legacy flat 3-初稿 root (`第N章.md`)
+    3) legacy flat 3-初稿 root (`第N集.md`)
     4) legacy 正文 flat layout
     5) legacy 正文 volume/custom layout
     Returns the first match (stable sorted order) or None if not found.
@@ -132,11 +132,11 @@ def find_chapter_file(project_root: Path, chapter_num: int) -> Optional[Path]:
     if canonical.exists():
         return canonical
 
-    legacy_flat_chapter = project_root / "3-Drafting" / f"第{chapter_num}章.md"
+    legacy_flat_chapter = project_root / "3-初稿" / f"第{chapter_num}章.md"
     if legacy_flat_chapter.exists():
         return legacy_flat_chapter
 
-    legacy_flat_episode = project_root / "3-Drafting" / f"第{chapter_num}集.md"
+    legacy_flat_episode = project_root / "3-初稿" / f"第{chapter_num}集.md"
     if legacy_flat_episode.exists():
         return legacy_flat_episode
 
@@ -171,21 +171,34 @@ def default_chapter_draft_path(project_root: Path, chapter_num: int, *, use_volu
     Args:
         project_root: 项目根目录
         chapter_num: 章节号
-        use_volume_layout: legacy arg; ignored for canonical 3-Drafting layout
+        use_volume_layout: legacy arg; ignored for canonical 3-初稿 layout
 
-    Current canonical root is `3-Drafting/第N卷/第N章.md`.
+    Current canonical root is `3-初稿/第N卷/第N章.md`.
     """
     return drafting_root_md_path(project_root, chapter_num)
 
 
 def drafting_root_md_path(project_root: Path, chapter_num: int) -> Path:
     """
-    Canonical stage-runtime root file for 3-Drafting.
+    Canonical stage-runtime root file for 3-初稿.
 
     Example:
-        3-Drafting/第1卷/第7章.md
+        3-初稿/第1卷/第7章.md
     """
     if chapter_num <= 0:
         raise ValueError("chapter_num must be >= 1")
     volume_num = planning_volume_num_for_chapter(chapter_num, project_root=project_root)
-    return project_root / "3-Drafting" / f"第{volume_num}卷" / f"第{chapter_num}章.md"
+    return project_root / "3-初稿" / f"第{volume_num}卷" / f"第{chapter_num}章.md"
+
+
+def polishing_root_md_path(project_root: Path, chapter_num: int) -> Path:
+    """
+    Canonical stage-runtime root file for 4-润色.
+
+    Example:
+        4-润色/第1卷/第7章.md
+    """
+    if chapter_num <= 0:
+        raise ValueError("chapter_num must be >= 1")
+    volume_num = planning_volume_num_for_chapter(chapter_num, project_root=project_root)
+    return project_root / "4-润色" / f"第{volume_num}卷" / f"第{chapter_num}章.md"

@@ -221,7 +221,7 @@ def _load_holomap_slice(project_root: Path, slice_ref: str, holomap: dict | None
 
     candidate_paths: list[Path] = []
     if slice_file_ref:
-        candidate_paths.append(project_root / "2-Planning" / slice_file_ref)
+        candidate_paths.append(project_root / "2-卷章规划" / slice_file_ref)
 
     if slice_ref.startswith("slice-"):
         raw = slice_ref.removeprefix("slice-")
@@ -233,8 +233,8 @@ def _load_holomap_slice(project_root: Path, slice_ref: str, holomap: dict | None
                 start_num = 0
             volume_num = ((start_num - 1) // 10) + 1 if start_num > 0 else 0
             if volume_num > 0:
-                candidate_paths.append(project_root / "2-Planning" / "卷分片" / f"第{volume_num}卷.json")
-            candidate_paths.append(project_root / "2-Planning" / "十集分片" / f"第{start}-{end}集.json")
+                candidate_paths.append(project_root / "2-卷章规划" / "卷分片" / f"第{volume_num}卷.json")
+            candidate_paths.append(project_root / "2-卷章规划" / "十集分片" / f"第{start}-{end}集.json")
 
     seen: set[str] = set()
     for path in candidate_paths:
@@ -582,7 +582,7 @@ def _find_split_outline_file(outline_dir: Path, chapter_num: int) -> Path | None
 
 
 def _find_volume_outline_file(project_root: Path, chapter_num: int) -> Path | None:
-    outline_dir = project_root / "2-Planning" / "legacy"
+    outline_dir = project_root / "2-卷章规划" / "legacy"
     volume_num = volume_num_for_chapter_from_state(project_root, chapter_num) or volume_num_for_chapter(chapter_num)
     candidates = [
         outline_dir / f"第{volume_num}卷-详细大纲.md",
@@ -638,7 +638,7 @@ def load_chapter_outline(project_root: Path, chapter_num: int, max_chars: int | 
             return outline[:max_chars] + "\n...(已截断)"
         return outline
 
-    outline_dir = project_root / "2-Planning" / "legacy"
+    outline_dir = project_root / "2-卷章规划" / "legacy"
 
     split_outline = _find_split_outline_file(outline_dir, chapter_num)
     if split_outline is not None:

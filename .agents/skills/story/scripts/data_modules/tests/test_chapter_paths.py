@@ -18,7 +18,7 @@ def _load_module():
 def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
     module = _load_module()
 
-    planning_dir = tmp_path / "2-Planning"
+    planning_dir = tmp_path / "2-卷章规划"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "全息地图.json").write_text(
         """
@@ -38,25 +38,25 @@ def test_default_chapter_draft_path_uses_outline_heading_title(tmp_path):
 
     draft_path = module.default_chapter_draft_path(tmp_path, 1)
 
-    assert draft_path == tmp_path / "3-Drafting" / "第1卷" / "第1章.md"
+    assert draft_path == tmp_path / "3-初稿" / "第1卷" / "第1章.md"
 
 
 def test_default_chapter_draft_path_falls_back_to_split_outline_filename(tmp_path):
     module = _load_module()
 
-    outline_dir = tmp_path / "2-Planning" / "legacy"
+    outline_dir = tmp_path / "2-卷章规划" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "第0002章-标题 文件.md").write_text("无章节标题 heading", encoding="utf-8")
 
     draft_path = module.default_chapter_draft_path(tmp_path, 2)
 
-    assert draft_path == tmp_path / "3-Drafting" / "第1卷" / "第2章.md"
+    assert draft_path == tmp_path / "3-初稿" / "第1卷" / "第2章.md"
 
 
 def test_find_chapter_file_prefers_3_drafting_root(tmp_path):
     module = _load_module()
 
-    canonical_path = tmp_path / "3-Drafting" / "第3章.md"
+    canonical_path = tmp_path / "3-初稿" / "第3章.md"
     canonical_path.parent.mkdir(parents=True, exist_ok=True)
     canonical_path.write_text("正文", encoding="utf-8")
 
@@ -86,4 +86,4 @@ def test_drafting_root_md_path_uses_ascii_chapter_workspace(tmp_path):
 
     root_path = module.drafting_root_md_path(tmp_path, 7)
 
-    assert root_path == tmp_path / "3-Drafting" / "第1卷" / "第7章.md"
+    assert root_path == tmp_path / "3-初稿" / "第1卷" / "第7章.md"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Cards Style"
-  short_description: "Project style seeds into writing contracts."
-  default_prompt: "Use $story-cards-style to generate, repair, or audit style cards for a story project."

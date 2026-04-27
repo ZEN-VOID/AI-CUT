@@ -143,7 +143,7 @@ class DataModulesConfig:
 
     @property
     def chapters_dir(self) -> Path:
-        return self.project_root / "3-Drafting"
+        return self.project_root / "3-初稿"
 
     @property
     def settings_dir(self) -> Path:
@@ -151,7 +151,7 @@ class DataModulesConfig:
 
     @property
     def outline_dir(self) -> Path:
-        return self.project_root / "2-Planning" / "legacy"
+        return self.project_root / "2-卷章规划" / "legacy"
 
 
     # ================= Embedding API 配置 =================

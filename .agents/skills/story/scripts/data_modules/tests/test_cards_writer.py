@@ -45,7 +45,7 @@ def _make_project_root(tmp_path: Path) -> Path:
         },
     )
     _write_yaml(
-        project_root / "0-Init" / "north_star.yaml",
+        project_root / "0-初始化" / "north_star.yaml",
         {
             "project_identity": {
                 "title": "测试书",
@@ -99,7 +99,7 @@ def _make_project_root(tmp_path: Path) -> Path:
         },
     )
     _write_yaml(
-        project_root / "0-Init" / "init_handoff.yaml",
+        project_root / "0-初始化" / "init_handoff.yaml",
         {
             "stage_entry_seeds": {
                 "cards_seed": {
@@ -125,7 +125,7 @@ def _build_payload() -> dict:
         "sections": {
             "globals": {
                 "global_contract_refs": [
-                    {"card_id": "世界总卡", "path": "1-Cards/0-全局卡/总设定/世界总卡.json"}
+                    {"card_id": "世界总卡", "path": "1-设定/0-全局卡/总设定/世界总卡.json"}
                 ],
                 "current_focus": {
                     "confirmed_facts": ["世界规则与金手指合同已锁定"],
@@ -186,7 +186,7 @@ def _build_payload() -> dict:
                             },
                             "current_state": {
                                 "active_focus": ["旧案回溯规则"],
-                                "downstream_targets": ["1-Cards", "2-Planning", "3-Drafting"],
+                                "downstream_targets": ["1-设定", "2-卷章规划", "3-初稿"],
                                 "revision_policy": "只有 north_star 的世界设定改动时才重写",
                             },
                             "history": [],
@@ -196,7 +196,7 @@ def _build_payload() -> dict:
             },
             "styles": {
                 "style_contract_refs": [
-                    {"card_id": "整书风格卡", "path": "1-Cards/1-风格卡/总风格/整书风格卡.json"}
+                    {"card_id": "整书风格卡", "path": "1-设定/1-风格卡/总风格/整书风格卡.json"}
                 ],
                 "current_focus": {
                     "confirmed_facts": ["读者承诺与审美轴已锁定"],
@@ -275,7 +275,7 @@ def _build_payload() -> dict:
                                 "style_gate": {
                                     "anti_ai_required": True,
                                     "no_poison_required": True,
-                                    "style_contract_ref": "1-Cards/1-风格卡/总风格/整书风格卡.json",
+                                    "style_contract_ref": "1-设定/1-风格卡/总风格/整书风格卡.json",
                                     "must_keep": ["冷静克制", "现实压迫", "人物尊严感"],
                                     "must_avoid": ["鸡汤式自白", "无代价逆转"],
                                     "drift_signals": ["人物突然大段讲道理", "画面忽然热血漫画化"],
@@ -654,8 +654,8 @@ def _build_type_only_payload() -> dict:
         "sections": {
             "types": {
                 "planning_projection_refs": [
-                    {"slot": "content.holomap.story_promise", "path": "1-Cards/5-类型卡/总题材/类型总卡.json"},
-                    {"slot": "content.holomap.genre_corridor", "path": "1-Cards/5-类型卡/总题材/类型总卡.json"},
+                    {"slot": "content.holomap.story_promise", "path": "1-设定/5-类型卡/总题材/类型总卡.json"},
+                    {"slot": "content.holomap.genre_corridor", "path": "1-设定/5-类型卡/总题材/类型总卡.json"},
                 ],
                 "current_focus": {
                     "confirmed_facts": ["题材方向盘已锁定"],
@@ -705,6 +705,16 @@ def _build_type_only_payload() -> dict:
     }
 
 
+_BUILD_PAYLOAD_WITH_LEGACY_NORTH_STAR_SECTIONS = _build_payload
+
+
+def _build_payload() -> dict:
+    payload = _BUILD_PAYLOAD_WITH_LEGACY_NORTH_STAR_SECTIONS()
+    for section_name in ("globals", "styles", "types"):
+        payload["sections"].pop(section_name, None)
+    return payload
+
+
 def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     cards_writer, cards_coverage_validator, _security_utils = _load_modules()
     project_root = _make_project_root(tmp_path)
@@ -714,37 +724,14 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     assert report["ok"] is True
     assert report["mode"] == "full-build"
 
-    global_path = project_root / "1-Cards" / "0-全局卡" / "总设定" / "世界总卡.json"
-    global_card = json.loads(global_path.read_text(encoding="utf-8"))
-    assert global_card["meta"]["source_skill_id"] == "story-cards-global"
-    assert global_card["meta"]["source_route"] == "0-Init > story-cards > 全局卡/SKILL.md"
-    assert global_card["content"]["module_route"] == "story-cards > 全局卡/SKILL.md"
-    assert global_card["content"]["loaded_references"] == [
-        "SKILL.md",
-        "CONTEXT.md",
-        "全局卡/SKILL.md",
-        "全局卡/CONTEXT.md",
-        "全局卡/templates/global-card.json",
-        "全局卡/references/golden-finger-templates.md",
-    ]
+    assert not (project_root / "1-设定" / "0-全局卡").exists()
+    assert not (project_root / "1-设定" / "1-风格卡").exists()
+    assert not (project_root / "1-设定" / "5-类型卡").exists()
 
-    style_path = project_root / "1-Cards" / "1-风格卡" / "总风格" / "整书风格卡.json"
-    style_card = json.loads(style_path.read_text(encoding="utf-8"))
-    assert style_card["meta"]["source_skill_id"] == "story-cards-style"
-    assert style_card["meta"]["source_route"] == "0-Init > story-cards > 风格卡/SKILL.md"
-    assert style_card["content"]["module_route"] == "story-cards > 风格卡/SKILL.md"
-    assert style_card["content"]["loaded_references"] == [
-        "SKILL.md",
-        "CONTEXT.md",
-        "风格卡/SKILL.md",
-        "风格卡/CONTEXT.md",
-        "风格卡/templates/style-card.json",
-    ]
-
-    protagonist_path = project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林舟.json"
+    protagonist_path = project_root / "1-设定" / "2-角色卡" / "主要角色" / "林舟.json"
     protagonist = json.loads(protagonist_path.read_text(encoding="utf-8"))
     assert protagonist["meta"]["source_skill_id"] == "story-cards-character"
-    assert protagonist["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
+    assert protagonist["meta"]["source_route"] == "0-初始化 > story-cards > 角色卡/SKILL.md"
     assert protagonist["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
     assert protagonist["content"]["loaded_references"] == [
         "SKILL.md",
@@ -755,8 +742,8 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     ]
     assert protagonist["content"]["writeback_plan"]["mode"] == "full-build"
     assert protagonist["content"]["writeback_plan"]["target_paths"] == [
-        "1-Cards/2-角色卡/主要角色/林舟.json",
-        "1-Cards/2-角色卡/角色索引.json",
+        "1-设定/2-角色卡/主要角色/林舟.json",
+        "1-设定/2-角色卡/角色索引.json",
     ]
     assert protagonist["content"]["card_schema"]["character_card"]["card_scope"]["scope_type"] == "full-series"
     assert protagonist["content"]["card_schema"]["character_card"]["core"]["cast_markers"] == {
@@ -767,10 +754,10 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "is_ensemble": False,
     }
 
-    character_index_path = project_root / "1-Cards" / "2-角色卡" / "角色索引.json"
+    character_index_path = project_root / "1-设定" / "2-角色卡" / "角色索引.json"
     character_index = json.loads(character_index_path.read_text(encoding="utf-8"))
     assert character_index["meta"]["source_skill_id"] == "story-cards-character"
-    assert character_index["meta"]["source_route"] == "0-Init > story-cards > 角色卡/SKILL.md"
+    assert character_index["meta"]["source_route"] == "0-初始化 > story-cards > 角色卡/SKILL.md"
     assert character_index["content"]["module_route"] == "story-cards > 角色卡/SKILL.md"
     assert character_index["content"]["loaded_references"] == [
         "SKILL.md",
@@ -780,13 +767,13 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
         "角色卡/templates/character-card.json",
     ]
     assert character_index["content"]["writeback_plan"]["target_paths"] == [
-        "1-Cards/2-角色卡/角色索引.json",
-        "1-Cards/2-角色卡/角色关系图谱.md",
+        "1-设定/2-角色卡/角色索引.json",
+        "1-设定/2-角色卡/角色关系图谱.md",
     ]
-    assert character_index["content"]["relationship_graph"]["path"] == "1-Cards/2-角色卡/角色关系图谱.md"
+    assert character_index["content"]["relationship_graph"]["path"] == "1-设定/2-角色卡/角色关系图谱.md"
     assert character_index["gate_summary"]["status"] == "PASS"
 
-    relationship_graph_path = project_root / "1-Cards" / "2-角色卡" / "角色关系图谱.md"
+    relationship_graph_path = project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md"
     relationship_graph = relationship_graph_path.read_text(encoding="utf-8")
     assert "# 角色关系图谱" in relationship_graph
     assert "## 文字说明" in relationship_graph
@@ -796,8 +783,6 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
 
     coverage_report = cards_coverage_validator.build_cards_coverage_report(project_root)
     assert coverage_report["ok"] is True
-    assert coverage_report["sections"]["globals"]["trace"]["module_route"] == "story-cards > 全局卡/SKILL.md"
-    assert coverage_report["sections"]["styles"]["trace"]["module_route"] == "story-cards > 风格卡/SKILL.md"
     assert coverage_report["sections"]["characters"]["trace"]["module_route"] == "story-cards > 角色卡/SKILL.md"
 
 
@@ -814,23 +799,19 @@ def test_cards_writer_cleans_empty_lock_files_by_default(tmp_path):
     assert list(project_root.rglob("*.lock")) == []
 
 
-def test_cards_writer_supports_type_cards(tmp_path):
-    cards_writer, cards_coverage_validator, _security_utils = _load_modules()
+def test_cards_writer_rejects_type_cards_after_north_star_merge(tmp_path):
+    cards_writer, _cards_coverage_validator, _security_utils = _load_modules()
     project_root = _make_project_root(tmp_path)
 
-    report = cards_writer.write_cards_payload(project_root, _build_type_only_payload(), run_gate=False)
+    try:
+        cards_writer.write_cards_payload(project_root, _build_type_only_payload(), run_gate=False)
+    except ValueError as exc:
+        assert "north_star.yaml" in str(exc)
+        assert "types" in str(exc)
+    else:
+        raise AssertionError("类型卡 section 应被拒绝，类型方向盘已并入 north_star.yaml")
 
-    assert report["ok"] is True
-    type_path = project_root / "1-Cards" / "5-类型卡" / "总题材" / "类型总卡.json"
-    type_card = json.loads(type_path.read_text(encoding="utf-8"))
-    assert type_card["meta"]["source_skill_id"] == "story-cards-type"
-    assert type_card["meta"]["source_route"] == "0-Init > story-cards > 类型卡/SKILL.md"
-    assert type_card["content"]["module_route"] == "story-cards > 类型卡/SKILL.md"
-    assert type_card["content"]["card_schema"]["type_card"]["core"]["story_promise"]["promise_matrix"]["primary_genre"] == "都市成长"
-
-    coverage_report = cards_coverage_validator.build_cards_coverage_report(project_root)
-    assert coverage_report["sections"]["types"]["ok"] is True
-    assert coverage_report["sections"]["types"]["trace"]["module_route"] == "story-cards > 类型卡/SKILL.md"
+    assert not (project_root / "1-设定" / "5-类型卡").exists()
 
 
 def test_cards_writer_can_keep_empty_lock_files_when_requested(tmp_path):

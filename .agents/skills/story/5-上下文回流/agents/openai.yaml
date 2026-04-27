@@ -1,0 +1,4 @@
+interface:
+  display_name: "Story 上下文回流"
+  short_description: "PASS 后实绩沉淀与项目上下文承接"
+  default_prompt: "Use $story-context-return to turn a PASS-validated story volume into Cards current_state/history, planning actualization sidecars, project CONTEXT carryover notes, STATE projections, and the canonical context-return artifact."

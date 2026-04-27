@@ -1,0 +1,99 @@
+# north_star.yaml
+#
+# 角色：
+# - `0-初始化` 的主输出物
+# - 只承接长期稳定故事约束
+# - 不吞入整轮会话原文
+
+schema_version: "story2026/north-star/v1"
+
+meta:
+  source_stage: "0-初始化"
+  generated_at: ""
+  role: "primary-init-artifact"
+  scope: "full-series"
+  canonical_consumers:
+    - "1-设定"
+    - "2-卷章规划"
+  north_star_role: "global-style-genre-truth"
+  cards_role: "character-scene-item-seed"
+
+project_identity:
+  title: ""
+  genre: ""
+  target_words: 0
+  target_chapters: 0
+  target_reader: ""
+  platform: ""
+
+story_kernel:
+  premise: ""
+  opening_hook: ""
+  protagonist_drive: ""
+  core_conflict: ""
+  antagonist_pressure: ""
+  protagonist_wound: ""
+  value_collision: ""
+  cost_of_victory: []
+  why_this_story_now: ""
+  ending_vector: ""
+
+reader_promise:
+  primary_pleasures: []
+  anti_trope: ""
+  hard_constraints: []
+  no_fly_zones: []
+
+aesthetic_axes:
+  tone: ""
+  violence_texture: ""
+  mystery_density: ""
+  romance_policy: ""
+
+ip_boundary:
+  worldline_mode: ""
+  old_character_policy: ""
+  must_keep: []
+  must_not_do: []
+
+global_contract:
+  worldview: {}
+  rule_system: []
+  era_constraints: {}
+  culture_and_arts: {}
+  faction_topology: {}
+  power_or_technology: {}
+  golden_finger: {}
+  relationship_overview: {}
+  current_focus: {}
+
+style_contract:
+  style_identity: {}
+  experience_contract: {}
+  narrative_style: {}
+  dialogue_style: {}
+  visual_style: {}
+  prose_style: {}
+  scene_style: {}
+  style_gate: {}
+
+genre_contract:
+  story_promise: {}
+  genre_corridor: {}
+  forbidden_zone: []
+  navigation_rules: []
+  anti_cliche_bans: []
+  drift_corrections: []
+  planning_projection: {}
+
+cards:
+  character_seed: {}
+  scene_seed: {}
+  item_seed: {}
+  legacy_projection: {}
+decision_policy: {}
+init_session: {}
+cards_seed: {}
+planning_seed: {}
+unknowns: {}
+sources_breakdown: {}

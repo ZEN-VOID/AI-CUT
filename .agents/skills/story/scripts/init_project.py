@@ -37,45 +37,39 @@ PROJECT_STATE_MANIFEST_REL = Path("STATE.json")
 TEAM_MANIFEST_REL = Path("team.yaml")
 PROJECT_MEMORY_REL = Path("MEMORY.md")
 CHANGELOG_REL = Path("CHANGELOG.md")
-INIT_STAGE_REL = Path("0-Init")
-PROJECT_MEMORY_TEMPLATE = Path(__file__).resolve().parents[1] / "0-Init" / "templates" / "project-memory.template.md"
+INIT_STAGE_REL = Path("0-初始化")
+SOURCE_ROOT_REL = Path("源")
+SETTING_STAGE_REL = Path("1-设定")
+PLANNING_STAGE_REL = Path("2-卷章规划")
+DRAFT_STAGE_REL = Path("3-初稿")
+POLISH_STAGE_REL = Path("4-润色")
+REVIEW_STAGE_REL = Path("review")
+CONTEXT_RETURN_STAGE_REL = Path("5-上下文回流")
+PROJECT_MEMORY_TEMPLATE = Path(__file__).resolve().parents[1] / "0-初始化" / "templates" / "project-memory.template.md"
 PLANNING_SKILL_PATHS = [
-    ".agents/skills/story/0-Init",
-    ".agents/skills/story/1-Cards",
-    ".agents/skills/story/2-Planning",
+    ".agents/skills/story/0-初始化",
+    ".agents/skills/story/1-设定",
+    ".agents/skills/story/2-卷章规划",
 ]
 PRODUCTION_SKILL_PATHS = [
-    ".agents/skills/story/3-Drafting",
-    ".agents/skills/story/5-Loopback",
+    ".agents/skills/story/3-初稿",
+    ".agents/skills/story/4-润色",
+    ".agents/skills/story/5-上下文回流",
 ]
 REVIEW_SKILL_PATHS = [
-    ".agents/skills/story/4-Review",
+    ".agents/skills/story/review",
     ".agents/skills/story/review",
 ]
 PROJECT_SKELETON_DIRS = [
-    "Story",
+    str(INIT_STAGE_REL),
+    str(SETTING_STAGE_REL),
+    str(PLANNING_STAGE_REL),
+    str(DRAFT_STAGE_REL),
+    str(POLISH_STAGE_REL),
+    str(REVIEW_STAGE_REL),
+    str(CONTEXT_RETURN_STAGE_REL),
     "CONTEXT",
-    "0-Init",
-    "1-Cards/0-全局卡/总设定",
-    "1-Cards/1-风格卡/总风格",
-    "1-Cards/2-角色卡/主要角色",
-    "1-Cards/2-角色卡/次要角色",
-    "1-Cards/2-角色卡/反派角色",
-    "1-Cards/2-角色卡/群像角色",
-    "1-Cards/3-场景卡/室内",
-    "1-Cards/3-场景卡/室外",
-    "1-Cards/3-场景卡/自然",
-    "1-Cards/3-场景卡/超现实",
-    "1-Cards/4-物品卡/武器装备",
-    "1-Cards/4-物品卡/线索物品",
-    "1-Cards/4-物品卡/重要叙事物品",
-    "1-Cards/4-物品卡/文物",
-    "1-Cards/4-物品卡/点缀物",
-    "1-Cards/5-类型卡/总题材",
-    "2-Planning",
-    "3-Drafting",
-    "4-Review",
-    "5-Loopback",
+    str(SOURCE_ROOT_REL),
 ]
 TEAM_ROLE_SPECS = {
     "planning": {
@@ -538,7 +532,7 @@ def _build_master_outline(target_chapters: int, *, chapters_per_volume: int = 50
     lines: list[str] = [
         "# 总纲",
         "",
-        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-Planning/整体规划.md，并继续展开到 第N卷/卷规划.md 与 第N卷/第N章.md。",
+        "> 本文件为 legacy 兼容骨架；正式规划真源应由 /story-plan 收敛到 2-卷章规划/整体规划.md，并继续展开到 第N卷/卷规划.md 与 第N卷/第N章.md。",
         "",
         "## 卷结构",
         "",
@@ -590,12 +584,12 @@ def _inject_volume_rows(template_text: str, target_chapters: int, *, chapters_pe
 def _prepend_init_seed_notice(content: str) -> str:
     notice = "\n".join(
         [
-            "> 说明：本文件是 `0-Init` 阶段生成的 seed / legacy-compat 材料，不是项目 canonical 真源。",
-            "> 正式真源统一以 `1-Cards/**/*.json` 为准；后续阶段禁止继续人工维护本文件，除非做一次性迁移。",
+            "> 说明：本文件是 `0-初始化` 阶段生成的 seed / legacy-compat 材料，不是项目 canonical 真源。",
+            "> 正式真源统一以 `1-设定/**/*.json` 为准；后续阶段禁止继续人工维护本文件，除非做一次性迁移。",
             "",
         ]
     )
-    if content.startswith("> 说明：本文件是 `0-Init` 阶段生成的 seed / legacy-compat 材料"):
+    if content.startswith("> 说明：本文件是 `0-初始化` 阶段生成的 seed / legacy-compat 材料"):
         return content
     return notice + content.lstrip()
 
@@ -699,6 +693,7 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
     promise = project_contract["promise_surface"]
     protagonist = payload["protagonist"]
     relationship = payload["relationship"]
+    golden_finger = payload["golden_finger"]
     story_engine = payload["planning_seed"]["story_engine"]
     world_seed = payload["cards_seed"]["global_seed"]
     north_star_inputs = payload.get("north_star_inputs", {})
@@ -712,57 +707,55 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
         {"label": "修炼链路", "value": world_seed["cultivation_chain"]},
         {"label": "修炼子层级", "value": world_seed["cultivation_subtiers"]},
     ]
-    cards_projection = {
-        "scope": "full-series",
-        "section_order": [
-            "文字风格",
-            "叙事风格",
-            "世界观",
-            "规则体系",
-            "年代约时",
-            "文化",
-            "艺术",
-            "科技武功",
-            "关系网总览",
-        ],
-        "style_system": {
-            "text_style": {
-                "tone": north_star_inputs.get("tone", ""),
-                "genre_corridor": creative["genre"],
-                "anti_trope": promise["anti_trope"],
-            },
-            "narrative_style": {
-                "opening_hook": promise["opening_hook"],
-                "mystery_density": north_star_inputs.get("mystery_density", ""),
-                "romance_policy": relationship["heroine_config"],
-            },
-            "tone_promises": promise["core_selling_points"],
-            "taboo_styles": north_star_inputs.get("no_fly_zones", []),
-            "downstream_constraints": promise["hard_constraints"],
+    global_contract = {
+        "worldview": {
+            "world_scale": world_seed["world_scale"],
+            "genre": creative["genre"],
+            "target_reader": creative["target_reader"],
+            "platform": creative["platform"],
+            "summary": creative["one_liner"],
         },
-        "world_system": {
-            "worldview": {
-                "world_scale": world_seed["world_scale"],
-                "genre": creative["genre"],
-                "target_reader": creative["target_reader"],
-                "platform": creative["platform"],
-            },
-            "rule_system": [item for item in rule_system if item["value"]],
-            "era_timeline": {
-                "era_anchor": world_seed["world_scale"],
-                "worldline_mode": north_star_inputs.get("worldline_mode", ""),
-            },
-            "culture": _compact_values(world_seed["social_class"]),
+        "rule_system": [item for item in rule_system if item["value"]],
+        "era_constraints": {
+            "era_anchor": world_seed["world_scale"],
+            "worldline_mode": north_star_inputs.get("worldline_mode", ""),
+            "hard_boundaries": north_star_inputs.get("must_not_do", []),
+        },
+        "culture_and_arts": {
+            "culture": _compact_values(world_seed["social_class"], world_seed["factions"]),
             "arts": _compact_values(
                 north_star_inputs.get("tone", ""),
                 north_star_inputs.get("violence_texture", ""),
             ),
+        },
+        "faction_topology": {
+            "tiers": macro_factions,
+            "rule_holders": _compact_values(world_seed["factions"]),
+            "resource_controllers": _compact_values(world_seed["resource_distribution"]),
+            "relation_patterns": _compact_values(relationship["antagonist_mirror"]),
+            "protagonist_entry_path": protagonist["desire"],
+            "escalation_logic": _compact_values(creative["core_conflict"]),
+        },
+        "power_or_technology": {
+            "system_type": _compact_values(world_seed["power_system_type"]),
             "tech_or_martial": _compact_values(
                 world_seed["power_system_type"],
                 world_seed["cultivation_chain"],
                 world_seed["sect_hierarchy"],
             ),
-            "section_constraints": north_star_inputs.get("must_keep", []) + north_star_inputs.get("must_not_do", []),
+            "resources": _compact_values(world_seed["resource_distribution"], world_seed["currency_system"]),
+        },
+        "golden_finger": {
+            "name": golden_finger["name"],
+            "type": golden_finger["type"],
+            "style": golden_finger["style"],
+            "visibility": golden_finger["visibility"],
+            "core_function": golden_finger["name"],
+            "trigger_conditions": [],
+            "costs": _compact_values(golden_finger["irreversible_cost"]),
+            "limits": promise["hard_constraints"],
+            "counterplay": [],
+            "growth_path": _compact_values(golden_finger["growth_rhythm"]),
         },
         "relationship_overview": {
             "macro_factions": macro_factions,
@@ -786,16 +779,127 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
             "long_term_open_questions": payload["unknowns"]["deferred_to_cards"],
         },
     }
+    style_contract = {
+        "style_identity": {
+            "one_line_definition": north_star_inputs.get("tone", "") or creative["genre"],
+            "overall_tone": {
+                "base_tone": north_star_inputs.get("tone", ""),
+                "emotional_temperature": "",
+                "dark_bright_balance": "",
+                "tragic_comic_ratio": "",
+                "gravity_level": "",
+            },
+        },
+        "experience_contract": {
+            "core_pleasures": promise["core_selling_points"],
+            "expected_aftertaste": [],
+            "anti_trope": _compact_values(promise["anti_trope"]),
+            "no_fly_zones": north_star_inputs.get("no_fly_zones", []),
+        },
+        "narrative_style": {
+            "pov_mode": "",
+            "narrator_distance": "",
+            "chronology_mode": "",
+            "information_release_style": "",
+            "suspense_method": "",
+            "chapter_hook_style": promise["opening_hook"],
+            "chapter_end_style": "",
+            "pacing_profile": "",
+        },
+        "dialogue_style": {
+            "dialogue_density": "",
+            "speech_rhythm": "",
+            "subtext_level": "",
+            "wit_sharpness": "",
+            "register_policy": "",
+            "character_voice_separation": [],
+            "inner_monologue_ratio": "",
+            "forbidden_dialogue_patterns": [],
+        },
+        "visual_style": {
+            "image_texture": north_star_inputs.get("violence_texture", ""),
+            "color_palette": [],
+            "light_shadow_tendency": "",
+            "motion_texture": "",
+            "spatial_feeling": "",
+            "violence_imagery": north_star_inputs.get("violence_texture", ""),
+            "romance_imagery": relationship["heroine_config"],
+            "landmark_images": [],
+        },
+        "prose_style": {
+            "sentence_length_tendency": "",
+            "paragraph_rhythm": "",
+            "diction_register": "",
+            "metaphor_density": "",
+            "sensory_bias": [],
+            "description_density": "",
+            "exposition_policy": "",
+        },
+        "scene_style": {
+            "action_rendering": "",
+            "emotion_rendering": "",
+            "atmosphere_rendering": "",
+            "transition_style": "",
+            "set_piece_policy": "",
+        },
+        "style_gate": {
+            "must_keep": north_star_inputs.get("must_keep", []),
+            "must_avoid": north_star_inputs.get("must_not_do", []) + north_star_inputs.get("no_fly_zones", []),
+            "drift_signals": [],
+            "repair_actions": [],
+        },
+    }
+    genre_contract = {
+        "story_promise": {
+            "reader_promise": promise["core_selling_points"],
+            "platform_fit": _compact_values(creative["platform"], creative["target_reader"]),
+            "forbidden_zone": north_star_inputs.get("no_fly_zones", []),
+            "promise_matrix": {
+                "primary_genre": creative["genre"],
+                "secondary_genres": [],
+            },
+        },
+        "genre_corridor": {
+            "allowed_modes": _compact_values(creative["genre"], north_star_inputs.get("tone", "")),
+            "tone_band": north_star_inputs.get("tone", ""),
+            "narrative_density": north_star_inputs.get("mystery_density", ""),
+        },
+        "forbidden_zone": north_star_inputs.get("no_fly_zones", []),
+        "navigation_rules": promise["hard_constraints"],
+        "anti_cliche_bans": _compact_values(promise["anti_trope"]),
+        "drift_corrections": [],
+        "planning_projection": {
+            "story_promise": "north_star.genre_contract.story_promise",
+            "genre_corridor": "north_star.genre_contract.genre_corridor",
+            "navigation_rules": "north_star.genre_contract.navigation_rules",
+        },
+    }
+    cards_projection = {
+        "scope": "full-series",
+        "character_seed": payload["cards_seed"]["character_seed"],
+        "scene_seed": {
+            "world_scale": world_seed["world_scale"],
+            "factions": macro_factions,
+            "rule_pressure": promise["hard_constraints"],
+        },
+        "item_seed": payload["cards_seed"]["item_seed"],
+        "legacy_projection": {
+            "world_system": global_contract,
+            "style_system": style_contract,
+            "genre_system": genre_contract,
+        },
+    }
 
     return {
         "schema_version": "story2026/north-star/v1",
         "meta": {
-            "source_stage": "0-Init",
+            "source_stage": "0-初始化",
             "generated_at": payload["meta"]["generated_at"],
             "role": "primary-init-artifact",
             "scope": "full-series",
-            "canonical_consumers": ["1-Cards", "2-Planning"],
-            "cards_role": "north-star-object-constraints",
+            "canonical_consumers": ["1-设定", "2-卷章规划"],
+            "north_star_role": "global-style-genre-truth",
+            "cards_role": "character-scene-item-seed",
         },
         "project_identity": {
             "title": creative["title"],
@@ -835,6 +939,9 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
             "must_keep": north_star_inputs.get("must_keep", []),
             "must_not_do": north_star_inputs.get("must_not_do", []),
         },
+        "global_contract": global_contract,
+        "style_contract": style_contract,
+        "genre_contract": genre_contract,
         "cards": cards_projection,
         "decision_policy": project_contract["decision_policy"],
         "init_session": payload["init_session"],
@@ -848,7 +955,7 @@ def _build_north_star_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
 def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
     return {
         "manifest_version": "story2026-story-source/v1",
-        "source_root": "Story/",
+        "source_root": "源/",
         "primary_story_source": {
             "status": "missing",
             "source_type": "",
@@ -858,7 +965,7 @@ def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
             "detail_expansion_mode": "free_expansion",
             "locked_preset_axes": [],
             "preset_registry": [],
-            "authoritative_for": ["1-Planning"],
+            "authoritative_for": ["1-设定", "2-卷章规划"],
             "notes": "后续若补入正文、提纲或设定源，应先登记到本文件，再进入 planning。",
         },
         "auxiliary_sources": [],
@@ -871,9 +978,9 @@ def _build_story_source_manifest(*, title: str, now_iso: str) -> Dict[str, Any]:
             "partial_limitations": [
                 "当前 planning 只能基于 north star seed 与用户输入推进，不能声称具备完整剧情主源。",
             ],
-            "allowed_next_entries_when_blocked": ["1-Cards", "2-Planning"],
+            "allowed_next_entries_when_blocked": ["1-设定", "2-卷章规划"],
             "required_user_action": [
-                "若有正式正文、章节大纲或设定文档，请补充到项目 `Story/` 后再回刷初始化源。",
+                "若有正式正文、章节大纲或设定文档，请补充到项目 `源/` 后再回刷初始化源。",
             ],
         },
         "missing_prompt": {
@@ -1097,10 +1204,10 @@ def _build_init_handoff_payload(
     payload = {
         "schema_version": "story2026/init-handoff/v2",
         "meta": {
-            "source_stage": "0-Init",
+            "source_stage": "0-初始化",
             "generated_at": now_iso,
-            "canonical_consumer": "1-Cards",
-            "canonical_truth": "1-Cards/**/*.json",
+            "canonical_consumer": "1-设定",
+            "canonical_truth": "0-初始化/north_star.yaml + 1-设定/**/*",
             "seed_policy": "新项目默认不生成额外 Init seed 文档；若历史项目存在旧 Init/*.md，仅视为 legacy-compat，不得持续维护",
             "contract_model": "project_contract + cards_seed + planning_seed + unknowns",
         },
@@ -1261,14 +1368,14 @@ def _build_init_handoff_payload(
 def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
     init_session = payload["init_session"]
     return {
-        "north_star_ref": "0-Init/north_star.yaml",
-        "story_source_manifest_ref": "0-Init/story-source-manifest.yaml",
+        "north_star_ref": "0-初始化/north_star.yaml",
+        "story_source_manifest_ref": "0-初始化/story-source-manifest.yaml",
         "team_ref": "team.yaml",
         "project_contract": {
             "initialization_goal": "以 team 代入模式完成小说项目初始化，锁定北极星、故事源状态、团队编组与唯一下一入口。",
-            "acceptance_hint": "优先进入 `1-Cards` 建卡；若已有足够故事源，再进入 `2-Planning`。",
-            "current_stage": "0-Init",
-            "recommended_next_stage": "1-Cards",
+            "acceptance_hint": "优先进入 `1-设定` 建卡；若已有足够故事源，再进入 `2-卷章规划`。",
+            "current_stage": "0-初始化",
+            "recommended_next_stage": "1-设定",
             "creative_mandate": payload["project_contract"]["creative_mandate"],
             "promise_surface": payload["project_contract"]["promise_surface"],
             "decision_policy": payload["project_contract"]["decision_policy"],
@@ -1281,7 +1388,7 @@ def _build_init_handoff_artifact(payload: Dict[str, Any]) -> Dict[str, Any]:
         "sources_breakdown": payload["sources_breakdown"],
         "risk_notes": [
             "当前未绑定正式故事主源，planning 只能按 seed-first 模式推进。",
-            "初始化固定题包直答的结论已折叠进 seeds；后续若补入正式故事源，应先回刷 `0-Init` 三文件。",
+            "初始化固定题包直答的结论已折叠进 seeds；后续若补入正式故事源，应先回刷 `0-初始化` 三文件。",
         ],
         "init_session": {
             "mode": init_session["mode"],
@@ -1309,7 +1416,7 @@ def _render_init_readme() -> str:
     return (
         "\n".join(
             [
-                "# 0-Init 目录说明",
+                "# 0-初始化 目录说明",
                 "",
                 "- `north_star.yaml`：初始化主文件，承载故事核、读者承诺、审美轴、IP 边界与长期对象约束。",
                 "- `story-source-manifest.yaml`：故事主源登记与 readiness 判定。",
@@ -1318,8 +1425,8 @@ def _render_init_readme() -> str:
                 "- 项目根目录的 `team.yaml`：团队治理真源，初始化写入 `策划 / 监制 / 评审` 三角色编组与 provenance。",
                 "- 项目根目录的 `CHANGELOG.md`：项目级变更记录入口。",
                 "- 新项目默认不再生成额外 `Init/*.md` seed 文档或并行 init companion 文件。",
-                "- 原“全局卡/全局总览”概念已废弃；长期总规范统一归入 `north_star.yaml.cards`。",
-                "- 一旦 `1-Cards` 完成建卡，人物、场景、物品的正式真源统一以 `1-Cards/**/*.json` 为准。",
+                "- 原“全局卡 / 风格卡 / 类型卡”概念已废弃；长期总规范统一归入 `north_star.yaml` 的 `global_contract / style_contract / genre_contract`。",
+                "- 一旦 `1-设定` 完成建卡，人物、场景、物品的正式真源统一以 `1-设定/**/*.json` 为准。",
                 "",
             ]
         )
@@ -1359,17 +1466,17 @@ def _build_project_state_manifest(
         },
         "paths": {
             "runtime_state": str(RUNTIME_STATE_REL),
-            "north_star": "0-Init/north_star.yaml",
-            "story_source_manifest": "0-Init/story-source-manifest.yaml",
-            "init_handoff": "0-Init/init_handoff.yaml",
+            "north_star": "0-初始化/north_star.yaml",
+            "story_source_manifest": "0-初始化/story-source-manifest.yaml",
+            "init_handoff": "0-初始化/init_handoff.yaml",
             "team_manifest": str(TEAM_MANIFEST_REL),
             "changelog": str(CHANGELOG_REL),
         },
         "truth_layers": {
             "project_entry": str(PROJECT_STATE_MANIFEST_REL),
             "runtime_snapshot": str(RUNTIME_STATE_REL),
-            "object_truth": "1-Cards/**/*.json",
-            "planning_truth": "2-Planning/整体规划.md",
+            "object_truth": "1-设定/**/*.json",
+            "planning_truth": "2-卷章规划/整体规划.md",
         },
     }
 
@@ -1417,8 +1524,8 @@ def _render_team_manifest_yaml(
     custom_notes = []
     if team_lineup_mode == "auto":
         auto_notes = [
-            "默认由 0-Init 根据题材与故事核从 .agents/skills/team/ 里自动挑选代入顾问。",
-            "当前脚本只负责写入初始化真源；实际自动选人与固定题包直答调度由 0-Init 主技能执行。",
+            "默认由 0-初始化 根据题材与故事核从 .agents/skills/team/ 里自动挑选代入顾问。",
+            "当前脚本只负责写入初始化真源；实际自动选人与固定题包直答调度由 0-初始化 主技能执行。",
         ]
     else:
         custom_notes = [
@@ -1431,7 +1538,7 @@ def _render_team_manifest_yaml(
         "#",
         "# 角色：",
         "# - story2026 项目级 team 代入真源",
-        "# - 由 `0-Init` 首次生成，供 `1-Cards / 2-Planning / 3-Drafting / 4-Review / review` 消费",
+        "# - 由 `0-初始化` 首次生成，供 `1-设定 / 2-卷章规划 / 3-初稿 / 5-上下文回流 / review` 消费",
         "# - 不替代各阶段 canonical，只提供治理角色、成员、初始化 provenance 与运行策略",
         "",
         f"enabled: {_yaml_bool(True)}",
@@ -1441,7 +1548,7 @@ def _render_team_manifest_yaml(
         f"  init_mode_display: {_yaml_quote(init_mode)}",
         f"  team_lineup_mode: {_yaml_quote(team_lineup_mode)}",
         f"  selector_scope_root: {_yaml_quote(team_setup.get('selector_scope_root', '.agents/skills/team/'))}",
-        f"  lineup_source: {_yaml_quote('0-Init')}",
+        f"  lineup_source: {_yaml_quote('0-初始化')}",
         f"  mode_source: {_yaml_quote(mode_source)}",
         f"  locked_by: {_yaml_quote(decision_owner)}",
         f"  research_policy: {_yaml_quote(research_policy or 'none')}",
@@ -1520,7 +1627,7 @@ def _render_changelog(title: str, now: str) -> str:
                 f"- 初始化项目骨架：{title}",
                 "- 建立 `STATE.json`、`team.yaml`、`MEMORY.md`、`CHANGELOG.md` 标准配置。",
                 "- 创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。",
-                "- 写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。",
+                "- 写入 `0-初始化/north_star.yaml`、`0-初始化/story-source-manifest.yaml`、`0-初始化/init_handoff.yaml` 初始化三件套。",
                 "",
             ]
         )
@@ -1664,20 +1771,21 @@ def init_project(
             "team_setup": team_setup,
             "research_policy": normalized_research_policy,
             "init_contract_model": "north_star+story_source_manifest+init_handoff",
-            "primary_init_artifact": "0-Init/north_star.yaml",
+            "primary_init_artifact": "0-初始化/north_star.yaml",
             "north_star_schema_version": "story2026/north-star/v1",
             "story_source_manifest_schema_version": "story2026-story-source/v1",
             "init_handoff_schema_version": "story2026/init-handoff/v2",
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
             "changelog_file": str(CHANGELOG_REL),
-            "story_source_root": "Story/",
+            "story_source_root": "源/",
             "project_context_root": "CONTEXT/",
-            "cards_root": "1-Cards/",
-            "planning_root": "2-Planning/",
-            "drafting_root": "3-Drafting/",
-            "validation_root": "4-Review/",
-            "loopback_root": "5-Loopback/",
+            "setting_root": "1-设定/",
+            "planning_root": "2-卷章规划/",
+            "drafting_root": "3-初稿/",
+            "polish_root": "4-润色/",
+            "review_root": "review/",
+            "context_return_root": "5-上下文回流/",
             "one_liner": one_liner,
             "core_conflict": core_conflict,
             "anti_trope": anti_trope,
@@ -1726,11 +1834,11 @@ def init_project(
     state["project_name"] = title
     state["task_id"] = f"init-{_sanitize_project_leaf(title)}"
     state["project_root"] = str(project_path)
-    state["current_stage"] = "0-Init"
+    state["current_stage"] = "0-初始化"
     state["status"] = "initialized"
-    state["recommended_next_stage"] = "1-Cards"
-    state["recommended_entry_path"] = "1-Cards"
-    state["recommended_next_step"] = "进入 `1-Cards`，基于 `0-Init/north_star.yaml` 与 `0-Init/init_handoff.yaml` 建立角色/场景/物品 cards 真源。"
+    state["recommended_next_stage"] = "1-设定"
+    state["recommended_entry_path"] = "1-设定"
+    state["recommended_next_step"] = "进入 `1-设定`，基于 `0-初始化/north_star.yaml` 与 `0-初始化/init_handoff.yaml` 建立角色/场景/物品 cards 真源。"
     state["governance_mode"] = "lightweight_init"
     state["story_source_status"] = "seed_only_no_primary_story_source"
     state["init_session"] = {
@@ -1743,26 +1851,27 @@ def init_project(
     }
     state["paths"] = {
         "runtime_state": str(RUNTIME_STATE_REL),
-        "story_root": "Story/",
+        "source_root": "源/",
         "context_root": "CONTEXT/",
         "project_memory": str(PROJECT_MEMORY_REL),
-        "init_root": "0-Init/",
-        "cards_root": "1-Cards/",
-        "planning_root": "2-Planning/",
-        "drafting_root": "3-Drafting/",
-        "validation_root": "4-Review/",
-        "loopback_root": "5-Loopback/",
-        "north_star": "0-Init/north_star.yaml",
-        "story_source_manifest": "0-Init/story-source-manifest.yaml",
-        "init_handoff": "0-Init/init_handoff.yaml",
+        "init_root": "0-初始化/",
+        "setting_root": "1-设定/",
+        "planning_root": "2-卷章规划/",
+        "drafting_root": "3-初稿/",
+        "polish_root": "4-润色/",
+        "review_root": "review/",
+        "context_return_root": "5-上下文回流/",
+        "north_star": "0-初始化/north_star.yaml",
+        "story_source_manifest": "0-初始化/story-source-manifest.yaml",
+        "init_handoff": "0-初始化/init_handoff.yaml",
         "team_manifest": str(TEAM_MANIFEST_REL),
         "project_memory": str(PROJECT_MEMORY_REL),
         "changelog": str(CHANGELOG_REL),
     }
     state["main_artifacts"] = {
-        "north_star": "0-Init/north_star.yaml",
-        "init_handoff": "0-Init/init_handoff.yaml",
-        "story_source_manifest": "0-Init/story-source-manifest.yaml",
+        "north_star": "0-初始化/north_star.yaml",
+        "init_handoff": "0-初始化/init_handoff.yaml",
+        "story_source_manifest": "0-初始化/story-source-manifest.yaml",
         "team": "team.yaml",
         "project_memory": "MEMORY.md",
         "project_state": "STATE.json",
@@ -1771,10 +1880,10 @@ def init_project(
         "当前尚未绑定正式故事主源；planning 只能按初始化 seeds 推进。",
     ]
     state["user_action_items"] = [
-        "如有正文、大纲或设定主源，请补入项目 `Story/` 后回刷 `0-Init/story-source-manifest.yaml`。",
+        "如有正文、大纲或设定主源，请补入项目 `源/` 后回刷 `0-初始化/story-source-manifest.yaml`。",
         "如有需要长期记住的偏好、口味、特殊元素或禁区，请补入项目 `MEMORY.md`。",
         "如有贯穿整个创作阶段的共享附加上下文，请补入项目 `CONTEXT/`。",
-        "进入 `1-Cards` 建立角色、场景、物品 cards 真源。",
+        "进入 `1-设定` 建立角色、场景、物品 cards 真源。",
     ]
     state["notes"] = []
     workflow_runtime = state.get("workflow_runtime")
@@ -1834,7 +1943,7 @@ def init_project(
             "team_setup": team_setup,
             "research_policy": normalized_research_policy,
             "init_contract_model": "north_star+story_source_manifest+init_handoff",
-            "primary_init_artifact": "0-Init/north_star.yaml",
+            "primary_init_artifact": "0-初始化/north_star.yaml",
             "project_entry_state_file": str(PROJECT_STATE_MANIFEST_REL),
             "team_manifest_file": str(TEAM_MANIFEST_REL),
             "project_memory_file": str(PROJECT_MEMORY_REL),
@@ -1919,9 +2028,9 @@ def init_project(
     init_handoff_payload = _build_init_handoff_artifact(init_payload)
 
     state["main_artifacts"] = {
-        "north_star": "0-Init/north_star.yaml",
-        "init_handoff": "0-Init/init_handoff.yaml",
-        "story_source_manifest": "0-Init/story-source-manifest.yaml",
+        "north_star": "0-初始化/north_star.yaml",
+        "init_handoff": "0-初始化/init_handoff.yaml",
+        "story_source_manifest": "0-初始化/story-source-manifest.yaml",
         "team": "team.yaml",
         "project_memory": "MEMORY.md",
         "project_state": "STATE.json",
@@ -1973,18 +2082,19 @@ def init_project(
     print(" - team.yaml")
     print(" - MEMORY.md")
     print(" - CHANGELOG.md")
-    print(" - 0-Init/north_star.yaml")
-    print(" - 0-Init/story-source-manifest.yaml")
-    print(" - 0-Init/init_handoff.yaml")
+    print(" - 0-初始化/north_star.yaml")
+    print(" - 0-初始化/story-source-manifest.yaml")
+    print(" - 0-初始化/init_handoff.yaml")
     print("Generated directories:")
-    print(" - Story/")
+    print(" - 源/")
     print(" - CONTEXT/")
-    print(" - 1-Cards/")
-    print(" - 2-Planning/")
-    print(" - 3-Drafting/")
-    print(" - 4-Review/")
-    print(" - 5-Loopback/")
-    print("2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan.")
+    print(" - 1-设定/")
+    print(" - 2-卷章规划/")
+    print(" - 3-初稿/")
+    print(" - 4-润色/")
+    print(" - review/")
+    print(" - 5-上下文回流/")
+    print("2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan.")
     print("Workflow runtime now lives inside STATE.json.workflow_runtime.")
 
 

@@ -54,22 +54,26 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
     team_manifest = _load_yaml(project_root / "team.yaml")
-    north_star = _load_yaml(project_root / "0-Init" / "north_star.yaml")
-    source_manifest = _load_yaml(project_root / "0-Init" / "story-source-manifest.yaml")
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    north_star = _load_yaml(project_root / "0-初始化" / "north_star.yaml")
+    source_manifest = _load_yaml(project_root / "0-初始化" / "story-source-manifest.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
     memory = (project_root / "MEMORY.md").read_text(encoding="utf-8")
     changelog = (project_root / "CHANGELOG.md").read_text(encoding="utf-8")
     assert state["project_name"] == "测试小说"
-    assert state["current_stage"] == "0-Init"
-    assert state["recommended_next_stage"] == "1-Cards"
-    assert state["paths"]["story_root"] == "Story/"
+    assert state["current_stage"] == "0-初始化"
+    assert state["recommended_next_stage"] == "1-设定"
+    assert state["paths"]["source_root"] == "源/"
     assert state["paths"]["context_root"] == "CONTEXT/"
     assert state["paths"]["project_memory"] == "MEMORY.md"
-    assert state["paths"]["cards_root"] == "1-Cards/"
-    assert state["paths"]["loopback_root"] == "5-Loopback/"
-    assert state["main_artifacts"]["north_star"] == "0-Init/north_star.yaml"
-    assert state["main_artifacts"]["story_source_manifest"] == "0-Init/story-source-manifest.yaml"
-    assert state["main_artifacts"]["init_handoff"] == "0-Init/init_handoff.yaml"
+    assert state["paths"]["setting_root"] == "1-设定/"
+    assert state["paths"]["planning_root"] == "2-卷章规划/"
+    assert state["paths"]["drafting_root"] == "3-初稿/"
+    assert state["paths"]["polish_root"] == "4-润色/"
+    assert state["paths"]["review_root"] == "review/"
+    assert state["paths"]["context_return_root"] == "5-上下文回流/"
+    assert state["main_artifacts"]["north_star"] == "0-初始化/north_star.yaml"
+    assert state["main_artifacts"]["story_source_manifest"] == "0-初始化/story-source-manifest.yaml"
+    assert state["main_artifacts"]["init_handoff"] == "0-初始化/init_handoff.yaml"
     assert state["main_artifacts"]["team"] == "team.yaml"
     assert state["main_artifacts"]["project_memory"] == "MEMORY.md"
     assert state["workflow_runtime"]["workflow_state"]["current_task"] is None
@@ -80,7 +84,7 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert state["workflow_runtime"]["execution_state"]["stage_progress"]["0-init"]["latest_command"] == "story-init"
     assert state["workflow_runtime"]["task_log"][0]["event"] == "project_initialized"
     assert state["project_info"]["init_handoff_schema_version"] == "story2026/init-handoff/v2"
-    assert state["project_info"]["story_source_root"] == "Story/"
+    assert state["project_info"]["story_source_root"] == "源/"
     assert state["project_info"]["project_context_root"] == "CONTEXT/"
     assert "项目：测试小说" in memory
     assert "## 已确认的长期偏好" in memory
@@ -101,49 +105,56 @@ def test_init_project_creates_memory_file_and_inlines_workflow_runtime(tmp_path,
     assert north_star["story_kernel"]["premise"] == "林默被迫在修仙规则副本里求生"
     assert north_star["story_kernel"]["opening_hook"] == "开篇第一夜就有人因误读规则暴毙"
     assert north_star["reader_promise"]["anti_trope"] == "不用无脑碾压升级，而用规则理解差建立压迫感"
-    assert north_star["cards"]["world_system"]["worldview"]["genre"] == "修仙+规则怪谈"
+    assert north_star["global_contract"]["worldview"]["genre"] == "修仙+规则怪谈"
+    assert north_star["genre_contract"]["story_promise"]["promise_matrix"]["primary_genre"] == "修仙+规则怪谈"
+    assert "style_contract" in north_star
 
     assert source_manifest["primary_story_source"]["status"] == "missing"
+    assert source_manifest["source_root"] == "源/"
     assert source_manifest["readiness"]["can_enter_cards"] is True
     assert source_manifest["readiness"]["can_enter_planning"] is True
 
-    assert init_handoff["north_star_ref"] == "0-Init/north_star.yaml"
-    assert init_handoff["story_source_manifest_ref"] == "0-Init/story-source-manifest.yaml"
+    assert init_handoff["north_star_ref"] == "0-初始化/north_star.yaml"
+    assert init_handoff["story_source_manifest_ref"] == "0-初始化/story-source-manifest.yaml"
     assert init_handoff["team_ref"] == "team.yaml"
-    assert init_handoff["project_contract"]["recommended_next_stage"] == "1-Cards"
+    assert init_handoff["project_contract"]["recommended_next_stage"] == "1-设定"
     assert init_handoff["stage_entry_seeds"]["cards_seed"]["character_seed"]["protagonist"]["name"] == "林默"
     assert init_handoff["stage_entry_seeds"]["planning_seed"]["story_engine"]["golden_finger_growth_rhythm"] == "慢热"
-    assert (project_root / "Story").is_dir()
+    assert (project_root / "源").is_dir()
     assert (project_root / "CONTEXT").is_dir()
     assert (project_root / "MEMORY.md").is_file()
-    assert (project_root / "3-Drafting").is_dir()
-    assert (project_root / "1-Cards" / "1-风格卡" / "总风格").is_dir()
-    assert (project_root / "1-Cards" / "5-类型卡" / "总题材").is_dir()
-    assert (project_root / "2-Planning").is_dir()
-    assert (project_root / "4-Review").is_dir()
-    assert (project_root / "5-Loopback").is_dir()
+    assert (project_root / "1-设定").is_dir()
+    assert (project_root / "2-卷章规划").is_dir()
+    assert (project_root / "3-初稿").is_dir()
+    assert (project_root / "4-润色").is_dir()
+    assert (project_root / "review").is_dir()
+    assert (project_root / "5-上下文回流").is_dir()
+    assert not (project_root / "1-设定" / "0-全局卡").exists()
+    assert not (project_root / "1-设定" / "1-风格卡").exists()
+    assert not (project_root / "1-设定" / "5-类型卡").exists()
     assert not (project_root / "Drafting").exists()
     assert not (project_root / "正文").exists()
-    assert not (project_root / "1-Cards" / "其他设定").exists()
+    assert not (project_root / "1-设定" / "其他设定").exists()
     assert not (project_root / ".webnovel").exists()
     assert not (project_root / ".env.example").exists()
-    assert not (project_root / "2-Planning" / "legacy").exists()
+    assert not (project_root / "2-卷章规划" / "legacy").exists()
     assert not (project_root / ".git").exists()
 
     assert "建立 `STATE.json`、`team.yaml`、`MEMORY.md`、`CHANGELOG.md` 标准配置。" in changelog
     assert "创建项目级 `CONTEXT/` 目录，作为整个创作阶段共享附加上下文根。" in changelog
-    assert "写入 `0-Init/north_star.yaml`、`0-Init/story-source-manifest.yaml`、`0-Init/init_handoff.yaml` 初始化三件套。" in changelog
+    assert "写入 `0-初始化/north_star.yaml`、`0-初始化/story-source-manifest.yaml`、`0-初始化/init_handoff.yaml` 初始化三件套。" in changelog
 
     captured = capsys.readouterr()
     assert "Generated files:" in captured.out
     assert " - MEMORY.md" in captured.out
-    assert " - Story/" in captured.out
+    assert " - 源/" in captured.out
     assert " - CONTEXT/" in captured.out
-    assert " - 1-Cards/" in captured.out
-    assert " - 2-Planning/" in captured.out
-    assert " - 4-Review/" in captured.out
-    assert " - 5-Loopback/" in captured.out
-    assert "2-Planning/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
+    assert " - 1-设定/" in captured.out
+    assert " - 2-卷章规划/" in captured.out
+    assert " - 4-润色/" in captured.out
+    assert " - review/" in captured.out
+    assert " - 5-上下文回流/" in captured.out
+    assert "2-卷章规划/整体规划.md is not created during /story-init; generate it via /story-plan." in captured.out
 
 
 def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatch):
@@ -167,7 +178,7 @@ def test_init_project_tracks_assistant_inference_in_handoff(tmp_path, monkeypatc
     )
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
 
     assert state["project_info"]["decision_owner"] == "assistant"
     assert init_handoff["init_session"]["decision_owner"] == "assistant"
@@ -191,7 +202,7 @@ def test_init_project_shared_council_shortcut_populates_all_team_sections(tmp_pa
     )
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
     team_manifest = _load_yaml(project_root / "team.yaml")
 
     expected = [
@@ -268,7 +279,7 @@ def test_init_project_defaults_mode_source_and_user_confirmed(tmp_path, monkeypa
     )
 
     state = json.loads((project_root / "STATE.json").read_text(encoding="utf-8"))
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
 
     assert state["project_info"]["mode_source"] == "defaulted"
     assert state["project_info"]["team_lineup_mode"] == "auto"
@@ -296,7 +307,7 @@ def test_init_project_defaults_unassigned_fields_to_assistant_inferred_when_assi
         protagonist_name="独孤某",
     )
 
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
     payload = module._build_init_handoff_payload(
         now_iso="2026-04-18T11:11:00",
         init_mode="team代入模式",
@@ -390,7 +401,7 @@ def test_init_project_legacy_advisor_agents_fallbacks_to_planning_team(tmp_path,
         advisor_agents=".codex/agents/小说家/阿城.md",
     )
 
-    init_handoff = _load_yaml(project_root / "0-Init" / "init_handoff.yaml")
+    init_handoff = _load_yaml(project_root / "0-初始化" / "init_handoff.yaml")
     team_setup = init_handoff["init_session"]["team_setup"]
 
     assert team_setup["team_mode"] == "legacy_planning_only"
@@ -423,4 +434,4 @@ def test_init_project_normalizes_hidden_project_leaf(tmp_path, monkeypatch):
     assert not hidden_root.exists()
     assert normalized_root.exists()
     assert (normalized_root / "STATE.json").exists()
-    assert (normalized_root / "0-Init" / "north_star.yaml").exists()
+    assert (normalized_root / "0-初始化" / "north_star.yaml").exists()

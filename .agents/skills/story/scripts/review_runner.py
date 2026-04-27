@@ -4,8 +4,8 @@
 review_runner.py - story2026 review runtime baseline runner
 
 用途：
-- 为 `3-Drafting` 的 inline validation hooks 提供第一版可执行自动 runner
-- 为 `4-Review` 的维度检查提供统一的本地规则基线
+- 为 `3-初稿` 的 inline validation hooks 提供第一版可执行自动 runner
+- 为 `review` 的维度检查提供统一的本地规则基线
 - 在终验阶段默认后台触发 `code-reviewer`，并把其结果并入聚合结论
 
 说明：
@@ -150,7 +150,7 @@ CODE_REVIEWER_TIMEOUT_SECONDS = 60.0
 
 
 def _registry_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "4-Review" / "_shared" / "validation-dimension-registry.yaml"
+    return Path(__file__).resolve().parent.parent / "review" / "_shared" / "validation-dimension-registry.yaml"
 
 
 def _load_registry() -> dict[str, Any]:
@@ -221,7 +221,7 @@ def _final_acceptance_role_ids() -> list[str]:
 
 
 def _aggregate_template_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "4-Review" / "_shared" / "validation-aggregate.template.json"
+    return Path(__file__).resolve().parent.parent / "review" / "_shared" / "validation-aggregate.template.json"
 
 
 def _load_aggregate_template() -> dict[str, Any]:
@@ -233,7 +233,7 @@ def _load_aggregate_template() -> dict[str, Any]:
 
 
 def _aggregate_output_ref(chapter_num: int) -> str:
-    return f"4-Review/第{chapter_num}章.validation.json"
+    return f"review/第{chapter_num}章.validation.json"
 
 
 def _aggregate_output_path(project_root: Path, chapter_num: int) -> Path:
@@ -574,10 +574,10 @@ def _covenant_issues(ctx: dict[str, Any], *, role_id: str = "context-agent") -> 
     chapter = _safe_int(ctx.get("chapter"), 0)
     issues: list[dict[str, Any]] = []
     owner_map = {
-        "draft_snapshot": "3-Drafting",
+        "draft_snapshot": "3-初稿",
         "cards_truth": "1-Cards",
-        "planning_truth": "2-Planning",
-        "init_truth": "0-Init",
+        "planning_truth": "2-卷章规划",
+        "init_truth": "0-初始化",
         "runtime_context": "STATE",
     }
     for idx, slice_name in enumerate(ctx.get("fact_pack_missing_slices") or [], start=1):
@@ -592,7 +592,7 @@ def _covenant_issues(ctx: dict[str, Any], *, role_id: str = "context-agent") -> 
                 description=f"终验统一事实包缺少必需 slice：{slice_name}",
                 suggestion="先修 pack producer 与上游 truth 装配，再重新进入 validation。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner=owner_map.get(str(slice_name), "4-Review"),
+                source_layer_owner=owner_map.get(str(slice_name), "review"),
                 can_override=False,
             )
         )
@@ -610,7 +610,7 @@ def _runtime_issue(chapter: int, role_id: str, exc: Exception, index: int) -> di
         description=f"{role_id} 在终验过程中抛出 {exc.__class__.__name__}",
         suggestion="先修复 validator runtime，再重新执行终验聚合。",
         rework_target_step="source-contract-fix",
-        source_layer_owner="4-Review",
+        source_layer_owner="review",
         can_override=False,
     )
 
@@ -626,7 +626,7 @@ def _issue(
     description: str,
     suggestion: str,
     rework_target_step: str,
-    source_layer_owner: str = "3-Drafting",
+    source_layer_owner: str = "3-初稿",
     can_override: Optional[bool] = None,
 ) -> dict[str, Any]:
     prefix = role_id.replace("-validator", "").replace("-", "_").upper()
@@ -646,7 +646,7 @@ def _issue(
 
 
 def _report_ref(chapter: int, role_id: str, report_filename: str) -> str:
-    return f"4-Review/第{chapter}章/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
+    return f"review/第{chapter}章/{report_filename or ROLE_ID_TO_DIMENSION.get(role_id, role_id + '.md')}"
 
 
 def _write_report(
@@ -1045,7 +1045,7 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 description=f"`{golden_finger_name}` 在上游真源中带有限制，但正文把它写成了近乎无上限能力。",
                 suggestion="把能力使用改回限制内，或明确补写限制失效的条件与代价。",
                 rework_target_step="1-单章叙事起盘",
-                source_layer_owner="0-Init",
+                source_layer_owner="0-初始化",
             )
         )
 
@@ -1061,9 +1061,9 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                     severity="medium",
                     location=f"第{chapter}章规划约束层",
                     description=f"planning truth 声明了本章不可擅自改写的约束，但正文没有给出清晰锚点：{misses[0]}",
-                    suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-Planning` 修源。",
+                    suggestion="补上对应约束的存在感；若 planning 约束已过期或自相矛盾，回到 `2-卷章规划` 修源。",
                     rework_target_step="source-contract-fix",
-                    source_layer_owner="2-Planning",
+                    source_layer_owner="2-卷章规划",
                 )
             )
 
@@ -1085,7 +1085,7 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
     world_rule_conflicts = sum(
         1
         for issue in issues
-        if str(issue.get("source_layer_owner") or "") in {"0-Init", "1-Cards"}
+        if str(issue.get("source_layer_owner") or "") in {"0-初始化", "1-设定"}
     )
     capability_conflicts = sum(
         1
@@ -1096,7 +1096,7 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
     social_ecology_conflicts = sum(
         1
         for issue in issues
-        if str(issue.get("source_layer_owner") or "") == "2-Planning"
+        if str(issue.get("source_layer_owner") or "") == "2-卷章规划"
     )
     score = _clamp_score(91 - len(issues) * 18 - contrivance_hits * 3)
     return {
@@ -1328,9 +1328,9 @@ def _run_task_convergence(
                 severity="high",
                 location=f"第{chapter}章 volume planning truth",
                 description="卷级 planning truth 没有显式主任务，无法判断本卷支流到底服务哪条主线。",
-                suggestion="回到 `2-Planning/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
+                suggestion="回到 `2-卷章规划/第N卷/卷规划.md`，补 `上承部级主任务 / 主线 / 支线 / 汇聚回主线`。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-Planning",
+                source_layer_owner="2-卷章规划",
                 can_override=False,
             )
         )
@@ -1346,9 +1346,9 @@ def _run_task_convergence(
                 severity="high",
                 location=f"第{chapter}章 chapter planning truth",
                 description="章级 planning truth 没有显式主任务，无法判断本章推进是否仍挂在卷级主线之下。",
-                suggestion="回到 `2-Planning/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
+                suggestion="回到 `2-卷章规划/第N卷/第N章.md`，补 `上承卷级任务 / 主线 / 支线 / 汇聚动作 / 未汇聚任务去向`。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-Planning",
+                source_layer_owner="2-卷章规划",
                 can_override=False,
             )
         )
@@ -1367,7 +1367,7 @@ def _run_task_convergence(
                     description="章级 `上承卷级任务` 无法回指卷级主线，任务从属关系失锚。",
                     suggestion="统一卷级/章级任务命名与挂靠关系，避免章级支流写成独立副本。",
                     rework_target_step="source-contract-fix",
-                    source_layer_owner="2-Planning",
+                    source_layer_owner="2-卷章规划",
                     can_override=False,
                 )
             )
@@ -1386,7 +1386,7 @@ def _run_task_convergence(
                 description="章级支流任务存在，但 planning truth 没有声明它们如何汇聚、转挂或保留开放。",
                 suggestion="为每条支流补 `汇聚动作` 或 `未汇聚任务去向`，不要把未回收任务留成隐形账。",
                 rework_target_step="source-contract-fix",
-                source_layer_owner="2-Planning",
+                source_layer_owner="2-卷章规划",
                 can_override=False,
             )
         )
@@ -1599,7 +1599,7 @@ def _write_aggregate_json(project_root: Path, chapter_num: int, payload: dict[st
 
 
 def _code_reviewer_dir(project_root: Path, chapter_num: int) -> Path:
-    output_dir = project_root / "4-Review" / ".code-reviewer" / f"第{chapter_num}章"
+    output_dir = project_root / "review" / ".code-reviewer" / f"第{chapter_num}章"
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
 
@@ -1801,7 +1801,7 @@ def _external_findings_to_issues(chapter_num: int, findings: list[dict[str, Any]
             severity = "medium"
         location = str(item.get("location") or item.get("file") or f"第{chapter_num}章").strip()
         description = str(item.get("description") or item.get("title") or "code-reviewer 发现需要人工确认的问题").strip()
-        suggestion = str(item.get("suggestion") or item.get("recommendation") or "回到最早受影响的 drafting step 修复后重跑 4-Review").strip()
+        suggestion = str(item.get("suggestion") or item.get("recommendation") or "回到最早受影响的 drafting step 修复后重跑 review").strip()
         issues.append(
             _issue(
                 chapter=chapter_num,
@@ -1813,7 +1813,7 @@ def _external_findings_to_issues(chapter_num: int, findings: list[dict[str, Any]
                 description=description,
                 suggestion=suggestion,
                 rework_target_step="1-单章叙事起盘",
-                source_layer_owner="4-Review",
+                source_layer_owner="review",
                 can_override=severity == "low",
             )
         )
@@ -1821,7 +1821,7 @@ def _external_findings_to_issues(chapter_num: int, findings: list[dict[str, Any]
 
 
 def _final_review_report_ref(chapter_num: int) -> str:
-    return f"4-Review/第{chapter_num}-{chapter_num}章审查报告.md"
+    return f"review/第{chapter_num}-{chapter_num}章审查报告.md"
 
 
 def _write_final_review_report(
@@ -1836,7 +1836,7 @@ def _write_final_review_report(
     absolute_path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = [
-        f"# 第{chapter_num}章 4-Review 审查报告",
+        f"# 第{chapter_num}章 review 审查报告",
         "",
         "## Gate Summary",
         "",
@@ -2021,7 +2021,7 @@ def run_final_acceptance(
         source_trace.append(
             {
                 "role_id": "code-reviewer",
-                "upstream_source_owners": ["4-Review"],
+                "upstream_source_owners": ["review"],
                 "runtime_warnings": [],
             }
         )
@@ -2033,7 +2033,7 @@ def run_final_acceptance(
         for issue in issues
         if str(issue.get("source_layer_owner") or "").strip()
     }
-    upstream_owners = {owner for owner in source_owners if owner in {"0-Init", "1-Cards", "2-Planning", "STATE"}}
+    upstream_owners = {owner for owner in source_owners if owner in {"0-初始化", "1-设定", "2-卷章规划", "STATE"}}
 
     if runtime_issues:
         validation_status = "FAIL-RUNTIME"
@@ -2046,11 +2046,11 @@ def run_final_acceptance(
     elif issues:
         validation_status = "FAIL-QUALITY"
         routing_decision = "back_to_drafting_nodes"
-        handoff_targets = ["3-Drafting"]
+        handoff_targets = ["3-初稿"]
     else:
         validation_status = "PASS"
-        routing_decision = "handoff_to_review_and_loopback"
-        handoff_targets = ["review/", "5-Loopback"]
+        routing_decision = "handoff_to_review_and_context_return"
+        handoff_targets = ["review/", "5-上下文回流"]
 
     payload.update(
         {
@@ -2103,7 +2103,7 @@ def _parse_args() -> argparse.Namespace:
     p_batch.add_argument("--role-id", action="append", dest="role_ids", required=True, help="可重复传入多个 role_id")
     p_batch.add_argument("--format", choices=["text", "json"], default="json")
 
-    p_final = sub.add_parser("run-final-acceptance", help="执行 4-Review 父层终验聚合，并自动触发 code-reviewer")
+    p_final = sub.add_parser("run-final-acceptance", help="执行 review 父层终验聚合，并自动触发 code-reviewer")
     p_final.add_argument("--chapter", type=int, required=True, help="集号")
     p_final.add_argument("--step-id", help="当前 drafting step_id，可选")
     p_final.add_argument("--format", choices=["text", "json"], default="json")

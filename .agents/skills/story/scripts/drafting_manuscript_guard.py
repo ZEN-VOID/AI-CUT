@@ -4,7 +4,7 @@
 drafting_manuscript_guard.py - chapter-complete manuscript guard for story2026 drafting
 
 用途：
-- 在 `3-Drafting` 收口前阻止“压缩版剧情稿/摘要稿”冒充 canonical 正文
+- 在 `3-初稿` 收口前阻止“压缩版剧情稿/摘要稿”冒充 canonical 正文
 - 提供一个可单独执行的章节完整度检查入口
 """
 

@@ -6,7 +6,7 @@
     "module_id": "story-map-root",
     "project_name": "",
     "created_at": "",
-    "source_route": "0-Init > 1-Cards > 2-Planning",
+    "source_route": "0-初始化 > 1-设定 > 2-卷章规划",
     "template_version": "3.0.0",
     "truth_role": "planning-compatibility-map"
   },

@@ -17,7 +17,7 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| “初始化小说”误入 AIGC 影片初始化，或“初始化影片/电影”被 story 初始化截走 | 媒介语义路由层 | 在 `aigc-init` 入口、registry routes 与 product metadata 中显式写入 film/movie/video 正向触发和 novel/book 负向排除 | 把自然语义触发词分成两组：`影片/电影/影视/视频 -> .agents/skills/aigc/0-初始化`，`小说/网文/书/长篇故事 -> .agents/skills/story/0-Init` | 输入“初始化电影/影片”只落 `projects/aigc/<项目名>/`；输入“初始化小说/网文”只落 `projects/story/<项目名>/` |
+| “初始化小说”误入 AIGC 影片初始化，或“初始化影片/电影”被 story 初始化截走 | 媒介语义路由层 | 在 `aigc-init` 入口、registry routes 与 product metadata 中显式写入 film/movie/video 正向触发和 novel/book 负向排除 | 把自然语义触发词分成两组：`影片/电影/影视/视频 -> .agents/skills/aigc/0-初始化`，`小说/网文/书/长篇故事 -> .agents/skills/story/0-初始化` | 输入“初始化电影/影片”只落 `projects/aigc/<项目名>/`；输入“初始化小说/网文”只落 `projects/story/<项目名>/` |
 | 初始化又长出旧三模式或平行问卷 | 模式合同层 | 把入口收口到 `智能顾问模式 -> 自动组队 / 自定义组队` 单一入口 | 模式锁定后只命中 1 个编组子路径，并由 planning 固定题包直答承接问题收束 | 全文只有一个合法模式展示位 |
 | `north_star` 与 handoff 混成一个大杂烩 | 主文件分工层 | 将长期约束与全局设计块留在 `north_star.yaml`，阶段种子与 unknowns 放入 `init_handoff.yaml` | 用模板真源固定两份文件的字段边界，`全局风格 / 细分风格 / 类型元素 / 世界观` 原样归入 north star | 模板与最终落盘能看出清晰分工 |
 | `全局风格` 混入镜头语言、角色材质、服装细节或道具细节，导致角色/场景/道具互相污染 | north-star 风格字段边界层 | 将 `全局风格` 收敛为通用安全前缀：`媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`；把画面、服装、建筑、物品分流到 `细分风格` | 在 north-star 模板、artifact 规则、review gate 与 audit 脚本同步检查 `全局风格 / 细分风格` 字段 | 初始化生成的全局前缀能被所有设计类型复用，不会把单一设计类型口径污染到其他类型 |

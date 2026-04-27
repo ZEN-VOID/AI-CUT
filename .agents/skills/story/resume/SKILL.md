@@ -2,404 +2,175 @@
 name: story-resume
 description: Use when a story2026 task was interrupted and the operator needs to inspect `STATE.json.workflow_runtime`, present safe recovery choices, or restart a tracked run without guessing the breakpoint.
 governance_tier: lite
+metadata:
+  short-description: Story interruption recovery
 ---
 
-# Task Resume
+# Story Resume
+
+`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`5-上下文回流`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
+
+本包按 Skill 2.0 工作车间结构维护：入口、触发、模式路由、动态引用、关键门禁和输出合同保留在 `SKILL.md`；恢复协议在 `references/`，思行节点在 `steps/`，恢复类型在 `types/`，质量门禁在 `review/`，经验知识库在 `knowledge-base/`，输出样板在 `templates/`，机械辅助边界在 `scripts/`，产品侧元数据在 `agents/`。
 
 ## Context Loading Contract
 
-- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- `CONTEXT.md` 只沉淀恢复策略、断点兼容与安全清理经验，不得覆盖本 `SKILL.md` 的 tracked workflow 恢复合同。
-- 若恢复经验与 `workflow_manager.py` 当前行为冲突，以本 `SKILL.md` 与实际脚本为准。
+- 每次调用 `$story-resume` 时，必须同时加载同目录 `CONTEXT.md`。
+- 若任务已绑定 `projects/story/<项目名>/`，先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与恢复判断相关的上下文文件。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/`、`steps/`、`types/`、`review/`、`templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 同目录 `CONTEXT.md`。
+- `CHANGELOG.md` 只用于追溯本技能包配置变更，不作为运行时自动上下文。
+- 若恢复暴露新的可复用失败模式，优先沉淀到同目录 `CONTEXT.md`；稳定后再晋升到本入口合同或对应分区。
 
-## Purpose
+## When To Use
 
-- `resume/` 是 `story2026` 在 `5-Loopback` 侧的卫星恢复技能，不负责写入 truth，也不冒充 drafting / review / loopback actualization 主流程。
-- 它的职责是：定位真实中断点、给出安全恢复选项、清理或保留现场、把后续执行重新接回当前 canonical truth。
-- 当前 canonical truth 约定保持一致：
-  - 规划真源：`2-Planning/整体规划.md`、`2-Planning/第N卷/卷规划.md`、`2-Planning/第N卷/第N章.md`
-  - 运行态真源：`STATE.json`
-  - 实体/关系/状态变化主存储：`.webnovel/index.db`
-  - 工作流断点：`STATE.json.workflow_runtime.workflow_state`
-  - 全阶段执行状态：`STATE.json.workflow_runtime.execution_state`
-  - 追加式任务日志：`STATE.json.workflow_runtime.task_log`
+- 用户要求恢复、继续、清理或诊断一个被打断的 story2026 任务。
+- 需要读取 `STATE.json.workflow_runtime.workflow_state`、`execution_state` 或 `task_log` 判断 tracked interruption。
+- `workflow detect` 没有 tracked 中断，但项目工件链显示存在唯一下一入口，需要执行 artifact fallback 判定。
+- 需要把 `story-write`、`story-validate`、`story-review`、`story-context-return`、`story-query` 等 run 的中断状态解释成人类可执行的恢复选项。
+- 某阶段产物已存在，但需要判断应回到 drafting、review、context return、query、source contract repair，还是先停下人工诊断。
 
-## Stage Position
+## When Not To Use
 
-- `resume/` 不等于 `5-Loopback` actualization。
-- `5-Loopback` 主流程只处理 `4-Review = PASS` 后的 validated actualization。
-- `resume/` 只处理“任务被打断了，如何安全恢复或安全退出恢复流程”。
-- 若诉求其实是：
-  - 查询运行时信息：转 `query/`
-  - 对 PASS 集做正式回写：转 `5-Loopback/`
-  - 修正文稿质量问题：转 `3-Drafting` 对应工序或 `review/`
-
-## Supported Scope
-
-正式支持的 tracked workflow 对象：
-
-| command | 恢复能力 | 依据 |
-|---|---|---|
-| `story-init` | 读取初始化 run、查看当前步骤、继续/清理/重跑建议 | `workflow_manager.py` + `0-Init` 合同 |
-| `story-cards` | 读取 cards run、查看子卡步骤、继续/清理/重跑建议 | `workflow_manager.py` + `1-Cards` 合同 |
-| `story-plan` | 读取部级/卷级/章级 planning pass 进度、继续/清理/重跑建议 | `workflow_manager.py` + `2-Planning` 合同 |
-| `story-write` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `3-Drafting` 当前 Step 合同 |
-| `story-review` | 读取 validation run、继续/清理/重跑建议 | `workflow_manager.py` + `4-Review` 合同 |
-| `story-review` | 完整 workflow 断点检测、清理、重启建议 | `workflow_manager.py` + `review/` Step 合同 |
-| `story-loopback` | 读取 actualization run、继续/清理/重跑建议 | `workflow_manager.py` + `5-Loopback` 合同 |
-| `story-query` | 读取 query run、给出轻量 generic 继续 / 重跑 / 人工诊断建议 | `workflow_manager.py` + `query/` 合同 |
-
-降级支持：
-
-| 场景 | 支持方式 | 限制 |
-|---|---|---|
-| `story-query` 的恢复 | 有 tracked run 时可读取中断信息并给 generic 方案 | 不提供 `story-write` 式章节 cleanup，也不宣称“从查询内部断点继续生成答案” |
-| 手工 Bash / 临时调试任务被打断 | 只做诊断与安全建议 | 不伪造 `STATE.json.workflow_runtime` |
-| 未注册的自定义命令被打断 | 只做诊断与安全建议 | 不伪造内联 workflow runtime |
-
-## Project Root Guard
-
-- 工作区根目录不一定等于真实书项目根目录。
-- 必须先解析 `PROJECT_ROOT`，它必须包含 `STATE.json`。
-- 所有恢复命令都必须走统一入口 `scripts/story.py`，不要直接绕过统一 CLI 拼脚本路径。
-
-环境设置（bash 命令执行前）：
-
-```bash
-export WORKSPACE_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
-export REPO_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
-export SCRIPTS_DIR="${REPO_ROOT}/.agents/skills/story/scripts"
-export SKILL_ROOT="${REPO_ROOT}/.agents/skills/story/resume"
-
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${WORKSPACE_ROOT}" preflight --format json
-export PROJECT_ROOT="$(python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${WORKSPACE_ROOT}" where)"
-```
-
-硬门槛：
-
-- `PROJECT_ROOT` 无法解析时立即阻断。
-- 若目标任务是 `story-write` 或 `story-review`，`preflight` 必须成功。
-- 若 `planning_source=legacy_fallback`，必须明确告知用户当前是 degraded mode。
-- 若 `planning_source=missing` 且目标任务是 `story-write`，禁止假装可以安全续跑，必须先修复规划真源。
+- 用户只是查询项目事实、文件位置或已有产物清单，应优先进入 `query/`。
+- 用户要求对 PASS 集做正式 actualization，应进入 `5-上下文回流/`。
+- 用户要求生成或修改正文，应回到 `3-初稿` 对应工序。
+- 用户要求修复审查结论或做终验，应进入 `review/`。
+- 用户要求破坏性 Git 操作、删除未备份正文、清空项目资产时，本技能只能提供风险说明和非破坏性检查路径，不得默认执行。
 
 ## Input Contract
 
-最小输入：
+`$story-resume` 必须先判断输入是否足够锁定真实项目根、恢复诉求和可证明中断证据；不足时停止猜测并请求最小缺口。
 
-- `project_root`
-- 用户当前恢复诉求
-- `workflow detect` 输出，或能证明“没有 tracked interruption”的诊断结果
+| input slot | required shape | detail owner |
+| --- | --- | --- |
+| `project_root` | 项目路径，或当前工作目录可由 `story.py where` 解析到包含 `STATE.json` 的真实书项目根 | `steps/resume-workflow.md` |
+| `resume_intent` | 继续执行、只检测、清理现场、保留现场、重跑、退出恢复流程之一 | `types/resume-type-map.md` |
+| `runtime_evidence` | `workflow detect` 输出，或能证明“没有 tracked interruption”的诊断结果 | `references/workflow-resume.md` |
+| `stage_hint` | 可选；章节号、卷号、当前正文路径、review/report 路径或失败症状 | `references/system-data-flow.md` |
+| `risk_profile` | 是否涉及删除正文、清理 workflow state、继续生成或人工保留现场 | `review/resume-review-gate.md` |
 
-可选输入：
+Accepted input:
 
-- 章节号
-- 当前章节正文文件路径
-- 最近一次 `git status`
-- 来自 `3-Drafting` / `review/` 的失败症状
-- 用户是否要“立即继续”还是“只做安全清理”
+- 明确项目路径或当前目录可解析到 `STATE.json`，并要求恢复、检测、清理或继续任务。
+- 已有 `workflow detect` 输出，需要转成人类可执行恢复方案。
+- 没有 tracked 中断，但存在 `review/*.validation.json`、`review/*章审查报告.md`、`3-初稿/第V卷.写作日志.yaml` 或 `5-上下文回流/*.context-return.json` 等业务证据链。
 
-## Reference Loading Levels
+Reject or reroute:
 
-- L0：先判断是否真的是中断恢复诉求。
-- L1：加载恢复协议主文件。
-- L2：仅在需要确认当前数据真源或恢复后续上下文时，加载数据流规范与上下文契约。
+- 项目根无法唯一定位 -> 先询问项目路径或要求运行 preflight。
+- 明确只是查询事实 -> `query/`。
+- 明确要求 PASS actualization -> `5-上下文回流/`。
+- 明确要求写正文或修正文稿质量 -> `3-初稿` / `review/`。
+- 请求默认执行 `git reset --hard`、未备份删除正文、清空资产 -> block，并只给非破坏性恢复路径。
 
-L1（必读）：
+## Mode Selection
 
-- [workflow-resume.md](references/workflow-resume.md)
+| mode | trigger | default action |
+| --- | --- | --- |
+| `tracked_workflow_resume` | `workflow detect` 返回 tracked JSON 中断 | 读取 command、current_step、completed_steps、artifacts，归一化恢复选项 |
+| `artifact_fallback_resume` | 无 tracked 中断，但业务工件链证明唯一下一入口 | 列出证据链，并回接到唯一 stage |
+| `query_light_resume` | tracked command 是 `story-query` | 只给 generic continue / rerun / diagnosis，不进入章节 cleanup |
+| `write_cleanup_resume` | `story-write` Step 2-8 中断且用户倾向重跑 | 先 preview cleanup，再等待确认，不自动删除 |
+| `review_decision_resume` | `story-review` 在人工裁决或后段中断 | 重新确认输入和关键问题处理策略 |
+| `manual_diagnosis` | 手工 Bash、未注册命令或证据冲突 | 保留现场，输出人工诊断路线 |
+| `blocked_safety_stop` | 项目根缺失、证据不足、用户请求危险动作 | 停止恢复裁决，输出 blocker 和最小补充信息 |
 
-L2（按需）：
+## Reference Loading Guide
 
-- [system-data-flow.md](references/system-data-flow.md)
-- [context-loading-contract.md](../_shared/context-loading-contract.md)
+按恢复节点动态加载，不要一次性读取所有分区。
 
-## Workflow Checklist
+| scenario | load |
+| --- | --- |
+| 恢复协议、安全边界、artifact fallback、step 语义 | `references/workflow-resume.md` |
+| canonical runtime、规划/正文/review/context return 真源 | `references/system-data-flow.md` |
+| 旧长 `SKILL.md` 到 Skill 2.0 分区的迁移追踪 | `references/legacy-migration-matrix.md` |
+| 项目根预检、detect、选项归一化、确认、执行、closure | `steps/resume-workflow.md` |
+| 恢复模式、命令类型、风险等级与 stage 回接策略 | `types/resume-type-map.md` |
+| 交付前安全 gate、provider 降级、本地 review checklist | `review/resume-review-gate.md` |
+| 可复用恢复经验与避坑策略 | `knowledge-base/resume-heuristics.md` |
+| 用户-facing 恢复裁决包模板 | `templates/output-template.md` |
+| 机械辅助命令边界与统一 CLI 入口 | `scripts/README.md` |
+| 产品侧入口元数据 | `agents/openai.yaml` |
 
-复制使用：
+## Core Workflow Index
 
-```text
-恢复进度：
-- [ ] Step 0: 预检并解析 PROJECT_ROOT
-- [ ] Step 1: 加载恢复协议
-- [ ] Step 2: 检测中断状态
-- [ ] Step 3: 归一化恢复选项
-- [ ] Step 4: 与用户确认恢复策略
-- [ ] Step 5: 执行恢复或安全退出
-- [ ] Step 6: 重新接回对应 stage
-- [ ] Step 7: 验证 closure
+```mermaid
+flowchart TD
+    A["N1 Intake: project and intent"] --> B["N2 Preflight: PROJECT_ROOT"]
+    B --> C["N3 Detect: tracked or fallback evidence"]
+    C --> D{"N4 Resume Type"}
+    D -->|"tracked workflow"| E["Normalize tracked options"]
+    D -->|"artifact fallback"| F["Choose unique next stage"]
+    D -->|"query light run"| G["Generic query recovery"]
+    D -->|"manual/unknown"| H["Manual diagnosis or blocker"]
+    E --> I["N5 User confirmation"]
+    F --> I
+    G --> I
+    H --> I
+    I --> J["N6 Execute safe action or exit"]
+    J --> K["N7 Closure and handoff"]
 ```
 
-## Step 0：预检并解析 `PROJECT_ROOT`
+Detailed node fields, evidence requirements, branch gates, and failure loops live in `steps/resume-workflow.md`.
 
-必须执行：
+## Mandatory Gates
 
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${WORKSPACE_ROOT}" preflight --format json
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${WORKSPACE_ROOT}" where
-```
+- 必须先解析真实 `PROJECT_ROOT`，且它必须包含 `STATE.json`；否则不得推断断点。
+- 恢复判断必须先执行或消费 `workflow detect` 结果，不能只凭聊天记忆。
+- `workflow detect` 无 tracked 中断时，必须继续检查 artifact fallback，而不是直接宣布无事可做。
+- `story-query` 只能做轻量 generic 恢复，不套用章节 cleanup 模板。
+- 涉及正文删除时必须先 preview，再等待用户确认；真正删除前必须由脚本自动备份。
+- 不得默认执行 `git reset --hard`，不得假定存在章节 tag/commit。
+- 恢复后继续写作/查询时，默认重新接回 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`。
+- 输出必须说明下一跳回哪个 stage；若无法唯一裁决，输出 blocker 和最小补充信息。
 
-目标：
+## Root-Cause Execution Contract
 
-- 确认当前目录能解析到真实书项目根。
-- 提前暴露 `planning_source`、脚本缺失、project pointer 失效等问题。
-- 避免把恢复命令执行到 skill 仓库目录或工作区父目录。
+恢复类失败必须沿以下链路上溯：
 
-## Step 1：加载恢复协议
+`Symptom -> Direct Technical Cause -> Section Owner -> Rule Source -> Meta Rule Source -> Fix Landing Points`
 
-```bash
-cat "${SKILL_ROOT}/references/workflow-resume.md"
-```
+优先修复路径：
 
-必要时再加载：
+1. 项目根误判：修 `steps/resume-workflow.md` 与 `scripts/README.md`。
+2. 断点凭空猜测：修 `references/workflow-resume.md`、`steps/resume-workflow.md` 与 `review/resume-review-gate.md`。
+3. artifact fallback 缺失或误判：修 `references/workflow-resume.md` 与 `types/resume-type-map.md`。
+4. 危险恢复建议泄漏：修 `review/resume-review-gate.md`、`references/workflow-resume.md` 与 `scripts/workflow_manager.py`。
+5. stage 边界混淆：修本 `SKILL.md`、`references/system-data-flow.md` 与对应阶段技能。
+6. 输出缺少唯一下一入口：修 `templates/output-template.md` 与 `review/resume-review-gate.md`。
 
-```bash
-cat "${SKILL_ROOT}/references/system-data-flow.md"
-cat "${REPO_ROOT}/.agents/skills/story/_shared/context-loading-contract.md"
-```
+## Field Mapping
 
-核心原则：
-
-- 禁止猜断点。
-- 禁止把 `workflow detect` 输出中的动作文本原样当执行脚本。
-- 禁止为了“省事”直接做 destructive Git 操作。
-- 恢复后必须重新接回当前 canonical truth，而不是退回旧 `2-Planning/legacy/` 或兼容 `holomap` 默认路径。
-
-## Step 2：检测中断状态
-
-必须执行：
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow detect
-```
-
-解释规则：
-
-- 输出 `✅ 无中断任务`：
-  - 说明当前既没有 workflow-tracked 断点，也没有命中 artifact fallback。
-  - 对手工任务只能提供“安全重跑建议”，不能伪造断点续跑。
-- 输出 `artifact_fallback` JSON：
-  - 说明当前没有 tracked 中断，但系统已从真实业务产物中识别出唯一下一入口。
-  - 必须继续核对：
-    - `4-Review/*.validation.json`
-    - `4-Review/*章审查报告.md`
-    - `STATE.json.review_checkpoints`
-    - `3-Drafting/第V卷.写作日志.yaml`
-    - `5-Loopback/*.loopback.json`
-  - 禁止把这类情况误写成“无中断所以无事可做”。
-- 输出 JSON 中断信息：
-  - 读取 `command`
-  - 读取 `current_step.id`
-  - 读取 `completed_steps`
-  - 读取 `artifacts`
-  - 读取 `elapsed_seconds`
-  - 若 `command=story-query`，默认按轻量 tracked run 解释：只允许 generic continue / rerun / manual diagnosis，不进入章节 cleanup 流程
-
-## Step 3：归一化恢复选项
-
-恢复选项必须由 `resume/` 再归一化一次，不直接照搬 `workflow detect` 的原始文本。
-
-### `artifact_fallback` 的默认解释
-
-| fallback reason | 语义 | 默认恢复策略 |
-|---|---|---|
-| `loopback_completed_next_volume_ready` | 上一卷已完成 validated actualization，下一稳定入口是下一卷 drafting | 进入 `story-write` 下一卷首章 worker，先读 `carryover_context` |
-| `validation_pass_review_pending` | 当前卷已 PASS，但还没发现 review 持久化证据 | 进入 `review/` |
-| `validation_pass_review_persisted_loopback_pending` | 当前卷已 PASS 且 review 已落盘，但还没 actualize | 进入 `5-Loopback/` |
-| `candidate_volume_draft_waiting_validation` | 当前卷已到 `candidate_volume_draft`，但还没有正式终验包 | 进入 `4-Review` |
-| `validation_failed_back_to_drafting` | 当前卷终验已明确打回 drafting | 按 `rework_targets` 回到对应 drafting 节点 |
-| `validation_failed_back_to_source_contract` | 当前卷终验已明确打回 source contract | 按 `source_trace` 进入 `0-Init / 1-Cards / 2-Planning` 的唯一入口 |
-
-Legacy compatibility only:
-
-- `loopback_completed_next_episode_ready`
-- `candidate_final_draft_waiting_validation`
-
-### `story-write` 的当前 Step 解释
-
-| tracked step | 语义 | 默认恢复策略 |
-|---|---|---|
-| `Step 1` | 单章叙事起盘 | 直接从 Step 1 重建当前章上下文与初稿底座 |
-| `Step 2` | 节奏优化（父层工序） | 优先继续当前工序；若正文失真，再清理当前章正文并回 Step 1 |
-| `Step 3` | 场景和氛围渲染 | 优先继续当前工序；若正文失真，再清理当前章正文并回 Step 1 |
-| `Step 4` | 角色形象刻画 | 优先继续当前工序；若正文失真，再清理当前章正文并回 Step 1 |
-| `Step 5` | 对白优化 | 优先继续当前工序；若正文失真，再清理当前章正文并回 Step 1 |
-| `Step 6` | 心理活动描写 | 优先继续当前工序；若 POV / 内心层明显失真，再清理当前章正文并回 Step 1 |
-| `Step 7` | 追读力强化 | 优先继续当前工序；若正文失真，再清理当前章正文并回 Step 1 |
-| `Step 8` | 润色 | 优先继续润色收束；若终稿已明显漂移，再清理当前章正文并回 Step 1 |
-| `Step 1.5` | legacy 旧断点 | 视为 Step 1 兼容处理，不再单独追踪 |
-
-### `story-review` 的当前 Step 解释
-
-- `Step 1-2`：重新加载 validation 输出与项目状态。
-- `Step 3-6`：可从当前聚合/报告/落库位置继续，但必须先确认输入未变。
-- `Step 7`：关键问题处理未完成，必须重新向用户确认，不自动替用户裁决。
-- `Step 8`：只做收尾，可重新完成任务。
-
-### `story-query` 与其他轻量 tracked run 的默认解释
-
-- `story-query`
-  - 可读取 `current_step / completed_steps / elapsed_seconds`
-  - 但默认只给 generic 继续 / 重跑 / 人工诊断建议
-  - 不提供章节 cleanup，不宣称“从半句查询答案继续生成”
-- `story-init / story-cards / story-plan / story-review / story-loopback`
-  - 若脚本只提供 generic recovery options，就按 generic 方案解释
-  - 不擅自套用 `story-write` / `story-review` 的重型恢复模板
-
-### 统一安全策略
-
-- 优先选项：
-  - `cleanup --chapter N` 先预览
-  - 用户确认后再 `cleanup --chapter N --confirm`
-  - 执行 `workflow clear`
-- 保留现场时：
-  - 可以先 `workflow fail-task --reason "..."`
-  - 再决定是否 `workflow clear`
-- 禁止默认执行：
-  - `git reset --hard`
-  - 假定存在 `ch0007` 之类 tag/commit 再硬回滚
-  - 未备份即删除当前章正文根文件 `3-Drafting/第N卷/第N章.md`
-
-## Step 4：与用户确认恢复策略
-
-必须输出四类信息：
-
-1. 当前任务与中断位置
-2. 已完成步骤 / 未完成步骤
-3. 推荐恢复策略与风险等级
-4. 若立即继续，下一跳会进入哪个 stage
-
-确认方式：
-
-- 直接在对话中让用户选 `A/B`
-- 或让用户明确说“只清理，不继续”
-- 或让用户明确说“保留现场，我稍后人工处理”
-
-禁止事项：
-
-- 不得替用户自动选项
-- 不得把“推荐”包装成“已经执行”
-
-## Step 5：执行恢复或安全退出
-
-### 推荐路径：清理当前章正文后重跑
-
-先预览：
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow cleanup --chapter {N}
-```
-
-用户确认后执行：
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow cleanup --chapter {N} --confirm
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow clear
-```
-
-### 保留现场，仅退出恢复流程
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow fail-task --reason "manual_inspection_required"
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow clear
-```
-
-### 仅清除中断状态
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" workflow clear
-```
-
-## Step 6：重新接回对应 stage
-
-### 继续 `story-write`
-
-- 恢复后默认继续走 `3-Drafting` 当前合同。
-- 章节级上下文恢复必须重新以 `2-Planning/整体规划.md + 当前卷/卷规划.md + 当前卷/第N章.md` 为默认规划真源。
-- 若用户要先检查恢复后的上下文包，可执行：
-
-```bash
-python -X utf8 "${SCRIPTS_DIR}/story.py" --project-root "${PROJECT_ROOT}" extract-context --chapter {N} --format json
-```
-
-- 若用户选择立即继续，则重新执行 `/story-write {N}`。
-
-### 继续 `story-review`
-
-- 必须重新确认 `4-Review` 聚合结果仍然可用。
-- 若用户选择立即继续，则重新执行 `/story-review ...`，并遵守 `review/` 当前 Step 合同。
-
-### 继续 `story-query`
-
-- 若 `workflow detect` 已记录 query run，可基于该 run_id 说明最近卡在 truth-role / source locate / evidence assemble 的哪一步。
-- 只做 generic 继续 / 安全重跑 / 人工诊断，不宣称“从断点续查”。
-- 若查询涉及规划类问题，继续默认先读 `整体规划.md + 当前卷/卷规划.md + 当前章.md`。
-
-### 处理 `artifact_fallback`
-
-- 若 `workflow detect` 返回 `artifact_fallback`，必须显式列出命中的业务证据链。
-- `resume/` 的职责是把它归一化成“唯一下一入口”，而不是继续输出模糊建议列表。
-- 只有在 artifact 证据彼此冲突时，才允许降级回“人工诊断优先”。
-
-## Step 7：验证 Closure
-
-至少核对：
-
-- `workflow detect` 不再报告旧断点，或旧断点已按用户意图保留为人工现场。
-- 若执行了 cleanup：
-  - 已有预览
-  - 真正删除前已自动备份当前章正文根文件
-- 若恢复后继续写作：
-  - 明确说明下一跳回到 `3-Drafting`
-  - 继续以 fractal-planning-first 方式加载上下文
-- 若恢复后继续审查：
-  - 明确说明下一跳回到 `review/`
-- 若只是退出恢复流程：
-  - 明确保留了哪些现场
-  - 明确哪些步骤尚未恢复
+| field_id | owner | must contain | fail code |
+| --- | --- | --- | --- |
+| `RESUME-FIELD-01` | `SKILL.md` | 入口边界、Input Contract、Mode Selection、Reference Loading Guide、Mandatory Gates、Output Contract | `FAIL-RESUME-ENTRY` |
+| `RESUME-FIELD-02` | `CONTEXT.md` | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-RESUME-CONTEXT` |
+| `RESUME-FIELD-03` | `references/workflow-resume.md` | 恢复证据链、artifact fallback、step 语义、安全禁令 | `FAIL-RESUME-EVIDENCE` |
+| `RESUME-FIELD-04` | `references/system-data-flow.md` | canonical runtime 和权威 data-flow 重定向 | `FAIL-RESUME-RUNTIME` |
+| `RESUME-FIELD-05` | `steps/resume-workflow.md` | 判断-动作-证据一体化节点、分支、失败回路 | `FAIL-RESUME-STEPS` |
+| `RESUME-FIELD-06` | `types/resume-type-map.md` | 恢复类型、风险等级、command/stage 映射 | `FAIL-RESUME-TYPES` |
+| `RESUME-FIELD-07` | `review/resume-review-gate.md` | 安全 gate、provider 降级、verdict 模型 | `FAIL-RESUME-REVIEW` |
+| `RESUME-FIELD-08` | `templates/output-template.md` | 恢复裁决包模板与 Output Contract Alignment | `FAIL-RESUME-TEMPLATE` |
+| `RESUME-FIELD-09` | `scripts/README.md` | 统一 CLI 入口、只读/破坏性命令边界 | `FAIL-RESUME-SCRIPTS` |
+| `RESUME-FIELD-10` | `agents/openai.yaml` | display name、short description、默认唤起提示 | `FAIL-RESUME-METADATA` |
 
 ## Output Contract
 
-`resume/` 至少输出：
+### Required output
 
-- `project_root`
-- `tracked_command`
-- `current_step`
-- `interruption_summary`
-- `normalized_recovery_options`
-- `recommended_option`
-- `user_confirmed_option`
-- `commands_executed`
-- `next_stage_handoff`
+一次恢复裁决包：真实 `project_root`、tracked command 或 artifact fallback 证据、current step、已完成/未完成状态、归一化恢复选项、推荐选项、用户确认选项、已执行命令、下一 stage handoff；若无法恢复，输出 blocker 和最小补充信息。
 
-## Root-Cause 执行合同
+### Output format
 
-- 若恢复建议与真实脚本行为不一致，必须先上溯脚本和阶段合同，不只改本次说明话术。
-- 本 skill 的 `Rule Source` 默认优先检查：
-  - `resume/SKILL.md`
-  - `resume/references/workflow-resume.md`
-  - `scripts/workflow_manager.py`
-  - `3-Drafting/SKILL.md`
-  - `review/SKILL.md`
-  - `5-Loopback/SKILL.md`
-- `Meta Rule Source` 默认上溯到仓库 `AGENTS.md` 与相关 meta skill。
-- 修复顺序必须是：先修恢复合同与脚本安全策略，再修本次恢复提示文本。
+默认是 Markdown 用户-facing 恢复报告；如由脚本消费，可附 YAML/JSON 结构片段，但不得把 `resume/` 输出写成阶段业务真源。
 
-## Lite Tier Field Mapping（Combined）
+### Output path
 
-| field_id | step_id | intent | required_output | fail_code | rework_entry |
-|---|---|---|---|---|---|
-| FIELD-RESUME-ROOT-01 | Step 0 | 解析真实书项目根并做环境预检 | `project_root`、`preflight_status` | FAIL-RESUME-ROOT-01 | 回到 preflight，修正 project pointer / 工作区路径 |
-| FIELD-RESUME-DETECT-02 | Step 2 | 读取真实 workflow 中断状态 | `tracked_command`、`current_step`、`interruption_summary` | FAIL-RESUME-DETECT-02 | 回到 `workflow detect`，禁止猜测断点 |
-| FIELD-RESUME-NORMALIZE-03 | Step 3 | 把原始检测结果归一化成安全恢复选项 | `normalized_recovery_options`、`recommended_option` | FAIL-RESUME-NORMALIZE-03 | 回到恢复策略层，移除危险或过时动作 |
-| FIELD-RESUME-CONFIRM-04 | Step 4 | 让用户确认恢复还是退出 | `user_confirmed_option` | FAIL-RESUME-CONFIRM-04 | 回到确认层，不得替用户自动决策 |
-| FIELD-RESUME-HANDOFF-05 | Step 5-7 | 执行恢复并接回正确 stage | `commands_executed`、`next_stage_handoff` | FAIL-RESUME-HANDOFF-05 | 回到执行/交接层，确认 cleanup / clear / rerun 顺序 |
+默认不落盘、不改写业务真源。若用户明确要求生成恢复报告，写入 `projects/story/<项目名>/resume/resume-report-YYYYMMDD.md`；若执行 cleanup / clear / fail-task，只能通过 `scripts/story.py` 统一 CLI 修改 workflow runtime。
 
-## Completion Gate
+### Naming convention
 
-- 已确认真实 `PROJECT_ROOT`，不是误用工作区父目录。
-- 已执行 `workflow detect`，而不是主观猜测中断点。
-- 若无 tracked 中断但有业务产物链，已执行 artifact fallback 检测并给出唯一下一入口。
-- 恢复选项已去除过时或 destructive 默认动作。
-- 已明确“下一跳回哪个 stage”，而不是把 `resume/` 冒充主执行器。
-- 若恢复继续写作/查询，已明确使用 fractal-planning-first。
-- 若恢复对象是轻量 tracked run，已明确说明它只支持 generic 恢复，而不是章节级 cleanup。
+恢复报告使用 `resume-report-YYYYMMDD.md`；恢复模式使用本 `Mode Selection` 表中的 ASCII-safe 值；下一入口必须写成一个明确 skill、命令或项目 runtime 路径，不输出无序候选。
+
+### Completion gate
+
+完成前必须通过 `review/resume-review-gate.md`：项目根已锁定、detect 或 fallback 证据可复核、风险等级已标注、危险动作已过滤、用户确认要求已满足、唯一下一入口已给出；若无法唯一裁决，必须返回 blocker 和最小补充信息。

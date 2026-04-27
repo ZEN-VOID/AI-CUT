@@ -36,7 +36,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - The task is a normal continuation, breakpoint recovery, governance repair, or status query; route to `aigc/resume` or the root `aigc` skill.
 - The user asks to produce canonical deliverables for `1-Planning` through downstream stages; this skill may only seed those stages.
 - The request is a Git rollback. Rebootstrap is a business reset, not `git reset`.
-- 用户以自然语言要求“初始化小说 / 初始化网文 / 新建书 / story 项目起盘”，且没有明确要改编成影视项目；route to `.agents/skills/story/0-Init/SKILL.md`.
+- 用户以自然语言要求“初始化小说 / 初始化网文 / 新建书 / story 项目起盘”，且没有明确要改编成影视项目；route to `.agents/skills/story/0-初始化/SKILL.md`.
 
 ## Input Contract (Mandatory)
 

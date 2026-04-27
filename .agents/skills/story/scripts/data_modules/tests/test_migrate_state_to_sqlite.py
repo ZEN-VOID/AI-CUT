@@ -162,7 +162,7 @@ def test_migrate_state_backup_and_skips(temp_project):
     assert stats["entities"] == 1
     assert stats["skipped"] >= 3
 
-    backups = list(temp_project.state_file.parent.glob("state.json.backup-*"))
+    backups = list(temp_project.state_file.parent.glob(f"{temp_project.state_file.name}.backup-*"))
     assert backups
 
 

@@ -27,7 +27,7 @@ def _write_project_state(project_root: Path, payload: dict) -> None:
 
 
 def _seed_manuscript(project_root: Path, chapter_num: int, text: str) -> None:
-    drafting_dir = project_root / "3-Drafting"
+    drafting_dir = project_root / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / f"第{chapter_num}集.md").write_text(text, encoding="utf-8")
 
@@ -270,7 +270,7 @@ def test_story_write_failed_inline_validation_requires_rewind(tmp_path, monkeypa
                     "id": "LG-017-001",
                     "severity": "high",
                     "rework_target_step": "1-单章叙事起盘",
-                    "source_layer_owner": "3-Drafting",
+                    "source_layer_owner": "3-初稿",
                 }
             ]
         module.record_inline_validation("Step 4", validator["role_id"], json.dumps(payload, ensure_ascii=False))
@@ -314,12 +314,12 @@ def test_story_write_complete_task_blocks_short_manuscript(tmp_path, monkeypatch
         "---\n"
         "chapter_title: 测试章\n"
         "rhythm_type: 势能式\n"
-        "planning_ref: 2-Planning/第1卷/第18章.md\n"
+        "planning_ref: 2-卷章规划/第1卷/第18章.md\n"
         "---\n\n"
         "# 第18章\n\n"
         "这一章只是一个压缩剧情摘要，还没有展开成完整章节。\n",
     )
-    planning_dir = tmp_path / "2-Planning" / "第1卷"
+    planning_dir = tmp_path / "2-卷章规划" / "第1卷"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "第18章.md").write_text(
         "对下章的直接推动：下一场风暴已压到门前\n",
@@ -502,7 +502,7 @@ def test_analyze_recovery_options_midpass_avoids_destructive_git_reset(tmp_path,
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
     assert "reset --hard" not in action_text
-    assert "3-Drafting/第2卷/第11章.md" in action_text
+    assert "3-初稿/第2卷/第11章.md" in action_text
     assert any(option.get("label") == "保留半成品做人工检查" for option in options)
 
 
@@ -524,7 +524,7 @@ def test_analyze_recovery_options_polish_step_keeps_new_drafting_target(tmp_path
     options = module.analyze_recovery_options(interrupt_info)
 
     action_text = "\n".join(action for option in options for action in option.get("actions", []))
-    assert "3-Drafting/第2卷/第12章.md" in action_text
+    assert "3-初稿/第2卷/第12章.md" in action_text
     assert "backup_manager.py" not in action_text
     assert any(option.get("label") == "继续 润色" for option in options)
 
@@ -589,24 +589,24 @@ def test_generic_recovery_options_for_non_write_review(tmp_path, monkeypatch):
     assert "清理中断状态并整段重跑" in labels
 
 
-def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypatch):
+def test_detect_interruption_uses_context_return_artifact_fallback(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _write_project_state(
         tmp_path,
         {
             "carryover_context": {"next_episode": "第11章", "next_volume": "第2卷"},
-            "runtime_markers": {"loopback": {"last_actualized_volume": "第1卷"}},
+            "runtime_markers": {"context_return": {"last_actualized_volume": "第1卷"}},
         },
     )
 
-    loopback_dir = tmp_path / "5-Loopback"
-    loopback_dir.mkdir(parents=True, exist_ok=True)
-    (loopback_dir / "第1卷.loopback.json").write_text(
+    context_return_dir = tmp_path / "5-上下文回流"
+    context_return_dir.mkdir(parents=True, exist_ok=True)
+    (context_return_dir / "第1卷.context-return.json").write_text(
         json.dumps(
             {
-                "meta": {"loopback_ref": "5-Loopback/第1卷.loopback.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
-                "inputs": {"validation_ref": "4-Review/第1卷.validation.json"},
+                    "meta": {"context_return_ref": "5-上下文回流/第1卷.context-return.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+                "inputs": {"validation_ref": "review/第1卷.validation.json"},
             },
             ensure_ascii=False,
             indent=2,
@@ -621,7 +621,7 @@ def test_detect_interruption_uses_loopback_artifact_fallback(tmp_path, monkeypat
     assert interrupt["command"] == "story-write"
     assert interrupt["args"]["chapter_num"] == 11
     assert interrupt["args"]["volume_num"] == 2
-    assert interrupt["resume_reason"] == "loopback_completed_next_volume_ready"
+    assert interrupt["resume_reason"] == "context_return_completed_next_volume_ready"
 
     options = module.analyze_recovery_options(interrupt)
     assert any(option.get("label") == "开始第11章 drafting" for option in options)
@@ -636,13 +636,13 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
             "review_checkpoints": [
                 {
                     "volume": 1,
-                    "report": "4-Review/第1卷审查报告.md",
+                    "report": "review/第1卷审查报告.md",
                 }
             ]
         },
     )
 
-    validation_dir = tmp_path / "4-Review"
+    validation_dir = tmp_path / "review"
     validation_dir.mkdir(parents=True, exist_ok=True)
     (validation_dir / "第1卷.validation.json").write_text(
         json.dumps(
@@ -650,8 +650,8 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
                 "volume_ref": "第1卷",
                 "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 "validation_status": "PASS",
-                "routing_decision": "handoff_to_review_and_loopback",
-                "handoff_targets": ["review/", "5-Loopback"],
+                "routing_decision": "handoff_to_review_and_context_return",
+                "handoff_targets": ["review/", "5-上下文回流"],
             },
             ensure_ascii=False,
             indent=2,
@@ -664,9 +664,9 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
 
     assert interrupt is not None
     assert interrupt["detection_mode"] == "artifact_fallback"
-    assert interrupt["command"] == "story-loopback"
+    assert interrupt["command"] == "story-context-return"
     assert interrupt["args"]["volume_num"] == 1
-    assert interrupt["resume_reason"] == "validation_pass_review_persisted_loopback_pending"
+    assert interrupt["resume_reason"] == "validation_pass_review_persisted_context_return_pending"
 
 
 def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypatch):
@@ -674,7 +674,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir = tmp_path / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / "第1卷.写作日志.yaml").write_text(
         "\n".join(
@@ -694,7 +694,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Review",
+                "  next_step: review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -704,7 +704,7 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Review",
+                "  next_action: review",
                 "  representative_chapter_refs:",
                 "    - 1",
                 "  primary_issues: []",
@@ -737,19 +737,19 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir = tmp_path / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / "第1卷.写作日志.yaml").write_text(
         "\n".join(
             [
                 "volume_num: 1",
                 "chapter_refs:",
-                "  - 3-Drafting/第1卷/第5章.md",
-                "  - 3-Drafting/第1卷/第8章.md",
+                "  - 3-初稿/第1卷/第5章.md",
+                "  - 3-初稿/第1卷/第8章.md",
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Review",
+                "  next_step: review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -759,7 +759,7 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Review",
+                "  next_action: review",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",
@@ -780,13 +780,13 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: rework_required_before_validation",
-                "  next_action: 3-Drafting-rework",
+                "  next_action: 3-初稿-rework",
                 "  representative_chapter_refs:",
-                "    - 3-Drafting/第1卷/第5章.md",
+                "    - 3-初稿/第1卷/第5章.md",
                 "  primary_issues:",
                 "    - 程序化推进过重",
                 "  priority_rework_targets:",
-                "    - 3-Drafting/第1卷/第5章.md",
+                "    - 3-初稿/第1卷/第5章.md",
             ]
         )
         + "\n",
@@ -807,19 +807,19 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir = tmp_path / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / "第2卷.写作日志.yaml").write_text(
         "\n".join(
             [
                 "volume_num: 2",
                 "chapter_refs:",
-                "  - 3-Drafting/第2卷/第11章.md",
-                "  - 3-Drafting/第2卷/第12章.md",
+                "  - 3-初稿/第2卷/第11章.md",
+                "  - 3-初稿/第2卷/第12章.md",
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Review",
+                "  next_step: review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -829,9 +829,9 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Review",
+                "  next_action: review",
                 "  representative_chapter_refs:",
-                "    - 3-Drafting/第2卷/第11章.md",
+                "    - 3-初稿/第2卷/第11章.md",
                 "  primary_issues: []",
                 "  priority_rework_targets: []",
                 "  cross_volume_upgrade_axes:",
@@ -857,16 +857,16 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
     assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
 
 
-def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path, monkeypatch):
+def test_detect_interruption_prefers_newer_writelog_over_older_context_return(tmp_path, monkeypatch):
     module = _load_module()
     monkeypatch.setattr(module, "find_project_root", lambda: tmp_path)
     _seed_project_root(tmp_path)
 
-    loopback_dir = tmp_path / "5-Loopback"
-    loopback_dir.mkdir(parents=True, exist_ok=True)
-    (loopback_dir / "第1卷.loopback.json").write_text("{}", encoding="utf-8")
+    context_return_dir = tmp_path / "5-上下文回流"
+    context_return_dir.mkdir(parents=True, exist_ok=True)
+    (context_return_dir / "第1卷.context-return.json").write_text("{}", encoding="utf-8")
 
-    drafting_dir = tmp_path / "3-Drafting"
+    drafting_dir = tmp_path / "3-初稿"
     drafting_dir.mkdir(parents=True, exist_ok=True)
     (drafting_dir / "第2卷.写作日志.yaml").write_text(
         "\n".join(
@@ -886,7 +886,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: 4-Review",
+                "  next_step: review",
                 "quality_gate_snapshot:",
                 "  checkpoint_stage: pre_validation",
                 "  review_mode: subagent-review-council",
@@ -896,7 +896,7 @@ def test_detect_interruption_prefers_newer_writelog_over_older_loopback(tmp_path
                 "    - 金庸",
                 "    - 徐克",
                 "  verdict: ready_for_validation",
-                "  next_action: 4-Review",
+                "  next_action: review",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",

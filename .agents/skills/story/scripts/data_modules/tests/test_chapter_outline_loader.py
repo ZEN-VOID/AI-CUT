@@ -14,7 +14,7 @@ def _ensure_scripts_on_path() -> None:
 
 def _write_project(tmp_path: Path) -> Path:
     project_root = tmp_path / "book"
-    planning_dir = project_root / "2-Planning"
+    planning_dir = project_root / "2-卷章规划"
     planning_dir.mkdir(parents=True, exist_ok=True)
     state = {
         "project_info": {

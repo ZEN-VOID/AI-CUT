@@ -1,0 +1,49 @@
+# init_handoff.yaml
+#
+# 角色：
+# - `0-初始化` 的伴生 handoff
+# - 承接阶段入口种子、来源分层、unknowns
+# - 供后续阶段读取，不替代各阶段 canonical
+
+north_star_ref: "0-初始化/north_star.yaml"
+story_source_manifest_ref: "0-初始化/story-source-manifest.yaml"
+team_ref: "team.yaml"
+
+project_contract:
+  initialization_goal: ""
+  acceptance_hint: ""
+  current_stage: "0-初始化"
+  recommended_next_stage: ""
+  creative_mandate:
+    title: ""
+    genre: ""
+    target_reader: ""
+    platform: ""
+    one_liner: ""
+    core_conflict: ""
+  promise_surface:
+    core_selling_points: []
+    anti_trope: ""
+    hard_constraints: []
+    opening_hook: ""
+  decision_policy:
+    init_mode: ""
+    decision_owner: ""
+    research_policy: ""
+    mode_source: ""
+
+stage_entry_seeds:
+  cards_seed: {}
+  planning_seed: {}
+
+unknowns:
+  unresolved_questions: []
+  deferred_to_cards: []
+  deferred_to_planning: []
+
+sources_breakdown:
+  user_confirmed: []
+  council_advised: []
+  assistant_inferred: []
+
+risk_notes: []

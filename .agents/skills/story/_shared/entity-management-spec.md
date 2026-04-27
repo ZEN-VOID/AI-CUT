@@ -16,4 +16,4 @@
 - 不得用 `core` 冒充 `current_state`。
 - 已 validated actual 的变化，才允许进入 `history` / `current_state`。
 - query / drafting / validation 都必须承认 `Cards` 是对象真源。
-- `growth_contract` 记录长期 ceiling、初始态与三轴设计；`growth_state` 只记录当前已经被 validation + loopback 确认的阶段状态。
+- `growth_contract` 记录长期 ceiling、初始态与三轴设计；`growth_state` 只记录当前已经被 validation + 上下文回流 确认的阶段状态。

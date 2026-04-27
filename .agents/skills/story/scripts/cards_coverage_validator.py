@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Validate whether story2026 1-Cards outputs are broad enough for full-series use.
+Validate whether story2026 1-设定 outputs are broad enough for full-series use.
 
 The validator focuses on two layers:
 1. Structural completeness: required buckets and link fields exist.
 2. Scale fitness: card density matches the novel span inferred from project metadata.
+
+Global, style, and genre/type truth now live in `0-初始化/north_star.yaml`;
+this validator only gates the remaining `1-设定` card outputs:
+characters, scenes, and items.
 """
 
 from __future__ import annotations
@@ -21,87 +25,38 @@ from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio
 
 
-GLOBAL_INDEX_REL = Path("1-Cards") / "0-全局卡" / "全局索引.json"
-TYPE_INDEX_REL = Path("1-Cards") / "5-类型卡" / "类型索引.json"
-STYLE_INDEX_REL = Path("1-Cards") / "1-风格卡" / "风格索引.json"
-CHARACTER_INDEX_REL = Path("1-Cards") / "2-角色卡" / "角色索引.json"
-CHARACTER_GRAPH_REL = Path("1-Cards") / "2-角色卡" / "角色关系图谱.md"
-SCENE_INDEX_REL = Path("1-Cards") / "3-场景卡" / "场景索引.json"
-ITEM_INDEX_REL = Path("1-Cards") / "4-物品卡" / "物品索引.json"
+CHARACTER_INDEX_REL = Path("1-设定") / "2-角色卡" / "角色索引.json"
+CHARACTER_GRAPH_REL = Path("1-设定") / "2-角色卡" / "角色关系图谱.md"
+SCENE_INDEX_REL = Path("1-设定") / "3-场景卡" / "场景索引.json"
+ITEM_INDEX_REL = Path("1-设定") / "4-物品卡" / "物品索引.json"
 STATE_REL = Path("STATE.json")
-NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
-INIT_HANDOFF_REL = Path("0-Init") / "init_handoff.yaml"
+NORTH_STAR_REL = Path("0-初始化") / "north_star.yaml"
+INIT_HANDOFF_REL = Path("0-初始化") / "init_handoff.yaml"
 
-GLOBAL_BUCKETS = {
-    "master_globals": Path("1-Cards") / "0-全局卡" / "总设定",
-}
-TYPE_BUCKETS = {
-    "master_types": Path("1-Cards") / "5-类型卡" / "总题材",
-}
-STYLE_BUCKETS = {
-    "global_styles": Path("1-Cards") / "1-风格卡" / "总风格",
-}
 CHARACTER_BUCKETS = {
-    "protagonists": Path("1-Cards") / "2-角色卡" / "主要角色",
-    "antagonists": Path("1-Cards") / "2-角色卡" / "反派角色",
-    "supporting": Path("1-Cards") / "2-角色卡" / "次要角色",
-    "ensemble": Path("1-Cards") / "2-角色卡" / "群像角色",
+    "protagonists": Path("1-设定") / "2-角色卡" / "主要角色",
+    "antagonists": Path("1-设定") / "2-角色卡" / "反派角色",
+    "supporting": Path("1-设定") / "2-角色卡" / "次要角色",
+    "ensemble": Path("1-设定") / "2-角色卡" / "群像角色",
 }
 SCENE_BUCKETS = {
-    "indoor": Path("1-Cards") / "3-场景卡" / "室内",
-    "outdoor": Path("1-Cards") / "3-场景卡" / "室外",
-    "natural": Path("1-Cards") / "3-场景卡" / "自然",
-    "surreal": Path("1-Cards") / "3-场景卡" / "超现实",
+    "indoor": Path("1-设定") / "3-场景卡" / "室内",
+    "outdoor": Path("1-设定") / "3-场景卡" / "室外",
+    "natural": Path("1-设定") / "3-场景卡" / "自然",
+    "surreal": Path("1-设定") / "3-场景卡" / "超现实",
 }
 ITEM_BUCKETS = {
-    "weapons_equipment": Path("1-Cards") / "4-物品卡" / "武器装备",
-    "clue_items": Path("1-Cards") / "4-物品卡" / "线索物品",
-    "narrative_items": Path("1-Cards") / "4-物品卡" / "重要叙事物品",
-    "relics": Path("1-Cards") / "4-物品卡" / "文物",
-    "adornments": Path("1-Cards") / "4-物品卡" / "点缀物",
+    "weapons_equipment": Path("1-设定") / "4-物品卡" / "武器装备",
+    "clue_items": Path("1-设定") / "4-物品卡" / "线索物品",
+    "narrative_items": Path("1-设定") / "4-物品卡" / "重要叙事物品",
+    "relics": Path("1-设定") / "4-物品卡" / "文物",
+    "adornments": Path("1-设定") / "4-物品卡" / "点缀物",
 }
 
 TRACE_SPECS = {
-    "global": {
-        "source_skill_id": "story-cards-global",
-        "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
-        "module_route": "story-cards > 全局卡/SKILL.md",
-        "loaded_references": [
-            "SKILL.md",
-            "CONTEXT.md",
-            "全局卡/SKILL.md",
-            "全局卡/CONTEXT.md",
-            "全局卡/templates/global-card.json",
-            "全局卡/references/golden-finger-templates.md",
-        ],
-    },
-    "type": {
-        "source_skill_id": "story-cards-type",
-        "source_route": "0-Init > story-cards > 类型卡/SKILL.md",
-        "module_route": "story-cards > 类型卡/SKILL.md",
-        "loaded_references": [
-            "SKILL.md",
-            "CONTEXT.md",
-            "类型卡/SKILL.md",
-            "类型卡/CONTEXT.md",
-            "类型卡/templates/type-card.json",
-        ],
-    },
-    "style": {
-        "source_skill_id": "story-cards-style",
-        "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
-        "module_route": "story-cards > 风格卡/SKILL.md",
-        "loaded_references": [
-            "SKILL.md",
-            "CONTEXT.md",
-            "风格卡/SKILL.md",
-            "风格卡/CONTEXT.md",
-            "风格卡/templates/style-card.json",
-        ],
-    },
     "character": {
         "source_skill_id": "story-cards-character",
-        "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 角色卡/SKILL.md",
         "module_route": "story-cards > 角色卡/SKILL.md",
         "loaded_references": [
             "SKILL.md",
@@ -113,7 +68,7 @@ TRACE_SPECS = {
     },
     "scene": {
         "source_skill_id": "story-cards-scene",
-        "source_route": "0-Init > story-cards > 场景卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 场景卡/SKILL.md",
         "module_route": "story-cards > 场景卡/SKILL.md",
         "loaded_references": [
             "SKILL.md",
@@ -125,7 +80,7 @@ TRACE_SPECS = {
     },
     "item": {
         "source_skill_id": "story-cards-item",
-        "source_route": "0-Init > story-cards > 物品卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 物品卡/SKILL.md",
         "module_route": "story-cards > 物品卡/SKILL.md",
         "loaded_references": [
             "SKILL.md",
@@ -452,14 +407,7 @@ def _validate_card_payloads(
     card_kind: str,
 ) -> None:
     schema_key = f"{card_kind}_card"
-    if card_kind == "style":
-        schema_prefix = "story2026/cards/style/v1"
-    elif card_kind == "type":
-        schema_prefix = "story2026/cards/type/v1"
-    elif card_kind == "global":
-        schema_prefix = "story2026/cards/global/v1"
-    else:
-        schema_prefix = f"story2026/cards/{card_kind}/v2"
+    schema_prefix = f"story2026/cards/{card_kind}/v2"
     expected_trace = TRACE_SPECS[card_kind]
 
     for refs in refs_by_bucket.values():
@@ -516,43 +464,7 @@ def _validate_card_payloads(
                 _append_issue(issues, "blocking", f"FAIL-CARDS-{card_kind.upper()}-CARD-SCHEMA", f"{ref} 缺少 `{schema_key}.core/current_state/history`。")
                 continue
 
-            if card_kind == "global":
-                identity = _safe_dict(core.get("identity"))
-                worldview = _safe_dict(core.get("worldview"))
-                era_constraints = _safe_dict(core.get("era_constraints"))
-                culture_and_arts = _safe_dict(core.get("culture_and_arts"))
-                faction_topology = _safe_dict(core.get("faction_topology"))
-                power_or_technology = _safe_dict(core.get("power_or_technology"))
-                golden_finger = _safe_dict(core.get("golden_finger"))
-                if not _has_material(identity.get("name")):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少全局卡名。")
-                if not _has_material(worldview):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `worldview`。")
-                if not _has_material(core.get("rule_system")):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `rule_system`。")
-                if not _has_material(era_constraints):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `era_constraints`。")
-                if not _has_material(culture_and_arts):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `culture_and_arts`。")
-                if not _has_material(faction_topology):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `faction_topology`。")
-                if not _has_material(power_or_technology):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `power_or_technology`。")
-                if not _has_material(golden_finger):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-CARD-CONTENT", f"{ref} 缺少 `golden_finger`。")
-            elif card_kind == "type":
-                identity = _safe_dict(core.get("identity"))
-                story_promise = _safe_dict(core.get("story_promise"))
-                genre_corridor = _safe_dict(core.get("genre_corridor"))
-                if not _has_material(identity.get("name")):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少类型卡名。")
-                if not _has_material(story_promise):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `story_promise`。")
-                if not _has_material(genre_corridor):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `genre_corridor`。")
-                if not _has_material(core.get("navigation_rules")):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-CARD-CONTENT", f"{ref} 缺少 `navigation_rules`。")
-            elif card_kind == "character":
+            if card_kind == "character":
                 identity = _safe_dict(core.get("identity"))
                 cast_markers = _safe_dict(core.get("cast_markers"))
                 experience_timeline = _safe_dict(card.get("experience_timeline"))
@@ -613,202 +525,6 @@ def _validate_card_payloads(
                     _append_issue(issues, "blocking", "FAIL-CARDS-ITEM-CARD-CONTENT", f"{ref} 缺少专属适配。")
                 if not _has_material(identity.get("owner_type")) and not _has_material(current_state.get("holder")):
                     _append_issue(issues, "blocking", "FAIL-CARDS-ITEM-CARD-CONTENT", f"{ref} 缺少归属信息。")
-            elif card_kind == "style":
-                identity = _safe_dict(core.get("identity"))
-                style_identity = _safe_dict(core.get("style_identity"))
-                experience_contract = _safe_dict(core.get("experience_contract"))
-                narrative_style = _safe_dict(core.get("narrative_style"))
-                dialogue_style = _safe_dict(core.get("dialogue_style"))
-                visual_style = _safe_dict(core.get("visual_style"))
-                prose_style = _safe_dict(core.get("prose_style"))
-                scene_style = _safe_dict(core.get("scene_style"))
-                style_gate = _safe_dict(core.get("style_gate"))
-                if not _has_material(identity.get("name")):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少风格卡名。")
-                if not _has_material(style_identity):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `style_identity`。")
-                if not _has_material(experience_contract):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `experience_contract`。")
-                if not _has_material(narrative_style):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `narrative_style`。")
-                if not _has_material(dialogue_style):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `dialogue_style`。")
-                if not _has_material(visual_style):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `visual_style`。")
-                if not _has_material(prose_style):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `prose_style`。")
-                if not _has_material(scene_style):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `scene_style`。")
-                if not _has_material(style_gate):
-                    _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-CARD-CONTENT", f"{ref} 缺少 `style_gate`。")
-
-
-def _validate_globals(project_root: Path, upstream_truth: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
-    refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, GLOBAL_INDEX_REL, GLOBAL_BUCKETS)
-    content = _safe_dict(payload.get("content"))
-    global_contract_refs = _safe_list(content.get("global_contract_refs"))
-    counts = {bucket: len(refs) for bucket, refs in refs_by_bucket.items()}
-    total_count = sum(counts.values())
-    issues: List[Dict[str, str]] = []
-    warnings: List[Dict[str, str]] = []
-
-    north_star = _safe_dict(upstream_truth.get("north_star"))
-    cards = _safe_dict(north_star.get("cards"))
-    world_system = _safe_dict(cards.get("world_system"))
-
-    if total_count < 1:
-        _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-TOTAL", "缺少正式全局卡。")
-    if not global_contract_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-REFS", "缺少 `global_contract_refs`，下游无法引用总设定。")
-    if not _has_material(world_system):
-        _append_issue(warnings, "advisory", "WARN-CARDS-GLOBAL-UPSTREAM-WORLD", "north_star.cards 缺少 `world_system`，全局卡上游真源偏弱。")
-
-    trace = _validate_trace_fields(
-        content,
-        expected_trace=TRACE_SPECS["global"],
-        issues=issues,
-        route_code="FAIL-CARDS-GLOBAL-ROUTE",
-        refs_code="FAIL-CARDS-GLOBAL-TRACE",
-        writeback_code="FAIL-CARDS-GLOBAL-WRITEBACK",
-    )
-
-    missing_refs = {bucket: refs for bucket, refs in missing_by_bucket.items() if refs}
-    if missing_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-GLOBAL-MISSING-REFS", f"全局索引存在失效引用：{missing_refs}")
-    _validate_card_payloads(project_root=project_root, refs_by_bucket=refs_by_bucket, issues=issues, card_kind="global")
-
-    return {
-        "ok": not issues,
-        "counts": counts,
-        "total_count": total_count,
-        "global_contract_refs": len(global_contract_refs),
-        "requirements": {
-            "total_count": 1,
-            "global_contract_refs": 1,
-        },
-        "blocking_findings": issues,
-        "advisory_findings": warnings,
-        "trace": trace,
-    }
-
-
-def _validate_styles(project_root: Path, upstream_truth: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
-    refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, STYLE_INDEX_REL, STYLE_BUCKETS)
-    content = _safe_dict(payload.get("content"))
-    style_contract_refs = _safe_list(content.get("style_contract_refs"))
-    counts = {bucket: len(refs) for bucket, refs in refs_by_bucket.items()}
-    total_count = sum(counts.values())
-    issues: List[Dict[str, str]] = []
-    warnings: List[Dict[str, str]] = []
-
-    north_star = _safe_dict(upstream_truth.get("north_star"))
-    reader_promise = _safe_dict(north_star.get("reader_promise"))
-    aesthetic_axes = _safe_dict(north_star.get("aesthetic_axes"))
-    cards = _safe_dict(north_star.get("cards"))
-    style_system = _safe_dict(cards.get("style_system"))
-
-    if total_count < 1:
-        _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-TOTAL", "缺少正式风格卡。")
-    if not style_contract_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-REFS", "缺少 `style_contract_refs`，下游无法引用风格契约。")
-    if not _has_material(reader_promise):
-        _append_issue(warnings, "advisory", "WARN-CARDS-STYLE-UPSTREAM-PROMISE", "north_star 缺少 `reader_promise`，风格卡可能失去承诺真源。")
-    if not _has_material(aesthetic_axes):
-        _append_issue(warnings, "advisory", "WARN-CARDS-STYLE-UPSTREAM-AESTHETIC", "north_star 缺少 `aesthetic_axes`，风格卡可能失去审美轴真源。")
-    if not _has_material(style_system):
-        _append_issue(warnings, "advisory", "WARN-CARDS-STYLE-UPSTREAM-SYSTEM", "north_star.cards 缺少 `style_system`，风格卡可能失去风格系统真源。")
-    trace = _validate_trace_fields(
-        content,
-        expected_trace=TRACE_SPECS["style"],
-        issues=issues,
-        route_code="FAIL-CARDS-STYLE-ROUTE",
-        refs_code="FAIL-CARDS-STYLE-TRACE",
-        writeback_code="FAIL-CARDS-STYLE-WRITEBACK",
-    )
-
-    missing_refs = {bucket: refs for bucket, refs in missing_by_bucket.items() if refs}
-    if missing_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-STYLE-MISSING-REFS", f"风格索引存在失效引用：{missing_refs}")
-    _validate_card_payloads(project_root=project_root, refs_by_bucket=refs_by_bucket, issues=issues, card_kind="style")
-
-    return {
-        "ok": not issues,
-        "counts": counts,
-        "style_contract_refs": len(style_contract_refs),
-        "total_count": total_count,
-        "requirements": {
-            "total_count": 1,
-            "style_contract_refs": 1,
-        },
-        "blocking_findings": issues,
-        "advisory_findings": warnings,
-        "trace": trace,
-    }
-
-
-def _validate_types(project_root: Path) -> Dict[str, Any]:
-    refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, TYPE_INDEX_REL, TYPE_BUCKETS)
-    content = _safe_dict(payload.get("content"))
-    planning_projection_refs = _safe_list(content.get("planning_projection_refs"))
-    counts = {bucket: len(refs) for bucket, refs in refs_by_bucket.items()}
-    total_count = sum(counts.values())
-    issues: List[Dict[str, str]] = []
-    warnings: List[Dict[str, str]] = []
-
-    if total_count < 1:
-        _append_issue(warnings, "advisory", "WARN-CARDS-TYPE-TOTAL", "当前项目尚未生成正式类型卡；planning 将回退到上游初始化真源。")
-
-    if total_count < 1 and not payload:
-        return {
-            "ok": True,
-            "counts": counts,
-            "total_count": total_count,
-            "planning_projection_refs": len(planning_projection_refs),
-            "requirements": {
-                "total_count": "recommended>=1",
-                "planning_projection_refs": "required_when_present",
-            },
-            "blocking_findings": issues,
-            "advisory_findings": warnings,
-            "trace": {
-                "module_route": "",
-                "loaded_references": [],
-                "writeback_plan": {},
-            },
-        }
-
-    if total_count > 0 and not planning_projection_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-REFS", "缺少 `planning_projection_refs`，planning 无法稳定导入类型方向盘。")
-
-    trace = _validate_trace_fields(
-        content,
-        expected_trace=TRACE_SPECS["type"],
-        issues=issues,
-        route_code="FAIL-CARDS-TYPE-ROUTE",
-        refs_code="FAIL-CARDS-TYPE-TRACE",
-        writeback_code="FAIL-CARDS-TYPE-WRITEBACK",
-    )
-
-    missing_refs = {bucket: refs for bucket, refs in missing_by_bucket.items() if refs}
-    if missing_refs:
-        _append_issue(issues, "blocking", "FAIL-CARDS-TYPE-MISSING-REFS", f"类型索引存在失效引用：{missing_refs}")
-    if total_count > 0:
-        _validate_card_payloads(project_root=project_root, refs_by_bucket=refs_by_bucket, issues=issues, card_kind="type")
-
-    return {
-        "ok": not issues,
-        "counts": counts,
-        "total_count": total_count,
-        "planning_projection_refs": len(planning_projection_refs),
-        "requirements": {
-            "total_count": "recommended>=1",
-            "planning_projection_refs": "required_when_present",
-        },
-        "blocking_findings": issues,
-        "advisory_findings": warnings,
-        "trace": trace,
-    }
-
 
 def _validate_characters(project_root: Path, profile: Dict[str, Any]) -> Dict[str, Any]:
     refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, CHARACTER_INDEX_REL, CHARACTER_BUCKETS)
@@ -1009,9 +725,6 @@ def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
     profile = _infer_profile(info, upstream_truth)
 
     sections = {
-        "globals": _validate_globals(project_root, upstream_truth),
-        "types": _validate_types(project_root),
-        "styles": _validate_styles(project_root, upstream_truth),
         "characters": _validate_characters(project_root, profile),
         "scenes": _validate_scenes(project_root, profile),
         "items": _validate_items(project_root, profile),
@@ -1068,7 +781,7 @@ def _print_text_report(report: Dict[str, Any]) -> None:
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate story2026 1-Cards coverage")
+    parser = argparse.ArgumentParser(description="Validate story2026 1-设定 coverage")
     parser.add_argument("--project-root", help="书项目根目录或工作区根目录（可选，默认自动检测）")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
     return parser.parse_args(argv)

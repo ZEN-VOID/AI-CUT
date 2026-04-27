@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Loopback"
-  short_description: "Validated story actualization writeback"
-  default_prompt: "Use $story-loopback to actualize a PASS-validated story volume into Cards, planning sidecars, story_map, STATE, and the canonical loopback artifact."

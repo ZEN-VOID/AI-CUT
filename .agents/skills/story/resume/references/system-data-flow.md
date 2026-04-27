@@ -24,24 +24,24 @@ cat "${SKILL_ROOT}/../../query/references/system-data-flow.md"
 ### 目录结构
 ```
 项目根目录/
-├── 3-Drafting/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
-├── 2-Planning/legacy/           # 卷纲/章纲（legacy fallback）
-├── 2-Planning/整体规划.md    # 规划真源（整书）
-├── 2-Planning/第1卷/卷规划.md # 规划真源（当前卷）
-├── 2-Planning/第1卷/第1章.md  # 规划真源（当前章）
-├── 0-Init/        # north_star.yaml / story-source-manifest.yaml / init_handoff.yaml
-├── 1-Cards/         # 世界观/力量体系/角色卡
+├── 3-初稿/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
+├── 2-卷章规划/legacy/           # 卷纲/章纲（legacy fallback）
+├── 2-卷章规划/整体规划.md    # 规划真源（整书）
+├── 2-卷章规划/第1卷/卷规划.md # 规划真源（当前卷）
+├── 2-卷章规划/第1卷/第1章.md  # 规划真源（当前章）
+├── 0-初始化/        # north_star.yaml / story-source-manifest.yaml / init_handoff.yaml
+├── 1-设定/          # 世界观/力量体系/角色卡
 └── .webnovel/
     ├── index.db            # SQLite 索引
     └── archive/            # 归档数据
 ```
 
 补充：
-- `3-Drafting/` 是当前恢复链路的唯一正文根目录。
-- `3-Drafting` 根技能直接承担正文主创；`正文/` child 不再作为默认目录树的一部分。
+- `3-初稿/` 是当前恢复链路的唯一正文根目录。
+- `3-初稿` 根技能直接承担正文主创；`正文/` child 不再作为默认目录树的一部分。
 
 ### 当前结构核心变化
-- **chapter-native drafting**: `3-Drafting` 直接装配上下文并通过豆包生成章节正文
+- **chapter-native drafting**: `3-初稿` 直接装配上下文并通过豆包生成章节正文
 - **规划入口切换**: drafting/query/resume 默认先读 `整体规划.md + 当前卷/卷规划.md + 当前章.md`
 - **无 XML 标签**: 纯正文写作，Data Agent AI 自动提取实体
 - **SQLite 存储**: entities/aliases/state_changes 迁移到 index.db

@@ -13,8 +13,8 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 
 ```
 项目根目录/
-├── 2-Planning/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
-├── 2-Planning/
+├── 2-卷章规划/legacy/       # 卷纲/章纲/场景纲（legacy fallback）
+├── 2-卷章规划/
 │   ├── 整体规划.md         # 当前 primary planning truth（宏观）
 │   ├── 第1卷/
 │   │   ├── 卷规划.md       # 当前 primary planning truth（中观）
@@ -22,15 +22,15 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 │   ├── 全息地图.json      # 兼容投影 / 历史工件
 │   └── 卷分片/            # 兼容投影 / actualization carrier
 │       └── 第1卷.json
-├── 0-Init/
+├── 0-初始化/
 │   ├── north_star.yaml           # 初始化长期合同（含 story_kernel / reader_promise / cards）
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
 ├── MEMORY.md             # 项目级创作记忆：偏好/口味/禁区/特殊元素/长期要求
 ├── 1-Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
-├── 3-Drafting/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
-├── 5-Loopback/
-│   └── 第V卷.loopback.json   # PASS 后 validated actualization artifact
+├── 3-初稿/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
+├── 5-上下文回流/
+│   └── 第V卷.context-return.json   # PASS 后 validated actualization artifact
 ├── STATE.json             # 项目入口与内联执行态唯一状态文件
 └── .webnovel/
     ├── index.db            # SQLite 主存储：实体/别名/关系/状态变化/章节/场景
@@ -40,8 +40,8 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 ```
 
 说明：
-- `3-Drafting/` 是当前唯一正文真源目录。
-- `3-Drafting` 根技能本身就是章节正文主技能；旧的 `正文/` child 已退出现行结构。
+- `3-初稿/` 是当前唯一正文真源目录。
+- `3-初稿` 根技能本身就是章节正文主技能；旧的 `正文/` child 已退出现行结构。
 
 ## 架构变更说明
 
@@ -82,34 +82,34 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 ## 阶段总线（最新 0-5 系统）
 
 ```text
-0-Init
+0-初始化
   → 收集项目承诺与禁飞区
-  → 生成 `0-Init/north_star.yaml + story-source-manifest.yaml + init_handoff.yaml`
+  → 生成 `0-初始化/north_star.yaml + story-source-manifest.yaml + init_handoff.yaml`
   → 其中 `north_star.yaml.cards` 承担长期对象总规范
 
 1-Cards
   → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
-2-Planning
+2-卷章规划
   → `1-部级 -> 2-卷级 -> 3-章级` 分形递进
   → primary truth 落到 `整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`
   → `全息地图.json / 卷分片/*.json` 仅保留兼容投影价值
 
-3-Drafting
-  → 以 `3-Drafting/第N卷/第N章.md` 作为当前章唯一正文根文件
+3-初稿
+  → 以 `3-初稿/第N卷/第N章.md` 作为当前章唯一正文根文件
   → 根技能直接读取三层 planning + 全局卡 + 风格卡 + north_star + 项目 CONTEXT
   → 实际正文创作固定走 `scripts/write_chapter_via_doubao.py -> doubao-seed-2.0-pro`
   → 若前序章已完成，可额外加载其正文做增强校准
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
 
-4-Review
+review
   → 新后台隔离团队做客观检验，决定是否 PASS
 
 review
   → 汇总聚合评估，落库 review_metrics / checkpoints
 
-5-Loopback
+5-上下文回流
   → 仅对 PASS volume 写 validated actualization
   → 更新 Cards.current_state/history
   → 更新 planning actualization sidecars
@@ -117,7 +117,7 @@ review
   → 刷新 writer/planning/query projection
 
 query / resume
-  → 作为 5-Loopback 的卫星技能消费上述 truth layers 与 execution truth
+  → 作为 5-上下文回流 的卫星技能消费上述 truth layers 与 execution truth
 ```
 
 ## 脚本/模块职责速查
@@ -149,15 +149,15 @@ query / resume
 
 ```
 1. Context Agent 组装创作任务书
-   → 先读取 `2-Planning/整体规划.md + 第V卷/卷规划.md + 第V卷/第N章.md`（规划真源）
+   → 先读取 `2-卷章规划/整体规划.md + 第V卷/卷规划.md + 第V卷/第N章.md`（规划真源）
    → 读取 `STATE.json`（精简版：进度/配置）
    → SQL 查询 index.db（核心实体/按需实体）
    → RAG 检索（相关场景）
 
-2. `3-Drafting` chapter-native 豆包正文创作
+2. `3-初稿` chapter-native 豆包正文创作
    → 锁当前章 planning / global-style / north-star / project CONTEXT / previous chapter
    → 生成完整章节 Markdown 文件
-   → 写回 `3-Drafting/第N卷/第N章.md`
+   → 写回 `3-初稿/第N卷/第N章.md`
    → 兼容 runtime 若启用，可额外同步写入 `第V卷.写作日志.yaml`
 
 3. inline validation hooks
@@ -165,9 +165,9 @@ query / resume
    → 通过后才允许继续下一个工序
 
 4. 隔离终验
-   → `4-Review` 组装 `validation_fact_pack`
+   → `review` 组装 `validation_fact_pack`
    → 并发 6 个维度子技能
-   → 聚合为 `4-Review/第V卷.validation.json`
+   → 聚合为 `review/第V卷.validation.json`
 
 5. review / 审查落盘
    → `review/` 生成业务报告
@@ -183,12 +183,12 @@ query / resume
    → 向量嵌入 (RAG)
    → 风格样本评估
 
-7. 通过 `5-Loopback` 做 PASS-only actualization
+7. 通过 `5-上下文回流` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
    → 写 `整体规划.actualization.json / 卷规划.actualization.json / 第N章.actualization.json`
    → 兼容项目再写 `content.holomap_slice.actualization`
    → 并回刷 `content.holomap.actualization` summary/index
-   → 写 `5-Loopback/第V卷.loopback.json`
+   → 写 `5-上下文回流/第V卷.context-return.json`
    → 刷新 query / writer / planning projection
 
 8. 如需清理中断工件，由 `workflow_manager.py cleanup` 生成恢复备份后再执行安全清理
@@ -198,29 +198,29 @@ query / resume
 
 ## 规划真源优先级
 
-1. `2-Planning/整体规划.md`
-2. `2-Planning/第V卷/卷规划.md`
-3. `2-Planning/第V卷/第N章.md`
+1. `2-卷章规划/整体规划.md`
+2. `2-卷章规划/第V卷/卷规划.md`
+3. `2-卷章规划/第V卷/第N章.md`
 4. `1-Cards/**/*.json`
 5. `STATE.json`
-6. `2-Planning/legacy/`（仅 legacy fallback）
+6. `2-卷章规划/legacy/`（仅 legacy fallback）
 
 说明：
 - 涉及章节编排、任务、线索、伏笔、冲突落点的问题，默认先查三层规划文档。
-- `2-Planning/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
+- `2-卷章规划/legacy/` 仍可作为兼容旧项目的回退来源，但不再是下游默认入口。
 
 ## Query Truth Layers（查询时必须区分）
 
 | truth_layer | 回答什么问题 | 主来源 | 注意事项 |
 |---|---|---|---|
-| planning truth | 原计划如何编排、哪章承载什么 | `2-Planning/整体规划.md` + `2-Planning/第V卷/卷规划.md` + `2-Planning/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
-| drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-Drafting/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
+| planning truth | 原计划如何编排、哪章承载什么 | `2-卷章规划/整体规划.md` + `2-卷章规划/第V卷/卷规划.md` + `2-卷章规划/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
+| drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-初稿/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-Planning/整体规划.actualization.json` + `2-Planning/第V卷/卷规划.actualization.json` + `2-Planning/第V卷/第N章.actualization.json` + `5-Loopback/*.loopback.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
-| quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `4-Review + review` 生成 |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章规划/整体规划.actualization.json` + `2-卷章规划/第V卷/卷规划.actualization.json` + `2-卷章规划/第V卷/第N章.actualization.json` + `5-上下文回流/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
+| quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `review + review` 生成 |
 
 固定判定：
 
@@ -287,7 +287,7 @@ query / resume
   "stage_progress": {
     "0-init": {"status": "idle", "latest_run_id": null, "current_step": null},
     "3-drafting": {"status": "idle", "latest_run_id": null, "current_step": null},
-    "5-loopback": {"status": "idle", "latest_run_id": null, "current_step": null}
+    "5-context-return": {"status": "idle", "latest_run_id": null, "current_step": null}
   },
   "runs": [],
   "artifacts_index": {}

@@ -232,7 +232,7 @@ def test_drafting_volume_guard_forwards_with_resolved_project_root(monkeypatch, 
     ]
 
 
-def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
+def test_context_return_forwards_with_resolved_project_root(monkeypatch, tmp_path):
     module = _load_webnovel_module()
 
     book_root = (tmp_path / "book").resolve()
@@ -255,14 +255,14 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
             "webnovel",
             "--project-root",
             str(tmp_path),
-            "loopback",
+            "context-return",
             "actualize",
             "--episode",
             "12",
             "--validation-data",
             "@validation.json",
             "--manuscript-ref",
-            "3-Drafting/第2卷/第12章.md",
+            "3-初稿/第2卷/第12章.md",
         ],
     )
 
@@ -270,7 +270,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
         module.main()
 
     assert int(exc.value.code or 0) == 0
-    assert called["script_name"] == "loopback_manager.py"
+    assert called["script_name"] == "context_return_manager.py"
     assert called["argv"] == [
         "--project-root",
         str(book_root),
@@ -280,7 +280,7 @@ def test_loopback_forwards_with_resolved_project_root(monkeypatch, tmp_path):
         "--validation-data",
         "@validation.json",
         "--manuscript-ref",
-        "3-Drafting/第2卷/第12章.md",
+        "3-初稿/第2卷/第12章.md",
     ]
 
 
@@ -379,7 +379,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     project_root = tmp_path / "book"
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
-    planning_dir = project_root / "2-Planning"
+    planning_dir = project_root / "2-卷章规划"
     planning_dir.mkdir(parents=True, exist_ok=True)
     (planning_dir / "整体规划.md").write_text("书名：\n\n整体故事大纲：\n\n卷划分：\n\n整体节奏曲线：\n\n```mermaid\nflowchart TD\nA-->B\n```\n\n规避：\n", encoding="utf-8")
 
@@ -392,7 +392,7 @@ def test_preflight_succeeds_for_valid_project_root(monkeypatch, tmp_path, capsys
     assert int(exc.value.code or 0) == 0
     assert "OK project_root" in captured.out
     assert "OK planning_source" in captured.out
-    assert "默认规划真源：2-Planning/整体规划.md" in captured.out
+    assert "默认规划真源：2-卷章规划/整体规划.md" in captured.out
     assert str(project_root.resolve()) in captured.out
 
 
@@ -424,7 +424,7 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
     project_root = tmp_path / "book"
     project_root.mkdir(parents=True, exist_ok=True)
     (project_root / "STATE.json").write_text("{}", encoding="utf-8")
-    outline_dir = project_root / "2-Planning" / "legacy"
+    outline_dir = project_root / "2-卷章规划" / "legacy"
     outline_dir.mkdir(parents=True, exist_ok=True)
     (outline_dir / "总纲.md").write_text("# 总纲\n", encoding="utf-8")
 
@@ -437,7 +437,7 @@ def test_preflight_reports_legacy_outline_fallback(monkeypatch, tmp_path, capsys
     assert int(exc.value.code or 0) == 1
     assert '"status": "legacy_fallback"' in captured.out
     assert '"ok": false' in captured.out
-    assert "2-Planning/legacy/总纲.md" in captured.out
+    assert "2-卷章规划/legacy/总纲.md" in captured.out
 
 
 def test_preflight_fails_when_planning_source_is_missing(monkeypatch, tmp_path, capsys):

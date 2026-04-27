@@ -388,7 +388,7 @@ class RAGAdapter:
                 "content": "场景内容...",
                 "chunk_type": "scene",
                 "parent_chunk_id": "ch0100_summary",
-                "source_file": "3-Drafting/第10卷/第100章.md#scene_1"
+                "source_file": "3-初稿/第10卷/第100章.md#scene_1"
             }
         ]
 
@@ -1509,7 +1509,7 @@ def main():
                     "chunk_type": "scene",
                     "parent_chunk_id": parent_chunk_id,
                     "chunk_id": chunk_id,
-                    "source_file": f"3-Drafting/第{args.chapter}集.md#scene_{int(scene_index)}",
+                    "source_file": f"3-初稿/第{args.chapter}集.md#scene_{int(scene_index)}",
                 }
             )
 

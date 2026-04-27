@@ -345,7 +345,7 @@ class StatusReporter:
             print(f"⚠️  Drafting 目录不存在: {self.chapters_dir}")
             return
 
-        # 当前 canonical：3-Drafting/第N卷/第N章.md
+        # 当前 canonical：3-初稿/第N卷/第N章.md
         # 旧项目兼容：正文/第0001章.md、正文/第1卷/第001章-标题.md
         chapter_files = sorted(self.chapters_dir.rglob("第*.md"))
 

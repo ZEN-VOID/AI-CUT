@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Formal writer for story2026 1-Cards outputs.
+Formal writer for story2026 1-设定 outputs.
 
-The writer turns a normalized cards payload into canonical JSON files under
-`1-Cards/`, while stamping the trace contract required by 1-Cards:
+The writer turns normalized character, scene, and item payloads into canonical
+JSON files under `1-设定/`, while stamping the trace contract required by 1-设定:
 - `content.module_route`
 - `content.loaded_references`
 - `content.writeback_plan`
@@ -28,73 +28,13 @@ from security_utils import atomic_write_json
 
 
 SKILL_ID = "story-cards"
-CARDS_SKILL_ROOT = Path(__file__).resolve().parent.parent / "1-Cards"
+CARDS_SKILL_ROOT = Path(__file__).resolve().parent.parent / "1-设定"
 STATE_REL = Path("STATE.json")
-NORTH_STAR_REL = Path("0-Init") / "north_star.yaml"
-CHARACTER_GRAPH_REL = Path("1-Cards") / "2-角色卡" / "角色关系图谱.md"
+NORTH_STAR_REL = Path("0-初始化") / "north_star.yaml"
+CHARACTER_GRAPH_REL = Path("1-设定") / "2-角色卡" / "角色关系图谱.md"
 
 
 SECTION_SPECS: Dict[str, Dict[str, Any]] = {
-    "globals": {
-        "kind": "global",
-        "schema_key": "global_card",
-        "template_name": "global-card.json",
-        "source_skill_id": "story-cards-global",
-        "child_skill_path": "全局卡/SKILL.md",
-        "child_context_path": "全局卡/CONTEXT.md",
-        "child_template_path": "全局卡/templates/global-card.json",
-        "source_route": "0-Init > story-cards > 全局卡/SKILL.md",
-        "module_route": "story-cards > 全局卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "0-全局卡" / "全局索引.json",
-        "bucket_dirs": {
-            "master_globals": "总设定",
-        },
-        "bucket_labels": {
-            "master_globals": "master_global",
-        },
-        "link_fields": ("global_contract_refs",),
-        "extra_loaded_references": [
-            "全局卡/references/golden-finger-templates.md",
-        ],
-    },
-    "types": {
-        "kind": "type",
-        "schema_key": "type_card",
-        "template_name": "type-card.json",
-        "source_skill_id": "story-cards-type",
-        "child_skill_path": "类型卡/SKILL.md",
-        "child_context_path": "类型卡/CONTEXT.md",
-        "child_template_path": "类型卡/templates/type-card.json",
-        "source_route": "0-Init > story-cards > 类型卡/SKILL.md",
-        "module_route": "story-cards > 类型卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "5-类型卡" / "类型索引.json",
-        "bucket_dirs": {
-            "master_types": "总题材",
-        },
-        "bucket_labels": {
-            "master_types": "master_type",
-        },
-        "link_fields": ("planning_projection_refs",),
-    },
-    "styles": {
-        "kind": "style",
-        "schema_key": "style_card",
-        "template_name": "style-card.json",
-        "source_skill_id": "story-cards-style",
-        "child_skill_path": "风格卡/SKILL.md",
-        "child_context_path": "风格卡/CONTEXT.md",
-        "child_template_path": "风格卡/templates/style-card.json",
-        "source_route": "0-Init > story-cards > 风格卡/SKILL.md",
-        "module_route": "story-cards > 风格卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "1-风格卡" / "风格索引.json",
-        "bucket_dirs": {
-            "global_styles": "总风格",
-        },
-        "bucket_labels": {
-            "global_styles": "global_style",
-        },
-        "link_fields": ("style_contract_refs",),
-    },
     "characters": {
         "kind": "character",
         "schema_key": "character_card",
@@ -103,9 +43,9 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_skill_path": "角色卡/SKILL.md",
         "child_context_path": "角色卡/CONTEXT.md",
         "child_template_path": "角色卡/templates/character-card.json",
-        "source_route": "0-Init > story-cards > 角色卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 角色卡/SKILL.md",
         "module_route": "story-cards > 角色卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "2-角色卡" / "角色索引.json",
+        "index_rel": Path("1-设定") / "2-角色卡" / "角色索引.json",
         "bucket_dirs": {
             "protagonists": "主要角色",
             "antagonists": "反派角色",
@@ -128,9 +68,9 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_skill_path": "场景卡/SKILL.md",
         "child_context_path": "场景卡/CONTEXT.md",
         "child_template_path": "场景卡/templates/scene-card.json",
-        "source_route": "0-Init > story-cards > 场景卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 场景卡/SKILL.md",
         "module_route": "story-cards > 场景卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "3-场景卡" / "场景索引.json",
+        "index_rel": Path("1-设定") / "3-场景卡" / "场景索引.json",
         "bucket_dirs": {
             "indoor": "室内",
             "outdoor": "室外",
@@ -153,9 +93,9 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         "child_skill_path": "物品卡/SKILL.md",
         "child_context_path": "物品卡/CONTEXT.md",
         "child_template_path": "物品卡/templates/item-card.json",
-        "source_route": "0-Init > story-cards > 物品卡/SKILL.md",
+        "source_route": "0-初始化 > story-cards > 物品卡/SKILL.md",
         "module_route": "story-cards > 物品卡/SKILL.md",
-        "index_rel": Path("1-Cards") / "4-物品卡" / "物品索引.json",
+        "index_rel": Path("1-设定") / "4-物品卡" / "物品索引.json",
         "bucket_dirs": {
             "weapons_equipment": "武器装备",
             "clue_items": "线索物品",
@@ -175,7 +115,8 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
 }
 
 VALID_MODES = {"full-build", "incremental-writeback", "coverage-repair", "source-contract-fix"}
-FULL_BUILD_REQUIRED_SECTIONS = ("globals", "styles", "characters", "scenes", "items")
+DEPRECATED_NORTH_STAR_SECTIONS = ("globals", "styles", "types")
+FULL_BUILD_REQUIRED_SECTIONS = ("characters", "scenes", "items")
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -259,6 +200,16 @@ def _project_name(project_root: Path, payload: Dict[str, Any]) -> str:
 
 def _normalize_sections(payload: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     sections = _safe_dict(payload.get("sections"))
+    deprecated = [
+        section_name
+        for section_name in DEPRECATED_NORTH_STAR_SECTIONS
+        if _safe_dict(sections.get(section_name) or payload.get(section_name))
+    ]
+    if deprecated:
+        raise ValueError(
+            "`globals/styles/types` 已并入 `0-初始化/north_star.yaml`，"
+            f"`1-设定` writer 不再单独写回这些 section: {deprecated}"
+        )
     normalized: Dict[str, Dict[str, Any]] = {}
     for section_name in SECTION_SPECS:
         section_payload = _safe_dict(sections.get(section_name) or payload.get(section_name))
@@ -283,7 +234,7 @@ def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str
     if mode == "full-build":
         missing = [name for name in FULL_BUILD_REQUIRED_SECTIONS if name not in sections]
         if missing:
-            raise ValueError(f"`full-build` 必须同时提供 globals/styles/characters/scenes/items；当前缺少: {missing}")
+            raise ValueError(f"`full-build` 必须同时提供 characters/scenes/items；当前缺少: {missing}")
     return mode
 
 
@@ -788,7 +739,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Write story2026 1-Cards payloads into canonical JSON outputs")
+    parser = argparse.ArgumentParser(description="Write story2026 1-设定 payloads into canonical JSON outputs")
     parser.add_argument("--project-root", help="书项目根目录或工作区根目录（可选，默认自动检测）")
     parser.add_argument("--data", required=True, help="cards payload，支持 JSON 字符串或 @payload.json")
     parser.add_argument("--run-gate", action="store_true", help="写入后立即执行 cards-check，并回填索引 gate_summary")

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "story/_shared/story_map.schema.json",
   "title": "Story2026 Story Map Output Schema (Legacy Compatibility)",
-  "description": "legacy compatibility schema。用于兼容载体 `2-Planning/全息地图.json` 的结构校验；当前 planning primary truth 已迁移到 `2-Planning/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`，本 schema 不再代表规划主真源。",
+  "description": "legacy compatibility schema。用于兼容载体 `2-卷章规划/全息地图.json` 的结构校验；当前 planning primary truth 已迁移到 `2-卷章规划/整体规划.md + 第N卷/卷规划.md + 第N卷/第N章.md`，本 schema 不再代表规划主真源。",
   "type": "object",
   "$defs": {
     "meta": {

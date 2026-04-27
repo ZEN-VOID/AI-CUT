@@ -1,0 +1,55 @@
+{
+  "volume": 0,
+  "volume_ref": "第0卷",
+  "chapter_refs": [],
+  "manuscript_refs": [],
+  "volume_log_ref": "3-初稿/第0卷.写作日志.yaml",
+  "planning_ref": "",
+  "planning_volume_ref": "",
+  "planning_global_ref": "2-卷章规划/整体规划.md",
+  "planning_slice_ref": "",
+  "validation_ref": "review/第0卷.validation.json",
+  "validation_mode": "normal_review",
+  "validation_status": "FAIL-COVENANT",
+  "selected_agents": [
+    "context-agent",
+    "structure-validator",
+    "continuity-validator",
+    "logic-validator",
+    "character-validator",
+    "timeline-validator",
+    "task-convergence-validator"
+  ],
+  "dimension_packets": {},
+  "dimension_report_refs": {
+    "structure-validator": "review/第0卷/结构兑现.md",
+    "continuity-validator": "review/第0卷/连续性.md",
+    "logic-validator": "review/第0卷/逻辑自洽校验.md",
+    "character-validator": "review/第0卷/人物一致性.md",
+    "timeline-validator": "review/第0卷/时间线.md",
+    "task-convergence-validator": "review/第0卷/任务汇聚.md"
+  },
+  "issues": [],
+  "chapter_issue_index": {},
+  "severity_counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "critical_issues": [],
+  "overall_score": 0,
+  "dimension_scores": {
+    "structure": 0,
+    "continuity": 0,
+    "logic": 0,
+    "character": 0,
+    "timeline": 0,
+    "task_convergence": 0
+  },
+  "routing_decision": "back_to_source_contract",
+  "handoff_targets": [],
+  "rework_targets": [],
+  "source_trace": [],
+  "evidence_refs": []
+}

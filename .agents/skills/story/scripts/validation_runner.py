@@ -3,7 +3,7 @@
 """
 Backward-compatible shim for the renamed review runner.
 
-`4-Validation` 已重命名为 `4-Review`，但部分测试或旧命令仍可能导入
+`4-Validation` 已重命名为 `review`，但部分测试或旧命令仍可能导入
 `validation_runner`。这里统一转发到 `review_runner`，避免旧入口直接断裂。
 """
 
