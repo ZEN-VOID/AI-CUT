@@ -23,4 +23,4 @@
 
 ## Usage
 
-入口：`$story-cards-item`。正式输出写入 `projects/story/<项目名>/1-Cards/4-物品卡/`。
+入口：`$story-cards-item`。正式输出写入 `projects/story/<项目名>/1-设定/4-物品卡/`。

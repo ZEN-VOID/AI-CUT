@@ -9,6 +9,7 @@ governance_tier: lite
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 必须回读父层 `review/SKILL.md`、`../_shared/validation-root-contract.md`、`../_shared/validation-child-output-contract.md`、`./references/setting-self-consistency-framework.md`。
 - 正式审查前，必须至少读取同一轮锁定后的 `validation_fact_pack.cards_state_history_slice`、`chapter_planning_packet` 与当前正文；若命中 source 冲突信号，再继续回指 pack 中的 `cards / init / planning truth`。
 

@@ -51,7 +51,7 @@ def _write_split_story_map(tmp_path: Path, *, thin_contract: bool) -> Path:
                 ],
                 "character_roster_projection": [],
                 "relationship_graph_projection": {
-                    "source_graph_path": "1-Cards/2-角色卡/角色关系图谱.md",
+                    "source_graph_path": "1-设定/2-角色卡/角色关系图谱.md",
                     "scope": "full-series",
                     "node_refs": [],
                     "edge_projections": [],

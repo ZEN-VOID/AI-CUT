@@ -1,7 +1,8 @@
 ---
 name: story-polishing
 description: Use when story2026 needs chapter-level second-pass polishing from `projects/story/<项目名>/3-初稿/第N卷/第N章.md` into `projects/story/<项目名>/4-润色/第N卷/第N章.md`.
-governance_tier: full
+governance_tier: lite
+skill_role: parent_guide
 ---
 
 # 4-润色
@@ -111,6 +112,7 @@ governance_tier: full
 | 需要质量门禁 | 对应 lane 的 `review/review-contract.md` |
 | 需要输出骨架或系统提示 | 对应 lane 的 `templates/` |
 | 需要机械辅助 | 对应 lane 的 `scripts/polish_chapter_*.py` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；润色模板、类型包、provider bridge 和质量 gate 归 A/B/C 子路径 |
 
 ## Execution Topology
 

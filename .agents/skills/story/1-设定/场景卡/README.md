@@ -23,4 +23,4 @@
 
 ## Usage
 
-入口：`$story-cards-scene`。正式输出写入 `projects/story/<项目名>/1-Cards/3-场景卡/`。
+入口：`$story-cards-scene`。正式输出写入 `projects/story/<项目名>/1-设定/3-场景卡/`。

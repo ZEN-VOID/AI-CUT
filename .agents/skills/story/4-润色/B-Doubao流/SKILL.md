@@ -9,6 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 必须回读 story 根层 `../../SKILL.md` 与 `../../CONTEXT.md`，再读取 `../SKILL.md` 与 `../CONTEXT.md` 作为 `4-润色` 阶段路由层。
 - 若当前任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前章相关性加载项目根 `CONTEXT/`。
 - 必须读取当前章 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为润色主输入；缺失则硬失败。

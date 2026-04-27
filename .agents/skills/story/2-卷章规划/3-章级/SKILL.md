@@ -11,6 +11,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - `SKILL.md` 只保留入口、Input Contract、动态引用、关键门禁、Root-Cause 合同和 Output Contract；章级长细则进入分区文件。
 - 进入本技能前必须回读父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/rhythm-design-field-matrix.md`、`../../_shared/core-constraints.md`、`../../_shared/character-planning-bridge.md`、`../../_shared/chapter-rhythm-handoff-contract.md`。
 - 进入任何章级落盘前必须回读对应项目的 `2-卷章规划/整体规划.md` 与 `2-卷章规划/第N卷/卷规划.md`；若只是补写某一章的局部规划，也不得跳过上游完整回读。

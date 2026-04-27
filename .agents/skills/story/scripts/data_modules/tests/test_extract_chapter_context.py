@@ -259,10 +259,10 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
     (refs_dir / "genre-profiles.md").write_text("## xuanhuan\n- 升级线清晰", encoding="utf-8")
     (refs_dir / "reading-power-taxonomy.md").write_text("## xuanhuan\n- 悬念钩优先", encoding="utf-8")
 
-    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = tmp_path / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {
@@ -304,7 +304,7 @@ def test_build_chapter_context_payload_includes_contract_sections(tmp_path):
         encoding="utf-8",
     )
 
-    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "李青.json"
+    protagonist_card_path = tmp_path / "1-设定" / "2-角色卡" / "主要角色" / "李青.json"
     protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
     protagonist_card_path.write_text(
         json.dumps(
@@ -410,10 +410,10 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
     (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
     (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
 
-    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = tmp_path / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {
@@ -446,7 +446,7 @@ def test_build_chapter_context_payload_merges_slice_planning_truth(tmp_path):
         encoding="utf-8",
     )
 
-    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "令狐冲.json"
+    protagonist_card_path = tmp_path / "1-设定" / "2-角色卡" / "主要角色" / "令狐冲.json"
     protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
     protagonist_card_path.write_text(
         json.dumps(
@@ -625,10 +625,10 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
     (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
     (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
 
-    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = tmp_path / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {
@@ -645,7 +645,7 @@ def test_build_chapter_context_payload_filters_meta_planning_fragments(tmp_path)
         encoding="utf-8",
     )
 
-    protagonist_card_path = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "令狐冲.json"
+    protagonist_card_path = tmp_path / "1-设定" / "2-角色卡" / "主要角色" / "令狐冲.json"
     protagonist_card_path.parent.mkdir(parents=True, exist_ok=True)
     protagonist_card_path.write_text(
         json.dumps(
@@ -862,10 +862,10 @@ def test_build_chapter_context_payload_includes_episode_rhythm_handoff(tmp_path)
     (refs_dir / "genre-profiles.md").write_text("## wuxia\n- 江湖规矩先于大词", encoding="utf-8")
     (refs_dir / "reading-power-taxonomy.md").write_text("## wuxia\n- 危机钩优先", encoding="utf-8")
 
-    global_card_dir = tmp_path / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = tmp_path / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (tmp_path / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (tmp_path / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {

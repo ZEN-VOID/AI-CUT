@@ -1976,7 +1976,7 @@ def _route_source_fix_command(validation_payload: dict[str, Any]) -> str:
 
     if "0-初始化" in owners:
         return "story-init"
-    if "1-Cards" in owners:
+    if "1-设定" in owners:
         return "story-cards"
     return "story-plan"
 
@@ -2572,7 +2572,7 @@ def analyze_recovery_options(interrupt_info):
                 "option": "A",
                 "label": "从 Step 1 重新开始",
                 "risk": "low",
-                "description": "重新起盘当前章，并重新装配 Init/1-Cards/2-卷章规划/上一章终稿上下文",
+                "description": "重新起盘当前章，并重新装配 Init/1-设定/2-卷章规划/上一章终稿上下文",
                 "actions": ["清理中断状态", f"执行 /{command} {chapter_num}"],
             }
         ]

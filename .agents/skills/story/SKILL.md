@@ -2,6 +2,7 @@
 name: story2026
 description: Use when coordinating, routing, initializing, or repairing the overall story2026 小说/novel/book workflow across stage skills, shared references, shared scripts, and runtime truth sources; for 影片/电影/影视/video project initialization use `aigc-init`.
 governance_tier: lite
+skill_role: parent_guide
 allowed-tools: Read Grep Bash Write Edit Task
 ---
 
@@ -77,6 +78,13 @@ allowed-tools: Read Grep Bash Write Edit Task
 - 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章规划 / 3-初稿 / 4-润色 / review / 5-上下文回流 / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
 
+## Input Contract
+
+- Accepted input: 泛化 story2026 请求、跨阶段路由问题、真源归属判断、共享路径/脚本/模板修复、项目运行时定位问题。
+- Required input: 用户诉求文本，或可定位的项目根 `projects/story/<项目名>/`，或需要审计/修复的 story 技能树路径。
+- Optional input: 卷号、章号、目标阶段、错误日志、现有项目 `STATE.json`、`MEMORY.md`、`CONTEXT/` 与报告路径。
+- Reject or reroute when: 影视/电影/视频项目初始化请求应路由到 `.agents/skills/aigc/0-初始化/SKILL.md`；阶段内部创作细则必须交给 owning stage。
+
 ## System Topology
 
 ### Mainline Stages
@@ -111,7 +119,7 @@ flowchart TD
     H --> G
     G -->|"PASS + handoff: 5-上下文回流"| I["5-上下文回流<br/>actualization / projection refresh"]
     J["query / resume"] -.状态查询 / 续跑.-> B
-    K["doubao"] -.用户显式授权的表达强化.-> H
+    K["4-润色/B-Doubao流"] -.用户显式授权的表达强化.-> H
 ```
 
 ### Satellite Skills
@@ -120,7 +128,6 @@ flowchart TD
 
 - `query`
 - `resume`
-- `doubao`
 
 ## Root Truth Ownership Contract
 
@@ -130,12 +137,11 @@ flowchart TD
 | `0-初始化` | 立项合同、`0-初始化/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-设定` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
 | `2-卷章规划` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
-| `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由根级 `3-初稿` 主技能直接执行 chapter-native 豆包创作；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
+| `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 父级导引层选择 A/B/C provider lane 执行；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
 | `review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `review/第V卷.validation.json` 聚合 gate、审查报告与状态持久化 | actualization 写回 |
 | `4-润色` | 基于 `3-初稿/第N卷/第N章.md` 的二次改写润色稿、`4-润色/第N卷/第N章.md`、润色 sidecar | `3-初稿` 原文覆盖权、planning/cards/north_star 真源、validation PASS/FAIL 判定权 |
 | `5-上下文回流` | PASS-gated actualization artifact、Cards current_state/history、规划 actualization sidecar、story_map actualization、项目 `CONTEXT/` carryover notes、`STATE.json` projection refresh | 规划正文改写、审查判定、正文/润色正文创作 |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
-| `doubao` | 风格分析、中文表达强化、候选润色正文与用户显式授权下的单点覆写 | `Cards / Planning / validation_status / actualization` 判定权 |
 
 ## Canonical Runtime Root
 
@@ -203,7 +209,7 @@ flowchart TD
 | PASS 后的 actualization、truth writeback、projection refresh | `5-上下文回流` |
 | 查询当前态、规划态、实绩态、质量态 | `query` |
 | 查看断点、续跑、清理或重启任务 | `resume` |
-| 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化 | `doubao` |
+| 中文小说润色、文风拆解、整稿统修、去 AI 味与中文表达强化 | `4-润色/B-Doubao流` |
 
 ## Default Loading Order
 
@@ -217,6 +223,20 @@ flowchart TD
    - `5-上下文回流/references/context-return-spec.md`
 7. 路由到目标阶段的 `SKILL.md`。
 8. 读取目标阶段 `CONTEXT.md`。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 根级共享合同 | `_shared/context-loading-contract.md`、`_shared/core-constraints.md` |
+| 跨阶段路由和执行拓扑 | 本文件 `System Topology` 与目标阶段 `SKILL.md + CONTEXT.md` |
+| 质量门禁和审计 | `review/SKILL.md + CONTEXT.md`、目标阶段审查合同 |
+| 请求判型 | 本文件 `Routing Table`、目标阶段 `Mode Selection` 与 `CONTEXT.md` Type Map |
+| 可复用经验 | `CONTEXT.md` |
+| 输出摘要 | 对话或用户指定 `reports/` 路径 |
+| 共享 CLI 和路径解析 | `scripts/story.py`、`scripts/project_locator.py` |
+| 产品侧入口 | `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；真实执行细则、模板、类型包和 review gate 由被路由到的阶段 skill 或卫星 skill 持有 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -243,6 +263,14 @@ flowchart TD
 | FIELD-SYS-OWNER-04 | Step 4 | 锁定该问题的 canonical owner | `canonical_owner`、`non_owner_layers_to_avoid` | FAIL-SYS-OWNER-04 | 回到真源分工表，禁止让下游冒充上游 |
 | FIELD-SYS-TRACE-05 | Step 5 | 完成跨阶段 root-cause trace | `symptom`、`direct_cause`、`rule_source`、`meta_rule_source` | FAIL-SYS-TRACE-05 | 重新补全分层 trace，不能停在局部症状 |
 | FIELD-SYS-CLOSURE-06 | Step 6 | 产出修复闭环与防回归结果 | `root_cause_location`、`immediate_fix`、`systemic_prevention_fix` | FAIL-SYS-CLOSURE-06 | 回到修复落点，优先改根级真源 |
+
+## Output Contract
+
+- Required output: `target_stage`、`truth_role`、`canonical_owner`、`shared_refs_to_load`、`next_action`，或跨阶段修复摘要。
+- Output format: 简短路由报告、修复报告或 `templates/output-template.md` 对齐的结构化摘要。
+- Output path: 默认输出到对话；用户要求保存时写入 `reports/story-router-YYYYMMDD.md` 或任务指定报告路径。
+- Naming convention: 报告文件使用 kebab-case 与 `YYYYMMDD` 日期后缀；路径示例必须保持 ASCII 安全任务 ID。
+- Completion gate: 请求已路由到唯一默认入口，canonical truth 与非 owner 层已区分，必要的 `SKILL.md + CONTEXT.md` 加载边界已说明。
 
 ## Completion Gate
 

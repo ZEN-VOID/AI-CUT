@@ -1,6 +1,7 @@
 ---
 name: story-plan
-governance_tier: full
+governance_tier: lite
+skill_role: parent_guide
 description: |
   Use when story2026 needs fractal planning passes that converge into `2-卷章规划/整体规划.md` + `2-卷章规划/第N卷/卷规划.md` + `2-卷章规划/第N卷/第N章.md`, with optional compatibility projection kept outside the primary business truth.
 tools: [Read, Write, Edit, Grep, Bash]
@@ -88,7 +89,7 @@ color: indigo
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 用“部级 -> 卷级 -> 章级”的分形递进，把整书规划从宏观承诺一路收束到章级执行蓝图。 |
-| `business_object` | `0-初始化/north_star.yaml`、`0-初始化/init_handoff.yaml`、`1-Cards/**/*.json`、`2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md`。 |
+| `business_object` | `0-初始化/north_star.yaml`、`0-初始化/init_handoff.yaml`、`1-设定/**/*.json`、`2-卷章规划/整体规划.md`、`2-卷章规划/第N卷/卷规划.md`、`2-卷章规划/第N卷/第N章.md`。 |
 | `constraint_profile` | planning 阶段只写规划，不写正文；先部后卷再章；每层必须回读上层已确认输出。 |
 | `success_criteria` | 三层文档都具备稳定标题与必填段落；节奏设计在部/卷/章三层都具备明确方法论与 Mermaid 图；其中章级还能直接输出 drafting 可消费的 rhythm handoff，并且任务从属/支流/汇聚关系能从章级一路上溯回部级。 |
 | `non_goals` | 不保留旧 6 个并列规划 skill；不在 planning 阶段直接写小说正文；不把角色卡/场景卡/道具卡复制成第二真源。 |
@@ -103,7 +104,7 @@ color: indigo
 3. 本 `SKILL.md + CONTEXT.md`
 4. `0-初始化/north_star.yaml`
 5. `0-初始化/init_handoff.yaml`
-6. `1-Cards/**/*.json`
+6. `1-设定/**/*.json`
 7. `../_shared/core-constraints.md`
 8. `../_shared/character-planning-bridge.md`
 9. `./_shared/fractal-planning-layout-contract.md`
@@ -116,13 +117,27 @@ color: indigo
 16. `2-卷级/SKILL.md + CONTEXT.md`
 17. `3-章级/SKILL.md + CONTEXT.md`
 
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 父层分形规划合同 | `_shared/fractal-planning-layout-contract.md`、`_shared/fractal-planning-output-contract.md` |
+| 执行顺序与回读 | `1-部级/SKILL.md + CONTEXT.md`、`2-卷级/SKILL.md + CONTEXT.md`、`3-章级/SKILL.md + CONTEXT.md` |
+| 输出门禁 | `1-部级/review/`、`2-卷级/review/`、`3-章级/review/`、`scripts/validate_planning_outputs.py` |
+| 判型 | 本文件 `Dispatch Order Contract` 与 `CONTEXT.md` Type Map |
+| 可复用规划经验 | `CONTEXT.md` |
+| 输出摘要 | 对话或用户指定 `reports/` 路径 |
+| 结构校验 | `scripts/validate_planning_outputs.py` |
+| 产品侧入口 | `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；三层规划细则、模板和类型包归 `1-部级/`、`2-卷级/`、`3-章级/` 子技能 |
+
 ## Total Input Contract
 
 ### 必需输入
 
 - `0-初始化/north_star.yaml`
 - `0-初始化/init_handoff.yaml`
-- `1-Cards/**/*.json`
+- `1-设定/**/*.json`
 
 ### 可选输入
 
@@ -162,6 +177,14 @@ color: indigo
 
 ## Output Contract
 
+| marker | contract |
+| --- | --- |
+| Required output | 三层 planning 业务真源：部级 `整体规划.md`、卷级 `第N卷/卷规划.md`、章级 `第N卷/第N章.md`，按本轮调度范围选择性产生。 |
+| Output format | Markdown 规划文档；节奏段落必须包含 Mermaid 图，不能用 JSON 或表格替代正文规划。 |
+| Output path | 固定写入 `projects/story/<项目名>/2-卷章规划/` 下的三层 canonical paths。 |
+| Naming convention | 部级固定 `整体规划.md`；卷目录 `第N卷`；卷规划 `卷规划.md`；章规划 `第N章.md`。 |
+| Completion gate | 上层规划已回读；命中的 child skill 已完成；结构校验通过；未调度层级不补占位。 |
+
 ### canonical outputs
 
 - `projects/story/<项目名>/2-卷章规划/整体规划.md`
@@ -180,12 +203,29 @@ color: indigo
 
 ```mermaid
 flowchart TD
-    A["输入锁定<br/>0-初始化 + 1-Cards"] --> B["1-部级<br/>整体规划.md"]
+    A["输入锁定<br/>0-初始化 + 1-设定"] --> B["1-部级<br/>整体规划.md"]
     B --> C["2-卷级<br/>第N卷/卷规划.md"]
     C --> D["3-章级<br/>第N卷/第N章.md"]
     D --> E["父层结构校验"]
     E --> F["planning close"]
 ```
+
+## Root-Cause Execution Contract
+
+规划问题必须沿链路上溯：
+
+`Symptom -> Direct Cause -> Planning Level Owner -> Shared Planning Contract -> AGENTS.md`
+
+优先修复父层顺序门、共享 `_shared/` 合同、对应 level child skill，再修单个规划文件内容。
+
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-PLAN-ROUTE` | 父层路由 | 本轮规划层级、执行顺序与回读清单 | `FAIL-PLAN-ROUTE` |
+| `FIELD-PLAN-CONTEXT` | 父层加载 | north_star、cards、上层 planning 与 child `CONTEXT.md` 加载证据 | `FAIL-PLAN-CONTEXT` |
+| `FIELD-PLAN-WRITEBACK` | 对应 child skill | 三层 canonical Markdown 输出 | `FAIL-PLAN-WRITEBACK` |
+| `FIELD-PLAN-GATE` | 父层 review/scripts | 结构校验和 completion gate 结论 | `FAIL-PLAN-GATE` |
 
 ## Completion Contract
 

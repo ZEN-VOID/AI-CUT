@@ -12,6 +12,7 @@ allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若已绑定项目根 `projects/story/<项目名>/`，必须继续加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与初始化相关的文件。
 - `CONTEXT.md` 只承载初始化经验、返工顺序与 team 选型启发，不得覆盖本 `SKILL.md` 的入口、路由、输出、`team.yaml` 真源与写回位点。
 - 若 `.agents/skills/story/scripts/init_project.py`、模板或分区文件与本合同冲突，先以本 `SKILL.md` 裁决，再回修分区或脚本。

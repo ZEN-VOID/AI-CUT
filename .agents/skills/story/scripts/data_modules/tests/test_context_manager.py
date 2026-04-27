@@ -106,10 +106,10 @@ def test_context_manager_explicitly_loads_global_cards(temp_project):
     }
     temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
 
-    global_card_dir = temp_project.project_root / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = temp_project.project_root / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (temp_project.project_root / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (temp_project.project_root / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {

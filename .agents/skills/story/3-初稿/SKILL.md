@@ -2,6 +2,7 @@
 name: story-drafting
 description: Use when story2026 needs a guided 3-初稿 stage router for chapter-native novel drafting, selecting the active execution lane before writing `projects/story/<项目名>/3-初稿/第N卷/第N章.md`.
 governance_tier: lite
+skill_role: parent_guide
 ---
 
 # 3-初稿
@@ -137,6 +138,7 @@ flowchart TD
 | 需要确认 story 总线路由 | `../SKILL.md` + `../CONTEXT.md` |
 | 需要确认共享加载与核心创作约束 | `../_shared/context-loading-contract.md`、`../_shared/core-constraints.md` |
 | 需要查询 registry 当前入口 | `.codex/registry/routes.yaml`、`.codex/registry/skills.yaml` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；provider lane 的 types、templates、review、scripts 与主创合同归 A/B/C 子路径 |
 
 ## Execution Flow
 

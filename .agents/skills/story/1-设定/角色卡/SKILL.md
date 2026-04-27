@@ -9,6 +9,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair c
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 本技能只负责角色对象判断、全剧集角色 roster 收束、正式角色卡 payload 与关系图谱 side output，不替父层承担总线路由与最终 gate。
 - 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` > `1-设定/SKILL.md` > 本 `SKILL.md` > 本 `CONTEXT.md`。
 
@@ -52,7 +53,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair c
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把全书人物 roster、关系与成长判断收束成可长期消费的全剧集角色卡体系；其中主角默认必须具备可被 `5-上下文回流` 逐集 actualize 的三轴成长系统。 |
-| `business_object` | `1-Cards/2-角色卡/**/*.json`、`1-Cards/2-角色卡/角色索引.json`、`1-Cards/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
+| `business_object` | `1-设定/2-角色卡/**/*.json`、`1-设定/2-角色卡/角色索引.json`、`1-设定/2-角色卡/角色关系图谱.md`、`exclusive_item_hooks`。 |
 | `constraint_profile` | 角色卡记录“角色因此变成了什么”，不复制 MAP 事件流水；任何角色都不能退化成单章临时卡；成长系统只记录经过 validation + 上下文回流 确认的阶段变化。 |
 | `success_criteria` | 每张角色卡都能回答职责、角色类型标识、关系、成长和专属物接口；索引与关系图谱能覆盖全书角色网络。 |
 | `non_goals` | 不替场景卡写空间规则，不替物品卡写代价。 |
@@ -98,9 +99,9 @@ flowchart LR
 - `0-初始化/init_handoff.yaml`
 - `references/character-shaping-bridge.md`
 - `../../_shared/character-planning-bridge.md`
-- 既有 `1-Cards/2-角色卡/**/*.json`（若存在）
-- 既有 `1-Cards/2-角色卡/角色索引.json`（若存在）
-- 既有 `1-Cards/2-角色卡/角色关系图谱.md`（若存在）
+- 既有 `1-设定/2-角色卡/**/*.json`（若存在）
+- 既有 `1-设定/2-角色卡/角色索引.json`（若存在）
+- 既有 `1-设定/2-角色卡/角色关系图谱.md`（若存在）
 - mixed/full-build 时的父层路由结论
 
 ## Thinking-Action Network
@@ -147,12 +148,12 @@ flowchart LR
 
 本技能只交付一套正式角色卡 payload 与一个正式图谱 side output：
 
-- `1-Cards/2-角色卡/主要角色/*.json`
-- `1-Cards/2-角色卡/反派角色/*.json`
-- `1-Cards/2-角色卡/次要角色/*.json`
-- `1-Cards/2-角色卡/群像角色/*.json`
-- `1-Cards/2-角色卡/角色索引.json`
-- `1-Cards/2-角色卡/角色关系图谱.md`
+- `1-设定/2-角色卡/主要角色/*.json`
+- `1-设定/2-角色卡/反派角色/*.json`
+- `1-设定/2-角色卡/次要角色/*.json`
+- `1-设定/2-角色卡/群像角色/*.json`
+- `1-设定/2-角色卡/角色索引.json`
+- `1-设定/2-角色卡/角色关系图谱.md`
 - 可进入索引的 `relationship_edges`
 - 可被物品卡消费的 `exclusive_item_hooks`
 - 可被 `5-上下文回流` 消费的 `growth_contract / growth_state`
@@ -251,8 +252,8 @@ flowchart LR
 
 ## Output Contract
 
-- Required output: `projects/story/<项目名>/1-Cards/2-角色卡/**/*.json` 中的正式角色卡 payload；必要时额外输出 `角色关系图谱.md`。
+- Required output: `projects/story/<项目名>/1-设定/2-角色卡/**/*.json` 中的正式角色卡 payload；必要时额外输出 `角色关系图谱.md`。
 - Output format: 使用 `templates/character-card.json` 对齐的 JSON；图谱使用 Markdown；过程摘要可使用 `templates/output-template.md`。
-- Output path: 正式业务输出只写入项目根 `1-Cards/2-角色卡/`。
+- Output path: 正式业务输出只写入项目根 `1-设定/2-角色卡/`。
 - Naming convention: 角色卡文件名应使用 ASCII 安全 id 或项目既有命名规则；图谱固定命名为 `角色关系图谱.md`。
 - Completion gate: 父层 `cards_writer.py` 写回成功，角色接口可被场景卡与物品卡消费，coverage / review gate 无 blocking finding。

@@ -13,6 +13,7 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 ## Context Loading Contract
 
 - Every invocation must load this `SKILL.md`; 必须同时加载同目录 `CONTEXT.md`.
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - If the task is bound to `projects/story/<项目名>/`, load project `MEMORY.md` and relevant files under project `CONTEXT/` before execution.
 - If `SKILL.md`, `CONTEXT.md`, `references/`, `steps/`, `review/`, `types/`, `templates/`, `scripts/`, `knowledge-base/`, `agents/openai.yaml`, `../scripts/context_return_manager.py`, or `../scripts/workflow_manager.py` conflict, repair the source-layer contract first, then repair single-run artifacts.
 - Conflict priority: user request > repo `AGENTS.md` > `.agents/skills/story/SKILL.md` > this `SKILL.md` > declared references and steps > `agents/openai.yaml` > project memory/context > this `CONTEXT.md`.

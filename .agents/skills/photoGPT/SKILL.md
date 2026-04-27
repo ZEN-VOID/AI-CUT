@@ -14,6 +14,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 执行前必须按 `Reference Loading Guide` 读取 `types/type-map.md`，形成 `type_profile` 后再选择模板。
 - 调用生图或修图前必须读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并遵守其模式、默认 2K 目标、输出持久化和 CLI fallback 规则。
 - 若任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md` 与相关 `CONTEXT/` 文件，再进入提示词强化。

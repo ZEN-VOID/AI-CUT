@@ -147,7 +147,7 @@ class DataModulesConfig:
 
     @property
     def settings_dir(self) -> Path:
-        return self.project_root / "1-Cards"
+        return self.project_root / "1-设定"
 
     @property
     def outline_dir(self) -> Path:

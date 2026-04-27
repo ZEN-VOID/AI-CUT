@@ -15,7 +15,7 @@
 | 主角成长只有一句“变强了”，没有技能/心路/情感三轴 | growth system contract | 拆成 `growth_contract.axes.*` 与 `current_state.growth_state.*` 双层 | 主角卡默认强制启用三轴成长系统；长期 ceiling 放 core，当前态放 current_state | 角色卡能同时回答“长期要成为什么”和“现在走到哪了” |
 | 上下文回流 写回后只看到 history，当前成长态没更新 | growth actualization split | 同步回写 `current_state.growth_state`、`experience_timeline.axis_stage_map` 与 `history[].growth_delta` | 把成长 actualization 固定成三写位，而不是只 append prose 历史 | query 能直接回答主角现在三轴走到哪 |
 | 专属物接口空心 | downstream interface | 回补 `exclusive_item_hooks` | 角色卡先留接口，物品卡再做适配 | 专属物能一眼看出角色归属 |
-| 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `1-Cards/2-角色卡/**/角色名.json` 能逐个被引用 |
+| 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `1-设定/2-角色卡/**/角色名.json` 能逐个被引用 |
 | 角色桶和角色属性标识不一致 | cast marker mapping | 以 bucket 回写 `cast_markers` 并校验唯一主标识 | 角色桶与属性标识共治，不允许一个角色同时多主标 | `group` 与 `cast_markers.primary_alignment` 一致 |
 | 只有关系边 JSON 没有正式图谱输出 | graph projection | 生成 `角色关系图谱.md` 并补文字摘要 | 关系图谱固定成为角色索引的 side output | Markdown 同时包含文字说明和 Mermaid |
 | 规划阶段把角色卡整份复制进 planning 文档或兼容 `story_map` | cross-stage bridge | 只输出最小角色/关系投影，完整人物事实留在角色卡侧 | 用 `story/_shared/character-planning-bridge.md` 固定“projection only”规则 | planning 文档与兼容 `story_map` 都只保留 refs 与最小 planning hooks |

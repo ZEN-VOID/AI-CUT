@@ -292,6 +292,9 @@ def _candidate_roots(cwd: Path, *, stop_at: Optional[Path] = None) -> Iterable[P
     for relative in DEFAULT_PROJECT_DIR_CANDIDATES:
         yield cwd / relative
 
+    if stop_at is not None and cwd == stop_at:
+        return
+
     for parent in cwd.parents:
         yield parent
         for relative in DEFAULT_PROJECT_DIR_CANDIDATES:
@@ -337,13 +340,20 @@ def _resolve_runtime_state_from_manifest(path: Path) -> Optional[Path]:
 
 
 def _is_project_root(path: Path) -> bool:
-    return _default_runtime_state_path(path).is_file() or _resolve_runtime_state_from_manifest(path) is not None
+    try:
+        return _default_runtime_state_path(path).is_file() or _resolve_runtime_state_from_manifest(path) is not None
+    except OSError:
+        return False
 
 
 def _resolve_single_project_root_from_container(path: Path) -> Optional[Path]:
     if not path.is_dir():
         return None
-    matches = [child.resolve() for child in path.iterdir() if child.is_dir() and _is_project_root(child)]
+    try:
+        children = list(path.iterdir())
+    except OSError:
+        return None
+    matches = [child.resolve() for child in children if child.is_dir() and _is_project_root(child)]
     if len(matches) == 1:
         return matches[0]
     return None

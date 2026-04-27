@@ -21,7 +21,8 @@
 ├── knowledge-base/
 │   └── drafting-heuristics.md
 ├── types/
-│   └── drafting-type-map.md
+│   ├── type-map.md
+│   └── 网文/
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md

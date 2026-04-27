@@ -2,6 +2,7 @@
 name: story-review
 description: Use when the story workflow needs the parent guide skill for the review skill group, including validation routing, dimension roster loading, reviewer dispatch, aggregation, and PASS/FAIL gate ownership.
 governance_tier: lite
+skill_role: parent_guide
 ---
 
 # story / review
@@ -88,6 +89,7 @@ governance_tier: lite
 | 生成维度 sidecar 报告 | `_shared/validation-dimension-report.template.md` |
 | 解释 reviewer 团队共享规则 | `_shared/validation-team-contract.md` |
 | 执行某个维度判断 | 对应子目录的 `SKILL.md + CONTEXT.md` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；维度细则、类型包和局部 review 归六个维度子技能 |
 
 ## Invocation Modes
 

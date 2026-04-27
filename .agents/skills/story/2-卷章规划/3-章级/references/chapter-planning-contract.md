@@ -16,7 +16,7 @@
 - `templates/chapter-planning.template.md`
 - `projects/story/<项目名>/2-卷章规划/整体规划.md`
 - `projects/story/<项目名>/2-卷章规划/第N卷/卷规划.md`
-- `projects/story/<项目名>/1-Cards/**/*.json`
+- `projects/story/<项目名>/1-设定/**/*.json`
 
 ## Parent Positioning
 

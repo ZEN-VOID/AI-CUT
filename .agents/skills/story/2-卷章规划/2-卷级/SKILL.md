@@ -11,6 +11,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 必须先读取父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md` 与 `../_shared/rhythm-design-field-matrix.md`。
 - 必须读取项目内 `2-卷章规划/整体规划.md` 后，才允许生成、补写或修订 `2-卷章规划/第N卷/卷规划.md`。
 - 若任务绑定具体 `projects/story/<项目名>/`，必须先加载该项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与本卷相关的上下文。

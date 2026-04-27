@@ -27,7 +27,7 @@ purpose: 项目查询、恢复和运行时状态判断时加载，理解 story20
 │   ├── story-source-manifest.yaml # 故事主源登记与 readiness
 │   └── init_handoff.yaml         # cards/planning 入口种子与 unknowns
 ├── MEMORY.md             # 项目级创作记忆：偏好/口味/禁区/特殊元素/长期要求
-├── 1-Cards/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
+├── 1-设定/                # 角色卡/场景卡/物品卡（单卡真源：core/current_state/history）
 ├── 3-初稿/           # drafting 阶段正文真源（第N卷/第N章.md + 第V卷.写作日志.yaml）
 ├── 5-上下文回流/
 │   └── 第V卷.context-return.json   # PASS 后 validated actualization artifact
@@ -87,7 +87,7 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
   → 生成 `0-初始化/north_star.yaml + story-source-manifest.yaml + init_handoff.yaml`
   → 其中 `north_star.yaml.cards` 承担长期对象总规范
 
-1-Cards
+1-设定
   → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
 
 2-卷章规划
@@ -201,7 +201,7 @@ query / resume
 1. `2-卷章规划/整体规划.md`
 2. `2-卷章规划/第V卷/卷规划.md`
 3. `2-卷章规划/第V卷/第N章.md`
-4. `1-Cards/**/*.json`
+4. `1-设定/**/*.json`
 5. `STATE.json`
 6. `2-卷章规划/legacy/`（仅 legacy fallback）
 
@@ -215,7 +215,7 @@ query / resume
 |---|---|---|---|
 | planning truth | 原计划如何编排、哪章承载什么 | `2-卷章规划/整体规划.md` + `2-卷章规划/第V卷/卷规划.md` + `2-卷章规划/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
 | drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-初稿/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
-| object truth | 对象长期定义、当前默认状态、历史变化 | `1-Cards/**/*.json` | 优先区分 `core / current_state / history` |
+| object truth | 对象长期定义、当前默认状态、历史变化 | `1-设定/**/*.json` | 优先区分 `core / current_state / history` |
 | runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |

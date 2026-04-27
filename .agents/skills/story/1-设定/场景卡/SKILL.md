@@ -9,6 +9,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 本技能只负责场景对象判断与正式场景卡 payload，不替父层承担总线路由与最终 gate。
 
 ## Overview
@@ -28,7 +29,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把“可看场景”收束成“可写戏空间”。 |
-| `business_object` | `1-Cards/3-场景卡/**/*.json`、`scene_links`、场景索引。 |
+| `business_object` | `1-设定/3-场景卡/**/*.json`、`scene_links`、场景索引。 |
 | `constraint_profile` | 规则先于奇观，复用先于一次性布景。 |
 | `success_criteria` | 场景能回答谁来、做什么、代价是什么、为什么值得返场。 |
 
@@ -64,7 +65,7 @@ flowchart LR
 
 - `0-初始化/north_star.yaml`
 - `0-初始化/init_handoff.yaml`
-- 既有 `1-Cards/3-场景卡/**/*.json`（若存在）
+- 既有 `1-设定/3-场景卡/**/*.json`（若存在）
 - mixed/full-build 时来自角色卡的进入者与关系压力
 
 ## Thinking-Action Network
@@ -130,8 +131,8 @@ flowchart LR
 
 ## Output Contract
 
-- Required output: `projects/story/<项目名>/1-Cards/3-场景卡/**/*.json` 中的正式场景卡 payload。
+- Required output: `projects/story/<项目名>/1-设定/3-场景卡/**/*.json` 中的正式场景卡 payload。
 - Output format: 使用 `templates/scene-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
-- Output path: 正式业务输出只写入项目根 `1-Cards/3-场景卡/`。
+- Output path: 正式业务输出只写入项目根 `1-设定/3-场景卡/`。
 - Naming convention: 场景卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
 - Completion gate: 父层 `cards_writer.py` 写回成功，场景规则可被物品卡和 planning 消费，coverage / review gate 无 blocking finding。

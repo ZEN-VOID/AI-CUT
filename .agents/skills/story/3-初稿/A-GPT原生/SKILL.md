@@ -9,6 +9,7 @@ governance_tier: full
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 必须回读 story 根层 `../../SKILL.md` 与 `../../CONTEXT.md`，先锁定 `story2026` 总线边界，再进入当前 chapter-native 正文创作。
 - 若 `../SKILL.md` 与 `../CONTEXT.md` 非空，必须同时读取作为 `3-初稿` 阶段路由层。
 - 必须同时读取 `../../_shared/context-loading-contract.md` 与 `../../_shared/core-constraints.md`。
@@ -54,7 +55,7 @@ governance_tier: full
 | 需要默认 subagents 监制、team 视角、code-reviewer 卷级返工闭环 | `../_shared/supervised-drafting-review-loop-contract.md` |
 | 需要兼容旧 step-after-write 即时审计链路 | `../_shared/drafting-instant-validation-contract.md` |
 | 需要执行拓扑、分支、汇流、失败回路 | `steps/chapter-drafting-workflow.md` |
-| 需要判定起草/重写/续写/修复/dry-run 类型 | `types/drafting-type-map.md` |
+| 需要识别并加载网文题材类型包、判定起草/重写/续写/修复/dry-run 类型 | `types/type-map.md` 与命中的 `types/网文/<题材>/` |
 | 需要质量门禁、GPT-native 证据与 reviewer 规则 | `review/review-contract.md` |
 | 需要可复用写作与迁移经验 | `CONTEXT.md` 与 `knowledge-base/drafting-heuristics.md` |
 | 需要章节文件骨架或 GPT 原生系统提示 | `templates/chapter-root.template.md`、`templates/gpt-native-system-prompt.md`、`templates/output-template.md` |
@@ -165,7 +166,7 @@ graph LR
 | --- | --- | --- |
 | 草稿跑偏或 planning 语言直贴 | 章节正文细则层 | `references/chapter-drafting-contract.md` |
 | 章节结构断裂、分支/汇流不清 | 思行网络层 | `steps/chapter-drafting-workflow.md` |
-| 起草/续写/重写/修复误判 | 类型策略层 | `types/drafting-type-map.md` |
+| 起草/续写/重写/修复误判，或题材类型包未加载 | 类型包层 | `types/type-map.md` 与命中的 `types/网文/<题材>/` |
 | 监制 subagents 未启动、未降级说明或监制包未进入 messages | 监制调度层 | `../_shared/supervised-drafting-review-loop-contract.md` |
 | 审查口号化或无法给 verdict | 质量门禁层 | `review/review-contract.md` |
 | 卷级 `code-reviewer` 审计未触发或 findings 未回流 | review 汇流层 | `.agents/skills/story/review/SKILL.md` + `review/review-contract.md` |
@@ -182,7 +183,7 @@ graph LR
 | `FIELD-GPTDRAFT-01` | `SKILL.md` | 入口与裁决层 | trigger、loading、mode、reference guide、root-cause、Output Contract | `FAIL-GPTDRAFT-ENTRY` |
 | `FIELD-GPTDRAFT-02` | `references/` | 章节细则层 | input、frontmatter、GPT 原生主创、正文硬规则 | `FAIL-GPTDRAFT-REFERENCE` |
 | `FIELD-GPTDRAFT-03` | `steps/` | 思行网络层 | node network、branch、merge、failure route | `FAIL-GPTDRAFT-STEPS` |
-| `FIELD-GPTDRAFT-04` | `types/` | 类型策略层 | drafting mode、type variables、route matrix | `FAIL-GPTDRAFT-TYPES` |
+| `FIELD-GPTDRAFT-04` | `types/` | 类型包层 | `types/type-map.md`、网文题材包、固定上下文加载规则 | `FAIL-GPTDRAFT-TYPES` |
 | `FIELD-GPTDRAFT-05` | `review/` | 质量门禁层 | verdict model、finding shape、GPT-native evidence gate、review/code-reviewer handoff | `FAIL-GPTDRAFT-REVIEW` |
 | `FIELD-GPTDRAFT-06` | `templates/` | 模板层 | chapter skeleton、system prompt、Output Contract Alignment | `FAIL-GPTDRAFT-TEMPLATE` |
 | `FIELD-GPTDRAFT-07` | `scripts/` | 自动化辅助层 | context assembly、validation、writeback | `FAIL-GPTDRAFT-SCRIPT` |
@@ -209,7 +210,7 @@ graph LR
 | `FAIL-GPTDRAFT-ENTRY` | 入口缺 loading、mode、Output Contract 或 root-cause 合同 | `SKILL.md` |
 | `FAIL-GPTDRAFT-REFERENCE` | 输入、frontmatter 或 GPT 原生硬规则缺失 | `references/chapter-drafting-contract.md` |
 | `FAIL-GPTDRAFT-STEPS` | 流程只有 checklist，没有分支、汇流或 gate | `steps/chapter-drafting-workflow.md` |
-| `FAIL-GPTDRAFT-TYPES` | 起草、续写、重写、修复误判 | `types/drafting-type-map.md` |
+| `FAIL-GPTDRAFT-TYPES` | 起草、续写、重写、修复误判，或题材类型包未加载 | `types/type-map.md` 与命中的 `types/网文/<题材>/` |
 | `FAIL-GPTDRAFT-REVIEW` | 无法给出可执行 verdict 或 GPT-native evidence gate | `review/review-contract.md` |
 | `FAIL-GPTDRAFT-TEMPLATE` | 模板与 Output Contract 不一致 | `templates/output-template.md` |
 | `FAIL-GPTDRAFT-SCRIPT` | 脚本越权主创或未校验 GPT 原生输出 | `scripts/write_chapter_gpt_native.py` |

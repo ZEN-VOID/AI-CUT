@@ -185,13 +185,13 @@ def _render_output_template(
     rendered = rendered.replace("{{rhythm_type}}", rhythm_type)
 
     rendered = re.sub(
-        r'global_card_refs:\n(?:  - "1-Cards/0-全局卡/\.\.\."\n?)?',
+        r'global_card_refs:\n(?:  - "1-设定/0-全局卡/\.\.\."\n?)?',
         f"global_card_refs:\n{_yaml_list(global_card_refs, indent=2)}\n",
         rendered,
         count=1,
     )
     rendered = re.sub(
-        r'style_card_refs:\n(?:  - "1-Cards/1-风格卡/\.\.\."\n?)?',
+        r'style_card_refs:\n(?:  - "1-设定/1-风格卡/\.\.\."\n?)?',
         f"style_card_refs:\n{_yaml_list(style_card_refs, indent=2)}\n",
         rendered,
         count=1,

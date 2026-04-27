@@ -57,7 +57,7 @@ def _build_project(project_root: Path) -> None:
         },
     )
     _write_json(
-        project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json",
+        project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json",
         {
             "core": {"name": "林辰"},
             "current_state": {"realm": "炼气", "stance": "中立"},
@@ -143,7 +143,7 @@ def _build_project_with_slice(project_root: Path) -> None:
 def _build_nested_cards_project(project_root: Path) -> None:
     _build_project(project_root)
     _write_json(
-        project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json",
+        project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json",
         {
             "content": {
                 "card_schema": {
@@ -387,7 +387,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
             },
             "card_deltas": [
                 {
-                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {
                         "realm": "筑基",
@@ -426,7 +426,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                         "manuscript_ref": "3-初稿/第2卷/第12章.md",
                         "validation_ref": "review/第12章.validation.json",
                         "actual_outcome_summary": "本章完成破境并公开立场。",
-                        "carry_forward_refs": ["1-Cards/2-角色卡/主要角色/林辰.json"],
+                        "carry_forward_refs": ["1-设定/2-角色卡/主要角色/林辰.json"],
                     },
                 }
             ],
@@ -488,7 +488,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     assert artifact["inputs"]["book_plan_ref"] == "2-卷章规划/整体规划.md"
     assert artifact["inputs"]["volume_plan_ref"] == "2-卷章规划/第2卷/卷规划.md"
     assert artifact["inputs"]["chapter_plan_refs"] == ["2-卷章规划/第2卷/第12章.md"]
-    assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["1-Cards/2-角色卡/主要角色/林辰.json"]
+    assert artifact["content"]["writeback_summary"]["written_card_refs"] == ["1-设定/2-角色卡/主要角色/林辰.json"]
     assert artifact["content"]["writeback_summary"]["written_planning_actualization_refs"] == [
         "2-卷章规划/整体规划.actualization.json",
         "2-卷章规划/第2卷/卷规划.actualization.json",
@@ -500,10 +500,10 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
     )
     assert artifact["execution_notes"]["commit_manifest"]["phase"] == "committed"
     assert artifact["execution_notes"]["commit_manifest"]["next_revisions"]["cards"] == {
-        "1-Cards/2-角色卡/主要角色/林辰.json": 1
+        "1-设定/2-角色卡/主要角色/林辰.json": 1
     }
 
-    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    card = json.loads((project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     assert card["current_state"]["realm"] == "筑基"
     assert card["current_state"]["stance"] == "结盟"
     assert card["current_state"]["growth_state"]["skill"]["stage"] == "稳固"
@@ -648,7 +648,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
-                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {"realm": "筑基"},
                     "history_append": {"episode_ref": "第12章"},
@@ -704,7 +704,7 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
     with pytest.raises(OSError, match="simulated artifact write failure"):
         module.main()
 
-    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    card = json.loads((project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     assert card["current_state"]["realm"] == "炼气"
     assert card["history"] == []
 
@@ -731,7 +731,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
-                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {
                         "realm": "筑基",
@@ -776,7 +776,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
 
     assert int(exc.value.code or 0) == 0
 
-    card = json.loads((project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
+    card = json.loads((project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json").read_text(encoding="utf-8"))
     nested = card["content"]["card_schema"]["character_card"]
     assert nested["current_state"]["realm"] == "筑基"
     assert nested["current_state"]["stance"] == "结盟"
@@ -791,7 +791,7 @@ def test_context_return_manager_rejects_revision_drift(tmp_path, monkeypatch):
     project_root = (tmp_path / "book").resolve()
     _build_project(project_root)
 
-    card_path = project_root / "1-Cards" / "2-角色卡" / "主要角色" / "林辰.json"
+    card_path = project_root / "1-设定" / "2-角色卡" / "主要角色" / "林辰.json"
     card = json.loads(card_path.read_text(encoding="utf-8"))
     card["context_return_revision"] = 3
     _write_json(card_path, card)
@@ -806,7 +806,7 @@ def test_context_return_manager_rejects_revision_drift(tmp_path, monkeypatch):
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
-                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "expected_revision": 2,
                     "current_state_patch": {"realm": "筑基"},
@@ -854,7 +854,7 @@ def test_context_return_manager_rejects_non_whitelisted_delta_fields(tmp_path, m
             "validation_ref": "review/第12章.validation.json",
             "card_deltas": [
                 {
-                    "target_ref": "1-Cards/2-角色卡/主要角色/林辰.json",
+                    "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
                     "target_type": "character_card",
                     "current_state_patch": {
                         "realm": "筑基",

@@ -15,6 +15,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 每次执行 `北冥神功 + target_skill + upgrade_points` 时，必须先加载目标 skill 的 `SKILL.md + CONTEXT.md`，再加载其父级、同级、shared carrier、registry/routes 中与当前升级点相关的上下文。
 - 若目标 skill 属于 `.agents/skills/aigc/` 或 `.agents/skills/story/`，且当前任务已绑定项目根，还必须先加载项目根 `MEMORY.md` 与项目根 `CONTEXT/` 中相关材料。
 - 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`knowledge-base/` > 本目录 `CONTEXT.md` > `agents/openai.yaml`。

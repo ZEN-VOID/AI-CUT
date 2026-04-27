@@ -1,5 +1,11 @@
 # Chapter Planning Type Map
 
+## 类型包加载边界
+
+- 每次调用本技能时，必须依据本文件识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
+
+
 本文件承载章级 planning 的类型变量和分型策略。完整执行步骤由 `steps/chapter-planning-workflow.md` 拥有。
 
 ## Type Profile

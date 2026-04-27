@@ -63,10 +63,10 @@ def _seed_validation_truth(project_root: Path, chapter: int) -> None:
         encoding="utf-8",
     )
 
-    global_card_dir = project_root / "1-Cards" / "0-全局卡" / "总设定"
+    global_card_dir = project_root / "1-设定" / "0-全局卡" / "总设定"
     global_card_dir.mkdir(parents=True, exist_ok=True)
-    global_card_ref = "1-Cards/0-全局卡/总设定/世界总卡.json"
-    (project_root / "1-Cards" / "0-全局卡" / "全局索引.json").write_text(
+    global_card_ref = "1-设定/0-全局卡/总设定/世界总卡.json"
+    (project_root / "1-设定" / "0-全局卡" / "全局索引.json").write_text(
         json.dumps(
             {
                 "content": {
@@ -327,7 +327,7 @@ def test_review_runner_logic_compares_upstream_truth(tmp_path):
     assert result["pass"] is False
     assert result["metrics"]["world_rule_conflicts"] >= 1
     assert result["metrics"]["exception_cost_gaps"] >= 1
-    assert any(item.get("source_layer_owner") in {"0-初始化", "1-Cards", "2-卷章规划"} for item in result["issues"])
+    assert any(item.get("source_layer_owner") in {"0-初始化", "1-设定", "2-卷章规划"} for item in result["issues"])
 
 
 def test_review_runner_batch_returns_all_results(tmp_path):
@@ -473,7 +473,7 @@ def test_character_validator_reports_growth_continuity_metrics_when_growth_enabl
         "独孤求败站在门前，没有立刻拔剑。他知道若再顺着那股本能冲出去，就只是替别人把局走完。",
     )
 
-    protagonist_card = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "独孤求败.json"
+    protagonist_card = tmp_path / "1-设定" / "2-角色卡" / "主要角色" / "独孤求败.json"
     protagonist_card.parent.mkdir(parents=True, exist_ok=True)
     protagonist_card.write_text(
         json.dumps(
@@ -523,7 +523,7 @@ def test_character_validator_fails_when_growth_enabled_but_text_drops_all_growth
         "独孤求败走进院中，只与众人争执了一番，随后便转身离去。",
     )
 
-    protagonist_card = tmp_path / "1-Cards" / "2-角色卡" / "主要角色" / "独孤求败.json"
+    protagonist_card = tmp_path / "1-设定" / "2-角色卡" / "主要角色" / "独孤求败.json"
     protagonist_card.parent.mkdir(parents=True, exist_ok=True)
     protagonist_card.write_text(
         json.dumps(

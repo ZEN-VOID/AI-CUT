@@ -280,10 +280,10 @@ def main() -> None:
     p_preflight.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
     p_preflight.set_defaults(func=cmd_preflight)
 
-    p_cards_check = sub.add_parser("cards-check", help="校验 1-Cards 的覆盖率与结构完整性")
+    p_cards_check = sub.add_parser("cards-check", help="校验 1-设定 的覆盖率与结构完整性")
     p_cards_check.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
 
-    p_cards_write = sub.add_parser("cards-write", help="写入 1-Cards 正式 JSON 产物并补齐 trace 字段")
+    p_cards_write = sub.add_parser("cards-write", help="写入 1-设定 正式 JSON 产物并补齐 trace 字段")
     p_cards_write.add_argument("--data", required=True, help="cards payload，支持 JSON 字符串或 @payload.json")
     p_cards_write.add_argument("--run-gate", action="store_true", help="写入后立即执行 cards-check 并回填 gate_summary")
     p_cards_write.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")

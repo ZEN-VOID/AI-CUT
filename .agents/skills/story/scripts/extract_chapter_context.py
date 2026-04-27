@@ -208,7 +208,7 @@ def _build_rag_query(outline: str, chapter_num: int, min_chars: int, max_chars: 
 
 
 def _load_protagonist_growth_snapshot(project_root: Path) -> Dict[str, Any]:
-    protagonist_dir = project_root / "1-Cards" / "2-角色卡" / "主要角色"
+    protagonist_dir = project_root / "1-设定" / "2-角色卡" / "主要角色"
     if not protagonist_dir.is_dir():
         return {}
 

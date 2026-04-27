@@ -575,7 +575,7 @@ def _covenant_issues(ctx: dict[str, Any], *, role_id: str = "context-agent") -> 
     issues: list[dict[str, Any]] = []
     owner_map = {
         "draft_snapshot": "3-初稿",
-        "cards_truth": "1-Cards",
+        "cards_truth": "1-设定",
         "planning_truth": "2-卷章规划",
         "init_truth": "0-初始化",
         "runtime_context": "STATE",
@@ -1029,7 +1029,7 @@ def _run_logic(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validati
                 description="上游真源已声明规则存在代价/限制，但正文在触发破例动作时没有体现对应成本。",
                 suggestion="补足触发条件、代价或先例解释；若上游规则本身冲突，改走 source-contract 修复。",
                 rework_target_step="1-单章叙事起盘",
-                source_layer_owner="1-Cards",
+                source_layer_owner="1-设定",
             )
         )
 

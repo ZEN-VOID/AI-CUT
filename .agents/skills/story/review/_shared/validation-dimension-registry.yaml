@@ -10,7 +10,7 @@ policies:
     step_failure_order:
       - "优先在当前 step 本地修复后重跑当前 hook"
       - "若 issue 指向更早 step，则回退到最早受影响 step 并从该 step onward 重跑"
-      - "若 issue 指向 source_layer_owner=0-初始化|1-Cards|2-卷章规划，则立即停止 drafting，转 source-contract 修复"
+      - "若 issue 指向 source_layer_owner=0-初始化|1-设定|2-卷章规划，则立即停止 drafting，转 source-contract 修复"
     candidate_final_gate: "8-润色完成且该 step 对应 inline hooks 全部通过"
   final_acceptance:
     final_pass_gate: "仅当 review 聚合 JSON 判定 PASS 时，当前章才算 validated final draft"
@@ -84,7 +84,7 @@ dimensions:
     default_rework_targets:
       - "1-单章叙事起盘"
     upstream_source_owners:
-      - "1-Cards"
+      - "1-设定"
       - "2-卷章规划"
   - role_id: "character-validator"
     dimension: "character"
@@ -112,7 +112,7 @@ dimensions:
       - "5-对白优化"
       - "6-心理活动描写"
     upstream_source_owners:
-      - "1-Cards"
+      - "1-设定"
   - role_id: "timeline-validator"
     dimension: "timeline"
     skill_path: ".agents/skills/story/review/时间线"

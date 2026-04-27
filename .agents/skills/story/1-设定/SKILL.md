@@ -1,6 +1,7 @@
 ---
 name: story-cards
-governance_tier: full
+governance_tier: lite
+skill_role: parent_guide
 description: |
   Use when story2026 needs the 1-设定 skill-group guide: route setting tasks to character, scene, and item child skills while consuming global, style, and genre truth from north_star.yaml.
 tools: [Read, Write, Edit, Grep, Bash]
@@ -74,6 +75,13 @@ color: amber
 
 若请求同时命中多个对象，优先用依赖链判断顺序，而不是按技能目录名称判断。
 
+## Input Contract
+
+- Accepted input: 角色卡、场景卡、物品卡生成/修复/覆盖率修复，或父子 card 合同、writer、validator、模板一致性修复。
+- Required input: 项目根 `projects/story/<项目名>/`，本轮对象范围，或能定位到具体 child skill 的卡片修复 finding。
+- Optional input: `0-初始化/north_star.yaml`、`MEMORY.md`、项目 `CONTEXT/`、既有 `1-设定/**/*.json`、coverage 报告。
+- Reject or reroute when: 全局设定、整书风格、题材方向盘请求应回到 `0-初始化/north_star.yaml`；章节规划和正文写作不得由本阶段直接产出。
+
 ## Shared Runtime Contract
 
 正式写回和验证默认经由共享脚本辅助完成：
@@ -91,6 +99,22 @@ color: amber
 - 生成 gate 报告
 
 脚本不得生成核心创作正文、审美判断、故事判断或对象成立理由。
+
+## Reference Loading Guide
+
+| 场景 | 读取文件 |
+| --- | --- |
+| 父层路由与依赖 | 本文件 `Mode Selection`、`Shared Runtime Contract` 与 `CONTEXT.md` |
+| 角色对象 | `角色卡/SKILL.md`、`角色卡/CONTEXT.md`、`角色卡/references/`、`角色卡/templates/` |
+| 场景对象 | `场景卡/SKILL.md`、`场景卡/CONTEXT.md`、`场景卡/references/`、`场景卡/templates/` |
+| 物品对象 | `物品卡/SKILL.md`、`物品卡/CONTEXT.md`、`物品卡/references/`、`物品卡/templates/` |
+| 父层判型 | 本文件 `Mode Selection` 与 `CONTEXT.md` Type Map |
+| 父层门禁 | `cards_coverage_validator.py` 与子技能 `review/` |
+| 经验层 | `CONTEXT.md` |
+| 输出摘要 | 对话或用户指定 `reports/` 路径 |
+| 机械写回/校验 | 共享 `.agents/skills/story/scripts/cards_writer.py` 与 `cards_coverage_validator.py` |
+| 产品侧入口 | `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；对象模板、类型包、局部 review 和字段细则归 `角色卡/`、`场景卡/`、`物品卡/` 子技能 |
 
 ## Canonical Output Root
 
@@ -129,7 +153,7 @@ projects/story/<项目名>/1-设定/
 | dependency gate | 物品卡没有绕过角色接口与场景规则 |
 | coverage gate | 数量、结构、密度、规则刚性和 route parity 通过验证 |
 
-## Root-Cause Contract
+## Root-Cause Execution Contract
 
 非平凡问题必须沿链路上溯：
 
@@ -150,6 +174,15 @@ projects/story/<项目名>/1-设定/
 - 验证结果
 - 仍需用户裁决的创作选择
 
+## Field Mapping
+
+| field_id | owner | required_output | fail_code |
+| --- | --- | --- | --- |
+| `FIELD-CARDS-ROUTE` | 父层路由 | 命中的 child skill 列表与执行顺序 | `FAIL-CARDS-ROUTE` |
+| `FIELD-CARDS-CONTEXT` | 父层加载 | 父层、项目和 child `CONTEXT.md` 加载证据 | `FAIL-CARDS-CONTEXT` |
+| `FIELD-CARDS-WRITEBACK` | writer | `1-设定/` 下正式 JSON/Markdown refs | `FAIL-CARDS-WRITEBACK` |
+| `FIELD-CARDS-GATE` | review/validator | coverage 与 route parity 结论 | `FAIL-CARDS-GATE` |
+
 ## Completion Contract
 
 一次 `1-设定` 任务完成时，父层只交付一套收束结果：
@@ -158,3 +191,11 @@ projects/story/<项目名>/1-设定/
 - gate / validation 结论。
 - 对未处理对象的明确边界说明。
 - 若发生降级或跳过子技能，说明原因和影响。
+
+## Output Contract
+
+- Required output: 命中的角色/场景/物品 cards、相关合同修复摘要，或 coverage repair 结果。
+- Output format: JSON card payload、Markdown 图谱/报告，或 `templates/output-template.md` 对齐的父层摘要。
+- Output path: 正式业务输出只写入 `projects/story/<项目名>/1-设定/` 下的对应 child root。
+- Naming convention: 文件名遵循 child skill 命名合同；父层报告使用 kebab-case 日期后缀。
+- Completion gate: 已实际调度的 child skill 完成写回，未调度对象不补占位，writer 与 coverage/review gate 无 blocking finding。

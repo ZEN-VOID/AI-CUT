@@ -9,6 +9,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair i
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 本技能只负责物品对象判断与正式物品卡 payload，不替父层承担总线路由与最终 gate。
 
 ## Overview
@@ -28,7 +29,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair i
 | analysis_slot | 当前结论 |
 | --- | --- |
 | `business_goal` | 把“有名字的道具”收束成“有剧情杠杆、有归属链、有代价”的正式物品卡。 |
-| `business_object` | `1-Cards/4-物品卡/**/*.json`、`ownership_links`、`exclusive_item_hooks` 的下游消费。 |
+| `business_object` | `1-设定/4-物品卡/**/*.json`、`ownership_links`、`exclusive_item_hooks` 的下游消费。 |
 | `constraint_profile` | 物品卡不能绕过角色接口和场景规则自说自话。 |
 | `success_criteria` | 每张物品卡都能回答属于谁、怎样启用、付什么代价、为什么非它不可。 |
 
@@ -64,7 +65,7 @@ flowchart LR
 
 - `0-初始化/north_star.yaml`
 - `0-初始化/init_handoff.yaml`
-- 既有 `1-Cards/4-物品卡/**/*.json`（若存在）
+- 既有 `1-设定/4-物品卡/**/*.json`（若存在）
 - mixed/full-build 时来自角色卡的 `exclusive_item_hooks`
 - mixed/full-build 时来自场景卡的 `rule_and_risk`
 
@@ -131,8 +132,8 @@ flowchart LR
 
 ## Output Contract
 
-- Required output: `projects/story/<项目名>/1-Cards/4-物品卡/**/*.json` 中的正式物品卡 payload。
+- Required output: `projects/story/<项目名>/1-设定/4-物品卡/**/*.json` 中的正式物品卡 payload。
 - Output format: 使用 `templates/item-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
-- Output path: 正式业务输出只写入项目根 `1-Cards/4-物品卡/`。
+- Output path: 正式业务输出只写入项目根 `1-设定/4-物品卡/`。
 - Naming convention: 物品卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
 - Completion gate: 父层 `cards_writer.py` 写回成功，物品代价与角色/场景上游接口一致，coverage / review gate 无 blocking finding。
