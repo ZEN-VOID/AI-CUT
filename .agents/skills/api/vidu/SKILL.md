@@ -38,7 +38,7 @@ version: "v1.0"
 - 统一脚本入口：
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py [subcommand] [参数]
+python3 .agents/skills/api/vidu/scripts/vidu_video.py [subcommand] [参数]
 ```
 
 ## 2. 目录与模块约定
@@ -179,7 +179,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py [subcommand
 ### 7.1 文生视频
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py create \
   --mode text2video \
   --model viduq3-turbo \
   --prompt "赛博雨夜中的角色缓慢回头，霓虹倒影，电影级镜头运动" \
@@ -191,7 +191,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
 ### 7.2 图生视频
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py create \
   --mode img2video \
   --model viduq3-pro-fast \
   --image ./first-frame.png \
@@ -202,7 +202,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
 ### 7.3 首尾帧生视频
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py create \
   --mode start-end2video \
   --model viduq3-pro \
   --image ./start.png \
@@ -213,7 +213,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
 ### 7.4 复杂模式走 JSON 真源
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py create \
   --mode reference2video \
   --input-json /abs/path/reference2video.json \
   --wait \
@@ -223,7 +223,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
 ### 7.5 查询任务并下载生成物
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py task \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py task \
   --task-id your_task_id \
   --download-on-complete
 ```
@@ -231,7 +231,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py task \
 ### 7.6 查询任务列表
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py list \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py list \
   --state success \
   --pagesz 20
 ```
@@ -239,21 +239,21 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py list \
 ### 7.7 取消任务
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py cancel \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py cancel \
   --task-id your_task_id
 ```
 
 ### 7.8 查询积分
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py credits \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py credits \
   --show-detail
 ```
 
 ### 7.9 校验回调签名
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py verify-callback \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py verify-callback \
   --callback-url "https://example.com/vidu/callback?scene=demo" \
   --http-method POST \
   --date "Tue, 06 May 2025 12:09:42 GMT" \
@@ -278,16 +278,16 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py verify-call
 
 ## 9. 参考模块
 
-- 总览：`.agents/skills/api/vidu/video-generate/references/overview.md`
-- 参考生：`.agents/skills/api/vidu/video-generate/references/reference-to-video.md`
-- 文生视频：`.agents/skills/api/vidu/video-generate/references/text-to-video.md`
-- 图生视频：`.agents/skills/api/vidu/video-generate/references/image-to-video.md`
-- 首尾帧：`.agents/skills/api/vidu/video-generate/references/start-end-to-video.md`
-- 智能多帧：`.agents/skills/api/vidu/video-generate/references/multi-frame.md`
-- 场景特效模板：`.agents/skills/api/vidu/video-generate/references/template.md`
-- 模板成片：`.agents/skills/api/vidu/video-generate/references/template-story.md`
-- 任务管理：`.agents/skills/api/vidu/video-generate/references/task-management.md`
-- 回调签名：`.agents/skills/api/vidu/video-generate/references/callback-signature.md`
+- 总览：`.agents/skills/api/vidu/references/overview.md`
+- 参考生：`.agents/skills/api/vidu/references/reference-to-video.md`
+- 文生视频：`.agents/skills/api/vidu/references/text-to-video.md`
+- 图生视频：`.agents/skills/api/vidu/references/image-to-video.md`
+- 首尾帧：`.agents/skills/api/vidu/references/start-end-to-video.md`
+- 智能多帧：`.agents/skills/api/vidu/references/multi-frame.md`
+- 场景特效模板：`.agents/skills/api/vidu/references/template.md`
+- 模板成片：`.agents/skills/api/vidu/references/template-story.md`
+- 任务管理：`.agents/skills/api/vidu/references/task-management.md`
+- 回调签名：`.agents/skills/api/vidu/references/callback-signature.md`
 
 ## 10. Root-Cause Trace
 
@@ -295,7 +295,7 @@ python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py verify-call
 
 `Symptom / Failure`
 -> `Direct Technical Cause`
--> `Rule Source`: `.agents/skills/api/vidu/video-generate/SKILL.md`、`scripts/vidu_video.py`、对应 `references/*.md`
+-> `Rule Source`: `.agents/skills/api/vidu/SKILL.md`、`scripts/vidu_video.py`、对应 `references/*.md`
 -> `Meta Rule Source`: 根 `AGENTS.md`
 -> `Fix Landing Points`
 

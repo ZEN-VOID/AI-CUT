@@ -8,7 +8,7 @@
 | Output format | Markdown with required headings, six-beat rhythm, mission lines, closure, avoidances, and Mermaid rhythm graph |
 | Output path | `projects/story/<项目名>/2-卷章/第N卷/卷规划.md` |
 | Naming convention | Directory `第N卷`; file name `卷规划.md` |
-| Completion gate | Upstream `整体规划.md` loaded; required headings complete; six-beat rhythm and Mermaid present; mission line includes upstream/downstream aggregation |
+| Completion gate | Upstream `整体规划.md` loaded; required headings complete; six-beat rhythm, `volume_orchestration_map`, and Mermaid present; mission line includes upstream/downstream aggregation |
 
 卷标题：
 
@@ -33,6 +33,12 @@
   - 反拧章节：
   - 冲顶章节：
   - 交接章节：
+- `volume_orchestration_map`：
+  - `chapter_payoff_map`：
+  - `chapter_intensity_map`：
+  - `respite_chapters`：
+  - `pressure_chapters`：
+  - `handoff_to_chapter_level`：
 
 ```mermaid
 flowchart TD

@@ -160,7 +160,7 @@ flowchart TD
 | --- | --- | --- |
 | 根级 `story2026` | 跨阶段拓扑、总路由、共享载体边界、默认加载顺序 | 各阶段内部执行细则、局部 reference 专业判断 |
 | `0-初始化` | 立项合同、`0-初始化/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
-| `1-设定` | 类型/角色/场景/物品等对象真源 | 章节编排真源、章节审查判断 |
+| `1-设定` | 类型/角色/场景/物品/技能等对象真源 | 章节编排真源、章节审查判断 |
 | `2-卷章` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
 | `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 父级导引层选择 A/B/C provider lane 执行；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
 | `review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `review/第V卷.validation.json` 聚合 gate、审查报告与状态持久化 | actualization 写回 |

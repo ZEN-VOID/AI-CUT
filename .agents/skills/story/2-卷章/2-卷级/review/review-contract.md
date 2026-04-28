@@ -13,7 +13,7 @@
 flowchart TD
     A["读取卷规划.md"] --> B["检查上游锚点"]
     B --> C["检查 required headings"]
-    C --> D["检查六拍节奏与 Mermaid"]
+    C --> D["检查六拍节奏、配器表与 Mermaid"]
     D --> E["检查人物/场景/道具/任务线"]
     E --> F["检查卷末达成与规避"]
     F --> G{"verdict"}
@@ -29,7 +29,8 @@ flowchart TD
 | headings | 是否包含 `references/volume-planning-contract.md` 的 11 个 required headings |
 | chapter_partition | `章划分` 是否说明每章功能，而不是只列章名 |
 | conflict | 是否包含主冲突、副冲突、升级机制与卷末状态 |
-| rhythm | 是否使用六拍、章节职责分配和 Mermaid 图 |
+| rhythm | 是否使用六拍、章节职责分配、`volume_orchestration_map` 和 Mermaid 图 |
+| orchestration | 是否包含 `volume_orchestration_map`，并写清章节 payoff、强度、respite/pressure 与章级 handoff |
 | resources | 人物、场景、道具是否为本卷最小可执行投影 |
 | mission | 是否写清 `上承部级主任务 / 主线 / 支线 / 支流角色 / 下钻章级任务分配 / 汇聚回主线` |
 | planning_only | 是否避免正文、对白和章级 pack/mode 越权 |
@@ -48,7 +49,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream | headings | rhythm | mission | resources | planning_only
+  dimension: upstream | headings | rhythm | orchestration | mission | resources | planning_only
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -61,6 +62,7 @@ finding:
 
 - 缺 `整体规划.md` 或无法确定目标卷职责。
 - 缺任一 required heading。
-- `本卷节奏曲线` 没有六拍或 Mermaid 图。
+- `本卷节奏曲线` 没有六拍、`volume_orchestration_map` 或 Mermaid 图。
+- 缺 `volume_orchestration_map`，或没有写清 `chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`。
 - `本卷任务线` 没有上承部级主任务或汇聚回主线。
 - 输出包含正文段落、对白或章级 `selected_pack / selected_mode` 决策。

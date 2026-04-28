@@ -3,7 +3,7 @@
 """
 Formal writer for story2026 1-设定 outputs.
 
-The writer turns normalized character, scene, and item payloads into canonical
+The writer turns normalized character, scene, item, and skill payloads into canonical
 JSON files under `1-设定/`, while stamping the trace contract required by 1-设定:
 - `content.module_route`
 - `content.loaded_references`
@@ -112,11 +112,40 @@ SECTION_SPECS: Dict[str, Dict[str, Any]] = {
         },
         "link_fields": ("ownership_links", "exclusive_item_hooks"),
     },
+    "skills": {
+        "kind": "skill",
+        "schema_key": "skill_card",
+        "template_name": "skill-card.json",
+        "source_skill_id": "story-cards-skill",
+        "child_skill_path": "技能卡/SKILL.md",
+        "child_context_path": "技能卡/CONTEXT.md",
+        "child_template_path": "技能卡/templates/skill-card.json",
+        "source_route": "0-初始化 > story-cards > 技能卡/SKILL.md",
+        "module_route": "story-cards > 技能卡/SKILL.md",
+        "index_rel": Path("1-设定") / "5-技能卡" / "技能索引.json",
+        "bucket_dirs": {
+            "technology_systems": "科技",
+            "spells_abilities": "法术异能",
+            "martial_arts": "武功",
+            "combat_operations": "作战技能",
+            "life_talents": "生活才艺",
+            "professional_skills": "专业技能",
+        },
+        "bucket_labels": {
+            "technology_systems": "technology_systems",
+            "spells_abilities": "spells_abilities",
+            "martial_arts": "martial_arts",
+            "combat_operations": "combat_operations",
+            "life_talents": "life_talents",
+            "professional_skills": "professional_skills",
+        },
+        "link_fields": ("skill_links", "progression_hooks"),
+    },
 }
 
 VALID_MODES = {"full-build", "incremental-writeback", "coverage-repair", "source-contract-fix"}
 DEPRECATED_NORTH_STAR_SECTIONS = ("globals", "styles", "types")
-FULL_BUILD_REQUIRED_SECTIONS = ("characters", "scenes", "items")
+FULL_BUILD_REQUIRED_SECTIONS = ("characters", "scenes", "items", "skills")
 
 
 def _load_json(path: Path) -> Dict[str, Any]:
@@ -234,7 +263,7 @@ def _require_valid_payload(payload: Dict[str, Any], sections: Dict[str, Dict[str
     if mode == "full-build":
         missing = [name for name in FULL_BUILD_REQUIRED_SECTIONS if name not in sections]
         if missing:
-            raise ValueError(f"`full-build` 必须同时提供 characters/scenes/items；当前缺少: {missing}")
+            raise ValueError(f"`full-build` 必须同时提供 characters/scenes/items/skills；当前缺少: {missing}")
     return mode
 
 
@@ -701,6 +730,7 @@ def write_cards_payload(project_root: Path, payload: Dict[str, Any], *, run_gate
             "characters": "characters",
             "scenes": "scenes",
             "items": "items",
+            "skills": "skills",
         }
         for section_name, report_key in section_to_report_key.items():
             if section_name not in sections:

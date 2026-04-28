@@ -27,6 +27,7 @@
 - 运行上下文：`CONTEXT.md`
 - 核心规则：`references/script-adaptation-contract.md`
 - 字段与声画：`references/field-routing-and-audio-visual-contract.md`
+- 高潮画面：`references/climax-visual-treatment-contract.md`
 - 流程：`steps/directing-workflow.md`
 - 验收：`review/review-contract.md`
 - 输出模板：`templates/output-template.md`

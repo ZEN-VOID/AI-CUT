@@ -62,6 +62,7 @@ Reject or clarify when:
 | --- | --- | --- |
 | `single_prop` | 指定一个道具主体 | 单个道具细目设计 Markdown |
 | `batch_from_inventory` | 指定项目或默认处理全部清单 | 每个道具主体一个 Markdown 文件 |
+| `incremental_fill` | 上游清单 merge 后存在新增道具或 `design-manifest.yaml` 标出 `design_gaps` | 只为缺设计稿的道具补齐设计，不覆盖既有设计稿 |
 | `repair` | 既有细目缺字段、提示词超长、上下游不一致或设计漂移 | 最小修复后的对应道具文件 |
 | `review_only` | 用户只要求检查道具设计 | 审查报告或 findings；不改写文件，除非用户随后要求修复 |
 
@@ -70,6 +71,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意道具细目设计任务 | `references/prop-design-contract.md`、`steps/prop-design-workflow.md` |
+| 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 类型分流、冷门考据、规则道具或状态版本 | `types/prop-design-type-map.md`、`knowledge-base/prop-design-heuristics.md` |
 | 验收、修复和 reviewer 汇流 | `review/review-contract.md` |
 | 输出道具细目样板 | `templates/output-template.md` |
@@ -131,12 +133,13 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
-2. 锁定上游 `1-清单/道具清单.md` 的道具主体；只对被指定或被调度的主体生成细目，不为空置主体补占位文件。
-3. 读取 `north_star.yaml` 与 `team.yaml`，提取全局风格提示词、项目北极星、视觉禁区、设计相关大师监制上下文。
-4. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
-5. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
-6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`；不改写父级 registry、`1-清单` 或 `3-生成`。
-7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。
+2. 锁定上游 `1-清单/道具清单.md` 的道具主体，并读取可选 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`；只对被指定、被调度或 manifest 标记为 `design_gaps` 的主体生成细目，不为空置主体补占位文件。
+3. 已有设计稿默认跳过，除非用户明确要求 repair / regenerate；清单主体被归并到已有主体时，只记录 alias merge，不新建设计稿。
+4. 读取 `north_star.yaml` 与 `team.yaml`，提取全局风格提示词、项目北极星、视觉禁区、设计相关大师监制上下文。
+5. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
+6. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
+7. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
+8. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。
 
 ## Field Mapping
 
@@ -144,6 +147,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-PROP-DESIGN-01` | 输入取证 | 上游清单、项目记忆、north_star、team 和处理范围明确 | `FAIL-PROP-DESIGN-01` |
 | `FIELD-PROP-DESIGN-02` | 单主体边界 | 每个文件只设计一个道具主体，不混入角色、场景或其他道具总稿 | `FAIL-PROP-DESIGN-02` |
+| `FIELD-PROP-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-PROP-DESIGN-02A` |
 | `FIELD-PROP-DESIGN-03` | 必填章节 | 名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计齐全 | `FAIL-PROP-DESIGN-03` |
 | `FIELD-PROP-DESIGN-04` | 监制上下文 | 设计相关大师、全局风格和项目北极星被实际消费而非只贴名 | `FAIL-PROP-DESIGN-04` |
 | `FIELD-PROP-DESIGN-05` | 提示词约束 | 英文提示词引用全局风格提示词 + 物品风格，且 2000 字符内 | `FAIL-PROP-DESIGN-05` |
@@ -158,6 +162,7 @@ stateDiagram-v2
 
 - 脚本、模板或正则拼接替代 LLM 生成研究、物语、解构或提示词正文。
 - 道具细目没有从 `1-清单` 取证，或擅自新增上游不存在的道具主体。
+- 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有道具设计稿。
 - 未读取 `north_star.yaml` / `team.yaml` 却声称已经使用全局风格和大师监制上下文。
 - 提示词没有英文输出、没有引用全局风格提示词与物品风格，或超过 2000 字符。
 - 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景或人物手持情境，而不是纯色背景 45 度近景特写。
@@ -179,6 +184,7 @@ stateDiagram-v2
 4. `解构` 必须同时包含 `Photography` 与 `Prop Design` 字段。
 5. `提示词设计` 必须包含对全局风格提示词的引用、物品风格说明、prompt evidence chain 和英文 prompt；英文 prompt 控制在 2000 字符内。
 6. 画面固定为纯色背景、单道具近景特写、45 度视角，不得置身具体场景或人物手持情境。
+7. 可选更新 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
 ### Output format
 
@@ -193,17 +199,20 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-PROP-DESIGN` | `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md` |
 | `OUTPUT-PROP-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/道具/2-设计/执行报告.md` |
+| `OUTPUT-PROP-MANIFEST` | `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml` |
 
 ### Naming convention
 
 - `<安全文件名>` 优先使用清单中的 `名称`，去除路径分隔符、控制字符和不适合文件系统的符号。
 - 同名或多状态道具使用 `<名称>-<首次登场ID>` 或 `<名称>-<状态>` 区分。
+- 已有 `<安全文件名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
 - 不创建 `props.md`、`prop-design.md`、`道具设计总稿.md` 作为平行主真源。
 
 ### Completion gate
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
 - 每个输出文件都能回指 `1-清单/道具清单.md` 的具体道具项。
+- 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - `north_star.yaml` 与 `team.yaml` 的全局风格、项目主题和设计相关大师监制上下文已被实际消费；缺失项已显式标注。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。

@@ -114,6 +114,7 @@ flowchart TD
   - `1-设定/2-角色卡/**/*.json`
   - `1-设定/3-场景卡/**/*.json`
   - `1-设定/4-物品卡/**/*.json`
+  - `1-设定/5-技能卡/**/*.json`
 - 北极星：`0-初始化/north_star.yaml`
 
 ### Conditional Input

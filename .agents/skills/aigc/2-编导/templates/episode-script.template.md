@@ -11,6 +11,7 @@ adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
 audio_visual_pairing: required
 slugline_policy: stable_by_location_time
+peak_visual_policy: strengthen_existing_source_payoff
 ---
 
 【剧本正文】
@@ -29,4 +30,6 @@ slugline_policy: stable_by_location_time
 
 音效（来源）：“<声音本体>”
 音效画面：<声音源头、人物反应、空间承托或不可见来源处理。>
+
+道具特写：<当上游存在高潮/爽点/高光成分时，用道具、规则、身体反应、空间状态或群体反应承托高点；不得新增剧情事实。>
 ```

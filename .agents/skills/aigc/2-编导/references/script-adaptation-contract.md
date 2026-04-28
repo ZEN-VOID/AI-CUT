@@ -104,6 +104,7 @@ adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
 audio_visual_pairing: required
 slugline_policy: stable_by_location_time
+peak_visual_policy: strengthen_existing_source_payoff
 ---
 ```
 

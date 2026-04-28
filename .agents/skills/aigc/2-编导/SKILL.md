@@ -19,6 +19,16 @@ metadata:
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
 
+## Multi-Subskill Continuous Workflow
+
+当本主技能包被整体调用时，视为用户已授权按本级声明的同级子技能包、阶段分区或内部连续节点自动完成整个技能组任务；在满足本技能必要输入、显式选择和安全门后，不再为“是否继续下一步”额外确认。
+
+- 无序号同级子技能包默认全选并发执行，由本主技能包汇总、裁决和写回唯一 canonical 输出。
+- 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
+- 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 连续调度不得绕过本技能的阻断门：缺少必需输入、上游正文不可读、破坏性覆盖未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
+- 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 剧本化判断或父级最终裁决。
+
 ## Input Contract
 
 Accepted input:
@@ -61,6 +71,7 @@ Reject or clarify when:
 | --- | --- |
 | 任意编导任务 | `references/script-adaptation-contract.md`、`steps/directing-workflow.md` |
 | 字段分流、声画配对、对白冻结 | `references/field-routing-and-audio-visual-contract.md` |
+| 高潮画面识别与重点强化 | `references/climax-visual-treatment-contract.md` |
 | 好莱坞级编剧创作质量细则 | `references/hollywood-quality-spec.md` |
 | 判断输入类型与改编策略 | `types/source-to-script-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
@@ -107,6 +118,7 @@ Reject or clarify when:
 - 对白逐字保真；引号内没有动作描写。
 - 声画字段就近配对：`对白 -> 对白画面`、`独白/内心独白 -> 独白画面/内心独白画面`、`旁白 -> 旁白画面`、`音效 -> 音效画面`。
 - 每个场景至少有一条正式剧本画面字段；`动作画面` 只写可拍摄身体动作或空间运动。
+- 上游存在高潮画面成分时，必须执行 `peak_visual_pass`：识别 1-3 个高点或最强 `micro_payoff`，并把强化结果落入既有正式画面/声音/表演字段，不新增剧情事实或对白。
 - 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，且同一 slugline 不重复开新场景。
 - 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review，结果写入 `执行报告.md`。
 
@@ -130,10 +142,12 @@ flowchart TD
     B -->|"声音/对白/系统提示"| D["声音字段 + 对应画面字段"]
     B -->|"主观经验/恐惧/判断"| E["独白 / 心理反应 / 表演提示"]
     B -->|"规则/道具/系统文字"| F["道具特写 / 规则显影 / 系统画面"]
+    B -->|"高潮/爽点/高光成分"| H["peak visual pass -> 既有画面/声音/表演字段强化"]
     C --> G["场景内顺序承接"]
     D --> G
     E --> G
     F --> G
+    H --> G
 ```
 
 ## Execution Rules
@@ -142,6 +156,7 @@ flowchart TD
 - `2-编导` 是 `1-分集` 的影视剧本化结构投影，不得压缩、摘要、删减剧情事实或自由改写剧情因果。
 - 除新增 frontmatter、`【剧本正文】`、场景标题与字段标签外，必须完整承接上游原文信息量和顺序。
 - 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
+- 高潮画面处理以 `references/climax-visual-treatment-contract.md` 为准；其职责是识别并强化上游已存在的满足兑现点，不得制造新的事件、对白或因果。
 - 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
 
 ## Script And Metadata Contract
@@ -163,6 +178,7 @@ flowchart TD
 | `FIELD-DIRECT-05` | 字段纯度 | 声音字段只写可听文本或声音本体，画面字段只写可见画面 | `FAIL-DIRECT-05` |
 | `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演和镜头预设清晰 | `FAIL-DIRECT-06` |
 | `FIELD-DIRECT-07` | 输出落盘 | `2-编导/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-DIRECT-07` |
+| `FIELD-DIRECT-08` | 高潮画面 | 上游高点或最强 `micro_payoff` 被识别并落入可拍字段，无新增事实 | `FAIL-DIRECT-08` |
 
 ## Thought Pass Map
 
@@ -171,8 +187,9 @@ flowchart TD
 | `PASS-DIRECT-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、CONTEXT | 是否具备可承接逐集正文与目标集号 | `input_lock` |
 | `PASS-DIRECT-02` | 场景解析 | 上游正文与场景线索 | slugline、场景编号和场景顺序是否稳定 | `scene_map` |
 | `PASS-DIRECT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
-| `PASS-DIRECT-04` | LLM 剧本化投影 | `field_routing_plan` 与上游正文 | 是否完整承接事实、顺序和对白 | `episode_script` |
-| `PASS-DIRECT-05` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景和输出门禁 | `review_result` |
+| `PASS-DIRECT-04` | 高潮画面处理 | `field_routing_plan` 与上游正文 | 是否存在高潮/爽点/高光成分，是否需要强化为可拍字段 | `peak_visual_plan` |
+| `PASS-DIRECT-05` | LLM 剧本化投影 | `field_routing_plan`、`peak_visual_plan` 与上游正文 | 是否完整承接事实、顺序、对白和高点承托 | `episode_script` |
+| `PASS-DIRECT-06` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景、高潮画面和输出门禁 | `review_result` |
 
 ## Pass Table
 
@@ -181,8 +198,9 @@ flowchart TD
 | `PASS-DIRECT-01` | 上游逐集正文、项目记忆和目标集号明确 | `FAIL-DIRECT-01` | `Input Contract` |
 | `PASS-DIRECT-02` | 场景标题使用稳定编号和好莱坞 slugline | `FAIL-DIRECT-02` | `references/script-adaptation-contract.md` |
 | `PASS-DIRECT-03` | 声画字段分流纯净且就近配对 | `FAIL-DIRECT-04` | `references/field-routing-and-audio-visual-contract.md` |
-| `PASS-DIRECT-04` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
-| `PASS-DIRECT-05` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
+| `PASS-DIRECT-04` | 上游高点被识别，且强化不新增事实、对白或因果 | `FAIL-DIRECT-08` | `references/climax-visual-treatment-contract.md` |
+| `PASS-DIRECT-05` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
+| `PASS-DIRECT-06` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -193,6 +211,7 @@ flowchart TD
 - `动作画面` 混入心理解释、章节名、抽象判断或“没有人知道”类叙述句。
 - 声音字段与画面字段混写，或没有就近配对。
 - 同一 slugline 因叙事 beat 变化反复开新场景。
+- 上游存在明显高潮/爽点/高光成分，但编导稿把它压平成普通叙述，或为了强化高点新增事实、对白、事件结果。
 - 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
 
 必经链路：

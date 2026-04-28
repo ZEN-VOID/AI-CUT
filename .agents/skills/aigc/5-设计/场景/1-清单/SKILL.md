@@ -53,6 +53,7 @@ Reject or clarify when:
 | `single_episode` | 指定单个 `第N集.md` 或单个集号 | 更新后的 `场景清单.md` 与可选报告 |
 | `episode_range` | 指定多个集号或集号范围 | 汇总归并后的 `场景清单.md` 与可选报告 |
 | `all_grouped_episodes` | 未指定集号但 `4-分组/` 下有 `第N集.md` | 全部可读集的场景清单 |
+| `incremental_merge` | 既有 `场景清单.md` 存在，且 `4-分组` 新增/更新了部分 `第N集.md` | merge 更新清单、执行报告与可选 `design-manifest.yaml` |
 | `repair` | 已有清单存在重复、误合、漏项、字段不齐或首次登场错误 | 最小修复后的 `场景清单.md` 与风险说明 |
 | `review_only` | 用户只要求检查场景清单 | 审查报告，不改写清单，除非用户随后要求修复 |
 
@@ -61,6 +62,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意场景清单任务 | `references/source-and-merge-contract.md`、`steps/scene-list-workflow.md` |
+| 既有清单与新增上游对账 | `../../references/incremental-reconciliation-contract.md` |
 | 别名、代称、同地点不同区域/时段处理 | `types/scene-type-map.md` |
 | 输出质量审查与风险报告 | `review/review-contract.md` |
 | 输出样板 | `templates/output-template.md` |
@@ -120,13 +122,14 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目根 `MEMORY.md` 与相关 `CONTEXT/` 文件。
-2. 锁定输入集号与 `projects/aigc/<项目名>/4-分组/第N集.md` 文件，只从每个分镜组底部 YAML 的 `场景` 字段采集候选场景。
+2. 锁定输入集号与 `projects/aigc/<项目名>/4-分组/第N集.md` 文件；若既有 `场景清单.md` 或 `design-manifest.yaml` 存在，先读取并建立本轮 `reconcile_delta`。
 3. 为每个候选项记录证据：分镜组 ID、集号、场景标题或同组正文关键词；正文和标题只能用于证据回查和命名消歧。
-4. 按 `references/source-and-merge-contract.md` 执行 LLM 归并：识别别名、代称、同一地点不同区域/时段、跨场景或子空间边界。
-5. 按 `types/scene-type-map.md` 为每个候选判断处理类型：直接保留、别名归并、区域拆分、时段合并、跨空间拆分或风险待核。
-6. 输出 table 式 Markdown 清单，主体字段固定为 `名称`、`首次登场`、`原文描述（关键词式）`。
-7. 写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`，并按需写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md`。
-8. 按 `review/review-contract.md` 执行验收；可运行机械校验脚本或人工等价 review，但脚本不得替代 LLM 做归并判断。
+4. 只从每个分镜组底部 YAML 的 `场景` 字段采集候选场景；新增上游只能新增候选或补充证据，不得让旧清单被静默全量覆盖。
+5. 按 `references/source-and-merge-contract.md` 与 `../../references/incremental-reconciliation-contract.md` 执行 LLM 归并：识别别名、代称、同一地点不同区域/时段、跨场景或子空间边界。
+6. 按 `types/scene-type-map.md` 为每个候选判断处理类型：直接保留、别名归并、区域拆分、时段合并、跨空间拆分或风险待核。
+7. merge 写回 table 式 Markdown 清单，主体字段固定为 `名称`、`首次登场`、`原文描述（关键词式）`；首次登场取所有已知来源中最早分镜组。
+8. 写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md`，并按需写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md`；可同步更新 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml` 的 source/subject 映射。
+9. 按 `review/review-contract.md` 执行验收；可运行机械校验脚本或人工等价 review，但脚本不得替代 LLM 做归并判断。
 
 ## Script And Metadata Contract
 
@@ -146,6 +149,7 @@ stateDiagram-v2
 | `FIELD-SCENE-LIST-05` | 表格字段 | 仅使用固定主体字段：`名称`、`首次登场`、`原文描述（关键词式）` | `FAIL-SCENE-LIST-05` |
 | `FIELD-SCENE-LIST-06` | 输出落盘 | canonical 路径存在，报告可选且不替代清单真源 | `FAIL-SCENE-LIST-06` |
 | `FIELD-SCENE-LIST-07` | LLM-first | 脚本没有生成归并、别名裁决或创作性描述 | `FAIL-SCENE-LIST-07` |
+| `FIELD-SCENE-LIST-08` | 增量 merge | 既有清单被读取并对账，新主体追加、旧主体稳定，未静默全量覆盖 | `FAIL-SCENE-LIST-08` |
 
 ## Thought Pass Map
 
@@ -153,10 +157,11 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `PASS-SCENE-LIST-01` | 输入锁定 | 项目路径、目标集号、`4-分组/第N集.md` | 是否具备组底 YAML `场景` 字段和分镜组 ID | `input_manifest` |
 | `PASS-SCENE-LIST-02` | 候选采集 | 逐组 YAML `场景` 字段 | 候选是否只来自上游 YAML，正文/标题是否仅作同组补证 | `scene_candidates` |
-| `PASS-SCENE-LIST-03` | 场景归并 | 候选场景、场景标题、同组正文关键词 | 别名、代称、区域、时段、子空间是否应归并或拆分 | `canonical_scene_map` |
-| `PASS-SCENE-LIST-04` | 首次登场裁决 | canonical 场景与出现顺序 | 最早可回指分镜组 ID 是否准确 | `first_appearance_map` |
-| `PASS-SCENE-LIST-05` | 表格落盘 | canonical 映射与关键词证据 | 三列是否固定且无扩写场景设计稿 | `场景清单.md` |
-| `PASS-SCENE-LIST-06` | 验收回查 | 清单与上游文件 | 来源、归并/拆分、字段和路径是否通过 review gate | `review_result` |
+| `PASS-SCENE-LIST-03` | 增量对账 | 既有清单、manifest、候选场景 | 新主体、归并候选、编号/文件锚点风险是否识别 | `reconcile_delta` |
+| `PASS-SCENE-LIST-04` | 场景归并 | 候选场景、场景标题、同组正文关键词 | 别名、代称、区域、时段、子空间是否应归并或拆分 | `canonical_scene_map` |
+| `PASS-SCENE-LIST-05` | 首次登场裁决 | canonical 场景与出现顺序 | 最早可回指分镜组 ID 是否准确 | `first_appearance_map` |
+| `PASS-SCENE-LIST-06` | 表格落盘 | canonical 映射与关键词证据 | 三列是否固定且无扩写场景设计稿 | `场景清单.md` |
+| `PASS-SCENE-LIST-07` | 验收回查 | 清单与上游文件 | 来源、归并/拆分、字段和路径是否通过 review gate | `review_result` |
 
 ## Pass Table
 
@@ -164,10 +169,11 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `PASS-SCENE-LIST-01` | 读取本技能与项目上下文，锁定 `4-分组` 输入 | input manifest | `references/source-and-merge-contract.md` |
 | `PASS-SCENE-LIST-02` | 只从组底 YAML `场景` 字段采集候选 | 候选清单与分镜组 ID | `steps/scene-list-workflow.md` |
-| `PASS-SCENE-LIST-03` | 由 LLM 裁决别名、区域、时段和子空间归并/拆分 | canonical scene map | `types/scene-type-map.md` |
-| `PASS-SCENE-LIST-04` | 选择最早分镜组作为首次登场 | first appearance map | `review/review-contract.md` |
-| `PASS-SCENE-LIST-05` | 输出固定三列表格 | `场景清单.md` | `templates/output-template.md` |
-| `PASS-SCENE-LIST-06` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
+| `PASS-SCENE-LIST-03` | 对既有清单和新增上游执行 merge 对账 | `reconcile_delta` | `../../references/incremental-reconciliation-contract.md` |
+| `PASS-SCENE-LIST-04` | 由 LLM 裁决别名、区域、时段和子空间归并/拆分 | canonical scene map | `types/scene-type-map.md` |
+| `PASS-SCENE-LIST-05` | 选择最早分镜组作为首次登场 | first appearance map | `review/review-contract.md` |
+| `PASS-SCENE-LIST-06` | 输出固定三列表格 | `场景清单.md` | `templates/output-template.md` |
+| `PASS-SCENE-LIST-07` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -179,6 +185,7 @@ stateDiagram-v2
 - 将“同一空间的日/夜、过去/现在、正常/异化状态”机械拆分，导致重复清单膨胀。
 - `首次登场` 没有指向最早出现的分镜组。
 - `原文描述（关键词式）` 被扩写成设定稿、视觉设计稿或创作性文案。
+- 新增部分集数后用局部结果覆盖了既有全局清单，或导致已有 `S###` 设计稿锚点漂移。
 - 脚本、模板拼接或规则替代 LLM 的归并判断。
 
 必经链路：
@@ -196,6 +203,7 @@ stateDiagram-v2
 5. `首次登场` 使用最早出现该场景的分镜组 ID，必要时可附集号，例如 `第1集 1-1-1`。
 6. `原文描述（关键词式）` 只写来自 YAML `场景` 字段、同组场景标题或正文证据的关键词，不扩写成场景设计。
 7. 可选执行报告写入 `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md`，用于记录输入范围、归并风险、待核项和校验结果。
+8. 可选增量状态索引写入 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`；它只是 sidecar，不替代 `场景清单.md`。
 
 ### Output format
 
@@ -210,11 +218,13 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-SCENE-LIST` | `projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md` |
 | `OUTPUT-SCENE-LIST-REPORT` | `projects/aigc/<项目名>/5-设计/场景/1-清单/执行报告.md` |
+| `OUTPUT-SCENE-MANIFEST` | `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml` |
 
 ### Naming convention
 
 - 主清单固定命名为 `场景清单.md`。
 - 可选报告固定命名为 `执行报告.md`。
+- 场景设计稿已有 `S###` 锚点时，清单 merge 不得重排旧主体；新增主体只追加新稳定编号建议。
 - 不创建 `scene-list.md`、`场景列表.md`、`清单.md` 或其他平行真源，除非用户显式指定兼容导出。
 - 分镜组 ID 沿用上游 `4-分组` 的 `x-y-z`：`集-场-组`，不改写为四段式分镜帧 ID。
 
@@ -224,5 +234,6 @@ stateDiagram-v2
 - 已读取目标 `4-分组/第N集.md`，并能回指每个主体来自组底 YAML `场景` 字段。
 - 表格只包含固定主体字段：`名称`、`首次登场`、`原文描述（关键词式）`。
 - 已完成别名、代称、区域/时段、子空间与跨场景边界的 LLM 裁决，并记录风险。
+- 若已有清单或 manifest，已执行 merge 对账，未静默覆盖旧清单、旧设计稿锚点或旧生成资产。
 - 未使用脚本生成归并判断或创作性场景描述。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果。

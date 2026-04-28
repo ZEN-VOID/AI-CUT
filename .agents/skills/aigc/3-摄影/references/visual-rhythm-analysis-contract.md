@@ -14,6 +14,7 @@
 | `movement_complexity` | static / single_move / combo_move / rupture_move |
 | `description_scope` | one-line concise / standard / expanded / set-piece |
 | `transition_strength` | none / soft_bridge / match_cut / high_energy |
+| `peak_emphasis` | none / restrained_peak / expanded_peak / rupture_peak |
 
 ## Rhythm Profile Matrix
 
@@ -27,6 +28,7 @@
 | 群像混乱 | medium/high | 节奏扩散 | 2-4 个分镜，寻找恐惧传播路径，不平铺所有人 |
 | 高能入场/惊吓 | critical | 断裂式发散 | 快速运动、急停、声画桥或光变，但要给落点 |
 | 低信息对白画面 | low/medium | 克制承托 | 1 个反应或关系镜头，避免每句对白都炫技 |
+| 上游高潮/爽点/高光承托 | high/critical | 峰值强化 | 按 `peak-shot-language-contract.md` 判断是停顿、扩展还是断裂，不一律更快或更多 |
 
 ## Decision Procedure
 
@@ -34,7 +36,8 @@
 2. 再判断当前上下文节奏：上一组镜头是否已经高密度、高运动、高转场；若是，当前可适当收敛。
 3. 判断观众是否需要停顿读信息：规则文字、道具细节、微表情需要留读秒，不应被高速运动带走。
 4. 判断是否需要发散：关键揭示、空间重置、情绪峰值、威胁入场可提高分镜数量和动态复杂度。
-5. 形成内部 `rhythm_profile` 后再写镜头语言；`rhythm_profile` 不显式输出，只通过描述密度、运动复杂度、转场强度和停顿感体现在成稿中。
+5. 若画面承载上游高潮/爽点/高光成分，先标记 `peak_emphasis`，再交给 `references/peak-shot-language-contract.md` 裁定具体峰值镜头策略。
+6. 形成内部 `rhythm_profile` 后再写镜头语言；`rhythm_profile` 不显式输出，只通过描述密度、运动复杂度、转场强度和停顿感体现在成稿中。
 
 ## Convergence Rules
 
@@ -57,6 +60,7 @@
 - 空间结构需要重新建立。
 - 危险源入场、惩罚发生、群体恐慌扩散。
 - 需要把上一组镜头的压抑释放成高能转场或视觉爆点。
+- 上游已经存在明确高点，且普通节奏会削弱行动结果、认知震荡、关系暖点、规则压迫或奇观冲击。
 
 发散不是堆满参数，而是让信息、情绪和运动同时升级。
 
@@ -68,6 +72,7 @@
 | `measured + single_move` | `分镜1` 或 `分镜1-2`，一个清楚运动从 A 到 B |
 | `rich + combo_move` | `分镜1-3`，组合运镜、焦点/景别变化、反应承接 |
 | `maximal + rupture_move` | `分镜1-4`，高能转场或断裂节奏，但必须给空间/反应落点 |
+| `peak_emphasis + selected_move` | 先按 `peak_shot_profile` 决定停顿、扩展或断裂，再写入 `分镜N`；高点也可以用静止长镜完成 |
 
 `profile` 标签仅用于内部判断，不写入 `分镜N`。输出应直接进入当前画面的镜头运动。
 

@@ -3,7 +3,7 @@ name: story-cards
 governance_tier: lite
 skill_role: parent_guide
 description: |
-  Use when story2026 needs the 1-设定 skill-group guide: route setting tasks to character, scene, and item child skills while consuming global, style, and genre truth from north_star.yaml.
+  Use when story2026 needs the 1-设定 skill-group guide: route setting tasks to character, scene, item, and skill child skills while consuming global, style, and genre truth from north_star.yaml.
 tools: [Read, Write, Edit, Grep, Bash]
 color: amber
 ---
@@ -42,13 +42,14 @@ color: amber
 | `角色卡` | 角色对象真源、关系、成长、专属物接口、关系图谱 | `1-设定/2-角色卡/**/*.json` + `角色关系图谱.md` |
 | `场景卡` | 场景功能、规则、危险、角色适配、复用策略 | `1-设定/3-场景卡/**/*.json` |
 | `物品卡` | 武器、线索、遗物、重要叙事物、归属链、代价、专属适配 | `1-设定/4-物品卡/**/*.json` |
+| `技能卡` | 科技、法术、武功、作战技能、生活才艺、职业技能等广义能力对象 | `1-设定/5-技能卡/**/*.json` |
 
 硬边界：
 
-1. 三个成员都是直连 child skills；父层不得把它们重新压回根层 `references/` 或根层 `templates/`。
+1. 四个成员都是直连 child skills；父层不得把它们重新压回根层 `references/` 或根层 `templates/`。
 2. 对象私有模板、字段映射、步骤和审查规则归子技能包本地所有。
 3. 父层只聚合被实际调度的子技能产物，不为未调度子技能补空字段或占位稿。
-4. 角色、场景、物品存在强依赖：`角色卡 -> 场景卡 -> 物品卡`。
+4. 角色、场景、物品、技能存在强依赖：`角色卡 -> 场景卡 -> 物品卡 -> 技能卡`。
 5. `north_star.yaml` 是 planning 默认题材方向盘与 drafting/validation 默认写法 gate；`1-设定` 只消费，不复制。
 
 ## Mode Selection
@@ -57,7 +58,7 @@ color: amber
 | --- | --- | --- |
 | 单一对象请求 | 只进入命中的一个子技能 | 可单独执行 |
 | 多个独立对象修复 | 只进入命中的子技能 | 无真实依赖时可并行；同一写回目标要串行收束 |
-| `mixed` 建卡 | 进入多个子技能并聚合 | `角色卡 -> 场景卡 -> 物品卡` |
+| `mixed` 建卡 | 进入多个子技能并聚合 | `角色卡 -> 场景卡 -> 物品卡 -> 技能卡` |
 | `full-build` | 全量建卡并完成 gate | 固定按 mixed 顺序串行推进 |
 | coverage repair | 先读 validator finding，再进入相关子技能 | 只修 blocking finding 指向的对象 |
 | source-contract-fix | 修父子合同、模板、writer、validator、tests 的一致性 | 先修真源层，再跑局部 gate |
@@ -72,12 +73,13 @@ color: amber
 | 人物、关系、成长、伤口、欲望、专属物接口 | `角色卡` | 人物对象真源和关系网络 |
 | 地点、空间、危险、规矩、常驻场、返场价值 | `场景卡` | 可写戏空间与规则压力 |
 | 武器、道具、线索、遗物、钥匙、代价、归属 | `物品卡` | 剧情杠杆和使用成本 |
+| 技能、能力、科技、法术、武功、枪械、格斗、战术、厨艺、才艺、职业技能 | `技能卡` | 可成长、可使用、可失败、可克制的能力对象 |
 
 若请求同时命中多个对象，优先用依赖链判断顺序，而不是按技能目录名称判断。
 
 ## Input Contract
 
-- Accepted input: 角色卡、场景卡、物品卡生成/修复/覆盖率修复，或父子 card 合同、writer、validator、模板一致性修复。
+- Accepted input: 角色卡、场景卡、物品卡、技能卡生成/修复/覆盖率修复，或父子 card 合同、writer、validator、模板一致性修复。
 - Required input: 项目根 `projects/story/<项目名>/`，本轮对象范围，或能定位到具体 child skill 的卡片修复 finding。
 - Optional input: `0-初始化/north_star.yaml`、`MEMORY.md`、项目 `CONTEXT/`、既有 `1-设定/**/*.json`、coverage 报告。
 - Reject or reroute when: 全局设定、整书风格、题材方向盘请求应回到 `0-初始化/north_star.yaml`；章节规划和正文写作不得由本阶段直接产出。
@@ -108,6 +110,7 @@ color: amber
 | 角色对象 | `角色卡/SKILL.md`、`角色卡/CONTEXT.md`、`角色卡/references/`、`角色卡/templates/` |
 | 场景对象 | `场景卡/SKILL.md`、`场景卡/CONTEXT.md`、`场景卡/references/`、`场景卡/templates/` |
 | 物品对象 | `物品卡/SKILL.md`、`物品卡/CONTEXT.md`、`物品卡/references/`、`物品卡/templates/` |
+| 技能对象 | `技能卡/SKILL.md`、`技能卡/CONTEXT.md`、`技能卡/references/`、`技能卡/templates/` |
 | 父层判型 | 本文件 `Mode Selection` 与 `CONTEXT.md` Type Map |
 | 父层门禁 | `cards_coverage_validator.py` 与子技能 `review/` |
 | 经验层 | `CONTEXT.md` |
@@ -124,7 +127,8 @@ color: amber
 projects/story/<项目名>/1-设定/
 ├── 2-角色卡/
 ├── 3-场景卡/
-└── 4-物品卡/
+├── 4-物品卡/
+└── 5-技能卡/
 ```
 
 禁止把技能目录、临时 sidecar、报告目录或 repo 根层模板当成项目 card 真源。
@@ -150,7 +154,7 @@ projects/story/<项目名>/1-设定/
 | 创作权 gate | 核心 card 判断来自 LLM，不来自脚本拼接 |
 | trace gate | payload 标记的 `source_skill_id / module_route / loaded_references` 与实际调度一致 |
 | schema gate | 输出 JSON 符合对应子技能本地模板 |
-| dependency gate | 物品卡没有绕过角色接口与场景规则 |
+| dependency gate | 物品卡没有绕过角色接口与场景规则；技能卡没有绕过世界规则、角色成长、场景限制与物品媒介 |
 | coverage gate | 数量、结构、密度、规则刚性和 route parity 通过验证 |
 
 ## Root-Cause Execution Contract
@@ -187,14 +191,14 @@ projects/story/<项目名>/1-设定/
 
 一次 `1-设定` 任务完成时，父层只交付一套收束结果：
 
-- 命中的角色/场景/物品正式 cards 或相关合同修复。
+- 命中的角色/场景/物品/技能正式 cards 或相关合同修复。
 - gate / validation 结论。
 - 对未处理对象的明确边界说明。
 - 若发生降级或跳过子技能，说明原因和影响。
 
 ## Output Contract
 
-- Required output: 命中的角色/场景/物品 cards、相关合同修复摘要，或 coverage repair 结果。
+- Required output: 命中的角色/场景/物品/技能 cards、相关合同修复摘要，或 coverage repair 结果。
 - Output format: JSON card payload、Markdown 图谱/报告，或 `templates/output-template.md` 对齐的父层摘要。
 - Output path: 正式业务输出只写入 `projects/story/<项目名>/1-设定/` 下的对应 child root。
 - Naming convention: 文件名遵循 child skill 命名合同；父层报告使用 kebab-case 日期后缀。

@@ -43,6 +43,7 @@ metadata:
 | `prop_list` | 道具清单、从 `4-分组` YAML 提取道具、修复道具清单 | `1-清单/SKILL.md` | `道具清单.md` |
 | `prop_detail` | 道具设计、单道具细目、从道具清单扩展设计稿 | `2-设计/SKILL.md` | `<道具名>.md` |
 | `prop_generation` | 道具生成、主图、多视图、道具面板、JSON prompt | `3-生成/SKILL.md` | `<主体名称>-主图 / 多视图` 与同名 JSON |
+| `domain_reconcile` | 上游 `4-分组` 后续新增/更新集数，或既有道具清单、设计稿、生成资产已存在 | 先执行增量对账，再按最早缺口路由 | `reconcile_delta` / `design-manifest.yaml` |
 | `domain_repair` | 路径、registry、输出目录或叶子顺序漂移 | 按症状选择对应叶子 | 修复报告或最小 patch |
 | `domain_closeout` | 检查道具域是否可交给 6-图像/7-视频 | 已完成叶子输出的验收回查 | 域级状态摘要 |
 
@@ -56,6 +57,7 @@ metadata:
 | 道具清单 | `1-清单/SKILL.md + 1-清单/CONTEXT.md` |
 | 道具细目设计 | `2-设计/SKILL.md + 2-设计/CONTEXT.md` |
 | 道具图像生成 | `3-生成/SKILL.md + 3-生成/CONTEXT.md` |
+| 上游分批完成或既有产物补缺 | `../references/incremental-reconciliation-contract.md` |
 | 叶子输出验收 | 对应叶子的 `review/review-contract.md` |
 | 叶子输出样板 | 对应叶子的 `templates/` |
 | 产品入口摘要 | 对应叶子的 `agents/openai.yaml` |
@@ -70,11 +72,12 @@ metadata:
 
 1. 锁定项目根 `projects/aigc/<项目名>/` 与道具域输出根 `projects/aigc/<项目名>/5-设计/道具/`。
 2. 读取本 `SKILL.md + CONTEXT.md`；项目任务继续加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
-3. 根据用户措辞、目标路径和现有产物判定 `mode`。
-4. 只加载并执行命中的叶子技能；未命中的叶子不得补占位输出。
-5. 叶子技能按自身合同写入 `1-清单/`、`2-设计/` 或 `3-生成/` 子目录。
-6. 若发现上游缺失，按链路返回最早缺失叶子，不越级生成下游产物。
-7. 若用户要求域级验收，只汇总叶子输出状态和缺口，不改写叶子业务真源。
+3. 若 `4-分组` 存在新增/更新集数或道具域已有产物，先按 `../references/incremental-reconciliation-contract.md` 建立 `reconcile_delta`，必要时更新 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`。
+4. 根据用户措辞、目标路径、现有产物和 `reconcile_delta` 判定 `mode`。
+5. 只加载并执行命中的叶子技能；未命中的叶子不得补占位输出。
+6. 叶子技能按自身合同写入 `1-清单/`、`2-设计/` 或 `3-生成/` 子目录；默认只处理新增主体、缺设计稿或缺生成资产。
+7. 若发现上游缺失，按链路返回最早缺失叶子，不越级生成下游产物。
+8. 若用户要求域级验收，只汇总叶子输出状态和缺口，不改写叶子业务真源。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -87,8 +90,9 @@ metadata:
 1. 入口错路由：修本组根 `Mode Selection` 或 registry route 文案。
 2. 叶子顺序错乱：回到 `1-清单 -> 2-设计 -> 3-生成` 顺序门。
 3. 输出目录漂移：回到对应叶子 `Output Contract`。
-4. 背景杂物误入主清单：回到 `1-清单` 的过滤与归并合同。
-5. 脚本主创越权：回到 `LLM-First Creative Authorship Contract`。
+4. 新增集数后重复道具、漏设计或覆盖既有资产：回到 `../references/incremental-reconciliation-contract.md` 与 `1-清单` 归并/过滤裁决。
+5. 背景杂物误入主清单：回到 `1-清单` 的过滤与归并合同。
+6. 脚本主创越权：回到 `LLM-First Creative Authorship Contract`。
 
 ## Field Mapping
 
@@ -99,15 +103,17 @@ metadata:
 | `PROP-GROUP-03` | `2-设计` | 单道具细目设计 Markdown |
 | `PROP-GROUP-04` | `3-生成` | 道具主图、多视图与 JSON prompt |
 | `PROP-GROUP-05` | 项目根 | 关键道具偏好、禁区和长期生成锁定 |
+| `PROP-GROUP-06` | `design-manifest.yaml` | 已消费上游、道具主体映射、设计/生成缺口 sidecar |
 
 ## Thought Pass Map
 
 | step_id | thought pass | action pass | evidence |
 | --- | --- | --- | --- |
 | `PROP-PASS-01` | 判断项目与输入根 | 锁定项目路径和道具域根 | runtime path |
-| `PROP-PASS-02` | 判断缺清单/缺设计/缺生成 | 选择一个叶子技能 | selected mode |
-| `PROP-PASS-03` | 判断是否越级 | 回退到最早缺失叶子 | upstream evidence |
-| `PROP-PASS-04` | 判断是否需要域级验收 | 汇总叶子状态 | domain summary |
+| `PROP-PASS-02` | 判断上游是否分批追加 | 执行增量对账 | `reconcile_delta` |
+| `PROP-PASS-03` | 判断缺清单/缺设计/缺生成 | 选择一个叶子技能 | selected mode |
+| `PROP-PASS-04` | 判断是否越级 | 回退到最早缺失叶子 | upstream evidence |
+| `PROP-PASS-05` | 判断是否需要域级验收 | 汇总叶子状态 | domain summary |
 
 ## Pass Table
 
@@ -115,6 +121,7 @@ metadata:
 | --- | --- | --- |
 | `PASS-PROP-GROUP` | 已命中唯一叶子，且加载叶子 `SKILL.md + CONTEXT.md` | done |
 | `REWORK-PROP-ROUTE` | 入口语义与叶子不匹配 | 本组根 `Mode Selection` |
+| `REWORK-PROP-RECONCILE` | 上游新增后未合并清单、重复道具或覆盖既有资产 | `../references/incremental-reconciliation-contract.md` |
 | `REWORK-PROP-UPSTREAM` | 下游输入缺失 | 最早缺失叶子技能 |
 | `REWORK-PROP-OUTPUT` | 输出路径或命名漂移 | 对应叶子 `Output Contract` |
 
@@ -122,6 +129,6 @@ metadata:
 
 - Required output: 路由决定、命中的叶子技能、必要的上游缺口说明；业务文件由叶子技能写入。
 - Output format: Markdown 路由说明、域级状态摘要或最小修复 patch。
-- Output path: 叶子输出固定在 `projects/aigc/<项目名>/5-设计/道具/{1-清单,2-设计,3-生成}/`。
+- Output path: 叶子输出固定在 `projects/aigc/<项目名>/5-设计/道具/{1-清单,2-设计,3-生成}/`；增量状态 sidecar 可写入 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`。
 - Naming convention: 组根报告使用清晰的域名与叶子名；叶子产物按叶子 `Output Contract` 命名。
-- Completion gate: 本组根已加载同目录 `CONTEXT.md`；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收。
+- Completion gate: 本组根已加载同目录 `CONTEXT.md`；已在分批上游或既有产物场景中执行增量对账；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收。

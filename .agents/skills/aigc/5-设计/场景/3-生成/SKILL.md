@@ -61,6 +61,7 @@ Reject or clarify when:
 | `batch_scene` | 指定多个场景或要求处理全部 | 多组场景生成资产与可选执行报告 |
 | `main_only` | 只要求 Step1 或缺少可用主图 | `主体名称-主图` 与对应 JSON |
 | `multiview_only` | 已有主图且只要求 Step2 | `主体名称-多视图` 与对应 JSON |
+| `incremental_fill` | `design-manifest.yaml` 或 `2-设计` 显示存在 `generation_gaps` | 只补缺主图、多视图或 JSON，不覆盖既有资产 |
 | `repair` | 已有生成资产不完整、提示词 JSON 缺失、路径不合规 | 最小补齐或版本化重生 |
 | `review_only` | 只要求审查生成资产 | 审查结论，不改写文件，除非用户随后要求修复 |
 
@@ -69,6 +70,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意场景生成任务 | `references/scene-generation-contract.md`、`steps/scene-generation-workflow.md` |
+| 设计稿增量后的生成缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 输入类型、批量/单体/修复策略 | `types/scene-generation-type-map.md` |
 | 输出质量审查、subagents/reviewer 降级口径 | `review/review-contract.md` |
 | 主图/多视图提示词模板和输出报告模板 | `templates/scene-main-image-prompt.json`、`templates/scene-multiview-prompt.json`、`templates/output-template.md` |
@@ -131,11 +133,11 @@ stateDiagram-v2
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 2. 读取 `$imagegen` 的 `SKILL.md + CONTEXT.md`，锁定内建 `image_gen` 默认路线、2K 目标与项目持久化要求。
-3. 读取目标上游场景设计文档，只抽取主体名称、来源文件、`提示词设计` 与必要的设计约束，不重新设计主体。
-4. 按 `types/scene-generation-type-map.md` 形成 `generation_profile`，决定 `main_only`、`multiview_only`、`single_scene`、`batch_scene` 或 `repair`。
+3. 读取目标上游场景设计文档和可选 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`，只抽取主体名称、来源文件、`提示词设计` 与必要的设计约束，不重新设计主体。
+4. 按 `types/scene-generation-type-map.md` 形成 `generation_profile`，决定 `main_only`、`multiview_only`、`single_scene`、`batch_scene`、`incremental_fill` 或 `repair`；已有主图、多视图和 JSON 默认跳过，覆盖必须有明确授权。
 5. Step1：按 `templates/scene-main-image-prompt.json` 直接引用每份设计文档的 `提示词设计` 生成单主体场景主图，保存为 `主体名称-主图`，并落同名 JSON 提示词记录。
 6. Step2：套用 `templates/scene-multiview-prompt.json`，以对应 `主体名称-主图` 作为参照图，生成 `主体名称-多视图`，并落同名 JSON 提示词记录。
-7. 所有项目交付资产写入 `projects/aigc/<项目名>/5-设计/场景/3-生成`；不得只停留在 `$CODEX_HOME/generated_images`。
+7. 所有项目交付资产写入 `projects/aigc/<项目名>/5-设计/场景/3-生成`；不得只停留在 `$CODEX_HOME/generated_images`；可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`。
 8. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，使用本地 review checklist 并显式报告降级。
 
 ## Root-Cause Execution Contract
@@ -145,6 +147,7 @@ stateDiagram-v2
 - 从生成阶段重新设计、扩写或替换上游场景主体。
 - 未读取上游 `2-设计` 文档就生成图片。
 - 只生成图片但不落 JSON 提示词记录。
+- 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
 - 多视图没有使用对应主图作为参照图。
 - 项目资产仍只在 `$CODEX_HOME/generated_images`，未持久化到项目路径。
 - 覆盖已有资产、改 registry、改父级目录或改其他 worker 范围。
@@ -175,6 +178,7 @@ stateDiagram-v2
 3. 每张图片必须有同名 JSON 提示词记录。
 4. 多视图生成必须以同一主体的主图作为参照图。
 5. 可选执行报告记录输入范围、已生成文件、imagegen 模式、降级情况和 review verdict。
+6. 可选更新 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
 
@@ -195,6 +199,7 @@ stateDiagram-v2
 | `OUTPUT-SCENE-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.<ext>` |
 | `OUTPUT-SCENE-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.json` |
 | `OUTPUT-SCENE-GENERATION-REPORT` | `projects/aigc/<项目名>/5-设计/场景/3-生成/执行报告.md` |
+| `OUTPUT-SCENE-MANIFEST` | `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml` |
 
 ### Naming convention
 
@@ -202,6 +207,7 @@ stateDiagram-v2
 - 主图固定命名为 `主体名称-主图`。
 - 多视图固定命名为 `主体名称-多视图`。
 - 如同名资产已存在且未获覆盖许可，使用 `-v2`、`-v3` 等版本后缀，并在 JSON 中记录 `supersedes` 或 `variant_of`。
+- 增量补缺默认跳过已有完整资产，只生成缺失的主图、多视图或 JSON。
 
 ### Completion gate
 
@@ -210,5 +216,6 @@ stateDiagram-v2
 - 每个主图 JSON 记录包含来源设计文档、抽取的上游提示词、imagegen 模式、输出路径和 review 状态。
 - 每个多视图 JSON 记录包含来源设计文档、主图参照路径、多视图模板版本、最终 prompt、输出路径和 review 状态。
 - 项目交付图片已持久化到 `projects/aigc/<项目名>/5-设计/场景/3-生成`。
+- 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 未重新设计主体，未改写上游设计，未修改边界外文件。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 subagent 降级原因。

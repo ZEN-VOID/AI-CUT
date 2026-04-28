@@ -25,7 +25,8 @@
 | `GATE-CINE-09` | 空间一致 | 没有无动机跳轴、反向运动、景别断崖、光色突变或风格断裂 |
 | `GATE-CINE-10` | 戏剧服务 | 技法服务角色、危险、信息揭示或空间压迫，不是孤立炫技 |
 | `GATE-CINE-11` | 原文保真 | 除新增 frontmatter/report 和 `镜头语言` 外，不改写 `2-编导` 正文 |
-| `GATE-CINE-12` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
+| `GATE-CINE-12` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
+| `GATE-CINE-13` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
 
 ## Failure Routing
 
@@ -38,6 +39,7 @@
 | `FAIL-CINE-05B` | 镜头语言静态呆板，没有变化和组合运镜 | `references/dynamic-lens-language-contract.md` |
 | `FAIL-CINE-05C` | 当前镜头语言与临近镜头断裂、跳轴、跳色或空间跳跃 | `references/shot-continuity-contract.md` |
 | `FAIL-CINE-05D` | 镜头语言不分轻重，低信息过度发散或重信息过度收敛 | `references/visual-rhythm-analysis-contract.md` |
+| `FAIL-CINE-05E` | 上游高点被按普通画面压平，或高潮强化缺少分镜/运镜/停顿/余波策略 | `references/peak-shot-language-contract.md` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
 
 ## Review Output
@@ -50,5 +52,6 @@
 - `镜头语言` 块数量。
 - 机械校验结果或人工 review 结果。
 - 画面节奏张弛结果。
+- 高潮分镜强化结果。
 - 镜头连续性、空间一致性和风格一致性结果。
 - 需要返工的行号或字段标签。

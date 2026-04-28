@@ -26,6 +26,11 @@
   - 转折高点：
   - 见底高点：
   - 收束高点：
+- `book_wave_map`：
+  - `volume_intensity_map`：
+  - `volume_role_map`：
+  - `respite_corridor`：
+  - `payoff_distribution`：
 
 ```mermaid
 flowchart TD

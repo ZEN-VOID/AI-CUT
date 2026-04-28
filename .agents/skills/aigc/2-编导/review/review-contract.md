@@ -25,6 +25,7 @@
 | `GATE-DIRECT-09` | 脚本没有替代 LLM 生成核心创作正文 | `FAIL-LLM-FIRST` |
 | `GATE-DIRECT-10` | 所有 `*画面`、`环境描写`、`道具特写`、`表演提示` 均具像化、画面化、反抽象、反概念、反比喻 | `FAIL-CONCRETE-VISUAL` |
 | `GATE-DIRECT-11` | `音效` 字段只写声音本体，不写时间说明、事件概括或描述性句子 | `FAIL-SOUND-LITERAL` |
+| `GATE-DIRECT-12` | 上游存在高潮/爽点/高光成分时，输出完成 `peak_visual_pass`，高点有可回指证据、可拍承托、状态差或余波，且没有新增事实、对白或因果 | `FAIL-PEAK-VISUAL` |
 
 ## Recommended Mechanical Check
 
@@ -58,6 +59,7 @@ review:
     field_purity: pass
     concrete_visuals: pass
     sound_literal: pass
+    peak_visual_treatment: pass
     hollywood_quality: pass
   findings: []
 ```

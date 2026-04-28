@@ -335,6 +335,48 @@ def _touch_card(project_root: Path, rel_path: str) -> None:
             },
             "gate_summary": {"status": "PASS", "fail_codes": [], "repair_entry": ""},
         }
+    elif "5-技能卡" in rel_path:
+        group = "professional_skills"
+        if "科技" in rel_path:
+            group = "technology_systems"
+        elif "法术异能" in rel_path:
+            group = "spells_abilities"
+        elif "武功" in rel_path:
+            group = "martial_arts"
+        elif "作战技能" in rel_path:
+            group = "combat_operations"
+        elif "生活才艺" in rel_path:
+            group = "life_talents"
+        payload = {
+            "schema_version": "story2026/cards/skill/v2",
+            "meta": {
+                "skill_id": "story-cards",
+                "source_skill_id": "story-cards-skill",
+                "source_route": "0-初始化 > story-cards > 技能卡/SKILL.md",
+            },
+            "content": {
+                **_trace_payload("story-cards > 技能卡/SKILL.md", "1-设定/5-技能卡"),
+                "card_schema": {
+                    "skill_card": {
+                        "card_id": name,
+                        "card_type": "skill",
+                        "group": group,
+                        "core": {
+                            "identity": {"name": name},
+                            "skill_taxonomy": {"primary_domain": group, "hybrid_tags": [], "genre_expression": "测试技能"},
+                            "narrative_functions": ["推动选择"],
+                            "activation_rules": {"triggers": ["进入场景"], "procedures": ["按步骤执行"], "required_conditions": ["具备资源"]},
+                            "limits_and_costs": {"limits": ["不可连续使用"], "costs": ["体力或信息代价"], "failure_modes": ["误判"]},
+                            "progression_model": {"stages": ["入门", "熟练"], "upgrade_conditions": ["反复训练"], "mastery_signals": ["稳定成功"]},
+                            "counterplay": {"counters": ["干扰"], "weaknesses": ["资源依赖"], "misuse_consequences": ["暴露"]},
+                        },
+                        "current_state": {"availability": "active", "known_users": ["甲"], "mastery_distribution": ["甲:入门"], "active_plot_load": ["测试"]},
+                        "history": [],
+                    }
+                }
+            },
+            "gate_summary": {"status": "PASS", "fail_codes": [], "repair_entry": ""},
+        }
     else:
         payload = {
             "schema_version": "story2026/cards/item/v2",
@@ -373,6 +415,7 @@ def _trace_payload(module_route: str, target_path: str) -> dict:
         "story-cards > 角色卡/SKILL.md": "角色卡/templates/character-card.json",
         "story-cards > 场景卡/SKILL.md": "场景卡/templates/scene-card.json",
         "story-cards > 物品卡/SKILL.md": "物品卡/templates/item-card.json",
+        "story-cards > 技能卡/SKILL.md": "技能卡/templates/skill-card.json",
     }[module_route]
     child_path = module_route.split(" > ")[-1]
     child_dir = str(Path(child_path).parent)
@@ -409,6 +452,34 @@ def _write_global_fixture(project_root: Path) -> None:
                     {"card_id": "世界总卡", "path": "1-设定/0-全局卡/总设定/世界总卡.json"}
                 ],
                 "current_focus": {"confirmed_facts": ["世界总设定已锁定"]},
+            }
+        },
+    )
+
+
+def _write_skill_fixture(project_root: Path) -> None:
+    for rel_path in (
+        "1-设定/5-技能卡/武功/潮声刀.json",
+        "1-设定/5-技能卡/作战技能/码头协同.json",
+        "1-设定/5-技能卡/科技/火器维护.json",
+        "1-设定/5-技能卡/生活才艺/辨潮.json",
+    ):
+        _touch_card(project_root, rel_path)
+    _write_json(
+        project_root / "1-设定" / "5-技能卡" / "技能索引.json",
+        {
+            "content": {
+                **_trace_payload("story-cards > 技能卡/SKILL.md", "1-设定/5-技能卡"),
+                "card_groups": {
+                    "technology_systems": ["1-设定/5-技能卡/科技/火器维护.json"],
+                    "spells_abilities": [],
+                    "martial_arts": ["1-设定/5-技能卡/武功/潮声刀.json"],
+                    "combat_operations": ["1-设定/5-技能卡/作战技能/码头协同.json"],
+                    "life_talents": ["1-设定/5-技能卡/生活才艺/辨潮.json"],
+                    "professional_skills": [],
+                },
+                "skill_links": [{"ok": 1}, {"ok": 2}],
+                "progression_hooks": [{"ok": 1}, {"ok": 2}],
             }
         },
     )
@@ -506,6 +577,7 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     project_root = _make_project_root(tmp_path)
     _write_upstream_truth(project_root)
     _write_global_fixture(project_root)
+    _write_skill_fixture(project_root)
 
     for rel_path in (
         "1-设定/1-风格卡/总风格/整书风格卡.json",
@@ -650,6 +722,7 @@ def test_cards_coverage_report_passes_for_series_scale_project(tmp_path):
     assert report["sections"]["characters"]["counts"]["protagonists"] == 2
     assert report["sections"]["scenes"]["total_count"] == 6
     assert report["sections"]["items"]["total_count"] == 8
+    assert report["sections"]["skills"]["total_count"] == 4
     assert report["sections"]["characters"]["trace"]["module_route"] == "story-cards > 角色卡/SKILL.md"
 
 

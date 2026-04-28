@@ -31,6 +31,7 @@ projects/aigc/<项目名>/2-编导/
 - 上游 `1-分集/第N集.md` 已回指。
 - 事实、顺序和对白保真。
 - 声画配对、字段纯度和 slugline 稳定通过 review。
+- 上游存在高潮/爽点/高光成分时，已按 `peak_visual_pass` 落入既有可拍字段，没有新增事实或对白。
 - 执行报告记录校验 verdict。
 
 ## Episode File Skeleton

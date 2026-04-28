@@ -25,6 +25,7 @@
 ## 输出要求
 
 - `本卷节奏曲线` 必须用这六拍标注卷内波形。
+- 必须包含 `volume_orchestration_map`，把六拍下钻成章节级 payoff、强度、压力与换气安排。
 - Mermaid 图至少能看出卷内起势、改向、冲顶、交接四个变化点。
 
 ## 卷级节奏真正要回答的规划问题
@@ -34,9 +35,23 @@
 - 本卷第一次兑现落在哪一段，避免连续多章都只铺不收。
 - 中卷如何反拧，让本卷中段不是单纯加码或拖时长。
 - 卷末冲顶后，本卷到底完成什么、又把什么转交给下一卷。
+- 本卷哪些章节承担强压推进，哪些章节承担浪能式换气、关系升温、世界感或状态修复。
 
 ## 强化方向
 
 - 卷级节奏优先处理“本卷波形和章节职责分配”，不是单章句段编排。
 - `章划分` 应能回指六拍，让每章知道自己是在起势、铺展、首回报、反拧、冲顶还是交接。
 - 卷级要显式说明哪些线索、任务、关系在本卷必须首兑，哪些只做下一卷压力转移。
+- 卷级应给章级提供 `chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`，但不得直接替章级决定 `selected_mode`。
+
+## Volume Orchestration Map
+
+`volume_orchestration_map` 是卷级交给章级的中波配器表。
+
+- `chapter_payoff_map`：每章建议主 payoff 倾向，可使用 `认知 / 行动 / 情绪 / 关系 / 世界感 / 软线索 / 状态修复`。
+- `chapter_intensity_map`：每章建议强度，合法值为 `低 / 中 / 高`；高强度章必须落在首回报、反拧、冲顶、交接或等价质变位置。
+- `respite_chapters`：建议承担松弛、旅游、玩耍、关系升温、世界感展开、状态修复的章节。
+- `pressure_chapters`：建议承担升压、对抗、强行动、强揭示、阶段爆点的章节。
+- `handoff_to_chapter_level`：说明哪些章节需要章级重点处理 `previous_next_contrast`，例如高压后换气、浪能后反拧、冲顶后余波。
+
+本表只给中波职责，不直接锁章级 `selected_pack / selected_mode`；章级仍需根据单章冲突、payoff 与上下章对比自行裁定。

@@ -59,6 +59,14 @@ governance_tier: full
 | `audit_volume_plan` | 用户要求检查卷级规划质量 | 使用 `review/review-contract.md` 输出 findings、verdict 与返工目标 |
 | `repair_structure` | 技能包自身分区、模板或引用漂移 | 按 `references/legacy-upgrade-matrix.md` 与 `scripts/README.md` 修复 Skill 2.0 结构 |
 
+## Multi-Subskill Continuous Workflow
+
+- 本 `2-卷级` 是 `2-卷章` 下的数字序号 child skill；父层按 `1-部级 -> 2-卷级 -> 3-章级` 串行调度，本技能必须以 `SKILL.md + CONTEXT.md` 作为入口。
+- 无序号同级子技能包：本目录下没有无序号可执行子技能；若未来新增，默认由本技能聚合其输出并回写唯一 `第N卷/卷规划.md`。
+- 数字序号同级子技能包：本技能消费 `1-部级` 的 `整体规划.md`，输出 `卷规划.md` 后交给 `3-章级`。
+- 英文序号同级子技能包：本目录下没有 `A- / B- / C-` 互斥路线；若未来新增，按用户意图或父层路由单选。
+- 卫星技能：本目录下没有本级卫星技能；查询、恢复、审查等旁路由 `story/query`、`story/resume`、`story/review` 或父层声明的 reviewer 承接。
+
 ## Reference Loading Guide
 
 | 场景 | 必读分区 |
@@ -173,7 +181,7 @@ stateDiagram-v2
 | `N1-UPSTREAM-REREAD` | `整体规划.md` | 锁定本卷职责与交接 | `volume_duty` | `N2-TYPE` |
 | `N2-TYPE` | 用户请求与现有卷规划 | 形成 `type_profile` | `create/revise/audit/repair` | `N3-SPINE` |
 | `N3-SPINE` | `volume_duty` | 写卷标题、大纲、章划分、冲突 | `volume_spine` | `N4-RHYTHM` |
-| `N4-RHYTHM` | `volume_spine` | 设计六拍与 Mermaid 图 | `six_beat_map` | `N5-ELEMENTS` |
+| `N4-RHYTHM` | `volume_spine` | 设计六拍、`volume_orchestration_map` 与 Mermaid 图 | `six_beat_map` | `N5-ELEMENTS` |
 | `N5-ELEMENTS` | `six_beat_map` | 写人物、场景、道具、任务线 | `resource_mission_map` | `N6-CLOSE` |
 | `N6-CLOSE` | `resource_mission_map` | 写卷末达成与规避 | `volume_plan_draft` | `N7-REVIEW` |
 | `N7-REVIEW` | `volume_plan_draft` | 执行质量门禁 | `verdict` | done |
@@ -181,7 +189,7 @@ stateDiagram-v2
 ## Output Contract
 
 - Required output: 单卷规划 Markdown，canonical 文件为 `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`；审计模式输出 findings、verdict 与返工目标。
-- Output format: Markdown；必须包含卷标题、本卷故事大纲、章划分、本卷冲突、本卷节奏曲线、本卷登场人物、本卷主要场景、本卷关键道具、本卷任务线、卷末达成、规避；节奏段落必须包含 Mermaid 图。
+- Output format: Markdown；必须包含卷标题、本卷故事大纲、章划分、本卷冲突、本卷节奏曲线、本卷登场人物、本卷主要场景、本卷关键道具、本卷任务线、卷末达成、规避；节奏段落必须包含六拍、`volume_orchestration_map` 与 Mermaid 图。
 - Output path: `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`。
 - Naming convention: 卷目录使用 `第N卷`；卷规划文件固定命名为 `卷规划.md`；技能包内分区使用 canonical Skill 2.0 目录名。
 - Completion gate: 已加载上游 `整体规划.md`；输出满足 `references/volume-planning-contract.md` 的 Required Headings 与 Hard Rules；六拍符合 `references/volume-rhythm-framework.md`；交付前通过 `review/review-contract.md`，结构改动通过 `python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级`。

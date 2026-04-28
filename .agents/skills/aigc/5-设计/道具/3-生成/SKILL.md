@@ -62,6 +62,7 @@ Reject or clarify when:
 | `single_prop_generation` | 指定一个道具设计文档或主体名称 | 单主体图、单主体 JSON、多视图图、多视图 JSON |
 | `batch_from_designs` | 指定项目或默认处理全部 `2-设计` 文档 | 每个设计文档一组生成资产 |
 | `prompt_only` | 用户只要求配置提示词或 dry-run | JSON 提示词，不执行 imagegen |
+| `incremental_fill` | `design-manifest.yaml` 或 `2-设计` 显示存在 `generation_gaps` | 只补缺主图、多视图或 JSON，不覆盖既有资产 |
 | `repair` | 既有图像缺失、命名错误、JSON 与设计文档不一致 | 最小修复后的图像或 JSON |
 | `review_only` | 用户只要求检查生成资产 | 审查报告或 findings；不改写文件，除非用户随后要求修复 |
 
@@ -70,6 +71,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意道具生成任务 | `references/prop-generation-contract.md`、`steps/prop-generation-workflow.md` |
+| 设计稿增量后的生成缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 主图、多视图、批量或提示词-only 分流 | `types/prop-generation-type-map.md` |
 | 验收、修复和 reviewer 汇流 | `review/review-contract.md` |
 | 单主体图 JSON 提示词 | `templates/single-subject-prompt.json` |
@@ -124,11 +126,11 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，项目任务加载项目 `MEMORY.md` 与相关 `CONTEXT/`，再读取 `$imagegen SKILL.md + CONTEXT.md`。
-2. 锁定被调度的上游 `2-设计` 文档；只消费这些文档，不为未调度主体补空图、补占位 JSON 或重写设计正文。
-3. 按 `types/prop-generation-type-map.md` 判型，形成 `type_profile`，进入 `steps/prop-generation-workflow.md`。
+2. 锁定被调度的上游 `2-设计` 文档，并读取可选 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`；只消费这些文档，不为未调度主体补空图、补占位 JSON 或重写设计正文。
+3. 按 `types/prop-generation-type-map.md` 判型，形成 `type_profile`，决定 batch、prompt_only、incremental_fill 或 repair；已有主图、多视图和 JSON 默认跳过，覆盖必须有明确授权。
 4. Step1：抽取每份设计文档中的“提示词设计”，生成单主体图与对应 JSON 提示词。
 5. Step2：套用 `templates/prop-multiview-prompt.json`，以各个单主体图为参照图，生成多视图主体设计图与对应 JSON 提示词。
-6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/3-生成/`；不得修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件。
+6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/3-生成/`，并可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`；不得修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件。
 7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 imagegen 执行或 LLM 的提示词裁决。
 
 ## Field Mapping
@@ -190,6 +192,7 @@ stateDiagram-v2
 - 生成阶段重写主体设计、补造叙事设定或覆盖 `2-设计`。
 - 未引用相应道具/主体设计文档中的“提示词设计”就直接生图。
 - Step2 多视图没有使用 Step1 单主体图作为参照。
+- 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
 - JSON 提示词与实际图像命名、参考图或上游设计文档脱节。
 - 输出写到 `2-设计`、父级、角色/场景目录、registry 或其他 worker 范围。
 - subagent 默认路径被工具阻断时没有报告降级原因与未启动角色。
@@ -205,6 +208,7 @@ stateDiagram-v2
 1. 每个被调度道具主体输出一张单主体图、一个单主体 JSON 提示词、一张多视图主体设计图、一个多视图 JSON 提示词。
 2. 单主体图必须直接消费相应设计文档中的“提示词设计”，不得重新设计主体。
 3. 多视图主体设计图必须以对应单主体图为参照图，并套用当前 `templates/prop-multiview-prompt.json`。
+4. 可选更新 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
 
@@ -225,12 +229,14 @@ stateDiagram-v2
 | `OUTPUT-PROP-MULTIVIEW-IMAGE` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-多视图.<ext>` |
 | `OUTPUT-PROP-MULTIVIEW-PROMPT` | `projects/aigc/<项目名>/5-设计/道具/3-生成/<主体名称>-多视图.json` |
 | `OUTPUT-PROP-GEN-REPORT` | `projects/aigc/<项目名>/5-设计/道具/3-生成/执行报告.md` |
+| `OUTPUT-PROP-MANIFEST` | `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml` |
 
 ### Naming convention
 
 - `<主体名称>` 优先使用上游 `2-设计` 文件标题或文件名的安全化结果。
 - 单体图命名为 `主体名称-主图`；多视图命名为 `主体名称-多视图`。
 - 同名或多状态道具可追加状态或首次登场 ID，但不得丢失 `-主图` / `-多视图` 后缀。
+- 增量补缺默认跳过已有完整资产，只生成缺失的主图、多视图或 JSON。
 
 ### Completion gate
 
@@ -238,4 +244,5 @@ stateDiagram-v2
 - 每组资产都能回指一个上游 `2-设计` Markdown。
 - 单主体 JSON 引用设计文档中的“提示词设计”；多视图 JSON 引用对应单主体图路径。
 - 图像和 JSON 都落在 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。
+- 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。

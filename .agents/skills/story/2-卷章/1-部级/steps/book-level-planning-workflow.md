@@ -24,7 +24,7 @@
 | `N4-VOLUME-SPLIT` | 切分卷级职责 | 整体大纲、默认卷数或用户卷数 | 为每卷定义核心功能、阶段职责与交接方式 | `卷划分` | `N5-TASK-RELATIONS` | 卷划分不是平均切段 |
 | `N5-TASK-RELATIONS` | 锁整部任务关系 | 卷划分、主问题、角色/支流摘要 | 定义主任务树、卷级支流簇与关键汇聚里程碑 | `整部任务关系` | `N6-CONFLICT-FRAME` | 卷级可据此承接任务从属 |
 | `N6-CONFLICT-FRAME` | 锁整体冲突框架 | 大纲、任务关系、类型压力 | 提炼主对抗轴、长期冲突走廊与终局冲突收束 | `整体冲突` | `N7-RHYTHM-CURVE` | 冲突可向卷级下钻 |
-| `N7-RHYTHM-CURVE` | 绘制整部节奏曲线 | 卷职责、冲突走廊、Save the Cat reference | 形成 15 步长篇拍点走廊、卷职责分配与 Mermaid 图 | `整体节奏曲线` | `N8-AVOIDANCE-CLOSE` | 节奏能回答承诺、转折、见底、收束 |
+| `N7-RHYTHM-CURVE` | 绘制整部节奏曲线 | 卷职责、冲突走廊、Save the Cat reference | 形成 15 步长篇拍点走廊、卷职责分配、`book_wave_map` 与 Mermaid 图 | `整体节奏曲线` | `N8-AVOIDANCE-CLOSE` | 节奏能回答承诺、转折、见底、收束、力度、换气与 payoff 分布 |
 | `N8-AVOIDANCE-CLOSE` | 收束规避项 | 前序字段、项目禁区、经验层 | 输出总规避与反模式 | `规避` | `N9-REVIEW` | 规避具备执行性 |
 | `N9-REVIEW` | 确认可交给卷级 | 完整 `整体规划.md` | 执行 review gate，必要时返回失败节点 | verdict | done 或失败回路 | 可交给 `2-卷级` |
 

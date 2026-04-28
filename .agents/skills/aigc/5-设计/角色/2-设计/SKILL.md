@@ -63,6 +63,7 @@ Reject or clarify when:
 | --- | --- | --- |
 | `single_character` | 指定单个角色名或清单行 | 单个角色细目设计 markdown |
 | `batch_from_list` | 给定项目且未限制角色 | 每个清单角色一个 markdown，可附批量执行报告 |
+| `incremental_fill` | 上游清单 merge 后存在新增角色或 `design-manifest.yaml` 标出 `design_gaps` | 只为缺设计稿的角色补齐设计，不覆盖既有设计稿 |
 | `repair` | 已有设计稿缺字段、提示词超长、与清单或项目风格冲突 | 最小修复后的角色设计稿 |
 | `review_only` | 用户只要求检查角色设计稿 | 审查报告，不改写 canonical 设计稿，除非用户随后要求修复 |
 
@@ -71,6 +72,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意角色细目设计任务 | `references/character-design-contract.md`、`steps/character-design-workflow.md` |
+| 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 角色类型、主体粒度和设计深度分流 | `types/character-design-type-map.md` |
 | 输出验收、subagent/reviewer 汇流和风险分级 | `review/review-contract.md` |
 | 输出样板 | `templates/output-template.md` |
@@ -139,20 +141,22 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、相关项目 `CONTEXT/`、`north_star.yaml` 和 `team.yaml`。
-2. 读取上游 `角色清单.md`，锁定待设计角色主体、首次登场和原文描述关键词；不得新增清单外角色作为 canonical 输出。
-3. 按 `types/character-design-type-map.md` 判定角色主体类型，形成 `type_profile`。
-4. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
-5. 按 subagent 合同分发角色任务；若真实 dispatch 被阻断，按降级口径执行并记录。
-6. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；冷门信息可按允许条件搜索并保留来源摘要。
-7. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境。
-8. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/`。
-9. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、英文提示词不超过 2000 字符。
+2. 读取上游 `角色清单.md` 和可选 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，锁定待设计角色主体、首次登场和原文描述关键词；不得新增清单外角色作为 canonical 输出。
+3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标角色；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
+4. 按 `types/character-design-type-map.md` 判定角色主体类型，形成 `type_profile`。
+5. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
+6. 按 subagent 合同分发角色任务；若真实 dispatch 被阻断，按降级口径执行并记录。
+7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；冷门信息可按允许条件搜索并保留来源摘要。
+8. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境。
+9. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
+10. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、英文提示词不超过 2000 字符。
 
 ## Field Mapping
 
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-CHAR-DESIGN-01` | 上游清单锚点 | 名称、首次登场、原文描述复述可回指 `角色/1-清单` | `FAIL-CHAR-DESIGN-01` |
+| `FIELD-CHAR-DESIGN-01A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-CHAR-DESIGN-01A` |
 | `FIELD-CHAR-DESIGN-02` | 项目风格锚点 | `north_star.yaml` 的全局风格、主题、禁区已消费并显式折入提示词 | `FAIL-CHAR-DESIGN-02` |
 | `FIELD-CHAR-DESIGN-03` | 监制上下文 | `team.yaml` 中设计相关大师语境已选择性消费，不无关堆砌 | `FAIL-CHAR-DESIGN-03` |
 | `FIELD-CHAR-DESIGN-04` | 解构字段 | `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 全部存在 | `FAIL-CHAR-DESIGN-04` |
@@ -167,6 +171,7 @@ stateDiagram-v2
 出现以下问题时，必须沿链路上溯并修复源层合同：
 
 - 设计稿脱离 `角色/1-清单`，新增或替换 canonical 角色主体。
+- 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有角色设计稿。
 - 没有消费 `north_star.yaml` / `team.yaml`，却声称符合项目风格或大师监制。
 - 研究考据、物语、设计解构或提示词由脚本拼接、模板灌字或启发式扩写生成。
 - 角色设计变成图片生成执行、场景设计、道具设计或最终视频提示词。
@@ -189,6 +194,7 @@ stateDiagram-v2
 4. `解构` 必须包含字段：`Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。
 5. `提示词设计` 必须为英文、引用全局风格提示词与服装风格，并控制在 2000 字符内。
 6. 画面固定为纯色背景全身定妆照，不得置身具体场景、建筑空间、街景、室内陈设或复杂环境。
+7. 可选更新 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
 ### Output format
 
@@ -203,18 +209,21 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-CHARACTER-DESIGN` | `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md` |
 | `OUTPUT-CHARACTER-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/角色/2-设计/执行报告.md` |
+| `OUTPUT-CHARACTER-MANIFEST` | `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml` |
 
 ### Naming convention
 
 - 角色设计稿默认命名为 `<角色名>.md`。
 - 若角色名包含路径分隔符、控制字符或与现有角色冲突，使用安全名 `<角色名>__<首次登场ID>.md`。
 - 首次登场沿用上游清单格式，例如 `第N集.md / 1-1-1`。
+- 已有 `<角色名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
 - 本技能不改写 `角色清单.md`；发现清单问题时只在报告中提出上游修复建议。
 
 ### Completion gate
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、相关项目 `CONTEXT/`、`north_star.yaml` 和 `team.yaml`。
 - 待设计角色均来自 `角色/1-清单/角色清单.md`。
+- 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 每份设计稿字段齐全，且研究、物语、解构和提示词由 LLM 直接创作。
 - 研究层已从资料转化为设计证据链，并明确不确定性与禁区。
 - 英文提示词含全局风格提示词与服装风格，且长度不超过 2000 字符。

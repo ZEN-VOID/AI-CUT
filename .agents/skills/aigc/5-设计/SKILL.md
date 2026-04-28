@@ -15,6 +15,16 @@ metadata:
 - 本父级只拥有阶段路由、域选择、输出拓扑声明和阶段级验收；业务主创与最终文件写回由 `场景`、`角色`、`道具` 三个域级子技能包承担。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 域级子技能 `SKILL.md` > `references/*` / 域级分区 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
+## Multi-Subskill Continuous Workflow
+
+当本主技能包被整体调用时，视为用户已授权按本级声明的同级子技能包自动完成整个技能组任务；在满足本技能必要输入、显式选择和安全门后，不再为“是否继续下一步”额外确认。
+
+- 无序号同级子技能包默认全选并发执行；因此整体调用 `5-设计` 且未指定域时，默认同时调度 `场景`、`角色`、`道具` 三个域级包，再由本父级汇总验收。
+- 数字序号子技能包或节点（如域级包内部的 `1-清单`、`2-设计`、`3-生成`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
+- 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 连续调度不得绕过本技能的阻断门：缺少必需输入、域无法判定且整体调用语义不足、破坏性覆盖未授权、域级包缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
+- 每个被调度的域级包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 设计主创或父级最终裁决。
+
 ## Input Contract
 
 - Accepted input: 5-设计 阶段任务、场景/角色/道具清单-设计-生成一体化任务、旧 `1-清单 / 2-设计 / 3-面板` 路径迁移后的路由修复。
@@ -39,7 +49,8 @@ metadata:
 | mode | 触发信号 | 主要动作 |
 | --- | --- | --- |
 | `single_domain` | 用户明确命中场景、角色或道具 | 加载对应域级 `SKILL.md + CONTEXT.md` 并执行 |
-| `multi_domain` | 用户要求一次处理多个域 | 按用户指定域集合顺序调度；未指定顺序时采用 `场景 -> 角色 -> 道具` 的阶段内稳定顺序 |
+| `multi_domain` | 用户要求一次处理多个域，或整体调用 `5-设计` 且未指定单一域 | 无序号域级包默认全选并发调度；若用户显式给出域集合但未给顺序，也按并发汇总处理 |
+| `incremental_reconcile` | `4-分组` 只完成部分集数后曾执行过 5-设计，随后又新增或更新 `第N集.md` | 先按域执行增量对账，再进入缺口对应的 `1-清单 -> 2-设计 -> 3-生成` |
 | `domain_repair` | 旧路径、registry、脚本或输出合同漂移 | 进入 `references/阶段路由矩阵.md` 与对应域级 review gate |
 | `stage_closeout` | 域级输出已完成，需要阶段验收 | 汇总到 `projects/aigc/<项目名>/5-设计/validation-report.md` |
 
@@ -49,6 +60,7 @@ metadata:
 | --- | --- |
 | 父级路由与域选择 | `references/阶段路由矩阵.md` |
 | 父级思行节点 | `references/思行网络.md` |
+| 上游分批完成、后续追加集数、既有设计需要补缺 | `references/incremental-reconciliation-contract.md` |
 | 场景域执行 | `场景/SKILL.md + 场景/CONTEXT.md` |
 | 角色域执行 | `角色/SKILL.md + 角色/CONTEXT.md` |
 | 道具域执行 | `道具/SKILL.md + 道具/CONTEXT.md` |
@@ -59,10 +71,11 @@ metadata:
 1. 锁定项目根：`projects/aigc/<项目名>/`。
 2. 锁定 5-设计 输出根：`projects/aigc/<项目名>/5-设计/`。
 3. 根据用户请求、输入文件或现有产物判定命中域。
-4. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
-5. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 生成`。
-6. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
-7. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`。
+4. 若检测到 `4-分组` 新增、更新、只覆盖部分集数，或既有 `5-设计` 产物已存在，必须进入 `incremental_reconcile`：读取 `references/incremental-reconciliation-contract.md`，并要求每个命中域先产出本轮 `reconcile_delta`。
+5. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
+6. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 生成`，但每步只处理增量对账后的缺口；不得静默覆盖既有清单、设计稿或生成资产。
+7. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
+8. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`，并记录本轮上游范围、新增主体、跳过既有产物和遗留风险。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -75,8 +88,9 @@ metadata:
 1. 路由仍指向旧 `1-清单/2-设计/3-面板`：修 `references/阶段路由矩阵.md`、registry、routes 和相关脚本。
 2. 域级执行叶子缺 Skill 2.0 分区：回到对应叶子技能的 canonical layout；域级组根本身按 `governance_tier: router` 验收。
 3. 父级、registry 或 closeout 仍要求根目录平铺业务真源：回到域级 `SKILL.md` Output Contract。
-4. 设计模板或面板模板漂移：回到对应域级 `templates/` 与 `review/`。
-5. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
+4. 新增上游集数后覆盖旧清单、重复生成已有主体或重排场景编号：回到 `references/incremental-reconciliation-contract.md` 与对应域 `1-清单` merge 合同。
+5. 设计模板或面板模板漂移：回到对应域级 `templates/` 与 `review/`。
+6. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
 
 ## Field Mapping
 
@@ -85,8 +99,9 @@ metadata:
 | `DESIGN-FIELD-01` | `SKILL.md` | 父级输入、路由、输出和 root-cause 合同 |
 | `DESIGN-FIELD-02` | `references/阶段路由矩阵.md` | 域级包路径、触发词、输出文件 |
 | `DESIGN-FIELD-03` | `references/思行网络.md` | 父级 route/dispatch/closeout 节点 |
-| `DESIGN-FIELD-04` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 生成顺序 |
-| `DESIGN-FIELD-05` | `projects/aigc/<项目名>/5-设计/validation-report.md` | 阶段级验收摘要 |
+| `DESIGN-FIELD-04` | `references/incremental-reconciliation-contract.md` | 上游分批完成时的增量对账、manifest 和补缺规则 |
+| `DESIGN-FIELD-05` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 生成顺序 |
+| `DESIGN-FIELD-06` | `projects/aigc/<项目名>/5-设计/validation-report.md` | 阶段级验收摘要 |
 
 ## Thought Pass Map
 
@@ -94,8 +109,9 @@ metadata:
 | --- | --- | --- | --- |
 | `DESIGN-PASS-01` | 判断项目根与输出根 | 锁定 `projects/aigc/<项目名>/5-设计/` | runtime path |
 | `DESIGN-PASS-02` | 判断命中域 | 路由到 `场景 / 角色 / 道具` 包 | `domain_routes` |
-| `DESIGN-PASS-03` | 判断域级输出是否完成 | 执行域级 review gate | `domain_verdicts` |
-| `DESIGN-PASS-04` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
+| `DESIGN-PASS-03` | 判断是否存在分批上游或既有产物 | 执行增量对账门 | `reconcile_delta` |
+| `DESIGN-PASS-04` | 判断域级输出是否完成 | 执行域级 review gate | `domain_verdicts` |
+| `DESIGN-PASS-05` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
 
 ## Pass Table
 
@@ -103,12 +119,13 @@ metadata:
 | --- | --- | --- |
 | `DESIGN-PASS` | 命中域明确，输出根正确，旧 tranche 不再作为 active 入口 | done |
 | `DESIGN-REWORK-ROUTE` | 仍引用旧 `1-清单/2-设计/3-面板` | `references/阶段路由矩阵.md` |
+| `DESIGN-REWORK-INCREMENTAL` | 新增 `4-分组` 后清单/设计/生成未对账或覆盖既有产物 | `references/incremental-reconciliation-contract.md` |
 | `DESIGN-REWORK-DOMAIN` | 域级输出失败 | 对应域级 `review/review-contract.md` |
 
 ## Output Contract
 
 - Required output: 父级路由结果与可选阶段验收报告；域级任务的实际输出由对应子技能写出。
 - Output format: `validation-report.md` 使用 Markdown；域级业务输出为对应 leaf 的清单、设计稿和生成请求/结果 JSON。
-- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级业务真源写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`。
+- Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级业务真源写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`；域级状态 sidecar 可写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/design-manifest.yaml`。
 - Naming convention: 父级报告固定名 `validation-report.md`；域级命名由各域 `SKILL.md` 的 Output Contract 裁决。
-- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过。
+- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过；若存在分批上游或既有产物，已完成增量对账且未静默覆盖。

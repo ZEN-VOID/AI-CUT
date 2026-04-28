@@ -22,6 +22,16 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - `CHANGELOG.md` is not runtime context unless migration history is needed.
 - New reusable failures or stable tactics go to `CONTEXT.md` first; if they become mandatory, promote them to this entry contract or the correct reference partition.
 
+## Multi-Subskill Continuous Workflow
+
+当本主技能包被整体调用时，视为用户已授权按本级声明的同级子技能包、阶段分区或内部连续节点自动完成整个技能组任务；在满足本技能必要输入、显式选择和安全门后，不再为“是否继续下一步”额外确认。
+
+- 无序号同级子技能包默认全选并发执行，由本主技能包汇总、裁决和写回唯一 canonical 输出。
+- 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
+- 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 连续调度不得绕过本技能的阻断门：缺少必需输入、`auto/custom` 未锁定、破坏性操作未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
+- 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 主创判断或父级最终裁决。
+
 ## When to Use
 
 - 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目 / 新建电影项目 / 电影项目起盘”等媒介明确为 film/movie/video/影视工作流的初始化。

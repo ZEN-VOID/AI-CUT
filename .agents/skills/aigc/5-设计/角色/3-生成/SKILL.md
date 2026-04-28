@@ -70,6 +70,7 @@ Reject or clarify when:
 | `single_character` | 指定单个角色设计文档或角色名 | 一组 `<主体名称>-主图` 与 `<主体名称>-多视图` 图片及 JSON |
 | `batch_from_designs` | 给定项目且未限制角色 | 为 `2-设计/` 下每份角色设计文档生成主图、多视图与 JSON |
 | `prompt_only` | imagegen 不可用、用户要求 dry-run 或只要提示词 | 仅输出主图 JSON、多视图 JSON 与阻断/执行说明 |
+| `incremental_fill` | `design-manifest.yaml` 或 `2-设计` 显示存在 `generation_gaps` | 只补缺主图、多视图或 JSON，不覆盖既有资产 |
 | `repair_or_regenerate` | 已有产物缺失、命名错误、JSON 不匹配或需要重跑 | 最小范围重生成或修复本阶段产物 |
 | `review_only` | 用户只要求检查生成阶段产物 | 审查报告，不改写或重跑产物，除非用户随后要求 |
 
@@ -134,6 +135,7 @@ stateDiagram-v2
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意角色生成任务 | `references/character-generation-contract.md`、`steps/character-generation-workflow.md` |
+| 设计稿增量后的生成缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 角色范围、重跑策略、prompt-only 分流 | `types/character-generation-type-map.md` |
 | 输出验收、imagegen 证据和风险分级 | `review/review-contract.md` |
 | 多视图 prompt JSON 模板 | `templates/character-multiview-prompt-template.json` |
@@ -148,11 +150,11 @@ stateDiagram-v2
 2. 读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，确认本轮 imagegen 执行路径与保存策略。
    - 默认执行器锁定为 `.agents/skills/cli/imagegen`。
    - 只有用户本轮显式点名替代执行器时，才允许加载和调用其他图像 API skill；否则 imagegen 不可用时进入 `prompt_only`。
-3. 读取上游 `角色/2-设计` 目标设计文档，抽取角色名称、设计锚点与 `提示词设计` 英文 prompt；不得重写角色设定。
-4. 按 `types/character-generation-type-map.md` 形成 `generation_profile`，决定单角色、批量、prompt-only 或重跑。
+3. 读取上游 `角色/2-设计` 目标设计文档和可选 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，抽取角色名称、设计锚点与 `提示词设计` 英文 prompt；不得重写角色设定。
+4. 按 `types/character-generation-type-map.md` 形成 `generation_profile`，决定单角色、批量、prompt-only、incremental_fill 或重跑；已有主图、多视图和 JSON 默认跳过，覆盖必须有明确授权。
 5. Step1：依据每份设计文档生成单主体图，保存图片与 `<主体名称>-主图.json`。
 6. Step2：套用 `templates/character-multiview-prompt-template.json`，以 Step1 的单主体图为参照图，生成多视图主体设计图，保存图片与 `<主体名称>-多视图.json`。
-7. 所有输出落入 `projects/aigc/<项目名>/5-设计/角色/3-生成/`，按命名合同写入。
+7. 所有输出落入 `projects/aigc/<项目名>/5-设计/角色/3-生成/`，按命名合同写入；可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`。
 8. 按 `review/review-contract.md` 检查路径、命名、JSON 可回指、设计稿不被重写、imagegen 产物真实存在或 prompt-only 阻断清楚。
 
 ## Field Mapping
@@ -175,6 +177,7 @@ stateDiagram-v2
 - 生成提示词脱离或改写 `角色/2-设计` 的 `提示词设计`。
 - 多视图模板覆盖了角色身份、服装事实、时代、风格或叙事压力。
 - 本技能试图补写角色设定、场景设定、道具设定或视频提示词。
+- 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
 - 图片没有真实生成却被报告为已生成。
 - 产物没有落到 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
 - 未获用户显式授权时切换到 nano-banana、AnyFast、seedream 或其他非 `.agents/skills/cli/imagegen` 执行器。
@@ -191,6 +194,7 @@ stateDiagram-v2
 1. 每个目标角色输出一张单主体图、一张多视图主体设计图。
 2. 每张图片同时落一份同名 JSON prompt 文件。
 3. JSON 必须记录 `source_design_path`、`source_prompt_section`、`imagegen_mode`、`output_image_path`；多视图 JSON 还必须记录 `reference_image_path`。
+4. 可选更新 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
 
@@ -208,6 +212,7 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-CHARACTER-*` | `projects/aigc/<项目名>/5-设计/角色/3-生成/` |
 | `OUTPUT-CHARACTER-GENERATION-REPORT` | `projects/aigc/<项目名>/5-设计/角色/3-生成/执行报告.md` |
+| `OUTPUT-CHARACTER-MANIFEST` | `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml` |
 
 ### Naming convention
 
@@ -216,6 +221,7 @@ stateDiagram-v2
 - 多视图：`<主体名称>-多视图.<ext>`。
 - 多视图 JSON：`<主体名称>-多视图.json`。
 - 若主体名称包含路径分隔符、控制字符或与现有产物冲突，使用安全名并在 JSON 中保留 `subject_name_original`。
+- 增量补缺默认跳过已有完整资产，只生成缺失的主图、多视图或 JSON。
 
 ### Completion gate
 
@@ -223,5 +229,6 @@ stateDiagram-v2
 - 每个目标角色都有主图 JSON、多视图 JSON；真实生图模式下对应图片存在于项目输出目录。
 - 主图 prompt 来自设计文档 `提示词设计`；多视图模板只组织画面，不改写主体设计。
 - 多视图生成以对应主图作为参照图。
+- 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。
 - subagents 默认路径已真实启动；若被上层阻断，已记录降级报告。

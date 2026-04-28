@@ -6,9 +6,30 @@
 
 本章冲突：
 
+本章爽点设计：
+- `reader_desire`：
+- `promise_source`：
+- `genre_payoff_profile`：
+- `character_anchor`：
+- `payoff_mode`：
+- `payoff_variation_axis`：
+- `duel_variation_axis`：
+- `build_up`：
+- `delivery_action`：
+- `satisfaction_delta`：
+- `exaggeration_logic`：
+- `cost_or_aftershock`：
+- `aftertaste_hook`：
+
 本章节奏曲线：
 - `selected_pack`：
 - `selected_mode`：
+- `mode_selection_reason`：
+- `payoff_type`：
+- `rhythm_intensity`：
+- `previous_next_contrast`：
+  - 承接上一章：
+  - 预留下一章：
 
 七步职责映射：
 - 入场：

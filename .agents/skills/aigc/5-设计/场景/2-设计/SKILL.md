@@ -61,6 +61,7 @@ Reject or clarify when:
 | --- | --- | --- |
 | `single_scene` | 指定一个场景主体 | 单个 `S###-<场景名>.md` |
 | `batch_scene` | 指定多个场景或要求处理全部 | 多个单场景设计稿与可选执行报告 |
+| `incremental_fill` | 上游清单 merge 后存在新增场景或 `design-manifest.yaml` 标出 `design_gaps` | 只为缺设计稿的场景补齐设计，不覆盖既有设计稿 |
 | `repair` | 已有设计稿缺字段、提示词超长、证据不足或风格漂移 | 最小修复后的设计稿 |
 | `review_only` | 用户只要求审查场景设计 | 审查结论，不改写文件，除非用户随后要求修复 |
 
@@ -117,6 +118,7 @@ stateDiagram-v2
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意场景设计任务 | `references/scene-design-contract.md`、`steps/scene-design-workflow.md` |
+| 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 场景类型、空间粒度、建筑/自然/超现实分型 | `types/scene-design-type-map.md` |
 | 输出质量审查、subagents/reviewer 降级口径 | `review/review-contract.md` |
 | 输出样板和字段顺序 | `templates/output-template.md` |
@@ -127,15 +129,15 @@ stateDiagram-v2
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目根 `MEMORY.md` 与相关项目 `CONTEXT/`。
-2. 读取 `north_star.yaml`、`team.yaml` 和上游 `场景清单.md`，建立 `input_manifest`。
-3. 按用户指定或清单缺口选择目标场景，不新增未在上游清单出现的场景主体。
+2. 读取 `north_star.yaml`、`team.yaml`、上游 `场景清单.md` 和可选 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`，建立 `input_manifest`。
+3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标场景，不新增未在上游清单出现的场景主体；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
 5. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
 6. 按 `references/scene-design-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；提示词中的关键空间、材质、光线、构图和风格 token 必须能回指研究或设计依据。
 7. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
 8. `解构` 必须分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词和建筑风格，并输出英文提示词，长度不超过 2000 characters。
 9. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
-10. 写入 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`。
+10. 写入 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
 11. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级。
 
 ## Field Mapping
@@ -144,6 +146,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-SCENE-DESIGN-01` | 输入取证 | 可回指项目根、`north_star.yaml`、`team.yaml`、上游场景清单行 | `FAIL-SCENE-DESIGN-01` |
 | `FIELD-SCENE-DESIGN-02` | 场景主体 | 主体来自上游清单，不新增平行清单真源 | `FAIL-SCENE-DESIGN-02` |
+| `FIELD-SCENE-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-SCENE-DESIGN-02A` |
 | `FIELD-SCENE-DESIGN-03` | 研究层闭环 | 包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并与类型画像相关 | `FAIL-SCENE-DESIGN-03` |
 | `FIELD-SCENE-DESIGN-04` | 物语 | 解释空间与角色关系、叙事和主题的关系，不写成剧情正文，不让人物入画 | `FAIL-SCENE-DESIGN-04` |
 | `FIELD-SCENE-DESIGN-05` | 解构 | 包含 `Scene Design` 与 `Cinematography` 两组字段 | `FAIL-SCENE-DESIGN-05` |
@@ -158,7 +161,7 @@ stateDiagram-v2
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
 | `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`north_star.yaml`、`team.yaml`、`场景清单.md` | 三个核心来源是否可读，缺口是否需要降级报告 | `input_manifest` |
-| `PASS-SCENE-DESIGN-02` | 主体选择 | 用户指定项或上游清单 | 是否只处理清单已有场景，是否需要跳过已有设计稿 | `target_scene_list` |
+| `PASS-SCENE-DESIGN-02` | 主体选择 | 用户指定项、上游清单或 manifest | 是否只处理清单已有场景，是否需要跳过已有设计稿或补 `design_gaps` | `target_scene_list` |
 | `PASS-SCENE-DESIGN-03` | 类型画像 | 场景名、原文关键词、项目资料 | 场景类型、建筑风格入口、研究需求和摄影风险 | `type_profile` |
 | `PASS-SCENE-DESIGN-04` | 研究简报 | 上游证据、north star、team、type profile | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
 | `PASS-SCENE-DESIGN-05` | LLM 设计 | research brief、north star、team、type profile | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出 | `scene_design_draft` |
@@ -182,6 +185,7 @@ stateDiagram-v2
 出现以下问题时，必须沿链路上溯并修复源层合同：
 
 - 从剧情想象新增了上游清单没有的场景主体。
+- 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有场景设计稿。
 - 未读取 `north_star.yaml` 或 `team.yaml` 就生成风格判断。
 - 研究考据由脚本、模板拼接或无来源断言替代 LLM 判断。
 - 研究层只有百科式段落，没有 `research_brief`、来源姿态、不确定性和视觉翻译。
@@ -206,6 +210,7 @@ stateDiagram-v2
 5. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用、`prompt_evidence_chain` 和英文提示词；英文提示词不超过 2000 characters。
 6. 画面固定为纯空镜，不得出现人物、人体局部、剪影、倒影或可识别人类存在。
 7. 可选执行报告记录输入范围、已生成文件、降级情况、冷门信息检索情况和 review verdict。
+8. 可选更新 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
 ### Output format
 
@@ -220,10 +225,12 @@ stateDiagram-v2
 | --- | --- |
 | `OUTPUT-SCENE-DESIGN` | `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md` |
 | `OUTPUT-SCENE-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/场景/2-设计/执行报告.md` |
+| `OUTPUT-SCENE-MANIFEST` | `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml` |
 
 ### Naming convention
 
 - `S###` 使用上游 `场景清单.md` 中目标场景的顺序，从 `S001` 起补零。
+- 已有 `S###-<场景名>.md` 不因清单 merge 或新增场景而重排；新增场景追加下一个可用 `S###`。
 - `<场景名>` 使用上游 canonical 场景名，文件名中 `/\:*?"<>|` 与换行替换为 `-`。
 - 不创建 `scene-design.md`、`场景设计.md`、`全部场景.md` 或其他平行总稿，除非用户显式要求额外汇总导出。
 
@@ -232,6 +239,7 @@ stateDiagram-v2
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 - 已读取 `north_star.yaml`、`team.yaml` 和上游 `场景清单.md`。
 - 每个输出文件都能回指上游清单行的 `名称`、`首次登场`、`原文描述（关键词式）`。
+- 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 每个设计稿包含 required output 中的全部板块和字段。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
 - 英文提示词不超过 2000 characters，且显式承接全局风格提示词与建筑风格。

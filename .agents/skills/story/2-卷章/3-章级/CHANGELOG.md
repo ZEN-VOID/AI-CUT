@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-04-28
+
+- 新增 `references/chapter-payoff-rules.md`，将章级爽点设计升级为独立但与节奏 handoff 高度关联的系统。
+- 在模板、steps、types、review 与 Output Contract 中新增 `本章爽点设计`，固定 `reader_desire / promise_source / character_anchor / payoff_mode / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook`。
+- 将动能式、势能式、浪能式分别映射到外部化结果、精神/认知/压力变化、体验/关系/生活质感/状态修复等爽点形态，并要求 `payoff_type / micro_payoff` 消费爽点设计。
+- 补强角色一致性门禁：新增 `character_anchor` 与 `exaggeration_logic`，要求爽点与角色个性高度相关，夸张但合情理。
+- 补强类型机制：新增 `types/payoff-genre-type-map.md` 与 `genre_payoff_profile`，要求爽点按小说类型/子类型校准口味、禁忌和兑现尺度，避免所有项目同质化。
+- 将“高超的对决”纳入动能式爽点，覆盖武斗、法则碰撞、谈判交锋、棋局互算、推理追捕、手艺比赛和商业博弈等类型化表达。
+- 新增高超对决变体机制：`duel_variation_axis` 要求多章对决至少在对手类型、对决场域、胜法、代价或情绪色彩上形成差异。
+- 新增通用高潮点变体机制：`payoff_variation_axis` 要求反杀、打脸、揭秘、关系升温、牺牲、治愈、奇观等同类爽点在对象、机制、尺度、时序、参与者、情绪或后果上形成差异。
+
 ## 2026-04-26
 
 - 升级为完整 Skill 2.0 包结构，补齐 `steps/`、`review/`、`types/`、`knowledge-base/`、`scripts/`、`agents/`、`README.md` 与 `CHANGELOG.md`。

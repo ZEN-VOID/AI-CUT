@@ -1838,7 +1838,7 @@ def init_project(
     state["status"] = "initialized"
     state["recommended_next_stage"] = "1-设定"
     state["recommended_entry_path"] = "1-设定"
-    state["recommended_next_step"] = "进入 `1-设定`，基于 `0-初始化/north_star.yaml` 与 `0-初始化/init_handoff.yaml` 建立角色/场景/物品 cards 真源。"
+    state["recommended_next_step"] = "进入 `1-设定`，基于 `0-初始化/north_star.yaml` 与 `0-初始化/init_handoff.yaml` 建立角色/场景/物品/技能 cards 真源。"
     state["governance_mode"] = "lightweight_init"
     state["story_source_status"] = "seed_only_no_primary_story_source"
     state["init_session"] = {

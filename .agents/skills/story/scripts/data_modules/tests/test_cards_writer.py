@@ -644,6 +644,107 @@ def _build_payload() -> dict:
                     },
                 ],
             },
+            "skills": {
+                "skill_links": [
+                    {"skill": "债务谈判", "user": "林舟"},
+                    {"skill": "档案检索", "user": "周岚"},
+                ],
+                "progression_hooks": [
+                    {"skill": "债务谈判", "stage": "从被迫应对到主动设局"},
+                ],
+                "current_focus": {
+                    "confirmed_facts": ["生活与职业技能已锁定"],
+                    "inferred_defaults": [],
+                    "active_skills": ["债务谈判", "档案检索"],
+                    "locked_skills": [],
+                },
+                "cards": [
+                    {
+                        "bucket": "professional_skills",
+                        "file_name": "债务谈判.json",
+                        "card": {
+                            "core": {
+                                "identity": {"name": "债务谈判"},
+                                "skill_taxonomy": {
+                                    "primary_domain": "professional_skills",
+                                    "hybrid_tags": ["social_pressure"],
+                                    "genre_expression": "都市现实压力下的谈判能力",
+                                },
+                                "narrative_functions": ["制造周旋空间"],
+                                "activation_rules": {
+                                    "triggers": ["面对催债或交易"],
+                                    "procedures": ["先承认压力再交换筹码"],
+                                    "required_conditions": ["掌握对方痛点"],
+                                },
+                                "limits_and_costs": {
+                                    "limits": ["信息不足时失效"],
+                                    "costs": ["暴露自身底牌"],
+                                    "failure_modes": ["被对手反向套话"],
+                                },
+                                "progression_model": {
+                                    "stages": ["被动拖延", "主动设局"],
+                                    "upgrade_conditions": ["掌握旧案证据"],
+                                    "mastery_signals": ["能用一句话迫使对方让步"],
+                                },
+                                "counterplay": {
+                                    "counters": ["沉默施压"],
+                                    "weaknesses": ["情绪失控"],
+                                    "misuse_consequences": ["债务压力升级"],
+                                },
+                            },
+                            "current_state": {
+                                "availability": "active",
+                                "known_users": ["林舟"],
+                                "mastery_distribution": ["林舟:初级"],
+                                "active_plot_load": ["争取调查时间"],
+                            },
+                            "history": [],
+                        },
+                    },
+                    {
+                        "bucket": "life_talents",
+                        "file_name": "档案检索.json",
+                        "card": {
+                            "core": {
+                                "identity": {"name": "档案检索"},
+                                "skill_taxonomy": {
+                                    "primary_domain": "life_talents",
+                                    "hybrid_tags": ["clerical"],
+                                    "genre_expression": "以日常职业经验撬动旧案真相",
+                                },
+                                "narrative_functions": ["打开线索链"],
+                                "activation_rules": {
+                                    "triggers": ["进入档案室"],
+                                    "procedures": ["按年代与编号交叉检索"],
+                                    "required_conditions": ["取得借阅权限"],
+                                },
+                                "limits_and_costs": {
+                                    "limits": ["缺页档案无法直接确认"],
+                                    "costs": ["留下借阅记录"],
+                                    "failure_modes": ["误读编号"],
+                                },
+                                "progression_model": {
+                                    "stages": ["按规则检索", "识别被删改痕迹"],
+                                    "upgrade_conditions": ["获得旧借阅证"],
+                                    "mastery_signals": ["从空白处判断缺失事实"],
+                                },
+                                "counterplay": {
+                                    "counters": ["档案调包"],
+                                    "weaknesses": ["权限依赖"],
+                                    "misuse_consequences": ["暴露查询目标"],
+                                },
+                            },
+                            "current_state": {
+                                "availability": "active",
+                                "known_users": ["周岚"],
+                                "mastery_distribution": ["周岚:熟练"],
+                                "active_plot_load": ["追查旧案编号"],
+                            },
+                            "history": [],
+                        },
+                    },
+                ],
+            },
         },
     }
 
@@ -784,6 +885,7 @@ def test_cards_writer_writes_trace_fields_and_passes_gate(tmp_path):
     coverage_report = cards_coverage_validator.build_cards_coverage_report(project_root)
     assert coverage_report["ok"] is True
     assert coverage_report["sections"]["characters"]["trace"]["module_route"] == "story-cards > 角色卡/SKILL.md"
+    assert coverage_report["sections"]["skills"]["trace"]["module_route"] == "story-cards > 技能卡/SKILL.md"
 
 
 def test_cards_writer_cleans_empty_lock_files_by_default(tmp_path):

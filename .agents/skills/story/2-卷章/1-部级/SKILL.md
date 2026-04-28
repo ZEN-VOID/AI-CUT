@@ -22,7 +22,7 @@ governance_tier: full
 
 - Accepted input: 生成、补写、修订或审查整书级规划；输入可来自用户设定、`0-初始化`、`north_star.yaml.genre_contract`、已有 `整体规划.md`、父层 planning 合同和项目记忆。
 - Required input: 项目根、`0-初始化/north_star.yaml`、`0-初始化/init_handoff.yaml`、可用的 `genre_contract` 或用户明确给出的类型承诺。
-- Optional input: 已存在的 `2-卷章/整体规划.md`、角色/场景/物品卡摘要、用户指定卷数、题材禁区、长期偏好、阶段性 review 结论。
+- Optional input: 已存在的 `2-卷章/整体规划.md`、角色/场景/物品/技能卡摘要、用户指定卷数、题材禁区、长期偏好、阶段性 review 结论。
 - Reject or clarify when: 无法定位项目根；没有题材/读者承诺；用户要求跳过部级直接批量生成卷级或章级；用户要求在 planning 阶段直接写正文。
 - Non-goals: 不代写单卷细节、不代写单章执行蓝图、不复制完整卡册、不直接产出小说正文。
 
@@ -69,6 +69,14 @@ governance_tier: full
 | `revise_book_plan` | 已有整体规划，用户要求修订或补强 | 回读旧稿，按字段 patch 修订，不静默改写无关段落 |
 | `audit_book_plan` | 用户要求检查部级规划是否可交给卷级 | 运行 review gate，输出缺口与修订建议 |
 | `repair_book_plan` | 缺少卷划分、任务关系、节奏图或规避项 | 定向补齐失败字段，再回到 review gate |
+
+## Multi-Subskill Continuous Workflow
+
+- 本 `1-部级` 是 `2-卷章` 下的数字序号 child skill；父层按 `1-部级 -> 2-卷级 -> 3-章级` 串行调度，本技能必须以 `SKILL.md + CONTEXT.md` 作为入口。
+- 无序号同级子技能包：本目录下没有无序号可执行子技能；若未来新增，默认由本技能聚合其输出并回写唯一 `整体规划.md`。
+- 数字序号同级子技能包：本技能是卷章规划链路第一环，输出 `整体规划.md` 后交给 `2-卷级`。
+- 英文序号同级子技能包：本目录下没有 `A- / B- / C-` 互斥路线；若未来新增，按用户意图或父层路由单选。
+- 卫星技能：本目录下没有本级卫星技能；查询、恢复、审查等旁路由 `story/query`、`story/resume`、`story/review` 或父层声明的 reviewer 承接。
 
 ## Visual Maps
 
@@ -137,14 +145,14 @@ flowchart TD
 | `FIELD-BOOK-04` | `卷划分` | LLM 主创 | `../_shared/fractal-planning-output-contract.md` | 每卷有核心功能与阶段职责 |
 | `FIELD-BOOK-05` | `整部任务关系` | LLM 主创 | `references/book-level-output-contract.md` | 有主任务树、卷级支流簇、关键汇聚里程碑 |
 | `FIELD-BOOK-06` | `整体冲突` | LLM 主创 | `references/book-level-output-contract.md` | 有核心对抗轴、冲突走廊、终局收束 |
-| `FIELD-BOOK-07` | `整体节奏曲线` | LLM 主创 | `references/book-rhythm-save-the-cat.md` | Save the Cat 长波走廊 + Mermaid 图齐全 |
+| `FIELD-BOOK-07` | `整体节奏曲线` | LLM 主创 | `references/book-rhythm-save-the-cat.md` | Save the Cat 长波走廊 + `book_wave_map` + Mermaid 图齐全 |
 | `FIELD-BOOK-08` | `规避` | LLM 主创 | `knowledge-base/` | 是可执行禁飞区 |
 | `FIELD-BOOK-09` | review verdict | `review/` | `review/book-level-review-contract.md` | 可交给 `2-卷级` |
 
 ## Output Contract
 
 - Required output: 唯一部级规划文件 `projects/story/<项目名>/2-卷章/整体规划.md`；审查模式可额外输出本轮 findings，但不得替代规划真源。
-- Output format: Markdown，必须包含 `书名 / 整体故事大纲 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避`，其中 `整体节奏曲线` 必须包含 Mermaid 图。
+- Output format: Markdown，必须包含 `书名 / 整体故事大纲 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避`，其中 `整体节奏曲线` 必须包含 `book_wave_map` 与 Mermaid 图。
 - Output path: `projects/story/<项目名>/2-卷章/整体规划.md`。
 - Naming convention: 文件名固定为 `整体规划.md`；卷名、任务节点和 Mermaid 节点可使用中文，但任务 ID 或模板要求的机器字段必须保持 ASCII 安全字符。
 - Completion gate: 通过 `review/book-level-review-contract.md` 的部级门禁；父层校验时还应可运行 `python3 .agents/skills/story/2-卷章/scripts/validate_planning_outputs.py --help`。

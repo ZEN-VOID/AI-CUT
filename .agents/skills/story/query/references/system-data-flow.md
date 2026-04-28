@@ -88,7 +88,7 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
   → 其中 `north_star.yaml.cards` 承担长期对象总规范
 
 1-设定
-  → 基于 `north_star.yaml.cards` 建立角色/场景/物品真源：core / current_state / history
+  → 基于 `north_star.yaml.cards` 建立角色/场景/物品/技能真源：core / current_state / history
 
 2-卷章
   → `1-部级 -> 2-卷级 -> 3-章级` 分形递进

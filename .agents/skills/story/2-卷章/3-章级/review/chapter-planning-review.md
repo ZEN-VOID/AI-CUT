@@ -12,9 +12,14 @@
 | dimension | pass condition | fail route |
 | --- | --- | --- |
 | upstream | 已回读 `整体规划.md` 与目标卷 `卷规划.md` | `SKILL.md` Input Contract / `steps/N1-UPSTREAM-REREAD` |
-| headings | 12 个 required headings 齐全 | `templates/chapter-planning.template.md` |
+| headings | 13 个 required headings 齐全 | `templates/chapter-planning.template.md` |
 | conflict | 表层冲突、深层冲突、冲突状态变化齐全 | `references/chapter-planning-contract.md` |
-| rhythm | `selected_pack / selected_mode / 七步职责映射 / 规划义务 / 义务段位 / 建议写法 / Mermaid` 齐全 | `references/chapter-rhythm-rules.md` |
+| payoff | `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook` 齐全，且能回指读者期待、卷级 promise、类型画像、角色个性与可验证兑现动作 | `references/chapter-payoff-rules.md` |
+| payoff_genre | `genre_payoff_profile` 与项目/卷级类型一致，且 `payoff_mode` 没有串味或破坏类型承诺 | `types/payoff-genre-type-map.md` |
+| payoff_variation | `payoff_variation_axis` 说明本章高潮点与近邻章节在对象、机制、尺度、时序、参与者、情绪或后果上的差异 | `references/chapter-payoff-rules.md` |
+| duel_variation | 若 `payoff_mode` 包含高超对决，`duel_variation_axis` 必须说明对手、场域、胜法、代价或情绪色彩与近邻章节的差异 | `references/chapter-payoff-rules.md` |
+| rhythm | `selected_pack / selected_mode / mode_selection_reason / payoff_type / rhythm_intensity / previous_next_contrast / 七步职责映射 / 规划义务 / 义务段位 / 建议写法 / Mermaid` 齐全，并消费 `本章爽点设计` | `references/chapter-rhythm-rules.md` |
+| rhythm_wave | `payoff_type` 合法、`rhythm_intensity` 合法、`previous_next_contrast` 同时包含承接与预留 | `../../../_shared/chapter-rhythm-handoff-contract.md` |
 | obligations | `entry_promise / conflict_axis / micro_payoff / exit_hook` 齐全 | `../../../_shared/chapter-rhythm-handoff-contract.md` |
 | task_line | `上承卷级任务 / 主线 / 支线 / 支流角色 / 汇聚动作 / 未汇聚任务去向` 齐全 | `references/chapter-planning-contract.md` |
 | information | `本章线索` 与 `本章伏笔` 分离，伏笔含 `铺设 / 兑现` | `templates/chapter-planning.template.md` |
@@ -26,7 +31,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream | headings | conflict | rhythm | task_line | information | planning_only | mermaid
+  dimension: upstream | headings | conflict | payoff | payoff_genre | payoff_variation | duel_variation | character_logic | rhythm | rhythm_wave | task_line | information | planning_only | mermaid
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -47,7 +52,24 @@ finding:
 不得在以下情况宣布完成：
 
 - 缺 `整体规划.md` 或目标卷 `卷规划.md`。
+- 章级缺 `本章爽点设计`，或爽点设计缺 `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook` 任一必填槽位。
+- `genre_payoff_profile` 缺失、不能回指项目/卷级类型，或与 `payoff_mode` 明显串味且无合理说明。
+- `payoff_mode` 不能回指动能式、势能式或浪能式下的主导爽点形态，或与本章冲突、读者期待、卷级 promise 脱节。
+- `payoff_variation_axis` 缺失，或近邻章节同类高潮点没有至少两个差异轴。
+- 反杀、打脸、揭秘、关系升温、治愈、牺牲、奇观等高潮点连续复用同一对象、同一机制、同一尺度、同一时序、同一情绪或同一后果。
+- `payoff_mode` 包含高超对决，但缺少 `duel_variation_axis`，或没有说明与近邻对决至少两个维度不同。
+- 多章高超对决连续复用同一类对手、同一胜法、同一场域、同一代价或同一情绪色彩。
+- `character_anchor` 不能回指角色个性、欲望、缺陷、惯常反应、关系姿态或成长压力。
+- `exaggeration_logic` 不能说明爽点如何夸张、放大或极致化，以及为什么仍符合角色动机、处境压力或成长轨迹。
+- 为了爽点让角色无因莽撞、无因英勇、无因背叛、无因失控或无因转性。
+- `delivery_action` 不可验证，或 `satisfaction_delta` 没有说明兑现前后的角色状态、局势、认知、关系或世界感变化。
+- `cost_or_aftershock` 与 `aftertaste_hook` 同时缺实质内容，导致爽完无余波、无牵引。
 - 章级节奏 handoff 任一必填槽位缺失。
+- `selected_mode` 没有选择理由，或理由不能回指本章冲突、任务、信息压力、情绪调性、旅程/游玩状态、`micro_payoff` 或 `exit_hook`。
+- `payoff_type` 不是 `认知 / 行动 / 情绪 / 关系 / 世界感 / 软线索 / 状态修复` 之一，或与 `本章爽点设计`、`micro_payoff` 不一致。
+- `rhythm_intensity` 不是 `低 / 中 / 高` 之一，或无法解释本章在连续章节波形中的发力程度。
+- `previous_next_contrast` 缺 `承接上一章` 或 `预留下一章`，导致本章只自洽、不进入连续章感。
+- `selected_mode` 为 `浪能式` 时没有情绪、关系、世界感、软信息或状态修复层面的轻盈 payoff。
 - 任务线没有汇聚动作或未汇聚去向。
 - 线索与伏笔合并成一个段落。
 - 章级规划出现正文、对白或可直接投放到 drafting 的叙述段。

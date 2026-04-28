@@ -43,7 +43,7 @@ last_checked_at: 2026-04-20T00:00:00Z
 1. 先跑 dry-run 看请求摘要：
 
 ```bash
-python3 .agents/skills/api/vidu/video-generate/scripts/vidu_video.py create \
+python3 .agents/skills/api/vidu/scripts/vidu_video.py create \
   --mode text2video \
   --model viduq3-turbo \
   --prompt "test" \

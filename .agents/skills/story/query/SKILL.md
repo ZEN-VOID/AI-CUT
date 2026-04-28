@@ -54,7 +54,7 @@ Required input:
 
 Optional input:
 
-- 卷号、章号、角色/场景/物品名称、实体 ID、别名、run_id、阶段名、时间窗或用户要求的输出精度。
+- 卷号、章号、角色/场景/物品/技能名称、实体 ID、别名、run_id、阶段名、时间窗或用户要求的输出精度。
 - 用户指定的兼容读取范围，例如旧 `全息地图.json`、`卷分片/*.json` 或 legacy planning。
 
 Reject or clarify when:

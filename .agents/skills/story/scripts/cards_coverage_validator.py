@@ -9,7 +9,7 @@ The validator focuses on two layers:
 
 Global, style, and genre/type truth now live in `0-初始化/north_star.yaml`;
 this validator only gates the remaining `1-设定` card outputs:
-characters, scenes, and items.
+characters, scenes, items, and skills.
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ CHARACTER_INDEX_REL = Path("1-设定") / "2-角色卡" / "角色索引.json"
 CHARACTER_GRAPH_REL = Path("1-设定") / "2-角色卡" / "角色关系图谱.md"
 SCENE_INDEX_REL = Path("1-设定") / "3-场景卡" / "场景索引.json"
 ITEM_INDEX_REL = Path("1-设定") / "4-物品卡" / "物品索引.json"
+SKILL_INDEX_REL = Path("1-设定") / "5-技能卡" / "技能索引.json"
 STATE_REL = Path("STATE.json")
 NORTH_STAR_REL = Path("0-初始化") / "north_star.yaml"
 INIT_HANDOFF_REL = Path("0-初始化") / "init_handoff.yaml"
@@ -51,6 +52,14 @@ ITEM_BUCKETS = {
     "narrative_items": Path("1-设定") / "4-物品卡" / "重要叙事物品",
     "relics": Path("1-设定") / "4-物品卡" / "文物",
     "adornments": Path("1-设定") / "4-物品卡" / "点缀物",
+}
+SKILL_BUCKETS = {
+    "technology_systems": Path("1-设定") / "5-技能卡" / "科技",
+    "spells_abilities": Path("1-设定") / "5-技能卡" / "法术异能",
+    "martial_arts": Path("1-设定") / "5-技能卡" / "武功",
+    "combat_operations": Path("1-设定") / "5-技能卡" / "作战技能",
+    "life_talents": Path("1-设定") / "5-技能卡" / "生活才艺",
+    "professional_skills": Path("1-设定") / "5-技能卡" / "专业技能",
 }
 
 TRACE_SPECS = {
@@ -88,6 +97,18 @@ TRACE_SPECS = {
             "物品卡/SKILL.md",
             "物品卡/CONTEXT.md",
             "物品卡/templates/item-card.json",
+        ],
+    },
+    "skill": {
+        "source_skill_id": "story-cards-skill",
+        "source_route": "0-初始化 > story-cards > 技能卡/SKILL.md",
+        "module_route": "story-cards > 技能卡/SKILL.md",
+        "loaded_references": [
+            "SKILL.md",
+            "CONTEXT.md",
+            "技能卡/SKILL.md",
+            "技能卡/CONTEXT.md",
+            "技能卡/templates/skill-card.json",
         ],
     },
 }
@@ -290,6 +311,12 @@ def _infer_profile(
     travel_keywords = ("海", "路", "旅", "港", "岛", "跨海", "江湖", "冒险")
     surreal_keywords = ("怪谈", "诡", "梦", "幻", "异界", "超现实", "规则", "系统", "残意", "神话", "修仙", "异能")
     combat_keywords = ("武侠", "武道", "江湖", "修仙", "高武", "末世", "战", "刀", "剑", "枪", "异能", "机甲", "科技")
+    technology_keywords = ("科幻", "科技", "机甲", "工程", "算法", "黑客", "AI", "芯片", "枪械")
+    spell_keywords = ("玄幻", "修仙", "法术", "神通", "异能", "魔法", "咒", "血脉")
+    martial_keywords = ("武侠", "武道", "江湖", "武功", "内功", "身法", "刀法", "剑法")
+    operation_keywords = ("战争", "现代战争", "枪械", "格斗", "战术", "作战", "侦察", "狙击")
+    life_skill_keywords = ("生活", "厨艺", "才艺", "手艺", "表演", "音乐", "绘画", "修理")
+    professional_keywords = ("职业", "医生", "律师", "警察", "记者", "教师", "谈判", "商业", "金融")
     clue_keywords = ("悬疑", "怪谈", "真相", "规则", "调查", "谜", "密", "谍", "线索", "追查")
     hard_rule_keywords = ("规则", "禁忌", "契约", "律令", "必须遵守", "代价", "不可违背", "怪谈")
 
@@ -298,6 +325,17 @@ def _infer_profile(
     weapons_min = 1 if _keyword_hit(text_blob, combat_keywords) else 0
     clue_min = 1 if _keyword_hit(text_blob, clue_keywords) else 0
     narrative_min = 1 if chapters >= 20 else 0
+    skill_total_min = 4 if chapters >= 20 else 2
+    if chapters >= 80:
+        skill_total_min = 6
+    technology_min = 1 if _keyword_hit(text_blob, technology_keywords) else 0
+    spell_min = 1 if _keyword_hit(text_blob, spell_keywords) else 0
+    martial_min = 1 if _keyword_hit(text_blob, martial_keywords) else 0
+    operation_min = 1 if _keyword_hit(text_blob, operation_keywords) else 0
+    life_skill_min = 1 if _keyword_hit(text_blob, life_skill_keywords) else 0
+    professional_min = 1 if _keyword_hit(text_blob, professional_keywords) else 0
+    if not any((technology_min, spell_min, martial_min, operation_min, life_skill_min, professional_min)):
+        professional_min = 1
 
     rule_signal_count = len(_safe_list(world_system.get("rule_system")))
     rule_signal_count += len(_safe_list(reader_promise.get("hard_constraints")))
@@ -340,6 +378,15 @@ def _infer_profile(
         "clue_min": clue_min,
         "narrative_min": narrative_min,
         "exclusive_hook_min": protagonist_min,
+        "skill_total_min": skill_total_min,
+        "technology_min": technology_min,
+        "spell_min": spell_min,
+        "martial_min": martial_min,
+        "operation_min": operation_min,
+        "life_skill_min": life_skill_min,
+        "professional_min": professional_min,
+        "skill_link_min": max(2, protagonist_min),
+        "progression_hook_min": protagonist_min,
     }
 
 
@@ -525,6 +572,27 @@ def _validate_card_payloads(
                     _append_issue(issues, "blocking", "FAIL-CARDS-ITEM-CARD-CONTENT", f"{ref} 缺少专属适配。")
                 if not _has_material(identity.get("owner_type")) and not _has_material(current_state.get("holder")):
                     _append_issue(issues, "blocking", "FAIL-CARDS-ITEM-CARD-CONTENT", f"{ref} 缺少归属信息。")
+            elif card_kind == "skill":
+                identity = _safe_dict(core.get("identity"))
+                skill_taxonomy = _safe_dict(core.get("skill_taxonomy"))
+                activation_rules = _safe_dict(core.get("activation_rules"))
+                limits_and_costs = _safe_dict(core.get("limits_and_costs"))
+                progression_model = _safe_dict(core.get("progression_model"))
+                counterplay = _safe_dict(core.get("counterplay"))
+                if not _has_material(identity.get("name")):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少技能名。")
+                if not _has_material(skill_taxonomy.get("primary_domain")):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少技能主域。")
+                if not _has_material(core.get("narrative_functions")):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少技能叙事功能。")
+                if not _has_material(activation_rules):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少启用规则。")
+                if not _has_material(limits_and_costs):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少限制与代价。")
+                if not _has_material(progression_model):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少成长模型。")
+                if not _has_material(counterplay):
+                    _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-CARD-CONTENT", f"{ref} 缺少克制/反制关系。")
 
 def _validate_characters(project_root: Path, profile: Dict[str, Any]) -> Dict[str, Any]:
     refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, CHARACTER_INDEX_REL, CHARACTER_BUCKETS)
@@ -719,6 +787,71 @@ def _validate_items(project_root: Path, profile: Dict[str, Any]) -> Dict[str, An
     }
 
 
+def _validate_skills(project_root: Path, profile: Dict[str, Any]) -> Dict[str, Any]:
+    refs_by_bucket, missing_by_bucket, payload = _load_bucket_refs(project_root, SKILL_INDEX_REL, SKILL_BUCKETS)
+    content = _safe_dict(payload.get("content"))
+    skill_links = _safe_list(content.get("skill_links"))
+    progression_hooks = _safe_list(content.get("progression_hooks"))
+
+    counts = {bucket: len(refs) for bucket, refs in refs_by_bucket.items()}
+    total_count = sum(counts.values())
+    issues: List[Dict[str, str]] = []
+    warnings: List[Dict[str, str]] = []
+
+    bucket_requirements = {
+        "technology_systems": ("FAIL-CARDS-SKILL-TECH", profile["technology_min"], "科技技能不足"),
+        "spells_abilities": ("FAIL-CARDS-SKILL-SPELL", profile["spell_min"], "法术/异能技能不足"),
+        "martial_arts": ("FAIL-CARDS-SKILL-MARTIAL", profile["martial_min"], "武功技能不足"),
+        "combat_operations": ("FAIL-CARDS-SKILL-COMBAT", profile["operation_min"], "作战技能不足"),
+        "life_talents": ("FAIL-CARDS-SKILL-LIFE", profile["life_skill_min"], "生活才艺不足"),
+        "professional_skills": ("FAIL-CARDS-SKILL-PRO", profile["professional_min"], "专业技能不足"),
+    }
+    for bucket, (code, minimum, label) in bucket_requirements.items():
+        if counts[bucket] < minimum:
+            _append_issue(issues, "blocking", code, f"{label}：当前 {counts[bucket]}，最低应为 {minimum}。")
+    if total_count < profile["skill_total_min"]:
+        _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-TOTAL", f"技能总量不足：当前 {total_count}，最低应为 {profile['skill_total_min']}。")
+    if len(skill_links) < profile["skill_link_min"]:
+        _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-LINKS", f"`skill_links` 数量不足：当前 {len(skill_links)}，最低应为 {profile['skill_link_min']}。")
+    if len(progression_hooks) < profile["progression_hook_min"]:
+        _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-PROGRESSION", f"`progression_hooks` 数量不足：当前 {len(progression_hooks)}，最低应为 {profile['progression_hook_min']}。")
+    trace = _validate_trace_fields(
+        content,
+        expected_trace=TRACE_SPECS["skill"],
+        issues=issues,
+        route_code="FAIL-CARDS-SKILL-ROUTE",
+        refs_code="FAIL-CARDS-SKILL-TRACE",
+        writeback_code="FAIL-CARDS-SKILL-WRITEBACK",
+    )
+
+    missing_refs = {bucket: refs for bucket, refs in missing_by_bucket.items() if refs}
+    if missing_refs:
+        _append_issue(issues, "blocking", "FAIL-CARDS-SKILL-REFS", f"技能索引存在失效引用：{missing_refs}")
+    _validate_card_payloads(project_root=project_root, refs_by_bucket=refs_by_bucket, issues=issues, card_kind="skill")
+
+    return {
+        "ok": not issues,
+        "counts": counts,
+        "skill_links": len(skill_links),
+        "progression_hooks": len(progression_hooks),
+        "total_count": total_count,
+        "requirements": {
+            "technology_systems": profile["technology_min"],
+            "spells_abilities": profile["spell_min"],
+            "martial_arts": profile["martial_min"],
+            "combat_operations": profile["operation_min"],
+            "life_talents": profile["life_skill_min"],
+            "professional_skills": profile["professional_min"],
+            "total_count": profile["skill_total_min"],
+            "skill_links": profile["skill_link_min"],
+            "progression_hooks": profile["progression_hook_min"],
+        },
+        "blocking_findings": issues,
+        "advisory_findings": warnings,
+        "trace": trace,
+    }
+
+
 def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
     info = _project_info(project_root)
     upstream_truth = _load_upstream_truth(project_root)
@@ -728,6 +861,7 @@ def build_cards_coverage_report(project_root: Path) -> Dict[str, Any]:
         "characters": _validate_characters(project_root, profile),
         "scenes": _validate_scenes(project_root, profile),
         "items": _validate_items(project_root, profile),
+        "skills": _validate_skills(project_root, profile),
     }
 
     blocking_findings: List[Dict[str, str]] = []
@@ -768,7 +902,8 @@ def _print_text_report(report: Dict[str, Any]) -> None:
         f" protagonists>={profile['protagonist_min']},"
         f" antagonists>={profile['antagonist_min']},"
         f" scenes>={profile['scene_total_min']},"
-        f" items>={profile['item_total_min']}"
+        f" items>={profile['item_total_min']},"
+        f" skills>={profile['skill_total_min']}"
     )
 
     for section_name, section in report["sections"].items():

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-04-28
+
+- 新增 `references/climax-visual-treatment-contract.md`，将 `story/2-卷章/3-章级` 的爽点设计思想投影为 `2-编导` 的高潮画面处理机制。
+- 在 workflow 中新增 `N4.5-PEAK` / `peak_visual_pass`，要求从上游逐集正文识别 1-3 个高点或最强 `micro_payoff`，并落实为既有画面、声音、表演字段。
+- 在 review gate 中新增 `FAIL-PEAK-VISUAL`，检查高点可回指、可拍承托、状态差/余波与不新增事实。
+- 同步更新模板、README、CONTEXT 与 frontmatter policy，明确高潮强化不得新增剧情事实、对白或因果。
+
 ## 2026-04-25
 
 - 初始化 `aigc/2-编导` Skill 2.0 包。

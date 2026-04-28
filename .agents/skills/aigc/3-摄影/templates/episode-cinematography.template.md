@@ -10,6 +10,7 @@ output_path: projects/aigc/<项目名>/3-摄影/第N集.md
 cinematography_mode: visual_sentence_cinematography_injection
 visual_matching_policy: label_and_semantic_visual_unit
 beat_policy: one_beat_point_one_storyboard_cut
+peak_shot_policy: strengthen_existing_peak_visual_unit
 language_policy: preserve_directing_text_add_lens_language
 review_status: pending
 ---
