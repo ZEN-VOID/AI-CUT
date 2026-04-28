@@ -64,6 +64,7 @@ color: indigo
 - `../_shared/character-planning-bridge.md`
 - `./_shared/fractal-planning-layout-contract.md`
 - `./_shared/fractal-planning-output-contract.md`
+- `./_shared/timeline-design-contract.md`
 - `./_shared/rhythm-design-field-matrix.md`
 - `../_shared/chapter-rhythm-handoff-contract.md`
 - `./scripts/validate_planning_outputs.py`
@@ -110,19 +111,21 @@ color: indigo
 8. `../_shared/character-planning-bridge.md`
 9. `./_shared/fractal-planning-layout-contract.md`
 10. `./_shared/fractal-planning-output-contract.md`
-11. `./_shared/rhythm-design-field-matrix.md`
-12. 已存在的 `2-卷章/整体规划.md`
-13. 已存在的 `2-卷章/第N卷/卷规划.md`
-14. 已存在的 `2-卷章/第N卷/第N章.md`
-15. `1-部级/SKILL.md + CONTEXT.md`
-16. `2-卷级/SKILL.md + CONTEXT.md`
-17. `3-章级/SKILL.md + CONTEXT.md`
+11. `./_shared/timeline-design-contract.md`
+12. `./_shared/rhythm-design-field-matrix.md`
+13. 已存在的 `2-卷章/整体规划.md`
+14. 已存在的 `2-卷章/第N卷/卷规划.md`
+15. 已存在的 `2-卷章/第N卷/第N章.md`
+16. `1-部级/SKILL.md + CONTEXT.md`
+17. `2-卷级/SKILL.md + CONTEXT.md`
+18. `3-章级/SKILL.md + CONTEXT.md`
 
 ## Reference Loading Guide
 
 | 场景 | 读取文件 |
 | --- | --- |
 | 父层分形规划合同 | `_shared/fractal-planning-layout-contract.md`、`_shared/fractal-planning-output-contract.md` |
+| 三层时间线/故事编年史 | `_shared/timeline-design-contract.md` |
 | 执行顺序与回读 | `1-部级/SKILL.md + CONTEXT.md`、`2-卷级/SKILL.md + CONTEXT.md`、`3-章级/SKILL.md + CONTEXT.md` |
 | 输出门禁 | `1-部级/review/`、`2-卷级/review/`、`3-章级/review/`、`scripts/validate_planning_outputs.py` |
 | 判型 | 本文件 `Dispatch Order Contract` 与 `CONTEXT.md` Type Map |
@@ -162,6 +165,7 @@ color: indigo
 12. 部级必须显式锁定整部任务关系，不得只靠 `卷划分` 暗示主任务树。
 13. 卷级必须显式写清任务如何上承部级主任务、如何下钻到章节职责、以及如何汇聚回主线。
 14. 章级必须显式写清本章支流任务的汇聚动作或未汇聚去向，不得让下游继续猜。
+15. 三层规划必须包含时间线体系：部级 `故事编年史`、卷级 `本卷时间线`、章级 `本章时间推进`，并按 `_shared/timeline-design-contract.md` 锁事件顺序、因果、幕后事件和状态变化。
 
 ## Dispatch Order Contract
 
@@ -194,9 +198,9 @@ color: indigo
 
 ### hard rules
 
-1. `整体规划.md` 至少包含：`书名 / 整体故事大纲 / 卷划分 / 整体冲突 / 整体节奏曲线 / 规避`；其中 `整体节奏曲线` 内必须带 `book_wave_map / volume_intensity_map / volume_role_map / respite_corridor / payoff_distribution`
-2. `第N卷/卷规划.md` 至少包含：`卷标题 / 本卷故事大纲 / 章划分 / 本卷冲突 / 本卷节奏曲线 / 本卷登场人物 / 本卷主要场景 / 本卷关键道具 / 本卷任务线 / 卷末达成 / 规避`；其中 `本卷节奏曲线` 内必须带 `volume_orchestration_map / chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`；`本卷任务线` 内必须带 `上承部级主任务 / 主线 / 支线 / 支流角色 / 下钻章级任务分配 / 汇聚回主线`
-3. `第N卷/第N章.md` 至少包含：`章标题 / 本章故事概要 / 本章冲突 / 本章节奏曲线 / 本章登场人物 / 本章主要场景 / 本章关键道具 / 本章任务线 / 章末达成 / 本章线索 / 本章伏笔 / 规避`，且 `本章节奏曲线` 内必须带 `selected_pack / selected_mode / mode_selection_reason / payoff_type / rhythm_intensity / previous_next_contrast / 七步职责映射 / 规划义务 / 义务段位 / 建议写法`，`本章任务线` 内必须带 `上承卷级任务 / 主线 / 支线 / 支流角色 / 汇聚动作 / 未汇聚任务去向`
+1. `整体规划.md` 至少包含：`书名 / 整体故事大纲 / 故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避`；其中 `故事编年史` 内必须带 `chronology_axis / prehistory_events / main_story_start / volume_time_spans / causal_milestones / hidden_events / end_state`，`整体节奏曲线` 内必须带 `book_wave_map / volume_intensity_map / volume_role_map / respite_corridor / payoff_distribution`
+2. `第N卷/卷规划.md` 至少包含：`卷标题 / 本卷故事大纲 / 本卷时间线 / 章划分 / 本卷冲突 / 本卷节奏曲线 / 本卷登场人物 / 本卷主要场景 / 本卷关键道具 / 本卷任务线 / 卷末达成 / 规避`；其中 `本卷时间线` 内必须带 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`，`本卷节奏曲线` 内必须带 `volume_orchestration_map / chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`；`本卷任务线` 内必须带 `上承部级主任务 / 主线 / 支线 / 支流角色 / 下钻章级任务分配 / 汇聚回主线`
+3. `第N卷/第N章.md` 至少包含：`章标题 / 本章故事概要 / 本章时间推进 / 本章冲突 / 本章爽点设计 / 本章节奏曲线 / 本章登场人物 / 本章主要场景 / 本章关键道具 / 本章任务线 / 章末达成 / 本章线索 / 本章伏笔 / 规避`，且 `本章时间推进` 内必须带 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter`，`本章节奏曲线` 内必须带 `selected_pack / selected_mode / mode_selection_reason / payoff_type / rhythm_intensity / previous_next_contrast / 七步职责映射 / 规划义务 / 义务段位 / 建议写法`，`本章任务线` 内必须带 `上承卷级任务 / 主线 / 支线 / 支流角色 / 汇聚动作 / 未汇聚任务去向`
 4. 三层节奏段落都必须包含 Mermaid 图。
 5. planning 输出必须是规划性文本，不得在这些文件中直接产出正文段落。
 

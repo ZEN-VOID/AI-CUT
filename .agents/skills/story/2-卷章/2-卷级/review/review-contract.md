@@ -13,12 +13,13 @@
 flowchart TD
     A["读取卷规划.md"] --> B["检查上游锚点"]
     B --> C["检查 required headings"]
-    C --> D["检查六拍节奏、配器表与 Mermaid"]
-    D --> E["检查人物/场景/道具/任务线"]
-    E --> F["检查卷末达成与规避"]
-    F --> G{"verdict"}
-    G -->|"pass"| H["可交付"]
-    G -->|"needs_rework"| I["返回对应 owner"]
+    C --> D["检查本卷时间线"]
+    D --> E["检查六拍节奏、配器表与 Mermaid"]
+    E --> F["检查人物/场景/道具/任务线"]
+    F --> G["检查卷末达成与规避"]
+    G --> H{"verdict"}
+    H -->|"pass"| I["可交付"]
+    H -->|"needs_rework"| J["返回对应 owner"]
 ```
 
 ## Checks
@@ -26,7 +27,8 @@ flowchart TD
 | dimension | checks |
 | --- | --- |
 | upstream | 是否显式服从 `整体规划.md` 中目标卷职责 |
-| headings | 是否包含 `references/volume-planning-contract.md` 的 11 个 required headings |
+| headings | 是否包含 `references/volume-planning-contract.md` 的 12 个 required headings |
+| timeline | 是否包含 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`，并继承部级 `故事编年史` |
 | chapter_partition | `章划分` 是否说明每章功能，而不是只列章名 |
 | conflict | 是否包含主冲突、副冲突、升级机制与卷末状态 |
 | rhythm | 是否使用六拍、章节职责分配、`volume_orchestration_map` 和 Mermaid 图 |
@@ -49,7 +51,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream | headings | rhythm | orchestration | mission | resources | planning_only
+  dimension: upstream | headings | timeline | rhythm | orchestration | mission | resources | planning_only
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -62,6 +64,7 @@ finding:
 
 - 缺 `整体规划.md` 或无法确定目标卷职责。
 - 缺任一 required heading。
+- `本卷时间线` 缺失，或没有写清 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`。
 - `本卷节奏曲线` 没有六拍、`volume_orchestration_map` 或 Mermaid 图。
 - 缺 `volume_orchestration_map`，或没有写清 `chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`。
 - `本卷任务线` 没有上承部级主任务或汇聚回主线。

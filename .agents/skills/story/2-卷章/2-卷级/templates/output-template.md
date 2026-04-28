@@ -14,6 +14,13 @@
 
 本卷故事大纲：
 
+本卷时间线：
+- `volume_time_span`：
+- `chapter_chronology`：
+- `parallel_hidden_events`：
+- `time_jumps_or_compression`：
+- `volume_end_state`：
+
 章划分：
 
 本卷冲突：

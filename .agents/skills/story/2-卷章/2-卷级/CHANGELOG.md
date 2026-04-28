@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-28
+
+- Added volume-level timeline system via shared `../_shared/timeline-design-contract.md`.
+- Added `本卷时间线` to `SKILL.md`, output contract, templates, workflow nodes, review gate, and validator-facing template fields.
+- Fixed volume-to-chapter handoff so chapter planning inherits chapter chronology, parallel hidden events, time jumps/compression, and volume end-state changes.
+
 ## 2026-04-26
 
 - Upgraded `2-卷级` to a Skill 2.0 package.

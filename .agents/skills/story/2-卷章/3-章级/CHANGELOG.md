@@ -2,6 +2,9 @@
 
 ## 2026-04-28
 
+- 新增章级时间线体系，接入共享 `../_shared/timeline-design-contract.md`。
+- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`steps/chapter-planning-workflow.md`、`templates/chapter-planning.template.md`、`review/chapter-planning-review.md` 与 validator 字段中新增 `本章时间推进`。
+- 固定 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter`，要求章级继承卷级 `本卷时间线` 后再裁定冲突、爽点和节奏。
 - 新增 `references/chapter-payoff-rules.md`，将章级爽点设计升级为独立但与节奏 handoff 高度关联的系统。
 - 在模板、steps、types、review 与 Output Contract 中新增 `本章爽点设计`，固定 `reader_desire / promise_source / character_anchor / payoff_mode / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook`。
 - 将动能式、势能式、浪能式分别映射到外部化结果、精神/认知/压力变化、体验/关系/生活质感/状态修复等爽点形态，并要求 `payoff_type / micro_payoff` 消费爽点设计。

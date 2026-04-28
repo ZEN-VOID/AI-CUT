@@ -8,6 +8,7 @@
 | --- | --- |
 | input_trace | 是否能追溯到 `0-初始化`、类型卡和项目记忆 |
 | output_shape | 是否包含全部必填标题 |
+| timeline | `故事编年史` 是否写清前史、正篇起点、卷级时间跨度、关键因果里程碑、幕后事件与终局状态 |
 | volume_handoff | 卷划分是否给出每卷功能、阶段职责和交接方式 |
 | task_topology | `整部任务关系` 是否写清主任务树、支流簇、汇聚里程碑 |
 | conflict_axis | `整体冲突` 是否能下钻到卷级 |
@@ -30,7 +31,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: input_trace | output_shape | volume_handoff | task_topology | conflict_axis | rhythm_curve | book_wave_map | avoidance | planning_boundary
+  dimension: input_trace | output_shape | timeline | volume_handoff | task_topology | conflict_axis | rhythm_curve | book_wave_map | avoidance | planning_boundary
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -40,8 +41,8 @@ finding:
 ## Review Flow
 
 1. 检查 `整体规划.md` 是否存在于 `projects/story/<项目名>/2-卷章/整体规划.md`。
-2. 检查必填标题、`book_wave_map` 和 `整体节奏曲线` 的 Mermaid 图。
-3. 对 `卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避` 执行语义门禁。
+2. 检查必填标题、`故事编年史`、`book_wave_map` 和 `整体节奏曲线` 的 Mermaid 图。
+3. 对 `故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避` 执行语义门禁。
 4. 若发现阻断问题，按 `steps/book-level-planning-workflow.md` 返回对应节点修复。
 5. review 结论必须汇总为一个 verdict，不允许多个 reviewer 并列改写规划真源。
 
@@ -50,6 +51,7 @@ finding:
 不得在以下情况宣布部级完成：
 
 - 缺少 `整部任务关系`。
+- 缺少 `故事编年史`，或没有写清 `chronology_axis / prehistory_events / main_story_start / volume_time_spans / causal_milestones / hidden_events / end_state`。
 - `卷划分` 只有卷名，没有阶段职责。
 - `整体节奏曲线` 没有 `book_wave_map` 或 Mermaid 图。
 - Save the Cat 被写成死百分比公式，未转化为跨卷拍点走廊。

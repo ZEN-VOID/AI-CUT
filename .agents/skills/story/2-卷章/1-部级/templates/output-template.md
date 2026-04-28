@@ -5,7 +5,7 @@
 | Output Contract field | Template alignment |
 | --- | --- |
 | Required output | `projects/story/<项目名>/2-卷章/整体规划.md` |
-| Output format | Markdown；包含部级七个必填标题和 Mermaid 节奏图 |
+| Output format | Markdown；包含部级八个必填标题和 Mermaid 节奏图 |
 | Output path | `projects/story/<项目名>/2-卷章/整体规划.md` |
 | Naming convention | 文件名固定为 `整体规划.md`；机器字段和任务 ID 保持 ASCII 安全字符 |
 | Completion gate | 通过 `review/book-level-review-contract.md`，并可交给 `2-卷级` |
@@ -15,6 +15,15 @@
 书名：
 
 整体故事大纲：
+
+故事编年史：
+- `chronology_axis`：
+  - `prehistory_events`：
+  - `main_story_start`：
+  - `volume_time_spans`：
+  - `causal_milestones`：
+  - `hidden_events`：
+  - `end_state`：
 
 卷划分：
 

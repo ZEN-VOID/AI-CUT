@@ -4,6 +4,14 @@
 
 本章故事概要：
 
+本章时间推进：
+- `chapter_start_state`：
+- `visible_time_span`：
+- `event_order`：
+- `parallel_hidden_events`：
+- `chapter_end_state`：
+- `handoff_to_next_chapter`：
+
 本章冲突：
 
 本章爽点设计：

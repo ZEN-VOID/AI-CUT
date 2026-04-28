@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-28
+
+- Added book-level timeline system via shared `../_shared/timeline-design-contract.md`.
+- Added `故事编年史` to `SKILL.md`, output contract, templates, workflow nodes, review gate, and validator-facing template fields.
+- Fixed book-level handoff so volume planning inherits world chronology, causal milestones, hidden events, and end-state changes before rhythm and task expansion.
+
 ## 2026-04-26
 
 - Upgraded `story-plan-book-level` to the Skill 2.0 workshop layout.

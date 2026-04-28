@@ -13,7 +13,7 @@ governance_tier: full
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 必须先回读父层 `../SKILL.md` 与 `../CONTEXT.md`，再按本文件的 `Reference Loading Guide` 动态加载分区。
-- 必须读取父层共享合同：`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/rhythm-design-field-matrix.md`。
+- 必须读取父层共享合同：`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/timeline-design-contract.md`、`../_shared/rhythm-design-field-matrix.md`。
 - 当前任务绑定具体项目根时，必须加载 `projects/story/<项目名>/MEMORY.md` 与 `projects/story/<项目名>/CONTEXT/` 中和本轮规划相关的材料。
 - 进入正式创作前，必须读取项目输入：`0-初始化/north_star.yaml` 与 `0-初始化/init_handoff.yaml`；题材方向盘统一来自 `north_star.yaml.genre_contract`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` > 父层 `2-卷章/SKILL.md` > 本 `SKILL.md` > 本技能分区文件 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -32,6 +32,7 @@ governance_tier: full
 
 - 书名
 - 整体故事大纲
+- 故事编年史
 - 卷划分
 - 整部任务关系
 - 整体冲突
@@ -50,6 +51,7 @@ governance_tier: full
 | --- | --- |
 | 进入本技能或需要确认父层边界 | `../SKILL.md`、`../CONTEXT.md` |
 | 确认三层 planning 输出位置和必填段落 | `../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md` |
+| 设计整部故事编年史 | `../_shared/timeline-design-contract.md` |
 | 设计整书节奏曲线 | `../_shared/rhythm-design-field-matrix.md`、`references/book-rhythm-save-the-cat.md` |
 | 需要展开部级输出字段和硬规则 | `references/book-level-output-contract.md` |
 | 追溯本包 Skill 2.0 升级去向 | `references/legacy-upgrade-migration-matrix.md` |
@@ -85,12 +87,13 @@ flowchart TD
     A["项目输入<br/>0-初始化/north_star + MEMORY"] --> B["部级输入锁定"]
     B --> C["书名与读者承诺"]
     C --> D["整体故事大纲"]
-    D --> E["卷划分与卷职责"]
-    E --> F["整部任务关系"]
-    F --> G["整体冲突框架"]
-    G --> H["Save the Cat 长波节奏"]
-    H --> I["总规避项"]
-    I --> J["整体规划.md"]
+    D --> E["故事编年史"]
+    E --> F["卷划分与卷职责"]
+    F --> G["整部任务关系"]
+    G --> H["整体冲突框架"]
+    H --> I["Save the Cat 长波节奏"]
+    I --> J["总规避项"]
+    J --> K["整体规划.md"]
 ```
 
 ```mermaid
@@ -142,17 +145,18 @@ flowchart TD
 | `FIELD-BOOK-01` | 输入锁定 | `SKILL.md` + `steps/` | `Input Contract`、`steps/book-level-planning-workflow.md` | 项目输入和类型承诺明确 |
 | `FIELD-BOOK-02` | `书名` | LLM 主创 | `steps/` | 能承载读者承诺 |
 | `FIELD-BOOK-03` | `整体故事大纲` | LLM 主创 | `references/book-level-output-contract.md` | 主问题、主角推进、终局方向齐全 |
-| `FIELD-BOOK-04` | `卷划分` | LLM 主创 | `../_shared/fractal-planning-output-contract.md` | 每卷有核心功能与阶段职责 |
-| `FIELD-BOOK-05` | `整部任务关系` | LLM 主创 | `references/book-level-output-contract.md` | 有主任务树、卷级支流簇、关键汇聚里程碑 |
-| `FIELD-BOOK-06` | `整体冲突` | LLM 主创 | `references/book-level-output-contract.md` | 有核心对抗轴、冲突走廊、终局收束 |
-| `FIELD-BOOK-07` | `整体节奏曲线` | LLM 主创 | `references/book-rhythm-save-the-cat.md` | Save the Cat 长波走廊 + `book_wave_map` + Mermaid 图齐全 |
-| `FIELD-BOOK-08` | `规避` | LLM 主创 | `knowledge-base/` | 是可执行禁飞区 |
-| `FIELD-BOOK-09` | review verdict | `review/` | `review/book-level-review-contract.md` | 可交给 `2-卷级` |
+| `FIELD-BOOK-04` | `故事编年史` | LLM 主创 | `../_shared/timeline-design-contract.md` | 有前史、正篇起点、卷级时间跨度、因果里程碑、幕后事件与终局状态 |
+| `FIELD-BOOK-05` | `卷划分` | LLM 主创 | `../_shared/fractal-planning-output-contract.md` | 每卷有核心功能与阶段职责 |
+| `FIELD-BOOK-06` | `整部任务关系` | LLM 主创 | `references/book-level-output-contract.md` | 有主任务树、卷级支流簇、关键汇聚里程碑 |
+| `FIELD-BOOK-07` | `整体冲突` | LLM 主创 | `references/book-level-output-contract.md` | 有核心对抗轴、冲突走廊、终局收束 |
+| `FIELD-BOOK-08` | `整体节奏曲线` | LLM 主创 | `references/book-rhythm-save-the-cat.md` | Save the Cat 长波走廊 + `book_wave_map` + Mermaid 图齐全 |
+| `FIELD-BOOK-09` | `规避` | LLM 主创 | `knowledge-base/` | 是可执行禁飞区 |
+| `FIELD-BOOK-10` | review verdict | `review/` | `review/book-level-review-contract.md` | 可交给 `2-卷级` |
 
 ## Output Contract
 
 - Required output: 唯一部级规划文件 `projects/story/<项目名>/2-卷章/整体规划.md`；审查模式可额外输出本轮 findings，但不得替代规划真源。
-- Output format: Markdown，必须包含 `书名 / 整体故事大纲 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避`，其中 `整体节奏曲线` 必须包含 `book_wave_map` 与 Mermaid 图。
+- Output format: Markdown，必须包含 `书名 / 整体故事大纲 / 故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避`，其中 `故事编年史` 必须包含 `chronology_axis`，`整体节奏曲线` 必须包含 `book_wave_map` 与 Mermaid 图。
 - Output path: `projects/story/<项目名>/2-卷章/整体规划.md`。
 - Naming convention: 文件名固定为 `整体规划.md`；卷名、任务节点和 Mermaid 节点可使用中文，但任务 ID 或模板要求的机器字段必须保持 ASCII 安全字符。
 - Completion gate: 通过 `review/book-level-review-contract.md` 的部级门禁；父层校验时还应可运行 `python3 .agents/skills/story/2-卷章/scripts/validate_planning_outputs.py --help`。

@@ -12,7 +12,7 @@ governance_tier: full
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
-- 必须先读取父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md` 与 `../_shared/rhythm-design-field-matrix.md`。
+- 必须先读取父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/timeline-design-contract.md` 与 `../_shared/rhythm-design-field-matrix.md`。
 - 必须读取项目内 `2-卷章/整体规划.md` 后，才允许生成、补写或修订 `2-卷章/第N卷/卷规划.md`。
 - 若任务绑定具体 `projects/story/<项目名>/`，必须先加载该项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与本卷相关的上下文。
 - 局部修订也必须完整回读上游总纲；不得只凭卷标题、旧记忆或单段摘要续写。
@@ -46,7 +46,7 @@ governance_tier: full
 
 ## Parent Positioning
 
-本 child 负责锁定单卷标题、故事大纲、章划分、卷级冲突、六拍节奏曲线、登场人物、主要场景、关键道具、任务线、卷末达成与规避。
+本 child 负责锁定单卷标题、故事大纲、本卷时间线、章划分、卷级冲突、六拍节奏曲线、登场人物、主要场景、关键道具、任务线、卷末达成与规避。
 
 本 child 不负责越权改写整部总纲、代写单章细节、直接产出正文、或把角色卡/场景卡/物品卡复制成第二真源。
 
@@ -72,6 +72,7 @@ governance_tier: full
 | 场景 | 必读分区 |
 | --- | --- |
 | 确认卷级业务边界、必填字段与硬规则 | `references/volume-planning-contract.md` |
+| 设计或核对本卷时间线 | `../_shared/timeline-design-contract.md` |
 | 设计或核对卷级六拍 | `references/volume-rhythm-framework.md` |
 | 执行新建、修订或审计流程 | `steps/volume-planning-workflow.md` |
 | 判断任务属于新建、修订、补写、审计还是结构修复 | `types/volume-planning-type-map.md` |
@@ -88,6 +89,7 @@ governance_tier: full
 - `../CONTEXT.md`
 - `../_shared/fractal-planning-layout-contract.md`
 - `../_shared/fractal-planning-output-contract.md`
+- `../_shared/timeline-design-contract.md`
 - `../_shared/rhythm-design-field-matrix.md`
 - `references/volume-planning-contract.md`
 - `references/volume-rhythm-framework.md`
@@ -108,13 +110,13 @@ flowchart TD
     B -->|"create"| C["新建第N卷/卷规划.md"]
     B -->|"revise"| D["字段级修订旧卷规划"]
     B -->|"audit"| E["执行 review gate"]
-    C --> F["六拍节奏 + 章职责分配"]
+    C --> F["本卷时间线"]
     D --> F
-    F --> G["人物/场景/道具/任务线汇聚"]
-    G --> H["卷末达成 + 规避"]
+    F --> G["六拍节奏 + 章职责分配"]
+    G --> H["人物/场景/道具/任务线汇聚"]
+    H --> I["卷末达成 + 规避"]
     E --> I["findings + verdict"]
-    H --> J["写回 canonical output"]
-    I --> J
+    I --> J["写回 canonical output"]
 ```
 
 ```mermaid
@@ -123,7 +125,8 @@ stateDiagram-v2
     UpstreamRead --> TypeProfile
     TypeProfile --> VolumeSpine
     TypeProfile --> ReviewGate
-    VolumeSpine --> RhythmSixBeat
+    VolumeSpine --> VolumeTimeline
+    VolumeTimeline --> RhythmSixBeat
     RhythmSixBeat --> ResourceMissionClose
     ResourceMissionClose --> OutputCheck
     ReviewGate --> OutputCheck
@@ -138,7 +141,7 @@ stateDiagram-v2
 1. 读取 `SKILL.md + CONTEXT.md`，再按项目绑定加载 `MEMORY.md` 与项目 `CONTEXT/`。
 2. 加载 `整体规划.md`，锁定目标卷在整部中的职责、交接位置和禁止漂移点。
 3. 读取 `types/volume-planning-type-map.md`，形成 `type_profile`。
-4. 按 `steps/volume-planning-workflow.md` 进入对应路径，必要时加载 `references/volume-planning-contract.md` 与 `references/volume-rhythm-framework.md`。
+4. 按 `steps/volume-planning-workflow.md` 进入对应路径，必要时加载 `references/volume-planning-contract.md`、`../_shared/timeline-design-contract.md` 与 `references/volume-rhythm-framework.md`。
 5. 使用 `templates/output-template.md` 生成或 patch `第N卷/卷规划.md`。
 6. 交付前运行 `review/review-contract.md` 的质量门禁；结构层可用 `scripts/README.md` 中记录的校验命令。
 
@@ -180,16 +183,17 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `N1-UPSTREAM-REREAD` | `整体规划.md` | 锁定本卷职责与交接 | `volume_duty` | `N2-TYPE` |
 | `N2-TYPE` | 用户请求与现有卷规划 | 形成 `type_profile` | `create/revise/audit/repair` | `N3-SPINE` |
-| `N3-SPINE` | `volume_duty` | 写卷标题、大纲、章划分、冲突 | `volume_spine` | `N4-RHYTHM` |
-| `N4-RHYTHM` | `volume_spine` | 设计六拍、`volume_orchestration_map` 与 Mermaid 图 | `six_beat_map` | `N5-ELEMENTS` |
-| `N5-ELEMENTS` | `six_beat_map` | 写人物、场景、道具、任务线 | `resource_mission_map` | `N6-CLOSE` |
-| `N6-CLOSE` | `resource_mission_map` | 写卷末达成与规避 | `volume_plan_draft` | `N7-REVIEW` |
-| `N7-REVIEW` | `volume_plan_draft` | 执行质量门禁 | `verdict` | done |
+| `N3-SPINE` | `volume_duty` | 写卷标题、大纲、章划分、冲突 | `volume_spine` | `N4-TIMELINE` |
+| `N4-TIMELINE` | `volume_spine` + 部级 `故事编年史` | 写本卷起止状态、章节事件顺序、并行/幕后事件、时间跳跃或压缩、本卷结束状态 | `volume_timeline` | `N5-RHYTHM` |
+| `N5-RHYTHM` | `volume_spine` + `volume_timeline` | 设计六拍、`volume_orchestration_map` 与 Mermaid 图 | `six_beat_map` | `N6-ELEMENTS` |
+| `N6-ELEMENTS` | `six_beat_map` + `volume_timeline` | 写人物、场景、道具、任务线 | `resource_mission_map` | `N7-CLOSE` |
+| `N7-CLOSE` | `resource_mission_map` | 写卷末达成与规避 | `volume_plan_draft` | `N8-REVIEW` |
+| `N8-REVIEW` | `volume_plan_draft` | 执行质量门禁 | `verdict` | done |
 
 ## Output Contract
 
 - Required output: 单卷规划 Markdown，canonical 文件为 `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`；审计模式输出 findings、verdict 与返工目标。
-- Output format: Markdown；必须包含卷标题、本卷故事大纲、章划分、本卷冲突、本卷节奏曲线、本卷登场人物、本卷主要场景、本卷关键道具、本卷任务线、卷末达成、规避；节奏段落必须包含六拍、`volume_orchestration_map` 与 Mermaid 图。
+- Output format: Markdown；必须包含卷标题、本卷故事大纲、本卷时间线、章划分、本卷冲突、本卷节奏曲线、本卷登场人物、本卷主要场景、本卷关键道具、本卷任务线、卷末达成、规避；时间线段落必须包含 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`；节奏段落必须包含六拍、`volume_orchestration_map` 与 Mermaid 图。
 - Output path: `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`。
 - Naming convention: 卷目录使用 `第N卷`；卷规划文件固定命名为 `卷规划.md`；技能包内分区使用 canonical Skill 2.0 目录名。
 - Completion gate: 已加载上游 `整体规划.md`；输出满足 `references/volume-planning-contract.md` 的 Required Headings 与 Hard Rules；六拍符合 `references/volume-rhythm-framework.md`；交付前通过 `review/review-contract.md`，结构改动通过 `python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级`。

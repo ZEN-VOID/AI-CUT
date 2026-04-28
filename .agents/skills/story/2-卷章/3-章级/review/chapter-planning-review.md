@@ -12,7 +12,8 @@
 | dimension | pass condition | fail route |
 | --- | --- | --- |
 | upstream | 已回读 `整体规划.md` 与目标卷 `卷规划.md` | `SKILL.md` Input Contract / `steps/N1-UPSTREAM-REREAD` |
-| headings | 13 个 required headings 齐全 | `templates/chapter-planning.template.md` |
+| headings | 14 个 required headings 齐全 | `templates/chapter-planning.template.md` |
+| timeline | `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter` 齐全，且继承卷级 `本卷时间线` | `../_shared/timeline-design-contract.md` / `steps/N3-CHAPTER-TIMELINE` |
 | conflict | 表层冲突、深层冲突、冲突状态变化齐全 | `references/chapter-planning-contract.md` |
 | payoff | `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook` 齐全，且能回指读者期待、卷级 promise、类型画像、角色个性与可验证兑现动作 | `references/chapter-payoff-rules.md` |
 | payoff_genre | `genre_payoff_profile` 与项目/卷级类型一致，且 `payoff_mode` 没有串味或破坏类型承诺 | `types/payoff-genre-type-map.md` |
@@ -31,7 +32,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream | headings | conflict | payoff | payoff_genre | payoff_variation | duel_variation | character_logic | rhythm | rhythm_wave | task_line | information | planning_only | mermaid
+  dimension: upstream | headings | timeline | conflict | payoff | payoff_genre | payoff_variation | duel_variation | character_logic | rhythm | rhythm_wave | task_line | information | planning_only | mermaid
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -52,6 +53,8 @@ finding:
 不得在以下情况宣布完成：
 
 - 缺 `整体规划.md` 或目标卷 `卷规划.md`。
+- 缺 `本章时间推进`，或没有写清 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter`。
+- `本章时间推进` 与卷级 `本卷时间线 / chapter_chronology` 冲突，或没有说明章末状态如何交给下一章。
 - 章级缺 `本章爽点设计`，或爽点设计缺 `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook` 任一必填槽位。
 - `genre_payoff_profile` 缺失、不能回指项目/卷级类型，或与 `payoff_mode` 明显串味且无合理说明。
 - `payoff_mode` 不能回指动能式、势能式或浪能式下的主导爽点形态，或与本章冲突、读者期待、卷级 promise 脱节。

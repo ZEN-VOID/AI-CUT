@@ -24,6 +24,8 @@ last_checked_at: 2026-04-26
 | 多章高潮点同质化 | payoff variation collapse | 补 `payoff_variation_axis`，至少改变对象、机制、尺度、时序、参与者、情绪或后果中的两项 | review gate 检查近邻章节高潮点差异 | 同类爽点保留熟悉感，但兑现方式不断变化 |
 | 多章高超对决千篇一律 | duel variation collapse | 补 `duel_variation_axis`，至少改变对手类型、对决场域、胜法、代价或情绪色彩中的两项 | review gate 检查近邻章节对决差异 | 高超感来自不同博弈，不只是更大声量 |
 | 爽点很刺激但不像这个角色会做的事 | character-payoff mismatch | 补 `character_anchor` 与 `exaggeration_logic`，回指角色个性、欲望、缺陷、惯常反应、关系姿态或成长压力 | 在 payoff review gate 固定角色一致性检查 | 爽点夸张但合情理，不靠剧情需要硬拽角色 |
+| 章级没有本章时间推进 | chapter chronology gap | 补 `chapter_start_state / visible_time_span / event_order / parallel_hidden_events / chapter_end_state / handoff_to_next_chapter` | 在模板和 review gate 固定时间推进槽位 | drafting 能继承章内事件顺序和章末状态 |
+| 本章时间推进漂离卷级时间线 | timeline inheritance drift | 回读目标卷 `本卷时间线 / chapter_chronology` 后重写本章时间推进 | steps 固定 `N3-CHAPTER-TIMELINE` | 章级不静默改变卷级事件顺序 |
 | `selected_mode` 只有枚举值，没有选择依据 | mode arbitration gap | 补 `mode_selection_reason`，并让理由回指本章冲突、任务、信息压力、情绪调性、旅程/游玩状态、`micro_payoff` 或 `exit_hook` | 在 shared handoff、chapter rhythm rules、模板、review gate 和 validator 固定该槽位 | 势能/动能/浪能选择可复核，不靠直觉 |
 | 章内七步完整但连续章感很平 | chapter wave flattening | 补 `previous_next_contrast`，写清承接上一章与预留下一章的波形变化 | 在模板与 review gate 固定前后章对比槽位 | 章节读感有起伏，不是每章同构 |
 | `rhythm_intensity=高` 被滥用 | intensity inflation | 重判本章强度，只有强转折、强行动、强压迫、强情绪或阶段爆点才保留高强度 | 用 `rhythm_intensity` 控制连续高点密度 | 真正高点不被普通章节稀释 |
@@ -39,8 +41,9 @@ last_checked_at: 2026-04-26
 
 1. 先判断故障属于上游回读、节奏 handoff、任务汇聚、信息层、模板对齐、review gate 还是正文化越界。
 2. 若缺上游，暂停落盘并补读 `2-卷章/整体规划.md` 与目标卷 `2-卷章/第N卷/卷规划.md`。
-3. 若节奏字段不足，优先回到 `../../_shared/chapter-rhythm-handoff-contract.md` 与 `references/chapter-rhythm-rules.md`；若只缺 mode 选择依据，补 `mode_selection_reason` 并检查其是否能回指本章 `micro_payoff`。
-4. 若章感同构，优先补 `previous_next_contrast`；先判断上一章是升压、爆发、松弛还是余波，再决定本章是接力、反向变奏还是换气。
+3. 若时间推进不清，优先回到 `../_shared/timeline-design-contract.md` 与卷级 `本卷时间线`；先补事件顺序和章末状态，再改冲突、爽点或节奏。
+4. 若节奏字段不足，优先回到 `../../_shared/chapter-rhythm-handoff-contract.md` 与 `references/chapter-rhythm-rules.md`；若只缺 mode 选择依据，补 `mode_selection_reason` 并检查其是否能回指本章 `micro_payoff`。
+5. 若章感同构，优先补 `previous_next_contrast`；先判断上一章是升压、爆发、松弛还是余波，再决定本章是接力、反向变奏还是换气。
 5. 若读者满足不清，先裁定 `payoff_type`，再让 `micro_payoff` 写成一个可验证的小兑现。
 6. 若爽点只剩一个抽象分类，先回到 `reader_desire` 和 `promise_source`；读者想要什么不清楚时，不要急着选 `selected_mode`。
 7. 若不同项目读起来同一种爽法，先形成 `genre_payoff_profile`；类型画像没有锁住前，不要直接套动能/势能/浪能清单。
@@ -58,6 +61,7 @@ last_checked_at: 2026-04-26
 ## Reusable Heuristics
 
 - 章级是 planning 的最细层，但仍不是正文。
+- `本章时间推进` 先回答世界内事件如何发生；`本章节奏曲线` 再回答这些事件如何被读者体验。
 - 七步结构只要求职责完整，不要求七段等长。
 - 章级最重要的节奏动作不是替 drafting 写句子，而是把 `pack / mode / obligation / suggestion` 移交清楚。
 - `selected_mode` 不是口味标签；必须由本章主要 payoff 裁决：认知/压力兑现偏势能，行动/结果兑现偏动能，情绪/关系/旅途/游玩兑现偏浪能。

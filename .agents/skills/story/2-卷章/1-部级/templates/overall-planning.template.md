@@ -4,6 +4,15 @@
 
 整体故事大纲：
 
+故事编年史：
+- `chronology_axis`：
+  - `prehistory_events`：
+  - `main_story_start`：
+  - `volume_time_spans`：
+  - `causal_milestones`：
+  - `hidden_events`：
+  - `end_state`：
+
 卷划分：
 
 整部任务关系：

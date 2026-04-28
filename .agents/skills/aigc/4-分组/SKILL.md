@@ -8,7 +8,7 @@ metadata:
 
 # aigc 4-分组
 
-`4-分组` 负责把 `3-摄影` 的逐集摄影稿切分为可供后续设计、图像和视频阶段消费的完整分镜组。它不改写上游剧本正文和镜头语言，只裁决组边界、补入组间衔接用的入场/出场画面、拼接项目 `north_star.yaml` 的风格字段，并在组底部附加统计 YAML。
+`4-分组` 负责把 `3-摄影` 的逐集摄影稿切分为可供后续设计、图像和视频阶段消费的完整分镜组。它不改写上游剧本正文和原有镜头语言，只裁决组边界、补入组间衔接用的入场/出场画面、拼接项目 `north_star.yaml` 的风格字段，使用内部空间锚点补入逐分镜站位/位移辅助行，最后在组底部附加统计 YAML。
 
 ## Context Loading Contract
 
@@ -17,7 +17,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`projects/aigc/<项目名>/0-初始化/north_star.yaml`，再按需加载项目根 `CONTEXT/` 或 `CONTEXT/` 中与角色、场景、道具、风格和制作约束相关的上下文文件。
 - 上游正文真源固定为 `projects/aigc/<项目名>/3-摄影/第N集.md`，除非用户显式指定其他摄影稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` / `CONTEXT/` > 本 `CONTEXT.md`。
-- 分组边界、补位画面、角色/场景/道具提取和组内完整性判断必须由 LLM 直接完成；`scripts/` 只能做读取、字数统计、ID/标题/YAML 结构检查和机械校验。
+- 分组边界、补位画面、空间锚点、站位/位移、角色/场景/道具提取和组内完整性判断必须由 LLM 直接完成；`scripts/` 只能做读取、字数统计、ID/标题/YAML 结构检查和机械校验。
 
 ## Multi-Subskill Continuous Workflow
 
@@ -71,7 +71,7 @@ Reject or clarify when:
 
 | 场景 | 必读文件 |
 | --- | --- |
-| 任意分组任务 | `steps/grouping-workflow.md`、`references/group-boundary-contract.md`、`references/north-star-projection-contract.md` |
+| 任意分组任务 | `steps/grouping-workflow.md`、`references/group-boundary-contract.md`、`references/north-star-projection-contract.md`、`references/spatial-consistency-contract.md` |
 | 入场画面、出场画面、组间惯性衔接 | `references/bridge-shot-contract.md` |
 | 组底 YAML 统计、角色/场景/道具抽取 | `references/statistics-yaml-contract.md` |
 | 判断输入稿、边界风险和修复策略 | `types/grouping-type-map.md` |
@@ -86,9 +86,11 @@ Reject or clarify when:
 ```mermaid
 flowchart TD
     A["projects/aigc/<项目名>/3-摄影/第N集.md"] --> B["场景与集号取证"]
-    C["0-初始化/north_star.yaml"] --> D["三项风格字段直引"]
+    C["0-初始化/north_star.yaml"] --> D["三项风格字段投影"]
+    B --> S["内部空间参照与站位位移"]
     B --> E["分组边界裁决"]
     D --> F["组头拼接"]
+    S --> F
     E --> G["组间补位画面"]
     F --> H["完整分镜组"]
     G --> H
@@ -113,20 +115,21 @@ flowchart TD
 
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `CONTEXT/`。
 2. 锁定上游 `3-摄影/第N集.md`，提取集号、场景标题、正文块、对白字段、画面字段、镜头语言块和场景顺序；不得改写原正文。
-3. 按 `references/north-star-projection-contract.md` 从 `north_star.yaml` 直引 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，以隐藏标题字段的三行纯内容写入每个分镜组组头。
-4. 按 `references/group-boundary-contract.md` 执行边界裁决：每组同时满足对白 4-6 句弹性上限、完整组构成总字数不超过 1980 字、同一画面句子及其多分镜不被截断，并通过短组回填复核；不得仅因情绪、话题或危险信息转折切出低密度短组。
-5. 按 `references/bridge-shot-contract.md` 设计 1-2 秒、通常非对白的补位画面：上一组 `出场画面：` 与下一组 `入场画面：` 必须是同一画面内容，并分别能自然承接上一组原尾帧与下一组原首帧；每集第 1 组不存在首帧补位，直接省略 `入场画面：` 段。
-6. 给每个分镜组标注 `x-y-z` 格式 `分镜组ID`：`x` 为真实集号，`y` 为真实场景号，`z` 为该场景内分镜组序号；跨场景时组序号重新从 1 开始。
-7. 按 `references/statistics-yaml-contract.md` 在每组底部附加 YAML 统计；统计 YAML 本身不计入 1980 字限制，也不计入 `字数统计`。
-8. 写入 `projects/aigc/<项目名>/4-分组/第N集.md`，并生成或更新 `projects/aigc/<项目名>/4-分组/执行报告.md`。
-9. 按 `review/review-contract.md` 执行验收；可运行 `scripts/validate_storyboard_groups.py` 做机械检查，但脚本不得替代 LLM 分组和补位画面判断。
+3. 按 `references/north-star-projection-contract.md` 从 `north_star.yaml` 投影 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，以隐藏标题字段的三行纯内容写入每个分镜组组头；第 1 行必须在全局风格原词基础上追加固定词 `不生成字幕，不生成BGM，要生成物理互动音效与环境音。`。
+4. 按 `references/spatial-consistency-contract.md` 为每个分镜组提取 1 个或多个内部空间锚点，仅用于指导 `站位和位移：`；不得输出独立 `空间锚点：` 字段。随后在本组每个 `分镜N:` 明细下方补入一条 `站位和位移：` 辅助行，格式为 `[明确角色名][站在/坐在等表示位置关系的动词][空间参照][方位]，[如有移动，其方向如何]`。主语必须是明确角色名或上游已命名的稳定群体称谓，不得使用 `画面主体`、`主体`、`人物`、`角色`、`主角`、`他/她/他们/她们` 等含混指代。该辅助行必须关联到具体分镜明细，不得只挂在整个 `镜头语言：` 容器下，也不得删改原有镜头语言。
+5. 按 `references/group-boundary-contract.md` 执行边界裁决：每组同时满足对白 4-6 句弹性上限、完整组构成总字数不超过 1980 字、同一画面句子及其多分镜不被截断，并通过短组回填复核；不得仅因情绪、话题或危险信息转折切出低密度短组。
+6. 按 `references/bridge-shot-contract.md` 设计 1-2 秒、通常非对白的补位画面：上一组 `出场画面：` 与下一组 `入场画面：` 必须是同一画面内容，并分别能自然承接上一组原尾帧与下一组原首帧；每集第 1 组不存在首帧补位，直接省略 `入场画面：` 段。
+7. 给每个分镜组标注 `x-y-z` 格式 `分镜组ID`：`x` 为真实集号，`y` 为真实场景号，`z` 为该场景内分镜组序号；跨场景时组序号重新从 1 开始。
+8. 按 `references/statistics-yaml-contract.md` 在每组底部附加 YAML 统计；统计 YAML 本身不计入 1980 字限制，也不计入 `字数统计`。
+9. 写入 `projects/aigc/<项目名>/4-分组/第N集.md`，并生成或更新 `projects/aigc/<项目名>/4-分组/执行报告.md`。
+10. 按 `review/review-contract.md` 执行验收；可运行 `scripts/validate_storyboard_groups.py` 做机械检查，但脚本不得替代 LLM 分组、空间锚点、站位位移和补位画面判断。
 
 ## Script And Metadata Contract
 
 | path | role |
 | --- | --- |
 | `scripts/README.md` | 说明脚本只能承担机械辅助，不替代 LLM 分组判断 |
-| `scripts/validate_storyboard_groups.py` | 可选机械校验：检查分镜组 ID、风格字段、入场/出场标题、YAML 统计、字数上限和编号连续性 |
+| `scripts/validate_storyboard_groups.py` | 可选机械校验：检查分镜组 ID、风格字段、逐分镜站位位移、禁止输出 `空间锚点：` 字段、入场/出场标题、YAML 统计、字数上限和编号连续性 |
 | `agents/openai.yaml` | 提供产品侧入口元数据，默认提示必须显式提到 `$aigc-grouping` |
 
 ## Field Mapping
@@ -134,13 +137,14 @@ flowchart TD
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-GROUP-01` | 输入取证 | source cinematography episode、north_star、项目记忆、相关上下文、目标集号明确 | `FAIL-GROUP-01` |
-| `FIELD-GROUP-02` | north_star 拼接 | 每组直引 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格` 三项，组头不显示标题字段、中文括号或装饰性连接符 | `FAIL-GROUP-02` |
-| `FIELD-GROUP-03` | 分镜组 ID | `x-y-z` 与真实集、场、组匹配，场内组号连续 | `FAIL-GROUP-03` |
-| `FIELD-GROUP-04` | 边界裁决 | 对白 4-6 句、总字数 <= 1980、画面句子及多分镜完整、短组已回填复核，不以情绪/话题/危险信息转折作为切组原则 | `FAIL-GROUP-04` |
-| `FIELD-GROUP-05` | 入场/出场画面 | 组间补位同画面、1-2 秒、通常非对白，每集首组省略入场画面段 | `FAIL-GROUP-05` |
-| `FIELD-GROUP-06` | 原文保真 | `3-摄影` 划定正文同步原换行，不删改字段、对白或镜头语言 | `FAIL-GROUP-06` |
-| `FIELD-GROUP-07` | YAML 统计 | 每组底部含 `字数统计`、`角色`、`场景`、`道具`，且统计块不计入字数 | `FAIL-GROUP-07` |
-| `FIELD-GROUP-08` | 输出落盘 | `4-分组/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-GROUP-08` |
+| `FIELD-GROUP-02` | north_star 拼接 | 每组投影 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格` 三项；第 1 行在全局风格原词基础上追加固定词 `不生成字幕，不生成BGM，要生成物理互动音效与环境音。`，组头不显示标题字段、中文括号或装饰性连接符 | `FAIL-GROUP-02` |
+| `FIELD-GROUP-03` | 空间一致性 | 每组内部提取空间锚点但不输出 `空间锚点：` 字段；每个 `分镜N:` 明细下方含非空 `站位和位移：` 辅助行，站位位移需以明确角色名为主语，并包含空间参照和方位/运动方向 | `FAIL-GROUP-03` |
+| `FIELD-GROUP-04` | 分镜组 ID | `x-y-z` 与真实集、场、组匹配，场内组号连续 | `FAIL-GROUP-04` |
+| `FIELD-GROUP-05` | 边界裁决 | 对白 4-6 句、总字数 <= 1980、画面句子及多分镜完整、短组已回填复核，不以情绪/话题/危险信息转折作为切组原则 | `FAIL-GROUP-05` |
+| `FIELD-GROUP-06` | 入场/出场画面 | 组间补位同画面、1-2 秒、通常非对白，每集首组省略入场画面段 | `FAIL-GROUP-06` |
+| `FIELD-GROUP-07` | 原文保真 | `3-摄影` 划定正文同步原换行，不删改字段、对白、原有镜头语言或场景顺序；只允许在对应 `分镜N:` 下方新增 `站位和位移：` 辅助行 | `FAIL-GROUP-07` |
+| `FIELD-GROUP-08` | YAML 统计 | 每组底部含 `字数统计`、`角色`、`场景`、`道具`，且统计块不计入字数 | `FAIL-GROUP-08` |
+| `FIELD-GROUP-09` | 输出落盘 | `4-分组/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-GROUP-09` |
 
 ## Thought Pass Map
 
@@ -148,10 +152,11 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `PASS-GROUP-01` | 输入与风格取证 | 摄影稿、north_star、项目上下文 | 是否具备可分组真源与三项风格字段 | `input_lock` |
 | `PASS-GROUP-02` | 场景锚定 | 场景标题与正文顺序 | 真实集号、真实场景号和场内组序 | `scene_group_index` |
-| `PASS-GROUP-03` | 边界裁决 | 候选正文块、对白数、字数、镜头语言块 | 是否同时满足三重约束和完整性 | `group_boundary_plan` |
-| `PASS-GROUP-04` | 补位画面设计 | 当前组尾帧、下一组首帧、视觉惯性 | 出场与下一入场是否为同一可衔接画面 | `bridge_shot_pair` |
-| `PASS-GROUP-05` | 统计抽取 | 完整分镜组正文 | 角色、场景、重要叙事道具是否准确 | `stats_yaml` |
-| `PASS-GROUP-06` | 落盘与审查 | 分组稿 | ID、字数、补位、north_star、YAML 是否通过 | `review_result` |
+| `PASS-GROUP-03` | 空间一致性 | 场景、画面字段、镜头语言、分镜明细、补位画面 | 内部空间参照是否能稳定指示每个分镜明细的站位、方位和运动方向 | `spatial_anchor_plan` |
+| `PASS-GROUP-04` | 边界裁决 | 候选正文块、对白数、字数、镜头语言块 | 是否同时满足三重约束和完整性 | `group_boundary_plan` |
+| `PASS-GROUP-05` | 补位画面设计 | 当前组尾帧、下一组首帧、视觉惯性 | 出场与下一入场是否为同一可衔接画面 | `bridge_shot_pair` |
+| `PASS-GROUP-06` | 统计抽取 | 完整分镜组正文 | 角色、场景、重要叙事道具是否准确 | `stats_yaml` |
+| `PASS-GROUP-07` | 落盘与审查 | 分组稿 | ID、字数、站位位移、补位、north_star、YAML 是否通过，且未输出独立空间锚点字段 | `review_result` |
 
 ## Pass Table
 
@@ -159,10 +164,11 @@ flowchart TD
 | --- | --- | --- | --- |
 | `PASS-GROUP-01` | 读取上游摄影稿与 north_star 三项字段 | input manifest、字段摘录 | `references/north-star-projection-contract.md` |
 | `PASS-GROUP-02` | 建立 `x-y-z` ID 映射 | 集号、场景号、场内组号表 | `references/group-boundary-contract.md` |
-| `PASS-GROUP-03` | 按三重约束确定边界 | 对白数、字数估算、完整镜头块证据 | `references/group-boundary-contract.md` |
-| `PASS-GROUP-04` | 设计组间补位画面 | 出场/下一入场同画面说明 | `references/bridge-shot-contract.md` |
-| `PASS-GROUP-05` | 抽取角色、场景、道具统计 | 组底 YAML | `references/statistics-yaml-contract.md` |
-| `PASS-GROUP-06` | 验证输出结构 | validator 输出或人工 review | `review/review-contract.md` |
+| `PASS-GROUP-03` | 提取内部空间锚点并为每个分镜明细补入站位位移 | 内部空间锚点列表、逐 `分镜N:` 的 `站位和位移：` 辅助行 | `references/spatial-consistency-contract.md` |
+| `PASS-GROUP-04` | 按三重约束确定边界 | 对白数、字数估算、完整镜头块证据 | `references/group-boundary-contract.md` |
+| `PASS-GROUP-05` | 设计组间补位画面 | 出场/下一入场同画面说明 | `references/bridge-shot-contract.md` |
+| `PASS-GROUP-06` | 抽取角色、场景、道具统计 | 组底 YAML | `references/statistics-yaml-contract.md` |
+| `PASS-GROUP-07` | 验证输出结构 | validator 输出或人工 review | `review/review-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -175,7 +181,8 @@ flowchart TD
 - 对白数失控，长对话超过 4 句仍强塞一组，或短对白超过 6 句仍不拆。
 - 上一组 `出场画面：` 与下一组 `入场画面：` 不是同一画面内容，或无法自然连接首尾帧。
 - 补位画面写成新剧情、新对白或改写原剧本事实。
-- 未直引 `north_star.yaml` 的三项风格字段，或用摘要替代原文，或把字段标题、中文括号和多余连接符暴露到组头。
+- 未按 `north_star.yaml` 投影三项风格字段，或用摘要替代原文，或全局风格固定追加词缺失，或把字段标题、中文括号和多余连接符暴露到组头。
+- 输出了独立 `空间锚点：` 字段，或内部空间锚点不是空间位置参照点，或任一 `分镜N:` 缺少对应 `站位和位移：`，或站位位移未使用明确角色名、未说明方位或运动方向。
 - YAML 统计缺角色、场景、道具，或把统计块计入 1980 字限制。
 - 脚本、模板拼接或规则补句替代 LLM 的分组边界、补位画面和统计判断。
 
@@ -189,9 +196,9 @@ flowchart TD
 
 1. 逐集分组稿固定写入 `projects/aigc/<项目名>/4-分组/第N集.md`。
 2. 阶段执行报告写入或更新 `projects/aigc/<项目名>/4-分组/执行报告.md`。
-3. 每个分镜组必须包含：`[分镜组ID]`、组头三项 north_star 风格纯内容、从 `3-摄影` 划定的分镜剧本正文、`出场画面：`、组底 YAML 统计；第 2 组起还必须包含 `入场画面：`。
+3. 每个分镜组必须包含：`[分镜组ID]`、组头三项 north_star 风格纯内容、从 `3-摄影` 划定的分镜剧本正文、逐 `分镜N:` 的 `站位和位移：`、`出场画面：`、组底 YAML 统计；第 2 组起还必须包含 `入场画面：`。不得输出独立 `空间锚点：` 字段。
 4. 每集第 1 个分镜组直接省略 `入场画面：` 段，不写 `无`，不占用字数；后续组的 `入场画面：` 必须与上一组 `出场画面：` 为同一画面内容。
-5. 分镜剧本正文必须同步原换行，不改写 `3-摄影` 的字段、对白、镜头语言或场景顺序。
+5. 分镜剧本正文必须同步原换行，不改写 `3-摄影` 的字段、对白、原有镜头语言或场景顺序；`站位和位移：` 只能作为新增空间一致性辅助行补入到对应 `分镜N:` 明细下方。
 6. 每组正文构成总字数不超过 1980 字；统计 YAML 不计入 1980 字限制，也不计入 `字数统计`。
 
 ### Output format
@@ -219,7 +226,8 @@ flowchart TD
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml` 与相关 `CONTEXT/` 或 `CONTEXT/`。
 - 上游 `3-摄影/第N集.md` 可回指，输出 frontmatter 记录 `source_cinematography_path` 与 `north_star_path`。
-- 每组都直引 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，且组头不显示标题字段、中文括号或装饰性连接符。
+- 每组都投影 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`；第 1 行在全局风格原词基础上追加固定词 `不生成字幕，不生成BGM，要生成物理互动音效与环境音。`，且组头不显示标题字段、中文括号或装饰性连接符。
+- 每组不输出独立 `空间锚点：` 字段；每个 `分镜N:` 明细下方包含非空 `站位和位移：` 辅助行，主语为明确角色名，并自然包含空间参照。
 - 每组 ID 与真实集、场、组匹配；场内组序连续。
 - 每组满足对白 4-6 句弹性上限、完整组构成 <= 1980 字、画面句子及其多分镜不截断，并通过短组回填复核。
 - 组间补位画面成对一致：上一组出场等于下一组入场；每集首组不输出入场画面段。

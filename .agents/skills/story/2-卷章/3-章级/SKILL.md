@@ -13,7 +13,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - `SKILL.md` 只保留入口、Input Contract、动态引用、关键门禁、Root-Cause 合同和 Output Contract；章级长细则进入分区文件。
-- 进入本技能前必须回读父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/rhythm-design-field-matrix.md`、`../../_shared/core-constraints.md`、`../../_shared/character-planning-bridge.md`、`../../_shared/chapter-rhythm-handoff-contract.md`。
+- 进入本技能前必须回读父层 `../SKILL.md`、`../CONTEXT.md`、`../_shared/fractal-planning-layout-contract.md`、`../_shared/fractal-planning-output-contract.md`、`../_shared/timeline-design-contract.md`、`../_shared/rhythm-design-field-matrix.md`、`../../_shared/core-constraints.md`、`../../_shared/character-planning-bridge.md`、`../../_shared/chapter-rhythm-handoff-contract.md`。
 - 进入任何章级落盘前必须回读对应项目的 `2-卷章/整体规划.md` 与 `2-卷章/第N卷/卷规划.md`；若只是补写某一章的局部规划，也不得跳过上游完整回读。
 - 若当前任务绑定 `projects/story/<项目名>/`，还必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与本章相关的上下文文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 父层 `2-卷章/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -27,13 +27,14 @@ metadata:
 
 ## Overview
 
-本 child skill 负责把卷级规划下钻为单章执行蓝图，但仍停留在 planning 层。它锁定章标题、故事概要、冲突、章级爽点设计、章级节奏 handoff、登场人物、主要场景、关键道具、任务线、线索、伏笔、章末达成与规避；它不越权改写卷级职责，也不直接产出正文。
+本 child skill 负责把卷级规划下钻为单章执行蓝图，但仍停留在 planning 层。它锁定章标题、故事概要、本章时间推进、冲突、章级爽点设计、章级节奏 handoff、登场人物、主要场景、关键道具、任务线、线索、伏笔、章末达成与规避；它不越权改写卷级职责，也不直接产出正文。
 
 ## Reference Loading Guide
 
 | 场景 | 读取文件 |
 | --- | --- |
 | 章级业务边界、必填标题、硬规则与 canonical sources | `references/chapter-planning-contract.md` |
+| 章级时间推进、章内事件顺序和状态 handoff | `../_shared/timeline-design-contract.md` |
 | 章级爽点设计、节奏式下的爽点形态与 payoff 裁决 | `references/chapter-payoff-rules.md` |
 | 章级节奏落盘细则与 shared handoff 回指 | `references/chapter-rhythm-rules.md` |
 | 思维与执行步骤、分支、证据门和失败回路 | `steps/chapter-planning-workflow.md` |
@@ -55,15 +56,15 @@ flowchart TD
     D -->|"create"| E["新建第N章.md"]
     D -->|"revise"| F["增量修订既有章规划"]
     D -->|"review"| G["只做章级审计"]
-    E --> H["执行 steps 章级网络"]
+    E --> H["执行 steps 章级网络<br/>含本章时间推进"]
     F --> H
-    H --> I["应用 chapter template"]
-    I --> J["review gate"]
-    G --> J
-    J --> K{"通过?"}
-    K -->|"Yes"| L["交付章级规划"]
-    K -->|"No"| M["回到失败 owner 修正"]
-    M --> H
+    H --> J["应用 chapter template"]
+    J --> K["review gate"]
+    G --> K
+    K --> L{"通过?"}
+    L -->|"Yes"| M["交付章级规划"]
+    L -->|"No"| N["回到失败 owner 修正"]
+    N --> H
 ```
 
 ```mermaid
@@ -96,8 +97,8 @@ flowchart LR
 
 1. 按 Input Contract 锁定项目根、卷号、章号、上游文档与可用卡片真源。
 2. 形成 `type_profile`：默认 `domain_type=story`、`artifact_type=markdown`、`execution_type=llm-authored`、`topology_type=hybrid`、`review_type=checklist+provider-optional`、`output_type=chapter-plan`，并从项目、整体规划或卷规划识别 `genre_payoff_profile`。
-3. 加载 `references/chapter-planning-contract.md`、`references/chapter-payoff-rules.md`、`types/payoff-genre-type-map.md` 与 `references/chapter-rhythm-rules.md`，确认章级硬规则、爽点类型画像、爽点设计与 shared rhythm handoff。
-4. 按 `steps/chapter-planning-workflow.md` 执行回读、概要、冲突、爽点设计、节奏、资源、任务线、线索/伏笔、章末达成与规避节点。
+3. 加载 `references/chapter-planning-contract.md`、`../_shared/timeline-design-contract.md`、`references/chapter-payoff-rules.md`、`types/payoff-genre-type-map.md` 与 `references/chapter-rhythm-rules.md`，确认章级硬规则、时间推进、爽点类型画像、爽点设计与 shared rhythm handoff。
+4. 按 `steps/chapter-planning-workflow.md` 执行回读、概要、时间推进、冲突、爽点设计、节奏、资源、任务线、线索/伏笔、章末达成与规避节点。
 5. 使用 `templates/chapter-planning.template.md` 渲染章级规划结构；若是局部修订，只更新命中的 section，不补未执行子任务的占位推理。
 6. 交付前执行 `review/chapter-planning-review.md` 的质量门禁，确认必填标题、节奏 handoff、任务汇聚、线索/伏笔分离和非正文化边界。
 7. 若失败，按 Root-Cause Execution Contract 回到对应 owner 修正。
@@ -111,6 +112,7 @@ flowchart LR
 | symptom | direct owner | rework target |
 | --- | --- | --- |
 | 缺上游仍落盘 | `SKILL.md` 输入门 | `Input Contract` 与 `steps/N1-UPSTREAM-REREAD` |
+| 章级时间推进缺失或漂离卷级时间线 | `references/` + `steps/` | `../_shared/timeline-design-contract.md` 与 `steps/N3-CHAPTER-TIMELINE` |
 | 章级只有梗概没有节奏 handoff | `references/` + `steps/` | `references/chapter-rhythm-rules.md` 与 `steps/N5-CHAPTER-RHYTHM` |
 | 章级只有节奏字段，没有独立爽点设计 | `references/` + `steps/` + `templates/` | `references/chapter-payoff-rules.md`、`steps/N4-CHAPTER-PAYOFF` 与 `templates/chapter-planning.template.md` |
 | 任务线没有汇聚动作或未汇聚去向 | `references/` + `templates/` | `references/chapter-planning-contract.md` 与 `templates/chapter-planning.template.md` |
@@ -138,20 +140,21 @@ flowchart LR
 | node_id | input | action | output | next_gate |
 | --- | --- | --- | --- | --- |
 | `N1-UPSTREAM-REREAD` | 项目根、卷号、章号、整体规划、卷规划 | 回读并锁定本章上承职责 | `upstream_profile` | `N2-CHAPTER-SPINE` |
-| `N2-CHAPTER-SPINE` | `upstream_profile` | 锁章标题、概要、章末方向 | `chapter_spine` | `N3-CHAPTER-CONFLICT` |
-| `N3-CHAPTER-CONFLICT` | `chapter_spine` | 锁表层冲突、深层冲突、状态变化 | `conflict_profile` | `N4-CHAPTER-PAYOFF` |
-| `N4-CHAPTER-PAYOFF` | `chapter_spine` + `conflict_profile` + 卷级 promise + `genre_payoff_profile` + 角色最小投影 | 锁 reader desire、promise source、genre payoff profile、character anchor、payoff mode、payoff variation axis、build up、delivery action、satisfaction delta、exaggeration logic、aftershock 与 aftertaste hook；高超对决额外锁 duel variation axis | `payoff_profile` | `N5-CHAPTER-RHYTHM` |
-| `N5-CHAPTER-RHYTHM` | `chapter_spine` + `conflict_profile` + `payoff_profile` | 锁 pack/mode、mode 证据、payoff 类型、节奏强度、前后章对比、七步职责、规划义务、义务段位、建议写法与 Mermaid 图 | `rhythm_handoff` | `N6-CHAPTER-ELEMENTS` |
-| `N6-CHAPTER-ELEMENTS` | `rhythm_handoff` + `payoff_profile` + 上游任务线 | 收束人物、场景、道具、任务线与汇聚去向 | `chapter_resources` | `N7-INFO-LAYER` |
-| `N7-INFO-LAYER` | `chapter_resources` + `payoff_profile` | 分离线索、伏笔铺设与兑现 | `info_layer` | `N8-CLOSE` |
-| `N8-CLOSE` | 全部 section | 锁章末达成、规避、模板落盘与 review gate | `chapter_plan` | done |
+| `N2-CHAPTER-SPINE` | `upstream_profile` | 锁章标题、概要、章末方向 | `chapter_spine` | `N3-CHAPTER-TIMELINE` |
+| `N3-CHAPTER-TIMELINE` | `chapter_spine` + 卷级 `本卷时间线` | 锁章前状态、章内可见时间跨度、章内事件顺序、幕后同步事件、章末状态与下一章 handoff | `chapter_timeline` | `N4-CHAPTER-CONFLICT` |
+| `N4-CHAPTER-CONFLICT` | `chapter_spine` + `chapter_timeline` | 锁表层冲突、深层冲突、状态变化 | `conflict_profile` | `N5-CHAPTER-PAYOFF` |
+| `N5-CHAPTER-PAYOFF` | `chapter_spine` + `chapter_timeline` + `conflict_profile` + 卷级 promise + `genre_payoff_profile` + 角色最小投影 | 锁 reader desire、promise source、genre payoff profile、character anchor、payoff mode、payoff variation axis、build up、delivery action、satisfaction delta、exaggeration logic、aftershock 与 aftertaste hook；高超对决额外锁 duel variation axis | `payoff_profile` | `N6-CHAPTER-RHYTHM` |
+| `N6-CHAPTER-RHYTHM` | `chapter_spine` + `chapter_timeline` + `conflict_profile` + `payoff_profile` | 锁 pack/mode、mode 证据、payoff 类型、节奏强度、前后章对比、七步职责、规划义务、义务段位、建议写法与 Mermaid 图 | `rhythm_handoff` | `N7-CHAPTER-ELEMENTS` |
+| `N7-CHAPTER-ELEMENTS` | `rhythm_handoff` + `payoff_profile` + `chapter_timeline` + 上游任务线 | 收束人物、场景、道具、任务线与汇聚去向 | `chapter_resources` | `N8-INFO-LAYER` |
+| `N8-INFO-LAYER` | `chapter_resources` + `payoff_profile` + `chapter_timeline` | 分离线索、伏笔铺设与兑现 | `info_layer` | `N9-CLOSE` |
+| `N9-CLOSE` | 全部 section | 锁章末达成、规避、模板落盘与 review gate | `chapter_plan` | done |
 
 ### Failure Routing Table
 
 | fail_code | symptom | rework_target |
 | --- | --- | --- |
 | `FAIL-CH-ENTRY` | 输入边界不清、缺上游仍执行、模式不明 | `SKILL.md` |
-| `FAIL-CH-REFERENCE` | 章级规则与 shared rhythm/payoff contract 冲突 | `references/chapter-planning-contract.md`、`references/chapter-payoff-rules.md` 或 `references/chapter-rhythm-rules.md` |
+| `FAIL-CH-REFERENCE` | 章级规则与 shared timeline/rhythm/payoff contract 冲突 | `../_shared/timeline-design-contract.md`、`references/chapter-planning-contract.md`、`references/chapter-payoff-rules.md` 或 `references/chapter-rhythm-rules.md` |
 | `FAIL-CH-STEPS` | 节点没有证据门、缺汇流或失败回路 | `steps/chapter-planning-workflow.md` |
 | `FAIL-CH-TYPES` | 章级字段、任务模式或 review 类型散落 | `types/chapter-planning-type-map.md` |
 | `FAIL-CH-TEMPLATE` | 输出模板缺标题或与 Output Contract 冲突 | `templates/output-template.md` |
@@ -162,7 +165,7 @@ flowchart LR
 ## Output Contract
 
 - Required output: `projects/story/<项目名>/2-卷章/第N卷/第N章.md`，或对该文件的局部 section patch / review verdict。
-- Output format: Markdown 章级规划，必须包含章标题、故事概要、冲突、爽点设计、节奏曲线、人物、场景、道具、任务线、章末达成、线索、伏笔、规避；爽点设计必须包含 `reader_desire`、`promise_source`、`genre_payoff_profile`、`character_anchor`、`payoff_mode`、`payoff_variation_axis`、`build_up`、`delivery_action`、`satisfaction_delta`、`exaggeration_logic`、`cost_or_aftershock`、`aftertaste_hook`；若 `payoff_mode` 包含高超对决，还必须包含 `duel_variation_axis`；节奏曲线必须包含 `selected_pack`、`selected_mode`、`mode_selection_reason`、`payoff_type`、`rhythm_intensity`、`previous_next_contrast`、七步职责映射、规划义务、义务段位、建议写法和 Mermaid 图。
+- Output format: Markdown 章级规划，必须包含章标题、故事概要、本章时间推进、冲突、爽点设计、节奏曲线、人物、场景、道具、任务线、章末达成、线索、伏笔、规避；本章时间推进必须包含 `chapter_start_state`、`visible_time_span`、`event_order`、`parallel_hidden_events`、`chapter_end_state`、`handoff_to_next_chapter`；爽点设计必须包含 `reader_desire`、`promise_source`、`genre_payoff_profile`、`character_anchor`、`payoff_mode`、`payoff_variation_axis`、`build_up`、`delivery_action`、`satisfaction_delta`、`exaggeration_logic`、`cost_or_aftershock`、`aftertaste_hook`；若 `payoff_mode` 包含高超对决，还必须包含 `duel_variation_axis`；节奏曲线必须包含 `selected_pack`、`selected_mode`、`mode_selection_reason`、`payoff_type`、`rhythm_intensity`、`previous_next_contrast`、七步职责映射、规划义务、义务段位、建议写法和 Mermaid 图。
 - Output path: canonical 业务真源固定为 `projects/story/<项目名>/2-卷章/第N卷/第N章.md`；技能包自身模板位于 `templates/chapter-planning.template.md`。
 - Naming convention: 卷目录使用 `第N卷`，章文件使用 `第N章.md`；章级规划中的任务 ID 和引用 ID 必须保持 ASCII 安全字符；不得另建旧式 `章节规划` 并列真源。
-- Completion gate: 上游 `整体规划.md` 与目标卷 `卷规划.md` 已回读；必填标题齐全；爽点设计齐全且能回指卷级 promise、类型画像、读者期待、角色个性与可验证兑现动作；所有高潮点具备 `payoff_variation_axis`，高超对决额外具备 `duel_variation_axis`；夸张设计有角色动机、处境压力或成长节点支撑；节奏 handoff 齐全且含 Mermaid 图；`payoff_type`、`micro_payoff`、`rhythm_intensity` 与 `previous_next_contrast` 可复核并与爽点设计一致；任务线含汇聚动作与未汇聚去向；线索/伏笔分离；无正文、对白、叙述段落或正文桥段；review verdict 至少为 `pass_with_followups`。
+- Completion gate: 上游 `整体规划.md` 与目标卷 `卷规划.md` 已回读；必填标题齐全；本章时间推进继承卷级时间线且写清事件顺序、幕后同步事件和状态 handoff；爽点设计齐全且能回指卷级 promise、类型画像、读者期待、角色个性与可验证兑现动作；所有高潮点具备 `payoff_variation_axis`，高超对决额外具备 `duel_variation_axis`；夸张设计有角色动机、处境压力或成长节点支撑；节奏 handoff 齐全且含 Mermaid 图；`payoff_type`、`micro_payoff`、`rhythm_intensity` 与 `previous_next_contrast` 可复核并与爽点设计一致；任务线含汇聚动作与未汇聚去向；线索/伏笔分离；无正文、对白、叙述段落或正文桥段；review verdict 至少为 `pass_with_followups`。
