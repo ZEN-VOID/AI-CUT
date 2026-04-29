@@ -1,6 +1,6 @@
 # story-polishing-gpt-native
 
-`story-polishing-gpt-native` 是 `story2026` 的 `4-润色` 阶段 GPT 原生技能，负责承接 `3-初稿` 章节，结合 planning、`north_star`、项目记忆与上下文，输出 canonical 章节润色稿。
+`story-polishing-gpt-native` 是 `story2026` 的 `4-润色` 阶段 GPT 原生技能，负责承接 `3-初稿` 章节，结合 planning、`north_star`、项目记忆与上下文，输出 canonical 章节最小局部修补稿。GPT 原生流主要用于显式点名的修补、诊断样本或调度验证；未点名 provider 的正式润色默认交给 `C-Deepseek流`。
 
 ## Directory Tree
 
@@ -50,7 +50,7 @@ python3 .agents/skills/story/4-润色/A-GPT原生/scripts/polish_chapter_gpt_nat
   --draft-file /path/to/gpt-authored-chapter.md
 ```
 
-When the target chapter already exists, the script auto-selects `polish_rewrite` and injects the existing chapter into the context pack. Use `--mode local_repair` or `--mode local_repair` when the user intent is narrower.
+When the target chapter already exists, formal overwrite requires explicit `--mode polish_rewrite` plus `--force`. Use `--mode local_repair` for narrower fixes; do not treat an existing target as permission for whole-chapter rewrite.
 
 ## Truth Boundary
 

@@ -6,7 +6,7 @@
 - Output format: Markdown，完整保留上游编导稿，并在每个画面句子下方新增 `镜头语言：` 块。
 - Output path: `projects/aigc/<项目名>/3-摄影/第N集.md`、`projects/aigc/<项目名>/3-摄影/执行报告.md`。
 - Naming convention: 逐集文件命名 `第N集.md`；每个镜头语言块内 `分镜N` 从 1 开始连续编号。
-- Completion gate: 画面性句子覆盖、节拍合理、画面节奏张弛得当、上游高潮/爽点/高光承托已完成峰值分镜强化、内部完成临近至少前 3 个画面单位连续性回看、景别景深/视角/镜头类型/运镜速度明确，镜头语言呈现动态变化、组合运镜、速度曲线和流畅感，专业可执行、原文保真、review 或 validator 通过。
+- Completion gate: 画面性句子覆盖、节拍合理、画面节奏张弛得当、上游高潮/爽点/高光承托已完成峰值分镜强化、内部完成临近至少前 3 个画面单位连续性回看、景别景深/视角/镜头类型/运镜速度明确，镜头语言呈现动态变化、组合运镜、速度曲线和流畅感，专业可执行、原文保真；若 review 或 validator 发现阻断项，已在 `3-摄影` 阶段内直接最小修复并复审通过，或明确记录阻断来源且不得推进下游。
 
 ## Episode Frontmatter
 
@@ -23,6 +23,8 @@ beat_policy: one_beat_point_one_storyboard_cut
 peak_shot_policy: strengthen_existing_peak_visual_unit
 language_policy: preserve_directing_text_add_lens_language
 review_status: <pending|pass|needs_repair>
+repair_status: <not_needed|repaired|blocked>
+re_review_status: <not_needed|pass|needs_repair|blocked>
 ---
 ```
 
@@ -63,5 +65,8 @@ review_status: <pending|pass|needs_repair>
 - 动态流畅性：
 - 临近画面连续性：
 - 原文保真：
+- 直接修复项：
+- 复审结果：
+- 下游许可：
 - 残余风险：
 ```

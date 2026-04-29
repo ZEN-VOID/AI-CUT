@@ -10,6 +10,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 当父层、项目 `team.yaml` 或本轮任务显式要求启用 subagents / reviewer -> subagent / parallel-council 时，必须加载项目 `team.yaml` 与 `../../_shared/team-advisor-consultation-contract.md`，优先把 `roles.planning.members` 作为资深创作顾问 roster；在正式技能卡 LLM 创作前，按启用条件、限制代价、成长路径、反制方式与失败模式提出具体请教问题，并把结论汇流为 `advisor_consultation_packet`。
 - 本技能只负责能力/技能对象判断与正式技能卡 payload，不替父层承担总线路由与最终 gate。
 
 ## Overview
@@ -47,6 +48,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- |
 | `S1` | 确认当前真的是技能/能力问题 | `module_route=story-cards > 技能卡/SKILL.md` | `FAIL-CD-SKILL-ROUTE` | 回父技能 |
+| `S1A` | 显式启用 subagents 时请教项目监制/规划顾问 | `advisor_consultation_packet.skill_questions + execution_brief` | `FAIL-CD-SKILL-ADVISOR` | 回 `team.yaml` roster 与顾问问题包 |
 | `S2` | 判定技能桶与题材语义 | `skill_taxonomy + group` | `FAIL-CD-SKILL-TYPE` | 回类型包 |
 | `S3` | 闭合启用、限制与代价 | `activation_rules + limits_and_costs` | `FAIL-CD-SKILL-RULES` | 回规则/代价 |
 | `S4` | 建立成长与克制关系 | `progression_model + counterplay` | `FAIL-CD-SKILL-PROGRESSION` | 回成长/克制 |
@@ -74,24 +76,27 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 技能问题优先检查：
 
 1. 技能是否属于可写戏能力，而不只是题材名词。
-2. 启用条件、限制和代价是否成立。
-3. 成长模型是否与角色弧线和世界规则一致。
-4. 克制关系是否能制造冲突，而不是单向开挂。
-5. 模板映射是否完整。
+2. 显式启用 subagents 时，项目顾问请教是否已转成可执行技能指导。
+3. 启用条件、限制和代价是否成立。
+4. 成长模型是否与角色弧线和世界规则一致。
+5. 克制关系是否能制造冲突，而不是单向开挂。
+6. 模板映射是否完整。
 
 ## Lite Field Mapping
 
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-CD-SKILL-01` | `S1` | 技能路由正确 | `content.module_route` | `FAIL-CD-SKILL-ROUTE` | 回父技能 |
-| `FIELD-CD-SKILL-02` | `S2` | 技能桶成立 | `skill_taxonomy + group` | `FAIL-CD-SKILL-TYPE` | 回类型包 |
-| `FIELD-CD-SKILL-03` | `S3` | 使用规则成立 | `activation_rules + limits_and_costs` | `FAIL-CD-SKILL-RULES` | 回规则/代价 |
-| `FIELD-CD-SKILL-04` | `S4` | 成长克制成立 | `progression_model + counterplay` | `FAIL-CD-SKILL-PROGRESSION` | 回成长/克制 |
-| `FIELD-CD-SKILL-05` | `S5` | 正式模板可写回 | `skill-card payload` | `FAIL-CD-SKILL-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-SKILL-02` | `S1A` | 顾问请教已转为技能指导 | `advisor_consultation_packet.execution_brief` | `FAIL-CD-SKILL-ADVISOR` | 回顾问问题包 |
+| `FIELD-CD-SKILL-03` | `S2` | 技能桶成立 | `skill_taxonomy + group` | `FAIL-CD-SKILL-TYPE` | 回类型包 |
+| `FIELD-CD-SKILL-04` | `S3` | 使用规则成立 | `activation_rules + limits_and_costs` | `FAIL-CD-SKILL-RULES` | 回规则/代价 |
+| `FIELD-CD-SKILL-05` | `S4` | 成长克制成立 | `progression_model + counterplay` | `FAIL-CD-SKILL-PROGRESSION` | 回成长/克制 |
+| `FIELD-CD-SKILL-06` | `S5` | 正式模板可写回 | `skill-card payload` | `FAIL-CD-SKILL-TEMPLATE` | 回模板映射 |
 
 ## Completion Gate
 
 - 技能不是能力名词堆叠，而是可进入冲突、成长、训练、失败和代价的机制。
+- 显式启用 subagents 时，已生成 `advisor_consultation_packet`，并能说明项目顾问建议如何落实为启用、限制、成长、反制或失败模式。
 - `activation_rules + limits_and_costs` 已成立。
 - `progression_model + counterplay` 真正能服务长篇结构。
 - 技能卡没有替 `north_star.yaml` 发明新的世界规则源。
@@ -107,6 +112,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 | 场景 | 读取文件 |
 | --- | --- |
 | 技能分类、启用规则、限制代价、成长模型和克制关系 | `references/skill-card-contract.md` |
+| 显式启用 subagents 时的项目顾问请教、汇流与降级报告 | `../../_shared/team-advisor-consultation-contract.md`、项目 `team.yaml` |
 | 执行技能卡生成、修复与回写节点 | `steps/skill-card-workflow.md` |
 | 判定技能字段、trace 变量和类型桶 | `types/field-map.md` |
 | 交付前质量门禁 | `review/review-contract.md` |
@@ -121,4 +127,4 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair s
 - Output format: 使用 `templates/skill-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
 - Output path: 正式业务输出只写入项目根 `1-设定/5-技能卡/`。
 - Naming convention: 技能卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
-- Completion gate: 父层 `cards_writer.py` 写回成功，技能规则与世界/角色/场景/物品上游接口一致，coverage / review gate 无 blocking finding。
+- Completion gate: 父层 `cards_writer.py` 写回成功；显式启用 subagents 时已完成项目顾问请教或按合同报告降级；技能规则与世界/角色/场景/物品上游接口一致，coverage / review gate 无 blocking finding。

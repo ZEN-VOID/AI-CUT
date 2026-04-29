@@ -32,6 +32,7 @@ color: amber
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需读取项目根 `CONTEXT/` 中与本轮 cards 相关的材料。
+- 若本阶段或命中子技能显式要求启用 subagents，必须读取项目根 `team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`；优先调用 `roles.planning.members` 中已指定成员作为资深创作顾问，按对象域提出具体请教问题，并在子技能 LLM 创作前形成 `advisor_consultation_packet` 作为额外重要上下文。
 - 进入任一子技能前，必须加载该子技能自己的 `SKILL.md + CONTEXT.md`。
 - 根级 `CONTEXT.md` 只提供 cards 技能组经验与返工启发，不得覆盖本文件的路由、所有权与 gate。
 
@@ -112,6 +113,7 @@ color: amber
 | 物品对象 | `物品卡/SKILL.md`、`物品卡/CONTEXT.md`、`物品卡/references/`、`物品卡/templates/` |
 | 技能对象 | `技能卡/SKILL.md`、`技能卡/CONTEXT.md`、`技能卡/references/`、`技能卡/templates/` |
 | 父层判型 | 本文件 `Mode Selection` 与 `CONTEXT.md` Type Map |
+| 显式启用 subagents / team advisor consultation | `../_shared/team-advisor-consultation-contract.md`，由命中子技能实际消费 |
 | 父层门禁 | `cards_coverage_validator.py` 与子技能 `review/` |
 | 经验层 | `CONTEXT.md` |
 | 输出摘要 | 对话或用户指定 `reports/` 路径 |
@@ -140,10 +142,12 @@ projects/story/<项目名>/1-设定/
 2. 加载本 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 3. 根据请求路由到一个或多个子技能。
 4. 对每个命中子技能加载其 `SKILL.md + CONTEXT.md`，再按其合同读取本地模板、references、steps、review 或 types。
-5. 由 LLM 完成对象判断与 payload 创作，脚本只负责投影、落盘或校验。
-6. 经 shared writer 写回正式输出根。
-7. 经 coverage validator / cards-check 完成 gate。
-8. 若失败，按 finding 指向回到父层路由、子技能合同、模板、writer、validator 或 card 内容中最窄的真实根因。
+5. 当启用 subagents 时，按共享团队顾问合同解析 `team.yaml` planning roster，针对命中对象域请教顾问并形成 `advisor_consultation_packet`；若真实 dispatch 被上层阻断，记录阻断层级、原计划路径、实际降级路径和未启动成员。
+6. 由 LLM 完成对象判断与 payload 创作，并消费已裁决的 `advisor_consultation_packet`；脚本只负责投影、落盘或校验。
+7. 经 shared writer 写回正式输出根。
+8. 经 coverage validator / cards-check 完成 gate。
+9. gate 通过或失败结论明确后，调用 `workflow_manager.py record-skill-completion` 同步项目状态；子技能单独执行时也必须记录对应 `skill-id`。
+10. 若失败，按 finding 指向回到父层路由、子技能合同、模板、writer、validator 或 card 内容中最窄的真实根因。
 
 ## Quality Gates
 
@@ -152,6 +156,7 @@ projects/story/<项目名>/1-设定/
 | 路由 gate | 请求命中对象与子技能 owner 一致；全局/风格/类型请求转回 `north_star.yaml` |
 | 上下文 gate | 父层、项目记忆、相关项目上下文、命中子技能上下文已加载 |
 | 创作权 gate | 核心 card 判断来自 LLM，不来自脚本拼接 |
+| 顾问请教 gate | 显式启用 subagents 时已按 `team.yaml` 请教 planning 顾问并形成可执行 `advisor_consultation_packet`；阻断时有降级报告 |
 | trace gate | payload 标记的 `source_skill_id / module_route / loaded_references` 与实际调度一致 |
 | schema gate | 输出 JSON 符合对应子技能本地模板 |
 | dependency gate | 物品卡没有绕过角色接口与场景规则；技能卡没有绕过世界规则、角色成长、场景限制与物品媒介 |
@@ -184,6 +189,7 @@ projects/story/<项目名>/1-设定/
 | --- | --- | --- | --- |
 | `FIELD-CARDS-ROUTE` | 父层路由 | 命中的 child skill 列表与执行顺序 | `FAIL-CARDS-ROUTE` |
 | `FIELD-CARDS-CONTEXT` | 父层加载 | 父层、项目和 child `CONTEXT.md` 加载证据 | `FAIL-CARDS-CONTEXT` |
+| `FIELD-CARDS-ADVISOR` | 共享顾问合同 | 显式启用 subagents 时的 team roster、请教问题、可执行指导或降级说明 | `FAIL-CARDS-ADVISOR` |
 | `FIELD-CARDS-WRITEBACK` | writer | `1-设定/` 下正式 JSON/Markdown refs | `FAIL-CARDS-WRITEBACK` |
 | `FIELD-CARDS-GATE` | review/validator | coverage 与 route parity 结论 | `FAIL-CARDS-GATE` |
 
@@ -193,8 +199,10 @@ projects/story/<项目名>/1-设定/
 
 - 命中的角色/场景/物品/技能正式 cards 或相关合同修复。
 - gate / validation 结论。
+- 显式启用 subagents 时的 `advisor_consultation_packet` 状态或降级说明。
 - 对未处理对象的明确边界说明。
 - 若发生降级或跳过子技能，说明原因和影响。
+- 必须已调用 `.agents/skills/story/scripts/workflow_manager.py record-skill-completion`，把本轮父技能或子技能完成态写入项目 `STATE.json#workflow_runtime.execution_state.stage_progress`；不得只交付 cards 而不落状态。
 
 ## Output Contract
 
@@ -203,3 +211,4 @@ projects/story/<项目名>/1-设定/
 - Output path: 正式业务输出只写入 `projects/story/<项目名>/1-设定/` 下的对应 child root。
 - Naming convention: 文件名遵循 child skill 命名合同；父层报告使用 kebab-case 日期后缀。
 - Completion gate: 已实际调度的 child skill 完成写回，未调度对象不补占位，writer 与 coverage/review gate 无 blocking finding。
+- State gate: 父技能使用 `--skill-id story-cards`；子技能单独调用时分别使用 `story-cards-character / story-cards-scene / story-cards-item / story-cards-skill`，并在 `--artifacts` 中列出写回的 card/index/report 相对路径。

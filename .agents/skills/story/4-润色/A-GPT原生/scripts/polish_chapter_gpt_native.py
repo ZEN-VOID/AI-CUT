@@ -42,11 +42,13 @@ from project_locator import resolve_project_root
 REQUIRED_OUTPUT_MARKERS = (
     "润色模型:",
     "初稿来源:",
+    "字数:",
 )
 
 REQUIRED_SCALAR_FIELDS = (
     "润色模型",
     "初稿来源",
+    "字数",
 )
 
 EXPECTED_POLISHING_MODEL = "GPT"
@@ -267,7 +269,7 @@ def _build_messages(
         f"初稿来源：{_rel(source_draft_path, project_root)}",
         f"当前模式：{polishing_mode}",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
-        "待润色初稿（主输入，必须完整吸收后再二次改写）：\n" + _excerpt(_read_text(source_draft_path), 16000),
+        "待修补初稿（主输入，必须以其文本分布和句群骨架为主）：\n" + _excerpt(_read_text(source_draft_path), 16000),
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),
@@ -307,8 +309,8 @@ def _build_messages(
         )
 
     user_prompt = (
-        "请基于待润色初稿进行二次改写润色，并返回完整章节 Markdown 文件。"
-        "优先让表达更符合中文小说自然语感，并让质感贴合题材方向盘；不得新开剧情、改写核心事件或漏掉初稿已有事实。"
+        "请基于待修补初稿进行最小局部修补，并返回完整章节 Markdown 文件。"
+        "优先保留初稿段落顺序、句群骨架、长短不齐和人物原声，只修明显坏点；不得新开剧情、改写核心事件、漏掉初稿已有事实或默认整章重排。"
         "不要解释过程，不要输出多个版本。\n\n" + "\n\n".join(sections)
     )
     return [
@@ -344,6 +346,12 @@ def _require_non_empty_text(payload: dict, field: str) -> None:
         raise ValueError(f"GPT 原生润色输出 frontmatter 字段 `{field}` 不能为空。")
 
 
+def _require_word_count(payload: dict) -> None:
+    value = payload.get("字数")
+    if not isinstance(value, str) or not re.fullmatch(r"\d+字", value.strip()):
+        raise ValueError("GPT 原生润色输出 frontmatter 字段 `字数` 必须使用 `XXX字` 格式。")
+
+
 def _require_path_list(payload: dict, field: str, *, allow_empty: bool = False) -> None:
     value = payload.get(field)
     if not isinstance(value, list):
@@ -371,6 +379,7 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
     frontmatter, body_with_heading = _split_frontmatter(text)
     for field in REQUIRED_SCALAR_FIELDS:
         _require_non_empty_text(frontmatter, field)
+    _require_word_count(frontmatter)
     if frontmatter.get("润色模型") != EXPECTED_POLISHING_MODEL:
         raise ValueError(f"GPT 原生润色输出 frontmatter 字段 `润色模型` 必须是 `{EXPECTED_POLISHING_MODEL}`。")
     for field in FORBIDDEN_FRONTMATTER_FIELDS:

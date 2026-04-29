@@ -13,6 +13,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文。
 - 若当前任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前设计域有关的文件。
 - 本父级只拥有阶段路由、域选择、输出拓扑声明和阶段级验收；业务主创与最终文件写回由 `场景`、`角色`、`道具` 三个域级子技能包承担。
+- 若命中的域级或叶子设计阶段显式要求启用 subagents，父级必须把 `../_shared/team-advisor-consultation-contract.md` 作为共享机制传递给对应域；真实顾问请教与 `advisor_consultation_packet` 由命中的域级/叶子技能执行和消费，父级只在阶段验收中检查是否执行或是否有降级报告。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 域级子技能 `SKILL.md` > `references/*` / 域级分区 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
@@ -52,7 +53,8 @@ metadata:
 | `multi_domain` | 用户要求一次处理多个域，或整体调用 `5-设计` 且未指定单一域 | 无序号域级包默认全选并发调度；若用户显式给出域集合但未给顺序，也按并发汇总处理 |
 | `incremental_reconcile` | `4-分组` 只完成部分集数后曾执行过 5-设计，随后又新增或更新 `第N集.md` | 先按域执行增量对账，再进入缺口对应的 `1-清单 -> 2-设计 -> 3-生成` |
 | `domain_repair` | 旧路径、registry、脚本或输出合同漂移 | 进入 `references/阶段路由矩阵.md` 与对应域级 review gate |
-| `stage_closeout` | 域级输出已完成，需要阶段验收 | 汇总到 `projects/aigc/<项目名>/5-设计/validation-report.md` |
+| `stage_closeout` | 域级输出已完成，需要阶段验收 | 汇总域级 review verdict；失败域必须回到对应叶子直接修复并复审，通过后写 `validation-report.md` |
+| `stage_closeout_review_repair` | closeout 发现域级清单/设计/生成存在阻断项 | 路由到对应域级 leaf `review -> direct repair -> re-review`，父级只聚合结果 |
 
 ## Reference Loading Guide
 
@@ -61,6 +63,8 @@ metadata:
 | 父级路由与域选择 | `references/阶段路由矩阵.md` |
 | 父级思行节点 | `references/思行网络.md` |
 | 上游分批完成、后续追加集数、既有设计需要补缺 | `references/incremental-reconciliation-contract.md` |
+| 阶段末域级验收后直接修复闭环 | 本 `Stage-Closeout Review-Repair Contract`、`references/思行网络.md`、对应域级 leaf `review/review-contract.md` |
+| 设计创作阶段显式启用 subagents / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`，由命中域级/叶子技能实际执行 |
 | 场景域执行 | `场景/SKILL.md + 场景/CONTEXT.md` |
 | 角色域执行 | `角色/SKILL.md + 角色/CONTEXT.md` |
 | 道具域执行 | `道具/SKILL.md + 道具/CONTEXT.md` |
@@ -74,8 +78,22 @@ metadata:
 4. 若检测到 `4-分组` 新增、更新、只覆盖部分集数，或既有 `5-设计` 产物已存在，必须进入 `incremental_reconcile`：读取 `references/incremental-reconciliation-contract.md`，并要求每个命中域先产出本轮 `reconcile_delta`。
 5. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
 6. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 生成`，但每步只处理增量对账后的缺口；不得静默覆盖既有清单、设计稿或生成资产。
-7. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
-8. 若需要阶段级 closeout，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`，并记录本轮上游范围、新增主体、跳过既有产物和遗留风险。
+7. 当命中 `角色/2-设计`、`道具/2-设计`、`场景/2-设计` 且其合同要求 subagents 时，父级验收必须检查域级是否按共享团队顾问合同读取 `team.yaml`、请教项目监制顾问并形成 `advisor_consultation_packet`，或是否记录了上层阻断降级。
+8. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
+9. 若需要阶段级 closeout，先汇总每个命中域的 leaf review verdict；存在 `needs_rework` 时，父级必须把问题路由回对应域级 leaf，要求该 leaf 直接修复并复审，不得由父级补写业务正文或伪造通过。
+10. 所有命中域通过复审后，写入 `projects/aigc/<项目名>/5-设计/validation-report.md`，并记录本轮上游范围、新增主体、跳过既有产物、顾问请教/降级状态、repair actions、复审结果和遗留风险。
+
+## Stage-Closeout Review-Repair Contract
+
+`5-设计` 父级不拥有场景、角色、道具业务主稿写权，因此阶段末闭环采用“父级聚合，域级修复”的模式。
+
+固定执行语义：
+
+1. `D-N5-DOMAIN-GATE` 只汇总命中域内 `1-清单 / 2-设计 / 3-生成` 的 review verdict、输出路径、manifest 和阻断项。
+2. 若任一域或叶子 verdict 为 `needs_rework`，进入 `D-N5R-DOMAIN-REPAIR`：把 findings 路由回对应域级 leaf，由该 leaf 按自身 `review/review-contract.md` 直接修复并复审。
+3. 父级不得直接补清单主体、设计正文、生成 JSON 或图片资产；父级只能记录 route、owner、repair action 摘要和复审 verdict。
+4. 若失败源于上游 `4-分组`、旧路径迁移或增量对账，父级可以修路由/对账合同，但业务主体仍回对应域级 leaf。
+5. `validation-report.md` 只有在所有命中域通过复审或明确记录阻断来源时才能写为阶段 closeout；失败域不得被写成通过。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -90,7 +108,8 @@ metadata:
 3. 父级、registry 或 closeout 仍要求根目录平铺业务真源：回到域级 `SKILL.md` Output Contract。
 4. 新增上游集数后覆盖旧清单、重复生成已有主体或重排场景编号：回到 `references/incremental-reconciliation-contract.md` 与对应域 `1-清单` merge 合同。
 5. 设计模板或面板模板漂移：回到对应域级 `templates/` 与 `review/`。
-6. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
+6. 设计阶段显式启用 subagents 但没有请教 `team.yaml` 监制顾问：回到 `../_shared/team-advisor-consultation-contract.md` 和对应叶子 `SKILL.md`。
+7. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
 
 ## Field Mapping
 
@@ -102,6 +121,8 @@ metadata:
 | `DESIGN-FIELD-04` | `references/incremental-reconciliation-contract.md` | 上游分批完成时的增量对账、manifest 和补缺规则 |
 | `DESIGN-FIELD-05` | `场景/角色/道具/SKILL.md` | 域级清单 -> 设计 -> 生成顺序 |
 | `DESIGN-FIELD-06` | `projects/aigc/<项目名>/5-设计/validation-report.md` | 阶段级验收摘要 |
+| `DESIGN-FIELD-07` | `../_shared/team-advisor-consultation-contract.md` | 显式启用 subagents 的设计叶子已执行 team advisor 请教或记录降级 |
+| `DESIGN-FIELD-08` | `Stage-Closeout Review-Repair Contract` | 失败域回 leaf 直接修复并复审，父级只聚合 verdict |
 
 ## Thought Pass Map
 
@@ -111,7 +132,9 @@ metadata:
 | `DESIGN-PASS-02` | 判断命中域 | 路由到 `场景 / 角色 / 道具` 包 | `domain_routes` |
 | `DESIGN-PASS-03` | 判断是否存在分批上游或既有产物 | 执行增量对账门 | `reconcile_delta` |
 | `DESIGN-PASS-04` | 判断域级输出是否完成 | 执行域级 review gate | `domain_verdicts` |
-| `DESIGN-PASS-05` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
+| `DESIGN-PASS-05` | 判断命中设计叶子是否完成顾问请教或降级记录 | 汇总 `advisor_consultation_packet` 状态 | `advisor_consultation_status` |
+| `DESIGN-PASS-06` | 判断是否需要域级修复 | 将失败 finding 路由回对应域级 leaf 并要求复审 | `domain_repair_results` |
+| `DESIGN-PASS-07` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
 
 ## Pass Table
 
@@ -120,7 +143,8 @@ metadata:
 | `DESIGN-PASS` | 命中域明确，输出根正确，旧 tranche 不再作为 active 入口 | done |
 | `DESIGN-REWORK-ROUTE` | 仍引用旧 `1-清单/2-设计/3-面板` | `references/阶段路由矩阵.md` |
 | `DESIGN-REWORK-INCREMENTAL` | 新增 `4-分组` 后清单/设计/生成未对账或覆盖既有产物 | `references/incremental-reconciliation-contract.md` |
-| `DESIGN-REWORK-DOMAIN` | 域级输出失败 | 对应域级 `review/review-contract.md` |
+| `DESIGN-REWORK-DOMAIN` | 域级输出失败 | 对应域级 leaf `review/review-contract.md` -> direct repair -> re-review |
+| `DESIGN-REWORK-ADVISOR` | 显式启用 subagents 的设计叶子缺少 team advisor 请教或降级说明 | `../_shared/team-advisor-consultation-contract.md` |
 
 ## Output Contract
 
@@ -128,4 +152,4 @@ metadata:
 - Output format: `validation-report.md` 使用 Markdown；域级业务输出为对应 leaf 的清单、设计稿和生成请求/结果 JSON。
 - Output path: 父级阶段报告写到 `projects/aigc/<项目名>/5-设计/validation-report.md`；域级业务真源写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`；域级状态 sidecar 可写到 `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/design-manifest.yaml`。
 - Naming convention: 父级报告固定名 `validation-report.md`；域级命名由各域 `SKILL.md` 的 Output Contract 裁决。
-- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过；若存在分批上游或既有产物，已完成增量对账且未静默覆盖。
+- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过；若存在分批上游或既有产物，已完成增量对账且未静默覆盖；显式启用 subagents 的设计叶子已完成 `team.yaml` 顾问请教或记录上层阻断降级；阶段 closeout 中发现的域级阻断项已回到对应 leaf 直接修复并复审，或在 `validation-report.md` 中明确记录阻断来源和未通过域。

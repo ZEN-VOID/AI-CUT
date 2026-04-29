@@ -6,6 +6,8 @@
 
 在当前上层策略允许真实 dispatch，且用户显式要求或仓库治理合同视为已授权时，默认 reviewer 路径如下：
 
+默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教场景/建筑/美术/摄影/导演相关顾问，形成 `advisor_consultation_packet` 后再进入单场景设计与 reviewer 汇流。
+
 | reviewer | scope | blocking checks |
 | --- | --- | --- |
 | `research-reviewer` | `research_brief`、来源姿态、冷门信息、事实/推断边界、不确定性与视觉翻译 | 无研究简报、冷门事实无来源策略、猜测伪装事实、研究无法落到可见设计 |
@@ -18,7 +20,7 @@
 - 阻断来源层级。
 - 原计划 reviewer 路径。
 - 实际采用的降级路径。
-- 哪些 reviewer 没有真实启动。
+- 哪些 advisor / reviewer 没有真实启动。
 
 ## Reviewer Merge Map
 
@@ -30,6 +32,8 @@ flowchart TD
     B -->|"yes"| E["cinematography-reviewer"]
     B -->|"yes"| F["prompt-reviewer"]
     B -->|"blocked"| G["local review checklist"]
+    A --> A1["advisor consultation packet"]
+    A1 --> H["merged review_verdict"]
     C --> H["merged review_verdict"]
     D --> H
     E --> H
@@ -55,6 +59,7 @@ flowchart TD
 | prompt | 英文、<= 2000 characters、承接全局风格和建筑风格，并显式固定纯空镜/no people |
 | prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
+| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入空间结构、材质光线、空镜构图、no people 或 prompt evidence |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
 
@@ -72,7 +77,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | prompt_evidence_chain | fixed_visual | boundary | llm_first
+  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | prompt_evidence_chain | fixed_visual | advisor_consultation | boundary | llm_first
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -91,5 +96,6 @@ finding:
 - 英文提示词超过 2000 characters。
 - `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
+- 默认 subagents / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到空间结构、材质光线、空镜构图、no people、prompt evidence。
 - 由脚本生成核心创作正文或提示词。
 - 写入范围越过 `projects/aigc/<项目名>/5-设计/场景/2-设计`。

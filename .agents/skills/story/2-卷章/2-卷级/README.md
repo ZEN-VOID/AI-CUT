@@ -1,6 +1,6 @@
 # story-plan-volume-level
 
-`story-plan-volume-level` 是 `2-卷章` 的卷级规划子技能，负责把整部总纲下钻到单卷可执行规划。
+`story-plan-volume-level` 是 `2-卷章` 的卷级规划子技能，负责把整部总纲下钻到单卷可执行规划，并把整书悬念总设计转成单卷悬念开关。
 
 ## Directory Tree
 
@@ -35,6 +35,7 @@
 - 入口合同：`SKILL.md`
 - 经验层：`CONTEXT.md`
 - 业务细则：`references/volume-planning-contract.md`
+- 悬念机制：`../_shared/suspense-design-contract.md`，含 `本卷悬念线程表` 与 `本卷悬念负载`
 - 六拍框架：`references/volume-rhythm-framework.md`
 - 执行网络：`steps/volume-planning-workflow.md`
 - 输出模板：`templates/output-template.md`

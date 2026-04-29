@@ -26,7 +26,9 @@
 | `N5.5-PEAK-SHOT` | 执行 step2.6 高潮分镜强化判断 | visual_unit、beat_map、rhythm_profile、上游 `peak_visual_policy` 或高点证据、`references/peak-shot-language-contract.md` | 识别 `peak_visual_unit`，决定分镜密度、镜头运动、景别尺度、停顿/断裂和余波交接 | peak_shot_profile | `N6-CONTINUITY` | 高点强化可回指上游，不新增事实 |
 | `N6-CONTINUITY` | 回看临近镜头语言并建立连续性策略 | rhythm_profile、peak_shot_profile、前 3 个 visual_unit、`references/shot-continuity-contract.md` | 建立轴线、运动方向、景别梯度、光色和注意力交接策略 | continuity_profile | `N7-INJECT` | 当前镜头有进入点和交出点 |
 | `N7-INJECT` | 执行 step3 镜头语言注入 | beat_map、rhythm_profile、peak_shot_profile、continuity_profile、`references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md` | LLM 直写 `镜头语言：` 与 `分镜N` | enriched episode draft | `N8-REVIEW` | 原文保留，注入块紧跟命中句子 |
-| `N8-REVIEW` | 执行质量与机械门禁 | `review/review-contract.md`、可选 validator | 检查覆盖、连续编号、节奏张弛、连续性、保真、专业性 | review result | `N9-WRITE` 或返工 | review 通过 |
+| `N8-REVIEW` | 执行质量与机械门禁 | candidate enriched draft、`review/review-contract.md`、可选 validator | 检查覆盖、连续编号、节奏张弛、连续性、保真、专业性，定位 repair target | review result、repair targets | `N8R-DIRECT-REPAIR` 或 `N9-WRITE` | 无阻断项才可写回 |
+| `N8R-DIRECT-REPAIR` | 阶段内直接修复阻断项 | repair targets、candidate enriched draft、上游编导稿 | 最小修复 `镜头语言`、`分镜N`、连续性、节奏张弛、峰值分镜、专业可执行或报告证据；不改上游原文 | repaired draft、repair actions | `N8R-REVIEW-AGAIN` | 修复范围不越权 |
+| `N8R-REVIEW-AGAIN` | 复审修复稿 | repaired draft、repair actions、上游编导稿 | 复跑阻断 gate；通过则准入写回，失败则回最早责任节点 | re-review verdict | `N9-WRITE` 或 `N3/N4/N5/N5.5/N6/N7/N8R` | 复审通过或明确阻断 |
 | `N9-WRITE` | 落盘与报告 | enriched draft、review result | 写入 `3-摄影/第N集.md`，更新报告 | output path、report path | done | 路径和命名符合 Output Contract |
 
 ## Branch Rules
@@ -39,6 +41,7 @@
 - `N7-INJECT` 的技法选择可同时参考构图、运镜、转场、光影、色彩，但最终输出必须凝成可执行、连贯、张弛得当的动态分镜句。
 - 任一节点发现需要改写剧情或对白才能成立，必须回退：镜头语言应服务原句，而不是修补原句。
 - 若 review 发现上游高点被压平，回到 `N5.5-PEAK-SHOT`；若发现高潮强化导致跳轴、跳色或风格断裂，继续回到 `N6-CONTINUITY`。
+- 若 review 发现可由本阶段修复的覆盖、编号、节拍、张弛、连续性或专业性问题，先进入 `N8R-DIRECT-REPAIR` 并复审；不得跳过复审写回。
 
 ## Output Shape Per Visual Unit
 

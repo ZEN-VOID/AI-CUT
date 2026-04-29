@@ -5,6 +5,12 @@
 - 每次调用本技能时，必须依据本文件识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
+## Default Package Rule
+
+- 未指定更窄题材时，默认先加载 `webnovel` 包。
+- 若 `north_star.yaml.genre_contract`、章级 planning 或用户请求能识别到明确题材，则叠加对应 `webnovel-subgenre`。
+- 重写、续写、局部修复和 review 返工必须在原题材包基础上叠加 `draft-repair`，不得改写题材真源。
+
 ## Package Index
 
 | package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |

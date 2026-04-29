@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-25
+last_updated: 2026-04-29
 
 active_skills:
   - id: aigc
@@ -238,8 +238,8 @@ active_skills:
         contract_status: active
         route_role: automated_review
         natural_triggers: ["review", "终验", "质量审查", "validation aggregate", "code-reviewer 汇流", "返工路由"]
-      - id: story-context-return
-        path: .agents/skills/story/context-return
+      - id: story-return
+        path: .agents/skills/story/return
         owner_office: zhongshu
         contract_status: active
         route_role: checkpoint
@@ -254,6 +254,11 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 小说项目断点、续跑、清理或重启任务。
+      - id: story-repair
+        path: .agents/skills/story/repair
+        contract_status: active
+        route_role: satellite
+        purpose: 小说局部修改的跨层影响判定、source-first 修复、provider authorship 保持与 code-reviewer 验收。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu

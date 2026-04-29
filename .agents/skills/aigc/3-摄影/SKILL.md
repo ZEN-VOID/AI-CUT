@@ -13,8 +13,10 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$3-摄影` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml` 与 `team.yaml`，再按需加载项目根 `CONTEXT/` 中与摄影、美术、风格或制作约束相关的上下文文件。
+- 若本阶段显式要求启用 subagents 或仓库合同视为默认启用，必须读取 `../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问，围绕镜头连续性、节拍密度、运镜、光影、色彩、峰值镜头和转场动机进行请教，并在 LLM 镜头语言注入前形成 `advisor_consultation_packet` 作为额外重要上下文。
 - 上游正文真源固定为 `projects/aigc/<项目名>/2-编导/第N集.md`，除非用户显式指定其他编导稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 核心镜头语言、节拍判断和审美设计必须由 LLM 直接完成；`scripts/` 只能做读取、标记检查、字段覆盖统计和机械校验。
@@ -26,6 +28,7 @@ metadata:
 - 无序号同级子技能包默认全选并发执行，由本主技能包汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 卫星技能只承担查询、恢复、审查承接或辅助动作；不会因连续调度自动改写 `3-摄影` canonical 输出，除非父级合同或用户明确要求回接。
 - 连续调度不得绕过本技能的阻断门：缺少必需输入、上游编导稿不可读、破坏性覆盖未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
 - 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 镜头语言主创或父级最终裁决。
 
@@ -66,6 +69,7 @@ Reject or clarify when:
 | `episode_range` | 指定多个集号或集号范围 | 多个逐集摄影稿与更新后的执行报告 |
 | `all_ready_episodes` | 未指定集号但 `2-编导/` 下有 `第N集.md` | 全部可读逐集摄影稿 |
 | `repair` | 已有摄影稿缺失 `镜头语言`、分镜编号断裂、误改原文或节拍过粗/过碎 | 最小修复后的逐集摄影稿与问题报告 |
+| `stage_end_review_repair` | 任一非 `review_only` 摄影任务完成候选稿后自动进入 | 阶段内 review -> 直接修复镜头语言 -> 复审 -> canonical 写回 |
 | `review_only` | 用户只要求检查 `3-摄影` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
 
 ## Reference Loading Guide
@@ -73,6 +77,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意摄影注入任务 | `steps/cinematography-workflow.md`、`references/visual-matching-contract.md`、`references/beat-analysis-contract.md` |
+| 摄影创作阶段显式启用 subagents / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md` |
 | 画面节奏、信息重要性、张弛有度、收敛/发散 | `references/visual-rhythm-analysis-contract.md` |
 | 高潮画面分镜强化、峰值运镜和高点余波交接 | `references/peak-shot-language-contract.md` |
 | 镜头语言动态化表达、变化、组合运镜、流畅感 | `references/dynamic-lens-language-contract.md` |
@@ -80,6 +85,7 @@ Reject or clarify when:
 | 景别景深、镜头视角、镜头类型、运镜速度、经典构图、高超运镜、高能转场、光影、色彩 | `references/cinematic-technique-library.md` |
 | 判断画面句子类型与镜头策略 | `types/visual-unit-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
+| 阶段末审计后直接修复闭环 | 本 `Stage-End Review-Repair Contract`、`steps/cinematography-workflow.md`、`review/review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-cinematography.template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
 | 可复用经验 | `knowledge-base/cinematography-heuristics.md` |
@@ -95,7 +101,9 @@ flowchart TD
     D --> E["一个节拍点 = 一个分镜切换点"]
     E --> F["LLM 注入镜头语言"]
     F --> G["review gate"]
-    G --> H["projects/aigc/<项目名>/3-摄影/第N集.md"]
+    G -->|"needs_rework"| R["本阶段直接修复镜头语言"]
+    R --> G
+    G -->|"pass"| H["projects/aigc/<项目名>/3-摄影/第N集.md"]
     G --> I["执行报告.md"]
 ```
 
@@ -122,9 +130,24 @@ flowchart TD
 4. 按 `references/beat-analysis-contract.md` 执行 step2：先判断该画面句子的戏剧功能、注意力转移、动作相位、信息揭示和情绪转折，再决定分镜切换点；一个节拍点对应一个 `分镜N`。
 5. 按 `references/visual-rhythm-analysis-contract.md` 执行 step2.5：根据画面句子的类型、节奏、信息重要性、情绪压力和上下文位置，判断镜头语言应收敛还是发散，决定描述密度、运动复杂度、景别变化幅度、转场强度和停顿时长。
 6. 按 `references/peak-shot-language-contract.md` 执行 step2.6：若上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光承托，形成内部 `peak_shot_profile`，决定是否加强分镜密度、景别尺度、运镜速度、停顿、转场、反应镜头和余波交接；若无真实高点，不硬造高潮。
-7. 按 `references/shot-continuity-contract.md`、`references/dynamic-lens-language-contract.md` 与 `references/cinematic-technique-library.md` 执行 step3：在每个画面句子下方新增 `镜头语言：` 字段。写作前必须在内部回顾整集中临近至少前 3 个画面句子的镜头语言表现，延续或有动机地变化轴线、运动方向、景别梯度、景深、视角、镜头类型、运镜速度、光影和色彩；输出时集中描写当前画面本身，每个分镜写成“从 XX 到 XX”的动态变化、组合运镜和速度曲线。
-8. 写入 `projects/aigc/<项目名>/3-摄影/第N集.md`，并生成或更新 `projects/aigc/<项目名>/3-摄影/执行报告.md`。
-9. 按 `review/review-contract.md` 执行验收；脚本只能做机械字段检查，不能替代镜头语言主创。
+7. 当启用 subagents 时，按共享团队顾问合同解析 `team.yaml` 监制 roster，向摄影、导演、美术、剪辑或类型视觉顾问提出具体问题；主 agent 将回答汇流为 `advisor_consultation_packet`，只吸收可执行镜头指导、节奏取舍和风险提示，不允许顾问改写上游编导正文。
+8. 按 `references/shot-continuity-contract.md`、`references/dynamic-lens-language-contract.md` 与 `references/cinematic-technique-library.md` 执行 step3：在每个画面句子下方新增 `镜头语言：` 字段。写作前必须在内部回顾整集中临近至少前 3 个画面句子的镜头语言表现，并消费 `advisor_consultation_packet` 中可执行指导；输出时集中描写当前画面本身，每个分镜写成“从 XX 到 XX”的动态变化、组合运镜和速度曲线。
+9. 将 LLM 注入后的摄影稿先视为 `candidate_cinematography`，按 `review/review-contract.md` 执行验收；脚本只能做机械字段检查，不能替代镜头语言主创。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
+10. 若 review 发现阻断项，必须在本阶段直接修复 `镜头语言` 覆盖、分镜编号、节拍、张弛、连续性、专业可执行、峰值分镜或报告证据，并复审通过；不得改写 `2-编导` 原文。
+11. 复审通过后写入 `projects/aigc/<项目名>/3-摄影/第N集.md`，并生成或更新 `projects/aigc/<项目名>/3-摄影/执行报告.md`。
+
+## Stage-End Review-Repair Contract
+
+`3-摄影` 不另设独立“摄影润色”阶段。每次生成或修复候选摄影稿后，必须在本阶段内部完成末段审计和直接修复闭环，只有复审通过的结果才允许写回 canonical `3-摄影/第N集.md`。
+
+固定执行语义：
+
+1. `N7-INJECT` 产物先视为 `candidate_cinematography`，不是终稿。
+2. `N8-REVIEW` 按 `review/review-contract.md` 审计画面覆盖、分镜编号、节拍、画面节奏、连续性、专业可执行、动态流畅、空间一致、戏剧服务、原文保真、高潮分镜和输出路径。
+3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N8R-DIRECT-REPAIR`，只修 `镜头语言：`、`分镜N`、镜头连续性、节奏张弛、峰值分镜、报告和证据字段；不得改写 `2-编导` 原文、对白、场景标题、字段顺序或剧情事实。
+4. 修复后必须执行 `N8R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限阻断时输出阻断报告，不得把失败稿推进下游。
+5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
+6. `执行报告.md` 必须记录本轮 review verdict、repair actions、复审结果、未修复风险和是否允许进入 `4-分组` / 后续设计与视频链路。
 
 ## Script And Metadata Contract
 
@@ -148,6 +171,8 @@ flowchart TD
 | `FIELD-CINE-08` | 保真 | 不改写原 `2-编导` 字段、对白、场景顺序和剧情事实 | `FAIL-CINE-08` |
 | `FIELD-CINE-09` | 输出落盘 | `3-摄影/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-CINE-09` |
 | `FIELD-CINE-10` | 高潮分镜 | 上游高点被识别为 `peak_visual_unit`，并以分镜密度、运镜、景别、停顿、转场或余波交接强化，不新增事实 | `FAIL-CINE-10` |
+| `FIELD-CINE-11` | Team advisor consult | 显式启用 subagents 时已按 `team.yaml` 请教项目监制顾问，并把可执行镜头指导作为创作前上下文；阻断时有降级报告 | `FAIL-CINE-11` |
+| `FIELD-CINE-12` | 阶段末闭环 | candidate 已审计、阻断项已直接修复并复审，执行报告记录 verdict 和 repair actions | `FAIL-CINE-12` |
 
 ## Thought Pass Map
 
@@ -157,9 +182,11 @@ flowchart TD
 | `PASS-CINE-02` | 节拍分析 | 单个 `visual_unit` | 注意力、动作、信息、情绪、空间或声画是否需要换镜 | `beat_map` |
 | `PASS-CINE-03` | 画面节奏分析 | `visual_unit`、`beat_map`、上下文位置 | 当前画面应收敛、标准展开、发散强化还是突发断裂；该判断只影响输出密度，不显式写入分镜 | `rhythm_profile` |
 | `PASS-CINE-04` | 高潮分镜强化 | `visual_unit`、`beat_map`、`rhythm_profile`、上游 peak 证据 | 当前画面是否是高点，是否需要加强分镜密度、运镜、停顿、转场或余波交接 | `peak_shot_profile` |
-| `PASS-CINE-05` | 连续性回看 | 当前 `visual_unit`、`peak_shot_profile` 与临近前 3 个镜头语言块 | 哪些轴线、运动方向、景别梯度、光色和风格必须延续或有动机变化 | `continuity_profile` |
-| `PASS-CINE-06` | 镜头语言注入 | `beat_map`、`rhythm_profile`、`peak_shot_profile`、`continuity_profile`、动态表达合同与技法库 | 哪种景别、景深、视角、镜头类型、速度、构图、组合运镜、转场、光影、色彩最服务当前节拍且张弛得当 | `镜头语言` 块 |
-| `PASS-CINE-07` | 保真审查 | enriched draft | 是否只新增镜头语言而不改写上游编导稿 | review result |
+| `PASS-CINE-05` | 顾问请教汇流 | `team.yaml`、共享顾问合同、`visual_unit` 与阶段目标 | 是否已向项目监制顾问提出摄影问题并汇流为可执行指导 | `advisor_consultation_packet` |
+| `PASS-CINE-06` | 连续性回看 | 当前 `visual_unit`、`peak_shot_profile`、`advisor_consultation_packet` 与临近前 3 个镜头语言块 | 哪些轴线、运动方向、景别梯度、光色和风格必须延续或有动机变化 | `continuity_profile` |
+| `PASS-CINE-07` | 镜头语言注入 | `beat_map`、`rhythm_profile`、`peak_shot_profile`、`continuity_profile`、动态表达合同与技法库 | 哪种景别、景深、视角、镜头类型、速度、构图、组合运镜、转场、光影、色彩最服务当前节拍且张弛得当 | `镜头语言` 块 |
+| `PASS-CINE-08` | 保真审查 | enriched draft | 是否只新增镜头语言而不改写上游编导稿 | review result |
+| `PASS-CINE-09` | 直接修复复审 | review result、candidate 摄影稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | review repair result |
 
 ## Pass Table
 
@@ -169,9 +196,11 @@ flowchart TD
 | `PASS-CINE-02` | 为每个画面句子判断节拍点 | `分镜N` 数量与切换理由 | `references/beat-analysis-contract.md` |
 | `PASS-CINE-03` | 判断该收敛还是发散 | rhythm profile、描述密度、运动复杂度、转场强度 | `references/visual-rhythm-analysis-contract.md` |
 | `PASS-CINE-04` | 对上游高点形成 `peak_shot_profile` | 高点证据、峰值分镜/运镜/停顿/余波策略 | `references/peak-shot-language-contract.md` |
-| `PASS-CINE-05` | 回看临近至少前 3 个画面单位 | continuity profile、轴线/运动方向/光色/景别梯度 | `references/shot-continuity-contract.md` |
-| `PASS-CINE-06` | 写出大师级但可执行的动态镜头语言 | 从起点到终点的变化、组合运镜、速度曲线、景别、景深、镜头视角、镜头类型、转场、光影、色彩选择 | `references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md` |
-| `PASS-CINE-07` | 做覆盖率、连续编号和保真门禁 | review 结果或 validator 输出 | `review/review-contract.md` |
+| `PASS-CINE-05` | 显式启用 subagents 时完成项目监制顾问请教或记录降级 | roster 来源、问题类型、可执行指导或降级说明 | `../_shared/team-advisor-consultation-contract.md` |
+| `PASS-CINE-06` | 回看临近至少前 3 个画面单位 | continuity profile、轴线/运动方向/光色/景别梯度 | `references/shot-continuity-contract.md` |
+| `PASS-CINE-07` | 写出大师级但可执行的动态镜头语言 | 从起点到终点的变化、组合运镜、速度曲线、景别、景深、镜头视角、镜头类型、转场、光影、色彩选择 | `references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md` |
+| `PASS-CINE-08` | 做覆盖率、连续编号和保真门禁 | review 结果或 validator 输出 | `review/review-contract.md` |
+| `PASS-CINE-09` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | repair actions、re-review verdict | `Stage-End Review-Repair Contract` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -186,10 +215,12 @@ flowchart TD
 - 上游存在高潮/爽点/高光画面，但摄影稿按普通画面处理，或为了强化高点新增事实、对白、动作结果。
 - 为了镜头炫技而改写原编导稿事实、对白或场景顺序。
 - 脚本、模板拼接或规则补句替代 LLM 的摄影主创判断。
+- 显式启用 subagents 时跳过 `team.yaml` 监制顾问请教，或把主 agent 本地模拟顾问当成真实 dispatch。
+- review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
 
 必经链路：
 
-`Symptom -> Direct Script/Prompt Overreach -> 3-摄影 Section Owner -> AGENTS.md LLM-first / Skill 2.0 Rule`
+`Symptom -> Direct Script/Prompt/Subagent Overreach -> 3-摄影 Section Owner -> AGENTS.md LLM-first / Subagent / Skill 2.0 Rule`
 
 ## Output Contract
 
@@ -231,6 +262,7 @@ flowchart TD
 - 每个 `镜头语言：` 块至少有 `分镜1:`，多分镜编号连续，且每个分镜对应明确节拍点。
 - 镜头语言根据画面类型、节奏和信息重要性张弛有度：过场和低信息句收敛，关键揭示/强情绪/空间重置句发散强化；节奏标签留在内部判断，不显式输出。
 - 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光承托时，摄影稿必须完成峰值分镜强化：高点具备清晰节拍、镜头策略、观看停顿或断裂、反应/结果/余波交接，且不新增事实或对白。
+- 显式启用 subagents 时，已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`；若被上层阻断，执行报告已记录降级说明。
 - 镜头语言体现景别景深、镜头视角、镜头类型、运镜速度、经典电影构图、高超运镜、高能转场、光影美学、色彩美学中的必要项，以动态变化和组合运镜形成流畅感、丝滑感；同时回看临近至少前 3 个画面单位，保持整集镜头表现的连贯性、一致性和空间方向感，并服从当前画面句子的戏剧任务。
 - 原编导稿事实、对白、场景标题和字段顺序未被改写。
-- 已运行 `scripts/validate_cinematography_markup.py` 或执行等价人工 review，结果写入 `执行报告.md`。
+- 已运行 `scripts/validate_cinematography_markup.py` 或执行等价人工 review；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。

@@ -47,6 +47,7 @@ from project_locator import resolve_project_root
 REQUIRED_OUTPUT_MARKERS = (
     "润色模型",
     "初稿来源",
+    "字数",
 )
 EXPECTED_POLISHING_MODEL = "Deepseek"
 FORBIDDEN_FRONTMATTER_FIELDS = (
@@ -298,7 +299,7 @@ def _build_messages(
         f"初稿来源：{_rel(source_draft_path, project_root)}",
         f"当前模式：{polishing_mode}",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
-        "待润色初稿（主输入，必须完整吸收后再二次改写）：\n" + _excerpt(_read_text(source_draft_path), 16000),
+        "待修补初稿（主输入，必须以其文本分布和句群骨架为主）：\n" + _excerpt(_read_text(source_draft_path), 16000),
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),
@@ -348,8 +349,8 @@ def _build_messages(
         )
 
     user_prompt = (
-        "请基于待润色初稿进行二次改写润色，并返回完整章节 Markdown 文件。"
-        "优先让表达更符合中文小说自然语感，并让质感贴合题材方向盘；不得新开剧情、改写核心事件或漏掉初稿已有事实。"
+        "请基于待修补初稿进行最小局部修补，并返回完整章节 Markdown 文件。"
+        "优先保留初稿段落顺序、句群骨架、长短不齐和人物原声，只修明显坏点；不得新开剧情、改写核心事件、漏掉初稿已有事实或默认整章重排。"
         "不要解释过程，不要输出多个版本。\n\n" + "\n\n".join(sections)
     )
     return [
@@ -390,6 +391,11 @@ def _require_non_empty(value: object, field_name: str) -> None:
         raise ValueError(f"DeepSeek 返回 frontmatter 字段为空：{field_name}")
 
 
+def _require_word_count(value: object) -> None:
+    if not isinstance(value, str) or not re.fullmatch(r"\d+字", value.strip()):
+        raise ValueError("DeepSeek 返回 frontmatter 字段 `字数` 必须使用 `XXX字` 格式。")
+
+
 def _validate_path_list(payload: dict, field_name: str, *, allow_empty: bool = False) -> None:
     value = payload.get(field_name)
     if not isinstance(value, list):
@@ -414,6 +420,7 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
         if marker not in payload:
             raise ValueError(f"DeepSeek 返回内容缺少必需字段：{marker}")
         _require_non_empty(payload.get(marker), marker)
+    _require_word_count(payload.get("字数"))
 
     if payload.get("润色模型") != EXPECTED_POLISHING_MODEL:
         raise ValueError(f"DeepSeek 返回 frontmatter 字段 `润色模型` 必须是 `{EXPECTED_POLISHING_MODEL}`。")

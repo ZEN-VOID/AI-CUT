@@ -1,6 +1,6 @@
 # Context: 4-润色
 
-本文件是 `story-polishing` 的经验层知识库，不是过程日志。它用于沉淀从 `3-初稿` 到 `4-润色` 的二次改写、中文表达优化与题材质感校准经验。
+本文件是 `story-polishing` 的经验层知识库，不是过程日志。它用于沉淀从 `3-初稿` 到 `4-润色` 的最小局部修补、中文表达局部优化、题材质感校准与 AI 检测分布风险经验。
 
 ## Context Health
 
@@ -25,20 +25,25 @@ last_checked_at: 2026-04-26
 | `TM-POLISH-06` | 润色稿为了高级感删掉爽点、压低情绪或抹平人物声音 | over-smoothing | 回到项目 `MEMORY.md` 和 `north_star`，恢复口味、人物声音、爽点/悬疑/情绪压力 | 系统提示禁止“清洗风格”为通用顺滑文本 | 润色后仍保留项目的锋芒、口味和人物辨识度 |
 | `TM-POLISH-07` | local repair 扩大成整章重写 | repair scope creep | 根据 finding 标注段落、问题类型和最小修复范围 | `local_repair` 默认不扩大；除非 finding 指向全章失效 | 修复 diff 只影响问题区域及必要上下文 |
 | `TM-POLISH-08` | 既有 `4-润色` 被静默覆盖 | writeback safety | 阻断正式写回，要求 `--force` 或等价确认 | lane script 固定覆盖保护 | 覆盖必须来自显式确认 |
-| `TM-POLISH-09` | frontmatter 写入大量 planning/context 摘要 | metadata density | 只保留 `润色模型` 与 `初稿来源`，其它证据写入 sidecar | 输出模板和 validator 禁止上下文摘要进正文 YAML | YAML 头极简，正文 token 留给 prose |
+| `TM-POLISH-09` | frontmatter 写入大量 planning/context 摘要 | metadata density | 只保留 `润色模型`、`初稿来源` 与 `字数`，其它证据写入 sidecar | 输出模板和 validator 禁止上下文摘要进正文 YAML | YAML 头极简，正文 token 留给 prose |
 | `TM-POLISH-10` | 用户要“更像中文”，但结果只是口语化、变浅 | Chinese style overcorrection | 区分自然中文与随意口语，保留文学密度、场景压力和语义层次 | 在 prompt 中同时要求自然语感与题材质感 | 文本更顺，但没有损失信息密度和气氛 |
+| `TM-POLISH-11` | AI 检测中润色稿人工成分低于初稿，且文本明显短句化、分段规整化 | distribution collapse | 回到 `3-初稿` 做最小局部修补，禁止继承整章润色稿的短句化重排 | 父级默认 lane 改为 `C-Deepseek流` 的最小局部修补；质量门新增句长/段落分布不机械收缩 | 平均句长、句长波动、段落密度应更接近初稿而非整章润色稿 |
+| `TM-POLISH-12` | prompt 反复强调“去 AI 味”，结果反而更像模型优化文本 | anti-ai overprompting | 减少泛化“去 AI 味”口号，改成具体问题清单：公式句、重复解释、对白同质、动作硬说明 | 系统提示固定“少动、保骨架、只修坏处” | 修补 diff 可解释，正文不出现通用顺滑化 |
+| `TM-POLISH-13` | 用户显式要求 subagents，但执行只给一份泛化审计意见，没有按维度优化正文 | review-optimize gap | 先按 `story/review` registry 拆成结构、连续性、逻辑、人物、时间线、任务汇聚等维度子技能审计，再把 findings 汇成当前 lane 的 repair brief | 父级固定 `subagent_review_optimize`：审计点必须映射到 review 子技能，且同轮进入 A/B/C lane 执行直接优化 | 有真实维度 packet / 降级报告，且最终润色稿体现对应修复 |
 
 ## Repair Playbook
 
 1. 先检查当前章 `3-初稿/第N卷/第N章.md` 是否存在；缺失时硬失败，不用 planning 补写。
-2. 若用户只说“润色”，默认走 `B-Doubao流`；点名 GPT 或 DeepSeek 时进入对应 lane。
+2. 若用户只说“润色”，默认走 `C-Deepseek流`，并采用最小局部修补；点名 GPT 或 Doubao 时进入对应 lane。
 3. 若目标 `4-润色` 已存在，先回读既有润色稿；正式覆盖必须要求显式确认。
 4. 若润色稿改动了核心剧情，回到初稿事实锚点，要求“只改表达，不改事件”。
-5. 若润色稿只变顺但没质感，回读 `north_star.yaml.genre_contract` 与风格约束，把题材压力落实到段落节奏、场景密度和对白。
+5. 若润色稿只变顺但没质感，回读 `north_star.yaml.genre_contract` 与风格约束，只在必要处把题材压力落实到段落节奏、场景密度和对白，不做整章洗稿。
 6. 若输出像点评或建议，回到 lane 模板，要求只输出完整 Markdown 文件本身。
 7. 若 local repair 扩大为整章重写，重建 finding -> affected span -> minimal patch 的修复边界。
-8. 若 provider/GPT 输出缺 `润色模型` 或 `初稿来源`，回到输出模板和 validator，而不是把上下文引用塞进正文 YAML。
+8. 若 provider/GPT 输出缺 `润色模型`、`初稿来源` 或 `字数`，回到输出模板和 validator，而不是把上下文引用塞进正文 YAML。
 9. 若需要扩容规则，优先把经验沉淀到本 `CONTEXT.md`；稳定后再晋升到 `SKILL.md` 的 Base Polishing Rules 或 Quality Gates。
+10. 若 AI 检测结果提示润色破坏人工成分，先做同模型对照：同一初稿、同一 provider 下比较“整章润色”和“最小局部修补”，再决定是否调整默认策略。
+11. 若显式 subagents 模式只完成审计而没有改稿，回到父级 `Subagent Review-Optimize Contract`：先确认每个审计点对应的 `story/review` 子技能，再把 findings 作为当前 lane 的 `local_repair` 输入执行直接优化。
 
 ## Reusable Heuristics
 
@@ -46,9 +51,12 @@ last_checked_at: 2026-04-26
 - “更像中文”通常不是堆成语，而是减少解释性连接词，增加动作、感官、停顿和对白中的潜台词。
 - “更符合题材”不能只替换词汇；要让风险、欲望、恐惧、爽点或悬疑压力进入句群节奏。
 - 好的二改会让读者感到人物更像活人在现场反应，而不是让文本变得更像规范答案。
+- 当前阶段默认不是“二改越充分越好”，而是“能不动就不动”：修补只针对明确坏点、风险点和 review finding。
 - 悬疑/惊悚类润色要保留信息遮蔽、误导、延迟揭示和不安细节，不能把所有逻辑解释得过早。
 - 武侠/动作类润色要保留招式节奏、身体受力、空间调度和江湖语气，不能只做华丽形容。
 - 都市/现实类润色要保留生活纹理、利益压力、场景物件和口语分寸，不能写成抽象情绪散文。
 - 爽文类润色要保护爽点的蓄力、释放和反馈，不要为了“文学化”削弱即时回报。
 - 润色阶段最容易越权的是补剧情，最容易不足的是只换同义词；二者都不是合格二改。
+- 润色阶段另一个高风险是分布塌缩：平均句长被压短、段落被切匀、解释被整理成规范答案，这会损害人工感和原稿活气。
 - 父级 `4-润色` 只沉淀跨 lane 的稳定经验；provider 独有的失败模式应写入对应 lane 的 `CONTEXT.md`。
+- 显式 subagents 模式的目标不是多一份 review 报告，而是让分维度审计驱动同轮最小优化；报告、packet 和 repair brief 都只是正文优化的输入证据。

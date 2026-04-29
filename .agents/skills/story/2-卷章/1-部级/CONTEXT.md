@@ -22,10 +22,13 @@ last_checked_at: 2026-04-26
 | Save the Cat 被写成死百分比公式 | rhythm misuse | 改写成拍点走廊 | 在 reference 固定“长篇走廊化” | 节奏曲线可被长篇使用 |
 | 部级只有高点没有呼吸走廊 | book wave flattening | 补 `book_wave_map` 的 `respite_corridor` 与 `payoff_distribution` | 在模板和 review gate 固定总谱力度字段 | 卷级知道哪些卷/卷段该松弛、恢复或扩展世界感 |
 | 整体规划没有故事编年史 | chronology gap | 补 `故事编年史` 的前史、正篇起点、卷级时间跨度、因果里程碑、幕后事件与终局状态 | 在模板和 review gate 固定时间线槽位 | 卷级能继承世界内事件顺序与状态变化 |
+| 整体规划把核心真相直接讲透给读者 | book suspense gap | 补 `整部悬念总设计`，拆出核心谜面、读者认知曲线、主角认知曲线、卷级揭秘节奏和禁止提前揭露 | 在模板、review 和 validator 固定悬念槽位 | 卷级能继承信息差，而不是重猜隐藏/揭秘节奏 |
+| 多个整书谜团没有主次和揭示窗口 | book suspense pool gap | 补 `整书悬念池` 和 `多重悬念编排规则` | 每条线程固定 `suspense_id / priority / status / reveal_window / dependency` | 卷级能继承悬念线程，而不是把谜团混写 |
 | 故事编年史只写成卷名列表 | chronology flattening | 改为事件先后、因果里程碑和状态变化 | 用 `_shared/timeline-design-contract.md` 区分时间线与节奏/卷职责 | 后续卷章不会凭空调整事件发生顺序 |
 | 规避写成空话 | avoidance drift | 改成可执行禁飞区 | 在模板中要求“不要写成什么” | 规避可直接约束卷/章 |
 | 局部修订偷偷改写整部总纲 | revision blast radius | 只 patch 本轮命中的字段 | 在 steps 固定旧稿回读和 patch 范围声明 | diff 中无无关字段重写 |
 | 部级规划复制角色卡/场景卡/物品卡 | cross-stage duplication | 改成 planning 所需摘要和引用 | 回到父层 bridge，禁止复制完整卡册 | planning 文件不冒充第二套卡册 |
+| 启用 subagents 后没有按项目顾问请教部级结构问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 追问整书承诺、卷划分、任务树、悬念池、编年史、长波节奏和总规避 | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入部级规划创作 | `整体规划.md` 能说明顾问建议如何转成卷划分、任务关系、悬念或节奏指导 |
 
 ## Repair Playbook
 
@@ -36,6 +39,7 @@ last_checked_at: 2026-04-26
 5. 若用户要求局部补写，先读取旧 `整体规划.md`，再声明本轮只改哪些字段。
 6. 若规划内容开始写正文语气、对白或场面段落，立即回到 planning-only 边界。
 7. 若出现可复用故障模式，优先沉淀到本文件；稳定成硬规则后再晋升到 `SKILL.md` 或对应分区。
+8. 如果显式启用 subagents，顾问问题要针对整书结构风险提出，例如卷职责是否撞位、任务树是否能汇流、悬念池是否过早泄露、长波是否缺换气。
 
 ## Reusable Heuristics
 
@@ -46,3 +50,6 @@ last_checked_at: 2026-04-26
 - 部级节奏应回答整书长波，而不是把每卷都塞进同一强度的升级循环。
 - `book_wave_map` 是总谱力度标记；它不写卷内细节，但必须告诉卷级哪些卷高压、哪些卷换气、哪些卷承担主要 payoff。
 - 规避项要能被下游执行；“避免节奏拖沓”这类句子需要改写成具体禁飞区。
+- 部级悬念不要写成谜底百科；它要给卷级“何时打开、何时关闭、何时误导、何时回收”的总开关。
+- `整书悬念池` 不求穷尽所有小疑问，但必须锁住会跨卷生效的主悬念、次悬念和关键误导悬念。
+- 部级顾问请教的价值是提前发现整书骨架风险；顾问脑洞只有转成卷职责、任务拓扑、悬念窗口、节奏走廊或禁飞区，才算进入规划。

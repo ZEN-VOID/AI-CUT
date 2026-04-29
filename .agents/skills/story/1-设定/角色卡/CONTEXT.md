@@ -18,11 +18,13 @@
 | 角色卡只剩索引没有全剧集角色真源 | source contract | 回到 `one-character-one-json`，逐角色落正式卡 | 禁止把多角色合并到单一大 JSON | `1-设定/2-角色卡/**/角色名.json` 能逐个被引用 |
 | 角色桶和角色属性标识不一致 | cast marker mapping | 以 bucket 回写 `cast_markers` 并校验唯一主标识 | 角色桶与属性标识共治，不允许一个角色同时多主标 | `group` 与 `cast_markers.primary_alignment` 一致 |
 | 只有关系边 JSON 没有正式图谱输出 | graph projection | 生成 `角色关系图谱.md` 并补文字摘要 | 关系图谱固定成为角色索引的 side output | Markdown 同时包含文字说明和 Mermaid |
+| 关系图谱只有人名连线，后续规划/正文不知道怎么使用 | relationship carrier underspecified | 补 `关系载体索引`、三层消费视角和关键传导边字段 | 图谱生成时固定区分人物弧、信息/物件流、制度压力，并为关键边补 `contact_medium / first_trigger / turning_point / payoff` | `2-卷章` 能抽取关系压力与任务钩子，`3-初稿` context pack 能加载图谱摘录 |
 | 规划阶段把角色卡整份复制进 planning 文档或兼容 `story_map` | cross-stage bridge | 只输出最小角色/关系投影，完整人物事实留在角色卡侧 | 用 `story/_shared/character-planning-bridge.md` 固定“projection only”规则 | planning 文档与兼容 `story_map` 都只保留 refs 与最小 planning hooks |
 | 增量修复把角色卡缩成单章临时视角 | full-series scope | 回补 `card_scope=full-series` 与全书角色覆盖 | 角色卡允许增量刷新，但不允许缩窄业务作用域 | 单卡 `card_scope.scope_type` 恒为 `full-series` |
 | 人物有设定感但弧光发虚 | shaping bridge | 回到 `Desire / Flaw / Wound / Need / Change` 五维重写结构字段 | 先补 `wound + need + change_payoff`，再写 prose | 主角卡能回答“他为什么会这样，最后变成什么” |
 | 反派只有坏没有成立逻辑 | antagonist mirror | 回补 `mirror_axis` 与 `self_justification` | 反派至少成立镜像关系或自我正义其一 | 反派卡不再只剩“阻碍主角” |
 | 女主或配角可替换性太高 | role setpiece | 回补 `highlight_moment` 或 `memory_point` | 重要角色必须有高光或记忆点结构槽 | 读卡时能一眼记住她/他凭什么存在 |
+| 启用 subagents 后只做泛泛审稿，没有请教项目顾问具体人物问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 提问角色职责、创伤/欲望/成长、关系载体、记忆点、专属物钩子和反派镜像 | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入角色卡创作 | 角色卡能说明哪些顾问建议被落实为可执行字段 |
 
 ## Repair Playbook
 
@@ -31,8 +33,10 @@
 3. 先修结构，再补风格表达。
 4. 遇到角色太多时，先锁全剧集 roster，再做局部角色润色。
 5. 图谱问题优先修 `relationship_edges` 和 bucket，再修 Markdown 投影层。
-6. 人物扁平时，优先检查 `wound / need / mirror_axis / highlight_moment / memory_point` 是否缺位，而不是先堆外貌描写。
-7. 主角成长发虚时，先问这次变化属于 `技能 / 心路 / 情感` 哪一轴，再决定是补长期合同还是补当前 validated 状态。
+6. 若图谱要服务后续卷章或初稿，必须补关系载体和触发/翻转/兑现字段；否则下游只能看到“谁认识谁”，无法写出关系如何推动戏。
+7. 人物扁平时，优先检查 `wound / need / mirror_axis / highlight_moment / memory_point` 是否缺位，而不是先堆外貌描写。
+8. 主角成长发虚时，先问这次变化属于 `技能 / 心路 / 情感` 哪一轴，再决定是补长期合同还是补当前 validated 状态。
+9. 如果本轮显式启用 subagents，不要让顾问只评价“人物是否立体”；要按不同顾问专长分别请教一个可落字段的问题，并把回答压缩成 `must_do / must_not_do / execution_brief`。
 
 ## Reusable Heuristics
 
@@ -40,9 +44,11 @@
 - `exclusive_item_hooks` 越早稳定，物品卡越不容易模板化。
 - `cast_markers` 不是展示性标签，而是角色卡、索引分桶和关系图谱节点标注的共享真源。
 - `角色关系图谱.md` 适合做关系投影，不适合承载角色新增事实；新事实仍应先回写单角色 JSON。
+- 好的关系图谱要告诉下游“联系方式”：人物靠物件、证据、制度通信、暗线通信或情感触发发生关系，而不是只画一条边。
 - 跨到 `2-卷章` 时，最稳的做法是导出最小 projection，而不是把角色卡再复制成一份 planning 版角色卡。
 - 增量模式下也要把角色卡当全剧集对象维护，不能把角色收缩成“本章出场名单”。
 - 主角塑形最容易漏的是 `wound` 和 `need`；只写欲望与缺陷，角色通常仍会像设定板。
 - 主角成长系统最容易失真的是把“剧情发生了什么”误写成“角色因此变成了什么”；前者进 history，后者才进 growth_state。
 - 反派一旦没有 `mirror_axis`，就容易退化成纯功能阻碍物。
 - 女主的“不是花瓶”最好写成 `highlight_moment`，配角的“不是工具人”最好写成 `memory_point` 或独立压力。
+- 顾问请教在角色卡里最有用的落点是“这个人凭什么不可替代”和“这条关系靠什么发生”；抽象风格意见只有转成结构字段才算被吸收。

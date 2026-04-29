@@ -3,7 +3,7 @@
 """
 story2026 validated actualization manager.
 
-只负责 `context-return` 的 PASS-only 回写闭环：
+只负责 `return` 的 PASS-only 回写闭环：
 - 生成 context_return artifact
 - 回写 Cards.current_state/history
 - 回写 story_map.actualization
@@ -55,7 +55,7 @@ def _story2026_root() -> Path:
 
 
 def _template_path() -> Path:
-    return _story2026_root() / "context-return" / "templates" / "context-return.json"
+    return _story2026_root() / "return" / "templates" / "context-return.json"
 
 
 def _load_json_file(path: Path) -> Dict[str, Any]:
@@ -202,6 +202,8 @@ def _context_return_handoff_granted(
     handoff_targets = _normalize_handoff_targets(validation_payload.get("handoff_targets"))
     normalized_targets = {_normalize_handoff_target_token(item) for item in handoff_targets}
     context_return_aliases = {
+        "return",
+        "story-return",
         "context-return",
         "story-context-return",
         "5-loopback",
@@ -1160,7 +1162,7 @@ def _render_validated_actuals_markdown(
         [
             f"# {volume_ref} 已验证实绩",
             "",
-            "> 本文件由 `context-return` 在 PASS + handoff 后生成，只记录 validated actual，不修改 planning 正文。",
+            "> 本文件由 `return` 在 PASS + handoff 后生成，只记录 validated actual，不修改 planning 正文。",
             "",
             "## Gate",
             "",

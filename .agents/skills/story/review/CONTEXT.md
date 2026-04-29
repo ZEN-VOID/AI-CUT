@@ -27,7 +27,7 @@ last_checked_at: 2026-04-27
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 父 `review/SKILL.md` 为空或只像普通维度技能，导致执行者不知道谁写最终 PASS/FAIL | parent guide contract | 把父技能改成技能组导引入口，明确 root gate ownership | 父层只保留路由、调度、聚合、输出合同；维度细则留在 child skill | 任一 review 请求都能先命中父层，再进入 registry 维度 |
-| child sidecar 被误当最终 gate，`context-return` 直接消费某个维度报告 | gate ownership drift | 回到 `_shared/validation-root-contract.md`，确认 aggregate JSON 才是唯一 gate truth | 在父 `SKILL.md` 和 root contract 固定 child evidence / parent gate 分工 | PASS/FAIL 只从 `第V卷.validation.json` 读取 |
+| child sidecar 被误当最终 gate，`return` 直接消费某个维度报告 | gate ownership drift | 回到 `_shared/validation-root-contract.md`，确认 aggregate JSON 才是唯一 gate truth | 在父 `SKILL.md` 和 root contract 固定 child evidence / parent gate 分工 | PASS/FAIL 只从 `第V卷.validation.json` 读取 |
 | 维度名单在父技能、team contract、runner 和 child 目录中各写一份，互相漂移 | roster duplication | 以 `_shared/validation-dimension-registry.yaml` 为单一真源，其他文件只做导览或引用 | roster 调整必须同步 registry、child `SKILL.md + CONTEXT.md`、runner handler 与 shared schema | 维度数量、role_id、report_filename 与 registry 一致 |
 | 父层为了“结构完整”补空维度，导致 aggregate 看似完整但没有真实审查证据 | phantom dimension | 聚合时只消费本轮真实调度且通过 schema 校验的 packets | `drafting_inline` 与 `final_acceptance` 都按 selected_agents 记录真实 dispatch | aggregate 中不存在未执行维度的假 packet |
 | 子技能给出问题但没有 `source_layer_owner`，返工被错误打回 drafting | source trace missing | 父层聚合时补查 issue 是否需要上溯 `0-初始化 / 1-设定 / 2-卷章` | child output contract 固定 source owner 槽位，父层 schema gate 检查 | 失败 issue 能说明是上游 source 修复还是正文返工 |
@@ -36,6 +36,7 @@ last_checked_at: 2026-04-27
 | review 失败后只给总分，不给可执行返工入口 | route insufficiency | 聚合时保留 `routing_decision / rework_targets / handoff_targets` | 父层 Completion Gate 要求 PASS/FAIL 同时解释下一步 | 失败结果能直接路由到 source contract 或具体 drafting step |
 | 上层策略阻断真实 reviewer dispatch，但报告写成“已并发审查” | dispatch transparency | 明确记录降级来源、未真实启动的维度和实际采用路径 | 父层 dispatch contract 固定真实 dispatch 与降级报告口径 | 最终报告能区分真实 child result 与本地降级纪要 |
 | 维度 issue 分类漂移，结构、连续性、逻辑、人物、时间线互相抢问题 | boundary blur | 回到 child `Parent Positioning` 与父层 registry scope 拆分 issue | 父层只做聚合，不在父层重写维度判据 | 每条 issue 有唯一主维度，必要时用 related_dimensions 辅助说明 |
+| 初稿 review 和润色 review 使用同一套“越顺越好”标准，导致初稿被过早清洗或润色被鼓励整章重写 | stage review goal collapse | 区分 `3-初稿` 的完整性/兑现审查与 `4-润色` 的最小修补/分布保持审查 | 父 `SKILL.md` 固定 Stage-Specific Review Allocation | 初稿 FAIL 回原 drafting lane；润色 FAIL 回原 polishing lane，且能说明是否发生短句化清洗 |
 
 ## Repair Playbook
 
@@ -47,6 +48,7 @@ last_checked_at: 2026-04-27
 6. 若 review 结果不能指导下一步，补齐 `routing_decision / source_layer_owner / rework_targets / handoff_targets`。
 7. 若要新增、删除、重命名或调整维度，先改 registry，再同步 child 包、runner handler、shared schema、父 `SKILL.md` 导览表和必要的项目文档。
 8. 若上层策略阻断真实 subagent / reviewer 调度，最终输出必须说明阻断层级、原本的 reviewer 路径、实际降级路径与未真实启动的维度。
+9. 若审查目标是 `4-润色`，先看是否保留初稿骨架和文本分布，再看局部问题是否修好；不要把“更顺、更短、更整齐”直接判为质量提升。
 
 ## Reusable Heuristics
 
@@ -58,3 +60,4 @@ last_checked_at: 2026-04-27
 - registry 是技能组的心脏。只要 roster 在两个地方都像真源，后面一定会漂移。
 - `drafting_inline` 是过程刹车，`final_acceptance` 是终验门；两者共用维度定义，但不能共用输出落点。
 - 最稳的 PASS 不是“没有问题”，而是“mandatory 维度都真实执行、关键问题可解释、handoff 明确授权下一阶段”。
+- 初稿审查像门卫：看正文是否完整可用；润色审查像差分审计：看修补有没有越界、有没有损坏原稿活气。

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-29
+
+- Added `subagent_review_optimize` mode for explicit subagents requests.
+- Routed audit points through `.agents/skills/story/review` dimension child skills, then back into DeepSeek repair prompts.
+- Tightened review, workflow, type, and evidence gates so subagents mode cannot stop at reports without same-round provider optimization.
+
 ## 2026-04-26
 
 - Initialized `C-Deepseek流` as a Skill 2.0 chapter polishing provider path.

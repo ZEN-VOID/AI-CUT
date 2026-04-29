@@ -1,0 +1,24 @@
+# Type Map
+
+## Package Index
+
+| package | role |
+| --- | --- |
+| `source-to-script-type-map.md` | 判断上游逐集正文到编导稿的投影类型、字段分流策略和修复入口 |
+
+## Default Package Rule
+
+- 默认加载 `source-to-script-type-map.md`。
+- 若用户提供多个输入形态，先由该类型包形成 `type_profile`，再进入 `steps/directing-workflow.md`。
+- 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、subagents 或 review 合同。
+
+## Loading Flow
+
+```mermaid
+flowchart TD
+    A["调用 2-编导"] --> B["加载 SKILL.md + CONTEXT.md"]
+    B --> C["加载 types/type-map.md"]
+    C --> D["加载 source-to-script-type-map.md"]
+    D --> E["形成 type_profile"]
+    E --> F["steps/directing-workflow.md"]
+```

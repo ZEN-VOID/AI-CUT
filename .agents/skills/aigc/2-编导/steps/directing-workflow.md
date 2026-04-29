@@ -22,7 +22,9 @@
 | `N4-FIELD` | 字段分流与声画配对 | 上游段落、场景表 | 逐段投影为声音字段、画面字段、动作、心理、系统、规则、道具、群像等 | `field_projection_map` | `N4.5-PEAK` | 字段纯度和顺序成立 |
 | `N4.5-PEAK` | 高潮画面识别与强化计划 | `field_projection_map`、上游段落、质量规范 | 识别 1-3 个上游高点或最强 `micro_payoff`，锁 `source_evidence / audience_desire / promise_source / character_anchor / payoff_mode / build_up / delivery_action / satisfaction_delta / visual_payload / audio_payload / aftershock` | `peak_visual_plan` | `N5-DRAFT` | 高点可回指上游，强化不新增事实或对白 |
 | `N5-DRAFT` | LLM 直出逐集编导稿 | 场景表、字段映射、高潮画面计划、质量规范 | 写入 frontmatter、`【剧本正文】`、场景标题和字段化正文 | `第N集.md` 草稿 | `N6-REVIEW` | 未使用脚本主创 |
-| `N6-REVIEW` | 保真、对白、声画、slugline 与质量门禁 | 草稿、上游正文 | 运行机械校验或人工 review；修复阻断项 | 校验结果、问题清单 | `N7-WRITEBACK` 或 `N4-FIELD` | 阻断项清零 |
+| `N6-REVIEW` | 保真、对白、声画、slugline 与质量门禁 | candidate 草稿、上游正文、`review/review-contract.md` | 运行机械校验或人工 review；定位阻断项和 source owner | 校验结果、问题清单、repair targets | `N6R-DIRECT-REPAIR` 或 `N7-WRITEBACK` | 无阻断项才可写回 |
+| `N6R-DIRECT-REPAIR` | 阶段内直接修复阻断项 | `repair targets`、candidate 草稿、上游正文 | 最小修复字段投影、声画配对、slugline、具像化、声音本体、高点承托或格式证据；不改上游事实和对白 | repaired draft、repair actions | `N6R-REVIEW-AGAIN` | 修复范围不越权 |
+| `N6R-REVIEW-AGAIN` | 复审修复稿 | repaired draft、上游正文、repair actions | 复跑阻断 gate；通过则准入写回，失败则回最早责任节点 | re-review verdict | `N7-WRITEBACK` 或 `N3/N4/N4.5/N5/N6R` | 复审通过或明确阻断 |
 | `N7-WRITEBACK` | 落盘与报告 | 最终编导稿、校验证据 | 写入 `2-编导/第N集.md` 和 `执行报告.md` | 文件路径、verdict | done | 输出路径和报告完整 |
 
 ## Branch Rules
@@ -43,6 +45,8 @@
 | 上游高点被压平成普通叙述，或强化时新增事实 | `N4.5-PEAK` |
 | slugline 重复编号 | `N3-SCENE` |
 | 质量不足但保真通过 | `N5-DRAFT` |
+| review 阻断项可在本阶段修复 | `N6R-DIRECT-REPAIR` |
+| 修复后复审仍失败 | 回到最早责任节点：`N3-SCENE` / `N4-FIELD` / `N4.5-PEAK` / `N5-DRAFT` |
 
 ## Mermaid
 
@@ -55,6 +59,10 @@ flowchart TD
     H --> E["N5 LLM Draft"]
     E --> F{"N6 Review Gate"}
     F -->|"pass"| G["N7 Writeback"]
+    F -->|"needs_rework"| R["N6R Direct Repair"]
+    R --> RR{"N6R Review Again"}
+    RR -->|"pass"| G
+    RR -->|"fail"| D
     F -->|"fact drift"| D
     F -->|"peak flattening"| H
     F -->|"slugline drift"| C

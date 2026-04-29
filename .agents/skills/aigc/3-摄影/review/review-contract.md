@@ -2,6 +2,8 @@
 
 本文件定义 `3-摄影` 的质量门禁。
 
+若本轮显式启用 subagents，review gate 还必须检查 `../_shared/team-advisor-consultation-contract.md`：是否从项目 `team.yaml` 解析监制 roster、是否向摄影/导演/美术/剪辑或类型视觉顾问提出具体问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否只作为镜头语言创作前上下文而未改写 `2-编导` 原文。
+
 ## Review Modes
 
 | mode | trigger | action |
@@ -9,6 +11,14 @@
 | `mechanical_check` | 落盘前或修复时 | 检查 `镜头语言：` 覆盖、`分镜N` 连续、路径和命名 |
 | `cinematic_quality_review` | 交付前 | 检查构图、运镜、转场、光影、色彩是否服务戏剧 |
 | `faithfulness_review` | 有改写风险时 | diff 上游 `2-编导`，确认正文事实、对白、顺序未被改写 |
+
+## Stage-End Review-Repair Rule
+
+- 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
+- `needs_rework` 必须回到 `steps/cinematography-workflow.md` 的 `N8R-DIRECT-REPAIR`，由 `3-摄影` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-摄影/第N集.md`。
+- 允许直接修复的范围：`镜头语言：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
+- 禁止直接修复的范围：改写 `2-编导` 原文、对白、场景标题、字段顺序、剧情事实或上游 source truth。遇到这类问题必须输出 source owner 和阻断报告。
+- `pass_with_followups` 只允许非阻断质量建议；任何覆盖、编号、保真、空间连续性、专业可执行或 LLM-first 问题不得降级为 followup。
 
 ## Acceptance Checklist
 
@@ -27,6 +37,7 @@
 | `GATE-CINE-11` | 原文保真 | 除新增 frontmatter/report 和 `镜头语言` 外，不改写 `2-编导` 正文 |
 | `GATE-CINE-12` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
 | `GATE-CINE-13` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
+| `GATE-CINE-14` | 顾问请教 | 显式启用 subagents 时，已完成 `team.yaml` 监制顾问请教，或记录上层阻断降级 |
 
 ## Failure Routing
 
@@ -41,6 +52,7 @@
 | `FAIL-CINE-05D` | 镜头语言不分轻重，低信息过度发散或重信息过度收敛 | `references/visual-rhythm-analysis-contract.md` |
 | `FAIL-CINE-05E` | 上游高点被按普通画面压平，或高潮强化缺少分镜/运镜/停顿/余波策略 | `references/peak-shot-language-contract.md` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
+| `FAIL-CINE-07` | 显式启用 subagents 时缺少顾问请教或降级说明 | `../_shared/team-advisor-consultation-contract.md` |
 
 ## Review Output
 
@@ -53,5 +65,7 @@
 - 机械校验结果或人工 review 结果。
 - 画面节奏张弛结果。
 - 高潮分镜强化结果。
+- 顾问请教 roster 来源、问题类型、可执行指导或降级说明。
 - 镜头连续性、空间一致性和风格一致性结果。
 - 需要返工的行号或字段标签。
+- repair actions、复审 verdict、未修复风险和是否允许进入下游阶段。

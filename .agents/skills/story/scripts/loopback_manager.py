@@ -3,9 +3,9 @@
 """
 Legacy alias for the renamed `context_return_manager.py`.
 
-`5-Loopback` has been renamed to `context-return`. Keep this thin wrapper so
+`5-Loopback` has been renamed to `return`. Keep this thin wrapper so
 older scripts can still invoke the manager while all canonical contracts move
-to `story-context-return`.
+to `story-return`.
 """
 
 from __future__ import annotations

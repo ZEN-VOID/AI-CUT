@@ -37,7 +37,7 @@
 
 ### `artifact_fallback_resume`
 
-- 条件：没有 tracked interruption，但命中 `context-return`、`review`、`3-初稿` 写作日志等可证明业务证据链。
+- 条件：没有 tracked interruption，但命中 `return`、`review`、`3-初稿` 写作日志等可证明业务证据链。
 - 动作：列出证据链，并收敛到唯一下一入口。
 - gate：不得把 fallback 伪装成 tracked interruption。
 

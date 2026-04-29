@@ -41,13 +41,19 @@ from project_locator import resolve_project_root
 
 REQUIRED_OUTPUT_MARKERS = (
     "写作模型:",
+    "字数:",
 )
 
 REQUIRED_SCALAR_FIELDS = (
     "写作模型",
+    "字数",
 )
 
 EXPECTED_WRITING_MODEL = "GPT"
+WORD_COUNT_PATTERN = re.compile(r"^\d+字$")
+DEFAULT_MIN_WORDS = 2500
+DEFAULT_MAX_WORDS = 4000
+MAX_NOT_IS_PATTERNS = 8
 
 FORBIDDEN_FRONTMATTER_FIELDS = (
     "story_name",
@@ -97,6 +103,54 @@ def _rel(path: Path, root: Path) -> str:
 
 def _find_refs(root: Path, relative_glob: str) -> list[Path]:
     return sorted(root.glob(relative_glob))
+
+
+def _dig(mapping: dict, path: Iterable[str]) -> object:
+    current: object = mapping
+    for key in path:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return current
+
+
+def _string_list(value: object, *, limit: int = 3) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value[:limit] if str(item).strip()]
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    return []
+
+
+def _build_character_voice_guide(project_root: Path, *, max_cards: int = 64) -> str:
+    """Extract a compact speaker-voice guide from character cards."""
+    card_paths = sorted((project_root / "1-设定" / "2-角色卡").rglob("*.json"))
+    lines: list[str] = []
+    for path in card_paths[:max_cards]:
+        try:
+            payload = json.loads(_read_text(path))
+        except (json.JSONDecodeError, OSError):
+            continue
+        core = _dig(payload, ("content", "card_schema", "character_card", "core"))
+        if not isinstance(core, dict):
+            continue
+        identity = core.get("identity") if isinstance(core.get("identity"), dict) else {}
+        name = str(identity.get("name") or path.stem).strip()
+        public_role = str(identity.get("public_role") or "").strip()
+        voice = core.get("voice_and_presence") if isinstance(core.get("voice_and_presence"), dict) else {}
+        speech = _string_list(voice.get("speech_texture"), limit=4)
+        gestures = _string_list(voice.get("gesture_habits"), limit=3)
+        if not (speech or gestures or public_role):
+            continue
+        parts = []
+        if public_role:
+            parts.append(public_role)
+        if speech:
+            parts.append("说话质地：" + "；".join(speech))
+        if gestures:
+            parts.append("出场动作：" + "；".join(gestures))
+        lines.append(f"- {name}：{'；'.join(parts)}")
+    return "\n".join(lines)
 
 
 def _select_project_context_files(project_root: Path, volume_num: int, chapter_num: int) -> list[Path]:
@@ -238,6 +292,8 @@ def _build_messages(
     previous_path: Path | None,
     current_path: Path,
     supervision_packet_text: str,
+    min_words: int,
+    max_words: int,
 ) -> list[dict[str, str]]:
     system_prompt = _read_text(SYSTEM_PROMPT_PATH).strip()
     global_card_refs = [_rel(path, project_root) for path in global_cards]
@@ -260,6 +316,7 @@ def _build_messages(
     sections = [
         f"目标输出路径：{_rel(target_path, project_root)}",
         f"当前模式：{drafting_mode}",
+        f"章节正文字数目标：{min_words}-{max_words}字；`字数` frontmatter 必须记录最终正文估算字数，且正文实际长度必须落入该区间。",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
@@ -271,6 +328,17 @@ def _build_messages(
 
     if memory_path and memory_path.is_file():
         sections.append(f"项目 MEMORY（{_rel(memory_path, project_root)}）：\n" + _excerpt(_read_text(memory_path), 3000))
+
+    character_voice_guide = _build_character_voice_guide(project_root)
+    if character_voice_guide:
+        sections.append("角色对白声纹表（必须用于对白差异化）：\n" + character_voice_guide)
+
+    relationship_graph_path = project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md"
+    if relationship_graph_path.is_file():
+        sections.append(
+            f"角色关系图谱（必须用于关系压力、信息流和传导边判断，{_rel(relationship_graph_path, project_root)}）：\n"
+            + _excerpt(_read_text(relationship_graph_path), 4500)
+        )
 
     if global_cards:
         global_payload = []
@@ -336,6 +404,13 @@ def _require_non_empty_text(payload: dict, field: str) -> None:
         raise ValueError(f"GPT 原生输出 frontmatter 字段 `{field}` 不能为空。")
 
 
+def _require_word_count(payload: dict) -> int:
+    value = payload.get("字数")
+    if not isinstance(value, str) or not WORD_COUNT_PATTERN.fullmatch(value.strip()):
+        raise ValueError("GPT 原生输出 frontmatter 字段 `字数` 必须形如 `3000字`。")
+    return int(value.strip()[:-1])
+
+
 def _require_path_list(payload: dict, field: str, *, allow_empty: bool = False) -> None:
     value = payload.get(field)
     if not isinstance(value, list):
@@ -356,7 +431,7 @@ def _require_context_block(payload: dict, field: str, required_keys: tuple[str, 
             raise ValueError(f"GPT 原生输出 frontmatter 字段 `{field}.{key}` 不能为空。")
 
 
-def _validate_generated_markdown(text: str, chapter_num: int) -> None:
+def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int, max_words: int) -> None:
     for marker in REQUIRED_OUTPUT_MARKERS:
         if marker not in text:
             raise ValueError(f"GPT 原生输出缺少必需字段：{marker}")
@@ -365,6 +440,7 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
         _require_non_empty_text(frontmatter, field)
     if frontmatter.get("写作模型") != EXPECTED_WRITING_MODEL:
         raise ValueError(f"GPT 原生输出 frontmatter 字段 `写作模型` 必须是 `{EXPECTED_WRITING_MODEL}`。")
+    frontmatter_word_count = _require_word_count(frontmatter)
     for field in FORBIDDEN_FRONTMATTER_FIELDS:
         if field in frontmatter:
             raise ValueError(f"GPT 原生输出 frontmatter 不应重复写入 `{field}`，该信息由上下文加载与 sidecar 承载。")
@@ -376,8 +452,25 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
         raise ValueError("GPT 原生输出仍包含模板占位正文，禁止写回。")
 
     body = body_with_heading.split(heading, 1)[-1].strip()
-    if len(body) < 800:
+    body_word_count = len(re.sub(r"\s+", "", body))
+    if body_word_count < 800:
         raise ValueError("GPT 原生输出正文过短，疑似不是完整章节。")
+    if not (min_words <= frontmatter_word_count <= max_words):
+        raise ValueError(
+            "GPT 原生输出 frontmatter `字数` 不在目标区间内："
+            f"{frontmatter_word_count}字，不符合 {min_words}-{max_words}字。"
+        )
+    if not (min_words <= body_word_count <= max_words):
+        raise ValueError(
+            "GPT 原生输出正文实际长度不在目标区间内："
+            f"{body_word_count}字，不符合 {min_words}-{max_words}字。"
+        )
+    not_is_count = len(re.findall(r"不是[^。！？\n]{0,50}[，,、 ]?(?:而)?是", body))
+    if not_is_count > MAX_NOT_IS_PATTERNS:
+        raise ValueError(
+            "GPT 原生输出正文中过度重复 `不是……是……` 句式："
+            f"{not_is_count} 处，超过上限 {MAX_NOT_IS_PATTERNS}。"
+        )
 
 
 def _resolve_drafting_mode(requested_mode: str, chapter_path: Path) -> str:
@@ -415,6 +508,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--dry-run", action="store_true", help="only emit the context pack without writing a chapter")
     parser.add_argument("--supervision-packet", help="team supervision packet file produced by drafting subagents")
+    parser.add_argument("--min-words", type=int, default=DEFAULT_MIN_WORDS, help="minimum chapter body words")
+    parser.add_argument("--max-words", type=int, default=DEFAULT_MAX_WORDS, help="maximum chapter body words")
     parser.add_argument("--draft-file", help="Markdown file already authored by the current GPT/LLM session")
     parser.add_argument("--from-stdin", action="store_true", help="read the GPT-authored Markdown from stdin")
     parser.add_argument("--no-writeback", action="store_true", help="validate without writing canonical chapter")
@@ -423,6 +518,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.min_words <= 0 or args.max_words <= 0 or args.min_words > args.max_words:
+        raise SystemExit("--min-words/--max-words 必须为正数，且 min <= max。")
 
     project_root = resolve_project_root(args.project_root)
     story_name = project_root.name
@@ -468,6 +565,8 @@ def main() -> int:
         previous_path=previous_path,
         current_path=chapter_path,
         supervision_packet_text=supervision_packet_text,
+        min_words=args.min_words,
+        max_words=args.max_words,
     )
 
     output_dir = Path(args.output_dir) if args.output_dir else None
@@ -487,15 +586,19 @@ def main() -> int:
             "messages_path": str(messages_path) if messages_path else "",
             "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root) if memory_path.is_file() else "",
+            "relationship_graph_ref": "1-设定/2-角色卡/角色关系图谱.md"
+            if (project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md").is_file()
+            else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
             "supervision_packet_ref": args.supervision_packet or "",
+            "word_count_range": f"{args.min_words}-{args.max_words}",
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
 
     generated = _strip_code_fence(_load_authored_draft(args))
-    _validate_generated_markdown(generated, chapter_num)
+    _validate_generated_markdown(generated, chapter_num, min_words=args.min_words, max_words=args.max_words)
 
     raw_path: Path | None = None
     if output_dir:
@@ -516,6 +619,7 @@ def main() -> int:
         "authored_draft_path": str(raw_path) if raw_path else "",
         "writeback": not args.no_writeback,
         "supervision_packet_ref": args.supervision_packet or "",
+        "word_count_range": f"{args.min_words}-{args.max_words}",
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0

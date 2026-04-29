@@ -26,8 +26,8 @@
 
 | type signal | step impact | reference impact | review impact |
 | --- | --- | --- | --- |
-| `task_mode=create` | 执行完整 `N1` 到 `N7` | 读取全部章级硬规则与模板 | 检查所有必填标题 |
-| `task_mode=revise` | 先执行 `N1`，再进入命中的 section 节点，最后 `N7` 汇流 | 读取对应 section 细则与 Output Contract | 检查局部改动未破坏未命中 section |
+| `task_mode=create` | 执行完整 `N1` 到 `N10` | 读取全部章级硬规则与模板 | 检查所有必填标题 |
+| `task_mode=revise` | 先执行 `N1`，再进入命中的 section 节点，最后 `N10` 汇流 | 读取对应 section 细则与 Output Contract | 检查局部改动未破坏未命中 section |
 | `task_mode=review` | 不写业务真源，只读取并审查 | 读取 `review/` 与 Output Contract | 输出 verdict 和 findings |
 | `chapter_scope=batch-chapters` | 按章串行处理，不共享未审查 patch | 每章都回指同一卷规划 | 每章独立 verdict |
 | `output_type=section-patch` | 只返回有效 patch，不补空字段 | 模板作为结构校验，不强制重写全文 | patch 后文档仍需满足必填标题 |
@@ -41,8 +41,9 @@
 | `本章故事概要` | yes | drafting Step 1 | 必须含起点、推进、转向、章末状态 |
 | `本章冲突` | yes | drafting 冲突执行 | 表层、深层、状态变化都要出现 |
 | `本章爽点设计` | yes | drafting Step 1 / Step 2 / 读者满足设计 | 必须含 `reader_desire / promise_source / genre_payoff_profile / character_anchor / payoff_mode / payoff_variation_axis / build_up / delivery_action / satisfaction_delta / exaggeration_logic / cost_or_aftershock / aftertaste_hook`；若 `payoff_mode` 包含高超对决，还必须含 `duel_variation_axis`；并能按类型画像和动能式、势能式或浪能式裁定主爽点；爽点必须与角色个性高度相关，夸张但合情理 |
-| `本章节奏曲线` | yes | drafting Step 2 / 2-节奏优化 | 必须含 rhythm handoff slots、`payoff_type / rhythm_intensity / previous_next_contrast` 和 Mermaid，且与 `本章爽点设计` 一致 |
+| `本章悬念开关` | yes | drafting 信息边界 / POV 约束 | 必须含 `上承卷级悬念 / 本章读者可知 / 本章角色可知 / 本章悬念线程动作 / 本章需要隐藏的 / 本章误导/疑阵 / 本章揭秘的 / 本章只埋不揭的 / 章末悬念压力 / 本章悬念负载 / 正文禁止上帝视角说明`，并约束线索、伏笔和正文禁区 |
+| `本章节奏曲线` | yes | drafting Step 2 / 2-节奏优化 | 必须含 rhythm handoff slots、`payoff_type / rhythm_intensity / previous_next_contrast` 和 Mermaid，且与 `本章爽点设计` 和悬念压力一致 |
 | `本章任务线` | yes | drafting 任务推进 | 必须含汇聚动作与未汇聚去向 |
-| `本章线索` | yes | drafting 信息释放 | 只写当前可见信息推进 |
-| `本章伏笔` | yes | 后续兑现追踪 | 必须拆 `铺设 / 兑现` |
+| `本章线索` | yes | drafting 信息释放 | 只写当前可见信息推进，必须服从 `本章读者可知 / 本章揭秘的` |
+| `本章伏笔` | yes | 后续兑现追踪 | 必须拆 `铺设 / 兑现`，并服从 `本章只埋不揭的` |
 | `规避` | yes | drafting 禁飞区 | 必须具体可执行 |

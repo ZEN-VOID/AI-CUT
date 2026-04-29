@@ -7,7 +7,7 @@
 - 章节起稿最先失真的地方通常不是剧情点，而是“为什么这一章必须如此发生”的约束包；先锁 planning 义务，再谈文风。
 - `north_star` 在 drafting 阶段不应原样引用，应压缩为当前章的整书承诺与章末牵引。
 - 上一章缺失不是停工理由；`卷规划.md + 第N章.md` 才是硬输入兜底。
-- frontmatter 只做写作模型标记；约束索引和资料证据放在 context pack / sidecar。
+- frontmatter 只做写作模型与字数标记；约束索引和资料证据放在 context pack / sidecar。
 - 只要正文里还能看到 planning 的标题语言，小说化转换就没有完成。
 - provider 证据链比口头说明更可靠；messages pack、raw output 与 final writeback 应能互相对上。
 

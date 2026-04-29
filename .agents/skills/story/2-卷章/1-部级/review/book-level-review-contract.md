@@ -7,11 +7,13 @@
 | dimension | checks |
 | --- | --- |
 | input_trace | 是否能追溯到 `0-初始化`、类型卡和项目记忆 |
+| advisor_consultation | 显式启用 subagents 时，是否按项目 `team.yaml` 顾问 roster 生成 `advisor_consultation_packet`，并把结论转成整书承诺、卷划分、任务树、悬念池、编年史、节奏或规避指导；未启用时是否有明确不适用说明 |
 | output_shape | 是否包含全部必填标题 |
 | timeline | `故事编年史` 是否写清前史、正篇起点、卷级时间跨度、关键因果里程碑、幕后事件与终局状态 |
 | volume_handoff | 卷划分是否给出每卷功能、阶段职责和交接方式 |
 | task_topology | `整部任务关系` 是否写清主任务树、支流簇、汇聚里程碑 |
 | conflict_axis | `整体冲突` 是否能下钻到卷级 |
+| suspense_design | `整部悬念总设计` 是否写清核心谜面、整书悬念池、读者/主角认知曲线、卷级揭秘节奏、长线误导、多重悬念编排规则、禁止提前揭露与终局回收 |
 | rhythm_curve | 是否采用长篇化 Save the Cat 15 步拍点走廊，并包含 `book_wave_map` 与 Mermaid 图 |
 | book_wave_map | 是否写清 `volume_intensity_map / volume_role_map / respite_corridor / payoff_distribution`，并能交给卷级继承 |
 | avoidance | 规避是否是可执行禁飞区 |
@@ -31,7 +33,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: input_trace | output_shape | timeline | volume_handoff | task_topology | conflict_axis | rhythm_curve | book_wave_map | avoidance | planning_boundary
+  dimension: input_trace | advisor_consultation | output_shape | timeline | volume_handoff | task_topology | conflict_axis | suspense_design | rhythm_curve | book_wave_map | avoidance | planning_boundary
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -41,18 +43,24 @@ finding:
 ## Review Flow
 
 1. 检查 `整体规划.md` 是否存在于 `projects/story/<项目名>/2-卷章/整体规划.md`。
-2. 检查必填标题、`故事编年史`、`book_wave_map` 和 `整体节奏曲线` 的 Mermaid 图。
-3. 对 `故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整体节奏曲线 / 规避` 执行语义门禁。
-4. 若发现阻断问题，按 `steps/book-level-planning-workflow.md` 返回对应节点修复。
-5. review 结论必须汇总为一个 verdict，不允许多个 reviewer 并列改写规划真源。
+2. 显式启用 subagents 时，检查 `advisor_consultation_packet` 是否可追溯到项目 `team.yaml`，且是否已转成可执行部级规划指导。
+3. 检查必填标题、`故事编年史`、`book_wave_map` 和 `整体节奏曲线` 的 Mermaid 图。
+4. 对 `故事编年史 / 卷划分 / 整部任务关系 / 整体冲突 / 整部悬念总设计 / 整体节奏曲线 / 规避` 执行语义门禁。
+5. 若发现阻断问题，按 `steps/book-level-planning-workflow.md` 返回对应节点修复。
+6. review 结论必须汇总为一个 verdict，不允许多个 reviewer 并列改写规划真源。
 
 ## Gate Rule
 
 不得在以下情况宣布部级完成：
 
 - 缺少 `整部任务关系`。
+- 显式启用 subagents 但缺少项目顾问请教、顾问 roster 追溯、降级报告或可执行顾问指导。
 - 缺少 `故事编年史`，或没有写清 `chronology_axis / prehistory_events / main_story_start / volume_time_spans / causal_milestones / hidden_events / end_state`。
 - `卷划分` 只有卷名，没有阶段职责。
+- 缺 `整部悬念总设计`，或没有写清核心谜面、读者/主角认知曲线、卷级揭秘节奏、长线误导、禁止提前揭露与终局回收。
+- 缺 `整书悬念池`，或悬念池没有 `suspense_id / priority / status / reveal_window / dependency / next_action`。
+- 缺 `多重悬念编排规则`，或主悬念、次悬念、局部悬念、误导悬念的关系不清。
+- `整部悬念总设计` 把完整真相提前交给读者，或只有“保持神秘感”这类口号。
 - `整体节奏曲线` 没有 `book_wave_map` 或 Mermaid 图。
 - Save the Cat 被写成死百分比公式，未转化为跨卷拍点走廊。
 - 缺 `book_wave_map`，或没有写清每卷力度、角色、respite corridor 与 payoff 分布。

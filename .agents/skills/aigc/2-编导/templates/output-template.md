@@ -10,7 +10,7 @@
 ### Output format
 
 - 逐集编导稿：Markdown，含 YAML frontmatter、`【剧本正文】`、场景标题和字段化剧本正文。
-- 执行报告：Markdown，记录输入、目标集、校验结果、修复项和下游 handoff。
+- 执行报告：Markdown，记录输入、目标集、review verdict、直接修复项、复审结果、遗留风险和下游 handoff。
 
 ### Output path
 
@@ -32,7 +32,8 @@ projects/aigc/<项目名>/2-编导/
 - 事实、顺序和对白保真。
 - 声画配对、字段纯度和 slugline 稳定通过 review。
 - 上游存在高潮/爽点/高光成分时，已按 `peak_visual_pass` 落入既有可拍字段，没有新增事实或对白。
-- 执行报告记录校验 verdict。
+- 若 review 发现阻断项，已在 `2-编导` 阶段内直接最小修复并复审通过；若无法修复，已记录阻断来源且不得推进下游。
+- 执行报告记录 review verdict、repair actions、re-review verdict、残余风险和是否允许进入 `3-摄影`。
 
 ## Episode File Skeleton
 

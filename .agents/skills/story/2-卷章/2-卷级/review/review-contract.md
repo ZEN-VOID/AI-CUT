@@ -14,7 +14,8 @@ flowchart TD
     A["读取卷规划.md"] --> B["检查上游锚点"]
     B --> C["检查 required headings"]
     C --> D["检查本卷时间线"]
-    D --> E["检查六拍节奏、配器表与 Mermaid"]
+    D --> S["检查本卷悬念开关"]
+    S --> E["检查六拍节奏、配器表与 Mermaid"]
     E --> F["检查人物/场景/道具/任务线"]
     F --> G["检查卷末达成与规避"]
     G --> H{"verdict"}
@@ -27,8 +28,10 @@ flowchart TD
 | dimension | checks |
 | --- | --- |
 | upstream | 是否显式服从 `整体规划.md` 中目标卷职责 |
-| headings | 是否包含 `references/volume-planning-contract.md` 的 12 个 required headings |
+| advisor_consultation | 显式启用 subagents 时，是否按项目 `team.yaml` 顾问 roster 生成 `advisor_consultation_packet`，并把结论转成本卷职责、章划分、六拍配器、悬念负载、资源或卷末兑现指导；未启用时是否有明确不适用说明 |
+| headings | 是否包含 `references/volume-planning-contract.md` 的 13 个 required headings |
 | timeline | 是否包含 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`，并继承部级 `故事编年史` |
+| suspense | 是否包含 `上承整部悬念 / 本卷新增悬念 / 本卷悬念线程表 / 本卷需要隐藏的 / 本卷允许露出的 / 本卷误导/疑阵 / 本卷揭秘的 / 延后到后续卷/章的 / 本卷悬念负载 / 对章级规划的约束`，并继承部级 `整部悬念总设计` |
 | chapter_partition | `章划分` 是否说明每章功能，而不是只列章名 |
 | conflict | 是否包含主冲突、副冲突、升级机制与卷末状态 |
 | rhythm | 是否使用六拍、章节职责分配、`volume_orchestration_map` 和 Mermaid 图 |
@@ -51,7 +54,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream | headings | timeline | rhythm | orchestration | mission | resources | planning_only
+  dimension: upstream | advisor_consultation | headings | timeline | suspense | rhythm | orchestration | mission | resources | planning_only
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -63,8 +66,13 @@ finding:
 不得在以下情况宣布卷级规划完成：
 
 - 缺 `整体规划.md` 或无法确定目标卷职责。
+- 显式启用 subagents 但缺少项目顾问请教、顾问 roster 追溯、降级报告或可执行顾问指导。
 - 缺任一 required heading。
 - `本卷时间线` 缺失，或没有写清 `volume_time_span / chapter_chronology / parallel_hidden_events / time_jumps_or_compression / volume_end_state`。
+- `本卷悬念开关` 缺失，或没有写清隐藏项、允许露出、误导/疑阵、揭秘、延期压力和章级约束。
+- `本卷悬念线程表` 缺失，或没有追踪 `suspense_id / priority / status / reveal_window / dependency / next_action`。
+- `本卷悬念负载` 缺失，或无法判断本卷同时操作多少主悬念、次悬念和局部悬念。
+- `本卷悬念开关` 提前泄露整部核心真相，或无法约束章级线索/伏笔/正文禁区。
 - `本卷节奏曲线` 没有六拍、`volume_orchestration_map` 或 Mermaid 图。
 - 缺 `volume_orchestration_map`，或没有写清 `chapter_payoff_map / chapter_intensity_map / respite_chapters / pressure_chapters / handoff_to_chapter_level`。
 - `本卷任务线` 没有上承部级主任务或汇聚回主线。

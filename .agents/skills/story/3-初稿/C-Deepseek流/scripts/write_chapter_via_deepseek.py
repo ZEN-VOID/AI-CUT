@@ -46,8 +46,12 @@ from project_locator import resolve_project_root
 
 REQUIRED_OUTPUT_MARKERS = (
     "写作模型",
+    "字数",
 )
 EXPECTED_WRITING_MODEL = "Deepseek"
+WORD_COUNT_PATTERN = re.compile(r"^\d+字$")
+DEFAULT_MIN_WORDS = 2500
+DEFAULT_MAX_WORDS = 4000
 FORBIDDEN_FRONTMATTER_FIELDS = (
     "story_name",
     "volume_num",
@@ -77,6 +81,7 @@ PLANNING_LANGUAGE_PATTERNS = (
     "exit_hook",
 )
 MIN_BODY_CHARS = 800
+MAX_NOT_IS_PATTERNS = 8
 
 
 def _read_text(path: Path) -> str:
@@ -107,6 +112,54 @@ def _rel(path: Path, root: Path) -> str:
 
 def _find_refs(root: Path, relative_glob: str) -> list[Path]:
     return sorted(root.glob(relative_glob))
+
+
+def _dig(mapping: dict, path: Iterable[str]) -> object:
+    current: object = mapping
+    for key in path:
+        if not isinstance(current, dict):
+            return None
+        current = current.get(key)
+    return current
+
+
+def _string_list(value: object, *, limit: int = 3) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value[:limit] if str(item).strip()]
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    return []
+
+
+def _build_character_voice_guide(project_root: Path, *, max_cards: int = 64) -> str:
+    """Extract a compact speaker-voice guide from character cards."""
+    card_paths = sorted((project_root / "1-设定" / "2-角色卡").rglob("*.json"))
+    lines: list[str] = []
+    for path in card_paths[:max_cards]:
+        try:
+            payload = json.loads(_read_text(path))
+        except (json.JSONDecodeError, OSError):
+            continue
+        core = _dig(payload, ("content", "card_schema", "character_card", "core"))
+        if not isinstance(core, dict):
+            continue
+        identity = core.get("identity") if isinstance(core.get("identity"), dict) else {}
+        name = str(identity.get("name") or path.stem).strip()
+        public_role = str(identity.get("public_role") or "").strip()
+        voice = core.get("voice_and_presence") if isinstance(core.get("voice_and_presence"), dict) else {}
+        speech = _string_list(voice.get("speech_texture"), limit=4)
+        gestures = _string_list(voice.get("gesture_habits"), limit=3)
+        if not (speech or gestures or public_role):
+            continue
+        parts = []
+        if public_role:
+            parts.append(public_role)
+        if speech:
+            parts.append("说话质地：" + "；".join(speech))
+        if gestures:
+            parts.append("出场动作：" + "；".join(gestures))
+        lines.append(f"- {name}：{'；'.join(parts)}")
+    return "\n".join(lines)
 
 
 def _select_project_context_files(project_root: Path, volume_num: int, chapter_num: int) -> list[Path]:
@@ -274,6 +327,8 @@ def _build_messages(
     repair_finding: str,
     continue_from: str,
     supervision_packet_text: str,
+    min_words: int,
+    max_words: int,
 ) -> list[dict[str, str]]:
     system_prompt = _read_text(SYSTEM_PROMPT_PATH).strip()
     global_card_refs = [_rel(path, project_root) for path in global_cards]
@@ -296,6 +351,7 @@ def _build_messages(
     sections = [
         f"目标输出路径：{_rel(target_path, project_root)}",
         f"当前模式：{drafting_mode}",
+        f"章节正文字数目标：{min_words}-{max_words}字；`字数` frontmatter 必须记录最终正文估算字数，且正文实际长度必须落入该区间。",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
@@ -317,6 +373,17 @@ def _build_messages(
 
     if memory_path and memory_path.is_file():
         sections.append(f"项目 MEMORY（{_rel(memory_path, project_root)}）：\n" + _excerpt(_read_text(memory_path), 3000))
+
+    character_voice_guide = _build_character_voice_guide(project_root)
+    if character_voice_guide:
+        sections.append("角色对白声纹表（必须用于对白差异化）：\n" + character_voice_guide)
+
+    relationship_graph_path = project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md"
+    if relationship_graph_path.is_file():
+        sections.append(
+            f"角色关系图谱（必须用于关系压力、信息流和传导边判断，{_rel(relationship_graph_path, project_root)}）：\n"
+            + _excerpt(_read_text(relationship_graph_path), 4500)
+        )
 
     if global_cards:
         global_payload = []
@@ -387,6 +454,13 @@ def _require_non_empty(value: object, field_name: str) -> None:
         raise ValueError(f"DeepSeek 返回 frontmatter 字段为空：{field_name}")
 
 
+def _validate_word_count(payload: dict) -> int:
+    value = payload.get("字数")
+    if not isinstance(value, str) or not WORD_COUNT_PATTERN.fullmatch(value.strip()):
+        raise ValueError("DeepSeek 返回 frontmatter 字段 `字数` 必须形如 `3000字`。")
+    return int(value.strip()[:-1])
+
+
 def _validate_path_list(payload: dict, field_name: str, *, allow_empty: bool = False) -> None:
     value = payload.get(field_name)
     if not isinstance(value, list):
@@ -405,7 +479,7 @@ def _validate_nested_context(payload: dict, field_name: str, keys: Iterable[str]
         _require_non_empty(value.get(key), f"{field_name}.{key}")
 
 
-def _validate_generated_markdown(text: str, chapter_num: int) -> None:
+def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int, max_words: int) -> None:
     payload, body = _split_frontmatter(text)
     for marker in REQUIRED_OUTPUT_MARKERS:
         if marker not in payload:
@@ -414,6 +488,7 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
 
     if payload.get("写作模型") != EXPECTED_WRITING_MODEL:
         raise ValueError(f"DeepSeek 返回 frontmatter 字段 `写作模型` 必须是 `{EXPECTED_WRITING_MODEL}`。")
+    frontmatter_word_count = _validate_word_count(payload)
     for field in FORBIDDEN_FRONTMATTER_FIELDS:
         if field in payload:
             raise ValueError(f"DeepSeek 返回 frontmatter 不应重复写入 `{field}`，该信息由上下文加载与 sidecar 承载。")
@@ -422,14 +497,31 @@ def _validate_generated_markdown(text: str, chapter_num: int) -> None:
     if heading not in body:
         raise ValueError(f"DeepSeek 返回内容缺少章节标题行：{heading}")
     body_after_heading = body.split(heading, 1)[1]
-    if len(re.sub(r"\s+", "", body_after_heading)) < MIN_BODY_CHARS:
+    body_word_count = len(re.sub(r"\s+", "", body_after_heading))
+    if body_word_count < MIN_BODY_CHARS:
         raise ValueError(f"DeepSeek 返回正文过短，低于最小完整度门槛 {MIN_BODY_CHARS} 字。")
+    if not (min_words <= frontmatter_word_count <= max_words):
+        raise ValueError(
+            "DeepSeek 返回 frontmatter `字数` 不在目标区间内："
+            f"{frontmatter_word_count}字，不符合 {min_words}-{max_words}字。"
+        )
+    if not (min_words <= body_word_count <= max_words):
+        raise ValueError(
+            "DeepSeek 返回正文实际长度不在目标区间内："
+            f"{body_word_count}字，不符合 {min_words}-{max_words}字。"
+        )
     for marker in PLACEHOLDER_MARKERS:
         if marker in text:
             raise ValueError(f"DeepSeek 返回内容仍包含模板占位符：{marker}")
     for pattern in PLANNING_LANGUAGE_PATTERNS:
         if pattern in body_after_heading:
             raise ValueError(f"DeepSeek 返回正文仍保留 planning 语言：{pattern}")
+    not_is_count = len(re.findall(r"不是[^。！？\n]{0,50}[，,、 ]?(?:而)?是", body_after_heading))
+    if not_is_count > MAX_NOT_IS_PATTERNS:
+        raise ValueError(
+            "DeepSeek 返回正文中过度重复 `不是……是……` 句式："
+            f"{not_is_count} 处，超过上限 {MAX_NOT_IS_PATTERNS}。"
+        )
 
 
 def _run_deepseek(messages_path: Path, output_dir: Path, *, max_tokens: int, stream: bool, timeout: int) -> str:
@@ -492,6 +584,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repair-finding", help="review finding or local issue description for local_repair")
     parser.add_argument("--stream", action="store_true", help="use stream mode when calling provider")
     parser.add_argument("--supervision-packet", help="team supervision packet file produced by drafting subagents")
+    parser.add_argument("--min-words", type=int, default=DEFAULT_MIN_WORDS, help="minimum chapter body words")
+    parser.add_argument("--max-words", type=int, default=DEFAULT_MAX_WORDS, help="maximum chapter body words")
     parser.add_argument("--dry-run", action="store_true", help="only emit the messages pack without calling DeepSeek")
     parser.add_argument("--no-writeback", action="store_true", help="call DeepSeek but do not write back the chapter file")
     parser.add_argument("--force", action="store_true", help="allow writeback over an existing canonical chapter file")
@@ -525,6 +619,8 @@ def _resolve_drafting_mode(args: argparse.Namespace, chapter_path: Path) -> str:
 
 def main() -> int:
     args = build_parser().parse_args()
+    if args.min_words <= 0 or args.max_words <= 0 or args.min_words > args.max_words:
+        raise SystemExit("--min-words/--max-words 必须为正数，且 min <= max。")
 
     project_root = resolve_project_root(args.project_root)
     story_name = project_root.name
@@ -575,6 +671,8 @@ def main() -> int:
         repair_finding=args.repair_finding or "",
         continue_from=args.continue_from or "",
         supervision_packet_text=supervision_packet_text,
+        min_words=args.min_words,
+        max_words=args.max_words,
     )
 
     output_dir = Path(args.output_dir) if args.output_dir else None
@@ -594,12 +692,16 @@ def main() -> int:
             "messages_path": str(messages_path) if messages_path else "",
             "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root),
+            "relationship_graph_ref": "1-设定/2-角色卡/角色关系图谱.md"
+            if (project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md").is_file()
+            else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
             "provider": "deepseek-v4-pro",
             "thinking": "enabled",
             "reasoning_effort": "high",
             "supervision_packet_ref": args.supervision_packet or "",
+            "word_count_range": f"{args.min_words}-{args.max_words}",
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
@@ -632,7 +734,7 @@ def main() -> int:
                     timeout=args.timeout,
                 )
             )
-    _validate_generated_markdown(generated, chapter_num)
+    _validate_generated_markdown(generated, chapter_num, min_words=args.min_words, max_words=args.max_words)
 
     raw_path: Path | None = None
     if output_dir:
@@ -656,6 +758,7 @@ def main() -> int:
         "thinking": "enabled",
         "reasoning_effort": "high",
         "supervision_packet_ref": args.supervision_packet or "",
+        "word_count_range": f"{args.min_words}-{args.max_words}",
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0

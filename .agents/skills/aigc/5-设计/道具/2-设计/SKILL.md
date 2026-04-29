@@ -13,10 +13,12 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-prop-design` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、世界观、视觉规则、风格提示词或制作约束相关的上下文文件。
 - 必须读取上游 `projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml`，抽取全局风格、主题、媒介、禁区和设计相关大师监制上下文。
+- 默认 subagents 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问，围绕形制、材料、工艺、年代、磨损、功能逻辑、45 度特写和 prompt token 进行请教，并在 LLM 道具设计前形成 `advisor_consultation_packet`。
 - 研究层必须落成可审查的设计证据链：来源判断 -> 置信度/不确定性 -> 形制、材料、工艺、年代、使用痕迹、功能逻辑 -> prompt evidence token；不得停留在百科摘抄或抽象审美标签。
 - 固定画面约束：道具设计默认是纯色背景上的单道具近景特写，采用 45 度视角，不得置身于剧情场景、桌面环境、室内陈设、街景或人物手持情境中；英文提示词必须显式包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -26,8 +28,19 @@ metadata:
 
 - 本技能默认启用真实 subagents 路径：主 agent 或调度层应将道具细目设计工作分发给 `Worker-Prop`，并在需要质量复核时使用独立 reviewer subagent 汇流 verdict。
 - 用户显式点名 `$aigc-prop-design` 或本阶段路由命中时，视为仓库层已经许可该默认 subagent 路径；不得以“用户未额外授权并行”为理由回退。
+- 默认真实路径必须先按共享团队顾问合同解析项目 `team.yaml` 监制 roster，向道具、美术、摄影、导演、世界观或工艺顾问提出具体问题；顾问输出只能作为 `advisor_consultation_packet` 中的可执行指导、risk note 或 inspiration，不得直接替代单道具设计稿。
 - 若上层 system / developer / tool policy 或当前工具环境阻断真实 subagent dispatch，执行者必须显式报告阻断层级、原计划 subagent 路径、实际降级路径和未真实启动的 reviewer / worker。
 - 子任务可按单个道具主体拆分；每个 subagent 只负责自己领取的道具文件 patch，最终由主 agent 聚合到 canonical 输出目录。
+
+## Multi-Subskill Continuous Workflow
+
+本叶子技能以单道具或批量道具为执行粒度；当父级域包或用户整体命中本技能时，视为已授权按本级声明的内部节点和 subagent 合同连续完成道具细目设计。
+
+- 无序号同级子技能包若未来出现，默认全选并发执行，由本技能汇总、裁决和写回唯一 canonical 输出。
+- 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
+- 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 卫星技能只承担查询、恢复、审查承接或辅助动作；不会自动改写本技能的道具设计 canonical 输出，除非父级合同或用户明确要求回接。
+- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 道具设计主创或主 agent 最终裁决。
 
 ## Input Contract
 
@@ -71,6 +84,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意道具细目设计任务 | `references/prop-design-contract.md`、`steps/prop-design-workflow.md` |
+| 默认 subagents / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 类型分流、冷门考据、规则道具或状态版本 | `types/prop-design-type-map.md`、`knowledge-base/prop-design-heuristics.md` |
 | 验收、修复和 reviewer 汇流 | `review/review-contract.md` |
@@ -136,10 +150,11 @@ stateDiagram-v2
 2. 锁定上游 `1-清单/道具清单.md` 的道具主体，并读取可选 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`；只对被指定、被调度或 manifest 标记为 `design_gaps` 的主体生成细目，不为空置主体补占位文件。
 3. 已有设计稿默认跳过，除非用户明确要求 repair / regenerate；清单主体被归并到已有主体时，只记录 alias merge，不新建设计稿。
 4. 读取 `north_star.yaml` 与 `team.yaml`，提取全局风格提示词、项目北极星、视觉禁区、设计相关大师监制上下文。
-5. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
-6. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
-7. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
-8. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。
+5. 按共享团队顾问合同请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须落到形制、材料、工艺、年代、使用痕迹、功能逻辑、45 度特写和 prompt evidence，不能只点名大师。
+6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
+7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
+8. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
+9. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
 
 ## Field Mapping
 
@@ -155,6 +170,7 @@ stateDiagram-v2
 | `FIELD-PROP-DESIGN-07` | 产品特写约束 | 默认为纯色背景单道具近景特写、45 度视角，不置身场景或人物手持情境 | `FAIL-PROP-DESIGN-07` |
 | `FIELD-PROP-DESIGN-08` | 研究转译链 | 研究明确转化为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `FAIL-PROP-DESIGN-08` |
 | `FIELD-PROP-DESIGN-09` | Prompt evidence chain | 英文 prompt 中的核心视觉 token 能回指研究证据、物语或解构字段 | `FAIL-PROP-DESIGN-09` |
+| `FIELD-PROP-DESIGN-10` | Team advisor consult | 已按 `team.yaml` 请教项目监制顾问，并把材料、工艺、功能、特写拍法和 prompt token 指导作为创作前上下文；阻断时有降级报告 | `FAIL-PROP-DESIGN-10` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -169,6 +185,7 @@ stateDiagram-v2
 - 研究层停留在百科信息或气氛形容词，没有转成形制、材料、工艺、年代、使用痕迹、功能逻辑和可追溯 prompt token。
 - 输出写到父级、`1-清单`、`3-生成`、角色/场景目录或 registry。
 - subagent 默认路径被工具阻断时没有报告降级原因与未启动角色。
+- 启用 subagents 时只按道具 worker 分工，没有调用 `team.yaml` 项目监制顾问进行具体请教，或没有把顾问意见转成可执行设计指导。
 
 必经链路：
 
@@ -214,6 +231,7 @@ stateDiagram-v2
 - 每个输出文件都能回指 `1-清单/道具清单.md` 的具体道具项。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - `north_star.yaml` 与 `team.yaml` 的全局风格、项目主题和设计相关大师监制上下文已被实际消费；缺失项已显式标注。
+- 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已落到形制、材料、工艺、磨损、功能、Photography、Prop Design 或 prompt evidence；若被上层阻断，已记录降级报告。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。
 - 英文 prompt 引用全局风格提示词 + 物品风格，且不超过 2000 字符。

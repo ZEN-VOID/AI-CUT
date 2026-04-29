@@ -9,7 +9,7 @@ metadata:
 
 # story2026 Query
 
-`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、`review/` 或 `context-return` 的主流程。
+`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、`review/` 或 `return` 的主流程。
 
 ## Context Loading Contract
 
@@ -60,7 +60,7 @@ Optional input:
 Reject or clarify when:
 
 - 无法唯一定位 `PROJECT_ROOT`，且仓库内存在多个候选项目。
-- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/`、`review/` 或 `context-return`。
+- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/`、`review/` 或 `return`。
 - 用户要求用计划、快照或正文猜测“已经发生”，但缺少 actualization / PASS / context-return 证据。
 
 ## Mode Selection
@@ -164,7 +164,7 @@ flowchart TD
 1. 查询结论：直接回答用户主问题，标明 truth role、置信度和是否存在证据缺口。
 2. 证据路径：列出实际读取或可复核的 canonical 文件、字段、CLI 输出或 index 查询。
 3. 边界与冲突：区分 planned、current、validated_actual、quality、execution 与 manual spec。
-4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/`、`review/` 或 `context-return`。
+4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/`、`review/` 或 `return`。
 
 ### Output format
 

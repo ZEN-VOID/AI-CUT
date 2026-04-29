@@ -5,9 +5,11 @@
 ## Stable Heuristics
 
 - 章节起稿最先失真的地方通常不是剧情点，而是“为什么这一章必须如此发生”的约束包；先锁 planning 义务，再谈文风。
+- 当前三模型分工中，Doubao 的主场是 `3-初稿` 的中文气口与人话起稿；进入 `4-润色` 时只在用户显式点名或对照实验中承担最小局部修补。
+- 润色阶段调用 Doubao 时仍要保留初稿句群骨架、长短不齐、段落密度和人物气口，不得把稿子重新洗成平均顺滑版本。
 - `north_star` 在 polishing 阶段不应原样引用，应压缩为当前章的整书承诺与章末牵引。
 - 上一章缺失不是停工理由；`卷规划.md + 第N章.md` 才是硬输入兜底。
-- frontmatter 只做润色模型标记；约束索引和资料证据放在 context pack / sidecar。
+- frontmatter 只做 `润色模型`、`初稿来源` 与 `字数` 标记；约束索引和资料证据放在 context pack / sidecar。
 - 只要正文里还能看到 planning 的标题语言，小说化转换就没有完成。
 - provider 证据链比口头说明更可靠；messages pack、raw output 与 final writeback 应能互相对上。
 

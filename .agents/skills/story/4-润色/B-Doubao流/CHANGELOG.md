@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-29
+
+- Added `subagent_review_optimize` mode for explicit subagents requests.
+- Routed audit points through `.agents/skills/story/review` dimension child skills, then back into Doubao repair prompts.
+- Tightened review, workflow, type, and evidence gates so subagents mode cannot stop at reports without same-round provider optimization.
+
 ## 2026-04-26
 
 - Upgraded `story-polishing` to Skill 2.0 layout.

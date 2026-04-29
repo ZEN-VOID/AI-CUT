@@ -1,6 +1,6 @@
 # story-plan-book-level
 
-`story-plan-book-level` 是 `2-卷章` 的部级规划子技能，负责生成或修订 `projects/story/<项目名>/2-卷章/整体规划.md`。
+`story-plan-book-level` 是 `2-卷章` 的部级规划子技能，负责生成或修订 `projects/story/<项目名>/2-卷章/整体规划.md`，并锁定整书级悬念总设计。
 
 ## Directory Tree
 
@@ -36,7 +36,7 @@
 1. 读取 `SKILL.md + CONTEXT.md`。
 2. 回读父层 `../SKILL.md + ../CONTEXT.md` 和共享 planning 合同。
 3. 按 `Reference Loading Guide` 加载 `references/`、`steps/`、`types/`、`review/` 与模板。
-4. 生成或修订 `projects/story/<项目名>/2-卷章/整体规划.md`。
+4. 生成或修订 `projects/story/<项目名>/2-卷章/整体规划.md`，其中必须包含 `整部悬念总设计` 与 `整书悬念池`。
 5. 使用 `review/book-level-review-contract.md` 确认可交给 `2-卷级`。
 
 ## Validation

@@ -30,6 +30,7 @@ last_checked_at: 2026-04-26T00:00:00-07:00
 | 风格/全局/类型仍被拆成 `1-设定` 子技能 | north_star owner 漂移 | 把世界规则、写法合同、题材方向盘融合进 `0-初始化/north_star.yaml` | `1-设定` 下只保留角色/场景/物品/技能 |
 | 文档改完但脚本仍跑旧路径 | runtime parity 漂移 | 同步检查 `cards_writer.py`、`cards_coverage_validator.py`、相关 tests | 文档、脚本、测试指向同一 child skill 路由 |
 | 只想修一个对象却生成整套空卡 | 选择性调度失效 | 父层只聚合实际命中的子技能 patch，不补未调度对象 | 输出不包含未执行子技能的占位字段 |
+| subagents 启用但没有按项目 team 请教 | 顾问请教层 | 回读 `../_shared/team-advisor-consultation-contract.md`，优先用 `team.yaml -> roles.planning.members` 请教并汇流 | 把 `advisor_consultation_packet` 固定为子技能 LLM 创作前上下文 | 报告能追溯 roster 来源、问题类型、可执行指导或降级说明 |
 
 ## Repair Playbook
 
@@ -40,6 +41,7 @@ last_checked_at: 2026-04-26T00:00:00-07:00
 5. 若涉及题材与 planning，先确认 `north_star.yaml.genre_contract` 是否正式承接，再处理 planning 投影。
 6. 若涉及风格漂移，先确认 `north_star.yaml.style_contract` 是否把上游承诺转成写法 gate，而不是复述 pitch。
 7. 非平凡修复后，至少运行对应 cards writer / validator 的局部检查；无法运行时要说明原因。
+8. 若本轮启用 subagents，先检查顾问问题是否足够具体：角色问成长/关系，场景问规则/返场，物品问归属/代价，技能问限制/克制；泛泛风格意见不能进入 card payload。
 
 ## Reusable Heuristics
 
@@ -52,6 +54,7 @@ last_checked_at: 2026-04-26T00:00:00-07:00
 - 风格合同不负责兜底世界设定；一旦 `style_contract` 开始写力量体系，说明应回到 `global_contract` 修边界。
 - 物品卡不负责发明角色命运；它只能消费角色接口与场景规则，把道具变成剧情杠杆。
 - 对内容创作型任务，脚本输出再完整也只能算 carrier 或 projection；canonical creative truth 必须来自 LLM 判断。
+- 设定阶段的 team 顾问价值在于帮对象成立：谁能推动戏、什么空间能反复写、什么物件能改变局面、什么能力能制造选择压力。
 - 父层聚合时只写入实际发生的有效 patch；“结构看起来完整”的空字段会污染后续 planning 与 drafting。
 - cards 系统的长期稳定性取决于五层一致：父层路由、子技能合同、本地模板、writer、validator/tests。
 

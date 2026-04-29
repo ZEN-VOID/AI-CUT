@@ -29,6 +29,27 @@
 - `cost_or_aftershock`：
 - `aftertaste_hook`：
 
+本章悬念开关：
+- 上承卷级悬念：
+- 本章读者可知：
+- 本章角色可知：
+- 本章悬念线程动作：
+  - `suspense_id`：
+  - `priority`：
+  - `status_before`：
+  - `next_action`：
+  - `status_after`：
+  - `dependency`：
+  - `reader_state_delta`：
+  - `pov_state_delta`：
+- 本章需要隐藏的：
+- 本章误导/疑阵：
+- 本章揭秘的：
+- 本章只埋不揭的：
+- 章末悬念压力：
+- 本章悬念负载：
+- 正文禁止上帝视角说明：
+
 本章节奏曲线：
 - `selected_pack`：
 - `selected_mode`：

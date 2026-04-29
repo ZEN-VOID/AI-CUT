@@ -183,7 +183,7 @@ query / resume
    → 向量嵌入 (RAG)
    → 风格样本评估
 
-7. 通过 `context-return` 做 PASS-only actualization
+7. 通过 `return` 做 PASS-only actualization
    → 写 `Cards.current_state/history`
    → 写 `整体规划.actualization.json / 卷规划.actualization.json / 第N章.actualization.json`
    → 兼容项目再写 `content.holomap_slice.actualization`

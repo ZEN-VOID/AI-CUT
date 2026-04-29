@@ -5,6 +5,7 @@
 ## Default Provider
 
 - 默认 worker：`Worker-Prop`
+- 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教道具/美术/摄影/导演/工艺相关顾问，形成 `advisor_consultation_packet` 后再进入单道具设计汇流。
 - 默认 reviewer：独立 prop-design reviewer subagent；若无专名，则使用可用的 `code-reviewer` / design reviewer provider 执行结构与语义门禁。
 - 上层策略若阻断真实 subagent 或外部 reviewer 调度，允许降级为本地 review checklist，但必须报告阻断层级、原计划 provider 路径、实际降级路径和未真实启动的 reviewer。
 
@@ -20,6 +21,7 @@
 | prompt | 英文 prompt 是否包含全局风格 + 物品风格，且 2000 字符内 |
 | prompt_evidence | 核心 prompt token 是否能回指研究、物语或解构字段 |
 | fixed_visual | 是否为纯色背景单道具近景特写、45 度视角、无场景环境 |
+| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入形制、材料、工艺、功能、特写拍法或 prompt token |
 | type | `type_profile` 是否合理，冷门考据和多状态是否按类型处理 |
 | scope | 是否只写入 `5-设计/道具/2-设计`，未触碰 registry、父级或其他技能 |
 
@@ -38,7 +40,8 @@
 flowchart TD
     A["design draft"] --> B["source / context / authorship 检查"]
     B --> C["structure / prompt / fixed_visual 检查"]
-    C --> D{"真实 reviewer subagent 可用?"}
+    C --> A1["检查 advisor consultation packet"]
+    A1 --> D{"真实 reviewer subagent 可用?"}
     D -->|"yes"| E["独立 reviewer verdict"]
     D -->|"blocked by upper policy or tool"| F["本地降级 checklist + 降级报告"]
     E --> G{"verdict"}
@@ -53,7 +56,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | context | authorship | research_chain | structure | prompt | prompt_evidence | fixed_visual | type | scope
+  dimension: source | context | authorship | research_chain | structure | prompt | prompt_evidence | fixed_visual | advisor_consultation | type | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -74,6 +77,7 @@ finding:
 - [ ] prompt 引用全局风格提示词，并补充物品风格。
 - [ ] prompt evidence chain 覆盖核心 token：主体名、形制、材料、工艺/年代、使用痕迹、功能逻辑和固定画面约束。
 - [ ] prompt 明确包含 close-up prop shot、45-degree view、solid color background、no scene environment。
+- [ ] 默认 subagents 路径启用时，`advisor_consultation_packet` 已从 `team.yaml` 顾问请教中提炼出可执行设计指导，或已记录上层阻断降级。
 - [ ] 输出路径在 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
 
 ## Gate Rule
@@ -87,5 +91,6 @@ finding:
 - prompt 非英文、超长或没有全局风格 + 物品风格。
 - 摄影字段或 prompt 把道具置入具体场景、桌面环境、室内陈设、街景或人物手持情境。
 - 缺少 close-up、45-degree view、solid color background 或 no scene environment 约束。
+- 默认 subagents 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到形制、材料、工艺、功能、特写拍法、prompt evidence。
 - 脚本替代 LLM 生成核心创作正文。
 - 输出越过本技能授权范围。

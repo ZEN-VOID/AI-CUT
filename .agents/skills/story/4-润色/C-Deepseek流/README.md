@@ -1,6 +1,6 @@
 # story-polishing-deepseek
 
-`story-polishing-deepseek` 是 `story2026` 的 `4-润色` 阶段 DeepSeek provider 技能，负责承接 `3-初稿` 章节，结合 planning、`north_star`、项目记忆与上下文，输出 canonical 章节润色稿。
+`story-polishing-deepseek` 是 `story2026` 的 `4-润色` 阶段 DeepSeek provider 技能，负责承接 `3-初稿` 章节，结合 planning、`north_star`、项目记忆与上下文，输出 canonical 章节最小局部修补稿。DeepSeek 在当前三模型分工中是默认润色 lane，用于长思维链判断、问题定位与克制的二次调优，而不是默认整章洗稿。
 
 ## Directory Tree
 
@@ -47,7 +47,7 @@ python3 .agents/skills/story/4-润色/C-Deepseek流/scripts/polish_chapter_via_d
   --dry-run
 ```
 
-When the target chapter already exists, the script auto-selects `polish_rewrite` and injects the existing chapter into the provider context. Use `--mode local_repair` or `--mode local_repair` when the user intent is narrower.
+When the target chapter already exists, formal overwrite requires explicit `--mode polish_rewrite` plus `--force`. Use `--mode local_repair` for narrower fixes; do not treat an existing target as permission for whole-chapter rewrite.
 
 ## Truth Boundary
 

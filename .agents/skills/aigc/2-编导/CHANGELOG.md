@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-04-29
+
+- 新增阶段末 `Stage-End Review-Repair Contract`，将候选编导稿固定为 `candidate -> review -> direct repair -> re-review -> canonical writeback` 闭环。
+- 在 workflow 中新增 `N6R-DIRECT-REPAIR` 与 `N6R-REVIEW-AGAIN`，要求 review 阻断项在 `2-编导` 阶段内最小修复并复审后才能交给下游。
+- 更新 review gate、CONTEXT 和执行报告字段，明确保真、对白、声画、slugline、具像化和高点承托问题不得降级为交付后 followup。
+
 ## 2026-04-28
 
 - 新增 `references/climax-visual-treatment-contract.md`，将 `story/2-卷章/3-章级` 的爽点设计思想投影为 `2-编导` 的高潮画面处理机制。

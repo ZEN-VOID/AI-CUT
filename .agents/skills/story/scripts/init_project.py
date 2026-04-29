@@ -54,7 +54,7 @@ PLANNING_SKILL_PATHS = [
 PRODUCTION_SKILL_PATHS = [
     ".agents/skills/story/3-初稿",
     ".agents/skills/story/4-润色",
-    ".agents/skills/story/context-return",
+    ".agents/skills/story/return",
 ]
 REVIEW_SKILL_PATHS = [
     ".agents/skills/story/review",

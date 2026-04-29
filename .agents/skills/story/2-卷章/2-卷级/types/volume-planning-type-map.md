@@ -21,9 +21,9 @@
 
 | type_profile | trigger | route | required_reference | review_gate |
 | --- | --- | --- | --- | --- |
-| `create_volume_plan` | 目标卷无 `卷规划.md` | `N1 -> N2 -> N3 -> N4 -> N5 -> N6 -> N7` | `references/volume-planning-contract.md`、`references/volume-rhythm-framework.md` | full content review |
-| `revise_volume_plan` | 用户要求补写或改写已有卷规划 | `N1 -> N2 -> N3R -> affected nodes -> N7` | 旧 `卷规划.md` 与相关 reference | patch review |
-| `audit_volume_plan` | 用户只要求检查 | `N1 -> N2 -> N7` | `review/review-contract.md` | findings-only |
+| `create_volume_plan` | 目标卷无 `卷规划.md` | `N1 -> N2 -> N3 -> N4 -> N5 -> N6 -> N7 -> N8 -> N9` | `references/volume-planning-contract.md`、`../_shared/suspense-design-contract.md`、`references/volume-rhythm-framework.md` | full content review |
+| `revise_volume_plan` | 用户要求补写或改写已有卷规划 | `N1 -> N2 -> N3R -> affected nodes -> N9` | 旧 `卷规划.md` 与相关 reference | patch review |
+| `audit_volume_plan` | 用户只要求检查 | `N1 -> N2 -> N9` | `review/review-contract.md` | findings-only |
 | `repair_structure` | 技能包结构漂移或 validator 失败 | `N2 -> structural repair -> validator` | `references/legacy-upgrade-matrix.md`、`scripts/README.md` | structure validator |
 
 ## Clarification Triggers

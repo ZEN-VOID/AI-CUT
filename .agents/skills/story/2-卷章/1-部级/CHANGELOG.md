@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-04-29
+
+- Added explicit project `team.yaml` advisor consultation contract for subagents-enabled book-level planning.
+- Added advisor packet, review gate, context heuristic, and executable-guidance handoff before LLM-authored book-level planning.
+- Added book-level suspense design through shared `../_shared/suspense-design-contract.md`.
+- Added `整部悬念总设计` to `SKILL.md`, output contract, templates, workflow nodes, review gate, type map, README, CONTEXT, and validator-facing fields.
+- Locked book-level suspense slots for core mystery, reader/POV cognition curves, volume reveal rhythm, long-line misdirection, no-early-reveal rules, and final recovery requirements.
+- Expanded book-level suspense into multi-thread governance with `整书悬念池` and `多重悬念编排规则`.
+
 ## 2026-04-28
 
 - Added book-level timeline system via shared `../_shared/timeline-design-contract.md`.

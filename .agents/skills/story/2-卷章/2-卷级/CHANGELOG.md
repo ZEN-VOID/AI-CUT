@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-04-29
+
+- Added explicit project `team.yaml` advisor consultation contract for subagents-enabled volume-level planning.
+- Added advisor packet, review gate, context heuristic, and executable-guidance handoff before LLM-authored volume-level planning.
+- Added volume-level suspense switch through shared `../_shared/suspense-design-contract.md`.
+- Added `本卷悬念开关` to `SKILL.md`, volume output contract, templates, workflow nodes, review gate, type map, README, CONTEXT, and validator-facing fields.
+- Locked volume-level suspense slots for inherited book suspense, new volume mystery, hidden information, visible surface information, misdirection, reveals, delayed pressure, and chapter-level constraints.
+- Expanded volume suspense into `本卷悬念线程表` and `本卷悬念负载` for multi-thread state tracking.
+
 ## 2026-04-28
 
 - Added volume-level timeline system via shared `../_shared/timeline-design-contract.md`.

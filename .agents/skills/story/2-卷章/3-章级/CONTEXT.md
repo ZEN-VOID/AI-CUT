@@ -31,11 +31,14 @@ last_checked_at: 2026-04-26
 | `rhythm_intensity=高` 被滥用 | intensity inflation | 重判本章强度，只有强转折、强行动、强压迫、强情绪或阶段爆点才保留高强度 | 用 `rhythm_intensity` 控制连续高点密度 | 真正高点不被普通章节稀释 |
 | `payoff_type` 与 `micro_payoff` 不一致 | payoff mismatch | 先裁定本章主导读者满足，再改写 `micro_payoff` 或 `payoff_type` 对齐 | review gate 检查 payoff 与兑现动作的一致性 | 读者读完能知道本章“爽点/暖点/信息点”是什么 |
 | `浪能式` 被误写成无事发生 | soft-rhythm payoff gap | 补情绪、关系、世界感、软信息或状态修复层面的 `micro_payoff` | 在 rhythm rules 固定浪能式七步职责，避免把松弛等同于空转 | 松弛但不空，舒缓但有轻盈 payoff |
+| 章级悬念被写成“吊胃口”口号或提前剧透 | chapter suspense switch gap | 补 `本章悬念开关`，明确读者可知、角色可知、隐藏、误导、揭秘、只埋不揭、章末压力和正文禁区 | 模板、steps、review 固定悬念开关并回指卷级 | drafting 能执行信息边界，不写上帝视角说明 |
+| 一章同时动太多悬念导致读者疲劳 | chapter suspense overload | 补 `本章悬念线程动作` 与 `本章悬念负载`，标出主操作和副操作 | review gate 检查线程动作、负载理由和微兑现 | 本章知道主推哪条悬念、哪条只轻触 |
 | 线索与伏笔混写 | chapter-level information drift | 拆开 `本章线索` 和 `本章伏笔` | 在模板固定两个标题，review gate 禁止合并 | 信息推进和长期回照可区分 |
 | 伏笔只写铺设，不写兑现位判断 | foreshadow incompleteness | 即使无兑现也明确标 `本章无兑现` | 在模板保留 `铺设 / 兑现` 双槽位 | 伏笔段落完整 |
 | 本章支流没有汇聚动作或去向 | task convergence gap | 补 `汇聚动作 / 未汇聚任务去向` | 在模板固定任务关系槽位，review gate 检查支流闭环 | validation 能判断支流是否回到主任务 |
 | 章级局部补写漂离卷级职责 | upstream reread skipped | 重新回读目标卷 `卷规划.md` 与 `整体规划.md` 后再修订 | steps 固定 `N1-UPSTREAM-REREAD`，Input Contract 禁止缺上游落盘 | 章级 `上承卷级任务` 能回指卷级任务线 |
 | 建议写法变成正文句段 | planning/drafting boundary drift | 删除对白、叙述段、正文桥段，只保留结构建议 | review gate 固定非正文化检查 | 章级文件仍是 planning，不是 drafting |
+| 启用 subagents 后没有按项目顾问请教章级执行问题 | advisor consultation gap | 按 `team.yaml` 的 `roles.planning.members` 追问本章职责、时间推进、爽点变奏、悬念开关、任务汇聚和 drafting handoff | 显式启用 subagents 时先生成 `advisor_consultation_packet`，再进入章级规划创作 | `第N章.md` 能说明顾问建议如何转成时间、爽点、悬念、任务或节奏 handoff 指导 |
 
 ## Repair Playbook
 
@@ -57,6 +60,7 @@ last_checked_at: 2026-04-26
 15. 若输出模板或标题不齐，回到 `templates/chapter-planning.template.md` 与 `templates/output-template.md`。
 16. 若审查意见指出正文化，删除句段级文本，只保留 planning 义务、建议写法和结构意图。
 17. 修复技能包结构后运行工作车间 validator；修复业务章规划后运行父层 planning 输出校验或人工 review gate。
+18. 如果显式启用 subagents，顾问问题要落到“这一章具体该承担什么变化”，例如本章只开线还是兑现、本章高潮如何和近邻章变奏、本章哪些信息正文不能说。
 
 ## Reusable Heuristics
 
@@ -78,6 +82,9 @@ last_checked_at: 2026-04-26
 - `previous_next_contrast` 是防机械七步的关键：章节可以内部七步完整，但外部波形必须有承接、换气或反向变奏。
 - `浪能式` 可以轻松、愉快、欢乐、松弛、舒缓，但不能空转；它至少要交付关系升温、状态恢复、世界感打开、趣味体验或软线索之一。
 - 章级如果不说清支流当章怎么汇、没汇后去哪，下游通常会把“悬念”写成“悬空”。
+- 章级悬念的最低可执行标准是：正文作者能判断“这句解释现在能不能说”。如果不能判断，说明 `正文禁止上帝视角说明` 还不够具体。
+- `本章悬念线程动作` 只记录本章实际操作的线程；没有动作的悬念不要塞进章级，避免信息噪音。
 - `义务段位` 只锁必须出现或必须完成的结构义务；`建议写法` 只给推荐编排，不拥有正文法律效力。
 - Mermaid 图不是装饰；它至少要让读者看见起势、转折、升级、高潮和尾钩。
 - 局部修订也要完整回读上游，因为章级字段之间牵连很紧，改一处任务线常常会影响节奏和章末达成。
+- 章级顾问请教的价值是把“灵感”压缩成可执行 handoff：本章变化、信息边界、爽点变奏、任务汇聚和 drafting 禁区必须比顾问原话更具体。

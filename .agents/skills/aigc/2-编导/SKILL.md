@@ -13,8 +13,10 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-directing` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前剧本化改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
+- 若本阶段显式要求启用 subagents 或仓库合同视为默认启用，必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，调用项目已指定监制组成员作为资深创作顾问进行阶段请教，并在 LLM 剧本化投影前形成 `advisor_consultation_packet` 作为额外重要上下文。
 - 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
@@ -26,6 +28,7 @@ metadata:
 - 无序号同级子技能包默认全选并发执行，由本主技能包汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 卫星技能只承担查询、恢复、审查承接或辅助动作；不会因连续调度自动改写 `2-编导` canonical 输出，除非父级合同或用户明确要求回接。
 - 连续调度不得绕过本技能的阻断门：缺少必需输入、上游正文不可读、破坏性覆盖未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
 - 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 剧本化判断或父级最终裁决。
 
@@ -63,6 +66,7 @@ Reject or clarify when:
 | `episode_range` | 指定多个集号或范围 | 多个逐集编导稿与更新后的执行报告 |
 | `all_ready_episodes` | 未指定集号但 `1-分集/` 下有连续 `第N集.md` | 全部可读逐集编导稿 |
 | `repair` | 已有编导稿存在字段缺失、声画错配、场景标题漂移、对白不保真 | 最小修复后的逐集编导稿与问题报告 |
+| `stage_end_review_repair` | 任一非 `review_only` 编导任务完成候选稿后自动进入 | 阶段内 review -> 直接修复 -> 复审 -> canonical 写回 |
 | `review_only` | 用户只要求检查 `2-编导` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
 
 ## Reference Loading Guide
@@ -70,11 +74,13 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意编导任务 | `references/script-adaptation-contract.md`、`steps/directing-workflow.md` |
+| 编导创作阶段显式启用 subagents / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md` |
 | 字段分流、声画配对、对白冻结 | `references/field-routing-and-audio-visual-contract.md` |
 | 高潮画面识别与重点强化 | `references/climax-visual-treatment-contract.md` |
 | 好莱坞级编剧创作质量细则 | `references/hollywood-quality-spec.md` |
 | 判断输入类型与改编策略 | `types/source-to-script-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
+| 阶段末审计后直接修复闭环 | 本 `Stage-End Review-Repair Contract`、`steps/directing-workflow.md`、`review/review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-script.template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
 | 可复用经验 | `knowledge-base/directing-heuristics.md` |
@@ -119,8 +125,22 @@ Reject or clarify when:
 - 声画字段就近配对：`对白 -> 对白画面`、`独白/内心独白 -> 独白画面/内心独白画面`、`旁白 -> 旁白画面`、`音效 -> 音效画面`。
 - 每个场景至少有一条正式剧本画面字段；`动作画面` 只写可拍摄身体动作或空间运动。
 - 上游存在高潮画面成分时，必须执行 `peak_visual_pass`：识别 1-3 个高点或最强 `micro_payoff`，并把强化结果落入既有正式画面/声音/表演字段，不新增剧情事实或对白。
+- 显式启用 subagents 时，已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`；若被上层阻断，执行报告已记录降级说明。
 - 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，且同一 slugline 不重复开新场景。
-- 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review，结果写入 `执行报告.md`。
+- 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
+
+## Stage-End Review-Repair Contract
+
+`2-编导` 不另设独立“润色”阶段。每次生成或修复候选编导稿后，必须在本阶段内部完成末段审计和直接修复闭环，只有复审通过的结果才允许写回 canonical `2-编导/第N集.md`。
+
+固定执行语义：
+
+1. `N5-DRAFT` 产物先视为 `candidate_script`，不是终稿。
+2. `N6-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、具像化、声音本体、高潮画面和 LLM-first 边界。
+3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N6R-DIRECT-REPAIR`，只修字段投影、可拍性、声画承托、slugline、具像化、高点承托或格式证据；不得改写上游剧情事实、对白和事件顺序。
+4. 修复后必须执行 `N6R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限阻断时输出阻断报告，不得把失败稿推进下游。
+5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
+6. `执行报告.md` 必须记录本轮 review verdict、repair actions、复审结果、未修复风险和是否允许进入 `3-摄影`。
 
 ## Visual Maps
 
@@ -131,7 +151,9 @@ flowchart TD
     C --> D["字段分流与声画配对"]
     D --> E["LLM 直出编导稿"]
     E --> F["保真与质量门禁"]
-    F --> G["projects/aigc/<项目名>/2-编导/第N集.md"]
+    F -->|"needs_rework"| R["本阶段直接修复"]
+    R --> F
+    F -->|"pass"| G["projects/aigc/<项目名>/2-编导/第N集.md"]
     F --> H["执行报告.md"]
 ```
 
@@ -155,6 +177,9 @@ flowchart TD
 - 核心剧本化改编必须由 LLM 直接完成；脚本只允许读取、统计、格式检查、字段覆盖和声画配对校验。
 - `2-编导` 是 `1-分集` 的影视剧本化结构投影，不得压缩、摘要、删减剧情事实或自由改写剧情因果。
 - 除新增 frontmatter、`【剧本正文】`、场景标题与字段标签外，必须完整承接上游原文信息量和顺序。
+- 当启用 subagents 时，先按共享团队顾问合同解析 `team.yaml` 监制 roster，向导演、编剧、表演、摄影或类型顾问提出关于结构投影、场景目的、表演任务、声画承托、高潮兑现和保真风险的具体问题；主 agent 只吸收可执行指导和风险提示，综合为 `advisor_consultation_packet` 后再进入 LLM 剧本化投影。
+- 顾问意见不得替代上游逐集正文、对白冻结、场景顺序或编导主真源；若真实 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员。
+- 候选稿不得跳过阶段末 review-repair 闭环直接成为终稿；review 发现阻断项时，必须在本阶段直接最小修复并复审，或明确阻断源层。
 - 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
 - 高潮画面处理以 `references/climax-visual-treatment-contract.md` 为准；其职责是识别并强化上游已存在的满足兑现点，不得制造新的事件、对白或因果。
 - 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
@@ -179,6 +204,8 @@ flowchart TD
 | `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演和镜头预设清晰 | `FAIL-DIRECT-06` |
 | `FIELD-DIRECT-07` | 输出落盘 | `2-编导/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-DIRECT-07` |
 | `FIELD-DIRECT-08` | 高潮画面 | 上游高点或最强 `micro_payoff` 被识别并落入可拍字段，无新增事实 | `FAIL-DIRECT-08` |
+| `FIELD-DIRECT-09` | Team advisor consult | 显式启用 subagents 时已按 `team.yaml` 请教项目监制顾问，并把可执行指导作为创作前上下文；阻断时有降级报告 | `FAIL-DIRECT-09` |
+| `FIELD-DIRECT-10` | 阶段末闭环 | candidate 已审计、阻断项已直接修复并复审，执行报告记录 verdict 和 repair actions | `FAIL-DIRECT-10` |
 
 ## Thought Pass Map
 
@@ -188,8 +215,10 @@ flowchart TD
 | `PASS-DIRECT-02` | 场景解析 | 上游正文与场景线索 | slugline、场景编号和场景顺序是否稳定 | `scene_map` |
 | `PASS-DIRECT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
 | `PASS-DIRECT-04` | 高潮画面处理 | `field_routing_plan` 与上游正文 | 是否存在高潮/爽点/高光成分，是否需要强化为可拍字段 | `peak_visual_plan` |
-| `PASS-DIRECT-05` | LLM 剧本化投影 | `field_routing_plan`、`peak_visual_plan` 与上游正文 | 是否完整承接事实、顺序、对白和高点承托 | `episode_script` |
-| `PASS-DIRECT-06` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景、高潮画面和输出门禁 | `review_result` |
+| `PASS-DIRECT-05` | 顾问请教汇流 | `team.yaml`、共享顾问合同、上游正文与阶段目标 | 是否已向项目监制顾问提出具体问题并汇流为可执行指导 | `advisor_consultation_packet` |
+| `PASS-DIRECT-06` | LLM 剧本化投影 | `field_routing_plan`、`peak_visual_plan`、`advisor_consultation_packet` 与上游正文 | 是否完整承接事实、顺序、对白和高点承托 | `episode_script` |
+| `PASS-DIRECT-07` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景、高潮画面和输出门禁 | `review_result` |
+| `PASS-DIRECT-08` | 直接修复复审 | `review_result`、candidate 编导稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
 
 ## Pass Table
 
@@ -199,8 +228,10 @@ flowchart TD
 | `PASS-DIRECT-02` | 场景标题使用稳定编号和好莱坞 slugline | `FAIL-DIRECT-02` | `references/script-adaptation-contract.md` |
 | `PASS-DIRECT-03` | 声画字段分流纯净且就近配对 | `FAIL-DIRECT-04` | `references/field-routing-and-audio-visual-contract.md` |
 | `PASS-DIRECT-04` | 上游高点被识别，且强化不新增事实、对白或因果 | `FAIL-DIRECT-08` | `references/climax-visual-treatment-contract.md` |
-| `PASS-DIRECT-05` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
-| `PASS-DIRECT-06` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
+| `PASS-DIRECT-05` | 显式启用 subagents 时完成项目监制顾问请教或记录降级 | `FAIL-DIRECT-09` | `../_shared/team-advisor-consultation-contract.md` |
+| `PASS-DIRECT-06` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
+| `PASS-DIRECT-07` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
+| `PASS-DIRECT-08` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-DIRECT-10` | `Stage-End Review-Repair Contract` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -213,7 +244,9 @@ flowchart TD
 - 同一 slugline 因叙事 beat 变化反复开新场景。
 - 上游存在明显高潮/爽点/高光成分，但编导稿把它压平成普通叙述，或为了强化高点新增事实、对白、事件结果。
 - 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
+- 显式启用 subagents 时跳过 `team.yaml` 监制顾问请教，或把主 agent 本地模拟顾问当成真实 dispatch。
+- review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
 
 必经链路：
 
-`Symptom -> Direct Script/Prompt Overreach -> 2-编导 Section Owner -> AGENTS.md LLM-first / Skill 2.0 Rule`
+`Symptom -> Direct Script/Prompt/Subagent Overreach -> 2-编导 Section Owner -> AGENTS.md LLM-first / Subagent / Skill 2.0 Rule`

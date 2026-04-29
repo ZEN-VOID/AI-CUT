@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-04-29
+
+- Added `subagent_review_optimize` mode for explicit subagents requests.
+- Routed audit points through `.agents/skills/story/review` dimension child skills, then back into GPT-native direct optimization.
+- Tightened review, workflow, type, and evidence gates so subagents mode cannot stop at reports without same-round prose repair.
+
 ## 2026-04-26
 
 - Created `A-GPT原生` as a Skill 2.0 chapter polishing package aligned with `B-Doubao流`.

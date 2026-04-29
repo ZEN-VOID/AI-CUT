@@ -23,7 +23,7 @@ skill_role: parent_guide
 
 - 用户要求对小说卷、章节集合、初稿、润色稿或运行态产物做终验、质检、review、校验、验收。
 - 需要判断 `validation_status`、`routing_decision`、`handoff_targets`、`rework_targets`。
-- 需要锁定 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`，决定本轮 PASS 是否允许交给 `context-return`。
+- 需要锁定 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`，决定本轮 PASS 是否允许交给 `return`。
 - 需要把多个维度审查结果聚合成 `projects/story/<项目名>/review/第V卷.validation.json`。
 - 需要解释或修复 review 技能组的 roster、维度权重、sidecar 文件名、review runner 路由或聚合门禁。
 - `3-初稿` 或其他阶段需要调用 drafting inline hooks 时，按 registry 读取本技能组的维度定义。
@@ -49,7 +49,7 @@ skill_role: parent_guide
 - 不直接替代六个维度子技能做细项判断。
 - 不生成正文、补写剧情、润色章节或改写上游 source truth。
 - 不让任一 child sidecar 直接成为最终 PASS/FAIL gate。
-- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `context-return` 的 handoff gate。
+- 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `return` 的 handoff gate。
 
 ## Group Topology
 
@@ -101,6 +101,21 @@ skill_role: parent_guide
 | `repair_route` | 已有 review 失败，需要判断返工归属 | 读取 aggregate JSON，按 `source_layer_owner / rework_targets / handoff_targets` 分流 | 返工路由建议 |
 | `governance_repair` | roster、schema、runner、sidecar 文件名或合同漂移 | 以 registry 和 shared contracts 为真源同步修复 | 技能组结构或合同补丁 |
 
+## Stage-Specific Review Allocation
+
+`review` 对 `3-初稿` 与 `4-润色` 的默认审查重心不同：
+
+| target stage | review goal | primary checks | default route when failed |
+| --- | --- | --- | --- |
+| `3-初稿` | 判断候选正文是否完整兑现 planning、角色、连续性、逻辑和任务汇聚，是否允许进入润色 | 结构兑现、人物声口、事件完整度、连续性、逻辑自洽、任务汇聚、是否保留 Doubao 初稿的人话和中文气口 | 回到 `3-初稿` 原始 drafting lane；默认为 `B-Doubao流`，GPT/subagents 只产出 repair brief |
+| `4-润色` | 判断最小局部修补是否修坏处且没有破坏初稿分布、事实和人物气口，是否可作为 accepted manuscript | 初稿锚定、最小修补、无整章重排、无短句化清洗、无通用顺滑化、局部问题是否解决 | 回到 `4-润色` 原始 polishing lane；默认为 `C-Deepseek流` 的 `local_repair` |
+
+硬规则：
+
+- `3-初稿` review 不以“文本是否已被润色得足够顺”为 PASS 标准；它主要判断候选正文是否能进入修补。
+- `4-润色` review 不以“改动越多越好”为 PASS 标准；无授权整章重写、短句化清洗和段落机械切分应作为返工信号。
+- review 只负责发现、归因和分流，不直接改写正文；正文修复必须回到对应 stage / lane。
+
 ## Dispatch Contract
 
 - `final_acceptance` 默认采用技能组并行审查语义：每个 mandatory 维度对应一个独立 reviewer / child skill 结果，再由父层聚合。
@@ -135,8 +150,8 @@ skill_role: parent_guide
 
 - 每一轮卷级终验只能写一份 `projects/story/<项目名>/review/第V卷.validation.json`。
 - 维度 sidecar 与 aggregate JSON 冲突时，以 aggregate JSON 为 gate 真源，并在下一轮前修正 child output contract。
-- `context-return` 只能消费 aggregate JSON 中的 PASS 与 handoff，不得直接消费某个维度 sidecar 作为回写授权。
-- 若 aggregate 要交给 `context-return`，必须同时写明 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`；默认应为 `4-润色` 终稿。若仍指向 `3-初稿`，必须显式说明润色跳过且初稿已被接受，否则不得 handoff。
+- `return` 只能消费 aggregate JSON 中的 PASS 与 handoff，不得直接消费某个维度 sidecar 作为回写授权。
+- 若 aggregate 要交给 `return`，必须同时写明 `accepted_manuscript_stage` 与 `accepted_manuscript_refs`；默认应为 `4-润色` 终稿。若仍指向 `3-初稿`，必须显式说明润色跳过且初稿已被接受，否则不得 handoff。
 
 ## Output Contract
 
@@ -187,5 +202,5 @@ skill_role: parent_guide
 - 已能把任一 review 请求路由到 `final_acceptance / drafting_inline / repair_route / governance_repair`。
 - 已按 registry 明确本轮应启动哪些维度。
 - 已区分父层 gate truth 与 child sidecar evidence。
-- 已能说明 PASS 后是否允许进入 `4-润色` 或 `context-return`，且能指出被接受的 manuscript stage。
+- 已能说明 PASS 后是否允许进入 `4-润色` 或 `return`，且能指出被接受的 manuscript stage。
 - 已能在失败时给出最早 source owner 与可执行返工入口。

@@ -17,15 +17,16 @@ governance_tier: full
 
 ## Purpose
 
-`A-GPT原生` 是 `4-润色` 阶段的当前会话 GPT 原生路径。它承接 `3-初稿` 的章节润色稿，由当前 GPT/LLM 直接完成二次改写润色，并由脚本只负责 context pack、校验、sidecar 与落盘。
+`A-GPT原生` 是 `4-润色` 阶段的当前会话 GPT 原生路径。它承接 `3-初稿` 的章节润色稿，由当前 GPT/LLM 直接完成最小局部修补或用户显式要求的重润，并由脚本只负责 context pack、校验、sidecar 与落盘。
 
 ## Mode Selection
 
 | mode | 触发信号 | 主路径 |
 | --- | --- | --- |
-| `chapter_polish` | `4-润色` 目标章不存在 | 读取 `3-初稿` 后生成第一版润色稿 |
-| `polish_rewrite` | `4-润色` 目标章已存在，用户要求重润/覆盖 | 回读初稿与既有润色稿后重润 |
-| `local_repair` | 用户或审查指出局部语言/质感问题 | 只修复指定问题，不扩大改写 |
+| `chapter_polish` | `4-润色` 目标章不存在 | 读取 `3-初稿` 后生成第一版最小局部修补稿 |
+| `polish_rewrite` | `4-润色` 目标章已存在，用户明确要求重润/覆盖/整章重写 | 回读初稿与既有润色稿后重润 |
+| `local_repair` | 用户或审查指出局部语言/质感/AI 检测规整化问题 | 只修复指定问题，不扩大改写 |
+| `subagent_review_optimize` | 用户显式要求启用 subagents、按审计点并行审查并直接优化 | 按 `../SKILL.md` 的 `Subagent Review-Optimize Contract` 调度 `story/review` 维度子技能，隔离审计后由 GPT 原生主创直接执行最小优化 |
 | `dry_run` | 只需要上下文包 | 生成 GPT-native messages，不写正文真源 |
 
 ## Reference Loading Guide
@@ -36,14 +37,16 @@ governance_tier: full
 | 执行拓扑、分支、汇流、失败回路 | `steps/chapter-polishing-workflow.md` |
 | 判定 chapter_polish / polish_rewrite / local_repair | `types/polishing-type-map.md` |
 | 质量门禁与 GPT-native evidence gate | `review/review-contract.md` |
+| 显式 subagents 分维度审计并直接优化 | `../SKILL.md` 的 `Subagent Review-Optimize Contract`、`.agents/skills/story/review/SKILL.md + CONTEXT.md`、命中的 review 子技能 `SKILL.md + CONTEXT.md` |
 | 可复用润色经验 | `CONTEXT.md` 与 `knowledge-base/polishing-heuristics.md` |
 | 输出骨架与系统提示 | `templates/chapter-root.template.md`、`templates/gpt-native-system-prompt.md`、`templates/output-template.md` |
 | 执行机械辅助 | `scripts/polish_chapter_gpt_native.py` |
 
 ## Base Polishing Rules
 
-- 更符合中文表达风格：去翻译腔、说明腔、AI 腔、过度工整句式，让句群有自然呼吸和停顿。
-- 更符合题材写作质感：读取 `north_star.yaml.genre_contract`，把题材压力落实到场景、情绪、对白、心理和段落节奏。
+- 默认最小局部修补：保留初稿段落顺序、句群骨架、长短不齐和人物原声，只处理明确坏点。
+- 更符合中文表达风格：去翻译腔、说明腔、AI 腔和公式化解释，但不得把全文短句化、整齐分段或通用顺滑化。
+- 更符合题材写作质感：读取 `north_star.yaml.genre_contract`，只在必要处把题材压力落实到场景、情绪、对白、心理和段落节奏。
 - 初稿事实优先：不新增大情节，不改变核心事件、人物动机、信息揭示和章末牵引。
 - 输出必须是完整润色章节 Markdown，不得输出点评、建议稿、差异说明或多个版本。
 
@@ -51,8 +54,8 @@ governance_tier: full
 
 | field | contract |
 | --- | --- |
-| Required output | 基于当前章 `3-初稿` 二次改写后的完整中文小说 Markdown 文件。 |
-| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型: GPT` 与 `初稿来源`。 |
+| Required output | 基于当前章 `3-初稿` 最小局部修补后的完整中文小说 Markdown 文件。 |
+| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型: GPT`、`初稿来源` 与 `字数`。 |
 | Output path | `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | `3-初稿` 源章已读取；当前 GPT/LLM 会话完成润色主创；输出通过 frontmatter、heading、正文完整度、中文表达与题材质感门禁；正式正文已写回 canonical path。 |
+| Completion gate | `3-初稿` 源章已读取；当前 GPT/LLM 会话完成最小局部修补主创；显式 subagents 模式下已按 `story/review` 维度子技能完成审计并直接优化正文；输出通过 frontmatter、heading、最小修补、中文表达与题材质感门禁；正式正文已写回 canonical path。 |

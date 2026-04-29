@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-25
+last_updated: 2026-04-29
 
 default_flow:
   - step: mandate
@@ -36,6 +36,9 @@ route_policies:
   - id: story-root-entry
     trigger: story2026 小说项目初始化、阶段切换、续跑、总入口判定，或命中 `projects/story/<项目名>/`
     rule: "优先进入 `.agents/skills/story/SKILL.md`，由根技能路由到一个明确阶段；小说项目 canonical runtime 固定为 `projects/story/<项目名>/`。"
+  - id: story-repair-satellite-entry
+    trigger: 命中 `$story-repair`、`story/repair`、小说局部修改、线索修复、伏笔修复、设定纠偏、章节局部返工，或用户指出“牵一发而动全身”需要同步设定、规划、已产出正文、后续生成约束、review 或 return
+    rule: "进入 `.agents/skills/story/repair/SKILL.md`；先加载 story 根合同、repair 的 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md` 与相关 `CONTEXT/`，产出 impact map，按 source-first 顺序修复 canonical owner，再把正文创作性修复交回 owning stage 和原 provider lane，最后以 `code-reviewer` 口径执行验收。"
   - id: aigc-project-runtime-canonical
     trigger: 命中 `.agents/skills/aigc/SKILL.md` 及其阶段技能
     rule: "`projects/aigc/<项目名>/` 是 AIGC 项目任务的运行时唯一真源；`.codex/state/tasks/<task_id>/` 只作为可选治理镜像"

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-04-29
+
+- 新增显式启用 subagents 时的项目 `team.yaml` 顾问请教合同，覆盖章级规划的本章职责、时间推进、爽点变奏、悬念开关、任务汇聚和 drafting handoff。
+- 新增 `advisor_consultation_packet`、review gate、CONTEXT 经验与 LLM 主创前可执行指导汇流要求。
+- 新增章级悬念开关体系，接入共享 `../_shared/suspense-design-contract.md`。
+- 在 `SKILL.md`、`references/chapter-planning-contract.md`、`steps/chapter-planning-workflow.md`、`templates/chapter-planning.template.md`、`review/chapter-planning-review.md`、`types/chapter-planning-type-map.md`、README、CONTEXT 与 validator 字段中新增 `本章悬念开关`。
+- 固定 `上承卷级悬念 / 本章读者可知 / 本章角色可知 / 本章悬念线程动作 / 本章需要隐藏的 / 本章误导/疑阵 / 本章揭秘的 / 本章只埋不揭的 / 章末悬念压力 / 本章悬念负载 / 正文禁止上帝视角说明`，要求章级规划约束线索、伏笔、节奏和正文禁区。
+- 扩展章级多重悬念执行机制，新增 `本章悬念线程动作` 与 `本章悬念负载`，用于追踪每条悬念的本章状态变更。
+
 ## 2026-04-28
 
 - 新增章级时间线体系，接入共享 `../_shared/timeline-design-contract.md`。

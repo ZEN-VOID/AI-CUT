@@ -71,16 +71,24 @@ COMMAND_ALIASES: dict[str, str] = {
     "webnovel-plan": "story-plan",
     "story-plan": "story-plan",
     "webnovel-write": "story-write",
+    "story-drafting": "story-write",
+    "story-drafting-gpt-native": "story-write",
+    "story-drafting-doubao": "story-write",
+    "story-drafting-deepseek": "story-write",
     "story-write": "story-write",
+    "webnovel-polish": "story-polishing",
+    "story-polish": "story-polishing",
+    "story-polishing": "story-polishing",
     "webnovel-validate": "story-validate",
     "story2026-validation": "story-validate",
     "story-validate": "story-validate",
     "webnovel-review": "story-review",
     "story-review": "story-review",
-    "webnovel-loopback": "story-context-return",
-    "story2026-loopback": "story-context-return",
-    "story-loopback": "story-context-return",
-    "story-context-return": "story-context-return",
+    "webnovel-loopback": "story-return",
+    "story2026-loopback": "story-return",
+    "story-loopback": "story-return",
+    "story-context-return": "story-return",
+    "story-return": "story-return",
     "webnovel-query": "story-query",
     "story-query": "story-query",
     "webnovel-resume": "story-resume",
@@ -100,7 +108,9 @@ def _context_return_gate_ready(validation_payload: dict[str, Any]) -> bool:
     if str(validation_payload.get("routing_decision") or "").strip() != "handoff_to_review_and_context_return":
         return False
     targets = _normalized_tokens(validation_payload.get("handoff_targets"))
-    if not (targets & {"review", "story-review"}) or not (targets & {"context-return", "story-context-return"}):
+    if not (targets & {"review", "story-review"}) or not (
+        targets & {"return", "story-return", "context-return", "story-context-return"}
+    ):
         return False
     stage = str(validation_payload.get("accepted_manuscript_stage") or "").strip()
     refs = validation_payload.get("accepted_manuscript_refs")
@@ -171,6 +181,17 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 8", "润色", "drafting-polish"),
         ],
     },
+    "story-polishing": {
+        "stage_id": "4-polishing",
+        "stage_label": "润色层",
+        "steps": [
+            ("Step 1", "锁定源初稿与目标章", "story-polishing"),
+            ("Step 2", "加载 planning、north_star、MEMORY 与 CONTEXT", "story-polishing"),
+            ("Step 3", "选择 A/B/C 润色 lane", "story-polishing"),
+            ("Step 4", "执行润色主创与质量门禁", "story-polishing"),
+            ("Step 5", "写回润色稿并记录完成状态", "story-polishing"),
+        ],
+    },
     "story-validate": {
         "stage_id": "4-review",
         "stage_label": "审计层",
@@ -195,7 +216,7 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 8", "收尾", "story-review-skill"),
         ],
     },
-    "story-context-return": {
+    "story-return": {
         "stage_id": "context-return",
         "stage_label": "上下文回流层",
         "steps": [
@@ -224,6 +245,26 @@ COMMAND_SPECS: dict[str, dict[str, Any]] = {
             ("Step 4", "执行恢复/清理/交接", "story-resume"),
         ],
     },
+}
+
+SKILL_COMPLETION_STAGE_MAP: dict[str, dict[str, str]] = {
+    "story-cards": {"stage_id": "1-cards", "stage_label": "卡片层"},
+    "story-cards-character": {"stage_id": "1-cards", "stage_label": "卡片层"},
+    "story-cards-scene": {"stage_id": "1-cards", "stage_label": "卡片层"},
+    "story-cards-item": {"stage_id": "1-cards", "stage_label": "卡片层"},
+    "story-cards-skill": {"stage_id": "1-cards", "stage_label": "卡片层"},
+    "story-plan": {"stage_id": "2-planning", "stage_label": "规划层"},
+    "story-plan-book-level": {"stage_id": "2-planning", "stage_label": "规划层"},
+    "story-plan-volume-level": {"stage_id": "2-planning", "stage_label": "规划层"},
+    "story-plan-chapter-level": {"stage_id": "2-planning", "stage_label": "规划层"},
+    "story-drafting": {"stage_id": "3-drafting", "stage_label": "起草层"},
+    "story-drafting-gpt-native": {"stage_id": "3-drafting", "stage_label": "起草层"},
+    "story-drafting-doubao": {"stage_id": "3-drafting", "stage_label": "起草层"},
+    "story-drafting-deepseek": {"stage_id": "3-drafting", "stage_label": "起草层"},
+    "story-polishing": {"stage_id": "4-polishing", "stage_label": "润色层"},
+    "story-polishing-gpt-native": {"stage_id": "4-polishing", "stage_label": "润色层"},
+    "story-polishing-doubao": {"stage_id": "4-polishing", "stage_label": "润色层"},
+    "story-polishing-deepseek": {"stage_id": "4-polishing", "stage_label": "润色层"},
 }
 
 CHAPTERS_PER_VOLUME = 10
@@ -1701,6 +1742,173 @@ def complete_task(final_artifacts_json=None):
     print("🎀 任务完成")
 
 
+def _normalize_direct_skill_id(skill_id: str) -> str:
+    normalized = str(skill_id or "").strip().rstrip("/").replace("\\", "/")
+    return normalized or "unknown-skill"
+
+
+def _fallback_stage_id(skill_id: str) -> str:
+    safe = re.sub(r"[^0-9A-Za-z._-]+", "-", skill_id).strip("-._")
+    return f"skill-{safe or 'unknown'}"
+
+
+def _direct_skill_profile(skill_id: str, stage_id: Optional[str] = None, stage_label: Optional[str] = None) -> dict[str, str]:
+    normalized = _normalize_direct_skill_id(skill_id)
+    short_name = normalized.split("/")[-1]
+    mapped = SKILL_COMPLETION_STAGE_MAP.get(normalized) or SKILL_COMPLETION_STAGE_MAP.get(short_name)
+
+    if mapped:
+        resolved_stage_id = stage_id or mapped["stage_id"]
+        resolved_stage_label = stage_label or mapped["stage_label"]
+    elif "/1-设定" in normalized or normalized.endswith("1-设定") or short_name in {"角色卡", "场景卡", "物品卡", "技能卡"}:
+        resolved_stage_id = stage_id or "1-cards"
+        resolved_stage_label = stage_label or "卡片层"
+    elif "/2-卷章" in normalized or normalized.endswith("2-卷章") or short_name in {"1-部级", "2-卷级", "3-章级"}:
+        resolved_stage_id = stage_id or "2-planning"
+        resolved_stage_label = stage_label or "规划层"
+    elif "/3-初稿" in normalized or normalized.endswith("3-初稿"):
+        resolved_stage_id = stage_id or "3-drafting"
+        resolved_stage_label = stage_label or "起草层"
+    elif "/4-润色" in normalized or normalized.endswith("4-润色"):
+        resolved_stage_id = stage_id or "4-polishing"
+        resolved_stage_label = stage_label or "润色层"
+    else:
+        resolved_stage_id = stage_id or _fallback_stage_id(short_name)
+        resolved_stage_label = stage_label or short_name
+
+    return {
+        "skill_id": normalized,
+        "stage_id": resolved_stage_id,
+        "stage_label": resolved_stage_label,
+    }
+
+
+def record_skill_completion(
+    skill_id: str,
+    *,
+    status: str = TASK_STATUS_COMPLETED,
+    artifacts_json: Optional[str] = None,
+    scope: Optional[str] = None,
+    note: Optional[str] = None,
+    chapter: Optional[int] = None,
+    volume: Optional[int] = None,
+    stage_id: Optional[str] = None,
+    stage_label: Optional[str] = None,
+):
+    profile = _direct_skill_profile(skill_id, stage_id=stage_id, stage_label=stage_label)
+    if status not in {TASK_STATUS_COMPLETED, TASK_STATUS_FAILED}:
+        raise ValueError("direct skill completion status must be completed or failed")
+
+    state = load_state()
+    execution_state = load_execution_state()
+    run_id = _next_run_id(execution_state, profile["stage_id"])
+    timestamp = now_iso()
+    artifacts = _load_json_arg(artifacts_json) if artifacts_json else {}
+    if not isinstance(artifacts, dict):
+        artifacts = {"value": artifacts}
+
+    args = {
+        "direct_skill_invocation": True,
+        "skill_id": profile["skill_id"],
+        "scope": scope,
+        "chapter_num": chapter,
+        "volume_num": volume,
+        "note": note,
+    }
+    task = {
+        "run_id": run_id,
+        "command": profile["skill_id"],
+        "stage_id": profile["stage_id"],
+        "stage_label": profile["stage_label"],
+        "args": args,
+        "started_at": timestamp,
+        "last_heartbeat": timestamp,
+        "status": status,
+        "current_step": None,
+        "completed_steps": [],
+        "failed_steps": [],
+        "pending_steps": [],
+        "retry_count": 0,
+        "artifacts": artifacts,
+        "governance_refs": {
+            "completion_source": "direct-skill",
+            "skill_id": profile["skill_id"],
+            "state_ref": "STATE.json#workflow_runtime.execution_state.stage_progress",
+        },
+    }
+    task = _ensure_task_runtime_fields(task)
+    if status == TASK_STATUS_COMPLETED:
+        task["completed_at"] = timestamp
+    else:
+        task["failed_at"] = timestamp
+        task["failure_reason"] = note or "direct_skill_failed"
+
+    refs, bundle = _bootstrap_governance_bundle(
+        run_id=run_id,
+        command=profile["skill_id"],
+        stage_id=profile["stage_id"],
+        stage_label=profile["stage_label"],
+        args=args,
+        route_steps=[],
+    )
+    task["governance_refs"].update(refs)
+    bundle["artifact_manifest"] = {
+        **bundle.get("artifact_manifest", {}),
+        "status": status,
+        "updated_at": timestamp,
+        "final_artifacts": artifacts,
+        "completion_source": "direct-skill",
+    }
+    bundle["validation_report"] = f"{profile['skill_id']} direct skill completion recorded, run_id={run_id}"
+    bundle["learning_record"] = "direct_skill_completion_recorded"
+    if status == TASK_STATUS_FAILED:
+        bundle["root_cause_trace"] = note or "direct_skill_failed"
+
+    execution_state.setdefault("runs", []).append(_new_run_record(task))
+    execution_state.setdefault("governance_index", {})[run_id] = bundle
+    _trim_runs(execution_state)
+    _sync_stage_progress(execution_state, task, status=status)
+    _update_artifacts_index(execution_state, run_id, "direct-skill", artifacts)
+    if status == TASK_STATUS_FAILED:
+        _update_latest_resume_point(execution_state, task, reason=note or "direct_skill_failed")
+    elif isinstance(execution_state.get("latest_resume_point"), dict) and execution_state["latest_resume_point"].get("run_id") == run_id:
+        execution_state["latest_resume_point"] = None
+
+    if status == TASK_STATUS_COMPLETED:
+        state["last_stable_state"] = extract_stable_state(task)
+    state.setdefault("history", []).append(
+        {
+            "task_id": f"task_{len(state['history']) + 1:03d}",
+            "run_id": run_id,
+            "command": profile["skill_id"],
+            "stage_id": profile["stage_id"],
+            "chapter": chapter,
+            "volume": volume,
+            "status": status,
+            "completed_at": task.get("completed_at"),
+            "failed_at": task.get("failed_at"),
+            "completion_source": "direct-skill",
+        }
+    )
+
+    save_state(state)
+    save_execution_state(execution_state)
+
+    payload = {
+        "skill_id": profile["skill_id"],
+        "stage_id": profile["stage_id"],
+        "stage_label": profile["stage_label"],
+        "status": status,
+        "run_id": run_id,
+        "scope": scope,
+        "chapter": chapter,
+        "volume": volume,
+    }
+    safe_append_call_trace("direct_skill_completion_recorded", payload)
+    safe_append_task_log("direct_skill_completion_recorded", payload)
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+
+
 def fail_current_task(reason: str = "manual_fail"):
     state = load_state()
     execution_state = load_execution_state()
@@ -2169,7 +2377,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             if review_report_path is not None or review_checkpoint is not None:
                 if _context_return_gate_ready(validation_payload):
                     packet = _artifact_resume_packet(
-                        command="story-context-return",
+                        command="story-return",
                         chapter_num=None,
                         volume_num=validation_volume,
                         volume_ref=f"第{validation_volume}卷",
@@ -2281,7 +2489,7 @@ def _detect_artifact_fallback() -> Optional[dict[str, Any]]:
             if review_report_path is not None or review_checkpoint is not None:
                 if _context_return_gate_ready(validation_payload):
                     packet = _artifact_resume_packet(
-                        command="story-context-return",
+                        command="story-return",
                         chapter_num=validation_episode,
                         reason="validation_pass_review_persisted_context_return_pending",
                         summary=f"未检测到 tracked 中断，但第{validation_episode}集已 PASS、review 已落盘且 context-return handoff 合法，下一稳定入口是 context-return actualization。",
@@ -2456,7 +2664,7 @@ def analyze_recovery_options(interrupt_info):
         volume_label = f"第{volume_num}卷" if volume_num not in (None, "", "?") else "当前卷"
         chapter_label = f"第{chapter_num}章" if chapter_num not in (None, "", "?") else volume_label
 
-        if command == "story-context-return":
+        if command == "story-return":
             return [
                 {
                     "option": "A",
@@ -2916,6 +3124,18 @@ if __name__ == "__main__":
     add_project_root_arg(p_complete_task)
     p_complete_task.add_argument("--artifacts", help="Final artifacts JSON")
 
+    p_record_skill = subparsers.add_parser("record-skill-completion", help="记录普通 skill/子技能完成状态")
+    add_project_root_arg(p_record_skill)
+    p_record_skill.add_argument("--skill-id", required=True, help="skill 标准名或技能包路径")
+    p_record_skill.add_argument("--status", choices=[TASK_STATUS_COMPLETED, TASK_STATUS_FAILED], default=TASK_STATUS_COMPLETED)
+    p_record_skill.add_argument("--scope", help="本轮执行范围，例如 full-build / 角色卡 / 第1卷")
+    p_record_skill.add_argument("--chapter", type=int, help="章节号（可选）")
+    p_record_skill.add_argument("--volume", type=int, help="卷号（可选）")
+    p_record_skill.add_argument("--artifacts", help="完成产物 JSON 或 @文件路径")
+    p_record_skill.add_argument("--note", help="状态说明或失败原因")
+    p_record_skill.add_argument("--stage-id", help="覆盖自动推导的 stage_id")
+    p_record_skill.add_argument("--stage-label", help="覆盖自动推导的 stage_label")
+
     p_fail_task = subparsers.add_parser("fail-task", help="标记任务失败")
     add_project_root_arg(p_fail_task)
     p_fail_task.add_argument("--reason", default="manual_fail", help="失败原因")
@@ -2963,6 +3183,18 @@ if __name__ == "__main__":
         run_inline_validation_batch()
     elif args.action == "complete-task":
         complete_task(args.artifacts)
+    elif args.action == "record-skill-completion":
+        record_skill_completion(
+            args.skill_id,
+            status=args.status,
+            artifacts_json=args.artifacts,
+            scope=args.scope,
+            note=args.note,
+            chapter=args.chapter,
+            volume=args.volume,
+            stage_id=args.stage_id,
+            stage_label=args.stage_label,
+        )
     elif args.action == "fail-task":
         fail_current_task(args.reason)
     elif args.action == "detect":

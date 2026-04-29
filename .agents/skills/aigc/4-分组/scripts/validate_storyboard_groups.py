@@ -29,7 +29,7 @@ STORYBOARD_DETAIL_RE = re.compile(r"^\s*分镜(\d+)[：:]")
 STATS_COUNT_RE = re.compile(r"(\d+)")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
-GLOBAL_STYLE_REQUIRED_SUFFIX = "不生成字幕，不生成BGM，要生成物理互动音效与环境音。"
+GLOBAL_STYLE_REQUIRED_PREFIX = "不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。"
 POSITION_MOVEMENT_LABEL = "站位和位移："
 VAGUE_POSITION_SUBJECTS = (
     "画面主体",
@@ -186,14 +186,18 @@ def style_line_indices(body: str) -> list[int]:
     return indices
 
 
-def missing_position_movement_details(body: str) -> list[str]:
+def position_movement_structure_errors(body: str) -> list[str]:
     lines = body.splitlines()
     detail_indices: list[tuple[int, str]] = []
     for index, line in enumerate(lines):
         match = STORYBOARD_DETAIL_RE.match(line)
         if match:
             detail_indices.append((index, match.group(1)))
-    missing: list[str] = []
+    if not detail_indices:
+        return []
+
+    has_scoped_position_movement = False
+    first_detail_has_position_movement = False
     for detail_offset, (start_index, detail_number) in enumerate(detail_indices):
         end_index = (
             detail_indices[detail_offset + 1][0]
@@ -205,13 +209,23 @@ def missing_position_movement_details(body: str) -> list[str]:
             if not stripped:
                 continue
             if stripped.startswith(POSITION_MOVEMENT_LABEL) and stripped[len(POSITION_MOVEMENT_LABEL) :].strip():
+                has_scoped_position_movement = True
+                if detail_offset == 0:
+                    first_detail_has_position_movement = True
                 break
             if stripped in {ENTRY_LABEL, EXIT_LABEL} or stripped.startswith("```yaml") or stripped.startswith("## "):
-                missing.append(f"分镜{detail_number}")
                 break
-        else:
-            missing.append(f"分镜{detail_number}")
-    return missing
+
+    errors: list[str] = []
+    if not has_scoped_position_movement:
+        errors.append(
+            f"missing non-empty {POSITION_MOVEMENT_LABEL} scoped under a storyboard detail"
+        )
+    elif not first_detail_has_position_movement:
+        errors.append(
+            f"first storyboard detail must establish initial {POSITION_MOVEMENT_LABEL}; unchanged later details may omit repeats"
+        )
+    return errors
 
 
 def position_movement_contents(body: str) -> list[tuple[int, str]]:
@@ -309,9 +323,9 @@ def validate_file(path: Path) -> list[str]:
         style_lines = extract_style_lines(group.body)
         if len(style_lines) < STYLE_LINE_COUNT:
             errors.append(f"{prefix} style header must contain {STYLE_LINE_COUNT} plain north_star lines")
-        elif GLOBAL_STYLE_REQUIRED_SUFFIX not in style_lines[0]:
+        elif not style_lines[0].startswith(GLOBAL_STYLE_REQUIRED_PREFIX):
             errors.append(
-                f"{prefix} global style line must append fixed suffix: {GLOBAL_STYLE_REQUIRED_SUFFIX}"
+                f"{prefix} global style line must start with fixed prefix: {GLOBAL_STYLE_REQUIRED_PREFIX}"
             )
         style_header = "\n".join(style_lines[:STYLE_LINE_COUNT])
         for label in OLD_VISIBLE_STYLE_LABELS:
@@ -321,17 +335,8 @@ def validate_file(path: Path) -> list[str]:
             errors.append(f"{prefix} style header must not wrap north_star fields in Chinese parentheses")
         if "空间锚点：" in group.body:
             errors.append(f"{prefix} must not output internal spatial anchor label 空间锚点：")
-        missing_position_details = missing_position_movement_details(group.body)
-        if missing_position_details:
-            errors.append(
-                f"{prefix} missing non-empty {POSITION_MOVEMENT_LABEL} after {', '.join(missing_position_details)}"
-            )
-        elif not re.search(
-            rf"^\s*{re.escape(POSITION_MOVEMENT_LABEL)}\s*\S",
-            group.body,
-            re.MULTILINE,
-        ):
-            errors.append(f"{prefix} missing non-empty label {POSITION_MOVEMENT_LABEL}")
+        for structure_error in position_movement_structure_errors(group.body):
+            errors.append(f"{prefix} {structure_error}")
         for movement_line_number, movement_content in position_movement_contents(group.body):
             vague_subjects = vague_position_subjects(movement_content)
             if vague_subjects:

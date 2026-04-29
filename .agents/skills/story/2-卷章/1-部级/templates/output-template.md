@@ -5,7 +5,7 @@
 | Output Contract field | Template alignment |
 | --- | --- |
 | Required output | `projects/story/<项目名>/2-卷章/整体规划.md` |
-| Output format | Markdown；包含部级八个必填标题和 Mermaid 节奏图 |
+| Output format | Markdown；包含部级九个必填标题、整部悬念总设计、整书悬念池和 Mermaid 节奏图 |
 | Output path | `projects/story/<项目名>/2-卷章/整体规划.md` |
 | Naming convention | 文件名固定为 `整体规划.md`；机器字段和任务 ID 保持 ASCII 安全字符 |
 | Completion gate | 通过 `review/book-level-review-contract.md`，并可交给 `2-卷级` |
@@ -33,6 +33,28 @@
 - 关键汇聚里程碑：
 
 整体冲突：
+
+整部悬念总设计：
+- 核心真相/核心谜面：
+- 整书悬念池：
+  - `suspense_id`：
+  - `suspense_name`：
+  - `suspense_type`：
+  - `priority`：
+  - `status`：
+  - `owner_level`：
+  - `reveal_window`：
+  - `dependency`：
+  - `reader_state`：
+  - `pov_state`：
+  - `next_action`：
+- 读者认知曲线：
+- 主角认知曲线：
+- 卷级揭秘节奏：
+- 长线误导策略：
+- 多重悬念编排规则：
+- 禁止提前揭露：
+- 终局回收要求：
 
 整体节奏曲线：
 - 长线 promise 走廊：

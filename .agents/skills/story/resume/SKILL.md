@@ -8,7 +8,7 @@ metadata:
 
 # Story Resume
 
-`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`context-return`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
+`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`return`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
 
 本包按 Skill 2.0 工作车间结构维护：入口、触发、模式路由、动态引用、关键门禁和输出合同保留在 `SKILL.md`；恢复协议在 `references/`，思行节点在 `steps/`，恢复类型在 `types/`，质量门禁在 `review/`，经验知识库在 `knowledge-base/`，输出样板在 `templates/`，机械辅助边界在 `scripts/`，产品侧元数据在 `agents/`。
 
@@ -26,13 +26,13 @@ metadata:
 - 用户要求恢复、继续、清理或诊断一个被打断的 story2026 任务。
 - 需要读取 `STATE.json.workflow_runtime.workflow_state`、`execution_state` 或 `task_log` 判断 tracked interruption。
 - `workflow detect` 没有 tracked 中断，但项目工件链显示存在唯一下一入口，需要执行 artifact fallback 判定。
-- 需要把 `story-write`、`story-validate`、`story-review`、`story-context-return`、`story-query` 等 run 的中断状态解释成人类可执行的恢复选项。
+- 需要把 `story-write`、`story-validate`、`story-review`、`story-return`、`story-query` 等 run 的中断状态解释成人类可执行的恢复选项。
 - 某阶段产物已存在，但需要判断应回到 drafting、review、context return、query、source contract repair，还是先停下人工诊断。
 
 ## When Not To Use
 
 - 用户只是查询项目事实、文件位置或已有产物清单，应优先进入 `query/`。
-- 用户要求对 PASS 集做正式 actualization，应进入 `context-return/`。
+- 用户要求对 PASS 集做正式 actualization，应进入 `return/`。
 - 用户要求生成或修改正文，应回到 `3-初稿` 对应工序。
 - 用户要求修复审查结论或做终验，应进入 `review/`。
 - 用户要求破坏性 Git 操作、删除未备份正文、清空项目资产时，本技能只能提供风险说明和非破坏性检查路径，不得默认执行。
@@ -59,7 +59,7 @@ Reject or reroute:
 
 - 项目根无法唯一定位 -> 先询问项目路径或要求运行 preflight。
 - 明确只是查询事实 -> `query/`。
-- 明确要求 PASS actualization -> `context-return/`。
+- 明确要求 PASS actualization -> `return/`。
 - 明确要求写正文或修正文稿质量 -> `3-初稿` / `review/`。
 - 请求默认执行 `git reset --hard`、未备份删除正文、清空资产 -> block，并只给非破坏性恢复路径。
 

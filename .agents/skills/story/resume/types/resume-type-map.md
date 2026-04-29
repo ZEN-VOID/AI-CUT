@@ -13,8 +13,8 @@
 | variable | allowed values | meaning |
 | --- | --- | --- |
 | `detect_state` | `tracked`, `artifact_fallback`, `none`, `conflict`, `unavailable` | workflow 检测和业务证据状态 |
-| `tracked_command` | `story-init`, `story-cards`, `story-plan`, `story-write`, `story-validate`, `story-review`, `story-context-return`, `story-query`, `unknown` | tracked run 的命令归属 |
-| `stage_owner` | `0-初始化`, `1-设定`, `2-卷章`, `3-初稿`, `review`, `context-return`, `query`, `manual` | 下一入口 owner |
+| `tracked_command` | `story-init`, `story-cards`, `story-plan`, `story-write`, `story-validate`, `story-review`, `story-return`, `story-query`, `unknown` | tracked run 的命令归属 |
+| `stage_owner` | `0-初始化`, `1-设定`, `2-卷章`, `3-初稿`, `review`, `return`, `query`, `manual` | 下一入口 owner |
 | `recovery_mode` | `tracked_workflow_resume`, `artifact_fallback_resume`, `query_light_resume`, `write_cleanup_resume`, `review_decision_resume`, `manual_diagnosis`, `blocked_safety_stop` | 本轮恢复模式 |
 | `risk_level` | `low`, `medium`, `high`, `blocked` | 执行或建议风险 |
 | `confirmation_required` | `none`, `user_choice`, `cleanup_confirm`, `manual_decision` | 是否必须等待用户确认 |
@@ -33,7 +33,7 @@
 | `story-review` Step 1-6 | `tracked_workflow_resume` | 核对输入未变后继续 | 跳过 validation 输入检查 | `review_resume_gate` |
 | `story-review` Step 7 | `review_decision_resume` | 重新向用户确认关键问题处理策略 | 自动替用户裁决 | `human_decision_gate` |
 | `story-review` Step 8 | `tracked_workflow_resume` | 收尾或重新完成任务 | 改写审查真源 | `review_resume_gate` |
-| `story-context-return` | `tracked_workflow_resume` | generic continue / clear / rerun advice | 由 resume 直接 actualize | `context_return_boundary_gate` |
+| `story-return` | `tracked_workflow_resume` | generic continue / clear / rerun advice | 由 resume 直接 actualize | `context_return_boundary_gate` |
 | `story-query` | `query_light_resume` | generic continue / rerun / diagnosis | 章节 cleanup | `query_light_gate` |
 | `unknown` | `manual_diagnosis` | 保留现场并诊断 | 伪造 tracked workflow | `manual_gate` |
 
@@ -43,8 +43,8 @@
 | --- | --- | --- | --- | --- |
 | `上下文回流_completed_next_volume_ready` | `context-return/第V卷.context-return.json` | `story-write` 下一卷首章 | `low` | 列 carryover context |
 | `validation_pass_review_pending` | `review/第V卷.validation.json` PASS，无 review 持久化 | `story-review` | `low` | 核对 validation packet |
-| `validation_pass_review_persisted_上下文回流_pending` | validation PASS + `review/*章审查报告.md` / `STATE.json.review_checkpoints` | `story-context-return` | `low` | 不由 resume actualize |
-| `validation_pass_context_return_gate_not_ready` | validation PASS 但缺 `handoff_to_review_and_context_return`、`context-return` handoff 或 accepted manuscript lock | `story-review` / `4-润色` 路由确认 | `medium` | 不把 PASS-only 当 actualization 权限 |
+| `validation_pass_review_persisted_上下文回流_pending` | validation PASS + `review/*章审查报告.md` / `STATE.json.review_checkpoints` | `story-return` | `low` | 不由 resume actualize |
+| `validation_pass_context_return_gate_not_ready` | validation PASS 但缺 `handoff_to_review_and_context_return`、`return` handoff 或 accepted manuscript lock | `story-review` / `4-润色` 路由确认 | `medium` | 不把 PASS-only 当 actualization 权限 |
 | `candidate_volume_draft_waiting_validation` | `3-初稿/第V卷.写作日志.yaml` 到 candidate draft | `story-review` | `medium` | 核对 draft batch |
 | `validation_failed_back_to_drafting` | validation FAIL + drafting route | `3-初稿` rework target | `medium` | 按 rework targets |
 | `validation_failed_back_to_source_contract` | validation FAIL + source trace | `0-初始化` / `1-设定` / `2-卷章` | `high` | 不发明 repair 内容 |

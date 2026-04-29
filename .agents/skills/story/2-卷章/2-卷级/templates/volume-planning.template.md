@@ -5,10 +5,10 @@
 | Output Contract field | Template alignment |
 | --- | --- |
 | Required output | `projects/story/<项目名>/2-卷章/第N卷/卷规划.md` |
-| Output format | Markdown with required headings, six-beat rhythm, mission lines, closure, avoidances, and Mermaid rhythm graph |
+| Output format | Markdown with required headings, suspense switch, six-beat rhythm, mission lines, closure, avoidances, and Mermaid rhythm graph |
 | Output path | `projects/story/<项目名>/2-卷章/第N卷/卷规划.md` |
 | Naming convention | Directory `第N卷`; file name `卷规划.md` |
-| Completion gate | Upstream `整体规划.md` loaded; required headings complete; six-beat rhythm, `volume_orchestration_map`, and Mermaid present; mission line includes upstream/downstream aggregation |
+| Completion gate | Upstream `整体规划.md` loaded; required headings complete; suspense switch inherits book-level design and includes thread table/load; six-beat rhythm, `volume_orchestration_map`, and Mermaid present; mission line includes upstream/downstream aggregation |
 
 卷标题：
 
@@ -24,6 +24,26 @@
 章划分：
 
 本卷冲突：
+
+本卷悬念开关：
+- 上承整部悬念：
+- 本卷新增悬念：
+- 本卷悬念线程表：
+  - `suspense_id`：
+  - `priority`：
+  - `status`：
+  - `reveal_window`：
+  - `dependency`：
+  - `reader_state`：
+  - `pov_state`：
+  - `next_action`：
+- 本卷需要隐藏的：
+- 本卷允许露出的：
+- 本卷误导/疑阵：
+- 本卷揭秘的：
+- 延后到后续卷/章的：
+- 本卷悬念负载：
+- 对章级规划的约束：
 
 本卷节奏曲线：
 - 本卷 promise：

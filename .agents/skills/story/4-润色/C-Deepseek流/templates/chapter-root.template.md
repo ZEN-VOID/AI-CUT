@@ -1,6 +1,7 @@
 ---
 润色模型: Deepseek
 初稿来源: "{{draft_source_ref}}"
+字数: "{{word_count}}字"
 ---
 
 # 第{{chapter_num}}章｜{{chapter_title}}

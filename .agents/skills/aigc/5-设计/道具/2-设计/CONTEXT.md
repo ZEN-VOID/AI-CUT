@@ -23,6 +23,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-04` | Photography 与 Prop Design 混在一段里 | 解构层 | 拆成拍摄可见语言与道具造型语言 | 模板固定两个字段 | 两字段均有可执行视觉词 |
 | `TM-PROP-DESIGN-05` | 英文 prompt 太长或未引用全局风格 | 提示词层 | 压缩到 2000 字符内并显式引用全局风格 + 物品风格 | review gate 检查字符数和引用关系 | prompt 为英文且可直接进入生成链路 |
 | `TM-PROP-DESIGN-06` | team.yaml 中的大师只被点名，未影响设计 | 监制消费层 | 把大师语境转译为材质、构图、年代感、动作性或留白策略 | steps 固定“监制上下文 -> 设计决策”证据 | 文件中能看到至少一条对应设计选择 |
+| `TM-PROP-DESIGN-06A` | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，向道具/美术/摄影/工艺顾问提具体问题并汇流 | `advisor_consultation_packet` 固定在 LLM 道具设计前消费 | 可见指导落到形制、材料、工艺、功能、特写拍法或 prompt token |
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
 | `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
 | `TM-PROP-DESIGN-09` | 冷门考据被写成确定事实，后续美术和生成都跟着错 | 不确定性治理层 | 将事实分为 source_fact / inference / inspired_by / unknown | references 固定 confidence 和 risk_uncertainty 字段 | 不确定内容以 inspired by 或 uncertain 标注，不进入确定性 design lock |
@@ -35,9 +36,10 @@ last_checked_at: 2026-04-25
 4. 若 prompt 超过 2000 字符，优先删解释性短语，保留主体、材质、使用痕迹、构图、光线、风格锚点和禁止项。
 5. 若研究过多，删掉不能改变造型、材质、工艺、年代、磨损或拍摄方式的事实。
 6. 若 prompt token 像凭空出现，回到研究证据链补 source cue、confidence、visual translation 和 design lock。
-7. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
-8. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
-9. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
+7. 启用 subagents 时，向项目监制顾问问“这个道具最应由哪种材料/工艺/磨损讲故事”“45 度纯色背景特写该显露哪一面”“哪些 prompt token 有证据风险”，不要只问风格评价。
+8. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
+9. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
+10. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
 
 ## Reusable Heuristics
 
@@ -49,5 +51,6 @@ last_checked_at: 2026-04-25
 - `Photography` 关注镜头如何让物件被看见；`Prop Design` 关注物件本身如何被制造、持握、老化和辨认。
 - 物语不应替代剧情扩写；它只说明该道具的叙事压力、象征和使用痕迹。
 - 大师监制上下文要落到动作：例如材质克制、构图距离、颜色禁区、年代错位、手作痕迹、功能暴露。
+- 顾问请教的最佳产物是能改变道具形制、材质、磨损、拍法或 prompt token 的执行指令，不是大师名字清单。
 - prompt 的英文 2000 字符限制是硬门禁；中文解释可以在正文中充分，但最终 prompt 必须紧凑可投喂。
 - Mermaid 图不是装饰；根图负责主链，分区图负责来源汇入、类型分流和 review 汇流，流程变化时先更新对应 owner 图再更新 README 入口索引。

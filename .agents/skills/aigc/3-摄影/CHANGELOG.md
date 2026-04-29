@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-04-29
+
+- 新增阶段末 `Stage-End Review-Repair Contract`，将候选摄影稿固定为 `candidate -> review -> direct repair -> re-review -> canonical writeback` 闭环。
+- 在 workflow 中新增 `N8R-DIRECT-REPAIR` 与 `N8R-REVIEW-AGAIN`，要求 review 阻断项在 `3-摄影` 阶段内最小修复并复审后才能交给下游。
+- 更新 review gate、CONTEXT 和执行报告字段，明确覆盖、编号、节拍、连续性、专业可执行、峰值分镜和保真问题不得降级为交付后 followup。
+
 ## 2026-04-28
 
 - 新增 `references/peak-shot-language-contract.md`，承接 `2-编导` 的高潮画面机制，补齐摄影阶段的峰值分镜、镜头语言和运镜强化合同。

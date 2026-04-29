@@ -14,8 +14,8 @@ governance_tier: full
 - 若 `../SKILL.md` 与 `../CONTEXT.md` 非空，必须同时读取作为 `3-初稿` 阶段路由层。
 - 必须同时读取 `../../_shared/context-loading-contract.md` 与 `../../_shared/core-constraints.md`。
 - 必须同时读取 `.agents/skills/api/deepseek/SKILL.md` 与 `.agents/skills/api/deepseek/CONTEXT.md`，确认 DeepSeek provider 固定 `deepseek-v4-pro`、默认 `thinking=enabled`、`reasoning_effort=high`。
-- 正式写作调用必须读取 `../_shared/supervised-drafting-review-loop-contract.md`，并默认启动 team supervision subagents；若上层策略阻断真实 subagents，必须按共享合同报告降级。
-- 启动监制 subagents 前必须读取 `.agents/skills/team/SKILL.md + CONTEXT.md`，再只加载被选中的 team 成员技能 `SKILL.md + CONTEXT.md`。
+- 正式写作调用必须读取 `../_shared/supervised-drafting-review-loop-contract.md`，并默认启动 team supervision subagents；具体执行模式为读取项目 `team.yaml -> roles.production.members`，调用已指定监制组成员作为资深创作顾问逐一请教，汇流为 `supervision_packet` 后作为额外重要上下文进入 DeepSeek messages；若上层策略阻断真实 subagents，必须按共享合同报告降级。
+- 启动监制 subagents 前必须读取项目 `team.yaml`、`.agents/skills/team/SKILL.md + CONTEXT.md`，再只加载 `team.yaml` 已指定或共享合同补位选中的 team 成员技能 `SKILL.md + CONTEXT.md`。
 - 若当前任务已绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前卷/章相关性加载项目根 `CONTEXT/` 中的上下文文件。
 - 必须读取当前项目的三层 planning 真源、对象/风格真源与 `north_star.yaml`；具体清单见 `references/chapter-drafting-contract.md`。
 - 若上一章正文已存在，必须读取它作为连续性增强输入；若不存在，不得因此阻塞本章起稿。
@@ -36,7 +36,7 @@ governance_tier: full
 
 - `0-初始化`、`1-设定`、`2-卷章` 的真源改写权
 - `review` 的 PASS/FAIL 判定权
-- `context-return` 的 validated actualization 写回权
+- `return` 的 validated actualization 写回权
 
 ## Mode Selection
 
@@ -48,12 +48,21 @@ governance_tier: full
 | `local_repair` | 审查或用户指出局部问题 | 定位问题层，生成局部修复输入，由 DeepSeek 执行正文修复 |
 | `dry_run` | 用户或调试要求只装配上下文包 | 只生成 messages pack 与报告，不调用 provider、不写正文真源 |
 
+## Multi-Subskill Continuous Workflow
+
+- 整体调用本 lane 时，先串行执行 source lock、type profile、context pack、team supervision packet、draft branch、provider draft、validate/writeback、review handoff，不为每个节点额外确认。
+- 无序号同级子技能包不在本 lane 内默认并发；若后续出现无序号 reviewer 或辅助包，只有被 `review/` 或共享监制合同显式引用时才参与。
+- 数字序号节点按 `steps/chapter-drafting-workflow.md` 中 `N1 -> N8` 的顺序串行执行，前一节点证据自动作为后一节点输入。
+- 英文序号路线在本 lane 内只作为起草、重写、续写、局部修复等互斥分支处理；除非用户明确要求对比，否则只选择一个分支。
+- 卫星入口如 `query / resume / review / context-return` 不默认抢占正文主链；只有用户请求或阶段门禁要求时，通过父级 `3-初稿` 或 story 根技能回接。
+- 任一节点缺必需输入、`supervision_packet` 或降级报告、DeepSeek provider 证据、canonical writeback 证据时，必须停在对应 gate，不得继续宣称完成。
+
 ## Reference Loading Guide
 
 | 场景 | 读取文件 |
 | --- | --- |
 | 需要章节输入、frontmatter、provider 与输出细则 | `references/chapter-drafting-contract.md` |
-| 需要默认 subagents 监制、team 视角、code-reviewer 卷级返工闭环 | `../_shared/supervised-drafting-review-loop-contract.md` |
+| 需要默认 subagents 监制、项目 `team.yaml` 监制组请教模式、code-reviewer 卷级返工闭环 | `../_shared/supervised-drafting-review-loop-contract.md` |
 | 需要兼容旧 step-after-write 即时审计链路 | `../_shared/drafting-instant-validation-contract.md` |
 | 需要执行拓扑、分支、汇流、失败回路 | `steps/chapter-drafting-workflow.md` |
 | 需要识别并加载网文题材类型包、判定起草/重写/续写/修复/dry-run 类型 | `types/type-map.md` 与命中的 `types/网文/<题材>/` |
@@ -70,6 +79,7 @@ governance_tier: full
 - 当前卷章定位：`volume_num / chapter_num` 或可由 `chapter_num` 推导的卷号
 - 三层 planning：`2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md`
 - 对象/风格真源：`0-初始化/north_star.yaml.global_contract`、`0-初始化/north_star.yaml.style_contract`
+- 角色关系上下文：`1-设定/2-角色卡/角色关系图谱.md`（存在时必须进入 messages/context pack）
 - 北极星：`0-初始化/north_star.yaml`
 - DeepSeek provider：`.agents/skills/api/deepseek/scripts/deepseek_chat.py` 可运行且 `.env` 中有 `DEEPSEEK_API_KEY`
 
@@ -92,7 +102,7 @@ governance_tier: full
 正式创作路径固定为：
 
 1. 本地脚本锁路径、读 context、整理模板与约束。
-2. 启动 team supervision subagents，按项目题材和当前章问题代入相关监制角色，产出 `supervision_packet`。
+2. 启动 team supervision subagents，优先从项目 `team.yaml -> roles.production.members` 读取已指定监制组成员；按当前章的结构、人物、风格、连续性和题材风险，向不同领域大师提出具体请教问题，汇流创意脑洞、个人风格判断和可执行指导，产出 `supervision_packet`。
 3. `.agents/skills/api/deepseek/scripts/deepseek_chat.py` 调用固定 `deepseek-v4-pro`，默认 `thinking=enabled` 与 `reasoning_effort=high`，负责实际生成完整章节 Markdown 文件，并吸收 `supervision_packet`。
 4. 本地脚本校验返回内容是否满足 frontmatter / heading / 输出路径合同，再写回 `第N卷/第N章.md`。
 5. 当前卷完成后进入 `review/final_acceptance`，默认以 10 章为卷单位调用 `code-reviewer` 与 mandatory 维度；失败后由 GPT/subagents 生成返工 brief，再回到本 lane 的 `local_repair`、`chapter_rewrite` 或整卷重写。
@@ -101,7 +111,7 @@ governance_tier: full
 硬边界：
 
 - “LLM-first creative authorship” 在本技能上的 owning provider 固定为 `.agents/skills/api/deepseek`。
-- GPT/subagents 是监制层，DeepSeek 是正文执行层；不得把 GPT 手写正文冒充本 lane 的正常输出。
+- GPT/subagents 是监制层，DeepSeek 是正文执行层；不得把 GPT 手写正文冒充本 lane 的正常输出，也不得把项目 `team.yaml` 监制组请教降格为本地泛泛自评。
 - `local_repair`、`chapter_rewrite` 与卷级返工同样适用本边界；“修复优化”不是切换到 GPT 直写的隐含许可。
 - `scripts/write_chapter_via_deepseek.py` 只能装配上下文、调用 provider、校验返回与落盘，不得以规则拼接、模板灌字或启发式扩写替代正文主创。
 - 未经用户显式改口，不得把本地 GPT 直写、手工改写或其他 provider 伪装成当前技能的正常主路径。
@@ -132,11 +142,12 @@ flowchart TD
 ## Core Gates
 
 - 必须先锁定当前章 planning，再读取 global/style/north-star；不得凭风格或世界观反推当前章义务。
-- YAML 头只保留 `写作模型: Deepseek`；上下文引用、global/style/north-star 摘要与上一章路径由强加载和 sidecar 追溯。
+- YAML 头只保留 `写作模型: Deepseek` 与 `字数: XXX字`；上下文引用、global/style/north-star 摘要与上一章路径由强加载和 sidecar 追溯。
+- 默认章节正文目标为 `2500-4000字`；若用户或上游 planning 明确给出其它区间，脚本必须通过 `--min-words/--max-words` 传入并校验最终正文实际长度。
 - 正文主体必须是小说 prose，不得把 planning 中的标题、任务线或规避条目原样复制成正文段落。
-- 正式写作必须有 `supervision_packet` 或明确的 subagent 降级报告；该包作为执行约束进入 DeepSeek messages，不写入正文 frontmatter。
+- 正式写作必须有 `supervision_packet` 或明确的 subagent 降级报告；该包必须包含项目 `team.yaml` roster 来源、请教问题、顾问回答摘要和最终可执行指导，并作为执行约束进入 DeepSeek messages，不写入正文 frontmatter。
 - 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
-- provider 返回内容缺完整 YAML frontmatter、`写作模型: Deepseek` 或 `# 第N章｜章标题` 标题行时，禁止写回业务真源。
+- provider 返回内容缺完整 YAML frontmatter、`写作模型: Deepseek`、`字数: XXX字` 或 `# 第N章｜章标题` 标题行时，禁止写回业务真源。
 - 本 lane 正式产物只写入 `projects/story/<项目名>/3-初稿/`。
 - 单章 writeback 只代表 candidate draft；当前卷通过 `review` 的卷级 aggregate PASS 后，才可称为 validated final draft。
 
@@ -198,7 +209,7 @@ python3 .agents/skills/story/3-初稿/C-Deepseek流/scripts/write_chapter_via_de
 | field | contract |
 | --- | --- |
 | Required output | 当前章完整中文小说 Markdown 文件。 |
-| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节正文；frontmatter schema 见 `references/chapter-drafting-contract.md`。 |
+| Output format | YAML frontmatter（含 `写作模型`、`字数`）、空行、`# 第N章｜章标题`、章节正文；frontmatter schema 见 `references/chapter-drafting-contract.md`。 |
 | Output path | 业务真源固定写入 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录使用 `第N卷`，章节文件使用 `第N章.md`；不得降格为平铺旧路径、`正文/` 或临时 sibling 文件。 |
-| Completion gate | DeepSeek provider 真实命中；返回内容通过 frontmatter、必需字段、标题行与正文完整度校验；正式正文已写回 canonical path。 |
+| Completion gate | team supervision subagents 已真实启动并基于项目 `team.yaml` 监制组请教产出 `supervision_packet`，或有上层阻断降级报告；DeepSeek provider 真实命中；返回内容通过 frontmatter、必需字段、标题行、正文完整度与生效字数区间校验；正式正文已写回 canonical path。 |

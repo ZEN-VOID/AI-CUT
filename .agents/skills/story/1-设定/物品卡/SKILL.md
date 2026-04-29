@@ -10,6 +10,7 @@ description: Use when story2026 1-设定 needs to generate, rebuild, or repair i
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
+- 当父层、项目 `team.yaml` 或本轮任务显式要求启用 subagents / reviewer -> subagent / parallel-council 时，必须加载项目 `team.yaml` 与 `../../_shared/team-advisor-consultation-contract.md`，优先把 `roles.planning.members` 作为资深创作顾问 roster；在正式物品卡 LLM 创作前，按归属链、启用规则、代价、专属适配、线索功能与不可替代性提出具体请教问题，并把结论汇流为 `advisor_consultation_packet`。
 - 本技能只负责物品对象判断与正式物品卡 payload，不替父层承担总线路由与最终 gate。
 
 ## Overview
@@ -74,6 +75,7 @@ flowchart LR
 | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- |
 | `I1` | 确认当前真的是物品问题 | `module_route=story-cards > 物品卡/SKILL.md` | `FAIL-CD-ITEM-ROUTE` | 回父技能 |
+| `I1A` | 显式启用 subagents 时请教项目监制/规划顾问 | `advisor_consultation_packet.item_questions + execution_brief` | `FAIL-CD-ITEM-ADVISOR` | 回 `team.yaml` roster 与顾问问题包 |
 | `I2` | 锁剧情杠杆与物品桶 | `narrative_functions + group` | `FAIL-CD-ITEM-FUNC` | 回物品分桶 |
 | `I3` | 闭合归属与启用规则 | `ownership_links + usage_rules + costs` | `FAIL-CD-ITEM-OWN` | 回归属/代价 |
 | `I4` | 吸收专属接口与场景限制 | `exclusive_fit` | `FAIL-CD-ITEM-EXCLUSIVE` | 回上游接口 |
@@ -92,22 +94,25 @@ flowchart LR
 物品问题优先检查：
 
 1. 剧情杠杆是否成立
-2. 归属与代价是否成立
-3. 是否吸收了角色/场景上游接口
-4. 模板映射是否完整
+2. 显式启用 subagents 时，项目顾问请教是否已转成可执行物品指导
+3. 归属与代价是否成立
+4. 是否吸收了角色/场景上游接口
+5. 模板映射是否完整
 
 ## Lite Field Mapping
 
 | field_id | step_id | intent | required_output | fail_code | rework_entry |
 | --- | --- | --- | --- | --- | --- |
 | `FIELD-CD-ITEM-01` | `I1` | 物品路由正确 | `content.module_route` | `FAIL-CD-ITEM-ROUTE` | 回父技能 |
-| `FIELD-CD-ITEM-02` | `I2-I3` | 物品成立 | `narrative_functions + ownership_links + usage_rules + costs` | `FAIL-CD-ITEM-OWN` | 回归属/代价 |
-| `FIELD-CD-ITEM-03` | `I4` | 上游接口被正确吸收 | `exclusive_fit` | `FAIL-CD-ITEM-EXCLUSIVE` | 回上游接口 |
-| `FIELD-CD-ITEM-04` | `I5` | 正式模板可写回 | `item-card payload` | `FAIL-CD-ITEM-TEMPLATE` | 回模板映射 |
+| `FIELD-CD-ITEM-02` | `I1A` | 顾问请教已转为物品指导 | `advisor_consultation_packet.execution_brief` | `FAIL-CD-ITEM-ADVISOR` | 回顾问问题包 |
+| `FIELD-CD-ITEM-03` | `I2-I3` | 物品成立 | `narrative_functions + ownership_links + usage_rules + costs` | `FAIL-CD-ITEM-OWN` | 回归属/代价 |
+| `FIELD-CD-ITEM-04` | `I4` | 上游接口被正确吸收 | `exclusive_fit` | `FAIL-CD-ITEM-EXCLUSIVE` | 回上游接口 |
+| `FIELD-CD-ITEM-05` | `I5` | 正式模板可写回 | `item-card payload` | `FAIL-CD-ITEM-TEMPLATE` | 回模板映射 |
 
 ## Completion Gate
 
 - 物品不是有名字的设定，而是有剧情杠杆的载体。
+- 显式启用 subagents 时，已生成 `advisor_consultation_packet`，并能说明项目顾问建议如何落实为归属、启用、代价、专属适配或线索功能。
 - `ownership_links + usage_rules + costs` 已成立。
 - `exclusive_fit` 真正吸收角色与场景上游约束。
 
@@ -122,6 +127,7 @@ flowchart LR
 | 场景 | 读取文件 |
 | --- | --- |
 | 物品归属、使用规则、代价、专属适配和上游接口消费细则 | `references/item-card-contract.md` |
+| 显式启用 subagents 时的项目顾问请教、汇流与降级报告 | `../../_shared/team-advisor-consultation-contract.md`、项目 `team.yaml` |
 | 执行物品卡生成、修复与回写节点 | `steps/item-card-workflow.md` |
 | 判定物品字段、代价结构和 trace 变量 | `types/field-map.md` |
 | 交付前质量门禁 | `review/review-contract.md` |
@@ -136,4 +142,4 @@ flowchart LR
 - Output format: 使用 `templates/item-card.json` 对齐的 JSON；过程摘要可使用 `templates/output-template.md`。
 - Output path: 正式业务输出只写入项目根 `1-设定/4-物品卡/`。
 - Naming convention: 物品卡文件名应使用 ASCII 安全 id 或项目既有命名规则，不得写入技能目录。
-- Completion gate: 父层 `cards_writer.py` 写回成功，物品代价与角色/场景上游接口一致，coverage / review gate 无 blocking finding。
+- Completion gate: 父层 `cards_writer.py` 写回成功；显式启用 subagents 时已完成项目顾问请教或按合同报告降级；物品代价与角色/场景上游接口一致，coverage / review gate 无 blocking finding。

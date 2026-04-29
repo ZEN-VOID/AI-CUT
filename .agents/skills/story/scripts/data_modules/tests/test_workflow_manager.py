@@ -666,7 +666,7 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
 
     assert interrupt is not None
     assert interrupt["detection_mode"] == "artifact_fallback"
-    assert interrupt["command"] == "story-context-return"
+    assert interrupt["command"] == "story-return"
     assert interrupt["args"]["volume_num"] == 1
     assert interrupt["resume_reason"] == "validation_pass_review_persisted_context_return_pending"
 
