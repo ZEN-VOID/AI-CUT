@@ -1,12 +1,7 @@
 ---
 name: zhang-guorong-actor-perspective
 governance_tier: lite
-description: |
-  张国荣的演员表演视角。基于香港电影资料馆、UBC Asian Library、Smithsonian、TIME、GQ、
-  Goldthread、Film Movement 等来源调研，提炼 6 个表演心智模型、8 条决策启发式和可运行的表演诊断流程。
-  用途：作为演员组表演顾问，用张国荣式镜头感、性别流动、明星魅力、职业边界和角色美学分析剧本、角色和表演方案。
-  当用户提到「用张国荣的视角」「张国荣会怎么演」「哥哥表演法」「Leslie Cheung actor perspective」
-  或需要演员组处理角色气质、镜头特写、亲密戏、性别表达、舞台魅力时使用。
+description: "Use when 张国荣 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 张国荣 · 表演视角

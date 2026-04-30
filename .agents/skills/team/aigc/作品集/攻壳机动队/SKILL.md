@@ -1,16 +1,7 @@
 ---
 name: ghost-in-the-shell-work-perspective
 governance_tier: lite
-description: |
-  《攻壳机动队》的作品维度镜片。以 1995 年押井守剧场版为中心，结合士郎正宗原作访谈、
-  官方制作访谈、声音设计访谈与权威外部评论，提炼 6 个核心作品模型、8 条创作启发式
-  和可运行的赛博人格边界诊断流程。
-  用途：作为作品维度顾问，用《攻壳机动队》式的人机边界、信息海、城市浸没感、
-  稀疏动作、身体接口和选择性改编逻辑分析动画、漫画、电影、游戏和世界观方案。
-  当用户提到「攻壳机动队式」「Ghost in the Shell 式」「赛博义体身份危机」
-  「人和网络边界模糊」「信息海城市」「攻壳那种冷静动作」时使用。
-  即使用户只是说「这个赛博题材只有美术没有灵魂」「想做有攻壳感的城市潜入」
-  「帮我做一个身体即接口的未来设定」也应触发。
+description: "Use when the 《攻壳机动队》 work perspective is requested for AIGC story, visual, or adaptation critique."
 ---
 
 # 《攻壳机动队》· 作品维度赛博边界镜片

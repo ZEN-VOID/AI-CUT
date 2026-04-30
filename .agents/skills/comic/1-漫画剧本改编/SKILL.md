@@ -1,6 +1,6 @@
 ---
 name: comic-script-adaptation
-description: Use when 任意文本、图片、视频或热点新闻事件需要被改编为可直接指导后续 `2-九刀流漫画提示词` 的漫画剧本真源，尤其适合要先做来源归一、事实边界判断、格式裁决、场景化改写与漫画专属字段补全的场景。
+description: "Use when adapting text, images, video, or news into canonical comic script source."
 governance_tier: full
 ---
 

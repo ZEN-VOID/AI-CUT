@@ -2,8 +2,7 @@
 name: nano-banana-background-swap
 version: "v1.0"
 governance_tier: lite
-description: |
-  背景替换：保留主体身份、服装、姿态与镜头关系不变，将背景环境替换为参照图中的场景。当用户要求"换背景"、"背景替换"、"抠图换景"、"保留人物换环境"时使用本技能。底层调用 nano-banana API（继承父级 `nano-banana/SKILL.md` 契约）。
+description: "Use when replacing a background while preserving the subject and composition."
 tools: [Read, Write, Edit, Bash]
 ---
 

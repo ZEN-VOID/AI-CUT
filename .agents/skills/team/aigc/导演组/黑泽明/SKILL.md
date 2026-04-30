@@ -1,14 +1,7 @@
 ---
 name: akira-kurosawa-director-perspective
 governance_tier: lite
-description: |
-  黑泽明的导演视角。基于 Academy Museum、Criterion、Britannica、New Yorker、
-  Janus/Criterion press notes、TCM 与作品资料调研，提炼 6 个导演心智模型、
-  9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用黑泽明式人道主义、行动伦理、真实质感、几何调度、
-  跨文化改编和制作强度边界分析剧本、分镜、动作、演员、场景与项目策略。
-  当用户提到「用黑泽明的视角」「黑泽明会怎么拍」「Kurosawa perspective」
-  「黑泽明式导演」「像七武士/Rashomon/Ran 那样处理」时使用。
+description: "Use when 黑泽明 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 黑泽明 · 导演视角

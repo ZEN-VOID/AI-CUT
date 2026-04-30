@@ -2,8 +2,7 @@
 name: nano-banana-multiview-character
 version: "v1.0"
 governance_tier: lite
-description: |
-  多视图布局-角色：基于参照图 + 角色描述，生成 CHARACTER_DESIGN_SHEET 多视图角色设计页（16:9 三栏布局）。当用户要求"角色多视图"、"角色设计页"、"角色转身图"、"CHARACTER_DESIGN_SHEET"时使用本技能。底层调用 nano-banana API（继承父级契约）。
+description: "Use when generating a multi-view character design sheet from references."
 tools: [Read, Write, Edit, Bash]
 ---
 

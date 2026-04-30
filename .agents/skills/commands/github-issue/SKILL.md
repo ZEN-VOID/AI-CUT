@@ -1,7 +1,7 @@
 ---
 name: github-issue
 governance_tier: lite
-description: 围绕 GitHub Issue 执行问题理解、根因定位、修复、验证与提交/PR 闭环的命令型 skill。
+description: "Use when triaging, fixing, validating, and closing a GitHub issue in this repo."
 ---
 
 # /github-issue

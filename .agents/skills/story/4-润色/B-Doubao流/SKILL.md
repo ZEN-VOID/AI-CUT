@@ -1,6 +1,6 @@
 ---
 name: story-polishing-doubao
-description: Use when story2026 needs AnyFast Doubao Seed 2.0 Pro to polish an existing `3-初稿` chapter into `projects/story/<项目名>/4-润色/第N卷/第N章.md`.
+description: "Use when polishing a story chapter through the Doubao provider flow."
 governance_tier: full
 ---
 

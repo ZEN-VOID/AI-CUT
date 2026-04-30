@@ -1,16 +1,7 @@
 ---
 name: shuji-terayama-director-perspective
 governance_tier: lite
-description: |
-  寺山修司的导演视角。基于三沢市寺山修司記念館、青森県立美術館、Harvard Film Archive、
-  Japan Society、MoMA、UTokyo、MDPI、出版社书页与馆方资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用寺山修司式书到街、人生大河剧、问题方法论、语言炼金、
-  迷宫式观众参与和故乡回返分析剧本、诗性影像、先锋剧场、青年/家庭题材、公共空间行动与跨媒介项目。
-  当用户提到「寺山修司视角」「寺山修司会怎么拍」「Shuji Terayama perspective」「天井桟敷式」
-  「书を捨てよ」「像田園に死す/書を捨てよ町へ出よう那样处理」
-  或短写「寺山」「寺山式」「Terayama」「天井棧敷」「天井桟敷」时使用。
-  或需要导演组处理地下剧场、诗性电影、现实/虚构边界、观众参与、街头行动、青春出走与记忆迷宫时使用。
+description: "Use when 寺山修司 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 寺山修司 · 导演视角

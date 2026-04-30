@@ -1,13 +1,7 @@
 ---
 name: blossoms-shanghai-work-perspective
 governance_tier: lite
-description: |
-  《繁花》的作品维度视角。基于 MUBI、Criterion、China Daily、Shanghai government
-  等公开材料调研，提炼 6 个作品心智模型、8 条叙事/场面启发式和可运行的作品诊断流程。
-  用途：作为作品顾问，用《繁花》式城市、商业、关系、方言、饮食和时代质感分析剧本、角色群像、
-  年代空间、商业叙事与情感结构。
-  当用户提到「用《繁花》的视角」「像《繁花》那样处理」「繁花感」「黄河路感」「阿宝式时代叙事」
-  「Blossoms Shanghai perspective」时使用。
+description: "Use when the 《繁花》 work perspective is requested for AIGC story, visual, or adaptation critique."
 ---
 
 # 《繁花》· 作品视角

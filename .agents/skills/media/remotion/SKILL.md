@@ -1,6 +1,6 @@
 ---
 name: remotion
-description: Best practices and comprehensive guide for Remotion - programmatic video creation in React with animations, compositions, and media handling
+description: "Use when building programmatic React videos with Remotion compositions, timing, media, or captions."
 version: 1.0.0
 author: remotion-dev
 repo: https://github.com/remotion-dev/skills

@@ -1,6 +1,6 @@
 ---
 name: story-plan-book-level
-description: Use when `2-卷章` needs the macro whole-book plan that locks the book title, total outline, volume partition, task topology, conflict axis, Save the Cat book-level rhythm, and global avoidances.
+description: "Use when producing or repairing whole-book macro planning for a story project."
 governance_tier: full
 ---
 

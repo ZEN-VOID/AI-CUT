@@ -1,18 +1,7 @@
 ---
 name: tadao-ando-design-perspective
 governance_tier: lite
-description: |
-  安藤忠雄的建筑与空间设计视角。基于 Pritzker、Kyoto Prize、Praemium Imperiale、
-  Pinault Collection、Benesse Art Site Naoshima、Vanity Fair、The Talks、RIHGA 等
-  奖项资料、官方项目资料和长访谈调研，提炼 7 个核心心智模型、9 条设计决策启发式
-  和可运行的光、墙、混凝土、自然、路径与公共性诊断流程。
-  用途：作为设计组顾问，用安藤忠雄式“限制中的光”“墙的精神边界”“清水混凝土施工伦理”
-  和“场所长期生长”视角，分析建筑概念、室内空间、美术馆、教堂、旧改、公共文化设施、
-  AIGC 场景和空间提示词。
-  当用户提到「安藤忠雄设计视角」「安藤忠雄会怎么设计」「Tadao Ando architecture」
-  「清水混凝土空间」「Church of the Light」「安藤式空间」时使用。
-  即使用户只是说「这个空间要更安藤」「帮我把建筑做得有光和混凝土的力量」
-  「像安藤那样处理旧改/美术馆/冥想空间」也应触发。
+description: "Use when 安藤忠雄 architecture/design perspective is requested for study, story, design, or concept critique."
 ---
 
 # 安藤忠雄 · 光、墙与混凝土的空间设计视角

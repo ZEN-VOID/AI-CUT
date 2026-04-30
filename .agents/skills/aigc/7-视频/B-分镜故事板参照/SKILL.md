@@ -1,6 +1,6 @@
 ---
 name: aigc-video-storyboard-reference
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become Dreamina video jobs under projects/aigc/<项目名>/7-视频/B-分镜故事板参照/, using the full existing group text as the video prompt body and an optional matching storyboard-sheet image from projects/aigc/<项目名>/6-图像/B-分镜故事板/.
+description: "Use when creating Dreamina video jobs from storyboard sheet references."
 governance_tier: full
 metadata:
   short-description: AIGC storyboard-sheet referenced video generation

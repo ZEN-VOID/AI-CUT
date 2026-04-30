@@ -1,8 +1,7 @@
 ---
 name: vidu-video-api
 governance_tier: full
-description: |
-  repo-local Vidu 视频 API 技能。统一覆盖 Vidu 企业版视频创建接口（参考生、文生、图生、首尾帧、智能多帧、场景特效模板、模板成片）以及任务查询、任务列表、取消任务、积分查询与回调签名校验。适用于用户提到 `vidu`、`reference2video`、`text2video`、`img2video`、`start-end2video`、`multiframe`、`template-story`、Vidu 回调验签等场景。
+description: "Use when creating, listing, or querying Vidu enterprise video jobs through the repo API contract."
 tools: [Read, Write, Edit, Bash]
 color: teal
 version: "v1.0"

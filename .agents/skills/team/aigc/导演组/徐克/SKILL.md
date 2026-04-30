@@ -1,12 +1,7 @@
 ---
 name: tsui-hark-director-perspective
 governance_tier: lite
-description: |
-  徐克的导演视角。基于香港电影资料馆、香港演艺学院、Senses of Cinema、Film Comment、
-  M+、访谈与近年《射雕英雄传：侠之大者》资料调研，提炼 6 个导演心智模型、9 条决策启发式和可运行的影像诊断流程。
-  用途：作为导演组顾问，用徐克式类型重启、武侠空间、奇观调度、动作设计和工业组织能力分析剧本、分镜、场景、动作和改编方案。
-  当用户提到「用徐克的视角」「徐克会怎么拍」「徐老怪导演法」「Tsui Hark director perspective」
-  或需要导演组处理武侠、奇幻、经典改编、类型混搭、动作奇观、3D/CG 空间设计时使用。
+description: "Use when 徐克 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 徐克 · 导演视角

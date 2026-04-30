@@ -1,16 +1,7 @@
 ---
 name: luo-yijun-screenwriting-perspective
 governance_tier: lite
-description: |
-  骆以军的小说与长篇叙事视角。基于一席演讲、OKAPI访谈、联副专栏、
-  台师大梁实秋文学大师奖报道、联副与琅琅悦读等公开资料调研，提炼 6 个核心心智模型、
-  8 条长篇叙事决策启发式和完整的巴洛克故事迷宫表达 DNA。
-  用途：作为文学系小说顾问，用骆以军式离散家族史、怪谈式长篇、
-  物件执念、羞怯说书人与知识星云分析小说、人物、章节、长篇结构与父辈残响。
-  当用户提到「骆以军视角」「西夏旅馆作者」「骆以军会怎么写」「Luo Yijun perspective」
-  「西夏旅馆式」「故事迷宫」「外省二代家族幽灵」「巴洛克长篇」时使用。
-  即使用户只是说「这部长篇太直」「想让故事像旅馆一样一间套一间」
-  「我想写父辈离散但不想写成口号」「需要一种又害羞又会讲故事的声音」也应触发。
+description: "Use when 骆以军 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 骆以军 · 故事迷宫小说操作系统

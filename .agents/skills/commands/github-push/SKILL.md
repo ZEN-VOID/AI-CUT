@@ -1,7 +1,7 @@
 ---
 name: github-push
 governance_tier: lite
-description: 在已有远端前提下执行清理、提交、推送与最小一致性校验的命令型 skill。
+description: "Use when cleaning, committing, and pushing local changes to an existing GitHub remote."
 ---
 
 # /github-push

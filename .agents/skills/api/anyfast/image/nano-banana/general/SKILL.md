@@ -2,8 +2,7 @@
 name: nano-banana-general
 version: "v1.0"
 governance_tier: lite
-description: |
-  nano-banana 通用生图入口。当用户要求"生张图"、"文本生图"、"参考图生图"但不涉及换脸、换装、多视图等特化场景时，使用本技能。支持单任务直调、结构化 JSON 承接、多任务自动并发。所有 API 契约（参数枚举、默认值、请求格式）继承父级 `nano-banana/SKILL.md`。
+description: "Use when generating images with nano-banana from text or reference images."
 tools: [Read, Write, Edit, Bash]
 ---
 

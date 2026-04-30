@@ -1,6 +1,6 @@
 ---
 name: comic-generation
-description: Use when 已有某个 page-group 对应的 nine_blade_comic_prompts.v1 JSON，需要通过 .agents/skills/cli/imagegen 逐页生成该组 9 张连续竖版漫画页，并稳定落盘供 4-剧集海报参考。
+description: "Use when generating one nine-page vertical comic group from nine-blade prompt JSON."
 governance_tier: full
 ---
 

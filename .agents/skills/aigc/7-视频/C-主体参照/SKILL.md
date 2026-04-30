@@ -1,6 +1,6 @@
 ---
 name: aigc-video-subject-reference
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become Dreamina-ready group-level video prompts with YAML-based character, scene, and prop subject references.
+description: "Use when creating Dreamina video jobs using subject references."
 governance_tier: full
 metadata:
   short-description: AIGC group subject-reference video generation
@@ -43,7 +43,7 @@ Optional input:
 - `episode_batch`：一次处理一集全部分镜组。
 - `group_batch`：一次处理多个指定分镜组。
 - `multi_episode_batch`：一次处理多集，每集保持独立队列与报告。
-- `dreamina_model`：默认 `seedance2.0`，可按 `.agents/skills/cli/dreamina-cli` 当前子命令能力调整。
+- `dreamina_model`：默认 `seedance2.0_vip`；仅当用户显式指定其他模型 / fast 档 / 非 VIP 路线时才覆盖。若当前 CLI help 不支持该模型，先提示更新或切换新版 Dreamina CLI，不静默降级。
 - `duration`：默认 15 秒；必须落在 Dreamina 当前视频命令允许范围内。
 - `parallelism`：默认后台多线程批量并发提交；若用户未指定，按保守并发执行并记录实际值。
 - 用户指定 aspect ratio、resolution、额外禁止项、输出目录、rerun / replace 策略或只查询既有 `submit_id`。

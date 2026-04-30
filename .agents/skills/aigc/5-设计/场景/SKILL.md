@@ -1,6 +1,6 @@
 ---
 name: aigc-design-scene
-description: Use when the AIGC 5-设计/场景 domain needs to route work into scene list, scene detail design, or scene image generation leaf skills under `.agents/skills/aigc/5-设计/场景/{1-清单,2-设计,3-生成}`.
+description: "Use when routing AIGC scene list, design, or generation tasks."
 governance_tier: router
 metadata:
   short-description: Route the 5-设计 scene skill group

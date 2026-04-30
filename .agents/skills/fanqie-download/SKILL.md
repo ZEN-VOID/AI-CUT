@@ -1,7 +1,7 @@
 ---
 name: fanqie-download
 governance_tier: full
-description: "番茄小说下载技能：按关键词检索 book_id、拉取目录与章节正文、抓取 short-story-share 可见文本，并提供 Gradio 界面与源层故障诊断。"
+description: "Use when searching Fanqie novels, fetching catalogs, chapters, or source text for local projects."
 license: Proprietary. Internal use only.
 ---
 

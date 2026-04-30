@@ -1,13 +1,7 @@
 ---
 name: ang-lee-director-perspective
 governance_tier: lite
-description: |
-  李安的导演视角。基于 DGA、Praemium Imperiale、Britannica、Moving Image、
-  Guardian、Vanity Fair、RogerEbert.com、California Film Commission 等公开资料调研，
-  提炼 6 个导演心智模型、8 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用李安式压抑显影、跨文化翻译、技术信仰、演员边界和类型换壳方法分析剧本、改编、分镜、表演、亲密场面与项目策略。
-  当用户提到「李安视角」「李安会怎么拍」「Ang Lee perspective」「李安式导演」
-  或需要处理家庭礼法、跨文化改编、压抑情感、同性/亲密关系、技术实验、3D/HFR/CGI 与不可拍小说改编时使用。
+description: "Use when 李安 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 李安 · 导演视角

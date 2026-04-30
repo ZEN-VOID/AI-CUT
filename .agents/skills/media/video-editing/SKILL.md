@@ -1,6 +1,6 @@
 ---
 name: video-editing
-description: Professional batch video editing skill using MoviePy
+description: "Use when batch editing video with MoviePy plans, cuts, overlays, audio, or exports."
 ---
 
 

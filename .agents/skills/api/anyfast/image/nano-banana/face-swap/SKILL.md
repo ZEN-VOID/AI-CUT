@@ -2,8 +2,7 @@
 name: nano-banana-face-swap
 version: "v1.0"
 governance_tier: lite
-description: |
-  角色换脸：保留服装造型姿态不变，将角色形象替换为参照图中的角色面貌。当用户要求"换脸"、"把A的脸换成B"、"保留服装换角色"、"角色替换"时使用本技能。底层调用 nano-banana API（继承父级 `nano-banana/SKILL.md` 契约）。
+description: "Use when swapping a face while preserving pose, clothing, and composition."
 tools: [Read, Write, Edit, Bash]
 ---
 

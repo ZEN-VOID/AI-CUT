@@ -23,6 +23,7 @@
 | frontmatter 变成大段资料转储，压过正文 | metadata density | 从正文 YAML 头移除重复上下文字段 | 固定正文 YAML 头只保留 `写作模型` 与 `字数`，引用和摘要留在 sidecar | YAML 头极简，正文 token 留给 prose |
 | `north_star_chapter_brief` 直接复制 `north_star.yaml` 大段原文 | summary synthesis | 不再要求正文 YAML 重复 north-star 摘要，改由创作上下文消费 | 固定“上下文吸收在正文体现，证据在 sidecar 体现” | 正文对齐 north-star，但头部不复述 |
 | 正文主体仍沿用 planning 标题句法 | prose conversion | 把 `本章冲突 / 任务线 / 规避` 转译成人物行动、局势压力和章末牵引 | 固定“planning 只给蓝图，不得原样落成正文” | 正文读起来像小说，不像设计文档 |
+| 正文出现 `第6章的二人组`、`上一章`、`本章` 等破次元标签 | narrative-perspective leak | 把章节/流程标签改成叙事内事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人” | system prompt 与 validator 固定“叙事内视角完整性”，禁止章节编号和执行流程词进入正文 | 写回前阻断正文中的章节标签、流程标签和 evidence 层词 |
 | 角色对白同质化，所有人物都用同一种冷静说明腔 | character voice under-specified | 从角色卡抽取 `voice_and_presence` 形成“角色对白声纹表”，并要求每句对白承担角色意图 | prompt 固定导入声纹表；对白必须按身份、关系、情绪和利益差异化 | context pack 中存在声纹表；抽查同场对话能不看话标区分说话人 |
 | `不是……是……` 句式高频重复，解释感生硬 | sentence-pattern loop | 在 system prompt 中把该句式降为偶发关键反转用法，并在 validator 中设置上限 | 生成前给替代表达路径：动作、感官、比喻、反问、停顿、误读修正或角色化口语 | validator 统计该句式不超过上限；正文不连续使用同一解释框架 |
 | 用户其实需要 provider 路径，却误走 GPT 原生 | route mismatch | 按用户意图改路由到对应 provider skill | 在 Actual Creative Engine 中保留简短路由说明 | A 的 artifacts 路径为 `gpt-native`，provider 路径使用自己的 artifacts |
@@ -40,6 +41,7 @@
 8. 若脚本开始“自动生成正文”，直接回到 `scripts/write_chapter_gpt_native.py` 修边界；脚本只能校验和落盘。
 9. 若人工校阅指出对白同质化，先查 context pack 是否含角色对白声纹表；若缺失，修脚本抽取角色卡，再让 GPT 原生按声纹执行 `local_repair` 或 `chapter_rewrite`。
 10. 若人工校阅指出句式循环，先查 system prompt 与 validator；修复后用同一 finding 回跑 GPT 原生主创，禁止用简单替换脚本机械改正文。
+11. 若人工校阅指出正文出现 `第N章 / 上一章 / 本章 / 本轮生成` 等破次元标签，先修 system prompt 与 validator，再让 GPT 原生按叙事内事件称呼执行局部修复；不要只做机械替换。
 11. 若正式写作没有监制包，先查 subagent 是否被上层阻断；未阻断则补真实 subagents，已阻断则补降级报告。若监制包缺 `team.yaml` roster 来源、请教问题或可执行指导，重新按项目监制组执行请教汇流。
 12. 若 Skill 2.0 结构校验失败，先看是否缺 `agents/openai.yaml`、`README.md`、`CHANGELOG.md` 或 `templates/output-template.md`，再看内容语义。
 
@@ -52,6 +54,7 @@
 - 若同卷前文存在，最可靠的承接组合是“最近前章末尾 3-6k 字 + 同卷全部前序章逐章摘录”；最近前章负责因果入场，早前章节负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 - frontmatter 的最佳长度是“能标记写作模型与字数即可”，不要展示已加载资料。
 - 只要正文还保留 planning 标题或条目句法，就说明小说化转换还没完成。
+- 只要正文还用章节编号、lane/provider、sidecar、frontmatter 或 context pack 回指事实，就说明叙事内视角转换还没完成。
 - A 路径保持 GPT 原生默认；需要外部模型时显式切到 B 或其他 provider skill。
 - A 路径不是“一个 GPT 同时写又同时审”的省事路径；隔离 subagents 的价值在于给主写作者一个有距离的监制包。
 - A 路径的监制包应像“向项目已选大师逐一请教后的写作备忘”，不是主写作者换个口吻自我点评；最终只保留能直接影响正文的指导。

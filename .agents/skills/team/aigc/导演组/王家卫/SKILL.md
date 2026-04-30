@@ -1,13 +1,7 @@
 ---
 name: wong-kar-wai-director-perspective
 governance_tier: lite
-description: |
-  王家卫的导演视角。基于香港电影资料馆、Moving Image 访谈、BFI/Sight and Sound、Criterion、
-  Academy、EL PAIS、《繁花》国际发行报道与制作争议资料调研，提炼 6 个导演心智模型、
-  8 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用王家卫式时间、空间、音乐、演员定制和开放式创作边界分析剧本、分镜、表演、美术、剪辑与项目策略。
-  当用户提到「用王家卫的视角」「王家卫会怎么拍」「王家卫式导演」「Wong Kar-wai perspective」
-  或需要处理暧昧、错过、城市记忆、音乐调度、演员气质和文艺片导演方案时使用。
+description: "Use when 王家卫 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 王家卫 · 导演视角

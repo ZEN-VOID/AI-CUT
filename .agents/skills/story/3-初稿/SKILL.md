@@ -1,6 +1,6 @@
 ---
 name: story-drafting
-description: Use when story2026 needs a guided 3-初稿 stage router for chapter-native novel drafting, selecting the active execution lane before writing `projects/story/<项目名>/3-初稿/第N卷/第N章.md`.
+description: "Use when routing story chapter drafting to GPT-native, Doubao, or DeepSeek flows."
 governance_tier: lite
 skill_role: parent_guide
 ---
@@ -123,7 +123,7 @@ flowchart TD
 - `projects/story/<项目名>/1-设定/2-角色卡/角色关系图谱.md`：存在时必须加载进 context pack，用于关系压力、联系方式、信息流、物件流和传导边；不得写入正文 frontmatter。
 - `projects/story/<项目名>/3-初稿/第V卷/<本卷起始章>.md ... 第N-1章.md`：当前卷内早于目标章且已存在的所有前序章必须加载为同卷前文上下文；最近前章用于开章承接重点，其余前序章用于既成事实、线索状态、关系推进、道具流向、卷目标完成度、任务连续性、悬疑节奏把控性、任务余波和文气连续性。若当前卷无前序章，不得阻塞起稿。
 - 当前目标章正文：若已存在，必须先回读，再进入续写、重写或局部修复。
-- 章节正文字数目标：默认 `2500-4000字`；优先级为用户本轮明确指定 > 章级 planning 指定 > 卷级 planning 指定 > `north_star.yaml.project_identity.target_words / target_chapters` 推导 > 本默认区间。
+- 章节正文字数不设默认上下限；`字数` 仅作为最终正文估算记录，不再由章级 planning、卷级 planning 或 `north_star.yaml.project_identity.target_words / target_chapters` 推导校验区间。
 
 ### Reject Or Block
 
@@ -168,8 +168,9 @@ flowchart TD
 
 - `3-初稿` 只能消费 planning、cards、north-star、项目记忆与项目上下文，不得替上游真源补写设定。
 - YAML frontmatter 只要求包含 `写作模型` 与 `字数`；`写作模型` 取值只能为 `GPT`、`Doubao`、`Deepseek`，并必须与所选 lane 一致；`字数` 必须写作 `XXX字` 格式。planning、cards、north-star、项目上下文和同卷前文引用由强上下文加载与 sidecar 承载，不重复写入正文头部。
-- 默认章节正文必须落在 `2500-4000字`；若用户或上游 planning 明确给出其它区间，子路径必须把最终生效区间写入 context pack / messages pack / dry-run summary，并按该区间校验最终正文实际长度。
+- 章节正文不设置内置字数上下限；子路径不得因正文未落入固定区间而阻断写回，`字数` 只记录最终估算结果。
 - 正文主体必须是中文小说 prose，不得把 planning 标题、任务线或规避条目原样贴成正文。
+- 正文必须保持叙事内视角完整性：只能用角色可感知的时间、地点、关卡、事件、伤亡、物件或敌方记录回指前事；不得在小说正文中出现 `第6章的二人组`、`上一章`、`本章`、`本轮生成`、`planning`、`frontmatter`、`provider`、`sidecar`、`supervision_packet` 等章节标签或流程标签。
 - 正文不得用脸部颜色变化作为惊吓、羞窘、愤怒或震动的默认表达捷径，尤其避免“吓得脸都白了 / 脸红了 / 脸白了 / 脸黄了 / 脸绿了 / 脸色惨白 / 脸色大变”等模板化措辞；必须改用动作停顿、呼吸、手部细节、步伐、视线、物件误触、话语断裂、空间退让或角色身份相关反应来呈现情绪。
 - 业务真源路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 - 本阶段正式产物只写入 `projects/story/<项目名>/3-初稿/`，默认不生成额外项目产物。
@@ -190,6 +191,7 @@ flowchart TD
 | `C-Deepseek流` 缺 provider 或证据链 | 子路径 provider 层 | `C-Deepseek流/SKILL.md` + `.agents/skills/api/deepseek/SKILL.md` |
 | 输出漂到旧路径、平铺路径或临时文件 | 阶段导引层 + 子路径 Output Contract | 本 `Core Gates` + 子路径 `Output Contract` |
 | 草稿跑偏或 planning 语言直贴 | 子路径章节细则层 | 对应 lane 的 `references/chapter-drafting-contract.md` |
+| 正文出现 `第6章`、`上一章`、`本轮生成` 等破次元标签 | 子路径章节细则层 + 脚本校验层 | 对应 lane 的 `references/chapter-drafting-contract.md`、`templates/*system-prompt.md`、`scripts/write_chapter_*` |
 | 起草/续写/重写/修复误判 | 子路径类型策略层 | 对应 lane 的 `types/drafting-type-map.md` |
 | 脚本越权主创正文 | 子路径脚本层 | 对应 lane 的 `scripts/` + AGENTS.md LLM-first 规则 |
 | 监制 subagents 或卷级 `code-reviewer` 闭环缺失 | 共享监制/审计合同层 | `_shared/supervised-drafting-review-loop-contract.md` + `review/SKILL.md` |

@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-list
-description: Use when extracting and consolidating scene lists from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md.
+description: "Use when extracting or consolidating the AIGC scene inventory."
 governance_tier: full
 metadata:
   short-description: AIGC scene list extraction

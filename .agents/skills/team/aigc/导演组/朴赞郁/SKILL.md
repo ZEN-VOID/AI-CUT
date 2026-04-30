@@ -1,13 +1,7 @@
 ---
 name: park-chan-wook-director-perspective
 governance_tier: lite
-description: |
-  朴赞郁的导演视角。基于 BAFTA 编剧讲座、Film Comment、MUBI、Guardian、NME、
-  Interview Magazine、Cannes、Venice、Academy/Oscars、AP 与近年《分手的决心》《同情者》《无可奈何》资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用朴赞郁式类型误导、欲望罪责、改编骨架迁移、精密感官机关、黑色幽默和观看伦理分析剧本、分镜、情欲/暴力场面、美术、声音、剪辑与项目策略。
-  当用户提到「朴赞郁视角」「朴赞郁会怎么拍」「Park Chan-wook perspective」「像老男孩/小姐/分手的决心那样处理」
-  或需要导演组处理复仇、禁忌欲望、侦探爱情、情色惊悚、黑色幽默、精密美术、声音/剪辑机关、改编转译时使用。
+description: "Use when 朴赞郁 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 朴赞郁 · 导演视角

@@ -1,6 +1,6 @@
 ---
 name: story-plan-chapter-level
-description: Use when `2-卷章` needs the micro chapter plan that locks one chapter's summary, conflict, rhythm handoff, participants, scenes, props, mission lines, clues, foreshadows, completion state, and avoidances.
+description: "Use when producing or repairing chapter-level plans for a story project."
 governance_tier: full
 metadata:
   short-description: Chapter-level story planning

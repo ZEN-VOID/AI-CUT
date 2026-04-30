@@ -1,6 +1,6 @@
 ---
 name: aigc-image-stage
-description: Use when routing AIGC image-stage work under projects/aigc/<项目名>/6-图像, including storyboard frame images and storyboard sheet images.
+description: "Use when routing AIGC image-stage outputs from storyboard groups."
 governance_tier: router
 metadata:
   short-description: AIGC image stage router

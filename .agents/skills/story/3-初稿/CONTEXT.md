@@ -35,8 +35,9 @@ last_checked_at: 2026-04-27
 | 卷级 review 失败后跨 lane 静默改正文 | review loop ownership drift | aggregate 必须指回原 A/B/C lane 与 repair mode | review rework target 固定 `original_drafting_lane`，BC 由 provider 执行，A 由隔离监制 + GPT 执行 | `第V卷.validation.json` 含原 lane 与返工入口 |
 | 用户要求 subagents 多路修复时，执行者把“多路”误解为 GPT worker 直接主创 B/C provider 正文 | repair authorship drift | subagents 只拆分问题和写 repair brief，正文修复回原 lane provider 执行 | 父级 `Repair Lane Preservation` 固定 provider lane ownership；报告必须声明 repair creative engine | 修复后的 sidecar 有原 lane provider messages/report，正文 `写作模型` 与执行证据一致 |
 | lane artifacts 被误认为正文真源 | evidence/truth confusion | 移除默认 artifacts 输出，只保留 `3-初稿/第N卷/第N章.md` | 父级 Output Contract 固定“本阶段正式产物只写入 3-初稿” | query/resume/review 默认读取 canonical draft |
-| 章节产出忽长忽短，frontmatter 只有事后 `字数` 记录 | word-count contract gap | 默认按 `2500-4000字` 传入 lane prompt 与校验；用户或 planning 明确指定时用显式区间覆盖 | 父级记录字数优先级，A/B/C 脚本统一支持 `--min-words/--max-words` | dry-run summary / messages pack 出现生效区间，最终正文实际长度通过校验 |
+| 章节被固定字数区间牵引，出现为凑字或压缩而损害节奏 | word-count overconstraint | 移除默认字数上下限、prompt 目标区间与脚本区间校验；`字数` 仅保留为结果记录 | 父级和 A/B/C lane 不再推导单章字数区间，脚本不再暴露 `--min-words/--max-words` | dry-run summary / messages pack 不再出现 `word_count_range`，最终正文只做结构、字段和正文非空校验 |
 | 旧 step-after-write 即时审计合同又被当成当前主创拓扑 | compatibility contract overreach | 仅在恢复/兼容 runtime 时加载 `_shared/drafting-instant-validation-contract.md` | 父级写明它不是默认主创路径 | 新章节直写不再先展开旧八步 runtime |
+| 正文出现 `第6章的二人组`、`上一章`、`本章` 等破次元标签 | narrative-perspective leak | 把章节/流程标签改成叙事内事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人” | 父级 Core Gates、A/B/C prompt 和脚本 validator 固定叙事内视角完整性门禁 | 写回前 validator 阻断正文中的章节标签、流程标签和 provider 证据层词 |
 | 惊吓、羞窘或愤怒反复写成“脸红了 / 脸白了 / 脸色惨白 / 脸色大变” | emotion shorthand loop | 改用角色动作、呼吸、手部细节、视线、步伐、物件误触、话语断裂或空间退让来呈现情绪 | 父级 Core Gates 与各 lane prompt 固定“脸部颜色变化不是默认情绪表达” | 抽查正文不再以脸色颜色词承载关键情绪变化 |
 
 ## Repair Playbook
@@ -50,11 +51,12 @@ last_checked_at: 2026-04-27
 7. 若恢复链或即时审计仍需要旧 step gate，加载 `_shared/drafting-instant-validation-contract.md`；若是新章直写，不让该兼容合同反向改写 lane 选择。
 8. 若本文件开始积累某个 provider 的提示词、脚本参数或正文审美细则，把该经验迁回对应 lane 的 `CONTEXT.md` 或 `knowledge-base/`。
 9. 若 review 后需要正文修复，先读取正文 `写作模型`、provider sidecar 或 aggregate 中的 `original_drafting_lane`；B/C lane 不允许由 GPT worker 直接改写后继续冒充原 provider 修复。
-10. 若用户只给出类似 `2500-4000` 的区间，默认解释为章节正文目标字数区间；同步到父级合同、lane prompt、脚本参数和最终长度校验，而不是只改 frontmatter 示例。
+10. 若旧流程或项目材料仍给出类似 `2500-4000` 的区间，只作为节奏参考，不再同步为 prompt 强目标、脚本参数或最终长度校验。
 11. 若监制包缺项目 `team.yaml` roster 来源、请教问题或可执行指导，按共享合同重做请教汇流，不把泛泛顾问意见继续传给正文主创层。
 12. 若人物互动变成“我知道你是谁”的说明腔，先查 context pack 是否加载 `角色关系图谱.md`；缺失时重建 context pack，让正文按物件、证据、通信和情感触发来写关系。
 13. 若当前章忘记同卷早前事实、伏笔、线索、关系推进、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性，先查 dry-run summary 的 `previous_chapter_refs` 是否覆盖当前卷内全部已存在前序章；若只出现最近上一章，优先修 context pack 脚本和 lane 输入合同。
 14. 若人工校阅指出“脸红 / 脸白 / 脸色大变”等情绪捷径过多，先把它视为初稿表达规则缺口；修正时用动作链和角色身份反应替代，不做简单同义词替换。
+15. 若人工校阅指出“第N章 / 上一章 / 本章 / 本轮生成”等破次元口径，优先视为 prose conversion 和 validator 缺口；修正文稿时只用叙事内时间、地点、事件、伤亡或物件称呼回指前事。
 
 ## Reusable Heuristics
 
@@ -70,7 +72,8 @@ last_checked_at: 2026-04-27
 - 返工闭环必须记住“谁写的就回到谁那里改”：review 可以裁决质量，但不应把 B/C 的 provider ownership 变成 GPT 直接改稿。
 - “启用 subagents”只授权真实分工与真实 reviewer/worker runtime，不自动授权切换正文主创模型；正文主创模型仍由 lane contract 决定。
 - 初稿阶段的 subagents 监制不是临时另组顾问团；若项目 `team.yaml` 已锁定 `roles.production.members`，应把这些成员当资深创作顾问按领域请教，再把灵感转成执行约束给正文主创层。
-- 字数控制应作为生效区间进入 prompt 与 validator；`字数: XXX字` 只是结果记录，不能单独承担长度控制。
+- 字数不再作为初稿硬门槛；`字数: XXX字` 只是结果记录，正文篇幅由章级任务、叙事完整度和用户本轮明确要求决定。
 - 角色声纹表解决“谁怎么说话”，角色关系图谱解决“他们靠什么发生关系”；两者都应进入初稿上下文。
 - 新章上下文的连续性基础是“本卷全部前序章”，不是“最近上一章”；最近前章负责开章姿态，同卷早前章节负责伏笔、事实、关系、线索、道具、卷目标完成度、任务连续性、悬疑节奏把控性和文气边界。
 - 情绪变化不要默认落在脸色颜色词上；成熟小说里惊吓、羞窘、愤怒和震动更应该通过动作停顿、呼吸、手部细节、视线、退让距离、物件误触和话语断裂显影。
+- 章节编号、lane/provider、sidecar、frontmatter 和 context pack 都是执行证据层，不是小说世界的一部分；正文回指前事必须转成角色能看见、听见、记住或拿在手里的叙事事实。

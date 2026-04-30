@@ -1,6 +1,6 @@
 ---
 name: command-subagent-preview
-description: Use when a command skill or governed workflow needs a pre-execution advisory council that resolves explicit role-view skills first, otherwise falls back to project team.yaml, then launches real advisor subagents to produce a bounded decision packet before main execution.
+description: "Use when previewing command-skill subagent routing or governed workflow dispatch."
 governance_tier: lite
 ---
 

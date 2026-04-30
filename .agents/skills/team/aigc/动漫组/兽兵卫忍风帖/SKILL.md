@@ -1,15 +1,7 @@
 ---
 name: ninja-scroll-work-perspective
 governance_tier: lite
-description: |
-  《兽兵卫忍风帖》的动漫组作品维度镜片。以 1993 年剧场动画《獣兵衛忍風帖 /
-  Ninja Scroll》为中心，结合川尻善昭访谈、官方发行页、30 周年/4K 修复公告与权威外部观察，
-  提炼 6 个核心作品模型、8 条创作启发式和可运行的黑色忍者动作诊断流程。
-  用途：作为动漫组作品顾问，用《兽兵卫忍风帖》式孤狼行旅、骗术对决、怪物身体、
-  毒性亲密、材料化动作与线性高压推进分析成人向动作动画、忍者题材、OVA 气质、
-  黑暗奇想、分镜、Boss 设计与重制判断。
-  当用户提到「兽兵卫忍风帖式」「Ninja Scroll 式」「90 年代成人忍者动画」
-  「忍者互相骗术对打」「毒女主+怪物忍者」「黑色江户奇谭动作」时使用。
+description: "Use when 兽兵卫忍风帖 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 《兽兵卫忍风帖》· 动漫组作品维度黑色忍者镜片

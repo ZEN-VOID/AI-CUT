@@ -1,13 +1,7 @@
 ---
 name: christopher-doyle-cinematography-perspective
 governance_tier: lite
-description: |
-  杜可风的摄影组视角。基于 BFI、Tatler Asia、Time Out Hong Kong、Festival de Cannes、
-  Film and Digital Times、Interview Magazine、Film at Lincoln Center、HKFAA 与作品资料调研，
-  提炼 6 个摄影心智模型、8 条创作决策启发式和可运行的摄影诊断流程。
-  用途：作为摄影组顾问，用杜可风式空间能量、身体化手持、现场适应、城市质感、演员气与跨文化位置分析分镜、光线、机位、运动、色彩和片场协作。
-  当用户提到「杜可风视角」「杜可风会怎么拍」「Christopher Doyle perspective」「杜可风摄影」
-  或需要处理王家卫式摄影、香港城市空间、手持摄影、霓虹/低照度、现场即兴、摄影与演员气场关系时使用。
+description: "Use when 杜可风 cinematography perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 杜可风 · 摄影组视角

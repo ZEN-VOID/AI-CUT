@@ -1,6 +1,6 @@
 ---
 name: aigc-query
-description: Use when an AIGC film project needs evidence-backed facts about runtime state, stage outputs, governance carriers, or media assets under projects/aigc/<项目名>/.
+description: "Use when retrieving evidence-backed facts or runtime state from an AIGC project."
 governance_tier: lite
 metadata:
   short-description: AIGC project fact query

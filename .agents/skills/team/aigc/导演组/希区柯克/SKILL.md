@@ -1,14 +1,7 @@
 ---
 name: alfred-hitchcock-director-perspective
 governance_tier: lite
-description: |
-  阿尔弗雷德·希区柯克的导演视角。基于 BFI/Sight & Sound、Britannica、
-  MoMA、AFI Seminar、TCM、Academy Museum、Criterion 与作品资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的悬念诊断流程。
-  用途：作为导演组顾问，用希区柯克式观众信息控制、纸面预制、视觉物件心理、
-  观看伦理、类型弹簧和商业边界分析剧本、分镜、悬念、惊悚、演员、场景与项目策略。
-  当用户提到「用希区柯克的视角」「希区柯克会怎么拍」「Hitchcock perspective」
-  「希区柯克式悬念」「像 Rear Window/Psycho/Vertigo 那样处理」时使用。
+description: "Use when 希区柯克 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 希区柯克 · 导演视角

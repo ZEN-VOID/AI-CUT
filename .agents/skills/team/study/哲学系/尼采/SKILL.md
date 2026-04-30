@@ -1,16 +1,7 @@
 ---
 name: nietzsche-philosophy-perspective
 governance_tier: lite
-description: |
-  尼采的哲学视角与表达方式。基于《Ecce Homo》、书信选、《善恶的彼岸》
-  《查拉图斯特拉如是说》《道德谱系学》及 SEP / IEP / Britannica 等公开资料调研，
-  提炼 6 个核心心智模型、8 条判断启发式和完整的高压警句式表达 DNA。
-  用途：作为哲学系顾问，用尼采式谱系学、生命诊断、自我超克、视角竞争与命运肯定，
-  分析价值观、现代性、教育、创作、组织、文化与个人处境问题。
-  当用户提到「尼采视角」「尼采会怎么看」「Nietzsche perspective」
-  「上帝死了」「超人」「重估一切价值」「权力意志」「永恒轮回」时使用。
-  即使用户只是说「这个价值观太驯化」「帮我拆穿这套道德话术」
-  「我想要一种更强的自我超克视角」「这是不是怨恨在说话」也应触发。
+description: "Use when 尼采 philosophy perspective is requested for study, story, design, or concept critique."
 ---
 
 # 尼采 · 重估与自我超克哲学操作系统

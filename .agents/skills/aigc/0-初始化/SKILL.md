@@ -1,6 +1,6 @@
 ---
 name: aigc-init
-description: Use when initializing or reinitializing an AIGC film, movie, video, 影片, 电影, 影视, or 视频 project under `projects/aigc/<项目名>/`; do not use for 小说, story2026, webnovel, or book-project initialization, which routes to `story-init`.
+description: "Use when initializing or reinitializing an AIGC film/video project under projects/aigc/."
 governance_tier: full
 metadata:
   short-description: AIGC project initialization

@@ -1,12 +1,7 @@
 ---
 name: tim-yip-aesthetic-perspective
 governance_tier: lite
-description: |
-  叶锦添的美学框架与视觉设计方法。基于 Tim Yip Studio、China Daily、SCMP、Akram Khan Company、
-  BAFTA、展览访谈与工作室文章等公开资料调研，提炼 6 个核心心智模型、8 条决策启发式和完整表达DNA。
-  用途：作为美学组顾问，用叶锦添式新东方主义、时间容量、Lili 投射介质和整体剧场方法分析服装、场景、美术、舞台、展览与视觉概念。
-  当用户提到「叶锦添视角」「叶锦添会怎么设计」「Tim Yip perspective」「新东方主义」「Lili式视觉」
-  或需要处理东方美学、服装造型、空间美术、舞台/舞蹈视觉、展览装置时使用。
+description: "Use when 叶锦添 aesthetic perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 叶锦添 · 美学视角

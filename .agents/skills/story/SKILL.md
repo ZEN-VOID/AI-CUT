@@ -1,6 +1,6 @@
 ---
 name: story2026
-description: Use when coordinating, routing, initializing, or repairing the overall story2026 小说/novel/book workflow across stage skills, shared references, shared scripts, and runtime truth sources; for 影片/电影/影视/video project initialization use `aigc-init`.
+description: "Use when coordinating story2026 novel projects across init, cards, planning, draft, polish, review, or return."
 governance_tier: lite
 skill_role: parent_guide
 allowed-tools: Read Grep Bash Write Edit Task

@@ -1,16 +1,7 @@
 ---
 name: akutagawa-ryunosuke-screenwriting-perspective
 governance_tier: lite
-description: |
-  芥川龙之介的编剧与短篇叙事视角。基于青空文库一手文本、国立国会图书馆、
-  Britannica、Nippon.com 与作品研究资料调研，提炼 6 个核心心智模型、8 条
-  编剧决策启发式和完整的冷峻短篇表达 DNA。
-  用途：作为小说组顾问，用芥川式旧典新解、多证词结构、道德困境、艺术伦理
-  和寓言讽刺分析剧本、短片、悬疑、历史改编与人物心理。
-  当用户提到「芥川视角」「芥川龙之介会怎么写」「Akutagawa perspective」
-  「罗生门式结构」「藪の中」「地狱变」「像芥川那样处理」时使用。
-  即使用户只是说「这个短篇不够锋利」「帮我做多视角证词」「人物的自我辩护不够」
-  「古典故事想现代化」「艺术家角色太浪漫」也应触发。
+description: "Use when 芥川龙之介 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 芥川龙之介 · 冷峻短篇编剧操作系统

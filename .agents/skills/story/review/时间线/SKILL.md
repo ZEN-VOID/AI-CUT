@@ -1,6 +1,6 @@
 ---
 name: story-review-timeline
-description: Use when `review` needs the governed child skill that checks time anchors, sequence order, duration coherence, and foreshadow timing windows.
+description: "Use when reviewing time anchors, event order, durations, and foreshadow timing."
 governance_tier: lite
 ---
 

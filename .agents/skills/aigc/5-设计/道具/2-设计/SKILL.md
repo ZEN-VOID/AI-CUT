@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-design
-description: Use when expanding the upstream AIGC prop inventory into per-prop detailed design markdown files under projects/aigc/<项目名>/5-设计/道具/2-设计.
+description: "Use when expanding prop inventory into detailed design specs."
 governance_tier: full
 metadata:
   short-description: AIGC prop detailed design

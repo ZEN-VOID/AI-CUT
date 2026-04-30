@@ -1,14 +1,7 @@
 ---
 name: stanley-kwan-director-perspective
 governance_tier: lite
-description: |
-  关锦鹏的导演视角。基于香港电影资料馆、HKIFF、Asian Film Awards Academy 大师课、
-  HK New Talents 访谈、Film Movement、Frameline、Senses of Cinema、SFGate 等来源调研，
-  提炼6个导演心智模型、8条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用关锦鹏式女性/酷儿观看位置、历史互照、演员信任、空间叙事和香港电影产业现实来分析剧本、人物、场面调度与项目策略。
-  当用户提到「关锦鹏视角」「关锦鹏会怎么拍」「Stanley Kwan director perspective」「用关锦鹏的方法看这个剧本」
-  或需要导演组处理女性主体、酷儿亲密、旧时代记忆、演员身体训练、档案重演、香港/上海怀旧题材时使用。
-  仅当用户明确要求导演诊断、剧本改写、人物/场面/项目判断时启用；普通影评、作品简介、八卦问答或纯史料科普不进入角色扮演。
+description: "Use when 关锦鹏 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 关锦鹏 · 导演视角

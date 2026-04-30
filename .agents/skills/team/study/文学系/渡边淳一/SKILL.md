@@ -1,16 +1,7 @@
 ---
 name: watanabe-junichi-screenwriting-perspective
 governance_tier: lite
-description: |
-  渡边淳一的编剧与小说叙事视角。基于渡边淳一文学馆、日本医事新报社、集英社、
-  KADOKAWA、Global Times 与作品出版资料调研，提炼 6 个核心心智模型、
-  8 条编剧决策启发式和完整的医学情欲表达 DNA。
-  用途：作为小说组顾问，用渡边式医学观察、情欲伦理、熟年恋爱、身体真实、
-  社会禁忌和钝感力分析剧本、人物、婚恋关系、医疗题材、情色边界与中老年叙事。
-  当用户提到「渡边淳一视角」「渡边淳一会怎么写」「Watanabe Junichi perspective」
-  「失乐园式」「钝感力」「熟年恋爱」「婚外恋题材」「医学恋爱小说」时使用。
-  即使用户只是说「这段情欲戏太假」「中年爱情没有肉身感」「婚外恋写得太道德审判」
-  「医生角色不真实」「想写有禁忌但不是猎奇的爱情」也应触发。
+description: "Use when 渡边淳一 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 渡边淳一 · 医学情欲编剧操作系统

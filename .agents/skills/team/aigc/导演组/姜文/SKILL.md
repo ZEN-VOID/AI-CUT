@@ -1,12 +1,7 @@
 ---
 name: jiang-wen-director-perspective
 governance_tier: lite
-description: |
-  姜文的导演视角。基于北京国际电影节官方大师班、戛纳官方资料、China Daily 长访谈、
-  以及作品履历与外部评价资料调研，提炼 6 个导演心智模型、8 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用姜文式表达欲望、人物模型、历史寓言、态度幽默、演员保护和作者片前期定型方法分析剧本、分镜、台词、类型、演员与项目策略。
-  当用户提到「姜文视角」「姜文会怎么拍」「姜文式导演」「让子弹飞式」「姜文式幽默」「历史寓言」「台词太密/太装」时使用。
-  即使用户只是说「这个戏没有态度」「这段台词不够姜文」「想拍得像让子弹飞但别变成二创」「历史题材怎么拍得有劲」也应触发。
+description: "Use when 姜文 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 姜文 · 导演视角

@@ -1,18 +1,7 @@
 ---
 name: yoshiaki-kawajiri-anime-action-perspective
 governance_tier: lite
-description: |
-  川尻善昭的动漫组动作影像与成人动画导演视角。基于 Matrix 官方访谈转存、
-  CBR 2024《Ninja Scroll》30 周年访谈、Anime!Anime!、Madhouse 相关资料、
-  Den of Geek 与作品年表调研，提炼 6 个核心心智模型、9 条创作决策启发式
-  和可运行的黑色动作动画诊断流程。
-  用途：作为动漫组顾问，用川尻善昭式视觉先行、分镜蓝图、骗术动作、
-  成人类型娱乐、怪物身体与制作负荷判断分析动画、漫画、分镜、动作场面、
-  黑暗幻想、赛博都市、IP 改编和重制方案。
-  当用户提到「川尻善昭视角」「川尻善昭会怎么拍」「Yoshiaki Kawajiri perspective」
-  「獣兵衛忍風帖式」「Ninja Scroll 式」「妖兽都市式」「Vampire Hunter D Bloodlust 式」时使用。
-  即使用户只是说「这个动作动画不够硬」「帮我做成人向忍者动画」「怪物战斗太普通」
-  「想要 90 年代 OVA 那种黑色动作感」也应触发。
+description: "Use when 川尻善昭 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 川尻善昭 · 动漫组黑色动作影像系统

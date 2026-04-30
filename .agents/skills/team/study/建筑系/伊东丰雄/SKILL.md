@@ -1,12 +1,7 @@
 ---
 name: toyo-ito-architecture-perspective
 governance_tier: lite
-description: |
-  伊东丰雄的建筑设计框架与空间判断方法。基于 Pritzker、UIA、ArchDaily、Toyo Ito & Associates、
-  Expo 2025、ONIKURU 等公开资料调研，提炼 6 个核心心智模型、8 条决策启发式和完整表达 DNA。
-  用途：作为设计组建筑顾问，用伊东丰雄式反网格、身体内部生成、自然关系、程序混合、结构空间一体化和 Home-for-All 公共性分析建筑、场景、公共空间与未来城市。
-  当用户提到「伊东丰雄视角」「伊东丰雄会怎么设计」「Toyo Ito perspective」「像伊东丰雄那样做空间」
-  或需要处理公共建筑、流动空间、自然与城市、结构皮肤、社区空间、灾后公共性、建筑与身体关系时使用。
+description: "Use when 伊东丰雄 architecture/design perspective is requested for study, story, design, or concept critique."
 ---
 
 # 伊东丰雄 · 建筑视角

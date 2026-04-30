@@ -51,8 +51,6 @@ REQUIRED_OUTPUT_MARKERS = (
 )
 EXPECTED_WRITING_MODEL = "Deepseek"
 WORD_COUNT_PATTERN = re.compile(r"^\d+字$")
-DEFAULT_MIN_WORDS = 2500
-DEFAULT_MAX_WORDS = 4000
 FORBIDDEN_FRONTMATTER_FIELDS = (
     "story_name",
     "volume_num",
@@ -81,8 +79,19 @@ PLANNING_LANGUAGE_PATTERNS = (
     "selected_mode",
     "exit_hook",
 )
-MIN_BODY_CHARS = 800
 MAX_NOT_IS_PATTERNS = 8
+META_NARRATIVE_PATTERNS = (
+    (re.compile(r"第[0-9０-９一二三四五六七八九十百零〇两]+[章节卷]"), "章节/卷编号标签"),
+    (re.compile(r"(?:本章|上一章|下一章|前一章|后一章|当前章节|目标章)"), "章节流程标签"),
+    (
+        re.compile(
+            r"(?:本轮生成|本次生成|planning|frontmatter|provider|sidecar|"
+            r"supervision_packet|context pack|messages pack|dry-run)",
+            re.IGNORECASE,
+        ),
+        "执行流程标签",
+    ),
+)
 
 
 def _read_text(path: Path) -> str:
@@ -91,6 +100,20 @@ def _read_text(path: Path) -> str:
 
 def _normalize_text(text: str) -> str:
     return re.sub(r"\s+\n", "\n", text.replace("\r\n", "\n")).strip()
+
+
+def _validate_no_meta_narrative_terms(body: str, source_label: str) -> None:
+    for pattern, label in META_NARRATIVE_PATTERNS:
+        match = pattern.search(body)
+        if not match:
+            continue
+        start = max(0, match.start() - 30)
+        end = min(len(body), match.end() + 30)
+        excerpt = re.sub(r"\s+", "", body[start:end])
+        raise ValueError(
+            f"{source_label}正文疑似保留破次元/流程标签 `{match.group(0)}`（{label}）："
+            f"{excerpt}。请改为叙事内事件称呼后再写回。"
+        )
 
 
 def _excerpt(text: str, max_chars: int) -> str:
@@ -348,8 +371,6 @@ def _build_messages(
     repair_finding: str,
     continue_from: str,
     supervision_packet_text: str,
-    min_words: int,
-    max_words: int,
 ) -> list[dict[str, str]]:
     system_prompt = _read_text(SYSTEM_PROMPT_PATH).strip()
     global_card_refs = [_rel(path, project_root) for path in global_cards]
@@ -372,7 +393,7 @@ def _build_messages(
     sections = [
         f"目标输出路径：{_rel(target_path, project_root)}",
         f"当前模式：{drafting_mode}",
-        f"章节正文字数目标：{min_words}-{max_words}字；`字数` frontmatter 必须记录最终正文估算字数，且正文实际长度必须落入该区间。",
+        "章节正文不设置固定字数上下限；`字数` frontmatter 只记录最终正文估算字数，不作为截断、扩写或写回阻断依据。",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
@@ -500,7 +521,7 @@ def _validate_nested_context(payload: dict, field_name: str, keys: Iterable[str]
         _require_non_empty(value.get(key), f"{field_name}.{key}")
 
 
-def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int, max_words: int) -> None:
+def _validate_generated_markdown(text: str, chapter_num: int) -> None:
     payload, body = _split_frontmatter(text)
     for marker in REQUIRED_OUTPUT_MARKERS:
         if marker not in payload:
@@ -509,7 +530,7 @@ def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int,
 
     if payload.get("写作模型") != EXPECTED_WRITING_MODEL:
         raise ValueError(f"DeepSeek 返回 frontmatter 字段 `写作模型` 必须是 `{EXPECTED_WRITING_MODEL}`。")
-    frontmatter_word_count = _validate_word_count(payload)
+    _validate_word_count(payload)
     for field in FORBIDDEN_FRONTMATTER_FIELDS:
         if field in payload:
             raise ValueError(f"DeepSeek 返回 frontmatter 不应重复写入 `{field}`，该信息由上下文加载与 sidecar 承载。")
@@ -518,19 +539,8 @@ def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int,
     if heading not in body:
         raise ValueError(f"DeepSeek 返回内容缺少章节标题行：{heading}")
     body_after_heading = body.split(heading, 1)[1]
-    body_word_count = len(re.sub(r"\s+", "", body_after_heading))
-    if body_word_count < MIN_BODY_CHARS:
-        raise ValueError(f"DeepSeek 返回正文过短，低于最小完整度门槛 {MIN_BODY_CHARS} 字。")
-    if not (min_words <= frontmatter_word_count <= max_words):
-        raise ValueError(
-            "DeepSeek 返回 frontmatter `字数` 不在目标区间内："
-            f"{frontmatter_word_count}字，不符合 {min_words}-{max_words}字。"
-        )
-    if not (min_words <= body_word_count <= max_words):
-        raise ValueError(
-            "DeepSeek 返回正文实际长度不在目标区间内："
-            f"{body_word_count}字，不符合 {min_words}-{max_words}字。"
-        )
+    if not body_after_heading.strip():
+        raise ValueError("DeepSeek 返回正文为空，禁止写回。")
     for marker in PLACEHOLDER_MARKERS:
         if marker in text:
             raise ValueError(f"DeepSeek 返回内容仍包含模板占位符：{marker}")
@@ -543,6 +553,7 @@ def _validate_generated_markdown(text: str, chapter_num: int, *, min_words: int,
             "DeepSeek 返回正文中过度重复 `不是……是……` 句式："
             f"{not_is_count} 处，超过上限 {MAX_NOT_IS_PATTERNS}。"
         )
+    _validate_no_meta_narrative_terms(body_after_heading, "DeepSeek 返回")
 
 
 def _run_deepseek(messages_path: Path, output_dir: Path, *, max_tokens: int, stream: bool, timeout: int) -> str:
@@ -605,8 +616,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repair-finding", help="review finding or local issue description for local_repair")
     parser.add_argument("--stream", action="store_true", help="use stream mode when calling provider")
     parser.add_argument("--supervision-packet", help="team supervision packet file produced by drafting subagents")
-    parser.add_argument("--min-words", type=int, default=DEFAULT_MIN_WORDS, help="minimum chapter body words")
-    parser.add_argument("--max-words", type=int, default=DEFAULT_MAX_WORDS, help="maximum chapter body words")
     parser.add_argument("--dry-run", action="store_true", help="only emit the messages pack without calling DeepSeek")
     parser.add_argument("--no-writeback", action="store_true", help="call DeepSeek but do not write back the chapter file")
     parser.add_argument("--force", action="store_true", help="allow writeback over an existing canonical chapter file")
@@ -640,9 +649,6 @@ def _resolve_drafting_mode(args: argparse.Namespace, chapter_path: Path) -> str:
 
 def main() -> int:
     args = build_parser().parse_args()
-    if args.min_words <= 0 or args.max_words <= 0 or args.min_words > args.max_words:
-        raise SystemExit("--min-words/--max-words 必须为正数，且 min <= max。")
-
     project_root = resolve_project_root(args.project_root)
     story_name = project_root.name
     chapter_num = args.chapter
@@ -692,8 +698,6 @@ def main() -> int:
         repair_finding=args.repair_finding or "",
         continue_from=args.continue_from or "",
         supervision_packet_text=supervision_packet_text,
-        min_words=args.min_words,
-        max_words=args.max_words,
     )
 
     output_dir = Path(args.output_dir) if args.output_dir else None
@@ -722,7 +726,6 @@ def main() -> int:
             "thinking": "enabled",
             "reasoning_effort": "high",
             "supervision_packet_ref": args.supervision_packet or "",
-            "word_count_range": f"{args.min_words}-{args.max_words}",
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
@@ -755,7 +758,7 @@ def main() -> int:
                     timeout=args.timeout,
                 )
             )
-    _validate_generated_markdown(generated, chapter_num, min_words=args.min_words, max_words=args.max_words)
+    _validate_generated_markdown(generated, chapter_num)
 
     raw_path: Path | None = None
     if output_dir:
@@ -779,7 +782,6 @@ def main() -> int:
         "thinking": "enabled",
         "reasoning_effort": "high",
         "supervision_packet_ref": args.supervision_packet or "",
-        "word_count_range": f"{args.min_words}-{args.max_words}",
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0

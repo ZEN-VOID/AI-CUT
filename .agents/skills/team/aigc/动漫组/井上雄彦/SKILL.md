@@ -1,16 +1,7 @@
 ---
 name: takehiko-inoue-manga-perspective
 governance_tier: lite
-description: |
-  井上雄彦的动漫组身体运动与生命成长视角。基于 INOUE TAKEHIKO ON THE WEB 官方站、
-  THE FIRST 官方相关访谈摘要、Publishers Weekly 对谈、文化庁 / 文科省机构资料等公开材料调研，
-  提炼 6 个核心心智模型、9 条创作决策启发式和可运行的身体-运动-视点诊断流程。
-  用途：作为动漫组顾问，用井上雄彦式运动身体、人物成长、痛感与复原、现场取材、
-  墨笔大画面和媒介重写方法分析漫画、动画、分镜、体育题材、青年成长、角色关系、
-  竞技场面与跨媒介改编方案。
-  当用户提到「井上雄彦视角」「井上雄彦会怎么画」「Takehiko Inoue perspective」
-  「井上雄彦式分镜」「灌篮高手感」「SLAM DUNK 式运动」「REAL 式痛感」
-  「浪客行式笔墨」「像井上雄彦那样画身体和成长」时使用。
+description: "Use when 井上雄彦 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 井上雄彦 · 动漫组身体运动与生命成长视角

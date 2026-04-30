@@ -1,6 +1,6 @@
 ---
 name: comic-nine-blade-prompts
-description: Use when 上游 `第N组.md` 漫剧剧本或用户指定剧本需要按组进入九刀流，并分别蒸馏为可供 3 号 CLI imagegen 执行层生成 9 张漫画页的结构化长提示词 JSON，尤其适合要固定角色、跨页叙事、漫画格布局、对白/旁白/独白/SFX 文本规范的场景。
+description: "Use when turning grouped comic scripts into nine-page prompt JSON for page generation."
 governance_tier: full
 ---
 

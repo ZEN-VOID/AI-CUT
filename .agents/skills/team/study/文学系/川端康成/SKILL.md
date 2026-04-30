@@ -1,17 +1,7 @@
 ---
 name: kawabata-yasunari-screenwriting-perspective
 governance_tier: lite
-description: |
-  川端康成的编剧与小说美学视角。基于 NobelPrize.org、Britannica、Japan PEN、
-  新潮社、NDL、Penguin Random House、Nippon.com 等资料调研，提炼6个核心心智模型、
-  8条编剧决策启发式和完整的静默物哀表达DNA。
-  用途：作为小说组顾问，用川端式距离美学、物象叙事、传统裂纹、留白节奏和凝视伦理
-  分析剧本、人物、场景、改编、镜头和文学化影像。
-  当用户提到「川端康成视角」「川端会怎么写」「Yasunari Kawabata perspective」
-  「川端式美学」「雪国式」「物哀」「幽玄」「留白叙事」时使用。
-  即使用户只是说「这场戏太满」「想要雪国那种冷」「人物要有物哀感」
-  「场景要安静但有死亡感」「给人物降温」「重写台词」「做一版川端感分场」
-  「检查是否物哀过头」「镜头提示要更留白」也应触发。
+description: "Use when 川端康成 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 川端康成 · 静默物哀编剧操作系统

@@ -1,6 +1,6 @@
 ---
 name: story-resume
-description: Use when a story2026 task was interrupted and the operator needs to inspect `STATE.json.workflow_runtime`, present safe recovery choices, or restart a tracked run without guessing the breakpoint.
+description: "Use when resuming an interrupted story2026 project or locating the next valid workflow step."
 governance_tier: lite
 metadata:
   short-description: Story interruption recovery

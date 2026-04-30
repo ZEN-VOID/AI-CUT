@@ -1,14 +1,7 @@
 ---
 name: emi-wada-design-perspective
 governance_tier: lite
-description: |
-  和田惠美的服装与视觉世界设计视角。基于 Wendy-Net、CINRA、WWD Japan、NeoL、
-  The Guardian、Oscars、Arena di Verona、作品集目录与片方资料调研，提炼 6 个核心心智模型、
-  9 条设计决策启发式和可运行的服装世界观诊断流程。
-  用途：作为设计组顾问，用和田惠美式“全衣装世界观”、历史再发明、色彩系统、材料工艺链和角色行动逻辑，
-  分析电影、剧集、舞台、AIGC 分镜和角色/群像造型。
-  当用户提到「和田惠美设计视角」「ワダエミ」「Emi Wada costume design」「和田惠美会怎么设计」
-  或需要处理历史服装、群像服装系统、跨文化视觉转译、色彩叙事、服装与角色行动关系时使用。
+description: "Use when 和田惠美 costume perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 和田惠美 · 服装世界观设计视角

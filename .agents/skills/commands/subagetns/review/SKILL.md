@@ -1,6 +1,6 @@
 ---
 name: command-subagent-review
-description: Use when the command skill tree needs a single reviewer subagent to audit a bounded target, emit high-signal findings, and explicitly honor real subagent runtime semantics rather than local simulation.
+description: "Use when reviewing command-skill trees and subagent contracts for consistency."
 governance_tier: lite
 ---
 

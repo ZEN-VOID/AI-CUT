@@ -1,6 +1,6 @@
 ---
 name: story-plan-volume-level
-description: Use when story planning needs a single-volume plan with outline, chapter duties, six-beat rhythm, resources, mission lines, closure, and avoidances.
+description: "Use when producing or repairing single-volume planning for a story project."
 governance_tier: full
 ---
 

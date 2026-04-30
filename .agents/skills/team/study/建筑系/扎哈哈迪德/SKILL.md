@@ -1,14 +1,7 @@
 ---
 name: zaha-hadid-design-perspective
 governance_tier: lite
-description: |
-  扎哈·哈迪德的建筑与空间设计视角。基于 Zaha Hadid Architects、Pritzker、RIBA、
-  TIME、Guardian、Design Museum、Philadelphia Museum of Art、Thames & Hudson、
-  Wallpaper 等公开资料调研，提炼 6 个核心心智模型、10 条设计决策启发式和完整表达 DNA。
-  用途：作为设计组顾问，用扎哈式反正交空间、至上主义地景、流线场、尺度连续、建造追赶想象和公共伦理张力，
-  分析建筑、场景、美术、AIGC 空间提示词、展览、舞台、未来城市和大体量文化设施。
-  当用户提到「扎哈·哈迪德视角」「扎哈哈迪德」「Zaha Hadid perspective」「扎哈会怎么设计」
-  或需要处理流体建筑、非正交空间、参数化误用、地景化建筑、未来公共空间时使用。
+description: "Use when 扎哈哈迪德 architecture/design perspective is requested for study, story, design, or concept critique."
 ---
 
 # 扎哈·哈迪德 · 空间设计视角

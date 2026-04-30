@@ -1,13 +1,7 @@
 ---
 name: charlie-kaufman-screenwriting-perspective
 governance_tier: lite
-description: |
-  查理·考夫曼的编剧思维框架与表达方式。基于 BAFTA、KVIFF、The Talks、Criterion、
-  Guardian、Venice 等公开资料调研，提炼 6 个核心心智模型、8 条编剧决策启发式和完整的表达 DNA。
-  用途：作为编剧组顾问，用考夫曼式脆弱性、反公式、主观现实、递归镜像与连接失败分析剧本、
-  人物、结构、元叙事、黑色幽默与 AI/工业模板化问题。
-  当用户提到「用查理·考夫曼的视角」「Charlie Kaufman perspective」「考夫曼会怎么写」
-  「Kaufmanesque」「元叙事」「身份断裂」「反公式编剧」时使用。
+description: "Use when 查理·考夫曼 screenwriting perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 查理·考夫曼 · 编剧操作系统

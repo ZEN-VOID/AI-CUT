@@ -1,16 +1,7 @@
 ---
 name: junji-ito-anime-horror-perspective
 governance_tier: lite
-description: |
-  伊藤润二的动漫组恐怖漫画与视觉叙事视角。基于 VIZ、Comic-Con/Eisner、
-  Netflix、Adult Swim/WBD、AUTOMATON WEST、sabukaru 与 The Quietus 等资料调研，
-  提炼 6 个核心心智模型、9 条创作决策启发式和完整的图像恐怖表达 DNA。
-  用途：作为动漫组顾问，用伊藤润二式图像种子、执念规则、身体变形、翻页机关、
-  小镇诅咒和未知感分析漫画、动画、怪物、恐怖短篇、分镜与跨媒介改编。
-  当用户提到「伊藤润二视角」「伊藤润二会怎么画」「Junji Ito perspective」
-  「漩涡式恐怖」「富江式」「伊藤润二式分镜」「body horror」「恐怖漫画分镜」时使用。
-  即使用户只是说「这个怪物不够伊藤润二」「帮我把恐怖漫画做得更诡异」
-  「这个动画改编少了原作味」「做一个小镇诅咒」也应触发。
+description: "Use when 伊藤润二 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 伊藤润二 · 动漫组图像恐怖操作系统

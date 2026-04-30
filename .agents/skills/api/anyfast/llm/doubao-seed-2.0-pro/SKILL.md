@@ -2,8 +2,7 @@
 name: doubao-seed-2.0-pro
 version: "v1.0"
 governance_tier: full
-description: |
-  调用 AnyFast OpenAI 兼容 Chat Completions 接口执行 `doubao-seed-2.0-pro` 对话与推理任务，支持普通文本消息、结构化 `messages` 直传、SSE 流式输出、报告 JSON 与文本落盘。当用户明确要求“豆包 Seed 2.0 Pro / doubao-seed-2.0-pro / AnyFast 豆包 / AnyFast OpenAI 兼容对话模型 / 高推理中文分析”时使用本技能。
+description: "Use when calling AnyFast Doubao Seed 2.0 Pro chat completions for text tasks."
 tools: [Read, Write, Edit, Bash]
 color: blue
 ---

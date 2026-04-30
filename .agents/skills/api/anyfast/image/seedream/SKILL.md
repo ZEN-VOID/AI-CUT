@@ -1,12 +1,6 @@
 ---
 name: seedream
-description: |
-  调用火山引擎方舟 Ark API（模型 `doubao-seedream-5-0-260128`）执行 SEEDREAM 5.0 AI 生图任务，支持文本生图（T2I）、参考图生图（I2I）、连续多图（sequential_image_generation）与流式返回（SSE）。
-  <triggers>
-  - 用户要求"seedream / SEEDREAM 5.0 / 方舟生图"
-  - 需要通过火山引擎 Ark OpenAI 兼容接口生成图片
-  - 上游文档指定使用 `doubao-seedream-5-0-260128` 模型
-  </triggers>
+description: "Use when calling Seedream 5.0 image generation for text, reference, sequential, or streaming jobs."
 tools: [Read, Write, Edit, Bash]
 color: orange
 version: "v1.0"

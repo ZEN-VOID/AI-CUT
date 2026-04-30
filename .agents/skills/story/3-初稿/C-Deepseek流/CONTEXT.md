@@ -20,7 +20,8 @@
 | 监制包未按项目 `team.yaml` 已指定监制组请教，只给泛泛创作建议 | project team consultation gap | 读取 `roles.production.members`，为每位相关大师提出具体问题并汇流可执行指导 | 监制包固定 `project_team_ref / consultations / executable_guidance` 字段 | DeepSeek messages 含可追溯的请教式监制包 |
 | 只加载最近上一章，导致同卷早前事实、伏笔、线索、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性断裂 | same-volume continuity underload | 加载当前卷内所有已存在且早于目标章的正文，并把最近前章末尾摘录单独置入 provider prompt | 将“上一章正文”升级为“同卷前文连续性桥”，并在 dry-run summary 暴露 `previous_chapter_refs` | messages pack 中能看到同卷前文逐章摘录；正文开章能读出同卷前文之后的下一步 |
 | DeepSeek provider 返回 markdown 但缺 YAML 头 | provider output validation | 阻断写回，调整 prompt 或增大 `max_tokens` 后重试 | 写回前固定校验 `写作模型: Deepseek` 与 `字数: XXX字` | 非法输出不落到 `第N章.md` |
-| DeepSeek 返回结构字段齐全但正文仍是占位、过短或 planning 复述 | prose completeness validation | 阻断写回，要求 provider 重出完整小说 prose | validator 只要求极简 YAML 头，同时检查正文长度、占位符和 planning 术语 | `[请填充完整章节正文]`、缺 closing frontmatter、`本章冲突` 等样本均被拒绝 |
+| DeepSeek 返回结构字段齐全但正文仍是空正文、占位符或 planning 复述 | prose completeness validation | 阻断写回，要求 provider 重出完整小说 prose | validator 只要求极简 YAML 头，同时检查正文非空、占位符和 planning 术语 | `[请填充完整章节正文]`、缺 closing frontmatter、`本章冲突` 等样本均被拒绝 |
+| 正文出现 `第6章的二人组`、`上一章`、`本章` 等破次元标签 | narrative-perspective leak | 把章节/流程标签改成叙事内事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人” | system prompt 与 validator 固定“叙事内视角完整性”，禁止章节编号和执行流程词进入正文 | 写回前阻断正文中的章节标签、流程标签和 evidence 层词 |
 | provider 证据链缺失 | evidence routing | 重新跑脚本并核对 stdout 摘要、provider 命中与 canonical writeback | 默认不落盘 provider artifacts；需要调试时才显式传 `--output-dir` | 未传 `--output-dir` 时只写 `3-初稿/第N卷/第N章.md` |
 | auto 模式在现有章上静默重写 | writeback safety gate | 现有章正式写回必须显式 mode + `--force` | `auto` 只允许新章直写；现稿 dry-run/no-writeback 可装配上下文但不覆盖 | 已存在 `第N章.md` 时普通 auto 调用会阻断 |
 | 角色对白同质化，所有人物都用同一种冷静说明腔 | character voice under-specified | 从角色卡抽取 `voice_and_presence` 形成“角色对白声纹表”，并要求每句对白承担角色意图 | prompt 固定导入声纹表；对白必须按身份、关系、情绪和利益差异化 | messages pack 中存在声纹表；抽查同场对话能不看话标区分说话人 |
@@ -36,10 +37,11 @@
 4. 若正文像提纲，回到 `templates/deepseek-system-prompt.md` 与 `references/chapter-drafting-contract.md`，强化 prose conversion。
 5. 若上下章像各写各的，优先检查 messages pack 是否覆盖当前卷内全部已存在前序章；最近前章末尾负责开章入场，其他前序章负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 6. 若 YAML 头缺字段，只检查并补正 `写作模型: Deepseek` 与 `字数: XXX字`；上下文缺口回到 context pack / sidecar，而不是补进正文头。
-7. 若正文过短、仍含模板占位符或 planning 标题句法，先修 provider prompt / context pack，再重试，不允许写回 canonical path。
+7. 若正文为空、仍含模板占位符或 planning 标题句法，先修 provider prompt / context pack，再重试，不允许写回 canonical path。
 8. 若路径不对，先修 `chapter_paths` / output contract，再重试 provider。
 9. 若人工校阅指出对白同质化，先查 messages pack 是否含角色对白声纹表；若缺失，修脚本抽取角色卡，再用 `local_repair` 或 `chapter_rewrite` 让 DeepSeek 按声纹重写相关章节。
 10. 若人工校阅指出句式循环，先查 system prompt 与 validator；修复后用同一 finding 回跑 provider，禁止用简单替换脚本机械改正文。
+11. 若人工校阅指出正文出现 `第N章 / 上一章 / 本章 / 本轮生成` 等破次元标签，先修 system prompt 与 validator，再让 DeepSeek 按叙事内事件称呼执行局部修复；不要只做机械替换。
 11. 若正式写作没有监制包，先查 subagent 是否被上层阻断；未阻断则补真实 subagents，已阻断则补降级报告。若监制包缺 `team.yaml` roster 来源、请教问题或可执行指导，重新按项目监制组执行请教汇流。
 12. 若 review 触发修复，先生成 repair brief，再调用 DeepSeek 执行正文修复；若环境暂时无法调用 DeepSeek，必须报告阻断，不能为了推进而用 GPT 直接改写 DeepSeek lane 正文。
 
@@ -50,6 +52,7 @@
 - 若同卷前文存在，最可靠的承接组合是“最近前章末尾 3-6k 字 + 同卷全部前序章逐章摘录”；最近前章负责因果入场，早前章节负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 - `thinking enabled + reasoning_effort high` 会消耗更多 token，章节创作默认应给足 `--max-tokens`。
 - provider sidecar 是排查“到底有没有走 DeepSeek”的第一证据，不要只看最终正文文件。
+- 只要正文还用章节编号、lane/provider、sidecar、frontmatter 或 context pack 回指事实，就说明叙事内视角转换还没完成。
 - 现有章是高风险写回目标；正式覆盖必须同时满足显式 mode 与 `--force`，普通 `auto` 只能在缺章时起稿。
 - C lane 的高级化关键是“GPT 监制不抢笔”：监制包越锋利，越要交给 DeepSeek 高推理执行，而不是让 GPT 临场改稿。
 - C lane 的监制包应像“向项目已选大师逐一请教后的写作备忘”，不是 GPT 对 DeepSeek prompt 的泛泛润色；最终只保留能直接影响正文的指导。

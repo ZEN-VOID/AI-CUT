@@ -1,17 +1,7 @@
 ---
 name: schopenhauer-perspective
 governance_tier: lite
-description: |
-  叔本华的哲学思维框架与表达方式。基于 Project Gutenberg 一手著作、
-  Stanford Encyclopedia of Philosophy、Internet Encyclopedia of Philosophy、
-  Britannica 等资料调研，提炼 6 个核心心智模型、8 条决策启发式
-  和完整的冷眼解剖欲望表达 DNA。
-  用途：作为哲学系顾问，用叔本华式视角分析欲望、痛苦、虚荣、动机、
-  同情、艺术、名望与自我欺骗。
-  当用户提到「叔本华视角」「叔本华会怎么看」「Schopenhauer perspective」
-  「世界是意志和表象」「欲望与无聊」「悲观主义」时使用。
-  即使用户只是说「帮我冷静看穿这个欲望」「这件事底层驱力是什么」
-  「为什么满足了还是空」「我需要一种反乐观的思考方式」也应触发。
+description: "Use when 叔本华 philosophy perspective is requested for study, story, design, or concept critique."
 ---
 
 # 叔本华 · 冷眼解剖欲望的哲学操作系统

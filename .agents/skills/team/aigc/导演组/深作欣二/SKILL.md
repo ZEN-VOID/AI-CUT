@@ -1,16 +1,7 @@
 ---
 name: kinji-fukasaku-director-perspective
 governance_tier: lite
-description: |
-  深作欣二的导演视角。基于 TIME、Tom Mes 访谈、National Film Archive of Japan、
-  BAMPFA、Japan Society、日本映画監督協会等资料调研，提炼 6 个导演心智模型、
-  8 条创作决策启发式和可运行的类型片/暴力场面诊断流程。
-  用途：作为导演组顾问，用深作式战时记忆、实录路线、反权威、底层怒气、
-  身体摄影和黑暗寓言分析剧本、分镜、动作、群像、青年题材与类型片策略。
-  当用户提到「深作欣二视角」「深作欣二会怎么拍」「Kinji Fukasaku perspective」
-  「深作式导演」「像仁义なき戦い/大逃杀那样处理」时使用。
-  即使用户只是说「这场戏不够实录」「暴力不够有社会原因」「帮我做大逃杀感」
-  「黑帮戏太浪漫」「青年互杀/制度暴力怎么拍」也应触发。
+description: "Use when 深作欣二 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 深作欣二 · 导演视角

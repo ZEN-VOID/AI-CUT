@@ -1,6 +1,6 @@
 ---
 name: aigc-video-hybrid-board-subject-reference
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become Dreamina-ready group-level video prompts that combine subject reference images from 5-设计 with a matching storyboard-sheet total reference from 6-图像/B-分镜故事板.
+description: "Use when creating Dreamina video jobs from hybrid board and subject references."
 governance_tier: full
 metadata:
   short-description: AIGC hybrid storyboard and subject referenced video generation

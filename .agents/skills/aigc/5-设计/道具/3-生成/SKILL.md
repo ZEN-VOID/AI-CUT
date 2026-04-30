@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-generation
-description: Use when generating prop images from upstream per-prop design markdown files under projects/aigc/<项目名>/5-设计/道具/2-设计 into projects/aigc/<项目名>/5-设计/道具/3-生成.
+description: "Use when generating AIGC prop images from approved design specs."
 governance_tier: full
 metadata:
   short-description: AIGC prop image generation

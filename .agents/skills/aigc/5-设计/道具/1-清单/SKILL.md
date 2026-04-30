@@ -1,6 +1,6 @@
 ---
 name: aigc-prop-list
-description: Use when extracting and consolidating prop inventory tables from projects/aigc/<项目名>/4-分组/第N集.md group-bottom YAML into projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md.
+description: "Use when extracting or consolidating the AIGC prop inventory."
 governance_tier: full
 metadata:
   short-description: AIGC prop inventory extraction

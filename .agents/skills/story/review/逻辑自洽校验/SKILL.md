@@ -1,6 +1,6 @@
 ---
 name: story-review-logic-self-consistency
-description: Use when `review` needs the governed child skill that checks cause-effect coherence, setting-rule stability, exception cost, and source-truth conflicts before blaming drafting.
+description: "Use when reviewing causal logic, contradictions, rules, and self-consistency."
 governance_tier: lite
 ---
 

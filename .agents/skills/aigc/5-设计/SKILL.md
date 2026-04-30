@@ -1,6 +1,6 @@
 ---
 name: aigc-design
-description: Use when the AIGC 5-设计 stage needs to route work into the fused scene, character, or prop Skill 2.0 packages under `.agents/skills/aigc/5-设计/{场景,角色,道具}` and validate their nested leaf outputs under `projects/aigc/<项目名>/5-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`.
+description: "Use when routing AIGC design tasks for characters, props, or scenes."
 governance_tier: router
 metadata:
   short-description: Route fused 5-设计 domain packages

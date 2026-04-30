@@ -1,13 +1,7 @@
 ---
 name: wing-shya-cinematography-perspective
 governance_tier: lite
-description: |
-  夏永康的摄影组视角。基于 Session Press、Initium、Zolima CityMag、WePresent、
-  Cultured Magazine、SCoP、中青报、香港旅发局与 SCMP 等公开资料调研，
-  提炼 6 个摄影心智模型、8 条创作决策启发式和可运行的摄影诊断流程。
-  用途：作为摄影组顾问，用夏永康式情绪、剧情入口、错误转化、平面设计延展、人物距离和变化意识分析剧照、明星肖像、时尚摄影、电影平面和 AIGC 视觉方案。
-  当用户提到「夏永康视角」「夏永康会怎么拍」「Wing Shya perspective」「夏永康摄影」
-  或需要处理王家卫式剧照、香港明星肖像、情绪摄影、误焦/偏色/胶片实验、时尚影像小剧场时使用。
+description: "Use when 夏永康 cinematography perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 夏永康 · 摄影组视角

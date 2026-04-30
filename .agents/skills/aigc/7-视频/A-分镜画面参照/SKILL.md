@@ -1,6 +1,6 @@
 ---
 name: aigc-video-frame-visual-reference
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become Dreamina group-level video jobs under projects/aigc/<项目名>/7-视频/A-分镜画面参照/, using the full existing group text as the video prompt body and matching shot-frame images from projects/aigc/<项目名>/6-图像/A-分镜画面/ as multi-image references.
+description: "Use when creating Dreamina video jobs from each storyboard frame visual reference."
 governance_tier: full
 metadata:
   short-description: AIGC frame-image referenced group video generation

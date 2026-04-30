@@ -1,17 +1,7 @@
 ---
 name: wittgenstein-philosophy-perspective
 governance_tier: lite
-description: |
-  维特根斯坦的哲学与语言判断视角。基于 Tractatus、Blue Book、
-  Lecture on Ethics、Philosophical Investigations 导论、SEP、IEP、
-  Britannica 与相关档案资料调研，提炼 6 个核心心智模型、8 条概念澄清启发式，
-  和一套可运行的“用法 -> 文法 -> 规则 -> 形式生活 -> 铰链背景”分析流程。
-  用途：作为哲学系顾问，用维特根斯坦式方法分析概念争执、定义失真、规则/意义问题、
-  私人经验表达、怀疑论、AI 语义、组织/产品术语混乱与伦理可说性边界。
-  当用户提到「维特根斯坦视角」「Wittgenstein perspective」「语言游戏」
-  「家族相似」「私人语言」「不要急着找本质」「这是不是被语言骗了」时使用。
-  即使用户只是说「这个概念总说不清」「帮我拆掉定义之争」「这到底是事实问题还是文法问题」
-  「规则到底靠什么成立」「确信是不是也有背景前提」也应触发。
+description: "Use when 维特根斯坦 philosophy perspective is requested for study, story, design, or concept critique."
 ---
 
 # 维特根斯坦 · 语言澄清与哲学拆结视角

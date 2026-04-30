@@ -1,6 +1,6 @@
 ---
 name: beiming-skill-learning
-description: Use when 需要把外部升级点有机吸收到现有 skill，并先研究目标 skill、技能组上下文、同步范围、验证门禁与学习沉淀。
+description: "Use when absorbing external improvements into an existing skill through source review and upgrade."
 governance_tier: full
 metadata:
   short-description: Organic skill upgrade absorption

@@ -1,12 +1,7 @@
 ---
 name: anita-mui-performance-perspective
 governance_tier: lite
-description: |
-  梅艳芳的表演框架与舞台人格。基于香港文化机构资料、电影评论、讣告、展览说明与公共行动记录的调研，
-  提炼6个核心心智模型、8条表演决策启发式和完整的表达DNA。
-  用途：作为演员组的表演顾问，用梅艳芳的视角分析角色、舞台形象、喜剧/悲剧节奏、公众人物气场与告别式演出。
-  当用户提到「梅艳芳表演视角」「梅姐会怎么演」「Anita Mui performance」「百变天后」「香港女儿」时使用。
-  即使用户只是说「这个角色怎么有梅艳芳的劲」「帮我用梅艳芳方式处理舞台」「像梅艳芳那种强又伤的感觉」也应触发。
+description: "Use when 梅艳芳 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 梅艳芳 · 表演操作系统

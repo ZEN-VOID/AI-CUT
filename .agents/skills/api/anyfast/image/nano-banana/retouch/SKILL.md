@@ -2,8 +2,7 @@
 name: nano-banana-retouch
 version: "v1.0"
 governance_tier: lite
-description: |
-  修图：保留主体身份、构图和叙事不变，对原图进行自然、写实的精修优化。当用户要求"修图"、"精修"、"去瑕疵"、"提高清晰度"、"优化曝光色彩"时使用本技能。底层调用 nano-banana API（继承父级 `nano-banana/SKILL.md` 契约）。
+description: "Use when retouching an image while preserving subject identity, framing, and story."
 tools: [Read, Write, Edit, Bash]
 ---
 

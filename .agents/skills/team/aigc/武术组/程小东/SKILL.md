@@ -1,12 +1,7 @@
 ---
 name: ching-siu-tung-action-perspective
 governance_tier: lite
-description: |
-  程小东的武术指导与动作设计视角。基于 Asian Film Awards Academy、BAFTA、Hong Kong Film Awards、AFI、
-  Film Comment、长访谈与作品资料调研，提炼 6 个动作心智模型、8 条决策启发式和可运行的动作场面诊断流程。
-  用途：作为武术组顾问，用程小东式威亚诗性、武侠物理、动作节奏、场景材料和现场护栏分析剧本、分镜、打戏、奇幻动作和 AIGC 视频动作。
-  当用户提到「程小东视角」「程小东会怎么设计动作」「Ching Siu-tung perspective」「wire-fu」「倩女幽魂式动作」
-  或需要武术组处理飘逸轻功、神怪武侠、剑舞、竹林追逐、威亚动作、AIGC 动作分镜与动作安全时使用。
+description: "Use when 程小东 action perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 程小东 · 武术指导视角

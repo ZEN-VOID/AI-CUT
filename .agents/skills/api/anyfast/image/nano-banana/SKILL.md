@@ -2,8 +2,7 @@
 name: nano-banana
 version: “v2.0”
 governance_tier: full
-description: |
-  nano-banana 图像生成 API 契约层。封装 AnyFast Gemini 原生图像接口（默认模型 `gemini-3.1-flash-image-preview`），提供参数枚举、默认值注入、原生请求构造、批量并发调度与项目化落盘。本技能为纯 API 基座，不含应用层 prompt 模板——具体生图场景由子技能包承载（general / face-swap / costume-swap / background-swap / retouch / multiview-character / multiview-scene / multiview-prop）。当你需要调用 nano-banana 生图但不确定用哪个子技能时，先读本文件确认 API 契约，再路由到对应子技能。
+description: "Use when calling AnyFast nano-banana/Gemini image API or routing its image subskills."
 tools: [Read, Write, Edit, Bash]
 color: yellow
 ---

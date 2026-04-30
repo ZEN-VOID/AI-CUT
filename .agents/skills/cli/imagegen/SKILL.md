@@ -1,6 +1,6 @@
 ---
 name: imagegen
-description: Generate or edit raster images when a task needs AI-created bitmap visuals, including photos, illustrations, textures, sprites, mockups, cutouts, or visual variants from references. Prefer the built-in image_gen tool by default, and use the bundled CLI only when the user explicitly asks for CLI/API/model controls or confirms a true-transparency fallback.
+description: "Generate or edit bitmap images: photos, illustrations, sprites, mockups, cutouts, or variants."
 governance_tier: full
 metadata:
   short-description: Generate and edit raster images

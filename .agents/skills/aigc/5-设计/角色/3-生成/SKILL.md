@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character-generation
-description: Use when generating AIGC character images from upstream character design markdowns, producing one main single-subject image and one multi-view character sheet per character under projects/aigc/<项目名>/5-设计/角色/3-生成.
+description: "Use when generating AIGC character images from approved design specs."
 governance_tier: full
 metadata:
   short-description: AIGC character image generation

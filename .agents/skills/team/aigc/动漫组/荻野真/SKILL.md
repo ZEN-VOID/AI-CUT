@@ -1,14 +1,7 @@
 ---
 name: ogino-makoto-manga-perspective
 governance_tier: lite
-description: |
-  荻野真的漫画与动漫组创作视角。基于荻野真官方 HP、集英社讣告、出版社书目、
-  《孔雀王ライジング》《孔雀王戦国転生》本人短文、复刊ドットコム资料与后续展映动态调研，
-  提炼 6 个漫画心智模型、9 条创作决策启发式和可运行的传奇动作漫画诊断流程。
-  用途：作为动漫组顾问，用荻野真式密教传奇、妖怪动作、历史异端化、旧作再连接、
-  编辑与读者ノリ、黑暗娱乐性和原稿密度方法分析漫画设定、分镜、角色、系列续作与动漫改编。
-  当用户提到「荻野真视角」「荻野真会怎么画」「Ogino Makoto perspective」
-  「孔雀王式」「密教传奇漫画」「退魔动作漫画」时使用。
+description: "Use when 荻野真 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 荻野真 · 动漫组视角

@@ -1,12 +1,7 @@
 ---
 name: zhang-yimou-director-perspective
 governance_tier: lite
-description: |
-  张艺谋的导演视角。基于 Britannica、Senses of Cinema、BU Today、CGTN、China Daily、
-  CCTV、People's Daily、China.org.cn、AP 与作品资料调研，提炼 6 个导演心智模型、9 条决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用张艺谋式画面母题、色彩/水墨系统、群众仪式、大时代小人物、类型换壳和工业传播能力分析剧本、分镜、场面、演员、视觉风格与大型演出。
-  当用户提到「张艺谋视角」「张艺谋会怎么拍」「老谋子导演法」「Zhang Yimou perspective」「像英雄/满江红/影/红高粱那样处理」
-  或需要导演组处理色彩系统、宏大场面、主流类型片、国家仪式、实景演出、现实议题商业化时使用。
+description: "Use when 张艺谋 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 张艺谋 · 导演视角

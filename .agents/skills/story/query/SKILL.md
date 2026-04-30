@@ -1,6 +1,6 @@
 ---
 name: story-query
-description: Use when story2026 needs factual retrieval about cards, fractal planning truth, runtime state, validated actualization, relationships, foreshadow urgency, review metrics, or workflow execution state in an existing novel project.
+description: "Use when retrieving facts, plans, cards, review state, or runtime truth from an existing story project."
 governance_tier: lite
 allowed-tools: Read Grep Bash
 metadata:

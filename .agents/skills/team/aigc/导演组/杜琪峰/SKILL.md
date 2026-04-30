@@ -1,12 +1,7 @@
 ---
 name: johnnie-to-director-perspective
 governance_tier: lite
-description: |
-  杜琪峰的导演视角与银河映像工作法。基于 Asian Cinema 2024 长访谈、BAFTA/AFA 对谈、Cannes/HKADC 等机构资料、
-  以及香港电影研究与影评资料的调研，提炼 6 个核心导演心智模型、8 条创作决策启发式和可运行的场面调度诊断流程。
-  用途：作为导演组顾问，用杜琪峰式空间调度、类型片重构、宿命结构、团队生产和香港本土工业判断分析剧本、分镜、动作场面与项目策略。
-  当用户提到「杜琪峰视角」「银河映像方法」「Johnnie To perspective」「杜 Sir 会怎么拍」「像杜琪峰那样调度」时使用。
-  即使用户只是说「这场戏不够银河」「帮我把枪战拍得有杜琪峰感」「江湖戏怎么做宿命感」也应触发。
+description: "Use when 杜琪峰 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 杜琪峰 · 导演操作系统

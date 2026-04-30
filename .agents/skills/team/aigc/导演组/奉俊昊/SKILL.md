@@ -1,13 +1,7 @@
 ---
 name: bong-joon-ho-director-perspective
 governance_tier: lite
-description: |
-  奉俊昊的导演视角。基于 BAFTA、Academy Museum、CJ ENM、National Board of Review、RogerEbert.com、
-  Cannes、Oscars、Britannica、AP 与近年《Mickey 17》《ALLY》公开资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用奉俊昊式类型混合、空间阶级、制度怪物、黑色幽默、普通人困境和精密分镜方法分析剧本、分镜、社会寓言、怪物/科幻、黑色喜剧、动画与项目策略。
-  当用户提到「奉俊昊视角」「奉俊昊会怎么拍」「Bong Joon Ho perspective」「寄生虫式」「杀人回忆式」「雪国列车式」
-  或需要导演组处理阶级空间、类型转调、怪物/动物/复制人寓言、黑色幽默、普通人伦理困境、韩国/国际类型片融合时使用。
+description: "Use when 奉俊昊 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 奉俊昊 · 导演视角

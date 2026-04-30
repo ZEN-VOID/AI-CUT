@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character-detail
-description: Use when expanding the upstream AIGC character inventory into one detailed LLM-authored character design markdown per character under projects/aigc/<项目名>/5-设计/角色/2-设计.
+description: "Use when expanding character inventory into detailed design specs."
 governance_tier: full
 metadata:
   short-description: AIGC detailed character design

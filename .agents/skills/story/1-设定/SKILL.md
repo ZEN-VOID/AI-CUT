@@ -2,8 +2,7 @@
 name: story-cards
 governance_tier: lite
 skill_role: parent_guide
-description: |
-  Use when story2026 needs the 1-设定 skill-group guide: route setting tasks to character, scene, item, and skill child skills while consuming global, style, and genre truth from north_star.yaml.
+description: "Use when routing story card generation for characters, scenes, items, or skills."
 tools: [Read, Write, Edit, Grep, Bash]
 color: amber
 ---

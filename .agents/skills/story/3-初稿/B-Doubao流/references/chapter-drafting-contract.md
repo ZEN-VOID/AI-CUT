@@ -61,7 +61,7 @@
 1. 当前技能的最小业务单元是“章”，不是“集”或“卷批次”。
 2. 必须先锁定当前章 planning，再读取 global/style/north-star；不得反过来凭风格或世界观猜当前章该写什么。
 3. YAML 头只保留 `写作模型: Doubao` 与 `字数: XXX字`；禁止重复写入 planning 路径、cards 路径、项目上下文路径或 global/style/north-star 摘要。
-4. 默认章节正文目标为 `2500-4000字`；若用户或上游 planning 明确给出其它区间，以显式区间为准，并由 `--min-words/--max-words` 传入脚本校验。
+4. 章节正文不设置默认字数上下限；不得由脚本按固定字数区间阻断写回。
 4. `global_context`、`style_context`、`north_star_chapter_brief` 与各类引用路径由上下文包和 sidecar 承载，不再作为章节 frontmatter 必填项。
 5. 若项目级 `CONTEXT/` 存在，必须在创作前真实加载并写入 sidecar 证据链；不得靠正文 YAML 空数组冒充加载。
 6. 若当前卷内不存在前序章，不得因此停止本章写作。
@@ -69,6 +69,7 @@
 8. 若同卷前文存在，provider 上下文包与 sidecar 必须记录实际加载路径列表；正文 YAML 不再重复承载 `previous_chapter_ref` 或 `previous_chapter_refs`。
 9. 正文主体必须是小说 prose，不得把 `本章冲突 / 本章任务线 / 章末达成 / 规避` 原样复制成正文段落。
 10. planning 中的“建议写法”只能转译成叙事动作、段落重心和章末牵引，不能原句粘贴。
+11. 正文必须保持叙事内视角完整性：planning、context pack、messages pack、sidecar、provider、frontmatter、chapter number 只属于执行证据层，不得漏入小说正文；回指前事必须改写成角色可感知的事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人”“浅海废码头这一场”。
 11. 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 12. prompt 必须导入角色卡中的 `voice_and_presence`，形成可执行的角色对白声纹表；正文对白必须能体现人物身份、关系、情绪、利益和当前意图差异。
 13. prompt 必须加载 `角色关系图谱.md` 摘录或等价关系投影，用于关系压力、联系方式、信息流、物件流和传导边判断；正文 frontmatter 不得写入该路径。
@@ -78,7 +79,7 @@
 17. 正式写作默认启动 team supervision subagents；具体模式为读取项目 `team.yaml -> roles.production.members`，把已指定监制组成员作为资深创作顾问逐一请教，并把其创意脑洞、个人风格判断和可执行指导汇流为写作前额外上下文。GPT/subagents 只做监制包与 prompt 约束，正文仍由 Doubao provider 执行。
 18. 若目标章已存在，`auto` 不得静默转为正式覆写；必须由用户显式选择 `chapter_rewrite / chapter_continue / local_repair`，且正式写回必须传入 `--force`。
 19. `chapter_continue` 必须提供续写边界或补充约束；`local_repair` 必须提供 review finding、局部问题描述或补充约束。
-20. 若豆包返回内容不含完整可解析 YAML frontmatter、`写作模型` 不等于 `Doubao`、缺少 `字数: XXX字`、正文过短、仍含模板占位、缺少 `# 第N章｜章标题` 标题行，或句式重复门禁失败，必须判定为 provider output invalid，禁止直接写回业务真源。
+20. 若豆包返回内容不含完整可解析 YAML frontmatter、`写作模型` 不等于 `Doubao`、缺少 `字数: XXX字`、正文为空、仍含模板占位、缺少 `# 第N章｜章标题` 标题行，或句式重复门禁失败，必须判定为 provider output invalid，禁止直接写回业务真源。
 21. provider 失败时只允许修 provider 输入、缩减 context、重试 provider、或向用户显式报告阻断；不允许静默回退到本地 GPT 直写。
 22. 对现有章的 `local_repair`、`chapter_rewrite`、断尾补全、review 返工和卷级修复优化，正文创作性改写仍必须由 Doubao provider 执行；GPT/subagents 只能输出 repair brief、patch intent、风险清单和复核意见。
 23. 若用户明确切换为 GPT 直接修复，必须退出本 lane 或改走 `A-GPT原生`，并同步调整 `写作模型` 与证据链；不得在 B lane 内静默切换主创模型。
@@ -88,7 +89,7 @@
 YAML 头至少包含：
 
 - `写作模型`（固定为 `Doubao`）
-- `字数`（格式为 `XXX字`，用于记录最终章节正文估算字数；默认应落在 `2500-4000字` 或本轮生效区间内）
+- `字数`（格式为 `XXX字`，用于记录最终章节正文估算字数，不作为长度限制）
 
 其余项目名、卷章号、章标题、规划引用、cards 引用、项目上下文引用、同卷前文引用与摘要字段均可由 canonical path、标题行、强上下文加载和 sidecar 追溯，不写入正文 YAML 头。
 

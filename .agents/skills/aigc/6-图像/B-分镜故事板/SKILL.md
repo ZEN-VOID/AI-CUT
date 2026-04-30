@@ -1,6 +1,6 @@
 ---
 name: aigc-image-storyboard-sheet
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must become complete multi-panel storyboard prompts, reference-bound subject slots, and batch imagegen outputs under projects/aigc/<项目名>/6-图像/B-分镜故事板/.
+description: "Use when generating storyboard sheet images for AIGC groups."
 governance_tier: full
 metadata:
   short-description: AIGC group storyboard sheet generation

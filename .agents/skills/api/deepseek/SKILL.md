@@ -2,8 +2,7 @@
 name: deepseek
 version: "v1.0"
 governance_tier: full
-description: |
-  调用 DeepSeek OpenAI 兼容 Chat Completions 接口执行固定 `deepseek-v4-pro` 对话、推理、结构化 JSON、工具调用与流式任务，支持普通文本输入、结构化 `messages` 直传、思考模式参数、报告 JSON 与文本落盘。当用户明确要求“DeepSeek / deepseek-v4-pro / DeepSeek API / DeepSeek 思考模式 / deepseek chat completions”时使用本技能。
+description: "Use when calling DeepSeek-compatible chat completions for deterministic text tasks."
 tools: [Read, Write, Edit, Bash]
 color: blue
 ---

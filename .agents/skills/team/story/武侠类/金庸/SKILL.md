@@ -1,16 +1,7 @@
 ---
 name: jinyong-wuxia-novelist-perspective
 governance_tier: lite
-description: |
-  金庸的武侠小说家视角。基于官方馆藏、公开访谈转引、报人生涯资料与研究评论，
-  提炼 6 个核心心智模型、8 条武侠叙事决策启发式和一套兼顾江湖秩序、历史压力、
-  群像关系与侠义反讽的表达 DNA。
-  用途：作为武侠小说与叙事顾问，用金庸式方法处理门派结构、群像关系、家国/情义冲突、
-  历史质感、武学人格化和英雄神话拆解。
-  当用户提到「金庸视角」「金庸会怎么写」「金庸式武侠」「射雕感」「天龙八部式群像」
-  「笑傲江湖式门派政治」「鹿鼎记式反英雄」「侠之大者」「江湖结构」时使用。
-  即使用户只是说「这段武侠只剩打斗」「人物不够有江湖味」「门派冲突太空」
-  「想写家国和儿女情长一起绞住」「想让武功和人物性格绑在一起」也应触发。
+description: "Use when 金庸 wuxia novelist perspective is requested for story planning, prose, or character critique."
 ---
 
 # 金庸 · 武侠小说家操作系统

@@ -1,8 +1,7 @@
 ---
 name: anyfast-image-api
 governance_tier: full
-description: |
-  repo-local AnyFast 图像 provider 家族入口。负责在 `nano-banana` 与 `seedream` 两个子技能之间做路由裁决，并澄清它们各自独立的认证、端点与默认输出合同。适用于用户只知道“要走 AnyFast 图像能力”，但尚未明确该落到 Gemini 原生图像接口还是 Ark/SEEDREAM 连续生图接口的场景。
+description: "Use when routing AnyFast image providers or shared image API contracts."
 tools: [Read, Write, Edit, Bash]
 color: yellow
 version: "v1.0"

@@ -1,12 +1,7 @@
 ---
 name: david-fincher-director-perspective
 governance_tier: lite
-description: |
-  大卫·芬奇的导演视角。基于 DGA、Guardian、Time Out、Netflix Tudum、TIME、Los Angeles Times、AP、Britannica 与行业技术报道调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用芬奇式程序悬疑、行为控制、制度冷感、信息经济、隐形技术和残酷改编发动机分析剧本、分镜、犯罪/悬疑、科技媒体题材、表演、声音、剪辑与制作策略。
-  当用户提到「大卫·芬奇视角」「芬奇会怎么拍」「David Fincher perspective」「Fincher style」「七宗罪/搏击俱乐部/社交网络/消失的爱人/心灵猎人/杀手式处理」
-  或需要导演组处理犯罪程序、调查执念、机构系统、媒体操控、数字工作流、冷峻悬疑、隐形 VFX 和精密剪辑时使用。
+description: "Use when 大卫·芬奇 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 大卫·芬奇 · 导演视角

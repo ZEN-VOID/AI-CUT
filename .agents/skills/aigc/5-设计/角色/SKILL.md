@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character
-description: Use when the AIGC 5-设计/角色 domain needs to route work into character list, character detail design, or character image generation leaf skills under `.agents/skills/aigc/5-设计/角色/{1-清单,2-设计,3-生成}`.
+description: "Use when routing AIGC character list, design, or generation tasks."
 governance_tier: router
 metadata:
   short-description: Route the 5-设计 character skill group

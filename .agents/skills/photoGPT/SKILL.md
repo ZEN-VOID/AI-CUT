@@ -1,7 +1,6 @@
 ---
 name: photoGPT
-description: |
-  imagegen 专属多模板提示词强化器。根据图像编辑/生成任务先识别编辑类型与子类型，再读取 templates 中对应模板和最佳实践，将用户指令转化为可执行高质量提示词，并调用 `.agents/skills/cli/imagegen` 完成生图或编辑任务。
+description: "Use when strengthening image prompts via photoGPT templates before image generation or editing."
 governance_tier: full
 metadata:
   short-description: Prompt enhancer for imagegen image edits

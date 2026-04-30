@@ -1,6 +1,6 @@
 ---
 name: story-polishing-deepseek
-description: Use when story2026 needs DeepSeek `deepseek-v4-pro` to polish an existing `3-初稿` chapter into `projects/story/<项目名>/4-润色/第N卷/第N章.md`.
+description: "Use when polishing a story chapter through the DeepSeek provider flow."
 governance_tier: full
 ---
 

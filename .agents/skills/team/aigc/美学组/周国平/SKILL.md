@@ -1,13 +1,7 @@
 ---
 name: zhou-guoping-aesthetic-perspective
 governance_tier: lite
-description: |
-  周国平的人文哲思与精神气质美学视角。基于新华网、宝安日报/宝安湾、中国新闻网、人民网、
-  国家图书馆相关活动与公开访谈资料调研，提炼 6 个核心心智模型、8 条决策启发式和完整表达 DNA。
-  用途：作为美学组顾问，用周国平式精神生活、诚实求索、经典阅读和情感尺度分析文案气质、人物关系、
-  空间氛围、阅读场景、人文审美与存在困惑。
-  当用户提到「周国平视角」「周国平会怎么看」「灵魂只能独行」「诚实的迷茫」「精神生活」「周国平式文字」
-  或需要处理孤独、阅读、人生意味、温柔而克制的人文气质时使用。
+description: "Use when 周国平 aesthetic perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 周国平 · 人文美学视角

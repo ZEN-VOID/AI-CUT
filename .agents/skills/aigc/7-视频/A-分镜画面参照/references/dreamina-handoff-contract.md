@@ -25,7 +25,7 @@
       marker: "@图1"
       role: "storyboard_frame"
   dreamina:
-    model_version: "seedance2.0fast"
+    model_version: "seedance2.0_vip"
     duration: 10
     ratio: "16:9"
     video_resolution: "720p"
@@ -42,10 +42,12 @@
 | `reference_images` 为空 | `text2video` | `dreamina text2video --prompt "<完整组内容>" --model_version=<model> --duration=<sec> --ratio=<ratio> --video_resolution=720p --poll=<sec>` |
 | `reference_images` 超过当前 CLI 上限 | `blocked` / `split_by_user_policy` | 不静默丢图；按用户策略阻断、分段或降级，并写入 report |
 
-默认值遵循 `dreamina-cli` 当前矩阵：
+默认值遵循 `dreamina-cli` 当前矩阵与本视频阶段 VIP 优先规则：
 
-- `multimodal2video`: `model_version=seedance2.0fast` 或用户显式指定的 `seedance2.0`。
-- `text2video`: `model_version=seedance2.0fast` 或用户显式指定的 `seedance2.0`。
+- `multimodal2video`: 未显式指定模型时使用 `model_version=seedance2.0_vip`。
+- `text2video`: 未显式指定模型时使用 `model_version=seedance2.0_vip`。
+- 仅当用户显式指定其他模型 / fast 档 / 非 VIP 路线时，才可改用 `seedance2.0`、`seedance2.0fast` 或 `seedance2.0fast_vip`。
+- 若当前 `dreamina <subcommand> -h` 未暴露 `seedance2.0_vip`，先提示更新或切换到新版 Dreamina CLI；不得静默降级。
 - `duration`: 默认 10 秒，必须在 Dreamina 当前允许范围内。
 - `ratio`: 默认 `16:9`，除非项目或用户指定竖屏。
 - `video_resolution`: 默认 `720p`。

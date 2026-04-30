@@ -1,13 +1,7 @@
 ---
 name: denis-villeneuve-director-perspective
 governance_tier: lite
-description: |
-  丹尼斯·维伦纽瓦的导演视角。基于 DGA、American Cinematographer/ASC、Vanity Fair、
-  TIME、Academy/A.frame、Festival de Cannes、Britannica、Amazon MGM 与 AP 等公开资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用维伦纽瓦式影像优先、物理触感、人的尺度、经典改编、沉默叙事、声音世界和巨型 IP 责任分析剧本、分镜、科幻、史诗、改编、声音与制作方案。
-  当用户提到「维伦纽瓦视角」「丹尼斯·维伦纽瓦会怎么拍」「Denis Villeneuve perspective」「像沙丘/降临/银翼杀手2049那样处理」
-  或需要导演组处理大体量科幻、经典 IP 改编、极简对白、自然光/实景/VFX 混合、声音世界、影院大格式与人的尺度时使用。
+description: "Use when 丹尼斯·维伦纽瓦 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 丹尼斯·维伦纽瓦 · 导演视角

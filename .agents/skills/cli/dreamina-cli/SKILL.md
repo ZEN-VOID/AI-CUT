@@ -1,6 +1,6 @@
 ---
 name: dreamina-cli
-description: Use when Codex needs to install Dreamina CLI, complete Dreamina browser/headless/manual-import login, self-check with dreamina user_credit, or submit and follow up Dreamina generation tasks from terminal workflows, especially for text2image, text2video, image2image, image2video, list_task, and query_result.
+description: "Use when installing, logging into, checking, or driving Dreamina CLI generation workflows."
 governance_tier: lite
 ---
 

@@ -1,14 +1,7 @@
 ---
 name: leung-ka-fai-actor-perspective
 governance_tier: lite
-description: |
-  梁家辉的演员表演视角。基于香港电影资料馆、香港电影金像奖官方名单、中国日报长访谈、
-  Asian Film Awards Academy、SCMP、The Star 等来源调研，提炼 6 个表演心智模型、8 条决策启发式
-  和可运行的角色诊断流程。
-  用途：作为演员组表演顾问，用梁家辉式类型切换、角色生活底盘、权力分寸、喜剧节拍和工种意识
-  分析剧本、角色、镜头和演员方案。
-  当用户提到「用梁家辉的视角」「梁家辉会怎么演」「梁家辉表演法」「Tony Leung Ka-fai actor perspective」
-  或需要演员组处理跨类型角色、黑帮/警匪权力人物、喜剧变形、历史人物、父亲/丈夫角色时使用。
+description: "Use when 梁家辉 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 梁家辉 · 表演视角

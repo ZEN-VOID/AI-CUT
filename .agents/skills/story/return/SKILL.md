@@ -1,6 +1,6 @@
 ---
 name: story-return
-description: Use when a PASS-validated volume has been explicitly handed off to `return` for validated actualization into Cards, planning actualization sidecars, story_map actualization, project CONTEXT carryover notes, runtime projections, and the canonical context-return artifact.
+description: "Use when returning a PASS-validated story volume into downstream summaries or next-stage handoff."
 governance_tier: full
 ---
 

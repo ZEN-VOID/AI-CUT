@@ -28,7 +28,7 @@ dreamina user_credit
 
 ## Default Parameters
 
-- `model_version`: 默认 `seedance2.0`；若当前 CLI help 不支持，降级到 `seedance2.0fast` 并记录原因。
+- `model_version`: 默认 `seedance2.0_vip`；仅当用户显式指定其他模型 / fast 档 / 非 VIP 路线时才覆盖。若当前 `dreamina <subcommand> -h` 不支持 `seedance2.0_vip`，先提示更新或切换新版 Dreamina CLI，不得静默降级。
 - `duration`: 默认 `15`。
 - `ratio`: 默认 `16:9`。
 - `video_resolution`: 默认 `720p`。
@@ -50,7 +50,7 @@ dreamina user_credit
       "queue_id": "第1集-1-1-1",
       "group_id": "1-1-1",
       "command": "multimodal2video",
-      "model_version": "seedance2.0",
+      "model_version": "seedance2.0_vip",
       "duration": 15,
       "ratio": "16:9",
       "video_resolution": "720p",
@@ -80,7 +80,7 @@ dreamina multimodal2video \
   --image "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png" \
   --image "projects/aigc/<项目名>/5-设计/场景/3-生成/永夜私立中学二年级A班教室-多视图.png" \
   --prompt "$(cat projects/aigc/<项目名>/7-视频/C-主体参照/第N集/prompts/1-1-1.txt)" \
-  --model_version=seedance2.0 \
+  --model_version=seedance2.0_vip \
   --duration=15 \
   --ratio=16:9 \
   --video_resolution=720p \
@@ -92,7 +92,7 @@ dreamina multimodal2video \
 ```bash
 dreamina text2video \
   --prompt "$(cat projects/aigc/<项目名>/7-视频/C-主体参照/第N集/prompts/1-1-1.txt)" \
-  --model_version=seedance2.0 \
+  --model_version=seedance2.0_vip \
   --duration=15 \
   --ratio=16:9 \
   --video_resolution=720p \

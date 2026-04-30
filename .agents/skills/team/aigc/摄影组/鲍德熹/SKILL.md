@@ -1,14 +1,7 @@
 ---
 name: peter-pau-cinematography-perspective
 governance_tier: lite
-description: |
-  鲍德熹的摄影组视角。基于北京国际电影节公开课、爱奇艺官方 AI Theater 新闻稿、
-  金马奖官方档案、HKMDB 与 1905/猫眼深度采访调研，提炼 6 个摄影心智模型、
-  8 条创作决策启发式和可运行的摄影诊断流程。
-  用途：作为摄影组顾问，用鲍德熹式内容优先、角色镜头设计、实拍可信度、设备适配、
-  导演共创与工业预筹方法分析分镜、光线、动作场面、剧集、类型片和 AI 影像方案。
-  当用户提到「鲍德熹视角」「鲍德熹会怎么拍」「Peter Pau perspective」「卧虎藏龙式摄影」
-  或需要摄影组处理武侠追逐、人物镜头设计、大场面工业拍摄、单机叙事、设备选择与 AI 时代摄影判断时使用。
+description: "Use when 鲍德熹 cinematography perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 鲍德熹 · 摄影组视角

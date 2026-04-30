@@ -1,6 +1,6 @@
 ---
 name: aigc-grouping
-description: Use when grouping projects/aigc/<项目名>/3-摄影/第N集.md into complete storyboard groups with north_star style prompts, bridge entry/exit shots, group IDs, and YAML statistics under projects/aigc/<项目名>/4-分组/.
+description: "Use when grouping AIGC storyboard frames into generation-ready production groups."
 governance_tier: full
 metadata:
   short-description: AIGC storyboard group assembly

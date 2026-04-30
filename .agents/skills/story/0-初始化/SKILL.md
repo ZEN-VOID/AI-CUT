@@ -1,6 +1,6 @@
 ---
 name: story-init
-description: "Use when initializing or reinitializing a 小说, 网文, 长篇故事, book, novel, or story2026 project under `projects/story/<项目名>/`; do not use for 影片, 电影, 影视, video, or AIGC film-project initialization, which routes to `aigc-init`."
+description: "Use when initializing a novel/story project under projects/story/; route film/video projects to aigc-init."
 governance_tier: full
 allowed-tools: Read Write Edit Grep Bash Task WebSearch WebFetch
 ---

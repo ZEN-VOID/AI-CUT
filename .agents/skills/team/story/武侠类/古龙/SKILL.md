@@ -1,15 +1,7 @@
 ---
 name: gu-long-story-perspective
 governance_tier: lite
-description: |
-  古龙的武侠小说家思维框架。基于 6 个调研维度（作品与自述、对话稀缺补偿、
-  表达 DNA、外部评价、关键决策、时间线）蒸馏，提炼 6 个核心心智模型、
-  8 条武侠创作启发式和一套带悬疑与刀锋节奏的古龙式回答工作流。
-  用途：作为武侠小说顾问，用古龙式视角处理江湖气、人性裂缝、朋友义气、
-  悬疑机关、短句推进、群像关系与类型创新。
-  当用户提到「古龙视角」「古龙会怎么写」「古龙式武侠」「小李飞刀感」
-  「陆小凤式悬疑」「楚留香式浪子」或希望把武侠写得更冷、更快、更讲关系、
-  更有人性时使用。
+description: "Use when 古龙 wuxia novelist perspective is requested for story planning, prose, or character critique."
 ---
 
 # 古龙 · 武侠小说刀锋系统

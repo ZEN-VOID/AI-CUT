@@ -59,7 +59,7 @@
 1. 当前技能的最小业务单元是“章”，不是“集”或“卷批次”。
 2. 必须先锁定当前章 planning，再读取 global/style/north-star；不得反过来凭风格或世界观猜当前章该写什么。
 3. YAML 头只保留 `写作模型: GPT` 与 `字数: XXX字`；禁止重复写入 planning 路径、cards 路径、项目上下文路径或 global/style/north-star 摘要。
-4. 默认章节正文目标为 `2500-4000字`；若用户或上游 planning 明确给出其它区间，以显式区间为准，并由 `--min-words/--max-words` 传入脚本校验。
+4. 章节正文不设置默认字数上下限；不得由脚本按固定字数区间阻断写回。
 4. `global_context`、`style_context`、`north_star_chapter_brief` 与各类引用路径由上下文包和 sidecar 承载，不再作为章节 frontmatter 必填项。
 5. 若项目级 `CONTEXT/` 存在，必须在创作前真实加载并写入 sidecar 证据链；不得靠正文 YAML 空数组冒充加载。
 6. 若当前卷内不存在前序章，不得因此停止本章写作。
@@ -67,6 +67,7 @@
 8. 若同卷前文存在，`context pack` / dry-run summary 必须能追溯实际加载的前序章路径列表；正文 frontmatter 仍不得写入 `previous_chapter_ref` 或 `previous_chapter_refs`。
 9. 正文主体必须是小说 prose，不得把 `本章冲突 / 本章任务线 / 章末达成 / 规避` 原样复制成正文段落。
 10. planning 中的“建议写法”只能转译成叙事动作、段落重心和章末牵引，不能原句粘贴。
+11. 正文必须保持叙事内视角完整性：planning、context pack、messages pack、sidecar、provider、frontmatter、chapter number 只属于执行证据层，不得漏入小说正文；回指前事必须改写成角色可感知的事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人”“浅海废码头这一场”。
 11. 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 12. prompt 必须导入角色卡中的 `voice_and_presence`，形成可执行的角色对白声纹表；正文对白必须能体现人物身份、关系、情绪、利益和当前意图差异。
 13. prompt 必须加载 `角色关系图谱.md` 摘录或等价关系投影，用于关系压力、联系方式、信息流、物件流和传导边判断；正文 frontmatter 不得写入该路径。
@@ -82,7 +83,7 @@
 YAML 头至少包含：
 
 - `写作模型`（固定为 `GPT`）
-- `字数`（格式为 `XXX字`，用于记录最终章节正文估算字数；默认应落在 `2500-4000字` 或本轮生效区间内）
+- `字数`（格式为 `XXX字`，用于记录最终章节正文估算字数，不作为长度限制）
 
 其余项目名、卷章号、章标题、规划引用、cards 引用、项目上下文引用、同卷前文引用与摘要字段均可由 canonical path、标题行、强上下文加载和 sidecar 追溯，不写入正文 YAML 头。
 

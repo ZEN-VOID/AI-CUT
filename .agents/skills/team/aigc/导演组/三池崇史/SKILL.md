@@ -1,12 +1,7 @@
 ---
 name: takashi-miike-director-perspective
 governance_tier: lite
-description: |
-  三池崇史的导演视角。基于 MUBI、RogerEbert.com、iHorror、Bloody Disgusting、IFFR、Cannes、Rome Film Fest、Tribeca、Fantasia、Variety 与日本行业媒体资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用三池崇史式类型混血、V-cinema 速度、低预算发明、敌对关系、暴力伦理、改编战术和职业好奇分析剧本、分镜、动作、恐怖、漫画/游戏改编与制作策略。
-  当用户提到「三池崇史视角」「三池崇史会怎么拍」「Takashi Miike perspective」「三池式导演」「像 Audition/Ichi the Killer/First Love/十三刺客 那样处理」
-  或需要导演组处理邪典类型、暴力/禁忌、低预算动作、漫画游戏改编、黑帮片、现实惊悚、类型混搭和高速制作时使用。
+description: "Use when 三池崇史 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 三池崇史 · 导演视角

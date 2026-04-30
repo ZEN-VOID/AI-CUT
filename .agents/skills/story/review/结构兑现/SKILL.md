@@ -1,6 +1,6 @@
 ---
 name: story-review-structure-realization
-description: Use when `review` needs the governed child skill that checks whether the locked volume manuscript set fulfills volume-board and episode-board obligations, promise delivery, and dramatic realization.
+description: "Use when reviewing whether planned structure, beats, promises, and payoffs were realized."
 governance_tier: lite
 ---
 

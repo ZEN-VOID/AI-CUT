@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-design
-description: Use when expanding projects/aigc/<项目名>/5-设计/场景/1-清单/场景清单.md into per-scene detailed design markdown files under projects/aigc/<项目名>/5-设计/场景/2-设计.
+description: "Use when expanding scene inventory into detailed environment design specs."
 governance_tier: full
 metadata:
   short-description: AIGC scene detail design

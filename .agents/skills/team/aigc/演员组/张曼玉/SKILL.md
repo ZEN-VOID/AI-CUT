@@ -1,13 +1,7 @@
 ---
 name: maggie-cheung-performance-perspective
 governance_tier: lite
-description: |
-  张曼玉的表演框架与银幕人格。基于戛纳、香港电影资料馆、BFI、Criterion、
-  Guardian、Independent、GQ、Straits Times 等来源调研，提炼 6 个核心心智模型、
-  8 条表演决策启发式和完整表达DNA。
-  用途：作为演员组表演顾问，用张曼玉式留白、身段控制、造型压力、转型判断和跨语境表演分析剧本、角色与镜头方案。
-  当用户提到「张曼玉表演视角」「张曼玉会怎么演」「Maggie Cheung performance」「花样年华式留白」
-  或需要处理优雅克制、旗袍/造型、跨语言角色、女演员转型、影史女性气质时使用。
+description: "Use when 张曼玉 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 张曼玉 · 表演视角

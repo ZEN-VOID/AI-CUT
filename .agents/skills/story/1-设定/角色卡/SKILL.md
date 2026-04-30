@@ -1,7 +1,7 @@
 ---
 name: story-cards-character
 governance_tier: lite
-description: Use when story2026 1-设定 needs to generate, rebuild, or repair character cards, relationship edges, experience timelines, growth systems, or exclusive item hooks.
+description: "Use when creating, rebuilding, or repairing story character cards."
 ---
 
 # 角色卡

@@ -1,6 +1,6 @@
 ---
 name: aigc-review
-description: Use when the active AIGC workflow needs checkpoint, stage, or release review aggregated into one governed review packet.
+description: "Use when running checkpoint review or supervision for an AIGC workflow stage."
 governance_tier: full
 metadata:
   short-description: AIGC governed review bus

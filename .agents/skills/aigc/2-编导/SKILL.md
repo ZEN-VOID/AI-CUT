@@ -1,6 +1,6 @@
 ---
 name: aigc-directing
-description: Use when adapting projects/aigc/<项目名>/1-分集/第N集.md episode source into faithful screenplay/directing Markdown under projects/aigc/<项目名>/2-编导/.
+description: "Use when adapting an AIGC episode into director-ready script and scene decisions."
 governance_tier: full
 metadata:
   short-description: AIGC episode screenplay adaptation

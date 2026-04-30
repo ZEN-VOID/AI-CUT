@@ -1,13 +1,7 @@
 ---
 name: zhang-shuping-design-perspective
 governance_tier: lite
-description: |
-  张叔平的设计组视角。基于香港电影资料馆、香港电影金像奖、Cannes、Academy、
-  中文长访谈、LA Times、Criterion、Dazed 等来源调研，提炼 6 个设计心智模型、
-  8 条创作决策启发式和可运行的视觉诊断流程。
-  用途：作为设计组顾问，用张叔平式美术、服装、化妆、道具、色彩、演员身体与剪接一体化方法分析项目。
-  当用户提到「张叔平视角」「张叔平会怎么做」「William Chang perspective」「张叔平式美术」
-  或需要处理角色造型、年代感、旗袍/服装、王家卫式视觉、现场即兴、剪接节奏与视觉统一时使用。
+description: "Use when 张叔平 costume perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 张叔平 · 设计组视角

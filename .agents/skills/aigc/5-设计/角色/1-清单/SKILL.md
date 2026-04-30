@@ -1,6 +1,6 @@
 ---
 name: aigc-design-character-list
-description: Use when building the character inventory for projects/aigc/<项目名> from 4-分组 storyboard group YAML `角色` fields into the canonical 5-设计/角色/1-清单 output.
+description: "Use when extracting or consolidating the AIGC character inventory."
 governance_tier: full
 metadata:
   short-description: AIGC character inventory from storyboard groups

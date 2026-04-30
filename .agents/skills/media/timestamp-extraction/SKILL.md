@@ -1,7 +1,6 @@
 ---
 name: timestamp-extraction
-description: |
-  专业帧级精度时间戳提取与剪辑点检测工具，支持静音片段、语音边界、场景切换识别与批量处理。
+description: "Use when extracting frame-accurate timestamps, edit points, silence, speech, or scene boundaries."
 ---
 
 

@@ -1,6 +1,6 @@
 ---
 name: aigc-video-stage
-description: Use when routing AIGC video-stage work under projects/aigc/<项目名>/7-视频, including frame-image referenced, storyboard-sheet referenced, subject-reference, and hybrid storyboard-subject referenced Dreamina video generation.
+description: "Use when routing AIGC video-stage jobs from storyboard and image references."
 governance_tier: router
 metadata:
   short-description: AIGC video stage router
@@ -17,6 +17,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/` 中与视频阶段、风格、角色、场景、主体资产或生成限制相关的上下文。
 - 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、Dreamina 提交与结果追踪由命中的 A/B/C/D 叶子技能负责。
 - `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
+- 视频生成默认模型：除非用户显式指定其他 Dreamina 模型 / 质量档 / 非 VIP 路线，A/B/C/D 叶子在提交 `text2video` 或 `multimodal2video` 时必须默认使用 `model_version=seedance2.0_vip`。若当前本机 CLI help 未暴露该模型，应先提示更新或切换到新版 Dreamina CLI；不得静默降级到 `seedance2.0fast` / `seedance2.0fast_vip`，降级只能来自用户显式要求。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 目标叶子 `SKILL.md` > 目标叶子分区规范 > `.agents/skills/cli/dreamina-cli/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 目标叶子 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow

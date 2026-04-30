@@ -1,7 +1,7 @@
 ---
 name: next
 governance_tier: lite
-description: 用于刷新编号技能树或工作流目录下游交互合同的命令型 skill。
+description: "Use when refreshing downstream contracts in a numbered command skill tree or workflow directory."
 ---
 
 # /next

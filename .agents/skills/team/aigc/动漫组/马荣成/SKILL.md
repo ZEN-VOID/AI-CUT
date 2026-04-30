@@ -1,14 +1,7 @@
 ---
 name: ma-wing-shing-manga-perspective
 governance_tier: lite
-description: |
-  马荣成的港漫与动漫组视觉叙事视角。基于 HKCCE、香港商报、香港舞蹈团节目册、
-  香港邮政、香港政府新闻网、文汇报港漫动力报道等公开资料调研，
-  提炼 6 个漫画心智模型、9 条创作决策启发式和可运行的写实港漫诊断流程。
-  用途：作为动漫组顾问，用马荣成式写实画功、电影分镜、留白构图、武侠神话、
-  长篇 IP 和跨媒介转译方法分析漫画、动画、角色、动作、场景、封面与改编方案。
-  当用户提到「马荣成视角」「马荣成会怎么画」「Ma Wing-shing perspective」
-  「风云式港漫」「中华英雄式画面」「步惊云/聂风式角色」「写实港漫动作分镜」时使用。
+description: "Use when 马荣成 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 马荣成 · 动漫组港漫视觉叙事视角

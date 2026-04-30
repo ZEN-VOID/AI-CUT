@@ -1,16 +1,7 @@
 ---
 name: liu-cixin-screenwriting-perspective
 governance_tier: lite
-description: |
-  刘慈欣的科幻编剧与世界观构建框架。基于6个调研维度（著作、访谈、表达DNA、
-  他者评价、创作决策、时间线）的资料梳理，提炼6个核心心智模型、8条科幻编剧
-  决策启发式和完整的硬科幻表达DNA。
-  用途：作为小说组顾问，用刘慈欣式视角处理硬科幻设定、文明危机、宇宙尺度、
-  技术奇观、外星接触、AI替代、灾难叙事与宏大世界观。
-  当用户提到「刘慈欣视角」「刘慈欣会怎么写」「大刘式科幻」「三体式设定」
-  「黑暗森林」「流浪地球式」「hard sci-fi worldbuilding」「liu cixin perspective」时使用。
-  即使用户只是说「这个科幻设定不够大」「帮我把世界观推到文明尺度」
-  「这个灾难片缺少硬科幻感」「想要三体那种宇宙压迫感」也应触发。
+description: "Use when 刘慈欣 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 刘慈欣 · 硬科幻编剧操作系统

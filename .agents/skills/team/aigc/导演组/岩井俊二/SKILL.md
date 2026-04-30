@@ -1,13 +1,7 @@
 ---
 name: shunji-iwai-director-perspective
 governance_tier: lite
-description: |
-  岩井俊二的导演视角。基于 Film Comment、A Rabbit's Foot、澎湃/Knotrope、Le Monde、
-  IWAI SHUNJI 30周年官方站、K2 Pictures、Japan Media Arts Festival 等资料调研，
-  提炼 6 个导演心智模型、8 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用岩井俊二式书信记忆、青春暗面、音乐叙事、媒介实验、演员信任和温柔残酷分析剧本、分镜、表演、声音、媒介结构与项目策略。
-  当用户提到「岩井俊二视角」「岩井俊二会怎么拍」「Shunji Iwai perspective」「像 Love Letter / 关于莉莉周的一切 / 花与爱丽丝那样处理」
-  或需要处理青春、书信、暗恋、校园创伤、音乐电影、网络匿名、震灾创伤、少女友谊、日系文艺影像时使用。
+description: "Use when 岩井俊二 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 岩井俊二 · 导演视角

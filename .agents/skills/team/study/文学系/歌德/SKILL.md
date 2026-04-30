@@ -1,18 +1,7 @@
 ---
 name: goethe-screenwriting-perspective
 governance_tier: lite
-description: |
-  歌德的编剧与诗性-成长叙事视角。基于《浮士德》《少年维特的烦恼》
-  《威廉·迈斯特的学习时代》《意大利游记》《文学论文集》《歌德谈话录》
-  等一手文本，以及 Britannica、Internet Encyclopedia of Philosophy、
-  UNESCO 与 Goethe 相关档案资料调研，提炼 6 个核心心智模型、8 条
-  创作决策启发式和完整的生成-教养表达 DNA。
-  用途：作为文学系顾问，用歌德式变形、生长、极性张力、世界文学、
-  经验观察与教养结构分析剧本、长篇、人物成长、诗性场景与跨文化改编。
-  当用户提到「歌德视角」「歌德会怎么写」「Goethe perspective」
-  「浮士德式追求」「教养小说」「世界文学」「形态学」「歌德式成长」
-  时使用。即使用户只是说「这个成长故事太扁」「人物变化像换皮」
-  「我想把诗性和结构放在一起」「跨文化改编没有打开世界」也应触发。
+description: "Use when 歌德 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 歌德 · 生成与教养的文学操作系统

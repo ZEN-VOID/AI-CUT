@@ -1,6 +1,6 @@
 ---
 name: story-review-task-convergence
-description: Use when `review` needs the governed child skill that checks whether volume/chapter branch tasks remain subordinate to upstream main tasks and converge, transfer, or stay open explicitly.
+description: "Use when aggregating story review dimensions into a final convergence verdict."
 governance_tier: lite
 ---
 

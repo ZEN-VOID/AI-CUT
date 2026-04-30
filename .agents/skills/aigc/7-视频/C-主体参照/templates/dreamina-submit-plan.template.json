@@ -14,7 +14,7 @@
       "queue_id": "",
       "group_id": "",
       "command": "multimodal2video",
-      "model_version": "seedance2.0",
+      "model_version": "seedance2.0_vip",
       "duration": 15,
       "ratio": "16:9",
       "video_resolution": "720p",

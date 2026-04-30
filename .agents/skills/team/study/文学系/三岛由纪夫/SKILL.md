@@ -1,16 +1,7 @@
 ---
 name: mishima-yukio-screenwriting-perspective
 governance_tier: lite
-description: |
-  三岛由纪夫的编剧与戏剧叙事视角。基于三島由紀夫文学館官方资料、Britannica、
-  Penguin Random House、Nobel Prize、Nippon.com、Criterion、东京大学与 Japan Society
-  等来源调研，提炼 6 个核心心智模型、8 条编剧决策启发式和完整的修辞-身体表达 DNA。
-  用途：作为小说组顾问，用三岛式假面告白、美与毁灭、身体兑现、古典形式现代化、
-  历史轮回与公共场面调度分析剧本、人物、改编、舞台、镜头和高压场景。
-  当用户提到「三岛由纪夫视角」「三岛会怎么写」「Mishima perspective」
-  「假面告白式」「金阁寺式」「丰饶之海」「现代能剧」「像三岛那样处理」时使用。
-  即使用户只是说「这个角色太平了」「人物要有假面和欲望的裂缝」「想把美写成危险」
-  「这场戏要更仪式化」「改写成现代能剧」「给我一点三岛感」也应触发。
+description: "Use when 三岛由纪夫 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 三岛由纪夫 · 假面与肉身编剧操作系统

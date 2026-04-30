@@ -1,11 +1,7 @@
 ---
 name: team-perspective-root
 governance_tier: full
-description: |
-  Use when a creative task needs routing across director, novelist,
-  actor, cinematography, design, action, aesthetic, or work-based perspective skills
-  under the team skill tree, or when shared rules for those persona or scholar skills
-  must be inspected, repaired, or governed from the root.
+description: "Use when routing creative work to team perspective skills or multi-role reviewer councils."
 ---
 
 # Team Perspective Root

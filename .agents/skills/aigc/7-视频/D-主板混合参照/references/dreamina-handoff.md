@@ -12,6 +12,13 @@
 
 故事板与主体图片都是参照图，不是首帧。默认不得使用 `image2video`，除非用户显式要求首帧图生视频并接受路线变更。
 
+默认 Dreamina 参数：
+
+- `model_version`: 未显式指定模型时使用 `seedance2.0_vip`。
+- 仅当用户显式指定其他模型 / fast 档 / 非 VIP 路线时，才可改用 `seedance2.0`、`seedance2.0fast` 或 `seedance2.0fast_vip`。
+- 若当前 `dreamina <subcommand> -h` 未暴露 `seedance2.0_vip`，先提示更新或切换到新版 Dreamina CLI；不得静默降级。
+- `video_resolution`: 默认 `720p`，保持与 Seedance 2.0 family 当前 CLI 约束一致，除非用户显式要求并经 CLI help 确认可用。
+
 ## Submit Plan Shape
 
 ```json

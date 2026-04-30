@@ -1,17 +1,7 @@
 ---
 name: kengo-kuma-design-perspective
 governance_tier: lite
-description: |
-  隈研吾的建筑与材料设计视角。基于 KKAA 官方资料、Nezu Museum、National Gallery、
-  University of Tokyo / KUMA LAB、Bundeskunsthalle、ArchDaily、Architectural Record 等公开资料调研，
-  提炼 7 个核心心智模型、9 条设计决策启发式和可运行的材料、关系、边界、五感与消隐诊断流程。
-  用途：作为设计组顾问，用隈研吾式“反物体”“材料粒子化”“柔软边界”“五感建筑”
-  和“技术回到自然”视角，分析建筑概念、展馆、美术馆、公共空间、室内、旧改、
-  AIGC 场景和空间提示词。
-  当用户提到「隈研吾设计视角」「隈研吾会怎么设计」「Kengo Kuma architecture」
-  「反物体建筑」「材料性建筑」「隈研吾式空间」时使用。
-  即使用户只是说「这个空间要更柔软」「帮我把建筑做得像会消失」
-  「用木/竹/纸/茅草做一个有自然关系的空间」也应触发。
+description: "Use when 隈研吾 architecture/design perspective is requested for study, story, design, or concept critique."
 ---
 
 # 隈研吾 · 反物体、材料与柔软边界的建筑视角

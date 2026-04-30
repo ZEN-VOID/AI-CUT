@@ -1,13 +1,7 @@
 ---
 name: lust-caution-work-perspective
 governance_tier: lite
-description: |
-  《色·戒》的作品维度。基于张爱玲原作脉络、Focus Features 制作资料、
-  Ang Lee / Tony Leung / Rodrigo Prieto 访谈，以及 RogerEbert.com 等长文调研，
-  提炼 6 个核心作品心智模型、8 条创作启发式和完整的表达DNA。
-  用途：作为作品顾问，用《色·戒》的结构、情欲、表演、历史压迫和封闭空间逻辑分析剧本、人物、分镜、亲密场面、谍战与改编。
-  当用户提到「用《色·戒》的方式」「像色·戒那样处理」「色·戒式情欲谍战」「Lust, Caution perspective」
-  或需要处理欲望污染任务、卧底扮演侵蚀身份、旧上海封闭空间、危险亲密戏、慢热背叛与历史压迫时使用。
+description: "Use when the 《色·戒》 work perspective is requested for AIGC story, visual, or adaptation critique."
 ---
 
 # 《色·戒》· 作品视角

@@ -1,6 +1,6 @@
 ---
 name: comic
-description: Use when 漫画项目需要从任意来源进入导引式四段链：1-漫画剧本改编、2-九刀流漫画提示词、3-漫画生成、4-剧集海报，并统一路由、交接和落盘到 projects/comic/[项目名]/。
+description: "Use when routing comic projects through script adaptation, nine-blade prompts, page generation, or poster handoff."
 governance_tier: router
 ---
 

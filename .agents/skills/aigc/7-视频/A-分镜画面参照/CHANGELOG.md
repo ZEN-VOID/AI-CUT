@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-04-30
+
+- 将 Dreamina 视频生成默认模型从 `seedance2.0fast` 调整为 `seedance2.0_vip`；未显式指定模型时不得静默降级到普通或 fast 队列。
+
 ## 2026-04-25
 
 - 初始化 `.agents/skills/aigc/7-视频/A-分镜画面参照/` Skill 2.0 配置。

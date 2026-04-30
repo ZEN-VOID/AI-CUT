@@ -1,14 +1,7 @@
 ---
 name: blade-runner-2049-work-perspective
 governance_tier: lite
-description: |
-  《银翼杀手2049》的作品维度。基于 TIME、Los Angeles Times、Sloan Science & Film、
-  Filmmaker Magazine、BFI、AFI 与 RogerEbert.com 等公开资料调研，提炼 6 个作品级心智模型、
-  8 条创作启发式和可运行的作品语法诊断流程。
-  用途：作为作品顾问，用《银翼杀手2049》式未来考古、身份/记忆悖论、低温侦探推进、
-  巨构空间压迫、声音压力与商品亲密性分析剧本、分镜、世界观、角色关系和美术/摄影/声音方案。
-  当用户提到「像《银翼杀手2049》那样处理」「Blade Runner 2049」「2049式科幻」「复制人身份」「未来考古」「霓虹废墟与孤独侦探」
-  或需要处理赛博黑色电影、记忆真假、被制造的亲密关系、巨大空间中的小人物时使用。
+description: "Use when the 《银翼杀手2049》 work perspective is requested for AIGC story, visual, or adaptation critique."
 ---
 
 # 《银翼杀手2049》· 作品维度

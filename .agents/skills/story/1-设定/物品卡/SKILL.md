@@ -1,7 +1,7 @@
 ---
 name: story-cards-item
 governance_tier: lite
-description: Use when story2026 1-设定 needs to generate, rebuild, or repair item cards, ownership links, usage rules, costs, or exclusive fit.
+description: "Use when creating, rebuilding, or repairing story item or prop cards."
 ---
 
 # 物品卡

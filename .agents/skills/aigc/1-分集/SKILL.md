@@ -1,6 +1,6 @@
 ---
 name: aigc-episode-split
-description: Use when splitting novel source material from projects/aigc/project/源 or another user-specified novel source into episode files under the project 1-分集 directory.
+description: "Use when splitting source material into AIGC episode files and handoff manifests."
 governance_tier: lite
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: story-review
-description: Use when the story workflow needs the parent guide skill for the review skill group, including validation routing, dimension roster loading, reviewer dispatch, aggregation, and PASS/FAIL gate ownership.
+description: "Use when running parent story review routing, reviewer dispatch, aggregation, and PASS/FAIL gates."
 governance_tier: lite
 skill_role: parent_guide
 ---

@@ -1,13 +1,7 @@
 ---
 name: yuen-woo-ping-martial-arts-perspective
 governance_tier: lite
-description: |
-  袁和平的武术组与动作导演视角。基于香港电影资料馆、NYAFF / Film at Lincoln Center、Asian Film Awards、
-  SYFY、NextShark、Global Times、中国新闻网、SCMP 等公开资料调研，提炼 6 个动作设计心智模型、
-  9 条创作决策启发式和可运行的武术组诊断流程。
-  用途：作为武术组顾问，用袁和平式真身、贴合、减法、环境动作、武侠内核和训练系统分析剧本、分镜、打戏、演员训练、威亚/特效和动作片制作。
-  当用户提到「袁和平视角」「袁和平会怎么设计」「八爷动作」「Yuen Woo-ping perspective」「袁和平武指」
-  或需要处理真打实拍、武侠动作、功夫喜剧、威亚美学、好莱坞武术训练、动作与角色关系时使用。
+description: "Use when 袁和平 action perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 袁和平 · 武术组视角

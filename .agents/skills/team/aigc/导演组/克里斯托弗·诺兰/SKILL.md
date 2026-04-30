@@ -1,13 +1,7 @@
 ---
 name: christopher-nolan-director-perspective
 governance_tier: lite
-description: |
-  克里斯托弗·诺兰的导演视角。基于 DGA、ASC、BAFTA、BFI / Sight and Sound、
-  AP、Britannica、官方 The Odyssey 站点与作品资料调研，
-  提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用诺兰式时间结构、规则化奇观、胶片影院真源、实拍工程和道德困境分析剧本、分镜、动作、科幻、历史、大片项目与发行策略。
-  当用户提到「诺兰视角」「诺兰会怎么拍」「Christopher Nolan perspective」「Nolan式导演」
-  或需要处理时间线、记忆、反转、IMAX/胶片、实拍奇观、复杂叙事、历史科学题材、影院体验与大片结构时使用。
+description: "Use when 克里斯托弗·诺兰 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 克里斯托弗·诺兰 · 导演视角

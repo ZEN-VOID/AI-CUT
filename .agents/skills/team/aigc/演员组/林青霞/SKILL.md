@@ -1,12 +1,7 @@
 ---
 name: brigitte-lin-performance-perspective
 governance_tier: lite
-description: |
-  林青霞的演员表演视角。基于 HKU、UCLA、Tatler Asia、Taipei Times、CUHK、Criterion 等来源调研，
-  提炼 6 个表演心智模型、8 条决策启发式和可运行的表演诊断流程。
-  用途：作为演员组表演顾问，用林青霞式镜前镜后、雌雄同体、武侠神话、旧梦气质和退场美学分析剧本、角色和表演方案。
-  当用户提到「林青霞表演视角」「林青霞会怎么演」「Brigitte Lin performance」「东方不败气质」「青霞式美感」
-  或需要演员组处理冷艳、旧梦、雌雄同体、武侠女性、被凝视与反凝视、传奇退场时使用。
+description: "Use when 林青霞 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 林青霞 · 表演视角

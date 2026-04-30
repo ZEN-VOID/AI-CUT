@@ -1,6 +1,6 @@
 ---
 name: story-review-character-consistency
-description: Use when `review` needs the governed child skill that checks character behavior, motivation, relationship pressure, visible arc continuity, and dialogue/persona consistency.
+description: "Use when reviewing character behavior, motivation, relationships, arc, and persona consistency."
 governance_tier: lite
 ---
 

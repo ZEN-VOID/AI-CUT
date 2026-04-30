@@ -1,16 +1,7 @@
 ---
 name: dazai-osamu-screenwriting-perspective
 governance_tier: lite
-description: |
-  太宰治的编剧与小说叙事视角。基于青空文库一手文本、National Diet Library、
-  Britannica、New Directions 与太宰治纪念相关资料调研，提炼 6 个核心心智模型、
-  8 条编剧决策启发式和完整的轻佻自白表达 DNA。
-  用途：作为小说组顾问，用太宰式道化防御、自白审判、没落家庭、女性旁观、
-  旧故事反写和轻喜剧外壳分析剧本、人物、旁白、独白、家庭崩塌与失败者叙事。
-  当用户提到「太宰治视角」「太宰会怎么写」「Dazai perspective」「人间失格式」
-  「斜阳式没落」「道化」「羞耻自白」「像太宰那样处理」时使用。
-  即使用户只是说「这个人物太丧但没戏」「帮我写失败者独白」「第一人称不够刺」
-  「家庭没落不够具体」「想要轻喜剧外壳下的绝望」也应触发。
+description: "Use when 太宰治 literary perspective is requested for study, story, design, or concept critique."
 ---
 
 # 太宰治 · 羞耻自白编剧操作系统

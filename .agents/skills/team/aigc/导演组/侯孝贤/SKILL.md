@@ -1,17 +1,7 @@
 ---
 name: hou-hsiao-hsien-director-perspective
 governance_tier: lite
-description: |
-  侯孝贤的导演视角。基于 Criterion、Metrograph / Positif、Senses of Cinema、
-  New Yorker、Focus Taiwan / CNA、The News Lens、Cannes 资料与作品研究调研，
-  提炼 7 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用侯孝贤式生活流现实主义、限制生成自由、历史家庭化、
-  段落式剧作、距离伦理和类型内现实主义分析剧本、表演、场面调度、历史题材、
-  台湾/华语语境、长镜头与慢电影风险。
-  当用户提到「侯孝贤视角」「侯孝贤会怎么拍」「Hou Hsiao-hsien perspective」
-  「侯导式导演」「像悲情城市/童年往事/海上花/千禧曼波/刺客聂隐娘那样处理」
-  或需要导演组处理生活流、历史创伤、家庭记忆、非职业演员、长镜头、画外暴力、
-  弱情节、即兴对白、武侠去奇观化时使用。
+description: "Use when 侯孝贤 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 侯孝贤 · 导演视角

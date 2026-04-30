@@ -1,6 +1,6 @@
 ---
 name: 3-摄影
-description: Use when injecting master-level storyboard, cinematography, camera movement, transition, lighting, and color language into projects/aigc/<项目名>/2-编导/第N集.md and writing the enriched episode file under projects/aigc/<项目名>/3-摄影/.
+description: "Use when creating cinematic storyboard/camera language for an AIGC episode."
 governance_tier: full
 metadata:
   short-description: AIGC episode cinematography language injection

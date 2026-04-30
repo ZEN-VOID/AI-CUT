@@ -1,6 +1,6 @@
 ---
 name: story-review-continuity
-description: Use when `review` needs the governed child skill that checks volume-internal carryover, chapter-to-chapter continuity, and thread persistence.
+description: "Use when reviewing chapter carryover, transitions, active threads, and continuity gaps."
 governance_tier: lite
 ---
 

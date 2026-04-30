@@ -2,8 +2,7 @@
 name: nano-banana-multiview-scene
 version: "v1.0"
 governance_tier: lite
-description: |
-  多视图布局-场景：基于参照图 + 场景描述，生成 3x3 九宫格多视图场景设计页（16:9）。当用户要求"场景多视图"、"场景设计页"、"场景九宫格"、"SCENE_DESIGN_SHEET"时使用本技能。底层调用 nano-banana API（继承父级契约）。
+description: "Use when generating a 3x3 multi-view scene design sheet from references."
 tools: [Read, Write, Edit, Bash]
 ---
 

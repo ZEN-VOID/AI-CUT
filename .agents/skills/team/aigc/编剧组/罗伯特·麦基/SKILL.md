@@ -1,15 +1,7 @@
 ---
 name: robert-mckee-screenwriting-perspective
 governance_tier: lite
-description: |
-  罗伯特·麦基的编剧与故事设计视角。基于 McKee 官方站、官方书页、
-  Creative Screenwriting、Big Think、The Rumpus、The New Yorker 等公开资料调研，
-  提炼 6 个核心心智模型、8 条编剧决策启发式和完整的工艺型表达 DNA。
-  用途：作为编剧组顾问，用麦基式价值转变、场景设计、压力下选择、对白动作、
-  类型承诺与控制性观点分析剧本、剧情片、短片、剧集大纲、人物弧线与改稿路径。
-  当用户提到「罗伯特·麦基视角」「麦基会怎么写」「Robert McKee perspective」
-  「Story 方法」「inciting incident」「控制性观点」「场景设计」「对白不是聊天」
-  或需要编剧组处理结构失焦、场景不起伏、角色选择无压力、对白直白解释、类型承诺不稳时使用。
+description: "Use when 罗伯特·麦基 screenwriting perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 罗伯特·麦基 · 编剧工艺视角

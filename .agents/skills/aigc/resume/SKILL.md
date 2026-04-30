@@ -1,6 +1,6 @@
 ---
 name: aigc-resume
-description: Use when an AIGC film/video project under `projects/aigc/<项目名>/` was interrupted and the operator needs to reconstruct the last stable checkpoint, repair governance artifacts, or safely continue without guessing the breakpoint.
+description: "Use when resuming an interrupted AIGC film/video project and finding the next step."
 governance_tier: lite
 metadata:
   short-description: AIGC project resume

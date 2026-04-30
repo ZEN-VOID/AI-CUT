@@ -1,15 +1,7 @@
 ---
 name: wang-guowei-aesthetic-perspective
 governance_tier: lite
-description: |
-  王国维的美学与境界论视角。基于《人间词话》《古雅之在美学上之位置》《论教育之宗旨》《自序》
-  《叔本华与尼采》、清华纪念资料、Britannica 与学术论文调研，提炼 6 个核心心智模型、
-  8 条决策启发式和完整表达 DNA。
-  用途：作为美学组顾问，用王国维式境界、有我/无我、入乎其内出乎其外、古雅与悲剧美学
-  分析诗性影像、场景、台词、东方视觉、古典文本改编与整体气质。
-  当用户提到「王国维视角」「王国维会怎么看美学」「Wang Guowei perspective」「境界说」
-  「有我之境」「无我之境」「入乎其内出乎其外」「古雅」「真景物真感情」
-  或需要处理诗性影像、情景交融、悲剧美感、古典改编与场景气质时使用。
+description: "Use when 王国维 aesthetic perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 王国维 · 美学视角

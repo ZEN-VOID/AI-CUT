@@ -12,6 +12,7 @@
 | `continuity` | 同卷前文存在时是否完整承接事实、线索、关系、文气、卷目标完成度、任务连续性与悬疑节奏；当前卷无前序章时是否用卷规划与当前章 planning 补齐 |
 | `frontmatter` | YAML 头是否只保留 `写作模型: GPT` 与 `字数: XXX字`，未重复灌入上下文引用或摘要 |
 | `prose_quality` | 正文是否是小说 prose，而非摘要、提纲、流程说明或 planning 复述 |
+| `narrative_perspective` | 正文是否保持叙事内视角，未把章节编号、上一章/本章、provider、frontmatter、sidecar、supervision_packet 等执行层标签漏入小说 |
 | `dialogue_voice` | 主要人物对白是否能体现角色卡声纹、身份、关系与当前意图，是否避免全员同一种说明腔 |
 | `sentence_variety` | 是否避免高频重复 `不是……是……` 等解释句式；同一场戏内是否有句式、节奏和表达路径变化 |
 | `gpt_native_evidence` | 是否有 context pack、GPT-authored draft sidecar、writeback summary 或等价证据 |
@@ -32,7 +33,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: context_loading | source_alignment | supervision_packet | continuity | frontmatter | prose_quality | dialogue_voice | sentence_variety | gpt_native_evidence | path_contract | script_boundary | review_handoff
+  dimension: context_loading | source_alignment | supervision_packet | continuity | frontmatter | prose_quality | narrative_perspective | dialogue_voice | sentence_variety | gpt_native_evidence | path_contract | script_boundary | review_handoff
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -60,6 +61,7 @@ finding:
 - 输出不是 canonical path。
 - frontmatter 缺 `写作模型: GPT`、缺 `字数: XXX字`，或重复写入 planning/cards/context 引用与 global/style/north-star 摘要。
 - 正文保留 planning 标题句法或流程术语。
+- 正文出现 `第N章`、`上一章`、`本章`、`本轮生成`、`provider`、`frontmatter`、`sidecar`、`supervision_packet` 等破次元标签。
 - 主要人物对白无法从口吻、措辞、停顿、动作和意图区分说话人。
 - `不是……是……` 句式在同章中过度重复，或在同一场戏连续承担解释功能。
 - 缺少 `supervision_packet` 或 subagent 降级报告。

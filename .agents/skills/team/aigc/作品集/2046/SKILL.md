@@ -1,14 +1,7 @@
 ---
 name: 2046-work-perspective
 governance_tier: lite
-description: |
-  王家卫电影作品《2046》的作品维度。基于 TIME 2004 访谈、Museum of the Moving Image
-  对谈记录、Janus Films、BFI、BAMPFA、MUBI Notebook 等公开资料调研，提炼 6 个作品心智模型、
-  8 条迁移启发式和可运行的单片语法诊断流程。
-  用途：作为作品维度顾问，用《2046》式记忆迷宫、回声结构、房号/车厢空间、未来壳层和音乐回返逻辑
-  分析剧本、角色关系、分镜、视觉声音设计与互文续写。
-  当用户提到「《2046》式」「像2046那样处理」「2046感」「房号/列车/记忆迷宫」
-  或需要把未完成爱情、时间回返、平行情人结构、未来壳层叙事做得更复杂时使用。
+description: "Use when the 《2046》 work perspective is requested for AIGC story, visual, or adaptation critique."
 ---
 
 # 《2046》· 作品维度

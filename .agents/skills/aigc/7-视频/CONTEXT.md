@@ -23,6 +23,7 @@ last_checked_at: 2026-04-26
 | query or download | 用户给 submit_id、queue ledger、videos 目录、查询/下载状态 | 先定位所属叶子 | 通过路径、ledger 文件名、report 或输出目录回推 A/B/C |
 | repair or review | 用户要求修 prompt、manifest、Dreamina batch、队列、下载结果或只审查 | 原所属叶子 | 未定位原所属叶子前不新建另一条路线 |
 | ambiguous video | 用户只说“生成视频”且 A/B/C 都可能 | 需要最小澄清或按现有资产最强证据选择 | 优先使用用户点名资产；其次既有输出目录；再其次上游已完成度 |
+| default Dreamina model drift | 未显式指定模型时仍沿用 `seedance2.0fast`、`seedance2.0` 或普通队列 | A/B/C/D 叶子 handoff | 统一改为 `seedance2.0_vip`；若 CLI help 不支持，先更新或阻断说明，不静默降级 |
 
 ## Repair Playbook
 
@@ -44,3 +45,4 @@ last_checked_at: 2026-04-26
 - 视频阶段的上游事实主源通常是 `4-分组`；`5-设计` 和 `6-图像` 提供参照资产，不应反向改写分组正文。
 - 缺少参照图不一定阻断视频路线；错用参照图、猜测主体、空路径占位、重复提交才是父级需要警惕的路由风险。
 - 只要任务涉及实际 prompt 组装、参照路径绑定、Dreamina 命令、queue ledger 或下载，就已经进入叶子技能职责。
+- 视频生成未显式指定模型时，父级和叶子都应按 `seedance2.0_vip` 理解默认值；`seedance2.0fast`、`seedance2.0fast_vip` 或普通 `seedance2.0` 只能来自用户显式选择或已记录的阻断后人工确认。

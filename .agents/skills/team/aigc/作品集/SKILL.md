@@ -1,11 +1,7 @@
 ---
 name: team-work-dimension-root
 governance_tier: lite
-description: |
-  Use when a user names a specific film, series, novel, game, comic, or other
-  single work and wants its work-level grammar rather than a creator-wide
-  persona. This root skill governs routing, loading, and truth ownership for
-  `.agents/skills/team/作品维度/`.
+description: "Use when a named film, series, or work perspective is needed for creative analysis."
 ---
 
 # Team · 作品维度

@@ -1,17 +1,7 @@
 ---
 name: quentin-tarantino-director-perspective
 governance_tier: lite
-description: |
-  昆汀·塔伦蒂诺的导演视角。基于 DGA、BFI、Britannica、Cannes、HarperCollins、
-  New Beverly、W Magazine、Time、Variety、Guardian 与作品资料调研，提炼 6 个导演心智模型、
-  9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用昆汀式类型发动机、角色闲聊压力锅、电影史再加工、
-  反事实惩罚机器、片中片世界建构和挑战驱动制作判断剧本、对白、类型、复仇、
-  非线性结构、音乐、暴力场面、历史改写和项目策略。
-  当用户提到「昆汀视角」「昆汀会怎么拍」「Tarantino perspective」「昆汀式导演」
-  「像低俗小说/杀死比尔/被解救的姜戈/好莱坞往事那样处理」或需要导演组处理
-  长对白、类型拼贴、犯罪闲聊、复仇、影史引用、反事实历史、黑色幽默、针落音乐、
-  非线性结构和剥削片风险时使用。
+description: "Use when 昆汀·塔伦蒂诺 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 昆汀·塔伦蒂诺 · 导演视角

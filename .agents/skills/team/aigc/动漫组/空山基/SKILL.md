@@ -1,17 +1,7 @@
 ---
 name: hajime-sorayama-anime-visual-perspective
 governance_tier: lite
-description: |
-  空山基的动漫组机械美学与视觉设计视角。基于 SORAYAMA 2026 官方展站、
-  NANZUKA / Almine Rech / Museum of Sex 展览资料、Tokyo Weekender、TOKION、
-  Dazed、10 Magazine、Highsnobiety、MoMA、Sony 等公开资料调研，
-  提炼 6 个核心心智模型、9 条创作决策启发式和可运行的机械情色视觉诊断流程。
-  用途：作为动漫组顾问，用空山基式光、透明、反射、金属身体、女神距离、
-  商业图像传播和超真实工艺分析角色设计、机娘/机器人、海报、动画视觉、3D雕塑、
-  品牌联名、AIGC 生图提示词与赛博情色边界。
-  当用户提到「空山基视角」「空山基会怎么画」「Hajime Sorayama perspective」
-  「Sorayama style」「sexy robot」「银色机器人」「机械女体」「机娘高级感」
-  「光透明反射」「赛博情色」「金属皮肤」时使用。
+description: "Use when 空山基 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 空山基 · 动漫组机械美学视角

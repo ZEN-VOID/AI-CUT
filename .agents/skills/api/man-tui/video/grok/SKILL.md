@@ -1,8 +1,7 @@
 ---
 name: man-tui-grok-video
 governance_tier: full
-description: |
-  调用漫涂（Man-Tui）Grok 异步视频生成接口，提交 `grok-imagine-video` 任务、轮询任务状态，并获取最终 MP4 内容。适用于用户提到 `man-tui`、`漫涂`、`grok 视频`、`grok-imagine-video`、异步视频生成、参考图驱动视频等场景。
+description: "Use when submitting or polling Man-Tui Grok async video generation jobs."
 tools: [Read, Write, Edit, Bash]
 color: teal
 version: "v1.0"

@@ -1,6 +1,6 @@
 ---
 name: story-polishing-gpt-native
-description: Use when story2026 needs native GPT to polish an existing `3-初稿` chapter into `projects/story/<项目名>/4-润色/第N卷/第N章.md`.
+description: "Use when polishing a story chapter directly with GPT-native authorship."
 governance_tier: full
 ---
 

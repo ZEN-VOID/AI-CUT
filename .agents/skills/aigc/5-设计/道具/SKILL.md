@@ -1,6 +1,6 @@
 ---
 name: aigc-design-prop
-description: Use when the AIGC 5-设计/道具 domain needs to route work into prop list, prop detail design, or prop image generation leaf skills under `.agents/skills/aigc/5-设计/道具/{1-清单,2-设计,3-生成}`.
+description: "Use when routing AIGC prop list, design, or generation tasks."
 governance_tier: router
 metadata:
   short-description: Route the 5-设计 prop skill group

@@ -2,8 +2,7 @@
 name: story-plan
 governance_tier: lite
 skill_role: parent_guide
-description: |
-  Use when story2026 needs fractal planning passes that converge into `2-卷章/整体规划.md` + `2-卷章/第N卷/卷规划.md` + `2-卷章/第N卷/第N章.md`, with optional compatibility projection kept outside the primary business truth.
+description: "Use when planning story2026 books, volumes, and chapters through fractal planning."
 tools: [Read, Write, Edit, Grep, Bash]
 color: indigo
 ---

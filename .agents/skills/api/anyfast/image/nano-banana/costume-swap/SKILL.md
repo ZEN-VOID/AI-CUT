@@ -2,8 +2,7 @@
 name: nano-banana-costume-swap
 version: "v1.0"
 governance_tier: lite
-description: |
-  角色换装：保留角色形象不变，将服装替换为参照图中的服装样式。当用户要求"换装"、"换衣服"、"保留角色换服装"、"服装替换"时使用本技能。底层调用 nano-banana API（继承父级 `nano-banana/SKILL.md` 契约）。
+description: "Use when changing clothing while preserving the character identity and pose."
 tools: [Read, Write, Edit, Bash]
 ---
 

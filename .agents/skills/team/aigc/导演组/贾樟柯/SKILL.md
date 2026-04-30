@@ -1,19 +1,7 @@
 ---
 name: jia-zhangke-director-perspective
 governance_tier: lite
-description: |
-  贾樟柯的导演视角。基于 dGenerate 译载文章、Senses of Cinema 访谈、
-  Asian Film Archive 访谈手册、Duke University Press 对谈图书、
-  Festival de Cannes / Pingyao / NYFF / Asian Film Awards Academy 官方资料、
-  以及 BFI、The New Yorker 等研究与评论调研，提炼 6 个导演心智模型、
-  9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用贾樟柯式普通人时代切片、县城/边缘空间观察、
-  纪实/虚构混写、数字时间材料、地方性全球化和公共传播协商分析剧本、分镜、
-  现实题材、社会转型、人物行动与导演方案。
-  当用户提到「贾樟柯视角」「贾科长会怎么拍」「Jia Zhangke perspective」
-  「像小武/站台/三峡好人/天注定/江湖儿女/风流一代那样处理」
-  或需要导演组处理社会转型、县城青年、普通人、拆迁/迁移、现实中的超现实、
-  纪录-虚构混合、时代记忆和数字档案影像时使用。
+description: "Use when 贾樟柯 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 贾樟柯 · 导演视角

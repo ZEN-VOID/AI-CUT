@@ -1,6 +1,6 @@
 ---
 name: story-repair
-description: Use when a story2026 novel project needs local change management that traces upstream sources, sibling/previous context, downstream drafts, settings, planning, review gates, and accepted actualization before writing a coherent repair.
+description: "Use when repairing a story project across planning, cards, drafts, polish, review, or future constraints."
 governance_tier: full
 ---
 

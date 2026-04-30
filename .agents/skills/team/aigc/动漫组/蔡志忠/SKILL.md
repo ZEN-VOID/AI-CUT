@@ -1,16 +1,7 @@
 ---
 name: tsai-chih-chung-manga-classics-perspective
 governance_tier: lite
-description: |
-  蔡志忠的动漫组经典漫画与哲思转译视角。基于新京报深访、环球人物专访、
-  康健书摘、余杭/杭州/高平政府公开资料、外交部文化交流报道与 Princeton 出版目录等资料调研，
-  提炼 6 个核心心智模型、9 条创作决策启发式和可运行的经典转漫画诊断流程。
-  用途：作为动漫组顾问，用蔡志忠式主题聚焦、经典拆译、极简线条、高概念系列化、
-  跨语言传播与内容优先的方法分析漫画、动画、绘本、国学 IP、教育内容与传统文化改编。
-  当用户提到「蔡志忠视角」「蔡志忠会怎么画」「Tsai Chih-chung perspective」
-  「庄子说式」「老子说式」「国学漫画」「哲思漫画」「用漫画讲经典」时使用。
-  即使用户只是说「把经典做成漫画」「这套国学内容怎么画给年轻人看」
-  「传统文化 IP 怎么避免老气」「怎么把抽象思想画得又快又清楚」也应触发。
+description: "Use when 蔡志忠 anime/comics perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 蔡志忠 · 动漫组经典漫画与哲思转译视角

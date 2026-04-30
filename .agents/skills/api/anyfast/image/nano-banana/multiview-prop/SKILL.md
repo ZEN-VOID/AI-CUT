@@ -2,8 +2,7 @@
 name: nano-banana-multiview-prop
 version: "v1.0"
 governance_tier: lite
-description: |
-  多视图布局-道具：基于参照图 + 道具描述，生成 PROP_DESIGN_SHEET 多视图道具设计页（16:9 三栏布局）。当用户要求"道具多视图"、"道具设计页"、"道具转身图"、"PROP_DESIGN_SHEET"时使用本技能。底层调用 nano-banana API（继承父级契约）。
+description: "Use when generating a multi-view prop design sheet from references."
 tools: [Read, Write, Edit, Bash]
 ---
 

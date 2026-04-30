@@ -1,16 +1,7 @@
 ---
 name: yoshikawa-eiji-wuxia-story-perspective
 governance_tier: lite
-description: |
-  吉川英治的小说家与武侠历史叙事视角。基于青空文库自述与序文、Britannica、
-  青梅市吉川英治记念馆、神奈川近代文学馆、兵库文学馆与讲谈社相关资料调研，
-  提炼 6 个核心心智模型、8 条长篇叙事启发式和完整的国民文学表达 DNA。
-  用途：作为故事组顾问，用吉川英治式求道成长、史料缝隙推理、国民文学可读性、
-  时代群像与侠义修身分析武侠、历史群像、英雄成长、长篇连载与通俗史诗。
-  当用户提到「吉川英治视角」「吉川英治会怎么写」「Yoshikawa Eiji perspective」
-  「宫本武藏式成长」「新平家物语式群像」「把历史写得好看但不假」「国民文学武侠」
-  时使用。即使用户只是说「主角太像天降神人」「历史材料很硬不好看」「武打很热闹但人物没长出来」
-  「想写大众能读进去的英雄长篇」「小说要有评书感又不能俗」也应触发。
+description: "Use when 吉川英治 wuxia novelist perspective is requested for story planning, prose, or character critique."
 ---
 
 # 吉川英治 · 国民武侠历史小说操作系统

@@ -1,14 +1,7 @@
 ---
 name: seijun-suzuki-director-perspective
 governance_tier: lite
-description: |
-  铃木清顺的导演视角。基于 Nikkatsu、Directors Guild of Japan、Criterion、
-  BFI、Harvard Film Archive、Japan Society、Venice Classics/Imagica、Senses of Cinema
-  与作品资料调研，提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用铃木清顺式制片厂反叛、类型片拆解、色彩暴力、感官逻辑、
-  荒诞身体和流亡后的梦幻仪式方法分析剧本、分镜、类型片、美术、剪辑、声音与项目策略。
-  当用户提到「铃木清顺视角」「铃木清顺会怎么拍」「Seijun Suzuki perspective」
-  「清顺式导演」「像东京流浪者/杀手烙印那样处理」时使用。
+description: "Use when 铃木清顺 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 铃木清顺 · 导演视角

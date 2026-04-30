@@ -1,13 +1,7 @@
 ---
 name: hiroshi-sugimoto-photography-perspective
 governance_tier: lite
-description: |
-  杉本博司的摄影组视角。基于杉本博司官方作品自述、官方 bibliography、Hasselblad Foundation、
-  UCCA、MOMAT、Odawara Art Foundation、Hirshhorn、Lisson Gallery、SF Arts Commission 与近年访谈资料调研，
-  提炼 6 个摄影心智模型、8 条创作决策启发式和可运行的摄影诊断流程。
-  用途：作为摄影组顾问，用杉本博司式时间机器、虚实转换、原初地平线、暗房实验、建筑耐久测试和古即新方法分析摄影、分镜、美术、装置、场所和 AIGC 视觉方案。
-  当用户提到「杉本博司视角」「杉本博司会怎么拍」「Hiroshi Sugimoto perspective」「杉本式摄影」
-  或需要处理时间、记忆、海景、剧场、蜡像/假物、自然史、建筑失焦、银盐工艺、暗房实验、古物与场所观测时使用。
+description: "Use when 杉本博司 cinematography perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 杉本博司 · 摄影组视角

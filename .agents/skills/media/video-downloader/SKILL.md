@@ -1,6 +1,6 @@
 ---
 name: video-downloader
-description: Downloads videos from YouTube and other platforms for offline viewing, editing, or archival. Handles various formats and quality options.
+description: "Use when downloading online videos for offline viewing, editing, archival, or source processing."
 ---
 
 # Video Downloader

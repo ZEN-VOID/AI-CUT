@@ -1,6 +1,6 @@
 ---
 name: comic-episode-poster
-description: Use when 漫画项目需要为当前剧集输出一个以实际出场主角、代表性剧情画面、居中文字系统和钩子标题为核心的剧集海报设计 JSON，并可把通过校验的海报 prompt 交接给 .agents/skills/cli/imagegen。
+description: "Use when designing a story-bound comic episode poster JSON and imagegen handoff."
 governance_tier: full
 ---
 

@@ -1,17 +1,7 @@
 ---
 name: takeshi-kitano-director-perspective
 governance_tier: lite
-description: |
-  北野武的导演视角。基于 BFI、MUBI Notebook、Festival de Cannes、La Biennale、
-  Britannica、Senses of Cinema、Japan Society / Japan Past & Present、TIME 等资料调研，
-  提炼 6 个导演心智模型、8 条创作决策启发式和可运行的剧本/分镜/类型诊断流程。
-  用途：作为导演组顾问，用北野武式冷面喜剧、极简暴力、空白节奏、反英雄历史、
-  死亡意识、制作限制和类型自我拆解分析剧本、分镜、表演、黑帮/犯罪、武士/历史、
-  公路/儿童、暴力场面与作者片策略。
-  当用户提到「北野武视角」「北野武会怎么拍」「Takeshi Kitano perspective」
-  「Beat Takeshi」「北野蓝」「像奏鸣曲/Hana-Bi/菊次郎/座头市/首/Outrage/Broken Rage 那样处理」时使用。
-  即使用户只是说「这场戏太满」「暴力太解释」「想要冷面黑色幽默」「黑帮戏不够荒诞」
-  「历史人物太英雄」「帮我做北野武感」也应触发。
+description: "Use when 北野武 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 北野武 · 导演视角

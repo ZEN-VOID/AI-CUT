@@ -1,12 +1,7 @@
 ---
 name: tony-leung-actor-perspective
 governance_tier: lite
-description: |
-  梁朝伟的演员表演视角。基于香港电影资料馆、Venice Biennale、Festival de Cannes、香港演艺学院、
-  Asian Film Awards Academy、GQ 等来源调研，提炼 6 个表演心智模型、8 条决策启发式和完整表达DNA。
-  用途：作为演员组表演顾问，用梁朝伟式克制、沉默、眼神、角色秘密和导演协作方法分析剧本、角色和镜头表演。
-  当用户提到「梁朝伟表演视角」「伟仔会怎么演」「Tony Leung actor perspective」「用梁朝伟的方式演」
-  或需要演员组处理克制表演、眼神戏、沉默场面、王家卫式角色、警匪卧底、情欲/心理高压戏时使用。
+description: "Use when 梁朝伟 performance perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 梁朝伟 · 表演视角

@@ -1,7 +1,7 @@
 ---
 name: story-cards-skill
 governance_tier: lite
-description: Use when story2026 1-设定 needs to generate, rebuild, or repair skill cards for technologies, spells, martial arts, combat skills, craft talents, professional skills, or other capability systems.
+description: "Use when creating, rebuilding, or repairing story capability, spell, martial-art, or talent cards."
 ---
 
 # 技能卡

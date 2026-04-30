@@ -1,6 +1,6 @@
 ---
 name: aigc
-description: Root entry for AIGC film/video projects under projects/aigc/<项目名>/, routing initialization, stage execution, query, resume, and review skills.
+description: "Use when coordinating AIGC film/video projects under projects/aigc/ across all production stages."
 governance_tier: full
 metadata:
   short-description: AIGC film workflow root router

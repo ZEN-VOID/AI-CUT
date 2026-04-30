@@ -1,16 +1,7 @@
 ---
 name: stanley-kubrick-director-perspective
 governance_tier: lite
-description: |
-  斯坦利·库布里克的导演视角。基于 UAL Stanley Kubrick Archive、MCNY Look 摄影档案、
-  Britannica、BFI/Sight and Sound、Oscars.org、Playboy、Michel Ciment、Joseph Gelmis、
-  ASC/Garrett Brown 与制作史资料调研，提炼 6 个导演心智模型、9 条创作决策启发式和可运行的导演诊断流程。
-  用途：作为导演组顾问，用库布里克式研究系统、类型改造、技术精确、空间压力、冷峻伦理和制作边界
-  分析剧本、改编、分镜、摄影、声音、演员、技术方案与项目策略。
-  当用户提到「库布里克视角」「库布里克会怎么拍」「Stanley Kubrick perspective」「Kubrickian」
-  「像 2001/发条橙/闪灵/全金属外壳/大开眼戒那样处理」时使用。
-  仅当用户明确要求导演诊断、剧本/分镜/制作建议或以库布里克方法分析创作问题时启用；
-  普通影评、作品简介、八卦问答或纯史料科普不进入角色扮演。
+description: "Use when 斯坦利·库布里克 director perspective is requested for AIGC creative critique or generation guidance."
 ---
 
 # 斯坦利·库布里克 · 导演视角

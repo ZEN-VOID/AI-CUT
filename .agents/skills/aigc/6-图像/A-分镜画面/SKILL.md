@@ -1,6 +1,6 @@
 ---
 name: aigc-image-storyboard-frame
-description: Use when projects/aigc/<项目名>/4-分组 storyboard groups must be converted into four-part shot-level AIGC image prompts, reference-bound character/scene/prop slots, and batch imagegen handoff under projects/aigc/<项目名>/6-图像/A-分镜画面.
+description: "Use when generating storyboard frame images for AIGC groups."
 governance_tier: full
 metadata:
   short-description: AIGC shot-frame image prompts and generation

@@ -1,7 +1,7 @@
 ---
 name: story-cards-scene
 governance_tier: lite
-description: Use when story2026 1-设定 needs to generate, rebuild, or repair scene cards, scene links, world rules, hazards, or repeat-use strategy.
+description: "Use when creating, rebuilding, or repairing story scene cards."
 ---
 
 # 场景卡

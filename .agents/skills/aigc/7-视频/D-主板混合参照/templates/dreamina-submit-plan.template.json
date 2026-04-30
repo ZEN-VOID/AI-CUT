@@ -4,10 +4,10 @@
   "route": "D-主板混合参照",
   "output_root": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
   "defaults": {
-    "model": "seedance2.0",
+    "model": "seedance2.0_vip",
     "duration": 15,
     "ratio": "16:9",
-    "video_resolution": "1080p",
+    "video_resolution": "720p",
     "poll": 30,
     "concurrency": 4
   },

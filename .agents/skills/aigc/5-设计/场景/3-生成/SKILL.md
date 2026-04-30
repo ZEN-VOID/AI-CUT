@@ -1,6 +1,6 @@
 ---
 name: aigc-scene-generation
-description: Use when generating scene images from per-scene design documents under projects/aigc/<项目名>/5-设计/场景/2-设计 into main images and multi-view scene sheets under projects/aigc/<项目名>/5-设计/场景/3-生成.
+description: "Use when generating AIGC scene images from approved design specs."
 governance_tier: full
 metadata:
   short-description: AIGC scene image generation
