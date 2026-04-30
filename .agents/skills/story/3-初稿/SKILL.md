@@ -121,7 +121,7 @@ flowchart TD
 - `projects/story/<项目名>/MEMORY.md`：项目存在时必须加载。
 - `projects/story/<项目名>/CONTEXT/**/*.md`：存在时按当前卷/章相关性加载。
 - `projects/story/<项目名>/1-设定/2-角色卡/角色关系图谱.md`：存在时必须加载进 context pack，用于关系压力、联系方式、信息流、物件流和传导边；不得写入正文 frontmatter。
-- `projects/story/<项目名>/3-初稿/第N卷/第N-1章.md`：存在时作为承接增强；不存在不得阻塞起稿。
+- `projects/story/<项目名>/3-初稿/第V卷/<本卷起始章>.md ... 第N-1章.md`：当前卷内早于目标章且已存在的所有前序章必须加载为同卷前文上下文；最近前章用于开章承接重点，其余前序章用于既成事实、线索状态、关系推进、道具流向、卷目标完成度、任务连续性、悬疑节奏把控性、任务余波和文气连续性。若当前卷无前序章，不得阻塞起稿。
 - 当前目标章正文：若已存在，必须先回读，再进入续写、重写或局部修复。
 - 章节正文字数目标：默认 `2500-4000字`；优先级为用户本轮明确指定 > 章级 planning 指定 > 卷级 planning 指定 > `north_star.yaml.project_identity.target_words / target_chapters` 推导 > 本默认区间。
 
@@ -154,7 +154,7 @@ flowchart TD
 
 1. 锁定项目根、卷号、章号与用户意图。
 2. 读取 story 根层与本目录 `CONTEXT.md`，确认 canonical output 仍是 `3-初稿/第N卷/第N章.md`。
-3. 检查上游 truth 是否齐备：三层 planning、全局卡、风格卡、`north_star.yaml`、项目 `MEMORY.md`、相关项目 `CONTEXT/`、上一章或现有目标章。
+3. 检查上游 truth 是否齐备：三层 planning、全局卡、风格卡、`north_star.yaml`、项目 `MEMORY.md`、相关项目 `CONTEXT/`、同卷全部前序章或现有目标章。
 4. 按 `Lane Selection` 选择唯一 lane。
    - 若请求实际属于润色，停止 `3-初稿` 写作流程，按分流图移交 `4-润色`；润色未显式指定 provider 时默认进入 `4-润色/C-Deepseek流`，并保持最小局部修补。
 5. 加载该 lane 的 `SKILL.md + CONTEXT.md`，继续由子路径完成具体 context pack、主创、校验、sidecar 与 writeback。
@@ -167,9 +167,10 @@ flowchart TD
 ## Core Gates
 
 - `3-初稿` 只能消费 planning、cards、north-star、项目记忆与项目上下文，不得替上游真源补写设定。
-- YAML frontmatter 只要求包含 `写作模型` 与 `字数`；`写作模型` 取值只能为 `GPT`、`Doubao`、`Deepseek`，并必须与所选 lane 一致；`字数` 必须写作 `XXX字` 格式。planning、cards、north-star、项目上下文和上一章引用由强上下文加载与 sidecar 承载，不重复写入正文头部。
+- YAML frontmatter 只要求包含 `写作模型` 与 `字数`；`写作模型` 取值只能为 `GPT`、`Doubao`、`Deepseek`，并必须与所选 lane 一致；`字数` 必须写作 `XXX字` 格式。planning、cards、north-star、项目上下文和同卷前文引用由强上下文加载与 sidecar 承载，不重复写入正文头部。
 - 默认章节正文必须落在 `2500-4000字`；若用户或上游 planning 明确给出其它区间，子路径必须把最终生效区间写入 context pack / messages pack / dry-run summary，并按该区间校验最终正文实际长度。
 - 正文主体必须是中文小说 prose，不得把 planning 标题、任务线或规避条目原样贴成正文。
+- 正文不得用脸部颜色变化作为惊吓、羞窘、愤怒或震动的默认表达捷径，尤其避免“吓得脸都白了 / 脸红了 / 脸白了 / 脸黄了 / 脸绿了 / 脸色惨白 / 脸色大变”等模板化措辞；必须改用动作停顿、呼吸、手部细节、步伐、视线、物件误触、话语断裂、空间退让或角色身份相关反应来呈现情绪。
 - 业务真源路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 - 本阶段正式产物只写入 `projects/story/<项目名>/3-初稿/`，默认不生成额外项目产物。
 - `review` 以前的 drafting 完成只表示 candidate draft 完成，不等于 validated final draft。

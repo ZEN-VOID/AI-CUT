@@ -15,8 +15,8 @@
 | 明明是按章直写，却仍回写到平铺 `3-初稿/第N章.md` | runtime path contract | 改回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` | 在 `3-初稿/B-Doubao流/SKILL.md`、桥接脚本与 registry 路由同时固定 canonical 输出路径 | 正文不会再漂到平铺旧路径 |
 | 只读三层 planning，没读north_star 全局/风格/类型契约 | context pack contract | 回补 `0-初始化/north_star.yaml` 的 `global_contract`、`style_contract` 与 `genre_contract` | 把完整上下文加载与 sidecar 证据链作为硬门槛，YAML 头只保留 `写作模型` 与 `字数` | sidecar 中三类上下文齐备，正文能读出吸收痕迹 |
 | 项目有 `CONTEXT/`，但 drafting 完全没加载 | project context loading | 补读相关 `CONTEXT` 文件并记录到 sidecar | 固定“存在则按相关性加载，不存在才留空” | sidecar 中 `project_context_refs` 与真实上下文一致 |
-| 把上一章当成硬阻塞门，上一章缺失就停工 | continuity policy | 改成“上一章增强输入，planning 是兜底硬输入” | 在 skill 合同写死“previous optional, planning mandatory” | 上一章不存在时，本章仍可开写 |
-| 上一章虽然被读取，但新章仍像重新开局 | continuity bridge under-specified | 把上一章末尾摘录单独置入 provider prompt，并显式要求承接既成事实、位置、情绪余波、未完成动作和悬念压力 | 将“上一章正文”升级为 `continuity bridge`，并在有上一章时校验 `previous_chapter_ref` | messages pack 中能看到连续性桥；正文开章能读出上一章之后的下一步 |
+| 把同卷前文当成硬阻塞门，当前卷无前序章就停工 | continuity policy | 改成“同卷前文增强输入，planning 是兜底硬输入” | 在 skill 合同写死“same-volume priors optional, planning mandatory” | 当前卷无前序章时，本章仍可开写 |
+| 只加载最近上一章，导致同卷早前事实、伏笔、线索、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性断裂 | same-volume continuity underload | 加载当前卷内所有已存在且早于目标章的正文，并把最近前章末尾摘录单独置入 provider prompt | 将“上一章正文”升级为“同卷前文连续性桥”，并在 dry-run summary 暴露 `previous_chapter_refs` | messages pack 中能看到同卷前文逐章摘录；正文开章能读出同卷前文之后的下一步 |
 | `3-初稿` 看起来命中正确，但实际创作仍由本地 GPT 会话直接写出 | provider route drift | 改成通过 `write_chapter_via_doubao.py` 调用 AnyFast 豆包，再写回业务根稿 | 在主合同里写死“actual creative step = Doubao provider”，并为脚本增加 dry-run / 校验 / writeback 路径 | provider 报告、messages pack 与写回文件能互相对上 |
 | GPT 监制意见只停在口头，没有进入豆包 prompt | supervision packet drop | 把 subagents 汇流为 `supervision_packet`，通过 `--supervision-packet` 注入 messages pack | B lane 固定 GPT 为监制层、Doubao 为执行层；脚本记录 `supervision_packet_ref` | messages JSON 中含监制包；最终正文仍有 Doubao provider 证据 |
 | 监制包未按项目 `team.yaml` 已指定监制组请教，只给泛泛创作建议 | project team consultation gap | 读取 `roles.production.members`，为每位相关大师提出具体问题并汇流可执行指导 | 监制包固定 `project_team_ref / consultations / executable_guidance` 字段 | Doubao messages 含可追溯的请教式监制包 |
@@ -35,8 +35,8 @@
 1. 先确认失败发生在路径、加载、frontmatter、承接还是正文 prose 转写层。
 2. 若 YAML 头缺字段，只检查并补正 `写作模型: Doubao` 与 `字数: XXX字`；上下文缺口回到 context pack / sidecar，而不是补进正文头。
 3. 若正文像摘要稿，优先检查是不是把 planning 语言直接搬进正文。
-4. 若开章发虚，先看上一章承接与 `第N章.md` 的开章义务是否真的被解码。
-5. 若上下章像各写各的，优先检查 messages pack 是否只截取了上一章开头；承接判断应优先看上一章末尾，而不是章节开篇。
+4. 若开章发虚，先看同卷前文承接与 `第N章.md` 的开章义务是否真的被解码。
+5. 若上下章像各写各的，优先检查 messages pack 是否覆盖当前卷内全部已存在前序章；最近前章末尾负责开章入场，其他前序章负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 6. 若文件路径错了，先修 path contract，再谈内容质量。
 7. 若执行记录里看不见 provider messages pack、豆包 sidecar 或 provider report，优先怀疑根本没走真实豆包。
 8. 若 provider 输出缺字段，不要手工就地补正文冒充成功；先修 prompt / 校验 / provider 返回格式。
@@ -50,8 +50,8 @@
 
 - 章级直写最容易漏的不是剧情，而是“作者此章为何这样写”的约束包；这层约束应进创作上下文和 sidecar，不再塞进正文 YAML。
 - `north_star` 对本技能最稳的用法不是在正文头复述，而是转成正文中的压力、选择和章末牵引。
-- 若上一章缺失，最可靠的替代承接永远是 `卷规划.md + 第N章.md`，不是临场脑补。
-- 若上一章存在，最可靠的承接材料通常是上一章末尾 3-6k 字，而不是上一章开头；章节开头负责调性，章节末尾负责因果入场。
+- 若当前卷无前序章，最可靠的替代承接永远是 `卷规划.md + 第N章.md`，不是临场脑补。
+- 若同卷前文存在，最可靠的承接组合是“最近前章末尾 3-6k 字 + 同卷全部前序章逐章摘录”；最近前章负责因果入场，早前章节负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 - frontmatter 的最佳长度是“能标记写作模型与字数即可”，不要展示已加载资料。
 - 只要正文还保留 planning 标题或条目句法，就说明小说化转换还没完成。
 - 对当前技能来说，“真正命中豆包”不是口头说明，而是能落出 messages pack、provider report、raw model output 和最终 `第N卷/第N章.md` 的同轮证据链。

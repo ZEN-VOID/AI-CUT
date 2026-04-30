@@ -1,6 +1,6 @@
 # story-drafting-deepseek
 
-`story-drafting-deepseek` 是 `story2026` 的 `3-初稿` 阶段 DeepSeek provider 技能，负责把章节 planning、全局卡、风格卡、`north_star`、项目记忆、项目上下文与上一章承接转成 canonical 章节正文。
+`story-drafting-deepseek` 是 `story2026` 的 `3-初稿` 阶段 DeepSeek provider 技能，负责把章节 planning、全局卡、风格卡、`north_star`、项目记忆、项目上下文与当前卷全部前序章承接转成 canonical 章节正文。
 
 ## Directory Tree
 

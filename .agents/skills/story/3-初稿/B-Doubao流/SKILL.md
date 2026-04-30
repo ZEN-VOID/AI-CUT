@@ -17,13 +17,13 @@ governance_tier: full
 - 启动监制 subagents 前必须读取项目 `team.yaml`、`.agents/skills/team/SKILL.md + CONTEXT.md`，再只加载 `team.yaml` 已指定或共享合同补位选中的 team 成员技能 `SKILL.md + CONTEXT.md`。
 - 若当前任务已绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前卷/章相关性加载项目根 `CONTEXT/` 中的上下文文件。
 - 必须读取当前项目的三层 planning 真源、对象/风格真源与 `north_star.yaml`；具体清单见 `references/chapter-drafting-contract.md`。
-- 若上一章正文已存在，必须读取它作为连续性增强输入；若不存在，不得因此阻塞本章起稿。
+- 必须加载当前卷内所有已存在且早于目标章的前序正文作为同卷前文上下文；最近前章负责开章承接重点，其他前序章负责既成事实、线索状态、关系推进、道具流向、卷目标完成度、任务连续性、悬疑节奏把控性、任务余波和文气边界。若当前卷无前序章，不得因此阻塞本章起稿。
 - 若目标文件已存在，必须先回读现有 `第N卷/第N章.md`，再决定是续写、重写还是局部重构。
 - `CONTEXT.md` 只承载经验层 Type Map、Repair Playbook 与 Reusable Heuristics，不得重定义本入口合同。
 
 ## Purpose
 
-`B-Doubao流` 是 `story2026` 主链 `3-初稿` 阶段的豆包 provider 路径。它负责在路由选择豆包流时，把当前章 planning 义务、全局卡、风格卡、`north_star.yaml`、项目记忆、项目上下文与上一章承接，转成可落盘的中文小说章节。
+`B-Doubao流` 是 `story2026` 主链 `3-初稿` 阶段的豆包 provider 路径。它负责在路由选择豆包流时，把当前章 planning 义务、全局卡、风格卡、`north_star.yaml`、项目记忆、项目上下文与当前卷全部前序章承接，转成可落盘的中文小说章节。
 
 它拥有：
 
@@ -85,7 +85,7 @@ governance_tier: full
 
 - `projects/story/<项目名>/MEMORY.md`：项目存在时必须加载。
 - `projects/story/<项目名>/CONTEXT/**/*.md`：存在时按当前卷/章相关性加载。
-- `projects/story/<项目名>/3-初稿/第N卷/第N-1章.md`：存在时作为承接增强。
+- `projects/story/<项目名>/3-初稿/第V卷/<本卷起始章>.md ... 第N-1章.md`：当前卷内已存在且早于目标章的所有前序章必须进入 messages/context pack；最近前章用于开章承接，其他前序章用于事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性、悬疑节奏把控性、任务余波和文气连续性。
 - 当前目标章正文：存在时必须回读后再续写、重写或修复。
 
 ### Reject Or Block
@@ -124,7 +124,7 @@ governance_tier: full
 ```mermaid
 flowchart TD
     A["N1 Intake: 锁定项目根与卷章"] --> B["N2 Type Profile: 判定起草/续写/重写/修复"]
-    B --> C["N3 Source Alignment: 读取 planning/cards/north_star/MEMORY/CONTEXT/上一章"]
+    B --> C["N3 Source Alignment: 读取 planning/cards/north_star/MEMORY/CONTEXT/同卷前文"]
     C --> D{"执行分支"}
     D -->|"chapter_draft"| E["组装新章上下文包"]
     D -->|"chapter_rewrite"| F["回读现稿并组装重写约束"]
@@ -149,7 +149,7 @@ graph LR
     D["全局卡"] --> I["global_context"]
     E["风格卡"] --> J["style_context"]
     F["项目 MEMORY.md"] --> K["project_memory_constraints"]
-    G["项目 CONTEXT/ + 上一章"] --> L["continuity bridge"]
+    G["项目 CONTEXT/ + 同卷前文"] --> L["continuity bridge"]
     H --> M["context pack / sidecar"]
     I --> M
     J --> M
@@ -164,7 +164,7 @@ graph LR
 ## Core Gates
 
 - 必须先锁定当前章 planning，再读取 global/style/north-star；不得凭风格或世界观反推当前章义务。
-- YAML 头只保留 `写作模型: Doubao` 与 `字数: XXX字`；上下文引用、global/style/north-star 摘要与上一章路径由强加载和 sidecar 追溯。
+- YAML 头只保留 `写作模型: Doubao` 与 `字数: XXX字`；上下文引用、global/style/north-star 摘要与同卷前文路径由强加载和 sidecar 追溯。
 - 默认章节正文目标为 `2500-4000字`；若用户或上游 planning 明确给出其它区间，脚本必须通过 `--min-words/--max-words` 传入并校验最终正文实际长度。
 - 正文主体必须是小说 prose，不得把 planning 中的标题、任务线或规避条目原样复制成正文段落。
 - 正式写作必须有 `supervision_packet` 或明确的 subagent 降级报告；该包必须包含项目 `team.yaml` roster 来源、请教问题、顾问回答摘要和最终可执行指导，并作为执行约束进入 Doubao messages，不写入正文 frontmatter。
@@ -214,7 +214,7 @@ graph LR
 | --- | --- | --- | --- | --- |
 | `N1-SOURCE-LOCK` | 用户请求与项目根 | 锁定卷章与 canonical output | `source_lock_note` | `N2-TYPE-PROFILE` |
 | `N2-TYPE-PROFILE` | 目标章状态与用户意图 | 判定 drafting mode | `type_profile` | `N3-CONTEXT-PACK` |
-| `N3-CONTEXT-PACK` | planning/cards/north_star/MEMORY/CONTEXT/上一章 | 组装 provider context 并准备监制输入 | `messages_pack` | `N3S-SUPERVISION-PACKET` |
+| `N3-CONTEXT-PACK` | planning/cards/north_star/MEMORY/CONTEXT/同卷前文 | 组装 provider context 并准备监制输入 | `messages_pack` | `N3S-SUPERVISION-PACKET` |
 | `N3S-SUPERVISION-PACKET` | messages pack、项目 `team.yaml`、team root、被选 team 技能 | 启动隔离 subagents，向 `roles.production.members` 中相关大师请教具体创作问题，并汇流监制包 | `supervision_packet` | `N4-DRAFT-BRANCH` |
 | `N4-DRAFT-BRANCH` | `type_profile` 与 context pack | 选择新章/重写/续写/修复分支 | `branch_prompt` | `N6-PROVIDER-DRAFT` |
 | `N6-PROVIDER-DRAFT` | provider prompt、`supervision_packet` | 调用豆包生成完整章节 | `provider_output` | `N7-VALIDATE-WRITEBACK` |

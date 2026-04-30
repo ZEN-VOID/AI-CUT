@@ -28,6 +28,7 @@ last_checked_at: 2026-04-27
 | 正文写回路径漂到平铺 `第N章.md`、`第N集.md`、`正文/` 或旧 `Drafting/chNNNN/chapter-root.md` | canonical path contract | 改回 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` | 父级和所有子路径都把 canonical output 作为硬门禁 | writeback path 与 registry `canonical_output` 一致 |
 | 父级导引层吞掉子路径经验，导致 `CONTEXT.md` 变成 provider 细则合集 | context ownership drift | 把 provider 经验迁回对应 lane `CONTEXT.md` | 父级只保留跨 lane 的防漂移经验 | 本文件不出现 provider prompt、脚本参数细则或章节正文规则长表 |
 | 子路径执行前漏读 story 根层、项目 `MEMORY.md` 或项目 `CONTEXT/` | loading bridge gap | 在父级先列 loading plan，再交给 lane 继续加载 | 父级 Context Loading Contract 固定 shared + project + lane 三段式 | lane handoff 前已能列出必须读取的根层和项目层上下文 |
+| 新章上下文只加载最近上一章，导致同卷早前伏笔、线索状态、关系推进、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性断裂 | same-volume prior-chapter underload | 改为加载当前卷内所有已存在且早于目标章的前序正文；最近前章只作为开章承接重点 | 父级与 A/B/C lane 的 Input Contract、context pack 脚本和 dry-run summary 均记录 `previous_chapter_refs` 列表 | dry-run summary 出现本卷全部前序章路径，messages/context pack 含“同卷前文逐章摘录” |
 | 正文只按角色声纹写互动，漏掉角色关系图谱的联系方式和传导边 | relationship graph context gap | context pack 加载 `1-设定/2-角色卡/角色关系图谱.md` 摘录 | 父级 Input Contract 与 A/B/C 脚本都固定 `relationship_graph_ref` | dry-run summary 出现 `relationship_graph_ref`，messages/context pack 出现“角色关系图谱”段落 |
 | 正式写作没有启动 team supervision subagents，却把本地自评当监制 | supervision dispatch gap | 回读 `_shared/supervised-drafting-review-loop-contract.md`，补真实 subagent roster 或降级报告 | 父级 handoff 固定要求 `supervision_packet`，A/B/C scripts 消费 `--supervision-packet` | messages pack 中能追溯监制包或降级说明 |
 | 启用了 subagents，但没有按项目 `team.yaml` 中的监制组成员请教，只临时从 team 根另选人或写泛泛意见 | project team consultation gap | 回读项目 `team.yaml -> roles.production.members`，向已指定监制组成员提出具体领域问题，重新汇流 `supervision_packet` | 共享合同固定 project team roster 优先级、请教题包和可执行指导字段 | `supervision_packet` 能追溯 team.yaml、consultation questions、answer_summary 与 executable_guidance |
@@ -36,6 +37,7 @@ last_checked_at: 2026-04-27
 | lane artifacts 被误认为正文真源 | evidence/truth confusion | 移除默认 artifacts 输出，只保留 `3-初稿/第N卷/第N章.md` | 父级 Output Contract 固定“本阶段正式产物只写入 3-初稿” | query/resume/review 默认读取 canonical draft |
 | 章节产出忽长忽短，frontmatter 只有事后 `字数` 记录 | word-count contract gap | 默认按 `2500-4000字` 传入 lane prompt 与校验；用户或 planning 明确指定时用显式区间覆盖 | 父级记录字数优先级，A/B/C 脚本统一支持 `--min-words/--max-words` | dry-run summary / messages pack 出现生效区间，最终正文实际长度通过校验 |
 | 旧 step-after-write 即时审计合同又被当成当前主创拓扑 | compatibility contract overreach | 仅在恢复/兼容 runtime 时加载 `_shared/drafting-instant-validation-contract.md` | 父级写明它不是默认主创路径 | 新章节直写不再先展开旧八步 runtime |
+| 惊吓、羞窘或愤怒反复写成“脸红了 / 脸白了 / 脸色惨白 / 脸色大变” | emotion shorthand loop | 改用角色动作、呼吸、手部细节、视线、步伐、物件误触、话语断裂或空间退让来呈现情绪 | 父级 Core Gates 与各 lane prompt 固定“脸部颜色变化不是默认情绪表达” | 抽查正文不再以脸色颜色词承载关键情绪变化 |
 
 ## Repair Playbook
 
@@ -51,6 +53,8 @@ last_checked_at: 2026-04-27
 10. 若用户只给出类似 `2500-4000` 的区间，默认解释为章节正文目标字数区间；同步到父级合同、lane prompt、脚本参数和最终长度校验，而不是只改 frontmatter 示例。
 11. 若监制包缺项目 `team.yaml` roster 来源、请教问题或可执行指导，按共享合同重做请教汇流，不把泛泛顾问意见继续传给正文主创层。
 12. 若人物互动变成“我知道你是谁”的说明腔，先查 context pack 是否加载 `角色关系图谱.md`；缺失时重建 context pack，让正文按物件、证据、通信和情感触发来写关系。
+13. 若当前章忘记同卷早前事实、伏笔、线索、关系推进、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性，先查 dry-run summary 的 `previous_chapter_refs` 是否覆盖当前卷内全部已存在前序章；若只出现最近上一章，优先修 context pack 脚本和 lane 输入合同。
+14. 若人工校阅指出“脸红 / 脸白 / 脸色大变”等情绪捷径过多，先把它视为初稿表达规则缺口；修正时用动作链和角色身份反应替代，不做简单同义词替换。
 
 ## Reusable Heuristics
 
@@ -68,3 +72,5 @@ last_checked_at: 2026-04-27
 - 初稿阶段的 subagents 监制不是临时另组顾问团；若项目 `team.yaml` 已锁定 `roles.production.members`，应把这些成员当资深创作顾问按领域请教，再把灵感转成执行约束给正文主创层。
 - 字数控制应作为生效区间进入 prompt 与 validator；`字数: XXX字` 只是结果记录，不能单独承担长度控制。
 - 角色声纹表解决“谁怎么说话”，角色关系图谱解决“他们靠什么发生关系”；两者都应进入初稿上下文。
+- 新章上下文的连续性基础是“本卷全部前序章”，不是“最近上一章”；最近前章负责开章姿态，同卷早前章节负责伏笔、事实、关系、线索、道具、卷目标完成度、任务连续性、悬疑节奏把控性和文气边界。
+- 情绪变化不要默认落在脸色颜色词上；成熟小说里惊吓、羞窘、愤怒和震动更应该通过动作停顿、呼吸、手部细节、视线、退让距离、物件误触和话语断裂显影。

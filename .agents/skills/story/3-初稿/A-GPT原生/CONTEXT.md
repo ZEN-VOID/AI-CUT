@@ -14,8 +14,8 @@
 | --- | --- | --- | --- | --- |
 | GPT 原生流只读章级 planning，漏读north_star 全局/风格/类型契约 | context pack contract | 回补 `0-初始化/north_star.yaml` 的 `global_contract`、`style_contract` 与 `genre_contract` | 把完整上下文加载与 sidecar 证据链作为硬门槛，YAML 头只保留 `写作模型` 与 `字数` | sidecar 中三类上下文齐备，正文能读出吸收痕迹 |
 | 项目有 `MEMORY.md` 或 `CONTEXT/`，但正文没有吸收项目长期偏好 | project context loading | 先读项目记忆，再按相关性选项目上下文 | 固定项目根上下文加载顺序与 sidecar refs | sidecar 中 `project_context_refs` 与真实上下文一致 |
-| 把上一章当成硬阻塞门，上一章缺失就停工 | continuity policy | 改成“上一章增强输入，planning 是兜底硬输入” | 固定“previous optional, planning mandatory” | 上一章不存在时，本章仍可开写 |
-| 上一章虽然被读取，但新章仍像重新开局 | continuity bridge under-specified | 把上一章末尾摘录单独置入 context pack，并显式要求承接既成事实、位置、情绪余波、未完成动作和悬念压力 | 将“上一章正文”升级为 `continuity bridge`，并在 dry-run summary 暴露 `previous_chapter_ref` | context pack 中能看到连续性桥；正文开章能读出上一章之后的下一步 |
+| 把同卷前文当成硬阻塞门，当前卷无前序章就停工 | continuity policy | 改成“同卷前文增强输入，planning 是兜底硬输入” | 固定“same-volume priors optional, planning mandatory” | 当前卷无前序章时，本章仍可开写 |
+| 只加载最近上一章，导致同卷早前事实、伏笔、线索、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性断裂 | same-volume continuity underload | 加载当前卷内所有已存在且早于目标章的正文，并把最近前章末尾摘录置入 context pack | 将“上一章正文”升级为“同卷前文连续性桥”，dry-run summary 暴露 `previous_chapter_refs` | context pack 中能看到同卷前文逐章摘录；正文开章能读出同卷前文之后的下一步 |
 | GPT 原生正文缺少可复核加载痕迹 | evidence chain gap | 运行 `write_chapter_gpt_native.py --dry-run` 检查 context pack 摘要，正式执行只写 canonical 章节 | Completion gate 固定加载计划、GPT-authored draft 与 writeback 状态 | 最终章节仍可追溯到加载计划与 stdout 摘要 |
 | 脚本开始自动补写正文段落 | script boundary drift | 立即删除规则补写逻辑，改为只接受 `--draft-file` 或 stdin 的 LLM 已创作稿 | 在脚本和 review gate 中固定“脚本不主创” | 脚本没有任何模板灌字、启发式扩写或段落生成函数 |
 | GPT 原生主写作者自评被当成独立监制 | supervision isolation gap | 启动后台隔离 subagents 产出 `supervision_packet`，主写作者只消费汇流后的约束 | A lane 固定“同模型也要隔离上下文”，脚本支持 `--supervision-packet` | messages JSON 中含监制包；报告能列出真实 subagent 或降级原因 |
@@ -33,8 +33,8 @@
 1. 先确认失败发生在路径、加载、frontmatter、承接、GPT 原生主创还是脚本边界层。
 2. 若 YAML 头缺字段，只检查并补正 `写作模型: GPT` 与 `字数: XXX字`；上下文缺口回到 context pack / sidecar，而不是补进正文头。
 3. 若正文像摘要稿，优先检查是不是把 planning 语言直接搬进正文。
-4. 若开章发虚，先看上一章承接与 `第N章.md` 的开章义务是否真的被解码。
-5. 若上下章像各写各的，优先检查 context pack 是否只截取了上一章开头；承接判断应优先看上一章末尾，而不是章节开篇。
+4. 若开章发虚，先看同卷前文承接与 `第N章.md` 的开章义务是否真的被解码。
+5. 若上下章像各写各的，优先检查 context pack 是否覆盖当前卷内全部已存在前序章；最近前章末尾负责开章入场，其他前序章负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 6. 若文件路径错了，先修 path contract，再谈内容质量。
 7. 若执行记录里看不见 context pack、GPT-authored draft sidecar 或 writeback summary，优先补证据链。
 8. 若脚本开始“自动生成正文”，直接回到 `scripts/write_chapter_gpt_native.py` 修边界；脚本只能校验和落盘。
@@ -48,8 +48,8 @@
 - GPT 原生路径的优势是当前会话能同时持有创作判断与项目约束；风险是容易忘记留下可复查 sidecar。
 - 章级直写最容易漏的不是剧情，而是“作者此章为何这样写”的约束包；这层约束应进创作上下文和 sidecar，不再塞进正文 YAML。
 - `north_star` 对本技能最稳的用法不是在正文头复述，而是转成正文中的压力、选择和章末牵引。
-- 若上一章缺失，最可靠的替代承接永远是 `卷规划.md + 第N章.md`，不是临场脑补。
-- 若上一章存在，最可靠的承接材料通常是上一章末尾 3-6k 字，而不是上一章开头；章节开头负责调性，章节末尾负责因果入场。
+- 若当前卷无前序章，最可靠的替代承接永远是 `卷规划.md + 第N章.md`，不是临场脑补。
+- 若同卷前文存在，最可靠的承接组合是“最近前章末尾 3-6k 字 + 同卷全部前序章逐章摘录”；最近前章负责因果入场，早前章节负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 - frontmatter 的最佳长度是“能标记写作模型与字数即可”，不要展示已加载资料。
 - 只要正文还保留 planning 标题或条目句法，就说明小说化转换还没完成。
 - A 路径保持 GPT 原生默认；需要外部模型时显式切到 B 或其他 provider skill。

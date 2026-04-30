@@ -15,7 +15,7 @@
 | source_priority | 是否先修 canonical owner，再修投影和正文 |
 | continuity | 修改后同层前列、当前章、后续章和卷末兑现是否连续 |
 | cards_planning_alignment | 对象卡、整体规划、卷规划、章规划是否同向 |
-| authorship | 创作性改写是否回到 owning stage 和原 provider lane |
+| authorship | 创作性改写是否回到 owning stage 和原 provider lane；指定文档头部含 `写作模型` 时，实际 creative engine 是否默认遵循该字段 |
 | accepted_truth | PASS 终稿、return actualization、STATE 是否被正确失效、重验或保留 |
 | residual_risk | 是否说明未改文件、未知消费者和后续生成 guardrail |
 
@@ -49,4 +49,5 @@ finding:
 - 没有 `canonical_owner` 和 `writeback_order`。
 - 旧口径在上游真源仍正向命中，但报告声称已完成。
 - B/C lane 正文创作性改写缺 provider evidence。
+- 指定文档头部存在 `写作模型`，但内容调整未按该模型执行，且没有用户显式切换模型的证据。
 - 已 PASS/return 的事实被改变但 review/return 未处理。

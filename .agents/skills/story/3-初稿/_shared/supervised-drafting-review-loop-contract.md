@@ -34,14 +34,14 @@
 | `structure_supervisor` | 优先选 `aigc/编剧组/` 或能处理结构兑现的角色 | 本章承诺、卷级推进、场景价值转变 |
 | `character_supervisor` | 优先选能处理人物声口、关系压力、表演/心理的角色 | 动机、对白、情绪余波、人物弧线 |
 | `style_supervisor` | 优先选与风格卡、项目 MEMORY、审美口味匹配的美学/文学/作品维度角色 | 语体、气压、段落呼吸、禁区 |
-| `continuity_supervisor` | 可由主 agent 或专门 subagent 承担，重点看上一章、当前卷线索和规划锚点 | 承接、时间、支线去向、未完成动作 |
+| `continuity_supervisor` | 可由主 agent 或专门 subagent 承担，重点看同卷全部前序章、当前卷线索和规划锚点 | 承接、时间、支线去向、未完成动作、线索状态、关系推进、道具流向、卷目标完成度、任务连续性、悬疑节奏把控性 |
 
 ## Consultation Mode
 
 每个被启动的监制 subagent 必须收到“请教题包”，而不是笼统的“审一下”。题包由主 agent 根据本章 context pack 生成，至少包含：
 
 - `consultation_question`：面向该成员专长的具体问题，例如“本章章末牵引怎样更像武侠章回推进”“这场对峙的价值转变是否成立”“女主此处的自尊与亲情修复怎样不落狗血”。
-- `evidence_slice`：只提供回答所需的 planning、角色声纹、上一章承接、项目 MEMORY/CONTEXT 和风险点摘录，不要求成员重读全项目。
+- `evidence_slice`：只提供回答所需的 planning、角色声纹、同卷前文承接、项目 MEMORY/CONTEXT 和风险点摘录，不要求成员重读全项目。
 - `creative_probe`：允许成员提出风格化脑洞、反套路处理、个人方法论中的高价值偏方。
 - `execution_request`：必须把脑洞落成执行指导，包含本章应做、应避免、可转成 prompt 的具体约束。
 

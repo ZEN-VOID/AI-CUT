@@ -39,6 +39,7 @@ from planning_paths import (
     canonical_book_plan_path,
     canonical_chapter_plan_path,
     canonical_volume_plan_path,
+    planned_chapter_numbers_for_volume,
     planning_volume_num_for_chapter,
 )
 from project_locator import resolve_project_root
@@ -281,25 +282,45 @@ def _build_branch_instruction_section(
     return "\n\n".join(lines)
 
 
-def _build_continuity_bridge_section(previous_path: Path | None, project_root: Path) -> str:
-    if previous_path and previous_path.exists():
-        previous_ref = _rel(previous_path, project_root)
-        previous_text = _read_text(previous_path)
+def _previous_chapter_paths_for_volume(project_root: Path, volume_num: int, chapter_num: int) -> list[Path]:
+    paths: list[Path] = []
+    for previous_chapter_num in planned_chapter_numbers_for_volume(project_root, volume_num):
+        if previous_chapter_num >= chapter_num:
+            continue
+        previous_path = find_chapter_file(project_root, previous_chapter_num)
+        if previous_path and previous_path.exists():
+            paths.append(previous_path)
+    return paths
+
+
+def _build_continuity_bridge_section(previous_paths: list[Path], project_root: Path) -> str:
+    if previous_paths:
+        previous_refs = [_rel(path, project_root) for path in previous_paths]
+        latest_path = previous_paths[-1]
+        latest_ref = _rel(latest_path, project_root)
+        latest_text = _read_text(latest_path)
+        chapter_payload = []
+        for path in previous_paths:
+            ref = _rel(path, project_root)
+            chapter_payload.append(f"[{ref}]\n{_excerpt(_read_text(path), 5000)}")
         return (
-            f"连续性桥（必须优先吸收，来源：{previous_ref}）：\n"
-            "1. 本章开篇必须承接上一章末尾已经发生的事实、人物所在位置、情绪余波、未完成动作和悬念压力。\n"
-            "2. 不得把本章写成重新开局；允许自然跳时，但必须用叙事细节交代上一章到本章之间的因果过渡。\n"
-            "3. 当前章 planning 是推进方向，上一章末尾是入场姿态；两者冲突时，先保留上一章既成事实，再用本章事件完成推进。\n"
-            "4. 章末必须形成对下一章的牵引，不要在本章内把所有压力清空。\n\n"
-            "上一章末尾摘录（优先用于开章承接）：\n"
-            + _tail_excerpt(previous_text, 6000)
-            + "\n\n上一章整体摘录（用于人物状态、事实与文气校准）：\n"
-            + _excerpt(previous_text, 9000)
+            "同卷前文连续性桥（必须优先吸收；范围为当前卷内所有已存在且章号小于当前章的正文）：\n"
+            + "\n".join(f"- {ref}" for ref in previous_refs)
+            + "\n"
+            f"1. 本章开篇必须优先承接最近前章 `{latest_ref}` 末尾已经发生的事实、人物所在位置、情绪余波、未完成动作和悬念压力。\n"
+            "2. 不得只以上一章为唯一判断对象；必须综合同卷全部前文中的既成事实、线索状态、关系推进、道具流向、卷目标完成度、任务连续性、悬疑节奏把控性、任务余波和文气节奏。\n"
+            "3. 不得把本章写成重新开局；允许自然跳时，但必须用叙事细节交代前文到本章之间的因果过渡。\n"
+            "4. 当前章 planning 是推进方向，同卷前文是入场姿态、事实边界、卷目标完成度和任务连续性边界；两者冲突时，先保留前文已成立事实，再用本章事件完成推进。\n"
+            "5. 章末必须形成对下一章的牵引，不要在本章内把所有压力清空。\n\n"
+            "最近前章末尾摘录（优先用于开章承接）：\n"
+            + _tail_excerpt(latest_text, 6000)
+            + "\n\n同卷前文逐章摘录（用于人物状态、线索回收、事实边界、卷目标完成度、任务连续性、悬疑节奏把控性与文气校准）：\n"
+            + "\n\n".join(chapter_payload)
         )
 
     return (
-        "连续性桥：上一章正文未找到；本章不得停工，必须改用当前卷规划与当前章 planning "
-        "建立开章入场、推进因果和章末牵引。"
+        "同卷前文连续性桥：当前卷内未找到早于当前章的正文；本章不得停工，必须改用当前卷规划与当前章 planning "
+        "建立开章入场、推进因果和章末牵引。后续章节起稿时必须加载本卷范围内全部前序正文。"
     )
 
 
@@ -320,7 +341,7 @@ def _build_messages(
     global_cards: list[Path],
     style_cards: list[Path],
     project_context_files: list[Path],
-    previous_path: Path | None,
+    previous_paths: list[Path],
     current_path: Path,
     user_instructions: list[str],
     instruction_file_text: str,
@@ -334,7 +355,7 @@ def _build_messages(
     global_card_refs = [_rel(path, project_root) for path in global_cards]
     style_card_refs = [_rel(path, project_root) for path in style_cards]
     project_context_refs = [_rel(path, project_root) for path in project_context_files]
-    previous_ref = _rel(previous_path, project_root) if previous_path else ""
+    previous_ref = _rel(previous_paths[-1], project_root) if previous_paths else ""
 
     output_template = _render_output_template(
         story_name=story_name,
@@ -359,7 +380,7 @@ def _build_messages(
         "north_star：\n" + _excerpt(_read_text(north_star_path), 3000),
     ]
 
-    sections.append(_build_continuity_bridge_section(previous_path, project_root))
+    sections.append(_build_continuity_bridge_section(previous_paths, project_root))
 
     branch_instruction_section = _build_branch_instruction_section(
         drafting_mode=drafting_mode,
@@ -634,7 +655,7 @@ def main() -> int:
     north_star_path = project_root / "0-初始化" / "north_star.yaml"
     memory_path = project_root / "MEMORY.md"
     chapter_path = drafting_root_md_path(project_root, chapter_num)
-    previous_path = find_chapter_file(project_root, chapter_num - 1) if chapter_num > 1 else None
+    previous_paths = _previous_chapter_paths_for_volume(project_root, volume_num, chapter_num)
     drafting_mode = _resolve_drafting_mode(args, chapter_path)
     instruction_file_text = _read_optional_instruction_file(args.instruction_file)
     supervision_packet_text = _read_text(Path(args.supervision_packet)).strip() if args.supervision_packet else ""
@@ -664,7 +685,7 @@ def main() -> int:
         global_cards=global_cards,
         style_cards=style_cards,
         project_context_files=project_context_files,
-        previous_path=previous_path,
+        previous_paths=previous_paths,
         current_path=chapter_path,
         user_instructions=args.instruction,
         instruction_file_text=instruction_file_text,
@@ -696,7 +717,7 @@ def main() -> int:
             if (project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md").is_file()
             else "",
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
-            "previous_chapter_ref": _rel(previous_path, project_root) if previous_path and previous_path.exists() else "",
+            "previous_chapter_refs": [_rel(path, project_root) for path in previous_paths],
             "provider": "deepseek-v4-pro",
             "thinking": "enabled",
             "reasoning_effort": "high",

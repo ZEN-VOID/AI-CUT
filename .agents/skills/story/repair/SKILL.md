@@ -14,6 +14,7 @@ governance_tier: full
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包。
 - 若任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按任务相关性加载项目根 `CONTEXT/`。
 - 若改动涉及正文主创或润色，必须继续加载 owning stage 的 `SKILL.md + CONTEXT.md` 和对应 A/B/C provider lane 合同。
+- 若用户指定的目标文档头部含 `写作模型` 字段，必须把该字段作为默认正文调整 lane；除非用户显式要求切换写作模型，否则按该模型对应的 owning stage/provider lane 执行内容调整。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `story/SKILL.md` > 本 `SKILL.md` > 本技能分区文件 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
@@ -71,12 +72,13 @@ governance_tier: full
 ## Execution Contract
 
 1. 先锁定项目根、目标局部、改动意图、写回权限和原产物 provider lane。
-2. 加载 `types/type-map.md`，按 `Universal Type Matrix` 选择 `scope / operation / acceptance` 中的固定类型包；多对象修改必须多选叠加。
-3. 按 `references/impact-scope-contract.md` 建立影响图：上游真源、同层前列、当前局部、下游已产物、后续约束、状态与审查。
-4. 按 `references/source-truth-ledger.md` 锁定 canonical owner，生成“先修源层、再修投影、最后修正文/润色”的写回顺序。
-5. 若需要创作性改写，输出 repair brief 并路由到 owning stage 与原 provider lane；本技能只拥有诊断、计划、约束、汇流和验收权。
-6. 对已写回内容执行 `review/review-contract.md`，默认使用 `code-reviewer` 作为辅助审计口径；若上层策略阻断真实 reviewer/subagent，则降级为本地 code-reviewer checklist 并显式报告。
-7. 修复完成后同步必要的 `STATE.json` skill completion hook，并给出 residual risk 与后续生成约束。
+2. 若目标是用户指定的正文或润色文档，先读取文档头部 `写作模型`；存在时将其作为默认 `creative_engine` 和 provider lane，只有用户显式要求改走其他模型时才允许切换，并同步更新 `写作模型`、sidecar 证据与最终报告。
+3. 加载 `types/type-map.md`，按 `Universal Type Matrix` 选择 `scope / operation / acceptance` 中的固定类型包；多对象修改必须多选叠加。
+4. 按 `references/impact-scope-contract.md` 建立影响图：上游真源、同层前列、当前局部、下游已产物、后续约束、状态与审查。
+5. 按 `references/source-truth-ledger.md` 锁定 canonical owner，生成“先修源层、再修投影、最后修正文/润色”的写回顺序。
+6. 若需要创作性改写，输出 repair brief 并路由到 owning stage 与原 provider lane；对带 `写作模型` 头的指定文档，原 provider lane 默认由该头部字段决定；本技能只拥有诊断、计划、约束、汇流和验收权。
+7. 对已写回内容执行 `review/review-contract.md`，默认使用 `code-reviewer` 作为辅助审计口径；若上层策略阻断真实 reviewer/subagent，则降级为本地 code-reviewer checklist 并显式报告。
+8. 修复完成后同步必要的 `STATE.json` skill completion hook，并给出 residual risk 与后续生成约束。
 
 ## Root-Cause Execution Contract
 

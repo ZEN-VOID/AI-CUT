@@ -18,7 +18,7 @@
 | 项目风格没有被吸收 | style context loading | 检查风格卡、项目 MEMORY、项目 CONTEXT 是否进入 messages pack | 脚本固定读取并摘要导入 style cards / MEMORY / CONTEXT | messages JSON 中有风格卡与项目记忆摘录 |
 | GPT 监制意见只停在口头，没有进入 DeepSeek prompt | supervision packet drop | 把 subagents 汇流为 `supervision_packet`，通过 `--supervision-packet` 注入 messages pack | C lane 固定 GPT 为监制层、DeepSeek 为执行层；脚本记录 `supervision_packet_ref` | messages JSON 中含监制包；最终正文仍有 DeepSeek provider 证据 |
 | 监制包未按项目 `team.yaml` 已指定监制组请教，只给泛泛创作建议 | project team consultation gap | 读取 `roles.production.members`，为每位相关大师提出具体问题并汇流可执行指导 | 监制包固定 `project_team_ref / consultations / executable_guidance` 字段 | DeepSeek messages 含可追溯的请教式监制包 |
-| 上一章虽然被读取，但新章仍像重新开局 | continuity bridge under-specified | 把上一章末尾摘录单独置入 provider prompt，并显式要求承接既成事实、位置、情绪余波、未完成动作和悬念压力 | 将“上一章正文”升级为 `continuity bridge`，并在 dry-run summary 暴露 `previous_chapter_ref` | messages pack 中能看到连续性桥；正文开章能读出上一章之后的下一步 |
+| 只加载最近上一章，导致同卷早前事实、伏笔、线索、道具流向、卷目标完成度、任务连续性或悬疑节奏把控性断裂 | same-volume continuity underload | 加载当前卷内所有已存在且早于目标章的正文，并把最近前章末尾摘录单独置入 provider prompt | 将“上一章正文”升级为“同卷前文连续性桥”，并在 dry-run summary 暴露 `previous_chapter_refs` | messages pack 中能看到同卷前文逐章摘录；正文开章能读出同卷前文之后的下一步 |
 | DeepSeek provider 返回 markdown 但缺 YAML 头 | provider output validation | 阻断写回，调整 prompt 或增大 `max_tokens` 后重试 | 写回前固定校验 `写作模型: Deepseek` 与 `字数: XXX字` | 非法输出不落到 `第N章.md` |
 | DeepSeek 返回结构字段齐全但正文仍是占位、过短或 planning 复述 | prose completeness validation | 阻断写回，要求 provider 重出完整小说 prose | validator 只要求极简 YAML 头，同时检查正文长度、占位符和 planning 术语 | `[请填充完整章节正文]`、缺 closing frontmatter、`本章冲突` 等样本均被拒绝 |
 | provider 证据链缺失 | evidence routing | 重新跑脚本并核对 stdout 摘要、provider 命中与 canonical writeback | 默认不落盘 provider artifacts；需要调试时才显式传 `--output-dir` | 未传 `--output-dir` 时只写 `3-初稿/第N卷/第N章.md` |
@@ -34,7 +34,7 @@
 2. 若 provider 报认证或模型错误，优先修 `.agents/skills/api/deepseek` 与 `.env`，不改正文。
 3. 若正文风格不对，先检查 `messages_path` 中是否导入风格卡、MEMORY 与相关 CONTEXT。
 4. 若正文像提纲，回到 `templates/deepseek-system-prompt.md` 与 `references/chapter-drafting-contract.md`，强化 prose conversion。
-5. 若上下章像各写各的，优先检查 messages pack 是否只截取了上一章开头；承接判断应优先看上一章末尾，而不是章节开篇。
+5. 若上下章像各写各的，优先检查 messages pack 是否覆盖当前卷内全部已存在前序章；最近前章末尾负责开章入场，其他前序章负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 6. 若 YAML 头缺字段，只检查并补正 `写作模型: Deepseek` 与 `字数: XXX字`；上下文缺口回到 context pack / sidecar，而不是补进正文头。
 7. 若正文过短、仍含模板占位符或 planning 标题句法，先修 provider prompt / context pack，再重试，不允许写回 canonical path。
 8. 若路径不对，先修 `chapter_paths` / output contract，再重试 provider。
@@ -46,8 +46,8 @@
 ## Reusable Heuristics
 
 - DeepSeek 流的价值在于强推理先综合上下文，再输出统一章节；不要把上下文裁得只剩当前章 planning。
-- 对风格一致性最有用的输入通常是风格卡 + 上一章正文 + 项目 MEMORY；三者缺一时要在 report 中能看出来。
-- 若上一章存在，最可靠的承接材料通常是上一章末尾 3-6k 字，而不是上一章开头；章节开头负责调性，章节末尾负责因果入场。
+- 对风格一致性最有用的输入通常是风格卡 + 同卷前文 + 项目 MEMORY；三者缺一时要在 report 中能看出来。
+- 若同卷前文存在，最可靠的承接组合是“最近前章末尾 3-6k 字 + 同卷全部前序章逐章摘录”；最近前章负责因果入场，早前章节负责事实、伏笔、线索、关系、道具、卷目标完成度、任务连续性和悬疑节奏边界。
 - `thinking enabled + reasoning_effort high` 会消耗更多 token，章节创作默认应给足 `--max-tokens`。
 - provider sidecar 是排查“到底有没有走 DeepSeek”的第一证据，不要只看最终正文文件。
 - 现有章是高风险写回目标；正式覆盖必须同时满足显式 mode 与 `--force`，普通 `auto` 只能在缺章时起稿。

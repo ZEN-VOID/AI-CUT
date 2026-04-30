@@ -9,7 +9,7 @@
 | `context_loading` | 是否加载同目录 `CONTEXT.md`、story 根合同（`../../SKILL.md` / `../../CONTEXT.md`）、项目 `MEMORY.md` 与相关 `CONTEXT/` |
 | `source_alignment` | 是否遵守三层 planning、全局卡、风格卡与 `north_star` |
 | `supervision_packet` | 是否真实启动 team supervision subagents，或有上层阻断降级报告；监制包是否来自项目 `team.yaml -> roles.production.members` 或有明确补位说明；是否包含请教问题、顾问回答摘要、可执行指导；是否进入 GPT-native messages |
-| `continuity` | 上一章存在时是否承接；不存在时是否用 planning 补齐 |
+| `continuity` | 同卷前文存在时是否完整承接事实、线索、关系、文气、卷目标完成度、任务连续性与悬疑节奏；当前卷无前序章时是否用卷规划与当前章 planning 补齐 |
 | `frontmatter` | YAML 头是否只保留 `写作模型: GPT` 与 `字数: XXX字`，未重复灌入上下文引用或摘要 |
 | `prose_quality` | 正文是否是小说 prose，而非摘要、提纲、流程说明或 planning 复述 |
 | `dialogue_voice` | 主要人物对白是否能体现角色卡声纹、身份、关系与当前意图，是否避免全员同一种说明腔 |

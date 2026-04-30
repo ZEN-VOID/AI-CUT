@@ -34,7 +34,7 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-SOURCE-LOCK` | 锁定唯一项目根、卷号、章号与输出路径 | 用户请求、项目根、chapter 参数 | 定位 `projects/story/<项目名>/` 与 `第N卷/第N章.md` | `source_lock_note`、canonical output path | `N2-TYPE-PROFILE` | 项目根与卷章唯一 |
 | `N2-TYPE-PACKAGE` | 判定起草、续写、重写、修复或 dry-run，并选择题材类型包 | 目标章是否存在、用户意图、`types/type-map.md`、`types/网文/` | 生成 `type_profile` 并加载命中的 `types/网文/<题材>/` 固定上下文 | `type_profile`、`selected_type_package` | `N3-CONTEXT-PACK` | mode 唯一且不冲突；题材包已加载或缺口已报告 |
-| `N3-CONTEXT-PACK` | 组装写作上下文包 | 三层 planning、global/style cards、`north_star`、`MEMORY.md`、项目 `CONTEXT/`、上一章 | 读取并压缩为 GPT 原生可消费上下文；上一章存在时生成连续性桥 | context pack、context refs、continuity bridge | `N3S-SUPERVISION-PACKET` | 必需输入齐备；上一章存在时必须有桥接约束 |
+| `N3-CONTEXT-PACK` | 组装写作上下文包 | 三层 planning、global/style cards、`north_star`、`MEMORY.md`、项目 `CONTEXT/`、同卷前文 | 读取并压缩为 GPT 原生可消费上下文；同卷前文存在时生成连续性桥，且最近前章只作为开章承接重点 | context pack、context refs、continuity bridge、`previous_chapter_refs` | `N3S-SUPERVISION-PACKET` | 必需输入齐备；同卷前文存在时必须有桥接约束 |
 | `N3S-SUPERVISION-PACKET` | 启动隔离监制组 | context pack、项目 `team.yaml`、`team/SKILL.md + CONTEXT.md`、`roles.production.members` 中被请教的成员技能 | 真实启动 subagents，向不同领域大师提出具体请教问题，汇流创意脑洞、个人风格判断和可执行指导 | supervision packet、roster refs、consultation questions 或降级报告 | `N4-DRAFT-BRANCH` | 有真实 subagent 证据；监制包含 roster 来源、请教问题与可执行指导；被上层阻断时有降级说明 |
 | `N4-DRAFT-BRANCH` | 按类型和题材包选择创作约束 | `type_profile`、`selected_type_package`、现稿状态、用户约束 | 路由到新章、重写、续写或修复分支 | branch decision | `N5A/B/C/D` | 分支与用户请求一致；题材包约束进入提示 |
 | `N5A-NEW-DRAFT-PROMPT` | 为新章起稿生成 GPT 原生创作请求 | context pack、输出模板 | 保持 planning 义务，生成完整章请求 | prompt section | `N6-GPT-NATIVE-DRAFT` | 没有依赖现稿 |
@@ -53,7 +53,7 @@ flowchart TD
 | `FAIL-GPTDRAFT-TYPE` | 起草/续写/重写/修复误判 | `N2-TYPE-PROFILE` |
 | `FAIL-GPTDRAFT-CONTEXT` | planning、cards、`north_star`、项目记忆或上下文缺失 | `N3-CONTEXT-PACK` |
 | `FAIL-GPTDRAFT-SUPERVISION` | subagents 未真实启动、未说明降级，或监制包未进入创作 messages | `N3S-SUPERVISION-PACKET` |
-| `FAIL-GPTDRAFT-CONTINUITY` | 上一章存在但本章开篇像重新开局、漏接事实/位置/情绪/悬念 | `N3-CONTEXT-PACK`、`N5*` |
+| `FAIL-GPTDRAFT-CONTINUITY` | 同卷前文存在但本章开篇像重新开局，或漏接前序事实、位置、线索、关系、道具、卷目标完成度、任务连续性、悬疑节奏、情绪、悬念 | `N3-CONTEXT-PACK`、`N5*` |
 | `FAIL-GPTDRAFT-PROMPT` | prompt 未对齐分支或照搬 planning 语言 | `N4-DRAFT-BRANCH`、`N5*` |
 | `FAIL-GPTDRAFT-CREATIVE` | 当前 GPT 原生主创缺失、跑偏或被脚本替代 | `N6-GPT-NATIVE-DRAFT` |
 | `FAIL-GPTDRAFT-WRITEBACK` | frontmatter、标题或输出路径不合规 | `N7-VALIDATE-WRITEBACK` |

@@ -22,6 +22,7 @@ recommended_action: keep-knowledge-base-focused
 | 已 PASS 的终稿被局部覆盖，return actualization 仍指向旧事实 | accepted truth drift | 先失效化或重跑 review aggregate，再刷新 return/STATE 投影 | 已验收内容改动必须把 review/return 列为高风险消费者 | `review/第V卷.validation.json` 与 actualization refs 指向新版事实 |
 | 只修本章，不检查同层前列导致动机或伏笔断裂 | sibling continuity drift | 回读同卷前序章、上一章末尾、同线索首次埋点和最近一次兑现 | impact scope 固定包含同层前列与后续最近消费者 | 线索首埋、发展、当前修复和后续兑现连续 |
 | 影响范围表只有抽象 surface，执行时仍靠感觉判断 | type matrix underspecification | 回到 `references/impact-scope-contract.md#Universal Type Matrix`，按对象类型加载 `types/scope/*` 包 | 通用规则层固定“当 XX 时检查 XX”，项目层只追加具体章节/对象 | repair packet 列出 `scope_packages_loaded` 与矩阵命中行 |
+| story 项目清理只删除文件，`STATE.json` 仍指向已删除产物 | state projection drift | 同轮写入 `state-maintenance` run，重置当前 stage_progress、workflow_state.last_stable_state，并失效依赖这些源稿的下游投影 | 对 `projects/story/<项目名>/` 的移除/清理操作默认把 `STATE.json` 列为必改或必检对象 | 删除路径不存在；`3-drafting`/`4-polishing` 不再 completed 指向缺失文件；orphan projection 已记录 |
 
 ## Repair Playbook
 
@@ -32,6 +33,7 @@ recommended_action: keep-knowledge-base-focused
 5. 若改动影响已产出章节，按“同层前列 -> 当前章 -> 后续已产出 -> 后续生成约束”的顺序处理。
 6. 若涉及 B/C provider lane，主 agent/GPT 只能写 repair brief 和验收意见，不能直接替 provider 改正文。
 7. 修复后必须跑 review gate，至少检查旧口径残留、新口径覆盖、前后因果、对象状态、计划正文一致性。
+8. 对 story 项目执行移除、清空或阶段产物清理时，不能只看 Git 状态；必须同轮检查并同步 `STATE.json`，把缺失源稿对应的当前 completed 状态改为 pending/in_progress，并记录下游 orphan projection。
 
 ## Reusable Heuristics
 
@@ -41,3 +43,4 @@ recommended_action: keep-knowledge-base-focused
 - 已验收事实的改动不是普通文本编辑，必须重新经过 review/return gate。
 - repair brief 应写给 owning lane 执行，而不是写成最终正文；这能保住模型分工、证据链和后续审计。
 - 通用类型矩阵放在 skill 规则层，项目层只补具体名称、章节和对象；不要让单项目特殊性反向削弱通用必查项。
+- 删除 story 项目章节正文时，`STATE.json` 是运行时真源的一部分；即使相关路径被 `.gitignore` 忽略，也必须以磁盘 JSON 校验为准，同步 `stage_progress`、`workflow_state.last_stable_state`、`governance_index` 与 `task_log`。
