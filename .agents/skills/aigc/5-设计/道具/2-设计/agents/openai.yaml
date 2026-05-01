@@ -2,7 +2,7 @@ schema_version: 1
 interface:
   display_name: "AIGC 道具细目设计"
   short_description: "从道具清单生成单道具细目设计 Markdown，结合 north_star 与 team 监制上下文。"
-  default_prompt: "使用 $aigc-prop-design 为指定 projects/aigc/<项目名>/ 的道具清单生成 5-设计/道具/2-设计 单道具细目设计文件，固定为纯色背景近景特写、45 度视角，不置身场景，并遵守 LLM-first 与 prompt 2000 字符限制。"
+  default_prompt: "使用 $aigc-prop-design 为指定 projects/aigc/<项目名>/ 的道具清单生成 5-设计/道具/2-设计/PROP-###-<安全文件名>.md 单道具细目设计文件；## 4. 解构 下方直接写 主体ID号，并与文件名前缀、## 5. 提示词设计 主体 ID 和英文 prompt 开头一致；英文 prompt 以主体 ID 号开头，整合 ## 4. 解构 全部有效 Photography 与 Prop Design 信息，控制在 1300 characters 内，使用自然语言负向约束，不使用 --no，固定为纯色背景近景特写、45 度视角，完整展示道具全貌，仅展示道具，不出现人物或背景元素。"
 metadata:
   skill_id: "aigc-prop-design"
   governance_tier: "full"

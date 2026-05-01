@@ -58,6 +58,8 @@ research_brief:
 
 ## 4. 解构
 
+主体ID号：{{场景主体 ID，例如 S###；必须与 5. 提示词设计中的主体 ID 号和英文 prompt 开头完全一致}}
+
 ## Scene Design
 
 Style Backbone: {{style_backbone}}
@@ -140,20 +142,25 @@ Lighting Type: {{lighting_type_en}}
 
 - 全局风格提示词引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“全局风格提示词”}}
 - 建筑风格引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“建筑风格”}}
+- 主体 ID 号：{{场景主体 ID，例如 S###；若上游清单已有 ID 则原样沿用}}
+- 时间与地域引用：{{引用 research_brief / type_profile / 上游清单 / 项目资料中的时间与地域锚点；若具体信息不确定，写入有来源姿态的保守英文锚点}}
 - 固定画面约束：pure empty shot, no people, no human figures, no silhouettes, no reflections of people
 
 ### Prompt Evidence Chain
 
 | prompt token group | evidence source | visual translation | uncertainty handling |
 | --- | --- | --- | --- |
+| subject_id_prefix | {{上游场景清单主体 ID / 文件名前缀 S###}} | {{英文整合提示词开头必须使用的主体 ID 号}} | mandatory |
 | style_anchor | {{north_star.yaml / team.yaml / user_source}} | {{全局风格如何转为可见色彩、质感、构图或氛围}} | {{无 / 保守化 / 非特指化}} |
+| period_region_tokens | {{research_brief.source_posture / type_profile / user_source}} | {{最终英文 prompt 中必须显式出现的时间与地域英文 token}} | {{无 / 保守化 / 非特指化}} |
 | spatial_tokens | {{research_brief.evidence_matrix}} | {{空间结构、尺度、边界、动线}} | {{无 / 保守化 / 非特指化}} |
 | material_tokens | {{research_brief.evidence_matrix}} | {{材质、表面、装饰、陈设}} | {{无 / 保守化 / 非特指化}} |
 | light_camera_tokens | {{Cinematography}} | {{光线、镜头、构图、景深}} | {{无 / 保守化 / 非特指化}} |
+| deconstruction_coverage | {{## 4. 解构 / Scene Design / Cinematography}} | {{说明 Scene Design 与 Cinematography 的全部有效槽位如何被整合进英文 prompt；若压缩、合并或剔除，写明理由}} | {{无 / 合并 / 剔除并说明}} |
 | empty_shot_tokens | fixed visual constraint | empty shot, no people, no human figures | mandatory |
 
 ```text
-{{整合 4. 解构的信息，以适用于 AIGC 生图提示词的方式蒸馏组织为自然流畅的英文提示词，2000 字符以内；必须包含 pure empty shot / no people / no human figures 约束。}}
+{{英文整合提示词必须以主体 ID 号开头，格式为 "<主体ID>: ..."; 整合对象是 4. 解构的全部有效信息，而不是只拼接主体 ID、风格、时间地域和负向词；必须把 Scene Design 与 Cinematography 中的空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和氛围节奏蒸馏组织为自然流畅、可生成画面的英文整合提示词，2000 字符以内；必须显式包含时间 token、地域 token、建筑/空间风格 token，以及 pure empty shot / no people / no human figures 约束。}}
 ```
 
 ## Review Verdict
@@ -177,7 +184,7 @@ notes: ""
 | Output Contract field | Template alignment |
 | --- | --- |
 | Required output | 本模板生成单个场景主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据 / Research Brief、物语、完整 Scene Design + Cinematography 解构、提示词设计。 |
-| Output format | Markdown 单场景设计稿；解构字段保留固定英文槽位；英文 prompt 放入 fenced text block。 |
+| Output format | Markdown 单场景设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定英文槽位；英文 prompt 放入 fenced text block。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`。 |
 | Naming convention | `S###` 来自上游清单顺序，场景名使用清单 canonical 名称并替换非法文件名字符。 |
-| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；英文 prompt 有 prompt_evidence_chain，融合全局风格和建筑风格且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |
+| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，有 prompt_evidence_chain，已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息，融合全局风格、建筑风格、时间与地域锚点且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |

@@ -1,0 +1,77 @@
+schema_version: "aigc-team/v1"
+project: "__PROJECT_NAME__"
+updated_at: "__DATE__"
+
+init_contract:
+  init_mode: "smart_advisor"
+  team_lineup_mode: "auto" # auto | custom; replace only after user locks the lineup choice
+  selector_scope_root: ".agents/skills/team/"
+  decision_owner: "" # user_confirmed | blocked
+  lineup_decision_evidence: ""
+  source_profile: "" # source-light | source-grounded | source-reconcile
+  selection_basis:
+    scenario_tags: []
+    required_department_coverage:
+      director: false
+      design: false
+      cinematography: false
+    optional_departments_included: []
+
+runtime_policy:
+  require_subagents_for_init_execution: true
+  init_execution_owner_role: "planning"
+  parent_skill_owns_canonical_writeback: true
+  local_imitation_allowed: false
+  selector_scope_enforced: true
+
+team_setup:
+  role_allocation_mode: "" # overlap | separated | overlap_allowed_separated_by_function
+  overlap_notes: ""
+  selector_scope_root: ".agents/skills/team/"
+  required_departments:
+    - "导演组"
+    - "设计组"
+    - "摄影组"
+  optional_departments_included: []
+  optional_departments_skipped: []
+  roster_gaps: []
+  recommendation_todo_paths: []
+  selection_rationale: []
+  candidate_shortlist_evidence:
+    scenario_tags: []
+    candidates: []
+
+roles:
+  planning:
+    owner_phase: "0-初始化"
+    members: []
+    init_execution:
+      kickoff_owner: true
+      requires_subagents: true
+      used_subagents: false
+      fixed_packet: "aigc-init planning direct-answer packet"
+      direct_answer_packet_ref: ""
+      packet_refs: []
+  supervision:
+    owner_phases:
+      - "2-编导"
+      - "3-摄影"
+      - "4-分组"
+      - "5-设计"
+    members_ref: "roles.planning.members"
+    members: []
+    boundary: "提供阶段前顾问判断，不替代阶段 canonical writeback。"
+  review:
+    owner_phases:
+      - "6-图像"
+      - "7-视频"
+    members_ref: "roles.planning.members"
+    members: []
+    boundary: "围绕一致性、参考绑定、provider 风险与交付风险提供评审意见。"
+
+provenance:
+  parent_skill: ".agents/skills/aigc/0-初始化/SKILL.md"
+  team_root_index: ".agents/skills/team/SKILL.md"
+  root_team_index_loaded: false
+  shortlisted_member_skills_loaded: false
+  planning_subagents: []

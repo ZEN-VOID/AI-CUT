@@ -116,7 +116,7 @@ flowchart TD
     Q --> M["templates/output-template.md"]
     M --> N
     N --> O{"通过门禁?"}
-    O -->|"yes"| P["写入 5-设计/角色/2-设计/<角色名>.md"]
+    O -->|"yes"| P["写入 5-设计/角色/2-设计/C###-<角色名>.md"]
     O -->|"no"| K
 ```
 
@@ -161,9 +161,11 @@ stateDiagram-v2
 5. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
 6. 按 subagent 合同和共享团队顾问合同分发角色任务：先请教项目监制顾问并形成 `advisor_consultation_packet`，再把可执行指导作为额外上下文交给角色 worker/reviewer 或主 agent 创作；若真实 dispatch 被阻断，按降级口径执行并记录。
 7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，冷门信息可按允许条件搜索并保留来源摘要。
-8. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境。
-9. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
-10. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、英文提示词不超过 2000 字符。
+8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、服装风格、固定画面词或负向词等前缀/后缀；提示词必须把身份压力、视觉驱动、面部/发型/身体、服装系统、姿态、光线、构图和固定画面约束蒸馏成自然流畅的英文。
+9. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境；负向约束必须用自然语言写入 prompt，例如 `avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing`，不得使用 Midjourney `--no` 参数。
+10. 为每个角色锁定唯一主体 ID；若上游清单已有 ID 则沿用，否则按清单顺序生成 `C###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
+11. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/<主体ID>-<角色名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
+12. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、`## 4. 解构` 下主体 ID 存在且与英文提示词前缀一致、英文提示词不超过 1300 characters，且不包含 `--no`。
 
 ## Field Mapping
 
@@ -173,8 +175,8 @@ stateDiagram-v2
 | `FIELD-CHAR-DESIGN-01A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-CHAR-DESIGN-01A` |
 | `FIELD-CHAR-DESIGN-02` | 项目风格锚点 | `north_star.yaml` 的全局风格、主题、禁区已消费并显式折入提示词 | `FAIL-CHAR-DESIGN-02` |
 | `FIELD-CHAR-DESIGN-03` | 监制上下文 | `team.yaml` 中设计相关大师语境已选择性消费，不无关堆砌 | `FAIL-CHAR-DESIGN-03` |
-| `FIELD-CHAR-DESIGN-04` | 解构字段 | `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 全部存在 | `FAIL-CHAR-DESIGN-04` |
-| `FIELD-CHAR-DESIGN-05` | 提示词 | 英文、含全局风格提示词与服装风格、不超过 2000 字符 | `FAIL-CHAR-DESIGN-05` |
+| `FIELD-CHAR-DESIGN-04` | 解构字段 | `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，且 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 全部存在 | `FAIL-CHAR-DESIGN-04` |
+| `FIELD-CHAR-DESIGN-05` | 提示词 | 英文、以主体 ID 号开头、含全局风格提示词与服装风格、不超过 1300 characters；整合对象是 `## 4. 解构` 全部有效字段，并使用自然语言负向约束，不使用 `--no`；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-CHAR-DESIGN-05` |
 | `FIELD-CHAR-DESIGN-06` | LLM-first | 脚本没有生成研究、物语、解构或提示词正文 | `FAIL-CHAR-DESIGN-06` |
 | `FIELD-CHAR-DESIGN-07` | Subagents | 默认真实 dispatch；阻断时有完整降级报告 | `FAIL-CHAR-DESIGN-07` |
 | `FIELD-CHAR-DESIGN-08` | 定妆照约束 | 默认为纯色背景全身定妆照，不置身剧情场景或复杂环境 | `FAIL-CHAR-DESIGN-08` |
@@ -190,7 +192,8 @@ stateDiagram-v2
 - 没有消费 `north_star.yaml` / `team.yaml`，却声称符合项目风格或大师监制。
 - 研究考据、物语、设计解构或提示词由脚本拼接、模板灌字或启发式扩写生成。
 - 角色设计变成图片生成执行、场景设计、道具设计或最终视频提示词。
-- 英文提示词未引用全局风格与服装风格，或超过 2000 字符。
+- 英文提示词未以主体 ID 号开头、未引用全局风格与服装风格、超过 1300 characters、包含 `--no` 参数，或只是拼接前缀后缀而未整合 `## 4. 解构` 全部有效信息。
+- `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
 - 角色 prompt 或摄影字段把角色放进具体场景、建筑空间、街景、室内陈设或复杂背景，而不是纯色背景全身定妆照。
 - 研究层只写资料、风格口号或世界观摘要，没有转化为身份/职业/阶层/地域年代/服饰工艺/身体姿态/禁区/不确定性和 prompt evidence chain。
 - 默认 subagents 路径被静默跳过，且没有报告阻断层级和降级路径。
@@ -207,8 +210,8 @@ stateDiagram-v2
 1. 每个待设计角色输出一份细目设计 markdown。
 2. 输出必须包含：`名称 / 首次登场 / 原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计`。
 3. `研究考据` 必须包含字段：`Identity Evidence`、`Occupation / Class Evidence`、`Region & Era Evidence`、`Costume Craft Evidence`、`Body & Posture Evidence`、`Taboo / Safety Constraints`、`Uncertainty Notes`、`Prompt Evidence Chain`。
-4. `解构` 必须包含字段：`Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。
-5. `提示词设计` 必须为英文、引用全局风格提示词与服装风格，并控制在 2000 字符内。
+4. `解构` 必须在 `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，再包含字段：`Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。
+5. `提示词设计` 必须为英文、以主体 ID 号开头、引用全局风格提示词与服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束而不使用 `--no`，并控制在 1300 characters 内；`## 4. 解构`、`## 5. 提示词设计` 与英文 prompt 开头三处主体 ID 必须一致。
 6. 画面固定为纯色背景全身定妆照，不得置身具体场景、建筑空间、街景、室内陈设或复杂环境。
 7. 可选更新 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
@@ -223,16 +226,17 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-CHARACTER-DESIGN` | `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md` |
+| `OUTPUT-CHARACTER-DESIGN` | `projects/aigc/<项目名>/5-设计/角色/2-设计/C###-<角色名>.md` |
 | `OUTPUT-CHARACTER-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/角色/2-设计/执行报告.md` |
 | `OUTPUT-CHARACTER-MANIFEST` | `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml` |
 
 ### Naming convention
 
-- 角色设计稿默认命名为 `<角色名>.md`。
-- 若角色名包含路径分隔符、控制字符或与现有角色冲突，使用安全名 `<角色名>__<首次登场ID>.md`。
-- 首次登场沿用上游清单格式，例如 `第N集.md / 1-1-1`。
-- 已有 `<角色名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
+- 角色设计稿默认命名为 `<主体ID>-<角色名>.md`，例如 `C001-沈砚.md`；若上游清单已有主体 ID，则沿用该 ID 作为文件名前缀。
+- `<主体ID>` 默认按上游 `角色清单.md` 的角色顺序从 `C001` 起补零；已有 `C###-<角色名>.md` 不因清单 merge 或新增角色而重排，新增角色追加下一个可用 `C###`。
+- `<角色名>` 使用上游 canonical 角色名，文件名中 `/\:*?"<>|` 与换行替换为 `-`。
+- 同一角色多状态或同名冲突时，保留同一 `<主体ID>`，在 `<角色名>` 后追加状态或首次登场 ID，例如 `C001-沈砚-少年期.md`。
+- 已有 `<主体ID>-<角色名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
 - 本技能不改写 `角色清单.md`；发现清单问题时只在报告中提出上游修复建议。
 
 ### Completion gate
@@ -240,10 +244,11 @@ stateDiagram-v2
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、相关项目 `CONTEXT/`、`north_star.yaml` 和 `team.yaml`。
 - 待设计角色均来自 `角色/1-清单/角色清单.md`。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
+- 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。
 - 每份设计稿字段齐全，且研究、物语、解构和提示词由 LLM 直接创作。
 - 研究层已从资料转化为设计证据链，并明确不确定性与禁区。
 - 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已落到身份压力、服装、姿态、摄影或 prompt evidence；若被上层阻断，已记录降级报告。
-- 英文提示词含全局风格提示词与服装风格，且长度不超过 2000 字符。
+- 英文提示词以主体 ID 号开头，含全局风格提示词与服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，长度不超过 1300 characters。
 - Cinematography 与英文提示词固定为 `full-body costume fitting photo`、纯色背景、无场景环境。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。
 - subagents 默认路径已真实启动；若被上层阻断，已记录降级报告。

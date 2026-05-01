@@ -120,19 +120,27 @@
 
 - 必须记录 `全局风格提示词引用`，来自 `north_star.yaml` 或用户明确补充。
 - 必须记录 `建筑风格引用`，来自 `type_profile`、场景设计判断、`team.yaml` 或用户明确补充。
+- 必须记录 `时间与地域引用`，来自 `research_brief`、`type_profile`、上游清单、项目资料或用户明确补充；若具体年代或地域无法确认，必须写成有来源姿态的保守英文锚点，例如 `non-specific 16th-century East Asian maritime setting`，不得省略。
 - 必须记录 `prompt_evidence_chain`，将英文 prompt 的关键 token 组回指到 `research_brief`、`visual_translation`、`Scene Design` 或 `Cinematography`。
-- `English prompt` 必须为英文，面向图像生成，长度不超过 2000 characters。
+- `## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`；该值必须与 `提示词设计` 的主体 ID 字段和英文 prompt 前缀一致。
+- `English prompt` 必须为英文，面向图像生成，开头必须包含主体 ID 号，格式为 `<主体ID>: ...`，长度不超过 2000 characters。
 - 英文提示词应描述可见空间、材质、光线、构图和摄影语言；避免中文、解释性段落和不可见抽象口号。
+- 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，包括 `Scene Design` 与 `Cinematography` 的空间结构、尺度、边界、材质、表面、色彩、陈设、动线、镜头距离、构图、光线、焦段、景深、运动和氛围节奏；不得只把主体 ID、全局风格、建筑风格、时间地域或 pure empty shot 作为前缀/后缀拼接后宣布完成。
+- 若某个解构槽位因不可见、重复、互相冲突或不适合图像提示词而未进入英文 prompt，必须在 `prompt_evidence_chain` 中标注取舍理由；未标注的遗漏视为整合不完整。
+- 最终英文整合提示词必须显式包含时间和地域 token；时间可为具体年份、世纪、时代或保守时代锚点，地域可为具体地名、文化地理区域、海域/岛屿/城市区域或保守地域锚点，但二者都必须能通过 `prompt_evidence_chain` 回指来源姿态。
 - 英文提示词必须明确为 pure empty shot，并排除 people、human figures、body parts、silhouettes 和 reflections of people。
 
 `prompt_evidence_chain` 至少覆盖：
 
 | chain node | must explain |
 | --- | --- |
+| `subject_id_prefix` | 主体 ID 号来自上游清单、文件名前缀或 structured input，如何同时写入 `## 4. 解构` 下方并作为 English prompt 开头 |
 | `style_anchor` | 全局风格提示词和建筑/空间风格如何进入 prompt |
+| `period_region_tokens` | 时间与地域 token 来自哪条来源、推断或不确定性处理，如何在英文 prompt 中显式出现 |
 | `spatial_tokens` | 空间结构、尺度、边界和动线 token 来自哪条研究或设计判断 |
 | `material_tokens` | 材质、表面、装饰、陈设 token 的来源姿态和不确定性处理 |
 | `light_camera_tokens` | 光线、镜头、构图 token 如何承接 Cinematography |
+| `deconstruction_coverage` | `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效槽位如何进入英文 prompt；被压缩、合并或剔除的槽位必须说明原因 |
 | `empty_shot_tokens` | `empty shot, no people, no human figures` 等纯空镜约束必须原样或等价出现 |
 
 ## Subagents / Reviewer Path
@@ -144,6 +152,6 @@
 | `research-reviewer` | `research_brief`、来源姿态、不确定性、视觉翻译、地域/年代/建筑合理性 |
 | `scene-design-reviewer` | 空间结构、材质、陈设和可制作性 |
 | `cinematography-reviewer` | 镜头、光线、构图和摄影一致性 |
-| `prompt-reviewer` | 英文提示词、全局风格、建筑风格、`prompt_evidence_chain` 和 2000 character gate |
+| `prompt-reviewer` | 英文提示词主体 ID 开头、全局风格、建筑风格、时间与地域显式锚点、`prompt_evidence_chain` 和 2000 character gate |
 
 若 system / developer / tool 层阻断真实 subagents，或用户显式要求不用 subagents，执行者必须使用本地等价 checklist，并在最终报告中说明阻断层级、原计划路径、实际路径和未真实启动的 reviewer。

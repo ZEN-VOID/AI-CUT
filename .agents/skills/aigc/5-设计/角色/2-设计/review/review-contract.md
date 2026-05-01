@@ -18,10 +18,11 @@
 | research_layer | 研究是否转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain |
 | llm_first | 研究、物语、解构和提示词是否由 LLM 直接完成，脚本未替代主创 |
 | required_sections | 是否包含研究考据、物语、解构、提示词设计 |
-| decomposition | 五个解构字段是否齐全且内容不互相串位 |
+| decomposition | `## 4. 解构` 下方是否先写 `主体ID号：<主体ID>`；五个解构字段是否齐全且内容不互相串位 |
+| output_naming | 文件名是否为 `<主体ID>-<角色名>.md`，且文件名前缀与解构主体 ID、提示词设计主体 ID、英文 prompt 前缀一致 |
 | costume | 服装是否含廓形、材质、色彩、配件、使用痕迹或功能逻辑 |
 | cinematography | 是否固定为纯色背景全身定妆照，而非剧情场景或环境肖像 |
-| prompt | 英文、融合全局风格和服装风格、不超过 2000 字符，关键短语可回指 prompt evidence chain |
+| prompt | 英文、以主体 ID 号开头、融合全局风格和服装风格、不超过 1300 characters，且该前缀与解构主体 ID、提示词设计主体 ID 完全一致；整合对象是 `## 4. 解构` 全部有效信息，不是前后缀拼接；关键短语可回指 prompt evidence chain 与 `deconstruction_coverage` |
 | fixed_visual | 是否包含 full-body costume fitting photo、solid color background、no scene environment |
 | advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入身份、服装、姿态、摄影或 prompt |
 | subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整 |
@@ -41,7 +42,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | costume | cinematography | prompt | fixed_visual | advisor_consultation | subagents | scope
+  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | fixed_visual | advisor_consultation | subagents | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -71,7 +72,7 @@ flowchart TD
     B --> C["检查 north_star.yaml / team.yaml 消费"]
     C --> R["检查研究层八镜头与 prompt evidence chain"]
     R --> D["检查 LLM-first 与脚本边界"]
-    D --> E["检查必填章节与五个解构字段"]
+    D --> E["检查文件名前缀、解构主体 ID 与五个解构字段"]
     E --> F["检查服装细节与摄影字段"]
     F --> G["检查英文 prompt 长度和固定画面约束"]
     G --> H["检查 advisor consultation 与 subagent dispatch 或降级记录"]
@@ -87,12 +88,17 @@ flowchart TD
 不得宣布完成：
 
 - 任一设计稿缺少模板必填块。
-- 英文提示词超过 2000 字符。
+- 英文提示词超过 1300 characters。
+- 英文提示词没有以主体 ID 号开头。
+- 英文提示词只拼接主体 ID、风格、服装或负向词等前缀后缀，未整合 `## 4. 解构` 的全部有效身份、外观、服装、姿态和摄影信息。
+- 英文提示词使用 Midjourney `--no` 参数，而不是自然语言负向约束。
+- `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该 ID 与 `## 5. 提示词设计` 主体 ID / 英文 prompt 前缀不一致。
+- 输出文件名缺少主体 ID 前缀，或文件名前缀与 `## 4. 解构` 主体 ID、`## 5. 提示词设计` 主体 ID、英文 prompt 前缀不一致。
 - 摄影字段或英文提示词把角色放进具体场景、建筑空间、街景、室内陈设或复杂环境。
 - 缺少全身定妆照、纯色背景或 no scene environment 约束。
 - 研究层缺少身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性或 prompt evidence chain 任一关键镜头。
 - 研究内容无法说明如何转化为角色外观、服装、姿态、摄影或 prompt。
-- prompt 关键短语无法回指研究证据、项目风格或固定画面合同。
+- prompt 关键短语无法回指研究证据、项目风格、`deconstruction_coverage` 或固定画面合同。
 - 默认 subagents 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到身份、服装、姿态、摄影、prompt evidence。
 - 未消费 `north_star.yaml` 和 `team.yaml` 却声称项目风格对齐。
 - 脚本生成了创作正文。

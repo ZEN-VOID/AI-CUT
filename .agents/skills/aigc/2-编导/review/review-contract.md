@@ -8,7 +8,7 @@
 
 - 默认辅助 provider：`code-reviewer`
 - 用途：检查 Skill 2.0 包结构、脚本边界、输出合同和剧本字段门禁。
-- 若本轮显式启用 subagents，review 还必须检查 `../_shared/team-advisor-consultation-contract.md`：是否从项目 `team.yaml` 解析监制 roster、是否提出编导阶段具体问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否只作为创作前上下文而未改写上游真源。
+- 若本轮启动 subagents 模式，review 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否从项目 `team.yaml` 解析监制组相关智能顾问团、是否要求顾问代入专业视角和个人风格提出编导阶段具体参谋问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写上游真源。
 - 若上层策略阻断真实 subagent 或 provider 调度，允许降级为本地 review checklist，并在报告中说明阻断来源、原计划 provider、实际路径和未启动 reviewer。
 
 ## Stage-End Review-Repair Rule
@@ -35,7 +35,7 @@
 | `GATE-DIRECT-10` | 所有 `*画面`、`环境描写`、`道具特写`、`表演提示` 均具像化、画面化、反抽象、反概念、反比喻 | `FAIL-CONCRETE-VISUAL` |
 | `GATE-DIRECT-11` | `音效` 字段只写声音本体，不写时间说明、事件概括或描述性句子 | `FAIL-SOUND-LITERAL` |
 | `GATE-DIRECT-12` | 上游存在高潮/爽点/高光成分时，输出完成 `peak_visual_pass`，高点有可回指证据、可拍承托、状态差或余波，且没有新增事实、对白或因果 | `FAIL-PEAK-VISUAL` |
-| `GATE-DIRECT-13` | 显式启用 subagents 时，已完成 `team.yaml` 监制顾问请教，或记录上层阻断降级 | `FAIL-ADVISOR-CONSULT` |
+| `GATE-DIRECT-13` | 启动 subagents 模式时，已完成 `team.yaml` 监制顾问请教并沉淀为后续上下文，或记录上层阻断降级 | `FAIL-ADVISOR-CONSULT` |
 
 ## Recommended Mechanical Check
 

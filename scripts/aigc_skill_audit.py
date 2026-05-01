@@ -1041,6 +1041,14 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
     if init_openai.exists() and ".codex/agents/aigc/初始组/" in init_openai.read_text(encoding="utf-8"):
         failures.append(f"{init_openai}: should not reference external init-agent contracts")
 
+    required_shared_templates = (
+        ROOT / "_shared" / "council-runtime" / "team.template.yaml",
+        ROOT / "_shared" / "story-source-manifest.template.yaml",
+    )
+    for shared_template in required_shared_templates:
+        if not shared_template.exists():
+            failures.append(f"{shared_template}: missing required shared init template")
+
     team_template = ROOT / "_shared" / "council-runtime" / "team.template.yaml"
     if team_template.exists():
         team_template_content = team_template.read_text(encoding="utf-8")
@@ -1068,6 +1076,22 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
                 "`init_interview_owner_role: \"planning\"` or `init_execution_owner_role: \"planning\"`"
             )
 
+    story_source_template = ROOT / "_shared" / "story-source-manifest.template.yaml"
+    if story_source_template.exists():
+        story_source_template_content = story_source_template.read_text(encoding="utf-8")
+        for required_marker in (
+            'schema_version: "aigc-story-source-manifest/v1"',
+            "primary_story_source:",
+            'status: "missing"',
+            'source_profile: "source-light"',
+            "development_briefs:",
+            "truth_policy:",
+        ):
+            if required_marker not in story_source_template_content:
+                failures.append(
+                    f"{story_source_template}: missing story-source manifest marker `{required_marker.rstrip(':')}`"
+                )
+
     refs_root = ROOT / "0-初始化" / "references"
     if refs_root.exists():
         for path in sorted(refs_root.rglob("*.md")):
@@ -1086,6 +1110,9 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
         episode_root / "CONTEXT.md",
         episode_root / "agents" / "openai.yaml",
         episode_root / "references" / "input-output-contract.md",
+        episode_root / "steps" / "episode-split-workflow.md",
+        episode_root / "types" / "source-type-map.md",
+        episode_root / "review" / "review-contract.md",
         episode_root / "templates" / "output-template.md",
     )
 
@@ -1106,6 +1133,13 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
             ):
                 if required_marker not in content:
                     failures.append(f"{path}: missing episode split marker `{required_marker}`")
+        if path.name in {"SKILL.md", "input-output-contract.md", "episode-split-workflow.md", "source-type-map.md", "review-contract.md"}:
+            for required_marker in (
+                "第N章",
+                "章节不等于集数",
+            ):
+                if required_marker not in content:
+                    failures.append(f"{path}: missing chapter-vs-episode guard `{required_marker}`")
 
 
 def audit_global_single_skill_contract(failures: list[str]) -> None:

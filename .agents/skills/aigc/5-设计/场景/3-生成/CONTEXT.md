@@ -21,7 +21,7 @@ last_checked_at: 2026-04-25
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
-| 生成阶段重新设计场景 | 阶段边界层 | 回到上游设计文档，只抽取已有 `提示词设计` | `SKILL.md` 固定“不重新设计主体” | prompt JSON 可回指原设计稿 |
+| 生成阶段重新设计场景 | 阶段边界层 | 回到上游设计文档，只抽取已有 `4. 解构` | `SKILL.md` 固定“不重新设计主体” | prompt JSON 可回指原设计稿 |
 | 主图缺 JSON 记录 | 交付完整性层 | 补写同名 JSON，记录来源、prompt、mode、path | steps 将 JSON 落盘设为每次 imagegen 后的 gate | 每张图片都有同名 JSON |
 | 多视图没有引用主图 | 参照连续性层 | 重新执行 Step2，显式标注主图为 reference image | 模板字段固定 `reference_main_image` | 多视图 JSON 有主图路径 |
 | 图片留在 `$CODEX_HOME` | 项目持久化层 | 复制或移动最终图到项目 `3-生成` | 交付前执行 output persistence gate | 最终路径在 workspace 项目内 |
@@ -33,8 +33,8 @@ last_checked_at: 2026-04-25
 ## Repair Playbook
 
 1. 先确认目标场景对应哪一份 `2-设计` 文档，避免从清单或记忆中临时拼接主体。
-2. 主图 prompt 优先使用设计文档 `## 5. 提示词设计` 中 fenced text block；若有多个英文 prompt，选择明确标为生图提示词的版本并记录抽取说明。
-3. 多视图 prompt 不重写场景设定，只把上游提示词嵌入模板的 `critical_requirements` 和 `source_prompt`。
+2. 主图 prompt 优先使用设计文档 `## 4. 解构` 内容；不得回退读取 `## 5. 提示词设计` 的英文整合 prompt。
+3. 多视图 prompt 不重写场景设定，只把上游解构嵌入模板的 `critical_requirements` 和 `source_deconstruction`。
 4. 每次生成后立刻落同名 JSON，避免图片与 prompt 分离。
 5. 使用主图作为多视图参照时，明确角色是 continuity reference，不把主图中的偶然构图当成新设定。
 6. 批量任务按“设计文档 -> 主图 -> 主图 JSON -> 多视图 -> 多视图 JSON”闭环处理，失败项单独记录，不阻塞已完成项的路径回写。

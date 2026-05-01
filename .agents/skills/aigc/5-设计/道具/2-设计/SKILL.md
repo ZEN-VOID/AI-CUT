@@ -20,7 +20,7 @@ metadata:
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml`，抽取全局风格、主题、媒介、禁区和设计相关大师监制上下文。
 - 默认 subagents 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问，围绕形制、材料、工艺、年代、磨损、功能逻辑、45 度特写和 prompt token 进行请教，并在 LLM 道具设计前形成 `advisor_consultation_packet`。
 - 研究层必须落成可审查的设计证据链：来源判断 -> 置信度/不确定性 -> 形制、材料、工艺、年代、使用痕迹、功能逻辑 -> prompt evidence token；不得停留在百科摘抄或抽象审美标签。
-- 固定画面约束：道具设计默认是纯色背景上的单道具近景特写，采用 45 度视角，不得置身于剧情场景、桌面环境、室内陈设、街景或人物手持情境中；英文提示词必须显式包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 等等价约束。
+- 固定画面约束：道具设计默认是纯色背景上的单道具近景特写，采用 45 度视角，必须完整展示道具全貌、仅展示道具本体，不需要人物或背景元素；不得置身于剧情场景、桌面环境、室内陈设、街景或人物手持情境中；英文提示词必须显式包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 道具研究判断、物语提炼、造型解构、摄影/道具设计语言与提示词设计必须由 LLM 直接完成；`scripts/` 只能做读取、路径枚举、文件名归一、格式检查等机械辅助。
 
@@ -125,9 +125,10 @@ flowchart LR
     F --> H["Prop Design"]
     G --> I["prompt evidence chain"]
     H --> I
-    I --> J["英文 prompt <= 2000 字符"]
+    I --> J["英文 prompt <= 1300 characters"]
     J --> K["close-up / 45-degree / solid background / no environment"]
-    K --> L["单道具 Markdown 真源"]
+    K --> L["full prop in view / prop only / no people / no background elements"]
+    L --> M["单道具 Markdown 真源"]
 ```
 
 ```mermaid
@@ -153,8 +154,11 @@ stateDiagram-v2
 5. 按共享团队顾问合同请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须落到形制、材料、工艺、年代、使用痕迹、功能逻辑、45 度特写和 prompt evidence，不能只点名大师。
 6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
 7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
-8. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
-9. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
+8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、物品风格、固定画面词或负向词等前缀/后缀；提示词必须把 Photography 与 Prop Design 中的镜头、角度、完整展示、形制、材料、工艺、年代、磨损、功能逻辑、尺度和固定画面约束蒸馏成自然流畅的英文。
+9. 负向约束必须用自然语言写入 prompt，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，不得使用 Midjourney `--no` 参数。
+10. 为每个道具锁定唯一主体 ID；若上游清单或 manifest 已有 `PROP-###` 等 ID 则沿用，否则按清单顺序生成 `PROP-###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
+11. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<主体ID>-<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
+12. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
 
 ## Field Mapping
 
@@ -163,11 +167,11 @@ stateDiagram-v2
 | `FIELD-PROP-DESIGN-01` | 输入取证 | 上游清单、项目记忆、north_star、team 和处理范围明确 | `FAIL-PROP-DESIGN-01` |
 | `FIELD-PROP-DESIGN-02` | 单主体边界 | 每个文件只设计一个道具主体，不混入角色、场景或其他道具总稿 | `FAIL-PROP-DESIGN-02` |
 | `FIELD-PROP-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-PROP-DESIGN-02A` |
-| `FIELD-PROP-DESIGN-03` | 必填章节 | 名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计齐全 | `FAIL-PROP-DESIGN-03` |
+| `FIELD-PROP-DESIGN-03` | 必填章节 | 名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计齐全；`## 4. 解构` 标题下方先写 `主体ID号：<主体ID>` | `FAIL-PROP-DESIGN-03` |
 | `FIELD-PROP-DESIGN-04` | 监制上下文 | 设计相关大师、全局风格和项目北极星被实际消费而非只贴名 | `FAIL-PROP-DESIGN-04` |
-| `FIELD-PROP-DESIGN-05` | 提示词约束 | 英文提示词引用全局风格提示词 + 物品风格，且 2000 字符内 | `FAIL-PROP-DESIGN-05` |
-| `FIELD-PROP-DESIGN-06` | 输出落盘 | canonical 输出目录和安全文件名正确，未触碰非授权范围 | `FAIL-PROP-DESIGN-06` |
-| `FIELD-PROP-DESIGN-07` | 产品特写约束 | 默认为纯色背景单道具近景特写、45 度视角，不置身场景或人物手持情境 | `FAIL-PROP-DESIGN-07` |
+| `FIELD-PROP-DESIGN-05` | 提示词约束 | 英文提示词以主体 ID 号开头，引用全局风格提示词 + 物品风格，且 1300 characters 内；整合对象是 `## 4. 解构` 的全部有效 Photography + Prop Design 字段，并使用自然语言负向约束，不使用 `--no`；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-PROP-DESIGN-05` |
+| `FIELD-PROP-DESIGN-06` | 输出落盘 | canonical 输出目录正确，文件名包含主体 ID 前缀和安全文件名，未触碰非授权范围 | `FAIL-PROP-DESIGN-06` |
+| `FIELD-PROP-DESIGN-07` | 产品特写约束 | 默认为纯色背景单道具近景特写、45 度视角，完整展示道具全貌，仅展示道具，不置身场景或人物手持情境，不出现背景元素 | `FAIL-PROP-DESIGN-07` |
 | `FIELD-PROP-DESIGN-08` | 研究转译链 | 研究明确转化为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `FAIL-PROP-DESIGN-08` |
 | `FIELD-PROP-DESIGN-09` | Prompt evidence chain | 英文 prompt 中的核心视觉 token 能回指研究证据、物语或解构字段 | `FAIL-PROP-DESIGN-09` |
 | `FIELD-PROP-DESIGN-10` | Team advisor consult | 已按 `team.yaml` 请教项目监制顾问，并把材料、工艺、功能、特写拍法和 prompt token 指导作为创作前上下文；阻断时有降级报告 | `FAIL-PROP-DESIGN-10` |
@@ -180,8 +184,9 @@ stateDiagram-v2
 - 道具细目没有从 `1-清单` 取证，或擅自新增上游不存在的道具主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有道具设计稿。
 - 未读取 `north_star.yaml` / `team.yaml` 却声称已经使用全局风格和大师监制上下文。
-- 提示词没有英文输出、没有引用全局风格提示词与物品风格，或超过 2000 字符。
-- 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景或人物手持情境，而不是纯色背景 45 度近景特写。
+- 提示词没有英文输出、没有以主体 ID 号开头、没有引用全局风格提示词与物品风格、超过 1300 characters、包含 `--no` 参数，或只是拼接前缀后缀而未整合 `## 4. 解构` 全部有效信息。
+- `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
+- 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景、人物手持情境或背景元素中，而不是完整展示道具全貌的纯色背景 45 度单道具近景特写。
 - 研究层停留在百科信息或气氛形容词，没有转成形制、材料、工艺、年代、使用痕迹、功能逻辑和可追溯 prompt token。
 - 输出写到父级、`1-清单`、`3-生成`、角色/场景目录或 registry。
 - subagent 默认路径被工具阻断时没有报告降级原因与未启动角色。
@@ -198,9 +203,9 @@ stateDiagram-v2
 1. 每个被调度道具主体输出一个 Markdown 细目设计文件。
 2. 文件必须包含：`名称/首次登场/原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计`。
 3. `研究考据` 必须包含研究证据链，覆盖形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性与 prompt evidence token。
-4. `解构` 必须同时包含 `Photography` 与 `Prop Design` 字段。
-5. `提示词设计` 必须包含对全局风格提示词的引用、物品风格说明、prompt evidence chain 和英文 prompt；英文 prompt 控制在 2000 字符内。
-6. 画面固定为纯色背景、单道具近景特写、45 度视角，不得置身具体场景或人物手持情境。
+4. `解构` 必须在 `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，再同时包含 `Photography` 与 `Prop Design` 字段。
+5. `提示词设计` 必须包含对全局风格提示词的引用、物品风格说明、prompt evidence chain 和英文 prompt；英文 prompt 必须以主体 ID 号开头，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束而不使用 `--no`，并控制在 1300 characters 内；`## 4. 解构`、`## 5. 提示词设计` 与英文 prompt 开头三处主体 ID 必须一致。
+6. 画面固定为纯色背景、单道具近景特写、45 度视角，必须完整展示道具全貌，仅展示道具本体，不需要人物或背景元素，不得置身具体场景或人物手持情境。
 7. 可选更新 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
 ### Output format
@@ -214,15 +219,17 @@ stateDiagram-v2
 
 | output_id | canonical path |
 | --- | --- |
-| `OUTPUT-PROP-DESIGN` | `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md` |
+| `OUTPUT-PROP-DESIGN` | `projects/aigc/<项目名>/5-设计/道具/2-设计/PROP-###-<安全文件名>.md` |
 | `OUTPUT-PROP-DESIGN-REPORT` | `projects/aigc/<项目名>/5-设计/道具/2-设计/执行报告.md` |
 | `OUTPUT-PROP-MANIFEST` | `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml` |
 
 ### Naming convention
 
+- 道具设计稿默认命名为 `<主体ID>-<安全文件名>.md`，例如 `PROP-001-青铜钥匙.md`；若上游清单或 manifest 已有主体 ID，则沿用该 ID 作为文件名前缀。
+- `<主体ID>` 默认按上游 `道具清单.md` 的道具顺序从 `PROP-001` 起补零；已有 `PROP-###-<安全文件名>.md` 不因清单 merge 或新增道具而重排，新增道具追加下一个可用 `PROP-###`。
 - `<安全文件名>` 优先使用清单中的 `名称`，去除路径分隔符、控制字符和不适合文件系统的符号。
-- 同名或多状态道具使用 `<名称>-<首次登场ID>` 或 `<名称>-<状态>` 区分。
-- 已有 `<安全文件名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
+- 同名或多状态道具保留同一 `<主体ID>`，在 `<安全文件名>` 后追加首次登场 ID 或状态。
+- 已有 `<主体ID>-<安全文件名>.md` 不因清单 merge 或 canonical 名称变化而静默覆盖；名称变化默认记录映射，重命名需先同步引用。
 - 不创建 `props.md`、`prop-design.md`、`道具设计总稿.md` 作为平行主真源。
 
 ### Completion gate
@@ -230,11 +237,12 @@ stateDiagram-v2
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
 - 每个输出文件都能回指 `1-清单/道具清单.md` 的具体道具项。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
+- 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。
 - `north_star.yaml` 与 `team.yaml` 的全局风格、项目主题和设计相关大师监制上下文已被实际消费；缺失项已显式标注。
 - 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已落到形制、材料、工艺、磨损、功能、Photography、Prop Design 或 prompt evidence；若被上层阻断，已记录降级报告。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。
-- 英文 prompt 引用全局风格提示词 + 物品风格，且不超过 2000 字符。
+- `## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，引用全局风格提示词 + 物品风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters。
 - prompt evidence chain 能解释关键英文 token 来自哪些研究/物语/解构字段。
-- `Photography` 与英文 prompt 固定为 close-up、45-degree view、solid color background、no scene environment。
+- `Photography` 与英文 prompt 固定为 close-up、45-degree view、full prop in view、prop only、solid color background、no people、no background elements、no scene environment。
 - 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。

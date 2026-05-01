@@ -68,12 +68,14 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 
 | Evidence | Design Decision | Prompt Phrase |
 | --- | --- | --- |
+| {{角色主体 ID / source row / 安全文件名}} | {{英文 prompt 必须以该主体 ID 号开头}} | {{主体ID}}: |
 | {{身份/清单证据}} | {{主体设计决策}} | {{英文主体短语}} |
 | {{职业/阶层证据}} | {{身体或服装决策}} | {{英文职业/阶层短语}} |
 | {{地域年代证据}} | {{廓形/色彩/发型决策}} | {{英文地域年代短语}} |
 | {{服饰工艺证据}} | {{面料/剪裁/层次决策}} | {{英文服装短语}} |
 | {{身体姿态证据}} | {{全身定妆站姿决策}} | {{英文姿态短语}} |
 | {{项目风格证据}} | {{光线/质感/影像调性决策}} | {{英文风格短语}} |
+| deconstruction_coverage | {{## 4. 解构 / Identity & Story Pressure / Visual Drivers / Detailed Character Design / Detailed Costume Design / Cinematography}} | {{说明解构的全部有效身份、外观、服装、姿态、摄影槽位如何被整合进英文 prompt；若压缩、合并或剔除，写明理由}} |
 | Skill fixed visual contract | 固定为纯色背景全身定妆照 | full-body costume fitting photo, solid color background, no scene environment |
 
 ## 3. 物语
@@ -81,6 +83,8 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 {{结合以上内容展开散文式、诗意化的角色描述，说明身份、欲望、压力、关系、身体和服装如何共同显像。}}
 
 ## 4. 解构
+
+主体ID号：{{角色主体 ID；必须与 5. 提示词设计中的主体 ID 号和英文 prompt 开头完全一致}}
 
 ## Identity & Story Pressure
 
@@ -187,10 +191,11 @@ Midjourney V8 Parameters: {{midjourney_params}}
 
 - 全局风格提示词引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“全局风格提示词”}}
 - 服装风格引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“服装风格”}}
+- 主体 ID 号：{{角色主体 ID；若上游清单已有 ID 则原样沿用，否则使用清单行/角色安全名派生的 ASCII ID}}
 - 固定画面约束：full-body costume fitting photo, solid color background, no scene environment
 
 ```text
-{{整合 4. 解构的信息，以适用于 AIGC 生图提示词的方式蒸馏组织为自然流畅的英文提示词，2000 字符以内；必须包含 full-body costume fitting photo / solid color background / no scene environment 约束。}}
+{{英文整合提示词必须以主体 ID 号开头，格式为 "<主体ID>: ..."; 整合对象是 4. 解构的全部有效信息，而不是只拼接主体 ID、全局风格、服装风格、定妆照词和负向词；必须把 Identity & Story Pressure、Visual Drivers、Detailed Character Design、Detailed Costume Design、Cinematography 中的身份压力、面部/发型/身体、服装廓形与材质、姿态、构图、光线和固定画面约束蒸馏组织为自然流畅、可生成画面的英文整合提示词，1300 characters 以内；必须包含 full-body costume fitting photo / solid color background / no scene environment，并以自然语言写入 avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing 等负向约束，不得使用 --no。}}
 ```
 
 ## Review Verdict
@@ -218,7 +223,7 @@ research_layer:
 | Output Contract field | Template alignment |
 | --- | --- |
 | Required output | 本模板生成单个角色主体的细目设计 Markdown，包含名称/首次登场/原文描述、研究考据、物语、完整角色解构字段、提示词设计；研究考据必须包含八个研究镜头和 prompt evidence chain。 |
-| Output format | Markdown 单角色设计稿；解构字段固定为 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
-| Output path | Canonical 路径为 `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`。 |
-| Naming convention | 默认使用 `<角色名>.md`；冲突或不安全字符时使用 `<角色名>__<首次登场ID>.md`。 |
-| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；研究层已转化为设计证据链并标明不确定性；正文由 LLM 创作；英文 prompt 融合全局风格和服装风格且不超过 2000 字符；画面固定为纯色背景全身定妆照，不置身具体场景。 |
+| Output format | Markdown 单角色设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定解构字段 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
+| Output path | Canonical 路径为 `projects/aigc/<项目名>/5-设计/角色/2-设计/C###-<角色名>.md`；若上游已有主体 ID，则用该 ID 替代 `C###`。 |
+| Naming convention | 默认使用 `<主体ID>-<角色名>.md`；主体 ID 默认从 `C001` 起按清单顺序补零；冲突或多状态时在角色名后追加状态或首次登场 ID。 |
+| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；研究层已转化为设计证据链并标明不确定性；正文由 LLM 创作；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合全局风格和服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景全身定妆照，不置身具体场景。 |

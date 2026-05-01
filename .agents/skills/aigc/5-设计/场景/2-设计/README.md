@@ -47,6 +47,9 @@ find .agents/skills/aigc/5-设计/场景/2-设计 -maxdepth 2 -type f | sort
 - 场景设计固定为纯空镜。
 - 不出现人物、人体局部、剪影、倒影或人群。
 - 英文 prompt 必须包含 `empty shot, no people, no human figures` 等等价约束。
+- `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。
+- 最终英文整合 prompt 必须以主体 ID 号开头，显式包含时间和地域锚点，并能通过 prompt 证据链回指来源姿态或保守化处理。
+- 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息；只拼主体 ID、风格、时间地域或 no people 等前缀/后缀不算完成。
 
 ## 研究层升级要点
 
@@ -54,4 +57,4 @@ find .agents/skills/aigc/5-设计/场景/2-设计 -maxdepth 2 -type f | sort
 - `source_posture`：区分项目资料、用户资料、常识、LLM 推断、网络来源和未解不确定性。
 - `uncertainty_register`：冷门、文化、年代、地域、建筑制式等风险不能被写成确定事实。
 - `visual_translation`：每条关键研究必须落到可见空间、材质、光线、陈设、构图或 prompt token。
-- `prompt_evidence_chain`：英文 prompt 的关键 token 必须能回指研究、视觉翻译、Scene Design 或 Cinematography。
+- `prompt_evidence_chain`：英文 prompt 的关键 token 必须能回指研究、视觉翻译、Scene Design 或 Cinematography；主体 ID 开头、时间与地域 token、`deconstruction_coverage` 是必查 token 组。

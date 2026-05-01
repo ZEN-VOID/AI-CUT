@@ -15,6 +15,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-init` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - Every call to `$aigc-init` must load this `SKILL.md` and the same-directory `CONTEXT.md`.
 - If the task is bound to `projects/aigc/<项目名>/`, load project `MEMORY.md` first, then relevant files under project `CONTEXT/`.
@@ -29,6 +30,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 无序号同级子技能包默认全选并发执行，由本主技能包汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 卫星技能不自动并入初始化主链；只有父级路由或用户请求明确命中查询、恢复、复核、桥接等旁路职责时，才加载对应卫星 `SKILL.md + CONTEXT.md` 并把结果回接给本技能裁决。
 - 连续调度不得绕过本技能的阻断门：缺少必需输入、`auto/custom` 未锁定、破坏性操作未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
 - 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 主创判断或父级最终裁决。
 

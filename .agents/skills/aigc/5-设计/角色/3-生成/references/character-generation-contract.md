@@ -5,7 +5,8 @@
 ## Upstream Consumption
 
 - Canonical input: `projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`。
-- 必需区块：`提示词设计`。
+- 必需区块：`4. 解构`。
+- 必需主体 ID：优先读取 `## 4. 解构` 下方的 `主体ID号：<主体ID>`；缺失时从设计文件名前缀 `C###` 派生，并在 JSON 中记录 `subject_id_source`。
 - 推荐读取区块：`名称 / 首次登场 / 原文描述`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。
 - 本技能只消费设计文档，不改写设计文档，不新增 canonical 角色主体。
 
@@ -20,22 +21,22 @@
 
 Step1 main image:
 
-- Input: 单角色设计文档中的 `提示词设计`。
-- Output image: `<主体名称>-主图.<ext>`。
-- Output JSON: `<主体名称>-主图.json`。
+- Input: 单角色设计文档中的 `4. 解构`。
+- Output image: `<主体ID>-<主体名称>-主图.<ext>`。
+- Output JSON: `<主体ID>-<主体名称>-主图.json`。
 - Purpose: 建立角色正向身份、脸、发型、体型、服装主轮廓和整体画风的 continuity anchor。
 
 Step2 multi-view sheet:
 
 - Input: Step1 主图作为 reference image，加上 `templates/character-multiview-prompt-template.json`。
-- Output image: `<主体名称>-多视图.<ext>`。
-- Output JSON: `<主体名称>-多视图.json`。
+- Output image: `<主体ID>-<主体名称>-多视图.<ext>`。
+- Output JSON: `<主体ID>-<主体名称>-多视图.json`。
 - Purpose: 生成同一角色的多视图主体设计图，服务后续资产、服装、镜头和制作审阅。
 
 ## Prompt Authorship Boundary
 
-- 主图 JSON 的 `prompt_text` 可以直接采用或轻量包装设计文档 `提示词设计`，但不得新增主体设定。
-- 多视图 JSON 的 `critical_requirements` 允许直接引用角色设计文档中的 `提示词设计`，并把该文本作为设计真源。
+- 主图 JSON 的 `prompt_text` 必须直接采用或轻量包装设计文档 `4. 解构`，但不得新增主体设定；不得继续使用旧 `提示词设计` 英文整合 prompt 作为 gpt-image-2 导入源。
+- 多视图 JSON 的 `critical_requirements` 允许直接引用角色设计文档中的 `4. 解构`，并把该文本作为设计真源。
 - 模板负责布局、模块和一致性，不负责创造角色身份、服装事实、时代设定或叙事压力。
 - 脚本不得生成 prompt_text；脚本只允许复制、校验、汇总或投影已有 prompt 字段。
 

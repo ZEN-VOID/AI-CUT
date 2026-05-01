@@ -20,12 +20,12 @@
 
 | check_id | requirement | fail code |
 | --- | --- | --- |
-| `REV-CHAR-GEN-01` | 每个 JSON 都有 `source_design_path`，且源文件存在 | `FAIL-SOURCE-LINK` |
-| `REV-CHAR-GEN-02` | 主图 prompt 来自源设计文档 `提示词设计`，未重写主体设定 | `FAIL-PROMPT-DRIFT` |
-| `REV-CHAR-GEN-03` | 真实生成模式下 `<主体名称>-主图.<ext>` 存在于输出目录 | `FAIL-MAIN-IMAGE` |
+| `REV-CHAR-GEN-01` | 每个 JSON 都有 `subject_id`、`source_design_path`，且源文件存在 | `FAIL-SOURCE-LINK` |
+| `REV-CHAR-GEN-02` | 主图 prompt 来自源设计文档 `4. 解构`，未重写主体设定，未回退引用旧英文整合 prompt | `FAIL-PROMPT-DRIFT` |
+| `REV-CHAR-GEN-03` | 真实生成模式下 `<主体ID>-<主体名称>-主图.<ext>` 存在于输出目录 | `FAIL-MAIN-IMAGE` |
 | `REV-CHAR-GEN-04` | 多视图 JSON 的 `reference_image_path` 指向对应主图 | `FAIL-REFERENCE` |
-| `REV-CHAR-GEN-05` | 真实生成模式下 `<主体名称>-多视图.<ext>` 存在于输出目录 | `FAIL-MULTIVIEW-IMAGE` |
-| `REV-CHAR-GEN-06` | 图片与 JSON 命名符合 `<主体名称>-主图`、`<主体名称>-多视图` | `FAIL-NAMING` |
+| `REV-CHAR-GEN-05` | 真实生成模式下 `<主体ID>-<主体名称>-多视图.<ext>` 存在于输出目录 | `FAIL-MULTIVIEW-IMAGE` |
+| `REV-CHAR-GEN-06` | 图片与 JSON 命名符合 `<主体ID>-<主体名称>-主图`、`<主体ID>-<主体名称>-多视图`，且 `<主体ID>` 与 JSON 的 `subject_id` 一致 | `FAIL-NAMING` |
 | `REV-CHAR-GEN-07` | prompt-only 模式没有伪造图片路径，阻断原因清楚 | `FAIL-PROMPT-ONLY-CLAIM` |
 | `REV-CHAR-GEN-08` | 未修改上游 `2-设计` 文档或其他技能目录 | `FAIL-WRITE-BOUNDARY` |
 
@@ -33,6 +33,7 @@
 
 ```yaml
 subject_name: ""
+subject_id: ""
 mode: "real_generation | prompt_only | review_only"
 verdict: "pass | pass_with_todo | blocked | needs_rework"
 source_design_path: ""
@@ -56,8 +57,8 @@ notes: ""
 
 当真实 reviewer subagent 不可用时，主 agent 必须至少完成以下本地复核：
 
-1. 核对每个 JSON 的 `source_design_path` 指向存在的 `2-设计` 文档。
-2. 核对主图 prompt 与设计文档 `提示词设计` 有明确回链，没有新增身份、服装、时代或叙事事实。
+1. 核对每个 JSON 的 `subject_id` 与 `source_design_path` 指向存在的 `2-设计` 文档，且文件名 stem 以同一主体 ID 开头。
+2. 核对主图 prompt 与设计文档 `4. 解构` 有明确回链，没有新增身份、服装、时代或叙事事实，也没有把 `提示词设计` 的英文整合 prompt 当作主源。
 3. 核对多视图 JSON 的 `reference_image_path` 指向同一角色主图，且不跨角色复用。
 4. 核对真实生成模式下图片文件存在，并位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
 5. 核对 prompt-only 模式没有伪造图片路径，且 `blocked_reason` 可解释。

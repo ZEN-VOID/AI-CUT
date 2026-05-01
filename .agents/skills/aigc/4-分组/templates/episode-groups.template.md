@@ -17,7 +17,7 @@ review_status: pending
 
 ## 1-1-1
 
-不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
+视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
 <直引 north_star.yaml 类型元素.类型元素提示词>
 <直引 north_star.yaml 细分风格.画面风格>
 

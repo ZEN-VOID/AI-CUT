@@ -1,5 +1,13 @@
 # Changelog: aigc 道具 3-生成
 
+## 2026-05-01
+
+- 将生成资产命名合同调整为 `<主体ID>-<主体名称>-主图/多视图`，并要求 JSON 记录 `subject_id` 与 `subject_id_source`。
+
+## 2026-04-30
+
+- 调整主图与多视图 prompt 模板：导入给 gpt-image-2 的源引用统一改为上游设计文档 `4. 解构`，不再以旧英文整合 prompt 为主源。
+
 ## 2026-04-26
 
 - 收紧默认图像执行入口：除非用户显式要求其他 provider / API / model，`道具/3-生成` 只能通过 `.agents/skills/cli/imagegen` 执行，不得直接路由到 nano-banana / Dreamina / AnyFast 子技能。

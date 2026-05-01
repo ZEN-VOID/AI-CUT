@@ -30,6 +30,7 @@
 | 初始化项目根漏建 `CHANGELOG.md`，导致后续项目级时间序记录没有统一入口 | project-root trace carrier 层 | 在 `N2-runtime-bootstrap` 同步创建项目根 `CHANGELOG.md` | 将 `CHANGELOG.md` 上收到 `_shared/project-runtime-layout.md`，并让 `0-初始化/SKILL.md` 与 `aigc_skill_audit.py` 同步检查 | 新项目初始化后项目根默认具备时间序记录入口，但 query/resume 仍不会把它误当治理真源 |
 | `STATE.json`、`route-plan.yaml` 与 `init_handoff/governance-state` 给出不同下一步 | 阶段入口同步层 | 先以 `STATE.json` 的 live route truth 为主，初始化当轮再要求 `init_handoff.project_contract.recommended_next_stage` 对齐 | 在 `Stage Entry Ownership Contract` 与治理回填脚本中固定 authority order | 读取项目当前入口时，只会从 `project_state/governance-state` 得到一个主入口 |
 | 项目进入规划前没有故事主源登记 | 共享输入真源层 | 固定生成 `story-source-manifest.yaml`，区分 `primary_story_source` 与 `development_briefs` | 将故事源落点与缺失提示上收到 `_shared/story-source-contract.md` | 初始化完成后，能立刻判断 `1-分集` 是否具备增量进入条件与整季完成条件 |
+| 初始化合同声明 shared 模板，但声明路径下没有对应文件 | 模板真源落盘层 | 补齐 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml` 与 `.agents/skills/aigc/_shared/story-source-manifest.template.yaml` | 将 required shared init templates 纳入 `scripts/aigc_skill_audit.py --strict` 缺失检查，避免只在执行时才暴露路径漂移 | `templates/output-template-map.md` 中 required shared 模板路径均可被 `test -f` 命中，审计缺失时失败 |
 | 续跑与状态查询无法稳定重建断点 | 项目治理快照层 | 在需要时生成 `governance-state.yaml` | 用 shared template 固定 `last_stable_checkpoint + resume_contract + artifact_status` | `query / resume` 与根 `aigc` 的高风险治理 gate 能从同一份结构化快照读取断点与缺口 |
 | 创作起盘被整套治理工件压得过重 | 初始化分层合同 | 把首次必出收敛到 `north_star / init_handoff / story-source-manifest / team / project_state` | 将 `governance-state + harness carriers` 改为惰性生成 | 首次初始化不再被非必要治理载体阻塞 |
 | 路由、模式执行、充分性检查散落在旧外部 agent 或未声明分区 | 源层编排层 | 将入口门禁保留在父 `SKILL.md`，并把细则归入 `references/steps/review/types` 的显式 owner | 审计脚本反向约束 `0-初始化` 不得再引用 `.codex/agents/aigc/初始组/*.md`，且分区不得改写父入口路由 | `0-初始化` 能通过 `SKILL.md` 的 Reference Loading Guide 找到完整执行链 |
@@ -76,6 +77,7 @@
 - 当自动组队只收到一个极简概念时，优先先组出最小 planning 顾问团，把高分叉问题压进 `unknowns`，不要伪造完整剧情 seed。
 - 只要用户没有明确要求“贴原作/保原顺序/保留原作节奏”，`original_adherence` 就应显式落盘为 `false`。
 - 如果项目后续要做 `1-分集`，最稳的初始化习惯不是先问“要不要分几集”，而是先把“故事主源在哪、是否完整、能否正式切分”写进 `story-source-manifest.yaml`。
+- 只要 `templates/output-template-map.md` 或 `references/artifacts-and-sources.md` 声明 shared 模板为初始化必需输入，模板文件本体必须同轮落在声明路径下；不能把“shared”当成未来会补的逻辑占位。
 - `north_star` 可以承载 `全局风格 / 细分风格 / 类型元素 / 世界观` 这类长期全局 context；但一旦开始承载“下一步去哪”或 `rebootstrap` 过程痕迹，就说明长期约束真源和运行时状态真源混层了，这类信息应回到 `project_state / governance-state / init_handoff`。
 - `全局风格` 只适合写所有设计类型都能安全继承的前缀；凡是镜头语言、角色材质、服装、建筑、物品或场景专属语义，都应落入 `细分风格` 或后续阶段，而不是塞进全局前缀。
 - `细分风格.画面风格` 是全片统一的画面基调，不是场景别摄影表；姜家、陆家、巴黎、马场等差异化光色/空间策略应放到 handoff 或后续摄影、场景设计阶段。

@@ -58,7 +58,7 @@ flowchart LR
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定项目、集号、上游和 north_star | 用户请求、项目目录 | 定位 `3-摄影/第N集.md`、`north_star.yaml`、项目记忆和上下文 | input manifest | `N2-PROJECT-STYLE` | 必需输入可读 |
-| `N2-PROJECT-STYLE` | 投影三项风格字段 | north_star | 抽取 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，并把固定前置词 `不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。` 放在第 1 行最前，再接全局风格原词 | style projection | `N3-SCENE-MAP` | 三项字段齐全且固定前置词已置顶于第 1 行最前 |
+| `N2-PROJECT-STYLE` | 投影三项风格字段 | north_star | 抽取 `全局风格.全局风格提示词`、`类型元素.类型元素提示词`、`细分风格.画面风格`，并把固定前置词 `视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。` 放在第 1 行最前，再接全局风格原词 | style projection | `N3-SCENE-MAP` | 三项字段齐全且固定前置词已置顶于第 1 行最前 |
 | `N3-SCENE-MAP` | 建立集/场/atomic unit 映射 | 摄影稿正文 | 提取场景标题、字段、镜头语言块、对白数和候选空间参照点 | scene unit table | `N4-SPATIAL` | atomic unit 不跨场景 |
 | `N4-SPATIAL` | 提取内部空间锚点、建立空间连续性账本与站位位移 | scene unit table、镜头语言、分镜明细、上一组出场/本组入场补位候选 | 每组提取 1 个或多个内部空间锚点；内部记录 entry_state、previous_state、shot_evidence、allowed_delta、exit_state；为首次锁定和发生变化的 `分镜N:` 补入对应 `站位和位移：` 辅助行；主语使用明确角色名，涉及多角色时明确顺位关系；连续无变化分镜沿用最近一次锁定，不输出独立 `空间锚点：` 字段 | spatial continuity plan | `N5-GROUP-PLAN` | 锚点为真实空间位置参照点；站位位移分镜归属、主语和多角色顺位明确，且所有位移均由当前分镜证据、上一分镜状态或组间补位支持 |
 | `N5-GROUP-PLAN` | 裁决组边界 | scene unit table、style projection、spatial continuity plan | 按三重约束形成组计划，预留补位画面和站位位移字数 | group boundary plan | `N6-BRIDGE` | 每组候选 <= 1980 且完整 |

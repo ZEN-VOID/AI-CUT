@@ -26,23 +26,23 @@
 - 调用名：`$aigc-prop-generation`
 - 输入：`projects/aigc/<项目名>/5-设计/道具/2-设计/<主体名称>.md`
 - 输出：`projects/aigc/<项目名>/5-设计/道具/3-生成/`
-- 命名：`主体名称-主图`、`主体名称-多视图`，并为二者分别保存同名 JSON 提示词。
+- 命名：`主体ID-主体名称-主图`、`主体ID-主体名称-多视图`，并为二者分别保存同名 JSON 提示词。
 
 ## 路由图
 
 ```mermaid
 flowchart LR
     A["2-设计 Markdown"] --> B["主图 JSON"]
-    B --> C["主体名称-主图"]
+    B --> C["主体ID-主体名称-主图"]
     C --> D["多视图 JSON"]
-    D --> E["主体名称-多视图"]
+    D --> E["主体ID-主体名称-多视图"]
     E --> F["review verdict"]
 ```
 
 ## 执行摘要
 
 1. 读取 `SKILL.md + CONTEXT.md`，并加载项目记忆与 `$imagegen` 合同。
-2. 从上游道具设计文档抽取“提示词设计”。
+2. 从上游道具设计文档抽取 `4. 解构`。
 3. 生成单主体图与 JSON。
 4. 以单主体图为参照，套用 `templates/prop-multiview-prompt.json` 生成多视图图与 JSON。
 5. 执行 `review/review-contract.md` 门禁。

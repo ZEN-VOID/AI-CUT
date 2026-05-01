@@ -17,9 +17,9 @@ last_checked_at: 2026-04-25
 
 | type_id | 触发症状 | 根因层 | 立即修复 | 系统预防修复 | 验证点 |
 | --- | --- | --- | --- | --- | --- |
-| `TM-PROP-GEN-01` | 生成阶段开始补写研究、物语或解构 | 阶段越界 | 回到只消费 `2-设计` 的“提示词设计” | 在 `SKILL.md` 和 `references/` 固定非目标 | 无 `2-设计` 文件改动 |
-| `TM-PROP-GEN-02` | 多视图图像不像同一个道具 | 参考图断链 | 重跑 Step2，把 `主体名称-主图` 作为参照图 | 多视图 JSON 必填 `reference_image` | 主图和多视图共享轮廓、材质与识别点 |
-| `TM-PROP-GEN-03` | JSON 提示词无法追溯来源 | 证据字段缺失 | 补 `source_design_doc`、`source_prompt_section`、`output_image` | 模板固定追溯字段 | JSON 能回指上游 Markdown 和输出图 |
+| `TM-PROP-GEN-01` | 生成阶段开始补写研究、物语或解构 | 阶段越界 | 回到只消费 `2-设计` 的 `4. 解构` | 在 `SKILL.md` 和 `references/` 固定非目标 | 无 `2-设计` 文件改动 |
+| `TM-PROP-GEN-02` | 多视图图像不像同一个道具 | 参考图断链 | 重跑 Step2，把 `主体ID-主体名称-主图` 作为参照图 | 多视图 JSON 必填 `reference_image` | 主图和多视图共享轮廓、材质与识别点 |
+| `TM-PROP-GEN-03` | JSON 提示词无法追溯来源 | 证据字段缺失 | 补 `source_design_doc`、`source_deconstruction_section`、`output_image` | 模板固定追溯字段 | JSON 能回指上游 Markdown 和输出图 |
 | `TM-PROP-GEN-04` | 普通生成任务误用非 `.agents/skills/cli/imagegen` 执行器，例如直接调用 nano-banana / Dreamina / AnyFast 子技能 | 执行入口漂移 | 删除或撤回非默认执行器产物，回到 `.agents/skills/cli/imagegen` 唯一默认入口 | 每次读取 imagegen 合同，并在 `type_profile` 中显式保持 `allow_external_provider: false` | 无未经用户显式要求的外部 provider 产物 |
 | `TM-PROP-GEN-05` | 文件名丢失 `-主图` 或 `-多视图` | 命名门禁缺失 | 按 Output Contract 重命名并同步 JSON | review gate 检查命名后缀 | 图像与 JSON 同 stem |
 | `TM-PROP-GEN-06` | 输出被保存到 `$CODEX_HOME` 或临时目录 | 持久化缺口 | 复制最终资产到项目 canonical 输出目录 | 把项目路径写入 prompt/result 记录 | 报告路径在 workspace 内 |
@@ -29,7 +29,7 @@ last_checked_at: 2026-04-25
 
 1. 先确认问题属于输入设计文档、主图生成、多视图参考、JSON 追溯、输出命名、路径持久化还是 imagegen 路由。
 2. 若缺上游设计文档，回到 `道具/2-设计`；不要在生成阶段临时创作主体设计。
-3. 若设计文档缺“提示词设计”，暂停生图并要求修复上游设计文档。
+3. 若设计文档缺 `4. 解构`，暂停生图并要求修复上游设计文档。
 4. 若多视图漂移，优先强化参照图和锁定识别点，而不是新增设定。
 5. 若图像已生成但未落盘到项目目录，按 `$imagegen` 的 persistence gate 把选定最终资产复制到 `3-生成`。
 6. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。

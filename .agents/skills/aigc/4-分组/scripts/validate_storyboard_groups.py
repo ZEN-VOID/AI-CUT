@@ -29,7 +29,7 @@ STORYBOARD_DETAIL_RE = re.compile(r"^\s*分镜(\d+)[：:]")
 STATS_COUNT_RE = re.compile(r"(\d+)")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
-GLOBAL_STYLE_REQUIRED_PREFIX = "不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。"
+GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。"
 POSITION_MOVEMENT_LABEL = "站位和位移："
 VAGUE_POSITION_SUBJECTS = (
     "画面主体",

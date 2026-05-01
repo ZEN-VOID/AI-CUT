@@ -29,7 +29,10 @@ last_checked_at: 2026-04-25
 | 场景物语写成剧情复述 | 叙事功能层 | 改写为空间如何承载主题、行动和情绪 | 模板区分 `原文描述复述` 与 `物语` | 物语不新增剧情事件 |
 | Scene Design 与 Cinematography 混写 | 解构层 | 拆成空间/材质/色彩/动线与镜头/光线/运动/焦段 | 模板固定双字段 | 两组字段互不替代 |
 | 提示词没有承接全局风格 | 风格继承层 | 回读 `north_star.yaml` 并补全局风格引用 | 提示词前固定记录 source style | prompt 有 global style anchor |
+| 解构区缺少主体 ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步 `## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定三处 ID 一致性 | 解构 ID、提示词字段 ID、prompt 开头完全一致 |
 | 建筑风格缺失或空泛 | 建筑策略层 | 从场景类型、team 监制或用户要求中确定建筑风格 | `types/` 对不同场景给出建筑/空间风格入口 | prompt 有 architecture style anchor |
+| 英文提示词缺少时间或地域 | 时间地域锚点层 | 从 `research_brief`、`type_profile`、上游清单或项目资料中补 period / region token；无法确认时使用有来源姿态的保守锚点 | prompt evidence chain 固定加入 `period_region_tokens` | final English prompt 同时含时间与地域 |
+| 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Scene Design 与 Cinematography 的有效槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到空间、材质、光线、构图和镜头槽位 |
 | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，向场景/建筑/美术/摄影/导演顾问提具体问题并汇流 | `advisor_consultation_packet` 固定在 LLM 场景设计前消费 | 可见指导落到空间结构、材质、光线、构图、no people 或 prompt token |
 | 英文提示词超 2000 characters | 输出约束层 | 压缩冗余形容词、合并同义短语、删除过程解释 | 交付前字符计数 | prompt <= 2000 characters |
 | 冷门信息无来源 | 考据可靠性层 | 标注为推断或在许可下网络搜索 | 区分本地资料、常识推断、网络来源 | 冷门信息有来源策略 |
@@ -51,8 +54,9 @@ last_checked_at: 2026-04-25
 12. `物语` 解释“这个空间为什么在故事中重要”，而不是继续写镜头调度或美术清单。
 13. `Scene Design` 关注空间、构造、材质、色彩、陈设、动线和可制作资产。
 14. `Cinematography` 关注镜头距离、运动、光线、焦段、构图、景深、氛围节奏。
-15. 英文提示词先继承全局风格，再加入建筑风格和场景专属细节；少用抽象赞美词，多写可见物。
-16. Prompt 最后反查 `prompt_evidence_chain`：每组关键 token 都应能回指研究、视觉翻译、Scene Design 或 Cinematography。
+15. 英文提示词先确认 `## 4. 解构` 下的主体 ID，再继承全局风格、建筑风格、时间锚点、地域锚点和场景专属细节；少用抽象赞美词，多写可见物。
+16. 英文整合 prompt 的主体是 `## 4. 解构` 全部有效信息：Scene Design 与 Cinematography 中的空间、材质、色彩、陈设、动线、光线、构图、焦段、景深和氛围节奏都应被压缩进 prompt，不能只写前缀、后缀或风格/负向词。
+17. Prompt 最后反查 `prompt_evidence_chain`：每组关键 token 都应能回指研究、视觉翻译、Scene Design 或 Cinematography，且 subject_id_prefix 与解构 ID 一致；若某个解构槽位被合并或剔除，必须在 `deconstruction_coverage` 说明原因。
 
 ## Reusable Heuristics
 
@@ -66,4 +70,5 @@ last_checked_at: 2026-04-25
 - `source_posture` 是防止幻觉的刹车；`visual_translation` 是防止研究空转的油门。
 - 不确定性可以保留，但必须变成设计上的保守处理、非特指化或后续确认点。
 - Prompt 证据链越清楚，后续生成阶段越容易判断是 prompt 偏移还是设计源头不清。
+- 主体 ID 是场景设计稿的结构锚点；`S###` 应同时出现在解构区、提示词字段和英文 prompt 开头。
 - 批量设计时最容易风格同质化；每个场景至少应有一个独特空间锚点。

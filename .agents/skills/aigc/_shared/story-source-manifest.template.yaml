@@ -1,0 +1,62 @@
+schema_version: "aigc-story-source-manifest/v1"
+project: "__PROJECT_NAME__"
+created_at: "__DATE__"
+updated_at: "__DATE__"
+
+primary_story_source:
+  status: "missing" # missing | partial | ready | deferred
+  source_type: "unknown" # unknown | outline | synopsis | polished_story_volumes | script | storyboard_script | hybrid_story_text | other
+  source_profile: "source-light" # source-light | source-grounded | source-reconcile
+  canonical_truth_policy: "story_source_user_truth"
+  source_root: "源/"
+  paths: []
+  canonical_source_paths: []
+  coverage:
+    scope: "none" # none | partial | target_range | full_story
+    chapter_range: ""
+    episode_range: ""
+    notes: ""
+  readiness:
+    incremental_planning_ready: false
+    full_series_planning_ready: false
+    blocking_reason: "primary story source is missing or not ready"
+    required_user_action: "provide source text, formal synopsis, or explicitly continue as source-light"
+
+development_briefs: []
+
+source_handling:
+  project_source_root: "projects/aigc/__PROJECT_NAME__/源/"
+  copy_policy: ""
+  rationale: ""
+
+truth_policy:
+  may_write:
+    - "project identity"
+    - "source readiness"
+    - "genre/tone/audience/production constraints"
+    - "unknowns and deferred questions"
+  must_not_write:
+    - "invented plot events"
+    - "invented character relations"
+    - "invented conflict mechanics"
+    - "invented episode beats"
+    - "invented world rules"
+
+source_light_policy:
+  allowed_outputs:
+    - "runtime skeleton"
+    - "team.yaml"
+    - "story-source-manifest.yaml"
+    - "lightweight STATE.json"
+    - "non-story factual constraints"
+  forbidden_story_truth:
+    - "plot events"
+    - "character relations"
+    - "episode structure"
+    - "scene pools"
+    - "prop pools"
+
+provenance:
+  registered_by: "aigc-init"
+  registered_at: "__DATE__"
+  decision_source: ""

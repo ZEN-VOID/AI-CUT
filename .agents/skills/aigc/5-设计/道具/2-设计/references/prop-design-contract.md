@@ -31,14 +31,14 @@
 | `名称 / 首次登场 / 原文描述复述` | 清单项名称、首次登场、对上游原文描述的短复述；不得改写成新事实 |
 | `研究考据` | 与道具形制、材质、工艺、年代、文化来源或功能逻辑有关的考据；必须附研究证据链，冷门信息可网络搜索 |
 | `物语` | 道具在故事中的压力、象征、拥有者痕迹、使用历史或情绪功能 |
-| `解构` | 至少包含 `Photography` 和 `Prop Design` 两个字段 |
-| `提示词设计` | 引用全局风格提示词、补充物品风格，列出 prompt evidence chain，并给出英文 prompt，2000 字符内 |
+| `解构` | `## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再至少包含 `Photography` 和 `Prop Design` 两个字段 |
+| `提示词设计` | 引用全局风格提示词、补充物品风格，列出 prompt evidence chain，并给出英文 prompt，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束，不使用 `--no`，1300 characters 内 |
 
 ## Fixed Visual Constraint
 
 - 道具设计稿默认是纯色背景上的单道具近景特写，用于锁定物件形制、材质和识别点。
-- 默认摄影为 close-up prop shot、45-degree view、solid color background。
-- 不得让道具置身于剧情场景、桌面环境、室内陈设、街景、人物手持情境或多物件场景中。
+- 默认摄影为 close-up prop shot、45-degree view、full prop in view、prop only、solid color background。
+- 必须完整展示道具全貌，仅展示道具本体；不得让道具置身于剧情场景、桌面环境、室内陈设、街景、人物手持情境、多物件场景或任何背景元素中。
 - 若道具的使用方式需要说明，只能在 `物语` 或 `Prop Design` 中解释，不得让最终画面出现手、角色或场景。
 
 ## Design Source Map
@@ -139,7 +139,7 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 - 镜头距离、角度、焦段感、景深、光线、反光、阴影、运动或静置状态。
 - 道具在画面中如何被识别，是否需要特写、边缘光或轮廓隔离。
-- 默认固定为近景特写、45 度视角、纯色背景；不得把人物、手、桌面、房间、街景或环境对照写入默认画面，只能在文字中说明用途。
+- 默认固定为近景特写、45 度视角、完整展示道具全貌、仅展示道具、纯色背景；不得把人物、手、桌面、房间、街景、环境对照或背景元素写入默认画面，只能在文字中说明用途。
 
 `Prop Design` 字段应回答：
 
@@ -148,11 +148,14 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 
 ## Prompt Rules
 
-- prompt 必须为英文，最多 2000 字符。
+- prompt 必须为英文，最多 1300 characters。
+- prompt 必须以主体 ID 号开头，格式为 `<主体ID>: ...`；主体 ID 来自上游清单、source row 或安全文件名派生的 ASCII ID。
+- prompt 开头的主体 ID 必须与 `## 4. 解构` 下方 `主体ID号：<主体ID>` 和 `提示词设计` 中记录的主体 ID 完全一致。
 - prompt 必须同时包含全局风格提示词引用和物品风格。
+- 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，包括 `Photography` 与 `Prop Design` 中的镜头距离、45 度角度、完整展示、形制、线条、体积、材料、纹理、装饰、年代、磨损、功能逻辑、尺度和固定画面约束；不得只把主体 ID、全局风格、物品风格、固定画面词或负向词作为前缀/后缀拼接后宣布完成。
 - prompt 应聚焦单个道具，避免把角色、场景或完整剧情塞入主体。
-- prompt 必须包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 或等价约束。
-- prompt 可包含 negative constraints，但不得压过主体设计。
+- prompt 必须包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 或等价约束。
+- prompt 必须使用自然语言负向约束，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，但不得压过主体设计；不得使用 Midjourney `--no` 参数。
 - 若全局风格提示词缺失，必须写明 `Global style prompt: missing upstream source`，并只输出物品风格 prompt 草案。
 
 ## Non-Goals

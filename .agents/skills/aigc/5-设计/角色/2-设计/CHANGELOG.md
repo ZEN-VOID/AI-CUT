@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-04-30
+
+- 标准化 Midjourney v8.1 prompt 合同：最终英文整合 prompt 必须覆盖 `## 4. 解构` 的全部有效身份、外观、服装、姿态和摄影信息，控制在 1300 characters 内，使用自然语言负向约束并禁止 `--no` 参数。
+- 新增 `prompt_evidence_chain.deconstruction_coverage`，用于说明解构槽位如何进入、合并或被剔除。
+- 同步主体 ID 结构规则：`## 4. 解构` 下方必须新增 `主体ID号：<主体ID>`。
+- 将该 ID 与 `## 5. 提示词设计` 主体 ID、英文 prompt 前缀的一致性写入 `SKILL.md`、模板、references、steps、review、README、入口元数据与经验层。
+
 ## 2026-04-26
 
 - 升级研究层合同：研究必须转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。

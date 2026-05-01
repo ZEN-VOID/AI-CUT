@@ -17,12 +17,12 @@ projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md
 Required fields or recoverable sections:
 
 - Scene name from the document title or `名称`.
+- Subject ID from `## 4. 解构` line `主体ID号：<主体ID>`; if absent, recover it from the source filename prefix such as `S###`.
 - Source design document path.
-- `## 5. 提示词设计`.
-- Fenced English prompt inside `提示词设计`.
+- `## 4. 解构`.
 - Global style and architecture style references when present.
 
-If the source document lacks a usable prompt, stop and report `FAIL-SCENE-GEN-01`; do not invent a new scene prompt in this stage.
+If the source document lacks a usable `4. 解构` section, stop and report `FAIL-SCENE-GEN-01`; do not invent a new scene prompt in this stage or fall back to the old English integrated prompt.
 
 ## Step1 Main Image Contract
 
@@ -31,15 +31,15 @@ Step1 creates one primary scene image per source design document.
 Prompt source:
 
 - Load `templates/scene-main-image-prompt.json`.
-- Use the upstream `提示词设计` prompt as the main prompt body.
+- Use the upstream `4. 解构` content as the main prompt body.
 - Preserve upstream scene identity, era, architecture, material, lighting, and no-human constraints.
 - Add only operational delivery details required by `$imagegen`, such as default 2K target and project persistence.
 
 Output:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.<ext>
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-主图.json
+projects/aigc/<项目名>/5-设计/场景/3-生成/<主体ID>-<主体名称>-主图.<ext>
+projects/aigc/<项目名>/5-设计/场景/3-生成/<主体ID>-<主体名称>-主图.json
 ```
 
 ## Step2 Multi-View Contract
@@ -49,17 +49,17 @@ Step2 creates one multi-view scene design sheet per source design document.
 Prompt source:
 
 - Load `templates/scene-multiview-prompt.json`.
-- Set `reference_main_image` to the generated or user-provided `主体名称-主图`.
-- Set `source_prompt` to the upstream design document's `提示词设计` prompt.
-- `critical_requirements` may directly cite the upstream design document's `提示词设计` as the primary scene truth.
+- Set `reference_main_image` to the generated or user-provided `主体ID-主体名称-主图`.
+- Set `source_deconstruction` to the upstream design document's `4. 解构` content.
+- `critical_requirements` may directly cite the upstream design document's `4. 解构` as the primary scene truth; do not use the former `提示词设计` English integrated prompt as the gpt-image-2 source.
 
 The multi-view sheet must read as views of one coherent scene, not nine unrelated spaces.
 
 Output:
 
 ```text
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.<ext>
-projects/aigc/<项目名>/5-设计/场景/3-生成/<主体名称>-多视图.json
+projects/aigc/<项目名>/5-设计/场景/3-生成/<主体ID>-<主体名称>-多视图.<ext>
+projects/aigc/<项目名>/5-设计/场景/3-生成/<主体ID>-<主体名称>-多视图.json
 ```
 
 ## JSON Prompt Record Contract
@@ -70,6 +70,8 @@ Each prompt JSON should include:
 - `skill_id`
 - `stage`
 - `source_design_document`
+- `subject_id`
+- `subject_id_source`
 - `subject_name`
 - `image_role`
 - `imagegen_mode`
@@ -86,7 +88,7 @@ For versioned outputs, include `variant_of` or `supersedes`.
 
 ```mermaid
 flowchart LR
-    A["source_design_document"] --> B["source_prompt_quote"]
+    A["source_design_document"] --> B["source_deconstruction_quote"]
     B --> C["prompt / negative_prompt"]
     C --> D["imagegen_mode"]
     D --> E["output_path"]

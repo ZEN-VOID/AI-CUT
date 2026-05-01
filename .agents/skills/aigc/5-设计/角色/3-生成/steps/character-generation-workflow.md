@@ -7,7 +7,7 @@
 ```mermaid
 flowchart TD
     A["N1 Intake"] --> B["N2 Load upstream design"]
-    B --> C{"Prompt section exists?"}
+    B --> C{"4. 解构 exists?"}
     C -->|"No"| D["Blocked: upstream 2-design repair needed"]
     C -->|"Yes"| E["N3 Build main image JSON"]
     E --> F{"imagegen available?"}
@@ -43,8 +43,8 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["Symptom"] --> B{"失败层"}
-    B -->|"source"| C["回到 2-设计补提示词设计"]
-    B -->|"prompt drift"| D["恢复上游 prompt 优先级"]
+    B -->|"source"| C["回到 2-设计补 4. 解构"]
+    B -->|"prompt drift"| D["恢复 4. 解构 优先级"]
     B -->|"imagegen unavailable"| E["切 prompt_only 阻断报告"]
     B -->|"persistence"| F["修复项目路径落盘"]
     B -->|"reference missing"| G["先补主图，再做多视图"]
@@ -60,16 +60,16 @@ flowchart LR
 | node_id | judge | action | evidence | next_gate |
 | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 项目根、角色范围、覆盖策略是否明确 | 锁定 `generation_profile` 和输出目录 | project_root、target_subjects、overwrite_policy | `N2-DESIGN` |
-| `N2-DESIGN` | 每个目标是否有上游设计文档和 `提示词设计` | 读取设计文档，抽取 subject_name 与 source prompt | source_design_path、source_prompt_section | `GATE-PROMPT` |
-| `N3-MAIN-JSON` | 主图 prompt 是否只来自设计文档 | 按主图模板写 JSON | `<主体名称>-主图.json` | `GATE-IMAGEGEN` |
-| `N4-MAIN-IMAGE` | imagegen 可用且输出不会未经许可覆盖 | 调用 imagegen 生成单主体图并持久化 | `<主体名称>-主图.<ext>` | `GATE-MAIN-PERSISTED` |
-| `N5-MULTIVIEW-JSON` | 主图参照图是否存在 | 套用多视图模板并写 JSON | `<主体名称>-多视图.json`、reference_image_path | `GATE-REFERENCE` |
-| `N6-MULTIVIEW-IMAGE` | 多视图 prompt 与参照图是否匹配 | 调用 imagegen 生成多视图主体设计图 | `<主体名称>-多视图.<ext>` | `N7-REVIEW` |
+| `N2-DESIGN` | 每个目标是否有上游设计文档和 `4. 解构` | 读取设计文档，抽取 subject_name 与 source deconstruction | source_design_path、source_deconstruction_section | `GATE-DECONSTRUCTION` |
+| `N3-MAIN-JSON` | 主图 prompt 是否只来自设计文档 `4. 解构` | 按主图模板写 JSON | `<主体ID>-<主体名称>-主图.json` | `GATE-IMAGEGEN` |
+| `N4-MAIN-IMAGE` | imagegen 可用且输出不会未经许可覆盖 | 调用 imagegen 生成单主体图并持久化 | `<主体ID>-<主体名称>-主图.<ext>` | `GATE-MAIN-PERSISTED` |
+| `N5-MULTIVIEW-JSON` | 主图参照图是否存在 | 套用多视图模板并写 JSON | `<主体ID>-<主体名称>-多视图.json`、reference_image_path | `GATE-REFERENCE` |
+| `N6-MULTIVIEW-IMAGE` | 多视图 prompt 与参照图是否匹配 | 调用 imagegen 生成多视图主体设计图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
 | `N7-REVIEW` | 产物路径、命名、来源和图片证据是否闭环 | 执行 review gate，必要时写执行报告 | review verdict | done |
 
 ## Gates
 
-- `GATE-PROMPT`: 缺少 `提示词设计` 时停止生成，返回上游修复建议。
+- `GATE-DECONSTRUCTION`: 缺少 `4. 解构` 时停止生成，返回上游修复建议。
 - `GATE-IMAGEGEN`: imagegen 不可用时进入 `prompt_only`，只交付 JSON 与阻断说明。
 - `GATE-MAIN-PERSISTED`: 主图必须位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/` 后才能作为多视图参照。
 - `GATE-REFERENCE`: 多视图 JSON 的 `reference_image_path` 必须指向对应角色主图。
@@ -102,5 +102,5 @@ changed_files: []
 
 - `changed_files` 只能包含 `projects/aigc/<项目名>/5-设计/角色/3-生成/` 下的图片、JSON 或执行报告。
 - `prompt_only` 模式下 `main_image_path`、`multiview_image_path` 可以为空，但必须提供 `planned_output_image_path` 或 `blocked_reason`。
-- `real_generation` 模式下每个非空图片路径必须真实存在，并且对应 JSON 的 `output_image_path` 与文件名配对。
+- `real_generation` 模式下每个非空图片路径必须真实存在，并且对应 JSON 的 `subject_id`、`output_image_path` 与文件名配对。
 - `review_only` 模式不得新增 prompt JSON 或图片；只返回 findings、verdict 和审查报告路径。

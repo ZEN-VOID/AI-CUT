@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-04-30
+
+- 明确 `3-摄影` 启动 subagents 模式时的执行机制：以项目 `team.yaml` 中明确的监制组相关智能顾问团作为摄影监制。
+- 新增 `Subagents Execution Mechanism`，要求顾问代入专业视角和个人风格，对已知上下文提出摄影方向参谋指导，并由主 agent 汇流为 `advisor_consultation_packet`。
+- 在 workflow 中新增 `N5.6-ADVISOR`，将顾问参谋沉淀为 LLM 镜头语言注入、阶段内修复和复审的后续上下文。
+- 同步更新 review gate 与 CONTEXT 经验层，阻断“泛泛电影感评价”“本地模拟顾问”和“顾问意见越权改写上游编导稿”。
+
 ## 2026-04-29
 
 - 新增阶段末 `Stage-End Review-Repair Contract`，将候选摄影稿固定为 `candidate -> review -> direct repair -> re-review -> canonical writeback` 闭环。

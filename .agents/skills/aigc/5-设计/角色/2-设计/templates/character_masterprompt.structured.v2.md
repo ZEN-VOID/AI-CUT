@@ -13,6 +13,7 @@
 
 ## **解构**
 
+- subject_id: must equal character_id and appear directly under "## 4. 解构" as "主体ID号：<character_id>"
 - identity_evidence:
 - visual_drivers:
 - detailed_character_design:
@@ -21,6 +22,8 @@
 
 ## **prompt整合**
 
+- subject_id_prefix: positive_prompt must start with the exact character_id, formatted as "<character_id>: ..."
 - prompt_evidence_chain:
-- positive_prompt:
-- negative_prompt:
+- deconstruction_coverage: record how every effective identity_pressure, visual_drivers, detailed_character_design, detailed_costume_design and cinematography slot is represented, compressed, merged, or explicitly omitted with reason.
+- positive_prompt: must integrate all effective information from "## 4. 解构", not just attach prefix/suffix style phrases; max 1300 characters; must use natural-language negative constraints and must not use Midjourney "--no".
+- negative_constraints_natural_language: avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing

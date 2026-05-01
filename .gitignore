@@ -18,6 +18,7 @@
 /.codex/state*.sqlite-wal
 /.env
 /.tmp/
+/tmp/
 /PRPs/
 /projects/
 /projects/晴深不渝/

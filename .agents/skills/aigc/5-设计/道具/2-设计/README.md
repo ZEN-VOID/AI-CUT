@@ -34,7 +34,7 @@
 2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`north_star.yaml`、`team.yaml`。
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
 4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
-5. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/5-设计/道具/2-设计/<安全文件名>.md`。
+5. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/5-设计/道具/2-设计/PROP-###-<安全文件名>.md`。
 6. 按 `review/review-contract.md` 执行 subagent reviewer 或降级 review。
 
 ## Visual Entry Points
@@ -50,6 +50,10 @@
 - 脚本只做机械读取、路径、安全文件名和格式检查。
 - 本包不修改 registry、父级目录、角色设计、场景设计、`1-清单` 或 `3-生成`。
 - 研究必须转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain。
-- 固定为纯色背景单道具近景特写、45 度视角。
-- 不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境。
-- 英文 prompt 必须包含 `close-up prop shot, 45-degree view, solid color background, no scene environment` 等等价约束。
+- 固定为纯色背景单道具近景特写、45 度视角，完整展示道具全貌。
+- 仅展示道具本体，不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境，不出现人物或背景元素。
+- `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。
+- 输出文档文件名必须带同一主体 ID 前缀，例如 `PROP-001-<安全文件名>.md`；若上游已有主体 ID，则沿用该 ID。
+- 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Photography 与 Prop Design 信息；只拼主体 ID、风格、物品、固定画面词或负向词等前缀/后缀不算完成。
+- 英文 prompt 必须控制在 1300 characters 内，并使用自然语言负向约束，不得使用 Midjourney `--no` 参数。
+- 英文 prompt 必须以主体 ID 号开头，并包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。

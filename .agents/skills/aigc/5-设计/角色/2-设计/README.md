@@ -33,7 +33,7 @@
 - 调用名：`$aigc-design-character-detail`
 - 上游真源：`projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`
 - 项目上下文：`projects/aigc/<项目名>/0-初始化/north_star.yaml`、`projects/aigc/<项目名>/team.yaml`
-- Canonical 输出：`projects/aigc/<项目名>/5-设计/角色/2-设计/<角色名>.md`
+- Canonical 输出：`projects/aigc/<项目名>/5-设计/角色/2-设计/C###-<角色名>.md`
 - 研究层要求：身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain 必须转化为可见设计决策。
 
 ## Workflow Snapshot
@@ -57,4 +57,8 @@ flowchart TD
 - 默认启用真实 subagents；若 runtime 阻断，必须报告降级层级和未启动的角色/reviewer。
 - 本技能不修改 registry、父级目录、上游清单、场景/道具技能或最终生成阶段。
 - 固定为纯色背景全身定妆照，不置身剧情场景、建筑空间、街景、室内陈设或复杂环境。
-- 英文 prompt 必须包含 `full-body costume fitting photo, solid color background, no scene environment` 等等价约束。
+- `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。
+- 输出文档文件名必须带同一主体 ID 前缀，例如 `C001-<角色名>.md`；若上游已有主体 ID，则沿用该 ID。
+- 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Identity & Story Pressure、Visual Drivers、Detailed Character Design、Detailed Costume Design 与 Cinematography 信息；只拼主体 ID、风格、服装、定妆照词或负向词等前缀/后缀不算完成。
+- 英文 prompt 必须控制在 1300 characters 内，并使用自然语言负向约束，不得使用 Midjourney `--no` 参数。
+- 英文 prompt 必须以主体 ID 号开头，并包含 `full-body costume fitting photo, solid color background, no scene environment` 等等价约束。

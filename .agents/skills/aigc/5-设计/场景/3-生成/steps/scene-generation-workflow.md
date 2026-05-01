@@ -33,13 +33,13 @@ sequenceDiagram
     participant O as Project 3-生成 Output
     participant R as Review Gate
     U->>S: 项目 / 场景 / 模式
-    S->>D: 读取主体名称与提示词设计
+    S->>D: 读取主体名称与 4. 解构
     S->>I: Step1 主图 prompt
     I-->>S: 生成图像
-    S->>O: 写 主体名称-主图 + JSON
+    S->>O: 写 主体ID-主体名称-主图 + JSON
     S->>I: Step2 多视图 prompt + 主图参照
     I-->>S: 生成多视图
-    S->>O: 写 主体名称-多视图 + JSON
+    S->>O: 写 主体ID-主体名称-多视图 + JSON
     S->>R: 提交来源、路径、JSON、参照证据
     R-->>S: verdict
 ```
@@ -49,12 +49,12 @@ sequenceDiagram
 | node_id | input | judgment | action | output | next_gate |
 | --- | --- | --- | --- | --- | --- |
 | `N1-CONTEXT` | Skill, project, imagegen contracts | Are all required contexts loaded or explicitly degraded? | Load local `SKILL.md + CONTEXT.md`, project memory/context, and `$imagegen` contract | `runtime_context` | `G1-SOURCE` |
-| `N2-SOURCE` | Target project and scene design docs | Which scene docs are in scope? | Resolve target docs and extract subject name plus upstream prompt | `source_manifest` | `G2-PROMPT` |
+| `N2-SOURCE` | Target project and scene design docs | Which scene docs are in scope? | Resolve target docs and extract subject name plus upstream deconstruction | `source_manifest` | `G2-DECONSTRUCTION` |
 | `N3-PROFILE` | Source manifest and existing assets | Which mode applies? | Build `generation_profile` from `types/scene-generation-type-map.md` | `generation_profile` | `G3-MAIN` |
-| `N4-MAIN` | Upstream prompt and `templates/scene-main-image-prompt.json` | Is Step1 needed and allowed? | Call `$imagegen` to generate `主体名称-主图`; persist image | main image path | `G4-MAIN-JSON` |
-| `N5-MAIN-JSON` | Main image path and prompt | Does evidence pair exist? | Write `主体名称-主图.json` | main prompt record | `G5-MULTIVIEW` |
+| `N4-MAIN` | Upstream `4. 解构` and `templates/scene-main-image-prompt.json` | Is Step1 needed and allowed? | Call `$imagegen` to generate `主体ID-主体名称-主图`; persist image | main image path | `G4-MAIN-JSON` |
+| `N5-MAIN-JSON` | Main image path and source deconstruction | Does evidence pair exist and include `subject_id`? | Write `主体ID-主体名称-主图.json` | main prompt record | `G5-MULTIVIEW` |
 | `N6-MULTIVIEW` | Main image path and multi-view template | Is the reference image available? | Call `$imagegen` with template prompt and main image reference | multi-view image path | `G6-MULTIVIEW-JSON` |
-| `N7-MULTIVIEW-JSON` | Multi-view image path and template payload | Does evidence pair exist? | Write `主体名称-多视图.json` | multi-view prompt record | `G7-REVIEW` |
+| `N7-MULTIVIEW-JSON` | Multi-view image path and template payload | Does evidence pair exist and reuse the same `subject_id`? | Write `主体ID-主体名称-多视图.json` | multi-view prompt record | `G7-REVIEW` |
 | `N8-REVIEW` | All assets and JSON records | Do outputs satisfy path, naming, reference, quality, boundary gates? | Run review contract or local fallback checklist | `review_verdict` | done |
 | `N9-REPAIR` | Existing asset set and failing gate | Is repair mechanical or does it require regeneration permission? | Version, relocate, or reconstruct JSON from source evidence; ask before overwrite/regeneration when required | repaired asset set | `G7-REVIEW` |
 
@@ -63,7 +63,7 @@ sequenceDiagram
 | gate_id | pass condition | fail route |
 | --- | --- | --- |
 | `G1-SOURCE` | Every target has a readable upstream design doc | Stop or ask for correct project/doc path |
-| `G2-PROMPT` | Upstream `提示词设计` prompt is recoverable | Report missing prompt; do not invent prompt |
+| `G2-DECONSTRUCTION` | Upstream `4. 解构` content is recoverable | Report missing deconstruction; do not invent prompt or fall back to old English integrated prompt |
 | `G3-MAIN` | Existing image conflict is resolved by permission or versioning | Version output or ask for overwrite permission |
 | `G4-MAIN-JSON` | Main image is persisted under project `3-生成` | Apply imagegen output persistence repair |
 | `G5-MULTIVIEW` | Main image path exists and is role-labeled as reference | Generate or locate main image first |
@@ -87,7 +87,7 @@ Batch mode repeats `N2` through `N8` for each target design document. A failed i
 
 ## Failure Loop
 
-- `G2-PROMPT` failure is blocking: stop and report missing upstream prompt; do not route to prompt invention.
+- `G2-DECONSTRUCTION` failure is blocking: stop and report missing upstream `4. 解构`; do not route to prompt invention.
 - `G3-MAIN` conflict is recoverable: version output by default or ask before overwrite.
 - `G4-MAIN-JSON` and `G6-MULTIVIEW-JSON` failures route to `N9-REPAIR` because they are evidence/persistence defects.
 - `G7-REVIEW` visual drift routes to regeneration only when user intent or workflow mode allows a new image; otherwise report `needs_rework`.

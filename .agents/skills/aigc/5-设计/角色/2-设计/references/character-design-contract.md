@@ -77,6 +77,7 @@
 
 `解构` 固定子字段：
 
+- 标题 `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`；该值必须与 `提示词设计` 的主体 ID 字段和英文 prompt 前缀一致。
 - `Identity & Story Pressure`
 - `Visual Drivers`
 - `Detailed Character Design`
@@ -86,10 +87,14 @@
 `提示词设计`:
 
 - 使用英文。
+- 开头必须包含主体 ID 号，格式为 `<主体ID>: ...`；主体 ID 来自上游清单、source row 或角色安全名派生的 ASCII ID。
+- 英文 prompt 开头的主体 ID 必须与 `## 4. 解构` 下方 `主体ID号：<主体ID>` 完全一致。
 - 引用或融合全局风格提示词。
 - 明确包含服装风格。
+- 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，包括 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 中的身份压力、视觉钩子、面部/发型/身体、服装廓形与材质、姿态、构图、光线和固定画面约束；不得只把主体 ID、全局风格、服装风格、定妆照词或负向词作为前缀/后缀拼接后宣布完成。
 - 明确包含 `full-body costume fitting photo`、`solid color background` 和 `no scene environment`。
-- 控制在 2000 字符内。
+- 控制在 1300 characters 内。
+- 使用自然语言负向约束，例如 `avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing`；不得使用 Midjourney `--no` 参数。
 - 不包含 markdown 表格、中文解释或多版本堆叠。
 
 `研究考据` 固定子字段：

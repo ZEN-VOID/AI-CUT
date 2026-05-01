@@ -147,9 +147,10 @@ stateDiagram-v2
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
 5. 按共享团队顾问合同请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须落到空间结构、建筑/地理依据、材质光线、空镜构图、no people 和 prompt evidence，不能只点名大师。
 6. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
-7. 按 `references/scene-design-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；提示词中的关键空间、材质、光线、构图和风格 token 必须能回指研究、顾问指导或设计依据。
-8. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
-9. `解构` 必须分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词和建筑风格，并输出英文提示词，长度不超过 2000 characters。
+7. 按 `references/scene-design-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、顾问指导或设计依据。
+8. 为每个场景锁定唯一主体 ID；默认使用上游清单或文件名前缀 `S###`。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段，并作为英文 prompt 的开头 `<主体ID>: ...`。
+9. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
+10. `解构` 必须先包含主体 ID 行，再分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词、建筑风格、时间锚点和地域锚点，并输出英文整合提示词；最终英文提示词必须以主体 ID 号开头，显式包含时间和地域，长度不超过 2000 characters，并从 `Scene Design` 与 `Cinematography` 的全部有效槽位中蒸馏空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和氛围节奏。
 10. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
 11. 写入 `projects/aigc/<项目名>/5-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
 12. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级。
@@ -163,8 +164,8 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-SCENE-DESIGN-02A` |
 | `FIELD-SCENE-DESIGN-03` | 研究层闭环 | 包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并与类型画像相关 | `FAIL-SCENE-DESIGN-03` |
 | `FIELD-SCENE-DESIGN-04` | 物语 | 解释空间与角色关系、叙事和主题的关系，不写成剧情正文，不让人物入画 | `FAIL-SCENE-DESIGN-04` |
-| `FIELD-SCENE-DESIGN-05` | 解构 | 包含 `Scene Design` 与 `Cinematography` 两组字段 | `FAIL-SCENE-DESIGN-05` |
-| `FIELD-SCENE-DESIGN-06` | 提示词 | 引用全局风格提示词和建筑风格，英文，不超过 2000 characters | `FAIL-SCENE-DESIGN-06` |
+| `FIELD-SCENE-DESIGN-05` | 解构 | `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，并包含 `Scene Design` 与 `Cinematography` 两组字段 | `FAIL-SCENE-DESIGN-05` |
+| `FIELD-SCENE-DESIGN-06` | 提示词 | 引用全局风格提示词、建筑风格、时间锚点和地域锚点；最终英文整合提示词必须以主体 ID 号开头，并显式包含时间和地域，英文，不超过 2000 characters；必须整合 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效信息，而不是只补前缀、后缀或少量非核心 token；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-SCENE-DESIGN-06` |
 | `FIELD-SCENE-DESIGN-07` | LLM-first | 脚本没有生成核心创作正文或提示词 | `FAIL-SCENE-DESIGN-07` |
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `5-设计/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
@@ -208,7 +209,9 @@ stateDiagram-v2
 - 研究层只有百科式段落，没有 `research_brief`、来源姿态、不确定性和视觉翻译。
 - 英文提示词关键 token 无法通过 `prompt_evidence_chain` 回指来源、推断或设计选择。
 - `解构` 缺少 `Scene Design` 或 `Cinematography` 字段。
-- 英文提示词没有引用全局风格提示词和建筑风格，或超过 2000 characters。
+- `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
+- 英文提示词没有引用全局风格提示词、建筑风格、时间锚点和地域锚点，或最终英文整合提示词没有以主体 ID 号开头，没有显式包含时间和地域，或超过 2000 characters。
+- 最终英文整合提示词只拼接前缀/后缀/风格词/负向词，未系统吸收 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效空间、材质、光线、构图和镜头信息。
 - 场景 prompt 或摄影设计允许人物、人体局部、剪影、倒影或人群进入画面。
 - 把本阶段输出写回 `1-清单`、`3-生成`、registry、父级目录或其他 worker 范围。
 - 启用 subagents 时只执行 reviewer 分工，没有调用 `team.yaml` 项目监制顾问进行具体请教，或没有把顾问意见转成可执行场景设计指导。
@@ -224,8 +227,8 @@ stateDiagram-v2
 1. 每个目标场景输出一个单场景细目设计 Markdown。
 2. 每个设计稿必须包含：`名称`、`首次登场`、`原文描述复述`、`研究考据 / Research Brief`、`物语`、`解构`、`提示词设计`。
 3. `研究考据 / Research Brief` 必须包含 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`，并明确哪些信息来自上游资料、常识推断、网络来源或未解不确定性。
-4. `解构` 必须包含 `Scene Design` 与 `Cinematography` 字段。
-5. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用、`prompt_evidence_chain` 和英文提示词；英文提示词不超过 2000 characters。
+4. `解构` 必须在 `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，再包含 `Scene Design` 与 `Cinematography` 字段。
+5. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用、时间与地域引用、`prompt_evidence_chain` 和英文整合提示词；最终英文提示词必须以主体 ID 号开头，显式包含时间和地域，且不超过 2000 characters；英文整合提示词必须把 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息压缩为可生成画面的英文描述，不能只补充前缀、后缀或少量非核心 token；`## 4. 解构`、`## 5. 提示词设计` 与英文 prompt 开头三处主体 ID 必须一致。
 6. 画面固定为纯空镜，不得出现人物、人体局部、剪影、倒影或可识别人类存在。
 7. 可选执行报告记录输入范围、已生成文件、降级情况、冷门信息检索情况和 review verdict。
 8. 可选更新 `projects/aigc/<项目名>/5-设计/场景/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
@@ -261,7 +264,7 @@ stateDiagram-v2
 - 每个设计稿包含 required output 中的全部板块和字段。
 - 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已落到空间结构、材质光线、空镜构图、Scene Design、Cinematography 或 prompt evidence；若被上层阻断，已记录降级报告。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
-- 英文提示词不超过 2000 characters，且显式承接全局风格提示词与建筑风格。
+- 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接全局风格提示词、建筑风格、时间锚点与地域锚点，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。
 - `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。
 - 英文提示词和摄影字段明确固定为纯空镜，并包含 `no people / no human figures` 等负向约束。
 - 未使用脚本生成核心创作正文、研究判断、空间设计、摄影设计或提示词。

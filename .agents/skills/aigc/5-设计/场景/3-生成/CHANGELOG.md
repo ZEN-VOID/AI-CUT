@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-05-01
+
+- 将生成资产命名合同调整为 `<主体ID>-<主体名称>-主图/多视图`，并要求 JSON 记录 `subject_id` 与 `subject_id_source`。
+
+## 2026-04-30
+
+- Updated main-image and multi-view prompt templates so the source imported into gpt-image-2 is upstream `4. 解构`, not the former English integrated prompt.
+
 ## 2026-04-26
 
 - Upgraded `templates/scene-multiview-prompt.json` to v1.2 with a required identity badge and lower-left panel view labels.

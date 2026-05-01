@@ -14,9 +14,9 @@
 | check_id | gate | pass condition | fail route |
 | --- | --- | --- | --- |
 | `REV-PROP-GEN-01` | 上游取证 | 每组资产回指一个 `2-设计` Markdown | `references/prop-generation-contract.md` |
-| `REV-PROP-GEN-02` | 主图忠实度 | 主图 JSON 直接引用设计文档“提示词设计”，未重新设计主体 | `templates/single-subject-prompt.json` |
-| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体名称-主图` 作为 `reference_image` | `templates/prop-multiview-prompt.json` |
-| `REV-PROP-GEN-04` | 命名 | 图像与 JSON 同 stem，包含 `-主图` 或 `-多视图` | `SKILL.md Output Contract` |
+| `REV-PROP-GEN-02` | 主图忠实度 | 主图 JSON 直接引用设计文档 `4. 解构`，未重新设计主体，未回退引用旧英文整合 prompt | `templates/single-subject-prompt.json` |
+| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体ID-主体名称-主图` 作为 `reference_image` | `templates/prop-multiview-prompt.json` |
+| `REV-PROP-GEN-04` | 命名 | 图像与 JSON 同 stem，文件名包含主体 ID，且包含 `-主图` 或 `-多视图` | `SKILL.md Output Contract` |
 | `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/5-设计/道具/3-生成/` | `$imagegen` persistence gate |
 | `REV-PROP-GEN-06` | 非越界 | 未修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件 | 根写入边界 |
 
@@ -25,7 +25,7 @@
 ```mermaid
 flowchart TD
     A["收集 checked_outputs"] --> B["检查上游 source_design_doc"]
-    B --> C["检查主图 JSON 引用提示词设计"]
+    B --> C["检查主图 JSON 引用 4. 解构"]
     C --> D["检查多视图 reference_image"]
     D --> E["检查命名与同 stem"]
     E --> F["检查 canonical 输出路径"]
@@ -62,6 +62,7 @@ degradation:
   not_started: []
 checked_outputs:
   - subject: ""
+    subject_id: ""
     main_image: ""
     main_prompt_json: ""
     multiview_image: ""

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-04-30
+
+- 强化英文整合 prompt 的覆盖范围：明确整合对象是 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息，而不是只拼接前缀、后缀、风格词、时间地域或纯空镜负向词。
+- 强化提示词规则源层：最终英文整合 prompt 必须显式包含时间和地域锚点，并通过 `prompt_evidence_chain` 回指来源姿态、推断或保守化处理。
+- 同步更新 `SKILL.md`、`references/scene-design-contract.md`、`templates/`、`review/`、`steps/`、`README.md`、`CONTEXT.md` 与入口元数据，避免只在单个项目输出中临时补词。
+- 同步主体 ID 结构规则：`## 4. 解构` 下方必须新增 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 前缀保持一致。
+
 ## 2026-04-26
 
 - 升级研究层合同：将“研究考据”扩展为 `research_brief -> source_posture -> uncertainty_register -> visual_translation -> prompt_evidence_chain` 的可追溯闭环。

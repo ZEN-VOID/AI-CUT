@@ -47,7 +47,7 @@ Accepted input:
 Required input:
 
 - 可定位、可读取的项目根 `projects/aigc/<项目名>/`。
-- 至少一份可读取的上游角色设计文档，且包含 `提示词设计` 区块。
+- 至少一份可读取的上游角色设计文档，且包含 `4. 解构` 区块与可追溯主体 ID；主体 ID 优先读取 `## 4. 解构` 下方的 `主体ID号：<主体ID>`，缺失时从 `C###-<角色名>.md` 文件名前缀派生。
 - 可调用的 imagegen 生成能力；如当前环境不能真实生图，只能输出 prompt JSON 与阻断报告，不得伪造图片路径。
 
 Optional input:
@@ -60,14 +60,14 @@ Reject or clarify when:
 
 - 用户要求跳过上游 `2-设计`，直接重新设计角色或凭剧情印象生成角色。
 - 用户要求本技能修改角色设计、场景设计、道具设计、分镜或视频提示词真源。
-- 待生成角色的设计文档缺少 `提示词设计`，且用户未允许回到 `角色/2-设计` 修复。
+- 待生成角色的设计文档缺少 `4. 解构`，且用户未允许回到 `角色/2-设计` 修复。
 - 目标输出会覆盖已有图片或 JSON，且用户未说明覆盖意图。
 
 ## Mode Selection
 
 | mode | 触发信号 | 输出 |
 | --- | --- | --- |
-| `single_character` | 指定单个角色设计文档或角色名 | 一组 `<主体名称>-主图` 与 `<主体名称>-多视图` 图片及 JSON |
+| `single_character` | 指定单个角色设计文档或角色名 | 一组 `<主体ID>-<主体名称>-主图` 与 `<主体ID>-<主体名称>-多视图` 图片及 JSON |
 | `batch_from_designs` | 给定项目且未限制角色 | 为 `2-设计/` 下每份角色设计文档生成主图、多视图与 JSON |
 | `prompt_only` | imagegen 不可用、用户要求 dry-run 或只要提示词 | 仅输出主图 JSON、多视图 JSON 与阻断/执行说明 |
 | `incremental_fill` | `design-manifest.yaml` 或 `2-设计` 显示存在 `generation_gaps` | 只补缺主图、多视图或 JSON，不覆盖既有资产 |
@@ -82,7 +82,7 @@ flowchart TD
     B --> C["加载项目 MEMORY.md 与相关 CONTEXT/"]
     C --> D["读取 imagegen SKILL.md + CONTEXT.md"]
     D --> E["读取角色 2-设计文档"]
-    E --> F{"提示词设计存在?"}
+    E --> F{"4. 解构存在?"}
     F -->|"否"| G["Blocked: 回到角色 2-设计修复"]
     F -->|"是"| H["形成 generation_profile"]
     H --> I{"执行模式"}
@@ -99,12 +99,12 @@ flowchart TD
 ```mermaid
 flowchart LR
     A["2-设计/<角色名>.md"] --> B["source_design_path"]
-    A --> C["提示词设计"]
-    C --> D["<主体名称>-主图.json"]
-    D --> E["<主体名称>-主图.<ext>"]
+    A --> C["4. 解构"]
+    C --> D["<主体ID>-<主体名称>-主图.json"]
+    D --> E["<主体ID>-<主体名称>-主图.<ext>"]
     E --> F["reference_image_path"]
-    F --> G["<主体名称>-多视图.json"]
-    G --> H["<主体名称>-多视图.<ext>"]
+    F --> G["<主体ID>-<主体名称>-多视图.json"]
+    G --> H["<主体ID>-<主体名称>-多视图.<ext>"]
     D --> I["review verdict"]
     G --> I
     E --> I
@@ -150,10 +150,10 @@ stateDiagram-v2
 2. 读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，确认本轮 imagegen 执行路径与保存策略。
    - 默认执行器锁定为 `.agents/skills/cli/imagegen`。
    - 只有用户本轮显式点名替代执行器时，才允许加载和调用其他图像 API skill；否则 imagegen 不可用时进入 `prompt_only`。
-3. 读取上游 `角色/2-设计` 目标设计文档和可选 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，抽取角色名称、设计锚点与 `提示词设计` 英文 prompt；不得重写角色设定。
+3. 读取上游 `角色/2-设计` 目标设计文档和可选 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，抽取角色名称、设计锚点与 `4. 解构` 内容；不得再把 `提示词设计` 的英文整合 prompt 作为导入给 gpt-image-2 的源文本，不得重写角色设定。
 4. 按 `types/character-generation-type-map.md` 形成 `generation_profile`，决定单角色、批量、prompt-only、incremental_fill 或重跑；已有主图、多视图和 JSON 默认跳过，覆盖必须有明确授权。
-5. Step1：依据每份设计文档生成单主体图，保存图片与 `<主体名称>-主图.json`。
-6. Step2：套用 `templates/character-multiview-prompt-template.json`，以 Step1 的单主体图为参照图，生成多视图主体设计图，保存图片与 `<主体名称>-多视图.json`。
+5. Step1：依据每份设计文档生成单主体图，保存图片与 `<主体ID>-<主体名称>-主图.json`。
+6. Step2：套用 `templates/character-multiview-prompt-template.json`，以 Step1 的单主体图为参照图，生成多视图主体设计图，保存图片与 `<主体ID>-<主体名称>-多视图.json`。
 7. 所有输出落入 `projects/aigc/<项目名>/5-设计/角色/3-生成/`，按命名合同写入；可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`。
 8. 按 `review/review-contract.md` 检查路径、命名、JSON 可回指、设计稿不被重写、imagegen 产物真实存在或 prompt-only 阻断清楚。
 
@@ -162,8 +162,8 @@ stateDiagram-v2
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-CHAR-GEN-01` | 上游设计锚点 | 每个 JSON 记录 source_design_path 与角色名称 | `FAIL-CHAR-GEN-01` |
-| `FIELD-CHAR-GEN-02` | 主图生成 | `<主体名称>-主图` 图片存在，prompt 来自设计文档 `提示词设计` | `FAIL-CHAR-GEN-02` |
-| `FIELD-CHAR-GEN-03` | 多视图生成 | `<主体名称>-多视图` 图片存在，reference_image 指向主图 | `FAIL-CHAR-GEN-03` |
+| `FIELD-CHAR-GEN-02` | 主图生成 | `<主体ID>-<主体名称>-主图` 图片存在，prompt 来自设计文档 `4. 解构` | `FAIL-CHAR-GEN-02` |
+| `FIELD-CHAR-GEN-03` | 多视图生成 | `<主体ID>-<主体名称>-多视图` 图片存在，reference_image 指向主图 | `FAIL-CHAR-GEN-03` |
 | `FIELD-CHAR-GEN-04` | JSON 落盘 | 主图与多视图 JSON 均存在且可解析 | `FAIL-CHAR-GEN-04` |
 | `FIELD-CHAR-GEN-05` | 非设计边界 | 未新增、改写或重解释角色身份、服装、时代和视觉事实 | `FAIL-CHAR-GEN-05` |
 | `FIELD-CHAR-GEN-06` | imagegen 合同 | 已遵守 imagegen 的模式、2K 默认和项目持久化规则 | `FAIL-CHAR-GEN-06` |
@@ -174,7 +174,7 @@ stateDiagram-v2
 
 出现以下问题时，必须沿链路上溯并修复源层合同：
 
-- 生成提示词脱离或改写 `角色/2-设计` 的 `提示词设计`。
+- 生成提示词脱离或改写 `角色/2-设计` 的 `4. 解构`，或继续引用旧 `提示词设计` 英文整合 prompt 作为主源。
 - 多视图模板覆盖了角色身份、服装事实、时代、风格或叙事压力。
 - 本技能试图补写角色设定、场景设定、道具设定或视频提示词。
 - 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
@@ -193,7 +193,7 @@ stateDiagram-v2
 
 1. 每个目标角色输出一张单主体图、一张多视图主体设计图。
 2. 每张图片同时落一份同名 JSON prompt 文件。
-3. JSON 必须记录 `source_design_path`、`source_prompt_section`、`imagegen_mode`、`output_image_path`；多视图 JSON 还必须记录 `reference_image_path`。
+3. JSON 必须记录 `source_design_path`、`source_deconstruction_section`、`imagegen_mode`、`output_image_path`；多视图 JSON 还必须记录 `reference_image_path`。
 4. 可选更新 `projects/aigc/<项目名>/5-设计/角色/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
@@ -216,18 +216,19 @@ stateDiagram-v2
 
 ### Naming convention
 
-- 单体图：`<主体名称>-主图.<ext>`。
-- 单体图 JSON：`<主体名称>-主图.json`。
-- 多视图：`<主体名称>-多视图.<ext>`。
-- 多视图 JSON：`<主体名称>-多视图.json`。
-- 若主体名称包含路径分隔符、控制字符或与现有产物冲突，使用安全名并在 JSON 中保留 `subject_name_original`。
+- `<主体ID>` 优先使用上游设计文档 `## 4. 解构` 下方的 `主体ID号：<主体ID>`；若缺失，使用上游设计文件名前缀 `C###`，并在 JSON 中记录派生来源。
+- 单体图：`<主体ID>-<主体名称>-主图.<ext>`。
+- 单体图 JSON：`<主体ID>-<主体名称>-主图.json`。
+- 多视图：`<主体ID>-<主体名称>-多视图.<ext>`。
+- 多视图 JSON：`<主体ID>-<主体名称>-多视图.json`。
+- 若主体名称包含路径分隔符、控制字符或与现有产物冲突，使用安全名并在 JSON 中保留 `subject_id`、`subject_id_source` 与 `subject_name_original`。
 - 增量补缺默认跳过已有完整资产，只生成缺失的主图、多视图或 JSON。
 
 ### Completion gate
 
 - 已读取本 `SKILL.md + CONTEXT.md`、目标设计文档和 imagegen `SKILL.md + CONTEXT.md`。
-- 每个目标角色都有主图 JSON、多视图 JSON；真实生图模式下对应图片存在于项目输出目录。
-- 主图 prompt 来自设计文档 `提示词设计`；多视图模板只组织画面，不改写主体设计。
+- 每个目标角色都有记录 `subject_id` 的主图 JSON、多视图 JSON；真实生图模式下对应图片存在于项目输出目录。
+- 主图 prompt 来自设计文档 `4. 解构`；多视图模板只组织画面，不改写主体设计，也不回退引用旧英文整合 prompt。
 - 多视图生成以对应主图作为参照图。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。

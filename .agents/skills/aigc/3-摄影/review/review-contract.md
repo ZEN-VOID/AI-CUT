@@ -2,7 +2,7 @@
 
 本文件定义 `3-摄影` 的质量门禁。
 
-若本轮显式启用 subagents，review gate 还必须检查 `../_shared/team-advisor-consultation-contract.md`：是否从项目 `team.yaml` 解析监制 roster、是否向摄影/导演/美术/剪辑或类型视觉顾问提出具体问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否只作为镜头语言创作前上下文而未改写 `2-编导` 原文。
+若本轮启动 subagents 模式，review gate 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否从项目 `team.yaml` 解析监制组相关智能顾问团、是否要求顾问代入专业视角和个人风格提出摄影阶段具体参谋问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写 `2-编导` 原文。
 
 ## Review Modes
 
@@ -37,7 +37,7 @@
 | `GATE-CINE-11` | 原文保真 | 除新增 frontmatter/report 和 `镜头语言` 外，不改写 `2-编导` 正文 |
 | `GATE-CINE-12` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
 | `GATE-CINE-13` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
-| `GATE-CINE-14` | 顾问请教 | 显式启用 subagents 时，已完成 `team.yaml` 监制顾问请教，或记录上层阻断降级 |
+| `GATE-CINE-14` | 顾问请教 | 启动 subagents 模式时，已完成 `team.yaml` 监制顾问请教并沉淀为后续上下文，或记录上层阻断降级 |
 
 ## Failure Routing
 
@@ -52,7 +52,7 @@
 | `FAIL-CINE-05D` | 镜头语言不分轻重，低信息过度发散或重信息过度收敛 | `references/visual-rhythm-analysis-contract.md` |
 | `FAIL-CINE-05E` | 上游高点被按普通画面压平，或高潮强化缺少分镜/运镜/停顿/余波策略 | `references/peak-shot-language-contract.md` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
-| `FAIL-CINE-07` | 显式启用 subagents 时缺少顾问请教或降级说明 | `../_shared/team-advisor-consultation-contract.md` |
+| `FAIL-CINE-07` | 启动 subagents 模式时缺少顾问请教、上下文沉淀或降级说明 | `../../_shared/team-advisor-consultation-contract.md` + `../SKILL.md#Subagents Execution Mechanism` |
 
 ## Review Output
 
