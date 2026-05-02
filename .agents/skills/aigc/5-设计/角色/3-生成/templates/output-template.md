@@ -19,6 +19,7 @@ output_root: `projects/aigc/<项目名>/5-设计/角色/3-生成/`
 
 - imagegen mode: {{imagegen_mode}}
 - reference image for multiview: {{reference_image_path}}
+- reference context status: {{reference_context_status}}
 - blocked reason, if any: {{blocked_reason}}
 
 ## Review Verdict
@@ -38,4 +39,4 @@ notes: ""
 | Output format | 图片产物由 imagegen 生成；JSON prompt 使用 `character-main-image-prompt-template.json` 与 `character-multiview-prompt-template.json`；报告为 Markdown。 |
 | Output path | Canonical 路径为 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。 |
 | Naming convention | 主图为 `<主体ID>-<主体名称>-主图`，多视图为 `<主体ID>-<主体名称>-多视图`，JSON 同名。 |
-| Completion gate | source design 可回链；真实生成模式下图片存在；多视图引用对应主图；prompt-only 模式阻断原因清楚。 |
+| Completion gate | source design 可回链；真实生成模式下图片存在；多视图引用对应主图且主图已 `view_image` 入上下文；prompt-only 模式阻断原因清楚。 |

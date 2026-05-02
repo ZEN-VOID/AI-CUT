@@ -32,6 +32,7 @@ Step2 multi-view sheet:
 - Output image: `<主体ID>-<主体名称>-多视图.<ext>`。
 - Output JSON: `<主体ID>-<主体名称>-多视图.json`。
 - Purpose: 生成同一角色的多视图主体设计图，服务后续资产、服装、镜头和制作审阅。
+- Built-in `image_gen` gate: Step1 主图是本地图片路径时，执行 Step2 前必须先用 `view_image` 检视并标注为 `character main image / multiview reference`；多视图 JSON 必须记录 `reference_context_status: visible_in_conversation_context`。`prompt_only` 可记录 `pending_view_image`，但不得声称已完成参考图生成。
 
 ## Prompt Authorship Boundary
 

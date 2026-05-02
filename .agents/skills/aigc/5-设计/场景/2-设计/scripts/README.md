@@ -8,6 +8,7 @@
 - 检查输出 Markdown 是否包含固定标题。
 - 检查英文 prompt 字符数是否不超过 2000 characters。
 - 检查设计稿是否存在 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation` 和 `prompt_evidence_chain` 标题或字段。
+- 解析 `references/design-slot-review-contract.md` 的 `SCENE-BUNDLE-01`，输出 required slots 供 review gate 逐项验收。
 - 检查文件名非法字符替换。
 - 统计已生成设计稿与上游清单行的覆盖关系。
 
@@ -19,4 +20,4 @@
 - 自动新增上游清单不存在的场景主体。
 - 写入 registry、父级 skill 或其他 worker 的技能包。
 
-当前包未提供执行脚本；需要时只能新增 dry-run 或 validator 类脚本，并保持 LLM-first 边界。
+当前包只提供机械 resolver / validator 类脚本；需要新增执行脚本时只能采用 dry-run 或校验用途，并保持 LLM-first 边界。

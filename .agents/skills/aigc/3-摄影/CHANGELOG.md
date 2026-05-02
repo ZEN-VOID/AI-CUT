@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-05-01
+
+- 收紧 `镜头语言：` 字段语义：字段名为下游兼容保留，实际写作心智固定为“运镜摄影设计”。
+- 在 `SKILL.md`、workflow、模板和 review gate 中新增字段语义纯度约束，要求内容聚焦运镜手法、摄影美学、构图/机位/光影/色彩与有动机转场特效。
+- 在 `CONTEXT.md` 沉淀“字段标题诱发抽象阐释”的修复打法，禁止主题寓意、心理结论、世界观解释、导演阐释或不可执行气氛口号进入 `镜头语言：` 块。
+- 新增 `references/shot-planning-integration-contract.md`，把 beat/rhythm/peak/continuity/dynamic/technique 细则汇流为输出前的 `shot_design_plan` 硬门。
+- 在 workflow 中新增 `N6.5-SHOT-PLAN`，要求分镜数量、顺序、入口、路径、落点和交出点均可回指前序判断，防止“分镜变多但随机”和上下衔接断裂。
+- 同步更新模板、review gate、动态表达与连续性合同，要求每个 `分镜N` 能反推起点、路径、速度、落点、节拍动机和交出点。
+
 ## 2026-04-30
 
 - 明确 `3-摄影` 启动 subagents 模式时的执行机制：以项目 `team.yaml` 中明确的监制组相关智能顾问团作为摄影监制。

@@ -10,6 +10,7 @@
 - 检查 Markdown 是否包含必填章节。
 - 检查是否存在 `研究证据链`、`Prompt Evidence Chain`、`risk_uncertainty` 或等价字段。
 - 统计 English Prompt 字符数是否小于等于 1300 characters，并检查不含 Midjourney `--no` 参数。
+- 解析 `references/design-slot-review-contract.md` 的 `PROP-BUNDLE-01`，输出 required slots 供 review gate 逐项验收。
 - 生成缺字段报告或 dry-run manifest。
 
 禁止脚本做：

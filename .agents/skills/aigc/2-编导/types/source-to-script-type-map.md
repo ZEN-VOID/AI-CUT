@@ -17,6 +17,9 @@
 | `location_pattern` | `single_location_multi_beat` / `multi_location` | 地点和日夜是否变化 | 单地点多 beat 不重复 slugline；多地点按空间变化新开场 |
 | `sound_design_load` | `low` / `high` | 铃声、脚步声、机械音、哭声、尖叫、广播 | 每条音效必须配 `音效画面` |
 | `disaster_cutaway_load` | `none` / `present` | 国运、新闻碎片、现实灾难、外部世界后果 | 用短促 `现实灾难画面` 或 `系统画面` 插针 |
+| `subtext_load` | `low` / `medium` / `high` | 试探、隐瞒、不信任、心虚、保护、施压、求证、不能直说 | 进入 `scene_turn_pass`，把潜台词转成行为策略、停顿、视线、道具动作和身体距离 |
+| `power_blocking_load` | `low` / `medium` / `high` | 讲台/门口/黑板占位、群体注视、道具归属、站坐高低、逼近后退 | 使用 `场面调度` 和 `群像画面` 表达权力关系，不写摄影方案 |
+| `enrichment_intent` | `none` / `controlled_supportive` / `authorized_adaptation_requested` | 用户是否要求新增式、适当增强、更影视化、新对白/新桥段 | `controlled_supportive` 进入 B 路线；`authorized_adaptation_requested` 不进入 canonical，必须阻断或另行授权候选稿 |
 
 ## Route Matrix
 
@@ -28,6 +31,10 @@
 | `location_pattern=single_location_multi_beat` | `script-adaptation-contract.md` | 同 slugline 去重 |
 | `sound_design_load=high` | `field-routing-and-audio-visual-contract.md` | 音效与音效画面配对 |
 | `disaster_cutaway_load=present` | `hollywood-quality-spec.md` | 压力插针短促，不挤占主叙事 |
+| `subtext_load=high` | `performance-and-scene-craft-contract.md` | 潜台词行为、演员任务、沉默反应，不新增对白 |
+| `power_blocking_load=high` | `performance-and-scene-craft-contract.md` | 场面调度、权力关系、摄影越权边界 |
+| `enrichment_intent=controlled_supportive` | `controlled-enrichment-contract.md` | 非剧情性承托、上游锚点、ledger、无新增对白/事件/因果 |
+| `enrichment_intent=authorized_adaptation_requested` | `controlled-enrichment-contract.md` | 阻断 canonical；提示需要另行授权 C 路线候选稿 |
 
 ## Type Profile Output
 
@@ -42,6 +49,9 @@ type_profile:
   location_pattern: single_location_multi_beat
   sound_design_load: high
   disaster_cutaway_load: present
+  subtext_load: high
+  power_blocking_load: medium
+  enrichment_intent: controlled_supportive
 ```
 
 `type_profile` 只决定投影策略，不允许决定删减上游事实。

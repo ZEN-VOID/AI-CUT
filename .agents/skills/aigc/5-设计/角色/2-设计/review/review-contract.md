@@ -6,6 +6,7 @@
 
 - 默认启用真实 subagents / reviewers。
 - 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教角色/服装/美术/摄影/导演相关顾问，形成 `advisor_consultation_packet` 后再进入设计稿汇流。
+- 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`ROLE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 - 推荐 reviewer：`character-research-reviewer`、`visual-costume-reviewer`、`cinematography-reviewer`、`prompt-length-reviewer`。
 - 若当前环境无真实 subagent 工具，主 agent 必须报告工具层阻断，并采用本地顺序 checklist 作为降级 review；不得把降级说成真实并行执行。
 
@@ -23,9 +24,11 @@
 | costume | 服装是否含廓形、材质、色彩、配件、使用痕迹或功能逻辑 |
 | cinematography | 是否固定为纯色背景全身定妆照，而非剧情场景或环境肖像 |
 | prompt | 英文、以主体 ID 号开头、融合全局风格和服装风格、不超过 1300 characters，且该前缀与解构主体 ID、提示词设计主体 ID 完全一致；整合对象是 `## 4. 解构` 全部有效信息，不是前后缀拼接；关键短语可回指 prompt evidence chain 与 `deconstruction_coverage` |
+| design_output_contract | 是否逐条检查 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则、字符数、自然语言负向约束和 `--no` 禁用 |
+| slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `ROLE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | fixed_visual | 是否包含 full-body costume fitting photo、solid color background、no scene environment |
 | advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入身份、服装、姿态、摄影或 prompt |
-| subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整 |
+| subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整；是否按 `references/subagent-supervision-contract.md` 留下 supervision 记录 |
 | scope | 是否未修改父级、registry、上游清单或其他 worker 范围 |
 
 ## Verdict Model
@@ -42,7 +45,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | fixed_visual | advisor_consultation | subagents | scope
+  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | design_output_contract | slot_bundle_review | fixed_visual | advisor_consultation | subagents | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -76,7 +79,8 @@ flowchart TD
     E --> F["检查服装细节与摄影字段"]
     F --> G["检查英文 prompt 长度和固定画面约束"]
     G --> H["检查 advisor consultation 与 subagent dispatch 或降级记录"]
-    H --> I{"阻断 finding?"}
+    H --> H1["检查输出合同、ROLE-BUNDLE-01 与 supervision 记录"]
+    H1 --> I{"阻断 finding?"}
     I -->|"yes"| J["needs_rework / blocked"]
     I -->|"no"| K{"存在非阻断改进?"}
     K -->|"yes"| L["pass_with_followups"]
@@ -99,6 +103,9 @@ flowchart TD
 - 研究层缺少身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性或 prompt evidence chain 任一关键镜头。
 - 研究内容无法说明如何转化为角色外观、服装、姿态、摄影或 prompt。
 - prompt 关键短语无法回指研究证据、项目风格、`deconstruction_coverage` 或固定画面合同。
+- 未逐条消费 `references/design-output-contract.md`，或输出结构/prompt 整合硬规则只停留在旁路文档。
+- 未解析 `ROLE-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
+- `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
 - 默认 subagents 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到身份、服装、姿态、摄影、prompt evidence。
 - 未消费 `north_star.yaml` 和 `team.yaml` 却声称项目风格对齐。
 - 脚本生成了创作正文。

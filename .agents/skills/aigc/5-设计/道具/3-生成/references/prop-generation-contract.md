@@ -29,6 +29,8 @@
 | Step1 单主体图 | 用每份设计文档生成单主体图 | `主体ID-主体名称-主图.<ext>` 与 `主体ID-主体名称-主图.json` |
 | Step2 多视图 | 套用道具多视图模板，以单主体图为参照图生成多视图主体设计图 | `主体ID-主体名称-多视图.<ext>` 与 `主体ID-主体名称-多视图.json` |
 
+Step2 使用 built-in `image_gen` 时，单主体图是本地图片路径，不是自动可见的视觉输入。执行多视图生成前必须先用 `view_image` 检视对应主图，并标注为 `prop main image / multiview reference`；多视图 JSON 必须记录 `reference_context_status: visible_in_conversation_context`。`prompt_only` 可记录 `pending_view_image`，但不得声称已完成参考图生成。
+
 ## Prompt Source Rules
 
 - `critical_requirements` 必须忠实引用相应道具/主体设计文档中的 `4. 解构`。

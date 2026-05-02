@@ -32,7 +32,7 @@ Required input:
 
 - 可定位的 `projects/aigc/<项目名>/4-分组/第N集.md`。
 - 每个目标分镜组必须有可解析的 `## x-y-z` 标题、组正文和底部 fenced YAML。
-- 可定位的设计生成目录：`5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成`；目录缺失时允许 prompt-only 或缺图继续，但必须写入报告。
+- 可定位的设计生成目录：`5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成`；目录缺失时允许 prompt-only 或缺图继续，但必须写入报告；执行 built-in `image_gen` 前，所有已绑定的本地参照图必须先通过 `view_image` 检视进入对话上下文。
 - 调用 imagegen 前必须能确定项目内输出目录，默认 `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/`。
 
 Optional input:
@@ -133,8 +133,8 @@ stateDiagram-v2
 3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 组装 prompt 时必须添加固定开头：`Create a multi-panel storyboard based on the following shot breakdown. Add the shot sequence number in the bottom-left corner of each panel (no other text). Auto-adapt the panel layout grid based on the total number of shots.`
 5. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照槽位移除。
-6. 执行 step3：按 `.agents/skills/cli/imagegen` 规范调用图像生成。每个分镜组是一个独立任务，prompt 必须包含完整分镜故事板信息和已绑定的角色、场景、道具参照；默认使用内置 `image_gen` 路由，执行节奏按当前工具能力顺序或受控批量处理，不设置后台并行要求。
-7. built-in `image_gen` 默认可用 `text_prompt_only` 方式生成并复制到项目 `images/`；本地 reference path 记录在 prompt / manifest / plan 中，但不得宣称已作为视觉输入传给工具。该状态不阻断生成，必须在 results/report 中写 `reference_input_status: not_passed_to_generation_tool` 或等价说明。
+6. 执行 step3 前，若 reference manifest 中存在本地参照图路径，必须逐张调用 `view_image` 检视，并按 `character reference / scene reference / prop reference` 标注角色，使图片进入对话上下文后再继续 imagegen handoff；未完成检视的本地参照不得宣称已作为视觉参照使用。
+7. 执行 step3：按 `.agents/skills/cli/imagegen` 规范调用图像生成。每个分镜组是一个独立任务，prompt 必须包含完整分镜故事板信息和已绑定的角色、场景、道具参照；默认使用内置 `image_gen` 路由，执行节奏按当前工具能力顺序或受控批量处理，不设置后台并行要求。生成计划与结果必须记录 `reference_input_status: visible_in_conversation_context`；确无可绑定图片时记录 `no_reference_images_bound`，而不是伪造参照。
 8. 生成时可根据每个分镜组的分镜数量灵活布局，但必须确保所有镜头都进入 storyboard；若镜头数过多导致单图完整性风险，应在计划中标记分页或人工确认策略。
 9. 每个分镜组的 canonical 输出写入 `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/`，并生成执行报告。
 10. 交付前执行 `review/review-contract.md`；组 ID 追溯、固定开头、组正文完整性、YAML 主体基准、参照路径存在性、imagegen 输出持久化必须通过。
@@ -146,8 +146,8 @@ stateDiagram-v2
 | `FIELD-SHEET-01` | input manifest | 项目根、集号、`4-分组`、设计生成目录可追溯 | `FAIL-SHEET-INPUT` |
 | `FIELD-SHEET-02` | group index | 三段式 `x-y-z` 可回指 `## x-y-z`，组正文和 YAML 被完整提取 | `FAIL-SHEET-GROUP` |
 | `FIELD-SHEET-03` | prompt package | 固定英文开头 + 现有组内容主体，保留分镜顺序和完整性 | `FAIL-SHEET-PROMPT` |
-| `FIELD-SHEET-04` | reference manifest | Characters / Scene / Props 只来自组底 YAML，且只绑定真实图片，多视图优先 | `FAIL-SHEET-REF` |
-| `FIELD-SHEET-05` | imagegen plan/result | 一组一任务，调用 `.agents/skills/cli/imagegen`，按当前工具能力执行，输出持久化到项目内 | `FAIL-SHEET-IMAGEGEN` |
+| `FIELD-SHEET-04` | reference manifest | Characters / Scene / Props 只来自组底 YAML，且只绑定真实图片，多视图优先，并记录本地参照图 `view_image` 检视状态 | `FAIL-SHEET-REF` |
+| `FIELD-SHEET-05` | imagegen plan/result | 一组一任务，调用 `.agents/skills/cli/imagegen`，参照图已进入对话上下文，按当前工具能力执行，输出持久化到项目内 | `FAIL-SHEET-IMAGEGEN` |
 | `FIELD-SHEET-06` | execution report | 说明 generated / skipped / failed、缺图、分页或完整性风险 | `FAIL-SHEET-REPORT` |
 
 ## Field Master
@@ -157,8 +157,8 @@ stateDiagram-v2
 | `FIELD-SHEET-01` | input lock | `第N集-group-index.json` / report | 项目根、集号、`4-分组`、设计生成目录 | `FAIL-SHEET-INPUT` |
 | `FIELD-SHEET-02` | group extraction | `第N集-group-index.json` | `group_id`、source heading、shot count、YAML subjects | `FAIL-SHEET-GROUP` |
 | `FIELD-SHEET-03` | prompt assembly | `第N集-分镜故事板-prompts.md` | 固定开头、组正文主体、完整分镜顺序 | `FAIL-SHEET-PROMPT` |
-| `FIELD-SHEET-04` | reference binding | `第N集-reference-manifest.json` | 角色/场景/道具真实图片路径，多视图优先 | `FAIL-SHEET-REF` |
-| `FIELD-SHEET-05` | imagegen handoff | `第N集-imagegen-plan.json` / `第N集-imagegen-results.json` | 一组一任务、合法 mode、项目内输出路径 | `FAIL-SHEET-IMAGEGEN` |
+| `FIELD-SHEET-04` | reference binding | `第N集-reference-manifest.json` | 角色/场景/道具真实图片路径，多视图优先，`view_image` 检视状态 | `FAIL-SHEET-REF` |
+| `FIELD-SHEET-05` | imagegen handoff | `第N集-imagegen-plan.json` / `第N集-imagegen-results.json` | 一组一任务、合法 mode、参照上下文状态、项目内输出路径 | `FAIL-SHEET-IMAGEGEN` |
 | `FIELD-SHEET-06` | convergence | `执行报告.md` | generated / skipped / failed、review verdict、返工入口 | `FAIL-SHEET-REPORT` |
 
 ## Thought Pass Map
@@ -168,8 +168,8 @@ stateDiagram-v2
 | `PASS-SHEET-01` | `FIELD-SHEET-01` | 本轮处理哪个项目、集号和分镜组范围 | 锁定 mode、读取项目上下文 | input manifest |
 | `PASS-SHEET-02` | `FIELD-SHEET-02` | 如何从 `4-分组` 保真提取组正文和 YAML | 解析 `## x-y-z` 与 fenced YAML | group index |
 | `PASS-SHEET-03` | `FIELD-SHEET-03` | 如何保证 prompt 是多格 storyboard 而不是单帧 | 添加固定开头，直接接组正文主体 | prompt markdown |
-| `PASS-SHEET-04` | `FIELD-SHEET-04` | 哪些 YAML 主体有真实本地图片可绑定 | 多视图优先、主图次之、缺图移除槽位 | reference manifest |
-| `PASS-SHEET-05` | `FIELD-SHEET-05` | 生成任务如何按组安全执行 | 生成一组一任务 imagegen plan 并按需调用 | plan / results |
+| `PASS-SHEET-04` | `FIELD-SHEET-04` | 哪些 YAML 主体有真实本地图片可绑定并进入上下文 | 多视图优先、主图次之、缺图移除槽位；已绑定本地图先 `view_image` | reference manifest |
+| `PASS-SHEET-05` | `FIELD-SHEET-05` | 生成任务如何按组安全执行 | 生成一组一任务 imagegen plan，确认参照图上下文状态并按需调用 | plan / results |
 | `PASS-SHEET-06` | `FIELD-SHEET-06` | 输出如何闭环并可返工 | 汇总审查、失败和跳过原因 | execution report |
 
 ## Pass Table
@@ -179,8 +179,8 @@ stateDiagram-v2
 | `PASS-SHEET-01` | 必需输入可读，设计生成目录状态已记录 | `FAIL-SHEET-INPUT` | `types/type-map.md` |
 | `PASS-SHEET-02` | 每个 `group_id` 唯一且可回指源标题、组正文和 YAML | `FAIL-SHEET-GROUP` | `references/group-source-extraction.md` |
 | `PASS-SHEET-03` | prompt 以固定开头起笔，现有组内容作为主体，镜头未缺失乱序 | `FAIL-SHEET-PROMPT` | `references/prompt-assembly-contract.md` |
-| `PASS-SHEET-04` | 所有绑定路径存在，且图片选择遵守 YAML 基准和多视图优先 | `FAIL-SHEET-REF` | `references/reference-slot-binding.md` |
-| `PASS-SHEET-05` | imagegen plan 一组一任务，默认内置路由，输出路径在项目内 | `FAIL-SHEET-IMAGEGEN` | `references/imagegen-handoff.md` |
+| `PASS-SHEET-04` | 所有绑定路径存在，图片选择遵守 YAML 基准和多视图优先，且已绑定本地图片在生成前完成 `view_image` 检视 | `FAIL-SHEET-REF` | `references/reference-slot-binding.md` |
+| `PASS-SHEET-05` | imagegen plan 一组一任务，默认内置路由，记录参照图上下文状态，输出路径在项目内 | `FAIL-SHEET-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `PASS-SHEET-06` | 执行报告记录 verdict、处理范围、失败/跳过与返工入口 | `FAIL-SHEET-REPORT` | `review/review-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -194,7 +194,7 @@ stateDiagram-v2
 1. 组无法追溯或 YAML 解析失败：回到 `references/group-source-extraction.md` 与 `steps/storyboard-sheet-workflow.md`。
 2. prompt 固定开头漂移、缺镜头或改写组正文：回到 `references/prompt-assembly-contract.md`。
 3. 槽位错绑、路径不存在、猜测引用或没有多视图优先：回到 `references/reference-slot-binding.md`。
-4. imagegen 误用 CLI/API、执行节奏越权、写位冲突或输出未持久化：回到 `.agents/skills/cli/imagegen/SKILL.md` 与 `references/imagegen-handoff.md`。
+4. imagegen 误用 CLI/API、本地参照图未先 `view_image` 入上下文、执行节奏越权、写位冲突或输出未持久化：回到 `.agents/skills/cli/imagegen/SKILL.md` 与 `references/imagegen-handoff.md`。
 5. 输出格式不一致：回到 `templates/output-template.md`。
 6. 同类失败可复用：沉淀到同目录 `CONTEXT.md`，稳定后晋升到本文件或分区规范。
 
@@ -204,4 +204,4 @@ stateDiagram-v2
 - Output format: Markdown prompt 文档 + JSON manifest / plan / result；生成图片为 PNG/JPEG/WebP 等 bitmap 文件，默认按 imagegen 2K 目标执行。
 - Output path: `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/`，其中 prompt 文档、manifest、plan、结果报告与生成图片均在该集目录或其 `images/` 子目录下。
 - Naming convention: prompt 文档命名 `第N集-分镜故事板-prompts.md`；索引命名 `第N集-group-index.json`；参照清单命名 `第N集-reference-manifest.json`；生成计划命名 `第N集-imagegen-plan.json`；执行报告命名 `执行报告.md`；图片命名 `<分镜组ID>.png`，例如 `1-1-1.png`。
-- Completion gate: 目标分镜组均可从 `4-分组` 回指；每条 prompt 以固定英文开头起笔并完整保留组正文主体；参照槽位只绑定存在的本地图片且多视图优先；执行 imagegen 时遵循 `.agents/skills/cli/imagegen` 的默认路由与项目持久化门禁；审查结果为 `pass` 或 `pass_with_todo`。
+- Completion gate: 目标分镜组均可从 `4-分组` 回指；每条 prompt 以固定英文开头起笔并完整保留组正文主体；参照槽位只绑定存在的本地图片且多视图优先；执行 built-in `image_gen` 前已绑定本地参照图必须先 `view_image` 进入对话上下文；执行 imagegen 时遵循 `.agents/skills/cli/imagegen` 的默认路由与项目持久化门禁；审查结果为 `pass` 或 `pass_with_todo`。

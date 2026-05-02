@@ -39,11 +39,12 @@ flowchart TD
 | `REV-SCENE-GEN-01` | Source | Each output traces to one upstream `2-设计` document | `FAIL-SCENE-GEN-01` |
 | `REV-SCENE-GEN-02` | Boundary | No scene redesign, no upstream rewrite, no out-of-bound files | `FAIL-SCENE-GEN-02` |
 | `REV-SCENE-GEN-03` | Main image | `主体ID-主体名称-主图` exists under project `3-生成` | `FAIL-SCENE-GEN-03` |
-| `REV-SCENE-GEN-04` | Multi-view image | `主体ID-主体名称-多视图` exists and used main image as reference | `FAIL-SCENE-GEN-04` |
+| `REV-SCENE-GEN-04` | Multi-view image | `主体ID-主体名称-多视图` exists, used main image as reference, and the local main image was `view_image` visible before generation | `FAIL-SCENE-GEN-04` |
 | `REV-SCENE-GEN-05` | JSON records | Each image has same-name JSON with `subject_id`, source, prompt, mode, path, review | `FAIL-SCENE-GEN-05` |
 | `REV-SCENE-GEN-06` | Imagegen route | Built-in imagegen used by default; CLI/API has explicit opt-in | `FAIL-SCENE-GEN-06` |
 | `REV-SCENE-GEN-07` | Visual continuity | Multi-view sheet presents one coherent scene identity | `FAIL-SCENE-GEN-07` |
 | `REV-SCENE-GEN-08` | Persistence | No project-bound final remains only in `$CODEX_HOME` | `FAIL-SCENE-GEN-08` |
+| `REV-SCENE-GEN-09` | Reference context | Multi-view JSON / report records `reference_context_status: visible_in_conversation_context` in real generation mode | `FAIL-SCENE-GEN-09` |
 
 ## Verdict Schema
 
@@ -55,6 +56,7 @@ source_documents: []
 outputs: []
 findings: []
 subject_id_required: true
+reference_context_status_required_for_multiview: true
 notes: ""
 ```
 

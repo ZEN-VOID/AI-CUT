@@ -7,7 +7,10 @@
 ```text
 2-设计/
 ├── references/
-│   └── prop-design-contract.md
+│   ├── prop-design-contract.md
+│   ├── design-output-contract.md
+│   ├── design-slot-review-contract.md
+│   └── subagent-supervision-contract.md
 ├── scripts/
 │   └── README.md
 ├── templates/
@@ -57,3 +60,4 @@
 - 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Photography 与 Prop Design 信息；只拼主体 ID、风格、物品、固定画面词或负向词等前缀/后缀不算完成。
 - 英文 prompt 必须控制在 1300 characters 内，并使用自然语言负向约束，不得使用 Midjourney `--no` 参数。
 - 英文 prompt 必须以主体 ID 号开头，并包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
+- `design-output-contract.md`、`design-slot-review-contract.md` 和 `subagent-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。

@@ -12,6 +12,7 @@ visual_matching_policy: label_and_semantic_visual_unit
 beat_policy: one_beat_point_one_storyboard_cut
 peak_shot_policy: strengthen_existing_peak_visual_unit
 language_policy: preserve_directing_text_add_lens_language
+camera_design_scope: camera_movement_cinematography_aesthetics_motivated_transition_only
 review_status: pending
 ---
 
@@ -21,5 +22,6 @@ review_status: pending
 
 环境描写：<原文画面句子>
 镜头语言：
-分镜1: 从 <当前画面起点/焦点/景别>，以 <镜头类型 + 景别/景深 + 视角 + 组合运镜 + 速度曲线> 变化到 <当前画面终点信息>；过程中 <构图/光影/色彩/转场> 如何变化，最终形成 <戏剧效果>。
+分镜1: 从 <承接上一镜或当前画面的入口/焦点/景别>，以 <镜头类型 + 景别/景深 + 视角 + 组合运镜 + 速度曲线> 变化到 <本节拍的终点信息>；过程中 <构图/机位/光影/色彩/有动机转场> 如何变化，最终把注意力交给 <下一分镜入口或下一画面接口>。
+分镜2: 如存在第二个节拍点，必须承接分镜1的终点，从 <上一落点/反应/动作/声音/光色接口> 继续变化到 <新的注意力落点>；该分镜必须提供新的信息、动作相位、情绪压力、空间关系或转场接口，不能重复上一分镜。禁止写主题寓意、心理结论、世界观解释、导演阐释或不可执行的气氛口号。
 ```

@@ -45,6 +45,12 @@ projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/
 - failed:
 - missing_references:
 
+## Reference Context
+
+- reference_input_status:
+- viewed_reference_images:
+- missing_reference_images:
+
 ## Review
 
 ```yaml

@@ -16,7 +16,8 @@ flowchart TD
     H --> I{"Main image persisted?"}
     I -->|"No"| J["Repair persistence"]
     I -->|"Yes"| K["N5 Build multiview JSON with main image reference"]
-    K --> L["N6 Generate multiview image"]
+    K --> V["view_image main reference"]
+    V --> L["N6 Generate multiview image"]
     L --> M["N7 Review and report"]
     G --> M
     J --> K
@@ -63,8 +64,8 @@ flowchart LR
 | `N2-DESIGN` | 每个目标是否有上游设计文档和 `4. 解构` | 读取设计文档，抽取 subject_name 与 source deconstruction | source_design_path、source_deconstruction_section | `GATE-DECONSTRUCTION` |
 | `N3-MAIN-JSON` | 主图 prompt 是否只来自设计文档 `4. 解构` | 按主图模板写 JSON | `<主体ID>-<主体名称>-主图.json` | `GATE-IMAGEGEN` |
 | `N4-MAIN-IMAGE` | imagegen 可用且输出不会未经许可覆盖 | 调用 imagegen 生成单主体图并持久化 | `<主体ID>-<主体名称>-主图.<ext>` | `GATE-MAIN-PERSISTED` |
-| `N5-MULTIVIEW-JSON` | 主图参照图是否存在 | 套用多视图模板并写 JSON | `<主体ID>-<主体名称>-多视图.json`、reference_image_path | `GATE-REFERENCE` |
-| `N6-MULTIVIEW-IMAGE` | 多视图 prompt 与参照图是否匹配 | 调用 imagegen 生成多视图主体设计图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
+| `N5-MULTIVIEW-JSON` | 主图参照图是否存在且可检视 | 套用多视图模板并写 JSON，记录 `reference_image_path` 与 `reference_context_status` | `<主体ID>-<主体名称>-多视图.json`、reference_image_path | `GATE-REFERENCE` |
+| `N6-MULTIVIEW-IMAGE` | 多视图 prompt 与已可见参照图是否匹配 | 先 `view_image` 主图并标注为角色多视图参照，再调用 imagegen 生成多视图主体设计图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
 | `N7-REVIEW` | 产物路径、命名、来源和图片证据是否闭环 | 执行 review gate，必要时写执行报告 | review verdict | done |
 
 ## Gates
@@ -72,7 +73,7 @@ flowchart LR
 - `GATE-DECONSTRUCTION`: 缺少 `4. 解构` 时停止生成，返回上游修复建议。
 - `GATE-IMAGEGEN`: imagegen 不可用时进入 `prompt_only`，只交付 JSON 与阻断说明。
 - `GATE-MAIN-PERSISTED`: 主图必须位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/` 后才能作为多视图参照。
-- `GATE-REFERENCE`: 多视图 JSON 的 `reference_image_path` 必须指向对应角色主图。
+- `GATE-REFERENCE`: 多视图 JSON 的 `reference_image_path` 必须指向对应角色主图；真实生成模式下该主图必须已通过 `view_image` 进入对话上下文，`reference_context_status` 为 `visible_in_conversation_context`。
 - `GATE-OVERWRITE`: 任何覆盖已有图片或 JSON 的行为必须有用户明确许可。
 
 ## Batch Convergence
@@ -92,6 +93,7 @@ main_prompt_json_path: ""
 multiview_image_path: ""
 multiview_prompt_json_path: ""
 reference_image_path: ""
+reference_context_status: "pending_view_image | visible_in_conversation_context | no_reference_image"
 imagegen_mode: ""
 review_verdict: "pass | pass_with_todo | blocked | needs_rework"
 blocked_reason: ""

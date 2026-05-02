@@ -20,6 +20,7 @@ generation_profile:
   needs_multiview: true
   existing_main_image: ""
   reference_images: []
+  reference_context_status: pending_view_image | visible_in_conversation_context | no_reference_image
 ```
 
 ## Mode Matrix
@@ -38,7 +39,7 @@ generation_profile:
 | profile signal | steps impact | references impact | review impact |
 | --- | --- | --- | --- |
 | `needs_main_image=true` | Must execute `N4-MAIN` and `N5-MAIN-JSON` | Enforce Step1 Main Image Contract | Check main image path and same-name JSON |
-| `needs_multiview=true` | Must execute `N6-MULTIVIEW` and `N7-MULTIVIEW-JSON` | Enforce Step2 Multi-View Contract | Check reference main image continuity |
+| `needs_multiview=true` | Must execute `N6-MULTIVIEW` and `N7-MULTIVIEW-JSON` | Enforce Step2 Multi-View Contract, including `view_image` reference context | Check reference main image continuity and context status |
 | `existing_main_image` present | May skip Step1 only if path is readable and role is clear | Treat as user-provided continuity anchor | Verify source pairing in JSON |
 | `output_conflict_policy=version` | Add `-v2`, `-v3` or stable equivalent | Apply naming convention without overwriting | Check `variant_of` or `supersedes` |
 | `imagegen_route=cli_fallback` | Pause unless user explicitly opted in | Read `$imagegen` fallback boundary | Record permission and mode in verdict |

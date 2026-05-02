@@ -3,6 +3,7 @@
 ## 2026-05-01
 
 - 将生成资产命名合同调整为 `<主体ID>-<主体名称>-主图/多视图`，并要求 JSON 记录 `subject_id` 与 `subject_id_source`。
+- 强化主图到多视图的本地参照图规则：Step2 使用本地主图作为 reference image 时，必须先 `view_image` 进入对话上下文，并在 JSON / 报告记录 `reference_context_status`。
 
 ## 2026-04-30
 

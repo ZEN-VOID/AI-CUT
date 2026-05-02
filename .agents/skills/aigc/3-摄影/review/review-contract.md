@@ -10,13 +10,15 @@
 | --- | --- | --- |
 | `mechanical_check` | 落盘前或修复时 | 检查 `镜头语言：` 覆盖、`分镜N` 连续、路径和命名 |
 | `cinematic_quality_review` | 交付前 | 检查构图、运镜、转场、光影、色彩是否服务戏剧 |
+| `shot_plan_projection_review` | 交付前 | 检查 references 细则是否汇流为 `shot_design_plan`，以及每个 `分镜N` 是否能反推节拍、节奏、连续性、技法和交出点 |
+| `camera_design_scope_review` | 交付前 | 检查 `镜头语言：` 是否只承载运镜手法、摄影美学和有动机转场特效，没有抽象主题、心理结论、世界观解释、导演阐释或不可执行气氛口号 |
 | `faithfulness_review` | 有改写风险时 | diff 上游 `2-编导`，确认正文事实、对白、顺序未被改写 |
 
 ## Stage-End Review-Repair Rule
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/cinematography-workflow.md` 的 `N8R-DIRECT-REPAIR`，由 `3-摄影` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-摄影/第N集.md`。
-- 允许直接修复的范围：`镜头语言：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
+- 允许直接修复的范围：`镜头语言：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、`shot_design_plan` 汇流、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
 - 禁止直接修复的范围：改写 `2-编导` 原文、对白、场景标题、字段顺序、剧情事实或上游 source truth。遇到这类问题必须输出 source owner 和阻断报告。
 - `pass_with_followups` 只允许非阻断质量建议；任何覆盖、编号、保真、空间连续性、专业可执行或 LLM-first 问题不得降级为 followup。
 
@@ -32,12 +34,14 @@
 | `GATE-CINE-06` | 连续性回看 | 当前镜头语言已在内部承接临近至少前 3 个画面单位；不足 3 个时承接已有画面单位，输出不机械展示回看过程 |
 | `GATE-CINE-07` | 专业可执行 | 分镜包含景别、景深、镜头视角、镜头类型、运镜速度，并按需要补充构图、机位、运动、光影、色彩或转场中的有效选择 |
 | `GATE-CINE-08` | 动态流畅 | 镜头语言呈现从起点到终点的变化、组合运镜、速度曲线和注意力转移路径，不是静态标签列表 |
-| `GATE-CINE-09` | 空间一致 | 没有无动机跳轴、反向运动、景别断崖、光色突变或风格断裂 |
-| `GATE-CINE-10` | 戏剧服务 | 技法服务角色、危险、信息揭示或空间压迫，不是孤立炫技 |
-| `GATE-CINE-11` | 原文保真 | 除新增 frontmatter/report 和 `镜头语言` 外，不改写 `2-编导` 正文 |
-| `GATE-CINE-12` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
-| `GATE-CINE-13` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
-| `GATE-CINE-14` | 顾问请教 | 启动 subagents 模式时，已完成 `team.yaml` 监制顾问请教并沉淀为后续上下文，或记录上层阻断降级 |
+| `GATE-CINE-09` | 分镜计划投影 | 每个 `visual_unit` 输出前已有 `shot_design_plan`；最终 `分镜N` 的数量、顺序、入口、路径、落点和交出点可反推 beat/rhythm/continuity/technique/handoff |
+| `GATE-CINE-10` | 字段语义纯度 | `镜头语言：` 是兼容字段名，内容按运镜摄影设计写作；不输出抽象主题、心理结论、世界观解释、导演阐释或不可执行的气氛口号 |
+| `GATE-CINE-11` | 空间一致 | 没有无动机跳轴、反向运动、景别断崖、光色突变或风格断裂 |
+| `GATE-CINE-12` | 戏剧服务 | 技法服务角色、危险、信息揭示或空间压迫，不是孤立炫技 |
+| `GATE-CINE-13` | 原文保真 | 除新增 frontmatter/report 和 `镜头语言` 外，不改写 `2-编导` 正文 |
+| `GATE-CINE-14` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
+| `GATE-CINE-15` | 输出路径 | 写入 `projects/aigc/<项目名>/3-摄影/第N集.md` 和 `执行报告.md` |
+| `GATE-CINE-16` | 顾问请教 | 启动 subagents 模式时，已完成 `team.yaml` 监制顾问请教并沉淀为后续上下文，或记录上层阻断降级 |
 
 ## Failure Routing
 
@@ -47,10 +51,12 @@
 | `FAIL-CINE-03` | 分镜过粗、过碎或固定模板化 | `references/beat-analysis-contract.md` |
 | `FAIL-CINE-04` | `镜头语言` 缺失或编号断裂 | `templates/output-template.md`、`scripts/validate_cinematography_markup.py` |
 | `FAIL-CINE-05` | 镜头语言空泛 | `references/cinematic-technique-library.md` |
+| `FAIL-CINE-05A` | 镜头语言混入抽象主题、心理结论、世界观解释、导演阐释或不可执行气氛口号 | `SKILL.md` Output Contract、`templates/output-template.md` |
 | `FAIL-CINE-05B` | 镜头语言静态呆板，没有变化和组合运镜 | `references/dynamic-lens-language-contract.md` |
 | `FAIL-CINE-05C` | 当前镜头语言与临近镜头断裂、跳轴、跳色或空间跳跃 | `references/shot-continuity-contract.md` |
 | `FAIL-CINE-05D` | 镜头语言不分轻重，低信息过度发散或重信息过度收敛 | `references/visual-rhythm-analysis-contract.md` |
 | `FAIL-CINE-05E` | 上游高点被按普通画面压平，或高潮强化缺少分镜/运镜/停顿/余波策略 | `references/peak-shot-language-contract.md` |
+| `FAIL-CINE-05F` | references 被引用但未汇流成 `shot_design_plan`，导致分镜数量随机、上下不接或输出过短 | `references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
 | `FAIL-CINE-07` | 启动 subagents 模式时缺少顾问请教、上下文沉淀或降级说明 | `../../_shared/team-advisor-consultation-contract.md` + `../SKILL.md#Subagents Execution Mechanism` |
 
@@ -65,7 +71,9 @@
 - 机械校验结果或人工 review 结果。
 - 画面节奏张弛结果。
 - 高潮分镜强化结果。
+- `shot_design_plan` 汇流与投影检查结果。
 - 顾问请教 roster 来源、问题类型、可执行指导或降级说明。
 - 镜头连续性、空间一致性和风格一致性结果。
+- 运镜摄影设计纯度检查结果。
 - 需要返工的行号或字段标签。
 - repair actions、复审 verdict、未修复风险和是否允许进入下游阶段。

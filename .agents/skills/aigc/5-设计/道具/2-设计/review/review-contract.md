@@ -7,6 +7,7 @@
 - 默认 worker：`Worker-Prop`
 - 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教道具/美术/摄影/导演/工艺相关顾问，形成 `advisor_consultation_packet` 后再进入单道具设计汇流。
 - 默认 reviewer：独立 prop-design reviewer subagent；若无专名，则使用可用的 `code-reviewer` / design reviewer provider 执行结构与语义门禁。
+- 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`PROP-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 - 上层策略若阻断真实 subagent 或外部 reviewer 调度，允许降级为本地 review checklist，但必须报告阻断层级、原计划 provider 路径、实际降级路径和未真实启动的 reviewer。
 
 ## Review Scope
@@ -20,9 +21,12 @@
 | structure | 必填章节是否齐全，`## 4. 解构` 下方是否先写 `主体ID号：<主体ID>`，`Photography` 与 `Prop Design` 是否分离 |
 | output_naming | 文件名是否为 `<主体ID>-<安全文件名>.md`，且文件名前缀与解构主体 ID、提示词设计主体 ID、英文 prompt 前缀一致 |
 | prompt | 英文 prompt 是否以主体 ID 号开头，包含全局风格 + 物品风格，且 1300 characters 内；prompt 前缀是否与解构主体 ID、提示词设计主体 ID 完全一致；整合对象是否为 `## 4. 解构` 全部有效信息而不是前后缀拼接 |
+| design_output_contract | 是否逐条检查 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则、字符数、自然语言负向约束和 `--no` 禁用 |
+| slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `PROP-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence | 核心 prompt token 是否能回指研究、物语或解构字段，并包含 `deconstruction_coverage` 说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯色背景单道具近景特写、45 度视角、完整展示道具全貌、仅展示道具、无人物、无背景元素、无场景环境 |
 | advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入形制、材料、工艺、功能、特写拍法或 prompt token |
+| subagent_supervision | 是否按 `references/subagent-supervision-contract.md` 记录真实 dispatch 或降级路径、未启动 reviewer 和汇流裁决 |
 | type | `type_profile` 是否合理，冷门考据和多状态是否按类型处理 |
 | scope | 是否只写入 `5-设计/道具/2-设计`，未触碰 registry、父级或其他技能 |
 
@@ -42,7 +46,8 @@ flowchart TD
     A["design draft"] --> B["source / context / authorship 检查"]
     B --> C["structure / prompt / fixed_visual 检查"]
     C --> A1["检查 advisor consultation packet"]
-    A1 --> D{"真实 reviewer subagent 可用?"}
+    A1 --> A2["检查输出合同、PROP-BUNDLE-01 与 supervision 记录"]
+    A2 --> D{"真实 reviewer subagent 可用?"}
     D -->|"yes"| E["独立 reviewer verdict"]
     D -->|"blocked by upper policy or tool"| F["本地降级 checklist + 降级报告"]
     E --> G{"verdict"}
@@ -57,7 +62,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | context | authorship | research_chain | structure | output_naming | prompt | prompt_evidence | fixed_visual | advisor_consultation | type | scope
+  dimension: source | context | authorship | research_chain | structure | output_naming | prompt | design_output_contract | slot_bundle_review | prompt_evidence | fixed_visual | advisor_consultation | subagent_supervision | type | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -83,6 +88,9 @@ finding:
 - [ ] 英文 prompt 整合 `## 4. 解构` 的全部有效 Photography + Prop Design 信息，而不是只拼接主体 ID、风格、物品、固定画面或负向词。
 - [ ] 英文 prompt 使用自然语言负向约束，未使用 Midjourney `--no` 参数。
 - [ ] prompt 明确包含 close-up prop shot、45-degree view、full prop in view、prop only、solid color background、no people、no background elements、no scene environment。
+- [ ] 已逐条消费 `references/design-output-contract.md`。
+- [ ] 已解析 `PROP-BUNDLE-01`，且 required slots 均有证据位置或 blocking finding。
+- [ ] 已按 `references/subagent-supervision-contract.md` 记录 dispatch / downgrade / merge。
 - [ ] 默认 subagents 路径启用时，`advisor_consultation_packet` 已从 `team.yaml` 顾问请教中提炼出可执行设计指导，或已记录上层阻断降级。
 - [ ] 输出路径在 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
 
@@ -97,6 +105,9 @@ finding:
 - 研究没有转译为形制、材料、工艺、年代、使用痕迹、功能逻辑或不确定性处理。
 - prompt 核心 token 与研究/物语/解构字段脱节，或缺少 `deconstruction_coverage`。
 - prompt 非英文、未以主体 ID 号开头、超长、使用 `--no` 参数、没有全局风格 + 物品风格，或只拼接前后缀而未整合 `## 4. 解构` 全部有效信息。
+- 未逐条消费 `references/design-output-contract.md`，或输出结构/prompt 整合硬规则只停留在旁路文档。
+- 未解析 `PROP-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
+- `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
 - 摄影字段或 prompt 把道具置入具体场景、桌面环境、室内陈设、街景、人物手持情境或背景元素。
 - 缺少 close-up、45-degree view、full prop in view、prop only、solid color background、no people、no background elements 或 no scene environment 约束。
 - 默认 subagents 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到形制、材料、工艺、功能、特写拍法、prompt evidence。

@@ -29,6 +29,7 @@ last_checked_at: 2026-04-25
 | 未经许可覆盖旧资产 | 文件安全层 | 恢复或版本化输出，记录 variant | 输出合同默认版本化命名 | 同名冲突有明确用户许可或版本后缀 |
 | CLI fallback 被默认启用 | imagegen 路由层 | 回到内建 `image_gen` 或询问用户 | 读取 `$imagegen` 合同后再选模式 | 报告中记录 mode 与许可状态 |
 | 2.0 包有目录但缺少可视化拓扑 | Skill 2.0 表达层 | 在 `SKILL.md` 和 `steps/` 补 Mermaid 主流程、状态图和失败回路 | 批量定制后检查 `Visual Maps` 与 steps Mermaid 是否存在 | `rg \"mermaid|Visual Maps\"` 能定位入口图和步骤图 |
+| 多视图主图参照只记录路径未进入上下文 | reference context layer | 生成 Step2 前先 `view_image` 主图并标注为场景多视图参照 | Step2 gate 固化 `reference_context_status` | 多视图 JSON / 报告为 `visible_in_conversation_context` |
 
 ## Repair Playbook
 
@@ -36,8 +37,8 @@ last_checked_at: 2026-04-25
 2. 主图 prompt 优先使用设计文档 `## 4. 解构` 内容；不得回退读取 `## 5. 提示词设计` 的英文整合 prompt。
 3. 多视图 prompt 不重写场景设定，只把上游解构嵌入模板的 `critical_requirements` 和 `source_deconstruction`。
 4. 每次生成后立刻落同名 JSON，避免图片与 prompt 分离。
-5. 使用主图作为多视图参照时，明确角色是 continuity reference，不把主图中的偶然构图当成新设定。
-6. 批量任务按“设计文档 -> 主图 -> 主图 JSON -> 多视图 -> 多视图 JSON”闭环处理，失败项单独记录，不阻塞已完成项的路径回写。
+5. 使用主图作为多视图参照时，明确角色是 continuity reference，不把主图中的偶然构图当成新设定；调用 built-in `image_gen` 前必须先 `view_image` 主图。
+6. 批量任务按“设计文档 -> 主图 -> 主图 JSON -> 主图 `view_image` -> 多视图 -> 多视图 JSON”闭环处理，失败项单独记录，不阻塞已完成项的路径回写。
 7. 若 subagents 不可用，至少执行本地 review checklist：来源、命名、JSON、参照、持久化、边界六项。
 8. 批量生成的 Skill 2.0 包若只有表格没有图，优先补 `SKILL.md` 的总览图，再补 `steps/` 的执行拓扑图；不要把完整细则倒灌回 `SKILL.md`。
 
@@ -47,6 +48,7 @@ last_checked_at: 2026-04-25
 - 多视图图最容易漂成九个不同场景；模板必须反复强调同一空间、同一时代、同一材质逻辑、同一光源方向。
 - 场景图默认不加人物、动物、剪影或人形阴影，除非上游设计文档明确要求。
 - 主图是多视图的连续性锚点；它帮助锁定场景身份，但不能覆盖设计文档的提示词真源。
+- 主图作为本地参照时必须先 `view_image` 可见化；否则只是路径证据，不是已传入视觉参照。
 - 场景多视图应先形成 `subject_invariant_lock`，再展开九宫格；每个 panel 都要证明同一空间的方向、阈限、结构、光源、材质和动线，而不是生成九个好看的镜头。
 - 场景多视图生产板必须具备可追踪身份：顶左身份牌优先显示短 ASCII 场景 ID，完整主体名进入 JSON；每个 panel 左下角应有短视角标签，用于审阅时快速区分 wide、medium、detail、threshold、structure、low-angle、path、material 和 top-down。
 - JSON prompt record 是复现、审查和后续视频阶段的证据，重要性不低于图片本身。

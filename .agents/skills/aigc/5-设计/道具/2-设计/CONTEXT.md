@@ -26,6 +26,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-05B` | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Photography 与 Prop Design 的镜头、形制、材料、工艺、年代、磨损、功能和尺度槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到镜头、形制、材质、工艺、磨损、功能和固定画面槽位 |
 | `TM-PROP-DESIGN-06` | team.yaml 中的大师只被点名，未影响设计 | 监制消费层 | 把大师语境转译为材质、构图、年代感、动作性或留白策略 | steps 固定“监制上下文 -> 设计决策”证据 | 文件中能看到至少一条对应设计选择 |
 | `TM-PROP-DESIGN-06A` | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，向道具/美术/摄影/工艺顾问提具体问题并汇流 | `advisor_consultation_packet` 固定在 LLM 道具设计前消费 | 可见指导落到形制、材料、工艺、功能、特写拍法或 prompt token |
+| `TM-PROP-DESIGN-06B` | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
 | `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
 | `TM-PROP-DESIGN-09` | 冷门考据被写成确定事实，后续美术和生成都跟着错 | 不确定性治理层 | 将事实分为 source_fact / inference / inspired_by / unknown | references 固定 confidence 和 risk_uncertainty 字段 | 不确定内容以 inspired by 或 uncertain 标注，不进入确定性 design lock |

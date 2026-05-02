@@ -16,6 +16,7 @@
 | `execution_intent` | `generate` / `prompt_only` / `repair` / `review_only` | 用户请求与 `N2-TYPE` |
 | `execute_imagegen` | `true` / `false` | `type_profile` |
 | `imagegen_mode` | `imagegen_skill_default` / `imagegen_skill_with_reference` / `imagegen_cli_explicit` / `external_provider_explicit` | `.agents/skills/cli/imagegen` 合同与用户显式 provider 选择 |
+| `reference_context_status` | `pending_view_image` / `visible_in_conversation_context` / `no_reference_image` | 本地主图参照是否已通过 `view_image` 进入上下文 |
 | `write_scope` | `3-生成-only` / `no_write_review` | `SKILL.md Output Contract` |
 | `repair_scope` | `main_prompt` / `main_image` / `multiview_prompt` / `multiview_image` / `json_path` | `review/review-contract.md` findings |
 
@@ -63,6 +64,7 @@ type_profile:
   imagegen_mode: imagegen_skill_default
   allow_cli_fallback: false
   allow_external_provider: false
+  reference_context_status: pending_view_image
   subjects: []
 ```
 
@@ -82,4 +84,5 @@ type_profile:
 - `allow_cli_fallback: true` 只能来自用户显式选择，并且默认仍通过 `.agents/skills/cli/imagegen` 入口执行，不能由批量、质量或路径需求自动推导。
 - `allow_external_provider: true` 只能来自用户显式点名其他 provider / API / model；否则不得调用 `nano-banana`、Dreamina、AnyFast 子技能或其他图像执行器。
 - 批量任务必须拆成每个主体独立 prompt 和独立 imagegen 调用。
+- 真实多视图生成必须先将对应主图 `view_image` 到对话上下文，不能只把本地路径写进 `reference_image`。
 - `review_only` 的 `write_scope` 固定为 `no_write_review`；不得为了“修正结构完整性”补空 JSON 或占位图。

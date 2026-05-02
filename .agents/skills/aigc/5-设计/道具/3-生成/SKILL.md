@@ -40,7 +40,7 @@ Required input:
 
 - 可定位的 `projects/aigc/<项目名>/5-设计/道具/2-设计/`。
 - 每个被调度主体至少有一份上游 Markdown 设计文档，且包含 `4. 解构` 与可追溯主体 ID；主体 ID 优先读取 `## 4. 解构` 下方的 `主体ID号：<主体ID>`，缺失时从上游文件名前缀派生。
-- 可用的 `.agents/skills/cli/imagegen` 路径；普通生成默认只以该 skill 作为图像执行入口，并遵循其内部路由。
+- 可用的 `.agents/skills/cli/imagegen` 路径；普通生成默认只以该 skill 作为图像执行入口，并遵循其内部路由。执行 Step2 多视图前，作为 reference image 的道具主图必须先通过 `view_image` 检视进入对话上下文。
 - 若用户没有显式点名其他 provider / API / model，不得把本阶段任务交给 `nano-banana`、Dreamina、AnyFast 子技能或其他图像执行器。
 
 Optional input:
@@ -129,7 +129,7 @@ stateDiagram-v2
 2. 锁定被调度的上游 `2-设计` 文档，并读取可选 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`；只消费这些文档，不为未调度主体补空图、补占位 JSON 或重写设计正文。
 3. 按 `types/prop-generation-type-map.md` 判型，形成 `type_profile`，决定 batch、prompt_only、incremental_fill 或 repair；已有主图、多视图和 JSON 默认跳过，覆盖必须有明确授权。
 4. Step1：抽取每份设计文档中的 `4. 解构`，生成单主体图与对应 JSON 提示词；不得回退读取旧英文整合 prompt。
-5. Step2：套用 `templates/prop-multiview-prompt.json`，以各个单主体图为参照图，生成多视图主体设计图与对应 JSON 提示词。
+5. Step2：套用 `templates/prop-multiview-prompt.json`，以各个单主体图为参照图；调用 built-in `image_gen` 前必须先对该主图执行 `view_image`，标注为 `prop main image / multiview reference`，使其进入对话上下文后再生成多视图主体设计图与对应 JSON 提示词。
 6. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/3-生成/`，并可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`；不得修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件。
 7. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 imagegen 执行或 LLM 的提示词裁决。
 
@@ -155,7 +155,7 @@ stateDiagram-v2
 | `FIELD-PROP-GEN-01` | 输入取证 | 上游设计文档、项目记忆、imagegen 合同和处理范围明确 | `FAIL-PROP-GEN-01` |
 | `FIELD-PROP-GEN-02` | 主体边界 | 每组资产只对应一个道具主体，不混入角色、场景或其他道具重设计 | `FAIL-PROP-GEN-02` |
 | `FIELD-PROP-GEN-03` | Step1 主图 | 单主体图来自设计文档 `4. 解构`，命名为 `主体ID-主体名称-主图` | `FAIL-PROP-GEN-03` |
-| `FIELD-PROP-GEN-04` | Step2 多视图 | 多视图以主图为参照，套用道具多视图模板，命名为 `主体ID-主体名称-多视图` | `FAIL-PROP-GEN-04` |
+| `FIELD-PROP-GEN-04` | Step2 多视图 | 多视图以主图为参照，主图已 `view_image` 进入对话上下文，套用道具多视图模板，命名为 `主体ID-主体名称-多视图` | `FAIL-PROP-GEN-04` |
 | `FIELD-PROP-GEN-05` | JSON 提示词 | 主图与多视图均有同名 JSON，能回指设计文档和参考图 | `FAIL-PROP-GEN-05` |
 | `FIELD-PROP-GEN-06` | 输出落盘 | canonical 输出目录正确，未触碰非授权范围 | `FAIL-PROP-GEN-06` |
 
@@ -167,8 +167,8 @@ stateDiagram-v2
 | `N2-TYPE` | `generation_scope` | 按 `types/prop-generation-type-map.md` 形成 `type_profile` | `type_profile` | `N3-MAIN-PROMPT` 或 `N7-REVIEW` |
 | `N3-MAIN-PROMPT` | `type_profile` 与设计文档 `4. 解构` | 写入单主体 JSON，不重设主体 | `<主体ID>-<主体名称>-主图.json` | `N4-MAIN-IMAGE` 或 `N5-MULTIVIEW-PROMPT` |
 | `N4-MAIN-IMAGE` | 单主体 JSON | 调用 `$imagegen` 并持久化主图 | `<主体ID>-<主体名称>-主图.<ext>` | `N5-MULTIVIEW-PROMPT` |
-| `N5-MULTIVIEW-PROMPT` | 主图路径与上游 `4. 解构` | 写入多视图 JSON，填入 `reference_image` | `<主体ID>-<主体名称>-多视图.json` | `N6-MULTIVIEW-IMAGE` |
-| `N6-MULTIVIEW-IMAGE` | 多视图 JSON 与主图参照 | 调用 `$imagegen` 并持久化多视图图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
+| `N5-MULTIVIEW-PROMPT` | 主图路径与上游 `4. 解构` | 写入多视图 JSON，填入 `reference_image` 与 `reference_context_status` | `<主体ID>-<主体名称>-多视图.json` | `N6-MULTIVIEW-IMAGE` |
+| `N6-MULTIVIEW-IMAGE` | 多视图 JSON 与主图参照 | 先 `view_image` 主图，再调用 `$imagegen` 并持久化多视图图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
 | `N7-REVIEW` | 图像、JSON、路径、命名和来源证据 | 执行 review gate，记录 subagent 或降级状态 | `review_verdict` | done 或返工 |
 
 ### Failure Routing Table
@@ -192,6 +192,7 @@ stateDiagram-v2
 - 生成阶段重写主体设计、补造叙事设定或覆盖 `2-设计`。
 - 未引用相应道具/主体设计文档中的 `4. 解构` 就直接生图，或继续引用旧“提示词设计”英文整合 prompt。
 - Step2 多视图没有使用 Step1 单主体图作为参照。
+- Step2 使用本地主图作为参照但未先 `view_image` 进入对话上下文。
 - 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
 - JSON 提示词与实际图像命名、参考图或上游设计文档脱节。
 - 输出写到 `2-设计`、父级、角色/场景目录、registry 或其他 worker 范围。
@@ -207,7 +208,7 @@ stateDiagram-v2
 
 1. 每个被调度道具主体输出一张单主体图、一个单主体 JSON 提示词、一张多视图主体设计图、一个多视图 JSON 提示词。
 2. 单主体图必须直接消费相应设计文档中的 `4. 解构`，不得重新设计主体。
-3. 多视图主体设计图必须以对应单主体图为参照图，并套用当前 `templates/prop-multiview-prompt.json`。
+3. 多视图主体设计图必须以对应单主体图为参照图，并套用当前 `templates/prop-multiview-prompt.json`；真实生成模式下，该本地主图已先通过 `view_image` 检视进入对话上下文，并记录 `reference_context_status: visible_in_conversation_context`。
 4. 可选更新 `projects/aigc/<项目名>/5-设计/道具/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
@@ -243,7 +244,7 @@ stateDiagram-v2
 
 - 已读取本 `SKILL.md + CONTEXT.md`，项目任务已加载项目 `MEMORY.md` 与相关 `CONTEXT/`，并读取 `$imagegen SKILL.md + CONTEXT.md`。
 - 每组资产都能回指一个上游 `2-设计` Markdown。
-- 单主体 JSON 记录 `subject_id` 并引用设计文档中的 `4. 解构`；多视图 JSON 记录同一 `subject_id` 并引用对应单主体图路径。
+- 单主体 JSON 记录 `subject_id` 并引用设计文档中的 `4. 解构`；多视图 JSON 记录同一 `subject_id`、对应单主体图路径与 `reference_context_status`。
 - 图像和 JSON 都落在 `projects/aigc/<项目名>/5-设计/道具/3-生成/`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。

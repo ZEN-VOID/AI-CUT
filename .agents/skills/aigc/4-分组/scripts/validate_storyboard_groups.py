@@ -2,9 +2,8 @@
 """Mechanically validate AIGC storyboard group Markdown files.
 
 This script is intentionally read-only. It checks structure, rough word
-limits, group IDs, required labels, position/movement fields, YAML stats,
-and paired bridge shots. It does not generate grouping decisions or creative
-text.
+limits, group IDs, required labels, YAML stats, and paired bridge shots. It
+does not generate grouping decisions or creative text.
 """
 
 from __future__ import annotations
@@ -25,27 +24,10 @@ GROUP_HEADING_RE = re.compile(r"^##\s+(\d+)-(\d+)-(\d+)\s*$", re.MULTILINE)
 FENCED_YAML_RE = re.compile(r"```yaml\n(.*?)\n```", re.DOTALL)
 EPISODE_RE = re.compile(r"第(\d+)集")
 SCENE_HEADING_RE = re.compile(r"^###\s+场景(\d+)[：:]", re.MULTILINE)
-STORYBOARD_DETAIL_RE = re.compile(r"^\s*分镜(\d+)[：:]")
 STATS_COUNT_RE = re.compile(r"(\d+)")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。"
-POSITION_MOVEMENT_LABEL = "站位和位移："
-VAGUE_POSITION_SUBJECTS = (
-    "画面主体",
-    "主体",
-    "人物",
-    "角色",
-    "主角",
-    "该角色",
-    "该人物",
-    "此人",
-    "他们",
-    "她们",
-)
-VAGUE_POSITION_PRONOUN_RE = re.compile(
-    r"(^|[，,；;、。\s])(他|她)(?=站|坐|靠|蹲|停|走|退|绕|移|面|朝|向|从|在)"
-)
 ENTRY_LABEL = "入场画面："
 EXIT_LABEL = "出场画面："
 REQUIRED_YAML_KEYS = ("字数统计", "角色", "场景", "道具")
@@ -144,7 +126,6 @@ def extract_prefixed_label_content(body: str, label: str) -> str:
                     or candidate.startswith("#")
                     or candidate.startswith("## ")
                     or candidate_stripped in {ENTRY_LABEL, EXIT_LABEL}
-                    or candidate_stripped.startswith(POSITION_MOVEMENT_LABEL)
                 ):
                     break
                 collected.append(candidate_stripped)
@@ -184,68 +165,6 @@ def style_line_indices(body: str) -> list[int]:
         if len(indices) == STYLE_LINE_COUNT:
             break
     return indices
-
-
-def position_movement_structure_errors(body: str) -> list[str]:
-    lines = body.splitlines()
-    detail_indices: list[tuple[int, str]] = []
-    for index, line in enumerate(lines):
-        match = STORYBOARD_DETAIL_RE.match(line)
-        if match:
-            detail_indices.append((index, match.group(1)))
-    if not detail_indices:
-        return []
-
-    has_scoped_position_movement = False
-    first_detail_has_position_movement = False
-    for detail_offset, (start_index, detail_number) in enumerate(detail_indices):
-        end_index = (
-            detail_indices[detail_offset + 1][0]
-            if detail_offset + 1 < len(detail_indices)
-            else len(lines)
-        )
-        for candidate in lines[start_index + 1 : end_index]:
-            stripped = candidate.strip()
-            if not stripped:
-                continue
-            if stripped.startswith(POSITION_MOVEMENT_LABEL) and stripped[len(POSITION_MOVEMENT_LABEL) :].strip():
-                has_scoped_position_movement = True
-                if detail_offset == 0:
-                    first_detail_has_position_movement = True
-                break
-            if stripped in {ENTRY_LABEL, EXIT_LABEL} or stripped.startswith("```yaml") or stripped.startswith("## "):
-                break
-
-    errors: list[str] = []
-    if not has_scoped_position_movement:
-        errors.append(
-            f"missing non-empty {POSITION_MOVEMENT_LABEL} scoped under a storyboard detail"
-        )
-    elif not first_detail_has_position_movement:
-        errors.append(
-            f"first storyboard detail must establish initial {POSITION_MOVEMENT_LABEL}; unchanged later details may omit repeats"
-        )
-    return errors
-
-
-def position_movement_contents(body: str) -> list[tuple[int, str]]:
-    contents: list[tuple[int, str]] = []
-    for index, line in enumerate(body.splitlines(), start=1):
-        stripped = line.strip()
-        if stripped.startswith(POSITION_MOVEMENT_LABEL):
-            contents.append((index, stripped[len(POSITION_MOVEMENT_LABEL) :].strip()))
-    return contents
-
-
-def vague_position_subjects(content: str) -> list[str]:
-    vague_subjects = [
-        subject for subject in VAGUE_POSITION_SUBJECTS if subject in content
-    ]
-    for match in VAGUE_POSITION_PRONOUN_RE.finditer(content):
-        pronoun = match.group(2)
-        if pronoun not in vague_subjects:
-            vague_subjects.append(pronoun)
-    return vague_subjects
 
 
 def has_label(body: str, label: str) -> bool:
@@ -333,16 +252,6 @@ def validate_file(path: Path) -> list[str]:
                 errors.append(f"{prefix} style header exposes old visible label {label}")
         if "（" in style_header or "）" in style_header:
             errors.append(f"{prefix} style header must not wrap north_star fields in Chinese parentheses")
-        if "空间锚点：" in group.body:
-            errors.append(f"{prefix} must not output internal spatial anchor label 空间锚点：")
-        for structure_error in position_movement_structure_errors(group.body):
-            errors.append(f"{prefix} {structure_error}")
-        for movement_line_number, movement_content in position_movement_contents(group.body):
-            vague_subjects = vague_position_subjects(movement_content)
-            if vague_subjects:
-                errors.append(
-                    f"{prefix} {POSITION_MOVEMENT_LABEL} line {movement_line_number} uses vague subject/reference {', '.join(vague_subjects)}; use explicit character names"
-                )
         if EXIT_LABEL not in group.body:
             errors.append(f"{prefix} missing label {EXIT_LABEL}")
 

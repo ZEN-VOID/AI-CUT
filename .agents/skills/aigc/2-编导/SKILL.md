@@ -8,7 +8,7 @@ metadata:
 
 # aigc 2-编导
 
-`2-编导` 负责把 `1-分集` 的逐集原文投影为影视剧本化结构。它只做按集剧本化改编、场景标题解析、声画字段分流和编导级表演/镜头预设，不做剧情摘要、事实删减、因果重写、分镜组切分、摄影执行或设计资产生成。
+`2-编导` 负责把 `1-分集` 的逐集原文投影为影视剧本化结构。它只做按集剧本化改编、场景标题解析、声画字段分流、编导级表演任务和场面调度预设，不做剧情摘要、事实删减、因果重写、分镜组切分、摄影执行或设计资产生成。
 
 ## Context Loading Contract
 
@@ -50,12 +50,14 @@ Optional input:
 - 项目 `MEMORY.md` 中的长期偏好、禁区、风格要求。
 - `CONTEXT/` 中的角色、世界观、类型和制作约束。
 - 用户额外指定的字段、标题风格、下游分组解析要求。
+- 用户要求“更影视化”“适当新增可拍承托”“增强场景/表演层次”时，可触发 B 路线 `controlled_enrichment`，但不等于授权新增剧情。
 
 Reject or clarify when:
 
 - 上游文件不存在、不是可读文本，或 `【剧本正文】` 后没有可承接正文。
 - 用户要求压缩、摘要、重排、删减剧情事实，且未明确这是非 canonical 候选稿。
 - 用户要求对白润色、同义替换、语序调整；此类请求与对白冻结冲突，必须先确认是否放弃本技能 canonical 输出。
+- 用户要求新增对白、新场景、新桥段、新规则、新因果强化或新事件结果；这属于 `C-authorized_adaptation`，不允许混入默认 canonical，必须另行授权并作为候选稿处理。
 - 用户要求直接生成分镜组、图像提示词或视频请求；应分别转交下游阶段。
 
 ## Mode Selection
@@ -65,6 +67,7 @@ Reject or clarify when:
 | `single_episode` | 指定单个 `第N集.md` 或单个集号 | `projects/aigc/<项目名>/2-编导/第N集.md` |
 | `episode_range` | 指定多个集号或范围 | 多个逐集编导稿与更新后的执行报告 |
 | `all_ready_episodes` | 未指定集号但 `1-分集/` 下有连续 `第N集.md` | 全部可读逐集编导稿 |
+| `controlled_enrichment` | 用户要求“更影视化/适当新增可拍承托”，或质量门发现表现层承托不足但无需新增剧情 | canonical 编导稿 + `controlled_enrichment_ledger` |
 | `repair` | 已有编导稿存在字段缺失、声画错配、场景标题漂移、对白不保真 | 最小修复后的逐集编导稿与问题报告 |
 | `stage_end_review_repair` | 任一非 `review_only` 编导任务完成候选稿后自动进入 | 阶段内 review -> 直接修复 -> 复审 -> canonical 写回 |
 | `review_only` | 用户只要求检查 `2-编导` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
@@ -74,8 +77,8 @@ Reject or clarify when:
 当 `2-编导` 启动 subagents 模式时，执行语义固定为“项目监制顾问团请教 -> 编导参谋汇流 -> 上下文沉淀 -> 后续编导任务消费”，而不是让 subagents 直接主创或改写 canonical 编导稿。
 
 1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 解析监制组相关智能顾问团；优先使用 `roles.supervision.members`、`roles.supervising.members` 或其引用成员，必要时才按共享合同补位并记录原因。
-2. 被启动的 subagents 作为编导监制顾问运行：围绕当前集上游正文、项目 `MEMORY.md`、相关 `CONTEXT/`、类型策略、场景解析、字段分流、声画承托和高潮画面计划，代入各自专业视角与个人风格提出编导方向参谋建议。
-3. 顾问问题必须面向编导决策，例如结构投影、场景目的、表演任务、对白保真风险、声音与画面承托、高潮兑现、类型气口和下游可分组性；不得停留在泛泛“好不好看”。
+2. 被启动的 subagents 作为编导监制顾问运行：围绕当前集上游正文、项目 `MEMORY.md`、相关 `CONTEXT/`、类型策略、场景解析、字段分流、声画承托、高潮画面计划、场景状态差、潜台词、演员任务和权力调度，代入各自专业视角与个人风格提出编导方向参谋建议。
+3. 顾问问题必须面向编导决策，例如结构投影、场景目的、表演任务、对白保真风险、声音与画面承托、高潮兑现、潜台词行为、沉默反应、类型气口和下游可分组性；不得停留在泛泛“好不好看”。
 4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `advisor_consultation_packet.must_do / must_not_do / inspiration_to_use / execution_brief`，并作为 LLM 剧本化投影、阶段内修复和复审的额外上下文继续执行后续任务。
 5. `advisor_consultation_packet` 不拥有上游逐集正文、对白冻结、场景顺序、字段合同或 canonical 写回权；顾问建议若与上游真源或本技能合同冲突，必须舍弃或降级为风险提示。
 6. 若真实 subagent dispatch 被 system / developer / tool / user 上层策略阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员；不得把主 agent 本地顺序扮演写成真实 subagents 已执行。
@@ -89,6 +92,8 @@ Reject or clarify when:
 | 字段分流、声画配对、对白冻结 | `references/field-routing-and-audio-visual-contract.md` |
 | 高潮画面识别与重点强化 | `references/climax-visual-treatment-contract.md` |
 | 好莱坞级编剧创作质量细则 | `references/hollywood-quality-spec.md` |
+| 场景戏剧功能、潜台词、场面调度与演员任务 | `references/performance-and-scene-craft-contract.md` |
+| B 路线受控新增式 / 非剧情性承托增强 | `references/controlled-enrichment-contract.md` |
 | 判断输入类型与改编策略 | `types/source-to-script-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
 | 阶段末审计后直接修复闭环 | 本 `Stage-End Review-Repair Contract`、`steps/directing-workflow.md`、`review/review-contract.md` |
@@ -106,6 +111,7 @@ Reject or clarify when:
 3. 每个逐集编导稿必须保留新增 frontmatter、`【剧本正文】`、场景标题和字段标签；正文必须完整承接上游原文信息量与顺序。
 4. 对白逐字保真；独白、内心独白、旁白、音效必须显式带主体或来源，并使用中文双引号。
 5. 同一集内完全相同 slugline 只在首次出现时打印场景标题，后续 beat 直接接正文。
+6. 启用 `controlled_enrichment` 时，执行报告必须包含 `controlled_enrichment_ledger`，逐项记录新增承托细节的上游锚点、目标字段、用途和风险检查。
 
 ### Output format
 
@@ -136,6 +142,12 @@ Reject or clarify when:
 - 声画字段就近配对：`对白 -> 对白画面`、`独白/内心独白 -> 独白画面/内心独白画面`、`旁白 -> 旁白画面`、`音效 -> 音效画面`。
 - 每个场景至少有一条正式剧本画面字段；`动作画面` 只写可拍摄身体动作或空间运动。
 - 上游存在高潮画面成分时，必须执行 `peak_visual_pass`：识别 1-3 个高点或最强 `micro_payoff`，并把强化结果落入既有正式画面/声音/表演字段，不新增剧情事实或对白。
+- 关键场景必须执行 `scene_turn_pass`：从上游中提取进入状态、压力源、转折点和退出状态，并落入画面、声音、道具、场面调度、表演提示或群像反应。
+- 上游心理、潜台词、信任变化、权力压迫、沉默反应必须转成可执行演员任务、身体行为、视线、呼吸、停顿、道具动作或空间关系；不得停留在解释性结论。
+- `场面调度` 只能写人物、空间、道具、视线和权力关系，不得写摄影机位、景别、镜头运动或分镜编号。
+- `scene_dramatic_map / performance_task_map / blocking_power_map` 是规划证据，终稿不得在场景末尾或分镜组末尾总结式列出 `表演提示`、`场面调度`；必须拆入对应 `环境描写`、`角色动作`、`对白画面`、`道具特写`、`群像画面`、声音和反应字段。
+- B 路线 `controlled_enrichment` 只允许补环境微细节、群体反应、表演外显、场面调度、声音/道具/余波承托；每一项必须有上游锚点和 `risk_check`。
+- `controlled_enrichment` 不得新增对白、事件、桥段、因果、规则、线索、人物动机或事件结果；无法证明安全的新增项默认删除。
 - 启动 subagents 模式时，已按 `team.yaml` 监制组相关智能顾问团形成 `advisor_consultation_packet`，并把编导方向参谋指导作为后续 LLM 投影、修复和复审上下文；若被上层阻断，执行报告已记录降级说明。
 - 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，且同一 slugline 不重复开新场景。
 - 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
@@ -147,8 +159,8 @@ Reject or clarify when:
 固定执行语义：
 
 1. `N5-DRAFT` 产物先视为 `candidate_script`，不是终稿。
-2. `N6-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、具像化、声音本体、高潮画面和 LLM-first 边界。
-3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N6R-DIRECT-REPAIR`，只修字段投影、可拍性、声画承托、slugline、具像化、高点承托或格式证据；不得改写上游剧情事实、对白和事件顺序。
+2. `N6-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、具像化、声音本体、高潮画面、场景状态差、演员任务、场面调度内嵌、controlled enrichment 和 LLM-first 边界。
+3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N6R-DIRECT-REPAIR`，只修字段投影、可拍性、声画承托、slugline、具像化、高点承托、受控增强留证或格式证据；不得改写上游剧情事实、对白和事件顺序。
 4. 修复后必须执行 `N6R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限阻断时输出阻断报告，不得把失败稿推进下游。
 5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
 6. `执行报告.md` 必须记录本轮 review verdict、repair actions、复审结果、未修复风险和是否允许进入 `3-摄影`。
@@ -160,7 +172,8 @@ flowchart TD
     A["projects/aigc/<项目名>/1-分集/第N集.md"] --> B["输入取证"]
     B --> C["场景 slugline 解析"]
     C --> D["字段分流与声画配对"]
-    D --> E["LLM 直出编导稿"]
+    D --> P["高潮画面、表演调度与受控增强计划"]
+    P --> E["LLM 直出编导稿"]
     E --> F["保真与质量门禁"]
     F -->|"needs_rework"| R["本阶段直接修复"]
     R --> F
@@ -176,11 +189,15 @@ flowchart TD
     B -->|"主观经验/恐惧/判断"| E["独白 / 心理反应 / 表演提示"]
     B -->|"规则/道具/系统文字"| F["道具特写 / 规则显影 / 系统画面"]
     B -->|"高潮/爽点/高光成分"| H["peak visual pass -> 既有画面/声音/表演字段强化"]
+    B -->|"潜台词/权力关系/沉默反应"| I["scene turn pass -> 表演提示 / 场面调度 / 反应余波"]
+    B -->|"表现层承托不足且不需新剧情"| J["controlled enrichment -> 非剧情性承托 + ledger"]
     C --> G["场景内顺序承接"]
     D --> G
     E --> G
     F --> G
     H --> G
+    I --> G
+    J --> G
 ```
 
 ## Execution Rules
@@ -194,6 +211,8 @@ flowchart TD
 - 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
 - 高潮画面处理以 `references/climax-visual-treatment-contract.md` 为准；其职责是识别并强化上游已存在的满足兑现点，不得制造新的事件、对白或因果。
 - 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
+- 场景戏剧功能、潜台词、演员任务、沉默反应和权力关系调度以 `references/performance-and-scene-craft-contract.md` 为准；其职责是把上游已有心理和关系变化转成可执行戏剧动作，不得新增对白、事件或摄影方案。
+- 受控新增式以 `references/controlled-enrichment-contract.md` 为准；B 路线只补表现层承托，必须写入 `controlled_enrichment_ledger`，不得替代 `C-authorized_adaptation`。
 
 ## Script And Metadata Contract
 
@@ -212,11 +231,13 @@ flowchart TD
 | `FIELD-DIRECT-03` | 文本保真 | 剧情事实、顺序、对白完整承接 | `FAIL-DIRECT-03` |
 | `FIELD-DIRECT-04` | 声画配对 | 对白/独白/旁白/音效与对应画面字段就近成组 | `FAIL-DIRECT-04` |
 | `FIELD-DIRECT-05` | 字段纯度 | 声音字段只写可听文本或声音本体，画面字段只写可见画面 | `FAIL-DIRECT-05` |
-| `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演和镜头预设清晰 | `FAIL-DIRECT-06` |
+| `FIELD-DIRECT-06` | 质量门禁 | 好莱坞级场景目的、冲突、动作、表演任务、潜台词行为和场面调度清晰；不写摄影越权字段 | `FAIL-DIRECT-06` |
 | `FIELD-DIRECT-07` | 输出落盘 | `2-编导/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-DIRECT-07` |
 | `FIELD-DIRECT-08` | 高潮画面 | 上游高点或最强 `micro_payoff` 被识别并落入可拍字段，无新增事实 | `FAIL-DIRECT-08` |
 | `FIELD-DIRECT-09` | Team advisor consult | 启动 subagents 模式时已按 `team.yaml` 请教项目监制顾问，并把编导参谋指导沉淀为后续任务上下文；阻断时有降级报告 | `FAIL-DIRECT-09` |
 | `FIELD-DIRECT-10` | 阶段末闭环 | candidate 已审计、阻断项已直接修复并复审，执行报告记录 verdict 和 repair actions | `FAIL-DIRECT-10` |
+| `FIELD-DIRECT-11` | 表演与场景工艺 | 关键场景有状态差；心理、潜台词、权力关系和沉默反应被转成可执行表演/调度/反应证据，并内嵌到对应剧本句段 | `FAIL-DIRECT-11` |
+| `FIELD-DIRECT-12` | Controlled enrichment | B 路线新增项均为非剧情性承托，有上游锚点、目标字段、用途和风险检查；无新增对白/事件/因果/规则 | `FAIL-DIRECT-12` |
 
 ## Thought Pass Map
 
@@ -227,9 +248,11 @@ flowchart TD
 | `PASS-DIRECT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
 | `PASS-DIRECT-04` | 高潮画面处理 | `field_routing_plan` 与上游正文 | 是否存在高潮/爽点/高光成分，是否需要强化为可拍字段 | `peak_visual_plan` |
 | `PASS-DIRECT-05` | 顾问请教汇流 | `team.yaml`、共享顾问合同、上游正文与阶段目标 | 是否已向项目监制顾问提出具体编导问题，并将专业视角和个人风格参谋汇流为可执行上下文 | `advisor_consultation_packet` |
-| `PASS-DIRECT-06` | LLM 剧本化投影 | `field_routing_plan`、`peak_visual_plan`、`advisor_consultation_packet` 与上游正文 | 是否完整承接事实、顺序、对白和高点承托 | `episode_script` |
-| `PASS-DIRECT-07` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景、高潮画面和输出门禁 | `review_result` |
-| `PASS-DIRECT-08` | 直接修复复审 | `review_result`、candidate 编导稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
+| `PASS-DIRECT-06` | 表演与场景工艺 | 场景表、字段路由、高点计划、顾问包 | 是否把场景状态差、潜台词、演员任务、权力关系和沉默反应转成可执行计划 | `scene_dramatic_map` / `performance_task_map` |
+| `PASS-DIRECT-07` | B 路线受控增强 | `scene_dramatic_map`、`performance_task_map`、`peak_visual_plan` 与上游正文 | 是否需要非剧情性承托新增；每项新增是否有上游锚点和风险检查 | `controlled_enrichment_ledger` |
+| `PASS-DIRECT-08` | LLM 剧本化投影 | `field_routing_plan`、`peak_visual_plan`、`advisor_consultation_packet`、`scene_dramatic_map`、`controlled_enrichment_ledger` 与上游正文 | 是否完整承接事实、顺序、对白、高点承托、表演调度内嵌和受控增强边界 | `episode_script` |
+| `PASS-DIRECT-09` | 验收回写 | 编导稿与校验结果 | 是否满足保真、声画、场景、高潮画面、表演工艺、controlled enrichment 和输出门禁 | `review_result` |
+| `PASS-DIRECT-10` | 直接修复复审 | `review_result`、candidate 编导稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
 
 ## Pass Table
 
@@ -240,9 +263,11 @@ flowchart TD
 | `PASS-DIRECT-03` | 声画字段分流纯净且就近配对 | `FAIL-DIRECT-04` | `references/field-routing-and-audio-visual-contract.md` |
 | `PASS-DIRECT-04` | 上游高点被识别，且强化不新增事实、对白或因果 | `FAIL-DIRECT-08` | `references/climax-visual-treatment-contract.md` |
 | `PASS-DIRECT-05` | 启动 subagents 模式时完成项目监制顾问请教、上下文沉淀或记录降级 | `FAIL-DIRECT-09` | `../_shared/team-advisor-consultation-contract.md` + 本 `Subagents Execution Mechanism` |
-| `PASS-DIRECT-06` | 剧情事实、顺序和对白完整保真 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
-| `PASS-DIRECT-07` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
-| `PASS-DIRECT-08` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-DIRECT-10` | `Stage-End Review-Repair Contract` |
+| `PASS-DIRECT-06` | 心理、潜台词、权力关系和沉默反应被转成可执行表演/调度计划，并要求终稿内嵌，不新增对白或摄影方案 | `FAIL-DIRECT-11` | `references/performance-and-scene-craft-contract.md` |
+| `PASS-DIRECT-07` | B 路线新增项只属于非剧情性承托，且有完整 `controlled_enrichment_ledger` | `FAIL-DIRECT-12` | `references/controlled-enrichment-contract.md` |
+| `PASS-DIRECT-08` | 剧情事实、顺序和对白完整保真，且表演工艺与受控增强未越权 | `FAIL-DIRECT-03` | `steps/directing-workflow.md` |
+| `PASS-DIRECT-09` | 输出路径、执行报告和 review gate 齐全 | `FAIL-DIRECT-07` | `review/review-contract.md` |
+| `PASS-DIRECT-10` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-DIRECT-10` | `Stage-End Review-Repair Contract` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -254,6 +279,11 @@ flowchart TD
 - 声音字段与画面字段混写，或没有就近配对。
 - 同一 slugline 因叙事 beat 变化反复开新场景。
 - 上游存在明显高潮/爽点/高光成分，但编导稿把它压平成普通叙述，或为了强化高点新增事实、对白、事件结果。
+- 心理、潜台词、权力关系、沉默或场景转折仍停留在解释性结论，未转成演员可执行任务或场面调度。
+- 将 `表演提示`、`场面调度` 作为场景末尾或分镜组末尾的总结块列出，而不是拆入对应剧本句段。
+- `场面调度` 写成摄影机位、景别、镜头运动或分镜方案，造成 `2-编导` 越权到下游摄影。
+- B 路线受控增强没有 `controlled_enrichment_ledger`，或新增项缺少上游锚点、目标字段、用途和风险检查。
+- 把 `controlled_enrichment` 当成自由新增式，新增对白、事件、桥段、因果、规则、线索、人物动机或事件结果。
 - 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
 - 启动 subagents 模式时跳过 `team.yaml` 监制顾问请教、没有把编导参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问当成真实 dispatch。
 - review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-05-01
+
+- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
+- 补全 `subagent-supervision-contract.md`，要求记录 dispatch / downgrade / slot bundle findings / merge decision，并阻断空 slot bundle。
+
 ## 2026-04-30
 
 - 标准化 Midjourney v8.1 prompt 合同：最终英文整合 prompt 必须覆盖 `## 4. 解构` 的全部有效身份、外观、服装、姿态和摄影信息，控制在 1300 characters 内，使用自然语言负向约束并禁止 `--no` 参数。

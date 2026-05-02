@@ -87,6 +87,9 @@ Reject or clarify when:
 | 默认 subagents / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 类型分流、冷门考据、规则道具或状态版本 | `types/prop-design-type-map.md`、`knowledge-base/prop-design-heuristics.md` |
+| 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
+| 设计槽位 bundle 验收 | `references/design-slot-review-contract.md` |
+| subagent/reviewer 汇流监督 | `references/subagent-supervision-contract.md` |
 | 验收、修复和 reviewer 汇流 | `review/review-contract.md` |
 | 输出道具细目样板 | `templates/output-template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
@@ -153,12 +156,12 @@ stateDiagram-v2
 4. 读取 `north_star.yaml` 与 `team.yaml`，提取全局风格提示词、项目北极星、视觉禁区、设计相关大师监制上下文。
 5. 按共享团队顾问合同请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须落到形制、材料、工艺、年代、使用痕迹、功能逻辑、45 度特写和 prompt evidence，不能只点名大师。
 6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
-7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
+7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则和 prompt 整合硬规则。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、物品风格、固定画面词或负向词等前缀/后缀；提示词必须把 Photography 与 Prop Design 中的镜头、角度、完整展示、形制、材料、工艺、年代、磨损、功能逻辑、尺度和固定画面约束蒸馏成自然流畅的英文。
 9. 负向约束必须用自然语言写入 prompt，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，不得使用 Midjourney `--no` 参数。
 10. 为每个道具锁定唯一主体 ID；若上游清单或 manifest 已有 `PROP-###` 等 ID 则沿用，否则按清单顺序生成 `PROP-###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
 11. 写入 canonical 路径 `projects/aigc/<项目名>/5-设计/道具/2-设计/<主体ID>-<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
-12. 按 `review/review-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
+12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
 
 ## Field Mapping
 

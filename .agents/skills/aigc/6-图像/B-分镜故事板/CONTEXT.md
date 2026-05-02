@@ -23,7 +23,7 @@ last_checked_at: 2026-04-25
 | `TM-SHEET-04` | 只有 JSON 没有 PNG/JPEG/WebP 却被视为可参照 | asset existence drift | 将该主体列入 missing 并移除参照槽位 | binding gate 要求真实图片存在 | 所有 bound path 均存在且为图片 |
 | `TM-SHEET-05` | 批量执行覆盖同一输出文件 | execution boundary | 一组一文件，已有文件按 rerun 策略处理 | imagegen plan 固定 group_id 级写锁 | `images/<group_id>.png` 无多任务冲突 |
 | `TM-SHEET-06` | 组正文被摘要导致镜头缺失 | source fidelity | 使用原组正文作为 prompt 主体，不做压缩 | review 检查分镜编号完整性 | 分镜1..N 均出现在 prompt 主体 |
-| `TM-SHEET-07` | 未传入本地参照图被误判为不能生成 | imagegen source semantics | 按 built-in `text_prompt_only` 生成并持久化，同时记录 `reference_input_status` | 在 handoff 与 review gate 固化 text prompt only 口径 | results/report 不把 reference path 描述为视觉输入 |
+| `TM-SHEET-07` | 本地参照图只写入路径但未进入对话上下文 | imagegen source semantics | 生成前逐张 `view_image` 已绑定本地图片并标注角色 | 在 handoff 与 review gate 固化 `view_image` 前置门禁 | results/report 记录 `reference_input_status: visible_in_conversation_context` |
 
 ## Repair Playbook
 
@@ -35,6 +35,7 @@ last_checked_at: 2026-04-25
 6. 若只有 `.json` 设计稿而无图片，主体应进入 `missing`，不要保留空字符串路径。
 7. 若批量 imagegen 部分失败，保留成功结果，报告失败组与可重试命令，不回滚成功图片。
 8. 若镜头数过多导致单图完整性风险，优先报告分页/分批建议；没有用户确认前不要擅自拆分 canonical 组。
+9. built-in `image_gen` 使用本地参照图时，路径记录不够；必须先 `view_image` 让图片进入对话上下文。确无绑定图片时才记录 `reference_input_status: no_reference_images_bound` 并走 text-prompt-only。
 
 ## Reusable Heuristics
 
@@ -44,4 +45,4 @@ last_checked_at: 2026-04-25
 - 多格 storyboard 的固定英文开头必须足够明确，否则生图模型容易把它当成单张电影 still。
 - 缺图不是阻塞 prompt 的理由，但必须阻塞“伪绑定”；空槽位应移除或进入 missing。
 - 批量生成默认是计划层能力，不等于后台并行执行；索引、prompt 包、manifest 和报告应统一汇流写入。
-- built-in `image_gen` 的 text-prompt-only 可以生成并持久化；这和真实 reference-image workflow 是两种状态。源层应记录 `reference_input_status`，不要把未传入视觉参照误判成生成阻断。
+- 已绑定本地参照图必须在生成前通过 `view_image` 可见化；否则只能算路径证据，不能算已传入视觉参照。

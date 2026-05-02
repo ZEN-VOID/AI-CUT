@@ -26,6 +26,7 @@ last_checked_at: 2026-04-25
 | 批量角色互相串图 | 批量隔离层 | 每个角色单独读取设计稿、单独生成 JSON 和参照图 | worker 只处理一个角色主体 | 每份 JSON 的 subject_name 与 source_design_path 匹配 |
 | 脚本拼接创作提示词 | LLM-first 层 | 删除脚本生成正文逻辑，仅保留校验/manifest | scripts 分区固定机械辅助边界 | 脚本不生成 prompt_text |
 | 默认执行器漂移到 nano-banana/API 子技能 | 执行器路由层 | 删除非授权执行结果，恢复为 imagegen 或 prompt-only | `SKILL.md` 固定 Executor Lock，非 imagegen 需要用户本轮显式点名 | 报告中能看到默认 `.agents/skills/cli/imagegen` 或明确授权原文 |
+| 多视图主图参照只记录路径未进入上下文 | reference context layer | 生成 Step2 前先 `view_image` 主图并标注为角色多视图参照 | Step2 gate 固化 `reference_context_status` | 多视图 JSON / 报告为 `visible_in_conversation_context` |
 
 ## Repair Playbook
 
@@ -34,10 +35,11 @@ last_checked_at: 2026-04-25
 3. 主图 prompt 只做必要的 imagegen 执行包装，不新增角色身份、服装、时代或气质。
 4. 多视图 prompt 可以增加布局、视角、模块和一致性要求，但不得覆盖上游设计事实。
 5. Step2 前必须确认 Step1 主图已经落到项目输出目录，不能使用临时预览路径作为长期参照。
-6. 批量生成时逐角色闭环：主图 -> 主图 JSON -> 多视图 JSON -> 多视图图像 -> review，再进入下一个角色或并行汇流。
-7. 若 imagegen 不可用，保留 prompt JSON 和阻断报告，不制造假图片路径。
-8. 若需要重跑，先检查用户是否允许覆盖；未允许时使用版本化文件名或返回确认请求。
-9. 除非用户本轮显式要求替代执行器，否则不要把“多视图/参考图/批量”理解为 nano-banana、AnyFast 或其他 API 子技能授权。
+6. Step2 调用 built-in `image_gen` 前必须 `view_image` 主图；只有路径存在还不够。
+7. 批量生成时逐角色闭环：主图 -> 主图 JSON -> 主图 `view_image` -> 多视图 JSON -> 多视图图像 -> review，再进入下一个角色或并行汇流。
+8. 若 imagegen 不可用，保留 prompt JSON 和阻断报告，不制造假图片路径。
+9. 若需要重跑，先检查用户是否允许覆盖；未允许时使用版本化文件名或返回确认请求。
+10. 除非用户本轮显式要求替代执行器，否则不要把“多视图/参考图/批量”理解为 nano-banana、AnyFast 或其他 API 子技能授权。
 
 ## Reusable Heuristics
 
@@ -48,5 +50,6 @@ last_checked_at: 2026-04-25
 - 角色多视图应先应用 `subject_invariant_lock`，再排 front / three-quarter / side / rear turnaround；表情、姿态和细节 callout 只能服务身份证明，不应挤占主 turnaround。
 - 角色多视图生产板必须有顶左身份牌：图中优先显示短 ASCII 角色 ID，完整角色名进入 JSON；若模型文字不稳，应保留干净 badge plate 供后期叠字。
 - 单主体图是 continuity anchor；即使多视图有更多模块，也应服从主图的脸、发型、体型和服装主轮廓。
+- 单主体图作为本地参照时必须先 `view_image` 可见化；否则只是路径证据，不是已传入视觉参照。
 - JSON prompt 是可复现证据，不是美术散文；路径、来源、模式和最终 prompt 必须清楚。
 - 对角色名做安全文件名转换时，要在 JSON 中保留原名，避免后续资产回链断裂。

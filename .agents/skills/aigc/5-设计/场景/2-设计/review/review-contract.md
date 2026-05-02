@@ -8,6 +8,8 @@
 
 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教场景/建筑/美术/摄影/导演相关顾问，形成 `advisor_consultation_packet` 后再进入单场景设计与 reviewer 汇流。
 
+默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`SCENE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
+
 | reviewer | scope | blocking checks |
 | --- | --- | --- |
 | `research-reviewer` | `research_brief`、来源姿态、冷门信息、事实/推断边界、不确定性与视觉翻译 | 无研究简报、冷门事实无来源策略、猜测伪装事实、研究无法落到可见设计 |
@@ -57,9 +59,12 @@ flowchart TD
 | design | 空间结构、材质、色彩、陈设、动线和资产提示明确 |
 | cinematography | 镜头、光线、构图、焦段、运动与空间匹配 |
 | prompt | 英文、以主体 ID 号开头、<= 2000 characters、承接全局风格、建筑风格、时间和地域，并显式固定纯空镜/no people；prompt 前缀与解构主体 ID、提示词设计主体 ID 完全一致；最终英文整合 prompt 已吸收 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息，而不是只补前缀/后缀 |
+| design_output_contract | 是否逐条检查 `references/design-output-contract.md` 的结构硬规则和 prompt 整合硬规则 |
+| slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `SCENE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography，并包含 `deconstruction_coverage` 来说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
 | advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入空间结构、材质光线、空镜构图、no people 或 prompt evidence |
+| subagent_supervision | 是否按 `references/subagent-supervision-contract.md` 记录真实 dispatch 或降级路径、未启动 reviewer 和汇流裁决 |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
 
@@ -77,7 +82,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | prompt_evidence_chain | fixed_visual | advisor_consultation | boundary | llm_first
+  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | design_output_contract | slot_bundle_review | prompt_evidence_chain | fixed_visual | advisor_consultation | subagent_supervision | boundary | llm_first
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -98,6 +103,9 @@ finding:
 - 英文提示词没有以主体 ID 号开头。
 - 英文提示词缺少显式时间 token 或地域 token，或时间/地域 token 不能通过 `prompt_evidence_chain` 回指来源姿态、推断或不确定性处理。
 - 英文提示词只拼接主体 ID、风格、时间地域或 no people 等前缀/后缀，未覆盖 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效空间、材质、光线、构图和镜头信息。
+- 未逐条消费 `references/design-output-contract.md`，或输出结构/prompt 整合硬规则只停留在旁路文档。
+- 未解析 `SCENE-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
+- `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
 - `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
 - 默认 subagents / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到空间结构、材质光线、空镜构图、no people、prompt evidence。

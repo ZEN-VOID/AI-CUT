@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-05-01
+
+- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
+- 补全 `subagent-supervision-contract.md`，要求记录 dispatch / downgrade / slot bundle findings / merge decision，并阻断空 slot bundle。
+
 ## 2026-04-30
 
 - 强化英文整合 prompt 的覆盖范围：明确整合对象是 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息，而不是只拼接前缀、后缀、风格词、时间地域或纯空镜负向词。

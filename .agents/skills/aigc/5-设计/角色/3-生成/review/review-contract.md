@@ -28,6 +28,7 @@
 | `REV-CHAR-GEN-06` | 图片与 JSON 命名符合 `<主体ID>-<主体名称>-主图`、`<主体ID>-<主体名称>-多视图`，且 `<主体ID>` 与 JSON 的 `subject_id` 一致 | `FAIL-NAMING` |
 | `REV-CHAR-GEN-07` | prompt-only 模式没有伪造图片路径，阻断原因清楚 | `FAIL-PROMPT-ONLY-CLAIM` |
 | `REV-CHAR-GEN-08` | 未修改上游 `2-设计` 文档或其他技能目录 | `FAIL-WRITE-BOUNDARY` |
+| `REV-CHAR-GEN-09` | 真实生成模式下，多视图主图参照已 `view_image` 进入对话上下文，且 JSON / 报告记录 `reference_context_status: visible_in_conversation_context` | `FAIL-REFERENCE-CONTEXT` |
 
 ## Verdict Schema
 
@@ -42,6 +43,7 @@ main_prompt_json_path: ""
 multiview_image_path: ""
 multiview_prompt_json_path: ""
 reference_image_path: ""
+reference_context_status: "pending_view_image | visible_in_conversation_context | no_reference_image"
 imagegen_mode: ""
 findings: []
 notes: ""
@@ -59,7 +61,7 @@ notes: ""
 
 1. 核对每个 JSON 的 `subject_id` 与 `source_design_path` 指向存在的 `2-设计` 文档，且文件名 stem 以同一主体 ID 开头。
 2. 核对主图 prompt 与设计文档 `4. 解构` 有明确回链，没有新增身份、服装、时代或叙事事实，也没有把 `提示词设计` 的英文整合 prompt 当作主源。
-3. 核对多视图 JSON 的 `reference_image_path` 指向同一角色主图，且不跨角色复用。
+3. 核对多视图 JSON 的 `reference_image_path` 指向同一角色主图，且不跨角色复用；真实生成模式下确认该主图已 `view_image`，`reference_context_status` 为 `visible_in_conversation_context`。
 4. 核对真实生成模式下图片文件存在，并位于 `projects/aigc/<项目名>/5-设计/角色/3-生成/`。
 5. 核对 prompt-only 模式没有伪造图片路径，且 `blocked_reason` 可解释。
 6. 核对本轮没有修改上游 `2-设计`、父级 registry、场景/道具目录或其他 worker 范围。

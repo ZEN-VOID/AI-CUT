@@ -34,6 +34,7 @@ last_checked_at: 2026-04-25
 | 英文提示词缺少时间或地域 | 时间地域锚点层 | 从 `research_brief`、`type_profile`、上游清单或项目资料中补 period / region token；无法确认时使用有来源姿态的保守锚点 | prompt evidence chain 固定加入 `period_region_tokens` | final English prompt 同时含时间与地域 |
 | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Scene Design 与 Cinematography 的有效槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到空间、材质、光线、构图和镜头槽位 |
 | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，向场景/建筑/美术/摄影/导演顾问提具体问题并汇流 | `advisor_consultation_packet` 固定在 LLM 场景设计前消费 | 可见指导落到空间结构、材质、光线、构图、no people 或 prompt token |
+| references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 英文提示词超 2000 characters | 输出约束层 | 压缩冗余形容词、合并同义短语、删除过程解释 | 交付前字符计数 | prompt <= 2000 characters |
 | 冷门信息无来源 | 考据可靠性层 | 标注为推断或在许可下网络搜索 | 区分本地资料、常识推断、网络来源 | 冷门信息有来源策略 |
 | 脚本生成创作正文 | LLM-first 层 | 停用该脚本输出，改为 LLM 直写 | scripts 只保留机械辅助说明 | 没有脚本主创痕迹 |

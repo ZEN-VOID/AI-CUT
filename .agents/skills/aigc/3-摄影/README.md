@@ -32,6 +32,7 @@
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`
 - 高潮分镜：`references/peak-shot-language-contract.md`
+- 分镜计划汇流：`references/shot-planning-integration-contract.md`
 - 动态镜头语言：`references/dynamic-lens-language-contract.md`
 - 镜头连续性：`references/shot-continuity-contract.md`
 - 技法库：`references/cinematic-technique-library.md`

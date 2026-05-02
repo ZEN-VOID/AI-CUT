@@ -8,10 +8,27 @@ import json
 
 SLOT_REVIEW_CONTRACT = "design-slot-review-contract.md"
 SLOT_MARKER_COVERAGE = ("SCENE-BUNDLE-01", "ROLE-BUNDLE-01", "PROP-BUNDLE-01")
+SCENE_REQUIRED_SLOTS = (
+    "scene_id",
+    "deconstruction_subject_id",
+    "period_region_anchor",
+    "research_brief",
+    "source_posture",
+    "visual_translation",
+    "prompt_evidence_chain",
+    "deconstruction_coverage",
+)
 
 
 def main() -> int:
-    slot_bundles = [{"id": "SCENE-BUNDLE-01", "contract": SLOT_REVIEW_CONTRACT}]
+    slot_bundles = [
+        {
+            "id": "SCENE-BUNDLE-01",
+            "owner": "scene-design-review",
+            "contract": SLOT_REVIEW_CONTRACT,
+            "required_slots": list(SCENE_REQUIRED_SLOTS),
+        }
+    ]
     print(json.dumps({"slot_bundles": slot_bundles}, ensure_ascii=False, indent=2))
     return 0
 

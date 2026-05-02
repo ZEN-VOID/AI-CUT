@@ -52,6 +52,7 @@ Prompt source:
 - Set `reference_main_image` to the generated or user-provided `主体ID-主体名称-主图`.
 - Set `source_deconstruction` to the upstream design document's `4. 解构` content.
 - `critical_requirements` may directly cite the upstream design document's `4. 解构` as the primary scene truth; do not use the former `提示词设计` English integrated prompt as the gpt-image-2 source.
+- Built-in `image_gen` gate: `reference_main_image` 是本地图片路径时，执行 Step2 前必须先用 `view_image` 检视并标注为 `scene main image / multiview reference`；多视图 JSON 必须记录 `reference_context_status: visible_in_conversation_context`。`prompt_only` 可记录 `pending_view_image`，但不得声称已完成参考图生成。
 
 The multi-view sheet must read as views of one coherent scene, not nine unrelated spaces.
 
@@ -78,6 +79,7 @@ Each prompt JSON should include:
 - `prompt`
 - `negative_prompt`
 - `reference_images`
+- `reference_context_status`
 - `output_path`
 - `review`
 - `created_at`

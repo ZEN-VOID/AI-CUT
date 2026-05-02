@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-05-01
+
+- 新增 `references/performance-and-scene-craft-contract.md`，补齐场景状态差、潜台词行为、演员任务、场面调度、沉默反应和摄影越权边界。
+- 在 workflow 中新增 `N4.7-CRAFT`，将高质量影视剧作与演员可执行表演技法前置为 LLM 草稿前的 `scene_dramatic_map / performance_task_map / blocking_power_map`。
+- 同步更新 `SKILL.md`、review gate、模板、validator、CONTEXT 与知识库，要求心理、潜台词、权力关系和沉默反应必须转成可见/可听/可执行证据，不得新增对白或写摄影方案。
+- 新增 `references/controlled-enrichment-contract.md`，将“新增式”限定为 B 路线 `controlled_enrichment`：只允许非剧情性承托新增，并要求 `controlled_enrichment_ledger` 留证；新增对白、桥段、因果、规则和线索仍需另行授权为候选稿。
+- 在 workflow 中新增 `N4.8-ENRICH`，位于 `N4.7-CRAFT` 与 `N5-DRAFT` 之间，负责判断受控增强是否必要、是否有上游锚点、是否越过剧情边界。
+- 新增“表演/调度内嵌”规则：`表演提示`、`场面调度` 不得在场景或分镜组末尾总结式列出，必须拆入对应剧本句段；review 新增 `FAIL-PERFORMANCE-SUMMARY-BLOCK`。
+
 ## 2026-04-30
 
 - 明确 `2-编导` 启动 subagents 模式时的执行机制：以项目 `team.yaml` 中明确的监制组相关智能顾问团作为编导监制。

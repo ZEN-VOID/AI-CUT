@@ -37,7 +37,8 @@ sequenceDiagram
     S->>I: Step1 主图 prompt
     I-->>S: 生成图像
     S->>O: 写 主体ID-主体名称-主图 + JSON
-    S->>I: Step2 多视图 prompt + 主图参照
+    S->>S: view_image 主图并标注 multiview reference
+    S->>I: Step2 多视图 prompt + 已可见主图参照
     I-->>S: 生成多视图
     S->>O: 写 主体ID-主体名称-多视图 + JSON
     S->>R: 提交来源、路径、JSON、参照证据
@@ -53,7 +54,7 @@ sequenceDiagram
 | `N3-PROFILE` | Source manifest and existing assets | Which mode applies? | Build `generation_profile` from `types/scene-generation-type-map.md` | `generation_profile` | `G3-MAIN` |
 | `N4-MAIN` | Upstream `4. 解构` and `templates/scene-main-image-prompt.json` | Is Step1 needed and allowed? | Call `$imagegen` to generate `主体ID-主体名称-主图`; persist image | main image path | `G4-MAIN-JSON` |
 | `N5-MAIN-JSON` | Main image path and source deconstruction | Does evidence pair exist and include `subject_id`? | Write `主体ID-主体名称-主图.json` | main prompt record | `G5-MULTIVIEW` |
-| `N6-MULTIVIEW` | Main image path and multi-view template | Is the reference image available? | Call `$imagegen` with template prompt and main image reference | multi-view image path | `G6-MULTIVIEW-JSON` |
+| `N6-MULTIVIEW` | Main image path and multi-view template | Is the reference image available and visible in context? | `view_image` the main image, label it as scene multiview reference, then call `$imagegen` with template prompt and visible main image reference | multi-view image path | `G6-MULTIVIEW-JSON` |
 | `N7-MULTIVIEW-JSON` | Multi-view image path and template payload | Does evidence pair exist and reuse the same `subject_id`? | Write `主体ID-主体名称-多视图.json` | multi-view prompt record | `G7-REVIEW` |
 | `N8-REVIEW` | All assets and JSON records | Do outputs satisfy path, naming, reference, quality, boundary gates? | Run review contract or local fallback checklist | `review_verdict` | done |
 | `N9-REPAIR` | Existing asset set and failing gate | Is repair mechanical or does it require regeneration permission? | Version, relocate, or reconstruct JSON from source evidence; ask before overwrite/regeneration when required | repaired asset set | `G7-REVIEW` |
@@ -66,7 +67,7 @@ sequenceDiagram
 | `G2-DECONSTRUCTION` | Upstream `4. 解构` content is recoverable | Report missing deconstruction; do not invent prompt or fall back to old English integrated prompt |
 | `G3-MAIN` | Existing image conflict is resolved by permission or versioning | Version output or ask for overwrite permission |
 | `G4-MAIN-JSON` | Main image is persisted under project `3-生成` | Apply imagegen output persistence repair |
-| `G5-MULTIVIEW` | Main image path exists and is role-labeled as reference | Generate or locate main image first |
+| `G5-MULTIVIEW` | Main image path exists, is role-labeled as reference, and has `reference_context_status: visible_in_conversation_context` in real generation mode | Generate or locate main image first, then `view_image` it before Step2 |
 | `G6-MULTIVIEW-JSON` | Multi-view image is persisted under project `3-生成` | Apply imagegen output persistence repair |
 | `G7-REVIEW` | Every required image has same-name JSON and review status | Repair missing records before closeout |
 

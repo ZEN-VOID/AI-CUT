@@ -88,6 +88,9 @@ Reject or clarify when:
 | 默认 subagents / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 角色类型、主体粒度和设计深度分流 | `types/character-design-type-map.md` |
+| 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
+| 设计槽位 bundle 验收 | `references/design-slot-review-contract.md` |
+| subagent/reviewer 汇流监督 | `references/subagent-supervision-contract.md` |
 | 输出验收、subagent/reviewer 汇流和风险分级 | `review/review-contract.md` |
 | 输出样板 | `templates/output-template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
@@ -160,12 +163,12 @@ stateDiagram-v2
 4. 按 `types/character-design-type-map.md` 判定角色主体类型，形成 `type_profile`。
 5. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
 6. 按 subagent 合同和共享团队顾问合同分发角色任务：先请教项目监制顾问并形成 `advisor_consultation_packet`，再把可执行指导作为额外上下文交给角色 worker/reviewer 或主 agent 创作；若真实 dispatch 被阻断，按降级口径执行并记录。
-7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，冷门信息可按允许条件搜索并保留来源摘要。
+7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则和 prompt 整合硬规则；冷门信息可按允许条件搜索并保留来源摘要。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、服装风格、固定画面词或负向词等前缀/后缀；提示词必须把身份压力、视觉驱动、面部/发型/身体、服装系统、姿态、光线、构图和固定画面约束蒸馏成自然流畅的英文。
 9. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境；负向约束必须用自然语言写入 prompt，例如 `avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing`，不得使用 Midjourney `--no` 参数。
 10. 为每个角色锁定唯一主体 ID；若上游清单已有 ID 则沿用，否则按清单顺序生成 `C###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
 11. 使用 `templates/output-template.md` 为每个角色生成唯一 markdown，写入 `projects/aigc/<项目名>/5-设计/角色/2-设计/<主体ID>-<角色名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
-12. 按 `review/review-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、`## 4. 解构` 下主体 ID 存在且与英文提示词前缀一致、英文提示词不超过 1300 characters，且不包含 `--no`。
+12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 检查字段完整、清单可回指、项目风格一致、研究证据链、LLM-first、`## 4. 解构` 下主体 ID 存在且与英文提示词前缀一致、英文提示词不超过 1300 characters，且不包含 `--no`；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
 
 ## Field Mapping
 

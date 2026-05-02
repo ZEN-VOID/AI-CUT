@@ -24,12 +24,12 @@
 | type signal | step impact | reference impact | review impact |
 | --- | --- | --- | --- |
 | `source_state=complete_cinematography` | 直接进入 `N3-SCENE-MAP` | 读取 boundary 与 bridge | 标准 review |
-| `source_state=partial_cinematography` | 标记缺镜头语言的 atomic unit，不替上游补写原有镜头语言；只能在已有 `分镜N:` 下方补入 `站位和位移：` 辅助行，不输出 `空间锚点：` 字段 | boundary contract 保真优先 | 报告上游缺口 |
+| `source_state=partial_cinematography` | 标记缺镜头语言的 atomic unit，不替上游补写原有镜头语言；只按已有正文裁决分组边界 | boundary contract 保真优先 | 报告上游缺口 |
 | `source_state=legacy_grouped` | 仅作为 repair evidence，不当作新真源 | output contract 防平行真源 | 检查是否需迁移到 `4-分组/` |
 | `dialogue_density=high` | 降低每组对白上限到约 4 句 | dialogue constraint | 审查对话组过载 |
 | `style_payload=long_north_star` | 预留更多组头字数，正文组更短 | north-star projection | 禁止摘要 north_star |
 | `style_payload=missing_fields` | 阻塞或请求用户修复 | missing field handling | 不得猜测补字段 |
-| `bridge_risk=high` | 每组边界优先选择强视觉锚点 | bridge-shot contract | pairwise bridge review |
+| `bridge_risk=high` | 每组边界优先选择强视觉承接点 | bridge-shot contract | pairwise bridge review |
 | `repair_need=stats_fix` | 保留正文，仅修 YAML | statistics contract | YAML 与正文一致性 |
 
 ## Source Detection Hints

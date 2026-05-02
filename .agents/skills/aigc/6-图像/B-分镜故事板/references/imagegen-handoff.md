@@ -15,10 +15,12 @@
 
 ## Reference Input Semantics
 
-- built-in `image_gen` 默认允许 `text_prompt_only` 生成并持久化到项目目录。
-- `reference_images` 中的本地路径默认只是 prompt package、manifest 和 plan 的记录项；除非执行工具明确接收这些图片作为输入，否则不得把它们描述为视觉参照已传入模型。
-- `text_prompt_only` 不是失败状态，也不应导致任务被 `skipped`；结果应记录 `mode_used: built_in_image_gen_text_prompt_only` 与 `reference_input_status: not_passed_to_generation_tool`。
-- 若用户明确要求真实参考图生图、编辑、identity lock 或视觉输入一致性，必须改走可接收参考图的工作流，并在需要 CLI/API fallback 时先取得用户显式确认。
+- built-in `image_gen` 支持在对话上下文中使用可见图片作为参照；本地图片路径本身不等于视觉输入。
+- `reference_images` 中的每个本地路径必须先通过 `view_image` 检视进入对话上下文，并在 prompt / manifest / plan 中标注图片角色，之后才可声明为参考图生图或参照图生成。
+- 构造 `reference_images` 时必须消费 `references/reference-slot-binding.md` 的选择结果：同一主体多视图和主图都存在时，只写入多视图路径；只有无多视图时才写入主图路径。
+- 若存在已绑定本地参照图但尚未 `view_image`，必须先补做检视；不能直接降级为“路径仅记录”并继续生成。
+- 确无可绑定图片时，允许按纯文本 prompt 生成并持久化到项目目录；结果应记录 `mode_used: built_in_image_gen_text_prompt_only` 与 `reference_input_status: no_reference_images_bound`。
+- 若用户明确要求 API 级 mask、透明通道、模型参数或其他内置工具不暴露的控制，必须在需要 CLI/API fallback 时先取得用户显式确认。
 
 ## Batch Semantics
 
@@ -41,12 +43,16 @@ reference_images:
   characters: []
   scene: []
   props: []
+reference_context:
+  required: true
+  tool: "view_image"
+  status: "visible_in_conversation_context"
 layout_policy:
   panel_grid: "auto_adapt_to_total_shots"
   shot_number_position: "bottom_left"
   other_text: "none"
 output_image_path: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第1集/images/1-1-1.png"
-reference_input_status: "not_passed_to_generation_tool"
+reference_input_status: "visible_in_conversation_context"
 ```
 
 ## Layout Integrity
@@ -68,6 +74,7 @@ reference_input_status: "not_passed_to_generation_tool"
 - `group_id` 可追溯；
 - prompt 以固定英文开头起笔；
 - prompt 包含完整组正文；
-- reference paths 存在；
+- reference paths 存在，且同一主体存在多视图时没有退回主图；
+- 已绑定本地 reference paths 均已通过 `view_image` 进入对话上下文，并在任务中标注角色；
 - output path 不覆盖现有文件，除非用户要求 rerun / replace；
 - mode 未越权使用 CLI/API fallback。

@@ -9,6 +9,7 @@ Allowed:
 - 检查每个角色设计稿是否包含必填标题。
 - 统计英文提示词字符数。
 - 检查研究层八个镜头和 `Prompt Evidence Chain` 标题是否存在。
+- 解析 `references/design-slot-review-contract.md` 的 `ROLE-BUNDLE-01`，输出 required slots 供 review gate 逐项验收。
 - 汇总文件 manifest 或空字段报告。
 
 Forbidden:

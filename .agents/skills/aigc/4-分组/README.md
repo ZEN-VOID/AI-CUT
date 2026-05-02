@@ -1,6 +1,6 @@
 # aigc 4-分组
 
-`4-分组` 将 `projects/aigc/<项目名>/3-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组拼接 north_star 风格字段、首次锁定及变化分镜站位位移、入场/出场补位画面和 YAML 统计；全局风格行会把固定音频/字幕约束置顶于最前，空间锚点只作为站位位移的内部参照系，站位位移必须从剧情动作、上一分镜状态和组间补位画面连续推导，涉及多角色时必须明确顺位关系，连续无变化分镜不重复输出。
+`4-分组` 将 `projects/aigc/<项目名>/3-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组拼接 north_star 风格字段、入场/出场补位画面和 YAML 统计；全局风格行会把固定音频/字幕约束置顶于最前。
 
 ## 目录树
 
@@ -29,7 +29,6 @@
 - 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - 边界规则：`references/group-boundary-contract.md`
 - 补位画面：`references/bridge-shot-contract.md`
-- 空间一致性内部参照：`references/spatial-consistency-contract.md`
 - north_star 投影：`references/north-star-projection-contract.md`
 - YAML 统计：`references/statistics-yaml-contract.md`
 - 流程：`steps/grouping-workflow.md`

@@ -15,10 +15,11 @@
 | --- | --- | --- | --- |
 | `REV-PROP-GEN-01` | 上游取证 | 每组资产回指一个 `2-设计` Markdown | `references/prop-generation-contract.md` |
 | `REV-PROP-GEN-02` | 主图忠实度 | 主图 JSON 直接引用设计文档 `4. 解构`，未重新设计主体，未回退引用旧英文整合 prompt | `templates/single-subject-prompt.json` |
-| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体ID-主体名称-主图` 作为 `reference_image` | `templates/prop-multiview-prompt.json` |
+| `REV-PROP-GEN-03` | 多视图参照 | 多视图 JSON 使用对应 `主体ID-主体名称-主图` 作为 `reference_image`，真实生成模式下该主图已 `view_image` 进入对话上下文 | `templates/prop-multiview-prompt.json` |
 | `REV-PROP-GEN-04` | 命名 | 图像与 JSON 同 stem，文件名包含主体 ID，且包含 `-主图` 或 `-多视图` | `SKILL.md Output Contract` |
 | `REV-PROP-GEN-05` | 路径 | 所有项目资产落入 `projects/aigc/<项目名>/5-设计/道具/3-生成/` | `$imagegen` persistence gate |
 | `REV-PROP-GEN-06` | 非越界 | 未修改 `2-设计`、父级 registry、角色/场景生成目录或其他 worker 文件 | 根写入边界 |
+| `REV-PROP-GEN-07` | 参照上下文 | 多视图 JSON / 报告记录 `reference_context_status: visible_in_conversation_context`；prompt-only 可为 `pending_view_image` | `steps/prop-generation-workflow.md` |
 
 ## Review Flow
 
@@ -67,6 +68,7 @@ checked_outputs:
     main_prompt_json: ""
     multiview_image: ""
     multiview_prompt_json: ""
+    reference_context_status: ""
 findings: []
 next_action: ""
 ```

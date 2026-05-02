@@ -26,6 +26,7 @@ VISUAL_FIELDS = {
     "环境描写",
     "角色动作",
     "动作画面",
+    "场面调度",
     "群像画面",
     "表情特写",
     "角色造型",
@@ -63,6 +64,25 @@ ABSTRACT_VISUAL_PATTERNS = [
     "人数压力",
     "队友候选",
     "等式补完",
+    "权力关系",
+    "掌控全场",
+    "不信任",
+    "试探",
+    "潜台词",
+]
+CINEMATOGRAPHY_OVERREACH_PATTERNS = [
+    "镜头语言预设",
+    "机位",
+    "景别",
+    "推镜",
+    "拉镜",
+    "摇镜",
+    "移镜",
+    "跟拍",
+    "特写镜头",
+    "中景",
+    "全景",
+    "分镜",
 ]
 DESCRIPTIVE_SOUND_PATTERNS = [
     "铃声",
@@ -75,6 +95,7 @@ DESCRIPTIVE_SOUND_PATTERNS = [
     "传来",
     "闷响",
 ]
+SUMMARY_ONLY_FIELDS = {"表演提示", "场面调度"}
 
 
 def field_base(field: str) -> str:
@@ -150,6 +171,11 @@ def validate(path: Path) -> tuple[bool, list[str]]:
         if not any(field_base(field) in VISUAL_FIELDS for field in fields):
             findings.append(f"[ERROR] Scene {number} has no formal visual field.")
             ok = False
+        if fields and field_base(fields[-1]) in SUMMARY_ONLY_FIELDS:
+            findings.append(
+                f"[ERROR] Scene {number} ends with summary-only field '{fields[-1]}'. Integrate performance/blocking details into the relevant beat fields."
+            )
+            ok = False
 
         for field, line in field_lines:
             base = field_base(field)
@@ -173,6 +199,13 @@ def validate(path: Path) -> tuple[bool, list[str]]:
                     f"[ERROR] Scene {number} uses removed field '镜头语言预设'. Use visual/action/performance fields instead."
                 )
                 ok = False
+            if base == "场面调度":
+                for pattern in CINEMATOGRAPHY_OVERREACH_PATTERNS:
+                    if pattern in value:
+                        findings.append(
+                            f"[ERROR] Scene {number} staging field '{field}' contains cinematography-overreach wording: {pattern}"
+                        )
+                        ok = False
 
         for index, field in enumerate(fields):
             base = field_base(field)

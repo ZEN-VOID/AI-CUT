@@ -17,6 +17,7 @@
 | `rerun_policy` | `skip_existing` / `version_existing` / `overwrite_allowed` | 已有产物处理策略 |
 | `source_state` | `ready` / `missing_design` / `missing_prompt_section` | 上游设计文档状态 |
 | `reference_state` | `none` / `main_image_ready` / `main_image_missing` | 多视图参照图状态 |
+| `reference_context_status` | `pending_view_image` / `visible_in_conversation_context` / `no_reference_image` | 本地主图参照是否已通过 `view_image` 进入上下文 |
 
 ## Routing Matrix
 
@@ -33,4 +34,4 @@
 - `batch_from_designs` 只调度实际存在且被选中的设计文档；不得为了结构完整性补空角色。
 - `prompt_only` 是阻断或 dry-run 模式，不是完成生图。
 - `overwrite_allowed` 必须来自用户明确要求；否则默认 `skip_existing` 或 `version_existing`。
-- 多视图永远消费对应角色主图，不跨角色复用参照图。
+- 多视图永远消费对应角色主图，不跨角色复用参照图；真实生成模式下主图必须先 `view_image`，再进入 built-in `image_gen`。
