@@ -13,11 +13,11 @@
 | variable | values | use |
 | --- | --- | --- |
 | `visual_source` | label_match / semantic_match | 判断为何命中 |
-| `visual_function` | establish / action / performance / reveal / object / group / transition / reaction | 选择镜头语言主策略 |
+| `visual_function` | establish / action / performance / reveal / object / group / transition / scene_transition / reaction | 选择分镜明细主策略 |
 | `pressure_level` | low / medium / high / rupture | 决定运动强度和剪辑密度 |
 | `information_density` | sparse / readable / layered / critical | 决定是否需要特写、焦点拉移或多分镜 |
-| `continuity_need` | hold / cut / match_cut / sound_bridge | 决定是否使用转场或保持长镜 |
-| `rhythm_profile` | converge / standard / expand / rupture | 决定镜头语言描述密度、运动复杂度和转场强度 |
+| `continuity_need` | hold / cut / scene_cut / soft_bridge / match_cut / sound_bridge | 决定是否使用转场或保持长镜 |
+| `rhythm_profile` | converge / standard / expand / rupture | 决定分镜明细描述密度、运动复杂度和转场强度 |
 
 ## Type Matrix
 
@@ -30,6 +30,7 @@
 | `object` | `道具特写`、物件状态变化 | 材质、颜色、异常、触碰关系 | 插入特写、微距、红色点光、形态匹配 | 道具脱离角色反应 |
 | `group` | `群像画面`、多人反应 | 多焦点、秩序崩塌、恐惧传播 | 横移扫视、手持微晃、俯拍棋盘 | 群像没有主注意力 |
 | `transition` | `转场`、声音承托画面、光变画面 | 画面接口、声画桥、形态咬合 | 声音先行、匹配剪辑、光变转场 | 炫技破坏表演停顿 |
+| `scene_transition` | 场景标题变化、空间/时间/叙事段落切换 | 上一场景交出点、下一场景进入点、空间重置 | 建立镜头、普通切镜、软桥接、声画桥、光色桥、匹配剪辑 | 场景凭空开始或无动机高能转场 |
 | `reaction` | `对白画面`、`独白画面`、`音效画面` | 声音落到脸、手、肩、眼睛的反应 | 反打、压缩焦段、负空间 | 只是复述对白内容 |
 
 ## Routing
@@ -39,4 +40,5 @@
 3. `visual_function` 决定 `beat-analysis-contract.md` 中优先检查哪些触发器。
 4. `pressure_level` 和 `information_density` 决定分镜密度。
 5. `rhythm_profile` 决定是否收敛、标准展开、发散强化或断裂发散。
-6. `continuity_need` 决定是否读取高能转场条目。
+6. `visual_function = scene_transition` 或场景/空间/时间/叙事段落发生变化时，必须读取 `references/transition-design-contract.md` 并形成内部 `transition_profile`。
+7. `continuity_need` 决定是否读取高能转场条目；`scene_cut` 和 `soft_bridge` 也属于转场处理，不得只把 `match_cut` / `sound_bridge` 当作转场。

@@ -36,7 +36,7 @@ x-y-z-N
 | `source_episode_path` | `4-分组/第N集.md` | 可回读 |
 | `bridge_context` | 入场画面 / 出场画面 / 组内前后句 | 只作连续性上下文，不吞并当前镜 |
 | `story_beat` | 当前画面字段、动作、对白画面或环境描写 | 保留核心剧情桥段 |
-| `camera_language` | 当前 `分镜N` 对应镜头语言 | 不改写，可压缩为 prompt 所需信息 |
+| `shot_detail` | 当前 `分镜N` 对应分镜明细 | 不改写，可压缩为 prompt 所需信息 |
 | `characters` | 组底 YAML + 当前镜文本 | 精确主体优先 |
 | `scene` | 场景标题 + 组底 YAML | 单一主场景优先 |
 | `props` | 组底 YAML + 当前镜文本 | 重要叙事道具优先 |
@@ -53,5 +53,5 @@ step1 完成后必须能生成 `shot-index.json` 或等价表格，证明：
 
 - 每个 `shot_id` 唯一。
 - 每个 `shot_id` 有源文件、源组、源 `分镜N`。
-- 每个 `shot_id` 有可读的剧情桥段与镜头语言摘要。
+- 每个 `shot_id` 有可读的剧情桥段与分镜明细摘要。
 - 未能解析的组、镜头或 YAML 统计必须进入 report。

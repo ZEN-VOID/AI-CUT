@@ -47,9 +47,9 @@ source_shot_labels: []
 ## Video Prompt Source Rule
 
 - `group_body` 是视频 prompt 的主要正文来源。
-- 不删除入场画面、出场画面、镜头语言、音效、对白、环境描写和表演提示。
+- 不删除入场画面、出场画面、分镜明细、音效、对白、环境描写和表演提示。
 - 不把 YAML 合并进正文主段；YAML 只用于 reference manifest 和主体参照说明，其中有图主体必须追加 `@<图片路径>`。
-- 若组正文过长，只允许在 Dreamina handoff 层做可审查压缩摘要，并保留完整原文路径和原文字数。
+- 若组正文过长，只允许在 LibTV handoff 层做可审查压缩摘要，并保留完整原文路径和原文字数。
 
 ## Readiness Gate
 

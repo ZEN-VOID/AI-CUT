@@ -15,6 +15,11 @@ subagent_supervision:
   blocking_layer: none | system | developer | tool | user
   advisor_roster_source: "projects/aigc/<项目名>/team.yaml"
   advisor_consultation_packet: present | blocked | not_applicable
+  advisor_node_coverage:
+    - node_ref: ""
+      pass_ref: ""
+      gate_ref: ""
+      advisor_lens: ""
   reviewer_roster:
     - research-reviewer
     - scene-design-reviewer
@@ -50,4 +55,5 @@ slot_bundles:
 - `slot_bundles` 不得为空。
 - 每个 `required_slots` 必须有证据位置；缺槽必须写入 `slot_bundle_findings`，并阻断交付。
 - 真实 subagents 被上层策略或工具阻断时，必须写明 `blocking_layer`、原计划 reviewer、实际降级路径和未启动 reviewer。
+- 启用顾问路径时，`advisor_node_coverage` 必须记录顾问意见绑定的当前思维·执行节点；不得只记录固定字段清单或顾问名字。
 - `merge_decision` 只能由主 agent 在读取 reviewer / 降级 checklist / slot bundle findings 后裁决。

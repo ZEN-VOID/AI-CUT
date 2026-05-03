@@ -4,7 +4,7 @@
 
 | package | role |
 | --- | --- |
-| `visual-unit-type-map.md` | 判断画面句子、声画承托、高点画面和非画面字段的镜头语言处理策略 |
+| `visual-unit-type-map.md` | 判断画面句子、声画承托、高点画面和非画面字段的分镜明细处理策略 |
 
 ## Default Package Rule
 

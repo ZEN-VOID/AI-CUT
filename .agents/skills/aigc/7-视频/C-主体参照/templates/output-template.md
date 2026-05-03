@@ -4,10 +4,10 @@
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | prompt 文档、group index、reference manifest、Dreamina submit plan、queue ledger、results、执行报告 |
+| Required output | prompt 文档、group index、reference manifest、LibTV submit plan、queue ledger、results、执行报告 |
 | Output format | Markdown + JSON + MP4/video assets |
 | Output path | `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/` |
-| Naming convention | `第N集-主体参照-video-prompts.md`、`第N集-video-group-index.json`、`第N集-reference-manifest.json`、`第N集-dreamina-submit-plan.json`、`第N集-dreamina-queue.md`、`第N集-dreamina-results.json`、`videos/<分镜组ID>.mp4`、`执行报告.md` |
+| Naming convention | `第N集-主体参照-video-prompts.md`、`第N集-video-group-index.json`、`第N集-reference-manifest.json`、`第N集-libtv-submit-plan.json`、`第N集-libtv-queue.md`、`第N集-libtv-results.json`、`videos/<分镜组ID>.mp4`、`执行报告.md` |
 | Completion gate | review verdict is `pass` or `pass_with_todo` |
 
 ## Episode Directory Shape
@@ -17,9 +17,9 @@ projects/aigc/<项目名>/7-视频/C-主体参照/第N集/
 ├── 第N集-主体参照-video-prompts.md
 ├── 第N集-video-group-index.json
 ├── 第N集-reference-manifest.json
-├── 第N集-dreamina-submit-plan.json
-├── 第N集-dreamina-queue.md
-├── 第N集-dreamina-results.json
+├── 第N集-libtv-submit-plan.json
+├── 第N集-libtv-queue.md
+├── 第N集-libtv-results.json
 ├── prompts/
 │   └── <分镜组ID>.txt
 ├── videos/
@@ -38,7 +38,7 @@ projects/aigc/<项目名>/7-视频/C-主体参照/第N集/
 - source_group_path:
 - mode:
 - scope:
-- dreamina_self_check:
+- libtv_self_check:
 - parallelism:
 
 ## Summary
@@ -62,7 +62,7 @@ todos: []
 
 ## Queue Snapshot
 
-| group_id | command | submit_id | local_status | remote_status | next_action |
+| group_id | command | sessionId | local_status | remote_status | next_action |
 | --- | --- | --- | --- | --- | --- |
 
 ## Failed Or Skipped

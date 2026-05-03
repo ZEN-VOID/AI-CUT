@@ -25,7 +25,7 @@
 ## Subject Inline Binding
 
 - 主体参照来自组底 YAML 的 `角色 / 场景 / 道具`。
-- 有图主体必须在对应主体信息后追加 `@<图片路径>` 或 Dreamina marker 映射。
+- 有图主体必须在对应主体信息后追加 `@<图片路径>` 或 LibTV marker 映射。
 - 示例：`角色：林夏 @图2（projects/aigc/<项目名>/5-设计/角色/3-生成/林夏/多视图.png）`
 - 缺图主体保留主体文本，但不得追加空 marker；在 manifest 记录 `missing_optional`。
 

@@ -4,6 +4,6 @@
 
 ## Candidate External Materials
 
-- Dreamina 多图参照视频当前图片数量限制。
+- LibTV 多图参照视频当前图片数量限制。
 - 分镜故事板作为总参照时的 provider 表达习惯。
 - 多主体参照 marker 排序对生成一致性的影响。

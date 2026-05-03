@@ -20,7 +20,7 @@ metadata:
 - 画面风格锁定必须同时使用两类证据：`north_star.yaml` 的文字风格直引，以及当前分镜场景参照图的实际图像信息。若存在场景参照图，组织 prompt 前必须先通过 `view_image` 检视该图，并把“画面风格，光影，色调和氛围与场景参照图保持一致。”作为固定提示词和 imagegen handoff 约束；不得只依赖全局风格文字来锁定风格。
 - 执行新的画面提示词组织时，若当前分镜与上一分镜处于同一场景且上一分镜已有本地生成图，必须先通过 `view_image` 检视上一画面进入对话上下文，理解已生成画面的站位、走位、朝向、遮挡、道具相对位置和镜头轴线，再在该认知基础上生成当前分镜 prompt；无上一图或不同场景时必须记录原因，不得臆造连续性证据。
 - 空间一致性必须按三维空间关系处理，而不是把场景参照图当作平面背景复用；每个同场景分镜都必须定位角色在 3D 空间中的起点、终点、移动轨迹、站位、身体朝向、视线、前后景遮挡、关键道具相对位置和镜头轴线。正反打对话戏中，相邻分镜可呈现镜像相对的南北面、东西面或房间两端背景，但必须保持同一空间坐标、对话轴线和视线闭合逻辑。
-- 每个四段式分镜都必须执行单镜锚点投影：`Primary anchor` / `Support anchors` 优先来自当前 `分镜N` 的单镜画面真相和镜头语言，而不是直接继承三段式分镜组的主场景默认锚点。蒙太奇、插入镜、道具特写、转场镜头、路线图、战船远景、城门/飞檐建立镜头等，必须把主锚点重投影到当前可见主体；分组场景锚点只能作为风格或空间回接辅助。
+- 每个四段式分镜都必须执行单镜锚点投影：`Primary anchor` / `Support anchors` 优先来自当前 `分镜N` 的单镜画面真相和分镜明细，而不是直接继承三段式分镜组的主场景默认锚点。蒙太奇、插入镜、道具特写、转场镜头、路线图、战船远景、城门/飞檐建立镜头等，必须把主锚点重投影到当前可见主体；分组场景锚点只能作为风格或空间回接辅助。
 - 批量生成必须采用两阶段拓扑：先为指定范围一次性生成完整 `第N集-分镜画面-prompts.md`、`reference-manifest.json` 与 `imagegen-plan.json`，并通过生成前审查；再按该已落盘 prompt 文档逐镜串行执行 imagegen。第二阶段不得边生成图片边补写后续 prompt，不得跳过完整 prompts 文档直接生图。
 - 批量执行第二阶段仍是严格串行任务：`episode_batch_generate` 与 `shot_batch_generate` 只能按 `shot_id` 顺序逐镜完成 `参照检视 -> runtime 上一画面回看 -> imagegen -> 持久化 -> 结果记录`，不得并发、后台并行、分片并跑或跳过前镜结果直接生成后镜。角色、场景、道具参照图规则不变，已绑定本地参照仍必须在当前分镜执行前通过 `view_image` 进入对话上下文。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/6-图像/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `.agents/skills/cli/imagegen/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -115,8 +115,8 @@ flowchart TD
     A["三段式分镜组 1-1-1"] --> B{"组内镜头"}
     B -->|"分镜1"| C["四段式 1-1-1-1"]
     B -->|"分镜2"| D["四段式 1-1-1-2"]
-    C --> E["剧情桥段 + 镜头语言 + 主体统计"]
-    D --> F["剧情桥段 + 镜头语言 + 主体统计"]
+    C --> E["剧情桥段 + 分镜明细 + 主体统计"]
+    D --> F["剧情桥段 + 分镜明细 + 主体统计"]
     E --> G["单镜 prompt"]
     F --> H["单镜 prompt"]
 ```
@@ -141,7 +141,7 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标 `分镜ID` 集合、是否执行 imagegen。
-3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，把组内 `分镜N` 映射为四段式 `x-y-z-N`，并保留其关联剧情桥段、入场/出场画面、场景、角色、道具和镜头语言。
+3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，把组内 `分镜N` 映射为四段式 `x-y-z-N`，并保留其关联剧情桥段、入场/出场画面、场景、角色、道具和分镜明细。
 4. 执行 step2A 场景参照图风格锁：按当前分镜场景名在 `5-设计/场景/3-生成` 中预绑定场景参照图；若存在本地场景图，必须先 `view_image` 进入对话上下文，提炼该图的光源方向、光比、色温、主色/辅色、饱和度、雾气/烟尘/湿度、材质质感、暗部密度、高光形态和整体氛围，并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；若无场景图，记录 `scene_reference_missing`，只能使用 north_star 文字风格。
 5. 执行 step2 前置连续性检查：对每个非场景首镜，判断上一分镜是否与当前分镜同场景；若同场景且上一分镜已有本地生成图，必须用 `view_image` 检视上一画面进入对话上下文，并记录 `previous_frame_context_status: visible_in_conversation_context`、上一图路径、观察到的空间站位、走位方向、角色朝向、遮挡关系、关键道具相对位置和镜头轴线；若不同场景、上一图不存在或上一镜未生成，记录 `not_same_scene` / `previous_image_missing` / `previous_shot_not_generated`，不得臆造。
 6. 执行三维空间规划：按 `references/spatial-continuity-contract.md` 建立当前桥段的轻量 `space_model`，并对每个四段式分镜执行 `shot_anchor_projection`；先从当前单镜真相中抽取候选锚点，再决定 `Primary anchor` / `Support anchors`，明确固定锚点、空间轴线、对话轴线、角色起点/终点/移动轨迹、身体朝向、视线目标、前后景遮挡和道具相对位置；正反打镜头必须说明反向机位、相对背景面和视线闭合关系，允许背景面相反但不允许空间漂移；蒙太奇、插入、道具微距、转场或路线镜头不得直接套用分组主场景锚点。

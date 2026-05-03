@@ -45,6 +45,9 @@ route_policies:
   - id: aigc-bootstrap-compat-mode
     trigger: 命中 `.agents/skills/aigc/` 大规模重构、阶段合同重写、子路径迁移或 schema 重建
     rule: "当 `aigc.contract_mode=bootstrap_compat` 时，harness 只强制保留项目级 runtime / governance carriers、已启用卫星技能入口与高风险 preflight / validation gate；不把当前阶段内细节视为冻结真源"
+  - id: aigc-shelved-stages
+    trigger: "命中已登记为 `contract_status: shelved` 的 AIGC 阶段、旧阶段路径或等待重构的阶段入口"
+    rule: "搁浅阶段不得作为默认执行入口；仅允许查询、迁移映射、兼容回读或显式恢复计划。若需要重新启用，应先更新 `.codex/registry/skills.yaml`、本 routes 表、相关 stage `SKILL.md` 与审计脚本锚点。"
   - id: aigc-episode-split-entry
     trigger: 命中 `1-分集`、小说原文分集、按集拆分、`projects/aigc/<项目名>/源`，或要求输出 `projects/aigc/<项目名>/1-分集/第N集.md`
     rule: "进入 `.agents/skills/aigc/1-分集/SKILL.md`；默认读取 `projects/aigc/<项目名>/源/`，用户显式指定其他小说原文资料时以用户路径为准。若原资料自带集数划分，以其为准；否则默认按 2500-3000 字左右一集切分，输出到 `projects/aigc/<项目名>/1-分集/第N集.md`。"

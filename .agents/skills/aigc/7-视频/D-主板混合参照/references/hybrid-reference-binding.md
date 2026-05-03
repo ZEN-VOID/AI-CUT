@@ -70,7 +70,7 @@
 
 ## Over Limit Strategy
 
-若图片数量超过 Dreamina 当前上限：
+若图片数量超过 LibTV 当前上限：
 
 1. 必须记录 `reference_over_limit`。
 2. 默认不静默裁剪。

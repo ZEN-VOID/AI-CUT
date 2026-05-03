@@ -94,7 +94,7 @@ Prompt Design Blueprint:
 | `L3 Subject And Action` | 谁在画面中、身体动作、手部/眼神/道具交互、谁不应出现；无角色时说明由空间/道具承担主体 | 保证主体选择清楚，避免模型补人物 |
 | `L4 Spatial Architecture` | `Primary anchor`、`Support anchors`、前/中/后景、遮挡层、关键道具相对位置、角色站位和走位 | 把三维空间机制写进最终 prompt |
 | `L5 Continuity Logic` | 上一生成图可见时写承接的站位、朝向、光源和道具位置；无上一图时写 `no generated previous A-frame exists yet`，只按源稿和锚点规划 | 防止伪造上一图证据，给串行生图留 runtime 回看入口 |
-| `L6 Camera And Composition` | 镜头尺寸、焦段、机位高度、轴线、运动状态、景深、构图重心、正反打背景面逻辑 | 把镜头语言转成可执行画面结构 |
+| `L6 Camera And Composition` | 镜头尺寸、焦段、机位高度、轴线、运动状态、景深、构图重心、正反打背景面逻辑 | 把分镜明细转成可执行画面结构 |
 | `L7 Reference Usage` | 已绑定角色/场景/道具参照的使用方式；明确场景参照图用于风格/光影/材质/锚点，不是平面背景粘贴 | 防止错用参照或让参考图压倒源镜头 |
 | `L8 Scene Visual Style Lock` | `Match the scene reference image's visual style, lighting, color palette, and atmosphere.` 以及从图中提炼的光源方向、光比、色温、色彩、雾气、暗部/高光、材质 | 让图像与本地场景参照一致 |
 | `L9 Material And Physics` | 木、石、纸、金属、布、血、水、烟、雾、风、火、盐湿、旧化、重量、反光、颗粒等可见物理状态 | 避免空泛风格词，增强真实材质 |
@@ -137,7 +137,7 @@ Avoid: <negative constraints>.
 
 1. 不得把场景参照图当成平面背景模板直接复用；场景参照图只提供材质、结构、风格和锚点。
 2. 先建立当前桥段的 3D `scene_space_model`：固定锚点、空间轴线、镜头轴线、角色相对方位和关键道具位置。
-3. 执行单镜锚点投影：先从当前四段式分镜的 `Source truth`、当前 `分镜N`、镜头语言、直接画面字段和必要入场/出场桥段中抽取当前可见锚点，再决定 `Primary anchor` 和 `Support anchors`。不得只因分镜组场景写了某个地点，就把该地点的常规主物件套成所有单镜的主锚点。
+3. 执行单镜锚点投影：先从当前四段式分镜的 `Source truth`、当前 `分镜N`、分镜明细、直接画面字段和必要入场/出场桥段中抽取当前可见锚点，再决定 `Primary anchor` 和 `Support anchors`。不得只因分镜组场景写了某个地点，就把该地点的常规主物件套成所有单镜的主锚点。
 4. 执行固定锚点锁定：列出候选锚点，筛选主锚点和至少两个辅助锚点，定义 `x/y/z` 三轴，再把角色和道具写成相对锚点的位置。
 5. 对每个角色写清当前位置、起始点、终止点、移动轨迹、身体朝向、视线目标和遮挡关系。
 6. 对正反打、过肩、反向机位或对话戏，写清 line of action、screen direction、opposite background plane 和 eyeline match；背景面可以是镜像相对的南北面、东西面或房间两端，但必须属于同一个空间。

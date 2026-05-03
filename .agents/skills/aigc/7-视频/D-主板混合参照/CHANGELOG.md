@@ -2,7 +2,7 @@
 
 ## 2026-04-30
 
-- 将 Dreamina 视频生成默认模型从 `seedance2.0` 调整为 `seedance2.0_vip`，并把默认分辨率收束为 Seedance 2.0 family 当前 CLI 可用的 `720p`；未显式指定模型时不得静默降级到普通或 fast 队列。
+- 将 LibTV 视频生成默认路由改为以 `.agents/skills/cli/libTV` 后端默认路由为中心，并把默认分辨率收束为 LibTV 当前可用的视频输出设置。
 
 ## 2026-04-27
 

@@ -12,14 +12,14 @@
 
 ## Scope
 
-本维度检查 `2-编导 / 3-摄影 / 4-分组` 是否形成稳定可消费的导演与镜头事实，重点关注画面句子、镜头语言、分镜组 continuity 与 handoff readiness。
+本维度检查 `2-编导 / 3-摄影 / 4-分组` 是否形成稳定可消费的导演与镜头事实，重点关注画面句子、分镜明细、分镜组 continuity 与 handoff readiness。
 
 它不检查设计 prompt、引用绑定、图像 provider pack 或视频 provider pack。
 
 ## Evidence
 
 - `2-编导` 编导稿与 validator evidence
-- `3-摄影` 摄影稿与镜头语言注入证据
+- `3-摄影` 摄影稿与分镜明细注入证据
 - `4-分组` 分镜组稿与 handoff carrier
 - `review_fact_pack.required_refs`
 

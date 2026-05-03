@@ -24,7 +24,7 @@
 | type signal | step impact | reference impact | review impact |
 | --- | --- | --- | --- |
 | `source_state=complete_cinematography` | 直接进入 `N3-SCENE-MAP` | 读取 boundary 与 bridge | 标准 review |
-| `source_state=partial_cinematography` | 标记缺镜头语言的 atomic unit，不替上游补写原有镜头语言；只按已有正文裁决分组边界 | boundary contract 保真优先 | 报告上游缺口 |
+| `source_state=partial_cinematography` | 标记缺分镜明细的 atomic unit，不替上游补写原有分镜明细；只按已有正文裁决分组边界 | boundary contract 保真优先 | 报告上游缺口 |
 | `source_state=legacy_grouped` | 仅作为 repair evidence，不当作新真源 | output contract 防平行真源 | 检查是否需迁移到 `4-分组/` |
 | `dialogue_density=high` | 降低每组对白上限到约 4 句 | dialogue constraint | 审查对话组过载 |
 | `style_payload=long_north_star` | 预留更多组头字数，正文组更短 | north-star projection | 禁止摘要 north_star |
@@ -34,7 +34,7 @@
 
 ## Source Detection Hints
 
-- 若正文含 `stage: 3-摄影`、`source_directing_path`、`镜头语言：`，通常为 `complete_cinematography`。
-- 若只有部分画面字段存在 `镜头语言：`，为 `partial_cinematography`，本阶段不补摄影正文。
+- 若正文含 `stage: 3-摄影`、`source_directing_path`、`分镜明细：`，通常为 `complete_cinematography`。
+- 若只有部分画面字段存在 `分镜明细：`，为 `partial_cinematography`，本阶段不补摄影正文。
 - 若输入来自 `1-Planning/3-分组/`、`5-分组/` 或含旧式 `【分组正文】`，为 `legacy_grouped`，不得覆盖本技能 canonical 输入。
 - 若场景标题、frontmatter 或字段标签混乱，先标记 `broken_markup` 并进入 repair 或阻塞。

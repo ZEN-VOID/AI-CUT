@@ -1,18 +1,18 @@
-schema_version: "aigc.video.frame_reference.dreamina_batch.v1"
+schema_version: "aigc.video.frame_reference.libtv_batch.v1"
 project_name: "<项目名>"
 episode_id: "第N集"
 source_group_file: "projects/aigc/<项目名>/4-分组/第N集.md"
 frame_reference_root: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集"
 output_root: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集"
 execution:
-  provider: "dreamina"
+  provider: "libtv"
   background: true
   max_workers: 4
   effective_concurrency: "<min(4, job_count)>"
-  queue_ledger: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-dreamina-queue.md"
-  result_file: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-dreamina-results.json"
+  queue_ledger: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-libtv-queue.md"
+  result_file: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-libtv-results.json"
 defaults:
-  model_version: "seedance2.0_vip"
+  requested_model: ""
   duration: 10
   ratio: "16:9"
   video_resolution: "720p"
@@ -21,7 +21,7 @@ jobs:
   - queue_id: "Q-001"
     group_id: "1-1-1"
     source_heading: "## 1-1-1"
-    command_type: "multimodal2video"
+    command_type: "libtv_session_with_uploaded_references"
     reference_status: "partial"
     shot_references:
       - shot_id: "1-1-1-1"
@@ -35,6 +35,7 @@ jobs:
     reference_images:
       - shot_id: "1-1-1-1"
         path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
+        uploaded_url: ""
         marker: "@图1"
         role: "storyboard_frame"
         source: "6-图像/A-分镜画面"
@@ -45,11 +46,15 @@ jobs:
       @图1 = 1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png
 
       <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
-    dreamina:
-      model_version: "seedance2.0_vip"
+    libtv:
+      requested_model: ""
       duration: 10
       ratio: "16:9"
       video_resolution: "720p"
       poll: 45
     output:
+      session_id: ""
+      project_uuid: ""
+      project_url: ""
+      download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/videos"
       expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/videos/1-1-1.mp4"

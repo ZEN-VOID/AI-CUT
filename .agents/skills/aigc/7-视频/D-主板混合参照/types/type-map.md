@@ -6,12 +6,12 @@
 
 | mode | input signal | required context | output |
 | --- | --- | --- | --- |
-| `prompt_only` | 只要提示词、manifest、submit plan，不执行 Dreamina | `4-分组`、故事板目录、设计生成目录 | prompt、reference manifest、submit plan |
+| `prompt_only` | 只要提示词、manifest、submit plan，不执行 LibTV | `4-分组`、故事板目录、设计生成目录 | prompt、reference manifest、submit plan |
 | `single_group_generate` | 单个三段式 `group_id` + 要生成视频 | 单组正文、YAML、故事板/主体参照 | 单组 plan、queue、结果 |
 | `episode_batch_generate` | 第 N 集整集批量 | 全集分组、全集故事板、设计资产 | 逐组 plan、queue、报告 |
 | `group_batch_generate` | 多个三段式 `group_id` | 指定组集合 | 多组 plan、queue、报告 |
 | `multi_episode_batch_generate` | 多集 | 每集独立输入与输出根 | 分集 plan、queue、报告 |
-| `query_or_download` | submit_id、queue ledger、结果下载 | 既有 D 输出目录 | 更新状态或下载 |
+| `query_or_download` | sessionId、queue ledger、结果下载 | 既有 D 输出目录 | 更新状态或下载 |
 | `repair` | prompt/manifest/plan/queue 漂移 | 现有 D 产物与源输入 | 修复后的产物 |
 | `review_only` | 只检查，不提交 | 现有 D 产物 | review verdict |
 
@@ -33,7 +33,7 @@
 | package | load when | context files |
 | --- | --- | --- |
 | `hybrid_reference_default` | 默认所有 D 任务 | `references/hybrid-prompt-assembly-contract.md`, `references/hybrid-reference-binding.md` |
-| `batch_execution` | 需要提交、查询或下载 Dreamina | `references/dreamina-handoff.md`, `.agents/skills/cli/dreamina-cli/SKILL.md`, `.agents/skills/cli/dreamina-cli/CONTEXT.md` |
+| `batch_execution` | 需要提交、查询或下载 LibTV | `references/libtv-handoff.md`, `.agents/skills/cli/libTV/SKILL.md`, `.agents/skills/cli/libTV/CONTEXT.md` |
 | `repair_review` | 修复或审查既有产物 | `review/review-contract.md`, `CONTEXT.md` |
 
 ## Default Package Rule
@@ -44,7 +44,7 @@
 
 1. 先根据用户输入和现有产物锁定 `mode`。
 2. 加载默认包 `types/hybrid-reference-default.md`。
-3. 若 `mode` 涉及 Dreamina 执行、查询或下载，加载 `references/dreamina-handoff.md` 与 dreamina-cli 技能对。
+3. 若 `mode` 涉及 LibTV 执行、查询或下载，加载 `references/libtv-handoff.md` 与 $libTV 技能对。
 4. 若 `mode` 是 `repair` 或 `review_only`，加载 `review/review-contract.md`。
 5. 把选中的类型包交给 `steps/hybrid-reference-video-workflow.md` 消费。
 

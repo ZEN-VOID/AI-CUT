@@ -30,7 +30,7 @@ Rules:
 1. `north_star.yaml` only carries long-lived project constraints.
 2. `north_star.yaml` directly owns the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`.
 3. `全局风格` is a cross-design safe prompt prefix for image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`.
-4. `全局风格` must not contain fields that pollute downstream design types, such as lens language, character material, scene composition, costume details, prop details, or any single-domain style payload.
+4. `全局风格` must not contain fields that pollute downstream design types, such as shot detail, character material, scene composition, costume details, prop details, or any single-domain style payload.
 5. `全局风格` defaults to Chinese; the generated `全局风格提示词` must stay within 200 Chinese characters and must explicitly include the current `全局风格.媒介属性` value, preferably as the prompt prefix.
 6. `类型元素` defaults to Chinese, and the generated `类型元素提示词` must stay within 30 Chinese characters.
 7. `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`. Ancient architecture guidance must not force-fit modern architects or modernist labels unless the project explicitly calls for it.

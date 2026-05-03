@@ -71,7 +71,7 @@ ABSTRACT_VISUAL_PATTERNS = [
     "潜台词",
 ]
 CINEMATOGRAPHY_OVERREACH_PATTERNS = [
-    "镜头语言预设",
+    "分镜明细预设",
     "机位",
     "景别",
     "推镜",
@@ -194,9 +194,9 @@ def validate(path: Path) -> tuple[bool, list[str]]:
                             f"[ERROR] Scene {number} sound field '{field}' describes the sound instead of writing sound body: {pattern}"
                         )
                         ok = False
-            if base == "镜头语言预设":
+            if base == "分镜明细预设":
                 findings.append(
-                    f"[ERROR] Scene {number} uses removed field '镜头语言预设'. Use visual/action/performance fields instead."
+                    f"[ERROR] Scene {number} uses removed field '分镜明细预设'. Use visual/action/performance fields instead."
                 )
                 ok = False
             if base == "场面调度":

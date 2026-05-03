@@ -7,11 +7,11 @@
 - 读取 `4-分组` 并抽取 `group_id`、line range、YAML。
 - 枚举故事板图和主体图片路径。
 - 生成 JSON / Markdown / queue ledger 的机械投影。
-- 查询 Dreamina 状态、下载结果、校验文件存在性。
+- 查询 LibTV 状态、下载结果、校验文件存在性。
 
 禁止脚本执行：
 
 - 扩写或改写分镜组剧情。
 - 自动决定故事板或主体图的创作语义。
 - 在图片超限时静默裁剪。
-- 伪造 submit_id 或生成结果。
+- 伪造 sessionId 或生成结果。

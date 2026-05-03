@@ -18,7 +18,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、风格、服装、禁区和既有设定相关的上下文文件。
 - 项目运行时必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，用于抽取全局风格、主题方向、影像基调和项目禁区。
 - 项目运行时必须读取 `projects/aigc/<项目名>/team.yaml`，只消费与角色、服装、美术、摄影、导演或设计监制相关的大师上下文；不得把无关成员意见硬塞进角色设计稿。
-- 默认 subagents 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问，围绕身份压力、身体姿态、服装材质、定妆照拍法、prompt evidence 和禁区进行请教，并在 LLM 角色设计前形成 `advisor_consultation_packet`。
+- 默认 subagents 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问；顾问问题必须同步于 `steps/character-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标角色上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 角色设计前形成 `advisor_consultation_packet`。
 - 上游角色入口固定为 `projects/aigc/<项目名>/5-设计/角色/1-清单/角色清单.md`；清单字段至少包含 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 固定画面约束：角色设计默认是纯色背景全身定妆照，不得置身于剧情场景、建筑空间、街景、室内陈设或复杂环境中；英文提示词必须显式包含 `full-body costume fitting photo, solid color background, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -28,9 +28,9 @@ metadata:
 ## Subagent Dispatch Contract
 
 - 本技能默认启用真实 subagents 模式；用户点名本技能或父级路由命中本技能时，视为已许可按仓库合同启动 subagents。
-- 推荐运行时路径：主 agent 先按共享团队顾问合同解析项目 `team.yaml` 监制 roster，向角色、服装、美术、摄影、导演或类型顾问提出具体设计问题；再按单个角色主体启动 `Worker-Character` 子任务。如 runtime 支持更细分 dispatch，可在每个角色内并行启动 `Research`、`Story`、`Visual/Costume`、`Cinematography` reviewer 或 worker。
+- 推荐运行时路径：主 agent 先按共享团队顾问合同解析项目 `team.yaml` 监制 roster，向角色、服装、美术、摄影、导演或类型顾问提出由当前思维·执行节点派生的问题；再按单个角色主体启动 `Worker-Character` 子任务。如 runtime 支持更细分 dispatch，可在每个角色内并行启动 `Research`、`Story`、`Visual/Costume`、`Cinematography` reviewer 或 worker。
 - 顾问 subagents 输出 `advisor_consultation_packet` 的局部问题回答、可执行指导、risk note 或 inspiration；worker/reviewer subagents 只能返回局部 patch、risk note 或 reviewer finding；最终 canonical markdown 由主 agent 按模板聚合落盘。
-- 顾问意见必须转化为身份、服装、姿态、摄影或 prompt 的可执行指导后才能进入设计稿，不得停留在大师名字、人格模仿或抽象审美口号。
+- 顾问意见必须转化为当前节点可消费的判断、局部 patch、执行取舍或风险提示后才能进入设计稿，不得停留在大师名字、固定字段填充、冗长人格模仿或抽象审美口号。
 - 若当前 system / developer / tool / user 层阻断真实 subagent dispatch，必须显式报告阻断层级、原计划 subagent 路径、实际降级路径和未真实启动的角色/ reviewer。
 
 ## Multi-Subskill Continuous Workflow
@@ -162,7 +162,7 @@ stateDiagram-v2
 3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标角色；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
 4. 按 `types/character-design-type-map.md` 判定角色主体类型，形成 `type_profile`。
 5. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain。
-6. 按 subagent 合同和共享团队顾问合同分发角色任务：先请教项目监制顾问并形成 `advisor_consultation_packet`，再把可执行指导作为额外上下文交给角色 worker/reviewer 或主 agent 创作；若真实 dispatch 被阻断，按降级口径执行并记录。
+6. 按 subagent 合同和共享团队顾问合同分发角色任务：先基于 `steps/character-design-workflow.md` 当前节点请教项目监制顾问并形成 `advisor_consultation_packet`，再把节点级可执行指导作为额外上下文交给角色 worker/reviewer 或主 agent 创作；若真实 dispatch 被阻断，按降级口径执行并记录。
 7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则和 prompt 整合硬规则；冷门信息可按允许条件搜索并保留来源摘要。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、服装风格、固定画面词或负向词等前缀/后缀；提示词必须把身份压力、视觉驱动、面部/发型/身体、服装系统、姿态、光线、构图和固定画面约束蒸馏成自然流畅的英文。
 9. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境；负向约束必须用自然语言写入 prompt，例如 `avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing`，不得使用 Midjourney `--no` 参数。
@@ -184,7 +184,7 @@ stateDiagram-v2
 | `FIELD-CHAR-DESIGN-07` | Subagents | 默认真实 dispatch；阻断时有完整降级报告 | `FAIL-CHAR-DESIGN-07` |
 | `FIELD-CHAR-DESIGN-08` | 定妆照约束 | 默认为纯色背景全身定妆照，不置身剧情场景或复杂环境 | `FAIL-CHAR-DESIGN-08` |
 | `FIELD-CHAR-DESIGN-09` | 研究证据链 | 身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性和 prompt evidence chain 均有结论并回流到设计字段 | `FAIL-CHAR-DESIGN-09` |
-| `FIELD-CHAR-DESIGN-10` | Team advisor consult | 已按 `team.yaml` 请教项目监制顾问，并把身份、服装、姿态、摄影和 prompt 指导作为创作前上下文；阻断时有降级报告 | `FAIL-CHAR-DESIGN-10` |
+| `FIELD-CHAR-DESIGN-10` | Team advisor consult | 已按 `team.yaml` 请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；阻断时有降级报告 | `FAIL-CHAR-DESIGN-10` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -200,7 +200,7 @@ stateDiagram-v2
 - 角色 prompt 或摄影字段把角色放进具体场景、建筑空间、街景、室内陈设或复杂背景，而不是纯色背景全身定妆照。
 - 研究层只写资料、风格口号或世界观摘要，没有转化为身份/职业/阶层/地域年代/服饰工艺/身体姿态/禁区/不确定性和 prompt evidence chain。
 - 默认 subagents 路径被静默跳过，且没有报告阻断层级和降级路径。
-- 启用 subagents 时只按角色 worker 分工，没有调用 `team.yaml` 项目监制顾问进行具体请教，或没有把顾问意见转成可执行设计指导。
+- 启用 subagents 时只按角色 worker 分工，没有调用 `team.yaml` 项目监制顾问基于当前思维·执行节点进行参谋，或没有把顾问意见转成节点级可执行判断、局部 patch 或风险提示。
 
 必经链路：
 
@@ -250,7 +250,7 @@ stateDiagram-v2
 - 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。
 - 每份设计稿字段齐全，且研究、物语、解构和提示词由 LLM 直接创作。
 - 研究层已从资料转化为设计证据链，并明确不确定性与禁区。
-- 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已落到身份压力、服装、姿态、摄影或 prompt evidence；若被上层阻断，已记录降级报告。
+- 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若被上层阻断，已记录降级报告。
 - 英文提示词以主体 ID 号开头，含全局风格提示词与服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，长度不超过 1300 characters。
 - Cinematography 与英文提示词固定为 `full-body costume fitting photo`、纯色背景、无场景环境。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。

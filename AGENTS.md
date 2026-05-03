@@ -8,7 +8,10 @@
 
 AIGC（AI Generated Content）视频·小说·漫画创作管理工作区。该仓库不是传统意义上承载多个独立软件子项目的代码仓，而是用于组织 AIGC 创作流的项目工作台：
 
-- 以 `projects/aigc/<项目名>/` 作为单个创作项目的主要工作空间
+- 以 `projects/` 作为创作项目总容器，并按媒介进入对应 canonical runtime
+- 影视 / 视频 / AIGC 短剧项目使用 `projects/aigc/<项目名>/`
+- 小说 / 长篇故事项目使用 `projects/story/<项目名>/`
+- 漫画项目在命中 comic 技能时使用 `projects/comic/<项目名>/`
 - 在项目空间内逐步沉淀文本、图片、视频及其过程工件
 - 以仓库根层的规则、模板、脚本与治理工件，为多个创作项目提供统一编排能力
 
@@ -38,7 +41,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 小说创作的章节单位层级默认使用：`部 -> 卷 -> 章`。
 - 小说创作中默认 `10 章 = 1 卷`。
 - 小说创作中默认 `6 卷 = 1 部`；若任务、项目设定或用户明确额外强调，则可按声明例外处理。
-- 创作项目通常以 `projects/aigc/<项目名>/` 作为主工作目录，并在其中组织文本、图片、视频及阶段产物。
+- 影视类创作项目通常以 `projects/aigc/<项目名>/` 作为主工作目录；小说与漫画项目按项目概览中的媒介命名空间落位。
 - 模板要求时，提示中的任务 ID 应保持 ASCII 安全字符。
 
 ### 重命名引用同步（强制）
@@ -50,7 +53,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 架构决策
 
 - `projects/` 是项目总容器；对当前仓库的 AIGC 影视工作流，规范命名空间固定为 `projects/aigc/`，而不是把项目直接平铺在 `projects/` 根层。
-- 对当前仓库，创作项目的 canonical runtime 统一落在 `projects/aigc/<项目名>/`；影片/小说等媒介归属应通过技能路由、项目元数据或命名约定表达，而不是再引入 `projects/影片/<项目名>/` / `projects/小说/<项目名>/` 作为第二层路径真源。
+- 对当前仓库，媒介归属通过技能路由、项目元数据和 canonical runtime namespace 表达：影视落到 `projects/aigc/<项目名>/`，小说落到 `projects/story/<项目名>/`，漫画落到 `projects/comic/<项目名>/`；不得再引入 `projects/影片/<项目名>/` / `projects/小说/<项目名>/` 作为第二层路径真源。
 - 共享工具与配置统一放在 `scripts/` 和 `configs/` 中。
 - `reports/` 用于保存开发或任务过程中的报告，允许按主题、日期或自动化流程归类。
 - `PRPs/` 用于保存大型开发计划与阶段性实施方案。
@@ -105,13 +108,13 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - 对命中 `skill-subagents`、team reviewer runtime、`master-check*`、阶段末 `supervision/review`、或其他已声明 subagent 合同的任务，默认应真实启动 subagents，而不是先由主 agent 本地模拟顾问流程。
 - 当阶段或技能合同已声明 `use_subagents_by_default == true`、`parallel-council`、`serial-refine`、`single-reviewer`、`reviewer -> subagent` 等显式分发语义时，真实 subagent dispatch 视为默认主路径，而不是可有可无的增强项。
-- 当用户手动点名执行某个 skill，或当前任务被仓库路由自动命中到某个 skill，且该 skill / 阶段合同已显式声明“默认走 subagents / parallel workers / reviewer -> subagent”，则在仓库治理口径内，这次 skill 执行本身就视为用户已对该默认 subagent 路径给出显式许可；主 agent 不得再把“用户没有额外补一句允许并行”当作默认不启动的理由。
+- 当用户手动点名执行某个 skill，或当前任务被仓库路由自动命中到某个 skill，且该 skill / 阶段合同已显式声明“默认走 subagents / parallel workers / reviewer -> subagent”，仓库层只表达默认执行偏好；真实 dispatch 还要同时满足当前 system / developer / tool policy 以及客户端对用户授权的要求。若上层策略要求用户显式请求 subagent，则仓库命中本身不等于越权授权。
 - 一个 reviewer skill 默认对应一个 subagent；主 agent 负责路由、汇流、裁决与最终 canonical 写回，不得把“主 agent 顺序扮演多个 reviewer”表述成正常的 subagent 执行。
 - 仅在以下情况允许降级为本地顺序纪要、顺序读取 skill 合同、或其他非真实 subagent 路径：
   - 当前会话的更高优先级 system / developer / tool policy 明确阻断
   - 当前环境或工具权限无法真实启动 subagents
   - 用户显式要求不要启用 subagents
-- 若上条“视为显式许可”的仓库口径与更高优先级 system / developer / tool policy 冲突，仍必须服从更高优先级约束；此时应报告“仓库层已视为许可，但上层策略仍阻断真实 dispatch”，不得把阻断原因误记为“用户未授权”。
+- 若仓库默认 dispatch 偏好与更高优先级 system / developer / tool policy 冲突，仍必须服从更高优先级约束；此时应报告“仓库层偏好真实 dispatch，但上层策略阻断或缺少所需用户授权”，不得把阻断原因简化为普通路由失败。
 - 若发生降级，必须显式报告：
   - 阻断来源属于 `system / developer / tool / user` 的哪一层
   - 原本应执行的 subagent 路径是什么
@@ -145,7 +148,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - Skill 2.0 分区可以以最小占位启动，但每个分区至少应包含一个说明文件，避免空目录在迁移、同步或版本控制中丢失。
 - 父级导引 skill 是 Skill 2.0 的轻量 tier：当某个 `SKILL.md` 只负责路由、子技能/卫星技能边界、共享真源裁决、聚合门禁和回接关系，且不直接拥有业务执行细则、类型包、模板或质量评估细则时，必须在 frontmatter 中声明 `governance_tier: router`，其本级最小结构只要求同目录 `SKILL.md + CONTEXT.md`。
 - `governance_tier: router` 只豁免本级完整分区、`README.md`、`CHANGELOG.md` 与 `agents/openai.yaml` 的强制要求，不豁免同目录 `CONTEXT.md`、Context Loading Contract、Root-Cause 合同、清晰输入/路由/输出或回接合同，也不降低子技能、卫星技能和真正执行型主技能的 Skill 2.0 要求。
-- 父级导引 skill 可以按真实需要引用共享 `_shared/`、registry、routes 或既有父级细则文件；这些共享载体不等同于本级必须拥有完整 `references/`、`steps/`、`review/`、`types/`、`templates/`、`knowledge-base/`、`scripts/`、`agents/` 分区。若父级开始直接拥有执行细则、模板、类型策略、脚本或 review 真源，应取消 `governance_tier: router` 并升级为 `lite` 或 `full`。
+- 父级导引 skill 可以按真实需要引用共享 `_shared/`、registry、routes 或既有父级细则文件；这些共享载体不代表本级需要拥有完整 `references/`、`steps/`、`review/`、`types/`、`templates/`、`knowledge-base/`、`scripts/`、`agents/` 分区。若父级开始直接拥有执行细则、模板、类型策略、脚本或 review 真源，应取消 `governance_tier: router` 并升级为 `lite` 或 `full`。
 - Skill 2.0 的核心 owner 边界：
   - `SKILL.md` 只保留入口、触发、路由、动态引用、关键门禁、Root-Cause 合同和输出合同。
   - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
@@ -202,26 +205,26 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `assets/` 仅在技能确有静态素材需要时作为业务资源目录使用，不属于 Skill 2.0 canonical 必备分区；若出现，应由 `SKILL.md` 或 `README.md` 说明所有权和加载方式
 - `SKILL` 细分定位（仓库级规范）：
   - 主技能：拥有一段业务域或一条阶段链的总入口、总路由、共享载体边界与真源裁决权。形态通常为 `<skill-root>/SKILL.md + CONTEXT.md`，也可以是技能树中的阶段根，例如 `aigc/1-规划`。
-  - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接拥有子技能的执行细则、模板、类型包或 review 真源；必须在 frontmatter 中声明 `governance_tier: router`。
+  - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接拥有子技能的执行细则、模板、类型包或 review 真源；需要在 frontmatter 中声明 `governance_tier: router`。
   - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块，可落在 `references/`、`steps/`、`review/`、`types/`、`templates/`、schema、spec、helper 或其他被合同显式声明的专项细则载体中；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
-  - 子技能：受治理的可执行下钻单元；其路径、命名与载体形态必须由父级主技能显式声明，不再绑定固定目录包裹约定。它们由父级主技能路由进入，负责局部执行合同，不得擅自越权为新的总入口。
+  - 子技能：受治理的可执行下钻单元；其路径、命名与载体形态由父级主技能显式声明，不再绑定固定目录包裹约定。它们由父级主技能路由进入，负责局部执行合同，避免擅自越权为新的总入口。
   - 卫星技能：与主技能同根同级放置的旁路可执行 skill，推荐形态为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`；它们服务查询、恢复、复核、汇总、桥接等辅助职责，可被直接调用，但不默认冒充新的主链 stage 或新的父级总线。
 - 结构判定规则：
   - 若某单元只提供长细则、模板、schema、思维链或策略表，而不独立受理任务，则它是子模块，不是子技能。
-  - 若某单元必须经父级路由进入，且其结果默认回流到父级共享目标，则它优先视为子技能。
+  - 若某单元需要经父级路由进入，且其结果默认回流到父级共享目标，则它优先视为子技能。
   - 若某单元与主技能同根同级存在，可直接被用户或上游命中，承担查询/恢复/审查承接等旁路职责，则它优先视为卫星技能。
-  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不得伪装成普通细则模块，必须显式定义为子技能或卫星技能之一。
+  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不应伪装成普通细则模块，应显式定义为子技能或卫星技能之一。
 - 现有结构判例：
   - `aigc/SKILL.md` 与各阶段根（如 `aigc/1-规划`、`aigc/3-Detail`）属于主技能层。
   - 跨项目仓 `story2026/query`、`story2026/resume` 属于卫星技能层；`story2026/review` 若被根技能声明为旁路承接而非主链真源拥有者，也应按卫星技能合同治理其边界。
 - `卫星技能` 的角色：
   - 是主技能侧的旁路执行层，而不是普通细则模块，也不是默认加入主链阶段序列的子技能
-  - 必须在主技能 `SKILL.md` 中显式声明其 `stage_position`、`truth ownership`、`not-owned truth` 与回接关系
-  - 可共享主技能的 `scripts/`、`templates/` 与其他共享模块载体，但不得借共享载体偷渡新的总线规则
-  - 默认只拥有辅助真源或辅助动作权，例如查询、恢复、审查承接、状态持久化、桥接；不得改写主技能或主链 stage 的 canonical truth 判定权
+  - 应在主技能 `SKILL.md` 中显式声明其 `stage_position`、`truth ownership`、`not-owned truth` 与回接关系
+  - 可共享主技能的 `scripts/`、`templates/` 与其他共享模块载体，但不应借共享载体偷渡新的总线规则
+  - 默认只拥有辅助真源或辅助动作权，例如查询、恢复、审查承接、状态持久化、桥接；不应改写主技能或主链 stage 的 canonical truth 判定权
 - `SKILL.md` 的角色（硬规则）：
   - 定义范围、触发条件、必需输入、Mode Selection、Reference Loading Guide、核心工作流、工具/脚本入口、输出合同与质量门槛
-  - 必须明确、可执行、偏确定性；避免长篇叙述，也不要存放易过期的零散技巧
+  - 应明确、可执行、偏确定性；避免长篇叙述，也不要存放易过期的零散技巧
   - 对 Skill 2.0 包，`SKILL.md` 可以摘要并回链分区细则，但不得复制 `references/`、`steps/`、`review/`、`types/` 或外部 `knowledge-base/` 的完整正文；若 `references/`、`steps/`、`review/` 或 `types/` 改变主流程，必须同步回改 `SKILL.md` 的拓扑和引用表；`knowledge-base/` 不得直接改变主流程
 - `agents/openai.yaml` 的角色（入口元数据层）：
   - 承载 `interface.display_name`、`interface.short_description`、`interface.default_prompt` 等 UI-facing 元数据
@@ -241,7 +244,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 多类型任务应先判型，再让 `steps/` 消费类型画像进入对应分支
 - `knowledge-base/` 的角色（外部知识库层）：
   - 保存用户或维护者手动添加的外部知识库、参考资料包、资料索引、摘录入口与领域背景材料
-  - 不承载执行中沉淀的新经验、稳定经验、reusable heuristic、失败复盘或强制合同；这些经验一律写入同目录 `CONTEXT.md`，若稳定到必须执行，再晋升到 `SKILL.md` 或对应规范分区
+  - 不承载执行中沉淀的新经验、稳定经验、reusable heuristic、失败复盘或强制合同；这些经验一律写入同目录 `CONTEXT.md`，若稳定到强制执行，再晋升到 `SKILL.md` 或对应规范分区
 - `templates/` 的角色（模板层）：
   - 保存输出模板、脚手架模板、报告模板与可复用结构样板
   - 不承载运行状态，也不作为任务唯一验收标准
@@ -253,7 +256,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 作为规划/执行时的预加载上下文，但不得重定义核心合同
   - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识；同一技能的规范型类型化处理 / 多模式策略，应落在主合同显式回指的专项模块或共享 spec，而不是继续整合进 `CONTEXT.md`
 - `MEMORY.md` 的角色（项目记忆层）：
-  - 保存当前项目跨阶段持续生效的创作偏好、审美口味、表达习惯、必须保留元素、明确禁区、长期协作要求与其他“以后继续按这个项目执行”的稳定约束
+  - 保存当前项目跨阶段持续生效的创作偏好、审美口味、表达习惯、长期保留元素、明确禁区、长期协作要求与其他“以后继续按这个项目执行”的稳定约束
   - 只服务当前项目，不承载跨项目 heuristic、源层故障复盘、脚本调试经验或技能治理规则
   - 当用户明确要求“记住”、给出会影响后续多个阶段的长期偏好/限制，或对既有项目偏好作出替换/撤销时，必须在同轮同步更新对应项目根 `MEMORY.md`
   - 临时任务指令、一次性试验口味、局部实现细节与根因学习结论不得写入 `MEMORY.md`
@@ -279,7 +282,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 不得吞并属于主技能根层 `CONTEXT.md` 的跨子技能或整技能经验
 - `<satellite-name>/SKILL.md` 的角色（卫星技能规范合同）：
   - 定义该卫星技能的旁路职责、触发条件、共享载体依赖、可拥有真源与禁止越权范围
-  - 必须写清它与主链或主技能的回接位置，避免卫星技能演化成隐式第二总入口
+  - 应写清它与主链或主技能的回接位置，避免卫星技能演化成隐式第二总入口
 - `<satellite-name>/CONTEXT.md` 的角色（卫星技能经验层）：
   - 仅保存该卫星技能自身的局部 heuristic、运行陷阱、恢复/查询/承接策略
   - 不得吞并属于主技能根层 `CONTEXT.md` 的跨卫星、跨主链或整技能经验
@@ -309,8 +312,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 复合型技能输出治理合同（强制）
 
 - 当一个主 `SKILL` 负责调度多个子技能、子模块或受治理执行单元，并最终要把结果继续落盘到共享目标时，默认采用“子单元受理输出 + 主技能按规则聚合落盘”的复合型输出机制。
-- 共享目标（例如统一根文件、统一主稿、共享结构化对象）必须是唯一业务真相，只承载累计后的最终事实，不承载每个子单元的完整过程稿。
-- 主技能必须拥有以下职责：
+- 共享目标（例如统一根文件、统一主稿、共享结构化对象）是唯一业务真相，只承载累计后的最终事实，不承载每个子单元的完整过程稿。
+- 主技能拥有以下职责：
   - 路由裁决：决定本轮命中哪些子单元。
   - 选择性调度：只调度命中的子单元，而不是默认全量运行。
   - 聚合校验：只聚合已调度子单元返回的有效 patch / delta / section update。
@@ -331,7 +334,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - sidecar 是工作侧车，不是业务真源。
   - 共享目标中若保留 `thinking_chain`、`reasoning_summary`、`decision_log` 等字段，默认只允许承载父级精简摘要、patch provenance、验收结论或最小可追踪信息，不得重复堆叠子单元完整思维链。
 - 当父级已经定义统一输出模板、共享 schema、统一根文件合同或聚合规则时：
-  - 子单元必须显式回指父级真源。
+  - 子单元应显式回指父级真源。
   - 子单元不得再额外定义第二份平行输出模板。
   - 子单元自己的局部模块、模板或 sidecar 规则，只应承载局部写位、执行流程、路由策略或本地约束，不得重写父级输出真源。
 - 若共享目标当前无法直接承接局部 patch，必须显式报告：
@@ -351,7 +354,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `warn`：对该技能的上下文做定向压缩与整理
   - `warn` 且文档很长但知识密度失衡：优先做人为结构整理（章节合并/拆分/抽取），而不是继续追加
   - `critical`：在继续大规模追加前，必须先压缩并归档旧内容
-- 压缩时必须保持证据完整性：
+- 压缩时应保持证据完整性：
   - 将仍有高复用价值的结论保留在 `CONTEXT.md`
   - 将较长时间线、旧证据和过程性材料外置到 `reports/context-archive/`、`CHANGELOG.md` 或其他可追踪载体
 - 默认操作应针对单个技能上下文，而不是在未被要求时全仓重写。
@@ -376,7 +379,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### 执行深度默认规则（强制）
 
-- 执行任务时，默认按“成熟版 engine”标准推进，不得因为习惯性谨慎而总是停在“最小补丁”或“最小闭环”。
+- 执行任务时，默认按“成熟版 engine”标准推进，避免因为习惯性谨慎而总是停在“最小补丁”或“最小闭环”。
 - 判断应做到哪一层时，以“用户需求自然要求的完成层级”为准，而不是以“当前最小可改动量”为准。
 - 对技能、工作流、规则、编排系统、模板体系、验证链路这类任务，默认目标应接近“成熟版 grouping engine”口径：
   - 不只修局部文案或单点症状。
@@ -471,7 +474,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
   - 跨模式、跨模块共用的章节骨架、输出结构、schema 真源、复用清单与路由模板，不应在兄弟工件中各自重复定义
   - 这类载体负责稳定复用结构；各兄弟模块应继承或局部特化，而不是静默拷贝一份再演化
-  - 当共享 template / spec 成为真源后，下游 `SKILL.md` / `module-spec.md` / runbook 必须显式回指该真源
+  - 当共享 template / spec 成为真源后，下游 `SKILL.md` / `module-spec.md` / runbook 应显式回指该真源
 - 以下内容应写入具体 agent 规则文档（例如 `.codex/agents/**/*.md`）作为源层规范合同：
 
   - agent 的人格边界、任务范围、输出 schema、路径约定、字段落点、审查合同与面向用户的硬门槛
@@ -523,7 +526,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 以下内容应写入项目级 `MEMORY.md`（项目记忆层）：
 
   - 用户明确要求长期保留的创作偏好、风格口味、叙事习惯、角色关系偏好、视觉/声音/氛围倾向
-  - 当前项目必须保留的特殊元素、固定母题、反复强调的钩子、明确禁区与长期执行要求
+  - 当前项目需长期保留的特殊元素、固定母题、反复强调的钩子、明确禁区与长期执行要求
   - 会影响后续多个阶段判断的项目级协作约定，例如“这个项目不要鸡汤式收束”“感情线始终克制表达”“视觉上固定保留雨夜霓虹”之类的长期口径
   - 对既有项目记忆的更新、替换与撤销结论
   - 不得写入技能调试经验、源层故障复盘、跨项目 heuristic、一次性任务说明或迁移时间线
@@ -533,55 +536,9 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `CHANGELOG.md` 是派生说明载体，不是规范真源，也不是经验真源；不得与 `AGENTS.md` / `SKILL.md` / `CONTEXT.md` 并列竞争事实裁决权
   - `CHANGELOG.md` 默认不参与技能运行时预加载；只有在追溯迁移、审计差异、发布说明或需要查看详细过程时才按需读取
   - 若某条经验需要保留较长过程材料，`CONTEXT.md` 只保留结论化沉淀，并链接指向 `CHANGELOG.md` 或 `reports/`
-- `CONTEXT.md` 支持多级放置。
-- 当前规范特指主技能、子技能与卫星技能之间的多级放置：
-
-  - 主技能根层 `CONTEXT.md`：整个技能族的默认经验层，承接跨子技能、跨模式、跨工作流的经验
-  - 项目级 `MEMORY.md`：项目运行时的创作记忆真源，面向当前项目整个创作阶段；当前仅允许以下 canonical 形态：
-
-    ```text
-    projects/story/<项目名>/MEMORY.md
-    projects/aigc/<项目名>/MEMORY.md
-    ```
-
-    项目级 `MEMORY.md` 中存放的是该项目已经确认、后续阶段应持续遵守的偏好、口味、特殊元素与长期要求；它不替代技能 `CONTEXT.md`，也不替代项目级 `CONTEXT/`
-  - 项目级 `CONTEXT/`：项目运行时共享附加上下文根，面向当前项目整个创作阶段；当前仅允许以下 canonical 形态：
-
-    ```text
-    projects/story/<项目名>/CONTEXT/
-    projects/aigc/<项目名>/CONTEXT/
-    ```
-
-    项目级 `CONTEXT/` 中存放的是任务执行时必须额外加载的项目共享上下文文件；它作用于整个项目创作阶段，但不替代主技能、子技能或卫星技能自身的 `CONTEXT.md`
-  - 子技能 `CONTEXT.md`：用于受治理子技能的局部经验层，路径由父级合同显式声明，通常采用如下形态：
-
-    ```text
-    <skill-root>/
-      ...
-      <child-skill-path>/
-        SKILL.md
-        CONTEXT.md
-    ```
-
-    子技能 `CONTEXT.md` 仅保存该子技能自己的局部 heuristic、陷阱、案例与修复模式，不得替代主技能根层 `CONTEXT.md`
-- 卫星技能 `CONTEXT.md`：用于同根旁路 skill 的局部经验层，通常采用如下形态：
-
-  ```text
-  <skill-root>/
-    SKILL.md
-    CONTEXT.md
-    <satellite-name>/
-      SKILL.md
-      CONTEXT.md
-  ```
-
-  卫星技能 `CONTEXT.md` 仅保存该卫星技能自己的局部 heuristic、旁路恢复/查询/承接策略与陷阱，不得替代主技能根层 `CONTEXT.md`
-- 子技能与卫星技能 `CONTEXT.md` 的升级规则：
-
-  - 一旦某个技能采用受治理子技能结构，则范围内长期维护的子技能应在父级合同声明的子技能路径上显式暴露 `SKILL.md + CONTEXT.md`
-  - 一旦某个技能出现长期维护、可直接调用、且拥有独立旁路职责的 sibling skill，则应显式表现为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`
-  - 跨子技能、跨卫星或跨技能的 heuristic，仍必须回晋升到主技能根层 `CONTEXT.md` 或 `SKILL.md`
-- 冲突优先级如下：用户显式请求 > `AGENTS.md` / meta-SKILL > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > 已声明的 `references/` / `steps/` / `review/` / `types/` / 模板 / spec > `agents/openai.yaml` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+- `CONTEXT.md` 支持主技能、子技能与卫星技能多级放置；角色定义、canonical 路径与加载顺序以“技能组成与语义”及“`SKILL` 调用上下文加载合同”两节为准，本矩阵不再重复展开。
+- 子技能或卫星技能一旦长期维护并拥有局部职责，应在父级合同声明的路径上显式暴露 `SKILL.md + CONTEXT.md`；跨子技能、跨卫星或跨技能的 heuristic，再回晋升到主技能根层 `CONTEXT.md` 或 `SKILL.md`。
+- 冲突优先级沿用上文“运行时加载顺序与优先级”第 8 条；后续章节只声明增量，不再平行重写完整优先级链。
 
 ### Agent 源层优化合同（强制）
 
@@ -615,7 +572,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 共享 schema / spec 文件
   - 共享 runbook / validator
   - 共享 helper / config entrypoint
-- 真源设计必须回答以下问题：
+- 真源设计应回答以下问题：
   - 哪个工件是权威真源
   - 哪些工件只是派生投影
   - 允许哪些本地变体
@@ -674,8 +631,9 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 硬门槛：
   - 复杂任务不得跳过 `mission-brief` 与 `route-plan`
   - 高风险任务不得跳过 `preflight-verdict`
-  - 任何任务不得在没有 `validation-report` 的情况下宣布完成
-  - 任何非平凡失败不得在没有 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source` 的情况下结案
+  - tracked harness 任务、复杂任务与高风险任务应产出 `validation-report` 后再宣布完成
+  - 普通问答、状态查询、窄范围审查或小修复可使用面向用户的 inline validation 摘要，不强制创建 harness 报告
+  - 非平凡失败应提供 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source` 后再结案
 - 防漂移规则：
   - 三省共享总则、移交流程、分层上溯链与闭环格式，必须优先回收到 `office-governance-contract.md`，不得在兄弟 agent 文档中平行复制演化
   - 新增仓库内本地技能时，必须先注册到 `.codex/registry/skills.yaml`

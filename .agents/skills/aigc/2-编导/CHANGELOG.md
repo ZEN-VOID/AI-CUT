@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-05-03
+
+- 调整 `2-编导` subagents 机制：监制顾问不再围绕固定问题字段发言，而是同步于当前 `steps/directing-workflow.md`、`Thought Pass Map` 与 review gate 的思维·执行节点。
+- `advisor_consultation_packet` 现在要求保留 `node_ref / pass_ref / gate_ref / role_lens` 来源锚点，确保顾问参谋体现角色意识、创作风格和专业水准，并转化为节点级判断、执行取舍、证据补强与风险提示。
+- 同步更新 workflow、review gate、CONTEXT 经验层与共享团队顾问合同，阻断脱离节点网络的固定题型清单和泛泛审美评价。
+- 修复 review 反馈：共享顾问合同的 `2-编导` 行改为节点派生；`N4.6-ADVISOR` 增加 `advisor_routeback_targets`，允许回修 `N3-SCENE` / `N4-FIELD` / `N4.5-PEAK`；review 报告和输出模板补齐顾问 packet 的节点锚点、routeback 与降级证据。
+- 新增 `references/directorial-authorship-contract.md` 与 `N4.4-DIRECTORIAL`，把“优秀编导”的要求落为 `director_substance_pass`：从上游原文提炼戏剧问题、人物选择压力、观众位置、信息释放和可拍执行策略，避免只交付结构正确或表达漂亮的稿件。
+- 升级 `steps/directing-workflow.md`：新增 `Reference-To-Node Coverage`，把各 references 细则映射到具体节点证据和 blocking gate；扩展 `N4-FIELD / N4.4-DIRECTORIAL / N4.7-CRAFT / N4.8-ENRICH / N6-REVIEW` 的 evidence 与回退口径，并重绘主流程 Mermaid 与 reference coverage Mermaid。
+
 ## 2026-05-01
 
 - 新增 `references/performance-and-scene-craft-contract.md`，补齐场景状态差、潜台词行为、演员任务、场面调度、沉默反应和摄影越权边界。
@@ -38,4 +47,4 @@
 - 强化“剧本化 = 可见 / 可听 / 可执行”源层定义，新增具像化、画面化、反抽象、反概念、反比喻门禁。
 - 强化声音本体规则：`音效` 字段只写可听声音，不写时间说明、事件概括或描述性句子。
 - 扩展 `validate_script_projection.py`，开始检查高频抽象画面词与描述性音效词。
-- 移除 `镜头语言预设` 字段，避免 `2-编导` 越权到下游摄影/分镜；相关意图必须转化为可见画面、动作、表演或声音字段。
+- 移除 `分镜明细预设` 字段，避免 `2-编导` 越权到下游摄影/分镜；相关意图必须转化为可见画面、动作、表演或声音字段。

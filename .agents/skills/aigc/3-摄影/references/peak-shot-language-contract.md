@@ -2,7 +2,7 @@
 
 ## Positioning
 
-本文件承接 `aigc/2-编导/references/climax-visual-treatment-contract.md`，用于把上游已经强化出的高潮画面成分，进一步转化为 `3-摄影` 的分镜表现、镜头语言和运镜手法。
+本文件承接 `aigc/2-编导/references/climax-visual-treatment-contract.md`，用于把上游已经强化出的高潮画面成分，进一步转化为 `3-摄影` 的分镜表现、分镜明细和运镜手法。
 
 `3-摄影` 不重新设计高潮，不新增剧情事实、对白、胜负结果、道具效果或人物动机。它只在上游画面句子已有的高点基础上，提高观看路径的戏剧强度、节拍清晰度、镜头稀缺性和运镜辨识度。
 
@@ -32,11 +32,11 @@
 | `pause_or_rupture` | 选择停顿、静止长镜、慢推读秒，还是断裂式切换、急摇、光变、声音先行 |
 | `aftershock_handoff` | 高点之后把注意力交给哪个脸、手、道具、规则文字、空间出口或声音来源 |
 
-`peak_shot_profile` 只作为内部判断，不作为输出标题写入成稿。最终仍落入 `镜头语言：分镜N`。
+`peak_shot_profile` 只作为内部判断，不作为输出标题写入成稿。最终仍落入 `分镜明细：分镜N`。
 
 ## Mode-Specific Treatment
 
-| peak_mode | storyboard emphasis | camera movement and lens language |
+| peak_mode | storyboard emphasis | camera movement and shot detail |
 | --- | --- | --- |
 | `kinetic` | 关键动作、阻碍、结果和代价必须拆清；通常 2-4 个分镜 | 跟拍、横移、急停、动作匹配剪辑；结果落点用反应镜头或静止镜头钉住 |
 | `high-skill_duel` | 先交代胜负条件，再表现反制/识破/破招，不只放大声量 | 视线牵引、焦点拉移、轴线压缩、过肩博弈、棋盘式构图；避免乱切掩盖技术含量 |
@@ -56,7 +56,7 @@
 ## Forbidden Patterns
 
 - 为了“高潮感”给上游没有的爆炸、死亡、哭喊、拥抱、胜负结果或道具变化。
-- 每个高点都写成大特写 + 慢推 + 急停，导致镜头语言同质化。
+- 每个高点都写成大特写 + 慢推 + 急停，导致分镜明细同质化。
 - 用复杂运镜覆盖演员需要停住的表演瞬间。
 - 动作高点只写运动，没有结果落点或代价。
 - 认知高点只写脸部震惊，没有信息显影或状态差。

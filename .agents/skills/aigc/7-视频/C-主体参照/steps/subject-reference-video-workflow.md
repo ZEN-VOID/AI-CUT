@@ -1,6 +1,6 @@
 # Subject Reference Video Workflow
 
-本文件承载 `C-主体参照` 的思行一体化节点。业务拓扑是先串行锁源、组装视频 prompt 和绑定主体，再按 Dreamina CLI 能力逐组后台并发提交，最后统一汇流审查。
+本文件承载 `C-主体参照` 的思行一体化节点。业务拓扑是先串行锁源、组装视频 prompt 和绑定主体，再按 $libTV skill scripts 能力逐组后台并发提交，最后统一汇流审查。
 
 ## Mermaid Workflow
 
@@ -12,8 +12,8 @@ flowchart TD
     N4 --> N5["N5 Bind YAML Subject References"]
     N5 --> N6{"Review Gate"}
     N6 -->|"prompt_only"| N10["N10 Persist Plan Package"]
-    N6 -->|"generate"| N7["N7 Dreamina Self-Check"]
-    N7 --> N8["N8 Dispatch Dreamina Batch"]
+    N6 -->|"generate"| N7["N7 LibTV Self-Check"]
+    N7 --> N8["N8 Dispatch LibTV Batch"]
     N8 --> N9["N9 Update Queue and Results"]
     N9 --> N10
     N6 -->|"fail"| R["Repair owning section"]
@@ -25,15 +25,15 @@ flowchart TD
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 锁定任务目标、mode、集号、分镜组范围和 Dreamina 意图 | 用户请求、目标项目 | 判定 `prompt_only` / `single_group_generate` / `episode_batch_generate` / `group_batch_generate` / `multi_episode_batch_generate` / `query_or_download` / `repair` / `review_only` | mode note | `N2` | 目标范围明确 |
-| `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、`north_star.yaml`、Dreamina skill | 读取项目偏好、视频阶段上下文和 Dreamina 约束 | input manifest | `N3` | 必需文件可读 |
+| `N1-INTAKE` | 锁定任务目标、mode、集号、分镜组范围和 LibTV 意图 | 用户请求、目标项目 | 判定 `prompt_only` / `single_group_generate` / `episode_batch_generate` / `group_batch_generate` / `multi_episode_batch_generate` / `query_or_download` / `repair` / `review_only` | mode note | `N2` | 目标范围明确 |
+| `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、`north_star.yaml`、LibTV skill | 读取项目偏好、视频阶段上下文和 LibTV 约束 | input manifest | `N3` | 必需文件可读 |
 | `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、组正文、底部 YAML 和分镜数量 | `video-group-index.json` | `N4` | 每个 ID 唯一可回指 |
 | `N4-PROMPT` | 生成组级视频 prompt | group index | 添加最小 provider 指令，直接接入现有组正文主体 | prompt markdown / per-group txt | `N5` | 组正文完整且未改写 |
 | `N5-REF-BIND` | 保守绑定 YAML 主体参照 | prompt package、5-设计生成目录 | 多视图优先、主图次之、缺图移除槽位，生成主体后缀 `@图片路径` | reference manifest | `N6` | 无猜测路径 |
-| `N6-REVIEW` | 执行生成前审查 | prompt、manifest、mode | 检查 ID、组正文、路径、Dreamina 命令可行性 | review note | `N7` / `N10` / repair | 必需项通过 |
-| `N7-DREAMINA-CHECK` | 确认 CLI 与登录态 | dreamina CLI | 执行或规划 `dreamina user_credit` | self-check record | `N8` 或 blocked | CLI 可用且登录态正常 |
-| `N8-DISPATCH` | 批量调用 Dreamina | submit plan | 每组独立任务，默认后台多线程并发提交 | submit ids | `N9` | 不覆盖、不越权 |
-| `N9-QUEUE` | 持久化异步状态 | submit output、query_result | 写 queue ledger、results JSON、下载路径 | queue + results | `N10` | 每个任务可续查 |
+| `N6-REVIEW` | 执行生成前审查 | prompt、manifest、mode | 检查 ID、组正文、路径、LibTV submit plan可行性 | review note | `N7` / `N10` / repair | 必需项通过 |
+| `N7-LIBTV-CHECK` | 确认 $libTV 脚本与凭据 | $libTV scripts | 执行或规划 `LIBTV_ACCESS_KEY credential check` | self-check record | `N8` 或 blocked | 脚本可用且登录态正常 |
+| `N8-DISPATCH` | 批量调用 LibTV | submit plan | 每组独立任务，默认后台多线程并发提交 | session ids | `N9` | 不覆盖、不越权 |
+| `N9-QUEUE` | 持久化异步状态 | submit output、query_session | 写 queue ledger、results JSON、下载路径 | queue + results | `N10` | 每个任务可续查 |
 | `N10-WRITE` | 写业务工件 | prompt、manifest、plan、result | 写 prompt 文档、manifest、plan、queue、report 草稿 | file list | `N11` | 文件命名正确 |
 | `N11-CLOSE` | 汇流交付 | 所有证据 | 总结 submitted / queued / downloaded / skipped / failed 与返工入口 | 执行报告 | done | review verdict `pass` 或 `pass_with_todo` |
 

@@ -1,6 +1,6 @@
 # Storyboard Video Workflow
 
-本文件承载 `B-分镜故事板参照` 的思行一体化节点。拓扑是前段串行锁源与生成 YAML，中段按分镜组后台并发提交 Dreamina，后段统一汇流 queue、结果和报告。
+本文件承载 `B-分镜故事板参照` 的思行一体化节点。拓扑是前段串行锁源与生成 YAML，中段按分镜组后台并发提交 LibTV，后段统一汇流 queue、结果和报告。
 
 ## Mermaid Workflow
 
@@ -9,11 +9,11 @@ flowchart TD
     N1["N1 Intake"] --> N2["N2 Load Project Context"]
     N2 --> N3["N3 Extract Groups from 4-分组"]
     N3 --> N4["N4 Bind Storyboard Sheet Image"]
-    N4 --> N5["N5 Build Dreamina Batch YAML"]
+    N4 --> N5["N5 Build LibTV Batch YAML"]
     N5 --> N6{"Review Gate"}
     N6 -->|"prompt_only"| N10["N10 Persist Config Package"]
     N6 -->|"generate"| N7["N7 Background Worker Pool"]
-    N7 --> N8["N8 Submit / Poll / Record submit_id"]
+    N7 --> N8["N8 Create session / Poll / Record sessionId"]
     N8 --> N9["N9 Query or Download Results"]
     N9 --> N10
     N6 -->|"fail"| R["Repair owning section"]
@@ -42,11 +42,11 @@ flowchart TD
 | `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、项目 `CONTEXT/` | 读取项目偏好与视频阶段上下文 | input manifest | `N3` | 必需文件可读 |
 | `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、完整组正文和分镜数量 | `group-index.json` | `N4` | 每个 ID 唯一可回指 |
 | `N4-REF-BIND` | 保守绑定对应故事板图 | group index、`6-图像/B-分镜故事板` | 按 `group_id` 查真实图片；无图置空 | reference manifest | `N5` | 无猜测路径 |
-| `N5-YAML` | 生成 Dreamina batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、output path、poll | batch YAML | `N6` | YAML 可转 CLI |
-| `N6-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、Dreamina 子命令、mode | review note | `N7` / `N10` / repair | 必需项通过 |
-| `N7-DISPATCH` | 后台多线程提交 | Dreamina batch YAML | 运行 `dreamina user_credit`，建立 worker pool，逐组提交 | tmp result、queue row | `N8` | 保留 submit_id |
-| `N8-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-dreamina-queue.md`、results JSON 初稿 | queue ledger | `N9` | 每组状态明确 |
-| `N9-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、submit_id | `query_result`、下载到 `videos/`、处理下载超时 | local videos、results JSON | `N10` | 本地状态真实 |
+| `N5-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、output path、poll | batch YAML | `N6` | YAML 可投影为 $libTV 脚本调用 |
+| `N6-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode | review note | `N7` / `N10` / repair | 必需项通过 |
+| `N7-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`，建立 worker pool，逐组提交 | tmp result、queue row | `N8` | 保留 sessionId |
+| `N8-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-libtv-queue.md`、results JSON 初稿 | queue ledger | `N9` | 每组状态明确 |
+| `N9-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、sessionId | `query_session`、下载到 `videos/`、处理下载超时 | local videos、results JSON | `N10` | 本地状态真实 |
 | `N10-WRITE` | 写业务工件 | prompt、manifest、YAML、queue、result | 写 prompt 文档、manifest、batch、queue、report | file list | `N11` | 文件命名正确 |
 | `N11-CLOSE` | 汇流交付 | 所有证据 | 总结 submitted / querying / downloaded / failed / skipped 与返工入口 | 执行报告 | done | review verdict `pass` 或 `pass_with_todo` |
 
@@ -64,4 +64,4 @@ flowchart TD
 - `N1-N6` 是串行门禁，不应并发绕过。
 - `N7-N9` 可以按 group job 并发，但每个 worker 只能写自己的临时结果和安全追加 queue row。
 - `N10-N11` 必须统一汇流，避免多个任务同时改写同一个报告文件。
-- 并发失败时，保留已提交组的 `submit_id`，仅返工失败组。
+- 并发失败时，保留已提交组的 `sessionId`，仅返工失败组。

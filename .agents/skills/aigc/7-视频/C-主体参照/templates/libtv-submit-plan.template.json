@@ -1,20 +1,20 @@
 {
-  "schema_version": "aigc-video-subject-reference/dreamina-submit-plan/v1",
+  "schema_version": "aigc-video-subject-reference/libtv-submit-plan/v1",
   "project_name": "",
   "episode_id": "",
   "source_group_path": "",
   "output_root": "",
   "parallelism": 3,
-  "dreamina_self_check": {
-    "required_command": "dreamina user_credit",
+  "libtv_self_check": {
+    "required_command": "LIBTV_ACCESS_KEY credential check",
     "status": "pending"
   },
   "tasks": [
     {
       "queue_id": "",
       "group_id": "",
-      "command": "multimodal2video",
-      "model_version": "seedance2.0_vip",
+      "command": "libtv_session_with_uploaded_references",
+      "requested_model": "",
       "duration": 15,
       "ratio": "16:9",
       "video_resolution": "720p",
@@ -27,9 +27,13 @@
           "name": "",
           "category": "",
           "path": "",
+          "uploaded_url": "",
           "subject_inline": ""
         }
       ],
+      "sessionId": "",
+      "projectUuid": "",
+      "projectUrl": "",
       "download_dir": "",
       "expected_output": "",
       "status": "planned"

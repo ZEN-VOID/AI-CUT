@@ -4,7 +4,7 @@
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | 组级视频 prompt 包、镜级分镜画面参照 manifest、Dreamina batch YAML、queue ledger、submit/result JSON、逐集执行报告和可选视频文件 |
+| Required output | 组级视频 prompt 包、镜级分镜画面参照 manifest、LibTV batch YAML、queue ledger、submit/result JSON、逐集执行报告和可选视频文件 |
 | Output format | Markdown prompt / report / queue ledger + YAML batch config + JSON manifest / result + MP4 |
 | Output path | `projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/` |
 | Naming convention | episode 保留 `第N集`；job 和视频用 `<分镜组ID>`；技能 id 为 `aigc-video-frame-visual-reference` |
@@ -17,9 +17,9 @@ projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/
 ├── 第N集-group-shot-index.json
 ├── 第N集-video-prompts.md
 ├── 第N集-reference-manifest.json
-├── 第N集-dreamina-batch.yaml
-├── 第N集-dreamina-queue.md
-├── 第N集-dreamina-results.json
+├── 第N集-libtv-batch.yaml
+├── 第N集-libtv-queue.md
+├── 第N集-libtv-results.json
 ├── 执行报告.md
 └── videos/
     └── <分镜组ID>.mp4

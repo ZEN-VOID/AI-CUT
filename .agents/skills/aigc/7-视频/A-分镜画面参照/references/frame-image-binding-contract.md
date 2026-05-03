@@ -1,6 +1,6 @@
 # Frame Image Binding Contract
 
-本文件定义 step2：检查 `projects/aigc/<项目名>/6-图像/A-分镜画面` 中是否存在对应四段式 `分镜ID` 的图像，并把真实路径写入 Dreamina YAML。
+本文件定义 step2：检查 `projects/aigc/<项目名>/6-图像/A-分镜画面` 中是否存在对应四段式 `分镜ID` 的图像，并把真实路径写入 LibTV YAML。
 
 ## Source Roots
 
@@ -59,7 +59,7 @@ reference_annotation: "1-1-1-1"
 ## Review Notes
 
 - 缺图不是失败，只是该镜头没有图像参照。
-- 当前组至少有一张图时默认走 `multimodal2video`；没有任何图时走 `text2video`。
+- 当前组至少有一张图时默认走 `libtv_session_with_uploaded_references`；没有任何图时走 `libtv_session_text_only`。
 - 多个同优先级候选命中时，标记 `ambiguous` 并阻断该组提交，不得随机选择。
 - 所有路径必须真实存在，且位于当前项目根内。
 - 参照图只作为分镜画面视觉参照；不得反向改写 `4-分组` 的剧情和镜头事实。

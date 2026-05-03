@@ -17,26 +17,26 @@
 | 主体参照只进了 manifest，没有在对应主体后追加 `@参照图` | prompt 绑定层 | 回到主体段落，给对应角色/场景/道具补 `@<path>` 或 marker 映射 | review gate 检查 bound subject inline marker | 每个 bound subject 在 prompt 中可定位 |
 | 主体列表从正文泛词扩展而不是组底 YAML | 主体基准层 | 丢弃非 YAML 主体，重建 reference manifest | YAML baseline 固定为主体唯一默认入口 | manifest 的每个 subject 都能回到组底 YAML |
 | 没有故事板图却保留空 `@图1` | 空槽位层 | 移除空总参照 marker，记录 `storyboard_missing_optional` | submit plan schema 禁止空图片槽 | prompt 无不存在路径或空 marker |
-| 图像总数超过 Dreamina 当前上限仍静默丢图 | provider handoff 层 | 标记 `reference_over_limit` 并让用户选择压缩、分段、阻断或降级 | handoff 合同固定图片上限检查 | submit plan 写明 over_limit 策略 |
-| 有多类参照却误用 `image2video` | provider 命令层 | 改为 `multimodal2video`；无图才走 `text2video` | Dreamina handoff 固定命令选择 | command preview 与 reference_images 数量一致 |
+| 图像总数超过 LibTV 当前上限仍静默丢图 | provider handoff 层 | 标记 `reference_over_limit` 并让用户选择压缩、分段、阻断或降级 | handoff 合同固定图片上限检查 | submit plan 写明 over_limit 策略 |
+| 有多类参照却误用 `image2video` | provider 命令层 | 改为 `libtv_session_with_uploaded_references`；无图才走 `libtv_session_text_only` | LibTV handoff 固定命令选择 | command preview 与 reference_images 数量一致 |
 | 并发任务同时改写报告 | 汇流层 | 每组只写独立结果行，最终统一汇总报告 | workflow 固定汇流写报告 | 报告写入发生在 batch 完成或查询阶段 |
 
 ## Repair Playbook
 
-1. 先判断失败属于输入追溯、prompt 组装、故事板总参照、主体参照、Dreamina handoff、队列台账、输出持久化还是报告闭环。
+1. 先判断失败属于输入追溯、prompt 组装、故事板总参照、主体参照、LibTV handoff、队列台账、输出持久化还是报告闭环。
 2. 若问题在剧情事实或镜头内容，回 `4-分组` 源组核对，不在本技能内补写。
 3. 若问题在故事板图，按 `group_id` 查 `6-图像/B-分镜故事板`，不要把故事板当首帧或主体图。
 4. 若问题在主体槽位，先看组底 YAML，再查 `5-设计/*/3-生成`，不要从正文猜主体。
 5. 若问题在 prompt，先检查固定开头，再检查每个 bound subject 是否在对应主体后有 `@参照图`。
-6. 若问题在 Dreamina 命令，先看 `.agents/skills/cli/dreamina-cli/SKILL.md` 当前子命令矩阵和图片上限，再修 submit plan。
-7. 若任务已提交但结果未下载，保留 submit_id，按 queue ledger 调 `dreamina query_result`，不要重新提交造成重复任务。
+6. 若问题在 LibTV submit plan，先看 `.agents/skills/cli/libTV/SKILL.md` 当前子命令矩阵和图片上限，再修 submit plan。
+7. 若任务已提交但结果未下载，保留 sessionId，按 queue ledger 调 `query_session.py`，不要重新提交造成重复任务。
 8. 修复后按 `review/review-contract.md` 复核，并在执行报告写清楚 skipped / failed / next_action。
 
 ## Reusable Heuristics
 
 - D 的价值是“总参照 + 主体参照同场生效”：故事板约束整组画面连续性，主体图片约束具体角色、场景和道具外观。
 - 故事板总参照应该出现在 prompt 开头，用来定调构图、镜头顺序、站位和节奏；它不是首帧，也不是某个角色的图片。
-- 主体参照必须跟随对应主体名出现，写成 `主体名 @图片路径` 或 `主体名 @图N`，这样 Dreamina 和后续审查都能知道每张图锁定谁。
+- 主体参照必须跟随对应主体名出现，写成 `主体名 @图片路径` 或 `主体名 @图N`，这样 LibTV 和后续审查都能知道每张图锁定谁。
 - 缺故事板或缺个别主体图不必阻断 prompt-only；但空路径、错绑和静默丢图必须阻断或返工。
 - 当参考图过多时，优先保留故事板总参照和高频核心角色；压缩策略必须写入报告，不能由脚本静默裁剪。
-- `第N集-dreamina-submit-plan.json` 是提交前可审查真源；CLI 命令是投影，不要让手写命令成为第二真源。
+- `第N集-libtv-submit-plan.json` 是提交前可审查真源；脚本投影是投影，不要让手写命令成为第二真源。

@@ -6,7 +6,7 @@
 
 在当前上层策略允许真实 dispatch，且用户显式要求或仓库治理合同视为已授权时，默认 reviewer 路径如下：
 
-默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教场景/建筑/美术/摄影/导演相关顾问，形成 `advisor_consultation_packet` 后再进入单场景设计与 reviewer 汇流。
+默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教场景/建筑/美术/摄影/导演相关顾问；顾问问题必须绑定 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，形成 `advisor_consultation_packet` 后再进入单场景设计与 reviewer 汇流。
 
 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`SCENE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 
@@ -63,7 +63,7 @@ flowchart TD
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `SCENE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography，并包含 `deconstruction_coverage` 来说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
-| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问，问题是否具体，指导是否落入空间结构、材质光线、空镜构图、no people 或 prompt evidence |
+| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
 | subagent_supervision | 是否按 `references/subagent-supervision-contract.md` 记录真实 dispatch 或降级路径、未启动 reviewer 和汇流裁决 |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
@@ -108,6 +108,6 @@ finding:
 - `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
 - `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
-- 默认 subagents / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有落到空间结构、材质光线、空镜构图、no people、prompt evidence。
+- 默认 subagents / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
 - 由脚本生成核心创作正文或提示词。
 - 写入范围越过 `projects/aigc/<项目名>/5-设计/场景/2-设计`。

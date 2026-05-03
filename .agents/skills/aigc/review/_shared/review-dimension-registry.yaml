@@ -215,7 +215,7 @@ dimensions:
     dimension: "分镜执行连续性"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/detail-execution-continuity.md"
     scope: "2-编导 / 3-摄影 / 4-分组 continuity and shot grouping readiness"
-    objective: "确认编导事实、摄影镜头语言与分镜组可以稳定供下游消费"
+    objective: "确认编导事实、摄影分镜明细与分镜组可以稳定供下游消费"
     method: "读取编导稿、摄影稿和分组稿，定位镜级字段断裂、组镜不连与 handoff 不足"
     report_filename: "分镜执行连续性.md"
     checkpoint_inline:

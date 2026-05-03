@@ -1,6 +1,6 @@
 # Storyboard Image Binding Contract
 
-本文件定义 step2：检查 `projects/aigc/<项目名>/6-图像/B-分镜故事板` 中是否存在对应分镜组 ID 的图像，并把真实路径写入 Dreamina YAML。
+本文件定义 step2：检查 `projects/aigc/<项目名>/6-图像/B-分镜故事板` 中是否存在对应分镜组 ID 的图像，并把真实路径写入 LibTV YAML。
 
 ## Source Roots
 
@@ -45,6 +45,6 @@ reference_status: "missing_optional"
 
 ## Review Notes
 
-- 缺图不是失败，只是该组走 `text2video`。
-- 有图时默认走 `multimodal2video`，prompt 中必须说明 `@图1` 是分镜故事板视觉参照，不是首帧。
+- 缺图不是失败，只是该组走 `libtv_session_text_only`。
+- 有图时默认走 `libtv_session_with_uploaded_references`，prompt 中必须说明 `@图1` 是分镜故事板视觉参照，不是首帧。
 - 若用户显式要求“没有故事板图就跳过视频生成”，可把 `missing_optional` 改为 `skipped_by_user_policy`。

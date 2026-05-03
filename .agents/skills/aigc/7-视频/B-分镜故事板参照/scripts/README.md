@@ -6,9 +6,9 @@
 
 - 读取 `4-分组/第N集.md` 并抽取 `group_id`、line range、hash。
 - 检查 `6-图像/B-分镜故事板/第N集/images/<group_id>.*` 是否存在。
-- 投影 `第N集-dreamina-batch.yaml`、queue ledger、results JSON。
-- 按 YAML 调用 `dreamina user_credit`、`dreamina text2video`、`dreamina multimodal2video`、`dreamina query_result`。
-- 后台 worker pool、submit_id 回填、下载文件存在性校验。
+- 投影 `第N集-libtv-batch.yaml`、queue ledger、results JSON。
+- 按 YAML 调用 `LIBTV_ACCESS_KEY credential check`、`create_session.py`、`upload_file.py + create_session.py`、`query_session.py`。
+- 后台 worker pool、sessionId 回填、下载文件存在性校验。
 
 禁止脚本承担：
 

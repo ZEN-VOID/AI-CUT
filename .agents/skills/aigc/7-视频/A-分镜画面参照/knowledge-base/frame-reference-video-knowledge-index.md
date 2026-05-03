@@ -5,4 +5,4 @@
 ## External Knowledge Materials
 
 - 当前暂无外部知识材料。
-- 若未来加入 Dreamina 官方多图参照说明、项目方视频规范或用户提供的 provider 文档，应在此登记来源、适用范围和加载条件。
+- 若未来加入 LibTV 官方多图参照说明、项目方视频规范或用户提供的 provider 文档，应在此登记来源、适用范围和加载条件。

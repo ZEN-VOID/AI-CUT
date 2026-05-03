@@ -4,5 +4,5 @@ skill:
   path: ".agents/skills/aigc/7-视频/C-主体参照"
 interface:
   display_name: "AIGC 视频主体参照"
-  short_description: "从 4-分组生成主体参照视频 prompt、Dreamina 计划和批量队列。"
-  default_prompt: "使用 $aigc-video-subject-reference，从 projects/aigc/<项目名>/4-分组 提取分镜组原文，按组底 YAML 绑定角色/场景/道具图片参照，并调用 dreamina-cli 以分镜组为单位批量生成视频。"
+  short_description: "从 4-分组生成主体参照视频 prompt、LibTV 计划和批量队列。"
+  default_prompt: "使用 $aigc-video-subject-reference，从 projects/aigc/<项目名>/4-分组 提取分镜组原文，按组底 YAML 绑定角色/场景/道具图片参照，并调用 $libTV 以分镜组为单位批量生成视频。"

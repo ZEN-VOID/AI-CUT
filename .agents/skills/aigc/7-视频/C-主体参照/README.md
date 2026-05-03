@@ -1,20 +1,20 @@
 # C-主体参照
 
-`C-主体参照` 是 `7-视频` 阶段的组级主体参照视频生成入口。它从 `projects/aigc/<项目名>/4-分组` 读取分镜组原文，按组底 YAML 绑定主体参照，并以分镜组为单位调用 Dreamina CLI。
+`C-主体参照` 是 `7-视频` 阶段的组级主体参照视频生成入口。它从 `projects/aigc/<项目名>/4-分组` 读取分镜组原文，按组底 YAML 绑定主体参照，并以分镜组为单位调用 $libTV skill scripts。
 
 ## Directory Tree
 
 ```text
 C-主体参照/
 ├── references/
-│   ├── dreamina-handoff.md
+│   ├── libtv-handoff.md
 │   ├── group-source-extraction.md
 │   ├── reference-slot-binding.md
 │   └── video-prompt-assembly-contract.md
 ├── scripts/
 │   └── README.md
 ├── templates/
-│   ├── dreamina-submit-plan.template.json
+│   ├── libtv-submit-plan.template.json
 │   └── output-template.md
 ├── review/
 │   └── review-contract.md
@@ -44,4 +44,4 @@ projects/aigc/<项目名>/7-视频/C-主体参照/第N集/
 
 1. 从 `4-分组` 提取每个分镜组完整正文和底部 YAML。
 2. 按 YAML 的角色、场景、道具查找多视图或主图参照。
-3. 生成 Dreamina `multimodal2video` 或 `text2video` 提交计划，并按需批量提交。
+3. 生成 LibTV `libtv_session_with_uploaded_references` 或 `libtv_session_text_only` 提交计划，并按需批量提交。

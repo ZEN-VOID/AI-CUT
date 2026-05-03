@@ -8,7 +8,7 @@
 - 建立 `group_id -> shot_id` 索引。
 - 检查 `6-图像/A-分镜画面` 中的本地图片路径是否存在。
 - 投影 JSON / YAML / queue ledger / results。
-- 调用 `dreamina` 命令、记录 `submit_id`、查询和下载结果。
+- 调用 `libtv` 命令、记录 `sessionId`、查询和下载结果。
 
 禁止的脚本职责：
 

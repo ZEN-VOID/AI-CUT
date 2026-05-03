@@ -8,17 +8,17 @@ metadata:
 
 # aigc 7-视频
 
-`7-视频` 是 AIGC 项目的视频阶段父级入口。它只负责判定视频生成路线、加载目标叶子技能、约束项目 runtime 与上游真源边界；不直接主创视频 prompt，不直接调用 Dreamina，不直接改写 `4-分组`、`5-设计` 或 `6-图像` 产物。
+`7-视频` 是 AIGC 项目的视频阶段父级入口。它只负责判定视频生成路线、加载目标叶子技能、约束项目 runtime 与上游真源边界；不直接主创视频 prompt，不直接调用 LibTV，不直接改写 `4-分组`、`5-设计` 或 `6-图像` 产物。
 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-video-stage` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/` 中与视频阶段、风格、角色、场景、主体资产或生成限制相关的上下文。
-- 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、Dreamina 提交与结果追踪由命中的 A/B/C/D 叶子技能负责。
+- 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、LibTV 提交与结果追踪由命中的 A/B/C/D 叶子技能负责。
 - `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
-- 视频生成默认模型：除非用户显式指定其他 Dreamina 模型 / 质量档 / 非 VIP 路线，A/B/C/D 叶子在提交 `text2video` 或 `multimodal2video` 时必须默认使用 `model_version=seedance2.0_vip`。若当前本机 CLI help 未暴露该模型，应先提示更新或切换到新版 Dreamina CLI；不得静默降级到 `seedance2.0fast` / `seedance2.0fast_vip`，降级只能来自用户显式要求。
-- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 目标叶子 `SKILL.md` > 目标叶子分区规范 > `.agents/skills/cli/dreamina-cli/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 目标叶子 `CONTEXT.md`。
+- 视频生成默认路由：A/B/C/D 叶子不再持有 旧视频工具或本地模型参数真源；未显式指定模型时，直接使用 `$libTV` 的 LibTV 后端默认视频路由。用户显式指定模型、时长、比例或质量档时，叶子只把这些要求写入发送给 LibTV 的自然语言任务和 submit plan，不在本地伪造不存在的 CLI 参数。
+- 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 目标叶子 `SKILL.md` > 目标叶子分区规范 > `.agents/skills/cli/libTV/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 目标叶子 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
 
@@ -27,6 +27,7 @@ metadata:
 - 无序号同级子技能包默认全选并发执行，由本父级汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 卫星技能、查询/恢复/审查类旁路入口不默认纳入 A/B/C/D 主链；只有用户请求、阶段门禁或叶子合同显式需要时才回接。
 - 连续调度不得绕过本技能的阻断门：缺少必需输入、视频参照路线无法唯一判断、叶子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
 - 每个被调度的叶子包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 视频 prompt 主创、参照裁决或父级最终裁决。
 
@@ -34,11 +35,11 @@ metadata:
 
 Accepted input:
 
-- 用户命中 `7-视频`、视频阶段、生视频、Dreamina、分镜参照、故事板参照、主体参照、主板混合参照或批量视频生成。
+- 用户命中 `7-视频`、视频阶段、生视频、LibTV、分镜参照、故事板参照、主体参照、主板混合参照或批量视频生成。
 - 来自 `projects/aigc/<项目名>/4-分组/` 的分镜组稿，需要转为组级视频任务。
 - 来自 `projects/aigc/<项目名>/6-图像/A-分镜画面/` 的镜级图像参照，或 `6-图像/B-分镜故事板/` 的组级故事板参照。
 - 来自 `projects/aigc/<项目名>/5-设计/*/3-生成/` 的角色、场景、道具主体资产参照。
-- 已有 `projects/aigc/<项目名>/7-视频/*/` 的 prompt、manifest、Dreamina batch、queue ledger 或生成结果需要 query / download / repair / review / rerun。
+- 已有 `projects/aigc/<项目名>/7-视频/*/` 的 prompt、manifest、LibTV batch、queue ledger 或生成结果需要 query / download / repair / review / rerun。
 
 Required input:
 
@@ -48,7 +49,7 @@ Required input:
 
 Reject or clarify when:
 
-- 用户要求父级直接生成视频 prompt 正文、直接提交 Dreamina、或跨过叶子技能改写业务真源。
+- 用户要求父级直接生成视频 prompt 正文、直接提交 LibTV、或跨过叶子技能改写业务真源。
 - 用户要生成分镜画面图或故事板图本体，应转入 `6-图像` 对应叶子技能。
 - 用户要求修改剧情、镜头顺序、角色事实或分组边界，应转回 `4-分组` 或明确声明这是上游修复。
 - A/B/C/D 路线无法唯一判断，且自动选择会造成参照资产错用或重复提交。
@@ -61,7 +62,7 @@ Reject or clarify when:
 | `storyboard_reference` | 分镜故事板、组级 storyboard 图、`6-图像/B-分镜故事板`、用整张故事板图参照出视频 | `B-分镜故事板参照/SKILL.md` |
 | `subject_reference` | 角色/场景/道具主体参照、组底 YAML、`5-设计/*/3-生成`、按主体图片出视频 | `C-主体参照/SKILL.md` |
 | `hybrid_board_subject_reference` | 主体参照和分镜故事板参照合二为一、同一分镜组 prompt 同时导入主体参照图与故事板总参照、主体后 `@参照图`、故事板作为总参照 | `D-主板混合参照/SKILL.md` |
-| `query_or_download` | 已有 submit_id、queue ledger、视频结果查询或下载 | 先从路径/ledger 判断所属叶子，再进入该叶子 |
+| `query_or_download` | 已有 LibTV `sessionId`、queue ledger、视频结果查询或下载 | 先从路径/ledger 判断所属叶子，再进入该叶子 |
 | `repair_or_review` | prompt、manifest、YAML、queue、结果漂移或只审查 | 先定位原产物所属叶子，再执行对应 review / repair |
 | `multi_route_compare` | 用户明确要求 A/B/C/D 对比、并跑或方案选择 | 逐个进入被点名叶子，父级只汇总差异与风险 |
 
@@ -73,7 +74,7 @@ Reject or clarify when:
 | 组级故事板图作为单图参照生成组级视频 | `B-分镜故事板参照/SKILL.md` + `B-分镜故事板参照/CONTEXT.md` |
 | 角色、场景、道具主体资产作为参照生成组级视频 | `C-主体参照/SKILL.md` + `C-主体参照/CONTEXT.md` |
 | 故事板总参照与角色/场景/道具主体参照合并进同一组级视频 prompt | `D-主板混合参照/SKILL.md` + `D-主板混合参照/CONTEXT.md` |
-| Dreamina 提交、查询、下载或登录排障 | 由目标叶子加载 `.agents/skills/cli/dreamina-cli/SKILL.md + CONTEXT.md` |
+| LibTV 上传参照图、创建会话、查询、下载或认证排障 | 由目标叶子加载 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md` |
 | 上游事实边界核对 | `.agents/skills/aigc/4-分组/SKILL.md + CONTEXT.md`、必要时读取 `5-设计` 或 `6-图像` 对应入口 |
 
 ## Visual Maps
@@ -103,7 +104,7 @@ flowchart TD
 1. 读取本 `SKILL.md + CONTEXT.md`，锁定项目根、用户目标、上游可用资产和是否已有视频阶段工件。
 2. 根据 `Mode Selection` 选择唯一叶子技能；若用户明确要求多路线，则只调度被点名的路线。
 3. 加载目标叶子的 `SKILL.md + CONTEXT.md`，并把本轮输入、项目根、集号/分镜组/分镜 ID 范围传入叶子合同。
-4. 父级不得直接写视频 prompt、参照 manifest、Dreamina batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。
+4. 父级不得直接写视频 prompt、参照 manifest、LibTV batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。
 5. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
 6. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
 
@@ -113,7 +114,7 @@ flowchart TD
 | --- | --- | --- |
 | `VID-STAGE-01` | 父级路由 | 项目根、任务类型、目标叶子、处理范围 |
 | `VID-STAGE-02` | 目标叶子 | 叶子 `SKILL.md + CONTEXT.md` 加载证据 |
-| `VID-STAGE-03` | 边界 | 父级不替代 prompt 主创、参照绑定或 Dreamina 执行 |
+| `VID-STAGE-03` | 边界 | 父级不替代 prompt 主创、参照绑定或 LibTV 执行 |
 | `VID-STAGE-04` | 既有真源 | query / repair / review 时能回指原所属叶子 |
 
 ## Field Master
@@ -122,7 +123,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `FIELD-VID-STAGE-01` | route lock | 项目根、任务类型、目标叶子、处理范围 | `FAIL-VID-STAGE-ROUTE` |
 | `FIELD-VID-STAGE-02` | leaf handoff | 进入目标叶子并加载其 `SKILL.md + CONTEXT.md` | `FAIL-VID-STAGE-HANDOFF` |
-| `FIELD-VID-STAGE-03` | boundary | 父级不替代 prompt 主创、参照绑定或 Dreamina 执行 | `FAIL-VID-STAGE-BOUNDARY` |
+| `FIELD-VID-STAGE-03` | boundary | 父级不替代 prompt 主创、参照绑定或 LibTV 执行 | `FAIL-VID-STAGE-BOUNDARY` |
 | `FIELD-VID-STAGE-04` | existing truth | query / repair / review 时能回指原所属叶子和既有产物 | `FAIL-VID-STAGE-TRUTH` |
 
 ## Thought Pass Map

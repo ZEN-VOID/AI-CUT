@@ -1,0 +1,4 @@
+interface:
+  display_name: "LibTV"
+  short_description: "Use LibTV to create, edit, poll, and download AIGC media"
+  default_prompt: "Use $libTV to send this image or video task to LibTV, poll progress, and download the final media."

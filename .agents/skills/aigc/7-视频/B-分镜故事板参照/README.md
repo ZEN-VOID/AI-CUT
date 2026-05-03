@@ -1,6 +1,6 @@
 # B-分镜故事板参照
 
-`7-视频` Skill 2.0 包：从 `4-分组` 读取完整分镜组内容，按 `group_id` 绑定 `6-图像/B-分镜故事板` 的可选故事板图，并通过 Dreamina CLI 批量生成组级视频。
+`7-视频` Skill 2.0 包：从 `4-分组` 读取完整分镜组内容，按 `group_id` 绑定 `6-图像/B-分镜故事板` 的可选故事板图，并通过 $libTV skill scripts 批量生成组级视频。
 
 ## Directory Tree
 
@@ -33,7 +33,7 @@ B-分镜故事板参照/
 flowchart LR
     A["4-分组"] --> B["B-分镜故事板参照"]
     C["6-图像/B-分镜故事板"] --> B
-    B --> D["dreamina-cli"]
+    B --> D["$libTV"]
     D --> E["7-视频/B-分镜故事板参照/videos"]
 ```
 
@@ -43,9 +43,9 @@ flowchart LR
 第N集-group-index.json
 第N集-video-prompts.md
 第N集-reference-manifest.json
-第N集-dreamina-batch.yaml
-第N集-dreamina-queue.md
-第N集-dreamina-results.json
+第N集-libtv-batch.yaml
+第N集-libtv-queue.md
+第N集-libtv-results.json
 执行报告.md
 videos/<分镜组ID>.mp4
 ```

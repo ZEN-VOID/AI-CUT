@@ -4,11 +4,11 @@
 
 | Output Contract field | Template mapping |
 | --- | --- |
-| Required output | prompt 包、混合参照 manifest、Dreamina submit plan、queue ledger、results、执行报告 |
+| Required output | prompt 包、混合参照 manifest、LibTV submit plan、queue ledger、results、执行报告 |
 | Output format | Markdown + JSON + queue Markdown + MP4 |
 | Output path | `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/` |
-| Naming convention | 使用 `第N集-主板混合参照-video-prompts.md`、`第N集-reference-manifest.json`、`第N集-dreamina-submit-plan.json` 等命名 |
-| Completion gate | 固定开头、故事板总参照、主体后缀参照、Dreamina plan、queue/report 均通过 review |
+| Naming convention | 使用 `第N集-主板混合参照-video-prompts.md`、`第N集-reference-manifest.json`、`第N集-libtv-submit-plan.json` 等命名 |
+| Completion gate | 固定开头、故事板总参照、主体后缀参照、LibTV plan、queue/report 均通过 review |
 
 ## Runtime Layout
 
@@ -17,9 +17,9 @@ projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/
 ├── 第N集-hybrid-group-index.json
 ├── 第N集-主板混合参照-video-prompts.md
 ├── 第N集-reference-manifest.json
-├── 第N集-dreamina-submit-plan.json
-├── 第N集-dreamina-queue.md
-├── 第N集-dreamina-results.json
+├── 第N集-libtv-submit-plan.json
+├── 第N集-libtv-queue.md
+├── 第N集-libtv-results.json
 ├── 执行报告.md
 ├── prompts/
 │   └── <group_id>.txt
@@ -64,6 +64,6 @@ projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/
 
 ## Queue Summary
 
-| group_id | submit_id | local_status | remote_status | next_action |
+| group_id | sessionId | local_status | remote_status | next_action |
 | --- | --- | --- | --- | --- |
 ```

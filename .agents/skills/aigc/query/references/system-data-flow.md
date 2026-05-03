@@ -10,7 +10,7 @@
 | initialization | `projects/aigc/<项目名>/0-初始化/`、项目根 `MEMORY.md`、项目根 `CONTEXT/` | 核心初始化工件优先于惰性治理工件 |
 | episode split | `projects/aigc/<项目名>/1-分集/第N集.md`、`1-分集/执行报告.md` | 查询原文分集与分集执行状态 |
 | directing | `projects/aigc/<项目名>/2-编导/第N集.md`、`2-编导/执行报告.md` | legacy `3-Detail/第N集.json` 只在旧项目或用户点名时兼容回读 |
-| cinematography | `projects/aigc/<项目名>/3-摄影/第N集.md`、`3-摄影/执行报告.md` | 镜头语言与摄影稿事实 |
+| cinematography | `projects/aigc/<项目名>/3-摄影/第N集.md`、`3-摄影/执行报告.md` | 分镜明细与摄影稿事实 |
 | grouping | `projects/aigc/<项目名>/4-分组/第N集.md`、`4-分组/执行报告.md` | 分镜组、组 ID、入场/出场画面、统计 YAML |
 | subject assets | `projects/aigc/<项目名>/5-设计/场景/`、`5-设计/角色/`、`5-设计/道具/` | legacy `4-Design/` 只作兼容回读 |
 | image assets | `projects/aigc/<项目名>/6-图像/A-分镜画面/`、`6-图像/B-分镜故事板/` | legacy `5-Image/` 只作兼容回读 |

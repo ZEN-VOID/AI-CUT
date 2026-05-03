@@ -25,7 +25,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-05A` | 解构区或文件名缺少主体 ID，或与 prompt 前缀不一致 | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步文件名前缀、`## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定四处 ID 一致性 | 文件名前缀、解构 ID、提示词字段 ID、prompt 开头完全一致 |
 | `TM-PROP-DESIGN-05B` | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Photography 与 Prop Design 的镜头、形制、材料、工艺、年代、磨损、功能和尺度槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到镜头、形制、材质、工艺、磨损、功能和固定画面槽位 |
 | `TM-PROP-DESIGN-06` | team.yaml 中的大师只被点名，未影响设计 | 监制消费层 | 把大师语境转译为材质、构图、年代感、动作性或留白策略 | steps 固定“监制上下文 -> 设计决策”证据 | 文件中能看到至少一条对应设计选择 |
-| `TM-PROP-DESIGN-06A` | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，向道具/美术/摄影/工艺顾问提具体问题并汇流 | `advisor_consultation_packet` 固定在 LLM 道具设计前消费 | 可见指导落到形制、材料、工艺、功能、特写拍法或 prompt token |
+| `TM-PROP-DESIGN-06A` | subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，让道具/美术/摄影/工艺顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/prop-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `advisor_consultation_packet` 固定在 LLM 道具设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
 | `TM-PROP-DESIGN-06B` | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
 | `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
@@ -41,7 +41,7 @@ last_checked_at: 2026-04-25
 5. 生成或修复英文 prompt 前，先确认 `## 4. 解构` 下方已有 `主体ID号：<主体ID>`，且与文件名前缀、提示词字段和 prompt 前缀一致。
 6. 若研究过多，删掉不能改变造型、材质、工艺、年代、磨损或拍摄方式的事实。
 7. 若 prompt token 像凭空出现，回到研究证据链补 source cue、confidence、visual translation 和 design lock。
-8. 启用 subagents 时，向项目监制顾问问“这个道具最应由哪种材料/工艺/磨损讲故事”“45 度纯色背景特写该显露哪一面”“哪些 prompt token 有证据风险”，不要只问风格评价。
+8. 启用 subagents 时，先锁定当前 `node_id / pass_id / gate_id`，再让项目监制顾问代入其角色意识、创作风格和专业水准参与该节点判断；不要把顾问请教写成固定字段问卷，也不要只问风格评价。
 9. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
 10. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
 11. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
@@ -57,7 +57,7 @@ last_checked_at: 2026-04-25
 - `Photography` 和英文 prompt 必须同时锁定完整道具全貌与单主体隔离：full prop in view、prop only、no people、no background elements，避免生成半截道具、人物手持或场景化背景。
 - 物语不应替代剧情扩写；它只说明该道具的叙事压力、象征和使用痕迹。
 - 大师监制上下文要落到动作：例如材质克制、构图距离、颜色禁区、年代错位、手作痕迹、功能暴露。
-- 顾问请教的最佳产物是能改变道具形制、材质、磨损、拍法或 prompt token 的执行指令，不是大师名字清单。
+- 顾问请教的最佳产物不是固定字段答案或大师名字清单，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
 - prompt 的英文 1300 characters 限制是硬门禁；中文解释可以在正文中充分，但最终 prompt 必须紧凑可投喂，且不得使用 Midjourney `--no` 参数。
 - 主体 ID 是单道具设计稿的结构锚点；`PROP-###` 应同时出现在文件名前缀、解构区、提示词字段和英文 prompt 开头。
 - Mermaid 图不是装饰；根图负责主链，分区图负责来源汇入、类型分流和 review 汇流，流程变化时先更新对应 owner 图再更新 README 入口索引。

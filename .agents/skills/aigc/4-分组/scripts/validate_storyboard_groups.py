@@ -32,6 +32,8 @@ ENTRY_LABEL = "入场画面："
 EXIT_LABEL = "出场画面："
 REQUIRED_YAML_KEYS = ("字数统计", "角色", "场景", "道具")
 COUNT_TOLERANCE = 30
+TARGET_CHAR_COUNT = 1680
+HARD_CHAR_COUNT = 1980
 MIN_REVIEW_CHAR_COUNT = 850
 
 
@@ -43,6 +45,12 @@ class GroupBlock:
     index: int
     body: str
     line_number: int
+
+
+@dataclass
+class ValidationResult:
+    errors: list[str]
+    warnings: list[str]
 
 
 def display_path(path: Path) -> str:
@@ -205,13 +213,17 @@ def validate_yaml_stats(block: GroupBlock, char_count: int, errors: list[str]) -
             errors.append(f"line {block.line_number}: {block.group_id} yaml {key} must be a list")
 
 
-def validate_file(path: Path) -> list[str]:
+def validate_file(path: Path) -> ValidationResult:
     errors: list[str] = []
+    warnings: list[str] = []
     text = path.read_text(encoding="utf-8")
     groups = split_groups(text)
 
     if not groups:
-        return [f"{display_path(path)}: no storyboard group headings like '## 1-1-1' found"]
+        return ValidationResult(
+            errors=[f"{display_path(path)}: no storyboard group headings like '## 1-1-1' found"],
+            warnings=[],
+        )
 
     episode_match = EPISODE_RE.search(path.name) or EPISODE_RE.search(text[:500])
     expected_episode = int(episode_match.group(1)) if episode_match else None
@@ -257,11 +269,17 @@ def validate_file(path: Path) -> list[str]:
 
         countable_text = strip_yaml_blocks(group.body)
         char_count = estimate_chars(countable_text)
-        if char_count > 1980:
-            errors.append(f"{prefix} estimated non-yaml char count {char_count} exceeds 1980")
-        if char_count < MIN_REVIEW_CHAR_COUNT:
+        if char_count > HARD_CHAR_COUNT:
             errors.append(
-                f"{prefix} estimated non-yaml char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; merge or rebalance complete atomic units"
+                f"{prefix} estimated non-yaml char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
+            )
+        elif char_count > TARGET_CHAR_COUNT:
+            warnings.append(
+                f"{prefix} estimated non-yaml char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
+            )
+        if char_count < MIN_REVIEW_CHAR_COUNT:
+            warnings.append(
+                f"{prefix} estimated non-yaml char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
         validate_yaml_stats(group, char_count, errors)
@@ -280,7 +298,7 @@ def validate_file(path: Path) -> list[str]:
         previous_exit = exit_
         previous_id = group.group_id
 
-    return errors
+    return ValidationResult(errors=errors, warnings=warnings)
 
 
 def main() -> int:
@@ -295,13 +313,21 @@ def main() -> int:
         return 1
 
     errors: list[str] = []
+    warnings: list[str] = []
     for file_path in files:
-        errors.extend(validate_file(file_path))
+        result = validate_file(file_path)
+        errors.extend(result.errors)
+        warnings.extend(result.warnings)
 
     print("AIGC storyboard group validation")
     print(f"target: {display_path(target)}")
     print(f"files_checked: {len(files)}")
     print(f"errors: {len(errors)}")
+    print(f"warnings: {len(warnings)}")
+    if warnings:
+        print()
+        for warning in warnings:
+            print(f"- warning: {warning}")
     if errors:
         print()
         for error in errors:

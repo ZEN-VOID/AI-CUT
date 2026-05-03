@@ -8,25 +8,42 @@
 
 本文件定义 `B-分镜故事板参照` 的模式判定和分型策略。
 
+## Package Index
+
+| package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
+| --- | --- | --- | --- | --- | --- | --- |
+| `storyboard_reference_default` | `types/storyboard-reference-default.md` | B 路线所有分镜故事板参照视频任务 | fallback | `types/storyboard-reference-default.md` | none | none |
+
+## Default Package Rule
+
+默认加载 `types/storyboard-reference-default.md`。当任务进入提交、查询或下载时，额外加载 `references/libtv-handoff-contract.md` 与 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md`；当任务是修复或审查时，额外加载 `review/review-contract.md`。
+
+## Loading Flow
+
+1. 根据用户输入和既有产物锁定 `mode`、`run_scope` 与 `reference_state`。
+2. 加载默认包 `types/storyboard-reference-default.md`。
+3. 需要 LibTV 执行、查询或下载时加载 `references/libtv-handoff-contract.md` 和 `$libTV` 技能对。
+4. 将类型画像交给 `steps/storyboard-video-workflow.md` 消费。
+
 ## Type Profile
 
 | variable | allowed values | meaning |
 | --- | --- | --- |
 | `run_scope` | `single_group`、`group_batch`、`episode_batch`、`multi_episode` | 本轮处理范围 |
-| `execution_mode` | `prompt_only`、`generate`、`query_or_download`、`review_only`、`repair` | 是否提交 Dreamina |
+| `execution_mode` | `prompt_only`、`generate`、`query_or_download`、`review_only`、`repair` | 是否提交 LibTV |
 | `reference_state` | `found`、`missing_optional`、`ambiguous`、`skipped_by_user_policy` | 故事板图状态 |
-| `dreamina_command` | `multimodal2video`、`text2video` | 根据参照图状态选择 |
+| `libtv_command` | `libtv_session_with_uploaded_references`、`libtv_session_text_only` | 根据参照图状态选择 |
 | `concurrency_mode` | `background_pool`、`serial` | 批量执行方式 |
 
 ## Mode Matrix
 
 | mode | required_existing_input | route | skipped stages |
 | --- | --- | --- | --- |
-| `prompt_only` | `4-分组/第N集.md` | `N1 -> N6 -> N10 -> N11` | Dreamina submit / query / download |
+| `prompt_only` | `4-分组/第N集.md` | `N1 -> N6 -> N10 -> N11` | LibTV submit / query / download |
 | `single_group_generate` | `4-分组/第N集.md` + one `group_id` | `N1 -> N11` | unrelated groups |
 | `episode_batch_generate` | `4-分组/第N集.md` | `N1 -> N11` with `N7` background pool | none |
 | `group_batch_generate` | `4-分组/第N集.md` + selected `group_ids` | `N1 -> N11` with selected jobs only | unselected groups |
-| `query_or_download` | existing queue ledger or submit_id | `N1 -> N8 -> N9 -> N10 -> N11` | source extraction unless repair needs it |
+| `query_or_download` | existing queue ledger or sessionId | `N1 -> N8 -> N9 -> N10 -> N11` | source extraction unless repair needs it |
 | `repair` | existing artifacts and fail code | targeted owning node | all unrelated nodes |
 | `review_only` | existing artifacts | review gate only | submit / download |
 
@@ -36,7 +53,7 @@
 | --- | --- |
 | 用户要求生成故事板图 | reroute to `6-图像/B-分镜故事板` |
 | 用户要求单一四段式分镜首帧视频 | reroute to `7-视频/A-分镜画面参照` or first-frame route |
-| `dreamina user_credit` 失败 | reroute to `.agents/skills/cli/dreamina-cli` login / auth repair |
+| `LIBTV_ACCESS_KEY credential check` 失败 | reroute to `.agents/skills/cli/libTV` login / auth repair |
 | `4-分组` 不存在或 group_id 无法唯一追溯 | stop and return to `4-分组` |
 | 故事板图多候选歧义 | block current group and return to reference binding |
 
@@ -44,7 +61,7 @@
 
 | reference_state | default command | reason |
 | --- | --- | --- |
-| `found` | `multimodal2video` | 故事板图作为视觉参照，用 `@图1` 绑定 |
-| `missing_optional` | `text2video` | 无图不阻断，用完整组内容直接生成 |
+| `found` | `libtv_session_with_uploaded_references` | 故事板图作为视觉参照，用 `@图1` 绑定 |
+| `missing_optional` | `libtv_session_text_only` | 无图不阻断，用完整组内容直接生成 |
 | `ambiguous` | none | 歧义必须人工裁决 |
 | `skipped_by_user_policy` | none | 用户明确要求缺图跳过 |

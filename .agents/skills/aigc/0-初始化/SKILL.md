@@ -223,7 +223,7 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
 - Rebootstrap defaults to `archive_reset`; never delete `源/`, source text, original assets, irreplaceable references, or legacy `Original/` without explicit user authorization.
 - `north_star.yaml` owns durable project constraints and the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`; it never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
-- `全局风格` must be a cross-design safe prompt prefix shared by image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`, and must not include single-domain payloads such as lens language, character material, scene composition, costume detail, or prop detail.
+- `全局风格` must be a cross-design safe prompt prefix shared by image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`, and must not include single-domain payloads such as shot detail, character material, scene composition, costume detail, or prop detail.
 - `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`.
 - North-star style text defaults to Chinese. `全局风格提示词` is capped at 200 Chinese characters and must explicitly include the current `媒介属性` value; `类型元素提示词` is capped at 30 Chinese characters; `画面风格` is capped at 70 Chinese characters and must stay at unified picture-style level rather than scene-specific strategy; `服装风格 / 建筑风格 / 物品风格` are each capped at 100 Chinese characters.
 

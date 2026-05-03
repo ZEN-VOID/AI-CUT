@@ -51,11 +51,11 @@ shots:
 
 ## Prompt Body Rule
 
-- `group_content` 是 Dreamina prompt 的主体，不得摘要替代。
+- `group_content` 是 LibTV prompt 的主体，不得摘要替代。
 - 允许在 `group_content` 前添加固定视频生成约束和参照图说明。
-- 对有图的镜头，prompt 的参照映射层必须表达为 `shot_id@path`，再投影到 Dreamina `@图N`。
+- 对有图的镜头，prompt 的参照映射层必须表达为 `shot_id@path`，再投影到 LibTV `@图N`。
 - 不得改写剧情事实、对白事实、镜头顺序、角色关系、场景结果或组边界。
-- 如需压缩，只能在用户明确要求或 Dreamina 硬限制触发时执行，并必须记录压缩依据与被压缩字段；默认不压缩。
+- 如需压缩，只能在用户明确要求或 LibTV 硬限制触发时执行，并必须记录压缩依据与被压缩字段；默认不压缩。
 
 ## Readiness Gate
 
