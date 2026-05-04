@@ -163,7 +163,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-VIDSUBJ-01` | input manifest | 项目根、集号、`4-分组`、设计生成目录、LibTV 环境可追溯 | `FAIL-VIDSUBJ-INPUT` |
 | `FIELD-VIDSUBJ-02` | group index | 三段式 `x-y-z` 可回指 `## x-y-z`，组正文和 YAML 被完整提取 | `FAIL-VIDSUBJ-GROUP` |
-| `FIELD-VIDSUBJ-03` | video prompt package | 现有组内容作为主体，保留分镜顺序、入场/出场画面、分镜明细和音效 | `FAIL-VIDSUBJ-PROMPT` |
+| `FIELD-VIDSUBJ-03` | video prompt package | 现有组内容作为主体，保留分镜顺序、相邻组间连接件、分镜明细和音效 | `FAIL-VIDSUBJ-PROMPT` |
 | `FIELD-VIDSUBJ-04` | reference manifest | Characters / Scene / Props 只来自组底 YAML，且只绑定真实图片，多视图优先 | `FAIL-VIDSUBJ-REF` |
 | `FIELD-VIDSUBJ-05` | LibTV submit plan / queue | 一组一任务，合法 `libtv_session_text_only` 或 `libtv_session_with_uploaded_references` 命令，默认并发提交，有 sessionId 台账 | `FAIL-VIDSUBJ-LIBTV` |
 | `FIELD-VIDSUBJ-06` | execution report | 说明 submitted / queued / downloaded / skipped / failed、缺图、查询入口和返工入口 | `FAIL-VIDSUBJ-REPORT` |
@@ -241,7 +241,7 @@ Naming convention:
 - 队列台账命名 `第N集-libtv-queue.md`
 - 结果记录命名 `第N集-libtv-results.json`
 - 执行报告命名 `执行报告.md`
-- 视频文件命名 `<分镜组ID>.mp4` 或 `<分镜组ID>-<sessionId>.mp4`
+- 视频文件命名 `<分镜组ID>.mp4`；同组多变体命名 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`，sessionId 只写入队列台账、结果记录和执行报告
 
 Completion gate:
 

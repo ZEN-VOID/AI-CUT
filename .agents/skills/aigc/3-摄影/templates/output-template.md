@@ -22,7 +22,7 @@ visual_matching_policy: label_and_semantic_visual_unit
 beat_policy: one_beat_point_one_storyboard_cut
 peak_shot_policy: strengthen_existing_peak_visual_unit
 language_policy: preserve_directing_text_add_shot_details
-camera_design_scope: camera_movement_cinematography_aesthetics_motivated_transition_only
+camera_design_scope: internal_camera_continuity_and_handoff_only
 review_status: <pending|pass|needs_repair>
 repair_status: <not_needed|repaired|blocked>
 re_review_status: <not_needed|pass|needs_repair|blocked>
@@ -35,10 +35,10 @@ re_review_status: <not_needed|pass|needs_repair|blocked>
 <原画面句子字段>：<原文完整保留>
 分镜明细：
 分镜1: <用自然中文写当前节拍的影视功能、可见主体、动作相位、运镜方式/速度/停点、构图锚点、光色材质和下游可消费点；只显式写最关键的摄影选择。>
-<仅当存在第二个真实节拍点时写 分镜2；若一个镜头已完成观看策略，停在 分镜1。关键揭示、动作分相、群像扩散或高点承托可继续写 分镜3/分镜4，但每一镜都必须提供新的信息、动作相位、运镜变化、空间关系、情绪压力或转场接口。>
+<仅当存在第二个真实节拍点时写 分镜2；若一个镜头已完成观看策略，停在 分镜1。关键揭示、动作分相、群像扩散或高点承托可继续写 分镜3/分镜4，但每一镜都必须提供新的信息、动作相位、运镜变化、空间关系、情绪压力或交出锚点。>
 ```
 
-`分镜明细：` 块内禁止写主题寓意、心理结论、世界观解释、导演阐释或不可执行的气氛口号；这些只能作为内部判断，最终必须转译为可见的运镜、摄影美学或有明确动机的转场特效。
+`分镜明细：` 块内禁止写主题寓意、心理结论、世界观解释、导演阐释或不可执行的气氛口号；这些只能作为内部判断，最终必须转译为可见的运镜、摄影美学或可消费交出锚点。组间或跨场景创意转场不在本阶段落盘。
 
 每个 `分镜N` 必须能反推内部 `continuity_profile -> camera_grammar_plan -> functional_projection_plan -> shot_design_plan`：为什么有这一镜、为什么在这个顺序、从哪里进入，景别/视角/景深/焦点/镜头类型/构图/光色为什么这样变化，摄影机如何运动或为什么不动、何时停、落在哪里、如何交给下一镜或下一画面，以及下游图像/视频应消费哪些主体、动作、构图、光色、空间和运镜信息。若只能写成“推进加强压迫感”之类短句，视为计划缺失，必须回到 `N6.2-CAMERA-GRAMMAR`、`N6.4-FUNCTIONAL-PROJECTION` 或 `N6.5-SHOT-PLAN`。若连续分镜读起来像参数清单或模板填空，视为自然成稿失败，必须回到 `N7-INJECT`。
 

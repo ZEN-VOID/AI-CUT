@@ -16,7 +16,7 @@
 | `source_state` | `complete_cinematography`、`partial_cinematography`、`legacy_grouped`、`broken_markup` | 上游摄影稿状态 |
 | `dialogue_density` | `low`、`normal`、`high` | 对白对边界的压力 |
 | `style_payload` | `normal`、`long_north_star`、`missing_fields` | north_star 三项字段状态 |
-| `bridge_risk` | `low`、`medium`、`high` | 组间首尾帧衔接难度 |
+| `connector_risk` | `low`、`medium`、`high` | 组间首尾帧连接件衔接难度 |
 | `repair_need` | `none`、`id_fix`、`boundary_fix`、`bridge_fix`、`stats_fix` | 修复主入口 |
 
 ## Mapping Matrix
@@ -27,9 +27,9 @@
 | `source_state=partial_cinematography` | 标记缺分镜明细的 atomic unit，不替上游补写原有分镜明细；只按已有正文裁决分组边界 | boundary contract 保真优先 | 报告上游缺口 |
 | `source_state=legacy_grouped` | 仅作为 repair evidence，不当作新真源 | output contract 防平行真源 | 检查是否需迁移到 `4-分组/` |
 | `dialogue_density=high` | 降低每组对白上限到约 4 句 | dialogue constraint | 审查对话组过载 |
-| `style_payload=long_north_star` | 预留更多组头字数，正文组更短 | north-star projection | 禁止摘要 north_star |
+| `style_payload=long_north_star` | 不影响 1680 纯正文字数，但组头仍需直引原文 | north-star projection | 禁止摘要 north_star |
 | `style_payload=missing_fields` | 阻塞或请求用户修复 | missing field handling | 不得猜测补字段 |
-| `bridge_risk=high` | 每组边界优先选择强视觉承接点 | bridge-shot contract | pairwise bridge review |
+| `connector_risk=high` | 每组边界优先选择可被首尾帧连接件消费的原尾帧/原首帧 | bridge-shot contract | pairwise connector review |
 | `repair_need=stats_fix` | 保留正文，仅修 YAML | statistics contract | YAML 与正文一致性 |
 
 ## Source Detection Hints

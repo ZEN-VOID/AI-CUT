@@ -24,6 +24,7 @@ last_checked_at: 2026-04-26
 | repair or review | 用户要求修 prompt、manifest、LibTV batch、队列、下载结果或只审查 | 原所属叶子 | 未定位原所属叶子前不新建另一条路线 |
 | ambiguous video | 用户只说“生成视频”且 A/B/C 都可能 | 需要最小澄清或按现有资产最强证据选择 | 优先使用用户点名资产；其次既有输出目录；再其次上游已完成度 |
 | local model parameter drift | 未显式指定模型时仍在本地 submit plan 中强塞旧模型参数 | A/B/C/D 叶子 handoff | 改为 `$libTV` 后端默认路由；只有用户显式指定时才把模型要求写入自然语言任务 |
+| video filename drift | 下载视频使用 sessionId、provider id 或非 group_id 文件名，导致 `8-审片` 无法回推分镜组 | A/B/C/D 叶子 output contract | canonical 视频名改为 `<group_id>.mp4`；同组多变体用 `<group_id>-a.mp4`、`<group_id>-b.mp4`，sessionId 写 queue/report |
 
 ## Repair Playbook
 
@@ -34,6 +35,7 @@ last_checked_at: 2026-04-26
 5. query / repair / review 必须尊重既有产物所属叶子；不要因为另一条路线看起来更完整就迁移真源。
 6. 若父级发现叶子技能缺失或上下文不可读，报告配置缺口；不要复制其他叶子合同来代替。
 7. 若需要上传参照图、创建 LibTV 会话、并发、`sessionId`、下载状态，交给叶子加载 `.agents/skills/cli/libTV`，父级只确认路由。
+8. 下载视频进入可审片状态前，必须确认文件名能直接回推 `4-分组` 的 `group_id`；同组变体只能使用小写字母后缀。
 
 ## Reusable Heuristics
 
@@ -46,3 +48,4 @@ last_checked_at: 2026-04-26
 - 缺少参照图不一定阻断视频路线；错用参照图、猜测主体、空路径占位、重复提交才是父级需要警惕的路由风险。
 - 只要任务涉及实际 prompt 组装、参照路径绑定、LibTV submit plan、queue ledger 或下载，就已经进入叶子技能职责。
 - 视频生成未显式指定模型时，父级和叶子都应按 `$libTV` 后端默认路由理解；具体模型选择不在 `7-视频` 本地硬编码。用户显式指定模型时，保留原话进入 LibTV 任务正文。
+- 视频文件名是 `7-视频` 和 `8-审片` 之间的主接口；不要把审片依赖绑到 sessionId 或下载顺序上。

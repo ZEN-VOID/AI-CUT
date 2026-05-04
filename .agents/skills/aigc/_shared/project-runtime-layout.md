@@ -25,6 +25,7 @@
 | `5-设计` | `projects/aigc/<项目名>/5-设计/` | scene, role, prop design runtime |
 | `6-图像` | `projects/aigc/<项目名>/6-图像/` | current Chinese image runtime |
 | `7-视频` | `projects/aigc/<项目名>/7-视频/` | current Chinese video runtime |
+| `8-审片` | `projects/aigc/<项目名>/8-审片/` | generated footage review reports and repair evidence |
 | `源` | `projects/aigc/<项目名>/源/` | source material landing |
 | `CONTEXT` | `projects/aigc/<项目名>/CONTEXT/` | project-side supplemental context |
 
@@ -40,5 +41,6 @@ Current image and video migration keeps several legacy-compatible skill packages
 | `.agents/skills/aigc/7-视频/B-分镜故事板参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/` |
 | `.agents/skills/aigc/7-视频/C-主体参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/C-主体参照/` |
 | `.agents/skills/aigc/7-视频/D-主板混合参照` | active video leaf | writes `projects/aigc/<项目名>/7-视频/D-主板混合参照/` |
+| `.agents/skills/aigc/8-审片` | active footage review stage | writes `projects/aigc/<项目名>/8-审片/` reports and may repair owning `4-分组` groups |
 
 Forbidden new bootstrap roots are maintained by `scripts/aigc_skill_audit.py`. Keep this shared layout focused on active rows and explicitly allowed compatibility aliases so stale roots do not become discoverable by copy-paste.

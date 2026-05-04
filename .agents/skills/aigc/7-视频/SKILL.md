@@ -18,6 +18,7 @@ metadata:
 - 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、LibTV 提交与结果追踪由命中的 A/B/C/D 叶子技能负责。
 - `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
 - 视频生成默认路由：A/B/C/D 叶子不再持有 旧视频工具或本地模型参数真源；未显式指定模型时，直接使用 `$libTV` 的 LibTV 后端默认视频路由。用户显式指定模型、时长、比例或质量档时，叶子只把这些要求写入发送给 LibTV 的自然语言任务和 submit plan，不在本地伪造不存在的 CLI 参数。
+- 视频文件命名必须服务下游 `8-审片`：下载或整理后的 canonical 视频命名为 `<分镜组ID>.mp4`；同一分镜组多变体命名为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。sessionId、provider task id、路线名写入 queue / results / report，不写入 canonical 视频文件名。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 目标叶子 `SKILL.md` > 目标叶子分区规范 > `.agents/skills/cli/libTV/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 目标叶子 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
@@ -64,6 +65,7 @@ Reject or clarify when:
 | `hybrid_board_subject_reference` | 主体参照和分镜故事板参照合二为一、同一分镜组 prompt 同时导入主体参照图与故事板总参照、主体后 `@参照图`、故事板作为总参照 | `D-主板混合参照/SKILL.md` |
 | `query_or_download` | 已有 LibTV `sessionId`、queue ledger、视频结果查询或下载 | 先从路径/ledger 判断所属叶子，再进入该叶子 |
 | `repair_or_review` | prompt、manifest、YAML、queue、结果漂移或只审查 | 先定位原产物所属叶子，再执行对应 review / repair |
+| `footage_review_handoff` | 用户要求审片、分析已下载视频、对照实际素材、把审片问题改回分镜组 | 转入 `.agents/skills/aigc/8-审片/SKILL.md` |
 | `multi_route_compare` | 用户明确要求 A/B/C/D 对比、并跑或方案选择 | 逐个进入被点名叶子，父级只汇总差异与风险 |
 
 ## Reference Loading Guide
@@ -162,5 +164,5 @@ flowchart TD
 - Required output: 唯一叶子路由，或明确的多路线用户授权，或阻断原因。
 - Output format: 面向用户的简短路由说明；实际视频阶段产物由叶子技能输出。
 - Output path: 父级不直接落业务产物；A/B/C/D 分别写入 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`、`B-分镜故事板参照/`、`C-主体参照/`、`D-主板混合参照/`。
-- Naming convention: 叶子技能自定命名；父级不创建平行真源、不补未执行路线占位。
+- Naming convention: canonical 视频命名固定为 `<分镜组ID>.mp4`；同组变体固定为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。叶子技能可自定 prompt、manifest、queue 和 report 名称，但视频文件名必须遵守本规则以便 `8-审片` 反向定位 `4-分组`。
 - Completion gate: 目标叶子明确且已加载；若无法唯一判断，已向用户说明需要的最小澄清。

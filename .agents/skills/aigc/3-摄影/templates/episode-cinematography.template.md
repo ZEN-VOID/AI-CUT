@@ -12,7 +12,7 @@ visual_matching_policy: label_and_semantic_visual_unit
 beat_policy: one_beat_point_one_storyboard_cut
 peak_shot_policy: strengthen_existing_peak_visual_unit
 language_policy: preserve_directing_text_add_shot_details
-camera_design_scope: camera_movement_cinematography_aesthetics_motivated_transition_only
+camera_design_scope: internal_camera_continuity_and_handoff_only
 review_status: pending
 ---
 

@@ -35,7 +35,8 @@
       "projects/aigc/__PROJECT_NAME__/5-设计/角色/2-设计/",
       "projects/aigc/__PROJECT_NAME__/5-设计/角色/3-生成/",
       "projects/aigc/__PROJECT_NAME__/6-图像/",
-      "projects/aigc/__PROJECT_NAME__/7-视频/"
+      "projects/aigc/__PROJECT_NAME__/7-视频/",
+      "projects/aigc/__PROJECT_NAME__/8-审片/"
     ]
   },
   "governance": {

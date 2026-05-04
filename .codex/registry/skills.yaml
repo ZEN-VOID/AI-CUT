@@ -171,6 +171,12 @@ active_skills:
             path: .agents/skills/aigc/7-视频/D-主板混合参照
             contract_status: active
             route_role: leaf
+      - id: aigc-video-review
+        path: .agents/skills/aigc/8-审片
+        owner_office: shangshu
+        contract_status: active
+        route_role: stage
+        migration_note: current Chinese generated-footage review stage; consumes 7-视频 actual videos and may repair owning 4-分组 groups.
     satellite_index:
       - id: aigc-query
         path: .agents/skills/aigc/query

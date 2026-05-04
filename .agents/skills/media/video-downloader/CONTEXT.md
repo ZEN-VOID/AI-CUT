@@ -22,6 +22,8 @@
 |---|---|---|---|---|
 | 下载参数不清导致格式不符预期 | SKILL 合同层 | 明确 URL、输出格式、分辨率和保存位置 | 在执行前强制确认输入合同四元组 | 检查导出文件格式、清晰度和落盘路径 |
 | 平台限制或版权边界不清 | 规则应用层 | 停止执行并明确权限前提与使用边界 | 在技能使用入口加入合规性提醒与拒绝分支 | 确认请求用途与权限声明 |
+| YouTube 链接携带播放列表参数但用户只要单视频 | 执行参数层 | 使用 `--no-playlist` 并保留原始 watch URL | 将 `list=` / `start_radio=` 视为单视频下载的批量误触发风险 | yt-dlp 输出应显示 `Downloading just the video ... because of --no-playlist` |
+| YouTube SABR / JS runtime 限制导致高分辨率格式不可见 | 平台兼容层 | 接受当前可用格式并用 `ffprobe` 验证实际分辨率 | 下载后必须报告实际 width/height，不把目标质量误报为成功质量 | 检查 yt-dlp format id 与 `ffprobe` 的 codec、duration、size、width、height |
 | 成功形成可复用下载请求模板 | CONTEXT 经验层 | 提炼为下载参数收集 heuristic | 在跨平台复用验证后晋升到 `SKILL.md` | YouTube/playlist/audio-only 场景都能覆盖 |
 
 ## Repair Playbook
@@ -38,3 +40,5 @@
 - 视频下载类任务先收齐“链接、格式、质量、保存位置”四个输入，再执行最稳。
 - 只要版权或权限边界含糊，就先停下来澄清，不要把下载动作默认视为可执行。
 - 音频提取、单视频下载、播放列表下载其实是三种不同任务，最好在技能调用时明确分流。
+- YouTube URL 同时包含 `watch?v=` 与 `list=` 时，不应默认批量下载；用户确认单视频后必须加 `--no-playlist`。
+- 下载完成后用 `ffprobe` 验证实际媒体参数；当平台只给低清格式时，最终报告以实际分辨率为准。

@@ -26,7 +26,7 @@
 | north-star 风格字段生成过长或混入英文默认口径 | 输出约束层 | 设定默认中文与字数上限：`全局风格提示词 <= 200 字`、`类型元素提示词 <= 30 字`、`画面风格 <= 70 字`、`服装风格 / 建筑风格 / 物品风格 <= 100 字` | 在模板注释、artifacts 规则、review gate 和 audit marker 同步声明 | 初始化产物可直接作为后续设计提示词前缀，不需要再压缩裁剪 |
 | 顾问团只有共享名单，没有角色职责真源 | 团队治理层 | 生成项目根 `team.yaml`，把顾问写成 `策划 / 监制 / 评审` 三角色而非平铺列表 | 用 `.agents/skills/aigc/_shared/council-runtime/team.template.yaml` 固化角色、作用阶段与评审最终闸门 | 后续阶段能按角色读取顾问团队，而不是回猜 |
 | 工件落盘漂向旧路径或外仓 | 路径合同层 | 固定到 `projects/aigc/<项目名>/0-初始化/` 与项目根 | 在根 `aigc` 与 `0-初始化` 双层合同中同时声明 canonical landing | 全部初始化工件都位于当前仓库项目路径 |
-| 初始化目录骨架仍沿用旧英文、旧编号或最小骨架 | runtime skeleton 合同层 | 把初始化目录约定改为用户指定的扁平中文项目 runtime：以 `projects/aigc/<项目名>` 当前目录结构为准，`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-分组/`、`5-设计/`、`6-图像/`、`7-视频/`、`源/`、`CONTEXT/` 与根载体 | 让 `0-初始化`、scope/runtime 合同、模板与 `aigc_skill_audit.py` 共用同一套中文 skeleton | 初始化合同、模板、registry 与审计 marker 同步 |
+| 初始化目录骨架仍沿用旧英文、旧编号或最小骨架 | runtime skeleton 合同层 | 把初始化目录约定改为用户指定的扁平中文项目 runtime：以 `projects/aigc/<项目名>` 当前目录结构为准，`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-分组/`、`5-设计/`、`6-图像/`、`7-视频/`、`8-审片/`、`源/`、`CONTEXT/` 与根载体 | 让 `0-初始化`、scope/runtime 合同、模板与 `aigc_skill_audit.py` 共用同一套中文 skeleton | 初始化合同、模板、registry 与审计 marker 同步 |
 | 初始化项目根漏建 `CHANGELOG.md`，导致后续项目级时间序记录没有统一入口 | project-root trace carrier 层 | 在 `N2-runtime-bootstrap` 同步创建项目根 `CHANGELOG.md` | 将 `CHANGELOG.md` 上收到 `_shared/project-runtime-layout.md`，并让 `0-初始化/SKILL.md` 与 `aigc_skill_audit.py` 同步检查 | 新项目初始化后项目根默认具备时间序记录入口，但 query/resume 仍不会把它误当治理真源 |
 | `STATE.json`、`route-plan.yaml` 与 `init_handoff/governance-state` 给出不同下一步 | 阶段入口同步层 | 先以 `STATE.json` 的 live route truth 为主，初始化当轮再要求 `init_handoff.project_contract.recommended_next_stage` 对齐 | 在 `Stage Entry Ownership Contract` 与治理回填脚本中固定 authority order | 读取项目当前入口时，只会从 `project_state/governance-state` 得到一个主入口 |
 | 项目进入规划前没有故事主源登记 | 共享输入真源层 | 固定生成 `story-source-manifest.yaml`，区分 `primary_story_source` 与 `development_briefs` | 将故事源落点与缺失提示上收到 `_shared/story-source-contract.md` | 初始化完成后，能立刻判断 `1-分集` 是否具备增量进入条件与整季完成条件 |
@@ -88,7 +88,7 @@
 - 对 `知行合一` 编排的 `0-初始化`，最稳的写法不是再造第二份思考文档，而是把路由、三种模式和充分性审计直接写进同一份父 `SKILL.md`。
 - Skill 2.0 化以后，`references/` 是细则 owner，但不得恢复旧 `references/*-mode/module-spec.md` 三模式 stub；新分区必须由 `SKILL.md` 的 Reference Loading Guide 明确引用。
 - 阶段质评若要做动态检查，优先直接回读当前样本项目、模板边界与 audit/validator 结果，不必为了评估再维护一份固定评测任务 YAML。
-- 对项目初始化骨架，新项目默认生成扁平中文 runtime 容器：`1-分集`、`2-编导`、`3-摄影`、`4-分组`、`5-设计`、`6-图像`、`7-视频`。空目录只是容器，不等于阶段已执行。
+- 对项目初始化骨架，新项目默认生成扁平中文 runtime 容器：`1-分集`、`2-编导`、`3-摄影`、`4-分组`、`5-设计`、`6-图像`、`7-视频`、`8-审片`。空目录只是容器，不等于阶段已执行。
 - 对跨阶段共享的预设和素材方向盘，优先放进 `CONTEXT/`；真实故事/剧本源落到 `源/`。
 - 当前技能树仍可能使用英文包名，但项目 runtime 已切到中文目录；文档中必须区分 skill package path 与 project runtime path。
 - 对 `4-Design` 这类“技能树 tranche 父层 != runtime 落盘层”的阶段，初始化只记录 runtime 规则；实际 domain-first 业务目录由设计阶段执行时创建。

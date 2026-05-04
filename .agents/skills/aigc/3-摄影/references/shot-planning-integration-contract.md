@@ -16,9 +16,9 @@
 | `functional_payload` | `functional-cinematic-projection-contract.md` | 为每个分镜锁定 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material 和 downstream consumability |
 | `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个观看策略变化，不能按固定数量灌水 |
 | `shot_count_decision` | `beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md` | 明确本 visual_unit 为什么是 1/2/3/4 镜；2 镜不得作为默认值，只能作为真实两段观看策略的结果 |
-| `rhythm_profile` | `visual-rhythm-analysis-contract.md` | 决定分镜数量、句子密度、运动复杂度、转场强度和停顿感 |
+| `rhythm_profile` | `visual-rhythm-analysis-contract.md` | 决定分镜数量、句子密度、运动复杂度、边界清晰度和停顿感 |
 | `continuity_entry` | `shot-continuity-contract.md` | 当前画面从上一注意力落点、声音、动作、光色或空间轴线如何进入 |
-| `transition_profile` | `transition-design-contract.md` | 场景变化、空间重置、注意力转交、动作/声音/形态/光色/文字接口是否需要普通切镜、软桥接、匹配剪辑或高能转场 |
+| `handoff_profile` | `transition-design-contract.md` | 场景变化、空间重置、注意力转交、动作/声音/形态/光色/文字接口需要记录哪些交出锚点、进入提示和连续性风险 |
 | `camera_grammar_plan` | `cinematic-technique-library.md`、`dynamic-lens-language-contract.md`、`shot-continuity-contract.md` | 为每个节拍裁决景别梯度、景深/焦点、镜头视角、镜头类型、构图、光影、色彩、运镜方式、速度曲线、停点和变化动机 |
 | `functional_projection_plan` | `functional-cinematic-projection-contract.md` | 将每个计划分镜投影为主体、动作相位、运镜计划、构图锚点、光色/材质、空间接口、连续性交接和下游消费点 |
 | `technique_selection` | `cinematic-technique-library.md`、`dynamic-lens-language-contract.md` | 从 `camera_grammar_plan` 中选择最小充分且必须显式进入成稿的 1-2 个摄影选择 |
@@ -33,7 +33,7 @@
 3. 形成 `shot_count_decision`：先允许 1 镜成立，再验证是否存在第二个真实观看策略；只有关键揭示、群像扩散、动作分相、空间重置或高点承托才继续扩展到 3-4 镜。
 4. 用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。若当前批次出现大量同数分镜，尤其 2 镜集中，必须抽样复判并修正 `shot_count_decision`。
 5. 用 `continuity_entry` 承接前 3 个画面单位中的最近落点；不能每个画面重新发明一套风格。
-6. 若发生场景变化、空间重置、注意力转交、动作承接、声音先行、形态/颜色匹配、信息显影或高点断裂，先建立 `transition_profile`，明确交出点、进入点和转场强度；没有强接口时优先普通切镜或软桥接。
+6. 若发生场景变化、空间重置、注意力转交、动作承接、声音先行、形态/颜色匹配、信息显影或高点断裂，先建立 `handoff_profile`，明确交出点、进入提示和连续性风险；不得在本阶段裁决普通切镜、软桥接、匹配剪辑或高能转场方案。
 7. 建立 `camera_grammar_plan`：景别变化像呼吸，视角变化有权力/主观/观察/空间动机，景深和焦点负责注意力交接，镜头类型和构图服务空间压力或信息显影。
 8. 建立 `functional_projection_plan`：没有主体、动作相位、运镜计划、构图锚点、光色/材质、连续性交接或下游消费意义的 beat 不能写成分镜。
 9. 为每个 beat 选择技法时遵守“最小充分”：只选择能服务当前 beat 的参数和运镜策略，不把技法库当菜单随机抽样。
@@ -49,7 +49,7 @@ shot_design_plan:
   shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
   continuity_entry: <承接上一落点、声音、动作、光色或空间轴线>
-  transition_profile: <如触发，记录场景/空间/注意力/动作/声音/形态/光色/文字接口、交出点、进入点和转场强度>
+  handoff_profile: <如触发，记录场景/空间/注意力/动作/声音/形态/光色/文字接口、交出点、进入提示和连续性风险>
   beats:
     - beat: <节拍1的观看策略变化>
       trigger: <BT-xx>

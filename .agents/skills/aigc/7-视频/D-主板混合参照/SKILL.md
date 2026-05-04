@@ -227,7 +227,7 @@ Naming convention:
 - 队列台账命名 `第N集-libtv-queue.md`
 - 结果记录命名 `第N集-libtv-results.json`
 - 执行报告命名 `执行报告.md`
-- 视频文件命名 `<分镜组ID>.mp4` 或 `<分镜组ID>-<sessionId>.mp4`
+- 视频文件命名 `<分镜组ID>.mp4`；同组多变体命名 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`，sessionId 只写入队列台账、结果记录和执行报告
 
 Completion gate:
 

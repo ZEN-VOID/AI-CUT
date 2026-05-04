@@ -7,7 +7,7 @@
 | Required output | prompt 包、混合参照 manifest、LibTV submit plan、queue ledger、results、执行报告 |
 | Output format | Markdown + JSON + queue Markdown + MP4 |
 | Output path | `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/` |
-| Naming convention | 使用 `第N集-主板混合参照-video-prompts.md`、`第N集-reference-manifest.json`、`第N集-libtv-submit-plan.json` 等命名 |
+| Naming convention | 使用 `第N集-主板混合参照-video-prompts.md`、`第N集-reference-manifest.json`、`第N集-libtv-submit-plan.json` 等命名；视频文件固定为 `<group_id>.mp4`，同组变体为 `<group_id>-a.mp4`、`<group_id>-b.mp4` |
 | Completion gate | 固定开头、故事板总参照、主体后缀参照、LibTV plan、queue/report 均通过 review |
 
 ## Runtime Layout

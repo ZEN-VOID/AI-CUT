@@ -57,7 +57,7 @@ Hard rules:
 | --- | --- | --- | --- | --- |
 | `策划` | `0-初始化` | first direct-answer packet before synthesis | converge story core, emotional core, boundaries, and stage seeds | does not own later-stage canonical truth |
 | `监制` | `2-编导`, `3-摄影`, `4-分组`, `5-设计` | stage-front advisory | style, type, director intent, feasibility, design continuity | does not replace stage canonical writeback |
-| `评审` | `6-图像`, `7-视频` | around validation reports | image/video consistency, reference binding, provider risk, delivery gate | not a default early creative expansion role |
+| `评审` | `6-图像`, `7-视频`, `8-审片` | around validation reports and generated footage review | image/video consistency, reference binding, provider risk, footage delivery gate | not a default early creative expansion role |
 
 ## Auto Lineup Selection
 
@@ -65,7 +65,7 @@ Auto lineup uses two-level selection:
 
 1. Read `.agents/skills/team/SKILL.md + CONTEXT.md` first.
 2. Build a root-index shortlist by department, member, and scenario tags.
-3. Lock governance role ownership: `策划 -> 0-初始化`, `监制 -> 2-编导/3-摄影/4-分组/5-设计`, `评审 -> 6-图像/7-视频`.
+3. Lock governance role ownership: `策划 -> 0-初始化`, `监制 -> 2-编导/3-摄影/4-分组/5-设计`, `评审 -> 6-图像/7-视频/8-审片`.
 4. Select members only from `.agents/skills/team/`, prioritizing the required departments.
 5. Deep-read only shortlisted member skills.
 

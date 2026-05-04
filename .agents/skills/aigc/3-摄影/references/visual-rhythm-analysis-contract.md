@@ -13,7 +13,7 @@
 | `density` | sparse / measured / rich / maximal |
 | `movement_complexity` | static / single_move / combo_move / rupture_move |
 | `description_scope` | one-line concise / standard / expanded / set-piece |
-| `transition_strength` | none / soft_bridge / match_cut / high_energy |
+| `boundary_clarity` | none / local_handoff / scene_boundary / group_boundary_candidate |
 | `peak_emphasis` | none / restrained_peak / expanded_peak / rupture_peak |
 
 `rhythm_profile` 还必须承担分镜数量去模板化职责：当 `beat_map` 倾向输出 2 镜时，先判断当前画面是否真的需要“起点/揭示”“动作/反应”“空间/压力源”两段观看；如果只是一个单一观看动作，收敛为 1 镜；如果是关键揭示、动作分相、群像扩散或高点承托，不得被压平为 2 镜。
@@ -39,9 +39,9 @@
 2. 再判断当前上下文节奏：上一组镜头是否已经高密度、高运动、高转场；若是，当前可适当收敛。
 3. 判断观众是否需要停顿读信息：规则文字、道具细节、微表情需要留读秒，不应被高速运动带走。
 4. 判断是否需要发散：关键揭示、空间重置、情绪峰值、威胁入场可提高分镜数量和动态复杂度。
-5. 若发生场景变化，固定标记转场动机并交给 `references/transition-design-contract.md` 形成 `transition_profile`；`transition_strength` 可为 `soft_bridge` 或 `match_cut`，不必默认 `high_energy`。
+5. 若发生场景变化，固定标记边界风险并交给 `references/transition-design-contract.md` 形成 `handoff_profile`；本阶段只记录交出锚点、进入提示和连续性风险，不裁决连接方式。
 6. 若画面承载上游高潮/爽点/高光成分，先标记 `peak_emphasis`，再交给 `references/peak-shot-language-contract.md` 裁定具体峰值镜头策略。
-7. 形成内部 `rhythm_profile` 后再写分镜明细；`rhythm_profile` 不显式输出，只通过描述密度、运动复杂度、转场强度和停顿感体现在成稿中。
+7. 形成内部 `rhythm_profile` 后再写分镜明细；`rhythm_profile` 不显式输出，只通过描述密度、运动复杂度、边界清晰度和停顿感体现在成稿中。
 8. 对批量输出做分布抽查：若同一集或同一场中 2 镜块占比异常集中，回到低信息、关键显影、群像和高点样本复判，证明每个 `分镜2` 都有真实节拍，或删并/扩展到正确数量。
 
 ## Convergence Rules
@@ -64,7 +64,7 @@
 - 角色第一次发现危险、能力或关系变化。
 - 空间结构需要重新建立。
 - 危险源入场、惩罚发生、群体恐慌扩散。
-- 需要把上一组镜头的压抑释放成高能转场或视觉爆点。
+- 需要把上一组镜头的压抑释放成视觉爆点或清楚的余波交出点。
 - 上游已经存在明确高点，且普通节奏会削弱行动结果、认知震荡、关系暖点、规则压迫或奇观冲击。
 
 发散不是堆满参数，而是让信息、情绪和运动同时升级。
@@ -76,7 +76,7 @@
 | `sparse + static` | `分镜1` 一句完成，固定机位或极慢推拉，强调落点 |
 | `measured + single_move` | `分镜1` 或 `分镜1-2`，一个清楚运动从 A 到 B |
 | `rich + combo_move` | `分镜1-3`，组合运镜、焦点/景别变化、反应承接 |
-| `maximal + rupture_move` | `分镜1-4`，高能转场或断裂节奏，但必须给空间/反应落点 |
+| `maximal + rupture_move` | `分镜1-4`，断裂节奏或强余波交出点，但必须给空间/反应落点 |
 | `peak_emphasis + selected_move` | 先按 `peak_shot_profile` 决定停顿、扩展或断裂，再写入 `分镜N`；高点也可以用静止长镜完成 |
 
 `profile` 标签仅用于内部判断，不写入 `分镜N`。输出应直接进入当前画面的镜头运动。

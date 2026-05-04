@@ -13,11 +13,11 @@
 | variable | values | use |
 | --- | --- | --- |
 | `visual_source` | label_match / semantic_match | 判断为何命中 |
-| `visual_function` | establish / action / performance / reveal / object / group / transition / scene_transition / reaction | 选择分镜明细主策略 |
+| `visual_function` | establish / action / performance / reveal / object / group / handoff / scene_boundary / reaction | 选择分镜明细主策略 |
 | `pressure_level` | low / medium / high / rupture | 决定运动强度和剪辑密度 |
 | `information_density` | sparse / readable / layered / critical | 决定是否需要特写、焦点拉移或多分镜 |
-| `continuity_need` | hold / cut / scene_cut / soft_bridge / match_cut / sound_bridge | 决定是否使用转场或保持长镜 |
-| `rhythm_profile` | converge / standard / expand / rupture | 决定分镜明细描述密度、运动复杂度和转场强度 |
+| `continuity_need` | hold / cut / scene_boundary / handoff_required / sound_handoff | 决定是否需要记录交出锚点或保持长镜 |
+| `rhythm_profile` | converge / standard / expand / rupture | 决定分镜明细描述密度、运动复杂度和边界清晰度 |
 
 ## Type Matrix
 
@@ -29,8 +29,8 @@
 | `reveal` | `规则显影`、`系统画面`、文字型 `旁白画面` | 信息从不可见到可读 | 显影推进、焦点拉移、文字转场、微距 | 文字不可读或信息过载 |
 | `object` | `道具特写`、物件状态变化 | 材质、颜色、异常、触碰关系 | 插入特写、微距、红色点光、形态匹配 | 道具脱离角色反应 |
 | `group` | `群像画面`、多人反应 | 多焦点、秩序崩塌、恐惧传播 | 横移扫视、手持微晃、俯拍棋盘 | 群像没有主注意力 |
-| `transition` | `转场`、声音承托画面、光变画面 | 画面接口、声画桥、形态咬合 | 声音先行、匹配剪辑、光变转场 | 炫技破坏表演停顿 |
-| `scene_transition` | 场景标题变化、空间/时间/叙事段落切换 | 上一场景交出点、下一场景进入点、空间重置 | 建立镜头、普通切镜、软桥接、声画桥、光色桥、匹配剪辑 | 场景凭空开始或无动机高能转场 |
+| `handoff` | 声音承托画面、光变画面、注意力交出画面 | 画面接口、声画/形态/光色锚点 | 记录交出锚点、当前停点和下一画面进入提示 | 把锚点写成创意转场方案 |
+| `scene_boundary` | 场景标题变化、空间/时间/叙事段落切换 | 上一场景交出点、下一场景进入提示、空间重置 | 建立当前镜头入口、明确最后一镜交出点 | 场景凭空开始，或在摄影阶段设计组间转场 |
 | `reaction` | `对白画面`、`独白画面`、`音效画面` | 声音落到脸、手、肩、眼睛的反应 | 反打、压缩焦段、负空间 | 只是复述对白内容 |
 
 ## Routing
@@ -40,5 +40,5 @@
 3. `visual_function` 决定 `beat-analysis-contract.md` 中优先检查哪些触发器。
 4. `pressure_level` 和 `information_density` 决定分镜密度。
 5. `rhythm_profile` 决定是否收敛、标准展开、发散强化或断裂发散。
-6. `visual_function = scene_transition` 或场景/空间/时间/叙事段落发生变化时，必须读取 `references/transition-design-contract.md` 并形成内部 `transition_profile`。
-7. `continuity_need` 决定是否读取高能转场条目；`scene_cut` 和 `soft_bridge` 也属于转场处理，不得只把 `match_cut` / `sound_bridge` 当作转场。
+6. `visual_function = scene_boundary` 或场景/空间/时间/叙事段落发生变化时，必须读取 `references/transition-design-contract.md` 并形成内部 `handoff_profile`。
+7. `continuity_need` 决定是否记录交出锚点；`handoff_required` 和 `sound_handoff` 不代表本阶段要设计转场，只代表要给 `4-分组` 留可消费连接素材。

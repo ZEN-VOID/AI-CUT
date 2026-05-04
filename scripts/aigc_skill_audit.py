@@ -103,6 +103,7 @@ SHARED_RUNTIME_ROWS = {
     "5-设计": "projects/aigc/<项目名>/5-设计/",
     "6-图像": "projects/aigc/<项目名>/6-图像/",
     "7-视频": "projects/aigc/<项目名>/7-视频/",
+    "8-审片": "projects/aigc/<项目名>/8-审片/",
     "源": "projects/aigc/<项目名>/源/",
     "CONTEXT": "projects/aigc/<项目名>/CONTEXT/",
 }
@@ -124,6 +125,7 @@ ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/5-设计/角色/3-生成/",
     "projects/aigc/<项目名>/6-图像/",
     "projects/aigc/<项目名>/7-视频/",
+    "projects/aigc/<项目名>/8-审片/",
     "projects/aigc/<项目名>/源/",
     "projects/aigc/<项目名>/CONTEXT/",
 )
@@ -171,6 +173,7 @@ COUNCIL_STAGE_REVIEW_PATHS = {
     "5-设计": "projects/aigc/<项目名>/5-设计/validation-report.md",
     "6-图像": "projects/aigc/<项目名>/6-图像/validation-report.md",
     "7-视频": "projects/aigc/<项目名>/7-视频/validation-report.md",
+    "8-审片": "projects/aigc/<项目名>/8-审片/validation-report.md",
 }
 PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
 REVIEW_TEMPLATE_REQUIRED_MARKERS = (
@@ -207,6 +210,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/5-设计/角色/3-生成/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/8-审片/",
         "projects/aigc/<项目名>/源/",
         "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/MEMORY.md",
@@ -245,6 +249,14 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
         "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
         "projects/aigc/<项目名>/7-视频/C-主体参照/",
+        "projects/aigc/<项目名>/7-视频/D-主板混合参照/",
+        ".agents/skills/aigc/8-审片/SKILL.md",
+    ),
+    ROOT / "8-审片" / "SKILL.md": (
+        "projects/aigc/<项目名>/8-审片/",
+        "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/4-分组/",
+        "projects/aigc/<项目名>/8-审片/第N集/<group_id>[-variant]-审片.md",
     ),
     ROOT / "review" / "SKILL.md": (
         "projects/aigc/<项目名>/review/",
@@ -299,6 +311,7 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-resume-satellite-entry",
     "aigc-review-satellite-entry",
     "aigc-image-stage-entry",
+    "aigc-video-review-entry",
 }
 REQUIRED_STAGE_AGENT_DOCS = {
 }
@@ -321,6 +334,7 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "7-视频" / "A-分镜画面参照" / "SKILL.md",
         ROOT / "7-视频" / "B-分镜故事板参照" / "SKILL.md",
         ROOT / "7-视频" / "C-主体参照" / "SKILL.md",
+        ROOT / "7-视频" / "D-主板混合参照" / "SKILL.md",
     ),
 }
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
@@ -358,9 +372,13 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         ".agents/skills/aigc/7-视频/A-分镜画面参照",
         ".agents/skills/aigc/7-视频/B-分镜故事板参照",
         ".agents/skills/aigc/7-视频/C-主体参照",
+        ".agents/skills/aigc/7-视频/D-主板混合参照",
+        ".agents/skills/aigc/8-审片",
         "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
         "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
         "projects/aigc/<项目名>/7-视频/C-主体参照/",
+        "projects/aigc/<项目名>/7-视频/D-主板混合参照/",
+        "projects/aigc/<项目名>/8-审片/",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
         "projects/aigc/<项目名>/1-分集/",
@@ -370,6 +388,7 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/5-设计/",
         "projects/aigc/<项目名>/6-图像/",
         "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/8-审片/",
         "projects/aigc/<项目名>/源/",
         "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/STATE.json",

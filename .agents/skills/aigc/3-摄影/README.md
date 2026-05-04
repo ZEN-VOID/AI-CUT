@@ -1,6 +1,6 @@
 # aigc 3-摄影
 
-`3-摄影` 将 `projects/aigc/<项目名>/2-编导/第N集.md` 的逐集编导稿升级为带大师级分镜、摄影、运镜、转场、光影和色彩设计的摄影分镜明细稿。
+`3-摄影` 将 `projects/aigc/<项目名>/2-编导/第N集.md` 的逐集编导稿升级为带大师级分镜、摄影、运镜、光影、色彩和边界交出锚点的摄影分镜明细稿。组间与跨场景创意转场由下游 `4-分组` 连接件承接。
 
 ## 目录树
 
@@ -32,7 +32,7 @@
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`
 - 高潮分镜：`references/peak-shot-language-contract.md`
-- 转场设计：`references/transition-design-contract.md`
+- 边界交出：`references/transition-design-contract.md`
 - 分镜计划汇流：`references/shot-planning-integration-contract.md`
 - 功能性影视投影：`references/functional-cinematic-projection-contract.md`
 - 摄影语法变化：`steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR`、`references/cinematic-technique-library.md`

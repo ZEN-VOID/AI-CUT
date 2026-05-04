@@ -15,7 +15,7 @@ Create a multi-panel storyboard based on the following shot breakdown. Add the s
 ## Prompt Body
 
 - `prompt_body` 直接采用 `group_body` 的现有内容。
-- 保留组内风格句、类型元素、画面风格、入场画面、出场画面、对白、动作画面、分镜明细和 `分镜N:` 顺序。
+- 保留组内风格句、类型元素、画面风格、相邻组间连接件、对白、动作画面、分镜明细和 `分镜N:` 顺序。
 - 不翻译、不摘要、不改写剧情事实。
 - 可在结构化侧车中记录 `shot_count`、`group_id` 和 YAML 主体，但不要把报告字段插入 prompt 正文。
 

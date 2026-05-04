@@ -141,7 +141,7 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标 `分镜ID` 集合、是否执行 imagegen。
-3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，把组内 `分镜N` 映射为四段式 `x-y-z-N`，并保留其关联剧情桥段、入场/出场画面、场景、角色、道具和分镜明细。
+3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，把组内 `分镜N` 映射为四段式 `x-y-z-N`，并保留其关联剧情桥段、相邻 `组间连接件`、场景、角色、道具和分镜明细。
 4. 执行 step2A 场景参照图风格锁：按当前分镜场景名在 `5-设计/场景/3-生成` 中预绑定场景参照图；若存在本地场景图，必须先 `view_image` 进入对话上下文，提炼该图的光源方向、光比、色温、主色/辅色、饱和度、雾气/烟尘/湿度、材质质感、暗部密度、高光形态和整体氛围，并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；若无场景图，记录 `scene_reference_missing`，只能使用 north_star 文字风格。
 5. 执行 step2 前置连续性检查：对每个非场景首镜，判断上一分镜是否与当前分镜同场景；若同场景且上一分镜已有本地生成图，必须用 `view_image` 检视上一画面进入对话上下文，并记录 `previous_frame_context_status: visible_in_conversation_context`、上一图路径、观察到的空间站位、走位方向、角色朝向、遮挡关系、关键道具相对位置和镜头轴线；若不同场景、上一图不存在或上一镜未生成，记录 `not_same_scene` / `previous_image_missing` / `previous_shot_not_generated`，不得臆造。
 6. 执行三维空间规划：按 `references/spatial-continuity-contract.md` 建立当前桥段的轻量 `space_model`，并对每个四段式分镜执行 `shot_anchor_projection`；先从当前单镜真相中抽取候选锚点，再决定 `Primary anchor` / `Support anchors`，明确固定锚点、空间轴线、对话轴线、角色起点/终点/移动轨迹、身体朝向、视线目标、前后景遮挡和道具相对位置；正反打镜头必须说明反向机位、相对背景面和视线闭合关系，允许背景面相反但不允许空间漂移；蒙太奇、插入、道具微距、转场或路线镜头不得直接套用分组主场景锚点。

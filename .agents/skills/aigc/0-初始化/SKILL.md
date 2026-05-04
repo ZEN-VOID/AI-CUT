@@ -39,7 +39,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目 / 新建电影项目 / 电影项目起盘”等媒介明确为 film/movie/video/影视工作流的初始化。
 - Create a new AIGC film/video project under `projects/aigc/<项目名>/`.
 - Reinitialize an existing AIGC project when the user wants to return to initialization state, rebuild the north star, or discard the active direction while preserving the project shell.
-- Build `0-初始化/` through `7-视频/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
+- Build `0-初始化/` through `8-审片/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
 - Lock a project-level `north_star` before entering `1-分集`, `2-编导`, or later AIGC stages.
 - Use `.agents/skills/team/` advisors to form a planning-led initialization council.
 
@@ -253,6 +253,7 @@ projects/aigc/<项目名>/
 │       └── 3-生成/
 ├── 6-图像/
 ├── 7-视频/
+├── 8-审片/
 ├── 源/
 ├── CONTEXT/
 ├── CHANGELOG.md
@@ -263,7 +264,7 @@ projects/aigc/<项目名>/
 
 Story source marker: `源/` is the project-level source landing for new initialization. Historical `Original/` and `Story/` are legacy aliases and must be migrated or treated as compatibility inputs, not created by new initialization.
 
-Downstream runtime naming marker: `6-图像/` and `7-视频/` are stage roots only at initialization time. Concrete image/video task subdirectories are created by their owning stages when execution begins.
+Downstream runtime naming marker: `6-图像/`, `7-视频/` and `8-审片/` are stage roots only at initialization time. Concrete image/video/review task subdirectories are created by their owning stages when execution begins.
 
 Bootstrap runtime marker allowlist:
 
@@ -274,6 +275,7 @@ Bootstrap runtime marker allowlist:
 - `projects/aigc/<项目名>/5-设计/`
 - `projects/aigc/<项目名>/6-图像/`
 - `projects/aigc/<项目名>/7-视频/`
+- `projects/aigc/<项目名>/8-审片/`
 - `projects/aigc/<项目名>/源/`
 - `projects/aigc/<项目名>/CONTEXT/`
 

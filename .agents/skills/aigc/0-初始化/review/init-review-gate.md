@@ -22,7 +22,7 @@ Initialization is incomplete unless all applicable items pass:
 - `init_handoff.yaml` has stage-entry seeds and `unknowns`
 - `story-source-manifest.yaml` exists and marks readiness
 - `STATE.json` points to primary init artifacts and one recommended next entry
-- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编导/`, `3-摄影/`, `4-分组/`, `5-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `6-图像/`, `7-视频/`, `源/`, and `CONTEXT/`
+- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编导/`, `3-摄影/`, `4-分组/`, `5-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `6-图像/`, `7-视频/`, `8-审片/`, `源/`, and `CONTEXT/`
 - source-light story details are downgraded to `unknowns`, `deferred`, or `risk_notes`
 - late source input triggers reconciliation before downstream work
 - rebootstrap old-cycle artifacts are preserved, archived, purged, or marked stale according to reset mode
@@ -39,7 +39,7 @@ Initialization is incomplete unless all applicable items pass:
 | `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, `unknowns`, and source/provenance breakdown | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-03` | mode, lineup, field provenance, `team_ref`, and decision source are traceable | `FAIL-INIT-03` | `N1/N3` |
 | `FIELD-INIT-04` | `team.yaml` has roles, selector root, planning direct-answer provenance, and final gate semantics | `FAIL-INIT-04` | `N3/N4/N5` |
-| `FIELD-INIT-05` | `0-初始化/` through `7-视频/`, `源/`, `CONTEXT/`, root carriers, project `MEMORY.md`, and `CHANGELOG.md` are complete; lazy carriers are trigger-based | `FAIL-INIT-05` | `N2/N5/N6` |
+| `FIELD-INIT-05` | `0-初始化/` through `8-审片/`, `源/`, `CONTEXT/`, root carriers, project `MEMORY.md`, and `CHANGELOG.md` are complete; lazy carriers are trigger-based | `FAIL-INIT-05` | `N2/N5/N6` |
 | `FIELD-INIT-06` | exactly one next active stage is returned | `FAIL-INIT-06` | `N7` |
 | `FIELD-INIT-07` | route, mode, lineup, planning subagents, roster, and sufficiency audit are internally owned by this skill | `FAIL-INIT-07` | `N3/N4/N7` |
 | `FIELD-INIT-08` | rebootstrap is identified, traced, and old-cycle truth exits active flow | `FAIL-INIT-08` | `N0/N6/N7` |

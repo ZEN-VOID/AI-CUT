@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-04
+
+- 将 `3-摄影` 的转场职责降级为边界交出职责：保留镜头内部连续性、进入点、最后一镜可消费交出锚点和连续性风险，不再主创组间或跨场景创意转场方案。
+- 保留 `references/transition-design-contract.md` 路径但重写为 `Handoff Boundary Contract`，将 `transition_profile` 迁移为 `handoff_profile`，连接方式、强度和 3-4 秒连接件提示交由 `4-分组` 裁决。
+- 同步更新 SKILL、workflow、types、review、templates、README、CONTEXT 和相关 references，避免 `PASS-CINE-07T`、review gate 或类型路由继续把普通切镜、软桥接、匹配剪辑和高能转场拉回摄影阶段。
+
 ## 2026-05-03
 
 - 新增 `references/transition-design-contract.md`：场景变化固定视为明确转场动机，但转场强度另判；普通切镜、软桥接、匹配剪辑和高能转场按交出点/进入点与接口证据分级。

@@ -1,6 +1,6 @@
 # aigc 4-分组
 
-`4-分组` 将 `projects/aigc/<项目名>/3-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组拼接 north_star 风格字段、入场/出场补位画面和 YAML 统计；全局风格行会把固定音频/字幕约束置顶于最前。
+`4-分组` 将 `projects/aigc/<项目名>/3-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组拼接 north_star 风格字段和 YAML 统计；相邻分镜组之间额外生成 3-4 秒组间首尾帧连接件，连接件同样继承三项 north_star 风格行，并把固定音频/字幕约束置顶于第 1 行最前。
 
 ## 目录树
 
@@ -28,7 +28,7 @@
 - 项目级必读：`projects/aigc/<项目名>/MEMORY.md`
 - 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - 边界规则：`references/group-boundary-contract.md`
-- 补位画面：`references/bridge-shot-contract.md`
+- 组间连接件：`references/bridge-shot-contract.md`
 - north_star 投影：`references/north-star-projection-contract.md`
 - YAML 统计：`references/statistics-yaml-contract.md`
 - 流程：`steps/grouping-workflow.md`
