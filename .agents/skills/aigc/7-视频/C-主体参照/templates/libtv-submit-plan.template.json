@@ -1,9 +1,10 @@
 {
-  "schema_version": "aigc-video-subject-reference/libtv-submit-plan/v1",
+  "schema_version": "aigc-video-subject-reference/libtv-submit-plan/v2",
   "project_name": "",
   "episode_id": "",
   "source_group_path": "",
-  "output_root": "",
+  "output_root": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集",
+  "package_dir": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>",
   "parallelism": 3,
   "libtv_self_check": {
     "required_command": "LIBTV_ACCESS_KEY credential check",
@@ -18,8 +19,13 @@
       "duration": 15,
       "ratio": "16:9",
       "video_resolution": "720p",
+      "enableSound": "on",
       "poll": 45,
-      "prompt_path": "",
+      "prompt_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/prompt.md",
+      "remote_submission_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-submission.txt",
+      "source_group_body_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/source-group-body.md",
+      "group_index_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/group-index.json",
+      "reference_manifest_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/reference-manifest.json",
       "images": [],
       "image_entry_schema": [
         {
@@ -34,8 +40,11 @@
       "sessionId": "",
       "projectUuid": "",
       "projectUrl": "",
-      "download_dir": "",
-      "expected_output": "",
+      "canvasMarkdown": "",
+      "download_dir": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>",
+      "expected_output": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/<分镜组ID>.mp4",
+      "queue_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/queue.md",
+      "results_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-results.json",
       "status": "planned"
     }
   ]

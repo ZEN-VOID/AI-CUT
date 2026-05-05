@@ -46,7 +46,7 @@ flowchart TD
 | `N6-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode | review note | `N7` / `N10` / repair | 必需项通过 |
 | `N7-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`，建立 worker pool，逐组提交 | tmp result、queue row | `N8` | 保留 sessionId |
 | `N8-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-libtv-queue.md`、results JSON 初稿 | queue ledger | `N9` | 每组状态明确 |
-| `N9-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、sessionId | `query_session`、下载到 `videos/`、处理下载超时 | local videos、results JSON | `N10` | 本地状态真实 |
+| `N9-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、sessionId | `query_session`、自动下载到 `第N集/`、处理下载超时 | local videos、results JSON | `N10` | 本地状态真实 |
 | `N10-WRITE` | 写业务工件 | prompt、manifest、YAML、queue、result | 写 prompt 文档、manifest、batch、queue、report | file list | `N11` | 文件命名正确 |
 | `N11-CLOSE` | 汇流交付 | 所有证据 | 总结 submitted / querying / downloaded / failed / skipped 与返工入口 | 执行报告 | done | review verdict `pass` 或 `pass_with_todo` |
 

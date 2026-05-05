@@ -16,12 +16,15 @@ defaults:
   duration: 15
   ratio: "16:9"
   video_resolution: "720p"
+  enableSound: "on"
   poll: 45
 jobs:
   - queue_id: "Q-001"
     group_id: "1-1-1"
     source_heading: "## 1-1-1"
     command_type: "libtv_session_with_uploaded_references"
+    remote_prompt_contract_version: "frame_reference_direct_video_v1"
+    remote_submission_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/prompts/1-1-1-libtv-submission.txt"
     reference_status: "partial"
     shot_references:
       - shot_id: "1-1-1-1"
@@ -46,15 +49,26 @@ jobs:
       @图1 = 1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png
 
       <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
+    remote_submission_required_opening: |
+      【LibTV 调用锁定】
+      provider: seedance2.0
+      taskType: video
+      modeType: image2video
+      imageList: ["<uploaded_url_1>", "<uploaded_url_2>"]
+      duration: 15
+      ratio: 16:9
+      resolution: 720p
+      enableSound: on
     libtv:
       requested_model: ""
       duration: 15
       ratio: "16:9"
       video_resolution: "720p"
+      enableSound: "on"
       poll: 45
     output:
       session_id: ""
       project_uuid: ""
       project_url: ""
-      download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/videos"
-      expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/videos/1-1-1.mp4"
+      download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集"
+      expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/1-1-1.mp4"

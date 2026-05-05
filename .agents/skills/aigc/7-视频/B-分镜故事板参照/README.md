@@ -47,5 +47,5 @@ flowchart LR
 第N集-libtv-queue.md
 第N集-libtv-results.json
 执行报告.md
-videos/<分镜组ID>.mp4
+<分镜组ID>.mp4
 ```

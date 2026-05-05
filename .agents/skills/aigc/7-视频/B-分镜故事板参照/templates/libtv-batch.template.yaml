@@ -15,12 +15,15 @@ defaults:
   duration: 15
   ratio: "16:9"
   video_resolution: "720p"
+  enableSound: "on"
   poll: 45
 jobs:
   - queue_id: "Q-001"
     group_id: "1-1-1"
     source_heading: "## 1-1-1"
     command_type: "libtv_session_with_uploaded_references"
+    remote_prompt_contract_version: "storyboard_reference_direct_video_v1"
+    remote_submission_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/prompts/1-1-1-libtv-submission.txt"
     reference_status: "found"
     reference_images:
       - path: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png"
@@ -34,15 +37,26 @@ jobs:
       @图1 是该分镜组的多格分镜故事板视觉参照，只用于画面连续性、镜头顺序、构图节奏和角色位置参考；不得把故事板图当作首帧，也不得覆盖以下完整分镜组内容。
 
       <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
+    remote_submission_required_opening: |
+      【LibTV 调用锁定】
+      provider: seedance2.0
+      taskType: video
+      modeType: singleImage2video
+      imageList: ["<uploaded_url_1>"]
+      duration: 15
+      ratio: 16:9
+      resolution: 720p
+      enableSound: on
     libtv:
       requested_model: ""
       duration: 15
       ratio: "16:9"
       video_resolution: "720p"
+      enableSound: "on"
       poll: 45
     output:
       session_id: ""
       project_uuid: ""
       project_url: ""
-      download_dir: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/videos"
-      expected_video_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/videos/1-1-1.mp4"
+      download_dir: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集"
+      expected_video_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/1-1-1.mp4"

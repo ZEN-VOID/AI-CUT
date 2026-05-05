@@ -10,7 +10,7 @@
 | group_source | 每个目标组可从 `4-分组/第N集.md` 唯一回指，组正文完整 | `references/group-source-contract.md` |
 | prompt_authorship | prompt 主体直接使用现有分镜组内容，LLM 只做保真指令化组织 | `SKILL.md#LLM-First Creative Authorship Contract` |
 | reference_binding | 参照图路径真实、位于 `6-图像/B-分镜故事板`；无图为空引用；多候选阻断 | `references/storyboard-image-binding-contract.md` |
-| libtv_handoff | YAML 可投影为合法 `libtv_session_with_uploaded_references` 或 `libtv_session_text_only` 命令 | `references/libtv-handoff-contract.md` |
+| libtv_handoff | YAML 可投影为合法提交；远端 handoff 有故事板图时锁 `modeType=singleImage2video` 和 `imageList[0]`，无图时锁 `text2video` | `references/libtv-handoff-contract.md` |
 | queue_tracking | 多任务均有 queue row、sessionId 或明确失败原因、next_action | `.agents/skills/cli/libTV/SKILL.md` |
 | concurrency | 并发只写临时结果，最终 report / results 单线程汇流 | `steps/storyboard-video-workflow.md` |
 | route_clarity | 当前 mode、skipped stages、rework entry 与 next entry 清楚 | `types/type-map.md` |
@@ -27,7 +27,7 @@
 2. 检查 `SKILL.md` 是否只保留入口、路由、门禁与输出合同。
 3. 检查 step1 是否以 `4-分组` 为主信息来源，并直接保留组正文。
 4. 检查 step2 是否只按 `group_id` 绑定真实故事板图；无图是否为空引用。
-5. 检查 step3 是否在有图时走 `libtv_session_with_uploaded_references`，无图时走 `libtv_session_text_only`。
+5. 检查 step3 是否在有故事板图时锁 `modeType=singleImage2video` 和 `imageList[0]`，无图时锁 `text2video`。
 6. 检查生成前是否要求 `LIBTV_ACCESS_KEY credential check`。
 7. 检查批量并发是否有 queue ledger、sessionId、next_action 和单线程汇流。
 8. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/`。

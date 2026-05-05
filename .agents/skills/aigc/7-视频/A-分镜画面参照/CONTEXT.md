@@ -21,7 +21,9 @@ recommended_action: keep-target-scoped-updates
 | `TM-FVID-EMPTY-SLOT` | 参照绑定层 | 删除缺图镜头的 `reference_images` 空槽位，只在 manifest 记 `missing_optional` | YAML schema 禁止空 path、空 marker 和伪路径 | LibTV submit plan没有空 `upload_file.py` |
 | `TM-FVID-IMAGE-AMBIGUOUS` | 文件匹配层 | 阻断当前组或镜，输出候选列表等待人工裁决 | 按 `images/<shot_id>.*` 优先级和同级唯一性匹配 | 同一 `shot_id` 不存在多个同优先级候选 |
 | `TM-FVID-MULTIMODAL-LIMIT` | provider 能力层 | 对超过 LibTV 可承受参照数量的多图任务标记 `reference_over_limit`，按用户策略阻断、分段或降级 | 提交前读取 `.agents/skills/cli/libTV` 当前可承受参照数量 | batch YAML 记录 selected / omitted / blocked |
+| `TM-FVID-MODETYPE` | provider 路由层 | 默认锁定 `modeType=image2video`；只有用户显式首尾帧/起止帧过渡且图数 1-2 时才用 `frames2video`；无图用 `text2video` | `libtv-handoff-contract.md` 固定 A 专属 modeType 判定 | 远端提交首段出现正确 `modeType` |
 | `TM-FVID-QUEUE-DRIFT` | 异步队列层 | 用 `query_session` /  校正 queue ledger 的状态和 next_action | 每次提交后立即写 queue row，汇流阶段统一写 results | 每个 submitted job 有 sessionId 或失败原因 |
+| `TM-FVID-REMOTE-STORYBOARD-DRIFT` | LibTV 远端 handoff 口径层 | 回刷 `*-libtv-submission.txt`，首段加入 A 专属 `【LibTV 调用锁定】` 和 `modeType=image2video` | `references/libtv-handoff-contract.md` 固定 Remote Handoff Contract | 远端提交首段出现正确 `modeType`，且本地路径关键词扫描无命中 |
 
 ## Repair Playbook
 
@@ -33,6 +35,7 @@ recommended_action: keep-target-scoped-updates
 6. 若多图超过 $libTV skill scripts 当前限制，不静默丢弃图片；必须在 manifest 和 report 中记录处理策略。
 7. 提交前固定执行 `LIBTV_ACCESS_KEY credential check`；失败时停止提交并转 LibTV 登录/环境修复。
 8. 并发 worker 只写临时结果，最终 queue、results 和 report 由主流程单线程汇流。
+9. 若远端代理把 A 任务改成 `singleImage2video`、默认 `frames2video`、新生成分镜图或合成流程，先修 `*-libtv-submission.txt` 的 `modeType` 调用锁，再重新提交，不要改写 `4-分组` 或补跑 `6-图像`。
 
 ## Reusable Heuristics
 
@@ -41,4 +44,5 @@ recommended_action: keep-target-scoped-updates
 - `分镜ID@路径` 是本技能的中间人类可读映射；$libTV skill scripts 实际提交仍应投影为 uploaded reference URLs 和 prompt 内的 `@图N -> shot_id@path`。
 - 缺图不等于失败；错绑、猜图和空槽位才是失败。
 - 多张分镜画面更适合 `libtv_session_with_uploaded_references`；没有任何图片时再走 `libtv_session_text_only`。
-- `multiframe2video` 是有序关键帧过渡路线，不应默认替代本技能的多图参照路线，除非用户明确指定或 provider 能力变化后 review gate 允许。
+- `frames2video` 是首尾帧/起止帧过渡路线，不应默认替代本技能的多图分镜画面参照；A 默认用 `image2video` 承载按 shot 顺序排列的多张分镜画面图。
+- LibTV 远端只需要 uploaded URL 和直接视频任务指令；本地 `projects/...` 路径留在 manifest / 审核 prompt，不能进入 `*-libtv-submission.txt`。

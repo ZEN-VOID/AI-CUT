@@ -16,7 +16,7 @@
 
 ## Default Package Rule
 
-默认加载 `types/subject-reference-default.md`。当任务进入提交、查询或下载时，额外加载 `references/libtv-handoff.md` 与 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md`；当任务是修复或审查时，额外加载 `review/review-contract.md`。
+默认加载 `types/subject-reference-default.md`。当任务进入提交、查询或下载时，额外加载 `references/libtv-handoff.md` 与 `.agents/skills/cli/libTV/SKILL.md`；当任务是修复或审查时，额外加载 `review/review-contract.md`。
 
 ## Loading Flow
 

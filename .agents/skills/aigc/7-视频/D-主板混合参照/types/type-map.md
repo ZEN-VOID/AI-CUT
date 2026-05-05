@@ -33,7 +33,7 @@
 | package | load when | context files |
 | --- | --- | --- |
 | `hybrid_reference_default` | 默认所有 D 任务 | `references/hybrid-prompt-assembly-contract.md`, `references/hybrid-reference-binding.md` |
-| `batch_execution` | 需要提交、查询或下载 LibTV | `references/libtv-handoff.md`, `.agents/skills/cli/libTV/SKILL.md`, `.agents/skills/cli/libTV/CONTEXT.md` |
+| `batch_execution` | 需要提交、查询或下载 LibTV | `references/libtv-handoff.md`, `.agents/skills/cli/libTV/SKILL.md` |
 | `repair_review` | 修复或审查既有产物 | `review/review-contract.md`, `CONTEXT.md` |
 
 ## Default Package Rule

@@ -11,7 +11,7 @@
 | `N3-STORYBOARD-BIND` | 是否存在对应故事板总参照 | 按 `group_id` 搜索 `6-图像/B-分镜故事板` | manifest storyboard slot | 无空槽位 |
 | `N4-SUBJECT-BIND` | YAML 主体是否有真实图片 | 按角色/场景/道具目录绑定，多视图优先 | manifest subject slots | 不猜主体，不绑非图 |
 | `N5-PROMPT-ASSEMBLE` | prompt 是否同时表达总参照和主体参照 | 写固定开头、故事板说明、主体后缀、完整组正文 | prompt markdown | 固定开头通过 |
-| `N6-PLAN-BUILD` | LibTV submit plan是否合法 | 生成 submit plan、处理图片上限 | submit plan | command type 正确 |
+| `N6-PLAN-BUILD` | LibTV submit plan是否合法 | 生成 submit plan、处理图片上限 | submit plan | 有图时 `modeType=mixed2video` 和 `mixedList` 正确 |
 | `N7-REVIEW-GATE` | 输出是否可提交或交付 | 执行 review gate | review verdict | pass / pass_with_todo |
 | `N8-SUBMIT-OR-SKIP` | 是否执行 LibTV | prompt_only 则跳过；否则 credential check 后提交 | queue ledger | sessionId 或 blocked reason |
 | `N9-QUERY-DOWNLOAD` | 结果是否需要刷新或下载 | query_session、下载视频 | results json / videos | 状态可续查 |

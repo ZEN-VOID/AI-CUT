@@ -4,11 +4,29 @@
 
 ## Fixed Opening
 
-每条 D prompt 必须以固定参照用途说明起笔：
+每条 D 本地审核 prompt 必须以固定参照用途说明起笔：
 
 ```text
 请参考故事板总参照图作为本分镜组的整体构图、镜头顺序、角色站位、场景连续性与情绪节奏参考；不要把故事板参照当作单一首帧。后文每个主体名称后的 @参照图 用于锁定对应角色、场景或道具外观，不得互相替换。根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。
 ```
+
+## LibTV Remote Opening
+
+发送给 LibTV 的 `*-libtv-submission.txt` 必须以此固定开头开始，且必须位于任何 `分镜组原文`、`分镜明细` 或长正文之前：
+
+```text
+【LibTV 调用锁定】
+provider: seedance2.0
+taskType: video
+modeType: mixed2video
+mixedList: [{"url": "<uploaded_url_1>", "type": "image"}, {"url": "<uploaded_url_2>", "type": "image"}, ...]
+duration: 15
+ratio: 16:9
+resolution: 720p
+enableSound: on
+```
+
+远端提交文本只能出现 `参照图N：<uploaded_url>`、`mixedList` 调用锁和主体 / 故事板用途说明；不得包含 `@projects/...`、`/Volumes/...` 或其他本地图片路径。本地审核 prompt 可以保留本地路径用于 review gate。
 
 若存在故事板图，固定开头之后必须提供故事板 marker 或路径映射，例如：
 

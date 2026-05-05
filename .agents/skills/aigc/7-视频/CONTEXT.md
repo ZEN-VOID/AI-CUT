@@ -26,6 +26,7 @@ last_checked_at: 2026-04-26
 | local model parameter drift | 未显式指定模型时仍在本地 submit plan 中强塞旧模型参数 | A/B/C/D 叶子 handoff | 改为 `$libTV` 后端默认路由；只有用户显式指定时才把模型要求写入自然语言任务 |
 | video filename drift | 下载视频使用 sessionId、provider id 或非 group_id 文件名，导致 `8-审片` 无法回推分镜组 | A/B/C/D 叶子 output contract | canonical 视频名改为 `<group_id>.mp4`；同组多变体用 `<group_id>-a.mp4`、`<group_id>-b.mp4`，sessionId 写 queue/report |
 | duplicate LibTV canvas | 同一 `projects/aigc/<项目名>/` 多次调用 `$libTV` 却生成多个 projectUrl / 画布 | 项目级画布 registry 缺失或未读 | 先读 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；缺失时从 A/B/C/D queue/results/report 反建；已有 `canonical_sessionId` 时复用 |
+| remote task type drift | LibTV 远端把 A/B/C/D 直接生视频解释成先做分镜图、故事板图、主体图、拆段或合成 | 目标叶子 handoff 口径过弱 | 所有 `*-libtv-submission.txt` 首行固定 `【LibTV 调用锁定】`；具体 `modeType` 与参照字段由 A/B/C/D 叶子合同定义 |
 
 ## Repair Playbook
 
@@ -39,6 +40,7 @@ last_checked_at: 2026-04-26
 8. 下载视频进入可审片状态前，必须确认文件名能直接回推 `4-分组` 的 `group_id`；同组变体只能使用小写字母后缀。
 9. 每次进入 A/B/C/D 叶子前，先解析项目级 `libtv-canvas-registry.json`；缺失时不要急着新建画布，先扫描既有队列和结果记录里的 `sessionId/projectUuid/projectUrl`。
 10. 若 registry 中已有 `canonical_sessionId`，默认把它传给叶子用于 `create_session.py --session-id`；只有用户要求新画布、session 明确失效，或 registry 无法反建时才允许首个叶子创建新 session 并回写 registry。
+11. 若远端代理反馈要先做图或拆段，优先检查原叶子的 `*-libtv-submission.txt` 是否缺少 `【LibTV 调用锁定】` 或混入本地路径；不要在父级改写路线或临时补跑另一个叶子。
 
 ## Reusable Heuristics
 
@@ -54,3 +56,4 @@ last_checked_at: 2026-04-26
 - 视频文件名是 `7-视频` 和 `8-审片` 之间的主接口；不要把审片依赖绑到 sessionId 或下载顺序上。
 - `## x-y-z~x-y-z` 连接件默认不属于 A/B/C/D 视频路线的 job 范围；遇到连接件时跳过，不生成 `<上组~下组>.mp4`，也不把连接件拼进相邻分镜组 prompt。连接件视频留给未来手动视频连接 skill。
 - LibTV 远端当前不是按本地项目名自动找画布；可靠复用来自本地 registry 里的 `canonical_sessionId`。只有 `projectUuid/projectUrl` 而没有 sessionId 时，不要声称能强制复用指定画布。
+- `【LibTV 调用锁定】` 是远端画布的第一行保险：父级只要求所有 A/B/C/D 提交都有这行，叶子负责锁定专属 `modeType`、参照字段和 uploaded URL 用法。

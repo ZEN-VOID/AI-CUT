@@ -19,6 +19,7 @@ metadata:
 - `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
 - 视频生成默认路由：A/B/C/D 叶子不再持有旧视频工具或本地模型参数真源；未显式指定模型时，直接使用 `$libTV` 的 LibTV 后端默认视频路由。除非用户显式要求其他规格，否则视频基础规格默认 720P、15 秒、16:9；用户显式指定模型、时长、比例、分辨率或质量档时，叶子只把这些要求写入发送给 LibTV 的自然语言任务和 submit plan，不在本地伪造不存在的 CLI 参数。
 - LibTV 画布复用是 `7-视频` 父级共享治理合同：绑定 `projects/aigc/<项目名>/` 后，所有 A/B/C/D 叶子调用 `$libTV` 前必须先读取或重建 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；同一项目默认复用 registry 中的 `canonical_sessionId` / `projectUuid` / `projectUrl`，不得为同一项目无故新建平行画布。
+- LibTV 远端调用锁是 A/B/C/D 共同门禁：所有叶子生成的 `*-libtv-submission.txt` 必须以 `【LibTV 调用锁定】` 开头；父级只检查首行存在和路线归属，具体 `modeType` 与参照字段由对应叶子合同锁定。
 - 视频文件命名必须服务下游 `8-审片`：下载或整理后的 canonical 视频命名为 `<分镜组ID>.mp4`；同一分镜组多变体命名为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。sessionId、provider task id、路线名写入 queue / results / report，不写入 canonical 视频文件名。
 - `4-分组` 中的 `## x-y-z~x-y-z` 组间连接件在 `7-视频` A/B/C/D 路线中默认全部忽略：不进入视频 prompt、参照 manifest、LibTV job 或 canonical 视频命名。未来连接件视频由单独手动视频连接 skill 处理，父级不得默认调度。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 目标叶子 `SKILL.md` > 目标叶子分区规范 > `.agents/skills/cli/libTV/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 目标叶子 `CONTEXT.md`。
@@ -78,7 +79,7 @@ Reject or clarify when:
 | 组级故事板图作为单图参照生成组级视频 | `B-分镜故事板参照/SKILL.md` + `B-分镜故事板参照/CONTEXT.md` |
 | 角色、场景、道具主体资产作为参照生成组级视频 | `C-主体参照/SKILL.md` + `C-主体参照/CONTEXT.md` |
 | 故事板总参照与角色/场景/道具主体参照合并进同一组级视频 prompt | `D-主板混合参照/SKILL.md` + `D-主板混合参照/CONTEXT.md` |
-| LibTV 上传参照图、创建会话、查询、下载或认证排障 | 由目标叶子加载 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md` |
+| LibTV 上传参照图、创建会话、查询、下载或认证排障 | 由目标叶子加载 `.agents/skills/cli/libTV/SKILL.md` |
 | LibTV 项目级画布复用 | 先读取 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；缺失时从 A/B/C/D 既有 queue / results / report 反建；仍缺失时由首个成功提交写入 |
 | 上游事实边界核对 | `.agents/skills/aigc/4-分组/SKILL.md + CONTEXT.md`、必要时读取 `5-设计` 或 `6-图像` 对应入口 |
 
@@ -112,8 +113,9 @@ flowchart TD
 4. 加载目标叶子的 `SKILL.md + CONTEXT.md`，并把本轮输入、项目根、集号/分镜组/分镜 ID 范围、`libtv-canvas-registry.json` 路径和已解析的 canonical canvas metadata 传入叶子合同。
 5. 目标叶子调用 `$libTV` 时，若 registry 已有 `canonical_sessionId`，必须通过 `create_session.py "<message>" --session-id <canonical_sessionId>` 复用同项目画布；只有 registry 缺失、session 明确不可用、或用户显式要求新画布 / 隔离项目时，才允许创建新 session。
 6. 父级不得直接写视频 prompt、参照 manifest、LibTV batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。父级拥有画布复用 schema 与路由合同，叶子负责把实际提交结果回写 registry / queue / report。
-7. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
-8. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
+7. 目标叶子提交 LibTV 前，父级或叶子 review gate 必须确认 `*-libtv-submission.txt` 首行为 `【LibTV 调用锁定】`；若缺失，返回目标叶子的 prompt / handoff 合同修复，不允许直接把弱口径文本发给远端。
+8. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
+9. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
 
 ## LibTV Canvas Registry Contract
 
@@ -154,6 +156,7 @@ Minimum shape:
 | `VID-STAGE-03` | 边界 | 父级不替代 prompt 主创、参照绑定或 LibTV 执行 |
 | `VID-STAGE-04` | 既有真源 | query / repair / review 时能回指原所属叶子 |
 | `VID-STAGE-05` | 画布复用 | 同项目调用 `$libTV` 前已解析或反建 `libtv-canvas-registry.json` |
+| `VID-STAGE-06` | LibTV 远端锁定 | A/B/C/D 叶子远端提交文本以 `【LibTV 调用锁定】` 起笔，具体 `modeType` 与参照字段由叶子定义 |
 
 ## Field Master
 
@@ -164,6 +167,7 @@ Minimum shape:
 | `FIELD-VID-STAGE-03` | boundary | 父级不替代 prompt 主创、参照绑定或 LibTV 执行 | `FAIL-VID-STAGE-BOUNDARY` |
 | `FIELD-VID-STAGE-04` | existing truth | query / repair / review 时能回指原所属叶子和既有产物 | `FAIL-VID-STAGE-TRUTH` |
 | `FIELD-VID-STAGE-05` | libtv canvas registry | 项目级 registry 路径、canonical session metadata、复用/新建判定 | `FAIL-VID-STAGE-CANVAS` |
+| `FIELD-VID-STAGE-06` | libtv remote call lock | 叶子 `*-libtv-submission.txt` 首行为 `【LibTV 调用锁定】`，且路线内容归属 A/B/C/D 对应合同 | `FAIL-VID-STAGE-REMOTE-LOCK` |
 
 ## Thought Pass Map
 
@@ -174,6 +178,7 @@ Minimum shape:
 | `PASS-VID-STAGE-03` | `FIELD-VID-STAGE-03` | 检查父级没有越权主创或提交 | closeout note |
 | `PASS-VID-STAGE-04` | `FIELD-VID-STAGE-04` | 对既有产物建立所属叶子回指 | artifact ownership note |
 | `PASS-VID-STAGE-05` | `FIELD-VID-STAGE-05` | 查找或反建项目级 LibTV 画布 registry；把 metadata 传给叶子 | registry note |
+| `PASS-VID-STAGE-06` | `FIELD-VID-STAGE-06` | 检查远端提交文本首行调用锁；具体 `modeType` 与参照字段交给目标叶子 gate | remote submission lock note |
 
 ## Pass Table
 
@@ -184,6 +189,7 @@ Minimum shape:
 | `PASS-VID-STAGE-03` | 父级只导引、路由、汇流，不直接产出业务真源 | `FAIL-VID-STAGE-BOUNDARY` | Execution Contract |
 | `PASS-VID-STAGE-04` | 既有视频产物能定位到 A/B/C/D 所属目录 | `FAIL-VID-STAGE-TRUTH` | Reference Loading Guide |
 | `PASS-VID-STAGE-05` | 同项目已有 `canonical_sessionId` 时默认复用；缺失时可由首个成功提交创建并回写 registry | `FAIL-VID-STAGE-CANVAS` | LibTV Canvas Registry Contract |
+| `PASS-VID-STAGE-06` | A/B/C/D 远端提交文本首行为 `【LibTV 调用锁定】`；叶子专属 `modeType` 与参照字段不互相串线 | `FAIL-VID-STAGE-REMOTE-LOCK` | 目标叶子 LibTV handoff contract |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -198,6 +204,7 @@ Minimum shape:
 3. 父级越权生成 prompt / YAML / queue：回收为叶子技能执行，父级只保留路由说明。
 4. 既有产物无法回指：按 `projects/aigc/<项目名>/7-视频/<叶子名>/` 目录、文件名、ledger 和 report 重建所属关系。
 5. 同项目重复新增 LibTV 画布：先查 `libtv-canvas-registry.json`，再从 A/B/C/D queue / results / report 反建 canonical session；只有确认 session 不可复用或用户要求新画布时才新建。
+6. LibTV 远端把直接生视频任务改成先做图、拆段或合成：回到目标叶子 `*-libtv-submission.txt` 调用锁开头和 handoff contract；父级不替叶子重写正文。
 
 ## Output Contract
 
@@ -205,4 +212,4 @@ Minimum shape:
 - Output format: 面向用户的简短路由说明；实际视频阶段产物由叶子技能输出。
 - Output path: 父级不直接落业务产物；A/B/C/D 分别写入 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`、`B-分镜故事板参照/`、`C-主体参照/`、`D-主板混合参照/`。
 - Naming convention: canonical 视频命名固定为 `<分镜组ID>.mp4`；同组变体固定为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。叶子技能可自定 prompt、manifest、queue 和 report 名称，但视频文件名必须遵守本规则以便 `8-审片` 反向定位 `4-分组`。
-- Completion gate: 目标叶子明确且已加载；若无法唯一判断，已向用户说明需要的最小澄清。
+- Completion gate: 目标叶子明确且已加载；若涉及 LibTV 远端提交，目标叶子的 `*-libtv-submission.txt` 以 `【LibTV 调用锁定】` 起笔；若无法唯一判断，已向用户说明需要的最小澄清。

@@ -11,7 +11,7 @@
 5. 检查主体参照是否只来自组底 YAML 与 `5-设计/*/3-生成` 的真实图片。
 6. 检查每个已绑定主体是否在对应主体信息后出现 `@参照图`、`@图片路径` 或等价 LibTV marker。
 7. 检查缺图主体、缺故事板或图片超限是否写入 manifest、submit plan 和报告。
-8. 检查 LibTV command type：有任一参照图用 `libtv_session_with_uploaded_references`，无图用 `libtv_session_text_only`，默认不用 `image2video`。
+8. 检查 LibTV provider 路由：有任一参照图时远端提交必须锁定 `modeType=mixed2video` 和 `mixedList`，无图时锁定 `modeType=text2video`，不得退回 `image2video` 或拆成 B/C 分开提交。
 9. 检查提交前是否有 `LIBTV_ACCESS_KEY credential check` 策略；执行生成时是否有 queue ledger 与 sessionId / blocked reason。
 10. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`。
 

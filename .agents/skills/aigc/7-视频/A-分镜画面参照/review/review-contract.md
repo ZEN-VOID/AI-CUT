@@ -11,7 +11,7 @@
 | shot_id_mapping | 每个四段式 `分镜ID` 可回指源组和组内 `分镜N` 或已有 ID | `references/group-shot-source-contract.md` |
 | prompt_authorship | prompt 主体直接使用现有分镜组内容，LLM 只做保真指令化组织 | `SKILL.md#LLM-First Creative Authorship Contract` |
 | reference_binding | 参照图路径真实、位于 `6-图像/A-分镜画面`；无图移除空槽位；多候选阻断 | `references/frame-image-binding-contract.md` |
-| libtv_handoff | YAML 可投影为合法 `libtv_session_with_uploaded_references` 或 `libtv_session_text_only` 命令 | `references/libtv-handoff-contract.md` |
+| libtv_handoff | YAML 可投影为合法提交；远端 handoff 有图默认 `modeType=image2video`，显式首尾帧才允许 `frames2video`，无图 `text2video` | `references/libtv-handoff-contract.md` |
 | queue_tracking | 多任务均有 queue row、sessionId 或明确失败原因、next_action | `.agents/skills/cli/libTV/SKILL.md` |
 | concurrency | 并发只写临时结果，最终 report / results 单线程汇流 | `steps/frame-reference-video-workflow.md` |
 | route_clarity | 当前 mode、skipped stages、rework entry 与 next entry 清楚 | `types/type-map.md` |
@@ -30,7 +30,7 @@
 4. 检查 step1 是否把组内分镜稳定映射到四段式 `分镜ID`。
 5. 检查 step2 是否只按 `shot_id` 绑定真实分镜画面图；无图是否移除空槽位。
 6. 检查 prompt / YAML 是否在对应 `分镜ID` 后体现 `@路径`，并正确投影到 LibTV `@图N`。
-7. 检查 step3 是否在有图时走 `libtv_session_with_uploaded_references`，无图时走 `libtv_session_text_only`。
+7. 检查 step3 是否在有图时默认锁 `modeType=image2video` 和 `imageList`，显式首尾帧才允许 `frames2video`，无图时锁 `text2video`。
 8. 检查生成前是否要求 `LIBTV_ACCESS_KEY credential check`。
 9. 检查批量并发是否有 queue ledger、sessionId、next_action 和单线程汇流。
 10. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/`。

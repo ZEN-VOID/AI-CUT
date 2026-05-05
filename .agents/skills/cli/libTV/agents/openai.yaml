@@ -1,4 +1,0 @@
-interface:
-  display_name: "LibTV"
-  short_description: "Use LibTV to create/edit AIGC media, with passive query/download on request"
-  default_prompt: "Use $libTV to send this image or video task to LibTV, tell 龙虾 at task start to put the workflow and results on the project canvas, for video tasks default to sound enabled and 15 seconds unless explicitly overridden, preserve the session metadata and intended output directory, and only query or download when explicitly requested."

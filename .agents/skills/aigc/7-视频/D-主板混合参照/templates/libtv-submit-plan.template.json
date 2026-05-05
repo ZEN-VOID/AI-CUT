@@ -8,6 +8,7 @@
     "duration": 15,
     "ratio": "16:9",
     "video_resolution": "720p",
+    "enableSound": "on",
     "poll": 30,
     "concurrency": 4
   },
@@ -16,6 +17,11 @@
       "group_id": "1-1-1",
       "command_type": "libtv_session_with_uploaded_references",
       "prompt_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/prompts/1-1-1.txt",
+      "remote_prompt_contract_version": "hybrid_board_subject_direct_video_v1",
+      "remote_submission_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/prompts/1-1-1-libtv-submission.txt",
+      "remote_submission_required_opening": "【LibTV 调用锁定】",
+      "required_modeType_when_referenced": "mixed2video",
+      "required_reference_field": "mixedList",
       "reference_images": [
         {
           "role": "storyboard_total_reference",
@@ -36,8 +42,8 @@
       "projectUuid": "",
       "projectUrl": "",
       "queue_ledger": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/第N集-libtv-queue.md",
-      "download_dir": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/videos",
-      "expected_video_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/videos/1-1-1.mp4"
+      "download_dir": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
+      "expected_video_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/1-1-1.mp4"
     }
   ]
 }
