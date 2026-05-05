@@ -21,7 +21,9 @@ projects/aigc/<项目名>/0-初始化/north_star.yaml
 ## Group Boundary
 
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
-- 一个分镜组从该标题开始，到下一个 `## x-y-z` 或文件结尾前结束。
+- 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
+- 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
+- `7-视频/C-主体参照` 默认完全忽略连接件块：不进入 `group_body`、视频 prompt、YAML 主体槽位、reference manifest、LibTV submit plan 或视频文件命名。
 - 组底 fenced YAML 必须作为该组的结构化主体来源；正文和 YAML 都要保留各自角色，不得互相替代。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 
@@ -47,7 +49,7 @@ source_shot_labels: []
 ## Video Prompt Source Rule
 
 - `group_body` 是视频 prompt 的主要正文来源。
-- 不删除组间连接件、分镜明细、音效、对白、环境描写和表演提示。
+- 不删除分镜明细、音效、对白、环境描写和表演提示；默认跳过组间连接件。
 - 不把 YAML 合并进正文主段；YAML 只用于 reference manifest 和主体参照说明，其中有图主体必须追加 `@<图片路径>`。
 - 若组正文过长，只允许在 LibTV handoff 层做可审查压缩摘要，并保留完整原文路径和原文字数。
 
@@ -68,4 +70,5 @@ source_shot_labels: []
 | 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
 | YAML fenced block 缺失 | 阻断参照绑定，允许 prompt-only 并报告 |
 | group_body 被截断 | 重新按下一个二级标题定位边界 |
+| 连接件进入 group_body 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | `分镜N` 统计不完整 | 保留原正文，报告 `shot_count_unverified` |

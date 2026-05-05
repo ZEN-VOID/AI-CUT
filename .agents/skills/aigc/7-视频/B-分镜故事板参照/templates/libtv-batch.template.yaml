@@ -12,7 +12,7 @@ execution:
   result_file: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/第N集-libtv-results.json"
 defaults:
   requested_model: ""
-  duration: 10
+  duration: 15
   ratio: "16:9"
   video_resolution: "720p"
   poll: 45
@@ -36,7 +36,7 @@ jobs:
       <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
     libtv:
       requested_model: ""
-      duration: 10
+      duration: 15
       ratio: "16:9"
       video_resolution: "720p"
       poll: 45

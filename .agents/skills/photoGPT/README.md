@@ -1,6 +1,6 @@
 # photoGPT
 
-`photoGPT` 是 imagegen 专属的多模板提示词强化器：先判定图像编辑类型和子类型，再读取对应模板，把用户指令转为可执行 prompt plan，并交给 `.agents/skills/cli/imagegen` 执行。
+`photoGPT` 是 `gpt-image-2` 专属的多模板提示词强化器：先判定图像编辑类型和子类型，再读取对应模板，把用户指令转为可执行 prompt plan，并交给 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 路径执行。
 
 ## Directory Tree
 
@@ -57,7 +57,7 @@ photoGPT/
 1. 读取 `SKILL.md + CONTEXT.md`。
 2. 读取 `types/type-map.md` 判定 `edit_family` / `edit_subtype`。
 3. 读取对应 `templates/<类型>/<子类型>/TEMPLATE.json` 和 `references/prompt-enhancement-contract.md`。
-4. 输出 prompt plan；若输入齐备，调用 `.agents/skills/cli/imagegen`。
+4. 输出 prompt plan；若输入齐备，只调用 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 路径。
 
 ## Supported Families
 

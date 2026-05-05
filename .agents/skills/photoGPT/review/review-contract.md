@@ -32,7 +32,7 @@ flowchart TD
 | change_scope | 允许修改的区域和目标清楚 |
 | negative_constraints | 至少包含模板关键禁止项 |
 | template_specific | 中文细分模板已加载；多视图 layout、多图融合角色标注、风格化保真、修图真实感、元素替换锁定项完整 |
-| imagegen_handoff | 已遵守 `.agents/skills/cli/imagegen` 模式与输出规则 |
+| imagegen_handoff | `imagegen_handoff.model == gpt-image-2`，且已遵守 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 模式与输出规则 |
 
 ## Type-Specific Gate
 
@@ -43,6 +43,12 @@ flowchart TD
 | `风格化` | 风格迁移、滤镜 | 风格作用范围明确；主体身份、构图事实和叙事事实保留；滤镜类不得升级为重绘 |
 | `修图` | 高清、美颜美体 | 修复目标明确；保持身份、构图和真实纹理；美颜美体自然克制，不改变人物身份或人体结构 |
 | `元素替换` | 换背景、换角色、换脸、换装 | 图序正确；替换来源明确；保留范围明确；边缘融合、接触阴影和光线一致；禁止项完整 |
+
+## Provider Gate
+
+- pass: `imagegen_handoff.model` 明确为 `gpt-image-2`，且未声明、调用或建议其他图像 provider。
+- blocked: 任务依赖 nano-banana、AnyFast Gemini image、InsightFace、inswapper、Roop、DeepFace、Photoshop generative edit 或其他非 `gpt-image-2` provider。
+- finding code: `blocked_provider_not_gpt_image_2`。
 
 ## Verdict Model
 

@@ -56,7 +56,7 @@ Optional input:
 - `group_batch`：一次处理多个指定分镜组。
 - `shot_batch`：指定多个四段式 `分镜ID`，本技能按所属组聚合生成组级任务。
 - `execution.concurrency`：并发 worker 数；默认 `min(4, job_count)`，不得让多个 worker 同时改写同一个最终报告。
-- 用户指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略。
+- 默认视频规格为 720P、15 秒、16:9；用户显式指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略时，以用户要求为准。
 
 Reject or clarify when:
 
@@ -158,7 +158,7 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、目标四段式 `分镜ID` 集合、是否执行 LibTV、是否查询下载。
-3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
+3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、四段式映射、参照 manifest 或 LibTV job；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 镜级映射：组内每个 `分镜N` 转为四段式 `x-y-z-N`；若组稿已经提供匹配的四段式 `分镜ID`，以其为基准，不重新编号覆盖。
 5. step1 组装 prompt 时添加 LibTV 视频约束前缀：`根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。`
 6. step2：检查 `projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/` 下是否存在与四段式 `分镜ID` 对应的图片；优先 `images/<shot_id>.*`，其次同集目录内 `<shot_id>.*`，允许常见扩展名 `png/jpg/jpeg/webp`。

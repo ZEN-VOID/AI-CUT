@@ -21,7 +21,9 @@ projects/aigc/<项目名>/0-初始化/north_star.yaml
 ## Group Boundary
 
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
-- 一个分镜组从该标题开始，到下一个 `## x-y-z` 或文件结尾前结束。
+- 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
+- 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
+- `6-图像/B-分镜故事板` 默认完全忽略连接件块：不进入 `group_body`、storyboard prompt、YAML 主体基准、shot_count、reference manifest 或 imagegen plan。
 - 组底 fenced YAML 必须作为该组的结构化主体来源；正文和 YAML 都要保留各自角色，不得互相替代。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 
@@ -67,4 +69,5 @@ source_shot_labels: []
 | 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
 | YAML fenced block 缺失 | 阻断参照绑定，允许 prompt-only 并报告 |
 | group_body 被截断 | 重新按下一个二级标题定位边界 |
+| 连接件进入 group_body 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | `分镜N` 统计不完整 | 保留原正文，报告 `shot_count_unverified` |

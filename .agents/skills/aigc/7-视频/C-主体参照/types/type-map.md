@@ -32,7 +32,7 @@
 | `target_scope` | `single_group / group_batch / episode_batch / multi_episode_batch / review_existing` | 处理范围 |
 | `execution_intent` | `prompt_only / generate / query_or_download / repair / review_only` | 是否执行或查询 LibTV |
 | `source_state` | `group_source_ready / group_source_partial / group_source_missing` | `4-分组` 可用性 |
-| `reference_state` | `all_bound / partial_missing / no_assets / ambiguous` | 主体参照状态 |
+| `reference_state` | `all_bound / partial_missing / no_assets / visual_resolved / ambiguous` | 主体参照状态 |
 | `libtv_route` | `libtv_session_with_uploaded_references / libtv_session_text_only / query_session / blocked` | LibTV 路由 |
 | `concurrency_state` | `serial / background_parallel / blocked` | 提交或查询并发策略 |
 
@@ -52,9 +52,10 @@
 
 ## LibTV Route Rules
 
-- `reference_state in {all_bound, partial_missing}` 且 `bound[]` 非空：优先 `libtv_session_with_uploaded_references`。
+- `reference_state in {all_bound, partial_missing, visual_resolved}` 且 `bound[]` 非空：优先 `libtv_session_with_uploaded_references`。
 - `reference_state == no_assets` 或所有 YAML 主体都缺图：走 `libtv_session_text_only`。
-- `reference_state == ambiguous`：阻断提交，先修参照。
+- 多候选主体必须先执行视觉消歧；视觉消歧成功后视为 `visual_resolved`，视觉消歧仍不能唯一选择时才进入 `ambiguous`。
+- `reference_state == ambiguous`：阻断提交，先修参照或等待用户确认。
 - 已有 `sessionId`：走 `query_session`，不得重复提交，除非用户明确 rerun。
 
 ## Reroute Rules
@@ -70,5 +71,5 @@
 
 1. `source_state != group_source_missing`。
 2. `libtv_route != blocked`。
-3. `reference_state != ambiguous`，除非 ambiguous 条目已被移除或用户确认。
+3. `reference_state != ambiguous`，除非 ambiguous 条目已被移除、视觉消歧已唯一解决或用户确认。
 4. 输出路径位于项目内 `7-视频/C-主体参照`。

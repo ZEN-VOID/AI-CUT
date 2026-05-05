@@ -35,5 +35,7 @@ License: MIT, copied into `LICENSE.txt`.
 ## Integration Notes
 
 - The upstream OpenClaw skill says the local agent should pass the user's original message through to LibTV and let the backend agent plan models and workflow.
-- Completed tasks should report generated result links or local downloaded files plus the project canvas URL.
+- New generation/editing tasks should report session metadata, intended output directory, and the project canvas URL. Generated result links or local downloaded files are reported only after an explicit user query/download request.
+- At task start, tell 龙虾 `把全部工作流和结果都放在画布上。` so the workflow and results are expected on the project canvas.
+- For video tasks, include operational defaults in a separate block: sound/audio enabled, 15 seconds, 16:9, 720P, and do not shorten to 10 seconds unless the user explicitly asked for 10 seconds.
 - The imported upload script currently calls `/openapi/upload`; keep this reference aligned if the upstream API path changes.

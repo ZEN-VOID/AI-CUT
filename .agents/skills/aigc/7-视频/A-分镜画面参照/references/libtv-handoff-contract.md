@@ -27,8 +27,9 @@
       role: "storyboard_frame"
   libtv:
     requested_model: ""
-    duration_hint: 10
+    duration_hint: 15
     ratio_hint: "16:9"
+    video_resolution_hint: "720p"
     poll_seconds: 45
   output:
     download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第1集/videos"
@@ -43,7 +44,7 @@
 | `reference_images` 为空 | `libtv_session_text_only` | 调用 `create_session.py "<完整组内容 prompt>"` |
 | `reference_images` 超过用户或 LibTV 当前可承受范围 | `blocked` / `split_by_user_policy` | 不静默丢图；按用户策略阻断、分段或降级，并写入 report |
 
-`7-视频` 不在本地硬编码模型版本。用户显式指定模型、时长、比例或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定时使用 LibTV 后端默认路由。
+`7-视频` 不在本地硬编码模型版本。除非用户显式要求其他规格，否则默认 720P、15 秒、16:9；用户显式指定模型、时长、比例、分辨率或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定模型时使用 LibTV 后端默认路由。
 
 ## Prompt Projection
 

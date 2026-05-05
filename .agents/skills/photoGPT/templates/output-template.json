@@ -32,6 +32,7 @@
     "negative_constraints": [],
     "imagegen_handoff": {
       "skill": ".agents/skills/cli/imagegen",
+      "model": "gpt-image-2",
       "mode": "",
       "output_path": ""
     },

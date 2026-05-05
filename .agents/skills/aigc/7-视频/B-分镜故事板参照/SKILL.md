@@ -55,7 +55,7 @@ Optional input:
 - `episode_batch`：一次处理一集全部分镜组。
 - `group_batch`：一次处理多个指定分镜组。
 - `execution.concurrency`：并发 worker 数；默认 `min(4, job_count)`，不得让多个 worker 同时改写同一个最终报告。
-- 用户指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略。
+- 默认视频规格为 720P、15 秒、16:9；用户显式指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略时，以用户要求为准。
 
 Reject or clarify when:
 
@@ -153,7 +153,7 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 LibTV、是否查询下载。
-3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
+3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、故事板参照绑定、LibTV job 或视频文件命名；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 组装 prompt 时添加 LibTV 视频约束前缀：`根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。`
 5. step2：检查 `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/` 下是否存在与 `group_id` 对应的图片；优先 `images/<group_id>.*`，其次同集目录内 `<group_id>.*`，允许常见扩展名 `png/jpg/jpeg/webp`。
 6. step2 绑定结果必须写入 YAML：有图则 `reference_images: [{path, role: storyboard_sheet, marker: "@图1"}]`；无图则 `reference_images: []`，并记录 `reference_status: missing_optional`，不阻断 text-to-video。

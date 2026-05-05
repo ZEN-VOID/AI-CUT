@@ -130,7 +130,7 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 imagegen。
-3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；prompt 主体直接使用现有组内容，不进行剧情改写。
+3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入 storyboard prompt、YAML 主体基准、shot_count 或生图任务；prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 组装 prompt 时必须添加固定开头：`Create a multi-panel storyboard based on the following shot breakdown. Add the shot sequence number in the bottom-left corner of each panel (no other text). Auto-adapt the panel layout grid based on the total number of shots.`
 5. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照槽位移除。
 6. 执行 step3 前，若 reference manifest 中存在本地参照图路径，必须逐张调用 `view_image` 检视，并按 `character reference / scene reference / prop reference` 标注角色，使图片进入对话上下文后再继续 imagegen handoff；未完成检视的本地参照不得宣称已作为视觉参照使用。

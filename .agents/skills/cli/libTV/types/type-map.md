@@ -8,13 +8,13 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | `generation` | `types/generation/` | new LibTV image/video, storyboard, MV, ad, short drama, product video, text-to-media | exclusive | `types/generation/generation.md` | `editing`, `session-ops` | none |
 | `editing` | `types/editing/` | local image/video reference plus modify, replace, remove, animate, extend, restyle, turn into video | exclusive | `types/editing/editing.md` | `generation`, `session-ops` | none |
-| `session-ops` | `types/session-ops/` | `sessionId`, progress query, append message, download results, switch project | exclusive | `types/session-ops/session-ops.md` | `generation`, `editing` | none |
+| `session-ops` | `types/session-ops/` | `sessionId`, explicit progress query, append message, explicit download results, switch project | exclusive | `types/session-ops/session-ops.md` | `generation`, `editing` | none |
 
 ## Default Package Rule
 
 1. If the user names LibTV and gives only creative intent, choose `generation`.
 2. If the user supplies a local media path and asks for a change or reference-based creation, choose `editing`.
-3. If the user supplies a `sessionId` or asks only for progress/download/project changes, choose `session-ops`.
+3. If the user supplies a `sessionId` or explicitly asks for progress/download/project changes, choose `session-ops`.
 4. If the request lacks required data for the selected package, ask the smallest possible clarification.
 
 ## Loading Flow

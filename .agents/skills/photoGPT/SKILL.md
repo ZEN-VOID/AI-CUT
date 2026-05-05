@@ -8,14 +8,14 @@ metadata:
 
 # photoGPT
 
-`photoGPT` 是图像编辑任务的类型识别、提示词强化与 imagegen 执行编排层。它的类型真源固定为五大类十四子类：`多视图/场景|道具|服装|角色`、`多图融合/电商广告|分镜构图`、`风格化/风格迁移|滤镜`、`修图/高清|美颜美体`、`元素替换/换背景|换角色|换脸|换装`。本技能不替代 `.agents/skills/cli/imagegen` 的 provider 合同，也不让脚本生成主创提示词；核心创作判断必须由 LLM 完成，然后把清晰的图片角色、编辑类型、强化提示词、负面约束和输出要求交给 `imagegen` 执行。
+`photoGPT` 是图像编辑任务的类型识别、提示词强化与 gpt-image-2 执行编排层。它的类型真源固定为五大类十四子类：`多视图/场景|道具|服装|角色`、`多图融合/电商广告|分镜构图`、`风格化/风格迁移|滤镜`、`修图/高清|美颜美体`、`元素替换/换背景|换角色|换脸|换装`。本技能不替代 `.agents/skills/cli/imagegen` 的 GPT Image 合同，也不让脚本生成主创提示词；核心创作判断必须由 LLM 完成，然后把清晰的图片角色、编辑类型、强化提示词、负面约束和输出要求交给 `gpt-image-2` 执行。
 
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 执行前必须按 `Reference Loading Guide` 读取 `types/type-map.md`，形成 `type_profile` 后再选择模板。
-- 调用生图或修图前必须读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并遵守其模式、默认 2K 目标、输出持久化和 CLI fallback 规则。
+- 调用生图或修图前必须读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，但本技能的执行模型只允许 `gpt-image-2`；若 `gpt-image-2` 不可用，应输出 `prompt_only` / `blocked`，不得自动切换其他 provider。
 - 若任务绑定 `projects/aigc/<项目名>/`，还必须先加载项目根 `MEMORY.md` 与相关 `CONTEXT/` 文件，再进入提示词强化。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `.agents/skills/cli/imagegen/SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目记忆与上下文 > 本 `CONTEXT.md`。
 
@@ -33,9 +33,10 @@ Use this skill for:
 
 Do not use this skill for:
 
-- 直接 API 参数、密钥、provider 网络问题排查；此类问题回到 `.agents/skills/cli/imagegen` 或具体 provider 技能。
+- 直接 API 参数、密钥、provider 网络问题排查；此类问题回到 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 合同。
 - 非图片工件，如纯 SVG、HTML/CSS、视频剪辑、小说正文。
 - 绕过用户意图重写主体身份、剧情事实或上游设计真源。
+- 路由到 nano-banana、InsightFace、inswapper、Photoshop 或其他非 `gpt-image-2` provider。
 
 ## Input Contract
 
@@ -54,6 +55,13 @@ Do not use this skill for:
 | `reference_edit` | 双图或多图换背景、换角色、换脸、换装、风格迁移 | 锁定图片角色顺序 -> 中文子模板 -> `imagegen` edit |
 | `fusion_edit` | 多图融合、电商广告、分镜构图 | 标注每张图职责 -> 中文子模板 -> `imagegen` edit/generate |
 | `design_sheet` | 多视图场景/道具/服装/角色、turnaround、sheet | 读取 `templates/多视图/<子类型>/TEMPLATE.json` -> 生成设计页 prompt -> `imagegen` generate/edit |
+
+## Provider Boundary
+
+- `photoGPT` 只识别 `gpt-image-2` 作为可执行图像模型。
+- `imagegen_handoff.model` 必须写为 `gpt-image-2`；`mode` 必须是 `gpt_image_2_generate`、`gpt_image_2_edit` 或 `prompt_only`。
+- 不得在 `photoGPT` 内调用或建议 nano-banana、AnyFast Gemini image、InsightFace、inswapper、Roop、DeepFace、Photoshop generative edit 或其他非 `gpt-image-2` 图像 provider。
+- 若任务需要 true transparency、严格人脸身份换脸、专门本地模型、非 GPT Image API 参数或其他 `gpt-image-2` 不支持能力，应报告 `blocked_provider_not_gpt_image_2`，而不是降级或换 provider。
 
 ## Reference Loading Guide
 
@@ -107,7 +115,7 @@ flowchart LR
     B --> C["references/prompt-enhancement-contract.md<br/>强化规则与图片角色"]
     C --> D["steps/execution-workflow.md<br/>执行节点与汇流"]
     D --> E["review/review-contract.md<br/>交付门禁"]
-    E --> F[".agents/skills/cli/imagegen<br/>provider 与落盘真源"]
+    E --> F[".agents/skills/cli/imagegen<br/>gpt-image-2 与落盘真源"]
     G["CONTEXT.md / knowledge-base<br/>经验层"] -. "辅助判断，不改写合同" .-> A
 ```
 
@@ -131,7 +139,7 @@ flowchart TD
 3. 形成 `type_profile`：`edit_family`、`edit_subtype`、`template_path`、`input_image_count`、`image_role_schema`、`identity_lock`、`composition_lock`、`output_mode`。
 4. 读取命中的模板文件和 `references/prompt-enhancement-contract.md`，由 LLM 直接生成 canonical prompt，不使用脚本拼接创作正文。
 5. 按 `review/review-contract.md` 检查图序、锁定项、负面约束、模板特异字段和 imagegen 可执行性。
-6. 若图片与环境条件齐备，读取并调用 `.agents/skills/cli/imagegen`；否则输出 prompt plan、阻断原因和下一步所需输入。
+6. 若图片与 `gpt-image-2` 环境条件齐备，读取并调用 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 路径；否则输出 prompt plan、阻断原因和下一步所需输入。
 7. 交付时记录最终类型、模板、图片角色、最终提示词、imagegen 模式、输出路径或 prompt-only 阻断。
 
 ## Root-Cause Execution Contract
@@ -148,7 +156,7 @@ flowchart TD
 | 多图融合把所有参考图平均混合 | `references/prompt-enhancement-contract.md` | 逐图标注商品/主体/场景/构图/风格职责 |
 | 主体身份、服装、姿态漂移 | 对应 `templates/<类型>/<子类型>/TEMPLATE.json` | 增强 identity/composition lock 和禁止项 |
 | 多视图 sheet 变成海报或九宫格错型 | `templates/多视图/<子类型>/TEMPLATE.json` | 恢复固定 layout grammar 与身份徽章 |
-| CLI/API 路径被误用 | `.agents/skills/cli/imagegen/SKILL.md` | 回到 imagegen 模式合同，确认是否需要用户显式许可 |
+| 非 gpt-image-2 provider 被误用 | `SKILL.md` + `.agents/skills/cli/imagegen/SKILL.md` | 恢复 `gpt-image-2` handoff；若不支持则 blocked / prompt-only |
 | 输出没有审计信息 | `templates/output-template.json` / `review/review-contract.md` | 补齐 prompt plan、mode、path、verdict |
 
 ## Field Mapping
@@ -194,8 +202,8 @@ flowchart TD
 
 ## Output Contract
 
-- Required output: `photoGPT_prompt_plan` and, when executable, generated/edited bitmap asset(s) created through `.agents/skills/cli/imagegen`.
-- Output format: JSON-compatible prompt plan containing `type_profile`, `image_roles`, `template_path`, `final_prompt`, `negative_constraints`, `imagegen_mode`, `output_path`, `review_verdict`.
+- Required output: `photoGPT_prompt_plan` and, when executable, generated/edited bitmap asset(s) created through `.agents/skills/cli/imagegen` with `gpt-image-2`.
+- Output format: JSON-compatible prompt plan containing `type_profile`, `image_roles`, `template_path`, `final_prompt`, `negative_constraints`, `imagegen_mode`, `imagegen_model: gpt-image-2`, `output_path`, `review_verdict`.
 - Output path: prompt-only reports stay in the conversation unless the user provides a project/output path; project-bound assets follow `.agents/skills/cli/imagegen` persistence rules and must not remain only in transient generated-image storage.
 - Naming convention: prompt plans use descriptive names such as `<source-stem>-photogpt-plan.json` when saved; image outputs use stable sibling names that reflect the Chinese subtype, such as `<source-stem>-修图-高清.png`, `<source-stem>-元素替换-换背景.png`, or user-provided filenames.
 - Completion gate: type/subtype selected, template loaded, image roles clear, final prompt includes preservation and change constraints, imagegen contract honored, final asset path exists when generation was executed, and `review/review-contract.md` returns `pass` or `pass_with_followups`.

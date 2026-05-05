@@ -10,6 +10,8 @@ metadata:
 
 `6-图像` 是 AIGC 项目的图像阶段父级入口。它负责把来自 `4-分组` 与 `5-设计` 的信息路由到叶子技能，不直接主创 prompt 正文，也不直接替代 `.agents/skills/cli/imagegen` 生成图像。
 
+`4-分组` 中的 `## x-y-z~x-y-z` 组间连接件在 `6-图像` A/B 叶子路线中默认全部忽略：不进入镜级 prompt、组级 storyboard prompt、参照 manifest、imagegen plan 或生成图片。未来连接件视频由单独手动视频连接 skill 处理，父级不得默认调度。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-image-stage` 时，必须同时加载同目录 `CONTEXT.md`。

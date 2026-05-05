@@ -13,7 +13,7 @@
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 | --- | --- | --- | --- | --- |
 | 视频 prompt 被脚本拼接改写，偏离 `4-分组` 原文 | LLM 主创层 | 停止脚本主创，改为 LLM 保真组织并直接嵌入组正文 | `SKILL.md` 和 `references/group-source-contract.md` 固定“现有内容为主体” | prompt 可回放完整组正文 |
-| 分镜组正文提取到下一个组之外或漏尾部 YAML 前正文 | 组边界层 | 重新按 `## x-y-z` 二级标题切块 | 在 group index 记录 source heading、line range、body hash | `group_id` 唯一且正文非空 |
+| 分镜组正文提取到下一个组之外、吞入连接件或漏尾部 YAML 前正文 | 组边界层 | 重新按 `## x-y-z` 普通组标题与 `## x-y-z~x-y-z` 连接件标题切块，连接件默认忽略 | 在 group index 记录 source heading、line range、body hash，并确认无连接件进入 prompt | `group_id` 唯一且正文非空 |
 | 没有故事板图却写入占位图路径 | 参照绑定层 | 将该组 `reference_images` 置空，并记录 `missing_optional` | 缺图不阻断 text-to-video，不允许占位路径 | YAML 中无不存在路径 |
 | 有故事板图却走 `image2video` 把故事板误当首帧 | provider 路由层 | 改为 `libtv_session_with_uploaded_references` 并在 prompt 中声明 `@图1` 是 storyboard reference | `libtv-handoff-contract.md` 固定参照图语义 | command preview 为 `libtv_session_with_uploaded_references upload_file.py` |
 | 无参照图时仍调用 `libtv_session_with_uploaded_references` 导致必填输入失败 | provider 路由层 | 改为 `libtv_session_text_only` | YAML 根据 `reference_images` 判定 command_type | 无图 job 的 command_type 是 `libtv_session_text_only` |

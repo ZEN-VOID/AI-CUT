@@ -1,6 +1,6 @@
 # Prompt Enhancement Contract
 
-本文件定义 `photoGPT` 从用户自然语言到 imagegen 可执行提示词的强化规则。
+本文件定义 `photoGPT` 从用户自然语言到 `gpt-image-2` 可执行提示词的强化规则。
 
 ## Canonical Prompt Plan
 
@@ -23,7 +23,8 @@ photoGPT_prompt_plan:
   negative_constraints: []
   imagegen_handoff:
     skill: ".agents/skills/cli/imagegen"
-    mode: built_in_generate | built_in_edit | cli_fallback | prompt_only
+    model: gpt-image-2
+    mode: gpt_image_2_generate | gpt_image_2_edit | prompt_only
 ```
 
 ## Prompt Strengthening Rules
@@ -68,6 +69,7 @@ photoGPT_prompt_plan:
 ## Handoff To Imagegen
 
 - 调用前必须读取 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`。
-- 默认遵守 imagegen 的 built-in route；只有用户显式要求或 imagegen 合同允许时才进入 CLI/API fallback。
-- 若 `imagegen` 不能执行，`photoGPT` 仍可交付 prompt plan，但必须写清阻断原因。
+- `photoGPT` 只允许把任务交给 `gpt-image-2`；`imagegen_handoff.model` 必须显式写为 `gpt-image-2`。
+- 不得把 prompt plan 交给 nano-banana、AnyFast Gemini image、InsightFace、inswapper、Roop、DeepFace、Photoshop generative edit 或其他非 `gpt-image-2` provider。
+- 若 `gpt-image-2` 不能执行，`photoGPT` 仍可交付 prompt plan，但必须写清 `blocked_provider_not_gpt_image_2` 或其他具体阻断原因。
 - 项目资产落盘、命名、2K 默认和透明背景规则均由 imagegen 合同裁决。

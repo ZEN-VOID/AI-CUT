@@ -18,11 +18,11 @@ flowchart TD
     F --> I
     G --> I
     H --> I
-    I --> J["N5 LLM Prompt Plan<br/>preserve/change/negative/imagegen_handoff"]
+    I --> J["N5 LLM Prompt Plan<br/>preserve/change/negative/gpt-image-2 handoff"]
     J --> K["N6 Review Gate"]
     K -->|"pass / pass_with_followups"| L{"Executable?"}
     K -->|"needs_rework"| M["Return To Failed Node"]
-    L -->|"yes"| N["N7 Call imagegen"]
+    L -->|"yes"| N["N7 Call gpt-image-2"]
     L -->|"prompt-only / blocked"| O["Emit Prompt Plan"]
     N --> P["N8 Close<br/>path + mode + verdict"]
     O --> P
@@ -56,7 +56,7 @@ stateDiagram-v2
 | `N4-TEMPLATE` | `type_profile` | 读取 `templates/<类型>/<子类型>/TEMPLATE.json` 与 prompt enhancement contract | `template_context` | 模板存在且字段齐全 |
 | `N5-PROMPT` | 用户意图 + 模板 | LLM 直出 canonical final prompt | `photoGPT_prompt_plan` | preserve/change/negative 三组齐全 |
 | `N6-REVIEW` | prompt plan | 执行 `review/review-contract.md` | `review_verdict` | pass 或 pass_with_followups 才可执行 |
-| `N7-IMAGEGEN` | prompt plan + imagegen 合同 | 调用 `.agents/skills/cli/imagegen` 或输出阻断 | image asset or prompt-only report | 路径/模式可追溯 |
+| `N7-IMAGEGEN` | prompt plan + imagegen 合同 | 仅调用 `.agents/skills/cli/imagegen` 的 `gpt-image-2` 路径或输出阻断 | image asset or prompt-only report | `imagegen_handoff.model == gpt-image-2` 且路径/模式可追溯 |
 | `N8-CLOSE` | 执行结果 | 汇总类型、模板、prompt、模式、路径和风险 | final delivery | 不伪造未生成资产 |
 
 ## Branch Rules
@@ -66,6 +66,7 @@ stateDiagram-v2
 - `reference_edit`: `元素替换` 或 `风格化/风格迁移`，`N3-ROLES` 必须有 `edit_target` 与至少一个 reference role。
 - `fusion_edit`: `多图融合`，`N3-ROLES` 必须逐张标注商品/主体/场景/构图/风格职责。
 - `design_sheet`: `多视图`，`N5-PROMPT` 必须有对应 ID/name/desc 注入。
+- provider boundary: 所有可执行分支只能进入 `gpt-image-2`；若需要 nano-banana、InsightFace、inswapper 或其他 provider，返回 `blocked_provider_not_gpt_image_2`。
 
 ## Subtype Evidence Gates
 
@@ -88,4 +89,4 @@ stateDiagram-v2
 | 图片角色冲突 | `N3-ROLES` |
 | 模板缺字段 | `N4-TEMPLATE` |
 | prompt 缺锁定项 | `N5-PROMPT` |
-| imagegen 执行模式冲突 | `.agents/skills/cli/imagegen/SKILL.md` |
+| imagegen 执行模式冲突或非 gpt-image-2 provider 被选中 | `SKILL.md` + `.agents/skills/cli/imagegen/SKILL.md` |

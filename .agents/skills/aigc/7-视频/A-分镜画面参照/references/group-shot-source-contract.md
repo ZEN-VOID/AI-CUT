@@ -20,7 +20,9 @@ projects/aigc/<项目名>/CONTEXT/
 ## Group Boundary
 
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
-- 一个分镜组从该标题开始，到下一个 `## x-y-z` 或文件结尾前结束。
+- 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
+- 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
+- `7-视频/A-分镜画面参照` 默认完全忽略连接件块：不进入 `group_content`、四段式 `shot_id` 映射、视频 prompt、reference manifest、LibTV batch 或视频文件命名。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 - 视频 prompt 主体使用完整组内容，不用底部 YAML 或摘要替代正文。
 
@@ -40,7 +42,7 @@ group_id: "1-1-1"
 episode_id: "第1集"
 source_file: "projects/aigc/<项目名>/4-分组/第1集.md"
 heading: "## 1-1-1"
-group_content: "<从标题后到下一个组标题前的现有完整内容>"
+group_content: "<从标题后到下一个普通组标题或连接件标题前的现有完整内容>"
 source_body_hash: "<sha256>"
 shots:
   - shot_id: "1-1-1-1"
@@ -73,5 +75,6 @@ shots:
 | --- | --- |
 | 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
 | group_content 被截断 | 重新按下一个二级标题定位边界 |
+| 连接件进入 group_content 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | 组正文被摘要或改写 | 回到本合同，恢复完整现有内容 |
 | `分镜N` 与四段式 ID 对不上 | 优先使用已提供的 `分镜ID`，并在 index 中记录映射依据 |

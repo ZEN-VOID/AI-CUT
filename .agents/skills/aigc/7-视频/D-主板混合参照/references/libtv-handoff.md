@@ -15,6 +15,7 @@
 - `requested_model`: 默认为空，表示使用 LibTV 后端默认视频路由。用户显式指定模型时，原样写入自然语言任务。
 - `duration_hint`: 默认 `15` 秒。
 - `ratio_hint`: 默认 `16:9`。
+- `video_resolution_hint`: 默认 `720p`，即用户可见规格 720P。
 - `poll_seconds`: 默认 `45`。
 - 图片路径必须存在；空数组不传参照。
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-05
+
+- Restricted `photoGPT` provider handoff to `gpt-image-2` only.
+- Added provider boundary checks that block nano-banana, InsightFace, inswapper, Photoshop generative edit, and other non-`gpt-image-2` providers.
+- Updated prompt plan, review, workflow, context, README, and product metadata to require `imagegen_handoff.model: gpt-image-2`.
+
 ## 2026-04-26
 
 - Converted all fourteen subtype templates and the output prompt-plan template from legacy Markdown carriers to JSON files, and updated all photoGPT routing references to the JSON template truth.

@@ -25,6 +25,7 @@ last_checked_at: 2026-04-26
 | ambiguous video | 用户只说“生成视频”且 A/B/C 都可能 | 需要最小澄清或按现有资产最强证据选择 | 优先使用用户点名资产；其次既有输出目录；再其次上游已完成度 |
 | local model parameter drift | 未显式指定模型时仍在本地 submit plan 中强塞旧模型参数 | A/B/C/D 叶子 handoff | 改为 `$libTV` 后端默认路由；只有用户显式指定时才把模型要求写入自然语言任务 |
 | video filename drift | 下载视频使用 sessionId、provider id 或非 group_id 文件名，导致 `8-审片` 无法回推分镜组 | A/B/C/D 叶子 output contract | canonical 视频名改为 `<group_id>.mp4`；同组多变体用 `<group_id>-a.mp4`、`<group_id>-b.mp4`，sessionId 写 queue/report |
+| duplicate LibTV canvas | 同一 `projects/aigc/<项目名>/` 多次调用 `$libTV` 却生成多个 projectUrl / 画布 | 项目级画布 registry 缺失或未读 | 先读 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；缺失时从 A/B/C/D queue/results/report 反建；已有 `canonical_sessionId` 时复用 |
 
 ## Repair Playbook
 
@@ -36,6 +37,8 @@ last_checked_at: 2026-04-26
 6. 若父级发现叶子技能缺失或上下文不可读，报告配置缺口；不要复制其他叶子合同来代替。
 7. 若需要上传参照图、创建 LibTV 会话、并发、`sessionId`、下载状态，交给叶子加载 `.agents/skills/cli/libTV`，父级只确认路由。
 8. 下载视频进入可审片状态前，必须确认文件名能直接回推 `4-分组` 的 `group_id`；同组变体只能使用小写字母后缀。
+9. 每次进入 A/B/C/D 叶子前，先解析项目级 `libtv-canvas-registry.json`；缺失时不要急着新建画布，先扫描既有队列和结果记录里的 `sessionId/projectUuid/projectUrl`。
+10. 若 registry 中已有 `canonical_sessionId`，默认把它传给叶子用于 `create_session.py --session-id`；只有用户要求新画布、session 明确失效，或 registry 无法反建时才允许首个叶子创建新 session 并回写 registry。
 
 ## Reusable Heuristics
 
@@ -47,5 +50,7 @@ last_checked_at: 2026-04-26
 - 视频阶段的上游事实主源通常是 `4-分组`；`5-设计` 和 `6-图像` 提供参照资产，不应反向改写分组正文。
 - 缺少参照图不一定阻断视频路线；错用参照图、猜测主体、空路径占位、重复提交才是父级需要警惕的路由风险。
 - 只要任务涉及实际 prompt 组装、参照路径绑定、LibTV submit plan、queue ledger 或下载，就已经进入叶子技能职责。
-- 视频生成未显式指定模型时，父级和叶子都应按 `$libTV` 后端默认路由理解；具体模型选择不在 `7-视频` 本地硬编码。用户显式指定模型时，保留原话进入 LibTV 任务正文。
+- 视频生成未显式指定模型时，父级和叶子都应按 `$libTV` 后端默认路由理解；具体模型选择不在 `7-视频` 本地硬编码。除非用户显式要求其他规格，否则基础输出默认 720P、15 秒、16:9；用户显式指定模型、时长、比例、分辨率或质量档时，保留原话进入 LibTV 任务正文。
 - 视频文件名是 `7-视频` 和 `8-审片` 之间的主接口；不要把审片依赖绑到 sessionId 或下载顺序上。
+- `## x-y-z~x-y-z` 连接件默认不属于 A/B/C/D 视频路线的 job 范围；遇到连接件时跳过，不生成 `<上组~下组>.mp4`，也不把连接件拼进相邻分镜组 prompt。连接件视频留给未来手动视频连接 skill。
+- LibTV 远端当前不是按本地项目名自动找画布；可靠复用来自本地 registry 里的 `canonical_sessionId`。只有 `projectUuid/projectUrl` 而没有 sessionId 时，不要声称能强制复用指定画布。

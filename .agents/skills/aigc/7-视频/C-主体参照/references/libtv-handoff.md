@@ -18,8 +18,9 @@
 | reference state | command | rule |
 | --- | --- | --- |
 | `bound_images` | `libtv_session_with_uploaded_references` | 一张或多张主体图片；先上传本地图片，再把 OSS URL 追加到对应主体信息后 |
+| `visual_resolved` | `libtv_session_with_uploaded_references` | 多候选已通过窗口图像上下文识图消歧，按最终选中的图片上传 |
 | `no_images` | `libtv_session_text_only` | 无可用主体图，使用纯文本 prompt，不传空图片 |
-| `ambiguous` | blocked | 参照歧义未解决前不得提交 |
+| `ambiguous` | blocked | 视觉消歧仍无法唯一确定，或尚未把候选图作为可加载上下文完成识图前不得提交 |
 | `auth_or_script_failed` | blocked | `LIBTV_ACCESS_KEY` 或 `$libTV` 脚本不可用时只写计划和 blocked queue row |
 
 ## Default Parameters
@@ -27,6 +28,7 @@
 - `requested_model`: 默认为空，表示使用 LibTV 后端默认视频路由。用户显式指定模型时，原样写入自然语言任务。
 - `duration_hint`: 默认 `15` 秒，作为自然语言要求发送给 LibTV。
 - `ratio_hint`: 默认 `16:9`。
+- `video_resolution_hint`: 默认 `720p`，即用户可见规格 720P。
 - `poll_seconds`: 默认短轮询 `45` 秒；超时后保留 `sessionId` 并进入 queue ledger。
 - `parallelism`: 默认后台多线程批量并发；实际值应记录在 submit plan，建议从 `2` 到 `4` 起步，避免上传带宽不稳。
 
@@ -52,6 +54,7 @@
       "requested_model": "",
       "duration_hint": 15,
       "ratio_hint": "16:9",
+      "video_resolution_hint": "720p",
       "prompt_path": "projects/aigc/诡校-测试版/7-视频/C-主体参照/第1集/prompts/1-1-1.txt",
       "images": [
         {
