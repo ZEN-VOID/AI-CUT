@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-29
+last_updated: 2026-05-04
 
 active_skills:
   - id: aigc
@@ -199,6 +199,13 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: AIGC 项目的 checkpoint / stage / package 三层结构化审计、aggregate review gate 与 repair routing。
+      - id: aigc-shot-by-shot
+        path: .agents/skills/aigc/shot-by-shot
+        owner_office: shangshu
+        governance_domain: libu
+        contract_status: active
+        route_role: satellite
+        purpose: 参考影片或视频逐镜拉片，输出服务 `0-初始化`、`2-编导`、`3-摄影` 与 `5-设计` 的项目 `CONTEXT/` 解析、禁止照搬清单和 AIGC 可执行迁移策略。
   - id: story
     path: .agents/skills/story
     owner_office: zhongshu
@@ -369,6 +376,15 @@ active_skills:
       canonical_skill_root: ".agents/skills/learn/北冥神功/"
       canonical_contract: ".agents/skills/learn/北冥神功/SKILL.md"
       mirror_policy: "该技能本身不拥有业务项目 runtime；其 canonical truth 是目标 skill 的升级载体、registry/routes 同步和 learning deposition。"
+  - id: learn-haohao-huaihuai
+    path: .agents/skills/learn/好好坏坏
+    owner_office: zhongshu
+    purpose: "repo-local learn skill，围绕 `目标skill + 任务环节 + 好示例 + 坏示例` 执行任务要求与资料来源读取、好坏差异诊断、源层 owner 上溯、调优改造、验证与 learning deposition。"
+    contract_mode: active
+    runtime_control:
+      canonical_skill_root: ".agents/skills/learn/好好坏坏/"
+      canonical_contract: ".agents/skills/learn/好好坏坏/SKILL.md"
+      mirror_policy: "该技能本身不拥有业务项目 runtime；其 canonical truth 是目标 skill 的源层调优载体、同步范围和好坏对照学习沉淀。"
   - id: api-anyfast-image
     path: .agents/skills/api/anyfast/image
     owner_office: shangshu

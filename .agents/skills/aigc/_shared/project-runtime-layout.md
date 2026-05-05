@@ -27,6 +27,7 @@
 | `7-视频` | `projects/aigc/<项目名>/7-视频/` | current Chinese video runtime |
 | `8-审片` | `projects/aigc/<项目名>/8-审片/` | generated footage review reports and repair evidence |
 | `源` | `projects/aigc/<项目名>/源/` | source material landing |
+| `shot-by-shot` | `projects/aigc/<项目名>/shot-by-shot/` | reference film/video analysis and imitation packets for `2-编导` / `3-摄影` |
 | `CONTEXT` | `projects/aigc/<项目名>/CONTEXT/` | project-side supplemental context |
 
 ## Bootstrap Compatibility

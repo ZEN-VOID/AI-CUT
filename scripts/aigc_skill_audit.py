@@ -305,11 +305,13 @@ REQUIRED_SATELLITES = {
     "aigc-query": ROOT / "query",
     "aigc-resume": ROOT / "resume",
     "aigc-review": ROOT / "review",
+    "aigc-shot-by-shot": ROOT / "shot-by-shot",
 }
 REQUIRED_ROUTE_POLICIES = {
     "aigc-query-satellite-entry",
     "aigc-resume-satellite-entry",
     "aigc-review-satellite-entry",
+    "aigc-shot-by-shot-satellite-entry",
     "aigc-image-stage-entry",
     "aigc-video-review-entry",
 }

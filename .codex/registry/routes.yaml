@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-04-29
+last_updated: 2026-05-04
 
 default_flow:
   - step: mandate
@@ -55,11 +55,14 @@ route_policies:
     trigger: 命中 `2-编导`、编导、剧本化改编、按集剧本、从 `1-分集` 到 `2-编导`，或要求输出 `projects/aigc/<项目名>/2-编导/第N集.md`
     rule: "进入 `.agents/skills/aigc/2-编导/SKILL.md`；读取 `projects/aigc/<项目名>/1-分集/第N集.md`，以忠实剧本化结构投影输出到 `projects/aigc/<项目名>/2-编导/第N集.md`。不得摘要、删减、重排剧情事实；对白逐字保真；必须执行场景 slugline、字段分流与声画配对门禁。"
   - id: aigc-cinematography-stage-entry
-    trigger: 命中 `3-摄影`、摄影、分镜摄影、镜头语言、运镜、画面句子下加镜头语言、从 `2-编导` 到 `3-摄影`，或要求输出 `projects/aigc/<项目名>/3-摄影/第N集.md`
-    rule: "进入 `.agents/skills/aigc/3-摄影/SKILL.md`；读取 `projects/aigc/<项目名>/2-编导/第N集.md`，按画面句子执行画面匹配、节拍分析和镜头语言注入，在每个命中画面句子下方新增 `镜头语言：` 与连续 `分镜N:`，输出到 `projects/aigc/<项目名>/3-摄影/第N集.md`。不得改写原编导稿事实、对白和顺序。"
+    trigger: 命中 `3-摄影`、摄影、分镜摄影、镜头语言、运镜、画面句子下加分镜明细、从 `2-编导` 到 `3-摄影`，或要求输出 `projects/aigc/<项目名>/3-摄影/第N集.md`
+    rule: "进入 `.agents/skills/aigc/3-摄影/SKILL.md`；读取 `projects/aigc/<项目名>/2-编导/第N集.md`，按画面句子执行画面匹配、节拍分析和运镜摄影设计注入，在每个命中画面句子下方新增 `分镜明细：` 与连续 `分镜N:`，输出到 `projects/aigc/<项目名>/3-摄影/第N集.md`。不得改写原编导稿事实、对白和顺序。"
   - id: aigc-grouping-stage-entry
     trigger: 命中 `4-分组`、分组、分镜组、从 `3-摄影` 到 `4-分组`、入场画面、出场画面，或要求输出 `projects/aigc/<项目名>/4-分组/第N集.md`
-    rule: "进入 `.agents/skills/aigc/4-分组/SKILL.md`；读取 `projects/aigc/<项目名>/3-摄影/第N集.md` 与 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，按真实集-场-组生成 `x-y-z` 分镜组，直引 `全局风格提示词 / 类型元素提示词 / 画面风格`，添加成对一致的入场/出场补位画面和组底 YAML 统计，输出到 `projects/aigc/<项目名>/4-分组/第N集.md`。不得改写摄影稿正文、对白、镜头语言或场景顺序。"
+    rule: "进入 `.agents/skills/aigc/4-分组/SKILL.md`；读取 `projects/aigc/<项目名>/3-摄影/第N集.md` 与 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，按真实集-场-组生成 `x-y-z` 分镜组，直引 `全局风格提示词 / 类型元素提示词 / 画面风格`，添加成对一致的入场/出场补位画面和组底 YAML 统计，输出到 `projects/aigc/<项目名>/4-分组/第N集.md`。不得改写摄影稿正文、对白、分镜明细或场景顺序。"
+  - id: aigc-shot-by-shot-satellite-entry
+    trigger: 命中 `shot-by-shot`、`拉片`、逐镜分析、逐镜拆解、参考影片临摹、参考视频临摹、镜头拆解、分析这段视频怎么拍，或需要把参考片转换为 `0-初始化` / `2-编导` / `3-摄影` / `5-设计` 可消费解析
+    rule: "进入 `.agents/skills/aigc/shot-by-shot/SKILL.md`；先锁定参考素材证据、目标项目与目标阶段，逐镜拆解导演调度、表演任务、摄影语法、剪辑节奏、声音接口、美术资产、画面风格和 AIGC 可执行性，再输出到 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md` 及可选 `projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/画面风格解析.md` / `编导解析.md` / `摄影解析.md` / `设计解析.md`。该卫星只提供临摹参照和禁止照搬清单，不改写阶段 canonical 主稿。"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -114,6 +117,9 @@ route_policies:
   - id: learn-beiming-shengong-entry
     trigger: 命中 `北冥神功`、skills-update 自学习、升级某个 skill、把外部知识点吸收到目标 skill、或需要先研究目标 skill 当前配置与所在技能组上下文再完成技能升级
     rule: "进入 `.agents/skills/learn/北冥神功/SKILL.md`；先锁 `target_skill + upgrade_points`，读取目标 skill 的 `SKILL.md + CONTEXT.md` 与相关父级/sibling/shared carrier，再按吸收矩阵裁决 `landing_set + sync_scope`，必要时同步 registry/routes、shared carrier 与 reviewer gate，最后完成 target + self 双重 learning deposition。"
+  - id: learn-haohao-huaihuai-entry
+    trigger: 命中 `好好坏坏`、haohao-huaihuai、good/bad 示例对比、目标 skill 某任务环节好示例与坏示例、或需要根据好坏输出差异回到源层调优技能包规则
+    rule: "进入 `.agents/skills/learn/好好坏坏/SKILL.md`；先锁 `target_skill + task_stage_or_output + good_examples + bad_examples`，读取目标 skill 的 `SKILL.md + CONTEXT.md`、任务要求与资料来源，再对比好坏信号、上溯 source_owner，修改最窄有效源层载体并完成同步、验证和 learning deposition。"
   - id: comic-root-entry
     trigger: 命中漫画项目、完整漫画链路、从素材/小说到九页漫画图、或需要统一落盘到 `projects/comic/[项目名]/`
     rule: "优先进入 `.agents/skills/comic/SKILL.md`；先锁定 `project_name` 与 `projects/comic/[项目名]/` 项目根，再路由到 `1-漫画小说改编 / 2-九刀流漫画提示词 / 3-漫画生成 / 4-剧集海报`。"
