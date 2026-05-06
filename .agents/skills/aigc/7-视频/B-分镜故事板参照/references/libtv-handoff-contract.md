@@ -31,13 +31,24 @@
 - queue/result/report 必须记录 `sessionId`、`projectUuid`、`projectUrl`，用于用户在画布查看。
 - 若画布未出现对应生成节点或结果 URL，不得把本地状态标为 downloaded / generated。
 
+## Prompt Fidelity And Optimization Authorization
+
+- 默认远端 handoff 必须采用 `strict_original + transport_only`：`prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false`，并禁止提示词优化、重新编排、摘要、改写和补镜头。
+- `strict_original` 表示 `【故事板参照说明】` 中的故事板身份/参照图/URL 绑定关系与 `【分镜组源文本】` 原文必须共同作为 Seedance `create_generation_task.params.prompt` 的完整主体；LibTV 远端 Agent 不得在工具调用前自行生成优化版提示词、镜头计划或摘要版分镜。
+- `transport_only` 只允许上传 URL、`imageList`、时长、比例、分辨率、声音等技术投影；不得改变分镜内容、镜头顺序、角色动作、对白、音效或氛围事实。
+- 只有 submit plan 明确记录用户 opt-in `prompt_fidelity_mode=libtv_optimize` 或 `allow_libtv_prompt_optimization=true` 时，才允许 LibTV 做提示词优化、压缩、合并镜头或工作流规划。
+- 若远端 query 显示 assistant 在 `create_generation_task` 之前执行“优化提示词 / 重新编排 / 摘要 / 镜头计划”且本地未 opt-in，必须判定为 `prompt_fidelity_violation / libtv_optimize_without_opt_in`；不得把该 session 标为正常 pending。
+
 ## Remote Handoff Contract
 
 本地审核 prompt 可以保留故事板本地路径，便于 review gate 回查；发送给 LibTV 画布的 `*-libtv-submission.txt` 是另一层远端提交文本，必须满足：
 
 - 文件第一行必须是 `【LibTV 调用锁定】`。
 - 第一段必须明确：`provider=seedance2.0`、`taskType=video`、`modeType=singleImage2video`、`imageList=["<真实 uploaded_url_1>"]`；无故事板图时改用 `modeType=text2video` 且 `imageList=[]`。`imageList` 必须直接填入上传返回的真实 URL，不得保留 `参照图1 URL` 占位符。
-- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许出现 `参照图1：<uploaded_url>` 与故事板总参照用途说明。
+- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许出现 `故事板总参照：参照图1 <uploaded_url>` 与故事板总参照用途说明。
+- `【直接生成请求】` 必须写成“基于【故事板参照说明】（包含故事板身份和参照 URL）和下方【分镜组源文本】”，不得只写“基于上述参照图 URL”。
+- 远端 `create_generation_task.params.prompt` 必须保留故事板总参照身份与图片 token/编号绑定，例如 `故事板总参照 参照图1`、`故事板总参照 {{Image 1}}` 或 `{{Image 1}} 故事板总参照`；不得把参照区压成裸 `{{Image 1}}`、裸 `图片1` 或裸 URL。
+- 默认提交文本必须声明 `strict_original + transport_only`，且 `allow_libtv_prompt_optimization=false`；未显式 opt-in 时不得要求或默许 LibTV 重新组织、压缩、合并或摘要分镜组源文本。
 - 本路线允许使用已经上传的故事板图作为整组总参照；禁止的是远端重新做故事板、拆 panel 或把故事板图误当首帧图生视频。
 
 ## YAML Job Schema
@@ -59,6 +70,9 @@
     ratio_hint: "16:9"
     video_resolution_hint: "720p"
     poll_seconds: 45
+    prompt_fidelity_mode: "strict_original"
+    allow_libtv_prompt_optimization: false
+    transport_only_projection: true
   output:
     download_dir: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第1集"
     expected_video_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第1集/1-1-1.mp4"
@@ -87,10 +101,20 @@ duration: 15
 ratio: 16:9
 resolution: 720p
 enableSound: on
+prompt_fidelity_mode: strict_original
+allow_libtv_prompt_optimization: false
+transport_only_projection: true
+禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头。
+只允许执行 transport_only 投影：上传 URL、imageList、duration、ratio、resolution、enableSound。
 
-参照图1：<uploaded_url>
+【故事板参照说明】
+故事板总参照：参照图1 <uploaded_url>
 参照图1 是该分镜组的多格分镜故事板视觉参照，只用于画面连续性、镜头顺序、构图节奏和角色位置参考；不得把故事板图当作首帧，也不得覆盖以下完整分镜组内容。
 
+【直接生成请求】
+请基于【故事板参照说明】（包含故事板身份和参照 URL）和下方【分镜组源文本】，按 `singleImage2video + imageList` 生成一条连续视频。请直接把【故事板参照说明】中与本组相关的故事板总参照绑定关系 + 【分镜组源文本】原文作为生成 prompt 完整体。禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；禁止把故事板参照简化为裸图片 token、裸图片编号或裸 URL。
+
+【分镜组源文本】
 <完整分镜组内容>
 ```
 

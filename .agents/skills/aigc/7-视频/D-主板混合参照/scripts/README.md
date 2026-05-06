@@ -8,10 +8,12 @@
 - 枚举故事板图和主体图片路径。
 - 生成 JSON / Markdown / queue ledger 的机械投影。
 - 查询 LibTV 状态、下载结果、校验文件存在性。
+- 机械写入默认 `prompt_fidelity_mode=strict_original`、`allow_libtv_prompt_optimization=false` 与 `transport_only_projection=true`。
 
 禁止脚本执行：
 
 - 扩写或改写分镜组剧情。
+- 未获用户显式 opt-in 时启用 LibTV 提示词优化、摘要、重排、补镜头或重新编排。
 - 自动决定故事板或主体图的创作语义。
 - 在图片超限时静默裁剪。
 - 伪造 sessionId 或生成结果。

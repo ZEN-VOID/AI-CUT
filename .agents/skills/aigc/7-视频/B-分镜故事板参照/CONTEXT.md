@@ -22,6 +22,8 @@
 | `query_session` 已成功但下载文件不完整 | 下载层 | 删除半截文件后重试下载，必要时用媒体直链 | 采用 `$libTV` 的下载超时经验 | 本地 MP4 可被读取且大小非零 |
 | 多 worker 同时改写 `执行报告.md` | 并发写入层 | 改为 worker 写临时结果，最后单线程汇总 | workflow 固定 N7 并发、N8/N9 汇流 | report 只有一个最终汇总 |
 | LibTV 远端把故事板参照任务改成先做故事板/分镜图、拆 panel 或多段合成 | LibTV 远端 handoff 口径层 | 回刷 `*-libtv-submission.txt`，首段加入 B 专属 `【LibTV 调用锁定】` 和 `modeType=singleImage2video` | `references/libtv-handoff-contract.md` 固定 Remote Handoff Contract | 远端提交首段出现 `modeType: singleImage2video` |
+| 远端 `params.prompt` 只出现裸 `{{Image 1}}` / `图片1`，没有“故事板总参照”身份 | 故事板参照投影层 | 标记 `storyboard_reference_name_stripped`，重写 `【直接生成请求】` 为“基于【故事板参照说明】（包含故事板身份和参照 URL）+【分镜组源文本】”，并要求两者共同作为 prompt 完整体 | `references/libtv-handoff-contract.md` 固定故事板身份/图片 token 绑定，禁止裸图片 token | query 中 `create_generation_task.params.prompt` 能看到 `故事板总参照 + 图片 token/编号` 邻近绑定 |
+| LibTV 远端在提交后自行重新编排、摘要或优化分镜 | 提示词保真授权层 | 标记 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，新建干净 session，以 `strict_original + transport_only` 重新提交 | `SKILL.md` 和 `libtv-handoff-contract.md` 固定三档模式，默认 `allow_libtv_prompt_optimization=false` | 远端提交开头含 strict 原文锁；query 中无未授权优化版提示词、镜头计划或摘要分镜 |
 
 ## Repair Playbook
 
@@ -33,6 +35,8 @@
 6. 若问题在批量执行，先恢复 queue ledger，再查询 LibTV 远端状态，不把终端滚屏当唯一状态来源。
 7. 修复后按 `review/review-contract.md` 复核所有 gate，并在最终报告中列出非阻断事项。
 8. 若远端代理把 B 任务解释成“先生成故事板图 / 拆分 panel / image2video / 多段合成”，先修 `*-libtv-submission.txt` 的 `singleImage2video` 调用锁，再重新提交，不要补跑 `6-图像/B-分镜故事板`。
+9. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明故事板参照身份没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于 `【故事板参照说明】`，并要求 `【故事板参照说明】 + 【分镜组源文本】` 一起进入 prompt。
+10. 若 query 显示远端把原文改成“优化提示词 / 重新编排镜头 / 摘要分镜 / 工作流规划”，先看 submit plan 是否 opt-in；未 opt-in 时不沿用该 session，按 `strict_original + transport_only` 新建测试 session。
 
 ## Reusable Heuristics
 
@@ -43,3 +47,5 @@
 - 并发只发生在“提交/查询每个独立 group job”层；报告、结果总表和 queue ledger 的最终收敛必须单线程完成。
 - LibTV short polling 不是完成承诺；批量视频默认应以 `sessionId + query_session + queue ledger` 收口。
 - LibTV 远端只需要 uploaded URL 和直接视频任务指令；本地故事板图片路径留在 manifest / 审核 prompt，不能进入 `*-libtv-submission.txt`。
+- “参照图 URL”这个说法容易让远端把故事板当成匿名图片。B 远端请求应始终写“【故事板参照说明】（包含故事板身份和参照 URL）”，并要求故事板参照说明与分镜组源文本共同构成生成 prompt 完整体。
+- LibTV 的提示词优化不是 B 路线默认能力。默认只允许 `strict_original + transport_only`：源文本逐字投给生成 prompt，技术层只负责 URL、imageList 和视频参数；任何重新编排都必须来自用户显式 opt-in。

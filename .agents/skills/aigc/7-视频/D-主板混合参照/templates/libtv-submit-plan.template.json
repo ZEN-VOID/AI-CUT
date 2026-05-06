@@ -10,7 +10,10 @@
     "video_resolution": "720p",
     "enableSound": "on",
     "poll": 30,
-    "concurrency": 4
+    "concurrency": 4,
+    "prompt_fidelity_mode": "strict_original",
+    "allow_libtv_prompt_optimization": false,
+    "transport_only_projection": true
   },
   "jobs": [
     {
@@ -22,6 +25,16 @@
       "remote_submission_required_opening": "【LibTV 调用锁定】",
       "required_modeType_when_referenced": "mixed2video",
       "required_reference_field": "mixedList",
+      "prompt_fidelity_mode": "strict_original",
+      "allow_libtv_prompt_optimization": false,
+      "transport_only_projection": true,
+      "remote_prompt_forbidden_actions": [
+        "提示词优化",
+        "重新编排",
+        "摘要",
+        "改写",
+        "补镜头"
+      ],
       "reference_images": [
         {
           "role": "storyboard_total_reference",

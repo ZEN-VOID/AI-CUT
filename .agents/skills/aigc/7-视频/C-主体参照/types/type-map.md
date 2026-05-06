@@ -35,6 +35,9 @@
 | `reference_state` | `all_bound / partial_missing / no_assets / visual_resolved / ambiguous` | 主体参照状态 |
 | `libtv_route` | `libtv_session_with_uploaded_references / libtv_session_text_only / query_session / blocked` | LibTV 路由 |
 | `concurrency_state` | `serial / background_parallel / blocked` | 提交或查询并发策略 |
+| `prompt_fidelity_mode` | `strict_original / transport_only / libtv_optimize` | 提示词保真与远端优化授权模式；默认 `strict_original` |
+| `allow_libtv_prompt_optimization` | `false / true` | 是否允许 LibTV Agent 做提示词优化、重排、摘要或工作流规划；默认 `false` |
+| `subject_reference_prompt_binding` | `bound / stripped / unknown` | 远端生成 prompt 中主体名是否与图片 token / 参照编号保持绑定；默认提交前为 `bound` |
 
 ## Mode Matrix
 
@@ -58,6 +61,15 @@
 - `reference_state == ambiguous`：阻断提交，先修参照或等待用户确认。
 - 已有 `sessionId`：走 `query_session`，不得重复提交，除非用户明确 rerun。
 
+## Prompt Fidelity Route Rules
+
+- 默认类型画像为 `prompt_fidelity_mode=strict_original` 且 `allow_libtv_prompt_optimization=false`。
+- `strict_original` 和 `transport_only` 可同时生效：前者锁定 `【分镜组源文本】` 原文主体，后者只做远端技术投影。
+- `transport_only` 不等于内容优化；它只允许本地路径到上传 URL、参照图数量上限、`mixedList`、时长、比例、分辨率和声音参数等机械转换。
+- `libtv_optimize` 只能由用户显式选择，或由 submit plan 明确记录 `allow_libtv_prompt_optimization=true` 后进入；不得由远端 LibTV Agent 自行升级。
+- 若 query 检测到未 opt-in 的提示词优化、重新编排、摘要、改写、补镜头、镜头计划或工作流规划，路由状态改为 `prompt_fidelity_violation`，不进入正常 pending。
+- 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image N}}`、裸 `图片N` 或裸 URL 序列，没有主体名称邻近绑定，`subject_reference_prompt_binding=stripped`，路由状态改为 `subject_reference_name_stripped`，不进入正常 pending。
+
 ## Reroute Rules
 
 - 单一四段式 `分镜ID` 或单帧首帧视频请求：转 `7-视频/A-分镜画面参照`。
@@ -73,3 +85,5 @@
 2. `libtv_route != blocked`。
 3. `reference_state != ambiguous`，除非 ambiguous 条目已被移除、视觉消歧已唯一解决或用户确认。
 4. 输出路径位于项目内 `7-视频/C-主体参照`。
+5. 未显式 opt-in `libtv_optimize` 时，`allow_libtv_prompt_optimization` 必须为 `false`，远端提交必须包含 strict 原文与禁止优化约束。
+6. 有主体参照图时，远端提交必须把 `【主体参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体，并确保主体名与图片 token / 参照编号绑定。

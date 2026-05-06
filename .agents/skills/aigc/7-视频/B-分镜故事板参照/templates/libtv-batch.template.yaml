@@ -17,6 +17,9 @@ defaults:
   video_resolution: "720p"
   enableSound: "on"
   poll: 45
+  prompt_fidelity_mode: "strict_original"
+  allow_libtv_prompt_optimization: false
+  transport_only_projection: true
 jobs:
   - queue_id: "Q-001"
     group_id: "1-1-1"
@@ -47,6 +50,11 @@ jobs:
       ratio: 16:9
       resolution: 720p
       enableSound: on
+      prompt_fidelity_mode: strict_original
+      allow_libtv_prompt_optimization: false
+      transport_only_projection: true
+      禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头。
+      只允许执行 transport_only 投影：上传 URL、imageList、duration、ratio、resolution、enableSound。
     libtv:
       requested_model: ""
       duration: 15
@@ -54,6 +62,9 @@ jobs:
       video_resolution: "720p"
       enableSound: "on"
       poll: 45
+      prompt_fidelity_mode: "strict_original"
+      allow_libtv_prompt_optimization: false
+      transport_only_projection: true
     output:
       session_id: ""
       project_uuid: ""

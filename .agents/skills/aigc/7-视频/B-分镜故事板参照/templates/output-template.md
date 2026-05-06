@@ -8,7 +8,7 @@
 | Output format | Markdown prompt / report / queue ledger + YAML batch config + LibTV submission text + JSON manifest / result + MP4 |
 | Output path | `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/` |
 | Naming convention | episode 保留 `第N集`；job 和视频用 `<分镜组ID>`；远端提交文本为 `prompts/<分镜组ID>-libtv-submission.txt`；技能 id 为 `aigc-video-storyboard-reference` |
-| Completion gate | `validate_skill_2_0.py` 通过；有故事板图时 `*-libtv-submission.txt` 首段锁定 `modeType=singleImage2video`；当前 mode 的 review verdict 为 `pass` 或 `pass_with_todo` |
+| Completion gate | `validate_skill_2_0.py` 通过；有故事板图时 `*-libtv-submission.txt` 首段锁定 `modeType=singleImage2video`；默认声明 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；当前 mode 的 review verdict 为 `pass` 或 `pass_with_todo` |
 
 ## Runtime Tree
 

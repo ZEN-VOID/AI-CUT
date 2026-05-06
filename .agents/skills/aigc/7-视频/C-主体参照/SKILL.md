@@ -52,6 +52,8 @@ Required input:
 Optional input:
 
 - `prompt_only`：只生成视频 prompt、参照 manifest、LibTV 计划，不提交任务。
+- `prompt_fidelity_mode`：默认 `strict_original`；可选 `strict_original / transport_only / libtv_optimize`。
+- `allow_libtv_prompt_optimization`：默认 `false`。只有用户显式设为 `true` 或显式选择 `libtv_optimize` 时，才允许 LibTV 远端 Agent 做提示词优化、摘要、镜头重排、补镜头或重新编排。
 - `episode_batch`：一次处理一集全部分镜组。
 - `group_batch`：一次处理多个指定分镜组。
 - `multi_episode_batch`：一次处理多集，每集保持独立队列与报告。
@@ -67,6 +69,21 @@ Reject or clarify when:
 - 用户要求改变 `4-分组` 的剧情核心、镜头顺序、角色事实、动作结果或组边界。
 - 用户要求脚本主创视频 prompt 正文、自动扩写剧情或用模板补写未知画面。
 - 任务目标是基于单帧或故事板图像做视频首帧/故事板参照，应转入 `A-分镜画面参照` 或 `B-分镜故事板参照`。
+
+## Prompt Fidelity Policy
+
+默认提交策略为 `strict_original + transport_only`：
+
+| mode | allowed | forbidden | default |
+| --- | --- | --- | --- |
+| `strict_original` | 直接把 `4-分组` 的组正文作为生成 prompt 主体；保留原有镜头顺序、段落、对白、音效、转场和分镜明细 | 改写、摘要、重排、合并镜头、补镜头、重新编排、把正文转为优化版提示词 | yes |
+| `transport_only` | 只做运输层投影：本地路径换为上传 URL、补 `mixed2video / duration / ratio / resolution / enableSound` 参数、按 provider 上限裁剪非关键参照图 | 改写 `group_body`、压缩剧情、重组镜头、替换原文表达 | yes |
+| `libtv_optimize` | 允许 LibTV 远端 Agent 进行提示词优化、摘要、镜头合并、工作流规划或重新编排 | 未经用户显式同意时启用 | no |
+
+- `allow_libtv_prompt_optimization` 默认必须为 `false`。
+- 远端 `libtv-submission.txt` 必须明确声明：禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；直接使用 `【主体参照说明】中相关主体名/参照图绑定关系 + 【分镜组源文本】原文` 作为 Seedance 生成 prompt 完整体。
+- 远端生成 prompt 中每个图片 token、图片编号或参照 URL 必须邻近对应主体名称；不得出现裸 `{{Image 1}} {{Image 2}} ...`、裸 `图片1 图片2 ...` 或裸 URL 列表。
+- 若用户显式选择 `libtv_optimize`，必须在 submit plan、queue 和 report 中记录该选择；否则任何远端优化、重排或摘要都按 `route drift / prompt fidelity violation` 处理。
 
 ## Positioning
 
@@ -152,7 +169,7 @@ stateDiagram-v2
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 LibTV、并发策略和输出根。
 3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、YAML 主体槽位、主体参照 manifest、LibTV job 或视频文件命名；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
 4. 执行 step2：读取每个分镜组底部 YAML 的 `角色 / 场景 / 道具`，检查 `projects/aigc/<项目名>/5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除；名称命中多个候选时先把候选图发送到窗口作为可加载上下文自动识图匹配，仍不能唯一确认才列入 `ambiguous`；有图主体必须在对应主体信息后追加 `@<图片路径>`。
-5. 执行 step3：根据每个分镜组的完整组正文和已绑定主体图片，生成符合 `.agents/skills/cli/libTV` 的提交计划。存在参照图时先逐图运行 `upload_file.py`，再把返回的 URL 编号写入 `*-libtv-submission.txt` 的角色、场景、道具主体信息后，并运行 `create_session.py`；无参照图时直接运行 `create_session.py`，禁止传空图片槽。`*-libtv-submission.txt` 必须以 `【LibTV 调用锁定】` 开头：有主体参照图时固定 `provider=seedance2.0 / taskType=video / modeType=mixed2video / mixedList=[{"url": "<真实 uploaded_url>", "type": "image"}]`，`mixedList` 内不得保留占位符且必须是严格 JSON 对象数组；无图时固定 `modeType=text2video`。远端提交不得包含本地图片路径，只能包含真实上传 URL 和 `参照图N <uploaded_url>`。
+5. 执行 step3：根据每个分镜组的完整组正文和已绑定主体图片，生成符合 `.agents/skills/cli/libTV` 的提交计划。存在参照图时先逐图运行 `upload_file.py`，再把返回的 URL 编号写入 `*-libtv-submission.txt` 的角色、场景、道具主体信息后，并运行 `create_session.py`；无参照图时直接运行 `create_session.py`，禁止传空图片槽。`*-libtv-submission.txt` 必须以 `【LibTV 调用锁定】` 开头：有主体参照图时固定 `provider=seedance2.0 / taskType=video / modeType=mixed2video / mixedList=[{"url": "<真实 uploaded_url>", "type": "image"}]`，`mixedList` 内不得保留占位符且必须是严格 JSON 对象数组；无图时固定 `modeType=text2video`。远端工具调用必须使用 `taskType` 而不是 `task_type`，并把 `params` 作为 `create_generation_task` 顶层参数传入；若返回 `params is required`，记录为 `generation_tool_error`。远端提交不得包含本地图片路径，只能包含真实上传 URL 和 `主体名：参照图N <uploaded_url>`；`【直接生成请求】` 必须要求基于 `【主体参照说明】（包含主体名和主体参照 URL）+【分镜组源文本】`，并把两者共同作为生成 prompt 完整体。默认必须包含 `strict_original + transport_only` 声明，禁止远端 Agent 对 `【分镜组源文本】` 做提示词优化、摘要、重排、改写或补镜头，也禁止把主体参照简化为裸图片 token / 裸图片编号 / 裸 URL。
 6. 生成前必须运行 `LIBTV_ACCESS_KEY credential check`；$libTV skill scripts 不可用或登录失败时，写入 `blocked` 队列状态，不得伪造 sessionId。
 7. 默认以分镜组为单位后台多线程批量并发提交；每个任务只能写自己的 submit 记录、下载文件和状态行；统一报告在汇流阶段写入。
 8. 所有异步任务必须进入 queue ledger，至少记录 `queue_id / group_id / command / sessionId / projectUuid / projectUrl / canvas_link / local_status / remote_status / prompt_summary / reference_images / output_path / next_action`；其中 `canvas_link` 必须是可直接打开的 Markdown 链接，例如 `[打开画布](https://www.liblib.tv/canvas?projectId=<projectUuid>)`。
@@ -165,7 +182,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-VIDSUBJ-01` | input manifest | 项目根、集号、`4-分组`、设计生成目录、LibTV 环境可追溯 | `FAIL-VIDSUBJ-INPUT` |
 | `FIELD-VIDSUBJ-02` | group index | 三段式 `x-y-z` 可回指 `## x-y-z`，组正文和 YAML 被完整提取 | `FAIL-VIDSUBJ-GROUP` |
-| `FIELD-VIDSUBJ-03` | video prompt package | 现有组内容作为主体，保留分镜顺序、分镜明细和音效；默认忽略相邻组间连接件；远端提交以 `【LibTV 调用锁定】` 开头，有主体图时 `modeType=mixed2video` | `FAIL-VIDSUBJ-PROMPT` |
+| `FIELD-VIDSUBJ-03` | video prompt package | 现有组内容作为主体，保留分镜顺序、分镜明细和音效；默认忽略相邻组间连接件；远端提交以 `【LibTV 调用锁定】` 开头，有主体图时 `modeType=mixed2video`；默认 `strict_original + transport_only` 且禁止远端优化；最终生成 prompt 必须保留主体名与图片 token/编号绑定 | `FAIL-VIDSUBJ-PROMPT` |
 | `FIELD-VIDSUBJ-04` | reference manifest | Characters / Scene / Props 只来自组底 YAML，且只绑定真实图片，多视图优先；多候选先视觉消歧并留证 | `FAIL-VIDSUBJ-REF` |
 | `FIELD-VIDSUBJ-05` | LibTV submit plan / queue | 一组一任务，合法 `libtv_session_text_only` 或 `libtv_session_with_uploaded_references` 命令，默认并发提交，有 sessionId 台账和可点击 `canvas_link` | `FAIL-VIDSUBJ-LIBTV` |
 | `FIELD-VIDSUBJ-06` | execution report | 说明 submitted / queued / downloaded / skipped / failed、缺图、查询入口、可直接打开的画布链接和返工入口 | `FAIL-VIDSUBJ-REPORT` |
@@ -176,7 +193,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `FIELD-VIDSUBJ-01` | input lock | `groups/<分镜组ID>/group-index.json` / 集级 summary | 项目根、集号、`4-分组`、设计生成目录、LibTV self-check | `FAIL-VIDSUBJ-INPUT` |
 | `FIELD-VIDSUBJ-02` | group extraction | `groups/<分镜组ID>/group-index.json` | `group_id`、source heading、shot count、YAML subjects | `FAIL-VIDSUBJ-GROUP` |
-| `FIELD-VIDSUBJ-03` | prompt assembly | `groups/<分镜组ID>/prompt.md` / `groups/<分镜组ID>/libtv-submission.txt` | 组正文主体、完整分镜顺序、本地主体信息后缀 `@图片路径`；远端提交只含 uploaded URL 且有直接生视频锁定开头 | `FAIL-VIDSUBJ-PROMPT` |
+| `FIELD-VIDSUBJ-03` | prompt assembly | `groups/<分镜组ID>/prompt.md` / `groups/<分镜组ID>/libtv-submission.txt` | 组正文主体、完整分镜顺序、本地主体信息后缀 `@图片路径`；远端提交只含 uploaded URL 且有直接生视频锁定开头；远端生成 prompt 完整体必须包含主体名/参照图绑定关系 + 源文本原文 | `FAIL-VIDSUBJ-PROMPT` |
 | `FIELD-VIDSUBJ-04` | reference binding | `groups/<分镜组ID>/reference-manifest.json` | 角色/场景/道具真实图片路径，多视图优先，无空槽位；多候选视觉消歧证据 | `FAIL-VIDSUBJ-REF` |
 | `FIELD-VIDSUBJ-05` | LibTV handoff | `groups/<分镜组ID>/libtv-submit-plan.json` / `groups/<分镜组ID>/queue.md` | 一组一任务、命令参数、并发策略、sessionId、projectUrl、Markdown `canvas_link`、查询动作 | `FAIL-VIDSUBJ-LIBTV` |
 | `FIELD-VIDSUBJ-06` | convergence | `groups/<分镜组ID>/执行报告.md` / 集级 `执行报告.md` | submitted / queued / downloaded / skipped / failed、review verdict、可点击画布链接、返工入口 | `FAIL-VIDSUBJ-REPORT` |
@@ -245,7 +262,7 @@ Completion gate:
 
 - 目标分镜组均可从 `4-分组` 回指。
 - 每条 prompt 完整保留组正文主体，且主体参照只来自组底 YAML。
-- 每条 `*-libtv-submission.txt` 以 `【LibTV 调用锁定】` 开头，不含本地图片路径；有主体参照图时锁定 `modeType=mixed2video` 和 `mixedList`，无图时锁定 `text2video`。
+- 每条 `*-libtv-submission.txt` 以 `【LibTV 调用锁定】` 开头，不含本地图片路径；有主体参照图时锁定 `modeType=mixed2video` 和 `mixedList`，无图时锁定 `text2video`；默认声明 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；`【直接生成请求】` 使用 `【主体参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体；远端工具 envelope 不得出现 `task_type`、`params is required` 或裸图片 token 丢失主体名绑定。
 - 参照槽位只绑定存在的本地图片且多视图优先；缺图不保留空路径。
 - LibTV submit plan符合 `.agents/skills/cli/libTV` 上传、会话、查询和下载约束，提交前有 `LIBTV_ACCESS_KEY` credential check 自检策略。
 - 执行生成时有 queue ledger 和 sessionId 追踪；审查结果为 `pass` 或 `pass_with_todo`。

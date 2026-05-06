@@ -48,12 +48,21 @@
 强制要求：
 
 - 消息第一段必须是 `video-prompt-assembly-contract.md#LibTV Remote Opening` 中的 `【LibTV 调用锁定】`。
+- 默认远端 handoff 必须采用 `strict_original + transport_only`：`prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false`，并禁止提示词优化、重新编排、摘要、改写和补镜头。
+- `strict_original` 表示 `【主体参照说明】` 中的主体名/参照图/URL 绑定关系与 `【分镜组源文本】` 原文必须共同作为 Seedance `create_generation_task.params.prompt` 的完整主体；LibTV 远端 Agent 不得在工具调用前自行生成优化版提示词、镜头计划或摘要版分镜。
+- `transport_only` 只允许上传 URL、`mixedList`、时长、比例、分辨率、声音等技术投影；不得改变分镜内容、镜头顺序、角色动作、对白、音效或氛围事实。
+- 只有 submit plan 明确记录用户 opt-in `prompt_fidelity_mode=libtv_optimize` 或 `allow_libtv_prompt_optimization=true` 时，才允许 LibTV 做提示词优化、压缩、合并镜头或工作流规划。
 - provider 参数前必须包含 no-ask 约束：禁止 `ask_user`、禁止确认、禁止展示“请稍候”、禁止等待下一条消息，并声明用户已授权立即生成；无法创建生成节点时直接返回 `ERROR_NO_GENERATION_NODE`。
 - 有主体参照图时，必须明确 `provider=seedance2.0`、`taskType=video`、`modeType=mixed2video`、`mixedList=[{"url": "<真实 uploaded_url>", "type": "image"}]`。`mixedList` 必须是严格 JSON 对象数组，不得保留 `参照图N URL` 或 `<uploaded_url>` 占位符，不得写成 `image2video`、`singleImage2video` 或 `frames2video`。
+- 远端 `create_generation_task` 工具调用必须使用 `taskType`，不得使用 `task_type`；必须把 `params` 作为工具调用顶层字段传入，且 `params` 内包含 `modeType / prompt / mixedList / duration / ratio / resolution / enableSound`。
 - 无主体参照图时，必须明确 `modeType=text2video`。
-- 已上传图片只能以 `参照图<upload_index> <uploaded_url>` 形式出现在远端消息中。
+- 已上传图片必须以 `主体名：参照图<upload_index> <uploaded_url>` 形式出现在远端消息中；不得只有裸 `参照图N`、裸图片 token 或裸 URL。
 - 远端消息不得包含 `@projects/...`、绝对本地路径、`prompt_path`、`reference-manifest` 路径或其他本地文件路径；这些只写入本地 plan / queue / report。
-- `分镜组源文本` 必须说明它是连续视频的镜头文字约束，不是图片生产清单。
+- `分镜组源文本` 必须说明它是连续视频的镜头文字约束，不是图片生产清单；`【直接生成请求】` 必须写成“基于【主体参照说明】（包含主体名和主体参照 URL）和下方【分镜组源文本】”，不得只写“基于上述主体参照 URL”。
+- 远端 `create_generation_task.params.prompt` 必须保留主体名与图片 token/编号绑定，例如 `任盈盈 参照图1`、`任盈盈 {{Image 1}}` 或 `{{Image 1}} 任盈盈`；不得把参照区压成 `{{Image 1}} {{Image 2}} ...`、`图片1 图片2 ...` 或裸 URL 列表。
+- 若远端 query 显示 assistant 在 `create_generation_task` 之前执行“优化提示词 / 重新编排 / 摘要 / 镜头计划”且本地未 opt-in，必须判定为 `prompt_fidelity_violation / libtv_optimize_without_opt_in`；不得把该 session 标为正常 pending。
+- 若远端 query 显示 `create_generation_task` tool error 为 `params is required`，或工具调用 envelope 中出现 `task_type` 而不是 `taskType`，必须判定为 `generation_tool_error`；不得把该 session 标为正常 pending。
+- 若远端 query 显示 `create_generation_task.params.prompt` 只含裸图片 token/编号/URL，未邻近主体名称，必须判定为 `subject_reference_name_stripped`；不得把该 session 标为正常 pending。
 - 若远端代理改用 `image2video`、`singleImage2video`、`frames2video`，或画布结构出现“多张参照图分别输出视频再合成”，应判定为 route drift；C 路线有图时只能接受 `mixed2video + mixedList`。
 - 若提交后第一轮 query 发现 assistant 内容为空且 `toolCalls.name == ask_user`，或 tool 消息要求“展示 question / 等待用户下一条消息 / 请稍候”，必须判定为 `stalled_remote_ask_user`；不得标记为 `pending_remote_generation`，不得继续等待同一 session。
 
@@ -93,6 +102,9 @@ projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/l
       "group_id": "1-1-1",
       "command": "libtv_session_with_uploaded_references",
       "requested_model": "",
+      "prompt_fidelity_mode": "strict_original",
+      "allow_libtv_prompt_optimization": false,
+      "transport_only_projection": true,
       "duration_hint": 15,
       "ratio_hint": "16:9",
       "video_resolution_hint": "720p",
@@ -166,6 +178,9 @@ python3 .agents/skills/aigc/7-视频/C-主体参照/scripts/detect-libtv-stall.p
 判定规则：
 
 - 若存在可下载视频 URL、生成任务工具调用或明确的生成中工具消息，状态可进入 `pending_remote_generation`。
+- 若未 opt-in `libtv_optimize`，但 query 显示远端 assistant 先产出优化版提示词、重新编排脚本、镜头计划或摘要版分镜，再试图创建任务，状态必须写成 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，并停止等待该 session。
+- 若 tool 消息返回 `params is required`，或 query 中的 `create_generation_task` 参数使用 `task_type`，状态必须写成 `generation_tool_error / invalid_generation_task_envelope`，并停止把该 session 当作正常生成队列等待。
+- 若 query 中的 `create_generation_task.params.prompt` 将参照部分压成裸 `{{Image N}}`、裸 `图片N` 或裸 URL 列表，没有主体名称邻近绑定，状态必须写成 `subject_reference_name_stripped / prompt_reference_binding_lost`，并停止把该 session 当作正常生成队列等待。
 - 若出现 `ask_user` 等待态，状态必须写成 `stalled_remote_ask_user / no_generation_node`，并停止等待该 session。
 - 若 no-ask rerun 仍触发 `ask_user`，状态升级为 `blocked_agent_im_stall`，需要换 LibTV 直达生成接口或人工画布路径。
 - 同一个 stalled session 不再作为恢复目标；恢复必须新建干净 session，并使用更短的 no-ask 远端提交文本。
@@ -186,5 +201,8 @@ python3 .agents/skills/aigc/7-视频/C-主体参照/scripts/detect-libtv-stall.p
 4. 无参照图时命令为 `libtv_session_text_only`，不传空图片槽。
 5. 任务状态可通过 queue ledger 续查。
 6. 远端提交 prompt 已通过直接生视频开头检查，且不含本地图片路径。
-7. 有主体参照图时远端若没有锁定 `modeType=mixed2video` 和 `mixedList`，必须记录为 route drift 并走纠偏或 rerun，不得标记为正常 submitted。
-8. 提交后 post-submit gate 已执行；`ask_user` 等待态不得进入 `pending_remote_generation`。
+7. 默认提交 prompt 已声明 `strict_original + transport_only`，且 submit plan 中 `allow_libtv_prompt_optimization=false`。
+8. 有主体参照图时远端若没有锁定 `modeType=mixed2video` 和 `mixedList`，必须记录为 route drift 并走纠偏或 rerun，不得标记为正常 submitted。
+9. 远端工具 envelope 不含 `task_type`，且未返回 `params is required`。
+10. 远端工具 prompt 保留主体名与图片 token/编号绑定，不存在裸图片 token 序列。
+11. 提交后 post-submit gate 已执行；`ask_user` 等待态、未 opt-in 的 prompt 优化、生成工具参数错误或主体名绑定丢失不得进入 `pending_remote_generation`。

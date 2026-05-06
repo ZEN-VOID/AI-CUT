@@ -21,6 +21,8 @@
 | D 混合参照误用 `image2video` 或拆成 B/C | provider modeType 层 | 改为 `modeType=mixed2video`，故事板和主体图统一进入 `mixedList[{url,type:image}]`；无图才走 `text2video` | LibTV handoff 固定 D 专属调用锁 | 查询消息中的 `create_generation_task` 为 `mixed2video` |
 | 并发任务同时改写报告 | 汇流层 | 每组只写独立结果行，最终统一汇总报告 | workflow 固定汇流写报告 | 报告写入发生在 batch 完成或查询阶段 |
 | LibTV 远端把 D 混合参照拆成 B/C 两条路线、先做新图或多段合成 | LibTV 远端 handoff 口径层 | 回刷 `*-libtv-submission.txt`，首行加入 D 专属 `【LibTV 调用锁定】`，直接锁定 `mixed2video + mixedList` | `hybrid-prompt-assembly-contract.md` 与 `libtv-handoff.md` 固定 Remote Handoff Contract | 远端提交首段出现 `modeType: mixed2video` |
+| 远端 `params.prompt` 只出现裸 `{{Image 1}} {{Image 2}}` / `图片1 图片2`，没有故事板身份或主体名称 | 混合参照投影层 | 标记 `hybrid_reference_name_stripped`，重写 `【直接生成请求】` 为“基于【混合参照说明】（包含故事板总参照、主体名和主体参照 URL）+【分镜组源文本】”，并要求两者共同作为 prompt 完整体 | `hybrid-prompt-assembly-contract.md` 与 `libtv-handoff.md` 固定混合参照身份/图片 token 绑定，禁止裸图片 token 序列 | query 中 `create_generation_task.params.prompt` 能看到 `故事板总参照/主体名 + 图片 token/编号` 邻近绑定 |
+| LibTV 远端在提交后自行重新编排、摘要或优化分镜 | 提示词保真授权层 | 标记 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，新建干净 session，以 `strict_original + transport_only` 重新提交 | `hybrid-prompt-assembly-contract.md` 与 `libtv-handoff.md` 固定三档模式，默认 `allow_libtv_prompt_optimization=false` | 远端提交开头含 strict 原文锁；query 中无未授权优化版提示词、镜头计划或摘要分镜 |
 
 ## Repair Playbook
 
@@ -33,6 +35,8 @@
 7. 若任务已提交但结果未下载，保留 sessionId，按 queue ledger 调 `query_session.py`，不要重新提交造成重复任务。
 8. 修复后按 `review/review-contract.md` 复核，并在执行报告写清楚 skipped / failed / next_action。
 9. 若远端代理把 D 任务解释成“先生成故事板/主体图、拆成 B/C 两条任务、多段视频再合成”，先修 `*-libtv-submission.txt` 的 `【LibTV 调用锁定】` 开头和 `mixed2video + mixedList`，再重新提交，不要补跑 B 或 C 路线。
+10. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明混合参照说明没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于 `【混合参照说明】`，并要求 `【混合参照说明】 + 【分镜组源文本】` 一起进入 prompt。
+11. 若 query 显示远端把原文改成“优化提示词 / 重新编排镜头 / 摘要分镜 / 工作流规划”，先看 submit plan 是否 opt-in；未 opt-in 时不沿用该 session，按 `strict_original + transport_only` 新建测试 session。
 
 ## Reusable Heuristics
 
@@ -43,3 +47,5 @@
 - 当参考图过多时，优先保留故事板总参照和高频核心角色；压缩策略必须写入报告，不能由脚本静默裁剪。
 - `第N集-libtv-submit-plan.json` 是提交前可审查真源；脚本投影是投影，不要让手写命令成为第二真源。
 - LibTV 远端只需要 uploaded URL 和直接视频任务指令；本地故事板 / 主体图片路径留在 manifest / 审核 prompt，不能进入 `*-libtv-submission.txt`。
+- “参照图 URL”这个说法容易让远端把故事板和主体图当成匿名素材。D 远端请求应始终写“【混合参照说明】（包含故事板总参照、主体名和主体参照 URL）”，并要求混合参照说明与分镜组源文本共同构成生成 prompt 完整体。
+- LibTV 的提示词优化不是 D 路线默认能力。默认只允许 `strict_original + transport_only`：源文本逐字投给生成 prompt，技术层只负责 URL、mixedList 和视频参数；任何重新编排都必须来自用户显式 opt-in。

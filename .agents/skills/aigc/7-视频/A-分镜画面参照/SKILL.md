@@ -58,6 +58,8 @@ Optional input:
 - `group_batch`：一次处理多个指定分镜组。
 - `shot_batch`：指定多个四段式 `分镜ID`，本技能按所属组聚合生成组级任务。
 - `execution.concurrency`：并发 worker 数；默认 `min(4, job_count)`，不得让多个 worker 同时改写同一个最终报告。
+- `prompt_fidelity_mode`：默认 `strict_original`；可选 `strict_original / transport_only / libtv_optimize`。
+- `allow_libtv_prompt_optimization`：默认 `false`。只有用户显式设为 `true` 或显式选择 `libtv_optimize` 时，才允许 LibTV 远端 Agent 做提示词优化、摘要、镜头重排、补镜头或重新编排。
 - 默认视频规格为 720P、16:9、15 秒、声音开启；用户显式指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略时，以用户要求为准。
 
 Reject or clarify when:
@@ -90,6 +92,21 @@ Reject or clarify when:
 | `query_or_download` | 已有 sessionId 或 queue ledger，需要查询/下载 | 按 LibTV queue 规则刷新状态和下载结果 |
 | `repair` | prompt 缺组、ID 映射错、图像错绑、YAML 漂移、sessionId 缺失、下载不完整 | 按 review gate 定位返工节点 |
 | `review_only` | 只检查现有输出 | 审查 prompt、参照、LibTV plan、queue 和本地视频结果 |
+
+## Prompt Fidelity Modes
+
+默认提交策略为 `strict_original + transport_only`：
+
+| fidelity_mode | 允许 | 禁止 | 默认 |
+| --- | --- | --- | --- |
+| `strict_original` | 直接把 `4-分组` 的组正文作为生成 prompt 主体；保留原有镜头顺序、段落、对白、音效、转场和分镜明细 | 改写、摘要、重排、合并镜头、补镜头、重新编排、把正文转为优化版提示词 | yes |
+| `transport_only` | 只做运输层投影：本地路径换为上传 URL、补 `image2video / imageList / duration / ratio / resolution / enableSound` 参数、按 provider 上限裁剪非关键参照图 | 改写 `group_body`、压缩剧情、重组镜头、替换原文表达 | yes |
+| `libtv_optimize` | 允许 LibTV 远端 Agent 进行提示词优化、摘要、镜头合并、工作流规划或重新编排 | 未经用户显式同意时启用 | no |
+
+- `allow_libtv_prompt_optimization` 默认必须为 `false`。
+- 远端 `*-libtv-submission.txt` 必须明确声明：禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；直接使用 `【分镜画面参照说明】中相关分镜ID/参照图绑定关系 + 【分镜组源文本】原文` 作为 Seedance 生成 prompt 完整体。
+- `transport_only` 不等于提示词优化；它只允许上传 URL、参照图数量上限裁剪和视频参数补齐，不允许改变分镜内容。
+- 若用户显式选择 `libtv_optimize`，必须在 submit plan、queue 和 report 中记录该选择；否则任何远端优化、重排或摘要都按 `route drift / prompt fidelity violation` 处理。
 
 ## Reference Loading Guide
 
@@ -165,7 +182,7 @@ stateDiagram-v2
 5. step1 组装本地审核 prompt 时添加 LibTV 视频约束前缀：`根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。` 发送给 LibTV 的 `*-libtv-submission.txt` 必须改写为远端可读形态，并以 `【LibTV 调用锁定】` 开头锁定 A 专属 `modeType=image2video`，首尾帧显式任务才允许 `frames2video`。
 6. step2：检查 `projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/` 下是否存在与四段式 `分镜ID` 对应的图片；优先 `images/<shot_id>.*`，其次同集目录内 `<shot_id>.*`，允许常见扩展名 `png/jpg/jpeg/webp`。
 7. step2 绑定结果必须写入 manifest 与 YAML：有图则在对应 `分镜ID` 后添加 `@<path>`，并写 `reference_images[]`；无图则该镜头不写空图片槽位，只记录 `reference_status: missing_optional`。
-8. step3：根据 YAML 转换为 `$libTV` 脚本提交格式。一组一个 job：有一张或多张分镜画面图时，先逐图运行 `upload_file.py <path>`，再把返回的 URL 编号写入 `*-libtv-submission.txt`，并锁定 LibTV 调用为 `provider=seedance2.0 / taskType=video / modeType=image2video / imageList=["<真实 uploaded_url>"]`；只有用户显式首尾帧意图时才改用 `frames2video`。无图时直接运行对应提交文本并锁定 `modeType=text2video`。远端提交文本不得包含本地图片路径，只能包含真实上传 URL、`参照图N <uploaded_url>` 与分镜画面参照用途说明。
+8. step3：根据 YAML 转换为 `$libTV` 脚本提交格式。一组一个 job：有一张或多张分镜画面图时，先逐图运行 `upload_file.py <path>`，再把返回的 URL 编号写入 `*-libtv-submission.txt`，并锁定 LibTV 调用为 `provider=seedance2.0 / taskType=video / modeType=image2video / imageList=["<真实 uploaded_url>"]`；只有用户显式首尾帧意图时才改用 `frames2video`。无图时直接运行对应提交文本并锁定 `modeType=text2video`。远端提交文本不得包含本地图片路径，只能包含真实上传 URL、`分镜ID/镜头标签：参照图N <uploaded_url>` 与分镜画面参照用途说明；`【直接生成请求】` 必须要求基于 `【分镜画面参照说明】（包含分镜ID、镜头标签和参照 URL）+【分镜组源文本】`，并把两者共同作为生成 prompt 完整体。默认必须包含 `strict_original + transport_only` 声明，禁止远端 Agent 对 `【分镜组源文本】` 做提示词优化、摘要、重排、改写或补镜头，也禁止把分镜画面参照简化为裸图片 token / 裸图片编号 / 裸 URL。
 9. LibTV `libtv_session_with_uploaded_references` 当前图片输入上限按 `.agents/skills/cli/libTV` 执行；若某组可用分镜画面图超过当前 LibTV 参照限制，必须记录 `reference_over_limit`，按用户策略选择阻断、分段提交或降级为文字 prompt，不得静默丢图。
 10. 默认后台多线程批量并发执行：提交前生成 `第N集-libtv-batch.yaml` 和 queue ledger；worker 数默认 `min(4, job_count)`，每个 worker 只写自己的临时结果，最终由主流程汇流更新 `第N集-libtv-results.json` 与 `执行报告.md`。
 11. 每次生成前必须运行 `LIBTV_ACCESS_KEY credential check`；若失败，停止提交并按 `$libTV` 技能进入登录或环境排障。
@@ -178,7 +195,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-FVID-01` | input manifest | 项目根、集号、`4-分组`、目标组/镜范围可追溯 | `FAIL-FVID-INPUT` |
 | `FIELD-FVID-02` | group and shot index | `group_id` 可回指 `## x-y-z`，四段式 `shot_id` 可回指组内 `分镜N` | `FAIL-FVID-SHOT-ID` |
-| `FIELD-FVID-03` | prompt package | LibTV 视频约束前缀 + 现有完整组内容 + `分镜ID@路径` 映射；远端 `*-libtv-submission.txt` 以 A 专属 `【LibTV 调用锁定】` 开头并默认锁定 `modeType=image2video` | `FAIL-FVID-PROMPT` |
+| `FIELD-FVID-03` | prompt package | LibTV 视频约束前缀 + 现有完整组内容 + `分镜ID@路径` 映射；远端 `*-libtv-submission.txt` 以 A 专属 `【LibTV 调用锁定】` 开头并默认锁定 `modeType=image2video`；默认 `strict_original + transport_only` 且禁止远端优化；最终生成 prompt 必须保留分镜ID/镜头标签与图片 token/编号绑定 | `FAIL-FVID-PROMPT` |
 | `FIELD-FVID-04` | frame reference manifest | 只绑定真实 `6-图像/A-分镜画面` 图片；缺图移除空槽位 | `FAIL-FVID-REF` |
 | `FIELD-FVID-05` | LibTV YAML / submit plan | 有图走上传后建会话，无图走纯文本建会话，参数符合 `$libTV` | `FAIL-FVID-LIBTV` |
 | `FIELD-FVID-06` | queue ledger / session ids | 多任务均有 queue row、sessionId 或明确失败原因、next_action | `FAIL-FVID-QUEUE` |
@@ -190,7 +207,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `FIELD-FVID-01` | input lock | `第N集-group-shot-index.json` / report | 项目根、集号、`4-分组`、视频输出根 | `FAIL-FVID-INPUT` |
 | `FIELD-FVID-02` | group and shot extraction | `第N集-group-shot-index.json` | `group_id`、`shot_id`、source heading、source shot label、body hash | `FAIL-FVID-SHOT-ID` |
-| `FIELD-FVID-03` | prompt assembly | `第N集-video-prompts.md` / `prompts/*-libtv-submission.txt` | LibTV 前缀、完整组正文、`shot_id@path` 与 `@图N` 映射说明；远端提交首段为 `【LibTV 调用锁定】` 和正确 `modeType` | `FAIL-FVID-PROMPT` |
+| `FIELD-FVID-03` | prompt assembly | `第N集-video-prompts.md` / `prompts/*-libtv-submission.txt` | LibTV 前缀、完整组正文、`shot_id@path` 与 `@图N` 映射说明；远端提交首段为 `【LibTV 调用锁定】` 和正确 `modeType`；远端生成 prompt 完整体必须包含分镜画面参照说明 + 源文本原文；默认记录 `allow_libtv_prompt_optimization=false` | `FAIL-FVID-PROMPT` |
 | `FIELD-FVID-04` | reference binding | `第N集-reference-manifest.json` | frame image paths or missing_optional reasons without empty slots | `FAIL-FVID-REF` |
 | `FIELD-FVID-05` | LibTV handoff | `第N集-libtv-batch.yaml` | local command projection、prompt、reference_images、output path、provider `modeType`、poll | `FAIL-FVID-LIBTV` |
 | `FIELD-FVID-06` | queue tracking | `第N集-libtv-queue.md` | queue_id、group_id、sessionId、remote_status、next_action | `FAIL-FVID-QUEUE` |
@@ -214,7 +231,7 @@ stateDiagram-v2
 | --- | --- | --- |
 | `PASS-FVID-01` | 必需输入可读，输出根明确 | `FAIL-FVID-INPUT` | `types/type-map.md` |
 | `PASS-FVID-02` | 每个 `group_id` 和 `shot_id` 唯一且可回指源标题和组内分镜 | `FAIL-FVID-SHOT-ID` | `references/group-shot-source-contract.md` |
-| `PASS-FVID-03` | 本地 prompt 以固定视频约束起笔，现有组内容作为主体，镜头未缺失乱序；远端提交以 A 专属 `【LibTV 调用锁定】` 起笔并默认 `modeType=image2video` | `FAIL-FVID-PROMPT` | `references/group-shot-source-contract.md` / `references/libtv-handoff-contract.md` |
+| `PASS-FVID-03` | 本地 prompt 以固定视频约束起笔，现有组内容作为主体，镜头未缺失乱序；远端提交以 A 专属 `【LibTV 调用锁定】` 起笔并默认 `modeType=image2video`；默认 `strict_original + transport_only` 且未 opt-in 时禁止远端优化 | `FAIL-FVID-PROMPT` | `references/group-shot-source-contract.md` / `references/libtv-handoff-contract.md` |
 | `PASS-FVID-04` | 参照图路径真实存在；缺图移除空槽位并记录原因 | `FAIL-FVID-REF` | `references/frame-image-binding-contract.md` |
 | `PASS-FVID-05` | LibTV YAML 可转为合法提交；远端 handoff 有图默认 `modeType=image2video`，显式首尾帧才允许 `frames2video`，无图 `text2video` | `FAIL-FVID-LIBTV` | `references/libtv-handoff-contract.md` |
 | `PASS-FVID-06` | 每个提交任务都有 queue row、sessionId 或明确失败原因 | `FAIL-FVID-QUEUE` | `.agents/skills/cli/libTV/SKILL.md` |
@@ -241,4 +258,4 @@ stateDiagram-v2
 - Output format: Markdown prompt / report / queue ledger + YAML batch config + JSON manifest / plan / result；生成视频为 LibTV 返回的 MP4 或等价视频文件。
 - Output path: `projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/`，其中 prompt、manifest、batch YAML、queue、result、报告与自动下载视频均在该集目录下。
 - Naming convention: prompt 文档命名 `第N集-video-prompts.md`；每组远端提交文本命名 `prompts/<分镜组ID>-libtv-submission.txt`；索引命名 `第N集-group-shot-index.json`；参照清单命名 `第N集-reference-manifest.json`；LibTV 配置命名 `第N集-libtv-batch.yaml`；队列命名 `第N集-libtv-queue.md`；结果命名 `第N集-libtv-results.json`；执行报告命名 `执行报告.md`；视频命名 `<分镜组ID>.mp4`，例如 `1-1-1.mp4`。
-- Completion gate: 目标分镜组均可从 `4-分组` 回指；四段式 `分镜ID` 均可回指组内分镜；每条 prompt 完整保留组正文主体；每条 `*-libtv-submission.txt` 首段为 `【LibTV 调用锁定】`，有图默认 `modeType=image2video`，显式首尾帧任务才允许 `frames2video`，无图 `text2video`；不含本地图片路径；YAML 参照图只绑定真实分镜画面图片并移除缺图空槽位；生成前已通过 `LIBTV_ACCESS_KEY credential check`；批量任务均有 queue ledger；审查结果为 `pass` 或 `pass_with_todo`。
+- Completion gate: 目标分镜组均可从 `4-分组` 回指；四段式 `分镜ID` 均可回指组内分镜；每条 prompt 完整保留组正文主体；每条 `*-libtv-submission.txt` 首段为 `【LibTV 调用锁定】`，有图默认 `modeType=image2video`，显式首尾帧任务才允许 `frames2video`，无图 `text2video`；默认声明 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；不含本地图片路径；`【直接生成请求】` 使用 `【分镜画面参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体；YAML 参照图只绑定真实分镜画面图片并移除缺图空槽位；生成前已通过 `LIBTV_ACCESS_KEY credential check`；批量任务均有 queue ledger；审查结果为 `pass` 或 `pass_with_todo`。

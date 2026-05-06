@@ -44,8 +44,8 @@ flowchart TD
 | `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、完整组正文和组边界 | `group-shot-index.json` | `N4` | 每个组 ID 唯一可回指 |
 | `N4-SHOT-ID` | 建立四段式镜级索引 | group index、组内 `分镜N` / 已有 `分镜ID` | 映射 `shot_id`，记录源标签和顺序 | `group-shot-index.json` | `N5` | 每个 `shot_id` 唯一可回指 |
 | `N5-REF-BIND` | 保守绑定对应分镜画面图 | shot index、`6-图像/A-分镜画面` | 按 `shot_id` 查真实图片；无图移除空槽位 | reference manifest | `N6` | 无猜测路径 |
-| `N6-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、output path、poll | batch YAML | `N7` | YAML 可投影为 $libTV 脚本调用 |
-| `N7-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode | review note | `N8` / `N11` / repair | 必需项通过 |
+| `N6-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、output path、poll、`prompt_fidelity_mode` | batch YAML | `N7` | YAML 可投影为 $libTV 脚本调用，默认 `allow_libtv_prompt_optimization=false` |
+| `N7-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode、prompt fidelity opt-in | review note | `N8` / `N11` / repair | 必需项通过；未 opt-in 时禁止远端优化 |
 | `N8-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`，建立 worker pool，逐组提交 | tmp result、queue row | `N9` | 保留 sessionId |
 | `N9-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-libtv-queue.md`、results JSON 初稿 | queue ledger | `N10` | 每组状态明确 |
 | `N10-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、sessionId | `query_session`、自动下载到 `第N集/`、处理下载超时 | local videos、results JSON | `N11` | 本地状态真实 |

@@ -26,6 +26,14 @@
 - queue/result/report 必须记录 `sessionId`、`projectUuid`、`projectUrl`，用于用户在画布查看。
 - 若画布未出现对应生成节点或结果 URL，不得把本地状态标为 downloaded / generated。
 
+## Prompt Fidelity And Optimization Authorization
+
+- 默认远端 handoff 必须采用 `strict_original + transport_only`：`prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false`，并禁止提示词优化、重新编排、摘要、改写和补镜头。
+- `strict_original` 表示 `【混合参照说明】` 中的故事板总参照/主体名/参照图/URL 绑定关系与 `【分镜组源文本】` 原文必须共同作为 Seedance `create_generation_task.params.prompt` 的完整主体；LibTV 远端 Agent 不得在工具调用前自行生成优化版提示词、镜头计划或摘要版分镜。
+- `transport_only` 只允许上传 URL、`mixedList`、时长、比例、分辨率、声音等技术投影；不得改变分镜内容、镜头顺序、角色动作、对白、音效或氛围事实。
+- 只有 submit plan 明确记录用户 opt-in `prompt_fidelity_mode=libtv_optimize` 或 `allow_libtv_prompt_optimization=true` 时，才允许 LibTV 做提示词优化、压缩、合并镜头或工作流规划。
+- 若远端 query 显示 assistant 在 `create_generation_task` 之前执行“优化提示词 / 重新编排 / 摘要 / 镜头计划”且本地未 opt-in，必须判定为 `prompt_fidelity_violation / libtv_optimize_without_opt_in`；不得把该 session 标为正常 pending。
+
 ## Command Selection
 
 | reference state | command | rule |
@@ -50,7 +58,10 @@
 
 - 文件第一行必须是 `【LibTV 调用锁定】`。
 - 第一段必须使用 `hybrid-prompt-assembly-contract.md#LibTV Remote Opening` 中的 D 专属调用锁，明确 `provider=seedance2.0`、`taskType=video`、有图时 `modeType=mixed2video` 和 `mixedList`，无图时 `modeType=text2video`。
-- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../5-设计/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许出现 `参照图N：<uploaded_url>` 与故事板总参照 / 主体参照用途说明。
+- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../5-设计/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许出现 `故事板总参照：参照图N <uploaded_url>`、`主体名：参照图N <uploaded_url>` 与故事板总参照 / 主体参照用途说明。
+- `【直接生成请求】` 必须写成“基于【混合参照说明】（包含故事板总参照、主体名和主体参照 URL）和下方【分镜组源文本】”，不得只写“基于上述参照图 URL”。
+- 远端 `create_generation_task.params.prompt` 必须保留故事板身份、主体名与图片 token/编号绑定，例如 `故事板总参照 参照图1`、`林寂 参照图2`、`林寂 {{Image 2}}`；不得把参照区压成 `{{Image 1}} {{Image 2}} ...`、`图片1 图片2 ...` 或裸 URL 列表。
+- 默认提交文本必须声明 `strict_original + transport_only`，且 `allow_libtv_prompt_optimization=false`；未显式 opt-in 时不得要求或默许 LibTV 重新组织、压缩、合并或摘要分镜组源文本。
 - 不得把 D 任务拆成 B 路线和 C 路线分别提交；故事板总参照和主体参照必须在同一个 `mixed2video` 任务中生效。
 
 ## Mixed Reference Prompt Rule
@@ -67,13 +78,23 @@ duration: 15
 ratio: 16:9
 resolution: 720p
 enableSound: on
+prompt_fidelity_mode: strict_original
+allow_libtv_prompt_optimization: false
+transport_only_projection: true
+禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头。
+只允许执行 transport_only 投影：上传 URL、mixedList、duration、ratio、resolution、enableSound。
 
-参照图1：<storyboard_uploaded_url>
+【混合参照说明】
+故事板总参照：参照图1 <storyboard_uploaded_url>
 参照图1 是整组分镜故事板总参照，只用于整体构图、镜头顺序、画面连续性和节奏，不作为唯一首帧。
 
-参照图2：<subject_uploaded_url>
+林寂：参照图2 <subject_uploaded_url>
 角色 林寂 的外观参照为参照图2；仅用于主体外观一致性，不改写剧情事实。
 
+【直接生成请求】
+请基于【混合参照说明】（包含故事板总参照、主体名、主体类别、参照图编号和主体参照 URL）和下方【分镜组源文本】，按 `mixed2video + mixedList` 生成一条连续视频。请直接把【混合参照说明】中与本组相关的故事板总参照绑定关系、主体名/参照图绑定关系 + 【分镜组源文本】原文作为生成 prompt 完整体。禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；禁止把混合参照简化为裸图片 token、裸图片编号或裸 URL。
+
+【分镜组源文本】
 <完整分镜组内容>
 ```
 
@@ -94,6 +115,9 @@ enableSound: on
 - `sessionId`
 - `projectUuid`
 - `projectUrl`
+- `prompt_fidelity_mode`
+- `allow_libtv_prompt_optimization`
+- `transport_only_projection`
 - `next_action`
 
 ## Queue Ledger
@@ -119,3 +143,6 @@ projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/
 3. prompt 同时保留完整组正文、故事板总参照说明和主体参照说明；远端 `*-libtv-submission.txt` 首段为 `【LibTV 调用锁定】` 和正确 `modeType`。
 4. 队列能用 `sessionId` 续查。
 5. 有任一故事板或主体参照图时，远端调用必须为 `modeType=mixed2video` 且使用 `mixedList`；不得退回 `singleImage2video`、`image2video` 或 B/C 分开提交。
+6. 远端工具 prompt 保留故事板身份、主体名与图片 token/编号绑定，不存在裸图片 token 序列。
+7. 默认提交 prompt 已声明 `strict_original + transport_only`，且 submit plan 中 `allow_libtv_prompt_optimization=false`。
+8. 未显式 opt-in `libtv_optimize` 时，远端 query 不得出现优化版提示词、重新编排脚本、镜头计划或摘要版分镜。

@@ -24,6 +24,8 @@ recommended_action: keep-target-scoped-updates
 | `TM-FVID-MODETYPE` | provider 路由层 | 默认锁定 `modeType=image2video`；只有用户显式首尾帧/起止帧过渡且图数 1-2 时才用 `frames2video`；无图用 `text2video` | `libtv-handoff-contract.md` 固定 A 专属 modeType 判定 | 远端提交首段出现正确 `modeType` |
 | `TM-FVID-QUEUE-DRIFT` | 异步队列层 | 用 `query_session` /  校正 queue ledger 的状态和 next_action | 每次提交后立即写 queue row，汇流阶段统一写 results | 每个 submitted job 有 sessionId 或失败原因 |
 | `TM-FVID-REMOTE-STORYBOARD-DRIFT` | LibTV 远端 handoff 口径层 | 回刷 `*-libtv-submission.txt`，首段加入 A 专属 `【LibTV 调用锁定】` 和 `modeType=image2video` | `references/libtv-handoff-contract.md` 固定 Remote Handoff Contract | 远端提交首段出现正确 `modeType`，且本地路径关键词扫描无命中 |
+| `TM-FVID-REFERENCE-NAME-STRIPPED` | 分镜画面参照投影层 | 标记 `frame_reference_name_stripped`，重写 `【直接生成请求】` 为“基于【分镜画面参照说明】（包含分镜ID、镜头标签和参照 URL）+【分镜组源文本】”，并要求两者共同作为 prompt 完整体 | `references/libtv-handoff-contract.md` 固定分镜ID/图片 token 绑定，禁止裸图片 token 序列 | query 中 `create_generation_task.params.prompt` 能看到 `分镜ID/镜头标签 + 图片 token/编号` 邻近绑定 |
+| `TM-FVID-LIBTV-OPTIMIZE-WITHOUT-OPT-IN` | 提示词保真授权层 | 标记 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，新建干净 session，以 `strict_original + transport_only` 重新提交 | `SKILL.md` 和 `libtv-handoff-contract.md` 固定三档模式，默认 `allow_libtv_prompt_optimization=false` | 远端提交开头含 strict 原文锁；query 中无未授权优化版提示词、镜头计划或摘要分镜 |
 
 ## Repair Playbook
 
@@ -36,6 +38,8 @@ recommended_action: keep-target-scoped-updates
 7. 提交前固定执行 `LIBTV_ACCESS_KEY credential check`；失败时停止提交并转 LibTV 登录/环境修复。
 8. 并发 worker 只写临时结果，最终 queue、results 和 report 由主流程单线程汇流。
 9. 若远端代理把 A 任务改成 `singleImage2video`、默认 `frames2video`、新生成分镜图或合成流程，先修 `*-libtv-submission.txt` 的 `modeType` 调用锁，再重新提交，不要改写 `4-分组` 或补跑 `6-图像`。
+10. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明分镜画面参照说明没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于 `【分镜画面参照说明】`，并要求 `【分镜画面参照说明】 + 【分镜组源文本】` 一起进入 prompt。
+11. 若 query 显示远端把原文改成“优化提示词 / 重新编排镜头 / 摘要分镜 / 工作流规划”，先看 submit plan 是否 opt-in；未 opt-in 时不沿用该 session，按 `strict_original + transport_only` 新建测试 session。
 
 ## Reusable Heuristics
 
@@ -46,3 +50,5 @@ recommended_action: keep-target-scoped-updates
 - 多张分镜画面更适合 `libtv_session_with_uploaded_references`；没有任何图片时再走 `libtv_session_text_only`。
 - `frames2video` 是首尾帧/起止帧过渡路线，不应默认替代本技能的多图分镜画面参照；A 默认用 `image2video` 承载按 shot 顺序排列的多张分镜画面图。
 - LibTV 远端只需要 uploaded URL 和直接视频任务指令；本地 `projects/...` 路径留在 manifest / 审核 prompt，不能进入 `*-libtv-submission.txt`。
+- “参照图 URL”这个说法容易让远端把分镜画面图当成匿名素材。A 远端请求应始终写“【分镜画面参照说明】（包含分镜ID、镜头标签和参照 URL）”，并要求参照说明与分镜组源文本共同构成生成 prompt 完整体。
+- LibTV 的提示词优化不是 A 路线默认能力。默认只允许 `strict_original + transport_only`：源文本逐字投给生成 prompt，技术层只负责 URL、imageList 和视频参数；任何重新编排都必须来自用户显式 opt-in。

@@ -9,10 +9,12 @@
 - 投影 `第N集-libtv-batch.yaml`、queue ledger、results JSON。
 - 按 YAML 调用 `LIBTV_ACCESS_KEY credential check`、`create_session.py`、`upload_file.py + create_session.py`、`query_session.py`。
 - 后台 worker pool、sessionId 回填、下载文件存在性校验。
+- 机械写入默认 `prompt_fidelity_mode=strict_original`、`allow_libtv_prompt_optimization=false` 与 `transport_only_projection=true`。
 
 禁止脚本承担：
 
 - 改写、扩写或摘要分镜组正文作为 canonical video prompt。
+- 未获用户显式 opt-in 时启用 LibTV 提示词优化、摘要、重排、补镜头或重新编排。
 - 猜测缺失参照图。
 - 在没有 queue ledger 的情况下批量提交异步视频任务。
 - 让多个 worker 同时改写最终 `执行报告.md`。
