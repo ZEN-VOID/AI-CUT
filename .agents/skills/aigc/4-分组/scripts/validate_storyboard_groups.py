@@ -2,8 +2,9 @@
 """Mechanically validate AIGC storyboard group Markdown files.
 
 This script is intentionally read-only. It checks structure, rough word
-limits, group IDs, required connector fields, YAML stats, and connector shape. It
-does not generate grouping decisions or creative text.
+limits, explicit shot-duration sums, group IDs, required connector fields, YAML
+stats, and connector shape. It does not generate grouping decisions or creative
+text.
 """
 
 from __future__ import annotations
@@ -30,9 +31,10 @@ FENCED_YAML_RE = re.compile(r"```yaml\n(.*?)\n```", re.DOTALL)
 EPISODE_RE = re.compile(r"第(\d+)集")
 SCENE_HEADING_RE = re.compile(r"^###\s+场景(\d+)[：:]", re.MULTILINE)
 STATS_COUNT_RE = re.compile(r"(\d+)")
+SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
-GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。"
+GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
 LEGACY_ENTRY_LABEL = "入场画面："
 LEGACY_EXIT_LABEL = "出场画面："
 CONNECTOR_REQUIRED_LABELS = (
@@ -48,11 +50,15 @@ CONNECTOR_REQUIRED_LABELS = (
 CONNECTOR_TYPES = ("同场景连接", "跨场景连接")
 ABSTRACT_CONNECTOR_METHODS = ("依赖型", "流动型", "变形型", "复合型", "无连接")
 DEPRECATED_CONNECTOR_LABELS = ("起点尾帧：", "目标首帧：", "分镜ID：", "连接件提示：")
-REQUIRED_YAML_KEYS = ("字数统计", "角色", "场景", "道具")
+REQUIRED_YAML_KEYS = ("字数统计", "时长估算", "角色", "场景", "道具")
 COUNT_TOLERANCE = 30
+DURATION_TOLERANCE = 1.0
 TARGET_CHAR_COUNT = 1680
 HARD_CHAR_COUNT = 1980
 MIN_REVIEW_CHAR_COUNT = 850
+MIN_REVIEW_SECONDS = 10.0
+MAX_REVIEW_SECONDS = 18.0
+HARD_REVIEW_SECONDS = 22.0
 
 
 @dataclass
@@ -190,6 +196,10 @@ def estimate_chars(text: str) -> int:
     return len(re.findall(r"[\w\u4e00-\u9fff]|[^\s]", text, flags=re.UNICODE))
 
 
+def estimate_duration_seconds(text: str) -> float:
+    return sum(float(match.group(1)) for match in SHOT_DURATION_RE.finditer(text))
+
+
 def extract_scene_numbers(body: str) -> list[int]:
     return [int(match.group(1)) for match in SCENE_HEADING_RE.finditer(body)]
 
@@ -300,7 +310,12 @@ def strip_group_non_body_sections(body: str) -> str:
     return "\n".join(content_lines).strip()
 
 
-def validate_yaml_stats(block: GroupBlock, char_count: int, errors: list[str]) -> None:
+def validate_yaml_stats(
+    block: GroupBlock,
+    char_count: int,
+    duration_seconds: float,
+    errors: list[str],
+) -> None:
     yaml_blocks = FENCED_YAML_RE.findall(block.body)
     if not yaml_blocks:
         errors.append(f"line {block.line_number}: {block.group_id} missing fenced yaml stats")
@@ -328,6 +343,16 @@ def validate_yaml_stats(block: GroupBlock, char_count: int, errors: list[str]) -
         if abs(declared_count - char_count) > COUNT_TOLERANCE:
             errors.append(
                 f"line {block.line_number}: {block.group_id} yaml 字数统计 {declared_count} differs from estimated {char_count} by more than {COUNT_TOLERANCE}"
+            )
+    duration_value = data.get("时长估算")
+    duration_match = re.search(r"(\d+(?:\.\d+)?)", str(duration_value or ""))
+    if not duration_match:
+        errors.append(f"line {block.line_number}: {block.group_id} yaml 时长估算 must contain a number")
+    else:
+        declared_duration = float(duration_match.group(1))
+        if abs(declared_duration - duration_seconds) > DURATION_TOLERANCE:
+            errors.append(
+                f"line {block.line_number}: {block.group_id} yaml 时长估算 {declared_duration:g} differs from estimated {duration_seconds:g} by more than {DURATION_TOLERANCE:g}"
             )
     for key in ("角色", "场景", "道具"):
         if key in data and not isinstance(data[key], list):
@@ -481,6 +506,23 @@ def validate_file(path: Path) -> ValidationResult:
 
         countable_text = strip_group_non_body_sections(group.body)
         char_count = estimate_chars(countable_text)
+        duration_seconds = estimate_duration_seconds(countable_text)
+        if duration_seconds == 0:
+            warnings.append(
+                f"{prefix} contains no explicit 分镜N（约X秒） durations; semantic review should return to 3-摄影 or document legacy estimation"
+            )
+        elif duration_seconds < MIN_REVIEW_SECONDS:
+            warnings.append(
+                f"{prefix} estimated group duration {duration_seconds:g}s is below review floor {MIN_REVIEW_SECONDS:g}s; semantic review must justify a short-scene exception or rebalance complete atomic units"
+            )
+        elif duration_seconds > HARD_REVIEW_SECONDS:
+            warnings.append(
+                f"{prefix} estimated group duration {duration_seconds:g}s exceeds hard risk line {HARD_REVIEW_SECONDS:g}s; semantic review must split it or document a single-atomic-unit exception"
+            )
+        elif duration_seconds > MAX_REVIEW_SECONDS:
+            warnings.append(
+                f"{prefix} estimated group duration {duration_seconds:g}s exceeds review band {MAX_REVIEW_SECONDS:g}s; semantic review must justify keeping this complete atomic unit instead of splitting"
+            )
         if char_count > HARD_CHAR_COUNT:
             errors.append(
                 f"{prefix} estimated pure body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
@@ -494,7 +536,7 @@ def validate_file(path: Path) -> ValidationResult:
                 f"{prefix} estimated pure body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
-        validate_yaml_stats(group, char_count, errors)
+        validate_yaml_stats(group, char_count, duration_seconds, errors)
 
     validate_connectors(path, text, groups, connectors, errors)
 

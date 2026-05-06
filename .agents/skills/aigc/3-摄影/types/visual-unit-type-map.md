@@ -18,6 +18,8 @@
 | `information_density` | sparse / readable / layered / critical | 决定是否需要特写、焦点拉移或多分镜 |
 | `continuity_need` | hold / cut / scene_boundary / handoff_required / sound_handoff | 决定是否需要记录交出锚点或保持长镜 |
 | `rhythm_profile` | converge / standard / expand / rupture | 决定分镜明细描述密度、运动复杂度和边界清晰度 |
+| `duration_bias` | instant / short / standard / held / long_hold | 为 `shot-duration-decision-contract.md` 提供初始时值倾向 |
+| `dialogue_load` | none / short_line / standard_line / long_line / voiceover | 判断对白、旁白或画外音是否决定镜头最低时长 |
 
 ## Type Matrix
 
@@ -40,5 +42,7 @@
 3. `visual_function` 决定 `beat-analysis-contract.md` 中优先检查哪些触发器。
 4. `pressure_level` 和 `information_density` 决定分镜密度。
 5. `rhythm_profile` 决定是否收敛、标准展开、发散强化或断裂发散。
-6. `visual_function = scene_boundary` 或场景/空间/时间/叙事段落发生变化时，必须读取 `references/transition-design-contract.md` 并形成内部 `handoff_profile`。
-7. `continuity_need` 决定是否记录交出锚点；`handoff_required` 和 `sound_handoff` 不代表本阶段要设计转场，只代表要给 `4-分组` 留可消费连接素材。
+6. `duration_bias` 只是初始倾向，必须由 `references/shot-duration-decision-contract.md` 结合节拍、信息可读性、动作完成、表演停顿、高点、对白台词量和 15 秒分组风险复判。
+7. `dialogue_load` 命中 `short_line / standard_line / long_line / voiceover` 时，必须形成 `dialogue_time_budget`；对白/旁白承托画面不得只按画面动作长短裁决。
+8. `visual_function = scene_boundary` 或场景/空间/时间/叙事段落发生变化时，必须读取 `references/transition-design-contract.md` 并形成内部 `handoff_profile`。
+9. `continuity_need` 决定是否记录交出锚点；`handoff_required` 和 `sound_handoff` 不代表本阶段要设计转场，只代表要给 `4-分组` 留可消费连接素材。

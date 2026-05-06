@@ -1,6 +1,6 @@
 # Beat Analysis Contract
 
-本文件定义 step2“节拍分析”。一个节拍点对应一个分镜切换点，最终表现为 `分镜N:`。
+本文件定义 step2“节拍分析”。一个节拍点对应一个分镜切换点，最终表现为 `分镜N（约X秒）:`。
 
 ## Core Principle
 

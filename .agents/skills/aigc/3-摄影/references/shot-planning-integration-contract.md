@@ -1,12 +1,12 @@
 # Shot Planning Integration Contract
 
-本文件定义 `3-摄影` 在输出 `分镜明细：分镜N` 前的强制汇流层。它的目的不是新增审美术语，而是确保 `references/` 中的节拍、画面节奏、高点策略、连续性、摄影语法、功能性影视投影、动态运镜、自然成稿和技法库真实进入思维与执行。
+本文件定义 `3-摄影` 在输出 `分镜明细：分镜N` 前的强制汇流层。它的目的不是新增审美术语，而是确保 `references/` 中的节拍、画面节奏、镜头时值、高点策略、连续性、摄影语法、功能性影视投影、动态运镜、自然成稿和技法库真实进入思维与执行。
 
 ## Core Rule
 
-每个 `visual_unit` 在写出 `分镜1:`、`分镜2:` 前，必须先形成内部 `shot_design_plan`。该计划不默认输出到正文，但必须支配最终 `分镜N` 的数量、顺序、入口、摄影语法、运动、落点、衔接和下游消费 payload。
+每个 `visual_unit` 在写出 `分镜1（约X秒）:`、`分镜2（约X秒）:` 前，必须先形成内部 `shot_design_plan`。该计划不默认输出到正文，但必须支配最终 `分镜N（约X秒）` 的数量、顺序、入口、单镜时值、摄影语法、运动、落点、衔接和下游消费 payload。
 
-禁止直接从画面句子跳到 `分镜N` 文案。若无法说明某个 `分镜N` 对应的节拍触发、节奏密度、连续性入口、摄影语法选择、功能 payload、运镜路径和交出点，该分镜视为随机分镜，必须删除或重写。
+禁止直接从画面句子跳到 `分镜N` 文案。若无法说明某个 `分镜N` 对应的节拍触发、节奏密度、时值等级、连续性入口、摄影语法选择、功能 payload、运镜路径和交出点，该分镜视为随机分镜，必须删除或重写。
 
 ## Required Plan Fields
 
@@ -17,6 +17,9 @@
 | `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个观看策略变化，不能按固定数量灌水 |
 | `shot_count_decision` | `beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md` | 明确本 visual_unit 为什么是 1/2/3/4 镜；2 镜不得作为默认值，只能作为真实两段观看策略的结果 |
 | `rhythm_profile` | `visual-rhythm-analysis-contract.md` | 决定分镜数量、句子密度、运动复杂度、边界清晰度和停顿感 |
+| `duration_profile` | `shot-duration-decision-contract.md` | 决定每个 `分镜N` 的时值等级、正文显示秒数、对白台词量预算、停顿/压缩理由和 15 秒分组节奏风险 |
+| `shot_duration_decision` | `shot-duration-decision-contract.md` | 为每个计划分镜说明为什么是 `instant / short / standard / held / long_hold`、正文写 `约X秒`，以及缩短或拉长会损失什么 |
+| `dialogue_time_budget` | `shot-duration-decision-contract.md` | 对对白/旁白/画外音/反应镜头，裁决台词量下限和跨镜承托关系 |
 | `continuity_entry` | `shot-continuity-contract.md` | 当前画面从上一注意力落点、声音、动作、光色或空间轴线如何进入 |
 | `handoff_profile` | `transition-design-contract.md` | 场景变化、空间重置、注意力转交、动作/声音/形态/光色/文字接口需要记录哪些交出锚点、进入提示和连续性风险 |
 | `camera_grammar_plan` | `cinematic-technique-library.md`、`dynamic-lens-language-contract.md`、`shot-continuity-contract.md` | 为每个节拍裁决景别梯度、景深/焦点、镜头视角、镜头类型、构图、光影、色彩、运镜方式、速度曲线、停点和变化动机 |
@@ -32,14 +35,15 @@
 2. 从 `Beat Trigger Matrix` 中选择真实触发点，生成 `beat_sequence`；弱触发合并，强触发拆开。
 3. 形成 `shot_count_decision`：先允许 1 镜成立，再验证是否存在第二个真实观看策略；只有关键揭示、群像扩散、动作分相、空间重置或高点承托才继续扩展到 3-4 镜。
 4. 用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。若当前批次出现大量同数分镜，尤其 2 镜集中，必须抽样复判并修正 `shot_count_decision`。
-5. 用 `continuity_entry` 承接前 3 个画面单位中的最近落点；不能每个画面重新发明一套风格。
-6. 若发生场景变化、空间重置、注意力转交、动作承接、声音先行、形态/颜色匹配、信息显影或高点断裂，先建立 `handoff_profile`，明确交出点、进入提示和连续性风险；不得在本阶段裁决普通切镜、软桥接、匹配剪辑或高能转场方案。
-7. 建立 `camera_grammar_plan`：景别变化像呼吸，视角变化有权力/主观/观察/空间动机，景深和焦点负责注意力交接，镜头类型和构图服务空间压力或信息显影。
-8. 建立 `functional_projection_plan`：没有主体、动作相位、运镜计划、构图锚点、光色/材质、连续性交接或下游消费意义的 beat 不能写成分镜。
-9. 为每个 beat 选择技法时遵守“最小充分”：只选择能服务当前 beat 的参数和运镜策略，不把技法库当菜单随机抽样。
-10. 用 `natural_output_strategy` 压缩显式参数：每条分镜只写当前节拍最关键的 1-2 个摄影选择，其余通过具体画面、动作、遮挡、光色和落点表达。
-11. 写 `分镜N` 时，让每条分镜的起点来自 `continuity_entry` 或上一条分镜的终点；让每条分镜的终点成为下一条分镜的入口或 `next_handoff`。
-12. 最终文案必须能反推 `shot_design_plan`：读者能看出为什么有这些分镜、为什么按这个顺序、摄影机为什么这样动或不动，景别/视角/焦点为什么这样变化，以及下游图像/视频应消费哪些主体、动作、运镜、构图、光色和空间关系；但不得像计划表一样逐项暴露内部字段。
+5. 形成 `duration_profile` 和每个 beat 的 `shot_duration_decision`：先判断是否承载对白/旁白并估算台词量下限，再判断缩短一半会丢失什么、拉长一倍是否只会拖慢；文字、道具、微表情、空间重置和认知高点必须给足可读时间，低信息动作和重复交出点必须压缩。每个 beat 必须得到正文 `display_seconds`。
+6. 用 `continuity_entry` 承接前 3 个画面单位中的最近落点；不能每个画面重新发明一套风格。
+7. 若发生场景变化、空间重置、注意力转交、动作承接、声音先行、形态/颜色匹配、信息显影或高点断裂，先建立 `handoff_profile`，明确交出点、进入提示和连续性风险；不得在本阶段裁决普通切镜、软桥接、匹配剪辑或高能转场方案。
+8. 建立 `camera_grammar_plan`：景别变化像呼吸，视角变化有权力/主观/观察/空间动机，景深和焦点负责注意力交接，镜头类型和构图服务空间压力或信息显影；运镜速度和停点必须服从 `shot_duration_decision`。
+9. 建立 `functional_projection_plan`：没有主体、动作相位、运镜计划、构图锚点、光色/材质、连续性交接、显式时长、对白承托关系或下游消费意义的 beat 不能写成分镜。
+10. 为每个 beat 选择技法时遵守“最小充分”：只选择能服务当前 beat 的参数和运镜策略，不把技法库当菜单随机抽样。
+11. 用 `natural_output_strategy` 压缩显式参数：每条分镜只写当前节拍最关键的 1-2 个摄影选择，其余通过具体画面、动作、遮挡、光色、停点和落点表达。
+12. 写 `分镜N` 时，让每条分镜的起点来自 `continuity_entry` 或上一条分镜的终点；让每条分镜的终点成为下一条分镜的入口或 `next_handoff`。多分镜之间还必须形成时值接力，不能每镜同长同速。
+13. 最终文案必须能反推 `shot_design_plan`：读者能看出为什么有这些分镜、为什么按这个顺序、每镜为什么写 `约X秒`，对白是否被完整承托，摄影机为什么这样动或不动，景别/视角/焦点为什么这样变化，以及下游图像/视频应消费哪些主体、动作、运镜、构图、光色和空间关系；但不得像计划表一样逐项暴露内部字段。
 
 ## Internal Plan Shape
 
@@ -48,6 +52,7 @@ shot_design_plan:
   visual_unit_function: <当前画面摄影任务>
   shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
+  duration_profile: <整体时值策略、显式秒数分布、对白台词量预算、15 秒分组风险和相邻分镜时值接力>
   continuity_entry: <承接上一落点、声音、动作、光色或空间轴线>
   handoff_profile: <如触发，记录场景/空间/注意力/动作/声音/形态/光色/文字接口、交出点、进入提示和连续性风险>
   beats:
@@ -67,6 +72,13 @@ shot_design_plan:
         composition_anchor: <构图锚点>
         light_color_material: <光色/材质/视觉母题>
         downstream_consumability: <图像/视频可消费点>
+      shot_duration_decision:
+        duration_class: <instant / short / standard / held / long_hold>
+        estimated_seconds: <内部估算范围；通常不输出到正文>
+        display_seconds: <正文写入的约X秒>
+        dialogue_time_budget: <none / inherited / local_line / voiceover；如命中则写台词量下限和承托关系>
+        duration_reason: <冲击/动作完成/可读性/表演停顿/空间定位/反应吸收/边界交出>
+        compression_risk: <none / too_short / too_long / conflicts_with_15s_group>
       technique: <从 camera_grammar_plan 中显式进入成稿的必要项>
       natural_output_strategy: <显式写哪些关键选择，哪些内化成自然画面文字>
       start: <镜头起点>
@@ -85,10 +97,12 @@ shot_design_plan:
 2. `path` 明确：使用哪类镜头、运镜方向、速度曲线和焦点/景别变化。
 3. `end` 明确：落到哪个人物、道具、文字、危险源、反应或转场接口。
 4. `motivation` 明确：能看出该运动服务信息揭示、动作相位、情绪压力、空间关系或转场。
-5. `handoff` 明确：多分镜时相邻分镜首尾相接，最后一镜能交给下一画面。
-6. `downstream_payload` 明确：能抽取主体、动作、运镜、构图锚点、光色/材质和图像/视频可消费点。
-7. `camera_grammar` 明确：景别、视角、景深/焦点、镜头类型或构图变化至少有一个真实服务当前节拍，且变化不破坏连续性。
-8. `naturalness` 合格：读起来不是字段展开、参数清单或模板填空。
+5. `duration` 明确：每条分镜写成 `分镜N（约X秒）:`，能反推该镜是快速通过、标准承接、读秒停留还是长停顿；缩短或拉长的取舍有理由。
+6. `dialogue_budget` 明确：若承载对白/旁白/画外音，显式秒数不低于台词量下限，或已说明跨镜延续。
+7. `handoff` 明确：多分镜时相邻分镜首尾相接，最后一镜能交给下一画面。
+8. `downstream_payload` 明确：能抽取主体、动作、运镜、构图锚点、光色/材质和图像/视频可消费点。
+9. `camera_grammar` 明确：景别、视角、景深/焦点、镜头类型或构图变化至少有一个真实服务当前节拍，且变化不破坏连续性。
+10. `naturalness` 合格：读起来不是字段展开、参数清单或模板填空。
 
 ## Anti-Patterns
 
@@ -97,6 +111,10 @@ shot_design_plan:
 - `分镜1`、`分镜2`、`分镜3` 彼此都在重新描述同一个状态，没有新的观看策略。
 - 每条分镜都换一套技法，读不出上一镜如何进入下一镜。
 - 分镜数量确实变多了，但没有主体、动作、信息或情绪的递进。
+- 每条分镜都同样长度、同样速度，或长停顿没有可读性/表演/空间/高点理由。
+- 快速切走必须读清的文字、道具或微表情，导致分镜数量对了但观看时值错了。
+- 对白/旁白画面没有根据台词量决定显式秒数。
+- `分镜N` 缺少 `（约X秒）`，导致下游视频阶段无法消费时长。
 - 分镜读起来顺，但下游无法判断该画谁、摄影机怎么动或为什么不动、构图锚点是什么、光色如何继承。
 - 分镜出现景别、视角、焦点或镜头类型变化，但变化没有服务节拍、空间、信息、情绪或交接，只是为了显得专业。
 - 只写“推近”“特写”“压迫感”，没有起点、路径、落点和交出点。

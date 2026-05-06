@@ -8,7 +8,7 @@ stage: 4-分组
 source_cinematography_path: projects/aigc/<项目名>/3-摄影/第N集.md
 north_star_path: projects/aigc/<项目名>/0-初始化/north_star.yaml
 output_path: projects/aigc/<项目名>/4-分组/第N集.md
-grouping_policy: dialogue_4_to_6_and_pure_body_target_1680_hard_1980_and_atomic_visual_unit
+grouping_policy: explicit_shot_duration_sum_target_15s_atomic_visual_unit_first
 connector_policy: inter_group_head_tail_connector_3_to_4_seconds
 review_status: pending
 ---
@@ -17,7 +17,7 @@ review_status: pending
 
 ## 1-1-1
 
-视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
+视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
 <直引 north_star.yaml 类型元素.类型元素提示词>
 <直引 north_star.yaml 细分风格.画面风格>
 
@@ -25,6 +25,7 @@ review_status: pending
 
 ```yaml
 字数统计: 0字
+时长估算: 约0秒
 角色:
   - <角色名>
 场景:
@@ -35,7 +36,7 @@ review_status: pending
 
 ## 1-1-1~1-1-2
 
-视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
+视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
 <直引 north_star.yaml 类型元素.类型元素提示词>
 <直引 north_star.yaml 细分风格.画面风格>
 
@@ -46,11 +47,11 @@ review_status: pending
 主体运动：<主体、锚定物、能量或环境元素的运动路径、速度、方向、遮挡和前中后景关系>
 运镜设计：<镜头运动、景别变化、机位高度、焦段感、轴线方向、焦点转移和节奏>
 透视适应：<说明锚定物、能量、主体或背景在景别、缩放、位置、角度上的自适应>
-避免元素：<不允许出现的新剧情、新人物、新对白、字幕、BGM、端点复述、画面漂移和错误物件>
+避免元素：<不允许出现的新剧情、新人物、新对白、字幕、背景音乐、端点复述、画面漂移和错误物件>
 
 ## 1-1-2
 
-视频生成的画面风格，光影和氛围与场景参照图保持一致。不生成文字字幕和BGM，仅生成物理互动音效与环境和氛围音效。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
+视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。 <投影 north_star.yaml 全局风格.全局风格提示词原文>
 <直引 north_star.yaml 类型元素.类型元素提示词>
 <直引 north_star.yaml 细分风格.画面风格>
 
@@ -58,6 +59,7 @@ review_status: pending
 
 ```yaml
 字数统计: 0字
+时长估算: 约0秒
 角色: []
 场景: []
 道具: []

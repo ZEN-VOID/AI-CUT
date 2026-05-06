@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Mechanical checks for 3-摄影 cinematography markup.
 
-This script validates coverage, numbering, and coarse shot-count distribution
-signals only. It does not generate shot details or decide creative beats.
+This script validates coverage, explicit duration markers, numbering, and
+coarse shot-count distribution signals only. It does not generate shot details
+or decide creative beats.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from pathlib import Path
 
 
 VISUAL_LABEL_RE = re.compile(r"^(?!分镜明细)([^：\n]*(画面|动作|表演|描写|特写|显影)[^：\n]*)：")
-SHOT_RE = re.compile(r"^分镜(\d+):")
+SHOT_RE = re.compile(r"^分镜(\d+)（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）[:：]")
 TWO_SHOT_WARNING_THRESHOLD = 0.8
 MIN_BLOCKS_FOR_DISTRIBUTION_WARNING = 10
 
@@ -56,7 +57,10 @@ def validate(path: Path, *, strict_shot_distribution: bool = False) -> tuple[boo
             if current.startswith("分镜"):
                 match = SHOT_RE.match(current)
                 if not match:
-                    findings.append(f"[ERROR] Invalid shot marker at line {cursor + 1}: {current[:80]}")
+                    findings.append(
+                        f"[ERROR] Invalid shot marker at line {cursor + 1}; "
+                        f"expected 分镜N（约X秒）: {current[:80]}"
+                    )
                     ok = False
                     break
                 shot_numbers.append(int(match.group(1)))

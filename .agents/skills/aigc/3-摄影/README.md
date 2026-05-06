@@ -31,6 +31,7 @@
 - 画面匹配：`references/visual-matching-contract.md`
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`
+- 镜头时值：`references/shot-duration-decision-contract.md`
 - 高潮分镜：`references/peak-shot-language-contract.md`
 - 边界交出：`references/transition-design-contract.md`
 - 分镜计划汇流：`references/shot-planning-integration-contract.md`
@@ -49,3 +50,4 @@
 - 输入：`projects/aigc/<项目名>/2-编导/第N集.md`
 - 输出：`projects/aigc/<项目名>/3-摄影/第N集.md`
 - 报告：`projects/aigc/<项目名>/3-摄影/执行报告.md`
+- 分镜落盘格式：每条分镜固定写成 `分镜N（约X秒）:`，对白、旁白和画外音台词量必须进入时值预算。

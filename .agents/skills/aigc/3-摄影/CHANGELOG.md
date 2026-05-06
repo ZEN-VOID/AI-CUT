@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-05-06
+
+- 新增 `references/shot-duration-decision-contract.md`，把单镜长短从“节奏感”中拆出为独立 `shot_duration_decision`：每个 `分镜N` 必须能说明时值等级、内部估算范围、停顿/压缩理由和 15 秒组内节奏风险。
+- 同步更新 `SKILL.md`、workflow、shot planning、visual rhythm、dynamic lens、functional projection、types、review gate、templates、README 与 CONTEXT，要求分镜数量和单镜时值同时成立。
+- 新增 `PASS-CINE-04D` 与 `N5.2-DURATION`，防止“切换点正确但镜头长短错误”：文字/道具/微表情被快速切走、低信息镜头被拖长、连续同长同速或高点时值类型混淆。
+- 将逐集摄影稿落盘格式收束为 `分镜N（约X秒）:`，`estimated_seconds` 保持内部裁决，`display_seconds` 必须显式进入正文，供下游视频阶段直接消费。
+- 强化对白/旁白/画外音台词量预算：`N5.2-DURATION` 先估算 `dialogue_seconds_floor`，再裁决镜头长短；review 与 validator 同步阻断缺少显式秒数或对白时值承托的稿件。
+
 ## 2026-05-04
 
 - 将 `3-摄影` 的转场职责降级为边界交出职责：保留镜头内部连续性、进入点、最后一镜可消费交出锚点和连续性风险，不再主创组间或跨场景创意转场方案。
