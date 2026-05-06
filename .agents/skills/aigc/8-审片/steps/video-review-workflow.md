@@ -1,5 +1,24 @@
 # Video Review Workflow
 
+## Mermaid Topology
+
+```mermaid
+flowchart TD
+    N1["N1-INTAKE<br/>project + video + group_id + variant"] --> N2["N2-SOURCE-LOCK<br/>4-分组 truth + 7-视频 evidence"]
+    N2 --> N3["N3-EVIDENCE<br/>metadata + keyframes + observed_content_summary"]
+    N3 --> N36{"N3.6-ADVISOR<br/>review_advisor_packet"}
+    N36 -->|"evidence insufficient"| N3
+    N36 -->|"packet ready or downgraded"| N4["N4-COMPARE<br/>video / prompt / quality findings"]
+    N3 -->|"subagents not enabled"| N4
+    N4 --> N5["N5-LANDING<br/>rerun / group repair / source escalation / report"]
+    N5 --> N6["N6-WRITE<br/>review report or authorized patch"]
+    N6 --> N7{"N7-VERIFY<br/>naming + references + patch scope"}
+    N7 -->|"pass"| DONE["final verdict"]
+    N7 -->|"evidence gap"| N3
+    N7 -->|"finding attribution gap"| N4
+    N7 -->|"landing overreach"| N5
+```
+
 ## N1 Intake
 
 - 解析项目根、视频路径、集号、group_id、variant。

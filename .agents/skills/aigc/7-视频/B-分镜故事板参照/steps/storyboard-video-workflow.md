@@ -6,19 +6,19 @@
 
 ```mermaid
 flowchart TD
-    N1["N1 Intake"] --> N2["N2 Load Project Context"]
-    N2 --> N3["N3 Extract Groups from 4-分组"]
-    N3 --> N4["N4 Bind Storyboard Sheet Image"]
-    N4 --> N5["N5 Build LibTV Batch YAML"]
-    N5 --> N6{"Review Gate"}
-    N6 -->|"prompt_only"| N10["N10 Persist Config Package"]
-    N6 -->|"generate"| N7["N7 Background Worker Pool"]
-    N7 --> N8["N8 Create session / Poll / Record sessionId"]
-    N8 --> N9["N9 Query or Download Results"]
+    N1["N1-INTAKE<br/>mode + group scope"] --> N2["N2-CONTEXT<br/>project + skill context"]
+    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 4-分组"]
+    N3 --> N4["N4-REF-BIND<br/>bind storyboard sheet image"]
+    N4 --> N5["N5-YAML<br/>build LibTV batch YAML"]
+    N5 --> N6{"N6-REVIEW<br/>review gate"}
+    N6 -->|"prompt_only"| N10["N10-WRITE<br/>persist config package"]
+    N6 -->|"generate"| N7["N7-DISPATCH<br/>background worker pool"]
+    N7 --> N8["N8-QUEUE<br/>session / poll / ledger"]
+    N8 --> N9["N9-QUERY-DOWNLOAD<br/>query or download results"]
     N9 --> N10
     N6 -->|"fail"| R["Repair owning section"]
     R --> N3
-    N10 --> N11["N11 Close Report"]
+    N10 --> N11["N11-CLOSE<br/>close report"]
 ```
 
 ```mermaid

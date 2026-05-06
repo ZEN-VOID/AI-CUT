@@ -8,22 +8,22 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Intake"] --> B["N2 Project Context"]
-    B --> C["N3 Character List"]
-    C --> D["N4 Type Profile"]
-    D --> R["N5 Research Profile"]
-    R --> E{"Subagent Dispatch"}
+    A["N1-INTAKE<br/>scope + boundaries"] --> B["N2-PROJECT-CONTEXT<br/>style + team context"]
+    B --> C["N3-CHARACTER-LIST<br/>source character anchors"]
+    C --> D["N4-TYPE-PROFILE<br/>type profile"]
+    D --> R["N5-RESEARCH-PROFILE<br/>research profile"]
+    R --> E{"N6-SUBAGENT-DISPATCH<br/>advisor + worker dispatch"}
     E --> F["Research Evidence Patch"]
     E --> G["Story Patch"]
     E --> H["Visual Costume Patch"]
     E --> I["Cinematography Patch"]
-    F --> J["N7 Merge Draft"]
+    F --> J["N7-MERGE-DRAFT<br/>canonical draft"]
     G --> J
     H --> J
     I --> J
-    J --> K["N8 Review Gate"]
+    J --> K["N8-REVIEW-GATE<br/>review gate"]
     K --> L{"Pass?"}
-    L -->|"yes"| M["N9 Write Output"]
+    L -->|"yes"| M["N9-WRITE-OUTPUT<br/>write output"]
     L -->|"no"| J
 ```
 

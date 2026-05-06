@@ -35,11 +35,10 @@ LibTV 是 LiblibAI 推出的 AI 视频创作平台，同时为人类创作者和
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。若 `types/` 当前缺失，视为 Skill 2.0 结构缺口，本轮临时使用 `CONTEXT.md` 的 Type Map 进行降级判型，并在交付中报告该缺口。
 - 先读取本 `SKILL.md`，锁定输入边界、调用路径、画布默认工作区规则、输出合同和禁止事项；再加载同目录 `CONTEXT.md`，用于选择策略并避开已知失败模式。
 - 若当前任务绑定具体 AIGC 项目根，还必须按仓库规则加载项目根 `MEMORY.md` 与项目根 `CONTEXT/` 中和本轮 LibTV 任务相关的上下文文件。
 - 当前目录只保留本技能入口合同、经验层与机械脚本；脚本只能上传、创建会话、查询、切换项目和下载，不得替代 LLM 或 LibTV 后端 Agent 做创作决策。
-- 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` > 本 `SKILL.md` > `references/`、`types/`、`steps/`、`review/`、`templates/`、`knowledge-base/` > 同目录 `CONTEXT.md` > `scripts/` 的机械行为。
+- 冲突优先级：用户显式请求 > 仓库 `AGENTS.md` > 本 `SKILL.md` > `references/`、`steps/`、`review/`、`templates/`、`knowledge-base/` > 同目录 `CONTEXT.md` > `scripts/` 的机械行为。
 
 ## Reference Loading Guide
 
@@ -50,9 +49,9 @@ LibTV 是 LiblibAI 推出的 AI 视频创作平台，同时为人类创作者和
 | 本地图片/视频作为参考或编辑源 | 本文件的上传流程与 `CONTEXT.md` 的参考文件交接经验 |
 | 查询进度、下载结果或追加已有会话 | 本文件的查询/下载/已有会话流程与 `CONTEXT.md` 的 session 操作经验 |
 | 脚本命令细节 | `scripts/create_session.py`、`scripts/query_session.py`、`scripts/upload_file.py`、`scripts/download_results.py`、`scripts/change_project.py` |
-| 后续恢复完整 Skill 2.0 分区后 | `references/`、`types/type-map.md`、`steps/`、`review/`、`templates/`、`knowledge-base/` 中和任务相关的文件 |
+| 后续恢复完整 Skill 2.0 分区后 | `references/`、`steps/`、`review/`、`templates/`、`knowledge-base/` 中和任务相关的文件 |
 
-若后续恢复 `types/`、`steps/`、`review/`、`templates/` 等 Skill 2.0 分区，必须同步更新本表，避免 `SKILL.md` 与分区真源脱节。
+若后续恢复 `steps/`、`review/`、`templates/` 等 Skill 2.0 分区，必须同步更新本表，避免 `SKILL.md` 与分区真源脱节。
 
 ## Input Contract
 

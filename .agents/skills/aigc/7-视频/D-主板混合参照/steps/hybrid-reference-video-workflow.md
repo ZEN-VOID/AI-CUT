@@ -17,6 +17,27 @@
 | `N9-QUERY-DOWNLOAD` | 结果是否需要刷新或下载 | query_session、下载视频 | results json / videos | 状态可续查 |
 | `N10-CLOSEOUT` | 是否形成唯一闭环 | 汇总报告、失败与返工入口 | 执行报告 | 输出路径完整 |
 
+## Mermaid Topology
+
+```mermaid
+flowchart TD
+    N1["N1-INTAKE<br/>scope + execution intent"] --> N2["N2-GROUP-EXTRACT<br/>group_id + group body + YAML"]
+    N2 --> N3["N3-STORYBOARD-BIND<br/>storyboard total reference"]
+    N3 --> N4["N4-SUBJECT-BIND<br/>YAML subject references"]
+    N4 --> N5["N5-PROMPT-ASSEMBLE<br/>fixed opening + source text + subject suffix"]
+    N5 --> N6["N6-PLAN-BUILD<br/>mixed2video / text2video submit plan"]
+    N6 --> N7{"N7-REVIEW-GATE<br/>prompt fidelity + reference gate"}
+    N7 -->|"prompt_only / pass_with_todo"| N10["N10-CLOSEOUT<br/>report + rework entry"]
+    N7 -->|"generate"| N8["N8-SUBMIT-OR-SKIP<br/>credential check + submit or blocked"]
+    N8 --> N9["N9-QUERY-DOWNLOAD<br/>query_session + downloads"]
+    N9 --> N10
+    N7 -->|"needs_rework: group"| N2
+    N7 -->|"needs_rework: storyboard"| N3
+    N7 -->|"needs_rework: subject"| N4
+    N7 -->|"needs_rework: prompt"| N5
+    N7 -->|"needs_rework: plan"| N6
+```
+
 ## Branches
 
 - `prompt_only`: `N1 -> N2 -> N3 -> N4 -> N5 -> N6 -> N7 -> N10`

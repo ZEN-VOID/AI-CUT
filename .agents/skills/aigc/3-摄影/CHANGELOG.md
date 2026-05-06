@@ -2,6 +2,11 @@
 
 ## 2026-05-06
 
+- 新增 `references/visual-sequence-alignment-contract.md`，把段落级连续观看意图拆成内部 `sequence_profile`：只统一视觉母题、注意力接力、运动家族、材质光色和交出锚点，不改变逐画面句子归属。
+- 在 `SKILL.md`、workflow、shot planning、visual matching、continuity、dynamic lens、functional projection、natural writing、types、review、templates、README 与 CONTEXT 中接入 `unit_ownership_map / unit_ownership_check`，阻断“整段运镜流畅但分镜失主”的问题。
+- 新增 `PASS-CINE-02S` 与 `N3.5-SEQUENCE-ALIGN`，要求相邻 3-6 个画面单位共享空间、道具链、声音链、动作链、记忆插入或视觉母题时，先做段落对齐，再逐画面点落盘。
+- 同步优化思维·执行节点拓扑：`N2-MATCH` 先建立 visual_unit 与 ownership_boundary，`N3-TYPE` 再输出 `sequence_relation / ownership_risk`，最后由 `N3.5-SEQUENCE-ALIGN` 判断段落统筹；review 返工路由改为精确节点名。
+- 新增 `GATE-CINE-04D` 与 `FAIL-CINE-05M`，检查每条 `分镜N` 是否能回指正上方画面句子，且没有提前吞入后文主体动作、对白反应、记忆段、道具揭示或跨场景连接方案。
 - 新增 `references/shot-duration-decision-contract.md`，把单镜长短从“节奏感”中拆出为独立 `shot_duration_decision`：每个 `分镜N` 必须能说明时值等级、内部估算范围、停顿/压缩理由和 15 秒组内节奏风险。
 - 同步更新 `SKILL.md`、workflow、shot planning、visual rhythm、dynamic lens、functional projection、types、review gate、templates、README 与 CONTEXT，要求分镜数量和单镜时值同时成立。
 - 新增 `PASS-CINE-04D` 与 `N5.2-DURATION`，防止“切换点正确但镜头长短错误”：文字/道具/微表情被快速切走、低信息镜头被拖长、连续同长同速或高点时值类型混淆。

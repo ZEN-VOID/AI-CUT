@@ -84,42 +84,37 @@ Reject or clarify when:
 
 ```mermaid
 flowchart TD
-    A["触发 $aigc-prop-generation"] --> B["加载 SKILL.md + CONTEXT.md"]
-    B --> C["加载项目 MEMORY.md / CONTEXT/ 与上游 2-设计文档"]
-    C --> D["读取 $imagegen SKILL.md + CONTEXT.md"]
-    D --> E{"判型 type_profile"}
-    E -->|"single / batch"| F["生成 主体ID-主体名称-主图.json"]
-    E -->|"prompt_only"| G["只写 JSON 与预期路径"]
-    E -->|"repair"| H["定位失败节点并最小重跑"]
-    E -->|"review_only"| I["只执行 review gate"]
-    F --> J["调用 imagegen 生成 主体ID-主体名称-主图"]
-    J --> K["生成 主体ID-主体名称-多视图.json"]
-    G --> K
-    H --> K
-    K --> L["以主图为 reference_image 生成多视图"]
-    L --> M["review/review-contract.md 汇流 verdict"]
-    I --> M
+    N1["N1-INTAKE<br/>加载技能、项目、上游和 $imagegen 合同"] --> N2["N2-TYPE<br/>判型 type_profile"]
+    N2 -->|"single / batch / prompt_only"| N3["N3-MAIN-PROMPT<br/>生成 主体ID-主体名称-主图.json"]
+    N2 -->|"repair"| H["定位失败节点并最小重跑"]
+    N2 -->|"review_only"| N7["N7-REVIEW<br/>只执行 review gate"]
+    N3 -->|"execute_imagegen"| N4["N4-MAIN-IMAGE<br/>调用 imagegen 生成主图"]
+    N4 --> N5["N5-MULTIVIEW-PROMPT<br/>生成 主体ID-主体名称-多视图.json"]
+    H --> N5
+    N3 -->|"prompt_only"| N5
+    N5 --> N6["N6-MULTIVIEW-IMAGE<br/>以主图为 reference_image 生成多视图"]
+    N6 --> N7
+    N7 --> M["review/review-contract.md 汇流 verdict"]
     M --> N["写入 3-生成 canonical 输出"]
 ```
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Intake
-    Intake --> TypeProfile
-    TypeProfile --> PromptOnly: execute_imagegen=false
-    TypeProfile --> MainPrompt: execute_imagegen=true
-    TypeProfile --> Repair: failed_node
-    TypeProfile --> ReviewOnly: no_write
-    MainPrompt --> MainImage
-    MainImage --> MultiviewPrompt
-    PromptOnly --> MultiviewPrompt
-    Repair --> MultiviewPrompt
-    MultiviewPrompt --> MultiviewImage
-    MultiviewImage --> ReviewGate
-    ReviewOnly --> ReviewGate
-    ReviewGate --> Accepted: pass
-    ReviewGate --> Rework: needs_rework
-    Rework --> TypeProfile
+    [*] --> "N1-INTAKE"
+    "N1-INTAKE" --> "N2-TYPE"
+    "N2-TYPE" --> PromptOnly: execute_imagegen=false
+    "N2-TYPE" --> "N3-MAIN-PROMPT": execute_imagegen=true
+    "N2-TYPE" --> Repair: failed_node
+    "N2-TYPE" --> "N7-REVIEW": review_only
+    "N3-MAIN-PROMPT" --> "N4-MAIN-IMAGE"
+    "N4-MAIN-IMAGE" --> "N5-MULTIVIEW-PROMPT"
+    PromptOnly --> "N5-MULTIVIEW-PROMPT"
+    Repair --> "N5-MULTIVIEW-PROMPT"
+    "N5-MULTIVIEW-PROMPT" --> "N6-MULTIVIEW-IMAGE"
+    "N6-MULTIVIEW-IMAGE" --> "N7-REVIEW"
+    "N7-REVIEW" --> Accepted: pass
+    "N7-REVIEW" --> Rework: needs_rework
+    Rework --> "N2-TYPE"
     Accepted --> [*]
 ```
 

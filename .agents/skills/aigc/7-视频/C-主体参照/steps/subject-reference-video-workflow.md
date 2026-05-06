@@ -6,19 +6,19 @@
 
 ```mermaid
 flowchart TD
-    N1["N1 Intake"] --> N2["N2 Load Project Context"]
-    N2 --> N3["N3 Extract Groups from 4-分组"]
-    N3 --> N4["N4 Assemble Group Video Prompts"]
-    N4 --> N5["N5 Bind YAML Subject References"]
-    N5 --> N6{"Review Gate"}
-    N6 -->|"prompt_only"| N10["N10 Persist Plan Package"]
-    N6 -->|"generate"| N7["N7 LibTV Self-Check"]
-    N7 --> N8["N8 Dispatch LibTV Batch"]
-    N8 --> N9["N9 Update Queue and Results"]
+    N1["N1-INTAKE<br/>mode + LibTV intent"] --> N2["N2-CONTEXT<br/>project + skill context"]
+    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 4-分组"]
+    N3 --> N4["N4-PROMPT<br/>assemble group video prompts"]
+    N4 --> N5["N5-REF-BIND<br/>YAML subject references"]
+    N5 --> N6{"N6-REVIEW<br/>review gate"}
+    N6 -->|"prompt_only"| N10["N10-WRITE<br/>persist plan package"]
+    N6 -->|"generate"| N7["N7-LIBTV-CHECK<br/>LibTV self-check"]
+    N7 --> N8["N8-DISPATCH<br/>dispatch LibTV batch"]
+    N8 --> N9["N9-QUEUE<br/>update queue and results"]
     N9 --> N10
     N6 -->|"fail"| R["Repair owning section"]
     R --> N3
-    N10 --> N11["N11 Close Report"]
+    N10 --> N11["N11-CLOSE<br/>close report"]
 ```
 
 ## Thinking-Action Nodes

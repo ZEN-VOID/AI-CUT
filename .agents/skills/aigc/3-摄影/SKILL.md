@@ -12,6 +12,8 @@ metadata:
 
 `分镜明细：` 是为兼容下游 `4-分组`、图像与视频阶段保留的字段名，不是开放式文学或主题阐释标题。本字段的语义别名固定为“运镜摄影设计”：内容必须聚焦运镜手法、摄影美学、构图/机位/景别/景深/焦点/光影/色彩、同一画面内部的注意力转交，以及最后一镜交给下游连接件的可见锚点。场景变化只触发本阶段标记交出点与进入提示，不在 `3-摄影` 里裁决普通切镜、软桥接、匹配剪辑或高能转场方案。不得写抽象主题、人物心理结论、剧情寓意、价值判断、世界观解释、导演阐释或无法被摄影/剪辑执行的气氛口号。
 
+`3-摄影` 可以建立段落级连续观看意图，但最终落盘必须保持逐画面点归属：每个 `分镜明细：` 块只服务其正上方的画面性字段或画面句子。段落级流畅只能作为内部 `sequence_profile` 影响相邻画面单位的视觉母题、注意力接力、运动家族、材质光色和交出锚点；不得把多个画面点合并成一条失主镜头，不得为了连续运镜提前吞入下一条画面句子的主体动作、对白反应、记忆段或道具揭示。
+
 ## Context Loading Contract
 
 - 每次调用 `$3-摄影` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -95,6 +97,7 @@ Reject or clarify when:
 | 单镜显式时长、对白台词量预算、读秒/停顿/压缩、15 秒组内节奏风险 | `references/shot-duration-decision-contract.md` |
 | 高潮画面分镜强化、峰值运镜和高点余波交接 | `references/peak-shot-language-contract.md` |
 | 场景变化、空间边界、注意力转交、声画/形态/动作/光色/文字交出锚点 | `references/transition-design-contract.md`（仅作 handoff 边界合同，不做创意转场主创） |
+| 相邻 3-6 个画面单位共享空间、道具链、声音链、记忆插入、动作链或视觉母题，需要先形成段落级观看意图但仍逐画面点落盘 | `references/visual-sequence-alignment-contract.md` |
 | 分镜生成前的细则汇流、分镜数量裁决、上下镜衔接 | `references/shot-planning-integration-contract.md` |
 | 影视功能、运镜策略、AIGC 下游可消费主体/动作/构图/光色/空间 payload | `references/functional-cinematic-projection-contract.md` |
 | 分镜明细动态化表达、变化、组合运镜、流畅感 | `references/dynamic-lens-language-contract.md` |
@@ -115,7 +118,8 @@ Reject or clarify when:
 flowchart TD
     A["projects/aigc/<项目名>/2-编导/第N集.md"] --> B["画面匹配"]
     B --> C["逐个画面句子建 visual_unit"]
-    C --> D["节拍分析"]
+    C --> S["段落级 sequence_profile（仅内部）"]
+    S --> D["节拍分析"]
     D --> E["一个节拍点 = 一个分镜切换点"]
     E --> T["单镜时值裁决"]
     T --> P["shot_design_plan 汇流"]
@@ -147,12 +151,13 @@ flowchart TD
 1. 读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md`、`0-初始化/north_star.yaml`、`team.yaml` 与相关 `CONTEXT/`。
 2. 锁定上游 `2-编导/第N集.md`，保留 frontmatter、`【剧本正文】`、场景标题、字段顺序和原文。
 3. 按 `references/visual-matching-contract.md` 执行 step1：匹配包含或等价于 `画面`、`动作`、`表演`、`描写`、`特写`、`显影` 的画面性内容；每一个画面句子成为一个分镜明细处理单位。
+3.5. 按 `references/visual-sequence-alignment-contract.md` 执行段落级观看意图对齐：当相邻 3-6 个 `visual_unit` 共享空间、道具链、声音链、记忆插入、动作链或视觉母题时，形成内部 `sequence_profile` 与 `unit_ownership_map`，只用于统一视觉母题、注意力接力、运动家族、材质光色和交出锚点；不得改变 `visual_unit` 的逐句归属，不得把后文主体动作、对白反应、记忆段或道具揭示提前写进当前 `分镜明细`。
 4. 按 `references/beat-analysis-contract.md` 执行 step2：先判断该画面句子的戏剧功能、注意力转移、动作相位、信息揭示和情绪转折，再决定分镜切换点；一个节拍点对应一个 `分镜N`。`分镜2` 不是默认占位，只有存在第二个真实观看策略时才成立。
 5. 按 `references/visual-rhythm-analysis-contract.md` 执行 step2.5：根据画面句子的类型、节奏、信息重要性、情绪压力和上下文位置，判断分镜明细应收敛还是发散，决定描述密度、运动复杂度、景别变化幅度、边界清晰度和停顿倾向；低信息单一动作可收敛为 1 镜，关键显影、群像扩散、动作分相或高点承托不得被压平为固定 2 镜。
 6. 按 `references/shot-duration-decision-contract.md` 执行 step2.5D：为每个候选 `分镜N` 形成内部 `shot_duration_decision`，裁决 `instant / short / standard / held / long_hold`、内部估算范围、正文 `display_seconds`、停留/压缩理由和 15 秒组内节奏风险；若当前画面承载对白、旁白、画外音或听者反应，必须先按台词量估算 `dialogue_seconds_floor`，再裁决最终镜头时长。落盘时每条分镜固定写成 `分镜N（约X秒）:`。
 7. 按 `references/peak-shot-language-contract.md` 执行 step2.6：若上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光承托，形成内部 `peak_shot_profile`，决定是否加强分镜密度、景别尺度、运镜速度、停顿、反应镜头和余波交出点；若无真实高点，不硬造高潮。
 8. 当启动 subagents 模式时，按共享团队顾问合同解析 `team.yaml` 中明确的监制组相关智能顾问团；主 agent 按当前 `PASS-CINE-*` 与 `N*-*` 节点动态派生顾问问题，让摄影、导演、美术、剪辑或类型视觉顾问代入其角色意识、创作风格和专业水准，围绕该节点的判断、动作、证据、gate 与返工风险给出参谋建议。主 agent 将回答汇流为 `advisor_consultation_packet`，只吸收能推动当前节点执行的镜头指导、节奏取舍、审美取舍、风格策略和风险提示，不允许顾问改写上游编导正文。
-9. 按 `references/shot-continuity-contract.md`、`references/transition-design-contract.md`、`references/cinematic-technique-library.md`、`references/dynamic-lens-language-contract.md`、`references/functional-cinematic-projection-contract.md`、`references/shot-duration-decision-contract.md` 与 `references/shot-planning-integration-contract.md` 执行 step2.7-step2.8：先形成 `continuity_profile`，必要时形成 `handoff_profile`，再形成 `camera_grammar_plan` 与 `functional_projection_plan`，最后为每个 `visual_unit` 形成内部 `shot_design_plan`。该计划必须把 `beat_map`、`rhythm_profile`、`shot_duration_decision`、`dialogue_time_budget`、`peak_shot_profile`、连续性与空间语法、场景/空间/注意力/声画/形态/动作/光色/文字交出锚点、景别/视角/景深/焦点/镜头类型/构图/光色/运镜等摄影语法、功能性影视投影、动态运镜合同和自然成稿合同汇流成逐分镜计划；它决定分镜数量、顺序、入口、单镜显式时长、摄影语法变化、运镜方式、速度曲线、停点、落点、显式参数取舍、下游可消费 payload 和交出点。`shot_design_plan` 必须包含内部 `shot_count_decision` 和逐镜 `shot_duration_decision`，能说明为什么是 1/2/3/4 镜、每镜为什么是当前长短、对白台词量是否影响时长；禁止未形成这些计划就直接写 `分镜N`。
+9. 按 `references/shot-continuity-contract.md`、`references/transition-design-contract.md`、`references/visual-sequence-alignment-contract.md`、`references/cinematic-technique-library.md`、`references/dynamic-lens-language-contract.md`、`references/functional-cinematic-projection-contract.md`、`references/shot-duration-decision-contract.md` 与 `references/shot-planning-integration-contract.md` 执行 step2.7-step2.8：先形成 `continuity_profile`，必要时形成 `handoff_profile` 和 `sequence_profile`，再形成 `camera_grammar_plan` 与 `functional_projection_plan`，最后为每个 `visual_unit` 形成内部 `shot_design_plan`。该计划必须把 `beat_map`、`rhythm_profile`、`shot_duration_decision`、`dialogue_time_budget`、`peak_shot_profile`、逐画面点归属、段落级视觉母题与注意力接力、连续性与空间语法、场景/空间/注意力/声画/形态/动作/光色/文字交出锚点、景别/视角/景深/焦点/镜头类型/构图/光色/运镜等摄影语法、功能性影视投影、动态运镜合同和自然成稿合同汇流成逐分镜计划；它决定分镜数量、顺序、入口、单镜显式时长、摄影语法变化、运镜方式、速度曲线、停点、落点、显式参数取舍、下游可消费 payload 和交出点。`shot_design_plan` 必须包含内部 `shot_count_decision`、逐镜 `shot_duration_decision` 和 `unit_ownership_check`，能说明为什么是 1/2/3/4 镜、每镜为什么是当前长短、对白台词量是否影响时长、该镜服务哪一条上游画面句子；禁止未形成这些计划就直接写 `分镜N`。
 10. 按 `references/shot-continuity-contract.md`、`references/transition-design-contract.md`、`references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md`、`references/functional-cinematic-projection-contract.md`、`references/shot-duration-decision-contract.md` 与 `references/natural-shot-detail-writing-contract.md` 执行 step3：在每个画面句子下方新增 `分镜明细：` 字段。写作前必须在内部回顾整集中临近至少前 3 个画面句子的分镜明细表现，并消费 `advisor_consultation_packet` 中可执行指导；输出时集中描写当前画面本身，每条分镜固定使用 `分镜N（约X秒）:`，并让正文能反推出起点、运镜路径、速度变化、时值等级、停点、落点、交出点，以及下游图像/视频可消费的主体、动作、运镜策略、构图锚点、光色/材质和空间接口。显式秒数不得替代镜头语言；如果写 `约4秒`，正文必须通过对白承托、读秒、静止、极慢运动或框内变化证明这 4 秒成立。`分镜明细：` 字段只允许承载运镜手法、摄影美学、同一画面内部注意力转交和可消费交出锚点；场景变化只要求处理上一画面交出点与下一画面进入提示，组间或跨场景创意转场交给 `4-分组` 连接件。抽象主题、心理解释、世界观解释、导演阐释、不可执行气氛口号、随机好看句和参数清单腔只能作为内部判断，不得显式写入该字段。
 11. 将 LLM 注入后的摄影稿先视为 `candidate_cinematography`，按 `review/review-contract.md` 执行验收；脚本只能做机械字段检查与分镜数量分布提示，不能替代分镜明细主创。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员。
 12. 若 review 发现阻断项，必须在本阶段直接修复 `分镜明细` 覆盖、分镜编号、节拍、张弛、时值分配、连续性、专业可执行、峰值分镜、分镜计划汇流或报告证据，并复审通过；不得改写 `2-编导` 原文。
@@ -200,6 +205,7 @@ flowchart TD
 | `FIELD-CINE-15` | 功能性影视投影 | 每个 `分镜N` 能抽取 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material、continuity_handoff 和下游图像/视频可消费点 | `FAIL-CINE-05H` |
 | `FIELD-CINE-16` | 摄影语法变化 | 每个 `visual_unit` 已内部裁决景别梯度、镜头视角、景深/焦点、镜头类型、构图锚点、光色母题和运镜变化；变化必须服务节拍、空间、信息或情绪，不随机换技法 | `FAIL-CINE-05I` |
 | `FIELD-CINE-17` | 镜头时值 | 每个 `分镜N` 已内部形成 `shot_duration_decision`，能说明时值等级、正文 `display_seconds`、对白台词量预算、可读/停顿/压缩理由和 15 秒组内节奏风险；成稿固定写成 `分镜N（约X秒）:`，且秒数与镜头语言一致 | `FAIL-CINE-05L` |
+| `FIELD-CINE-18` | 逐画面点归属与段落对齐 | 相邻画面单位可形成内部 `sequence_profile`，但每个 `分镜明细` 只服务正上方画面句子；每条 `分镜N` 能回指所属 `visual_unit`，没有为段落流畅提前吞入后文主体动作、对白反应、记忆段、道具揭示或跨场景连接方案 | `FAIL-CINE-05M` |
 
 ## Thought Pass Map
 
@@ -207,17 +213,18 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `PASS-CINE-00` | 真源与项目语境锁定 | 用户请求、目标集、上游 `2-编导`、项目 `MEMORY.md`、north star、team 与相关 `CONTEXT/` | 本轮吃什么真源、哪些长期视觉偏好/禁区/制作限制必须生效，哪些内容不得被 `3-摄影` 改写 | `source_context_profile` |
 | `PASS-CINE-01` | 画面单位边界 | `2-编导/第N集.md` 字段行、`source_context_profile`、`visual-matching-contract.md` | 是否属于可被摄影机处理的画面句子；一条画面句子是否需要拆成多个 `visual_unit` 或保持整体 | `visual_unit list` |
-| `PASS-CINE-02` | 类型与摄影任务画像 | `visual_unit`、`types/visual-unit-type-map.md`、项目语境 | 当前画面主要任务是建立空间、动作调度、表演承托、信息显影、规则/恐怖入侵、关系停顿、群像压迫还是边界交出 | `type_profile`、`visual_unit_function` |
+| `PASS-CINE-02` | 类型与摄影任务画像 | `visual_unit list`、`types/visual-unit-type-map.md`、项目语境 | 当前画面主要任务是建立空间、动作调度、表演承托、信息显影、规则/恐怖入侵、关系停顿、群像压迫、记忆插入、触觉材质建立、对白身体锚点还是边界交出；相邻画面是否存在段落统筹关系和归属风险 | `type_profile`、`visual_unit_function`、`sequence_relation`、`ownership_risk` |
+| `PASS-CINE-02S` | 段落观看意图与画面点归属 | 相邻 3-6 个 `visual_unit`、`visual-sequence-alignment-contract.md`、场景/道具/声音/记忆/动作链 | 是否需要内部 `sequence_profile`；段落级视觉母题、注意力接力和运动家族如何服务相邻块；哪些主体动作、对白反应、记忆段或道具揭示不得跨块外溢 | `sequence_profile`、`unit_ownership_map`、`forbidden_bleed` |
 | `PASS-CINE-03` | 节拍分析 | 单个 `visual_unit`、`visual_unit_function` | 注意力、动作相位、信息揭示、情绪转折、空间关系或声画接口是否需要换镜；是否真的存在第二个观看策略 | `beat_map` |
 | `PASS-CINE-04` | 画面节奏与密度 | `visual_unit`、`beat_map`、上下文位置 | 当前画面应收敛、标准展开、发散强化还是突发断裂；分镜数量、句子密度、运动复杂度和停顿时长如何匹配信息重要性；是否存在 2 镜模板化风险 | `rhythm_profile` |
 | `PASS-CINE-04D` | 镜头时值裁决 | `visual_unit`、关联对白/旁白、`beat_map`、`rhythm_profile`、上下文节奏、下游 15 秒分组约束 | 每个分镜应快速通过、标准承接、读秒停留还是长停顿；对白台词量是否形成最低时长；缩短一半会丢失什么，拉长一倍是否只会拖慢；正文应显示多少秒 | `duration_profile`、`shot_duration_decision`、`dialogue_time_budget` |
 | `PASS-CINE-05` | 高点与余波策略 | `visual_unit`、`beat_map`、`rhythm_profile`、上游 peak 证据 | 当前画面是否是高点；是否需要加强分镜密度、景别尺度、运镜速度、停顿、反应镜头或余波交出点 | `peak_shot_profile` |
 | `PASS-CINE-06` | 顾问请教汇流 | `team.yaml`、共享顾问合同、当前 `PASS-CINE-*` / `N*-*` 节点、`visual_unit` 与阶段目标 | 是否已基于当前思维·执行节点向项目监制顾问提出参谋问题，并将其角色意识、创作风格和专业水准汇流为可执行上下文 | `advisor_consultation_packet` |
-| `PASS-CINE-07` | 连续性与空间语法 | 当前 `visual_unit`、`peak_shot_profile`、`advisor_consultation_packet` 与临近前 3 个分镜明细块 | 轴线、运动方向、景别梯度、景深/焦点、光色母题、空间位置和注意力落点应延续、重置还是有动机跳变 | `continuity_profile` |
+| `PASS-CINE-07` | 连续性与空间语法 | 当前 `visual_unit`、`peak_shot_profile`、`advisor_consultation_packet`、命中时的 `sequence_profile` / `unit_ownership_map` 与临近前 3 个分镜明细块 | 轴线、运动方向、景别梯度、景深/焦点、光色母题、空间位置和注意力落点应延续、重置还是有动机跳变；段落母题如何只服务当前画面点归属 | `continuity_profile` |
 | `PASS-CINE-07T` | 边界交出点检查 | `visual_unit`、场景/空间/时间/叙事段落变化、`continuity_profile`、`rhythm_profile`、临近交出点 | 是否存在场景边界、空间重置、注意力转交、动作承接、声音先行、形态/颜色、信息显影或高点余波；只记录可见交出锚点、进入提示和连续性风险，不裁决转场方案 | `handoff_profile` |
 | `PASS-CINE-08` | 摄影语法选择 | `visual_unit_function`、`beat_map`、`rhythm_profile`、`shot_duration_decision`、`peak_shot_profile`、`continuity_profile`、`handoff_profile`、技法库 | 每个 beat 需要什么景别梯度、镜头视角、景深/焦点、镜头类型、构图锚点、光影色彩、运镜方式、速度变化和停留方式；哪些必须显式写，哪些只作为内部约束 | `camera_grammar_plan` |
 | `PASS-CINE-09` | 功能与下游投影 | `camera_grammar_plan`、`shot_duration_decision`、功能性投影合同、动态运镜合同、下游图像/视频消费要求 | 每个分镜是否能抽取主体、动作相位、运镜策略、时值等级、构图锚点、光色材质、空间接口、连续性交接和图像/视频可执行 payload | `functional_projection_plan` |
-| `PASS-CINE-10` | 分镜计划汇流 | `beat_map`、`rhythm_profile`、`shot_duration_decision`、`peak_shot_profile`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_plan`、自然成稿合同 | 每个分镜的数量、顺序、入口、时值、运镜路径、停点、落点、显式参数取舍、下游 payload 和交出点是否由前序判断共同决定；`shot_count_decision` 是否能解释 1/2/3/4 镜，`shot_duration_decision` 是否能解释每镜长短 | `shot_design_plan` |
+| `PASS-CINE-10` | 分镜计划汇流 | `beat_map`、`rhythm_profile`、`shot_duration_decision`、`peak_shot_profile`、`sequence_profile`、`unit_ownership_map`、`forbidden_bleed`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_plan`、自然成稿合同 | 每个分镜的数量、顺序、入口、时值、运镜路径、停点、落点、显式参数取舍、下游 payload、交出点和画面点归属是否由前序判断共同决定；`shot_count_decision` 是否能解释 1/2/3/4 镜，`shot_duration_decision` 是否能解释每镜长短，`unit_ownership_check` 是否能解释服务哪条上游画面句子 | `shot_design_plan` |
 | `PASS-CINE-11` | 分镜明细注入 | `shot_design_plan`、`advisor_consultation_packet`、功能性投影合同、自然成稿合同 | 哪些影视功能、可见主体、动作相位、运镜策略、构图锚点、光色材质和摄影选择最服务当前节拍，哪些必须进入下游可消费文本 | `分镜明细` 块 |
 | `PASS-CINE-12` | 审查修复闭环 | candidate 摄影稿、review gate、上游真源 | 是否覆盖、连续、保真、专业、自然、下游可消费；阻断项是否已在本阶段最小修复并复审通过 | review result、repair result |
 
@@ -227,7 +234,8 @@ flowchart TD
 | --- | --- | --- | --- |
 | `PASS-CINE-00` | 锁定输入真源、项目语境、长期视觉偏好/禁区和不改写边界 | `source_context_profile`、source path、项目上下文摘要 | 本 `Context Loading Contract` |
 | `PASS-CINE-01` | 找到 `画面/动作/表演/描写/特写/显影` 等画面性内容，并确定 visual_unit 边界 | 命中行清单、场景锚点、visual_unit list | `references/visual-matching-contract.md` |
-| `PASS-CINE-02` | 为每个 visual_unit 建立类型画像和摄影任务 | type_profile、visual_unit_function | `types/visual-unit-type-map.md` |
+| `PASS-CINE-02` | 为每个 visual_unit 建立类型画像、摄影任务、段落关系和归属风险 | type_profile、visual_unit_function、sequence_relation、ownership_risk | `types/visual-unit-type-map.md` |
+| `PASS-CINE-02S` | 必要时形成段落级 `sequence_profile`，但同步锁定每个画面点的 `unit_ownership_map` 和禁止外溢项 | sequence scope、视觉母题链、attention relay、movement family、unit ownership、forbidden bleed | `references/visual-sequence-alignment-contract.md` |
 | `PASS-CINE-03` | 为每个画面句子判断节拍点，不把 2 镜当默认 | `分镜N` 数量与切换理由，候选 `分镜2` 的第二观看策略 | `references/beat-analysis-contract.md` |
 | `PASS-CINE-04` | 判断该收敛还是发散，并抽查 2 镜集中风险 | rhythm profile、描述密度、运动复杂度、边界清晰度、分镜数量分布复判 | `references/visual-rhythm-analysis-contract.md` |
 | `PASS-CINE-04D` | 为每个计划分镜裁决时值等级、正文显示秒数、对白台词量预算和停顿/压缩理由 | duration profile、shot_duration_decision、dialogue_time_budget、连续同长/过短/过长风险、15 秒分组节奏风险 | `references/shot-duration-decision-contract.md` |
@@ -237,7 +245,7 @@ flowchart TD
 | `PASS-CINE-07T` | 判断边界交出点与进入提示 | `handoff_profile`、场景变化交出点/进入提示、可见交出锚点、连续性风险 | `references/transition-design-contract.md` |
 | `PASS-CINE-08` | 选择最小充分的摄影语法变化 | `camera_grammar_plan`、景别梯度、视角策略、景深/焦点、镜头类型、构图、光色、运镜速度 | `references/cinematic-technique-library.md`、`references/dynamic-lens-language-contract.md` |
 | `PASS-CINE-09` | 完成功能性影视投影和下游消费 payload | `functional_projection_plan`、主体/动作/运镜/构图/光色/空间/交接接口 | `references/functional-cinematic-projection-contract.md` |
-| `PASS-CINE-10` | 在输出前形成 `shot_design_plan`，将 references 细则真实汇流到分镜数量、顺序、单镜显式时长、对白台词量预算、边界交出锚点、摄影语法、功能 payload 和衔接 | 每个分镜可回指 beat/rhythm/duration/dialogue/continuity/handoff/camera/function/downstream payload；每个 visual_unit 有 `shot_count_decision` 和逐镜 `shot_duration_decision` | `references/shot-planning-integration-contract.md` |
+| `PASS-CINE-10` | 在输出前形成 `shot_design_plan`，将 references 细则真实汇流到分镜数量、顺序、单镜显式时长、对白台词量预算、逐画面点归属、边界交出锚点、摄影语法、功能 payload 和衔接 | 每个分镜可回指 beat/rhythm/duration/dialogue/sequence ownership/continuity/handoff/camera/function/downstream payload；每个 visual_unit 有 `shot_count_decision`、逐镜 `shot_duration_decision` 和 `unit_ownership_check` | `references/shot-planning-integration-contract.md` |
 | `PASS-CINE-11` | 写出大师级但可执行、可下游消费的动态分镜明细 | 每条分镜固定为 `分镜N（约X秒）:`；可反推起点、运镜路径、速度曲线、时值等级、停点、落点和交出点；可抽取主体、动作、运镜、构图锚点、光色材质和空间接口；技术选择内化为自然中文，避免模板腔和参数清单 | `references/functional-cinematic-projection-contract.md`、`references/shot-duration-decision-contract.md`、`references/dynamic-lens-language-contract.md`、`references/cinematic-technique-library.md`、`references/natural-shot-detail-writing-contract.md` |
 | `PASS-CINE-12` | 做覆盖率、连续编号、保真、功能投影、自然成稿和复审门禁 | review 结果、repair actions、re-review verdict | `review/review-contract.md`、`Stage-End Review-Repair Contract` |
 
@@ -254,6 +262,7 @@ flowchart TD
 - `分镜明细` 为了满足动态要求而反复套用“从……以……变化到……最终……”句式，读起来像模板填空或参数说明书。
 - `分镜明细` 表达顺滑或句式好看，但无法抽取可见主体、动作相位、运镜方式、速度曲线、停点、构图锚点、光色材质、空间接口或下游 AIGC 可消费点。
 - references 细则只被加载或引用，没有在输出前汇流为 `shot_design_plan`，导致分镜数量、顺序、技法和衔接像随机生成。
+- 为了段落级连续运镜，把多个画面点合并成一条失主镜头，或把后文主体动作、对白反应、记忆段、道具揭示提前写进当前画面句子的 `分镜明细`。
 - 当前分镜明细不回看临近画面，导致轴线、运动方向、光色、景别或空间位置无动机跳变。
 - 轻信息画面过度铺陈，重信息画面又过分简略，导致整集节奏没有张弛。
 - 上游存在高潮/爽点/高光画面，但摄影稿按普通画面处理，或为了强化高点新增事实、对白、动作结果。
@@ -278,6 +287,7 @@ flowchart TD
 6. `分镜明细：` 是兼容字段名，实际内容必须按“运镜摄影设计”写作：能被摄影、分镜、现场调度或后续图像/视频阶段执行，不得只写抽象气氛词、主题寓意、心理结论、世界观解释或导演阐释；每个分镜必须在内部锁定必要的景别/景深、镜头视角、镜头类型、运镜速度等摄影执行参数，但成稿只显式写当前节拍最关键的 1-2 个摄影选择，并用自然中文呈现运动路径、显式时长和变化结果。场景变化只需标记上一画面交出点与下一画面进入提示；创意转场方案、强度和连接件提示由 `4-分组` 裁决。
 7. 每个画面句子的分镜明细必须在内部回顾临近至少前 3 个画面单位；输出时不显式展示该回顾。若发生跨轴线、反向运动、光色突变、景别断崖或空间跳跃，才在分镜明细中简短给出反应镜头、建立镜头、焦点转移或声画交出锚点作为动机。
 8. 每个 `visual_unit` 输出前必须形成内部 `shot_design_plan`；最终 `分镜N` 的数量、顺序、入口、时值等级、运镜路径、速度曲线、停点、落点、交出点和下游可消费 payload 必须能从该计划反推，不得只增加分镜数量但缺少递进、衔接、时值取舍、运镜策略或生图/视频可执行锚点。
+9. 相邻画面单位可先形成内部 `sequence_profile`，但逐集正文必须按 `visual_unit` 分块落盘；每条 `分镜N` 必须能回指正上方画面句子，不得为了整段流畅吞并其他画面点或越权写 `4-分组` 连接方案。
 
 ### Output format
 
@@ -307,6 +317,7 @@ flowchart TD
 - 所有命中的画面性句子下方均有 `分镜明细：` 字段；非画面字段没有被滥加。
 - 每个 `分镜明细：` 块至少有 `分镜1（约X秒）:`，多分镜编号连续，且每个分镜对应明确节拍点。
 - 每个 `分镜明细：` 块在输出前已完成 `shot_design_plan` 汇流；每个 `分镜N` 都以 `分镜N（约X秒）:` 落盘，并能反推起点、运镜路径、速度曲线、时值等级、停点、落点、节拍动机、交出点和下游可消费 payload，多分镜之间首尾相接并形成快慢/停顿接力，但不机械暴露内部字段。
+- 当相邻 3-6 个画面单位共享空间、道具链、声音链、记忆插入、动作链或视觉母题时，已内部形成 `sequence_profile` 与 `unit_ownership_map`；最终输出仍逐画面点落盘，每条分镜都能说明自己服务哪条上游画面句子，且没有发生跨块主体动作、对白反应、记忆段、道具揭示或转场方案外溢。
 - 分镜明细根据画面类型、节奏和信息重要性张弛有度：过场和低信息句收敛，关键揭示/强情绪/空间重置句发散强化；节奏标签留在内部判断，不显式输出。
 - 每个计划分镜已完成 `shot_duration_decision`：正文显示秒数、对白台词量预算、文字/道具/微表情/空间关系/认知高点有足够可读时间，低信息动作、重复交出点和无新增信息的停顿已压缩；显式秒数与镜头语言一致。
 - 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光承托时，摄影稿必须完成峰值分镜强化：高点具备清晰节拍、镜头策略、观看停顿或断裂、反应/结果/余波交接，且不新增事实或对白。

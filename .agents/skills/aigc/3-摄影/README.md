@@ -34,6 +34,7 @@
 - 镜头时值：`references/shot-duration-decision-contract.md`
 - 高潮分镜：`references/peak-shot-language-contract.md`
 - 边界交出：`references/transition-design-contract.md`
+- 段落观看意图与逐点归属：`references/visual-sequence-alignment-contract.md`
 - 分镜计划汇流：`references/shot-planning-integration-contract.md`
 - 功能性影视投影：`references/functional-cinematic-projection-contract.md`
 - 摄影语法变化：`steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR`、`references/cinematic-technique-library.md`
@@ -51,3 +52,4 @@
 - 输出：`projects/aigc/<项目名>/3-摄影/第N集.md`
 - 报告：`projects/aigc/<项目名>/3-摄影/执行报告.md`
 - 分镜落盘格式：每条分镜固定写成 `分镜N（约X秒）:`，对白、旁白和画外音台词量必须进入时值预算。
+- 段落级连续运镜只作为内部 `sequence_profile`；最终仍按正上方画面句子逐点落 `分镜明细：`，每条分镜必须能回指所属 `visual_unit`。

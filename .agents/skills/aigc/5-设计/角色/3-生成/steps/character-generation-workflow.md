@@ -6,19 +6,19 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Intake"] --> B["N2 Load upstream design"]
+    A["N1-INTAKE<br/>scope + overwrite policy"] --> B["N2-DESIGN<br/>load upstream design"]
     B --> C{"4. 解构 exists?"}
     C -->|"No"| D["Blocked: upstream 2-design repair needed"]
-    C -->|"Yes"| E["N3 Build main image JSON"]
+    C -->|"Yes"| E["N3-MAIN-JSON<br/>build main image JSON"]
     E --> F{"imagegen available?"}
     F -->|"No"| G["Prompt-only outputs"]
-    F -->|"Yes"| H["N4 Generate main image"]
+    F -->|"Yes"| H["N4-MAIN-IMAGE<br/>generate main image"]
     H --> I{"Main image persisted?"}
     I -->|"No"| J["Repair persistence"]
-    I -->|"Yes"| K["N5 Build multiview JSON with main image reference"]
+    I -->|"Yes"| K["N5-MULTIVIEW-JSON<br/>main image reference"]
     K --> V["view_image main reference"]
-    V --> L["N6 Generate multiview image"]
-    L --> M["N7 Review and report"]
+    V --> L["N6-MULTIVIEW-IMAGE<br/>generate multiview image"]
+    L --> M["N7-REVIEW<br/>review and report"]
     G --> M
     J --> K
 ```

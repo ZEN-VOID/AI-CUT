@@ -6,18 +6,18 @@
 
 ```mermaid
 flowchart TD
-    N1["N1 Intake"] --> N2["N2 Load Project Context"]
-    N2 --> N3["N3 Extract Groups from 4-分组"]
-    N3 --> N4["N4 Assemble Fixed-Prefix Storyboard Prompts"]
-    N4 --> N5["N5 Bind YAML Subject References"]
-    N5 --> N6{"Review Gate"}
-    N6 -->|"prompt_only"| N9["N9 Persist Prompt Package"]
-    N6 -->|"generate"| N7["N7 Dispatch imagegen Group Batch"]
-    N7 --> N8["N8 Persist Images and Results"]
+    N1["N1-INTAKE<br/>mode + episode + group scope"] --> N2["N2-CONTEXT<br/>project + skill context"]
+    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 4-分组"]
+    N3 --> N4["N4-PROMPT<br/>fixed-prefix storyboard prompts"]
+    N4 --> N5["N5-REF-BIND<br/>YAML subject references"]
+    N5 --> N6{"N6-REVIEW<br/>review gate"}
+    N6 -->|"prompt_only"| N9["N9-WRITE<br/>persist prompt package"]
+    N6 -->|"generate"| N7["N7-IMAGEGEN<br/>dispatch imagegen group batch"]
+    N7 --> N8["N8-PERSIST<br/>persist images and results"]
     N8 --> N9
     N6 -->|"fail"| R["Repair owning section"]
     R --> N3
-    N9 --> N10["N10 Close Report"]
+    N9 --> N10["N10-CLOSE<br/>close report"]
 ```
 
 ## Thinking-Action Nodes

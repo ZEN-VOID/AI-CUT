@@ -15,14 +15,16 @@
 
 ```mermaid
 flowchart TD
-    A["N1 source lock"] --> B["N2 source order"]
-    B --> C["N3 episode mark scan"]
+    A["N1-SOURCE-LOCK<br/>source lock"] --> B["N2-SOURCE-ORDER<br/>stable source order"]
+    B --> C["N3-EPISODE-MARK-SCAN<br/>native episode marker guard"]
     C --> D{"strong episode marks?"}
-    D -->|"yes"| E["P1 keep original episode boundaries"]
-    D -->|"no, or chapter-only marks"| F["P2/P3 natural structure + 2500-3000 chars"]
-    E --> G["N5 writeback"]
+    D -->|"yes"| E["N4-BOUNDARY-SOLVE<br/>P1 keep original episode boundaries"]
+    D -->|"no, or chapter-only marks"| F["N4-BOUNDARY-SOLVE<br/>P2/P3 natural structure + 2500-3000 chars"]
+    E --> G["N5-WRITEBACK<br/>write 第N集.md"]
     F --> G
-    G --> H["N6 review"]
+    G --> H{"N6-REVIEW<br/>coverage + faithfulness"}
+    H -->|"boundary issue"| D
+    H -->|"source/order issue"| A
 ```
 
 ## Stop Conditions

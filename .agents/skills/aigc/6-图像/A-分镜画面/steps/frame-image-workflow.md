@@ -6,22 +6,22 @@
 
 ```mermaid
 flowchart TD
-    N1["N1 Intake"] --> N2["N2 Load Project Context"]
-    N2 --> N3["N3 Extract Shot Index from 4-分组"]
-    N3 --> N3A["N3A View Scene Reference Style"]
-    N3A --> N4A["N4A Review Previous Same-Scene Frame"]
-    N4A --> N4B["N4B Build 3D Spatial Continuity Plan"]
-    N4B --> N4["N4 Assemble LLM English Prompts"]
-    N4 --> N5["N5 Bind Reference Slots"]
-    N5 --> N5A["N5A Persist Complete Prompt Package"]
-    N5A --> N6{"Review Complete Package Gate"}
-    N6 -->|"prompt_only"| N10["N10 Close Report"]
-    N6 -->|"generate"| N7["N7 Dispatch imagegen Batch"]
-    N7 --> N8["N8 Persist Images and Results"]
-    N8 --> N9["N9 Update Results and Report"]
+    N1["N1-INTAKE<br/>mode + episode + shot scope"] --> N2["N2-CONTEXT<br/>project + skill context"]
+    N2 --> N3["N3-SHOT-INDEX<br/>extract shot index from 4-分组"]
+    N3 --> N3A["N3A-SCENE-STYLE<br/>view scene reference style"]
+    N3A --> N4A["N4A-PREV-FRAME<br/>review previous same-scene frame"]
+    N4A --> N4B["N4B-SPATIAL<br/>3D spatial continuity plan"]
+    N4B --> N4["N4-PROMPT<br/>assemble LLM English prompts"]
+    N4 --> N5["N5-REF-BIND<br/>bind reference slots"]
+    N5 --> N5A["N5A-PERSIST-PACKAGE<br/>persist complete prompt package"]
+    N5A --> N6{"N6-REVIEW<br/>complete package gate"}
+    N6 -->|"prompt_only"| N10["N10-CLOSE<br/>close report"]
+    N6 -->|"generate"| N7["N7-IMAGEGEN<br/>dispatch imagegen batch"]
+    N7 --> N8["N8-PERSIST<br/>persist images and results"]
+    N8 --> N9["N9-WRITE<br/>update results and report"]
     N6 -->|"fail"| R["Repair owning section"]
     R --> N3
-    N9 --> N10["N10 Close Report"]
+    N9 --> N10["N10-CLOSE<br/>close report"]
 ```
 
 ## Thinking-Action Nodes

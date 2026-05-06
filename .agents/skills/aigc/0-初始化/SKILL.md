@@ -180,17 +180,17 @@ If the user has not clearly selected `auto` or `custom`, show the option card in
 
 ```mermaid
 flowchart TD
-    A["N0 Intake"] --> B["N1 Mode Gate"]
-    B --> C["N2 Runtime Bootstrap"]
-    C --> D["N3 Internal Router"]
-    D --> E{"N4 Lineup Path"}
+    A["N0-intake<br/>classify init / rebootstrap / resume"] --> B["N1-mode-gate<br/>lock smart_advisor + auto/custom"]
+    B --> C["N2-runtime-bootstrap<br/>create runtime skeleton"]
+    C --> D["N3-internal-router<br/>route, team and source packets"]
+    D --> E{"N4-mode-engine<br/>auto or custom lineup path"}
     E -->|"auto"| F["Auto Team Formation"]
     E -->|"custom"| G["Custom Team Validation"]
     F --> H["Planning Direct-Answer Subagents"]
     G --> H
-    H --> I["N5 Synthesis"]
-    I --> J["N6 Lazy Governance"]
-    J --> K["N7 Sufficiency Audit"]
+    H --> I["N5-synthesis<br/>core five-piece artifact set"]
+    I --> J["N6-lazy-governance<br/>optional triggered sidecars"]
+    J --> K["N7-internal-audit<br/>sufficiency + next-entry truth"]
     K -->|"pass"| L["Canonical Writeback"]
     K -->|"fail"| M["Reenter N1/N3/N4/N5"]
 ```

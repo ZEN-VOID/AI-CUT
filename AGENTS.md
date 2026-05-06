@@ -154,6 +154,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
   - `references/` 承载复杂规范、长细则、背景资料和专项规则展开，不拥有入口路由权。
   - `steps/` 承载思维与执行一体化节点、串并行、分支、汇流、回退和证据门，不替代类型矩阵。
+  - `steps/` 中的思维·执行节点与同一 skill 内相关 Mermaid 图表视为一体化拓扑真源；凡调整节点名称、顺序、输入输出、路由、分支、汇流、回退或 gate，必须同轮同步检查并更新 `SKILL.md`、`README.md`、`steps/`、`references/`、`review/` 或其他文档中的相关 Mermaid 图表，不得让图表停留在旧拓扑。
   - `review/` 承载质量评估、审计规范、review provider 接入和交付门禁，不改写业务主真源。
   - `types/` 承载类型变量、类型映射矩阵和分型策略，不承载完整执行步骤。
   - `knowledge-base/` 承载人工添加的外部知识库、参考资料包和领域资料索引，不承载执行中沉淀的经验、heuristic 或强制合同。

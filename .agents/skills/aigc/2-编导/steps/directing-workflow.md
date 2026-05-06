@@ -84,25 +84,25 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Intake\nsource + memory + references"] --> B["N2 Type Profile\nroute flags"]
-    B --> C["N3 Scene Slugline Table\nscene order trace"]
-    C --> D["N4 Field Projection\ndialogue lock + AV pairing"]
-    D --> DIR["N4.4 Director Substance Pass\ndramatic question + pressure + audience position"]
-    DIR --> H["N4.5 Peak Visual Pass\npayoff + satisfaction delta"]
-    H --> I{"N4.6 Advisor Consultation\nnode anchored council"}
+    A["N1-INTAKE\nsource + memory + references"] --> B["N2-TYPE\nroute flags"]
+    B --> C["N3-SCENE\nscene slugline table"]
+    C --> D["N4-FIELD\ndialogue lock + AV pairing"]
+    D --> DIR["N4.4-DIRECTORIAL\ndramatic question + pressure + audience position"]
+    DIR --> H["N4.5-PEAK\npayoff + satisfaction delta"]
+    H --> I{"N4.6-ADVISOR\nnode anchored council"}
     I -->|"routeback: slugline"| C
     I -->|"routeback: field / pairing"| D
     I -->|"routeback: director substance"| DIR
     I -->|"routeback: peak"| H
-    I -->|"execution brief"| CRAFT["N4.7 Scene Craft\nscene turn + actor task + blocking + silence"]
-    CRAFT --> ENRICH{"N4.8 Enrichment Route"}
-    ENRICH -->|"A faithful projection"| E["N5 LLM Draft\nembedded script"]
+    I -->|"execution brief"| CRAFT["N4.7-CRAFT\nscene turn + actor task + blocking + silence"]
+    CRAFT --> ENRICH{"N4.8-ENRICH\nenrichment route"}
+    ENRICH -->|"A faithful projection"| E["N5-DRAFT\nembedded script"]
     ENRICH -->|"B controlled enrichment\nledger required"| E
     ENRICH -->|"C authorized adaptation needed"| X["blocked or non-canonical candidate"]
-    E --> F{"N6 Review Gate\nGATE-DIRECT-01..19"}
-    F -->|"pass"| G["N7 Writeback\nscript + report"]
-    F -->|"needs_rework"| R["N6R Direct Repair\nminimal in-stage fix"]
-    R --> RR{"N6R Review Again"}
+    E --> F{"N6-REVIEW\nGATE-DIRECT-01..19"}
+    F -->|"pass"| G["N7-WRITEBACK\nscript + report"]
+    F -->|"needs_rework"| R["N6R-DIRECT-REPAIR\nminimal in-stage fix"]
+    R --> RR{"N6R-REVIEW-AGAIN"}
     RR -->|"pass"| G
     RR -->|"fail: source owner"| BACK["earliest responsible node"]
     BACK --> C
@@ -123,19 +123,19 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    SA["script-adaptation\n保真 + slugline"] --> N3["N3 Scene"]
-    SA --> N5["N5 Draft"]
-    FV["field-routing\n对白锁 + 声画 + 具像化 + 声音本体"] --> N4["N4 Field"]
-    DA["directorial-authorship\n戏剧问题 + 压力 + 观众位置 + 留白"] --> N44["N4.4 Director Substance"]
-    CL["climax-visual\n高点 + 满足差 + 余波"] --> N45["N4.5 Peak"]
-    AD["team advisor contract\n节点锚点 + routeback"] --> N46["N4.6 Advisor"]
-    PC["performance craft\n状态差 + 演员任务 + 权力调度 + 沉默"] --> N47["N4.7 Craft"]
-    CE["controlled-enrichment\nA/B/C 分流 + ledger"] --> N48["N4.8 Enrich"]
+    SA["script-adaptation\n保真 + slugline"] --> N3["N3-SCENE"]
+    SA --> N5["N5-DRAFT"]
+    FV["field-routing\n对白锁 + 声画 + 具像化 + 声音本体"] --> N4["N4-FIELD"]
+    DA["directorial-authorship\n戏剧问题 + 压力 + 观众位置 + 留白"] --> N44["N4.4-DIRECTORIAL"]
+    CL["climax-visual\n高点 + 满足差 + 余波"] --> N45["N4.5-PEAK"]
+    AD["team advisor contract\n节点锚点 + routeback"] --> N46["N4.6-ADVISOR"]
+    PC["performance craft\n状态差 + 演员任务 + 权力调度 + 沉默"] --> N47["N4.7-CRAFT"]
+    CE["controlled-enrichment\nA/B/C 分流 + ledger"] --> N48["N4.8-ENRICH"]
     HQ["hollywood-quality\n高质量但不越过保真"] --> N44
     HQ --> N45
     HQ --> N47
     HQ --> N5
-    N3 --> RV["N6 Review\nblocking gates"]
+    N3 --> RV["N6-REVIEW\nblocking gates"]
     N4 --> RV
     N44 --> RV
     N45 --> RV

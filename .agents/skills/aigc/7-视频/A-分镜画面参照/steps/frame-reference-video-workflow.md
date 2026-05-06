@@ -6,20 +6,20 @@
 
 ```mermaid
 flowchart TD
-    N1["N1 Intake"] --> N2["N2 Load Project Context"]
-    N2 --> N3["N3 Extract Groups from 4-分组"]
-    N3 --> N4["N4 Map Shot IDs"]
-    N4 --> N5["N5 Bind Frame Images"]
-    N5 --> N6["N6 Build LibTV Batch YAML"]
-    N6 --> N7{"Review Gate"}
-    N7 -->|"prompt_only"| N11["N11 Persist Config Package"]
-    N7 -->|"generate"| N8["N8 Background Worker Pool"]
-    N8 --> N9["N9 Create session / Poll / Record sessionId"]
-    N9 --> N10["N10 Query or Download Results"]
+    N1["N1-INTAKE<br/>mode + group + shot scope"] --> N2["N2-CONTEXT<br/>project + skill context"]
+    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 4-分组"]
+    N3 --> N4["N4-SHOT-ID<br/>map four-part shot IDs"]
+    N4 --> N5["N5-REF-BIND<br/>bind frame images"]
+    N5 --> N6["N6-YAML<br/>build LibTV batch YAML"]
+    N6 --> N7{"N7-REVIEW<br/>review gate"}
+    N7 -->|"prompt_only"| N11["N11-WRITE<br/>persist config package"]
+    N7 -->|"generate"| N8["N8-DISPATCH<br/>background worker pool"]
+    N8 --> N9["N9-QUEUE<br/>session / poll / ledger"]
+    N9 --> N10["N10-QUERY-DOWNLOAD<br/>query or download results"]
     N10 --> N11
     N7 -->|"fail"| R["Repair owning section"]
     R --> N3
-    N11 --> N12["N12 Close Report"]
+    N11 --> N12["N12-CLOSE<br/>close report"]
 ```
 
 ```mermaid

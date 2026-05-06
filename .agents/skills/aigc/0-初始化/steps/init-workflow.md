@@ -10,6 +10,28 @@ The main topology is serial with one controlled branch:
 
 Only `N4` branches. All branches converge before synthesis and audit.
 
+## Mermaid Topology
+
+```mermaid
+flowchart TD
+    N0["N0-intake<br/>classify init / rebootstrap / resume"] --> N1["N1-mode-gate<br/>lock smart_advisor + auto/custom"]
+    N1 --> N2["N2-runtime-bootstrap<br/>create project runtime skeleton"]
+    N2 --> N3["N3-internal-router<br/>route, team and source packets"]
+    N3 --> N4{"N4-mode-engine<br/>auto or custom lineup"}
+    N4 -->|"auto lineup"| N4A["N4-mode-engine:auto<br/>team.yaml draft + planning roster"]
+    N4 -->|"custom lineup"| N4C["N4-mode-engine:custom<br/>user-selected roster + planning packet"]
+    N4A --> N5["N5-synthesis<br/>core five-piece artifact set"]
+    N4C --> N5
+    N5 --> N6["N6-lazy-governance<br/>optional triggered sidecars"]
+    N6 --> N7{"N7-internal-audit<br/>sufficiency + next-entry truth"}
+    N7 -->|"pass"| W["canonical writeback"]
+    N7 -->|"mode gap"| N1
+    N7 -->|"route / roster gap"| N3
+    N7 -->|"subagent / team gap"| N4
+    N7 -->|"artifact provenance gap"| N5
+    N7 -->|"governance trigger gap"| N6
+```
+
 ## Node Schema
 
 Each node must define:

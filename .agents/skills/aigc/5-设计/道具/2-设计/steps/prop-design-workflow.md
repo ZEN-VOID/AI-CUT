@@ -40,14 +40,14 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Context"] --> B["N2 Upstream"]
-    B --> C["N3 Scope"]
+    A["N1-CONTEXT<br/>skill + project context"] --> B["N2-UPSTREAM<br/>list + north_star + team"]
+    B --> C["N3-SCOPE<br/>target props"]
     C --> D{"Per-prop subagents"}
-    D --> E["N4 Type Profile"]
-    E --> F["N5 Research Evidence Chain"]
-    F --> G["N6 LLM-first Design"]
-    G --> H["N7 Review Gate"]
-    H -->|"pass"| I["N8 Write"]
+    D --> E["N4-TYPE<br/>type_profile"]
+    E --> F["N5-RESEARCH-CHAIN<br/>research evidence chain"]
+    F --> G["N6-DESIGN<br/>LLM-first design"]
+    G --> H["N7-REVIEW<br/>review gate"]
+    H -->|"pass"| I["N8-WRITE<br/>canonical write"]
     H -->|"research rework"| F
     H -->|"design rework"| G
     I --> J["Canonical prop design files"]

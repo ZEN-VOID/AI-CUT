@@ -4,12 +4,12 @@
 
 | package | role |
 | --- | --- |
-| `visual-unit-type-map.md` | 判断画面句子、声画承托、高点画面和非画面字段的分镜明细处理策略 |
+| `visual-unit-type-map.md` | 判断画面句子、声画承托、高点画面、段落关系、逐画面点归属风险和非画面字段的分镜明细处理策略 |
 
 ## Default Package Rule
 
 - 默认加载 `visual-unit-type-map.md`。
-- 若输入含多类画面字段，先由该类型包形成 `visual_unit` 与 `type_profile`，再进入 `steps/cinematography-workflow.md`。
+- 若输入含多类画面字段，先由该类型包形成 `visual_unit`、`type_profile`、`sequence_relation` 与 `ownership_risk`，再进入 `steps/cinematography-workflow.md`。
 - 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、subagents 或 review 合同。
 
 ## Loading Flow

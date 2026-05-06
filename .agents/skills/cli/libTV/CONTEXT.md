@@ -24,7 +24,7 @@
 5. 本地 Agent 不扩写、不润色、不翻译、不拆分用户的创作需求，除非用户明确要求做这些转换。
 6. API 失败时，先查 `LIBTV_ACCESS_KEY`，再查 `OPENAPI_IM_BASE` / `IM_BASE_URL` 和脚本 stderr。
 7. 生成过程中不要提前给用户 `projectUrl`；完成后同时给结果链接、本地文件列表和项目画布链接。
-8. 若以后恢复 `types/`、`steps/`、`review/` 等分区，必须同步更新 `SKILL.md` 的 `Reference Loading Guide`。
+8. 若以后恢复 `steps/`、`review/` 等分区，必须同步更新 `SKILL.md` 的 `Reference Loading Guide`。
 
 ## Reusable Heuristics
 

@@ -141,21 +141,22 @@ review_advisor_packet:
 
 ```mermaid
 flowchart TD
-    A["Video review request"] --> B["Load SKILL.md + CONTEXT.md"]
-    B --> C["Lock project root and video files"]
-    C --> D["Parse group_id and variant from filename"]
-    D --> E["Load 4-分组 group truth"]
-    E --> F["Collect video evidence: metadata, keyframes, audio, motion"]
-    F --> G["Compare footage against group intent"]
-    G --> H{"Finding route"}
-    H -->|"generation artifact only"| I["Report rerun recommendation"]
-    H -->|"group prompt / beat issue"| J["Patch 4-分组 group"]
-    H -->|"repeated / high-confidence source issue"| K["Escalate source-layer repair"]
-    H -->|"uncertain"| L["Write review report only"]
-    I --> M["Converge verdict"]
-    J --> M
-    K --> M
-    L --> M
+    N1["N1-INTAKE<br/>lock project, video, group_id, variant"] --> N2["N2-SOURCE-LOCK<br/>load 4-分组 truth + optional 7-视频 evidence"]
+    N2 --> N3["N3-EVIDENCE<br/>metadata, keyframes, audio, observed_content_summary"]
+    N3 --> N36{"N3.6-ADVISOR<br/>review_advisor_packet when enabled"}
+    N36 -->|"evidence gap"| N3
+    N36 -->|"packet ready / downgraded"| N4["N4-COMPARE<br/>video, prompt, source, quality"]
+    N3 -->|"subagents not enabled"| N4
+    N4 --> N5{"N5-LANDING<br/>finding route"}
+    N5 -->|"generation artifact only"| R["rerun_only report"]
+    N5 -->|"group prompt / beat issue"| G["authorized 4-分组 patch"]
+    N5 -->|"repeated / high-confidence source issue"| S["source-layer escalation"]
+    N5 -->|"uncertain / evidence gap"| O["review report only"]
+    R --> N6["N6-WRITE<br/>report or patch"]
+    G --> N6
+    S --> N6
+    O --> N6
+    N6 --> N7["N7-VERIFY<br/>naming, references, patch scope, final verdict"]
 ```
 
 ```mermaid
@@ -174,16 +175,17 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Intake
-    Intake --> EvidenceLocked
-    EvidenceLocked --> Compared
-    Compared --> ReviewOnly
-    Compared --> GroupPatch
-    Compared --> SourceEscalation
-    ReviewOnly --> Finalized
-    GroupPatch --> Verified
-    SourceEscalation --> Verified
-    Verified --> Finalized
+    [*] --> "N1-INTAKE"
+    "N1-INTAKE" --> "N2-SOURCE-LOCK"
+    "N2-SOURCE-LOCK" --> "N3-EVIDENCE"
+    "N3-EVIDENCE" --> "N3.6-ADVISOR": subagents enabled
+    "N3.6-ADVISOR" --> "N3-EVIDENCE": evidence gap
+    "N3.6-ADVISOR" --> "N4-COMPARE": packet ready / downgraded
+    "N3-EVIDENCE" --> "N4-COMPARE": subagents not enabled
+    "N4-COMPARE" --> "N5-LANDING"
+    "N5-LANDING" --> "N6-WRITE"
+    "N6-WRITE" --> "N7-VERIFY"
+    "N7-VERIFY" --> Finalized
 ```
 
 ```mermaid

@@ -29,12 +29,12 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Load Skill + Project Context"] --> B["N2 Read north_star, team, scene list"]
-    B --> C["N3 Select target scenes"]
-    C --> D["N4 Build type_profile"]
-    D --> E["N5 LLM research brief"]
-    E --> M["N6 LLM design draft + prompt evidence chain"]
-    M --> F{"N7 Review"}
+    A["N1-LOAD<br/>skill + project context"] --> B["N2-SOURCES<br/>north_star + team + scene list"]
+    B --> C["N3-SELECT<br/>target scenes"]
+    C --> D["N4-TYPE<br/>type_profile"]
+    D --> E["N5-RESEARCH<br/>LLM research brief"]
+    E --> M["N6-DESIGN<br/>LLM design draft + prompt evidence chain"]
+    M --> F{"N7-REVIEW<br/>review gate"}
     F --> G["research-reviewer"]
     F --> H["scene-design-reviewer"]
     F --> I["cinematography-reviewer"]
@@ -43,7 +43,7 @@ flowchart TD
     H --> K
     I --> K
     J --> K
-    K -->|"pass"| L["N8 Write files"]
+    K -->|"pass"| L["N8-WRITE<br/>write files"]
     K -->|"research needs_rework"| E
     K -->|"design needs_rework"| M
 ```

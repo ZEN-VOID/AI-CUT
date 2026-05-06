@@ -18,22 +18,22 @@
 
 ```mermaid
 flowchart TD
-    A["N1 Intake"] --> B["N2 Type Profile"]
+    A["N1-INTAKE<br/>scope + upstream docs"] --> B["N2-TYPE<br/>type_profile"]
     B --> C{"route"}
-    C -->|"single_prop_generation"| D["N3 Main Prompt"]
+    C -->|"single_prop_generation"| D["N3-MAIN-PROMPT<br/>main prompt JSON"]
     C -->|"batch_from_designs"| E["Per-subject loop"]
     C -->|"prompt_only"| F["Write prompt JSON only"]
     C -->|"repair"| G["Restart failed node"]
-    C -->|"review_only"| H["N7 Review"]
+    C -->|"review_only"| H["N7-REVIEW<br/>review gate"]
     E --> D
     G --> D
     D --> I{"execute imagegen?"}
-    I -->|"yes"| J["N4 Main Image"]
-    I -->|"no"| K["N5 Multiview Prompt"]
+    I -->|"yes"| J["N4-MAIN-IMAGE<br/>main image"]
+    I -->|"no"| K["N5-MULTIVIEW-PROMPT<br/>multiview prompt"]
     J --> K
     F --> K
     K --> L{"has reference_image?"}
-    L -->|"yes"| M["N6 Multiview Image"]
+    L -->|"yes"| M["N6-MULTIVIEW-IMAGE<br/>multiview image"]
     L -->|"prompt_only"| H
     L -->|"no"| G
     M --> H

@@ -171,24 +171,24 @@ Reject or clarify when:
 
 ```mermaid
 flowchart TD
-    A["projects/aigc/<项目名>/1-分集/第N集.md"] --> B["N1 输入取证\nsource + memory + references"]
-    B --> C["N2 类型画像\nroute flags"]
-    C --> D["N3 场景 slugline\norder trace"]
-    D --> E["N4 字段分流\n对白锁 + 声画配对 + 具像化预检"]
-    E --> S["N4.4 编导创作内核\n戏剧问题 + 人物压力 + 观众位置 + 留白"]
-    S --> P["N4.5 高潮画面\n满足差 + 高点余波"]
-    P --> A1{"N4.6 监制顾问\n节点锚点 + routeback"}
+    A["projects/aigc/<项目名>/1-分集/第N集.md"] --> B["N1-INTAKE\nsource + memory + references"]
+    B --> C["N2-TYPE\nroute flags"]
+    C --> D["N3-SCENE\nslugline order trace"]
+    D --> E["N4-FIELD\n对白锁 + 声画配对 + 具像化预检"]
+    E --> S["N4.4-DIRECTORIAL\n戏剧问题 + 人物压力 + 观众位置 + 留白"]
+    S --> P["N4.5-PEAK\n满足差 + 高点余波"]
+    P --> A1{"N4.6-ADVISOR\n节点锚点 + routeback"}
     A1 -->|"回修: 场景"| D
     A1 -->|"回修: 字段"| E
     A1 -->|"回修: 编导内核"| S
     A1 -->|"回修: 高点"| P
-    A1 --> K["N4.7 表演与场景工艺\n状态差 + 演员任务 + 权力调度 + 沉默"]
-    K --> L{"N4.8 受控增强分流"}
-    L -->|"A faithful / B ledger"| M["N5 LLM 直出编导稿\n规划证据内嵌正文"]
+    A1 --> K["N4.7-CRAFT\n状态差 + 演员任务 + 权力调度 + 沉默"]
+    K --> L{"N4.8-ENRICH\n受控增强分流"}
+    L -->|"A faithful / B ledger"| M["N5-DRAFT\n规划证据内嵌正文"]
     L -->|"C 需另行授权"| X["blocked 或非 canonical 候选"]
-    M --> R{"N6 review gate\nGATE-DIRECT-01..19"}
-    R -->|"needs_rework"| RR["N6R 本阶段直接修复"]
-    RR --> R2{"N6R 复审"}
+    M --> R{"N6-REVIEW\nGATE-DIRECT-01..19"}
+    R -->|"needs_rework"| RR["N6R-DIRECT-REPAIR\n本阶段直接修复"]
+    RR --> R2{"N6R-REVIEW-AGAIN\n复审"}
     R2 -->|"fail"| RB["最早责任节点"]
     RB --> D
     RB --> E
@@ -197,7 +197,7 @@ flowchart TD
     RB --> K
     RB --> L
     RB --> M
-    R2 -->|"pass"| W["N7 写回 第N集.md + 执行报告.md"]
+    R2 -->|"pass"| W["N7-WRITEBACK\n写回 第N集.md + 执行报告.md"]
     R -->|"pass"| W
 ```
 
