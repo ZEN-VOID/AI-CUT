@@ -8,7 +8,7 @@
 | Output format | Markdown block with source style lines, slots, and English prompt |
 | Output path | Included inside `第N集-分镜画面-prompts.md` |
 | Naming convention | Heading uses `## <shot_id>` |
-| Completion gate | prompt <= 1300 English words; slots contain only existing image paths or remain empty; scene reference image is reviewed with `view_image` before prompt assembly when available; fixed scene-style prompt is present; same-scene previous generated frame is reviewed with `view_image` when available; 3D spatial continuity plan and complete prompt design system are present in the English prompt body |
+| Completion gate | prompt <= 800 English words; slots contain only existing image paths or remain empty; scene reference image is reviewed with `view_image` before prompt assembly when available; fixed scene-style prompt is present; the English prompt requires visual style, lighting, color palette and atmosphere to match the scene reference image; same-scene previous generated frame is reviewed with `view_image` when available; 3D spatial continuity plan and complete prompt design system are present in the English prompt body |
 
 ## Template
 
@@ -67,5 +67,5 @@ Prompt Design Blueprint:
 - reference_usage: <角色/场景/道具参照图的使用方式和禁用边界>
 - negative_constraints: <字幕、logo、现代物、干净 CG、错误显露物、错误角色等>
 
-<Integrated AIGC image prompt in English, <= 1300 words; must include the prompt design system layers and: "Match the scene reference image's visual style, lighting, color palette, and atmosphere.">
+<Integrated AIGC image prompt in natural English, <= 800 words; must include frame composition, subject space, subject motion, scene environment, light and atmosphere, cinematography, visual style, avoid constraints, and: "Match the scene reference image's visual style, lighting, color palette, and atmosphere.">
 ```

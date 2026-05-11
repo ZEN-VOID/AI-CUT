@@ -7,7 +7,7 @@
 ```mermaid
 flowchart TD
     N1["N1-INTAKE<br/>mode + episode + shot scope"] --> N2["N2-CONTEXT<br/>project + skill context"]
-    N2 --> N3["N3-SHOT-INDEX<br/>extract shot index from 4-分组"]
+    N2 --> N3["N3-FRAME-LANDING<br/>identify frame landings from 4-分组"]
     N3 --> N3A["N3A-SCENE-STYLE<br/>view scene reference style"]
     N3A --> N4A["N4A-PREV-FRAME<br/>review previous same-scene frame"]
     N4A --> N4B["N4B-SPATIAL<br/>3D spatial continuity plan"]
@@ -30,11 +30,11 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定任务目标、mode、集号和分镜范围 | 用户请求、目标项目 | 判定 `prompt_only` / `single_shot_generate` / `episode_batch_generate` / `shot_batch_generate` / `repair` / `review_only` | mode note | `N2` | 目标范围明确 |
 | `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、`north_star.yaml` | 读取三项 north_star 字段和相关项目上下文 | input manifest | `N3` | 必需文件可读 |
-| `N3-SHOT-INDEX` | 从 `4-分组` 建立四段式镜级索引 | `第N集.md` | 解析 `## x-y-z` 与组内 `分镜N`，提取桥段、角色、场景、道具 | `shot-index.json` | `N3A` | 每个 ID 唯一可回指 |
+| `N3-SHOT-INDEX` | 从 `4-分组` 判断 frame landing 并建立四段式分镜帧索引 | `第N集.md` | 解析 `## x-y-z`、上游 `分镜N` / 画面字段 / 分镜明细，判断开场构图、动作决定瞬间、反应帧、道具插入、环境压力或群像调度等 frame landing，提取桥段、角色、场景、道具 | `shot-index.json` | `N3A` | 每个 ID 唯一，并可回指源组、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason` |
 | `N3A-SCENE-STYLE` | 用场景参照图锁定画面风格、光影、色调和氛围 | shot index、`5-设计/场景/3-生成`、north_star | 按场景名预绑定场景参照图；若本地图存在则先 `view_image`，提炼光源方向、光比、色温、主色/辅色、暗部密度、高光形态、雾气/湿度、材质和整体氛围；写入固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。” | scene visual style lock note | `N4A` | `scene_visual_style_lock_status` 为 `visible_in_conversation_context` 或缺失原因明确 |
 | `N4A-PREV-FRAME` | 回看同场景上一生成图 | shot index、已有 `imagegen-results.json`、`images/<上一分镜ID>.*` | 判断上一分镜是否同场景；同场景且本地图存在时用 `view_image` 检视上一画面，提炼站位、走位、朝向、遮挡、关键道具相对位置和镜头轴线；无上一图或不同场景时记录原因 | previous frame context note | `N4B` | 同场景上一图已可见，或缺失原因明确 |
-| `N4B-SPATIAL` | 建立三维空间连续性规划 | shot index、previous frame context、场景参照、分镜桥段 | 按 `references/spatial-continuity-contract.md` 执行单镜锚点投影与固定锚点锁定：先从当前四段式分镜的单镜真相抽取候选锚点，再筛选主锚点和辅助锚点，定义 `x/y/z` 三轴，匹配锚定模式库，建立 `space_model`；定位角色起点/终点/移动轨迹、身体朝向、视线、遮挡、道具相对位置；正反打需说明相对背景面、对话轴线和视线闭合；蒙太奇/插入/转场/道具特写不得直接继承分组主场景锚点 | spatial continuity plan + shot anchor projection note | `N4` | 主锚点和辅助锚点明确且匹配当前单镜内容；3D 方位、移动路径、正反打轴线和锚定模式自洽 |
-| `N4-PROMPT` | 生成完整目标范围的英文单镜 prompt | shot index、north_star、scene visual style lock、previous frame context、spatial continuity plan | LLM 直接为指定范围内每个目标分镜生成 prompt，并填充模板；必须消费场景参照图视觉风格锁，同场景非首镜必须消费上一画面观察或缺失原因和 3D 空间规划，保持空间站位、走位、轴线和正反打逻辑一致 | prompt markdown draft | `N5` | 目标范围无缺口；每条 prompt <= 1300 English words，且 Source truth / anchors / spatial blocking / camera / scene style lock / materials / avoid 进入英文 prompt 本体 |
+| `N4B-SPATIAL` | 建立三维空间连续性规划 | shot index、previous frame context、场景参照、分镜桥段 | 按 `references/spatial-continuity-contract.md` 执行单镜锚点投影与固定锚点锁定：先从当前四段式分镜帧的 frame landing 真相抽取候选锚点，再筛选主锚点和辅助锚点，定义 `x/y/z` 三轴，匹配锚定模式库，建立 `space_model`；定位角色起点/终点/移动轨迹、身体朝向、视线、遮挡、道具相对位置；正反打需说明相对背景面、对话轴线和视线闭合；蒙太奇/插入/转场/道具特写不得直接继承分组主场景锚点 | spatial continuity plan + shot anchor projection note | `N4` | 主锚点和辅助锚点明确且匹配当前单帧内容；3D 方位、移动路径、正反打轴线和锚定模式自洽 |
+| `N4-PROMPT` | 生成完整目标范围的英文单帧 prompt | shot index、north_star、scene visual style lock、previous frame context、spatial continuity plan | LLM 直接为指定范围内每个目标 frame landing 生成自然英文 prompt，并填充模板；必须消费场景参照图视觉风格锁，同场景非首镜必须消费上一画面观察或缺失原因和 3D 空间规划，保持空间站位、走位、轴线和正反打逻辑一致 | prompt markdown draft | `N5` | 目标范围无缺口；每条 prompt <= 800 English words，且 frame landing truth / anchors / spatial blocking / camera / scene style lock / materials / avoid 进入英文 prompt 本体 |
 | `N5-REF-BIND` | 保守绑定主体参照 | prompt package、5-设计生成目录 | 多视图优先、主图次之、缺图留空；为每个已绑定本地图记录 `context_role` | reference manifest draft | `N5A` | 无猜测路径 |
 | `N5A-PERSIST-PACKAGE` | 前置落盘完整 prompts 文档和执行计划 | prompt draft、reference manifest draft、shot index | 写入 `第N集-分镜画面-prompts.md`、`第N集-reference-manifest.json`、`第N集-imagegen-plan.json`；plan 逐镜引用已落盘 prompt block，记录 `prompt_package_status: complete_before_imagegen` | prompt markdown + manifest + plan | `N6` | prompts 文档覆盖全部目标 `shot_id`，且 imagegen 尚未开始 |
 | `N6-REVIEW` | 执行生成前审查完整 prompt package | prompt、manifest、plan | 检查 ID、直引、固定场景参照图提示词、场景视觉风格锁、词数、完整 prompt 设计体系、同场景上一画面回看记录、三维空间规划、正反打轴线、路径、mode、目标范围完整性；生成模式下逐张 `view_image` 已绑定本地参照图并记录上下文状态 | review note | `N7` / `N10` / repair | 必需项通过，完整 prompts 文档先于 imagegen，场景视觉风格锁、上一画面、3D 空间规划与参照图状态合规 |

@@ -26,7 +26,8 @@ imagegen_result:
     use_case: ""
     final_prompt: ""
     input_roles: []
-    resolution_target: 2k_default | user_specified | model_limited_default
+    resolution_target: 2k_default | explicit_user_or_upstream | model_limited_default
+    resolution_value: 2K | 4K | WIDTHxHEIGHT | auto
   naming_notes: ""
   validation:
     visual_quality: pass | pass_with_todo | needs_rework | blocked

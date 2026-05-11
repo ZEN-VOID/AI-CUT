@@ -11,7 +11,11 @@
 | shot_id_mapping | 每个四段式 `分镜ID` 可回指源组和组内 `分镜N` 或已有 ID | `references/group-shot-source-contract.md` |
 | prompt_authorship | prompt 主体直接使用现有分镜组内容，LLM 只做保真指令化组织 | `SKILL.md#LLM-First Creative Authorship Contract` |
 | reference_binding | 参照图路径真实、位于 `6-图像/A-分镜画面`；无图移除空槽位；多候选阻断 | `references/frame-image-binding-contract.md` |
-| libtv_handoff | YAML 可投影为合法提交；远端 handoff 有图默认 `modeType=image2video`，显式首尾帧才允许 `frames2video`，无图 `text2video`；生成 prompt 保留分镜ID/镜头标签与图片 token/编号绑定 | `references/libtv-handoff-contract.md` |
+| libtv_handoff | YAML 可投影为合法提交；远端 handoff 有图默认 `modeType=image2video` 且 `imageList` <= 9，显式首尾帧才允许 `frames2video`，无图 `text2video`；提交文本不预设 `参照图N`，生成 prompt 保留 fenced YAML `分镜画面参照[].uploaded_url` 与真实图片 token/编号/URL 绑定 | `references/libtv-handoff-contract.md` |
+| reference_prompt_integrity | 远端 `libtv-submission.txt` 使用 source-first enriched YAML，只在 `【分镜组源文本】` fenced YAML 内列进入 `imageList` 的分镜ID/镜头标签 + uploaded URL；不得另起 `【分镜画面参照说明】`；缺图、未入预算、被排除或空槽说明不得进入远端提交 | `references/libtv-handoff-contract.md` |
+| audio_preflight | 生成前 `create_generation_task.params.enableSound` 必须可验证为开启；只写在远端自然语言提交文本时阻断 | `references/libtv-handoff-contract.md` |
+| audio_acceptance | 生成后必须有 `task_result.audios` 非空、音频 URL，或下载后 `ffprobe` 证明视频含 audio stream | `references/libtv-handoff-contract.md` |
+| duration_handoff | `duration_estimate_seconds` 可回指 `4-分组` 当前组，`duration_hint=clamp(duration_estimate_seconds, 4, 15)`，远端提交中的 `duration` 与 plan 一致 | `references/group-shot-source-contract.md` / `references/libtv-handoff-contract.md` |
 | prompt_fidelity | 默认 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；未 opt-in 时远端不得优化、摘要、重新编排或补镜头 | `references/libtv-handoff-contract.md` |
 | queue_tracking | 多任务均有 queue row、sessionId 或明确失败原因、next_action | `.agents/skills/cli/libTV/SKILL.md` |
 | concurrency | 并发只写临时结果，最终 report / results 单线程汇流 | `steps/frame-reference-video-workflow.md` |
@@ -30,10 +34,14 @@
 3. 检查 step1 是否以 `4-分组` 为主信息来源，并直接保留组正文。
 4. 检查 step1 是否把组内分镜稳定映射到四段式 `分镜ID`。
 5. 检查 step2 是否只按 `shot_id` 绑定真实分镜画面图；无图是否移除空槽位。
-6. 检查 prompt / YAML 是否在对应 `分镜ID` 后体现 `@路径`，并正确投影到 LibTV `@图N`。
-7. 检查 step3 是否在有图时默认锁 `modeType=image2video` 和 `imageList`，显式首尾帧才允许 `frames2video`，无图时锁 `text2video`。
-8. 检查远端 `*-libtv-submission.txt` 的 `【直接生成请求】` 是否使用 `【分镜画面参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体；不得出现裸图片 token 丢失分镜ID/镜头标签绑定。
-9. 检查远端 `*-libtv-submission.txt` 是否声明 `prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false` 和禁止优化/重排/摘要/改写/补镜头约束；除非 submit plan 记录用户 opt-in，否则 query 中不得出现远端自行生成的优化版提示词、镜头计划或摘要分镜。
-10. 检查生成前是否要求 `LIBTV_ACCESS_KEY credential check`。
-11. 检查批量并发是否有 queue ledger、sessionId、next_action 和单线程汇流。
-12. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/`。
+6. 检查 prompt / YAML 是否在 fenced YAML `分镜画面参照` 中体现对应 `分镜ID / 镜头标签 / uploaded_url`，并正确投影到 LibTV `imageList`。
+7. 检查 step3 是否在有图时默认锁 `modeType=image2video` 和 `imageList`，且 `imageList` 单组不超过 9；超限时是否记录 `excluded_due_to_budget` 或阻断；显式首尾帧才允许 `frames2video`，无图时锁 `text2video`。
+8. 检查 `duration_hint` 是否等于 `clamp(duration_estimate_seconds, 4, 15)`，且远端 `duration` 与计划一致；小于等于 4 秒用 4 秒，大于等于 15 秒用 15 秒。
+9. 检查远端 `*-libtv-submission.txt` 是否只在 `【分镜组源文本】` fenced YAML 的 `分镜画面参照[].uploaded_url` 写入分镜ID/镜头标签 + uploaded URL，不预设 `参照图1/2/N` 人工编号。
+10. 检查远端 `*-libtv-submission.txt` 的 `【直接生成请求】` 是否使用 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体；不得另起 `【分镜画面参照说明】`，不得出现裸图片 token 丢失分镜ID/镜头标签绑定。
+11. 检查远端 `*-libtv-submission.txt` 是否未包含缺图、未入预算、被排除或空槽说明；只在 YAML 中列进入 `imageList` 的分镜ID/镜头标签 + uploaded URL。
+12. 检查远端 `*-libtv-submission.txt` 是否声明 `prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false` 和禁止优化/重排/摘要/改写/补镜头约束；除非 submit plan 记录用户 opt-in，否则 query 中不得出现远端自行生成的优化版提示词、镜头计划或摘要分镜。
+13. 检查生成前是否要求 `LIBTV_ACCESS_KEY credential check`。
+14. 检查生成前是否能验证 `create_generation_task.params.enableSound` 开启；生成后或下载后是否通过音频证据 / `ffprobe`。
+15. 检查批量并发是否有 queue ledger、sessionId、next_action 和单线程汇流。
+16. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/`。

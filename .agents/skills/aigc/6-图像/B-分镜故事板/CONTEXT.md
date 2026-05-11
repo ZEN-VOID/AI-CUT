@@ -24,6 +24,9 @@ last_checked_at: 2026-04-25
 | `TM-SHEET-05` | 批量执行覆盖同一输出文件 | execution boundary | 一组一文件，已有文件按 rerun 策略处理 | imagegen plan 固定 group_id 级写锁 | `images/<group_id>.png` 无多任务冲突 |
 | `TM-SHEET-06` | 组正文被摘要导致镜头缺失 | source fidelity | 使用原组正文作为 prompt 主体，不做压缩 | review 检查分镜编号完整性 | 分镜1..N 均出现在 prompt 主体 |
 | `TM-SHEET-07` | 本地参照图只写入路径但未进入对话上下文 | imagegen source semantics | 生成前逐张 `view_image` 已绑定本地图片并标注角色 | 在 handoff 与 review gate 固化 `view_image` 前置门禁 | results/report 记录 `reference_input_status: visible_in_conversation_context` |
+| `TM-SHEET-08` | storyboard 每格被机械映射成原文 `分镜1`、`分镜2` | panel mapping drift | 重建 `storyboard_frame_units`，按当前分组正文中的视觉节拍判断 panel 落点 | group extraction 与 prompt gate 固化 frame-unit plan | 每个 panel 有 `source_span`，且允许 split/merge |
+| `TM-SHEET-09` | 成图只像全局风格，不像场景参照图的光影氛围 | scene visual anchor missing | 在场景绑定、prompt 和 imagegen plan 中加入 `style_lighting_atmosphere` 锚定 | reference 与 review gate 固化场景图双重职责 | manifest/prompt/plan 均记录 scene visual anchor |
+| `TM-SHEET-10` | 分镜故事板 2K 出图导致单个 panel 细节不清晰 | resolution target too low | 将 prompt、plan、result 的 `resolution_target` 统一改为 `4K` | imagegen handoff 与 review gate 固化 4K 默认 | prompt / plan / report 均记录 4K |
 
 ## Repair Playbook
 
@@ -36,13 +39,19 @@ last_checked_at: 2026-04-25
 7. 若批量 imagegen 部分失败，保留成功结果，报告失败组与可重试命令，不回滚成功图片。
 8. 若镜头数过多导致单图完整性风险，优先报告分页/分批建议；没有用户确认前不要擅自拆分 canonical 组。
 9. built-in `image_gen` 使用本地参照图时，路径记录不够；必须先 `view_image` 让图片进入对话上下文。确无绑定图片时才记录 `reference_input_status: no_reference_images_bound` 并走 text-prompt-only。
+10. 若 panel 数与原始 `分镜N` 标签数不一致，不是错误；只要 `storyboard_frame_units` 能回指源正文，就按 frame units 生成。
+11. 若绑定场景图，必须把它视为空间、风格、光影、氛围的综合参照；只写全局风格文字不足以约束 storyboard 整体画面。
+12. 多格 storyboard 不适合沿用 2K 默认；即便单组 frame units 不多，也按 4K 固定生成，避免后续放大审片时 panel 不清晰。
 
 ## Reusable Heuristics
 
 - `B-分镜故事板` 的核心对象是 `group_id`，不是四段式单镜 `shot_id`。
+- `source_shot_labels` 是运镜中心结果的追溯标签，`storyboard_frame_units` 才是多格 storyboard 的 panel 落点。
 - `4-分组` 已经包含足够的组级风格、场景、分镜明细和入出场信息；本技能不需要重新蒸馏上游剧情。
 - 组底 YAML 是主体参照绑定的唯一默认入口；正文中出现的普通名词不自动变成参照对象。
 - 多格 storyboard 的固定英文开头必须足够明确，否则生图模型容易把它当成单张电影 still。
+- 分镜故事板默认 4K 出图；2K 是单格可读性风险，不作为本技能可接受默认值。
+- 场景参照图是 storyboard 整体风格、光影、氛围的一致性锚点；全局风格文字锁定只是辅助手段。
 - 缺图不是阻塞 prompt 的理由，但必须阻塞“伪绑定”；空槽位应移除或进入 missing。
 - 批量生成默认是计划层能力，不等于后台并行执行；索引、prompt 包、manifest 和报告应统一汇流写入。
 - 已绑定本地参照图必须在生成前通过 `view_image` 可见化；否则只能算路径证据，不能算已传入视觉参照。

@@ -70,7 +70,7 @@ Prompt Design Blueprint:
 - reference_usage:
 - negative_constraints:
 
-<Integrated AIGC image prompt in English, <= 1300 words>
+<Integrated AIGC image prompt in natural English, <= 800 words>
 ```
 
 ## Prompt Authorship
@@ -79,7 +79,8 @@ Prompt Design Blueprint:
 - 脚本可以把 LLM 直出的 prompt 投影为 Markdown 或 JSON，但不得自动扩写、补剧情、拼接主创段落。
 - 允许做画面表现增量：composition, lens, shot size, camera angle, depth of field, lighting, material texture, color hierarchy, spatial blocking, visual pressure, continuity anchors.
 - 禁止改变核心内容：角色身份、动作结果、剧情因果、死亡/惩罚事实、公开规则/隐藏规则、场景归属、关键道具。
-- `Integrated AIGC image prompt` 不是剧情摘要或风格尾句，必须是可直接交给 imagegen 的完整镜级执行指令。结构化记录中的空间锚点、站位走位、场景参照图风格锁、道具显隐、负面约束和生成目标必须被转译进英文 prompt 本体，不得只停留在 `Spatial Continuity Plan` 或 `Scene Reference Visual Style Lock` 字段里。
+- `Integrated AIGC image prompt` 不是字段拼接、中文源句翻译、剧情摘要或风格尾句，必须是 LLM 在理解当前四段式分镜、上下文和参照证据后重写出的自然英文 AIGC 画面提示词。结构化记录中的空间锚点、站位走位、场景参照图风格锁、道具显隐、负面约束和生成目标必须被自然转写进英文 prompt 本体，不得只停留在 `Spatial Continuity Plan` 或 `Scene Reference Visual Style Lock` 字段里。
+- 最终英文 prompt 本体不得出现未翻译的中文源句、`Source truth: <中文原文>`、`focus on <中文原文>` 或把审查字段按顺序机械拼接成提示词。源分镜是理解依据，不是直接粘贴材料。
 
 ## Prompt Design System
 
@@ -90,7 +91,7 @@ Prompt Design Blueprint:
 | layer | required content | purpose |
 | --- | --- | --- |
 | `L1 Frame Identity` | `Generate one 16:9 2K cinematic live action AIGC wuxia film still.`、`Shot ID <id>`、必要时写 `Scene first shot` / `Continuing from frame <id>` | 锁定单帧、画幅、质量目标、分镜身份和连续性入口 |
-| `L2 Source Truth` | 当前 `分镜N` 的可见主体、动作结果、地点、叙事压力；只吸收必要入场/出场桥段 | 防止 prompt 变成组级摘要或改写剧情 |
+| `L2 Frame Landing Truth` | 当前 frame landing 的可见主体、动作结果、地点、叙事压力；上游 `分镜N` 只作为 `source_camera_units` 证据 | 防止 prompt 变成组级摘要或机械继承运镜单元 |
 | `L3 Subject And Action` | 谁在画面中、身体动作、手部/眼神/道具交互、谁不应出现；无角色时说明由空间/道具承担主体 | 保证主体选择清楚，避免模型补人物 |
 | `L4 Spatial Architecture` | `Primary anchor`、`Support anchors`、前/中/后景、遮挡层、关键道具相对位置、角色站位和走位 | 把三维空间机制写进最终 prompt |
 | `L5 Continuity Logic` | 上一生成图可见时写承接的站位、朝向、光源和道具位置；无上一图时写 `no generated previous A-frame exists yet`，只按源稿和锚点规划 | 防止伪造上一图证据，给串行生图留 runtime 回看入口 |
@@ -105,20 +106,18 @@ Prompt Design Blueprint:
 最终英文 prompt 推荐使用短标签组织；标签不是装饰，而是 imagegen 执行约束：
 
 ```text
-Generate one 16:9 2K cinematic live action AIGC wuxia film still. Shot ID <id>.
-Source truth: <current single-frame truth from 4-分组>.
-Continuity: <scene_first_shot | continuing from frame ... | no generated previous A-frame exists yet>.
-Primary anchor: <one strongest fixed anchor>.
-Support anchors: <2-5 secondary anchors>.
-Spatial blocking: <character/prop positions, foreground/midground/background, occlusion, movement path, eyeline, camera side>.
-Camera and composition: <lens, shot size, camera height, axis, depth of field, motion state, focus target>.
-Focus on: <the visual information that must dominate this frame>.
-Scene reference style lock: Match the scene reference image's visual style, lighting, color palette, and atmosphere. <specific notes from visible scene reference>.
-Materials and atmosphere: <physical texture, aging, moisture, smoke/fog/wind/fire, film grain, halation>.
+Generate one 16:9 2K cinematic live-action AIGC wuxia film still. Shot ID <id>.
+Frame composition: <shot size / 景别, opening composition state, focus hierarchy>.
+Subject space: <visible characters or no-character evidence frame, 3D positions, foreground/midground/background>.
+Subject motion: <the first legible instant of the action, not the whole camera move>.
+Scene environment: <location materials, set dressing, story pressure carried by space>.
+Light and atmosphere: <scene reference style lock and project light logic>.
+Cinematography: <lens, aperture/depth, camera height, frame format, film texture>.
+Visual style: <global project style in natural English>.
 Avoid: <negative constraints>.
 ```
 
-允许在不超过 1300 英文单词的前提下合并或增删标签，但不得省略 `Source truth`、`Primary anchor`、`Support anchors`、`Spatial blocking`、`Camera and composition`、`Scene reference style lock`、`Materials and atmosphere`、`Avoid` 的实质内容。
+允许在不超过 800 英文单词的前提下合并或增删标签，但不得省略画面构图、主体空间、主体运动、场景环境、光影氛围、摄影技术参数、视觉风格和 Avoid 的实质内容。结构化审查字段中的 `Primary anchor`、`Support anchors`、`Spatial blocking`、`Scene reference style lock` 等必须被自然吸收进这些段落，而不是以字段清单形式机械堆叠。
 
 ## Scene Reference Visual Style Lock
 
@@ -137,7 +136,7 @@ Avoid: <negative constraints>.
 
 1. 不得把场景参照图当成平面背景模板直接复用；场景参照图只提供材质、结构、风格和锚点。
 2. 先建立当前桥段的 3D `scene_space_model`：固定锚点、空间轴线、镜头轴线、角色相对方位和关键道具位置。
-3. 执行单镜锚点投影：先从当前四段式分镜的 `Source truth`、当前 `分镜N`、分镜明细、直接画面字段和必要入场/出场桥段中抽取当前可见锚点，再决定 `Primary anchor` 和 `Support anchors`。不得只因分镜组场景写了某个地点，就把该地点的常规主物件套成所有单镜的主锚点。
+3. 执行单镜锚点投影：先从当前四段式分镜帧的 `frame_landing_reason`、`source_camera_units`、分镜明细、直接画面字段和必要入场/出场桥段中抽取当前可见锚点，再决定 `Primary anchor` 和 `Support anchors`。不得只因分镜组场景写了某个地点，就把该地点的常规主物件套成所有单镜的主锚点。
 4. 执行固定锚点锁定：列出候选锚点，筛选主锚点和至少两个辅助锚点，定义 `x/y/z` 三轴，再把角色和道具写成相对锚点的位置。
 5. 对每个角色写清当前位置、起始点、终止点、移动轨迹、身体朝向、视线目标和遮挡关系。
 6. 对正反打、过肩、反向机位或对话戏，写清 line of action、screen direction、opposite background plane 和 eyeline match；背景面可以是镜像相对的南北面、东西面或房间两端，但必须属于同一个空间。
@@ -189,8 +188,8 @@ Avoid: <negative constraints>.
 
 ## Word Limit
 
-- `Integrated AIGC image prompt` 限定为 1300 English words 以内，按英文空白分隔词粗算；带连字符的复合词按一个词处理即可。
-- north_star 三项直引、固定中文场景参照图提示词、槽位标题、`Scene Reference Visual Style Lock`、`Previous Frame Context`、`Spatial Continuity Plan`、`Prompt Design Blueprint` 记录和 Markdown 标题不计入 1300 English words 限制。
+- `Integrated AIGC image prompt` 限定为 800 English words 以内，按英文空白分隔词粗算；带连字符的复合词按一个词处理即可。
+- north_star 三项直引、固定中文场景参照图提示词、槽位标题、`Scene Reference Visual Style Lock`、`Previous Frame Context`、`Spatial Continuity Plan`、`Prompt Design Blueprint` 记录和 Markdown 标题不计入 800 English words 限制。
 - 生成计划和审查结果应记录 `prompt_word_count`，不再以 `prompt_char_count` 作为主门禁；可保留字符数作辅助统计。
 - 超限时优先删除重复风格词、泛泛情绪词和次要背景，保留 `Source truth`、主体动作、空间锚点、站位走位、镜头、场景参照图风格锁、材质物理和关键负面约束。
 

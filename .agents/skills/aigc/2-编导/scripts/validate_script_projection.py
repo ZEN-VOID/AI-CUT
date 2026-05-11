@@ -43,8 +43,48 @@ VISUAL_FIELDS = {
 CONCRETE_CHECK_FIELDS = VISUAL_FIELDS | {
     "环境描写",
     "道具特写",
+    "心理反应",
     "表演提示",
 }
+PLACEHOLDER_LEAK_PATTERNS = [
+    "本场按上游原文顺序承接",
+    "不新增事件结果",
+    "说话者的视线",
+    "手部动作、身体距离",
+    "对手反应就近承托对白",
+    "引号内不加入动作",
+    "普通人、追兵、女卫、船工或村民",
+    "<可见空间",
+    "<说话时的表演",
+    "<逐字保真的上游对白",
+]
+DIALOGUE_PLACEHOLDER_ROLES = {
+    "原文角色",
+    "角色",
+    "角色名",
+    "某人",
+    "说话者",
+    "[原文角色]",
+}
+DIALOGUE_FIELD_RE = re.compile(r"^对白（([^，）]+)，([^）]+)）$")
+ENVIRONMENT_ACTION_PATTERNS = [
+    "小声说",
+    "低声说",
+    "沉声",
+    "说：",
+    "吐出日语",
+    "咬了一口",
+    "咬下",
+    "凑到",
+    "攥住",
+    "握住",
+    "别过头",
+    "别过脸",
+    "指尖叩",
+    "收进了袖中",
+    "灌一口酒",
+    "望着他",
+]
 ABSTRACT_VISUAL_PATTERNS = [
     "规则测试开始",
     "压抑气氛",
@@ -69,6 +109,69 @@ ABSTRACT_VISUAL_PATTERNS = [
     "不信任",
     "试探",
     "潜台词",
+    "他意识到",
+    "她意识到",
+    "他们意识到",
+    "意识到自己",
+    "他觉得",
+    "她觉得",
+    "他们觉得",
+    "他明白",
+    "她明白",
+    "众人都明白",
+    "这象征",
+    "这预示",
+    "这说明",
+    "命运的阴影",
+    "关系发生改变",
+    "信任发生变化",
+    "内心崩塌",
+    "内心深处",
+    "心里明白",
+    "心里觉得",
+    "心里像",
+    "感到恶心",
+    "感到难受",
+    "感到愤怒",
+    "感到害怕",
+    "感到崩溃",
+    "她是在试探",
+    "他是在试探",
+    "对方在撒谎",
+    "早有准备",
+    "早已熟悉",
+    "早已习惯",
+    "每天都",
+    "每次都",
+    "一直以来",
+    "往日",
+    "无数次",
+    "灵魂",
+    "无边黑暗",
+    "证明了他",
+    "证明了她",
+    "本场按上游原文顺序承接",
+    "说话者的视线",
+]
+SUBJECTIVE_INTENT_PATTERNS = [
+    "试图",
+    "想要",
+    "打算",
+    "意图",
+    "准备借此",
+    "想借此",
+    "为了掩饰",
+    "为了让",
+]
+UNRELATED_BACKSTORY_PATTERNS = [
+    "多年前",
+    "从小",
+    "小时候",
+    "过去曾",
+    "当年",
+    "来历",
+    "祖传",
+    "旧事",
 ]
 CINEMATOGRAPHY_OVERREACH_PATTERNS = [
     "分镜明细预设",
@@ -180,11 +283,57 @@ def validate(path: Path) -> tuple[bool, list[str]]:
         for field, line in field_lines:
             base = field_base(field)
             value = field_value(line)
+            if base == "对白":
+                dialogue_match = DIALOGUE_FIELD_RE.match(field)
+                if not dialogue_match:
+                    findings.append(
+                        f"[ERROR] Scene {number} dialogue field '{field}' must use format '对白（角色名，语态/状态短语）'."
+                    )
+                    ok = False
+                else:
+                    role = dialogue_match.group(1).strip()
+                    manner = dialogue_match.group(2).strip()
+                    if role in DIALOGUE_PLACEHOLDER_ROLES:
+                        findings.append(
+                            f"[ERROR] Scene {number} dialogue field '{field}' uses a template placeholder as speaker name."
+                        )
+                        ok = False
+                    if not manner:
+                        findings.append(
+                            f"[ERROR] Scene {number} dialogue field '{field}' lacks a speaking manner/state phrase."
+                        )
+                        ok = False
+            for pattern in PLACEHOLDER_LEAK_PATTERNS:
+                if pattern in value:
+                    findings.append(
+                        f"[ERROR] Scene {number} field '{field}' leaks an instruction/template placeholder into the script: {pattern}"
+                    )
+                    ok = False
             if base in CONCRETE_CHECK_FIELDS:
                 for pattern in ABSTRACT_VISUAL_PATTERNS:
                     if pattern in value:
                         findings.append(
                             f"[ERROR] Scene {number} field '{field}' contains abstract/non-visual wording: {pattern}"
+                        )
+                        ok = False
+            if base in {"角色动作", "动作画面"}:
+                for pattern in SUBJECTIVE_INTENT_PATTERNS:
+                    if pattern in value:
+                        findings.append(
+                            f"[ERROR] Scene {number} action field '{field}' contains subjective intent wording instead of objective filmable action: {pattern}"
+                        )
+                        ok = False
+            for pattern in UNRELATED_BACKSTORY_PATTERNS:
+                if pattern in value:
+                    findings.append(
+                        f"[ERROR] Scene {number} field '{field}' may add unrelated backstory/object-origin/recollection detail: {pattern}"
+                    )
+                    ok = False
+            if base == "环境描写":
+                for pattern in ENVIRONMENT_ACTION_PATTERNS:
+                    if pattern in value:
+                        findings.append(
+                            f"[ERROR] Scene {number} environment field mixes character action/dialogue cue into setting description: {pattern}"
                         )
                         ok = False
             if base == "音效":

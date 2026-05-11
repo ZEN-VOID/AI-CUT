@@ -104,24 +104,6 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 上述命名前缀语义仅针对 `skills` 子技能包与技能层调度，不外推到 subagents；subagents 一般不以名称序号承载调度语义。
 - 若用户显式指定不同调度方式，以用户显式指令优先；否则按本命名前缀语义执行。
 
-### Subagents 默认权限与降级口径（强制）
-
-- 对命中 `skill-subagents`、team reviewer runtime、`master-check*`、阶段末 `supervision/review`、或其他已声明 subagent 合同的任务，默认应真实启动 subagents，而不是先由主 agent 本地模拟顾问流程。
-- 当阶段或技能合同已声明 `use_subagents_by_default == true`、`parallel-council`、`serial-refine`、`single-reviewer`、`reviewer -> subagent` 等显式分发语义时，真实 subagent dispatch 视为默认主路径，而不是可有可无的增强项。
-- 当用户手动点名执行某个 skill，或当前任务被仓库路由自动命中到某个 skill，且该 skill / 阶段合同已显式声明“默认走 subagents / parallel workers / reviewer -> subagent”，仓库层只表达默认执行偏好；真实 dispatch 还要同时满足当前 system / developer / tool policy 以及客户端对用户授权的要求。若上层策略要求用户显式请求 subagent，则仓库命中本身不等于越权授权。
-- 一个 reviewer skill 默认对应一个 subagent；主 agent 负责路由、汇流、裁决与最终 canonical 写回，不得把“主 agent 顺序扮演多个 reviewer”表述成正常的 subagent 执行。
-- 仅在以下情况允许降级为本地顺序纪要、顺序读取 skill 合同、或其他非真实 subagent 路径：
-  - 当前会话的更高优先级 system / developer / tool policy 明确阻断
-  - 当前环境或工具权限无法真实启动 subagents
-  - 用户显式要求不要启用 subagents
-- 若仓库默认 dispatch 偏好与更高优先级 system / developer / tool policy 冲突，仍必须服从更高优先级约束；此时应报告“仓库层偏好真实 dispatch，但上层策略阻断或缺少所需用户授权”，不得把阻断原因简化为普通路由失败。
-- 若发生降级，必须显式报告：
-  - 阻断来源属于 `system / developer / tool / user` 的哪一层
-  - 原本应执行的 subagent 路径是什么
-  - 实际采用的降级路径是什么
-  - 哪些 reviewer / 角色 / 子任务没有真实启动
-- 根 `AGENTS.md` 可以定义仓库内“默认应真实启动 subagents”的治理口径，但不得宣称能够覆盖更高优先级权限层；若与上层权限冲突，必须服从上层并按前条显式报告降级。
-
 ### 仓库 Rollout 标准（强制）
 
 - 长期维护的 skill 默认按 Skill 2.0 包结构建设；旧技能包进入升级窗口时，应以 `skill-工作车间` 的目录合同为当前 canonical 参考，不得继续把长细则、步骤、类型策略和审查规则堆回单一 `SKILL.md`。
@@ -143,13 +125,13 @@ python3 -m pip install <pkg>  # 安装依赖包
   ├── CONTEXT.md
   └── README.md
   ```
-
 - 常见目录拼写变体必须归一：`reference` / `refs` -> `references/`，`script` / `tools` -> `scripts/`，`template` -> `templates/`，`reviews` / `audit` -> `review/`，`step` / `workflow` / `workflows` -> `steps/`，`knowledge_base` / `knowledgebase` / `kb` -> `knowledge-base/`，`type` / `type-map` / `typings` -> `types/`，`agent` / `agent-config` / `agent-configs` -> `agents/`；若 alias 与 canonical 同时存在，不得自动覆盖，必须先合并再删除 alias。
 - Skill 2.0 分区可以以最小占位启动，但每个分区至少应包含一个说明文件，避免空目录在迁移、同步或版本控制中丢失。
 - 父级导引 skill 是 Skill 2.0 的轻量 tier：当某个 `SKILL.md` 只负责路由、子技能/卫星技能边界、共享真源裁决、聚合门禁和回接关系，且不直接拥有业务执行细则、类型包、模板或质量评估细则时，必须在 frontmatter 中声明 `governance_tier: router`，其本级最小结构只要求同目录 `SKILL.md + CONTEXT.md`。
 - `governance_tier: router` 只豁免本级完整分区、`README.md`、`CHANGELOG.md` 与 `agents/openai.yaml` 的强制要求，不豁免同目录 `CONTEXT.md`、Context Loading Contract、Root-Cause 合同、清晰输入/路由/输出或回接合同，也不降低子技能、卫星技能和真正执行型主技能的 Skill 2.0 要求。
 - 父级导引 skill 可以按真实需要引用共享 `_shared/`、registry、routes 或既有父级细则文件；这些共享载体不代表本级需要拥有完整 `references/`、`steps/`、`review/`、`types/`、`templates/`、`knowledge-base/`、`scripts/`、`agents/` 分区。若父级开始直接拥有执行细则、模板、类型策略、脚本或 review 真源，应取消 `governance_tier: router` 并升级为 `lite` 或 `full`。
 - Skill 2.0 的核心 owner 边界：
+
   - `SKILL.md` 只保留入口、触发、路由、动态引用、关键门禁、Root-Cause 合同和输出合同。
   - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
   - `references/` 承载复杂规范、长细则、背景资料和专项规则展开，不拥有入口路由权。
@@ -164,6 +146,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `README.md` 承载目录树、快速说明和入口命令；`CHANGELOG.md` 承载版本更新与迁移摘要。
 - Skill 2.0 的经验沉淀落点必须保持单一：执行中产生的新经验、稳定经验、失败模式、成功模式、修复打法与 reusable heuristic 均写入同目录 `CONTEXT.md`；`knowledge-base/` 只接收用户或维护者手动加入的外部知识材料，不作为自动学习、复盘或经验晋升的落点。
 - 每个长期维护的 skill 都应包含：
+
   - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite | router`
   - 在 `SKILL.md` 中包含 `Context Loading Contract`：明确该技能每次被调用时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文
   - 在 `SKILL.md` 中包含 `Reference Loading Guide` 或等价动态引用表，声明何时加载 `references/`、`steps/`、`review/`、`types/` 与其他分区
@@ -173,6 +156,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
   - 对 `full` / `lite` 技能，在 `agents/openai.yaml` 中提供产品侧入口元数据，不得把入口摘要偷渡成强于 `SKILL.md` 的隐藏执行规则；`router` 父级导引可不设本级 `agents/openai.yaml`，由上级或叶子入口承接产品发现
 - 声明 `governance_tier: router` 的父级导引 skill 应改按轻量基线验收：
+
   - 同目录必须存在 `SKILL.md + CONTEXT.md`，且 `SKILL.md` frontmatter 必须包含 `governance_tier: router`
   - `SKILL.md` 必须包含 `Context Loading Contract`、输入边界、子技能/卫星技能索引或路由表、真源边界、Root-Cause 执行合同、Output / Handoff / Aggregation 合同
   - `CONTEXT.md` 必须包含经验性 `Type Map`、`Repair Playbook` 与/或 `Reusable Heuristics`
@@ -183,15 +167,18 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 重命名、拆分或迁移 skill 文件/目录后，必须同步扫描并更新 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、markdown 链接、registry、routes、runbook 与项目内引用；无法自动更新的外部或二进制引用必须写入最终报告；若形成可复用经验，再沉淀到同目录 `CONTEXT.md`。
 - 创建或升级 Skill 2.0 包后，应运行对应元技能提供的结构校验器或仓库内等价审计；脚手架类改动还应额外生成临时目标 skill 做端到端冒烟验证。
 - 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `MEMORY.md`：
+
   - `projects/story/<项目名>/MEMORY.md`
   - `projects/aigc/<项目名>/MEMORY.md`
 - 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `CONTEXT/`：
+
   - `projects/story/<项目名>/CONTEXT/`
   - `projects/aigc/<项目名>/CONTEXT/`
 - 项目级 `MEMORY.md` 是当前项目的创作记忆载体，用于沉淀跨阶段持续生效的偏好、口味、习惯、特殊元素、禁区与长期要求。
 - 项目级 `CONTEXT/` 不替代技能同目录 `CONTEXT.md`；它是项目运行时的附加上下文根，面向整个创作阶段共享。
 - `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
 - `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
+
   - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
 - 对 `.agents/skills/team/` 技能树，凡成员配置出现新增、删除、重命名、迁移或适配场景显著变化，都必须在同一轮任务内同步更新 `.agents/skills/team/SKILL.md` 的 `Member And Scenario Index`；不得允许 team 子树与根索引脱节。
 
@@ -394,6 +381,19 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 为什么没有继续做到更完整层；
   - 下一步应补的真源或机制载体是什么。
 
+### 源层自动迭代触发协议（强制）
+
+- `源层治理`、`源层同步` 与 `源层优化` 是任务执行中的自动行为，不是只有用户再次点名才执行的事后文档整理。
+- 当用户已经明确指出某条规则、技能、工作流、模板、脚本、验证链路或治理合同“没有自动触发、没有同步、没有自发升级、反复失效、执行时漏掉”时，必须把该反馈本身视为负向触发，并在同一轮任务中优先修复对应源层合同。
+- 修复相关内容时，必须在执行循环内主动检查是否存在可复用升级点：
+  - 若问题来自规则缺口、触发词过窄、执行顺序不清、owner 分区不明或闭环格式缺失，直接修 `AGENTS.md`、目标 `SKILL.md`、`references/`、`steps/`、`review/`、`types/`、runbook、模板或脚本中的最高杠杆真源。
+  - 若问题来自文档与脚本、模板与 validator、父技能与子技能、registry 与 routes、agent doc 与父层 topology 漂移，必须同步受影响关联面，而不是只修当前文件。
+  - 若问题已表现为跨技能、跨阶段或跨项目复发，必须把预防机制向上晋升到 `AGENTS.md`、meta-SKILL 或共享治理合同。
+- 自动迭代的默认顺序为：`触发识别 -> 源层追因 -> owner 分区裁决 -> 源层修复/优化 -> 引用同步 -> 审计或 smoke 验证 -> 经验沉淀或规范晋升 -> 继续原任务`。
+- 除非用户明确要求只解释、不改文件，或者更高优先级权限/安全规则阻断，否则不得把“是否进行源层升级”作为追问项；应直接实施可控范围内的源层修复，并在最终输出中说明已完成的升级点和剩余阻塞。
+- 如果当前任务不是修复源层本身，但执行过程中发现了低风险、高复用的源层改进机会，应在不破坏用户主目标的前提下并行完成；若改动风险较高或范围会明显扩大，必须记录为 `PRP` 或未决项，并继续当前最安全路径。
+- 自动迭代不能只停在 `CONTEXT.md` 经验记录：已确认会影响后续执行的稳定规则、触发条件、路由、输出合同、验证门禁或同步范围，必须晋升到对应规范真源。
+
 ### 根因优先（强制）
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
@@ -441,7 +441,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 该学习回路有两个方向，负向与正向都必须执行。
 
-**负向触发**：当出现以下任一情况时自动触发：用户报告问题、运行失败、任务实践/测试阻塞（包括 `SKILL` 执行、dry-run 与 `pytest` 回归）、失败后返工、或用户明确要求修正。
+**负向触发**：当出现以下任一情况时自动触发：用户报告问题、用户指出源层治理/同步/优化未自动发生、运行失败、任务实践/测试阻塞（包括 `SKILL` 执行、dry-run 与 `pytest` 回归）、失败后返工、或用户明确要求修正。
 
 - 无需额外等待用户提示，必须自动执行以下流程：
   1. 源层诊断（分层上溯）：从症状追到运行产物、直接原因、`Owner Partition` 与 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）；诊断时必须按需联查 `references/`、`steps/`、`review/`、`types/` 与 `SKILL.md` 中的动态引用和主流程，并检查目标 skill 是否存在 Skill 2.0 结构错位。

@@ -44,6 +44,8 @@ source_file: "projects/aigc/<项目名>/4-分组/第1集.md"
 heading: "## 1-1-1"
 group_content: "<从标题后到下一个普通组标题或连接件标题前的现有完整内容>"
 source_body_hash: "<sha256>"
+duration_estimate_seconds: 15
+duration_source: "group_yaml / shot_sum / fallback_default"
 shots:
   - shot_id: "1-1-1-1"
     source_label: "分镜1"
@@ -51,11 +53,19 @@ shots:
     reference_annotation: "1-1-1-1"
 ```
 
+## Duration Extraction Rule
+
+- 优先读取组底 YAML 的 `时长估算`，例如 `约12秒` 解析为 `duration_estimate_seconds: 12`。
+- 若 `时长估算` 缺失，才从组正文 `分镜明细` 中的 `约N秒` 或 `N-M秒` 求和估算；区间时长优先取上限，避免动作被截断。
+- 若仍无法估算，`duration_estimate_seconds` 回退为 `15`，并记录 `duration_source: fallback_default` 与原因。
+- 连接件块的 `时长` 不参与分镜组视频时长估算。
+- 最终提交给 LibTV 的 `duration_hint` 由 handoff 层按 `clamp(duration_estimate_seconds, 4, 15)` 生成；小于等于 4 秒用 4 秒，大于等于 15 秒用 15 秒。
+
 ## Prompt Body Rule
 
-- `group_content` 是 LibTV prompt 的主体，不得摘要替代。
-- 允许在 `group_content` 前添加固定视频生成约束和参照图说明。
-- 对有图的镜头，prompt 的参照映射层必须表达为 `shot_id@path`，再投影到 LibTV `@图N`。
+- `group_content` 是 LibTV prompt 的主体，不得摘要替代；`prompt.md` 必须以原 `## group_id` 起笔。
+- 默认不在 `group_content` 前添加参照说明段；LibTV 运输层约束只出现在 `libtv-submission.txt` 的调用锁和直接生成请求中。
+- 对有图的镜头，唯一允许改写源文本的位置是 fenced YAML：新增或更新 `分镜画面参照` 列表，写入 `shot_id / source_label / uploaded_url`；不得用 `shot_id@path`、`@图N` 或另起参照说明段作为远端真源。
 - 不得改写剧情事实、对白事实、镜头顺序、角色关系、场景结果或组边界。
 - 如需压缩，只能在用户明确要求或 LibTV 硬限制触发时执行，并必须记录压缩依据与被压缩字段；默认不压缩。
 
@@ -66,8 +76,9 @@ shots:
 1. `source_file` 存在且可读。
 2. 每个目标 `group_id` 唯一出现。
 3. `group_content` 非空。
-4. 每个目标 `shot_id` 可回指源组和组内标签；无法解析时标记 `shot_id_unresolved` 并阻断该镜参照绑定。
-5. 输出 group-shot index 记录 source file、heading、line range 或 hash，便于回放。
+4. `duration_estimate_seconds` 可追溯到组底 `时长估算`、组内分镜秒数求和或明确 fallback。
+5. 每个目标 `shot_id` 可回指源组和组内标签；无法解析时标记 `shot_id_unresolved` 并阻断该镜参照绑定。
+6. 输出 group-shot index 记录 source file、heading、line range 或 hash，便于回放。
 
 ## Failure And Rework
 

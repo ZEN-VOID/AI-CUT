@@ -76,7 +76,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 从 `4-分组` 提取镜级剧情与桥段 | `references/group-source-extraction.md` |
-| 组装英文 prompt、north_star 直引、完整 prompt 设计体系与 1300 English words 限制 | `references/prompt-assembly-contract.md` |
+| 组装自然英文 prompt、north_star 直引、场景参照图视觉锁与 800 English words 限制 | `references/prompt-assembly-contract.md` |
 | 建立三维空间站位、走位、正反打、单镜锚点投影与轴线一致性 | `references/spatial-continuity-contract.md` |
 | 查找并绑定角色、场景、道具参照图 | `references/reference-slot-binding.md` |
 | 调用 `.agents/skills/cli/imagegen` 与批量生成交接 | `references/imagegen-handoff.md` |
@@ -112,11 +112,11 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["三段式分镜组 1-1-1"] --> B{"组内镜头"}
-    B -->|"分镜1"| C["四段式 1-1-1-1"]
-    B -->|"分镜2"| D["四段式 1-1-1-2"]
-    C --> E["剧情桥段 + 分镜明细 + 主体统计"]
-    D --> F["剧情桥段 + 分镜明细 + 主体统计"]
+    A["三段式分镜组 1-1-1"] --> B{"Frame landing 判断"}
+    B -->|"开场构图 / 动作决定瞬间"| C["四段式 1-1-1-1"]
+    B -->|"道具插入 / 反应帧 / 环境压力"| D["四段式 1-1-1-2"]
+    C --> E["源运镜证据 + frame_landing_reason + 主体统计"]
+    D --> F["源运镜证据 + frame_landing_reason + 主体统计"]
     E --> G["单镜 prompt"]
     F --> H["单镜 prompt"]
 ```
@@ -141,12 +141,12 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载 `MEMORY.md`、`north_star.yaml` 与相关项目上下文。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标 `分镜ID` 集合、是否执行 imagegen。
-3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，把组内 `分镜N` 映射为四段式 `x-y-z-N`，并保留其关联剧情桥段、场景、角色、道具和分镜明细；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入镜级 prompt、shot index、参照绑定或生图任务。
+3. 执行 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，先判断 frame landing，再生成四段式 `x-y-z-N`。最后一段 `N` 表示组内经识别后的分镜帧落点序号，不是上游 `分镜N` 的机械继承；上游 `分镜1`、`分镜2` 等只记录为 `source_camera_units` 证据。一个上游运镜单元可拆成多个 frame landing，多个上游字段也可合并为一个 frame landing；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入镜级 prompt、shot index、参照绑定或生图任务。
 4. 执行 step2A 场景参照图风格锁：按当前分镜场景名在 `5-设计/场景/3-生成` 中预绑定场景参照图；若存在本地场景图，必须先 `view_image` 进入对话上下文，提炼该图的光源方向、光比、色温、主色/辅色、饱和度、雾气/烟尘/湿度、材质质感、暗部密度、高光形态和整体氛围，并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；若无场景图，记录 `scene_reference_missing`，只能使用 north_star 文字风格。
 5. 执行 step2 前置连续性检查：对每个非场景首镜，判断上一分镜是否与当前分镜同场景；若同场景且上一分镜已有本地生成图，必须用 `view_image` 检视上一画面进入对话上下文，并记录 `previous_frame_context_status: visible_in_conversation_context`、上一图路径、观察到的空间站位、走位方向、角色朝向、遮挡关系、关键道具相对位置和镜头轴线；若不同场景、上一图不存在或上一镜未生成，记录 `not_same_scene` / `previous_image_missing` / `previous_shot_not_generated`，不得臆造。
 6. 执行三维空间规划：按 `references/spatial-continuity-contract.md` 建立当前桥段的轻量 `space_model`，并对每个四段式分镜执行 `shot_anchor_projection`；先从当前单镜真相中抽取候选锚点，再决定 `Primary anchor` / `Support anchors`，明确固定锚点、空间轴线、对话轴线、角色起点/终点/移动轨迹、身体朝向、视线目标、前后景遮挡和道具相对位置；正反打镜头必须说明反向机位、相对背景面和视线闭合关系，允许背景面相反但不允许空间漂移；蒙太奇、插入、道具微距、转场或路线镜头不得直接套用分组主场景锚点。
-7. 执行 step2：以每个四段式分镜为单位，LLM 直接生成英文 AIGC 生图提示词。提示词可以补充构图、光影、镜头、材质、画面表现、空间站位和走位连续性，但不得改变核心内容。每条 prompt 必须在 1300 English words 以内，并按模板预留 `Characters:`、`Scene:`、`Props:` 槽位。
-8. step2 模板必须包含：`## <分镜ID>`、直引的 `全局风格.全局风格提示词`、直引的 `类型元素.类型元素提示词`、直引的 `细分风格.画面风格`、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、场景参照图视觉风格锁记录、同场景上一画面回看记录、三维空间连续性规划、`Prompt Design Blueprint`、整合后的英文 prompt。英文 prompt 中必须包含等价约束：`Match the scene reference image's visual style, lighting, color palette, and atmosphere.`，并把 frame identity、source truth、continuity、primary/support anchors、spatial blocking、camera/composition、focus target、scene reference style lock、materials/atmosphere、avoid constraints 等完整 prompt 设计体系写入英文 prompt 本体。
+7. 执行 step2：以每个四段式 frame landing 为单位，LLM 直接生成自然英文 AIGC 生图提示词。提示词可以补充构图、光影、镜头、材质、画面表现、空间站位和走位连续性，但不得改变核心内容。每条 prompt 必须在 800 English words 以内，并按模板预留 `Characters:`、`Scene:`、`Props:` 槽位。
+8. step2 模板必须包含：`## <分镜ID>`、直引的 `全局风格.全局风格提示词`、直引的 `类型元素.类型元素提示词`、直引的 `细分风格.画面风格`、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、场景参照图视觉风格锁记录、同场景上一画面回看记录、三维空间连续性规划、`Prompt Design Blueprint`、整合后的英文 prompt。英文 prompt 中必须包含等价约束：`Match the scene reference image's visual style, lighting, color palette, and atmosphere.`，并把 frame identity、frame landing truth、continuity、shot-specific anchors、spatial blocking、camera/composition、scene reference style lock、materials/atmosphere、avoid constraints 等完整 prompt 设计体系自然写入英文 prompt 本体。
 9. 执行 step3：检查 `5-设计/角色/3-生成`、`5-设计/场景/3-生成`、`5-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图图片优先，缺多视图时用主图，都没有真实图片时该主体槽位保持空或移除，不得猜测引用。
 10. 对 `episode_batch_generate` 与 `shot_batch_generate`，必须先把指定范围内所有目标分镜完整写入 `第N集-分镜画面-prompts.md`，并同步落盘 `第N集-reference-manifest.json` 与 `第N集-imagegen-plan.json`；该 prompts 文档是后续 imagegen 的冻结输入。生成模式不得在 prompt 文档未覆盖完整目标范围时进入 step4。
 11. 执行 step4 前，若 reference manifest 中存在本地参照图路径，必须逐张调用 `view_image` 检视，并按 `edit target / character reference / scene reference / prop reference` 标注角色，使图片进入对话上下文后再继续 imagegen handoff；场景参照图必须额外标注 `scene_visual_style_reference`，用于锁定画面风格、光影、色调和氛围；未完成检视的本地参照不得宣称已作为视觉参照使用。
@@ -159,8 +159,8 @@ stateDiagram-v2
 | field_id | 输出/证据 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `FIELD-FRAME-01` | input manifest | 项目根、集号、`4-分组`、north_star、设计生成目录可追溯 | `FAIL-FRAME-INPUT` |
-| `FIELD-FRAME-02` | shot index | `x-y-z-N` 四段式 ID 可回指 `## x-y-z` 与组内 `分镜N` | `FAIL-FRAME-ID` |
-| `FIELD-FRAME-03` | prompt package | north_star 三项直引、英文整合 prompt、1300 English words 内、核心内容未改写、完整 prompt 设计体系已进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` |
+| `FIELD-FRAME-02` | shot index | `x-y-z-N` 四段式 ID 可回指 `## x-y-z`、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason` | `FAIL-FRAME-ID` |
+| `FIELD-FRAME-03` | prompt package | north_star 三项直引、英文整合 prompt、800 English words 内、核心内容未改写、完整 prompt 设计体系已进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` |
 | `FIELD-FRAME-04` | reference manifest | Characters / Scene / Props 槽位只含真实存在图片，多视图优先，并记录本地参照图 `view_image` 检视状态 | `FAIL-FRAME-REF` |
 | `FIELD-FRAME-05` | imagegen plan/result | 调用 `.agents/skills/cli/imagegen`，批量计划消费完整 prompts 文档，严格串行执行，参照图已进入对话上下文，输出持久化到项目内 | `FAIL-FRAME-IMAGEGEN` |
 | `FIELD-FRAME-06` | execution report | 说明已处理分镜、跳过原因、失败原因、重试入口 | `FAIL-FRAME-REPORT` |
@@ -173,8 +173,8 @@ stateDiagram-v2
 | field_id | owner | canonical file | must contain | fail code |
 | --- | --- | --- | --- | --- |
 | `FIELD-FRAME-01` | input lock | `第N集-shot-index.json` / report | 项目根、集号、`4-分组`、north_star、设计生成目录 | `FAIL-FRAME-INPUT` |
-| `FIELD-FRAME-02` | shot extraction | `第N集-shot-index.json` | 四段式 `x-y-z-N`、源组、源 `分镜N`、桥段摘要 | `FAIL-FRAME-ID` |
-| `FIELD-FRAME-03` | prompt authorship | `第N集-分镜画面-prompts.md` | 三项 north_star 直引、英文 prompt、1300 English words 内 | `FAIL-FRAME-PROMPT` |
+| `FIELD-FRAME-02` | shot extraction | `第N集-shot-index.json` | 四段式 `x-y-z-N`、源组、`source_camera_units`、`frame_landing_type`、`frame_landing_reason`、桥段摘要 | `FAIL-FRAME-ID` |
+| `FIELD-FRAME-03` | prompt authorship | `第N集-分镜画面-prompts.md` | 三项 north_star 直引、英文 prompt、800 English words 内 | `FAIL-FRAME-PROMPT` |
 | `FIELD-FRAME-04` | reference binding | `第N集-reference-manifest.json` | 角色/场景/道具真实图片路径，多视图优先，`view_image` 检视状态 | `FAIL-FRAME-REF` |
 | `FIELD-FRAME-05` | imagegen handoff | `第N集-imagegen-plan.json` / `第N集-imagegen-results.json` | 一镜一任务、合法 mode、完整 prompts 文档已前置落盘、串行顺序、参照上下文状态、项目内输出路径 | `FAIL-FRAME-IMAGEGEN` |
 | `FIELD-FRAME-06` | convergence | `执行报告.md` | generated / skipped / failed、review verdict、返工入口 | `FAIL-FRAME-REPORT` |
@@ -187,8 +187,8 @@ stateDiagram-v2
 | pass_id | focus field | core question | action | evidence |
 | --- | --- | --- | --- | --- |
 | `PASS-FRAME-01` | `FIELD-FRAME-01` | 本轮处理哪个项目、集号和分镜范围 | 锁定 mode、读取项目上下文和 north_star | input manifest |
-| `PASS-FRAME-02` | `FIELD-FRAME-02` | 三段式组稿如何拆到四段式镜级 ID | 解析 `## x-y-z` 与组内 `分镜N` | shot index |
-| `PASS-FRAME-03` | `FIELD-FRAME-03` | 单镜如何变成可生图英文 prompt | LLM 直出 prompt，填模板并压到 1300 English words 内 | prompt markdown |
+| `PASS-FRAME-02` | `FIELD-FRAME-02` | 三段式组稿如何判断出四段式分镜帧落点 | 解析 `## x-y-z`、上游运镜单元和 frame landing 证据 | shot index |
+| `PASS-FRAME-03` | `FIELD-FRAME-03` | 单帧如何变成可生图英文 prompt | LLM 直出自然英文 prompt，填模板并压到 800 English words 内 | prompt markdown |
 | `PASS-FRAME-04` | `FIELD-FRAME-04` | 哪些主体有真实本地图片可绑定并进入上下文 | 多视图优先、主图次之、缺图留空；已绑定本地图先 `view_image` | reference manifest |
 | `PASS-FRAME-05` | `FIELD-FRAME-05` | 生成任务如何安全批量执行 | 先确认完整 prompts 文档、manifest、plan 已覆盖目标范围，再按 `shot_id` 逐镜串行调用 | prompt markdown / plan / results |
 | `PASS-FRAME-06` | `FIELD-FRAME-06` | 输出如何闭环并可返工 | 汇总审查、失败和跳过原因 | execution report |
@@ -201,8 +201,8 @@ stateDiagram-v2
 | pass_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
 | `PASS-FRAME-01` | 必需输入可读，`north_star.yaml` 三项字段存在 | `FAIL-FRAME-INPUT` | `types/type-map.md` |
-| `PASS-FRAME-02` | 每个 `shot_id` 唯一且可回指源组和源 `分镜N` | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
-| `PASS-FRAME-03` | prompt 为英文单镜，核心内容未改写，整合 prompt <= 1300 English words，并包含完整 prompt 设计体系 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
+| `PASS-FRAME-02` | 每个 `shot_id` 唯一且可回指源组、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason`；最后一段不是直接继承上游 `分镜N` | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
+| `PASS-FRAME-03` | prompt 为英文单帧，核心内容未改写，整合 prompt <= 800 English words，并包含完整 prompt 设计体系 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `PASS-FRAME-04` | 所有绑定路径存在，图片选择遵守多视图优先，且已绑定本地图片在生成前完成 `view_image` 检视 | `FAIL-FRAME-REF` | `references/reference-slot-binding.md` |
 | `PASS-FRAME-05` | imagegen plan 一镜一任务，默认内置路由，完整 prompts 文档已在执行前覆盖目标范围，记录串行顺序和参照图上下文状态，输出路径在项目内；结果顺序不得跳过前镜或并发写入 | `FAIL-FRAME-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `PASS-FRAME-06` | 执行报告记录 verdict、处理范围、失败/跳过与返工入口 | `FAIL-FRAME-REPORT` | `review/review-contract.md` |
@@ -235,4 +235,4 @@ stateDiagram-v2
 - Output format: Markdown prompt 文档 + JSON manifest / plan / result；生成图片为 PNG/JPEG/WebP 等 bitmap 文件，默认按 imagegen 2K 目标执行。
 - Output path: `projects/aigc/<项目名>/6-图像/A-分镜画面`。逐集产物可放在该根路径下的 `第N集/` 子目录；不得写入 `5-Image`、`6-分组`、`7-图像` 或其他平行真源。
 - Naming convention: prompt 文档命名 `第N集-分镜画面-prompts.md`；索引命名 `第N集-shot-index.json`；参照清单命名 `第N集-reference-manifest.json`；生成计划命名 `第N集-imagegen-plan.json`；执行报告命名 `执行报告.md`；图片命名 `<分镜ID>.png`，例如 `1-1-1-1.png`。
-- Completion gate: 目标分镜均可从 `4-分组` 回指；每条 prompt 含模板要求的三项 north_star 直引、场景参照图视觉风格锁、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、同场景上一画面回看记录、三维空间连续性规划、单镜锚点投影记录、`Prompt Design Blueprint` 和英文整合 prompt；每条英文 prompt 不超过 1300 English words；英文 prompt 本体必须覆盖 frame identity、source truth、continuity、primary/support anchors、spatial blocking、camera/composition、focus target、scene reference style lock、materials/atmosphere、avoid constraints，不得只写镜头摘要或把体系停留在结构化字段；英文 prompt 中的 `Primary anchor` / `Support anchors` 必须匹配当前四段式分镜的单镜画面真相，不得把三段式分镜组主场景默认锚点无条件套给蒙太奇、插入、道具特写、转场或临时换地点镜头；同场景非首镜若上一分镜已有本地生成图，必须先 `view_image` 并在当前 prompt 中保持空间站位、走位、朝向、遮挡和关键道具相对位置的逻辑一致；空间一致性必须定位角色起点、终点、移动轨迹、固定锚点、对话轴线、视线闭合和正反打相对背景面，不得退化为平面背景复用；参照槽位只绑定存在的本地图片且多视图优先；执行 prompt 组织前若存在场景参照图，必须先 `view_image` 并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；执行 built-in `image_gen` 前已绑定本地参照图必须先 `view_image` 进入对话上下文；批量生成必须先完成指定范围的完整 prompts 文档、manifest 和 plan，再按 `shot_id` 严格串行逐镜执行，不得边生图边补写后续 prompt、并发、后台并行、分片并跑或跳过前镜结果；执行 imagegen 时遵循 `.agents/skills/cli/imagegen` 的默认路由与项目持久化门禁；审查结果为 `pass` 或 `pass_with_todo`。
+- Completion gate: 目标分镜帧均可从 `4-分组` 回指到源组、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason`；每条 prompt 含模板要求的三项 north_star 直引、场景参照图视觉风格锁、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、同场景上一画面回看记录、三维空间连续性规划、单镜锚点投影记录、`Prompt Design Blueprint` 和英文整合 prompt；每条英文 prompt 不超过 800 English words；英文 prompt 本体必须覆盖 frame identity、frame landing truth、continuity、shot-specific anchors、spatial blocking、camera/composition、scene reference style lock、materials/atmosphere、avoid constraints，不得只写镜头摘要或把体系停留在结构化字段；英文 prompt 中的 `Primary anchor` / `Support anchors` 必须匹配当前四段式分镜帧的单帧画面真相，不得把三段式分镜组主场景默认锚点无条件套给蒙太奇、插入、道具特写、转场或临时换地点画面；同场景非首镜若上一分镜已有本地生成图，必须先 `view_image` 并在当前 prompt 中保持空间站位、走位、朝向、遮挡和关键道具相对位置的逻辑一致；空间一致性必须定位角色起点、终点、移动轨迹、固定锚点、对话轴线、视线闭合和正反打相对背景面，不得退化为平面背景复用；参照槽位只绑定存在的本地图片且多视图优先；执行 prompt 组织前若存在场景参照图，必须先 `view_image` 并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；英文 prompt 必须明确要求生成画面的 visual style、lighting、color palette、atmosphere 与场景参照图一致；执行 built-in `image_gen` 前已绑定本地参照图必须先 `view_image` 进入对话上下文；批量生成必须先完成指定范围的完整 prompts 文档、manifest 和 plan，再按 `shot_id` 严格串行逐镜执行，不得边生图边补写后续 prompt、并发、后台并行、分片并跑或跳过前镜结果；执行 imagegen 时遵循 `.agents/skills/cli/imagegen` 的默认路由与项目持久化门禁；审查结果为 `pass` 或 `pass_with_todo`。

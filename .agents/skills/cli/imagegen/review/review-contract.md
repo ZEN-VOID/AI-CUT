@@ -20,7 +20,7 @@ This file owns final quality gates for imagegen tasks.
 | input_roles | Edit target, reference image, and supporting image roles are not confused |
 | prompt | Prompt preserves user intent and avoids invented unrelated objects or copy |
 | visual_quality | Subject, style, composition, lighting, and key constraints are plausible |
-| resolution | Default 2K target was requested or an explicit user/model-limited size was honored |
+| resolution | Default 2K target was requested when no explicit target exists, or an explicit user/upstream/model-limited size was honored |
 | text | Exact requested text is quoted in prompt and visually checked when present |
 | invariants | Edit changes only requested elements and preserves locked regions |
 | transparency | Alpha output has alpha channel, transparent corners, and no obvious key fringe |

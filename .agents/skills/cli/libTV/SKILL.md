@@ -147,6 +147,9 @@ python3 {baseDir}/scripts/download_results.py SESSION_ID --output-dir ~/Desktop/
 # 指定文件名前缀（如 storyboard_01.png, storyboard_02.png ...）
 python3 {baseDir}/scripts/download_results.py SESSION_ID --prefix "storyboard"
 
+# 指定单个视频的精确落盘路径（AIGC 主体参照视频默认使用该形态）
+python3 {baseDir}/scripts/download_results.py SESSION_ID --output-dir "projects/aigc/项目名/7-视频/C-主体参照/第1集" --filename "分镜组ID.mp4"
+
 # 直接下载指定 URL 列表（不需要 session_id）
 python3 {baseDir}/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir ./output
 ```
@@ -161,11 +164,11 @@ python3 {baseDir}/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir
 1. create_session.py "把全部工作流和结果都放在画布上。用户的描述"  →  拿到 sessionId + projectUuid
 2. 每隔 8 秒调用 query_session.py SESSION_ID --after-seq 0 轮询
 3. 检查 messages：当出现 assistant 角色的消息且包含图片/视频 URL → 任务完成
-4. 自动下载：download_results.py SESSION_ID --output-dir ~/Downloads/项目名 --prefix 有意义的前缀
+4. 自动下载：AIGC 主体参照视频使用 `download_results.py SESSION_ID --output-dir "projects/aigc/<项目名>/7-视频/C-主体参照/第N集" --filename "分镜组ID.mp4"`；其他普通结果使用语义化目录和前缀
 5. 向用户展示：本地文件列表 + projectUrl（画布链接）
 ```
 
-生成完成后**自动执行下载**，不需要用户额外请求。下载目录和前缀根据任务语义自动命名（如分镜用 `storyboard`，角色设定用 `character` 等）。
+生成完成后**自动执行下载**，不需要用户额外请求。AIGC 主体参照视频的本地地址必须归档为 `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/分镜组ID.mp4`；其他下载目录和前缀根据任务语义自动命名（如分镜用 `storyboard`，角色设定用 `character` 等）。
 
 新建生成或编辑任务时，默认把完整生成工作流和结果放在 LibTV 项目画布上。提交给 LibTV 的消息必须包含独立的操作性指令：`把全部工作流和结果都放在画布上。` 这不是创作扩写，不得替代、改写或稀释用户原始描述。
 
@@ -243,9 +246,9 @@ python3 {baseDir}/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir
 **download_results** 返回：
 ```json
 {
-  "output_dir": "/Users/xxx/Downloads/libtv_results",
-  "downloaded": ["/Users/xxx/Downloads/libtv_results/01.png", "..."],
-  "total": 9
+  "output_dir": "projects/aigc/项目名/7-视频/C-主体参照/第1集",
+  "downloaded": ["projects/aigc/项目名/7-视频/C-主体参照/第1集/1-1-1.mp4"],
+  "total": 1
 }
 ```
 
@@ -329,6 +332,6 @@ python3 {baseDir}/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir
 
 - Required output：任务完成时给出本地下载文件列表、结果链接和项目画布链接；若任务仍在生成，说明仍在生成中，不提前泄露 projectUrl。
 - Output format：简洁列出 `sessionId`、`projectUuid`、结果 URL、本地文件路径、`projectUrl` 与残余问题；不要整段粘贴原始 JSON，除非用户要求。
-- Output path：下载结果默认进入语义化本地目录，例如 `~/Downloads/项目名` 或用户指定目录；技能文件固定在 `.agents/skills/cli/libTV/`。
-- Naming convention：下载文件前缀按任务语义命名，如 `storyboard`、`character`、`video`、`libtv` 或用户指定前缀。
+- Output path：AIGC 主体参照视频默认进入 `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/分镜组ID.mp4`；其他下载结果进入语义化本地目录或用户指定目录；技能文件固定在 `.agents/skills/cli/libTV/`。
+- Naming convention：AIGC 主体参照视频使用分镜组 ID 作为精确文件名（`.mp4`）；其他下载文件前缀按任务语义命名，如 `storyboard`、`character`、`video`、`libtv` 或用户指定前缀。
 - Completion gate：已加载 `SKILL.md + CONTEXT.md`；需要上传的参考文件已转为 OSS URL；消息包含画布操作性指令；没有本地创作越权；完成时已展示结果链接和项目画布链接。

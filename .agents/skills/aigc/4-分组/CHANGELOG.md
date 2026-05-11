@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-07
+
+- 将单个分镜组显式时长累计 `>18s` 从语义 warning / 可声明完整性例外，升级为硬性 error；`4-分组` 不再允许用同画面完整、对白承托、动作完成或场景完整性放行超 18 秒组。
+- 若单个 atomic unit 自身超过 18 秒，新增回退口径：必须返回 `3-摄影` 拆分画面单位、压缩镜头时值或重裁分镜数量后再重新分组。
+- 同步更新 `SKILL.md`、`references/group-boundary-contract.md`、`review/review-contract.md`、`steps/grouping-workflow.md`、`CONTEXT.md`、模板、脚本说明与 validator；validator 现在对超 18 秒组直接报 error。
+
 ## 2026-05-06
 
 - 将 15 秒/组的边界裁决从字数中心切换为显式时长累计中心：优先累计 `3-摄影` 的 `分镜N（约X秒）` 接近 15 秒，允许约 12-18 秒弹性，不为精确卡点拆断同一画面。

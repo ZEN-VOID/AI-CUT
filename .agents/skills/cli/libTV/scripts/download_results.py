@@ -10,9 +10,6 @@ import urllib.request
 import urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-sys.path.insert(0, os.path.dirname(__file__))
-from _common import query_session
-
 
 def extract_urls_from_messages(messages):
     """从会话消息中提取所有图片和视频结果 URL"""
@@ -85,6 +82,9 @@ def main():
   # 指定文件名前缀
   python3 download_results.py SESSION_ID --prefix "storyboard"
 
+  # 指定单个结果的精确文件名
+  python3 download_results.py SESSION_ID --output-dir "projects/aigc/项目名/7-视频/C-主体参照/第1集" --filename "1-1-1.mp4"
+
   # 直接下载指定 URL 列表
   python3 download_results.py --urls URL1 URL2 URL3 --output-dir ./output
         """,
@@ -94,12 +94,16 @@ def main():
     parser.add_argument("--urls", nargs="+", default=[], help="直接指定要下载的 URL 列表（不需要 session_id）")
     parser.add_argument("--output-dir", default="", help="输出目录（默认 ~/Downloads/libtv_results/）")
     parser.add_argument("--prefix", default="", help="文件名前缀（如 'storyboard' → storyboard_01.png）")
+    parser.add_argument("--filename", default="", help="单个下载结果的精确文件名（如 分镜组ID.mp4），仅允许一个 URL")
     parser.add_argument("--workers", type=int, default=5, help="并行下载线程数（默认 5）")
     args = parser.parse_args()
 
     # 收集 URL
     urls = list(args.urls)
     if args.session_id:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from _common import query_session
+
         data = query_session(args.session_id)
         messages = data.get("messages", [])
         extracted = extract_urls_from_messages(messages)
@@ -109,6 +113,14 @@ def main():
         print(json.dumps({"error": "未找到可下载的图片/视频 URL", "downloaded": []}, ensure_ascii=False, indent=2))
         sys.exit(1)
 
+    if args.filename:
+        if len(urls) != 1:
+            print(json.dumps({"error": "--filename 仅支持单个下载结果", "downloaded": []}, ensure_ascii=False, indent=2))
+            sys.exit(1)
+        if os.path.basename(args.filename) != args.filename:
+            print(json.dumps({"error": "--filename 只接受文件名，请用 --output-dir 指定目录", "downloaded": []}, ensure_ascii=False, indent=2))
+            sys.exit(1)
+
     # 准备输出目录
     output_dir = args.output_dir or os.path.expanduser("~/Downloads/libtv_results")
     os.makedirs(output_dir, exist_ok=True)
@@ -117,7 +129,9 @@ def main():
     tasks = []
     for i, url in enumerate(urls, 1):
         ext = os.path.splitext(url.split("?")[0])[-1] or ".png"
-        if args.prefix:
+        if args.filename:
+            filename = args.filename
+        elif args.prefix:
             filename = f"{args.prefix}_{i:02d}{ext}"
         else:
             filename = f"{i:02d}{ext}"

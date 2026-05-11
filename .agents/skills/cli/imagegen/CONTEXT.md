@@ -25,7 +25,8 @@ last_checked_at: 2026-04-24
 | `TM-IMG-06` | In-image text is misspelled or extra words appear | text rendering | Re-prompt with exact quoted text and typography/placement | Treat text-heavy images as high-risk review items | Text matches verbatim request |
 | `TM-IMG-07` | Chroma-key removal leaves colored halo or opaque corners | alpha post-process | Retry helper with tuned thresholds or edge contraction | Choose key color outside subject and forbid shadows | Alpha channel and transparent corners verified |
 | `TM-IMG-08` | Prompt augmentation adds unrelated story elements | prompt specificity | Strip invented details back to user intent | Use allowed/disallowed augmentation table | Prompt only adds material clarifiers |
-| `TM-IMG-09` | New image requests drift back to tool auto-size without 2K intent | resolution default | Add 2K target to built-in prompts or CLI payload | Keep `gpt-image-2` CLI default at `2048x1152` and review resolution target | Prompt/payload records 2K unless user set another size |
+| `TM-IMG-09` | New image requests drift back to tool auto-size without 2K intent | resolution default | Add 2K target to built-in prompts or CLI payload | Keep `gpt-image-2` CLI default at `2048x1152` and review resolution target | Prompt/payload records 2K unless user or upstream set another size |
+| `TM-IMG-10` | Upstream skill explicitly requests 4K but imagegen plan/prompt falls back to 2K | upstream resolution override lost | Restore the upstream `resolution_target` in prompt, payload, report, and review notes | Treat `resolution_target: 4K` handoffs as explicit size requests | Prompt/payload records 4K or a valid 4K size |
 
 ## Repair Playbook
 
@@ -34,14 +35,16 @@ last_checked_at: 2026-04-24
 3. If transparency fails, reload `references/transparent-background.md`, validate the alpha channel, and ask before CLI true transparency.
 4. If prompt quality is weak, reload `references/prompting.md` and `types/type-map.md`, then rebuild the prompt from request type and constraints.
 5. If multiple assets were requested, ensure `steps/execution-workflow.md` has one deliverable per requested asset or explicit variant.
-6. If no resolution was specified, make the 2K target explicit in the prompt or payload before execution.
-7. If CLI was used, confirm the user explicitly opted into CLI/API/model controls and record the command/result path.
-8. Before final delivery, run `review/review-contract.md` and record the verdict in the response or report.
+6. If no user or upstream resolution was specified, make the 2K target explicit in the prompt or payload before execution.
+7. If an upstream skill specifies `resolution_target`, preserve it. For example, storyboard-sheet `resolution_target: 4K` must not be downgraded to the generic 2K default.
+8. If CLI was used, confirm the user explicitly opted into CLI/API/model controls and record the command/result path.
+9. Before final delivery, run `review/review-contract.md` and record the verdict in the response or report.
 
 ## Reusable Heuristics
 
 - Built-in `image_gen` is the default path because it avoids API-key, network, and model-parameter drift for normal image work.
-- Default image work should target 2K unless the user specifies a different resolution; the built-in path expresses this in the prompt, while CLI `gpt-image-2` uses `2048x1152`.
+- Default image work should target 2K unless the user or upstream skill specifies a different resolution; the built-in path expresses this in the prompt, while CLI `gpt-image-2` uses `2048x1152`.
+- Upstream skill handoffs can be resolution authorities. A parent workflow that passes `resolution_target: 4K` is equivalent to an explicit user size request for this skill.
 - CLI fallback is a precision path, not a quality upgrade switch. Use it for explicit CLI/API/model needs, masks/file-path controls, or user-confirmed true transparency.
 - Treat project persistence as part of image generation, not cleanup. An image used by repo code is not done until it lives in the workspace.
 - For edits, role labeling is the cheapest way to prevent reference images from becoming edit targets.

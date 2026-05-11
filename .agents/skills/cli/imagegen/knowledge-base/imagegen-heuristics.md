@@ -13,7 +13,8 @@ This file stores stable reusable practices for imagegen. It does not override `S
 ## Execution Heuristics
 
 - Built-in `image_gen` should feel frictionless. Avoid CLI unless the user clearly wants the extra controls.
-- When no size is specified, keep the skill-level output target at 2K. Built-in mode expresses this through prompt wording; CLI `gpt-image-2` resolves the omitted size to `2048x1152`.
+- When no user or upstream size is specified, keep the skill-level output target at 2K. Built-in mode expresses this through prompt wording; CLI `gpt-image-2` resolves the omitted size to `2048x1152`.
+- When an upstream skill explicitly passes `resolution_target`, preserve it exactly as the current task target. A 4K parent handoff should not be treated as absent size.
 - For many assets, one clean prompt per asset is more reliable than one overloaded prompt.
 - Keep discarded variants out of project asset directories unless the user asks to keep them.
 - When the target is a repo asset, copy the final file into the repo before updating code or documentation references.
@@ -30,5 +31,6 @@ This file stores stable reusable practices for imagegen. It does not override `S
 - Treat CLI fallback as a user-confirmed provider path.
 - Use `gpt-image-2` by default for CLI generation/editing unless true transparency requires user-confirmed `gpt-image-1.5`.
 - Omitted CLI `--size` should produce `2048x1152` for `gpt-image-2`; do not force this size onto legacy fallback models.
+- Explicit 4K in confirmed CLI fallback should map to `3840x2160` landscape or `2160x3840` portrait unless the handoff supplies another valid size.
 - Do not set `input_fidelity` with `gpt-image-2`.
 - Use dry-run for command validation when the user asks for a plan or when API/network readiness is uncertain.

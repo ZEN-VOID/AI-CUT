@@ -34,9 +34,12 @@
 | `reference_state` | `found`、`partial`、`missing_optional`、`ambiguous`、`over_limit`、`skipped_by_user_policy` | 分镜画面图状态 |
 | `libtv_command` | `libtv_session_with_uploaded_references`、`libtv_session_text_only`、`blocked` | 根据参照图状态选择 |
 | `concurrency_mode` | `background_pool`、`serial` | 批量执行方式 |
-| `frame_reference_prompt_binding` | `bound`、`stripped`、`unknown` | 远端生成 prompt 中分镜ID/镜头标签是否与图片 token / 参照编号保持绑定 |
+| `frame_reference_prompt_binding` | `bound`、`stripped`、`unknown` | 远端生成 prompt 中分镜ID/镜头标签是否与真实图片 token / 编号 / URL 保持绑定；提交文本不得人工预设 `参照图N` |
 | `prompt_fidelity_mode` | `strict_original / transport_only / libtv_optimize` | 提示词保真与远端优化授权模式；默认 `strict_original` |
 | `allow_libtv_prompt_optimization` | `false / true` | 是否允许 LibTV Agent 做提示词优化、重排、摘要或工作流规划；默认 `false` |
+| `duration_source` | `group_yaml / shot_sum / fallback_default / user_override` | 组级视频时长估算来源 |
+| `duration_estimate_seconds` | positive number | 从 `4-分组` 当前组得到的真实估算时长 |
+| `duration_hint` | integer seconds | 提交给 LibTV 的视频时长，按 `clamp(duration_estimate_seconds, 4, 15)` 得到 |
 
 ## Mode Matrix
 
@@ -66,7 +69,7 @@
 
 | reference_state | default command | reason |
 | --- | --- | --- |
-| `found` | `libtv_session_with_uploaded_references` | 当前组所有目标镜头图均有参照，用 `@图N` 绑定 |
+| `found` | `libtv_session_with_uploaded_references` | 当前组目标镜头图有参照，用 fenced YAML `分镜画面参照[].uploaded_url` 绑定 |
 | `partial` | `libtv_session_with_uploaded_references` | 至少一张真实分镜画面图可作为多图参照，缺图镜头移除空槽位 |
 | `missing_optional` | `libtv_session_text_only` | 无图不阻断，用完整组内容直接生成 |
 | `ambiguous` | `blocked` | 歧义必须人工裁决 |
@@ -76,7 +79,7 @@
 ## Prompt Reference Binding Rules
 
 - 有分镜画面参照图时，默认 `frame_reference_prompt_binding=bound`。
-- 远端提交必须把 `【分镜画面参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体。
+- 远端提交必须把 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体，分镜画面绑定落在 fenced YAML `分镜画面参照[].uploaded_url`。
 - 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image N}}`、裸 `图片N` 或裸 URL 序列，没有分镜ID/镜头标签邻近绑定，`frame_reference_prompt_binding=stripped`，状态改为 `frame_reference_name_stripped`，不进入正常 pending。
 
 ## Prompt Fidelity Rules
@@ -84,5 +87,6 @@
 - 默认类型画像为 `prompt_fidelity_mode=strict_original` 且 `allow_libtv_prompt_optimization=false`。
 - `strict_original` 和 `transport_only` 可同时生效：前者锁定 `【分镜组源文本】` 原文主体，后者只做远端技术投影。
 - `transport_only` 不等于内容优化；它只允许本地路径到上传 URL、参照图数量上限、`imageList`、时长、比例、分辨率和声音参数等机械转换。
+- `transport_only` 中的时长投影必须来自当前组 `duration_hint`；不得把所有组固定为 15 秒。
 - `libtv_optimize` 只能由用户显式选择，或由 submit plan 明确记录 `allow_libtv_prompt_optimization=true` 后进入；不得由远端 LibTV Agent 自行升级。
 - 若 query 检测到未 opt-in 的提示词优化、重新编排、摘要、改写、补镜头、镜头计划或工作流规划，路由状态改为 `prompt_fidelity_violation`，不进入正常 pending。

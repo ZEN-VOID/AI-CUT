@@ -8,7 +8,7 @@ stage: 4-分组
 source_cinematography_path: projects/aigc/<项目名>/3-摄影/第N集.md
 north_star_path: projects/aigc/<项目名>/0-初始化/north_star.yaml
 output_path: projects/aigc/<项目名>/4-分组/第N集.md
-grouping_policy: explicit_shot_duration_sum_target_15s_atomic_visual_unit_first
+grouping_policy: explicit_shot_duration_sum_target_15s_hard_max_18s_atomic_visual_unit_first
 connector_policy: inter_group_head_tail_connector_3_to_4_seconds
 review_status: pending
 ---

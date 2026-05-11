@@ -44,13 +44,29 @@ group_yaml:
   道具: []
 shot_count: 0
 source_shot_labels: []
+storyboard_frame_units:
+  - panel_no: 1
+    source_shot_labels: []
+    source_span: ""
+    visual_beat: ""
+    mapping_type: "one_to_one | split_from_shot | merged_from_shots"
+    rationale: ""
 ```
 
 ## Shot Count
 
 - 优先统计组正文中的 `分镜N:` 标签。
 - `source_shot_labels` 保留原始顺序，例如 `分镜1`、`分镜2`。
+- `shot_count` 和 `source_shot_labels` 只表示上游运镜/镜头处理标签，不等同于 storyboard 的 panel count。
 - 不要求把三段式组拆成四段式单镜输出；单镜任务应转到 `A-分镜画面`。
+
+## Storyboard Frame Unit Derivation
+
+- `storyboard_frame_units` 必须由 LLM 基于当前 `group_body` 的资料来源识别，不能由脚本用 `分镜N` 标签机械派生。
+- frame unit 的落点依据是画面中需要单独表达的视觉节拍，包括关键动作变化、构图/景别变化、运镜造成的显著画面状态、情绪或光影转折，以及上游分组已经写明的关键画面。
+- `分镜1`、`分镜2` 等标签只作为 `source_shot_labels` 和追溯线索。允许一个 `分镜N` 拆为多个 frame unit；也允许多个连续 `分镜N` 合并为一个 frame unit。
+- 每个 frame unit 必须记录 `source_span` 或等价源文本摘要，能回指 `group_body` 的具体片段；不得补写上游没有的动作、情绪结果、角色事实或场景事实。
+- 若无法稳定判断 frame unit 数量，保持 `storyboard_frame_units_status: partial`，在报告中说明需要人工确认；不得退回“分镜标签数 = panel 数”的默认假设。
 
 ## Readiness Gate
 
@@ -61,6 +77,7 @@ source_shot_labels: []
 3. `group_body` 非空。
 4. fenced YAML 可解析，至少能得到 `角色 / 场景 / 道具` 三类字段；缺项可以为空数组但必须记录。
 5. `shot_count` 大于 0；若无法自动统计，进入 `partial`，由人工审查确认完整性。
+6. `storyboard_frame_units` 非空，且每个 frame unit 可回指源正文；若为 `partial`，必须报告不确定原因。
 
 ## Failure And Rework
 
@@ -71,3 +88,4 @@ source_shot_labels: []
 | group_body 被截断 | 重新按下一个二级标题定位边界 |
 | 连接件进入 group_body 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | `分镜N` 统计不完整 | 保留原正文，报告 `shot_count_unverified` |
+| storyboard panel 机械等同 `分镜N` | 回到 `Storyboard Frame Unit Derivation`，重新基于视觉节拍识别 |

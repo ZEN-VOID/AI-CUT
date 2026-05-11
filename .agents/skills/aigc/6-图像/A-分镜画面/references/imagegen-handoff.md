@@ -83,8 +83,8 @@ reference_input_status: "visible_in_conversation_context"
 - `shot_id` 可追溯；
 - `第N集-分镜画面-prompts.md` 已覆盖本轮指定范围的全部目标 `shot_id`，且先于任何 imagegen 调用落盘；
 - `imagegen-plan.json` 中每个任务均引用已落盘 prompt block，并记录 `prompt_package_status: complete_before_imagegen`；
-- prompt <= 1300 English words；
-- prompt 包含场景参照图固定风格约束；若场景参照图存在，`scene_visual_style_lock_status` 必须是 `visible_in_conversation_context`；
+- prompt <= 800 English words；
+- prompt 包含场景参照图固定风格约束；若场景参照图存在，`scene_visual_style_lock_status` 必须是 `visible_in_conversation_context`，且英文 prompt 必须要求生成画面的 visual style、lighting、color palette 与 atmosphere 与场景参照图一致；
 - reference paths 存在，且同一主体存在多视图时没有退回主图；
 - 已绑定本地 reference paths 均已通过 `view_image` 进入对话上下文，并在任务中标注角色；
 - 同场景上一分镜已有本地生成图时，上一图已通过 `view_image` 进入对话上下文，并在任务中标注为 `previous_frame_context`；

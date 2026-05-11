@@ -1,6 +1,6 @@
 # aigc-image-storyboard-sheet
 
-`B-分镜故事板` 是 `6-图像` 阶段的组级多格 storyboard 入口。它从 `projects/aigc/<项目名>/4-分组` 读取分镜组原文，按组底 YAML 绑定主体参照，并以分镜组为单位调用 imagegen。
+`B-分镜故事板` 是 `6-图像` 阶段的组级多格 storyboard 入口。它从 `projects/aigc/<项目名>/4-分组` 读取分镜组原文，按视觉节拍识别 storyboard frame units，按组底 YAML 绑定主体参照，并以分镜组为单位调用 imagegen。原始 `分镜N` 只作为追溯标签，不默认等同于 storyboard panel；场景参照图同时约束空间、风格、光影和氛围。
 
 ## Directory Tree
 

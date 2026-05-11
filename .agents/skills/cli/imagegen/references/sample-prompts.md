@@ -17,9 +17,9 @@ Execution details such as explicit CLI flags, `quality`, `input_fidelity`, masks
 
 CLI model notes:
 - `gpt-image-2` is the fallback CLI default for new workflows.
-- Default target resolution is 2K when the user does not specify a size. In built-in mode, express this in the prompt; in CLI fallback with `gpt-image-2`, omitted `--size` resolves to `2048x1152`.
+- Default target resolution is 2K when neither the user nor upstream handoff specifies a size. In built-in mode, express this in the prompt; in CLI fallback with `gpt-image-2`, omitted `--size` resolves to `2048x1152`.
 - `gpt-image-2` supports `quality` values `low`, `medium`, `high`, and `auto`.
-- For 4K-style `gpt-image-2` output, use `3840x2160` or `2160x3840`.
+- For user-requested or upstream-requested 4K-style `gpt-image-2` output, use `3840x2160` or `2160x3840`.
 - If transparent output needs true CLI fallback, ask before using `gpt-image-1.5` unless the user already explicitly requested `gpt-image-1.5`, `scripts/image_gen.py`, or CLI fallback. Explain that built-in chroma-key removal is the default path, but `gpt-image-2` does not support `background=transparent`.
 - Do not set `input_fidelity` with `gpt-image-2`; image inputs already use high fidelity.
 

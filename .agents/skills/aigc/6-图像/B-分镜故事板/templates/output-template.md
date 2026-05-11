@@ -39,17 +39,26 @@ projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/
 ## Summary
 
 - total_groups:
+- total_storyboard_frame_units:
+- resolution_target: 4K
 - prompted:
 - generated:
 - skipped:
 - failed:
 - missing_references:
 
+## Frame Unit Mapping
+
+- frame_unit_status:
+- mapping_policy: visual_beat_based_not_one_to_one_with_source_shot_labels
+- partial_or_ambiguous_groups:
+
 ## Reference Context
 
 - reference_input_status:
 - viewed_reference_images:
 - missing_reference_images:
+- scene_visual_anchor_status:
 
 ## Review
 

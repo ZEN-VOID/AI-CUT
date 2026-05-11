@@ -22,6 +22,7 @@ metadata:
 - 指定视频生成时必须调用 `.agents/skills/cli/libTV` 官方技能包完成；执行顺序以 `references/libtv-handoff-contract.md` 的官方脚本顺序为准：按需 `change_project.py`、故事板 `upload_file.py`、`create_session.py`、`query_session.py`、生成完成后 `download_results.py` 自动下载。
 - 调用 LibTV 前必须同时遵循 `.agents/skills/cli/libTV/SKILL.md`：先执行 `LIBTV_ACCESS_KEY credential check`，多任务写 queue ledger，异步任务保留 `sessionId/projectUuid/projectUrl` 并完成画布同步。
 - 发送给 LibTV 远端画布的 `*-libtv-submission.txt` 必须以 B 路线专属的 `【LibTV 调用锁定】` 开头：`provider=seedance2.0`、`taskType=video`、`modeType=singleImage2video`、故事板图 URL 进入 `imageList[0]`。B 路线把单张 storyboard sheet 作为整组视觉参照直接生成一条连续视频；无故事板图时才降级 `text2video`。
+- B 路线真实提交给 LibTV 的 `imageList` 必须保持单张故事板图，天然小于 9 张；若异常出现多张候选，必须先唯一裁决为 1 张或阻断，不得提交超过 9 张图，也不得把多张候选静默塞入 `imageList`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > `.agents/skills/aigc/7-视频/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `.agents/skills/cli/libTV/SKILL.md` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
@@ -59,7 +60,7 @@ Optional input:
 - `execution.concurrency`：并发 worker 数；默认 `min(4, job_count)`，不得让多个 worker 同时改写同一个最终报告。
 - `prompt_fidelity_mode`：默认 `strict_original`；可选 `strict_original / transport_only / libtv_optimize`。
 - `allow_libtv_prompt_optimization`：默认 `false`。只有用户显式设为 `true` 或显式选择 `libtv_optimize` 时，才允许 LibTV 远端 Agent 做提示词优化、摘要、镜头重排、补镜头或重新编排。
-- 默认视频规格为 720P、16:9、15 秒、声音开启；用户显式指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略时，以用户要求为准。
+- 默认视频规格为 720P、16:9、声音开启；`duration` 默认从当前分镜组 `4-分组` 的 `时长估算` 读取，并按 LibTV 当前范围 clamp 到 4-15 秒：估算值小于等于 4 秒时按 4 秒，4 到 15 秒之间按估算值，估算值大于等于 15 秒时按 15 秒。用户显式指定 LibTV 模型、duration、ratio、video_resolution、poll 秒数、输出目录、rerun / replace 策略或下载策略时，以用户要求为准。
 
 Reject or clarify when:
 
@@ -102,7 +103,7 @@ Reject or clarify when:
 | `libtv_optimize` | 允许 LibTV 远端 Agent 进行提示词优化、摘要、镜头合并、工作流规划或重新编排 | 未经用户显式同意时启用 | no |
 
 - `allow_libtv_prompt_optimization` 默认必须为 `false`。
-- 远端 `*-libtv-submission.txt` 必须明确声明：禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；直接使用 `【故事板参照说明】中相关故事板总参照绑定关系 + 【分镜组源文本】原文` 作为 Seedance 生成 prompt 完整体。
+- 远端 `*-libtv-submission.txt` 必须明确声明：禁止提示词优化、禁止重新编排、禁止摘要、禁止改写、禁止补镜头；直接使用 source-first enriched YAML 形态的 `【分镜组源文本】` 作为 Seedance 生成 prompt 完整体，其中 fenced YAML 的 `故事板参照.uploaded_url` 绑定故事板总参照与 uploaded URL；提交文本不得另起 `【故事板参照说明】`，不得人工预设 `参照图1/2/N` 编号，避免和 LibTV 导入图片后生成的真实编号冲突。
 - `transport_only` 不等于提示词优化；它只允许上传 URL、参照图数量上限裁剪和视频参数补齐，不允许改变分镜内容。
 - 若用户显式选择 `libtv_optimize`，必须在 submit plan、queue 和 report 中记录该选择；否则任何远端优化、重排或摘要都按 `route drift / prompt fidelity violation` 处理。
 
@@ -172,11 +173,11 @@ stateDiagram-v2
 
 1. 加载本 `SKILL.md + CONTEXT.md`；项目任务中加载项目 `MEMORY.md` 与相关项目 `CONTEXT/`。
 2. 按 `types/type-map.md` 锁定 mode、集号范围、目标分镜组集合、是否执行 LibTV、是否查询下载。
-3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、故事板参照绑定、LibTV job 或视频文件命名；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
+3. step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文；同步提取组底 YAML 的 `时长估算`，形成 `duration_estimate_seconds`；若缺失则按组内 `分镜明细` 秒数求和估算，区间时长优先取上限，仍无法确定才回退 15 秒并记录 `duration_source=fallback_default`；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、故事板参照绑定、LibTV job 或视频文件命名；视频 prompt 主体直接使用现有组内容，不进行剧情改写。
 4. step1 组装本地审核 prompt 时添加 LibTV 视频约束前缀：`根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。` 发送给 LibTV 的 `*-libtv-submission.txt` 必须改写为远端可读形态，并以 `【LibTV 调用锁定】` 开头锁定 B 专属 `modeType=singleImage2video`。
 5. step2：检查 `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/` 下是否存在与 `group_id` 对应的图片；优先 `images/<group_id>.*`，其次同集目录内 `<group_id>.*`，允许常见扩展名 `png/jpg/jpeg/webp`。
-6. step2 绑定结果必须写入 YAML：有图则 `reference_images: [{path, role: storyboard_sheet, marker: "@图1"}]`；无图则 `reference_images: []`，并记录 `reference_status: missing_optional`，不阻断 text-to-video。
-7. step3：根据 YAML 转换为 `$libTV` 脚本提交格式。一组一个 job：有故事板图时，先运行 `upload_file.py <path>`，再把返回的 URL 作为 `故事板总参照：参照图1 <uploaded_url>` 写入 `*-libtv-submission.txt`，并锁定 LibTV 调用为 `provider=seedance2.0 / taskType=video / modeType=singleImage2video / imageList=["<真实 uploaded_url>"]`；无故事板图时直接运行对应提交文本并锁定 `modeType=text2video`。远端提交文本不得包含本地图片路径，只能包含真实上传 URL、`故事板总参照：参照图N <uploaded_url>` 与故事板总参照用途说明；`【直接生成请求】` 必须要求基于 `【故事板参照说明】（包含故事板身份和参照 URL）+【分镜组源文本】`，并把两者共同作为生成 prompt 完整体。默认必须包含 `strict_original + transport_only` 声明，禁止远端 Agent 对 `【分镜组源文本】` 做提示词优化、摘要、重排、改写或补镜头，也禁止把故事板参照简化为裸图片 token / 裸图片编号 / 裸 URL。
+6. step2 绑定结果必须写入 YAML：有图则在 source-first enriched YAML 的 fenced YAML 中写入 `故事板参照: {name, role, uploaded_url}`，并在提交计划中写 `reference_images: [{path, role: storyboard_sheet, marker: uploaded_url_binding}]`；无图则不写空 `uploaded_url`，并记录 `reference_status: missing_optional`，不阻断 text-to-video。
+7. step3：根据 YAML 转换为 `$libTV` 脚本提交格式。一组一个 job：每组 `duration_hint` 必须按 `clamp(duration_estimate_seconds, 4, 15)` 决定，估算值小于等于 4 秒时按 4 秒，4 到 15 秒之间按估算值，估算值大于等于 15 秒时统一封顶 15 秒。有故事板图时，先确认单组 `imageList` 只含 1 张故事板图且不超过 9 张，再运行 `upload_file.py <path>`，把返回的 uploaded URL 注入 source-first enriched YAML 的 `故事板参照.uploaded_url`，并锁定 LibTV 调用为 `provider=seedance2.0 / taskType=video / modeType=singleImage2video / imageList=["<真实 uploaded_url>"]`；无故事板图时直接运行对应提交文本并锁定 `modeType=text2video`。远端提交文本不得包含本地图片路径，只能在 `【分镜组源文本】` fenced YAML 内保留真实 uploaded URL 与故事板总参照绑定；不得人工写入 `参照图1/2/N` 编号。`【直接生成请求】` 必须要求基于下方 `【分镜组源文本】`，并把原始正文和 YAML `故事板参照.uploaded_url` 共同作为生成 prompt 完整体。默认必须包含 `strict_original + transport_only` 声明，禁止远端 Agent 对 `【分镜组源文本】` 做提示词优化、摘要、重排、改写或补镜头，也禁止把故事板参照简化为裸图片 token / 裸图片编号 / 裸 URL。
 8. 默认后台多线程批量并发执行：提交前生成 `第N集-libtv-batch.yaml` 和 queue ledger；worker 数默认 `min(4, job_count)`，每个 worker 只写自己的临时结果，最终由主流程汇流更新 `第N集-libtv-results.json` 与 `执行报告.md`。
 9. 每次生成前必须运行 `LIBTV_ACCESS_KEY credential check`；若失败，停止提交并按 `$libTV` 技能进入登录或环境排障。
 10. 按官方 `$libTV` 轮询策略查询画布进展；超时后必须保存 `sessionId/projectUuid/projectUrl`，把状态写入 queue ledger，并使用 `python3 .agents/skills/cli/libTV/scripts/query_session.py <sessionId> --project-id <projectUuid>` 后续查询。生成完成后必须自动执行 `download_results.py`，下载默认写入 `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/`。
@@ -188,9 +189,9 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `FIELD-SBVID-01` | input manifest | 项目根、集号、`4-分组`、目标组范围可追溯 | `FAIL-SBVID-INPUT` |
 | `FIELD-SBVID-02` | group index | `group_id` 可回指 `## x-y-z`，组正文完整提取 | `FAIL-SBVID-GROUP` |
-| `FIELD-SBVID-03` | prompt package | LibTV 视频约束前缀 + 现有组内容主体；远端 `*-libtv-submission.txt` 以 B 专属 `【LibTV 调用锁定】` 开头并锁定 `modeType=singleImage2video`；默认 `strict_original + transport_only` 且禁止远端优化；最终生成 prompt 必须保留故事板总参照身份与图片 token/编号绑定 | `FAIL-SBVID-PROMPT` |
+| `FIELD-SBVID-03` | prompt package | source-first enriched YAML：现有组内容主体 + fenced YAML `故事板参照.uploaded_url` 绑定；远端 `*-libtv-submission.txt` 以 B 专属 `【LibTV 调用锁定】` 开头并锁定 `modeType=singleImage2video`；默认 `strict_original + transport_only` 且禁止远端优化；不得预设 `参照图N` 人工编号，最终生成 prompt 必须保留故事板总参照身份与真实图片 token/编号/URL 绑定 | `FAIL-SBVID-PROMPT` |
 | `FIELD-SBVID-04` | storyboard reference manifest | 只绑定真实 `6-图像/B-分镜故事板` 图片；缺图为空引用 | `FAIL-SBVID-REF` |
-| `FIELD-SBVID-05` | LibTV YAML / commands | 有图走 `libtv_session_with_uploaded_references`，无图走 `libtv_session_text_only`，参数符合 $libTV | `FAIL-SBVID-LIBTV` |
+| `FIELD-SBVID-05` | LibTV YAML / commands | 有图走 `libtv_session_with_uploaded_references`，无图走 `libtv_session_text_only`，`duration_hint=clamp(duration_estimate_seconds, 4, 15)`，`imageList` 只含 1 张故事板图且 <= 9，参数符合 $libTV | `FAIL-SBVID-LIBTV` |
 | `FIELD-SBVID-06` | queue ledger / session ids | 多任务均有 queue row、sessionId、next_action | `FAIL-SBVID-QUEUE` |
 | `FIELD-SBVID-07` | results / report | generated / submitted / querying / failed / skipped 状态清楚 | `FAIL-SBVID-REPORT` |
 
@@ -200,7 +201,7 @@ stateDiagram-v2
 | --- | --- | --- | --- | --- |
 | `FIELD-SBVID-01` | input lock | `第N集-group-index.json` / report | 项目根、集号、`4-分组`、视频输出根 | `FAIL-SBVID-INPUT` |
 | `FIELD-SBVID-02` | group extraction | `第N集-group-index.json` | `group_id`、source heading、source body hash、shot labels | `FAIL-SBVID-GROUP` |
-| `FIELD-SBVID-03` | prompt assembly | `第N集-video-prompts.md` / `prompts/*-libtv-submission.txt` | LibTV 前缀、完整组正文、参照说明；远端提交首段为 `【LibTV 调用锁定】` 和 `modeType=singleImage2video`；远端生成 prompt 完整体必须包含故事板参照说明 + 源文本原文；默认记录 `allow_libtv_prompt_optimization=false` | `FAIL-SBVID-PROMPT` |
+| `FIELD-SBVID-03` | prompt assembly | `第N集-video-prompts.md` / `prompts/*-libtv-submission.txt` | source-first enriched YAML、完整组正文、fenced YAML `故事板参照.uploaded_url`；远端提交首段为 `【LibTV 调用锁定】` 和 `modeType=singleImage2video`；远端生成 prompt 完整体必须包含源文本原文和 YAML uploaded_url 绑定；默认记录 `allow_libtv_prompt_optimization=false` | `FAIL-SBVID-PROMPT` |
 | `FIELD-SBVID-04` | reference binding | `第N集-reference-manifest.json` | storyboards paths or empty refs with reason | `FAIL-SBVID-REF` |
 | `FIELD-SBVID-05` | LibTV handoff | `第N集-libtv-batch.yaml` | local command projection、prompt、reference_images、output path、provider `modeType`、poll | `FAIL-SBVID-LIBTV` |
 | `FIELD-SBVID-06` | queue tracking | `第N集-libtv-queue.md` | queue_id、sessionId、remote_status、next_action | `FAIL-SBVID-QUEUE` |
@@ -214,7 +215,7 @@ stateDiagram-v2
 | `PASS-SBVID-02` | `FIELD-SBVID-02` | 如何从 `4-分组` 保真提取组正文 | 解析 `## x-y-z` 与组边界 | group index |
 | `PASS-SBVID-03` | `FIELD-SBVID-03` | 如何保证 prompt 直接承接现有组内容 | 添加固定视频约束，接入完整组正文 | prompt markdown |
 | `PASS-SBVID-04` | `FIELD-SBVID-04` | 该组是否有对应故事板图 | 按 group_id 查 `6-图像/B-分镜故事板` | reference manifest |
-| `PASS-SBVID-05` | `FIELD-SBVID-05` | YAML 如何转换为 $libTV skill scripts 命令和 Seedance provider 路由 | 有故事板图锁 `modeType=singleImage2video` 和 `imageList[0]`；无图锁 `text2video` | batch YAML / remote submission preview |
+| `PASS-SBVID-05` | `FIELD-SBVID-05` | YAML 如何转换为 $libTV skill scripts 命令和 Seedance provider 路由 | 有故事板图锁 `modeType=singleImage2video` 和单张 `imageList[0]`；无图锁 `text2video` | batch YAML / remote submission preview |
 | `PASS-SBVID-06` | `FIELD-SBVID-06` | 批量任务如何后台并发且可追踪 | 建 ledger、提交、记录 sessionId | queue ledger |
 | `PASS-SBVID-07` | `FIELD-SBVID-07` | 输出如何闭环并可返工 | 汇总审查、失败和跳过原因 | execution report |
 
@@ -226,7 +227,7 @@ stateDiagram-v2
 | `PASS-SBVID-02` | 每个 `group_id` 唯一且可回指源标题和组正文 | `FAIL-SBVID-GROUP` | `references/group-source-contract.md` |
 | `PASS-SBVID-03` | 本地 prompt 以固定视频约束起笔，现有组内容作为主体，镜头未缺失乱序；远端提交以 B 专属 `【LibTV 调用锁定】` 起笔并锁定 `singleImage2video`；默认 `strict_original + transport_only` 且未 opt-in 时禁止远端优化 | `FAIL-SBVID-PROMPT` | `references/group-source-contract.md` / `references/libtv-handoff-contract.md` |
 | `PASS-SBVID-04` | 参照图路径真实存在；缺图为空引用并记录原因 | `FAIL-SBVID-REF` | `references/storyboard-image-binding-contract.md` |
-| `PASS-SBVID-05` | LibTV YAML 可转为合法提交；远端 handoff 有故事板图时锁 `modeType=singleImage2video`，无图锁 `text2video` | `FAIL-SBVID-LIBTV` | `references/libtv-handoff-contract.md` |
+| `PASS-SBVID-05` | LibTV YAML 可转为合法提交；远端 handoff 有故事板图时锁 `modeType=singleImage2video` 且 `imageList` 只含 1 张图，无图锁 `text2video` | `FAIL-SBVID-LIBTV` | `references/libtv-handoff-contract.md` |
 | `PASS-SBVID-06` | 每个提交任务都有 queue row、sessionId 或明确失败原因 | `FAIL-SBVID-QUEUE` | `.agents/skills/cli/libTV/SKILL.md` |
 | `PASS-SBVID-07` | 执行报告记录 verdict、处理范围、失败/跳过与返工入口 | `FAIL-SBVID-REPORT` | `review/review-contract.md` |
 
@@ -251,4 +252,4 @@ stateDiagram-v2
 - Output format: Markdown prompt / report / queue ledger + YAML batch config + JSON manifest / plan / result；生成视频为 LibTV 返回的 MP4 或等价视频文件。
 - Output path: `projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/`，其中 prompt、manifest、batch YAML、queue、result、报告与自动下载视频均在该集目录下。
 - Naming convention: prompt 文档命名 `第N集-video-prompts.md`；每组远端提交文本命名 `prompts/<分镜组ID>-libtv-submission.txt`；索引命名 `第N集-group-index.json`；参照清单命名 `第N集-reference-manifest.json`；LibTV 配置命名 `第N集-libtv-batch.yaml`；队列命名 `第N集-libtv-queue.md`；结果命名 `第N集-libtv-results.json`；执行报告命名 `执行报告.md`；视频命名 `<分镜组ID>.mp4`，例如 `1-1-1.mp4`。
-- Completion gate: 目标分镜组均可从 `4-分组` 回指；每条 prompt 完整保留组正文主体；每条 `*-libtv-submission.txt` 首段为 `【LibTV 调用锁定】`，有故事板图时 `modeType=singleImage2video`，无图时 `text2video`；默认声明 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；不含本地图片路径；`【直接生成请求】` 使用 `【故事板参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体；YAML 参照图只绑定真实故事板图片或保持空引用；生成前已通过 `LIBTV_ACCESS_KEY credential check`；批量任务均有 queue ledger；审查结果为 `pass` 或 `pass_with_todo`。
+- Completion gate: 目标分镜组均可从 `4-分组` 回指；每条 prompt 完整保留 source-first enriched YAML 组正文主体；每条 `*-libtv-submission.txt` 首段为 `【LibTV 调用锁定】`，有故事板图时 `modeType=singleImage2video`，无图时 `text2video`；默认声明 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；不含本地图片路径；`【直接生成请求】` 使用 `【分镜组源文本】` 的原正文 + fenced YAML `故事板参照.uploaded_url` 作为生成 prompt 完整体；YAML 参照图只绑定真实故事板图片或保持空引用；生成前已通过 `LIBTV_ACCESS_KEY credential check`；批量任务均有 queue ledger；审查结果为 `pass` 或 `pass_with_todo`。

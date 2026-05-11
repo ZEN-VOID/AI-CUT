@@ -2,6 +2,8 @@
 
 本文件定义 step2：直接以每个分镜组底部 YAML 的主体信息为基准，查找角色、场景、道具生成图并绑定参照路径。
 
+场景图承担双重职责：既是空间/环境参照，也是本组 storyboard 出图的风格、光影和氛围锚点。全局风格文字锁定不能替代场景参照图的视觉一致性要求。
+
 ## YAML Baseline
 
 只消费组底 YAML 中的字段：
@@ -58,6 +60,8 @@ binding_policy:
   priority: multi_view_then_main
 visual_context_policy:
   before_builtin_imagegen: "view_image_each_bound_local_path"
+scene_visual_policy:
+  when_scene_reference_bound: "match_style_lighting_atmosphere"
 ```
 
 所有 `bound[].path` 必须是存在的本地图片路径。
@@ -74,6 +78,14 @@ context_role: "character_reference"
 context_status: "pending_view_image"
 ```
 
+场景类 `bound` 条目还必须包含：
+
+```yaml
+visual_anchor: "style_lighting_atmosphere"
+context_role: "scene_reference"
+secondary_context_role: "style_lighting_atmosphere_reference"
+```
+
 ## Gate
 
 通过绑定必须满足：
@@ -84,3 +96,4 @@ context_status: "pending_view_image"
 4. 缺图主体不保留空路径，不进入 imagegen reference images。
 5. ambiguous 不进入生成计划，除非用户确认。
 6. 对所有进入 imagegen reference images 的本地图片，生成前必须逐张调用 `view_image`；检视完成后 `context_status` 必须为 `visible_in_conversation_context`。
+7. 只要绑定场景图，manifest、prompt slot 与 imagegen plan 必须都声明其 `visual_anchor: style_lighting_atmosphere`；不得只依靠全局风格文字描述锁定整体画风。

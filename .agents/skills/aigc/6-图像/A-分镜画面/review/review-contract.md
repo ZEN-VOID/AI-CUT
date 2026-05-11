@@ -12,9 +12,9 @@
 
 | gate_id | check | fail_code | rework |
 | --- | --- | --- | --- |
-| `G1-SOURCE` | 每个 `shot_id` 可回指 `4-分组` 源组与 `分镜N` | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
+| `G1-SOURCE` | 每个 `shot_id` 可回指 `4-分组` 源组、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason`；最后一段不是直接继承上游 `分镜N` | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
 | `G2-NORTHSTAR` | 三项 north_star 字段为直引，未摘要、未翻译、未改写 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
-| `G3-PROMPT` | 英文 prompt 为单镜、核心内容未改写、<= 1300 English words，且完整 prompt 设计体系进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
+| `G3-PROMPT` | 英文 prompt 为单帧、核心内容未改写、<= 800 English words，且完整 prompt 设计体系进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `G3D-PROMPT-DESIGN-SYSTEM` | 英文 prompt 必须包含或等价覆盖：frame identity、source truth、continuity、primary anchor、support anchors、spatial blocking、camera/composition、focus target、scene reference style lock、materials/atmosphere、avoid constraints；不得只写镜头摘要或把体系停留在 `Spatial Continuity Plan` 字段 | `FAIL-FRAME-PROMPT-SYSTEM` | `references/prompt-assembly-contract.md` |
 | `G3C-SCENE-VISUAL-STYLE-LOCK` | 若场景参照图存在，prompt 组织前必须已 `view_image` 并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；prompt 块必须包含固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”；英文 prompt 必须包含等价约束 `Match the scene reference image's visual style, lighting, color palette, and atmosphere.`；报告/manifest 必须记录从场景图提炼的光影、色调、氛围和材质信息 | `FAIL-FRAME-SCENE-STYLE` | `references/prompt-assembly-contract.md` |
 | `G3A-PREV-FRAME-CONTINUITY` | 同场景非首镜若上一分镜已有本地生成图，当前 prompt 组织前必须已 `view_image` 上一图并记录 `previous_frame_context_status: visible_in_conversation_context`；当前 prompt 必须保持站位、走位、朝向、遮挡、关键道具相对位置和镜头轴线的逻辑一致；无上一图、上一镜未生成、不同场景或场景首镜必须记录对应原因 | `FAIL-FRAME-CONTINUITY` | `references/prompt-assembly-contract.md` |

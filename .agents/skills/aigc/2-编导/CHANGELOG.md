@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## 2026-05-07
+
+- 增补内心独白人称规则：`内心独白（主角）` 承接第三人称小说叙述时，主角自指必须转为第一人称心声；`内心独白画面` 保留第三人称可拍描述。同步更新 `SKILL.md`、`psychological-reaction-contract.md`、`novel-to-screen-language-contract.md`、`review-contract.md` 与 `CONTEXT.md`。
+- 整合主角内心与动作客观化规则：主角内心想法、内心独白和主角视角下对他人行为的判断必须保留为 `内心独白（主角）` 或可感知反应；`角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气和生理反应，禁止“试图、想要、打算、意图”等主观预判词。
+- 强化小说转影视边界：直接情绪感受必须转为微表情、肢体动作、生理反应或主角内心独白；抽象概括、往日常态总结和无关人物过往/物品来历/回忆性补充不得进入 canonical 编导稿。
+- 同步更新 `SKILL.md`、`psychological-reaction`、`novel-to-screen`、`field-routing`、`performance craft`、workflow、review、模板、CONTEXT、脚本 README 与 validator，新增 `protagonist_inner_voice_evidence`、`objective_action_purity_evidence`、`protagonist_pov_judgment_map`、`habitual_summary_risk_map` 和 `backstory_expansion_risk_map`。
+- 重定义 `心理反应` 字段：不再作为抽象内心解释容器，必须落实为演员可表演、观众可从画面或声音 GET 到的身体、表情、呼吸、停顿、声线、道具或空间反应。
+- 同步更新 field-routing、workflow、review、模板、CONTEXT、README、类型图与 validator，新增 `psychological_reaction_getability_map`，并把 `心理反应` 纳入具像化/可感知化门禁。
+- 新增 `references/psychological-reaction-contract.md`，将 `心理反应` 升格为独立细则：定义 source scope、GETability 标准、projection ladder、actor performance model、field selection matrix、`psychological_reaction_evidence` 和 review checklist；`field-routing` 只保留入口锚点，避免重复真源。
+- 新增 `references/episode-final-image-contract.md`，将每集“终结画面”升格为 `2-编导` 的 references 细则：定位为迷你彩蛋尾钩，要求关联下一集但不剧透，并从本集最后的剧情、情绪、视觉母题、道具状态或高点余波丝滑顺延。
+- 新增 `types/episode-final-image-type-map.md`，为终结画面提供类型化匹配：按下一集可读状态、结尾锚点表层、尾钩承诺、剧透风险、连续方式选择环境描写式、道具特写式、情绪酝酿式或高潮结尾式。
+- 在 workflow 中新增 `N4.10-FINAL-IMAGE` 与 `episode_final_image_plan`，位于 `N4.9-AESTHETIC` 与 `N5-DRAFT` 之间；终结画面证据写入执行报告，正文只落入既有字段，不新增 `终结画面` 正文字段。
+- review 新增 `GATE-DIRECT-26 / FAIL-EPISODE-FINAL-IMAGE`，阻断缺少尾钩、硬塞预告、剧透下一集、未类型化匹配或无法从本集内容自然顺延的编导稿。
+
+## 2026-05-06
+
+- 收紧字段纯度：`环境描写` 明确只写场景本身的写景画面，人物动作、对白引出、剧情结果、心理解释和关系结论必须拆入 `角色动作`、`对白画面`、`群像画面`、`道具特写` 或紧贴 beat 的调度字段。
+- 新增占位泄露门禁：终稿字段正文不得出现“本场按上游原文顺序承接...”“说话者的视线...”“不新增事件结果”“引号内不加入动作”等内部任务说明、模板占位句或规则复述。
+- 同步更新 `field-routing`、`script-adaptation`、`performance craft`、workflow、review gate、模板、CONTEXT、README 与 validator；新增 `GATE-DIRECT-20/21` 和 `placeholder_leak_risk_map / environment_purity_map`。
+- 扩展 `validate_script_projection.py`，机械拦截占位句泄露和明显环境/动作混写，避免类似 `浪花传说之琉球篇/2-编导/第1集.md` 的错误进入下游。
+- 将 `环境描写` 的定义从具体物件例子改为类型化维度：空间结构、自然条件、空气介质、光照状态、承载面、围护面、开口边界、静置物件和整体氛围。
+- 强化 `角色动作` / `动作画面`：动作字段必要时必须体现速度感、节奏、停顿和力度，保留上游“一闪、缓缓、忽然、挣出、扑倒”等动作信号。
+- 将 `道具特写` 从具体物件例子改为功能维度：信息载体、规则显影物、关键物件、线索痕迹、归属关系和状态变化；禁止写成心理解释、推理结论或新增功能。
+- 新增 `环境氛围增强`：`环境描写` 可用飘雪、落叶、朝露、风沙、雨丝、雾气、日影等自然景物衬托心境和情绪；若上游未明写，按 B 路线留证，不得新增事件、线索、阻碍、因果或结果。
+- 新增 `references/visual-aesthetic-contract.md`：把画面美学独立为核心画面、视觉气质、母题变化、对比轴、景境氛围、节奏和留白取舍；同步新增 `N4.9-AESTHETIC`、`PASS-DIRECT-08A`、`FIELD-DIRECT-15` 与 `GATE-DIRECT-23`。
+- 收紧并放宽对白标签：终稿必须使用 `对白（真实角色名，语态/状态短语）`，例如 `对白（阿真，眼里带笑）`；第二项不强制一词或“地”字尾，重点呈现灵动、自然、鲜活的角色状态；`原文角色`、`角色名`、`某人` 等模板占位不得进入输出。
+- 强化整集级画面创作力：新增 `references/episode-visual-spine-contract.md` 管理 `episode_visual_spine`，要求先建立整集视觉问题、母题链、材质/色彩弧、节奏曲线、呼应目标和克制规则，再进入单场 `visual-aesthetic`；review 新增 `GATE-DIRECT-24` 检查小说转译、`director_substance_evidence` 与视觉美学证据。
+- 新增 `references/novel-to-screen-language-contract.md`：把小说作者评论、心理内视、比喻象征、概括叙述、背景说明、因果解释和关系结论统一纳入 `novel_expression_transform_pass`；同步新增 `N4.2-NOVEL-TRANSFORM`、`PASS-DIRECT-03A`、`FIELD-DIRECT-17` 与 `GATE-DIRECT-25`，并明确台词只冻结不润色，二次加工只发生在台词外的声画、表演和空间承托。
+- 进一步明确 `环境描写` 可在同一 slugline 内重复出现：开篇环境建立场景，后续因室内外边界、角落、门廊、窗边、船舷、背景层次、光线、空气或材质焦点变化可追加环境刷新；同步更新 field-routing、visual-aesthetic、workflow、review、模板与 CONTEXT。
+
 ## 2026-05-03
 
 - 调整 `2-编导` subagents 机制：监制顾问不再围绕固定问题字段发言，而是同步于当前 `steps/directing-workflow.md`、`Thought Pass Map` 与 review gate 的思维·执行节点。

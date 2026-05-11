@@ -7,11 +7,11 @@
 | node_id | judgement | action | evidence | gate |
 | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 项目、集号、分镜组范围和执行意图是否明确 | 读取用户输入、父级路由、项目上下文 | input manifest | scope 明确 |
-| `N2-GROUP-EXTRACT` | 目标组是否可从 `4-分组` 唯一回指 | 提取 `group_id`、组正文、YAML | hybrid group index | 组正文和 YAML 可读 |
+| `N2-GROUP-EXTRACT` | 目标组是否可从 `4-分组` 唯一回指 | 提取 `group_id`、组正文、YAML、`时长估算` | hybrid group index | 组正文、YAML 和时长估算可读或有 fallback |
 | `N3-STORYBOARD-BIND` | 是否存在对应故事板总参照 | 按 `group_id` 搜索 `6-图像/B-分镜故事板` | manifest storyboard slot | 无空槽位 |
 | `N4-SUBJECT-BIND` | YAML 主体是否有真实图片 | 按角色/场景/道具目录绑定，多视图优先 | manifest subject slots | 不猜主体，不绑非图 |
-| `N5-PROMPT-ASSEMBLE` | prompt 是否同时表达总参照和主体参照 | 写固定开头、故事板说明、主体后缀、完整组正文 | prompt markdown | 固定开头通过 |
-| `N6-PLAN-BUILD` | LibTV submit plan是否合法 | 生成 submit plan、处理图片上限、写入 `prompt_fidelity_mode` | submit plan | 有图时 `modeType=mixed2video` 和 `mixedList` 正确，默认 `allow_libtv_prompt_optimization=false` |
+| `N5-PROMPT-ASSEMBLE` | prompt 是否同时表达总参照和主体参照 | 保留 source-first 组正文，只在 fenced YAML 注入故事板和主体 uploaded_url | prompt markdown | source-first enriched YAML 通过 |
+| `N6-PLAN-BUILD` | LibTV submit plan是否合法 | 生成 submit plan、处理图片上限、写入 `duration_hint=clamp(duration_estimate_seconds, 4, 15)` 与 `prompt_fidelity_mode` | submit plan | 有图时 `modeType=mixed2video` 和 `mixedList` 正确，默认 `allow_libtv_prompt_optimization=false` |
 | `N7-REVIEW-GATE` | 输出是否可提交或交付 | 执行 review gate，检查 prompt fidelity opt-in | review verdict | pass / pass_with_todo；未 opt-in 时禁止远端优化 |
 | `N8-SUBMIT-OR-SKIP` | 是否执行 LibTV | prompt_only 则跳过；否则 credential check 后提交 | queue ledger | sessionId 或 blocked reason |
 | `N9-QUERY-DOWNLOAD` | 结果是否需要刷新或下载 | query_session、下载视频 | results json / videos | 状态可续查 |
@@ -21,10 +21,10 @@
 
 ```mermaid
 flowchart TD
-    N1["N1-INTAKE<br/>scope + execution intent"] --> N2["N2-GROUP-EXTRACT<br/>group_id + group body + YAML"]
+    N1["N1-INTAKE<br/>scope + execution intent"] --> N2["N2-GROUP-EXTRACT<br/>group_id + group body + YAML + duration"]
     N2 --> N3["N3-STORYBOARD-BIND<br/>storyboard total reference"]
     N3 --> N4["N4-SUBJECT-BIND<br/>YAML subject references"]
-    N4 --> N5["N5-PROMPT-ASSEMBLE<br/>fixed opening + source text + subject suffix"]
+    N4 --> N5["N5-PROMPT-ASSEMBLE<br/>source-first YAML + uploaded_url"]
     N5 --> N6["N6-PLAN-BUILD<br/>mixed2video / text2video submit plan"]
     N6 --> N7{"N7-REVIEW-GATE<br/>prompt fidelity + reference gate"}
     N7 -->|"prompt_only / pass_with_todo"| N10["N10-CLOSEOUT<br/>report + rework entry"]

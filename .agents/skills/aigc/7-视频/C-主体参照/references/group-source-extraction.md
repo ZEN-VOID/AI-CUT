@@ -39,19 +39,30 @@ heading: "## 1-1-1"
 group_body: "<从标题后到 YAML 前的现有内容>"
 group_yaml:
   字数统计: ""
+  时长估算: ""
   角色: []
   场景: []
   道具: []
 shot_count: 0
 source_shot_labels: []
+duration_estimate_seconds: 15
+duration_source: "group_yaml / shot_sum / fallback_default"
 ```
 
 ## Video Prompt Source Rule
 
 - `group_body` 是视频 prompt 的主要正文来源。
 - 不删除分镜明细、音效、对白、环境描写和表演提示；默认跳过组间连接件。
-- 不把 YAML 合并进正文主段；YAML 只用于 reference manifest 和主体参照说明，其中有图主体必须追加 `@<图片路径>`。
+- 不把 YAML 合并进正文主段；YAML 是主体参照注入的唯一位置。生成 `prompt.md` 时必须保留原 fenced YAML，只把有图且已上传的主体列表项扩展为对象并补 `uploaded_url`，缺图主体保持原名称。
 - 若组正文过长，只允许在 LibTV handoff 层做可审查压缩摘要，并保留完整原文路径和原文字数。
+
+## Duration Extraction Rule
+
+- 优先读取组底 YAML 的 `时长估算`，例如 `约12秒` 解析为 `duration_estimate_seconds: 12`。
+- 若 `时长估算` 缺失，才从组正文 `分镜明细` 中的 `约N秒` 或 `N-M秒` 求和估算；区间时长优先取上限，避免动作被截断。
+- 若仍无法估算，`duration_estimate_seconds` 回退为 `15`，并记录 `duration_source: fallback_default` 与原因。
+- 连接件块的 `时长` 不参与分镜组视频时长估算。
+- 最终提交给 LibTV 的 `duration_hint` 不在本步骤决定；它由 handoff 层按 `clamp(duration_estimate_seconds, 4, 15)` 生成。
 
 ## Readiness Gate
 
@@ -61,7 +72,8 @@ source_shot_labels: []
 2. 每个目标 `group_id` 唯一出现。
 3. `group_body` 非空。
 4. fenced YAML 可解析，至少能得到 `角色 / 场景 / 道具` 三类字段；缺项可以为空数组但必须记录。
-5. `shot_count` 大于 0；若无法自动统计，进入 `partial`，由人工审查确认完整性。
+5. `duration_estimate_seconds` 可追溯到组底 `时长估算`、组内分镜秒数求和或明确 fallback。
+6. `shot_count` 大于 0；若无法自动统计，进入 `partial`，由人工审查确认完整性。
 
 ## Failure And Rework
 

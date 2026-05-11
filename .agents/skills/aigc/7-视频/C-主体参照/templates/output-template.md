@@ -10,6 +10,8 @@
 | Naming convention | group package: `group-index.json`、`reference-manifest.json`、`prompt.md`、`source-group-body.md`、`libtv-submission.txt`、`libtv-submit-plan.json`、`queue.md`、`libtv-results.json`、`执行报告.md`、`<分镜组ID>.mp4`; episode summary: `第N集-*.json/md` |
 | Canvas link | Markdown 报告、queue summary 和最终用户回执必须返回可直接打开的 `[打开画布](<projectUrl>)`；JSON 同时保留 `projectUrl` 与 `canvasMarkdown` |
 | Completion gate | review verdict is `pass` or `pass_with_todo` |
+| Reference prompt integrity | manifest、prompt、remote submission、submit plan 四者必须互证图片引用；缓存 URL 必须通过本地源图指纹；未声明共享关系时不得重复 URL |
+| Audio acceptance | `enableSound:on` 只记录请求；交付必须有 `task_result.audios`、音频 URL 或 `ffprobe` 音轨证据 |
 
 ## Episode Directory Shape
 
@@ -60,6 +62,8 @@ projects/aigc/<项目名>/7-视频/C-主体参照/第N集/
 - skipped:
 - failed:
 - missing_references:
+- reference_prompt_integrity:
+- audio_acceptance:
 
 ## Review
 

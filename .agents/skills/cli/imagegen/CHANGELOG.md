@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-05-08
+
+- Clarified resolution precedence: the default remains 2K only when neither the user nor an upstream skill specifies a target.
+- Added explicit upstream handoff handling so `resolution_target: 4K` from parent workflows is preserved in built-in prompts, CLI payloads, reports, and review gates instead of being downgraded to 2K.
+
 ## 2026-04-24
 
 - Set the skill-level default resolution target to 2K.

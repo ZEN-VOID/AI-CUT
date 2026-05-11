@@ -10,7 +10,7 @@ metadata:
 
 `imagegen` is the Skill 2.0 entry for image generation and image editing. It routes image work to the built-in `image_gen` tool first, keeps CLI/API fallback opt-in, and ensures project-bound bitmap assets are persisted back into the active workspace.
 
-Default resolution target: 2K. For built-in `image_gen`, express this as a prompt/delivery target because the built-in tool does not expose a hard size parameter. For CLI fallback with `gpt-image-2`, omitted `--size` resolves to `2048x1152`; non-`gpt-image-2` fallback models keep their own supported default.
+Default resolution target: 2K unless the user request or an upstream skill handoff explicitly specifies another `resolution_target`. For built-in `image_gen`, express the selected resolution as a prompt/delivery target because the built-in tool does not expose a hard size parameter. For CLI fallback with `gpt-image-2`, omitted `--size` resolves to `2048x1152`; explicit 4K requests use `3840x2160` landscape or `2160x3840` portrait unless the upstream handoff supplies another valid size.
 
 ## Context Loading Contract
 
@@ -38,7 +38,7 @@ Do not use this skill for:
 
 - Accepted input: a natural-language image request, an edit request, one or more reference images, local image paths that can be inspected before editing, desired output location, or explicit CLI/API/model controls.
 - Required input: the intended visual subject or edit target; for edits, the image role must be clear enough to distinguish edit target from reference/supporting images.
-- Optional input: asset purpose, style, composition, aspect ratio, exact in-image text, constraints, avoid list, project destination, batch prompt set, mask path, CLI model/quality/size/output-format preferences. If no resolution is specified, use the 2K default target.
+- Optional input: asset purpose, style, composition, aspect ratio, exact in-image text, constraints, avoid list, project destination, batch prompt set, mask path, upstream `resolution_target`, CLI model/quality/size/output-format preferences. If neither user nor upstream specifies resolution, use the 2K default target.
 - Ask before proceeding when: the edit target cannot be identified, exact in-image text is missing but text accuracy is essential, true/native transparency is requested without explicit CLI confirmation, a local file needs built-in editing but has not been made visible in context, or the requested fallback requires `OPENAI_API_KEY`.
 - Reject or reroute when: the task is better solved as SVG/vector/code-native output, the user asks to modify `scripts/image_gen.py`, or the request would overwrite an existing asset without explicit replacement intent.
 
@@ -93,7 +93,7 @@ flowchart TD
 1. Classify the request in `types/type-map.md`: generation vs edit, single vs batch, transparent vs opaque, preview-only vs project-bound, built-in vs CLI-confirmed.
 2. Label every input image role before execution: edit target, reference image, or supporting compositing/style input.
 3. Use built-in `image_gen` by default. If editing a local file with the built-in path, inspect it first so the image is visible in context.
-4. If the user did not specify resolution, target 2K output. In built-in mode, include a concise 2K-quality/resolution intent in the prompt; in CLI `gpt-image-2` mode, omit `--size` or use `2048x1152` for landscape 2K unless a different aspect ratio is required.
+4. Resolve the resolution target before execution. If the user or upstream skill explicitly specifies a target such as `resolution_target: 4K`, honor it and do not replace it with the 2K default. If no resolution is specified, target 2K output. In built-in mode, include the selected resolution intent in the prompt; in CLI `gpt-image-2` mode, omit `--size` or use `2048x1152` for landscape 2K, and use `3840x2160` or `2160x3840` for explicit 4K depending on aspect ratio.
 5. For transparent output, follow `references/transparent-background.md`: chroma-key built-in first, and ask before true CLI transparency unless the user already opted in.
 6. For CLI fallback, use `scripts/image_gen.py` directly and do not create one-off SDK runners.
 7. Inspect generated output for subject, style, composition, text accuracy, invariants, transparency, resolution target, and avoid-list compliance.
@@ -112,7 +112,8 @@ When imagegen behavior fails, trace:
 | Transparent PNG has fringe, opaque corners, or no alpha | `references/transparent-background.md` | Re-run alpha helper with tuned edge settings or ask for true transparency fallback |
 | Project asset remains only in `$CODEX_HOME/generated_images/...` | `references/output-persistence.md` | Copy/move selected final into workspace and update references |
 | Prompt invents unrelated subjects, brand copy, or scene details | `references/prompting.md` | Rebuild prompt from user constraints and specificity policy |
-| Output ignores the 2K default when no user resolution was specified | `types/type-map.md` and `references/cli.md` | Restore 2K prompt target or CLI `gpt-image-2` default size |
+| Output ignores the 2K default when no user or upstream resolution was specified | `types/type-map.md` and `references/cli.md` | Restore 2K prompt target or CLI `gpt-image-2` default size |
+| Output downgrades an explicit upstream/user 4K target to 2K | `types/type-map.md`, `references/prompting.md`, and `references/cli.md` | Restore the explicit 4K prompt target or CLI size |
 | Batch request collapses distinct assets into variants of one prompt | `steps/execution-workflow.md` | Split into one prompt/call per distinct asset |
 | CLI model parameter is unsupported or requires downgraded path | `references/image-api.md` | Ask before changing model/path; do not silently drop required options |
 | Quality gate is unclear | `review/review-contract.md` | Run final checklist and record pass/pass_with_todo/needs_rework |
@@ -135,7 +136,7 @@ When imagegen behavior fails, trace:
 ## Output Contract
 
 - Required output: the requested image asset(s), edit result(s), prompt plan, or fallback CLI dry-run/result, plus delivery notes that identify the execution mode.
-- Output format: bitmap assets such as PNG/JPEG/WebP/GIF where appropriate; default resolution target is 2K unless the user specifies otherwise. For task reporting, include saved path(s), final prompt or prompt set, mode used, and review verdict using `templates/output-template.md`.
+- Output format: bitmap assets such as PNG/JPEG/WebP/GIF where appropriate; default resolution target is 2K unless the user or upstream skill specifies otherwise. For task reporting, include saved path(s), final prompt or prompt set, mode used, selected resolution target, and review verdict using `templates/output-template.md`.
 - Output path: preview-only built-in outputs may remain under `$CODEX_HOME/generated_images/...`; project-bound final assets must be copied or moved into the active workspace; CLI fallback final assets default to `output/imagegen/` unless the user names another destination.
 - Naming convention: do not overwrite existing files unless explicitly requested; create descriptive, stable filenames or sibling versioned names such as `hero-v2.png`, `item-icon-edited.png`, or `cutout-alpha.png`.
-- Completion gate: final asset(s) exist at the reported path, project-bound references do not point only to `$CODEX_HOME/*`, default 2K target was requested or an explicit user size was honored, transparent outputs have a valid alpha channel when requested, CLI fallback was explicitly selected when used, and `review/review-contract.md` records `pass` or `pass_with_todo`.
+- Completion gate: final asset(s) exist at the reported path, project-bound references do not point only to `$CODEX_HOME/*`, default 2K target was requested when no explicit resolution existed or the explicit user/upstream size was honored, transparent outputs have a valid alpha channel when requested, CLI fallback was explicitly selected when used, and `review/review-contract.md` records `pass` or `pass_with_todo`.

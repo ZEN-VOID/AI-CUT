@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08
+
+- 调整 storyboard panel 落点规则：新增 `storyboard_frame_units`，要求基于 `4-分组` 当前组正文中的视觉节拍识别 panel，而不是把原始 `分镜1`、`分镜2` 机械映射为 storyboard 格子；允许 split/merge，但每个 panel 必须能回指源正文。
+- 强化场景参照图职责：场景图除空间参照外，必须同步作为生成画面的风格、光影和氛围锚点；prompt、reference manifest、imagegen plan 和 review gate 均需记录该约束。
+- 固化分镜故事板 4K 出图要求：因多 panel 单格面积较小，本技能不再沿用 imagegen 通用 2K 默认，prompt、imagegen plan、result 与 review gate 均需记录 `resolution_target: 4K`。
+
 ## 2026-05-01
 
 - 收紧图片参照选择规则：同一主体如有多视图可选，prompt slot、reference manifest 与 imagegen plan 均优先使用多视图；只有缺少多视图时才退到主图。

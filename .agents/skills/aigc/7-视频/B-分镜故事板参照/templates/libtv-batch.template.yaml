@@ -12,7 +12,11 @@ execution:
   result_file: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/第N集-libtv-results.json"
 defaults:
   requested_model: ""
-  duration: 15
+  duration_source: "group_yaml"
+  duration_estimate_seconds: 12
+  duration_rule: "clamp(duration_estimate_seconds, 4, 15)"
+  duration_hint: 12
+  duration: 12
   ratio: "16:9"
   video_resolution: "720p"
   enableSound: "on"
@@ -31,22 +35,24 @@ jobs:
     reference_images:
       - path: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png"
         uploaded_url: ""
-        marker: "@图1"
+        marker: "uploaded_url_binding"
         role: "storyboard_sheet"
         source: "6-图像/B-分镜故事板"
+    reference_image_budget:
+      max_images: 9
+      selection_rule: "B 路线只允许单张故事板总参照进入 imageList；多候选必须唯一裁决或阻断。"
+      excluded_due_to_budget: []
     prompt: |
-      根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。
-
-      @图1 是该分镜组的多格分镜故事板视觉参照，只用于画面连续性、镜头顺序、构图节奏和角色位置参考；不得把故事板图当作首帧，也不得覆盖以下完整分镜组内容。
-
-      <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
+      <直接粘贴 source-first enriched YAML 分镜组全文；仅在 fenced YAML 内注入 故事板参照.uploaded_url>
     remote_submission_required_opening: |
       【LibTV 调用锁定】
       provider: seedance2.0
       taskType: video
       modeType: singleImage2video
       imageList: ["<uploaded_url_1>"]
-      duration: 15
+      imageList 单个分镜组最多 9 张图；B 路线有图时只允许 1 张故事板总参照；提交文本不得预设“参照图1/2/N”人工编号。
+      duration: <duration_hint>
+      duration_rule: 从当前分镜组时长估算计算；小于等于4秒按4秒，4到15秒之间按估算值，大于等于15秒按15秒。
       ratio: 16:9
       resolution: 720p
       enableSound: on
@@ -57,7 +63,11 @@ jobs:
       只允许执行 transport_only 投影：上传 URL、imageList、duration、ratio、resolution、enableSound。
     libtv:
       requested_model: ""
-      duration: 15
+      duration_source: "group_yaml"
+      duration_estimate_seconds: 12
+      duration_rule: "clamp(duration_estimate_seconds, 4, 15)"
+      duration_hint: 12
+      duration: 12
       ratio: "16:9"
       video_resolution: "720p"
       enableSound: "on"

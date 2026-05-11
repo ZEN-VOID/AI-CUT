@@ -5,7 +5,11 @@
   "output_root": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
   "defaults": {
     "requested_model": "",
-    "duration": 15,
+    "duration_source": "group_yaml",
+    "duration_estimate_seconds": 12,
+    "duration_rule": "clamp(duration_estimate_seconds, 4, 15)",
+    "duration_hint": 12,
+    "duration": 12,
     "ratio": "16:9",
     "video_resolution": "720p",
     "enableSound": "on",
@@ -25,9 +29,18 @@
       "remote_submission_required_opening": "【LibTV 调用锁定】",
       "required_modeType_when_referenced": "mixed2video",
       "required_reference_field": "mixedList",
+      "reference_image_budget": {
+        "max_images": 9,
+        "selection_rule": "故事板总参照优先；角色和场景优先；超过上限时先从道具取舍，其次再考虑重复、不必要或可由源文本保留的次要主体。",
+        "excluded_due_to_budget": []
+      },
       "prompt_fidelity_mode": "strict_original",
       "allow_libtv_prompt_optimization": false,
       "transport_only_projection": true,
+      "duration_source": "group_yaml",
+      "duration_estimate_seconds": 12,
+      "duration_rule": "clamp(duration_estimate_seconds, 4, 15)",
+      "duration_hint": 12,
       "remote_prompt_forbidden_actions": [
         "提示词优化",
         "重新编排",
@@ -38,7 +51,7 @@
       "reference_images": [
         {
           "role": "storyboard_total_reference",
-          "marker": "@图1",
+          "marker": "uploaded_url_binding",
           "path": "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png",
           "uploaded_url": ""
         },
@@ -46,7 +59,7 @@
           "role": "subject_reference",
           "subject_type": "角色",
           "subject_name": "主体名",
-          "marker": "@图2",
+          "marker": "uploaded_url_binding",
           "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/主体名/多视图.png",
           "uploaded_url": ""
         }

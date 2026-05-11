@@ -23,7 +23,8 @@ This file is about prompt structure, specificity, and iteration. Fallback-only e
 ## Structure
 - Use a consistent order: scene/backdrop -> subject -> key details -> constraints -> output intent.
 - Include intended use (ad, UI mock, infographic) to set the level of polish.
-- When the user does not specify resolution, include a concise 2K output intent such as `2K-ready final image` or `high-detail 2K landscape output`.
+- When neither the user nor an upstream skill specifies resolution, include a concise 2K output intent such as `2K-ready final image` or `high-detail 2K landscape output`.
+- When the user or upstream skill specifies a resolution target, preserve that target in the prompt. For example, `resolution_target: 4K` should become concise wording such as `4K-ready final image` or `render at 4K resolution`.
 - For complex requests, use short labeled lines instead of one long paragraph.
 
 ## Specificity policy
@@ -89,7 +90,7 @@ Do not add:
 - In CLI fallback mode, `gpt-image-2` is the default. It supports `quality=low|medium|high|auto`; use `low` for fast drafts and thumbnails, and move to `medium`, `high`, or `auto` for final assets.
 - `gpt-image-2` always uses high fidelity for image inputs, so do not set `input_fidelity` with that model.
 - If a transparent request needs true CLI transparency, ask before using `gpt-image-1.5` unless the user already explicitly chose it. Explain that built-in chroma-key removal is the default path, but `gpt-image-2` does not support `background=transparent`.
-- If the user asks for 4K-style output with `gpt-image-2`, use `3840x2160` for landscape or `2160x3840` for portrait.
+- If the user or upstream skill asks for 4K-style output with `gpt-image-2`, use `3840x2160` for landscape or `2160x3840` for portrait.
 - If the user omits size in CLI fallback with `gpt-image-2`, the bundled CLI uses `2048x1152` by default.
 
 ## Use-case tips

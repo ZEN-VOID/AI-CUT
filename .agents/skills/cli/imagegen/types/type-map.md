@@ -11,7 +11,7 @@ This file owns request classification, use-case slugs, and prompt schema. It doe
 | `background_need` | `opaque`, `transparent_chroma_key`, `true_transparency_confirmed` | Determines transparency route |
 | `execution_mode` | `built_in`, `cli_confirmed` | Whether built-in `image_gen` or CLI fallback is allowed |
 | `persistence` | `preview_only`, `project_bound`, `user_named_destination` | Determines save-path handling |
-| `resolution_target` | `2k_default`, `user_specified`, `model_limited_default` | Determines prompt/payload resolution handling |
+| `resolution_target` | `2k_default`, `explicit_user_or_upstream`, `model_limited_default` | Determines prompt/payload resolution handling |
 | `risk_profile` | `text_heavy`, `identity_sensitive`, `mask_sensitive`, `style_sensitive`, `low_risk` | Determines review intensity |
 
 ## Use-Case Taxonomy
@@ -72,6 +72,7 @@ Avoid: <negative constraints>
 | `background_need=true_transparency_confirmed` | CLI fallback allowed | `references/cli.md`, `references/image-api.md` | confirmation and API-key readiness |
 | `persistence=project_bound` | copy final to workspace | `references/output-persistence.md` | no project reference to `$CODEX_HOME/*` only |
 | `resolution_target=2k_default` | add 2K target to prompt or CLI payload | `references/prompting.md`, `references/cli.md` | output/payload records 2K intent |
+| `resolution_target=explicit_user_or_upstream` | preserve the explicit target, including 4K handoffs from parent skills | `references/prompting.md`, `references/cli.md` | prompt/payload/report records the explicit target |
 | `risk_profile=text_heavy` | quote exact text and inspect output | `references/prompting.md` | verbatim text review |
 
 ## Type Gate
@@ -84,5 +85,11 @@ Before execution, state or infer:
 - output persistence;
 - resolution target;
 - risk profile.
+
+Resolution source rules:
+
+- User wording such as `4K`, `3840x2160`, `2160x3840`, or an upstream handoff field such as `resolution_target: 4K` sets `resolution_target=explicit_user_or_upstream`.
+- `explicit_user_or_upstream` has priority over the skill-level 2K default and must be carried into built-in prompts, CLI payloads, reports, and review notes.
+- If no user or upstream resolution is present, use `resolution_target=2k_default`.
 
 If any of these cannot be reasonably inferred and affects correctness, ask a concise question before generating.

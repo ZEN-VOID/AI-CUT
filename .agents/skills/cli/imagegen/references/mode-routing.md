@@ -20,7 +20,8 @@ Within CLI fallback, the script exposes:
 ## Default Rules
 
 - Use built-in `image_gen` by default for ordinary generation and editing.
-- If the user does not specify resolution, target 2K output. In built-in mode, this is a prompt/delivery target rather than a hard tool parameter.
+- If neither the user nor an upstream skill handoff specifies resolution, target 2K output. In built-in mode, this is a prompt/delivery target rather than a hard tool parameter.
+- If the user or upstream skill handoff explicitly specifies resolution, preserve that target. For example, `resolution_target: 4K` from a parent skill must remain 4K and must not be replaced by the 2K default.
 - Do not switch to CLI fallback merely for quality, size, output path, or batch wording.
 - If the built-in tool fails or is unavailable, tell the user the CLI fallback exists and requires `OPENAI_API_KEY`; proceed only if the user explicitly asks for it.
 - If the user explicitly asks for CLI mode, use the bundled `scripts/image_gen.py` workflow. Do not create one-off SDK runners.
@@ -65,5 +66,6 @@ Built-in edit semantics:
 Execution strategy:
 
 - In built-in mode, make one `image_gen` call per distinct asset or variant.
-- In CLI fallback mode, omitted `--size` resolves to `2048x1152` for the default `gpt-image-2` model; use `generate-batch` only after explicit CLI/API/model opt-in.
+- In built-in mode, explicit 4K is carried in the prompt/delivery wording because the built-in tool has no hard size parameter.
+- In CLI fallback mode, omitted `--size` resolves to `2048x1152` for the default `gpt-image-2` model; explicit 4K uses a valid `gpt-image-2` size such as `3840x2160` or `2160x3840`; use `generate-batch` only after explicit CLI/API/model opt-in.
 - Do not use `n` as a substitute for distinct prompts. `n` is for variants of one prompt.

@@ -19,10 +19,10 @@
 
 | signal | route |
 | --- | --- |
-| 只需要镜级分镜画面图、多张 shot image 或四段式 `分镜ID@路径` | `7-视频/A-分镜画面参照` |
+| 只需要镜级分镜画面图、多张 shot image 或四段式分镜ID图像参照 | `7-视频/A-分镜画面参照` |
 | 只需要组级故事板图作为参照 | `7-视频/B-分镜故事板参照` |
 | 只需要角色、场景、道具主体参照 | `7-视频/C-主体参照` |
-| 需要同时使用故事板总参照和主体后缀参照 | 留在 `7-视频/D-主板混合参照` |
+| 需要同时使用故事板总参照和主体参照 | 留在 `7-视频/D-主板混合参照` |
 | 需要生成故事板图本体 | `6-图像/B-分镜故事板` |
 | 需要生成角色/场景/道具设计图本体 | `5-设计/*/3-生成` |
 
@@ -51,8 +51,15 @@
 ## Prompt Reference Binding Rules
 
 - 有故事板或主体参照图时，默认 `hybrid_reference_prompt_binding=bound`。
-- 远端提交必须把 `【混合参照说明】 + 【分镜组源文本】` 作为生成 prompt 完整体。
+- 远端提交必须把 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体，故事板和主体绑定落在 fenced YAML 的 `故事板参照.uploaded_url` 与主体 `uploaded_url`。
 - 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image N}}`、裸 `图片N` 或裸 URL 序列，没有“故事板总参照”身份或主体名称邻近绑定，`hybrid_reference_prompt_binding=stripped`，状态改为 `hybrid_reference_name_stripped`，不进入正常 pending。
+
+## Duration Rules
+
+- `duration_source` 可为 `group_yaml / shot_sum / fallback_default / user_override`。
+- `duration_estimate_seconds` 默认从 `4-分组` 当前组 `时长估算` 得到；缺失时按组内分镜秒数求和，仍无法确定才回退 15 秒。
+- `duration_hint` 必须按 `clamp(duration_estimate_seconds, 4, 15)` 得到；小于等于 4 秒用 4 秒，4 到 15 秒之间用估算值，大于等于 15 秒用 15 秒。
+- `transport_only` 中的时长投影必须来自当前组 `duration_hint`；不得把所有组固定为 15 秒。
 
 ## Prompt Fidelity Rules
 
@@ -68,5 +75,6 @@
 2. D 任务必须同时尝试故事板总参照和 YAML 主体参照绑定。
 3. 若任一参照缺失，manifest 和报告必须说明缺失原因。
 4. 输出路径位于项目内 `7-视频/D-主板混合参照`。
-5. 有参照图时，远端提交必须保留故事板身份 / 主体名与图片 token / 参照编号绑定。
+5. 有参照图时，远端提交必须保留故事板身份 / 主体名与真实图片 token / 编号 / URL 绑定；提交文本不得人工预设 `参照图N`。
 6. 未显式 opt-in `libtv_optimize` 时，`allow_libtv_prompt_optimization` 必须为 `false`，远端提交必须包含 strict 原文与禁止优化约束。
+7. `duration_hint` 必须可回指 `duration_estimate_seconds` 与 `duration_source`，并符合 4-15 秒 clamp 规则。

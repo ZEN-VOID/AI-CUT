@@ -58,7 +58,6 @@ HARD_CHAR_COUNT = 1980
 MIN_REVIEW_CHAR_COUNT = 850
 MIN_REVIEW_SECONDS = 10.0
 MAX_REVIEW_SECONDS = 18.0
-HARD_REVIEW_SECONDS = 22.0
 
 
 @dataclass
@@ -515,13 +514,9 @@ def validate_file(path: Path) -> ValidationResult:
             warnings.append(
                 f"{prefix} estimated group duration {duration_seconds:g}s is below review floor {MIN_REVIEW_SECONDS:g}s; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
-        elif duration_seconds > HARD_REVIEW_SECONDS:
-            warnings.append(
-                f"{prefix} estimated group duration {duration_seconds:g}s exceeds hard risk line {HARD_REVIEW_SECONDS:g}s; semantic review must split it or document a single-atomic-unit exception"
-            )
         elif duration_seconds > MAX_REVIEW_SECONDS:
-            warnings.append(
-                f"{prefix} estimated group duration {duration_seconds:g}s exceeds review band {MAX_REVIEW_SECONDS:g}s; semantic review must justify keeping this complete atomic unit instead of splitting"
+            errors.append(
+                f"{prefix} estimated group duration {duration_seconds:g}s exceeds hard max {MAX_REVIEW_SECONDS:g}s; split/rebalance complete atomic units or return to 3-摄影 to repair an overlong atomic unit"
             )
         if char_count > HARD_CHAR_COUNT:
             errors.append(

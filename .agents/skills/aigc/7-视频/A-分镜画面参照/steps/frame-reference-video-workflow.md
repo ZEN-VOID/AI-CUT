@@ -41,10 +41,10 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定任务目标、mode、集号、分镜组范围和分镜范围 | 用户请求、目标项目 | 判定 `prompt_only` / `single_group_generate` / `episode_batch_generate` / `group_batch_generate` / `shot_batch_generate` / `query_or_download` / `repair` / `review_only` | mode note | `N2` | 目标范围明确 |
 | `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、项目 `CONTEXT/` | 读取项目偏好与视频阶段上下文 | input manifest | `N3` | 必需文件可读 |
-| `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、完整组正文和组边界 | `group-shot-index.json` | `N4` | 每个组 ID 唯一可回指 |
+| `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、完整组正文、组边界和 `时长估算` | `group-shot-index.json` | `N4` | 每个组 ID 唯一可回指，时长估算可追溯 |
 | `N4-SHOT-ID` | 建立四段式镜级索引 | group index、组内 `分镜N` / 已有 `分镜ID` | 映射 `shot_id`，记录源标签和顺序 | `group-shot-index.json` | `N5` | 每个 `shot_id` 唯一可回指 |
 | `N5-REF-BIND` | 保守绑定对应分镜画面图 | shot index、`6-图像/A-分镜画面` | 按 `shot_id` 查真实图片；无图移除空槽位 | reference manifest | `N6` | 无猜测路径 |
-| `N6-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、output path、poll、`prompt_fidelity_mode` | batch YAML | `N7` | YAML 可投影为 $libTV 脚本调用，默认 `allow_libtv_prompt_optimization=false` |
+| `N6-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、`duration_hint=clamp(duration_estimate_seconds, 4, 15)`、output path、poll、`prompt_fidelity_mode` | batch YAML | `N7` | YAML 可投影为 $libTV 脚本调用，默认 `allow_libtv_prompt_optimization=false` |
 | `N7-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode、prompt fidelity opt-in | review note | `N8` / `N11` / repair | 必需项通过；未 opt-in 时禁止远端优化 |
 | `N8-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`，建立 worker pool，逐组提交 | tmp result、queue row | `N9` | 保留 sessionId |
 | `N9-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-libtv-queue.md`、results JSON 初稿 | queue ledger | `N10` | 每组状态明确 |

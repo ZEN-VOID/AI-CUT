@@ -16,7 +16,7 @@
 - 唯一命中时写入 `storyboard_total_reference`。
 - 无命中时记录 `storyboard_missing_optional`，不保留空图片槽。
 - 多个同优先级命中时阻断该组，要求用户选择或先清理上游。
-- 故事板总参照只能作为整组总参照，不得挂到某个主体后。
+- 故事板总参照只能作为整组总参照，不得挂到某个主体后；进入 LibTV 时只在 fenced YAML 的 `故事板参照.uploaded_url` 中表达，不另起远端参照说明段。
 
 ## Subject References
 
@@ -43,6 +43,17 @@
 - 只存在 JSON、Markdown 或 prompt 文件时，不得当作图片参照。
 - 不得从正文泛词自动扩展主体列表。
 - 不得用角色图替代道具图，或用场景图替代角色图。
+- 不得按主体名、角色 ID、文件名或历史 URL 直接命中上传缓存；缓存只能在当前本地图片 fresh resolve 之后作为上传加速项使用。
+
+## Fresh Local Resolution And Upload Cache
+
+每次执行 D 路线都必须先从当前项目本地生成目录重新解析参照真源：
+
+1. 故事板总参照从当前 `6-图像/B-分镜故事板` 目录 fresh resolve。
+2. 主体参照从当前 `5-设计/角色|场景|道具/3-生成` 目录 fresh resolve。
+3. 对每个进入 LibTV 的图片记录 `resolved_from_current_generation_dir: true`、`source_sha256`、`source_size_bytes`、`source_mtime_ns` 和候选集合。
+4. 只有当缓存记录的 `path + source_sha256 + source_size_bytes + source_mtime_ns` 与当前 fresh resolve 文件完全匹配时，才允许复用 cached uploaded URL。
+5. 本地源图缺失、指纹缺失或指纹不匹配时，该 URL 必须判定为 `stale_cached_upload`，不得进入 `mixedList`、fenced YAML `uploaded_url` 或 submit plan `images[]`。
 
 ## Manifest Shape
 
@@ -52,27 +63,38 @@
   "storyboard_total_reference": {
     "path": "projects/aigc/<项目名>/6-图像/B-分镜故事板/第1集/images/1-1-1.png",
     "marker": "@图1",
-    "role": "storyboard_total_reference"
+    "role": "storyboard_total_reference",
+    "resolved_from_current_generation_dir": true,
+    "source_sha256": "",
+    "source_size_bytes": 0,
+    "source_mtime_ns": 0
   },
   "subject_references": [
     {
       "subject_type": "角色",
       "subject_name": "林夏",
       "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/林夏/多视图.png",
-      "marker": "@图2",
-      "inline_text": "林夏 @图2",
-      "selected_variant": "multi_view"
+      "marker": "uploaded_url_binding",
+      "yaml_binding": {"name": "林夏", "uploaded_url": ""},
+      "selected_variant": "multi_view",
+      "resolved_from_current_generation_dir": true,
+      "source_sha256": "",
+      "source_size_bytes": 0,
+      "source_mtime_ns": 0
     }
   ],
   "missing": []
 }
 ```
 
-## Over Limit Strategy
+## LibTV Image Budget
 
-若图片数量超过 LibTV 当前上限：
+若图片数量超过 9 张或 LibTV 当前上限：
 
-1. 必须记录 `reference_over_limit`。
-2. 默认不静默裁剪。
-3. 可选策略为 `block_for_user_choice`、`prioritize_storyboard_and_core_subjects`、`split_jobs`、`text_only_fallback`。
-4. 最终策略必须写入 submit plan 和执行报告。
+1. 单个分镜组真实提交给 LibTV 的 `mixedList` 最多 9 张图，故事板总参照和主体参照共同计入上限。
+2. 故事板总参照优先保留。
+3. 主体参照中角色和场景优先保留。
+4. 超出上限时先排除道具；仅保留对本组动作、证据或视觉锚点最关键的道具。
+5. 若排除道具后仍超过 9 张，再排除重复、不必要或可由源文本保留的次要主体。
+6. 被排除的主体不得进入 `mixedList` 或 fenced YAML `uploaded_url` 绑定；必须记录 `reference_over_limit`、`excluded_due_to_budget`，并说明它们由源文本约束保留。
+7. 若无法在不破坏故事板总参照、角色身份或空间连续性的前提下压到 9 张以内，必须标记 `needs_rework / reference_budget_unresolved`，交由用户或上游重新裁决；不得提交超过 9 张图的 LibTV 任务。

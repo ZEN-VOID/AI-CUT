@@ -19,9 +19,9 @@ This file owns the thinking-action node network for imagegen execution.
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | Lock request, assets, constraints, and destination | User request, images, file paths, project context | Identify required asset(s), edit target, references, exact text, avoid list, output destination | `request_summary` | `N2-TYPE` | Enough input to classify |
-| `N2-TYPE` | Build `type_profile` | `types/type-map.md`, `request_summary` | Classify intent, asset count, persistence, background need, execution mode, risk | `type_profile` | `N3-MODE` | Mode is valid and user opt-in is honored |
+| `N2-TYPE` | Build `type_profile` | `types/type-map.md`, `request_summary` | Classify intent, asset count, persistence, background need, execution mode, resolution source, risk | `type_profile` | `N3-MODE` | Mode is valid, user opt-in is honored, explicit resolution is preserved |
 | `N3-MODE` | Select execution route | `type_profile`, `references/mode-routing.md` | Choose built-in generate/edit, chroma-key transparency, or confirmed CLI fallback | `mode_decision` | `N4-PROMPT` | CLI fallback only when confirmed |
-| `N4-PROMPT` | Prepare prompt or CLI payload | `references/prompting.md`, `references/sample-prompts.md` | Normalize prompt, label image roles, apply default 2K target, preserve invariants, prepare batch prompts | `prompt_spec` | `N5-EXECUTE` | Prompt preserves user intent and resolution target |
+| `N4-PROMPT` | Prepare prompt or CLI payload | `references/prompting.md`, `references/sample-prompts.md` | Normalize prompt, label image roles, apply explicit user/upstream resolution or default 2K target, preserve invariants, prepare batch prompts | `prompt_spec` | `N5-EXECUTE` | Prompt preserves user intent and resolution target |
 | `N5-EXECUTE` | Generate or edit | Built-in tool or `scripts/image_gen.py` | Run one call per asset/variant, or confirmed CLI command | output image(s), CLI stdout/path | `N6-INSPECT` | Output exists or failure is explained |
 | `N6-INSPECT` | Check visual result | Request constraints, output image(s) | Inspect subject, style, composition, text, invariants, alpha if needed | `inspection_notes` | `N7-PERSIST` or `N4-PROMPT` | At most targeted iteration unless user asked for more |
 | `N7-PERSIST` | Save final deliverables | `references/output-persistence.md`, selected outputs | Copy/move project-bound finals, avoid overwrite, keep stable names | final saved path(s) | `N8-REVIEW` | Workspace-bound assets are not only in `$CODEX_HOME/*` |
@@ -33,7 +33,8 @@ This file owns the thinking-action node network for imagegen execution.
 - `built_in_edit`: local edit targets must be inspected into context before the built-in edit flow.
 - `transparent_chroma_key`: execute normal built-in generation first, then local alpha removal and validation.
 - `cli_fallback`: load `references/cli.md`, `references/image-api.md`, and `references/codex-network.md`; verify API-key/network requirements before live calls.
-- `cli_fallback` with default `gpt-image-2`: omitted `--size` resolves to `2048x1152`; if another model is selected, use a supported model default or explicit user size.
+- `cli_fallback` with default `gpt-image-2`: omitted `--size` resolves to `2048x1152`; if another model is selected, use a supported model default or explicit user/upstream size.
+- Explicit upstream resolution handoffs, such as `resolution_target: 4K`, are not CLI opt-in by themselves. In built-in mode, carry the 4K target in prompt wording; in confirmed CLI mode, translate it to a valid `gpt-image-2` size such as `3840x2160` or `2160x3840`.
 - `batch_or_variants`: distinct assets require distinct prompts; variants of one prompt may share a base prompt with controlled differences.
 
 ## Convergence Rules

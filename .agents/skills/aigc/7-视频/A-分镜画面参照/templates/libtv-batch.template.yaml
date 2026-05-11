@@ -13,7 +13,11 @@ execution:
   result_file: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-libtv-results.json"
 defaults:
   requested_model: ""
-  duration: 15
+  duration_source: "group_yaml"
+  duration_estimate_seconds: 12
+  duration_rule: "clamp(duration_estimate_seconds, 4, 15)"
+  duration_hint: 12
+  duration: 12
   ratio: "16:9"
   video_resolution: "720p"
   enableSound: "on"
@@ -42,23 +46,24 @@ jobs:
       - shot_id: "1-1-1-1"
         path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
         uploaded_url: ""
-        marker: "@图1"
+        marker: "uploaded_url_binding"
         role: "storyboard_frame"
         source: "6-图像/A-分镜画面"
+    reference_image_budget:
+      max_images: 9
+      selection_rule: "首镜、尾镜、关键动作、转场和空间关系镜头优先；超过上限时排除重复或不必要的相邻画面。"
+      excluded_due_to_budget: []
     prompt: |
-      根据以下完整分镜组内容生成一条连续视频。保持分镜顺序、角色动作、镜头运动、场景与情绪连续；不生成字幕，不生成BGM，保留物理互动音效与环境音。
-
-      以下分镜画面图仅作为镜级视觉参照，用于画面连续性、角色位置、构图、镜头顺序和关键动作参考；不得把任一图片当作唯一首帧，不得覆盖以下完整分镜组内容：
-      @图1 = 1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png
-
-      <直接粘贴 projects/aigc/<项目名>/4-分组/第N集.md 中该分镜组的完整现有内容>
+      <直接粘贴 source-first enriched YAML 分镜组全文；仅在 fenced YAML 内注入 分镜画面参照[].uploaded_url>
     remote_submission_required_opening: |
       【LibTV 调用锁定】
       provider: seedance2.0
       taskType: video
       modeType: image2video
       imageList: ["<uploaded_url_1>", "<uploaded_url_2>"]
-      duration: 15
+      imageList 单个分镜组最多 9 张图；提交文本不得预设“参照图1/2/N”人工编号。
+      duration: <duration_hint>
+      duration_rule: 从当前分镜组时长估算计算；小于等于4秒按4秒，4到15秒之间按估算值，大于等于15秒按15秒。
       ratio: 16:9
       resolution: 720p
       enableSound: on
@@ -69,7 +74,11 @@ jobs:
       只允许执行 transport_only 投影：上传 URL、imageList、duration、ratio、resolution、enableSound。
     libtv:
       requested_model: ""
-      duration: 15
+      duration_source: "group_yaml"
+      duration_estimate_seconds: 12
+      duration_rule: "clamp(duration_estimate_seconds, 4, 15)"
+      duration_hint: 12
+      duration: 12
       ratio: "16:9"
       video_resolution: "720p"
       enableSound: "on"

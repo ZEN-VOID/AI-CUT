@@ -2,6 +2,7 @@
 
 ## 2026-05-06
 
+- 补全画面性字段语义入口：在 `SKILL.md`、`references/visual-matching-contract.md` 与 `CONTEXT.md` 中显式加入微表情、呼吸、沉默、姿态、视线、手部动作和身体距离，避免表演细节只隐含在类型包中。
 - 新增 `references/visual-sequence-alignment-contract.md`，把段落级连续观看意图拆成内部 `sequence_profile`：只统一视觉母题、注意力接力、运动家族、材质光色和交出锚点，不改变逐画面句子归属。
 - 在 `SKILL.md`、workflow、shot planning、visual matching、continuity、dynamic lens、functional projection、natural writing、types、review、templates、README 与 CONTEXT 中接入 `unit_ownership_map / unit_ownership_check`，阻断“整段运镜流畅但分镜失主”的问题。
 - 新增 `PASS-CINE-02S` 与 `N3.5-SEQUENCE-ALIGN`，要求相邻 3-6 个画面单位共享空间、道具链、声音链、动作链、记忆插入或视觉母题时，先做段落对齐，再逐画面点落盘。

@@ -16,7 +16,11 @@
       "group_id": "",
       "command": "libtv_session_with_uploaded_references",
       "requested_model": "",
-      "duration": 15,
+      "duration_source": "group_yaml",
+      "duration_estimate_seconds": 12,
+      "duration_rule": "clamp(duration_estimate_seconds, 4, 15)",
+      "duration_hint": 12,
+      "duration": 12,
       "ratio": "16:9",
       "video_resolution": "720p",
       "enableSound": "on",
@@ -26,6 +30,11 @@
       "source_group_body_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/source-group-body.md",
       "group_index_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/group-index.json",
       "reference_manifest_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/reference-manifest.json",
+      "reference_image_budget": {
+        "max_images": 9,
+        "selection_rule": "角色和场景优先；超过上限时先从道具取舍，其次再考虑重复、不必要或可由源文本保留的次要主体。",
+        "excluded_due_to_budget": []
+      },
       "images": [],
       "image_entry_schema": [
         {
@@ -33,10 +42,40 @@
           "name": "",
           "category": "",
           "path": "",
+          "resolved_from_current_generation_dir": false,
+          "resolution_candidates": [],
+          "source_sha256": "",
+          "source_size_bytes": 0,
+          "source_mtime_ns": 0,
+          "upload_cache_lookup_key": "",
+          "upload_cache_hit_after_fresh_resolution": false,
+          "upload_cache_policy": "cache_allowed_only_when_path_exists_and_fingerprint_matches",
+          "shared_reference_group": "",
+          "primary_subject_name": "",
           "uploaded_url": "",
           "subject_inline": ""
         }
       ],
+      "reference_prompt_integrity": {
+        "status": "pending",
+        "checks": [
+          "bound_missing_excluded_sets_are_disjoint",
+          "images_mixedList_subject_url_sets_match",
+          "no_duplicate_url_without_shared_reference_group",
+          "no_stale_cached_upload"
+        ]
+      },
+      "audio_acceptance": {
+        "enableSound_requested": "on",
+        "preflight_required": false,
+        "preflight_status": "audio_preflight_unverified_non_blocking",
+        "accepted_evidence": [
+          "task_result.audios_non_empty",
+          "audio_url_present",
+          "ffprobe_audio_stream_present"
+        ],
+        "status": "pending"
+      },
       "sessionId": "",
       "projectUuid": "",
       "projectUrl": "",
