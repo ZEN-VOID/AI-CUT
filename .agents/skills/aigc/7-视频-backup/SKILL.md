@@ -10,17 +10,15 @@ metadata:
 
 `7-视频` 是 AIGC 项目的视频阶段父级入口。它只负责判定视频生成路线、加载目标叶子技能、约束项目 runtime 与上游真源边界；不直接主创视频 prompt，不直接调用 LibTV，不直接改写 `4-分组`、`5-设计` 或 `6-图像` 产物。
 
-当前 active 默认叶子为 `.agents/skills/aigc/7-视频/libTV画布流/SKILL.md`。旧 A/B/C/D 叶子已经迁移到 `.agents/skills/aigc/7-视频-backup/`，仅用于兼容回读、修复旧产物或用户明确点名旧路线时的旁路承接。
-
 ## Context Loading Contract
 
 - 每次调用 `$aigc-video-stage` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/` 中与视频阶段、风格、角色、场景、主体资产或生成限制相关的上下文。
-- 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、LibTV 提交与结果追踪由命中的 `libTV画布流` 或兼容叶子技能负责。
-- `libTV画布流` 是当前 active 默认叶子；`A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是 `7-视频-backup` 下的英文序号兼容候选。除非用户明确要求多路线对比、旧产物修复或点名旧路线，否则一次任务默认选择 `libTV画布流`。
+- 父级只做路由和汇流判断；视频 prompt 组织、参照绑定、LibTV 提交与结果追踪由命中的 A/B/C/D 叶子技能负责。
+- `A-分镜画面参照`、`B-分镜故事板参照`、`C-主体参照`、`D-主板混合参照` 是英文序号互斥候选；除非用户明确要求多路线对比或批量运行，否则一次任务默认选择唯一叶子入口。
 - 视频生成默认路由：A/B/C/D 叶子不再持有旧视频工具或本地模型参数真源；未显式指定模型时，直接使用 `$libTV` 的 LibTV 后端默认视频路由。除非用户显式要求其他规格，否则视频基础规格默认 720P、15 秒、16:9；用户显式指定模型、时长、比例、分辨率或质量档时，叶子只把这些要求写入发送给 LibTV 的自然语言任务和 submit plan，不在本地伪造不存在的 CLI 参数。
-- LibTV 画布复用是 `7-视频` 父级共享治理合同：绑定 `projects/aigc/<项目名>/` 后，当前 active 叶子默认读取或重建 `projects/aigc/<项目名>/7-视频/libTV画布流/libtv-canvas-active-registry.json`；旧 A/B/C/D 兼容叶子仅在修复旧工件时沿用自身合同。
+- LibTV 画布复用是 `7-视频` 父级共享治理合同：绑定 `projects/aigc/<项目名>/` 后，所有 A/B/C/D 叶子调用 `$libTV` 前必须先读取或重建 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；同一项目默认复用 registry 中的 `canonical_sessionId` / `projectUuid` / `projectUrl`，不得为同一项目无故新建平行画布。
 - LibTV 远端调用锁是 A/B/C/D 共同门禁：所有叶子生成的 `*-libtv-submission.txt` 必须以 `【LibTV 调用锁定】` 开头；父级只检查首行存在和路线归属，具体 `modeType` 与参照字段由对应叶子合同锁定。
 - 视频文件命名必须服务下游 `8-审片`：下载或整理后的 canonical 视频命名为 `<分镜组ID>.mp4`；同一分镜组多变体命名为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。sessionId、provider task id、路线名写入 queue / results / report，不写入 canonical 视频文件名。
 - `4-分组` 中的 `## x-y-z~x-y-z` 组间连接件在 `7-视频` A/B/C/D 路线中默认全部忽略：不进入视频 prompt、参照 manifest、LibTV job 或 canonical 视频命名。未来连接件视频由单独手动视频连接 skill 处理，父级不得默认调度。
@@ -64,11 +62,10 @@ Reject or clarify when:
 
 | mode | trigger | route |
 | --- | --- | --- |
-| `libtv_canvas_flow` | 默认；用户只说进入视频阶段、生视频、LibTV、主体参照或按 `4-分组` 组级出视频 | `libTV画布流/SKILL.md` |
-| `frame_visual_reference_legacy` | 用户明确点名旧 A 路线、修复旧 A 路线产物，或已有路径位于 `7-视频/A-分镜画面参照/` | `.agents/skills/aigc/7-视频-backup/A-分镜画面参照/SKILL.md` |
-| `storyboard_reference_legacy` | 用户明确点名旧 B 路线、修复旧 B 路线产物，或已有路径位于 `7-视频/B-分镜故事板参照/` | `.agents/skills/aigc/7-视频-backup/B-分镜故事板参照/SKILL.md` |
-| `subject_reference_legacy` | 用户明确点名旧 C 路线、修复旧 C 路线产物，或已有路径位于 `7-视频/C-主体参照/` | `.agents/skills/aigc/7-视频-backup/C-主体参照/SKILL.md` |
-| `hybrid_board_subject_reference_legacy` | 用户明确点名旧 D 路线、修复旧 D 路线产物，或已有路径位于 `7-视频/D-主板混合参照/` | `.agents/skills/aigc/7-视频-backup/D-主板混合参照/SKILL.md` |
+| `frame_visual_reference` | 单镜图、多张分镜画面图、四段式 `分镜ID`、`6-图像/A-分镜画面`、镜级图参照出视频 | `A-分镜画面参照/SKILL.md` |
+| `storyboard_reference` | 分镜故事板、组级 storyboard 图、`6-图像/B-分镜故事板`、用整张故事板图参照出视频 | `B-分镜故事板参照/SKILL.md` |
+| `subject_reference` | 角色/场景/道具主体参照、组底 YAML、`5-设计/*/3-生成`、按主体图片出视频 | `C-主体参照/SKILL.md` |
+| `hybrid_board_subject_reference` | 主体参照和分镜故事板参照合二为一、同一分镜组 prompt 同时导入主体参照图与故事板总参照、主体后 `@参照图`、故事板作为总参照 | `D-主板混合参照/SKILL.md` |
 | `query_or_download` | 已有 LibTV `sessionId`、queue ledger、视频结果查询或下载 | 先从路径/ledger 判断所属叶子，再进入该叶子 |
 | `repair_or_review` | prompt、manifest、YAML、queue、结果漂移或只审查 | 先定位原产物所属叶子，再执行对应 review / repair |
 | `footage_review_handoff` | 用户要求审片、分析已下载视频、对照实际素材、把审片问题改回分镜组 | 转入 `.agents/skills/aigc/8-审片/SKILL.md` |
@@ -78,11 +75,10 @@ Reject or clarify when:
 
 | 场景 | 读取文件 |
 | --- | --- |
-| 默认 LibTV 画布视频流 | `libTV画布流/SKILL.md` + `libTV画布流/CONTEXT.md` |
-| 旧 A 路线回读、修复或明确点名 | `.agents/skills/aigc/7-视频-backup/A-分镜画面参照/SKILL.md` + 同目录 `CONTEXT.md` |
-| 旧 B 路线回读、修复或明确点名 | `.agents/skills/aigc/7-视频-backup/B-分镜故事板参照/SKILL.md` + 同目录 `CONTEXT.md` |
-| 旧 C 路线回读、修复或明确点名 | `.agents/skills/aigc/7-视频-backup/C-主体参照/SKILL.md` + 同目录 `CONTEXT.md` |
-| 旧 D 路线回读、修复或明确点名 | `.agents/skills/aigc/7-视频-backup/D-主板混合参照/SKILL.md` + 同目录 `CONTEXT.md` |
+| 镜级图像作为多图参照生成组级视频 | `A-分镜画面参照/SKILL.md` + `A-分镜画面参照/CONTEXT.md` |
+| 组级故事板图作为单图参照生成组级视频 | `B-分镜故事板参照/SKILL.md` + `B-分镜故事板参照/CONTEXT.md` |
+| 角色、场景、道具主体资产作为参照生成组级视频 | `C-主体参照/SKILL.md` + `C-主体参照/CONTEXT.md` |
+| 故事板总参照与角色/场景/道具主体参照合并进同一组级视频 prompt | `D-主板混合参照/SKILL.md` + `D-主板混合参照/CONTEXT.md` |
 | LibTV 上传参照图、创建会话、查询、下载或认证排障 | 由目标叶子加载 `.agents/skills/cli/libTV/SKILL.md` |
 | LibTV 项目级画布复用 | 先读取 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；缺失时从 A/B/C/D 既有 queue / results / report 反建；仍缺失时由首个成功提交写入 |
 | 上游事实边界核对 | `.agents/skills/aigc/4-分组/SKILL.md + CONTEXT.md`、必要时读取 `5-设计` 或 `6-图像` 对应入口 |
@@ -94,13 +90,11 @@ flowchart TD
     A["7-视频 request"] --> B["Load SKILL.md + CONTEXT.md"]
     B --> C["Lock projects/aigc/<项目名>/"]
     C --> D{"reference route"}
-    D -->|"default LibTV canvas flow"| X["libTV画布流"]
-    D -->|"legacy A explicit"| E["7-视频-backup/A-分镜画面参照"]
-    D -->|"legacy B explicit"| F["7-视频-backup/B-分镜故事板参照"]
-    D -->|"legacy C explicit"| G["7-视频-backup/C-主体参照"]
-    D -->|"legacy D explicit"| L["7-视频-backup/D-主板混合参照"]
+    D -->|"shot frame images / 分镜ID"| E["A-分镜画面参照"]
+    D -->|"storyboard sheet / group_id image"| F["B-分镜故事板参照"]
+    D -->|"character scene prop assets"| G["C-主体参照"]
+    D -->|"storyboard total ref + subject refs"| L["D-主板混合参照"]
     D -->|"existing ledger or result"| H["Locate owning leaf"]
-    X --> Y["projects/aigc/<项目名>/7-视频/libTV画布流"]
     E --> I["projects/aigc/<项目名>/7-视频/A-分镜画面参照"]
     F --> J["projects/aigc/<项目名>/7-视频/B-分镜故事板参照"]
     G --> K["projects/aigc/<项目名>/7-视频/C-主体参照"]
@@ -115,7 +109,7 @@ flowchart TD
 
 1. 读取本 `SKILL.md + CONTEXT.md`，锁定项目根、用户目标、上游可用资产和是否已有视频阶段工件。
 2. 读取项目级 LibTV 画布 registry：`projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`。若缺失，先扫描 A/B/C/D 既有 `第N集-libtv-queue.md`、`第N集-libtv-results.json`、`执行报告.md` 中的 `sessionId`、`projectUuid`、`projectUrl` 并反建 registry；仍缺失时标记为 `needs_initial_session`，由第一个成功的叶子提交写入。
-3. 根据 `Mode Selection` 选择唯一叶子技能；默认进入 `libTV画布流`，只有用户明确点名旧路线或既有产物位于旧 A/B/C/D 目录时才进入 `7-视频-backup` 对应叶子。
+3. 根据 `Mode Selection` 选择唯一叶子技能；若用户明确要求多路线，则只调度被点名的路线。
 4. 加载目标叶子的 `SKILL.md + CONTEXT.md`，并把本轮输入、项目根、集号/分镜组/分镜 ID 范围、`libtv-canvas-registry.json` 路径和已解析的 canonical canvas metadata 传入叶子合同。
 5. 目标叶子调用 `$libTV` 时，若 registry 已有 `canonical_sessionId`，必须通过 `create_session.py "<message>" --session-id <canonical_sessionId>` 复用同项目画布；只有 registry 缺失、session 明确不可用、或用户显式要求新画布 / 隔离项目时，才允许创建新 session。
 6. 父级不得直接写视频 prompt、参照 manifest、LibTV batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。父级拥有画布复用 schema 与路由合同，叶子负责把实际提交结果回写 registry / queue / report。
@@ -221,6 +215,6 @@ Minimum shape:
 
 - Required output: 唯一叶子路由，项目级 LibTV 画布 registry 状态，或明确的多路线用户授权，或阻断原因。
 - Output format: 面向用户的简短路由说明；实际视频阶段产物由叶子技能输出。
-- Output path: 父级不直接落业务产物；当前 active 叶子写入 `projects/aigc/<项目名>/7-视频/libTV画布流/`，旧 A/B/C/D 兼容叶子仍回写其既有项目目录 `A-分镜画面参照/`、`B-分镜故事板参照/`、`C-主体参照/`、`D-主板混合参照/`。
+- Output path: 父级不直接落业务产物；A/B/C/D 分别写入 `projects/aigc/<项目名>/7-视频/A-分镜画面参照/`、`B-分镜故事板参照/`、`C-主体参照/`、`D-主板混合参照/`。
 - Naming convention: canonical 视频命名固定为 `<分镜组ID>.mp4`；同组变体固定为 `<分镜组ID>-a.mp4`、`<分镜组ID>-b.mp4`。叶子技能可自定 prompt、manifest、queue 和 report 名称，但视频文件名必须遵守本规则以便 `8-审片` 反向定位 `4-分组`。
 - Completion gate: 目标叶子明确且已加载；若涉及 LibTV 远端提交，目标叶子的 `*-libtv-submission.txt` 以 `【LibTV 调用锁定】` 起笔；若无法唯一判断，已向用户说明需要的最小澄清。

@@ -246,6 +246,7 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ),
     ROOT / "7-视频" / "SKILL.md": (
         "projects/aigc/<项目名>/7-视频/",
+        "projects/aigc/<项目名>/7-视频/libTV画布流/",
         "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
         "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
         "projects/aigc/<项目名>/7-视频/C-主体参照/",
@@ -333,10 +334,13 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
     ),
     ROOT / "7-视频": (
-        ROOT / "7-视频" / "A-分镜画面参照" / "SKILL.md",
-        ROOT / "7-视频" / "B-分镜故事板参照" / "SKILL.md",
-        ROOT / "7-视频" / "C-主体参照" / "SKILL.md",
-        ROOT / "7-视频" / "D-主板混合参照" / "SKILL.md",
+        ROOT / "7-视频" / "libTV画布流" / "SKILL.md",
+    ),
+    ROOT / "7-视频-backup": (
+        ROOT / "7-视频-backup" / "A-分镜画面参照" / "SKILL.md",
+        ROOT / "7-视频-backup" / "B-分镜故事板参照" / "SKILL.md",
+        ROOT / "7-视频-backup" / "C-主体参照" / "SKILL.md",
+        ROOT / "7-视频-backup" / "D-主板混合参照" / "SKILL.md",
     ),
 }
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
@@ -371,10 +375,12 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         ".agents/skills/aigc/5-Image/B.分镜故事板",
         "projects/aigc/<项目名>/5-Image/A-分镜帧/",
         "projects/aigc/<项目名>/5-Image/B-分镜故事板/",
-        ".agents/skills/aigc/7-视频/A-分镜画面参照",
-        ".agents/skills/aigc/7-视频/B-分镜故事板参照",
-        ".agents/skills/aigc/7-视频/C-主体参照",
-        ".agents/skills/aigc/7-视频/D-主板混合参照",
+        ".agents/skills/aigc/7-视频/libTV画布流",
+        ".agents/skills/aigc/7-视频-backup/A-分镜画面参照",
+        ".agents/skills/aigc/7-视频-backup/B-分镜故事板参照",
+        ".agents/skills/aigc/7-视频-backup/C-主体参照",
+        ".agents/skills/aigc/7-视频-backup/D-主板混合参照",
+        "projects/aigc/<项目名>/7-视频/libTV画布流/",
         ".agents/skills/aigc/8-审片",
         "projects/aigc/<项目名>/7-视频/A-分镜画面参照/",
         "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/",
