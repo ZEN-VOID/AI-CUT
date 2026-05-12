@@ -55,7 +55,7 @@ source_shot_labels: []
 
 - `group_content` 是 LibTV prompt 的主体，不得摘要替代；`prompt.md` 必须以原 `## group_id` 起笔。
 - 默认不在 `group_content` 前添加故事板参照说明段；LibTV 运输层约束只出现在 `libtv-submission.txt` 的调用锁和直接生成请求中。
-- 对有故事板图的组，唯一允许改写源文本的位置是 fenced YAML：新增或更新 `故事板参照` 对象，写入 `name / role / uploaded_url`；不得用 `故事板总参照：<url>` 或另起参照说明段作为远端真源。
+- 对有故事板图的组，唯一允许改写源文本的位置是 fenced YAML：draft 阶段不写 `reference_index / uploaded_url`；final 阶段新增或更新 `故事板参照` 对象，写入 `name / role / reference_index / uploaded_url / image_token`；不得用 `故事板总参照：<url>` 或另起参照说明段作为远端真源。
 - 不得改写剧情事实、对白事实、镜头顺序、角色关系、场景结果或组边界。
 - 如需压缩，只能在用户明确要求或 LibTV 硬限制触发时执行，并必须记录压缩依据与被压缩字段；默认不压缩。
 

@@ -5,6 +5,35 @@
   "source_group_path": "",
   "output_root": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集",
   "package_dir": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>",
+  "artifact_mode": "compact",
+  "artifact_policy": {
+    "group_root_canonical_files": [
+      "reference-manifest.json",
+      "prompt.md",
+      "libtv-submission.txt",
+      "libtv-submit-plan.json",
+      "queue.md",
+      "libtv-results.json",
+      "执行报告.md",
+      "<分镜组ID>.mp4"
+    ],
+    "folded_into_reference_manifest": [
+      "group-index",
+      "source-group-body",
+      "upload-ledger",
+      "asset_uploads",
+      "generation_slots"
+    ],
+    "folded_into_results_attempts": [
+      "change-project",
+      "upload receipts",
+      "create-session",
+      "query",
+      "gate",
+      "reference-order"
+    ],
+    "full_trace_dir": "debug/attempts/<attempt_id>"
+  },
   "parallelism": 3,
   "libtv_self_check": {
     "required_command": "LIBTV_ACCESS_KEY credential check",
@@ -16,6 +45,9 @@
       "group_id": "",
       "command": "libtv_session_with_uploaded_references",
       "requested_model": "",
+      "prompt_fidelity_mode": "strict_original",
+      "allow_libtv_prompt_optimization": false,
+      "transport_only_projection": true,
       "duration_source": "group_yaml",
       "duration_estimate_seconds": 12,
       "duration_rule": "clamp(duration_estimate_seconds, 4, 15)",
@@ -25,10 +57,10 @@
       "video_resolution": "720p",
       "enableSound": "on",
       "poll": 45,
+      "slot_binding_phase": "draft",
+      "generation_slot_source": "",
       "prompt_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/prompt.md",
       "remote_submission_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-submission.txt",
-      "source_group_body_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/source-group-body.md",
-      "group_index_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/group-index.json",
       "reference_manifest_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/reference-manifest.json",
       "reference_image_budget": {
         "max_images": 9,
@@ -39,20 +71,23 @@
       "image_entry_schema": [
         {
           "upload_index": 1,
+          "reference_index": 1,
+          "oss_upload_index": 1,
           "name": "",
           "category": "",
           "path": "",
+          "reuse_policy": "same_canvas_active_url",
+          "asset_registry_lookup_key": "<projectUuid>|<category>|<yaml_name>",
           "resolved_from_current_generation_dir": false,
           "resolution_candidates": [],
           "source_sha256": "",
           "source_size_bytes": 0,
           "source_mtime_ns": 0,
-          "upload_cache_lookup_key": "",
-          "upload_cache_hit_after_fresh_resolution": false,
-          "upload_cache_policy": "cache_allowed_only_when_path_exists_and_fingerprint_matches",
           "shared_reference_group": "",
           "primary_subject_name": "",
           "uploaded_url": "",
+          "portrait_token": "{{Portrait 1}}",
+          "slot_source": "",
           "subject_inline": ""
         }
       ],
@@ -62,7 +97,8 @@
           "bound_missing_excluded_sets_are_disjoint",
           "images_mixedList_subject_url_sets_match",
           "no_duplicate_url_without_shared_reference_group",
-          "no_stale_cached_upload"
+          "same_canvas_project_scope_matches",
+          "explicit_replace_required_for_adjusted_images"
         ]
       },
       "audio_acceptance": {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11
+
+- Clarified character-preservation wording for `多视图/角色` and `元素替换/换装|换角色|换脸`: prompts and gates must preserve original character appearance and makeup unchanged, not only identity.
+- Clarified costume-preservation wording for `多视图/服装` and `元素替换/换装`: prompts and gates must name `服装样式和版型`, not only clothing.
+- Synced prompt enhancement, type review, local review gate, context heuristic, and the affected JSON/README templates.
+
 ## 2026-05-05
 
 - Restricted `photoGPT` provider handoff to `gpt-image-2` only.

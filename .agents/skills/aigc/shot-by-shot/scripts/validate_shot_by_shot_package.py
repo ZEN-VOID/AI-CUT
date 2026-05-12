@@ -17,11 +17,33 @@ REQUIRED_MAIN_SECTIONS = (
 )
 
 CONTEXT_OUTPUTS = {
-    "画面风格解析.md": "# 画面风格解析",
-    "编导解析.md": "# 编导解析",
-    "摄影解析.md": "# 摄影解析",
-    "设计解析.md": "# 设计解析",
+    "全局风格解析.md": "# 全局风格解析",
+    "编剧风格解析.md": "# 编剧风格解析",
+    "摄影风格解析.md": "# 摄影风格解析",
+    "设计风格解析.md": "# 设计风格解析",
 }
+
+STORYBOARD_COLUMNS = (
+    "镜号",
+    "时长",
+    "画面描述",
+    "角色1",
+    "角色描述1",
+    "角色图1",
+    "角色2",
+    "角色描述2",
+    "角色图2",
+    "参考",
+    "景别",
+    "角色动作",
+    "情绪",
+    "场景标签",
+    "光影氛围",
+    "音效",
+    "对白",
+    "分镜提示词",
+    "视频运动提示词",
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -77,6 +99,20 @@ def main() -> int:
             if heading not in context_text:
                 print(f"missing heading in {context_file}: {heading}", file=sys.stderr)
                 return 1
+
+    if "分镜脚本.md" in text:
+        storyboard_path = path.parent / "分镜脚本.md"
+        if not storyboard_path.is_file():
+            print(f"missing storyboard script: {storyboard_path}", file=sys.stderr)
+            return 1
+        storyboard_text = storyboard_path.read_text(encoding="utf-8")
+        if "# 分镜脚本" not in storyboard_text:
+            print(f"missing heading in {storyboard_path}: # 分镜脚本", file=sys.stderr)
+            return 1
+        header = "| " + " | ".join(STORYBOARD_COLUMNS) + " |"
+        if header not in storyboard_text:
+            print("storyboard table columns do not match Numbers example", file=sys.stderr)
+            return 1
 
     print(f"ok: {path}")
     return 0

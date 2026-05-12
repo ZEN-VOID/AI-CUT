@@ -5,7 +5,7 @@
     "edit_subtype": "换脸",
     "doc_role": "prompt_template",
     "version": "v1.0",
-    "updated_at": "2026-04-26"
+    "updated_at": "2026-05-11"
   },
   "required_fields": [
     "edit_target_image",
@@ -14,7 +14,7 @@
   ],
   "input_roles": {
     "edit_target_image": "Locks clothing, pose, composition, background and camera relationship.",
-    "identity_reference_image": "Provides facial features, hair, skin tone, age temperament and identity."
+    "identity_reference_image": "Provides and locks original reference character appearance, makeup, facial features, hair, skin tone, age temperament and identity."
   },
   "preserve_scope": [
     "clothing",
@@ -26,22 +26,23 @@
     "props"
   ],
   "change_scope": [
-    "replace face, hair, skin texture, age temperament and identity with identity_reference_image"
+    "replace face, hair, skin texture, age temperament and identity with identity_reference_image while preserving the original reference character appearance and makeup unchanged"
   ],
   "critical_requirements": [
-    "The replaced identity must naturally fit the target clothing, pose, lighting and scene.",
+    "The replaced identity must preserve original reference character appearance and makeup unchanged while naturally fitting the target clothing, pose, lighting and scene.",
     "Target clothing, fabric, color, decorative details, pose, background and composition must not change."
   ],
   "negative_constraints": [
     "do not change target clothing, pose, background, camera or props",
     "no mixed-face identity drift",
-    "do not change age, gender or makeup unless requested",
+    "do not alter reference makeup or original reference character appearance unless explicitly requested",
     "no facial edge, skin tone or lighting mismatch"
   ],
   "prompt_assembly": {
-    "final_prompt_template": "Preserve clothing, pose, composition, background, camera and lighting from edit_target_image; replace only the face/hair/identity with identity_reference_image. Additional requirements: <user_desc>."
+    "final_prompt_template": "Preserve clothing, pose, composition, background, camera and lighting from edit_target_image; replace only the face/hair/identity with identity_reference_image while preserving original reference character appearance and makeup unchanged. Additional requirements: <user_desc>."
   },
   "review_focus": [
+    "original reference character appearance and makeup unchanged",
     "identity reference accuracy",
     "target clothing and scene unchanged",
     "natural skin tone and lighting integration",

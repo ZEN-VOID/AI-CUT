@@ -114,8 +114,9 @@ flowchart TD
 5. 目标叶子调用 `$libTV` 时，若 registry 已有 `canonical_sessionId`，必须通过 `create_session.py "<message>" --session-id <canonical_sessionId>` 复用同项目画布；只有 registry 缺失、session 明确不可用、或用户显式要求新画布 / 隔离项目时，才允许创建新 session。
 6. 父级不得直接写视频 prompt、参照 manifest、LibTV batch、queue ledger 或结果报告；这些业务产物必须由目标叶子定义。父级拥有画布复用 schema 与路由合同，叶子负责把实际提交结果回写 registry / queue / report。
 7. 目标叶子提交 LibTV 前，父级或叶子 review gate 必须确认 `*-libtv-submission.txt` 首行为 `【LibTV 调用锁定】`；若缺失，返回目标叶子的 prompt / handoff 合同修复，不允许直接把弱口径文本发给远端。
-8. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
-9. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
+8. 若目标叶子涉及参照图，必须要求叶子输出槽位注册机制：A 用 `frame_uploads + generation_slots` 证明 `shot_id/source_label -> uploaded_url -> imageList[n]`，B 用 `storyboard_uploads + generation_slots` 证明 `group_id/storyboard_sheet -> uploaded_url -> imageList[0]`，C/D 用 `asset_uploads + generation_slots` 证明 `yaml_name/reference_identity -> uploaded_url -> mixedList[n]`。最终匹配标准是 LibTV 端实际传入参照图 URL 与 prompt YAML 中对应名称、分镜 ID 或故事板身份同槽一致；父级不得接受只按 URL 集合或 submit plan 顺序的弱校验。
+9. 查询、下载、修复或审查任务必须先定位原产物所属叶子，未定位前不得创建新的平行视频真源。
+10. 若目标叶子缺失、不可读或与用户目标不匹配，报告阻断原因和建议入口，不临时伪造叶子合同。
 
 ## LibTV Canvas Registry Contract
 
@@ -157,6 +158,7 @@ Minimum shape:
 | `VID-STAGE-04` | 既有真源 | query / repair / review 时能回指原所属叶子 |
 | `VID-STAGE-05` | 画布复用 | 同项目调用 `$libTV` 前已解析或反建 `libtv-canvas-registry.json` |
 | `VID-STAGE-06` | LibTV 远端锁定 | A/B/C/D 叶子远端提交文本以 `【LibTV 调用锁定】` 起笔，具体 `modeType` 与参照字段由叶子定义 |
+| `VID-STAGE-07` | 参照槽位注册 | A/B/C/D 叶子在最终提交前能证明 prompt YAML 身份、uploaded URL、LibTV `imageList/mixedList[n]` 和 UI 图N 同槽一致 |
 
 ## Field Master
 
@@ -168,6 +170,7 @@ Minimum shape:
 | `FIELD-VID-STAGE-04` | existing truth | query / repair / review 时能回指原所属叶子和既有产物 | `FAIL-VID-STAGE-TRUTH` |
 | `FIELD-VID-STAGE-05` | libtv canvas registry | 项目级 registry 路径、canonical session metadata、复用/新建判定 | `FAIL-VID-STAGE-CANVAS` |
 | `FIELD-VID-STAGE-06` | libtv remote call lock | 叶子 `*-libtv-submission.txt` 首行为 `【LibTV 调用锁定】`，且路线内容归属 A/B/C/D 对应合同 | `FAIL-VID-STAGE-REMOTE-LOCK` |
+| `FIELD-VID-STAGE-07` | reference slot registry | A/B/C/D 叶子以各自 upload registry 和 `generation_slots` 证明 `reference_index -> reference_identity -> uploaded_url -> imageList/mixedList[n]` | `FAIL-VID-STAGE-REFERENCE-SLOT-REGISTRY` |
 
 ## Thought Pass Map
 
@@ -179,6 +182,7 @@ Minimum shape:
 | `PASS-VID-STAGE-04` | `FIELD-VID-STAGE-04` | 对既有产物建立所属叶子回指 | artifact ownership note |
 | `PASS-VID-STAGE-05` | `FIELD-VID-STAGE-05` | 查找或反建项目级 LibTV 画布 registry；把 metadata 传给叶子 | registry note |
 | `PASS-VID-STAGE-06` | `FIELD-VID-STAGE-06` | 检查远端提交文本首行调用锁；具体 `modeType` 与参照字段交给目标叶子 gate | remote submission lock note |
+| `PASS-VID-STAGE-07` | `FIELD-VID-STAGE-07` | 对 A/B/C/D 参照任务，确认叶子 final gate 使用槽位注册表做身份和 URL 同槽校验 | leaf registry gate note |
 
 ## Pass Table
 
@@ -190,6 +194,7 @@ Minimum shape:
 | `PASS-VID-STAGE-04` | 既有视频产物能定位到 A/B/C/D 所属目录 | `FAIL-VID-STAGE-TRUTH` | Reference Loading Guide |
 | `PASS-VID-STAGE-05` | 同项目已有 `canonical_sessionId` 时默认复用；缺失时可由首个成功提交创建并回写 registry | `FAIL-VID-STAGE-CANVAS` | LibTV Canvas Registry Contract |
 | `PASS-VID-STAGE-06` | A/B/C/D 远端提交文本首行为 `【LibTV 调用锁定】`；叶子专属 `modeType` 与参照字段不互相串线 | `FAIL-VID-STAGE-REMOTE-LOCK` | 目标叶子 LibTV handoff contract |
+| `PASS-VID-STAGE-07` | A/B/C/D final 相位不接受只按 URL 集合或 submit plan 顺序的弱校验；必须由叶子注册表证明 prompt YAML 身份、URL、`imageList/mixedList[n]` 同槽一致 | `FAIL-VID-STAGE-REFERENCE-SLOT-REGISTRY` | 目标叶子 reference slot contract |
 
 ## Root-Cause Execution Contract (Mandatory)
 

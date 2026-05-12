@@ -27,6 +27,8 @@ last_checked_at: 2026-04-26
 | video filename drift | 下载视频使用 sessionId、provider id 或非 group_id 文件名，导致 `8-审片` 无法回推分镜组 | A/B/C/D 叶子 output contract | canonical 视频名改为 `<group_id>.mp4`；同组多变体用 `<group_id>-a.mp4`、`<group_id>-b.mp4`，sessionId 写 queue/report |
 | duplicate LibTV canvas | 同一 `projects/aigc/<项目名>/` 多次调用 `$libTV` 却生成多个 projectUrl / 画布 | 项目级画布 registry 缺失或未读 | 先读 `projects/aigc/<项目名>/7-视频/libtv-canvas-registry.json`；缺失时从 A/B/C/D queue/results/report 反建；已有 `canonical_sessionId` 时复用 |
 | remote task type drift | LibTV 远端把 A/B/C/D 直接生视频解释成先做分镜图、故事板图、主体图、拆段或合成 | 目标叶子 handoff 口径过弱 | 所有 `*-libtv-submission.txt` 首行固定 `【LibTV 调用锁定】`；具体 `modeType` 与参照字段由 A/B/C/D 叶子合同定义 |
+| subject reference mismatch | 用户指出 prompt 主体名称和引用参照图对不上，或要求 LibTV 端实际传入图必须匹配 YAML `@/uploaded_url` 对应名称 | `C-主体参照` 槽位注册 / 匹配机制缺失 | 交给 C 叶子用 `asset_uploads` 注册 `yaml_name -> uploaded_url`，用 `generation_slots` 注册 `reference_index / mixedList[n] -> uploaded_url -> yaml_name`；父级只确认这是 C 路线源层问题 |
+| reference identity mismatch | 用户指出 A/B/D 中分镜ID、故事板总参照或混合参照身份和传入图对不上 | 对应叶子槽位注册 / 同步器缺失 | A 用 `frame_uploads + generation_slots`，B 用 `storyboard_uploads + generation_slots`，D 用 `asset_uploads + generation_slots`；提交前必须运行叶子 `build-upload-ledger.py --sync` 或等价同步器 |
 
 ## Repair Playbook
 
@@ -57,3 +59,4 @@ last_checked_at: 2026-04-26
 - `## x-y-z~x-y-z` 连接件默认不属于 A/B/C/D 视频路线的 job 范围；遇到连接件时跳过，不生成 `<上组~下组>.mp4`，也不把连接件拼进相邻分镜组 prompt。连接件视频留给未来手动视频连接 skill。
 - LibTV 远端当前不是按本地项目名自动找画布；可靠复用来自本地 registry 里的 `canonical_sessionId`。只有 `projectUuid/projectUrl` 而没有 sessionId 时，不要声称能强制复用指定画布。
 - `【LibTV 调用锁定】` 是远端画布的第一行保险：父级只要求所有 A/B/C/D 提交都有这行，叶子负责锁定专属 `modeType`、参照字段和 uploaded URL 用法。
+- 参照图的最终匹配不是“prompt 里有 URL”或“submit plan 顺序看起来一致”，而是目标叶子的槽位注册表证明 LibTV 端实际传入的 URL 与 prompt YAML 中的分镜ID、故事板身份或主体名称同槽对应；父级遇到这类投诉时先回原叶子同步器，不跨路线重做。

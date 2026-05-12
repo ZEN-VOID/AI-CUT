@@ -24,40 +24,41 @@ projects/aigc/<项目名>/5-设计/场景/3-生成
 projects/aigc/<项目名>/5-设计/道具/3-生成
 ```
 
-## Fresh Local Resolution Order
+## Same-Canvas Asset Reuse Order
 
-每次执行都必须先从当前本地生成目录重新解析主体图，再考虑上传缓存：
+同一 LibTV `projectUuid/projectID` 画布内，主体图 URL 是传输层资产登记，可以按 YAML 主体名直接复用：
 
 1. 读取组底 YAML 主体名。
-2. 在当前 `5-设计/*/3-生成` 搜索根中枚举候选图片。
-3. 按 `Image Priority` 和视觉消歧规则裁决当前 `selected_path`。
-4. 记录 `resolved_from_current_generation_dir: true`、`resolution_candidates[]`、`selected_path`、`selected_variant` 和当前文件指纹。
-5. 只有在 `selected_path + source_sha256 + source_size_bytes + source_mtime_ns` 与缓存条目完全一致后，才允许复用缓存 URL。
+2. 先锁定当前 LibTV `projectUuid/projectUrl`。
+3. 在当前 `projectUuid` 的 `asset_uploads` / 项目级上传登记中查找同一 `category + yaml_name` 的 active uploaded URL。
+4. 若只命中一个 active URL，且 URL 的 `/claw/<projectUuid>/` 与当前画布一致，直接复用，不要求重新解析本地生成目录或匹配本地文件指纹。
+5. 若没有 active URL、同名登记有歧义、图片已调整，或用户显式要求“替换/更新/重新上传”，再按 `Image Priority` 从当前 `5-设计/*/3-生成` 搜索根解析图片并运行 `upload_file.py`，上传成功后把新 URL 标为 active。
 
 禁止顺序：
 
-- 不得先按主体名查 `upload-cache.json`，再反推本地路径。
-- 不得用缓存里已有的 OSS URL 证明主体图存在。
-- 不得在当前生成目录没有对应图片时，使用历史缓存 URL 代替缺失主体图。
-- 不得按文件名相似、旧阶段 manifest、旧视频任务或旧画布 URL 选择主体图。
+- 不得复用其他 `projectUuid/projectID` 画布的 URL。
+- 不得在同一主体名存在多个 active URL 且无 `active/latest` 标记时自行猜测。
+- 不得因本地图片文件发生调整而静默沿用旧 URL；图片调整必须由用户显式触发替换或由任务输入明确声明。
+- 不得把同名 URL 复用理解为生成槽位顺序；`generation_slots` 仍必须逐组重建。
 
 ## Image Priority
 
 对每个主体名称：
 
-1. 优先选择 `<主体名称>-多视图.png`、`.jpg`、`.jpeg`、`.webp`。
-2. 若多视图图片不存在，选择 `<主体名称>-主图.png`、`.jpg`、`.jpeg`、`.webp`。
-3. 若只有 JSON 而无真实图片文件，不视为可绑定图片。
-4. 若多视图与主图都不存在，槽位保持空、列入 `missing`，从 LibTV 图片数组中移除，并不得在主体信息后添加空 `@` 后缀。
+1. 若同一画布已有唯一 active uploaded URL，优先复用该 URL。
+2. 需要新上传或显式替换时，优先选择 `<主体名称>-多视图.png`、`.jpg`、`.jpeg`、`.webp`。
+3. 若多视图图片不存在，选择 `<主体名称>-主图.png`、`.jpg`、`.jpeg`、`.webp`。
+4. 若只有 JSON 而无真实图片文件，不视为可上传图片。
+5. 若既没有同画布 active URL，也没有多视图/主图，槽位保持空、列入 `missing`，从 LibTV 图片数组中移除，并不得在主体信息后添加空 `@` 后缀。
 
-## Upload Cache Freshness Policy
+## Active Asset Reuse Policy
 
-- 上传缓存只能作为同一轮执行中的传输加速层，不能作为主体参照真源。
-- 上传缓存的 lookup key 必须是当前已解析本地文件的 `path + source_sha256 + source_size_bytes + source_mtime_ns`，不得只用主体名、角色 ID、文件名或旧 URL 命中。
-- 使用任何缓存 `uploaded_url` 前，必须先确认 `bound[].path` 当前存在、是图片文件，并且仍位于 `5-设计/角色/3-生成`、`5-设计/场景/3-生成` 或 `5-设计/道具/3-生成` 的当前生成目录下。
-- 缓存条目必须记录并匹配当前本地文件指纹：`source_sha256`、`source_size_bytes`、`source_mtime_ns`。任一字段缺失或不匹配时，必须重新运行 `upload_file.py`，不得沿用缓存 URL。
-- 若本地源图缺失，即使缓存中仍有 OSS URL，也必须将该主体列入 `missing / stale_cached_upload`，并阻断该 URL 进入 `images[]`、`mixedList` 和 YAML `uploaded_url`。
-- 禁止为了绕过上传慢、上传失败或并发拥堵而把历史缓存 URL 当成“可用参照图”。上传失败只能写入 blocked / needs_rework，不得降级为历史图提交。
+- active `asset_uploads` 是同一 LibTV 画布内的已上传资产登记，不再要求每次按本地 `path + 指纹` 验证后才能复用。
+- 默认 lookup key 是 `projectUuid + category + yaml_name`；登记中应保留 `asset_registry_lookup_key`、`reuse_policy: same_canvas_active_url` 或等价字段。
+- `uploaded_url` 必须是当前画布作用域内的 LibTV `/claw/<projectUuid>/` URL；跨画布 URL 一律阻断。
+- 本地 `path`、`source_sha256`、`source_size_bytes`、`source_mtime_ns` 仍可作为审计证据；字段存在时必须自洽，但字段缺失不阻断同画布 active URL 复用。
+- 当图片内容已调整、更换、多候选重新裁决，或用户明确要求替换时，必须进入 `explicit_replace`：重新解析当前本地图片、上传并把新 URL 设为 active。
+- 若同一 `projectUuid + category + yaml_name` 有多个候选 uploaded URL 且没有 active/latest 标记，必须标记 `needs_rework / asset_registry_ambiguous`，不得猜测。
 
 ## Shared Reference Policy
 
@@ -81,11 +82,51 @@ projects/aigc/<项目名>/5-设计/道具/3-生成
 
 - 默认使用精确主体名匹配。
 - 可使用项目内已确认的规范别名，但必须在 manifest 中记录 `matched_by: alias` 与别名来源。
+- 绑定完成后必须进入注册机制，而不是只把 URL 塞进 prompt：`asset_uploads` 注册 `yaml_name -> uploaded_url`，`generation_slots` 注册 `reference_index / 图N / mixedList[n-1] -> uploaded_url -> yaml_name`。最终提交、远端 prompt 和 YAML 只消费注册表结果。
 - 不得对子串、泛词、类别词或推测名进行自动绑定。例如“学生”不能自动绑定到“学生群像”，除非 YAML 或用户显式确认。
 - 同名或别名命中多个候选图片时，必须先执行视觉消歧：把候选图片路径、YAML 主体名称、类别、分镜组上下文和候选来源发送到当前窗口作为可加载图像上下文，由 LLM 识图比较后选择唯一匹配项。
 - 视觉消歧只能在候选集合内部选择，不得借识图扩大到 YAML 之外的新主体或未列入候选的图片。
 - 视觉消歧成功时写入 `bound`，并记录 `matched_by: visual_disambiguation`、候选清单、选择理由和上下文来源。
 - 视觉消歧后仍无法唯一确定时才进入 `ambiguous`，不得选择第一个凑数。
+
+## Reference Slot Registry
+
+每个进入 LibTV 视频生成框的参照图都必须在 `reference-manifest.json` 中注册为两层真源：
+
+```yaml
+asset_uploads:
+  - name: "林寂"              # 原 YAML 主体名；别名匹配时仍写 YAML 使用名
+    canonical_asset_name: "林寂"
+    category: "character"
+    source_path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+    source_sha256: "<optional_sha256>"
+    source_size_bytes: 123456
+    source_mtime_ns: 1770000000000000000
+    uploaded_url: "https://libtv-res.liblib.art/claw/<projectUuid>/<uuid>.png"
+    reuse_policy: "same_canvas_active_url"
+    asset_registry_lookup_key: "<projectUuid>|character|林寂"
+    active: true
+    oss_upload_index: 1
+generation_slots:
+  - reference_index: 1
+    slot: 1
+    ui_slot_index: 1
+    mixedList_index: 0
+    portrait_token: "{{Portrait 1}}"
+    image_token: "{{Image 1}}"
+    uploaded_url: "https://libtv-res.liblib.art/claw/<projectUuid>/<uuid>.png"
+    name: "林寂"
+    category: "character"
+    slot_source: "ui_thumbnail_order | post_submit_mixedList | submit_plan_expected_order"
+```
+
+注册规则：
+
+- `asset_uploads[].name` 必须是组底 YAML 的主体名称；别名、设计稿正式名或文件名只能写入 `canonical_asset_name / alias_source / alias_reason`，不得替换 YAML 名称。
+- `generation_slots[].name + uploaded_url` 必须能用 URL 反查到 `asset_uploads[]` 的同名项；若 URL 对应的 name 不同，判定为 `reference_slot_registry_mismatch`。
+- `generation_slots[].reference_index` 必须从 1 连续编号，且等于最终 YAML 中对应主体项的 `reference_index`；`mixedList_index = reference_index - 1`。
+- submit plan `images[]`、远端 `mixedList` 和 prompt YAML 都必须逐槽匹配 `generation_slots` 的 name 与 URL；只匹配 URL 集合不够，主体名错位也必须失败。
+- 若 LibTV UI 缩略图、query 回显或用户截图显示实际槽位与本地预期不一致，必须用实际 `mixedList[n].url` 或 UI 图N 反查 `asset_uploads`，重建 `generation_slots` 后回刷 YAML 与 `libtv-submission.txt`，不得继续沿用旧 YAML 顺序。
 
 ## Manifest Requirements
 
@@ -97,6 +138,8 @@ characters: []
 scenes: []
 props: []
 bound: []
+asset_uploads: []
+generation_slots: []
 missing: []
 ambiguous: []
 binding_policy:
@@ -106,10 +149,11 @@ binding_policy:
   max_libtv_images_per_group: 9
 ```
 
-所有 `bound[].path` 必须是存在的本地图片路径。进入 LibTV 的 `images[]` 不得超过 9 张；超过上限被排除的可用主体写入 `excluded_from_libtv_images[]`。
-每个已绑定主体还必须生成 `subject_inline`，格式为 `<主体名称> @<图片路径>`，用于写入 prompt 的对应角色、场景或道具信息之后。
+`bound[].path` 是可选本地审计证据；新上传或显式替换时应记录当前本地图片路径，直接复用同画布 active URL 时可以只记录 `uploaded_url + asset_registry_lookup_key`。进入 LibTV 的 `images[]` 不得超过 9 张；超过上限被排除的可用主体写入 `excluded_from_libtv_images[]`。
+本地图片路径、候选集合和源图指纹只作为 manifest / submit plan 审计证据，不写入 prompt 正文；`subject_inline` 若保留，仅作为本地审计摘要，不再投影为 `@<图片路径>` 追加到角色、场景或道具行后。
 `bound[]`、`missing[]`、`ambiguous[]`、`excluded_from_libtv_images[]` 四类集合中的主体名必须互斥；同一主体不得同时被写成“已绑定”和“缺图 / 未进入预算”。
-每个已绑定主体必须显式记录 `resolved_from_current_generation_dir: true`。若使用缓存 URL，还必须记录 `upload_cache_lookup_key` 和 `upload_cache_hit_after_fresh_resolution: true`。
+每个已绑定主体必须显式记录复用或上传来源：同画布复用写 `reuse_policy: same_canvas_active_url` 与 `asset_registry_lookup_key`；显式替换重传写 `reuse_policy: explicit_replace`、本地解析证据和上传证据。旧字段 `source_sha256 / source_size_bytes / source_mtime_ns` 可以保留为审计证据，但不再是复用 URL 的硬前置条件。
+final 相位必须存在 `asset_uploads[]` 与 `generation_slots[]`；`generation_slots[]` 是 YAML `reference_index`、submit plan `images[]`、远端 `mixedList` 与 LibTV UI 图N 的唯一槽位注册真源。
 多候选经过视觉消歧时，manifest 还必须保留 `visual_disambiguation[]` 证据，至少包含主体名称、类别、候选图片路径、是否已发送窗口上下文、最终选择和无法选择时的阻断原因。
 
 ## Bound Entry
@@ -118,17 +162,18 @@ binding_policy:
 name: "林寂"
 category: "character"
 path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
-resolved_from_current_generation_dir: true
+reuse_policy: "same_canvas_active_url"
+asset_registry_lookup_key: "<projectUuid>|character|林寂"
+resolved_from_current_generation_dir: false
 resolution_candidates:
   - "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
-source_sha256: "<sha256>"
+source_sha256: "<optional_sha256>"
 source_size_bytes: 123456
 source_mtime_ns: 1770000000000000000
-upload_cache_lookup_key: "<path>|<sha256>|<size>|<mtime_ns>"
-upload_cache_hit_after_fresh_resolution: false
+uploaded_url: "https://.../claw/<projectUuid>/..."
 selected_variant: "multi_view"
 matched_by: "exact"
-subject_inline: "林寂 @projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+subject_inline: "林寂 local_path=projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
 ```
 
 ## Visual Disambiguation Entry
@@ -157,7 +202,8 @@ status: "resolved"
 5. 多候选主体已有视觉消歧证据，或明确进入 `ambiguous`。
 6. ambiguous 不进入生成计划，除非用户确认。
 7. `images[]` / `mixedList` 不超过 9 张；超过时已优先从道具取舍，并记录排除理由；无法合理压缩到 9 张以内时不得提交。
-8. 任何使用缓存 URL 的图片都必须通过本地路径存在性和 `source_sha256 / source_size_bytes / source_mtime_ns` 指纹一致性检查；失败即视为 stale cache，不得提交。
-9. 使用缓存 URL 前必须已经完成 fresh local resolution，并记录 `resolved_from_current_generation_dir: true` 与 `upload_cache_hit_after_fresh_resolution: true`；按主体名、角色 ID 或文件名直接命中缓存一律失败。
+8. 任何 reused uploaded URL 都必须属于当前 `projectUuid` 的 `/claw/<projectUuid>/` 作用域；跨画布 URL 不得提交。
+9. 同画布 active URL 可按 YAML 主体名直接复用；若图片已调整或用户显式要求替换，必须重新上传并更新 active URL。
 10. `bound[]` 与 `missing[] / ambiguous[] / excluded_from_libtv_images[]` 的主体名不得重叠。
 11. 重复本地路径、重复 uploaded URL 或重复 mixedList URL 只有在显式声明 `shared_reference_group` 和共享理由时允许，否则不得提交。
+12. final 相位 `generation_slots[]` 必须逐项锁定 `reference_index -> name -> uploaded_url`，且与 prompt YAML、submit plan `images[]`、远端 `mixedList` 同槽一致；任何主体名和参照图错位都必须阻断提交或触发重提。

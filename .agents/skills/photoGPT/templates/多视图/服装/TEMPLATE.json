@@ -5,7 +5,7 @@
     "edit_subtype": "服装",
     "doc_role": "design_sheet_prompt_template",
     "version": "v1.2",
-    "updated_at": "2026-04-26"
+    "updated_at": "2026-05-11"
   },
   "required_fields": [
     "costume_id",
@@ -15,11 +15,12 @@
     "one_or_more_costume_reference_images"
   ],
   "input_roles": {
-    "main_reference_image": "Locks costume silhouette, cut, layers and palette.",
+    "main_reference_image": "Locks 服装样式和版型, costume silhouette, cut, layers and palette.",
     "supporting_reference_images": "Supplement fabric, pattern, accessories, wearing state or detail craftsmanship."
   },
   "subject_invariant_lock": {
     "must_preserve": [
+      "same 服装样式和版型",
       "same costume silhouette",
       "cut proportions",
       "layer order",
@@ -36,6 +37,7 @@
     ],
     "must_not_invent": [
       "different outfit",
+      "changed 服装样式和版型",
       "style replacement",
       "strong character identity",
       "advertising scene"
@@ -64,12 +66,13 @@
   "critical_requirements": [
     "Output must be COSTUME_DESIGN_SHEET, not a fashion poster or model lookbook.",
     "Apply the subject invariant lock before arranging modules.",
-    "Same costume identity across all modules: silhouette, material, color hierarchy, closures and decoration cannot drift.",
+    "Same costume identity across all modules: 服装样式和版型, silhouette, material, color hierarchy, closures and decoration cannot drift.",
     "If a body or mannequin is used, keep it neutral and secondary; do not create a new character identity.",
     "Top-left identity badge must show <costume_short_id> or preserve a clean overlay-ready badge plate."
   ],
   "negative_constraints": [
     "no different outfits",
+    "no changed 服装样式和版型",
     "no strong character identity",
     "no complex scene or advertising poster composition",
     "no loss of fabric, cut, decoration or layer structure",
@@ -77,9 +80,10 @@
     "no long text hallucination"
   ],
   "prompt_assembly": {
-    "final_prompt_template": "Create one COSTUME_DESIGN_SHEET for <costume_name> (<costume_short_id>) using <desc> and the reference images. Apply subject_invariant_lock, top-left identity badge, front/side/back views, material swatches, layer breakdown and detail callouts."
+    "final_prompt_template": "Create one COSTUME_DESIGN_SHEET for <costume_name> (<costume_short_id>) using <desc> and the reference images. Apply subject_invariant_lock, preserve 服装样式和版型 unchanged, top-left identity badge, front/side/back views, material swatches, layer breakdown and detail callouts."
   },
   "review_focus": [
+    "same 服装样式和版型",
     "same costume silhouette and layer order",
     "material, color hierarchy and closures remain stable",
     "neutral body or mannequin does not become a new character",

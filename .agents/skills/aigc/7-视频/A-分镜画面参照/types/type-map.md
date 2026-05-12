@@ -69,7 +69,7 @@
 
 | reference_state | default command | reason |
 | --- | --- | --- |
-| `found` | `libtv_session_with_uploaded_references` | 当前组目标镜头图有参照，用 fenced YAML `分镜画面参照[].uploaded_url` 绑定 |
+| `found` | `libtv_session_with_uploaded_references` | 当前组目标镜头图有参照，先建立分镜ID/镜头标签到 OSS URL 的身份绑定，最终按生成框 UI 图N 或 `imageList[n]` 回刷 fenced YAML |
 | `partial` | `libtv_session_with_uploaded_references` | 至少一张真实分镜画面图可作为多图参照，缺图镜头移除空槽位 |
 | `missing_optional` | `libtv_session_text_only` | 无图不阻断，用完整组内容直接生成 |
 | `ambiguous` | `blocked` | 歧义必须人工裁决 |
@@ -79,7 +79,7 @@
 ## Prompt Reference Binding Rules
 
 - 有分镜画面参照图时，默认 `frame_reference_prompt_binding=bound`。
-- 远端提交必须把 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体，分镜画面绑定落在 fenced YAML `分镜画面参照[].uploaded_url`。
+- 远端提交使用两段式 prompt：`draft` 保持 source-first 原组 YAML，不预填 `reference_index`、`uploaded_url` 或空 URL；生成框完成参照图加载后，以 UI 缩略图 `图N`/`Image N` 为优先槽位真源，回刷为 `final` 形态的 `【分镜组源文本】`，在 fenced YAML `分镜画面参照[]` 写入 `reference_index`、真实 `uploaded_url` 与可选 `image_token`。
 - 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image N}}`、裸 `图片N` 或裸 URL 序列，没有分镜ID/镜头标签邻近绑定，`frame_reference_prompt_binding=stripped`，状态改为 `frame_reference_name_stripped`，不进入正常 pending。
 
 ## Prompt Fidelity Rules

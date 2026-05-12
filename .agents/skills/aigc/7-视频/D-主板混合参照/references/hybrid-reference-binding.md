@@ -16,7 +16,7 @@
 - 唯一命中时写入 `storyboard_total_reference`。
 - 无命中时记录 `storyboard_missing_optional`，不保留空图片槽。
 - 多个同优先级命中时阻断该组，要求用户选择或先清理上游。
-- 故事板总参照只能作为整组总参照，不得挂到某个主体后；进入 LibTV 时只在 fenced YAML 的 `故事板参照.uploaded_url` 中表达，不另起远端参照说明段。
+- 故事板总参照只能作为整组总参照，不得挂到某个主体后；进入 LibTV 时只在 final fenced YAML 的 `故事板参照.reference_index / uploaded_url / image_token` 中表达，不另起远端参照说明段。draft prompt 不提前写这些槽位字段。
 
 ## Subject References
 
@@ -53,7 +53,7 @@
 2. 主体参照从当前 `5-设计/角色|场景|道具/3-生成` 目录 fresh resolve。
 3. 对每个进入 LibTV 的图片记录 `resolved_from_current_generation_dir: true`、`source_sha256`、`source_size_bytes`、`source_mtime_ns` 和候选集合。
 4. 只有当缓存记录的 `path + source_sha256 + source_size_bytes + source_mtime_ns` 与当前 fresh resolve 文件完全匹配时，才允许复用 cached uploaded URL。
-5. 本地源图缺失、指纹缺失或指纹不匹配时，该 URL 必须判定为 `stale_cached_upload`，不得进入 `mixedList`、fenced YAML `uploaded_url` 或 submit plan `images[]`。
+5. 本地源图缺失、指纹缺失或指纹不匹配时，该 URL 必须判定为 `stale_cached_upload`，不得进入 `mixedList`、final fenced YAML 绑定或 submit plan `images[]`。
 
 ## Manifest Shape
 
@@ -75,7 +75,7 @@
       "subject_name": "林夏",
       "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/林夏/多视图.png",
       "marker": "uploaded_url_binding",
-      "yaml_binding": {"name": "林夏", "uploaded_url": ""},
+      "yaml_binding": {"name": "林夏", "reference_index": 1, "uploaded_url": "", "image_token": "{{Image 1}}"},
       "selected_variant": "multi_view",
       "resolved_from_current_generation_dir": true,
       "source_sha256": "",
@@ -96,5 +96,5 @@
 3. 主体参照中角色和场景优先保留。
 4. 超出上限时先排除道具；仅保留对本组动作、证据或视觉锚点最关键的道具。
 5. 若排除道具后仍超过 9 张，再排除重复、不必要或可由源文本保留的次要主体。
-6. 被排除的主体不得进入 `mixedList` 或 fenced YAML `uploaded_url` 绑定；必须记录 `reference_over_limit`、`excluded_due_to_budget`，并说明它们由源文本约束保留。
+6. 被排除的主体不得进入 `mixedList` 或 final fenced YAML 槽位绑定；必须记录 `reference_over_limit`、`excluded_due_to_budget`，并说明它们由源文本约束保留。
 7. 若无法在不破坏故事板总参照、角色身份或空间连续性的前提下压到 9 张以内，必须标记 `needs_rework / reference_budget_unresolved`，交由用户或上游重新裁决；不得提交超过 9 张图的 LibTV 任务。

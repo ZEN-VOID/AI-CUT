@@ -13,8 +13,10 @@ from typing import Any
 
 VIDEO_URL_RE = re.compile(r"https?://[^\s)\"']+\.(?:mp4|mov|webm)(?:\?[^\s)\"']*)?", re.I)
 WAIT_RE = re.compile(r"(等待用户|等待.*下一条消息|请稍候|请将上述 question|展示给用户)", re.I)
+PLATFORM_POLICY_RE = re.compile(r"(内容不符合平台规则|不符合平台规则|平台规则.*重试)", re.I)
 AUDIO_URL_RE = re.compile(r"https?://[^\s)\"']+\.(?:mp3|wav|m4a|aac|flac|ogg)(?:\?[^\s)\"']*)?", re.I)
 STRING_FIELD_RE_TEMPLATE = r'"{key}"\s*:\s*"([^"]*)"'
+PLACEHOLDER_URL_RE = re.compile(r"https?://(?:www\.)?example\.com/", re.I)
 
 
 def _parse_jsonish(value: Any) -> Any:
@@ -53,6 +55,10 @@ def _extract_string_field(raw: Any, key: str) -> str | None:
     if not match:
         return None
     return match.group(1)
+
+
+def _real_urls(urls: list[str]) -> list[str]:
+    return [url for url in urls if not PLACEHOLDER_URL_RE.search(url)]
 
 
 def _extract_generation_call(call: dict[str, Any]) -> dict[str, Any] | None:
@@ -101,6 +107,7 @@ def detect(data: dict[str, Any]) -> dict[str, Any]:
     video_urls: list[str] = []
     ask_user_calls: list[dict[str, Any]] = []
     wait_messages: list[str] = []
+    platform_policy_messages: list[str] = []
     generation_markers: list[str] = []
     tool_errors: list[str] = []
     generation_calls: list[dict[str, Any]] = []
@@ -110,10 +117,12 @@ def detect(data: dict[str, Any]) -> dict[str, Any]:
     for message in messages:
         role = message.get("role") or message.get("senderType") or message.get("type")
         content = _content(message)
-        video_urls.extend(VIDEO_URL_RE.findall(content))
-        audio_urls.extend(AUDIO_URL_RE.findall(content))
+        video_urls.extend(_real_urls(VIDEO_URL_RE.findall(content)))
+        audio_urls.extend(_real_urls(AUDIO_URL_RE.findall(content)))
         if role != "user" and WAIT_RE.search(content):
             wait_messages.append(content[:500])
+        if role != "user" and PLATFORM_POLICY_RE.search(content):
+            platform_policy_messages.append(content[:500])
         if role == "tool" and ("error" in content.lower() or "isError" in content):
             tool_errors.append(content[:500])
         for call in message.get("toolCalls") or message.get("tool_calls") or []:
@@ -135,7 +144,7 @@ def detect(data: dict[str, Any]) -> dict[str, Any]:
                 if key == "audios" and isinstance(value, list):
                     audio_lists.append(value)
                 elif isinstance(value, str):
-                    audio_urls.extend(AUDIO_URL_RE.findall(value))
+                    audio_urls.extend(_real_urls(AUDIO_URL_RE.findall(value)))
 
     generation_tool_errors = [
         call for call in generation_calls
@@ -150,7 +159,11 @@ def detect(data: dict[str, Any]) -> dict[str, Any]:
         if not _enabled(call.get("enableSound"))
     ]
 
-    if ask_user_calls or wait_messages:
+    if platform_policy_messages:
+        verdict = "platform_policy_rejected"
+        local_status = "needs_moderation_safe_rerun"
+        remote_status = "platform_policy_rejected"
+    elif ask_user_calls or wait_messages:
         verdict = "stalled_remote_ask_user"
         local_status = "stalled_remote_ask_user"
         remote_status = "no_generation_node"
@@ -194,6 +207,7 @@ def detect(data: dict[str, Any]) -> dict[str, Any]:
         "audio_lists_count": len(audio_lists),
         "ask_user_calls": len(ask_user_calls),
         "wait_messages": wait_messages,
+        "platform_policy_messages": platform_policy_messages,
         "generation_markers": generation_markers,
         "generation_calls": generation_calls,
         "generation_envelope_variants_count": len(generation_envelope_variants),

@@ -46,7 +46,7 @@ flowchart TD
 | `N5-REF-BIND` | 保守绑定对应分镜画面图 | shot index、`6-图像/A-分镜画面` | 按 `shot_id` 查真实图片；无图移除空槽位 | reference manifest | `N6` | 无猜测路径 |
 | `N6-YAML` | 生成 LibTV batch YAML | prompt package、reference manifest | 投影 command_type、prompt、reference_images、`duration_hint=clamp(duration_estimate_seconds, 4, 15)`、output path、poll、`prompt_fidelity_mode` | batch YAML | `N7` | YAML 可投影为 $libTV 脚本调用，默认 `allow_libtv_prompt_optimization=false` |
 | `N7-REVIEW` | 执行提交前审查 | prompt、manifest、YAML | 检查 ID、正文完整性、路径、LibTV 脚本投影、mode、prompt fidelity opt-in | review note | `N8` / `N11` / repair | 必需项通过；未 opt-in 时禁止远端优化 |
-| `N8-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`，建立 worker pool，逐组提交 | tmp result、queue row | `N9` | 保留 sessionId |
+| `N8-DISPATCH` | 后台多线程提交 | LibTV batch YAML | 运行 `LIBTV_ACCESS_KEY credential check`；逐组上传后先建立 `generation_slots`，执行 `scripts/build-upload-ledger.py <package_dir> --sync` 将槽位注册表投影回 manifest、batch/plan、final YAML 和远端 `imageList`，再建立 worker pool 逐组提交 | tmp result、queue row、slot ledger | `N9` | 保留 sessionId，图N与分镜ID/URL同槽一致 |
 | `N9-QUEUE` | 维护异步队列 | submit outputs | 写 `第N集-libtv-queue.md`、results JSON 初稿 | queue ledger | `N10` | 每组状态明确 |
 | `N10-QUERY-DOWNLOAD` | 查询或下载已完成任务 | queue ledger、sessionId | `query_session`、自动下载到 `第N集/`、处理下载超时 | local videos、results JSON | `N11` | 本地状态真实 |
 | `N11-WRITE` | 写业务工件 | prompt、manifest、YAML、queue、result | 写 prompt 文档、manifest、batch、queue、report | file list | `N12` | 文件命名正确 |

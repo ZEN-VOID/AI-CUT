@@ -47,6 +47,8 @@ LibTV 是 LiblibAI 推出的 AI 视频创作平台，同时为人类创作者和
 | 任意 LibTV 生成、编辑、查询或下载任务 | `SKILL.md` + 同目录 `CONTEXT.md` |
 | 新建图片/视频生成任务 | 本文件的“典型工作流”“核心原则”“注意事项”与 `CONTEXT.md` 的生成类经验 |
 | 本地图片/视频作为参考或编辑源 | 本文件的上传流程与 `CONTEXT.md` 的参考文件交接经验 |
+| 上传资产图、参考图、角色图、道具图、场景图到画布 | `references/canvas-asset-management.md`，尤其是资产图上传合同、可见图片节点创建与节点命名修正 |
+| AIGC 视频生成结果命名或下载归档 | `references/canvas-asset-management.md` 的“视频生成命名”与本文件下载结果规则 |
 | 查询进度、下载结果或追加已有会话 | 本文件的查询/下载/已有会话流程与 `CONTEXT.md` 的 session 操作经验 |
 | 脚本命令细节 | `scripts/create_session.py`、`scripts/query_session.py`、`scripts/upload_file.py`、`scripts/download_results.py`、`scripts/change_project.py` |
 | 后续恢复完整 Skill 2.0 分区后 | `references/`、`steps/`、`review/`、`templates/`、`knowledge-base/` 中和任务相关的文件 |
@@ -75,6 +77,7 @@ LibTV 是 LiblibAI 推出的 AI 视频创作平台，同时为人类创作者和
 3. **切换项目** - 将当前 accessKey 绑定的项目切换到新项目，后续 create_session 将使用新 projectUuid
 4. **上传文件** - 上传图片或视频文件到 OSS，返回可访问的 OSS 地址（编辑已有视频/图片时需要先上传）
 5. **下载结果** - 将会话中生成的图片/视频批量下载到本地，自动提取 URL 并命名
+6. **画布资产管理** - 资产图上传后必须创建画布可见图片节点，并按原文件名修正节点名；细则见 `references/canvas-asset-management.md`
 
 ## 前置要求
 
@@ -333,5 +336,5 @@ python3 {baseDir}/scripts/download_results.py --urls URL1 URL2 URL3 --output-dir
 - Required output：任务完成时给出本地下载文件列表、结果链接和项目画布链接；若任务仍在生成，说明仍在生成中，不提前泄露 projectUrl。
 - Output format：简洁列出 `sessionId`、`projectUuid`、结果 URL、本地文件路径、`projectUrl` 与残余问题；不要整段粘贴原始 JSON，除非用户要求。
 - Output path：AIGC 主体参照视频默认进入 `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/分镜组ID.mp4`；其他下载结果进入语义化本地目录或用户指定目录；技能文件固定在 `.agents/skills/cli/libTV/`。
-- Naming convention：AIGC 主体参照视频使用分镜组 ID 作为精确文件名（`.mp4`）；其他下载文件前缀按任务语义命名，如 `storyboard`、`character`、`video`、`libtv` 或用户指定前缀。
+- Naming convention：AIGC 视频生成默认使用分镜组 ID 作为精确文件名（`.mp4`）；其他下载文件前缀按任务语义命名，如 `storyboard`、`character`、`video`、`libtv` 或用户指定前缀；资产图画布节点命名必须与图片原文件名一致，细则见 `references/canvas-asset-management.md`。
 - Completion gate：已加载 `SKILL.md + CONTEXT.md`；需要上传的参考文件已转为 OSS URL；消息包含画布操作性指令；没有本地创作越权；完成时已展示结果链接和项目画布链接。

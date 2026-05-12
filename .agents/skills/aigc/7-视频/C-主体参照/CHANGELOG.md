@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-05-11
+
+- 将主体参照上传策略改为同一 LibTV `projectUuid/projectID` 内优先复用同名 active uploaded URL；本地路径和指纹降为可选审计证据。
+- 固化图片调整/更换时的 `explicit_replace` 规则：只有用户显式要求替换、更新或重新上传，才重新解析本地图片并上传新 URL。
+
 ## 2026-05-10
 
 - 将 C 主体参照视频时长从固定 15 秒改为组级估算投影：读取 `4-分组` 当前组 `时长估算`，按 4-15 秒范围 clamp 后写入 LibTV submit plan 和远端提交。

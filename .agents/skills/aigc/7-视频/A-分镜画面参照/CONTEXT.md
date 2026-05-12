@@ -25,42 +25,47 @@ recommended_action: keep-target-scoped-updates
 | `TM-FVID-MODETYPE` | provider 路由层 | 默认锁定 `modeType=image2video`；只有用户显式首尾帧/起止帧过渡且图数 1-2 时才用 `frames2video`；无图用 `text2video` | `libtv-handoff-contract.md` 固定 A 专属 modeType 判定 | 远端提交首段出现正确 `modeType` |
 | `TM-FVID-QUEUE-DRIFT` | 异步队列层 | 用 `query_session` /  校正 queue ledger 的状态和 next_action | 每次提交后立即写 queue row，汇流阶段统一写 results | 每个 submitted job 有 sessionId 或失败原因 |
 | `TM-FVID-REMOTE-STORYBOARD-DRIFT` | LibTV 远端 handoff 口径层 | 回刷 `*-libtv-submission.txt`，首段加入 A 专属 `【LibTV 调用锁定】` 和 `modeType=image2video` | `references/libtv-handoff-contract.md` 固定 Remote Handoff Contract | 远端提交首段出现正确 `modeType`，且本地路径关键词扫描无命中 |
-| `TM-FVID-REFERENCE-NAME-STRIPPED` | 分镜画面参照投影层 | 标记 `frame_reference_name_stripped`，重写 `【直接生成请求】` 为“基于下方【分镜组源文本】”，并要求 source-first enriched YAML 的 `分镜画面参照[].uploaded_url` 与原正文共同作为 prompt 完整体 | `references/libtv-handoff-contract.md` 固定分镜ID/图片 token 绑定，禁止裸图片 token 序列 | query 中 `create_generation_task.params.prompt` 能看到 `分镜ID/镜头标签 + 图片 token/编号` 邻近绑定 |
+| `TM-FVID-REFERENCE-NAME-STRIPPED` | 分镜画面参照投影层 | 标记 `frame_reference_name_stripped`，重写 `【直接生成请求】` 为“基于下方【分镜组源文本】”，并要求 final source-first YAML 的 `分镜画面参照[].reference_index / uploaded_url / image_token` 与原正文共同作为 prompt 完整体 | `references/libtv-handoff-contract.md` 固定分镜ID/图片 token 绑定，禁止裸图片 token 序列 | query 中 `create_generation_task.params.prompt` 能看到 `分镜ID/镜头标签 + 图片 token/编号` 邻近绑定 |
 | `TM-FVID-REMOTE-NUMBERING` | 远端编号冲突层 | 重写远端提交，只写分镜ID/镜头标签 + uploaded URL；若系统自动产生真实编号，再让分镜ID邻近真实编号 | `references/libtv-handoff-contract.md` 禁止人工预设 `参照图N` | `*-libtv-submission.txt` 不含人工 `参照图N`，且分镜ID/镜头标签未丢失 |
+| `TM-FVID-UPLOAD-SLOT-CONFLATION` | 上传身份层与生成槽位层混淆 | 将 `frame_uploads: shot_id/source_label -> uploaded_url` 和 `generation_slots: 图N/imageList[n-1] -> uploaded_url -> shot_id/source_label` 分开；用实际 `imageList` 顺序回刷 YAML `reference_index` | `libtv-handoff-contract.md` 固定 OSS 上传不承载图N顺序真源 | `reference_index` 可由 `generation_slots` 反查，不依赖上传顺序 |
+| `TM-FVID-UI-SLOT-ORDER` | UI 槽位真源层 | 当视频生成框截图或缩略图可确认图N顺序时，以 UI 图N / `Image N` 为最终 `generation_slots`，再回刷 final YAML | `libtv-handoff-contract.md` 固定 UI 槽位优先级，`imageList` 仅在 UI 不可观测时兜底 | final YAML、`imageList` 和 UI 图N顺序一致 |
+| `TM-FVID-DRAFT-FINAL-MIXED` | 槽位相位混淆层 | draft prompt 只保留原 YAML；确认 UI 图N或最终 imageList 后再回刷 `reference_index / uploaded_url / image_token` | `SKILL.md` 固定 draft/final 两相位 | draft 无空 URL/占位 URL；final 按 `generation_slots` 排序 |
 | `TM-FVID-LIBTV-OPTIMIZE-WITHOUT-OPT-IN` | 提示词保真授权层 | 标记 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，新建干净 session，以 `strict_original + transport_only` 重新提交 | `SKILL.md` 和 `libtv-handoff-contract.md` 固定三档模式，默认 `allow_libtv_prompt_optimization=false` | 远端提交开头含 strict 原文锁；query 中无未授权优化版提示词、镜头计划或摘要分镜 |
 | `TM-FVID-DURATION-FIXED-15` | 时长投影层 | 回到 `4-分组` 当前组 `时长估算`，重建 `duration_estimate_seconds` 与 `duration_hint`；按 `clamp(估算, 4, 15)` 写入 batch 和远端提交 | `group-shot-source-contract.md` 与 `libtv-handoff-contract.md` 固定组级时长估算与 4-15 秒 clamp | batch 有 `duration_source / duration_estimate_seconds / duration_hint`，远端 `duration` 与 `duration_hint` 一致 |
 | `TM-FVID-REMOTE-REFERENCE-POLLUTION` | 远端参照区污染层 | 重写远端提交：只列进入 `imageList` 的分镜ID/镜头标签 + URL 短行；缺图、被排除、未入预算和空槽说明只写本地 manifest / report | `libtv-handoff-contract.md` 固定远端参照区短行和缺口说明禁入规则 | `*-libtv-submission.txt` 不含缺图/未入预算/不创建空图片槽说明，图片 token 邻近分镜ID |
-| `TM-FVID-AUDIO-CONTROL-MISSING` | 音频控制面缺失层 | 若无法在生成前验证 `create_generation_task.params.enableSound`，阻断为 `blocked_audio_control_unverified`；生成后无音频证据则 `audio_missing` | `libtv-handoff-contract.md` 固定生成前音频控制门和下载后 `ffprobe` 验收 | 生成前可见 `params.enableSound=on/true`，生成后 `task_result.audios` 非空或 `ffprobe` 检出 audio stream |
+| `TM-FVID-AUDIO-CONTROL-MISSING` | 音频控制面缺失层 | 若 CLI 路径无法在生成前验证 `create_generation_task.params.enableSound`，记录 `audio_preflight_unverified_non_blocking` 并继续提交；生成后无音频证据则 `audio_missing` | `libtv-handoff-contract.md` 固定非阻断音频预检和下载后 `ffprobe` 验收 | 远端提交写 `enableSound=on`；生成后 `task_result.audios` 非空或 `ffprobe` 检出 audio stream |
 
 ## Repair Playbook
 
 1. 先确认 mode：`prompt_only`、单组、整集、多组、多镜、查询、修复还是审查。
 2. 若 ID 对不上，先只修 `group-shot-index`，不要顺手改写 `4-分组` 正文。
-3. 若 prompt 被摘要或扩写，恢复 source-first enriched YAML：完整组正文 + fenced YAML `分镜画面参照[].uploaded_url`。
+3. 若 prompt 被摘要或扩写，恢复 source-first 两阶段：draft 保留完整组正文和原 YAML，final 按生成槽位回刷 fenced YAML `分镜画面参照[].reference_index / uploaded_url / image_token`。
 4. 若图片不存在，移除该镜的图片槽位，不写空 path；缺图默认不阻断组级 text-only 或剩余多图任务。
 5. 若一个 `shot_id` 命中多个同优先级图片，阻断该组并报告候选，不随机选择。
 6. 若多图超过 9 张或 $libTV skill scripts 当前限制，不静默丢弃图片；先做 9 图预算裁决并在 manifest 和 report 中记录 `excluded_due_to_budget`，无法合理压缩时阻断、分段或降级。
 7. 提交前固定执行 `LIBTV_ACCESS_KEY credential check`；失败时停止提交并转 LibTV 登录/环境修复。
 8. 并发 worker 只写临时结果，最终 queue、results 和 report 由主流程单线程汇流。
 9. 若远端代理把 A 任务改成 `singleImage2video`、默认 `frames2video`、新生成分镜图或合成流程，先修 `*-libtv-submission.txt` 的 `modeType` 调用锁，再重新提交，不要改写 `4-分组` 或补跑 `6-图像`。
-10. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明 fenced YAML 的分镜画面绑定没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于下方 `【分镜组源文本】`，并要求原正文 + YAML `分镜画面参照[].uploaded_url` 一起进入 prompt。
+10. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明 fenced YAML 的分镜画面绑定没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于下方 `【分镜组源文本】`，并要求原正文 + final YAML `分镜画面参照[].reference_index / uploaded_url / image_token` 一起进入 prompt。
 11. 若 query 显示远端把原文改成“优化提示词 / 重新编排镜头 / 摘要分镜 / 工作流规划”，先看 submit plan 是否 opt-in；未 opt-in 时不沿用该 session，按 `strict_original + transport_only` 新建测试 session。
 12. 若 batch 或远端提交把所有组固定为 15 秒，先查 group-shot index 是否保留 `时长估算`；缺失时回 `4-分组` 重新提取。小于等于 4 秒统一用 4 秒，大于等于 15 秒统一用 15 秒，中间值用估算值。
 13. 若远端提交包含缺图、未入预算、被排除或空槽说明，先从 manifest 重投影提交文本；这些说明只留本地报告，不进入 LibTV prompt。
-14. 若当前调用面不能在生成前直接控制或验证 `params.enableSound`，先阻断为 `blocked_audio_control_unverified`；不要先生成再靠后验收碰运气。
+14. 若当前调用面不能在生成前直接控制或验证 `params.enableSound`，记录 `audio_preflight_unverified_non_blocking`，不要阻断官方 `$libTV` Agent-IM 提交流程；生成后必须用 `task_result.audios` 或 `ffprobe` 做硬验收。
 
 ## Reusable Heuristics
 
 - `A-分镜画面参照` 的核心对象是“组级视频 job + 镜级图片引用”，不是单镜视频 job。
 - 四段式 `分镜ID` 是参照绑定锚点；三段式 `group_id` 是视频输出命名和队列锚点。
-- `分镜ID@路径` 只能作为旧本地可读映射理解；当前 canonical prompt 应投影为 fenced YAML `分镜画面参照[].uploaded_url`，不要人工预设 `参照图N`。
+- `分镜ID@路径` 只能作为旧本地可读映射理解；当前 canonical prompt 应在 final fenced YAML 投影为 `分镜画面参照[].reference_index / uploaded_url / image_token`，不要人工预设 `参照图N`。
 - 缺图不等于失败；错绑、猜图和空槽位才是失败。
 - 多张分镜画面更适合 `libtv_session_with_uploaded_references`；没有任何图片时再走 `libtv_session_text_only`。
 - 单个分镜组真实提交给 LibTV 的分镜画面参照最多 9 张；A 路线取舍时优先保留首镜、尾镜、关键动作、转场和空间关系镜头，排除重复或不必要相邻画面。
 - `frames2video` 是首尾帧/起止帧过渡路线，不应默认替代本技能的多图分镜画面参照；A 默认用 `image2video` 承载按 shot 顺序排列的多张分镜画面图。
 - LibTV 远端只需要 uploaded URL 和直接视频任务指令；本地 `projects/...` 路径留在 manifest / 审核 prompt，不能进入 `*-libtv-submission.txt`。
-- “参照 URL”这个说法容易让远端把分镜画面图当成匿名素材。A 远端请求应始终让 `【分镜组源文本】` 的 fenced YAML 持有 `shot_id / source_label / uploaded_url` 绑定；不得另起参照说明段，也不得人工预设 `参照图1/2/N` 编号。
+- “参照 URL”这个说法容易让远端把分镜画面图当成匿名素材。A 远端请求应始终让 `【分镜组源文本】` 的 final fenced YAML 持有 `shot_id / source_label / reference_index / uploaded_url / image_token` 绑定；不得另起参照说明段，也不得人工预设 `参照图1/2/N` 编号。
+- A 路线必须分清上传身份和生成槽位：`frame_uploads` 只回答“这张 OSS 图是哪个分镜ID”，`generation_slots` 才回答“图N/imageList[n-1] 是哪张 OSS 图”。最终 YAML 的 `reference_index` 以 `generation_slots` 为准。
+- 若视频生成框 UI 缩略图顺序可观测，UI 图N / `Image N` 优先级高于 OSS 上传顺序和旧 query 回显；`prompt.md` 初始应保持 draft，不提前写 `reference_index / uploaded_url`。
 - LibTV 的提示词优化不是 A 路线默认能力。默认只允许 `strict_original + transport_only`：源文本逐字投给生成 prompt，技术层只负责 URL、imageList 和视频参数；任何重新编排都必须来自用户显式 opt-in。
 - 视频时长是组级技术投影，不是全局固定规格；优先读取组底 `时长估算`，按 4-15 秒 clamp 后提交。
 - 远端分镜画面参照区越短越稳：只保留 `分镜ID/镜头标签 + uploaded URL`，连续性说明用总领句，缺图/取舍说明放本地报告。
-- 音频是生成前控制问题，不是单纯交付验收问题；`enableSound` 必须进入真实生成任务参数，`ffprobe` 只是二次验收。
+- 当前 `$libTV` Agent-IM CLI 没有独立音频开关；`enableSound` 必须写入远端提交文本，生成前无法验证时只记录 `audio_preflight_unverified_non_blocking`，交付仍以后验音频证据为硬门。

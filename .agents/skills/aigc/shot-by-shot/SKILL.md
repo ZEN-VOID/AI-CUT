@@ -63,7 +63,7 @@ Reject or clarify when:
 | mode | trigger | output |
 | --- | --- | --- |
 | `single_reference` | 单个视频或片段逐镜分析 | `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md` |
-| `targeted_stage_bridge` | 明确服务 `0-初始化`、`2-编导`、`3-摄影` 或 `5-设计` | 主报告 + `CONTEXT/shot-by-shot/<reference_slug>/画面风格解析.md` / `编导解析.md` / `摄影解析.md` / `设计解析.md` |
+| `targeted_stage_bridge` | 明确服务全局风格、编剧、摄影、设计或分镜脚本 | 主报告 + `CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md` / `编剧风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` + `shot-by-shot/<reference_slug>/分镜脚本.md` |
 | `scene_imitation_packet` | 为目标场景、场面、分镜组建立临摹策略 | 目标场景临摹映射与 forbidden-copy 清单 |
 | `comparative_reference` | 多个参考片段比较 | 多参考风格矩阵与融合裁决 |
 | `repair` | 既有拉片包缺证据、字段不对齐、临摹边界不清 | 最小修复后的拉片包与修复报告 |
@@ -75,6 +75,11 @@ Reject or clarify when:
 | --- | --- |
 | 任意逐镜拉片 | `references/analysis-method.md`、`steps/shot-by-shot-workflow.md` |
 | 与 `0-初始化` / `2-编导` / `3-摄影` / `5-设计` 对接 | `references/adaptation-output-contract.md` |
+| 输出全局风格解析 | `references/global-style-analysis-contract.md` |
+| 输出编剧风格解析 | `references/screenwriter-style-analysis-contract.md` |
+| 输出摄影风格解析 | `references/cinematography-style-analysis-contract.md` |
+| 输出设计风格解析 | `references/design-style-analysis-contract.md` |
+| 输出标准表格式分镜脚本 | `references/storyboard-script-contract.md` |
 | 版权、临摹边界和证据标注 | `references/evidence-and-rights-boundary.md` |
 | 判断素材类型和输出路线 | `types/source-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
@@ -98,9 +103,9 @@ flowchart TD
     D2 --> E
     D3 --> E
     D4 --> E
-    E --> F["N5 stage bridge analysis docs"]
+    E --> F["N5 stage bridge analysis docs and storyboard script"]
     F --> G["N6 review and rights gate"]
-    G -->|"pass"| H["shot-by-shot.md + project CONTEXT analysis docs"]
+    G -->|"pass"| H["shot-by-shot.md + project CONTEXT analysis docs + storyboard script"]
     G -->|"needs_rework"| R["route back to evidence / method / bridge"]
 ```
 
@@ -111,10 +116,11 @@ flowchart TD
     B -->|"copyrighted concrete expression"| D["Do not copy: frame, dialogue, unique sequence"]
     B -->|"project mismatch"| E["Translate: adapt to north star and target scene"]
     B -->|"AIGC infeasible"| F["Simplify: feasible camera / asset / video payload"]
-    C --> K["0-初始化 visual style bridge"]
-    C --> G["2-编导 bridge"]
-    C --> H["3-摄影 bridge"]
-    C --> J["5-设计 bridge"]
+    C --> K["global style bridge"]
+    C --> G["screenwriter bridge"]
+    C --> H["cinematography bridge"]
+    C --> J["design bridge"]
+    C --> L["storyboard script bridge"]
     E --> G
     E --> H
     F --> H
@@ -125,12 +131,13 @@ flowchart TD
 erDiagram
     REFERENCE_SHOT ||--o{ CRAFT_OBSERVATION : contains
     CRAFT_OBSERVATION ||--o{ IMITATION_PRINCIPLE : abstracts
-    IMITATION_PRINCIPLE ||--o{ DIRECTING_BRIDGE : feeds
+    IMITATION_PRINCIPLE ||--o{ SCREENWRITER_BRIDGE : feeds
     IMITATION_PRINCIPLE ||--o{ CINEMATOGRAPHY_BRIDGE : feeds
-    DIRECTING_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "2-编导 compatible"
+    IMITATION_PRINCIPLE ||--o{ STORYBOARD_SCRIPT : feeds
+    SCREENWRITER_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "2-编导 compatible"
     CINEMATOGRAPHY_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "3-摄影 compatible"
     DESIGN_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "5-设计 compatible"
-    VISUAL_STYLE_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "0-初始化 north_star compatible"
+    VISUAL_STYLE_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "global style compatible"
     AIGC_CONTEXT_ANALYSIS ||--o{ FORBIDDEN_COPY_LEDGER : guarded_by
 ```
 
@@ -141,35 +148,39 @@ erDiagram
 3. 按 `steps/shot-by-shot-workflow.md` 建立逐镜边界：镜头编号、时间码、画面事件、进入/退出点、镜头功能、可观察证据。
 4. 按 `references/analysis-method.md` 并行分析导演调度、表演任务、空间权力、摄影语法、运镜、光影色彩、剪辑节奏、声音接口、类型氛围和 AIGC 可执行性。
 5. 按 `references/evidence-and-rights-boundary.md` 将观察结果抽象成可迁移原则，明确禁止照搬项；所有临摹建议必须脱离参考片的具体角色、剧情、台词、构图复制和镜头顺序复制。
-6. 按 `references/adaptation-output-contract.md` 汇流输出：`0-初始化` 侧只给能服务 `north_star.yaml` 的 `全局风格`、`细分风格.画面风格` 与 `类型元素` 的画面风格解析，不直接改写 north star。`2-编导` 侧只给戏剧问题、人物压力、表演任务、场面调度、潜台词行为和可拍承托；不得写摄影机位、景别或分镜编号。`3-摄影` 侧给 `visual_unit`、`beat_map`、`rhythm_profile`、`camera_grammar_plan`、`functional_projection_payload` 和可改写成 `分镜明细：` 的示范语法；不得改写项目编导正文。`5-设计` 侧按角色、场景、道具拆分可迁移视觉资产原则，并保留各设计子技能的画面合同。
+6. 按 `references/adaptation-output-contract.md` 汇流输出：`全局风格解析.md` 侧参照 `global-style-director` 生成叙事研究、路由决议、媒介/技术栈、美学范式、节奏锚定、去污染审计和 200 字以内无污染风格提示词候选，不直接改写 `north_star.yaml` 或 `style_contract.json`。`编剧风格解析.md` 侧只给戏剧问题、人物压力、表演任务、场面调度、潜台词行为、对白策略和可拍承托；不得写摄影机位、景别或分镜编号。`摄影风格解析.md` 侧给 `visual_unit`、`beat_map`、`rhythm_profile`、`camera_grammar_plan`、`functional_projection_payload` 和可改写成 `分镜明细：` 的示范语法；不得改写项目编导正文。`设计风格解析.md` 侧按角色、场景、道具拆分可迁移视觉资产原则，并保留各设计子技能的画面合同。`分镜脚本.md` 必须使用 `input/苍穹裂缝·战神降维.numbers` 的 19 列字段和内容编排方式。
 7. 输出前执行 `review/review-contract.md`：证据可回指、临摹边界清楚、0/2/3/5 阶段字段不越权、AIGC 可执行、没有复制具体表达。
-8. 写入 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md`；若未绑定项目，则在当前回复中交付结构化拉片包，不落入项目 runtime。
+8. 写入 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md`、`分镜脚本.md`、`执行报告.md` 与项目 `CONTEXT/shot-by-shot/<reference_slug>/` 四份解析；若未绑定项目，则在当前回复中交付结构化拉片包，不落入项目 runtime。
 
 ## Output Contract
 
 ### Required Output
 
 1. 主拉片报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md`。
-2. `0-初始化` 画面风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/画面风格解析.md`，仅在本轮需要服务 north star 风格块时生成。
-3. `2-编导` 解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/编导解析.md`，仅在本轮需要服务编导时生成。
-4. `3-摄影` 解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/摄影解析.md`，仅在本轮需要服务摄影时生成。
-5. `5-设计` 解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/设计解析.md`，仅在本轮需要服务角色、场景或道具设计时生成。
-6. 执行报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/执行报告.md`。
+2. 全局风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md`。
+3. 编剧风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/编剧风格解析.md`。
+4. 摄影风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/摄影风格解析.md`。
+5. 设计风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/设计风格解析.md`。
+6. 标准表格式分镜脚本：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/分镜脚本.md`。
+7. 执行报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/执行报告.md`。
+
+若仓库内旧消费者仍按旧文件名读取，可同步生成 `画面风格解析.md`、`编导解析.md`、`摄影解析.md`、`设计解析.md` 兼容镜像；兼容镜像不得反向覆盖 canonical 新文件。
 
 ### Output Format
 
 - 主报告必须包含：`思考过程`、素材证据、逐镜表、解析维度、临摹原则、禁止照搬清单、阶段对接包和风险。
-- `画面风格解析.md` 必须使用 `0-初始化` 可消费字段：`north_star_field`、`global_style_dimension`、`sub_style_field`、`type_element`、`safe_phrase_seed`、`可回刷建议`、`Do Not Import`。
-- `编导解析.md` 必须使用 `2-编导` 可消费字段：戏剧问题、人物选择压力、观众位置、表演任务、场面调度、场景状态差、可拍承托、禁用摄影越权。
-- `摄影解析.md` 必须使用 `3-摄影` 可消费字段：`visual_unit_function`、`beat_map`、`rhythm_profile`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_payload`、`shot_design_seed`、`分镜明细` 写法参考。
-- `设计解析.md` 必须按 `角色解析`、`场景解析`、`道具解析` 分区，分别服务角色全身试装照、场景空镜、道具纯色背景 45 度完整近摄的设计合同。
+- `全局风格解析.md` 必须使用 `global-style-director` 可消费字段：叙事研究、路由决议、媒介与技术栈、美学范式、叙事节奏锚定、去污染审计、全局风格提示词候选、`Do Not Import`。
+- `编剧风格解析.md` 必须使用 `2-编导` 可消费字段：戏剧问题、人物选择压力、观众位置、表演任务、场面调度、场景状态差、对白策略、可拍承托、禁用摄影越权。
+- `摄影风格解析.md` 必须使用 `3-摄影` 可消费字段：`visual_unit_function`、`beat_map`、`rhythm_profile`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_payload`、`shot_design_seed`、`分镜明细` 写法参考。
+- `设计风格解析.md` 必须按 `角色解析`、`场景解析`、`道具解析` 分区，分别服务角色全身试装照、场景空镜、道具纯色背景 45 度完整近摄的设计合同。
+- `分镜脚本.md` 必须是 Markdown table，列顺序完全参照 `input/苍穹裂缝·战神降维.numbers`：`镜号`、`时长`、`画面描述`、`角色1`、`角色描述1`、`角色图1`、`角色2`、`角色描述2`、`角色图2`、`参考`、`景别`、`角色动作`、`情绪`、`场景标签`、`光影氛围`、`音效`、`对白`、`分镜提示词`、`视频运动提示词`。
 
 ### Completion Gate
 
 - 已说明为什么选择当前逐镜分析拓扑，并在 `思考过程` 中给出关键裁决。
 - 每条重要结论均能回指参考素材时间码、截图序号或用户提供描述。
 - 临摹建议已经抽象为可迁移 craft principle，没有复制参考片具体表达。
-- 输出解析能被 `0-初始化`、`2-编导`、`3-摄影` 或 `5-设计` 直接作为项目附加上下文消费，且不越权改写 owning stage canonical 文件。
+- 输出解析能被全局风格、`2-编导`、`3-摄影` 或 `5-设计` 直接作为项目附加上下文消费，`分镜脚本.md` 能作为标准表格式分镜脚本继续生产，且不越权改写 owning stage canonical 文件。
 - 若发现素材不可见、证据不足、版权边界不清或阶段字段冲突，已输出阻断原因与最小补证需求。
 
 ## Field Master
@@ -180,12 +191,13 @@ erDiagram
 | `FIELD-SBS-02` | shot boundary map | 镜头边界、进入点、退出点和可观察事件可回指 | `FAIL-SBS-SHOT-MAP` |
 | `FIELD-SBS-03` | craft observation | 导演、表演、摄影、剪辑、声音、美术与 AIGC 可行性分维度拆解 | `FAIL-SBS-OBSERVATION` |
 | `FIELD-SBS-04` | imitation principle | 观察被抽象为可迁移原则，禁止具体复制 | `FAIL-SBS-IMITATION` |
-| `FIELD-SBS-05` | 0-初始化 visual style bridge | 输出能被 `north_star.yaml` 风格块消费的画面风格、细分风格和类型元素补强 | `FAIL-SBS-STYLE-BRIDGE` |
-| `FIELD-SBS-06` | 2-编导 bridge | 只输出编导可消费的戏剧/表演/调度/承托字段 | `FAIL-SBS-DIRECTING-BRIDGE` |
-| `FIELD-SBS-07` | 3-摄影 bridge | 输出能转成 `分镜明细：` 的摄影语法和 shot payload | `FAIL-SBS-CINE-BRIDGE` |
-| `FIELD-SBS-08` | 5-设计 bridge | 输出能被角色、场景、道具设计消费的资产原则和画面合同边界 | `FAIL-SBS-DESIGN-BRIDGE` |
-| `FIELD-SBS-09` | rights ledger | 禁止照搬项、证据不足项、项目不适配项清楚 | `FAIL-SBS-RIGHTS` |
-| `FIELD-SBS-10` | output landing | `shot-by-shot` 末端同名主报告与项目 `CONTEXT/` 阶段解析落点稳定 | `FAIL-SBS-OUTPUT` |
+| `FIELD-SBS-05` | global style bridge | `全局风格解析.md` 完整包含叙事研究、路由、媒介技术栈、美学范式、节奏锚定、审计和提示词候选 | `FAIL-SBS-STYLE-BRIDGE` |
+| `FIELD-SBS-06` | screenwriter bridge | `编剧风格解析.md` 只输出编剧/编导可消费的戏剧、表演、调度、对白策略和承托字段 | `FAIL-SBS-DIRECTING-BRIDGE` |
+| `FIELD-SBS-07` | cinematography bridge | `摄影风格解析.md` 输出能转成 `分镜明细：` 的摄影语法和 shot payload | `FAIL-SBS-CINE-BRIDGE` |
+| `FIELD-SBS-08` | design bridge | `设计风格解析.md` 输出能被角色、场景、道具设计消费的资产原则和画面合同边界 | `FAIL-SBS-DESIGN-BRIDGE` |
+| `FIELD-SBS-09` | storyboard script | `分镜脚本.md` 使用 Numbers 示例 19 列字段和内容编排方式，且每行对应一个镜头 | `FAIL-SBS-STORYBOARD-SCRIPT` |
+| `FIELD-SBS-10` | rights ledger | 禁止照搬项、证据不足项、项目不适配项清楚 | `FAIL-SBS-RIGHTS` |
+| `FIELD-SBS-11` | output landing | `shot-by-shot` 主报告、`分镜脚本.md` 与项目 `CONTEXT/` 四份解析落点稳定 | `FAIL-SBS-OUTPUT` |
 
 ## Thought Pass Map
 
@@ -195,12 +207,13 @@ erDiagram
 | `PASS-SBS-01` | `FIELD-SBS-02` | 镜头边界在哪里，进入/退出点是什么 | 建立 shot boundary map | timecode / still anchors |
 | `PASS-SBS-02` | `FIELD-SBS-03` | 每镜的导演、表演、摄影、剪辑、声音、美术功能是什么 | 并行拆解 craft observations | observation matrix |
 | `PASS-SBS-03` | `FIELD-SBS-04` | 哪些是可临摹原则，哪些是不可复制表达 | 抽象 craft grammar，写 forbidden-copy ledger | imitation principles |
-| `PASS-SBS-04` | `FIELD-SBS-05` | 哪些结果能服务 `0-初始化/north_star.yaml` 且不直接覆盖 north star | 投影 visual style analysis packet | visual style bridge |
-| `PASS-SBS-05` | `FIELD-SBS-06` | 哪些结果能服务 `2-编导` 且不越权摄影 | 投影 director bridge packet | directing bridge |
+| `PASS-SBS-04` | `FIELD-SBS-05` | 哪些结果能服务全局风格底座且不直接覆盖 north star 或 style contract | 投影 global style analysis packet | global style bridge |
+| `PASS-SBS-05` | `FIELD-SBS-06` | 哪些结果能服务 `2-编导` 且不越权摄影 | 投影 screenwriter bridge packet | screenwriter bridge |
 | `PASS-SBS-06` | `FIELD-SBS-07` | 哪些结果能服务 `3-摄影` 的 `分镜明细：` | 投影 camera grammar / shot design seed | cinematography bridge |
 | `PASS-SBS-07` | `FIELD-SBS-08` | 哪些结果能服务 `5-设计` 且不复制参考片具体美术表达 | 投影 design analysis packet | design bridge |
-| `PASS-SBS-08` | `FIELD-SBS-09` | 版权、项目适配和 AIGC 可行性是否过门 | 执行 review gate 和风险裁决 | rights and feasibility verdict |
-| `PASS-SBS-09` | `FIELD-SBS-10` | 最终包是否唯一、可消费、可回指 | 写回主报告和项目 `CONTEXT/` 解析 | output paths |
+| `PASS-SBS-08` | `FIELD-SBS-09` | 如何生成标准表格式分镜脚本且继承示例字段编排 | 投影 storyboard script table | storyboard script |
+| `PASS-SBS-09` | `FIELD-SBS-10` | 版权、项目适配和 AIGC 可行性是否过门 | 执行 review gate 和风险裁决 | rights and feasibility verdict |
+| `PASS-SBS-10` | `FIELD-SBS-11` | 最终包是否唯一、可消费、可回指 | 写回主报告、项目 `CONTEXT/` 解析和 `分镜脚本.md` | output paths |
 
 ## Pass Table
 
@@ -210,12 +223,13 @@ erDiagram
 | `PASS-SBS-01` | 逐镜边界可复查，不用剧情段落冒充镜头 | `FAIL-SBS-SHOT-MAP` | `steps/shot-by-shot-workflow.md` |
 | `PASS-SBS-02` | 至少覆盖导演/表演/摄影/剪辑/声音/美术/AIGC 可行性中的任务相关维度 | `FAIL-SBS-OBSERVATION` | `references/analysis-method.md` |
 | `PASS-SBS-03` | 可迁移原则与禁止照搬项分离 | `FAIL-SBS-IMITATION` | `references/evidence-and-rights-boundary.md` |
-| `PASS-SBS-04` | `画面风格解析.md` 对齐 `全局风格 / 细分风格 / 类型元素`，且不直接改写 `north_star.yaml` | `FAIL-SBS-STYLE-BRIDGE` | `references/adaptation-output-contract.md` |
-| `PASS-SBS-05` | `编导解析.md` 不含机位、景别、运镜、分镜编号 | `FAIL-SBS-DIRECTING-BRIDGE` | `references/adaptation-output-contract.md` |
-| `PASS-SBS-06` | `摄影解析.md` 能转成 `分镜明细：`，且不改写编导正文 | `FAIL-SBS-CINE-BRIDGE` | `references/adaptation-output-contract.md` |
-| `PASS-SBS-07` | `设计解析.md` 按角色/场景/道具拆分，且保留各自画面合同 | `FAIL-SBS-DESIGN-BRIDGE` | `references/adaptation-output-contract.md` |
-| `PASS-SBS-08` | 没有复制参考片具体表达，AIGC 可执行风险清楚 | `FAIL-SBS-RIGHTS` | `review/review-contract.md` |
-| `PASS-SBS-09` | 主报告和项目 `CONTEXT/` 解析路径稳定，最终输出含 `思考过程` | `FAIL-SBS-OUTPUT` | `templates/output-template.md` |
+| `PASS-SBS-04` | `全局风格解析.md` 对齐 global-style 字段、默认无污染，且不直接改写 `north_star.yaml` 或 `style_contract.json` | `FAIL-SBS-STYLE-BRIDGE` | `references/global-style-analysis-contract.md` |
+| `PASS-SBS-05` | `编剧风格解析.md` 不含机位、景别、运镜、分镜编号或 `分镜提示词` | `FAIL-SBS-DIRECTING-BRIDGE` | `references/screenwriter-style-analysis-contract.md` |
+| `PASS-SBS-06` | `摄影风格解析.md` 能转成 `分镜明细：`，且不改写编导正文 | `FAIL-SBS-CINE-BRIDGE` | `references/cinematography-style-analysis-contract.md` |
+| `PASS-SBS-07` | `设计风格解析.md` 按角色/场景/道具拆分，且保留各自画面合同 | `FAIL-SBS-DESIGN-BRIDGE` | `references/design-style-analysis-contract.md` |
+| `PASS-SBS-08` | `分镜脚本.md` 含 Numbers 示例 19 列，字段顺序、每镜一行和提示词编排合规 | `FAIL-SBS-STORYBOARD-SCRIPT` | `references/storyboard-script-contract.md` |
+| `PASS-SBS-09` | 没有复制参考片具体表达，AIGC 可执行风险清楚 | `FAIL-SBS-RIGHTS` | `review/review-contract.md` |
+| `PASS-SBS-10` | 主报告、`分镜脚本.md` 和项目 `CONTEXT/` 解析路径稳定，最终输出含 `思考过程` | `FAIL-SBS-OUTPUT` | `templates/output-template.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -224,12 +238,13 @@ erDiagram
 - 把“拉片”写成剧情摘要或影评，而不是逐镜 craft 证据。
 - 只输出抽象“电影感/高级感/压迫感”，没有可迁移导演、表演或摄影语法。
 - 把参考片具体画面、台词、角色、镜头顺序或构图复制到 AIGC 项目。
-- 给 `画面风格解析.md` 写成分场景摄影表、直接覆盖 `north_star.yaml`，或把参考片专属画面组合偷渡进全局风格。
-- 给 `编导解析.md` 写入机位、景别、运镜或分镜编号，越权到 `3-摄影`。
-- 给 `摄影解析.md` 只有参数清单，无法消费为自然中文 `分镜明细：`。
-- 给 `设计解析.md` 复制参考片具体人物脸、服装纹样、场景构图、道具纹章，或违反角色/场景/道具设计子技能的画面合同。
+- 给 `全局风格解析.md` 写成分场景摄影表、直接覆盖 `north_star.yaml` / `style_contract.json`，或把参考片专属画面组合偷渡进全局风格。
+- 给 `编剧风格解析.md` 写入机位、景别、运镜、分镜编号或 `分镜提示词`，越权到 `3-摄影` / `分镜脚本.md`。
+- 给 `摄影风格解析.md` 只有参数清单，无法消费为自然中文 `分镜明细：`。
+- 给 `设计风格解析.md` 复制参考片具体人物脸、服装纹样、场景构图、道具纹章，或违反角色/场景/道具设计子技能的画面合同。
+- 给 `分镜脚本.md` 漏掉 Numbers 示例列、改变列顺序、把多镜合并成剧情段落，或照搬示例具体表达。
 - 脚本替代 LLM 做逐镜审美判断或临摹策略归纳。
 
 必经链路：
 
-`Symptom -> Direct Analysis/Bridge/Rights Failure -> shot-by-shot Section Owner -> 0-初始化 / 2-编导 / 3-摄影 / 5-设计 Contract -> AGENTS.md LLM-first / Skill 2.0 Rule`
+`Symptom -> Direct Analysis/Bridge/Rights Failure -> shot-by-shot Section Owner -> global-style / 2-编导 / 3-摄影 / 5-设计 / storyboard script Contract -> AGENTS.md LLM-first / Skill 2.0 Rule`

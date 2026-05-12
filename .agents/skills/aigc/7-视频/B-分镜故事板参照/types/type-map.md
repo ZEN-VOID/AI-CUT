@@ -67,7 +67,7 @@
 
 | reference_state | default command | reason |
 | --- | --- | --- |
-| `found` | `libtv_session_with_uploaded_references` | 故事板图作为视觉参照，用 `@图1` 绑定 |
+| `found` | `libtv_session_with_uploaded_references` | 故事板图作为视觉参照，先建立故事板总参照到 OSS URL 的身份绑定，最终按生成框 UI 图1 或 `imageList[0]` 回刷 fenced YAML |
 | `missing_optional` | `libtv_session_text_only` | 无图不阻断，用完整组内容直接生成 |
 | `ambiguous` | none | 歧义必须人工裁决 |
 | `skipped_by_user_policy` | none | 用户明确要求缺图跳过 |
@@ -75,7 +75,7 @@
 ## Prompt Reference Binding Rules
 
 - 有故事板参照图时，默认 `storyboard_reference_prompt_binding=bound`。
-- 远端提交必须把 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体，故事板绑定落在 fenced YAML `故事板参照.uploaded_url`。
+- 远端提交使用两段式 prompt：`draft` 保持 source-first 原组 YAML，不预填 `reference_index`、`uploaded_url` 或空 URL；生成框完成故事板图加载后，以 UI 缩略图 `图1`/`Image 1` 为优先槽位真源，回刷为 `final` 形态的 `【分镜组源文本】`，在 fenced YAML `故事板参照` 写入 `reference_index: 1`、真实 `uploaded_url` 与可选 `image_token`。
 - 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image 1}}`、裸 `图片1` 或裸 URL，没有“故事板总参照”身份邻近绑定，`storyboard_reference_prompt_binding=stripped`，状态改为 `storyboard_reference_name_stripped`，不进入正常 pending。
 
 ## Prompt Fidelity Rules

@@ -9,4 +9,5 @@
 - 必须具备顶左主体身份牌：图中优先显示短 ASCII ID，完整主体名称进入 prompt plan / JSON 记录；若图像模型文字不稳，保留干净 badge plate 供后期叠字。
 - 短 ASCII ID 可由用户输入、上游设计文档或主体名安全转换得到；无法提取或推导时进入 prompt-only。
 - 参照图只提供主体、风格或布局依据，不得偷换上游设计事实。
+- 服装多视图必须明确锁定服装样式和版型，不得只写服装不变。
 - 场景多视图额外要求每个 panel 左下角具备短视角标签，例如 `P1 WIDE`、`P2 MED`、`P3 DETAIL`、`P4 THRESH`、`P5 STRUCT`、`P6 LOW`、`P7 PATH`、`P8 MATERIAL`、`P9 TOP`；若文字不稳，保留干净 label strip 供后期叠字。

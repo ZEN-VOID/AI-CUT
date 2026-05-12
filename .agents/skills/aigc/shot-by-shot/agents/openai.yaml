@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 拉片"
-  short_description: "逐镜分析参考视频，并输出可供初始化风格、编导、摄影与设计消费的 AIGC 项目上下文解析。"
-  default_prompt: "使用 $aigc-shot-by-shot 分析这段参考视频，输出可供 0-初始化、2-编导、3-摄影 和 5-设计 直接消费的项目 CONTEXT 解析文档。"
+  short_description: "逐镜分析参考视频，并输出全局风格、编剧、摄影、设计解析与标准表格式分镜脚本。"
+  default_prompt: "使用 $aigc-shot-by-shot 分析这段参考视频，输出全局风格解析、编剧风格解析、摄影风格解析、设计风格解析和标准表格式分镜脚本。"

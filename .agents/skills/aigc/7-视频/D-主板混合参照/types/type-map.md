@@ -51,7 +51,7 @@
 ## Prompt Reference Binding Rules
 
 - 有故事板或主体参照图时，默认 `hybrid_reference_prompt_binding=bound`。
-- 远端提交必须把 source-first enriched YAML 形态的 `【分镜组源文本】` 作为生成 prompt 完整体，故事板和主体绑定落在 fenced YAML 的 `故事板参照.uploaded_url` 与主体 `uploaded_url`。
+- 远端提交使用两段式 prompt：`draft` 保持 source-first 原组 YAML，不预填 `reference_index`、`uploaded_url` 或空 URL；生成框完成故事板和主体图加载后，以 UI 缩略图 `图N`/`Image N` 为优先槽位真源，回刷为 `final` 形态的 `【分镜组源文本】`，在 fenced YAML 的 `故事板参照` 与主体条目中写入 `reference_index`、真实 `uploaded_url` 与可选 `image_token`。
 - 若 query 检测到 `create_generation_task.params.prompt` 中参照部分只剩裸 `{{Image N}}`、裸 `图片N` 或裸 URL 序列，没有“故事板总参照”身份或主体名称邻近绑定，`hybrid_reference_prompt_binding=stripped`，状态改为 `hybrid_reference_name_stripped`，不进入正常 pending。
 
 ## Duration Rules

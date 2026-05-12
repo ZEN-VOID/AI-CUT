@@ -1,20 +1,25 @@
 # Output Template
 
+## Output Contract Alignment
+
+本模板承接 `SKILL.md` 的 Output Contract。canonical 解析文件名为 `全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md` 与 `分镜脚本.md`；旧命名仅可作为兼容镜像。
+
 ## Canonical Paths
 
 ```text
 projects/aigc/<项目名>/shot-by-shot/<reference_slug>/
 ├── shot-by-shot.md
+├── 分镜脚本.md
 └── 执行报告.md
 
 projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/
-├── 画面风格解析.md
-├── 编导解析.md
-├── 摄影解析.md
-└── 设计解析.md
+├── 全局风格解析.md
+├── 编剧风格解析.md
+├── 摄影风格解析.md
+└── 设计风格解析.md
 ```
 
-`shot-by-shot.md` 是主报告，末端同技能包名；项目 `CONTEXT/` 下的阶段解析按实际目标阶段可选生成，供 owning stage 作为附加上下文加载。
+`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；项目 `CONTEXT/` 下的四份解析是 owning stage 的附加上下文。
 
 ## Main Report Skeleton
 
@@ -25,7 +30,7 @@ stage: shot-by-shot
 reference_slug: <reference_slug>
 source_ref: <video path / stills / notes / link>
 evidence_grade: confirmed | partial | inferred | insufficient
-bridge_targets: [0-初始化, 2-编导, 3-摄影, 5-设计]
+bridge_targets: [全局风格, 编剧, 摄影, 设计, 分镜脚本]
 output_path: projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md
 review_status: pending | pass | needs_rework | blocked
 ---
@@ -52,8 +57,8 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 逐镜拆解表
 
-| shot_id | timecode | observable_event | shot_function | directing/blocking | cinematography | editing/sound | aigc_feasibility |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| shot_id | timecode | observable_event | shot_function | directing/blocking | cinematography | editing/sound | design_signal | aigc_feasibility |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## 临摹原则
 
@@ -67,10 +72,11 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 阶段对接
 
-- `CONTEXT/shot-by-shot/<reference_slug>/画面风格解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/编导解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/摄影解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/设计解析.md`:
+- `CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md`:
+- `CONTEXT/shot-by-shot/<reference_slug>/编剧风格解析.md`:
+- `CONTEXT/shot-by-shot/<reference_slug>/摄影风格解析.md`:
+- `CONTEXT/shot-by-shot/<reference_slug>/设计风格解析.md`:
+- `shot-by-shot/<reference_slug>/分镜脚本.md`:
 
 ## 风险与补证
 
@@ -79,85 +85,118 @@ review_status: pending | pass | needs_rework | blocked
 - aigc_feasibility_gap:
 ```
 
-## 画面风格解析 Skeleton
+## 全局风格解析 Skeleton
 
 ```markdown
-# 画面风格解析
+# 全局风格解析
 
 ## 使用边界
 
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `0-初始化/north_star.yaml` 的项目上下文解析，服务 `全局风格`、`细分风格.画面风格` 与 `类型元素` 的后续复核、补强或回刷。
-- 本解析不直接改写 `north_star.yaml`；若需要进入 canonical north star，必须由 `0-初始化` 或明确的 rebootstrap / source-layer sync 任务执行。
-- 只提炼可迁移画面语法，不复制参考片具体构图、人物脸、地图文字、道具纹章或镜头顺序。
+- 这是 `shot-by-shot/<reference_slug>` 提供给项目全局风格底座的 side context，参照 `global-style-director` 的字段逻辑。
+- 本解析不直接改写 `north_star.yaml`，不直接生成或覆盖 `style_contract.json`。
+- 默认只提炼媒介、渲染技术栈、美学范式与节奏锚点，不复制参考片具体对象、构图、颜色组合、材质组合或镜头顺序。
 
-## North Star 对齐摘要
+## 叙事与世界约束
 
-| north_star_field | 当前项目真源 | reference 可迁移补强 |
-| --- | --- | --- |
+| field | value | evidence | confidence |
+| --- | --- | --- | --- |
+| tldr |  |  |  |
+| theme_triplet |  |  |  |
+| world_triplet |  |  |  |
+| era |  |  |  |
+| region |  |  |  |
+| narrative_type |  |  |  |
+| pacing_tendency |  |  |  |
 
-## 全局风格补强
+## 路由决议
 
-| style_seed_id | source_shots | global_style_dimension | transferable_principle | north_star_usage |
-| --- | --- | --- | --- | --- |
+| route | trigger | reason | fallback |
+| --- | --- | --- | --- |
 
-## 细分风格补强
+## 媒介与技术栈
 
-| style_seed_id | source_shots | sub_style_field | transferable_principle | safe_phrase_seed |
-| --- | --- | --- | --- | --- |
+| medium | tech_stack | narrative_service_reason | downstream_note |
+| --- | --- | --- | --- |
 
-## 类型元素补强
+## 美学范式
 
-| type_seed_id | source_shots | type_element | visual_function | type_prompt_usage |
-| --- | --- | --- | --- | --- |
+| aesthetic_paradigm | style_logic | why_it_serves_story | risk |
+| --- | --- | --- | --- |
 
-## 可回刷建议
+## 叙事节奏锚定
 
-```yaml
-细分风格:
-  画面风格: ""
-类型元素:
-  类型元素提示词: ""
-```
+- 节奏档位：
+- 判断依据：
+- 拍摄段落执行字窗：
+- 回退规则：无明确逻辑根源时默认中节奏
+
+## 去污染审计
+
+| item | verdict | evidence | action |
+| --- | --- | --- | --- |
+
+## 全局风格提示词候选
+
+> <默认 200 字以内纯中文无污染提示词；R4 时保留用户锁定原文并标明 exact。>
 
 ## Do Not Import
 
 -
 ```
 
-## 编导解析 Skeleton
+## 编剧风格解析 Skeleton
 
 ```markdown
-# 编导解析
+# 编剧风格解析
 
 ## 使用边界
 
 - 这是 `shot-by-shot/<reference_slug>` 提供给 `2-编导` 的项目上下文解析，不改写上游正文。
-- 不包含机位、景别、运镜、分镜编号或 `分镜明细：`。
+- 不包含机位、景别、运镜、焦段、分镜编号、`分镜明细：` 或 `分镜提示词`。
 
-## Directing Seeds
+## 戏剧结构摘要
 
-| unit_id | source_shots | dramatic_question_seed | audience_position_seed | character_pressure_seed | performance_task_seed | blocking_power_seed | controlled_enrichment_seed |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| unit_id | source_shots | dramatic_question_seed | audience_position_seed | scene_state_delta |
+| --- | --- | --- | --- | --- |
+
+## 编剧风格 Seeds
+
+| unit_id | source_shots | character_pressure_seed | dialogue_strategy_seed | controlled_enrichment_seed |
+| --- | --- | --- | --- | --- |
+
+## 场面调度与表演承托
+
+| unit_id | performance_task_seed | blocking_power_seed | project_fit |
+| --- | --- | --- | --- |
+
+## 禁用摄影越权
+
+-
 
 ## Do Not Import
 
 -
 ```
 
-## 摄影解析 Skeleton
+## 摄影风格解析 Skeleton
 
 ```markdown
-# 摄影解析
+# 摄影风格解析
 
 ## 使用边界
 
 - 这是 `shot-by-shot/<reference_slug>` 提供给 `3-摄影` 的项目上下文解析，不改写 `2-编导` 原文。
-- 参考写法必须服务 `分镜明细：`，不复制参考片具体镜头顺序。
+- 参考写法必须服务 `分镜明细：` 与 `分镜脚本.md`，不复制参考片具体镜头顺序。
 
-## Cinematography Seeds
+## 摄影语法摘要
 
-| unit_id | source_shots | visual_unit_function | beat_map_seed | rhythm_profile_seed | camera_grammar_plan_seed | functional_projection_payload | shot_detail_style_seed |
-| --- | --- | --- | --- | --- | --- | --- | --- |
+| unit_id | source_shots | visual_unit_function | rhythm_profile_seed | continuity_seed |
+| --- | --- | --- | --- | --- |
+
+## 摄影风格 Seeds
+
+| unit_id | beat_map_seed | camera_grammar_plan_seed | functional_projection_payload | shot_detail_style_seed |
+| --- | --- | --- | --- | --- |
 
 ## 分镜明细写法参考
 
@@ -165,12 +204,21 @@ review_status: pending | pass | needs_rework | blocked
 分镜明细：
 分镜1: <根据目标项目重写后的自然中文运镜摄影设计，不照搬参考片具体构图。>
 ```
+
+## AIGC 可执行性
+
+| risk | mitigation |
+| --- | --- |
+
+## Do Not Import
+
+-
 ```
 
-## 设计解析 Skeleton
+## 设计风格解析 Skeleton
 
 ```markdown
-# 设计解析
+# 设计风格解析
 
 ## 使用边界
 
@@ -180,22 +228,56 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 角色解析
 
-| design_seed_id | source_shots | role_design_need | transferable_principle | visual_design_seed | costume_material_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- | --- |
+| design_seed_id | source_shots | role_design_need | transferable_principle | visual_design_seed | prompt_boundary |
+| --- | --- | --- | --- | --- | --- |
 
 ## 场景解析
 
-| scene_seed_id | source_shots | scene_design_need | transferable_principle | empty_scene_seed | lighting_material_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- | --- |
+| scene_seed_id | source_shots | scene_design_need | transferable_principle | empty_scene_seed | prompt_boundary |
+| --- | --- | --- | --- | --- | --- |
 
 ## 道具解析
 
-| prop_seed_id | source_shots | prop_design_need | transferable_principle | prop_design_seed | material_detail_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- | --- |
+| prop_seed_id | source_shots | prop_design_need | transferable_principle | prop_design_seed | prompt_boundary |
+| --- | --- | --- | --- | --- | --- |
+
+## 视觉转译原则
+
+-
 
 ## Do Not Import
 
 -
+```
+
+## 分镜脚本 Skeleton
+
+```markdown
+# 分镜脚本
+
+## 使用边界
+
+- 本表字段与内容编排参照 `input/苍穹裂缝·战神降维.numbers`。
+- 学习字段组织、镜头生产信息密度和提示词结构，不复制示例具体角色、剧情、台词、场景或视觉表达。
+
+## 字段来源
+
+- source_example: `input/苍穹裂缝·战神降维.numbers`
+- canonical_columns: `镜号, 时长, 画面描述, 角色1, 角色描述1, 角色图1, 角色2, 角色描述2, 角色图2, 参考, 景别, 角色动作, 情绪, 场景标签, 光影氛围, 音效, 对白, 分镜提示词, 视频运动提示词`
+
+## 分镜脚本表
+
+| 镜号 | 时长 | 画面描述 | 角色1 | 角色描述1 | 角色图1 | 角色2 | 角色描述2 | 角色图2 | 参考 | 景别 | 角色动作 | 情绪 | 场景标签 | 光影氛围 | 音效 | 对白 | 分镜提示词 | 视频运动提示词 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+## 生成检查
+
+- 19 列完整：
+- 每行一个镜头：
+- 无对白写 `无`：
+- 角色描述使用 `[角色名: ...]`：
+- `分镜提示词` 使用方括号功能块：
+- `视频运动提示词` 以 `[摄影机运镜：...]` 开头并以 `[时长：Xs]` 收束：
 ```
 
 ## Report Skeleton
@@ -217,10 +299,11 @@ review_status: pending | pass | needs_rework | blocked
 - shot_map_gate:
 - observation_gate:
 - imitation_boundary_gate:
-- 2_directing_bridge_gate:
-- 3_cinematography_bridge_gate:
-- 5_design_bridge_gate:
-- 0_visual_style_bridge_gate:
+- global_style_bridge_gate:
+- screenwriter_bridge_gate:
+- cinematography_bridge_gate:
+- design_bridge_gate:
+- storyboard_script_gate:
 - rights_gate:
 - output_gate:
 

@@ -43,6 +43,8 @@ last_checked_at: 2026-04-25
 ## Reusable Heuristics
 
 - `photoGPT` 的价值不在“把提示词写长”，而在“把编辑类型、图片角色和不可漂移项写准”。
+- 涉及角色多视图、换装、换角色、换脸时，“保留角色身份不变”必须进一步写成“保留原角色形象和妆容不变”，避免模型只保留脸型却漂移妆面或整体角色观感。
+- 涉及服装多视图、换装时，“保留/替换服装”必须进一步写成“服装样式和版型”，避免模型只保留颜色或材质却漂移轮廓、剪裁和穿着结构。
 - `photoGPT` 子类模板以 JSON 为执行真源；不要再新增 Markdown 执行模板。字段化模板更利于 LLM 补齐 `required_fields`、`input_roles`、`preserve_scope`、`change_scope`、`negative_constraints`、`prompt_assembly` 和 `review_focus`。
 - `元素替换` 模板最重要的是图序：图一通常是保留构图/主体的源图，图二是替换来源。
 - `修图` prompt 应避免“重新设计”“重绘”“换风格”等词，除非用户明确要求。

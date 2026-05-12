@@ -25,8 +25,8 @@ D-主板混合参照/
 
 - 技能目录：`.agents/skills/aigc/7-视频/D-主板混合参照/`
 - 项目输出根：`projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`
-- 触发语义：同一分镜组 prompt 同时使用故事板总参照和主体参照，绑定落在 source-first YAML 的 uploaded_url 字段。
+- 触发语义：同一分镜组 prompt 同时使用故事板总参照和主体参照，绑定在 final source-first YAML 中按生成槽位回刷。
 
 ## Core Rule
 
-故事板图和主体图都写入 source-first fenced YAML 的 `uploaded_url` 字段；故事板用途和主体连续性说明放在远端 `【直接生成请求】`，不在本地 prompt 前另起说明段。
+故事板图和主体图都写入 final source-first fenced YAML 的 `reference_index / uploaded_url / image_token` 字段；故事板用途和主体连续性说明放在远端 `【直接生成请求】`，不在本地 prompt 前另起说明段。
