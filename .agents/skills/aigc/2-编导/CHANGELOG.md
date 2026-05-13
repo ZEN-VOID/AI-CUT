@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-05-13
+
+- 基于 `reports/transcripts/audio/AI视频角色演技学习稿.md` 新增 `references/actor-performance-control-contract.md`，将角色演技学习内容沉淀为 `actor_performance_control_pass`：上游触发点、情绪动机、微表情、非面部生理联动、环境声音、非对称瑕疵和微动态限制。
+- 同步更新 `SKILL.md`、`steps/directing-workflow.md`、`review/review-contract.md`、`templates/output-template.md`、`templates/episode-script.template.md`、`performance-and-scene-craft`、`psychological-reaction`、README 与 CONTEXT，要求关键情绪 beat 不得只写“开心/愤怒/难过/紧张”等情绪标签或模板化表情。
+- 新增 `actor_performance_control_evidence` 执行报告证据，要求证明关键情绪场已从情绪标签转成微表情、身体联动、环境声/沉默余波和可内嵌字段。
+- 按上一轮 `code-reviewer` 审查结果补齐运行证明闭环：新增 `thinking_action_node_ledger` 与 `learning_integration_review_evidence`，要求思维·执行节点不退化为 checklist，并区分真实样例、等价 smoke、`static_only` 与残余风险。
+- review 新增 `GATE-DIRECT-27 / FAIL-THINKING-ACTION-NODE`，阻断缺少判断问题、执行动作、证据字段、出口路由、gate 状态或 source owner 的节点记录。
+
 ## 2026-05-07
 
 - 增补内心独白人称规则：`内心独白（主角）` 承接第三人称小说叙述时，主角自指必须转为第一人称心声；`内心独白画面` 保留第三人称可拍描述。同步更新 `SKILL.md`、`psychological-reaction-contract.md`、`novel-to-screen-language-contract.md`、`review-contract.md` 与 `CONTEXT.md`。

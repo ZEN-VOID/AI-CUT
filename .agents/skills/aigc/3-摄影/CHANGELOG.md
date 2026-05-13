@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-05-13
+
+- 基于 `浪花传说之琉球篇/第2集-电影特别版` 摄影稿复盘，新增 `references/sequence-density-curve-contract.md`，把节奏把控从单句 `beat_map/rhythm_profile` 上收为段落级 `sequence_density_curve`：先裁决 `tempo_beats`、`density_ramp`、`peak_slots`、`recovery_slots`、`set_piece_chain_slots`、`sound_cut_pattern` 和 `density_budget`，再进入单句分镜数量与时值裁决。
+- 在 workflow 中新增 `N3.6-DENSITY-CURVE`，要求连续观看段落先判断哪里省镜头、哪里加密、哪里停顿、哪里硬切、哪里交出；并让 `N4-BEAT`、`N5-RHYTHM`、`N5.2-DURATION`、`N5.5-PEAK-SHOT`、`N6.5-SHOT-PLAN` 与 review 消费该曲线。
+- 为动作 set-piece 增加 5-6 镜例外：连续命中、连续反弹、连续物件结果或“一声一结果”的声画打点可突破 4 镜上限，但每镜必须有独立起点、撞点、结果或反应，高密度后必须有恢复/反压/交出锚点。
+- 更新 `SKILL.md`、beat/rhythm/shot-planning、review、README、模板与 `CONTEXT.md`，新增 `GATE-CINE-04A2/04A3`、`FAIL-CINE-03D/03E` 和执行报告 `density_curve_summary` 字段，防止整场全满、全空、平均同密度或只靠分布统计替代节奏曲线。
+- 放宽 `分镜明细` 的分镜密度上限：将仍停留在 `1-3` / `2-3` 的 beat 与 rhythm 细则同步调整为可按真实节拍扩展到 `1-4` / `2-4`，同时保留反模板化约束，禁止把四分镜当固定占位。
+- 基于 `reports/transcripts/audio/AI视频镜头与提示词学习稿.md` 新增 `references/ai-video-prompt-execution-contract.md`，把“镜头包裹动作、方向参照、光线结果、表演微动态、提示词分栏边界”转译为 `3-摄影` 的视频执行稳定性合同。
+- 在 `SKILL.md`、workflow、review、README 与 `CONTEXT.md` 中接入 `ai_video_prompt_execution_profile`，要求 `N6.4-FUNCTIONAL-PROJECTION` 和 `N6.5-SHOT-PLAN` 在输出前检查镜头先行、动作发生在镜头内部、方向相对镜头/画面明确、光线写成可见结果。
+- 更新动态运镜、自然成稿、功能性投影和技法库细则，补充方向参照、光线结果控制、微动态表演承托和禁止把完整视频提示词分栏模板直接落入 `分镜明细` 的规则。
+- 新增 review gate `GATE-CINE-15A` 与失败路由 `FAIL-CINE-05N`，用于阻断动作镜头割裂、方向含混、光线空泛、抽象情绪和提示词模板腔。
+- 根据审查结果补齐思维·执行节点闭环：将 AI 视频执行稳定性补入 `N8-REVIEW`、`N8R-DIRECT-REPAIR`、`PASS-CINE-12`、阶段末 review-repair 合同与 `thinking_action_node_review`，确保新 gate 在最终写回前是阻断项。
+- 修正 `CONTEXT.md` 健康状态：当前已超过 `soft_limit_chars`，状态改为 `warn` 并记录后续定向压缩要求，本轮优先保留学习成果完整性。
+
 ## 2026-05-06
 
 - 补全画面性字段语义入口：在 `SKILL.md`、`references/visual-matching-contract.md` 与 `CONTEXT.md` 中显式加入微表情、呼吸、沉默、姿态、视线、手部动作和身体距离，避免表演细节只隐含在类型包中。

@@ -10,8 +10,10 @@
 
 - soft_limit_chars: 22000
 - hard_limit_chars: 44000
-- status: ok
-- last_checked_at: 2026-05-06
+- status: warn
+- last_checked_at: 2026-05-13
+- current_chars_checked_at_last_review: 25620
+- action_needed: 下一轮结构整理时定向压缩 Reusable Heuristics 或将长例证外移到 `CHANGELOG.md` / `reports/`；本轮先保持知识点完整，避免为降字数删除新学习成果。
 
 ## Type Map
 
@@ -22,6 +24,7 @@
 | 分镜数量机械固定 | 节拍判断层 | 重新按注意力转移、动作相位、信息揭示、情绪转折切分 | beat contract 固定“一个节拍点 = 一个分镜切换点” | 同类句子分镜数可不同，且每个分镜能说清切换理由 |
 | 分镜数量塌缩为固定 2 镜 | 节拍判断 / 模板诱导层 | 回到 `beat_map -> rhythm_profile -> shot_count_decision`，先证明 1 镜是否足够，再验证第二观看策略是否真实存在；低信息块合并，关键块扩展 | 模板不再固定展示 `分镜2` 占位；review 和 validator 增加分镜数量分布检查 | 同一集分镜数量分布有张弛；抽样 `分镜2` 均能说清新增主体、动作相位、信息、情绪压力、空间关系或交接接口 |
 | 分镜明细张弛失衡 | 画面节奏层 | 内部先判 `rhythm_profile`，低信息收敛、关键信息发散、强断裂有动机地爆发 | visual rhythm contract 固定信息重要性与描述密度矩阵，但不显式输出标签 | 整集有呼吸，不是每句都同等华丽或同等简略 |
+| 整场节奏变好依赖临场灵感，源层只做单句分镜数判断 | 段落密度曲线层 | 回到 `sequence-density-curve-contract.md`，先形成 `sequence_density_curve`：`tempo_beats -> density_ramp -> peak_slots/recovery_slots -> set_piece_chain_slots/sound_cut_pattern -> density_budget`，再进入单句 `beat_map` | 在 workflow 固定 `N3.6-DENSITY-CURVE`，review 增加 `GATE-CINE-04A2/04A3`，报告记录 `density_curve_summary` | 整段能说清哪里省、哪里爆、哪里停、哪里交出；高密度块后有恢复或反压 |
 | 分镜切点正确但长短失衡 | 镜头时值层 | 回到 `shot-duration-decision-contract.md`，为每条 `分镜N` 补 `shot_duration_decision`，判断缩短一半会丢什么、拉长一倍是否只会拖慢 | 在 workflow 固定 `N5.2-DURATION`，在 `shot_design_plan` 中保留逐镜时值裁决，review 增加 `GATE-CINE-04B` | 文字/道具/微表情有可读时间，低信息镜头不拖长，多分镜之间有快慢/停顿接力 |
 | 终稿缺少显式秒数 | 落盘投影层 | 将每条旧式 `分镜N:` 改为 `分镜N（约X秒）:`，并回填 `display_seconds` 与对应时值理由 | 模板、review 和 validator 固定显式时长格式；`estimated_seconds` 留在内部，`display_seconds` 必须落盘 | 下游能直接消费近似时长；每条分镜括号秒数能从正文运动、停点或对白承托反推 |
 | 对白台词量未进入镜头时值 | 声画时值层 | 先估算对白/旁白/画外音字数、语速和停顿，再把 `dialogue_seconds_floor` 合并进 `display_seconds`；长台词可跨镜承托但要有分段关系 | `N5.2-DURATION` 固定先算 `dialogue_time_budget`，review 增加对白时长承托 gate | 台词不会没说完就切走；短句不会被无意义拖成远超台词需要的长镜 |
@@ -31,8 +34,9 @@
 | 分镜明细静态呆板 | 动态表达层 | 改成“从起点到终点”的变化句，加入组合运镜、速度曲线、焦点或景别转换 | dynamic shot detail contract 固定动态句法 | 每个分镜能读出运动路径和注意力转移 |
 | 分镜明细参数腔/模板腔 | 自然成稿层 | 回到 `natural-shot-detail-writing-contract.md`，把内部参数压成自然画面文字；只显式保留当前节拍最关键的 1-2 个摄影选择 | review gate 固定自然成稿检查，禁止连续同构句 | 读者先看到画面和动作，再自然读出摄影策略 |
 | 分镜明细好看但功能随机 | 功能性投影层 | 回到 `functional-cinematic-projection-contract.md`，逐条补 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material、continuity_handoff | `shot_design_plan` 必须先过功能 payload，再进入自然成稿 | 下游能抽取主体、动作、运镜、构图、光色、空间和交接接口 |
+| 分镜明细不适合视频生成 | AI 视频执行层 | 回到 `ai-video-prompt-execution-contract.md`，把动作改成被镜头包裹，补相对镜头/画面的方向参照，把光源词改成亮暗/阴影/轮廓/反光结果，把抽象情绪落到微表情和身体联动 | `N6.4-FUNCTIONAL-PROJECTION` 固定产出 `ai_video_prompt_execution_profile`，`N6.5-SHOT-PLAN` 执行视频稳定性检查，review 增加 `GATE-CINE-15A` | 每条分镜可按“镜头与构图 -> 人物与动作 -> 微动态 -> 光线结果 -> 环境承托”稳定改写为视频提示词 |
 | 段落运镜流畅但画面点失主 | 段落对齐 / 归属边界层 | 回到 `visual-sequence-alignment-contract.md`，建立 `sequence_profile` 的同时补 `unit_ownership_map`，把后文主体动作、对白反应、记忆段或道具揭示移回所属 visual_unit | workflow 固定 `N3.5-SEQUENCE-ALIGN`，shot planning 固定 `unit_ownership_check`，review 增加 `GATE-CINE-04D` | 每条 `分镜N` 能回答“服务哪条上游画面句子”；段落流畅只体现在入口、落点、视觉母题和交出锚点 |
-| 思维·执行节点缺环 | 节点拓扑层 | 回到 `steps/cinematography-workflow.md`，按 `N1-INTAKE -> N2-MATCH -> N3-TYPE -> N3.5-SEQUENCE-ALIGN -> N4-BEAT -> N5-RHYTHM -> N5.2-DURATION -> N5.5-PEAK-SHOT -> N5.6-ADVISOR -> N6-CONTINUITY -> N6.1-HANDOFF -> N6.2-CAMERA-GRAMMAR -> N6.4-FUNCTIONAL-PROJECTION -> N6.5-SHOT-PLAN -> N7-INJECT -> N8-REVIEW -> N8R/N9` 补齐缺失判断 | `Thought Pass Map` 与 `Node Network` 必须同步维护；`N3-TYPE` 不得早于 `N2-MATCH`，review 固定 `thinking_action_node_review` | 产物能回指真源、画面匹配、类型、段落观看意图与逐点归属、节拍、节奏、时值、高点、顾问、连续性、转场、摄影语法、功能投影、计划、注入和修复闭环 |
+| 思维·执行节点缺环 | 节点拓扑层 | 回到 `steps/cinematography-workflow.md`，按 `N1-INTAKE -> N2-MATCH -> N3-TYPE -> N3.5-SEQUENCE-ALIGN -> N3.6-DENSITY-CURVE -> N4-BEAT -> N5-RHYTHM -> N5.2-DURATION -> N5.5-PEAK-SHOT -> N5.6-ADVISOR -> N6-CONTINUITY -> N6.1-HANDOFF -> N6.2-CAMERA-GRAMMAR -> N6.4-FUNCTIONAL-PROJECTION(+ai_video_prompt_execution_profile) -> N6.5-SHOT-PLAN -> N7-INJECT -> N8-REVIEW -> N8R/N9` 补齐缺失判断 | `Thought Pass Map` 与 `Node Network` 必须同步维护；`N3-TYPE` 不得早于 `N2-MATCH`，review 固定 `thinking_action_node_review`，且 `GATE-CINE-15A` 必须进入阶段末闭环 | 产物能回指真源、画面匹配、类型、段落观看意图与逐点归属、段落密度曲线、节拍、节奏、时值、高点、顾问、连续性、转场、摄影语法、功能投影、AI 视频执行稳定性、计划、注入和修复闭环 |
 | 景别/视角/焦点变化随机 | 摄影语法层 | 回到 `N6.2-CAMERA-GRAMMAR`，先确定景别梯度、视角动机、景深/焦点交接、镜头类型与构图锚点 | `camera_grammar_plan` 先于 `functional_projection_plan` 与 `shot_design_plan`，不得在成稿末尾补摄影词 | 景别和视角变化能解释为建立、调度、加压、揭示、主观发现、权力关系、空间重置或交接 |
 | references 细则没有进入最终分镜 | 计划汇流层 | 回到 `N6.5-SHOT-PLAN`，为每个 visual_unit 先建 `shot_design_plan`，再写 `分镜N` | `shot-planning-integration-contract.md` 固定输出前汇流门 | 每个分镜能回指 beat/rhythm/continuity/technique/handoff |
 | 分镜数量变多但显得随机 | 节拍计划层 | 删除没有新观看策略的伪分镜；只保留新的注意力、信息、动作相位、空间关系、情绪压力或转场接口 | `shot_design_plan.beats` 必须逐条说明 trigger 和 handoff | 多分镜之间有递进，不是同一状态的重复描述 |
@@ -45,7 +49,7 @@
 | 炫技盖过剧情 | 戏剧服务层 | 删除不服务信息、情绪或空间关系的运动和转场 | review gate 固定“技术必须服务当前画面句子的戏剧任务” | 每个分镜能对应角色、信息或压力变化 |
 | 改写了 `2-编导` 原文 | 保真层 | 恢复上游原句，只保留下方新增分镜明细块 | 输出模板要求原文复制 + 增量注入 | diff 中除 frontmatter 和 `分镜明细` 外无正文改写 |
 | 创意转场滥用 | 阶段归属层 | 删除 `3-摄影` 中的转场方案，只保留可见交出锚点 | technique library 只提供边界交出素材，`4-分组` 再设计连接件 | 分镜明细不打断需要持续观看的表演节拍 |
-| review 后直接交付未修稿 | 末段闭环层 | 回到 `N8R-DIRECT-REPAIR`，按 finding 最小修分镜明细、编号、节拍、连续性、峰值分镜或报告证据，再复审 | `Stage-End Review-Repair Contract` 固定 candidate -> review -> repair -> re-review -> writeback | 执行报告有 repair_actions 与 re_review_verdict，canonical 稿无阻断项 |
+| review 后直接交付未修稿 | 末段闭环层 | 回到 `N8R-DIRECT-REPAIR`，按 finding 最小修分镜明细、编号、节拍、连续性、AI 视频执行稳定性、峰值分镜或报告证据，再复审 | `Stage-End Review-Repair Contract` 固定 candidate -> review -> repair -> re-review -> writeback，`GATE-CINE-15A` 不得降级为 followup | 执行报告有 repair_actions 与 re_review_verdict，canonical 稿无阻断项 |
 
 ## Repair Playbook
 
@@ -60,21 +64,23 @@
 9. 若大面积都是 2 镜，按分布问题而不是“风格一致”处理：抽样低信息、过场、表演停顿、关键显影、群像和高点块，逐条追问 `分镜2` 如果删除会少什么；答不上来就合并，若 2 镜压不住关键观看策略就扩展。
 10. 若多镜数量合理但观看仍别扭，按时值问题处理：快速镜是否带走了该读的信息，长镜是否只有气氛没有可见变化，15 秒组内是否被连续长停顿拖慢。
 11. 若连续 3-6 个画面单位共享空间、道具链、声音链、动作链、记忆插入或视觉母题，先建立内部 `sequence_profile`，但同步写清每个 visual_unit 的 `unit_ownership_map` 和禁止外溢项；段落级流畅不能改变逐句落盘边界。
-12. 在写任何 `分镜N` 前先走完节点链：`N2-MATCH` 建 visual_unit 和 ownership_boundary，`N3-TYPE` 判 type_profile / sequence_relation / ownership_risk，`N3.5-SEQUENCE-ALIGN` 在命中时建 `sequence_profile -> unit_ownership_map -> forbidden_bleed`，再进入 `continuity_profile -> handoff_profile（命中时） -> camera_grammar_plan -> functional_projection_plan -> shot_design_plan`；缺任一层都不能直接成稿。
-13. 在 `camera_grammar_plan` 中先裁决景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜速度；不要到成稿阶段临时补“特写/俯拍/慢推”等孤立词。
-14. 在 `functional_projection_plan` 中补 payload：每条分镜都必须有影视功能、可见主体、动作相位、运镜计划、时值理由、构图锚点、光色/材质、空间接口、连续性交接、下游消费点和所属 visual_unit；缺一组关键项就不是终稿。
-15. 在 `shot_design_plan` 中检查每条分镜必须有 trigger、start、path、duration、end、handoff 和 unit_ownership_check；无法填写的分镜通常是随机分镜或失主分镜，应删掉或移回所属画面点。
-16. 检查多分镜是否递进：上一分镜的落点必须成为下一分镜的入口、反应、动作、声音、光色、焦点、运镜变化或转场接口；如果每条分镜都像重新开始，回到连续性和计划汇流层。
-17. 若发生场景变化，必须检查 `handoff_profile`：上一画面从哪个主体、动作、声音、光色、文字、空间出口或反应交出，下一画面可能从哪里进入；不在本阶段写普通切镜、软桥接或高能方案。
-18. 检查每个 `分镜明细：` 是否包含可执行摄影信息；空泛词和抽象阐释改成景别、景深、视角、镜头类型、速度、构图、光线、色彩、转场。
-19. 把 `分镜明细：` 当作兼容字段名，不当作抽象标题；凡出现主题寓意、人物心理结论、世界观解释、导演阐释或不可执行气氛口号，必须转译为可见的运镜、摄影美学或可消费交出锚点，无法转译则删除。
-20. 检查每个 `分镜N` 是否动态：从哪里开始、怎么运镜、速度如何变化、何时停、落到哪里；若只有参数清单，先回内部计划，再重写为自然运动句。
-21. 检查连续分镜是否句法同构：若多条都像“从……以……变化到……最终……”，必须把参数内化为画面、动作、遮挡、光色和落点。
-22. 检查每个画面句子是否在内部回看临近至少前 3 个画面单位；输出中不要机械写出回看过程，如果跳轴、跳色、跳景别或运动方向突变，再补一句反应镜头、声画桥、光变、形态匹配或建立镜头动机。
-23. 对 `诡校-测试版` 这类封闭校园惊悚项目，优先维护冷白日光灯、黑窗帘、红色危险信号、黑板规则显影、窄课桌空间压迫等持续视觉母题。
-24. 若分镜明细开始改变剧情理解，回到保真层：原字段只提供事实，分镜明细只能强化观看路径，不新增剧情事实。
-25. 最后做一次脚本或人工机械检查：命中行覆盖率、`分镜N` 连续性、输出路径、分镜数量分布、显式秒数和逐画面点归属。
-26. 交付前把 review finding 当成修复输入，而不是报告附件；阻断项先在本阶段修复并复审，仍失败再阻断或回最早镜头责任节点。
+12. 若连续观看段落存在明显速度阶段、动作链、声音打点、峰值爆发或分镜分布风险，先建立内部 `sequence_density_curve`：用 `tempo_beats` 说清整段变速，用 `density_ramp` 决定哪里省镜头/哪里加密，用 `peak_slots/recovery_slots` 控制爆点和余波，用 `set_piece_chain_slots/sound_cut_pattern` 判定 5-6 镜例外，最后用 `density_budget` 防止全场同密度。
+13. 在写任何 `分镜N` 前先走完节点链：`N2-MATCH` 建 visual_unit 和 ownership_boundary，`N3-TYPE` 判 type_profile / sequence_relation / ownership_risk，`N3.5-SEQUENCE-ALIGN` 在命中时建 `sequence_profile -> unit_ownership_map -> forbidden_bleed`，`N3.6-DENSITY-CURVE` 在命中时建 `sequence_density_curve -> density_budget -> set_piece_chain_slots`，再进入 `continuity_profile -> handoff_profile（命中时） -> camera_grammar_plan -> functional_projection_plan + ai_video_prompt_execution_profile -> shot_design_plan`；缺任一层都不能直接成稿。
+14. 在 `camera_grammar_plan` 中先裁决景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜速度；不要到成稿阶段临时补“特写/俯拍/慢推”等孤立词。
+15. 在 `functional_projection_plan` 中补 payload：每条分镜都必须有影视功能、可见主体、动作相位、运镜计划、时值理由、构图锚点、光色/材质、空间接口、连续性交接、下游消费点和所属 visual_unit；缺一组关键项就不是终稿。
+16. 在 `shot_design_plan` 中检查每条分镜必须有 trigger、start、path、duration、end、handoff、density_curve_check 和 unit_ownership_check；无法填写的分镜通常是随机分镜或失主分镜，应删掉或移回所属画面点。
+16. 做 AI 视频执行稳定性检查：动作是否发生在已建立的镜头和构图内部；人物位移是否有相对镜头/画面边界/空间锚点；光线是否写出亮面、暗面、阴影、轮廓、反光和背景层次；表演情绪是否落到面部肌肉、眼神、手部、呼吸或身体联动。
+17. 检查多分镜是否递进：上一分镜的落点必须成为下一分镜的入口、反应、动作、声音、光色、焦点、运镜变化或转场接口；如果每条分镜都像重新开始，回到连续性和计划汇流层。
+18. 若发生场景变化，必须检查 `handoff_profile`：上一画面从哪个主体、动作、声音、光色、文字、空间出口或反应交出，下一画面可能从哪里进入；不在本阶段写普通切镜、软桥接或高能方案。
+19. 检查每个 `分镜明细：` 是否包含可执行摄影信息；空泛词和抽象阐释改成景别、景深、视角、镜头类型、速度、构图、光线、色彩、转场。
+20. 把 `分镜明细：` 当作兼容字段名，不当作抽象标题；凡出现主题寓意、人物心理结论、世界观解释、导演阐释或不可执行气氛口号，必须转译为可见的运镜、摄影美学或可消费交出锚点，无法转译则删除。
+21. 检查每个 `分镜N` 是否动态：从哪里开始、怎么运镜、速度如何变化、何时停、落到哪里；若只有参数清单，先回内部计划，再重写为自然运动句。
+22. 检查连续分镜是否句法同构：若多条都像“从……以……变化到……最终……”，必须把参数内化为画面、动作、遮挡、光色和落点。
+23. 检查每个画面句子是否在内部回看临近至少前 3 个画面单位；输出中不要机械写出回看过程，如果跳轴、跳色、跳景别或运动方向突变，再补一句反应镜头、声画桥、光变、形态匹配或建立镜头动机。
+24. 对 `诡校-测试版` 这类封闭校园惊悚项目，优先维护冷白日光灯、黑窗帘、红色危险信号、黑板规则显影、窄课桌空间压迫等持续视觉母题。
+25. 若分镜明细开始改变剧情理解，回到保真层：原字段只提供事实，分镜明细只能强化观看路径，不新增剧情事实。
+26. 最后做一次脚本或人工机械检查：命中行覆盖率、`分镜N` 连续性、输出路径、分镜数量分布、显式秒数、逐画面点归属和 AI 视频执行稳定性。
+27. 交付前把 review finding 当成修复输入，而不是报告附件；阻断项先在本阶段修复并复审，仍失败再阻断或回最早镜头责任节点。
 
 ## Reusable Heuristics
 
@@ -105,7 +111,15 @@
 - 对白镜头先算“说完要多久”，再算“看哪里”。常规对白可按约 4 字/秒粗估，压迫迟疑或情绪停顿更慢；长台词可分给说话人、听者反应、道具/空间压力镜，但不能让画面切点抢断关键台词。
 - 多分镜要有快慢接力：短镜负责冲击，标准镜负责动作完成，held 镜负责读秒或反应；连续同长同速通常说明没有做 `shot_duration_decision`。
 - 段落级连续运镜是内部统筹，不是正文合并许可。最稳做法是先用 `sequence_profile` 看整段怎么流，再用 `unit_ownership_map` 把每个镜头拆回所属画面点；当前块只保留自己的主体动作和可消费交出锚点。
+- 节奏感来自段落变速，不只来自单句多切。先为连续段落写出 `tempo_beats`，例如“甜味日常 -> 群像笑闹 -> 压迫入侵 -> 动作爆点 -> 威胁反压 -> 黑岸交出”，再决定每个画面句子该省、该爆、该停。
+- `shot_count_distribution` 只能发现统计异常，不能证明节奏成立。执行报告还应写 `density_curve_summary`：本段峰值槽在哪里、恢复槽在哪里、set-piece 链条是否真实、声音切点是否一声一结果。
+- 5-6 镜不是新的高光模板，只是 set-piece 链条例外。连续石子、连环反弹、鼓点/拟声一声一结果这类画面可以扩展；没有独立结果的镜头必须删掉。
 - “这条分镜服务哪一句原文？”是归属检查的最低门槛。答不上来，就算句子很顺、画面很好看，也不是合格的 `3-摄影` 分镜明细。
 - 材质链和身体锚点很好用，但不能跨块偷用：湿木、鱼鳞、酒葫芦、脚趾、手指、衣摆等只在当前画面句子可见或被同一行承托时进入当前块；后文的身体反应要留到后文写。
+- AI 视频提示词更吃执行顺序：先让镜头、机位、运动和构图存在，再让人物动作发生在这个镜头内部；“人物做完动作，镜头再推进”通常会生成割裂片段。
+- 方向必须有参照物：优先写“朝镜头、远离摄像机、从画面左侧进入、停在右侧三分之一、沿课桌通道向画面深处”，不要只写“向前、后退、左边、右边”。
+- 光线要写结果：光源位置只是开始，真正可执行的是照亮哪半张脸、阴影落在哪里、背景压暗到什么程度、轮廓光如何分离主体、桌面或墙面有什么反光。
+- 表演提示不靠抽象情绪词。愤怒但压制、紧张但强装镇定、离别时强忍难过，都要落到咬肌、鼻翼、嘴角、眨眼、肩膀、手指、衣角、呼吸和视线等可见泄露。
+- 完整视频提示词分栏只适合下游提示词阶段；`3-摄影` 终稿不要把“镜头与构图 / 人物与动作 / 光线 / 画面质感 / 不要夸张表情”这样的分栏或命令式负向词写进 `分镜明细`。
 - 团队顾问的价值在于让项目监制以其角色意识、创作风格和专业水准参与当前思维·执行节点，例如画面匹配、节拍判断、峰值处理、连续性、分镜计划、注入或复审中的取舍，而不是让顾问直接替主 agent 写摄影稿；这些取舍应作为后续 LLM 分镜明细注入、阶段内修复与复审的上下文继续使用。
 - `3-摄影` 的终稿感来自阶段内闭环，不来自另开摄影润色阶段：candidate 必须被审计、修复、复审后才交给 `4-分组` 和后续设计/视频链路。

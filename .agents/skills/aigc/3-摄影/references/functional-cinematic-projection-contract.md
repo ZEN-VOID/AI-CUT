@@ -23,6 +23,7 @@
 | `shot-continuity-contract.md` | 从上一注意力落点、轴线、运动方向或光色如何进入 |
 | `transition-design-contract.md` | 若发生场景变化或其他边界风险，如何记录交出点、进入提示和连续性风险 |
 | `cinematic-technique-library.md` | 选择哪种最小充分的摄影技法，而不是随机术语 |
+| `ai-video-prompt-execution-contract.md` | 让镜头先行包裹动作，补方向参照、光线结果和表演微动态，保证下游视频提示词稳定 |
 | `dynamic-lens-language-contract.md` | 运镜的起点、路径、速度变化、停点和交接 |
 | `natural-shot-detail-writing-contract.md` | 如何把上述决策写成自然但不丢功能 payload 的中文 |
 
@@ -43,6 +44,7 @@
 | `light_color_material` | 可被图像和视频工具继承的光线、颜色、材质或视觉母题 |
 | `continuity_handoff` | 从上一镜如何进入，或把注意力交给下一镜/下一画面的哪个可见接口；场景变化时必须能还原上一画面交出点和下一画面进入点 |
 | `unit_ownership` | 当前分镜归属的上游画面句子，以及没有提前吞入后文动作、对白反应、记忆段或道具揭示的证据 |
+| `ai_video_prompt_execution` | 镜头是否从起点包裹动作、人物/镜头运动是否有相对画面或摄像机的方向参照、光线是否写成可见结果、情绪是否落到表演微动态；不要求显式字段落盘，但必须能从正文稳定还原 |
 
 ## Downstream Consumability
 
@@ -51,6 +53,7 @@
 - **图像可画性**：能生成单帧画面。必须包含清楚主体、姿态/动作、构图锚点、环境关系、光色或材质落点。
 - **运镜可执行性**：能指导视频镜头。必须包含运镜方式、运动方向、速度感、焦点/景别变化、停点、动作相位或转场接口；固定机位也要体现框内运动和停住的理由。
 - **视频可动性**：能生成连续镜头。必须让下游知道镜头如何开始、如何移动或保持、何时停、显式持续约几秒、需要快速通过还是读秒停留、焦点转到哪里、如何接下一镜。
+- **视频提示词可改写性**：能按“镜头与构图 -> 人物与动作 -> 情绪可见细节 -> 光线结果 -> 环境承托”的顺序稳定改写为提示词；动作不先于镜头孤立发生，方向不含混，光线不只停留在光源名或效果词。
 - **分组可切性**：能让 `4-分组` 判断该镜是否和前后画面同组；不得把空间、主体和动作写得漂浮。
 - **逐点可回指性**：能让 `4-分组`、`6-图像`、`7-视频` 判断当前镜头来自哪一条 `2-编导` 画面句子；不得把多个上游点熔成不可拆的长镜。
 - **连续性可追踪**：能让 `6-图像` 和 `7-视频` 继承上一镜的主体、空间轴线、光色母题和注意力落点。
@@ -82,12 +85,13 @@
 - 下游图像阶段无法判断该画面该画谁、站哪里、看什么、光从哪里来。
 - 下游视频阶段无法判断摄影机怎么动、为什么这样动、何时停、停多久、焦点转到哪里、如何接下一镜。
 - 只写“运动感”“镜头流动”“丝滑推进”，没有具体运镜路径、速度变化、停点或交接接口。
+- 分镜正文无法稳定改写为 AI 视频提示词：镜头是动作后的补丁，人物运动缺少相对镜头/画面的方向参照，光线只写“侧光/顶光/电影感”，或情绪只写抽象词而没有微表情、身体联动、呼吸、手部或视线变化。
 
 ## Repair Rule
 
 修复顺序固定为：
 
 1. 先回到上游画面句子，锁定当前镜头必须解决的剧情/信息/动作功能。
-2. 抽取 `visible_subject / action_phase / camera_movement_plan / shot_duration_decision / composition_anchor / light_color_material / continuity_handoff / unit_ownership`。
+2. 抽取 `visible_subject / action_phase / camera_movement_plan / shot_duration_decision / composition_anchor / light_color_material / continuity_handoff / unit_ownership / ai_video_prompt_execution`。
 3. 按 Rule Stack Projection 回查节拍、节奏、镜头时值、峰值、连续性、技法库和动态运镜细则，重新选择最小充分的摄影与运镜策略。
 4. 最后才进入 `natural-shot-detail-writing-contract.md`，把功能 payload 写成自然中文。

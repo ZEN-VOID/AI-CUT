@@ -30,7 +30,7 @@
 | `dialogue_density=high` | 先看显式时长是否已给足对白承托；约 4 句只作为风险提示 | dialogue constraint | 审查对话组过载 |
 | `duration_signal=explicit` | 以 `分镜N（约X秒）` 累计作为边界主轴 | group duration band | 审查组内 `时长估算` |
 | `duration_signal=missing / mixed` | 回到 `3-摄影` 补显式秒数，临时兼容时只能做风险估算 | group duration band | 报告缺秒数来源 |
-| `style_payload=long_north_star` | 不影响组内时长或 1680 纯正文字数，但组头仍需直引原文 | north-star projection | 禁止摘要 north_star |
+| `style_payload=long_north_star` | 不影响组内时长或计入场景标题行后的 1680 字风险口径，但组头仍需直引原文 | north-star projection | 禁止摘要 north_star |
 | `style_payload=missing_fields` | 阻塞或请求用户修复 | missing field handling | 不得猜测补字段 |
 | `connector_risk=high` | 每组边界优先选择可被首尾帧连接件消费的原尾帧/原首帧 | bridge-shot contract | pairwise connector review |
 | `repair_need=stats_fix` | 保留正文，仅修 YAML | statistics contract | YAML 与正文一致性 |

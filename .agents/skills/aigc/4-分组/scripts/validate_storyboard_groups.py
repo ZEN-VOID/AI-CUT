@@ -30,10 +30,12 @@ LEGACY_CONNECTOR_HEADING_RE = re.compile(r"^##\s+组间连接件：", re.MULTILI
 FENCED_YAML_RE = re.compile(r"```yaml\n(.*?)\n```", re.DOTALL)
 EPISODE_RE = re.compile(r"第(\d+)集")
 SCENE_HEADING_RE = re.compile(r"^###\s+场景(\d+)[：:]", re.MULTILINE)
+SCENE_TITLE_LINE_RE = re.compile(r"^场景(\d+)[：:].+")
 STATS_COUNT_RE = re.compile(r"(\d+)")
 SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
+CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
 LEGACY_ENTRY_LABEL = "入场画面："
 LEGACY_EXIT_LABEL = "出场画面："
@@ -203,6 +205,24 @@ def extract_scene_numbers(body: str) -> list[int]:
     return [int(match.group(1)) for match in SCENE_HEADING_RE.finditer(body)]
 
 
+def extract_leading_scene_title(body: str) -> str:
+    for line in body.splitlines()[1:]:
+        stripped = line.strip()
+        if stripped:
+            return stripped
+    return ""
+
+
+def extract_scene_title_numbers(line: str) -> list[int]:
+    return [int(match) for match in re.findall(r"场景(\d+)[：:]", line)]
+
+
+def is_scene_title_line(line: str) -> bool:
+    if CONNECTOR_SCENE_ARROW in line:
+        return all(SCENE_TITLE_LINE_RE.match(part.strip()) for part in line.split(CONNECTOR_SCENE_ARROW))
+    return SCENE_TITLE_LINE_RE.match(line.strip()) is not None
+
+
 def extract_label_content(body: str, label: str) -> str:
     lines = body.splitlines()
     for index, line in enumerate(lines):
@@ -250,9 +270,12 @@ def extract_prefixed_label_content(body: str, label: str) -> str:
 def extract_style_lines(body: str) -> list[str]:
     lines = body.splitlines()
     style_lines: list[str] = []
-    # Skip the group heading and collect the first non-empty north_star lines.
+    skipped_scene_title = False
     for line in lines[1:]:
         stripped = line.strip()
+        if stripped and not skipped_scene_title:
+            skipped_scene_title = True
+            continue
         if stripped:
             style_lines.append(stripped)
         if len(style_lines) == STYLE_LINE_COUNT:
@@ -265,7 +288,10 @@ def extract_content_lines_before_label(body: str, label: str) -> list[str]:
     label_index = find_prefixed_label_index(body, label)
     if label_index is None:
         return []
-    return [line.strip() for line in lines[1:label_index] if line.strip()]
+    content_lines = [line.strip() for line in lines[1:label_index] if line.strip()]
+    if content_lines and is_scene_title_line(content_lines[0]):
+        return content_lines[1:]
+    return content_lines
 
 
 def find_prefixed_label_index(body: str, label: str) -> int | None:
@@ -279,8 +305,13 @@ def find_prefixed_label_index(body: str, label: str) -> int | None:
 def style_line_indices(body: str) -> list[int]:
     lines = body.splitlines()
     indices: list[int] = []
+    skipped_scene_title = False
     for index, line in enumerate(lines[1:], start=1):
-        if line.strip():
+        stripped = line.strip()
+        if stripped and not skipped_scene_title:
+            skipped_scene_title = True
+            continue
+        if stripped:
             indices.append(index)
         if len(indices) == STYLE_LINE_COUNT:
             break
@@ -295,9 +326,15 @@ def strip_group_non_body_sections(body: str) -> str:
     lines = body.splitlines()
     content_lines: list[str] = []
     non_empty_seen = 0
+    skipped_scene_title = False
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("## "):
+            continue
+        if not skipped_scene_title:
+            if stripped:
+                skipped_scene_title = True
+                content_lines.append(line)
             continue
         if non_empty_seen < STYLE_LINE_COUNT:
             if stripped:
@@ -391,6 +428,24 @@ def validate_connectors(
         prefix = f"{display_path(path)}:{connector.line_number}: connector {connector.connector_id}"
         if connector.connector_id != expected_id:
             errors.append(f"{prefix} heading id must equal {expected_id}")
+        from_scene = int(connector.from_group.split("-")[1])
+        to_scene = int(connector.to_group.split("-")[1])
+        connector_scene_title = extract_leading_scene_title(connector.body)
+        connector_scene_numbers = extract_scene_title_numbers(connector_scene_title)
+        if not connector_scene_title or not is_scene_title_line(connector_scene_title):
+            errors.append(f"{prefix} must start with a scene title line before north_star style lines")
+        elif from_scene == to_scene:
+            if CONNECTOR_SCENE_ARROW in connector_scene_title:
+                errors.append(f"{prefix} same-scene connector scene title must repeat one scene title without {CONNECTOR_SCENE_ARROW}")
+            if connector_scene_numbers[:1] != [from_scene]:
+                errors.append(f"{prefix} scene title must start with 场景{from_scene}")
+        else:
+            if CONNECTOR_SCENE_ARROW not in connector_scene_title:
+                errors.append(f"{prefix} cross-scene connector scene title must use 场景A {CONNECTOR_SCENE_ARROW} 场景B")
+            if connector_scene_numbers[:2] != [from_scene, to_scene]:
+                errors.append(
+                    f"{prefix} cross-scene title must show scene transition {from_scene} -> {to_scene}"
+                )
         connector_style_lines = extract_content_lines_before_label(connector.body, "连接类型：")
         if len(connector_style_lines) != STYLE_LINE_COUNT:
             errors.append(
@@ -475,6 +530,15 @@ def validate_file(path: Path) -> ValidationResult:
         if expected_episode is not None and group.episode != expected_episode:
             errors.append(f"{prefix} episode segment does not match 第{expected_episode}集")
 
+        leading_scene_title = extract_leading_scene_title(group.body)
+        leading_scene_numbers = extract_scene_title_numbers(leading_scene_title)
+        if not leading_scene_title or not is_scene_title_line(leading_scene_title):
+            errors.append(f"{prefix} must start with a scene title line before north_star style lines")
+        elif CONNECTOR_SCENE_ARROW in leading_scene_title:
+            errors.append(f"{prefix} group scene title must contain exactly one scene title, not a transition")
+        elif leading_scene_numbers[:1] != [group.scene]:
+            errors.append(f"{prefix} scene title must start with 场景{group.scene}")
+
         scene_numbers = extract_scene_numbers(group.body)
         unique_scene_numbers = sorted(set(scene_numbers))
         if len(unique_scene_numbers) > 1:
@@ -520,15 +584,15 @@ def validate_file(path: Path) -> ValidationResult:
             )
         if char_count > HARD_CHAR_COUNT:
             errors.append(
-                f"{prefix} estimated pure body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
+                f"{prefix} estimated scene-title-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
             )
         elif char_count > TARGET_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated pure body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
+                f"{prefix} estimated scene-title-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
             )
         if char_count < MIN_REVIEW_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated pure body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
+                f"{prefix} estimated scene-title-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
         validate_yaml_stats(group, char_count, duration_seconds, errors)
