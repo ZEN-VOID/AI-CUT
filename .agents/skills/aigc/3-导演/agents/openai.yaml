@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 导演"
+  short_description: "在编剧稿基础上注入导演创作判断：戏剧内核、高潮画面、视觉美学、氛围意境。"
+  default_prompt: "使用 $aigc-director，把 projects/aigc/<项目名>/2-编剧/第N集.md 升级为 projects/aigc/<项目名>/3-导演/第N集.md，注入编导内核、高潮画面、画面美学、整集视觉主轴、终结画面尾钩和氛围意境。"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 道具清单"
-  short_description: "从分组 YAML 道具字段提取归并项目级道具清单并校验来源"
-  default_prompt: "使用 $aigc-prop-list 从 projects/aigc/<项目名>/4-分组/第N集.md 的组底 YAML 道具字段生成 projects/aigc/<项目名>/5-设计/道具/1-清单/道具清单.md。"

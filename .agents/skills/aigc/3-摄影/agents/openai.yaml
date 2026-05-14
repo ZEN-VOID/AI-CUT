@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 摄影"
-  short_description: "为逐集编导稿逐画面点注入大师级分镜摄影运镜、光色和边界交出锚点。"
-  default_prompt: "使用 $3-摄影，把 projects/aigc/<项目名>/2-编导/第N集.md 按画面句子逐条注入分镜明细，必要时先形成内部段落级 sequence_profile 但保持每条分镜回指正上方画面点，输出到 projects/aigc/<项目名>/3-摄影/第N集.md，并保留原编导稿事实、对白和顺序。"

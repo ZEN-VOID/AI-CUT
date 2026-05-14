@@ -1,0 +1,6 @@
+interface:
+  display_name: "AIGC 审片"
+  short_description: "审查视频、prompt 匹配、创作质量、示例校准和审片顾问"
+  default_prompt: "使用 $aigc-video-review 审查 projects/aigc/<项目名>/9-视频 下的 <分镜组ID>.mp4，对照 6-分组真源和 prompt，判断视频本体问题、匹配问题与创作质量；如果我提供好/坏示例，也请比较并沉淀可复用鉴赏经验。启用 subagents 模式时，请按项目 team.yaml 形成审片顾问 packet 或记录降级说明。"
+policy:
+  allow_implicit_invocation: true

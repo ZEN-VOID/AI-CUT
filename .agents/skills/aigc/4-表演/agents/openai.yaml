@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 表演"
+  short_description: "在导演稿基础上注入表演工艺：心理反应可感知化、演员演技控制、潜台词行为化、场面调度。"
+  default_prompt: "使用 $aigc-performance，把 projects/aigc/<项目名>/3-导演/第N集.md 升级为 projects/aigc/<项目名>/4-表演/第N集.md，注入心理反应可感知化、演员演技控制、潜台词行为化、场面调度和沉默余波。"

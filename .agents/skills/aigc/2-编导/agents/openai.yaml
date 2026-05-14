@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 编导"
-  short_description: "将逐集原文忠实投影为可拍、可分组、声画配对的编导剧本稿。"
-  default_prompt: "使用 $aigc-directing，把 projects/aigc/<项目名>/1-分集/第N集.md 按集剧本化改编为 projects/aigc/<项目名>/2-编导/第N集.md，保持剧情事实、顺序和对白逐字保真，并完成场景 slugline、字段分流与声画配对。"

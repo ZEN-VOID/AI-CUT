@@ -1,0 +1,8 @@
+schema_version: "openai-agent-skill/v1"
+skill:
+  name: "aigc-image-storyboard-frame"
+  path: ".agents/skills/aigc/8-图像/A-分镜画面"
+interface:
+  display_name: "AIGC 分镜画面"
+  short_description: "从 6-分组生成完整镜级 prompts 文档、场景视觉风格锁、主体参照绑定与串行 imagegen 批量生成。"
+  default_prompt: "使用 $aigc-image-storyboard-frame，从 projects/aigc/<项目名>/6-分组 提取镜级分镜，先用场景参照图锁定画面风格、光影、色调和氛围，并为指定范围生成完整 第N集-分镜画面-prompts.md、reference manifest 与 imagegen plan，再绑定角色/场景/道具图片参照，并按 shot_id 串行调用 imagegen 批量生成。"

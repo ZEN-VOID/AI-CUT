@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 角色清单"
-  short_description: "从 4-分组 YAML 的角色字段生成 5-设计角色清单。"
-  default_prompt: "使用 $aigc-design-character-list，从 projects/aigc/<项目名>/4-分组/第N集.md 的组底 YAML `角色` 字段生成角色清单，并输出到 5-设计/角色/1-清单/角色清单.md。"
