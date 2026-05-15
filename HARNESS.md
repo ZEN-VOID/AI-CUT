@@ -1,4 +1,5 @@
 # HARNESS.md
+<!-- last_synced: 2026-05-14 | version: 2026-05-14 -->
 
 本文件是仓库根层的 HARNESS 总览文档，用于把当前仓库的 Harness 工程化构思、已落地真源、运行方式、现状判断与发展方向收束为一份可快速阅读的初始化说明。
 
@@ -87,86 +88,32 @@
 
 ### 4. 注册与路由真源
 
-- `.codex/registry/skills.yaml`
-- `.codex/registry/routes.yaml`
+- `.codex/registry/skills.yaml`（当前约 863 条目）
+- `.codex/registry/routes.yaml`（当前约 299 条目）
 
-当前注册表与路由表已经稳定承载以下事实：
+注册表与路由表的权威内容以这两个文件本身为准，以下仅列出关键结构特征与近期变化摘要：
 
-- `aigc` 仍是仓库级总入口技能，`contract_mode: bootstrap_compat`，并显式声明：
-  - `projects/aigc/<项目名>/` 为 canonical project runtime
-  - `STATE.json` 与 `governance-state.yaml` 为项目内控制面
-  - `.codex/state/tasks/<task_id>/` 仅作治理镜像或非项目任务账本
-- `aigc.stage_index` 当前已登记：
-  - `0-Init`、`1-Planning`、`2-Global`、`3-Detail`、`4-Design`、`5-Image`、`6-Video` 为 `active`
-  - `7-Cut` 为 `shelved`
-  - `4-Design` 下的 `1-清单/{场景,角色,道具}`、`2-设计/{场景,角色,道具}`、`3-面板/{场景,角色,道具}` 已进入 leaf/tranche 注册，其中 `3-面板` tranche parent 为 `partial-active`
-  - `5-Image` 已登记 stage-local leaf/tranche：`1-提示词蒸馏`、`分镜故事板`、`分镜帧`、`2-参照引用`、`3-图像生成`
-  - `6-Video` 已登记 stage-local leaf：`1-提示词蒸馏/全能参照`、`1-提示词蒸馏/首帧参照`、`2-参照引用`、`3-视频生成`
-- `aigc.satellite_index` 当前已登记并启用：
-  - `query`
-  - `resume`
-  - `review`
-- `aigc/review` 当前已不再只是 seeded packet 入口，而是实际 package-level 审计总线：
-  - 先写同轮 `review_fact_pack`
-  - 再按 `.agents/skills/aigc/review/_shared/execution-provider.yaml -> $CODEX_HOME -> ~/.codex` 解析 `code-reviewer`
-  - 聚合六维审计 packet
-  - 自动写 `*.review.repair.json`
-  - 若项目已有 `governance-state.yaml`，再同步 `review_bridge + resume_contract.required_repairs`
-- `aigc/review` 的 canonical runtime 已固定到：
-  - `projects/aigc/<项目名>/review/checkpoints/`
-  - `projects/aigc/<项目名>/review/stages/`
-  - `projects/aigc/<项目名>/review/releases/`
-  - 并在 aggregate packet 同级目录保留 `*.review.fact-pack.json`、`*.review.repair.json`、`*.review.review.md` 与 `.code-reviewer/<scope_ref>.review/` provider sidecars
-- `routes.yaml` 已显式声明：
-  - `aigc-root-entry`
-  - `aigc-project-runtime-canonical`
-  - `aigc-bootstrap-compat-mode`
-  - `aigc-query / resume / review` 卫星入口
-  - `aigc-image-stage-entry`
-  - `aigc-video-stage-entry`
-  - `high-risk-review-gate`
-  - `aigc-shelved-stages`
-  - `api-anyfast-image-entry`
-  - `api-anyfast-nano-banana-image-entry`
-  - `api-anyfast-seedream-image-entry`
-  - `api-ai666-gpt-image-2-entry`
-  - `api-anyfast-doubao-seed-2.0-pro-entry`
-  - `story-doubao-entry`
-  - `api-man-tui-nano-banana-image-entry`
-  - `api-vidu-video-entry`
-- `comic` 已作为 repo-local 漫画项目父级入口接入治理，固定项目根为 `projects/comic/[项目名]/`
-- 漫画链路已拆成受注册子入口：
-  - `comic-novel-adaptation`
-  - `comic-nine-blade-prompts`
-  - `comic-generation`
-  - `comic-episode-poster`
-- provider API 类 repo-local skill 已开始进入注册与路由：
-  - `api-anyfast-image`
-  - `api-anyfast-nano-banana-image`
-  - `api-anyfast-seedream-image`
-  - `api-ai666-gpt-image-2`
-  - `api-anyfast-doubao-seed-2.0-pro`
-  - `api-man-tui-grok-video`
-  - `api-man-tui-sora`
-  - `api-man-tui-nano-banana-image`
-  - `api-vidu-video`
-- 命令型 repo-local skills 已进入注册与路由，并直接以各自目录级 `SKILL.md` 作为唯一真源：
-  - `command-github-issue`
-  - `command-github-push`
-  - `command-next`
-  - `command-subagent-preview`
-  - `command-subagent-review`
-- story 侧已新增 repo-local 单技能润色入口：
-  - `story-doubao`
-  - 作为 `story` 主链旁路技能，负责中文小说文风诊断、整稿统修、去 AI 味与中文表达强化，不拥有 planning / validation / actualization 真源
-- 团队能力类 repo-local skill 已进入注册与路由，当前覆盖：
-  - 小说组
-  - 演员组
-  - 导演组
-  - 摄影组
-  - 武术组
-  - 动漫组
-- `AIGC-ZEN-VOID` 继续只作为 design source，通过 `legacy_mapping` 管理，而不是直接整仓继承。
+**核心结构**：
+
+- `aigc` 为仓库级总入口技能，`contract_mode: bootstrap_compat`，声明 `projects/aigc/<项目名>/` 为 canonical project runtime
+- `aigc.stage_index`：`0-Init` 到 `6-Video` 为 `active`，`7-Cut` 为 `shelved`
+- `aigc.satellite_index`：`query`、`resume`、`review` 已启用
+- `routes.yaml` 覆盖：`aigc-root-entry`、各阶段入口、卫星入口、`high-risk-review-gate`、`aigc-shelved-stages`、provider API 入口、`comic` 子入口等
+
+**能力域覆盖**：
+
+- provider API skill：`api-anyfast-image`、`api-anyfast-nano-banana-image`、`api-anyfast-seedream-image`、`api-ai666-gpt-image-2`、`api-anyfast-doubao-seed-2.0-pro`、`api-man-tui-grok-video`、`api-man-tui-sora`、`api-man-tui-nano-banana-image`、`api-vidu-video`
+- 命令型 skill：`command-github-issue`、`command-github-push`、`command-next`、`command-subagent-preview`、`command-subagent-review`
+- `comic` 链路：`comic-novel-adaptation`、`comic-nine-blade-prompts`、`comic-generation`、`comic-episode-poster`
+- story 侧：`story-doubao`（旁路润色技能）
+- 团队能力类 skill：小说组、演员组、导演组、摄影组、武术组、动漫组
+
+**近期关键变化**（截至 `2026-04-24`）：
+
+- `aigc/review` 已升级为 package-level 可执行审查总线，canonical runtime 固定到 `projects/aigc/<项目名>/review/{checkpoints,stages,releases}`
+- `4-Design` 下 `3-面板` tranche parent 为 `partial-active`
+- `5-Image` 已把 `漫画` 从 stage-local active leaf 退役，漫画页诉求改回 repo-local `comic` workflow
+- `AIGC-ZEN-VOID` 继续只作为 design source，通过 `legacy_mapping` 管理
 
 ### 5. 生命周期与任务工件真源
 
@@ -290,6 +237,21 @@
 - 兵部侧 `resume` 已是受治理入口，但自动化 hook、批量恢复和更细粒度调度能力仍待补齐。
 - 更大范围的 cross-skill eval、hook、auto-remediation 仍主要停留在骨架期。
 
+### bootstrap_compat 退出条件与进度
+
+`AGENTS.md` 已定义 `bootstrap_compat` 模式的量化退出条件。以下为各条件当前状态：
+
+| 条件 | 当前状态 | 阻塞项 |
+| --- | --- | --- |
+| 所有 active stage 父合同通过 `--strict` 审计 | 未满足 | `3-Detail` 历史兼容面、`6-Video` 内部子路径 |
+| `6-Video` 内部子路径收束且 provider 已注册 | 未满足 | provider 级执行面仍需继续收束 |
+| `7-Cut` 激活或显式归档 | 未满足 | 仍是注册层已声明、执行层未落地的搁浅阶段 |
+| 整树无 parent-only 伪装全绿 | 未满足 | `bootstrap_compat` 下仍存在 checked/skipped 降级项 |
+| 三省 agent doc 与 registry 一致 | 部分满足 | 需持续同步 |
+| `HARNESS.md` 不再引用 `bootstrap_compat` 降级口径 | 未满足 | 仍在降级窗口内 |
+
+退出日期尚未确定。每满足一项条件时，应同步更新此表。
+
 ## 可期发展方向
 
 后续 HARNESS 工程建议按以下方向推进：
@@ -333,20 +295,34 @@
 - 本文件是总览投影，不替代 `AGENTS.md`、registry、runbook、模板、agent 合同或审计脚本。
 - 若本文件与真源冲突，以真源为准，并应尽快把本文件同步修正。
 
-### 2. 变更即同步
+### 2. 变更即同步（双向）
+
+**真源 -> HARNESS.md（正向同步）**：
 
 当以下任一内容发生变化时，必须在同一轮任务内同步检查并更新 `HARNESS.md`：
 
-- 根 `AGENTS.md` 中的 HARNESS 宪章、治理层级、硬门槛、闭环格式
+- 根 `AGENTS.md` 中的 HARNESS 宪章、治理层级、硬门槛、闭环格式、规则分级或优先级索引
 - `.codex/templates/harness/office-governance-contract.md`
 - `.codex/agents/harness治理/` 下任何 office 合同
 - `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`
 - `.codex/runbooks/task-lifecycle.md`
 - `.codex/templates/harness/` 下任务工件结构或字段
-- `scripts/aigc_harness_audit.py` 的审计口径
+- `scripts/aigc_harness_audit.py` 或 `scripts/aigc_skill_audit.py` 的审计口径
 - `projects/aigc/<项目名>/` 与 `.codex/state/tasks/<task_id>/` 的 canonical / mirror 关系
 - HARNESS 阶段成熟度、搁浅阶段、suite 规划、继承策略、自动化策略
+- `bootstrap_compat` 模式的退出条件或退出状态
 - 多子智能体 skill 的父层总合同、`team.md` / agent docs 关系、以及相关 review / audit / route 路径的 canonical 绑定关系
+
+**AGENTS.md -> HARNESS.md（反向约束）**：
+
+当 `AGENTS.md` 的"Harness 工程"章节（包括三省六部制基线、HARNESS.md 总览与同步、AIGC 改造兼容模式、bootstrap_compat 退出条件）发生调整时，`HARNESS.md` 必须在同轮任务内同步检查以下内容是否需要更新：
+
+- "当前工程化构思"是否仍与 AGENTS.md 宪章层一致
+- "当前运行方式"中的硬门槛与防漂移规则是否仍与 AGENTS.md 一致
+- "现状判断"中的成熟度口径是否需要调整
+- "可期发展方向"是否需要反映新增或移除的约束
+
+若无法同步更新，必须在任务结尾显式报告不一致点与临时护栏。
 
 ### 3. 更新要求
 

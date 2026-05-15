@@ -2,6 +2,13 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-05-14
+
+- `Case-20260514-AIGC-INIT-STAGE-STRUCTURE-SYNC`
+  - 跟随 `.agents/skills/aigc` 当前阶段链，同步新项目初始化骨架为：`0-初始化/`、`1-分集/`、`2-编剧/`、`3-导演/`、`4-表演/`、`5-摄影/`、`6-分组/`、`7-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`8-图像/`、`9-视频/`、`10-审片/`、`源/`、`CONTEXT/` 与根层载体。
+  - 将旧 `2-编导/3-摄影/4-分组/5-设计/6-图像/7-视频/8-审片` 口径退为新初始化 forbidden/stale alias，历史项目可兼容回读但不再作为新项目 bootstrap 真源。
+  - 同步更新 `SKILL.md`、`references/scope-and-runtime.md`、`templates/state.template.json`、project context/changelog 模板、`agents/openai.yaml`、共享 runtime layout、顾问团队阶段矩阵与审计脚本 marker。
+
 ## 2026-04-26
 
 - `Case-20260426-AIGC-INIT-STAGE-SEQUENCE-ALIGNMENT`

@@ -351,6 +351,7 @@ def validate_yaml_stats(
     char_count: int,
     duration_seconds: float,
     errors: list[str],
+    warnings: list[str],
 ) -> None:
     yaml_blocks = FENCED_YAML_RE.findall(block.body)
     if not yaml_blocks:
@@ -393,6 +394,23 @@ def validate_yaml_stats(
     for key in ("角色", "场景", "道具"):
         if key in data and not isinstance(data[key], list):
             errors.append(f"line {block.line_number}: {block.group_id} yaml {key} must be a list")
+    props = data.get("道具")
+    if isinstance(props, list):
+        normalized_props: dict[str, str] = {}
+        duplicates: list[str] = []
+        for prop in props:
+            normalized = str(prop).strip()
+            if not normalized:
+                continue
+            if normalized in normalized_props:
+                duplicates.append(normalized)
+            else:
+                normalized_props[normalized] = str(prop)
+        if duplicates:
+            unique_duplicates = sorted(set(duplicates))
+            warnings.append(
+                f"line {block.line_number}: {block.group_id} yaml 道具 contains exact duplicate names {unique_duplicates}; statistics review should merge repeated props and check same-object aliases"
+            )
 
 
 def validate_connectors(
@@ -595,7 +613,7 @@ def validate_file(path: Path) -> ValidationResult:
                 f"{prefix} estimated scene-title-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
-        validate_yaml_stats(group, char_count, duration_seconds, errors)
+        validate_yaml_stats(group, char_count, duration_seconds, errors, warnings)
 
     validate_connectors(path, text, groups, connectors, errors)
 

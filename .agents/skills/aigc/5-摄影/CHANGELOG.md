@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-05-14
+
+- 将 `5-摄影` 单镜时值默认口径调整为短剧·AIGC 节奏偏置：默认优先 `short / standard`，普通氛围镜、过场动作和常规反应不得沿用传统影视宽停顿；`约3秒` 以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
+- 更新 `references/shot-duration-decision-contract.md`：新增 `short_drama_aigc_duration_bias`、`duration_mode`，整体下压 `instant / short / standard / held / long_hold` 的估算范围，并明确 AIGC 工具片段时长不得反推拉长单镜叙事时值。
+- 同步更新 `SKILL.md`、`steps/cinematography-workflow.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`review/review-contract.md`、模板、README、CONTEXT 和 knowledge-base，使生成、计划汇流、review 与修复都检查短剧·AIGC 时值压缩。
+- 调整 `templates/episode-cinematography.template.md` 示例：环境、对白、动作和高点样例整体压短，保留高点读秒但不再以 4-6 秒作为默认诱导。
+- 更新机械校验脚本：`validate_cinematography_markup.py` 对 `<1s`、`>3s`、`>5s` 给出分级告警，提示闪切、短剧·AIGC 必要性和强例外确认。
+
 ## 2026-05-13 (Optimization Pass)
 
 - CONTEXT.md 全量压缩：Type Map 从 31 行精简为 26 行（合并字段纯度 4→2 行，删除已被 gate 覆盖的节点缺环和交付未修行）；Repair Playbook 从 27 步压缩为 27 步但去除重复展开；Reusable Heuristics 从 ~39 条压缩为 12 条，其中 19 条已正式化为 contract/gate 的条目删除，6 条通用经验迁移到 knowledge-base。项目特定（诡校-测试版）内容迁移并在原位改为指向 knowledge-base 的通用引用。CONTEXT.md 从 ~25,600 字符压缩到 ~12,000 字符，status 从 warn 恢复为 ok。

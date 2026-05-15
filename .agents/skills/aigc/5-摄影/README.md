@@ -32,7 +32,7 @@
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`
 - 段落密度曲线：`references/sequence-density-curve-contract.md`
-- 镜头时值：`references/shot-duration-decision-contract.md`
+- 镜头时值与短剧·AIGC 压缩：`references/shot-duration-decision-contract.md`
 - 高潮分镜：`references/peak-shot-language-contract.md`
 - 边界交出：`references/transition-design-contract.md`
 - 段落观看意图与逐点归属：`references/visual-sequence-alignment-contract.md`
@@ -55,8 +55,8 @@
 - 输入：`projects/aigc/<项目名>/4-表演/第N集.md`
 - 输出：`projects/aigc/<项目名>/5-摄影/第N集.md`
 - 报告：`projects/aigc/<项目名>/5-摄影/执行报告.md`
-- 分镜落盘格式：每条分镜固定写成 `分镜N（约X秒）:`，对白、旁白和画外音台词量必须进入时值预算。
+- 分镜落盘格式：每条分镜固定写成 `分镜N（约X秒）:`，默认应用短剧·AIGC 时值压缩；对白、旁白和画外音台词量必须进入时值预算，`约3秒` 以上镜头必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
 - 段落级连续运镜只作为内部 `sequence_profile`；最终仍按正上方画面句子逐点落 `分镜明细：`，每条分镜必须能回指所属 `visual_unit`。
 - 连续观看段落必须按需形成内部 `sequence_density_curve`，先判断整段哪里省镜头、哪里加密、哪里停顿、哪里硬切、哪里交出；5-6 镜只作为 set-piece 链条例外，必须每镜都有独立动作结果或声音打点。
 - 每条分镜还应能稳定改写为 AI 视频提示词：镜头先行包裹动作、方向参照明确、光线写出结果、表演微动态可见，但不在 `分镜明细` 中直接粘贴完整提示词分栏模板。
-- 机械校验脚本已扩展：frontmatter 存在性检查、秒数范围提示（<1s / >15s）、抽象阐释词扫描和空分镜明细块检查。
+- 机械校验脚本已扩展：frontmatter 存在性检查、短剧·AIGC 秒数范围提示（<1s / >3s / >5s）、抽象阐释词扫描和空分镜明细块检查。

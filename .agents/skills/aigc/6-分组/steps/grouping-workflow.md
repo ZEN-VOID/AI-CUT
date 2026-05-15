@@ -58,7 +58,7 @@ flowchart LR
 | `N3-SCENE-MAP` | 建立集/场/atomic unit 映射 | 摄影稿正文 | 提取场景标题、字段、分镜明细块、显式 `分镜N（约X秒）` 和对白数 | scene unit table | `N5-GROUP-PLAN` | atomic unit 不跨场景 |
 | `N5-GROUP-PLAN` | 裁决组边界 | scene unit table、style projection | 按显式时长累计形成组计划：优先接近 15 秒，通常约 12-18 秒可接受；低于约 10 秒做回填复核，超过 18 秒必须拆分、重组或回退 `5-摄影` 修复，不能例外放行；字数/对白只作辅助风险检查 | group boundary plan | `N6-CONNECTOR` | 每组时长接近 15 秒、完整且 `<=18` 秒 |
 | `N6-CONNECTOR` | 设计组间首尾帧连接件 | 相邻组首尾 atomic unit、style projection、场景标题 | 在第 N+1 组完成后回看第 N 组原尾帧与第 N+1 组原首帧，逐对设计 3-4 秒连接件并判断同场景/跨场景连接，内部选择依赖型/流动型/变形型/复合型/无连接方法论，先落盘场景标题行：同场景重复同一标题，跨场景写 `场景标题A ➡️ 场景标题B`；再落盘三项 north_star 风格行和具体画面连接办法；不复述端点，改写为变化过程、主体运动、运镜设计和透视适应，末尾用 `避免元素` 写负面约束，连接件 ID 固定为 `上一个分镜组ID~下一个分镜组ID` | connector list | `N7-ASSEMBLE` | 相邻组都有连接件，且不新增剧情、不使用旧入场/出场尾钩、不输出 `连接件提示：` |
-| `N7-ASSEMBLE` | 组装分组稿 | group plan、connector list、style projection、scene title list | 每个分镜组标题后先写当前场景标题行，即便场景未切换也重复同一标题；再写组头、原正文、YAML 统计，并把组间连接件物理夹放在对应上下两个相邻分镜组之间；场景标题行计入 YAML `字数统计`，不计入 `时长估算` | episode group draft | `N8-REVIEW` | 正文同步原换行 |
+| `N7-ASSEMBLE` | 组装分组稿 | group plan、connector list、style projection、scene title list | 每个分镜组标题后先写当前场景标题行，即便场景未切换也重复同一标题；再写组头、原正文、YAML 统计，并把组间连接件物理夹放在对应上下两个相邻分镜组之间；场景标题行计入 YAML `字数统计`，不计入 `时长估算`；YAML `道具` 先做同物识别、归一合并和去重，避免普通环境物或同一物品的状态/部件/持有人/镜头差异被拆成多个道具 | episode group draft | `N8-REVIEW` | 正文同步原换行；道具统计不过细、不重复 |
 | `N8-REVIEW` | 验收结构和质量 | 分组稿、上游、validator | 运行机械检查或人工 review，记录报告 | review result | `N9-WRITE` 或返工 | 所有 gate pass |
 | `N9-WRITE` | 落盘交付 | accepted draft | 写 `6-分组/第N集.md` 与 `执行报告.md` | output files | done | 输出可复查 |
 

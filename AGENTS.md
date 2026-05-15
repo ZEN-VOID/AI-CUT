@@ -1,4 +1,5 @@
 # AGENTS.md
+<!-- last_synced: 2026-05-14 | version: 2026-05-14 -->
 
 行业通用的 AI 智能体指令文件。兼容 Claude Code、Cursor、Windsurf 及其他 AI 编码工具。
 
@@ -82,6 +83,32 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 智能体专用指令
 
 - 默认交互语言为中文；仅当任务确实需要英文输出时才切换。
+
+## 规则优先级与分级
+
+### 全局冲突优先级（强制）
+
+当本文件内或跨文件的规则出现冲突时，按以下顺序裁决：
+
+1. 用户显式指令
+2. 安全与权限规则（`.env` 禁提交、路径安全等）
+3. 根 `AGENTS.md` / 共享治理合同（`office-governance-contract.md`）
+4. 主 `SKILL.md`（规范合同）
+5. 子技能 / 卫星技能 `SKILL.md`（局部合同）
+6. `references/` / `steps/` / `review/` / `types/` / 模板 / spec
+7. `agents/openai.yaml`（入口元数据）
+8. 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 子/卫星 `CONTEXT.md`
+9. 按需读取的 `CHANGELOG.md`
+
+### 规则分级
+
+本文件中的规则分为三级，执行时按级处理：
+
+- **P0-硬门槛**：不可绕过、不可降级。违反时必须暂停执行并修复。典型规则：安全红线、真源治理、根因上溯、`bootstrap_compat` 退出条件、LLM-first 主创规则。
+- **P1-默认规则**：默认遵守，用户可显式覆盖。违反时应报告偏离理由。典型规则：执行深度默认标准、批量调度默认语义、CONTEXT 健康阈值、Skill 2.0 结构基线。
+- **P2-最佳实践**：应遵守但不阻断执行。违反时记入经验层待后续改进。典型规则：命名约定、提交格式、CHANGELOG 维护建议、PR 叙述要求。
+
+各规则章节中标注的"（强制）"对应 P0；未标注的默认为 P1；建议性表述默认为 P2。
 
 ## SKILL2.0
 
@@ -602,40 +629,21 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 宪章层：根 `AGENTS.md`
   - 三省治理层：中书省起草、门下省复核、尚书省执行
   - 六部能力层：吏部注册、户部上下文、礼部合同、兵部调度、刑部审计、工部基础设施
-- 当前引导期已不是“只有目录骨架”的口径，最小已落地真源载体如下：
+- 最小已落地真源载体（详细运行方式与现状判断见 `HARNESS.md`）：
   - 共享治理合同：`.codex/templates/harness/office-governance-contract.md`
   - 三省角色合同：`.codex/agents/harness治理/中书省.md`、`.codex/agents/harness治理/门下省.md`、`.codex/agents/harness治理/尚书省.md`
   - 注册与路由真源：`.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`
   - 生命周期真源：`.codex/runbooks/task-lifecycle.md`
   - 任务工件真源：`.codex/templates/harness/{mandate, mission-brief, route-plan, preflight-verdict, validation-report, learning-record}`
   - 运行时控制面：`projects/aigc/<项目名>/` 为 `aigc` 项目工作流唯一真源，`.codex/state/tasks/<task_id>/` 为通用任务状态面或治理镜像
-  - 审计与评测入口：`scripts/aigc_harness_audit.py`、`.codex/evals/`
-- 六部当前最小落点应与真源载体显式对应：
-  - 吏部：`.codex/registry/skills.yaml` / `.codex/registry/routes.yaml`
-  - 户部：`projects/aigc/<项目名>/` 与 `.codex/state/tasks/<task_id>/`
-  - 礼部：`.codex/templates/harness/` 与 `office-governance-contract.md`
-  - 兵部：`.codex/runbooks/task-lifecycle.md`
-  - 刑部：`scripts/aigc_harness_audit.py`、`preflight-verdict.yaml`、`validation-report.md`
-  - 工部：`scripts/`、`.codex/evals/`、`.codex/schemas/`
-- 标准引导期合同：
-  - 中书省负责将复杂任务先写成 `mandate + mission-brief + route-plan`
-  - 门下省负责 `preflight-verdict + validation-report + upward trace`
-  - 尚书省负责将执行状态与产物落到已声明的 canonical runtime；对 `aigc` 项目型工作流，canonical runtime 为 `projects/aigc/<项目名>/`
-  - 三省共享总则、移交、闭环与防漂移要求统一以 `.codex/templates/harness/office-governance-contract.md` 为准，office-specific agent 文档只写各自差异
-- 默认任务生命周期：
-  1. `受命`
-  2. `起草`
-  3. `预审`
-  4. `执行`
-  5. `验收`
-  6. `沉淀`
-- 硬门槛：
+  - 审计与评测入口：`scripts/aigc_harness_audit.py`、`scripts/aigc_skill_audit.py`、`.codex/evals/`
+- 硬门槛（P0）：
   - 复杂任务不得跳过 `mission-brief` 与 `route-plan`
   - 高风险任务不得跳过 `preflight-verdict`
   - tracked harness 任务、复杂任务与高风险任务应产出 `validation-report` 后再宣布完成
   - 普通问答、状态查询、窄范围审查或小修复可使用面向用户的 inline validation 摘要，不强制创建 harness 报告
   - 非平凡失败应提供 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source` 后再结案
-- 防漂移规则：
+- 防漂移规则（P0）：
   - 三省共享总则、移交流程、分层上溯链与闭环格式，必须优先回收到 `office-governance-contract.md`，不得在兄弟 agent 文档中平行复制演化
   - 新增仓库内本地技能时，必须先注册到 `.codex/registry/skills.yaml`
   - 新增工作流路由或旧仓继承映射时，必须先登记到 `.codex/registry/routes.yaml`
@@ -651,34 +659,9 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 ### HARNESS.md 总览与同步（强制）
 
-- 根目录 `HARNESS.md` 是本仓库 HARNESS 工程的总览型派生文档，用于汇总：
-  - 当前工程化构思
-  - 已落地真源
-  - 当前运行方式
-  - 现状成熟度判断
-  - 可期发展方向
-- `HARNESS.md` 不是新的第一真源，不得与以下规范真源并行竞争：
-  - 根 `AGENTS.md`
-  - `.codex/templates/harness/office-governance-contract.md`
-  - `.codex/agents/harness治理/`
-  - `.codex/registry/skills.yaml`
-  - `.codex/registry/routes.yaml`
-  - `.codex/runbooks/task-lifecycle.md`
-  - `.codex/templates/harness/`
-  - `scripts/aigc_harness_audit.py`
-- 当以下任一 HARNESS 相关真源发生变动时，必须在同一轮任务内同步检查并更新根目录 `HARNESS.md`，不得延后到“以后再补”：
-  - HARNESS 宪章、治理层级、硬门槛、闭环格式发生调整
-  - 三省 office 合同发生调整
-  - registry / route / runtime canonical 关系发生调整
-  - task lifecycle、模板字段、审计口径发生调整
-  - active / planned / shelved 阶段状态与 suite 规划发生调整
-  - legacy mapping、自动化策略、治理镜像策略发生调整
-- 更新 `HARNESS.md` 时，至少要同步核对：
-  - 当前工程化构思
-  - 当前已实现真源
-  - 当前运行方式
-  - 现状判断
-  - 可期发展方向
+- 根目录 `HARNESS.md` 是本仓库 HARNESS 工程的总览型派生文档，不是新的第一真源。
+- `HARNESS.md` 的定位、维护合同、变更同步范围与更新要求，以 `HARNESS.md` 自身”更新维护合同”章节为准。
+- 当 AGENTS.md 本节（Harness 工程）的内容发生调整时，必须在同一轮任务内同步检查并更新 `HARNESS.md`。
 - 如果某次 HARNESS 变更因权限、范围或时机原因无法同步更新 `HARNESS.md`，必须在任务结尾显式报告缺口、原因与临时同步护栏。
 
 ### AIGC 改造兼容模式（强制）
@@ -695,3 +678,11 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `bootstrap_compat` 模式下允许放松的对象是：阶段内部结构、子路径细节、局部执行合同与深层 runtime 细节审计；这些内容可为 `aigc` 重构让路，不应继续被旧合同硬绑。
 - 若需要放松约束，优先在 registry、routes、runbook、audit 中增加显式模式开关或降级逻辑，而不是删除现有真源载体。
 - 等 `aigc` 新结构稳定后，再将稳定规则从 `aigc` 回填到 harness 真源、审计脚本与 `HARNESS.md`，结束 `bootstrap_compat` 模式。
+- `bootstrap_compat` 模式的退出必须满足以下全部量化条件，缺一不可：
+  - 所有 `active` stage 的父合同已通过 `scripts/aigc_skill_audit.py --strict` 审计，不存在 `checked/skipped` 降级项
+  - `6-Video` 内部子路径已收束且 provider 级执行面已注册到 `skills.yaml` 与 `routes.yaml`
+  - `7-Cut` 已明确激活并完成 Skill 2.0 基线，或已显式归档并在 registry/routes 中标记为 `shelved + archived`
+  - `aigc_skill_audit.py --strict` 对整树无 `parent-only` 通过伪装整树全绿的情况
+  - 三省 agent doc 中引用的 `aigc` 路径、阶段名与 registry 条目全部与 `skills.yaml` / `routes.yaml` 一致
+  - `HARNESS.md` 已同步更新为退出后状态，不再引用 `bootstrap_compat` 降级口径
+- 退出 `bootstrap_compat` 模式时，必须在 `HARNESS.md` 的"现状判断"中显式记录退出日期、满足的条件清单与残留风险。

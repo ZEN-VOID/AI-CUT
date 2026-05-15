@@ -54,17 +54,20 @@ roles:
       packet_refs: []
   supervision:
     owner_phases:
-      - "2-编导"
-      - "3-摄影"
-      - "4-分组"
-      - "5-设计"
+      - "2-编剧"
+      - "3-导演"
+      - "4-表演"
+      - "5-摄影"
+      - "6-分组"
+      - "7-设计"
     members_ref: "roles.planning.members"
     members: []
     boundary: "提供阶段前顾问判断，不替代阶段 canonical writeback。"
   review:
     owner_phases:
-      - "6-图像"
-      - "7-视频"
+      - "8-图像"
+      - "9-视频"
+      - "10-审片"
     members_ref: "roles.planning.members"
     members: []
     boundary: "围绕一致性、参考绑定、provider 风险与交付风险提供评审意见。"

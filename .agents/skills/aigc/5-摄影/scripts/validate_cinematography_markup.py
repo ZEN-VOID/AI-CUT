@@ -2,8 +2,8 @@
 """Mechanical checks for 3-摄影 cinematography markup.
 
 This script validates coverage, explicit duration markers, numbering,
-coarse shot-count distribution signals, frontmatter presence, duration
-range, abstract term detection, and empty block detection. It does not
+coarse shot-count distribution signals, frontmatter presence, short-drama
+AIGC duration range hints, abstract term detection, and empty block detection. It does not
 generate shot details or decide creative beats.
 """
 
@@ -121,10 +121,15 @@ def validate(
                         f"[WARN] Duration {seconds}s at line {cursor + 1}; "
                         f"verify this is a deliberate flash-cut or instant reaction."
                     )
-                elif seconds > 15.0:
+                elif seconds > 5.0:
                     findings.append(
                         f"[WARN] Duration {seconds}s at line {cursor + 1}; "
-                        f"verify internal variation exists (focus/composition/light change)."
+                        f"verify this is a strong exception with dialogue, long blocking, or a major cognitive peak."
+                    )
+                elif seconds > 3.0:
+                    findings.append(
+                        f"[WARN] Duration {seconds}s at line {cursor + 1}; "
+                        f"verify short-drama AIGC necessity (dialogue/readability/performance/blocking/peak evidence)."
                     )
 
                 # --- Abstract term check ---

@@ -102,7 +102,7 @@ Priority:
 
 `story source user truth > user explicit confirmation > council_advised > assistant_inferred`
 
-Conflicting assistant-inferred story fields must be rewritten before entering `1-分集`, `2-编导`, or later stages.
+Conflicting assistant-inferred story fields must be rewritten before entering `1-分集`, `2-编剧`, or later stages.
 
 For `primary_story_source.source_type == storyboard_script`, `preset_registry[].lock_level` may only be `hard_lock`, `soft_lock`, or `reference_only`.
 

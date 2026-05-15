@@ -13,7 +13,7 @@
 | `handoff_boundary_review` | 交付前 | 检查场景变化是否形成交出点/进入提示，是否只保留可见交出锚点而未落盘组间/跨场景创意转场方案 |
 | `shot_plan_projection_review` | 交付前 | 检查 references 细则是否汇流为 `shot_design_plan`，以及每个 `分镜N` 是否能反推节拍、节奏、连续性、技法和交出点 |
 | `sequence_ownership_review` | 交付前 | 检查段落级 `sequence_profile` 是否只作为内部连续性上下文，每个 `分镜明细` 是否仍只服务正上方画面句子，没有跨块外溢或失主镜头 |
-| `shot_duration_review` | 交付前 | 检查每个 `分镜N` 是否以 `分镜N（约X秒）:` 显式落盘，并能反推时值等级、对白台词量预算、停顿/压缩理由、相邻镜头时值接力和 15 秒组内节奏风险 |
+| `shot_duration_review` | 交付前 | 检查每个 `分镜N` 是否以 `分镜N（约X秒）:` 显式落盘，并能反推时值等级、短剧·AIGC 压缩偏置、对白台词量预算、停顿/压缩理由、相邻镜头时值接力和 15 秒组内节奏风险 |
 | `functional_projection_review` | 交付前 | 检查每个 `分镜N` 是否有影视功能、运镜策略和下游 AIGC 可消费 payload，而不是随机好看句 |
 | `ai_video_prompt_execution_review` | 交付前 | 检查每个 `分镜N` 是否符合 AI 视频执行稳定性：镜头先行包裹动作、方向参照明确、光线写结果、表演微动态可见，且未把完整提示词分栏或命令式负向词塞入分镜正文 |
 | `thinking_action_node_review` | 交付前 | 检查 `PASS-CINE-*` / `N*-*` 是否完成真源锁定、画面匹配、类型画像、段落观看意图与逐点归属、节拍、节奏、镜头时值、高点、连续性、摄影语法、功能投影、AI 视频执行稳定性、计划汇流、自然注入和阶段内修复闭环 |
@@ -43,7 +43,7 @@
 | `GATE-CINE-04A` | 数量去模板化 | 1/2/3/4 镜来自 `shot_count_decision`；同一集或同一场若 2 镜占比异常集中，已抽样复判并修正低信息硬撑、关键信息压平或模板继承 |
 | `GATE-CINE-04A2` | 段落密度曲线 | 连续观看段落已形成内部 `sequence_density_curve`；能说明哪里省镜头、哪里加密、哪里停顿、哪里硬切、哪里交出；高密度后有恢复/反压/余波，且整段不是全满、全空或平均同密度 |
 | `GATE-CINE-04A3` | set-piece 链条例外 | 单个 `visual_unit` 扩展到 5-6 镜时，必须命中 `set_piece_chain_slot` 或 `sound_cut_pattern`，每镜都有独立起点、撞点、动作结果、声音打点或反应落点；删掉任一镜都会损失必要节奏拍 |
-| `GATE-CINE-04B` | 镜头时值 | 每个 `分镜N` 均写成 `分镜N（约X秒）:`，并能反推 `shot_duration_decision`：时值等级、对白台词量预算、停顿/压缩理由、缩短或拉长的损失、相邻镜头时值接力和 15 秒组内节奏风险 |
+| `GATE-CINE-04B` | 镜头时值 | 每个 `分镜N` 均写成 `分镜N（约X秒）:`，并能反推 `shot_duration_decision`：时值等级、短剧·AIGC 压缩偏置、对白台词量预算、停顿/压缩理由、缩短或拉长的损失、相邻镜头时值接力和 15 秒组内节奏风险；`约3秒` 以上有台词、读秒、表演变化、复杂调度、空间重置或高点证据 |
 | `GATE-CINE-04C` | 对白时长承托 | `对白画面`、`旁白画面`、画外音或反应镜头承载台词时，`约X秒` 不低于台词量最低时长；若台词跨镜延续，已在 `shot_design_plan` 或报告中说明各镜承载段落 |
 | `GATE-CINE-04D` | 逐画面点归属 | 相邻画面单位可形成内部 `sequence_profile`，但每个 `分镜明细` 只服务正上方画面句子；每条 `分镜N` 能回指所属 `visual_unit`，没有为了段落流畅吞入后文主体动作、对白反应、记忆段、道具揭示或跨场景连接方案 |
 | `GATE-CINE-05` | 画面节奏 | 低信息/过场句收敛，关键揭示/强情绪/空间重置句发散，描述密度与信息重要性匹配 |
@@ -74,7 +74,7 @@
 | `FAIL-CINE-03A` | 分镜数量塌缩为固定 2 镜或同数分布异常，无法证明每个 `分镜2` 的真实观看策略 | `references/beat-analysis-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-03D` | 整场或连续段落缺少密度曲线：全满、全空、平均同密度、峰值后无恢复/反压，或只统计 `shot_count_distribution` 但没有 `density_curve_summary` | `references/sequence-density-curve-contract.md`、`references/visual-rhythm-analysis-contract.md`、`steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N5-RHYTHM` |
 | `FAIL-CINE-03E` | 5-6 镜 set-piece 链条没有真实连续动作/声音结果，或每镜不能证明独立起点、撞点、结果、声音打点、反应落点 | `references/sequence-density-curve-contract.md#set-piece-chain-exception`、`references/beat-analysis-contract.md#Shot-Count-Cardinality-Guard`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
-| `FAIL-CINE-03B` | 分镜数量正确但单镜长短错误：缺少 `分镜N（约X秒）`、文字/道具/微表情被快速切走，低信息镜头被拖长，连续同长同速，或 15 秒组内节奏风险未裁决 | `references/shot-duration-decision-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N5.2-DURATION` |
+| `FAIL-CINE-03B` | 分镜数量正确但单镜长短错误：缺少 `分镜N（约X秒）`、文字/道具/微表情被快速切走，低信息镜头被拖长，普通氛围镜普遍超过 `standard`，连续同长同速，或 15 秒组内节奏风险未裁决 | `references/shot-duration-decision-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N5.2-DURATION` |
 | `FAIL-CINE-03C` | 对白/旁白画面未按台词量裁决时长，导致台词未说完就切走、反应镜头承托不足或短对白被无意义拖长 | `references/shot-duration-decision-contract.md#Dialogue Duration Rule`、`steps/cinematography-workflow.md#N5.2-DURATION` |
 | `FAIL-CINE-05M` | 段落级连续运镜吞掉逐画面点归属：分镜整体流畅但无法回指正上方画面句子，或提前写入后文主体动作、对白反应、记忆段、道具揭示、跨场景连接方案 | `references/visual-sequence-alignment-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-04` | `分镜明细` 缺失或编号断裂 | `templates/output-template.md`、`scripts/validate_cinematography_markup.py` |

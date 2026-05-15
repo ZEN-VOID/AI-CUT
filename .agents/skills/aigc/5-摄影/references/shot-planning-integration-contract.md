@@ -21,7 +21,7 @@
 | `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个观看策略变化，不能按固定数量灌水 |
 | `shot_count_decision` | `beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md`、`sequence-density-curve-contract.md` | 明确本 visual_unit 为什么是 1/2/3/4 镜；2 镜不得作为默认值；5-6 镜只允许 `set_piece_chain` 例外且每镜必须有独立结果 |
 | `rhythm_profile` | `visual-rhythm-analysis-contract.md` | 决定分镜数量、句子密度、运动复杂度、边界清晰度和停顿感 |
-| `duration_profile` | `shot-duration-decision-contract.md` | 决定每个 `分镜N` 的时值等级、正文显示秒数、对白台词量预算、停顿/压缩理由和 15 秒分组节奏风险 |
+| `duration_profile` | `shot-duration-decision-contract.md` | 决定每个 `分镜N` 的时值等级、正文显示秒数、短剧·AIGC 默认压缩、对白台词量预算、停顿/压缩理由和 15 秒分组节奏风险 |
 | `shot_duration_decision` | `shot-duration-decision-contract.md` | 为每个计划分镜说明为什么是 `instant / short / standard / held / long_hold`、正文写 `约X秒`，以及缩短或拉长会损失什么 |
 | `dialogue_time_budget` | `shot-duration-decision-contract.md` | 对对白/旁白/画外音/反应镜头，裁决台词量下限和跨镜承托关系 |
 | `continuity_entry` | `shot-continuity-contract.md` | 当前画面从上一注意力落点、声音、动作、光色或空间轴线如何进入 |
@@ -41,7 +41,7 @@
 3. 若相邻画面形成连续观看段落、速度阶段、动作链或声音打点，先读取 `sequence-density-curve-contract.md` 并消费内部 `sequence_density_curve`；判断当前画面属于 `conserve / measured / build / burst / hold / release` 哪个密度槽位，是否为 `peak_slot / recovery_slot / set_piece_chain_slot`。
 4. 形成 `shot_count_decision`：先允许 1 镜成立，再验证是否存在第二个真实观看策略；只有关键揭示、群像扩散、动作分相、空间重置或高点承托才继续扩展到 3-4 镜。若命中 `set_piece_chain_slot`，可扩展到 5-6 镜，但每一镜必须有独立起点、撞点、结果、声音打点或反应落点，并通过删减测试。
 5. 用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。若当前批次出现大量同数分镜，尤其 2 镜集中，或连续段落没有明显密度曲线，必须抽样复判并修正 `shot_count_decision` 与 `density_budget`。
-6. 形成 `duration_profile` 和每个 beat 的 `shot_duration_decision`：先判断是否承载对白/旁白并估算台词量下限，再判断缩短一半会丢失什么、拉长一倍是否只会拖慢；文字、道具、微表情、空间重置和认知高点必须给足可读时间，低信息动作和重复交出点必须压缩。每个 beat 必须得到正文 `display_seconds`。
+6. 形成 `duration_profile` 和每个 beat 的 `shot_duration_decision`：先应用短剧·AIGC 默认压缩，再判断是否承载对白/旁白并估算台词量下限，继续判断缩短一半会丢失什么、拉长一倍是否只会拖慢；文字、道具、微表情、空间重置和认知高点必须给足可读时间，低信息动作、普通氛围尾巴和重复交出点必须压缩。每个 beat 必须得到正文 `display_seconds`，`约3秒` 以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
 7. 若相邻 3-6 个画面单位存在共享空间、道具链、声音链、动作链、记忆插入或视觉母题，先读取 `visual-sequence-alignment-contract.md` 并消费内部 `sequence_profile`；只吸收视觉母题、注意力接力、运动家族、材质光色和交出锚点，不吸收不属于当前画面点的主体动作、对白反应、记忆段或道具揭示。
 8. 为当前 `visual_unit` 建立 `unit_ownership_map`：当前块拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项必须清楚；若计划分镜属于其他画面点，必须转移或删除。
 9. 用 `continuity_entry` 承接前 3 个画面单位中的最近落点；不能每个画面重新发明一套风格。
@@ -65,7 +65,7 @@ shot_design_plan:
   unit_ownership_map: <当前块拥有的主体、动作、道具/文字/身体锚点、对白承托和禁止外溢项>
   shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略；5-6 镜只允许 set_piece_chain 且每镜不可删>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
-  duration_profile: <整体时值策略、显式秒数分布、对白台词量预算、15 秒分组风险和相邻分镜时值接力>
+  duration_profile: <整体时值策略、短剧·AIGC 默认压缩、显式秒数分布、对白台词量预算、15 秒分组风险和相邻分镜时值接力>
   continuity_entry: <承接上一落点、声音、动作、光色或空间轴线>
   handoff_profile: <如触发，记录场景/空间/注意力/动作/声音/形态/光色/文字接口、交出点、进入提示和连续性风险>
   ai_video_prompt_execution_profile: <镜头先行、方向参照、动作在镜头内部完成、光线结果、表演微动态和提示词模板边界>
@@ -95,6 +95,7 @@ shot_design_plan:
         prompt_boundary: <是否避免把完整提示词分栏或命令式负向词落入正文>
       shot_duration_decision:
         duration_class: <instant / short / standard / held / long_hold>
+        duration_mode: <short_drama_aigc / traditional_cinematic / project_override>
         estimated_seconds: <内部估算范围；通常不输出到正文>
         display_seconds: <正文写入的约X秒>
         dialogue_time_budget: <none / inherited / local_line / voiceover；如命中则写台词量下限和承托关系>
@@ -120,7 +121,7 @@ shot_design_plan:
 2. `path` 明确：使用哪类镜头、运镜方向、速度曲线和焦点/景别变化。
 3. `end` 明确：落到哪个人物、道具、文字、危险源、反应或转场接口。
 4. `motivation` 明确：能看出该运动服务信息揭示、动作相位、情绪压力、空间关系或转场。
-5. `duration` 明确：每条分镜写成 `分镜N（约X秒）:`，能反推该镜是快速通过、标准承接、读秒停留还是长停顿；缩短或拉长的取舍有理由。
+5. `duration` 明确：每条分镜写成 `分镜N（约X秒）:`，能反推该镜是快速通过、标准承接、读秒停留还是长停顿；缩短或拉长的取舍有理由，并已按短剧·AIGC 模式优先压到最短可成立时值。
 6. `dialogue_budget` 明确：若承载对白/旁白/画外音，显式秒数不低于台词量下限，或已说明跨镜延续。
 7. `handoff` 明确：多分镜时相邻分镜首尾相接，最后一镜能交给下一画面。
 8. `downstream_payload` 明确：能抽取主体、动作、运镜、构图锚点、光色/材质和图像/视频可消费点。
@@ -140,6 +141,7 @@ shot_design_plan:
 - 每条分镜都换一套技法，读不出上一镜如何进入下一镜。
 - 分镜数量确实变多了，但没有主体、动作、信息或情绪的递进。
 - 每条分镜都同样长度、同样速度，或长停顿没有可读性/表演/空间/高点理由。
+- 普通氛围镜、过场动作或常规反应沿用传统影视停顿，普遍写到 `约3秒` 以上却没有必要性证据。
 - 快速切走必须读清的文字、道具或微表情，导致分镜数量对了但观看时值错了。
 - 对白/旁白画面没有根据台词量决定显式秒数。
 - `分镜N` 缺少 `（约X秒）`，导致下游视频阶段无法消费时长。

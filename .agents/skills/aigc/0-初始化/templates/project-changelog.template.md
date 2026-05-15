@@ -7,5 +7,5 @@
 ## __DATE__
 
 - 初始化项目根。
-- 创建 `0-初始化/` 至 `8-审片/` 的项目 runtime 骨架、`源/`、`CONTEXT/` 与项目级运行载体。
+- 创建 `0-初始化/` 至 `10-审片/` 的项目 runtime 骨架、`源/`、`CONTEXT/` 与项目级运行载体。
 - 当前 live route truth 以 `STATE.json` 为准。

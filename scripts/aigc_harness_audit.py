@@ -35,28 +35,35 @@ AGENT_REQUIRED_SNIPPETS = {
         "## 输出合同",
         "## 分层上溯",
         "## 移交合同",
+        "## 执行深度与裁决策略",
     ],
     Path(".codex/agents/harness治理/门下省.md"): [
         ".codex/templates/harness/office-governance-contract.md",
         "## 输出合同",
         "## 否决条件",
         "## 分层上溯",
+        "## 审查深度与专项扩展",
     ],
     Path(".codex/agents/harness治理/尚书省.md"): [
         ".codex/templates/harness/office-governance-contract.md",
         "## 输出合同",
         "## 执行约束",
         "## 分层上溯",
+        "## 执行深度与调度策略",
     ],
 }
 
 ROOT_REQUIRED_SNIPPETS = {
     Path("AGENTS.md"): [
+        "### 三省六部制编排治理基线（强制）",
         "### HARNESS.md 总览与同步（强制）",
         "### AIGC 改造兼容模式（强制）",
         "bootstrap_compat",
         "根目录 `HARNESS.md`",
-        "必须在同一轮任务内同步检查并更新根目录 `HARNESS.md`",
+        "## 规则优先级与分级",
+        "### 全局冲突优先级（强制）",
+        "### 规则分级",
+        "bootstrap_compat` 模式的退出必须满足以下全部量化条件",
     ],
     Path("HARNESS.md"): [
         "## 当前工程化构思",
@@ -64,6 +71,9 @@ ROOT_REQUIRED_SNIPPETS = {
         "## 当前已实现真源",
         "## 可期发展方向",
         "## 更新维护合同",
+        "### 2. 变更即同步（双向）",
+        "AGENTS.md -> HARNESS.md（反向约束）",
+        "bootstrap_compat 退出条件与进度",
     ],
 }
 

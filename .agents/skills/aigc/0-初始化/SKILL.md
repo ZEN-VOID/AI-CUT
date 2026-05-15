@@ -39,8 +39,8 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目 / 新建电影项目 / 电影项目起盘”等媒介明确为 film/movie/video/影视工作流的初始化。
 - Create a new AIGC film/video project under `projects/aigc/<项目名>/`.
 - Reinitialize an existing AIGC project when the user wants to return to initialization state, rebuild the north star, or discard the active direction while preserving the project shell.
-- Build `0-初始化/` through `8-审片/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
-- Lock a project-level `north_star` before entering `1-分集`, `2-编导`, or later AIGC stages.
+- Build `0-初始化/` through `10-审片/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
+- Lock a project-level `north_star` before entering `1-分集`, `2-编剧`, or later AIGC stages.
 - Use `.agents/skills/team/` advisors to form a planning-led initialization council.
 
 ## When Not to Use
@@ -235,10 +235,12 @@ Runtime bootstrap must create or verify the user-facing project skeleton below. 
 projects/aigc/<项目名>/
 ├── 0-初始化/
 ├── 1-分集/
-├── 2-编导/
-├── 3-摄影/
-├── 4-分组/
-├── 5-设计/
+├── 2-编剧/
+├── 3-导演/
+├── 4-表演/
+├── 5-摄影/
+├── 6-分组/
+├── 7-设计/
 │   ├── 场景/
 │   │   ├── 1-清单/
 │   │   ├── 2-设计/
@@ -251,9 +253,9 @@ projects/aigc/<项目名>/
 │       ├── 1-清单/
 │       ├── 2-设计/
 │       └── 3-生成/
-├── 6-图像/
-├── 7-视频/
-├── 8-审片/
+├── 8-图像/
+├── 9-视频/
+├── 10-审片/
 ├── 源/
 ├── CONTEXT/
 ├── CHANGELOG.md
@@ -264,18 +266,20 @@ projects/aigc/<项目名>/
 
 Story source marker: `源/` is the project-level source landing for new initialization. Historical `Original/` and `Story/` are legacy aliases and must be migrated or treated as compatibility inputs, not created by new initialization.
 
-Downstream runtime naming marker: `6-图像/`, `7-视频/` and `8-审片/` are stage roots only at initialization time. Concrete image/video/review task subdirectories are created by their owning stages when execution begins.
+Downstream runtime naming marker: `8-图像/`, `9-视频/` and `10-审片/` are stage roots only at initialization time. Concrete image/video/review task subdirectories are created by their owning stages when execution begins.
 
 Bootstrap runtime marker allowlist:
 
 - `projects/aigc/<项目名>/1-分集/`
-- `projects/aigc/<项目名>/2-编导/`
-- `projects/aigc/<项目名>/3-摄影/`
-- `projects/aigc/<项目名>/4-分组/`
-- `projects/aigc/<项目名>/5-设计/`
-- `projects/aigc/<项目名>/6-图像/`
-- `projects/aigc/<项目名>/7-视频/`
-- `projects/aigc/<项目名>/8-审片/`
+- `projects/aigc/<项目名>/2-编剧/`
+- `projects/aigc/<项目名>/3-导演/`
+- `projects/aigc/<项目名>/4-表演/`
+- `projects/aigc/<项目名>/5-摄影/`
+- `projects/aigc/<项目名>/6-分组/`
+- `projects/aigc/<项目名>/7-设计/`
+- `projects/aigc/<项目名>/8-图像/`
+- `projects/aigc/<项目名>/9-视频/`
+- `projects/aigc/<项目名>/10-审片/`
 - `projects/aigc/<项目名>/源/`
 - `projects/aigc/<项目名>/CONTEXT/`
 
@@ -283,7 +287,7 @@ Forbidden bootstrap paths:
 
 - legacy source aliases: `Original/`, `Story/`
 - legacy English stages: `1-Planning/`, `2-Global/`, `3-Detail/`, `4-Design/`, `5-Image/`, `6-Video/`, `7-Cut/`
-- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `4-摄影/`, `4-设计/`, `5-分组/`, `6-分组/`, `7-图像/`, `8-视频/`
+- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `2-编导/`, `3-编导/`, `3-摄影/`, `4-摄影/`, `4-分组/`, `4-设计/`, `5-分组/`, `5-设计/`, `6-图像/`, `7-图像/`, `7-视频/`, `8-视频/`, `8-审片/`
 - legacy project context aliases outside `projects/aigc/<项目名>/CONTEXT/`
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。

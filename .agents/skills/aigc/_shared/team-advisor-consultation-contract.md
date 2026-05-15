@@ -27,12 +27,14 @@
 
 | stage | preferred advisor focus | question source |
 | --- | --- | --- |
-| `2-编导` | 监制、导演、编剧、表演、摄影或类型顾问 | 从当前 `2-编导` 的 `Thought Pass Map`、`steps/directing-workflow.md` 节点、`director_substance_plan`、review gate、目标集上下文和当前 `type_profile` 派生；顾问需代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强、回修建议与风险提示 |
-| `3-摄影` | 摄影、导演、美术、剪辑、类型视觉顾问 | 从当前 `3-摄影` 的 `Thought Pass Map`、`steps/cinematography-workflow.md` 节点、review gate、目标集上下文和当前 `visual_unit` 派生；顾问需代入角色意识、创作风格和专业水准参与节点判断、执行取舍与风险提示 |
-| `5-设计/角色/2-设计` | 角色、服装、美术、摄影、导演、类型顾问 | 从当前 `steps/character-design-workflow.md` 的 `node_id`、`N5-RESEARCH-PROFILE`、`N6-SUBAGENT-DISPATCH`、`N7-MERGE-DRAFT`、`N8-REVIEW-GATE`、目标角色上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
-| `5-设计/道具/2-设计` | 道具、美术、摄影、导演、世界观或工艺顾问 | 从当前 `steps/prop-design-workflow.md` 的 `node_id`、`N5-RESEARCH-CHAIN`、`N6-DESIGN`、`N7-REVIEW`、目标道具上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
-| `5-设计/场景/2-设计` | 场景、美术、建筑、摄影、导演、类型顾问 | 从当前 `steps/scene-design-workflow.md` 的 `node_id`、`N5-RESEARCH`、`N6-DESIGN`、`N7-REVIEW`、目标场景上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
-| `8-审片` | 监制、导演、摄影、美术、剪辑、类型视觉或质量顾问 | 从当前 `8-审片` 的 `Thought Pass Map`、`steps/video-review-workflow.md` 节点、真实视频证据包、`observed_content_summary`、prompt 匹配、创作质量、好/坏示例校准和 review gate 派生；顾问需代入角色意识、创作风格和专业水准参与证据补强、错配归因、审美质量门、rerun / repair / source escalation 落点风险判断 |
+| `2-编剧` | 监制、导演、编剧、表演、摄影或类型顾问 | 从当前 `2-编剧` 的 `Thought Pass Map`、`steps/screenwriting-workflow.md` 节点、review gate、目标集上下文和当前 `type_profile` 派生；顾问需代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强、回修建议与风险提示 |
+| `3-导演` | 监制、导演、编剧、表演、摄影或类型顾问 | 从当前 `3-导演` 的 `Thought Pass Map`、导演创作合同、review gate、目标集上下文和当前 `type_profile` 派生；顾问需参与戏剧问题、观众位置、视觉主轴、高潮画面和终结画面的判断与风险提示 |
+| `4-表演` | 表演、导演、摄影、美术或类型顾问 | 从当前 `4-表演` 的 `Thought Pass Map`、表演控制合同、review gate、目标集上下文和当前表演需求派生；顾问需参与心理反应可感知化、潜台词行为、场面调度和沉默余波判断 |
+| `5-摄影` | 摄影、导演、美术、剪辑、类型视觉顾问 | 从当前 `5-摄影` 的 `Thought Pass Map`、`steps/cinematography-workflow.md` 节点、review gate、目标集上下文和当前 `visual_unit` 派生；顾问需代入角色意识、创作风格和专业水准参与节点判断、执行取舍与风险提示 |
+| `7-设计/角色/2-设计` | 角色、服装、美术、摄影、导演、类型顾问 | 从当前 `steps/character-design-workflow.md` 的 `node_id`、`N5-RESEARCH-PROFILE`、`N6-SUBAGENT-DISPATCH`、`N7-MERGE-DRAFT`、`N8-REVIEW-GATE`、目标角色上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
+| `7-设计/道具/2-设计` | 道具、美术、摄影、导演、世界观或工艺顾问 | 从当前 `steps/prop-design-workflow.md` 的 `node_id`、`N5-RESEARCH-CHAIN`、`N6-DESIGN`、`N7-REVIEW`、目标道具上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
+| `7-设计/场景/2-设计` | 场景、美术、建筑、摄影、导演、类型顾问 | 从当前 `steps/scene-design-workflow.md` 的 `node_id`、`N5-RESEARCH`、`N6-DESIGN`、`N7-REVIEW`、目标场景上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
+| `10-审片` | 监制、导演、摄影、美术、剪辑、类型视觉或质量顾问 | 从当前 `10-审片` 的 `Thought Pass Map`、`steps/video-review-workflow.md` 节点、真实视频证据包、`observed_content_summary`、prompt 匹配、创作质量、好/坏示例校准和 review gate 派生；顾问需代入角色意识、创作风格和专业水准参与证据补强、错配归因、审美质量门、rerun / repair / source escalation 落点风险判断 |
 
 若项目 team 成员以通用大师人格或作品维度声明，主 agent 必须把问题改写成该阶段当前思维·执行节点可回答的具体问题，例如“在 `N6-DESIGN` 中，这个空间的叙事压力应怎样转成可见材质、动线和镜头边界”，而不是让顾问泛泛评价。对于声明了节点网络的技能，顾问问题必须绑定当前 `node_id / pass_id / gate_id` 或等价执行位置，不得退化为固定字段清单。
 
@@ -45,7 +47,7 @@
 ```yaml
 advisor_consultation_packet:
   project_team_ref: "projects/aigc/<项目名>/team.yaml"
-  stage: "2-编导 | 3-摄影 | 5-设计/角色/2-设计 | 5-设计/道具/2-设计 | 5-设计/场景/2-设计 | 8-审片"
+  stage: "2-编剧 | 3-导演 | 4-表演 | 5-摄影 | 7-设计/角色/2-设计 | 7-设计/道具/2-设计 | 7-设计/场景/2-设计 | 10-审片"
   roster_source_note: ""
   consultation_mode: "ask-team-advisors-for-executable-stage-guidance"
   roster:
