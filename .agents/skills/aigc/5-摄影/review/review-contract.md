@@ -18,7 +18,9 @@
 | `ai_video_prompt_execution_review` | 交付前 | 检查每个 `分镜N` 是否符合 AI 视频执行稳定性：镜头先行包裹动作、方向参照明确、光线写结果、表演微动态可见，且未把完整提示词分栏或命令式负向词塞入分镜正文 |
 | `thinking_action_node_review` | 交付前 | 检查 `PASS-CINE-*` / `N*-*` 是否完成真源锁定、画面匹配、类型画像、段落观看意图与逐点归属、节拍、节奏、镜头时值、高点、连续性、摄影语法、功能投影、AI 视频执行稳定性、计划汇流、自然注入和阶段内修复闭环 |
 | `camera_grammar_review` | 交付前 | 检查景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化是否有节拍、空间、信息或情绪动机 |
-| `camera_design_scope_review` | 交付前 | 检查 `分镜明细：` 是否只承载运镜手法、摄影美学、内部注意力转交和可消费交出锚点，没有抽象主题、心理结论、世界观解释、导演阐释或不可执行气氛口号 |
+| `camera_design_scope_review` | 交付前 | 检查 `分镜明细：` 是否只承载运镜手法、摄影美学、扩展维度信息点、内部注意力转交和可消费交出锚点，没有抽象主题、心理结论、世界观解释、导演阐释或不可执行气氛口号 |
+| `scene_visual_constraint_review` | 交付前 | 检查每个场景是否已形成内部场景视觉约束 `scene_visual_constraint`，约束覆盖构图布局（主体/陪体/前景/背景）、构图方式（形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势中选取 2-3 个子维度）、光源设置效果、色彩体系和关键摄影技术参数；同一场景视觉约束不变时只裁决一次，变化时可重新裁决；纯内部裁决，不检查成稿中的画面基调语句 |
+| `shot_detail_dimension_review` | 交付前 | 检查每条 `分镜N` 的自然语句是否覆盖了当前画面中自然存在的扩展维度信息点（角色表演/非角色动态/镜头技术/光影精细/焦点精细/节奏同步）；遵循"应有则有、没有不必强制"原则，画面中有角色就写角色表演，没有则跳过，不为凑数虚构画面中不存在的信息；维度信息融入自然中文而非标签列表 |
 | `natural_language_review` | 交付前 | 检查 `分镜明细：` 是否读起来像自然中文镜头文字，而不是参数清单、模板填空或连续同构句 |
 | `shot_count_distribution_review` | 交付前 | 检查同一集或同一场分镜数量是否被模板化为固定 2 镜；抽样确认 1/2/3/4 镜均来自真实节拍 |
 | `sequence_density_curve_review` | 交付前 | 检查连续观看段落是否形成 `sequence_density_curve`：有清楚 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget / handoff_anchors`，而不是只做单句分镜数判断 |
@@ -64,6 +66,8 @@
 | `GATE-CINE-19` | 输出路径 | 写入 `projects/aigc/<项目名>/5-摄影/第N集.md` 和 `执行报告.md` |
 | `GATE-CINE-20` | 顾问请教 | 启动 subagents 模式时，已完成 `team.yaml` 监制顾问请教；顾问问题同步于当前思维·执行节点，并沉淀为后续上下文，或记录上层阻断降级 |
 | `GATE-CINE-21` | 边界交出 | 场景变化已处理上一画面交出点和下一画面进入提示；所有声画、形态、颜色、文字或高点余波只作为可见交出锚点记录，没有在本阶段写成组间/跨场景创意转场方案 |
+| `GATE-CINE-22` | 场景视觉约束 | 每个场景已在内部形成 `scene_visual_constraint`，覆盖构图布局（主体/陪体/前景/背景）、构图方式（形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势中选取 2-3 个子维度）、光源设置效果、色彩体系和关键摄影技术参数；同一场景视觉约束不变时只裁决一次，变化时可重新裁决；纯内部裁决，逐镜分镜明细在约束框架内展开 |
+| `GATE-CINE-23` | 分镜明细维度覆盖 | 每条 `分镜N` 的自然语句覆盖了当前画面中自然存在的扩展维度信息点；维度选取遵循"应有则有、没有不必强制"原则——画面中有角色就写角色表演，有陪体就写陪体动态，没有则跳过，不为凑数虚构画面中不存在的信息；维度信息融入自然中文而非输出标签列表或参数清单；`shot_design_plan` 中有 `dimension_coverage` 字段说明覆盖了哪些维度及为什么 |
 
 ## Failure Routing
 
@@ -93,6 +97,8 @@
 | `FAIL-CINE-05K` | 场景变化没有交出点/进入提示，或把组间/跨场景创意转场方案落在 `5-摄影` | `references/transition-design-contract.md`、`references/shot-continuity-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05J` | 思维·执行节点缺环：未完成画面匹配、类型画像、段落观看意图与逐点归属、摄影语法、功能投影、计划汇流或阶段内修复闭环，却直接写出 `分镜明细` | `steps/cinematography-workflow.md`、`SKILL.md#Thought Pass Map` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
+| `FAIL-CINE-05P` | 场景视觉约束缺失或未被消费：场景未形成内部 `scene_visual_constraint`，或构图布局/构图方式/光源/色彩/摄影技术参数未作为内部约束被下游分镜明细消费 | `references/scene-visual-constraint-contract.md`、`references/cinematic-technique-library.md`、`steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-05Q` | 分镜明细维度覆盖问题：画面中存在角色表演/陪体动态/前景动态/光影反射/动态焦点/节奏同步等信息却未被摄影机表达，或维度以标签形式输出而非融入自然中文，或为凑数虚构画面中不存在的信息 | `references/shot-detail-dimension-contract.md`、`references/functional-cinematic-projection-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-07` | 启动 subagents 模式时缺少顾问请教、节点同步问题、角色意识/创作风格/专业水准参谋、上下文沉淀或降级说明 | `../../_shared/team-advisor-consultation-contract.md` + `../SKILL.md#Subagents Execution Mechanism` |
 
 ## Review Output
@@ -119,6 +125,8 @@
 - 顾问请教 roster 来源、问题类型、可执行指导或降级说明。
 - 镜头连续性、空间一致性和风格一致性结果。
 - 运镜摄影设计纯度检查结果。
+- 场景视觉约束内部裁决结果：每个场景是否已形成 `scene_visual_constraint`、构图布局/构图方式/光源/色彩/摄影技术参数覆盖情况、逐镜分镜明细是否在约束框架内展开。
+- 分镜明细维度覆盖检查结果：每条分镜覆盖的维度及来源（画面中确实存在的信息）、维度信息自然化程度、是否存在虚构维度或遗漏已存在维度。
 - 自然成稿检查结果。
 - 需要返工的行号或字段标签。
 - repair actions、复审 verdict、未修复风险和是否允许进入下游阶段。

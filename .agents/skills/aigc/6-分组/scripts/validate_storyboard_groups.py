@@ -35,6 +35,7 @@ STATS_COUNT_RE = re.compile(r"(\d+)")
 SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
+VISUAL_TONE_LABEL = "画面属性："
 CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
 LEGACY_ENTRY_LABEL = "入场画面："
@@ -271,10 +272,14 @@ def extract_style_lines(body: str) -> list[str]:
     lines = body.splitlines()
     style_lines: list[str] = []
     skipped_scene_title = False
+    skipped_visual_tone = False
     for line in lines[1:]:
         stripped = line.strip()
         if stripped and not skipped_scene_title:
             skipped_scene_title = True
+            continue
+        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
+            skipped_visual_tone = True
             continue
         if stripped:
             style_lines.append(stripped)
@@ -306,10 +311,14 @@ def style_line_indices(body: str) -> list[int]:
     lines = body.splitlines()
     indices: list[int] = []
     skipped_scene_title = False
+    skipped_visual_tone = False
     for index, line in enumerate(lines[1:], start=1):
         stripped = line.strip()
         if stripped and not skipped_scene_title:
             skipped_scene_title = True
+            continue
+        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
+            skipped_visual_tone = True
             continue
         if stripped:
             indices.append(index)
@@ -327,6 +336,7 @@ def strip_group_non_body_sections(body: str) -> str:
     content_lines: list[str] = []
     non_empty_seen = 0
     skipped_scene_title = False
+    skipped_visual_tone = False
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("## "):
@@ -335,6 +345,10 @@ def strip_group_non_body_sections(body: str) -> str:
             if stripped:
                 skipped_scene_title = True
                 content_lines.append(line)
+            continue
+        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
+            skipped_visual_tone = True
+            content_lines.append(line)
             continue
         if non_empty_seen < STYLE_LINE_COUNT:
             if stripped:

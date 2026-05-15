@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 2026-05-14 (Scene Visual Constraint Refactor)
+
+- 将"组级画面视觉基调"从 5-摄影 的成稿输出降级为内部场景视觉约束，并将正式的组级画面属性输出移至 6-分组 阶段。
+- 重命名 `references/group-visual-profile-contract.md` → `references/scene-visual-constraint-contract.md`：定义不变（构图布局/构图方式/光源/照明类型/色彩体系/摄影技术参数），但明确为纯内部裁决不进入成稿。
+- `steps/cinematography-workflow.md`：`N6.3-GROUP-VISUAL-PROFILE` → `N6.3-SCENE-VISUAL-CONSTRAINT`；N6.4/N6.5/N7 同步更新引用；N7 不再注入画面基调语句。
+- `SKILL.md`：Execution Contract step 9/10 移除组级画面属性成稿注入；Field Mapping FIELD-CINE-20 改为场景视觉约束内部裁决；PASS-CINE-08B 改名为场景视觉约束；Output Contract 删除画面基调输出要求。
+- `review/review-contract.md`：`group_visual_profile_review` → `scene_visual_constraint_review`；`GATE-CINE-22` 改为内部裁决检查；`FAIL-CINE-05P` 重新定义。
+- `templates/episode-cinematography.template.md`：删除画面基调行和组级画面属性输出。
+- `CONTEXT.md`、`knowledge-base/cinematography-heuristics.md`：所有"组级画面属性"→"场景视觉约束"。
+- 正式的"组级画面属性"输出由下游 `6-分组` 新增 `N4-VISUAL-TONE` 节点负责。
+
+## 2026-05-14 (Group Visual Profile & Shot Detail Dimensions)
+
+- 新增 `references/group-visual-profile-contract.md`：定义分镜组级 `group_visual_profile` 的结构化字段——构图布局（主体/陪体/前景/背景分配）、构图方式（形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势七个子维度）、光源设置（主光/辅助光/逆光效果）、照明类型、色彩体系（色相/明度/饱和度/色温/色彩心理）和摄影技术参数（机型/光圈/快门/ISO/焦距/分辨率）。要求每个 visual_unit 在摄影语法裁决后形成内部组级画面属性，成稿在场景标题下方以自然语句呈现。
+- 新增 `references/shot-detail-dimension-contract.md`：定义每条 `分镜N` 需覆盖的扩展维度族群——角色表演（情绪表现/肢体语言/语气语速/镜头意识）、非角色动态（运动特征/陪体动态/前景动态/背景动态）、镜头技术（景别变化/镜头运动/镜头视角）、光影精细（光影变化/光影反射）、焦点精细（动态焦点与景深变化）、节奏同步。低信息镜覆盖 2-3 个维度，高信息镜覆盖 6-8 个维度，维度信息融入自然中文而非标签列表。
+- 在 `references/cinematic-technique-library.md` 新增"构图方式"大分区（含形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势七个子分区的完整技法表）和"摄影技术参数"大分区（机型/光圈/快门/ISO/焦距/分辨率的选项和使用场景）。
+- 在 `steps/cinematography-workflow.md` 新增节点 `N6.3-GROUP-VISUAL-PROFILE`（位于 N6.2-CAMERA-GRAMMAR 和 N6.4-FUNCTIONAL-PROJECTION 之间），更新 N6.4 增加维度覆盖裁决、N6.5 消费组级属性和维度覆盖、N7 注入组级画面属性语句和扩展维度信息点；同步更新 Mermaid 拓扑图、分支规则和返工路由。
+- 更新 `SKILL.md`：Reference Loading Guide 新增组级画面属性和分镜明细维度入口；Execution Contract step 9/10 接入 `group_visual_profile`、`dimension_coverage`；Thought Pass Map 新增 `PASS-CINE-08B` 组级画面属性，更新 `PASS-CINE-09/10/11` 消费组级属性和维度覆盖；Field Mapping 新增 `FIELD-CINE-20`（组级画面属性）和 `FIELD-CINE-21`（分镜明细维度覆盖）；Output Contract 和 Completion gate 新增组级属性和维度覆盖要求。
+- 更新 `templates/episode-cinematography.template.md`：frontmatter 新增 `group_visual_profile_policy` 和 `shot_detail_dimension_policy`；模板正文新增组级画面属性行；示例 1 更新为带组级画面属性的完整格式。
+- 更新 `review/review-contract.md`：新增 `group_visual_profile_review` 和 `shot_detail_dimension_review` review 模式；新增 `GATE-CINE-22`（组级画面属性）和 `GATE-CINE-23`（分镜明细维度覆盖）验收门禁；新增 `FAIL-CINE-05P`（组级属性缺失/退化）和 `FAIL-CINE-05Q`（维度覆盖不足/标签化）失败路由。
+- 更新 `CONTEXT.md`：Type Map 新增 4 条组级属性和维度覆盖相关失败模式与修复路径；Repair Playbook 新增步骤 28-30（组级属性检查、维度覆盖抽样、组级属性更新时机）；Reusable Heuristics 新增 4 条组级属性和维度覆盖经验。
+- 更新 `knowledge-base/cinematography-heuristics.md`：新增"Group Visual Profile Heuristics"和"Shot Detail Dimension Heuristics"两个分区，沉淀组级属性和维度覆盖的可复用经验。
+
 ## 2026-05-14
 
 - 将 `5-摄影` 单镜时值默认口径调整为短剧·AIGC 节奏偏置：默认优先 `short / standard`，普通氛围镜、过场动作和常规反应不得沿用传统影视宽停顿；`约3秒` 以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。

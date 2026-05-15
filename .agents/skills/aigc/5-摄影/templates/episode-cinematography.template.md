@@ -13,6 +13,8 @@ sequence_alignment_policy: internal_sequence_profile_preserve_visual_unit_owners
 beat_policy: one_beat_point_one_storyboard_cut
 peak_shot_policy: strengthen_existing_peak_visual_unit
 duration_policy: short_drama_aigc_bias_explicit_approx_seconds_with_dialogue_budget
+scene_visual_constraint_policy: composition_layout_method_lighting_color_camera_params_per_scene_internal_only
+shot_detail_dimension_policy: should_have_then_write_no_force_no_fabricate
 ai_video_execution_policy: camera_first_direction_referenced_lighting_result_microdynamic
 language_policy: preserve_directing_text_add_shot_details
 camera_design_scope: internal_camera_continuity_and_handoff_only
@@ -23,9 +25,11 @@ review_status: pending
 
 ### 场景1：内景/外景 场所 - 日/夜
 
+<从上游 4-表演 保留的环境描写/画面描写等原始字段>
+
 环境描写：<原文画面句子>
 分镜明细：
-分镜1（约X秒）: <用自然中文写当前节拍的影视功能、可见主体、动作相位、景别/视角/景深/焦点/镜头类型中的关键变化、镜头先行的运镜方式/速度/停点、显式时长对应的读秒/停顿/快速通过理由、构图锚点、方向参照、光线可见结果、必要表演微动态、连续性交接和下游可消费点；短剧·AIGC 模式下优先用 short/standard 成立，约3秒以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；只显式写最关键的摄影选择，不粘贴完整视频提示词分栏。>
+分镜1（约X秒）: <用自然中文写当前节拍的影视功能、可见主体、动作相位，以及画面中自然存在的维度信息点（角色情绪/肢体语言/语气/镜头意识等表演维度、陪体/前景/背景动态、景别/视角/景深/焦点/镜头运动等技术维度、光影变化与反射、节奏同步等——应有则有，没有不必强制），以及景别/视角/景深/焦点/镜头类型中的关键变化、镜头先行的运镜方式/速度/停点、显式时长对应的读秒/停顿/快速通过理由、构图锚点、方向参照、光线可见结果、必要表演微动态、连续性交接和下游可消费点；短剧·AIGC 模式下优先用 short/standard 成立，约3秒以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；只显式写当前画面中存在的信息，不虚构不存在的维度，不粘贴完整视频提示词分栏或维度标签列表。>
 <可选：只有存在第二个真实节拍点时才写 分镜2（约X秒）；若一个镜头已完成观看策略，不补第二镜。关键揭示、动作分相、群像扩散、对白承托或高点承托可继续写 分镜3/分镜4，但每一镜都必须提供新的观看策略和时值理由。>
 
 <!-- 若相邻画面单位共享空间、道具链、声音链、动作链、记忆插入或视觉母题，段落级 `sequence_profile` 只作为内部计划；此处仍只写正上方画面句子拥有的信息，不能吞入后文画面点。 -->
@@ -42,7 +46,7 @@ review_status: pending
 分镜1（约2秒）: 镜头从日光灯管的嗡鸣白光下降，经过黑窗帘的褶皱边缘，停在空荡课桌的第一排；桌面铅笔灰在冷白光下闪一下。
 ```
 
-> 低信息环境块只需 1 镜；短剧·AIGC 模式下不把环境建立拖成长停，2 秒内完成起点、落点和可消费视觉锚点。
+> 低信息环境块只需 1 镜；短剧·AIGC 模式下不把环境建立拖成长停，2 秒内完成起点、落点和可消费视觉锚点。场景视觉约束（构图布局、光源、色彩、摄影技术参数）在内部裁决，不在成稿中输出。
 
 ---
 
