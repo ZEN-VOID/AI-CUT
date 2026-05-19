@@ -16,6 +16,7 @@
 /.codex/state*.sqlite
 /.codex/state*.sqlite-shm
 /.codex/state*.sqlite-wal
+/.claude/
 /.env
 /.tmp/
 /tmp/
@@ -29,6 +30,7 @@
 /docs/
 /reports/
 /todos/
+/笑傲江湖4/
 /.DS_Store
 .DS_Store
 __pycache__/
