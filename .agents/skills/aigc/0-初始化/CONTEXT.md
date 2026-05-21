@@ -41,6 +41,7 @@
 | 自动组队直接全树扫描 `team/`，没有先走根层成员索引 | team root fast-path contract | 先读取 `.agents/skills/team/SKILL.md + CONTEXT.md` 的成员/场景索引，生成 shortlist 后再深读子技能 | 在 `0-初始化/SKILL.md` 固定“先根索引、后 shortlist deep-read”，并要求 team 根文档与成员树同步更新 | 自动选人理由可回溯到根层 `scenario_tags + candidate_shortlist` |
 | 自动组队把治理角色和部门覆盖混成一层 | team governance contract | 先回到 `策划 / 监制 / 评审` 权属矩阵，再单独补 `导演组 / 设计组 / 摄影组` 必选覆盖 | 在 `SKILL.md` 与 `team.template.yaml` 同步固定“两层裁决”：治理角色先锁、部门选人后落 | `team.yaml` 同时能读出角色权属与部门覆盖，不再互相替代 |
 | 把 `策划 / 监制 / 评审` 误判为必须三拨不同的人 | role allocation contract | 允许同人复用，也允许分人治理，并把实际选择写回 `team_setup.role_allocation_mode / role_overlap_notes` | 在 `SKILL.md` 与 `team.template.yaml` 固定“默认允许重叠，不默认强制互斥” | 后续读取 `team.yaml` 时，能看出是同人兼任还是分人治理 |
+| 后续阶段只看到一组通用“监制”名单，subagents 模式下不知道各阶段该问谁、问什么 | supervision stage profile contract | 在 `team.yaml.roles.supervision.stage_profiles` 为 `2-编剧 / 3-导演 / 4-表演 / 5-摄影 / 7-设计` 写入阶段 profile，包含 `preferred_departments / focus_tags / question_binding / dispatch_policy` | 用 shared `team.template.yaml` 固化阶段级 profile，并让共享顾问合同按阶段专属字段优先解析 | 下游阶段能先读本阶段 profile，再回退到通用 supervision 或旧字段 |
 | 题材明显缺少更合适的大师，但初始化直接硬凑现有 roster 且无记录 | roster gap contract | 保留当前可执行 lineup，同时额外生成 `todos/*-team-recommendation.md` | 在 `SKILL.md` 固定“继续执行 + 输出推荐 todo + 写回 `team_setup.recommendation_todo_paths`”三联动作 | 题材缺口不会无痕消失，且本轮初始化不被阻塞 |
 | planning 固定题包直答没有先于北极星综合执行 | direct-answer topology 层 | 回到 `N4-mode-engine`，先锁 `team.yaml` 再运行 `roles.planning.members` 的 subagents 固定题包直答 | 在 `Topology Contract` 与 `Execution Procedure` 固定 `team -> planning 固定题包直答 -> synthesis` 顺序 | `north_star / init_handoff` 可回溯到 planning 固定题包直答 provenance |
 | planning 固定题包直答被降级成本地顺序扮演 | subagent gate 层 | 阻塞当前初始化并报告 subagents 不可用 | 在 `SKILL.md` 与 `team.template.yaml` 同时固定 `require_subagents_for_init_execution == true` | `0-初始化` 不再把本地模拟表述成正常主路径 |
@@ -98,6 +99,7 @@
 - `0-初始化` 自动组队若想选得快又稳，关键不是直接遍历整个 `team/` 树，而是先读 team 根文档的成员/场景索引，把 deep read 限定在 shortlist 内。
 - 对当前 `0-初始化`，`策划 / 监制 / 评审` 是治理角色，不等于具体选人部门；自动组队应先锁治理权属，再补部门覆盖。
 - `策划 / 监制 / 评审` 可以是同一波人，也可以是不同的人；是否重叠是编组策略问题，不是角色定义问题。
+- `roles.supervision.stage_profiles` 是后续 subagents 模式的阶段入口；不要只给一组平铺监制名单，否则 `2-编剧 / 3-导演 / 4-表演 / 5-摄影 / 7-设计` 会重新各自猜部门、问题类型和降级策略。
 - 自动组队的最小可靠闭环是 `导演组 + 设计组 + 摄影组`；其他组只有在题材或执行难点真正需要时再加。
 - 题材缺口如果暂时无法靠仓内 roster 补齐，最稳的处理不是阻塞初始化，而是保留当前 lineup 并额外写一份 `todos/*-team-recommendation.md`。
 - 初始化固定题包直答的第一发题权属于父技能；`roles.planning.members` 负责对既定题包并行直答。如果一开始就是主代理自己自由追问，通常说明 team topology 被绕过了。

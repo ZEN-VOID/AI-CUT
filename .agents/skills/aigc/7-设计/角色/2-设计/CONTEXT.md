@@ -28,7 +28,7 @@ last_checked_at: 2026-04-25
 | 研究层停留在资料摘录 | 研究转化层 | 按身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性补成 evidence chain | 每个研究点必须写出 design implication 和 prompt phrase | `Prompt Evidence Chain` 可回指研究证据 |
 | prompt 出现无证据文化/制服/身份短语 | prompt evidence 层 | 删除或回到研究层补证据与不确定性 | prompt 关键短语按 `evidence -> design decision -> prompt phrase` 审查 | prompt 中的特定词均可回指研究或项目风格 |
 | subagent 输出互相竞争 | 汇流层 | 主 agent 只吸收 patch 和 risk，统一写 canonical 设计稿 | subagents 不直接落盘最终稿 | 最终文件只有一个主稿声音 |
-| subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同解析 `team.yaml`，让角色/服装/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/character-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `advisor_consultation_packet` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
+| subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"`，让角色/服装/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/character-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `advisor_consultation_packet` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 脚本生成正文 | LLM-first 层 | 删除生成逻辑，保留字段校验或长度检查 | scripts 分区固定机械辅助边界 | 脚本不输出研究、物语、解构和提示词正文 |
 | 批量定制后只有表格没有关键图 | Skill 2.0 可维护性层 | 在根 `SKILL.md`、`types/`、`review/` 和 README 补 Mermaid 拓扑或门禁图 | 批量生成后人工检查入口拓扑、类型分流和 review 闭环是否可视化 | 关键路径能从图中看见输入、分流、汇流、返工和落盘 |

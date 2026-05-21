@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本类型包负责在 `2-编导` 中为每集终结画面做类型化匹配。它不直接写尾钩正文，只输出 `final_image_type_profile`，供 `references/episode-final-image-contract.md` 和 `steps/directing-workflow.md` 消费。
+本类型包负责在 `3-导演` 中为每集终结画面做类型化匹配。它不直接写尾钩正文，只输出 `final_image_type_profile`，供 `references/episode-final-image-contract.md` 和 `steps/directing-workflow.md` 消费。
 
 ## Type Profile Variables
 

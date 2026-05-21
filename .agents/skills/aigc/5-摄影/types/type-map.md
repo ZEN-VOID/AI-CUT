@@ -16,7 +16,7 @@
 
 ```mermaid
 flowchart TD
-    A["调用 3-摄影"] --> B["加载 SKILL.md + CONTEXT.md"]
+    A["调用 5-摄影"] --> B["加载 SKILL.md + CONTEXT.md"]
     B --> C["加载 types/type-map.md"]
     C --> D["加载 visual-unit-type-map.md"]
     D --> E["形成 visual_unit / type_profile"]

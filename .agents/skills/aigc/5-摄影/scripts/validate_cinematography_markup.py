@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Mechanical checks for 3-摄影 cinematography markup.
+"""Mechanical checks for 5-摄影 cinematography markup.
 
 This script validates coverage, explicit duration markers, numbering,
-coarse shot-count distribution signals, frontmatter presence, short-drama
-AIGC duration range hints, abstract term detection, and empty block detection. It does not
-generate shot details or decide creative beats.
+coarse shot-count distribution signals, source-text preservation,
+frontmatter presence, short-drama AIGC duration range hints, abstract term
+detection, and empty block detection. It does not generate shot details or
+decide creative beats.
 """
 
 from __future__ import annotations
@@ -21,8 +22,8 @@ TWO_SHOT_WARNING_THRESHOLD = 0.8
 MIN_BLOCKS_FOR_DISTRIBUTION_WARNING = 10
 
 FRONTMATTER_REQUIRED_FIELDS = [
-    "stage: 3-摄影",
-    "source_directing_path:",
+    "stage: 5-摄影",
+    "source_performance_path:",
     "output_path:",
     "duration_policy:",
 ]
@@ -31,15 +32,17 @@ ABSTRACT_TERMS_RE = re.compile(
     r"(?:象征|隐喻|寓意|暗示了|表现了|体现了|导演意图|世界观|命运|心理状态|孤独感|压迫感)"
 )
 
+BODY_MARKER = "【剧本正文】"
 
-def validate_frontmatter(lines: list[str]) -> list[str]:
-    """Check that required frontmatter fields are present."""
+
+def parse_frontmatter(lines: list[str]) -> tuple[dict[str, str], list[str]]:
+    """Extract simple key-value frontmatter fields."""
     findings: list[str] = []
+    data: dict[str, str] = {}
     if not lines or lines[0].strip() != "---":
         findings.append("[ERROR] Missing frontmatter opening '---'.")
-        return findings
+        return data, findings
 
-    # Find closing ---
     close_index = -1
     for i in range(1, len(lines)):
         if lines[i].strip() == "---":
@@ -48,18 +51,120 @@ def validate_frontmatter(lines: list[str]) -> list[str]:
 
     if close_index == -1:
         findings.append("[ERROR] Frontmatter not closed with '---'.")
+        return data, findings
+
+    for raw_line in lines[1:close_index]:
+        if ":" not in raw_line:
+            continue
+        key, value = raw_line.split(":", 1)
+        data[key.strip()] = value.strip().strip("\"'")
+    return data, findings
+
+
+def validate_frontmatter(lines: list[str]) -> list[str]:
+    """Check that required frontmatter fields are present."""
+    findings: list[str] = []
+    frontmatter, fm_findings = parse_frontmatter(lines)
+    findings.extend(fm_findings)
+    if fm_findings:
         return findings
 
+    close_index = next(i for i in range(1, len(lines)) if lines[i].strip() == "---")
     frontmatter_text = "\n".join(lines[1:close_index])
     for field in FRONTMATTER_REQUIRED_FIELDS:
-        if field not in frontmatter_text:
+        if field.endswith(":"):
+            field_name = field.rstrip(":")
+            if field_name in frontmatter:
+                continue
+        elif field in frontmatter_text:
+            continue
+        else:
             findings.append(f"[ERROR] Frontmatter missing required field: {field}")
 
     return findings
 
 
+def body_lines(lines: list[str]) -> list[str]:
+    """Return lines after the canonical screenplay body marker."""
+    try:
+        body_start = lines.index(BODY_MARKER)
+    except ValueError:
+        return []
+    return lines[body_start:]
+
+
+def normalized_source_lines(lines: list[str]) -> list[str]:
+    """Normalize source body lines for preservation comparison."""
+    return [line.rstrip() for line in body_lines(lines) if line.strip()]
+
+
+def normalized_output_source_lines(lines: list[str]) -> list[str]:
+    """Remove injected 分镜明细 blocks and normalize remaining source body lines."""
+    result: list[str] = []
+    body = body_lines(lines)
+    index = 0
+    while index < len(body):
+        line = body[index]
+        if line.strip() == "分镜明细：":
+            index += 1
+            while index < len(body):
+                candidate = body[index]
+                if not candidate.strip() or candidate.startswith("分镜"):
+                    index += 1
+                    continue
+                break
+            continue
+        if line.strip():
+            result.append(line.rstrip())
+        index += 1
+    return result
+
+
+def validate_source_preservation(
+    output_lines: list[str], source_path: Path
+) -> tuple[bool, list[str]]:
+    """Ensure output preserves the source performance body after removing injections."""
+    findings: list[str] = []
+    if not source_path.is_file():
+        return False, [f"[ERROR] Source performance file not found: {source_path}"]
+
+    source_lines = source_path.read_text(encoding="utf-8").splitlines()
+    source_body = normalized_source_lines(source_lines)
+    output_body = normalized_output_source_lines(output_lines)
+
+    if source_body == output_body:
+        return True, ["[OK] Source body preservation check passed."]
+
+    first_diff = 0
+    max_common = min(len(source_body), len(output_body))
+    while first_diff < max_common and source_body[first_diff] == output_body[first_diff]:
+        first_diff += 1
+
+    findings.append(
+        "[ERROR] Source body preservation check failed after removing 分镜明细 blocks."
+    )
+    findings.append(
+        f"[INFO] source_body_lines={len(source_body)} output_body_lines={len(output_body)}"
+    )
+    if first_diff < len(source_body):
+        findings.append(
+            f"[INFO] first_source_mismatch_line={first_diff + 1}: "
+            f"{source_body[first_diff][:100]}"
+        )
+    if first_diff < len(output_body):
+        findings.append(
+            f"[INFO] first_output_mismatch_line={first_diff + 1}: "
+            f"{output_body[first_diff][:100]}"
+        )
+    return False, findings
+
+
 def validate(
-    path: Path, *, strict_shot_distribution: bool = False
+    path: Path,
+    *,
+    strict_shot_distribution: bool = False,
+    source_performance_path: Path | None = None,
+    skip_source_preservation: bool = False,
 ) -> tuple[bool, list[str]]:
     lines = path.read_text(encoding="utf-8").splitlines()
     findings: list[str] = []
@@ -75,6 +180,24 @@ def validate(
             findings.append(f)
             if "[ERROR]" in f:
                 ok = False
+
+    # --- Source preservation check ---
+    if not skip_source_preservation:
+        frontmatter, _ = parse_frontmatter(lines)
+        resolved_source = source_performance_path
+        if resolved_source is None and frontmatter.get("source_performance_path"):
+            resolved_source = Path(frontmatter["source_performance_path"])
+        if resolved_source is not None:
+            if not resolved_source.is_absolute():
+                resolved_source = Path.cwd() / resolved_source
+            source_ok, source_findings = validate_source_preservation(lines, resolved_source)
+            findings.extend(source_findings)
+            if not source_ok:
+                ok = False
+        else:
+            findings.append(
+                "[WARN] Source preservation check skipped; no source_performance_path found."
+            )
 
     # --- Line-by-line scan ---
     index = 0
@@ -193,19 +316,34 @@ def validate(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate 3-摄影 markup.")
-    parser.add_argument("episode_file", help="Path to projects/aigc/<项目名>/3-摄影/第N集.md")
+    parser = argparse.ArgumentParser(description="Validate 5-摄影 markup.")
+    parser.add_argument("episode_file", help="Path to projects/aigc/<项目名>/5-摄影/第N集.md")
     parser.add_argument(
         "--strict-shot-distribution",
         action="store_true",
         help="Treat highly concentrated 2-shot distribution as an error instead of a warning.",
+    )
+    parser.add_argument(
+        "--source-performance-path",
+        help="Override source performance file path for source body preservation check.",
+    )
+    parser.add_argument(
+        "--skip-source-preservation",
+        action="store_true",
+        help="Skip source body preservation check.",
     )
     args = parser.parse_args()
     path = Path(args.episode_file)
     if not path.is_file():
         print(f"[ERROR] Not a file: {path}")
         return 1
-    ok, findings = validate(path, strict_shot_distribution=args.strict_shot_distribution)
+    source_path = Path(args.source_performance_path) if args.source_performance_path else None
+    ok, findings = validate(
+        path,
+        strict_shot_distribution=args.strict_shot_distribution,
+        source_performance_path=source_path,
+        skip_source_preservation=args.skip_source_preservation,
+    )
     for finding in findings:
         print(finding)
     return 0 if ok else 1

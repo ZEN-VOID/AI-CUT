@@ -1,10 +1,10 @@
 # Directorial Authorship Contract
 
-本合同定义 `2-编导` 的“编导创作干货”。它要求输出不只结构严谨、字段正确或文字漂亮，而是能基于上游小说原文做专业剧本改编判断：抓住戏剧问题、人物选择压力、场景转折、观众体验和可拍执行。
+本合同定义 `3-导演` 的导演创作干货。它要求输出不只结构严谨、字段正确或文字漂亮，而是能基于上游编剧稿做专业导演判断：抓住戏剧问题、人物选择压力、场景转折、观众体验和可拍执行。
 
 ## Core Principle
 
-`2-编导` 的主创责任不是重写剧情，而是把小说原文中已经存在的事件、关系、心理和信息差，转化为导演、演员、声音和下游分组可以执行的戏剧动作。
+`3-导演` 的主创责任不是重写剧情，而是把上游编剧稿中已经存在的事件、关系、心理和信息差，转化为导演、演员、声音和下游分组可以执行的戏剧动作。
 
 高质量编导稿必须同时满足：
 
@@ -81,10 +81,10 @@ director_substance_plan:
 
 `director_substance_plan` 必须进入后续节点：
 
-- `N4.5-PEAK` 使用它判断高点的观众欲望、兑现方式和余波。
-- `N4.6-ADVISOR` 使用它向顾问提出节点级创作判断问题。
-- `N4.7-CRAFT` 使用它生成 `scene_dramatic_map / performance_task_map / blocking_power_map`。
-- `N4.8-ENRICH` 使用它判断哪些表现层承托可以安全新增。
-- `N5-DRAFT` 必须把它内嵌进正文，而不是把它作为解释性规划段落输出。
+- `N4-DIR-PEAK` 使用它判断高点的观众欲望、兑现方式和余波。
+- `N5-DIR-ADVISOR` 使用它向顾问提出节点级创作判断问题。
+- `N7-DIR-AESTHETIC` 使用它生成 `scene_dramatic_map / performance_task_map / blocking_power_map`。
+- `N6-DIR-ENRICH` 使用它判断哪些表现层承托可以安全新增。
+- `N9-DIR-DRAFT` 必须把它内嵌进正文，而不是把它作为解释性规划段落输出。
 
 若 `director_substance_plan` 无法回指上游原文，必须删除或降级为非 canonical 候选灵感。

@@ -5,7 +5,7 @@
 ## Default Provider
 
 - 默认 worker：`Worker-Prop`
-- 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教道具/美术/摄影/导演/工艺相关顾问；顾问问题必须绑定 `steps/prop-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标道具上下文和 review gate，形成 `advisor_consultation_packet` 后再进入单道具设计汇流。
+- 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径解析监制 roster，请教道具/美术/摄影/导演/工艺相关顾问；顾问问题必须绑定 `steps/prop-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标道具上下文和 review gate，形成 `advisor_consultation_packet` 后再进入单道具设计汇流。
 - 默认 reviewer：独立 prop-design reviewer subagent；若无专名，则使用可用的 `code-reviewer` / design reviewer provider 执行结构与语义门禁。
 - 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`PROP-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 - 上层策略若阻断真实 subagent 或外部 reviewer 调度，允许降级为本地 review checklist，但必须报告阻断层级、原计划 provider 路径、实际降级路径和未真实启动的 reviewer。
@@ -25,7 +25,7 @@
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `PROP-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence | 核心 prompt token 是否能回指研究、物语或解构字段，并包含 `deconstruction_coverage` 说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯色背景单道具近景特写、45 度视角、完整展示道具全貌、仅展示道具、无人物、无背景元素、无场景环境 |
-| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
+| advisor_consultation | 是否按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
 | subagent_supervision | 是否按 `references/subagent-supervision-contract.md` 记录真实 dispatch 或降级路径、未启动 reviewer 和汇流裁决 |
 | type | `type_profile` 是否合理，冷门考据和多状态是否按类型处理 |
 | scope | 是否只写入 `7-设计/道具/2-设计`，未触碰 registry、父级或其他技能 |

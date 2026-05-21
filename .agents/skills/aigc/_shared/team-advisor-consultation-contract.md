@@ -10,14 +10,71 @@
 
 ## Team Roster Resolution
 
-项目运行时必须先读取 `projects/aigc/<项目名>/team.yaml`，再按以下优先级解析顾问 roster：
+项目运行时必须先读取 `projects/aigc/<项目名>/team.yaml`，再按"阶段专属优先、通用监制兜底、旧字段兼容"解析顾问 roster。推荐的新 `team.yaml` 结构为：
 
-1. `roles.supervision.members`
-2. `roles.supervising.members`
-3. `roles.supervising.members_ref` 指向的成员列表，例如 `roles.planning.members`
-4. `team_setup.shared_agents`
-5. `roles.planning.members`
-6. 若项目 `team.yaml` 缺失、结构不合法或没有可解析成员，可按 `.agents/skills/team/SKILL.md` 动态补位，但必须报告 `roster_source_note`，不得伪装成项目已指定成员。
+```yaml
+roles:
+  supervision:
+    stage_profiles:
+      "2-编剧":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["编剧组", "导演组", "演员组"]
+        focus_tags: ["structure", "dialogue", "faithfulness"]
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "3-导演":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["导演组", "编剧组", "摄影组", "美学组"]
+        focus_tags: ["dramatic-substance", "visual-spine", "climax"]
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "4-表演":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["演员组", "导演组", "编剧组", "摄影组"]
+        focus_tags: ["actor-control", "subtext", "blocking"]
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "5-摄影":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["摄影组", "导演组", "设计组", "美学组"]
+        focus_tags: ["shot-design", "continuity", "ai-video-stability"]
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "7-设计":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["设计组", "服装组", "美学组", "摄影组", "导演组"]
+        focus_tags: ["material-system", "character-scene-prop", "prompt-readiness"]
+        question_binding: "leaf_node_gate"
+        dispatch_policy: "leaf-advisor"
+```
+
+解析优先级固定如下：
+
+1. `roles.supervision.stage_profiles.<stage>.members`
+2. `roles.supervision.stage_profiles.<stage>.members_ref` 指向的成员列表，例如 `roles.planning.members`
+3. `roles.supervision.stage_bindings.<stage>.members` 或 `members_ref`（兼容过渡字段）
+4. `roles.supervision.members` 中 `stage_scope` / `owner_phases` 命中当前阶段的对象成员
+5. `roles.supervision.members` 通用成员列表
+6. `roles.supervising.members` 或 `roles.supervising.members_ref`（旧字段兼容）
+7. `roles.production.members` 或 `roles.production.members_ref`（旧项目中 `production.label: 监制` 的兼容入口）
+8. `team_setup.shared_agents`
+9. `roles.planning.members`
+10. 若项目 `team.yaml` 缺失、结构不合法或没有可解析成员，可按 `.agents/skills/team/SKILL.md` 动态补位，但必须报告 `roster_source_note`，不得伪装成项目已指定成员。
+
+成员条目允许两种形态：
+
+- string: 直接写 team skill path 或成员名；若只写成员名，必须能在 `roles.planning.members` 或 team 根索引中唯一解析。
+- object: `{name, department, skill_path, stage_scope, focus_tags, role_lens, weight}`；`skill_path` 仍必须位于 `.agents/skills/team/` 下。
 
 解析出候选成员后，必须加载 `.agents/skills/team/SKILL.md + CONTEXT.md`，再只加载被选中成员的 `SKILL.md + CONTEXT.md`。不得批量加载全部 team 子树。
 
@@ -53,7 +110,7 @@ advisor_consultation_packet:
   roster:
     - name: ""
       skill_path: ""
-      source: "roles.supervision.members | roles.supervising.members | roles.supervising.members_ref | team_setup.shared_agents | roles.planning.members | dynamic_team_index"
+      source: "roles.supervision.stage_profiles.<stage>.members | roles.supervision.stage_profiles.<stage>.members_ref | roles.supervision.members | roles.supervising.* | roles.production.* | team_setup.shared_agents | roles.planning.members | dynamic_team_index"
       selected_for: ""
   consultations:
     - member: ""

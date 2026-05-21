@@ -8,7 +8,7 @@
 
 - 默认辅助 provider：`code-reviewer`
 - 用途：检查 Skill 2.0 包结构、脚本边界、输出合同和导演门禁。
-- 若本轮启动 subagents 模式，review 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否从项目 `team.yaml` 解析监制组相关智能顾问团、是否把顾问任务同步到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与相关 review gate、是否要求顾问代入角色意识/创作风格/专业水准参与节点判断和执行取舍、是否形成带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写上游真源。
+- 若本轮启动 subagents 模式，review 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否优先从项目 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径解析导演监制 roster、是否把顾问任务同步到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与相关 review gate、是否要求顾问代入角色意识/创作风格/专业水准参与节点判断和执行取舍、是否形成带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写上游真源。
 - review 必须加载 `../references/directorial-authorship-contract.md`，检查关键场景是否有真正编导创作干货：戏剧问题、人物压力、观众位置、信息释放、表演/空间/道具/声音发动机和可拍执行策略，而不是只做结构规整或漂亮改写。
 - review 必须加载 `../references/episode-visual-spine-contract.md`，检查整集是否有 `episode_visual_spine`，并确认视觉问题、母题链、材质/色彩弧、节奏曲线、呼应目标和克制规则没有越过上游保真。
 - review 必须加载 `../references/visual-aesthetic-contract.md`，检查关键场景是否有核心画面、视觉气质、画面层级、母题变化、对比轴、景境氛围、节奏和留白取舍，并确认这些内容内嵌到既有字段而未新增剧情事实或摄影方案。
@@ -22,7 +22,7 @@
 ## Stage-End Review-Repair Rule
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
-- `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N6R-DIRECT-REPAIR`，由 `3-导演` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-导演/第N集.md`。
+- `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N10R-DIR-REPAIR`，由 `3-导演` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-导演/第N集.md`。
 - 允许直接修复的范围：高潮承托、视觉美学组织、终结画面尾钩内嵌、controlled enrichment 留证、顾问证据、思维·执行节点、frontmatter/report 证据和格式。
 - 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `2-编剧` 修剧情、把 B 路线扩展为新增对白/桥段/因果。遇到这类问题必须输出 source owner 和阻断报告。
 - `pass_with_followups` 只允许非阻断质量建议；任何高潮承托、顾问参谋、场景状态差、受控增强、视觉美学、终结画面、创作证据或思维·执行节点问题不得降级为 followup。

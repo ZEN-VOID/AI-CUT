@@ -10,13 +10,15 @@ metadata:
 
 `4-表演` 负责在 `3-导演` 逐集稿基础上，把导演级戏剧决策转化为可执行的演员表演材料。它注入心理反应可感知化、演员演技五层控制、潜台词行为化、场景戏剧映射、场面调度/权力关系、沉默反应余波和主角内心独白保留。它不处理保真、对白冻结、字段格式、slugline（归属 `2-编剧`），不处理导演创作内核、高潮画面、视觉美学、氛围意境（归属 `3-导演`），也不生成分镜明细、摄影方案或图像/视频资产。它只在导演稿已有字段中增加表演密度、微表情、身体联动、环境声承托和空间关系，让导演决策变成演员能演、镜头能拍、观众能 GET 的材料。
 
-`4-表演` 是个体执行阶段，不需要 subagents 机制。表演工艺由 LLM 直接完成；`scripts/` 只做机械校验。
+`4-表演` 的核心表演工艺必须由 LLM 直接完成；`scripts/` 只做机械校验。若项目或用户启用 subagents，本阶段只把 subagents 作为表演监制顾问使用，用于节点级风险提示、表演取舍和局部 patch，不允许 subagents 直接主创或改写 canonical 表演稿。
 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-performance` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选），至少以 `types/type-map.md` 建立 `performance_type_profile`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml` 与 `team.yaml`，再按需加载项目根 `CONTEXT/` 中与表演、角色、心理、声音或制作约束相关的上下文文件。
+- 若本阶段启动 subagents 模式（包含用户显式要求或项目 `team.yaml` 声明启用），必须读取 `../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."4-表演"` 作为表演监制载入 profile，再按共享合同回退旧字段；主 agent 必须基于本技能当前 `Thought Pass Map`、`steps/directing-workflow.md` 节点、目标集上下文和当前表演判断阶段动态派生顾问问题，并在 LLM 表演工艺注入前把可执行结论沉淀为 `advisor_consultation_packet`。
 - 上游正文真源固定为 `projects/aigc/<项目名>/3-导演/第N集.md`，除非用户显式指定其他导演稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
@@ -72,14 +74,28 @@ Reject or clarify when:
 | `stage_end_review_repair` | 任一非 `review_only` 表演任务完成候选稿后自动进入 | 阶段内 review -> 直接修复表演工艺 -> 复审 -> canonical 写回 |
 | `review_only` | 用户只要求检查 `4-表演` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
 
+## Subagents Execution Mechanism
+
+当 `4-表演` 启动 subagents 模式时，执行语义固定为"项目监制顾问团请教 -> 表演参谋汇流 -> 上下文沉淀 -> 后续表演任务消费"，而不是让 subagents 直接主创、改写上游导演稿或替代 LLM 表演工艺注入。
+
+1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 的 `Team Roster Resolution` 解析表演阶段监制 roster；优先使用 `roles.supervision.stage_profiles."4-表演".members / members_ref`，再按共享合同回退到通用 `roles.supervision.members`、旧 `roles.supervising.*`、旧 `roles.production.*`、`team_setup.shared_agents` 或 `roles.planning.members`，必要时才按 team 根索引动态补位并记录原因。
+2. 被启动的 subagents 作为表演监制顾问运行：围绕当前集 `3-导演` 上游正文、项目 `MEMORY.md`、`north_star.yaml`、相关 `CONTEXT/`、本技能的 `PASS-PERF-*` 思维通过点、`N*-PERF-*` 执行节点、review gate 和当前表演判断阶段，代入各自角色意识、创作风格和专业水准提出参谋建议。
+3. 顾问问题不得固定为一组表演字段；必须从当前节点的心理反应、五层表演控制、潜台词行为化、场景戏剧映射、场面调度、沉默余波、动作客观性或 review gate 派生。问题必须能推动当前节点执行，不得停留在泛泛"更有表演感"。
+4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `advisor_consultation_packet.must_do / must_not_do / inspiration_to_use / execution_brief`，并保留必要的 `node_ref / pass_ref / gate_ref / role_lens` 摘要，作为 LLM 表演工艺注入、阶段内修复和复审的额外上下文继续执行后续任务。
+5. `advisor_consultation_packet` 不拥有上游导演稿原文、对白、场景顺序、字段合同或 canonical 写回权；顾问建议若与上游真源或本技能合同冲突，必须舍弃或降级为风险提示。
+6. 若真实 subagent dispatch 被 system / developer / tool / user 上层策略阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员；不得把主 agent 本地顺序扮演写成真实 subagents 已执行。
+
 ## Reference Loading Guide
 
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意表演注入任务 | `references/psychological-reaction-contract.md`、`references/performance-and-scene-craft-contract.md`、`references/actor-performance-control-contract.md` |
+| 表演创作阶段启动 subagents 模式 / team advisor runtime | `../_shared/team-advisor-consultation-contract.md`，并按本 `Subagents Execution Mechanism` 执行 |
 | 心理反应字段、主角内心独白保留、主观内压可感知化、GETability 标准 | `references/psychological-reaction-contract.md` |
 | 场景戏剧功能、潜台词行为化、场面调度/权力关系、沉默反应、演员任务、转场多样性 | `references/performance-and-scene-craft-contract.md` |
 | 角色演技五层控制：触发点、情绪动机、微表情、身体联动、环境声、非对称瑕疵和微动态限制 | `references/actor-performance-control-contract.md` |
+| 斯坦尼斯拉夫斯基体系·方法派表演技术：感知锚定法、形体动作分析、三层情绪调用、情感瞬间控制、演员任务规划、具身化技术 | `references/stanislavski-method-reference.md` |
+| 类型画像、证据结构、routeback 目标与报告字段统一 | `types/type-map.md`、`types/performance-evidence-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-performance.template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
@@ -134,6 +150,7 @@ Reject or clarify when:
 - 主角视角下对他人行为的判断已进入主角内心独白或主角反应，没有写成客观第三方概括。
 - 动作字段只写可实拍的客观动作、神态、语气和生理反应，没有"试图、想要、打算、意图"等主观预判词。
 - "感到恶心/难受/愤怒"等主观情绪已转成微表情、肢体动作、生理反应、声线变化或主角内心独白。
+- 启动 subagents 模式时，已按 `team.yaml` 表演阶段监制 profile 形成带 `node_ref / pass_ref / gate_ref / role_lens` 来源锚点的 `advisor_consultation_packet`，并把节点级参谋指导作为后续 LLM 表演工艺注入、阶段内修复和复审上下文；若被上层阻断，执行报告已记录降级说明。
 - 潜台词已转为带目的的行为，没有只写情绪结论或心理标签。
 - 场景状态差已按 `scene_turn_pass` 提取：进入状态、压力源、转折点、退出状态，并落入画面、声音、道具、表演、群像反应或环境字段。
 - 沉默反应已写成可见/可听状态变化，没有用新增对白替代沉默。
@@ -174,6 +191,7 @@ Reject or clarify when:
 | `FIELD-PERF-11` | 原文保真 | 上游事实、对白、场景顺序和字段标签未被改写 | `FAIL-PERF-11` |
 | `FIELD-PERF-12` | 输出落盘 | `4-表演/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-PERF-12` |
 | `FIELD-PERF-13` | 创作证据 | 执行报告包含 `psychological_reaction_evidence`、`actor_performance_control_evidence`、`protagonist_inner_voice_evidence`、`objective_action_purity_evidence`、`scene_dramatic_map`、`performance_task_map`、`blocking_power_map` 和 `integration_targets` | `FAIL-PERF-13` |
+| `FIELD-PERF-13A` | Team advisor consult | 启动 subagents 模式时已按 `team.yaml.roles.supervision.stage_profiles."4-表演"` 或共享合同回退路径请教项目监制顾问，顾问问题同步于当前 `PASS-PERF-*` / `N*-PERF-*` 思维·执行节点，并把角色意识、创作风格、专业水准转化为后续任务上下文；阻断时有降级报告 | `FAIL-PERF-13A` |
 | `FIELD-PERF-14` | 占位泄露 | 终稿无内部规则句、模板占位句或任务说明 | `FAIL-PERF-14` |
 
 ## Thought Pass Map
@@ -181,15 +199,16 @@ Reject or clarify when:
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
 | `PASS-PERF-01` | 输入取证 | `3-导演/第N集.md`、项目记忆、north star、team 与相关 `CONTEXT/` | 是否具备可承接导演稿与目标集号 | `input_lock` |
-| `PASS-PERF-02` | 表演类型路由 | 导演稿字段行、上游正文、`psychological-reaction-contract.md`、`performance-and-scene-craft-contract.md`、`actor-performance-control-contract.md` | 当前内容属于心理反应、情绪触发、潜台词行为、场面调度、沉默反应还是主角内心独白；哪些场景需要五层表演控制 | `performance_task_map` |
-| `PASS-PERF-03` | 心理反应可感知化 | 导演稿中所有 `心理反应`、情绪描述和心理解释 | 每条心理反应是否有主体、触发点、至少一个可见/可听/可演通道；是否需要转入 `内心独白（主角）`、`表情特写`、`角色动作` 或 `对白画面` | `psychological_reaction_evidence`、`protagonist_inner_voice_evidence` |
-| `PASS-PERF-04` | 五层表演控制 | 关键情绪 beat、`performance_task_map`、`actor-performance-control-contract.md` | 触发点是否明确；情绪动机是否至少两层（表层/压制/隐藏）；微表情变量和非面部身体变量是否到位；环境声或微动态限制是否承托 | `actor_performance_control_evidence` |
-| `PASS-PERF-05` | 场景戏剧映射 | 场景表、上游正文、`performance-and-scene-craft-contract.md` | 每个关键场景是否有进入状态、压力源、转折点和退出状态；转折是否落入既有字段而非解释性新增 | `scene_dramatic_map` |
-| `PASS-PERF-06` | 潜台词行为化 | 上游潜台词、信任变化、权力压迫、未出口对白、`performance-and-scene-craft-contract.md` | 潜台词是否已转为带目的的行为（目标+阻碍+策略+外显）；转场是否多元，没有连续依赖视线动作 | `performance_task_map`（更新） |
-| `PASS-PERF-07` | 场面调度与权力关系 | 场景表、空间关系、权力变化、`performance-and-scene-craft-contract.md` | 权力关系是否通过高低/远近/门槛/视线/道具/空间隔离表现；场面调度是否只写人物空间道具视线关系；是否已拆入对应 beat 而非场景末尾总结 | `blocking_power_map` |
-| `PASS-PERF-08` | 沉默与反应余波 | 上游沉默、反应空白、声音空缺、`performance-and-scene-craft-contract.md` | 沉默是否已写成可见/可听状态变化；反应余波是否用呼吸/手部/道具/群像/声音承托；没有用新增对白替代 | `integration_targets` |
-| `PASS-PERF-09` | 主角内心独白与视角规则 | 主角内心想法、主角判断、主角视角、`psychological-reaction-contract.md` | 主角自指是否统一为第一人称；主角视角判断是否进入主角内心独白而非客观概括；非主角心理是否有全知旁白断言 | `protagonist_inner_voice_evidence`（更新） |
+| `PASS-PERF-02` | 表演类型路由 | 导演稿字段行、上游正文、`psychological-reaction-contract.md`、`performance-and-scene-craft-contract.md`、`actor-performance-control-contract.md`、`stanislavski-method-reference.md` | 当前内容属于心理反应、情绪触发、潜台词行为、场面调度、沉默反应还是主角内心独白；哪些场景需要五层表演控制；调用情绪记忆调用法 / 形体动作分析法进行方法选择 | `performance_task_map` |
+| `PASS-PERF-03` | 心理反应可感知化 | 导演稿中所有 `心理反应`、情绪描述和心理解释、`stanislavski-method-reference.md` | 每条心理反应是否有主体、触发点、至少一个可见/可听/可演通道；是否需要转入 `内心独白（主角）`、`表情特写`、`角色动作` 或 `对白画面`；调用感知锚定法（"假使"激活链）进行触发点定位和身体先行 | `psychological_reaction_evidence`、`protagonist_inner_voice_evidence` |
+| `PASS-PERF-04` | 五层表演控制 | 关键情绪 beat、`performance_task_map`、`actor-performance-control-contract.md`、`stanislavski-method-reference.md` | 触发点是否明确；情绪动机是否至少两层（表层/压制/隐藏）；微表情变量和非面部身体变量是否到位；环境声或微动态限制是否承托；调用三层情绪执行模板和情感瞬间与微动态控制进行 micro_expression、micro_dynamics 处理 | `actor_performance_control_evidence` |
+| `PASS-PERF-05` | 场景戏剧映射 | 场景表、上游正文、`performance-and-scene-craft-contract.md`、`stanislavski-method-reference.md` | 每个关键场景是否有进入状态、压力源、转折点和退出状态；转折是否落入既有字段而非解释性新增；调用形体动作分析法和注意力集中法进行 entry_state、turning_point 处理 | `scene_dramatic_map` |
+| `PASS-PERF-06` | 潜台词行为化 | 上游潜台词、信任变化、权力压迫、未出口对白、`performance-and-scene-craft-contract.md`、`stanislavski-method-reference.md` | 潜台词是否已转为带目的的行为（目标+阻碍+策略+外显）；转场是否多元，没有连续依赖视线动作；调用演员任务规划法（最高任务→贯穿动作）构建 performance_task_map | `performance_task_map`（更新） |
+| `PASS-PERF-07` | 场面调度与权力关系 | 场景表、空间关系、权力变化、`performance-and-scene-craft-contract.md`、`stanislavski-method-reference.md` | 权力关系是否通过高低/远近/门槛/视线/道具/空间隔离表现；场面调度是否只写人物空间道具视线关系；是否已拆入对应 beat 而非场景末尾总结；调用注意力集中与舞台现实法进行 blocking_power_map 构建 | `blocking_power_map` |
+| `PASS-PERF-08` | 沉默与反应余波 | 上游沉默、反应空白、声音空缺、`performance-and-scene-craft-contract.md`、`stanislavski-method-reference.md` | 沉默是否已写成可见/可听状态变化；反应余波是否用呼吸/手部/道具/群像/声音承托；没有用新增对白替代；调用情感瞬间与微动态控制进行 micro_dynamics 余波处理 | `integration_targets` |
+| `PASS-PERF-09` | 主角内心独白与视角规则 | 主角内心想法、主角判断、主角视角、`psychological-reaction-contract.md`、`stanislavski-method-reference.md` | 主角自指是否统一为第一人称；主角视角判断是否进入主角内心独白而非客观概括；非主角心理是否有全知旁白断言；调用自传性代入和具身化技术强化第一人称沉浸感 | `protagonist_inner_voice_evidence`（更新） |
 | `PASS-PERF-10` | 动作字段纯度检查 | 所有 `角色动作`、`动作画面` | 是否只写可实拍客观动作、神态、语气和生理反应；是否清除"试图/想要/打算/意图"等主观预判词；主观情绪是否已转译 | `objective_action_purity_evidence` |
+| `PASS-PERF-10A` | 顾问请教汇流 | `team.yaml`、共享顾问合同、当前 `PASS-PERF-*` / `N*-PERF-*` 节点、表演任务画像与 review gate | 是否已基于当前思维·执行节点向项目监制顾问提出表演参谋问题，并将其角色意识、创作风格和专业水准汇流为可执行上下文 | `advisor_consultation_packet` |
 | `PASS-PERF-11` | LLM 表演工艺投影 | `psychological_reaction_evidence`、`actor_performance_control_evidence`、`scene_dramatic_map`、`performance_task_map`、`blocking_power_map`、`protagonist_inner_voice_evidence`、`integration_targets`、上游正文 | 是否把全部表演规划证据嵌入既有字段，形成完整表演稿；是否保持原文保真 | `candidate_performance` |
 | `PASS-PERF-12` | 审查修复闭环 | candidate 表演稿、review gate、上游真源 | 是否覆盖心理反应可感知化、五层表演控制、潜台词行为化、场景状态差、场面调度内嵌、沉默反应、内心独白人称、动作纯度和原文保真；阻断项是否已在本阶段最小修复并复审通过 | review result、repair result |
 
@@ -198,24 +217,45 @@ Reject or clarify when:
 | pass_id | pass standard | fail code | Rework Entry |
 | --- | --- | --- | --- |
 | `PASS-PERF-01` | 上游导演稿可读、项目语境和目标集号明确 | `FAIL-PERF-01` | `Input Contract` |
-| `PASS-PERF-02` | 每个内容单元被正确分类为心理反应/情绪/潜台词/场面调度/沉默/内心独白，并标记需要五层表演控制的关键 beat | `FAIL-PERF-03` | `references/performance-and-scene-craft-contract.md` |
-| `PASS-PERF-03` | 心理反应有主体、触发点、GETability 通道；抽象解释已转译；需要语言化的内容已转入内心独白 | `FAIL-PERF-02` | `references/psychological-reaction-contract.md` |
-| `PASS-PERF-04` | 关键情绪 beat 有五层证据；不只有情绪标签或模板化表情 | `FAIL-PERF-03` | `references/actor-performance-control-contract.md` |
-| `PASS-PERF-05` | 关键场景有状态差；转折落入既有字段 | `FAIL-PERF-05` | `references/performance-and-scene-craft-contract.md` |
-| `PASS-PERF-06` | 潜台词已转为带目的的行为；转场多元不固定 | `FAIL-PERF-04` | `references/performance-and-scene-craft-contract.md` |
-| `PASS-PERF-07` | 权力关系通过可拍变量表现；场面调度已拆入 beat | `FAIL-PERF-06` | `references/performance-and-scene-craft-contract.md` |
-| `PASS-PERF-08` | 沉默已写成状态变化；没有新增对白替代 | `FAIL-PERF-09` | `references/performance-and-scene-craft-contract.md` |
-| `PASS-PERF-09` | 主角内心独白第一人称；主角视角不写客观概括 | `FAIL-PERF-07` | `references/psychological-reaction-contract.md` |
-| `PASS-PERF-10` | 动作字段客观可拍；无主观意图词；主观情绪已转译 | `FAIL-PERF-08` | `references/actor-performance-control-contract.md` |
+| `PASS-PERF-02` | 每个内容单元被正确分类为心理反应/情绪/潜台词/场面调度/沉默/内心独白，并标记需要五层表演控制的关键 beat | `FAIL-PERF-03` | `references/performance-and-scene-craft-contract.md`、`references/stanislavski-method-reference.md` |
+| `PASS-PERF-03` | 心理反应有主体、触发点、GETability 通道；抽象解释已转译；需要语言化的内容已转入内心独白 | `FAIL-PERF-02` | `references/psychological-reaction-contract.md`、`references/stanislavski-method-reference.md`（感知锚定法） |
+| `PASS-PERF-04` | 关键情绪 beat 有五层证据；不只有情绪标签或模板化表情 | `FAIL-PERF-03` | `references/actor-performance-control-contract.md`、`references/stanislavski-method-reference.md`（三层情绪模板、情感瞬间与微动态控制） |
+| `PASS-PERF-05` | 关键场景有状态差；转折落入既有字段 | `FAIL-PERF-05` | `references/performance-and-scene-craft-contract.md`、`references/stanislavski-method-reference.md`（形体动作分析法、注意力集中法） |
+| `PASS-PERF-06` | 潜台词已转为带目的的行为；转场多元不固定 | `FAIL-PERF-04` | `references/performance-and-scene-craft-contract.md`、`references/stanislavski-method-reference.md`（演员任务规划法） |
+| `PASS-PERF-07` | 权力关系通过可拍变量表现；场面调度已拆入 beat | `FAIL-PERF-06` | `references/performance-and-scene-craft-contract.md`、`references/stanislavski-method-reference.md`（注意力集中与舞台现实法） |
+| `PASS-PERF-08` | 沉默已写成状态变化；没有新增对白替代 | `FAIL-PERF-09` | `references/performance-and-scene-craft-contract.md`、`references/stanislavski-method-reference.md`（情感瞬间与微动态控制） |
+| `PASS-PERF-09` | 主角内心独白第一人称；主角视角不写客观概括 | `FAIL-PERF-07` | `references/psychological-reaction-contract.md`、`references/stanislavski-method-reference.md`（自传性代入、具身化技术） |
+| `PASS-PERF-10` | 动作字段客观可拍；无主观意图词；主观情绪已转译 | `FAIL-PERF-08` | `references/actor-performance-control-contract.md`、`references/stanislavski-method-reference.md`（形体动作分析法） |
+| `PASS-PERF-10A` | 启动 subagents 模式时完成项目表演监制顾问请教、上下文沉淀或记录降级；顾问问题必须同步于当前思维·执行节点 | `FAIL-PERF-13A` | `../_shared/team-advisor-consultation-contract.md` + 本 `Subagents Execution Mechanism` |
 | `PASS-PERF-11` | 全部表演证据嵌入既有字段；原文保真 | `FAIL-PERF-11` | `references/performance-and-scene-craft-contract.md` |
 | `PASS-PERF-12` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-PERF-12` | `Stage-End Review-Repair Contract` |
+
+## Pass-to-Node Mapping Table
+
+Pass 是思维/验收通过点，node 是执行节点；`N6.5-PERF-ADVISOR` 是条件顾问节点，对应 `PASS-PERF-10A`，不得被跳过或误并入 `N7-PERF-DRAFT`。
+
+| pass_id | node_id | pass_standard | evidence_consumed | output_evidence |
+| --- | --- | --- | --- | --- |
+| `PASS-PERF-01` | `N1-PERF-INTAKE` | 上游导演稿可读、项目语境和目标集号明确 | source directing episode、项目 `MEMORY.md`、north star、team 配置 | `source_directing_path`、`reference_load_manifest` |
+| `PASS-PERF-02` | `N2-PERF-TYPE` | 表演类型画像和关键 beat 标记成立 | 导演稿字段行、`types/type-map.md`、`types/performance-evidence-type-map.md`、核心 references | `performance_type_profile`、`performance_task_map` |
+| `PASS-PERF-03` | `N3-PERF-PSYCHOLOGICAL` | 心理反应有主体、触发点和 GETability 通道 | `psychological-reaction-contract.md`、导演稿心理/情绪字段 | `psychological_reaction_evidence`、`protagonist_inner_voice_evidence` |
+| `PASS-PERF-04` | `N4-PERF-ACTOR-CONTROL` | 关键情绪 beat 有五层表演证据 | `performance_task_map`、`actor-performance-control-contract.md` | `actor_performance_control_evidence`、`integration_targets` |
+| `PASS-PERF-05` | `N5-PERF-SCENE-CRAFT` | 关键场景有状态差，转折落入既有字段 | 场景表、上游正文、`performance-and-scene-craft-contract.md` | `scene_dramatic_map` |
+| `PASS-PERF-06` | `N5-PERF-SCENE-CRAFT` | 潜台词已转为带目的的行为，转场变量多元 | 潜台词、权力压迫、未出口对白 | `performance_task_map`、`silence_reaction_map` |
+| `PASS-PERF-07` | `N6-PERF-BLOCKING` | 权力关系通过可拍变量表现，场面调度已拆入 beat | 场景空间、`scene_dramatic_map`、`performance_task_map` | `blocking_power_map`、`integration_targets` |
+| `PASS-PERF-08` | `N5-PERF-SCENE-CRAFT` | 沉默已写成状态变化，没有新增对白替代 | 沉默、反应空白、声音空缺 | `silence_reaction_map`、`integration_targets` |
+| `PASS-PERF-09` | `N3-PERF-PSYCHOLOGICAL` | 主角内心独白第一人称，主角视角不写客观概括 | 主角内心想法、主角判断、主角视角 | `protagonist_inner_voice_evidence` |
+| `PASS-PERF-10` | `N5-PERF-SCENE-CRAFT` / `N7-PERF-DRAFT` | 动作字段客观可拍，主观情绪已转译 | 动作字段、情绪字段抽查 | `objective_action_purity_evidence` |
+| `PASS-PERF-10A` | `N6.5-PERF-ADVISOR` | 表演监制顾问请教完成、上下文沉淀或记录降级 | `team.yaml`、共享顾问合同、当前 pass/node/gate | `advisor_consultation_packet`、降级报告 |
+| `PASS-PERF-11` | `N7-PERF-DRAFT` | 全部表演证据嵌入既有字段，原文保真 | 所有 planning evidence、`advisor_consultation_packet` | candidate `第N集.md`、`faithful_performance_trace` |
+| `PASS-PERF-12` | `N8-PERF-REVIEW` / `N8R-PERF-REPAIR` / `N8R-REVIEW-AGAIN` / `N9-PERF-WRITEBACK` | 阻断项已最小修复并复审通过；未通过时不写 canonical 终稿 | candidate 表演稿、review gate、上游真源 | `review_result`、`repair_result`、final path |
 
 ## Root-Cause Execution Contract (Mandatory)
 
 出现以下问题时，必须沿链路上溯并修复源层合同：
 
-- `心理反应` 只能靠字段标题理解，正文没有可见/可听/可演载体；只写"意识到/觉得/明白/崩溃/震惊/害怕"等抽象认知。
-- 关键情绪 beat 只有"愤怒/难过/开心/紧张/害羞"等情绪标签或皱眉/瞪眼/流泪/大笑等模板化表情，缺少上游触发点、情绪动机、微表情、身体联动、环境声或微动态限制。
+- `心理反应` 只能靠字段标题理解，正文没有可见/可听/可演载体；只写"意识到/觉得/明白/崩溃/震惊/害怕"等抽象认知；缺少感知锚定法的上游信号激活和身体先行。
+- 关键情绪 beat 只有"愤怒/难过/开心/紧张/害羞"等情绪标签或皱眉/瞪眼/流泪/大笑等模板化表情，缺少上游触发点、情绪动机（表层/压制/隐藏）、微表情、身体联动、环境声或微动态限制；未调用三层情绪执行模板或情感瞬间控制。
 - 潜台词、信任变化、权力压迫、未出口对白仍停留在"他不信任她""她是在试探他""两人关系发生变化"等结论句，未转为带目的的行为。
 - `角色动作` / `动作画面` 混入"试图、想要、打算、意图"等主观预判词，或把主观情绪直接写入终稿。
 - "感到恶心/难受/愤怒"等主观情绪被直接写入终稿，未转成微表情、肢体动作、生理反应、声线变化或主角内心独白。
@@ -232,6 +272,7 @@ Reject or clarify when:
 - 声音字段与画面字段混写，或没有就近配对。
 - 为补足表演质量新增与当前主线无关的人物过往、物品来历或回忆性信息。
 - 脚本或模板拼接替代 LLM 的表演工艺判断。
+- 启动 subagents 模式时跳过 `team.yaml` 表演阶段监制 profile、没有把表演参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问当成真实 dispatch。
 - review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
 
 必经链路：
@@ -256,8 +297,12 @@ flowchart TD
     D --> E["N4-PERF-ACTOR-CONTROL\n五层表演控制 + 微表情 + 身体联动"]
     E --> F["N5-PERF-SCENE-CRAFT\n场景戏剧映射 + 潜台词行为化"]
     F --> G["N6-PERF-BLOCKING\n场面调度 + 权力关系 + 沉默反应 + 转场多样性"]
-    G --> H["N7-PERF-DRAFT\n表演证据内嵌正文"]
-    H --> R{"N8-PERF-REVIEW\nGATE-PERF-01..02"}
+    G --> AD{"N6.5-PERF-ADVISOR\n节点锚点 + routeback"}
+    AD -->|"routeback: psychological"| D
+    AD -->|"routeback: actor control"| E
+    AD -->|"routeback: scene craft / blocking"| F
+    AD -->|"pass / downgraded"| H["N7-PERF-DRAFT\n表演证据内嵌正文"]
+    H --> R{"N8-PERF-REVIEW\nGATE-PERF-01..03"}
     R -->|"needs_rework"| RR["N8R-PERF-REPAIR\n本阶段直接修复表演工艺"]
     RR --> R2{"N8R-REVIEW-AGAIN\n复审"}
     R2 -->|"fail"| RB["最早责任节点"]
@@ -296,3 +341,4 @@ flowchart TD
 | --- | --- | --- | --- |
 | `GATE-PERF-01` | 表演任务 + 心理反应 + 演员控制 + 主角内心独白 + 动作字段纯度 | `psychological_reaction_evidence`、`actor_performance_control_evidence`、`protagonist_inner_voice_evidence`、`objective_action_purity_evidence`、`scene_dramatic_map`、`performance_task_map` | blocking |
 | `GATE-PERF-02` | 表演/调度集成（场景末尾无总结块） | `blocking_power_map`、`integration_targets`、终稿无场景末尾表演提示/场面调度总结块、场面调度不写摄影方案 | blocking |
+| `GATE-PERF-03` | 顾问汇流 + 节点 ledger + 复审闭环 | `advisor_consultation_packet` 或降级报告、`thinking_action_node_ledger`、`review_result`、`repair_result`、re-review verdict | blocking |

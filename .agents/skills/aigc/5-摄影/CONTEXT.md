@@ -11,9 +11,9 @@
 - soft_limit_chars: 22000
 - hard_limit_chars: 44000
 - status: ok
-- last_checked_at: 2026-05-14
-- current_chars_checked_at_last_review: ~21500
-- action_needed: 新增场景视觉约束和分镜明细维度经验条目，当前接近 soft_limit。后续若新增经验条目超限，优先将通用经验迁移到 `knowledge-base/cinematography-heuristics.md`。
+- last_checked_at: 2026-05-20
+- current_chars_checked_at_last_review: ~9000
+- action_needed: 当前低于 soft_limit。后续若新增经验条目超限，优先将通用经验迁移到 `knowledge-base/cinematography-heuristics.md`。
 
 ## Type Map
 
@@ -33,6 +33,7 @@
 | 字段内容纯度不足 | 字段语义层 | 删除抽象主题/心理结论/世界观解释/气氛口号，转译为景别/机位/镜头类型/运速/焦点/构图/光色；无法转译则删除 | `SKILL.md` + `natural-shot-detail-writing-contract.md`；`cinematic-technique-library.md` 补执行参数 |
 | 字段表达质量不足 | 动态表达层/自然成稿层 | 静态呆板改为"从起点到终点"变化句；参数腔/模板腔压成自然画面文字 | `dynamic-lens-language-contract.md` + `natural-shot-detail-writing-contract.md`；禁止连续同构句 |
 | 分镜明细好看但功能随机 | 功能性投影层 | 回到 `functional-cinematic-projection-contract.md`，补 shot_function/主体/动作/运镜/构图/光色/空间/交接 | `N6.4-FUNCTIONAL-PROJECTION`；下游能抽取完整 payload |
+| 画面内容拆句/复述型分镜 | 功能投影/N7 注入层 | 回到 `functional-cinematic-projection-contract.md`，执行源句复述扣除测试，补 `camera_movement_plan / composition_anchor / light_color_material / continuity_handoff` | 抽样删除原句名词、动作、道具事实后，仍能读出摄影机如何看、动、停、转焦、布光或交出 |
 | 分镜明细不适合视频生成 | AI 视频执行层 | 动作改成被镜头包裹，补方向参照，光源词改成亮暗/阴影/轮廓结果 | `ai-video-prompt-execution-contract.md` + `GATE-CINE-15A` |
 | 段落运镜流畅但画面点失主 | 段落对齐/归属边界层 | 回到 `visual-sequence-alignment-contract.md`，补 `unit_ownership_map` | `N3.5-SEQUENCE-ALIGN`；每条 `分镜N` 能回指所属 `visual_unit` |
 | 景别/视角/焦点变化随机 | 摄影语法层 | 回到 `N6.2-CAMERA-GRAMMAR`，先确定景别梯度/视角动机/景深焦点交接 | `cinematic-technique-library.md` + `GATE-CINE-16` |
@@ -42,24 +43,29 @@
 | 镜头断裂跳跃 | 连续性层 | 回看前 3 个画面单位，修正轴线/运动方向/景别梯度 | `shot-continuity-contract.md` |
 | 高潮画面被压平 | 峰值分镜层 | 回到 `peak-shot-language-contract.md`，补 `peak_shot_profile` | 高点镜头有停顿/断裂/扩展策略 |
 | 场景变化没有交出锚点 | 边界交出层 | 回到 `transition-design-contract.md`，补 `handoff_profile` | 下一场景不是凭空开始 |
-| subagents 未请教监制 | 顾问请教层 | 回到 `team.yaml` + 共享顾问合同，按节点派生问题 | 执行报告有 roster/降级说明 |
+| subagents 未请教监制 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."5-摄影"` 或共享合同回退路径，按节点派生问题 | 执行报告有 roster/降级说明 |
 | 顾问只给泛泛评价 | 顾问问题质量层 | 重新基于当前节点提问，输出必须可转为 `must_do/must_not_do/execution_brief` | packet 中每条意见能回指 node/pass/gate |
 | 炫技盖过剧情 | 戏剧服务层 | 删除不服务信息/情绪/空间关系的运动和转场 | review gate "技术必须服务戏剧任务" |
 | 改写了 4-表演 原文 | 保真层 | 恢复上游原句，只保留下方新增分镜明细块 | diff 中除 frontmatter 和分镜明细外无正文改写 |
+| 输出中途截断但结构校验通过 | 源文保真/validator 脱节层 | 先补回缺失的上游正文，再为缺失画面句子补 `分镜明细：`，最后更新报告统计 | 机械校验必须剥离 `分镜明细` 后与 `source_performance_path` 做正文保真比对；只看输出稿内部覆盖率不够 |
 | 场景视觉约束缺失或退化为参数清单 | 场景视觉约束层 | 回到 `scene-visual-constraint-contract.md`，补构图布局/构图方式/光源/色彩/摄影技术参数的内部裁决 | `N6.3-SCENE-VISUAL-CONSTRAINT`；每个场景已形成内部 `scene_visual_constraint`，逐镜分镜明细在约束框架内展开 |
 | 分镜明细维度覆盖问题 | 分镜维度层 | 回到 `shot-detail-dimension-contract.md`，画面中存在的维度应写入，不存在的不为凑数硬塞；检查是否虚构了画面中不存在的信息 | `N6.4-FUNCTIONAL-PROJECTION` + `N7-INJECT`；维度信息融入自然中文，且每条维度都能回指画面中确实存在的信息 |
 | 场景视觉约束只裁决一次但场景内有重大视觉约束变化 | 场景约束更新层 | 在变化的画面句子前重新裁决场景视觉约束 | `N6.3-SCENE-VISUAL-CONSTRAINT`；场景内视觉约束变化时重新裁决 |
 | 维度信息以标签形式输出 | 维度自然化层 | 删除维度标签，把维度信息点融入自然中文镜头文字 | `natural-shot-detail-writing-contract.md`；禁止"角色情绪：紧张"等标签形式 |
+| 眼睛特写为单眼侧面 | 眼部特写景框层 | 回到 `ai-video-prompt-execution-contract.md` Eye Close-up Rule；改为正面双眼特写（眉骨到鼻尖） | 眼部特写时必须显式写"双眼""正面""眉骨到鼻尖"；禁止单眼侧面 |
+| 抽象情绪词进入分镜明细 | 情绪词转译层 | 回到 Performance Microdynamic Rule 强化条目；逐条将"紧张""愤怒""压抑"替换为咬肌收紧、眉心竖纹、手指抓紧衣角等可见动作 | AI 视频生成器无法理解心理标签，只接受可见物理动作 |
+| 跨分镜组动作锚点断裂 | 动作锚点继承层 | 回到 `shot-continuity-contract.md` Action Anchor Inheritance；下一组首镜必须携带当前姿态（坐着/站着/抱着） | 上一组结尾坐着，下一组开头站着，中间无动作描写——这是 AI 视频最常见的穿帮原因 |
+| 心理剧烈变化时节奏过快 | 心理变化节奏层 | 回到 Psychological Intensity Slowdown Rule；`tempo` 标记为 `slow_burn` 或 `hold`；用慢镜头或多角度正面切换落实 | 崩溃/震惊/醒悟时用快速运镜会破坏表演可读性，关键情绪瞬间一闪而过 |
 
 ## Repair Playbook
 
-1. 先锁定 `source_directing_path`，确认输出对应的上游 `4-表演/第N集.md`。
+1. 先锁定 `source_performance_path`，确认输出对应的上游 `4-表演/第N集.md`。
 2. 抽取 `【剧本正文】` 后正文，建立画面性字段清单：标签命中优先，语义命中补充。
 3. 对每个画面句子做节拍复判：主体变化、动作分相、信息揭示、情绪反转、视线/呼吸/微表情转移。
 4. 对每个画面句子做画面节奏复判：信息重要性、上下文密度、情绪压力和收敛/发散倾向。
 5. 对每个候选分镜做时值复判：先应用短剧·AIGC 默认压缩，再估算对白/旁白字数和台词量下限，判断缩短一半丢失什么、拉长一倍是否只是拖慢；落盘必须是 `分镜N（约X秒）:`。
 6. 对上游已有高点执行峰值分镜复判：行动结果看钉镜，认知翻转看读秒，关系暖点看温柔停顿，规则/恐怖看断裂入侵。
-7. 若启用 subagents，先把 `team.yaml` 监制顾问团作为摄影监制请教；问题从当前节点派生，输出必须可转为 `must_do/must_not_do/execution_brief`。
+7. 若启用 subagents，先把 `team.yaml.roles.supervision.stage_profiles."5-摄影"` 或共享合同回退路径中的顾问作为摄影监制请教；问题从当前节点派生，输出必须可转为 `must_do/must_not_do/execution_brief`。
 8. 分镜过少时查找被压成一镜的动作相位或信息揭示；分镜过多时合并没有新观看策略的切点。
 9. 若大面积都是 2 镜，抽样低信息/过场/表演停顿/关键显影/群像/高点块，逐条追问 `分镜2` 删除会少什么。
 10. 若多镜数量合理但观看别扭，按时值问题处理：快速镜是否带走该读的信息，长镜是否只有气氛；普通氛围镜、过场动作和常规反应是否被传统影视惯性拖到 3 秒以上。
@@ -68,6 +74,7 @@
 13. 在写任何 `分镜N` 前先走完节点链：`N2-MATCH -> N3-TYPE -> N3.5-SEQUENCE-ALIGN -> N3.6-DENSITY-CURVE -> N4-BEAT -> N5-RHYTHM -> N5.2-DURATION -> N5.5-PEAK-SHOT -> N5.6-ADVISOR -> N6-CONTINUITY -> N6.1-HANDOFF -> N6.2-CAMERA-GRAMMAR -> N6.4-FUNCTIONAL-PROJECTION -> N6.5-SHOT-PLAN`；缺任一层都不能直接成稿。
 14. 在 `camera_grammar_plan` 中先裁决景别梯度/镜头视角/景深焦点/镜头类型/构图/光色/运镜速度；不要到成稿阶段临时补孤立词。
 15. 在 `functional_projection_plan` 中补 payload：每条分镜必须有影视功能/主体/动作/运镜/时值理由/构图锚点/光色材质/空间接口/连续性交接/下游消费点/所属 visual_unit。
+15.5. 对每条候选 `分镜N` 做源句复述扣除测试：去掉正上方画面句子已有的人物、动作、道具和事实后，若只剩景别词、顺序词或空泛效果词，说明它是画面内容拆写，必须回到功能投影重写摄影决策。
 16. 做 AI 视频执行稳定性检查：动作是否被镜头包裹、方向是否有参照、光线是否写出亮暗面结果、表演是否落到微动态。
 17. 检查多分镜递进：上一镜落点必须成为下一镜入口；每条都像重新开始则回到连续性和计划汇流层。
 18. 若发生场景变化，检查 `handoff_profile`：上一画面从哪里交出，下一画面从哪里进入。
@@ -78,11 +85,15 @@
 23. 检查连续性：内部回看前 3 个画面单位，只有跳变时才短写承接动机。
 24. 光影和色彩必须与项目视觉母题绑定；具体母题参见 `knowledge-base/cinematography-heuristics.md`。
 25. 若分镜明细改变剧情理解，回到保真层：原字段只提供事实，分镜明细只能强化观看路径。
-26. 最后做一次机械检查：覆盖率、连续编号、输出路径、分镜数量分布、显式秒数、逐画面点归属和 AI 视频执行稳定性。
+26. 最后做一次机械检查：覆盖率、连续编号、输出路径、分镜数量分布、显式秒数、逐画面点归属、源文保真和 AI 视频执行稳定性。源文保真必须剥离输出稿中的 `分镜明细：` 与 `分镜N` 后，与 `source_performance_path` 的 `【剧本正文】` 非空行逐行比对；若上游后半段被漏写，即使 validator 内部覆盖通过也必须判为阻断项。
 27. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断。
 28. 检查每个场景是否已形成内部场景视觉约束 `scene_visual_constraint`；缺少时回到 `N6.3-SCENE-VISUAL-CONSTRAINT` 补齐构图布局/构图方式/光源/色彩/摄影技术参数，确保逐镜分镜明细在约束框架内展开。
 29. 抽样检查分镜明细的维度覆盖：画面中确实存在的角色表演/陪体动态/前景动态/光影反射/动态焦点/节奏同步等维度是否被摄影机表达；不存在的信息不要求覆盖，但已存在的维度被遗漏需要补上。
 30. 检查场景视觉约束的更新时机：同一场景内视觉约束不变时只裁决一次，但白天→夜晚、室内→走廊、平静→恐慌等重大视觉约束变化时必须重新裁决。
+31. 若发现眼睛特写为单眼侧面，回到 `ai-video-prompt-execution-contract.md` Eye Close-up Rule，改为正面双眼特写并在分镜文字中显式写"双眼"。
+32. 若发现抽象情绪词（"紧张""愤怒""压抑"）进入分镜正文，将其替换为可见面部肌肉变化和具体身体动作。
+33. 若发现跨分镜组时动作姿态断裂（如上一组坐着、下一组站着），回到 `shot-continuity-contract.md` Action Anchor Inheritance，在下一组首镜补充当前姿态描写。
+34. 若发现人物情绪剧烈变化时节奏过快，回到 Psychological Intensity Slowdown Rule，将 `tempo` 改为 `slow_burn` 或 `hold`，用慢镜头或多角度正面切换替代快速运镜。
 
 ## Reusable Heuristics
 
@@ -95,6 +106,7 @@
 - 上一句只适合内部计划，不适合连续成稿。最终优先写成："长焦压扁后排课桌，镜头慢慢贴近林寂停住的手指。"
 - 更好的成稿要保留变化但不露骨架："长焦压扁后排课桌，镜头慢慢贴近林寂停住的手指；背景黑板字退成一片冷白。"
 - 输出太短通常不是"克制"，而是缺计划：克制分镜也要有清楚入口、运动方式、速度、落点和交出点。
+- 判断伪分镜最快的方法：去掉原句已有的人物、动作和道具事实后，如果只剩"中景/特写/镜头跟着/然后看到"，就是画面内容复述；真正的分镜必须留下机位、路径、速度、停点、焦点、光影结果或交出接口。
 - 最稳的连续性做法是"内部承接上一镜落点"：先在判断中确认上一镜的焦点、声音、动作或光色，再把输出集中写成当前镜头的变化；只有跳变时才短写承接动机。
 - 节奏张弛的判断要先于炫技：低信息动作精准一句足够，关键显影可以多分镜铺开，强表演瞬间宁可让镜头停住也不要抢戏。
 - 短剧·AIGC 默认不是传统影视宽停顿：`约3秒` 以上镜头必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；普通慢推和氛围尾巴优先压缩或删除。

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本类型包为 `2-编导` 提供跨集连续性追踪能力。当处理第 N 集且第 N-1 集已完成编导稿时，可读取前集的关键证据作为延续参考，避免单集独立处理导致的视觉母题断裂、表演弧线丢失和叙事节奏脱节。
+本类型包为 `3-导演` 提供跨集连续性追踪能力。当处理第 N 集且第 N-1 集已完成导演稿时，可读取前集的关键证据作为延续参考，避免单集独立处理导致的视觉母题断裂、表演弧线丢失和叙事节奏脱节。
 
 本类型包不授权新增剧情、对白或事件；它只在不改变保真前提下，让当前集的编导决策能参考前集已形成的创作轨迹。
 
@@ -10,10 +10,10 @@
 
 | variable | values | detection cue | strategy |
 | --- | --- | --- | --- |
-| `previous_episode_available` | `true` / `false` | `projects/aigc/<项目名>/2-编导/第N-1集.md` 是否存在且可读 | 不可读时标注 `episode-local continuity`，不做跨集延续 |
+| `previous_episode_available` | `true` / `false` | `projects/aigc/<项目名>/3-导演/第N-1集.md` 是否存在且可读 | 不可读时标注 `episode-local continuity`，不做跨集延续 |
 | `motif_continuity_need` | `required` / `optional` / `not_applicable` | 前集 `episode_visual_spine` 是否包含可在本集延续的视觉母题 | `required` 时读取前集 `motif_chain` 和 `callback_targets` 作为延续参考 |
 | `visual_arc_continuity` | `required` / `optional` / `not_applicable` | 前集的材质/色彩弧、节奏曲线是否形成本集应延续或呼应的视觉轨迹 | `required` 时参考前集 `material_and_color_arc` 和 `rhythm_curve` |
-| `performance_arc_continuity` | `required` / `optional` / `not_applicable` | 前集关键角色的表演基调、情绪轨迹是否应在本集延续 | `required` 时参考前集 `actor_performance_control_evidence` 中的角色表演变量 |
+| `performance_arc_continuity` | `required` / `optional` / `not_applicable` | 前集关键角色的表演基调、情绪轨迹是否应在本集延续 | `required` 时优先读取前集 `director_substance_plan.character_pressure`；若前集已有 `4-表演` 产物，可额外读取外部阶段证据 `external_stage_refs.performance.actor_performance_control_evidence` 作为参考 |
 | `prop_state_continuity` | `required` / `optional` / `not_applicable` | 前集末尾的道具状态、归属关系是否影响本集开场 | `required` 时读取前集 `episode_final_image_plan` 中的道具状态 |
 | `spatial_continuity` | `required` / `optional` / `not_applicable` | 本集与前集是否使用相同或相连空间（同一建筑、同一城市、同一航线） | `required` 时参考前集 `environment描写` 的空间基调 |
 
@@ -37,7 +37,7 @@
 
 ### Performance Arc Continuity
 
-读取前集 `actor_performance_control_evidence`：
+读取前集 `director_substance_plan.character_pressure`，并在存在时读取外部阶段证据 `external_stage_refs.performance.actor_performance_control_evidence`：
 
 - 若某角色在前集建立了表演基调（例如压抑、试探、逐渐放松），本集开场可参考该基调。
 - 表演弧线的延续意味着同一角色的微表情习惯、身体联动模式和声线特征可在本集保持一致。
@@ -62,12 +62,15 @@
 ```yaml
 cross_episode_continuity_profile:
   previous_episode_available: true | false
-  previous_episode_path: "projects/aigc/<项目名>/2-编导/第N-1集.md"
+  previous_episode_path: "projects/aigc/<项目名>/3-导演/第N-1集.md"
   motif_continuity: required | optional | not_applicable
   visual_arc_continuity: required | optional | not_applicable
   performance_arc_continuity: required | optional | not_applicable
   prop_state_continuity: required | optional | not_applicable
   spatial_continuity: required | optional | not_applicable
+  external_stage_refs:
+    performance:
+      actor_performance_control_evidence: "optional; read-only evidence from 4-表演 when previous performance output exists"
   continuity_notes: ""
 ```
 
@@ -75,7 +78,7 @@ cross_episode_continuity_profile:
 
 允许：
 
-- 读取前集 `episode_visual_spine`、`actor_performance_control_evidence`、`episode_final_image_plan` 和 `环境描写` 作为延续参考。
+- 读取前集 `episode_visual_spine`、`director_substance_plan.character_pressure`、可选外部阶段证据 `external_stage_refs.performance.actor_performance_control_evidence`、`episode_final_image_plan` 和 `环境描写` 作为延续参考。
 - 在本集 `episode_visual_spine` 中标注前集母题的延续和变化方向。
 - 在关键角色的表演规划中参考前集表演基调。
 

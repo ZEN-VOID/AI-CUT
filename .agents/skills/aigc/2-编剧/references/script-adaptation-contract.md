@@ -2,7 +2,7 @@
 
 ## Canonical Purpose
 
-`2-编导` 将 `projects/aigc/<项目名>/1-分集/第N集.md` 投影为 `projects/aigc/<项目名>/2-编导/第N集.md`。输出是上游正文的影视剧本化结构投影，不是改写版小说、概要、梗概或自由发挥剧本。
+`2-编剧` 将 `projects/aigc/<项目名>/1-分集/第N集.md` 投影为 `projects/aigc/<项目名>/2-编剧/第N集.md`。输出是上游正文的影视剧本化结构投影，不是改写版小说、概要、梗概或自由发挥剧本。
 
 ## Fidelity Rules
 
@@ -57,7 +57,7 @@
 - 权力关系 -> 场面调度；通过站坐、高低、远近、门口/讲台/窗边占位、群体视线和道具归属表现。
 - 沉默与反应 -> 可见/可听余波；不得用新增对白替代上游没有写出的潜台词。
 
-`2-编导` 允许使用 `场面调度` 和 `表演提示` 强化导演可执行性，但不得写摄影越权信息，例如机位、景别、镜头运动、分镜编号或 `分镜明细预设` 字段。
+`2-编剧` 只负责剧本文本投影、声画字段分流和可拍性基础承接；导演创作判断和表演工艺分别交给 `3-导演` 与 `4-表演`，不得提前写摄影越权信息，例如机位、景别、镜头运动、分镜编号或 `分镜明细预设` 字段。
 
 ## Dialogue Freeze
 
@@ -122,9 +122,9 @@
 ---
 项目名: <项目名>
 集数: 第N集
-stage: 2-编导
+stage: 2-编剧
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
-output_path: projects/aigc/<项目名>/2-编导/第N集.md
+output_path: projects/aigc/<项目名>/2-编剧/第N集.md
 adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
 audio_visual_pairing: required

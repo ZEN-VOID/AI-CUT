@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate mechanical structure of a 2-编导 episode script.
+"""Validate mechanical structure of a 2-编剧 episode script.
 
 This checker is intentionally conservative. It verifies structure, field
 presence, and nearby audio-visual pairs, but it does not prove creative
@@ -455,7 +455,7 @@ def validate(path: Path) -> tuple[bool, list[str]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("episode_script", help="Path to projects/aigc/<项目名>/2-编导/第N集.md")
+    parser.add_argument("episode_script", help="Path to projects/aigc/<项目名>/2-编剧/第N集.md")
     args = parser.parse_args()
     ok, findings = validate(Path(args.episode_script))
     for finding in findings:

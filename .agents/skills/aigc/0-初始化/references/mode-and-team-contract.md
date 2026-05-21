@@ -41,6 +41,7 @@ It must include:
 - `runtime_policy.require_subagents_for_init_execution == true`
 - `runtime_policy.init_execution_owner_role == planning`
 - `roles.planning.init_execution.*`
+- `roles.supervision.stage_profiles` for at least `2-编剧 / 3-导演 / 4-表演 / 5-摄影 / 7-设计`
 
 Hard rules:
 
@@ -50,13 +51,15 @@ Hard rules:
 4. `roles.*.members` may only reference `.agents/skills/team/` skills.
 5. `roles.planning.init_execution.kickoff_owner` and `requires_subagents` must be true.
 6. `策划 / 监制 / 评审` may overlap or be separated; record the chosen allocation mode and overlap notes.
+7. `roles.supervision.stage_profiles.<stage>` is the canonical later-stage advisor profile. Generic `roles.supervision.members`, old `roles.supervising.*`, old `roles.production.*`, `team_setup.shared_agents`, and `roles.planning.members` are only fallback compatibility paths.
+8. Stage profiles must record `preferred_departments`, `focus_tags`, `question_binding`, and `dispatch_policy`, so later skills can ask node-derived questions without guessing what "监制" means for that stage.
 
 ## Governance Role Matrix
 
 | role | owned phase | timing | core function | non-owner boundary |
 | --- | --- | --- | --- | --- |
 | `策划` | `0-初始化` | first direct-answer packet before synthesis | converge story core, emotional core, boundaries, and stage seeds | does not own later-stage canonical truth |
-| `监制` | `2-编剧`, `3-导演`, `4-表演`, `5-摄影`, `6-分组`, `7-设计` | stage-front advisory | style, type, director intent, feasibility, design continuity | does not replace stage canonical writeback |
+| `监制` | `2-编剧`, `3-导演`, `4-表演`, `5-摄影`, `6-分组`, `7-设计` | stage-front advisory, refined by `roles.supervision.stage_profiles.<stage>` | stage-specific style, type, director intent, performance craft, feasibility, design continuity | does not replace stage canonical writeback |
 | `评审` | `8-图像`, `9-视频`, `10-审片` | around validation reports and generated footage review | image/video consistency, reference binding, provider risk, footage delivery gate | not a default early creative expansion role |
 
 ## Auto Lineup Selection

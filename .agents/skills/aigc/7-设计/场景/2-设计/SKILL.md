@@ -19,10 +19,10 @@ metadata:
 - 必须读取上游 `projects/aigc/<项目名>/7-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取全局审美方向、故事母题、禁区和全局风格提示词。
 - 必须读取 `projects/aigc/<项目名>/team.yaml`，提取与设计、美术、建筑、摄影、导演或大师监制相关的上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
-- 默认 subagents / reviewer 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，调用 `team.yaml` 已指定监制组成员作为资深创作顾问；顾问问题必须同步于 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 场景设计前形成 `advisor_consultation_packet`。
+- 默认 subagents / reviewer 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，调用项目已指定监制成员作为资深创作顾问；顾问问题必须同步于 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 场景设计前形成 `advisor_consultation_packet`。
 - 固定画面约束：场景设计默认只输出纯空镜空间设计，不得出现人物、人体局部、剪影、倒影或可识别人类存在；英文提示词必须显式包含 `empty shot, no people, no human figures` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 本 skill 在仓库治理口径下声明 reviewer -> subagent 默认路径：先按共享团队顾问合同请教项目 `team.yaml` 监制顾问，再由研究考据、Scene Design、Cinematography、Prompt Review 作为并行 reviewer 路径；实际 dispatch 必须服从当前 system / developer / tool / user 优先级。若上层策略阻断、工具不可用或用户显式禁用，必须降级为本地 review checklist，并报告阻断层级、原计划路径、实际路径和未启动 reviewer / advisor。
+- 本 skill 在仓库治理口径下声明 reviewer -> subagent 默认路径：先按共享团队顾问合同请教项目 `team.yaml` 的 `7-设计` 监制 profile，再由研究考据、Scene Design、Cinematography、Prompt Review 作为并行 reviewer 路径；实际 dispatch 必须服从当前 system / developer / tool / user 优先级。若上层策略阻断、工具不可用或用户显式禁用，必须降级为本地 review checklist，并报告阻断层级、原计划路径、实际路径和未启动 reviewer / advisor。
 
 ## Positioning
 
@@ -148,7 +148,7 @@ stateDiagram-v2
 2. 读取 `north_star.yaml`、`team.yaml`、上游 `场景清单.md` 和可选 `projects/aigc/<项目名>/7-设计/场景/design-manifest.yaml`，建立 `input_manifest`。
 3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标场景，不新增未在上游清单出现的场景主体；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
-5. 按共享团队顾问合同请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须来自 `steps/scene-design-workflow.md` 的当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师。
+5. 按共享团队顾问合同优先消费 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，请教项目监制顾问，形成 `advisor_consultation_packet`；问题必须来自 `steps/scene-design-workflow.md` 的当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师。
 6. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `advisor_consultation_packet` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
 7. 按 `references/scene-design-contract.md` 与 `references/design-output-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、顾问指导或设计依据。
 8. 为每个场景锁定唯一主体 ID；默认使用上游清单或文件名前缀 `S###`。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段，并作为英文 prompt 的开头 `<主体ID>: ...`。
@@ -173,7 +173,7 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `7-设计/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
 | `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
-| `FIELD-SCENE-DESIGN-11` | Team advisor consult | 已按 `team.yaml` 请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；阻断时有降级报告 | `FAIL-SCENE-DESIGN-11` |
+| `FIELD-SCENE-DESIGN-11` | Team advisor consult | 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；阻断时有降级报告 | `FAIL-SCENE-DESIGN-11` |
 
 ## Thought Pass Map
 
@@ -265,7 +265,7 @@ stateDiagram-v2
 - 每个输出文件都能回指上游清单行的 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 每个设计稿包含 required output 中的全部板块和字段。
-- 已按 `team.yaml` 监制 roster 形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若被上层阻断，已记录降级报告。
+- 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若被上层阻断，已记录降级报告。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
 - 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接全局风格提示词、建筑风格、时间锚点与地域锚点，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。
 - `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。

@@ -2,17 +2,18 @@
 
 ## Purpose
 
-本细则把“角色演技”从情绪标签升级为可执行的表演控制系统。它服务 `2-编导` 的演员任务、心理反应、对白画面、角色动作、表情特写、环境声音和受控增强，不授权新增剧情事实、对白、事件结果、人物动机或摄影方案。
+本细则把“角色演技”从情绪标签升级为可执行的表演控制系统。它服务 `4-表演` 的演员任务、心理反应、对白画面、角色动作、表情特写、环境声音和受控增强，不授权新增剧情事实、对白、事件结果、人物动机或摄影方案。
 
 核心原则：不要只写“开心、愤怒、难过、害羞、紧张”等情绪结论；必须把情绪拆成上游触发点、人物动机、面部肌肉、身体联动、声音/环境承托和视频微动态限制。否则 AI 视频容易得到模板化表情，而不是有演技的角色。
 
 ## Ownership
 
 - 本文件拥有 `actor_performance_control_pass` 的表演层细则：微表情、情绪动机、身体联动、环境声音、非对称瑕疵和微动态限制。
-- `performance-and-scene-craft-contract.md` 负责场景状态差、演员任务、潜台词行为和场面调度，本文件只细化“演员如何把情绪演出来”。
+- `performance-and-scene-craft-contract.md` 负责场景状态差、演员任务、潜台词行为和场面调度，本文件只细化”演员如何把情绪演出来”。
 - `psychological-reaction-contract.md` 负责 `心理反应` 字段语义和 GETability；本文件为 `心理反应`、`表情特写`、`角色动作`、`对白画面` 提供表演变量。
 - `field-routing-and-audio-visual-contract.md` 负责字段纯度；本文件不改变字段边界。
 - `visual-aesthetic-contract.md` 负责画面美学；本文件不写机位、景别、镜头运动或分镜编号。
+- `stanislavski-method-reference.md` 提供三层情绪执行模板和情感瞬间与微动态控制的技术理论来源；本文件负责把该方法落实为微表情分区、身体联动描写和环境声承托的具体投影变量。调用路径：stanislavski_method_evidence 技术层级 → 本文件 Five-Part Expression Control Formula → 既有字段内嵌。
 
 ## Trigger Scope
 

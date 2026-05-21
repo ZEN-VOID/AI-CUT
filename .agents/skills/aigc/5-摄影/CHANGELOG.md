@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-05-21 (Transition Anchor Contract - Shot-level Continuity)
+
+- 新增 `references/transition-anchor-contract.md`：定义分镜间「过渡锚点」的标准描述格式和执行规则，填补 `shot-continuity-contract.md` 在分镜明细内部连续性设计的空白。
+- 过渡锚点类型：运动延续锚点、道具形态锚点、声音时序锚点、光色明暗锚点，每种类型包含标准化格式模板和正反示例。
+- 制定过渡帧时长规则：高速运动0.2-0.3秒、中速运动0.3-0.5秒、慢速/静止0.5-1秒。
+- 制定验收审计检查表：因果链覆盖率100%、过渡帧可见性、道具唯一性、声音时序、叙事意图标注、过渡帧时长六项检查。
+- 定义因果黑洞禁令：禁止在相邻分镜间留下没有物理因果过渡的断裂。
+- 更新 `shot-continuity-contract.md` 关联说明：将本契约标记为镜头连续性规则的延续，专注于分镜明细内部的过渡设计。
+- 解决案例：第4集4-1-2枪击分镜（分镜1→分镜2缺少枪刃接触鱼篓的瞬间）已通过本契约提供修复模板。
+
+## 2026-05-20 (Execution Completeness Gate Repair)
+
+- 统一运行入口命名：`SKILL.md` frontmatter、标题、Context Loading Contract、`agents/openai.yaml`、README、types Mermaid 和相关合同均收束为 `$5-摄影` / `5-摄影`，移除当前源层的旧摄影阶段唤起名混淆口径。
+- 强化 completion gate：`scripts/validate_cinematography_markup.py` 只作为机械校验证据，不能替代 `review/review-contract.md` 的质量门禁；交付前必须同时完成机械校验和质量 review。
+- 将 `GATE-CINE-15B` / `FAIL-CINE-05R` 非复述型分镜门禁贯通到 templates、report template、README、workflow pass evidence 和 review output，要求记录源句复述扣除测试结果。
+- 补齐 `FAIL-CINE-19A/19B/19C/19D` failure routing，使动作锚点继承、正面双眼特写、抽象情绪词转译和心理剧烈变化慢镜头规则都有明确返工入口。
+- 更新 `scripts/README.md`，明确脚本不得裁决源句复述扣除测试、功能性影视投影、非复述型分镜、摄影美学或 AI 视频执行稳定性。
+
 ## 2026-05-14 (Scene Visual Constraint Refactor)
 
 - 将"组级画面视觉基调"从 5-摄影 的成稿输出降级为内部场景视觉约束，并将正式的组级画面属性输出移至 6-分组 阶段。
@@ -36,8 +54,8 @@
 - CONTEXT.md 全量压缩：Type Map 从 31 行精简为 26 行（合并字段纯度 4→2 行，删除已被 gate 覆盖的节点缺环和交付未修行）；Repair Playbook 从 27 步压缩为 27 步但去除重复展开；Reusable Heuristics 从 ~39 条压缩为 12 条，其中 19 条已正式化为 contract/gate 的条目删除，6 条通用经验迁移到 knowledge-base。项目特定（诡校-测试版）内容迁移并在原位改为指向 knowledge-base 的通用引用。CONTEXT.md 从 ~25,600 字符压缩到 ~12,000 字符，status 从 warn 恢复为 ok。
 - knowledge-base/cinematography-heuristics.md 从 37 行扩展到 ~130 行，新增 Shot Count & Beat、Duration & Time-Value、Sequence & Ownership、AI Video Execution 四个分类分区，吸收 CONTEXT.md 中的可复用经验并补充 15+ 条新通用经验（含对白拆镜、群像扩散、规则文字显影、秒数门槛、连续 held 镜头风险、sequence_profile 建立门槛、density_curve peak/recovery 成对、镜头/人物运动时序、方向含动作词、光线写可见结果等）。
 - templates/episode-cinematography.template.md 从 33 行扩展到 ~100 行，新增 5 个具体场景示例：单镜低信息环境建立、双镜对白身体锚点（快慢接力）、三镜动作序列（动作分相递进）、高点 held 镜头（读秒 + 反应）和内部 shot_design_plan 计划结构展示。
-- references/transition-design-contract.md 清理开头"保留旧路径/语义已迁移"混淆性说明，改为清晰的角色声明："本文件定义 3-摄影 的边界交出合同"。
-- scripts/validate_cinematography_markup.py 新增 4 项机械检查：frontmatter 存在性（stage/source_directing_path/output_path/duration_policy）、秒数范围提示（<1s 闪切确认 / >15s 内部变化确认）、抽象阐释词扫描（象征/隐喻/寓意/暗示了等 12 个词）和空分镜明细块检查。scripts/README.md 同步更新允许职责列表。
+- references/transition-design-contract.md 清理开头"保留旧路径/语义已迁移"混淆性说明，改为清晰的角色声明："本文件定义 5-摄影 的边界交出合同"。
+- scripts/validate_cinematography_markup.py 新增 4 项机械检查：frontmatter 存在性（stage/source_performance_path/output_path/duration_policy）、秒数范围提示（<1s 闪切确认 / >15s 内部变化确认）、抽象阐释词扫描（象征/隐喻/寓意/暗示了等 12 个词）和空分镜明细块检查。scripts/README.md 同步更新允许职责列表。
 - README.md 快速入口新增 `templates/episode-cinematography.template.md` 和 `knowledge-base/cinematography-heuristics.md`；输出说明新增机械校验脚本扩展能力描述。
 
 ## 2026-05-13

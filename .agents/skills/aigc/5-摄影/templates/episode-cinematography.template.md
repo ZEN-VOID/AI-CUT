@@ -4,8 +4,8 @@
 ---
 项目名: <项目名>
 集数: 第N集
-stage: 3-摄影
-source_directing_path: projects/aigc/<项目名>/4-表演/第N集.md
+stage: 5-摄影
+source_performance_path: projects/aigc/<项目名>/4-表演/第N集.md
 output_path: projects/aigc/<项目名>/5-摄影/第N集.md
 cinematography_mode: visual_sentence_cinematography_injection
 visual_matching_policy: label_and_semantic_visual_unit
@@ -16,6 +16,7 @@ duration_policy: short_drama_aigc_bias_explicit_approx_seconds_with_dialogue_bud
 scene_visual_constraint_policy: composition_layout_method_lighting_color_camera_params_per_scene_internal_only
 shot_detail_dimension_policy: should_have_then_write_no_force_no_fabricate
 ai_video_execution_policy: camera_first_direction_referenced_lighting_result_microdynamic
+non_paraphrase_policy: source_sentence_subtraction_keeps_camera_decision
 language_policy: preserve_directing_text_add_shot_details
 camera_design_scope: internal_camera_continuity_and_handoff_only
 review_status: pending
@@ -29,7 +30,7 @@ review_status: pending
 
 环境描写：<原文画面句子>
 分镜明细：
-分镜1（约X秒）: <用自然中文写当前节拍的影视功能、可见主体、动作相位，以及画面中自然存在的维度信息点（角色情绪/肢体语言/语气/镜头意识等表演维度、陪体/前景/背景动态、景别/视角/景深/焦点/镜头运动等技术维度、光影变化与反射、节奏同步等——应有则有，没有不必强制），以及景别/视角/景深/焦点/镜头类型中的关键变化、镜头先行的运镜方式/速度/停点、显式时长对应的读秒/停顿/快速通过理由、构图锚点、方向参照、光线可见结果、必要表演微动态、连续性交接和下游可消费点；短剧·AIGC 模式下优先用 short/standard 成立，约3秒以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；只显式写当前画面中存在的信息，不虚构不存在的维度，不粘贴完整视频提示词分栏或维度标签列表。>
+分镜1（约X秒）: <用自然中文写当前节拍的影视功能、可见主体、动作相位，以及画面中自然存在的维度信息点（角色情绪/肢体语言/语气/镜头意识等表演维度、陪体/前景/背景动态、景别/视角/景深/焦点/镜头运动等技术维度、光影变化与反射、节奏同步等——应有则有，没有不必强制），以及景别/视角/景深/焦点/镜头类型中的关键变化、镜头先行的运镜方式/速度/停点、显式时长对应的读秒/停顿/快速通过理由、构图锚点、方向参照、光线可见结果、必要表演微动态、连续性交接和下游可消费点；删除上游原句已有主体、动作、道具和事实后，仍应保留可执行摄影决策，不能只是画面内容拆写/复述；短剧·AIGC 模式下优先用 short/standard 成立，约3秒以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；只显式写当前画面中存在的信息，不虚构不存在的维度，不粘贴完整视频提示词分栏或维度标签列表。>
 <可选：只有存在第二个真实节拍点时才写 分镜2（约X秒）；若一个镜头已完成观看策略，不补第二镜。关键揭示、动作分相、群像扩散、对白承托或高点承托可继续写 分镜3/分镜4，但每一镜都必须提供新的观看策略和时值理由。>
 
 <!-- 若相邻画面单位共享空间、道具链、声音链、动作链、记忆插入或视觉母题，段落级 `sequence_profile` 只作为内部计划；此处仍只写正上方画面句子拥有的信息，不能吞入后文画面点。 -->
@@ -111,15 +112,17 @@ shot_design_plan:
       path: 极慢推轨向文字生长点
       duration: held (约3秒) -- 文字变化需要可见读秒时间；短剧·AIGC 模式下先压到 3 秒，缩短到 1.5 秒会让观众来不及看到笔画延伸
       end: 新笔画末端
-      handoff: 焦点开始拉向黑板反光
-      unit_ownership_check: 只服务当前画面句子的"粉笔字自行改变"
+	      handoff: 焦点开始拉向黑板反光
+	      paraphrase_subtraction_check: 删除"粉笔字改变/规则生长"事实后，仍保留极慢推轨、微距质感、焦点拉移和反光交接
+	      unit_ownership_check: 只服务当前画面句子的"粉笔字自行改变"
     - trigger: 信息完成显影
       start: 新文字末端
       path: 焦点从文字拉到黑板反光中的瞳孔倒影
       duration: standard (约2秒) -- 反应落点；缩短到 1 秒会丢失瞳孔颤抖的细节
       end: 瞳孔倒影颤抖
-      handoff: 交给下一个画面句子
-      unit_ownership_check: 不吞入后文角色动作或对白反应
+	      handoff: 交给下一个画面句子
+	      paraphrase_subtraction_check: 删除"新文字/瞳孔倒影"事实后，仍保留焦点从文字到反光的转交和反应钉镜
+	      unit_ownership_check: 不吞入后文角色动作或对白反应
 -->
 ```
 

@@ -8,6 +8,12 @@
 
 每个 `分镜N` 还必须回答“它服务哪条上游画面句子”。段落级连续运镜、视觉母题或材质链只能作为当前镜头的进入点、落点、交出锚点或光色继承，不能让镜头失去逐画面点归属。
 
+### Content Paraphrase Is Not Shot Detail
+
+`分镜明细` 不是把正上方画面句子拆成镜头 1/2/3，也不是把原句名词替换成“中景/特写/镜头跟着”。每条 `分镜N` 必须通过源句复述扣除测试：去掉上游原句已有的主体名词、动作结果和道具事实后，剩余文本仍能读出摄影机如何看、如何动或为什么不动、在哪里停、焦点/构图/光影如何组织、如何交给下一注意力点。
+
+若一条分镜只是在复述“谁做了什么、物件是什么、画面里有什么”，即使加上景别词，也不合格。合格分镜必须至少新增一个真实摄影决策：机位/景别/视角、运镜路径与速度、停点与时值、焦点/景深、构图锚点、光线结果、方向参照、表演微动态或连续性交接；这些选择必须改变观众观看方式，而不是给原句贴摄影术语。
+
 ## Rule Stack Projection
 
 `5-摄影` 的种种细则不是可选装饰，而是同一条分镜的决策栈。每个 `分镜N` 必须能回指下列至少一组有效来源：
@@ -74,6 +80,8 @@
 
 以下情况必须判为功能性失败：
 
+- 只是把上游画面句子拆成动作前后顺序、人物/物件特写或“先看 A 再看 B”，没有新增摄影机如何看、如何动、何时停、焦点如何转、光影如何组织或如何交接。
+- 把原句名词和动作结果替换成“中景/特写/跟拍/推进”等术语后，仍无法抽取 `camera_movement_plan / composition_anchor / light_color_material / continuity_handoff`。
 - 只是在表达上顺、句式好看，但不能抽取主体、动作、构图锚点、光色、运镜方式、速度曲线和停点。
 - 分镜能抽取动作和构图，但无法判断该镜应快速通过、标准承接、读秒停留还是长停顿。
 - 分镜缺少 `分镜N（约X秒）`，或显式秒数与镜头语言/对白量不一致。
@@ -92,6 +100,7 @@
 修复顺序固定为：
 
 1. 先回到上游画面句子，锁定当前镜头必须解决的剧情/信息/动作功能。
-2. 抽取 `visible_subject / action_phase / camera_movement_plan / shot_duration_decision / composition_anchor / light_color_material / continuity_handoff / unit_ownership / ai_video_prompt_execution`。
-3. 按 Rule Stack Projection 回查节拍、节奏、镜头时值、峰值、连续性、技法库和动态运镜细则，重新选择最小充分的摄影与运镜策略。
-4. 最后才进入 `natural-shot-detail-writing-contract.md`，把功能 payload 写成自然中文。
+2. 对候选分镜做源句复述扣除测试：删除上游原句已有名词、动作和事实后，若只剩景别词或空泛效果词，直接判为伪分镜。
+3. 抽取并补齐 `visible_subject / action_phase / camera_movement_plan / shot_duration_decision / composition_anchor / light_color_material / continuity_handoff / unit_ownership / ai_video_prompt_execution`。
+4. 按 Rule Stack Projection 回查节拍、节奏、镜头时值、峰值、连续性、技法库和动态运镜细则，重新选择最小充分的摄影与运镜策略。
+5. 最后才进入 `natural-shot-detail-writing-contract.md`，把功能 payload 写成自然中文。

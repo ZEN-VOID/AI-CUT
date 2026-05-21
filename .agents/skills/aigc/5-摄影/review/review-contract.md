@@ -2,7 +2,7 @@
 
 本文件定义 `5-摄影` 的质量门禁。
 
-若本轮启动 subagents 模式，review gate 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否从项目 `team.yaml` 解析监制组相关智能顾问团、是否基于当前 `PASS-CINE-*` / `N*-*` 思维·执行节点派生顾问问题、是否要求顾问代入角色意识/创作风格/专业水准参与节点判断和执行取舍、是否形成 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写 `4-表演` 原文。
+若本轮启动 subagents 模式，review gate 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否优先从项目 `team.yaml.roles.supervision.stage_profiles."5-摄影"` 或共享合同回退路径解析摄影监制 roster、是否基于当前 `PASS-CINE-*` / `N*-*` 思维·执行节点派生顾问问题、是否要求顾问代入角色意识/创作风格/专业水准参与节点判断和执行取舍、是否形成 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写 `4-表演` 原文。
 
 ## Review Modes
 
@@ -15,6 +15,7 @@
 | `sequence_ownership_review` | 交付前 | 检查段落级 `sequence_profile` 是否只作为内部连续性上下文，每个 `分镜明细` 是否仍只服务正上方画面句子，没有跨块外溢或失主镜头 |
 | `shot_duration_review` | 交付前 | 检查每个 `分镜N` 是否以 `分镜N（约X秒）:` 显式落盘，并能反推时值等级、短剧·AIGC 压缩偏置、对白台词量预算、停顿/压缩理由、相邻镜头时值接力和 15 秒组内节奏风险 |
 | `functional_projection_review` | 交付前 | 检查每个 `分镜N` 是否有影视功能、运镜策略和下游 AIGC 可消费 payload，而不是随机好看句 |
+| `content_paraphrase_review` | 交付前 | 对候选 `分镜N` 做源句复述扣除测试：去掉上游原句已有主体、动作、道具和事实后，仍能读出摄影机如何看、动、停、转焦、布光或交接 |
 | `ai_video_prompt_execution_review` | 交付前 | 检查每个 `分镜N` 是否符合 AI 视频执行稳定性：镜头先行包裹动作、方向参照明确、光线写结果、表演微动态可见，且未把完整提示词分栏或命令式负向词塞入分镜正文 |
 | `thinking_action_node_review` | 交付前 | 检查 `PASS-CINE-*` / `N*-*` 是否完成真源锁定、画面匹配、类型画像、段落观看意图与逐点归属、节拍、节奏、镜头时值、高点、连续性、摄影语法、功能投影、AI 视频执行稳定性、计划汇流、自然注入和阶段内修复闭环 |
 | `camera_grammar_review` | 交付前 | 检查景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化是否有节拍、空间、信息或情绪动机 |
@@ -30,15 +31,15 @@
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/cinematography-workflow.md` 的 `N8R-DIRECT-REPAIR`，由 `5-摄影` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `5-摄影/第N集.md`。
-- 允许直接修复的范围：`分镜明细：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头时值、`shot_design_plan` 汇流、AI 视频执行稳定性、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
+- 允许直接修复的范围：`分镜明细：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头时值、`shot_design_plan` 汇流、源句复述扣除失败、AI 视频执行稳定性、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
 - 禁止直接修复的范围：改写 `4-表演` 原文、对白、场景标题、字段顺序、剧情事实或上游 source truth。遇到这类问题必须输出 source owner 和阻断报告。
-- `pass_with_followups` 只允许非阻断质量建议；任何覆盖、编号、保真、空间连续性、专业可执行、AI 视频执行稳定性或 LLM-first 问题不得降级为 followup。
+- `pass_with_followups` 只允许非阻断质量建议；任何覆盖、编号、保真、空间连续性、专业可执行、源句复述扣除失败、AI 视频执行稳定性或 LLM-first 问题不得降级为 followup。
 
 ## Acceptance Checklist
 
 | gate_id | check | pass criteria |
 | --- | --- | --- |
-| `GATE-CINE-01` | 输入回指 | frontmatter 或报告记录 `source_directing_path` |
+| `GATE-CINE-01` | 输入回指 | frontmatter 或报告记录 `source_performance_path` |
 | `GATE-CINE-02` | 画面覆盖 | 所有命中画面性句子下方就近有 `分镜明细：` |
 | `GATE-CINE-03` | 分镜编号 | 每个分镜明细块从 `分镜1（约X秒）:` 开始，连续编号，无跳号 |
 | `GATE-CINE-04` | 节拍合理 | 分镜数量与当前画面句子的动作、信息、情绪节拍匹配 |
@@ -60,6 +61,7 @@
 | `GATE-CINE-14` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
 | `GATE-CINE-15` | 功能性投影 | 每个 `分镜N` 可抽取 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material、continuity_handoff 和下游消费点 |
 | `GATE-CINE-15A` | AI 视频执行稳定性 | 每个 `分镜N` 能还原镜头先行执行顺序：镜头/运动/构图先包裹动作；人物运动有相对镜头或画面的方向参照；重要光影写成亮面、暗面、阴影、轮廓、反光或背景层次；表演情绪落到可见微动态；正文不输出完整提示词分栏模板或命令式负向词 |
+| `GATE-CINE-15B` | 非复述型分镜 | 每条 `分镜N` 通过源句复述扣除测试：删除上游原句已有主体、动作、道具和事实后，仍保留机位/构图/运镜路径/速度/停点/焦点/光影结果/方向参照/连续性交接中的有效摄影决策；不得只是把正上方画面句子拆写成画面内容顺序 |
 | `GATE-CINE-16` | 摄影语法变化 | 景别、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化服务节拍、空间、信息、情绪或交接；不存在随机换技法、无动机大远景跳大特写或视角乱跳 |
 | `GATE-CINE-17` | 思维·执行节点完整 | 产物能回指 `PASS-CINE-00..12`、`PASS-CINE-02S`、`PASS-CINE-02D`、`PASS-CINE-04D` 与 `N1-INTAKE/N2-MATCH/N3-TYPE/N3.5-SEQUENCE-ALIGN/N3.6-DENSITY-CURVE/N4-BEAT/N5-RHYTHM/N5.2-DURATION/N5.5-PEAK-SHOT/N5.6-ADVISOR/N6-CONTINUITY/N6.1-HANDOFF/N6.2-CAMERA-GRAMMAR/N6.4-FUNCTIONAL-PROJECTION/N6.5-SHOT-PLAN/N7-INJECT/N8-REVIEW/N8R-DIRECT-REPAIR/N8R-REVIEW-AGAIN/N9-WRITE` 的关键判断：真源、画面匹配、类型、段落观看意图与逐点归属、段落密度曲线、节拍、节奏、镜头时值、高点、顾问、连续性、边界交出、摄影语法、功能投影、AI 视频执行稳定性、计划、注入、审查修复 |
 | `GATE-CINE-18` | 自然成稿 | 连续分镜不出现重复句法骨架、参数清单腔或“高级/丝滑/电影感”等空泛效果词；读起来先是画面，再是摄影 |
@@ -92,6 +94,7 @@
 | `FAIL-CINE-05F` | references 被引用但未汇流成 `shot_design_plan`，导致分镜数量随机、上下不接或输出过短 | `references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05G` | 分镜明细出现参数清单、连续同构句、模板填空腔或过度显式化内部计划 | `references/natural-shot-detail-writing-contract.md`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-05H` | 分镜明细表达顺滑但缺少影视功能、运镜策略、主体/动作/构图/光色/空间锚点或下游 AIGC 可消费 payload | `references/functional-cinematic-projection-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-05R` | 分镜明细是画面内容拆写/复述：去掉源句已有主体、动作、道具和事实后，只剩景别词、空泛效果词或顺序词，无法读出独立摄影决策 | `references/functional-cinematic-projection-contract.md#Content-Paraphrase-Is-Not-Shot-Detail`、`references/natural-shot-detail-writing-contract.md#Paraphrase-Repair-Examples`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-05N` | 分镜明细不适合稳定改写为 AI 视频提示词：动作和镜头割裂、方向参照含混、光线只写光源或空泛效果、情绪没有可见微动态，或把完整提示词分栏/命令式负向词写进正文 | `references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-05I` | 景别、镜头视角、景深/焦点、镜头类型或构图变化随机，无法回指节拍、空间、信息、情绪或连续性交接 | `references/cinematic-technique-library.md`、`steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` |
 | `FAIL-CINE-05K` | 场景变化没有交出点/进入提示，或把组间/跨场景创意转场方案落在 `5-摄影` | `references/transition-design-contract.md`、`references/shot-continuity-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
@@ -99,6 +102,10 @@
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
 | `FAIL-CINE-05P` | 场景视觉约束缺失或未被消费：场景未形成内部 `scene_visual_constraint`，或构图布局/构图方式/光源/色彩/摄影技术参数未作为内部约束被下游分镜明细消费 | `references/scene-visual-constraint-contract.md`、`references/cinematic-technique-library.md`、`steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05Q` | 分镜明细维度覆盖问题：画面中存在角色表演/陪体动态/前景动态/光影反射/动态焦点/节奏同步等信息却未被摄影机表达，或维度以标签形式输出而非融入自然中文，或为凑数虚构画面中不存在的信息 | `references/shot-detail-dimension-contract.md`、`references/functional-cinematic-projection-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
+| `FAIL-CINE-19A` | 跨分镜组或跨镜头切换时动作锚点断裂，人物姿态、位置或身体接触状态在下一镜凭空变化 | `references/shot-continuity-contract.md#Action-Anchor-Inheritance`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-19B` | 眼睛特写没有限定正面双眼/正面上半脸，容易生成单眼侧面或畸形五官 | `references/ai-video-prompt-execution-contract.md#Eye-Close-up-Rule`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
+| `FAIL-CINE-19C` | 抽象情绪词直接进入分镜明细，未转译为面部肌肉、呼吸、手部、身体姿态或视线变化 | `references/ai-video-prompt-execution-contract.md#Performance-Microdynamic-Rule`、`references/natural-shot-detail-writing-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
+| `FAIL-CINE-19D` | 人物情绪剧烈变化时节奏过快，缺少慢镜头、正面近景/特写或多角度正面切换承托 | `references/ai-video-prompt-execution-contract.md#Psychological-Intensity-Slowdown-Rule`、`references/shot-duration-decision-contract.md`、`steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-07` | 启动 subagents 模式时缺少顾问请教、节点同步问题、角色意识/创作风格/专业水准参谋、上下文沉淀或降级说明 | `../../_shared/team-advisor-consultation-contract.md` + `../SKILL.md#Subagents Execution Mechanism` |
 
 ## Review Output
@@ -109,7 +116,7 @@
 - 处理集号。
 - 画面性句子数量。
 - `分镜明细` 块数量。
-- 机械校验结果或人工 review 结果。
+- 机械校验结果与质量 review 结果；机械校验只证明结构有效，不替代本文件的 `GATE-CINE-*` 质量门禁。
 - 画面节奏张弛结果。
 - 镜头时值裁决结果：duration profile、显式秒数抽样、长停顿/快速镜抽样、15 秒组内节奏风险。
 - 对白台词量预算结果：对白/旁白承托画面数量、台词量下限抽样、跨镜延续说明。
@@ -121,6 +128,7 @@
 - 边界交出检查结果：场景变化交出点/进入提示、可见交出锚点，以及是否未在本阶段落盘创意转场方案。
 - 摄影语法变化检查结果：景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化。
 - 功能性影视投影与 AIGC 下游可消费性检查结果。
+- 源句复述扣除测试结果：抽样说明候选分镜是否脱离“画面内容拆写/复述”，以及因 `FAIL-CINE-05R` 修复的行号或字段标签。
 - AI 视频执行稳定性检查结果：镜头先行、方向参照、光线结果、表演微动态、提示词模板腔和命令式负向词风险。
 - 顾问请教 roster 来源、问题类型、可执行指导或降级说明。
 - 镜头连续性、空间一致性和风格一致性结果。

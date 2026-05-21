@@ -89,6 +89,38 @@ description: "Use when routing creative work to team perspective skills or multi
 | `deep_read_set` | child | 真正进入子技能深读的集合 | 只允许读取 shortlist 命中的子技能 |
 | `lineup_rationale` | root + child | 说明为何选这些人、不选另一些人 | 必须能回溯到部门覆盖与场景适配 |
 
+### Supervision Runtime Packet Fields
+
+本节供 AIGC 项目 `team.yaml.roles.supervision.stage_profiles` 初始化或修复时使用。它只描述监制载入字段，不替代具体阶段技能的 `Subagents Execution Mechanism`。
+
+| field_id | owner | purpose | hard_rule |
+| --- | --- | --- | --- |
+| `supervision_stage` | root + AIGC stage | 锁定当前消费监制的阶段，如 `2-编剧`、`3-导演`、`4-表演`、`5-摄影`、`7-设计` | 必须使用项目 runtime 阶段名，不得写成模糊的 production |
+| `stage_profile` | `team.yaml` | 保存该阶段的 `members/members_ref`、`preferred_departments`、`focus_tags`、`question_binding` 与 `dispatch_policy` | 阶段专属 profile 优先于通用 `roles.supervision.members` |
+| `roster_resolution_order` | shared AIGC contract | 说明从阶段 profile 到旧字段的回退顺序 | 不得跳过 `team/SKILL.md + CONTEXT.md` 直接全树扫描 |
+| `advisor_focus_tags` | root + stage | 将成员能力转成阶段问题焦点 | 必须服务阶段节点判断，不写泛风格标签 |
+| `node_binding` | stage | 说明顾问问题绑定 `node_id / pass_id / gate_id` 还是 leaf 节点 | 不得退化为固定字段问卷 |
+| `dispatch_policy` | stage | 区分 `stage-front-advisor`、`leaf-advisor`、`review-advisor` 或禁用 | subagents 只给顾问意见，不拥有 canonical 写回权 |
+| `downgrade_policy` | stage | 记录真实 subagent 被阻断时的报告字段 | 不得把主 agent 本地顺序综合写成真实 dispatch |
+
+推荐字段形态：
+
+```yaml
+roles:
+  supervision:
+    stage_profiles:
+      "5-摄影":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments: ["摄影组", "导演组", "设计组", "美学组"]
+        focus_tags: ["shot-design", "continuity", "ai-video-stability"]
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+```
+
+若旧项目只有 `roles.production`、`roles.supervising` 或平铺 `team_setup.shared_agents`，可作为兼容回退读取；新初始化和重构时必须写入 `roles.supervision.stage_profiles`，让各阶段不再自行猜测监制载入含义。
+
 ## Member And Scenario Index
 
 本节是 team 根目录的直接可读成员索引，供自动配队先做粗筛。

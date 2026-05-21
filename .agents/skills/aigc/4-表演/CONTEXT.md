@@ -19,14 +19,15 @@
 | --- | --- | --- | --- | --- |
 | 心理反应写成传统小说内心或抽象想象 | 字段语义层 | 改成有主体的身体微动作、表情、呼吸、停顿、声线变化、道具停点、空间距离、对手不接话或短促可听独白；纯语言化内容改入 `独白/内心独白` 并配画面 | `references/psychological-reaction-contract.md` 固定 `Psychological Reaction Contract`，workflow 建立 `psychological_reaction_getability_map / psychological_reaction_evidence`，review 把 `心理反应` 纳入具像化和创作证据门禁 | `心理反应` 离开字段标题仍能被演员表演、下游工具解析、观众从声画中感知 |
 | 角色演技停留在情绪标签或模板化表情 | 表演控制层 | 回到 `actor_performance_control_pass`，为关键情绪 beat 补上游触发点、表层/压制/隐藏动机、微表情、身体联动、环境声或沉默余波、微动态限制 | `references/actor-performance-control-contract.md` 固定五层表演系统，workflow 建立 `actor_performance_control_plan / actor_performance_control_evidence`，review 检查情绪标签空转和过演风险 | 输出不再只写"愤怒/难过/紧张"或皱眉瞪眼流泪，能从眉眼嘴、手、呼吸、声线、道具和环境声看出演技 |
-| 心理潜台词权力关系仍写成解释句 | 表演工艺层 | 回到 `N4.7-CRAFT`，把"想什么/关系如何变化"转成目标、阻碍、策略、停顿、视线、身体距离、道具动作或场面调度 | `performance-and-scene-craft-contract.md` 固定 `scene_turn_pass` 与 actor task rule | `表演提示` 可执行，`场面调度` 可见，画面字段不再写心理结论 |
-| 表演提示在场景末尾总结式列出 | 终稿投影层 | 回到 `N4.7-CRAFT` 的 `integration_targets`，把目标、阻碍、权力关系和视线焦点拆入对应对白画面、角色动作、环境、道具、群像和声音字段 | `performance-and-scene-craft-contract.md` 固定 planning maps 只作为规划证据，不作为终稿总结块 | 场景末尾没有 `表演提示/场面调度` 总结块，相关细节已出现在对应 beat |
+| 心理潜台词权力关系仍写成解释句 | 表演工艺层 | 回到 `N5-PERF-SCENE-CRAFT`，把"想什么/关系如何变化"转成目标、阻碍、策略、停顿、视线、身体距离、道具动作或场面调度 | `performance-and-scene-craft-contract.md` 固定 `scene_turn_pass` 与 actor task rule | `表演提示` 可执行，`场面调度` 可见，画面字段不再写心理结论 |
+| 表演提示在场景末尾总结式列出 | 终稿投影层 | 回到 `N5-PERF-SCENE-CRAFT` 与 `N6-PERF-BLOCKING` 的 `integration_targets`，把目标、阻碍、权力关系和视线焦点拆入对应对白画面、角色动作、环境、道具、群像和声音字段 | `performance-and-scene-craft-contract.md` 固定 planning maps 只作为规划证据，不作为终稿总结块 | 场景末尾没有 `表演提示/场面调度` 总结块，相关细节已出现在对应 beat |
 | 场面调度越权成摄影方案 | 阶段边界层 | 删除机位、景别、镜头运动、分镜编号，改写为人物站坐、高低、远近、道具归属和视线方向 | `4-表演` 只写导演/演员可执行调度，摄影方案交给 `3-摄影` | 输出无 `分镜明细预设`、机位、景别或分镜编号 |
 | 潜台词或转场反复写成看向远方 | 表演变量单一层 | 把第二次及以后出现的"避开对方 / 看向远方 / 顺着视线望去"改成道具状态、声音桥、群像反应、身体距离、动作中断、空间阻隔或环境刷新 | `performance-and-scene-craft-contract.md` 固定 `Transition And Subtext Variety Rule`，`field-routing` 增加转场承托选择池 | 同一场景的未出口信息和下一场压力不连续依赖同一种视线动作 |
 | 主角内心想法被删掉或改成客观概括 | 主观视角层 | 把主角视角下对他人行为的判断、怀疑和解读改入 `内心独白（主角）`，并补 `内心独白画面` 承托当前可见证据 | `psychological-reaction` 与 `novel-to-screen` 固定 `protagonist_inner_voice_evidence`，review 检查 `third_person_pov_judgment` | 主角内心没有丢失，且没有写成"她在试探他"这类客观第三方总结 |
 | 主角内心独白仍使用小说第三人称自指 | 主观声音人称层 | 将 `内心独白（主角）` 引号内指代主角自身的"他/她/其/角色名"改为"我/我的/自己"或角色当下自然口吻；`内心独白画面` 保留第三人称可拍描述 | `psychological-reaction`、`novel-to-screen`、`SKILL.md` Completion gate 固定 inner voice person check；review 检查 `inner_voice_person_consistency` | 内心独白读起来像角色本人正在想，而不是第三人称旁白；保留的第三人称均指向其他角色、引用文本或有自我疏离留证 |
 | 动作字段混入主观预判或心理意图 | 动作纯度层 | 删除"试图、想要、打算、意图、为了掩饰"等词，改成手、眼、呼吸、停顿、声线、重心、道具和空间运动 | `field-routing` 固定 `Action Field Dynamics` 与 `objective_action_purity_map`，validator 机械拦截高频词 | `角色动作` / `动作画面` 离开解释仍能被镜头实拍 |
 | 主观情绪感受直接写进终稿 | 情绪投影层 | 把"感到恶心/难受/愤怒"等转成微表情、肢体动作、生理反应、声线变化或主角内心独白 | `psychological-reaction` 固定 `subjective_emotion_projection_map`，review 检查 direct emotion label | 终稿能看到喉头、嘴角、指节、呼吸、停顿或内心独白，而不是心理标签 |
+| 启用 subagents 时跳过表演监制顾问请教 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."4-表演"` 与共享团队顾问合同，按当前 `PASS-PERF-*` / `N*-PERF-*` 节点派生问题 | `steps/directing-workflow.md` 固定 `N6.5-PERF-ADVISOR`，review 检查 `advisor_consultation_packet` 或降级报告 | 执行报告能看到 roster 来源、节点锚点、角色视角、可执行指导和阻断降级 |
 
 ## Repair Playbook
 
@@ -41,6 +42,7 @@
 8.0. 检查内心独白人称：`内心独白（主角）` 引号内若承接第三人称小说叙述，主角自指必须改为第一人称；只在第三人称指向其他角色、引用文本或刻意自我疏离并留证时保留。`内心独白画面` 不按此规则改成第一人称。
 8.1. 检查动作客观性：`角色动作` / `动作画面` 中出现"试图、想要、打算、意图、为了掩饰、准备借此"时，删除主观意图词，改成可拍动作、神态、语气、生理反应或空间运动。
 8.2. 检查直接情绪词：`感到恶心/难受/愤怒/害怕/崩溃` 不直接进终稿，改成微表情、肢体动作、生理反应、声线变化或主角内心独白。
+8.3. 若启用 subagents，检查 `advisor_consultation_packet` 是否来自 `team.yaml.roles.supervision.stage_profiles."4-表演"` 或共享合同回退路径，且顾问问题绑定当前表演节点；没有真实 dispatch 时必须有降级报告。
 9. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断或回源层。
 
 ## Reusable Heuristics
@@ -60,3 +62,4 @@
 - 动作字段是镜头事实，不是动机说明书；"试图/想要/打算/意图"通常说明写作者还没有找到可拍外显，应回到手、眼、呼吸、停顿、声线、重心和道具。
 - 直接情绪词是草稿信号，不是终稿画面；恶心可以是喉头、嘴角和手背，愤怒可以是指节、下颌和停顿，难受可以是呼吸和重心。
 - 每场戏最好有状态差；若没有大转折，也应明确这一场承接了什么空间、信息、关系或压力变化。
+- 表演阶段的 subagents 只适合当监制顾问：它们可以指出表演风险、潜台词策略、身体变量和局部 patch，但 canonical 表演稿仍由主 agent 的 LLM 主创写回。

@@ -23,6 +23,16 @@ runtime_policy:
   parent_skill_owns_canonical_writeback: true
   local_imitation_allowed: false
   selector_scope_enforced: true
+  supervision_roster_resolution_order:
+    - "roles.supervision.stage_profiles.<stage>.members"
+    - "roles.supervision.stage_profiles.<stage>.members_ref"
+    - "roles.supervision.stage_bindings.<stage>"
+    - "roles.supervision.members[stage_scope]"
+    - "roles.supervision.members"
+    - "roles.supervising.*"
+    - "roles.production.*"
+    - "team_setup.shared_agents"
+    - "roles.planning.members"
 
 team_setup:
   role_allocation_mode: "" # overlap | separated | overlap_allowed_separated_by_function
@@ -53,6 +63,7 @@ roles:
       direct_answer_packet_ref: ""
       packet_refs: []
   supervision:
+    label: "监制"
     owner_phases:
       - "2-编剧"
       - "3-导演"
@@ -63,6 +74,89 @@ roles:
     members_ref: "roles.planning.members"
     members: []
     boundary: "提供阶段前顾问判断，不替代阶段 canonical writeback。"
+    stage_profiles:
+      "2-编剧":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments:
+          - "编剧组"
+          - "导演组"
+          - "演员组"
+          - "摄影组"
+        focus_tags:
+          - "structure"
+          - "dialogue"
+          - "faithfulness"
+          - "field-routing"
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "3-导演":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments:
+          - "导演组"
+          - "编剧组"
+          - "摄影组"
+          - "美学组"
+        focus_tags:
+          - "dramatic-substance"
+          - "visual-spine"
+          - "climax"
+          - "atmosphere"
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "4-表演":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments:
+          - "演员组"
+          - "导演组"
+          - "编剧组"
+          - "摄影组"
+        focus_tags:
+          - "actor-control"
+          - "subtext"
+          - "blocking"
+          - "silence-reaction"
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "5-摄影":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments:
+          - "摄影组"
+          - "导演组"
+          - "设计组"
+          - "美学组"
+        focus_tags:
+          - "shot-design"
+          - "continuity"
+          - "ai-video-stability"
+          - "visual-rhythm"
+        question_binding: "pass_node_gate"
+        dispatch_policy: "stage-front-advisor"
+      "7-设计":
+        enabled: true
+        members_ref: "roles.planning.members"
+        members: []
+        preferred_departments:
+          - "设计组"
+          - "服装组"
+          - "美学组"
+          - "摄影组"
+          - "导演组"
+        focus_tags:
+          - "material-system"
+          - "character-scene-prop"
+          - "prompt-readiness"
+          - "style-continuity"
+        question_binding: "leaf_node_gate"
+        dispatch_policy: "leaf-advisor"
+    stage_bindings: {}
   review:
     owner_phases:
       - "8-图像"

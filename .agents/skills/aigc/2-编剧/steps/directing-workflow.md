@@ -74,6 +74,22 @@ thinking_action_node_ledger:
 - 若新增或显著修改了学习型合同，必须在本轮执行报告中加入 `learning_integration_review_evidence`。
 - 若本轮没有真实项目剧集可运行，允许在 `learning_integration_review_evidence.status` 标注 `static_only`，但不得把它写成 fully verified。
 
+## PASS-SCRIPT Definitions
+
+Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件顾问节点，不单独占用 `PASS-SCRIPT-*` 编号。启用 subagents 时，顾问节点必须绑定当前活跃 pass、对应 node 和 review gate。
+
+| pass_id | owner node | judgment | required evidence | fail route |
+| --- | --- | --- | --- | --- |
+| `PASS-SCRIPT-01` | `N1-INTAKE` | 上游逐集正文、项目记忆、目标集号和加载边界是否锁定 | `source_episode_path`、`reference_load_manifest` | `N1-INTAKE` |
+| `PASS-SCRIPT-02` | `N2-TYPE` / `N3-SCENE` | 类型画像是否服务保真改编，slugline 和场景顺序是否稳定 | `type_profile`、`route_flags`、`scene_slugline_table`、`scene_order_trace` | `N2-TYPE` / `N3-SCENE` |
+| `PASS-SCRIPT-03` | `N4-FIELD` | 字段分流、对白冻结、声画配对和具像化预检是否成立 | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map` | `N4-FIELD` |
+| `PASS-SCRIPT-04` | `N4.2-NOVEL-TRANSFORM` | 小说式表述是否完成二次画面化，主角内心独白是否第一人称化 | `novel_expression_transform_evidence`、`expression_type_map`、`protagonist_pov_judgment_map` | `N4.2-NOVEL-TRANSFORM` |
+| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段是否客观可拍，主观意图词和直接情绪词是否已转译 | `objective_action_purity_map`、`objective_action_purity_evidence` | `N4-FIELD` |
+| `PASS-SCRIPT-06` | `N4-FIELD` | `环境描写` 是否只承载场景写景材料，必要环境刷新是否就近落入正文 | `environment_purity_map`、`environment_refresh_map`、`environment_purity_evidence` | `N4-FIELD` |
+| `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | LLM 剧本投影是否保真、冻结对白并内嵌全部前序证据 | `faithful_projection_trace`、candidate `第N集.md` | `N5-SCRIPT-DRAFT` |
+| `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | review gate、节点 ledger 和输出路径是否完整 | `review_result`、`thinking_action_node_ledger`、`gate_to_node_repair_map` | `N6-SCRIPT-REVIEW` |
+| `PASS-SCRIPT-09` | `N6R-SCRIPT-REPAIR` / `N6R-REVIEW-AGAIN` / `N7-SCRIPT-WRITEBACK` | 阻断项是否已最小修复并复审通过，canonical 写回是否安全 | `repair actions`、`re-review verdict`、final path | `N6R-SCRIPT-REPAIR` 或最早责任节点 |
+
 ## Thinking-Action Nodes
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
@@ -82,8 +98,9 @@ thinking_action_node_ledger:
 | `N2-TYPE` | 形成 `type_profile` 与节点策略开关 | 上游正文结构、`types/source-to-script-type-map.md` | 判断显式场景/纯小说/系统密集/对白密集/内压密集/单地点多 beat/高点密集等类型，并标记必须增强的 pass | `type_profile`、`route_flags` | `N3-SCENE` | 改编策略不违背保真，类型策略不会变成剧情重写 |
 | `N3-SCENE` | 解析并稳定场景 slugline | 上游段落、type_profile、`references/script-adaptation-contract.md` | 按真实地点/空间范围和日夜建立场景表；同 slugline 去重；只因真实空间/时间变化开新场景 | `scene_slugline_table`、`scene_order_trace` | `N4-FIELD` | 每个场景标题符合 slugline 规则，且场景顺序可回指上游 |
 | `N4-FIELD` | 字段分流、对白冻结、声画配对与具像化预检 | 上游段落、场景表、`references/field-routing-and-audio-visual-contract.md` | 逐段投影为声音字段、画面字段、动作、心理、系统、规则、道具、群像等；建立对白原文清单；对每个声音字段绑定对应画面字段；单独判定 `环境描写` 是否只写场景写景材料；标记同一 slugline 内空间/背景/光线/空气/材质焦点变化是否需要环境刷新；标记动作字段中主观意图词、抽象画面、声音说明和模板/规则占位泄露风险 | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map`、`objective_action_purity_map`、`sound_literal_risk_map`、`environment_purity_map`、`environment_refresh_map`、`placeholder_leak_risk_map` | `N4.2-NOVEL-TRANSFORM` | 字段纯度、对白冻结、声画配对、顺序承接、环境纯度、动作客观可拍和反抽象预检成立；同一场景内环境刷新不被误删；无内部任务说明进入正文 |
-| `N4.2-NOVEL-TRANSFORM` | 小说表述二次画面化 | `field_projection_map`、上游段落、场景表、`dialogue_lock_map`、`references/novel-to-screen-language-contract.md` | 识别作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、体现重复/熟悉/往日常态的总结句、背景说明、因果解释、关系结论、感官散文、回忆/认知补叙和规则说明；为每条高风险表述锁定 `source_function` 与 `screen_strategy`，转为画面、声音、表演、空间、道具、群像、主角内心独白、短旁白或留白；标记无关人物过往、物品来历和回忆性补充并删除；明确对白只冻结不加工 | `novel_expression_transform_evidence`、`expression_type_map`、`screen_strategy_map`、`protagonist_pov_judgment_map`、`habitual_summary_risk_map`、`backstory_expansion_risk_map`、`literal_prose_risk_map` | `N5-SCRIPT-DRAFT` | 小说式表达不得原样进入画面字段；主角视角判断不得写成客观第三方概括；无新增事实、对白、事件、因果、规则、线索、无关前史/物品来历或摄影越权；旁白若保留必须有画面证据承托 |
-| `N5-SCRIPT-DRAFT` | LLM 直出逐集编剧稿 | 场景表、字段映射、对白锁、`novel_expression_transform_evidence`、`advisor_consultation_packet`、上游正文 | 写入 frontmatter、`【剧本正文】`、场景标题和字段化正文；把小说表述转译和顾问上下文拆入对应句段但不改写上游真源或对白；模板占位和内部规则只能指导写作，不得输出到正文 | `第N集.md` 草稿、`faithful_projection_trace` | `N6-SCRIPT-REVIEW` | 小说转译上下文未越权；无第二字段体系，无场景末尾总结块，无占位/规则说明泄露 |
+| `N4.2-NOVEL-TRANSFORM` | 小说表述二次画面化 | `field_projection_map`、上游段落、场景表、`dialogue_lock_map`、`references/novel-to-screen-language-contract.md` | 识别作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、体现重复/熟悉/往日常态的总结句、背景说明、因果解释、关系结论、感官散文、回忆/认知补叙和规则说明；为每条高风险表述锁定 `source_function` 与 `screen_strategy`，转为画面、声音、表演、空间、道具、群像、主角内心独白、短旁白或留白；标记无关人物过往、物品来历和回忆性补充并删除；明确对白只冻结不加工 | `novel_expression_transform_evidence`、`expression_type_map`、`screen_strategy_map`、`protagonist_pov_judgment_map`、`habitual_summary_risk_map`、`backstory_expansion_risk_map`、`literal_prose_risk_map` | `N4.3-ADVISOR`（非 subagents 模式则跳至 `N5-SCRIPT-DRAFT`） | 小说式表达不得原样进入画面字段；主角视角判断不得写成客观第三方概括；无新增事实、对白、事件、因果、规则、线索、无关前史/物品来历或摄影越权；旁白若保留必须有画面证据承托 |
+| `N4.3-ADVISOR` | 项目监制顾问请教（subagents 模式） | `team.yaml`、`../_shared/team-advisor-consultation-contract.md`、当前节点上下文 | 按 SKILL.md Subagents Execution Mechanism 解析项目监制 roster；主 agent 把当前节点、`pass_id`、相关 review gate 和目标集上下文转化为顾问任务；顾问代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示；主 agent 综合为 `advisor_consultation_packet` 沉淀进后续 LLM 剧本投影上下文 | `advisor_consultation_packet`、`advisor_routeback_targets` | `N5-SCRIPT-DRAFT`（routeback 时回到最早责任节点） | 顾问任务绑定当前思维·执行节点；上下文沉淀为 `advisor_consultation_packet`；若 routeback 触发，回到 `N3-SCENE`（场景/slugline）、`N4-FIELD`（字段/声画）或 `N4.2-NOVEL-TRANSFORM`（小说转译） |
+| `N5-SCRIPT-DRAFT` | LLM 直出逐集编剧稿 | 场景表、字段映射、对白锁、`novel_expression_transform_evidence`、`advisor_consultation_packet`（如有）、上游正文 | 写入 frontmatter、`【剧本正文】`、场景标题和字段化正文；把小说表述转译和顾问上下文拆入对应句段但不改写上游真源或对白；模板占位和内部规则只能指导写作，不得输出到正文 | `第N集.md` 草稿、`faithful_projection_trace` | `N6-SCRIPT-REVIEW` | 小说转译上下文未越权；无第二字段体系，无场景末尾总结块，无占位/规则说明泄露 |
 | `N6-SCRIPT-REVIEW` | 保真、对白、声画、slugline、小说转译、思维·执行节点与质量门禁 | candidate 草稿、上游正文、`review/review-contract.md`、各节点证据、`thinking_action_node_ledger` | 运行机械校验或人工 review；逐项执行 `GATE-SCRIPT-01..17`；检查每个关键节点是否具备 `judgment_question / actions_taken / evidence_keys / route_out / gate_status / source_owner`；把 finding 映射到最早责任节点和 source owner | 校验结果、问题清单、`thinking_action_node_ledger`、`gate_to_node_repair_map`、repair targets | `N6R-SCRIPT-REPAIR` 或 `N7-SCRIPT-WRITEBACK` | 无阻断项才可写回；质量建议不得掩盖保真、对白、声画、小说转译或节点退化问题 |
 | `N6R-SCRIPT-REPAIR` | 阶段内直接修复阻断项 | `repair targets`、candidate 草稿、上游正文、责任节点证据 | 最小修复字段投影、声画配对、slugline、具像化、声音本体、环境纯度、环境氛围、小说表达转译、主角内心独白人称和格式证据；不改上游事实和对白 | repaired draft、repair actions、updated node evidence | `N6R-REVIEW-AGAIN` | 修复范围不越权；若需要改事实/对白/事件顺序，立即 blocked |
 | `N6R-REVIEW-AGAIN` | 复审修复稿 | repaired draft、上游正文、repair actions、updated node evidence | 复跑阻断 gate；通过则准入写回，失败则回最早责任节点 | re-review verdict、unresolved source owner | `N7-SCRIPT-WRITEBACK` 或 `N3-SCENE` / `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` / `N5-SCRIPT-DRAFT` / `N6R-SCRIPT-REPAIR` | 复审通过或明确阻断 |
@@ -102,7 +119,7 @@ thinking_action_node_ledger:
 - 若 `environment_refresh_map` 发现同一 slugline 内从室内到门廊/室外边界、主厅到角落、桌案到窗边、船舱到船舷，或光线、空气、材质、背景层发生可见变化，但终稿只有开篇环境描写，必须在变化 beat 附近追加新的 `环境描写`。
 - 若 `placeholder_leak_risk_map` 发现字段正文包含内部规则句、模板占位句或任务说明，不得进入 `N5-SCRIPT-DRAFT`；必须改成具体剧本文字或删除。
 - 字段分流后必须进入 `N4.2-NOVEL-TRANSFORM`；若上游存在作者评论、主角视角判断、心理内视、直接情绪感受、文学比喻、抽象概括、往日常态句、背景说明、因果解释或关系结论，必须形成 `novel_expression_transform_evidence`，且不能改写或新增对白，不能新增无关过往、物品来历或回忆性补充。
-- `N4.2-NOVEL-TRANSFORM` 完成后直接进入 `N5-SCRIPT-DRAFT`；编剧阶段不做导演创作内核提炼（归属 `3-导演`）。
+- `N4.2-NOVEL-TRANSFORM` 完成后默认进入 `N5-SCRIPT-DRAFT`；若用户要求或 subagents 模式启动，必须先进入 `N4.3-ADVISOR`。编剧阶段不做导演创作内核提炼（归属 `3-导演`）。
 - 若用户要求或 subagents 模式启动，`N4.3-ADVISOR` 必须在 `N5-SCRIPT-DRAFT` 前完成；顾问参谋必须绑定当前思维·执行节点并只转化为 `advisor_consultation_packet` 上下文，不直接写正文，不替换上游事实、对白或事件顺序。
 - 若 `N4.3-ADVISOR` 发现前置节点证据不成立，必须产出 `advisor_routeback_targets` 并回到最早责任节点：场景/slugline 问题回 `N3-SCENE`，字段分流或声画配对问题回 `N4-FIELD`，小说表述直译问题回 `N4.2-NOVEL-TRANSFORM`；回修后重新进入 `N4.3-ADVISOR` 汇流。
 - 若任一关键节点无法在 `thinking_action_node_ledger` 中说明 `judgment_question / actions_taken / evidence_keys / route_out / gate_status / source_owner`，不得进入 `N7-SCRIPT-WRITEBACK`；必须回到该节点补判断、动作、证据、路由和 gate。

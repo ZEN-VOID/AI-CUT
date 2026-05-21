@@ -14,7 +14,7 @@ governance_tier: full
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前剧本改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
-- 若本阶段启动 subagents 模式（包含用户显式要求或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，以 `team.yaml` 中明确的监制组相关智能顾问团作为编剧监制；主 agent 必须把顾问请教绑定到当前 workflow 节点、`Thought Pass Map`、review gate 和目标集上下文，要求顾问代入各自角色意识、创作风格与专业水准参与节点判断、执行取舍、证据补强和风险提示，并在 LLM 剧本投影前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
+- 若本阶段启动 subagents 模式（包含用户显式要求或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，优先解析 `roles.supervision.stage_profiles."2-编剧"` 作为编剧监制载入 profile，再按共享合同回退旧字段；主 agent 必须把顾问请教绑定到当前 workflow 节点、`Thought Pass Map`、review gate 和目标集上下文，要求顾问代入各自角色意识、创作风格与专业水准参与节点判断、执行取舍、证据补强和风险提示，并在 LLM 剧本投影前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
 - 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
@@ -139,7 +139,7 @@ Reject or clarify when:
 固定执行语义：
 
 1. `N5-SCRIPT-DRAFT` 产物先视为 `candidate_script`，不是终稿。
-2. `N6-SCRIPT-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、环境字段纯化、小说表述二次画面化、主角内心独白人称转换、动作客观性、主观情绪转译、LMM-first 边界、占位泄露、声音本体、具像化、环境氛围承托和小说表达转译。
+2. `N6-SCRIPT-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、环境字段纯化、小说表述二次画面化、主角内心独白人称转换、动作客观性、主观情绪转译、LLM-first 边界、占位泄露、声音本体、具像化、环境氛围承托和小说表达转译。
 3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N6R-SCRIPT-REPAIR`，只修字段投影、可拍性、声画承托、slugline、具像化、声音本体、环境纯度、环境氛围、小说表达转译、主角内心独白人称和格式证据；不得改写上游剧情事实、对白和事件顺序。
 4. 修复后必须执行 `N6R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限阻断时输出阻断报告，不得把失败稿推进下游。
 5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
@@ -149,7 +149,7 @@ Reject or clarify when:
 
 当 `2-编剧` 启动 subagents 模式时，执行语义固定为"项目监制顾问团请教 -> 编剧参谋汇流 -> 上下文沉淀 -> 后续编剧任务消费"，而不是让 subagents 直接主创或改写 canonical 编剧稿。
 
-1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 解析监制组相关智能顾问团；优先使用 `roles.supervision.members`、`roles.supervising.members` 或其引用成员，必要时才按共享合同补位并记录原因。
+1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 的 `Team Roster Resolution` 解析编剧阶段监制 roster；优先使用 `roles.supervision.stage_profiles."2-编剧".members / members_ref`，再按共享合同回退到通用 `roles.supervision.members`、旧 `roles.supervising.*`、旧 `roles.production.*`、`team_setup.shared_agents` 或 `roles.planning.members`，必要时才按 team 根索引动态补位并记录原因。
 2. 被启动的 subagents 作为编剧监制顾问运行：围绕当前集上游正文、项目 `MEMORY.md`、相关 `CONTEXT/`、类型策略、本文件 `Thought Pass Map` 中对应 `pass_id`、以及 `review/review-contract.md` 中相关 `gate_id`，代入各自角色意识、创作风格与专业水准进行参谋。
 3. 顾问问题不得固定为预设字段清单；主 agent 必须从当前技能包本身的思维·执行节点派生问题，让顾问参与该节点的判断、动作、证据、route_out、gate 和失败回路设计。顾问可以提出节点级执行建议、风险提示、取舍理由或局部 patch，但不得绕过节点网络直接主创终稿。
 4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `advisor_consultation_packet.must_do / must_not_do / inspiration_to_use / execution_brief`，并保留 `node_ref / pass_ref / gate_ref / role_lens` 等来源锚点，作为 LLM 剧本投影、阶段内修复和复审的额外上下文继续执行后续任务。
@@ -183,7 +183,7 @@ Reject or clarify when:
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
 | `PASS-SCRIPT-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、CONTEXT | 是否具备可承接逐集正文与目标集号 | `input_lock` |
-| `PASS-SCRIPT-02` | 场景解析 | 上游正文与场景线索 | slugline、场景编号和场景顺序是否稳定 | `scene_map` |
+| `PASS-SCRIPT-02` | 类型路由与场景解析 | 上游正文结构、场景线索、`types/source-to-script-type-map.md` | 改编类型画像是否成立，slugline、场景编号和场景顺序是否稳定 | `type_profile`、`scene_map` |
 | `PASS-SCRIPT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
 | `PASS-SCRIPT-04` | 小说表述二次画面化 | `field_routing_plan`、上游小说段落、对白锁 | 是否把作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论转成可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白，且不改对白、不补无关前史；主角内心独白人称是否已转成第一人称 | `novel_expression_transform_evidence` / `protagonist_inner_voice_evidence` |
 | `PASS-SCRIPT-05` | 动作客观性审查 | `field_routing_plan`、`novel_expression_transform_evidence` | `角色动作` / `动作画面` 是否只写客观可拍文本；"试图/想要/打算/意图"等主观意图词是否已清除；直接情绪感受是否已转成微表情、肢体动作、生理反应或内心独白 | `objective_action_purity_evidence` |
@@ -205,6 +205,22 @@ Reject or clarify when:
 | `PASS-SCRIPT-07` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | `FAIL-SCRIPT-03` | `references/script-adaptation-contract.md` |
 | `PASS-SCRIPT-08` | 输出路径、执行报告、review gate 齐全 | `FAIL-SCRIPT-07` | `review/review-contract.md` |
 | `PASS-SCRIPT-09` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-SCRIPT-10` | `Stage-End Review-Repair Contract` |
+
+## Pass-to-Node Mapping Table
+
+Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件顾问执行节点，不新增 `PASS-SCRIPT-*` 编号。启用 subagents 时，它以当前活跃 pass 和最早责任节点为锚点汇流顾问意见。
+
+| pass_id | node_id | pass_standard | evidence_consumed | output_evidence |
+| --- | --- | --- | --- | --- |
+| `PASS-SCRIPT-01` | `N1-INTAKE` | 上游逐集正文、项目记忆和目标集号明确 | 上游分集稿、项目 MEMORY.md、相关 CONTEXT/ | `source_episode_path`、`reference_load_manifest` |
+| `PASS-SCRIPT-02` | `N2-TYPE` / `N3-SCENE` | 类型画像与场景标题同时稳定；类型策略不改变保真，slugline 不漂移 | `types/source-to-script-type-map.md`、上游正文结构、场景线索、`references/script-adaptation-contract.md` | `type_profile`、`route_flags`、`scene_slugline_table`、`scene_order_trace` |
+| `PASS-SCRIPT-03` | `N4-FIELD` | 声画字段分流纯净且就近配对 | 上游段落、场景表、`references/field-routing-and-audio-visual-contract.md` | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map` |
+| `PASS-SCRIPT-04` | `N4.2-NOVEL-TRANSFORM` | 小说式表述已二次画面化；主角内心独白人称已转成第一人称 | `field_projection_map`、上游段落、`references/novel-to-screen-language-contract.md` | `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` |
+| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段客观可拍；无主观意图词；直接情绪感受已转成可感知反应 | `field_projection_map`、`novel_expression_transform_evidence`、动作字段抽查 | `objective_action_purity_evidence` |
+| `PASS-SCRIPT-06` | `N4-FIELD` | 环境字段纯净，必要环境刷新与氛围承托不新增事件 | 上游段落、场景表、环境字段抽查 | `environment_purity_evidence`、`environment_refresh_map` |
+| `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | 所有上游证据、`advisor_consultation_packet`（如有） | `第N集.md` 草稿、`faithful_projection_trace` |
+| `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | 输出路径、执行报告、review gate 齐全 | candidate 草稿、上游正文、`review/review-contract.md`、`thinking_action_node_ledger` | `review_result`、`gate_to_node_repair_map` |
+| `PASS-SCRIPT-09` | `N6R-SCRIPT-REPAIR` / `N6R-REVIEW-AGAIN` / `N7-SCRIPT-WRITEBACK` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `review_result`、candidate 草稿、修复稿、repair actions | `review_repair_result`、`2-编剧/第N集.md`、`执行报告.md` |
 
 ## GATE-SCRIPT Definitions
 
@@ -250,7 +266,7 @@ Reject or clarify when:
 - 内部任务说明或规则复述泄露到终稿字段正文。
 - 为补足剧本质感新增与当前主线无关的人物过往背景、物品来历或回忆性信息。
 - 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
-- 输出写到 `2-编导` 或其他平行目录，绕过 `projects/aigc/<项目名>/2-编剧/第N集.md`。
+- 输出写到旧合并阶段目录或其他平行目录，绕过 `projects/aigc/<项目名>/2-编剧/第N集.md`。
 - 启动 subagents 模式时跳过 `team.yaml` 监制顾问请教、把顾问问题固定成脱离当前节点的题型清单、没有把节点级参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问当成真实 dispatch。
 - review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
 
@@ -312,7 +328,7 @@ flowchart TD
 - 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
 - 小说表述二次画面化以 `references/novel-to-screen-language-contract.md` 为准；作者评论、心理内视、比喻象征、概括叙述、背景说明、因果解释和关系结论必须先判叙事功能再转成可拍声画、表演、空间、道具、群像、短旁白或留白，且不得改写引号内对白。
 - 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
-- 当启动 subagents 模式时，先按共享团队顾问合同解析 `team.yaml` 中明确的监制组相关智能顾问团，再把当前节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 剧本投影、阶段内修复和复审上下文。
+- 当启动 subagents 模式时，先按共享团队顾问合同解析 `team.yaml.roles.supervision.stage_profiles."2-编剧"` 或共享回退路径，再把当前节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 剧本投影、阶段内修复和复审上下文。
 - 顾问意见不得替代上游逐集正文、对白冻结、场景顺序或编剧主真源；若真实 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员。
 - 候选稿不得跳过阶段末 review-repair 闭环直接成为终稿；review 发现阻断项时，必须在本阶段直接最小修复并复审，或明确阻断源层。
 - `角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气、生理反应和空间运动；不得写"试图、想要、打算、意图"等主观预判或心理意图。

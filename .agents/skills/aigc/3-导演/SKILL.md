@@ -18,7 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml` 与 `team.yaml`，再按需加载项目根 `CONTEXT/` 中与导演创作判断、视觉风格、氛围基调或类型气质相关的上下文文件。
-- 若本阶段启动 subagents 模式（包含用户显式要求或仓库合同视为默认启用），必须读取 `../_shared/team-advisor-consultation-contract.md`，以 `team.yaml` 中明确的监制组相关智能顾问团作为导演监制；主 agent 必须基于本技能当前 `Thought Pass Map`、`steps/director-workflow.md` 节点、目标集上下文和当前导演判断阶段动态派生顾问问题，要求顾问代入其角色意识、创作风格和专业水准参与节点判断、执行取舍与 gate 风险提示，并在 LLM 导演判断注入前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
+- 若本阶段启动 subagents 模式（包含用户显式要求或仓库合同视为默认启用），必须读取 `../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."3-导演"` 作为导演监制载入 profile，再按共享合同回退旧字段；主 agent 必须基于本技能当前 `Thought Pass Map`、`steps/directing-workflow.md` 节点、目标集上下文和当前导演判断阶段动态派生顾问问题，要求顾问代入其角色意识、创作风格和专业水准参与节点判断、执行取舍与 gate 风险提示，并在 LLM 导演判断注入前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
 - 上游正文真源固定为 `projects/aigc/<项目名>/2-编剧/第N集.md`，除非用户显式指定其他编剧稿文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
@@ -81,7 +81,7 @@ Reject or clarify when:
 
 当 `3-导演` 启动 subagents 模式时，执行语义固定为"项目监制顾问团请教 -> 导演参谋汇流 -> 上下文沉淀 -> 后续导演任务消费"，而不是让 subagents 直接主创或改写 canonical 导演稿。
 
-1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 解析监制组相关智能顾问团；优先使用 `roles.supervision.members`、`roles.supervising.members` 或其引用成员，必要时才按共享合同补位并记录原因。
+1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 的 `Team Roster Resolution` 解析导演阶段监制 roster；优先使用 `roles.supervision.stage_profiles."3-导演".members / members_ref`，再按共享合同回退到通用 `roles.supervision.members`、旧 `roles.supervising.*`、旧 `roles.production.*`、`team_setup.shared_agents` 或 `roles.planning.members`，必要时才按 team 根索引动态补位并记录原因。
 2. 被启动的 subagents 作为导演监制顾问运行：围绕当前集 `2-编剧` 上游正文、项目 `MEMORY.md`、`north_star.yaml`、相关 `CONTEXT/`、本技能的 `PASS-DIR-*` 思维通过点、`N*-DIR-*` 执行节点、review gate 和当前导演判断阶段，代入各自角色意识、创作风格和专业水准提出参谋建议。
 3. 顾问问题不得固定为一组预设字段清单；必须从当前技能包本身的思维·执行节点派生问题，让顾问参与该节点的判断、动作、证据、route_out、gate 和失败回路设计。例如进入戏剧实质时请顾问判断哪些上游隐性压力值得强化，进入高点处理时请顾问判断满足兑现模式和画面密度，进入视觉主轴时请顾问判断母题链和材质弧如何贯穿全集，进入氛围意境时请顾问判断五感通道和意境技法。问题必须能推动当前节点执行，不得停留在泛泛"更有导演感"。
 4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `advisor_consultation_packet.must_do / must_not_do / inspiration_to_use / execution_brief`，并保留必要的 `node_ref / pass_ref / role_lens` 摘要，作为 LLM 导演判断注入、阶段内修复和复审的额外上下文继续执行后续任务。
@@ -92,7 +92,7 @@ Reject or clarify when:
 
 | 场景 | 必读文件 |
 | --- | --- |
-| 任意导演判断任务 | `steps/director-workflow.md`、`references/directorial-authorship-contract.md` |
+| 任意导演判断任务 | `steps/directing-workflow.md`、`references/directorial-authorship-contract.md` |
 | 导演创作阶段启动 subagents 模式 / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`，并按本 `Subagents Execution Mechanism` 执行 |
 | 编导创作内核、戏剧问题、人物压力、观众位置、可拍执行策略 | `references/directorial-authorship-contract.md` |
 | 高潮画面识别、满足兑现模式与重点强化 | `references/climax-visual-treatment-contract.md` |
@@ -104,8 +104,8 @@ Reject or clarify when:
 | 跨集连续性追踪、视觉母题延续、表演弧线、道具状态 | `types/cross-episode-continuity-type-map.md` |
 | 判断终结画面类型与手法 | `types/episode-final-image-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
-| 思维·执行节点 schema、节点 ledger、学习集成验证闭环 | `steps/director-workflow.md#Thinking-Action Node Contract`、`steps/director-workflow.md#Learning Integration Review Closure` |
-| 阶段末审计后直接修复闭环 | 本 `Stage-End Review-Repair Contract`、`steps/director-workflow.md`、`review/review-contract.md` |
+| 思维·执行节点 schema、节点 ledger、学习集成验证闭环 | `steps/directing-workflow.md#Thinking-Action Node Contract`、`steps/directing-workflow.md#Learning Integration Review Closure` |
+| 阶段末审计后直接修复闭环 | 本 `Stage-End Review-Repair Contract`、`steps/directing-workflow.md`、`review/review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-director.template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
 | 可复用经验 | `knowledge-base/directing-heuristics.md` |
@@ -157,7 +157,7 @@ Reject or clarify when:
 - 每集已按 `types/episode-final-image-type-map.md` 形成 `final_image_type_profile`，再按 `references/episode-final-image-contract.md` 建立 `episode_final_image_plan`：终结画面作为迷你彩蛋尾钩，与下一集真实有关联但不剧透，从本集最后的剧情、情绪、视觉母题、道具状态或高点余波丝滑顺延，落入既有字段，不新增正文字段、剧情事实、对白或摄影方案。
 - 若有前集 `3-导演/第N-1集.md` 可读，已按 `types/cross-episode-continuity-type-map.md` 检查跨集连续性：视觉母题延续、材质/色彩弧延续、道具状态延续、空间延续，母题有变化而不机械复读。
 - 启用 `controlled_enrichment` 时，执行报告包含完整 `controlled_enrichment_ledger`，每项有上游锚点、目标字段、用途和 `risk_check`。
-- 启动 subagents 模式时，已按 `team.yaml` 监制组相关智能顾问团形成带 `node_ref / pass_ref / gate_ref / role_lens` 来源锚点的 `advisor_consultation_packet`，并把基于当前思维·执行节点的参谋指导作为后续 LLM 导演判断注入、阶段内修复和复审上下文；若被上层阻断，执行报告已记录降级说明。
+- 启动 subagents 模式时，已按 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径形成带 `node_ref / pass_ref / gate_ref / role_lens` 来源锚点的 `advisor_consultation_packet`，并把基于当前思维·执行节点的参谋指导作为后续 LLM 导演判断注入、阶段内修复和复审上下文；若被上层阻断，执行报告已记录降级说明。
 - 执行报告包含 `thinking_action_node_ledger`、`director_substance_evidence`、`peak_visual_plan`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`visual_aesthetic_evidence.episode_visual_spine`、`visual_aesthetic_evidence.scene_items`、`episode_final_image_evidence` 和 `atmosphere_mood_evidence`；若本轮新增或显著修改学习型合同，还必须包含 `learning_integration_review_evidence`。
 - 已运行等价人工 review 或脚本校验；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
 
@@ -254,7 +254,7 @@ flowchart TD
 | `PASS-DIR-02` | 类型与跨集路由 | `types/episode-final-image-type-map.md`、`types/cross-episode-continuity-type-map.md`、前集 `3-导演/第N-1集.md`、`source_context_profile` | 终结画面类型画像如何？前集可读性、跨集连续性需求如何？ | `final_image_type_profile`、`cross_episode_continuity_profile` |
 | `PASS-DIR-03` | 戏剧实质 | `source_context_profile`、`cross_episode_continuity_profile`、`references/directorial-authorship-contract.md`、上游正文与场景表 | 关键场景是否提炼出戏剧问题、人物压力、观众位置、信息释放和可拍执行策略，而非只做结构/文采处理 | `director_substance_plan` |
 | `PASS-DIR-04` | 高潮画面处理 | `director_substance_plan`、`references/climax-visual-treatment-contract.md`、上游正文 | 是否存在高潮/爽点/高光成分，满足兑现模式是什么，是否需要强化为可拍字段 | `peak_visual_plan` |
-| `PASS-DIR-05` | 顾问请教汇流 | `team.yaml`、共享顾问合同、上游正文、`steps/director-workflow.md`、`Thought Pass Map`、`director_substance_plan` 与相关 review gate | 是否已把当前思维·执行节点转化为顾问任务，并将角色意识、创作风格和专业水准参谋汇流为带节点锚点的可执行上下文 | `advisor_consultation_packet` |
+| `PASS-DIR-05` | 顾问请教汇流 | `team.yaml`、共享顾问合同、上游正文、`steps/directing-workflow.md`、`Thought Pass Map`、`director_substance_plan` 与相关 review gate | 是否已把当前思维·执行节点转化为顾问任务，并将角色意识、创作风格和专业水准参谋汇流为带节点锚点的可执行上下文 | `advisor_consultation_packet` |
 | `PASS-DIR-06` | B 路线受控增强 | `director_substance_plan`、`peak_visual_plan`、`references/controlled-enrichment-contract.md`、上游正文 | 是否需要非剧情性承托新增；每项新增是否有上游锚点和风险检查 | `controlled_enrichment_ledger` |
 | `PASS-DIR-07` | 视觉主轴与画面美学 | `director_substance_plan`、`peak_visual_plan`、`controlled_enrichment_ledger`、`references/episode-visual-spine-contract.md`、`references/visual-aesthetic-contract.md`、`references/atmosphere-and-mood-contract.md`、`cross_episode_continuity_profile`、上游正文 | 是否形成整集视觉主轴、核心画面、视觉气质、母题变化、对比轴、景境氛围、节奏和留白取舍；关键场景是否有多感官意境密度 | `episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence` |
 | `PASS-DIR-08` | 终结画面尾钩 | `final_image_type_profile`、`peak_visual_plan`、`episode_visual_spine`、`visual_aesthetic_plan`、`references/episode-final-image-contract.md`、上游末场、下一集可读上下文或本集局部推断 | 是否形成迷你彩蛋尾钩，既关联下一集又不剧透，并从本集相关内容自然顺延 | `episode_final_image_plan` |
@@ -274,9 +274,25 @@ flowchart TD
 | `PASS-DIR-06` | B 路线新增项只属于非剧情性承托，且有完整 `controlled_enrichment_ledger` | `FAIL-DIR-08` | `references/controlled-enrichment-contract.md` |
 | `PASS-DIR-07` | 整集有视觉主轴；关键场景有视觉核心、画面层级、母题变化、对比轴、景境氛围、留白取舍和多感官意境密度；美学和意境增强不新增事实、对白或摄影方案 | `FAIL-DIR-04` / `FAIL-DIR-05` | `references/episode-visual-spine-contract.md`、`references/visual-aesthetic-contract.md`、`references/atmosphere-and-mood-contract.md` |
 | `PASS-DIR-08` | 终结画面作为迷你彩蛋尾钩，能非剧透地关联下一集，并从本集内容丝滑顺延到最后既有字段 | `FAIL-DIR-06` | `references/episode-final-image-contract.md` |
-| `PASS-DIR-09` | 剧情事实、顺序和对白完整保真，且导演创作判断内嵌到既有字段，未越权到编剧或摄影 | `FAIL-DIR-10` | `steps/director-workflow.md` |
-| `PASS-DIR-10` | 输出路径、执行报告、思维·执行节点 ledger 和 review gate 齐全 | `FAIL-DIR-11` / `FAIL-DIR-15` | `review/review-contract.md`、`steps/director-workflow.md#Thinking-Action Node Contract` |
+| `PASS-DIR-09` | 剧情事实、顺序和对白完整保真，且导演创作判断内嵌到既有字段，未越权到编剧或摄影 | `FAIL-DIR-10` | `steps/directing-workflow.md` |
+| `PASS-DIR-10` | 输出路径、执行报告、思维·执行节点 ledger 和 review gate 齐全 | `FAIL-DIR-11` / `FAIL-DIR-15` | `review/review-contract.md`、`steps/directing-workflow.md#Thinking-Action Node Contract` |
 | `PASS-DIR-11` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-DIR-12` | `Stage-End Review-Repair Contract` |
+
+## Pass-to-Node Mapping Table
+
+| pass_id | node_id | pass_standard | evidence_consumed | output_evidence |
+| --- | --- | --- | --- | --- |
+| `PASS-DIR-01` | `N1-DIR-INTAKE` | 上游逐集编剧稿、项目记忆、north star、team 配置和目标集号明确 | 上游分集稿、项目记忆、north star、team.yaml | `episode_intake_profile` |
+| `PASS-DIR-02` | `N2-DIR-TYPE` | 终结画面类型画像已建立；跨集连续性已检查或标注不适用 | `types/episode-final-image-type-map.md`、`types/cross-episode-continuity-type-map.md`、前集编导稿（如有） | `final_image_type_profile`、`cross_episode_continuity_profile` |
+| `PASS-DIR-03` | `N3-DIR-SUBSTANCE` | 关键场景有导演级创作判断，能把上游原文转成戏剧问题、人物压力、观众位置、信息释放和可拍策略 | `director_substance_plan`、上游原文 | `director_substance_evidence` |
+| `PASS-DIR-04` | `N4-DIR-PEAK` | 上游高点被识别，满足兑现模式明确，且强化不新增事实、对白或因果 | `peak_visual_plan`、上游高点 | `peak_visual_evidence` |
+| `PASS-DIR-05` | `N5-DIR-ADVISOR` | 启动 subagents 模式时完成项目监制顾问请教，且顾问任务同步于当前思维·执行节点、上下文沉淀或记录降级 | `../_shared/team-advisor-consultation-contract.md`、当前节点上下文 | `advisor_consultation_packet` |
+| `PASS-DIR-06` | `N6-DIR-ENRICH` | B 路线新增项只属于非剧情性承托，且有完整 `controlled_enrichment_ledger` | 上游、类型气质、`director_substance_plan` | `controlled_enrichment_ledger` |
+| `PASS-DIR-07` | `N7-DIR-AESTHETIC` | 整集有视觉主轴；关键场景有视觉核心、画面层级、母题变化、对比轴、景境氛围、留白取舍和多感官意境密度 | `episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence` | `visual_aesthetic_evidence` |
+| `PASS-DIR-08` | `N8-DIR-FINAL-IMAGE` | 终结画面作为迷你彩蛋尾钩，能非剧透地关联下一集，并从本集内容丝滑顺延到最后既有字段 | `episode_final_image_plan`、下一集上下文 | `episode_final_image_plan` |
+| `PASS-DIR-09` | `N9-DIR-DRAFT` | 剧情事实、顺序和对白完整保真，且导演创作判断内嵌到既有字段，未越权到编剧或摄影 | 所有上游证据、所有内部规划证据 | `director_episode_script` |
+| `PASS-DIR-10` | `N10-DIR-REVIEW` | 输出路径、执行报告、思维·执行节点 ledger 和 review gate 齐全 | `review_result`、`thinking_action_node_ledger` | `review_result` |
+| `PASS-DIR-11` | `N11-DIR-WRITEBACK` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `review_result`、candidate 导演稿、修复稿 | `review_repair_result` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -313,10 +329,10 @@ flowchart TD
 - `3-导演` 是 `2-编剧` 的导演级创作判断注入层，不得压缩、摘要、删减剧情事实或自由改写剧情因果。
 - 除在既有字段内部增强导演判断内嵌质量外，必须完整承接上游原文信息量、顺序、对白和字段结构。
 - 导演质量不以结构规整或表达漂亮为充分条件；必须按 `references/directorial-authorship-contract.md` 形成 `director_substance_plan`，把上游原文中的戏剧问题、人物压力、观众位置、信息释放和可拍执行策略转成内嵌在正文中的创作干货。
-- 当启动 subagents 模式时，先按共享团队顾问合同解析 `team.yaml` 中明确的监制组相关智能顾问团，再把当前 `steps/director-workflow.md` 的节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 导演判断注入、阶段内修复和复审上下文。
+- 当启动 subagents 模式时，先按共享团队顾问合同解析 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享回退路径，再把当前 `steps/directing-workflow.md` 的节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 导演判断注入、阶段内修复和复审上下文。
 - 顾问意见不得替代上游逐集编剧稿、对白、场景顺序或导演主真源；若真实 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员。
 - 候选稿不得跳过阶段末 review-repair 闭环直接成为终稿；review 发现阻断项时，必须在本阶段直接最小修复并复审，或明确阻断源层。
-- `steps/director-workflow.md` 中的节点必须按思维·执行节点执行：每个关键节点先判断 `judgment_question`，再执行动作，留下 `evidence_keys`，声明 `route_out`、`gate_status` 与 `source_owner`；执行报告以 `thinking_action_node_ledger` 留证。节点不得退化为普通 checklist，也不得只写"已优化/已增强"而没有证据字段和失败回路。
+- `steps/directing-workflow.md` 中的节点必须按思维·执行节点执行：每个关键节点先判断 `judgment_question`，再执行动作，留下 `evidence_keys`，声明 `route_out`、`gate_status` 与 `source_owner`；执行报告以 `thinking_action_node_ledger` 留证。节点不得退化为普通 checklist，也不得只写"已优化/已增强"而没有证据字段和失败回路。
 - 高潮画面处理以 `references/climax-visual-treatment-contract.md` 为准；其职责是识别并强化上游已存在的满足兑现点，不得制造新的事件、对白或因果。
 - 整集视觉主轴以 `references/episode-visual-spine-contract.md` 为准；它组织整集视觉问题、母题链、材质/色彩弧、节奏曲线、呼应目标和克制规则，不替代单场戏剧功能。
 - 单场画面美学以 `references/visual-aesthetic-contract.md` 为准；它只组织核心画面、视觉气质、母题变化、对比轴、景境氛围、画面节奏和留白，不新增字段、摄影方案或剧情事实。

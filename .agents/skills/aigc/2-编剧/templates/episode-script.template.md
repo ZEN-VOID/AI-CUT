@@ -4,9 +4,9 @@
 ---
 项目名: <项目名>
 集数: 第N集
-stage: 2-编导
+stage: 2-编剧
 source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
-output_path: projects/aigc/<项目名>/2-编导/第N集.md
+output_path: projects/aigc/<项目名>/2-编剧/第N集.md
 adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
 audio_visual_pairing: required

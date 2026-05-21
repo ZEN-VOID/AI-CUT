@@ -5,7 +5,7 @@
 ## Default Reviewer Path
 
 - 默认启用真实 subagents / reviewers。
-- 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml` 解析监制 roster，请教角色/服装/美术/摄影/导演相关顾问；顾问问题必须绑定 `steps/character-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标角色上下文和 review gate，形成 `advisor_consultation_packet` 后再进入设计稿汇流。
+- 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径解析监制 roster，请教角色/服装/美术/摄影/导演相关顾问；顾问问题必须绑定 `steps/character-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标角色上下文和 review gate，形成 `advisor_consultation_packet` 后再进入设计稿汇流。
 - 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`ROLE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 - 推荐 reviewer：`character-research-reviewer`、`visual-costume-reviewer`、`cinematography-reviewer`、`prompt-length-reviewer`。
 - 若当前环境无真实 subagent 工具，主 agent 必须报告工具层阻断，并采用本地顺序 checklist 作为降级 review；不得把降级说成真实并行执行。
@@ -27,7 +27,7 @@
 | design_output_contract | 是否逐条检查 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则、字符数、自然语言负向约束和 `--no` 禁用 |
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `ROLE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | fixed_visual | 是否包含 full-body costume fitting photo、solid color background、no scene environment |
-| advisor_consultation | 是否按 `team.yaml` 请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
+| advisor_consultation | 是否按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
 | subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整；是否按 `references/subagent-supervision-contract.md` 留下 supervision 记录 |
 | scope | 是否未修改父级、registry、上游清单或其他 worker 范围 |
 
