@@ -25,6 +25,9 @@
 | 终结画面写成小说式抽象或只有一两个薄镜头 | 终结画面画面纯度层 | 改为 3-6 个可拍 beat 的尾场小段落，用环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向承载意境 | 在 `episode-final-image-contract.md` 固定剧本画面纯度规则：不靠"像/仿佛/象征/意味着"等解释或比喻，不把尾钩压成单句预告 | 最后一组字段能被下游直接分解为画面/声音/表演，不需要读者解释抽象意义 |
 | 氛围感停留在地点标签，缺少五感通感、微观质感和声景层次 | 意境密度层 | 回到 `atmosphere_mood_pass`，按五感氛围框架和意境技法清单为关键情绪场、压迫场、离别场和类型氛围场补意境密度；至少覆盖两个感官通道和一种意境技法 | 在 workflow 固定 `N7-DIR-AESTHETIC` 消费 `atmosphere-and-mood-contract.md`，review 固定 `GATE-DIR-08` | 正文关键氛围场能看到光线纹理、空气湿度、声音质感、气味或时间痕迹中的至少两类感官细节，以及通感、微观放大、反衬、声景层次、延时承托或留白中的至少一种技法 |
 | B 路线被误用成自由新增 | 受控增强边界层 | 删除新增对白、事件、规则、线索、因果或人物动机；只保留有上游锚点的环境、反应、表演、调度、声音、道具和余波承托 | `controlled-enrichment-contract.md` 固定 B/C 分界与 `controlled_enrichment_ledger` | 每个新增项有 `source_anchor`、`target_field`、`purpose`、`risk_check` |
+| 氛围/道具增强抢走人物动作链 | 人物动作链层 | 回到 `action_first_continuity_check`，先锁定人物 entry_state/action_vector/reachable_target/exit_state；删掉无法通过准入的环境或道具细节 | `../_shared/action-first-continuity-contract.md` 固定人物动作链优先，`controlled-enrichment-contract.md` 将 `action_chain_preserved` 纳入 risk_check | 删掉环境/道具细节后人物动作链不会更顺；保留项均有空间定位、互动、信息、规则/证据/危险源或必要交代理由 |
+| 角色在导演稿里缺少活人感行为动机 | 行为动机种子层 | 回到 `director_substance_pass`，补 `lived_in_behavior_seed`：角色当前小事、生活压力/目标/阻碍、下意识反应方向、情绪落点；多人场面补行动者/反应者分工 | `../_shared/lived-in-character-behavior-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-10` | 下游 `4-表演` 不需要凭空给角色找事做；能从导演证据看出角色为什么动、谁行动、谁反应 |
+| 场景只剩地点标签，缺少年代/功能/声光身份 | 场景身份种子层 | 回到 `director_substance_pass`，补 `scene_identity_seed`：年代/空间功能/社会语境/环境声底色/材质光影 | `../_shared/scene-shot-identity-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-11` | 下游 `5-摄影`、`8-图像`、`9-视频` 不需要把同一动作生成到泛化空间里 |
 | subagents 启用时只本地模拟顾问 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径，按共享团队顾问合同真实 dispatch 或写明上层阻断降级 | 把带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet` 固定为 LLM 投影前上下文，不让顾问替代上游真源 | 执行报告可看到 roster 来源、节点锚点、可执行指导或降级说明 |
 | subagents 启用后只得到泛泛审美评价，没有节点级编导参谋 | 顾问问题质量层 | 回到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与 review gate，把 judgment/actions/evidence/route/gate 转化为顾问任务 | 顾问必须代入角色意识、创作风格和专业水准，输出可转成 `must_do / must_not_do / execution_brief` 的节点级参谋指导 | `advisor_consultation_packet` 中每条采纳意见都能回指节点，并改变节点判断、执行取舍、证据补强、风险禁区或后续投影上下文 |
 | 创作规则很强但执行报告无法证明发生过 | 创作证据层 | 补 `director_substance_evidence`、`peak_visual_plan`、`visual_aesthetic_evidence.scene_items` 和 `episode_final_image_evidence`；特例降级必须说明原因 | review 固定 `GATE-DIR-06`，阻断"只有规则文档、没有创作证据"的交付 | 执行报告不仅有 mechanical pass，也能回指关键场景的戏剧问题、高潮画面、视觉主轴、美学组织和终结画面尾钩 |
@@ -38,13 +41,16 @@
 3. 检查上游是否存在高潮/爽点/高光成分；若有，确认 `peak_visual_pass` 已完成：高点有可回指证据、可拍承托、状态差或余波，且没有新增事实、对白或因果。
 4. 若本轮启用 subagents，检查 `advisor_consultation_packet`：roster 来源、节点锚点、采纳指导摘要或降级说明。
 5. 检查关键场景是否有可回指上游的进入状态、压力源、转折点和退出状态。
+5.5. 检查关键人物 beat 是否有活人感行为动机种子：角色当前小事、生活压力/目标/阻碍、下意识反应方向和情绪落点；多人场面是否已说明谁行动、谁反应。
+5.6. 检查关键场景是否有场景身份种子：年代/空间功能/社会语境/环境声底色/材质光影是否可回指上游；若只有“房间/街道/大厅”等地点标签，补 `scene_identity_seed`。
 6. 若本轮启用 `controlled_enrichment`，检查 `controlled_enrichment_ledger`：每个新增项有上游锚点、目标字段、用途和风险检查。
-7. 检查 `episode_visual_spine` 和 `visual_aesthetic_evidence`：整集有视觉主轴，关键场景有核心画面、视觉气质、画面层级、母题变化、对比轴、景境氛围、节奏和留白取舍。
-8. 检查 `atmosphere_mood_evidence`：关键氛围场至少两个感官通道和一种意境技法。
-9. 检查 `episode_final_image_evidence`：终结画面有类型化匹配、尾钩表面、下一集关联方向和剧透边界。
-10. 检查 `thinking_action_node_ledger`：每条记录包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。
-11. 若本轮新增或显著修改学习型合同，检查 `learning_integration_review_evidence`。
-12. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断或回源层。
+7. 对所有景境、道具、声音和受控增强做人物动作链复核：人物起始姿态、行动方向、可达对象和结束状态是否清楚；若删掉某个细节后动作更顺，删除或降级该细节。
+8. 检查 `episode_visual_spine` 和 `visual_aesthetic_evidence`：整集有视觉主轴，关键场景有核心画面、视觉气质、画面层级、母题变化、对比轴、景境氛围、节奏和留白取舍。
+9. 检查 `atmosphere_mood_evidence`：关键氛围场至少两个感官通道和一种意境技法。
+10. 检查 `episode_final_image_evidence`：终结画面有类型化匹配、尾钩表面、下一集关联方向和剧透边界。
+11. 检查 `thinking_action_node_ledger`：每条记录包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。
+12. 若本轮新增或显著修改学习型合同，检查 `learning_integration_review_evidence`。
+13. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断或回源层。
 
 ## Reusable Heuristics
 
@@ -64,6 +70,11 @@
 - 意境技法的核心是"少即是多"：微观放大用一个极小细节承托巨大情绪，留白用静物状态暗示事件，反衬用温暖承托离别。堆砌三个意象不如精准抓住一个。
 - B 路线的价值是补"承托"，不是补"剧情"：环境微细节、群体反应、道具位置、停顿和余波可以新增；对白、桥段、因果、规则和线索不能新增。
 - 判断受控新增是否安全，先问"删掉这项后剧情事实是否完全不变"；如果答案是否定的，它就不是 B 路线。
+- 判断受控新增是否必要，再问"删掉这项后人物动作链是否更顺"；如果答案是肯定的，该细节不是承托，而是在抢行动线。
+- 导演阶段不要把角色留成“等待表演的空人”。关键人物 beat 至少要知道他正在处理哪件场景内小事、被什么压力打断、身体可能先在哪里泄露，以及最后状态落在哪里。
+- 多人戏的导演证据先分清行动者和反应者。下游表演需要的是因果焦点，不是每个人同等强度地做表情和小动作。
+- 场景身份是导演阶段的源层判断，不是摄影阶段才补的参数。同一个“角色走进房间”，年代明确的审问空间、当代私人房间、旧式居民空间会有不同的规则、声音、材质和光线。
+- 声音也有场景身份。用荧光灯嗡鸣、门外闷响、老楼水管声、衣料摩擦这类空间声音，比泛化“紧张 BGM/悲伤音乐”更能给下游稳定基底。
 - 执行报告里的创作证据不是官样文章；它防止 skill 只在文档中有创作力，实际输出仍停留在字段整理。
 - 思维·执行节点的价值在于"判断后执行、执行后留证、失败能回源层"；凡只列动作、不列判断问题、证据、路由和 gate 的节点，都还只是 checklist。
 - 学习资料吸收不能只靠新增 reference；每次把学习成果晋升为合同，都要同时留下真实样例、等价 smoke 或 `static_only` 残余风险说明，避免把静态接入误判为运行稳定。

@@ -2,14 +2,16 @@
 
 ## Purpose
 
-本合同把忠实剧本化投影升级为导演和演员可执行的高质量场景设计。它不授权删减事实、改写对白、重排事件或新增剧情因果；它只规定如何把上游小说中的心理、关系、压力和隐含信息转成可见、可听、可表演的戏剧动作。
+本合同把忠实剧本化投影升级为导演和演员可执行的高质量场景设计。它不授权删减事实、改写对白、重排事件或新增剧情因果；它只规定如何把上游小说中的心理、关系、压力、对白表演和隐含信息转成可见、可听、可表演的戏剧动作。
 
 ## Ownership
 
-- 本文件拥有场景状态差、演员任务、潜台词行为、场面调度、沉默反应和内嵌规则的业务语义。
+- 本文件拥有场景状态差、演员任务、台词表演、潜台词行为、场面调度、沉默反应和内嵌规则的业务语义。
 - `psychological-reaction-contract.md` 提供 `心理反应` 的字段语义和 GETability；本文件消费该细则，把心理变化纳入演员任务和场面调度。
-- `actor-performance-control-contract.md` 提供五层表演控制的微表情、身体联动和环境声变量；本文件负责"角色要达成什么、被什么阻碍、采取什么行为策略"。
+- `actor-performance-control-contract.md` 提供五层表演控制的微表情、身体联动、台词声线/气口/断句和环境声变量；本文件负责"角色要达成什么、被什么阻碍、采取什么行为策略，以及这句对白应该怎么说"。
 - `stanislavski-method-reference.md` 提供注意力集中法、形体动作分析法、演员任务规划法（最高任务→贯穿动作）的技术来源；本文件负责把斯坦尼体系方法落实为 scene_dramatic_map、performance_task_map 和 blocking_power_map 的投影结构。调用路径：形体动作分析法 step_1_拆解具体动作 → 本文件 Scene Turn Pass轴定义 → scene_dramatic_map 输出；演员任务规划法（最高任务→贯穿动作）→ 本文件 Actor Task Rule 规划结构 → performance_task_map 输出。
+- `../../_shared/action-first-continuity-contract.md` 提供人物动作链、空间可达性、情绪动作经济和道具/环境准入总合同；本文件负责把这些约束落到 `角色动作`、`对白画面`、`心理反应`、`内心独白画面`、`道具特写` 和 `场面调度` 的表演写法中。
+- `../../_shared/lived-in-character-behavior-contract.md` 提供角色活人感、当下小事、下意识反应、情绪落点和多人动作-反应分工的共享合同；本文件负责把它落到演员任务、潜台词行为、沉默余波和多人场面表演取舍中。
 
 ## Scene Turn Pass
 
@@ -26,6 +28,68 @@
 
 `scene_turn_pass` 的输出是 `scene_dramatic_map`，供 `N7-PERF-DRAFT` 写作时消费。不得新增 `场景转折说明` 之类解释性字段；转折必须落入既有画面、声音、表演、道具或群像字段。
 
+### scene_dramatic_map Data Structure
+
+```yaml
+scene_dramatic_map:
+  scene_id: ""                    # 场景标识，用于跨 map 引用
+  slugline: ""                    # 场景标题，对应 slugline
+
+  entry_state:
+    spatial: ""                   # 空间状态：位置、光线、道具状态
+    characters: []                 # 人物在场状态和初始位置
+    rules: ""                     # 当前生效的规则/系统状态
+    information: ""                # 信息状态：谁已知/未知什么
+
+  pressure_source:
+    primary: ""                   # 主要压力来源：人/规则/时间/误解/危险
+    visible_anchor: ""             # 可见锚点：道具/文字/声音/动作
+    scope: "individual | group | system"  # 压力范围
+
+  active_want:
+    protagonist: ""               # 主角想要达成什么
+    opponent: ""                  # 对手想要达成什么（如有）
+    group: ""                     # 群体想要达成什么（如适用）
+
+  obstacle:
+    type: "spatial | informational | identity | temporal | relational"
+    protagonist_obstacle: ""      # 主角的阻碍
+    opponent_obstacle: ""        # 对手的阻碍
+
+  turning_point:
+    anchor: ""                    # 转折锚点：上游哪个具体信号
+    type: "information_reveal | rule_activation | trust_shift | power_move | object_transfer | silence_break"
+    source: "dialogue | action | sound | prop_state | group_reaction | system_display"
+    before_state: ""              # 转折前的状态
+    after_state: ""               # 转折后的状态
+
+  exit_state:
+    spatial_change: ""            # 空间/道具状态变化
+    relationship_change: ""        # 关系/信任变化
+    information_change: ""        # 信息状态变化
+    risk_change: ""               # 风险等级变化
+
+  dramatic_question: ""           # 本场留下的戏剧问题
+  carry_forward: ""               # 带入下一场的张力
+
+  field_embedding:
+    # 各轴如何落入既有字段（不得新增解释性字段）
+    entry_state_fields: []
+    turning_point_fields: []
+    exit_state_fields: []
+```
+
+### Scene Turn Pass Execution Notes
+
+| axis | must answer | forbidden |
+|------|-------------|-----------|
+| `entry_state` | 空间/人物/规则/信息的起始状态 | 心理结论、关系总结 |
+| `pressure_source` | 谁/什么在施压，可见锚点是什么 | 抽象氛围词、无锚点解释 |
+| `active_want` | 关键角色想要什么，不是角色"觉得" | 情绪标签、主观判断 |
+| `obstacle` | 为什么不直接说/做 | 主观意图词：试图/想要 |
+| `turning_point` | 哪个具体上游信号改变局面 | 新增事件/对白/因果 |
+| `exit_state` | 和 entry_state 的具体差异 | 关系结论、主题概括 |
+
 ## Integrated Performance Projection Rule
 
 `scene_dramatic_map`、`performance_task_map`、`blocking_power_map` 是编导规划证据，不是终稿可直接倾倒的段落。终稿不得在场景末尾、分镜组末尾或段落末尾用总结式 `表演提示：...`、`场面调度：...` 汇总角色目标、权力关系和空间布局。
@@ -33,6 +97,7 @@
 必须把规划结果拆进对应剧本句段：
 
 - 角色目标、阻碍、策略 -> 拆入该角色的 `对白画面`、`角色动作`、`表情特写`、可感知 `心理反应` 或 `内心独白画面`；`心理反应` 必须像演员表演 beat，不能写心理结论。
+- 每段 `对白（角色，语气/情绪/状态短语）` 必须把台词表演写清楚：字段标题第二项至少包含可执行的语气或情绪状态；`对白画面` 或相邻动作/音效字段必须就近承托气口、断句、停顿、声线、呼吸、重音或收尾方式。不得只有 `对白（角色）`，也不得只写“平静/生气/紧张”这类无法指导演员的空标签。
 - 进入 `角色动作` / `动作画面` 的文本必须只保留镜头可实拍的客观动作、神态、语气、生理反应和空间运动；规划层可以判断目标和阻碍，但终稿动作句不得写“试图、想要、打算、意图”等主观预判或心理意图词。
 - 主角视角下对他人行为的判断 -> 拆入 `内心独白（主角）` 与 `内心独白画面`，或拆成主角观察到的客观证据和主角反应；不得写成全知视角的客观总结。
 - 直接情绪感受 -> 拆入微表情、肢体动作、生理反应、声线变化或主角内心独白，不直接写“感到恶心/难受/愤怒”。
@@ -76,6 +141,117 @@
 ```
 
 若必须保留 `表演提示` 或 `场面调度` 字段，只能作为紧贴具体 beat 的局部执行提示，不得出现在场景/分镜组末尾，也不得写成“角色想要 X，因此用 Y，外显为 Z”的规划摘要。默认优先内嵌到正式画面、动作、道具、声音和反应字段；一旦进入 `角色动作` / `动作画面`，必须删除主观意图词，只留下演员能做、镜头能拍的外部行为。
+
+### Prop Interaction Economy Rule
+
+道具可以承托表演，但不是每个心理、沉默或权力 beat 都需要道具。默认先用人物自身可演变量（眼、嘴、下颌、呼吸、肩颈、手部、重心、身体距离、声线、停顿、对手反应）解决；只有满足以下任一条件时，才把道具写成表演承托或镜头焦点：
+
+- 角色正在触碰、移动、交接、压住、拿起、放下、藏起、展示或避开该道具。
+- 该道具是上游已明确的关键信息、规则显影、证据、危险源、身份标记或剧情因果节点。
+- 当前场景需要一次必要的环境/道具交代，且该交代直接服务空间关系、身份关系或后续动作。
+- 道具状态本身发生上游支持的变化，例如文字改变、屏幕亮起、文件被推过桌线、门被推开。
+
+不满足以上条件时，不得为了“更有电影感”硬加道具镜头、倒影、涟漪、餐具碰撞、杯壁反光、桌面边角、纸张阴影等孤立细节。无互动道具最多作为环境背景被轻写，不能抢走人物动作和表演衔接。尤其禁止为了承托沉默或潜台词，凭空写“人物影子压住某物”“水杯泛起涟漪”“餐具轻响放大停顿”这类会迫使下游摄影改角度、破坏动作连续性的物件反应。
+
+修复原则：如果删掉道具句后人物表演、对白承托和动作衔接更顺，该道具句必须删除；如果道具必须保留，应改写为角色与道具的明确互动，或降级为一次性的环境/信息交代。
+
+### Actor Action Chain And Reachability Rule
+
+表演阶段必须把心理、潜台词、沉默和情绪转成连续的人物动作链，而不是并列堆砌动作或借无互动对象制造“电影感”。
+
+每个关键 beat 写入终稿前，内部必须能回答：
+
+- 人物此刻是站、坐、蹲、躺、靠、俯身还是移动中。
+- 人物相对他人、门口、桌面、床边、墙面、通道等空间锚点处于什么方位。
+- 人物动作向量是什么：靠近、退开、转身、伸手、停住、收回、坐下、起身、保持。
+- 如果人物触碰、取用、查看或避开某对象，该对象是否在可达距离和方向上。
+- 这个 beat 结束后，人物姿态、位置、朝向、身体接触和注意力落点是什么，能否交给下游摄影和分组。
+
+强情绪 beat 默认只保留最能改变状态差的少数外显动作。连续擦泪、抽泣、避视、摸物、整理衣角、听见环境声等动作，只有在形成清楚起点、过程、结果或角色策略变化时才并列保留；否则优先删掉低信息动作，保留呼吸、重心、手部、肩颈、下颌、眼神、声线、停顿等最直接可演变量。
+
+当动作链与道具承托冲突时，动作链优先。若道具没有互动、关键信息、规则/证据/危险源或必要环境功能，不得把人物影子、反射、轻响、涟漪、桌面边缘等物件反应写成表演节点。若必须保留对象，应让人物真正触碰、移动、查看、避开或受其阻碍，并写清可达空间关系。
+
+失败修复：
+
+- `FAIL-ACTION-FIRST-02`：人物与对象空间不可达时，补姿态、方位、距离、遮挡和到达动作；无法补证据则删除互动。
+- `FAIL-ACTION-FIRST-03`：情绪动作堆叠时，收敛为 1-2 个最能表达状态差的动作，其余删掉或合并。
+- `FAIL-ACTION-FIRST-04`：当前 beat 退出状态不能交给下一 beat 时，补结束姿态、朝向、身体接触或注意力落点。
+
+### Lived-In Behavior And Action-Reaction Rule
+
+表演真实感不只来自脸、皮肤、光影、发丝或精细表情，而来自角色像一个正在生活中被压力推着走的人。关键人物 beat 写入终稿前，内部必须消费 `../../_shared/lived-in-character-behavior-contract.md`，判断：
+
+- 角色此刻是否有当前行为任务，而不是只在等待台词或展示情绪。
+- 这个行为是否是场景内成立的小事：来自上游动作、空间任务、角色目标/阻碍或生活压力。
+- 压力进入时，角色是否有下意识反应：呼吸、手指、肩颈、重心、声线、停顿、视线落点或原动作被打断。
+- beat 结束时是否有情绪落点：姿态、距离、手部、注意力、声线或沉默状态能交给下一 beat。
+
+有效写法不是给每个角色随机加“忙动作”。如果小事删掉后人物动作链更顺，或它需要无互动道具/物件镜头才能成立，必须删除或降级。只有当它能承接角色压力、阻碍、场景任务或情绪落点时，才可进入 `角色动作`、`对白画面`、`心理反应` 或 `内心独白画面`。
+
+多人场面必须先定 `action_driver` 和 `reaction_receiver`：一个人行动、说话、靠近、停住或做选择，另一个人被动接住、躲开、迟疑、沉默或改变距离。其余角色只保留必要站位、朝向和低强度背景状态，不让每个人同等强度地皱眉、擦泪、摸物、避视或“演满”。
+
+失败修复：
+
+- `FAIL-LIVED-IN-01`：角色像摆拍或只展示表情时，回到上游压力和空间任务，补一个场景内成立的小事，或明确保持静止但写出情绪落点。
+- `FAIL-LIVED-IN-02`：多人戏人人都在表演时，保留行动者和反应者，其他人降级。
+- `FAIL-LIVED-IN-03`：随机忙动作或无关小事缺少动机时，删除；若保留，必须回指角色目标、阻碍、生活压力和动作链。
+- `FAIL-LIVED-IN-04`：有动作无落点时，补退出姿态、注意力落点、距离变化、身体接触或声线/沉默余波。
+
+## Dialogue Performance Rule
+
+台词不是只需要保真的文本。`4-表演` 必须在不改写引号内对白字词的前提下，为每一段对白补足演员可执行的台词表演信息，让演员知道这句话的语气、情绪、气口、断句和声线控制。
+
+### dialogue_performance_map Data Structure
+
+```yaml
+dialogue_performance_map:
+  scene_id: ""                    # 场景标识
+  beat_id: ""                     # 对白所在 beat
+  dialogue_anchor: ""             # 原对白字段锚点
+  speaker: ""                     # 说话角色
+  source_line: ""                 # 上游原对白，只作锚点，不改写
+  tone_state: ""                  # 语气/状态短语，进入 `对白（角色，...）`
+  emotional_state:
+    surface: ""                   # 表层情绪
+    suppressed: ""                # 被压住的情绪
+    hidden_motive: ""             # 为什么这样说
+  breath_and_pause:
+    breath_point: ""              # 气口：开口前、句中或收尾处如何呼吸
+    pause_pattern: ""             # 停顿/断句位置
+    stress_word_or_phrase: ""     # 重音落点，不改变台词字词
+  delivery_control:
+    volume: ""                    # 音量/压低/放轻/提起
+    pace: ""                      # 语速/节奏
+    ending: ""                    # 尾音收住、拖长、断掉、轻落等
+  paired_performance:
+    face_or_body: ""              # 说话时的微表情或身体联动
+    opponent_reaction: ""         # 对手接不接、如何被影响
+  embedding:
+    dialogue_title: ""            # `对白（角色，语气情绪短语）`
+    paired_fields: []             # `对白画面`、`角色动作`、`音效画面` 等
+```
+
+### Execution Notes
+
+- `对白（角色，状态）` 的第二项必须是可演短语，优先包含语气 + 情绪或控制状态，例如 `压低声音，字字停顿`、`强作轻快，尾音收住`、`气声发紧，先稳住后半句`。
+- 引号内对白必须保真；台词表演只能进入字段标题第二项、`对白画面`、相邻 `角色动作`、`表情特写`、`音效画面` 或执行报告证据。
+- 每段对白至少要有一个明确的台词表演锚点；关键情绪对白需要两个以上锚点，例如语气状态 + 气口断句，或声线变化 + 对手反应。
+- 气口和断句必须服务当前心理/关系压力，不得机械写“停顿半拍”。优先说明停在哪个信息前、哪个词后、为什么收住或断掉。
+- 不新增解释性对白，不把潜台词写进引号内；未出口的信息应通过停顿、改口、声线收束、身体动作或对手反应体现。
+
+弱写法：
+
+```md
+对白（林寂）：“我知道了。”
+对白画面：他说得很紧张。
+```
+
+强写法：
+
+```md
+对白（林寂，压住慌意，后半句放轻）：“我知道了。”
+对白画面：他在“知道”前吸气停住，尾音没有完全落下；指腹仍压着纸角，对面的人没有立刻接话。
+```
 
 ## Subtext To Behavior Rule
 
@@ -133,6 +309,45 @@
 
 `表演提示` 在规划层必须写成演员可执行的任务，而不是角色心理标签；在终稿层应优先拆入对应剧本句段，而不是作为场景末尾总结块。
 
+### performance_task_map Data Structure
+
+```yaml
+performance_task_map:
+  scene_id: ""                    # 场景标识
+
+  character_tasks:
+    - character: ""               # 角色名
+      super_task: ""              # 最高任务（角色在本集/本场中最想达成什么）
+      through_line: ""            # 贯穿动作（为达成最高任务采取的持续行动策略）
+
+      immediate_objectives:
+        - beat_id: ""             # Beat 标识
+          objective: ""           # 即时目标（此刻想从对手那里得到什么）
+          obstacle: ""            # 阻碍（为什么不直接说/做）
+          tactic: ""              # 行为策略（具体采取什么行为）
+          performance_cue: ""      # 外显：眼神/呼吸/停顿/手部/身体距离/声线/道具动作
+
+      emotional_arc:
+        entry_emotion: ""          # 入场情绪
+        turning_point_emotion: ""  # 转折点情绪
+        exit_emotion: ""          # 离场情绪
+
+      embedding:
+        # 规划层结果如何落入既有字段
+        objective_fields: []
+        obstacle_fields: []
+        tactic_fields: []
+        cue_fields: []
+
+  group_dynamics:
+    - group_name: ""              # 群体名称（如"后排学生"）
+      collective_objective: ""    # 群体共同目标
+      individual_variations: []    # 个体差异
+      embedding: []               # 群体行为落入的字段
+```
+
+### Actor Task Rule Execution Notes
+
 推荐结构仅用于规划层，不得原样作为终稿动作句：
 
 ```text
@@ -172,6 +387,47 @@
 
 ```md
 场面调度：苏红叶站在讲台内侧，教鞭横在讲桌边缘；林寂坐在第三排靠窗，课桌和前排同学的肩膀把他半遮住。
+```
+
+### blocking_power_map Data Structure
+
+```yaml
+blocking_power_map:
+  scene_id: ""                    # 场景标识
+
+  spatial_composition:
+    space_type: ""               # 空间类型：教室/大厅/户外/封闭/开放
+    key_landmarks: []             # 关键地标：讲台/门口/窗/黑板/门槛
+    light_source: ""              # 光源位置和方向
+
+  character_placement:
+    - character: ""              # 角色名
+      position: ""               # 具体位置描述
+      height_status: ""          # 高/低/平视/俯/仰
+      distance_to_center: ""     # 与空间中心的距离
+      proximity_to_others: ""    # 与其他角色的空间距离
+
+  power_hierarchy:
+    primary_authority: ""        # 主要权力持有者位置和姿态
+    subordinate_positions: []    # 从属者位置分布
+    power_visual_markers: []     # 权力视觉标记：道具/座位/朝向
+    gaze_control:                # 视线控制
+      who_controls: ""           # 控制视线走向的角色
+      gaze_targets: []           # 被注视的目标
+      avoided_gazes: []          # 被回避的视线
+    spatial_boundaries: []       # 空间边界：门槛/队列/隔离物
+
+  information_access:
+    who_sees_what: []            # 谁能看到什么信息源
+    visual_obstacles: []         # 视线障碍物
+    information_flow: ""         # 信息流向描述
+
+  embedding:
+    # 规划层结果如何落入既有字段
+    position_fields: []          # 落入位置描写的字段
+    gaze_fields: []              # 落入视线描写的字段
+    prop_authority_fields: []    # 落入道具权力的字段
+    group_reaction_fields: []    # 落入群体反应的字段
 ```
 
 ## Silence And Reaction Rule

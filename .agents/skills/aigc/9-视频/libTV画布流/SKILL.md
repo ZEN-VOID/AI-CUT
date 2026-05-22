@@ -86,6 +86,7 @@ Reject or clarify when:
 | 画布资产上传、可见素材节点、节点命名修正 | `references/canvas-asset-management.md` |
 | 主体参照流规则、`6-分组` 读取、主体绑定表和时长投影 | `references/subject-reference-flow.md` |
 | 分镜参照流 | `references/storyboard-reference-flow.md` |
+| 上游分镜组 prompt 的场景/镜头身份、镜头先行顺序、方向参照和光线结果保真 | `../../_shared/scene-shot-identity-contract.md` |
 | 执行步骤、阻断门、轮询与显式下载 | `steps/libtv-canvas-workflow.md` |
 | 类型包选择与 Seedance 2.0 标准 `modeType` | `types/type-map.md` |
 | 质量门禁、主体绑定和 LibTV 提交审查 | `review/review-contract.md` |
@@ -120,7 +121,7 @@ flowchart TD
 1. 加载本技能对、项目记忆和选中类型包；若执行远端调用，加载 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md`。
 2. 按 `types/type-map.md` 锁定 `subject_reference_flow` 或 `storyboard_reference_flow`。未显式指定时一律使用主体参照流。
 3. 主体参照流以 `projects/aigc/<项目名>/6-分组` 为主要信息来源，解析每个 `## x-y-z` 分镜组，完整提取组正文和底部 YAML；`## x-y-z~x-y-z` 组间连接件默认忽略，不进入视频 prompt、YAML 主体槽位、主体参照 manifest、LibTV job 或视频文件命名；视频 prompt 的剧情主体只使用现有组正文，不进行剧情改写。
-4. 分镜组视频 prompt 主体直接采用 `6-分组` 的现有分镜组正文；LLM 只负责裁决提取范围、保真组织、缺口说明和审查，不得扩写或改写剧情事实。默认不需要 LibTV 远端 Agent 做提示词优化或镜头压缩，`allow_libtv_prompt_optimization=false`。
+4. 分镜组视频 prompt 主体直接采用 `6-分组` 的现有分镜组正文；LLM 只负责裁决提取范围、保真组织、缺口说明和审查，不得扩写或改写剧情事实。默认不需要 LibTV 远端 Agent 做提示词优化或镜头压缩，`allow_libtv_prompt_optimization=false`。若组正文已包含定场、场景/镜头身份、镜头先行顺序、方向参照或光线结果，必须按原顺序保留，不得摘要成“人物做了什么”的主体动作段落。
 5. 从分镜组 fenced YAML 中读取 `角色 / 场景 / 道具 / 时长估算`。主体参照以组底 YAML 的 `角色 / 场景 / 道具` 为基准；不得用正文泛词、子串或猜测名自动扩展主体列表。`create_generation_task.params.prompt` 底部必须完整保留原 fenced YAML 内容；对已绑定主体，在分镜正文第一次出现处和 YAML 对应主体名后插入 LibTV 画布 `@` 资产引用 / node mention（标准名称待官方确认）。`YAML主体清单`、`主体绑定表`、missing/excluded 诊断和执行参数只写入外层 handoff message、manifest、submit plan、queue record 或 report，不得进入 `params.prompt`。
 6. 同一 LibTV `projectUuid/projectID` 画布内，已经按同一 YAML 主体名成功上传并登记为 active 的主体图 URL 可直接复用；active 登记真源固定为 `projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json`，schema 见 `templates/canvas-active-registry.schema.json`。只有缺少 active URL、同名登记歧义、图片被调整/更换或用户明确要求“替换/更新/重新上传”时，才检查 `projects/aigc/<项目名>/7-设计/角色/3-生成`、`7-设计/场景/3-生成`、`7-设计/道具/3-生成` 中的对应主体图片并上传。
 7. 需要新上传时多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除；名称命中多个候选时先把候选图发送到当前窗口作为可加载上下文自动识图匹配，仍不能唯一确认才列入 `ambiguous`。上传或手工绑定成功后必须更新 active registry；替换/更新时旧记录标记为 `active=false/status=replaced`，新记录写入 `active=true/status=active`。本地图片路径、候选集合和消歧证据只写入 manifest / submit plan，不写进 prompt 正文。
@@ -136,6 +137,7 @@ flowchart TD
     - 外层参考绑定表和实际工具入参必须声明并遵守 `canonical_reference_order`：先 YAML `角色` 列表原顺序，再 YAML `场景` 列表原顺序，再 YAML `道具` 列表原顺序；被预算排除的主体只从数组中移除，不改变其余主体相对顺序。
     - 当前 CLI 纯文本消息无法单独证明 UI 级 `@` 引用已插入，必须通过查询结果、后端工具参数或画布节点引用回显验证；无法验证时记录 `at_asset_mention_unverified`，不得报告为完全验证通过。
     - 不得改变原文措辞、句序、镜头顺序、台词、动作结果或风格描述；不额外增加 `StyleBible`、`StyleBible_Summary`、角色泛化说明或 `其中，...` 尾部复述。
+    - 不得把分镜组正文重排为主体动作先行摘要；上游若已用“定场/镜头/构图/方向/光线结果 -> 人物动作 -> 表演微动态”的执行顺序，`params.prompt` 必须保留该顺序。
 13. 主体参照流的视频生成模式必须显式锁定为“全能参考 / 多图主体参考生成视频”，且官方标准 `modeType` 必须显式传入 `mixed2video`。只要本组 `libtv_images_count > 0`，外层 handoff message 和实际工具入参必须逐项写入真实参考图 `URL + node_key + yaml_name + 用途`，并请求 LibTV 按这些参考图生成视频；不得提交或诱导 `text2video` / 纯文生视频。`allow_libtv_prompt_optimization=false` 必须同时以字段和外层自然语言锁定句出现，只表示不授权远端改写 `params.prompt`，不表示取消参考图。
 14. 禁止把执行诊断、失败原因、泛化替代说明或负面占位句写进 `create_generation_task.params.prompt`。包括但不限于：`本轮不提交任何参考图 URL`、`没有参考图`、`改为纯文生视频`、`参考图审核失败`、`角色与道具按原文生成`、`令狐冲为男性武侠人物`、`missing_reference_image`、`excluded_due_to_budget`。这些内容只能写入 manifest、submit plan、queue record 或执行报告；若主体缺图，应在证据工件标记 missing/blocked，不得污染视频节点 prompt。
 15. 若参考图上传成功但 LibTV/Seedance 在预处理或审核阶段拒绝任一关键角色、场景或道具参考图，不得静默降级为无参考图纯文生视频；状态应为 `needs_rework / reference_asset_review_failed`，并记录被拒素材、URL、错误和最小修复项。只有用户在当前轮显式授权“无参考图继续 / 纯文生继续 / 忽略参考图”时，才可提交 text2video fallback，且 fallback 说明仍不得进入创作 prompt。
@@ -175,6 +177,7 @@ flowchart TD
 | `FIELD-LIBTVCANVAS-09` | reference generation mode | submit message / submit plan / queue record | 有可用参考图时显式为“全能参考 / 多图主体参考生成视频”，且远端 prompt 含真实 URL/node_key；不得静默 text2video fallback | `FAIL-LIBTVCANVAS-REFERENCE-MODE` |
 | `FIELD-LIBTVCANVAS-10` | prompt assembly | submit message / submit plan / queried tool params | 外层 handoff message 与 `params.prompt` 分层；`params.prompt` 只含分镜组正文 + 完整 YAML，并在正文与 YAML 主体名后绑定画布 `@` 资产引用 / node mention；不含执行锁、生成参数、主体绑定表、missing/excluded 诊断、StyleBible/audio 重复或头尾泛化总结 | `FAIL-LIBTVCANVAS-PROMPT-ASSEMBLY` |
 | `FIELD-LIBTVCANVAS-11` | official modeType | submit message / submit plan / queue record / LibTV params | `modeType` 显式传标准称谓；主体参照默认 `mixed2video`；指定类型时全链路一致 | `FAIL-LIBTVCANVAS-MODETYPE` |
+| `FIELD-LIBTVCANVAS-12` | prompt execution identity preservation | submit plan / queried tool params | `params.prompt` 保留上游场景/镜头身份、镜头先行顺序、方向参照、光线结果和分镜句序，不压缩成主体动作摘要 | `FAIL-LIBTVCANVAS-PROMPT-IDENTITY` |
 
 ## Thought Pass Map
 
@@ -191,6 +194,7 @@ flowchart TD
 | `PASS-LIBTVCANVAS-09` | `FIELD-LIBTVCANVAS-09` | 有参考图时锁定全能参考 / `mixed2video`，禁止静默纯文生降级 | submit message / LibTV params |
 | `PASS-LIBTVCANVAS-10` | `FIELD-LIBTVCANVAS-10` | 分离 handoff message 与 `params.prompt`，保持 prompt 只含分镜正文、完整 YAML 和主体 `@` 引用 | queried params / review report |
 | `PASS-LIBTVCANVAS-11` | `FIELD-LIBTVCANVAS-11` | 校验 `modeType` 在 manifest、submit plan、queue、远端 prompt 和实际工具入参中一致 | type-map normalization evidence |
+| `PASS-LIBTVCANVAS-12` | `FIELD-LIBTVCANVAS-12` | 检查远端 `params.prompt` 是否保留上游 scene/shot identity 与镜头先行执行顺序，未被改成动作摘要 | queried params / review report |
 
 ## Pass Table
 
@@ -207,6 +211,7 @@ flowchart TD
 | `PASS-LIBTVCANVAS-09` | 有可用参考图时显式 `mixed2video`，不得无授权 text2video fallback | `FAIL-LIBTVCANVAS-REFERENCE-MODE` | `types/type-map.md` |
 | `PASS-LIBTVCANVAS-10` | `params.prompt` 不含执行锁、参数、绑定表、诊断或失败说明 | `FAIL-LIBTVCANVAS-PROMPT-ASSEMBLY` | review contract |
 | `PASS-LIBTVCANVAS-11` | `modeType` 使用标准称谓且全链路一致 | `FAIL-LIBTVCANVAS-MODETYPE` | `types/type-map.md` |
+| `PASS-LIBTVCANVAS-12` | 远端 prompt 未重排上游镜头身份、分镜句序、方向参照和光线结果；未改写成主体动作摘要 | `FAIL-LIBTVCANVAS-PROMPT-IDENTITY` | `../../_shared/scene-shot-identity-contract.md` / Execution Contract |
 
 ## Output Contract
 

@@ -17,6 +17,7 @@
 | `sequence_density_curve` | `sequence-density-curve-contract.md` | 段落级 `tempo_beats`、`density_ramp`、`peak_slots`、`recovery_slots`、`set_piece_chain_slots`、`sound_cut_pattern`、`density_budget` 与 `handoff_anchors`；指导整段变速和分镜密度预算 |
 | `unit_ownership_map` | `visual-sequence-alignment-contract.md`、`visual-matching-contract.md` | 当前 `visual_unit` 拥有哪些主体、动作、道具/文字/身体锚点、对白承托和禁止跨块外溢项 |
 | `functional_payload` | `functional-cinematic-projection-contract.md` | 为每个分镜锁定 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material 和 downstream consumability |
+| `prop_shot_admission` | `visual-matching-contract.md`、`shot-detail-dimension-contract.md` | 判断道具、反射、倒影、涟漪或普通物件是否允许成为焦点、特写、反射主体或交出锚点；无互动无关键信息则降级为背景或删除 |
 | `ai_video_prompt_execution_profile` | `ai-video-prompt-execution-contract.md` | 为每个分镜锁定镜头先行执行顺序、方向参照、动作在镜头内部完成、光线结果、表演微动态和提示词模板边界 |
 | `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个观看策略变化，不能按固定数量灌水 |
 | `shot_count_decision` | `beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md`、`sequence-density-curve-contract.md` | 明确本 visual_unit 为什么是 1/2/3/4 镜；2 镜不得作为默认值；5-6 镜只允许 `set_piece_chain` 例外且每镜必须有独立结果 |
@@ -43,11 +44,11 @@
 5. 用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。若当前批次出现大量同数分镜，尤其 2 镜集中，或连续段落没有明显密度曲线，必须抽样复判并修正 `shot_count_decision` 与 `density_budget`。
 6. 形成 `duration_profile` 和每个 beat 的 `shot_duration_decision`：先应用短剧·AIGC 默认压缩，再判断是否承载对白/旁白并估算台词量下限，继续判断缩短一半会丢失什么、拉长一倍是否只会拖慢；文字、道具、微表情、空间重置和认知高点必须给足可读时间，低信息动作、普通氛围尾巴和重复交出点必须压缩。每个 beat 必须得到正文 `display_seconds`，`约3秒` 以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
 7. 若相邻 3-6 个画面单位存在共享空间、道具链、声音链、动作链、记忆插入或视觉母题，先读取 `visual-sequence-alignment-contract.md` 并消费内部 `sequence_profile`；只吸收视觉母题、注意力接力、运动家族、材质光色和交出锚点，不吸收不属于当前画面点的主体动作、对白反应、记忆段或道具揭示。
-8. 为当前 `visual_unit` 建立 `unit_ownership_map`：当前块拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项必须清楚；若计划分镜属于其他画面点，必须转移或删除。
+8. 为当前 `visual_unit` 建立 `unit_ownership_map`：当前块拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项必须清楚；若计划分镜属于其他画面点，必须转移或删除。若当前块包含道具/物件，必须同步形成 `prop_shot_admission`：`interaction / key_information / rule_or_danger / necessary_environment / rejected_background`，标为 `rejected_background` 的物件不得成为分镜主体、焦点拉移终点、反射/倒影主体或独立时值理由。
 9. 用 `continuity_entry` 承接前 3 个画面单位中的最近落点；不能每个画面重新发明一套风格。
 10. 若发生场景变化、空间重置、注意力转交、动作承接、声音先行、形态/颜色匹配、信息显影或高点断裂，先建立 `handoff_profile`，明确交出点、进入提示和连续性风险；不得在本阶段裁决普通切镜、软桥接、匹配剪辑或高能转场方案。
 11. 建立 `camera_grammar_plan`：景别变化像呼吸，视角变化有权力/主观/观察/空间动机，景深和焦点负责注意力交接，镜头类型和构图服务空间压力或信息显影；运镜速度和停点必须服从 `shot_duration_decision`。
-12. 建立 `functional_projection_plan`：没有主体、动作相位、运镜计划、构图锚点、光色/材质、连续性交接、显式时长、对白承托关系或下游消费意义的 beat 不能写成分镜。
+12. 建立 `functional_projection_plan`：没有主体、动作相位、运镜计划、构图锚点、光色/材质、连续性交接、显式时长、对白承托关系或下游消费意义的 beat 不能写成分镜。以道具或反射为主体的 beat 还必须通过 `prop_shot_admission`；如果只是无互动杯水涟漪、餐具轻响、纸角阴影或桌面倒影，且删掉后不损失剧情/表演/空间信息，应删除或降级为背景。
 13. 建立 `ai_video_prompt_execution_profile`：镜头类型/运动/构图必须先于动作成立；人物位移必须有相对镜头、摄像机、画面边界或空间锚点的方向参照；光线必须写出照亮位置、阴影、轮廓、反光或背景层次；表演情绪必须落到可见微动态；提示词分栏和命令式负向约束只能留作内部边界。
 14. 为每个 beat 选择技法时遵守“最小充分”：只选择能服务当前 beat 的参数和运镜策略，不把技法库当菜单随机抽样。
 15. 执行 `unit_ownership_check`：每个 beat 必须回答“它服务哪条上游画面句子”；若只服务整段气氛或流畅感，就回到 `sequence_profile`、`sequence_density_curve` 和 `unit_ownership_map` 重排。
@@ -63,6 +64,7 @@ shot_design_plan:
   sequence_profile: <如命中，相邻画面单位共享的视觉母题、注意力接力、运动家族、材质光色；不改变逐句归属>
   sequence_density_curve: <如命中，tempo_beats、density_ramp、peak/recovery/set_piece 槽位、声音切点、密度预算和交出锚点>
   unit_ownership_map: <当前块拥有的主体、动作、道具/文字/身体锚点、对白承托和禁止外溢项>
+  prop_shot_admission: <如涉及道具/反射/涟漪/普通物件，说明 interaction / key_information / rule_or_danger / necessary_environment / rejected_background；rejected 不进分镜主体>
   shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略；5-6 镜只允许 set_piece_chain 且每镜不可删>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
   duration_profile: <整体时值策略、短剧·AIGC 默认压缩、显式秒数分布、对白台词量预算、15 秒分组风险和相邻分镜时值接力>
@@ -86,6 +88,7 @@ shot_design_plan:
         composition_anchor: <构图锚点>
         light_color_material: <光色/材质/视觉母题>
         downstream_consumability: <图像/视频可消费点>
+        prop_admission_reason: <如本镜以物件/反射/倒影/涟漪为焦点，说明准入理由；普通背景物件写 none>
       ai_video_prompt_execution:
         camera_first_opening: <这一镜开头先声明的镜头、机位、运动或构图关系>
         direction_reference: <运动、入画、退场、视线或镜头路径的相对镜头/画面参照>
@@ -130,6 +133,7 @@ shot_design_plan:
 11. `naturalness` 合格：读起来不是字段展开、参数清单或模板填空。
 12. `unit_ownership` 合格：每条分镜能回指当前画面句子，没有把后文主体动作、对白反应、记忆段、道具揭示或组间连接方案提前写进当前块。
 13. `density_curve` 合格：连续段落能说明哪里省镜头、哪里加密、哪里停顿、哪里硬切和哪里交出；5-6 镜链条每镜都有独立结果，且高密度后有恢复或反压。
+14. `prop_admission` 合格：道具/反射/涟漪/普通物件成为焦点时，有互动、关键信息、规则/危险或必要环境理由；否则已删除或降级为背景，不影响人物动作衔接。
 
 ## Anti-Patterns
 
@@ -143,6 +147,7 @@ shot_design_plan:
 - 每条分镜都同样长度、同样速度，或长停顿没有可读性/表演/空间/高点理由。
 - 普通氛围镜、过场动作或常规反应沿用传统影视停顿，普遍写到 `约3秒` 以上却没有必要性证据。
 - 快速切走必须读清的文字、道具或微表情，导致分镜数量对了但观看时值错了。
+- 无互动普通道具被写成焦点拉移、倒影、涟漪、碰撞声或独立特写，导致镜头为了同时包含人物和物件而破坏动作连续性。
 - 对白/旁白画面没有根据台词量决定显式秒数。
 - `分镜N` 缺少 `（约X秒）`，导致下游视频阶段无法消费时长。
 - 分镜读起来顺，但下游无法判断该画谁、摄影机怎么动或为什么不动、构图锚点是什么、光色如何继承。

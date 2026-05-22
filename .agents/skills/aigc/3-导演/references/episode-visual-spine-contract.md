@@ -2,9 +2,30 @@
 
 ## Purpose
 
-本细则定义 `3-导演` 的整集视觉主轴。它位于单场 `visual_aesthetic_pass` 之前，负责回答“这一集被观众记住的视觉链条是什么”，避免每场各自好看但整集没有统一审美记忆。
+本细则定义 `3-导演` 的整集视觉主轴。它位于单场 `visual_aesthetic_pass` 之前，负责回答"这一集被观众记住的视觉链条是什么"，避免每场各自好看但整集没有统一审美记忆。
 
 它不是摄影方案，不写机位、景别、镜头运动、分镜编号或图像提示词；它也不是统一滤镜或统一色调，不要求每场都塞入同一个母题。
+
+## Ownership
+
+- 本文件拥有整集视觉主轴的建造规则、母题变化原则、证据结构和跨集延续规则。
+- `visual-aesthetic-contract.md` 负责单场 `visual_aesthetic_pass`；本文件为其提供整集主轴上下文。
+- `atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件为其提供材质/色彩弧和节奏曲线。
+- `episode-final-image-contract.md` 负责尾钩；本文件 `callback_targets` 中的未闭合母题可作为尾钩候选。
+
+## Dependency Graph
+
+```
+episode-visual-spine-contract.md
+├── consumed_by: N7-DIR-AESTHETIC (为每个关键场景提供整集主轴上下文)
+├── consumed_by: N8-DIR-FINAL-IMAGE (callback_targets 作为尾钩候选)
+├── consumed_by: N9-DIR-DRAFT (确保终稿呼应视觉主轴)
+├── consumed_by: N10-DIR-REVIEW (验证整集视觉记忆)
+├── produces:
+│   └── episode_visual_spine (必须产出，包含 visual_question/motif_chain/material_and_color_arc/rhythm_curve/callback_targets/episode_restraint_rule)
+└── cross_reference:
+    └── N1-DIR-INTAKE (跨集延续，读取前集 episode_visual_spine)
+```
 
 ## Episode Visual Spine Pass
 
@@ -30,22 +51,22 @@
 
 ## Boundary
 
-允许：
+**允许**：
 
 - 让核心物件、空间、自然景物、群体反应和动作节奏形成可感知的变化链。
 - 让单场 `visual_aesthetic_pass` 消费整集主轴，在本场选择是否呼应、变奏或克制。
 - 在不改变剧情条件的前提下，把安全的环境氛围项纳入视觉链。
 
-禁止：
+**禁止**：
 
 - 为了统一视觉主轴而新增线索、道具、伤势、天气灾害、行动障碍、规则条件或事件结果。
 - 强迫每场都出现同一个母题。
-- 把整集主轴写成抽象审美词，例如“高级感”“宿命感”“电影感”。
+- 把整集主轴写成抽象审美词，例如"高级感""宿命感""电影感"。
 - 用主轴替代上游保真、对白冻结或单场戏剧功能。
 
 ## Example
 
-若一集围绕“秘密在海雾中流转”，可以形成：
+若一集围绕"秘密在海雾中流转"，可以形成：
 
 ```yaml
 episode_visual_spine:
@@ -64,14 +85,47 @@ episode_visual_spine:
   episode_restraint_rule: "不把灾祸奇观化，优先用纸、布、雾、光和停顿承托逼近感。"
 ```
 
-## Review Checklist
+## Failure Cases
 
-- 整集是否有清晰的 `visual_question`，而不是只列好看的物件？
-- `motif_chain` 是否来自上游或安全承托，并且有变化？
-- 材质、色彩和节奏是否形成弧线，而不是一组散点？
-- 呼应目标是否能在终稿字段中找到落点？
-- 克制规则是否防止了细节堆砌？
-- 主轴是否没有新增剧情事实、线索、规则、障碍或结果？
+### Failure 1: 视觉主轴变成抽象审美词集合
+
+**症状**：`visual_question` 写成"如何让画面更有电影感"，`motif_chain` 写成"好看的道具、漂亮的场景"等无法落地的描述。
+
+**诊断**：N7-DIR-AESTHETIC 在建立 `episode_visual_spine` 时跳过了具体化步骤，直接写了审美方向。
+
+**修复**：回到 `visual_question`，用具体叙事问题替换审美方向。例如"如何让画面更有质感"→"秘密如何在纸面、火光和海雾中流转"；`motif_chain` 必须列出具体物件/材质/自然景物名称。
+
+**验证**：执行报告中 `visual_question` 必须是一个叙事问题而非审美方向，`motif_chain` 中的每一项必须能在终稿中找到具体落点。
+
+### Failure 2: 母题机械重复无变化
+
+**症状**：同一物件（如"一盏灯"）在每个场景都出现，但每次只是"出现"，没有承担不同的压力、距离或情绪温度。
+
+**诊断**：`episode_visual_spine` 建立了母题链但没有为每项分配变化策略；`visual_aesthetic_pass` 也没有为每个场景选择呼应/变奏/克制。
+
+**修复**：回到 `motif_chain`，为每个母题注明变化策略：例如"灯在第1场是温暖光源（压迫前夕），在第3场是刺眼光源（审讯中），在第7场是熄灭状态（代价余韵）"。
+
+**验证**：执行报告中 `visual_aesthetic_evidence.scene_items` 至少有一处明确的母题变化，不是机械重复。
+
+### Failure 3: 视觉主轴与单场美学脱节
+
+**症状**：`episode_visual_spine` 写得完整，但每个场景的 `visual_aesthetic_pass` 没有呼应、变奏或克制主轴，整集视觉记忆仍然散乱。
+
+**诊断**：N7-DIR-AESTHETIC 先做了 `episode_visual_spine` 再做单场 pass，两个步骤之间没有建立消费关系。
+
+**修复**：在 `visual_aesthetic_pass` 的 `motif_and_variation` 轴中，明确说明本场对整集母题的呼应策略（呼应/变奏/克制），不是只写本场有什么画面。
+
+**验证**：执行报告中每个关键场景的 `visual_aesthetic_pass` 都有明确的母题策略说明，能回指 `episode_visual_spine` 中的对应项。
+
+### Failure 4: 节奏曲线只有描述没有落点
+
+**症状**：`rhythm_curve` 写了"前半密集后段留白"，但没有说明具体哪些场景承担密集、哪些承担留白，也没有为尾钩留出位置。
+
+**诊断**：N7-DIR-AESTHETIC 把节奏曲线当成叙事结构描述，没有分配具体的场景节奏职责。
+
+**修复**：回到 `rhythm_curve`，为每个节奏段落分配场景范围。例如"第1-4场：压迫加速（画面从密到更密）；第5场：高点和余韵（密后骤停）；第6-7场：松弛承托（留白但收紧）"。
+
+**验证**：执行报告中 `rhythm_curve` 必须有具体的节奏落点，不是只有方向性描述。
 
 ## Cross-Episode Spine Continuity
 
@@ -91,3 +145,13 @@ episode_visual_spine:
 - 前集信息不是本集的上游真源；本集的上游真源始终是 `1-分集/第N集.md`。
 - 跨集延续的证据记入 `cross_episode_continuity_profile`，由 `N1-DIR-INTAKE` 加载、`N7-DIR-AESTHETIC` 消费。
 - 若前集编导稿不存在，标注 `episode-local continuity`，不做跨集延续。
+
+## Review Checklist
+
+- 整集是否有清晰的 `visual_question`，而不是只列好看的物件？
+- `motif_chain` 是否来自上游或安全承托，并且有变化？
+- 材质、色彩和节奏是否形成弧线，而不是一组散点？
+- 呼应目标是否能在终稿字段中找到落点？
+- 克制规则是否防止了细节堆砌？
+- 主轴是否没有新增剧情事实、线索、规则、障碍或结果？
+- 每个关键场景的 `visual_aesthetic_pass` 是否呼应/变奏/克制了整集主轴？

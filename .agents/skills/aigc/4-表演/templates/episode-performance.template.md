@@ -8,6 +8,7 @@ stage: 4-表演
 source_directing_path: projects/aigc/<项目名>/3-导演/第N集.md
 output_path: projects/aigc/<项目名>/4-表演/第N集.md
 performance_craft: required
+dialogue_performance: required
 dialogue_lock: true
 field_order_policy: preserve_upstream
 review_verdict: pending
@@ -17,5 +18,5 @@ review_verdict: pending
 
 【剧本正文】
 
-> 保留上游字段结构，在既有字段内部嵌入表演工艺；不得输出本提示说明。
+> 保留上游字段结构，在既有字段内部嵌入表演工艺；每段对白写清语气/情绪/状态，关键对白就近承托气口、断句、停顿、声线、重音、尾音或对手反应；不得输出本提示说明。
 ```

@@ -60,6 +60,7 @@ Spatial Continuity Plan:
 
 Prompt Design Blueprint:
 - prompt_intent:
+- scene_frame_identity:
 - source_truth:
 - subject_action:
 - composition_lens:
@@ -90,14 +91,14 @@ Prompt Design Blueprint:
 
 | layer | required content | purpose |
 | --- | --- | --- |
-| `L1 Frame Identity` | `Generate one 16:9 2K cinematic live action AIGC wuxia film still.`、`Shot ID <id>`、必要时写 `Scene first shot` / `Continuing from frame <id>` | 锁定单帧、画幅、质量目标、分镜身份和连续性入口 |
+| `L1 Frame Identity` | `Generate one 16:9 2K cinematic live action AIGC wuxia film still.`、`Shot ID <id>`、必要时写 `Scene first shot` / `Continuing from frame <id>`，并在首段锁定当前场景/镜头身份 | 锁定单帧、画幅、质量目标、分镜身份、场景身份和连续性入口 |
 | `L2 Frame Landing Truth` | 当前 frame landing 的可见主体、动作结果、地点、叙事压力；上游 `分镜N` 只作为 `source_camera_units` 证据 | 防止 prompt 变成组级摘要或机械继承运镜单元 |
 | `L3 Subject And Action` | 谁在画面中、身体动作、手部/眼神/道具交互、谁不应出现；无角色时说明由空间/道具承担主体 | 保证主体选择清楚，避免模型补人物 |
 | `L4 Spatial Architecture` | `Primary anchor`、`Support anchors`、前/中/后景、遮挡层、关键道具相对位置、角色站位和走位 | 把三维空间机制写进最终 prompt |
 | `L5 Continuity Logic` | 上一生成图可见时写承接的站位、朝向、光源和道具位置；无上一图时写 `no generated previous A-frame exists yet`，只按源稿和锚点规划 | 防止伪造上一图证据，给串行生图留 runtime 回看入口 |
 | `L6 Camera And Composition` | 镜头尺寸、焦段、机位高度、轴线、运动状态、景深、构图重心、正反打背景面逻辑 | 把分镜明细转成可执行画面结构 |
 | `L7 Reference Usage` | 已绑定角色/场景/道具参照的使用方式；明确场景参照图用于风格/光影/材质/锚点，不是平面背景粘贴 | 防止错用参照或让参考图压倒源镜头 |
-| `L8 Scene Visual Style Lock` | `Match the scene reference image's visual style, lighting, color palette, and atmosphere.` 以及从图中提炼的光源方向、光比、色温、色彩、雾气、暗部/高光、材质 | 让图像与本地场景参照一致 |
+| `L8 Scene Visual Style Lock` | `Match the scene reference image's visual style, lighting, color palette, and atmosphere.` 以及从图中提炼的光源方向、光比、色温、色彩、雾气、暗部/高光、材质；重要光线必须写出照亮对象和阴影/轮廓结果 | 让图像与本地场景参照一致，避免只写光源 |
 | `L9 Material And Physics` | 木、石、纸、金属、布、血、水、烟、雾、风、火、盐湿、旧化、重量、反光、颗粒等可见物理状态 | 避免空泛风格词，增强真实材质 |
 | `L10 Constraints And Avoid` | 不出现字幕/Logo/现代物/干净 CG/过锐/错误显露物/错误角色/猎奇化/发光武器等；必要时写 `do not show <hidden object>` | 控制模型常见偏移 |
 
@@ -107,11 +108,11 @@ Prompt Design Blueprint:
 
 ```text
 Generate one 16:9 2K cinematic live-action AIGC wuxia film still. Shot ID <id>.
-Frame composition: <shot size / 景别, opening composition state, focus hierarchy>.
+Frame composition: <shot size / 景别, opening composition state, focus hierarchy, camera identity>.
 Subject space: <visible characters or no-character evidence frame, 3D positions, foreground/midground/background>.
 Subject motion: <the first legible instant of the action, not the whole camera move>.
-Scene environment: <location materials, set dressing, story pressure carried by space>.
-Light and atmosphere: <scene reference style lock and project light logic>.
+Scene environment: <scene identity: era/period, location function, material age, soundscape/atmosphere baseline, story pressure carried by space>.
+Light and atmosphere: <scene reference style lock, source-relative direction, what is illuminated, where shadows/outline separation fall>.
 Cinematography: <lens, aperture/depth, camera height, frame format, film texture>.
 Visual style: <global project style in natural English>.
 Avoid: <negative constraints>.
@@ -142,6 +143,24 @@ Avoid: <negative constraints>.
 6. 对正反打、过肩、反向机位或对话戏，写清 line of action、screen direction、opposite background plane 和 eyeline match；背景面可以是镜像相对的南北面、东西面或房间两端，但必须属于同一个空间。
 7. 对追逐、进出门、围站对峙、绕物移动、上下楼、过肩/主观视角、遮挡出现、道具交接、队列移动、同场景换机位、蒙太奇插入、道具微距、路线图、战船远景、转场匹配等桥段，必须消费 `spatial-continuity-contract.md` 的 `Anchor Pattern Library` 和 `Shot-Specific Anchor Projection`。
 8. 当前英文 prompt 必须把上述空间规划转成可生图的视觉语言，避免角色瞬移、视线不闭合、道具位置跳变、轴线无理由跳变或 `Primary anchor` 与当前单镜内容不匹配。
+
+## Scene And Frame Identity In Prompt
+
+每条英文 prompt 必须先锁定 `scene_frame_identity`，再写主体动作。这里的“先”是生成器执行顺序，不要求暴露字段名；最终文本必须能让模型先得到场景/镜头身份，再理解人物动作。
+
+`scene_frame_identity` 至少覆盖：
+
+- `scene_identity`: 年代/朝代/技术时代、空间功能、环境声或氛围基底、材质新旧和当前空间压力。
+- `frame_identity`: 单帧画面身份、是否场景首镜或承接上一帧、当前 frame landing 的可见职责。
+- `camera_identity`: 摄影机位置、朝向、景别、焦段或观察方式。
+- `direction_reference`: 人物入画、退场、视线、运动或光线方向相对镜头/画面边界/固定锚点。
+- `lighting_result`: 光照亮了什么、阴影或轮廓落在哪里、主体如何从背景中分离。
+
+禁止：
+
+- 直接以 `A woman cries...` / `He walks forward...` 等主体动作摘要开头，却没有场景和镜头身份。
+- 只写 `left light/right light/top light/cinematic lighting`，没有照亮对象、阴影位置或轮廓结果。
+- 在未锁定 camera axis 时使用 left/right/front/back 作为唯一方向。
 
 ## Shot-Specific Anchor In Prompt
 

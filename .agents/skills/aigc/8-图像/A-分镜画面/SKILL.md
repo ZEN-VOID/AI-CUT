@@ -78,6 +78,7 @@ Reject or clarify when:
 | 从 `6-分组` 提取镜级剧情与桥段 | `references/group-source-extraction.md` |
 | 组装自然英文 prompt、north_star 直引、场景参照图视觉锁与 800 English words 限制 | `references/prompt-assembly-contract.md` |
 | 建立三维空间站位、走位、正反打、单镜锚点投影与轴线一致性 | `references/spatial-continuity-contract.md` |
+| 场景/画面身份、镜头身份、方向参照和光线结果 | `../../_shared/scene-shot-identity-contract.md`、`references/prompt-assembly-contract.md`、`references/spatial-continuity-contract.md` |
 | 查找并绑定角色、场景、道具参照图 | `references/reference-slot-binding.md` |
 | 调用 `.agents/skills/cli/imagegen` 与批量生成交接 | `references/imagegen-handoff.md` |
 | 执行 step1-step4 主流程 | `steps/frame-image-workflow.md` |
@@ -146,7 +147,7 @@ stateDiagram-v2
 5. 执行 step2 前置连续性检查：对每个非场景首镜，判断上一分镜是否与当前分镜同场景；若同场景且上一分镜已有本地生成图，必须用 `view_image` 检视上一画面进入对话上下文，并记录 `previous_frame_context_status: visible_in_conversation_context`、上一图路径、观察到的空间站位、走位方向、角色朝向、遮挡关系、关键道具相对位置和镜头轴线；若不同场景、上一图不存在或上一镜未生成，记录 `not_same_scene` / `previous_image_missing` / `previous_shot_not_generated`，不得臆造。
 6. 执行三维空间规划：按 `references/spatial-continuity-contract.md` 建立当前桥段的轻量 `space_model`，并对每个四段式分镜执行 `shot_anchor_projection`；先从当前单镜真相中抽取候选锚点，再决定 `Primary anchor` / `Support anchors`，明确固定锚点、空间轴线、对话轴线、角色起点/终点/移动轨迹、身体朝向、视线目标、前后景遮挡和道具相对位置；正反打镜头必须说明反向机位、相对背景面和视线闭合关系，允许背景面相反但不允许空间漂移；蒙太奇、插入、道具微距、转场或路线镜头不得直接套用分组主场景锚点。
 7. 执行 step2：以每个四段式 frame landing 为单位，LLM 直接生成自然英文 AIGC 生图提示词。提示词可以补充构图、光影、镜头、材质、画面表现、空间站位和走位连续性，但不得改变核心内容。每条 prompt 必须在 800 English words 以内，并按模板预留 `Characters:`、`Scene:`、`Props:` 槽位。
-8. step2 模板必须包含：`## <分镜ID>`、直引的 `全局风格.全局风格提示词`、直引的 `类型元素.类型元素提示词`、直引的 `细分风格.画面风格`、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、场景参照图视觉风格锁记录、同场景上一画面回看记录、三维空间连续性规划、`Prompt Design Blueprint`、整合后的英文 prompt。英文 prompt 中必须包含等价约束：`Match the scene reference image's visual style, lighting, color palette, and atmosphere.`，并把 frame identity、frame landing truth、continuity、shot-specific anchors、spatial blocking、camera/composition、scene reference style lock、materials/atmosphere、avoid constraints 等完整 prompt 设计体系自然写入英文 prompt 本体。
+8. step2 模板必须包含：`## <分镜ID>`、直引的 `全局风格.全局风格提示词`、直引的 `类型元素.类型元素提示词`、直引的 `细分风格.画面风格`、固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”、场景参照图视觉风格锁记录、同场景上一画面回看记录、三维空间连续性规划、`Prompt Design Blueprint`、整合后的英文 prompt。英文 prompt 中必须包含等价约束：`Match the scene reference image's visual style, lighting, color palette, and atmosphere.`，并把 frame identity、scene/frame identity、frame landing truth、continuity、shot-specific anchors、spatial blocking、camera/composition、scene reference style lock、materials/atmosphere、avoid constraints 等完整 prompt 设计体系自然写入英文 prompt 本体。英文 prompt 不得从主体动作摘要直接开始；开头必须先锁定单帧身份、场景身份或镜头观察身份，再写主体空间和动作。重要光线必须写成来源相对位置、照亮对象和阴影/轮廓结果。
 9. 执行 step3：检查 `7-设计/角色/3-生成`、`7-设计/场景/3-生成`、`7-设计/道具/3-生成` 中是否存在对应主体名称图片；多视图图片优先，缺多视图时用主图，都没有真实图片时该主体槽位保持空或移除，不得猜测引用。
 10. 对 `episode_batch_generate` 与 `shot_batch_generate`，必须先把指定范围内所有目标分镜完整写入 `第N集-分镜画面-prompts.md`，并同步落盘 `第N集-reference-manifest.json` 与 `第N集-imagegen-plan.json`；该 prompts 文档是后续 imagegen 的冻结输入。生成模式不得在 prompt 文档未覆盖完整目标范围时进入 step4。
 11. 执行 step4 前，若 reference manifest 中存在本地参照图路径，必须逐张调用 `view_image` 检视，并按 `edit target / character reference / scene reference / prop reference` 标注角色，使图片进入对话上下文后再继续 imagegen handoff；场景参照图必须额外标注 `scene_visual_style_reference`，用于锁定画面风格、光影、色调和氛围；未完成检视的本地参照不得宣称已作为视觉参照使用。
@@ -167,6 +168,7 @@ stateDiagram-v2
 | `FIELD-FRAME-07` | previous frame continuity | 同场景上一生成图 `view_image` 检视状态、空间站位/走位观察、当前 prompt 连续性约束或缺失原因 | `FAIL-FRAME-CONTINUITY` |
 | `FIELD-FRAME-08` | 3D spatial continuity | 同场景分镜的三维空间模型、单镜锚点投影、角色起止点/轨迹/站位、正反打相对背景面、轴线与视线闭合关系 | `FAIL-FRAME-SPATIAL` |
 | `FIELD-FRAME-09` | scene visual style lock | 场景参照图已 `view_image`，并锁定画面风格、光影、色调、氛围、材质和暗部/高光形态；prompt 含固定提示词 | `FAIL-FRAME-SCENE-STYLE` |
+| `FIELD-FRAME-10` | scene/frame identity | 英文 prompt 先锁定单帧、场景和镜头身份：年代/空间功能/环境声与材质光影、摄影机观察位置、相对画面方向、光线可见结果；再写主体动作 | `FAIL-FRAME-SCENE-IDENTITY` |
 
 ## Field Master
 
@@ -181,6 +183,7 @@ stateDiagram-v2
 | `FIELD-FRAME-07` | continuity authorship | `第N集-分镜画面-prompts.md` / `执行报告.md` | 同场景上一画面回看状态、观察摘要、当前镜站位走位约束 | `FAIL-FRAME-CONTINUITY` |
 | `FIELD-FRAME-08` | 3D spatial authorship | `第N集-分镜画面-prompts.md` / `执行报告.md` | 单镜锚点投影状态、当前帧锚点证据、固定锚点、空间轴线、角色起止点、移动轨迹、正反打轴线与背景面关系 | `FAIL-FRAME-SPATIAL` |
 | `FIELD-FRAME-09` | scene image style authorship | `第N集-分镜画面-prompts.md` / `第N集-reference-manifest.json` / `执行报告.md` | 场景参照图视觉风格锁、固定提示词、`scene_visual_style_lock_status` | `FAIL-FRAME-SCENE-STYLE` |
+| `FIELD-FRAME-10` | scene/frame identity authorship | `第N集-分镜画面-prompts.md` / `Prompt Design Blueprint` / `执行报告.md` | scene identity、frame identity、camera identity、direction reference、lighting result 均进入英文 prompt 本体 | `FAIL-FRAME-SCENE-IDENTITY` |
 
 ## Thought Pass Map
 
@@ -195,6 +198,7 @@ stateDiagram-v2
 | `PASS-FRAME-07` | `FIELD-FRAME-07` | 当前镜与同场景上一画面如何保持空间站位和走位一致 | 若上一图存在则先 `view_image` 并提炼连续性约束；若不存在则记录原因 | prompt markdown / report |
 | `PASS-FRAME-08` | `FIELD-FRAME-08` | 同场景分镜如何在 3D 空间中保持合理方位、单镜锚点和正反打轴线 | 建立 `space_model`，执行 `shot_anchor_projection`，定位角色起止点、移动轨迹、背景面与视线闭合关系 | prompt markdown / report |
 | `PASS-FRAME-09` | `FIELD-FRAME-09` | 当前画面的风格、光影、色调和氛围如何被场景参照图锁定 | prompt 前先 `view_image` 场景图，提炼视觉风格锁，并写入固定提示词和英文 prompt | prompt markdown / manifest / report |
+| `PASS-FRAME-10` | `FIELD-FRAME-10` | 当前 prompt 是否先锁定场景/画面/镜头身份，再写主体动作 | 消费 `../../_shared/scene-shot-identity-contract.md`，补年代/空间功能/材质声光、摄影机观察位置、相对方向和光线结果 | prompt markdown / report |
 
 ## Pass Table
 
@@ -209,6 +213,7 @@ stateDiagram-v2
 | `PASS-FRAME-07` | 同场景非首镜若存在上一分镜生成图，必须已 `view_image`；当前 prompt 保持站位、朝向、动线、遮挡和关键道具空间逻辑一致，或记录无上一图/不同场景原因 | `FAIL-FRAME-CONTINUITY` | `references/prompt-assembly-contract.md` |
 | `PASS-FRAME-08` | 同场景分镜不得只复用平面背景；必须有匹配当前单镜真相的 `Primary anchor` / `Support anchors`、3D 空间锚点、角色起点/终点/轨迹、正反打相对背景面、对话轴线和视线闭合说明；蒙太奇/插入/道具特写/转场镜头不得直接沿用分组主场景默认锚点 | `FAIL-FRAME-SPATIAL` | `references/spatial-continuity-contract.md` |
 | `PASS-FRAME-09` | 若场景参照图存在，prompt 组织前必须已 `view_image` 并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；prompt 必须包含固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”及英文等价约束 | `FAIL-FRAME-SCENE-STYLE` | `references/prompt-assembly-contract.md` |
+| `PASS-FRAME-10` | prompt 本体不从主体动作摘要直接开始；已自然写入场景身份、画面身份、镜头身份、方向参照和光线结果 | `FAIL-FRAME-SCENE-IDENTITY` | `../../_shared/scene-shot-identity-contract.md`、`references/prompt-assembly-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -226,6 +231,7 @@ stateDiagram-v2
 6. 同场景当前 prompt 未回看上一生成图、站位走位断裂或上一图缺失原因未记录：回到 `references/prompt-assembly-contract.md` 与 `steps/frame-image-workflow.md`。
 7. 空间一致性退化成平面背景复用、正反打背景面误判、角色起止点/移动轨迹/视线闭合缺失，或当前单镜 `Primary anchor` 直接套用分组主场景导致与 `Source truth` 不匹配：回到 `references/spatial-continuity-contract.md`。
 8. 只用 north_star 文字风格、未用场景参照图实际视觉信息锁定画面风格/光影/色调/氛围，或缺少固定提示词：回到 `references/prompt-assembly-contract.md`、`references/reference-slot-binding.md` 与 `steps/frame-image-workflow.md`。
+8.5. prompt 从人物动作摘要开始、缺少场景/画面/镜头身份、光线只写来源不写结果，或前后左右没有镜头参照：回到 `../../_shared/scene-shot-identity-contract.md` 与 `references/prompt-assembly-contract.md`。
 9. 输出格式不一致：回到 `templates/output-template.md`。
 10. 同类失败可复用：沉淀到同目录 `CONTEXT.md`，稳定后晋升到本文件或分区规范。
 

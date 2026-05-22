@@ -39,6 +39,7 @@ last_checked_at: 2026-05-12
 | `TM-LIBTVCANVAS-21` | `params.prompt` 里出现执行锁、生成参数、主体绑定表、missing/excluded 原因等大量废信息 | 混淆 handoff message 与视频节点创作 prompt | 重建分层提交：handoff 放执行与绑定，`params.prompt` 只放分镜正文 + 完整 YAML + 主体 `@` 引用 | 查询 `create_generation_task.params.prompt`，出现执行锁/绑定表/诊断即判 `remote_prompt_rewritten_or_polluted` |
 | `TM-LIBTVCANVAS-22` | 同一主体在同一视频任务中重复提交两张同义主体图 | 没有按 YAML 主体去重，active 图与新上传图同时进入 imageList | 按 `projectUuid + category + yaml_name` 去重，默认每主体只保留一张 active/最新可信图 | 除非用户显式要求多视图或多版本对比，否则 `imageList` 不得含同主体重复图 |
 | `TM-LIBTVCANVAS-23` | 视频节点按图1/图2顺序把 URL 错绑到主体 | `imageList` 使用上传顺序或文件扫描顺序，且远端按数组下标解释主体 | 按 YAML `角色` -> `场景` -> `道具` 展示顺序生成 canonical reference order，并按该顺序构造 `source_node_keys/source_node_url_mapping/imageList` | review/query gate 检查数组顺序和 URL/node_key 映射都与主体绑定表一致 |
+| `TM-LIBTVCANVAS-24` | 远端 prompt 把分镜组改成“人物做了什么”的动作摘要，丢失定场、镜头先行、方向参照或光线结果 | 把 LibTV prompt transport 当成二次创作优化 | 保留 `6-分组` 原文顺序；禁止远端优化、重排、摘要、压缩；查询后检查 `params.prompt` 中 scene/shot identity 仍在 | `params.prompt` 可回读到定场/镜头/构图/方向/光线结果 -> 人物动作的上游顺序 |
 
 ## Repair Playbook
 
@@ -63,7 +64,8 @@ last_checked_at: 2026-05-12
 19. 主体参照图不要只集中堆在绑定表或 URL 清单里；已绑定主体第一次出现在分镜组原文时，以及底部 YAML 对应主体名后，应插入 LibTV 画布 `@` 资产引用 / node mention（标准名称待官方确认），迫使远端按主体名精准匹配而不是按图片顺序匹配；若当前 CLI 无法验证 UI 级 `@` 引用，应记录 `at_asset_mention_unverified`。
 20. 同一主体默认只提交一张图；active registry 中已有可用节点时不要再把同主体新上传图也塞进同一视频任务，除非用户明确要求多视图。
 21. 参考数组顺序必须按 YAML 主体展示顺序：角色原顺序、场景原顺序、道具原顺序；预算排除只删除主体，不改变剩余主体相对顺序。即使如此，主体语义仍以 `yaml_name + category + node_key + URL` 绑定为准，不以数组下标为准。
-18. 若发现新可复用失败模式，优先写入本文件；稳定成强制规则后再晋升到 `SKILL.md` 或 `references/`。
+22. 查询远端 `params.prompt` 时，除检查污染和绑定外，还要检查上游定场、场景/镜头身份、镜头先行顺序、方向参照和光线结果是否被保留；若被压缩为动作摘要，视为远端优化漂移。
+23. 若发现新可复用失败模式，优先写入本文件；稳定成强制规则后再晋升到 `SKILL.md` 或 `references/`。
 
 ## Reusable Heuristics
 
@@ -80,3 +82,4 @@ last_checked_at: 2026-05-12
 - 看到 `其中，` 后接 StyleBible/audio 的尾部段落，基本就是重复拼接错误；应删除尾段而不是调整措辞。
 - 看到 `params.prompt` 里出现【执行锁】、【生成参数】、【本次提交的9张参照图】、【主体绑定表】、missing/excluded 状态，基本就是 handoff/prompt 分层失败；应立即重建为“分镜正文 + 完整 YAML”的干净 prompt。
 - 看到 `imageList` 正好等于上传顺序、而不是 YAML 主体顺序，应视为高风险错绑；必须重排为 canonical reference order，并在查询结果中核对 `source_node_url_mapping`。
+- 视频阶段不是重新写 prompt 的地方。上游已经为 AI 视频稳定性写好的“定场/镜头身份 -> 镜头运动/方向 -> 人物动作 -> 表演微动态 -> 光线结果”顺序，应被运输到远端，而不是改成更顺口但不可控的动作摘要。

@@ -21,6 +21,8 @@ PLACEHOLDER_PATTERNS = (
     "引号内不加入动作",
     "<项目名>",
 )
+DIALOGUE_HEADING_RE = re.compile(r"^对白（([^）]+)）[:：]", re.MULTILINE)
+VAGUE_DIALOGUE_STATES = ("平静", "紧张", "生气", "愤怒", "难过", "开心", "害怕", "复杂")
 
 
 def collect_findings(text: str) -> list[str]:
@@ -43,6 +45,18 @@ def collect_findings(text: str) -> list[str]:
 
     if re.search(r"^###\s*场景.+\n(?:.|\n){0,500}(?:表演提示|场面调度)[:：]", text, re.MULTILINE):
         findings.append("possible scene-end performance/blocking summary block found")
+
+    for match in DIALOGUE_HEADING_RE.finditer(text):
+        heading = match.group(1).strip()
+        if "，" not in heading and "," not in heading:
+            findings.append(f"dialogue heading missing tone/state segment: 对白（{heading}）")
+            continue
+
+        state = re.split(r"[，,]", heading, maxsplit=1)[1].strip()
+        if not state:
+            findings.append(f"dialogue heading has empty tone/state segment: 对白（{heading}）")
+        elif state in VAGUE_DIALOGUE_STATES:
+            findings.append(f"dialogue heading has vague tone/state segment: 对白（{heading}）")
 
     return findings
 

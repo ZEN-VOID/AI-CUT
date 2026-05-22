@@ -1,6 +1,6 @@
 # aigc 4-表演
 
-`4-表演` 在 `3-导演` 的画面上注入表演工艺：心理反应可感知化、演员演技控制、潜台词行为化、场面调度和沉默余波。
+`4-表演` 在 `3-导演` 的画面上注入表演工艺：心理反应可感知化、演员演技控制、台词表演、潜台词行为化、场面调度和沉默余波。
 
 ## 目录树
 
@@ -28,8 +28,8 @@
 
 - 技能入口：`SKILL.md`
 - 心理反应细则：`references/psychological-reaction-contract.md`
-- 表演与场景工艺：`references/performance-and-scene-craft-contract.md`
-- 角色演技控制：`references/actor-performance-control-contract.md`
+- 表演与场景工艺/台词表演：`references/performance-and-scene-craft-contract.md`
+- 角色演技/台词声线控制：`references/actor-performance-control-contract.md`
 
 ## 输出
 

@@ -16,6 +16,7 @@
 | `G2-NORTHSTAR` | 三项 north_star 字段为直引，未摘要、未翻译、未改写 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `G3-PROMPT` | 英文 prompt 为单帧、核心内容未改写、<= 800 English words，且完整 prompt 设计体系进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `G3D-PROMPT-DESIGN-SYSTEM` | 英文 prompt 必须包含或等价覆盖：frame identity、source truth、continuity、primary anchor、support anchors、spatial blocking、camera/composition、focus target、scene reference style lock、materials/atmosphere、avoid constraints；不得只写镜头摘要或把体系停留在 `Spatial Continuity Plan` 字段 | `FAIL-FRAME-PROMPT-SYSTEM` | `references/prompt-assembly-contract.md` |
+| `G3F-SCENE-FRAME-IDENTITY` | 英文 prompt 必须先锁定场景/画面/镜头身份：年代或空间功能、环境声/氛围基底、材质光影、摄影机观察位置、相对方向和光线可见结果；不得直接以主体动作摘要开头，重要光线不得只写来源 | `FAIL-FRAME-SCENE-IDENTITY` | `../../../_shared/scene-shot-identity-contract.md`、`references/prompt-assembly-contract.md` |
 | `G3C-SCENE-VISUAL-STYLE-LOCK` | 若场景参照图存在，prompt 组织前必须已 `view_image` 并记录 `scene_visual_style_lock_status: visible_in_conversation_context`；prompt 块必须包含固定提示词“画面风格，光影，色调和氛围与场景参照图保持一致。”；英文 prompt 必须包含等价约束 `Match the scene reference image's visual style, lighting, color palette, and atmosphere.`；报告/manifest 必须记录从场景图提炼的光影、色调、氛围和材质信息 | `FAIL-FRAME-SCENE-STYLE` | `references/prompt-assembly-contract.md` |
 | `G3A-PREV-FRAME-CONTINUITY` | 同场景非首镜若上一分镜已有本地生成图，当前 prompt 组织前必须已 `view_image` 上一图并记录 `previous_frame_context_status: visible_in_conversation_context`；当前 prompt 必须保持站位、走位、朝向、遮挡、关键道具相对位置和镜头轴线的逻辑一致；无上一图、上一镜未生成、不同场景或场景首镜必须记录对应原因 | `FAIL-FRAME-CONTINUITY` | `references/prompt-assembly-contract.md` |
 | `G3B-3D-SPATIAL-CONTINUITY` | 同场景分镜必须包含 `Spatial Continuity Plan`：候选锚点、主锚点、辅助锚点、空间轴线、角色起点/终点/移动轨迹、身体朝向、视线、遮挡、道具相对位置和镜头轴线；不得只复用平面背景；正反打必须说明相对背景面、line of action、screen direction 和 eyeline match；追逐、进出门、围站、绕物、上下楼、遮挡、交接、队列、换机位等桥段必须有对应锚定模式 | `FAIL-FRAME-SPATIAL` | `references/spatial-continuity-contract.md` |
@@ -40,6 +41,7 @@ review:
     - G2-NORTHSTAR
     - G3-PROMPT
     - G3D-PROMPT-DESIGN-SYSTEM
+    - G3F-SCENE-FRAME-IDENTITY
     - G3C-SCENE-VISUAL-STYLE-LOCK
     - G3A-PREV-FRAME-CONTINUITY
     - G3B-3D-SPATIAL-CONTINUITY

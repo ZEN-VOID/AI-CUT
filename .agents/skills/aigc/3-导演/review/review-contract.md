@@ -10,9 +10,12 @@
 - 用途：检查 Skill 2.0 包结构、脚本边界、输出合同和导演门禁。
 - 若本轮启动 subagents 模式，review 还必须检查 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Subagents Execution Mechanism`：是否优先从项目 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径解析导演监制 roster、是否把顾问任务同步到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与相关 review gate、是否要求顾问代入角色意识/创作风格/专业水准参与节点判断和执行取舍、是否形成带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写上游真源。
 - review 必须加载 `../references/directorial-authorship-contract.md`，检查关键场景是否有真正编导创作干货：戏剧问题、人物压力、观众位置、信息释放、表演/空间/道具/声音发动机和可拍执行策略，而不是只做结构规整或漂亮改写。
+- review 必须加载 `../../_shared/lived-in-character-behavior-contract.md`，检查 `director_substance_plan` 是否给出活人感行为动机种子：角色当前小事、生活压力/目标/阻碍、下意识反应方向、情绪落点，以及多人场面谁行动谁反应。
+- review 必须加载 `../../_shared/scene-shot-identity-contract.md`，检查 `director_substance_plan` 是否给出场景身份种子：年代、空间功能、社会语境、环境声底色、材质光影，且没有把场景身份写成摄影方案或泛化 BGM。
 - review 必须加载 `../references/episode-visual-spine-contract.md`，检查整集是否有 `episode_visual_spine`，并确认视觉问题、母题链、材质/色彩弧、节奏曲线、呼应目标和克制规则没有越过上游保真。
 - review 必须加载 `../references/visual-aesthetic-contract.md`，检查关键场景是否有核心画面、视觉气质、画面层级、母题变化、对比轴、景境氛围、节奏和留白取舍，并确认这些内容内嵌到既有字段而未新增剧情事实或摄影方案。
 - review 必须加载 `../references/atmosphere-and-mood-contract.md`，检查关键情绪场、压迫场、离别场或类型氛围场是否执行了 `atmosphere_mood_pass`，正文中是否能看到至少两个感官通道和至少一种意境技法，且意境细节没有新增剧情事实或抽象审美词空转。
+- review 必须加载 `../../_shared/action-first-continuity-contract.md`，检查氛围、景境、道具和受控增强是否先服务人物 entry_state/action_vector/exit_state，是否存在用无互动物件或环境反应替代人物行动、造成空间不可达或下游动作链断裂的风险。
 - review 必须加载 `../references/episode-final-image-contract.md` 与 `../types/episode-final-image-type-map.md`，检查每集终结画面是否形成迷你彩蛋尾钩：与下一集真实关联但不剧透，并从本集内容丝滑顺延，且已完成环境描写式、道具特写式、情绪酝酿式或高潮结尾式的类型化匹配。
 - review 必须加载 `../references/controlled-enrichment-contract.md`，检查新增承托细节是否有上游锚点、是否只属于表现层、是否记录 `controlled_enrichment_ledger`。
 - review 必须加载 `../steps/directing-workflow.md#Thinking-Action Node Contract`，检查本轮经过的关键节点是否形成 `thinking_action_node_ledger`；每条节点记录必须同时包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。节点只写 checklist、只写"已优化"结论或没有失败回路时，必须判为 `needs_rework`。
@@ -23,7 +26,7 @@
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N10R-DIR-REPAIR`，由 `3-导演` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-导演/第N集.md`。
-- 允许直接修复的范围：高潮承托、视觉美学组织、终结画面尾钩内嵌、controlled enrichment 留证、顾问证据、思维·执行节点、frontmatter/report 证据和格式。
+- 允许直接修复的范围：高潮承托、视觉美学组织、终结画面尾钩内嵌、controlled enrichment 留证、活人感行为动机种子、顾问证据、思维·执行节点、frontmatter/report 证据和格式。
 - 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `2-编剧` 修剧情、把 B 路线扩展为新增对白/桥段/因果。遇到这类问题必须输出 source owner 和阻断报告。
 - `pass_with_followups` 只允许非阻断质量建议；任何高潮承托、顾问参谋、场景状态差、受控增强、视觉美学、终结画面、创作证据或思维·执行节点问题不得降级为 followup。
 
@@ -39,6 +42,9 @@
 | `GATE-DIR-06` | 执行报告包含 `director_substance_evidence`、`peak_visual_plan`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`visual_aesthetic_evidence`、`episode_final_image_evidence` 和 `atmosphere_mood_evidence`，能够证明编导判断、高潮画面、顾问参谋、受控增强、视觉美学、终结画面和氛围意境已经发生；非机械特例必须说明降级原因 | `FAIL-CREATIVE-EVIDENCE` |
 | `GATE-DIR-07` | 每集已完成 `episode_final_image_pass`：终结画面作为迷你彩蛋尾钩，与下一集真实关联或明确为本集局部推断，不剧透下一集具体事件/结果/台词/新信息；已按类型化匹配选择环境描写式、道具特写式、情绪酝酿式或高潮结尾式，并从本集内容丝滑顺延到最后既有字段 | `FAIL-EPISODE-FINAL-IMAGE` |
 | `GATE-DIR-08` | 关键情绪场、压迫场、离别场或类型氛围场已执行 `atmosphere_mood_pass`：正文中能看到至少两个感官通道（视觉、听觉、触觉、嗅觉、时间感）和至少一种意境技法（通感、微观放大、反衬、声景层次、延时承托、留白），且意境细节没有新增剧情事实、对白、事件、规则或抽象审美词空转 | `FAIL-ATMOSPHERE-MOOD` |
+| `GATE-DIR-09` | 导演增强服从人物动作链优先：关键场景先有人物入场状态、动作向量、空间可达和退出状态；氛围、景境、道具、尾钩和受控新增没有抢走人物行动，也没有制造无证据位置/姿态/朝向变化 | `FAIL-ACTION-FIRST-01` / `FAIL-ACTION-FIRST-02` |
+| `GATE-DIR-10` | 关键场景有活人感行为动机种子：角色当前小事、生活压力/目标/阻碍、下意识反应方向和情绪落点可回指上游；多人场面已说明行动者/反应者，不把所有角色留给下游同强度表演 | `FAIL-LIVED-IN-01` / `FAIL-LIVED-IN-02` / `FAIL-LIVED-IN-04` |
+| `GATE-DIR-11` | 关键场景有场景身份种子：年代/空间功能/社会语境/环境声底色/材质光影可回指上游，供下游摄影、图像和视频锁定 scene identity；没有泛化地点标签、泛化 BGM 或摄影越权 | `FAIL-SCENE-IDENTITY-01` |
 
 ## Verdict Model
 
@@ -64,6 +70,9 @@ review:
     visual_aesthetic: pass
     atmosphere_mood: pass
     episode_final_image: pass
+    action_first_continuity: pass
+    lived_in_behavior_seed: pass
+    scene_identity_seed: pass
     creative_evidence: pass
     thinking_action_nodes: pass
     learning_integration_review: pass
@@ -78,6 +87,19 @@ review:
       character_pressure: ""
       scene_turn: ""
       directorial_strategy: ""
+      lived_in_behavior_seed:
+        micro_activity: ""
+        pressure_or_obstacle: ""
+        subconscious_response_direction: ""
+        emotional_landing: ""
+        action_driver: ""
+        reaction_receiver: ""
+      scene_identity_seed:
+        era_period: ""
+        location_function: ""
+        social_context: ""
+        soundscape_baseline: ""
+        material_lighting_baseline: ""
       embedded_in_fields:
         - ""
       risk_check:

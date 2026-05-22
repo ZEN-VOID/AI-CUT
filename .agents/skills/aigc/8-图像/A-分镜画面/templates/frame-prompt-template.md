@@ -33,7 +33,7 @@ Scene Reference Visual Style Lock:
 - status: <visible_in_conversation_context | scene_reference_missing | pending_view_image>
 - scene_reference_path: <场景参照图本地路径；无则留空>
 - style_notes: <从场景参照图提炼的整体画面风格，不只复述 north_star>
-- lighting_notes: <光源方向、光比、色温、高光/暗部形态>
+- lighting_notes: <光源相对镜头/画面的位置、照亮对象、光比、色温、高光/暗部形态、阴影或轮廓分离结果>
 - color_palette_notes: <主色、辅色、饱和度、冷暖关系>
 - atmosphere_notes: <雾气、烟尘、湿度、压迫感、年代感等>
 - material_notes: <木、石、金属、布料、墙面等可见材质质感>
@@ -57,6 +57,7 @@ Spatial Continuity Plan:
 
 Prompt Design Blueprint:
 - prompt_intent: <16:9 2K cinematic live action AIGC wuxia still + shot identity>
+- scene_frame_identity: <年代/空间功能/环境声或氛围基底/材质光影 + camera identity；prompt 不得直接从人物动作摘要开始>
 - source_truth: <当前单镜源真相；不吞并整组剧情>
 - subject_action: <主体、动作、道具交互、谁不应出现>
 - composition_lens: <镜头尺寸、焦段、机位高度、景深、构图重心>
@@ -67,5 +68,5 @@ Prompt Design Blueprint:
 - reference_usage: <角色/场景/道具参照图的使用方式和禁用边界>
 - negative_constraints: <字幕、logo、现代物、干净 CG、错误显露物、错误角色等>
 
-<Integrated AIGC image prompt in natural English, <= 800 words; must include frame composition, subject space, subject motion, scene environment, light and atmosphere, cinematography, visual style, avoid constraints, and: "Match the scene reference image's visual style, lighting, color palette, and atmosphere.">
+<Integrated AIGC image prompt in natural English, <= 800 words; must include frame composition, subject space, subject motion, scene environment, light and atmosphere, cinematography, visual style, avoid constraints, scene/frame/camera identity, source-relative lighting result, and: "Match the scene reference image's visual style, lighting, color palette, and atmosphere.">
 ```

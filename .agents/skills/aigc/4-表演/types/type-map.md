@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | `psychological_reaction_density` | `high` / `normal` / `low` | `心理反应`、抽象认知、主观情绪标签密集 | `N3-PERF-PSYCHOLOGICAL` |
 | `actor_control_need` | `required` / `optional` / `not_applicable` | 关键情绪 beat、压抑/爆发/情绪切换、模板化表情风险 | `N4-PERF-ACTOR-CONTROL` |
+| `dialogue_performance_need` | `required` / `optional` / `not_applicable` | 存在对白字段；`对白（角色）` 缺少第二项；状态短语空泛；关键对白缺少语气、情绪、气口、断句、声线、重音、尾音或对手反应 | `N4-PERF-ACTOR-CONTROL` |
 | `subtext_behavior_need` | `required` / `optional` / `not_applicable` | 潜台词、信任变化、试探、未出口对白 | `N5-PERF-SCENE-CRAFT` |
 | `scene_turn_need` | `required` / `optional` / `not_applicable` | 场景进入/转折/退出状态不清，关键场景平铺 | `N5-PERF-SCENE-CRAFT` |
 | `blocking_power_need` | `required` / `optional` / `not_applicable` | 权力关系、空间压迫、站坐高低、道具归属可见化不足 | `N6-PERF-BLOCKING` |
@@ -22,6 +23,7 @@
 performance_type_profile:
   psychological_reaction_density: high | normal | low
   actor_control_need: required | optional | not_applicable
+  dialogue_performance_need: required | optional | not_applicable
   subtext_behavior_need: required | optional | not_applicable
   scene_turn_need: required | optional | not_applicable
   blocking_power_need: required | optional | not_applicable

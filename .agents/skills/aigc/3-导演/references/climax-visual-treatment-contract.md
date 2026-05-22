@@ -1,14 +1,36 @@
 # Climax Visual Treatment Contract
 
-## Positioning
+## Purpose
 
-本文件将 `story/2-卷章/3-章级` 的章级爽点设计，投影为 `aigc/3-导演` 的高潮画面处理机制。
+本细则定义 `3-导演` 的高潮画面兑现模式。它将上游已存在的读者满足、冲突释放、认知翻转、关系暖点或体验高点，强化为可拍、可听、可执行的剧本字段，同时保持与上游的严格保真关系。
 
-`3-导演` 只负责从上游编剧稿中识别已经存在的读者满足、冲突释放、认知翻转、关系暖点或体验高点，并把它们强化为可拍、可听、可执行的剧本字段。它不得新增剧情事实、对白、事件结果或人物动机。
+`3-导演` 只负责识别和强化，不得新增剧情事实、对白、事件结果或人物动机。
+
+## Ownership
+
+- 本文件拥有高潮画面类型定义、兑现模式、受控强化边界、证据结构和越权检测。
+- `hollywood-quality-spec.md` 负责好莱坞级质量标准；本文件负责高潮画面的兑现方式判断。
+- `episode-visual-spine-contract.md` 负责整集视觉主轴；本文件的高潮画面应与主轴的 `callback_targets` 和 `rhythm_curve` 协调。
+- `episode-final-image-contract.md` 负责尾钩；本文件产出的 `cost_or_aftershock` 是尾钩的候选来源之一。
+- `atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；高潮画面可消费其通感、声景层次和延时承托技法。
+
+## Dependency Graph
+
+```
+climax-visual-treatment-contract.md
+├── consumed_by: N4-DIR-PEAK (高潮画面强化执行)
+├── consumed_by: N8-DIR-FINAL-IMAGE (消费 cost_or_aftershock)
+├── consumed_by: N9-DIR-DRAFT (内嵌终稿)
+├── consumed_by: N10-DIR-REVIEW (验证高潮质量)
+├── produces:
+│   └── peak_visual_plan (必须产出，包含 payoff_mode/delivery_action/satisfaction_delta/cost_or_aftershock)
+└── cross_reference:
+    └── N1-DIR-INTAKE (跨集同类高点参考)
+```
 
 ## Climax Visual Definition
 
-小说内容中的“高潮画面”不是单指大战或爆炸场面，而是本集最值得被影视化聚焦的满足兑现点。它通常来自以下成分：
+小说内容中的"高潮画面"不是单指大战或爆炸场面，而是本集最值得被影视化聚焦的满足兑现点。它通常来自以下成分：
 
 | climax_family | novel signal | visual treatment target |
 | --- | --- | --- |
@@ -18,6 +40,7 @@
 | `wave_payoff` | 关系升温、治愈、笑点、生活质感、风景高点、状态修复、软线索落点 | 亲密距离、轻动作、物件/食物/风景、状态前后差、温和尾钩 |
 | `horror_or_rule_peak` | 怪异显形、禁忌规则落地、死亡通报、污染扩散、集体失控 | 规则显影、系统画面、群像冻结、声音压迫、不可见来源处理 |
 | `spectacle_peak` | 奇观、仪式、灾变、巨大尺度、异质空间或物体显现 | 尺度关系、观看者反应、环境变化、声音核心、后果落点 |
+| `emotional_reckoning` | 情感清算、真相揭露后的沉默、长期压抑后的释放、关系转折点 | 身体反应、停顿、呼吸、距离变化、余韵承托 |
 
 ## Required Peak Visual Slots
 
@@ -25,19 +48,37 @@
 
 每个 candidate 至少回答：
 
-- `source_evidence`：上游哪一段、哪一动作、哪一信息或哪一关系变化支撑它。
-- `audience_desire`：观众此刻期待什么被兑现，例如行动结果、认知震荡、关系推进、情绪修复或世界感打开。
-- `promise_source`：该高点承接本集任务、角色欲望、关系欠账、信息欠账、规则压力或项目类型承诺中的哪一项。
-- `character_anchor`：高点绑定哪个角色的个性、欲望、缺陷、恐惧、关系姿态或成长压力。
-- `payoff_mode`：`kinetic_payoff`、`high-skill_duel`、`potential_payoff`、`wave_payoff`、`horror_or_rule_peak`、`spectacle_peak` 或项目自定义类型。
-- `build_up`：高点前压了什么、欠了什么、误导了什么、延迟了什么或铺了什么反差。
-- `delivery_action`：上游实际完成的兑现动作、发现、判断、选择、关系动作或体验落点。
-- `satisfaction_delta`：兑现前后，角色状态、局势、认知、关系、规则或世界感发生什么可见变化。
-- `visual_payload`：必须落入哪些可拍字段，例如 `动作画面`、`群像画面`、`表情特写`、`道具特写`、`系统画面`、`规则显影`、`现实灾难画面`、`环境描写`。
-- `audio_payload`：是否需要 `音效`、`旁白`、`独白` 或沉默后的环境声承托。
-- `cost_or_aftershock`：高点之后留下的代价、余波、新问题、情绪残响或尾钩。
+| axis | question | output evidence |
+| --- | --- | --- |
+| `source_evidence` | 上游哪一段、哪一动作、哪一信息或哪一关系变化支撑它？ | `source_anchor` 回指上游原文 |
+| `audience_desire` | 观众此刻期待什么被兑现？ | 行动结果、认知震荡、关系推进、情绪修复或世界感打开 |
+| `promise_source` | 该高点承接本集任务、角色欲望、关系欠账、信息欠账、规则压力或项目类型承诺中的哪一项？ | `promise_category` |
+| `character_anchor` | 高点绑定哪个角色的个性、欲望、缺陷、恐惧、关系姿态或成长压力？ | `character_binding` |
+| `payoff_mode` | 属于哪一种兑现类型？ | `kinetic_payoff / high-skill_duel / potential_payoff / wave_payoff / horror_or_rule_peak / spectacle_peak / emotional_reckoning` |
+| `build_up` | 高点前压了什么、欠了什么、误导了什么、延迟了什么或铺了什么反差？ | `build_up_strategy` |
+| `delivery_action` | 上游实际完成的兑现动作、发现、判断、选择、关系动作或体验落点是什么？ | `delivery_evidence` |
+| `satisfaction_delta` | 兑现前后，角色状态、局势、认知、关系、规则或世界感发生什么可见变化？ | `visible_delta` |
+| `visual_payload` | 必须落入哪些可拍字段？ | `动作画面 / 群像画面 / 表情特写 / 道具特写 / 系统画面 / 规则显影 / 环境描写` |
+| `audio_payload` | 是否需要音效、旁白、独白或沉默后的环境声承托？ | `sound_design_notes` |
+| `cost_or_aftershock` | 高点之后留下的代价、余波、新问题、情绪残响或尾钩是什么？ | `aftershock_plan` |
 
-若当前任务能读取近邻集或项目阶段报告，还应补 `payoff_variation_axis`：说明本集高潮画面相对近邻集在满足对象、兑现机制、尺度、时序、参与者、情绪颜色、代价、信息状态或环境使用上的差异。无法读取近邻集时，标注为 `episode-local inference`，不阻断输出。
+## Payoff Variation Axis
+
+当本集可以读取近邻集时，必须完成 `payoff_variation_axis`，说明本集高潮画面与近邻集的差异化策略：
+
+| variation dimension | description | example |
+| --- | --- | --- |
+| `satisfying_object` | 满足对象是否不同 | 前集满足"认知翻转"，本集满足"关系推进" |
+| `delivery_mechanism` | 兑现机制是否不同 | 前集靠动作兑现，本集靠沉默兑现 |
+| `scale_tier` | 尺度是否不同 | 前集是群体级，本集是个人级 |
+| `temporal_sequence` | 时序位置是否不同 | 前集在末尾爆发，本集在中段已引爆 |
+| `participant_change` | 参与者是否变化 | 前集是对手对决，本集是第三方介入 |
+| `emotional_color` | 情绪颜色是否变化 | 前集是愤怒释放，本集是悲伤清算 |
+| `cost_dimension` | 代价维度是否变化 | 前集是身体代价，本集是关系代价 |
+| `information_state` | 信息状态是否变化 | 前集是信息暴露，本集是信息保留 |
+| `environment_usage` | 环境使用是否变化 | 前集在封闭空间，本集在开放空间 |
+
+若无法读取近邻集，标注 `payoff_variation_axis: episode-local inference`，不阻断输出。
 
 ## Screenplay Projection Rules
 
@@ -46,6 +87,7 @@
 - `potential_payoff` 可以不爆炸。认知翻转、危险确认、沉默选择、规则显影或退路收窄，只要状态差清楚，也可以是高潮画面。
 - `wave_payoff` 可以不冲突。笑点、暖点、关系小进展、状态恢复、风景或生活质感高点，只要有 `satisfaction_delta`，也应被影视化承托。
 - `high-skill_duel` 不只限武斗；谈判交锋、推理追捕、棋局互算、心理诱导、规则漏洞和商业博弈都可以成为高潮画面，但必须呈现技术含量和胜负条件。
+- `emotional_reckoning` 类型必须依赖身体反应、停顿节奏、距离变化和余韵承托，不依赖新增对白或旁白解释。
 - 涉及恐怖、灾难、暴力或情色张力时，只做叙事功能、尺度关系、表演和可拍承托，不输出露骨或 gratuitous 描写。
 - 不新增 `高潮画面` 作为正文固定字段；默认把强化结果落入既有正式字段，避免下游分组解析出现第二套字段体系。确需留证据时，可写入执行报告而非逐集正文主字段。
 
@@ -53,19 +95,130 @@
 
 | weak projection | strengthened projection |
 | --- | --- |
-| 只写“局势反转” | 写出谁先停住、哪个道具或系统字改变、对手表情如何失去控制、群体如何反应 |
-| 只写“他很震惊” | 写眼神、手、呼吸、身体距离、沉默时长、对手或环境反应 |
-| 只写“规则生效” | 写黑板/屏幕/广播/纸面/红线/座位/灯光如何显影，谁因此被迫改变动作 |
-| 只写“关系升温” | 写距离缩短、动作照顾、物件交换、未说出口的停顿、对方接住的小反应 |
-| 只写“打赢了” | 写胜负条件、关键反制、代价、旁观者见证、结果如何改变下一步 |
+| 只写"局势反转" | 写出谁先停住、哪个道具或系统字改变、对手表情如何失去控制、群体如何反应 |
+| 只写"他很震惊" | 写眼神、手、呼吸、身体距离、沉默时长、对手或环境反应 |
+| 只写"规则生效" | 写黑板/屏幕/广播/纸面/红线/座位/灯光如何显影，谁因此被迫改变动作 |
+| 只写"关系升温" | 写距离缩短、动作照顾、物件交换、未说出口的停顿、对方接住的小反应 |
+| 只写"打赢了" | 写胜负条件、关键反制、代价、旁观者见证、结果如何改变下一步 |
+| 只写"她哭了" | 写呼吸节奏、手指蜷曲、视线落点、身体蜷缩程度、眼泪滑落路径、周围人的反应距离 |
 
-## Review Expectations
+## Boundary
 
-交付前检查：
+**允许**：
+
+- 强化画面密度、声音密度、表演任务、空间阻力、道具显影、群体反应和余波承托。
+- 使用五感细节和意境技法（通感、微观放大、反衬、声景层次、延时承托、留白）深化高潮画面。
+- 让 `cost_or_aftershock` 作为尾钩候选，被 `N8-DIR-FINAL-IMAGE` 消费。
+- 消费整集视觉主轴的 `callback_targets`，让高潮画面承担呼应或变奏角色。
+
+**禁止**：
+
+- 改写 `delivery_action` 或 `satisfaction_delta`，使其与上游原文不一致。
+- 新增上游没有的胜负、死亡、表白、反转、灾害、对白、道具功能或规则条件。
+- 把高潮画面写成"高潮场面"的动作流水账，缺少兑现前后的状态差。
+- 越过下游摄影边界，写出机位、景别、镜头运动或分镜编号。
+- 硬造大高潮：当上游没有真正高点时，标注 `peak_visual_candidate: null`，锁定最强 `micro_payoff`。
+
+## Evidence Contract
+
+执行报告中的 `peak_visual_plan` 必须包含：
+
+```yaml
+peak_visual_plan:
+  peak_visual_candidates:
+    - source_evidence: ""  # 回指上游原文锚点
+      audience_desire: ""
+      promise_source: ""
+      character_anchor: ""
+      payoff_mode: ""
+      build_up: ""
+      delivery_action: ""  # 必须与上游原文一致
+      satisfaction_delta: ""
+      visual_payload: []
+      audio_payload: ""
+      cost_or_aftershock: ""
+      payoff_variation_axis:
+        satisfying_object: ""
+        delivery_mechanism: ""
+        scale_tier: ""
+        temporal_sequence: ""
+        participant_change: ""
+        emotional_color: ""
+        cost_dimension: ""
+        information_state: ""
+        environment_usage: ""
+        status: "episode-local inference | cross-episode referenced"
+  risk_check:
+    fact_drift: false  # delivery_action 是否漂移
+    new_dialogue: false
+    new_causality: false
+    new_rule: false
+    new_episode: false
+    delivery_action_preserved: true  # 兑现动作是否与上游一致
+    satisfaction_delta_preserved: true  # 状态差是否与上游一致
+    no_photography_overreach: true
+```
+
+## Failure Cases
+
+### Failure 1: 高潮画面强化改变了上游结果
+
+**症状**：`delivery_action` 或 `satisfaction_delta` 在输出中与上游原文不一致，出现了上游没有的胜负、表白、死亡或反转。
+
+**诊断**：N4-DIR-PEAK 为了让高潮"更炸"，在强化过程中不知不觉改变了上游已有的事件结果。
+
+**修复**：回到 `source_evidence`，逐字对比上游原文；若发现不一致，恢复到原始兑现动作和状态差，只保留画面/声音/表演/余波的承托增强。
+
+**验证**：执行报告中每个 `peak_visual_plan.delivery_action` 能回指上游原文，没有新增上游没有的胜负、表白、死亡或反转。
+
+### Failure 2: 硬造大高潮
+
+**症状**：上游没有真正的高潮画面成分，但 N4-DIR-PEAK 仍锁定了 `peak_visual_candidate` 并硬套兑现模式，导致强化结果空洞。
+
+**诊断**：N4-DIR-PEAK 没有先判断上游是否真的存在高点成分，直接进入了强化流程。
+
+**修复**：若上游没有明确或隐性的高潮画面成分，将 `peak_visual_candidate` 标注为 `null`，锁定最强 `micro_payoff` 并标注 `episode-local micro_payoff only`。
+
+**验证**：执行报告中 `peak_visual_plan.peak_visual_candidates` 能回答"上游的哪个成分支撑这个高点"，若无法回答则 `candidate` 置 null。
+
+### Failure 3: 高潮画面缺少兑现前后的状态差
+
+**症状**：`satisfaction_delta` 只写了"他赢了"或"她哭了"等结论，没有具体的状态变化描述，观众无法感知兑现前后的可见差别。
+
+**诊断**：N4-DIR-PEAK 把兑现当成了一个瞬间事件，没有追踪状态从 A 到 B 的具体路径。
+
+**修复**：回到 `satisfaction_delta`，为每个兑现动作补充兑现前后的具体状态差。例如"她哭了"→"她的肩膀从紧绷变成轻微颤抖，她的视线从直视变成落向地面，她的呼吸从屏住变成一声一声地往外送，对面的人手从握紧变成悬在半空没有落下"。
+
+**验证**：执行报告中每个 `satisfaction_delta` 至少包含 2 个具体的兑现前后状态对比，不是只有结论。
+
+### Failure 4: 同类高点的兑现机制机械重复
+
+**症状**：本集与近邻集使用了相同的 `payoff_mode` 和类似的兑现机制，观众体验缺乏差异。
+
+**诊断**：N4-DIR-PEAK 没有完成 `payoff_variation_axis`，或者完成了但没有基于差异策略调整兑现方式。
+
+**修复**：回到 `payoff_variation_axis`，为每个 variation dimension 选择差异化策略。例如若近邻集用"动作兑现"，本集改为"沉默兑现"；若近邻集是"群体见证"，本集改为"个人独处"。
+
+**验证**：执行报告中 `payoff_variation_axis` 的每个 dimension 都有具体的差异化说明，不是只有 `status: cross-episode referenced`。
+
+### Failure 5: emotional_reckoning 类型缺少身体反应承托
+
+**症状**：使用 `emotional_reckoning` 类型时，只写了"情感爆发"或"沉默"，没有具体的身体反应、停顿节奏和距离变化。
+
+**诊断**：N4-DIR-PEAK 把情感清算当成内心事件处理，没有将情绪转化为可拍的身体表演细节。
+
+**修复**：回到 `emotional_reckoning` 类型，补充具体的身体反应矩阵：呼吸节奏变化、手指/手心状态、视线落点、身体姿态变化、与他人距离变化。情感清算的力量来自身体细节的堆叠，不是情绪词汇。
+
+**验证**：执行报告中 `emotional_reckoning` 类型的 `visual_payload` 至少包含 3 个具体的身体反应细节。
+
+## Review Checklist
 
 - 上游存在高潮画面成分时，输出没有把它压平成普通叙述。
 - 每个锁定高点都有 `source_evidence`，能回指上游事实。
 - 高点至少被一个强画面字段和必要声音/沉默承托。
-- `delivery_action` 与 `satisfaction_delta` 在输出正文中可见或可听。
+- `delivery_action` 与 `satisfaction_delta` 在输出正文中可见或可听，且与上游原文一致。
 - 强化没有新增剧情事实、对白或因果。
-- 若近邻集可读，同类高点没有在对象、机制、尺度、情绪和后果上机械重复。
+- 若近邻集可读，`payoff_variation_axis` 的每个 dimension 都有差异化策略。
+- `cost_or_aftershock` 包含至少 2 个具体的代价或余波描述，不是只有"有余韵"。
+- 若上游没有真正高点，`peak_visual_candidate` 标注为 null 并锁定 `micro_payoff`。
+- 高潮画面没有摄影越权（无机位、景别、镜头运动或分镜编号）。

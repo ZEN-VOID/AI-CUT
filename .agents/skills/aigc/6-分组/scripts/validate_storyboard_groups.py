@@ -2,9 +2,9 @@
 """Mechanically validate AIGC storyboard group Markdown files.
 
 This script is intentionally read-only. It checks structure, rough word
-limits, explicit shot-duration sums, group IDs, required connector fields, YAML
-stats, and connector shape. It does not generate grouping decisions or creative
-text.
+limits, explicit shot-duration sums, group IDs, required establishing-shot and
+connector fields, YAML stats, and connector shape. It does not generate grouping
+decisions or creative text.
 """
 
 from __future__ import annotations
@@ -35,6 +35,14 @@ STATS_COUNT_RE = re.compile(r"(\d+)")
 SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
+ESTABLISHING_SHOT_LABEL = "定场镜头："
+ESTABLISHING_CONTINUITY_MARKERS = (
+    "承接上一组结束状态",
+    "承接上组末尾",
+    "承接上一组末尾",
+    "延续上一组结束状态",
+    "延续上组末尾",
+)
 VISUAL_TONE_LABEL = "画面属性："
 CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
@@ -224,6 +232,14 @@ def is_scene_title_line(line: str) -> bool:
     return SCENE_TITLE_LINE_RE.match(line.strip()) is not None
 
 
+def nonempty_lines_after_heading(body: str) -> list[tuple[int, str]]:
+    return [
+        (index, line.strip())
+        for index, line in enumerate(body.splitlines()[1:], start=1)
+        if line.strip()
+    ]
+
+
 def extract_label_content(body: str, label: str) -> str:
     lines = body.splitlines()
     for index, line in enumerate(lines):
@@ -272,11 +288,15 @@ def extract_style_lines(body: str) -> list[str]:
     lines = body.splitlines()
     style_lines: list[str] = []
     skipped_scene_title = False
+    skipped_establishing_shot = False
     skipped_visual_tone = False
     for line in lines[1:]:
         stripped = line.strip()
         if stripped and not skipped_scene_title:
             skipped_scene_title = True
+            continue
+        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
+            skipped_establishing_shot = True
             continue
         if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
             skipped_visual_tone = True
@@ -311,11 +331,15 @@ def style_line_indices(body: str) -> list[int]:
     lines = body.splitlines()
     indices: list[int] = []
     skipped_scene_title = False
+    skipped_establishing_shot = False
     skipped_visual_tone = False
     for index, line in enumerate(lines[1:], start=1):
         stripped = line.strip()
         if stripped and not skipped_scene_title:
             skipped_scene_title = True
+            continue
+        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
+            skipped_establishing_shot = True
             continue
         if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
             skipped_visual_tone = True
@@ -336,6 +360,7 @@ def strip_group_non_body_sections(body: str) -> str:
     content_lines: list[str] = []
     non_empty_seen = 0
     skipped_scene_title = False
+    skipped_establishing_shot = False
     skipped_visual_tone = False
     for line in lines:
         stripped = line.strip()
@@ -345,6 +370,10 @@ def strip_group_non_body_sections(body: str) -> str:
             if stripped:
                 skipped_scene_title = True
                 content_lines.append(line)
+            continue
+        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
+            skipped_establishing_shot = True
+            content_lines.append(line)
             continue
         if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
             skipped_visual_tone = True
@@ -557,19 +586,33 @@ def validate_file(path: Path) -> ValidationResult:
 
     previous_by_scene: dict[int, int] = {}
 
-    for group in groups:
+    for group_index, group in enumerate(groups):
         prefix = f"{display_path(path)}:{group.line_number}: {group.group_id}"
         if expected_episode is not None and group.episode != expected_episode:
             errors.append(f"{prefix} episode segment does not match 第{expected_episode}集")
 
         leading_scene_title = extract_leading_scene_title(group.body)
         leading_scene_numbers = extract_scene_title_numbers(leading_scene_title)
+        leading_lines = nonempty_lines_after_heading(group.body)
         if not leading_scene_title or not is_scene_title_line(leading_scene_title):
             errors.append(f"{prefix} must start with a scene title line before north_star style lines")
         elif CONNECTOR_SCENE_ARROW in leading_scene_title:
             errors.append(f"{prefix} group scene title must contain exactly one scene title, not a transition")
         elif leading_scene_numbers[:1] != [group.scene]:
             errors.append(f"{prefix} scene title must start with 场景{group.scene}")
+        establishing_line = leading_lines[1][1] if len(leading_lines) >= 2 else ""
+        if len(leading_lines) < 2 or not establishing_line.startswith(ESTABLISHING_SHOT_LABEL):
+            errors.append(
+                f"{prefix} must include {ESTABLISHING_SHOT_LABEL} immediately after the scene title line"
+            )
+        elif establishing_line == ESTABLISHING_SHOT_LABEL:
+            errors.append(f"{prefix} empty {ESTABLISHING_SHOT_LABEL}")
+        elif group_index > 0 and not any(
+            marker in establishing_line for marker in ESTABLISHING_CONTINUITY_MARKERS
+        ):
+            errors.append(
+                f"{prefix} {ESTABLISHING_SHOT_LABEL} must explicitly continue the previous group ending state using one of {ESTABLISHING_CONTINUITY_MARKERS}"
+            )
 
         scene_numbers = extract_scene_numbers(group.body)
         unique_scene_numbers = sorted(set(scene_numbers))
@@ -616,15 +659,15 @@ def validate_file(path: Path) -> ValidationResult:
             )
         if char_count > HARD_CHAR_COUNT:
             errors.append(
-                f"{prefix} estimated scene-title-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
+                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
             )
         elif char_count > TARGET_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated scene-title-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
+                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
             )
         if char_count < MIN_REVIEW_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated scene-title-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
+                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
         validate_yaml_stats(group, char_count, duration_seconds, errors, warnings)

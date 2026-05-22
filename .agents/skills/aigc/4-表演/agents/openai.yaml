@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 表演"
-  short_description: "在导演稿基础上注入表演工艺：心理反应可感知化、演员演技控制、潜台词行为化、场面调度。"
-  default_prompt: "使用 $aigc-performance，把 projects/aigc/<项目名>/3-导演/第N集.md 升级为 projects/aigc/<项目名>/4-表演/第N集.md，注入心理反应可感知化、演员演技控制、潜台词行为化、场面调度和沉默余波。"
+  short_description: "在导演稿基础上注入表演工艺：心理反应、演员控制、动作链、活人感行为和场面调度。"
+  default_prompt: "使用 $aigc-performance，把 projects/aigc/<项目名>/3-导演/第N集.md 升级为 projects/aigc/<项目名>/4-表演/第N集.md，注入心理反应可感知化、演员演技控制、潜台词行为化、场面调度和沉默余波；关键 beat 必须保持人物动作链、空间可达性、情绪动作经济和活人感行为动机，单人场面有当前小事、下意识反应和情绪落点，多人场面明确谁行动谁反应，不用无互动道具、随机忙动作或环境反应硬填表演。"

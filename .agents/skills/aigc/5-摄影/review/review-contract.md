@@ -17,11 +17,15 @@
 | `functional_projection_review` | 交付前 | 检查每个 `分镜N` 是否有影视功能、运镜策略和下游 AIGC 可消费 payload，而不是随机好看句 |
 | `content_paraphrase_review` | 交付前 | 对候选 `分镜N` 做源句复述扣除测试：去掉上游原句已有主体、动作、道具和事实后，仍能读出摄影机如何看、动、停、转焦、布光或交接 |
 | `ai_video_prompt_execution_review` | 交付前 | 检查每个 `分镜N` 是否符合 AI 视频执行稳定性：镜头先行包裹动作、方向参照明确、光线写结果、表演微动态可见，且未把完整提示词分栏或命令式负向词塞入分镜正文 |
+| `scene_shot_identity_review` | 交付前 | 检查需要进入图像或视频阶段的分镜是否先锁定场景身份和镜头身份：年代/空间功能/环境声基底/材质光影、摄影机位置朝向、相对画面方向和动作在镜头内部发生 |
+| `action_first_continuity_review` | 交付前 | 检查每条涉及人物的 `分镜N` 是否先承接人物姿态、位置、朝向、身体接触、动作方向和注意力落点；触碰/取用/查看/避开对象是否空间可达；道具/环境细节是否通过准入且未抢走动作链 |
+| `action_reaction_focus_review` | 交付前 | 检查多人 beat 是否明确行动者、反应者和背景参与者；镜头是否保留动作-反应因果焦点，而不是让所有角色同强度表演或用奇怪角度同时照顾所有人 |
 | `thinking_action_node_review` | 交付前 | 检查 `PASS-CINE-*` / `N*-*` 是否完成真源锁定、画面匹配、类型画像、段落观看意图与逐点归属、节拍、节奏、镜头时值、高点、连续性、摄影语法、功能投影、AI 视频执行稳定性、计划汇流、自然注入和阶段内修复闭环 |
 | `camera_grammar_review` | 交付前 | 检查景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化是否有节拍、空间、信息或情绪动机 |
 | `camera_design_scope_review` | 交付前 | 检查 `分镜明细：` 是否只承载运镜手法、摄影美学、扩展维度信息点、内部注意力转交和可消费交出锚点，没有抽象主题、心理结论、世界观解释、导演阐释或不可执行气氛口号 |
 | `scene_visual_constraint_review` | 交付前 | 检查每个场景是否已形成内部场景视觉约束 `scene_visual_constraint`，约束覆盖构图布局（主体/陪体/前景/背景）、构图方式（形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势中选取 2-3 个子维度）、光源设置效果、色彩体系和关键摄影技术参数；同一场景视觉约束不变时只裁决一次，变化时可重新裁决；纯内部裁决，不检查成稿中的画面基调语句 |
 | `shot_detail_dimension_review` | 交付前 | 检查每条 `分镜N` 的自然语句是否覆盖了当前画面中自然存在的扩展维度信息点（角色表演/非角色动态/镜头技术/光影精细/焦点精细/节奏同步）；遵循"应有则有、没有不必强制"原则，画面中有角色就写角色表演，没有则跳过，不为凑数虚构画面中不存在的信息；维度信息融入自然中文而非标签列表 |
+| `prop_shot_admission_review` | 交付前 | 检查道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等物件细节是否通过准入：角色互动、关键信息/规则/证据/危险源或必要环境交代；无互动普通道具不得成为独立镜头、焦点拉移终点、反射主体或动作衔接节点 |
 | `natural_language_review` | 交付前 | 检查 `分镜明细：` 是否读起来像自然中文镜头文字，而不是参数清单、模板填空或连续同构句 |
 | `shot_count_distribution_review` | 交付前 | 检查同一集或同一场分镜数量是否被模板化为固定 2 镜；抽样确认 1/2/3/4 镜均来自真实节拍 |
 | `sequence_density_curve_review` | 交付前 | 检查连续观看段落是否形成 `sequence_density_curve`：有清楚 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget / handoff_anchors`，而不是只做单句分镜数判断 |
@@ -31,7 +35,7 @@
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/cinematography-workflow.md` 的 `N8R-DIRECT-REPAIR`，由 `5-摄影` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `5-摄影/第N集.md`。
-- 允许直接修复的范围：`分镜明细：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头时值、`shot_design_plan` 汇流、源句复述扣除失败、AI 视频执行稳定性、镜头连续性、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
+- 允许直接修复的范围：`分镜明细：` 覆盖、`分镜N` 连续编号、节拍数量、画面节奏、镜头时值、`shot_design_plan` 汇流、源句复述扣除失败、AI 视频执行稳定性、镜头连续性、动作-反应焦点、专业可执行性、动态表达、峰值分镜、执行报告和 review 证据。
 - 禁止直接修复的范围：改写 `4-表演` 原文、对白、场景标题、字段顺序、剧情事实或上游 source truth。遇到这类问题必须输出 source owner 和阻断报告。
 - `pass_with_followups` 只允许非阻断质量建议；任何覆盖、编号、保真、空间连续性、专业可执行、源句复述扣除失败、AI 视频执行稳定性或 LLM-first 问题不得降级为 followup。
 
@@ -51,6 +55,7 @@
 | `GATE-CINE-04D` | 逐画面点归属 | 相邻画面单位可形成内部 `sequence_profile`，但每个 `分镜明细` 只服务正上方画面句子；每条 `分镜N` 能回指所属 `visual_unit`，没有为了段落流畅吞入后文主体动作、对白反应、记忆段、道具揭示或跨场景连接方案 |
 | `GATE-CINE-05` | 画面节奏 | 低信息/过场句收敛，关键揭示/强情绪/空间重置句发散，描述密度与信息重要性匹配 |
 | `GATE-CINE-06` | 连续性回看 | 当前分镜明细已在内部承接临近至少前 3 个画面单位；不足 3 个时承接已有画面单位，输出不机械展示回看过程 |
+| `GATE-CINE-06A` | 动作链优先 | 每条涉及人物的 `分镜N` 先承接人物姿态、站位、朝向、身体接触、动作方向和注意力落点；触碰/取用/查看/避开对象前空间可达；镜头切点、焦点和时值没有被无互动对象牵引 |
 | `GATE-CINE-07` | 专业可执行 | 内部锁定景别、景深、镜头视角、镜头类型、运镜速度等必要参数；成稿只显式写当前节拍最关键的摄影选择，并按需要补充构图、机位、运动、光影、色彩或交出锚点中的有效选择 |
 | `GATE-CINE-08` | 动态流畅 | 分镜明细能反推出起点、路径、速度变化、显式秒数对应的时值等级和注意力转移，不是静态标签列表，也不是机械套句 |
 | `GATE-CINE-09` | 分镜计划投影 | 每个 `visual_unit` 输出前已有 `shot_design_plan`；最终 `分镜N` 的数量、顺序、入口、单镜时值、摄影语法、运镜路径、停点、落点和交出点可反推 beat/rhythm/duration/continuity/handoff/camera/function |
@@ -70,6 +75,9 @@
 | `GATE-CINE-21` | 边界交出 | 场景变化已处理上一画面交出点和下一画面进入提示；所有声画、形态、颜色、文字或高点余波只作为可见交出锚点记录，没有在本阶段写成组间/跨场景创意转场方案 |
 | `GATE-CINE-22` | 场景视觉约束 | 每个场景已在内部形成 `scene_visual_constraint`，覆盖构图布局（主体/陪体/前景/背景）、构图方式（形状感/线条感/影调感/虚实感/节奏感/纹理质感/气势中选取 2-3 个子维度）、光源设置效果、色彩体系和关键摄影技术参数；同一场景视觉约束不变时只裁决一次，变化时可重新裁决；纯内部裁决，逐镜分镜明细在约束框架内展开 |
 | `GATE-CINE-23` | 分镜明细维度覆盖 | 每条 `分镜N` 的自然语句覆盖了当前画面中自然存在的扩展维度信息点；维度选取遵循"应有则有、没有不必强制"原则——画面中有角色就写角色表演，有陪体就写陪体动态，没有则跳过，不为凑数虚构画面中不存在的信息；维度信息融入自然中文而非输出标签列表或参数清单；`shot_design_plan` 中有 `dimension_coverage` 字段说明覆盖了哪些维度及为什么 |
+| `GATE-CINE-24` | 道具镜头准入 | 道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等物件细节只有在角色互动、关键信息/规则/证据/危险源或必要环境交代时成为焦点；无互动普通道具未被写成独立特写、焦点拉移终点、反射主体或多分镜衔接节点 |
+| `GATE-CINE-25` | 动作-反应焦点 | 多人 beat 已区分 `action_driver/reaction_receiver/ambient_participants`；镜头先服务动作如何影响反应，没有让所有角色同强度表演，也没有为了同时照顾所有人和物件而牺牲轴线、动作链或主体焦点 |
+| `GATE-CINE-26` | 场景/镜头身份 | 每条下游可消费分镜能先还原 `scene_identity` 与 `shot_identity`：场景年代/功能/环境声/材质光影明确，摄影机位置朝向明确，人物动作发生在镜头内部，方向参照相对镜头或画面边界 |
 
 ## Failure Routing
 
@@ -102,6 +110,12 @@
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
 | `FAIL-CINE-05P` | 场景视觉约束缺失或未被消费：场景未形成内部 `scene_visual_constraint`，或构图布局/构图方式/光源/色彩/摄影技术参数未作为内部约束被下游分镜明细消费 | `references/scene-visual-constraint-contract.md`、`references/cinematic-technique-library.md`、`steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05Q` | 分镜明细维度覆盖问题：画面中存在角色表演/陪体动态/前景动态/光影反射/动态焦点/节奏同步等信息却未被摄影机表达，或维度以标签形式输出而非融入自然中文，或为凑数虚构画面中不存在的信息 | `references/shot-detail-dimension-contract.md`、`references/functional-cinematic-projection-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
+| `FAIL-CINE-05S` | 无互动普通道具被硬写成焦点、倒影、涟漪、餐具轻响、纸角阴影或独立特写；删掉该物件镜头不损失剧情/表演/空间信息，反而能恢复人物动作衔接 | `references/visual-matching-contract.md#Prop-Admission-Overlay`、`references/shot-detail-dimension-contract.md#Core-Rule`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-05T` | 分镜为了物件、环境反应、反射或静物切点牺牲人物动作链；人物姿态、方向、可达对象或退出状态不清，删掉该细节后动作更顺 | `../../_shared/action-first-continuity-contract.md`、`references/shot-continuity-contract.md`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-05U` | 多人 beat 的镜头没有行动-反应焦点：所有角色同等强度表演，或为同时照顾多人/物件选择奇怪角度，导致动作因果、视线关系和主体焦点混乱 | `../../_shared/lived-in-character-behavior-contract.md`、`references/shot-continuity-contract.md#Action-Reaction-Focus`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-SCENE-IDENTITY-01` | 分镜只写人物动作或抽象氛围，无法看出年代、空间功能、环境声底色、材质光影和场景身份 | `../../_shared/scene-shot-identity-contract.md`、`references/scene-visual-constraint-contract.md`、`steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` |
+| `FAIL-SHOT-IDENTITY-01` | 动作先发生，镜头只在后面补推进/跟拍/特写，无法稳定生成连续视频 | `../../_shared/scene-shot-identity-contract.md`、`references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` |
+| `FAIL-DIRECTION-REF-01` | 前后左右、入画退场或光线方向没有相对镜头/画面参照 | `../../_shared/scene-shot-identity-contract.md`、`references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-19A` | 跨分镜组或跨镜头切换时动作锚点断裂，人物姿态、位置或身体接触状态在下一镜凭空变化 | `references/shot-continuity-contract.md#Action-Anchor-Inheritance`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-19B` | 眼睛特写没有限定正面双眼/正面上半脸，容易生成单眼侧面或畸形五官 | `references/ai-video-prompt-execution-contract.md#Eye-Close-up-Rule`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-19C` | 抽象情绪词直接进入分镜明细，未转译为面部肌肉、呼吸、手部、身体姿态或视线变化 | `references/ai-video-prompt-execution-contract.md#Performance-Microdynamic-Rule`、`references/natural-shot-detail-writing-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
@@ -130,11 +144,15 @@
 - 功能性影视投影与 AIGC 下游可消费性检查结果。
 - 源句复述扣除测试结果：抽样说明候选分镜是否脱离“画面内容拆写/复述”，以及因 `FAIL-CINE-05R` 修复的行号或字段标签。
 - AI 视频执行稳定性检查结果：镜头先行、方向参照、光线结果、表演微动态、提示词模板腔和命令式负向词风险。
+- 场景/镜头身份检查结果：场景年代/功能/环境声/材质光影、摄影机位置朝向、动作是否发生在镜头内部、方向参照是否相对镜头或画面边界。
+- 人物动作链优先检查结果：涉及人物的分镜是否承接姿态、位置、朝向、身体接触、动作方向和注意力落点；对象是否空间可达；因 `FAIL-CINE-05T` 删除或降级的物件/环境切点。
+- 动作-反应焦点检查结果：多人 beat 是否明确行动者、反应者和背景参与者；因 `FAIL-CINE-05U` 收敛或改写的多人同强度表演、奇怪角度或抢焦物件。
 - 顾问请教 roster 来源、问题类型、可执行指导或降级说明。
 - 镜头连续性、空间一致性和风格一致性结果。
 - 运镜摄影设计纯度检查结果。
 - 场景视觉约束内部裁决结果：每个场景是否已形成 `scene_visual_constraint`、构图布局/构图方式/光源/色彩/摄影技术参数覆盖情况、逐镜分镜明细是否在约束框架内展开。
 - 分镜明细维度覆盖检查结果：每条分镜覆盖的维度及来源（画面中确实存在的信息）、维度信息自然化程度、是否存在虚构维度或遗漏已存在维度。
+- 道具镜头准入检查结果：涉及物件焦点、反射、倒影、涟漪或独立特写的分镜是否有互动、关键信息、规则/证据/危险源或必要环境理由；因 `FAIL-CINE-05S` 删除或降级的行号/字段标签。
 - 自然成稿检查结果。
 - 需要返工的行号或字段标签。
 - repair actions、复审 verdict、未修复风险和是否允许进入下游阶段。

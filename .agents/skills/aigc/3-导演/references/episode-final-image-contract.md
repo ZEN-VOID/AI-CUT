@@ -11,6 +11,28 @@
 - 只落入既有剧本字段，不新增 `终结画面` 正文字段，不提前写摄影、分镜或图像提示词。
 - 作为剧本正文时必须保持纯画面/纯声音/纯表演可执行，不写小说式抽象、作者解释、象征说明或文学比喻。
 
+## Ownership
+
+- 本文件拥有终结画面的类型判断、建造规则、证据结构和禁止边界。
+- `climax-visual-treatment-contract.md` 负责 `peak_visual_pass`，其中 `cost_or_aftershock` 字段是尾钩的候选来源；本文件负责将其余韵转化为追更欲。
+- `episode-visual-spine-contract.md` 负责整集视觉主轴，`callback_targets` 中的未闭合母题可作为尾钩候选；本文件负责将其转化为终结画面的空间/道具/情绪落点。
+- `atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；本文件使用其中留白、静物、延时承托和反衬技法制造尾钩。
+
+## Dependency Graph
+
+```
+episode-final-image-contract.md
+├── consumed_by: N8-DIR-FINAL-IMAGE (终结画面形成)
+├── consumed_by: N9-DIR-DRAFT (内嵌终稿)
+├── consumed_by: N10-DIR-REVIEW (验证尾钩质量)
+├── consumes:
+│   ├── climax-visual-treatment-contract.md (peak_visual_pass.cost_or_aftershock)
+│   ├── episode-visual-spine-contract.md (callback_targets, motif_chain)
+│   └── atmosphere-and-mood-contract.md (意境技法)
+└── produces:
+    └── episode_final_image_evidence (执行报告证据)
+```
+
 ## Episode Final Image Pass
 
 每集进入 LLM 草稿前，必须先按 `types/episode-final-image-type-map.md` 形成 `final_image_type_profile`，再建立 `episode_final_image_plan`，并由 `N9-DIR-DRAFT` 把它内嵌到本集最后一组既有字段中。
@@ -49,27 +71,77 @@
 ## Construction Rules
 
 - 优先从本集末场、`peak_visual_plan.cost_or_aftershock`、`episode_visual_spine.callback_targets`、关键道具状态、环境刷新、沉默反应和未完成动作中寻找尾钩。
-- 若下一集正文可读，必须只提取“关联方向”，不得搬运下一集事件、台词、反转、角色登场或结果。
+- 若下一集正文可读，必须只提取"关联方向"，不得搬运下一集事件、台词、反转、角色登场或结果。
 - 若下一集正文不可读，允许写 `next_episode_relation: episode-local inference`，只基于本集未解决压力、项目类型承诺和视觉主轴建立尾钩，不硬造下一集事实。
 - 终结画面不是只能一两个镜头；可以是一段 3-6 个 beat 的尾场小段落，通过环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向共同完成收束。
 - 终结画面应准、可拍、余味强；它是最后一组画面/声音/动作落点，不是结尾说明、剧情总结或预告词。
-- 避免“像/仿佛/象征/意味着/命运/下一处账目”等小说化或评论式表达；若需要意境，改用具体光线、湿度、物件运动、身体距离、门窗开合、船灯位置、声源方向和停顿节奏。
+- 避免"像/仿佛/象征/意味着/命运/下一处账目"等小说化或评论式表达；若需要意境，改用具体光线、湿度、物件运动、身体距离、门窗开合、船灯位置、声源方向和停顿节奏。
 - 尾钩必须能被下游摄影和分组消费，但 `3-导演` 只写导演/演员/声画可执行材料，不写机位、景别、镜头运动或分镜编号。
+
+## Pass Relationship with Peak Visual Pass
+
+`episode_final_image_pass` 与 `peak_visual_pass` 的关系：
+
+- **互补不重叠**：`peak_visual_pass` 负责"本集最高潮的画面如何被强化"，`episode_final_image_pass` 负责"最后一个画面如何制造追更欲"。两者可以作用于同一场（如尾钩是高潮余韵），但功能不同。
+- **数据流**：`peak_visual_pass` 产出的 `cost_or_aftershock` 是 `episode_final_image_pass` 的候选尾钩来源之一；后者消费前者，但不替代前者。
+- **独立性**：即使本集没有真正的"高潮"，只要有末场、道具状态、关系未竟或压力方向，仍可形成有效的尾钩。`episode_final_image_pass` 不依赖 `peak_visual_pass` 的存在。
 
 ## Boundary
 
-允许：
+**允许**：
 
 - 使用本集已有环境、道具、声音、群像、表演和高点余波制造追更欲望。
 - 让尾钩与下一集主题、压力、关系、空间或未解信息方向有关联。
 - 通过留白、异常状态、声音余波、道具未归位、人物未出口反应制造小悬念。
 
-禁止：
+**禁止**：
 
 - 剧透下一集具体事件、反转、死亡、胜负、告白、规则答案、新角色身份或关键对白。
 - 为了尾钩新增本集没有的道具、线索、规则、伤势、来信、系统提示、灾害、追兵或人物动机。
-- 把终结画面写成“下一集预告”“敬请期待”“他不知道的是...”或作者式解释。
+- 把终结画面写成"下一集预告""敬请期待""他不知道的是..."或作者式解释。
 - 在逐集正文中新增 `终结画面：` 字段；证据写入执行报告，正文只使用既有字段。
+
+## Failure Cases
+
+### Failure 1: 尾钩变成下一集预告
+
+**症状**：终结画面包含了下一集的具体事件、角色登场、反转或台词，让观众提前知道了下集会发生什么。
+
+**诊断**：`episode_final_image_pass` 在 `next_episode_relation` 判断中越过了"关联方向"的红线，搬运了下一集正文内容。
+
+**修复**：回到 `spoiler_boundary`，把尾钩中所有下一集具体信息替换为"关联方向"。例如"他推开门，门外站着的是——"→"他推开门，走廊尽头的灯暗了一下，像是有什么东西一闪而过"。
+
+**验证**：执行报告中 `spoiler_boundary` 明确列出被删除的具体信息，`next_episode_relation` 只写关联方向，不写具体事件。
+
+### Failure 2: 尾钩写成小说式抽象
+
+**症状**：终结画面只有"画面很美""余韵悠长""意味深长"等抽象描述，无法被下游分解为画面/声音/表演。
+
+**诊断**：N9-DIR-DRAFT 把 `episode_final_image_plan` 作为文学化收束输出，而不是导演层面的可执行收束。
+
+**修复**：回到终结画面 pass，将抽象描述替换为具体的 3-6 个 beat 小段落：环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向。
+
+**验证**：终稿最后一组字段能被下游摄影和分组直接消费，不需要读者解释"这意味着什么"。
+
+### Failure 3: 高潮结尾式误用改变了高点结果
+
+**症状**：使用高潮结尾式时，不小心改变了 `peak_visual_pass` 中已有的胜负、因果或事件结果。
+
+**诊断**：`episode_final_image_pass` 在消费 `cost_or_aftershock` 时把"余波"扩展成了"结果修正"。
+
+**修复**：确认 `episode_final_image_pass` 只使用 `cost_or_aftershock` 字段（代价/余韵/新压力），不改变 `delivery_action` 和 `satisfaction_delta`。若发现不一致，恢复到 `peak_visual_pass` 的原始输出。
+
+**验证**：执行报告中 `episode_final_image_evidence.next_episode_relation` 和 `episode_final_image_evidence.final_image_source_anchor` 能回答"尾钩承托的是余波，不是结果修正"。
+
+### Failure 4: 尾钩硬塞，与本集末场脱节
+
+**症状**：尾钩从本集内容中突兀出现，没有从末场、道具状态或视觉母题中自然延续。
+
+**诊断**：`episode_final_image_pass` 没有充分消费 `episode_visual_spine.callback_targets` 和本集已有的道具/声音/群像承托，直接造了一个新的结尾。
+
+**修复**：回到 `source_anchor` 轴，必须从本集末场、`peak_visual_plan.cost_or_aftershock`、视觉母题或道具状态中提取尾钩候选；若有场景与上述来源脱节，重新选择来源。
+
+**验证**：执行报告中 `final_image_source_anchor` 能回指本集具体的末场字段、母题出现或道具状态。
 
 ## Review Checklist
 
@@ -79,3 +151,4 @@
 - 是否从本集内容丝滑顺延，而不是硬塞预告？
 - 是否使用了环境描写式、道具特写式、情绪酝酿式或高潮结尾式之一？
 - 是否落入既有字段，并保持保真、对白冻结、无摄影越权？
+- 尾钩是否有至少 3 个具体的画面/声音/表演 beat，而不是只有一两个镜头或抽象评价？

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-05-22
+
+- 吸收 AI 生图/视频提示词学习：英文 prompt 新增 `scene_frame_identity` 口径，要求先锁定场景/画面/镜头身份，再写主体动作。
+- 同步 `SKILL.md`、`prompt-assembly-contract.md`、模板、review 与经验层：光线必须写来源相对位置、照亮对象和阴影/轮廓结果；方向参照必须相对镜头、画面边界或固定锚点。
+
 ## 2026-05-01
 
 - 调整批量任务执行程序为两阶段：先为指定范围完整生成并落盘 `第N集-分镜画面-prompts.md`、reference manifest 与 imagegen plan，再按 prompts 文档逐镜串行执行 imagegen；禁止边生图边补写后续 prompt。

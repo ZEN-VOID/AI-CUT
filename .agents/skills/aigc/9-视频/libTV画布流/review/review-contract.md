@@ -37,6 +37,7 @@
 | `REV-LIBTVCANVAS-31` | duplicate subject reference | 同一 YAML 主体默认只进入一张参照图；除非用户显式要求多视图或多版本对比，`imageList/mixedList` 不含同主体重复图 | `FAIL-DUPLICATE-SUBJECT-REFERENCE` |
 | `REV-LIBTVCANVAS-32` | canonical reference order | `subject_bindings`、`source_node_keys`、`source_node_url_mapping`、`imageList/mixedList` 按 YAML `角色` 原顺序 -> `场景` 原顺序 -> `道具` 原顺序的选中子集排列；不得按上传顺序、画布创建时间、本地文件扫描顺序或 `Portrait N` 排列 | `FAIL-REFERENCE-ORDER` |
 | `REV-LIBTVCANVAS-33` | reference mapping consistency | 查询到的 `source_node_url_mapping` 中每个 `node_key/url` 与主体绑定表的 `yaml_name/category` 一一对应；不得用数组第 N 项反推主体 | `FAIL-REFERENCE-MAPPING` |
+| `REV-LIBTVCANVAS-34` | scene/shot identity order preservation | 实际 `params.prompt` 保留上游定场、场景/镜头身份、镜头先行顺序、方向参照、光线结果和分镜句序；未被改写成“人物做了什么”的动作摘要 | `FAIL-LIBTVCANVAS-PROMPT-IDENTITY` |
 
 ## Verdict
 

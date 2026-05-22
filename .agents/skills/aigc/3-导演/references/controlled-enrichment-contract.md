@@ -6,6 +6,31 @@
 
 它不是自由改编，不授权新增剧情事实、对白、桥段、因果、规则、人物动机或事件结果。它只允许把上游已经存在的信息、压力、心理、关系、规则或高点补足为更可拍、更可演、更可分组的非剧情性细节。
 
+## Ownership
+
+- 本文件拥有 A/B/C 三路线边界、受控增强的触发条件、允许/禁止清单、品类候选池、记账结构和证据要求。
+- `atmosphere-and-mood-contract.md` 提供五感框架和意境技法；B 路线补充景境时从其品类候选池中选取。
+- `visual-aesthetic-contract.md` 负责单场画面美学；B 路线的景境增强必须与整集视觉主轴兼容。
+- `hollywood-quality-spec.md` 负责越权检查；B 路线必须满足顶层质量宪章的禁止边界。
+- `field-routing-and-audio-visual-contract.md` 负责字段纯度；B 路线不改变字段边界。
+- `../../_shared/action-first-continuity-contract.md` 负责人物动作链、空间可达性和道具/环境准入；B 路线新增承托必须先通过该合同，不得把无互动对象升级为动作节点。
+
+## Dependency Graph
+
+```
+controlled-enrichment-contract.md
+├── consumed_by: N6-DIR-ENRICH (触发和使用决策)
+├── consumed_by: N7-DIR-AESTHETIC (景境增强的审美组织)
+├── consumed_by: N9-DIR-DRAFT (内嵌终稿)
+├── consumed_by: N10-DIR-REVIEW (验证 ledger 完整性)
+├── references:
+│   ├── atmosphere-and-mood-contract.md (五感框架和品类候选池)
+│   ├── visual-aesthetic-contract.md (审美兼容性)
+│   └── hollywood-quality-spec.md (禁止边界)
+└── consumed_by:
+    └── controlled_enrichment_ledger (必须产出)
+```
+
 ## Route Position
 
 | route | default | authority | canonical status |
@@ -18,13 +43,13 @@
 
 进入 B 路线的合法触发：
 
-- 用户要求“更影视化”“更有戏”“适当新增可拍承托”“增强表演层次”，但没有授权新剧情。
+- 用户要求"更影视化""更有戏""适当新增可拍承托""增强表演层次"，但没有授权新剧情。
 - 用户要求环境更有氛围、景境更充分、用自然景物衬托心境或情绪，但没有授权新剧情。
 - `N7-DIR-AESTHETIC` 发现上游存在心理、潜台词、权力关系、沉默反应或状态差，但直接投影后演员无事可做。
 - `N4-DIR-PEAK` 发现高点存在，但缺少画面、声音、群像、道具或余波承托。
-- review 判定“保真通过但戏剧承托不足”，且修复不需要新增剧情事实或对白。
+- review 判定"保真通过但戏剧承托不足"，且修复不需要新增剧情事实或对白。
 
-不得把以下请求自动降级为 B 路线：
+**不得把以下请求自动降级为 B 路线**：
 
 - 用户要求新增对白、新场景、新角色行动、新规则、新冲突、新反转、新结局。
 - 用户要求重排事件、压缩剧情、强化因果、补完整桥段。
@@ -34,15 +59,35 @@
 
 ## Allowed Enrichment
 
-| enrichment type | allowed example | required anchor |
-| --- | --- | --- |
-| 环境氛围增强 | 飘雪压低庭院声、落叶贴住门槛、朝露挂在草尖、风沙擦过墙角、雨丝映出灯火 | 上游已有地点、时段、季节可能性、类型气质、情绪压力或心境需求；只写景境本身，不写人物动作、剧情结果或新阻碍 |
-| 群体反应 | 笔尖停住、后排椅子缩回、全班迟半拍抬头 | 上游已有群体恐惧、沉默、震动或公告 |
-| 表演外显 | 呼吸变浅、手指压纸、避开视线、停半拍 | 上游已有心理、潜台词、试探或判断 |
-| 场面调度 | 道具停在两人之间、讲台压住学生、门口被占据 | 上游已有权力关系、空间位置或对抗关系 |
-| 声音承托 | 纸张摩擦、灯管嗡鸣、鞋跟节奏、沉默后的呼吸 | 上游已有声音来源、紧张场景或动作触发 |
-| 道具承托 | 关键物件未被收起、痕迹停在信息旁、规则显影物反光 | 上游已有道具、规则文字、系统提示、线索痕迹或归属压力 |
-| 余波承托 | 高点后声音短暂抽空、群像迟半拍、角色身体状态改变 | 上游已有高点、认知翻转、爽点或关系变化 |
+| enrichment type | allowed example | required anchor | risk boundary |
+| --- | --- | --- | --- |
+| 环境氛围增强 | 飘雪压低庭院声、落叶贴住门槛、朝露挂在草尖、风沙擦过墙角、雨丝映出灯火 | 上游已有地点、时段、季节可能性、类型气质、情绪压力或心境需求；只写景境本身，不写人物动作、剧情结果或新阻碍 | concrete_anchor_preserved：景境细节必须是具体可感的，不能漂移到"很有氛围"等抽象描述 |
+| 群体反应 | 笔尖停住、后排椅子缩回、全班迟半拍抬头 | 上游已有群体恐惧、沉默、震动或公告 | concrete_anchor_preserved：反应必须有具体可见行为，不是"全班都很紧张" |
+| 表演外显 | 呼吸变浅、手指压纸、避开视线、停半拍 | 上游已有心理、潜台词、试探或判断 | concrete_anchor_preserved：表演外显必须在 `对白画面` / `角色动作` 字段有具体位置 |
+| 场面调度 | 道具停在两人之间、讲台压住学生、门口被占据 | 上游已有权力关系、空间位置或对抗关系 | concrete_anchor_preserved：调度不能制造新阻碍，只能承托既有压力 |
+| 声音承托 | 纸张摩擦、灯管嗡鸣、鞋跟节奏、沉默后的呼吸 | 上游已有声音来源、紧张场景或动作触发 | concrete_anchor_preserved：声音消失比声音出现更有压力，优先声音消失 |
+| 道具承托 | 关键物件未被收起、痕迹停在信息旁、规则显影物反光 | 上游已有道具、规则文字、系统提示、线索痕迹或归属压力 | concrete_anchor_preserved：道具状态不能新增道具功能或线索含义 |
+| 余波承托 | 高点后声音短暂抽空、群像迟半拍、角色身体状态改变 | 上游已有高点、认知翻转、爽点或关系变化 | concrete_anchor_preserved：余波不能改变高点结果，只能承托余韵 |
+
+## Action-First Boundary
+
+B 路线新增承托前必须先形成 `action_first_continuity_check`：
+
+```yaml
+action_first_continuity_check:
+  entry_state: ""          # 人物从何种位置、姿态、朝向开始
+  action_vector: ""        # 当前动作向量或静止压力
+  reachable_target: ""     # 若涉及对象，人物如何触及、看向或避开
+  admission_reason: ""     # spatial_locator | interaction | key_info | rule_or_evidence | danger | necessary_setup | state_change
+  exit_state: ""           # 本 beat 交给下游的姿态、位置、朝向或注意力落点
+  risk_check:
+    prop_or_environment_overfocus: false
+    spatial_unreachable: false
+    action_chain_interrupted: false
+    example_hardcoding: false
+```
+
+若 `admission_reason` 无法填写，新增环境/道具承托不得进入 canonical。若 `prop_or_environment_overfocus`、`spatial_unreachable` 或 `action_chain_interrupted` 为 true，必须删除、降级为背景，或改写为有上游锚点的人物互动。
 
 ## Forbidden Enrichment
 
@@ -53,7 +98,8 @@
 - 新增角色动机、因果解释、人物关系结论或设定信息。
 - 新增道具功能、规则能力、系统机制、线索含义。
 - 为了制造戏剧性改变场景顺序、压缩事件、合并人物或提前透露信息。
-- 用“更高级”“更电影化”为理由删除上游事实。
+- 用"更高级""更电影化"为理由删除上游事实。
+- 为了氛围、静物、反射、声响或物件状态，让人物动作链断裂、空间位置不可达、姿态凭空变化，或让无互动对象抢走表演/镜头焦点。
 
 ## Genre-Specific Atmospheric Palette
 
@@ -69,6 +115,15 @@
 | `scifi_future` 科幻未来 | 全息投影闪烁、舱壁指示灯、气闸密封声、数据流光带、低温雾气、金属地板振动、人工重力偏移、舷窗星尘 | 紧张场用指示灯和密封声，孤独场用舷窗星尘，压迫场用气闸和金属振动 |
 | `mystery_horror` 悬疑恐怖 | 灯管忽明忽暗、地板吱呀、远处滴水、墙角阴影加深、空气变冷、窗外树影摇动、旧物气味、钟表停在某时 | 恐惧场用灯管和阴影，推理场用旧物和气味，压迫场用空气变冷和钟表 |
 | `romance_healing` 言情治愈 | 晨光铺进窗帘、咖啡杯热气、风铃轻响、花瓣飘落、海浪声渐远、针织毛衣纹理、暖色灯光、阳台微风 | 温暖场用晨光和热气，离别场用风铃和海浪，暧昧场用灯光和微风 |
+
+### Mixed-Type Rules（混合类型处理）
+
+当项目涉及多种类型混合时（如"都市+悬疑""古风+仙侠+言情"），按以下规则处理：
+
+1. **主类型优先**：选择最接近的主类型候选池作为基础。
+2. **辅类型补充**：从辅类型候选池中选取与主类型不冲突的景境变量。
+3. **冲突处理**：若两种类型的景境变量在同一场景产生矛盾（如悬疑的"灯管闪烁"与治愈的"暖色灯光"），按叙事压力选择其一，不叠加。
+4. **自定义候选池**：若项目类型组合超出上述 8 类，从最接近的类型候选池中选取景境变量，并在执行报告中说明选择理由。
 
 使用限制：
 
@@ -97,10 +152,59 @@ controlled_enrichment_ledger:
       added_detail: "新增的非剧情性承托细节"
       target_field: "对白画面 / 角色动作 / 环境描写(写景/景境/氛围承托) / 群像画面 / 音效画面 / 道具特写"
       purpose: "可拍性 / 可演性 / 声画承托 / 高点余波 / 下游可分组"
-      risk_check: "no_new_dialogue / no_new_event / no_new_causality / no_new_rule"
+      risk_check:
+        no_new_dialogue: true
+        no_new_event: true
+        no_new_causality: true
+        no_new_rule: true
+        no_new_fact: true
+        concrete_anchor_preserved: true  # 新增细节是否还保留具体可感锚点，没有漂移到抽象描述
+        action_chain_preserved: true     # 新增细节是否没有打断人物动作链或制造空间不可达
 ```
 
 若无法写出 `source_anchor` 或 `risk_check`，该新增项不得进入 canonical。
+
+## Failure Cases
+
+### Failure 1: 承托细节漂移到抽象描述
+
+**症状**：`controlled_enrichment_ledger` 中某项新增细节无法从"可拍/可演/可感"的角度描述，只写了"更有氛围""更紧张""更有电影感"。
+
+**诊断**：N6-DIR-ENRICH 的 B 路线增强跳过了具体化步骤，只写了方向性描述。
+
+**修复**：删除漂移项，将承托意图翻译为具体感官细节。例如"更有压迫感"→"灯管的嗡鸣在第三次闪烁后停了，空气像被按了暂停"。
+
+**验证**：执行报告中每个 `added_detail` 必须能被下游直接感知（可见、可听、可感），不是审美评价。
+
+### Failure 2: 承托变成新线索
+
+**症状**：B 路线新增的道具状态、环境细节或声音暗示了上游没有的信息差或剧情方向。
+
+**诊断**：N6-DIR-ENRICH 在增强过程中不经意地通过景境细节制造了新的叙事功能。
+
+**修复**：回到 `source_signal`，确认新增细节的用途是"承托既有压力"而非"制造新信息"。若无法确认，删除该新增项。
+
+**验证**：执行报告中每项新增承托能回答"删掉此项后剧情事实是否完全不变"。
+
+### Failure 3: 混合类型景境冲突
+
+**症状**：同一场景叠加了多个类型候选池的景境变量，导致景境混乱或不符合任何一种类型的逻辑。
+
+**诊断**：N7-DIR-AESTHETIC 在混合类型项目中直接叠加了多个候选池，没有按主/辅类型和冲突处理规则筛选。
+
+**修复**：回到 `genre_atmospheric_palette` 判断，按主类型优先、辅类型补充、冲突处理三步重新筛选。若仍有冲突，选择服务当前叙事压力的那一个。
+
+**验证**：执行报告中每项新增景境变量能回答"属于哪个类型候选池"和"为何不与主类型冲突"。
+
+### Failure 4: ledger 缺少 concrete_anchor_preserved
+
+**症状**：`controlled_enrichment_ledger` 某项没有 `concrete_anchor_preserved: true` 检查，或检查结果为 false 但该项仍保留在 canonical。
+
+**诊断**：N6-DIR-ENRICH 没有在 risk_check 中加入 `concrete_anchor_preserved` 维度，或发现检查失败后没有删除漂移项。
+
+**修复**：回到 `added_detail`，检查是否漂移到了抽象描述；若是，替换为具体可感细节，或删除该项。
+
+**验证**：`controlled_enrichment_ledger` 中每个 risk_check 块都包含 `concrete_anchor_preserved` 字段，且结果为 true。
 
 ## Review Gate
 
@@ -110,4 +214,6 @@ B 路线通过条件：
 - 新增内容只改变表现层，不改变剧情层。
 - 没有新增对白、事件、规则、线索、因果或人物动机。
 - `controlled_enrichment_ledger` 完整记录新增项和风险检查。
+- 每个 risk_check 包含 `concrete_anchor_preserved` 且结果为 true。
+- 每个新增承托已通过 `action_first_continuity_check`，`action_chain_preserved` 为 true；没有把某个旧示例转成固定模板。
 - 若 review 对某项新增是否越权存在疑问，默认删除该新增项，而不是冒险保留。

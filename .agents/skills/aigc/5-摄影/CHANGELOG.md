@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## 2026-05-22 (Scene / Shot Identity)
+
+- 吸收 AI 视频提示词与光线学习：新增共享 `../_shared/scene-shot-identity-contract.md`，要求先锁定场景身份和镜头身份，再组织人物动作。
+- 更新 `ai-video-prompt-execution-contract.md`：把执行顺序扩展为 scene/shot identity -> camera -> motion -> action -> microdynamic -> lighting result，收紧相对镜头方向和光线结果写法。
+- 更新 `scene-visual-constraint-contract.md`、`SKILL.md`、review 与经验层：内部 `scene_visual_constraint` 先裁决年代、空间功能、环境声、材质年代感和天然光影，再裁决构图、光源、色彩与摄影参数。
+
+## 2026-05-22 (Prop Shot Admission)
+
+- 吸收“角色活人感行为动机”学习：摄影阶段新增多人动作-反应焦点检查，要求先区分 `action_driver/reaction_receiver/ambient_participants`，避免所有角色同强度表演或为同时照顾多人/物件制造奇怪角度。
+- 同步 `SKILL.md`、`shot-continuity-contract.md`、review 与经验层，新增 `FIELD-CINE-25` / `GATE-CINE-25` / `FAIL-CINE-05U`，并接入共享 `lived-in-character-behavior-contract.md`。
+- 新增人物动作链优先分镜规则：每条涉及人物的 `分镜N` 必须先承接姿态、站位、朝向、身体接触、动作方向和注意力落点，再决定镜头切点、焦点、道具插入和时值。
+- 同步 `SKILL.md`、`shot-continuity-contract.md`、review 与经验层，新增动作链优先检查和 `FAIL-CINE-05T`，防止物件切点牺牲人物动作连续性。
+- 新增道具镜头准入规则：道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等物件细节，只有在角色互动、关键信息/规则/证据/危险源或必要环境交代时才可成为焦点、特写、反射主体或衔接节点。
+- 同步更新 `SKILL.md`、`CONTEXT.md`、`visual-matching-contract.md`、`visual-sequence-alignment-contract.md`、`shot-detail-dimension-contract.md`、`shot-planning-integration-contract.md`、`unified-shot-design-workflow.md`、review gate 与模板，新增 `FIELD-CINE-23` / `GATE-CINE-24` / `FAIL-CINE-05S`。
+- 下游 `6-分组/references/bridge-shot-contract.md` 同步收紧连接件锚定物：不得把普通无互动道具升级为组间连接锚点。
+
+## 2026-05-21 (Refinement & Optimization)
+
+- 重命名 `references/transition-anchor-contract.md` → `references/intra-shot-transition-contract.md`：更准确反映"分镜块内过渡"而非"边界交出"的功能定位，与 `transition-design-contract.md`（边界交出）形成清晰区分。
+- 更新 `SKILL.md` 中的引用路径。
+
+## 2026-05-21 (Unified Shot Design Workflow)
+
+- 新增 `references/unified-shot-design-workflow.md`：整合 `shot-planning-integration-contract.md`、`shot-detail-dimension-contract.md` 和 `natural-shot-detail-writing-contract.md` 三份文件的核心理论，形成从内部计划到外部成稿的完整链路。
+- 本文件定位为 `5-摄影` 的设计层核心文档，原三份文件作为历史参考保留，待框架稳定后可逐步废弃。
+- 文档包含：8个设计前必填字段清单、6大维度家族详解、18步设计流程、自然成稿策略、13项输出充分性门槛。
+
 ## 2026-05-21 (Transition Anchor Contract - Shot-level Continuity)
 
 - 新增 `references/transition-anchor-contract.md`：定义分镜间「过渡锚点」的标准描述格式和执行规则，填补 `shot-continuity-contract.md` 在分镜明细内部连续性设计的空白。
