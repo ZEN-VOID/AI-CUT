@@ -9,7 +9,7 @@
 - 默认辅助 provider：`code-reviewer`
 - 用途：检查 Skill 2.0 包结构、脚本边界、输出合同和剧本字段门禁。
 - review 必须加载 `../references/script-adaptation-contract.md`，检查上游逐集正文、输出路径、frontmatter、slugline 和保真边界。
-- review 必须加载 `../references/field-routing-and-audio-visual-contract.md`，检查对白冻结、声画配对、字段纯度、声音本体、环境字段纯化、动作客观性和占位泄露。
+- review 必须加载 `../references/field-routing-and-audio-visual-contract.md`，检查对白冻结、声画配对、字段纯度、声音本体、环境字段纯化、动作客观性、`表情特写` 字段落点和占位泄露。
 - review 必须加载 `../references/novel-to-screen-language-contract.md`，检查小说作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论是否完成二次画面化；同时确认引号内对白仍逐字冻结，小说叙述没有被改成新增对白，没有新增无关人物过往、物品来历或回忆性信息。
 - 若上层策略阻断真实 subagent 或 provider 调度，允许降级为本地 review checklist，并在报告中说明阻断来源、原计划 provider、实际路径和未启动 reviewer。
 
@@ -34,7 +34,7 @@
 | `GATE-SCRIPT-07` | 场景标题是阿拉伯编号 + slugline，同 slugline 不重复开场 | `FAIL-SLUGLINE` |
 | `GATE-SCRIPT-08` | `角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气、生理反应和空间运动；不含心理解释、抽象判断、小说章节名或"试图、想要、打算、意图"等主观预判/心理意图词 | `FAIL-ACTION-PURITY` |
 | `GATE-SCRIPT-09` | 脚本没有替代 LLM 生成核心创作正文 | `FAIL-LLM-FIRST` |
-| `GATE-SCRIPT-10` | 所有 `*画面`、`环境描写`、`道具特写`、`心理反应`、`表演提示` 均具像化、画面化、可感知化、反抽象、反概念、反比喻；不含无法实拍的抽象概括、往日常态总结或直接主观情绪感受 | `FAIL-CONCRETE-VISUAL` |
+| `GATE-SCRIPT-10` | 所有 `*画面`、`环境描写`、`道具特写`、`心理反应`、`表情特写`、`表演提示` 均具像化、画面化、可感知化、反抽象、反概念、反比喻；不含无法实拍的抽象概括、往日常态总结或直接主观情绪感受 | `FAIL-CONCRETE-VISUAL` |
 | `GATE-SCRIPT-11` | `音效` 字段只写声音本体，不写时间说明、事件概括或描述性句子 | `FAIL-SOUND-LITERAL` |
 | `GATE-SCRIPT-12` | 终稿字段正文没有内部任务说明、模板占位句或规则复述，例如"本场按上游原文顺序承接...""说话者的视线...""不新增事件结果""引号内不加入动作" | `FAIL-PLACEHOLDER-LEAK` |
 | `GATE-SCRIPT-13` | `环境描写` 只写场景本身的写景画面，不承载人物动作、对白引出、剧情结果、背景概要、心理解释或关系结论；同一 slugline 内允许在开篇之外因室内外边界、角落、门廊、窗边、船舷、背景层次、光线、空气或材质焦点变化再次出现环境描写 | `FAIL-ENVIRONMENT-PURITY` |
@@ -42,6 +42,7 @@
 | `GATE-SCRIPT-15` | 小说原文中的作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、往日常态句、背景说明、因果解释或关系结论已完成二次画面化；终稿没有把小说句式、抽象解释、作者判断原样塞入画面字段，也没有把小说叙述改成新增对白；没有新增与当前主线无关的人物过往、物品来历或回忆性信息 | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` |
 | `GATE-SCRIPT-16` | 主角视角下对他人行为的判断已进入 `内心独白（主角）` 或主角可感知反应，而非客观第三方概括；`内心独白（主角）` 引号内主角自指已从小说第三人称转成第一人称 | `FAIL-PROTAGONIST-INNER-VOICE` |
 | `GATE-SCRIPT-17` | 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`，能够证明小说表述转译、主角内心独白保留和动作客观化已经发生；非机械特例必须说明降级原因 | `FAIL-CREATIVE-EVIDENCE` |
+| `GATE-SCRIPT-18` | `表情特写` 为正式可选字段：若使用，必须只写眉、眼、眼睑、眨眼频率、鼻翼、嘴角、唇线、咬肌、下颌、喉头或皮肤状态等具体面部变化，并能回指上游触发或当前声画压力；不得只写情绪标签、心理解释、摄影机位、景别或镜头运动。若上游关键情绪明显集中在面部变化，不能只散落为无字段的泛化表情词 | `FAIL-FACIAL-EXPRESSION-FIELD` |
 
 ## Recommended Mechanical Check
 
@@ -73,6 +74,7 @@ review:
     audio_visual_pairing: pass
     slugline_stability: pass
     field_purity: pass
+    facial_expression_closeup: pass
     concrete_visuals: pass
     sound_literal: pass
     placeholder_leak: pass
@@ -118,6 +120,23 @@ review:
       objective_projection: ""
       risk_check:
         subjective_intent_in_action: false
-        direct_emotion_label: false
+      direct_emotion_label: false
+  facial_expression_anchor_evidence:
+    - scene_id: ""
+      source_anchor: ""
+      subject: ""
+      trigger: ""
+      target_field: "表情特写"
+      facial_detail:
+        brow: ""
+        eyes: ""
+        mouth: ""
+        jaw_or_throat: ""
+      moment_shape: "crack | suppression | held_smile | averted_gaze | blink_change | other"
+      risk_check:
+        emotion_label_only: false
+        no_source_trigger: false
+        overused_for_minor_beat: false
+        cinematography_overreach: false
   findings: []
 ```

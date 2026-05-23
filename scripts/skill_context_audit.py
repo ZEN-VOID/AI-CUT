@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 DEFAULT_EXCLUDED_DIRS = {
+    ".claude",
     ".git",
     "cache",
     "sessions",

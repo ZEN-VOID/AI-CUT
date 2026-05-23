@@ -40,6 +40,7 @@ last_checked_at: 2026-05-12
 | `TM-LIBTVCANVAS-22` | 同一主体在同一视频任务中重复提交两张同义主体图 | 没有按 YAML 主体去重，active 图与新上传图同时进入 imageList | 按 `projectUuid + category + yaml_name` 去重，默认每主体只保留一张 active/最新可信图 | 除非用户显式要求多视图或多版本对比，否则 `imageList` 不得含同主体重复图 |
 | `TM-LIBTVCANVAS-23` | 视频节点按图1/图2顺序把 URL 错绑到主体 | `imageList` 使用上传顺序或文件扫描顺序，且远端按数组下标解释主体 | 按 YAML `角色` -> `场景` -> `道具` 展示顺序生成 canonical reference order，并按该顺序构造 `source_node_keys/source_node_url_mapping/imageList` | review/query gate 检查数组顺序和 URL/node_key 映射都与主体绑定表一致 |
 | `TM-LIBTVCANVAS-24` | 远端 prompt 把分镜组改成“人物做了什么”的动作摘要，丢失定场、镜头先行、方向参照或光线结果 | 把 LibTV prompt transport 当成二次创作优化 | 保留 `6-分组` 原文顺序；禁止远端优化、重排、摘要、压缩；查询后检查 `params.prompt` 中 scene/shot identity 仍在 | `params.prompt` 可回读到定场/镜头/构图/方向/光线结果 -> 人物动作的上游顺序 |
+| `TM-LIBTVCANVAS-25` | 低角度、贴地前景、手持微晃、前景虚化、透视拉伸或遮挡揭示被远端压缩丢失 | 把观看选择当成可删修饰词 | 保留上游观看位置和发现路径；handoff 明确禁止把镜头身份压缩为动作摘要 | 查询 `params.prompt` 能回读到机位高度、前景/遮挡、透视或发现过程中的关键项 |
 
 ## Repair Playbook
 
@@ -65,6 +66,7 @@ last_checked_at: 2026-05-12
 20. 同一主体默认只提交一张图；active registry 中已有可用节点时不要再把同主体新上传图也塞进同一视频任务，除非用户明确要求多视图。
 21. 参考数组顺序必须按 YAML 主体展示顺序：角色原顺序、场景原顺序、道具原顺序；预算排除只删除主体，不改变剩余主体相对顺序。即使如此，主体语义仍以 `yaml_name + category + node_key + URL` 绑定为准，不以数组下标为准。
 22. 查询远端 `params.prompt` 时，除检查污染和绑定外，还要检查上游定场、场景/镜头身份、镜头先行顺序、方向参照和光线结果是否被保留；若被压缩为动作摘要，视为远端优化漂移。
+22.5. 同步检查观看选择是否保留：低角度必须带有地面/脚步/衣摆/前景结果，前景虚化或遮挡慢拉必须能读出观众发现过程；若只剩“人物向前走/站立/打斗”，视为 `remote_prompt_rewritten_or_polluted`。
 23. 若发现新可复用失败模式，优先写入本文件；稳定成强制规则后再晋升到 `SKILL.md` 或 `references/`。
 
 ## Reusable Heuristics

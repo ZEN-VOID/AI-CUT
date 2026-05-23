@@ -2,6 +2,7 @@
 
 ## 2026-05-22
 
+- 承接 `2-编剧` 新增的正式 `表情特写` 字段：上游已有面部 beat 时必须保留字段并精修，不得吞回泛化 `心理反应`。
 - 吸收演技学习视频中“情绪切换瞬间”口径：`actor-performance-control-contract.md` 新增 Emotion Transition Moment Rule，要求关键表演抓触发、裂开、压回和身体联动，而不是持续挂模板表情。
 - 收紧环境声承托：声音必须来自场景身份和空间材质，不用泛化 BGM 标签替代表演压力。
 - 吸收“角色活人感行为动机”学习：新增单人 `micro_activity/subconscious_response/emotional_landing` 检查和多人 `action_driver/reaction_receiver` 分工，防止角色空闲摆拍、只展示脸部细节或多人同强度抢戏。

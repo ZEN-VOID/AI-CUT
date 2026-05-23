@@ -6,7 +6,7 @@
 | --- | --- |
 | `business_goal` | 将逐集小说原文投影为忠实、可拍、可分组的编剧稿 |
 | `business_object` | `projects/aigc/<项目名>/1-分集/第N集.md` |
-| `constraint_profile` | 原文信息量保真、对白冻结、声画配对、slugline 稳定、小说表述二次画面化、主角内心独白保留、动作客观可拍、环境字段纯化、环境氛围承托、LLM-first、subagents 监制顾问上下文沉淀 |
+| `constraint_profile` | 原文信息量保真、对白冻结、声画配对、slugline 稳定、小说表述二次画面化、主角内心独白保留、动作客观可拍、关键面部 beat 有 `表情特写` 或相邻字段承托、环境字段纯化、环境氛围承托、LLM-first、subagents 监制顾问上下文沉淀 |
 | `success_criteria` | 输出能完整承接上游，且把小说原文中已有事件、关系、心理、信息差和高点转成编剧层面可拍、可分组、可执行的剧本正文 |
 | `non_goals` | 不做导演创作内核提炼、不做高潮画面强化、不做视觉美学组织、不做表演工艺控制、不做演员控制、不做氛围意境深化、不重写剧情 |
 | `complexity_source` | 场景解析、字段分流、声画配对、对白冻结、小说表述二次画面化、主角内心独白人称转换、动作客观性、环境纯度、环境氛围承托、保真与质量的优先级协调 |
@@ -17,7 +17,7 @@
 | reference | consumed_by | node evidence | blocking gate |
 | --- | --- | --- | --- |
 | `references/script-adaptation-contract.md` | `N1-INTAKE` / `N3-SCENE` / `N5-SCRIPT-DRAFT` / `N6-SCRIPT-REVIEW` | `source_episode_path`、`scene_slugline_table`、`faithful_projection_trace`、frontmatter | `FAIL-SOURCE` / `FAIL-FAITHFULNESS` / `FAIL-SLUGLINE` |
-| `references/field-routing-and-audio-visual-contract.md` | `N4-FIELD` / `N5-SCRIPT-DRAFT` / `N6-SCRIPT-REVIEW` | `dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map`、`objective_action_purity_map`、`sound_literal_risk_map`、`environment_purity_map`、`environment_refresh_map`、`placeholder_leak_risk_map` | `FAIL-DIALOGUE` / `FAIL-PAIRING` / `FAIL-ACTION-PURITY` / `FAIL-CONCRETE-VISUAL` / `FAIL-SOUND-LITERAL` / `FAIL-PLACEHOLDER-LEAK` / `FAIL-ENVIRONMENT-PURITY` |
+| `references/field-routing-and-audio-visual-contract.md` | `N4-FIELD` / `N5-SCRIPT-DRAFT` / `N6-SCRIPT-REVIEW` | `dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map`、`objective_action_purity_map`、`facial_expression_anchor_map`、`sound_literal_risk_map`、`environment_purity_map`、`environment_refresh_map`、`placeholder_leak_risk_map` | `FAIL-DIALOGUE` / `FAIL-PAIRING` / `FAIL-ACTION-PURITY` / `FAIL-FACIAL-EXPRESSION-FIELD` / `FAIL-CONCRETE-VISUAL` / `FAIL-SOUND-LITERAL` / `FAIL-PLACEHOLDER-LEAK` / `FAIL-ENVIRONMENT-PURITY` |
 | `references/novel-to-screen-language-contract.md` | `N4.2-NOVEL-TRANSFORM` / `N5-SCRIPT-DRAFT` / `N6-SCRIPT-REVIEW` | `novel_expression_transform_evidence`、`expression_type_map`、`screen_strategy_map`、`protagonist_pov_judgment_map`、`habitual_summary_risk_map`、`backstory_expansion_risk_map`、`literal_prose_risk_map` | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-DIALOGUE` |
 | `references/hollywood-quality-spec.md` | `N5-SCRIPT-DRAFT` / `N6-SCRIPT-REVIEW` | `hollywood_quality_notes`、`quality_rework_targets` | `hollywood_quality: needs_rework` |
 | `../_shared/team-advisor-consultation-contract.md` | `N4.3-ADVISOR` / `N6-SCRIPT-REVIEW` | `advisor_consultation_packet`、`advisor_routeback_targets`、`downgrade` | `FAIL-ADVISOR-CONSULT` |
@@ -84,7 +84,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `PASS-SCRIPT-02` | `N2-TYPE` / `N3-SCENE` | 类型画像是否服务保真改编，slugline 和场景顺序是否稳定 | `type_profile`、`route_flags`、`scene_slugline_table`、`scene_order_trace` | `N2-TYPE` / `N3-SCENE` |
 | `PASS-SCRIPT-03` | `N4-FIELD` | 字段分流、对白冻结、声画配对和具像化预检是否成立 | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map` | `N4-FIELD` |
 | `PASS-SCRIPT-04` | `N4.2-NOVEL-TRANSFORM` | 小说式表述是否完成二次画面化，主角内心独白是否第一人称化 | `novel_expression_transform_evidence`、`expression_type_map`、`protagonist_pov_judgment_map` | `N4.2-NOVEL-TRANSFORM` |
-| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段是否客观可拍，主观意图词和直接情绪词是否已转译 | `objective_action_purity_map`、`objective_action_purity_evidence` | `N4-FIELD` |
+| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段是否客观可拍，主观意图词和直接情绪词是否已转译；关键面部 beat 是否落入 `表情特写` 或有相邻字段承托 | `objective_action_purity_map`、`objective_action_purity_evidence`、`facial_expression_anchor_map`、`facial_expression_anchor_evidence` | `N4-FIELD` |
 | `PASS-SCRIPT-06` | `N4-FIELD` | `环境描写` 是否只承载场景写景材料，必要环境刷新是否就近落入正文 | `environment_purity_map`、`environment_refresh_map`、`environment_purity_evidence` | `N4-FIELD` |
 | `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | LLM 剧本投影是否保真、冻结对白并内嵌全部前序证据 | `faithful_projection_trace`、candidate `第N集.md` | `N5-SCRIPT-DRAFT` |
 | `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | review gate、节点 ledger 和输出路径是否完整 | `review_result`、`thinking_action_node_ledger`、`gate_to_node_repair_map` | `N6-SCRIPT-REVIEW` |
@@ -97,7 +97,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `N1-INTAKE` | 锁定项目、集号、上游正文真源和本轮加载边界 | 用户请求、项目根、`1-分集/` | 定位目标集，读取 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、相关 `CONTEXT/`，建立本轮 reference load manifest | `source_episode_path`、目标输出路径、`reference_load_manifest` | `N2-TYPE` | 上游文件可读，加载边界不缺失 |
 | `N2-TYPE` | 形成 `type_profile` 与节点策略开关 | 上游正文结构、`types/source-to-script-type-map.md` | 判断显式场景/纯小说/系统密集/对白密集/内压密集/单地点多 beat/高点密集等类型，并标记必须增强的 pass | `type_profile`、`route_flags` | `N3-SCENE` | 改编策略不违背保真，类型策略不会变成剧情重写 |
 | `N3-SCENE` | 解析并稳定场景 slugline | 上游段落、type_profile、`references/script-adaptation-contract.md` | 按真实地点/空间范围和日夜建立场景表；同 slugline 去重；只因真实空间/时间变化开新场景 | `scene_slugline_table`、`scene_order_trace` | `N4-FIELD` | 每个场景标题符合 slugline 规则，且场景顺序可回指上游 |
-| `N4-FIELD` | 字段分流、对白冻结、声画配对与具像化预检 | 上游段落、场景表、`references/field-routing-and-audio-visual-contract.md` | 逐段投影为声音字段、画面字段、动作、心理、系统、规则、道具、群像等；建立对白原文清单；对每个声音字段绑定对应画面字段；单独判定 `环境描写` 是否只写场景写景材料；标记同一 slugline 内空间/背景/光线/空气/材质焦点变化是否需要环境刷新；标记动作字段中主观意图词、抽象画面、声音说明和模板/规则占位泄露风险 | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map`、`objective_action_purity_map`、`sound_literal_risk_map`、`environment_purity_map`、`environment_refresh_map`、`placeholder_leak_risk_map` | `N4.2-NOVEL-TRANSFORM` | 字段纯度、对白冻结、声画配对、顺序承接、环境纯度、动作客观可拍和反抽象预检成立；同一场景内环境刷新不被误删；无内部任务说明进入正文 |
+| `N4-FIELD` | 字段分流、对白冻结、声画配对与具像化预检 | 上游段落、场景表、`references/field-routing-and-audio-visual-contract.md` | 逐段投影为声音字段、画面字段、动作、心理、系统、规则、道具、群像等；建立对白原文清单；对每个声音字段绑定对应画面字段；单独判定 `环境描写` 是否只写场景写景材料；为关键面部表演 beat 标记 `表情特写` 或相邻字段承托；标记同一 slugline 内空间/背景/光线/空气/材质焦点变化是否需要环境刷新；标记动作字段中主观意图词、抽象画面、声音说明和模板/规则占位泄露风险 | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map`、`concrete_visual_risk_map`、`objective_action_purity_map`、`facial_expression_anchor_map`、`sound_literal_risk_map`、`environment_purity_map`、`environment_refresh_map`、`placeholder_leak_risk_map` | `N4.2-NOVEL-TRANSFORM` | 字段纯度、对白冻结、声画配对、顺序承接、环境纯度、表情特写落点、动作客观可拍和反抽象预检成立；同一场景内环境刷新不被误删；无内部任务说明进入正文 |
 | `N4.2-NOVEL-TRANSFORM` | 小说表述二次画面化 | `field_projection_map`、上游段落、场景表、`dialogue_lock_map`、`references/novel-to-screen-language-contract.md` | 识别作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、体现重复/熟悉/往日常态的总结句、背景说明、因果解释、关系结论、感官散文、回忆/认知补叙和规则说明；为每条高风险表述锁定 `source_function` 与 `screen_strategy`，转为画面、声音、表演、空间、道具、群像、主角内心独白、短旁白或留白；标记无关人物过往、物品来历和回忆性补充并删除；明确对白只冻结不加工 | `novel_expression_transform_evidence`、`expression_type_map`、`screen_strategy_map`、`protagonist_pov_judgment_map`、`habitual_summary_risk_map`、`backstory_expansion_risk_map`、`literal_prose_risk_map` | `N4.3-ADVISOR`（非 subagents 模式则跳至 `N5-SCRIPT-DRAFT`） | 小说式表达不得原样进入画面字段；主角视角判断不得写成客观第三方概括；无新增事实、对白、事件、因果、规则、线索、无关前史/物品来历或摄影越权；旁白若保留必须有画面证据承托 |
 | `N4.3-ADVISOR` | 项目监制顾问请教（subagents 模式） | `team.yaml`、`../_shared/team-advisor-consultation-contract.md`、当前节点上下文 | 按 SKILL.md Subagents Execution Mechanism 解析项目监制 roster；主 agent 把当前节点、`pass_id`、相关 review gate 和目标集上下文转化为顾问任务；顾问代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示；主 agent 综合为 `advisor_consultation_packet` 沉淀进后续 LLM 剧本投影上下文 | `advisor_consultation_packet`、`advisor_routeback_targets` | `N5-SCRIPT-DRAFT`（routeback 时回到最早责任节点） | 顾问任务绑定当前思维·执行节点；上下文沉淀为 `advisor_consultation_packet`；若 routeback 触发，回到 `N3-SCENE`（场景/slugline）、`N4-FIELD`（字段/声画）或 `N4.2-NOVEL-TRANSFORM`（小说转译） |
 | `N5-SCRIPT-DRAFT` | LLM 直出逐集编剧稿 | 场景表、字段映射、对白锁、`novel_expression_transform_evidence`、`advisor_consultation_packet`（如有）、上游正文 | 写入 frontmatter、`【剧本正文】`、场景标题和字段化正文；把小说表述转译和顾问上下文拆入对应句段但不改写上游真源或对白；模板占位和内部规则只能指导写作，不得输出到正文 | `第N集.md` 草稿、`faithful_projection_trace` | `N6-SCRIPT-REVIEW` | 小说转译上下文未越权；无第二字段体系，无场景末尾总结块，无占位/规则说明泄露 |
@@ -113,6 +113,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 - 若 `type_profile.inner_pressure_dense == true`，优先使用 `独白`、`内心独白` 和可拍 `表演提示`；内视不得塞入 `动作画面`。
 - 若上游存在主角视角下对他人行为、语气、沉默或动机的主观判断，必须优先转成 `内心独白（主角）` 或主角观察到的可见/可听证据 + 主角反应，不得写成客观第三方概括。
 - 若 `objective_action_purity_map` 发现 `角色动作` / `动作画面` 含"试图、想要、打算、意图"等主观意图词，必须回到 `N4-FIELD`，改成客观可拍动作、神态、语气、生理反应或主角内心独白。
+- 若 `facial_expression_anchor_map` 发现关键面部 beat 只剩“悲伤/愤怒/表情复杂”等标签，或散落在无字段的泛化表情词中，必须回到 `N4-FIELD`，改为正式 `表情特写` 或转入更合适的 `对白画面`、`心理反应`、`角色动作`。
 - 若 `type_profile.single_location_multi_beat == true`，必须先建立 slugline 去重表，避免 beat 变化导致重复场景标题。
 - 若 `dialogue_lock_map` 未建立，或 `audio_visual_pairing_map` 无法证明每条声音字段有就近画面承托，不得进入 `N4.2-NOVEL-TRANSFORM`。
 - 若 `environment_purity_map` 发现 `环境描写` 承载人物动作、对白引出、剧情结果、心理解释或任务说明，必须回到 `N4-FIELD` 拆入 `角色动作`、`对白画面`、`群像画面`、`道具特写` 或声音字段。
@@ -137,6 +138,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | 小说作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释或关系结论原样进入画面字段，或被改写成新增对白 | `N4.2-NOVEL-TRANSFORM` |
 | 主角视角下对他人行为的判断被写成客观第三方总结，或主角内心独白被误删 | `N4.2-NOVEL-TRANSFORM` |
 | `角色动作` / `动作画面` 出现"试图、想要、打算、意图"等主观预判词，或直接写"感到恶心/难受/愤怒" | `N4-FIELD` |
+| `表情特写` 缺失于关键面部 beat，或写成情绪标签、心理解释、摄影机位、景别、镜头运动 | `N4-FIELD` |
 | 为解释心理或关系新增无关人物过往、物品来历或回忆性信息 | `N4.2-NOVEL-TRANSFORM` |
 | slugline 重复编号 | `N3-SCENE` |
 | subagents 启用但缺 team.yaml 监制顾问请教、节点锚点、个人风格参谋或上下文沉淀 | `N4.3-ADVISOR` |

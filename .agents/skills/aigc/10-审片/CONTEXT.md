@@ -24,6 +24,7 @@ last_checked_at: 2026-05-04
 | prompt 清楚但视频没有执行核心动作 | `model_problem` 或单次 seed 漂移 | 标为 `rerun_only`，不要先改分组 | prompt 匹配 pass 必须记录 prompt 证据和模型未执行证据 | 报告能说明 prompt 已清楚、视频实际缺失什么 |
 | prompt 本身同时要求多个主体/动作/风格 | `prompt_problem` 或分组过载 | 修 `6-分组`，降低内容密度和审美词空泛度 | prompt alignment pass 先查矛盾、过载和不可拍动作 | 新 prompt 有唯一焦点、可拍动作和明确停点 |
 | 技术可用但创作平庸 | 创作质量 pass 缺失或审美目标过低 | 给 `conditional_pass` 或建议重跑，不直接当优先候选 | 审片必须区分“无硬伤”和“有创作价值” | 报告含反平庸、艺术方向和美学完整性判断 |
+| 视频清晰但像正面摆拍资料图 | 摄影沉浸感层 | 判断 prompt 是否已有低角度/前景/透视/发现路径；有则 rerun-only，缺则回修 `5-摄影` 或 `6-分组` | review-dimensions 固定 `Viewer Immersion Subcheck` | 报告区分 `flat_observer_view` 与 `immersive_camera_view` |
 | 用户提供好/坏示例但未转化为维度 | 示例学习链路缺失 | 提炼可观察维度后再比较，不只写“更像/不像” | 好/坏示例必须进入 `example_calibration`，稳定经验再写 CONTEXT | 报告说明靠近好示例和落入坏示例的具体点 |
 | 只看 prompt / 分组文本就给审片结论 | 真实视频内容分析门缺失 | 立即补采关键帧、联系表和音频事实，先写 `observed_content_summary` 再判断 | `SKILL.md` 与证据合同固定 real video understanding gate | 报告能先说明视频里实际发生了什么，并回指证据 |
 | subagents 启用时只本地模拟审片顾问 | 顾问请教层 | 回到项目 `team.yaml` 和共享团队顾问合同真实 dispatch，或写明 system / developer / tool / user 阻断降级 | `review_advisor_packet` 固定记录 roster、node/pass/gate、角色视角、可执行指导和降级路径 | 报告能看到真实顾问来源或完整降级说明 |
@@ -40,6 +41,7 @@ last_checked_at: 2026-05-04
 7. 同组变体比较时，先判断变体共同问题，再判断单变体优劣；共同问题更可能上游可修。
 8. prompt 错配先归因，不要把“视频不一致”笼统写成失败；prompt 过载和模型未执行的修复路径不同。
 9. 创作质量判断必须说清楚画面为什么平庸或高级，不能只用“好看”“电影感”“氛围不足”这类无证据词。
+9.5. 遇到人物行走、入场、压迫、群像或空间建立视频，额外检查观众位置：正面平视全信息展示通常是 `flat_observer_view`，低角度、贴地前景、遮挡、透视、手持微晃和发现过程才更接近 `immersive_camera_view`。
 10. 用户给好/坏示例时，先抽取维度，再比较目标视频；稳定可迁移的鉴赏判断才沉淀到本文件。
 11. 真实视频内容分析必须先于 verdict：先描述真实画面、主体、动作、空间、节奏、关键物和音频事实，再谈 prompt 匹配、创作质量和上游修复。
 12. 若本轮启用 subagents，先把 `team.yaml` 监制组相关智能顾问团作为审片监制请教；问题必须绑定当前审片节点，让顾问围绕证据缺口、prompt 归因、创作质量门、示例校准和落点越权风险给参谋，不问泛泛“好不好”。

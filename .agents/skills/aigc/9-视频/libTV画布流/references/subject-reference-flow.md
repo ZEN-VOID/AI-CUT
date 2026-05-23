@@ -98,7 +98,8 @@ projects/aigc/<项目名>/6-分组/第N集.md
    - `@` 引用必须绑定外层参考绑定表中对应主体的 `canvas_node_name / node_key / URL`；不得伪造成普通文本解释、URL 注释、`{{Portrait N}}`、`〔主体参照: ...〕` 或手写图片编号。
    - 当前 CLI `create_session.py` 只发送纯文本消息，不能单独证明 UI 级 `@` 引用已插入；若查询结果、后端工具参数或画布节点引用回显无法证明，必须记录为 `at_asset_mention_unverified`，不得报告为已完全匹配。
    - `@` 引用只用于把原文中的主体名和参考图精准相连；不得改变原文措辞、句序、镜头顺序、台词、动作结果或风格描述。
-   - 不追加 `其中，...` 复述段。
+- 不追加 `其中，...` 复述段。
+- 不得删除或摘要上游关于机位高度、低角度、贴地前景、前景虚化、手持微晃、透视拉伸、观众发现过程、遮挡缓慢拉出等观看选择信息；这些属于 `6-分组` 正文的镜头身份和空间感执行信息。
 
 禁止项：
 
@@ -131,6 +132,7 @@ projects/aigc/<项目名>/6-分组/第N集.md
 - 只有用户显式要求远端优化时才改为 `true`。
 - opt-in 必须记录在 submit plan、queue 和 report 中。
 - 未 opt-in 时，handoff message 必须要求 `params.prompt` 直接使用 `6-分组` 现有组正文 + 完整 YAML，不得要求远端重排、摘要、压缩或改写剧情事实。
+- 未 opt-in 时，handoff message 还必须要求远端保留上游的观看选择信息，包括机位高度、前景/遮挡、透视、手持状态、景深和发现路径；不得把它们压缩成“人物做某动作”的动作摘要。
 - 若查询发现 LibTV 远端实际 `params.prompt` 被压缩改写为优化版单段 prompt，应标记为 `needs_rework / remote_prompt_rewritten`；后续重提必须使用提示词锁定句和画布 `@` 资产引用。
 
 ## Official Terminology Evidence

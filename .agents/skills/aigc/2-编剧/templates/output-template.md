@@ -34,7 +34,8 @@ projects/aigc/<项目名>/2-编剧/
 - 声画配对、字段纯度和 slugline 稳定通过 review。
 - 终稿没有内部任务说明、模板占位句或规则复述；`环境描写` 只写场景本身的写景画面，不混入人物动作、对白引出、剧情结果或心理解释；同一 slugline 下可在开篇之外因空间/背景/光线/空气/材质焦点变化再次出现环境描写。
 - 小说原文中的作者评论、心理内视、比喻象征、概括叙述、背景说明、因果解释、关系结论、感官散文或武侠/玄幻抽象已按 `novel_expression_transform_pass` 二次画面化；引号内对白仍逐字冻结，小说叙述没有被改成新增台词。
-- 主角内心想法、内心独白和主角视角下对他人行为的判断已保留为 `独白/内心独白` 或可感知反应；没有被改成客观第三方概括。`角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气和生理反应，没有“试图、想要、打算、意图”等主观预判词；直接情绪感受已转成微表情、肢体动作、生理反应、环境声音承托或主角内心独白。
+- 主角内心想法、内心独白和主角视角下对他人行为的判断已保留为 `独白/内心独白` 或可感知反应；没有被改成客观第三方概括。`角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气和生理反应，没有“试图、想要、打算、意图”等主观预判词；直接情绪感受已按主落点转成 `表情特写`、微表情、肢体动作、生理反应、环境声音承托或主角内心独白。
+- 关键面部表演 beat 可使用正式字段 `表情特写`；该字段只写眉、眼、嘴、鼻翼、咬肌、下颌、喉头、眨眼频率或皮肤状态等可见面部变化，必须能回指上游触发或当前声画压力，不写情绪标签、心理解释、摄影机位、景别或镜头运动。
 - 终稿没有抽象概括、无法实拍的总结句、体现重复/熟悉/往日常态的无画面句；没有新增与当前主线无关的人物过往背景、物品来历或回忆性信息。
 - 关键情绪场、压迫场、离别场或类型氛围场的 `环境描写` 有足够景境承托；新增自然景物只改变氛围密度，不改变剧情条件。
 - 编剧稿没有提前承担 `3-导演` 的导演创作内核、终结画面、视觉主轴、氛围意境或 `4-表演` 的演员工艺控制；相关下游任务只保留可消费的声画基础。
@@ -169,6 +170,23 @@ actor_performance_control_evidence:
       overacting: false
       new_dialogue: false
       new_event: false
+      cinematography_overreach: false
+facial_expression_anchor_evidence:
+  - scene_id: ""
+    source_anchor: ""
+    subject: ""
+    trigger: ""
+    target_field: "表情特写"
+    facial_detail:
+      brow: ""
+      eyes: ""
+      mouth: ""
+      jaw_or_throat: ""
+    moment_shape: "crack | suppression | held_smile | averted_gaze | blink_change | other"
+    risk_check:
+      emotion_label_only: false
+      no_source_trigger: false
+      overused_for_minor_beat: false
       cinematography_overreach: false
 protagonist_inner_voice_evidence:
   - scene_id: ""

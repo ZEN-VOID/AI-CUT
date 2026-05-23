@@ -126,7 +126,8 @@ Reject or clarify when:
 - 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，同一 slugline 不重复开新场景。
 - 上游存在小说式作者评论、主角视角判断、心理内视、文学比喻、象征句、抽象概括、往日常态句、背景说明、因果解释、关系结论时，已执行 `novel_expression_transform_pass` 二次画面化；对白仍逐字冻结，不改写引号内对白。
 - `内心独白（角色）` 的引号内默认采用该角色当下第一人称心声；从第三人称小说叙述转入时，凡指代独白主体自身的"他/她/其/角色名"必须改成"我/我的/自己"或更自然的当下口吻。`内心独白画面` 仍使用第三人称可拍画面描述。
-- `角色动作` / `动作画面` 只写可拍摄身体动作或空间运动，不得出现"试图、想要、打算、意图"等主观预判或心理意图词。"感到恶心/难受/愤怒"等主观情绪必须转成微表情、肢体动作、生理反应或主角内心独白。
+- `角色动作` / `动作画面` 只写可拍摄身体动作或空间运动，不得出现"试图、想要、打算、意图"等主观预判或心理意图词。"感到恶心/难受/愤怒"等主观情绪必须转成 `表情特写`、可感知 `心理反应`、肢体动作、生理反应或主角内心独白。
+- `表情特写` 是正式可选字段，用于关键面部表演 beat：只写眉、眼、眼睑、眨眼频率、鼻翼、嘴角、唇线、咬肌、下颌、喉头或皮肤状态等可见变化；必须有上游触发或当前声画压力，不写情绪标签、心理解释、机位、景别或镜头运动。
 - `环境描写` 只写场景本身的可见写景材料，不承载人物动作、对白引出、剧情结果、心理解释或规则说明；同一 slugline 内环境可因剧情推进多次刷新。
 - 终稿字段不得泄露内部任务说明、占位句或规则复述。
 - 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
@@ -170,13 +171,14 @@ Reject or clarify when:
 | `FIELD-SCRIPT-08` | 对白冻结 | 对白逐字保真，标题格式正确，角色名非占位，语态灵动自然 | `FAIL-SCRIPT-08` |
 | `FIELD-SCRIPT-09` | Team advisor consult | 启动 subagents 模式时已按 `team.yaml` 请教项目监制顾问，并把基于当前节点的参谋指导沉淀为后续任务上下文；阻断时有降级报告 | `FAIL-SCRIPT-09` |
 | `FIELD-SCRIPT-10` | 阶段末闭环 | candidate 已审计、阻断项已直接修复并复审，执行报告记录 verdict 和 repair actions | `FAIL-SCRIPT-10` |
-| `FIELD-SCRIPT-11` | 动作客观性 | `角色动作` / `动作画面` 只写可拍客观动作、神态、语气和生理反应；无主观意图词"试图/想要/打算/意图"；直接情绪感受已转成可感知反应 | `FAIL-SCRIPT-11` |
+| `FIELD-SCRIPT-11` | 动作客观性 | `角色动作` / `动作画面` 只写可拍客观动作、神态、语气和生理反应；无主观意图词"试图/想要/打算/意图"；直接情绪感受已转成 `表情特写`、可感知反应、肢体动作、生理反应或主角内心独白 | `FAIL-SCRIPT-11` |
 | `FIELD-SCRIPT-12` | 占位泄露 | 终稿无内部规则句、模板占位句或任务说明 | `FAIL-SCRIPT-12` |
 | `FIELD-SCRIPT-13` | 声音本体 | 声音字段写声音本体而非事件说明、时间说明或叙述概括 | `FAIL-SCRIPT-13` |
 | `FIELD-SCRIPT-14` | 具像化 | 画面字段回答"摄影机看见什么"，而非"观众理解什么"；无抽象概念、解释性因果或作者判断 | `FAIL-SCRIPT-14` |
 | `FIELD-SCRIPT-15` | 环境纯度与氛围 | `环境描写` 只写场景写景材料；不承载人物动作、对白引出或心理解释；允许在关键场补自然景物氛围承托但不新增事件 | `FAIL-SCRIPT-15` |
 | `FIELD-SCRIPT-16` | 创作证据 | 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`，证明小说转译、主角内心独白人称转换和动作客观性不是只停留在文档规则层 | `FAIL-SCRIPT-16` |
 | `FIELD-SCRIPT-17` | 小说表述二次画面化 | 作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论已转成可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白；对白仍逐字冻结；主角内心独白人称已从小说第三人称转成第一人称 | `FAIL-SCRIPT-17` |
+| `FIELD-SCRIPT-18` | 表情特写 | 关键面部表演 beat 可落入 `表情特写`；该字段必须有上游触发或当前声画压力，只写具体面部可见变化，不写情绪标签、心理解释、机位、景别或镜头运动；普通非面部反应仍落 `心理反应`、`对白画面` 或 `角色动作` | `FAIL-SCRIPT-18` |
 
 ## Thought Pass Map
 
@@ -186,7 +188,7 @@ Reject or clarify when:
 | `PASS-SCRIPT-02` | 类型路由与场景解析 | 上游正文结构、场景线索、`types/source-to-script-type-map.md` | 改编类型画像是否成立，slugline、场景编号和场景顺序是否稳定 | `type_profile`、`scene_map` |
 | `PASS-SCRIPT-03` | 字段分流 | 上游叙事句、对白、声音、动作 | 声音字段与画面字段是否可分离并就近配对 | `field_routing_plan` |
 | `PASS-SCRIPT-04` | 小说表述二次画面化 | `field_routing_plan`、上游小说段落、对白锁 | 是否把作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论转成可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白，且不改对白、不补无关前史；主角内心独白人称是否已转成第一人称 | `novel_expression_transform_evidence` / `protagonist_inner_voice_evidence` |
-| `PASS-SCRIPT-05` | 动作客观性审查 | `field_routing_plan`、`novel_expression_transform_evidence` | `角色动作` / `动作画面` 是否只写客观可拍文本；"试图/想要/打算/意图"等主观意图词是否已清除；直接情绪感受是否已转成微表情、肢体动作、生理反应或内心独白 | `objective_action_purity_evidence` |
+| `PASS-SCRIPT-05` | 动作客观性与表情落点审查 | `field_routing_plan`、`novel_expression_transform_evidence` | `角色动作` / `动作画面` 是否只写客观可拍文本；"试图/想要/打算/意图"等主观意图词是否已清除；直接情绪感受是否已按主落点转成 `表情特写`、微表情、肢体动作、生理反应或内心独白；关键面部 beat 是否有正式字段落点 | `objective_action_purity_evidence`、`facial_expression_anchor_evidence` |
 | `PASS-SCRIPT-06` | 环境字段纯化 | `field_routing_plan`、上游正文 | `环境描写` 是否只含场景写景材料；是否混入人物动作、对白引出、剧情结果、心理解释或规则说明；关键场景是否有必要氛围承托 | `environment_purity_evidence` |
 | `PASS-SCRIPT-07` | 剧本投影 | `field_routing_plan`、`novel_expression_transform_evidence`、`objective_action_purity_evidence`、`environment_purity_evidence` 与上游正文 | 是否完整承接事实、顺序、对白、小说表述二次画面化、动作客观性、环境纯度和字段纯度 | `episode_script` |
 | `PASS-SCRIPT-08` | 验收回写 | 编剧稿、校验结果 | 是否满足保真、声画、场景、对白冻结、字段纯度、小说表达转译、动作客观性、环境纯度和输出门禁 | `review_result` |
@@ -200,7 +202,7 @@ Reject or clarify when:
 | `PASS-SCRIPT-02` | 场景标题使用稳定编号和好莱坞 slugline | `FAIL-SCRIPT-02` | `references/script-adaptation-contract.md` |
 | `PASS-SCRIPT-03` | 声画字段分流纯净且就近配对 | `FAIL-SCRIPT-04` | `references/field-routing-and-audio-visual-contract.md` |
 | `PASS-SCRIPT-04` | 小说式作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论已二次画面化；对白没有被润色、拆改或新增；主角内心独白人称已从第三人称转成第一人称；没有无关过往、物品来历或回忆性补充 | `FAIL-SCRIPT-17` | `references/novel-to-screen-language-contract.md` |
-| `PASS-SCRIPT-05` | `角色动作` / `动作画面` 只写客观可拍动作、神态、语气和生理反应；无"试图/想要/打算/意图"等主观意图词；直接情绪感受已转成可感知反应 | `FAIL-SCRIPT-11` | `references/field-routing-and-audio-visual-contract.md` |
+| `PASS-SCRIPT-05` | `角色动作` / `动作画面` 只写客观可拍动作、神态、语气和生理反应；无"试图/想要/打算/意图"等主观意图词；直接情绪感受已转成 `表情特写`、可感知反应、肢体动作、生理反应或内心独白；关键面部 beat 不缺字段落点 | `FAIL-SCRIPT-11` / `FAIL-SCRIPT-18` | `references/field-routing-and-audio-visual-contract.md` |
 | `PASS-SCRIPT-06` | `环境描写` 只含场景写景材料，不承载人物动作/对白引出/心理解释/规则说明；关键场景有氛围承托但不新增事件 | `FAIL-SCRIPT-15` | `references/field-routing-and-audio-visual-contract.md` |
 | `PASS-SCRIPT-07` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | `FAIL-SCRIPT-03` | `references/script-adaptation-contract.md` |
 | `PASS-SCRIPT-08` | 输出路径、执行报告、review gate 齐全 | `FAIL-SCRIPT-07` | `review/review-contract.md` |
@@ -216,7 +218,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `PASS-SCRIPT-02` | `N2-TYPE` / `N3-SCENE` | 类型画像与场景标题同时稳定；类型策略不改变保真，slugline 不漂移 | `types/source-to-script-type-map.md`、上游正文结构、场景线索、`references/script-adaptation-contract.md` | `type_profile`、`route_flags`、`scene_slugline_table`、`scene_order_trace` |
 | `PASS-SCRIPT-03` | `N4-FIELD` | 声画字段分流纯净且就近配对 | 上游段落、场景表、`references/field-routing-and-audio-visual-contract.md` | `field_projection_map`、`dialogue_lock_map`、`audio_visual_pairing_map` |
 | `PASS-SCRIPT-04` | `N4.2-NOVEL-TRANSFORM` | 小说式表述已二次画面化；主角内心独白人称已转成第一人称 | `field_projection_map`、上游段落、`references/novel-to-screen-language-contract.md` | `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` |
-| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段客观可拍；无主观意图词；直接情绪感受已转成可感知反应 | `field_projection_map`、`novel_expression_transform_evidence`、动作字段抽查 | `objective_action_purity_evidence` |
+| `PASS-SCRIPT-05` | `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` | 动作字段客观可拍；无主观意图词；直接情绪感受已转成可感知反应；关键面部 beat 已落 `表情特写` 或有明确相邻字段承托 | `field_projection_map`、`novel_expression_transform_evidence`、动作字段和 `表情特写` 抽查 | `objective_action_purity_evidence`、`facial_expression_anchor_evidence` |
 | `PASS-SCRIPT-06` | `N4-FIELD` | 环境字段纯净，必要环境刷新与氛围承托不新增事件 | 上游段落、场景表、环境字段抽查 | `environment_purity_evidence`、`environment_refresh_map` |
 | `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | 所有上游证据、`advisor_consultation_packet`（如有） | `第N集.md` 草稿、`faithful_projection_trace` |
 | `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | 输出路径、执行报告、review gate 齐全 | candidate 草稿、上游正文、`review/review-contract.md`、`thinking_action_node_ledger` | `review_result`、`gate_to_node_repair_map` |
@@ -224,7 +226,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 
 ## GATE-SCRIPT Definitions
 
-共 17 道 review gate，编号 `GATE-SCRIPT-01` 至 `GATE-SCRIPT-17`：
+共 18 道 review gate，编号 `GATE-SCRIPT-01` 至 `GATE-SCRIPT-18`：
 
 | gate_id | gate_name | 校验内容 |
 | --- | --- | --- |
@@ -244,7 +246,8 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `GATE-SCRIPT-14` | Atmospheric environment | 关键场景的 `环境描写` 有自然景物氛围承托，且承托不新增事件、线索或因果 |
 | `GATE-SCRIPT-15` | Novel-to-screen language | 作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论已二次画面化；对白未被改写；主角内心独白人称已转成第一人称 |
 | `GATE-SCRIPT-16` | Protagonist inner voice | 主角视角下对他人行为的判断已进入 `内心独白（主角）` 而非客观第三方概括；主角自指已从小说第三人称转成第一人称 |
-| `GATE-SCRIPT-17` | Objective action purity | `角色动作` / `动作画面` 不含"试图/想要/打算/意图"等主观预判；直接情绪感受已转成微表情、肢体动作、生理反应或主角内心独白 |
+| `GATE-SCRIPT-17` | Objective action purity | `角色动作` / `动作画面` 不含"试图/想要/打算/意图"等主观预判；直接情绪感受已转成 `表情特写`、微表情、肢体动作、生理反应或主角内心独白 |
+| `GATE-SCRIPT-18` | Facial expression close-up | `表情特写` 作为正式可选字段存在；若使用，必须只写具体面部变化并有触发来源，不写情绪标签、心理解释、机位、景别或镜头运动；若上游关键情绪明显集中在面部变化，不能只散落为无字段的泛化表情词 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -256,7 +259,8 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 - `动作画面` / `角色动作` 混入心理解释、章节名、抽象判断，或出现"试图、想要、打算、意图"等主观预判/心理意图词。
 - 主角视角下对他人行为的判断被写成客观第三方概括，而不是主角内心独白。
 - `内心独白（主角）` 承接第三人称小说叙述时仍以"他/她/其/角色名"指代主角自身。
-- "感到恶心/难受/愤怒"等主观情绪感受被直接写入终稿，而不是转成微表情、肢体动作、生理反应或主角内心独白。
+- "感到恶心/难受/愤怒"等主观情绪感受被直接写入终稿，而不是按主落点转成 `表情特写`、可感知 `心理反应`、肢体动作、生理反应或主角内心独白。
+- 关键面部表演 beat 没有 `表情特写` 或相邻字段承托，或 `表情特写` 退化成"悲伤/愤怒/复杂"等情绪标签、心理解释、摄影机位、景别或镜头运动。
 - `环境描写` 混入人物动作、对白引出、剧情结果、心理解释或规则说明。
 - `环境描写` 在关键情绪场、压迫场、离别场或类型氛围场只写地点点缀，没有自然景物氛围承托；或新增自然景物后造成新事件、线索、阻碍、因果或结果。
 - 画面字段写抽象概念、解释性因果、作者判断或心理感受。

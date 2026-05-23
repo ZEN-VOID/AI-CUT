@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-23 (Two-Person Axis / 180-Degree Rule)
+
+- 吸收 `input/13424024829236292.mp4` 音频教程：双人/多人对峙、追逐、动作和谈判场必须先建立 line of action、screen left/right、中间空间锚点和同侧 180 度拍摄半区。
+- 更新 `shot-continuity-contract.md` 与 `ai-video-prompt-execution-contract.md`：新增逐镜 `axis_continuity_anchor`，要求下游可消费分镜重复空间锚点，避免 AI 生图/视频随机左右反转；换轴必须通过中性、主观、可见运动镜头或角色换位桥接。
+- 同步 `SKILL.md`、`steps/cinematography-workflow.md`、`review/review-contract.md` 与 `CONTEXT.md`，新增 `FIELD-CINE-27` / `GATE-CINE-27` / `FAIL-CINE-05V`，使轴线规则进入计划汇流、审查门禁和修复打法。
+
 ## 2026-05-22 (Scene / Shot Identity)
 
 - 吸收 AI 视频提示词与光线学习：新增共享 `../_shared/scene-shot-identity-contract.md`，要求先锁定场景身份和镜头身份，再组织人物动作。

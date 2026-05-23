@@ -20,6 +20,7 @@
 | 心理反应写成传统小说内心或抽象想象 | 字段语义层 | 改成有主体的身体微动作、表情、呼吸、停顿、声线变化、道具停点、空间距离、对手不接话或短促可听独白；纯语言化内容改入 `独白/内心独白` 并配画面 | `references/psychological-reaction-contract.md` 固定 `Psychological Reaction Contract`，workflow 建立 `psychological_reaction_getability_map / psychological_reaction_evidence`，review 把 `心理反应` 纳入具像化和创作证据门禁 | `心理反应` 离开字段标题仍能被演员表演、下游工具解析、观众从声画中感知 |
 | 角色演技停留在情绪标签或模板化表情 | 表演控制层 | 回到 `actor_performance_control_pass`，为关键情绪 beat 补上游触发点、表层/压制/隐藏动机、微表情、身体联动、环境声或沉默余波、微动态限制 | `references/actor-performance-control-contract.md` 固定五层表演系统，workflow 建立 `actor_performance_control_plan / actor_performance_control_evidence`，review 检查情绪标签空转和过演风险 | 输出不再只写"愤怒/难过/紧张"或皱眉瞪眼流泪，能从眉眼嘴、手、呼吸、声线、道具和环境声看出演技 |
 | 表情精准但仍像模板脸 | 情绪切换瞬间层 | 从“持续表情”改为“上游触发 -> 表面情绪裂开/压制情绪泄露 -> 身体联动收住”的短瞬间 | `actor-performance-control-contract.md` 的 Emotion Transition Moment Rule | 观众能看到情绪刚被触发、被压回去或从表层切到底层，而不是角色全程挂同一表情 |
+| 上游 `表情特写` 被吞回泛化心理反应 | 字段承接层 | 保留 `表情特写` 字段名，在其中精修眉眼嘴、咬肌、下颌、喉头和眨眼频率；非面部身体联动再拆到 `心理反应`、`对白画面` 或 `角色动作` | `2-编剧` 已把 `表情特写` 作为正式面部落点；`4-表演` 负责细化，不负责取消字段 | 下游摄影/图像能直接识别面部 beat，不需要从心理段落里二次挖取 |
 | 环境声变成通用 BGM 标签 | 场景身份声音层 | 删除“悲伤音乐/紧张音乐”等泛化描述，改成当前年代、空间功能和材质会自然发出的声音 | `actor-performance-control-contract.md` Environment Sound Support | 声音来自场景身份，不新增事件，也不替代角色表演 |
 | 对白只保留文字或空泛状态 | 台词表演层 | 回到 `dialogue_performance_map` 和 `actor_performance_control_pass`，为每段对白补 `对白（角色，语气/情绪/状态）` 第二项，并在 `对白画面` 或相邻字段补气口、断句、停顿、声线、重音、尾音或对手反应；不得改写引号内原对白 | `performance-and-scene-craft-contract.md` 固定 `Dialogue Performance Rule`，`actor-performance-control-contract.md` 固定 `Dialogue Delivery Control`，workflow 建立 `dialogue_performance_evidence`，review 把台词表演纳入阻断门 | 每段对白离开台词文本仍能指导演员怎么说；关键对白有可听、可演的节奏和情绪控制 |
 | 心理潜台词权力关系仍写成解释句 | 表演工艺层 | 回到 `N5-PERF-SCENE-CRAFT`，把"想什么/关系如何变化"转成目标、阻碍、策略、停顿、视线、身体距离、道具动作或场面调度 | `performance-and-scene-craft-contract.md` 固定 `scene_turn_pass` 与 actor task rule | `表演提示` 可执行，`场面调度` 可见，画面字段不再写心理结论 |
@@ -40,6 +41,7 @@
 1. 确认上游 `2-编剧/第N集.md` 或 `3-导演/第N集.md` 已通过对应门禁，输出路径可读。
 2. 逐场景检查 `心理反应` 字段：有主体、有上游触发点、有可见/可听/可演通道；离开字段标题仍能被演员表演和观众感知。
 3. 检查关键情绪 beat 是否只写情绪标签或模板表情；若有，按 `actor-performance-control` 补触发点、情绪动机、眉眼嘴/咬肌/鼻翼、手/肩/呼吸/重心/声线、环境声和微动态限制。
+3.02. 检查上游 `表情特写`：字段名必须保留；正文若仍是“悲伤/愤怒/表情复杂”等标签，细化为面部分区和情绪切换瞬间。身体联动可拆入相邻字段，但不能把面部落点整体删掉。
 3.05. 检查关键表演是否只在脸上“摆情绪”：优先寻找情绪切换瞬间，如笑意压回去、第三个字前停顿、眼神闪开半拍、吸气只到一半；切换必须来自上游触发点，不能变成表情轮播。
 3.1. 检查每段 `对白（角色，...）`：第二项必须写清语气、情绪或状态；关键对白必须在 `对白画面` 或相邻字段写出气口、断句、停顿、声线、重音、尾音或对手反应；引号内对白不得改字。
 4. 检查潜台词和权力关系是否仍写成解释句；若"想什么/关系如何变化/谁在试探谁"仍出现在画面或动作字段，转成目标、阻碍、策略、停顿、视线、身体距离、道具动作或场面调度。

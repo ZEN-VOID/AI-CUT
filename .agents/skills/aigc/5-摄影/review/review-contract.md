@@ -18,6 +18,8 @@
 | `content_paraphrase_review` | 交付前 | 对候选 `分镜N` 做源句复述扣除测试：去掉上游原句已有主体、动作、道具和事实后，仍能读出摄影机如何看、动、停、转焦、布光或交接 |
 | `ai_video_prompt_execution_review` | 交付前 | 检查每个 `分镜N` 是否符合 AI 视频执行稳定性：镜头先行包裹动作、方向参照明确、光线写结果、表演微动态可见，且未把完整提示词分栏或命令式负向词塞入分镜正文 |
 | `scene_shot_identity_review` | 交付前 | 检查需要进入图像或视频阶段的分镜是否先锁定场景身份和镜头身份：年代/空间功能/环境声基底/材质光影、摄影机位置朝向、相对画面方向和动作在镜头内部发生 |
+| `two_person_axis_review` | 交付前 | 检查双人/多人对峙、追逐、动作、逼问或谈判场是否锁定 line of action、screen left/right、middle_spatial_anchor 和 camera_half_space；每条可下游消费分镜是否重复空间锚点；换轴是否通过中性、主观或运动桥接 |
+| `viewer_discovery_review` | 交付前 | 检查人物行走、入场、压迫、群像和空间建立镜头是否避免无动机正面平视全信息展示；低角度、前景遮挡、透视拉伸、手持微晃或慢速揭示是否有观看任务和可见结果 |
 | `action_first_continuity_review` | 交付前 | 检查每条涉及人物的 `分镜N` 是否先承接人物姿态、位置、朝向、身体接触、动作方向和注意力落点；触碰/取用/查看/避开对象是否空间可达；道具/环境细节是否通过准入且未抢走动作链 |
 | `action_reaction_focus_review` | 交付前 | 检查多人 beat 是否明确行动者、反应者和背景参与者；镜头是否保留动作-反应因果焦点，而不是让所有角色同强度表演或用奇怪角度同时照顾所有人 |
 | `thinking_action_node_review` | 交付前 | 检查 `PASS-CINE-*` / `N*-*` 是否完成真源锁定、画面匹配、类型画像、段落观看意图与逐点归属、节拍、节奏、镜头时值、高点、连续性、摄影语法、功能投影、AI 视频执行稳定性、计划汇流、自然注入和阶段内修复闭环 |
@@ -65,7 +67,7 @@
 | `GATE-CINE-13` | 原文保真 | 除新增 frontmatter/report 和 `分镜明细` 外，不改写 `4-表演` 正文 |
 | `GATE-CINE-14` | 高潮分镜 | 上游存在 `peak_visual_policy`、`peak_visual_pass` 或明显高潮/爽点/高光画面时，摄影稿完成峰值分镜强化，且不新增事实、对白或动作结果 |
 | `GATE-CINE-15` | 功能性投影 | 每个 `分镜N` 可抽取 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material、continuity_handoff 和下游消费点 |
-| `GATE-CINE-15A` | AI 视频执行稳定性 | 每个 `分镜N` 能还原镜头先行执行顺序：镜头/运动/构图先包裹动作；人物运动有相对镜头或画面的方向参照；重要光影写成亮面、暗面、阴影、轮廓、反光或背景层次；表演情绪落到可见微动态；正文不输出完整提示词分栏模板或命令式负向词 |
+| `GATE-CINE-15A` | AI 视频执行稳定性 | 每个 `分镜N` 能还原镜头先行执行顺序：镜头/运动/构图先包裹动作；人物运动有相对镜头或画面的方向参照；重要光影写成亮面、暗面、阴影、轮廓、反光或背景层次；表演情绪落到可见微动态；人物行走、入场、压迫、群像和空间建立镜头有机位高度/前景/透视/发现路径裁决，未无动机退化为正面平视全信息展示；正文不输出完整提示词分栏模板或命令式负向词 |
 | `GATE-CINE-15B` | 非复述型分镜 | 每条 `分镜N` 通过源句复述扣除测试：删除上游原句已有主体、动作、道具和事实后，仍保留机位/构图/运镜路径/速度/停点/焦点/光影结果/方向参照/连续性交接中的有效摄影决策；不得只是把正上方画面句子拆写成画面内容顺序 |
 | `GATE-CINE-16` | 摄影语法变化 | 景别、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化服务节拍、空间、信息、情绪或交接；不存在随机换技法、无动机大远景跳大特写或视角乱跳 |
 | `GATE-CINE-17` | 思维·执行节点完整 | 产物能回指 `PASS-CINE-00..12`、`PASS-CINE-02S`、`PASS-CINE-02D`、`PASS-CINE-04D` 与 `N1-INTAKE/N2-MATCH/N3-TYPE/N3.5-SEQUENCE-ALIGN/N3.6-DENSITY-CURVE/N4-BEAT/N5-RHYTHM/N5.2-DURATION/N5.5-PEAK-SHOT/N5.6-ADVISOR/N6-CONTINUITY/N6.1-HANDOFF/N6.2-CAMERA-GRAMMAR/N6.4-FUNCTIONAL-PROJECTION/N6.5-SHOT-PLAN/N7-INJECT/N8-REVIEW/N8R-DIRECT-REPAIR/N8R-REVIEW-AGAIN/N9-WRITE` 的关键判断：真源、画面匹配、类型、段落观看意图与逐点归属、段落密度曲线、节拍、节奏、镜头时值、高点、顾问、连续性、边界交出、摄影语法、功能投影、AI 视频执行稳定性、计划、注入、审查修复 |
@@ -78,6 +80,7 @@
 | `GATE-CINE-24` | 道具镜头准入 | 道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等物件细节只有在角色互动、关键信息/规则/证据/危险源或必要环境交代时成为焦点；无互动普通道具未被写成独立特写、焦点拉移终点、反射主体或多分镜衔接节点 |
 | `GATE-CINE-25` | 动作-反应焦点 | 多人 beat 已区分 `action_driver/reaction_receiver/ambient_participants`；镜头先服务动作如何影响反应，没有让所有角色同强度表演，也没有为了同时照顾所有人和物件而牺牲轴线、动作链或主体焦点 |
 | `GATE-CINE-26` | 场景/镜头身份 | 每条下游可消费分镜能先还原 `scene_identity` 与 `shot_identity`：场景年代/功能/环境声/材质光影明确，摄影机位置朝向明确，人物动作发生在镜头内部，方向参照相对镜头或画面边界 |
+| `GATE-CINE-27` | 双人轴线与 180 度规则 | 双人/多人对峙、追逐、动作、逼问或谈判场已锁定两人连线、screen left/right、中间空间锚点和同侧 180 度拍摄半区；每条关键 `分镜N` 的下游 payload 重复 `axis_continuity_anchor`；换轴有中性镜头、主观视角、可见运动镜头或角色换位桥接 |
 
 ## Failure Routing
 
@@ -113,8 +116,10 @@
 | `FAIL-CINE-05S` | 无互动普通道具被硬写成焦点、倒影、涟漪、餐具轻响、纸角阴影或独立特写；删掉该物件镜头不损失剧情/表演/空间信息，反而能恢复人物动作衔接 | `references/visual-matching-contract.md#Prop-Admission-Overlay`、`references/shot-detail-dimension-contract.md#Core-Rule`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05T` | 分镜为了物件、环境反应、反射或静物切点牺牲人物动作链；人物姿态、方向、可达对象或退出状态不清，删掉该细节后动作更顺 | `../../_shared/action-first-continuity-contract.md`、`references/shot-continuity-contract.md`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05U` | 多人 beat 的镜头没有行动-反应焦点：所有角色同等强度表演，或为同时照顾多人/物件选择奇怪角度，导致动作因果、视线关系和主体焦点混乱 | `../../_shared/lived-in-character-behavior-contract.md`、`references/shot-continuity-contract.md#Action-Reaction-Focus`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-05V` | 双人/多人对峙、追逐、动作或谈判场缺少轴线锁：主角/对手 screen left/right 反复、摄影机直接越过 180 度轴线、后续分镜没有重复空间锚点，或换轴缺少中性/主观/运动桥接 | `references/shot-continuity-contract.md#Two-Person-Axis-And-180-Degree-Rule`、`references/ai-video-prompt-execution-contract.md#Repeated-Spatial-Anchor-For-AIGC`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-SCENE-IDENTITY-01` | 分镜只写人物动作或抽象氛围，无法看出年代、空间功能、环境声底色、材质光影和场景身份 | `../../_shared/scene-shot-identity-contract.md`、`references/scene-visual-constraint-contract.md`、`steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` |
 | `FAIL-SHOT-IDENTITY-01` | 动作先发生，镜头只在后面补推进/跟拍/特写，无法稳定生成连续视频 | `../../_shared/scene-shot-identity-contract.md`、`references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` |
+| `FAIL-SHOT-IDENTITY-02` | 镜头无动机保持正面平视、完整清楚展示，导致画面扁平、旁观、摆拍或资料图感 | `../../_shared/scene-shot-identity-contract.md`、`references/ai-video-prompt-execution-contract.md#Camera-Perspective-And-Discovery-Rule`、`references/dynamic-lens-language-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-DIRECTION-REF-01` | 前后左右、入画退场或光线方向没有相对镜头/画面参照 | `../../_shared/scene-shot-identity-contract.md`、`references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-19A` | 跨分镜组或跨镜头切换时动作锚点断裂，人物姿态、位置或身体接触状态在下一镜凭空变化 | `references/shot-continuity-contract.md#Action-Anchor-Inheritance`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-19B` | 眼睛特写没有限定正面双眼/正面上半脸，容易生成单眼侧面或畸形五官 | `references/ai-video-prompt-execution-contract.md#Eye-Close-up-Rule`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
@@ -144,7 +149,9 @@
 - 功能性影视投影与 AIGC 下游可消费性检查结果。
 - 源句复述扣除测试结果：抽样说明候选分镜是否脱离“画面内容拆写/复述”，以及因 `FAIL-CINE-05R` 修复的行号或字段标签。
 - AI 视频执行稳定性检查结果：镜头先行、方向参照、光线结果、表演微动态、提示词模板腔和命令式负向词风险。
+- 观众发现路径检查结果：正面平视使用理由、低角度/前景/透视/手持/慢拉等观看选择是否有证据，因 `FAIL-SHOT-IDENTITY-02` 修复的行号或字段标签。
 - 场景/镜头身份检查结果：场景年代/功能/环境声/材质光影、摄影机位置朝向、动作是否发生在镜头内部、方向参照是否相对镜头或画面边界。
+- 双人轴线与 180 度规则检查结果：涉及对峙、追逐、动作、逼问或谈判的分镜是否锁定 line of action、screen left/right、中间空间锚点和同侧 180 度半区；是否逐镜重复 `axis_continuity_anchor`；因 `FAIL-CINE-05V` 修复的行号或字段标签。
 - 人物动作链优先检查结果：涉及人物的分镜是否承接姿态、位置、朝向、身体接触、动作方向和注意力落点；对象是否空间可达；因 `FAIL-CINE-05T` 删除或降级的物件/环境切点。
 - 动作-反应焦点检查结果：多人 beat 是否明确行动者、反应者和背景参与者；因 `FAIL-CINE-05U` 收敛或改写的多人同强度表演、奇怪角度或抢焦物件。
 - 顾问请教 roster 来源、问题类型、可执行指导或降级说明。

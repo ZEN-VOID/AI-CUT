@@ -254,6 +254,22 @@ INNER_MONOLOGUE_PRONOUN_PATTERNS = [
     "他感到",
     "她感到",
 ]
+FACIAL_EXPRESSION_LABEL_PATTERNS = [
+    "表情悲伤",
+    "表情愤怒",
+    "表情复杂",
+    "表情紧张",
+    "露出悲伤",
+    "露出愤怒",
+    "露出复杂",
+    "露出难过",
+    "露出害怕",
+    "很悲伤",
+    "很愤怒",
+    "很害怕",
+    "很紧张",
+    "很难过",
+]
 
 
 def field_base(field: str) -> str:
@@ -421,6 +437,19 @@ def validate(path: Path) -> tuple[bool, list[str]]:
                     if pattern in value:
                         findings.append(
                             f"[ERROR] Scene {number} psychological reaction field '{field}' contains direct emotion label instead of observable performance: {pattern}"
+                        )
+                        ok = False
+            if base == "表情特写":
+                for pattern in DIRECT_EMOTION_PATTERNS + FACIAL_EXPRESSION_LABEL_PATTERNS:
+                    if pattern in value:
+                        findings.append(
+                            f"[ERROR] Scene {number} facial close-up field '{field}' contains emotion-label wording instead of concrete facial change: {pattern}"
+                        )
+                        ok = False
+                for pattern in CINEMATOGRAPHY_OVERREACH_PATTERNS:
+                    if pattern in value:
+                        findings.append(
+                            f"[ERROR] Scene {number} facial close-up field '{field}' contains cinematography-overreach wording: {pattern}"
                         )
                         ok = False
             if base == "内心独白":
