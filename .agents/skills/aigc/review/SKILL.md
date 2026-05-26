@@ -69,7 +69,7 @@ Reject or clarify when:
 3. 按 `references/review-fact-pack-spec.md` 组装同一份 `review_fact_pack`；若 required slice 缺失，直接 `FAIL-COVENANT`。
 4. 按 `_shared/review-dimension-registry.yaml` 选择 mandatory dimensions，并加载其 `dimension_spec_ref` 指向的 `references/dimensions/*.md`。
 5. 若 `review_fact_pack` required slice 缺失，直接写 `FAIL-COVENANT` aggregate packet 与 repair plan，不进入 provider 或维度审计。
-6. 在上层策略允许时，使用 `review/review-gate.md` 声明的 provider 路径；若真实 subagent/provider 被阻断，降级为本地 checklist 并在 packet 中记录。
+6. 在上层策略允许时，使用 `review/review-gate.md` 声明的 provider 路径；若顾问与复核流程/provider 被阻断，使用本地 checklist 并在 packet 中记录。
 7. 聚合 `dimension_packet + dimension_report_ref + dimension_runtime`，写出唯一 aggregate review packet。
 8. 若未通过，写 `*.review.repair.json`，并在 `governance-state.yaml` 存在时同步 `review_bridge` 与 `resume_contract.required_repairs`。
 9. 父层不得直接改写阶段业务 canonical truth；返工必须路由回阶段、source owner 或 provider handoff owner。
@@ -92,7 +92,7 @@ Reject or clarify when:
 | `FIELD-REVIEW-PKG-02` | `CONTEXT.md` | 经验层 | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-REVIEW-CONTEXT` |
 | `FIELD-REVIEW-PKG-03` | `references/` | review 强规则 | 根 gate、dimension output、fact pack spec、dimension specs | `FAIL-REVIEW-REFERENCES` |
 | `FIELD-REVIEW-PKG-04` | `steps/` | 思行网络 | intake、pack、dimension、aggregate、route | `FAIL-REVIEW-STEPS` |
-| `FIELD-REVIEW-PKG-05` | `review/` | 质量门禁 | provider、verdict、降级报告 | `FAIL-REVIEW-GATE` |
+| `FIELD-REVIEW-PKG-05` | `review/` | 质量门禁 | provider、verdict、本地 checklist 结果 | `FAIL-REVIEW-GATE` |
 | `FIELD-REVIEW-PKG-06` | `types/` | 类型策略 | checkpoint/stage/release 判型 | `FAIL-REVIEW-TYPES` |
 | `FIELD-REVIEW-PKG-07` | `templates/` | 输出模板 | Output Contract Alignment | `FAIL-REVIEW-TEMPLATE` |
 | `FIELD-REVIEW-PKG-08` | `scripts/` | 机械辅助 | runner wrapper 与脚本说明 | `FAIL-REVIEW-SCRIPTS` |

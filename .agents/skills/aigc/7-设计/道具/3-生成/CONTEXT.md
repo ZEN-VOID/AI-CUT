@@ -34,7 +34,7 @@ last_checked_at: 2026-04-25
 4. 若多视图漂移，优先强化参照图和锁定识别点，而不是新增设定。
 5. Step2 调用 built-in `image_gen` 前必须 `view_image` 主图；只有路径存在还不够。
 6. 若图像已生成但未落盘到项目目录，按 `$imagegen` 的 persistence gate 把选定最终资产复制到 `3-生成`。
-7. 若真实 subagent 或 reviewer 被阻断，按 `SKILL.md` 的 Subagent Execution Contract 报告降级路径。
+7. 若不使用外部顾问与复核流程 或 reviewer，按 `SKILL.md` 的顾问与复核流程 Execution Contract 直接执行本地 checklist。
 8. 若校验器通过但用户指出“批量定制不细”，优先检查 Visual Maps、Node Network、Failure Routing、Provider Degradation 和 Output Contract Alignment 是否足够具体。
 
 ## Reusable Heuristics

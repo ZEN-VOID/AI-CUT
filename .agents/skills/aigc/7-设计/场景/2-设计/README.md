@@ -19,7 +19,7 @@ find .agents/skills/aigc/7-设计/场景/2-设计 -maxdepth 2 -type f | sort
 │   ├── scene-design-contract.md
 │   ├── design-output-contract.md
 │   ├── design-slot-review-contract.md
-│   └── subagent-supervision-contract.md
+│   └── workflow-supervision-contract.md
 ├── scripts/
 │   └── README.md
 ├── templates/
@@ -53,7 +53,7 @@ find .agents/skills/aigc/7-设计/场景/2-设计 -maxdepth 2 -type f | sort
 - `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。
 - 最终英文整合 prompt 必须以主体 ID 号开头，显式包含时间和地域锚点，并能通过 prompt 证据链回指来源姿态或保守化处理。
 - 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息；只拼主体 ID、风格、时间地域或 no people 等前缀/后缀不算完成。
-- `design-output-contract.md`、`design-slot-review-contract.md` 和 `subagent-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。
+- `design-output-contract.md`、`design-slot-review-contract.md` 和 `workflow-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。
 
 ## 研究层升级要点
 

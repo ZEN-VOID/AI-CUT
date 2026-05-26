@@ -1,6 +1,6 @@
 # Context: aigc 7-设计/角色/2-设计
 
-本文件是 `角色/2-设计` 的经验层知识库，不是过程日志。它用于沉淀角色细目设计、项目风格融合、研究考据、服装提示词和 subagent 汇流中的可复用经验。
+本文件是 `角色/2-设计` 的经验层知识库，不是过程日志。它用于沉淀角色细目设计、项目风格融合、研究考据、服装提示词和 顾问与复核流程 汇流中的可复用经验。
 
 ## Context Health
 
@@ -27,8 +27,8 @@ last_checked_at: 2026-04-25
 | 研究考据侵占创作判断 | 考据边界层 | 把来源作为启发，不把搜索结果当作设计真源 | 冷门信息只作支撑，最终方案由 LLM 综合 | 考据段说明使用边界 |
 | 研究层停留在资料摘录 | 研究转化层 | 按身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性补成 evidence chain | 每个研究点必须写出 design implication 和 prompt phrase | `Prompt Evidence Chain` 可回指研究证据 |
 | prompt 出现无证据文化/制服/身份短语 | prompt evidence 层 | 删除或回到研究层补证据与不确定性 | prompt 关键短语按 `evidence -> design decision -> prompt phrase` 审查 | prompt 中的特定词均可回指研究或项目风格 |
-| subagent 输出互相竞争 | 汇流层 | 主 agent 只吸收 patch 和 risk，统一写 canonical 设计稿 | subagents 不直接落盘最终稿 | 最终文件只有一个主稿声音 |
-| subagents 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"`，让角色/服装/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/character-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `advisor_consultation_packet` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
+| 顾问与复核流程 输出互相竞争 | 汇流层 | 主 agent 只吸收 patch 和 risk，统一写 canonical 设计稿 | 顾问与复核流程 不直接落盘最终稿 | 最终文件只有一个主稿声音 |
+| 顾问与复核流程 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"`，让角色/服装/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/character-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `advisor_consultation_packet` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 脚本生成正文 | LLM-first 层 | 删除生成逻辑，保留字段校验或长度检查 | scripts 分区固定机械辅助边界 | 脚本不输出研究、物语、解构和提示词正文 |
 | 批量定制后只有表格没有关键图 | Skill 2.0 可维护性层 | 在根 `SKILL.md`、`types/`、`review/` 和 README 补 Mermaid 拓扑或门禁图 | 批量生成后人工检查入口拓扑、类型分流和 review 闭环是否可视化 | 关键路径能从图中看见输入、分流、汇流、返工和落盘 |
@@ -38,7 +38,7 @@ last_checked_at: 2026-04-25
 1. 先核对角色是否来自 `角色/1-清单`，不要用设计阶段的兴趣新增主体。
 2. 读取 `north_star.yaml` 后先抽象出 3 到 5 条项目风格约束，再进入单角色创作。
 3. 读取 `team.yaml` 时只选择设计相关的大师或部门；每条建议必须能落到造型、服装、摄影或气质。
-4. 启用 subagents 时，先锁定当前 `node_id / pass_id / gate_id`，再让项目监制顾问代入其角色意识、创作风格和专业水准参与该节点判断；不要把顾问请教写成固定字段问卷，也不要只问风格评价。
+4. 执行顾问与复核流程时，先锁定当前 `node_id / pass_id / gate_id`，再让项目监制顾问代入其角色意识、创作风格和专业水准参与该节点判断；不要把顾问请教写成固定字段问卷，也不要只问风格评价。
 5. 单角色设计先写“为什么这个人必须这样长”，再写“具体长什么样”。
 6. 研究考据要服务视觉选择；冷门资料若无法验证，宁可写成“可参考方向”，不要写成事实断言。
 7. 研究层先问“这个证据能改变什么可见设计”，再决定是否进入最终稿。
@@ -46,7 +46,7 @@ last_checked_at: 2026-04-25
 9. 英文提示词最后生成，必须先确认 `## 4. 解构` 下的主体 ID，并让文件名前缀、提示词设计字段与英文 prompt 前缀使用同一个 ID。
 10. 英文提示词最后生成，必须融合全局风格和服装风格，而不是把中文段落直译堆叠。
 11. 批量执行时，每个角色先独立成稿，再做跨角色一致性审查，避免所有角色共享同一套形容词。
-12. subagent 并行时，主 agent 只采纳可回指清单、项目风格和字段要求的内容。
+12. 顾问与复核流程 并行时，主 agent 只采纳可回指清单、项目风格和字段要求的内容。
 13. 若发现清单字段错误，不在本技能直接修 `角色清单.md`；输出上游修复建议。
 
 ## Reusable Heuristics

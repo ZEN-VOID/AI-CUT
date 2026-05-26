@@ -65,4 +65,4 @@ Default flow:
 
 - `SKILL.md` contains the top-level Mermaid routing maps required by the Skill 2.0 workshop contract.
 - `steps/scene-generation-workflow.md` owns the detailed node graph, sequence diagram, branch matrix and failure loop.
-- `review/review-contract.md` owns reviewer dispatch, local downgrade fields and the final verdict schema.
+- `review/review-contract.md` owns reviewer dispatch, local local_checklist fields and the final verdict schema.

@@ -161,7 +161,7 @@ Detailed node fields live in `steps/repair-workflow.md`.
 | `AIGC-REPAIR-FIELD-02` | `CONTEXT.md` | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-AIGC-REPAIR-CONTEXT` |
 | `AIGC-REPAIR-FIELD-03` | `references/impact-scope-contract.md` | AIGC stage surfaces 与 minimum impact map | `FAIL-AIGC-REPAIR-SCOPE` |
 | `AIGC-REPAIR-FIELD-04` | `references/source-truth-ledger.md` | canonical owner、writeback order、authorship boundary | `FAIL-AIGC-REPAIR-OWNER` |
-| `AIGC-REPAIR-FIELD-05` | `references/doubao-execution-contract.md` | 豆包 task packet、provider evidence、降级口径 | `FAIL-AIGC-REPAIR-DOUBAO` |
+| `AIGC-REPAIR-FIELD-05` | `references/doubao-execution-contract.md` | 豆包 task packet、provider evidence、provider 失败处理口径 | `FAIL-AIGC-REPAIR-DOUBAO` |
 | `AIGC-REPAIR-FIELD-06` | `steps/repair-workflow.md` | 判断-动作-证据一体化节点与失败回路 | `FAIL-AIGC-REPAIR-STEPS` |
 | `AIGC-REPAIR-FIELD-07` | `types/type-map.md` | scope / operation / acceptance 类型包选择 | `FAIL-AIGC-REPAIR-TYPES` |
 | `AIGC-REPAIR-FIELD-08` | `review/review-contract.md` | review dimensions、verdict、阻断门 | `FAIL-AIGC-REPAIR-REVIEW` |

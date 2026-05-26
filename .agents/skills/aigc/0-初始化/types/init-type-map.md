@@ -17,7 +17,7 @@ This file owns type variables and route selection for `$aigc-init`.
 | `source_profile` | `source-light`, `source-grounded`, `source-reconcile` | source readiness behavior |
 | `reset_profile` | `none`, `refresh_reset`, `archive_reset`, `purge_reset` | reset scope |
 | `governance_profile` | `minimal`, `lazy_triggered`, `harness_extended` | sidecar scope |
-| `execution_profile` | `subagent_required`, `local_diagnosis_only` | whether business execution may proceed |
+| `execution_profile` | `顾问与复核流程_required`, `local_diagnosis_only` | whether business execution may proceed |
 
 ## Routing Matrix
 
@@ -41,7 +41,7 @@ This file owns type variables and route selection for `$aigc-init`.
 - Writing plot facts in source-light mode.
 - Treating empty runtime directories as phase execution evidence.
 - Using `archive_reset` to delete source or original assets.
-- Running local direct-answer simulation when actual initialization requires planning subagents.
+- Running local direct-answer simulation when actual initialization requires planning 顾问与复核流程.
 
 ## Fusion With Steps
 

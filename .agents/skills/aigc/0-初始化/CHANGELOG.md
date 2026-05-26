@@ -128,8 +128,8 @@
 - `Case-20260415-AIGC-INIT-SMART-ADVISOR-SINGLE-MODE`
   - 将 `0-初始化` 的初始化模式从旧的 `主创会诊 / 快速成案 / 自主问答` 三分结构，收口为单一 `智能顾问模式`。
   - 开场只保留 `自动组队 / 自定义组队` 两个编组子模式，并明确任何顾问候选都只能来自 `.agents/skills/team/`。
-  - 同步把 `team.yaml` 模板升级为初始化编组真源，新增 `init_contract.*`、`roles.planning.init_interview.*` 与 `runtime_policy.require_subagents_for_init_interview`。
-  - 将 `planning` 角色固定为初始化 interview 的首轮顾问 owner，并把“必须真实启用 subagents、不可降级成本地顺序扮演”写回父 `SKILL.md` 与审计脚本。
+  - 同步把 `team.yaml` 模板升级为初始化编组真源，新增 `init_contract.*`、`roles.planning.init_interview.*` 与 `runtime_policy.require_advisor_review_for_init_interview`。
+  - 将 `planning` 角色固定为初始化 interview 的首轮顾问 owner，并把“必须真实执行顾问与复核流程、不可降级成本地顺序扮演”写回父 `SKILL.md` 与审计脚本。
   - 证据路径：
     - `.agents/skills/aigc/0-初始化/SKILL.md`
     - `.agents/skills/aigc/0-初始化/CONTEXT.md`
@@ -141,7 +141,7 @@
 - `Case-20260415-AIGC-INIT-THOUGHT-ACTION-NODE-SYNC`
   - 将 `0-初始化` 的思维·执行节点继续下沉到新口径：不仅改模式说明，还同步改 `Thinking-Action Node Contract`、`Topology Contract`、`Thought Pass Map` 与 `Pass Table`。
   - 新增节点级执行语义：`decision_lock / dispatch_contract / write_scope / blocker_rule / reentry_rule`。
-  - 明确 `N4` 的 `planning_interview_engine` 必须真实起 subagents，且 `N7` 失败时按缺口层级回退到 `N1/N3/N4/N5`，而不是泛化回退。
+  - 明确 `N4` 的 `planning_interview_engine` 必须完成顾问与复核流程，且 `N7` 失败时按缺口层级回退到 `N1/N3/N4/N5`，而不是泛化回退。
   - 证据路径：
     - `.agents/skills/aigc/0-初始化/SKILL.md`
     - `.agents/skills/aigc/0-初始化/CONTEXT.md`

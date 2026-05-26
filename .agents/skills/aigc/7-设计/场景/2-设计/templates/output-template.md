@@ -175,7 +175,7 @@ uncertainty_status: "pending"
 prompt_evidence_chain_status: "pending"
 fixed_visual_status: "pending"
 reviewer: ""
-subagent_status: ""
+review_status: ""
 notes: ""
 ```
 

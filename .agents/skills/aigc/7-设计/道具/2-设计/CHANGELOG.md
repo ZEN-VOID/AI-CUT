@@ -2,8 +2,8 @@
 
 ## 2026-05-01
 
-- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
-- 补全 `subagent-supervision-contract.md`，要求记录 dispatch / downgrade / slot bundle findings / merge decision，并阻断空 slot bundle。
+- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
+- 补全 `workflow-supervision-contract.md`，要求记录 dispatch / local_checklist / slot bundle findings / merge decision，并阻断空 slot bundle。
 
 ## 2026-04-30
 
@@ -24,7 +24,7 @@
 ## 2026-04-25
 
 - 初始化 Skill 2.0 包结构，补齐 canonical 分区与根文件。
-- 建立 `SKILL.md + CONTEXT.md` 成对加载合同、LLM-first 创作边界和 subagent 默认执行合同。
+- 建立 `SKILL.md + CONTEXT.md` 成对加载合同、LLM-first 创作边界和 顾问与复核流程 默认执行合同。
 - 定义上游 `道具/1-清单` 消费、`north_star.yaml` / `team.yaml` 监制上下文读取、单道具 Markdown 输出路径和 prompt 字符门禁；2026-04-30 已收束为 1300 characters。
 - 新增 references、steps、types、review、templates、knowledge-base、scripts、agents 元数据。
 - 固定道具设计画面约束为纯色背景单道具近景特写、45 度视角，不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境。

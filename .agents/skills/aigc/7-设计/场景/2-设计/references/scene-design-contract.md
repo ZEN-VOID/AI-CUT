@@ -143,9 +143,9 @@
 | `deconstruction_coverage` | `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效槽位如何进入英文 prompt；被压缩、合并或剔除的槽位必须说明原因 |
 | `empty_shot_tokens` | `empty shot, no people, no human figures` 等纯空镜约束必须原样或等价出现 |
 
-## Subagents / Reviewer Path
+## 顾问与复核流程 / Reviewer Path
 
-在当前上层策略允许真实 dispatch，且用户显式要求或仓库治理合同视为已授权时，默认拆成四个 reviewer 视角：
+在当前上层策略允许外部 provider 调度，且用户显式要求或仓库治理合同视为已授权时，默认拆成四个 reviewer 视角：
 
 | reviewer | responsibility |
 | --- | --- |
@@ -154,4 +154,4 @@
 | `cinematography-reviewer` | 镜头、光线、构图和摄影一致性 |
 | `prompt-reviewer` | 英文提示词主体 ID 开头、全局风格、建筑风格、时间与地域显式锚点、`prompt_evidence_chain` 和 2000 character gate |
 
-若 system / developer / tool 层阻断真实 subagents，或用户显式要求不用 subagents，执行者必须使用本地等价 checklist，并在最终报告中说明阻断层级、原计划路径、实际路径和未真实启动的 reviewer。
+若外部顾问与复核 provider 不可用或用户显式要求不用顾问与复核流程，执行者直接使用本地等价 checklist。

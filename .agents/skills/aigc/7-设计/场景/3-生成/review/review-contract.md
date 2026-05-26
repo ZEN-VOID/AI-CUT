@@ -2,20 +2,20 @@
 
 ## Default Review Path
 
-This skill may use reviewer/subagent paths for:
+This skill may use reviewer/provider paths for:
 
 - Source contract review.
 - Image continuity review.
 - Prompt JSON completeness review.
 - Project persistence review.
 
-If real subagent dispatch is unavailable due to system, developer, or tool limits, use the local checklist below and report the downgrade.
+If external 顾问与复核流程 provider dispatch is unavailable, use the local checklist below.
 
 ```mermaid
 flowchart TD
     A["Collect review evidence"] --> B{"Real reviewer dispatch allowed?"}
     B -->|"Yes"| C["Dispatch source / continuity / JSON / persistence reviewers"]
-    B -->|"No"| D["Run downgraded local checklist"]
+    B -->|"No"| D["Run local checklist"]
     C --> E["Merge findings into single verdict"]
     D --> E
     E --> F{"Blocking failure?"}
@@ -51,7 +51,7 @@ flowchart TD
 ```yaml
 verdict: pass | pass_with_todo | needs_rework
 reviewer: scene-generation-review
-subagent_status: real_dispatch | downgraded_local_checklist
+review_status: external_provider | local_checklist
 source_documents: []
 outputs: []
 findings: []
@@ -60,16 +60,14 @@ reference_context_status_required_for_multiview: true
 notes: ""
 ```
 
-## Downgrade Report Fields
+## Local Checklist Fields
 
-When reviewer/subagent dispatch is blocked by a higher-priority policy or tool limit, record:
+When using the local review path, record:
 
 ```yaml
-downgrade:
-  blocked_by: system | developer | tool | user
-  planned_path: "source-contract-reviewer + continuity-reviewer + json-record-reviewer + persistence-reviewer"
-  actual_path: "local checklist in review/review-contract.md"
-  reviewers_not_started: []
+local_checklist:
+  findings: []
+  repair_actions: []
 ```
 
 `pass_with_todo` is allowed only for non-blocking visual polish issues. Missing source, missing JSON, missing project persistence, or out-of-bound writes require `needs_rework`.

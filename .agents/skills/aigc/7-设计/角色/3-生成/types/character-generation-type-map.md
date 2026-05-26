@@ -25,7 +25,7 @@
 | --- | --- | --- | --- | --- |
 | `CHAR-GEN-SINGLE` | 用户指定单个角色 | 只读取该角色设计文档并执行 Step1/Step2 | main template、multiview template | 单角色来源与命名 |
 | `CHAR-GEN-BATCH` | 用户指定项目但未限制角色 | 遍历 `2-设计/*.md`，每个角色独立闭环 | workflow、review | 批量隔离和缺项报告 |
-| `CHAR-GEN-PROMPT-ONLY` | imagegen 不可用或用户 dry-run | 只写 JSON prompt 和阻断报告 | templates | 不伪造图片路径 |
+| `CHAR-GEN-PROMPT-ONLY` | imagegen 不可用或用户 dry-run | 只写 JSON prompt 和不可用说明 | templates | 不伪造图片路径 |
 | `CHAR-GEN-REPAIR` | JSON 缺失、图片缺失、命名不符 | 最小范围重写 JSON 或重跑图片 | workflow、review | 不覆盖未授权产物 |
 | `CHAR-GEN-REVIEW` | 用户只要求检查 | 不生图，只审查现有产物 | review | 路径、JSON、参照图、上游回链 |
 

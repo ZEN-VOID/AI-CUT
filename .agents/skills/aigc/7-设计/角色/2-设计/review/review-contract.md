@@ -1,14 +1,14 @@
 # Review Contract
 
-本文件定义 `角色/2-设计` 的质量门禁、subagent 汇流审查和验收输出。
+本文件定义 `角色/2-设计` 的质量门禁、顾问与复核流程 汇流审查和验收输出。
 
 ## Default Reviewer Path
 
-- 默认启用真实 subagents / reviewers。
+- 默认使用本地顾问与复核流程 / reviewers。
 - 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径解析监制 roster，请教角色/服装/美术/摄影/导演相关顾问；顾问问题必须绑定 `steps/character-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标角色上下文和 review gate，形成 `advisor_consultation_packet` 后再进入设计稿汇流。
-- 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`ROLE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
+- 默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md`；`ROLE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 - 推荐 reviewer：`character-research-reviewer`、`visual-costume-reviewer`、`cinematography-reviewer`、`prompt-length-reviewer`。
-- 若当前环境无真实 subagent 工具，主 agent 必须报告工具层阻断，并采用本地顺序 checklist 作为降级 review；不得把降级说成真实并行执行。
+- 若当前环境无外部顾问与复核 provider，主 agent 直接采用本地顺序 checklist；不得把本地 checklist 说成外部并行执行。
 
 ## Review Dimensions
 
@@ -28,7 +28,7 @@
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `ROLE-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | fixed_visual | 是否包含 full-body costume fitting photo、solid color background、no scene environment |
 | advisor_consultation | 是否按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
-| subagents | 默认 dispatch 是否真实启动；阻断时降级记录是否完整；是否按 `references/subagent-supervision-contract.md` 留下 supervision 记录 |
+| 顾问与复核流程 | 默认复核流程是否执行；不可用时使用本地流程记录是否完整；是否按 `references/workflow-supervision-contract.md` 留下 supervision 记录 |
 | scope | 是否未修改父级、registry、上游清单或其他 worker 范围 |
 
 ## Verdict Model
@@ -45,7 +45,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | design_output_contract | slot_bundle_review | fixed_visual | advisor_consultation | subagents | scope
+  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | design_output_contract | slot_bundle_review | fixed_visual | advisor_consultation | 顾问与复核流程 | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -78,7 +78,7 @@ flowchart TD
     D --> E["检查文件名前缀、解构主体 ID 与五个解构字段"]
     E --> F["检查服装细节与摄影字段"]
     F --> G["检查英文 prompt 长度和固定画面约束"]
-    G --> H["检查 advisor consultation 与 subagent dispatch 或降级记录"]
+    G --> H["检查 advisor consultation 与 顾问与复核流程 dispatch 或降级记录"]
     H --> H1["检查输出合同、ROLE-BUNDLE-01 与 supervision 记录"]
     H1 --> I{"阻断 finding?"}
     I -->|"yes"| J["needs_rework / blocked"]
@@ -105,9 +105,9 @@ flowchart TD
 - prompt 关键短语无法回指研究证据、项目风格、`deconstruction_coverage` 或固定画面合同。
 - 未逐条消费 `references/design-output-contract.md`，或输出结构/prompt 整合硬规则只停留在旁路文档。
 - 未解析 `ROLE-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
-- `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
-- 默认 subagents 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
+- `references/workflow-supervision-contract.md` 要求的 provider/local checklist/merge 记录为空。
+- 默认顾问与复核流程启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
 - 未消费 `north_star.yaml` 和 `team.yaml` 却声称项目风格对齐。
 - 脚本生成了创作正文。
-- 默认 subagent 路径被跳过且无降级说明。
+- 默认顾问与复核流程被跳过。
 - 任务改动越过 `.agents/skills/aigc/7-设计/角色/2-设计/**` 或项目输出路径。

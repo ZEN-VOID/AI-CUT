@@ -87,7 +87,7 @@ Reject or reroute:
 | 旧 `aigc-old/resume` 到新版包的语义迁移 | `references/migration-matrix.md` |
 | 项目根解析、证据读取、模式判定、回接汇流 | `steps/resume-workflow.md` |
 | 恢复类型、风险等级、route profile | `types/resume-type-map.md` |
-| 交付前安全 gate、review provider 降级口径 | `review/resume-review-gate.md` |
+| 交付前安全 gate、review provider / 本地 checklist 口径 | `review/resume-review-gate.md` |
 | 可复用恢复经验与避坑策略 | `knowledge-base/resume-heuristics.md` |
 | 输出形态与用户-facing 模板 | `templates/output-template.md` |
 | 机械辅助命令边界 | `scripts/README.md` |

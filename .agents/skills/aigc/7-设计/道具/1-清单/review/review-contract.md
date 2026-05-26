@@ -20,6 +20,6 @@ review 结论应包含：
 - required_fix: 最小修复动作
 - source_scope: 已审查的 `6-分组` 文件范围
 
-## Subagent Note
+## 顾问与复核流程 Note
 
-若上层工具环境支持真实 subagent dispatch，本 review 可由单独 reviewer subagent 执行；若工具层不提供 dispatch 能力，主 agent 可降级为本地 review，但必须在交付中报告阻断层级、原路径和实际路径。
+若上层工具环境支持外部顾问与复核 provider 调度，本 review 可由单独 reviewer provider 执行；若工具层不提供 dispatch 能力，主 agent 可使用本地 review，但必须在交付中报告阻断层级、原路径和实际路径。

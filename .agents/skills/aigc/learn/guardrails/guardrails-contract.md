@@ -12,7 +12,7 @@
 4. MUST NOT modify `.env`, API keys, credentials or private tokens.
 5. MUST NOT self-modify `SKILL.md` frontmatter, `review/`, or `guardrails/` during ordinary learning execution.
 6. MUST NOT bypass conflict verification for unstable or high-risk facts.
-7. MUST NOT claim subagents were used when execution degraded to a local checklist.
+7. MUST NOT claim an external provider was used when execution used a local checklist.
 
 ### Permission Boundaries
 

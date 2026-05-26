@@ -43,8 +43,8 @@ DESIGN_SLOT_RESOLVERS = {
     domain: detail_root / "scripts" / "resolve_design_slot_bundles.py"
     for domain, detail_root in DESIGN_DETAIL_ROOTS.items()
 }
-DESIGN_SUBAGENT_SUPERVISION_CONTRACTS = {
-    domain: detail_root / "references" / "subagent-supervision-contract.md"
+DESIGN_ADVISOR_REVIEW_SUPERVISION_CONTRACTS = {
+    domain: detail_root / "references" / "workflow-supervision-contract.md"
     for domain, detail_root in DESIGN_DETAIL_ROOTS.items()
 }
 REVIEW_ROOT = ROOT / "review"
@@ -919,7 +919,7 @@ def audit_design_slot_bundle_runtime(failures: list[str]) -> None:
     for domain in sorted(DESIGN_DOMAIN_ROOTS):
         contract = DESIGN_SLOT_REVIEW_CONTRACTS[domain]
         resolver = DESIGN_SLOT_RESOLVERS[domain]
-        supervision_contract = DESIGN_SUBAGENT_SUPERVISION_CONTRACTS[domain]
+        supervision_contract = DESIGN_ADVISOR_REVIEW_SUPERVISION_CONTRACTS[domain]
 
         if not contract.exists():
             failures.append(f"{contract}: missing domain slot-review contract")
@@ -1013,15 +1013,15 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
     if "固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。" not in init_content:
         failures.append(f"{init_skill}: missing execution-step lock for `smart_advisor` plus `auto/custom` lineup choice")
     if (
-        "planning interview 必须真实使用 subagents" not in init_content
-        and "planning 固定题包直答必须真实使用 subagents" not in init_content
-        and "planning 固定题包直答 必须真实使用 subagents" not in init_content
+        "planning interview 必须完成顾问与复核流程" not in init_content
+        and "planning 固定题包直答必须完成顾问与复核流程" not in init_content
+        and "planning 固定题包直答 必须完成顾问与复核流程" not in init_content
     ):
         failures.append(
-            f"{init_skill}: missing mandatory subagent rule for the planning direct-answer execution"
+            f"{init_skill}: missing mandatory 顾问与复核流程 rule for the planning direct-answer execution"
         )
-    if "若 subagents 不可用，本轮初始化停止并报告阻塞" not in init_content:
-        failures.append(f"{init_skill}: missing block-and-report rule when init interview subagents are unavailable")
+    if "若顾问与复核流程不可用，本轮初始化停止并报告阻塞" not in init_content:
+        failures.append(f"{init_skill}: missing block-and-report rule when init interview 顾问与复核流程 are unavailable")
     if "selector_scope_root" not in init_content or ".agents/skills/team/" not in init_content:
         failures.append(f"{init_skill}: missing explicit selector-scope rule for `.agents/skills/team/`")
     if "## Story Source Completeness Gate (Mandatory)" not in init_content:
@@ -1119,12 +1119,12 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             if required_marker not in team_template_content:
                 failures.append(f"{team_template}: missing smart-advisor team marker `{required_marker}`")
         if (
-            'require_subagents_for_init_interview: true' not in team_template_content
-            and 'require_subagents_for_init_execution: true' not in team_template_content
+            'require_advisor_review_for_init_interview: true' not in team_template_content
+            and 'require_advisor_review_for_init_execution: true' not in team_template_content
         ):
             failures.append(
                 f"{team_template}: missing smart-advisor team marker "
-                "`require_subagents_for_init_interview: true` or `require_subagents_for_init_execution: true`"
+                "`require_advisor_review_for_init_interview: true` or `require_advisor_review_for_init_execution: true`"
             )
         if (
             'init_interview_owner_role: "planning"' not in team_template_content
@@ -1352,7 +1352,7 @@ def audit_detail_single_skill_contract(failures: list[str]) -> None:
             failures.append(f"{path}: should not reference deleted production-team contracts")
 
 
-def audit_stage_subagent_contracts(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
+def audit_stage_advisor_review_contracts(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
     if contract_mode == BOOTSTRAP_COMPAT_MODE:
         return
 
@@ -1366,7 +1366,7 @@ def audit_stage_subagent_contracts(stage_index: list[dict], contract_mode: str, 
 
         for doc in REQUIRED_STAGE_AGENT_DOCS.get(stage_root.name, ()):
             if not doc.exists():
-                failures.append(f"{doc}: missing required {stage_root.name} subagent contract")
+                failures.append(f"{doc}: missing required {stage_root.name} 顾问与复核流程 contract")
 
         for path in sorted(stage_root.rglob("*")):
             if not path.is_file() or path.suffix not in {".md", ".yaml"}:
@@ -1529,7 +1529,7 @@ def main() -> int:
     audit_detail_single_skill_contract(failures)
     audit_creative_authorship_guards(failures)
     if stage_index:
-        audit_stage_subagent_contracts(stage_index, contract_mode, failures)
+        audit_stage_advisor_review_contracts(stage_index, contract_mode, failures)
 
     skipped_roots = shelved_stage_roots(stage_index)
 

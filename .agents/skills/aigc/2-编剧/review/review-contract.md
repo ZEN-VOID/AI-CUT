@@ -11,14 +11,18 @@
 - review 必须加载 `../references/script-adaptation-contract.md`，检查上游逐集正文、输出路径、frontmatter、slugline 和保真边界。
 - review 必须加载 `../references/field-routing-and-audio-visual-contract.md`，检查对白冻结、声画配对、字段纯度、声音本体、环境字段纯化、动作客观性、`表情特写` 字段落点和占位泄露。
 - review 必须加载 `../references/novel-to-screen-language-contract.md`，检查小说作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论是否完成二次画面化；同时确认引号内对白仍逐字冻结，小说叙述没有被改成新增对白，没有新增无关人物过往、物品来历或回忆性信息。
-- 若上层策略阻断真实 subagent 或 provider 调度，允许降级为本地 review checklist，并在报告中说明阻断来源、原计划 provider、实际路径和未启动 reviewer。
+- review 必须加载 `../references/information-asymmetry-contract.md`，检查关键场景是否建立观众/角色/隐藏信息状态、揭示与保留点和悬念机制。
+- review 必须加载 `../../_shared/audience-psychology-model-contract.md`，检查关键场景是否建立观众知识基线、期待/恐惧/渴望种子和冲突遗产入口，且小说转译没有提前泄露观众应未知信息。
+- review 必须加载 `../references/scene-rhythm-contract.md`，检查关键场景是否有时长体感、信息密度、beat 数量和转出方式。
+- review 必须加载 `../references/dialogue-subtext-contract.md`，检查关键对白是否有戏剧动作和潜台词行为，而不只是语气状态。
+- 若上层策略阻断顾问与复核流程 或 provider 调度，允许使用本地 review checklist，并使用本地 review checklist。
 
 ## Stage-End Review-Repair Rule
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N6R-SCRIPT-REPAIR`，由 `2-编剧` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `2-编剧/第N集.md`。
 - 允许直接修复的范围：字段投影、声画配对、slugline 去重、画面具像化、主角内心独白回收、动作客观可拍化、直接情绪转译、声音本体、环境字段纯化、环境氛围承托、frontmatter/report 证据和格式。
-- 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `1-分集` 修剧情。遇到这类问题必须输出 source owner 和阻断报告。
+- 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `1-分集` 修剧情。遇到这类问题必须输出 source owner 和不可用说明。
 - `pass_with_followups` 只允许非阻断质量建议；任何保真、对白、声画、slugline、字段纯度、小说表述二次画面化、LLM-first 问题不得降级为 followup。
 
 ## Blocking Gates
@@ -41,8 +45,12 @@
 | `GATE-SCRIPT-14` | 关键场景的 `环境描写` 有自然景物氛围承托，且承托不新增事件、线索或因果 | `FAIL-ATMOSPHERIC-ENVIRONMENT` |
 | `GATE-SCRIPT-15` | 小说原文中的作者评论、主角视角判断、心理内视、直接情绪感受、比喻象征、抽象概括、往日常态句、背景说明、因果解释或关系结论已完成二次画面化；终稿没有把小说句式、抽象解释、作者判断原样塞入画面字段，也没有把小说叙述改成新增对白；没有新增与当前主线无关的人物过往、物品来历或回忆性信息 | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` |
 | `GATE-SCRIPT-16` | 主角视角下对他人行为的判断已进入 `内心独白（主角）` 或主角可感知反应，而非客观第三方概括；`内心独白（主角）` 引号内主角自指已从小说第三人称转成第一人称 | `FAIL-PROTAGONIST-INNER-VOICE` |
-| `GATE-SCRIPT-17` | 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`，能够证明小说表述转译、主角内心独白保留和动作客观化已经发生；非机械特例必须说明降级原因 | `FAIL-CREATIVE-EVIDENCE` |
+| `GATE-SCRIPT-17` | 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`，能够证明小说表述转译、主角内心独白保留和动作客观化已经发生；非机械特例必须说明处理依据 | `FAIL-CREATIVE-EVIDENCE` |
 | `GATE-SCRIPT-18` | `表情特写` 为正式可选字段：若使用，必须只写眉、眼、眼睑、眨眼频率、鼻翼、嘴角、唇线、咬肌、下颌、喉头或皮肤状态等具体面部变化，并能回指上游触发或当前声画压力；不得只写情绪标签、心理解释、摄影机位、景别或镜头运动。若上游关键情绪明显集中在面部变化，不能只散落为无字段的泛化表情词 | `FAIL-FACIAL-EXPRESSION-FIELD` |
+| `GATE-SCRIPT-19` | 关键场景完成 `information_asymmetry_map`：观众、角色、隐藏信息、揭示点、保留点和悬念机制明确；没有把信息释放策略全部留给下游导演 | `FAIL-INFORMATION-ASYMMETRY` |
+| `GATE-SCRIPT-20` | 关键场景完成 `scene_rhythm_profile`：时长体感、信息密度、beat 数量、节奏类型、留白和转出方式明确；没有全稿同密度平铺 | `FAIL-SCENE-RHYTHM` |
+| `GATE-SCRIPT-21` | 关键对白完成 `dialogue_subtext_map`：对白标题状态之外有戏剧动作；内心独白、旁白或解释性心理文字没有超过影视呈现预算 | `FAIL-DIALOGUE-SUBTEXT` |
+| `GATE-SCRIPT-22` | 关键场景完成 `audience_knowledge_state`、`audience_psychology_seed` 与 `conflict_legacy_seed`：观众已知/未知、期待/恐惧/渴望种子和冲突继承状态明确；小说转译没有提前泄露观众应未知信息 | `FAIL-AUDIENCE-PSYCHOLOGY` |
 
 ## Recommended Mechanical Check
 
@@ -83,6 +91,10 @@ review:
     novel_to_screen_language: pass
     protagonist_inner_voice: pass
     creative_evidence: pass
+    information_asymmetry: pass
+    audience_psychology_baseline: pass
+    scene_rhythm: pass
+    dialogue_subtext: pass
     repair_loop: pass
   repair_actions: []
   re_review_verdict: pass

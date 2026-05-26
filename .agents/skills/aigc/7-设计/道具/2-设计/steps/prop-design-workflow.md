@@ -11,7 +11,7 @@
 | `constraint_profile` | 上游清单、north_star、team 监制上下文、研究证据链、LLM-first、`## 4. 解构` 下 `主体ID号：<主体ID>`、prompt 以同一主体 ID 号开头、prompt 1300 characters、整合 `## 4. 解构` 全部有效信息、自然语言负向约束、不得使用 `--no`、输出路径边界、纯色背景 45 度单道具近景、完整展示道具全貌、仅展示道具、无人物与背景元素 |
 | `success_criteria` | 每个文件能指导后续图像生成和美术锁定，且不改写上游事实 |
 | `non_goals` | 不生成图像，不改 registry，不重做清单，不写角色/场景设计 |
-| `complexity_source` | 类型分流、监制上下文转译、冷门考据、研究到 prompt 的证据链、subagent 汇流 |
+| `complexity_source` | 类型分流、监制上下文转译、冷门考据、研究到 prompt 的证据链、顾问与复核流程 汇流 |
 | `topology_fit` | Hybrid：前段串行取证，中段可按道具并行，后段统一 review gate |
 
 ## Node Network
@@ -24,15 +24,15 @@
 | `N4-TYPE` | 形成 `type_profile` | 单道具清单项、上下文 | 按 `types/prop-design-type-map.md` 判型 | type profile | `N5-RESEARCH-CHAIN` | 类型不确定时采用最保守通用路线 |
 | `N5-RESEARCH-CHAIN` | 把研究推进为可见设计证据链 | 清单项、north_star、team、type profile、可选来源、`advisor_consultation_packet` | 由 LLM 判断来源、置信度、不确定性，并转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、prompt token；顾问参谋必须绑定当前节点，不得退化为固定字段问卷 | research evidence chain、advisor node notes | `N6-DESIGN` | 每条关键研究都服务至少一个设计或 prompt 决策 |
 | `N6-DESIGN` | 完成单道具 LLM-first 设计 | 清单项、north_star、team、type profile、research evidence chain、`references/design-output-contract.md`、advisor node notes | 写物语、`## 4. 解构` 下的 `主体ID号：<主体ID>`、Photography、Prop Design、prompt evidence chain、英文 prompt；prompt 必须整合 `## 4. 解构` 全部有效信息并补 `deconstruction_coverage` | design draft | `N7-REVIEW` | 必填章节齐全，输出合同硬规则已逐条满足，prompt 英文、以同一主体 ID 号开头且 1300 characters 内，使用自然语言负向约束且不含 `--no`，并包含 full prop in view、prop only、no people、no background elements |
-| `N7-REVIEW` | 执行质量门禁和 subagent 汇流 | design draft、review contract、`references/design-slot-review-contract.md`、`references/subagent-supervision-contract.md` | reviewer subagent 或降级 review 检查来源、研究转译、字段、路径、prompt；解析 `PROP-BUNDLE-01` 并记录缺槽或通过结论；检查 `advisor_node_coverage` | review verdict、slot bundle review、subagent supervision record | `N8-WRITE` 或 `N5-RESEARCH-CHAIN` / `N6-DESIGN` | verdict 非阻断，slot bundle 无缺槽，supervision 记录非空且顾问问题绑定节点 |
+| `N7-REVIEW` | 执行质量门禁和 顾问与复核流程 汇流 | design draft、review contract、`references/design-slot-review-contract.md`、`references/workflow-supervision-contract.md` | reviewer provider 或本地 review 检查来源、研究转译、字段、路径、prompt；解析 `PROP-BUNDLE-01` 并记录缺槽或通过结论；检查 `advisor_node_coverage` | review verdict、slot bundle review、workflow supervision record | `N8-WRITE` 或 `N5-RESEARCH-CHAIN` / `N6-DESIGN` | verdict 非阻断，slot bundle 无缺槽，supervision 记录非空且顾问问题绑定节点 |
 | `N8-WRITE` | canonical 落盘 | 通过审查的 design draft | 写入 `7-设计/道具/2-设计/<主体ID>-<安全文件名>.md` | output file | done | 文件路径和主体 ID 前缀正确，未触碰授权范围外文件 |
 
 ## Branch And Merge Rules
 
 - `N1-CONTEXT -> N2-UPSTREAM -> N3-SCOPE` 必须串行，不能并行绕过。
-- `N3-SCOPE` 之后可以按道具主体并行分发给多个 `Worker-Prop` subagents。
+- `N3-SCOPE` 之后可以按道具主体并行分发给多个 `Worker-Prop` 顾问与复核流程。
 - 每个 `Worker-Prop` 只返回自己负责的单道具文件 patch。
-- `N7-REVIEW` 汇流时只聚合已调度主体；未调度主体不得补空文件或默认占位；每个已调度主体必须按 `PROP-BUNDLE-01` 形成 slot bundle review、subagent supervision record 和 `advisor_node_coverage`。
+- `N7-REVIEW` 汇流时只聚合已调度主体；未调度主体不得补空文件或默认占位；每个已调度主体必须按 `PROP-BUNDLE-01` 形成 slot bundle review、workflow supervision record 和 `advisor_node_coverage`。
 - 任一 worker 需要新增输出字段时，必须先回改根 `SKILL.md` 和 `templates/output-template.md`，否则不得写入 canonical 文件。
 - 研究链分歧时优先保守：确定事实进入 `design lock`，推断和灵感进入 `inspired_by`，无法验证的内容进入 `risk_uncertainty`，不得直接进入确定性 prompt token。
 
@@ -42,7 +42,7 @@
 flowchart TD
     A["N1-CONTEXT<br/>skill + project context"] --> B["N2-UPSTREAM<br/>list + north_star + team"]
     B --> C["N3-SCOPE<br/>target props"]
-    C --> D{"Per-prop subagents"}
+    C --> D{"Per-prop 顾问与复核流程"}
     D --> E["N4-TYPE<br/>type_profile"]
     E --> F["N5-RESEARCH-CHAIN<br/>research evidence chain"]
     F --> G["N6-DESIGN<br/>LLM-first design"]

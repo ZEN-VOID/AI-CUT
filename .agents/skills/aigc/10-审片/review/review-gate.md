@@ -11,7 +11,7 @@
 | `GATE-REVIEW-05` | prompt alignment | 视频与 prompt / 分镜组的一致性已判断；错配已归因到 prompt、模型、混合原因或证据缺口 |
 | `GATE-REVIEW-06` | creative quality | 反平庸、艺术方向、美学完整性和节奏质量有可观察依据 |
 | `GATE-REVIEW-07` | example calibration | 用户好/坏示例已按可观察维度比较；未把一次性偏好误写成硬规则 |
-| `GATE-REVIEW-08` | subagents advisor consult | 启动 subagents 模式时，已按 `team.yaml` 审片监制顾问形成 `review_advisor_packet`，问题绑定当前 node/pass/gate，或完整记录上层阻断降级 |
+| `GATE-REVIEW-08` | 顾问与复核流程 advisor consult | 执行顾问与复核流程时，已按 `team.yaml` 审片监制顾问形成 `review_advisor_packet`，问题绑定当前 node/pass/gate，或使用本地流程 |
 | `GATE-REVIEW-09` | compare | expected / actual 明确，不把生成偏差当剧情事实 |
 | `GATE-REVIEW-10` | landing | finding 落点和置信度匹配 |
 | `GATE-REVIEW-11` | patch scope | 只改 owning source，不顺手改无关组 |
@@ -28,4 +28,4 @@
 | `FAIL-REVIEW-LANDING` | 低置信却改源层 | Source Escalation Contract |
 | `FAIL-REVIEW-PROMPT-MATCH` | prompt 错配没有归因，或把 prompt 问题误判成模型问题 | Review Dimensions Contract |
 | `FAIL-REVIEW-QUALITY` | 创作质量判断只有口号，没有可观察依据或示例对照 | Example Comparison Learning Contract |
-| `FAIL-REVIEW-ADVISOR` | 启动 subagents 模式时缺少真实顾问 dispatch、节点级问题、packet 汇流，或缺少降级说明 | Team Advisor Consultation Contract + SKILL.md Subagents Execution Mechanism |
+| `FAIL-REVIEW-ADVISOR` | 执行顾问与复核流程时缺少顾问问题、节点级问题、packet 汇流，或缺少本地流程 | Team Advisor Consultation Contract + SKILL.md Advisor Consultation Mechanism |

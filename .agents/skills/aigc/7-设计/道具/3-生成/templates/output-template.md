@@ -9,18 +9,15 @@ output_dir: `projects/aigc/<项目名>/7-设计/道具/3-生成`
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `<主体ID>` | `<主体名称>` | `7-设计/道具/2-设计/<主体名称>.md` | `<主体ID>-<主体名称>-主图.png` | `<主体ID>-<主体名称>-主图.json` | `<主体ID>-<主体名称>-多视图.png` | `<主体ID>-<主体名称>-多视图.json` | `visible_in_conversation_context` | `pending` |
 
-## Subagent Status
+## 顾问与复核流程 Status
 
 ```yaml
 worker: Worker-道具生成
 reviewer: ""
-subagent_status: real_subagent | tool_blocked_local_review | not_requested
-degradation:
-  blocker_layer: ""
-  original_path: ""
-  fallback_path: ""
-  not_started: []
-tool_blocker: ""
+review_status: external_reviewer | local_checklist | not_requested
+local_checklist:
+  findings: []
+  repair_actions: []
 ```
 
 ## Review Verdict

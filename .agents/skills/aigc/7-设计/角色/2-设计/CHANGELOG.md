@@ -2,8 +2,8 @@
 
 ## 2026-05-01
 
-- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
-- 补全 `subagent-supervision-contract.md`，要求记录 dispatch / downgrade / slot bundle findings / merge decision，并阻断空 slot bundle。
+- 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。
+- 补全 `workflow-supervision-contract.md`，要求记录 dispatch / local_checklist / slot bundle findings / merge decision，并阻断空 slot bundle。
 
 ## 2026-04-30
 
@@ -28,5 +28,5 @@
 - 初始化 `角色/2-设计` Skill 2.0 包。
 - 补齐 canonical 分区：`references/`、`scripts/`、`templates/`、`review/`、`steps/`、`knowledge-base/`、`types/`、`agents/`。
 - 建立从 `角色/1-清单` 到单角色细目设计稿的输入/输出合同。
-- 声明 LLM-first 创作边界、默认 subagents 调度合同和网络搜索允许条件。
+- 声明 LLM-first 创作边界、默认 顾问与复核流程 调度合同和网络搜索允许条件。
 - 固定角色设计画面约束为纯色背景全身定妆照，不置身剧情场景、建筑空间、街景、室内陈设或复杂环境。

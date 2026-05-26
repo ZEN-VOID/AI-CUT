@@ -1,12 +1,12 @@
 # AIGC Team Advisor Consultation Contract
 
-本合同定义 AIGC 创作阶段在技能合同显式要求启用 subagents 时，如何调用项目 `team.yaml` 已指定的监制组成员作为资深创作顾问进行“请教”，并把所得创意脑洞、个人风格启发和风险提示汇流为创作前可执行指导。它不替代阶段主技能的 canonical truth、输出模板、review gate 或最终写回权。
+本合同定义 AIGC 创作阶段在技能合同显式要求执行顾问与复核流程时，如何调用项目 `team.yaml` 已指定的监制组成员作为资深创作顾问进行“请教”，并把所得创意脑洞、个人风格启发和风险提示汇流为创作前可执行指导。它不替代阶段主技能的 canonical truth、输出模板、review gate 或最终写回权。
 
 ## Activation
 
-- 当阶段或叶子技能声明 `use_subagents_by_default`、默认真实 subagents、`reviewer -> subagent`、`parallel-council`、`serial-refine` 或等价语义时，必须优先按本合同执行团队顾问请教。
-- 主 agent 负责路由、提问、汇流、裁决和最终 canonical 写回；team advisor subagents 只提供顾问意见、可执行指导、risk note 或局部 patch，不直接拥有最终正文。
-- 若 system / developer / tool / user 任一上层策略阻断真实 dispatch，必须输出降级报告，写明阻断层级、原计划顾问路径、实际降级路径和未真实启动的成员。
+- 当阶段或叶子技能声明 `use_advisor_review_by_default`、默认顾问与复核流程、`reviewer/provider`、`parallel-council`、`serial-refine` 或等价语义时，必须优先按本合同执行团队顾问请教。
+- 主 agent 负责路由、提问、汇流、裁决和最终 canonical 写回；team advisor 只提供顾问意见、可执行指导、risk note 或局部 patch，不直接拥有最终正文。
+- 若外部 provider 不可用，直接使用本地顾问与复核流程。
 
 ## Team Roster Resolution
 
@@ -88,7 +88,7 @@ roles:
 | `3-导演` | 监制、导演、编剧、表演、摄影或类型顾问 | 从当前 `3-导演` 的 `Thought Pass Map`、导演创作合同、review gate、目标集上下文和当前 `type_profile` 派生；顾问需参与戏剧问题、观众位置、视觉主轴、高潮画面和终结画面的判断与风险提示 |
 | `4-表演` | 表演、导演、摄影、美术或类型顾问 | 从当前 `4-表演` 的 `Thought Pass Map`、表演控制合同、review gate、目标集上下文和当前表演需求派生；顾问需参与心理反应可感知化、潜台词行为、场面调度和沉默余波判断 |
 | `5-摄影` | 摄影、导演、美术、剪辑、类型视觉顾问 | 从当前 `5-摄影` 的 `Thought Pass Map`、`steps/cinematography-workflow.md` 节点、review gate、目标集上下文和当前 `visual_unit` 派生；顾问需代入角色意识、创作风格和专业水准参与节点判断、执行取舍与风险提示 |
-| `7-设计/角色/2-设计` | 角色、服装、美术、摄影、导演、类型顾问 | 从当前 `steps/character-design-workflow.md` 的 `node_id`、`N5-RESEARCH-PROFILE`、`N6-SUBAGENT-DISPATCH`、`N7-MERGE-DRAFT`、`N8-REVIEW-GATE`、目标角色上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
+| `7-设计/角色/2-设计` | 角色、服装、美术、摄影、导演、类型顾问 | 从当前 `steps/character-design-workflow.md` 的 `node_id`、`N5-RESEARCH-PROFILE`、`N6-ADVISOR-REVIEW`、`N7-MERGE-DRAFT`、`N8-REVIEW-GATE`、目标角色上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
 | `7-设计/道具/2-设计` | 道具、美术、摄影、导演、世界观或工艺顾问 | 从当前 `steps/prop-design-workflow.md` 的 `node_id`、`N5-RESEARCH-CHAIN`、`N6-DESIGN`、`N7-REVIEW`、目标道具上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
 | `7-设计/场景/2-设计` | 场景、美术、建筑、摄影、导演、类型顾问 | 从当前 `steps/scene-design-workflow.md` 的 `node_id`、`N5-RESEARCH`、`N6-DESIGN`、`N7-REVIEW`、目标场景上下文和 review gate 派生；顾问需代入其角色意识、创作风格和专业水准参与节点判断、执行取舍、局部 patch 与风险提示 |
 | `10-审片` | 监制、导演、摄影、美术、剪辑、类型视觉或质量顾问 | 从当前 `10-审片` 的 `Thought Pass Map`、`steps/video-review-workflow.md` 节点、真实视频证据包、`observed_content_summary`、prompt 匹配、创作质量、好/坏示例校准和 review gate 派生；顾问需代入角色意识、创作风格和专业水准参与证据补强、错配归因、审美质量门、rerun / repair / source escalation 落点风险判断 |
@@ -135,20 +135,18 @@ advisor_consultation_packet:
   inspiration_to_use:
     - ""
   execution_brief: ""
-  downgrade:
-    blocked_by: "system | developer | tool | user | none"
-    planned_path: ""
-    actual_path: ""
-    skipped_members: []
+  local_checklist:
+    findings: []
+    repair_actions: []
 ```
 
 `execution_brief` 必须是可直接指导创作的短指令集合，不得保留冗长思维过程、人格扮演文本或不可执行的赞美词。
 
-`routeback_targets` 只记录需要回到当前阶段已声明节点网络重做判断或证据的目标；主 agent 必须按当前阶段 `steps/` 的失败回路执行回修，不得把前置节点错误仅作为灵感继续下游。若真实 subagent dispatch 被阻断，`downgrade` 必须记录阻断层级、原计划路径、实际路径和未启动成员。
+`routeback_targets` 只记录需要回到当前阶段已声明节点网络重做判断或证据的目标；主 agent 必须按当前阶段 `steps/` 的失败回路执行回修，不得把前置节点错误仅作为灵感继续下游。若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程。
 
 ## Merge Rules
 
 - 顾问意见必须先被主 agent 合成、去重、裁决，再作为主创上下文进入阶段 LLM 写作。
 - 顾问灵感可以激发风格、脑洞、质感、取舍和风险意识，但不得改写上游剧情事实、清单主体、固定画面约束、提示词长度门禁或 LLM-first 主创规则。
 - 当顾问意见互相冲突，优先级为：用户显式请求 > AGENTS.md / meta 规则 > 当前阶段 `SKILL.md` > 上游 canonical truth > 顾问意见。
-- 最终交付正文默认不显式列出顾问名字；执行报告或降级报告可以记录 roster、节点锚点、角色视角和采纳摘要。
+- 最终交付正文默认不显式列出顾问名字；顾问工作记录或本地 checklist 结果可以保留节点锚点、角色视角和采纳摘要。

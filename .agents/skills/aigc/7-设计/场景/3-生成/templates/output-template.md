@@ -9,7 +9,7 @@ project_root: `projects/aigc/<项目名>`
 output_root: `projects/aigc/<项目名>/7-设计/场景/3-生成`
 imagegen_mode: `built_in_generate`
 reference_context_status: `visible_in_conversation_context | pending_view_image`
-subagent_status: `real_dispatch | downgraded_local_checklist`
+review_status: `external_provider | local_checklist`
 
 ## Inputs
 
@@ -28,12 +28,10 @@ subagent_status: `real_dispatch | downgraded_local_checklist`
 ```yaml
 verdict: pass
 reviewer: scene-generation-review
-subagent_status: downgraded_local_checklist
-downgrade:
-  blocked_by: developer
-  planned_path: "source-contract-reviewer + continuity-reviewer + json-record-reviewer + persistence-reviewer"
-  actual_path: "local checklist in review/review-contract.md"
-  reviewers_not_started: []
+review_status: local_checklist
+local_checklist:
+  findings: []
+  repair_actions: []
 findings: []
 notes: ""
 ```

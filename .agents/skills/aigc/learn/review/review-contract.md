@@ -7,8 +7,8 @@
 ## Default Provider
 
 - 默认辅助 provider：`code-reviewer`
-- 若可用，可启用隔离 subagents 审查 evidence、ownership、consistency、security。
-- 若上层策略或工具环境阻断真实 dispatch，降级为 `degraded_local_audit`，但必须报告降级来源和未真实隔离的风险。
+- 若可用，可启用隔离 顾问与复核流程 审查 evidence、ownership、consistency、security。
+- 若上层策略或工具环境阻断外部 provider 调度，降级为 `local_checklist_audit`，但必须记录本地 checklist 范围和残余风险。
 
 ## Review Dimensions
 

@@ -53,7 +53,7 @@
 
 ## Review Advisor Packet
 
-- subagents_mode:
+- 顾问与复核流程_mode:
 - roster_source:
 - consulted_members:
 - node_pass_gate_refs:
@@ -62,7 +62,7 @@
 - quality_bar:
 - rerun_or_repair_guidance:
 - execution_brief:
-- downgrade:
+- local_checklist:
 
 ## Findings
 
@@ -81,7 +81,7 @@
 
 - 为什么选择当前审片路径：
 - 视频本身、prompt 匹配和创作质量三层如何综合：
-- subagents 顾问参谋如何影响或没有影响本次判断：
+- 顾问与复核流程的顾问参谋如何影响或没有影响本次判断：
 - 如果不一致，为什么归因为 prompt / 模型 / 混合原因 / 证据缺口：
 - 好/坏示例如何影响本次判断：
 - 为什么这些 finding 应该这样落点：

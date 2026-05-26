@@ -4,7 +4,7 @@
 
 - 默认辅助 provider：`code-reviewer` 口径。
 - 用途：审查 repair 方案与结果的结构、源层优先、跨阶段一致性、豆包 evidence、资产状态和残余风险。
-- 若上层策略阻断真实 subagent 或外部 reviewer 调度，允许降级为本地 review checklist，但必须报告阻断来源、原计划 provider 路径、实际降级路径和未真实启动的 reviewer。
+- 若上层策略阻断顾问与复核流程 或外部 reviewer 调度，允许使用本地 review checklist，但直接使用本地 review checklist。
 
 ## Review Dimensions
 
@@ -51,6 +51,6 @@ finding:
 - 命中类型矩阵但没有加载对应类型包。
 - 没有 `canonical_owner` 和 `writeback_order`。
 - 下游改动早于源层裁决。
-- 豆包执行型任务缺 provider evidence 或降级说明。
+- 豆包执行型任务缺 provider evidence 或本地流程。
 - 中文润色改变事实、对白、编号、字段、路径或结构化引用。
 - 图像/视频修复声称完成但没有 owning provider route 或 asset action。

@@ -18,7 +18,7 @@ init_contract:
     optional_departments_included: []
 
 runtime_policy:
-  require_subagents_for_init_execution: true
+  require_advisor_review_for_init_execution: true
   init_execution_owner_role: "planning"
   parent_skill_owns_canonical_writeback: true
   local_imitation_allowed: false
@@ -57,8 +57,8 @@ roles:
     members: []
     init_execution:
       kickoff_owner: true
-      requires_subagents: true
-      used_subagents: false
+      requires_advisor_review: true
+      used_advisor_review: false
       fixed_packet: "aigc-init planning direct-answer packet"
       direct_answer_packet_ref: ""
       packet_refs: []
@@ -171,4 +171,4 @@ provenance:
   team_root_index: ".agents/skills/team/SKILL.md"
   root_team_index_loaded: false
   shortlisted_member_skills_loaded: false
-  planning_subagents: []
+  planning_advisors: []

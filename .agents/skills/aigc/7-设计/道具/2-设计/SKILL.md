@@ -18,23 +18,23 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与道具、世界观、视觉规则、风格提示词或制作约束相关的上下文文件。
 - 必须读取上游 `projects/aigc/<项目名>/7-设计/道具/1-清单/道具清单.md`；缺失时不得凭空生成完整道具设计，应回到 `1-清单` 或请求用户提供替代清单。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml` 与 `projects/aigc/<项目名>/team.yaml`，抽取全局风格、主题、媒介、禁区和设计相关大师监制上下文。
-- 默认 subagents 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，调用项目已指定监制成员作为资深创作顾问；顾问问题必须同步于 `steps/prop-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标道具上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 道具设计前形成 `advisor_consultation_packet`。
+- 默认顾问与复核流程启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，调用项目已指定监制成员作为资深创作顾问；顾问问题必须同步于 `steps/prop-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标道具上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 道具设计前形成 `advisor_consultation_packet`。
 - 研究层必须落成可审查的设计证据链：来源判断 -> 置信度/不确定性 -> 形制、材料、工艺、年代、使用痕迹、功能逻辑 -> prompt evidence token；不得停留在百科摘抄或抽象审美标签。
 - 固定画面约束：道具设计默认是纯色背景上的单道具近景特写，采用 45 度视角，必须完整展示道具全貌、仅展示道具本体，不需要人物或背景元素；不得置身于剧情场景、桌面环境、室内陈设、街景或人物手持情境中；英文提示词必须显式包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 道具研究判断、物语提炼、造型解构、摄影/道具设计语言与提示词设计必须由 LLM 直接完成；`scripts/` 只能做读取、路径枚举、文件名归一、格式检查等机械辅助。
 
-## Subagent Execution Contract
+## 顾问与复核流程 Execution Contract
 
-- 本技能默认启用真实 subagents 路径：主 agent 或调度层应将道具细目设计工作分发给 `Worker-Prop`，并在需要质量复核时使用独立 reviewer subagent 汇流 verdict。
-- 用户显式点名 `$aigc-prop-design` 或本阶段路由命中时，视为仓库层已经许可该默认 subagent 路径；不得以“用户未额外授权并行”为理由回退。
-- 默认真实路径必须先按共享团队顾问合同解析项目 `team.yaml` 的 `7-设计` 监制 profile，向道具、美术、摄影、导演、世界观或工艺顾问提出由当前思维·执行节点派生的问题；顾问输出只能作为 `advisor_consultation_packet` 中的节点级可执行指导、局部 patch、risk note 或 inspiration，不得直接替代单道具设计稿。
-- 若上层 system / developer / tool policy 或当前工具环境阻断真实 subagent dispatch，执行者必须显式报告阻断层级、原计划 subagent 路径、实际降级路径和未真实启动的 reviewer / worker。
-- 子任务可按单个道具主体拆分；每个 subagent 只负责自己领取的道具文件 patch，最终由主 agent 聚合到 canonical 输出目录。
+- 本技能默认使用本地顾问与复核流程 路径：主 agent 或调度层应将道具细目设计工作分发给 `Worker-Prop`，并在需要质量复核时使用独立 reviewer provider 汇流 verdict。
+- 用户显式点名 `$aigc-prop-design` 或本阶段路由命中时，视为仓库层已经许可该默认 顾问与复核流程 路径；不得以“用户未额外授权并行”为理由回退。
+- 默认复核路径必须先按共享团队顾问合同解析项目 `team.yaml` 的 `7-设计` 监制 profile，向道具、美术、摄影、导演、世界观或工艺顾问提出由当前思维·执行节点派生的问题；顾问输出只能作为 `advisor_consultation_packet` 中的节点级可执行指导、局部 patch、risk note 或 inspiration，不得直接替代单道具设计稿。
+- 若外部顾问与复核 provider 不可用，执行者直接使用本地顾问与复核流程。
+- 子任务可按单个道具主体拆分；每个 顾问与复核流程 只负责自己领取的道具文件 patch，最终由主 agent 聚合到 canonical 输出目录。
 
 ## Multi-Subskill Continuous Workflow
 
-本叶子技能以单道具或批量道具为执行粒度；当父级域包或用户整体命中本技能时，视为已授权按本级声明的内部节点和 subagent 合同连续完成道具细目设计。
+本叶子技能以单道具或批量道具为执行粒度；当父级域包或用户整体命中本技能时，视为已授权按本级声明的内部节点和 顾问与复核流程 合同连续完成道具细目设计。
 
 - 无序号同级子技能包若未来出现，默认全选并发执行，由本技能汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
@@ -84,12 +84,12 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意道具细目设计任务 | `references/prop-design-contract.md`、`steps/prop-design-workflow.md` |
-| 默认 subagents / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
+| 默认顾问与复核流程 / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 类型分流、冷门考据、规则道具或状态版本 | `types/prop-design-type-map.md`、`knowledge-base/prop-design-heuristics.md` |
 | 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
 | 设计槽位 bundle 验收 | `references/design-slot-review-contract.md` |
-| subagent/reviewer 汇流监督 | `references/subagent-supervision-contract.md` |
+| 顾问/reviewer 汇流监督 | `references/workflow-supervision-contract.md` |
 | 验收、修复和 reviewer 汇流 | `review/review-contract.md` |
 | 输出道具细目样板 | `templates/output-template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md` |
@@ -161,7 +161,7 @@ stateDiagram-v2
 9. 负向约束必须用自然语言写入 prompt，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，不得使用 Midjourney `--no` 参数。
 10. 为每个道具锁定唯一主体 ID；若上游清单或 manifest 已有 `PROP-###` 等 ID 则沿用，否则按清单顺序生成 `PROP-###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
 11. 写入 canonical 路径 `projects/aigc/<项目名>/7-设计/道具/2-设计/<主体ID>-<安全文件名>.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`；不改写父级 registry、`1-清单` 或 `3-生成`。
-12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若真实顾问 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划路径、实际降级路径和未启动成员；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
+12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 执行验收；可使用 `scripts/` 中说明的机械检查，但脚本不得替代 LLM 的设计判断。若外部顾问 provider 不可用，直接使用本地顾问与复核流程；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
 
 ## Field Mapping
 
@@ -177,7 +177,7 @@ stateDiagram-v2
 | `FIELD-PROP-DESIGN-07` | 产品特写约束 | 默认为纯色背景单道具近景特写、45 度视角，完整展示道具全貌，仅展示道具，不置身场景或人物手持情境，不出现背景元素 | `FAIL-PROP-DESIGN-07` |
 | `FIELD-PROP-DESIGN-08` | 研究转译链 | 研究明确转化为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `FAIL-PROP-DESIGN-08` |
 | `FIELD-PROP-DESIGN-09` | Prompt evidence chain | 英文 prompt 中的核心视觉 token 能回指研究证据、物语或解构字段 | `FAIL-PROP-DESIGN-09` |
-| `FIELD-PROP-DESIGN-10` | Team advisor consult | 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；阻断时有降级报告 | `FAIL-PROP-DESIGN-10` |
+| `FIELD-PROP-DESIGN-10` | Team advisor consult | 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；不可用时有本地 checklist 结果 | `FAIL-PROP-DESIGN-10` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -192,12 +192,12 @@ stateDiagram-v2
 - 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景、人物手持情境或背景元素中，而不是完整展示道具全貌的纯色背景 45 度单道具近景特写。
 - 研究层停留在百科信息或气氛形容词，没有转成形制、材料、工艺、年代、使用痕迹、功能逻辑和可追溯 prompt token。
 - 输出写到父级、`1-清单`、`3-生成`、角色/场景目录或 registry。
-- subagent 默认路径被工具阻断时没有报告降级原因与未启动角色。
-- 启用 subagents 时只按道具 worker 分工，没有调用 `team.yaml` 项目监制顾问基于当前思维·执行节点进行参谋，或没有把顾问意见转成节点级可执行判断、局部 patch 或风险提示。
+- 顾问与复核流程 默认路径被工具不可用时没有执行本地 checklist。
+- 执行顾问与复核流程时只按道具 worker 分工，没有调用 `team.yaml` 项目监制顾问基于当前思维·执行节点进行参谋，或没有把顾问意见转成节点级可执行判断、局部 patch 或风险提示。
 
 必经链路：
 
-`Symptom -> Direct Script/Prompt Overreach -> 道具/2-设计 Section Owner -> Prop Design Contract -> AGENTS.md LLM-first / Skill 2.0 / Subagent Rule`
+`Symptom -> Direct Script/Prompt Overreach -> 道具/2-设计 Section Owner -> Prop Design Contract -> AGENTS.md LLM-first / Skill 2.0 / 顾问与复核流程 Rule`
 
 ## Output Contract
 
@@ -242,10 +242,10 @@ stateDiagram-v2
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 输出文件名包含主体 ID 前缀，且该 ID 与 `## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头一致。
 - `north_star.yaml` 与 `team.yaml` 的全局风格、项目主题和设计相关大师监制上下文已被实际消费；缺失项已显式标注。
-- 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若被上层阻断，已记录降级报告。
+- 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已使用本地流程报告。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。
 - `## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，引用全局风格提示词 + 物品风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters。
 - prompt evidence chain 能解释关键英文 token 来自哪些研究/物语/解构字段。
 - `Photography` 与英文 prompt 固定为 close-up、45-degree view、full prop in view、prop only、solid color background、no people、no background elements、no scene environment。
-- 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。
+- 已执行 `review/review-contract.md` 的人工 review、外部 reviewer provider 或等价本地 review，并记录 verdict。

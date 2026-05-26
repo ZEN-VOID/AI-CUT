@@ -18,7 +18,7 @@ metadata:
 - 必须读取目标场景的上游设计文档：`projects/aigc/<项目名>/7-设计/场景/2-设计/S###-<场景名>.md`。
 - 必须读取 `$imagegen` 的 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并按其默认策略调用内建 `image_gen`；CLI/API fallback 只在用户显式要求或确认时使用。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 本 skill 默认启用真实 subagents 模式；若当前工具层无法真实 dispatch，必须报告阻断层级、原计划 reviewer 路径、实际降级路径与未启动的角色。
+- 本 skill 默认使用本地顾问与复核流程；若当前工具层无法外部 provider 调度，直接使用本地 review checklist。
 
 ## Positioning
 
@@ -72,7 +72,7 @@ Reject or clarify when:
 | 任意场景生成任务 | `references/scene-generation-contract.md`、`steps/scene-generation-workflow.md` |
 | 设计稿增量后的生成缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 输入类型、批量/单体/修复策略 | `types/scene-generation-type-map.md` |
-| 输出质量审查、subagents/reviewer 降级口径 | `review/review-contract.md` |
+| 输出质量审查、顾问/reviewer 与本地 checklist 口径 | `review/review-contract.md` |
 | 主图/多视图提示词模板和输出报告模板 | `templates/scene-main-image-prompt.json`、`templates/scene-multiview-prompt.json`、`templates/output-template.md` |
 | 脚本辅助边界 | `scripts/README.md` |
 | 可复用经验 | `knowledge-base/scene-generation-heuristics.md` |
@@ -138,7 +138,7 @@ stateDiagram-v2
 5. Step1：按 `templates/scene-main-image-prompt.json` 直接引用每份设计文档的 `4. 解构` 生成单主体场景主图，保存为 `主体ID-主体名称-主图`，并落同名 JSON 提示词记录。
 6. Step2：套用 `templates/scene-multiview-prompt.json`，以对应 `主体ID-主体名称-主图` 作为参照图；调用 built-in `image_gen` 前必须先对该主图执行 `view_image`，标注为 `scene main image / multiview reference`，使其进入对话上下文后再生成 `主体ID-主体名称-多视图`，并落同名 JSON 提示词记录。
 7. 所有项目交付资产写入 `projects/aigc/<项目名>/7-设计/场景/3-生成`；不得只停留在 `$CODEX_HOME/generated_images`；可更新 `design-manifest.yaml` 的 `generation_assets` 与 `generation_gaps`。
-8. 按 `review/review-contract.md` 执行交付验收；subagents 被工具层阻断时，使用本地 review checklist 并显式报告降级。
+8. 按 `review/review-contract.md` 执行交付验收；顾问与复核流程 被工具不可用时，使用本地 review checklist 并显式报告降级。
 
 ## Root-Cause Execution Contract
 
@@ -178,7 +178,7 @@ stateDiagram-v2
 2. 每个目标场景输出一张多视图主体设计图：`主体ID-主体名称-多视图`。
 3. 每张图片必须有同名 JSON 提示词记录。
 4. 多视图生成必须以同一主体的主图作为参照图；真实生成模式下，该本地主图已先通过 `view_image` 检视进入对话上下文，并记录 `reference_context_status: visible_in_conversation_context`。
-5. 可选执行报告记录输入范围、已生成文件、imagegen 模式、降级情况和 review verdict。
+5. 可选执行报告记录输入范围、已生成文件、imagegen 模式、本地复核和 review verdict。
 6. 可选更新 `projects/aigc/<项目名>/7-设计/场景/design-manifest.yaml`，记录 `generation_assets` 和剩余 `generation_gaps`；manifest 不替代生成资产真源。
 
 ### Output format
@@ -220,4 +220,4 @@ stateDiagram-v2
 - 项目交付图片已持久化到 `projects/aigc/<项目名>/7-设计/场景/3-生成`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 未重新设计主体，未改写上游设计，未修改边界外文件。
-- 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 subagent 降级原因。
+- 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 顾问与复核流程 本地流程。

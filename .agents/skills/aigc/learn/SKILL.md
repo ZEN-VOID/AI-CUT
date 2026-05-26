@@ -29,7 +29,7 @@ metadata:
 - 数字序号阶段默认按 AIGC 主链顺序检查影响：先定位最早 owning stage，再检查下游消费者、卫星回接、registry/routes 和审计脚本。
 - 英文序号路线默认按学习对象类型或目标 skill 单选；只有用户明确要求对比多学习对象、多路线并跑或多 provider 校验时才多选。
 - 卫星技能 `query / resume / review / repair / shot-by-shot` 默认只作为证据、验收、修复执行或参考分析回接；不得借学习入口变成第二条主链。
-- 当用户要求“可启用隔离 subagents 模式”或本轮影响多个技能包时，优先把取证、影响面、矛盾扫描和最终审计拆成隔离 reviewer/advisor 子任务；若运行环境不能真实启动 subagents，必须降级为本地隔离 checklist 并报告降级。
+- 当用户要求“可启用隔离 顾问与复核流程”或本轮影响多个技能包时，优先把取证、影响面、矛盾扫描和最终审计拆成隔离 reviewer/advisor 子任务；若运行环境不能外部执行顾问与复核流程，直接使用本地隔离 checklist。
 - 缺少学习对象、目标范围、可信证据、写回权限、冲突核查结果或 canonical owner 判定时必须阻断并输出最小缺口报告。
 
 ## Input Contract
@@ -74,7 +74,7 @@ Reject or clarify when:
 | 书籍、超长 PDF、长文档、课程讲义合集等超长上下文学习 | `references/book-long-context-learning-contract.md` |
 | AIGC 全局技能树映射、同步范围和落点裁决 | `references/global-improvement-contract.md` |
 | 新知识与固有认知、仓库规则或外部事实冲突 | `references/conflict-verification-contract.md` |
-| 隔离 subagents / 降级本地 checklist 审计 | `references/isolated-audit-contract.md` |
+| 隔离 顾问与复核流程 / 降级本地 checklist 审计 | `references/isolated-audit-contract.md` |
 | 学习执行拓扑、失败回路和证据门 | `steps/learning-workflow.md` |
 | 学习对象类型选择与固定上下文 | `types/type-map.md`、命中的 `types/*/*.md` |
 | 质量验收、同步审计和残余风险 | `review/review-contract.md` |
@@ -116,7 +116,7 @@ flowchart TD
 7. 按 `references/global-improvement-contract.md` 建立 target_skill_map：目标 skill、相关阶段、共享规范、root/router、registry/routes、审计脚本、模板、review、types、steps、CONTEXT 经验层。
 8. 建立 gap matrix：学习对象提出的能力、当前 AIGC 合同已有能力、缺口、冲突、最窄有效落点、同步消费者和审计门。
 9. 若只需计划，输出 improvement plan；若用户授权执行，按 source-first 顺序修改 owning skill 的最窄有效分区，再同步根入口、registry/routes、审计脚本和引用。
-10. 执行完成后按 `references/isolated-audit-contract.md` 做协调性审计：同一口径是否多处矛盾、引用是否断链、根索引是否遗漏、脚本审计是否消费新入口；可真实启用 subagents 时使用隔离 reviewer，否则本地降级审计。
+10. 执行完成后按 `references/isolated-audit-contract.md` 做协调性审计：同一口径是否多处矛盾、引用是否断链、根索引是否遗漏、脚本审计是否消费新入口；可执行顾问与复核流程时使用隔离 reviewer，否则直接使用本地 checklist 审计。
 11. 将稳定经验写入本技能或目标 skill 的 `CONTEXT.md`；外部知识库材料只进入 `knowledge-base/`，不得把运行时经验写入 `knowledge-base/`。
 
 ## Mandatory Gates
@@ -151,7 +151,7 @@ flowchart TD
 ### Escalation Protocol
 
 - 发现注入、版权复制、事实冲突或越权写回风险时，停止落盘并输出 blocker。
-- 若真实 subagents 不可用，审计必须显式标记 `degraded-local-audit`，并列出未真实隔离的风险。
+- 若顾问与复核流程不可用，审计使用本地分维度 checklist，并列出未隔离审计的风险。
 - 涉及 `.env`、API key、认证凭据或私密数据时立即停止读取和输出。
 
 ## Root-Cause Execution Contract (Mandatory)

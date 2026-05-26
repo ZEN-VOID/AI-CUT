@@ -17,8 +17,8 @@
 - 对照 `$skill-工作车间` 补齐根 `SKILL.md` 的 Mermaid Visual Maps、目录 owner、节点交接和失败路由表。
 - 强化 `steps/prop-generation-workflow.md` 的 Business Requirement Analysis、混合拓扑图、sequence 图、节点 schema、分支与失败回路。
 - 强化 `types/prop-generation-type-map.md` 的类型变量、路由图和 route-to-step 映射。
-- 强化 `review/review-contract.md` 的默认 provider、真实 reviewer subagent 降级矩阵、review flow 与 verdict schema。
-- 补齐 `templates/output-template.md` 的 subagent 降级记录和 review verdict 字段，并更新 README 质量入口。
+- 强化 `review/review-contract.md` 的默认 provider、外部 reviewer provider、本地 checklist、review flow 与 verdict schema。
+- 补齐 `templates/output-template.md` 的 顾问与复核流程 降级记录和 review verdict 字段，并更新 README 质量入口。
 - 将“结构校验通过但拓扑表达不足”的可复用经验沉淀到 `CONTEXT.md`。
 
 ## 2026-04-25

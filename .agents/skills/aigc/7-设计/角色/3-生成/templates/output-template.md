@@ -27,7 +27,7 @@ output_root: `projects/aigc/<项目名>/7-设计/角色/3-生成/`
 ```yaml
 verdict: pending
 findings: []
-subagent_status: ""
+review_status: ""
 notes: ""
 ```
 

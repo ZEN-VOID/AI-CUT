@@ -91,7 +91,7 @@ description: "Use when routing creative work to team perspective skills or multi
 
 ### Supervision Runtime Packet Fields
 
-本节供 AIGC 项目 `team.yaml.roles.supervision.stage_profiles` 初始化或修复时使用。它只描述监制载入字段，不替代具体阶段技能的 `Subagents Execution Mechanism`。
+本节供 AIGC 项目 `team.yaml.roles.supervision.stage_profiles` 初始化或修复时使用。它只描述监制载入字段，不替代具体阶段技能的 `Advisor Consultation Mechanism`。
 
 | field_id | owner | purpose | hard_rule |
 | --- | --- | --- | --- |
@@ -100,8 +100,8 @@ description: "Use when routing creative work to team perspective skills or multi
 | `roster_resolution_order` | shared AIGC contract | 说明从阶段 profile 到旧字段的回退顺序 | 不得跳过 `team/SKILL.md + CONTEXT.md` 直接全树扫描 |
 | `advisor_focus_tags` | root + stage | 将成员能力转成阶段问题焦点 | 必须服务阶段节点判断，不写泛风格标签 |
 | `node_binding` | stage | 说明顾问问题绑定 `node_id / pass_id / gate_id` 还是 leaf 节点 | 不得退化为固定字段问卷 |
-| `dispatch_policy` | stage | 区分 `stage-front-advisor`、`leaf-advisor`、`review-advisor` 或禁用 | subagents 只给顾问意见，不拥有 canonical 写回权 |
-| `downgrade_policy` | stage | 记录真实 subagent 被阻断时的报告字段 | 不得把主 agent 本地顺序综合写成真实 dispatch |
+| `dispatch_policy` | stage | 区分 `stage-front-advisor`、`leaf-advisor`、`review-advisor` 或禁用 | 顾问与复核流程 只给顾问意见，不拥有 canonical 写回权 |
+| `local_checklist_policy` | stage | 定义顾问与复核流程不可用时的本地 checklist 边界 | 不得把主 agent 本地顺序综合写成外部 provider 调度 |
 
 推荐字段形态：
 

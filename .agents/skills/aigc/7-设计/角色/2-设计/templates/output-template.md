@@ -205,7 +205,7 @@ verdict: pending
 source_item: "{{角色清单中的名称}}"
 prompt_character_count: 0
 reviewer: ""
-subagent_status: ""
+review_status: ""
 notes: ""
 research_layer:
   identity: pending

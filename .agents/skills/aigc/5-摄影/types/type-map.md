@@ -10,7 +10,7 @@
 
 - 默认加载 `visual-unit-type-map.md`。
 - 若输入含多类画面字段，先由该类型包形成 `visual_unit`、`type_profile`、`sequence_relation` 与 `ownership_risk`，再进入 `steps/cinematography-workflow.md`。
-- 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、subagents 或 review 合同。
+- 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、顾问与复核流程 或 review 合同。
 
 ## Loading Flow
 

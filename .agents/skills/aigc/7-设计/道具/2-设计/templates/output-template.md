@@ -109,7 +109,7 @@ prompt_character_count: 0
 research_chain_status: pending
 prompt_evidence_chain_status: pending
 reviewer: ""
-subagent_status: ""
+review_status: ""
 notes: ""
 ```
 

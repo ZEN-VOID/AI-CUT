@@ -40,11 +40,11 @@ projects/aigc/<项目名>/2-编剧/
 - 关键情绪场、压迫场、离别场或类型氛围场的 `环境描写` 有足够景境承托；新增自然景物只改变氛围密度，不改变剧情条件。
 - 编剧稿没有提前承担 `3-导演` 的导演创作内核、终结画面、视觉主轴、氛围意境或 `4-表演` 的演员工艺控制；相关下游任务只保留可消费的声画基础。
 - 终稿未写机位、景别、镜头运动、分镜编号或 `分镜明细预设`。
-- 若启用 subagents，执行报告含 `advisor_consultation_packet` 摘要，至少记录顾问 roster、`node_ref/pass_ref/gate_ref/role_lens`、采纳指导、风险提示、`routeback_targets` 或降级路径。
+- 若执行顾问与复核流程，执行报告含 `advisor_consultation_packet` 摘要，至少记录 `node_ref/pass_ref/gate_ref/role_lens`、采纳指导、风险提示和 `routeback_targets`；否则直接使用本地 checklist。
 - 执行报告含 `thinking_action_node_ledger`，覆盖本轮经过的关键思维·执行节点；每条节点记录必须包含判断问题、判断结果、执行动作、证据字段、出口路由、gate 状态和 source owner。
 - 新增或显著修改学习型合同时，执行报告含 `learning_integration_review_evidence`；若没有真实项目样例，只能标注 `static_only`，并写出残余风险和下一次生产运行观察点。
-- 若 review 发现阻断项，已在 `2-编剧` 阶段内直接最小修复并复审通过；若无法修复，已记录阻断来源且不得推进下游。
-- 执行报告记录 review verdict、repair actions、re-review verdict、残余风险和是否允许进入 `3-摄影`。
+- 若 review 发现阻断项，已在 `2-编剧` 阶段内直接最小修复并复审通过；若无法修复，已使用本地流程且不得推进下游。
+- 执行报告记录 review verdict、repair actions、re-review verdict、残余风险和是否允许进入 `3-导演`。
 
 ## Report Evidence Blocks
 
@@ -57,11 +57,9 @@ advisor_consultation_packet:
   node_anchors: []
   routeback_targets: []
   execution_brief: ""
-  downgrade:
-    blocked_by: none
-    planned_path: ""
-    actual_path: ""
-    skipped_members: []
+  local_checklist:
+    findings: []
+    repair_actions: []
 thinking_action_node_ledger:
   - node_id: ""
     judgment_question: ""

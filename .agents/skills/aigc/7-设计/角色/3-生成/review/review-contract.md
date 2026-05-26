@@ -52,12 +52,12 @@ notes: ""
 ## Provider Guidance
 
 - 默认由执行 agent 做本地 gate 审查。
-- 仓库层默认允许按单角色使用 reviewer subagent 返回 findings；最终 verdict 仍由主 agent 汇总，reviewer 不拥有业务主真源改写权。
-- 若 system / developer / tool / user 层阻断 reviewer subagent，按 `SKILL.md` 的 subagent 降级口径报告，并执行下方本地降级 checklist。
+- 仓库层默认使用本地 reviewer checklist 返回 findings；最终 verdict 仍由主 agent 汇总，reviewer 不拥有业务主真源改写权。
+- 若不使用外部 reviewer provider，按 `SKILL.md` 的顾问与复核流程口径直接执行本地 review checklist。
 
 ## Local Fallback Checklist
 
-当真实 reviewer subagent 不可用时，主 agent 必须至少完成以下本地复核：
+当外部 reviewer provider 不可用时，主 agent 必须至少完成以下本地复核：
 
 1. 核对每个 JSON 的 `subject_id` 与 `source_design_path` 指向存在的 `2-设计` 文档，且文件名 stem 以同一主体 ID 开头。
 2. 核对主图 prompt 与设计文档 `4. 解构` 有明确回链，没有新增身份、服装、时代或叙事事实，也没有把 `提示词设计` 的英文整合 prompt 当作主源。
@@ -70,7 +70,7 @@ notes: ""
 
 ```mermaid
 flowchart TD
-    A["收集每个角色输出"] --> B{"reviewer subagent 可用?"}
+    A["收集每个角色输出"] --> B{"reviewer provider 可用?"}
     B -->|"Yes"| C["单角色 reviewer 返回 findings"]
     B -->|"No"| D["主 agent 执行 Local Fallback Checklist"]
     C --> E["主 agent 汇总 verdict"]

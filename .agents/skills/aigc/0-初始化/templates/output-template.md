@@ -19,7 +19,7 @@ Use this template for the final user-facing response after `$aigc-init` complete
 
 - init_mode: smart_advisor
 - team_lineup_mode: <auto|custom>
-- planning_direct_answer_subagents: <ran|blocked|not_applicable>
+- planning_direct_answer_advisor_review: <ran|blocked|not_applicable>
 - core_five_piece:
   - north_star: <path>
   - init_handoff: <path>
@@ -41,7 +41,7 @@ Use this template for the final user-facing response after `$aigc-init` complete
 ```markdown
 `0-初始化` 暂停，尚未写入 canonical 初始化工件。
 
-- block_reason: <missing auto/custom | subagents unavailable | unsafe reset scope | source conflict | other>
+- block_reason: <missing auto/custom | advisor_review_unavailable | unsafe reset scope | source conflict | other>
 - current_safe_output: <option card | source-light skeleton | diagnostic only>
 - missing_input_or_gate: <specific missing field/gate>
 - next_required_user_action: <one concrete action>

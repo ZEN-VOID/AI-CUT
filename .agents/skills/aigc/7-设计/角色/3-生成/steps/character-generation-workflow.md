@@ -27,7 +27,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["Main agent routes target subjects"] --> B{"真实 subagents 可用且获上层许可?"}
+    A["Main agent routes target subjects"] --> B{"顾问与复核流程 可用且获上层许可?"}
     B -->|"Yes"| C["按单角色启动 Worker-角色生成"]
     B -->|"No"| D["主 agent 本地串行执行同一节点"]
     C --> E["Worker returns local patch"]
@@ -46,7 +46,7 @@ flowchart LR
     A["Symptom"] --> B{"失败层"}
     B -->|"source"| C["回到 2-设计补 4. 解构"]
     B -->|"prompt drift"| D["恢复 4. 解构 优先级"]
-    B -->|"imagegen unavailable"| E["切 prompt_only 阻断报告"]
+    B -->|"imagegen unavailable"| E["切 prompt_only 不可用说明"]
     B -->|"persistence"| F["修复项目路径落盘"]
     B -->|"reference missing"| G["先补主图，再做多视图"]
     C --> H["重新进入 N2-DESIGN"]

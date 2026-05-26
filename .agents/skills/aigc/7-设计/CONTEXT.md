@@ -27,7 +27,7 @@ last_checked_at: 2026-04-24
 | `DESIGN-TM-04` | 多域任务误补未命中域 | 只调度用户命中域或显式推断域 | 未命中域无占位输出 |
 | `DESIGN-TM-05` | 上游 `6-分组` 分批追加后，7-设计试图重新全量覆盖清单/设计/生成 | 先走 `references/incremental-reconciliation-contract.md`，再由域内清单 merge、设计补缺、生成补缺 | 既有主体、设计稿、生成资产被跳过或版本化，不静默覆盖 |
 | `DESIGN-TM-06` | closeout 发现域级失败后，父级直接补清单/设计/生成正文 | 回到 `Stage-Closeout Review-Repair Contract`，把 finding 路由回对应域级 leaf 修复并复审 | `validation-report.md` 只记录 route、repair_actions、re_review_verdict，不出现父级伪造业务真源 |
-| `DESIGN-TM-06` | 设计叶子显式启用 subagents 但没有请教项目 `team.yaml` 监制顾问，或没有优先消费 `roles.supervision.stage_profiles."7-设计"` | 父级不本地模拟，回到命中叶子与共享团队顾问合同执行或记录降级 | `validation-report.md` 或域级报告能看到 advisor consultation 状态 |
+| `DESIGN-TM-06` | 设计叶子显式执行顾问与复核流程 但没有请教项目 `team.yaml` 监制顾问，或没有优先消费 `roles.supervision.stage_profiles."7-设计"` | 父级不本地模拟，回到命中叶子与共享团队顾问合同执行或使用本地流程 | `validation-report.md` 或域级报告能看到 advisor consultation 状态 |
 
 ## Repair Playbook
 
@@ -38,7 +38,7 @@ last_checked_at: 2026-04-24
 5. 若仍需兼容旧 JSON，必须明确标成 sidecar 或 legacy，不得恢复为 active skill 入口。
 6. 分批上游场景中先问“本轮新增了哪些 `第N集.md`，已有清单/设计/生成覆盖到哪里”，再决定是否进入叶子。
 7. 阶段 closeout 中发现域级 `needs_rework` 时，父级只做路由和汇总：把 finding 交回具体域级 leaf，等待 direct repair 和 re-review 后再写最终 validation report。
-7. 如果命中 `角色/2-设计`、`道具/2-设计` 或 `场景/2-设计` 且启用 subagents，父级只检查顾问请教状态；真正的 roster 解析、提问、汇流和创作前消费交给叶子包。
+7. 如果命中 `角色/2-设计`、`道具/2-设计` 或 `场景/2-设计` 且执行顾问与复核流程，父级只检查顾问请教状态；真正的 roster 解析、提问、汇流和创作前消费交给叶子包。
 
 ## Reusable Heuristics
 

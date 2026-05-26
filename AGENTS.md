@@ -128,7 +128,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 无序号子技能包：命中同级无序号子技能包组时，默认全选并行执行。
 - 数字序号子技能包：形如 `1-`、`2-`、`3-` 的同级子技能包默认按数字升序顺序串行执行。
 - 英文序号子技能包：形如 `A-`、`B-`、`C-` 或 `a-`、`b-`、`c-` 的同级子技能包默认作为互斥候选，按用户意图、父技能路由或任务类型单选执行。
-- 上述命名前缀语义仅针对 `skills` 子技能包与技能层调度，不外推到 subagents；subagents 一般不以名称序号承载调度语义。
+- 上述命名前缀语义仅针对 `skills` 子技能包与技能层调度，不外推到协作成员、顾问或外部 provider；协作成员一般不以名称序号承载调度语义。
 - 若用户显式指定不同调度方式，以用户显式指令优先；否则按本命名前缀语义执行。
 
 ### 仓库 Rollout 标准（强制）
@@ -445,24 +445,24 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 已定位并修复最高杠杆 owner 分区 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新 + 引用同步范围已扫描或说明 + 已运行相应审计 / dry-run / smoke 验证，或明确报告验证阻塞。
 - 如果增强被权限、外部依赖或范围限制阻塞，必须显式报告阻塞项与临时防护措施。
 
-### 多子智能体技能的源层联动（强制）
+### 多成员协作技能的源层联动（强制）
 
-- 当目标技能由 `skill-subagents` 创建、升格或长期治理时，源层诊断不得只停在父 `SKILL.md`。
-- 对这类多子智能体 skill，分层上溯除父 `SKILL.md` / `CONTEXT.md` 外，还必须按需联查：
+- 当目标技能由多成员、团队顾问、外部 provider 或协作角色创建、升格或长期治理时，源层诊断不得只停在父 `SKILL.md`。
+- 对这类多成员协作 skill，分层上溯除父 `SKILL.md` / `CONTEXT.md` 外，还必须按需联查：
   - 父 skill 显式回链的 `team.md`
   - 相关 agent rule docs（例如 `.codex/agents/<skill-slug>/**/*.md`）
   - 受治理子路径或子技能的局部 `SKILL.md` / `CONTEXT.md`
   - 与该 roster 绑定的 handoff schema、shared template、runbook、validator、route 配置
 - 源层同步/修复遵循“只联动受影响关联面”原则：
   - 父 skill 总合同变更时，同步检查其引用的 `team.md`、agent docs、子路径合同是否仍一致
-  - 某 subagent / team 合同变更时，同步检查父 skill 的 topology / handoff / synthesis / audit 描述是否仍准确
+  - 某协作成员 / team 合同变更时，同步检查父 skill 的 topology / handoff / synthesis / audit 描述是否仍准确
   - 不得因为某个子角色局部变更而无差别重写整个 roster；也不得只修局部 agent doc 而放任父层合同失真
 - 真源边界默认如下：
   - 父 `SKILL.md` 持有 topology、dispatch、handoff、synthesis、audit 与 canonical writeback 的总合同
   - `team.md` 持有 team 级 roster、默认调用关系与 team 内共享 handoff 约定
   - 单个 agent rule doc 持有该角色的局部任务边界、I/O、veto、证据与越权约束
   - 子路径本地 `SKILL.md` / `CONTEXT.md` 持有局部执行合同与局部经验层
-- 若关联 subagent 的合同未同步修复，则不得宣称源层闭环完成；如暂无法同步，必须报告缺口、影响面与临时护栏。
+- 若关联协作成员或子路径合同未同步修复，则不得宣称源层闭环完成；如暂无法同步，必须报告缺口、影响面与临时护栏。
 
 ### 根因学习回路自动化（强制）
 
@@ -506,7 +506,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 以下内容应写入具体 agent 规则文档（例如 `.codex/agents/**/*.md`）作为源层规范合同：
 
   - agent 的人格边界、任务范围、输出 schema、路径约定、字段落点、审查合同与面向用户的硬门槛
-  - 对多子智能体 skill，`team.md` 承载 team 级 roster / topology / handoff 共识，具体 agent doc 承载角色级合同；二者不得与父 `SKILL.md` 形成平行第二真相
+  - 对多成员协作 skill，`team.md` 承载 team 级 roster / topology / handoff 共识，具体 agent doc 承载角色级合同；二者不得与父 `SKILL.md` 形成平行第二真相
   - 如果某 agent 没有独立 `CONTEXT.md`，则稳定的规范增强可以直接写进 agent 规则文档本身
   - 这种 agent 级直接优化仅限于规范内容：规则、schema、优先级、失败闭环、路由与输出合同
   - 经验性内容不得直接倾倒进 agent 规则文档，例如单次案例、噪声实验、临时 heuristic 与里程碑证据，应保留在 `reports/`、技能 `CONTEXT.md` 或其他经验层载体中，待验证后再晋升
@@ -571,7 +571,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### Agent 源层优化合同（强制）
 
 - Agent 规则文档是第一类源层工件，而不只是人格包装。
-- 对多子智能体 skill，agent 源层优化至少联查三处回指：父 skill 的 topology / handoff / synthesis 说明、`team.md` 的 team 级调用规则、agent doc 的局部边界与输出合同。
+- 对多成员协作 skill，agent 源层优化至少联查三处回指：父 skill 的 topology / handoff / synthesis 说明、`team.md` 的 team 级调用规则、agent doc 的局部边界与输出合同。
 - 若 agent 或父 skill 还显式依赖 `references/`、`steps/`、`review/`、`types/`、decision table 或 handoff node spec，源层优化必须把这些载体纳入联查与修复范围，不得只停留在 agent 主文档正文。
 - 如果某个问题受 agent 自身合同约束，且该 agent 没有专用 `CONTEXT.md`，则应直接在 agent 规则文档中修复稳定规则，而不是等待外部经验层。
 - 若某次修复触及父 skill、`team.md` 或单个 agent doc 中任一层，必须同步核对其余受影响层；未联查或未同步说明，视为源层闭环不完整。
@@ -684,5 +684,5 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `7-Cut` 已明确激活并完成 Skill 2.0 基线，或已显式归档并在 registry/routes 中标记为 `shelved + archived`
   - `aigc_skill_audit.py --strict` 对整树无 `parent-only` 通过伪装整树全绿的情况
   - 三省 agent doc 中引用的 `aigc` 路径、阶段名与 registry 条目全部与 `skills.yaml` / `routes.yaml` 一致
-  - `HARNESS.md` 已同步更新为退出后状态，不再引用 `bootstrap_compat` 降级口径
+  - `HARNESS.md` 已同步更新为退出后状态，不再引用 `bootstrap_compat` 兼容口径
 - 退出 `bootstrap_compat` 模式时，必须在 `HARNESS.md` 的"现状判断"中显式记录退出日期、满足的条件清单与残留风险。

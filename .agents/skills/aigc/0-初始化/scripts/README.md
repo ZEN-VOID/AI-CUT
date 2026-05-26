@@ -13,7 +13,7 @@ Allowed script responsibilities:
 Scripts must not:
 
 - generate creative story, design, prompt, or aesthetic decisions
-- replace planning direct-answer subagents
+- replace planning direct-answer 顾问与复核流程
 - synthesize `north_star` or `init_handoff` as canonical creative truth
 - silently delete or purge project assets
 

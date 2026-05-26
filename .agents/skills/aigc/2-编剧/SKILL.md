@@ -14,7 +14,7 @@ governance_tier: full
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与当前剧本改编相关的上下文；若历史项目仍使用 `CONTEXT/`，只读取与本轮相关的文件。
-- 若本阶段启动 subagents 模式（包含用户显式要求或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，优先解析 `roles.supervision.stage_profiles."2-编剧"` 作为编剧监制载入 profile，再按共享合同回退旧字段；主 agent 必须把顾问请教绑定到当前 workflow 节点、`Thought Pass Map`、review gate 和目标集上下文，要求顾问代入各自角色意识、创作风格与专业水准参与节点判断、执行取舍、证据补强和风险提示，并在 LLM 剧本投影前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
+- 若本阶段执行顾问与复核流程（包含用户显式要求或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，优先解析 `roles.supervision.stage_profiles."2-编剧"` 作为编剧监制载入 profile，再按共享合同回退旧字段；主 agent 必须把顾问请教绑定到当前 workflow 节点、`Thought Pass Map`、review gate 和目标集上下文，要求顾问代入各自角色意识、创作风格与专业水准参与节点判断、执行取舍、证据补强和风险提示，并在 LLM 剧本投影前把可执行结论沉淀为 `advisor_consultation_packet` 作为后续任务上下文。
 - 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到 `SKILL.md` 或对应分区。
@@ -27,7 +27,7 @@ governance_tier: full
 - 数字序号子技能包或节点默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能不自动并入编剧主链；只有父级路由或用户请求明确命中查询、恢复、复核、桥接等旁路职责时，才加载对应卫星 `SKILL.md + CONTEXT.md` 并把结果回接给本技能裁决。
-- 连续调度不得绕过本技能的阻断门：缺少必需输入、上游正文不可读、破坏性覆盖未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
+- 连续调度不得绕过本技能的阻断门：缺少必需输入、上游正文不可读、破坏性覆盖未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或不可用说明。
 - 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 剧本判断或父级最终裁决。
 
 ## Input Contract
@@ -55,7 +55,7 @@ Reject or clarify when:
 - 用户要求压缩、摘要、重排、删减剧情事实，且未明确这是非 canonical 候选稿。
 - 用户要求对白润色、同义替换、语序调整；此类请求与对白冻结冲突，必须先确认是否放弃本技能 canonical 输出。
 - 用户要求新增对白、新场景、新桥段、新规则、新因果强化或新事件结果；这属于 `C-authorized_adaptation`，不允许混入默认 canonical，必须另行授权并作为候选稿处理。
-- 用户要求直接生成分镜组、摄影方案、镜头运动、景别选择或图像提示词；应分别转交下游 `3-导演`、`3-摄影` 等阶段。
+- 用户要求直接生成分镜组、摄影方案、镜头运动、景别选择或图像提示词；应分别转交下游 `3-导演`、`5-摄影`、`6-分组` 或 `8-图像` 等阶段。
 - 用户要求导演级创作判断（戏剧问题提炼、高潮画面强化、视觉美学组织）或表演工艺控制（演员任务、微表情控制、场面调度）；应转交 `3-导演` 或 `4-表演`。
 
 ## Mode Selection
@@ -76,8 +76,12 @@ Reject or clarify when:
 | 任意编剧任务 | `references/script-adaptation-contract.md` |
 | 字段分流、声画配对、对白冻结、环境字段纯化 | `references/field-routing-and-audio-visual-contract.md` |
 | 小说式表述、作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明和因果/关系结论的二次画面化 | `references/novel-to-screen-language-contract.md` |
+| 信息差、观众知道/角色知道、悬念释放顺序 | `references/information-asymmetry-contract.md` |
+| 场景时长体感、信息密度、beat 数量和转出方式 | `references/scene-rhythm-contract.md` |
+| 关键对白的戏剧动作、潜台词和下游表演提示 | `references/dialogue-subtext-contract.md` |
+| 观众心理模型 | `../_shared/audience-psychology-model-contract.md` |
 | 好莱坞级编剧创作质量细则 | `references/hollywood-quality-spec.md` |
-| 编剧创作阶段启动 subagents 模式 | `../_shared/team-advisor-consultation-contract.md`，并按本 `Subagents Execution Mechanism` 执行 |
+| 编剧创作阶段执行顾问与复核流程 | `../_shared/team-advisor-consultation-contract.md`，并按本 `Advisor Consultation Mechanism` 执行 |
 | 判断输入类型与改编策略 | `types/source-to-script-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md`（创建后） |
 | 输出样板 | `templates/output-template.md`、`templates/episode-script.template.md` |
@@ -130,8 +134,15 @@ Reject or clarify when:
 - `表情特写` 是正式可选字段，用于关键面部表演 beat：只写眉、眼、眼睑、眨眼频率、鼻翼、嘴角、唇线、咬肌、下颌、喉头或皮肤状态等可见变化；必须有上游触发或当前声画压力，不写情绪标签、心理解释、机位、景别或镜头运动。
 - `环境描写` 只写场景本身的可见写景材料，不承载人物动作、对白引出、剧情结果、心理解释或规则说明；同一 slugline 内环境可因剧情推进多次刷新。
 - 终稿字段不得泄露内部任务说明、占位句或规则复述。
+- 关键场景已形成 `information_asymmetry_map` 与 `scene_rhythm_profile`；关键对白已形成 `dialogue_subtext_map`。若某集不适用，执行报告必须说明 `not_applicable` 的上游依据。
 - 已运行 `scripts/validate_script_projection.py` 或执行等价人工 review；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
 - 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`。
+- 执行报告包含 `information_asymmetry_map`、`scene_rhythm_profile` 和 `dialogue_subtext_map`，证明新增能力进入编剧层证据链。
+- 关键场景必须有信息差标注。
+- 关键场景必须有观众心理基线和冲突遗产标注，至少说明 `audience_knowledge_state`、`audience_psychology_seed` 与 `conflict_legacy_seed`；低信息过场可标注 `not_applicable` 并说明上游依据。
+- 关键对白必须有潜台词戏剧动作标注。
+- 每个场景必须有 scene_rhythm_profile。
+- 独白/内心独白不超过总 beat 30%。
 
 ## Stage-End Review-Repair Contract
 
@@ -142,20 +153,20 @@ Reject or clarify when:
 1. `N5-SCRIPT-DRAFT` 产物先视为 `candidate_script`，不是终稿。
 2. `N6-SCRIPT-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、slugline、字段纯度、环境字段纯化、小说表述二次画面化、主角内心独白人称转换、动作客观性、主观情绪转译、LLM-first 边界、占位泄露、声音本体、具像化、环境氛围承托和小说表达转译。
 3. 若 verdict 为 `needs_rework`，必须在本阶段直接执行 `N6R-SCRIPT-REPAIR`，只修字段投影、可拍性、声画承托、slugline、具像化、声音本体、环境纯度、环境氛围、小说表达转译、主角内心独白人称和格式证据；不得改写上游剧情事实、对白和事件顺序。
-4. 修复后必须执行 `N6R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限阻断时输出阻断报告，不得把失败稿推进下游。
+4. 修复后必须执行 `N6R-REVIEW-AGAIN`；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限不可用时输出不可用说明，不得把失败稿推进下游。
 5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
 6. `执行报告.md` 必须记录本轮 review verdict、repair actions、复审结果、未修复风险和是否允许进入 `3-导演`。
 
-## Subagents Execution Mechanism
+## Advisor Consultation Mechanism
 
-当 `2-编剧` 启动 subagents 模式时，执行语义固定为"项目监制顾问团请教 -> 编剧参谋汇流 -> 上下文沉淀 -> 后续编剧任务消费"，而不是让 subagents 直接主创或改写 canonical 编剧稿。
+当 `2-编剧` 执行顾问与复核流程时，执行语义固定为"项目监制顾问团请教 -> 编剧参谋汇流 -> 上下文沉淀 -> 后续编剧任务消费"，而不是让顾问或复核结论直接主创或改写 canonical 编剧稿。
 
 1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 的 `Team Roster Resolution` 解析编剧阶段监制 roster；优先使用 `roles.supervision.stage_profiles."2-编剧".members / members_ref`，再按共享合同回退到通用 `roles.supervision.members`、旧 `roles.supervising.*`、旧 `roles.production.*`、`team_setup.shared_agents` 或 `roles.planning.members`，必要时才按 team 根索引动态补位并记录原因。
-2. 被启动的 subagents 作为编剧监制顾问运行：围绕当前集上游正文、项目 `MEMORY.md`、相关 `CONTEXT/`、类型策略、本文件 `Thought Pass Map` 中对应 `pass_id`、以及 `review/review-contract.md` 中相关 `gate_id`，代入各自角色意识、创作风格与专业水准进行参谋。
+2. 该流程中的顾问作为编剧监制顾问运行：围绕当前集上游正文、项目 `MEMORY.md`、相关 `CONTEXT/`、类型策略、本文件 `Thought Pass Map` 中对应 `pass_id`、以及 `review/review-contract.md` 中相关 `gate_id`，代入各自角色意识、创作风格与专业水准进行参谋。
 3. 顾问问题不得固定为预设字段清单；主 agent 必须从当前技能包本身的思维·执行节点派生问题，让顾问参与该节点的判断、动作、证据、route_out、gate 和失败回路设计。顾问可以提出节点级执行建议、风险提示、取舍理由或局部 patch，但不得绕过节点网络直接主创终稿。
 4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `advisor_consultation_packet.must_do / must_not_do / inspiration_to_use / execution_brief`，并保留 `node_ref / pass_ref / gate_ref / role_lens` 等来源锚点，作为 LLM 剧本投影、阶段内修复和复审的额外上下文继续执行后续任务。
 5. `advisor_consultation_packet` 不拥有上游逐集正文、对白冻结、场景顺序、字段合同或 canonical 写回权；顾问建议若与上游真源或本技能合同冲突，必须舍弃或降级为风险提示。
-6. 若真实 subagent dispatch 被 system / developer / tool / user 上层策略阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员；不得把主 agent 本地顺序扮演写成真实 subagents 已执行。
+6. 若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程；不得把主 agent 本地顺序扮演写成外部 provider 已执行。
 
 ## Field Mapping
 
@@ -169,7 +180,7 @@ Reject or clarify when:
 | `FIELD-SCRIPT-06` | 场景画面 | 每个场景至少有一条正式剧本画面字段 | `FAIL-SCRIPT-06` |
 | `FIELD-SCRIPT-07` | 输出落盘 | `2-编剧/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-SCRIPT-07` |
 | `FIELD-SCRIPT-08` | 对白冻结 | 对白逐字保真，标题格式正确，角色名非占位，语态灵动自然 | `FAIL-SCRIPT-08` |
-| `FIELD-SCRIPT-09` | Team advisor consult | 启动 subagents 模式时已按 `team.yaml` 请教项目监制顾问，并把基于当前节点的参谋指导沉淀为后续任务上下文；阻断时有降级报告 | `FAIL-SCRIPT-09` |
+| `FIELD-SCRIPT-09` | Team advisor consult | 执行顾问与复核流程时已按 `team.yaml` 请教项目监制顾问，并把基于当前节点的参谋指导沉淀为后续任务上下文；不可用时有本地 checklist 结果 | `FAIL-SCRIPT-09` |
 | `FIELD-SCRIPT-10` | 阶段末闭环 | candidate 已审计、阻断项已直接修复并复审，执行报告记录 verdict 和 repair actions | `FAIL-SCRIPT-10` |
 | `FIELD-SCRIPT-11` | 动作客观性 | `角色动作` / `动作画面` 只写可拍客观动作、神态、语气和生理反应；无主观意图词"试图/想要/打算/意图"；直接情绪感受已转成 `表情特写`、可感知反应、肢体动作、生理反应或主角内心独白 | `FAIL-SCRIPT-11` |
 | `FIELD-SCRIPT-12` | 占位泄露 | 终稿无内部规则句、模板占位句或任务说明 | `FAIL-SCRIPT-12` |
@@ -179,6 +190,10 @@ Reject or clarify when:
 | `FIELD-SCRIPT-16` | 创作证据 | 执行报告包含 `novel_expression_transform_evidence`、`protagonist_inner_voice_evidence` 和 `objective_action_purity_evidence`，证明小说转译、主角内心独白人称转换和动作客观性不是只停留在文档规则层 | `FAIL-SCRIPT-16` |
 | `FIELD-SCRIPT-17` | 小说表述二次画面化 | 作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明、因果解释和关系结论已转成可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白；对白仍逐字冻结；主角内心独白人称已从小说第三人称转成第一人称 | `FAIL-SCRIPT-17` |
 | `FIELD-SCRIPT-18` | 表情特写 | 关键面部表演 beat 可落入 `表情特写`；该字段必须有上游触发或当前声画压力，只写具体面部可见变化，不写情绪标签、心理解释、机位、景别或镜头运动；普通非面部反应仍落 `心理反应`、`对白画面` 或 `角色动作` | `FAIL-SCRIPT-18` |
+| `FIELD-SCRIPT-19` | 信息差设计 | 关键场景有 `information_asymmetry_map`：观众知道什么、角色知道什么、什么被隐藏、何时释放以及悬念机制明确 | `FAIL-INFORMATION-ASYMMETRY` |
+| `FIELD-SCRIPT-20` | 场景节奏 | 关键场景有 `scene_rhythm_profile`：时长体感、信息密度、beat 数量、节奏类型和转出方式已裁决 | `FAIL-SCENE-RHYTHM` |
+| `FIELD-SCRIPT-21` | 对白潜台词 | 关键对白有 `dialogue_subtext_map`，能说明表面话语背后的戏剧动作和对下游表演/摄影的承托 | `FAIL-DIALOGUE-SUBTEXT` |
+| `FIELD-SCRIPT-22` | 观众心理基线 | 关键场景有 `audience_knowledge_state`、`audience_psychology_seed` 和 `conflict_legacy_seed`，能说明观众此刻知道什么、期待/害怕/渴望什么以及冲突如何继承给导演层 | `FAIL-AUDIENCE-PSYCHOLOGY` |
 
 ## Thought Pass Map
 
@@ -193,6 +208,7 @@ Reject or clarify when:
 | `PASS-SCRIPT-07` | 剧本投影 | `field_routing_plan`、`novel_expression_transform_evidence`、`objective_action_purity_evidence`、`environment_purity_evidence` 与上游正文 | 是否完整承接事实、顺序、对白、小说表述二次画面化、动作客观性、环境纯度和字段纯度 | `episode_script` |
 | `PASS-SCRIPT-08` | 验收回写 | 编剧稿、校验结果 | 是否满足保真、声画、场景、对白冻结、字段纯度、小说表达转译、动作客观性、环境纯度和输出门禁 | `review_result` |
 | `PASS-SCRIPT-09` | 直接修复复审 | `review_result`、candidate 编剧稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
+| `PASS-SCRIPT-10` | 信息差/节奏/潜台词 | 场景表、字段分流、对白锁、信息差/节奏/潜台词合同 | 关键场景是否完成信息差、场景节奏和对白戏剧动作设计，且未新增剧情事实或对白 | `information_asymmetry_map`、`scene_rhythm_profile`、`dialogue_subtext_map` |
 
 ## Pass Table
 
@@ -207,10 +223,11 @@ Reject or clarify when:
 | `PASS-SCRIPT-07` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | `FAIL-SCRIPT-03` | `references/script-adaptation-contract.md` |
 | `PASS-SCRIPT-08` | 输出路径、执行报告、review gate 齐全 | `FAIL-SCRIPT-07` | `review/review-contract.md` |
 | `PASS-SCRIPT-09` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-SCRIPT-10` | `Stage-End Review-Repair Contract` |
+| `PASS-SCRIPT-10` | 信息差、观众心理基线、场景节奏、对白潜台词已形成可传递证据；内心独白/旁白没有挤占影视呈现 | `FAIL-INFORMATION-ASYMMETRY` / `FAIL-AUDIENCE-PSYCHOLOGY` / `FAIL-SCENE-RHYTHM` / `FAIL-DIALOGUE-SUBTEXT` | `references/information-asymmetry-contract.md` / `../_shared/audience-psychology-model-contract.md` / `references/scene-rhythm-contract.md` / `references/dialogue-subtext-contract.md` |
 
 ## Pass-to-Node Mapping Table
 
-Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件顾问执行节点，不新增 `PASS-SCRIPT-*` 编号。启用 subagents 时，它以当前活跃 pass 和最早责任节点为锚点汇流顾问意见。
+Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件顾问执行节点，不新增 `PASS-SCRIPT-*` 编号。执行顾问与复核流程时，它以当前活跃 pass 和最早责任节点为锚点汇流顾问意见。
 
 | pass_id | node_id | pass_standard | evidence_consumed | output_evidence |
 | --- | --- | --- | --- | --- |
@@ -223,10 +240,11 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | 所有上游证据、`advisor_consultation_packet`（如有） | `第N集.md` 草稿、`faithful_projection_trace` |
 | `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | 输出路径、执行报告、review gate 齐全 | candidate 草稿、上游正文、`review/review-contract.md`、`thinking_action_node_ledger` | `review_result`、`gate_to_node_repair_map` |
 | `PASS-SCRIPT-09` | `N6R-SCRIPT-REPAIR` / `N6R-REVIEW-AGAIN` / `N7-SCRIPT-WRITEBACK` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `review_result`、candidate 草稿、修复稿、repair actions | `review_repair_result`、`2-编剧/第N集.md`、`执行报告.md` |
+| `PASS-SCRIPT-10` | `N3-SCENE` / `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` / `N6-SCRIPT-REVIEW` | 关键信息释放、观众心理基线、冲突遗产、场景节奏和对白戏剧动作已在编剧层锁定 | `information-asymmetry-contract.md`、`../_shared/audience-psychology-model-contract.md`、`scene-rhythm-contract.md`、`dialogue-subtext-contract.md` | `information_asymmetry_map`、`audience_knowledge_state`、`audience_psychology_seed`、`conflict_legacy_seed`、`scene_rhythm_profile`、`dialogue_subtext_map` |
 
 ## GATE-SCRIPT Definitions
 
-共 18 道 review gate，编号 `GATE-SCRIPT-01` 至 `GATE-SCRIPT-18`：
+共 22 道 review gate，编号 `GATE-SCRIPT-01` 至 `GATE-SCRIPT-22`：
 
 | gate_id | gate_name | 校验内容 |
 | --- | --- | --- |
@@ -248,6 +266,10 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `GATE-SCRIPT-16` | Protagonist inner voice | 主角视角下对他人行为的判断已进入 `内心独白（主角）` 而非客观第三方概括；主角自指已从小说第三人称转成第一人称 |
 | `GATE-SCRIPT-17` | Objective action purity | `角色动作` / `动作画面` 不含"试图/想要/打算/意图"等主观预判；直接情绪感受已转成 `表情特写`、微表情、肢体动作、生理反应或主角内心独白 |
 | `GATE-SCRIPT-18` | Facial expression close-up | `表情特写` 作为正式可选字段存在；若使用，必须只写具体面部变化并有触发来源，不写情绪标签、心理解释、机位、景别或镜头运动；若上游关键情绪明显集中在面部变化，不能只散落为无字段的泛化表情词 |
+| `GATE-SCRIPT-19` | Information asymmetry | 关键场景已形成 `information_asymmetry_map`，能说明观众/角色/隐藏信息的状态、揭示与保留点、悬念机制和下游导演消费口径 |
+| `GATE-SCRIPT-20` | Scene rhythm | 关键场景已形成 `scene_rhythm_profile`，能说明时长体感、信息密度、beat 数量、节奏类型、留白和转出方式 |
+| `GATE-SCRIPT-21` | Dialogue subtext | 关键对白已形成 `dialogue_subtext_map`，语气/状态之外还有戏剧动作；内心独白、旁白或解释性心理文字不过度挤占影视显示 |
+| `GATE-SCRIPT-22` | Audience psychology baseline | 关键场景已形成 `audience_knowledge_state`、`audience_psychology_seed` 与 `conflict_legacy_seed`，能被 `3-导演` 继续扩展为 `audience_psychology_map` 与 `conflict_legacy_transfer`；小说转译没有提前泄露观众应未知信息 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -271,7 +293,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 - 为补足剧本质感新增与当前主线无关的人物过往背景、物品来历或回忆性信息。
 - 脚本生成或模板拼接替代 LLM 的核心剧本化创作判断。
 - 输出写到旧合并阶段目录或其他平行目录，绕过 `projects/aigc/<项目名>/2-编剧/第N集.md`。
-- 启动 subagents 模式时跳过 `team.yaml` 监制顾问请教、把顾问问题固定成脱离当前节点的题型清单、没有把节点级参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问当成真实 dispatch。
+- 执行顾问与复核流程时跳过 `team.yaml` 监制顾问请教、把顾问问题固定成脱离当前节点的题型清单、没有把节点级参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问说成外部 provider 调度。
 - review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
 
 必经链路：`Symptom -> Direct Cause -> Skill Contract Source -> AGENTS.md LLM-first / Skill 2.0 Rule`。
@@ -290,7 +312,7 @@ flowchart TD
     ADV -->|"回修: 字段"| E
     ADV -->|"回修: 小说转译"| NT
     ADV --> M["N5-SCRIPT-DRAFT\n规划证据内嵌正文"]
-    M --> R{"N6-SCRIPT-REVIEW\nGATE-SCRIPT-01..17"}
+    M --> R{"N6-SCRIPT-REVIEW\nGATE-SCRIPT-01..22"}
     R -->|"needs_rework"| RR["N6R-SCRIPT-REPAIR\n本阶段直接修复"]
     RR --> R2{"N6R-REVIEW-AGAIN\n复审"}
     R2 -->|"fail"| RB["最早责任节点"]
@@ -332,8 +354,8 @@ flowchart TD
 - 字段细则、声画配对、对白冻结和 slugline 稳定规则以 `references/field-routing-and-audio-visual-contract.md` 为准。
 - 小说表述二次画面化以 `references/novel-to-screen-language-contract.md` 为准；作者评论、心理内视、比喻象征、概括叙述、背景说明、因果解释和关系结论必须先判叙事功能再转成可拍声画、表演、空间、道具、群像、短旁白或留白，且不得改写引号内对白。
 - 好莱坞级质量目标以 `references/hollywood-quality-spec.md` 为准，但质量提升不得凌驾于事实保真和对白冻结之上。
-- 当启动 subagents 模式时，先按共享团队顾问合同解析 `team.yaml.roles.supervision.stage_profiles."2-编剧"` 或共享回退路径，再把当前节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 剧本投影、阶段内修复和复审上下文。
-- 顾问意见不得替代上游逐集正文、对白冻结、场景顺序或编剧主真源；若真实 subagent dispatch 被上层阻断，必须在执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员。
+- 当执行顾问与复核流程时，先按共享团队顾问合同解析 `team.yaml.roles.supervision.stage_profiles."2-编剧"` 或共享回退路径，再把当前节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 剧本投影、阶段内修复和复审上下文。
+- 顾问意见不得替代上游逐集正文、对白冻结、场景顺序或编剧主真源；若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程。
 - 候选稿不得跳过阶段末 review-repair 闭环直接成为终稿；review 发现阻断项时，必须在本阶段直接最小修复并复审，或明确阻断源层。
 - `角色动作` / `动作画面` 只写镜头可实拍的客观动作、神态、语气、生理反应和空间运动；不得写"试图、想要、打算、意图"等主观预判或心理意图。
 - `心理反应` 不是内心解释字段，只写观众可通过画面、声音或演员表演接收到的反应。

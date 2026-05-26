@@ -26,5 +26,5 @@ B. 自定义组队
 
 ## 5. 初始化固定题包执行方式（固定）
 
-- 先由 `roles.planning.members` 以真实 subagents 执行固定题包直答初始化
-- 若 subagents 不可用，本轮初始化停止并报告阻塞
+- 先由 `roles.planning.members` 以顾问与复核流程 执行固定题包直答初始化
+- 若顾问与复核流程不可用，本轮初始化停止并报告阻塞

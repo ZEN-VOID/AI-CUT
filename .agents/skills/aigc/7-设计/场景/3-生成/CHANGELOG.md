@@ -22,4 +22,4 @@
 - Added canonical Skill 2.0 partitions: `references/`, `steps/`, `review/`, `types/`, `knowledge-base/`, `templates/`, `scripts/`, and `agents/`.
 - Added `templates/scene-main-image-prompt.json` for Step1 main-image prompt JSON alignment.
 - Reworked the legacy scene panel prompt idea into `templates/scene-multiview-prompt.json` for Step2 multi-view scene generation.
-- Completed workshop alignment pass: added Mermaid visual maps, steps topology, branch matrix, review dispatch matrix, downgrade report fields, evidence-chain diagram, and README anchors.
+- Completed workshop alignment pass: added Mermaid visual maps, steps topology, branch matrix, review dispatch matrix, local_checklist report fields, evidence-chain diagram, and README anchors.

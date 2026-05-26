@@ -4,10 +4,10 @@
 
 ## Default Provider
 
-- 默认辅助 provider：真实 reviewer subagent。
-- 仓库层合同允许 `$aigc-prop-generation` 命中时启用 worker/reviewer subagent 路径。
-- 若更高优先级 system / developer / tool policy 阻断真实 dispatch，降级为主 agent 本地 review checklist。
-- 降级报告必须包含：阻断来源层级、原计划 provider 路径、实际路径、未真实启动的 reviewer / worker。
+- 默认辅助 provider：外部 reviewer provider。
+- 仓库层合同允许 `$aigc-prop-generation` 命中时启用 worker/reviewer provider 路径。
+- 若当前运行环境不使用外部 provider，主 agent 直接执行本地 review checklist。
+- 本地 checklist 只记录 review verdict、finding 和必要修复项。
 
 ## Review Checklist
 
@@ -31,9 +31,9 @@ flowchart TD
     D --> E["检查命名与同 stem"]
     E --> F["检查 canonical 输出路径"]
     F --> G["检查非越界写入"]
-    G --> H{"provider 可用?"}
-    H -->|"real reviewer subagent"| I["记录 subagent_status=real_subagent"]
-    H -->|"blocked by higher policy"| J["记录 subagent_status=tool_blocked_local_review"]
+    G --> H{"review 路径"}
+    H -->|"reviewer provider"| I["记录 review_status=external_reviewer"]
+    H -->|"local checklist"| J["记录 review_status=local_checklist"]
     I --> K{"verdict"}
     J --> K
     K -->|"pass"| L["交付"]
@@ -41,26 +41,12 @@ flowchart TD
     K -->|"needs_rework"| N["路由到失败节点"]
 ```
 
-## Degradation Matrix
-
-| blocker_layer | original_path | fallback_path | required_record |
-| --- | --- | --- | --- |
-| `system` | reviewer subagent | local checklist review | system policy blocked dispatch；未启动 reviewer |
-| `developer` | reviewer subagent | local checklist review | developer policy blocked dispatch；未启动 reviewer |
-| `tool` | reviewer subagent | local checklist review | tool unavailable or failed；未启动 reviewer |
-| `user` | reviewer subagent | user-requested no-subagent review | user explicitly disabled subagents |
-
 ## Verdict Schema
 
 ```yaml
 verdict: pass | pass_with_followups | needs_rework | blocked
 reviewer: ""
-subagent_status: real_subagent | tool_blocked_local_review | not_requested
-degradation:
-  blocker_layer: ""
-  original_path: ""
-  fallback_path: ""
-  not_started: []
+review_status: external_reviewer | local_checklist | not_requested
 checked_outputs:
   - subject: ""
     subject_id: ""
@@ -75,6 +61,6 @@ next_action: ""
 
 ## Provider Rule
 
-- 默认优先使用真实 reviewer subagent。
-- 若工具层阻断真实 subagent dispatch，可降级为主 agent 本地 review，但必须记录 `subagent_status: tool_blocked_local_review` 并说明未真实启动的 reviewer。
-- 若上层 developer policy 要求只有用户显式请求 subagents 时才能启动，则本技能执行记录应写 `blocker_layer: developer`，原路径为 `reviewer subagent`，实际路径为 `local checklist review`。
+- 默认优先使用外部 reviewer provider。
+- 若工具不可用外部顾问与复核 provider 调度，主 agent 直接执行本地 review checklist。
+- 本地 review checklist 只记录 verdict、finding、修复动作和 residual risk。

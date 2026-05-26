@@ -136,7 +136,7 @@
 - 在 `steps/cinematography-workflow.md` 新增 `N6.2-CAMERA-GRAMMAR` 与 `N6.4-FUNCTIONAL-PROJECTION`，把景别/视角/景深/焦点/镜头类型/构图/光色/运镜变化和下游 payload 从 `N6.5-SHOT-PLAN` 中拆成显式前置节点。
 - 更新 `shot-planning-integration-contract.md`，新增 `camera_grammar_plan` 与 `functional_projection_plan`，要求每个 `分镜N` 能回指摄影语法选择、功能 payload、连续性交接和自然成稿策略。
 - 更新 review gate：新增 `thinking_action_node_review`、`camera_grammar_review`、`GATE-CINE-16 摄影语法变化`、`GATE-CINE-17 思维·执行节点完整` 以及 `FAIL-CINE-05I/05J`。
-- 调整 `5-摄影` subagents 参谋机制：顾问问题不再固定为摄影字段清单，而是同步于当前 `PASS-CINE-*` / `N*-*` 思维·执行节点。
+- 调整 `5-摄影` 顾问与复核流程 参谋机制：顾问问题不再固定为摄影字段清单，而是同步于当前 `PASS-CINE-*` / `N*-*` 思维·执行节点。
 - 要求监制顾问代入角色意识、创作风格和专业水准，基于节点的判断、动作、证据、gate 与返工风险提供参谋指导。
 - 同步更新 `SKILL.md`、workflow、review gate、`CONTEXT.md` 与共享 team advisor 合同，要求 `advisor_consultation_packet` 记录 node/pass/gate 来源和角色视角。
 
@@ -153,8 +153,8 @@
 
 ## 2026-04-30
 
-- 明确 `5-摄影` 启动 subagents 模式时的执行机制：以项目 `team.yaml` 中明确的监制组相关智能顾问团作为摄影监制。
-- 新增 `Subagents Execution Mechanism`，要求顾问代入专业视角和个人风格，对已知上下文提出摄影方向参谋指导，并由主 agent 汇流为 `advisor_consultation_packet`。
+- 明确 `5-摄影` 执行顾问与复核流程时的执行机制：以项目 `team.yaml` 中明确的监制组相关智能顾问团作为摄影监制。
+- 新增 `Advisor Consultation Mechanism`，要求顾问代入专业视角和个人风格，对已知上下文提出摄影方向参谋指导，并由主 agent 汇流为 `advisor_consultation_packet`。
 - 在 workflow 中新增 `N5.6-ADVISOR`，将顾问参谋沉淀为 LLM 分镜明细注入、阶段内修复和复审的后续上下文。
 - 同步更新 review gate 与 CONTEXT 经验层，阻断“泛泛电影感评价”“本地模拟顾问”和“顾问意见越权改写上游编导稿”。
 

@@ -1,14 +1,14 @@
 # Review Contract
 
-本文件定义 `$aigc-scene-design` 的质量门禁、subagents/reviewer 路径和降级口径。
+本文件定义 `$aigc-scene-design` 的质量门禁、顾问/reviewer 路径和本地 checklist 口径。
 
 ## Default Reviewer Path
 
-在当前上层策略允许真实 dispatch，且用户显式要求或仓库治理合同视为已授权时，默认 reviewer 路径如下：
+在当前上层策略允许外部 provider 调度，且用户显式要求或仓库治理合同视为已授权时，默认 reviewer 路径如下：
 
 默认顾问路径按 `../../../_shared/team-advisor-consultation-contract.md` 执行：先从项目 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径解析监制 roster，请教场景/建筑/美术/摄影/导演相关顾问；顾问问题必须绑定 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，形成 `advisor_consultation_packet` 后再进入单场景设计与 reviewer 汇流。
 
-默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md`；`SCENE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
+默认 review 必须同时读取 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md`；`SCENE-BUNDLE-01` 必须被解析为非空 slot bundle 记录。
 
 | reviewer | scope | blocking checks |
 | --- | --- | --- |
@@ -17,12 +17,12 @@
 | `cinematography-reviewer` | 摄影字段、构图、光线、镜头逻辑 | 与场景无关、泛电影感、缺光线/镜头 |
 | `prompt-reviewer` | 英文 prompt 主体 ID 开头、全局风格、建筑风格、时间与地域锚点、`prompt_evidence_chain`、字符数 | 非英文、未以主体 ID 号开头、超 2000 characters、缺引用、缺时间或地域、关键 token 无证据链 |
 
-若当前 system/developer/tool 层无法真实启动 subagents，允许降级为本地 checklist，但必须报告：
+若当前 system/developer/tool 层无法外部执行顾问与复核流程，允许使用本地 checklist，但必须报告：
 
-- 阻断来源层级。
-- 原计划 reviewer 路径。
-- 实际采用的降级路径。
-- 哪些 advisor / reviewer 没有真实启动。
+- 不可用来源层级。
+- reviewer 路径。
+- 实际采用的本地路径。
+- 哪些 advisor / reviewer 没有外部执行。
 
 ## Reviewer Merge Map
 
@@ -64,7 +64,7 @@ flowchart TD
 | prompt_evidence_chain | 关键 prompt token 能回指 `research_brief`、`visual_translation`、Scene Design 或 Cinematography，并包含 `deconstruction_coverage` 来说明解构槽位如何进入、合并或被剔除 |
 | fixed_visual | 是否为纯空镜；无人物、人体局部、剪影、倒影或人群 |
 | advisor_consultation | 是否按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
-| subagent_supervision | 是否按 `references/subagent-supervision-contract.md` 记录真实 dispatch 或降级路径、未启动 reviewer 和汇流裁决 |
+| workflow_supervision | 是否按 `references/workflow-supervision-contract.md` 记录外部 provider 或本地 checklist 路径、本地 reviewer checklist 和汇流裁决 |
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
 
@@ -82,7 +82,7 @@ flowchart TD
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | design_output_contract | slot_bundle_review | prompt_evidence_chain | fixed_visual | advisor_consultation | subagent_supervision | boundary | llm_first
+  dimension: source | structure | research | visual_translation | story | design | cinematography | prompt | design_output_contract | slot_bundle_review | prompt_evidence_chain | fixed_visual | advisor_consultation | workflow_supervision | boundary | llm_first
   symptom: ""
   direct_cause: ""
   source_contract: ""
@@ -105,9 +105,9 @@ finding:
 - 英文提示词只拼接主体 ID、风格、时间地域或 no people 等前缀/后缀，未覆盖 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效空间、材质、光线、构图和镜头信息。
 - 未逐条消费 `references/design-output-contract.md`，或输出结构/prompt 整合硬规则只停留在旁路文档。
 - 未解析 `SCENE-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
-- `references/subagent-supervision-contract.md` 要求的 dispatch / downgrade / merge 记录为空。
+- `references/workflow-supervision-contract.md` 要求的 provider/local checklist/merge 记录为空。
 - `prompt_evidence_chain` 缺失，或关键 prompt token 无法回指研究、视觉翻译或设计依据。
 - 摄影字段或英文提示词出现人物、人体局部、剪影、倒影、人群，或未明确 `no people / no human figures`。
-- 默认 subagents / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
+- 默认顾问与复核流程 / reviewer 路径启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
 - 由脚本生成核心创作正文或提示词。
 - 写入范围越过 `projects/aigc/<项目名>/7-设计/场景/2-设计`。

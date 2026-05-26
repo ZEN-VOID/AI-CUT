@@ -19,7 +19,7 @@ last_checked_at: 2026-04-25
 | --- | --- | --- | --- | --- |
 | 主图重新设计角色 | 上游真源层 | 回到 `2-设计/<角色名>.md` 的 `4. 解构`，删除新增设定 | 主图 JSON 固定记录 source_design_path 与 source_deconstruction_section | prompt 可回指上游设计稿 |
 | 多视图模板压过角色事实 | 模板边界层 | 将模板文字改回 layout-only，保留角色身份与服装来自上游 | `critical_requirements` 明确设计文档优先 | 多视图 prompt 没有替换身份、时代、服装事实 |
-| 参照图缺失仍生成多视图 | Step 汇流层 | 先补主图或切换 prompt-only 阻断报告 | Step2 gate 必查 reference_image_path | 多视图 JSON 指向存在的主图路径 |
+| 参照图缺失仍生成多视图 | Step 汇流层 | 先补主图或切换 prompt-only 不可用说明 | Step2 gate 必查 reference_image_path | 多视图 JSON 指向存在的主图路径 |
 | imagegen 输出留在临时目录 | 项目持久化层 | 按 imagegen persistence 规则复制到本阶段输出目录 | 输出合同固定 canonical path | 报告路径位于 `projects/aigc/.../3-生成/` |
 | JSON 与图片不同名 | 命名层 | 以图片 basename 重写 JSON basename 或反向修复 | 模板中固定 output_image_path 与 output_prompt_path | `<主体ID>-<主体名称>-主图.*` 与 `<主体ID>-<主体名称>-主图.json` 配对 |
 | prompt-only 被误报为已生图 | 执行证据层 | 把 verdict 改为 blocked/prompt_only，清空不存在图片路径 | review gate 区分真实图片与 dry-run JSON | 图片路径存在性检查通过或明确阻断 |
@@ -37,7 +37,7 @@ last_checked_at: 2026-04-25
 5. Step2 前必须确认 Step1 主图已经落到项目输出目录，不能使用临时预览路径作为长期参照。
 6. Step2 调用 built-in `image_gen` 前必须 `view_image` 主图；只有路径存在还不够。
 7. 批量生成时逐角色闭环：主图 -> 主图 JSON -> 主图 `view_image` -> 多视图 JSON -> 多视图图像 -> review，再进入下一个角色或并行汇流。
-8. 若 imagegen 不可用，保留 prompt JSON 和阻断报告，不制造假图片路径。
+8. 若 imagegen 不可用，保留 prompt JSON 和不可用说明，不制造假图片路径。
 9. 若需要重跑，先检查用户是否允许覆盖；未允许时使用版本化文件名或返回确认请求。
 10. 除非用户本轮显式要求替代执行器，否则不要把“多视图/参考图/批量”理解为 nano-banana、AnyFast 或其他 API 子技能授权。
 

@@ -5,8 +5,8 @@ This file owns quality evaluation, sufficiency audit, pass table, and provider f
 ## Default Provider
 
 - Preferred auxiliary provider for package maintenance review: `code-reviewer`.
-- For actual initialization execution, planning direct-answer subagents are business-required by `steps/init-workflow.md`.
-- If higher-level policy blocks real reviewer or subagent dispatch during package maintenance, use the local checklist below and report the downgrade source, planned path, actual path, and missing reviewers.
+- For actual initialization execution, planning direct-answer 顾问与复核流程 are business-required by `steps/init-workflow.md`.
+- If external reviewer/provider dispatch is unavailable during package maintenance, use the local checklist below.
 
 ## Sufficiency Gate
 
@@ -17,13 +17,13 @@ Initialization is incomplete unless all applicable items pass:
 - `team_lineup_mode` is locked
 - `team.yaml` exists or is ready to write
 - `team.yaml` records `.agents/skills/team/` as the only selector scope
-- planning direct-answer packets ran with real subagents for actual initialization
+- planning direct-answer packets ran with real 顾问与复核流程 for actual initialization
 - `north_star.yaml` has minimum long-term fields, safe `全局风格`, required `细分风格`, default Chinese style text, configured character caps, and `全局风格提示词` explicitly contains `全局风格.媒介属性`
 - `init_handoff.yaml` has stage-entry seeds and `unknowns`
 - `story-source-manifest.yaml` exists and marks readiness
 - `STATE.json` points to primary init artifacts and one recommended next entry
 - the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编剧/`, `3-导演/`, `4-表演/`, `5-摄影/`, `6-分组/`, `7-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `8-图像/`, `9-视频/`, `10-审片/`, `源/`, and `CONTEXT/`
-- source-light story details are downgraded to `unknowns`, `deferred`, or `risk_notes`
+- source-light story details are local_checklistd to `unknowns`, `deferred`, or `risk_notes`
 - late source input triggers reconciliation before downstream work
 - rebootstrap old-cycle artifacts are preserved, archived, purged, or marked stale according to reset mode
 - `init_handoff.yaml.project_contract.recommended_next_stage` aligns with `STATE.json` during the init completion turn
@@ -41,7 +41,7 @@ Initialization is incomplete unless all applicable items pass:
 | `FIELD-INIT-04` | `team.yaml` has roles, selector root, planning direct-answer provenance, and final gate semantics | `FAIL-INIT-04` | `N3/N4/N5` |
 | `FIELD-INIT-05` | `0-初始化/` through `10-审片/`, `源/`, `CONTEXT/`, root carriers, project `MEMORY.md`, and `CHANGELOG.md` are complete; lazy carriers are trigger-based | `FAIL-INIT-05` | `N2/N5/N6` |
 | `FIELD-INIT-06` | exactly one next active stage is returned | `FAIL-INIT-06` | `N7` |
-| `FIELD-INIT-07` | route, mode, lineup, planning subagents, roster, and sufficiency audit are internally owned by this skill | `FAIL-INIT-07` | `N3/N4/N7` |
+| `FIELD-INIT-07` | route, mode, lineup, planning 顾问与复核流程, roster, and sufficiency audit are internally owned by this skill | `FAIL-INIT-07` | `N3/N4/N7` |
 | `FIELD-INIT-08` | rebootstrap is identified, traced, and old-cycle truth exits active flow | `FAIL-INIT-08` | `N0/N6/N7` |
 
 ## Review Dimensions

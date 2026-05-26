@@ -4,7 +4,7 @@ This file owns initialization mode, lineup selection, team manifest requirements
 
 ## Initialization Mode
 
-| mode | trigger | execution shape | foreground interaction | team truth | execution owner | subagents |
+| mode | trigger | execution shape | foreground interaction | team truth | execution owner | 顾问与复核流程 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `smart_advisor` | All first initialization and rebootstrap runs | Lock `auto/custom`, form or validate team, run fixed direct-answer packet, synthesize | yes | project `team.yaml` | `roles.planning` | required |
 
@@ -38,7 +38,7 @@ It must include:
 - `init_contract.init_mode == smart_advisor`
 - `init_contract.team_lineup_mode == auto|custom`
 - `init_contract.selector_scope_root == ".agents/skills/team/"`
-- `runtime_policy.require_subagents_for_init_execution == true`
+- `runtime_policy.require_advisor_review_for_init_execution == true`
 - `runtime_policy.init_execution_owner_role == planning`
 - `roles.planning.init_execution.*`
 - `roles.supervision.stage_profiles` for at least `2-编剧 / 3-导演 / 4-表演 / 5-摄影 / 7-设计`
@@ -49,7 +49,7 @@ Hard rules:
 2. Auto selection writes governance role ownership, required department coverage, optional department decisions, known gaps, and todo recommendation paths.
 3. Custom selection writes user-specified lineup evidence and validation notes.
 4. `roles.*.members` may only reference `.agents/skills/team/` skills.
-5. `roles.planning.init_execution.kickoff_owner` and `requires_subagents` must be true.
+5. `roles.planning.init_execution.kickoff_owner` and `requires_advisor_review` must be true.
 6. `策划 / 监制 / 评审` may overlap or be separated; record the chosen allocation mode and overlap notes.
 7. `roles.supervision.stage_profiles.<stage>` is the canonical later-stage advisor profile. Generic `roles.supervision.members`, old `roles.supervising.*`, old `roles.production.*`, `team_setup.shared_agents`, and `roles.planning.members` are only fallback compatibility paths.
 8. Stage profiles must record `preferred_departments`, `focus_tags`, `question_binding`, and `dispatch_policy`, so later skills can ask node-derived questions without guessing what "监制" means for that stage.

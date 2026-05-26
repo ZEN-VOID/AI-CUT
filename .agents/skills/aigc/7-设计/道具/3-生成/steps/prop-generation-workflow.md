@@ -11,7 +11,7 @@
 | `constraint_profile` | LLM-first 提示词裁决、不得重设主体、必须加载 `.agents/skills/cli/imagegen` 合同、默认唯一执行入口为 `.agents/skills/cli/imagegen`、项目资产必须持久化到 canonical 输出目录。 |
 | `success_criteria` | 每个被调度主体都有主图、多视图、两份 JSON、来源回指、参照链、review verdict。 |
 | `non_goals` | 不创作新道具设定，不修改 `2-设计`，不改 registry/routes，不生成角色或场景资产。 |
-| `complexity_source` | 复杂度来自批量分流、prompt-only 路径、主图到多视图的参考链、review/subagent 降级证据。 |
+| `complexity_source` | 复杂度来自批量分流、prompt-only 路径、主图到多视图的参考链、review/顾问与复核流程 降级证据。 |
 | `topology_fit` | 混合拓扑：前段判型，中段按主体独立循环，后段统一 review 汇流。 |
 
 ## Topology
@@ -70,7 +70,7 @@ sequenceDiagram
 | `N4-MAIN-IMAGE` | 生成并持久化单主体图 | 主图 JSON、`.agents/skills/cli/imagegen` 合同 | 通过 imagegen skill 调用图像生成，选择最终图，保存到 `3-生成` | `主体ID-主体名称-主图.<ext>` | `N5-MULTIVIEW-PROMPT` | 主图是单个道具主体，无人物或场景接管 |
 | `N5-MULTIVIEW-PROMPT` | 建立主图到多视图的参照链 | 主图路径、上游 `4. 解构`、`prop-multiview-prompt.json` | 填写 `reference_image`、`reference_context_status`、多视图布局和输出路径 | `主体ID-主体名称-多视图.json` | `N6-MULTIVIEW-IMAGE` 或 `N7-REVIEW` | `reference_image` 指向对应 `主体ID-主体名称-主图.<ext>` |
 | `N6-MULTIVIEW-IMAGE` | 生成并持久化多视图主体设计图 | 多视图 JSON、主图参照 | 先 `view_image` 主图并标注为道具多视图参照，再通过 imagegen skill 生成正侧背、细节、尺度/功能模块；未显式要求时不得改走其他 provider | `主体ID-主体名称-多视图.<ext>` | `N7-REVIEW` | 多视图与主图保持同一主体、材质、比例和识别点 |
-| `N7-REVIEW` | 汇流质量门禁与降级证据 | 图像、JSON、路径、命名、source evidence | 执行 `review/review-contract.md`，记录真实 reviewer 或降级状态 | `review_verdict` | done 或返工 | verdict 为 `pass` 或已路由到具体失败节点 |
+| `N7-REVIEW` | 汇流质量门禁与降级证据 | 图像、JSON、路径、命名、source evidence | 执行 `review/review-contract.md`，记录 review verdict | `review_verdict` | done 或返工 | verdict 为 `pass` 或已路由到具体失败节点 |
 
 ## Branch Rules
 
@@ -89,7 +89,7 @@ sequenceDiagram
 | 主图漂移 | 重写主图 JSON 或重跑主图 | `N3-MAIN-PROMPT` | 主图忠实于上游主体 |
 | 多视图断链 | 补 `reference_image`，`view_image` 主图并重跑多视图 | `N5-MULTIVIEW-PROMPT` | 多视图继承主图形态与材质 |
 | 输出路径越界 | 持久化到 canonical 输出目录 | `N4-MAIN-IMAGE` 或 `N6-MULTIVIEW-IMAGE` | 图像与 JSON 均在 `3-生成` |
-| reviewer/subagent 阻断 | 记录降级来源并执行本地 review | `N7-REVIEW` | verdict 写明 `subagent_status` |
+| reviewer/provider 阻断 | 使用本地流程来源并执行本地 review | `N7-REVIEW` | verdict 写明 `review_status` |
 
 ## Evidence Gate
 

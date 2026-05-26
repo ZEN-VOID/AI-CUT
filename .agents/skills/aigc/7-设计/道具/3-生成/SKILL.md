@@ -21,11 +21,11 @@ metadata:
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `$imagegen` 经验层。
 - 生成提示词必须忠实引用相应道具/主体设计文档中的 `4. 解构`。导入给 gpt-image-2 的主图提示词和多视图提示词不得再以旧“提示词设计”英文整合 prompt 为主源。
 
-## Subagent Execution Contract
+## 顾问与复核流程 Execution Contract
 
-- 本技能默认启用真实 subagents 路径：主 agent 或调度层应将道具生成工作分发给 `Worker-道具生成`，并在需要质量复核时使用独立 reviewer subagent 汇流 verdict。
-- 用户显式点名 `$aigc-prop-generation` 或本阶段路由命中时，视为仓库层已经许可该默认 subagent 路径；不得以“用户未额外授权并行”为理由回退。
-- 若上层 system / developer / tool policy 或当前工具环境阻断真实 subagent dispatch，执行者必须显式报告阻断层级、原计划 subagent 路径、实际降级路径和未真实启动的 reviewer / worker。
+- 本技能默认使用本地顾问与复核流程 路径：主 agent 或调度层应将道具生成工作分发给 `Worker-道具生成`，并在需要质量复核时使用独立 reviewer provider 汇流 verdict。
+- 用户显式点名 `$aigc-prop-generation` 或本阶段路由命中时，视为仓库层已经许可该默认 顾问与复核流程 路径；不得以“用户未额外授权并行”为理由回退。
+- 若外部顾问与复核 provider 不可用，执行者直接使用本地顾问与复核流程。
 - 子任务可按单个道具主体拆分；每个 worker 只处理自己领取的设计文档、图像与 JSON 提示词，最终由主 agent 聚合到 canonical 输出目录。
 
 ## Input Contract
@@ -164,7 +164,7 @@ stateDiagram-v2
 | `N4-MAIN-IMAGE` | 单主体 JSON | 调用 `$imagegen` 并持久化主图 | `<主体ID>-<主体名称>-主图.<ext>` | `N5-MULTIVIEW-PROMPT` |
 | `N5-MULTIVIEW-PROMPT` | 主图路径与上游 `4. 解构` | 写入多视图 JSON，填入 `reference_image` 与 `reference_context_status` | `<主体ID>-<主体名称>-多视图.json` | `N6-MULTIVIEW-IMAGE` |
 | `N6-MULTIVIEW-IMAGE` | 多视图 JSON 与主图参照 | 先 `view_image` 主图，再调用 `$imagegen` 并持久化多视图图 | `<主体ID>-<主体名称>-多视图.<ext>` | `N7-REVIEW` |
-| `N7-REVIEW` | 图像、JSON、路径、命名和来源证据 | 执行 review gate，记录 subagent 或降级状态 | `review_verdict` | done 或返工 |
+| `N7-REVIEW` | 图像、JSON、路径、命名和来源证据 | 执行 review gate，记录 顾问与复核流程 或本地复核 | `review_verdict` | done 或返工 |
 
 ### Failure Routing Table
 
@@ -173,7 +173,7 @@ stateDiagram-v2
 | `FAIL-PROP-GEN-SKILL` | 根入口缺少图表、输入输出合同或动态引用 | `SKILL.md` |
 | `FAIL-PROP-GEN-STEPS` | steps 只有线性清单，缺少分支、汇流或失败回路 | `steps/prop-generation-workflow.md` |
 | `FAIL-PROP-GEN-TYPES` | 批量、prompt-only、repair、review 的路由混在执行正文中 | `types/prop-generation-type-map.md` |
-| `FAIL-PROP-GEN-REVIEW` | 无法说明 reviewer/subagent 是否真实启动或如何降级 | `review/review-contract.md` |
+| `FAIL-PROP-GEN-REVIEW` | 无法说明 reviewer/provider 是否外部执行或如何降级 | `review/review-contract.md` |
 | `FAIL-PROP-GEN-TEMPLATE` | 输出报告没有对齐 Output Contract 五字段 | `templates/output-template.md` |
 | `FAIL-PROP-GEN-01` | 无法回指上游设计文档或项目上下文 | `references/prop-generation-contract.md` |
 | `FAIL-PROP-GEN-03` | 主图没有忠实消费 `4. 解构`，或继续消费旧英文整合 prompt | `templates/single-subject-prompt.json` |
@@ -191,11 +191,11 @@ stateDiagram-v2
 - 新设计稿追加后没有识别生成缺口，或覆盖了已有主图、多视图或 JSON。
 - JSON 提示词与实际图像命名、参考图或上游设计文档脱节。
 - 输出写到 `2-设计`、父级、角色/场景目录、registry 或其他 worker 范围。
-- subagent 默认路径被工具阻断时没有报告降级原因与未启动角色。
+- 顾问与复核流程 默认路径被工具不可用时没有执行本地 checklist。
 
 必经链路：
 
-`Symptom -> Direct Script/Prompt Overreach -> 道具/3-生成 Section Owner -> Prop Generation Contract -> AGENTS.md LLM-first / Skill 2.0 / Subagent Rule`
+`Symptom -> Direct Script/Prompt Overreach -> 道具/3-生成 Section Owner -> Prop Generation Contract -> AGENTS.md LLM-first / Skill 2.0 / 顾问与复核流程 Rule`
 
 ## Output Contract
 
@@ -242,4 +242,4 @@ stateDiagram-v2
 - 单主体 JSON 记录 `subject_id` 并引用设计文档中的 `4. 解构`；多视图 JSON 记录同一 `subject_id`、对应单主体图路径与 `reference_context_status`。
 - 图像和 JSON 都落在 `projects/aigc/<项目名>/7-设计/道具/3-生成/`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
-- 已执行 `review/review-contract.md` 的人工 review、真实 reviewer subagent 或等价降级 review，并记录 verdict。
+- 已执行 `review/review-contract.md` 的人工 review、外部 reviewer provider 或等价本地 review，并记录 verdict。

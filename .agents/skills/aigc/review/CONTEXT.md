@@ -31,7 +31,7 @@ last_checked_at: 2026-04-25
 3. 若维度输出不一致，优先检查 `review_fact_pack` 是否同一份，而不是先裁掉某个 reviewer。
 4. 若 aggregate packet 与 dimension sidecar 冲突，以 aggregate packet 为 gate 真源，再修 dimension output contract。
 5. 若 issue 指向上游 source truth，route 应回到 source owner，不应全塞给当前阶段返工。
-6. 若 provider/subagent 被上层策略阻断，保留降级证据：阻断来源、原 provider、实际 checklist、未启动 reviewer。
+6. 若 provider/顾问与复核流程 被上层策略阻断，保留本地 checklist 证据：不可用来源、原 provider、实际 checklist、本地 reviewer checklist。
 7. 若 runner 兼容文件 `_shared/` 与 Skill 2.0 分区冲突，优先修 `references/` 的规范表达，再同步 `_shared/`。
 8. 若发现 `review/<中文维度名>/SKILL.md` 式旧路径，按“维度细则 -> `references/dimensions/`，经验 -> 父 `CONTEXT.md`”迁移，不恢复局部 skill 包。
 

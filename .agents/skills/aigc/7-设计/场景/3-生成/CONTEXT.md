@@ -39,7 +39,7 @@ last_checked_at: 2026-04-25
 4. 每次生成后立刻落同名 JSON，避免图片与 prompt 分离。
 5. 使用主图作为多视图参照时，明确角色是 continuity reference，不把主图中的偶然构图当成新设定；调用 built-in `image_gen` 前必须先 `view_image` 主图。
 6. 批量任务按“设计文档 -> 主图 -> 主图 JSON -> 主图 `view_image` -> 多视图 -> 多视图 JSON”闭环处理，失败项单独记录，不阻塞已完成项的路径回写。
-7. 若 subagents 不可用，至少执行本地 review checklist：来源、命名、JSON、参照、持久化、边界六项。
+7. 若顾问与复核流程不可用，至少执行本地 review checklist：来源、命名、JSON、参照、持久化、边界六项。
 8. 批量生成的 Skill 2.0 包若只有表格没有图，优先补 `SKILL.md` 的总览图，再补 `steps/` 的执行拓扑图；不要把完整细则倒灌回 `SKILL.md`。
 
 ## Reusable Heuristics

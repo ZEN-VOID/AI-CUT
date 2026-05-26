@@ -19,10 +19,10 @@ metadata:
 - 必须读取上游 `projects/aigc/<项目名>/7-设计/场景/1-清单/场景清单.md`；该清单只提供主体索引和原文证据，不替代本阶段的设计判断。
 - 必须读取 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，提取全局审美方向、故事母题、禁区和全局风格提示词。
 - 必须读取 `projects/aigc/<项目名>/team.yaml`，提取与设计、美术、建筑、摄影、导演或大师监制相关的上下文；该上下文作为风格约束和审查视角，不替代场景设计正文。
-- 默认 subagents / reviewer 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，调用项目已指定监制成员作为资深创作顾问；顾问问题必须同步于 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 场景设计前形成 `advisor_consultation_packet`。
+- 默认顾问与复核流程 / reviewer 路径启用时，必须读取 `../../../_shared/team-advisor-consultation-contract.md`，优先解析 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或叶子专属 profile，调用项目已指定监制成员作为资深创作顾问；顾问问题必须同步于 `steps/scene-design-workflow.md` 的当前 `node_id / pass_id / gate_id`、目标场景上下文和 review gate，代入顾问的角色意识、创作风格与专业水准参与节点判断和执行取舍，并在 LLM 场景设计前形成 `advisor_consultation_packet`。
 - 固定画面约束：场景设计默认只输出纯空镜空间设计，不得出现人物、人体局部、剪影、倒影或可识别人类存在；英文提示词必须显式包含 `empty shot, no people, no human figures` 等等价约束。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 本 skill 在仓库治理口径下声明 reviewer -> subagent 默认路径：先按共享团队顾问合同请教项目 `team.yaml` 的 `7-设计` 监制 profile，再由研究考据、Scene Design、Cinematography、Prompt Review 作为并行 reviewer 路径；实际 dispatch 必须服从当前 system / developer / tool / user 优先级。若上层策略阻断、工具不可用或用户显式禁用，必须降级为本地 review checklist，并报告阻断层级、原计划路径、实际路径和未启动 reviewer / advisor。
+- 本 skill 在仓库治理口径下声明 reviewer -> 顾问与复核流程 默认路径：先按共享团队顾问合同请教项目 `team.yaml` 的 `7-设计` 监制 profile，再由研究考据、Scene Design、Cinematography、Prompt Review 作为并行 reviewer 路径；实际 dispatch 必须服从当前 system / developer / tool / user 优先级。若顾问与复核流程不可用或用户显式禁用，必须直接使用本地 review checklist；本地 checklist 只记录 verdict、finding、修复项和 advisor 摘要。
 
 ## Positioning
 
@@ -30,7 +30,7 @@ metadata:
 
 ## Multi-Subskill Continuous Workflow
 
-本叶子技能以单场景或批量场景为执行粒度；当父级域包或用户整体命中本技能时，视为已授权按本级声明的内部节点和 subagent 合同连续完成场景细目设计。
+本叶子技能以单场景或批量场景为执行粒度；当父级域包或用户整体命中本技能时，视为已授权按本级声明的内部节点和 顾问与复核流程 合同连续完成场景细目设计。
 
 - 无序号同级子技能包若未来出现，默认全选并发执行，由本技能汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
@@ -130,13 +130,13 @@ stateDiagram-v2
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意场景设计任务 | `references/scene-design-contract.md`、`steps/scene-design-workflow.md` |
-| 默认 subagents / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
+| 默认顾问与复核流程 / team advisor consultation | `../../../_shared/team-advisor-consultation-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 场景类型、空间粒度、建筑/自然/超现实分型 | `types/scene-design-type-map.md` |
 | 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
 | 设计槽位 bundle 验收 | `references/design-slot-review-contract.md` |
-| subagent/reviewer 汇流监督 | `references/subagent-supervision-contract.md` |
-| 输出质量审查、subagents/reviewer 降级口径 | `review/review-contract.md` |
+| 顾问/reviewer 汇流监督 | `references/workflow-supervision-contract.md` |
+| 输出质量审查、顾问/reviewer 与本地 checklist 口径 | `review/review-contract.md` |
 | 输出样板和字段顺序 | `templates/output-template.md` |
 | 脚本辅助边界 | `scripts/README.md` |
 | 可复用经验 | `knowledge-base/scene-design-heuristics.md` |
@@ -156,7 +156,7 @@ stateDiagram-v2
 10. `解构` 必须先包含主体 ID 行，再分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词、建筑风格、时间锚点和地域锚点，并输出英文整合提示词；最终英文提示词必须以主体 ID 号开头，显式包含时间和地域，长度不超过 2000 characters，并从 `Scene Design` 与 `Cinematography` 的全部有效槽位中蒸馏空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和氛围节奏。
 10. 画面固定为纯空镜；摄影字段和英文提示词不得引入人物、人体局部、剪影、倒影或人群。
 11. 写入 `projects/aigc/<项目名>/7-设计/场景/2-设计/S###-<场景名>.md`；批量任务可写入可选 `执行报告.md`，并可更新 `design-manifest.yaml` 的 `design_file` 与 `design_gaps`。
-12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/subagent-supervision-contract.md` 执行交付验收；subagents 被工具层阻断时，必须使用本地 review checklist 并显式报告降级；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
+12. 按 `review/review-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 执行交付验收；顾问与复核流程 被工具不可用时，使用本地 review checklist；默认 reviewer 路径启用时必须留下非空 slot bundle 验收和 supervision 记录。
 
 ## Field Mapping
 
@@ -173,19 +173,19 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `7-设计/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
 | `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
-| `FIELD-SCENE-DESIGN-11` | Team advisor consult | 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；阻断时有降级报告 | `FAIL-SCENE-DESIGN-11` |
+| `FIELD-SCENE-DESIGN-11` | Team advisor consult | 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问，顾问问题绑定当前思维·执行节点，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；不可用时有本地 checklist 结果 | `FAIL-SCENE-DESIGN-11` |
 
 ## Thought Pass Map
 
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
-| `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`north_star.yaml`、`team.yaml`、`场景清单.md` | 三个核心来源是否可读，缺口是否需要降级报告 | `input_manifest` |
+| `PASS-SCENE-DESIGN-01` | 输入锁定 | 项目路径、`north_star.yaml`、`team.yaml`、`场景清单.md` | 三个核心来源是否可读，缺口是否需要本地 checklist 结果 | `input_manifest` |
 | `PASS-SCENE-DESIGN-02` | 主体选择 | 用户指定项、上游清单或 manifest | 是否只处理清单已有场景，是否需要跳过已有设计稿或补 `design_gaps` | `target_scene_list` |
 | `PASS-SCENE-DESIGN-03` | 类型画像 | 场景名、原文关键词、项目资料 | 场景类型、建筑风格入口、研究需求和摄影风险 | `type_profile` |
 | `PASS-SCENE-DESIGN-04` | 顾问请教汇流 | `team.yaml`、共享顾问合同、场景目标、当前 `node_id / pass_id / gate_id` | 是否已向项目监制顾问提出节点绑定问题并汇流为可执行指导、局部 patch 或风险提示 | `advisor_consultation_packet` |
 | `PASS-SCENE-DESIGN-05` | 研究简报 | 上游证据、north star、team、type profile、advisor packet | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
 | `PASS-SCENE-DESIGN-06` | LLM 设计 | research brief、north star、team、type profile、advisor packet | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出 | `scene_design_draft` |
-| `PASS-SCENE-DESIGN-07` | reviewer 汇流 | 设计稿草案与 review contract | subagents 或本地 checklist 是否通过门禁 | `review_verdict` |
+| `PASS-SCENE-DESIGN-07` | reviewer 汇流 | 设计稿草案与 review contract | 顾问与复核流程 或本地 checklist 是否通过门禁 | `review_verdict` |
 | `PASS-SCENE-DESIGN-08` | 落盘验收 | accepted draft | 路径、命名、字段、prompt 字符数是否合规 | `S###-<场景名>.md` |
 
 ## Pass Table
@@ -195,10 +195,10 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-01` | 读取技能与项目上下文，建立来源清单 | `input_manifest` | `steps/scene-design-workflow.md` |
 | `PASS-SCENE-DESIGN-02` | 从上游 `场景清单.md` 选择目标主体 | `target_scene_list` | `references/scene-design-contract.md` |
 | `PASS-SCENE-DESIGN-03` | 生成 `type_profile` 并确定建筑/空间风格入口 | `type_profile` | `types/scene-design-type-map.md` |
-| `PASS-SCENE-DESIGN-04` | 显式启用 subagents 时完成项目监制顾问请教或记录降级 | roster 来源、问题类型、可执行指导或降级说明 | `../../../_shared/team-advisor-consultation-contract.md` |
+| `PASS-SCENE-DESIGN-04` | 显式执行顾问与复核流程时完成项目监制顾问请教或使用本地流程 | roster 来源、问题类型、可执行指导或本地流程 | `../../../_shared/team-advisor-consultation-contract.md` |
 | `PASS-SCENE-DESIGN-05` | 由 LLM 直写 `research_brief`、来源姿态、不确定性和视觉翻译 | `research_brief` | `references/scene-design-contract.md` |
 | `PASS-SCENE-DESIGN-06` | 由 LLM 直写物语、解构、英文提示词和 `prompt_evidence_chain` | `scene_design_draft` | `templates/output-template.md` |
-| `PASS-SCENE-DESIGN-07` | 执行 subagents/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
+| `PASS-SCENE-DESIGN-07` | 执行 顾问/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
 | `PASS-SCENE-DESIGN-08` | 写入 canonical 单场景设计稿 | output file path | `SKILL.md` Output Contract |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -217,7 +217,7 @@ stateDiagram-v2
 - 最终英文整合提示词只拼接前缀/后缀/风格词/负向词，未系统吸收 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效空间、材质、光线、构图和镜头信息。
 - 场景 prompt 或摄影设计允许人物、人体局部、剪影、倒影或人群进入画面。
 - 把本阶段输出写回 `1-清单`、`3-生成`、registry、父级目录或其他 worker 范围。
-- 启用 subagents 时只执行 reviewer 分工，没有调用 `team.yaml` 项目监制顾问基于当前思维·执行节点进行参谋，或没有把顾问意见转成节点级可执行判断、局部 patch 或风险提示。
+- 执行顾问与复核流程时只执行 reviewer 分工，没有调用 `team.yaml` 项目监制顾问基于当前思维·执行节点进行参谋，或没有把顾问意见转成节点级可执行判断、局部 patch 或风险提示。
 
 必经链路：
 
@@ -233,7 +233,7 @@ stateDiagram-v2
 4. `解构` 必须在 `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，再包含 `Scene Design` 与 `Cinematography` 字段。
 5. `提示词设计` 必须包含全局风格提示词引用、建筑风格引用、时间与地域引用、`prompt_evidence_chain` 和英文整合提示词；最终英文提示词必须以主体 ID 号开头，显式包含时间和地域，且不超过 2000 characters；英文整合提示词必须把 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息压缩为可生成画面的英文描述，不能只补充前缀、后缀或少量非核心 token；`## 4. 解构`、`## 5. 提示词设计` 与英文 prompt 开头三处主体 ID 必须一致。
 6. 画面固定为纯空镜，不得出现人物、人体局部、剪影、倒影或可识别人类存在。
-7. 可选执行报告记录输入范围、已生成文件、降级情况、冷门信息检索情况和 review verdict。
+7. 可选执行报告记录输入范围、已生成文件、本地复核、冷门信息检索情况和 review verdict。
 8. 可选更新 `projects/aigc/<项目名>/7-设计/场景/design-manifest.yaml`，记录 `design_file` 和剩余 `design_gaps`；manifest 不替代设计稿真源。
 
 ### Output format
@@ -265,10 +265,10 @@ stateDiagram-v2
 - 每个输出文件都能回指上游清单行的 `名称`、`首次登场`、`原文描述（关键词式）`。
 - 已识别并跳过既有设计稿；仅补齐缺设计稿或用户明确指定 repair 的主体。
 - 每个设计稿包含 required output 中的全部板块和字段。
-- 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若被上层阻断，已记录降级报告。
+- 已按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径形成 `advisor_consultation_packet`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已使用本地流程报告。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
 - 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接全局风格提示词、建筑风格、时间锚点与地域锚点，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。
 - `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。
 - 英文提示词和摄影字段明确固定为纯空镜，并包含 `no people / no human figures` 等负向约束。
 - 未使用脚本生成核心创作正文、研究判断、空间设计、摄影设计或提示词。
-- 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 subagent 降级原因。
+- 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 顾问与复核流程 本地流程。

@@ -17,7 +17,7 @@ metadata:
 - 每次调用 `$aigc-video-review` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时加载同目录 `types/type-map.md`，并按类型画像读取 `references/`、`steps/`、`review/` 中的必要细则。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`，再按需加载项目 `CONTEXT/` 中与视频审查、风格、角色、场景、道具或制作约束相关的上下文。
-- 若本阶段启动 subagents 模式（包含用户显式要求、team reviewer runtime 或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，并按本文件 `Subagents Execution Mechanism` 执行审片监制顾问请教。
+- 若本阶段执行顾问与复核流程（包含用户显式要求、team reviewer runtime 或仓库合同视为默认启用），必须读取 `projects/aigc/<项目名>/team.yaml` 与 `../_shared/team-advisor-consultation-contract.md`，并按本文件 `Advisor Consultation Mechanism` 执行审片监制顾问请教。
 - 对任何可定位的目标视频，必须定位对应分镜组：`projects/aigc/<项目名>/6-分组/第N集.md` 中的 `## x-y-z` 是审片事实对照的首要业务真源。
 - 真实视频内容分析是本技能的必须条件：任何 verdict、finding、prompt 匹配、创作质量判断或上游修复，都必须先基于真实帧、联系表、运动变化和必要音频检查形成 `observed_content_summary`；不得只凭文件名、prompt、分镜组文本、manifest 或用户预期给出审片结论。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` > `.agents/skills/aigc/6-分组/SKILL.md` > `.agents/skills/aigc/9-视频/SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
@@ -31,7 +31,7 @@ metadata:
 | `constraint_profile` | 审片必须基于真实视频内容理解；不能只凭预期 prompt、分组文本或 manifest 推断；脚本只做元数据、抽帧、统计与结构校验，真实内容分析和核心判断由 LLM 完成。 |
 | `success_criteria` | 能先说明实际视频里发生了什么，再对照分镜组意图和用户 prompt、区分 prompt 问题与模型问题、判断创作质量、吸收好坏示例校准，并给出 rerun / 6-分组修复 / 源层优化 / 鉴赏力沉淀落点。 |
 | `non_goals` | 不生成新视频；不把单个模型偶发瑕疵直接升级为源层规则；不把审片报告替代 `6-分组` canonical truth。 |
-| `topology_fit` | 混合型思行网络：先判型和取证，视觉/音频/命名/真源四路可并行分析；启用 subagents 时加入审片监制顾问分支，最后由主 agent 统一汇流到唯一 verdict 与落盘计划。 |
+| `topology_fit` | 混合型思行网络：先判型和取证，视觉/音频/命名/真源四路可并行分析；执行顾问与复核流程时加入审片监制顾问分支，最后由主 agent 统一汇流到唯一 verdict 与落盘计划。 |
 
 ## Input Contract
 
@@ -73,7 +73,7 @@ Reject or clarify when:
 | 场景 | 读取文件 |
 | --- | --- |
 | 任意审片任务 | `types/type-map.md`、`steps/video-review-workflow.md`、`references/video-evidence-contract.md` |
-| 审片阶段启动 subagents 模式 / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`，并按本 `Subagents Execution Mechanism` 执行 |
+| 审片阶段执行顾问与复核流程 / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`，并按本 `Advisor Consultation Mechanism` 执行 |
 | 明确审片维度、prompt 匹配、创作质量 | `references/review-dimensions-contract.md` |
 | 用户提供好示例/坏示例或要求提升鉴赏力 | `references/example-comparison-learning-contract.md`、`CONTEXT.md` |
 | 文件名、变体、路径定位 | `references/video-naming-contract.md` |
@@ -82,16 +82,16 @@ Reject or clarify when:
 | 质量门禁和验收 | `review/review-gate.md` |
 | 脚本边界 | `scripts/README.md` |
 
-## Subagents Execution Mechanism
+## Advisor Consultation Mechanism
 
-当 `10-审片` 启动 subagents 模式时，执行语义固定为“项目审片监制顾问团请教 -> 多维审片参谋汇流 -> 鉴赏/风险上下文沉淀 -> 后续 compare、landing 和复核消费”，而不是让 subagents 直接给最终 verdict、替代真实视频理解、改写 `6-分组`、改写 prompt 或决定源层修复。
+当 `10-审片` 执行顾问与复核流程时，执行语义固定为“项目审片监制顾问团请教 -> 多维审片参谋汇流 -> 鉴赏/风险上下文沉淀 -> 后续 compare、landing 和复核消费”，而不是让顾问或复核结论直接给最终 verdict、替代真实视频理解、改写 `6-分组`、改写 prompt 或决定源层修复。
 
 1. 主 agent 先读取项目 `team.yaml`，按 `../_shared/team-advisor-consultation-contract.md` 解析监制组相关智能顾问团；优先使用 `roles.supervision.members`、`roles.supervising.members` 或其引用成员，必要时才按共享合同补位并记录原因。
-2. 被启动的 subagents 作为审片监制顾问运行：围绕真实视频证据包、`observed_content_summary`、对应 `6-分组` 真源、用户 prompt、`9-视频` 生成证据、好/坏示例、项目 `MEMORY.md`、`north_star.yaml`、相关 `CONTEXT/`、本技能 `PASS-REVIEW-*` 思维通过点、`N*-*` 执行节点和 review gate，代入各自角色意识、创作风格与专业水准进行参谋。
+2. 该流程中的顾问作为审片监制顾问运行：围绕真实视频证据包、`observed_content_summary`、对应 `6-分组` 真源、用户 prompt、`9-视频` 生成证据、好/坏示例、项目 `MEMORY.md`、`north_star.yaml`、相关 `CONTEXT/`、本技能 `PASS-REVIEW-*` 思维通过点、`N*-*` 执行节点和 review gate，代入各自角色意识、创作风格与专业水准进行参谋。
 3. 顾问问题不得固定为“好不好看”或静态审片表；主 agent 必须从当前节点的 `input / judgment / action / evidence / route_out / gate / rework target` 派生问题。示例：在 `N3-EVIDENCE` 让顾问指出证据缺口，在 `N4-COMPARE` 让顾问分别判断视频本体、prompt 匹配、创作质量与示例差距，在 `N5-LANDING` 让顾问检查错配归因和修复落点是否越权。
 4. 主 agent 负责裁决、去重和汇流，把顾问建议压缩成 `review_advisor_packet.must_check / must_not_accept / quality_bar / rerun_or_repair_guidance / execution_brief`，并保留 `node_ref / pass_ref / gate_ref / role_lens` 等来源锚点，作为后续 compare、landing、报告写入、阶段内修复和复审的额外上下文。
 5. `review_advisor_packet` 不拥有真实视频内容事实、最终 verdict、`6-分组` canonical 写回、`9-视频` prompt 组装、源层升级或本技能 `CONTEXT.md` 鉴赏力沉淀的裁决权；顾问建议若与真实视频证据、用户显式请求、分镜组真源或本技能合同冲突，必须舍弃或降级为风险提示。
-6. 若真实 subagent dispatch 被 system / developer / tool / user 上层策略阻断，必须在审片报告或执行报告中记录阻断层级、原计划顾问路径、实际降级路径和未启动成员；不得把主 agent 本地顺序扮演写成真实 subagents 已执行。
+6. 若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程；不得把主 agent 本地顺序扮演写成外部 provider 已执行。
 
 `review_advisor_packet` 的最小形态：
 
@@ -130,11 +130,9 @@ review_advisor_packet:
   rerun_or_repair_guidance:
     - ""
   execution_brief: ""
-  downgrade:
-    blocked_by: "system | developer | tool | user | none"
-    planned_path: ""
-    actual_path: ""
-    skipped_members: []
+  local_checklist:
+    findings: []
+    repair_actions: []
 ```
 
 ## Visual Maps
@@ -145,8 +143,8 @@ flowchart TD
     N2 --> N3["N3-EVIDENCE<br/>metadata, keyframes, audio, observed_content_summary"]
     N3 --> N36{"N3.6-ADVISOR<br/>review_advisor_packet when enabled"}
     N36 -->|"evidence gap"| N3
-    N36 -->|"packet ready / downgraded"| N4["N4-COMPARE<br/>video, prompt, source, quality"]
-    N3 -->|"subagents not enabled"| N4
+    N36 -->|"packet ready / local checklist"| N4["N4-COMPARE<br/>video, prompt, source, quality"]
+    N3 -->|"顾问与复核流程 not enabled"| N4
     N4 --> N5{"N5-LANDING<br/>finding route"}
     N5 -->|"generation artifact only"| R["rerun_only report"]
     N5 -->|"group prompt / beat issue"| G["authorized 6-分组 patch"]
@@ -178,10 +176,10 @@ stateDiagram-v2
     [*] --> "N1-INTAKE"
     "N1-INTAKE" --> "N2-SOURCE-LOCK"
     "N2-SOURCE-LOCK" --> "N3-EVIDENCE"
-    "N3-EVIDENCE" --> "N3.6-ADVISOR": subagents enabled
+    "N3-EVIDENCE" --> "N3.6-ADVISOR": 顾问与复核流程 enabled
     "N3.6-ADVISOR" --> "N3-EVIDENCE": evidence gap
-    "N3.6-ADVISOR" --> "N4-COMPARE": packet ready / downgraded
-    "N3-EVIDENCE" --> "N4-COMPARE": subagents not enabled
+    "N3.6-ADVISOR" --> "N4-COMPARE": packet ready / local checklist
+    "N3-EVIDENCE" --> "N4-COMPARE": 顾问与复核流程 not enabled
     "N4-COMPARE" --> "N5-LANDING"
     "N5-LANDING" --> "N6-WRITE"
     "N6-WRITE" --> "N7-VERIFY"
@@ -206,7 +204,7 @@ erDiagram
 | `N1-INTAKE` | 锁定项目、视频、分镜组和变体 | 用户输入、文件路径 | 解析路径、命名、集号、group_id、variant | input manifest | `N2-SOURCE-LOCK` 或阻断 | group_id 可定位 |
 | `N2-SOURCE-LOCK` | 锁定 6-分组真源和可选 9-视频证据 | group_id、项目根 | 读取 `6-分组/第N集.md` 对应组，按需读取 prompt/manifest/report | source excerpt refs | `N3-EVIDENCE` | 组正文唯一 |
 | `N3-EVIDENCE` | 取得并理解真实视频内容 | 视频文件 | 读取元数据、抽关键帧、生成联系表、必要时检查音频与场景切换；先描述实际画面、主体、动作、空间、节奏和可见缺陷 | metadata、keyframes、contact sheet、audio note、observed_content_summary | `N3.6-ADVISOR` 或 `N4-COMPARE` | 证据足够支撑真实视频内容分析 |
-| `N3.6-ADVISOR` | subagents 审片监制参谋汇流 | `team.yaml`、共享顾问合同、视频证据包、`observed_content_summary`、prompt、分镜组真源、好/坏示例、当前 `PASS-REVIEW-*` / `N*-*` 节点 | 启动或按阻断报告处理 team.yaml 中明确的监制组相关智能顾问团；主 agent 从当前审片节点派生顾问问题，让顾问围绕视频本体、prompt 匹配、创作质量、示例校准和落点风险给可执行参谋 | `review_advisor_packet` 或降级报告 | `N4-COMPARE` / `N3-EVIDENCE` | packet 已包含 roster 来源、node/pass/gate 来源、角色视角、可执行指导、风险提示和 `execution_brief`；若顾问指出证据不足，必须回到 `N3-EVIDENCE` |
+| `N3.6-ADVISOR` | 顾问与复核流程 审片监制参谋汇流 | `team.yaml`、共享顾问合同、视频证据包、`observed_content_summary`、prompt、分镜组真源、好/坏示例、当前 `PASS-REVIEW-*` / `N*-*` 节点 | 启动或按不可用说明处理 team.yaml 中明确的监制组相关智能顾问团；主 agent 从当前审片节点派生顾问问题，让顾问围绕视频本体、prompt 匹配、创作质量、示例校准和落点风险给可执行参谋 | `review_advisor_packet` 或本地 checklist 结果 | `N4-COMPARE` / `N3-EVIDENCE` | packet 已包含 roster 来源、node/pass/gate 来源、角色视角、可执行指导、风险提示和 `execution_brief`；若顾问指出证据不足，必须回到 `N3-EVIDENCE` |
 | `N4-COMPARE` | 多维度对照素材、prompt 与创作质量 | 组正文、视频证据、prompt、好/坏示例、`review_advisor_packet` | 判断视频本体问题、prompt 匹配、错配归因、反平庸、美学与示例差距；吸收顾问参谋但不让顾问替代 verdict | finding list、quality verdict | `N5-LANDING` | 每条 finding 有证据和维度 |
 | `N5-LANDING` | 决定落点 | finding list、quality verdict、置信度 | 分类为 rerun、prompt/group 修复、模型问题、源层候选、鉴赏力沉淀或仅报告 | landing plan | `N6-WRITE` | 不越权升级，不把偏好误作硬规则 |
 | `N6-WRITE` | 写入 canonical 输出 | landing plan | 写审片报告；高置信时修 `6-分组`；极高置信时修源层 | changed files / report | `N7-VERIFY` | 改动可追溯 |
@@ -229,14 +227,14 @@ erDiagram
 3. 读取视频元数据、抽关键帧并生成联系表；有音轨时检查音频是否为空、是否过响/过弱、是否含明显非预期 BGM 或对白。
 4. 从 `6-分组/第N集.md` 抽取对应 `## group_id` 的完整组正文、YAML、入出场或组间连接件。
 5. 在任何对照或 verdict 之前，必须先完成真实视频内容分析：用自己的话说明实际画面里出现的主体、场景空间、动作变化、镜头节奏、关键道具、音频事实和明显 AIGC 缺陷；该摘要必须能回指关键帧、联系表或音频证据。
-6. 若本轮启用 subagents 模式，必须在真实视频内容分析之后、最终 compare / landing 之前执行 `N3.6-ADVISOR`：按项目 `team.yaml` 真实请教审片监制顾问，或记录上层阻断降级；顾问问题必须绑定当前 node/pass/gate。
+6. 若本轮执行顾问与复核流程，必须在真实视频内容分析之后、最终 compare / landing 之前执行 `N3.6-ADVISOR`：按项目 `team.yaml` 请教审片监制顾问，或使用本地流程；顾问问题必须绑定当前 node/pass/gate。
 7. 对照实际视频与分镜组、用户 prompt、同组变体和用户示例：内容主体、空间、动作、镜头节奏、关键道具、风格、音频、连续性、prompt 匹配、创作质量和美学表达必须逐项判断；可吸收 `review_advisor_packet`，但不得让顾问替代主 agent 裁决。
 8. 对 prompt 错配必须归因：优先区分 `prompt_problem`（缺失、矛盾、过载、不可执行、审美指令空泛）与 `model_problem`（prompt 清楚但模型未执行、单次 seed 漂移、模型能力边界、物理/文字/手部等生成瑕疵）。
 9. 若用户提供好/坏示例，必须先提炼可观察维度，再用这些维度比较目标视频；只把稳定、可复用、非一次性偏好的结论沉淀为本技能 `CONTEXT.md` 的鉴赏力学习。
 10. 形成 finding list，每条 finding 必须包含 `dimension`、`evidence`、`expected`、`actual`、`root_cause_guess`、`severity`、`landing` 和 `confidence`。
 11. 若 landing 为 `6-分组`，只改对应组或其直接相邻入场/连接件；不得顺手重写整集。
 12. 若 landing 为源层，必须满足 `references/source-escalation-contract.md` 的高置信升级门，并在最终说明中写明 `Symptom -> Direct Cause -> Source Owner -> AGENTS.md`。
-13. 写入或更新 `projects/aigc/<项目名>/10-审片/第N集/<group_id>[-variant]-审片.md`；若执行了 `6-分组`、源层修复、`CONTEXT.md` 鉴赏力沉淀或 subagents 顾问请教，同步记录在报告中。
+13. 写入或更新 `projects/aigc/<项目名>/10-审片/第N集/<group_id>[-variant]-审片.md`；若执行了 `6-分组`、源层修复、`CONTEXT.md` 鉴赏力沉淀或 顾问与复核流程的顾问请教，同步记录在报告中。
 14. 最终对用户输出唯一 verdict、已改文件、思考过程、验证结果和残留风险。
 
 ## Field Master
@@ -250,7 +248,7 @@ erDiagram
 | `FIELD-REVIEW-05` | landing | `10-审片` / `6-分组` / source skill | write decision and patch scope | `FAIL-REVIEW-LANDING` |
 | `FIELD-REVIEW-06` | prompt alignment | review report / `6-分组` / `9-视频` | prompt match verdict、mismatch owner、prompt/model attribution | `FAIL-REVIEW-PROMPT-MATCH` |
 | `FIELD-REVIEW-07` | creative quality | review report / `CONTEXT.md` | anti-banal verdict、aesthetic rationale、example calibration | `FAIL-REVIEW-QUALITY` |
-| `FIELD-REVIEW-08` | subagents advisor consult | review report / execution report | 启动 subagents 模式时 `review_advisor_packet` 已绑定 node/pass/gate、角色视角、可执行指导和降级说明 | `FAIL-REVIEW-ADVISOR` |
+| `FIELD-REVIEW-08` | 顾问与复核流程 advisor consult | review report / execution report | 执行顾问与复核流程时 `review_advisor_packet` 已绑定 node/pass/gate、角色视角、可执行指导和本地流程 | `FAIL-REVIEW-ADVISOR` |
 
 ## Thought Pass Map
 
@@ -263,7 +261,7 @@ erDiagram
 | `PASS-REVIEW-05` | `FIELD-REVIEW-05` | 是否允许写回 canonical truth | 按落点合同写报告/组修复/源层修复 | changed paths |
 | `PASS-REVIEW-06` | `FIELD-REVIEW-06` | 视频是否匹配 prompt，错配应归因到哪里 | 比对 prompt、分组、manifest 和实际视频 | mismatch attribution |
 | `PASS-REVIEW-07` | `FIELD-REVIEW-07` | 视频是否平庸或审美失准，示例是否形成可学习偏好 | 对比好/坏示例并提炼维度 | quality calibration note |
-| `PASS-REVIEW-08` | `FIELD-REVIEW-08` | 启动 subagents 时顾问参谋是否真实、节点级、可执行且未越权 | 解析 team.yaml、派生顾问问题、汇流 packet 或写降级报告 | `review_advisor_packet` / downgrade |
+| `PASS-REVIEW-08` | `FIELD-REVIEW-08` | 执行顾问与复核流程时顾问参谋是否节点级、可执行且未越权 | 解析 team.yaml、派生顾问问题、汇流 packet 或使用本地 checklist | `review_advisor_packet` / local checklist |
 
 ## Pass Table
 
@@ -276,7 +274,7 @@ erDiagram
 | `PASS-REVIEW-05` | 写回范围与置信度匹配，不越权改源层 | `FAIL-REVIEW-LANDING` | `references/source-escalation-contract.md` |
 | `PASS-REVIEW-06` | prompt 错配已区分 prompt 问题、模型问题或证据不足 | `FAIL-REVIEW-PROMPT-MATCH` | `references/review-dimensions-contract.md` |
 | `PASS-REVIEW-07` | 创作质量判断有可观察依据，不把个人偏好伪装为硬门禁 | `FAIL-REVIEW-QUALITY` | `references/example-comparison-learning-contract.md` |
-| `PASS-REVIEW-08` | 启动 subagents 模式时已形成 `review_advisor_packet`，或完整记录上层阻断降级；不得本地模拟冒充真实 dispatch | `FAIL-REVIEW-ADVISOR` | `../_shared/team-advisor-consultation-contract.md` + 本 `Subagents Execution Mechanism` |
+| `PASS-REVIEW-08` | 执行顾问与复核流程时已形成 `review_advisor_packet`，或使用本地流程；不得本地模拟说成外部 provider 调度 | `FAIL-REVIEW-ADVISOR` | `../_shared/team-advisor-consultation-contract.md` + 本 `Advisor Consultation Mechanism` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -290,12 +288,12 @@ erDiagram
 2. 分镜组提示过载或焦点漂移：修 `6-分组` 对应组。
 3. 视频生成命名或下载落点漂移：修 `9-视频` 命名/输出合同。
 4. 摄影语言长期不可动、镜头不可执行：候选上溯 `5-摄影`，但需多例证据。
-5. subagents 启用时跳过 `team.yaml` 顾问请教、顾问问题脱离审片节点、没有汇流 `review_advisor_packet`，或把本地模拟写成真实 dispatch：回到本 `Subagents Execution Mechanism` 和共享团队顾问合同。
+5. 顾问与复核流程启用时跳过 `team.yaml` 顾问请教、顾问问题脱离审片节点、没有汇流 `review_advisor_packet`，或把本地模拟写成外部 provider 调度：回到本 `Advisor Consultation Mechanism` 和共享团队顾问合同。
 6. 技能结构或模板导致系统性错误：才修技能源层，并记录高置信依据。
 
 ## Output Contract
 
-- Required output: 审片 verdict、真实视频内容分析、视频证据摘要、prompt 匹配结论、创作质量判断、示例校准摘要、finding list、subagents 顾问 packet 摘要或降级说明、落盘动作、思考过程、验证结果。
+- Required output: 审片 verdict、真实视频内容分析、视频证据摘要、prompt 匹配结论、创作质量判断、示例校准摘要、finding list、顾问与复核流程的顾问 packet 摘要或本地流程、落盘动作、思考过程、验证结果。
 - Output format: 面向用户的简短结论 + `projects/aigc/<项目名>/10-审片/第N集/<group_id>[-variant]-审片.md` 报告；必要时还包含 `6-分组` patch 或源层 patch。
 - Output path: 本技能 canonical 报告写入 `projects/aigc/<项目名>/10-审片/`；业务修复写回其 owning source，不把修复正文藏在审片报告里。
-- Completion gate: 真实视频内容分析已完成且可回指帧/联系表/音频证据；分镜组真源可回指；finding 有分级和落点；启动 subagents 时已有 `review_advisor_packet` 或完整降级说明；所有写回都能解释为什么不只是 rerun。
+- Completion gate: 真实视频内容分析已完成且可回指帧/联系表/音频证据；分镜组真源可回指；finding 有分级和落点；执行顾问与复核流程时已有 `review_advisor_packet` 或完整本地流程；所有写回都能解释为什么不只是 rerun。

@@ -52,4 +52,4 @@ Skill 2.0 包：从 `角色/2-设计` 的角色设计文档调用 imagegen，生
 
 - 入口拓扑、证据链和状态流位于 `SKILL.md` 的 `Visual Maps`。
 - 批量/降级汇流、失败回路和 worker 返回形状位于 `steps/character-generation-workflow.md`。
-- reviewer subagent 降级口径与本地 checklist 位于 `review/review-contract.md`。
+- reviewer provider 与本地 checklist 口径位于 `review/review-contract.md`。

@@ -31,7 +31,7 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能不自动并入初始化主链；只有父级路由或用户请求明确命中查询、恢复、复核、桥接等旁路职责时，才加载对应卫星 `SKILL.md + CONTEXT.md` 并把结果回接给本技能裁决。
-- 连续调度不得绕过本技能的阻断门：缺少必需输入、`auto/custom` 未锁定、破坏性操作未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或阻断报告。
+- 连续调度不得绕过本技能的阻断门：缺少必需输入、`auto/custom` 未锁定、破坏性操作未授权、子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或不可用说明。
 - 每个被调度的子技能包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 主创判断或父级最终裁决。
 
 ## When to Use
@@ -103,7 +103,7 @@ Use the exact canonical names in the table below. Do not create alternate names 
 
 ### Completion gate
 
-Completion requires the sufficiency gate in `review/init-review-gate.md`: one locked lineup mode, required artifacts present, source readiness represented honestly, planning direct-answer subagent provenance resolved or blocked, and exactly one next-stage recommendation.
+Completion requires the sufficiency gate in `review/init-review-gate.md`: one locked lineup mode, required artifacts present, source readiness represented honestly, planning direct-answer 顾问与复核流程 provenance resolved or blocked, and exactly one next-stage recommendation.
 
 Required canonical writeback after sufficiency passes:
 
@@ -122,7 +122,7 @@ Final user-facing answer must state:
 
 - locked `init_mode`
 - locked `team_lineup_mode`
-- whether planning direct-answer subagents ran or blocked
+- whether planning direct-answer 顾问与复核流程 ran or blocked
 - core five-piece status: `north_star`, `init_handoff`, `story-source-manifest`, `team`, `STATE`
 - lazy governance artifacts created, if any
 - exact recommended next stage and path
@@ -131,7 +131,7 @@ Final user-facing answer must state:
 Blocked output shape:
 
 - If `auto/custom` is not locked, output only the option card and the missing decision.
-- If planning subagents are unavailable during actual initialization, output the block reason and do not synthesize canonical artifacts.
+- If planning 顾问与复核流程 are unavailable during actual initialization, output the block reason and do not synthesize canonical artifacts.
 - If source truth is missing, output source-light artifacts only and keep story facts in `unknowns`.
 - If rebootstrap scope is unsafe, output the preservation conflict and do not delete or purge assets.
 
@@ -145,7 +145,7 @@ Load only the partitions needed for the current node.
 | Init mode, auto/custom lineup, team manifest, prompt packet | `references/mode-and-team-contract.md` |
 | North star, handoff, story source, stage entry, lazy governance | `references/artifacts-and-sources.md` |
 | Rebootstrap, archive/reset/purge boundaries, preservation rules | `references/rebootstrap-contract.md` |
-| Node order, branching, subagent dispatch gates, write scopes | `steps/init-workflow.md` |
+| Node order, branching, 顾问与复核流程 provider/checklist gates, write scopes | `steps/init-workflow.md` |
 | Source-light/source-grounded/rebootstrap/custom-vs-auto classification | `types/init-type-map.md` |
 | Sufficiency audit, pass table, review verdict, provider fallback | `review/init-review-gate.md` |
 | Reusable tactics, source-layer pitfalls, runtime drift heuristics | `knowledge-base/init-heuristics.md` |
@@ -172,8 +172,8 @@ If the user has not clearly selected `auto` or `custom`, show the option card in
 - 开场必须展示“初始化元选项卡”，让用户在 `自动组队 / 自定义组队` 间拍板；不得无确认自动锁 `team_lineup_mode`。
 - 固定 `init_mode = smart_advisor`；若用户尚未明确选择 `auto/custom`，发送一次初始化元选项卡并等待确认。
 - `selector_scope_root` 固定为 `.agents/skills/team/`。
-- planning 固定题包直答必须真实使用 subagents。
-- 若 subagents 不可用，本轮初始化停止并报告阻塞。
+- planning 固定题包直答必须完成顾问与复核流程。
+- 若顾问与复核流程不可用，本轮初始化停止并报告阻塞。
 - Parent skill alone performs final canonical writeback; advisors return local patches, not parallel main drafts.
 
 ## Core Workflow Index
@@ -186,7 +186,7 @@ flowchart TD
     D --> E{"N4-mode-engine<br/>auto or custom lineup path"}
     E -->|"auto"| F["Auto Team Formation"]
     E -->|"custom"| G["Custom Team Validation"]
-    F --> H["Planning Direct-Answer Subagents"]
+    F --> H["Planning Direct-Answer 顾问与复核流程"]
     G --> H
     H --> I["N5-synthesis<br/>core five-piece artifact set"]
     I --> J["N6-lazy-governance<br/>optional triggered sidecars"]
@@ -195,7 +195,7 @@ flowchart TD
     K -->|"fail"| M["Reenter N1/N3/N4/N5"]
 ```
 
-This is an index only. Detailed node fields, branch rules, dispatch gates, and reentry logic live in `steps/init-workflow.md`.
+This is an index only. Detailed node fields, branch rules, provider/checklist gates, and reentry logic live in `steps/init-workflow.md`.
 
 ## Execution Contract Index
 
@@ -204,7 +204,7 @@ This is an index only. Detailed node fields, branch rules, dispatch gates, and r
 3. In `N1`, lock `init_mode == smart_advisor` and exactly one `team_lineup_mode`.
 4. In `N2`, create the canonical project runtime skeleton, project `MEMORY.md`, `CONTEXT/`, and 同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
 5. In `N3`, build a minimal route/context packet and lock `.agents/skills/team/` as the only advisor selector root.
-6. In `N4`, form or validate the lineup, write a `team.yaml` patch, then run `roles.planning.members` direct-answer packets with real subagents.
+6. In `N4`, form or validate the lineup, write a `team.yaml` patch, then run `roles.planning.members` direct-answer packets with real 顾问与复核流程.
 7. In `N5`, synthesize only the patches produced by the actually selected path into `team.yaml`, `story-source-manifest.yaml`, `north_star.yaml`, `init_handoff.yaml`, and `STATE.json`.
 8. In `N6`, create lazy governance artifacts only when triggered.
 9. In `N7`, run the sufficiency gate from `review/init-review-gate.md`. If it fails, reenter the failed node rather than writing partial canonical truth.
@@ -218,7 +218,7 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - Auto lineup must first use the team root member/scenario index, then deep-read only shortlisted member skills.
 - Custom lineup may only reference members under `.agents/skills/team/`.
 - `team.yaml` is the project-level team manifest and must record init provenance, role ownership, and planning direct-answer provenance.
-- Planning direct-answer execution is required for real initialization. If real subagents are unavailable or blocked, initialization execution is blocked; local sequential imitation is not a valid substitute.
+- Planning direct-answer execution is required for real initialization. If real 顾问与复核流程 are unavailable or blocked, initialization execution is blocked; local sequential imitation is not a valid substitute.
 - `source-light` projects may only write genre, tone, audience, production, and boundary constraints; story-level facts stay in `unknowns` or deferred notes.
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
 - Rebootstrap defaults to `archive_reset`; never delete `源/`, source text, original assets, irreplaceable references, or legacy `Original/` without explicit user authorization.
@@ -333,7 +333,7 @@ Priority repair targets:
 | Runtime path drift or missing project root carrier | `references/scope-and-runtime.md` |
 | Story-source readiness or source-light overclaim | `references/artifacts-and-sources.md` |
 | Rebootstrap preservation or stale truth leakage | `references/rebootstrap-contract.md` |
-| Node order, dispatch, write scope, or reentry drift | `steps/init-workflow.md` |
+| Node order, provider/checklist routing, write scope, or reentry drift | `steps/init-workflow.md` |
 | Sufficiency, pass/fail routing, provider fallback | `review/init-review-gate.md` |
 | Reusable pattern or failure memory | `CONTEXT.md` and `knowledge-base/init-heuristics.md` |
 
@@ -350,7 +350,7 @@ If a referenced shared contract is the source of truth, update the shared contra
 | `FIELD-INIT-04` | `N4/N5` | project `team.yaml` | Advisor paths stay under `.agents/skills/team/`; planning provenance recorded. |
 | `FIELD-INIT-05` | `N2/N5/N6` | project root carriers and optional governance | Required root files exist; lazy carriers are trigger-based. |
 | `FIELD-INIT-06` | `N7` | next-stage recommendation | Exactly one active next entry. |
-| `FIELD-INIT-07` | `N3/N4/N7` | mode topology and subagent provenance | Router, lineup, direct-answer packets, and audit are internally consistent. |
+| `FIELD-INIT-07` | `N3/N4/N7` | mode topology and 顾问与复核流程 provenance | Router, lineup, direct-answer packets, and audit are internally consistent. |
 | `FIELD-INIT-08` | `N0/N6/N7` | rebootstrap trace | Preservation, archive/stale paths, and reset route are explicit. |
 
 Detailed pass standards and rework entries are in `review/init-review-gate.md`.
@@ -366,7 +366,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | `FIELD-INIT-04` | `team.yaml` | advisor roles and planning provenance | `FAIL-INIT-04` |
 | `FIELD-INIT-05` | project root carriers | runtime and governance path completeness | `FAIL-INIT-05` |
 | `FIELD-INIT-06` | next-stage recommendation | one active entry | `FAIL-INIT-06` |
-| `FIELD-INIT-07` | internal topology | route, lineup, subagent, audit consistency | `FAIL-INIT-07` |
+| `FIELD-INIT-07` | internal topology | route, lineup, 顾问与复核流程, audit consistency | `FAIL-INIT-07` |
 | `FIELD-INIT-08` | reset trace | preserve/archive/stale scope | `FAIL-INIT-08` |
 
 ## Thought Pass Map
@@ -377,7 +377,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | `N1` | `FIELD-INIT-03` | is `auto/custom` confirmed? | record mode and decision owner | artifact drafting before lock |
 | `N2` | `FIELD-INIT-05` | are root carriers and skeleton ready? | create runtime roots and project support files | missing `CHANGELOG.md`, `MEMORY.md`, `STATE.json`, `team.yaml`, `源/`, or `CONTEXT/` |
 | `N3` | `FIELD-INIT-03/07` | which lineup path and context packet? | create route and team context packets | advisor scope escapes team tree |
-| `N4` | `FIELD-INIT-01/02/04/07` | does planning have enough direct-answer material? | run lineup path and planning subagents | local imitation or empty roster |
+| `N4` | `FIELD-INIT-01/02/04/07` | does planning have enough direct-answer material? | run lineup path and planning 顾问与复核流程 | local imitation or empty roster |
 | `N5` | `FIELD-INIT-01/02/04/05` | can patches become the five-piece set? | synthesize with provenance | north star/handoff mixed |
 | `N6` | `FIELD-INIT-05/08` | are lazy governance or reset traces needed? | write sidecars when triggered | full governance blocks a light start |
 | `N7` | `FIELD-INIT-06/07/08` | does sufficiency pass? | audit and return one entry | multiple next entries or missing provenance |
@@ -393,7 +393,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | `FIELD-INIT-04` | `team.yaml` records team scope and planning provenance | `FAIL-INIT-04` | `N3/N4/N5` |
 | `FIELD-INIT-05` | root carriers and triggered governance artifacts are correct | `FAIL-INIT-05` | `N2/N5/N6` |
 | `FIELD-INIT-06` | exactly one next stage is returned | `FAIL-INIT-06` | `N7` |
-| `FIELD-INIT-07` | mode, lineup, subagents, and audit are internally consistent | `FAIL-INIT-07` | `N3/N4/N7` |
+| `FIELD-INIT-07` | mode, lineup, 顾问与复核流程, and audit are internally consistent | `FAIL-INIT-07` | `N3/N4/N7` |
 | `FIELD-INIT-08` | rebootstrap state is identified and old truth exits active flow | `FAIL-INIT-08` | `N0/N6/N7` |
 
 ## Maintenance Sync

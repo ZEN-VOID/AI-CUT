@@ -10,7 +10,7 @@
 
 - 默认加载 `source-to-script-type-map.md`；终结画面、跨集连续性和表演弧线属于 `3-导演` / `4-表演` 后续阶段，不在 `2-编剧` 类型包内提前加载。
 - 若用户提供多个输入形态，先由该类型包形成 `type_profile`，再进入 `steps/directing-workflow.md`。
-- 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、subagents 或 review 合同。
+- 本索引只负责类型包发现，不替代 `SKILL.md` 的输入、输出、顾问与复核流程 或 review 合同。
 
 ## Loading Flow
 

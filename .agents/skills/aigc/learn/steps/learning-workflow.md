@@ -13,7 +13,7 @@
 | `N5-MAP` | 应影响哪些 skill 和分区 | 建 target_skill_map、gap matrix、landing set | path map | owner 和 sync scope 明确 | `references/global-improvement-contract.md` |
 | `N6-PLAN` | 只计划还是执行 | 生成 writeback_order 和 audit_plan | improvement plan | 用户权限匹配 | 阻断或等待授权 |
 | `N7-WRITEBACK` | 是否能最窄有效落盘 | 修改 owning 分区并同步消费者 | changed_files / diff | 无越权写回 | N5 |
-| `N8-AUDIT` | 改进是否协调一致 | 运行 isolated audit 或 degraded local audit | audit_result + changed_files verified | pass / pass_with_followups = **任务完成** | `references/isolated-audit-contract.md` |
+| `N8-AUDIT` | 改进是否协调一致 | 运行 isolated audit 或 local checklist audit | audit_result + changed_files verified | pass / pass_with_followups = **任务完成** | `references/isolated-audit-contract.md` |
 | `N9-DEPOSIT` | 学习经验应沉淀到哪里 | 写目标 `CONTEXT.md` 或本技能 `CONTEXT.md` | deposition note | 不污染 knowledge-base | N5 |
 | `N10-CLOSE` | **仅当用户明确要求时**：生成追溯报告 | **可选**：使用 `templates/output-template.md` 生成副产物报告 | final report (optional) | 用户要求报告 = 生成；否则 = 已完成 | N8-AUDIT 通过即完成 |
 
@@ -55,7 +55,7 @@ flowchart TD
     J -->|"否，只出计划"| P["输出 improvement plan<br/>任务结束（未授权执行）"]
     J -->|"是"| K["N7-WRITEBACK<br/>修改最窄 owning 分区并同步消费者"]
 
-    K --> L["N8-AUDIT<br/>isolated subagents 或 degraded local audit"]
+    K --> L["N8-AUDIT<br/>isolated 顾问与复核流程 或 local checklist audit"]
     L --> M{"审计 verdict"}
     M -->|"pass / pass_with_followups"| N["**任务完成**<br/>changed_files 已验证"]
     M -->|"needs_rework"| G

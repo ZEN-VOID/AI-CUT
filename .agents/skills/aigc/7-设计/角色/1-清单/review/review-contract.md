@@ -4,7 +4,7 @@
 
 - 默认辅助 provider：`code-reviewer` 或等价人工 review。
 - 用途：检查角色清单的来源、三列表格、首次登场、归并质量、描述边界和 LLM-first 边界。
-- 若上层策略或当前环境不允许真实启动 reviewer/subagent，则降级为本地 review checklist，并在交付说明中记录阻断层级、原计划 provider、实际降级路径和未启动的 reviewer。
+- 若当前环境不使用外部 reviewer/provider，则直接执行本地 review checklist；交付说明只记录 verdict、finding 和必要修复项。
 
 ## Review Scope
 

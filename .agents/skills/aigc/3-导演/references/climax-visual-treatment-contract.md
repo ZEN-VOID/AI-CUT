@@ -54,7 +54,7 @@ climax-visual-treatment-contract.md
 | `audience_desire` | 观众此刻期待什么被兑现？ | 行动结果、认知震荡、关系推进、情绪修复或世界感打开 |
 | `promise_source` | 该高点承接本集任务、角色欲望、关系欠账、信息欠账、规则压力或项目类型承诺中的哪一项？ | `promise_category` |
 | `character_anchor` | 高点绑定哪个角色的个性、欲望、缺陷、恐惧、关系姿态或成长压力？ | `character_binding` |
-| `payoff_mode` | 属于哪一种兑现类型？ | `kinetic_payoff / high-skill_duel / potential_payoff / wave_payoff / horror_or_rule_peak / spectacle_peak / emotional_reckoning` |
+| `payoff_mode` | 属于哪一种兑现类型？ | `kinetic_payoff / high-skill_duel / potential_payoff / wave_payoff / horror_or_rule_peak / spectacle_peak / emotional_reckoning / deliberate_anticlimax / delayed_gratification / pyrrhic_payoff / false_payoff / interrupted_payoff / reversed_payoff` |
 | `build_up` | 高点前压了什么、欠了什么、误导了什么、延迟了什么或铺了什么反差？ | `build_up_strategy` |
 | `delivery_action` | 上游实际完成的兑现动作、发现、判断、选择、关系动作或体验落点是什么？ | `delivery_evidence` |
 | `satisfaction_delta` | 兑现前后，角色状态、局势、认知、关系、规则或世界感发生什么可见变化？ | `visible_delta` |
@@ -88,6 +88,7 @@ climax-visual-treatment-contract.md
 - `wave_payoff` 可以不冲突。笑点、暖点、关系小进展、状态恢复、风景或生活质感高点，只要有 `satisfaction_delta`，也应被影视化承托。
 - `high-skill_duel` 不只限武斗；谈判交锋、推理追捕、棋局互算、心理诱导、规则漏洞和商业博弈都可以成为高潮画面，但必须呈现技术含量和胜负条件。
 - `emotional_reckoning` 类型必须依赖身体反应、停顿节奏、距离变化和余韵承托，不依赖新增对白或旁白解释。
+- 反高潮型 payoff 必须同时消费 `anticlimax-strategy-contract.md`，在执行报告中补 `anticlimax_directive`，说明被延迟/压低/打断/反转的观众期待和留下的残余张力。
 - 涉及恐怖、灾难、暴力或情色张力时，只做叙事功能、尺度关系、表演和可拍承托，不输出露骨或 gratuitous 描写。
 - 不新增 `高潮画面` 作为正文固定字段；默认把强化结果落入既有正式字段，避免下游分组解析出现第二套字段体系。确需留证据时，可写入执行报告而非逐集正文主字段。
 

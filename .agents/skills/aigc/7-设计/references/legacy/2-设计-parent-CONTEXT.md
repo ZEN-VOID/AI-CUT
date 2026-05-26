@@ -33,7 +33,7 @@
 | 参照图洁净只写在输出规则，思维·执行节点仍按剧情剧照思路装配 prompt | thinking-action contract layer | 将洁净判断前移到 leaf 的摄影/设计卡 synthesis 节点，并在 prompt 与 auto-image 节点复验 | `_shared/design-output-contract.md` 增加 Thinking-Action Placement Contract；父层与三 leaf Field/Pass/Node 表登记 `reference_cleanliness_note` | 节点证据能说明污染词已被转写，且自动生图前已复验锚句 |
 | 单主体自动生图 provider 长时间无响应，导致 `2-设计` 父级 pipeline 卡死 | provider timeout layer | 中断当前远端等待，将本轮 manifest 标为 `auto_image.failed/timeout`，继续交付可追踪设计真源与后续 layout dry-run | `run_design_auto_image.py` 增加默认 `--timeout`，超时返回 124 并输出明确错误，避免批量链路无限挂起 | 真实生图失败时命令能在超时窗内退出，manifest 与 validation-report 明确记录 provider timeout |
 | 多主体设计批量生图仍直调 API 或远端 provider，导致 `2-设计` pipeline 依赖 API key / 网络 | execution mode layer | 将缺图 Markdown 聚合成 `design_auto_image_batch.json`，默认交给内置 imagegen 执行 | 共享 `image-generation-execution-contract.md` 固定 `codex-builtin-imagegen`；`ensure_design_auto_images.py` 默认只写 request sidecar 与 `request_ready` 状态 | `_manifest.json.auto_image.status=request_ready` 且含 `provider_skill=imagegen`、`default_model=GPT-IMAGE-2`、`request_batch_path` |
-| 设计输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在父层 `S6` 固定写明 `roles.supervision` 已停用为 post-write owner | 用 `_shared/subagent-supervision-contract.md` 作为停用占位真源，而不是 closeout 执行器 | 当前轮输出完成后只回溯 `post_write_audit_note` |
+| 设计输出写完后仍继续进入 `team.yaml` 驱动的监制 closeout | council closeout layer | 在父层 `S6` 固定写明 `roles.supervision` 已停用为 post-write owner | 用 `_shared/workflow-supervision-contract.md` 作为停用占位真源，而不是 closeout 执行器 | 当前轮输出完成后只回溯 `post_write_audit_note` |
 | 把 `7-设计` 的 post-write audit、final-stage review gate 与 `source_skill_refs` 混成一条 reviewer 权限线 | council runtime layering | 先收回 closeout reviewer 语义，再把 `source_skill_refs` 降为领域提示 | shared contract、`7-设计/SKILL.md` 与 `2-设计` 父/leaf 合同统一采用“停用 closeout + 保留 slot bundle 审计语义” | reviewer roster 不再成为当前轮 closeout 前提 |
 | post-write 问题只能说“某个文件有问题”，无法定位到模板槽位或 canonical slot | slot-level audit governance layer | 保留 `_shared/design-slot-review-contract.md`，把当前轮输出从文件级 bundle 细化到 slot bundle | 父层、leaf 与占位合同统一回指 slot bundle 真源，audit note 默认带 `bundle_id` | 后置问题仍可定位到 `SCENE/ROLE/PROP-BUNDLE-*` |
 | slot-bundle 合同已经写进父层/leaf，但 audit 仍全绿，因为没有任何执行器真正消费它 | audit-execution parity layer | 新增 `_shared/scripts/resolve_design_slot_bundles.py` 作为最小执行载体，并让 `scripts/aigc_skill_audit.py --strict` 显式检查 resolver + contract + `slot_bundles/slot_bundle_findings` | 对新增 shared contract，必须同时落三处：规范文档、执行脚本、审计器；缺一都不能视为“已落地” | `aigc_skill_audit.py --strict` 能在 resolver 缺失或 contract 未被脚本消费时失败 |
@@ -52,7 +52,7 @@
 9. 默认自动生图先看 `execution_mode`：`codex-builtin-imagegen` + `request_ready` 只证明 request 已准备；需要消费真实图片时必须复核同 stem 图片。
 10. 当前轮 canonical 输出与 projection 落盘后，就读取项目根 `team.yaml` 做 `S6`；但 `S6` 的职责已经改成写审计边界说明。
 11. `S6` 先确认 `roles.supervision` 已不再承担当前轮 closeout，再决定是否需要把问题写入 audit note / acceptance handoff。
-12. 若用户明确要求本轮做落盘后复核，当前也只按 audit 需求记录，不回退到旧的 subagents 监制强化。
+12. 若用户明确要求本轮做落盘后复核，当前也只按 audit 需求记录，不回退到旧的 顾问与复核流程 监制强化。
 13. 当前轮若要写 audit note，先按 `_shared/design-slot-review-contract.md` 把目标文件解析成 slot bundles；若无法解析，优先修共享合同或 leaf mapping。
 14. 对 slot-bundle 这类 shared audit contract，不能只看 `SKILL.md` 是否提到；必须同时检查 `_shared/scripts/resolve_design_slot_bundles.py` 和 `scripts/aigc_skill_audit.py` 是否消费了同一合同。
 

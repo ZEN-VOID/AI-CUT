@@ -24,4 +24,4 @@
 
 ## Provider Note
 
-`query/` 默认不需要真实 subagent reviewer。若上游任务把本查询包纳入 Skill 2.0 结构审计，可按 `skill-工作车间` 的 review provider 规则另行调度；若上层策略阻断真实 subagent，则降级为本地 checklist 并报告阻断来源。
+`query/` 默认不需要顾问与复核流程 reviewer。若上游任务把本查询包纳入 Skill 2.0 结构审计，可按 `skill-工作车间` 的 review provider 规则另行调度；若顾问与复核流程不可用，则直接使用本地 checklist。

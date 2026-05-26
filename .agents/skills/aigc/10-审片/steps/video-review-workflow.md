@@ -8,8 +8,8 @@ flowchart TD
     N2 --> N3["N3-EVIDENCE<br/>metadata + keyframes + observed_content_summary"]
     N3 --> N36{"N3.6-ADVISOR<br/>review_advisor_packet"}
     N36 -->|"evidence insufficient"| N3
-    N36 -->|"packet ready or downgraded"| N4["N4-COMPARE<br/>video / prompt / quality findings"]
-    N3 -->|"subagents not enabled"| N4
+    N36 -->|"packet ready or local checklist"| N4["N4-COMPARE<br/>video / prompt / quality findings"]
+    N3 -->|"顾问与复核流程 not enabled"| N4
     N4 --> N5["N5-LANDING<br/>rerun / group repair / source escalation / report"]
     N5 --> N6["N6-WRITE<br/>review report or authorized patch"]
     N6 --> N7{"N7-VERIFY<br/>naming + references + patch scope"}
@@ -41,15 +41,15 @@ flowchart TD
 
 ## N3.6 Advisor Consultation
 
-仅在启动 subagents 模式时进入。
+仅在执行顾问与复核流程时进入。
 
 - 读取项目 `team.yaml` 和 `../_shared/team-advisor-consultation-contract.md`。
-- 按 `SKILL.md#Subagents Execution Mechanism` 解析审片监制顾问 roster。
+- 按 `SKILL.md#Advisor Consultation Mechanism` 解析审片监制顾问 roster。
 - 从当前审片节点派生顾问问题，不使用固定“好不好看”题型：
   - `N3-EVIDENCE`：证据是否足够支撑真实视频理解。
   - `N4-COMPARE`：视频本体、prompt 匹配、创作质量、示例差距是否有遗漏。
   - `N5-LANDING`：rerun、group repair、source escalation、quality learning 的落点是否越权。
-- 主 agent 汇流为 `review_advisor_packet`；若真实 dispatch 被上层阻断，写降级报告，不得伪装成已执行 subagents。
+- 主 agent 汇流为 `review_advisor_packet`；若外部 provider 调度 不可用，使用本地 checklist，不得伪装成已执行顾问与复核流程。
 
 ## N4 Compare
 
@@ -84,12 +84,12 @@ flowchart TD
 - 用户示例形成可复用鉴赏 heuristic：`quality_learning`
 - 多例系统问题：`source_escalation`
 - 证据不足：`review_only`
-- subagents 顾问指出证据或归因不足：回到 `N3-EVIDENCE` 或 `N4-COMPARE`，不得硬写最终 verdict。
+- 顾问与复核流程的顾问指出证据或归因不足：回到 `N3-EVIDENCE` 或 `N4-COMPARE`，不得硬写最终 verdict。
 
 ## N6 Write And Verify
 
 - 写 `10-审片` 报告。
 - 如有授权和高置信，写 `6-分组` 修复。
 - 如形成稳定跨项目鉴赏经验，写入本技能 `CONTEXT.md` 的 `Aesthetic Calibration Heuristics`。
-- 若启用 subagents，报告写入 `review_advisor_packet` 摘要或降级说明。
+- 若执行顾问与复核流程，使用 `review_advisor_packet` 摘要；不可用时直接使用本地 checklist。
 - 运行相关结构检查或人工等价检查。

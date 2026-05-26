@@ -1,12 +1,12 @@
 # Resume Review Gate
 
-本文件定义 `$aigc-resume` 的交付前质量门禁、verdict 模型与 reviewer/provider 降级口径。
+本文件定义 `$aigc-resume` 的交付前质量门禁、verdict 模型与 reviewer/provider / 本地 checklist 口径。
 
 ## Default Provider
 
 - 默认辅助 provider：`code-reviewer`
 - 用途：检查 Skill 2.0 结构、恢复证据链、安全边界、runtime 口径和输出模板。
-- 若上层策略阻断真实 subagent 或外部 reviewer 调度，降级为本地 checklist；必须报告阻断来源、原计划 provider、实际路径和未启动的 reviewer。
+- 若外部 reviewer provider 不可用，直接使用本地 checklist。
 
 ## Gate Checklist
 
@@ -55,7 +55,7 @@ finding:
 
 ## Local Checklist Fallback
 
-当无法真实启动默认 reviewer 时，主 agent 本地执行以下 checklist：
+当无法外部执行默认 reviewer 时，主 agent 本地执行以下 checklist：
 
 1. 运行结构 validator。
 2. 检查 `SKILL.md` 是否只保留入口、路由和输出合同。

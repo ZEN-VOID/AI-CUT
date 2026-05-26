@@ -6,12 +6,12 @@
 - provider 配置：`_shared/execution-provider.yaml`
 - runner：`scripts/aigc_review_runner.py`
 
-上层策略若阻断真实 subagent 或外部 reviewer 调度，允许降级为本地 checklist，但必须报告：
+上层策略若阻断顾问与复核流程 或外部 reviewer 调度，允许使用本地 checklist，但必须报告：
 
-- 阻断来源层级
-- 原计划 provider 路径
-- 实际采用的降级路径
-- 未真实启动的 reviewer
+- 不可用来源层级
+- provider 路径
+- 实际采用的本地路径
+- 本地 checklist的 reviewer
 
 ## Verdict Model
 

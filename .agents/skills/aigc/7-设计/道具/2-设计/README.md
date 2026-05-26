@@ -10,7 +10,7 @@
 │   ├── prop-design-contract.md
 │   ├── design-output-contract.md
 │   ├── design-slot-review-contract.md
-│   └── subagent-supervision-contract.md
+│   └── workflow-supervision-contract.md
 ├── scripts/
 │   └── README.md
 ├── templates/
@@ -38,14 +38,14 @@
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
 4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
 5. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/7-设计/道具/2-设计/PROP-###-<安全文件名>.md`。
-6. 按 `review/review-contract.md` 执行 subagent reviewer 或降级 review。
+6. 按 `review/review-contract.md` 执行顾问与复核流程 reviewer 或本地 review。
 
 ## Visual Entry Points
 
 - 根入口图：`SKILL.md#visual-maps`，用于确认输入、模式、LLM-first 创作、review 和落盘主链。
 - 业务来源图：`references/prop-design-contract.md#design-source-map`，用于确认清单、north_star、team、项目记忆如何汇入设计判断。
 - 类型分流图：`types/prop-design-type-map.md#routing-topology`，用于确认关键道具、普通道具、冷门考据、多状态和安全敏感道具如何进入不同强调点。
-- 审查汇流图：`review/review-contract.md#review-flow-map`，用于确认真实 reviewer subagent 与上层阻断时的降级路径。
+- 审查汇流图：`review/review-contract.md#review-flow-map`，用于确认外部 reviewer provider 与不可用时的本地路径。
 
 ## Boundaries
 
@@ -60,4 +60,4 @@
 - 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Photography 与 Prop Design 信息；只拼主体 ID、风格、物品、固定画面词或负向词等前缀/后缀不算完成。
 - 英文 prompt 必须控制在 1300 characters 内，并使用自然语言负向约束，不得使用 Midjourney `--no` 参数。
 - 英文 prompt 必须以主体 ID 号开头，并包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
-- `design-output-contract.md`、`design-slot-review-contract.md` 和 `subagent-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。
+- `design-output-contract.md`、`design-slot-review-contract.md` 和 `workflow-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。

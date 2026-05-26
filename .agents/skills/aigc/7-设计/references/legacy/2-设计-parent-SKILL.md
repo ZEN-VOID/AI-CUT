@@ -59,7 +59,7 @@ governance_tier: full
 - `.agents/skills/aigc/7-设计/2-设计/_shared/design-input-contract.md`
 - `.agents/skills/aigc/7-设计/2-设计/_shared/design-output-contract.md`
 - `.agents/skills/aigc/7-设计/2-设计/_shared/design-slot-review-contract.md`
-- `.agents/skills/aigc/7-设计/2-设计/_shared/subagent-supervision-contract.md`
+- `.agents/skills/aigc/7-设计/2-设计/_shared/workflow-supervision-contract.md`
 - `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 - `场景/SKILL.md`
 - `角色/SKILL.md`
@@ -89,7 +89,7 @@ governance_tier: full
 8. `.agents/skills/aigc/7-设计/2-设计/_shared/design-slot-review-contract.md`
 9. `.agents/skills/aigc/_shared/image-generation-execution-contract.md`
 10. `.agents/skills/aigc/_shared/council-runtime/module-spec.md`
-11. `.agents/skills/aigc/7-设计/2-设计/_shared/subagent-supervision-contract.md`
+11. `.agents/skills/aigc/7-设计/2-设计/_shared/workflow-supervision-contract.md`
 12. 命中 `场景` 时，加载 `场景/SKILL.md + CONTEXT.md`
 13. 命中 `角色` 时，加载 `角色/SKILL.md + CONTEXT.md`
 14. 命中 `道具` 时，加载 `道具/SKILL.md + CONTEXT.md`
@@ -168,7 +168,7 @@ governance_tier: full
 | `S3` | 锁共享输入 | 回链 `1-清单 + 0-Init + 2-Global` 三层输入 | `input_lock_note` | `S4` | `S3` |
 | `S4` | 锁输出边界 | 固定 canonical truth、derived projection 与 slot bundle 边界 | `output_governance_note + slot_bundle_note` | `S5` | `S4` |
 | `S5` | 写 handoff、参照洁净门禁与图片快路径 | 声明 `3-面板` 默认读取 `full_generation_prompt` 与同 stem 图片；按共享输出合同锁定 `场景=empty environmental shot`、`角色=solid color background`、`道具=isolated pure prop view` 后，再触发 `ensure_design_auto_images.py` 写批量 request sidecar，并由当前 Codex 会话逐张调用内置 `image_gen` 生成单主体自动图 | `handoff_note + reference_cleanliness_note + auto_image_note` | `S6` | `S5` |
-| `S6` | 写输出后审计边界说明 | 读取 `team.yaml` 与共享占位合同，明确 `roles.supervision` 只作前置 advisory；当前轮如需后置收尾，只在 `validation-report.md` 留 audit note 与下一入口，不触发 reviewer subagents | `post_write_audit_note` | `done` | `S6` |
+| `S6` | 写输出后审计边界说明 | 读取 `team.yaml` 与共享占位合同，明确 `roles.supervision` 只作前置 advisory；当前轮如需后置收尾，只在 `validation-report.md` 留 audit note 与下一入口，不触发 reviewer provider | `post_write_audit_note` | `done` | `S6` |
 
 ## Pass Table
 
@@ -207,8 +207,8 @@ governance_tier: full
 
 ## 输出后审计占位（Mandatory）
 
-1. 当前轮输出已稳定后，不再进入 `Subagents 监制强化`。
-2. 读取 `projects/aigc/<项目名>/team.yaml` 与 `_shared/subagent-supervision-contract.md` 的目的，仅是确认 `roles.supervision` 在本轮 closeout 中已停用。
+1. 当前轮输出已稳定后，不再进入 `顾问与复核流程 监制强化`。
+2. 读取 `projects/aigc/<项目名>/team.yaml` 与 `_shared/workflow-supervision-contract.md` 的目的，仅是确认 `roles.supervision` 在本轮 closeout 中已停用。
 3. `source_skill_refs` 只证明 provenance / 领域提示，不得充当 runtime 授权字段。
 4. 当前轮若需要定位问题，仍可按 `_shared/design-slot-review-contract.md` 把目标解析到 slot bundle，但这只服务审计记录，不再触发 `监制` patch。
 

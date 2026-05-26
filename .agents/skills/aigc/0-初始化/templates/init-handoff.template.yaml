@@ -72,7 +72,7 @@ sources_breakdown:
 planning_direct_answer_provenance:
   team_ref: "team.yaml"
   role: "planning"
-  used_subagents: false
+  used_advisor_review: false
   packet_refs: []
 
 risk_notes: []

@@ -27,7 +27,7 @@ recommended_action: keep-repair-heuristics-only
 | 中文润色把镜头事实、对白或角色动作顺手改了 | polish overreach | 限定润色只处理表达、节奏和可读性 | 豆包 task packet 写明 forbidden changes | 事实、对白、顺序和镜头编号一致 |
 | 审片 finding 直接改 `6-分组`，没有回看 `5-摄影` | review route shortcut | 先判断缺陷源于视频、图像、分组还是摄影 | review finding 必须映射 source owner | repair report 列出 source_rules_reviewed |
 | 多个子技能包互相覆盖同一资产口径 | cross-stage consumer drift | 建 impact map，列出上游、同层、下游和 future guardrail | `7-设计`、`8-图像`、`9-视频` 修复统一走 owner route | 所有消费者引用同一新版对象 |
-| 豆包调用失败但报告声称已执行 | provider evidence gap | 标记 degraded-local-plan，不宣称 provider 执行 | `provider_evidence` 必填文本和 report 路径或阻断原因 | evidence 路径存在或降级说明明确 |
+| 豆包调用失败但报告声称已执行 | provider evidence gap | 记录 provider-failed-local-plan，不宣称 provider 执行 | `provider_evidence` 必填文本和 report 路径或阻断原因 | evidence 路径存在或失败说明明确 |
 | repair 只做结构化正确，但中文仍像翻译腔/工程腔 | local expression miss | 将中文润色和本土语境创意交给豆包执行 lane | 在 `doubao_task_packet` 写明中文气口、本土文化语境和目标受众 | review 包含 `local_chinese_fit` |
 | 生成资产返工被写成“修改图片/视频文件” | asset truth confusion | repair 只失效、重建任务或路由生成 leaf | 图像/视频结果由 owning provider/leaf 生成 | asset action 是 preserve / invalidate / regenerate |
 | 项目长期偏好未写 MEMORY，后续阶段又偏回旧口径 | project memory drift | 用户明确长期要求时更新项目 `MEMORY.md` | repair intake 区分一次性改动和长期偏好 | MEMORY 与 repair report 口径一致 |

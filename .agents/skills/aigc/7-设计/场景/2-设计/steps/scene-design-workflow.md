@@ -22,7 +22,7 @@
 | `N4-TYPE` | 形成类型画像 | 目标场景、清单关键词、项目资料 | 按 `types/` 判定空间类型、研究重点、来源姿态和风格入口 | `type_profile` | `N5-RESEARCH` | 类型画像足以指导研究 |
 | `N5-RESEARCH` | LLM 直出研究闭环 | 上游证据、north star、team、type profile、`advisor_consultation_packet` | 写 `research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；顾问参谋必须绑定当前节点，不得退化为固定字段问卷 | research brief、advisor node notes | `N6-DESIGN` | 研究能落到可见空间，不把猜测写成事实 |
 | `N6-DESIGN` | LLM 直出设计正文 | research brief、north star、team、type profile、`references/design-output-contract.md`、advisor node notes | 写物语、`## 4. 解构` 下的主体 ID、Scene Design、Cinematography、prompt 和 `prompt_evidence_chain`，并把同一主体 ID、时间与地域锚点以及 `## 4. 解构` 全部有效信息投进最终英文 prompt | draft markdown | `N7-REVIEW` | 核心正文非脚本生成，输出合同硬规则已逐条满足，prompt token 可回指，且最终英文 prompt 以主体 ID 号开头、含时间和地域，并覆盖 Scene Design 与 Cinematography 的有效槽位 |
-| `N7-REVIEW` | 质量门禁与 reviewer 汇流 | draft markdown、review contract、`references/design-slot-review-contract.md`、`references/subagent-supervision-contract.md` | 执行 subagents 或本地 checklist，解析 `SCENE-BUNDLE-01` 并记录缺槽或通过结论，检查 `advisor_node_coverage`，修复阻断项 | review verdict、slot bundle review、subagent supervision record | `N8-WRITE` 或 `N6-DESIGN` | verdict 非阻断，slot bundle 无缺槽，supervision 记录非空且顾问问题绑定节点 |
+| `N7-REVIEW` | 质量门禁与 reviewer 汇流 | draft markdown、review contract、`references/design-slot-review-contract.md`、`references/workflow-supervision-contract.md` | 执行顾问与复核流程 或本地 checklist，解析 `SCENE-BUNDLE-01` 并记录缺槽或通过结论，检查 `advisor_node_coverage`，修复阻断项 | review verdict、slot bundle review、workflow supervision record | `N8-WRITE` 或 `N6-DESIGN` | verdict 非阻断，slot bundle 无缺槽，supervision 记录非空且顾问问题绑定节点 |
 | `N8-WRITE` | 落盘与报告 | accepted draft | 写入 canonical 路径，可选执行报告 | output files | done | 路径和命名正确 |
 
 ## Branch And Merge
@@ -55,5 +55,5 @@ flowchart TD
 - `research_brief` 至少记录 `research_questions`、`source_posture`、`evidence_matrix`、`uncertainty_register`、`visual_translation`。
 - `prompt_evidence_chain` 至少记录 subject ID prefix、style、period/region、spatial、material、light/camera、deconstruction coverage 和 empty-shot token group 的证据来源；subject ID prefix 必须与 `## 4. 解构` 下方 `主体ID号：<主体ID>` 一致。
 - `slot_bundle_review` 至少记录 `SCENE-BUNDLE-01` 的 required slots、证据位置、缺槽 finding 和返工入口。
-- `subagent_supervision_record` 至少记录 dispatch 模式、阻断层级、顾问/reviewer 路径、降级说明、`advisor_node_coverage` 和汇流裁决。
-- `review verdict` 至少记录字段完整性、research brief 完整性、prompt 字符数、LLM-first 边界、slot bundle 结论、subagent supervision 结论和写入路径。
+- `workflow_supervision_record` 至少记录 执行模式、阻断层级、顾问/reviewer 路径、本地流程、`advisor_node_coverage` 和汇流裁决。
+- `review verdict` 至少记录字段完整性、research brief 完整性、prompt 字符数、LLM-first 边界、slot bundle 结论、workflow supervision 结论和写入路径。

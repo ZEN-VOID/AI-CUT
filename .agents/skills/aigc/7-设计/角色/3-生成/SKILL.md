@@ -15,7 +15,7 @@ metadata:
 - 默认唯一执行器是 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`。
 - 除非用户本轮显式点名其他执行器、API、模型或子技能，不得改用 `nano-banana`、`seedream`、AnyFast 子技能、道具/场景多视图子技能或其他图像 API fallback。
 - “补全全部生图”“批量生成”“多视图”“参考图生成”“高清”“2K/4K”等措辞本身不构成切换执行器授权；这些需求仍由 `.agents/skills/cli/imagegen` 路由处理。
-- 若 `.agents/skills/cli/imagegen` 当前无法真实持久化项目图片，本技能必须降级为 `prompt_only` 阻断报告或等待用户显式指定替代执行器；不得自行选择其他生图技能完成交付。
+- 若 `.agents/skills/cli/imagegen` 当前无法真实持久化项目图片，本技能必须降级为 `prompt_only` 不可用说明或等待用户显式指定替代执行器；不得自行选择其他生图技能完成交付。
 - 若用户显式要求使用其他执行器，必须在输出报告中记录：用户授权原文、执行器名称、偏离默认 imagegen 路径的原因、生成产物与回滚范围。
 
 ## Context Loading Contract
@@ -28,13 +28,13 @@ metadata:
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `imagegen/SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `imagegen/CONTEXT.md`。
 - 脚本只能做读取、路径创建、JSON schema 检查、文件存在检查、manifest 汇总等机械辅助；不得生成或改写创作提示词正文。
 
-## Subagent Dispatch Contract
+## Advisor/Reviewer Coordination Contract
 
-- 本技能默认启用真实 subagents 模式；用户点名本技能或父级路由命中本技能时，视为已许可按仓库合同启动 subagents。
+- 本技能默认使用本地顾问与复核流程；用户点名本技能或父级路由命中本技能时，视为已许可按仓库合同执行顾问与复核流程。
 - 推荐路径：主 agent 路由并汇流，按单个角色主体启动 `Worker-角色生成` 子任务；每个 worker 执行 Step1 主图与 Step2 多视图生成，并返回产物路径、JSON prompt 路径、imagegen 模式和 review verdict。
-- subagents 不得改写上游 `2-设计` 文档；只能返回本阶段输出目录内的生成产物、prompt JSON 和局部报告。
-- 若 system / developer / tool / user 层阻断真实 subagent dispatch，必须显式报告阻断层级、原计划 subagent 路径、实际降级路径和未真实启动的角色任务。
-- 若上层策略要求“只有用户显式请求 subagents 才能真实启动”，则本技能本轮降级为主 agent 本地串行执行或本地 review checklist；最终报告必须把阻断来源记为上层策略，而不是记为仓库层未授权。
+- 顾问与复核流程 不得改写上游 `2-设计` 文档；只能返回本阶段输出目录内的生成产物、prompt JSON 和局部报告。
+- 若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程。
+- 若外部顾问与复核 provider 不可用，本技能直接由主 agent 本地串行执行或执行本地 review checklist。
 
 ## Input Contract
 
@@ -48,7 +48,7 @@ Required input:
 
 - 可定位、可读取的项目根 `projects/aigc/<项目名>/`。
 - 至少一份可读取的上游角色设计文档，且包含 `4. 解构` 区块与可追溯主体 ID；主体 ID 优先读取 `## 4. 解构` 下方的 `主体ID号：<主体ID>`，缺失时从 `C###-<角色名>.md` 文件名前缀派生。
-- 可调用的 imagegen 生成能力；如当前环境不能真实生图，只能输出 prompt JSON 与阻断报告，不得伪造图片路径。执行 Step2 多视图前，作为 reference image 的角色主图必须先通过 `view_image` 检视进入对话上下文。
+- 可调用的 imagegen 生成能力；如当前环境不能真实生图，只能输出 prompt JSON 与不可用说明，不得伪造图片路径。执行 Step2 多视图前，作为 reference image 的角色主图必须先通过 `view_image` 检视进入对话上下文。
 
 Optional input:
 
@@ -167,7 +167,7 @@ stateDiagram-v2
 | `FIELD-CHAR-GEN-04` | JSON 落盘 | 主图与多视图 JSON 均存在且可解析 | `FAIL-CHAR-GEN-04` |
 | `FIELD-CHAR-GEN-05` | 非设计边界 | 未新增、改写或重解释角色身份、服装、时代和视觉事实 | `FAIL-CHAR-GEN-05` |
 | `FIELD-CHAR-GEN-06` | imagegen 合同 | 已遵守 imagegen 的模式、2K 默认和项目持久化规则 | `FAIL-CHAR-GEN-06` |
-| `FIELD-CHAR-GEN-07` | Subagents | 默认真实 dispatch；阻断时有完整降级报告 | `FAIL-CHAR-GEN-07` |
+| `FIELD-CHAR-GEN-07` | 顾问与复核流程 | 默认外部 provider 调度；不可用时有完整本地 checklist 结果 | `FAIL-CHAR-GEN-07` |
 | `FIELD-CHAR-GEN-08` | 执行器锁定 | 未获用户显式授权时，只使用 `.agents/skills/cli/imagegen`，不调用 nano-banana / AnyFast / 其他图像 API 子技能 | `FAIL-CHAR-GEN-08` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -182,11 +182,11 @@ stateDiagram-v2
 - 图片没有真实生成却被报告为已生成。
 - 产物没有落到 `projects/aigc/<项目名>/7-设计/角色/3-生成/`。
 - 未获用户显式授权时切换到 nano-banana、AnyFast、seedream 或其他非 `.agents/skills/cli/imagegen` 执行器。
-- 默认 subagents 路径被静默跳过，且没有报告阻断层级和降级路径。
+- 默认顾问与复核流程被静默跳过。
 
 必经链路：
 
-`Symptom -> Direct Generation/Prompt Overreach -> 角色/3-生成 Section Owner -> imagegen Contract -> AGENTS.md LLM-first / Subagent / Skill 2.0 Rule`
+`Symptom -> Direct Generation/Prompt Overreach -> 角色/3-生成 Section Owner -> imagegen Contract -> AGENTS.md LLM-first / 顾问与复核流程 / Skill 2.0 Rule`
 
 ## Output Contract
 
@@ -233,4 +233,4 @@ stateDiagram-v2
 - 多视图生成以对应主图作为参照图；真实生成模式下，该本地主图已先通过 `view_image` 检视进入对话上下文，并记录 `reference_context_status: visible_in_conversation_context`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。
-- subagents 默认路径已真实启动；若被上层阻断，已记录降级报告。
+- 顾问与复核流程 默认路径已外部执行；若不可用，已使用本地流程报告。

@@ -40,7 +40,7 @@
 - 创作性文本改写由 owning stage 的合同和豆包执行 lane共同约束：豆包可以生成分析、润色、repair brief 或候选改写，但写回前必须按 owning stage review gate 裁决。
 - 图像和视频结果由 image/video provider skill 或对应 leaf 持有；repair 不伪造生成结果。
 - 脚本可读取、diff、统计、格式转换和校验，不得生成 canonical creative truth。
-- 若用户显式切换模型或禁用豆包，最终报告必须记录模型切换、降级路径和未启动 provider。
+- 若用户显式切换模型或禁用豆包，最终报告必须记录模型切换、降级路径和未执行 provider。
 
 ## Source Rule Review Record
 

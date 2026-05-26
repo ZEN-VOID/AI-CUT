@@ -68,7 +68,7 @@
 - mode:
 - verdict:
 - checks:
-- degraded_reason:
+- local_checklist_note:
 
 ## Residual Risks
 

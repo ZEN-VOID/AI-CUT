@@ -29,8 +29,13 @@
 | 场景被当作表层动作生成题 | 编导创作内核层 | 回到 `director_substance_pass`，先回答人物是谁、为什么进入当前场景、此刻状态和未出口压力，再决定画面主次、声音/空间发动机和留白 | 在 `N3-DIR-SUBSTANCE` 中把 `who_why_state_subtext` 作为关键场景的内隐检查项，避免只把动作翻译成画面 | 同一句动作在不同人物处境下能产生不同的导演策略；正文能说明该画面为什么存在，而不是只说明发生了什么 |
 | 角色在导演稿里缺少活人感行为动机 | 行为动机种子层 | 回到 `director_substance_pass`，补 `lived_in_behavior_seed`：角色当前小事、生活压力/目标/阻碍、下意识反应方向、情绪落点；多人场面补行动者/反应者分工 | `../_shared/lived-in-character-behavior-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-10` | 下游 `4-表演` 不需要凭空给角色找事做；能从导演证据看出角色为什么动、谁行动、谁反应 |
 | 场景只剩地点标签，缺少年代/功能/声光身份 | 场景身份种子层 | 回到 `director_substance_pass`，补 `scene_identity_seed`：年代/空间功能/社会语境/环境声底色/材质光影 | `../_shared/scene-shot-identity-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-11` | 下游 `5-摄影`、`8-图像`、`9-视频` 不需要把同一动作生成到泛化空间里 |
-| subagents 启用时只本地模拟顾问 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径，按共享团队顾问合同真实 dispatch 或写明上层阻断降级 | 把带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet` 固定为 LLM 投影前上下文，不让顾问替代上游真源 | 执行报告可看到 roster 来源、节点锚点、可执行指导或降级说明 |
-| subagents 启用后只得到泛泛审美评价，没有节点级编导参谋 | 顾问问题质量层 | 回到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与 review gate，把 judgment/actions/evidence/route/gate 转化为顾问任务 | 顾问必须代入角色意识、创作风格和专业水准，输出可转成 `must_do / must_not_do / execution_brief` 的节点级参谋指导 | `advisor_consultation_packet` 中每条采纳意见都能回指节点，并改变节点判断、执行取舍、证据补强、风险禁区或后续投影上下文 |
+| 观众心理缺席 | 悬念体验层 | 回到 `audience-psychology-model-contract.md`，补观众知识、期待、恐惧、渴望、惊讶潜力和冲突进出状态 | workflow 固定 `audience_psychology_map`，review 固定 `GATE-DIR-12` | 下游表演和摄影知道观众此刻在等什么、怕什么、误判什么 |
+| 表演风格只剩逐 beat 指令 | 表演基调层 | 回到 `performance-style-directive-contract.md`，为关键角色补外放度、身体性、声线、面具/真实轴和转变触发 | `N3-DIR-SUBSTANCE` 产出 `performance_style_directive`，review 固定 `GATE-DIR-12` | `4-表演` 能按角色风格频段做五层控制，而不是通用微表情堆叠 |
+| 高点全部正向满足 | 高潮策略层 | 回到 `anticlimax-strategy-contract.md`，检查是否适合延迟满足、低调高潮、失败高潮、假兑现或中断兑现 | `N4-DIR-PEAK` 固定 `anticlimax_directive`，review 固定 `GATE-DIR-13` | 本集高潮不是永远“给满”，能留下残余张力或代价 |
+| 声音只是氛围形容词 | 声音导演层 | 回到 `sound-design-directive-contract.md`，补声音母题、沉默策略、主客观声音、声音现实层和声音转场 | `N7-DIR-AESTHETIC` 固定 `sound_design_directive`，review 固定 `GATE-DIR-14` | 声音不再只是“有风声/有音乐”，而是参与悬念、压迫和转场 |
+| 情绪节奏各阶段不对齐 | 跨阶段节奏层 | 回到 `emotional-rhythm-map-contract.md`，补 peak/valley、张力释放预算、反高潮位置和类型情绪色彩 | `N7-DIR-AESTHETIC` 固定 `emotional_rhythm_map`，review 固定 `GATE-DIR-14` | `4-表演` 和 `5-摄影` 能沿同一情绪曲线执行 |
+| 顾问与复核流程启用时只本地模拟顾问 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径；不可用时直接使用本地流程 | 把带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet` 或本地 checklist 固定为 LLM 投影前上下文，不让顾问替代上游真源 | packet 或本地 checklist 能回指节点锚点与可执行指导 |
+| 顾问与复核流程 启用后只得到泛泛审美评价，没有节点级编导参谋 | 顾问问题质量层 | 回到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与 review gate，把 judgment/actions/evidence/route/gate 转化为顾问任务 | 顾问必须代入角色意识、创作风格和专业水准，输出可转成 `must_do / must_not_do / execution_brief` 的节点级参谋指导 | `advisor_consultation_packet` 中每条采纳意见都能回指节点，并改变节点判断、执行取舍、证据补强、风险禁区或后续投影上下文 |
 | 创作规则很强但执行报告无法证明发生过 | 创作证据层 | 补 `director_substance_evidence`、`peak_visual_plan`、`visual_aesthetic_evidence.scene_items` 和 `episode_final_image_evidence`；特例降级必须说明原因 | review 固定 `GATE-DIR-06`，阻断"只有规则文档、没有创作证据"的交付 | 执行报告不仅有 mechanical pass，也能回指关键场景的戏剧问题、高潮画面、视觉主轴、美学组织和终结画面尾钩 |
 | 思维·执行节点退化成 checklist | steps 拓扑层 | 回到 `steps/directing-workflow.md#Thinking-Action Node Contract`，为责任节点补 `judgment_question / decision / actions_taken / evidence_keys / route_out / gate_status / source_owner` | review 新增节点 ledger gate，执行报告必须写 `thinking_action_node_ledger`；顾问、review 和 writeback 都消费同一 ledger | 节点不只说明"做了什么"，还能证明"先判断了什么、据此做了什么、证据在哪里、失败回哪里" |
 | 学习型合同只完成静态接入 | 验证闭环层 | 补 `learning_integration_review_evidence`，区分真实样例、等价 smoke、`static_only` 和残余风险 | workflow 固定 `Learning Integration Review Closure`，review 检查新增/显著修改合同是否留下静态接入点、样例或 smoke 状态与后续观察点 | 审查结果不再把"文档已引用"误判为"真实生成已稳定产出" |
@@ -40,14 +45,18 @@
 1. 确认上游 `2-编剧/第N集.md` 已通过编剧门禁，输出路径可读。
 2. 从上游正文抽取关键场景清单，逐个检查是否已完成 `director_substance_pass`：有戏剧问题、人物选择压力、观众位置、信息释放和可拍执行策略。
 3. 检查上游是否存在高潮/爽点/高光成分；若有，确认 `peak_visual_pass` 已完成：高点有可回指证据、可拍承托、状态差或余波，且没有新增事实、对白或因果。
-4. 若本轮启用 subagents，检查 `advisor_consultation_packet`：roster 来源、节点锚点、采纳指导摘要或降级说明。
+4. 若本轮执行顾问与复核流程，检查 `advisor_consultation_packet`：roster 来源、节点锚点、采纳指导摘要或本地流程。
 5. 检查关键场景是否有可回指上游的进入状态、压力源、转折点和退出状态。
 5.2. 检查关键场景是否被写成表层动作生成题：如果只能回答“角色做了什么”，但不能回答“谁来、为什么来、此刻状态、未出口压力、观众应站在哪里看”，回到 `director_substance_pass` 补 `who_why_state_subtext`。
 5.5. 检查关键人物 beat 是否有活人感行为动机种子：角色当前小事、生活压力/目标/阻碍、下意识反应方向和情绪落点；多人场面是否已说明谁行动、谁反应。
 5.6. 检查关键场景是否有场景身份种子：年代/空间功能/社会语境/环境声底色/材质光影是否可回指上游；若只有“房间/街道/大厅”等地点标签，补 `scene_identity_seed`。
+5.7. 检查 `audience_psychology_map`：观众此刻知道什么、期待什么、害怕什么、误判什么；缺失时回到 `N3-DIR-SUBSTANCE`。
+5.8. 检查 `performance_style_directive`：关键角色的表演频段和风格转变触发是否已给出；缺失时回到 `N3-DIR-SUBSTANCE`。
 6. 若本轮启用 `controlled_enrichment`，检查 `controlled_enrichment_ledger`：每个新增项有上游锚点、目标字段、用途和风险检查。
 7. 对所有景境、道具、声音和受控增强做人物动作链复核：人物起始姿态、行动方向、可达对象和结束状态是否清楚；若删掉某个细节后动作更顺，删除或降级该细节。
 8. 检查 `episode_visual_spine` 和 `visual_aesthetic_evidence`：整集有视觉主轴，关键场景有核心画面、视觉气质、画面层级、母题变化、对比轴、景境氛围、节奏和留白取舍。
+8.1. 检查 `emotional_rhythm_map`：峰谷、张力释放预算、反高潮位置和类型情绪色彩是否能供表演和摄影消费。
+8.2. 检查 `sound_design_directive`：声音母题、沉默策略、主客观声音、声音现实层和声音转场是否存在。
 9. 检查 `atmosphere_mood_evidence`：关键氛围场至少两个感官通道和一种意境技法。
 10. 检查 `episode_final_image_evidence`：终结画面有类型化匹配、尾钩表面、下一集关联方向和剧透边界。
 11. 检查 `thinking_action_node_ledger`：每条记录包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。
@@ -82,3 +91,11 @@
 - 思维·执行节点的价值在于"判断后执行、执行后留证、失败能回源层"；凡只列动作、不列判断问题、证据、路由和 gate 的节点，都还只是 checklist。
 - 学习资料吸收不能只靠新增 reference；每次把学习成果晋升为合同，都要同时留下真实样例、等价 smoke 或 `static_only` 残余风险说明，避免把静态接入误判为运行稳定。
 - references 细则不能只停在说明文档里；每条强制细则都应在 `steps/directing-workflow.md` 中找到 consumed_by 节点、planning evidence、blocking gate 和 route-back，否则执行时会退回泛泛 checklist。
+- 观众心理是导演阶段的体验真源；如果没有说明观众此刻在等什么、怕什么、误判什么，下游只会把场景拍漂亮。
+- 表演风格基调应先于表演微操。克制、外放、日常自然或仪式化，会直接改变下游微表情密度和身体幅度。
+- 反高潮不是“没有高潮”，而是把观众期待转成残余张力、代价、推迟或假兑现；必须有上游锚点和观众问题。
+- 声音设计要单独成层：沉默、pre-lap、主观声音、环境声压强和声音母题，都是导演策略，不只是氛围补丁。
+- 导演艺术不总是满足观众。最好的高点往往是有代价的——延迟满足、惨胜、假兑现比轻易满足更有力量。
+- 声音不是氛围的附属品，而是独立的叙事角色。声音消失比声音出现更有力。
+- 表演风格基调决定了演员'演多满'。克制型角色的爆发比外放型角色的爆发更震撼——因为他平时不这样。
+- 情绪节奏图是跨阶段对齐物：导演给峰谷和释放预算，表演给强度梯度，摄影给镜头密度和运动节奏。
