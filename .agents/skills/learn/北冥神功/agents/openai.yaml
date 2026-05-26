@@ -1,4 +1,0 @@
-interface:
-  display_name: "北冥神功"
-  short_description: "研究目标配置并把外部升级点有机吸收到现有 skill"
-  default_prompt: "Use $beiming-skill-learning to upgrade a target skill by scanning its current contract, typing upgrade points, choosing landing surfaces, syncing related carriers, and producing an absorption summary."

@@ -1,0 +1,294 @@
+# Ensemble Performance Contract
+
+## Purpose
+
+本细则定义 `4-表演` 中群戏表演的精细层次管理。它不是简单的"谁说话谁表演"的调度规则，而是把群戏中每个角色的表演强度、控制层级和注意力焦点分配系统化，确保群戏有主次、有呼吸、有节奏。
+
+核心原则：群戏最怕人人抢表演。同一时刻只有一个角色是注意力焦点，其他角色必须通过自己的层次定位服务于这个焦点。前景推动动作，中景承托知觉，背景填充氛围——三层各司其职，群戏才有呼吸感。
+
+## Ownership
+
+- 本文件拥有群戏表演的层次分配：四层结构、动态升降规则、注意力焦点管理、不同规模群戏的分配策略。
+- `actor-performance-control-contract.md` 提供单个角色的五层表演控制公式；本文件决定群戏中每个角色应该使用五层中的哪些层。
+- `psychological-reaction-contract.md` 的 Multi-Person Scene Mechanism 负责多人心理反应；本文件负责多人表演的强度和焦点分配。
+- `performance-and-scene-craft-contract.md` 负责场面调度的空间层面；本文件负责表演强度的空间层面——同一个调度方案下，不同位置的角色应有不同的表演控制层级。
+- `../3-导演/references/visual-aesthetic-contract.md` 负责摄影景别和机位；本文件决定不同景别下角色的表演密度——特写角色用五层控制，中景角色用三层，背景角色用一层。
+- `../../_shared/lived-in-character-behavior-contract.md` 提供"一个人行动、另一个人反应"的分工原则；本文件把该原则扩展为完整的四层群戏架构。
+
+## Four-Layer Ensemble Structure
+
+群戏中每个角色必须被分配到以下四层之一。同一角色在同一时刻只能属于一层，但可以在场景中动态升降。
+
+### Layer 1: Foreground Driver（前景行动者）
+
+| attribute | specification |
+| --- | --- |
+| 定义 | 当前推动戏剧动作的角色，是注意力焦点 |
+| 控制层级 | 完整五层控制：`emotion_trigger` + `inner_motive` + `micro_expression` + `body_linkage` + `ambient_support` |
+| 表演密度 | 最高——每个 beat 都有完整的面部、身体、声音和空间变化 |
+| 对白处理 | 完整的 `dialogue_delivery` 证据：语气、气口、断句、重音、声线变化、尾音处理 |
+| 视线管理 | 视线有明确的落点和移动轨迹，与目标对手或物件建立关系 |
+| 空间行为 | 空间占位变化有戏剧意义——靠近、远离、转向、占据 |
+
+```yaml
+# 前景行动者示例
+foreground_driver:
+  character: "林寂"
+  control_layers: 5
+  beat_example: >
+    林寂站起来，椅子腿在地面拖出一声短促的摩擦；他没有马上开口，
+    先看了一眼黑板上的规则，再把目光移到苏红叶脸上，
+    嘴唇动了一下又停住，吸了半口气才出声。
+```
+
+### Layer 2: Foreground Reactor（前景反应者）
+
+| attribute | specification |
+| --- | --- |
+| 定义 | 与焦点角色有直接戏剧关系、正在接收或回应动作的角色 |
+| 控制层级 | 三层控制：`trigger`（接收什么信号）+ `micro_expression`（面部反应）+ `body_linkage`（身体反应） |
+| 表演密度 | 中高——每个 beat 有反应，但反应比行动更克制、更依赖触发 |
+| 对白处理 | 反应性对白或沉默；节奏由行动者的动作决定 |
+| 视线管理 | 视线跟随行动者，偶尔有偏移（暗示思考或犹豫） |
+| 空间行为 | 空间变化是被动的——被推后退、被拉近、被压力改变姿态 |
+
+```yaml
+# 前景反应者示例
+foreground_reactor:
+  character: "苏红叶"
+  control_layers: 3
+  beat_example: >
+    林寂站起来的瞬间，苏红叶握着教鞭的手指微微收紧，
+    但她的表情没有变化，只是视线从课本移到林寂脸上，
+    嘴角保持原来的弧度——在等他先开口。
+```
+
+### Layer 3: Midground Aware（中景知觉者）
+
+| attribute | specification |
+| --- | --- |
+| 定义 | 在场景空间中能感知到焦点事件、但没有被直接卷入的角色 |
+| 控制层级 | 一层控制：`awareness_signal`（视线偏移或姿态微调） |
+| 表演密度 | 低——只有"意识到发生了什么"的信号，没有主动表演 |
+| 对白处理 | 通常沉默；如有对白，只是一句功能性反应，不展开 |
+| 视线管理 | 视线从自己的事务偏移到焦点方向，停留1-2秒后可能收回 |
+| 空间行为 | 不改变空间占位，但姿态可能微调（如身体微微转向声源） |
+
+```yaml
+# 中景知觉者示例
+midground_aware:
+  character: "后排同学"
+  control_layers: 1
+  beat_example: >
+    前排有椅子拖动声；后排两名同学的笔尖同时停了一拍，
+    其中一个微微抬头看了一眼，又低下头去。
+```
+
+### Layer 4: Background Ambient（背景氛围者）
+
+| attribute | specification |
+| --- | --- |
+| 定义 | 在场景空间中填充氛围、但不参与焦点戏剧的角色 |
+| 控制层级 | 动态限制：只做场景内成立的日常行为，不许与主线互动 |
+| 表演密度 | 最低——持续的低强度日常行为，不因焦点事件而改变 |
+| 对白处理 | 无对白，或极低音量的环境对白（不可辨识内容） |
+| 视线管理 | 视线不投向焦点方向，保持在自己的事务上 |
+| 空间行为 | 不改变空间占位，不出现异常行为 |
+
+```yaml
+# 背景氛围者示例
+background_ambient:
+  characters: "其他同学"
+  control_layers: 0 (dynamic_restriction_only)
+  behavior: >
+    背景中有人在翻书页，有人在低头写字，
+    粉笔灰在光线中缓慢飘落。
+    不因林寂站起来而停止自己的行为。
+```
+
+## Dynamic Shifting Rules
+
+角色可以在场景中从一层升到另一层，但升降必须有触发条件和表演突变。
+
+### Promotion Triggers（升级触发条件）
+
+| from_layer | to_layer | trigger_conditions | performance_shift |
+| --- | --- | --- | --- |
+| `background_ambient` → `midground_aware` | 背景→中景 | 被声音惊动、感知到异常气氛、有人进入空间 | 日常行为暂停，视线偏移到声源或焦点 |
+| `midground_aware` → `foreground_reactor` | 中景→前景反应 | 被点名、被直接问话、被推入冲突、发现与自己相关的异常 | 从一层控制扩展到三层，出现完整的面部和身体反应 |
+| `foreground_reactor` → `foreground_driver` | 前景反应→前景行动 | 接过话头、主动发起动作、做出关键决定、被推到必须回应的位置 | 从三层扩展到五层，从反应模式切换为行动模式 |
+
+### Demotion Triggers（降级触发条件）
+
+| from_layer | to_layer | trigger_conditions | performance_shift |
+| --- | --- | --- | --- |
+| `foreground_driver` → `foreground_reactor` | 行动→反应 | 把话头交给别人、完成自己的动作回合、被更强的角色压住 | 从五层收敛到三层，从主动变为被动 |
+| `foreground_reactor` → `midground_aware` | 前景→中景 | 戏剧焦点转移、自己与事件的关联减弱、被其他人挤出对话 | 从三层收敛到一层，从完整反应变为只保留视线和姿态 |
+| `midground_aware` → `background_ambient` | 中景→背景 | 焦点事件平息、自己不再需要关注 | 视线收回，恢复日常行为 |
+
+### Promotion Performance Burst
+
+角色从低层升到高层时，表演必须出现"突入"感——之前一直在做日常行为的角色，突然成为焦点，观众应该能感受到表演密度的跳变。
+
+```yaml
+# 正确：升级时有突入感
+# 角色从中景升到前景反应
+升级突变：
+  之前：笔尖在纸上缓慢移动
+  之后：笔尖停住，手指收紧握笔的力道，抬头时眼睛先眨了一下再聚焦到林寂脸上
+
+# 错误：升级时无变化
+# 角色从中景升到前景反应
+升级平庸：
+  之前和之后都在写字，只是多了一句台词
+```
+
+## Attention Focus Management
+
+### Single Focus Rule
+
+同一时刻只有一个角色是注意力焦点。焦点管理的执行方式：
+
+| focus_type | definition | execution |
+| --- | --- | --- |
+| 焦点角色 | 当前正在行动或做出关键反应的角色 | 完整五层或三层控制，空间行为活跃 |
+| 承托角色 | 用反应为焦点角色的行动提供戏剧重量的角色 | 反应性表演，强度低于焦点角色，节奏跟随焦点 |
+| 氛围角色 | 用持续的低强度行为填充空间的角色 | 不变行为，不参与焦点 |
+
+### Focus Transition
+
+焦点从一个角色转移到另一个角色时：
+
+1. 旧焦点角色的表演强度开始下降（从行动模式过渡到反应模式或沉默）。
+2. 新焦点角色的表演强度开始上升（从反应或沉默过渡到行动模式）。
+3. 过渡过程中有1-2个beat的交叉期——两个角色同时在中等强度，但方向相反。
+4. 过渡完成后，旧焦点角色降入与新关系匹配的层次。
+
+## Ensemble Scale Guidelines
+
+不同规模的群戏有不同的层次分配策略：
+
+### Two-Person Scene（双人戏）
+
+| 角色A | 角色B | 分配规则 |
+| --- | --- | --- |
+| `foreground_driver` | `foreground_reactor` | 最常见模式：一人行动，一人反应 |
+| `foreground_reactor` | `foreground_driver` | 角色轮换：A的行动回合结束后B接过焦点 |
+| `foreground_driver` | `foreground_driver` | 少见——双方同时主动，用于对峙高潮，需要极精确的节奏控制 |
+
+双人戏中两个角色不应在同一beat内都是完整五层控制——必须交替使用，如同乒乓球。
+
+### Three-Person Scene（三人戏）
+
+| 层次分配 | 典型模式 |
+| --- | --- |
+| `foreground_driver` + `foreground_reactor` + `midground_aware` | 标准三角：两人对话，第三人旁观并感知 |
+| `foreground_driver` + `foreground_reactor` + `foreground_reactor` | 一人对两人：行动者同时面对两个反应者 |
+| 动态轮换 | 三人轮流成为焦点，通过对话轮次切换 |
+
+三人戏中始终有一个人是中景知觉者或安静的反应者——三人不能同时全力表演。
+
+### Small Group Scene（小群体 4-8人）
+
+| 层次分配 | 典型模式 |
+| --- | --- |
+| 1 × `foreground_driver` | 只有一个推动动作的人 |
+| 1-2 × `foreground_reactor` | 1-2个与焦点有直接关系的反应者 |
+| 2-3 × `midground_aware` | 2-3个在空间中感知但未卷入的角色 |
+| 其余 × `background_ambient` | 剩余角色填充氛围 |
+
+小群体场景的关键：反应者不超过两个，中景知觉者不超过三个。超过这个数量，群戏会变成"所有人都在反应"的噪音。
+
+### Large Group Scene（大群体 8+人）
+
+| 层次分配 | 典型模式 |
+| --- | --- |
+| 1 × `foreground_driver` | 大群体中只有一个驱动者 |
+| 1 × `foreground_reactor` | 大群体中只有一个直接反应者 |
+| 2-3 × `midground_aware` | 少量知觉者代表群体感知 |
+| 其余 × `background_ambient` | 绝大多数角色只做氛围行为 |
+
+大群体场景中，群体反应通过2-3个中景知觉者的差异化行为来代表，而不是让8个人同时做出反应。群体的戏剧重量通过氛围层的整体变化（如集体安静、集体停顿）来传达，不需要每个角色都有独立的反应。
+
+## Group Reaction Cascade
+
+当群体面对同一刺激时，反应不应同时爆发，而应呈瀑布式传播：
+
+| cascade_stage | timing | who_reacts | what_happens |
+| --- | --- | --- | --- |
+| 首发反应 | 即时 | `foreground_reactor`（最接近刺激的角色） | 完整的三层反应 |
+| 二波反应 | 延迟1-2拍 | `midground_aware`（感知到首发反应的角色） | 视线偏移、姿态微调 |
+| 群体反应 | 延迟3-5拍 | `background_ambient`（通过二波反应间接感知） | 整体氛围变化（如集体安静），但个体行为不突变 |
+
+```yaml
+# 正确：瀑布式传播
+cascade:
+  beat_1: "苏红叶的教鞭在讲台上敲了一声——林寂的呼吸停了一拍（foreground_reactor 即时反应）"
+  beat_2: "前排两名同学的笔尖同时停住，微微抬头（midground_aware 延迟1拍）"
+  beat_3: "后排翻书的声音陆续停了，教室安静了两秒（background_ambient 延迟3拍，氛围层整体变化）"
+
+# 错误：所有人同时反应
+simultaneous:
+  beat_1: "教鞭声一响，全班同学同时抬头、同时停笔、同时屏住呼吸。"
+```
+
+## Evidence Contract
+
+在执行报告中，群戏的层次分配应能等价覆盖：
+
+```yaml
+ensemble_performance_evidence:
+  - scene_id: ""
+    ensemble_size: ""
+    focus_character: ""
+    layers:
+      foreground_driver:
+        character: ""
+        control_layers: 5
+        key_beat: ""
+      foreground_reactor:
+        characters: []
+        control_layers: 3
+        trigger: ""
+      midground_aware:
+        characters: []
+        awareness_signal: ""
+      background_ambient:
+        characters: []
+        ambient_behavior: ""
+    dynamic_shifts:
+      - character: ""
+        from_layer: ""
+        to_layer: ""
+        trigger: ""
+        performance_burst: ""
+    focus_transitions:
+      - from_character: ""
+        to_character: ""
+        transition_beats: ""
+    cascade_pattern:
+      beat_1: ""
+      beat_2: ""
+      beat_3: ""
+```
+
+## Failure Modes
+
+| failure | symptom | fix |
+| --- | --- | --- |
+| 所有角色同等强度 | 每个角色都有完整的面部、身体和声音变化，群戏变成表演噪音 | 确认只有 `foreground_driver` 使用五层控制，其他角色各降一级 |
+| 人人抢表演 | 多个角色在同一beat内都在主动行动，观众不知道看谁 | 检查 `foreground_driver` 是否只有一个，其他角色是否回到反应层 |
+| 背景角色做出异常反应 | `background_ambient` 角色突然抬头、惊讶、说话，破坏了背景层的行为限制 | 强制背景角色只做场景内成立的日常行为，不因焦点事件改变 |
+| 群戏没有焦点 | 所有角色在中低强度表演，没有一个角色是观众应该关注的 | 指定至少一个 `foreground_driver`，确保其表演密度明显高于其他人 |
+| 升级没有突变感 | 角色从背景升到前景时，表演密度没有可感知的跳变 | 在升级瞬间加入"表演突入"——日常行为中断，注意力快速聚焦 |
+| 反应同时爆发 | 群体面对刺激时所有人同一拍做出反应 | 使用 Group Cascade 模式，让反应呈瀑布式传播 |
+| 双人戏两人同时全力表演 | 两个角色在同一beat内都是五层控制，乒乓球变成了对打 | 确保同一beat内只有一个角色是五层，另一个降到三层 |
+
+## Reusable Heuristics
+
+- "群戏最怕人人抢表演；让一个人推动动作，另一个人接住反应，其他人服务关系。"
+- "前景行动者用五层控制，反应者用三层，中景用一层，背景用零层——层次越低，表演越克制。"
+- "群体反应不是同时爆发的——它像多米诺骨牌，从最近的人传到最远的人。"
+- "角色从背景升到前景时，必须有表演突变。观众应该能感受到'这个人突然被聚光灯照亮了'。"
+- "同一时刻只有一个注意力焦点。如果你需要观众同时看两个角色，那说明你的调度有问题。"
+- "大群体场景不是让8个人都有反应，而是让2-3个代表性反应来代表整个群体。"

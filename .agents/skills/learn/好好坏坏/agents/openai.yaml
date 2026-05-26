@@ -1,4 +1,0 @@
-interface:
-  display_name: "好好坏坏"
-  short_description: "用好/坏输出示例反推目标 skill 的源层规则缺口并完成调优"
-  default_prompt: "Use $haohao-huaihuai to tune a target skill by comparing good and bad task-output examples, loading the target skill contract and source materials, tracing differences to source-layer owners, patching the right surfaces, and validating the result."

@@ -78,6 +78,12 @@ route_policies:
   - id: aigc-review-satellite-entry
     trigger: 命中 checkpoint 审计点、阶段总验、package release gate、跨阶段 handoff review、或需要把阶段问题结构化聚合成 repair route
     rule: "优先进入 `.agents/skills/aigc/review/SKILL.md`；先锁 `checkpoint_inline / stage_acceptance / package_release` mode，再组装 review fact pack、读取 mandatory dimension specs、执行维度审计，并把 aggregate gate packet 回写到 `projects/aigc/<项目名>/review/`。"
+  - id: aigc-repair-satellite-entry
+    trigger: 命中 `$aigc-repair`、`aigc/repair`、AIGC 多阶段输出物修复、局部调整、整体调整、中文润色、豆包执行、创意激发、review finding 回修、或用户要求回看源层规则后修复阶段产物
+    rule: "优先进入 `.agents/skills/aigc/repair/SKILL.md`；先加载 aigc 根合同、repair 的 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md` 与相关 `CONTEXT/`，定位目标输出物 owning stage/leaf，回看 source rules，产出 impact map、canonical owner、writeback order 和 doubao task packet；执行型任务默认调用 `.agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/SKILL.md`，最终按 owning stage 合同写回并经 repair review gate 验收。"
+  - id: aigc-learn-satellite-entry
+    trigger: 命中 `$aigc-learn`、`aigc/learn`、AIGC 技能学习、吸收外部材料、学习网页/文档/书籍/视频/音频、对比当前 AIGC 技能树不足、或要求把外部经验 source-first 补进 `.agents/skills/aigc/`
+    rule: "优先进入 `.agents/skills/aigc/learn/SKILL.md`；先加载 aigc 根合同、learn 的 `SKILL.md + CONTEXT.md`、命中的 `types/` 类型包和相关目标 skill，建立 source digest、media evidence status、conflict verification、target_skill_map、gap matrix、landing_set 与 sync_scope；执行型任务按 owning skill 最窄有效分区落盘，并同步 root、registry、routes、audit 和引用后运行协调审计。"
   - id: aigc-image-stage-entry
     trigger: 命中 `8-图像` 或 legacy `5-Image`，或需要把 `5-摄影` / `7-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
     rule: "优先进入 `.agents/skills/aigc/8-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/6-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/8-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/8-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `8-图像` 默认入口。"

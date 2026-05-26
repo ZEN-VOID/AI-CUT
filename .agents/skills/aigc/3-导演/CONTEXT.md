@@ -26,6 +26,7 @@
 | 氛围感停留在地点标签，缺少五感通感、微观质感和声景层次 | 意境密度层 | 回到 `atmosphere_mood_pass`，按五感氛围框架和意境技法清单为关键情绪场、压迫场、离别场和类型氛围场补意境密度；至少覆盖两个感官通道和一种意境技法 | 在 workflow 固定 `N7-DIR-AESTHETIC` 消费 `atmosphere-and-mood-contract.md`，review 固定 `GATE-DIR-08` | 正文关键氛围场能看到光线纹理、空气湿度、声音质感、气味或时间痕迹中的至少两类感官细节，以及通感、微观放大、反衬、声景层次、延时承托或留白中的至少一种技法 |
 | B 路线被误用成自由新增 | 受控增强边界层 | 删除新增对白、事件、规则、线索、因果或人物动机；只保留有上游锚点的环境、反应、表演、调度、声音、道具和余波承托 | `controlled-enrichment-contract.md` 固定 B/C 分界与 `controlled_enrichment_ledger` | 每个新增项有 `source_anchor`、`target_field`、`purpose`、`risk_check` |
 | 氛围/道具增强抢走人物动作链 | 人物动作链层 | 回到 `action_first_continuity_check`，先锁定人物 entry_state/action_vector/reachable_target/exit_state；删掉无法通过准入的环境或道具细节 | `../_shared/action-first-continuity-contract.md` 固定人物动作链优先，`controlled-enrichment-contract.md` 将 `action_chain_preserved` 纳入 risk_check | 删掉环境/道具细节后人物动作链不会更顺；保留项均有空间定位、互动、信息、规则/证据/危险源或必要交代理由 |
+| 场景被当作表层动作生成题 | 编导创作内核层 | 回到 `director_substance_pass`，先回答人物是谁、为什么进入当前场景、此刻状态和未出口压力，再决定画面主次、声音/空间发动机和留白 | 在 `N3-DIR-SUBSTANCE` 中把 `who_why_state_subtext` 作为关键场景的内隐检查项，避免只把动作翻译成画面 | 同一句动作在不同人物处境下能产生不同的导演策略；正文能说明该画面为什么存在，而不是只说明发生了什么 |
 | 角色在导演稿里缺少活人感行为动机 | 行为动机种子层 | 回到 `director_substance_pass`，补 `lived_in_behavior_seed`：角色当前小事、生活压力/目标/阻碍、下意识反应方向、情绪落点；多人场面补行动者/反应者分工 | `../_shared/lived-in-character-behavior-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-10` | 下游 `4-表演` 不需要凭空给角色找事做；能从导演证据看出角色为什么动、谁行动、谁反应 |
 | 场景只剩地点标签，缺少年代/功能/声光身份 | 场景身份种子层 | 回到 `director_substance_pass`，补 `scene_identity_seed`：年代/空间功能/社会语境/环境声底色/材质光影 | `../_shared/scene-shot-identity-contract.md` 与 `directorial-authorship-contract.md` 固定源层证据，review 增加 `GATE-DIR-11` | 下游 `5-摄影`、`8-图像`、`9-视频` 不需要把同一动作生成到泛化空间里 |
 | subagents 启用时只本地模拟顾问 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径，按共享团队顾问合同真实 dispatch 或写明上层阻断降级 | 把带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet` 固定为 LLM 投影前上下文，不让顾问替代上游真源 | 执行报告可看到 roster 来源、节点锚点、可执行指导或降级说明 |
@@ -41,6 +42,7 @@
 3. 检查上游是否存在高潮/爽点/高光成分；若有，确认 `peak_visual_pass` 已完成：高点有可回指证据、可拍承托、状态差或余波，且没有新增事实、对白或因果。
 4. 若本轮启用 subagents，检查 `advisor_consultation_packet`：roster 来源、节点锚点、采纳指导摘要或降级说明。
 5. 检查关键场景是否有可回指上游的进入状态、压力源、转折点和退出状态。
+5.2. 检查关键场景是否被写成表层动作生成题：如果只能回答“角色做了什么”，但不能回答“谁来、为什么来、此刻状态、未出口压力、观众应站在哪里看”，回到 `director_substance_pass` 补 `who_why_state_subtext`。
 5.5. 检查关键人物 beat 是否有活人感行为动机种子：角色当前小事、生活压力/目标/阻碍、下意识反应方向和情绪落点；多人场面是否已说明谁行动、谁反应。
 5.6. 检查关键场景是否有场景身份种子：年代/空间功能/社会语境/环境声底色/材质光影是否可回指上游；若只有“房间/街道/大厅”等地点标签，补 `scene_identity_seed`。
 6. 若本轮启用 `controlled_enrichment`，检查 `controlled_enrichment_ledger`：每个新增项有上游锚点、目标字段、用途和风险检查。
@@ -55,6 +57,7 @@
 ## Reusable Heuristics
 
 - `3-导演` 的价值不是"把剧本写得更像电影"，而是让每场关键戏有问题、有压力、有选择、有信息释放、有观众位置和可执行的动作/声音/空间发动机。
+- 同一句表层动作在不同人物处境下不是同一场戏。导演判断先问“谁、为什么、此刻状态、未出口压力”，再问画面怎么显影；否则下游会把戏误解为动作生成。
 - 高潮画面强化的顺序是：先找上游已有满足兑现点，再找角色锚点和状态差，最后才强化画面、声音、表演和余波；不要为了"更炸"新增事实。
 - 团队顾问的价值是"创作前照亮取舍"，不是接管剧本；最终执行口径必须同步于当前思维·执行节点，落成节点判断、执行取舍、证据补强、字段投影、表演任务、声画承托和风险禁区，并作为后续 LLM 投影、阶段内修复与复审的上下文继续使用。
 - 画面美学不是多写形容词，而是先定核心画面和主次层级：观众记住什么、什么只做背景、哪里该重复成母题、哪里该留白。

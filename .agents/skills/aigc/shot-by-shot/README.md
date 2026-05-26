@@ -39,10 +39,12 @@ shot-by-shot/
 
 ## 输出
 
+所有文档统一落点在 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`：
+
 - 主报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md`
-- 全局风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md`
-- 编剧风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/编剧风格解析.md`
-- 摄影风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/摄影风格解析.md`
-- 设计风格解析：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/设计风格解析.md`
 - 分镜脚本：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/分镜脚本.md`
+- 全局风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/全局风格解析.md`
+- 编剧风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/编剧风格解析.md`
+- 摄影风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/摄影风格解析.md`
+- 设计风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/设计风格解析.md`
 - 执行报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/执行报告.md`

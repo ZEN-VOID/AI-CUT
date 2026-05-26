@@ -24,6 +24,7 @@
 | 平台限制或版权边界不清 | 规则应用层 | 停止执行并明确权限前提与使用边界 | 在技能使用入口加入合规性提醒与拒绝分支 | 确认请求用途与权限声明 |
 | YouTube 链接携带播放列表参数但用户只要单视频 | 执行参数层 | 使用 `--no-playlist` 并保留原始 watch URL | 将 `list=` / `start_radio=` 视为单视频下载的批量误触发风险 | yt-dlp 输出应显示 `Downloading just the video ... because of --no-playlist` |
 | YouTube SABR / JS runtime 限制导致高分辨率格式不可见 | 平台兼容层 | 接受当前可用格式并用 `ffprobe` 验证实际分辨率 | 下载后必须报告实际 width/height，不把目标质量误报为成功质量 | 检查 yt-dlp format id 与 `ffprobe` 的 codec、duration、size、width、height |
+| YouTube 下载中途 `HTTP 403` | 工具版本 / 平台兼容层 | 先升级 `yt-dlp` 后重试；必要时清理本轮 `.part` 临时文件 | 每次 YouTube 下载前检查 `yt-dlp --version`，遇到 403 优先排查版本滞后与 JS runtime 提示 | 重试后下载完整文件，并用 `ffprobe` 验证媒体参数 |
 | 成功形成可复用下载请求模板 | CONTEXT 经验层 | 提炼为下载参数收集 heuristic | 在跨平台复用验证后晋升到 `SKILL.md` | YouTube/playlist/audio-only 场景都能覆盖 |
 
 ## Repair Playbook
@@ -42,3 +43,4 @@
 - 音频提取、单视频下载、播放列表下载其实是三种不同任务，最好在技能调用时明确分流。
 - YouTube URL 同时包含 `watch?v=` 与 `list=` 时，不应默认批量下载；用户确认单视频后必须加 `--no-playlist`。
 - 下载完成后用 `ffprobe` 验证实际媒体参数；当平台只给低清格式时，最终报告以实际分辨率为准。
+- YouTube 下载出现 `HTTP 403` 且本地 `yt-dlp` 版本落后时，先升级 `yt-dlp` 再重试；旧 `.part` 文件只保留本轮可恢复下载时使用，否则清理后重新拉取。

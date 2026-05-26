@@ -36,14 +36,28 @@ SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
 ESTABLISHING_SHOT_LABEL = "定场镜头："
-ESTABLISHING_CONTINUITY_MARKERS = (
-    "承接上一组结束状态",
-    "承接上组末尾",
-    "承接上一组末尾",
-    "延续上一组结束状态",
-    "延续上组末尾",
+TAIL_FRAME_REPLAY_MARKERS = (
+    "上一组末帧",
+    "上一组尾帧",
+    "上一组最后一帧",
+    "上组末帧",
+    "上组尾帧",
+    "上一个分镜组末帧",
+    "上一个分镜组尾帧",
+    "尾帧还原",
 )
 VISUAL_TONE_LABEL = "画面属性："
+COMPOSITION_LABEL = "画面构图："
+COMPOSITION_PARTITION_LABELS = (
+    "左侧：",
+    "中间：",
+    "右侧：",
+    "前景：",
+    "中景：",
+    "背景：",
+)
+MIN_COMPOSITION_PARTITIONS = 2
+PROHIBITED_GROUP_SUBJECT_LABEL_RE = re.compile(r"^(角色|场景|道具|主体信息)[：:]", re.MULTILINE)
 CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
 LEGACY_ENTRY_LABEL = "入场画面："
@@ -284,23 +298,36 @@ def extract_prefixed_label_content(body: str, label: str) -> str:
     return ""
 
 
+def extract_label_block_content(body: str, label: str, stop_labels: tuple[str, ...]) -> str:
+    lines = body.splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith(label):
+            continue
+        collected: list[str] = []
+        suffix = stripped[len(label) :].strip()
+        if suffix:
+            collected.append(suffix)
+        for candidate in lines[index + 1 :]:
+            candidate_stripped = candidate.strip()
+            if any(candidate_stripped.startswith(stop_label) for stop_label in stop_labels):
+                break
+            if candidate.startswith("```yaml") or candidate.startswith("## "):
+                break
+            if candidate_stripped:
+                collected.append(candidate_stripped)
+        return "\n".join(collected).strip()
+    return ""
+
+
 def extract_style_lines(body: str) -> list[str]:
     lines = body.splitlines()
+    visual_tone_index = find_prefixed_label_index(body, VISUAL_TONE_LABEL)
+    if visual_tone_index is None:
+        return []
     style_lines: list[str] = []
-    skipped_scene_title = False
-    skipped_establishing_shot = False
-    skipped_visual_tone = False
-    for line in lines[1:]:
+    for line in lines[visual_tone_index + 1 :]:
         stripped = line.strip()
-        if stripped and not skipped_scene_title:
-            skipped_scene_title = True
-            continue
-        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
-            skipped_establishing_shot = True
-            continue
-        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
-            skipped_visual_tone = True
-            continue
         if stripped:
             style_lines.append(stripped)
         if len(style_lines) == STYLE_LINE_COUNT:
@@ -329,21 +356,12 @@ def find_prefixed_label_index(body: str, label: str) -> int | None:
 
 def style_line_indices(body: str) -> list[int]:
     lines = body.splitlines()
+    visual_tone_index = find_prefixed_label_index(body, VISUAL_TONE_LABEL)
+    if visual_tone_index is None:
+        return []
     indices: list[int] = []
-    skipped_scene_title = False
-    skipped_establishing_shot = False
-    skipped_visual_tone = False
-    for index, line in enumerate(lines[1:], start=1):
+    for index, line in enumerate(lines[visual_tone_index + 1 :], start=visual_tone_index + 1):
         stripped = line.strip()
-        if stripped and not skipped_scene_title:
-            skipped_scene_title = True
-            continue
-        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
-            skipped_establishing_shot = True
-            continue
-        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
-            skipped_visual_tone = True
-            continue
         if stripped:
             indices.append(index)
         if len(indices) == STYLE_LINE_COUNT:
@@ -358,34 +376,21 @@ def connector_sequence(groups: list[GroupBlock]) -> list[tuple[str, str]]:
 def strip_group_non_body_sections(body: str) -> str:
     lines = body.splitlines()
     content_lines: list[str] = []
-    non_empty_seen = 0
-    skipped_scene_title = False
-    skipped_establishing_shot = False
-    skipped_visual_tone = False
+    skipping_style_lines = False
+    style_non_empty_seen = 0
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("## "):
             continue
-        if not skipped_scene_title:
-            if stripped:
-                skipped_scene_title = True
-                content_lines.append(line)
-            continue
-        if stripped.startswith(ESTABLISHING_SHOT_LABEL) and not skipped_establishing_shot:
-            skipped_establishing_shot = True
-            content_lines.append(line)
-            continue
-        if stripped.startswith(VISUAL_TONE_LABEL) and not skipped_visual_tone:
-            skipped_visual_tone = True
-            content_lines.append(line)
-            continue
-        if non_empty_seen < STYLE_LINE_COUNT:
-            if stripped:
-                non_empty_seen += 1
-            continue
         if stripped.startswith("```yaml"):
             break
+        if skipping_style_lines and style_non_empty_seen < STYLE_LINE_COUNT:
+            if stripped:
+                style_non_empty_seen += 1
+            continue
         content_lines.append(line)
+        if stripped.startswith(VISUAL_TONE_LABEL):
+            skipping_style_lines = True
     return "\n".join(content_lines).strip()
 
 
@@ -601,18 +606,46 @@ def validate_file(path: Path) -> ValidationResult:
         elif leading_scene_numbers[:1] != [group.scene]:
             errors.append(f"{prefix} scene title must start with 场景{group.scene}")
         establishing_line = leading_lines[1][1] if len(leading_lines) >= 2 else ""
+        establishing_content = extract_label_block_content(
+            group.body,
+            ESTABLISHING_SHOT_LABEL,
+            stop_labels=(VISUAL_TONE_LABEL,),
+        )
         if len(leading_lines) < 2 or not establishing_line.startswith(ESTABLISHING_SHOT_LABEL):
             errors.append(
                 f"{prefix} must include {ESTABLISHING_SHOT_LABEL} immediately after the scene title line"
             )
-        elif establishing_line == ESTABLISHING_SHOT_LABEL:
+        elif not establishing_content:
             errors.append(f"{prefix} empty {ESTABLISHING_SHOT_LABEL}")
         elif group_index > 0 and not any(
-            marker in establishing_line for marker in ESTABLISHING_CONTINUITY_MARKERS
+            marker in establishing_content for marker in TAIL_FRAME_REPLAY_MARKERS
         ):
             errors.append(
-                f"{prefix} {ESTABLISHING_SHOT_LABEL} must explicitly continue the previous group ending state using one of {ESTABLISHING_CONTINUITY_MARKERS}"
+                f"{prefix} {ESTABLISHING_SHOT_LABEL} must include a concrete previous tail-frame replay entry using one of {TAIL_FRAME_REPLAY_MARKERS}"
             )
+        if establishing_content:
+            if COMPOSITION_LABEL not in establishing_content:
+                errors.append(
+                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include {COMPOSITION_LABEL} before {VISUAL_TONE_LABEL}"
+                )
+            partition_count = sum(
+                1
+                for label in COMPOSITION_PARTITION_LABELS
+                if re.search(rf"^{re.escape(label)}\s*\S+", establishing_content, re.MULTILINE)
+            )
+            if partition_count < MIN_COMPOSITION_PARTITIONS:
+                errors.append(
+                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include at least {MIN_COMPOSITION_PARTITIONS} non-empty composition partitions from {COMPOSITION_PARTITION_LABELS}"
+                )
+        group_head_without_yaml = strip_yaml_blocks(group.body)
+        visual_tone_index = find_prefixed_label_index(group_head_without_yaml, VISUAL_TONE_LABEL)
+        if visual_tone_index is not None:
+            head_text = "\n".join(group_head_without_yaml.splitlines()[:visual_tone_index])
+            prohibited_labels = PROHIBITED_GROUP_SUBJECT_LABEL_RE.findall(head_text)
+            if prohibited_labels:
+                errors.append(
+                    f"{prefix} group head must integrate subject info into {ESTABLISHING_SHOT_LABEL}, not use structured labels {sorted(set(prohibited_labels))}"
+                )
 
         scene_numbers = extract_scene_numbers(group.body)
         unique_scene_numbers = sorted(set(scene_numbers))

@@ -4,8 +4,8 @@
 
 ## Scope
 
-- 目标：从参考素材中提炼全片可继承的媒介属性、渲染管线、美学范式、叙事节奏锚点和无污染风格提示词候选。
-- 落点：`projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md`。
+- 目标：从参考素材中提炼全片可继承的叙事承诺、世界构建语法、视觉母题、年代质感、媒介属性、渲染管线、美学范式、叙事节奏锚点和无污染风格提示词候选。
+- 落点：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/全局风格解析.md`。
 - 非目标：不得复制参考片具体角色、场景、道具、构图、镜头顺序、颜色组合、材质组合或受版权保护的画面表达。
 - 下游：供 `0-初始化`、`3-摄影`、`5-设计` 和项目风格复核加载；若需要进入 `style_contract.json`，必须由 owning stage 另行执行。
 
@@ -14,6 +14,10 @@
 | field_id | Markdown 区块 | 内容要求 | 失败码 |
 | --- | --- | --- | --- |
 | `GLOBAL-NARRATIVE-RESEARCH` | `## 叙事与世界约束` | TL;DR、主题三联、世界三联、时代/地域/叙事类型/节奏倾向，信息不足时标记推导补位 | `FAIL-GLOBAL-NARRATIVE-WEAK` |
+| `GLOBAL-GENRE-PROMISE` | `## 类型叙事承诺` | 类型核心契约、高光时刻类型、观众期待兑现节奏、类型承诺如何驱动全片节奏 | `FAIL-GLOBAL-GENRE-PROMISE` |
+| `GLOBAL-VISUAL-MOTIF` | `## 视觉母题系统` | 贯穿全片的视觉符号、色调节点、标志性视觉承诺，识别可迁移的视觉母题语法 | `FAIL-GLOBAL-VISUAL-MOTIF` |
+| `GLOBAL-TEMPORAL-TEXTURE` | `## 年代质感语法` | 年代质感来源、服装/道具/光色的时代信号密度、时间感如何被视觉材质构建 | `FAIL-GLOBAL-TEMPORAL-TEXTURE` |
+| `GLOBAL-EMOTION-CURVE` | `## 情绪曲线轮廓` | 全片情绪升温/高点/释放/余波结构，识别可迁移的情绪叙事节奏模式 | `FAIL-GLOBAL-EMOTION-CURVE` |
 | `GLOBAL-STYLE-ROUTE` | `## 路由决议` | 明确 `R1-STANDARD-INHERIT`、`R2-DECONTAMINATE`、`R3-TYPE-BACKFILL` 或 `R4-EXACT-LOCK` 之一及原因 | `FAIL-GLOBAL-ROUTE` |
 | `GLOBAL-MEDIUM-STACK` | `## 媒介与技术栈` | 真人/2D/3D 或混合媒介选择，2-3 个核心渲染技术栈，说明如何服务叙事 | `FAIL-GLOBAL-MEDIUM` |
 | `GLOBAL-AESTHETIC-PARADIGM` | `## 美学范式` | 明确美学流派、气质和叙事服务理由，不使用空泛词 | `FAIL-GLOBAL-PARADIGM` |
@@ -48,10 +52,52 @@
 
 1. `## 使用边界`
 2. `## 叙事与世界约束`
-3. `## 路由决议`
-4. `## 媒介与技术栈`
-5. `## 美学范式`
-6. `## 叙事节奏锚定`
-7. `## 去污染审计`
-8. `## 全局风格提示词候选`
-9. `## Do Not Import`
+3. `## 类型叙事承诺`
+4. `## 视觉母题系统`
+5. `## 年代质感语法`
+6. `## 情绪曲线轮廓`
+7. `## 路由决议`
+8. `## 媒介与技术栈`
+9. `## 美学范式`
+10. `## 叙事节奏锚定`
+11. `## 去污染审计`
+12. `## 全局风格提示词候选`
+13. `## Do Not Import`
+
+## New Field Definitions
+
+### GLOBAL-GENRE-PROMISE: 类型叙事承诺
+
+| subfield | requirement |
+| --- | --- |
+| `genre_core_contract` | 该类型对观众的核心承诺是什么（如"正义必胜"、"真相揭示"、"命运抗争"） |
+| `highlight_type_moments` | 类型标志性高光时刻的视觉/叙事节奏模式 |
+| `promise_delivery_rhythm` | 承诺兑现的节奏：持续累积 / 集中爆发 / 延迟反转 |
+| `sub_genre_or_hybrid` | 是否混合多个类型，各类型如何分配权重 |
+
+### GLOBAL-VISUAL-MOTIF: 视觉母题系统
+
+| subfield | requirement |
+| --- | --- |
+| `recurring_visual_symbols` | 贯穿全片重复出现的视觉符号，及其在叙事中的语义演变 |
+| `color_tonal_nodes` | 全片色调节点变化，哪些颜色承担叙事功能 |
+| `iconic_visual_commitment` | 参考片最具辨识度的视觉承诺，可抽象迁移的视觉语法 |
+| `motif_grammar` | 母题的语法规则：如何开始、如何重复、如何在叙事高潮处被打破或终极兑现 |
+
+### GLOBAL-TEMPORAL-TEXTURE: 年代质感语法
+
+| subfield | requirement |
+| --- | --- |
+| `era_signal_source` | 年代质感从哪里来：服装、道具、建筑、语言密度、光色、声音材质 |
+| `signal_density` | 年代信号的出现频率：高密度（时刻提醒）/ 低密度（偶尔暗示） |
+| `modern_interference` | 是否有意识地混入当代视觉/听觉元素，如何处理时代感冲突 |
+| `time_sense_construction` | 时间感如何被材质、构图和节奏共同构建 |
+
+### GLOBAL-EMOTION-CURVE: 情绪曲线轮廓
+
+| subfield | requirement |
+| --- | --- |
+| `curve_structure` | 全片情绪曲线类型：线性升温 / 波浪起伏 / 三幕两高 / U 型 / 螺旋上升 |
+| `act_emotion_anchor` | 每幕的情绪档位和核心情绪任务 |
+| `climax_emotion_type` | 高潮的情绪类型：压抑释放 / 震惊反转 / 感动余震 / 智识快感 |
+| `emotion_residual_design` | 终场情绪余震设计：开放式 / 释然落幕 / 悬念留存 / 情绪蒸发 |

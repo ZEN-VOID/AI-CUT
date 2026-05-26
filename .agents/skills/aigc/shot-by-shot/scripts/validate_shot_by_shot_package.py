@@ -23,6 +23,9 @@ CONTEXT_OUTPUTS = {
     "设计风格解析.md": "# 设计风格解析",
 }
 
+# All outputs now land in the same shot-by-shot/<reference_slug>/ directory
+# No separate CONTEXT/ path anymore.
+
 STORYBOARD_COLUMNS = (
     "镜号",
     "时长",
@@ -51,12 +54,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("path", help="Path to shot-by-shot.md")
     parser.add_argument(
         "--context-root",
-        help="Optional path to CONTEXT/shot-by-shot/<reference_slug>.",
+        help="Optional path to shot-by-shot/<reference_slug> (legacy: previously used CONTEXT/shot-by-shot/<reference_slug>/).",
     )
     return parser.parse_args()
 
 
 def infer_context_root(path: Path) -> Path | None:
+    """Infer the shot-by-shot/<reference_slug> root from the main report path.
+
+    Legacy: Previously the four analysis docs landed in CONTEXT/shot-by-shot/<slug>/.
+    Current: All outputs land in shot-by-shot/<reference_slug>/ alongside the main report.
+    This function now returns the same directory as the main report (no separate CONTEXT/).
+    """
     parts = path.parts
     try:
         projects_index = parts.index("projects")
@@ -67,9 +76,10 @@ def infer_context_root(path: Path) -> Path | None:
     if shot_index + 1 >= len(parts):
         return None
 
+    # All outputs are in the same shot-by-shot/<reference_slug> directory
     project_root = Path(*parts[:shot_index])
     reference_slug = parts[shot_index + 1]
-    return project_root / "CONTEXT" / "shot-by-shot" / reference_slug
+    return project_root / "shot-by-shot" / reference_slug
 
 
 def main() -> int:

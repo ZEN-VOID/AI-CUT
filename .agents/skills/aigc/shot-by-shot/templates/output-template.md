@@ -10,16 +10,16 @@
 projects/aigc/<项目名>/shot-by-shot/<reference_slug>/
 ├── shot-by-shot.md
 ├── 分镜脚本.md
-└── 执行报告.md
-
-projects/aigc/<项目名>/CONTEXT/shot-by-shot/<reference_slug>/
 ├── 全局风格解析.md
 ├── 编剧风格解析.md
 ├── 摄影风格解析.md
-└── 设计风格解析.md
+├── 设计风格解析.md
+└── 执行报告.md
 ```
 
-`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；项目 `CONTEXT/` 下的四份解析是 owning stage 的附加上下文。
+统一落点为 `shot-by-shot/<reference_slug>/`。旧路径 `CONTEXT/shot-by-shot/<reference_slug>/` 停止使用，已废弃。
+
+`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；同目录下的四份解析是 owning stage 的附加上下文。
 
 ## Main Report Skeleton
 
@@ -72,10 +72,10 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 阶段对接
 
-- `CONTEXT/shot-by-shot/<reference_slug>/全局风格解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/编剧风格解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/摄影风格解析.md`:
-- `CONTEXT/shot-by-shot/<reference_slug>/设计风格解析.md`:
+- `shot-by-shot/<reference_slug>/全局风格解析.md`:
+- `shot-by-shot/<reference_slug>/编剧风格解析.md`:
+- `shot-by-shot/<reference_slug>/摄影风格解析.md`:
+- `shot-by-shot/<reference_slug>/设计风格解析.md`:
 - `shot-by-shot/<reference_slug>/分镜脚本.md`:
 
 ## 风险与补证
@@ -94,7 +94,7 @@ review_status: pending | pass | needs_rework | blocked
 
 - 这是 `shot-by-shot/<reference_slug>` 提供给项目全局风格底座的 side context，参照 `global-style-director` 的字段逻辑。
 - 本解析不直接改写 `north_star.yaml`，不直接生成或覆盖 `style_contract.json`。
-- 默认只提炼媒介、渲染技术栈、美学范式与节奏锚点，不复制参考片具体对象、构图、颜色组合、材质组合或镜头顺序。
+- 默认提炼叙事、世界、类型承诺、视觉母题、年代质感、情绪曲线、媒介、渲染技术栈、美学范式与节奏锚点，不复制参考片具体对象、构图、颜色组合、材质组合或镜头顺序。
 
 ## 叙事与世界约束
 
@@ -107,6 +107,26 @@ review_status: pending | pass | needs_rework | blocked
 | region |  |  |  |
 | narrative_type |  |  |  |
 | pacing_tendency |  |  |  |
+
+## 类型叙事承诺
+
+| genre_core_contract | highlight_type_moments | promise_delivery_rhythm | sub_genre_or_hybrid | source_shots |
+| --- | --- | --- | --- | --- |
+
+## 视觉母题系统
+
+| recurring_visual_symbols | color_tonal_nodes | iconic_visual_commitment | motif_grammar | source_shots |
+| --- | --- | --- | --- | --- |
+
+## 年代质感语法
+
+| era_signal_source | signal_density | modern_interference | time_sense_construction | source_shots |
+| --- | --- | --- | --- | --- |
+
+## 情绪曲线轮廓
+
+| curve_structure | act_emotion_anchor | climax_emotion_type | emotion_residual_design | source_shots |
+| --- | --- | --- | --- | --- |
 
 ## 路由决议
 
@@ -164,6 +184,31 @@ review_status: pending | pass | needs_rework | blocked
 | unit_id | source_shots | character_pressure_seed | dialogue_strategy_seed | controlled_enrichment_seed |
 | --- | --- | --- | --- | --- |
 
+## 潜台词与情感脉冲
+
+| unit_id | source_shots | subtext_layer_seed | emotion_pulse_seed |
+| --- | --- | --- | --- |
+
+### 潜台词层字段说明
+
+| unit_id | surface_dialogue_content | true_intent_beneath | hidden_info_layer | subtext_arc_design | audience_vs_character_knowledge |
+| --- | --- | --- | --- | --- | --- |
+
+### 情绪脉冲字段说明
+
+| unit_id | pulse_type | emotion_accumulation | release_trigger | post_release_residual | shared_audience_empathy |
+| --- | --- | --- | --- | --- | --- |
+
+## 声音叙事接口
+
+| unit_id | source_shots | music_thematic_identity | diegetic_sound_function | silence_as_narrative | sound_early_or_late | audio_visual_counterpoint |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## 次要情节编织
+
+| unit_id | source_shots | subplot_identity | main_line_pressure | foreshadow_plant_pattern | subplot_resolution_type | hidden_connective_tissue |
+| --- | --- | --- | --- | --- | --- | --- |
+
 ## 场面调度与表演承托
 
 | unit_id | performance_task_seed | blocking_power_seed | project_fit |
@@ -192,6 +237,51 @@ review_status: pending | pass | needs_rework | blocked
 
 | unit_id | source_shots | visual_unit_function | rhythm_profile_seed | continuity_seed |
 | --- | --- | --- | --- | --- |
+
+## 视点与焦深语义
+
+| unit_id | source_shots | point_of_view_profile | depth_of_field_semantic |
+| --- | --- | --- | --- |
+
+### 视点轮廓字段说明
+
+| unit_id | pov_ownership | pov_switch_logic | subjective_vs_objective_boundary | pov_as_narrative_tool |
+| --- | --- | --- | --- | --- |
+
+### 焦深语义字段说明
+
+| unit_id | dof_narrative_mode | foreground_semantic | background_semantic | rack_focus_trigger |
+| --- | --- | --- | --- | --- |
+
+## 光源叙事语法
+
+| unit_id | source_shots | light_source_semantic |
+| --- | --- | --- |
+
+### 光源叙事字段说明
+
+| unit_id | main_light_direction_as_power | natural_vs_artificial_narrative | light_color_temperature_narrative | light_source_visibility |
+| --- | --- | --- | --- | --- |
+
+## 运动与切点语法
+
+| unit_id | source_shots | camera_movement_taxonomy | cut_grammar_seed |
+| --- | --- | --- | --- |
+
+### 运动类型系统字段说明
+
+| unit_id | movement_type_inventory | movement_semantic_meaning | movement_transition_logic | handheld_narrative_usage | movement_speed_rhythm |
+| --- | --- | --- | --- | --- | --- |
+
+### 切点语法字段说明
+
+| unit_id | cut_type_inventory | cut_type_emotion_sync | cut_timing_rhythm | reaction_shot_pattern | overlap_cut_usage |
+| --- | --- | --- | --- | --- | --- |
+
+## 长镜头结构
+
+| unit_id | source_shots | long_take_threshold | phase_organization | camera_movement_within_take | spatial_revelation_in_take | long_take_emotion_function |
+| --- | --- | --- | --- | --- | --- | --- |
 
 ## 摄影风格 Seeds
 
@@ -241,6 +331,26 @@ review_status: pending | pass | needs_rework | blocked
 | prop_seed_id | source_shots | prop_design_need | transferable_principle | prop_design_seed | prompt_boundary |
 | --- | --- | --- | --- | --- | --- |
 
+## 角色色调与材质语法
+
+| seed_id | source_shots | color_identity_system | color_emotion_mapping | color_contrast_with_environment | material_vocabulary | wear_and_texture_narrative | costume_detail_hierarchy |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+## 空间叙事语法
+
+| seed_id | source_shots | space_as_character_metaphor | environmental_power_mapping | object_residue_narrative | empty_scene_design_grammar | spatial_tier_separation | world_geography_signal |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+## 道具功能层级
+
+| seed_id | source_shots | narrative_core_prop | scene_atmosphere_prop | transition_trigger_prop | symbolic_prop_system | prop_detail_level_hierarchy | prop_movement_narrative |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+## 世界观视觉语法
+
+| seed_id | source_shots | symbol_system | color_rule | material_system | cultural_visual_markers | world_visual_coherence | visual_deviation_permit |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
 ## 视觉转译原则
 
 -
@@ -289,8 +399,7 @@ review_status: pending | pass | needs_rework | blocked
 
 - source_ref:
 - project_root:
-- output_root:
-- context_output_root:
+- output_root: shot-by-shot/<reference_slug>/
 - bridge_targets:
 
 ## Review Result

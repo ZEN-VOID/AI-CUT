@@ -213,6 +213,13 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: AIGC 项目的 checkpoint / stage / package 三层结构化审计、aggregate review gate 与 repair routing。
+      - id: aigc-repair
+        path: .agents/skills/aigc/repair
+        owner_office: shangshu
+        governance_domain: bingbu
+        contract_status: active
+        route_role: satellite
+        purpose: AIGC 多阶段输出物的 source-first 修复、豆包执行、中文润色、创意激发、写回顺序与验收汇流。
       - id: aigc-shot-by-shot
         path: .agents/skills/aigc/shot-by-shot
         owner_office: shangshu
@@ -220,6 +227,13 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 参考影片或视频逐镜拉片，输出服务 `0-初始化`、`3-导演`、`4-表演`、`5-摄影` 与 `7-设计` 的项目 `CONTEXT/` 解析、禁止照搬清单和 AIGC 可执行迁移策略。
+      - id: aigc-learn
+        path: .agents/skills/aigc/learn
+        owner_office: menxia
+        governance_domain: libu
+        contract_status: active
+        route_role: satellite
+        purpose: 面向外部学习对象的 AIGC 技能树学习吸收、差距分析、source-first 改进、registry/routes/audit 同步与协调审计。
   - id: story
     path: .agents/skills/story
     owner_office: zhongshu
