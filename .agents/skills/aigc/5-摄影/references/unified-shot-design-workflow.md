@@ -253,7 +253,7 @@
 
 3. **消费段落密度曲线**：若相邻画面形成连续观看段落、速度阶段、动作链或声音打点，先读取 `sequence-density-curve-contract.md` 并消费内部 `sequence_density_curve`；判断当前画面属于 `conserve / measured / build / burst / hold / release` 哪个密度槽位。
 
-4. **裁决分镜数量**：形成 `shot_count_decision`：先允许 1 镜成立，再验证是否存在第二个真实观看策略；只有关键揭示、群像扩散、动作分相、空间重置或高点承托才继续扩展到 3-4 镜。若命中 `set_piece_chain_slot`，可扩展到 5-6 镜。
+4. **裁决分镜数量**：形成 `shot_count_decision`：先列出有效触发点，再按触发点数量和节奏槽位裁决 1/2/3/4 镜；第二个有效触发点、第二个观看结果、平台刺激或 AIGC 执行稳定性价值即可支撑 `分镜2`。关键揭示、群像扩散、动作分相、空间重置、高点承托、平台钩子连续推进或 AIGC 执行重置可继续扩展到 3-4 镜。若命中 `set_piece_chain_slot`，可扩展到 5-6 镜。
 
 5. **校准节奏**：用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。
 
@@ -293,7 +293,7 @@ shot_design_plan:
   sequence_profile: <如命中，相邻画面单位共享的视觉母题、注意力接力、运动家族、材质光色>
   sequence_density_curve: <如命中，tempo_beats、density_ramp、peak/recovery/set_piece 槽位、声音切点、密度预算和交出锚点>
   unit_ownership_map: <当前块拥有的主体、动作、道具/文字/身体锚点、对白承托和禁止外溢项>
-  shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略>
+  shot_count_decision: <为什么是 1/2/3/4 镜；每镜对应哪个有效触发点/观看结果/平台刺激/AIGC 执行稳定性价值>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
   duration_profile: <整体时值策略、短剧·AIGC 默认压缩、显式秒数分布、对白台词量预算>
   continuity_entry: <承接上一落点、声音、动作、光色或空间轴线>

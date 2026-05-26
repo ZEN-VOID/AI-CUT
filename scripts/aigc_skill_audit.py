@@ -1065,6 +1065,7 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             "时代属性:",
             "光影逻辑:",
             "画面质感:",
+            "场景化风格策略:",
             "避免出现:",
             "全局风格提示词:",
             "细分风格:",
@@ -1075,10 +1076,8 @@ def audit_init_single_skill_contract(failures: list[str]) -> None:
             "类型元素:",
             "世界观:",
             "默认中文",
-            "200 字以内",
+            "300-500 字",
             "30 字以内",
-            "70 字以内",
-            "100 字以内",
         ):
             if required_marker not in north_star_template_content:
                 failures.append(f"{north_star_template}: missing merged global design block `{required_marker.rstrip(':')}`")

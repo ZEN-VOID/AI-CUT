@@ -2,6 +2,13 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-05-26
+
+- `Case-20260526-AIGC-INIT-GLOBAL-STYLE-UNION`
+  - 将 `全局风格` 概念从旧版跨设计交集安全前缀调整为指导整个作品全集的并集式总风格合同。
+  - `全局风格提示词` 调整为通常 300-500 字自然段，可包含室内、室外、夜景、动作、群像、旷野等场景类型对应的光影、色彩、材质、空气、摄影、运动和禁区规则。
+  - 新增模板字段 `场景化风格策略`，同步 `SKILL.md`、artifacts 合同、review gate、经验层与 `aigc_skill_audit.py` marker。
+
 ## 2026-05-14
 
 - `Case-20260514-AIGC-INIT-STAGE-STRUCTURE-SYNC`

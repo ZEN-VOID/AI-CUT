@@ -223,9 +223,9 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
 - Rebootstrap defaults to `archive_reset`; never delete `源/`, source text, original assets, irreplaceable references, or legacy `Original/` without explicit user authorization.
 - `north_star.yaml` owns durable project constraints and the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`; it never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
-- `全局风格` must be a cross-design safe prompt prefix shared by image, character, scene, prop, and other design types. It may only contain `媒介属性 / 时代属性 / 光影逻辑 / 画面质感 / 避免出现 / 全局风格提示词`, and must not include single-domain payloads such as shot detail, character material, scene composition, costume detail, or prop detail.
+- `全局风格` is the total style contract for the whole work collection. It is a union-style guidance field, not the old cross-design intersection prefix: it may contain the shared medium/era/texture baseline and conditional lighting, color, camera, material, atmosphere, motion, and negative-style rules for different scene types, as long as those rules describe reusable style logic rather than one-off plot facts.
 - `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`.
-- North-star style text defaults to Chinese. `全局风格提示词` is capped at 200 Chinese characters and must explicitly include the current `媒介属性` value; `类型元素提示词` is capped at 30 Chinese characters; `画面风格` is capped at 70 Chinese characters and must stay at unified picture-style level rather than scene-specific strategy; `服装风格 / 建筑风格 / 物品风格` are each capped at 100 Chinese characters.
+- North-star style text defaults to Chinese. `全局风格提示词` should be a natural paragraph, usually 300-500 Chinese characters, must explicitly include the current `媒介属性` value, and must state which scene types use which matching light, color, texture, atmosphere, camera, motion, and negative-style rules. `类型元素提示词` remains capped at 30 Chinese characters; `画面风格` should stay at unified picture-style level and no longer strips scene-sensitive lighting or color logic when those rules belong to the whole work's reusable style system; `服装风格 / 建筑风格 / 物品风格` remain concise domain guidance.
 
 ## Bootstrap Runtime Markers (Mandatory)
 
@@ -387,7 +387,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
 | `FIELD-INIT-01` | `north_star.yaml` only contains durable constraints and the exact global design blocks; it contains no live route truth | `FAIL-INIT-01` | `N4/N5` |
-| `FIELD-INIT-01G` | `north_star.yaml` contains safe `全局风格` fields plus `细分风格 / 类型元素 / 世界观`; `全局风格` contains no cross-design pollution fields; style text is Chinese by default and respects the configured character caps | `FAIL-INIT-01G` | `N4/N5` |
+| `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 细分风格 / 类型元素 / 世界观`; `全局风格` is a whole-work union style contract with reusable shared baseline plus scene-type lighting, color, texture, atmosphere, camera, motion, and negative-style rules; style text is Chinese by default and `全局风格提示词` is usually 300-500 Chinese characters | `FAIL-INIT-01G` | `N4/N5` |
 | `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, unknowns, and sources | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-03` | mode and provenance are traceable | `FAIL-INIT-03` | `N1/N3` |
 | `FIELD-INIT-04` | `team.yaml` records team scope and planning provenance | `FAIL-INIT-04` | `N3/N4/N5` |

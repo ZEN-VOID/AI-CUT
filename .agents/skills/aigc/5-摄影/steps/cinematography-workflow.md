@@ -23,7 +23,7 @@
 | `N3-TYPE` | 判断画面句子类型与摄影任务画像 | visual_unit list、`types/visual-unit-type-map.md`、`source_context_profile` | 为每个 visual_unit 建立 visual category、`visual_unit_function`、`sequence_relation`、`ownership_risk` 和审美策略，区分空间建立、动作调度、表演承托、信息显影、恐怖入侵、关系停顿、群像压迫、记忆插入、触觉材质建立、对白身体锚点或边界交出 | type_profile、visual_unit_function、sequence_relation、ownership_risk | `N3.5-SEQUENCE-ALIGN` | 类型画像能覆盖主要字段，且不会把非画面字段误判为视觉任务；高 ownership_risk 已标记 |
 | `N3.5-SEQUENCE-ALIGN` | 建立段落观看意图但锁住逐画面点归属 | visual_unit list、type_profile、sequence_relation、ownership_risk、相邻 3-6 个单位、`references/visual-sequence-alignment-contract.md`、场景/道具/声音/动作/记忆线索 | 判断是否需要 `sequence_profile`；提炼视觉母题链、attention relay、movement family、texture_palette_continuity；为每个 visual_unit 建立 `unit_ownership_map` 和 `forbidden_bleed`，禁止后文动作、对白反应、记忆段或道具揭示提前外溢 | `sequence_profile`、`unit_ownership_map`、`forbidden_bleed` | `N3.6-DENSITY-CURVE` | 段落意图只作为内部连续性上下文；不改变逐句注入边界，不合并 visual_unit，不写 `6-分组` 连接方案 |
 | `N3.6-DENSITY-CURVE` | 建立段落级密度曲线与变速画像 | visual_unit list、type_profile、sequence_profile、unit_ownership_map、forbidden_bleed、相邻 3-8 个单位、动作/声音打点、顾问参谋、上游 `emotional_rhythm_map.peak_valley_sequence`、`genre_emotional_coloring`、`references/sequence-density-curve-contract.md`、`../_shared/emotional-rhythm-map-contract.md` | 判断整段如何变速：哪里收敛、哪里加密、哪里硬切、哪里停顿、哪里交出；消费情绪峰谷、height、transition 和类型底色，避免低谷场过密、高点场过薄或类型底色消失；标记 `peak_slots`、`recovery_slots`、`set_piece_chain_slots`、`sound_cut_pattern` 和 `density_budget`；允许真实连续动作/声画打点扩展到 5-6 镜，但每镜必须有独立结果 | `sequence_density_curve`、`emotional_rhythm_density_evidence`、`tempo_beats`、`density_ramp`、`peak_slots`、`recovery_slots`、`set_piece_chain_slots`、`sound_cut_pattern`、`density_budget` | `N4-BEAT` | 曲线只指导密度与变速，不改变逐画面点归属；高密度槽有真实峰值证据并回指情绪峰谷，低信息或低谷槽被收敛，5-6 镜链条每镜不可删 |
-| `N4-BEAT` | 执行 step2 节拍分析 | visual_unit、sequence_density_curve、`references/beat-analysis-contract.md` | 判断节拍点和分镜数量；禁止把 2 镜当默认值；命中 `sound_cut_pattern` 或 `set_piece_chain_slots` 时按可见结果逐拍裁决 | beat_map | `N5-RHYTHM` | 每个 visual_unit 至少 1 个节拍点；每个候选 `分镜2` 有第二个真实观看策略；5-6 镜链条每镜都有新动作相位、撞点、声音或结果 |
+| `N4-BEAT` | 执行 step2 节拍/触发点分析 | visual_unit、sequence_density_curve、`references/beat-analysis-contract.md`、`references/global-rhythm-terminology-glossary.md` | 判断有效触发点并裁决分镜数量；快节奏平台默认一个有效触发点对应一个分镜，只有能在同镜清楚完成且不损失观看结果时才合并；命中 `sound_cut_pattern` 或 `set_piece_chain_slots` 时按可见结果逐拍裁决 | beat_map、effective_trigger list | `N5-RHYTHM` | 每个 visual_unit 至少 1 个有效触发点；`分镜2` 有第二个有效触发、观看结果或执行稳定性价值；5-6 镜链条每镜都有新动作相位、撞点、声音或结果 |
 | `N5-RHYTHM` | 执行 step2.5 画面节奏分析 | visual_unit、beat_map、sequence_density_curve、上下文密度、`references/visual-rhythm-analysis-contract.md` | 判断收敛/发散、描述密度、运动复杂度、边界清晰度，并校准 1/2/3/4 镜是否匹配信息重要性；命中 set-piece 链条时裁决 5-6 镜是否真实必要 | rhythm_profile | `N5.2-DURATION` | 当前画面有张弛策略；低信息不硬撑 2 镜，关键信息不被压平为 2 镜；高密度后存在恢复或反压 |
 | `N5.2-DURATION` | 执行 step2.5D 镜头时值裁决 | visual_unit、关联对白/旁白、beat_map、rhythm_profile、上下文节奏、下游 15 秒组内约束、`references/shot-duration-decision-contract.md` | 为每个候选分镜裁决 `instant / short / standard / held / long_hold`、内部估算范围、正文 `display_seconds`、对白台词量预算、停顿/压缩理由和过短/过长风险；默认应用短剧·AIGC 时值压缩，判断缩短一半会丢失什么、拉长一倍是否只会拖慢 | duration_profile、shot_duration_decision、dialogue_time_budget、duration_mode | `N5.5-PEAK-SHOT` | 每个候选分镜有显式秒数和时值理由；对白/文字/道具/微表情/空间关系有足够可读时间，低信息停顿已压缩，`约3秒` 以上有明确必要性 |
 | `N5.5-PEAK-SHOT` | 执行 step2.6 高点与余波策略 | visual_unit、beat_map、rhythm_profile、shot_duration_decision、上游 `peak_visual_policy` 或高点证据、上游 `audience_psychology_map`、`conflict_legacy_transfer`、`references/peak-shot-language-contract.md`、`../_shared/audience-psychology-model-contract.md` | 识别 `peak_visual_unit`，消费观众恐惧、渴望、期待和冲突遗产，决定分镜密度、镜头运动、景别尺度、停顿/断裂、反应镜头、误导/揭示方向和余波交出点 | peak_shot_profile、audience_peak_attention_evidence | `N5.6-ADVISOR` | 高点强化可回指上游和观众心理，不新增事实；高点时值符合动作/认知/关系/恐怖类型，并回应或有意颠覆观众期待 |
@@ -96,6 +96,7 @@ flowchart TD
 - `N3.6-DENSITY-CURVE` 允许真实 `set_piece_chain` 扩展到 5-6 镜，但必须逐镜证明独立起点、撞点、动作结果、声音打点或反应落点；答不上来的镜头必须删并。
 - `N3.6-DENSITY-CURVE` 必须安排高密度后的 `recovery_slot` 或反压/余波/交出锚点；连续全满视为节奏失败。
 - `N4-BEAT` 先给每个 visual_unit 独立判断，不允许跨句共用分镜编号，也不允许把上一条或模板中的 2 镜结构继承为默认数量。
+- `N4-BEAT` 采用 `trigger-first`：`BT-01~BT-16` 命中的有效触发点默认 1:1 落为 `分镜N`；合并只是例外，必须证明不损失观看结果、平台节奏、下游 payload 或动作连续性。
 - `N4-BEAT` 必须消费命中时的 `sequence_density_curve`：若当前块处于 `conserve/recovery` 槽位，优先证明少镜能否成立；若处于 `peak/set_piece_chain` 槽位，优先证明新增每一镜会带来什么必要结果。
 - `N5-RHYTHM` 必须判断当前画面句子该收敛还是发散；不允许所有画面句子同等华丽。
 - `N5-RHYTHM` 必须执行数量分布警戒：同一集或同一场出现 2 镜绝对集中时，抽样回查低信息、关键显影、群像和高点块，修正被硬撑或压平的分镜数。
@@ -134,7 +135,7 @@ flowchart TD
 - `N6.4-FUNCTIONAL-PROJECTION` 必须执行源句复述扣除测试：删除上游画面句子已有主体、动作、道具和事实后，候选分镜仍需保留机位、构图、运镜路径、速度、停点、焦点、光影结果、方向参照或连续性交接；只剩景别词、顺序词或空泛效果词时不得进入 `shot_design_plan`。
 - `N6.5-SHOT-PLAN` 是 references 进入最终输出的硬门：不得跳过；分镜数量增加必须来自新的注意力、信息、动作相位、空间关系、情绪压力、摄影语法变化、运镜策略或边界交出锚点。
 - `N6.5-SHOT-PLAN` 必须执行 `unit_ownership_check`：每条计划分镜都能说明其服务哪条上游画面句子；若只能说明“服务整段流畅”或“让段落更电影感”，必须移动到所属 visual_unit、重写为当前画面点的进入/交出锚点，或删除。
-- `N6.5-SHOT-PLAN` 必须显式形成内部 `shot_count_decision`：先证明 1 镜是否足够，再证明 2 镜是否有第二个真实观看策略，最后只在关键揭示、群像扩散、动作分相、空间重置或高点承托时扩展到 3-4 镜。
+- `N6.5-SHOT-PLAN` 必须显式形成内部 `shot_count_decision`：先列出有效触发点，再说明每个 `分镜N` 对应的观看结果、平台刺激或 AIGC 执行稳定性价值；2 镜可以是快节奏平台常规密度，3-4 镜需对应关键揭示、群像扩散、动作分相、空间重置、高点承托、平台钩子连续推进或 AIGC 执行重置。
 - `N6.5-SHOT-PLAN` 若消费 `set_piece_chain_slots`，可将单个 `visual_unit` 扩展到 5-6 镜；但每一镜都必须有新动作相位、撞点、声音打点、结果钉镜、反应落点或必要交出接口，并写入 `shot_count_decision` 的不可删证明。
 - `N6.5-SHOT-PLAN` 必须显式形成逐镜 `shot_duration_decision`：先证明为什么不是更短，再证明为什么不是更长；长停顿必须服务可读性、表演、空间或高点，短镜必须不牺牲必要信息；短剧·AIGC 模式下优先压到最短可成立时值。
 - `N6.5-SHOT-PLAN` 必须把 `display_seconds` 与镜头语言绑定：括号里的 `约X秒` 必须能从对白承托、读秒、静止、极慢运动、动作完成或反应落点中看出原因。
@@ -170,6 +171,7 @@ flowchart TD
 - 若 review 发现场景视觉约束缺失、构图布局不清、光源/色彩基准未在内部裁决中形成，回到 `N6.3-SCENE-VISUAL-CONSTRAINT` 和 `N6.5-SHOT-PLAN`。
 - 若 review 发现分镜明细维度覆盖不足：画面中确实存在角色表演信息（情绪/肢体/语气/镜头意识）却未被摄影机表达，或存在陪体/前景/背景动态、光影反射/动态焦点/节奏同步等维度却被忽略，回到 `N6.4-FUNCTIONAL-PROJECTION` 和 `N6.5-SHOT-PLAN` 重建维度覆盖后重写。注意：画面中不存在的信息不应当被要求覆盖。
 - 若 review 发现整场节奏平均、全满、全空、没有峰值/恢复槽，或 5-6 镜链条没有逐镜结果证明，回到 `N3.6-DENSITY-CURVE`、`N4-BEAT`、`N5-RHYTHM` 与 `N6.5-SHOT-PLAN`。
+- 若机械校验提示 2 镜集中，先抽样复核低信息/关键揭示/群像/高点/set-piece 块；只有发现 `分镜2` 无有效触发、无观看结果或无执行稳定性价值时，才回到 `N3.6-DENSITY-CURVE`、`N4-BEAT`、`N5-RHYTHM` 与 `N6.5-SHOT-PLAN`。
 - 若 review 发现 AI 视频执行稳定性失败，包括动作镜头割裂、方向参照含混、光线只写光源或抽象效果、情绪没有可见微动态、提示词分栏模板落入正文，按责任回到 `N6.4-FUNCTIONAL-PROJECTION`、`N6.5-SHOT-PLAN` 或 `N7-INJECT`。
 - 若 review 发现文字/道具/微表情被快速切走、低信息镜头被拖长、普通氛围镜普遍超过 `standard`、连续同长同速或 15 秒组内节奏风险，回到 `N5.2-DURATION`、`N6.2-CAMERA-GRAMMAR` 或 `N6.5-SHOT-PLAN`。
 - 若 review 发现对白/旁白台词量未进入时值预算，或台词未说完画面就切走，回到 `N5.2-DURATION` 与 `N6.5-SHOT-PLAN`。
@@ -203,4 +205,4 @@ flowchart TD
 ```
 
 不同画面句子的 `分镜N` 均从 `分镜1` 重新编号。
-上例是两段观看策略同时存在时的示例，不是固定两镜模板；低信息或单一反应块可以只有 `分镜1`，关键显影、群像扩散、动作分相或高点承托可按真实节拍扩展到 `分镜3` / `分镜4`。
+上例是两段观看策略同时存在时的示例，不是固定两镜模板；低信息或单一反应块可以只有 `分镜1`，关键显影、群像扩散、动作分相、平台钩子或高点承托可按有效触发点扩展到 `分镜3` / `分镜4`。

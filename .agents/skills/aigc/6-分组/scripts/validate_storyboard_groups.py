@@ -60,6 +60,7 @@ MIN_COMPOSITION_PARTITIONS = 2
 PROHIBITED_GROUP_SUBJECT_LABEL_RE = re.compile(r"^(角色|场景|道具|主体信息)[：:]", re.MULTILINE)
 CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
+MAX_GLOBAL_STYLE_PROJECTION_CHARS = 300
 LEGACY_ENTRY_LABEL = "入场画面："
 LEGACY_EXIT_LABEL = "出场画面："
 CONNECTOR_REQUIRED_LABELS = (
@@ -515,12 +516,21 @@ def validate_connectors(
         connector_style_lines = extract_content_lines_before_label(connector.body, "连接类型：")
         if len(connector_style_lines) != STYLE_LINE_COUNT:
             errors.append(
-                f"{prefix} connector style header must contain {STYLE_LINE_COUNT} plain north_star lines before 连接类型"
+                f"{prefix} connector style header must contain {STYLE_LINE_COUNT} plain style lines before 连接类型"
             )
         elif not connector_style_lines[0].startswith(GLOBAL_STYLE_REQUIRED_PREFIX):
             errors.append(
                 f"{prefix} global style line must start with fixed prefix: {GLOBAL_STYLE_REQUIRED_PREFIX}"
             )
+        else:
+            projected_style = connector_style_lines[0][len(GLOBAL_STYLE_REQUIRED_PREFIX) :].strip()
+            projected_style_chars = estimate_chars(projected_style)
+            if not projected_style:
+                errors.append(f"{prefix} empty connector global style projection after fixed prefix")
+            elif projected_style_chars > MAX_GLOBAL_STYLE_PROJECTION_CHARS:
+                errors.append(
+                    f"{prefix} connector global style projection {projected_style_chars} chars exceeds {MAX_GLOBAL_STYLE_PROJECTION_CHARS}; extract only current connector-relevant style"
+                )
         connector_style_header = "\n".join(connector_style_lines[:STYLE_LINE_COUNT])
         if any(label in connector_style_header for label in OLD_VISIBLE_STYLE_LABELS):
             errors.append(f"{prefix} connector style header exposes old visible style label")
@@ -663,11 +673,20 @@ def validate_file(path: Path) -> ValidationResult:
 
         style_lines = extract_style_lines(group.body)
         if len(style_lines) < STYLE_LINE_COUNT:
-            errors.append(f"{prefix} style header must contain {STYLE_LINE_COUNT} plain north_star lines")
+            errors.append(f"{prefix} style header must contain {STYLE_LINE_COUNT} plain style lines")
         elif not style_lines[0].startswith(GLOBAL_STYLE_REQUIRED_PREFIX):
             errors.append(
                 f"{prefix} global style line must start with fixed prefix: {GLOBAL_STYLE_REQUIRED_PREFIX}"
             )
+        else:
+            projected_style = style_lines[0][len(GLOBAL_STYLE_REQUIRED_PREFIX) :].strip()
+            projected_style_chars = estimate_chars(projected_style)
+            if not projected_style:
+                errors.append(f"{prefix} empty global style projection after fixed prefix")
+            elif projected_style_chars > MAX_GLOBAL_STYLE_PROJECTION_CHARS:
+                errors.append(
+                    f"{prefix} global style projection {projected_style_chars} chars exceeds {MAX_GLOBAL_STYLE_PROJECTION_CHARS}; extract only current group-relevant style"
+                )
         style_header = "\n".join(style_lines[:STYLE_LINE_COUNT])
         for label in OLD_VISIBLE_STYLE_LABELS:
             if label in style_header:

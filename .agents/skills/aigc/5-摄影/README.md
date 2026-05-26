@@ -29,6 +29,7 @@
 - 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - 项目团队配置：`projects/aigc/<项目名>/team.yaml`
 - 画面匹配：`references/visual-matching-contract.md`
+- 节奏术语表：`references/global-rhythm-terminology-glossary.md`
 - 节拍判断：`references/beat-analysis-contract.md`
 - 画面节奏：`references/visual-rhythm-analysis-contract.md`
 - 段落密度曲线：`references/sequence-density-curve-contract.md`
@@ -61,5 +62,5 @@
 - 连续观看段落必须按需形成内部 `sequence_density_curve`，先判断整段哪里省镜头、哪里加密、哪里停顿、哪里硬切、哪里交出；5-6 镜只作为 set-piece 链条例外，必须每镜都有独立动作结果或声音打点。
 - 每条分镜还应能稳定改写为 AI 视频提示词：镜头先行包裹动作、方向参照明确、光线写出结果、表演微动态可见，但不在 `分镜明细` 中直接粘贴完整提示词分栏模板。
 - 每条分镜必须通过源句复述扣除测试：去掉上游原句已有主体、动作、道具和事实后，仍能读出摄影机如何看、动、停、转焦、布光或交接。
-- 机械校验脚本已扩展：frontmatter 存在性检查、短剧·AIGC 秒数范围提示（<1s / >3s / >5s）、抽象阐释词扫描和空分镜明细块检查。
+- 机械校验脚本已扩展：frontmatter 存在性检查、短剧·AIGC 秒数范围提示（<1s / >3s / >5s）、抽象阐释词扫描、空分镜明细块检查，以及 2 镜集中提示。快节奏平台默认允许高切换密度；仅在显式 `--strict-shot-distribution` 时将 2 镜集中视为错误。
 - 机械校验脚本只证明结构有效；交付前还必须执行 `review/review-contract.md` 的质量门禁。

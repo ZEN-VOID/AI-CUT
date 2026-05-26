@@ -302,10 +302,13 @@ def validate(
             total_blocks >= MIN_BLOCKS_FOR_DISTRIBUTION_WARNING
             and two_shot_ratio >= TWO_SHOT_WARNING_THRESHOLD
         ):
+            severity = "ERROR" if strict_shot_distribution else "WARN"
             message = (
-                "[WARN] Two-shot blocks are highly concentrated "
+                f"[{severity}] Two-shot blocks are highly concentrated "
                 f"({two_shot_blocks}/{total_blocks}, {two_shot_ratio:.1%}). "
-                "Review beat_map/rhythm_profile/shot_count_decision; 分镜2 must not be a template default."
+                "Review beat_map/rhythm_profile/sequence_density_curve/shot_count_decision; "
+                "分镜2 must not be a template default, but fast-platform rhythm can allow "
+                "dense cuts when each shot has a trigger or viewing result."
             )
             findings.append(message)
             if strict_shot_distribution:

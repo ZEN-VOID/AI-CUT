@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-05-26 (Fast-Platform Trigger-First Beat Model)
+
+- 明确快节奏短视频平台的节拍定义：`节拍` 等价于有效分镜触发点，`BT-01~BT-16` 命中后默认可 1:1 落为 `分镜N（约X秒）:`；合并只是例外，必须证明不损失观看结果、平台节奏、下游 payload 或动作连续性。
+- 扩展触发点矩阵：新增平台钩子/停滑点、微动作/微表情跳点、文字/屏幕/字幕可读点、物理接触/道具交互点、构图/画幅刺激点、AIGC 执行重置点。
+- 将 `references/global-rhythm-terminology-glossary.md` 纳入节奏术语争议和分镜密度审查入口，统一 `sequence_density_curve`、`rhythm_profile`、`beat_trigger`、`shot_count_decision` 与 `shot_duration_decision` 的层级边界。
+- 调整 2 镜集中闭环：快节奏平台默认允许高切换密度；机械校验只给 warning，只有显式 `--strict-shot-distribution` 才升级为错误。review 重点改为抽样确认第二镜是否有有效触发、观看结果、平台节奏价值或 AIGC 执行稳定性价值。
+- 同步更新 `SKILL.md`、`beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md`、`sequence-density-curve-contract.md`、`shot-planning-integration-contract.md`、workflow、review gate、templates、README、scripts README 与 `CONTEXT.md`，将节拍模型从“双层复判”简化为 trigger-first 细则。
+
 ## 2026-05-23 (Two-Person Axis / 180-Degree Rule)
 
 - 吸收 `input/13424024829236292.mp4` 音频教程：双人/多人对峙、追逐、动作和谈判场必须先建立 line of action、screen left/right、中间空间锚点和同侧 180 度拍摄半区。

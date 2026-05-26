@@ -19,7 +19,7 @@
 | `functional_payload` | `functional-cinematic-projection-contract.md` | 为每个分镜锁定 shot_function、visible_subject、action_phase、camera_movement_plan、composition_anchor、light_color_material 和 downstream consumability |
 | `prop_shot_admission` | `visual-matching-contract.md`、`shot-detail-dimension-contract.md` | 判断道具、反射、倒影、涟漪或普通物件是否允许成为焦点、特写、反射主体或交出锚点；无互动无关键信息则降级为背景或删除 |
 | `ai_video_prompt_execution_profile` | `ai-video-prompt-execution-contract.md` | 为每个分镜锁定镜头先行执行顺序、方向参照、动作在镜头内部完成、光线结果、表演微动态和提示词模板边界 |
-| `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个观看策略变化，不能按固定数量灌水 |
+| `beat_sequence` | `beat-analysis-contract.md` | 每个分镜对应一个有效触发点；快节奏平台默认触发点可直接成镜，不能按固定数量灌水 |
 | `shot_count_decision` | `beat-analysis-contract.md`、`visual-rhythm-analysis-contract.md`、`sequence-density-curve-contract.md` | 明确本 visual_unit 为什么是 1/2/3/4 镜；2 镜不得作为默认值；5-6 镜只允许 `set_piece_chain` 例外且每镜必须有独立结果 |
 | `rhythm_profile` | `visual-rhythm-analysis-contract.md` | 决定分镜数量、句子密度、运动复杂度、边界清晰度和停顿感 |
 | `duration_profile` | `shot-duration-decision-contract.md` | 决定每个 `分镜N` 的时值等级、正文显示秒数、短剧·AIGC 默认压缩、对白台词量预算、停顿/压缩理由和 15 秒分组节奏风险 |
@@ -38,10 +38,10 @@
 ## Planning Procedure
 
 1. 先用一句内部判断锁定 `visual_unit_function`，不得把一个低信息动作硬做成高密度段落。
-2. 从 `Beat Trigger Matrix` 中选择真实触发点，生成 `beat_sequence`；弱触发合并，强触发拆开。
+2. 从 `Beat Trigger Matrix` 中选择真实有效触发点，生成 `beat_sequence`；快节奏平台默认一个有效触发点落为一个 `分镜N`，只有能在同镜清楚完成且不损失观看结果时才合并。
 3. 若相邻画面形成连续观看段落、速度阶段、动作链或声音打点，先读取 `sequence-density-curve-contract.md` 并消费内部 `sequence_density_curve`；判断当前画面属于 `conserve / measured / build / burst / hold / release` 哪个密度槽位，是否为 `peak_slot / recovery_slot / set_piece_chain_slot`。
-4. 形成 `shot_count_decision`：先允许 1 镜成立，再验证是否存在第二个真实观看策略；只有关键揭示、群像扩散、动作分相、空间重置或高点承托才继续扩展到 3-4 镜。若命中 `set_piece_chain_slot`，可扩展到 5-6 镜，但每一镜必须有独立起点、撞点、结果、声音打点或反应落点，并通过删减测试。
-5. 用 `rhythm_profile` 校准分镜数量：低信息收敛，关键揭示或高点发散；分镜变多必须带来新的注意力、信息、动作相位或情绪压力。若当前批次出现大量同数分镜，尤其 2 镜集中，或连续段落没有明显密度曲线，必须抽样复判并修正 `shot_count_decision` 与 `density_budget`。
+4. 形成 `shot_count_decision`：先列出当前 `visual_unit` 的有效触发点，再按触发点数量和节奏槽位裁决 1/2/3/4 镜；第二个有效触发点、第二个观看结果、平台刺激或 AIGC 执行稳定性价值即可支撑 `分镜2`。关键揭示、群像扩散、动作分相、空间重置、高点承托、平台钩子连续推进或 AIGC 执行重置可继续扩展到 3-4 镜。若命中 `set_piece_chain_slot`，可扩展到 5-6 镜，但每一镜必须有独立起点、撞点、结果、声音打点或反应落点，并通过删减测试。
+5. 用 `rhythm_profile` 校准分镜数量：低信息可收敛，关键揭示、平台钩子、AIGC 执行重置或高点可发散；分镜变多必须带来新的注意力、信息、动作相位、情绪压力、平台刺激或执行稳定性价值。若当前批次出现大量同数分镜，尤其 2 镜集中，或连续段落没有明显密度曲线，必须抽样复核 `shot_count_decision` 与 `density_budget`；2 镜集中本身不阻断，只有抽样发现第二镜无触发价值时才删并或重写。
 6. 形成 `duration_profile` 和每个 beat 的 `shot_duration_decision`：先应用短剧·AIGC 默认压缩，再判断是否承载对白/旁白并估算台词量下限，继续判断缩短一半会丢失什么、拉长一倍是否只会拖慢；文字、道具、微表情、空间重置和认知高点必须给足可读时间，低信息动作、普通氛围尾巴和重复交出点必须压缩。每个 beat 必须得到正文 `display_seconds`，`约3秒` 以上必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
 7. 若相邻 3-6 个画面单位存在共享空间、道具链、声音链、动作链、记忆插入或视觉母题，先读取 `visual-sequence-alignment-contract.md` 并消费内部 `sequence_profile`；只吸收视觉母题、注意力接力、运动家族、材质光色和交出锚点，不吸收不属于当前画面点的主体动作、对白反应、记忆段或道具揭示。
 8. 为当前 `visual_unit` 建立 `unit_ownership_map`：当前块拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项必须清楚；若计划分镜属于其他画面点，必须转移或删除。若当前块包含道具/物件，必须同步形成 `prop_shot_admission`：`interaction / key_information / rule_or_danger / necessary_environment / rejected_background`，标为 `rejected_background` 的物件不得成为分镜主体、焦点拉移终点、反射/倒影主体或独立时值理由。
@@ -65,7 +65,7 @@ shot_design_plan:
   sequence_density_curve: <如命中，tempo_beats、density_ramp、peak/recovery/set_piece 槽位、声音切点、密度预算和交出锚点>
   unit_ownership_map: <当前块拥有的主体、动作、道具/文字/身体锚点、对白承托和禁止外溢项>
   prop_shot_admission: <如涉及道具/反射/涟漪/普通物件，说明 interaction / key_information / rule_or_danger / necessary_environment / rejected_background；rejected 不进分镜主体>
-  shot_count_decision: <为什么是 1/2/3/4 镜；2 镜必须说明第二个真实观看策略；5-6 镜只允许 set_piece_chain 且每镜不可删>
+  shot_count_decision: <为什么是 1/2/3/4 镜；每镜对应哪个有效触发点/观看结果/平台刺激/AIGC 执行稳定性价值；5-6 镜只允许 set_piece_chain 且每镜不可删>
   rhythm_profile: <收敛/标准/发散/断裂的内部判断，不输出标签>
   duration_profile: <整体时值策略、短剧·AIGC 默认压缩、显式秒数分布、对白台词量预算、15 秒分组风险和相邻分镜时值接力>
   continuity_entry: <承接上一落点、声音、动作、光色或空间轴线>

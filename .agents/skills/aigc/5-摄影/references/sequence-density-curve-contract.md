@@ -17,7 +17,7 @@
 - 相邻 3-8 个 `visual_unit` 共享同一空间、动作链、道具链、声音链、光色母题或危险推进。
 - 上游段落存在明显速度阶段，例如日常建立 -> 威胁入场 -> 动作爆点 -> 后果反压 -> 边界交出。
 - 某个 `visual_unit` 可能需要 5-6 个短镜承托连续动作结果、连续命中、连续声画打点或 set-piece 链条。
-- 同一场中 `shot_count_distribution` 呈现固定 2 镜、平均铺满、连续高密度或连续低密度风险。
+- 同一场中 `shot_count_distribution` 呈现固定 2 镜、平均铺满、连续高密度或连续低密度风险；机械校验提示 2 镜集中时，应建立或复核 `sequence_density_curve`，但 2 镜集中本身只作为节奏复核信号，不自动视为失败。
 - 执行顾问与复核流程 摄影监制顾问时，顾问建议给出段落变速、密度槽位、动作峰值或恢复停顿。
 
 ## Curve Fields
@@ -85,9 +85,9 @@
 3. 为每个阶段分配 `density_ramp`：哪些 `visual_unit` 应收敛，哪些标准展开，哪些加密，哪些必须停住。
 4. 标记 `peak_slots` 和 `recovery_slots`：峰值不是越多越好，峰值之后必须有结果、反应、反压或交出。
 5. 若存在连续动作/声画打点，判断是否进入 `set_piece_chain_slots`；若进入，允许 5-6 镜，但必须逐镜可删减测试。
-6. 形成 `density_budget`：检查全段是否过于平均、全满、全空或固定两镜。
+6. 形成 `density_budget`：检查全段是否过于平均、全满、全空或固定两镜；若固定两镜风险被机械校验提示，必须抽样低信息、关键揭示、群像、高点和边界交出块，证明该收敛的已收敛、该加密的已加密。
 7. 形成 `handoff_anchors` 与 `ownership_guard`：曲线只给当前阶段可见锚点，不写 `6-分组` 的创意连接件。
-8. 将 `sequence_density_curve` 交给 `N4-BEAT`、`N5-RHYTHM`、`N5.2-DURATION`、`N5.5-PEAK-SHOT` 和 `N6.5-SHOT-PLAN` 消费；单个 `visual_unit` 的最终分镜数仍必须由本句真实节拍证明。
+8. 将 `sequence_density_curve` 交给 `N4-BEAT`、`N5-RHYTHM`、`N5.2-DURATION`、`N5.5-PEAK-SHOT` 和 `N6.5-SHOT-PLAN` 消费；单个 `visual_unit` 的最终分镜数仍必须由本句有效触发点、观看结果或 AIGC 执行稳定性价值证明。
 
 ## Review Questions
 
@@ -105,4 +105,5 @@
 - 机械限制所有关键块最多 4 镜，导致连续动作结果被压平。
 - 看到动作就一路高密度，没有日常建立、恢复停顿或威胁反压。
 - 只有 `shot_count_distribution` 统计，没有 `density_curve_summary`。
+- 机械校验已经提示 2 镜集中，但没有复核第二镜是否具有有效触发点、观看结果或 AIGC 执行稳定性价值。
 - 顾问与复核流程的顾问只给“更快、更电影感”建议，没有给出段落变速、峰值槽位或恢复槽位。

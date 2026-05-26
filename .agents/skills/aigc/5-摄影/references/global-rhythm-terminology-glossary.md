@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | 段落级密度曲线 | `sequence-density-curve-contract.md` | 连续 3-8 个 `visual_unit` | `density_ramp`、`tempo_beats`、`peak_slots`、`recovery_slots` |
 | 单画面节奏画像 | `visual-rhythm-analysis-contract.md` | 单个 `visual_unit` | `rhythm_profile`、`tempo`、`importance_level` |
-| 节拍触发与分镜数 | `beat-analysis-contract.md` | 单个 `visual_unit` 内的切换点 | `beat_trigger`、`shot_count_decision`、`BT-01~BT-10` |
+| 节拍触发与分镜数 | `beat-analysis-contract.md` | 单个 `visual_unit` 内的切换点 | `beat_trigger`、`shot_count_decision`、`BT-01~BT-16` |
 | 时值决策 | `shot-duration-decision-contract.md` | 单个分镜 | `shot_duration_decision`、`duration_class` |
 
 ---
@@ -88,9 +88,9 @@
 
 | rhythm_profile.tempo | 对应的运镜速度 | 典型时值倾向 |
 | --- | --- | --- |
-| `hold` | 静止或极慢，停顿感 | instant / short，1-2 秒 |
-| `slow_burn` | 极慢推进/拉，悬疑感 | short / standard，2-3 秒 |
-| `steady` | 中速稳定，观察感 | standard，3-5 秒 |
+| `hold` | 静止或极慢，停顿感 | standard / held，约1.5-3.5秒；低信息交出可压短 |
+| `slow_burn` | 极慢推进/拉，悬疑感 | standard / held，约2-3.5秒 |
+| `steady` | 中速稳定，观察感 | short / standard，约1.5-3秒 |
 | `quick` | 快速运动，冲击感 | short，1-2 秒 |
 | `rupture` | 断裂跳切，急停/光变 | instant，<1 秒 |
 
@@ -107,7 +107,17 @@
 
 ## 四、节拍触发术语（beat-analysis-contract.md 专用）
 
-### 4.1 Beat Trigger Matrix（BT-01~BT-10）
+### 4.0 Beat / Trigger（节拍 / 触发点）
+
+`节拍` 在 `5-摄影` 中等价于“有效分镜触发点”。快节奏短视频平台默认采用 `trigger-first` 口径：`BT-01~BT-16` 命中的有效触发点默认 1:1 落为一个 `分镜N（约X秒）:`。只有当多个触发点能在同一镜头内清楚完成，且不损失平台节奏、观看结果、下游 payload、人物动作连续性或 AIGC 执行稳定性时，才合并。
+
+| 术语 | 含义 | 落盘关系 |
+| --- | --- | --- |
+| `beat_trigger` | 有效触发点，说明哪里需要换观看策略、平台刺激、可读性或执行稳定性 | 默认 1 个触发点 = 1 个 `分镜N` |
+| `trigger_merge_exception` | 合并例外，说明多个触发点可在同一镜头内完成 | 只在不损失观看结果时使用 |
+| `shot_count_decision` | 对当前 `visual_unit` 最终分镜数的裁决 | 必须说明每个 `分镜N` 对应哪个触发点或合并例外 |
+
+### 4.1 Beat Trigger Matrix（BT-01~BT-16）
 
 | 触发ID | 节拍触发 | 典型镜头响应 |
 | --- | --- | --- |
@@ -121,14 +131,20 @@
 | `BT-08` | 权力关系变化 | 高低机位、对称构图破坏、压迫式前景 |
 | `BT-09` | 摄影参数变化 | 景别切换、景深变化、固定机位切换手持 |
 | `BT-10` | 声音打点切分 | 声画切点、硬切、结果钉镜、反应落点 |
+| `BT-11` | 平台钩子/停滑点 | 快速切入、异常细节、反差揭示、危险预告 |
+| `BT-12` | 微动作/微表情跳点 | 眼神、呼吸、手指、肩膀、嘴角、喉结等微动态特写 |
+| `BT-13` | 文字/屏幕/字幕可读点 | 黑板字、屏幕、规则文字、道具标签读秒 |
+| `BT-14` | 物理接触/道具交互点 | 接触点特写、动作落点、结果反应 |
+| `BT-15` | 构图/画幅刺激点 | 视角切换、遮挡揭示、低角度压迫、俯拍重置 |
+| `BT-16` | AIGC 执行重置点 | 短镜重置主体、方向、光线、动作相位或空间关系 |
 
 ### 4.2 Shot Count Decision（分镜数裁决）
 
 | 条件 | 允许分镜数 | 必须满足 |
 | --- | --- | --- |
 | 低信息/单一观看 | 1 镜 | 一个镜头完成观看策略，不得硬补 |
-| 存在第二个真实观看策略 | 2 镜 | 建立后揭示、动作后反应、环境后可读细节等 |
-| 关键规则显影/动作分相/群像恐慌/高潮承托/空间重置 | 3-4 镜 | 每镜必须有新主体、新动作相位、新信息或新交接 |
+| 存在第二个有效触发点 | 2 镜 | 建立后揭示、动作后反应、环境后可读细节、平台钩子后结果等 |
+| 关键规则显影/动作分相/群像恐慌/高潮承托/空间重置/平台钩子连续推进/AIGC 执行重置 | 3-4 镜 | 每镜必须有新触发、新主体、新动作相位、新信息、新交接或新执行稳定性价值 |
 | 连续动作/声画打点（set-piece-chain 例外） | 5-6 镜 | 每镜独立起点/撞点/结果/声音，删掉任一镜少一节拍 |
 
 ---
@@ -219,7 +235,7 @@
 
 节拍触发与分镜数：
 → 来自 `references/beat-analysis-contract.md`
-→ 术语：`beat_trigger`、`BT-01~BT-10`、`shot_count_decision`
+→ 术语：`beat_trigger`、`BT-01~BT-16`、`trigger_merge_exception`、`shot_count_decision`
 
 时值决策：
 → 来自 `references/shot-duration-decision-contract.md`

@@ -34,7 +34,7 @@
 | `dialogue_scene_variation_review` | 交付前 | 检查对白场景是否形成 `dialogue_scene_variation_plan`，焦点选择是否来自戏剧功能、权力关系、观众知情层级和注意力路径，是否避免机械正反打、每句说话者特写和说话者/听话者覆盖式配平 |
 | `prop_shot_admission_review` | 交付前 | 检查道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等物件细节是否通过准入：角色互动、关键信息/规则/证据/危险源或必要环境交代；无互动普通道具不得成为独立镜头、焦点拉移终点、反射主体或动作衔接节点 |
 | `natural_language_review` | 交付前 | 检查 `分镜明细：` 是否读起来像自然中文镜头文字，而不是参数清单、模板填空或连续同构句 |
-| `shot_count_distribution_review` | 交付前 | 检查同一集或同一场分镜数量是否被模板化为固定 2 镜；抽样确认 1/2/3/4 镜均来自真实节拍 |
+| `shot_count_distribution_review` | 交付前 | 检查同一集或同一场分镜数量是否被模板化为固定 2 镜；抽样确认 1/2/3/4 镜均来自有效触发点、观看结果或 AIGC 执行稳定性价值。机械校验提示 2 镜集中时只触发复核，不默认阻断 |
 | `sequence_density_curve_review` | 交付前 | 检查连续观看段落是否形成 `sequence_density_curve`：有清楚 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget / handoff_anchors`，而不是只做单句分镜数判断 |
 | `faithfulness_review` | 有改写风险时 | diff 上游 `4-表演`，确认正文事实、对白、顺序未被改写 |
 
@@ -54,7 +54,7 @@
 | `GATE-CINE-02` | 画面覆盖 | 所有命中画面性句子下方就近有 `分镜明细：` |
 | `GATE-CINE-03` | 分镜编号 | 每个分镜明细块从 `分镜1（约X秒）:` 开始，连续编号，无跳号 |
 | `GATE-CINE-04` | 节拍合理 | 分镜数量与当前画面句子的动作、信息、情绪节拍匹配 |
-| `GATE-CINE-04A` | 数量去模板化 | 1/2/3/4 镜来自 `shot_count_decision`；同一集或同一场若 2 镜占比异常集中，已抽样复判并修正低信息硬撑、关键信息压平或模板继承 |
+| `GATE-CINE-04A` | 数量去模板化 | 1/2/3/4 镜来自 `shot_count_decision` 和有效触发点；同一集或同一场若 2 镜占比异常集中，已抽样复核低信息硬撑、关键信息压平或模板继承；2 镜集中本身允许通过，只有抽样发现 `分镜2` 无触发、无观看结果、无执行稳定性价值时才不通过 |
 | `GATE-CINE-04A2` | 段落密度曲线 | 连续观看段落已形成内部 `sequence_density_curve`；能说明哪里省镜头、哪里加密、哪里停顿、哪里硬切、哪里交出；高密度后有恢复/反压/余波，且整段不是全满、全空或平均同密度 |
 | `GATE-CINE-04A3` | set-piece 链条例外 | 单个 `visual_unit` 扩展到 5-6 镜时，必须命中 `set_piece_chain_slot` 或 `sound_cut_pattern`，每镜都有独立起点、撞点、动作结果、声音打点或反应落点；删掉任一镜都会损失必要节奏拍 |
 | `GATE-CINE-04B` | 镜头时值 | 每个 `分镜N` 均写成 `分镜N（约X秒）:`，并能反推 `shot_duration_decision`：时值等级、短剧·AIGC 压缩偏置、对白台词量预算、停顿/压缩理由、缩短或拉长的损失、相邻镜头时值接力和 15 秒组内节奏风险；`约3秒` 以上有台词、读秒、表演变化、复杂调度、空间重置或高点证据 |
@@ -98,7 +98,7 @@
 | --- | --- | --- |
 | `FAIL-CINE-02` | 漏掉画面性句子 | `references/visual-matching-contract.md` |
 | `FAIL-CINE-03` | 分镜过粗、过碎或固定模板化 | `references/beat-analysis-contract.md` |
-| `FAIL-CINE-03A` | 分镜数量塌缩为固定 2 镜或同数分布异常，无法证明每个 `分镜2` 的真实观看策略 | `references/beat-analysis-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
+| `FAIL-CINE-03A` | 分镜数量塌缩为固定 2 镜或同数分布异常，且抽样无法证明 `分镜2` 有有效触发点、观看结果、平台节奏价值或 AIGC 执行稳定性价值 | `references/global-rhythm-terminology-glossary.md`、`references/beat-analysis-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/sequence-density-curve-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-03D` | 整场或连续段落缺少密度曲线：全满、全空、平均同密度、峰值后无恢复/反压，或只统计 `shot_count_distribution` 但没有 `density_curve_summary` | `references/sequence-density-curve-contract.md`、`references/visual-rhythm-analysis-contract.md`、`steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N5-RHYTHM` |
 | `FAIL-CINE-03E` | 5-6 镜 set-piece 链条没有真实连续动作/声音结果，或每镜不能证明独立起点、撞点、结果、声音打点、反应落点 | `references/sequence-density-curve-contract.md#set-piece-chain-exception`、`references/beat-analysis-contract.md#Shot-Count-Cardinality-Guard`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-03B` | 分镜数量正确但单镜长短错误：缺少 `分镜N（约X秒）`、文字/道具/微表情被快速切走，低信息镜头被拖长，普通氛围镜普遍超过 `standard`，连续同长同速，或 15 秒组内节奏风险未裁决 | `references/shot-duration-decision-contract.md`、`references/visual-rhythm-analysis-contract.md`、`references/shot-planning-integration-contract.md`、`steps/cinematography-workflow.md#N5.2-DURATION` |
@@ -154,7 +154,7 @@
 - 画面节奏张弛结果。
 - 镜头时值裁决结果：duration profile、显式秒数抽样、长停顿/快速镜抽样、15 秒组内节奏风险。
 - 对白台词量预算结果：对白/旁白承托画面数量、台词量下限抽样、跨镜延续说明。
-- 分镜数量分布与 2 镜集中抽样复判结果。
+- 分镜数量分布与 2 镜集中抽样复核结果。
 - 段落密度曲线结果：`density_curve_summary`、`tempo_beats`、`density_ramp`、`peak_slots`、`recovery_slots`、`set_piece_chain_slots`、`sound_cut_pattern` 和 `density_budget`。
 - 段落观看意图与逐画面点归属检查结果：是否形成 `sequence_profile`、是否有 `unit_ownership_map`、是否未发生跨块外溢或失主镜头。
 - 高潮分镜强化结果。
