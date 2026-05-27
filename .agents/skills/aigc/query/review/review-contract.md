@@ -21,6 +21,8 @@
 | `GATE-QUERY-04` | 每个结论有证据路径 | `FAIL-QUERY-EVIDENCE` |
 | `GATE-QUERY-05` | 完成/通过类结论带验收证据或明确说未见验收 | `FAIL-QUERY-VALIDATION` |
 | `GATE-QUERY-06` | legacy fallback 明确标注，不冒充 canonical | `FAIL-QUERY-LEGACY` |
+| `GATE-QUERY-07` | 已按 truth role 读取 `system-data-flow.md` 声明的 canonical carrier，缺失时才降级到安全 fallback | `FAIL-QUERY-CARRIER` |
+| `GATE-QUERY-08` | 路由制度、技能状态或治理系统类问题已读取 registry/routes 与相关阶段 `SKILL.md` | `FAIL-QUERY-GOVERNANCE` |
 
 ## Provider Note
 

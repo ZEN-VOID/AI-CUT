@@ -56,3 +56,15 @@ slot_bundles:
 - 顾问与复核流程 被上层策略或工具不可用时，使用本地 checklist 并保留汇流裁决。
 - 启用顾问路径时，`advisor_node_coverage` 必须记录顾问意见绑定的当前思维·执行节点；不得只记录固定字段清单或顾问名字。
 - `merge_decision` 只能由主 agent 在读取 reviewer / 降级 checklist / slot bundle findings 后裁决。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `slot_bundles: []` 是否仅被视为 legacy audit marker，canonical `slot_bundles` 是否按本合同下方非空定义交付？ | `GATE-CHAR-DESIGN-15` | `FAIL-SLOT-BUNDLE-MISSING` | `N8-REVIEW-GATE` | legacy marker 说明、canonical bundle 解析结果 |
+| 每个角色主体是否形成完整 `workflow_supervision`，包含 `subject_id`、`dispatch_mode`、`blocking_layer`、`advisor_roster_source`、reviewer roster、local checklist、slot findings 与 `merge_decision`？ | `GATE-CHAR-DESIGN-16` | `FAIL-CHAR-DESIGN-SUPERVISION-PACKET` | `N6-ADVISOR-REVIEW` | `workflow_supervision_record` 完整字段检查 |
+| `dispatch_mode` 为 `external_provider`、`local_checklist` 或 `user_disabled` 时，是否说明阻断层级/降级原因，且没有把不可用的外部 provider 伪报为已执行？ | `GATE-CHAR-DESIGN-16` | `FAIL-CHAR-DESIGN-SUPERVISION-PACKET` | `N6-ADVISOR-REVIEW` | dispatch mode、blocking layer、local checklist note |
+| 启用顾问路径时，`advisor_consultation_packet` 与 `advisor_node_coverage` 是否绑定当前 `node_ref / pass_ref / gate_ref`，并产生节点级判断、执行取舍、局部 patch 或风险提示？ | `GATE-CHAR-DESIGN-17` | `FAIL-ADVISOR-REVIEW-SKIPPED` | `N6-ADVISOR-REVIEW` | `advisor_node_coverage`、顾问问题与节点绑定记录 |
+| 顾问记录是否避免退化为固定字段清单或顾问名字堆砌，且顾问意见被主 agent 转化为可执行 patch/risk 后才进入设计稿？ | `GATE-CHAR-DESIGN-17` | `FAIL-ADVISOR-REVIEW-SKIPPED` | `N6-ADVISOR-REVIEW` / `N7-MERGE-DRAFT` | advisor patch/risk 采纳记录、被拒绝建议说明 |
+| `ROLE-BUNDLE-01` 的每个 required slot 是否有证据位置；缺槽是否写入 `slot_bundle_findings` 并阻断交付？ | `GATE-CHAR-DESIGN-15` | `FAIL-SLOT-BUNDLE-MISSING` | `N8-REVIEW-GATE` | required slot evidence map、blocking findings |
+| `merge_decision` 是否由主 agent 在读取 reviewer、降级 checklist 与 slot bundle findings 后裁决，没有保留互相竞争的并列稿或让 reviewer 直接落盘 canonical 正文？ | `GATE-CHAR-DESIGN-18` | `FAIL-CHAR-DESIGN-MERGE-DECISION` | `N8-REVIEW-GATE` / `N7-MERGE-DRAFT` | `merge_decision`、采纳/拒绝 patch 记录、最终单稿声明 |

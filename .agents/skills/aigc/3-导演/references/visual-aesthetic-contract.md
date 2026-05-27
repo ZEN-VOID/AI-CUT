@@ -223,6 +223,25 @@ visual_aesthetic_evidence:
 
 **验证**：执行报告中每个关键场景的 `visual_aesthetic_evidence.image_hierarchy` 有明确的主次区分，`rhythm_and_negative_space` 有具体的节奏落点。
 
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键场景、强情绪场、压迫场、离别场、高潮场和类型氛围场是否真正执行 `visual_aesthetic_pass`，并形成 `visual_tone / visual_core / image_hierarchy / motif_and_variation / contrast_axis / atmospheric_scenery / rhythm_and_negative_space / restraint / transition_variety / atmosphere_mood`？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到本文件 `Visual Aesthetic Pass` | `visual_aesthetic_evidence` 中有逐场 `visual_tone`、`core_image`、`image_hierarchy`、`image_motif_map`、`contrast_axis_map`、`visual_rhythm_notes`、`restraint_notes`、`transition_support_plan` |
+| 单场美学是否消费 `episode_visual_spine`，明确本场对整集母题是呼应、变奏还是克制，而不是孤立堆画面？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到 `references/episode-visual-spine-contract.md` 和本文件 `motif_and_variation` | `visual_aesthetic_evidence.motif_and_variation.episode_motif_strategy`、`scene_motifs`、`variation_note` 可回指整集视觉主轴 |
+| 美学增强是否仍落在既有字段，且 `环境描写` 只写景境层次，不写人物动作、对白引出、剧情结果或心理解释？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N9-DIR-DRAFT`；必要时回 `N7-DIR-AESTHETIC` 的字段投影 | 终稿对应字段与 `faithful_directing_trace` 显示无新增终稿字段；`环境描写` 只含空间、光线、天气、材质、自然景物、空气介质和整体氛围 |
+| 景境细节、自然景物、视觉母题或转场承托是否通过 B 路线风险检查，没有新增线索、道具、伤势、天气灾害、行动阻碍、对白、事件、因果或规则？ | `GATE-DIR-04` | `FAIL-CONTROLLED-ENRICHMENT` | `N6-DIR-ENRICH`；回到 `references/controlled-enrichment-contract.md` 和本文件 `Aesthetic Enrichment Boundary` | `controlled_enrichment_ledger` 有上游锚点、目标字段、用途和风险检查；`visual_aesthetic_evidence.risk_check.fact_drift/dialogue_drift/new_event` 为 `false` |
+| 画面美学是否被写成可见、可听、可感的具体描述，而不是"电影感""高级感""宿命感"等抽象审美词空转？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到本文件 `Failure 1` | `visual_aesthetic_evidence.risk_check.abstract_aesthetic=false`；`visual_tone`、`visual_core`、`contrast_axis_map` 能被下游分解为具体画面或声音 |
+| 视觉母题是否有压力、距离、温度或功能变化，避免同一物件在每场机械出现？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到本文件 `Failure 2` | `visual_aesthetic_evidence.motif_and_variation` 记录呼应/变奏/克制；`risk_check.motif_mechanical_repetition=false` |
+| 转场和下一场压力是否由声音、道具、群像、空间、环境刷新或未完成动作多样承托，避免连续超过 2 次依赖"看远方/顺着视线望去/地标飘动"？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到本文件 `transition_variety` 和 `Failure 3` | `transition_support_plan` 记录本场转场方式；review finding 能统计连续转场承托方式 |
+| `心理反应` 字段是否每条内心状态都有外部化锚点，且没有替代表演任务或解释剧情？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N9-DIR-DRAFT`；必要时回 `N7-DIR-AESTHETIC` 的字段配对 | `visual_aesthetic_evidence.risk_check.psychological_reaction_no_anchor=false`；终稿附近 `对白画面/角色动作/环境描写/音效画面` 有视线、手部、停顿、声音或空间反应承托 |
+| 画面是否有主视觉、次视觉、背景纹理和节奏/留白落点，而不是所有景境细节平均用力？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC`；回到本文件 `image_hierarchy`、`rhythm_and_negative_space` 和 `Failure 5` | `visual_aesthetic_evidence.image_hierarchy` 明确 `primary_image / secondary_image / background_texture`；`rhythm_and_negative_space.beats` 有具体 position、type、description |
+| 氛围意境是否消费 `atmosphere-and-mood-contract.md` 的五感通道和意境技法，且只提升氛围密度，不新增事实或对白？ | `GATE-DIR-08` | `FAIL-ATMOSPHERE-MOOD` | `N7-DIR-AESTHETIC`；回到 `references/atmosphere-and-mood-contract.md` 与本文件 `atmosphere_mood` | `visual_aesthetic_evidence.atmosphere_mood_evidence` 标明 `target_mood`、`technique_used`、`sensory_channels`；`risk_check.fact_drift/dialogue_drift=false` |
+| 画面美学、景境和道具是否服从人物动作链与空间可达性，没有让环境或符号抢走人物行动？ | `GATE-DIR-09` | `FAIL-ACTION-FIRST-01` | `N7-DIR-AESTHETIC`；必要时回 `N3-DIR-SUBSTANCE` 或 `N9-DIR-DRAFT` | `thinking_action_node_ledger` 显示 `N7-DIR-AESTHETIC` 使用人物 entry_state/action_vector/exit_state；终稿中人物动作链未被纯景物段落替代 |
+| 执行报告是否完整留下 `visual_aesthetic_evidence`，足以反查每条美学判断、字段投影、风险检查和返工依据？ | `GATE-DIR-06` | `FAIL-CREATIVE-EVIDENCE` | `N10-DIR-REVIEW` / `N10R-DIR-REPAIR`；补齐 `执行报告.md` 中 `visual_aesthetic_evidence` | `visual_aesthetic_evidence` 包含 YAML 合同中的 `scene_id`、核心轴、母题、对比、节奏、氛围和 `risk_check`；`thinking_action_node_ledger` 有 `N7-DIR-AESTHETIC` 记录 |
+
+`Weak-To-Strong Examples` 只提供示例校准，不拥有独立阻断 gate；若示例暴露抽象审美词、转场单一、道具推理化或心理反应无锚点，分别回接上表对应的 `GATE-DIR-05` / `FAIL-VISUAL-AESTHETIC` 行处理。
+
 ## Review Checklist
 
 - 关键场景是否有可命名的 `visual_core`，而不是散乱堆砌细节？

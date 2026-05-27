@@ -55,3 +55,15 @@ slot_bundles:
 - 顾问与复核流程 被上层策略或工具不可用时，使用本地 checklist 并保留汇流裁决。
 - 启用顾问路径时，`advisor_node_coverage` 必须记录顾问意见绑定的当前思维·执行节点；不得只记录固定字段清单或顾问名字。
 - `merge_decision` 只能由主 agent 在读取 worker / reviewer / 降级 checklist / slot bundle findings 后裁决。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 旧审计兼容标记 `slot_bundles: []` 是否只作为 legacy marker 存在，交付时是否使用下方 canonical 非空 `PROP-BUNDLE-01`？ | `GATE-PROP-DESIGN-SLOT-01` | `FAIL-PROP-DESIGN-SLOT-01` | `N7-REVIEW` | legacy marker 说明、canonical `PROP-BUNDLE-01` 解析记录 |
+| 每个被设计或审查的道具主体是否形成非空 `workflow_supervision`，并包含 `subject_id / dispatch_mode / blocking_layer / advisor_roster_source / worker_roster / reviewer_roster / local_checklist_note / slot_bundle_findings / merge_decision`？ | `GATE-PROP-DESIGN-WORKFLOW-01` | `FAIL-PROP-DESIGN-WORKFLOW` | `N7-REVIEW` | `workflow_supervision` packet、字段完整性检查、缺字段 finding |
+| 顾问与复核流程被 system/developer/tool/user 层阻断或不可用时，是否记录 `blocking_layer`、`unlaunched_reviewers` 和本地 checklist，而不是静默声称外部 reviewer 已执行？ | `GATE-PROP-DESIGN-WORKFLOW-01` | `FAIL-PROP-DESIGN-WORKFLOW` | `N7-REVIEW` | 阻断层级、未启动 reviewer 列表、本地 checklist 记录 |
+| 启用顾问路径时，`advisor_consultation_packet` 与 `advisor_node_coverage` 是否绑定当前 `node_ref / pass_ref / gate_ref`，并记录 `advisor_lens`，而不是只写顾问名字或固定字段清单？ | `GATE-PROP-DESIGN-11` | `FAIL-PROP-DESIGN-10` | `N5-RESEARCH-CHAIN` / `N7-REVIEW` | `advisor_node_coverage`、顾问问题、节点级 patch / risk note |
+| `slot_bundles` 是否非空，且 `PROP-BUNDLE-01.required_slots` 每项都有证据位置；缺槽是否进入 `slot_bundle_findings` 并阻断交付？ | `GATE-PROP-DESIGN-SLOT-01` | `FAIL-PROP-DESIGN-SLOT-01` | `N7-REVIEW` | required slot evidence map、`slot_bundle_findings`、blocking verdict |
+| `merge_decision` 是否只由主 agent 在读取 worker、reviewer、降级 checklist 和 slot bundle findings 后裁决，没有让 worker/reviewer 单方宣布 canonical PASS？ | `GATE-PROP-DESIGN-WORKFLOW-02` | `FAIL-PROP-DESIGN-MERGE-DECISION` | `N7-REVIEW` / `N6-DESIGN` | `merge_decision`、采纳/拒绝 patch 记录、最终单稿声明 |
+| `dispatch_mode: user_disabled` 或 `blocking_layer` 非 `none` 时，是否仍留下可审查的本地流程证据和残余风险，而不是跳过 review gate？ | `GATE-PROP-DESIGN-WORKFLOW-01` / `GATE-PROP-DESIGN-WORKFLOW-02` | `FAIL-PROP-DESIGN-WORKFLOW` / `FAIL-PROP-DESIGN-MERGE-DECISION` | `N7-REVIEW` | 降级说明、本地 checklist、残余风险与最终裁决 |

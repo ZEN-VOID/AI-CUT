@@ -40,7 +40,7 @@
 | `body_linkage` | 情绪如何影响肩、手、呼吸、重心、姿态、道具动作和声线 | `角色动作`、`动作画面`、`对白画面`、`音效画面` |
 | `ambient_support` | 环境声、余声、沉默、自然声或空间声音如何放大情绪 | `音效` / `音效画面`、`环境描写`、`群像画面` |
 
-关键对白 beat 还必须形成 `dialogue_delivery` 证据：语气/情绪、气口、断句、重音、声线变化和尾音处理。`dialogue_delivery` 不改写对白正文，只决定这句话如何被说出，并与微表情、身体联动和对手反应配套。
+关键对白 beat 还必须形成 `dialogue_delivery` 证据：语气/情绪、气口、断句、重音、声线变化和尾音处理。`dialogue_delivery` 不改写对白正文，只决定这句话如何被说出，并与微表情、身体联动和对手反应配套。若上游提供 `long_dialogue_beat_map`，本阶段必须消费为 `long_dialogue_delivery_map`，不得重新切分或合并吞并上游原文节拍。
 
 ## Lived-In Micro Activity Pass
 
@@ -295,6 +295,22 @@ emotion_sequence:
 - 若一句对白内有明显转折，必须写出前后段处理：前半句稳住、某个词前停顿、后半句放轻、尾音断掉或收住。
 - 台词表演不得把潜台词写进引号内；未说出口的信息只能通过停顿、声线、气息、动作或反应外显。
 
+### Long Dialogue Delivery Chain
+
+长对白不是“演员面对镜头把一段话念完”。当上游 `2-编剧` 已提供 `long_dialogue_beat_map` 时，`4-表演` 只负责交付方式，不拥有重新断句或改写文本的权力。
+
+**逐 beat 处理规则**：
+- 每个 `long_dialogue_beat_map.beats[].beat_id` 对应一条 `long_dialogue_delivery_map.delivery_beats[]`。
+- 每个节拍至少回答：这口气是继续、换气、压住、断开还是故意不断；重音落在哪个词组；尾音是收住、放轻、压低、上扬、悬停还是断掉；身体哪里跟着变化；对手如何接住。
+- 上游标记 `continuous/no_pause` 时，不强行停顿；用声线轻重、语速变化、手部停点、吞咽、眼神或对手反应制造内部层次。
+- 长对白每 2-3 个节拍必须至少有一次对手反应或沉默余波；反应可以很轻，但不能让说话者单方面滔滔不绝。
+- 若一个长对白从解释转向施压、从伪装转向泄露、从请求转向宣示边界，表演交付必须体现语气、呼吸或身体控制的变化。
+
+**禁止模式**：
+- 所有节拍都写同一个 `tone_state`、同一个 `pause_pattern` 或同一个“看着对方说完”承托。
+- 为了表演节奏修改引号内台词，或把多个上游节拍合成一条。
+- 把长对白交付写成机位、景别、镜头运动或分镜方案；这些属于 `5-摄影`。
+
 弱写法：
 
 ```md
@@ -470,3 +486,17 @@ actor_performance_control_evidence:
 - 是否避免过演：没有上游依据时，不写崩溃、大喊、泪流满面、夸张扭曲。
 - 是否避免摄影越权：不写镜头推进、特写、慢镜、快切等摄影方案；只写演员和声画材料。
 - 是否全部内嵌到既有字段，没有新增第二套正文体系。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键情绪 beat 是否能回指明确上游触发点，而不是只贴“开心/愤怒/难过/紧张”等情绪标签？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的 `emotion_trigger` 与 `actor_performance_control_plan` | `actor_performance_control_evidence[].trigger`、`source_anchor`、`risk_check.emotion_label_only=false` |
+| 是否至少具备微表情变量和非面部身体联动，并能看出表层情绪、压制情绪或隐藏动机中的至少两层？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的 Five-Part Expression Control Formula | `actor_performance_control_evidence[].surface_emotion`、`suppressed_emotion`、`hidden_motive`、`micro_expression`、`body_linkage` |
+| 情绪切换是否抓住短促临界态和余波，而不是持续挂同一张模板表情或轮播夸张表情？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的 Emotion Transition Moment Rule 与 Micro-Dynamics | `actor_performance_control_evidence[].micro_dynamics`、`transition_moment`、`risk_check.template_expression=false`、`risk_check.overacting=false` |
+| 每段对白是否保留引号内原文，同时在字段标题或就近画面中写清语气、气口、断句、声线、尾音或对手反应？ | `GATE-PERF-01` | `FAIL-PERF-03A` | `N4-PERF-ACTOR-CONTROL` 的 Dialogue Delivery Control | `dialogue_performance_evidence[].tone_state`、`breath_point`、`pause_pattern`、`voice_control`、`risk_check.dialogue_text_changed=false` |
+| 上游 `long_dialogue_beat_map` 是否被逐 beat 转成 `long_dialogue_delivery_map`，且每个节拍有气口、停顿或连续气息、重音、尾音、身体联动和对手反应链？ | `GATE-PERF-14` | `FAIL-LONG-DIALOGUE-DELIVERY` | `N4-PERF-ACTOR-CONTROL` 的 Long Dialogue Delivery Chain | `long_dialogue_delivery_map.delivery_beats` 记录 beat_id、breath_point、pause_pattern、stress_word_or_phrase、ending_control、body_linkage 和 opponent_reaction |
+| 环境声是否来自当前场景身份、空间材质和情绪压力源，而不是泛化 BGM、外部因果或新增事件？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的 Environment Sound Support | `actor_performance_control_evidence[].ambient_support`、`risk_check.new_event=false`、`embedded_in_fields` |
+| 多人 beat 是否落实“一个人行动、另一个人反应”，并避免所有角色同等强度表演？ | `GATE-PERF-06` | `FAIL-LIVED-IN-02` | `N4-PERF-ACTOR-CONTROL` / `N5-PERF-SCENE-CRAFT` 的 `lived_in_behavior_evidence` 与多人动作-反应分工 | `lived_in_behavior_evidence[].action_reaction_pair`、`risk_check.all_characters_performing=false` |
+| 动作链是否写清起点状态、动作向量、可达对象、互动方式和退出状态，而不是“走上前/看向远方”式断链？ | `GATE-PERF-05` | `FAIL-ACTION-FIRST-02` / `FAIL-ACTION-FIRST-04` | `N4-PERF-ACTOR-CONTROL` 的 Action Chain Breakdown Method 与 `N8R-PERF-REPAIR` | `thinking_action_node_ledger` 中 `N4-PERF-ACTOR-CONTROL` 的 `actions_taken`、`gate_status`、`source_owner` |
+| 表演控制结果是否全部内嵌到既有字段，未新增 `演技提示词`、`表情控制公式`、摄影方案或第二套正文体系？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N7-PERF-DRAFT` / `N8R-PERF-REPAIR` 的字段内嵌修复 | `actor_performance_control_evidence[].embedded_in_fields`、`integration_targets`、`findings[].source_owner=references/actor-performance-control-contract.md` |

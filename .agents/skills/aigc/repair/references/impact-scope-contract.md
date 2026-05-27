@@ -70,3 +70,16 @@ impact_map:
 3. 已生成图像或视频不直接文本编辑；repair 只能保留、失效、重建任务或进入 review route。
 4. 中文润色默认不改变编号、字段名、YAML、分镜 ID、路径、对白文本和结构化引用。
 5. 创意激发输出默认是候选建议，只有用户授权或 owning stage 吸收后才成为 canonical truth。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 修复前是否覆盖 `project memory`、`project context`、`0-初始化` 到 `10-审片`、review/state 等全部可能受影响 surface，而不是只看当前文件？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | `impact_map` 的 upstream、same_layer、current、downstream、assets、future、review_state 条目 |
+| 修改对象是否先匹配 Universal Type Matrix，明确必查上游、同层/当前、下游/未来和验收面？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | 命中的 matrix row、scope/type package、必查路径或未知项说明 |
+| 当旧口径在上游源层命中时，是否先修最早 source owner，而不是用下游 prompt、handoff 或润色掩盖源层错误？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | source hit 证据、canonical_owner、writeback_order |
+| 旧口径只在生成 handoff / manifest / task 中命中时，是否修 owning leaf，而不是反向改上游事实？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | owning leaf 路由、handoff/manifest/task 命中位置、上游 unchanged 说明 |
+| 图像或视频缺陷是否表达为 preserve / invalidate / regenerate / review_only，而不是声称直接文本编辑已生成资产？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-ASSET` | `N7-ASSET-REBUILD-ROUTE` | `generated_assets.action`、provider route、asset action plan |
+| 中文润色影响范围是否明确保持编号、字段名、YAML、分镜 ID、路径、对白文本和结构化引用不变？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | before/after diff、固定字段/编号/引用一致性检查 |
+| 创意激发是否停留在候选建议，只有用户授权或 owning stage 吸收后才进入 canonical truth？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | candidate status、user authorization 或 stage owner absorption 记录 |
+| `Minimum Impact Map` 是否填齐 upstream_truth、same_layer_neighbors、current_locality、downstream_existing、generated_assets、future_constraints、review_state，而非只写自然语言概述？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | 结构化 `impact_map`、unknown 项原因、证据路径 |

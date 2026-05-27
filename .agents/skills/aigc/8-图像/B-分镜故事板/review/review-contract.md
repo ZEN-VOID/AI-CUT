@@ -23,7 +23,7 @@
 | `G7-SCENE-VISUAL` | 只要绑定场景图，manifest、prompt 和 imagegen plan 均声明风格、光影、氛围与场景参照图一致 | `FAIL-SHEET-REF` | `references/reference-slot-binding.md` |
 | `G8-RESOLUTION` | prompt、imagegen plan 和 result 均声明 `resolution_target: 4K`，不得降级为 2K | `FAIL-SHEET-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G9-HANDOFF` | imagegen mode 合法，未经许可不切 CLI/API fallback | `FAIL-SHEET-IMAGEGEN` | `references/imagegen-handoff.md` |
-| `G10-PERSIST` | 生成图片或计划输出位于项目目录，不只在 `$CODEX_HOME` | `FAIL-SHEET-IMAGEGEN` | `.agents/skills/cli/imagegen/references/output-persistence.md` |
+| `G10-PERSIST` | 生成图片或计划输出位于项目目录，不只在 `$CODEX_HOME`；不得静默覆盖已有文件，除非用户明确要求 rerun / replace | `FAIL-SHEET-IMAGEGEN` | `.agents/skills/cli/imagegen/references/output-persistence.md` |
 | `G11-REF-INPUT` | 若绑定本地参照图，生成前必须逐张 `view_image` 且 results/report 记录 `reference_input_status: visible_in_conversation_context`；确无绑定图片时记录 `no_reference_images_bound` | `FAIL-SHEET-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G12-REPORT` | 执行报告列出 generated / skipped / failed 与返工入口 | `FAIL-SHEET-REPORT` | `templates/output-template.md` |
 

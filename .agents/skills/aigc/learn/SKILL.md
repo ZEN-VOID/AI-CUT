@@ -15,6 +15,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-learn` 时，必须同时加载同目录 `CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 每次调用本技能时，必须先加载 `.agents/skills/aigc/SKILL.md + CONTEXT.md`，锁定 AIGC 根路由、卫星边界、项目 runtime 和阶段真源。
 - 若学习对象指向具体阶段、叶子或卫星，必须加载对应 owning skill 的 `SKILL.md + CONTEXT.md`，并按其 `Reference Loading Guide` 加载相关 `references/`、`steps/`、`types/`、`review/`、`templates/`、`scripts/`。
@@ -169,7 +170,7 @@ flowchart TD
 5. 输出模板或报告缺字段：回到 `templates/output-template.md`。
 6. 同类失败可复用：沉淀到本 `CONTEXT.md`；稳定后再晋升到本 `SKILL.md` 或对应分区合同。
 
-## Field Master
+## Field Mapping
 
 | field_id | owner | must contain | fail code |
 | --- | --- | --- | --- |
@@ -212,7 +213,7 @@ flowchart TD
 
 **报告定位**：学习报告是可选的**执行副产物**，用于追溯和审计凭证，不是完成标志。
 
-- Required output（执行型改进）：`changed_files`（实际修改的技能文件）+ `audit_result`（协调审计通过）+ `residual_risks`（残余风险）+ `next_learning_deposition`（经验沉淀）。
+- Required output: 执行型改进必须交付 `changed_files`（实际修改的技能文件）+ `audit_result`（协调审计通过）+ `residual_risks`（残余风险）+ `next_learning_deposition`（经验沉淀）。
 - Report output（可选副产物）：仅当用户明确要求生成报告或需要审计追溯时才生成。
 - Output format: 执行产物默认对话交付；报告仅在用户要求时使用 `templates/output-template.md` 生成。
 - Output path: 执行产物不落盘；报告默认落到 `reports/aigc-learn-YYYYMMDD.md`，但仅为追溯凭证。

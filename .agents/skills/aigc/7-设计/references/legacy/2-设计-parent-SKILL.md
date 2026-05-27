@@ -183,6 +183,20 @@ governance_tier: full
 | `FIELD-DESIGN-02-07` | 每个 leaf 的 `Integrated prompt` 都含对应洁净锚句，且自动生图前不得出现该域禁止的污染主体 | `FAIL-DESIGN-02-07` | `S5` |
 | `FIELD-DESIGN-02-08` | `team.yaml` 已读取，且已明确 `roles.supervision` 不再承担当前轮 closeout；输出后只写审计边界说明与 handoff | `FAIL-DESIGN-02-08` | `S6` |
 
+## Review Gate Mapping
+
+No independent gate: 本文件是旧 `2-设计` tranche parent 的 legacy archive，不再作为 active skill 入口、独立 review 合同或当前设计执行真源；旧 `FIELD-DESIGN-02-* / FAIL-DESIGN-02-*` 只保留迁移索引意义，当前阻断必须回接父级 review gate 与域级 `2-设计` leaf。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否仍把旧 `.agents/skills/aigc/7-设计/2-设计` 当作当前 active 设计入口，而不是路由到 `场景 / 角色 / 道具` 域级 `2-设计` leaf？ | `GATE-DESIGN-LEGACY-01` | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N2-DOMAIN`；`references/阶段路由矩阵.md` | 旧 tranche 触发词、active domain route、legacy archive 只读声明 |
+| 旧合同中 `1-清单 + 0-Init + 2-Global` 的输入优先级、对象边界和风格边界是否未经当前域级 leaf 复核就被执行？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `D-N4-DISPATCH`；对应域级 `2-设计` leaf `SKILL.md + CONTEXT.md` | 被复用输入规则、active input contract 位置、采用/废弃理由 |
+| 父层是否越权生成设计主稿、跨类目总稿、平行 reviewer 总稿，或把 `_manifest.json` / thinking sidecar 升格为设计真源？ | `GATE-DESIGN-CLOSEOUT-01` | `FAIL-DESIGN-CLOSEOUT-DOMAIN-GATE` | `D-N5-DOMAIN-GATE`；对应域级 `2-设计` Output Contract | canonical design truth、projection、manifest sidecar 对照 |
+| `full_generation_prompt`、参照图洁净、同 stem 自动图、内置 imagegen request sidecar 是否被旧父合同直接裁决，而不是交给 active shared contract 与 leaf review？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | 对应域级 `2-设计` leaf `review/review-contract.md`；active shared image/design output contract | prompt/image request 证据、active review verdict、legacy rule 复核说明 |
+| `服装` 或其他 pending sibling 是否被旧 Stage Coverage 表误判为当前 active leaf？ | `GATE-DESIGN-ROUTE-02` | `FAIL-DESIGN-ROUTE-DOMAIN` | `D-N2-DOMAIN`；`references/阶段路由矩阵.md` | active/pending domain matrix、未调度 sibling、缺口说明 |
+| 首次落盘后的收尾是否仍沿用旧 `监制` closeout 或 `roles.supervision` 授权字段，导致审计层与顾问层混线？ | `GATE-DESIGN-CLOSEOUT-03` | `FAIL-DESIGN-CLOSEOUT-REPORT` | `D-N6-CLOSEOUT`；`Stage-Closeout Review-Repair Contract` | `validation-report.md` audit boundary、advisor/local review 状态、residual risks |
+| 旧 `FAIL-DESIGN-02-*` 是否被写入当前 review verdict，造成 fail code 无法在父级 review contract 解析？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `review/review-contract.md`；对应域级 leaf review contract | legacy fail code 对照、当前 gate/fail code 替换记录 |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 当 `2-设计` 出现以下问题时，必须先修源层而不是补某个单角色产物：

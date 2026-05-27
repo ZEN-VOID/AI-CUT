@@ -131,3 +131,14 @@
 - 最危险的节奏问题是"全片均匀"。均匀意味着没有高峰也没有低谷——没有低谷，高峰就不存在。
 - 好的转场不只是"怎么切"，更是"上一场的情绪余波如何带入下一场的开场"。转场是两个场景之间的握手，不是断崖。
 - 类型决定基线，但不决定一切。恐怖片需要大部分场景缓慢蓄压，但不意味着每场都慢——偶尔的快速推进反而出其不意。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个场景是否都有 `scene_rhythm_profile`，包含 `scene_duration_feel`、`information_density`、`rhythm_type`、`beat_count` 和 `transition_out_method`？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile` 逐场记录五项节奏属性和 source anchor |
+| 场景时长体感是否与场景功能匹配，高潮/核心对质给足展开，过场不误标长场拖慢节奏？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.duration_function_audit` 记录场景功能、时长体感和修正理由 |
+| 信息密度是否有高低变化，未让全稿所有场景都保持标准密度或同一节奏类型？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.rhythm_variation_audit` 记录连续场景节奏类型和密度变化 |
+| 转出方式是否明确为硬切、声音桥、动作中断、对比转场、物件串联、环境渐变、重复节奏或跳切压缩之一，而不是“自然结束”或空白？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.transition_out_method` 记录转场手法、上一场余波和下一场入口 |
+| 连续场景是否避免三场同节奏或五场内转场方式机械重复，类型片基线是否被用于节奏设计而非僵硬模板？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.sequence_pattern_audit` 记录连续节奏/转场重复检查 |
+| 节奏标注是否只控制编剧层场景呼吸、信息密度和转出方法，没有提前写导演级剪辑方案、镜头时长分配或分镜密度？ | `GATE-SCRIPT-20` / `GATE-SCRIPT-10` | `FAIL-SCENE-RHYTHM` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.overreach_check` 记录剪辑/镜头越权词排查和编剧层替代字段 |

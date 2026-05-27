@@ -2,6 +2,10 @@
 
 本文件定义 `5-摄影` 的段落级观看意图对齐规则。它只负责在内部建立连续观看意识，不改变 `visual_unit` 的源文本归属，不替代逐画面句子的 `分镜明细：` 注入，也不接管 `6-分组` 的组间连接件主创权。
 
+## Example Usage Guard
+
+本文件所有示例、表格样项和母题链说明仅用于解释段落级观看意图如何内部裁决，不是可直接套写的视觉母题模板。执行具体任务时，不得复用示例中的鱼血、酒液、酒葫芦等对象或句式；必须根据当前相邻 `visual_unit` 的真实共享空间、动作链、声音链、道具准入和归属边界重新建立 `sequence_profile`。
+
 ## Core Rule
 
 `5-摄影` 可以先形成段落级 `sequence_profile`，但最终落盘必须回到逐画面点：每个 `分镜明细：` 块只服务其正上方那条画面性字段或画面句子。段落级流畅只能通过“上一画面交出点 / 当前画面进入点 / 下一画面可消费锚点”体现，不能把多个画面点合并写成一条失去归属的连续运镜。
@@ -101,3 +105,18 @@
 - 连续运镜吞掉了字段边界，导致 `分镜明细` 不再紧贴正上方画面句子。
 - 当前块只是在延续上一镜气氛，没有完成当前画面点的主体、动作、信息或下游 payload。
 - `6-分组` 难以判断组内帧，因为 `5-摄影` 把多个画面点熔成一个不可拆镜头。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本文件的示例、表格样项和母题链说明是否只作为判断逻辑，没有被当成可复用对象、句式或视觉母题模板？ | `GATE-CINE-17A`、`GATE-CINE-18` | `FAIL-CINE-05REF`、`FAIL-CINE-05G` | `SKILL.md#Reference-Example-Guard`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N7-INJECT` | 示例非独立 gate 说明、当前项目真实共享线索、删除或改写模板污染记录 |
+| 相邻 3-6 个 `visual_unit` 形成 `sequence_profile` 时，是否仍保持每个 `分镜明细` 只服务正上方画面句子？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `sequence_profile`、`unit_ownership_map`、逐镜所属 `visual_unit` 抽样 |
+| 每一个分镜动作是否能回答“它服务哪一条上游画面句子”，而不是只服务整段气氛、流畅或电影感？ | `GATE-CINE-04D`、`GATE-CINE-09` | `FAIL-CINE-05M`、`FAIL-CINE-05F` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `unit_ownership_check`、失主镜头删并/移动记录、shot_design_plan 回指 |
+| `unit_ownership_map` 是否明确每个 visual_unit 拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` | `unit_ownership_map`、`forbidden_bleed`、跨块外溢抽样 |
+| 后文主体动作、对白反应、记忆段、道具揭示或信息显影是否没有提前写进前一个 visual_unit？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` | 外溢字段标签、提前写入项清单、回迁/删除修复记录 |
+| 道具链、反射、倒影、涟漪或物件锚点是否先通过 `prop_admission_reason`，普通无互动物件没有成为注意力接力或独立分镜？ | `GATE-CINE-24`、`GATE-CINE-04D` | `FAIL-CINE-05S`、`FAIL-CINE-05M` | `references/visual-matching-contract.md#Prop-Admission-Overlay`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `prop_admission_reason`、`rejected_background` 清单、删除或降级的普通物件镜头 |
+| 段落级运动家族、材质光色和注意力接力是否只作为内部连续性上下文，没有覆盖当前画面句子的核心任务？ | `GATE-CINE-04D`、`GATE-CINE-15D` | `FAIL-CINE-05M`、`FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `continuity_profile`、entry/action_anchor/exit/handoff 抽样、当前块任务完成证据 |
+| 边界接口是否只记录 `5-摄影` 可见交出点和进入提示，未把普通场景变化写成完整 `6-分组` 连接方案？ | `GATE-CINE-21`、`GATE-CINE-04D` | `FAIL-CINE-05K`、`FAIL-CINE-05M` | `steps/cinematography-workflow.md#N6.1-HANDOFF`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `boundary_policy`、`handoff_profile`、未越权写入组间转场的说明 |
+| `sequence_profile` 是否没有成为第二真源，没有改写 `visual-matching-contract.md` 的逐句注入边界或合并 visual_unit？ | `GATE-CINE-17A`、`GATE-CINE-04D` | `FAIL-CINE-05REF`、`FAIL-CINE-05M` | `review/review-contract.md#Reference-Review-Gate-Matrix`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` | reference gate 覆盖记录、visual_unit 边界检查、未合并/未改写真源说明 |
+| 遮住上游原文只看当前分镜时，是否仍能判断它处理的是正上方画面点，并能抽取下游 payload？ | `GATE-CINE-04D`、`GATE-CINE-15` | `FAIL-CINE-05M`、`FAIL-CINE-05H` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 逆向审查抽样、visible_subject/action_phase/camera_movement_plan/composition_anchor/light_color_material/continuity_handoff |

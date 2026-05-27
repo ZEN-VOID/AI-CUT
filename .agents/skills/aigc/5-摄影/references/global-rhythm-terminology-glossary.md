@@ -249,4 +249,18 @@
 - `references/visual-rhythm-analysis-contract.md`
 - `references/beat-analysis-contract.md`
 - `references/shot-duration-decision-contract.md`
-- `references/unified-shot-design-workflow.md`（整合层）
+- `references/shot-planning-integration-contract.md`（整合层）
+- `references/functional-cinematic-projection-contract.md#Gradient-Shot-Detail-Sufficiency`（梯度与维度覆盖）
+
+## Review Gate Mapping
+
+No independent gate: this glossary is the terminology authority for rhythm words, but it does not independently block a deliverable. Any blocking finding must route through the owning rhythm, beat, duration, density or reference-coverage gate below.
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Are `sequence_density_curve`, `rhythm_profile`, `beat_trigger` and `shot_duration_decision` kept in their correct ownership layers? | `GATE-CINE-17A` | `FAIL-CINE-05REF` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N8-REVIEW` | terminology usage notes and reference coverage report entry |
+| If paragraph-level density is invoked, does the work use `density_ramp`, `tempo_beats`, `peak_slots`, `recovery_slots`, `set_piece_chain_slots` and `density_budget` through the density-curve owner? | `GATE-CINE-04A2` | `FAIL-CINE-03D` | `references/sequence-density-curve-contract.md` / `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE` | `density_curve_summary`, ramp/stage evidence and all-full/all-empty risk notes |
+| If single-visual-unit rhythm is invoked, does it use `rhythm_profile` values rather than paragraph density terms or literary mood labels? | `GATE-CINE-05` | `FAIL-CINE-05D` | `references/visual-rhythm-analysis-contract.md` / `steps/cinematography-workflow.md#N5-RHYTHM` | `rhythm_profile` samples and corrected terminology |
+| If beat or shot count is invoked, does `beat_trigger` default to trigger-first shot count while treating merge as an exception with proof? | `GATE-CINE-04` / `GATE-CINE-04E` | `FAIL-CINE-03` / `FAIL-CINE-03F` | `references/beat-analysis-contract.md` / `steps/cinematography-workflow.md#N4-BEAT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `BT-01~BT-16`, `shot_count_decision` and `trigger_merge_exception` evidence |
+| If duration terms are invoked, are `duration_class` and `duration_mode` used through the shot-duration owner and checked against short-drama AIGC compression? | `GATE-CINE-04B` | `FAIL-CINE-03B` / `FAIL-CINE-05L` | `references/shot-duration-decision-contract.md` / `steps/cinematography-workflow.md#N5.2-DURATION` | `shot_duration_decision`, displayed seconds and compression evidence |
+| Are forbidden terminology substitutions, such as using `burst` as `rhythm_profile.tempo` or using `shot_count_decision: 4` as rhythm reasoning, caught and routed to the owner layer? | `GATE-CINE-17A` / `GATE-CINE-05` | `FAIL-CINE-05REF` / `FAIL-CINE-05D` | this glossary / owning reference file / `steps/cinematography-workflow.md#N8-REVIEW` | terminology correction list and impacted plan fields |

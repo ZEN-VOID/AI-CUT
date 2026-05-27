@@ -37,6 +37,7 @@
 | 规则 | 说明 |
 |------|------|
 | **逐字保真** | 对白必须逐字保留，不润色、不删改、不同义替换、不调整语序 |
+| **长对白节拍** | 上游单段长对白可以拆成多个连续原文片段，但所有片段按顺序拼回必须逐字等于上游对白；断句只改变结构落点，不改变文本 |
 | **格式规范** | 对白字段标题固定为 `对白（角色名，语态/状态短语）`；角色名必须取自上游真实说话者，`原文角色`、`角色名`、`某人` 等模板占位不得进入终稿 |
 | **语态限制** | 第二项只展示上游已有或上下文可确认的说话方式与角色状态，可以是短语（例如 `压着笑意`、`声音发颤`），不强制一词或以"地"结尾；不得借该项改变对白含义或新增人物心理 |
 | **引号纯度** | 引号内不得混入动作描写；动作、表情、停顿、空间反应全部下沉到对应 `*画面`、`角色动作`、`表情特写` 或 `表演提示` |
@@ -247,3 +248,17 @@ enrichment_mode: none
 | 字段标题 | Allowed Field Titles | `field-routing-and-audio-visual-contract.md` §Allowed Field Titles |
 
 > **注意**：其他文档在引用本契约规则时，只需注明规则编号（如 `FR-1`），不得重复规则内容。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 输出是否写入 canonical `projects/aigc/<项目名>/2-编剧/第N集.md`，frontmatter 是否包含 `source_episode_path` 并可回指上游逐集正文？ | `GATE-SCRIPT-01` / `GATE-SCRIPT-02` | `FAIL-PATH` / `FAIL-SOURCE` | `steps/directing-workflow.md#N1-INTAKE` / `steps/directing-workflow.md#N7-SCRIPT-WRITEBACK` | `source_episode_path`、`output_path` 与 `reference_load_manifest` 记录路径、集号和加载边界 |
+| FR-1 事实保真是否成立：没有压缩、摘要、删减剧情事实，没有自由改写因果或重排事件顺序？ | `GATE-SCRIPT-03` | `FAIL-FAITHFULNESS` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `faithful_projection_trace` 逐段记录上游事实、输出字段和顺序对齐 |
+| FR-2 信息量保真是否成立：新增 frontmatter、slugline、字段标签和画面化改写只服务投影，没有替代正文、删除信息或新增第二套解析体系？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-10` | `FAIL-FAITHFULNESS` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `field_projection_map` 与 `faithful_projection_trace` 记录每条新增字段的上游依据 |
+| FR-3 对话冻结是否成立：对白逐字保真、真实角色名、语态/状态短语不改含义、引号内无动作，且没有把小说叙述改写成新增对白？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游对白、输出对白、角色名、语态依据和新增对白风险 |
+| FR-3 长对白节拍是否成立：上游单段长对白只被拆成连续原文片段，片段拼回逐字等于上游对白，且断句服务戏剧动作、气口和可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录 source_dialogue、exact_text_segment、recomposed_dialogue、dramatic_action 和 paired_visual_field |
+| FR-4 场景标题是否符合阿拉伯数字编号 + `内景/外景 场所 - 日/夜`，同一 slugline 只首次打印，不因叙事 beat 变化重复开场？ | `GATE-SCRIPT-07` | `FAIL-SLUGLINE` | `steps/directing-workflow.md#N3-SCENE` | `scene_slugline_table` 与 `scene_order_trace` 记录场景编号、slugline、首次出现和复用 |
+| 剧本化投影是否只使用允许字段，将上游信息转成可见、可听、可执行材料，而不是改写版小说、概要或自由发挥剧本？ | `GATE-SCRIPT-06` / `GATE-SCRIPT-10` | `FAIL-SCENE-VISUAL` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `field_projection_map.allowed_field_check` 记录正式字段、上游锚点和可拍性 |
+| FR-5/FR-6/FR-7 是否成立：声音字段只写声音本体，动作字段客观可拍，心理反应有明确主体和可感知反应？ | `GATE-SCRIPT-08` / `GATE-SCRIPT-11` / `GATE-SCRIPT-10` | `FAIL-ACTION-PURITY` / `FAIL-SOUND-LITERAL` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` | `sound_literal_risk_map`、`objective_action_purity_evidence` 与 `concrete_visual_risk_map` |
+| 内部任务说明、模板句、规则复述、字段说明或章节标记是否只作为内部约束，没有泄露到 canonical 剧本正文？ | `GATE-SCRIPT-12` | `FAIL-PLACEHOLDER-LEAK` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `placeholder_leak_risk_map` 记录泄露文本、所在字段和删除/改写动作 |

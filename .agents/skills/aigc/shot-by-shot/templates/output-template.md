@@ -4,6 +4,14 @@
 
 本模板承接 `SKILL.md` 的 Output Contract。canonical 解析文件名为 `全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md` 与 `分镜脚本.md`；旧命名仅可作为兼容镜像。
 
+| marker | binding |
+| --- | --- |
+| Required output | 主拉片报告、标准表格式分镜脚本、全局/编剧/摄影/设计解析、执行报告和风险说明 |
+| Output format | Markdown 文档包，主报告、解析文档和分镜脚本均按本模板骨架对齐 |
+| Output path | `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/` |
+| Naming convention | `shot-by-shot.md`、`分镜脚本.md`、`全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`执行报告.md` |
+| Completion gate | 证据可回指、临摹边界清楚、阶段字段不越权、AIGC 可执行且没有复制具体表达 |
+
 ## Canonical Paths
 
 ```text

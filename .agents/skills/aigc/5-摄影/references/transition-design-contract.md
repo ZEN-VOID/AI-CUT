@@ -63,3 +63,13 @@
 - 交出锚点具体可见，能被 `6-分组`、`6-图像` 和 `7-视频` 继承。
 - 没有在 `5-摄影` 中落盘组间/跨场景创意转场方案。
 - 没有为了边界交出破坏演员停顿、文字可读、空间方向或项目视觉母题。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 场景变化、空间重置、注意力转交、动作方向承接、声音余波、形态/颜色/文字或高点余波是否触发 `handoff_profile`？ | `GATE-CINE-21` | `FAIL-CINE-05K` | `N6.1-HANDOFF` | 边界交出检查结果、触发来源与 `handoff_profile` 抽样 |
+| 当前画面是否说明从哪里进入、最后一镜交给哪个可见锚点，以及下一画面可从哪里承接？ | `GATE-CINE-21` | `FAIL-CINE-05K` | `N6.1-HANDOFF` + `N6.5-SHOT-PLAN` | 场景变化交出点/进入提示、可见交出锚点 |
+| 交出锚点是否具体可见，并能被下游继承，而不是“丝滑转场”“高级转场”“匹配剪辑”等抽象方案？ | `GATE-CINE-21` | `FAIL-CINE-05K` | `N6.1-HANDOFF` + `N7-INJECT` | 未越权写入组间转场方案的说明、抽象转场词删除记录 |
+| 是否没有为了边界交出破坏表演停顿、文字可读、空间方向、轴线或项目视觉母题？ | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `N6-CONTINUITY` + `N6.1-HANDOFF` + `N6.5-SHOT-PLAN` | 镜内/镜间连贯性检查、被边界交出破坏的停顿/轴线修复记录 |
+| handoff 是否只保留当前阶段可见锚点，没有吞入后文画面句子、下游连接件或跨场景创意转场？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `N3.5-SEQUENCE-ALIGN` + `N6.1-HANDOFF` | 逐画面点归属检查、跨块外溢抽样 |

@@ -22,6 +22,37 @@
 | concurrency | 并发只写临时结果，最终 report / results 单线程汇流 | `steps/frame-reference-video-workflow.md` |
 | route_clarity | 当前 mode、skipped stages、rework entry 与 next entry 清楚 | `types/type-map.md` |
 
+## Review Gates
+
+| gate_id | owner dimension | pass condition | fail code | rework target | report evidence |
+| --- | --- | --- | --- | --- | --- |
+| `GATE-FVID-GROUP-01` | `group_source` | 目标 `source_file` 固定来自 `projects/aigc/<项目名>/4-分组/第N集.md`，项目 `MEMORY.md` 与 `CONTEXT/` 只作辅助上下文，不覆盖组正文 | `FAIL-FVID-INPUT` | `N3-GROUP-INDEX` | input manifest 中的 `source_file`、episode、target groups、context usage note |
+| `GATE-FVID-GROUP-02` | `group_source` | 普通组只识别 `## x-y-z`；连接件 `## x-y-z~x-y-z` 不进入 `group_content`、prompt、manifest、batch 或命名 | `FAIL-FVID-GROUP-BOUNDARY` | `N3-GROUP-INDEX` | group index 的 heading、line range/hash、ignored connector list |
+| `GATE-FVID-GROUP-03` | `group_source` | `group_content` 完整保留现有组正文，不能用底部 YAML、摘要或压缩版替代 | `FAIL-FVID-PROMPT` | `N3-GROUP-INDEX` | prompt package 中的原始 `## group_id` 正文、`source_body_hash` |
+| `GATE-FVID-SHOT-01` | `shot_id_mapping` | 组内 `分镜N` / 已有四段式 `分镜ID` 可稳定映射为唯一 `shot_id`，四段式输入可回推所属 `group_id` | `FAIL-FVID-SHOT-ID` | `N4-SHOT-ID` | `group-shot-index.json` 中的 `shot_id`、`source_label`、`group_id` |
+| `GATE-FVID-DURATION-01` | `duration_handoff` | `duration_estimate_seconds` 按组底 `时长估算`、组内秒数求和、明确 fallback 的优先级生成，连接件时长不参与 | `FAIL-FVID-DURATION` | `N3-GROUP-INDEX` | `duration_source`、原文时长证据、`duration_estimate_seconds` |
+| `GATE-FVID-PROMPT-01` | `prompt_authorship` | prompt 主体不得改写剧情事实、对白事实、镜头顺序、角色关系、场景结果或组边界；默认不压缩 | `FAIL-FVID-PROMPT` | `N6-YAML` | prompt package 的 source-first 正文、compression opt-in 记录 |
+| `GATE-FVID-PROMPT-02` | `reference_prompt_integrity` | 有图镜头只在 final fenced YAML 的 `分镜画面参照[]` 写入真实槽位绑定；draft 不伪造 URL，远端不使用 `shot_id@path`、`@图N` 或另起参照说明段 | `FAIL-FVID-PROMPT` | `N6-YAML` | draft/final YAML diff、`*-libtv-submission.txt` 截要、slot ledger |
+| `GATE-FVID-REF-01` | `reference_binding` | 图片候选根只来自当前项目 `6-图像/A-分镜画面/第N集/` 与其 `images/` 子目录，路径真实且位于项目根内 | `FAIL-FVID-REF` | `N5-REF-BIND` | reference manifest 的 search roots、resolved paths、existence check |
+| `GATE-FVID-REF-02` | `reference_binding` | 默认只用四段式 `shot_id` 匹配图片，优先 `images/<shot_id>.<ext>`，其次同集目录 `<shot_id>.<ext>`；不按角色、场景或语义猜图 | `FAIL-FVID-REF` | `N5-REF-BIND` | candidate list、match priority、selected candidate reason |
+| `GATE-FVID-REF-03` | `reference_binding` | 唯一命中时写入 manifest 与 `reference_images`；缺图只写 `missing_optional` 并移除空槽位；同优先级多候选阻断 | `FAIL-FVID-REF` | `N5-REF-BIND` | reference manifest 的 `found / missing_optional / ambiguous` 状态 |
+| `GATE-FVID-REF-04` | `reference_slot_order` | 本地 `marker` 只服务 review；最终 `reference_index` 必须来自进入 `imageList` 的 1-based 槽位顺序，不得把本地 marker 当远端人工 `参照图N` | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | `generation_slots`、`imageList`、final YAML `reference_index` 对照 |
+| `GATE-FVID-REF-05` | `libtv_handoff` | 单组真实 `imageList` 不超过 9 张；超限时有预算裁决、`excluded_due_to_budget` 或阻断，不静默丢图或超量提交 | `FAIL-FVID-REFERENCE-BUDGET` | `N5-REF-BIND` | selected / excluded shot list、budget rationale、blocked reason |
+| `GATE-FVID-REF-06` | `prompt_authorship` | 分镜画面参照只作为视觉参照，不反向改写 `4-分组` 的剧情、镜头事实或组正文 | `FAIL-FVID-PROMPT` | `N6-YAML` | prompt package 与 group source hash 对照、reference usage note |
+| `GATE-FVID-LIBTV-01` | `libtv_handoff` | 当前组至少一张图时走 uploaded references；无图时走 text-only；两种路线都不得保留空图片槽位 | `FAIL-FVID-LIBTV` | `N6-YAML` | batch YAML 的 command type、reference count、empty slot scan |
+| `GATE-FVID-LIBTV-02` | `libtv_handoff` | 生成前加载 `.agents/skills/cli/libTV/SKILL.md`，调用官方 `$libTV` 技能和脚本，不绕过为私有 OpenAPI 或手写提交器 | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | submit plan 中的 `$libTV` skill load note、script command list、private API scan |
+| `GATE-FVID-LIBTV-03` | `libtv_handoff` | 执行前完成 `LIBTV_ACCESS_KEY` credential check，且 key 不写入 prompt、batch、queue、模板或报告 | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | credential check status、redacted env note、secret scan summary |
+| `GATE-FVID-LIBTV-04` | `libtv_handoff` | 新任务先锁定 `projectUuid/projectUrl` 或使用用户显式 existing 画布；submit plan、queue、report 与 `create_session.py` 返回值一致 | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | `projectUuid/projectUrl` lock record、create_session response、queue/report projection |
+| `GATE-FVID-LIBTV-05` | `reference_slot_order` | 每个 uploaded URL 的 `/claw/<projectUuid>/` 与锁定画布一致；上传结果只进 `frame_uploads` 身份映射，不直接当 `reference_index` 顺序 | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | upload ledger、project scope check、`frame_uploads` / `generation_slots` 对照 |
+| `GATE-FVID-LIBTV-06` | `libtv_handoff` | 官方脚本顺序为 `change_project.py -> upload_file.py -> create_session.py -> query_session.py -> download_results.py`；无参照图只跳过 upload，不跳过画布锁、查询和下载规则 | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | command projection、per-job execution trace、text-only branch note |
+| `GATE-FVID-LIBTV-07` | `queue_tracking` | 画布中缺生成节点或结果 URL 时，本地状态不得标为 `generated` / `downloaded`；queue/result/report 保留 `sessionId/projectUuid/projectUrl` | `FAIL-FVID-QUEUE` | `N9-QUEUE` | queue ledger、query response excerpt、remote node/result URL status |
+| `GATE-FVID-PROMPT-03` | `prompt_fidelity` | 默认远端 handoff 为 `strict_original + transport_only` 且 `allow_libtv_prompt_optimization=false`；未 opt-in 时 query 不得出现远端优化、摘要、重排、补镜头或镜头计划 | `FAIL-FVID-PROMPT` | `N6-YAML` | submit plan opt-in field、submission text fidelity block、query prompt audit |
+| `GATE-FVID-DURATION-02` | `duration_handoff` | batch 与远端提交中的 `duration` 必须等于当前组 `duration_hint=clamp(duration_estimate_seconds, 4, 15)`，不得全组固定 15 秒 | `FAIL-FVID-DURATION` | `N6-YAML` | group duration evidence、batch `duration_hint`、remote submission duration |
+| `GATE-FVID-AUDIO-01` | `audio_preflight` | 远端提交声明 `enableSound=on`；若生成前无法验证工具参数，记录 `audio_preflight_unverified_non_blocking`，不得只因预检不可见阻断官方提交流程 | `FAIL-FVID-AUDIO` | `N8-DISPATCH` | submission audio line、preflight verification status、non-blocking note |
+| `GATE-FVID-AUDIO-02` | `audio_acceptance` | 生成后必须有 `task_result.audios`、音频 URL 或下载后 `ffprobe` audio stream 证据；无音轨不得交付 | `FAIL-FVID-AUDIO` | `N10-QUERY-DOWNLOAD` | query audio evidence、ffprobe JSON、`audio_missing / no_audio_stream` status if failed |
+| `GATE-FVID-DOWNLOAD-01` | `queue_tracking` | 完成后按 `$libTV` 查询并自动下载到 `7-视频/A-分镜画面参照/第N集/`，文件名精确为 `<group_id>.mp4`，不得把远端成功或半截文件误判为本地交付 | `FAIL-FVID-DOWNLOAD` | `N10-QUERY-DOWNLOAD` | download command、expected video path、file existence/size and retry note |
+| `GATE-FVID-REPORT-01` | `route_clarity` | group index、reference manifest、batch/plan 与执行报告都能说明处理范围、跳过/缺图/阻断原因和返工入口 | `FAIL-FVID-REPORT` | `N12-CLOSE` | close report 的 coverage、status summary、rework targets |
+
 ## Verdict Model
 
 - `pass`：结构与语义 gate 均通过。

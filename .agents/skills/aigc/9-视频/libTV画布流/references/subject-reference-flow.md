@@ -247,3 +247,27 @@ duration: 14
 - `download=false`
 
 用户显式指定时可覆盖。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 任务是否默认进入 `subject_reference_flow`，且没有在无显式指令时切到分镜参照流或其他路线？ | `REV-LIBTVCANVAS-01` | `FAIL-ROUTE` | `N1 Intake` | route note、selected type package、用户指令摘录 |
+| 每个视频任务是否可回指 `6-分组/第N集.md` 的单个 `## x-y-z` 分镜组正文与完整 fenced YAML？ | `REV-LIBTVCANVAS-02` | `FAIL-GROUP-SOURCE` | `N2 Group Extraction` | group source path、group_id、原文摘录 hash 或行号、YAML 摘录 |
+| `## x-y-z~x-y-z` 连接件是否被默认忽略，没有进入视频 prompt、主体槽位、manifest、LibTV job 或文件命名？ | `REV-LIBTVCANVAS-02` | `FAIL-GROUP-SOURCE` | `N2 Group Extraction` | excluded connector list、manifest absence、queue/report skipped reason |
+| prompt 主体是否直接采用 `6-分组` 组正文，没有回到 `5-摄影`、`3-Detail` 或更早阶段重写剧情、镜头顺序、台词或动作结果？ | `REV-LIBTVCANVAS-09` | `FAIL-SOURCE-FIDELITY` | `N2 Group Extraction` / `N3e Prompt Assembly` | source fidelity diff、params.prompt 与组正文对照、无上游重写记录 |
+| 主体清单是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有把正文泛词、子串或猜测名升级为主体？ | `REV-LIBTVCANVAS-10` | `FAIL-YAML-SUBJECT` | `N3 Subject Binding` | YAML subject baseline、excluded generic terms、manifest `subject_candidates` |
+| `主体绑定表` 是否包含 `yaml_name / category / canvas_node_name / node_key / URL / usage`，且不被复制进 `params.prompt`？ | `REV-LIBTVCANVAS-03` | `FAIL-BINDING` | `N3 Subject Binding` / `N3e Prompt Assembly` | handoff message 绑定表、manifest `subject_bindings`、params.prompt hygiene check |
+| 参考绑定、`source_node_keys`、`source_node_url_mapping`、`imageList/mixedList` 是否按 YAML `角色 -> 场景 -> 道具` 的选中子集排序，而非上传顺序或图片编号？ | `REV-LIBTVCANVAS-32` | `FAIL-REFERENCE-ORDER` | `N3 Subject Binding` / `N3e Prompt Assembly` | canonical_reference_order、数组顺序对照、queried tool params |
+| active URL 是否优先复用同一 `projectUuid::category::yaml_name` 下唯一 active 记录，只有缺失、歧义、替换或用户要求时才重新上传？ | `REV-LIBTVCANVAS-12` | `FAIL-ACTIVE-URL-REUSE` | `N3 Subject Binding` | active registry lookup、reuse/upload decision、replacement evidence |
+| 同名登记歧义或多候选图片是否先执行视觉消歧，无法唯一确认才进入 `ambiguous`，而不是随机选图？ | `REV-LIBTVCANVAS-13` | `FAIL-DISAMBIGUATION` | `N3 Subject Binding` | candidate images、view/context evidence、ambiguous reason |
+| 每组参考图预算是否限制在 `images[] / mixedList <= 9`，超限时按角色/场景优先排除并记录，不可压缩则阻断？ | `REV-LIBTVCANVAS-14` | `FAIL-REFERENCE-BUDGET` | `N3c Reference Budget` | `libtv_images_count`、excluded_due_to_budget、blocked reason |
+| 有可用参考图时是否显式提交“全能参考 / 多图主体参考生成视频”并传入标准 `modeType=mixed2video`，无授权不降级纯文生？ | `REV-LIBTVCANVAS-20` | `FAIL-REFERENCE-MODE` | `N3d Reference Mode Lock` | handoff message、submit plan、LibTV params、真实 URL/node_key 清单 |
+| 参考图预处理或审核失败时是否标记 `needs_rework / reference_asset_review_failed`，而不是静默 text2video fallback？ | `REV-LIBTVCANVAS-21` | `FAIL-SILENT-TEXT-FALLBACK` | `N3d Reference Mode Lock` | failed asset URL/node_key、错误回显、用户是否授权 fallback |
+| handoff message 与 `create_generation_task.params.prompt` 是否分层，`params.prompt` 只含分镜组正文、底部完整 YAML 和主体 `@` 引用？ | `REV-LIBTVCANVAS-23` | `FAIL-PROMPT-STRUCTURE` | `N3e Prompt Assembly` | handoff/prompt 对照、queried `params.prompt`、prompt hygiene report |
+| 底部 YAML 是否完整保留字段和值，并且已绑定主体在正文首次出现处和 YAML 对应主体名后都有同一画布 `@` 资产引用 / node mention？ | `REV-LIBTVCANVAS-24` | `FAIL-YAML-PROJECTION` | `N3e Prompt Assembly` | params.prompt YAML block、`@` 引用回显或 `at_asset_mention_unverified` 记录 |
+| `allow_libtv_prompt_optimization=false` 是否同时作为字段和 handoff 自然语言锁定句存在，明确禁止远端优化、重排、摘要、压缩、改写或补镜头？ | `REV-LIBTVCANVAS-28` | `FAIL-PROMPT-LOCK` | `N3e Prompt Assembly` / `N4 Spec Projection` | submit plan opt-in 字段、handoff lock sentence、queue/report opt-in 状态 |
+| `params.prompt` 是否没有内部诊断、失败说明、fallback 决策、文件路径、执行锁、主体绑定表、重复 StyleBible/audio 或 `其中，...` 尾部复述？ | `REV-LIBTVCANVAS-22` | `FAIL-PROMPT-HYGIENE` | `N3e Prompt Assembly` | forbidden phrase scan、queried params.prompt、review finding |
+| duration 是否从 YAML `时长估算` 或分镜明细投影并按 4-15 秒 clamp，默认规格是否为 `720p / 16:9 / download=false`？ | `REV-LIBTVCANVAS-05` | `FAIL-DURATION` | `N4 Spec Projection` | duration_source、duration_estimate_seconds、final duration/spec、queue record |
+| 每个非连接件分镜组是否形成 manifest、submit plan、queue record、执行报告与 active registry 证据链？ | `REV-LIBTVCANVAS-18` | `FAIL-QUEUE-EVIDENCE` | `N3b Evidence Artifacts` | artifact paths、schema/checklist 摘要、blocked 或 submitted 状态 |
+| 查询远端后，实际 `params.prompt` 是否仍保留上游场景/镜头身份、观看选择、方向参照、光线结果和分镜句序，没有压缩成动作摘要？ | `REV-LIBTVCANVAS-34` | `FAIL-LIBTVCANVAS-PROMPT-IDENTITY` | `N6 Query` / `N3e Prompt Assembly` | queried params.prompt、scene/shot identity 对照、`remote_prompt_rewritten_or_polluted` 状态 |

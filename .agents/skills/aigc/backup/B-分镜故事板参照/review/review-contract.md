@@ -21,6 +21,26 @@
 | concurrency | 并发只写临时结果，最终 report / results 单线程汇流 | `steps/storyboard-video-workflow.md` |
 | route_clarity | 当前 mode、skipped stages、rework entry 与 next entry 清楚 | `types/type-map.md` |
 
+## Review Gates
+
+| gate_id | gate | fail_code | owner / rework target | required evidence |
+| --- | --- | --- | --- | --- |
+| `GATE-SBVID-01` | 项目、集号、目标分镜组与 `4-分组/第N集.md` 真源已锁定，辅助上下文不得覆盖组正文 | `FAIL-SBVID-INPUT` | `N1-INTAKE` / `N2-CONTEXT` | input manifest、source file path、target group scope |
+| `GATE-SBVID-02` | 每个普通 `## x-y-z` 分镜组唯一可回指，连接件 `## x-y-z~x-y-z` 未进入 group job | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index、heading、line range 或 `source_body_hash` |
+| `GATE-SBVID-03` | `group_content` 完整保留现有组正文，prompt 主体未摘要、未改写、未重排 | `FAIL-SBVID-PROMPT` | `N3-GROUP-INDEX` / `N5-YAML` | prompt package、source hash、diff 或 excerpt evidence |
+| `GATE-SBVID-04` | `duration_estimate_seconds` 可回指组底 YAML、分镜秒数求和或明确 fallback，`duration_hint` 使用 4-15 秒 clamp | `FAIL-SBVID-DURATION` | `N3-GROUP-INDEX` / `N5-YAML` | duration source、estimate、hint、remote duration |
+| `GATE-SBVID-05` | 故事板参照只按 `group_id` 从 `6-图像/B-分镜故事板` 真实图片绑定；无图为空引用；多候选阻断 | `FAIL-SBVID-REF` | `N4-REF-BIND` | reference manifest、candidate list、file existence proof |
+| `GATE-SBVID-06` | B 路线有图时只提交 1 张故事板总参照到 `imageList[0]` 且不超过 9 张；无图走 `text2video` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | batch YAML、submit text、remote params |
+| `GATE-SBVID-07` | `storyboard_uploads` 与 `generation_slots` 分层，最终 `reference_index=1` 来自 UI 图1或实际 `imageList[0]` | `FAIL-SBVID-SLOT` | `N7-DISPATCH` | upload ledger、slot ledger、final YAML、remote `imageList[0]` |
+| `GATE-SBVID-08` | source-first YAML 两阶段正确：draft 不写空槽位；final 只在 fenced YAML `故事板参照` 写真实绑定 | `FAIL-SBVID-PROMPT` | `N5-YAML` / `N7-DISPATCH` | draft prompt、final prompt、fenced YAML |
+| `GATE-SBVID-09` | 远端 `*-libtv-submission.txt` 第一段锁定 `provider=seedance2.0 / taskType=video / modeType`，不得包含本地图片路径、占位 URL 或人工 `参照图N` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | submission text、uploaded URL、projectUuid |
+| `GATE-SBVID-10` | `【直接生成请求】` 基于完整 `【分镜组源文本】`，保留故事板总参照身份与图片 token/URL 绑定，不退化为裸图片 token | `FAIL-SBVID-PROMPT` | `N5-YAML` / `N7-DISPATCH` | submission text、query prompt echo |
+| `GATE-SBVID-11` | 默认 `strict_original + transport_only`，未 opt-in 时禁止远端优化、摘要、重排、改写或补镜头 | `FAIL-SBVID-FIDELITY` | `N5-YAML` / `N6-REVIEW` / `N7-DISPATCH` | submit plan、query transcript、opt-in record |
+| `GATE-SBVID-12` | LibTV 官方技能与脚本顺序被遵守，`projectUuid/projectUrl/sessionId` 可追踪，access key 未写入文件 | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` / `N8-QUEUE` | command log、queue ledger、canvas link、sanitized report |
+| `GATE-SBVID-13` | `enableSound=on` 已进入提交文本；生成前无法强验证时记录非阻断，生成后必须有音频证据 | `FAIL-SBVID-AUDIO` | `N7-DISPATCH` / `N9-QUERY-DOWNLOAD` | submission text、task_result.audios、ffprobe output |
+| `GATE-SBVID-14` | 并发只在 group job 层发生，queue/result/report 由单线程汇流，失败组保留可返工入口 | `FAIL-SBVID-QUEUE` | `N7-DISPATCH` / `N8-QUEUE` / `N11-CLOSE` | tmp result、queue ledger、final report |
+| `GATE-SBVID-15` | 输出路径、下载文件名、状态报告均落在本技能项目目录，不能把远端 URL 或短轮询当作已交付视频 | `FAIL-SBVID-REPORT` | `N9-QUERY-DOWNLOAD` / `N10-WRITE` / `N11-CLOSE` | local video path、results JSON、执行报告 |
+
 ## Verdict Model
 
 - `pass`：结构与语义 gate 均通过。

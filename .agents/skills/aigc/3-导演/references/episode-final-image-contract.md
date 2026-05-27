@@ -152,3 +152,14 @@ episode-final-image-contract.md
 - 是否使用了环境描写式、道具特写式、情绪酝酿式或高潮结尾式之一？
 - 是否落入既有字段，并保持保真、对白冻结、无摄影越权？
 - 尾钩是否有至少 3 个具体的画面/声音/表演 beat，而不是只有一两个镜头或抽象评价？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每集是否先形成 `final_image_type_profile`，再建立 `episode_final_image_plan`，而不是直接硬写结尾？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N2-DIR-TYPE` / `N8-DIR-FINAL-IMAGE` | `final_image_type_profile`、`episode_final_image_evidence.plan` |
+| 尾钩是否只提取下一集“关联方向”，没有剧透具体事件、结果、台词、身份或新信息？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` | `next_episode_relation`、`spoiler_boundary`、被删除的具体信息记录 |
+| 尾钩是否从本集末场、高点余波、视觉母题、道具状态或沉默反应自然顺延，而非新增预告？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` | `final_image_source_anchor`、`continuity_bridge`、`callback_targets` 回接 |
+| 终结画面是否落入既有字段，没有新增 `终结画面` 字段或摄影/分镜方案？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N9-DIR-DRAFT` | `final_field_projection`、终稿字段清单、`risk_check.cinematography_overreach: false` |
+| 终结画面是否为 3-6 个可拍/可听/可演 beat，而非小说式抽象、象征说明或一两个薄镜头？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` / `N9-DIR-DRAFT` | 终稿最后一组字段、`hook_surface`、`final_image_method` |
+| 使用高潮结尾式时，是否只消费 `cost_or_aftershock`，没有修改高点 `delivery_action` 或 `satisfaction_delta`？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N8-DIR-FINAL-IMAGE` / `N4-DIR-PEAK` | `peak_visual_plan.cost_or_aftershock`、`episode_final_image_evidence.final_image_source_anchor` |

@@ -331,3 +331,14 @@ Warm amber light, school classroom with rows of empty desks, female teacher stan
 | §4 类型片标准 | hollywood-quality-spec.md §4 | 6种类型的视觉要求 |
 | §5 场景状态 | hollywood-quality-spec.md §5 | 4种场景状态参数 |
 | §6 提示词规范 | novel-to-screen-language-contract.md | 转换方法论的 AIGC 落地 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 字段到视觉参数的映射是否仍以 `环境描写`、`角色动作`、`表情特写`、`心理反应`、`音效画面` 等正式编剧字段为源，而不是另造第二套视觉字段或把抽象情绪直接交给 AIGC？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` | `aigc_visual_signal_matrix.field_parameter_trace` 记录每个视觉参数回指的正式字段与源句 |
+| 情绪/类型视觉信号是否被转成可见、可听、可感知的身体、空间、光线、道具或群体信号，而不是停留在 `scary atmosphere`、`tension` 等泛化情绪词？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `aigc_visual_signal_matrix.concrete_signal_audit` 列出抽象词替换为具体信号的证据 |
+| `表情特写` 对应的视觉信号是否只写眉、眼、嘴角、咬肌、下颌、喉头等面部细节，并能回指上游触发或当前声画压力？ | `GATE-SCRIPT-18` | `FAIL-FACIAL-EXPRESSION-FIELD` | `steps/directing-workflow.md#N4-FIELD` | `facial_expression_anchor_evidence` 记录触发源、主体、面部分区和风险检查 |
+| 场景状态、类型片标准和提示词结构是否补足空间、光线、道具、主体位置与前中后景层次，避免无空间上下文或矛盾光线描述？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` | `aigc_visual_signal_matrix.layered_prompt_evidence` 记录空间、光源、主体、道具和构图层次 |
+| 声音视觉化是否仍保持声音字段与 `音效画面` / `旁白画面` 等画面字段就近配对，而不是把声音类别、时间说明或叙述概括写成声音本体？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-11` | `FAIL-PAIRING` / `FAIL-SOUND-LITERAL` | `steps/directing-workflow.md#N4-FIELD` | `audio_visual_pairing_map` 与 `sound_literal_risk_map` 记录声音源、声音本体和对应画面 |
+| 场景入场、压力、转折和退出状态是否服务 `scene_rhythm_profile`，而不是把镜头方案、剪辑节奏或导演级分镜提前写入编剧层？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile` 记录 entry / pressure / turning / exit 状态及转出方式 |

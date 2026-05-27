@@ -50,3 +50,17 @@
 5. `cross_skill`: 同步多个阶段、叶子、卫星或共享载体。
 
 跨两类以上同步范围时，必须运行协调审计。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 差距分析或执行型改进是否建立 `target_skill_map`，而不是直接按学习对象建议批量改文件？ | `GATE-LEARN-MAP-01` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Target Skill Map` | complete `target_skill_map` |
+| `primary_owner` 是否是最窄有效 owning skill 或分区，并明确 `not_owned` 防止越权？ | `GATE-LEARN-MAP-01` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Target Skill Map` | `primary_owner`、`not_owned`、owner rationale |
+| 是否识别 root/router、相关阶段、旁路卫星、shared carriers 和 project runtime 影响面？ | `GATE-LEARN-MAP-01` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Target Skill Map` | `root_router`、`related_stages`、`related_satellites`、`shared_carriers`、`project_runtime` |
+| 每条学习能力是否进入 `gap_matrix`，包含已有支持、缺口、落点候选、同步消费者和风险？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Gap Matrix` | `learned_capability`、`current_support`、`gap`、`landing_candidate`、`sync_consumers`、`risk` |
+| 落点是否符合 owner 边界：入口落 `SKILL.md`，长细则落 `references/`，节点落 `steps/`，质量门禁落 `review/`？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Landing Rules` | landing decision table、owner boundary notes |
+| 外部资料索引和人工知识包是否落 `knowledge-base/`，运行经验与失败模式是否落 `CONTEXT.md`？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Landing Rules` | deposition target、no knowledge-base runtime heuristic check |
+| 脚本是否只承担机械抽取、校验、diff、引用扫描，没有生成创作判断或学习结论？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Landing Rules` | script role note、LLM-first decision evidence |
+| 执行型改进是否声明 `sync_scope`，并在跨两类以上范围时进入协调审计？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Sync Scope` | `sync_scope` value、cross-scope audit requirement |
+| root、registry、routes、audit script 或 cross_skill 变更需求是否没有被漏同步？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Sync Scope` | sync checklist、changed_files、audit result |

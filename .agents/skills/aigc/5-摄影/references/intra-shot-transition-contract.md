@@ -2,6 +2,10 @@
 
 本文件定义分镜间「过渡锚点」的标准描述格式和执行规则。过渡锚点是连接相邻分镜的视觉/听觉接口，确保镜头流转连贯而非断裂。本契约是 `shot-continuity-contract.md` 的延续，专注于分镜明细内部的连续性设计。
 
+## Example Usage Guard
+
+本文件所有示例、正例、反例和标准格式仅用于说明过渡锚点的判断逻辑，不是固定分镜模板。执行具体任务时，不得复用示例中的武器、鱼鳞、链条、礁石、句式或动作组合；必须从当前画面句子的真实运动体、接触点、声音、光色和连续性需求中生成自己的过渡锚点。
+
 ## Core Rule
 
 每个分镜块的 `分镜N` 之间必须存在**物理因果链过渡**。相邻分镜的交接处必须找到：同一运动体的位置延续、同一道具的形态变化、同一声音的时序延伸，或同一光色的明暗过渡。
@@ -219,3 +223,16 @@
 - `shot-continuity-contract.md` — 镜头连续性基础规则
 - `transition-design-contract.md` — 边界交出和场景切换规则
 - `visual-sequence-alignment-contract.md` — 段落级视觉序列对齐规则
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does every adjacent `分镜N -> 分镜N+1` pair inside one block have a physical causal transition unless a narrative fracture is explicitly justified? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | intra-shot transition coverage ratio and causal-gap samples |
+| Is each transition frame a visible physical state change rather than a vague word such as "suddenly", "hard cut" or "too fast to see"? | `GATE-CINE-15D` / `GATE-CINE-08` | `FAIL-CINE-05AB` / `FAIL-CINE-05B` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | before/after transition-frame lines and visible-state evidence |
+| Are movement continuity anchors tracking exit position, entry condition, transition frame and velocity curve for the same moving body or object? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | movement anchor samples and velocity/position continuation checks |
+| Are prop state anchors using one stable object identity and traceable previous, transition and next states rather than jumping from action to result? | `GATE-CINE-15D` / `GATE-CINE-24` | `FAIL-CINE-05AB` / `FAIL-CINE-05S` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | prop identity/state chain evidence and admitted-prop justification |
+| Do sound timeline anchors state the source, incoming tail, interruption or outgoing source so sound bridges do not become abstract continuity claims? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | sound source/tail/turnover samples |
+| Do light/color anchors explain previous light, transition light, next light and motivation without contradicting the scene light baseline? | `GATE-CINE-15D` / `GATE-CINE-30` | `FAIL-CINE-05AB` / `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | light-color transition samples and baseline compatibility notes |
+| If a causal gap remains, is it marked as legitimate narrative rupture, memory flash, scare interruption or rhythm break rather than accidental discontinuity? | `GATE-CINE-15D` / `GATE-CINE-05` | `FAIL-CINE-05AB` / `FAIL-CINE-05D` | `steps/cinematography-workflow.md#N5-RHYTHM` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | fracture justification and rhythm intent evidence |
+| Are examples and output formats treated as illustrative, not copied as fixed action, prop, duration or transition wording? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N7-INJECT` | reference non-template statement and example-pattern cleanup |

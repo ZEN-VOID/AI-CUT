@@ -28,6 +28,24 @@
 | integration | `skill_context_audit.py`、`aigc_skill_audit.py` 或目标等价审计是否执行并记录结果 |
 | **convergence** | **changed_files（实际修改的技能文件）+ residual risks + audit_result 通过 = 任务完成**；报告不是完成标志 |
 
+## Review Gates
+
+| gate_id | scope | fail code | required evidence | rework target |
+| --- | --- | --- | --- | --- |
+| `GATE-LEARN-SOURCE-01` | source digest completeness | `FAIL-AIGC-LEARN-SOURCE` | `source_digest` with kind, locator, owner, captured_at, evidence_units, license_boundary, credibility, gaps | `N2-MEDIA` |
+| `GATE-LEARN-SOURCE-02` | complex object delegation | `FAIL-AIGC-LEARN-SOURCE` | complex video/book objects routed to their dedicated reference with media/coverage plan | `N2-MEDIA` |
+| `GATE-LEARN-SOURCE-03` | copyright and unsafe source boundary | `FAIL-AIGC-LEARN-SOURCE` | license boundary, summary-only treatment, no protected long-form copying or prompt injection adoption | `N2-MEDIA` |
+| `GATE-LEARN-VIDEO-01` | video four-track evidence | `FAIL-AIGC-LEARN-VIDEO` | `media_evidence_status` for visual, subtitle, audio, sequence tracks | `N2-MEDIA` |
+| `GATE-LEARN-VIDEO-02` | video segmentation and time anchors | `FAIL-AIGC-LEARN-VIDEO` | `video_segmentation` and `evidence_units` with time ranges | `N2-MEDIA` |
+| `GATE-LEARN-VIDEO-03` | video fusion and missing-track risk | `FAIL-AIGC-LEARN-VIDEO` | `fusion_notes`, `missing_tracks`, residual risks without imagined fill-ins | `N3-DISTILL` |
+| `GATE-LEARN-BOOK-01` | long-context coverage plan | `FAIL-AIGC-LEARN-BOOK` | `catalog_digest`, `relevance_map`, `sampling_plan`, `coverage_ledger` | `N2-MEDIA` |
+| `GATE-LEARN-BOOK-02` | long-context anchors and synthesis | `FAIL-AIGC-LEARN-BOOK` | anchored `evidence_units`, `cross_chapter_synthesis`, no chapter-summary pileup | `N3-DISTILL` |
+| `GATE-LEARN-VERIFY-01` | conflict trigger and reliable source verification | `FAIL-AIGC-LEARN-VERIFY` | trigger classification, source priority, verification notes | `N4-VERIFY` |
+| `GATE-LEARN-VERIFY-02` | adoption decision boundary | `FAIL-AIGC-LEARN-VERIFY` | `adopt` / `adapt` / `reject` / `hold` decision with unresolved risks | `N4-VERIFY` |
+| `GATE-LEARN-MAP-01` | target skill ownership map | `FAIL-AIGC-LEARN-MAP` | `target_skill_map` with root_router, primary_owner, related consumers, shared carriers, not_owned | `N5-MAP` |
+| `GATE-LEARN-MAP-02` | gap matrix, landing and sync scope | `FAIL-AIGC-LEARN-MAP` | `gap_matrix`, landing candidates, sync scope, cross-skill risk | `N5-MAP` |
+| `GATE-LEARN-AUDIT-01` | isolated or local checklist audit | `FAIL-AIGC-LEARN-REVIEW` | audit mode, dimensions checked, verdict, changed_files and residual risks | `N8-AUDIT` |
+
 ## Verdict Model
 
 | verdict | meaning |

@@ -41,6 +41,18 @@
 | `FIELD-PS-02` | seed continuity | 初始化、分集、编导没有断链 | `FAIL-PS-02` | `N3-CONTINUITY-CHECK` |
 | `FIELD-PS-03` | dimension packet | 报告完整可聚合 | `FAIL-PS-03` | `N4-PACKET-WRITE` |
 
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否锁定同一 `review_fact_pack` 下的 `north_star`、初始化 handoff、`1-分集` 与 `2-编导` canonical refs，而不是混读旧阶段、旧集或派生摘要？ | `GATE-DIM-PS-01` | `FAIL-PS-01` | `N1-SEED-READ` | `seed_note` 记录 north star、init handoff、分集稿、编导稿、validation carrier 与缺失项。 |
+| 初始化阶段输出的 north star、长期约束、项目口味和 handoff obligations 是否在 `1-分集` 中被显式继承，没有在分集切分时丢失或改写？ | `GATE-DIM-PS-02` | `FAIL-PS-01` | `N2-HANDOFF-CHECK` | `handoff_note` 标明丢失 obligation、对应初始化字段、分集落点和 source owner。 |
+| `1-分集` 是否把 episode scope、集标、源文范围、保真边界和下游义务交给 `2-编导`，没有把章节、旧 P 标记或摘要当成当前集真源？ | `GATE-DIM-PS-03` | `FAIL-PS-01` | `N2-HANDOFF-CHECK` | 维度报告列出 scope_ref、集标证据、分集 handoff carrier 和不对位字段。 |
+| `2-编导` 是否真实消费初始化与分集 seed，将核心 obligation 转译为画面、声音、对白或结构约束，而不是生成脱离上游种子的独立编导稿？ | `GATE-DIM-PS-04` | `FAIL-PS-02` | `N3-CONTINUITY-CHECK` | `continuity_note` 记录被消费/遗漏的 seed、编导字段证据和断链位置。 |
+| 若发现 seed 漂移或 obligation 缺口，是否归因到 `0-初始化`、`1-分集` 或 `2-编导` 的具体 source owner，而不是把问题推给设计、图像或视频阶段？ | `GATE-DIM-PS-05` | `FAIL-PS-02` | `N3-CONTINUITY-CHECK` | `dimension_packet.issues[*].source_layer_owner`、blocking_scope 与默认返工目标完整。 |
+| 本维度是否严格排除单镜构图、设计、图像 provider、视频 provider 等非 planning seed 范围，避免扩大审计范围污染 aggregate？ | `GATE-DIM-PS-06` | `FAIL-PS-03` | `N4-PACKET-WRITE` | 维度报告说明未覆盖范围、实际检查范围和未越权 evidence。 |
+| 本维度是否只输出可聚合 `dimension_packet + report_ref`，保留 `dimension_runtime`、severity、critical issues 与 evidence refs，而不独立写最终 route/status？ | `GATE-DIM-PS-07` | `FAIL-PS-03` | `N4-PACKET-WRITE` | `dimension_packet` 包含聚合字段、runtime spec 证据、report_ref，且无越权字段。 |
+
 ## Failure Heuristics
 
 - 编导稿存在但失去初始化或分集 handoff 痕迹时，先回退到 `1-分集 / 2-编导` 重建 handoff。

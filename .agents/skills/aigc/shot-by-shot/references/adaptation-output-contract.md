@@ -213,3 +213,20 @@ imitation_unit:
     stage_boundary_violation: false
     aigc_infeasible: false
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 桥接输出是否只作为 side context，不改写 `north_star.yaml`、`style_contract.json` 或 `2/3/5` canonical 文件？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 输出包中的 owner boundary note 与未写 canonical 路径清单 |
+| 输出落点是否统一为 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`？ | `GATE-SBS-ADAPT-02` | `FAIL-SBS-ADAPT-PATH` | `N7-WRITE` | output paths 与执行报告落点 |
+| canonical 文件名是否为 `全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`分镜脚本.md`？ | `GATE-SBS-ADAPT-02` | `FAIL-SBS-ADAPT-PATH` | `N7-WRITE` | 文件清单与 legacy mirror 标注 |
+| 旧文件名是否只作为 legacy mirror，不作为主输出合同？ | `GATE-SBS-ADAPT-03` | `FAIL-SBS-ADAPT-LEGACY-NAME` | `N7-WRITE` | legacy mirror note 与 canonical mapping |
+| `全局风格解析.md` 是否只给叙事/类型/母题/媒介/节奏/去污染和提示词候选，不导入角色、场景、道具或摄影细节？ | `GATE-SBS-ADAPT-04` | `FAIL-SBS-ADAPT-GLOBAL-PACKET` | `N5-BRIDGE` | global style packet 字段覆盖与 pollution audit |
+| `编剧风格解析.md` 是否只给戏剧、表演、调度、潜台词、声音叙事和可拍承托，无机位/景别/运镜/分镜编号？ | `GATE-SBS-ADAPT-05` | `FAIL-SBS-ADAPT-SCREEN-PACKET` | `N5-BRIDGE` | screenwriter bridge 字段表与禁用摄影越权检查 |
+| `摄影风格解析.md` 是否给 `visual_unit`、`beat_map`、`camera_grammar_plan`、payload 和可改写 `分镜明细：` 的语法，不改编导正文？ | `GATE-SBS-ADAPT-06` | `FAIL-SBS-ADAPT-CINE-PACKET` | `N5-BRIDGE` | cinematography bridge payload 与编导正文未改写证据 |
+| `设计风格解析.md` 是否按角色/场景/道具拆分可迁移资产原则，并保留三类画面合同？ | `GATE-SBS-ADAPT-07` | `FAIL-SBS-ADAPT-DESIGN-PACKET` | `N5-BRIDGE` | design bridge section coverage 与 fixed image contracts |
+| `分镜脚本.md` 是否继承 Numbers 示例 19 列和内容编排，而不复制示例具体表达？ | `GATE-SBS-ADAPT-08` | `FAIL-SBS-ADAPT-STORYBOARD-PACKET` | `N5-BRIDGE` | table header、row mapping、example-copy check |
+| 每条 `imitation_unit` 是否回指 source shots、迁移原则、项目适配、阶段桥接、禁止照搬和风险检查？ | `GATE-SBS-ADAPT-09` | `FAIL-SBS-ADAPT-FUSION-SHAPE` | `N5-BRIDGE` | `imitation_unit` YAML / report evidence chain |
+| 所有阶段桥接建议是否保留 source evidence，而不是变成无来源的风格口号？ | `GATE-SBS-01` | `FAIL-SBS-EVIDENCE` | `N1-INTAKE` / `N5-BRIDGE` | source_shot_refs、timecode/still anchors、evidence grade |
+| 是否有任何参考片具体台词、角色、剧情、构图、纹章、地图文字、镜头顺序或对象细节进入桥接输出？ | `GATE-SBS-RIGHTS-03` | `FAIL-RIGHTS-COPY` | `N4-PRINCIPLE` | forbidden-copy ledger 与 pollution audit |

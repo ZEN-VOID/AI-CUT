@@ -2,6 +2,10 @@
 
 本文件定义 `分镜明细：分镜N` 的动态化描述方式。目标是让最终作品有流畅感、丝滑感和连续观看的运动逻辑，而不是静态参数堆叠。
 
+## Example Usage Guard
+
+本文件中的句法模式、方向参照和示例只用于内部构思或卡壳时辅助，不是成稿模板。执行具体任务时，不得连续套用这些句式，也不得复用示例对象或镜头组合；最终输出必须根据当前画面句子的动作、注意力路径、时值和交出点重新组织自然句。
+
 ## Core Rule
 
 每个 `分镜N` 默认写成“时间中的变化”，而不是“静态画面说明”。句子必须回答：
@@ -93,3 +97,16 @@
 若某条分镜会进入视频生成链路，还必须能反推 `ai_video_prompt_execution_profile`：镜头和构图先行，动作在镜头内部完成，方向参照明确，重要光影写出结果，表演情绪有可见微动态。缺任一项时不得靠“电影感”“连续感”补足。
 
 若一个动态句把多个相邻画面单位连成单条长镜，导致无法判断当前句属于哪条上游字段，必须按 `visual-sequence-alignment-contract.md` 拆回逐画面点：当前块只保留自己的起点、路径、落点和交出锚点，下一块另写自己的进入和主体动作。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does every `分镜N（约X秒）` read as a change across time with start point, path or stillness reason, speed, duration, endpoint and beat motivation? | `GATE-CINE-08` | `FAIL-CINE-05B` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N5.2-DURATION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | dynamic path samples, duration reasons and rewritten static lines |
+| Is the camera or composition established before character action, so movement is wrapped inside the shot rather than appended after the action? | `GATE-CINE-15A` | `FAIL-CINE-05N` / `FAIL-SHOT-IDENTITY-01` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | AI video execution samples showing camera-first order |
+| Are movement direction, entry, exit and sightline described relative to camera, frame edge or space anchor? | `GATE-CINE-15A` / `GATE-CINE-26` | `FAIL-DIRECTION-REF-01` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | direction-reference corrections for walking, retreating, entering, exiting or looking |
+| Does the shot create a viewer discovery path with foreground, concealment, partial reveal, focus shift or low-angle/front-layer motivation when full frontal display would be flat? | `GATE-CINE-31` / `GATE-CINE-15A` | `FAIL-CINE-05Z` / `FAIL-SHOT-IDENTITY-02` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | discovery path samples and justified front-facing exceptions |
+| Does smoothness preserve current `visual_unit` ownership instead of merging adjacent units into a single orphaned long shot? | `GATE-CINE-04D` | `FAIL-CINE-05M` | `references/visual-sequence-alignment-contract.md` / `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `unit_ownership_map` checks and split-back repairs |
+| Are combination movements limited to 2-3 motivated actions, with speed and duration tied to suspense, impact, readability, dialogue or performance? | `GATE-CINE-16` / `GATE-CINE-04B` | `FAIL-CINE-05I` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N5.2-DURATION` | combination movement samples and speed/duration justifications |
+| Is final language natural and varied, avoiding repeated dynamic sentence patterns, parameter stacks or generic "silky/cinematic" claims? | `GATE-CINE-18` | `FAIL-CINE-05G` | `steps/cinematography-workflow.md#N7-INJECT` | natural-language review samples and template-pattern cleanup |
+| Are sentence patterns, direction examples and sample objects used only as internal aids, not as reusable output templates? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N7-INJECT` | reference non-template statement and repaired example-like output |

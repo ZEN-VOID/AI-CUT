@@ -100,3 +100,18 @@ Props:
 | panel 与 `分镜N` 被默认一一对应 | 重建 `Storyboard Frame Units`，按视觉节拍识别 |
 | 有场景图但没有风格/光影/氛围对齐要求 | 恢复固定开头与 Scene `visual_anchor` |
 | prompt 未声明 4K | 恢复固定开头中的 4K 分辨率句 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每条组级 prompt 是否逐字以固定英文开头起笔，没有漏句、翻译、分行破坏或前置说明？ | `G2-PREFIX` | `FAIL-SHEET-PROMPT` | `N4-PROMPT` / `references/prompt-assembly-contract.md#fixed-prefix` | prompt markdown 中每个 `## group_id` 后首段可逐字比对固定前缀 |
+| 固定开头之后是否先写 `Storyboard Frame Units`，再进入 `6-分组` 组正文主体，没有插入 provider 参数、执行日志或解释性说明？ | `G2-PREFIX` | `FAIL-SHEET-PROMPT` | `N4-PROMPT` / `references/prompt-assembly-contract.md#fixed-prefix` | prompt package 结构顺序为 fixed prefix -> frame units -> group body -> reference subjects |
+| `Storyboard Frame Units` 是否来自 group extraction 结果，panel 编号使用 `panel_no`，没有把原始 `分镜N` 直接当 storyboard panel 编号？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `N4-PROMPT` | prompt 的 frame-unit plan 含 `panel_no`、`source_shot_labels`、`source_span`，并可回指 `group-index.json` |
+| panel 与原始 `分镜N` 是否允许一对一、一对多、多对一，并通过 `mapping_type` 解释，而非默认一一对应？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `N4-PROMPT` | prompt 与 `group-index.json` 同步记录 `mapping_type`，review note 抽查 split/merge 合理性 |
+| `prompt_body` 是否直接采用 `group_body`，保留风格句、对白、动作画面、分镜明细和 `分镜N:` 顺序，没有翻译、摘要或改写剧情事实？ | `G4-CONTENT` | `FAIL-SHEET-PROMPT` | `N4-PROMPT` / `references/prompt-assembly-contract.md#prompt-body` | prompt 主体与 `group-index.json.group_body` diff 或抽查记录显示无剧情改写、无顺序漂移 |
+| 相邻组间连接件是否没有进入 storyboard prompt 主体？ | `G4-CONTENT` | `FAIL-SHEET-PROMPT` | `N3-GROUP-INDEX` / `N4-PROMPT` | prompt markdown 不含 `## x-y-z~x-y-z` 连接件正文，报告记录 connector ignored |
+| YAML 是否没有混入 prompt 正文主体，而是只通过 reference manifest / Reference Subjects 进入参照槽位？ | `G5-SUBJECTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/prompt-assembly-contract.md#prompt-body` | prompt 主体不含 fenced YAML；`reference-manifest.json` 和 `Reference Subjects` 记录 YAML 主体 |
+| 绑定场景图时，prompt、manifest 与 plan 是否都声明场景参照图承担风格、光影、氛围锚定，而不是只依赖全局风格文字？ | `G7-SCENE-VISUAL` | `FAIL-SHEET-REF` | `N4-PROMPT` / `N5-REF-BIND` | prompt 固定开头、Scene slot、manifest 和 imagegen plan 均出现 `style_lighting_atmosphere` |
+| prompt 是否保留 4K、左下角 panel 序号、无其他文字、自动适配 grid 等 layout semantics，且没有额外硬编码格数？ | `G8-RESOLUTION` | `FAIL-SHEET-IMAGEGEN` | `N4-PROMPT` / `references/prompt-assembly-contract.md#layout-semantics` | prompt 固定前缀包含 4K 与 layout 约束；除用户明确要求外无固定行列数 |
+| 若 provider 限制迫使压缩，是否先记录风险并取得用户确认，而不是默认压缩组正文或删减 frame units？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N4-PROMPT` / `N10-CLOSE` | 执行报告记录 compression risk、用户确认状态、受影响 `group_id` 和保真影响 |

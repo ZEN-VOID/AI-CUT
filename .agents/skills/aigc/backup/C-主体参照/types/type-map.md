@@ -46,7 +46,7 @@
 
 | type profile | mode | route |
 | --- | --- | --- |
-| `single_group + generate + group_source_ready` | `single_group_generate` | `steps/subject-reference-video-workflow.md#N3-N9` |
+| `single_group + generate + group_source_ready` | `single_group_generate` | `steps/subject-reference-video-workflow.md` 的 N3-N9 |
 | `episode_batch + generate + group_source_ready` | `episode_batch_generate` | `N3-N9` with background group-level parallel dispatch |
 | `group_batch + generate + group_source_ready` | `group_batch_generate` | `N3-N9` for selected groups |
 | `multi_episode_batch + generate + group_source_ready` | `multi_episode_batch_generate` | one episode package per source file, shared submit concurrency |

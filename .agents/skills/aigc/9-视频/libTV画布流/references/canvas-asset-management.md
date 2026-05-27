@@ -116,3 +116,16 @@ last_verified_at: ""
 - 画布节点显示名可回指原文件名或规范名。
 - active registry 已登记或更新每个可复用主体图。
 - 远端提交文本包含 `主体绑定表`，并说明图序冲突时以绑定表为准。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 资产图是否不仅上传到 OSS，还被创建为当前 LibTV 项目画布上的可见 `type=image` resource node？ | `REV-LIBTVCANVAS-19` | `FAIL-CANVAS-ASSET-DETAIL` | `N3 Subject Binding` / `N5 LibTV Handoff` | 上传 URL、`resource_generator` 工具回显、对应数量的 `node_key`、会话查询截图或文本证据 |
+| 会话消息是否保留“把全部工作流和结果都放在画布上。”，而不是只上传文件或只生成远端链接？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` | create/append session message、wrapper 命令记录、sessionId/projectUuid |
+| 每张资产是否建立 `原文件名/AIGC规范名 -> OSS URL -> node_key` 映射，且本地路径没有直接传入远端会话？ | `REV-LIBTVCANVAS-17` | `FAIL-MANIFEST` | `N3b Evidence Artifacts` | manifest 中的 source_path、url、node_key、canvas_node_name 映射与远端消息摘录 |
+| 画布节点若显示为默认“素材图片”，是否通过节点更新能力修正 `name/data.name`，且没有新建重复节点？ | `REV-LIBTVCANVAS-19` | `FAIL-CANVAS-ASSET-DETAIL` | `N3 Subject Binding` / `N5 LibTV Handoff` | 节点详情查询、`nodes_connections_batch` 或等价更新回显、更新前后 `name/data.name` 对照 |
+| 主体绑定是否不依赖 `Image 1/2/3`、上传顺序、UI 缩略图或 `imageList` 下标？ | `REV-LIBTVCANVAS-04` | `FAIL-ORDER-SAFETY` | `N3 Subject Binding` / `N3e Prompt Assembly` | handoff message 中的 `主体绑定表`、不按图片顺序匹配声明、source_node 映射 |
+| active registry 是否以 `projectUuid::category::yaml_name` 为主键，且同一主体只有一条 active 记录？ | `REV-LIBTVCANVAS-16` | `FAIL-ACTIVE-REGISTRY` | `N3 Subject Binding` | `libtv-canvas-active-registry.json` 记录、替换时旧记录 `active=false/status=replaced` 证据 |
+| 进入生成任务的每个主体图是否同时具备 `yaml_name / category / canvas_node_name / node_key / URL`，并能回指 YAML 主体名？ | `REV-LIBTVCANVAS-03` | `FAIL-BINDING` | `N3 Subject Binding` | `主体绑定表`、manifest `subject_bindings`、submit plan 参考图清单 |
+| 远端提交是否显式说明图序冲突时以 `主体绑定表` 为准，防止 LibTV 按 UI 图片顺序错配？ | `REV-LIBTVCANVAS-04` | `FAIL-ORDER-SAFETY` | `N3e Prompt Assembly` | handoff message、queried tool params、`source_node_url_mapping` 与绑定表对照 |

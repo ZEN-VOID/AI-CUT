@@ -2,6 +2,10 @@
 
 本文件定义景深的叙事功能裁决规则。景深不只是技术参数，而是控制观众注意力和叙事信息的工具。景深决定什么被看见、什么被忽略、什么在同一时刻被允许呈现。
 
+## Example Usage Guard
+
+本文件所有策略表、典型错误示例和修复样句仅用于说明景深叙事判断，不是固定输出模板。执行具体任务时，不得机械复用示例中的焦点对象、字段句式或景深组合；必须按当前画面信息、注意力路径、隐藏/揭示需求和 `shot_design_plan` 重新裁决。
+
 ## Core Rule
 
 景深 = 注意力控制。不是"光圈开大拍虚化背景"的技术操作，而是"此刻我让观众看哪里、不看哪里"的叙事决策。
@@ -146,3 +150,14 @@
 6. **DF-02 是最容易被忽视的强大工具**：背景清晰但主体虚化（"真正重要的在后面"）是制造认知翻转的利器。
 7. **柔焦是双刃剑**：柔焦（DF-06）传递"非现实"信号，如果场景需要现实感，不要用柔焦。
 8. **焦点拉移必须与叙事同步**：拉焦时间点必须与信息揭示、角色眼神、声音来源等叙事节拍对齐，延迟或提前都会破坏叙事节奏。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does every meaningful depth choice name a narrative function for attention, hiding, revealing, isolating, subjective bias or spatial pressure rather than only a technical aperture or blur effect? | `GATE-CINE-29` | `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | `depth_of_field_narrative_plan` samples with `depth_strategy` and `depth_narrative_function` |
+| Does depth strategy vary with narrative rhythm when needed, instead of defaulting most shots to shallow subject focus for beauty? | `GATE-CINE-29` / `GATE-CINE-16` | `FAIL-CINE-05X` / `FAIL-CINE-05I` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | strategy distribution sample and revised DF choices |
+| Is every focus pull synchronized to information reveal, character gaze, sound source, danger entry or emotional change? | `GATE-CINE-29` / `GATE-CINE-31` | `FAIL-CINE-05X` / `FAIL-CINE-05Z` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` | focus-pull timing notes and attention target evidence |
+| When something is blurred, is the blurred content identified and proven not to contain the necessary clue, threat or relationship information for this beat? | `GATE-CINE-29` / `GATE-CINE-31` | `FAIL-CINE-05X` / `FAIL-CINE-05Z` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` | `what_is_blurred` / `why_blurred` samples and suspense-leak checks |
+| Is soft focus reserved for dream, memory, subjective or emotion-dominant states rather than generic feeling? | `GATE-CINE-29` | `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | DF-06 usage justifications or repaired non-subjective shots |
+| Do examples, typical error samples and technical alignment rows serve only as judgment aids rather than reusable output phrasing? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N7-INJECT` | report note that examples are not templates, plus any phrase/template cleanup |

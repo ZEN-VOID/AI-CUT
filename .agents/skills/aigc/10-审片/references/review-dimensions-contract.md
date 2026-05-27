@@ -65,3 +65,14 @@
 3. 视频作为创作素材是否有足够质量。
 
 任一层出现阻断级问题，不能给 `pass`。创作质量弱但无硬伤时，可给 `conditional_pass`，并说明是“可用但不优先选用”还是“需要更高审美目标重跑”。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否先基于真实视频证据逐项判断 `basic_waste`、`logic_reasonability`、`consistency`、`common_aigc_artifacts`，而不是直接从 prompt 或分组文本推断素材可用性？ | `GATE-REVIEW-04` / `GATE-REVIEW-03` | `FAIL-REVIEW-EVIDENCE` | `steps/video-review-workflow.md#N3 Evidence Capture`、`references/video-evidence-contract.md`、本文件 `Dimension 1` | 元数据、关键帧/联系表、音频说明、`observed_content_summary`、本体问题逐项判断 |
+| prompt / 分镜组匹配是否给出 `matched`、`partially_matched`、`mismatched` 或 `not_enough_prompt_evidence`，并说明主体、动作、空间、风格和约束的 expected / actual？ | `GATE-REVIEW-05` / `GATE-REVIEW-09` | `FAIL-REVIEW-PROMPT-MATCH` | `steps/video-review-workflow.md#N4 Compare`、本文件 `Dimension 2` | prompt / 分组证据、expected / actual 对照、匹配 verdict |
+| 不一致时是否明确归因为 `prompt_problem`、`model_problem`、`evidence_gap` 或 `mixed_cause`，并把修复路线指向对应 owner？ | `GATE-REVIEW-05` / `GATE-REVIEW-10` | `FAIL-REVIEW-PROMPT-MATCH` | 本文件 `Mismatch Attribution`、`steps/video-review-workflow.md#N4 Compare` / `#N5 Landing` | `root_cause_guess`、repair route、缺证据说明或混合原因拆分 |
+| 创作质量是否检查反平庸、艺术方向、摄影、节奏、美学完整性，并用可观察画面/节奏/叙事效果支撑，而不是只有“电影感”“好看”等口号？ | `GATE-REVIEW-06` | `FAIL-REVIEW-QUALITY` | `steps/video-review-workflow.md#N4 Compare`、本文件 `Dimension 3` | 创作质量 finding、可观察 strong/weak signal、质量 verdict |
+| 人物行走、入场、压迫、群像或空间建立视频是否额外执行 `Viewer Immersion Subcheck`，并区分 `flat_observer_view`、`immersive_camera_view` 及其 prompt/model 归因？ | `GATE-REVIEW-06` / `GATE-REVIEW-05` | `FAIL-REVIEW-QUALITY` | 本文件 `Viewer Immersion Subcheck`、`steps/video-review-workflow.md#N4 Compare` | 观众位置判断、机位/前景/遮挡/透视证据、prompt/model 归因 |
+| 最终 verdict 是否综合视频本体、prompt / 分镜组匹配和创作质量三层；任一阻断级问题是否阻止 `pass`，创作质量弱但无硬伤是否仅给 `conditional_pass`？ | `GATE-REVIEW-12` / `GATE-REVIEW-10` | `FAIL-REVIEW-VERDICT` | `steps/video-review-workflow.md#N7-VERIFY`、本文件 `Verdict Rule` | 最终 verdict、三层判断摘要、阻断项或 conditional_pass 理由 |

@@ -75,3 +75,23 @@ transport_only_projection: true
 3. 若无故事板图，主体参照从 `@图1` 开始，但必须在 prompt 中说明没有故事板总参照。
 4. manifest 必须保存 marker、role、source_path、subject_name、subject_type。
 5. 以上 marker 只代表预期槽位；最终 `reference_index` 必须以 `generation_slots` 或远端实际 `mixedList` 顺序为准。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本地 `prompt.md` 的 draft 是否直接以原 `## group_id` 组正文和原始 fenced YAML 为主体，没有在原文前另写固定开头、混合参照说明或缺图说明？ | `GATE-VIDHYB-PROMPT-01` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `references/hybrid-prompt-assembly-contract.md` | draft prompt snapshot、prefix scan、source line/body hash 对照 |
+| draft 阶段是否没有提前写死 `reference_index / uploaded_url / image_token`、空 URL 或占位 URL，避免后续 UI 槽位变化造成错绑？ | `GATE-VIDHYB-PROMPT-01` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` | draft prebinding scan、empty URL scan、slot phase note |
+| final 是否只在 fenced YAML 内新增或更新 `故事板参照` 对象，并写入 `name: 故事板总参照`、`role: storyboard_sheet`、真实 `reference_index / uploaded_url` 和可选 `image_token`？ | `GATE-VIDHYB-PROMPT-02` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `N3-STORYBOARD-BIND` | final YAML diff、storyboard_total_reference manifest、slot ledger |
+| 已绑定主体是否只把原 YAML `角色 / 场景 / 道具` 列表项扩展为对象，并写入对应 `name + reference_index + uploaded_url + image_token`；缺图、未入预算或未上传主体是否保留原名称且不写空槽？ | `GATE-VIDHYB-PROMPT-02` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `N4-SUBJECT-BIND` | final YAML subject diff、manifest bound/missing subjects、empty slot scan |
+| `uploaded_url` 是否只来自 `asset_uploads` 身份映射，而 `reference_index` 是否只来自 UI 图N或实际 `mixedList` 形成的 `generation_slots`？ | `GATE-VIDHYB-SLOT-01` | `FAIL-VIDHYB-UPLOAD-SLOT-CONFLATION` | `N6-PLAN-BUILD` / `references/hybrid-prompt-assembly-contract.md` | asset_uploads ledger、generation_slots ledger、URL 反查记录、final YAML slot projection |
+| 若 UI 图N / `Image N` 可观测，是否优先使用 UI 槽位真源；UI 不可观测时才用远端实际 `mixedList[n].url` 反查，且没有把 OSS 上传顺序当成图N顺序？ | `GATE-VIDHYB-SLOT-01` | `FAIL-VIDHYB-UPLOAD-SLOT-CONFLATION` | `N6-PLAN-BUILD` | UI slot capture 或 mixedList query、upload order comparison、slot projection notes |
+| `*-libtv-submission.txt` 是否以 `【LibTV 调用锁定】` 开头并在正文前锁定 provider、taskType、modeType、mixedList、duration、ratio、resolution、enableSound 与 fidelity 字段？ | `GATE-VIDHYB-REMOTE-01` | `FAIL-VIDHYB-LIBTV` | `N6-PLAN-BUILD` / `references/libtv-handoff.md` | submission header snapshot、modeType、mixedList/text2video route、duration fields |
+| 有任一故事板或主体参照图时是否固定 `modeType=mixed2video` 且 `mixedList` 最多 9 张；完全无图时才固定 `modeType=text2video`，没有传空图片槽？ | `GATE-VIDHYB-REMOTE-01` | `FAIL-VIDHYB-LIBTV` | `N6-PLAN-BUILD` | submit plan image count、mixedList count、text2video no-image evidence、budget notes |
+| 远端提交文本是否没有本地路径、`@projects/...`、`/Volumes/...`、人工 `参照图1/2/N` 编号、缺图/无缓存/未入预算说明或空槽说明？ | `GATE-VIDHYB-REMOTE-02` | `FAIL-VIDHYB-REF-PROMPT-INTEGRITY` | `N5-PROMPT-ASSEMBLE` / `N6-PLAN-BUILD` | submission text scan、本地路径 scan、forbidden phrase scan |
+| `【直接生成请求】` 是否明确要求基于下方 final `【分镜组源文本】`，并把原始正文与 fenced YAML 中故事板/主体槽位绑定共同作为 prompt 完整体？ | `GATE-VIDHYB-REMOTE-02` | `FAIL-VIDHYB-REF-PROMPT-INTEGRITY` | `N5-PROMPT-ASSEMBLE` | direct request snapshot、final source-first YAML、token/name adjacency evidence |
+| 远端提交是否默认声明 `strict_original + transport_only`、`allow_libtv_prompt_optimization=false`，并禁止优化、重排、摘要、改写或补镜头？ | `GATE-VIDHYB-FIDELITY-01` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `N7-REVIEW-GATE` | submit plan fidelity fields、submission constraints、query prompt comparison |
+| 只有用户显式选择 `libtv_optimize` 或 `allow_libtv_prompt_optimization: true` 时，是否才允许远端创作型编排，并把该 opt-in 写入 submit plan、queue 和 report？ | `GATE-VIDHYB-FIDELITY-01` | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `N7-REVIEW-GATE` | user opt-in evidence、submit plan、queue ledger、report fidelity note |
+| `duration` 是否来自当前组 submit plan 的 `duration_hint`，没有固定写 15 秒或跨组复用时长？ | `GATE-VIDHYB-DURATION-01` | `FAIL-VIDHYB-DURATION` | `N6-PLAN-BUILD` / `references/group-source-extraction.md` | submit plan `duration_hint`、submission duration、group duration source |
+| 若生成前无法验证 `create_generation_task.params.enableSound`，是否记录 `audio_preflight_unverified_non_blocking` 并继续；生成后是否仍以后验音频证据验收？ | `GATE-VIDHYB-REMOTE-01` | `FAIL-VIDHYB-AUDIO-PREFLIGHT` | `N6-PLAN-BUILD` / `references/libtv-handoff.md` | submission `enableSound=on`、audio_preflight note、query/ffprobe evidence |
+| marker 顺序是否只是预期槽位辅助，最终 `reference_index` 是否以 `generation_slots` 或远端实际 `mixedList` 顺序为准，而不是以 `@图1` 文案强行决定？ | `GATE-VIDHYB-SLOT-01` | `FAIL-VIDHYB-UPLOAD-SLOT-CONFLATION` | `N6-PLAN-BUILD` / `N5-PROMPT-ASSEMBLE` | marker manifest、generation_slots ledger、final YAML reference_index audit |

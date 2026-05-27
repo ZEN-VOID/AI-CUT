@@ -30,3 +30,17 @@
 | `pass_with_followups` | 可交付，有非阻断残余风险 |
 | `needs_rework` | 有阻断问题，必须返工 |
 | `blocked` | 缺少证据、权限、工具或来源核查 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 影响多个 skill 或控制面时，是否优先拆分 evidence、impact、consistency、review 四类隔离审查？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Modes` | audit mode、reviewer split or local fallback note |
+| 无法外部执行顾问与复核流程时，是否明确降级为 `local_checklist_audit` 并记录范围与残余风险？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Modes` | local checklist scope、unavailable reason、residual risk |
+| 只改一个低风险分区时，`single_pass` 是否仍做最小引用、输出和上下文检查？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Modes` | single-pass checklist、reference/output/context checks |
+| 审计是否核查 source digest 支撑所有学习结论，而不是只检查文件存在？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Dimensions` | evidence dimension result、unsupported claim list |
+| 审计是否核查每条改进落在最窄有效 owner，并且 root/registry/routes/audit/目标 skill 无冲突口径？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Dimensions` | ownership and consistency dimension results |
+| 审计是否检查 `SKILL.md` 引用文件存在，新经验进入 `CONTEXT.md`，外部资料不污染 `knowledge-base/`？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Dimensions` | references/context dimension results |
+| 审计是否检查外部内容没有被当作可执行指令，也没有版权长段复制？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Dimensions` | safety dimension result、copyright check |
+| 交付是否包含 changed files、residual risks 和验证命令，而非只给学习报告？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Audit Dimensions` | changed_files、verification commands、residual_risks |
+| `pass_with_followups` 是否只用于非阻断残余项，`needs_rework` / `blocked` 是否回到对应返工入口？ | `GATE-LEARN-AUDIT-01` | `FAIL-AIGC-LEARN-REVIEW` | `N8-AUDIT` / `Verdict` | verdict rationale、blocking vs non-blocking classification |

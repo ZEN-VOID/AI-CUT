@@ -184,6 +184,19 @@ stateDiagram-v2
 | `FIELD-PANEL-04` | 批量/单文件参照策略符合合同 | `FAIL-PANEL-SMART` | `_shared/panel_auto_generate.py` |
 | `FIELD-PANEL-05` | manifest 记录输出与生图结果 | `FAIL-PANEL-MANIFEST` | leaf manifest writeback |
 
+## Review Gate Mapping
+
+No independent gate: 本文件是旧 `3-面板` tranche parent 的 legacy archive，不再作为 active panel skill、独立生图桥或当前 review gate 真源；旧 `FAIL-PANEL-*` 只作为归档索引，当前阻断必须回接父级 active gate 与域级 leaf / 图像执行合同。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否仍把旧 `.agents/skills/aigc/7-设计/3-面板` 当作 active 面板入口，而不是路由到当前域级生成/图像链路？ | `GATE-DESIGN-LEGACY-01` | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N2-DOMAIN`；`references/阶段路由矩阵.md` | 旧 tranche 触发词、active route、legacy archive 只读声明 |
+| 旧合同中的 `场景 / 角色 / 道具` panel leaf、SMART bridge、imagegen 默认模式是否未经当前 active 合同复核就被执行？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `D-N4-DISPATCH`；对应 active leaf `SKILL.md + CONTEXT.md` / image execution contract | 被复用规则、active 合同位置、采用/废弃理由 |
+| 未重建 sibling 或旧 panel leaf 是否被误判为 active，或旧 `3-面板` 路径仍出现在 registry/routes 中？ | `GATE-DESIGN-LEGACY-03` | `FAIL-DESIGN-LEGACY-PATH-DRIFT` | `D-N2-DOMAIN -> registry/routes/shared runtime 修复`；`references/阶段路由矩阵.md` | active/pending matrix、`rg` 旧路径结果、引用更新清单 |
+| layout JSON 是否被跳过，或父级直接调用 imagegen / API / nano-banana，导致 layout、request sidecar 与 manifest 不可追溯？ | `GATE-DESIGN-CLOSEOUT-01` | `FAIL-DESIGN-CLOSEOUT-DOMAIN-GATE` | `D-N5-DOMAIN-GATE`；对应域级 generation/image Output Contract | layout path、request sidecar、manifest、provider mode 证据 |
+| 批量 SMART 自动参照是否污染单文件/自然语言任务，或 `request_ready` 被写成真实图片成功？ | `GATE-DESIGN-CLOSEOUT-03` | `FAIL-DESIGN-CLOSEOUT-REPORT` | `D-N6-CLOSEOUT`；对应域级 generation/image report | smart mode、continuity refs、真实图片路径或缺口、residual risk |
+| 旧 `FAIL-PANEL-*` 是否被写入当前父级 verdict，造成 fail code 无法解析或绕过 active leaf review？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `review/review-contract.md`；对应 active leaf review contract | legacy fail code 对照、当前 gate/fail code 替换记录 |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 问题排查必须上溯：

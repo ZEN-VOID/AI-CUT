@@ -264,3 +264,14 @@ hollywood_quality_notes:
 - 是否有抽象审美词（"电影感""宿命感""高级感"）直接进入正文？
 - 证据是否包含完整的 fidelity_verified 和 risk_check 块？
 - 若有 failure case 中的症状，是否已回到对应节点修复？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `hollywood_quality_notes` 是否覆盖戏剧实质、画面密度、节奏控制、表演承托和视觉主轴 5 个维度，且每项有上游锚点和证据字段？ | `GATE-DIR-06` | `FAIL-CREATIVE-EVIDENCE` | `N3-DIR-SUBSTANCE` / `N7-DIR-AESTHETIC` / `N11-DIR-WRITEBACK` | `hollywood_quality_notes.dimensions.*.upstream_anchor`、`evidence_field` |
+| 质量提升是否只改变表现层，未新增事实、对白、因果、桥段、场景顺序、场景标题或摄影方案？ | `GATE-DIR-06` | `FAIL-CREATIVE-EVIDENCE` | `N9-DIR-DRAFT` / `N10R-DIR-REPAIR` | `hollywood_quality_notes.fidelity_verified`、终稿与上游对比 |
+| 抽象质量词是否已替换为可拍/可听/可演证据，没有直接进入正文？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` / `N9-DIR-DRAFT` | `risk_check.field_drift_to_abstract: false`、`visual_aesthetic_evidence` |
+| 表演承托是否投影到 `对白画面` / `角色动作` / `表情特写`，没有停留在内部规划？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` / `N9-DIR-DRAFT` | `director_substance_plan.performance_engine`、终稿对应字段 |
+| 视觉主轴是否在关键场景中有呼应/变奏/克制落点，而非只写“统一风格”？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `episode_visual_spine`、`scene_items.motif_and_variation` |
+| 高潮强化是否通过好莱坞质量检查而未越过上游 `delivery_action` 和 `satisfaction_delta`？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` | `peak_visual_plan.delivery_action`、`satisfaction_delta`、`hollywood_quality_notes.blocking_issues` |

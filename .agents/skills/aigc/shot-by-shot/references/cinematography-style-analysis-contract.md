@@ -106,3 +106,22 @@
 | `ratio_change_usage` | 画幅比是否在片中发生变化，变化的触发条件和叙事意义 |
 | `framing_proportion_logic` | 构图比例如何服务叙事：留白制造孤独 / 满框制造压迫 / 黄金分割制造和谐 |
 | `format_downstream_note` | 该画幅比对 AIGC 图像/视频生成的技术约束和提示词影响 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `摄影风格解析.md` 是否只作为 `3-摄影` side context，不改写 `2-编导` 正文？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界与未改写编导正文证据 |
+| 视觉单元功能、beat map 和 rhythm profile 是否定义观看任务、换镜理由和节奏画像，而非参数堆叠？ | `GATE-SBS-CINE-01` | `FAIL-CINE-VISUAL-UNIT` | `N5-BRIDGE` | visual_unit_function、beat_map_seed、rhythm_profile_seed |
+| `beat_map_seed` 是否说明注意力、动作相位、信息揭示、情绪转折或空间关系的换镜理由？ | `GATE-SBS-CINE-01A` | `FAIL-CINE-BEAT-MAP` | `N5-BRIDGE` | beat_map_seed 与 source_shot_refs |
+| `rhythm_profile_seed` 是否给出收敛、标准展开、发散强化或断裂停顿的节奏建议？ | `GATE-SBS-CINE-01B` | `FAIL-CINE-RHYTHM` | `N5-BRIDGE` | rhythm_profile_seed |
+| 连续性、视点、焦深和光源语义是否服务叙事与注意力交接？ | `GATE-SBS-CINE-02` | `FAIL-CINE-CONTINUITY` | `N5-BRIDGE` | continuity_seed、point_of_view_profile、depth/light semantic |
+| 视点归属、切换逻辑和主客观边界是否清楚？ | `GATE-SBS-CINE-02A` | `FAIL-CINE-POV` | `N5-BRIDGE` | point_of_view_profile |
+| 焦深和光源语义是否说明前/后景、清晰/虚化、拉焦触发、光源方向和冷暖功能？ | `GATE-SBS-CINE-02B` | `FAIL-CINE-DOF-SEMANTIC` | `N5-BRIDGE` | depth_of_field_semantic 与 light_source_semantic |
+| 切点、运动类型、长镜头 phase 和画幅语法是否从参考证据抽象，而非照抄镜头顺序？ | `GATE-SBS-CINE-03` | `FAIL-CINE-CUT-GRAMMAR` | `N5-BRIDGE` | cut_grammar、movement taxonomy、long_take、format grammar |
+| 运动类型系统是否说明运动清单、语义、切换逻辑、手持使用和速度节奏？ | `GATE-SBS-CINE-03A` | `FAIL-CINE-MOVE-TYPE` | `N5-BRIDGE` | camera_movement_taxonomy |
+| 长镜头结构是否说明阈值、phase、机位运动层级、空间揭示和情绪功能，不伪造剪辑点？ | `GATE-SBS-CINE-03B` | `FAIL-CINE-LONG-TAKE` | `N5-BRIDGE` | long_take_structure_seed 与 phase map |
+| 画幅和构图比例是否说明叙事功能、比例变化和下游 AIGC 约束？ | `GATE-SBS-CINE-03C` | `FAIL-CINE-FORMAT` | `N5-BRIDGE` | format_grammar_seed |
+| `camera_grammar_plan_seed`、`functional_projection_payload` 和 `shot_detail_style_seed` 是否能被 `3-摄影` 消费并转成自然中文 `分镜明细：`？ | `GATE-SBS-CINE-04` | `FAIL-CINE-PAYLOAD` | `N5-BRIDGE` | camera plan、payload、shot detail style seed |
+| 摄影语法计划是否包含景别、视角、景深、焦点、镜头类型、构图、光影和运镜迁移策略？ | `GATE-SBS-CINE-04A` | `FAIL-CINE-GRAMMAR-PLAN` | `N5-BRIDGE` | camera_grammar_plan_seed |
+| 是否避免改写编导正文、固定照抄参考片镜头数量/顺序或使用 AIGC 不可消费空泛词？ | `GATE-SBS-CINE-05` | `FAIL-CINE-DO-NOT` | `N5-BRIDGE` / `N4-PRINCIPLE` | Do Not Import、AIGC 可执行性、rights ledger |

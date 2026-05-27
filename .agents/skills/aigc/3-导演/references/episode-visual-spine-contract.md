@@ -155,3 +155,14 @@ episode_visual_spine:
 - 克制规则是否防止了细节堆砌？
 - 主轴是否没有新增剧情事实、线索、规则、障碍或结果？
 - 每个关键场景的 `visual_aesthetic_pass` 是否呼应/变奏/克制了整集主轴？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每集是否建立 `episode_visual_spine`，且 `visual_question` 是具体叙事问题而非“电影感/高级感”？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `visual_aesthetic_evidence.episode_visual_spine.visual_question` |
+| `motif_chain` 是否来自上游或安全 B 路线承托，并在不同场景承担不同压力/距离/归属/情绪温度？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `motif_chain`、`visual_aesthetic_evidence.scene_items.image_motif` |
+| `material_and_color_arc`、`rhythm_curve` 与 `callback_targets` 是否形成弧线和呼应，不是一组散点？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `material_and_color_arc`、`rhythm_curve`、`callback_targets` |
+| 每个关键场景的 `visual_aesthetic_pass` 是否消费主轴，明确呼应/变奏/克制策略？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `scene_items.motif_and_variation`、`restraint_notes` |
+| 视觉主轴是否没有为统一风格新增线索、道具、天气、障碍、规则或事件结果？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` / `N9-DIR-DRAFT` | `risk_check.fact_drift: false`、`controlled_enrichment_ledger` 相关项 |
+| 前集可读时，跨集母题是否只作参考且发生变化；不适用时是否标注 `episode-local continuity`？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N1-DIR-INTAKE` / `N7-DIR-AESTHETIC` | `cross_episode_continuity_profile`、本集 `motif_chain` 变化说明 |

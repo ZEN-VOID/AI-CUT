@@ -16,6 +16,7 @@
 
 | field | mapping |
 | --- | --- |
+| Required output | `changed_files`、`audit_result`、`residual_risks`、`next_learning_deposition` |
 | **核心执行产物** | `changed_files`（实际修改的技能文件）、`audit_result`（协调审计通过）、`residual_risks` |
 | **可选报告副产物** | 仅在用户要求或需要审计追溯时生成 |
 | Output format | 核心产物默认对话交付；报告仅在用户要求时使用本模板生成 |

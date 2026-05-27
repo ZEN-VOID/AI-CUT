@@ -22,17 +22,20 @@
 | 漏掉画面性字段 | 画面匹配层 | 回到标签+语义双重匹配，补齐微表情/呼吸/姿态/视线/手部动作命中行 | `visual-matching-contract.md` 固定双入口；随机抽查命中行就近有 `分镜明细：` |
 | 非画面字段被滥加分镜明细 | 字段纯度层 | 删除对白/音效/心理反应下的分镜明细，除非行内有明确画面承托 | `types/` 区分 visual/audio-visual/non-visual |
 | 分镜数量机械固定 | 节拍判断层 | 按注意力转移/动作相位/信息揭示/情绪转折切分 | `beat-analysis-contract.md`；同类句子分镜数可不同 |
+| 单镜吞入多个有效 beat | 节拍审核层 | 对 1 镜块复核主体切换、空间转移、动作分相、声画转交、信息揭示、情绪转折和注意力对象改变；能同镜完成则补内部 `trigger_merge_exception`，否则拆成多个 `分镜N` | `GATE-CINE-04E` + `FAIL-CINE-03F`；执行报告记录 1 镜吞 beat 复核范围、修复块和合并例外 |
 | 分镜数量塌缩为固定 2 镜 | 节拍/模板诱导层 | 回到 `beat_map -> rhythm_profile -> shot_count_decision`；低信息合并，关键块扩展 | `shot-planning-integration-contract.md`；抽样 `分镜2` 须有真实第二观看策略 |
 | 机械校验提示 2 镜集中 | 阶段末复核层 | 回到 `global-rhythm-terminology-glossary.md` 和 `beat-analysis-contract.md`，抽样确认第二镜是否有有效触发点、观看结果、平台节奏价值或 AIGC 执行稳定性价值；无价值才删并 | 执行报告记录 `2 镜集中复核` 与 `density_curve_summary`；2 镜集中本身不阻断 |
 | 分镜明细张弛失衡 | 画面节奏层 | 内部先判 `rhythm_profile`，低信息收敛、关键信息发散 | `visual-rhythm-analysis-contract.md`；整集有呼吸 |
 | 整场节奏无变速 | 段落密度曲线层 | 回到 `sequence-density-curve-contract.md`，先建 `sequence_density_curve` 再进入单句 `beat_map` | `N3.6-DENSITY-CURVE`；整段能说清哪里省/爆/停/交出 |
 | 分镜切点正确但长短失衡 | 镜头时值层 | 回到 `shot-duration-decision-contract.md`，补 `shot_duration_decision` | `N5.2-DURATION`；文字/道具/微表情有可读时间 |
-| 按传统影视停顿生成后整体偏慢 | 短剧·AIGC 时值偏置层 | 应用 `short_drama_aigc_duration_bias`，把普通氛围镜、过场动作和常规反应压回 `short / standard`；`约3秒` 以上逐条证明必要性 | `N5.2-DURATION` + `N6.5-SHOT-PLAN`；长镜有台词、读秒、表演变化、复杂调度、空间重置或高点证据 |
+| 按传统影视停顿生成后整体偏慢 | 短剧·AIGC 时值偏置层 | 应用 `short_drama_aigc_duration_bias`，把普通氛围镜、过场动作和常规反应压回 `short / standard`；`约3秒` 以上逐条证明必要性；若为情绪类 `slow_burn/hold`，证明点改为可见微动态、静止压力、极慢运动或框内变化 | `N5.2-DURATION` + `N6.5-SHOT-PLAN`；非 `slow_burn/hold` 长镜有台词、读秒、表演变化、复杂调度、空间重置或高点证据 |
 | 终稿缺少显式秒数 | 落盘投影层 | 每条 `分镜N:` 改为 `分镜N（约X秒）:` | 模板/validator 固定格式 |
 | 对白台词量未进入镜头时值 | 声画时值层 | 先估算对白字数/语速/停顿，合并 `dialogue_seconds_floor` | `N5.2-DURATION`；台词不会没说完就切走 |
+| 长对白被拍成采访式单镜 | 长对白镜头承托层 | 消费 `long_dialogue_beat_map` / `long_dialogue_delivery_map`，建立 `long_dialogue_visual_plan`，按节拍分配说话者、听者、手部/道具、空间压力、群像、画外声源或沉默余波焦点 | `GATE-CINE-33` + `FAIL-LONG-DIALOGUE-CINEMATOGRAPHY`；长对白有反应链、时值分配和连续性，不是一镜正面说完 |
 | 场景母题尾句机械灌入每条分镜 | 计划汇流/复审层 | 删除重复尾句，只在建立镜/转场镜/母题变化处保留 | review gate 增加重复句抽查 |
 | 字段内容纯度不足 | 字段语义层 | 删除抽象主题/心理结论/世界观解释/气氛口号，转译为景别/机位/镜头类型/运速/焦点/构图/光色；无法转译则删除 | `SKILL.md` + `natural-shot-detail-writing-contract.md`；`cinematic-technique-library.md` 补执行参数 |
 | 字段表达质量不足 | 动态表达层/自然成稿层 | 静态呆板改为"从起点到终点"变化句；参数腔/模板腔压成自然画面文字 | `dynamic-lens-language-contract.md` + `natural-shot-detail-writing-contract.md`；禁止连续同构句 |
+| 示例污染输出 | references 误读层 | 回到 `SKILL.md#Reference-Example-Guard`，只提取示例背后的判断逻辑，删除复用的人物、道具、场景、句式、镜头组合、分镜数量或时值分配 | 抽样对照当前 `visual_unit`：每条分镜都能回指本画面真实触发点、观看结果、连续性和下游执行价值，而不是长得像 reference 示例 |
 | 分镜明细好看但功能随机 | 功能性投影层 | 回到 `functional-cinematic-projection-contract.md`，补 shot_function/主体/动作/运镜/构图/光色/空间/交接 | `N6.4-FUNCTIONAL-PROJECTION`；下游能抽取完整 payload |
 | 画面内容拆句/复述型分镜 | 功能投影/N7 注入层 | 回到 `functional-cinematic-projection-contract.md`，执行源句复述扣除测试，补 `camera_movement_plan / composition_anchor / light_color_material / continuity_handoff` | 抽样删除原句名词、动作、道具事实后，仍能读出摄影机如何看、动、停、转焦、布光或交出 |
 | 分镜把表层动作当成唯一拍摄对象 | 镜头意图/人物状态层 | 回到 `functional_projection_plan`，先消费上游人物身份、进入原因、当前状态和潜台词压力，再决定拍脸、手、背影、旁观者、环境或动作源头 | `N6.4-FUNCTIONAL-PROJECTION` 必须能说明 focal_subject 为什么服务当前人物状态；禁止把“谁做了什么”直接等同于“镜头拍什么” | 同一表层动作在不同人物处境下能产生不同焦点和镜头语言；每条关键分镜能回答这个画面为什么存在 |
@@ -43,6 +46,7 @@
 | 段落运镜流畅但画面点失主 | 段落对齐/归属边界层 | 回到 `visual-sequence-alignment-contract.md`，补 `unit_ownership_map` | `N3.5-SEQUENCE-ALIGN`；每条 `分镜N` 能回指所属 `visual_unit` |
 | 景别/视角/焦点变化随机 | 摄影语法层 | 回到 `N6.2-CAMERA-GRAMMAR`，先确定景别梯度/视角动机/景深焦点交接 | `cinematic-technique-library.md` + `GATE-CINE-16` |
 | references 细则未进入最终分镜 | 计划汇流层 | 回到 `N6.5-SHOT-PLAN`，先建 `shot_design_plan` 再写 `分镜N` | `shot-planning-integration-contract.md` |
+| references 细则缺少审核落点 | review 覆盖层 | 回到 `review/review-contract.md#Reference-Review-Gate-Matrix`，为本轮加载或用于阻断的每个 reference 补 PASS/N、gate、fail code 和报告证据；解释性 glossary 只作术语口径，不单独阻断 | `GATE-CINE-17A` + `FAIL-CINE-05REF`；执行报告记录 reference gate 覆盖检查结果 |
 | 分镜数量多但随机 | 节拍计划层 | 删掉没有新观看策略的伪分镜 | `shot_design_plan.beats` 必须逐条说明 trigger/handoff |
 | 上下镜衔接差 | 交出点层 | 上一分镜终点成为下一分镜入口 | `intra_unit_handoff` 和 `next_handoff` 为必填项 |
 | 镜头断裂跳跃 | 连续性层 | 回看前 3 个画面单位，修正轴线/运动方向/景别梯度 | `shot-continuity-contract.md` |
@@ -57,7 +61,7 @@
 | 改写了 4-表演 原文 | 保真层 | 恢复上游原句，只保留下方新增分镜明细块 | diff 中除 frontmatter 和分镜明细外无正文改写 |
 | 输出中途截断但结构校验通过 | 源文保真/validator 脱节层 | 先补回缺失的上游正文，再为缺失画面句子补 `分镜明细：`，最后更新报告统计 | 机械校验必须剥离 `分镜明细` 后与 `source_performance_path` 做正文保真比对；只看输出稿内部覆盖率不够 |
 | 场景视觉约束缺失或退化为参数清单 | 场景视觉约束层 | 回到 `scene-visual-constraint-contract.md`，补构图布局/构图方式/光源/色彩/摄影技术参数的内部裁决 | `N6.3-SCENE-VISUAL-CONSTRAINT`；每个场景已形成内部 `scene_visual_constraint`，逐镜分镜明细在约束框架内展开 |
-| 分镜明细维度覆盖问题 | 分镜维度层 | 回到 `shot-detail-dimension-contract.md`，画面中存在的维度应写入，不存在的不为凑数硬塞；检查是否虚构了画面中不存在的信息 | `N6.4-FUNCTIONAL-PROJECTION` + `N7-INJECT`；维度信息融入自然中文，且每条维度都能回指画面中确实存在的信息 |
+| 分镜明细维度覆盖问题 | 分镜维度层 | 回到 `functional-cinematic-projection-contract.md#Gradient-Shot-Detail-Sufficiency`，画面中存在的维度应写入，不存在的不为凑数硬塞；检查是否虚构了画面中不存在的信息 | `N6.4-FUNCTIONAL-PROJECTION` + `N7-INJECT`；维度信息融入自然中文，且每条维度都能回指画面中确实存在的信息 |
 | 镜头只记录动作不讲故事 | 镜头叙事功能层 | 回到 `shot-as-narrative-contract.md`，为每条候选分镜补 `shot_narrative_function`，说明新增信息、关系变化、动作结果、情绪压力、观看发现或交出价值 | `GATE-CINE-28`；删除后无损失的分镜已删并或重写 |
 | 摄影密度不吃情绪节奏图 | 跨阶段节奏消费层 | 回到 `../_shared/emotional-rhythm-map-contract.md`，用 `peak_valley_sequence` 的 height/transition 和类型底色修正 `sequence_density_curve` | `N3.6-DENSITY-CURVE` 固定 `emotional_rhythm_density_evidence`，高点不压平、低谷不堆满 | 摄影密度能回指导演情绪峰谷，而不是每场同等精致 |
 | 高点镜头只按画面强度加密，没有回应观众期待 | 跨阶段观众心理层 | 回到 `audience_psychology_map`，用 audience_fear/desire/expectation 决定高点显影、延迟、误导或余波 | `N5.5-PEAK-SHOT` 固定 `audience_peak_attention_evidence` | 高点镜头能说明它满足、延迟或颠覆了观众哪一种期待 |
@@ -66,6 +70,7 @@
 | 光源只是来源词 | 光源叙事层 | 回到 `light-as-narrative-contract.md`，补照亮/遮蔽对象、阴影/轮廓结果、信息可见性、权力关系、情绪温度或危险预告 | `GATE-CINE-30`；左侧光/顶光/冷光等词必须有可见结果和叙事功能 |
 | 观众注意力一次性全给 | 注意力引导层 | 回到 `attention-guidance-contract.md`，补入口、遮挡/显影、焦点接力、信息获得点和离场锚点 | `GATE-CINE-31`；镜头不是资料图式全信息展示，而是观看路径 |
 | 对白场景模板化为正反打或说话者特写 | 对白摄影焦点层 | 回到 `attention-guidance-contract.md` 和 `dialogue_scene_variation_plan`，先判断戏剧功能、权力关系、观众知情层级和潜台词，再选择说话者、听者、空间、道具压力、画外声源、群像或反应空白作为焦点 | `GATE-CINE-32` + `FAIL-DIALOGUE-CINEMATOGRAPHY-TEMPLATE`；对白镜头焦点来自观看任务，不来自“谁说话就拍谁”的模板 |
+| 长对白多镜但焦点重复 | 长对白焦点变化层 | 回到 `long_dialogue_visual_plan`，检查每个 beat 的观看任务；重复说话者特写必须改为听者吸收、手部压力、空间距离、群像层次、画外声源或沉默余波，除非脸部变化是新信息 | `long_dialogue_visual_plan.visual_beats[].focus_target` 不连续空转，同一焦点重复必须有新观看结果 |
 | 无互动道具镜头破坏动作衔接 | 道具准入层 | 删除或降级杯水涟漪、餐具碰撞、纸角阴影、桌面倒影等孤立物件镜头；若道具重要，补 `prop_shot_admission` 说明互动、关键信息、规则/证据/危险源或必要环境功能 | `GATE-CINE-24` + `FAIL-CINE-05S`；删掉该物件镜头后人物动作和轴线更顺，保留的道具均有准入理由 |
 | 场景视觉约束只裁决一次但场景内有重大视觉约束变化 | 场景约束更新层 | 在变化的画面句子前重新裁决场景视觉约束 | `N6.3-SCENE-VISUAL-CONSTRAINT`；场景内视觉约束变化时重新裁决 |
 | 维度信息以标签形式输出 | 维度自然化层 | 删除维度标签，把维度信息点融入自然中文镜头文字 | `natural-shot-detail-writing-contract.md`；禁止"角色情绪：紧张"等标签形式 |
@@ -81,11 +86,13 @@
 3. 对每个画面句子做节拍复判：主体变化、动作分相、信息揭示、情绪反转、视线/呼吸/微表情转移。
 4. 对每个画面句子做画面节奏复判：信息重要性、上下文密度、情绪压力和收敛/发散倾向。
 5. 对每个候选分镜做时值复判：先应用短剧·AIGC 默认压缩，再估算对白/旁白字数和台词量下限，判断缩短一半丢失什么、拉长一倍是否只是拖慢；落盘必须是 `分镜N（约X秒）:`。
+5.1. 若上游有 `long_dialogue_beat_map` / `long_dialogue_delivery_map`，先建立 `long_dialogue_visual_plan`：每个 beat 对应台词段、表演交付、焦点目标、时值链接和连续性交出；禁止单镜吞完整段长对白。
 6. 对上游已有高点执行峰值分镜复判：行动结果看钉镜，认知翻转看读秒，关系暖点看温柔停顿，规则/恐怖看断裂入侵。
 7. 若执行顾问与复核流程，先把 `team.yaml.roles.supervision.stage_profiles."5-摄影"` 或共享合同回退路径中的顾问作为摄影监制请教；问题从当前节点派生，输出必须可转为 `must_do/must_not_do/execution_brief`。
 8. 分镜过少时查找被压成一镜的动作相位或信息揭示；分镜过多时合并没有新观看策略的切点。
-9. 若大面积都是 2 镜，抽样低信息/过场/表演停顿/关键显影/群像/高点块，逐条追问 `分镜2` 是否有有效触发点、观看结果、平台节奏价值或 AIGC 执行稳定性价值；2 镜集中本身不阻断，无价值第二镜才删并。
-10. 若多镜数量合理但观看别扭，按时值问题处理：快速镜是否带走该读的信息，长镜是否只有气氛；普通氛围镜、过场动作和常规反应是否被传统影视惯性拖到 3 秒以上。
+9. 若大面积都是 1 镜，或 `分镜1` 内出现“随后/转入/越过/停住/声画转交/注意力转移”等连续观看动作，抽样或全量追问是否存在多个有效触发点；存在则拆镜，能同镜完成才保留并补 `trigger_merge_exception`。
+10. 若大面积都是 2 镜，抽样低信息/过场/表演停顿/关键显影/群像/高点块，逐条追问 `分镜2` 是否有有效触发点、观看结果、平台节奏价值或 AIGC 执行稳定性价值；2 镜集中本身不阻断，无价值第二镜才删并。
+11. 若多镜数量合理但观看别扭，按时值问题处理：快速镜是否带走该读的信息，长镜是否只有气氛；普通氛围镜、过场动作和常规反应是否被传统影视惯性拖到 3 秒以上。
 11. 若连续 3-6 个画面单位共享空间/道具链/声音链/动作链/记忆插入/视觉母题，先建立内部 `sequence_profile`，同步写清 `unit_ownership_map`。
 12. 若连续观看段落存在速度阶段/动作链/声音打点/峰值爆发，先建立 `sequence_density_curve`。
 13. 在写任何 `分镜N` 前先走完节点链：`N2-MATCH -> N3-TYPE -> N3.5-SEQUENCE-ALIGN -> N3.6-DENSITY-CURVE -> N4-BEAT -> N5-RHYTHM -> N5.2-DURATION -> N5.5-PEAK-SHOT -> N5.6-ADVISOR -> N6-CONTINUITY -> N6.1-HANDOFF -> N6.2-CAMERA-GRAMMAR -> N6.4-FUNCTIONAL-PROJECTION -> N6.5-SHOT-PLAN`；缺任一层都不能直接成稿。
@@ -116,6 +123,7 @@
 25. 若分镜明细改变剧情理解，回到保真层：原字段只提供事实，分镜明细只能强化观看路径。
 26. 最后做一次机械检查：覆盖率、连续编号、输出路径、分镜数量分布、显式秒数、逐画面点归属、源文保真和 AI 视频执行稳定性。源文保真必须剥离输出稿中的 `分镜明细：` 与 `分镜N` 后，与 `source_performance_path` 的 `【剧本正文】` 非空行逐行比对；若上游后半段被漏写，即使 validator 内部覆盖通过也必须判为阻断项。
 27. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断。
+27.5. 交付前做 reference gate 覆盖检查：本轮加载或产生强制裁决的每个 `references/` 文件都应能回到 `Reference Review Gate Matrix`，否则先补 review 合同或降级为解释性材料，不得让悬空规则参与阻断。
 28. 检查每个场景是否已形成内部场景视觉约束 `scene_visual_constraint`；缺少时回到 `N6.3-SCENE-VISUAL-CONSTRAINT` 补齐构图布局/构图方式/光源/色彩/摄影技术参数，确保逐镜分镜明细在约束框架内展开。
 29. 抽样检查分镜明细的维度覆盖：画面中确实存在的角色表演/陪体动态/前景动态/光影反射/动态焦点/节奏同步等维度是否被摄影机表达；不存在的信息不要求覆盖，但已存在的维度被遗漏需要补上。
 30. 检查场景视觉约束的更新时机：同一场景内视觉约束不变时只裁决一次，但白天→夜晚、室内→走廊、平静→恐慌等重大视觉约束变化时必须重新裁决。
@@ -141,7 +149,8 @@
 - 人物动作链优先于物件连续性。一个漂亮的物件切点如果让人物坐站、朝向、手部位置或注意力落点变模糊，就是坏分镜。
 - 多人场面先找动作-反应因果，不要平均分配表演镜头。一个人行动、另一个人反应，往往比每个人都做小动作更清楚、更像真实场面。
 - 如果一个镜头为了同时纳入所有人和某个物件而变成奇怪角度，通常不是摄影不够复杂，而是焦点没选好。先删非必要物件，再决定行动者镜头或反应者镜头。
-- 短剧·AIGC 默认不是传统影视宽停顿：`约3秒` 以上镜头必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；普通慢推和氛围尾巴优先压缩或删除。
+- 短剧·AIGC 默认不是传统影视宽停顿：非 `slow_burn/hold` 的 `约3秒` 以上镜头必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据；情绪类 `slow_burn/hold` 可以使用 held/long_hold，但必须让可见微动态、静止压力、极慢运动或框内变化承担时值；普通慢推和氛围尾巴优先压缩或删除。
+- 长对白的镜头语言不是平均“说话者/听者”配平，而是把每个节拍的戏剧动作变成观看任务：有的看说话者控制，有的看听者吸收，有的看手部或空间压力，有的让画外声或沉默接住。
 - "这条分镜服务哪一句原文？"是归属检查的最低门槛。
 - “场景身份”比“角色动作”更早锁定画面可控性。年代明确的审问空间、当代私人房间和旧式居民空间即使角色做同一动作，也应有不同的材质、声音、光线和空间规则。
 - “镜头不是记录，而是选择”是 AI 视频提示词的源层原则。正面平视会把观众放在旁观位置，低角度、遮挡、透视和发现路径会把观众放进现场；但这些词必须转成具体可见结果，不能只写“更有电影感”。

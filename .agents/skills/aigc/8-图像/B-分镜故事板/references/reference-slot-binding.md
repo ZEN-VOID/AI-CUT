@@ -97,3 +97,17 @@ secondary_context_role: "style_lighting_atmosphere_reference"
 5. ambiguous 不进入生成计划，除非用户确认。
 6. 对所有进入 imagegen reference images 的本地图片，生成前必须逐张调用 `view_image`；检视完成后 `context_status` 必须为 `visible_in_conversation_context`。
 7. 只要绑定场景图，manifest、prompt slot 与 imagegen plan 必须都声明其 `visual_anchor: style_lighting_atmosphere`；不得只依靠全局风格文字描述锁定整体画风。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Characters / Scene / Props 候选主体是否只来自当前组底 YAML，没有从正文、对白、分镜明细、道具描述或猜测名扩展？ | `G5-SUBJECTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#yaml-baseline` | `reference-manifest.json` 记录 `binding_policy.source: group_yaml`，每个主体有 YAML source trace |
+| 查找路径是否只落在角色、场景、道具三个 `7-设计/*/3-生成` 目录，没有扫描项目其他位置凑图？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#search-roots` | manifest 记录 search roots、候选路径和未越界扫描说明 |
+| 同一主体存在多视图与主图时，manifest、prompt slot 和 imagegen plan 是否全部绑定多视图，只有缺多视图时才退到主图？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#image-priority` | `bound[].selected_variant`、prompt Reference Subjects、plan `reference_images` 均显示 `multi_view` 优先 |
+| 只有 JSON 而无 PNG/JPG/JPEG/WebP 图片的主体是否进入 `missing`，且没有保留空路径或进入 imagegen reference images？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#image-priority` | manifest `missing[]` 记录无图原因，`bound[]` 和 plan 不含空字符串或 JSON 路径 |
+| 主体匹配是否使用精确名或已确认 alias，并在 alias 情况下记录来源，没有对子串、泛词、类别词或推测名自动绑定？ | `G5-SUBJECTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#matching-policy` | `bound[].matched_by` 为 `exact` 或 `alias`；alias 条目带来源；ambiguous 记录候选而不生成 |
+| 同名多候选或低置信匹配是否进入 `ambiguous`，在用户确认前不进入生成计划？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `N6-REVIEW` | manifest `ambiguous[]` 记录候选、原因、确认状态；plan 排除未确认项 |
+| 每个 `bound[].path` 是否真实存在且为图片文件，并带有 `context_role` / `context_status`？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#manifest-requirements` | manifest 中所有 `bound[]` 均有存在性检查结果、图片扩展名、`context_status` |
+| 所有进入 imagegen reference images 的本地图是否在生成前逐张 `view_image`，并把状态更新为 `visible_in_conversation_context`？ | `G11-REF-INPUT` | `FAIL-SHEET-IMAGEGEN` | `N6-REVIEW` / `N7-IMAGEGEN` | manifest / plan / report 记录每个本地路径的 `view_image` 检视状态与上下文角色 |
+| 绑定场景图时，manifest、prompt slot 与 imagegen plan 是否都声明 `visual_anchor: style_lighting_atmosphere`，并把场景图标注为双重参考角色？ | `G7-SCENE-VISUAL` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `references/reference-slot-binding.md#bound-entry` | scene bound entry 含 `visual_anchor`、`context_role: scene_reference`、`secondary_context_role: style_lighting_atmosphere_reference` |

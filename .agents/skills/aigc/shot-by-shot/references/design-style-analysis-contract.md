@@ -84,3 +84,19 @@
 | `cultural_visual_markers` | 文化视觉标记：建筑风格/服饰规范/符号纹章/文字语言密度如何构建世界观可信度 |
 | `world_visual_coherence` | 世界观的视觉一致性维护：如何在角色/场景/道具之间建立视觉连贯性 |
 | `visual_deviation_permit` | 世界观规则的可允许偏离：什么程度的视觉创新不破坏世界观可信度 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `设计风格解析.md` 是否只作为 `5-设计` side context，不直接生成正式角色/场景/道具设定或提示词终稿？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界、未写正式设计稿证据 |
+| 角色、场景、道具三类解析是否分区完整，并对齐对应 `角色/2-设计`、`场景/2-设计`、`道具/2-设计` leaf？ | `GATE-SBS-DESIGN-01` | `FAIL-DESIGN-ROLE` | `N5-BRIDGE` | Required Sections 覆盖表与 downstream handoff |
+| 场景解析是否提供空镜空间秩序、环境压力、可迁移装置关系和无人画面约束？ | `GATE-SBS-DESIGN-01A` | `FAIL-DESIGN-SCENE` | `N5-BRIDGE` | `## 场景解析` 与 empty scene constraints |
+| 道具解析是否提供完整道具主体、功能压力、细节层级和纯色背景 45 度完整近摄约束？ | `GATE-SBS-DESIGN-01B` | `FAIL-DESIGN-PROP` | `N5-BRIDGE` | `## 道具解析` 与 prop image contract |
+| 角色色调材质、空间叙事、道具功能层级和世界观视觉语法是否可迁移，而非复制参考片设计？ | `GATE-SBS-DESIGN-02` | `FAIL-DESIGN-WORLD` | `N5-BRIDGE` | design grammar sections 与 source abstraction |
+| 角色色调与材质语法是否说明身份色彩系统、材质词汇、磨损纹理和细节层级？ | `GATE-SBS-DESIGN-02A` | `FAIL-DESIGN-CHAR-COLOR` | `N5-BRIDGE` | character_color_material_grammar |
+| 空间叙事语法是否说明环境权力、残留物件、空镜语法、空间层级和地理文化信号？ | `GATE-SBS-DESIGN-02B` | `FAIL-DESIGN-SPACE` | `N5-BRIDGE` | space_narrative_grammar |
+| 道具功能层级是否区分叙事核心、氛围、转场、象征系统、细节层级和道具运动？ | `GATE-SBS-DESIGN-02C` | `FAIL-DESIGN-PROP-HIERARCHY` | `N5-BRIDGE` | prop_functional_hierarchy |
+| 视觉转译是否把参考片具体人物脸、纹样、空间构图、纹章、地图文字或专属符号转成目标项目自有设定？ | `GATE-SBS-DESIGN-03` | `FAIL-DESIGN-TRANSLATION` | `N5-BRIDGE` / `N4-PRINCIPLE` | visual_translation_seed 与 prompt_boundary |
+| 三类画面合同是否无混淆：角色全身试装照无场景，场景空镜无人，道具纯色背景 45 度完整近摄无手无场景？ | `GATE-SBS-DESIGN-04` | `FAIL-DESIGN-DO-NOT` | `N5-BRIDGE` | fixed image contracts 检查 |
+| 是否没有直接生成正式提示词终稿或复制参考片具体人物脸、服装纹样、空间构图、道具纹章、地图标记？ | `GATE-SBS-DESIGN-05` | `FAIL-DESIGN-DO-NOT` | `N4-PRINCIPLE` / `N5-BRIDGE` | Do Not Import 与 forbidden-copy ledger |

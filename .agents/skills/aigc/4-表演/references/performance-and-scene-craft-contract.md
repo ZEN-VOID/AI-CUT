@@ -472,3 +472,17 @@ blocking_power_map:
 - 转场、潜台词和未出口对白没有连续依赖同一种视线动作；若出现看向远方，能说明观看对象为何是当前 beat 的真实压力或信息来源。
 - 沉默和反应被写成可见/可听状态，未用新增对白替代。
 - 没有出现摄影越权字段，如 `分镜明细预设`、机位、景别或分镜编号。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个关键场景是否提取出可回指上游的 `entry_state / pressure_source / turning_point / exit_state`，而不是发明新转折或只写主题概括？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N5-PERF-SCENE-CRAFT` 的 `scene_dramatic_map` | `scene_dramatic_map[].entry_state`、`pressure_source`、`turning_point.anchor`、`exit_state` |
+| `scene_dramatic_map`、`performance_task_map`、`blocking_power_map` 是否已拆入对应 beat 的既有字段，而不是场景/分镜组末尾总结块？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N6-PERF-BLOCKING` / `N7-PERF-DRAFT` 的内嵌投影 | `integration_targets`、`blocking_power_map[].embedding`、`findings[].source_owner=references/performance-and-scene-craft-contract.md` |
+| 台词表演是否在不改写引号内对白的前提下，补足语气状态、气口、断句、声线、尾音或对手反应？ | `GATE-PERF-01` | `FAIL-PERF-03A` | `N4-PERF-ACTOR-CONTROL` 的 `dialogue_performance_map` | `dialogue_performance_evidence[].tone_state`、`breath_point`、`pause_pattern`、`risk_check.dialogue_text_changed=false` |
+| 潜台词、信任变化、权力压迫或未出口对白是否转成目标、阻碍、策略和外显行为，而不是关系/心理结论？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` 的 Subtext To Behavior Rule | `performance_task_map[].character_tasks`、`psychological_reaction_evidence[].performance_task` |
+| 道具是否通过互动、关键信息/规则/证据/危险源或必要环境交代准入，未用孤立物件反应替代表演？ | `GATE-PERF-04` | `FAIL-PERF-15` | `N5-PERF-SCENE-CRAFT` / `N8R-PERF-REPAIR` 的 Prop Interaction Economy Rule | `objective_action_purity_evidence`、`integration_targets`、`findings[].fail_code=FAIL-PERF-15` |
+| 人物动作链是否能交代姿态、方位、动作向量、可达对象、互动方式和退出状态，并收敛低信息动作堆叠？ | `GATE-PERF-05` | `FAIL-ACTION-FIRST-02` / `FAIL-ACTION-FIRST-03` / `FAIL-ACTION-FIRST-04` | `N5-PERF-SCENE-CRAFT` / `N8R-PERF-REPAIR` 的 Actor Action Chain And Reachability Rule | `thinking_action_node_ledger` 中 `N5-PERF-SCENE-CRAFT` 的 `gate_status`、`actions_taken`、`objective_action_purity_evidence` |
+| 关键人物 beat 是否有场景内成立的小事、下意识反应、情绪落点和行动-反应分工，且没有随机忙动作？ | `GATE-PERF-06` | `FAIL-LIVED-IN-01` / `FAIL-LIVED-IN-02` / `FAIL-LIVED-IN-03` / `FAIL-LIVED-IN-04` | `N5-PERF-SCENE-CRAFT` 的 Lived-In Behavior And Action-Reaction Rule | `lived_in_behavior_evidence[].micro_activity`、`subconscious_response`、`emotional_landing`、`action_reaction_pair` |
+| 场面调度是否只写人物、空间、道具、视线和权力关系，没有机位、景别、镜头运动或分镜编号？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N6-PERF-BLOCKING` 的 Blocking And Power Rule | `blocking_power_map`、`integration_targets`、`findings[].source_owner=references/performance-and-scene-craft-contract.md` |
+| 沉默和反应是否被写成可见/可听状态变化，未用新增对白替代，也未连续依赖同一种视线转场？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` 的 Silence And Reaction Rule 与 Transition And Subtext Variety Rule | `psychological_reaction_evidence[].getability_channels`、`monologue_budget_evidence`、`integration_targets` |

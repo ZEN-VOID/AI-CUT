@@ -75,6 +75,19 @@ duration_source: "group_yaml / shot_sum / fallback_default"
 5. `duration_estimate_seconds` 可追溯到组底 `时长估算`、组内分镜秒数求和或明确 fallback。
 6. `shot_count` 大于 0；若无法自动统计，进入 `partial`，由人工审查确认完整性。
 
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否只从 `projects/aigc/<项目名>/4-分组/第N集.md` 锁定目标组，不回退 `3-摄影`、`3-Detail` 或更早阶段重写内容？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` / 本文件 `Source Roots` | `reference-manifest.json.group_source.source_file`、`heading`、源文件路径和读取范围 |
+| `## x-y-z` 分镜组与 `## x-y-z~x-y-z` 连接件是否被正确区分，连接件是否未进入 group body、prompt、YAML 主体、manifest、submit plan 或视频命名？ | `G1-SOURCE` / `G2-CONTENT` | `FAIL-VIDSUBJ-GROUP` / `FAIL-VIDSUBJ-PROMPT` | `N3-GROUP-INDEX` / `N4-PROMPT` | group index 中的 `group_id`、`heading`、connector skipped 记录和 prompt 源文本片段 |
+| 每个目标 `group_id` 是否唯一回指源标题，且 `group_body` 从标题后完整截到下一个二级标题或文件结尾前？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` | `source_span`、`group_body_length`、`shot_count`、截取边界说明 |
+| fenced YAML 是否被作为结构化主体来源保留，且正文与 YAML 角色未互相替代？ | `G1-SOURCE` / `G3-SUBJECTS` | `FAIL-VIDSUBJ-GROUP` / `FAIL-VIDSUBJ-REF` | `N3-GROUP-INDEX` / `N5-REF-BIND` | `group_yaml` 原文、解析后的 `角色 / 场景 / 道具`、缺项记录 |
+| prompt 源文本是否保留分镜明细、对白、音效、环境描写和表演提示，且没有把 YAML 合并进正文主段？ | `G2-CONTENT` / `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-PROMPT` / `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N4-PROMPT` | `prompt.md` 中原组正文和 fenced YAML 的源文对照 |
+| `duration_estimate_seconds` 是否优先来自组底 `时长估算`，其次来自分镜秒数求和，最后才是明确 fallback？ | `G8-DURATION` | `FAIL-VIDSUBJ-DURATION` | `N3-GROUP-INDEX` | `duration_source`、`duration_estimate_seconds`、原始时长字段或分镜秒数计算证据 |
+| `shot_count` 与 `source_shot_labels` 是否能证明组内分镜被完整识别；无法自动统计时是否进入 `partial / shot_count_unverified`？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` / `N6-REVIEW` | `shot_count`、`source_shot_labels`、`partial` finding 或人工复核说明 |
+| step1 失败或降级是否留下可返工入口，而不是静默继续绑定主体或提交 LibTV？ | `G13-REPORT` | `FAIL-VIDSUBJ-REPORT` | `N6-REVIEW` / `N11-CLOSE` | 执行报告中的 `blocked / partial / prompt_only` 状态、失败信号和下一步返工入口 |
+
 ## Failure And Rework
 
 | fail signal | rework |

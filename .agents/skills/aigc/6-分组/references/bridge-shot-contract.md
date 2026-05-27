@@ -294,3 +294,19 @@
 - 用 `连接件提示：` 再次整合前面字段，造成冗余；应改为 `避免元素：`。
 - `连接方法` 只填 `依赖型`、`流动型`、`变形型`、`复合型` 或 `无连接`，没有转换成具体画面办法。
 - 跨场景连接炫技但无法反推出实际首尾参照图之间的可执行变化路径。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每一对相邻分镜组之间是否都有独立 `## <上一个分镜组ID>~<下一个分镜组ID>` 连接件，且物理夹在上下两个分镜组之间？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Mandatory Shape`、`Execution Order` | 执行报告列出相邻组 ID、连接件标题、连接件在文件中的上下文位置和缺失/错位修复记录。 |
+| 连接件标题是否以自身 ID 作为唯一标题，块内没有重复 `分镜ID：`，也没有旧版 `入场画面：` / `出场画面：` 或 `连接件提示：`？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Mandatory Shape`、`Anti-Patterns` | 执行报告记录禁用字段扫描结果、异常字段所在连接件 ID 和删除后的结构复查结论。 |
+| 连接件标题后是否先写场景标题行，同场景重复同一场景标题，跨场景使用 `场景标题A ➡️ 场景标题B`？ | `GATE-GROUP-01A`、`GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Mandatory Shape` | 执行报告逐条记录连接件场景关系、场景标题行文本和同场景/跨场景判定。 |
+| 连接件是否在 `连接类型` 前写三项 north_star 风格行，且第 1 行固定前置词置顶、连接件全局风格句 300 字以内并匹配首尾场景和运动过程？ | `GATE-GROUP-02`、`GATE-GROUP-09` | `FAIL-GROUP-02`、`FAIL-GROUP-07` | `N2-PROJECT-STYLE`、`N6-CONNECTOR`、本文件 `Mandatory Shape` | 执行报告记录连接件三项风格行抽查、字数、north_star 来源和与首尾场景证据的匹配说明。 |
+| `连接类型` 是否只回答同场景/跨场景，而 `连接方法` 是否已把依赖型、流动型、变形型、复合型或无连接转写成具体可执行画面办法？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Core Methodology`、`Connection Method Decision Tree` | 执行报告记录连接类型、内部方法判断、最终连接方法文本和抽象分类名清除结果。 |
+| `变化过程` 是否只描述从实际尾帧到实际首帧之间的连续变化，而不是复述 `起点尾帧` 或 `目标首帧` 的静态状态？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Execution Order` | 执行报告记录首尾参照依据、变化过程摘要和端点复述检查结论。 |
+| `主体运动` 和 `运镜设计` 是否达到可供首尾帧参照图生视频消费的密度，覆盖路径、速度、方向、遮挡、前中后景、景别、机位、轴线、焦点和节奏？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Mandatory Shape`、`Execution Order` | 执行报告记录每个连接件的主体运动、运镜设计和缺项修复说明。 |
+| `透视适应` 是否解释首尾帧中锚定物、能量、主体或背景的景别、缩放、位置或角度变化，而不是要求等比例复制？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Perspective Adaptation Principle` | 执行报告记录透视变化依据、缩放/位置/角度适应说明和画面漂移风险结论。 |
+| `避免元素` 是否只承载负面约束，没有复述正向提示或补写剧情解释？ | `GATE-GROUP-09`、`GATE-GROUP-10` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Mandatory Shape` | 执行报告记录避免元素字段文本、正向复述清除结果和新增信息检查结论。 |
+| 连接件是否不新增关键剧情事实、对白、人物、关键道具、规则或下一剧情预告，并且不计入组内时长、字数和 YAML 统计？ | `GATE-GROUP-10`、`GATE-GROUP-11` | `FAIL-GROUP-07`、`FAIL-GROUP-08` | `N6-CONNECTOR`、`N7-ASSEMBLE`、本文件 `Connection Criteria`、`count boundary` | 执行报告记录新增事实审查、连接件不计入统计的核对结果和 YAML 未被连接件污染的证据。 |
+| `Core Methodology`、示例和分类名是否只作为内部思考方法，没有被直接当作落盘字段或独立阻断 gate？ | `GATE-GROUP-09` | `FAIL-GROUP-07` | `N6-CONNECTOR`、本文件 `Core Methodology` | 执行报告说明方法论消费方式；若出现分类名直填，记录对应连接件 ID 和改写后的具体画面办法。 |

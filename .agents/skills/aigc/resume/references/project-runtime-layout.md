@@ -113,3 +113,18 @@ projects/aigc/<项目名>/
 - `projects/aigc/<项目名>/CONTEXT/` 是项目级共享上下文根；恢复时按需读取相关文件，不得整目录灌入上下文。
 - 空阶段目录不是完成证据。
 - provider 生成缓存、临时下载、外部二进制不能单独决定恢复模式。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 项目根是否按完整路径、cwd 内项目、项目名存在性、单候选、最小追问的顺序唯一锁定，且未把仓库根或 `projects/` 当项目根？ | `GATE-RESUME-PROJECT-ROOT` | `FAIL-RESUME-PROJECT-ROOT` | `N1-INTAKE` | 报告列出 root lock method、候选项目列表、最终 `PROJECT_ROOT` 或最小追问。 |
+| 新版恢复输出是否以 `projects/aigc/<项目名>/` 和中文阶段目录为默认 runtime，而不是旧英文路径或 transition 路径？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出当前 runtime profile、命中的中文阶段路径和被降级的 legacy path。 |
+| `STATE.json`、`governance-state.yaml`、`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml` 等治理载体的职责是否被区分，未把时间序 `CHANGELOG.md` 当 live route truth？ | `GATE-RESUME-GOVERNANCE-GATE` | `FAIL-RESUME-GOVERNANCE-GATE` | `N5-GATE` | 报告记录存在/缺失的治理载体、各自 truth role 和是否触发 gate reentry。 |
+| 项目 `MEMORY.md` 与项目 `CONTEXT/` 是否按偏好记忆和共享附加上下文分层读取，没有互相替代或整目录灌入？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出读取的项目 context 文件、读取原因和未读取整目录的说明。 |
+| 阶段证据是否来自真实文件，如 `第N集.md`、validation report、设计稿或生成记录，而不是空 skeleton 目录？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出每个阶段证据文件路径、文件存在性和空目录排除结果。 |
+| legacy 英文路径与中文路径并存时，是否优先报告 `root_reroute` 或 `governance_rebuild`，由根 `aigc` 决定迁移策略？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N3-TYPE` | 报告列出并存路径、漂移风险、选择的 resume mode 和 reroute owner。 |
+| 旧 `7-Cut` 是否被识别为搁浅/blocked 阶段，只返回 `root_reroute` 或 `blocked_safety_stop`？ | `GATE-RESUME-LEGACY-SHELVED` | `FAIL-RESUME-LEGACY-STAGE` | `N4-PLAN` | 报告记录 `7-Cut` 证据、阻断理由和唯一回接入口。 |
+| transition `4-设计` 与当前 `5-设计` 是否被区分；若 `5-设计` 存在，是否默认以 `5-设计` 作为设计阶段恢复真源？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出 `4-设计`/`5-设计` 存在性、采用的设计真源和漂移说明。 |
+| provider 缓存、临时下载、外部二进制或最近修改文件是否只作辅助证据，未单独决定恢复模式？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出辅助证据类型、为何不足以单独裁决，以及主证据链。 |
+| runtime layout 细则是否只服务恢复判定，不拥有初始化、迁移执行或阶段业务真稿生成权？ | `GATE-RESUME-TRUTH-BOUNDARY` | `FAIL-RESUME-TRUTH-BOUNDARY` | `N4-PLAN` | 报告说明本 reference 被用于路径/证据判定，未直接写业务产物或改变阶段真源。 |

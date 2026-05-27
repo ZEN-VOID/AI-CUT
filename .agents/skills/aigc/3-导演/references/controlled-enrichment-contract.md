@@ -217,3 +217,14 @@ B 路线通过条件：
 - 每个 risk_check 包含 `concrete_anchor_preserved` 且结果为 true。
 - 每个新增承托已通过 `action_first_continuity_check`，`action_chain_preserved` 为 true；没有把某个旧示例转成固定模板。
 - 若 review 对某项新增是否越权存在疑问，默认删除该新增项，而不是冒险保留。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| B 路线是否只在合法触发下启用，没有把 C 路线新增对白/桥段/因果请求自动降级成受控增强？ | `GATE-DIR-04` | `FAIL-CONTROLLED-ENRICHMENT` | `N6-DIR-ENRICH` | `enrichment_route_decision`、触发来源、阻断或授权说明 |
+| 每个新增承托是否有上游锚点和 `source_signal`，删除后剧情事实仍完全不变？ | `GATE-DIR-04` | `FAIL-CONTROLLED-ENRICHMENT` | `N6-DIR-ENRICH` | `controlled_enrichment_ledger.items.source_anchor`、`source_signal`、`risk_check.no_new_fact` |
+| 新增项是否没有对白、事件、因果、规则、线索、人物动机或道具功能漂移？ | `GATE-DIR-04` | `FAIL-CONTROLLED-ENRICHMENT` | `N6-DIR-ENRICH` / `N9-DIR-DRAFT` | `risk_check.no_new_dialogue`、`no_new_event`、`no_new_causality`、`no_new_rule` |
+| 新增环境/道具/声响是否先通过人物动作链准入，没有抢走行动线或制造空间不可达？ | `GATE-DIR-09` | `FAIL-ACTION-FIRST-01` / `FAIL-ACTION-FIRST-02` | `N6-DIR-ENRICH` + `../../_shared/action-first-continuity-contract.md` | `action_first_continuity_check`、`risk_check.action_chain_preserved` |
+| `added_detail` 是否是可见、可听或可感的具体承托，不是“更有氛围/电影感”的抽象描述？ | `GATE-DIR-04` | `FAIL-CONTROLLED-ENRICHMENT` | `N6-DIR-ENRICH` | `risk_check.concrete_anchor_preserved`、`added_detail`、`target_field` |
+| 混合类型景境是否按主类型优先、辅类型补充、冲突处理筛选，没有类型候选池堆叠？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N7-DIR-AESTHETIC` | `genre_atmospheric_palette`、每项新增景境的类型来源和选择理由 |

@@ -173,3 +173,23 @@ audio_preflight_required: false
 14. `duration` 必须等于 submit plan 中的 `duration_hint`，且 `duration_hint=clamp(duration_estimate_seconds, 4, 15)`；小于等于 4 秒用 4 秒，大于等于 15 秒用 15 秒。
 15. 本地 prompt、远端 `libtv-submission.txt`、manifest 和 submit plan 必须通过引用一致性检查：draft 相位允许 prompt YAML 未绑定但不得创建最终远端提交；final 相位已绑定主体不得出现在缺图清单，YAML 按 `reference_index` 排序后的 `uploaded_url`、`mixedList` URL 和 `images[]` URL 必须逐项顺序一致，未声明共享关系时不得重复 URL，uploaded URL 的 LibTV project scope 必须与 submit plan `projectUuid` 一致。
 16. 远端 `libtv-submission.txt` 不得包含缺图/无可复用 URL/未入预算主体列表；`生成时保持` 连续性句只能出现一次，必须并入 `【直接生成请求】` 或首段生成请求、位于 `【分镜组源文本】` 前，且不得单独列 `参照连续性总领` 标题。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `prompt.md` 是否采用 source-first YAML，直接保留 `4-分组` 对应 `## x-y-z` 的标题、正文和 fenced YAML，而非另写二次说明段？ | `G2-CONTENT` | `FAIL-VIDSUBJ-PROMPT` | `N4-PROMPT` | `prompt.md` 源文片段、`source_file` / `group_id` 回指 |
+| draft 相位是否只保留原 YAML，未伪造空 `reference_index`、空 `uploaded_url`、占位 URL 或最终远端提交？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N4-PROMPT` / `N6-REVIEW` | `slot_binding_phase=draft`、draft YAML 扫描结果、无 `libtv-submission.txt` final 证据 |
+| final 相位是否只在原 fenced YAML 的已绑定主体项中注入 `reference_index`、真实 `uploaded_url` 和可选 `portrait_token`？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N8-DISPATCH` | final YAML、`generation_slots`、`asset_uploads` 对照 |
+| `reference_index` 是否来自最终 `generation_slots` 或 UI 图N槽位，而不是 YAML 文本顺序、OSS 上传顺序或旧 mixedList 回显？ | `G19-REMOTE-REFERENCE-ORDER` | `FAIL-VIDSUBJ-REFERENCE-SLOT-REGISTRY` / `FAIL-VIDSUBJ-REMOTE-REFERENCE-ORDER` | `N8-DISPATCH` | `generation_slot_source`、UI / post-submit mixedList 证据、回刷记录 |
+| 默认提交是否保持 `strict_original + transport_only`，且未在用户 opt-in 前授权 LibTV 优化、摘要、重排或改写表达？ | `G2-CONTENT` / `G14-POST-SUBMIT` | `FAIL-VIDSUBJ-PROMPT` / `FAIL-VIDSUBJ-LIBTV-STALL` | `N4-PROMPT` / `N8-DISPATCH` | submit plan 的 `prompt_fidelity_mode`、`allow_libtv_prompt_optimization`、query 优化漂移检查 |
+| `*-libtv-submission.txt` 是否以 `【LibTV 调用锁定】` 开头，并在源文本前声明 no-ask、严格原文、硬锁定事实和 provider 参数？ | `G7-PROVIDER-ROUTE` / `G14-POST-SUBMIT` | `FAIL-VIDSUBJ-LIBTV` / `FAIL-VIDSUBJ-LIBTV-STALL` | `N8-DISPATCH` | `libtv-submission.txt` 首段、no-ask 扫描、provider 参数区 |
+| 有主体图时 `modeType=mixed2video` 和严格 JSON `mixedList` 是否存在；无图时是否是 `modeType=text2video`，且没有空图片槽？ | `G7-PROVIDER-ROUTE` | `FAIL-VIDSUBJ-LIBTV` | `N8-DISPATCH` | `libtv-submit-plan.json.command`、`mixedList`、无图 text2video 记录 |
+| `mixedList`、submit plan `images[]` 和 YAML `reference_index / uploaded_url` 是否逐项同槽一致，且单组不超过 9 张？ | `G6-REFERENCE-BUDGET` / `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-BUDGET` / `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N5-REF-BIND` / `N8-DISPATCH` | 引用一致性 gate、`images[]` 数量、`excluded_due_to_budget` |
+| 远端提交是否没有本地路径、`@projects/...`、人工 `参照图N` 编号、裸图片 token 序列或裸 URL 列表？ | `G5-LOCAL-ASSET-EVIDENCE` / `G9-REMOTE-NUMBERING` | `FAIL-VIDSUBJ-PROMPT` | `N4-PROMPT` / `N8-DISPATCH` | `libtv-submission.txt` 禁词扫描、远端 prompt token 邻近绑定检查 |
+| 缺图、无可复用 URL、未入预算或被取舍主体是否只写入 manifest / submit plan / report，没有污染远端 `libtv-submission.txt`？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N4-PROMPT` / `N5-REF-BIND` | 远端提交缺图列表扫描、manifest `missing / excluded` |
+| `duration` 是否等于 submit plan 的 `duration_hint`，且由 `duration_estimate_seconds` clamp 到 4-15 秒，不固定 15 秒？ | `G8-DURATION` | `FAIL-VIDSUBJ-DURATION` | `N3-GROUP-INDEX` / `N8-DISPATCH` | `duration_source`、`duration_estimate_seconds`、`duration_hint`、远端提交时长 |
+| 远端提交是否请求 `enableSound:on`，并在不可生成前验证时只记录非阻断音频风险？ | `G17-AUDIO-PREFLIGHT` | `WARN-VIDSUBJ-AUDIO-PREFLIGHT-UNVERIFIED` | `N8-DISPATCH` / `N9-QUEUE` | submit plan / queue / report 中的 `audio_preflight_unverified_non_blocking` |
+| 远端 query 是否未出现未授权优化、`ask_user` 等待态、明确 tool error、主体名绑定丢失或只有裸图片 token；出现时是否未被标为正常 pending？ | `G14-POST-SUBMIT` / `G19-REMOTE-REFERENCE-ORDER` | `FAIL-VIDSUBJ-LIBTV-STALL` / `FAIL-VIDSUBJ-PROMPT-REFERENCE-BINDING` | `N9-QUEUE` / `N8-DISPATCH` | query 摘要、stall gate、post-submit reference-order gate、`libtv-results.json.attempts[]` |
+| `生成时保持` 连续性句是否最多出现一次，并入 `【直接生成请求】` 或首段请求，且位于 `【分镜组源文本】` 前？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N4-PROMPT` | `libtv-submission.txt` 连续性句计数和段落位置 |
+| `分镜组源文本` 是否被明确声明为连续视频约束，而不是图片生产清单，防止远端改路由为分镜图流程？ | `G7-PROVIDER-ROUTE` / `G14-POST-SUBMIT` | `FAIL-VIDSUBJ-LIBTV` / `FAIL-VIDSUBJ-LIBTV-STALL` | `N8-DISPATCH` | 固定 opening 文本、query 中 route drift / generation node 检查 |

@@ -68,3 +68,16 @@ Props:
 - 场景参照图的 `visual_style_lock` 至少记录 `style_notes`、`lighting_notes`、`color_palette_notes`、`atmosphere_notes`、`material_notes`，不得只写“同场景参考”。
 - 检视完成后记录 `context_status: visible_in_conversation_context`；未检视时记录 `context_status: pending_view_image`，且不得进入 imagegen 执行。
 - 若当前任务是 `prompt_only` 或 `review_only`，可以只记录 `pending_view_image`；一旦进入生成模式，必须补齐检视。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否只从固定的角色、场景、道具 `7-设计/*/3-生成` 目录查找参照，而未从旧目录、JSON 或外部未知 URL 猜测绑定？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` | `reference-manifest.json` 记录三个 search roots、每个主体的匹配来源和 missing / ambiguous 状态。 |
+| 同一主体同时有多视图与主图时，prompt slot、manifest 和 imagegen plan 是否全部绑定多视图，未退回主图？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` | `bound[].selected_variant: multi_view`；plan 中 `reference_images` 与 manifest 路径一致。 |
+| 只有 JSON 或没有真实图片文件的主体是否保持空槽或 missing，而不是伪造可绑定图片？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` | `missing[]` 记录主体名和原因；所有 `bound[].path` 文件存在且扩展名为图片格式。 |
+| 匹配策略是否使用精确主体名或项目内已确认别名，并把泛词、类别词、子串匹配和同名多候选降级为 `ambiguous`？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` | manifest 记录 `matched_by: exact / alias`；`ambiguous[]` 列出多候选；未出现自动绑定“学生/窗户/文具”等泛词。 |
+| `reference-manifest.json` 是否包含 `shot_id`、`characters`、`scene`、`props`、`bound`、`missing`、`ambiguous`、`binding_policy` 和 `visual_context_policy`？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` / `N5A-PERSIST-PACKAGE` | manifest 字段齐全；每个 `shot_id` 均有独立参照记录。 |
+| 所有已绑定本地参照图在生成前是否逐张 `view_image`，并记录 `context_role` 与 `context_status: visible_in_conversation_context`？ | `G7-REF-INPUT` | `FAIL-FRAME-IMAGEGEN` | `N6-REVIEW` / `N7-IMAGEGEN` | manifest / plan / result 记录每张图的 `context_role`、`context_status` 和 `reference_input_status: visible_in_conversation_context`。 |
+| 场景参照图是否同时作为 `scene_reference` 与 `scene_visual_style_reference`，并形成风格、光影、色调、氛围、材质五类视觉锁证据？ | `G3C-SCENE-VISUAL-STYLE-LOCK` | `FAIL-FRAME-SCENE-STYLE` | `N3A-SCENE-STYLE` / `N5-REF-BIND` | manifest 中场景图记录 `style_lock_role: scene_visual_style_reference` 与 `visual_style_lock` 五项 notes；prompt block 同步消费。 |
+| `prompt_only` / `review_only` 的 `pending_view_image` 是否只停留在非生成模式；一旦进入生成模式是否补齐检视而不是继续执行？ | `G7-REF-INPUT` | `FAIL-FRAME-IMAGEGEN` | `N6-REVIEW` / `N7-IMAGEGEN` | plan/result 中生成任务不存在 `pending_view_image`；若未生成，报告明确 mode 为 `prompt_only` / `review_only`。 |

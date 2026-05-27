@@ -155,3 +155,23 @@
 | `prompt-reviewer` | 英文提示词主体 ID 开头、全局风格、建筑风格、时间与地域显式锚点、`prompt_evidence_chain` 和 2000 character gate |
 
 若外部顾问与复核 provider 不可用或用户显式要求不用顾问与复核流程，执行者直接使用本地等价 checklist。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把 `7-设计/场景/1-清单/场景清单.md`、`0-初始化/north_star.yaml`、`team.yaml`、项目 `MEMORY.md` / `CONTEXT/` 和用户补充资料分别按 Source Contract 的用途锁定，而不是让任一来源替代单场景设计判断？ | `GATE-SCENE-DESIGN-01` | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | 报告记录 `input_manifest`、各来源路径、使用方式和任何缺失/降级说明。 |
+| 场景主体、首次登场和原文关键词是否只来自上游场景清单，且没有从剧情想象、研究资料或用户临时描述中新增清单外主体？ | `GATE-SCENE-DESIGN-02` | `FAIL-SCENE-DESIGN-02` | `N3-SELECT` | 留下目标主体、清单行号、`S###` 编号和未新增主体的判定证据。 |
+| 研究考据、物语、Scene Design、Cinematography、英文 prompt、`source_posture`、`visual_translation` 与 `prompt_evidence_chain` 是否由 LLM 直接完成，脚本只做字段、路径、字符数等机械检查？ | `GATE-SCENE-DESIGN-07` | `FAIL-SCENE-DESIGN-07` | `N6-DESIGN` | 报告说明核心正文生成路径、脚本实际职责和是否存在模板拼接/规则扩写痕迹。 |
+| 场景设计稿和英文 prompt 是否明确为纯空镜，并排除人物、人体局部、剪影、倒影、人群、背影或任何可识别人类存在？ | `GATE-SCENE-DESIGN-09` | `FAIL-SCENE-DESIGN-09` | `N6-DESIGN` | 留下摄影字段与 English prompt 中 `empty shot / no people / no human figures` 等约束位置，以及禁用项检查结果。 |
+| `research_brief` 是否包含 2-5 个会影响空间形制、材质、光线、仪式、时代或地域可信度的问题，而不是百科式资料堆叠？ | `GATE-SCENE-DESIGN-03` | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 报告列出 `research_questions`、对应设计影响和未服务画面的资料剔除情况。 |
+| `source_posture` 是否逐项区分 `project_source`、`user_source`、`common_knowledge`、`scene_inference`、`web_source` 或 `unresolved`，并防止推断、常识或冷门信息伪装成确定事实？ | `GATE-SCENE-DESIGN-03` | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 留下来源姿态表、高风险事实清单、推断/未解项和保守处理方式。 |
+| `evidence_matrix` 与 `uncertainty_register` 是否把每条来源事实或推断转成设计影响，并对年代、地域、建筑制式、文化符号、材质或自然地理风险给出处理方式？ | `GATE-SCENE-DESIGN-03` | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 报告记录 evidence matrix、uncertainty register、风险等级和视觉降级方案。 |
+| `visual_translation` 是否把关键研究判断落到空间结构、材料、表面老化、色彩、光源、尺度、边界、陈设密度、地形/水体/植被、构图或镜头限制，而不是停留在抽象研究结论？ | `GATE-SCENE-DESIGN-03` | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 留下研究判断到可见维度的映射表，以及不能转化为画面的剔除项。 |
+| `物语` 是否解释空间如何压迫、保护、诱惑、隔离、揭示或误导感知，并承接项目母题与人不在场的空间痕迹，而不是新增剧情段落或替代剧本？ | `GATE-SCENE-DESIGN-04` | `FAIL-SCENE-DESIGN-04` | `N6-DESIGN` | 报告摘录 `物语` 的空间功能句、新增剧情风险和人物入画风险。 |
+| `Scene Design` 是否覆盖空间结构与边界、建筑/空间风格、材质表面、色彩光源、陈设/道具密度、动线与镜头可达点、可制作资产提示？ | `GATE-SCENE-DESIGN-05` | `FAIL-SCENE-DESIGN-05` | `N6-DESIGN` | 留下 Scene Design 槽位覆盖表、缺槽 finding 和修复后的段落位置。 |
+| `Cinematography` 是否覆盖构图策略、镜头距离与焦段、机位高度与运动、光线方向/对比度/色温、景深遮挡和情绪节奏，且不把人物入画作为摄影依据？ | `GATE-SCENE-DESIGN-05` | `FAIL-SCENE-DESIGN-05` | `N6-DESIGN` | 留下 Cinematography 槽位覆盖表、空镜约束交叉检查和缺槽 finding。 |
+| `提示词设计` 是否记录全局风格、建筑风格、时间与地域引用，且时间/地域无法确认时采用有来源姿态的保守英文锚点而不是省略？ | `GATE-SCENE-DESIGN-06` | `FAIL-SCENE-DESIGN-06` | `N6-DESIGN` | 报告列出 style anchor、architecture style、period token、region token 与来源姿态。 |
+| `## 4. 解构` 下的 `主体ID号`、`## 5. 提示词设计` 主体 ID 和 English prompt 前缀是否三处一致，且 prompt 为英文、以 `<主体ID>: ...` 开头并不超过 2000 characters？ | `GATE-SCENE-DESIGN-05` | `FAIL-SCENE-DESIGN-05` | `N6-DESIGN` | 留下三处 ID 比对、prompt 开头、语言检查和字符数。 |
+| English prompt 是否真正整合 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息，并在 `prompt_evidence_chain` 中解释关键 token、被压缩/合并/剔除槽位和 pure empty shot 约束？ | `GATE-SCENE-DESIGN-10` | `FAIL-SCENE-DESIGN-10` | `N6-DESIGN` | 提供 prompt token evidence、`deconstruction_coverage`、未覆盖槽位和 empty-shot token 证据。 |
+| 默认 reviewer 路径启用时，是否按四个 reviewer 视角检查 research、scene design、cinematography 与 prompt；provider 不可用或用户禁用时是否切换为本地等价 checklist？ | `GATE-SCENE-DESIGN-12` | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | 报告记录 reviewer 路径、外部 provider 状态、本地 checklist、未启动 reviewer 和汇流裁决。 |

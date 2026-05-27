@@ -72,3 +72,15 @@ python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.p
 - 官方 CLI 支持下载；本技能默认不自动下载。
 - 官方 CLI 支持上传本地文件；本技能主体参照流默认先复用画布上已规范命名、已上传的素材节点。
 - 官方 CLI 负责 session 和 projectUrl；本技能只把项目、分镜组、主体绑定表和参数投影成传给 Agent IM 的消息。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 执行是否加载 `.agents/skills/cli/libTV/SKILL.md + CONTEXT.md`，并以官方脚本作为下游调用真源？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` | 已加载官方技能路径、wrapper 调用命令、官方脚本名与参数记录 |
+| 远端调用是否通过 `scripts/run_libtv_with_env.py` 转调官方脚本，而不是复制、改写或绕过官方脚本逻辑？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` | command log、wrapper stdout/stderr、被调用的 `.agents/skills/cli/libTV/scripts/*.py` |
+| 调用官方脚本前是否从仓库根 `.env` 加载有效 `LIBTV_ACCESS_KEY`，缺失时阻断而非继续提交？ | `REV-LIBTVCANVAS-15` | `FAIL-ENV-LOADING` | `N5 LibTV Handoff` | wrapper env check、阻断报告或 masked key presence、无密钥时的 blocked queue record |
+| 新建或追加任务消息是否保留独立的“把全部工作流和结果都放在画布上。”画布指令？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` | create/append session message 原文、submit plan message excerpt |
+| 查询、切换项目、上传、下载是否仍使用官方脚本参数语义，AIGC 层只做项目/分镜组/主体绑定投影？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` / `N7 Explicit Download` | script name、arguments、sessionId/projectUuid、AIGC submit plan 与官方命令边界说明 |
+| 默认交付是否保持画布优先，未获显式下载授权时没有调用 `download_results.py` 或落本地视频？ | `REV-LIBTVCANVAS-08` | `FAIL-DOWNLOAD-POLICY` | `N7 Explicit Download` | queue record `download=false`、result report、无下载命令记录或显式下载授权 |
+| 本技能是否只覆盖默认策略，不把官方 CLI 支持项改写成新的隐藏参数、脚本 fork 或二次 provider 逻辑？ | `REV-LIBTVCANVAS-07` | `FAIL-OFFICIAL-HANDOFF` | `N5 LibTV Handoff` | diff/command evidence、wrapper allowlist、报告中的 official source reference |

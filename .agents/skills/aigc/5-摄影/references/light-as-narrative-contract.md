@@ -50,3 +50,14 @@ light_narrative_plan:
 ## Gate
 
 `GATE-CINE-30` passes only when important light choices have a visible narrative function, remain compatible with scene continuity, and can be consumed by downstream image/video generation.
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does each important light choice state what light does to a visible subject, object, text, shadow edge, body, face or space rather than only naming a source or mood? | `GATE-CINE-30` | `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` / `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` | `light_narrative_plan` samples with visible change, subject affected and shadow/highlight result |
+| Is the light function one of character, timer, revelation, concealment, mood shift or power, and does it serve the current shot's information or relation task? | `GATE-CINE-30` / `GATE-CINE-28` | `FAIL-CINE-05Y` / `FAIL-CINE-05W` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` / `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` | function-to-shot-purpose samples and delete-loss checks for decorative light |
+| Does the plan avoid inventing a light source that contradicts `scene_visual_constraint`, or mark unknown source while prioritizing visible result? | `GATE-CINE-22` / `GATE-CINE-30` | `FAIL-CINE-05P` / `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` | scene light baseline, source-context notes and contradiction repairs |
+| When a major story turn occurs inside the scene, is the light baseline rechecked for change of function, visibility, power relation or concealment? | `GATE-CINE-30` | `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | story-turn light recheck notes and updated `light_narrative_plan` samples |
+| Does final `N7` prose write visible lighting results instead of internal enum labels or abstract words such as "cinematic light"? | `GATE-CINE-30` / `GATE-CINE-18` | `FAIL-CINE-05Y` / `FAIL-CINE-05G` | `steps/cinematography-workflow.md#N7-INJECT` | before/after prose samples replacing source/enum words with visible results |
+| If light reveals information too early, does the repair coordinate with attention guidance and shot design to delay, conceal or stage the reveal? | `GATE-CINE-31` / `GATE-CINE-30` | `FAIL-CINE-05Z` / `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | suspense-leak repair evidence and delayed-reveal plan |

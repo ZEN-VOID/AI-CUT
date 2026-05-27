@@ -2,6 +2,10 @@
 
 本文件是可动态扩展的摄影技法库。执行时按当前画面句子的戏剧任务选择，不要求每个分镜机械覆盖所有栏目。每个 `分镜N` 必须在内部锁定“景别/景深、镜头视角、镜头类型、运镜速度”等必要参数，但成稿只显式写当前节拍最关键的 1-2 个摄影选择；其余参数应内化为自然画面文字。具体表述必须同时遵守 `dynamic-lens-language-contract.md` 与 `natural-shot-detail-writing-contract.md`，写成可读的动态镜头，而不是静态标签列表或参数说明书。
 
+## Example Usage Guard
+
+本技法库中的表格、适用场景、技法组合和示例句只用于提供候选语言与判断维度，不是必须输出的摄影参数清单。执行具体任务时，不得按表格机械堆满景别、焦段、视角、运镜或光影词；必须只选择当前节拍需要的最小充分技法，并内化为当前画面的自然分镜文字。
+
 ## 摄影执行参数
 
 ### 景别
@@ -300,3 +304,17 @@
 - 新增技法必须写明 `use when` 和 `execution cue`，避免只添加审美名词。
 - 新增摄影参数必须能落到 `分镜N` 的可执行表述中，例如“中近景、浅景深、过肩视角、长焦压缩、极慢推轨”。
 - 若某技法改变输出验收或执行流程，必须同步回改 `SKILL.md` 的 `Reference Loading Guide` 或 `Execution Contract`。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Are shot size, depth, angle, lens type, speed and composition chosen as the minimum sufficient technique for the current beat rather than dumped as a parameter list? | `GATE-CINE-07` / `GATE-CINE-18` | `FAIL-CINE-05` / `FAIL-CINE-05G` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N7-INJECT` | camera grammar samples and natural-language rewrites of parameter-list shots |
+| When changing shot size on the same subject, does the shot also change angle or preserve a justified action-chain exception, avoiding fake zoom-like coverage? | `GATE-CINE-16` | `FAIL-CINE-05I` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | shot-size transition samples with angle/rhythm motivation |
+| Does genre/rhythm context decide whether shot-size switching is conservative, wide-jump, compression-based or high-energy, instead of applying one default style? | `GATE-CINE-16` / `GATE-CINE-05` | `FAIL-CINE-05I` / `FAIL-CINE-05D` | `steps/cinematography-workflow.md#N5-RHYTHM` / `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | `rhythm_profile` and shot-size pattern evidence |
+| Are movement, entry, exit and sightline directions tied to camera, frame edge or spatial anchor so downstream video does not drift? | `GATE-CINE-15A` / `GATE-CINE-26` | `FAIL-DIRECTION-REF-01` / `FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | direction-reference samples such as toward camera, away from camera, frame-left entry or spatial-depth movement |
+| Are lighting choices written as visible results on subjects, shadows, background separation or readable information rather than source names? | `GATE-CINE-30` | `FAIL-CINE-05Y` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | lighting result samples and repaired source-only light descriptions |
+| Does composition use only the 2-3 subdimensions that matter to the scene's visual task, with `scene_visual_constraint` carrying the internal baseline? | `GATE-CINE-22` | `FAIL-CINE-05P` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT` | `scene_visual_constraint` samples for layout, composition mode, light, color and key technique |
+| Are peak techniques used only for upstream high points and without adding facts, dialogue, action results or false climax treatment? | `GATE-CINE-14` | `FAIL-CINE-05E` | `steps/cinematography-workflow.md#N5.5-PEAK-SHOT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | peak evidence, peak-shot strategy and no-new-fact checks |
+| Are boundary handoff anchors limited to visible exit material for `6-分组`, without writing full cross-scene transition solutions inside `5-摄影`? | `GATE-CINE-21` | `FAIL-CINE-05K` | `steps/cinematography-workflow.md#N6.1-HANDOFF` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | handoff anchor samples and no-overreach checks |
+| Are tables, examples and candidate technique phrases treated as a library, not an output checklist or template? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N7-INJECT` | report note that examples are non-template references, plus template-pollution repairs if any |

@@ -75,6 +75,7 @@ Reject or clarify when:
 | --- | --- |
 | 任意编剧任务 | `references/script-adaptation-contract.md` |
 | 字段分流、声画配对、对白冻结、环境字段纯化 | `references/field-routing-and-audio-visual-contract.md` |
+| 小说原文存在长对白，需要拆成自然可拍的对白节拍 | `references/field-routing-and-audio-visual-contract.md`、`references/dialogue-subtext-contract.md`、`references/scene-rhythm-contract.md` |
 | 小说式表述、作者评论、主角视角判断、心理内视、比喻象征、抽象概括、往日常态句、背景说明和因果/关系结论的二次画面化 | `references/novel-to-screen-language-contract.md` |
 | 信息差、观众知道/角色知道、悬念释放顺序 | `references/information-asymmetry-contract.md` |
 | 场景时长体感、信息密度、beat 数量和转出方式 | `references/scene-rhythm-contract.md` |
@@ -128,7 +129,7 @@ Reject or clarify when:
 - 声画字段就近配对：`对白 -> 对白画面`、`独白/内心独白 -> 独白画面/内心独白画面`、`旁白 -> 旁白画面`、`音效 -> 音效画面`。
 - 字段纯度：声音字段只写可听文本或声音本体，画面字段只写可见画面、表演、空间或承托；无混写。
 - 场景标题满足阿拉伯数字编号 + 好莱坞标准 slugline，同一 slugline 不重复开新场景。
-- 上游存在小说式作者评论、主角视角判断、心理内视、文学比喻、象征句、抽象概括、往日常态句、背景说明、因果解释、关系结论时，已执行 `novel_expression_transform_pass` 二次画面化；对白仍逐字冻结，不改写引号内对白。
+- 上游存在小说式作者评论、主角视角判断、心理内视、文学比喻、象征句、抽象概括、往日常态句、背景说明、因果解释、关系结论时，已执行 `novel_expression_transform_pass` 二次画面化；本阶段的画面化等于具像化、反抽象、反概念、反解释、可拍性、字段落点和保真边界同时成立；对白仍逐字冻结，不改写引号内对白。
 - `内心独白（角色）` 的引号内默认采用该角色当下第一人称心声；从第三人称小说叙述转入时，凡指代独白主体自身的"他/她/其/角色名"必须改成"我/我的/自己"或更自然的当下口吻。`内心独白画面` 仍使用第三人称可拍画面描述。
 - `角色动作` / `动作画面` 只写可拍摄身体动作或空间运动，不得出现"试图、想要、打算、意图"等主观预判或心理意图词。"感到恶心/难受/愤怒"等主观情绪必须转成 `表情特写`、可感知 `心理反应`、肢体动作、生理反应或主角内心独白。
 - `表情特写` 是正式可选字段，用于关键面部表演 beat：只写眉、眼、眼睑、眨眼频率、鼻翼、嘴角、唇线、咬肌、下颌、喉头或皮肤状态等可见变化；必须有上游触发或当前声画压力，不写情绪标签、心理解释、机位、景别或镜头运动。
@@ -141,6 +142,7 @@ Reject or clarify when:
 - 关键场景必须有信息差标注。
 - 关键场景必须有观众心理基线和冲突遗产标注，至少说明 `audience_knowledge_state`、`audience_psychology_seed` 与 `conflict_legacy_seed`；低信息过场可标注 `not_applicable` 并说明上游依据。
 - 关键对白必须有潜台词戏剧动作标注。
+- 上游单段长对白必须形成 `long_dialogue_beat_map`：在不改字、不润色、不新增台词的前提下，按语义动作、信息转折、潜台词压力、对手反应和声画承托拆成连续对白 beat；拆分后所有引号内容按顺序拼回必须等于上游原文。
 - 每个场景必须有 scene_rhythm_profile。
 - 独白/内心独白不超过总 beat 30%。
 
@@ -194,6 +196,7 @@ Reject or clarify when:
 | `FIELD-SCRIPT-20` | 场景节奏 | 关键场景有 `scene_rhythm_profile`：时长体感、信息密度、beat 数量、节奏类型和转出方式已裁决 | `FAIL-SCENE-RHYTHM` |
 | `FIELD-SCRIPT-21` | 对白潜台词 | 关键对白有 `dialogue_subtext_map`，能说明表面话语背后的戏剧动作和对下游表演/摄影的承托 | `FAIL-DIALOGUE-SUBTEXT` |
 | `FIELD-SCRIPT-22` | 观众心理基线 | 关键场景有 `audience_knowledge_state`、`audience_psychology_seed` 和 `conflict_legacy_seed`，能说明观众此刻知道什么、期待/害怕/渴望什么以及冲突如何继承给导演层 | `FAIL-AUDIENCE-PSYCHOLOGY` |
+| `FIELD-SCRIPT-23` | 长对白节拍拆分 | 单段长对白按信息动作拆成可拍 beat，逐字拼回保真；每个 beat 就近有对白画面、潜台词动作或反应承托，且未把断句改成润色、删减或新增台词 | `FAIL-LONG-DIALOGUE-BEAT` |
 
 ## Thought Pass Map
 
@@ -208,7 +211,7 @@ Reject or clarify when:
 | `PASS-SCRIPT-07` | 剧本投影 | `field_routing_plan`、`novel_expression_transform_evidence`、`objective_action_purity_evidence`、`environment_purity_evidence` 与上游正文 | 是否完整承接事实、顺序、对白、小说表述二次画面化、动作客观性、环境纯度和字段纯度 | `episode_script` |
 | `PASS-SCRIPT-08` | 验收回写 | 编剧稿、校验结果 | 是否满足保真、声画、场景、对白冻结、字段纯度、小说表达转译、动作客观性、环境纯度和输出门禁 | `review_result` |
 | `PASS-SCRIPT-09` | 直接修复复审 | `review_result`、candidate 编剧稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
-| `PASS-SCRIPT-10` | 信息差/节奏/潜台词 | 场景表、字段分流、对白锁、信息差/节奏/潜台词合同 | 关键场景是否完成信息差、场景节奏和对白戏剧动作设计，且未新增剧情事实或对白 | `information_asymmetry_map`、`scene_rhythm_profile`、`dialogue_subtext_map` |
+| `PASS-SCRIPT-10` | 信息差/节奏/潜台词/长对白节拍 | 场景表、字段分流、对白锁、信息差/节奏/潜台词合同 | 关键场景是否完成信息差、场景节奏、对白戏剧动作和长对白节拍拆分设计，且未新增剧情事实或对白 | `information_asymmetry_map`、`scene_rhythm_profile`、`dialogue_subtext_map`、`long_dialogue_beat_map` |
 
 ## Pass Table
 
@@ -223,7 +226,7 @@ Reject or clarify when:
 | `PASS-SCRIPT-07` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | `FAIL-SCRIPT-03` | `references/script-adaptation-contract.md` |
 | `PASS-SCRIPT-08` | 输出路径、执行报告、review gate 齐全 | `FAIL-SCRIPT-07` | `review/review-contract.md` |
 | `PASS-SCRIPT-09` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-SCRIPT-10` | `Stage-End Review-Repair Contract` |
-| `PASS-SCRIPT-10` | 信息差、观众心理基线、场景节奏、对白潜台词已形成可传递证据；内心独白/旁白没有挤占影视呈现 | `FAIL-INFORMATION-ASYMMETRY` / `FAIL-AUDIENCE-PSYCHOLOGY` / `FAIL-SCENE-RHYTHM` / `FAIL-DIALOGUE-SUBTEXT` | `references/information-asymmetry-contract.md` / `../_shared/audience-psychology-model-contract.md` / `references/scene-rhythm-contract.md` / `references/dialogue-subtext-contract.md` |
+| `PASS-SCRIPT-10` | 信息差、观众心理基线、场景节奏、对白潜台词和长对白节拍拆分已形成可传递证据；内心独白/旁白没有挤占影视呈现 | `FAIL-INFORMATION-ASYMMETRY` / `FAIL-AUDIENCE-PSYCHOLOGY` / `FAIL-SCENE-RHYTHM` / `FAIL-DIALOGUE-SUBTEXT` / `FAIL-LONG-DIALOGUE-BEAT` | `references/information-asymmetry-contract.md` / `../_shared/audience-psychology-model-contract.md` / `references/scene-rhythm-contract.md` / `references/dialogue-subtext-contract.md` / `references/field-routing-and-audio-visual-contract.md` |
 
 ## Pass-to-Node Mapping Table
 
@@ -240,7 +243,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `PASS-SCRIPT-07` | `N5-SCRIPT-DRAFT` | 剧情事实、顺序和对白完整保真，字段纯度、小说表达转译、动作客观性和环境纯度均通过 | 所有上游证据、`advisor_consultation_packet`（如有） | `第N集.md` 草稿、`faithful_projection_trace` |
 | `PASS-SCRIPT-08` | `N6-SCRIPT-REVIEW` | 输出路径、执行报告、review gate 齐全 | candidate 草稿、上游正文、`review/review-contract.md`、`thinking_action_node_ledger` | `review_result`、`gate_to_node_repair_map` |
 | `PASS-SCRIPT-09` | `N6R-SCRIPT-REPAIR` / `N6R-REVIEW-AGAIN` / `N7-SCRIPT-WRITEBACK` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `review_result`、candidate 草稿、修复稿、repair actions | `review_repair_result`、`2-编剧/第N集.md`、`执行报告.md` |
-| `PASS-SCRIPT-10` | `N3-SCENE` / `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` / `N6-SCRIPT-REVIEW` | 关键信息释放、观众心理基线、冲突遗产、场景节奏和对白戏剧动作已在编剧层锁定 | `information-asymmetry-contract.md`、`../_shared/audience-psychology-model-contract.md`、`scene-rhythm-contract.md`、`dialogue-subtext-contract.md` | `information_asymmetry_map`、`audience_knowledge_state`、`audience_psychology_seed`、`conflict_legacy_seed`、`scene_rhythm_profile`、`dialogue_subtext_map` |
+| `PASS-SCRIPT-10` | `N3-SCENE` / `N4-FIELD` / `N4.2-NOVEL-TRANSFORM` / `N6-SCRIPT-REVIEW` | 关键信息释放、观众心理基线、冲突遗产、场景节奏、对白戏剧动作和长对白节拍已在编剧层锁定 | `information-asymmetry-contract.md`、`../_shared/audience-psychology-model-contract.md`、`scene-rhythm-contract.md`、`dialogue-subtext-contract.md`、`field-routing-and-audio-visual-contract.md` | `information_asymmetry_map`、`audience_knowledge_state`、`audience_psychology_seed`、`conflict_legacy_seed`、`scene_rhythm_profile`、`dialogue_subtext_map`、`long_dialogue_beat_map` |
 
 ## GATE-SCRIPT Definitions
 
@@ -270,6 +273,7 @@ Pass 是思维/验收通过点，node 是执行节点；`N4.3-ADVISOR` 是条件
 | `GATE-SCRIPT-20` | Scene rhythm | 关键场景已形成 `scene_rhythm_profile`，能说明时长体感、信息密度、beat 数量、节奏类型、留白和转出方式 |
 | `GATE-SCRIPT-21` | Dialogue subtext | 关键对白已形成 `dialogue_subtext_map`，语气/状态之外还有戏剧动作；内心独白、旁白或解释性心理文字不过度挤占影视显示 |
 | `GATE-SCRIPT-22` | Audience psychology baseline | 关键场景已形成 `audience_knowledge_state`、`audience_psychology_seed` 与 `conflict_legacy_seed`，能被 `3-导演` 继续扩展为 `audience_psychology_map` 与 `conflict_legacy_transfer`；小说转译没有提前泄露观众应未知信息 |
+| `GATE-SCRIPT-23` | Long dialogue beat segmentation | 上游单段长对白已按信息动作拆成连续可拍 beat；拆分后对白文本按顺序拼回与上游完全一致；每个 beat 有就近画面、反应、停顿或潜台词承托 |
 
 ## Root-Cause Execution Contract (Mandatory)
 

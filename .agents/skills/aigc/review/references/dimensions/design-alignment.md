@@ -40,6 +40,18 @@
 | `FIELD-DA-02` | tranche handoff | list/design/panel handoff 稳定 | `FAIL-DA-02` | `N3-HANDOFF-CHECK` |
 | `FIELD-DA-03` | dimension packet | 报告完整可聚合 | `FAIL-DA-03` | `N4-PACKET-WRITE` |
 
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否已读取同一 `review_fact_pack` 中的 `4-分组` 与 `5-设计` canonical refs，而不是凭文件存在或旧路径推断设计状态？ | `GATE-DIM-DA-01` | `FAIL-DA-01` | `N1-DESIGN-READ` | `design_note` 记录读取的 group truth、design truth、slot bundle refs 与缺失项。 |
+| 场景、角色、道具清单和设计是否仍对位 `4-分组` 的主体、地点、道具、组边界与叙事用途，没有新增、漏删或错并关键对象？ | `GATE-DIM-DA-02` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | `alignment_note` 标明漂移对象、对应分镜组、上游证据和 `source_layer_owner`。 |
+| 设计稿是否保留 `4-分组` 的视觉/叙事约束，而没有把局部审美优化、研究补充或 provider 偏好变成第二真源？ | `GATE-DIM-DA-03` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | 维度报告列出被覆盖的 upstream constraint、设计字段和建议回修阶段。 |
+| list -> design -> panel / generation handoff 是否主体 ID、名称、别名、路径、slot bundle 与 source trace 一致？ | `GATE-DIM-DA-04` | `FAIL-DA-02` | `N3-HANDOFF-CHECK` | `handoff_note` 记录不一致的 tranche、slot key、文件路径和下游阻断范围。 |
+| 下游 handoff 是否具备可消费的场景/角色/道具设计包，而不是只有清单、空模板、未绑定 prompt 或缺图状态？ | `GATE-DIM-DA-05` | `FAIL-DA-02` | `N3-HANDOFF-CHECK` | 维度报告标出缺失 bundle、影响的 image/video handoff 和默认返工目标。 |
+| 对位问题是否被归因到 list、design、panel/generation 或 upstream group，而不是笼统写成“设计质量不足”？ | `GATE-DIM-DA-06` | `FAIL-DA-03` | `N4-PACKET-WRITE` | `dimension_packet.issues[*].source_layer_owner`、`default_rework_targets` 与 evidence refs 完整。 |
+| 本维度是否只写 `dimension_packet + report_ref`，没有独立写最终 `review_status`、`routing_decision` 或直接改业务文件？ | `GATE-DIM-DA-07` | `FAIL-DA-03` | `N4-PACKET-WRITE` | `dimension_runtime`、`report_ref` 和父 aggregate 可聚合字段存在，且无越权字段。 |
+
 ## Failure Heuristics
 
 - 设计输出局部好看但整体脱离分组 truth 时，优先回溯 `5-设计` 与上游 truth 的对位关系。

@@ -292,3 +292,14 @@ ensemble_performance_evidence:
 - "角色从背景升到前景时，必须有表演突变。观众应该能感受到'这个人突然被聚光灯照亮了'。"
 - "同一时刻只有一个注意力焦点。如果你需要观众同时看两个角色，那说明你的调度有问题。"
 - "大群体场景不是让8个人都有反应，而是让2-3个代表性反应来代表整个群体。"
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 多人场面是否明确唯一 `foreground_driver`，并让其他角色降为反应、知觉或背景层，而不是人人同强度？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 `ensemble_layers` 分配 | `ensemble_performance_evidence[].layers.foreground_driver`、`layers.foreground_reactor`、`layers.background_ambient` |
+| 每个角色是否在同一时刻只属于一层，并且升降层有触发条件和表演突变？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 Dynamic Shifting Rules | `ensemble_performance_evidence[].dynamic_shifts[].trigger`、`performance_burst` |
+| 双人/三人/小群体/大群体是否按规模控制反应者和知觉者数量，避免群戏变成反应噪音？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 Ensemble Scale Guidelines | `ensemble_performance_evidence[].ensemble_size`、`layers.midground_aware.characters`、`layers.background_ambient.characters` |
+| 焦点转移是否有旧焦点降强、新焦点升强和 1-2 个 beat 的交叉期，而不是突然失焦？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 Focus Transition | `ensemble_performance_evidence[].focus_transitions` |
+| 群体面对同一刺激时是否呈瀑布式传播，而不是所有人同一拍抬头、停笔、屏息？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 Group Reaction Cascade | `ensemble_performance_evidence[].cascade_pattern` |
+| 背景角色是否保持场景内成立的低强度日常行为，没有突然说话、惊讶或抢戏？ | `GATE-PERF-06` | `FAIL-LIVED-IN-02` | `N5-PERF-SCENE-CRAFT` / `N8R-PERF-REPAIR` 的背景层降级 | `lived_in_behavior_evidence[].risk_check.all_characters_performing=false`、`ensemble_performance_evidence[].layers.background_ambient` |

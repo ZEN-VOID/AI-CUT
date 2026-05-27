@@ -208,6 +208,24 @@
 
 ---
 
+## 长对白节拍与戏剧动作
+
+长对白不能只被视为“一整段话”。它通常包含多个戏剧动作：铺陈、试探、反驳、施压、求证、让步、揭示、宣示边界或情绪泄露。`2-编剧` 必须先把长对白拆成 `long_dialogue_beat_map`，再给每个节拍标注主戏剧动作。
+
+**处理规则**：
+- 每个长对白节拍只能标一个主戏剧动作，最多一个辅助动作。
+- 节拍动作必须跟 `exact_text_segment` 的文本功能一致，不得为了变化硬套不同动作。
+- 一个长对白中相邻节拍可以共享同一大目标，但必须呈现压力推进：铺陈 -> 逼问 -> 暴露底牌，或解释 -> 请求 -> 宣示边界。
+- 对手沉默、迟疑、打断失败、眼神避开等非语言反应也要成为节拍间的戏剧动作证据。
+- `dialogue_subtext_map` 与 `long_dialogue_beat_map` 应互相回指：前者回答“这句在做什么”，后者回答“这段长话如何被自然拆开和承托”。
+
+**失败症状**：
+- 长对白只有一个总潜台词，例如“施压”，但内部没有动作推进。
+- 每个节拍都写同一个 `对白画面`，变成说话者连续正面输出。
+- 为了制造节奏改写了引号内台词。
+
+---
+
 ## Failure Modes
 
 | symptom | root_cause | fix |
@@ -218,6 +236,7 @@
 | 所有对白都是同一种戏剧动作 | 没有区分不同角色在不同压力下的不同行为策略 | 检查同一场景内是否有3种以上不同戏剧动作 |
 | 戏剧动作与角色状态矛盾 | 角色刚刚经历重大打击，下一句对白却是"引诱拉拢" | 戏剧动作必须与角色当前情绪状态和关系压力兼容 |
 | 对白潜台词太复杂，演员无法执行 | 一句对白标注了三种以上戏剧动作 | 每句对白只标一个主戏剧动作，最多一个辅助动作 |
+| 长对白只有总意图，没有内部节拍动作 | 把整段台词当成一次性信息输出，没有识别铺陈、转折、施压、泄露等动作变化 | 建立 `long_dialogue_beat_map`，每个节拍标一个主戏剧动作，并给出对手反应或可见承托 |
 
 ---
 
@@ -230,3 +249,15 @@
 - 一场好的对手戏通常像一场没有裁判的棋局——两个人都在用对白执行不同的戏剧动作，而观众看到的是两个不同的游戏在同时进行。
 - 九类戏剧动作不是角色性格标签，而是"此刻的压力策略"。温柔的角色在被逼到墙角时也会施压，强硬的角色在面对心爱之人时也会试探。压力决定动作，不是性格。
 - 沉默也是一种戏剧动作。角色选择不说话、不回答、不接话，往往比说话更有力。当角色沉默时，编剧必须标注这个沉默在执行什么动作——是回避？是宣示边界？还是考验？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键对白是否建立 `dialogue_subtext_map`，说明这句话在试探、回避、隐瞒、施压、引诱、坦白、考验、亲近或宣示边界中的主戏剧动作？ | `GATE-SCRIPT-21` | `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `dialogue_subtext_map` 记录关键对白、主戏剧动作、场景压力和下游消费提示 |
+| 长对白是否拆成 `long_dialogue_beat_map`，且每个节拍都有明确戏剧动作、节拍间压力推进和对手反应或可见承托？ | `GATE-SCRIPT-23` / `GATE-SCRIPT-21` | `FAIL-LONG-DIALOGUE-BEAT` / `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `long_dialogue_beat_map` 与 `dialogue_subtext_map` 互相回指，记录节拍文本、主动作、压力推进和承托字段 |
+| 潜台词标注是否具体到语境，回答“试探什么/隐瞒什么/向谁施压/在什么压力下”，而不是只写动作类别或语气状态？ | `GATE-SCRIPT-21` | `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `dialogue_subtext_map.contextual_action_notes` 记录动作对象、压力来源和语境说明 |
+| 戏剧动作是否只进入 `表演提示`、节点证据或相邻可见承托，而没有把“她在试探他”等潜台词结论直接写进 `对白画面` / `角色动作`？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-21` | `FAIL-CONCRETE-VISUAL` / `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `dialogue_subtext_map.visual_support_check` 记录潜台词结论是否已转为停顿、视线、道具、身体距离等可见承托 |
+| 每句关键对白是否最多一个主戏剧动作、一个辅助动作，避免三种以上动作叠加导致演员不可执行？ | `GATE-SCRIPT-21` | `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `dialogue_subtext_map.action_count_audit` 标注主动作、辅助动作和过载删减 |
+| 戏剧动作是否与角色当下情绪状态、关系压力和信息状态兼容，没有把角色性格标签或预设套路硬套到对白上？ | `GATE-SCRIPT-21` / `GATE-SCRIPT-22` | `FAIL-DIALOGUE-SUBTEXT` / `FAIL-AUDIENCE-PSYCHOLOGY` | `steps/directing-workflow.md#N4-FIELD` | `dialogue_subtext_map.pressure_alignment` 与 `audience_knowledge_state` 记录角色信息状态和压力来源 |
+| 沉默、不回答、不接话等非语言对白 beat 是否也被判定其戏剧动作，并落入可见余波而非空白跳过？ | `GATE-SCRIPT-21` | `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `dialogue_subtext_map.silence_action_evidence` 记录沉默动作、对手反应和画面承托 |

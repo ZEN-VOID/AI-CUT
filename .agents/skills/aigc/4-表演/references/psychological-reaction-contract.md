@@ -238,3 +238,16 @@ psychological_reaction_evidence:
 - 没有新增对白、回忆、幻象、事件、因果或结论。
 - 没有为解释心理新增无关人物过往、物品来历或回忆性信息。
 - 没有在场景末尾集中总结心理状态；反应已内嵌到对应 beat。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每条 `心理反应` 是否有明确主体、上游触发点和至少一个可见/可听/可演通道；关键心理 beat 是否至少两个通道？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` 的 Getability Standard | `psychological_reaction_evidence[].subject`、`trigger`、`getability_channels` |
+| `心理反应` 是否避免“意识到/觉得/明白/崩溃/震惊/害怕”等抽象解释、比喻或因果论文？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` 的 Projection Ladder | `psychological_reaction_evidence[].risk_check.abstract_inner_life=false`、`over_explaining=false` |
+| 需要明确语言化的主角判断或内心想法是否进入 `内心独白（主角）` 并配对画面，而不是塞进心理反应或删掉？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` 的 Protagonist Inner Voice And POV Rule | `protagonist_inner_voice_evidence[].target_field`、`paired_visual_field` |
+| `内心独白（主角）` 引号内主角自指是否统一为第一人称，主角视角判断是否未写成客观第三方概括？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` / `N8R-PERF-REPAIR` 的人称与 POV 修复 | `protagonist_inner_voice_evidence[].risk_check.third_person_pov_judgment=false` |
+| 主观情绪感受是否转成微表情、肢体动作、生理反应、声音变化或主角内心独白，而不是直接写“感到恶心/难受/愤怒”？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` / `N5-PERF-SCENE-CRAFT` 的主观情绪投影 | `objective_action_purity_evidence[].risk_check.direct_emotion_label=false`、`psychological_reaction_evidence[].target_fields` |
+| 三人及以上场景的心理反应是否处理群体动力学和 2-3 个差异层次，而不是只写主角单人反应或全体同频恐惧？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的群体心理/群戏层次分配 | `ensemble_performance_evidence[].layers`、`psychological_reaction_evidence[].reaction_function` |
+| 心理投影是否未新增对白、回忆、幻象、事件、因果或无关前史？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` / `N7-PERF-DRAFT` 的保真修复 | `psychological_reaction_evidence[].risk_check.new_dialogue=false`、`new_event=false`、`unrelated_backstory=false` |
+| 心理反应是否内嵌到对应 beat，而不是场景末尾集中总结心理状态？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N7-PERF-DRAFT` / `N8R-PERF-REPAIR` 的字段内嵌 | `psychological_reaction_evidence[].target_fields`、`risk_check.field_summary_block=false` |

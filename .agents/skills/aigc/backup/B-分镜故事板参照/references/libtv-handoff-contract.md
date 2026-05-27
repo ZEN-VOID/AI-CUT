@@ -160,3 +160,31 @@ projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/
 ```
 
 - 若远端成功但下载超时，按 `$libTV` 经验清理半截文件后重试，必要时用媒体 URL 直下。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 执行生成前是否加载并遵循 `.agents/skills/cli/libTV/SKILL.md`，没有绕过官方技能包直接拼私有 OpenAPI？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` | command plan、loaded LibTV skill note、official script invocation |
+| `LIBTV_ACCESS_KEY` 是否只做 credential check，没有写入 prompt、YAML、queue、模板或报告？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` / `N11-CLOSE` | sanitized command log、report redaction note |
+| 新建或复用画布时是否先锁定 `projectUuid/projectUrl`，并写入 submit plan、queue 与 report？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` / `N8-QUEUE` | `change_project.py` output 或 existing canvas record、queue ledger、report |
+| 有故事板图时，上传是否发生在 project lock 之后，且 uploaded URL 的 `/claw/<projectUuid>/` 与锁定画布一致？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` | upload log、uploaded URL、projectUuid consistency check |
+| `storyboard_uploads` 是否只证明 group/storyboard 到 OSS URL 的身份映射，没有被当作 `reference_index` 顺序真源？ | `GATE-SBVID-07` | `FAIL-SBVID-SLOT` | `N7-DISPATCH` | upload ledger、slot ledger 分层字段 |
+| `generation_slots` 是否以 UI 图1或实际 `imageList[0]` 建立图1顺序，并回刷 final YAML、batch/plan 与远端 `imageList[0]`？ | `GATE-SBVID-07` | `FAIL-SBVID-SLOT` | `N7-DISPATCH` | `build-upload-ledger.py --sync` 结果、final YAML、remote params |
+| 官方脚本顺序是否保持 `change_project.py -> upload_file.py -> create_session.py -> query_session.py -> download_results.py`，无图时仅跳过 upload？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N7-DISPATCH` / `N9-QUERY-DOWNLOAD` | command log、queue ledger、download record |
+| canvas 是否保留远端消息、故事板参照、生成节点与结果；未出现节点或结果 URL 时是否没有标成 generated/downloaded？ | `GATE-SBVID-15` | `FAIL-SBVID-REPORT` | `N8-QUEUE` / `N9-QUERY-DOWNLOAD` / `N11-CLOSE` | `projectUrl`、query result、status evidence |
+| `prompt_fidelity_mode` 是否默认 `strict_original` 且 `allow_libtv_prompt_optimization=false`，只有用户 opt-in 才允许优化？ | `GATE-SBVID-11` | `FAIL-SBVID-FIDELITY` | `N5-YAML` / `N6-REVIEW` | submit plan、batch YAML、user opt-in record |
+| 远端 query 若出现优化提示词、镜头计划、摘要或重新编排，是否能证明已有 opt-in；否则是否标记 violation 并不沿用 session？ | `GATE-SBVID-11` | `FAIL-SBVID-FIDELITY` | `N6-REVIEW` / `N7-DISPATCH` | query transcript、violation record、new clean session entry |
+| `duration_hint` 是否来自当前组 `duration_estimate_seconds` 的 4-15 秒 clamp，而不是全组固定 15 秒？ | `GATE-SBVID-04` | `FAIL-SBVID-DURATION` | `N3-GROUP-INDEX` / `N5-YAML` | group index、batch YAML、submission duration |
+| 远端提交文本是否声明 `enableSound=on`；生成前无法验证时是否只记录非阻断，生成后以 `task_result.audios` 或 `ffprobe` 做硬验收？ | `GATE-SBVID-13` | `FAIL-SBVID-AUDIO` | `N7-DISPATCH` / `N9-QUERY-DOWNLOAD` | submission text、query audio field、ffprobe JSON |
+| `*-libtv-submission.txt` 第一行是否为 `【LibTV 调用锁定】`，并正确写 `provider/taskType/modeType/imageList`？ | `GATE-SBVID-09` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | submission text first block、batch projection |
+| 有图任务的 `imageList` 是否填入真实 uploaded URL 且只含 1 张故事板图；无图任务是否写 `modeType=text2video` 与 `imageList=[]`？ | `GATE-SBVID-06` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | submission text、remote params、reference manifest |
+| 远端提交是否完全排除本地图片路径、占位 URL、人工 `参照图1/2/N` 编号和另起的 `【故事板参照说明】`？ | `GATE-SBVID-09` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N6-REVIEW` | submission text negative check |
+| `【直接生成请求】` 是否明确基于下方 `【分镜组源文本】`，把原正文与 final fenced YAML 故事板绑定共同作为 prompt 完整体？ | `GATE-SBVID-10` | `FAIL-SBVID-PROMPT` | `N5-YAML` / `N7-DISPATCH` | submission text、query prompt echo |
+| 故事板总参照身份是否邻近真实图片 token/编号/URL，未被压缩成裸 `{{Image 1}}`、裸 `图片1` 或裸 URL？ | `GATE-SBVID-10` | `FAIL-SBVID-PROMPT` | `N5-YAML` / `N7-DISPATCH` | submission text、remote `create_generation_task.params.prompt` |
+| 缺故事板、多候选未裁决、被排除或未入预算说明是否只写本地 manifest / batch / report，未进入远端 prompt？ | `GATE-SBVID-09` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N6-REVIEW` | local manifest / report 与 remote submission 对照 |
+| B 路线是否只把 storyboard sheet 当整组视觉参照，没有要求远端重新做故事板、拆 panel、多段合成或当首帧图生视频？ | `GATE-SBVID-06` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | submission text、remote plan / query transcript |
+| batch YAML 的 `command_type`、`reference_images`、`duration_hint`、输出目录和 provider 参数是否可机械投影到 `$libTV` 脚本调用？ | `GATE-SBVID-12` | `FAIL-SBVID-LIBTV` | `N5-YAML` / `N7-DISPATCH` | batch YAML、projected commands |
+| 并发是否只在 group worker 层发生，每个 worker 写临时结果，主流程单线程汇总 queue、results 与 report？ | `GATE-SBVID-14` | `FAIL-SBVID-QUEUE` | `N7-DISPATCH` / `N8-QUEUE` / `N11-CLOSE` | tmp result files、queue ledger、final merge note |
+| 每个成功创建的 job 是否保留 `sessionId/projectUuid/projectUrl`，短轮询超时后有 `next_action`，不丢失已提交组？ | `GATE-SBVID-14` | `FAIL-SBVID-QUEUE` | `N8-QUEUE` / `N9-QUERY-DOWNLOAD` | queue ledger、results JSON、next action |
+| 生成完成后是否自动下载为 `<group_id>.mp4` 到本技能输出目录，并用真实本地视频与音频证据收口？ | `GATE-SBVID-15` | `FAIL-SBVID-REPORT` | `N9-QUERY-DOWNLOAD` / `N10-WRITE` / `N11-CLOSE` | local video path、file size / ffprobe、执行报告 |

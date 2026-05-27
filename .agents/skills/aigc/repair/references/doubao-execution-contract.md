@@ -96,3 +96,16 @@ provider_evidence:
   reason: ""
   fallback: current-model-local-plan
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把 `doubao-seed-2.0-pro` 识别为中文分析、润色、创意候选的默认执行 lane，而不是可静默替换的普通 provider？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | `doubao_task_packet.provider`、mode 选择、provider 或降级状态 |
+| 当前模型是否先完成 repair 技能、owning stage、项目 `MEMORY.md` / `CONTEXT/` 与相关源层规则加载，再整理豆包输入？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SOURCE-RULE` | `N2-SOURCE-RULE-REVIEW` | `source_rules_reviewed` 中的 skill/context/reference/step/type/review 记录 |
+| `doubao_task_packet` 是否结构化包含目标、固定事实、禁止改动、输出格式、语言和 acceptance gate，而不是把杂乱上下文原样倾倒给 provider？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | 完整 `doubao_task_packet`、`forbidden_changes`、`acceptance_gate` |
+| 豆包输出是否只作为 `provider_suggestion` / `provider_draft` / `provider_analysis`，写回前仍经过 owning stage 与 repair review gate？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | provider output 分类、review verdict、写回前的 owner gate 记录 |
+| provider 调用失败时，是否显式记录 `provider_status: degraded` 与 `fallback: current-model-local-plan`，且没有宣称豆包已执行？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | `provider_evidence.status: degraded`、失败原因、fallback 范围 |
+| 中文润色是否只优化语序、语气、可读性和执行感，未改剧情事实、对白、编号、字段、YAML、分镜 ID、资产 ID 或引用关系？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | before/after diff、固定事实核对、字段/编号/引用一致性检查 |
+| 创意激发是否绑定源层目标和用户禁区，并明确 `can_apply_now` / `needs_user_choice` / `stage_owner_required`，而非自动成为 canonical truth？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | 候选状态字段、source target 映射、需要用户或 stage owner 吸收的标记 |
+| 是否保存豆包文本 sidecar、`doubao_seed_report_*.json` 或在最终 repair report 中给出 provider evidence / 降级原因？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | sidecar/report 路径、provider evidence 摘要、缺失时的 blocker |

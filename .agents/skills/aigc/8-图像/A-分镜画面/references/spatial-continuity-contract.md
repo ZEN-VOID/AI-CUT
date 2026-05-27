@@ -167,3 +167,17 @@ space_model:
 - 正反打镜头要求同一背景面，或背景面变化没有由机位反向/轴线关系解释。
 - 角色视线无法在空间中闭合，例如 A 看向右侧但 B 被设定在 A 的左侧。
 - 道具相对位置漂移，例如桌面道具在没有移动事件时从角色前方跳到身后。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 同场景分镜是否先建立轻量 3D `space_model`，而不是把场景参照图当作每镜复用的平面背景？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` | `Spatial Continuity Plan` 包含 `space_model`、fixed anchors、axis_definition、camera_axis、角色/道具相对位置。 |
+| 固定锚点是否经过候选列举、主/辅锚点筛选、三轴定义、角色相对锚点、移动路径、镜头轴线和漂移检查，而不是只写“同一场景背景”？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` | plan 记录 `candidate_anchors`、`primary_anchor`、至少两个 `supporting_anchors`、`x/y/z axis`、`movement_paths`、`drift_check`。 |
+| 每个四段式分镜是否执行 `shot_anchor_projection`，从当前单镜真相重投影 Primary/Support anchors，而非直接继承三段式分组主场景锚点？ | `G3E-SHOT-ANCHOR-PROJECTION` | `FAIL-FRAME-SHOT-ANCHOR` | `N4B-SPATIAL` | plan 记录 `shot_anchor_projection_status`、`source_frame_anchor_evidence`、`anchor_source_priority: current_shot_truth > previous_generated_frame > scene_reference_image > group_scene_default`。 |
+| 蒙太奇、插入镜、道具特写、转场、路线图、战船远景或同组临时换地点画面是否把主锚点落到当前可见主体，而不是沿用分组主场景常规家具/背景？ | `G3E-SHOT-ANCHOR-PROJECTION` | `FAIL-FRAME-SHOT-ANCHOR` | `N4B-SPATIAL` / `N4-PROMPT` | prompt 与 plan 中的 `Primary anchor` 可从当前 `source_frame_anchor_evidence` 直接找到；分组场景锚点只作 supporting / continuity 回接。 |
+| 追逐、进出门、围站、绕物、上下楼、过肩、遮挡、道具交接、队列、换机位、环绕、窥视、起坐、抛掷、载具移动等桥段是否匹配对应锚定模式？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` | plan 记录 `anchor_pattern`、固定锚点、must lock 项和 common failure 检查结果。 |
+| 每个角色是否有 3D 当前位置、起点/终点/移动轨迹、身体朝向、视线目标、前中后景和遮挡关系？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` / `N4-PROMPT` | `character_positions` 与英文 prompt 本体均写入相对锚点的站位、走位、朝向、视线和 occlusion。 |
+| 正反打、过肩、反向机位或对话戏是否保持 line of action、screen direction、opposite background plane 和 eyeline match，而不强求同一背景面？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` / `N4-PROMPT` | plan / prompt 记录 camera side、reverse angle、opposite wall/background plane、line of action、eyeline match；背景变化有机位解释。 |
+| `Integrated AIGC image prompt` 是否实际消费 Spatial Continuity Plan，将角色三维站位、移动轨迹、关键锚点、轴线和正反打逻辑写进英文画面语言？ | `G3D-PROMPT-DESIGN-SYSTEM` | `FAIL-FRAME-PROMPT-SYSTEM` | `N4-PROMPT` | 英文 prompt 本体可见 `Primary anchor` / `Support anchors` 的自然表达、spatial blocking、camera axis、background plane logic，而非只停留在结构化字段。 |
+| 漂移检查是否能发现角色瞬移、视线不闭合、道具跳位、移动路径穿越不可穿越锚点、遮挡层级错误或背景面无法解释？ | `G3B-3D-SPATIAL-CONTINUITY` | `FAIL-FRAME-SPATIAL` | `N4B-SPATIAL` / `N6-REVIEW` | review note 记录 `drift_check` 项；失败项指向具体 `shot_id`、锚点和返工节点。 |

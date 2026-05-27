@@ -302,3 +302,14 @@ performance_style_directive:
 - 风格基线不是监狱。角色可以在基线附近微幅波动，这本身就是"活人感"的一部分。风格基线是重心，不是牢笼。
 - 沉默型角色不是没有表演的角色。沉默型角色的表演密度可能比外放型更高，因为每一个微小变化都被放大。
 - 类型默认基线是起跑线，不是天花板。偏离默认基线的角色之所以有力量，恰恰因为其他角色在默认位置上。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键角色是否都有 `performance_style_directive`，四轴基线可被 `4-表演` 消费？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` | `performance_style_directive.style_baseline`、`baseline_evidence` |
+| 角色风格是否不是情绪标签，而是 expressiveness/physicality/vocal_style/mask_vs_authentic 的可执行定位？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` | 四轴 `position` 与 `evidence`、`risk_check.style_as_emotion_label: false` |
+| 类型默认基线的偏离是否有上游角色设定、经历或关系支撑？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` | `genre_reference.deviation_reason`、`source_anchor` |
+| 风格转变是否有上游触发事件、影响轴、移动方向、幅度和恢复模式？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` / `N9-DIR-DRAFT` | `style_shift_triggers`、`shift_target.recovery_pattern` |
+| 多角色场景是否利用风格碰撞/映照/感染/对比制造叙事压力，而非只列角色名单？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` / `N7-DIR-AESTHETIC` | `style_interaction.interaction_pattern`、`interaction_evidence` |
+| 所有主要角色是否没有共享同一风格基线，至少在关键轴上形成有据差异？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` | `risk_check.all_characters_same_style: false`、角色风格差异对照 |

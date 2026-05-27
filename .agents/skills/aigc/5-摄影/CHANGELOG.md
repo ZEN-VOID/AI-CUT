@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2026-05-27 (Long Dialogue Visual Plan)
+
+- 新增长对白镜头承托规则：`5-摄影` 消费 `long_dialogue_beat_map` 与 `long_dialogue_delivery_map`，形成 `long_dialogue_visual_plan`，逐 beat 分配说话者、听者、手部/道具、空间压力、群像、画外声源或沉默余波等焦点。
+- 新增 `FIELD-CINE-35`、`GATE-CINE-33` 与 `FAIL-LONG-DIALOGUE-CINEMATOGRAPHY`，阻断单镜采访式吞完整段长对白、多个节拍同一说话者同一景别、缺少反应链或跨镜时值分配的问题。
+- 同步更新时值合同、注意力引导合同、workflow、review、模板和经验层，使长对白从编剧节拍、表演交付到摄影承托形成连续证据链。
+
+## 2026-05-26 (Review Conflict Repair)
+
+- 修复综合审查报告指出的时值门槛冲突：`约3秒` 以上的短剧·AIGC 证据门槛限定为非 `slow_burn/hold` 镜头；情绪类 `slow_burn/hold` 允许进入 held/long_hold，但必须由可见微动态、静止压力、极慢运动或框内变化支撑。
+- 将情绪类高点在主入口显式接入 `peak-shot-language-contract.md#emotional_slow_burn`，避免崩溃、震惊、醒悟、强忍等情感高点落入动作/武侠式峰值节奏。
+- 清理当前执行路径里的失效引用：将已整合的 `shot-detail-dimension-contract.md` 和 `unified-shot-design-workflow.md` 引用回接到 `functional-cinematic-projection-contract.md#Gradient-Shot-Detail-Sufficiency` 与 `shot-planning-integration-contract.md`。
+- 新增 reference 示例护栏：所有涉及示例、正例、反例、表格样句和 `✅/❌` 的 references 均声明“仅说明判断逻辑，不是输出模板”，并在经验层新增“示例污染输出”修复项。
+
+## 2026-05-26 (Gradient Shot Detail Completeness & Continuity Gate)
+
+- 新增梯度描述完整性门槛：每条 `分镜N（约X秒）` 必须先按 `L0-basic / L1-standard / L2-emphasis / L3-peak` 裁决完整度；归属、功能、起点、主体、动作相位、路径、锚点、摄影语法、光线结果、时值理由、微动态、落点/交接、方向参照、道具准入和非复述等 15 项作为维度池按需启用，而非逐镜硬填。
+- 明确质量优先原则：分镜明细规则用于保证观看结果、动作相位、信息揭示、情绪压力、空间关系、时值必要性和下游执行稳定性，不得为了完整性或连贯性堆砌分镜、强行加镜，或把低信息画面升级成峰值镜。
+- 强化镜内/镜间连贯性：每条分镜必须能抽出 `entry/action_anchor/exit/handoff`；分镜块内相邻镜头需有物理因果链或过渡锚点，分镜块间需继承人物姿态、轴线、运动方向、光色或声音余波。
+- 同步更新 `functional-cinematic-projection-contract.md`、`shot-continuity-contract.md`、`shot-planning-integration-contract.md`、`steps/cinematography-workflow.md`、`SKILL.md`、`templates/` 与 `review/review-contract.md`，新增 `FIELD-CINE-33/34`、`GATE-CINE-15C/15D`、`FAIL-CINE-05AA/05AB`，把分镜明细描述完整性和连贯性升级为写回前阻断门。
+
 ## 2026-05-26 (Fast-Platform Trigger-First Beat Model)
 
 - 明确快节奏短视频平台的节拍定义：`节拍` 等价于有效分镜触发点，`BT-01~BT-16` 命中后默认可 1:1 落为 `分镜N（约X秒）:`；合并只是例外，必须证明不损失观看结果、平台节奏、下游 payload 或动作连续性。

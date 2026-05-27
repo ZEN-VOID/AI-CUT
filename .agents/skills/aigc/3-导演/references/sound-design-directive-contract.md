@@ -306,3 +306,14 @@ sound_design_directive:
 - 场景之间的声音桥接比画面剪辑更平滑。声音先行（下一场的声音提前进入）和声音拖尾（上一场的声音延续）可以让观众在不知不觉中完成场景过渡。
 - 沉默被打断的方式本身就是叙事。一声微弱的鸟鸣意味着世界仍在运转；一声暴力的撞击意味着现实入侵。
 - 最好的声音设计是观众事后才意识到的。如果观众在现场注意到声音设计，它可能太刻意了；如果观众在角色沉默时屏住呼吸，声音设计就成功了。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键场景是否形成 `sound_design_directive` / `sound_plan`，且声音作为叙事策略存在？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` | `sound_design_directive.scene_sound_plans`、`directorial_intent` |
+| `dominant_sound` 和 `absent_sound` 是否来自场景身份与物理声源，而非 BGM 风格标签？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` / `N3-DIR-SUBSTANCE` | `scene_identity_seed`、`dominant_sound`、`risk_check.sound_as_bgm_label: false` |
+| 沉默是否被设计为叙事工具，`when/duration_feel/broken_by/what_silence_conveys` 完整且 `broken_by` 来自场景世界？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` | `silence_as_narrative`、`risk_check.silence_undesigned: false` |
+| 声音母题是否有来源、主题关联、生命周期和受控出现频率，没有过度使用？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` | `motif_plan`、`episode_appearances`、`risk_check.motif_overuse: false` |
+| 主观声音切换是否绑定信息冲击、情绪临界或创伤触发，没有随机切换？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` | `subjective_sound_shift`、`sound_perspective`、`sound_reality_status`、`source_anchor` |
+| 声音策略是否能供 `4-表演` 的 ambient support 消费，但没有越过音频制作参数边界？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` / `N9-DIR-DRAFT` | `sound_design_directive.cross_episode_continuity`、`risk_check.directorial_intent_is_technical: false` |

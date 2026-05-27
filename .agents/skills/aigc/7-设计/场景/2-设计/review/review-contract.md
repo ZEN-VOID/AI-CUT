@@ -68,6 +68,23 @@ flowchart TD
 | boundary | 不改 `1-清单`、不生成图像、不改 registry、不触碰其他 worker 包 |
 | llm_first | 核心正文不是脚本生成 |
 
+## Review Gates
+
+| gate_id | dimension | blocking rule | fail_code | default_rework_target | report_evidence |
+| --- | --- | --- | --- | --- | --- |
+| `GATE-SCENE-DESIGN-01` | `source` | 每个设计稿必须能回指项目根、`north_star.yaml`、`team.yaml` 与上游 `场景清单.md` 行；缺核心来源时必须报告降级，不得静默设计 | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | `input_manifest`、核心来源路径、目标清单行、降级说明 |
+| `GATE-SCENE-DESIGN-02` | `source` / `boundary` | 场景主体必须来自上游清单或用户指定的清单主体，不得新增清单外主体或改写 `1-清单` 真源 | `FAIL-SCENE-DESIGN-02` | `N3-SELECT` | 目标主体列表、上游清单行号、跳过/新增判定 |
+| `GATE-SCENE-DESIGN-03` | `research` / `visual_translation` | 研究层必须包含 `research_brief`、`source_posture`、`evidence_matrix`、`uncertainty_register` 与 `visual_translation`；冷门或高风险信息必须有来源姿态或保守处理 | `FAIL-SCENE-DESIGN-03` | `N5-RESEARCH` | 研究五件套位置、来源姿态表、不确定性处理、视觉翻译证据 |
+| `GATE-SCENE-DESIGN-04` | `story` | `物语` 必须解释空间叙事功能和主题承载，不得新增剧情事件、替代剧本或安排人物入画 | `FAIL-SCENE-DESIGN-04` | `N6-DESIGN` | `物语` 段落、空间功能摘要、新增剧情/人物风险记录 |
+| `GATE-SCENE-DESIGN-05` | `structure` / `design_output_contract` | `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并拆分 `Scene Design` 与 `Cinematography`；主体 ID 必须与提示词字段和英文 prompt 前缀一致 | `FAIL-SCENE-DESIGN-05` | `N6-DESIGN` | 解构标题、主体 ID 三处比对、双字段证据位置 |
+| `GATE-SCENE-DESIGN-06` | `prompt` / `design_output_contract` | 最终英文 prompt 必须以同一主体 ID 开头，显式包含全局风格、建筑风格、时间锚点和地域锚点，<= 2000 characters，并整合 `## 4. 解构` 的全部有效 Scene Design 与 Cinematography 信息 | `FAIL-SCENE-DESIGN-06` | `N6-DESIGN` | prompt 字符数、开头 ID、时间/地域 token、解构槽位覆盖记录 |
+| `GATE-SCENE-DESIGN-07` | `llm_first` | 场景设计正文、研究判断、解构和英文 prompt 必须由 LLM 主创；脚本只能做机械解析、校验或投影 | `FAIL-SCENE-DESIGN-07` | `N6-DESIGN` | 生成路径说明、脚本角色说明、无脚本主创证据 |
+| `GATE-SCENE-DESIGN-09` | `fixed_visual` | 场景设计默认为纯空镜；摄影字段与英文 prompt 不得出现人物、人体局部、剪影、倒影、人群、背影或可识别人类存在，并必须包含等价 `empty shot / no people / no human figures` 约束 | `FAIL-SCENE-DESIGN-09` | `N6-DESIGN` | 纯空镜约束位置、禁用人类存在词检查、prompt negative token |
+| `GATE-SCENE-DESIGN-10` | `prompt_evidence_chain` | 关键 prompt token 必须能回指研究、视觉翻译、Scene Design 或 Cinematography；被压缩、合并或剔除的解构槽位必须进入 `deconstruction_coverage` | `FAIL-SCENE-DESIGN-10` | `N6-DESIGN` | prompt token evidence、`deconstruction_coverage`、缺槽 finding |
+| `GATE-SCENE-DESIGN-11` | `advisor_consultation` | 默认顾问路径启用时，必须按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；顾问问题必须绑定当前 `node_id / pass_id / gate_id`，并转成节点级判断、执行取舍、局部 patch 或风险提示 | `FAIL-SCENE-DESIGN-11` | `N5-RESEARCH` | `advisor_consultation_packet`、`advisor_node_coverage`、顾问建议如何影响节点 |
+| `GATE-SCENE-DESIGN-12` | `workflow_supervision` | 每个场景主体必须留下非空 `workflow_supervision` 记录；provider 不可用或用户禁用时必须记录阻断层级、本地 checklist、未启动 reviewer、slot bundle findings 与主 agent 汇流裁决 | `FAIL-SCENE-DESIGN-WORKFLOW` | `N7-REVIEW` | `workflow_supervision` packet、dispatch mode、unlaunched reviewers、local checklist、merge decision |
+| `GATE-SCENE-DESIGN-SLOT-01` | `slot_bundle_review` | 必须解析非空 `SCENE-BUNDLE-01`，并为每个 required slot 给出证据位置；缺槽时必须形成 blocking finding 和返工入口 | `FAIL-SCENE-DESIGN-SLOT-01` | `N7-REVIEW` | slot bundle review 表、required slot evidence、缺槽 finding |
+
 ## Verdict Model
 
 | verdict | meaning |

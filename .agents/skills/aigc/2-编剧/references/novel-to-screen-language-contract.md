@@ -18,6 +18,22 @@
 | 主角视角保持 | 主角内心想法必须保留为第一人称内心独白 | 把主角判断改成客观第三方概括 |
 | 可感知化 | 抽象表述转成可见、可听、可执行的具体元素 | 写"压抑气氛"而不是呼吸、眼神、道具停点 |
 
+### 1.1 画面化定义
+
+本技能中的画面化不是把文字写得更漂亮，也不是提前写机位、景别、镜头运动或分镜编号。画面化必须同时满足以下条件：
+
+| 维度 | 执行含义 | 失败信号 |
+|------|----------|----------|
+| 具像化 | 把意义落到身体、表情、空间、道具、文字、光线、声音、群像或可执行表演 | 只写"压迫感""关系变化""气氛紧张" |
+| 反抽象 | 不用抽象名词替代可拍材料 | 写"规则压力""命运感""底牌"但没有可见物 |
+| 反概念 | 不把主题、类型概念、人物关系概念直接塞进字段 | 写"这是一场审判""他掌控全场" |
+| 反解释 | 不直接说明因果、心理、主题和观众应理解的结论 | 写"因为...所以...""他意识到...""这说明..." |
+| 可拍性 | 画面字段回答摄影机看见什么，声音字段回答能听见什么，表演字段回答演员能做什么 | 离开文字解释后无法拍、无法演、无法听 |
+| 字段落点 | 所有转译结果必须落入 `环境描写`、`角色动作`、`对白画面`、`心理反应`、`表情特写`、`道具特写`、`群像画面`、`系统画面`、`音效画面` 等正式字段 | 另造"主题说明""镜头方案""导演意图"等第二体系 |
+| 保真边界 | 只转译上游已有信息，不新增对白、事件、因果、线索、规则、人物动机或无关前史 | 以"更电影化"为由扩写剧情事实 |
+
+最小判断句固定为：摄影机能看见什么，演员能做什么，声音能听见什么；如果答案只是观众应该理解什么，则尚未完成画面化。
+
 **转换边界**（引用 `script-adaptation-contract.md` FR-1~FR-3）：
 - 不新增对白、桥段、因果、线索、规则、事件结果或人物动机
 - 对白必须逐字冻结，不润色、不同义替换、不调整语序
@@ -144,3 +160,15 @@ novel_expression_transform_evidence:
 | §4 策略调色板 | FR-2, FR-6, FR-7 | 12种转换策略 |
 | §5 艺术转换边界 | FR-1, FR-3 | 允许与禁止边界 |
 | §6 质量检查清单 | FR-1~FR-7 | 完整执行检查项 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 上游作者评论、主角视角判断、心理内视、主观情绪、文学比喻、概括叙述、往日常态、背景说明、因果解释、关系结论、感官散文、武侠/玄幻抽象、回忆/补叙和规则说明是否被逐项识别并记录 `expression_type` 与 `source_function`？ | `GATE-SCRIPT-15` / `GATE-SCRIPT-17` | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-CREATIVE-EVIDENCE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `novel_expression_transform_evidence` 记录 source_anchor、expression_type、source_function 和 target_fields |
+| 高风险小说表述是否先判叙事功能再转为可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白，并同时满足具像化、反抽象、反概念、反解释、可拍性、字段落点和保真边界，而不是原样塞入画面字段？ | `GATE-SCRIPT-15` / `GATE-SCRIPT-10` | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `screen_strategy_map` 与 `literal_prose_risk_map` 记录原句、屏幕策略、直译风险、抽象/概念/解释残留风险 |
+| 主角视角下对他人行为、语气、沉默或动机的判断是否进入 `内心独白（主角）` 或主角可感知反应，并把主角自指改成第一人称？ | `GATE-SCRIPT-16` | `FAIL-PROTAGONIST-INNER-VOICE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `protagonist_inner_voice_evidence` 记录主角、原判断、目标字段、配对画面和人称风险 |
+| 二次画面化是否没有新增事实、对白、事件、因果、线索、规则、人物动机、无关前史或物品来历？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-15` | `FAIL-FAITHFULNESS` / `FAIL-NOVEL-TO-SCREEN-LANGUAGE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `novel_expression_transform_evidence.risk_check` 记录 `fact_drift/new_event/new_dialogue/unrelated_backstory` 全部为 false 或阻断原因 |
+| `角色动作` / `动作画面` 是否没有混入“试图/想要/打算/意图”等主观预判，直接情绪感受是否转成面部、肢体、生理反应、声线或主角内心独白？ | `GATE-SCRIPT-08` / `GATE-SCRIPT-17` | `FAIL-ACTION-PURITY` / `FAIL-CREATIVE-EVIDENCE` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `objective_action_purity_evidence` 记录删除的主观词、直接情绪标签和客观投影 |
+| 旁白是否只在历史、规则、前史或原文本身承担不可替代信息时保留，并有画面证据承托，没有成为默认信息堆放处？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-15` | `FAIL-PAIRING` / `FAIL-NOVEL-TO-SCREEN-LANGUAGE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `novel_expression_transform_evidence.narration_support_check` 记录旁白依据、配对画面和替代策略 |
+| 转译过程是否没有写机位、景别、镜头运动等摄影越权内容，也没有新增第二套解析字段？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `novel_expression_transform_evidence.risk_check.cinematography_overreach` 与 `field_projection_map.allowed_field_check` |

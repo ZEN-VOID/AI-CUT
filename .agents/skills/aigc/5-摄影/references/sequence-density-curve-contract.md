@@ -2,6 +2,10 @@
 
 本文件定义 `5-摄影` 的段落级分镜密度曲线机制。它不替代 `visual-sequence-alignment-contract.md` 的逐画面点归属，也不替代 `beat-analysis-contract.md` 对单个 `visual_unit` 的节拍判断；它负责在相邻画面单位进入逐句分镜前，先判断整段观看节奏应该如何变速：哪里省镜头，哪里加密，哪里停顿，哪里硬切，哪里交出给下游。
 
+## Example Usage Guard
+
+本文件中的速度阶段、槽位名称、set-piece 说明和例举对象只用于解释密度曲线裁决，不是段落结构模板。执行具体任务时，不得机械复用示例的节奏阶段、峰值槽位、分镜预算或对象组合；必须由当前相邻 `visual_unit` 的真实信息密度、动作/声音打点、高点证据和恢复需求重新建立 `sequence_density_curve`。
+
 ## Core Rule
 
 每当相邻 `visual_unit` 构成一个连续观看段落，必须先形成内部 `sequence_density_curve`。该曲线只约束分镜密度、时值倾向、峰值槽位、恢复槽位和交出锚点；最终落盘仍按正上方画面句子逐点写 `分镜明细：`，不得把多个画面句子合并成一条失主镜头。
@@ -107,3 +111,16 @@
 - 只有 `shot_count_distribution` 统计，没有 `density_curve_summary`。
 - 机械校验已经提示 2 镜集中，但没有复核第二镜是否具有有效触发点、观看结果或 AIGC 执行稳定性价值。
 - 顾问与复核流程的顾问只给“更快、更电影感”建议，没有给出段落变速、峰值槽位或恢复槽位。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 命中连续观看段落、固定两镜风险、set-piece 链条或顾问变速建议时，是否建立 `sequence_density_curve`？ | `GATE-CINE-04A2` | `FAIL-CINE-03D` | `N3.6-DENSITY-CURVE` | `density_curve_summary`、触发信号、未建立曲线的返工记录 |
+| 曲线是否包含 `tempo_beats / density_ramp / peak_slots / recovery_slots / density_budget / handoff_anchors`，而不是只有分镜数量统计？ | `GATE-CINE-04A2` | `FAIL-CINE-03D` | `N3.6-DENSITY-CURVE` | 段落密度曲线结果、峰值/恢复槽位和整体预算 |
+| 低信息处是否收敛，关键处是否加密，高密度后是否有恢复、反压、普通人反应或交出锚点？ | `GATE-CINE-05` | `FAIL-CINE-05D` | `N5-RHYTHM` + `N3.6-DENSITY-CURVE` | 张弛抽样、低信息收敛与关键信息发散证据 |
+| 机械校验提示 2 镜集中时，是否抽样证明第二镜具有有效触发点、观看结果或 AIGC 执行稳定性价值？ | `GATE-CINE-04A` | `FAIL-CINE-03A` | `N3.6-DENSITY-CURVE` + `N4-BEAT` + `N6.5-SHOT-PLAN` | 分镜数量分布与 2 镜集中抽样复核结果 |
+| 5-6 镜 `set_piece_chain_slots` 是否每镜都有独立动作相位、撞点、声音打点、结果或反应，删掉任一镜都会损失节奏拍？ | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `N3.6-DENSITY-CURVE` + `N6.5-SHOT-PLAN` | set-piece 不可删证明、每镜起点/撞点/结果抽样 |
+| 声音切点是否对应可见主体、动作相位和结果，而不是只靠拟声制造节奏？ | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `N4-BEAT` + `N6.5-SHOT-PLAN` | `sound_cut_pattern`、声音打点到可见结果的抽样 |
+| 曲线是否仍保持逐画面点归属，没有吞入后文动作、对白反应、道具揭示或下游转场方案？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `N3.5-SEQUENCE-ALIGN` + `N3.6-DENSITY-CURVE` + `N6.5-SHOT-PLAN` | `unit_ownership_map`、`ownership_guard`、跨块外溢抽样 |
+| 顾问与复核流程若参与段落节奏，是否给出可执行的密度槽位、峰值/恢复建议，而不是泛泛“更快、更电影感”？ | `GATE-CINE-20` | `FAIL-CINE-07` | `N5.6-ADVISOR` | 顾问请教 roster、`tempo_curve_advice`、节点同步问题摘要 |

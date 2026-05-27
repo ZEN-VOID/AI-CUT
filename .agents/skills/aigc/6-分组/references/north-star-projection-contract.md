@@ -50,3 +50,16 @@
 ## Word Count Handling
 
 north_star 三项与第 1 行固定前置词不计入组内 `时长估算`、1680 字目标上限、1980 字硬上限或 YAML `字数统计`。每组标题后的场景标题行、定场镜头、画面构图、构图分区和画面属性计入 YAML `字数统计`，但不计入 `时长估算`。组内时长只累计从 `5-摄影` 划定正文里的 `分镜N（约X秒）`；1680/1980 只作为场景标题行、定场镜头、画面构图、构图分区、画面属性加纯分镜剧本正文的辅助风险线。即便 north_star 的全局母稿较长，也不得删除固定前置词；第 1 行应通过场景化整理控制在 300 字以内，边界裁决只能回到分镜剧本正文的完整 atomic unit 与显式时长累计。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个分镜组组头是否输出三行纯内容，且第 1 行固定前置词置于当前组全局风格整理句之前？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N2-PROJECT-STYLE`、本文件 `Required Fields`、`Output Lines` | 执行报告记录每组第 1 行开头、固定前置词检查和缺失/错位修复结果。 |
+| 第 1 行全局风格整理句是否依据 `全局风格.全局风格提示词` 和当前组场景证据抽取匹配部分，保持自然单段、300 字以内，且没有完整照抄全局母稿？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N2-PROJECT-STYLE`、本文件 `Global Style Extraction Rules` | 执行报告记录每组风格整理句字数、引用的 north_star 母稿片段、当前组证据和照抄风险结论。 |
+| 第 1 行是否没有凭空新增当前组不存在的天气、光源、材质、角色、动作或风格元素？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N2-PROJECT-STYLE`、本文件 `Global Style Extraction Rules` | 执行报告记录当前组场景/定场/画面属性证据、被剔除的无证据风格元素和修复说明。 |
+| 第 2、3 行是否分别直引 `类型元素.类型元素提示词` 与 `细分风格.画面风格`，没有被项目 `MEMORY.md`、`CONTEXT/` 或其他偏好替代？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N2-PROJECT-STYLE`、本文件 `Required Fields` | 执行报告记录 north_star 字段原文、输出行比对和外部偏好未替代的结论。 |
+| 组头是否未显示 `[全局风格]`、`[类型元素]`、`[画面风格]`、中文括号、字段标题或装饰性拼接符？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N7-ASSEMBLE`、本文件 `Output Lines` | 执行报告记录字段标题/装饰符扫描结果、异常组 ID 和清除后的组头形态。 |
+| north_star 三项任一缺失时，是否没有猜测补写或静默替代，而是先修复 `north_star.yaml` 或取得用户授权？ | `GATE-GROUP-01`、`GATE-GROUP-02` | `FAIL-GROUP-02` | `N1-INTAKE`、`N2-PROJECT-STYLE`、本文件 `Missing Field Handling` | 执行报告记录缺失字段、候选相近字段、阻断/授权/修复路径和最终字段来源。 |
+| 若全局母稿没有覆盖当前场景类型，是否只保留通用底座和可证实风格逻辑，并在报告中记录 `style_projection_gap`？ | `GATE-GROUP-02` | `FAIL-GROUP-02` | `N2-PROJECT-STYLE`、本文件 `Global Style Extraction Rules` | 执行报告记录 gap 场景、缺失风格类型、保留的通用底座和未新增风格的确认。 |
+| north_star 三项、固定前置词和组间连接件风格行是否没有计入组内 `时长估算`、1680/1980 字数风险或 YAML `字数统计`？ | `GATE-GROUP-11` | `FAIL-GROUP-08` | `N7-ASSEMBLE`、本文件 `Word Count Handling` | 执行报告记录字数/时长统计排除项、YAML 统计回指和 north_star 未污染统计的检查。 |

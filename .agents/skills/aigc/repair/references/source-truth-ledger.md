@@ -61,3 +61,16 @@ source_rules_reviewed:
     rule_summary: ""
     owner_decision: ""
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否按 Truth Owners 表定位项目记忆、项目上下文、`0-初始化` 到 `10-审片`、review/state 的 canonical owner，而不是让 repair 技能直接夺取业务真源？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | `canonical_owner`、owner decision、引用的 source rule |
+| 用户给出的长期偏好、禁区或持续口味是否优先落到 `MEMORY.md`，且一次性修复没有污染项目长期记忆？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | MEMORY 写入或不写入理由、change_intent、用户授权证据 |
+| 写回顺序是否遵守 `MEMORY.md` -> 最早 source owner -> 同层投影 -> 下游文本 -> 生成资产状态 -> review/state -> future guardrail？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | `writeback_order`、stage routes、每步 action |
+| 创作性文本改写是否由 owning stage 合同与豆包执行 lane 共同约束，且写回前经过 owning stage review gate？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | owning stage gate、provider output 分类、最终 verdict |
+| 图像和视频结果是否只由对应 image/video provider skill 或 leaf 持有，repair 只产生失效、重建任务、route 或 review finding？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-ASSET` | `N7-ASSET-REBUILD-ROUTE` | asset action plan、provider route、未伪造成图/成片声明 |
+| 脚本是否只用于读取、diff、统计、格式转换和校验，没有生成 canonical creative truth？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | script usage log、LLM/provider authorship 说明、creative truth owner |
+| 用户显式切换模型或禁用豆包时，是否记录模型切换、降级路径和未执行 provider，而不是静默改变执行 lane？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | model override、provider status、degradation reason |
+| 执行型修复是否完整记录 `source_rules_reviewed` 的 skill/context/references/steps/types/review 与 owner_decision？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SOURCE-RULE` | `N2-SOURCE-RULE-REVIEW` | `source_rules_reviewed` 结构化记录、loaded partition 列表、rule summary |

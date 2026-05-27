@@ -189,3 +189,14 @@
 - **画面属性**的裁决和落盘以 `knowledge-base/摄影构图/` 作为知识库参考，确保构图布局、构图方式、光源、色彩等审美维度有摄影构图理论支撑。
 - **分镜明细**的裁决和落盘以 `knowledge-base/电影镜头/` 作为知识库参考，确保镜头语言、运镜调度、镜头技术等执行维度有电影镜头专业理论支撑。
 - **对话戏**的分镜明细落盘应特别参考 `knowledge-base/电影镜头/一流对话场景.md`，该文件包含 100 个对话场景高级拍摄技巧，覆盖力量对比、障碍物、位置交换、深布景、环拍对话、正反打变化等专业技法。当 visual_unit 类型画像命中对白画面、对白身体锚点或关系停顿时，必须从该知识库中选取匹配的对话场景技法指导分镜明细写作。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `scene_visual_constraint` 是否先锁定场景身份，使年代、空间功能、环境声底色、材质光影可被还原？ | `GATE-CINE-26` | `FAIL-SCENE-IDENTITY-01` | `N6.3-SCENE-VISUAL-CONSTRAINT` | 场景/镜头身份检查结果、`scene_identity` 抽样 |
+| 每个场景是否形成构图布局、构图方式、光源设置、照明类型、色彩体系和关键摄影技术参数的内部约束？ | `GATE-CINE-22` | `FAIL-CINE-05P` | `N6.3-SCENE-VISUAL-CONSTRAINT` | 场景视觉约束内部裁决结果、六大分区覆盖情况 |
+| 构图方式是否只选当前最关键的 2-3 个子维度，避免为凑全七项而误判形状感、线条感或气势？ | `GATE-CINE-22` | `FAIL-CINE-05P` | `N6.3-SCENE-VISUAL-CONSTRAINT` | 构图方式选取依据、错误维度删除或替换记录 |
+| 光源是否写成照亮/遮蔽对象、阴影/轮廓结果、信息可见性、权力关系或情绪温度，而不是只写来源词？ | `GATE-CINE-30` | `FAIL-CINE-05Y` | `N6.3-SCENE-VISUAL-CONSTRAINT` | 光源叙事检查结果、来源词空转修复字段 |
+| 逐镜分镜明细是否消费场景视觉约束，且没有把内部参数清单或标签直接外露到成稿？ | `GATE-CINE-18` | `FAIL-CINE-05G` | `N6.5-SHOT-PLAN` + `N7-INJECT` | 自然成稿检查结果、参数清单腔删除记录 |
+| 当类型画像命中对白画面、对白身体锚点或关系停顿时，是否消费对话戏知识库并避免机械正反打？ | `GATE-CINE-32` | `FAIL-DIALOGUE-CINEMATOGRAPHY-TEMPLATE` | `N6.4-FUNCTIONAL-PROJECTION` + `N6.5-SHOT-PLAN` | 对白场景去模板化检查结果、对话场景技法消费说明 |

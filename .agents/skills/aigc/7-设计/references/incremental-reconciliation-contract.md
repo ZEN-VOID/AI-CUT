@@ -117,3 +117,17 @@ subjects:
 | 已有设计稿被静默覆盖 | 对应域 `2-设计` design gap rules |
 | 已有图片或 JSON 被静默覆盖 | 对应域 `3-生成` generation gap rules |
 | manifest 与清单冲突 | 清单真源优先，manifest 作为 sidecar 修复 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本轮是否先锁定了可读上游范围、用户指定集号子集和既有 7-设计输出范围，而不是默认全量重跑或凭记忆判断？ | `GATE-DESIGN-INC-01` source scope lock | `FAIL-DESIGN-INC-SOURCE-SCOPE` | `D-N3-RECONCILE`；本文件 `Reconciliation Pass` 第 1-2 条 | `source_scope`、`previous_scope`、已读取的 `6-分组/第N集.md` 列表和既有 `1-清单/2-设计/3-生成/design-manifest.yaml` 摘要 |
+| `design-manifest.yaml` 是否只作为 sidecar 状态索引，而没有替代清单、设计稿或生成资产真源？ | `GATE-DESIGN-INC-02` sidecar truth boundary | `FAIL-DESIGN-INC-MANIFEST-TRUTH` | `D-N3-RECONCILE`；本文件 `Ownership` 与 `Runtime State` | manifest 字段与对应 canonical 文件路径对照、冲突时采用清单真源优先的说明 |
+| 本轮 `reconcile_delta` 是否完整覆盖新增主体、归并候选、重命名、失效来源、设计缺口、生成缺口和覆盖风险？ | `GATE-DESIGN-INC-03` delta completeness | `FAIL-DESIGN-INC-DELTA-INCOMPLETE` | `D-N3-RECONCILE`；本文件 `Reconciliation Pass` 第 3 条 | `reconcile_delta` 七类字段逐项记录，空字段也说明为空的依据 |
+| 是否遵守最早缺口优先：清单未合并不得跳到设计，设计稿缺失不得跳到生成？ | `GATE-DESIGN-INC-04` gap order | `FAIL-DESIGN-INC-GAP-ORDER` | `D-N3-RECONCILE -> D-N4-DISPATCH`；对应域 `1-清单/2-设计/3-生成` leaf | `filled_gaps`、跳过或延后节点说明、被路由到的 leaf 名称和原因 |
+| 新主体、别名、代称、同一地点/角色/道具的状态称呼是否由 LLM 做归并裁决，且无法确认时进入待核项？ | `GATE-DESIGN-INC-05` list merge judgment | `FAIL-DESIGN-INC-MERGE` | 对应域 `1-清单` merge 模式；本文件 `List Merge Rules` | `new_subjects`、`merged_subjects`、归并理由、待核 alias/conflict 列表 |
+| 既有稳定 ID、场景 `S###`、文件锚点和 canonical 名称映射是否保持稳定，没有因清单重排被重编号或静默重命名？ | `GATE-DESIGN-INC-06` stable identity | `FAIL-DESIGN-INC-STABLE-ID` | 本文件 `Stable Identity Rules`；场景域回 `场景/2-设计` stable identity，角色/道具回对应域清单或设计 leaf | 旧 ID/文件锚点与新主体映射对照、`canonical_name` 变更记录、引用扫描或待扫描说明 |
+| `2-设计` 是否只处理 `design_gaps` 或用户明确指定 repair/regenerate 的主体，并跳过既有设计稿？ | `GATE-DESIGN-INC-07` design gap overwrite guard | `FAIL-DESIGN-INC-DESIGN-OVERWRITE` | 对应域 `2-设计`；本文件 `Design Gap Rules` | `design_gaps`、`skipped_existing`、用户授权覆盖记录或版本化说明 |
+| `3-生成` 是否只处理 `generation_gaps` 或用户明确指定主体，且不因新增上游重写设计稿或静默替换图片/JSON？ | `GATE-DESIGN-INC-08` generation gap overwrite guard | `FAIL-DESIGN-INC-GEN-OVERWRITE` | 对应域 `3-生成`；本文件 `Generation Gap Rules` | `generation_gaps`、`skipped_existing`、`supersedes` / `variant_of` 或用户授权记录 |
+| 执行报告或域级状态摘要是否留下 source scope、previous scope、新增/归并/跳过/补缺/风险的闭环证据？ | `GATE-DESIGN-INC-09` reporting coverage | `FAIL-DESIGN-INC-REPORT` | `D-N6-CLOSEOUT`；本文件 `Reporting` | `执行报告.md`、域级状态摘要或 `validation-report.md` 中的七项 reporting 字段 |

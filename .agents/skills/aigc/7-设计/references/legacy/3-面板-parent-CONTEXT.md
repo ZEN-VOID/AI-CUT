@@ -54,3 +54,15 @@
 - 批量面板链路里，`--generation-dry-run` 应被视为跨 leaf 的统一停点口令；局部旧别名可以保留，但不能再让同层兄弟脚本各说各话。
 - 面板层默认完成口径是 layout + request sidecar + 内置 imagegen 生成/复制证据；不要把 `request_ready` 写成图片已完成态。
 - active leaf 每新增一个，都要同步父 `3-面板`、`7-设计` 父层与 registry；否则批量路由会出现“文件存在但入口仍 pending”的断层。
+
+## Review Gate Mapping
+
+No independent gate: 本文件是旧 `3-面板` tranche parent 的经验归档，不再作为 active 面板执行上下文、图像生成合同或阻断真源；所有经验必须回接当前域级 `3-生成` / 图像阶段合同或父级 closeout gate。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把旧 `3-面板` CONTEXT 当作当前 active preloaded context，绕过 `场景 / 角色 / 道具` 域级生成或图像阶段合同？ | `GATE-DESIGN-LEGACY-01` | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N4-DISPATCH`；对应 active 域级 leaf `SKILL.md + CONTEXT.md` | 已加载上下文列表、active leaf 位置、legacy 只读声明 |
+| SMART 参照、`full_generation_prompt` 优先级、request sidecar、`--generation-dry-run` 等经验是否未经当前 active bridge / leaf review 复核就被执行？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | 对应域级 leaf review；active image-generation execution contract | 被复用 heuristic、active bridge/contract 位置、采用/废弃理由 |
+| 旧 API provider、旧 Assets 扫描、旧 panel bridge 或旧 path 是否仍冒充当前 runtime，导致 JSON/layout/image handoff 漂移？ | `GATE-DESIGN-LEGACY-03` | `FAIL-DESIGN-LEGACY-PATH-DRIFT` | `D-N2-DOMAIN -> registry/routes/shared runtime 修复`；`references/阶段路由矩阵.md` | `rg` 搜索结果、旧路径更新清单、无法自动更新的遗留引用 |
+| `request_ready`、layout-only 或 JSON-only 是否被误报为真实图片完成，污染父级阶段 closeout？ | `GATE-DESIGN-CLOSEOUT-03` | `FAIL-DESIGN-CLOSEOUT-REPORT` | `D-N6-CLOSEOUT`；对应域级 generation/image report | request sidecar、真实图片路径或缺口、validation-report residual risk |
+| 面板失败是否被父级直接补 prompt、补图或改设计正文，而不是路由回 active leaf / image stage repair？ | `GATE-DESIGN-CLOSEOUT-02` | `FAIL-DESIGN-CLOSEOUT-REPAIR-ROUTE` | `D-N5R-DOMAIN-REPAIR`；对应 active leaf review + re-review | failed finding、repair owner、re-review verdict、父级未补业务正文说明 |

@@ -37,6 +37,7 @@
 | 顾问与复核流程启用时只本地模拟顾问 | 顾问请教层 | 回到 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径；不可用时直接使用本地流程 | 把带 `node_ref/pass_ref/gate_ref/role_lens` 的 `advisor_consultation_packet` 或本地 checklist 固定为 LLM 投影前上下文，不让顾问替代上游真源 | packet 或本地 checklist 能回指节点锚点与可执行指导 |
 | 顾问与复核流程 启用后只得到泛泛审美评价，没有节点级编导参谋 | 顾问问题质量层 | 回到当前 `steps/directing-workflow.md` 节点、`Thought Pass Map` 与 review gate，把 judgment/actions/evidence/route/gate 转化为顾问任务 | 顾问必须代入角色意识、创作风格和专业水准，输出可转成 `must_do / must_not_do / execution_brief` 的节点级参谋指导 | `advisor_consultation_packet` 中每条采纳意见都能回指节点，并改变节点判断、执行取舍、证据补强、风险禁区或后续投影上下文 |
 | 创作规则很强但执行报告无法证明发生过 | 创作证据层 | 补 `director_substance_evidence`、`peak_visual_plan`、`visual_aesthetic_evidence.scene_items` 和 `episode_final_image_evidence`；特例降级必须说明原因 | review 固定 `GATE-DIR-06`，阻断"只有规则文档、没有创作证据"的交付 | 执行报告不仅有 mechanical pass，也能回指关键场景的戏剧问题、高潮画面、视觉主轴、美学组织和终结画面尾钩 |
+| 导演阶段把编剧已画面化成果重新抽象化 | 具像画面语言层 | 回到 `../_shared/concrete-visual-language-contract.md`，把“电影感/高级感/宿命感/视觉气质/人物状态/导演意图”等抽象表达改成可见物、人物动作、空间方向、材质光影、可听声音、可演停顿或余波，并补 `concrete_visual_language_evidence` | workflow 固定 `N3-DIR-SUBSTANCE / N7-DIR-AESTHETIC / N9-DIR-DRAFT / N10-DIR-REVIEW` 消费具像画面语言合同，review 固定 `GATE-DIR-17` | 导演稿、顾问意见、报告和终稿离开抽象词仍能被下游拍摄/表演/设计执行；没有把 `2-编剧` 的画面化成果回退成概念标签 |
 | 思维·执行节点退化成 checklist | steps 拓扑层 | 回到 `steps/directing-workflow.md#Thinking-Action Node Contract`，为责任节点补 `judgment_question / decision / actions_taken / evidence_keys / route_out / gate_status / source_owner` | review 新增节点 ledger gate，执行报告必须写 `thinking_action_node_ledger`；顾问、review 和 writeback 都消费同一 ledger | 节点不只说明"做了什么"，还能证明"先判断了什么、据此做了什么、证据在哪里、失败回哪里" |
 | 学习型合同只完成静态接入 | 验证闭环层 | 补 `learning_integration_review_evidence`，区分真实样例、等价 smoke、`static_only` 和残余风险 | workflow 固定 `Learning Integration Review Closure`，review 检查新增/显著修改合同是否留下静态接入点、样例或 smoke 状态与后续观察点 | 审查结果不再把"文档已引用"误判为"真实生成已稳定产出" |
 
@@ -62,10 +63,13 @@
 11. 检查 `thinking_action_node_ledger`：每条记录包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。
 12. 若本轮新增或显著修改学习型合同，检查 `learning_integration_review_evidence`。
 13. 交付前把 review finding 当成修复输入；阻断项先在本阶段修复并复审，仍失败再阻断或回源层。
+14. 检查 `concrete_visual_language_evidence`：导演判断、视觉主轴、氛围意境、高潮承托、终结画面、顾问意见和报告是否全部能落到可见/可听/可执行锚点；若出现抽象审美词、概念标签或解释性导演意图，回到最早责任节点修复。
 
 ## Reusable Heuristics
 
 - `3-导演` 的价值不是"把剧本写得更像电影"，而是让每场关键戏有问题、有压力、有选择、有信息释放、有观众位置和可执行的动作/声音/空间发动机。
+- 导演阶段可以有自己的创作判断，但判断不等于抽象概念。一个导演想法必须能回答：画面里看见什么、声音里听见什么、演员身体怎么执行、空间/道具如何承托；答不出时，它还没有完成具像化。
+- `2-编剧` 已经完成的画面化成果不能在 `3-导演` 被压回“气质/主题/状态/意图”。导演可以加强主次、节奏、声音、氛围和尾钩，但加强后的落盘语言仍应是具体画面。
 - 同一句表层动作在不同人物处境下不是同一场戏。导演判断先问“谁、为什么、此刻状态、未出口压力”，再问画面怎么显影；否则下游会把戏误解为动作生成。
 - 高潮画面强化的顺序是：先找上游已有满足兑现点，再找角色锚点和状态差，最后才强化画面、声音、表演和余波；不要为了"更炸"新增事实。
 - 团队顾问的价值是"创作前照亮取舍"，不是接管剧本；最终执行口径必须同步于当前思维·执行节点，落成节点判断、执行取舍、证据补强、字段投影、表演任务、声画承托和风险禁区，并作为后续 LLM 投影、阶段内修复与复审的上下文继续使用。

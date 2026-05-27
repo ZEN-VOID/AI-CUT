@@ -71,3 +71,14 @@
 | `scene_anchor` | 所在场景标题 |
 | `episode_anchor` | 所在 `第N集.md` |
 | `ownership_boundary` | 当前 visual_unit 拥有的可见信息边界；用于阻止段落级连续运镜外溢 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 所有标签命中或语义命中的画面性句子是否被识别为独立 `visual_unit`，并在输出中就近有 `分镜明细：`？ | `GATE-CINE-02` | `FAIL-CINE-02` | `N2-MATCH` | 画面性句子命中清单、缺失覆盖修复记录 |
+| 非画面字段是否被排除；只有同一行存在明确可见承托时才允许挂 `分镜明细：`？ | `GATE-CINE-10` | `FAIL-CINE-05A` | `N2-MATCH` + `N7-INJECT` | 非画面字段排除记录、误加分镜明细删除记录 |
+| 一行字段是否保持一个 `visual_unit`，没有为了段落运镜流畅合并多个画面句子或拆改原文行？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `N2-MATCH` + `N3.5-SEQUENCE-ALIGN` | `ownership_boundary`、逐画面点归属检查、跨块外溢抽样 |
+| 道具、反射、倒影、涟漪、餐具/杯子/纸张/桌面等是否通过互动、关键信息、规则/证据/危险源或必要环境交代准入？ | `GATE-CINE-24` | `FAIL-CINE-05S` | `N2-MATCH` + `N6.5-SHOT-PLAN` | 道具镜头准入检查结果、删除或降级的物件焦点 |
+| `visual_unit` 是否保留 `source_line / label / match_reason / scene_anchor / episode_anchor / ownership_boundary`，能阻止后文动作、对白反应、记忆段或道具揭示提前外溢？ | `GATE-CINE-17` | `FAIL-CINE-05J` | `N2-MATCH` + `N6.5-SHOT-PLAN` | 思维·执行节点完整检查、visual_unit evidence 抽样 |
+| 已通过准入的道具是否仍服务人物动作链和当前画面任务，没有成为孤立切点或破坏动作衔接？ | `GATE-CINE-06A` | `FAIL-CINE-05T` | `N6-CONTINUITY` + `N6.5-SHOT-PLAN` | 人物动作链优先检查、物件切点降级或删除记录 |

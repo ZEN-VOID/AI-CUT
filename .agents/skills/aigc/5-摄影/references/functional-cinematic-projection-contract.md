@@ -2,6 +2,10 @@
 
 本文件定义 `5-摄影` 的功能性底线：`分镜明细` 不是好看的镜头句子，也不是随机摄影术语拼接；它必须把上游画面句子转化为下游 `6-分组`、`6-图像`、`7-视频` 可消费的影视事实，尤其要给出可执行的运镜策略。
 
+## Example Usage Guard
+
+本文件中所有示例、字段样句和反模式仅用于说明功能投影、非复述性和 payload 完整度的判断方法，不是分镜正文模板。执行具体任务时，不得复用示例中的主体、动作、字段组合或句式；必须从当前画面句子的真实观看任务、下游消费需求和 `shot_design_plan` 重新生成。
+
 ## Core Rule
 
 每个 `分镜N` 必须先回答“这一镜在影视上解决什么问题”，再回答“摄影机为什么这样动、怎么动、何时停、停多久、如何交接”，最后回答“它如何被图像/视频工具执行”。若一条分镜删掉后不影响主体、动作、信息、空间、情绪、节奏、时值、连续性、运镜策略或下游生成锚点，它就是伪分镜，必须删除或重写。
@@ -51,6 +55,56 @@
 | `continuity_handoff` | 从上一镜如何进入，或把注意力交给下一镜/下一画面的哪个可见接口；场景变化时必须能还原上一画面交出点和下一画面进入点 |
 | `unit_ownership` | 当前分镜归属的上游画面句子，以及没有提前吞入后文动作、对白反应、记忆段或道具揭示的证据 |
 | `ai_video_prompt_execution` | 镜头是否从起点包裹动作、人物/镜头运动是否有相对画面或摄像机的方向参照、光线是否写成可见结果、情绪是否落到表演微动态；不要求显式字段落盘，但必须能从正文稳定还原 |
+
+## Gradient Shot Detail Sufficiency
+
+分镜明细完整性采用梯度模型，而不是要求每条 `分镜N（约X秒）` 都完整展开全部维度。15 项是维度池，不是逐镜字段清单；每镜应按画面任务、信息重要性、动作复杂度、情绪强度、段落位置和下游生成风险选择足够维度。
+
+总原则：分镜明细规则服务创作质量，不服务分镜堆砌。分镜增加、描述加密或镜头复杂化的唯一理由，是产生新的观看结果、动作相位、信息揭示、情绪压力、空间关系、时值必要性或下游执行稳定性。删掉无损失的镜头必须删并或重写。
+
+| grade | trigger | required sufficiency |
+| --- | --- | --- |
+| `L0-basic` | 低信息过场、简单动作、空间承接、恢复槽位 | 归属、镜头功能、起点/路径/落点、时值、交接、非复述；低信息镜头可以短，但必须能看出摄影机如何看和如何收住 |
+| `L1-standard` | 常规动作、普通环境、一般关系变化、标准展开槽位 | 在 L0 上增加可见主体、动作相位、构图锚点、光线结果、方向参照；能指导生图和视频基本执行 |
+| `L2-emphasis` | 规则显影、重要道具、对白潜台词、人物反应、空间重置、关键揭示 | 在 L1 上增加焦点/景深策略、表演微动态、注意力路径、上下镜连贯；能承托表演、读秒、信息显影或关系变化 |
+| `L3-peak` | 高潮、惊吓、认知反转、强情绪、set-piece、连续声画打点 | 在 L2 上增加节奏停顿/爆发理由、反应余波、过渡锚点、AI 视频稳定性证明；每镜必须有独立结果或不可删理由 |
+
+### Gradient Decision Inputs
+
+梯度由以下输入共同决定，不由“想写得更高级”决定：
+
+1. `information_importance`：是否有新信息、规则、危险、关系变化。
+2. `action_complexity`：单一动作、动作分相、碰撞、追逐、多人调度或 set-piece。
+3. `emotional_intensity`：普通反应、压抑停顿、崩溃、醒悟、惊吓。
+4. `downstream_risk`：AI 视频是否容易断姿态、错方向、跳轴、光线漂移或表演不可见。
+5. `sequence_position`：铺垫、加速、峰值、恢复、交出。
+6. `readability_need`：是否承载对白、旁白、文字、道具、微表情或规则可读性。
+
+### Sufficiency Dimension Pool
+
+成稿不输出下列字段标签，但按梯度需要从正文中稳定反推出相应信息：
+
+| item | requirement |
+| --- | --- |
+| `unit_ownership` | 这条分镜服务哪一句上游画面句子，且未提前吞入后文动作、对白反应、记忆段或道具揭示 |
+| `shot_function` | 这一镜解决的影视任务：建立空间、执行动作、揭示信息、承托表演、制造危险、完成反应、强化高点或交出下一镜 |
+| `entry` | 镜头从哪个景别、机位、焦点、空间位置、声音、动作或光色接口进入 |
+| `visible_subject` | 当前真正可见的主主体或主注意力点 |
+| `action_phase` | 当前镜头处于预备、执行、结果、反应、停顿、显影、进入、退出或转交中的哪一相位 |
+| `camera_path` | 摄影机如何运动或为什么静止；方向、速度曲线、停点、焦点/景别变化必须可读 |
+| `attention_anchor` | 观众注意力被哪个构图锚点锁住，如前景遮挡、门框、桌线、手、眼、文字、光斑、阴影边界 |
+| `camera_grammar` | 景别、视角、景深、焦点、镜头类型或构图选择中至少一项真实服务当前节拍 |
+| `lighting_result` | 光线造成的可见结果：照亮、遮蔽、反光、压暗、轮廓分离、阴影边界或背景层次 |
+| `duration_reason` | `约X秒` 与镜头语言、对白量、可读性、停顿或压缩理由一致；非 `slow_burn/hold` 的 `约3秒` 以上必须有必要性证据，情绪类 `slow_burn/hold` 必须有可见微动态、静止压力、极慢运动或框内变化 |
+| `performance_microdynamic` | 情绪落成呼吸、视线、咬肌、眉心、手指、肩膀、喉结、步伐、身体重心等可见物理动作 |
+| `exit_and_handoff` | 镜头最后停在哪里，如何收住或交给下一镜/下一画面 |
+| `direction_reference` | 人物/镜头运动相对摄像机或画面边界明确，如朝镜头、远离镜头、从画面左侧进入、停在右侧三分之一 |
+| `prop_admission` | 道具、反射、倒影、涟漪、桌面、纸张、杯子等只有在互动、关键信息、规则/证据/危险源或必要环境交代时成为焦点 |
+| `non_paraphrase` | 删除源句已有主体、动作、道具和事实后，仍能读出机位、路径、速度、停点、焦点、构图、光线结果或交接方式 |
+
+### Anti-Piling Rule
+
+低信息镜头可以短，甚至只用一镜；高信息镜可以加密，但每一镜都必须带来新观看价值。不得为了满足维度池而把 L0/L1 画面写成 L3，也不得把“完整性”理解为术语堆叠、参数清单或固定多镜模板。合格的短镜头仍应保留当前梯度所需的关键组合；否则它只是画面内容复述。
 
 ## Downstream Consumability
 
@@ -104,3 +158,18 @@
 3. 抽取并补齐 `visible_subject / action_phase / camera_movement_plan / shot_duration_decision / composition_anchor / light_color_material / continuity_handoff / unit_ownership / ai_video_prompt_execution`。
 4. 按 Rule Stack Projection 回查节拍、节奏、镜头时值、峰值、连续性、技法库和动态运镜细则，重新选择最小充分的摄影与运镜策略。
 5. 最后才进入 `natural-shot-detail-writing-contract.md`，把功能 payload 写成自然中文。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does each `分镜N` solve a real film function, and would deleting it lose information, relation, action result, emotional pressure, viewing discovery, rhythm, duration, continuity or downstream anchor? | `GATE-CINE-28` / `GATE-CINE-15` | `FAIL-CINE-05W` / `FAIL-CINE-05H` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `shot_narrative_function`, delete-loss checks and kept/deleted shot samples |
+| Can every shot be traced to its owning upstream `visual_unit`, without absorbing later action, dialogue reaction, memory insert, prop reveal or full transition solution? | `GATE-CINE-04D` | `FAIL-CINE-05M` | `references/visual-sequence-alignment-contract.md` / `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `unit_ownership` / `unit_ownership_map` evidence and forbidden-bleed repairs |
+| Does each shot pass the source paraphrase subtraction test, leaving real camera decisions after source nouns, actions and facts are removed? | `GATE-CINE-15B` | `FAIL-CINE-05R` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N7-INJECT` | paraphrase-subtraction samples and before/after repaired lines |
+| Can the final wording expose functional payload such as subject, action phase, movement plan, duration, camera plan, composition anchor, light/material, continuity handoff and AI video execution? | `GATE-CINE-15` | `FAIL-CINE-05H` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | payload extraction samples and missing-payload repairs |
+| Does the shot use L0/L1/L2/L3 gradient sufficiency according to information, action, emotion, downstream risk, sequence position and readability, instead of overfilling or underwriting? | `GATE-CINE-15C` | `FAIL-CINE-05AA` | `references/functional-cinematic-projection-contract.md#Gradient-Shot-Detail-Sufficiency` / `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | gradient samples and low/high information sufficiency decisions |
+| Are dimension-pool details included only when they naturally exist in the current visual unit, and folded into natural language rather than labels? | `GATE-CINE-23` | `FAIL-CINE-05Q` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N7-INJECT` | `dimension_coverage` evidence and naturalized dimension rewrites |
+| Does the shot remain consumable by image, grouping and video stages, including clear visible subject, pose/action, composition, light/material, movement, duration and continuity? | `GATE-CINE-15` / `GATE-CINE-15A` | `FAIL-CINE-05H` / `FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | downstream payload extraction and AI video prompt execution checks |
+| Are props, reflections, ripples, table objects, paper edges or other objects admitted only for interaction, key information, rule/evidence/danger or necessary environment? | `GATE-CINE-24` | `FAIL-CINE-05S` | `references/visual-matching-contract.md#Prop-Admission-Overlay` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `prop_admission` samples and deleted/de-emphasized object shots |
+| Does every displayed `约X秒` match movement, readability, dialogue/voiceover budget, pause or compression reason? | `GATE-CINE-04B` / `GATE-CINE-04C` | `FAIL-CINE-03B` / `FAIL-CINE-03C` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N5.2-DURATION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `shot_duration_decision`, dialogue budget and long/short shot samples |
+| Are examples and field samples used only to demonstrate judgment, not copied as shot prose or payload templates? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N7-INJECT` | reference non-template statement and template-pollution repair evidence |

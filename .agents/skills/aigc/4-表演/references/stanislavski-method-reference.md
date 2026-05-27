@@ -465,3 +465,16 @@ stanislavski_method_evidence:
 | `actor-performance-control-contract.md` | 平行补充 | 五层控制已含 micro_expression/body_linkage/ambient，本文件提供技术来源解释 |
 | `performance-and-scene-craft-contract.md` | 上游消费 | 提供演员任务规划法（最高任务→贯穿动作）和注意力集中法 |
 | `novel-to-screen-language-contract.md` | 理论支撑 | 提供小说内视→表演材料的方法论基础 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 方法选择是否有明确触发条件和退出标准，而不是把斯坦尼/方法派术语泛化贴到所有 beat？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N2-PERF-TYPE` / `N4-PERF-ACTOR-CONTROL` 的方法触发 Gate Check | `stanislavski_method_evidence[].method_used`、`pass_node`、`技术层级` |
+| 感知锚定是否先锁定上游视觉/听觉/触觉等具体信号，再转成身体先行反应，而不是先写认知结论？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N3-PERF-PSYCHOLOGICAL` 的感知锚定法 | `stanislavski_method_evidence[].技术层级.感知锚定`、`假使条件`、`身体先行`、`psychological_reaction_evidence[].trigger` |
+| 形体动作分析是否把情绪标签拆成动作、对象、空间位置和完成质量，并进入客观可拍字段？ | `GATE-PERF-05` | `FAIL-ACTION-FIRST-02` / `FAIL-ACTION-FIRST-04` | `N5-PERF-SCENE-CRAFT` 的动作链与可达性修复 | `objective_action_purity_evidence`、`thinking_action_node_ledger` 中 `N5-PERF-SCENE-CRAFT` |
+| 三层情绪执行是否区分 surface / suppressed / hidden motive，并与五层表演控制证据对齐？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的三层情绪执行模板 | `stanislavski_method_evidence[].技术层级.三层情绪`、`actor_performance_control_evidence[].surface_emotion`、`suppressed_emotion`、`hidden_motive` |
+| 注意力集中与舞台现实是否让视线落到真实对象、信息源或威胁上，而不是默认“看向远方”？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` / `N6-PERF-BLOCKING` 的视线与空间权力修复 | `blocking_power_map.gaze_control`、`integration_targets` |
+| 演员任务规划是否保留在证据层，终稿只写具体动作、表情、身体联动和声音变化，未把“想要/试图/意图”写入动作字段？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` / `N7-PERF-DRAFT` 的 objective action purity 修复 | `performance_task_map`、`objective_action_purity_evidence[].risk_check.subjective_intent_in_action=false` |
+| 方法派沉浸是否没有新增无关个人历史、角色目标、动机或上游不存在的情绪类型？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` / `N7-PERF-DRAFT` 的上游一致性修复 | `stanislavski_method_evidence[].与上游一致性检查`、`psychological_reaction_evidence[].risk_check.unrelated_backstory=false` |
+| 方法论结果是否最终内嵌到心理反应、对白画面、角色动作、场面调度或证据字段，而不是输出为理论说明？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N7-PERF-DRAFT` 的字段内嵌与规则泄露清理 | `stanislavski_method_evidence[].内嵌字段`、`integration_targets`、`findings[].source_owner=references/stanislavski-method-reference.md` |

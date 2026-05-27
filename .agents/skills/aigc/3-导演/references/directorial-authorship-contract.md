@@ -247,3 +247,15 @@ director_substance_plan:
 - `reveal_or_withhold` 与 `audience_position` 是否一致，不是脱节的两段话？
 - `director_substance_plan` 是否在 N9-DIR-DRAFT 中内嵌进正文，而不是作为解释性规划段落输出？
 - 创作判断是否只改变表现层，没有新增剧情事实、对白、因果、规则或线索？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个关键场景是否有 `director_substance_plan`，并能回指上游原文而非漂亮改写或结构整理？ | `GATE-DIR-06` | `FAIL-CREATIVE-EVIDENCE` | `N3-DIR-SUBSTANCE` | `director_substance_evidence.source_anchor`、`dramatic_question`、`adaptation_payload` |
+| `scene_turn` 是否包含具体 entry/turn/exit 状态，能证明场景状态差？ | `GATE-DIR-03` | `FAIL-SCENE-TURN` | `N3-DIR-SUBSTANCE` | `director_substance_plan.scene_turn`、终稿对应字段 |
+| 角色是否有活人感行为动机种子和多人行动/反应分工，而不是空闲等待表演？ | `GATE-DIR-10` | `FAIL-LIVED-IN-01` / `FAIL-LIVED-IN-02` / `FAIL-LIVED-IN-04` | `N3-DIR-SUBSTANCE` | `lived_in_behavior_seed`、`action_driver`、`reaction_receiver` |
+| 场景身份种子是否覆盖年代/功能/社会语境/环境声/材质光影中的至少 3 项，并未写成摄影方案？ | `GATE-DIR-11` | `FAIL-SCENE-IDENTITY-01` | `N3-DIR-SUBSTANCE` / `N7-DIR-AESTHETIC` | `scene_identity_seed`、`director_substance_evidence.scene_identity_seed` |
+| `performance_engine` 是否可被演员直接执行，并与空间/道具/声音引擎及 `scene_turn` 协同？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N3-DIR-SUBSTANCE` / `N9-DIR-DRAFT` | `performance_engine`、终稿 `对白画面` / `角色动作` 投影 |
+| `reveal_or_withhold` 是否与 `audience_position` 一致，形成明确观众位置？ | `GATE-DIR-12` | `FAIL-AUDIENCE-PSYCHOLOGY` | `N3-DIR-SUBSTANCE` | `audience_position`、`reveal_or_withhold`、`audience_psychology_map` |
+| 导演创作判断是否内嵌到正文既有字段，没有以规划段落、总结块或新增字段泄露？ | `GATE-DIR-06` | `FAIL-CREATIVE-EVIDENCE` | `N9-DIR-DRAFT` | `faithful_directing_trace`、终稿字段 diff、`embedded_in_fields` |

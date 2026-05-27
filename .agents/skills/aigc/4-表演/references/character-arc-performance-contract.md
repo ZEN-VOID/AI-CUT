@@ -163,3 +163,14 @@ character_arc_performance_evidence:
 - "多角色弧线交织时，永远先回答'这一秒观众应该看谁'，再决定谁的弧线表演更强烈。"
 - "弧线是累积的：每一集的表演都在为下一集的变化做铺垫，不存在孤立的表演决定。"
 - "终局的收敛是把之前所有的爆发收回体内；终局的爆发是把之前所有的收敛一次释放。无论哪种，前面必须有东西可收或可放。"
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键角色是否形成 `character_arc_profile`，并能说明本集 `arc_stage`、`arc_direction` 和弧线锚点？ | `GATE-PERF-07` | `FAIL-CHARACTER-ARC-PERFORMANCE` | `N2-PERF-TYPE` 的角色弧线路由 | `character_arc_performance_evidence[].arc_stage`、`arc_direction`、`arc_anchor_scene` |
+| 本集表演是否通过声音、身体、微表情或空间占位体现跨集变化，而不是每场戏像重新开始？ | `GATE-PERF-07` | `FAIL-CHARACTER-ARC-PERFORMANCE` | `N2-PERF-TYPE` / `N4-PERF-ACTOR-CONTROL` 的 `performance_evolution` | `character_arc_performance_evidence[].performance_evolution`、`cross_episode_continuity.baseline_shift` |
+| 弧线转折是否有可感知的表演突变，例如同动作不同选择、同沉默不同质感，而不是旁白或台词说明“变了”？ | `GATE-PERF-07` | `FAIL-CHARACTER-ARC-PERFORMANCE` | `N4-PERF-ACTOR-CONTROL` 的弧线节点表演标记 | `character_arc_performance_evidence[].arc_node_marking`、`key_arc_moment.performance_change` |
+| 转折后的旧习惯是否保留必要“化石”，避免角色像瞬间换人？ | `GATE-PERF-07` | `FAIL-CHARACTER-ARC-PERFORMANCE` | `N4-PERF-ACTOR-CONTROL` 的 Performance Fossil Technique | `character_arc_performance_evidence[].cross_episode_continuity.residual_from_previous`、`baseline_shift` |
+| 多角色弧线同时到达节点时，是否确定前景焦点并防止多人同集同 beat 抢弧线高峰？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的群戏层次与弧线优先级分配 | `ensemble_performance_evidence[].focus_character`、`character_arc_performance_evidence[].arc_anchor_scene` |
+| 上集强情绪或重大转折是否在本集开场保留生理/行为残留，而不是场景切换后清零？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` 的 `physiological_realism_evidence` 与跨集残留 | `physiological_realism_evidence[].residuals_from_previous_scene`、`character_arc_performance_evidence[].cross_episode_continuity` |

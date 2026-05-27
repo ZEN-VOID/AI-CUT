@@ -102,3 +102,17 @@
 - 低信息动作写 3-4 个分镜，拖慢节奏。
 - 强表演瞬间用复杂运镜抢走演员。
 - 连续多个高密度画面没有收束，导致整集只有“满”没有呼吸。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个画面句子在写入 `分镜明细` 前是否已形成 `rhythm_profile`，且不只是“快/慢/满/空”的模糊标签？ | `GATE-CINE-05` | `FAIL-CINE-05D` | `steps/cinematography-workflow.md#N5-RHYTHM` | `rhythm_profile` 抽样，包含 importance、tempo、density、movement_complexity、description_scope、boundary_clarity、peak_emphasis |
+| `beat_map` 倾向 2 镜时，是否证明第二镜有独立观看段、观看结果或 AIGC 执行稳定性价值，而不是固定 2 镜模板？ | `GATE-CINE-04A` | `FAIL-CINE-03A` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 2 镜块抽样、低信息删并记录、关键揭示/群像/高点扩展理由 |
+| 1 镜块是否没有把多个有效触发点、连续观看策略或注意力对象变化压进单镜；若合并，是否有 `trigger_merge_exception`？ | `GATE-CINE-04E` | `FAIL-CINE-03F` | `steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 1 镜吞多 beat 复核范围、拆镜修复记录或 `trigger_merge_exception` |
+| 已存在 `sequence_density_curve` 时，单句节奏是否消费其 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget`，而不是脱离整段变速？ | `GATE-CINE-04A2`、`GATE-CINE-05` | `FAIL-CINE-03D`、`FAIL-CINE-05D` | `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N5-RHYTHM` | `density_curve_summary`、当前 visual_unit 所属槽位、收敛/发散依据和高密度后恢复证据 |
+| 规则文字、道具细节、微表情、对白/旁白是否进入停顿与可读性判断，同时普通氛围和过场动作是否按短剧 AIGC 节奏压缩？ | `GATE-CINE-04B` | `FAIL-CINE-03B` | `steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `shot_duration_decision` 抽样、长停顿/快速镜理由、15 秒组内节奏风险 |
+| 场景变化是否只在本阶段标记边界风险、交出锚点和进入提示，没有越权裁决完整组间创意转场？ | `GATE-CINE-21`、`GATE-CINE-04D` | `FAIL-CINE-05K`、`FAIL-CINE-05M` | `steps/cinematography-workflow.md#N6.1-HANDOFF`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `handoff_profile`、场景变化交出点/进入提示、未落盘组间连接方案说明 |
+| 上游高潮/爽点/高光是否先标记 `peak_emphasis` 并交给峰值策略裁决，没有被普通节奏压平或硬拔成无依据高点？ | `GATE-CINE-14`、`GATE-CINE-05` | `FAIL-CINE-05E` | `steps/cinematography-workflow.md#N5.5-PEAK-SHOT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 高点证据、`peak_emphasis`、`peak_shot_profile`、停顿/扩展/断裂选择 |
+| 命中 `set_piece_chain_slot` 或 `sound_cut_pattern` 时，5-6 镜例外是否逐镜通过删减测试，每镜都有独立动作结果、声音打点、反应或交出接口？ | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | set-piece 链条不可删证明、逐镜起点/撞点/结果/声音打点/反应落点 |
+| 同一集或同一场是否完成分布抽查，避免连续多块同密度、同长、同速或高密度后没有收束？ | `GATE-CINE-04A`、`GATE-CINE-04A2`、`GATE-CINE-04B` | `FAIL-CINE-03A`、`FAIL-CINE-03D`、`FAIL-CINE-03B` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N8-REVIEW` | 分镜数量分布、时值分布、2 镜集中抽样、连续高密度收束证据 |

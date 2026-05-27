@@ -219,3 +219,18 @@ Avoid: <negative constraints>.
 - 有真实图片参照时写主体名与图片路径。
 - 暂无真实图片时可只写主体名，或在最终 manifest 中移除空槽位。
 - 不得把不存在的图片、JSON prompt 文件或外部未知 URL 写入参照槽位。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 批量任务是否先覆盖本轮全部目标分镜并落盘完整 prompts 文档，而不是写一镜就进入 imagegen？ | `G4A-PROMPT-PACKAGE-FIRST` | `FAIL-FRAME-IMAGEGEN` | `N5A-PERSIST-PACKAGE` | `第N集-分镜画面-prompts.md`、`reference-manifest.json`、`imagegen-plan.json` 均覆盖目标 `shot_id`；plan 记录 `prompt_package_status: complete_before_imagegen`。 |
+| 每个 prompt block 是否直引 north_star 三项字段，保持原文且未翻译、摘要或改写？ | `G2-NORTHSTAR` | `FAIL-FRAME-PROMPT` | `N2-CONTEXT` / `N4-PROMPT` | prompt block 中三项文字与 `north_star.yaml` 原字段逐字一致；review note 记录字段路径。 |
+| 若当前分镜存在本地场景参照图，是否先 `view_image` 并写入固定中文提示词与英文等价约束，而不是只追加“参考场景图”？ | `G3C-SCENE-VISUAL-STYLE-LOCK` | `FAIL-FRAME-SCENE-STYLE` | `N3A-SCENE-STYLE` / `N4-PROMPT` | `Scene Reference Visual Style Lock` 记录 `visible_in_conversation_context`、图像路径、style/lighting/color/atmosphere/material notes；英文 prompt 含 `Match the scene reference image's visual style, lighting, color palette, and atmosphere.` |
+| 英文 prompt 是否由 LLM 直接创作成自然单帧生图指令，而不是字段拼接、中文源句翻译、剧情摘要或脚本扩写？ | `G3-PROMPT` | `FAIL-FRAME-PROMPT` | `N4-PROMPT` | prompt 本体无未翻译中文源句、`Source truth:` 粘贴、字段清单串接；报告记录 LLM-first prompt authorship。 |
+| frame identity、source truth、subject/action、3D spatial architecture、continuity、camera/composition、reference usage、scene style lock、materials/physics、avoid constraints 是否自然进入英文 prompt 本体？ | `G3D-PROMPT-DESIGN-SYSTEM` | `FAIL-FRAME-PROMPT-SYSTEM` | `N4-PROMPT` | review note 按 Required Prompt Layers 勾选覆盖；缺层指向具体 prompt block 与缺失层。 |
+| 英文 prompt 是否先锁定场景/画面/镜头身份，再写主体动作，并把方向参照和光线结果写成可见结果？ | `G3F-SCENE-FRAME-IDENTITY` | `FAIL-FRAME-SCENE-IDENTITY` | `N4-PROMPT` | prompt 首段含 scene/frame/camera identity、direction reference、lighting result；不以主体动作摘要直接开头。 |
+| 同场景非首镜是否先检查上一生成图状态：有图则 `view_image` 并延续站位/朝向/遮挡/道具/轴线，无图则记录准确缺失原因？ | `G3A-PREV-FRAME-CONTINUITY` | `FAIL-FRAME-CONTINUITY` | `N4A-PREV-FRAME` / `N4-PROMPT` | `Previous Frame Context` 记录 `visible_in_conversation_context` / `not_same_scene` / `previous_image_missing` / `previous_shot_not_generated` / `scene_first_shot`，并有 blocking notes。 |
+| prompt 文档阶段与 imagegen 串行阶段的上一画面回看是否区分清楚，runtime 新生成上一图没有被伪装成 prompt 阶段已完成？ | `G3A-PREV-FRAME-CONTINUITY` | `FAIL-FRAME-CONTINUITY` | `N4A-PREV-FRAME` / `N7-IMAGEGEN` | prompt block 记录文档阶段状态；result/report 单独记录 runtime `previous_frame_context` 和当前镜执行前的 `view_image` 状态。 |
+| `Integrated AIGC image prompt` 是否在 800 English words 以内，并以 English word count 而非字符数作为主门禁？ | `G3-PROMPT` | `FAIL-FRAME-PROMPT` | `N4-PROMPT` | review note / plan 记录 `prompt_word_count <= 800`；超限返工保留 source truth、锚点、站位、场景风格锁和关键负面约束。 |
+| `Characters:`、`Scene:`、`Props:` 是否只作为参照槽位，不把不存在图片、JSON prompt 文件或未知 URL 写入槽位？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` | prompt block / manifest 中真实图片路径可读；无图主体为空、移除或记录 missing，未把 JSON 当图片。 |

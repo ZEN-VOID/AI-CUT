@@ -45,6 +45,7 @@ flowchart TD
 | `REV-SCENE-GEN-07` | Visual continuity | Multi-view sheet presents one coherent scene identity | `FAIL-SCENE-GEN-07` |
 | `REV-SCENE-GEN-08` | Persistence | No project-bound final remains only in `$CODEX_HOME` | `FAIL-SCENE-GEN-08` |
 | `REV-SCENE-GEN-09` | Reference context | Multi-view JSON / report records `reference_context_status: visible_in_conversation_context` in real generation mode | `FAIL-SCENE-GEN-09` |
+| `REV-SCENE-GEN-10` | Asset conflict | Existing generated assets are skipped, versioned, or overwritten only with explicit user permission | `FAIL-SCENE-GEN-10` |
 
 ## Verdict Schema
 
@@ -70,4 +71,4 @@ local_checklist:
   repair_actions: []
 ```
 
-`pass_with_todo` is allowed only for non-blocking visual polish issues. Missing source, missing JSON, missing project persistence, or out-of-bound writes require `needs_rework`.
+`pass_with_todo` is allowed only for non-blocking visual polish issues. Missing source, missing JSON, missing project persistence, out-of-bound writes, or silent overwrite of existing assets require `needs_rework`.

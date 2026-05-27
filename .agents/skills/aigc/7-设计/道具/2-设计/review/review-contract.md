@@ -30,6 +30,28 @@
 | type | `type_profile` 是否合理，冷门考据和多状态是否按类型处理 |
 | scope | 是否只写入 `7-设计/道具/2-设计`，未触碰 registry、父级或其他技能 |
 
+## Review Gates
+
+| gate_id | dimension | fail_code | blocking_when | rework_target | report_evidence |
+| --- | --- | --- | --- | --- | --- |
+| `GATE-PROP-DESIGN-01` | source | `FAIL-PROP-DESIGN-01` | 缺少 `1-清单/道具清单.md` 来源，或目标道具无法回指单个清单项的名称、首次登场、原文描述 | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、清单行号、缺失字段或降级说明 |
+| `GATE-PROP-DESIGN-02` | source / scope | `FAIL-PROP-DESIGN-02` | 设计稿混入多个道具主体、新增清单外主体，或把上游冲突静默裁决为新 canonical 真源 | `N3-SCOPE` | `prop_worklist`、单主体边界说明、上游修复建议 |
+| `GATE-PROP-DESIGN-02A` | scope | `FAIL-PROP-DESIGN-02A` | 增量补缺时覆盖既有设计稿、为未调度主体补占位，或未记录 alias merge / design gap 状态 | `N3-SCOPE` / `N8-WRITE` | `design_manifest_delta`、跳过/覆盖许可、alias merge 记录 |
+| `GATE-PROP-DESIGN-03` | structure | `FAIL-PROP-DESIGN-03` | 必填章节缺失，`## 4. 解构` 下方未先写 `主体ID号：<主体ID>`，或 `Photography` / `Prop Design` 未拆分 | `N6-DESIGN` | 模板块覆盖检查、解构标题证据、缺块 finding |
+| `GATE-PROP-DESIGN-04` | context | `FAIL-PROP-DESIGN-04` | 未读取或未实际消费 `north_star.yaml`、`team.yaml`、全局风格、主题禁区或设计相关监制上下文 | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、advisor roster、已消费字段与缺口说明 |
+| `GATE-PROP-DESIGN-05` | authorship | `FAIL-SCRIPT-AUTHORSHIP` | 研究考据、物语、解构、物品风格或英文 prompt 由脚本、模板拼接或启发式补句生成 | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
+| `GATE-PROP-DESIGN-06` | prompt / output_naming | `FAIL-PROP-DESIGN-05` | 英文 prompt 未以同一主体 ID 开头、未引用全局风格与物品风格、超过 1300 characters、使用 `--no`，或未整合 `## 4. 解构` 全部有效信息 | `N6-DESIGN` | prompt 字符数、三处主体 ID 对照、解构槽位覆盖、自然语言负向约束检查 |
+| `GATE-PROP-DESIGN-07` | scope / output_naming | `FAIL-PROP-DESIGN-06` | 输出路径不在 `7-设计/道具/2-设计/`，文件名缺主体 ID 前缀，或触碰父级、`1-清单`、`3-生成`、registry 或其他技能目录 | `N8-WRITE` | 输出路径、文件名前缀、改动文件清单、越界项排除说明 |
+| `GATE-PROP-DESIGN-08` | fixed_visual | `FAIL-PROP-DESIGN-07` | `Photography` 或 prompt 未固定纯色背景 45 度单道具近景、完整展示道具全貌、仅展示道具，或出现人物、手、桌面、房间、街景、背景元素 | `N6-DESIGN` | fixed visual phrase 检查、禁用元素清单、prompt 约束位置 |
+| `GATE-PROP-DESIGN-09` | research_chain | `FAIL-PROP-DESIGN-08` | 研究停留在百科、气氛词或未验证断言，未转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `N5-RESEARCH-CHAIN` | research evidence chain、`visual translation`、`risk_uncertainty` |
+| `GATE-PROP-DESIGN-10` | prompt_evidence | `FAIL-PROP-DESIGN-09` | prompt 核心 token 无法回指研究、物语或解构字段，或缺少 `deconstruction_coverage` 说明槽位整合/合并/剔除 | `N5-RESEARCH-CHAIN` / `N6-DESIGN` | `prompt_evidence_chain`、`deconstruction_coverage`、缺槽 finding |
+| `GATE-PROP-DESIGN-11` | advisor_consultation | `FAIL-PROP-DESIGN-10` | 默认顾问路径启用时未请教项目监制顾问，或顾问问题没有绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、取舍、patch 或风险提示 | `N5-RESEARCH-CHAIN` / `N7-REVIEW` | `advisor_consultation_packet`、`advisor_node_coverage`、降级原因 |
+| `GATE-PROP-DESIGN-12` | design_output_contract | `FAIL-PROP-DESIGN-TEMPLATE-REGISTRY` | 未使用 canonical structured template 登记的结构真源，或组根模板/脚本替代 leaf LLM 正文创作 | `N6-DESIGN` | 模板路径、渲染来源、脚本机械边界说明 |
+| `GATE-PROP-DESIGN-SLOT-01` | slot_bundle_review | `FAIL-PROP-DESIGN-SLOT-01` | 未解析非空 `PROP-BUNDLE-01`，或 required slots 缺少证据位置且未形成 blocking finding | `N7-REVIEW` | `slot_bundle_review`、required slot evidence map、缺槽 finding |
+| `GATE-PROP-DESIGN-WORKFLOW-01` | workflow_supervision | `FAIL-PROP-DESIGN-WORKFLOW` | `workflow_supervision` 缺 subject、dispatch mode、blocking layer、advisor roster、reviewer roster、本地 checklist、slot findings 或 merge decision | `N7-REVIEW` | `workflow_supervision` packet、dispatch mode、local checklist、unlaunched reviewers |
+| `GATE-PROP-DESIGN-WORKFLOW-02` | workflow_supervision | `FAIL-PROP-DESIGN-MERGE-DECISION` | reviewer / checklist / slot bundle findings 未由主 agent 汇流裁决，或留下互相竞争的并列稿 | `N7-REVIEW` / `N6-DESIGN` | `merge_decision`、采纳/拒绝 patch 记录、最终单稿声明 |
+| `GATE-PROP-DESIGN-RESEARCH-SAFETY` | research_chain | `FAIL-PROP-DESIGN-RESEARCH-SAFETY` | 冷门网络信息、危险物、医疗器械、武器或违法用途研究被写成确定事实、操作步骤或可执行伤害/制造说明 | `N5-RESEARCH-CHAIN` | 搜索必要性、来源姿态、不确定性/安全转译记录 |
+
 ## Verdict Model
 
 | verdict | meaning |

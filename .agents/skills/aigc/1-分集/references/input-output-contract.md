@@ -63,3 +63,17 @@ projects/aigc/<项目名>/1-分集/
 - 每集来源范围、字数、边界理由。
 - 覆盖状态：已覆盖、未覆盖、跳过原因。
 - 返工入口：若编号、覆盖、字数或保真失败，应指向具体集数。
+
+## Review Gate Mapping
+
+本 reference 拥有分集输入、边界与输出的强制裁决权；以下问题不是软提示，必须在 `review/review-contract.md` 中解析为可执行 gate，并能回到 `steps/episode-split-workflow.md` 的返工节点。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否按“用户显式路径 > `projects/aigc/<项目名>/源/` > 用户明确要求的旧路径 fallback”锁定唯一小说原文真源，且未把 `MEMORY.md`、`CONTEXT/`、设定案或治理文件抬升为正文真源？ | `GATE-SPLIT-01-SOURCE-LOCK` | `FAIL-SPLIT-01` | `steps/episode-split-workflow.md#N1-SOURCE-LOCK`；`SKILL.md#Input Contract`；本文件 `Source Priority` | 执行报告中的输入路径、fallback 说明、文件清单与真源排除说明 |
+| 多文件或多章节来源是否都是可读文本，并已按文件名数字、正文内章节序号或标题自然顺序建立可复查排序？ | `GATE-SPLIT-01A-SOURCE-ORDER` | `FAIL-SPLIT-01A` | `steps/episode-split-workflow.md#N2-SOURCE-ORDER`；本文件 `Valid Source Material` | 执行报告中的可读性判断、排序依据、输入文件顺序表 |
+| 源资料存在 `第N集`、`Episode N`、`EP N` 或上下文明显为连载单元的 `第N话` 时，是否严格按原资料 P1 集标落盘，没有按字数重切？ | `GATE-SPLIT-02-P1-EPISODE-MARK` | `FAIL-SPLIT-02` | `steps/episode-split-workflow.md#N3-EPISODE-MARK-SCAN`；`steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P1` | 集标列表、每集原始边界、`explicit_episode_split` 模式说明 |
+| `第N章`、`Chapter N`、卷、章、节、小节或 story 章节文件名是否只作为 P2 候选边界，没有被误判为原生集标或机械执行“一章一集”？ | `GATE-SPLIT-02A-CHAPTER-NOT-EPISODE` | `FAIL-SPLIT-02A` | `steps/episode-split-workflow.md#N3-EPISODE-MARK-SCAN`；`steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P1-P2` | 被排除的章节信号列表、P2/P3 边界裁决说明、非一章一集证据 |
+| 无 P1 集标时，P2/P3 边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗，且没有切断句子、对白轮次或关键动作？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；本文件 `Episode Boundary Policy / P2-P3` | 每集字数、起止段落、边界理由、偏离目标窗的说明 |
+| 逐集文件是否只写入 `projects/aigc/<项目名>/1-分集/第N集.md`，编号从 1 连续，正文保持原文，未改写、扩写、删减、剧本化、分镜化或混入设定说明？ | `GATE-SPLIT-04-EPISODE-WRITEBACK` | `FAIL-SPLIT-04` | `steps/episode-split-workflow.md#N5-WRITEBACK`；`SKILL.md#Output Contract`；本文件 `Output Path` 与 `Episode File Requirements` | 输出文件清单、编号连续性检查、正文保真抽查或 diff 说明 |
+| `执行报告.md` 是否包含输入路径、文件清单、切分模式、每集来源范围、字数、边界理由、覆盖状态、跳过原因和按具体集数定位的返工入口？ | `GATE-SPLIT-05-REPORT-COVERAGE` | `FAIL-SPLIT-05` | `steps/episode-split-workflow.md#N6-REVIEW`；`SKILL.md#Output Contract`；本文件 `Execution Report Requirements` | 执行报告中的边界表、coverage 表、跳过原因、返工入口 |

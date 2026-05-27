@@ -192,6 +192,18 @@ governance_tier: full
 | `FIELD-DESIGN-LIST-04` | 各域三真源与 manifest 边界稳定 | `FAIL-DESIGN-LIST-04` | `S4` |
 | `FIELD-DESIGN-LIST-05` | `validation-report` 与 `2-设计` handoff 明确 | `FAIL-DESIGN-LIST-05` | `S5` |
 
+## Review Gate Mapping
+
+No independent gate: 本文件是旧 `1-清单` tranche parent 的 legacy archive，不再作为 active skill 入口、独立阻断真源或当前清单执行合同；所有可复用规则必须回接 `7-设计` 父级 active gate，并由 `场景 / 角色 / 道具` 域级 leaf 复核后才能执行。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否仍把旧 `.agents/skills/aigc/7-设计/1-清单` 当作当前 active 清单入口，而不是路由到 `场景 / 角色 / 道具` 域级包？ | `GATE-DESIGN-LEGACY-01` | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N2-DOMAIN`；`references/阶段路由矩阵.md` | 旧 tranche 触发词、改路由后的 active domain package、被移除或保留为 legacy 的引用 |
+| 旧合同中的 `3-Detail` 共享输入、角色到服装依赖、leaf coverage 是否未经当前域级 `1-清单` 合同复核就被直接执行？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `D-N4-DISPATCH`；对应域级 `1-清单` leaf `SKILL.md + CONTEXT.md` | 被复用的 legacy rule、active leaf 合同位置、采用/废弃理由 |
+| 父层是否生成 `1-清单.json` 并列总稿、补空对象池，或把 `_manifest.json` 升格为清单业务真源？ | `GATE-DESIGN-CLOSEOUT-01` | `FAIL-DESIGN-CLOSEOUT-DOMAIN-GATE` | `D-N5-DOMAIN-GATE`；对应域级 `1-清单` Output Contract | canonical `<域>/1-清单/<域>清单.md` 路径、manifest sidecar 边界、根目录平铺文件检查 |
+| 旧合同里的 `服装` pending-migration 规则是否被误读为当前可执行 leaf，导致初始化或全量构建预建 `7-设计/服装/*`？ | `GATE-DESIGN-ROUTE-02` | `FAIL-DESIGN-ROUTE-DOMAIN` | `D-N2-DOMAIN`；`references/阶段路由矩阵.md` | active/pending domain table、服装依赖状态、未调度说明 |
+| 旧 `FIELD-DESIGN-LIST-* / FAIL-DESIGN-LIST-*` 是否被当作当前 review fail code 使用，而不是作为归档索引回接父级 review contract？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `D-N4-DISPATCH`；`review/review-contract.md` | legacy field/fail code 对照、当前 gate/fail code 替换说明 |
+
 ## Root-Cause Execution Contract (Mandatory)
 
 当 `1-清单` 出现以下问题时，必须先修源层而不是补单次输出：

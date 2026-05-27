@@ -93,3 +93,21 @@ reference_input_status: "visible_in_conversation_context"
 - 已绑定本地 reference paths 均已通过 `view_image` 进入对话上下文，并在任务中标注角色；
 - output path 不覆盖现有文件，除非用户要求 rerun / replace；
 - mode 未越权使用 CLI/API fallback。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 执行前是否加载 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`，并默认遵循 built-in `image_gen` 路由？ | `G9-HANDOFF` | `FAIL-SHEET-IMAGEGEN` | `N7-IMAGEGEN` / `references/imagegen-handoff.md#skill-dependency` | imagegen plan 记录 dependency loaded、`mode` 和未启用 CLI/API fallback 的原因 |
+| 若存在本地 reference images，是否先逐张 `view_image` 进入对话上下文，再声明为视觉参照，而不是只写路径？ | `G11-REF-INPUT` | `FAIL-SHEET-IMAGEGEN` | `N6-REVIEW` / `N7-IMAGEGEN` | manifest / plan / report 记录 `reference_input_status: visible_in_conversation_context` 和每张图的角色标注 |
+| imagegen `reference_images` 是否消费 reference-slot-binding 的选择结果，同一主体多视图存在时不退回主图？ | `G6-SLOTS` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `N7-IMAGEGEN` | plan 中 reference paths 与 manifest `bound[]` 一致，`selected_variant` 无 priority drift |
+| 绑定场景图时，prompt 和 plan 是否同时把场景图标注为 `scene_reference` 与 `style_lighting_atmosphere_reference`？ | `G7-SCENE-VISUAL` | `FAIL-SHEET-REF` | `N5-REF-BIND` / `N7-IMAGEGEN` | plan `scene_visual_policy.match_style_lighting_atmosphere: true`，scene reference entry 含双重角色 |
+| 确无可绑定图片时，是否走纯文本 prompt 生成并记录 `no_reference_images_bound`，没有伪造参照或把缺图写成已绑定？ | `G11-REF-INPUT` | `FAIL-SHEET-IMAGEGEN` | `N5-REF-BIND` / `N7-IMAGEGEN` | plan / result 记录 `mode_used: built_in_image_gen_text_prompt_only` 与 `reference_input_status: no_reference_images_bound` |
+| CLI/API fallback 是否只在用户明确要求 API mask、透明通道、模型参数等内置工具不暴露能力时启用，并有确认记录？ | `G9-HANDOFF` | `FAIL-SHEET-IMAGEGEN` | `N7-IMAGEGEN` / `references/imagegen-handoff.md#reference-input-semantics` | 执行报告记录 fallback request、user confirmation、fallback reason；无确认则 mode 仍为 built-in |
+| 批量执行是否保持一组一任务、一组一输出路径，默认按工具能力顺序或受控批量执行，没有后台并行写同一 `group_id`？ | `G9-HANDOFF` | `FAIL-SHEET-IMAGEGEN` | `N7-IMAGEGEN` / `references/imagegen-handoff.md#batch-semantics` | imagegen plan 记录 task list、`group_id` 写锁、执行节奏和无并发写冲突 |
+| 每个任务的 `resolution_target` 是否固定为 `4K`，prompt、plan、result 没有继承通用 2K 默认？ | `G8-RESOLUTION` | `FAIL-SHEET-IMAGEGEN` | `N4-PROMPT` / `N7-IMAGEGEN` | prompt、plan、result/report 均记录 `resolution_target: 4K` |
+| 任务 payload 是否包含完整 prompt、`storyboard_frame_units`、layout policy，并明确 panel 数来自 frame units 而不是 `shot_count`？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `N7-IMAGEGEN` | plan 中每个 task 含 `storyboard_frame_units`、`layout_policy` 与源 frame-unit 追溯 |
+| frame units 过多时，是否记录 `layout_risk` 或分页建议，没有丢弃视觉节拍来适配单图？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N7-IMAGEGEN` / `N10-CLOSE` | imagegen plan / report 记录 layout risk、受影响 `group_id`、分页或人工确认建议 |
+| 生成结果是否持久化到 `projects/aigc/<项目名>/8-图像/B-分镜故事板/第N集/images/`，且不把 `$CODEX_HOME/generated_images` 当最终路径？ | `G10-PERSIST` | `FAIL-SHEET-IMAGEGEN` | `N8-PERSIST` / `.agents/skills/cli/imagegen/references/output-persistence.md` | `imagegen-results.json` 记录项目内 `output_image_path`、源路径、复制状态和存在性检查 |
+| 输出路径若已存在，是否有用户 rerun / replace 授权或版本化策略，避免静默覆盖已有 storyboard？ | `G10-PERSIST` | `FAIL-SHEET-IMAGEGEN` | `N7-IMAGEGEN` / `N8-PERSIST` | plan / report 记录 existing-file check、replace authorization 或 versioned output path |
+| 执行结束是否列出 `generated / skipped / failed`，失败任务不阻塞已成功任务落盘，并提供返工入口？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N10-CLOSE` / `templates/output-template.md` | `执行报告.md` 记录每组 status、failure reason、skipped reason、rework target 和 review verdict |

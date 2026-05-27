@@ -56,7 +56,20 @@ COMPOSITION_PARTITION_LABELS = (
     "中景：",
     "背景：",
 )
-MIN_COMPOSITION_PARTITIONS = 2
+GENERIC_COMPOSITION_PARTITION_PATTERNS = (
+    r"<[^>]+>",
+    r"无内容可省略",
+    r"无内容",
+    r"主体保持当前组正文",
+    r"关键动作锚点由本组正文",
+    r"固定环境锚点保持可读",
+    r"本组正文中的",
+    r"当前组正文中的",
+    r"主体/场景锚点/关键道具",
+    r"关键动作锚点",
+    r"固定环境锚点",
+)
+MIN_COMPOSITION_PARTITION_CHARS = 12
 PROHIBITED_GROUP_SUBJECT_LABEL_RE = re.compile(r"^(角色|场景|道具|主体信息)[：:]", re.MULTILINE)
 CONNECTOR_SCENE_ARROW = "➡️"
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
@@ -319,6 +332,61 @@ def extract_label_block_content(body: str, label: str, stop_labels: tuple[str, .
                 collected.append(candidate_stripped)
         return "\n".join(collected).strip()
     return ""
+
+
+def extract_composition_partition_content(establishing_content: str, label: str) -> str:
+    lines = establishing_content.splitlines()
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not (stripped == label or stripped.startswith(label)):
+            continue
+        collected: list[str] = []
+        suffix = stripped[len(label) :].strip()
+        if suffix:
+            collected.append(suffix)
+        for candidate in lines[index + 1 :]:
+            candidate_stripped = candidate.strip()
+            if not candidate_stripped:
+                if collected:
+                    break
+                continue
+            if (
+                candidate.startswith("```yaml")
+                or candidate.startswith("## ")
+                or candidate_stripped.startswith(VISUAL_TONE_LABEL)
+                or candidate_stripped.startswith(COMPOSITION_LABEL)
+                or any(
+                    candidate_stripped.startswith(partition_label)
+                    for partition_label in COMPOSITION_PARTITION_LABELS
+                    if partition_label != label
+                )
+            ):
+                break
+            collected.append(candidate_stripped)
+        return "\n".join(collected).strip()
+    return ""
+
+
+def composition_partition_label_indices(establishing_content: str) -> list[int | None]:
+    indices: list[int | None] = []
+    lines = establishing_content.splitlines()
+    for label in COMPOSITION_PARTITION_LABELS:
+        label_index: int | None = None
+        for index, line in enumerate(lines):
+            if line.strip().startswith(label):
+                label_index = index
+                break
+        indices.append(label_index)
+    return indices
+
+
+def is_generic_composition_partition(content: str) -> bool:
+    if estimate_chars(content) < MIN_COMPOSITION_PARTITION_CHARS:
+        return True
+    return any(
+        re.search(pattern, content)
+        for pattern in GENERIC_COMPOSITION_PARTITION_PATTERNS
+    )
 
 
 def extract_style_lines(body: str) -> list[str]:
@@ -638,15 +706,29 @@ def validate_file(path: Path) -> ValidationResult:
                 errors.append(
                     f"{prefix} {ESTABLISHING_SHOT_LABEL} must include {COMPOSITION_LABEL} before {VISUAL_TONE_LABEL}"
                 )
-            partition_count = sum(
-                1
+            partition_contents = {
+                label: extract_composition_partition_content(establishing_content, label)
                 for label in COMPOSITION_PARTITION_LABELS
-                if re.search(rf"^{re.escape(label)}\s*\S+", establishing_content, re.MULTILINE)
-            )
-            if partition_count < MIN_COMPOSITION_PARTITIONS:
+            }
+            missing_partition_labels = [
+                label for label, content in partition_contents.items() if not content
+            ]
+            if missing_partition_labels:
                 errors.append(
-                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include at least {MIN_COMPOSITION_PARTITIONS} non-empty composition partitions from {COMPOSITION_PARTITION_LABELS}"
+                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include all six non-empty composition partitions in order: {COMPOSITION_PARTITION_LABELS}; missing {missing_partition_labels}"
                 )
+            partition_indices = composition_partition_label_indices(establishing_content)
+            if all(index is not None for index in partition_indices):
+                concrete_indices = [index for index in partition_indices if index is not None]
+                if concrete_indices != sorted(concrete_indices):
+                    errors.append(
+                        f"{prefix} composition partitions must appear in fixed order {COMPOSITION_PARTITION_LABELS}"
+                    )
+            for label, content in partition_contents.items():
+                if content and is_generic_composition_partition(content):
+                    errors.append(
+                        f"{prefix} composition partition {label} must contain concrete visible subject or environment anchor information, not a generic placeholder: {content[:80]}"
+                    )
         group_head_without_yaml = strip_yaml_blocks(group.body)
         visual_tone_index = find_prefixed_label_index(group_head_without_yaml, VISUAL_TONE_LABEL)
         if visual_tone_index is not None:

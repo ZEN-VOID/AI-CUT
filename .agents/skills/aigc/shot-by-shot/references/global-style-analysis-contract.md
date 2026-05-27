@@ -101,3 +101,20 @@
 | `act_emotion_anchor` | 每幕的情绪档位和核心情绪任务 |
 | `climax_emotion_type` | 高潮的情绪类型：压抑释放 / 震惊反转 / 感动余震 / 智识快感 |
 | `emotion_residual_design` | 终场情绪余震设计：开放式 / 释然落幕 / 悬念留存 / 情绪蒸发 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `全局风格解析.md` 是否只作为 side context，不直接生成或改写 `north_star.yaml`、`style_contract.json`？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界与未写 canonical 文件证据 |
+| `## 叙事与世界约束` 是否包含 TL;DR、主题三联、世界三联、时代/地域/类型/节奏倾向，并标注推导补位？ | `GATE-SBS-GLOBAL-01` | `FAIL-GLOBAL-NARRATIVE-WEAK` | `N5-BRIDGE` | narrative_research 字段与 evidence grade |
+| 类型叙事承诺是否说明核心契约、高光类型、观众期待兑现节奏和子类型权重？ | `GATE-SBS-GLOBAL-02` | `FAIL-GLOBAL-GENRE-PROMISE` | `N5-BRIDGE` | genre_promise 字段表 |
+| 视觉母题是否提炼为可迁移母题语法，而不是复制参考片具体符号、构图或对象细节？ | `GATE-SBS-GLOBAL-03` | `FAIL-GLOBAL-VISUAL-MOTIF` | `N5-BRIDGE` | visual_motif_seed 与 do_not_import 对照 |
+| 年代质感是否说明信号来源、密度、现代干扰和时间感构建？ | `GATE-SBS-GLOBAL-04` | `FAIL-GLOBAL-TEMPORAL-TEXTURE` | `N5-BRIDGE` | temporal_texture 字段覆盖 |
+| 情绪曲线是否给出结构、幕情绪锚点、高点情绪类型和余震设计？ | `GATE-SBS-GLOBAL-05` | `FAIL-GLOBAL-EMOTION-CURVE` | `N5-BRIDGE` | emotion_curve_profile |
+| 路由决议是否在 `R1/R2/R3/R4` 中单选，并给出证据和污染处理策略？ | `GATE-SBS-GLOBAL-06` | `FAIL-GLOBAL-ROUTE` | `N5-BRIDGE` | route_decision 与 pollution audit |
+| 媒介与技术栈是否说明真人/2D/3D/混合媒介和 2-3 个技术栈如何服务叙事？ | `GATE-SBS-GLOBAL-07` | `FAIL-GLOBAL-MEDIUM` | `N5-BRIDGE` | style_foundation.medium_stack |
+| 美学范式是否明确流派、气质和叙事服务理由，避免空泛审美词？ | `GATE-SBS-GLOBAL-07A` | `FAIL-GLOBAL-PARADIGM` | `N5-BRIDGE` | style_foundation.aesthetic_paradigm |
+| 叙事节奏锚定是否给慢/中/快判断依据和拍摄段落执行字窗？ | `GATE-SBS-GLOBAL-08` | `FAIL-GLOBAL-PACING` | `N5-BRIDGE` | pacing_anchor |
+| 去污染审计是否清除颜色、材质、构图、摄影越权和下游对象细节；`R4` 是否标明 exact？ | `GATE-SBS-GLOBAL-09` | `FAIL-GLOBAL-POLLUTION` | `N5-BRIDGE` | pollution_audit 与用户锁定原文说明 |
+| 全局风格提示词候选是否 200 字以内、纯中文、无污染，且不得包含下游对象细节？ | `GATE-SBS-GLOBAL-10` | `FAIL-GLOBAL-PROMPT` | `N5-BRIDGE` | style_prompt_candidate 与 Do Not Import 检查 |

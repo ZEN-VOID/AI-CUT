@@ -384,3 +384,14 @@ atmosphere_mood_evidence:
 - 通感是否避免了"像/仿佛/如同"明喻陷阱，落点是否为可感物的交叉？
 - `心理反应` 是否有对应的外部化锚点（视线、手部、停顿、声音或空间反应）？
 - 复合情绪场景是否有清晰的主情绪和副情绪处理方式？
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 关键情绪场、压迫场、离别场或类型氛围场是否至少覆盖两个感官通道，并使用至少一种意境技法？ | `GATE-DIR-08` | `FAIL-ATMOSPHERE-MOOD` | `N7-DIR-AESTHETIC` + 本文件 `Five-Sense Atmosphere Framework` / `Atmosphere Techniques` | `atmosphere_mood_evidence.sensory_channels`、`technique_used`、`embedded_in_fields` |
+| 氛围细节是否保留具体可感锚点，未漂移成“诗意/电影感/宿命感”等抽象审美词？ | `GATE-DIR-08` | `FAIL-ATMOSPHERE-MOOD` | `N7-DIR-AESTHETIC` / `N9-DIR-DRAFT` | `risk_check.abstract_aesthetic: false`、`risk_check.concrete_anchor_preserved: true`、终稿对应字段 |
+| 通感是否发生在可感物层面，而非“像/仿佛/如同”类明喻替代？ | `GATE-DIR-08` | `FAIL-ATMOSPHERE-MOOD` | `N7-DIR-AESTHETIC` | `technique_used: synesthesia`、感官通道交叉说明、删除的明喻风险记录 |
+| 声景是否有消长、距离、质感、节律或留声层次，而不是单一声音类别？ | `GATE-DIR-14` | `FAIL-SOUND-DESIGN-DIRECTIVE` | `N7-DIR-AESTHETIC` + `sound-design-directive-contract.md` | `atmosphere_mood_evidence.sound_atmosphere`、`sound_design_directive.scene_sound_plans` |
+| `心理反应` 中的内心状态是否在其他字段有外部化锚点？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N9-DIR-DRAFT` | 终稿 `心理反应` 与相邻 `对白画面` / `角色动作` / `环境描写` / `音效画面` 锚点 |
+| 复合情绪场是否有唯一主情绪，副情绪通过对比轴承托，没有五感细节散乱？ | `GATE-DIR-08` | `FAIL-ATMOSPHERE-MOOD` | `N7-DIR-AESTHETIC` | `atmosphere_mood_evidence.target_mood`、副情绪对比轴说明、场景字段投影 |

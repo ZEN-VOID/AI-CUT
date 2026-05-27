@@ -149,3 +149,14 @@ shot_narrative_function: NF-01 reveal > NF-03 emphasize
 6. **connect 不是 match cut**：连接功能不要求技术上的匹配剪辑——同框、运动桥接、声音关联都可以完成连接。
 7. **叙事功能多样性是强制指标**：连续 3 个以上相同叙事功能是结构性问题，不是风格选择。
 8. **镜头数量由叙事功能决定**：如果一个画面句子只需要一个 reveal 就完成了叙事任务，不要为了"丰富"而拆成多个镜头。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每条计划分镜是否先形成 `shot_narrative_function` 与具体理由，能说明它对观众做了什么？ | `GATE-CINE-28` | `FAIL-CINE-05W` | `N6.4-FUNCTIONAL-PROJECTION` | 镜头叙事功能检查结果、`shot_narrative_function` 覆盖情况 |
+| 是否删除或重写了只记录动作、画面事实或技术参数、删掉后无损失的废镜头？ | `GATE-CINE-28` | `FAIL-CINE-05W` | `N6.4-FUNCTIONAL-PROJECTION` + `N6.5-SHOT-PLAN` | 删除无损镜头删并情况、因 `FAIL-CINE-05W` 修复字段标签 |
+| 同一 `visual_unit` 内连续分镜是否避免全部使用同一种叙事功能，至少每 3 镜出现 2 种以上功能？ | `GATE-CINE-28` | `FAIL-CINE-05W` | `N6.4-FUNCTIONAL-PROJECTION` + `N6.5-SHOT-PLAN` | 叙事功能分布抽样、`reveal` 单一化修复记录 |
+| 技术参数是否服务叙事功能，没有出现 `conceal` 却特写深焦暴露、`misdirect` 没有误导目标等矛盾？ | `GATE-CINE-16` | `FAIL-CINE-05I` | `N6.2-CAMERA-GRAMMAR` + `N6.4-FUNCTIONAL-PROJECTION` | 摄影语法变化检查结果、功能与景别/焦点/时长对齐抽样 |
+| `misdirect` 是否有合理兑现距离和后续 reveal；没有兑现时是否降级为 conceal、emphasize 或删除？ | `GATE-CINE-31` | `FAIL-CINE-05Z` | `N6.4-FUNCTIONAL-PROJECTION` | 注意力引导检查结果、误导兑现或降级说明 |
+| 镜头数量是否由叙事功能和观看结果决定，而不是为了“丰富”强行拆镜？ | `GATE-CINE-04A` | `FAIL-CINE-03A` | `N4-BEAT` + `N6.5-SHOT-PLAN` | 分镜数量分布抽样、删并无独立叙事功能镜头的记录 |

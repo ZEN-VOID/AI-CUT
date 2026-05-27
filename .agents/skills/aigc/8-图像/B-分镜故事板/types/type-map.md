@@ -8,6 +8,23 @@
 
 本文件定义 `B-分镜故事板` 的任务分型和 route。
 
+## Package Index
+
+| package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
+| --- | --- | --- | --- | --- | --- | --- |
+| `storyboard_sheet_default` | `types/storyboard-sheet-default.md` | B-分镜故事板所有组级 storyboard sheet 任务 | fallback | `types/storyboard-sheet-default.md` | none | none |
+
+## Default Package Rule
+
+默认加载 `types/storyboard-sheet-default.md`。生成、修复或审查时再按 mode 额外读取 `steps/storyboard-sheet-workflow.md`、`review/review-contract.md` 或 provider handoff 合同。
+
+## Loading Flow
+
+1. 锁定 `target_scope`、`execution_intent`、`source_state` 与 `frame_unit_state`。
+2. 加载默认包 `types/storyboard-sheet-default.md`。
+3. 将类型画像交给 `steps/storyboard-sheet-workflow.md`。
+4. 生成前检查主体参照、场景锚定和 imagegen route；审查时加载 `review/review-contract.md`。
+
 ## Type Variables
 
 | variable | values | meaning |
@@ -24,7 +41,7 @@
 
 | type profile | mode | route |
 | --- | --- | --- |
-| `single_group + generate + group_source_ready` | `single_group_generate` | `steps/storyboard-sheet-workflow.md#N3-N3A-N8` |
+| `single_group + generate + group_source_ready` | `single_group_generate` | `steps/storyboard-sheet-workflow.md` 的 N3-N3A-N8 |
 | `episode_batch + generate + group_source_ready` | `episode_batch_generate` | `N3-N3A-N8` with group-level sequential or controlled batch dispatch |
 | `group_batch + generate + group_source_ready` | `group_batch_generate` | `N3-N3A-N8` for selected groups |
 | `* + prompt_only + group_source_ready` | `prompt_only` | `N3-N6, N9-N10` |

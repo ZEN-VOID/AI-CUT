@@ -46,3 +46,13 @@
 - stage-level `validation-report.md` 只应记录 coverage、缺口和 handoff，不应回写 domain 事实。
 - 当用户明确要求三真源时，不能只改 leaf；必须同步 shared output contract、父层 governance、leaf manifest 与脚本默认输出，且三文件要用字段边界避免互相抢真源。
 - 父层 coverage 表只能声明“已可执行”的 leaf；active 状态至少要有一个稳定的 run 脚本和 dry-run 自检路径。
+
+## Review Gate Mapping
+
+No independent gate: this file is a legacy archive for the deprecated `7-设计/1-清单` parent context. It must not be used as an active execution or blocking review contract. Any runtime decision exposed by this archive must be revalidated through active parent gates in `.agents/skills/aigc/7-设计/review/review-contract.md` and active domain leaf contracts.
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否有人把本 legacy archive 当作 active `1-清单` 入口、父级清单经验层或阻断真源使用？ | `GATE-DESIGN-LEGACY-01` legacy archive boundary | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N2-DOMAIN`；`.agents/skills/aigc/7-设计/references/阶段路由矩阵.md` | 报告中列出触发的旧路径引用、改路由到 `场景/角色/道具` 域级包的结果 |
+| archive 中提到的旧四域、服装依赖或三真源经验是否被直接执行，而没有经当前 active 域级 `SKILL.md + CONTEXT.md` 复核？ | `GATE-DESIGN-LEGACY-02` active contract revalidation | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | `D-N4-DISPATCH`；对应 active 域级 `SKILL.md + CONTEXT.md` | 报告中列出被复用的 legacy 经验、对应 active 合同位置、采用/废弃理由 |
+| 旧路径、旧单 catalog 或旧 manifest 口径是否仍在 registry、routes、报告或下游 handoff 中冒充 canonical truth？ | `GATE-DESIGN-LEGACY-03` deprecated path cleanup | `FAIL-DESIGN-LEGACY-PATH-DRIFT` | `D-N2-DOMAIN -> registry/routes/shared runtime 修复`；`.agents/skills/aigc/7-设计/references/阶段路由矩阵.md` | `rg` 搜索旧路径/旧口径的结果、已更新引用清单、无法自动更新的遗留引用 |

@@ -80,3 +80,15 @@
 - 当 `2-设计` 已经有稳定模板真源和 canonical truth 时，post-write 问题仍应用“文件 + slot bundle”双层粒度记录，但不再以 `监制强化` 的形式执行。
 - 对 shared closeout contract 的审计，最容易出现的假阳性是“文档全提到了，但 runner 一个都没有”；防这种漂移最稳的方式是给 contract 配一个最小 resolver，并让 audit 直接检查它。
 - `2-设计` 父层不能只看 leaf 目录和 validator 就宣布 active；真正的 active 至少要满足 builder 可运行、projection 可校验、auto-image 可受控降级三件事。
+
+## Review Gate Mapping
+
+No independent gate: 本文件是旧 `2-设计` tranche parent 的经验归档，不再作为 active 设计执行上下文或阻断真源；其中经验只能作为排障线索，必须回接当前 `7-设计` 父级 gate 与域级 `2-设计` leaf 合同。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把本 legacy CONTEXT 当作当前预加载经验层，而跳过 `场景 / 角色 / 道具` 域级 `2-设计` 的 `SKILL.md + CONTEXT.md`？ | `GATE-DESIGN-LEGACY-01` | `FAIL-DESIGN-LEGACY-ACTIVE-ENTRY` | `D-N4-DISPATCH`；对应域级 `2-设计` leaf `SKILL.md + CONTEXT.md` | 已加载上下文列表、legacy 只读归档声明、active leaf 位置 |
+| `2-设计` 直接回读 `3-Detail`、重猜对象主键、混写 `1-清单 / 0-Init / 2-Global` 三层责任的问题，是否已回到当前域级合同复核？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | 对应域级 `2-设计` leaf；当前 `1-清单 -> 2-设计` 输入合同 | 问题症状、active input contract、采用/废弃的 legacy heuristic |
+| 关于模板、`full_generation_prompt`、内置 imagegen、参照图洁净、slot bundle 的经验，是否被直接复制成当前规则而未通过 active shared contract / leaf review？ | `GATE-DESIGN-LEGACY-02` | `FAIL-DESIGN-LEGACY-UNVALIDATED-RULE` | 对应域级 `2-设计` leaf `review/review-contract.md`；active shared contract | 被复用经验、当前模板/共享合同位置、复核 verdict |
+| 旧路径、旧 provider、旧 closeout reviewer 或旧 `team.yaml.roles.supervision` 语义是否仍冒充当前 canonical runtime？ | `GATE-DESIGN-LEGACY-03` | `FAIL-DESIGN-LEGACY-PATH-DRIFT` | `D-N2-DOMAIN -> registry/routes/shared runtime 修复`；`references/阶段路由矩阵.md` | `rg` 搜索结果、更新引用清单、无法自动更新的遗留引用 |
+| 设计产物缺图、request sidecar 被误写为成功、或 provider timeout 等经验是否被当作父级可直接修复业务正文的理由？ | `GATE-DESIGN-CLOSEOUT-02` | `FAIL-DESIGN-CLOSEOUT-REPAIR-ROUTE` | `D-N5R-DOMAIN-REPAIR`；对应域级 `2-设计` / `3-生成` leaf repair + re-review | finding owner、repair route、leaf re-review verdict、父级未补写业务正文说明 |

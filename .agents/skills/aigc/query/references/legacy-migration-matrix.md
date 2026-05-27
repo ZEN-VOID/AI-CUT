@@ -20,3 +20,19 @@
 
 - 未把旧 `aigc-old/query` 的 `project-runtime-layout.md` 引用照搬过来，因为新 `aigc` 树当前不存在根 `_shared/`；本包用 `references/project-runtime-layout.md` 暂作局部共享布局。
 - 旧英文阶段名不删除语义，只降级为 legacy compatibility。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 旧 `$aigc-query` 入口元数据是否已迁入当前 `SKILL.md` 与 `agents/openai.yaml`，且没有形成比 `SKILL.md` 更强的隐藏规则？ | `GATE-QUERY-01` | `FAIL-QUERY-CONTEXT` | `N0-load-contract` | 报告已加载的 `SKILL.md + CONTEXT.md`，并列出入口元数据只作为发现层证据。 |
+| 旧 Purpose / Stage Position 是否被保留为“查询卫星技能”边界，而不是被误作 AIGC 主阶段或验收执行器？ | `GATE-QUERY-03` | `FAIL-QUERY-TRUTH-ROLE` | `N2-truth-role` | 输出 truth role 判定，并说明本技能只查询、不生成、不验收、不改写项目真源。 |
+| 旧 Project Root Guard 是否仍先锁定真实 `projects/aigc/<项目名>/`，而不是把仓库根、技能目录或 registry 当项目根？ | `GATE-QUERY-02` | `FAIL-QUERY-PROJECT-ROOT` | `N1-project-root` | 报告 `project_root_lock` 的证据路径；无法唯一定位时报告 `needs_clarification`。 |
+| 旧 Truth Role Decision 是否被拆入 `types/query-type-map.md` 与 carrier 表，并在读取文件前完成主次 query role 判定？ | `GATE-QUERY-03` | `FAIL-QUERY-TRUTH-ROLE` | `N2-truth-role` | 报告选中的 truth role、次要 role 以及消费的类型包。 |
+| 旧 `1-Planning` 的规划、分组、报告混合语义是否被拆回当前中文阶段与执行报告，而不是继续用旧目录默认回答？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告 current carrier 与 legacy fallback 的对应关系，并标明旧 `1-Planning` 只作兼容回读。 |
+| 旧 `3-Detail` 主文件查询是否默认改查 `2-编导/第N集.md`，只有证据需要时才标注 legacy JSON fallback？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 输出当前 `2-编导` 路径、旧 `3-Detail` 路径及 fallback 原因。 |
+| 旧 `4-Design/5-Image/6-Video/7-Cut` 是否只作为 legacy compatibility，而不冒充当前 `5-设计/6-图像/7-视频` 的默认产物根？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告当前资产 carrier 优先级，并列出被降级的旧英文阶段名。 |
+| 旧 Workflow Checklist 是否已被 `steps/query-workflow.md` 的节点网络承接，查询回答能回溯到具体读取、验收或治理节点？ | `GATE-QUERY-04` | `FAIL-QUERY-EVIDENCE` | `N6-answer` | 报告每条结论对应的节点、读取路径和缺口来源。 |
+| 旧 Conflict Rules 中“存在不等于验收”的规则是否在完成/通过类回答中强制补读执行报告或验收载体？ | `GATE-QUERY-05` | `FAIL-QUERY-VALIDATION` | `N4-validation-crosscheck` | 报告产物存在、执行报告存在、验收通过三者的区分证据；缺失时写明未见验收证据。 |
+| 旧 `CONTEXT.md` 经验是否只进入当前 `CONTEXT.md` / `knowledge-base`，没有反向覆盖 `SKILL.md`、references 或运行时 carrier 真源？ | `GATE-QUERY-01` | `FAIL-QUERY-CONTEXT` | `N0-load-contract` | 报告经验层只作为查询策略参考，并列出规范真源仍来自 `SKILL.md`、`references/`、`steps/`、`review/`。 |
+| 旧 `system-data-flow.md` carrier 表迁移后，是否以当前中文阶段为 canonical，并把英文旧阶段明确标为 legacy only？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告 canonical carrier 表读取结果、legacy 标注和回答中使用的真实路径。 |

@@ -98,3 +98,21 @@
 5. 若排除道具后仍超过 9 张，再排除重复、不必要或可由源文本保留的次要主体。
 6. 被排除的主体不得进入 `mixedList` 或 final fenced YAML 槽位绑定；必须记录 `reference_over_limit`、`excluded_due_to_budget`，并说明它们由源文本约束保留。
 7. 若无法在不破坏故事板总参照、角色身份或空间连续性的前提下压到 9 张以内，必须标记 `needs_rework / reference_budget_unresolved`，交由用户或上游重新裁决；不得提交超过 9 张图的 LibTV 任务。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 故事板总参照是否只按当前 `6-图像/B-分镜故事板/第N集/images/<group_id>.*` 与同集根层 `<group_id>.*` 两级路径查找，且只接受真实 `png/jpg/jpeg/webp` 图片？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `references/hybrid-reference-binding.md#Storyboard-Total-Reference` | storyboard search roots、candidate list、extension filter、selected path |
+| 故事板候选是否唯一；无命中是否只记录 `storyboard_missing_optional` 并移除空图片槽，多命中是否阻断该组等待用户或上游清理？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` | unique/missing/multiple verdict、blocked reason、manifest `missing[]` |
+| 故事板总参照是否只作为整组总参照写入 `storyboard_total_reference`，没有被挂到某个角色、场景或道具主体后，也没有在 draft prompt 阶段预写槽位字段？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `N5-PROMPT-ASSEMBLE` | manifest role、draft prebinding scan、final `故事板参照` diff |
+| 主体清单是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有从组正文泛词、标题、旁白或历史 manifest 自动扩展主体？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md#Subject-References` | YAML subject list、rejected body-derived candidates、subject source trace |
+| 主体图片是否只从当前 `5-设计/角色、场景、道具/3-生成` 对应类型目录解析，没有用角色图替代道具图、用场景图替代角色图或跨类型兜底？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` | per-type search roots、candidate type、selected image path、cross-type rejection notes |
+| 参照选择是否优先多视图或 multiview，其次主图/单图/封面图，并明确拒绝 JSON、Markdown、prompt 文件或目录占位冒充图片？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` | selected_variant、candidate ranking、non-image rejection list |
+| 每个进入 LibTV 的故事板或主体图片是否从当前本地生成目录 fresh resolve，并记录 `resolved_from_current_generation_dir: true`、`source_sha256`、`source_size_bytes`、`source_mtime_ns`？ | `GATE-VIDHYB-REF-03` | `FAIL-VIDHYB-STALE-REFERENCE-ASSET` | `N3-STORYBOARD-BIND` / `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md#Fresh-Local-Resolution-And-Upload-Cache` | fresh resolution record、fingerprint fields、source file stat |
+| 上传缓存是否只在当前 fresh resolve 的 `path + source_sha256 + source_size_bytes + source_mtime_ns` 完全匹配时复用，且没有按主体名、group_id、文件名或旧 URL 直接命中？ | `GATE-VIDHYB-REF-03` | `FAIL-VIDHYB-STALE-REFERENCE-ASSET` | `N3-STORYBOARD-BIND` / `N4-SUBJECT-BIND` | cache lookup key、fingerprint comparison、stale cache rejection |
+| `reference-manifest.json` 是否同时表达故事板总参照、主体参照、缺图项、`yaml_binding` 和 selected variant，且未把未上传或未入预算主体写成空 `reference_index / uploaded_url`？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` / `N5-PROMPT-ASSEMBLE` | manifest shape audit、bound/missing split、empty slot scan |
+| 单组 LibTV 图片预算是否把故事板总参照与全部主体参照共同计数，并在真实 `mixedList` 前确认不超过 9 张？ | `GATE-VIDHYB-BUDGET-01` | `FAIL-VIDHYB-LIBTV` | `N4-SUBJECT-BIND` / `N6-PLAN-BUILD` / `references/hybrid-reference-binding.md#LibTV-Image-Budget` | reference_image_budget.max_images、pre-budget count、mixedList count |
+| 超过 9 张时是否先保留故事板总参照，再优先角色和场景，先排除道具，再排除重复、不必要或可由源文本保留的次要主体，并记录 `excluded_due_to_budget`？ | `GATE-VIDHYB-BUDGET-01` | `FAIL-VIDHYB-LIBTV` | `N4-SUBJECT-BIND` / `N6-PLAN-BUILD` | exclusion order、excluded_due_to_budget list、source-text retention note |
+| 若无法在不破坏故事板总参照、角色身份或空间连续性的前提下压到 9 张以内，是否标记 `needs_rework / reference_budget_unresolved` 并阻断提交？ | `GATE-VIDHYB-BUDGET-01` | `FAIL-VIDHYB-LIBTV` | `N6-PLAN-BUILD` / `N7-REVIEW-GATE` | blocked submit plan、needs_rework reason、no sessionId evidence |
+| 被排除、缺失或缓存失效的故事板/主体是否只写入 manifest、submit plan 和 report，没有进入 final fenced YAML 槽位、远端 `mixedList` 或 `*-libtv-submission.txt`？ | `GATE-VIDHYB-REMOTE-02` | `FAIL-VIDHYB-REF-PROMPT-INTEGRITY` | `N5-PROMPT-ASSEMBLE` / `N6-PLAN-BUILD` | manifest missing/excluded list、final YAML scan、submission forbidden phrase scan |

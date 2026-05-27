@@ -165,3 +165,27 @@ projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/
 ```
 
 - 若远端成功但下载超时，按 `$libTV` 经验清理半截文件后重试，必要时用媒体 URL 直下。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 生成前是否加载 `.agents/skills/cli/libTV/SKILL.md` 并调用官方 `$libTV` 技能/脚本，而不是绕过为私有 OpenAPI 或手写提交器？ | `GATE-FVID-LIBTV-02` | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | submit plan 中的 `$libTV` skill load note、官方脚本命令清单、private API scan |
+| 是否完成 `LIBTV_ACCESS_KEY` credential check，且没有把 key 写入 prompt、batch、queue、模板或报告？ | `GATE-FVID-LIBTV-03` | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | credential check status、redacted env note、secret scan summary |
+| 新任务是否先锁定 `projectUuid/projectUrl`，或仅在用户显式指定时复用 existing 画布，并把同一画布写入 submit plan、queue 和 report？ | `GATE-FVID-LIBTV-04` | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | `projectUuid/projectUrl` lock record、`create_session.py` response、queue/report projection |
+| 每个上传 URL 的 `/claw/<projectUuid>/` 是否与锁定画布一致，且上传结果只进入 `frame_uploads` 身份映射而不直接当作图N顺序？ | `GATE-FVID-LIBTV-05` | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | upload ledger、project scope check、`frame_uploads` / `generation_slots` 对照 |
+| 官方脚本顺序是否保持 `change_project.py -> upload_file.py -> create_session.py -> query_session.py -> download_results.py`，且无参照图时只跳过 upload？ | `GATE-FVID-LIBTV-06` | `FAIL-FVID-LIBTV` | `N8-DISPATCH` | command projection、per-job execution trace、text-only branch note |
+| 画布同步是否真实可查：远端消息、上传参照、生成节点和结果都在同一 `projectUrl`，缺生成节点或结果 URL 时不标记 generated/downloaded？ | `GATE-FVID-LIBTV-07` | `FAIL-FVID-QUEUE` | `N9-QUEUE` | queue ledger、query response excerpt、remote node/result URL status |
+| 有参照图、无参照图、显式首尾帧三种路线是否分别投影为 `image2video`、`text2video`、受限 `frames2video`，且没有空图片槽位？ | `GATE-FVID-LIBTV-01` | `FAIL-FVID-LIBTV` | `N6-YAML` | batch YAML 的 command type、reference count、modeType、empty slot scan |
+| 单组 `imageList` 是否最多 9 张；超限时是否先做预算裁决并记录 `excluded_due_to_budget`，而不是静默丢图或超量提交？ | `GATE-FVID-REF-05` | `FAIL-FVID-REFERENCE-BUDGET` | `N5-REF-BIND` | selected / excluded shot list、budget rationale、blocked reason |
+| draft/final source-first YAML 是否分相：draft 不伪造 URL，final 只在 fenced YAML 的 `分镜画面参照[]` 注入进入 `imageList` 的真实槽位绑定？ | `GATE-FVID-PROMPT-02` | `FAIL-FVID-PROMPT` | `N6-YAML` | draft/final YAML diff、`*-libtv-submission.txt` 截要、slot ledger |
+| `reference_index` 是否来自最终 UI 图N或实际 `imageList` 的 `generation_slots`，而不是来自上传顺序、本地 marker 或人工 `参照图N`？ | `GATE-FVID-REF-04` | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | `generation_slots`、`imageList`、final YAML `reference_index` 对照 |
+| 远端 `*-libtv-submission.txt` 是否以 `【LibTV 调用锁定】` 开头，使用真实 uploaded URL，不含本地路径、占位 URL、另起 `【分镜画面参照说明】` 或缺图/未入预算说明？ | `GATE-FVID-PROMPT-02` | `FAIL-FVID-PROMPT` | `N6-YAML` | submission text excerpt、本地路径/占位符 scan、final fenced YAML 参照列表 |
+| `【直接生成请求】` 是否基于下方 `【分镜组源文本】`，并让原始组正文与 final YAML 参照绑定共同作为生成 prompt 完整体，而不是裸图片 token、裸编号或裸 URL 列表？ | `GATE-FVID-PROMPT-02` | `FAIL-FVID-PROMPT` | `N6-YAML` | remote prompt excerpt、分镜ID/镜头标签与图片 token/URL 邻近绑定检查 |
+| 默认提交是否保持 `strict_original + transport_only` 与 `allow_libtv_prompt_optimization=false`；未 opt-in 时 query 中是否没有优化、摘要、重排、补镜头或镜头计划？ | `GATE-FVID-PROMPT-03` | `FAIL-FVID-PROMPT` | `N6-YAML` | submit plan opt-in field、submission text fidelity block、query prompt audit |
+| `duration` 是否使用当前组 `duration_hint=clamp(duration_estimate_seconds, 4, 15)`，而不是全组固定 15 秒或脱离组底时长证据？ | `GATE-FVID-DURATION-02` | `FAIL-FVID-DURATION` | `N6-YAML` | group duration evidence、batch `duration_hint`、remote submission duration |
+| 远端提交是否声明 `enableSound=on`；若生成前无法验证工具参数，是否记录 `audio_preflight_unverified_non_blocking` 并继续官方提交流程？ | `GATE-FVID-AUDIO-01` | `FAIL-FVID-AUDIO` | `N8-DISPATCH` | submission audio line、preflight verification status、non-blocking note |
+| 生成后是否通过 `task_result.audios`、音频 URL 或下载后 `ffprobe` 证明有 audio stream；无音轨是否写成 `audio_missing / no_audio_stream` 且不交付？ | `GATE-FVID-AUDIO-02` | `FAIL-FVID-AUDIO` | `N10-QUERY-DOWNLOAD` | query audio evidence、ffprobe JSON、`audio_missing / no_audio_stream` status if failed |
+| 后台并发是否每组保留 `sessionId/projectUuid/projectUrl`、queue row 和 next_action，失败组不抹掉已提交组状态？ | `GATE-FVID-LIBTV-07` | `FAIL-FVID-QUEUE` | `N9-QUEUE` | queue ledger、tmp result、submitted/failed group status |
+| 完成后是否按 `$libTV` 查询并自动下载到 `7-视频/A-分镜画面参照/第N集/`，文件名精确为 `<group_id>.mp4`，不把远端成功或半截文件误判为交付？ | `GATE-FVID-DOWNLOAD-01` | `FAIL-FVID-DOWNLOAD` | `N10-QUERY-DOWNLOAD` | download command、expected video path、file existence/size and retry note |
+| close report 是否覆盖 submit plan、queue、结果、下载/跳过/失败原因、音频验收状态和可执行返工入口？ | `GATE-FVID-REPORT-01` | `FAIL-FVID-REPORT` | `N12-CLOSE` | close report 的 coverage、status summary、rework targets |

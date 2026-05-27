@@ -230,3 +230,14 @@ physiological_realism_evidence:
 - "因果链的顺序不能乱。生理上先发生的事，表演上必须先出现。"
 - "表面镇定和真正平静是两回事。恐惧后的'镇定'手指还在抖，这才是活人。"
 - "快速情绪切换不是不可能，但它需要强烈的外部催化。没有催化的快速切换就是表演失真。"
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 强情绪、哭泣、恐惧、运动或冷热变化后的状态切换是否满足最低过渡 beat，而不是上一拍极端、下一拍完全正常？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` 的 Six Physiological Transition Rules | `physiological_realism_evidence[].emotion_transition.minimum_beats_required`、`beats_used` |
+| 生理表现出现顺序是否符合情绪-生理因果链，未出现先声线变化、后面部/呼吸变化等错序？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` 的 Emotion-Physiology Causal Chain | `physiological_realism_evidence[].physiological_causal_chain.order_valid=true` |
+| 前一场强情绪是否在下一场保留眼眶、鼻音、手颤、汗、距离或动作幅度等残留？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` / `N7-PERF-DRAFT` 的 residual projection | `physiological_realism_evidence[].residuals_from_previous_scene.carried_into_current=true` |
+| 长时间或高强度情绪是否留下体力、声线、肩颈、手部或消化等代价，且代价影响后续行动质量？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` 的 Extreme Emotion Physiological Cost | `physiological_realism_evidence[].extreme_emotion_cost.present_in_subsequent=true` |
+| 快速切换到对立情绪时，是否有强外部催化事件和可见过渡，而不是无因跳变？ | `GATE-PERF-09` | `FAIL-PHYSIOLOGICAL-REALISM` | `N4-PERF-ACTOR-CONTROL` / `N8R-PERF-REPAIR` 的 Transition Timing Matrix | `physiological_realism_evidence[].emotion_transition.transition_path`、`scene_dramatic_map[].turning_point.anchor` |
+| 生理残留是否内嵌到角色动作、对白画面、表情特写或心理反应中，而不是只留在报告里？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N7-PERF-DRAFT` 的字段内嵌 | `physiological_realism_evidence[].embedded_in_fields` 或 `actor_performance_control_evidence[].embedded_in_fields` |

@@ -13,6 +13,7 @@
 | gate_id | check | fail_code | rework |
 | --- | --- | --- | --- |
 | `G1-SOURCE` | 每个 `shot_id` 可回指 `6-分组` 源组、`source_camera_units`、`frame_landing_type` 与 `frame_landing_reason`；最后一段不是直接继承上游 `分镜N` | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
+| `G1A-CONNECTOR-IGNORE` | `## x-y-z~x-y-z` 组间连接件必须被识别并跳过，不得进入 `shot_id`、`story_beat`、`shot_detail`、`bridge_context`、reference manifest、imagegen plan 或图片任务 | `FAIL-FRAME-ID` | `references/group-source-extraction.md` |
 | `G2-NORTHSTAR` | 三项 north_star 字段为直引，未摘要、未翻译、未改写 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `G3-PROMPT` | 英文 prompt 为单帧、核心内容未改写、<= 800 English words，且完整 prompt 设计体系进入英文 prompt 本体 | `FAIL-FRAME-PROMPT` | `references/prompt-assembly-contract.md` |
 | `G3D-PROMPT-DESIGN-SYSTEM` | 英文 prompt 必须包含或等价覆盖：frame identity、source truth、continuity、primary anchor、support anchors、spatial blocking、camera/composition、focus target、scene reference style lock、materials/atmosphere、avoid constraints；不得只写镜头摘要或把体系停留在 `Spatial Continuity Plan` 字段 | `FAIL-FRAME-PROMPT-SYSTEM` | `references/prompt-assembly-contract.md` |
@@ -25,6 +26,7 @@
 | `G4A-PROMPT-PACKAGE-FIRST` | `episode_batch_generate` 与 `shot_batch_generate` 在任何 imagegen 调用前，必须已落盘覆盖指定范围全部 `shot_id` 的 `第N集-分镜画面-prompts.md`、`reference-manifest.json` 与 `imagegen-plan.json`；plan 记录 `prompt_package_status: complete_before_imagegen`，不得边生图边补写后续 prompt | `FAIL-FRAME-IMAGEGEN` | `steps/frame-image-workflow.md` |
 | `G5-HANDOFF` | imagegen mode 合法，未未经许可切 CLI/API fallback | `FAIL-FRAME-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G6-PERSIST` | 生成图片或计划输出位于项目目录，不只在 `$CODEX_HOME` | `FAIL-FRAME-IMAGEGEN` | `.agents/skills/cli/imagegen/references/output-persistence.md` |
+| `G6A-OUTPUT-SAFETY` | 输出路径不得静默覆盖现有文件；只有用户明确要求 rerun / replace 时才允许覆盖，并必须在 plan/result/report 中记录覆盖授权 | `FAIL-FRAME-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G7-REF-INPUT` | 若绑定本地参照图，生成前必须逐张 `view_image` 且 results/report 记录 `reference_input_status: visible_in_conversation_context`；确无绑定图片时记录 `no_reference_images_bound` | `FAIL-FRAME-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G8-SERIAL-BATCH` | `episode_batch_generate` 与 `shot_batch_generate` 必须按 `shot_id` 严格串行逐镜执行；plan/result 记录 `execution_order` / `serial_index` / `previous_shot_status`；不得并发、后台并行、分片并跑、边生图边补写 prompt 或跳过前镜结果 | `FAIL-FRAME-IMAGEGEN` | `references/imagegen-handoff.md` |
 | `G9-REPORT` | 执行报告列出 generated / skipped / failed 与返工入口 | `FAIL-FRAME-REPORT` | `templates/output-template.md` |

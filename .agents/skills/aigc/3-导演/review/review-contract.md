@@ -23,6 +23,7 @@
 - review 必须加载 `../../_shared/action-first-continuity-contract.md`，检查氛围、景境、道具和受控增强是否先服务人物 entry_state/action_vector/exit_state，是否存在用无互动物件或环境反应替代人物行动、造成空间不可达或下游动作链断裂的风险。
 - review 必须加载 `../references/episode-final-image-contract.md` 与 `../types/episode-final-image-type-map.md`，检查每集终结画面是否形成迷你彩蛋尾钩：与下一集真实关联但不剧透，并从本集内容丝滑顺延，且已完成环境描写式、道具特写式、情绪酝酿式或高潮结尾式的类型化匹配。
 - review 必须加载 `../references/controlled-enrichment-contract.md`，检查新增承托细节是否有上游锚点、是否只属于表现层、是否记录 `controlled_enrichment_ledger`。
+- review 必须加载 `../../_shared/concrete-visual-language-contract.md`，检查导演阶段自身的编导判断、视觉主轴、氛围意境、高潮承托、终结画面、顾问意见、执行报告和最终落盘是否使用具像画面语言：能看见、听见、被演员或下游执行；不得把 `2-编剧` 已完成的画面化成果重新写成“电影感/宿命感/视觉气质/人物状态/导演意图”等抽象概念或解释性总结。
 - review 必须加载 `../steps/directing-workflow.md#Thinking-Action Node Contract`，检查本轮经过的关键节点是否形成 `thinking_action_node_ledger`；每条节点记录必须同时包含判断问题、执行动作、证据字段、出口路由、gate 状态和 source owner。节点只写 checklist、只写"已优化"结论或没有失败回路时，必须判为 `needs_rework`。
 - 若本轮新增或显著修改学习型合同，review 必须检查 `learning_integration_review_evidence`：静态接入点、真实样例或等价 smoke 状态、未覆盖风险和后续生产观察点必须写清；没有真实项目样例时只能标注 `static_only`，不得写成 fully verified。
 - 若上层策略阻断顾问与复核流程 或 provider 调度，允许使用本地 review checklist，并使用本地 review checklist。
@@ -31,7 +32,7 @@
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N10R-DIR-REPAIR`，由 `3-导演` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `3-导演/第N集.md`。
-- 允许直接修复的范围：高潮承托、视觉美学组织、终结画面尾钩内嵌、controlled enrichment 留证、活人感行为动机种子、顾问证据、思维·执行节点、frontmatter/report 证据和格式。
+- 允许直接修复的范围：高潮承托、视觉美学组织、终结画面尾钩内嵌、controlled enrichment 留证、活人感行为动机种子、具像画面语言回收、顾问证据、思维·执行节点、frontmatter/report 证据和格式。
 - 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `2-编剧` 修剧情、把 B 路线扩展为新增对白/桥段/因果。遇到这类问题必须输出 source owner 和不可用说明。
 - `pass_with_followups` 只允许非阻断质量建议；任何高潮承托、顾问参谋、场景状态差、受控增强、视觉美学、终结画面、创作证据或思维·执行节点问题不得降级为 followup。
 
@@ -55,6 +56,7 @@
 | `GATE-DIR-14` | `emotional_rhythm_map` 与 `sound_design_directive` 完成：峰谷、张力释放、类型情绪色彩、声音母题、沉默策略和声音转场明确 | `FAIL-EMOTIONAL-RHYTHM-MAP` / `FAIL-SOUND-DESIGN-DIRECTIVE` |
 | `GATE-DIR-15` | 关键角色有 `performance_style_directive`：表演风格基调（克制/自然/外放）、身体表达密度、声音范围明确，风格轴和转变触发可被 `4-表演` 消费 | `FAIL-PERFORMANCE-STYLE` |
 | `GATE-DIR-16` | 关键 beat 有 `audience_psychology_map`：观众知识、期待、恐惧和渴望明确，`emotional_rhythm_map` 的 `peak_valley_sequence` 有明确起伏且高度差异>=4 | `FAIL-AUDIENCE-PSYCHOLOGY` / `FAIL-EMOTIONAL-RHYTHM` |
+| `GATE-DIR-17` | 导演阶段自身的编导判断、高潮承托、视觉主轴、视觉美学、氛围意境、声音策略、终结画面、顾问意见、执行报告和最终落盘均通过具像画面语言检查：有可见/可听/可执行锚点，没有把上游画面化成果重新抽象为审美概念、主题解释、人物状态标签或导演意图总结；所有增强仍可回指上游或受控增强留证 | `FAIL-CONCRETE-VISUAL-LANGUAGE` |
 
 ## Verdict Model
 
@@ -62,7 +64,7 @@
 | --- | --- |
 | `pass` | 可交付给下游阶段 |
 | `pass_with_followups` | 可交付，但存在非阻断质量优化 |
-| `needs_rework` | 存在高潮承托、观众心理、表演风格、反高潮、声音设计、情绪节奏、顾问证据、受控增强、视觉美学、终结画面、氛围意境或创作证据阻断项 |
+| `needs_rework` | 存在高潮承托、观众心理、表演风格、反高潮、声音设计、情绪节奏、顾问证据、受控增强、具像画面语言、视觉美学、终结画面、氛围意境或创作证据阻断项 |
 | `blocked` | 上游缺失、路径不可读、权限或策略阻断 |
 
 ## Report Shape
@@ -88,6 +90,7 @@ review:
     action_first_continuity: pass
     lived_in_behavior_seed: pass
     scene_identity_seed: pass
+    concrete_visual_language: pass
     creative_evidence: pass
     thinking_action_nodes: pass
     learning_integration_review: pass
@@ -236,6 +239,25 @@ review:
         new_event: false
         new_dialogue: false
         abstract_aesthetic: false
+  concrete_visual_language_evidence:
+    - stage: "3-导演"
+      node_id: ""
+      source_anchor: ""
+      abstract_or_conceptual_risk: ""
+      concrete_projection: ""
+      target_fields:
+        - ""
+      sensory_or_performable_channels:
+        visible: []
+        audible: []
+        performable: []
+        spatial_or_prop: []
+      risk_check:
+        abstract_language_residue: false
+        conceptual_summary: false
+        explanatory_substitution: false
+        upstream_visualization_regressed: false
+        fact_drift: false
   thinking_action_node_ledger:
     - node_id: ""
       judgment_question: ""

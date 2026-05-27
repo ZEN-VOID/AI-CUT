@@ -91,3 +91,17 @@
 ## Preservation Rule
 
 分镜剧本正文必须同步原换行。允许添加组头、组底 YAML、组间首尾帧连接件和 frontmatter；不得在正文中删改字段名、对白、原有分镜明细、场景标题或原有顺序。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 分镜组 ID 是否严格为 `x-y-z`，且 `x` 来自真实集号、`y` 来自上游真实场景号、`z` 在同一场景内连续递增并跨场景重置？ | `GATE-GROUP-05` | `FAIL-GROUP-04` | `N3-SCENE-MAP`、本文件 `Group ID Rule` | 执行报告列出场景-分镜组索引、每场组号范围、异常 ID 和修复后的连续性检查。 |
+| 是否没有把跨场景内容拼进同一组；上游缺场景标题时是否阻断或回退上游，而不是猜场号？ | `GATE-GROUP-05`、`GATE-GROUP-13` | `FAIL-GROUP-04`、`FAIL-GROUP-09` | `N3-SCENE-MAP`、本文件 `Group ID Rule` | 执行报告记录上游场景标题来源、跨场景拆组情况和缺场景标题处理结论。 |
+| 组内边界是否以 `5-摄影` 显式 `分镜N（约X秒）` 累计为主，优先接近约 15 秒，通常落在 12-18 秒，且没有把字数/对白当成主裁决标准？ | `GATE-GROUP-06`、`GATE-GROUP-07` | `FAIL-GROUP-05` | `N5-GROUP-PLAN`、本文件 `Group Duration Band` | 执行报告列出每组显式秒数累计、字数/对白风险复核和边界选择理由。 |
+| 低于约 10 秒的候选组是否已做回填复核或记录短场景/完整事件例外，而不是仅因情绪、话题或危险信息转折切出短组？ | `GATE-GROUP-06`、`GATE-GROUP-07` | `FAIL-GROUP-05` | `N5-GROUP-PLAN`、本文件 `Density Review`、`Boundary Preference` | 执行报告记录短组 ID、回填尝试、不能合并的声画完整性证据或返工结果。 |
+| 任一组是否都没有超过 18 秒；若超过是否移动完整 atomic unit 或回退 `5-摄影`，而非用完整性、对白承托或场景完整作为例外放行？ | `GATE-GROUP-06` | `FAIL-GROUP-05` | `N5-GROUP-PLAN`、本文件 `Group Duration Band` | 执行报告记录超时组 ID、秒数、移动/拆分方案；单个 atomic unit 超 18 秒时记录回退 `5-摄影` 的阻断说明。 |
+| 同一画面字段、其 `分镜明细：`、连续 `分镜N`、对应对白/画面承托、道具特写/规则显影/系统画面是否作为 atomic unit 整体归并，未被拆到两个分镜组？ | `GATE-GROUP-08` | `FAIL-GROUP-06` | `N5-GROUP-PLAN`、本文件 `Atomic Unit Rule` | 执行报告记录 atomic unit 表、跨组截断检查和被恢复的字段/分镜明细范围。 |
+| 字数、对白和密度风险是否只触发语义复核，没有覆盖显式时长累计和 atomic unit 完整性，也没有为了低于 1980 字删改原文？ | `GATE-GROUP-07`、`GATE-GROUP-13` | `FAIL-GROUP-05`、`FAIL-GROUP-09` | `N5-GROUP-PLAN`、`N7-ASSEMBLE`、本文件 `Auxiliary Word And Dialogue Risk Band`、`Preservation Rule` | 执行报告记录高/低字数组、对白句数、风险处理方式和上游正文保真 diff 结论。 |
+| 组内时长统计是否只累计原正文中的显式分镜秒数，不把组头、场景标题行、定场镜头、画面属性、north_star、YAML 或连接件计入时长？ | `GATE-GROUP-06`、`GATE-GROUP-11` | `FAIL-GROUP-05`、`FAIL-GROUP-08` | `N5-GROUP-PLAN`、`N7-ASSEMBLE`、本文件 `Group Duration Band` | 执行报告记录时长估算来源、排除项和 YAML `时长估算` 与分镜秒数回指。 |
+| 分镜剧本正文是否同步原换行，未删改字段名、对白、原有分镜明细、场景标题或顺序？ | `GATE-GROUP-13` | `FAIL-GROUP-09` | `N7-ASSEMBLE`、本文件 `Preservation Rule` | 执行报告记录上游对照、正文保真抽查范围、diff 或等价核验结论。 |

@@ -75,3 +75,17 @@
 
 环境描写：冷白日光灯压在课桌表面...
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个分镜组是否在定场镜头之后、north_star 风格行之前输出 `画面属性：` 自然语句？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Core Rule`、`Output Rules` | 执行报告记录每组画面属性位置、缺失项和修复后的组头顺序。 |
+| 画面属性是否从组内 `5-摄影` 镜头设计提炼，而不是从 north_star、内部约束或模板词直接搬运？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Core Rule`、`Output Rules` | 执行报告记录画面属性对应的组内镜头设计证据、提炼依据和搬运风险检查。 |
+| 画面属性是否覆盖构图布局核心选择、构图方式 2-3 个关键子维度、光源效果、色彩基调和最关键的 1-2 项摄影技术参数？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Fields` | 执行报告记录每组画面属性覆盖的构图/光源/色彩/技术参数维度和缺项修复。 |
+| 画面属性是否说明必要的观看位置与空间感来源，例如机位高度、前景层次、遮挡视角、透视关系、手持微晃或观众发现路径？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `viewer_position` | 执行报告记录观看位置/空间感摘录、对应上游镜头和遗漏修复结果。 |
+| 画面属性是否是自然中文语句，而不是参数清单、标签列表、模板填空或 `scene_visual_constraint` 复制段？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Output Rules` | 执行报告记录清单化/模板化检查、被重写的画面属性文本和自然化结果。 |
+| 同一场景相邻组视觉特征不变时是否允许相似语句，视觉特征变化时是否更新画面属性，而不是全场复用同一句？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Output Rules` | 执行报告记录相邻组视觉特征比对、复用理由或更新依据。 |
+| 组内镜头若主要是正面平视全信息展示，是否判断其为有意中立观察/制度压迫/固定框线，或回退 `5-摄影` 修复扁平摆拍风险，而不是靠画面属性美化？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、必要时回退 `5-摄影`、本文件 `Output Rules` | 执行报告记录平视展示组 ID、意图判断、扁平风险结论和回退/修复说明。 |
+| `knowledge-base/摄影构图/` 是否只作为裁决参考，没有替代组内镜头设计证据或生成脱离当前组的审美语句？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Knowledge Base Binding` | 执行报告记录引用的构图知识维度、当前组证据回指和知识库越界检查。 |
+| `Output Example` 是否仅作为形态示例，没有把示例中的教室、日光灯、焦段或构图固定套入无关分镜组？ | `GATE-GROUP-12` | `FAIL-GROUP-10` | `N4-VISUAL-TONE`、本文件 `Output Example` | 执行报告说明示例未模板化；若出现示例污染，记录被替换的硬编码视觉元素。 |

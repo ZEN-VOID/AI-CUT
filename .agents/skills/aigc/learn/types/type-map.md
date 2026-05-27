@@ -13,6 +13,17 @@
 | `audio-source` | `types/audio-source/` | 音频文件、播客、访谈录音、视频音轨 | stackable | `types/audio-source/audio-source.md` | none | none |
 | `skill-package-source` | `types/skill-package-source/` | 目标是现有 skill、外部技能包、AGENTS/SKILL/CONTEXT 文档 | stackable | `types/skill-package-source/skill-package-source.md` | none | none |
 
+## Default Package Rule
+
+默认按学习对象选择一个或多个类型包；若无法判定格式，先加载 `text-source`，并在 source digest 中记录 `source_kind: unknown`。
+
+## Loading Flow
+
+1. 识别学习对象的媒介、目标 skill 和写回权限。
+2. 从 `Package Index` 选择可叠加类型包。
+3. 加载所有选中类型包的 `context_files`。
+4. 将类型画像交给 `steps/learning-workflow.md`，再按需要加载视频、书籍、冲突核查或全局改进 references。
+
 ## Selection Rule
 
 - 多媒介材料必须多选叠加，例如视频链接同时加载 `web-source`、`video-source` 和 `audio-source`。

@@ -77,3 +77,20 @@
 | `silence_as_narrative` | 静默在何时出现、以何种方式出现，其情绪功能是什么 |
 | `sound_early_or_late` | 声音是否提前于画面建立期待，或滞后于画面形成余韵 |
 | `audio_visual_counterpoint` | 声音与画面是否形成对位：同步强化 / 反讽 / 延迟揭示 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| `编剧风格解析.md` 是否只作为 `2-编导` side context，不改写编导 canonical 正文？ | `GATE-SBS-ADAPT-01` | `FAIL-SBS-ADAPT-SIDE-CONTEXT` | `N5-BRIDGE` | 使用边界、owner handoff 与未改写证明 |
+| 戏剧问题、观众位置、角色压力和场景状态差是否完整且有参考证据回指？ | `GATE-SBS-SCREEN-01` | `FAIL-SCREEN-DRAMATIC-Q` | `N5-BRIDGE` | dramatic_question / audience_position / character_pressure / scene_state_delta |
+| 观众知道、误解、等待、担心或被延迟满足的内容是否被明确建模？ | `GATE-SBS-SCREEN-01A` | `FAIL-SCREEN-AUDIENCE-POS` | `N5-BRIDGE` | audience_position_seed 与 source_shot_refs |
+| 角色目标、阻碍、隐藏信息、外显策略和关系压力是否清楚？ | `GATE-SBS-SCREEN-01B` | `FAIL-SCREEN-CHAR-PRESSURE` | `N5-BRIDGE` | character_pressure_seed |
+| 表演任务是否可执行，落在身体动作、停顿、视线、呼吸或道具动作？ | `GATE-SBS-SCREEN-02` | `FAIL-SCREEN-PERF-TASK` | `N5-BRIDGE` | performance_task_seed |
+| 场面调度是否说明站坐、高低、远近、入口、障碍物和权力位置，不写摄影机位？ | `GATE-SBS-SCREEN-02A` | `FAIL-SCREEN-BLOCKING` | `N5-BRIDGE` | blocking_power_seed 与禁用摄影越权检查 |
+| 对白策略、潜台词层和情绪脉冲是否可拍、可听、可表演？ | `GATE-SBS-SCREEN-03` | `FAIL-SCREEN-SUBTEXT` | `N5-BRIDGE` | dialogue_strategy / subtext_layer / emotion_pulse |
+| 对白策略是否说明密度、沉默、反问、威胁、信息释放或潜台词节奏？ | `GATE-SBS-SCREEN-03A` | `FAIL-SCREEN-DIALOGUE` | `N5-BRIDGE` | dialogue_strategy_seed |
+| controlled enrichment、次要情节和声音叙事是否只承托主线，不新增剧情事实？ | `GATE-SBS-SCREEN-04` | `FAIL-SCREEN-ENRICHMENT` | `N5-BRIDGE` | controlled_enrichment / subplot / sound_narrative |
+| 次要情节是否说明对主线的压力输送、伏笔埋收和收束方式？ | `GATE-SBS-SCREEN-04A` | `FAIL-SCREEN-SUBPLOT` | `N5-BRIDGE` | subplot_weave_seed |
+| 声音叙事是否说明音乐主题、环境音、静默、提前/滞后和声画对位？ | `GATE-SBS-SCREEN-04B` | `FAIL-SCREEN-SOUND` | `N5-BRIDGE` | sound_narrative_seed |
+| 是否明确禁止机位、景别、焦段、运镜、分镜编号、参考片台词/剧情/角色关系/标志性动作复制？ | `GATE-SBS-SCREEN-05` | `FAIL-SCREEN-DO-NOT` | `N5-BRIDGE` / `N4-PRINCIPLE` | 禁用摄影越权与 Do Not Import 清单 |

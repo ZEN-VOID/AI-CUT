@@ -162,6 +162,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `SKILL.md` 只保留入口、触发、路由、动态引用、关键门禁、Root-Cause 合同和输出合同。
   - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
   - `references/` 承载复杂规范、长细则、背景资料和专项规则展开，不拥有入口路由权。
+  - `references/` 中凡承载强制规则、Review Questions、反模式、失败症状、返工判断或阻断条件的细则，必须内置 `Review Gate Mapping`，将每条 `Review Question` 或强制判断绑定到 `Review Gate -> Fail Code -> Rework Target -> Report Evidence`；解释性、术语性、示例性 reference 若无独立强制裁决权，必须声明无独立 gate 并回接主 review gate。
   - `steps/` 承载思维与执行一体化节点、串并行、分支、汇流、回退和证据门，不替代类型矩阵。
   - `steps/` 中的思维·执行节点与同一 skill 内相关 Mermaid 图表视为一体化拓扑真源；凡调整节点名称、顺序、输入输出、路由、分支、汇流、回退或 gate，必须同轮同步检查并更新 `SKILL.md`、`README.md`、`steps/`、`references/`、`review/` 或其他文档中的相关 Mermaid 图表，不得让图表停留在旧拓扑。
   - `review/` 承载质量评估、审计规范、review provider 接入和交付门禁，不改写业务主真源。
@@ -179,6 +180,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 在 `SKILL.md` 中包含 `Reference Loading Guide` 或等价动态引用表，声明何时加载 `references/`、`steps/`、`review/`、`types/` 与其他分区
   - 在 `SKILL.md` 中包含与本全局政策对齐的 Root-Cause 执行合同，并附带上溯到 meta 层合同的钩子
   - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
+  - 每个新建、升级或优化的 `references/` 细则必须包含 `Review Gate Mapping` 或等价验收映射；不得只写 Review Questions 而没有对应 gate、fail code、返工目标和报告证据。
   - 在 `CONTEXT.md` 中包含知识库核心（Type Map、Repair Playbook 与/或 Reusable Heuristics）
   - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
   - 对 `full` / `lite` 技能，在 `agents/openai.yaml` 中提供产品侧入口元数据，不得把入口摘要偷渡成强于 `SKILL.md` 的隐藏执行规则；`router` 父级导引可不设本级 `agents/openai.yaml`，由上级或叶子入口承接产品发现
@@ -248,6 +250,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 - `references/` 的角色（细则层）：
   - 保存复杂规范、详细规则、背景资料、专项合同和可独立回指的长细则
   - 不拥有入口路由权；若细则需要改变主流程，必须回改 `SKILL.md`
+  - 不拥有无 gate 的阻断裁决权；每个强制性 reference 必须将 `Review Question -> Review Gate -> Fail Code -> Rework Target -> Report Evidence` 作为固有验收配置。
+  - `Review Questions` 只是问题入口，不是验收门本身；若无法回接 `review/` 的 gate、失败码、返工节点和报告证据，则该问题不得用于阻断交付。
 - `steps/` 的角色（思行网络层）：
   - 保存串行、并行、树、网、分支、汇流、回退、证据门与执行节点
   - 节点应同时表达判断、动作、证据、路由和 gate，不应退化为普通 checklist
@@ -313,6 +317,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
+  - 新建、升级或优化 `references/` 细则时，必须同步补齐或复核 `Review Gate Mapping`；如果某条 reference 规则改变了验收逻辑，还必须同轮同步 `review/review-contract.md`、相关 `steps/` 返工节点、报告证据字段与必要模板。
   - 每个显著失败都应在 `CONTEXT.md` 中记录：症状、根因、修复与预防检查
   - 每个经用户确认的显著成功都应在 `CONTEXT.md` 中记录：结果、设计决策、提炼 heuristic 与可复制范围
   - 当前项目内一旦出现新的稳定偏好、禁区、长期要求、特殊元素或用户明确要求“以后都按这个来”的口径，应优先写入项目根 `MEMORY.md`
@@ -533,7 +538,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 不得承载独立于主合同之外的隐藏执行规则
 - 以下内容应写入 Skill 2.0 分区或共享模块文件 / spec / schema（专项细则层）：
 
-  - `references/`：可独立升级、但仍受主合同约束的复杂规范、长细则、背景资料与专项合同
+  - `references/`：可独立升级、但仍受主合同约束的复杂规范、长细则、背景资料与专项合同；强制性细则必须内置 `Review Gate Mapping`，把 `Review Question -> Review Gate -> Fail Code -> Rework Target -> Report Evidence` 固化为验收链路
   - `steps/`：思维·执行节点设计、执行流程细则、判断分叉、串并行、汇流、回退和证据门
   - `review/`：质量评估、审计流程、评分模型、review provider 接入与交付 verdict
   - `types/`：类型变量、类型映射矩阵、分型处理策略与 `type_profile` 生成规则

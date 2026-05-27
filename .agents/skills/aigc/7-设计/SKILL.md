@@ -63,6 +63,7 @@ metadata:
 | 父级路由与域选择 | `references/阶段路由矩阵.md` |
 | 父级思行节点 | `references/思行网络.md` |
 | 上游分批完成、后续追加集数、既有设计需要补缺 | `references/incremental-reconciliation-contract.md` |
+| 父级增量对账、legacy archive 边界与阶段 closeout 验收 | `review/review-contract.md` |
 | 阶段末域级验收后直接修复闭环 | 本 `Stage-Closeout Review-Repair Contract`、`references/思行网络.md`、对应域级 leaf `review/review-contract.md` |
 | 设计创作阶段显式执行顾问与复核流程 / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`；优先消费 `roles.supervision.stage_profiles."7-设计"`，由命中域级/叶子技能实际执行 |
 | 场景域执行 | `场景/SKILL.md + 场景/CONTEXT.md` |

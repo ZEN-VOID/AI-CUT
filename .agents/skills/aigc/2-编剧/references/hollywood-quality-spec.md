@@ -300,3 +300,14 @@
 | §7 声音设计标准 | FR-5 | 声音核心、设计原则 |
 | §8 保真与质量平衡 | FR-1~FR-3 | 允许与禁止边界 |
 | §9 质量门清单 | FR-1~FR-7 | 15项质量检查 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 所谓“高质量影视剧本形态”是否始终受事实保真、信息量保真和对白冻结约束，没有为高级感删减、摘要、重排、自由改写或新增对白/事件？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-04` | `FAIL-FAITHFULNESS` / `FAIL-DIALOGUE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `faithful_projection_trace` 与 `dialogue_lock_map` 记录质量增强前后的上游锚点和对白对读结果 |
+| 关键场景是否有进入状态、压力源、转折点和退出状态，并且这些状态落入可拍画面、声音、道具、动作、群像或场面调度，而非场景末尾总结？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-20` | `FAIL-CONCRETE-VISUAL` / `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile` 与 `hollywood_quality_notes.scene_state_delta` 记录 entry / pressure / turning / exit 的字段锚点 |
+| 场景目的、冲突压力、信息差、潜台词策略和权力调度是否被拆进具体字段，而不是由旁白、作者判断或心理解释直接告知？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-19` / `GATE-SCRIPT-21` | `FAIL-CONCRETE-VISUAL` / `FAIL-INFORMATION-ASYMMETRY` / `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` | `information_asymmetry_map`、`dialogue_subtext_map` 与 `hollywood_quality_notes.power_staging_evidence` 记录字段化承托 |
+| 画面核心和声音核心是否各自有可见/可听承托，并且声音字段仍满足声音本体与画面就近配对？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-11` | `FAIL-PAIRING` / `FAIL-SOUND-LITERAL` | `steps/directing-workflow.md#N4-FIELD` | `audio_visual_pairing_map`、`sound_literal_risk_map` 与 `hollywood_quality_notes.image_sound_core` 记录核心物件和声音来源 |
+| 表演任务、沉默余波、关系外化和权力调度是否可执行、可见，未在场景末尾以高段位表演/场面调度总结块倾倒？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-21` | `FAIL-CONCRETE-VISUAL` / `FAIL-DIALOGUE-SUBTEXT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `hollywood_quality_notes.performance_projection` 记录每项表演任务落入的字段句段 |
+| 高级工艺规则是否没有越权写机位、景别、镜头运动、分镜编号、剪辑节奏或调色方案？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `hollywood_quality_notes.overreach_check` 记录越权词排查和改写后的基础声画字段 |

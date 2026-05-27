@@ -86,3 +86,15 @@ step1 完成后必须能生成 `shot-index.json` 或等价表格，证明：
 - 上游 `分镜N` 没有被直接当成镜级 ID 真源；一对多、多对一或跳过关系均已在索引中显式记录。
 - 连接件块已被识别并忽略，没有生成 `shot_id` 或图片任务。
 - 未能解析的组、镜头或 YAML 统计必须进入 report。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把 `6-分组/第N集.md` 作为剧情与镜头主要真源，并把 north_star、7-设计生成目录和 5-摄影限制在各自辅助边界内？ | `G1-SOURCE` | `FAIL-FRAME-ID` | `N2-CONTEXT` / `N3-SHOT-INDEX` | `input manifest` 记录源文件路径、north_star 字段用途、7-设计目录只作参照候选；报告说明未回到 5-摄影改写分组。 |
+| 每个普通 `## x-y-z` 分镜组是否先执行 frame landing 判断，而不是按上游 `分镜1/分镜2` 机械生成四段式 ID？ | `G1-SOURCE` | `FAIL-FRAME-ID` | `N3-SHOT-INDEX` | `shot-index.json` 或等价表格包含 `shot_id`、`source_camera_units`、`frame_landing_type`、`frame_landing_reason`，并说明一对多、多对一或跳过关系。 |
+| 同一个上游 `分镜N` 内的开场构图、动作决定瞬间、反应帧、道具/证据插入、环境压力或群像调度是否按独立画面职责拆分或合并？ | `G1-SOURCE` | `FAIL-FRAME-ID` | `N3-SHOT-INDEX` | 每个 `frame_landing_reason` 说明该帧承担的构图、主体空间、主体运动、叙事信息或视觉证据；被合并/跳过的过渡过程进入报告。 |
+| `## x-y-z~x-y-z` 组间连接件是否被识别并跳过，未污染 `story_beat`、`shot_detail`、`bridge_context`、manifest、plan 或图片任务？ | `G1A-CONNECTOR-IGNORE` | `FAIL-FRAME-ID` | `N3-SHOT-INDEX` | `shot-index.json` / report 列出 skipped connector blocks；不存在连接件 `shot_id`、reference manifest 条目或 imagegen plan 任务。 |
+| 镜级条目是否提取了最小必需字段，并能把角色、场景、道具限定在当前 frame landing 与组底 YAML 的证据范围内？ | `G1-SOURCE` | `FAIL-FRAME-ID` | `N3-SHOT-INDEX` | `shot-index.json` 包含 `source_group_id`、`source_episode_path`、`story_beat`、`shot_detail`、`characters`、`scene`、`props`；缺失或低置信字段进入 report。 |
+| `bridge_context` 是否只保留同组内连续性线索，未把前后连接件或后续动作合并进同一张图？ | `G1A-CONNECTOR-IGNORE` | `FAIL-FRAME-ID` | `N3-SHOT-INDEX` / `N4-PROMPT` | prompt block 和 `shot-index.json` 中的 `bridge_context` 不含相邻连接件正文；报告记录被排除的连接件或后续动作。 |
+| 未能解析的组、镜头或 YAML 统计是否进入报告，而不是被静默跳过或猜测补齐？ | `G9-REPORT` | `FAIL-FRAME-REPORT` | `N10-CLOSE` | `执行报告.md` 列出 unresolved groups / shots / YAML issues、跳过原因和返工入口。 |

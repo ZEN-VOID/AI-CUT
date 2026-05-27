@@ -66,3 +66,17 @@
 - 视频学习结论未说明来自画面、字幕、音频或顺序中的哪一层。
 - 影视/课程内容被复制成长段正文或被当作 canonical 创作模板。
 - 缺失轨道被隐性补全，没有进入 residual risks。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 视频学习是否先建立来源、时长、作者/发布方、访问时间、许可边界、可用轨道和缺口？ | `GATE-LEARN-SOURCE-01` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Workflow` | `source_digest`、duration、source owner、license boundary、track availability |
+| 是否按章节、字幕时间码、场景切换、主题转折或用户片段完成 `video_segmentation`？ | `GATE-LEARN-VIDEO-02` | `FAIL-AIGC-LEARN-VIDEO` | `N2-MEDIA` / `Segmentation Policy` | `video_segmentation`、time ranges、segment rationale |
+| 每个高价值片段是否有 `time_range + visual_note + subtitle_or_transcript + audio_note + sequence_role`？ | `GATE-LEARN-VIDEO-02` | `FAIL-AIGC-LEARN-VIDEO` | `N2-MEDIA` / `Evidence Stack` | `evidence_units` with timecode and four-track notes |
+| `media_evidence_status` 是否逐项声明 visual/subtitle/audio/sequence 四轨状态？ | `GATE-LEARN-VIDEO-01` | `FAIL-AIGC-LEARN-VIDEO` | `N2-MEDIA` / `Evidence Stack` | four-track status table with available/missing/unavailable/user_not_provided |
+| 缺失轨道是否进入 `missing_tracks` 和 residual risks，而不是被隐性补全？ | `GATE-LEARN-VIDEO-03` | `FAIL-AIGC-LEARN-VIDEO` | `N3-DISTILL` / `Output Additions` | `missing_tracks`、缺失原因、对学习结论的影响 |
+| 每条关键视频学习结论是否说明来自画面、字幕、音频、顺序或多轨互证？ | `GATE-LEARN-VIDEO-03` | `FAIL-AIGC-LEARN-VIDEO` | `N3-DISTILL` / `Workflow` | `fusion_notes` mapped to each learning unit |
+| 影视拉片是否只沉淀镜头功能、节奏策略、调度原则和审查门槛，没有复制完整镜头序列、台词、造型或剧情？ | `GATE-LEARN-SOURCE-03` | `FAIL-AIGC-LEARN-SOURCE` | `N3-DISTILL` / `Segmentation Policy` | abstraction note、copyright check、no canonical template copying |
+| 教程类视频是否抽取流程、决策条件、常见错误和验证方法，而非复制课程讲稿长段表达？ | `GATE-LEARN-SOURCE-03` | `FAIL-AIGC-LEARN-SOURCE` | `N3-DISTILL` / `Segmentation Policy` | learning_units、quote-length check、summary-only evidence |
+| 视频内容与仓库合同、事实判断或高风险建议冲突时，是否转入 conflict verification？ | `GATE-LEARN-VERIFY-01` | `FAIL-AIGC-LEARN-VERIFY` | `N4-VERIFY` / `Workflow` | conflict note、verification trigger、adopt/adapt/reject/hold decision |

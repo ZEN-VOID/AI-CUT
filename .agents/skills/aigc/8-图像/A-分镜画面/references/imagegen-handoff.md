@@ -93,3 +93,20 @@ reference_input_status: "visible_in_conversation_context"
 - 没有边生成图片边补写后续 prompt 的执行痕迹；
 - output path 不覆盖现有文件，除非用户要求 rerun / replace；
 - mode 未越权使用 CLI/API fallback。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| imagegen 默认路线是否遵循内置 `image_gen`，且 CLI/API fallback 只在用户显式要求模型参数、透明通道、mask 等能力时启用？ | `G5-HANDOFF` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` | `imagegen-plan.json` 记录 `mode`、fallback reason 和用户授权；无授权时不出现 CLI/API provider 字段。 |
+| 本地图片路径是否在生成前通过 `view_image` 进入对话上下文，而不是只把路径写入 `reference_images`？ | `G7-REF-INPUT` | `FAIL-FRAME-IMAGEGEN` | `N6-REVIEW` / `N7-IMAGEGEN` | plan/result/report 记录 `reference_input_status: visible_in_conversation_context`；每张图有 `context_role`。 |
+| 场景参照图是否承担 `scene_visual_style_reference`，并把固定中文提示词、英文风格锁和 `scene_visual_style_lock_status` 写入 prompt / plan / result？ | `G3C-SCENE-VISUAL-STYLE-LOCK` | `FAIL-FRAME-SCENE-STYLE` | `N3A-SCENE-STYLE` / `N7-IMAGEGEN` | plan/result 记录 `scene_visual_style_lock.status`、`fixed_prompt`、英文约束和场景参照图路径。 |
+| 同场景上一分镜生成图是否作为 `previous_frame_context` / `continuity_reference` 使用，且只用于空间连续性理解，不替代角色、场景、道具槽位？ | `G3A-PREV-FRAME-CONTINUITY` | `FAIL-FRAME-CONTINUITY` | `N4A-PREV-FRAME` / `N7-IMAGEGEN` | result/report 记录 `previous_frame_context`、上一图路径、continuity_role 和观察到的空间事实；reference slot 未把上一图冒充主体参照。 |
+| 两阶段批量中，runtime 刚生成的上一镜是否在当前镜执行前回看并写入 result/report，且没有现场改写已审核 prompt 正文？ | `G8-SERIAL-BATCH` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` / `N9-WRITE` | `imagegen-results.json` 显示上一镜完成后当前镜才开始；runtime previous frame note 写在 result/report，prompt block 未被覆盖。 |
+| reference images 是否消费 `reference-slot-binding.md` 的选择结果：多视图优先、主图次之、无图纯文本，不在 handoff 阶段重新猜测主体路径？ | `G4-SLOTS` | `FAIL-FRAME-REF` | `N5-REF-BIND` / `N7-IMAGEGEN` | plan 的 `reference_images` 与 `reference-manifest.json` 路径一致；同名多视图存在时未使用主图。 |
+| 批量 imagegen 是否只消费已落盘且通过审查的 prompts 文档、reference manifest 和 imagegen plan，没有边生成边补写后续 prompt？ | `G4A-PROMPT-PACKAGE-FIRST` | `FAIL-FRAME-IMAGEGEN` | `N5A-PERSIST-PACKAGE` / `N6-REVIEW` | prompts 文档覆盖目标范围并早于结果；plan 每个任务引用已落盘 prompt block，记录 `prompt_package_status: complete_before_imagegen`。 |
+| 每个 `shot_id` 是否是独立任务，拥有独立 prompt、reference images、output path 和 review status，且不会被多个任务同时写入？ | `G8-SERIAL-BATCH` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` | plan/results 中一镜一任务、一镜一输出；无重复 `shot_id` 或并发写入记录。 |
+| 批量执行是否严格按 `shot_id` 顺序串行完成生成、持久化和结果记录，未后台并行、分片并跑或跳过前镜结果？ | `G8-SERIAL-BATCH` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` / `N8-PERSIST` | results 记录 `execution_order`、`serial_index`、`previous_shot_status`；报告说明 failed/skipped 后续连续性处理。 |
+| 生成结果是否持久化到项目内 `8-图像/A-分镜画面/第N集/images/`，而不是只留下 `$CODEX_HOME/generated_images` 路径？ | `G6-PERSIST` | `FAIL-FRAME-IMAGEGEN` | `N8-PERSIST` | `imagegen-results.json` 记录项目内 `output_image_path` 和源路径；项目内文件存在。 |
+| 输出路径是否避免静默覆盖已有文件，除非用户明确要求 rerun / replace 并留下授权证据？ | `G6A-OUTPUT-SAFETY` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` / `N8-PERSIST` | plan/result/report 记录 overwrite check；若覆盖，记录用户授权、旧文件处理和 replace/rerun 标记。 |
+| 失败、跳过和继续执行是否遵守连续性依赖，同场景后续镜依赖失败上一图时是否停在返工入口？ | `G8-SERIAL-BATCH` | `FAIL-FRAME-IMAGEGEN` | `N7-IMAGEGEN` / `N10-CLOSE` | report 列出 `failed / skipped / generated`、`previous_shot_status: failed`、是否继续及原因。 |

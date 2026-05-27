@@ -2,6 +2,10 @@
 
 本文件定义 step2“节拍/触发点分析”。在快节奏短视频平台语义下，一个有效触发点默认对应一个分镜切换点，最终表现为 `分镜N（约X秒）:`。
 
+## Example Usage Guard
+
+本文件中的触发矩阵、密度指导和举例只用于说明节拍判断方法，不是分镜数量或镜头响应模板。执行具体任务时，不得因为某个示例写了 1-2 镜、2-4 镜或某种常见镜头响应，就机械套用到当前画面；必须逐条回到当前 `visual_unit` 的有效触发点、观看结果和 AIGC 执行稳定性价值。
+
 ## Trigger Definition
 
 `节拍` 在本阶段等价于“有效分镜触发点”：单个 `visual_unit` 内，任何会让观众观看策略、注意力对象、动作相位、信息可读性、情绪压力、空间关系、声画打点或 AIGC 视频执行稳定性发生变化的瞬间，都可以触发一个新的 `分镜N`。
@@ -62,8 +66,8 @@
 | --- | --- | --- |
 | 情绪转折（BT-04） | 正面中景→正面近景→正面双眼特写 | 正面完整捕捉面部肌肉变化；双眼特写拍摄正面眉骨到鼻尖区域 |
 | 眼神/瞳孔变化 | 正面双眼特写 | 瞳孔、泪光、眼睑颤动必须以双眼对称呈现 |
-| 强忍/压抑情绪 | 长停顿正面近景（`约3-4秒`） | 让咬肌收紧、眉心竖纹、肩胛内收等微动态有足够时间被观众读取 |
-| 崩溃/震惊/突然醒悟 | 正面多角度切换（每个角度 1-2 秒，硬切）或极慢推轨（`约3-5秒`） | 不用快速运镜或复杂环绕，以免破坏表演可读性 |
+| 强忍/压抑情绪 | 长停顿正面近景（`约3-4秒`） | 让咬肌收紧、眉心竖纹、肩胛内收等微动态有足够时间被观众读取；此类情绪镜头 `tempo` 标记为 `slow_burn` 或 `hold`，时长由情绪节奏决定，不受 Short Drama AIGC Bias 的 `约3秒` 证据门槛约束 |
+| 崩溃/震惊/突然醒悟 | 正面多角度切换（每个角度 1-2 秒，硬切）或极慢推轨（`约3-5秒`） | 不用快速运镜或复杂环绕，以免破坏表演可读性；此类情绪镜头 `tempo` 标记为 `slow_burn` 或 `hold`，时长由情绪节奏决定，不受 Short Drama AIGC Bias 的 `约3秒` 证据门槛约束 |
 | 边界交出节点 | 1-2 个分镜 | 形态、声音、运动方向或光色能成为下游连接素材 |
 
 ## Shot Count Cardinality Guard
@@ -71,12 +75,32 @@
 分镜数量必须由当前 `visual_unit` 的有效触发点决定，不能被模板、上一条输出习惯或批量生成惯性推成固定数量。
 
 - `1 个分镜` 是合法且常见的结果：低信息过场、单一表演承托、单一文字读秒、单一反应镜头，只要一个镜头能完成观看策略，就不得硬补 `分镜2`。
-- `2 个分镜` 是快节奏短视频常见默认密度：建立后揭示、动作后反应、环境后可读细节、主体后压力源、声画接口后落点、平台钩子后结果都可成立。
+- `2 个分镜` 是常见槽位密度：建立后揭示、动作后反应、环境后可读细节、主体后压力源、声画接口后落点、平台钩子后结果都可能成立，但必须逐条确认第二镜有有效触发点或独立观看价值，不能作为默认占位。
 - `3-4 个分镜` 给关键规则显影、动作分相、群像恐慌、高潮/爽点/高光、空间重置、强断裂转场、平台钩子连续推进或 AIGC 执行重置；每一镜都必须有新主体、新动作相位、新信息、新情绪压力、新空间关系、新交接接口或新执行稳定性价值。
 - `5-6 个分镜` 只作为 `set_piece_chain` 例外：当前画面句子必须明确包含连续命中、连续反弹、连续物件结果、连续声画打点或复杂动作链；每一镜都必须有独立起点、撞点、结果、声音或反应，删掉任一镜都会少一个必要节奏拍。
 - 同一集或同一场中若大量 `visual_unit` 都输出 2 镜，只视为节奏复核信号，不自动判失败。复核重点不是“2 镜太多”，而是抽样确认每个 `分镜2` 是否有触发点、观看结果或 AIGC 执行价值；没有这些价值的第二镜才删并。
+- 同一集或同一场中若大量 `visual_unit` 都输出 1 镜，也不是自动失败，但必须触发 `single_shot_multi_beat_review`：抽样或全量复核源句和 `分镜1` 文本中是否存在多段观看动作。若有效触发点数量大于最终分镜数，必须拆镜，或形成 `trigger_merge_exception` 证明同镜完成不会损失观看结果、平台节奏、下游 payload、人物动作连续性或 AIGC 执行稳定性。
 - 若同一连续段落中全部画面都同密度、同长度或同速度，必须回到 `sequence-density-curve-contract.md` 重建 `density_ramp`；分布正常不等于节奏曲线成立。
 - 审查时不以“数量越多越好”或“2 镜更完整”为标准，只问：删掉这一镜，观众是否少看见、少理解或少感受到必要内容。
+
+## Review Gate Hook
+
+- 本合同由 `review/review-contract.md` 的 `GATE-CINE-04`、`GATE-CINE-04A`、`GATE-CINE-04E` 和 `GATE-CINE-04A3` 验收。
+- 分镜过粗、过碎或固定模板化时走 `FAIL-CINE-03`；固定 2 镜或同数分布异常且第二镜无价值时走 `FAIL-CINE-03A`。
+- 单个 `分镜1` 吞入多个有效触发点且没有合并例外证明时走 `FAIL-CINE-03F`，必须回到 `N4-BEAT` 和 `N6.5-SHOT-PLAN`。
+- set-piece 链条缺少逐镜独立结果时走 `FAIL-CINE-03E`。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does each `分镜N` come from a valid trigger that changes viewing strategy, attention object, action phase, information readability, emotional pressure, spatial relation, sound/image timing or AIGC execution stability? | `GATE-CINE-04` | `FAIL-CINE-03` | `steps/cinematography-workflow.md#N4-BEAT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `beat_map`, `BT-01~BT-16` hits and `shot_count_decision` samples |
+| When multiple triggers stay inside one shot, is there a `trigger_merge_exception` proving no loss of viewing result, short-platform rhythm, downstream payload, character action continuity or AIGC stability? | `GATE-CINE-04E` | `FAIL-CINE-03F` | `steps/cinematography-workflow.md#N4-BEAT` / `steps/cinematography-workflow.md#N5-RHYTHM` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | single-shot multi-beat review range, merge exceptions and repaired split blocks |
+| If many blocks use the same count, especially `2 个分镜`, has sampling proved the second shot has an effective trigger, viewing result, platform rhythm value or AIGC execution value? | `GATE-CINE-04A` | `FAIL-CINE-03A` | `references/global-rhythm-terminology-glossary.md` / `steps/cinematography-workflow.md#N4-BEAT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | shot-count distribution, 2-shot sampling results and deleted/kept second-shot reasons |
+| Does a 5-6 shot chain qualify as `set_piece_chain` with independent start, impact, sound beat, result or reaction in every shot? | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `references/sequence-density-curve-contract.md` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `set_piece_chain_slot`, per-shot non-deletable proof and sound/action beat list |
+| Do sound-driven triggers create visible subject, action phase, impact, object state or reaction landing rather than replacing visual results with sound alone? | `GATE-CINE-04` / `GATE-CINE-15D` | `FAIL-CINE-03` / `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N4-BEAT` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `BT-06` / `BT-10` samples with visible result or transition anchor |
+| Are emotional-turn beats handled with readable frontal performance, double-eye framing when eye detail is used, and slowed rhythm for shock, collapse, realization or held restraint? | `GATE-CINE-15A` / `GATE-CINE-04B` | `FAIL-CINE-19B` / `FAIL-CINE-19D` | `references/ai-video-prompt-execution-contract.md` / `steps/cinematography-workflow.md#N5.2-DURATION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | emotional beat samples, double-eye close-up checks and slow-burn/hold duration evidence |
+| Are the trigger matrix, density guide and examples used only as judgment logic, never as a fixed shot-count or camera-response template? | `GATE-CINE-17A` / `GATE-CINE-18` | `FAIL-CINE-05REF` / `FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix` / `steps/cinematography-workflow.md#N8-REVIEW` / `steps/cinematography-workflow.md#N7-INJECT` | report statement that examples are not independent templates, plus any template-pollution repairs |
 
 ## Anti-Patterns
 
@@ -85,6 +109,7 @@
 - 机械限制所有高点最多 4 镜，导致“一声一结果”的连续动作或声音链条被压平。
 - 看到动作链就随意写 5-6 镜，但每镜没有独立结果或可见打点。
 - 把同义的构图描述拆成多个伪节拍。
+- 把多个真实触发点压进一个 `分镜1`，并用“随后、转入、越过、停住、声音留在后方”等连续观看动作掩盖未拆镜事实。
 - 每个动作都切特写，导致空间关系丢失。
 - 为了转场炫技牺牲演员停顿和恐惧延迟。
 - 只写“镜头推进”“氛围压迫”，但没有说明为何在此处切换。

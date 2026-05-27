@@ -1,4 +1,4 @@
 interface:
   display_name: AIGC Learn
-  short_description: Absorb external materials into the AIGC skill tree with source-first improvements and coordination audit.
+  short_description: Absorb learning objects into AIGC skill improvements.
   default_prompt: "Use $aigc-learn to digest the provided learning object, compare it with .agents/skills/aigc, identify gaps, update the owning skill packages when authorized, and run a coordination audit."

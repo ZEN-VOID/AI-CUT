@@ -9,6 +9,7 @@ source_episode_path: projects/aigc/<项目名>/1-分集/第N集.md
 output_path: projects/aigc/<项目名>/2-编剧/第N集.md
 adaptation_mode: faithful_screenplay_projection
 dialogue_lock: true
+long_dialogue_beat_segmentation: required
 audio_visual_pairing: required
 slugline_policy: stable_by_location_time
 peak_visual_policy: strengthen_existing_source_payoff
@@ -25,6 +26,8 @@ enrichment_mode: none
 
 对白（角色名，语态/状态短语）：“<逐字保真的上游对白>”
 对白画面：<具体写出该句对白附近的可见承托：说话者姿态、手部、视线、身体距离、对手反应、停顿、微表情、呼吸、声线变化或道具动作；不得输出说明性模板句，不复述对白。>
+
+<!-- 若上游同一说话者存在单段长对白，按 long_dialogue_beat_map 拆成多条连续原文对白；每条引号内必须是上游原文连续片段，全部拼回逐字等于上游原句。每个节拍都要有就近 对白画面 / 表情特写 / 心理反应 / 群像画面 / 道具特写 承托，避免整段共用一个采访式画面。 -->
 
 独白（角色名）：“<由上游主观经验保真投影出的可听独白>”
 独白画面：<承托该独白的可见画面。>

@@ -212,6 +212,17 @@ anticlimax_directive:
     residual_tension_vague: false     # 未释放张力是否具体
 ```
 
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 高点是否已在满足型与 6 种反高潮/延迟满足策略之间做过真实选择，而不是默认全部满足型兑现？ | `GATE-DIR-13` | `FAIL-ANTICLIMAX-STRATEGY` | `N4-DIR-PEAK` + 本文件 `Anticlimax Selection Matrix` | `peak_visual_plan.payoff_mode`、`anticlimax_directive.mode`、近 3 集 `payoff_mode` 分布 |
+| 采用反高潮时，是否有上游锚点说明为什么不能或不应满足型兑现？ | `GATE-DIR-13` | `FAIL-ANTICLIMAX-STRATEGY` | `N4-DIR-PEAK` | `anticlimax_directive.source_anchor`、`expected_payoff`、`actual_delivery` |
+| 反高潮是否仍有清晰 `satisfaction_delta`，没有退化成“没有高潮”？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` + `climax-visual-treatment-contract.md` | `peak_visual_plan.satisfaction_delta`、`anticlimax_directive.emotional_trajectory` |
+| `residual_tension` 是否具体，可供 `N8-DIR-FINAL-IMAGE` 形成尾钩候选，而不是只写“留悬念”？ | `GATE-DIR-13` | `FAIL-ANTICLIMAX-STRATEGY` | `N4-DIR-PEAK` / `N8-DIR-FINAL-IMAGE` | `anticlimax_directive.residual_tension`、`continuation_pattern.next_episode_expectation` |
+| `pyrrhic_payoff` 是否同时包含兑现与代价，`false_payoff` 是否没有在本集过早揭穿隐藏危机？ | `GATE-DIR-13` | `FAIL-ANTICLIMAX-STRATEGY` | `N4-DIR-PEAK` | `satisfaction_delta`、`cost_or_insight`、`visual_signal`、`risk_check` |
+| 反高潮频率是否受控，未连续 3 集造成观众“什么都得不到”？ | `GATE-DIR-13` | `FAIL-ANTICLIMAX-STRATEGY` | `N4-DIR-PEAK` / `N7-DIR-AESTHETIC` | 近 3 集 `payoff_mode` 分布、`risk_check.too_many_anticlimax`、`risk_check.consecutive_anticlimax` |
+
 ## Failure Cases
 
 ### Failure 1: 所有高点都是满足型

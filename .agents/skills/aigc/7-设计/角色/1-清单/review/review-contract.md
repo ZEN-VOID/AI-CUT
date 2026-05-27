@@ -26,6 +26,33 @@ flowchart TD
     H -->|"fail"| K["回到 source / merge / template 合同修复"]
 ```
 
+## Review Gates
+
+| gate_id | gate | blocking_condition | rework_target |
+| --- | --- | --- | --- |
+| `GATE-CHAR-LIST-01` | Source lock | 最终角色主体不能回指 `6-分组` 组底 YAML `角色` 字段，或来自摄影稿、剧情梗概、场景/道具清单、外部设定等非 canonical 来源 | `N2-YAML-SCAN` |
+| `GATE-CHAR-LIST-02` | Evidence boundary | 同组正文、项目 `MEMORY.md` 或项目 `CONTEXT/` 被当作新增角色来源，而不是身份解释、别名消歧或已确认命名约束 | `N3-EVIDENCE-LOOKUP` |
+| `GATE-CHAR-LIST-03` | Identity classification | 姓名、别名、职务称呼、关系称呼、代称、群体或含糊称呼未按类型识别，导致归并依据不清 | `types/character-identity-type-map.md` / `N4-MERGE` |
+| `GATE-CHAR-LIST-04` | Merge decision | 同一角色不同称呼未归并，或不同角色因同职业、同泛称、同场景、代词性别等被误并 | `N3-EVIDENCE-LOOKUP` / `N4-MERGE` |
+| `GATE-CHAR-LIST-05` | Group and low-confidence landing | 群体角色、普通背景人群或低置信度归并没有形成纳入/不纳入理由，也未进入执行报告风险区 | `N7-REVIEW` |
+| `GATE-CHAR-LIST-06` | First appearance | `首次登场` 不是归并后所有候选里最早的可回指分镜组 ID | `N5-FIRST-APPEARANCE` |
+| `GATE-CHAR-LIST-07` | Render and description boundary | 表格字段漂移，`别名` 被拆成独立主体列，或 `原文描述（关键词式）` 扩写成外貌、服装、性格、剧情推断、提示词或设计正文 | `N6-RENDER` |
+| `GATE-CHAR-LIST-08` | LLM-first merge | 脚本、模板或字符串相似度替代 LLM 完成 canonical 命名、别名归并、代称识别或关键词写作 | `N4-MERGE` |
+
+## Fail Codes
+
+| fail_code | meaning | route |
+| --- | --- | --- |
+| `FAIL-CHAR-LIST-01` | 输入来源不可定位、不可读，或最终角色无法回指组底 YAML `角色` 字段 | `N2-YAML-SCAN` |
+| `FAIL-CHAR-LIST-02` | 候选角色来自 YAML `角色` 字段之外，或正文/项目上下文越界成为新增候选来源 | `N2-YAML-SCAN` / `N3-EVIDENCE-LOOKUP` |
+| `FAIL-CHAR-LIST-03` | 别名、代称、称谓变化或同一角色不同称呼缺少 LLM 裁决理由，或发生误拆/误并 | `N3-EVIDENCE-LOOKUP` / `N4-MERGE` |
+| `FAIL-CHAR-LIST-04` | 首次登场不是最早分镜组，或无法回指集文件 / 分镜组 ID | `N5-FIRST-APPEARANCE` |
+| `FAIL-CHAR-LIST-05` | 固定三列表格漂移，或别名、风险、说明被拆成额外主体列 | `N6-RENDER` |
+| `FAIL-CHAR-LIST-06` | 脚本、模板、字符串相似度或启发式规则替代 LLM 做身份归并或描述关键词写作 | `N4-MERGE` |
+| `FAIL-CHAR-LIST-07` | 增量 merge 静默覆盖既有清单、破坏已有设计锚点，或未保留旧角色稳定性 | `N4-MERGE` / `N7-REVIEW` |
+| `FAIL-CHAR-LIST-08` | `原文描述（关键词式）` 扩写成角色设计、外貌/服装方案、性格分析、剧情推断或提示词 | `N6-RENDER` |
+| `FAIL-CHAR-LIST-09` | 群体角色、普通背景人群、含糊称呼或低置信度归并未落入待核风险或纳入/不纳入说明 | `N7-REVIEW` |
+
 ## Required Checks
 
 | check_id | check | pass_condition | severity |

@@ -149,3 +149,14 @@
 6. **运镜方向即权力方向**：推=入侵（谁推谁强势），拉=抽离（谁拉谁掌控距离），升=升华（谁升谁被抬高），降=压低（谁降谁被压制）。
 7. **甩镜后要静止**：快速甩镜（ME-09）后紧跟固定，让紧张感在静止中凝固，形成"惊觉钉定"效果。
 8. **运镜情绪对齐是强制约束**：运镜与场景情绪不匹配是结构性错误，不是风格偏好。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| Does every important movement choice state the emotional semantics and audience effect rather than only naming push, pull, pan, handheld or static technique? | `GATE-CINE-29` | `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | `camera_movement_emotion_plan` samples with `movement_emotion`, `emotional_semantics` and `audience_effect` |
+| Is the movement aligned with the scene tone, or is a deliberate contrast justified by the current narrative task? | `GATE-CINE-29` / `GATE-CINE-16` | `FAIL-CINE-05X` / `FAIL-CINE-05I` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | scene tone to movement alignment notes and contrast exceptions |
+| Does the movement speed serve accumulation, release, shock, observation or pressure instead of contradicting the shot rhythm or duration decision? | `GATE-CINE-29` / `GATE-CINE-04B` | `FAIL-CINE-05X` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N5.2-DURATION` | speed reason samples and duration/movement consistency checks |
+| If movement is combined, does the combination produce a new emotional meaning rather than a stack of techniques? | `GATE-CINE-29` | `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | `combination_emotion` samples and rewritten combination shots |
+| Are static or long-held shots used only when the viewer must observe, endure or face something, not as a generic "premium cinema" marker? | `GATE-CINE-29` / `GATE-CINE-12` | `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | long/static shot justification and deleted decorative long-take examples |
+| Does the internal movement field set include at least `movement_emotion`, `emotional_semantics` and `audience_effect` for shots whose movement matters? | `GATE-CINE-17` / `GATE-CINE-29` | `FAIL-CINE-05J` / `FAIL-CINE-05X` | `steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` | node completion evidence and movement field coverage samples |

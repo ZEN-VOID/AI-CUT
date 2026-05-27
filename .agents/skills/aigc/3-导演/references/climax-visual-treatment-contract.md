@@ -223,3 +223,14 @@ peak_visual_plan:
 - `cost_or_aftershock` 包含至少 2 个具体的代价或余波描述，不是只有"有余韵"。
 - 若上游没有真正高点，`peak_visual_candidate` 标注为 null 并锁定 `micro_payoff`。
 - 高潮画面没有摄影越权（无机位、景别、镜头运动或分镜编号）。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 上游存在高潮/爽点/高光成分时，是否完成 `peak_visual_pass` 且至少锁定 1 个真实高点或最强 `micro_payoff`？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` | `peak_visual_plan.peak_visual_candidates.source_evidence`、`micro_payoff` |
+| 每个高点的 `delivery_action` 与 `satisfaction_delta` 是否严格保留上游结果，没有新增胜负、死亡、表白、反转或因果？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` / `N9-DIR-DRAFT` | `peak_visual_plan.risk_check.delivery_action_preserved`、`satisfaction_delta_preserved`、上游 source anchor |
+| 高点是否有可拍/可听的承托，不是只写结果结论或动作流水账？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` | `visual_payload`、`audio_payload`、`cost_or_aftershock`、终稿字段投影 |
+| 若近邻集可读，`payoff_variation_axis` 是否给出差异化策略，而不是机械重复同类高点？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N4-DIR-PEAK` | `payoff_variation_axis` 九项维度、`status` |
+| `emotional_reckoning` 是否外部化为身体反应、停顿、距离与余韵，而非内心词汇？ | `GATE-DIR-15` | `FAIL-PERFORMANCE-STYLE` | `N4-DIR-PEAK` / `N9-DIR-DRAFT` | `visual_payload` 中身体反应细节、`performance_style_directive` 回接 |
+| 强化过程是否没有摄影越权，且没有新增 `高潮画面` 正文字段形成第二解析体系？ | `GATE-DIR-05` | `FAIL-VISUAL-AESTHETIC` | `N9-DIR-DRAFT` | `peak_visual_plan.risk_check.no_photography_overreach`、终稿字段清单 |

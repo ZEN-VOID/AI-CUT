@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-05-27 (Long Dialogue Delivery Chain)
+
+- 新增长对白表演交付规则：`4-表演` 消费上游 `long_dialogue_beat_map`，形成 `long_dialogue_delivery_map`，逐 beat 标注气口/连续气息、停顿、重音、尾音、身体联动和对手反应。
+- 新增 `GATE-PERF-14` / `FAIL-LONG-DIALOGUE-DELIVERY`，阻断把长对白演成同一口气、同一状态、同一反应链的输出。
+- 同步更新 `SKILL.md`、actor performance control、workflow、review、模板和经验层；明确本阶段不重新断句、不改写引号内台词。
+
 ## 2026-05-22
 
 - 承接 `2-编剧` 新增的正式 `表情特写` 字段：上游已有面部 beat 时必须保留字段并精修，不得吞回泛化 `心理反应`。

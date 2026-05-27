@@ -12,6 +12,8 @@ metadata:
 
 `3-导演` 不负责：对白保真、字段格式化、slugline 稳定、小说表述二次画面化、声画配对（这些属于 `2-编剧`）；心理反应可感知化、演员表演控制、场景工艺、场面调度权力关系（这些属于 `4-表演`）。它的核心创意价值是回答"这场戏在导演层面该怎么拍才有戏"，而不是"这行字段该怎么格式化"。
 
+`3-导演` 虽然拥有导演层任务重心，但不得把 `2-编剧` 已完成的画面化成果重新抽象化、概念化或解释化；本阶段自己的 `director_substance_plan`、`peak_visual_plan`、`episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`episode_final_image_plan`、顾问汇流、执行报告和最终正文，也必须使用具像、可拍、可听、可执行的画面化语言落盘，而不是用"电影感/高级感/宿命感/视觉气质/导演意图"等抽象词替代具体声画和空间承托。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-director` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -93,6 +95,7 @@ Reject or clarify when:
 | 场景 | 必读文件 |
 | --- | --- |
 | 任意导演判断任务 | `steps/directing-workflow.md`、`references/directorial-authorship-contract.md` |
+| 跨阶段画面化语言门：导演判断、顾问建议、planning evidence、执行报告和最终字段不得抽象化/概念化/解释化 | `../_shared/concrete-visual-language-contract.md` |
 | 导演创作阶段执行顾问与复核流程 / team reviewer runtime | `../_shared/team-advisor-consultation-contract.md`，并按本 `Advisor Consultation Mechanism` 执行 |
 | 人物动作链优先、空间可达性、氛围/道具不得抢走人物行动 | `../_shared/action-first-continuity-contract.md` |
 | 角色活人感行为动机、当前小事、下意识反应、多人动作-反应分工 | `../_shared/lived-in-character-behavior-contract.md`、`references/directorial-authorship-contract.md` |
@@ -157,6 +160,7 @@ Reject or clarify when:
 - 上游剧情事实、信息量、顺序和对白完整承接，无摘要、删减、自由改写或因果重排。
 - 对白逐字保真；`3-导演` 不修改引号内对白内容。
 - 场景标题、slugline、字段标签和字段顺序保持上游原状；`3-导演` 只在字段内部增强导演判断内嵌质量。
+- 本阶段所有导演判断、顾问建议、planning evidence、执行报告和最终字段必须通过 `../_shared/concrete-visual-language-contract.md`：具像化、反抽象、反概念、反解释、可拍/可听/可执行、字段落点和保真边界同时成立；不得把 `2-编剧` 已完成的画面化成果回退为抽象概念或审美口号。
 - 关键场景已执行 `director_substance_pass`：有戏剧问题、人物选择压力、观众位置、场景状态差和可拍执行策略，并已内嵌到既有剧本句段。
 - 上游存在高潮画面成分时，已执行 `peak_visual_pass`：识别 1-3 个高点或最强 `micro_payoff`，把强化结果落入既有正式画面/声音/表演字段，不新增剧情事实或对白。
 - 每集已按 `references/episode-visual-spine-contract.md` 建立 `episode_visual_spine`：形成整集视觉问题、母题链、材质/色彩弧、节奏曲线、呼应目标和克制规则。
@@ -171,7 +175,7 @@ Reject or clarify when:
 - 若有前集 `3-导演/第N-1集.md` 可读，已按 `types/cross-episode-continuity-type-map.md` 检查跨集连续性：视觉母题延续、材质/色彩弧延续、道具状态延续、空间延续，母题有变化而不机械复读。
 - 启用 `controlled_enrichment` 时，执行报告包含完整 `controlled_enrichment_ledger`，每项有上游锚点、目标字段、用途和 `risk_check`。
 - 执行顾问与复核流程时，已按 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享合同回退路径形成带 `node_ref / pass_ref / gate_ref / role_lens` 来源锚点的 `advisor_consultation_packet`，并把基于当前思维·执行节点的参谋指导作为后续 LLM 导演判断注入、阶段内修复和复审上下文；若不可用，直接使用本地流程。
-- 执行报告包含 `thinking_action_node_ledger`、`director_substance_evidence`、`audience_psychology_map`、`conflict_legacy_transfer`、`performance_style_directive`、`peak_visual_plan`、`anticlimax_directive`、`sound_design_directive`、`emotional_rhythm_map`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`visual_aesthetic_evidence.episode_visual_spine`、`visual_aesthetic_evidence.scene_items`、`episode_final_image_evidence` 和 `atmosphere_mood_evidence`；若本轮新增或显著修改学习型合同，还必须包含 `learning_integration_review_evidence`。
+- 执行报告包含 `thinking_action_node_ledger`、`director_substance_evidence`、`audience_psychology_map`、`conflict_legacy_transfer`、`performance_style_directive`、`peak_visual_plan`、`anticlimax_directive`、`sound_design_directive`、`emotional_rhythm_map`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`visual_aesthetic_evidence.episode_visual_spine`、`visual_aesthetic_evidence.scene_items`、`episode_final_image_evidence`、`atmosphere_mood_evidence` 和 `concrete_visual_language_evidence`；若本轮新增或显著修改学习型合同，还必须包含 `learning_integration_review_evidence`。
 - 已运行等价人工 review 或脚本校验；若发现阻断项，已在本阶段内完成最小直接修复并复审通过，结果写入 `执行报告.md`。
 
 ## Stage-End Review-Repair Contract
@@ -203,7 +207,7 @@ flowchart TD
     EN --> VS
     VS --> FI["N8-DIR-FINAL-IMAGE\n终结画面尾钩 + 非剧透关联"]
     FI --> M["N9-DIR-DRAFT\n导演判断内嵌正文"]
-    M --> R{"N10-DIR-REVIEW\nGATE-DIR-01..16"}
+    M --> R{"N10-DIR-REVIEW\nGATE-DIR-01..17"}
     R -->|"needs_rework"| RR["N10R-DIR-REPAIR\n本阶段直接修复"]
     RR --> R2{"N10R-REVIEW-AGAIN\n复审"}
     R2 -->|"fail"| RB["最早责任节点"]
@@ -266,6 +270,7 @@ flowchart TD
 | `FIELD-DIR-21` | 反高潮策略 | 高点已检查满足型、反高潮、延迟满足、失败高潮、假兑现或中断兑现的适配；采用反高潮时有残余张力和上游锚点 | `FAIL-ANTICLIMAX-STRATEGY` |
 | `FIELD-DIR-22` | 声音设计策略 | 整集或关键场景有 `sound_design_directive`：声音母题、沉默、主客观声音、声音现实层和声音转场明确 | `FAIL-SOUND-DESIGN-DIRECTIVE` |
 | `FIELD-DIR-23` | 情绪节奏地图 | 有 `emotional_rhythm_map`：peak/valley、tension_release_budget、anti_climax_strategy 和 genre_emotional_coloring 明确，并供 4/5 阶段消费 | `FAIL-EMOTIONAL-RHYTHM-MAP` |
+| `FIELD-DIR-24` | 具像画面语言 | 导演判断、视觉主轴、氛围意境、高潮处理、终结画面、顾问建议和执行报告均使用可见/可听/可执行锚点落盘；无抽象化、概念化、解释化回退；有 `concrete_visual_language_evidence` | `FAIL-CONCRETE-VISUAL-LANGUAGE` |
 
 ## Thought Pass Map
 
@@ -279,8 +284,8 @@ flowchart TD
 | `PASS-DIR-06` | B 路线受控增强 | `director_substance_plan`、`peak_visual_plan`、`references/controlled-enrichment-contract.md`、上游正文 | 是否需要非剧情性承托新增；每项新增是否有上游锚点和风险检查 | `controlled_enrichment_ledger` |
 | `PASS-DIR-07` | 视觉主轴、声音设计与情绪节奏 | `director_substance_plan`、`peak_visual_plan`、`anticlimax_directive`、`controlled_enrichment_ledger`、`references/episode-visual-spine-contract.md`、`../_shared/emotional-rhythm-map-contract.md`、`references/sound-design-directive-contract.md`、`references/visual-aesthetic-contract.md`、`references/atmosphere-and-mood-contract.md`、`../_shared/action-first-continuity-contract.md`、`cross_episode_continuity_profile`、上游正文 | 是否形成整集视觉主轴、情绪节奏图、声音设计、核心画面、视觉气质、母题变化、对比轴、景境氛围、节奏和留白取舍；关键场景是否有多感官意境密度，且氛围/道具没有抢走人物动作链 | `episode_visual_spine`、`emotional_rhythm_map`、`sound_design_directive`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`action_first_continuity_check` |
 | `PASS-DIR-08` | 终结画面尾钩 | `final_image_type_profile`、`peak_visual_plan`、`episode_visual_spine`、`visual_aesthetic_plan`、`references/episode-final-image-contract.md`、上游末场、下一集可读上下文或本集局部推断 | 是否形成迷你彩蛋尾钩，既关联下一集又不剧透，并从本集相关内容自然顺延 | `episode_final_image_plan` |
-| `PASS-DIR-09` | LLM 导演判断注入 | `director_substance_plan`、`peak_visual_plan`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`episode_final_image_plan`、`cross_episode_continuity_profile`、上游正文 | 是否完整承接事实、对白、顺序，同时把导演创作判断内嵌到既有字段 | `director_episode_script` |
-| `PASS-DIR-10` | 验收回写 | 导演稿、校验结果、`thinking_action_node_ledger` | 是否满足保真、戏剧实质、高潮画面、视觉主轴、画面美学、氛围意境、终结画面、受控增强边界和输出门禁 | `review_result` |
+| `PASS-DIR-09` | LLM 导演判断注入 | `director_substance_plan`、`peak_visual_plan`、`advisor_consultation_packet`、`controlled_enrichment_ledger`、`episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`episode_final_image_plan`、`cross_episode_continuity_profile`、`../_shared/concrete-visual-language-contract.md`、上游正文 | 是否完整承接事实、对白、顺序，同时把导演创作判断以具像、反抽象、反概念、反解释的画面化语言内嵌到既有字段 | `director_episode_script`、`concrete_visual_language_evidence` |
+| `PASS-DIR-10` | 验收回写 | 导演稿、校验结果、`thinking_action_node_ledger`、`concrete_visual_language_evidence` | 是否满足保真、戏剧实质、高潮画面、视觉主轴、画面美学、氛围意境、终结画面、受控增强边界、具像画面语言和输出门禁 | `review_result` |
 | `PASS-DIR-11` | 直接修复复审 | `review_result`、candidate 导演稿、修复稿 | 阻断项是否已在本阶段最小修复并复审通过 | `review_repair_result` |
 
 ## Pass Table
@@ -295,7 +300,7 @@ flowchart TD
 | `PASS-DIR-06` | B 路线新增项只属于非剧情性承托，且有完整 `controlled_enrichment_ledger` | `FAIL-DIR-08` | `references/controlled-enrichment-contract.md` |
 | `PASS-DIR-07` | 整集有视觉主轴、情绪节奏和声音设计；关键场景有视觉核心、画面层级、母题变化、对比轴、景境氛围、留白取舍和多感官意境密度；美学和意境增强不新增事实、对白或摄影方案，且服从人物动作链和空间可达性 | `FAIL-DIR-04` / `FAIL-DIR-05` / `FAIL-SOUND-DESIGN-DIRECTIVE` / `FAIL-EMOTIONAL-RHYTHM-MAP` / `FAIL-ACTION-FIRST-01` | `references/episode-visual-spine-contract.md`、`../_shared/emotional-rhythm-map-contract.md`、`references/sound-design-directive-contract.md`、`references/visual-aesthetic-contract.md`、`references/atmosphere-and-mood-contract.md`、`../_shared/action-first-continuity-contract.md` |
 | `PASS-DIR-08` | 终结画面作为迷你彩蛋尾钩，能非剧透地关联下一集，并从本集内容丝滑顺延到最后既有字段 | `FAIL-DIR-06` | `references/episode-final-image-contract.md` |
-| `PASS-DIR-09` | 剧情事实、顺序和对白完整保真，且导演创作判断内嵌到既有字段，未越权到编剧或摄影 | `FAIL-DIR-10` | `steps/directing-workflow.md` |
+| `PASS-DIR-09` | 剧情事实、顺序和对白完整保真，且导演创作判断以具像画面语言内嵌到既有字段，未越权到编剧或摄影，未回退为抽象概念或解释性总结 | `FAIL-DIR-10` / `FAIL-CONCRETE-VISUAL-LANGUAGE` | `steps/directing-workflow.md` / `../_shared/concrete-visual-language-contract.md` |
 | `PASS-DIR-10` | 输出路径、执行报告、思维·执行节点 ledger 和 review gate 齐全 | `FAIL-DIR-11` / `FAIL-DIR-15` | `review/review-contract.md`、`steps/directing-workflow.md#Thinking-Action Node Contract` |
 | `PASS-DIR-11` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `FAIL-DIR-12` | `Stage-End Review-Repair Contract` |
 
@@ -311,8 +316,8 @@ flowchart TD
 | `PASS-DIR-06` | `N6-DIR-ENRICH` | B 路线新增项只属于非剧情性承托，且有完整 `controlled_enrichment_ledger` | 上游、类型气质、`director_substance_plan` | `controlled_enrichment_ledger` |
 | `PASS-DIR-07` | `N7-DIR-AESTHETIC` | 整集有视觉主轴、情绪节奏和声音设计；关键场景有视觉核心、画面层级、母题变化、对比轴、景境氛围、留白取舍和多感官意境密度 | `episode_visual_spine`、`emotional_rhythm_map`、`sound_design_directive`、`visual_aesthetic_plan`、`atmosphere_mood_evidence` | `visual_aesthetic_evidence`、`emotional_rhythm_map`、`sound_design_directive` |
 | `PASS-DIR-08` | `N8-DIR-FINAL-IMAGE` | 终结画面作为迷你彩蛋尾钩，能非剧透地关联下一集，并从本集内容丝滑顺延到最后既有字段 | `episode_final_image_plan`、下一集上下文 | `episode_final_image_plan` |
-| `PASS-DIR-09` | `N9-DIR-DRAFT` | 剧情事实、顺序和对白完整保真，且导演创作判断内嵌到既有字段，未越权到编剧或摄影 | 所有上游证据、所有内部规划证据 | `director_episode_script` |
-| `PASS-DIR-10` | `N10-DIR-REVIEW` | 输出路径、执行报告、思维·执行节点 ledger 和 review gate 齐全 | `review_result`、`thinking_action_node_ledger` | `review_result` |
+| `PASS-DIR-09` | `N9-DIR-DRAFT` | 剧情事实、顺序和对白完整保真，且导演创作判断以具像画面语言内嵌到既有字段，未越权到编剧或摄影 | 所有上游证据、所有内部规划证据、`../_shared/concrete-visual-language-contract.md` | `director_episode_script`、`concrete_visual_language_evidence` |
+| `PASS-DIR-10` | `N10-DIR-REVIEW` | 输出路径、执行报告、思维·执行节点 ledger、具像画面语言证据和 review gate 齐全 | `review_result`、`thinking_action_node_ledger`、`concrete_visual_language_evidence` | `review_result` |
 | `PASS-DIR-11` | `N11-DIR-WRITEBACK` | review 阻断项已直接修复并复审；未通过时不写 canonical 终稿 | `review_result`、candidate 导演稿、修复稿 | `review_repair_result` |
 
 ## Root-Cause Execution Contract (Mandatory)
@@ -337,6 +342,7 @@ flowchart TD
 - 内部任务说明或规则复述泄露到终稿字段正文，例如"本场执行 director_substance_pass..."。
 - 终稿把导演判断写成场景末尾的总结块，而不是内嵌到对应环境、动作、对白画面、道具、群像、声音、停顿和反应字段。
 - `场面调度` 写成摄影机位、景别、镜头运动或分镜方案，造成 `3-导演` 越权到下游 `5-摄影`。
+- 导演阶段 planning evidence、顾问包、执行报告或终稿字段把 `2-编剧` 已画面化的内容重新写成抽象概念、主题解释、审美口号或导演意图总结，缺少可见/可听/可执行锚点。
 - 脚本、模板拼接或规则补句替代 LLM 的核心导演创作判断。
 - 执行顾问与复核流程时跳过 `team.yaml` 监制顾问请教、把顾问问题固定成脱离当前思维·执行节点的题型清单、没有把节点级参谋指导沉淀为后续上下文，或把主 agent 本地模拟顾问说成外部 provider 调度。
 - review 发现阻断项后未在本阶段直接修复和复审，却把候选稿写成终稿或推进下游。
@@ -351,6 +357,7 @@ flowchart TD
 - `3-导演` 是 `2-编剧` 的导演级创作判断注入层，不得压缩、摘要、删减剧情事实或自由改写剧情因果。
 - 除在既有字段内部增强导演判断内嵌质量外，必须完整承接上游原文信息量、顺序、对白和字段结构。
 - 导演质量不以结构规整或表达漂亮为充分条件；必须按 `references/directorial-authorship-contract.md` 形成 `director_substance_plan`，把上游原文中的戏剧问题、人物压力、观众位置、信息释放和可拍执行策略转成内嵌在正文中的创作干货。
+- 导演判断必须按 `../_shared/concrete-visual-language-contract.md` 落成具像画面语言：任何戏剧实质、视觉主轴、氛围意境、高潮策略、尾钩、顾问建议或报告证据，都必须说明摄影机能看见什么、声音能听见什么、空间/道具如何承托、下游如何执行；不得只写抽象判断、概念标签、主题解释或审美口号。
 - 导演阶段必须为关键人物 beat 提供 `lived_in_behavior_seed` 或等价动机证据：角色当前小事、生活压力/目标/阻碍、下意识反应方向、情绪落点，以及多人场面的行动者/反应者分工。该证据服务下游表演与摄影，不得变成随机忙动作或无互动道具承托。
 - 当执行顾问与复核流程时，先按共享团队顾问合同解析 `team.yaml.roles.supervision.stage_profiles."3-导演"` 或共享回退路径，再把当前 `steps/directing-workflow.md` 的节点、`Thought Pass Map` 的 pass、相关 review gate 和目标集上下文转化为顾问任务；顾问必须代入角色意识、创作风格和专业水准参与节点判断、执行取舍、证据补强与风险提示，主 agent 只吸收可执行指导和风险提示，综合为带节点锚点的 `advisor_consultation_packet` 后沉淀进后续 LLM 导演判断注入、阶段内修复和复审上下文。
 - 顾问意见不得替代上游逐集编剧稿、对白、场景顺序或导演主真源；若外部顾问与复核 provider 不可用，直接使用本地顾问与复核流程。

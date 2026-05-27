@@ -207,3 +207,20 @@ status: "resolved"
 10. `bound[]` 与 `missing[] / ambiguous[] / excluded_from_libtv_images[]` 的主体名不得重叠。
 11. 重复本地路径、重复 uploaded URL 或重复 mixedList URL 只有在显式声明 `shared_reference_group` 和共享理由时允许，否则不得提交。
 12. final 相位 `generation_slots[]` 必须逐项锁定 `reference_index -> name -> uploaded_url`，且与 prompt YAML、submit plan `images[]`、远端 `mixedList` 同槽一致；任何主体名和参照图错位都必须阻断提交或触发重提。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 参照主体是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有从正文、对白、分镜明细或泛词自动扩展？ | `G3-SUBJECTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` / 本文件 `YAML Baseline` | `reference-manifest.json.yaml_subjects`、YAML 原文和被排除的非 YAML 候选 |
+| 搜索根是否限定在当前项目 `5-设计/*/3-生成`，且 JSON 记录没有被当作可上传图片？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` | `resolution_candidates`、`missing[]`、真实图片路径存在性检查 |
+| 同画布 active uploaded URL 是否按 `projectUuid + category + yaml_name` 复用，且 URL `/claw/<projectUuid>/` 与当前画布一致？ | `G15-SAME-CANVAS-REUSE` | `FAIL-VIDSUBJ-REFERENCE-PROJECT-SCOPE` | `N5-REF-BIND` / `N8-DISPATCH` | `asset_uploads[].reuse_policy`、`asset_registry_lookup_key`、`projectUuid`、URL scope |
+| 同名多个 active URL、跨画布 URL、图片调整或用户显式替换请求是否被阻断或转入 `explicit_replace`，没有靠猜测沿用旧 URL？ | `G15-SAME-CANVAS-REUSE` | `FAIL-VIDSUBJ-ASSET-REGISTRY-AMBIGUOUS` / `FAIL-VIDSUBJ-REFERENCE-PROJECT-SCOPE` | `N5-REF-BIND` | `asset_registry_ambiguous` finding、`explicit_replace` 记录、上传或替换证据 |
+| 新上传或显式替换时是否遵守多视图优先、主图次之，缺图主体不保留空路径且不进入 LibTV 图片数组？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` | `bound[].selected_variant`、`missing[]`、图片路径和 `images[]` 对照 |
+| 多候选主体是否先把候选图作为窗口图像上下文做视觉消歧，仍不能唯一确认才进入 `ambiguous`？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` / `N6-REVIEW` | `visual_disambiguation[]`、候选清单、`context_sent_to_window`、选择理由或 unresolved 原因 |
+| 单组进入 `images[] / mixedList` 的参照是否不超过 9 张，超限时按角色和场景优先、道具先排除并留存取舍理由？ | `G6-REFERENCE-BUDGET` | `FAIL-VIDSUBJ-REF-BUDGET` | `N5-REF-BIND` / `N6-REVIEW` | `reference_image_budget`、`excluded_from_libtv_images[]`、`mixedList` 数量 |
+| 不同 YAML 主体是否没有静默共用同一路径、uploaded URL 或 mixedList 项；确需共享时是否声明共享组和主主体？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N5-REF-BIND` | `shared_reference_group`、`shared_reference_reason`、重复 URL 检查结果 |
+| 是否建立了两层注册表：`asset_uploads: yaml_name -> uploaded_url` 与 `generation_slots: reference_index / 图N / mixedList[n-1] -> uploaded_url -> yaml_name`？ | `G16-REF-PROMPT-INTEGRITY` / `G19-REMOTE-REFERENCE-ORDER` | `FAIL-VIDSUBJ-REFERENCE-SLOT-REGISTRY` / `FAIL-VIDSUBJ-UPLOAD-LEDGER` | `N5-REF-BIND` / `N8-DISPATCH` | `reference-manifest.json.asset_uploads`、`generation_slots`、slot source |
+| final 相位中 `generation_slots` 是否逐项锁定 `reference_index -> name -> uploaded_url`，并能同槽匹配 prompt YAML、submit plan `images[]` 和远端 `mixedList`？ | `G16-REF-PROMPT-INTEGRITY` / `G19-REMOTE-REFERENCE-ORDER` | `FAIL-VIDSUBJ-REFERENCE-SLOT-REGISTRY` / `FAIL-VIDSUBJ-REMOTE-REFERENCE-ORDER` | `N8-DISPATCH` | 引用一致性检查结果、YAML 按 `reference_index` 排序对照、post-submit order gate |
+| `bound[] / missing[] / ambiguous[] / excluded_from_libtv_images[]` 是否互斥，同一主体没有同时被写成已绑定和缺图/未入预算？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N5-REF-BIND` / `N6-REVIEW` | manifest 四类集合互斥检查和冲突主体列表 |
+| 本地路径、候选集合和指纹是否只留在 manifest / submit plan 审计证据中，没有被投影进 prompt 正文或远端提交？ | `G5-LOCAL-ASSET-EVIDENCE` | `FAIL-VIDSUBJ-PROMPT` | `N4-PROMPT` / `N5-REF-BIND` | prompt / `libtv-submission.txt` 本地路径扫描结果、manifest 审计字段 |

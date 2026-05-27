@@ -81,3 +81,17 @@
 - 关键学习结论缺少页码、章节、标题或 chunk 锚点。
 - 把章节摘要当作技能改进，未形成 `target_skill_map`、`gap_matrix` 和 `landing_set`。
 - 复制受版权保护长段正文或把书中单一观点无核查地提升为强制规则。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 书籍或超长文档是否先建立 `catalog_digest`，说明目录结构、版本/出版信息、作者/来源、主题和许可边界？ | `GATE-LEARN-BOOK-01` | `FAIL-AIGC-LEARN-BOOK` | `N2-MEDIA` / `Long-Context Principle` | `catalog_digest`、版本/来源、license boundary |
+| 是否建立 `relevance_map`，把章节或 chunk 映射到本轮学习目标和潜在 AIGC owning skill？ | `GATE-LEARN-BOOK-01` | `FAIL-AIGC-LEARN-BOOK` | `N2-MEDIA` / `Long-Context Principle` | chapter/chunk to target mapping、潜在 owner |
+| 是否有 `sampling_plan` 区分必读、抽样、可跳过范围，并说明与学习目标相关的理由？ | `GATE-LEARN-BOOK-01` | `FAIL-AIGC-LEARN-BOOK` | `N2-MEDIA` / `Chunking Strategy` | sampling plan、skip rationale、deep-read list |
+| 当上下文过长不能一次处理时，是否维护 `coverage_ledger`，避免用局部阅读冒充全局结论？ | `GATE-LEARN-BOOK-01` | `FAIL-AIGC-LEARN-BOOK` | `N2-MEDIA` / `Coverage Rules` | 已读/未读/跳过/不可读/待复核 ledger |
+| 高相关章节的关键结论是否带页码、章节、标题、段落、图表或 chunk 锚点？ | `GATE-LEARN-BOOK-02` | `FAIL-AIGC-LEARN-BOOK` | `N3-DISTILL` / `Evidence Anchors` | anchored `evidence_units` with page/chapter/heading/chunk ids |
+| 是否做 `cross_chapter_synthesis`，合并重复模式、矛盾、递进关系和适用边界，而不是逐章摘要堆叠？ | `GATE-LEARN-BOOK-02` | `FAIL-AIGC-LEARN-BOOK` | `N3-DISTILL` / `Chunking Strategy` | synthesis notes、重复/矛盾/递进/边界列表 |
+| 学习结论是否转化为流程节点、门禁、类型策略、审查维度、失败模式或经验层 heuristic？ | `GATE-LEARN-MAP-02` | `FAIL-AIGC-LEARN-MAP` | `N5-MAP` / `Long-Context Principle` | `skill_transfer_units`、landing candidate、gap matrix row |
+| 是否避免复制受版权保护长段正文，只保留短锚点、概括、方法抽象和必要极短引用？ | `GATE-LEARN-SOURCE-03` | `FAIL-AIGC-LEARN-SOURCE` | `N3-DISTILL` / `Evidence Anchors` | quote-length check、summary-only note、copyright risk |
+| 书中方法与 AIGC 现有合同冲突时，是否进入冲突核查和 owner 裁决，而不是直接覆盖？ | `GATE-LEARN-VERIFY-01` | `FAIL-AIGC-LEARN-VERIFY` | `N4-VERIFY` / `Coverage Rules` | conflict note、verification source、owner decision |

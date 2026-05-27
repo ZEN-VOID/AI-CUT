@@ -31,6 +31,29 @@
 | 顾问与复核流程 | 默认复核流程是否执行；不可用时使用本地流程记录是否完整；是否按 `references/workflow-supervision-contract.md` 留下 supervision 记录 |
 | scope | 是否未修改父级、registry、上游清单或其他 worker 范围 |
 
+## Review Gates
+
+| gate_id | dimension | fail_code | blocking_when | rework_target | report_evidence |
+| --- | --- | --- | --- | --- | --- |
+| `GATE-CHAR-DESIGN-01` | upstream_anchor | `FAIL-NO-LIST` | 找不到 `角色清单.md`，或待设计主体无法回指 `名称 / 首次登场 / 原文描述（关键词式）` | `N3-CHARACTER-LIST` | `character_intake_table`、清单行号或缺失说明 |
+| `GATE-CHAR-DESIGN-02` | scope | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | 设计阶段新增清单外主体、直接修改上游清单，或把同名冲突/漏项静默裁决为 canonical 设计稿 | `N1-INTAKE` / `N3-CHARACTER-LIST` | `execution_scope`、上游修复建议、未改动上游声明 |
+| `GATE-CHAR-DESIGN-03` | project_context | `FAIL-NO-STYLE` | 未读取 `north_star.yaml`，虚构全局风格，或未记录字段命名漂移与临时工作口径 | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、缺失字段说明 |
+| `GATE-CHAR-DESIGN-04` | project_context | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `team.yaml` 相关监制未选择性消费，或把大师上下文写成人名堆砌/文风模仿 | `N2-PROJECT-CONTEXT` / `N6-ADVISOR-REVIEW` | 设计相关 advisor roster、冲突裁决依据、被剔除无关成员说明 |
+| `GATE-CHAR-DESIGN-05` | llm_first | `FAIL-SCRIPT-AUTHORSHIP` | 脚本生成研究、物语、解构、服装、摄影或英文 prompt 正文 | `N7-MERGE-DRAFT` | 脚本职责清单、LLM 汇流声明、正文生成来源说明 |
+| `GATE-CHAR-DESIGN-06` | research_layer | `FAIL-RESEARCH-FLAT` | 研究层缺少任一必需 lens，或资料未转化为外观、服装、姿态、摄影和 prompt 决策 | `N5-RESEARCH-PROFILE` | `research_profile`、`design implication`、八镜头覆盖表 |
+| `GATE-CHAR-DESIGN-07` | research_layer | `FAIL-UNCERTAINTY-HIDDEN` | 低证据推演、外部搜索线索或待确认信息被写成清单事实 | `N5-RESEARCH-PROFILE` | `Uncertainty Notes`、来源/置信度标注、待确认项 |
+| `GATE-CHAR-DESIGN-08` | prompt | `FAIL-CHAR-DESIGN-PROMPT-EVIDENCE` | prompt 关键主体、服装、姿态、光线、风格或固定画面短语无法回指 `evidence -> design decision -> prompt phrase` | `N5-RESEARCH-PROFILE` / `N7-MERGE-DRAFT` | `Prompt Evidence Chain`、`deconstruction_coverage` |
+| `GATE-CHAR-DESIGN-09` | research_layer | `FAIL-CHAR-DESIGN-WEB-EVIDENCE` | 未经许可或无必要地使用网络搜索，长段复制外部资料，或让外部资料覆盖清单、north star、用户禁区 | `N5-RESEARCH-PROFILE` | 搜索许可/必要性说明、来源摘要、使用边界 |
+| `GATE-CHAR-DESIGN-10` | required_sections | `FAIL-CHAR-DESIGN-SECTIONS` | 设计稿缺少清单锚点、研究考据、物语、解构或提示词设计任一必填块 | `N7-MERGE-DRAFT` | 模板块覆盖检查、缺块 finding |
+| `GATE-CHAR-DESIGN-11` | decomposition | `FAIL-CHAR-DESIGN-ID-CONSISTENCY` | `## 4. 解构` 下缺 `主体ID号`，或文件名、解构 ID、提示词主体 ID、英文 prompt 前缀不一致 | `N7-MERGE-DRAFT` / `N9-WRITE-OUTPUT` | 四处主体 ID 对照表 |
+| `GATE-CHAR-DESIGN-12` | prompt | `FAIL-PROMPT-SHALLOW-INTEGRATION` | 英文 prompt 未整合 `## 4. 解构` 全部有效信息，超过 1300 characters，包含中文解释/多版本堆叠或使用 `--no` | `N7-MERGE-DRAFT` | prompt 字符数、`deconstruction_coverage`、自然语言负向约束检查 |
+| `GATE-CHAR-DESIGN-13` | fixed_visual | `FAIL-CHAR-DESIGN-FIXED-VISUAL` | 摄影字段或 prompt 把角色放进剧情场景、建筑、街景、室内陈设、自然环境、复杂背景、半身头像或环境肖像 | `N7-MERGE-DRAFT` | fixed visual phrase 检查、禁用环境元素清单 |
+| `GATE-CHAR-DESIGN-14` | design_output_contract | `FAIL-CHAR-DESIGN-TEMPLATE-REGISTRY` | 未使用 canonical structured template，或脚本/组根模板替代 leaf LLM 正文创作 | `N7-MERGE-DRAFT` | 模板路径、渲染来源、脚本机械边界说明 |
+| `GATE-CHAR-DESIGN-15` | slot_bundle_review | `FAIL-SLOT-BUNDLE-MISSING` | 未解析 `ROLE-BUNDLE-01`，`slot_bundles` 为空，或 required slots 没有证据位置/缺槽 finding | `N8-REVIEW-GATE` | `slot_bundle_review`、required slot evidence map、blocking findings |
+| `GATE-CHAR-DESIGN-16` | 顾问与复核流程 | `FAIL-CHAR-DESIGN-SUPERVISION-PACKET` | `workflow_supervision` 缺 subject、dispatch mode、blocking layer、advisor roster、reviewer roster、本地 checklist 或 merge decision | `N6-ADVISOR-REVIEW` | `workflow_supervision_record` 完整字段 |
+| `GATE-CHAR-DESIGN-17` | advisor_consultation | `FAIL-ADVISOR-REVIEW-SKIPPED` | 默认顾问路径被静默跳过，或 `advisor_consultation_packet` / `advisor_node_coverage` 未绑定当前 `node_id / pass_id / gate_id` | `N6-ADVISOR-REVIEW` | `advisor_node_coverage`、降级原因、本地 checklist 结果 |
+| `GATE-CHAR-DESIGN-18` | 顾问与复核流程 | `FAIL-CHAR-DESIGN-MERGE-DECISION` | reviewer / checklist / slot bundle findings 未被主 agent 汇流裁决，或保留互相竞争的并列稿 | `N8-REVIEW-GATE` / `N7-MERGE-DRAFT` | `merge_decision`、采纳/拒绝 patch 记录、最终单稿声明 |
+
 ## Verdict Model
 
 | verdict | meaning |
@@ -45,7 +68,7 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: upstream_anchor | project_context | research_layer | llm_first | sections | decomposition | output_naming | costume | cinematography | prompt | design_output_contract | slot_bundle_review | fixed_visual | advisor_consultation | 顾问与复核流程 | scope
+  dimension: upstream_anchor | project_context | research_layer | llm_first | required_sections | decomposition | output_naming | costume | cinematography | prompt | design_output_contract | slot_bundle_review | fixed_visual | advisor_consultation | 顾问与复核流程 | scope
   symptom: ""
   direct_cause: ""
   source_contract: ""

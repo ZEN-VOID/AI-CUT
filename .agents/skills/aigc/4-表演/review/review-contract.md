@@ -13,6 +13,7 @@
 - review 必须加载 `../../_shared/lived-in-character-behavior-contract.md`，检查关键人物 beat 是否避免空闲摆拍：单人 beat 有场景内成立的当前小事、下意识反应和情绪落点；多人 beat 有行动者/反应者分工，且没有随机忙动作或人人同强度表演。
 - review 必须加载 `../references/psychological-reaction-contract.md`，检查 `心理反应` 是否有主体、有上游触发点、有可见/可听/可演通道，主角内心想法和主角视角判断是否保留为 `独白/内心独白` 或可感知反应，且没有抽象想象、内心解释、因果论文、未授权新对白、无关回忆或场景末尾总结块。
 - review 必须加载 `../references/actor-performance-control-contract.md`，检查关键情绪 beat 是否避免情绪标签和模板化表情，是否具备上游触发点、情绪动机、微表情、非面部生理联动、台词语气情绪、气口断句、环境声音或沉默余波、微动态限制，并已内嵌到既有字段而未新增剧情、对白或摄影方案。
+- review 必须检查上游 `long_dialogue_beat_map` 是否被消费为 `long_dialogue_delivery_map`：每个长对白节拍都有气口/连续气息、停顿或无停顿依据、重音、尾音、身体联动和对手反应，且未改写或重切上游原文节拍。
 - review 必须加载 `../../3-导演/references/performance-style-directive-contract.md`，检查 `performance_style_directive` 是否进入角色外放度、身体性、声线、面具/真实轴、风格转变触发和具体表演取舍。
 - review 必须加载 `../../_shared/audience-psychology-model-contract.md`，检查 `audience_psychology_map` 与 `conflict_legacy_transfer` 是否进入知情层级、反应强度、沉默长度、潜台词行为和群戏注意力分配。
 - review 必须加载 `../../_shared/emotional-rhythm-map-contract.md`，检查 `scene_emotional_register` 与 `genre_emotional_coloring` 是否进入表演强度预算，避免每场同强度演满。
@@ -20,6 +21,7 @@
 - review 必须加载 `../references/ensemble-performance-contract.md`，检查群戏是否有前景行动者、前景反应者、中景知情者和背景环境参与者的层次分配。
 - review 必须加载 `../references/physiological-realism-contract.md`，检查强情绪和强身体状态后的生理残留、过渡和因果链是否可信。
 - review 必须加载 `../types/type-map.md` 与 `../types/performance-evidence-type-map.md`，检查 `performance_type_profile`、证据字段 owner、required shape 和 consumed_by 是否一致。
+- review 必须加载 `../../_shared/concrete-visual-language-contract.md`，检查表演阶段自身的心理反应、演员控制、台词表演、潜台词行为、场面调度、顾问意见、执行报告和最终落盘是否使用具像表演语言；不得把 `2-编剧` / `3-导演` 已完成的画面化成果重新抽象成情绪标签、心理解释、关系概念、权力概念或表演意图总结。
 - 若本轮执行顾问与复核流程，review 还必须加载 `../../_shared/team-advisor-consultation-contract.md` 与 `../SKILL.md#Advisor Consultation Mechanism`，检查是否优先从 `team.yaml.roles.supervision.stage_profiles."4-表演"` 解析表演监制 roster、是否基于当前 `PASS-PERF-*` / `N*-PERF-*` 思维·执行节点派生顾问问题、是否形成 `advisor_consultation_packet`，以及顾问指导是否沉淀为后续任务上下文而未改写 `3-导演` 原文。
 - 若上层策略阻断顾问与复核流程 或 provider 调度，允许使用本地 review checklist，并使用本地 review checklist。
 
@@ -27,7 +29,7 @@
 
 - 除 `review_only` 外，review gate 是写回前的阻断门，不是交付后的附带报告。
 - `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N8R-PERF-REPAIR`，由 `4-表演` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical `4-表演/第N集.md`。
-- 允许直接修复的范围：心理反应可感知化、台词语气情绪与气口断句补足、表演提示内嵌、场面调度内嵌、沉默反应、人物动作链/空间可达性补足、情绪动作经济收敛、无互动道具冗余删除或降级、活人感小事/下意识反应/情绪落点补足、多人动作-反应分工收敛、主角内心独白回收、动作客观可拍化、直接情绪转译、frontmatter/report 证据和格式。
+- 允许直接修复的范围：心理反应可感知化、台词语气情绪与气口断句补足、表演提示内嵌、场面调度内嵌、沉默反应、人物动作链/空间可达性补足、情绪动作经济收敛、无互动道具冗余删除或降级、活人感小事/下意识反应/情绪落点补足、多人动作-反应分工收敛、主角内心独白回收、动作客观可拍化、直接情绪转译、具像表演语言回收、frontmatter/report 证据和格式。
 - 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `2-编剧` 或 `3-导演` 修剧情。遇到这类问题必须输出 source owner 和不可用说明。
 - `pass_with_followups` 只允许非阻断质量建议；任何心理反应、演员控制、主角内心、动作纯度或表演集成问题不得降级为 followup。
 
@@ -48,6 +50,8 @@
 | `GATE-PERF-11` | 观众心理消费通过：`audience_psychology_map` 与 `conflict_legacy_transfer` 已影响知情层级、反应强度、沉默长度、潜台词行为和群戏注意力分配 | `FAIL-AUDIENCE-PSYCHOLOGY-CONSUMPTION` |
 | `GATE-PERF-12` | 情绪节奏消费通过：`scene_emotional_register` 与 `genre_emotional_coloring` 已进入表演强度预算，没有每场同强度演满或同强度压低 | `FAIL-EMOTIONAL-RHYTHM-CONSUMPTION` |
 | `GATE-PERF-13` | 独白预算通过：内心独白、旁白和解释性心理文字未挤占影视呈现；可外显内容已转成表演、动作、沉默或可感知反应 | `FAIL-MONOLOGUE-BUDGET` |
+| `GATE-PERF-14` | 长对白交付链通过：上游 `long_dialogue_beat_map` 已转为 `long_dialogue_delivery_map`，每个节拍有气口/连续气息、停顿、重音、尾音、身体联动和对手反应；没有改写、合并吞并或重新断开原文节拍 | `FAIL-LONG-DIALOGUE-DELIVERY` |
+| `GATE-PERF-15` | 表演阶段自身的心理反应、演员控制、台词表演、潜台词行为、场面调度、顾问意见、执行报告和最终落盘均通过具像表演语言检查：心理、情绪、关系、权力和表演判断落到可见身体、可听声音、可演停顿、空间距离、道具互动或对手反应；没有重新抽象成情绪标签、心理解释、概念关系或表演意图总结；所有投影仍保持上游保真 | `FAIL-CONCRETE-PERFORMANCE-LANGUAGE` |
 
 ## Verdict Model
 
@@ -55,7 +59,7 @@
 | --- | --- |
 | `pass` | 可交付给下游阶段 |
 | `pass_with_followups` | 可交付，但存在非阻断质量优化 |
-| `needs_rework` | 存在心理反应、演员控制、台词表演、主角内心、动作纯度或表演集成阻断项 |
+| `needs_rework` | 存在心理反应、演员控制、台词表演、主角内心、动作纯度、具像表演语言或表演集成阻断项 |
 | `blocked` | 上游缺失、路径不可读、权限或策略阻断 |
 
 ## Report Shape
@@ -69,10 +73,12 @@ review:
     psychological_reaction: pass
     actor_performance_control: pass
     dialogue_performance: pass
+    long_dialogue_delivery: pass
     performance_style_consumption: pass
     audience_psychology_consumption: pass
     emotional_rhythm_consumption: pass
     monologue_budget: pass
+    concrete_visual_language: pass
     protagonist_inner_voice: pass
     objective_action_purity: pass
     prop_interaction_economy: pass
@@ -155,6 +161,45 @@ review:
         missing_dialogue_state: false
         vague_emotion_label: false
         dialogue_text_changed: false
+  long_dialogue_delivery_map:
+    - scene_id: ""
+      dialogue_anchor: ""
+      speaker: ""
+      source_beat_map_ref: ""
+      delivery_beats:
+        - beat_id: ""
+          exact_text_segment_ref: ""
+          tone_shift: ""
+          breath_point: ""
+          pause_pattern: ""
+          stress_word_or_phrase: ""
+          ending_control: ""
+          body_linkage: ""
+          opponent_reaction: ""
+      risk_check:
+        dialogue_text_changed: false
+        beat_recut_without_source_owner: false
+        same_delivery_for_all_beats: false
+        missing_opponent_reaction_chain: false
+  concrete_visual_language_evidence:
+    - stage: "4-表演"
+      node_id: ""
+      source_anchor: ""
+      abstract_or_conceptual_risk: ""
+      concrete_projection: ""
+      target_fields:
+        - ""
+      sensory_or_performable_channels:
+        visible: []
+        audible: []
+        performable: []
+        spatial_or_prop: []
+      risk_check:
+        abstract_language_residue: false
+        concept_residue: false
+        explanatory_residue: false
+        upstream_visualization_regressed: false
+        fact_drift: false
   lived_in_behavior_evidence:
     - scene_id: ""
       source_anchor: ""

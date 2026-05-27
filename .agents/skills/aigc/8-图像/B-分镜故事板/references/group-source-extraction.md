@@ -89,3 +89,16 @@ storyboard_frame_units:
 | 连接件进入 group_body 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | `分镜N` 统计不完整 | 保留原正文，报告 `shot_count_unverified` |
 | storyboard panel 机械等同 `分镜N` | 回到 `Storyboard Frame Unit Derivation`，重新基于视觉节拍识别 |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 目标 `group_id` 是否只能从 `projects/aigc/<项目名>/6-分组/第N集.md` 的 `## x-y-z` 标题锁定，且辅助上下文没有覆盖组正文？ | `G1-SOURCE` | `FAIL-SHEET-GROUP` | `N3-GROUP-INDEX` / `references/group-source-extraction.md#source-roots` | `group-index.json` 记录 `source_file`、`heading`、`group_id`、aux context 仅作上下文说明 |
+| `## x-y-z~x-y-z` 连接件是否被识别为非分镜组，并完全排除出 `group_body`、storyboard prompt、YAML 主体基准、shot_count、manifest 和 imagegen plan？ | `G1-SOURCE` | `FAIL-SHEET-GROUP` | `N3-GROUP-INDEX` / `references/group-source-extraction.md#group-boundary` | `group-index.json` 记录 excluded connector headings，prompt / manifest / plan 无连接件条目 |
+| 每个组的 `group_body` 与组底 fenced YAML 是否都被保留且职责分离，没有用正文替代 YAML 或用 YAML 覆盖正文？ | `G1-SOURCE` | `FAIL-SHEET-GROUP` | `N3-GROUP-INDEX` / `references/group-source-extraction.md#extraction-payload` | `group-index.json` 同时包含非空 `group_body` 与 `group_yaml`，并标明 YAML 解析状态 |
+| `group_yaml` 是否至少解析出 `角色 / 场景 / 道具` 三类字段，缺项是否显式落为空数组并报告？ | `G5-SUBJECTS` | `FAIL-SHEET-REF` | `N3-GROUP-INDEX` / `N5-REF-BIND` | `group-index.json` 与 `reference-manifest.json` 记录三类字段、missing yaml fields 和空数组原因 |
+| `shot_count` 与 `source_shot_labels` 是否只作为上游运镜标签追溯，而没有被当作 storyboard panel count？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `references/group-source-extraction.md#shot-count` | `group-index.json` 分开记录 `shot_count`、`source_shot_labels`、`storyboard_frame_units` 与 `mapping_type` |
+| `storyboard_frame_units` 是否由 LLM 基于当前 `group_body` 的视觉节拍判断，而不是脚本按 `分镜N` 机械派生？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `references/group-source-extraction.md#storyboard-frame-unit-derivation` | 每个 frame unit 记录 `visual_beat`、`source_span`、`mapping_type` 和 LLM rationale |
+| 每个 frame unit 是否能回指源正文片段，且没有补写上游不存在的动作、情绪结果、角色事实或场景事实？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `N6-REVIEW` | `storyboard_frame_units[].source_span` 可定位，review note 标明未发现 invented fact |
+| frame unit 数量无法稳定判断时，是否保留 `storyboard_frame_units_status: partial` 并在报告中写明人工确认需求，而不是退回“分镜标签数 = panel 数”？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N3A-FRAME-UNITS` / `N10-CLOSE` | 执行报告记录 partial 原因、受影响 `group_id` 和返工入口 |

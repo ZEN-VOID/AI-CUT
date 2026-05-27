@@ -123,3 +123,22 @@
 - 不把单角色设计稿变成项目百科。
 - 不输出环境肖像、剧情剧照、场景内角色照或半身头像作为默认主图口径。
 - 不把研究层写成百科条目、真实资料摘抄或来源汇编；研究必须转化为角色设计决策。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 待设计角色是否能回指 `角色清单.md` 的 `名称 / 首次登场 / 原文描述（关键词式）`，且未凭设计阶段兴趣新增主体？ | `GATE-CHAR-DESIGN-01` | `FAIL-NO-LIST` | `N3-CHARACTER-LIST` | `character_intake_table`、清单行号、缺失字段说明 |
+| 同名冲突、疑似漏项或归并错误是否只形成上游修复建议，而没有在本 leaf 直接改清单或静默裁决 canonical 主体？ | `GATE-CHAR-DESIGN-02` | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | `N1-INTAKE` / `N3-CHARACTER-LIST` | `execution_scope`、上游修复建议、未改动上游声明 |
+| `north_star.yaml` 的全局风格、主题、时代/地域、影像气质、禁区和视觉约束是否被读取；字段漂移或缺失是否明确报告，而非虚构风格？ | `GATE-CHAR-DESIGN-03` | `FAIL-NO-STYLE` | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、临时工作口径 |
+| `team.yaml` 是否只消费设计相关监制上下文，并把冲突建议按用户请求、north star 与角色功能裁决，而不是堆人名或模仿文风？ | `GATE-CHAR-DESIGN-04` | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `N2-PROJECT-CONTEXT` / `N6-ADVISOR-REVIEW` | advisor roster、冲突裁决依据、剔除无关成员说明 |
+| 研究考据、物语、解构、服装设计、摄影描述和 prompt 是否由 LLM 主创，脚本只做读取、列检查、路径、统计、空字段和 manifest 汇总？ | `GATE-CHAR-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N7-MERGE-DRAFT` | 脚本职责清单、LLM 汇流声明、正文生成来源说明 |
+| `identity / occupation / class / region_era / costume_craft / body_posture / taboo_constraints / uncertainty / prompt_evidence_chain` 是否都产生设计转化，而非资料堆叠？ | `GATE-CHAR-DESIGN-06` | `FAIL-RESEARCH-FLAT` | `N5-RESEARCH-PROFILE` | `research_profile`、八镜头覆盖表、每镜头 `design implication` |
+| 低证据推演、外部资料线索和待确认项是否标明“推演/待确认/置信度”，没有伪装成清单事实？ | `GATE-CHAR-DESIGN-07` | `FAIL-UNCERTAINTY-HIDDEN` | `N5-RESEARCH-PROFILE` | `Uncertainty Notes`、来源/置信度标注、待确认项 |
+| prompt 中关键主体、服装、姿态、光线、风格和固定画面短语是否能回指 `evidence -> design decision -> prompt phrase`？ | `GATE-CHAR-DESIGN-08` | `FAIL-CHAR-DESIGN-PROMPT-EVIDENCE` | `N5-RESEARCH-PROFILE` / `N7-MERGE-DRAFT` | `Prompt Evidence Chain`、`deconstruction_coverage` |
+| 网络搜索是否仅在用户许可或冷门考据必要时使用，并留下来源摘要/使用边界，没有泄露项目内容或复制外部版权长文？ | `GATE-CHAR-DESIGN-09` | `FAIL-CHAR-DESIGN-WEB-EVIDENCE` | `N5-RESEARCH-PROFILE` | 搜索许可/必要性说明、来源摘要、使用边界 |
+| 设计稿是否包含清单锚点、研究考据、物语、解构、提示词设计五个必填块？ | `GATE-CHAR-DESIGN-10` | `FAIL-CHAR-DESIGN-SECTIONS` | `N7-MERGE-DRAFT` | 模板块覆盖检查、缺块 finding |
+| `## 4. 解构` 下方是否先写 `主体ID号：<主体ID>`，且与 `## 5. 提示词设计` 主体 ID 和英文 prompt 前缀一致？ | `GATE-CHAR-DESIGN-11` | `FAIL-CHAR-DESIGN-ID-CONSISTENCY` | `N7-MERGE-DRAFT` / `N9-WRITE-OUTPUT` | 解构 ID、提示词 ID、prompt 前缀、文件名前缀对照 |
+| 英文 prompt 是否融合全局风格、服装风格和 `## 4. 解构` 全部有效信息，控制 1300 characters 内，使用自然语言负向约束且不含 `--no`？ | `GATE-CHAR-DESIGN-12` | `FAIL-PROMPT-SHALLOW-INTEGRATION` | `N7-MERGE-DRAFT` | prompt 字符数、`deconstruction_coverage`、自然语言负向约束检查 |
+| 摄影字段和 prompt 是否固定为纯色背景全身定妆照，没有进入剧情场景、建筑、街景、室内陈设、自然环境、复杂背景或半身头像？ | `GATE-CHAR-DESIGN-13` | `FAIL-CHAR-DESIGN-FIXED-VISUAL` | `N7-MERGE-DRAFT` | fixed visual phrase 检查、禁用环境元素清单 |
+| 本文件的 Non-Goals 是否被执行：不生成图片，不创建场景/道具/分镜/视频提示词，不修改父级、registry、上游清单或其他 worker 范围？ | `GATE-CHAR-DESIGN-02` | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | `N1-INTAKE` | `execution_scope`、改动文件清单、越界项排除说明 |

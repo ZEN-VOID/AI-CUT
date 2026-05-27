@@ -186,3 +186,14 @@
 | `全场陷入沉默` | 1-2级 | 群体情绪，无个体外显 → 用群体反应和空间承托 |
 | `他的手指微微发颤` | 1-2级 | 上游只写微颤 → 不追加哭泣、愤怒等高强度动作 |
 | `她没有哭，只是静静看着他` | 1级 | 上游明确写"没有哭" → 强制压制到1级 |
+
+## Review Gate Mapping
+
+No independent gate: 本附录是声音、姿态和强度变量库，不独立裁决表演稿是否通过；所有阻断判断必须回接 `actor-performance-control-contract.md`、`performance-and-scene-craft-contract.md` 与 `review/review-contract.md` 的主 gate。
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否把附录声音、姿态或强度条目直接复制进终稿，而没有回指当前场景压力源、上游触发和角色任务？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的附录变量筛选与 `actor-performance-control-contract.md#Environment Sound Support` | `actor_performance_control_evidence[].trigger`、`ambient_support`、`embedded_in_fields` |
+| 情绪强度是否越过上游授权，例如无明确爆发依据却写 4-5 级外显？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` 的强度降级与微动态幅度限制 | `actor_performance_control_evidence[].risk_check.overacting=false`、`emotional_register_performance_evidence` |
+| 多人场面中的配角或背景人物是否按附录降级规则降低强度，避免抢走焦点？ | `GATE-PERF-08` | `FAIL-ENSEMBLE-PERFORMANCE` | `N5-PERF-SCENE-CRAFT` 的 `ensemble_layers` 分配 | `ensemble_performance_evidence[].layers`、`focus_transitions` |
+| 场景声音是否选择了与朝代、空间和材质匹配的变量，而不是抽象“悲伤音乐/紧张音乐”？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N4-PERF-ACTOR-CONTROL` / `N5-PERF-SCENE-CRAFT` 的环境声承托 | `actor_performance_control_evidence[].ambient_support`、`scene_dramatic_map[].pressure_source.visible_anchor` |

@@ -52,3 +52,15 @@
 - 可以吸收原则、结构、方法、检查项和可迁移模式。
 - 不得复制书籍、课程、文章或影视作品的长段受保护表达。
 - 不得把参考视频的具体镜头序列、台词、角色造型、构图和剧情事件作为 AIGC canonical 模板。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每个学习对象是否先被归一为完整 `source_digest`，而不是直接进入总结或写回？ | `GATE-LEARN-SOURCE-01` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Source Digest` | `source_kind`、`source_locator`、`source_owner`、`captured_at`、`evidence_units`、`license_boundary`、`credibility`、`gaps` |
+| `evidence_units` 是否能回指到段落、页码、时间码、截图号、字幕行或转写片段？ | `GATE-LEARN-SOURCE-01` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Source Digest` | 每条关键 learning claim 对应的 evidence unit id 与 locator |
+| 视频、课程视频、访谈录像、屏幕录制或拉片素材是否交给 `video-learning-contract.md` 处理？ | `GATE-LEARN-SOURCE-02` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Complex Object Delegation` | `source_kind: video`、delegated reference、四轨证据计划或缺口说明 |
+| 书籍、超长 PDF、长文档、课程讲义合集或长网页合集是否交给 `book-long-context-learning-contract.md` 处理？ | `GATE-LEARN-SOURCE-02` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Complex Object Delegation` | `source_kind: book/document/web_collection`、delegated reference、coverage plan 摘要 |
+| 视频对象是否至少声明 `visual_track`、`subtitle_track`、`audio_track`、`sequence_track` 和 `fusion_note` 的状态？ | `GATE-LEARN-VIDEO-01` | `FAIL-AIGC-LEARN-VIDEO` | `N2-MEDIA` / `Video Minimum Gate` | `media_evidence_status` 四栏、`fusion_note`、缺失轨道标记 |
+| 工具环境无法解析某个媒介轨道时，是否显式标记 `missing` / `unavailable`，而不是补写想象内容？ | `GATE-LEARN-VIDEO-03` | `FAIL-AIGC-LEARN-VIDEO` | `N3-DISTILL` / `Video Minimum Gate` | `missing_tracks`、不可用原因、residual risks |
+| 版权材料是否只吸收原则、结构、方法和检查项，没有复制长段表达或具体镜头/台词/造型作为模板？ | `GATE-LEARN-SOURCE-03` | `FAIL-AIGC-LEARN-SOURCE` | `N2-MEDIA` / `Copyright Boundary` | `license_boundary`、summary-only note、copyright risk check |

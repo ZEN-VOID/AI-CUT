@@ -164,3 +164,25 @@ source cue -> confidence -> visual translation -> design lock -> prompt evidence
 - 不创建图像、视频或生成任务。
 - 不修改角色、场景、父级路由、registry 或其他 worker 的文件。
 - 不把多个道具合成一个并列总稿。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 设计稿是否消费 `道具清单.md`、`north_star.yaml`、`team.yaml`，并把项目 `MEMORY.md / CONTEXT/` 与首次登场分组稿只作为补充证据而非新增清单外道具？ | `GATE-PROP-DESIGN-01` / `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-01` / `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N3-SCOPE` | `upstream_manifest`、项目上下文清单、补充证据使用边界 |
+| 每个 Markdown 是否只对应一个道具主体，没有并列多个道具、生成清单外主体或把上游冲突静默裁决为新 canonical 真源？ | `GATE-PROP-DESIGN-02` | `FAIL-PROP-DESIGN-02` | `N3-SCOPE` | `prop_worklist`、单主体边界说明、上游修复建议 |
+| 研究考据、物语、解构、物品风格和英文 prompt 是否由 LLM 直接创作与裁决，脚本只做读取、枚举、检查、统计、空目录或缺字段报告？ | `GATE-PROP-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
+| 设计稿是否包含 `名称 / 首次登场 / 原文描述复述`、`研究考据`、`物语`、`解构`、`提示词设计` 五个必填章节，且复述未改写为新事实？ | `GATE-PROP-DESIGN-03` | `FAIL-PROP-DESIGN-03` | `N6-DESIGN` | 模板块覆盖检查、上游复述对照、缺块 finding |
+| 固定画面是否为纯色背景单道具近景特写、45 度视角、完整展示道具全貌、仅展示道具本体，并排除人物、手持、桌面、室内、街景、多物件和背景元素？ | `GATE-PROP-DESIGN-08` | `FAIL-PROP-DESIGN-07` | `N6-DESIGN` | `Photography` 字段、英文 prompt 固定画面短语、禁用元素清单 |
+| 研究是否服务可见设计，并把每条关键结论落到形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性或 prompt evidence token？ | `GATE-PROP-DESIGN-09` | `FAIL-PROP-DESIGN-08` | `N5-RESEARCH-CHAIN` | research evidence chain、`visual translation`、`design lock`、prompt token |
+| 研究证据链是否区分 `source_fact / inference / inspired_by / unknown` 与 `confirmed / probable / inferred / uncertain`，没有把低证据推断写成确定事实？ | `GATE-PROP-DESIGN-09` | `FAIL-PROP-DESIGN-08` | `N5-RESEARCH-CHAIN` | 来源姿态、置信度/不确定性标注、待确认项 |
+| 冷门网络信息是否只在必要或用户许可时使用，并用可靠来源、简短来源说明或不确定性注记收束，避免长篇摘录或覆盖清单真源？ | `GATE-PROP-DESIGN-RESEARCH-SAFETY` | `FAIL-PROP-DESIGN-RESEARCH-SAFETY` | `N5-RESEARCH-CHAIN` | 搜索必要性、来源摘要、使用边界、不确定性注记 |
+| 危险物、医疗器械、武器或违法用途相关研究是否只转译为外观和叙事安全描述，没有提供制造、使用或伤害步骤？ | `GATE-PROP-DESIGN-RESEARCH-SAFETY` | `FAIL-PROP-DESIGN-RESEARCH-SAFETY` | `N5-RESEARCH-CHAIN` | 安全转译记录、删除的操作性信息、风险注记 |
+| `north_star.yaml` 是否转译为全局风格、主题、时代/材质/色彩/镜头禁区和项目美术位置；`team.yaml` 是否转译为至少一条可见设计决策，而不是大师名字装饰？ | `GATE-PROP-DESIGN-04` | `FAIL-PROP-DESIGN-04` | `N2-UPSTREAM` / `N5-RESEARCH-CHAIN` | `project_design_context`、advisor roster、设计决策证据 |
+| `Photography` 是否回答镜头距离、角度、焦段感、景深、光线、识别方式和默认固定画面；`Prop Design` 是否回答外形、材质、工艺、颜色、尺度、重量、使用痕迹和锁定/可变项？ | `GATE-PROP-DESIGN-03` / `GATE-PROP-DESIGN-08` | `FAIL-PROP-DESIGN-03` / `FAIL-PROP-DESIGN-07` | `N6-DESIGN` | `Photography` / `Prop Design` 双字段证据、锁定/可变项 |
+| prompt 是否为英文、以 `<主体ID>: ...` 开头，并与 `## 4. 解构` 主体 ID、`提示词设计` 主体 ID 完全一致？ | `GATE-PROP-DESIGN-06` | `FAIL-PROP-DESIGN-05` | `N6-DESIGN` | 三处主体 ID 对照、prompt 开头检查 |
+| prompt 是否同时包含全局风格提示词引用和物品风格，并整合 `## 4. 解构` 全部有效 Photography 与 Prop Design 信息，而不是前缀/后缀拼接？ | `GATE-PROP-DESIGN-06` / `GATE-PROP-DESIGN-10` | `FAIL-PROP-DESIGN-05` / `FAIL-PROP-DESIGN-09` | `N6-DESIGN` | prompt 字符数、解构槽位覆盖、`deconstruction_coverage` |
+| prompt 是否包含 close-up、45-degree view、full prop in view、prop only、solid color background、no people、no background elements、no scene environment 等等价约束？ | `GATE-PROP-DESIGN-08` | `FAIL-PROP-DESIGN-07` | `N6-DESIGN` | fixed visual phrase 检查、prompt 约束位置 |
+| prompt 是否使用自然语言负向约束，未使用 Midjourney `--no`，且不超过 1300 characters？ | `GATE-PROP-DESIGN-06` | `FAIL-PROP-DESIGN-05` | `N6-DESIGN` | prompt 字符数、自然语言负向约束文本、`--no` 检查 |
+| prompt 关键名词、材质、年代、磨损、工艺、形制和禁止项是否能回指研究、物语、解构、`global_style` 或 `item_style`，且未为证据链新增场景、人物或手持 token？ | `GATE-PROP-DESIGN-10` | `FAIL-PROP-DESIGN-09` | `N5-RESEARCH-CHAIN` / `N6-DESIGN` | `prompt_evidence_chain`、token 来源对照、禁用 token 检查 |
+| 本文件的 Non-Goals 是否被执行：不重生成清单、不创建图像/视频/生成任务、不修改角色/场景/父级/registry/其他 worker 文件、不把多个道具合成总稿？ | `GATE-PROP-DESIGN-07` / `GATE-PROP-DESIGN-02` | `FAIL-PROP-DESIGN-06` / `FAIL-PROP-DESIGN-02` | `N8-WRITE` / `N3-SCOPE` | 改动文件清单、输出路径、越界项排除说明 |

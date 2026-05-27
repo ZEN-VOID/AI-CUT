@@ -79,3 +79,19 @@ source_shot_labels: []
 | 连接件进入 group_content 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | 组正文被摘要或改写 | 回到本合同，恢复完整现有内容 |
 | `分镜N` 统计不完整 | 保留原正文，报告 `shot_count_unverified` |
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本轮项目、集号和目标 `group_id` 是否只从 `projects/aigc/<项目名>/4-分组/第N集.md` 锁定，且 `MEMORY.md` / `CONTEXT/` 没有覆盖组正文？ | `GATE-SBVID-01` | `FAIL-SBVID-INPUT` | `N1-INTAKE` / `N2-CONTEXT` | input manifest 记录项目根、集号、source file、目标组范围与辅助上下文只读说明 |
+| 每个目标普通分镜组是否按 `## x-y-z` 唯一识别，三段式 `group_id` 未被四段式分镜号、连接件或正文关键词替代？ | `GATE-SBVID-02` | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index 包含 `group_id`、heading、line range 或 `source_body_hash` |
+| `## x-y-z~x-y-z` 连接件是否完全排除在 `group_content`、prompt、storyboard manifest、batch 和视频命名之外？ | `GATE-SBVID-02` | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index 记录 connector headings ignored，prompt / batch 无连接件 ID |
+| `group_content` 是否从组标题后完整保留到下一个普通组、连接件或文件结尾之前，没有截断、吞并下一组或漏掉正文？ | `GATE-SBVID-03` | `FAIL-SBVID-PROMPT` | `N3-GROUP-INDEX` | source line range、body hash、prompt package 可回放完整组正文 |
+| 组底 fenced YAML 是否只作为审查和报告证据保留，而没有替代完整组正文成为视频 prompt 主体？ | `GATE-SBVID-03` | `FAIL-SBVID-PROMPT` | `N3-GROUP-INDEX` / `N5-YAML` | prompt package 以原 `## group_id` 与完整正文起笔，YAML 不单独取代正文 |
+| `duration_estimate_seconds` 是否按组底 `时长估算` 优先、分镜秒数求和次之、明确 fallback 最后的顺序生成？ | `GATE-SBVID-04` | `FAIL-SBVID-DURATION` | `N3-GROUP-INDEX` | group index 记录 `duration_source`、原始时长文本、估算值与 fallback 原因 |
+| 连接件时长是否没有参与普通分镜组的 `duration_estimate_seconds`，且 `duration_hint` 后续按 4-15 秒 clamp？ | `GATE-SBVID-04` | `FAIL-SBVID-DURATION` | `N3-GROUP-INDEX` / `N5-YAML` | duration evidence 显示连接件排除，batch 中 `duration_hint=clamp(...)` |
+| `source_shot_labels` / `shot_count` 是否只做统计证据，无法确认时标记 `shot_count_unverified`，没有因此改写原组正文？ | `GATE-SBVID-02` | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index 记录 `source_shot_labels`、`shot_count` 或 `shot_count_unverified` |
+| `prompt.md` 是否默认不另起故事板参照说明段，只在 final fenced YAML 的 `故事板参照` 对象注入真实槽位字段？ | `GATE-SBVID-08` | `FAIL-SBVID-PROMPT` | `N5-YAML` / `N7-DISPATCH` | draft / final prompt 对照，final fenced YAML 含真实 `reference_index / uploaded_url / image_token` |
+| prompt 主体是否没有摘要、压缩、改写剧情事实、对白事实、镜头顺序、角色关系、场景结果或组边界？ | `GATE-SBVID-11` | `FAIL-SBVID-FIDELITY` | `N5-YAML` / `N6-REVIEW` | prompt package 与 source hash / excerpt 对照；若压缩，报告用户授权或硬限制依据 |
+| step1 readiness 是否留下可复核证据，而不是只给出“已提取”结论？ | `GATE-SBVID-15` | `FAIL-SBVID-REPORT` | `N11-CLOSE` | 执行报告列出 source file、唯一命中、line/hash、duration source、connector ignored、返工入口 |
