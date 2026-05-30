@@ -1,4 +1,0 @@
-interface:
-  display_name: "BYKJ 06R 分镜优化"
-  short_description: "承接 06-智能分镜 JSON 产物，按用户自然语言反馈优化 frame、group、bridge、原 6-分组规则同步、payload、资产风格引用和 schema。"
-  default_prompt: "使用 $aigc-bykj-storyboard-optimization，基于我指定的 output/[项目名]/06-智能分镜/ 产物或粘贴 JSON，先解析我的自然语言分镜优化意图，再生成 output/[项目名]/06R-分镜优化/ 下的 分镜优化补丁.json、优化版分镜 JSON、分镜优化报告.json 和 manifest.json。"

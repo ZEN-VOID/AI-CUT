@@ -1,4 +1,0 @@
-interface:
-  display_name: "BYKJ 05R 资产优化"
-  short_description: "承接 05-资产提取 JSON 产物，按用户自然语言反馈优化角色、场景、道具、design_spec、schema 和跨资产引用。"
-  default_prompt: "使用 $aigc-bykj-asset-optimization，基于我指定的 output/[项目名]/05-资产提取/ 产物或粘贴 JSON，先解析我的自然语言资产优化意图，再生成 output/[项目名]/05R-资产优化/ 下的 资产优化补丁.json、优化版资产 JSON、资产优化报告.json 和 manifest.json。"

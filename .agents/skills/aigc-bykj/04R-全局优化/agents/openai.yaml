@@ -1,4 +1,0 @@
-interface:
-  display_name: "BYKJ 04R 全局优化"
-  short_description: "承接 04-全局预设产物，按用户个人自然语言进行高能意图解析、风格匹配和全局视觉预设优化。"
-  default_prompt: "使用 $aigc-bykj-global-preset-optimization，基于我指定的 output/[项目名]/04-全局预设/ 产物或粘贴片段，先解析我的自然语言风格意图并完成风格匹配，再生成 output/[项目名]/04R-全局优化/ 下的优化预设、全局优化说明、优化报告和 manifest。"

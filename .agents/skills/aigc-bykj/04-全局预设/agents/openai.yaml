@@ -1,4 +1,0 @@
-interface:
-  display_name: "BYKJ 04 全局预设"
-  short_description: "从指定风格、参考图或 02 全本剧本生成项目级通用视觉预设。"
-  default_prompt: "使用 $aigc-bykj-global-preset 为 BYKJ 项目生成 04-全局预设：可指定风格、解析参考图，或从 output/[项目名]/02-剧本处理/ 的全本剧本自动归纳视觉风格。"

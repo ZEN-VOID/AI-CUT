@@ -1,4 +1,0 @@
-interface:
-  display_name: "BYKJ 05 道具提取"
-  short_description: "从 BYKJ 02 剧本处理输出中筛选关键叙事功能道具，并生成道具设计规格 JSON。"
-  default_prompt: "使用 $aigc-bykj-prop-extraction，根据 output/[项目名]/02-剧本处理/ 的处理后剧本生成 output/[项目名]/05-资产提取/道具提取/ 下的 道具清单.json、道具提取报告.json 和 manifest.json。"
