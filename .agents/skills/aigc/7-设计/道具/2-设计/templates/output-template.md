@@ -6,12 +6,12 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 
 ## 固定画面约束
 
-- Type: close-up single prop shot
+- Type: full-view single prop shot
 - Camera Angle: 45-degree view
-- Framing: full prop in view, entire prop fully visible, prop only
+- Framing: full prop in view, entire prop fully visible, uncropped full silhouette, prop only
 - Background: solid color background only, no background elements
 - Scene Placement: no scene environment, no tabletop scene, no room set, no street, no hands holding the prop, no people
-- Prompt Must Include: `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment`
+- Prompt Must Include: `full-view prop shot, 45-degree view, full prop in view, entire prop fully visible, uncropped full silhouette, prop only, solid color background, no people, no background elements, no scene environment`
 
 ## 1. 名称 / 首次登场 / 原文描述
 
@@ -49,10 +49,10 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 
 ## Photography
 
-Type: close-up single prop shot
-Shot Size: close-up
+Type: full-view single prop shot
+Shot Size: full object view
 Camera Angle: 45-degree view
-Framing: full prop in view, entire prop fully visible, prop only
+Framing: full prop in view, entire prop fully visible, uncropped full silhouette, prop only
 Background: solid color background only, no background elements
 Scene Placement: no scene environment, no hands holding the prop, no people
 
@@ -84,7 +84,7 @@ Ergonomics: {{ergonomics_en}}
 - 全局风格提示词引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“全局风格提示词”}}
 - 物品风格引用：{{引用 projects/aigc/<项目名>/0-初始化/north_star.yaml 中的“物品风格”}}
 - 主体 ID 号：{{道具主体 ID；若上游清单已有 ID 则原样沿用，否则使用清单行/安全文件名派生的 ASCII ID}}
-- 固定画面约束：close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment
+- 固定画面约束：full-view prop shot, 45-degree view, full prop in view, entire prop fully visible, uncropped full silhouette, prop only, solid color background, no people, no background elements, no scene environment
 
 ### Prompt Evidence Chain
 
@@ -94,10 +94,10 @@ Ergonomics: {{ergonomics_en}}
 | {{single prop subject token}} | {{名称 / 原文描述 / Prop Design}} | {{锁定单道具主体}} |
 | {{form / material / craft / period / wear / function token}} | {{研究证据链对应行}} | {{说明该 token 如何来自研究转译}} |
 | deconstruction_coverage | {{## 4. 解构 / Photography / Prop Design}} | {{说明 Photography 与 Prop Design 的全部有效镜头、形制、材质、工艺、年代、磨损、功能和尺度槽位如何被整合进英文 prompt；若压缩、合并或剔除，写明理由}} |
-| `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` | 固定画面约束 | 锁定完整展示道具全貌、仅展示道具、纯色背景单道具 45 度近景，不置身场景，不出现人物或背景元素 |
+| `full-view prop shot, 45-degree view, full prop in view, entire prop fully visible, uncropped full silhouette, prop only, solid color background, no people, no background elements, no scene environment` | 固定画面约束 | 锁定完整展示道具全貌、完整轮廓和主要结构，仅展示道具、纯色背景单道具 45 度全貌展示，不做局部特写或裁切特写，不置身场景，不出现人物或背景元素 |
 
 ```text
-{{英文整合提示词必须以主体 ID 号开头，格式为 "<主体ID>: ..."; 整合对象是 4. 解构的全部有效信息，而不是只拼接主体 ID、全局风格、物品风格、固定画面词和负向词；必须把 Photography 与 Prop Design 中的镜头距离、45 度角度、完整展示、形制、线条、体积、材料、纹理、装饰、年代、磨损、功能逻辑和固定画面约束蒸馏组织为自然流畅、可生成画面的英文整合提示词，1300 characters 以内；必须包含 close-up prop shot / 45-degree view / full prop in view / prop only / solid color background / no people / no background elements / no scene environment，并以自然语言写入 avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop 等负向约束，不得使用 --no。}}
+{{英文整合提示词必须以主体 ID 号开头，格式为 "<主体ID>: ..."; 整合对象是 4. 解构的全部有效信息，而不是只拼接主体 ID、全局风格、物品风格、固定画面词和负向词；必须把 Photography 与 Prop Design 中的全貌构图、45 度角度、完整轮廓、形制、线条、体积、材料、纹理、装饰、年代、磨损、功能逻辑和固定画面约束蒸馏组织为自然流畅、可生成画面的英文整合提示词，1300 characters 以内；必须包含 full-view prop shot / 45-degree view / full prop in view / entire prop fully visible / uncropped full silhouette / prop only / solid color background / no people / no background elements / no scene environment，并以自然语言写入 avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop, detail-only composition 等负向约束，不得使用 --no。}}
 ```
 
 ## Review Verdict
@@ -121,4 +121,4 @@ notes: ""
 | Output format | Markdown 单道具设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定解构字段 `Photography` 与 `Prop Design`；英文 prompt 放入 fenced text block。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/7-设计/道具/2-设计/PROP-###-<安全文件名>.md`；若上游已有主体 ID，则用该 ID 替代 `PROP-###`。 |
 | Naming convention | 默认使用 `<主体ID>-<安全文件名>.md`；主体 ID 默认从 `PROP-001` 起按清单顺序补零；同名或多状态道具在安全文件名后追加首次登场 ID 或状态。 |
-| Completion gate | 道具来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究已转译为形制/材料/工艺/年代/使用痕迹/功能逻辑/风险不确定性；prompt evidence chain 可追溯；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合全局风格和物品风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景近景特写、45 度视角，完整展示道具全貌，仅展示道具，不置身具体场景，不出现人物或背景元素。 |
+| Completion gate | 道具来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究已转译为形制/材料/工艺/年代/使用痕迹/功能逻辑/风险不确定性；prompt evidence chain 可追溯；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合全局风格和物品风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓与主要结构，仅展示道具，不做局部特写、裁切特写或半截道具画面，不置身具体场景，不出现人物或背景元素。 |

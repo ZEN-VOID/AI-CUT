@@ -1,56 +1,33 @@
-# Context: libTV
+# LibTV CLI Context
 
-本文件是 `.agents/skills/cli/libTV` 的经验层知识库。它用于沉淀 LibTV / LibLib.tv Agent-IM 调用中的可复用经验，不重定义 `SKILL.md` 的入口合同。
+本文件是 `.agents/skills/cli/libTV` 的经验层。它不重定义命令参数；命令真源仍是 `SKILL.md`、`commands/*.md`、`node-types/*.md`、`model-schema/schema.md` 和实际 `libtv --help` 输出。
 
 ## Type Map
 
-| type_id | 触发症状 | 可能根因 | 立即修复 | 预防检查 |
-| --- | --- | --- | --- | --- |
-| `TM-LIBTV-01` | 用户要求 LibTV/LibLib.tv 生成图片或视频 | 路由识别 | 进入生成会话路径 | 用户明确提到 LibTV 时不要改走通用 imagegen |
-| `TM-LIBTV-02` | 用户提供本地图片/视频并要求编辑、参考生成或图生视频 | 参考文件交接 | 先上传文件，拿到 OSS URL 后再创建会话 | 提交给 LibTV 的消息只包含 OSS URL，不包含本地路径 |
-| `TM-LIBTV-03` | 用户给出 `sessionId` 或要求查看进度/下载 | 会话操作 | 使用查询或下载脚本，不新建会话 | 只有用户要求查询/下载时才执行对应操作 |
-| `TM-LIBTV-04` | 提交内容比用户原始需求更华丽或更复杂 | 本地 prompt 越权 | 去掉本地扩写，只保留用户原文、OSS URL 和必要操作性指令 | 最终汇报说明已保持原文传话 |
-| `TM-LIBTV-05` | 脚本无法运行并提示缺凭证 | 环境变量缺失 | 停止 API 调用，要求配置 `LIBTV_ACCESS_KEY` | 实时调用前先检查凭证 |
-| `TM-LIBTV-06` | 用户希望或流程要求工作流在画布上可见 | 画布操作性指令缺失 | 在新建会话消息开头加入 `把全部工作流和结果都放在画布上。` | 完成汇报包含画布指令状态和 `projectUrl` |
-| `TM-LIBTV-07` | 画布链接过早展示 | 输出时机错误 | 生成过程中只说正在生成中，完成后再给 `projectUrl` | 输出合同区分过程中与完成时 |
-| `TM-LIBTV-08` | 生成完成但没有本地文件 | 下载环节失败或未执行 | 若用户/合同要求本地文件，运行 `download_results.py` | 完成门禁检查本地文件列表 |
-| `TM-LIBTV-09` | 用户或上游合同要求有声视频，但最终视频静音 | 音频控制面未被真实生成参数接收，或只在自然语言里写了声音要求 | 若无可验证音频开关，先阻断；若已有结果，检查远端音频字段和本地音轨 | 有声任务不能只以视频 URL 完成，必须有音频控制/验收证据 |
-| `TM-LIBTV-10` | AIGC 主体参照视频下载后落到 `Downloads` 或带 `_01` 后缀 | 未使用项目级归档路径或精确文件名 | 使用 `--output-dir "projects/aigc/<项目名>/7-视频/C-主体参照/第N集" --filename "分镜组ID.mp4"` | 下载前确认项目名、集数和分镜组 ID 已知 |
-| `TM-LIBTV-11` | 创建会话后或轮询时返回“内容不符合平台规则” | 平台审核拦截，常见于远端消息含高风险台词、过细暴力、儿童/老人伤害、女性贩卖/剥削或辱骂 | 不终止；自动生成平台安全版消息并重提，优先追加到同一 session / projectUuid，必要时新建干净会话 | 重提消息只做远端降敏，保留用户任务核心、参考 URL、时长、比例、声音和主体绑定；记录原始拦截与安全版路径 |
-| `TM-LIBTV-12` | 图片已上传但画布里看不到图片 | 只完成 OSS 上传，未创建画布可见素材节点 | 加载 `references/canvas-asset-management.md`，用 `resource_generator` 将每个 OSS URL 创建为图片素材节点 | 资产图上传必须同时保留 `原文件名 -> OSS URL -> node_key` 映射 |
-| `TM-LIBTV-13` | 画布图片节点全部显示为 `素材图片` | `resource_generator` 默认节点结构固定写入 `name=素材图片`，请求参数里的原名未成为节点显示名 | 查询节点详情后调用 `nodes_connections_batch`，按 `node_key -> 原文件名` 更新顶层 `name` 与 `data.name` | 创建素材节点后必须核验显示名；不能只因提交了 `metadata.display_name` 就判定命名成功 |
-| `TM-LIBTV-14` | 多主体参考生成时，画布节点框体内图片顺序和主体名称不完全匹配，正文仍按 `Image 1/2/3` 引用导致角色错位 | 后端画布展示顺序、工具入参 `imageList` 顺序、`source_node_url_mapping` 顺序和自然语言里的 `{{Image N}}` 绑定并非同一真源 | 不再只用 `{{Image N}}=角色名` 作为主体绑定；提交生成任务时加入“主体绑定表”作为唯一真源，逐项列出 `角色名 -> node_key -> URL -> 视觉特征`，并要求后端按 URL/node_key 绑定而非按画布排列推断 | 多主体任务必须保留稳定绑定表；prompt 中同时写角色名、URL、node_key 和一两个可辨识外观特征，避免只靠随机图片序号 |
+| situation | signal | handling |
+| --- | --- | --- |
+| login required | 命令返回未登录或账号为空 | 执行 `libtv login web --open`，再用 `libtv account info` 验证 |
+| project scoped work | 已知项目 UUID | 优先每条命令显式传 `-p <projectUuid>`；需要目录默认时才用 `libtv project use <projectUuid>` |
+| group scoped work | 已知分组名或 groupNodeKey | 用 `libtv group` 查询/创建/绑定；批量节点操作传 `-g` 或使用 `libtv group use` |
+| asset upload | 本地图片/视频/音频要进入画布 | 用 `libtv upload`，记录 stdout 的 node key 和资源信息 |
+| node execution | 已有节点需要运行 | 用 `libtv node <node> --run`；执行前按 `node.md` 校验是否允许只 run |
+| model field uncertainty | 不确定模型字段或 `modeType` | 用 `libtv model` 或 `model-schema/schema.md` 查 schema，不凭经验臆造字段 |
+| video default model | 创建/更新 video 节点且计划未指定模型 | 默认写 `-s model=star-video2`；fast 只接受显式覆盖 |
 
 ## Repair Playbook
 
-1. 路由不确定时，先判断是生成、编辑/参考、还是 session 操作。
-2. 有本地文件时，先确认文件存在且是图片或视频，再调用 `upload_file.py`。
-3. 上传成功后，只把返回的 OSS URL 附到用户原始描述中，不把本地路径发给 LibTV。
-4. 新建生成或编辑任务时，把 `把全部工作流和结果都放在画布上。` 作为独立操作性指令放在消息开头。
-5. 本地 Agent 不扩写、不润色、不翻译、不拆分用户的创作需求，除非用户明确要求做这些转换。
-6. API 失败时，先查 `LIBTV_ACCESS_KEY`，再查 `OPENAPI_IM_BASE` / `IM_BASE_URL` 和脚本 stderr。
-7. 生成过程中不要提前给用户 `projectUrl`；完成后同时给结果链接、本地文件列表和项目画布链接。
-8. 若以后恢复 `steps/`、`review/` 等分区，必须同步更新 `SKILL.md` 的 `Reference Loading Guide`。
-9. 对明确要求有声的视频任务，先确认当前调用面是否能设置真实音频参数；如果只能向 Agent-IM 发送自然语言“声音开启”，不得把它当作音频开关保证。
-10. AIGC 主体参照视频下载前先确定项目名、集数和分镜组 ID，落盘到 `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/分镜组ID.mp4`。
-11. 查询或创建会话返回“内容不符合平台规则”时，不要停在错误提示；生成一条平台安全版消息自动重提。安全版只对远端消息中的平台高风险表达做最小降敏，不改本地 canonical 源文；重提后继续按正常轮询、下载和音频验收流程执行。
-12. 资产图上传不能停在 OSS URL；必须读取 `references/canvas-asset-management.md`，把 URL 转成画布可见图片素材节点。
-13. 若素材节点显示为 `素材图片`，先抽取 `node_key -> 原文件名`，再让后端调用 `nodes_connections_batch` 重命名；若工具不支持，必须报告不支持，不能声称完成。
-14. 多主体参考生成时，把“主体绑定表”写进会话消息或画布文本节点：每行包含 `角色名 / node_key / URL / 外观特征 / 用途`。生成提示中避免只写 `{{Image 1}}为某角色`，必须明确“若画布内部图片顺序、Image 序号或节点排列不一致，以本绑定表的 URL 和 node_key 为准”。
+1. 命令参数报错：先跑对应 `libtv <command> --help`，再回看 `commands/<command>.md`。
+2. 项目找不到：确认当前账号空间，必要时 `libtv account info`、`libtv account list`、`libtv account use <account>`。
+3. 节点重名：优先使用 node key；需要按名称时限定 `-g <group>` 并确保唯一。
+4. 分组绑定混乱：用显式 `-p` / `-g` 命令覆盖目录默认；必要时 `libtv project unuse` 或 `libtv group unuse` 清理本地绑定。
+5. 执行层与计划层冲突：以调用方的业务计划为任务意图，以本技能命令文档和 CLI help 为执行参数真源。
+6. 视频节点沿用到 `star-video2-fast`：检查是否来自用户显式 fast / 极速 / 草稿要求；没有显式覆盖时改回 `star-video2`。
 
 ## Reusable Heuristics
 
-- LibTV 技能最大的风险不是命令行参数，而是本地 Agent 在提交前越权改写创作需求。
-- 画布指令是操作性约束，不是创意增强词；它可以追加到消息里，但不能替代用户原文。
-- `projectUuid` 是画布地址的关键真源；`projectUrl` 可由 `https://www.liblib.tv/canvas?projectId=` + `projectUuid` 拼接。
-- 文件名前缀只用于本地归档，不应泄漏进创作描述。
-- 本地路径只服务上传脚本；LibTV 会话消息应使用 OSS URL。
-- 当用户只问进度或下载时，不要创建新会话。
-- `.env` 中可存在 `LIBTV_ACCESS_KEY` 供本地使用，但不得提交密钥。
-- 视频 URL 只证明远端生成了视频文件，不证明有声音；有声视频要看生成前音频参数、远端音频结果或下载后的音轨。
-- `--filename` 用于单个生成结果的精确命名；AIGC 主体参照视频不要再用 `--prefix` 生成 `分镜组ID_01.mp4`。
-- “内容不符合平台规则”是自动修复触发器，不是终止态。默认动作是同会话平台安全重提，除非安全版也被拒绝或会话无法继续。
-- `resource_generator` 会把图片素材默认命名为 `素材图片`；原文件名需要通过后续节点更新写入顶层 `name` 和 `data.name`。
-- 资产图的完成标准是画布可见节点和正确命名，不是 OSS URL 上传成功。
-- AIGC 视频生成结果默认以分镜组 ID 命名；缺少分镜组 ID 时先确认，无法确认时按照默认命名继续。
-- 多主体任务不要把 `{{Image 1}}/{{Image 2}}` 当作唯一语义锚点；LibTV 后端或画布 UI 可能重排图片。更稳的是把 `node_key + URL + 角色名 + 外观特征` 写成绑定合同，并要求生成工具按该合同处理主体。
+- 账号验证只报告摘要，不输出 token、cookie、access key 或 `credentials.json` 内容。
+- 管道输出通常是 JSON/NDJSON；后续命令消费时保留 stdout，不把 stderr 进度日志当作数据。
+- `project list -p` 中的 `-p` 是页码；节点/上传/分组命令里的 `-p` 是项目 UUID，不能混用。
+- 真实执行前先确认 `projectUuid`、目标 group、目标 node 名称/类型和是否需要 `--run`。
+- 外部 AIGC 计划层传来的 prompt、subject binding、manifest、queue record 是业务证据；本技能只负责按 CLI 能力落到 LibTV 画布。
+- 对 `video` 节点，`star-video2` 是执行层默认模型；历史任务或示例中出现的其它模型不得被继承为默认值。

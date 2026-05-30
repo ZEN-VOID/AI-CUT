@@ -1,6 +1,6 @@
 # aigc 6-分组
 
-`6-分组` 将 `projects/aigc/<项目名>/5-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组重复当前场景标题、补充带构图分区主体账本的定场镜头、按当前组整理 north_star 风格字段和 YAML 统计；相邻分镜组之间额外生成 3-4 秒组间首尾帧连接件，连接件同样先标明同场景或跨场景标题关系，再输出三项风格行，并把固定音频/字幕约束置顶于第 1 行风格行最前。
+`6-分组` 将 `projects/aigc/<项目名>/5-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组重复当前场景标题、补充以入口源、入场触发、镜头/观看位置、主体入画和动态关系变化为核心的入场镜头、按当前组整理 north_star 风格字段和 YAML 统计；相邻分镜组之间额外生成 3-4 秒组间首尾帧连接件，连接件同样先标明同场景或跨场景标题关系，再输出三项风格行，并把固定音频/字幕约束置顶于第 1 行风格行最前。
 
 ## 目录树
 
@@ -28,7 +28,7 @@
 - 项目级必读：`projects/aigc/<项目名>/MEMORY.md`
 - 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
 - 边界规则：`references/group-boundary-contract.md`
-- 定场镜头：`references/group-establishing-shot-contract.md`
+- 入场镜头：`references/group-entry-shot-contract.md`
 - 组间连接件：`references/bridge-shot-contract.md`
 - north_star 风格整理：`references/north-star-projection-contract.md`
 - YAML 统计：`references/statistics-yaml-contract.md`

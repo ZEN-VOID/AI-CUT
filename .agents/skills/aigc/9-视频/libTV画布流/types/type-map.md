@@ -17,6 +17,8 @@
 
 下表来自 LibTV/Seedance 2.0 `create_generation_task` 工具 metadata。执行视频生成时，`modeType` 必须显式传入下列标准称谓之一；不得只写中文口径、业务别名或本技能内部 `generation_mode`。
 
+默认模型固定为 `star-video2`，即 LibTV CLI 文档中的 Seedance 2.0 标准模型 key。`star-video2-fast` 只允许在用户显式要求 fast / 极速 / 草稿预览时使用，并必须在 submit plan、queue record 和执行报告中记录为显式覆盖。
+
 | standard `modeType` | 标准称谓 | 媒体数量约束 | 适用场景 | 本技能默认 |
 | --- | --- | --- | --- | --- |
 | `text2video` | 文生视频 | 只要求 `prompt` | 纯文本生成，无参考图/视频/音频 | 禁止作为主体参照流默认值 |
@@ -29,6 +31,7 @@
 ModeType rules:
 
 - `subject_reference_flow` 有任何可用主体参照图时，默认 `modeType=mixed2video`。
+- `subject_reference_flow` 默认 `model=star-video2`；不得因为示例、历史队列或上轮任务使用过 `star-video2-fast` 而继承 fast。
 - 如果用户明确要求“多图参考但不使用混合/全能参考”，可显式使用 `modeType=image2video`。
 - 如果用户明确要求单图、首尾帧、音频参考或纯文生，必须使用对应标准 `modeType` 原文。
 - 用户指定 `modeType` 时，submit plan、queue record、manifest 和远端 prompt 都必须记录相同标准值。

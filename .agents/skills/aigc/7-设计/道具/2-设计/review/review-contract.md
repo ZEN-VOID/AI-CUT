@@ -24,7 +24,7 @@
 | design_output_contract | 是否逐条检查 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则、字符数、自然语言负向约束和 `--no` 禁用 |
 | slot_bundle_review | 是否按 `references/design-slot-review-contract.md` 解析 `PROP-BUNDLE-01`，并对 `required_slots` 逐项给出证据位置或缺槽 finding |
 | prompt_evidence | 核心 prompt token 是否能回指研究、物语或解构字段，并包含 `deconstruction_coverage` 说明解构槽位如何进入、合并或被剔除 |
-| fixed_visual | 是否为纯色背景单道具近景特写、45 度视角、完整展示道具全貌、仅展示道具、无人物、无背景元素、无场景环境 |
+| fixed_visual | 是否为纯色背景单道具完整全貌展示、45 度视角、完整展示道具全貌、完整轮廓和主要结构、仅展示道具、无局部特写/裁切特写/半截道具、无人物、无背景元素、无场景环境 |
 | advisor_consultation | 是否按 `team.yaml.roles.supervision.stage_profiles."7-设计"` 或共享合同回退路径请教项目监制顾问；问题是否绑定当前思维·执行节点；顾问是否代入角色意识、创作风格和专业水准给出节点级判断、执行取舍、局部 patch 或风险提示 |
 | workflow_supervision | 是否按 `references/workflow-supervision-contract.md` 记录外部 provider 或本地 checklist 路径、本地 reviewer checklist 和汇流裁决 |
 | type | `type_profile` 是否合理，冷门考据和多状态是否按类型处理 |
@@ -42,7 +42,7 @@
 | `GATE-PROP-DESIGN-05` | authorship | `FAIL-SCRIPT-AUTHORSHIP` | 研究考据、物语、解构、物品风格或英文 prompt 由脚本、模板拼接或启发式补句生成 | `N6-DESIGN` | 脚本职责清单、LLM 主创声明、正文生成来源说明 |
 | `GATE-PROP-DESIGN-06` | prompt / output_naming | `FAIL-PROP-DESIGN-05` | 英文 prompt 未以同一主体 ID 开头、未引用全局风格与物品风格、超过 1300 characters、使用 `--no`，或未整合 `## 4. 解构` 全部有效信息 | `N6-DESIGN` | prompt 字符数、三处主体 ID 对照、解构槽位覆盖、自然语言负向约束检查 |
 | `GATE-PROP-DESIGN-07` | scope / output_naming | `FAIL-PROP-DESIGN-06` | 输出路径不在 `7-设计/道具/2-设计/`，文件名缺主体 ID 前缀，或触碰父级、`1-清单`、`3-生成`、registry 或其他技能目录 | `N8-WRITE` | 输出路径、文件名前缀、改动文件清单、越界项排除说明 |
-| `GATE-PROP-DESIGN-08` | fixed_visual | `FAIL-PROP-DESIGN-07` | `Photography` 或 prompt 未固定纯色背景 45 度单道具近景、完整展示道具全貌、仅展示道具，或出现人物、手、桌面、房间、街景、背景元素 | `N6-DESIGN` | fixed visual phrase 检查、禁用元素清单、prompt 约束位置 |
+| `GATE-PROP-DESIGN-08` | fixed_visual | `FAIL-PROP-DESIGN-07` | `Photography` 或 prompt 未固定纯色背景 45 度单道具完整全貌展示、完整展示道具全貌、完整轮廓和主要结构、仅展示道具，或写成局部特写、裁切特写、半截道具，或出现人物、手、桌面、房间、街景、背景元素 | `N6-DESIGN` | fixed visual phrase 检查、禁用元素清单、prompt 约束位置 |
 | `GATE-PROP-DESIGN-09` | research_chain | `FAIL-PROP-DESIGN-08` | 研究停留在百科、气氛词或未验证断言，未转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `N5-RESEARCH-CHAIN` | research evidence chain、`visual translation`、`risk_uncertainty` |
 | `GATE-PROP-DESIGN-10` | prompt_evidence | `FAIL-PROP-DESIGN-09` | prompt 核心 token 无法回指研究、物语或解构字段，或缺少 `deconstruction_coverage` 说明槽位整合/合并/剔除 | `N5-RESEARCH-CHAIN` / `N6-DESIGN` | `prompt_evidence_chain`、`deconstruction_coverage`、缺槽 finding |
 | `GATE-PROP-DESIGN-11` | advisor_consultation | `FAIL-PROP-DESIGN-10` | 默认顾问路径启用时未请教项目监制顾问，或顾问问题没有绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、取舍、patch 或风险提示 | `N5-RESEARCH-CHAIN` / `N7-REVIEW` | `advisor_consultation_packet`、`advisor_node_coverage`、降级原因 |
@@ -102,14 +102,14 @@ finding:
 - [ ] `Photography` 描述拍摄可见语言，`Prop Design` 描述物件造型语言。
 - [ ] `## 4. 解构` 下方存在 `主体ID号：<主体ID>`，且与 `## 5. 提示词设计` 的主体 ID 号、英文 prompt 开头完全一致。
 - [ ] 文件名前缀与 `## 4. 解构` 主体 ID、`## 5. 提示词设计` 主体 ID、英文 prompt 前缀完全一致。
-- [ ] `Photography` 固定为近景特写、45 度视角、完整展示道具全貌、仅展示道具、纯色背景、无人物、无背景元素、无场景环境。
+- [ ] `Photography` 固定为完整全貌展示、45 度视角、完整展示道具全貌、完整轮廓和主要结构、仅展示道具、纯色背景、无局部特写/裁切特写/半截道具、无人物、无背景元素、无场景环境。
 - [ ] 英文 prompt 不超过 1300 characters。
 - [ ] 英文 prompt 以主体 ID 号开头，格式为 `<主体ID>: ...`。
 - [ ] prompt 引用全局风格提示词，并补充物品风格。
 - [ ] prompt evidence chain 覆盖核心 token：主体名、形制、材料、工艺/年代、使用痕迹、功能逻辑、`deconstruction_coverage` 和固定画面约束。
 - [ ] 英文 prompt 整合 `## 4. 解构` 的全部有效 Photography + Prop Design 信息，而不是只拼接主体 ID、风格、物品、固定画面或负向词。
 - [ ] 英文 prompt 使用自然语言负向约束，未使用 Midjourney `--no` 参数。
-- [ ] prompt 明确包含 close-up prop shot、45-degree view、full prop in view、prop only、solid color background、no people、no background elements、no scene environment。
+- [ ] prompt 明确包含 full-view prop shot、45-degree view、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、solid color background、no people、no background elements、no scene environment。
 - [ ] 已逐条消费 `references/design-output-contract.md`。
 - [ ] 已解析 `PROP-BUNDLE-01`，且 required slots 均有证据位置或 blocking finding。
 - [ ] 已按 `references/workflow-supervision-contract.md` 记录 provider/local checklist/merge。
@@ -131,7 +131,7 @@ finding:
 - 未解析 `PROP-BUNDLE-01`，或 required slot 缺少证据位置且未形成 blocking finding。
 - `references/workflow-supervision-contract.md` 要求的 provider/local checklist/merge 记录为空。
 - 摄影字段或 prompt 把道具置入具体场景、桌面环境、室内陈设、街景、人物手持情境或背景元素。
-- 缺少 close-up、45-degree view、full prop in view、prop only、solid color background、no people、no background elements 或 no scene environment 约束。
+- 缺少 full-view prop shot、45-degree view、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、solid color background、no people、no background elements 或 no scene environment 约束，或把画面写成局部特写、裁切特写、半截道具。
 - 默认顾问与复核流程启用时，缺少 `advisor_consultation_packet`，或顾问问题没有绑定当前 `node_id / pass_id / gate_id`，或顾问意见没有转成节点级判断、执行取舍、局部 patch 或风险提示。
 - 脚本替代 LLM 生成核心创作正文。
 - 输出越过本技能授权范围。

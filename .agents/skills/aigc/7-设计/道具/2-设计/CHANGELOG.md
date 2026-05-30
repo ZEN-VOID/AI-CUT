@@ -1,5 +1,11 @@
 # Changelog: aigc 道具 2-设计
 
+## 2026-05-28
+
+- 将固定画面约束从“近景特写”修正为“完整全貌展示”：默认要求 `full-view prop shot`、`full prop in view`、`entire prop fully visible`、`uncropped full silhouette`。
+- 同步更新 `SKILL.md`、`CONTEXT.md`、`references/prop-design-contract.md`、`steps/prop-design-workflow.md`、`review/review-contract.md`、模板、README、structured masterprompt 与 `agents/openai.yaml`。
+- 新增阻断口径：局部特写、裁切特写、半截道具画面不满足道具 2-设计固定画面要求。
+
 ## 2026-05-01
 
 - 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。

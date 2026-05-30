@@ -33,6 +33,9 @@ route_policies:
   - id: aigc-root-entry
     trigger: AIGC 创作项目初始化、阶段切换、续跑、总入口判定
     rule: "优先进入 `.agents/skills/aigc/SKILL.md`，由根技能路由到一个明确阶段"
+  - id: aigc-workflow-sword6-entry
+    trigger: 命中 `sword6`、`workflow/sword6`、要求针对 AIGC 项目特定分集启用 subagents，从 `2-编剧` 连续执行到 `6-分组`，或明确要求主窗口只负责 subagent 调用、完成追踪和下一阶段触发
+    rule: "进入 `.agents/skills/aigc/workflow/sword6/SKILL.md`；锁定 `projects/aigc/<项目名>/` 与具体分集，按 `2-编剧 -> 3-导演 -> 4-表演 -> 5-摄影 -> 6-分组` 串行阶段链运行，每阶段一集一个后台隔离 subagent。主窗口只写 workflow ledger、dispatch packet 和 completion report；阶段正文仍由对应阶段技能 subagent 写入 canonical 目录。"
   - id: story-root-entry
     trigger: story2026 小说项目初始化、阶段切换、续跑、总入口判定，或命中 `projects/story/<项目名>/`
     rule: "优先进入 `.agents/skills/story/SKILL.md`，由根技能路由到一个明确阶段；小说项目 canonical runtime 固定为 `projects/story/<项目名>/`。"
@@ -308,4 +311,19 @@ workflow_carriers:
     validation_carrier: projects/aigc/<项目名>/validation-report.md
     learning_carrier: projects/aigc/<项目名>/learning-record.md
     governance_mirror: .codex/state/tasks/<task_id>/
+    mirror_policy: canonical-first
+  - id: aigc-workflow-sword6-runtime
+    applies_to: aigc-workflow-sword6-entry
+    contract_mode: active
+    canonical_runtime_root: projects/aigc/<项目名>/
+    workflow_root: projects/aigc/<项目名>/workflow/sword6/<run_id>/
+    run_ledger: projects/aigc/<项目名>/workflow/sword6/<run_id>/run-ledger.yaml
+    dispatch_packets: projects/aigc/<项目名>/workflow/sword6/<run_id>/dispatch/
+    completion_report: projects/aigc/<项目名>/workflow/sword6/<run_id>/completion-report.md
+    stage_outputs:
+      - projects/aigc/<项目名>/2-编剧/第N集.md
+      - projects/aigc/<项目名>/3-导演/第N集.md
+      - projects/aigc/<项目名>/4-表演/第N集.md
+      - projects/aigc/<项目名>/5-摄影/第N集.md
+      - projects/aigc/<项目名>/6-分组/第N集.md
     mirror_policy: canonical-first

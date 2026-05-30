@@ -19,6 +19,8 @@
     "canonical_reference_order",
     "reference_order_check",
     "reference_mapping_check",
+    "left_input_edges",
+    "image_placeholder_map",
     "subject_bindings",
     "libtv_images",
     "status"
@@ -79,6 +81,8 @@
           "canvas_node_name": { "type": "string" },
           "node_key": { "type": "string" },
           "url": { "type": "string" },
+          "image_index": { "type": "integer", "minimum": 1 },
+          "placeholder": { "type": "string", "pattern": "^\\{\\{Image [0-9]+\\}\\}$" },
           "usage": { "type": "string" },
           "binding_status": { "enum": ["active_reused", "uploaded", "manual_bound", "missing", "ambiguous", "excluded_due_to_budget"] },
           "registry_key": { "type": "string" },
@@ -90,13 +94,50 @@
         "additionalProperties": true
       }
     },
+    "left_input_edges": {
+      "type": "array",
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["image_index", "placeholder", "yaml_name", "category", "node_key"],
+        "properties": {
+          "image_index": { "type": "integer", "minimum": 1 },
+          "placeholder": { "type": "string", "pattern": "^\\{\\{Image [0-9]+\\}\\}$" },
+          "yaml_name": { "type": "string" },
+          "category": { "enum": ["角色", "场景", "道具"] },
+          "node_key": { "type": "string" },
+          "canvas_node_name": { "type": "string" },
+          "url": { "type": "string" },
+          "connect_status": { "enum": ["planned", "connected", "verified", "failed"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "image_placeholder_map": {
+      "type": "array",
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["image_index", "placeholder", "yaml_name", "node_key"],
+        "properties": {
+          "image_index": { "type": "integer", "minimum": 1 },
+          "placeholder": { "type": "string", "pattern": "^\\{\\{Image [0-9]+\\}\\}$" },
+          "yaml_name": { "type": "string" },
+          "node_key": { "type": "string" },
+          "verified_by": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
     "libtv_images": {
       "type": "array",
       "maxItems": 9,
       "items": {
         "type": "object",
-        "required": ["yaml_name", "node_key", "url", "usage"],
+        "required": ["image_index", "placeholder", "yaml_name", "node_key", "url", "usage"],
         "properties": {
+          "image_index": { "type": "integer", "minimum": 1 },
+          "placeholder": { "type": "string", "pattern": "^\\{\\{Image [0-9]+\\}\\}$" },
           "yaml_name": { "type": "string" },
           "category": { "enum": ["角色", "场景", "道具"] },
           "node_key": { "type": "string" },
@@ -108,7 +149,10 @@
     },
     "excluded_from_libtv_images": { "type": "array" },
     "excluded_due_to_budget": { "type": "array" },
-    "sessionId": { "type": "string" },
+    "execution_id": { "type": "string" },
+    "groupNodeKey": { "type": "string" },
+    "video_node_key": { "type": "string" },
+    "executor_skill": { "const": ".agents/skills/cli/libTV" },
     "status": { "enum": ["planned", "submitted", "completed", "blocked", "needs_rework", "placeholder"] }
   },
   "additionalProperties": true

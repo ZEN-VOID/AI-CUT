@@ -1,0 +1,4 @@
+interface:
+  display_name: "BYKJ 05 场景提取"
+  short_description: "从 BYKJ 02 剧本处理输出中提取场景标题、slugline，并生成场景设计规格 JSON。"
+  default_prompt: "使用 $aigc-bykj-scene-extraction，根据 output/[项目名]/02-剧本处理/ 的处理后剧本生成 output/[项目名]/05-资产提取/场景提取/ 下的 场景清单.json、场景提取报告.json 和 manifest.json。"

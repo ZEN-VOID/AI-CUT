@@ -1,0 +1,4 @@
+interface:
+  display_name: "BYKJ 02 剧本处理"
+  short_description: "把任意小说或剧本处理为整合编剧、导演、表演能力的 BYKJ 02 阶段输出。"
+  default_prompt: "使用 $aigc-bykj-script-processing，根据我指定的小说或剧本生成 output/[项目名]/02-剧本处理/ 下的剧本处理稿、执行报告和 manifest。"

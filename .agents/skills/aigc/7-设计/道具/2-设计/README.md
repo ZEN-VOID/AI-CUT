@@ -53,11 +53,11 @@
 - 脚本只做机械读取、路径、安全文件名和格式检查。
 - 本包不修改 registry、父级目录、角色设计、场景设计、`1-清单` 或 `3-生成`。
 - 研究必须转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain。
-- 固定为纯色背景单道具近景特写、45 度视角，完整展示道具全貌。
+- 固定为纯色背景单道具完整全貌展示、45 度视角，完整展示道具全貌、完整轮廓和主要结构；不得做局部特写、裁切特写或半截道具画面。
 - 仅展示道具本体，不置身剧情场景、桌面环境、室内陈设、街景或人物手持情境，不出现人物或背景元素。
 - `## 4. 解构` 下方必须先写 `主体ID号：<主体ID>`，并与 `## 5. 提示词设计` 主体 ID、英文 prompt 开头保持一致。
 - 输出文档文件名必须带同一主体 ID 前缀，例如 `PROP-001-<安全文件名>.md`；若上游已有主体 ID，则沿用该 ID。
 - 最终英文整合 prompt 的整合对象是 `## 4. 解构` 的全部有效 Photography 与 Prop Design 信息；只拼主体 ID、风格、物品、固定画面词或负向词等前缀/后缀不算完成。
 - 英文 prompt 必须控制在 1300 characters 内，并使用自然语言负向约束，不得使用 Midjourney `--no` 参数。
-- 英文 prompt 必须以主体 ID 号开头，并包含 `close-up prop shot, 45-degree view, full prop in view, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
+- 英文 prompt 必须以主体 ID 号开头，并包含 `full-view prop shot, 45-degree view, full prop in view, entire prop fully visible, uncropped full silhouette, prop only, solid color background, no people, no background elements, no scene environment` 等等价约束。
 - `design-output-contract.md`、`design-slot-review-contract.md` 和 `workflow-supervision-contract.md` 必须进入入口加载、执行节点和 review gate，不得作为旁路文档漂移。

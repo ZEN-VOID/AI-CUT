@@ -30,7 +30,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-07` | 批量生成的 Skill 2.0 包只有文字合同，缺关键 Mermaid 拓扑 | 包治理层 | 在根 `SKILL.md` 补 `Visual Maps`，在 `references/`、`types/`、`review/` 补来源、分流和汇流图 | README 固定可视化入口索引，后续维护先检查图谱再改流程 | `rg '```mermaid'` 能看到根图、steps 图和关键分区图 |
 | `TM-PROP-DESIGN-08` | 研究写了很多，但 prompt 看不出研究贡献 | 证据链层 | 把研究拆成 source cue、confidence、visual translation、prompt token | 模板固定研究证据链和 Prompt Evidence Chain | prompt 核心 token 能回指研究、物语或解构字段 |
 | `TM-PROP-DESIGN-09` | 冷门考据被写成确定事实，后续美术和生成都跟着错 | 不确定性治理层 | 将事实分为 source_fact / inference / inspired_by / unknown | references 固定 confidence 和 risk_uncertainty 字段 | 不确定内容以 inspired by 或 uncertain 标注，不进入确定性 design lock |
-| `TM-PROP-DESIGN-10` | Photography 或英文 prompt 只写特写和纯色背景，但没有要求道具全貌、仅道具、无人物和无背景元素 | 固定画面约束层 | 补 full prop in view、prop only、no people、no background elements | 在 `SKILL.md`、模板、references、review gate 同步固定完整道具全貌约束 | Photography 和英文 prompt 均明确完整展示道具全貌，仅展示道具 |
+| `TM-PROP-DESIGN-10` | Photography 或英文 prompt 写成局部特写、裁切特写或半截道具，只强调纯色背景但没有要求完整全貌、仅道具、无人物和无背景元素 | 固定画面约束层 | 补 full-view prop shot、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、no people、no background elements | 在 `SKILL.md`、模板、references、review gate 同步固定完整道具全貌约束，并禁止局部特写 | Photography 和英文 prompt 均明确完整展示道具全貌、完整轮廓和主要结构，仅展示道具 |
 
 ## Repair Playbook
 
@@ -54,7 +54,7 @@ last_checked_at: 2026-04-25
 - 研究进一步升级的关键不是增加资料量，而是建立 `source cue -> confidence -> visual translation -> design lock -> prompt token` 的短链路。
 - `confirmed` 才能变成硬锁定；`probable` 和 `inferred` 应写进设计倾向；`uncertain` 更适合成为风险注记或 inspired-by 表达。
 - `Photography` 关注镜头如何让物件被看见；`Prop Design` 关注物件本身如何被制造、持握、老化和辨认。
-- `Photography` 和英文 prompt 必须同时锁定完整道具全貌与单主体隔离：full prop in view、prop only、no people、no background elements，避免生成半截道具、人物手持或场景化背景。
+- `Photography` 和英文 prompt 必须同时锁定完整道具全貌与单主体隔离：full-view prop shot、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、no people、no background elements，避免生成局部特写、裁切特写、半截道具、人物手持或场景化背景。
 - 物语不应替代剧情扩写；它只说明该道具的叙事压力、象征和使用痕迹。
 - 大师监制上下文要落到动作：例如材质克制、构图距离、颜色禁区、年代错位、手作痕迹、功能暴露。
 - 顾问请教的最佳产物不是固定字段答案或大师名字清单，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。

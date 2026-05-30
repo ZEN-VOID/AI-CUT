@@ -1,0 +1,4 @@
+interface:
+  display_name: "BYKJ 03 智能分集"
+  short_description: "把 BYKJ 02 剧本处理输出拆成可供后续阶段消费的分集稿、总表、报告和 manifest。"
+  default_prompt: "使用 $aigc-bykj-episode-split，根据 output/[项目名]/02-剧本处理/ 的剧本处理输出生成 output/[项目名]/03-智能分集/ 下的分集总表、episodes、执行报告和 manifest。"

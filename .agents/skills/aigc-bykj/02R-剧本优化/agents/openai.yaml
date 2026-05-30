@@ -1,0 +1,4 @@
+interface:
+  display_name: "BYKJ 02R 剧本优化"
+  short_description: "承接 02-剧本处理产物，按用户个人自然语言、概念、需求或局部目标进行二次剧本调优。"
+  default_prompt: "使用 $aigc-bykj-script-optimization，基于我指定的 output/[项目名]/02-剧本处理/ 产物或粘贴片段，先归一我的自然语言调优意图，再生成 output/[项目名]/02R-剧本优化/ 下的优化稿、优化报告和 manifest。"

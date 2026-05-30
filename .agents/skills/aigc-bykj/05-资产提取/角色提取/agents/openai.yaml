@@ -1,0 +1,4 @@
+interface:
+  display_name: "BYKJ 05 角色提取"
+  short_description: "从 BYKJ 02 剧本处理输出中提取角色清单，合并别名，并生成角色设计规格 JSON。"
+  default_prompt: "使用 $aigc-bykj-character-extraction，根据 output/[项目名]/02-剧本处理/ 的处理后剧本生成 output/[项目名]/05-资产提取/角色提取/ 下的 角色清单.json、角色提取报告.json 和 manifest.json。"

@@ -191,6 +191,14 @@ active_skills:
         contract_status: active
         route_role: stage
         migration_note: current Chinese generated-footage review stage; consumes 9-视频 actual videos and may repair owning 6-分组 groups.
+    workflow_index:
+      - id: aigc-workflow-sword6
+        path: .agents/skills/aigc/workflow/sword6
+        owner_office: shangshu
+        governance_domain: bingbu
+        contract_status: active
+        route_role: workflow_orchestrator
+        purpose: 针对 AIGC 项目特定分集，真实启用后台隔离 subagents，按 `2-编剧 -> 3-导演 -> 4-表演 -> 5-摄影 -> 6-分组` 串行阶段链执行；主窗口只做派发、追踪、汇流和下一阶段触发。
     satellite_index:
       - id: aigc-query
         path: .agents/skills/aigc/query

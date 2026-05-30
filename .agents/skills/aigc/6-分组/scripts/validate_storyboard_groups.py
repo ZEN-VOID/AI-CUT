@@ -2,7 +2,7 @@
 """Mechanically validate AIGC storyboard group Markdown files.
 
 This script is intentionally read-only. It checks structure, rough word
-limits, explicit shot-duration sums, group IDs, required establishing-shot and
+limits, explicit shot-duration sums, group IDs, required entry-shot and
 connector fields, YAML stats, and connector shape. It does not generate grouping
 decisions or creative text.
 """
@@ -35,7 +35,7 @@ STATS_COUNT_RE = re.compile(r"(\d+)")
 SHOT_DURATION_RE = re.compile(r"分镜\d+（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）")
 OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
 STYLE_LINE_COUNT = 3
-ESTABLISHING_SHOT_LABEL = "定场镜头："
+ENTRY_SHOT_LABEL = "入场镜头："
 TAIL_FRAME_REPLAY_MARKERS = (
     "上一组末帧",
     "上一组尾帧",
@@ -334,8 +334,8 @@ def extract_label_block_content(body: str, label: str, stop_labels: tuple[str, .
     return ""
 
 
-def extract_composition_partition_content(establishing_content: str, label: str) -> str:
-    lines = establishing_content.splitlines()
+def extract_composition_partition_content(entry_content: str, label: str) -> str:
+    lines = entry_content.splitlines()
     for index, line in enumerate(lines):
         stripped = line.strip()
         if not (stripped == label or stripped.startswith(label)):
@@ -367,9 +367,9 @@ def extract_composition_partition_content(establishing_content: str, label: str)
     return ""
 
 
-def composition_partition_label_indices(establishing_content: str) -> list[int | None]:
+def composition_partition_label_indices(entry_content: str) -> list[int | None]:
     indices: list[int | None] = []
-    lines = establishing_content.splitlines()
+    lines = entry_content.splitlines()
     for label in COMPOSITION_PARTITION_LABELS:
         label_index: int | None = None
         for index, line in enumerate(lines):
@@ -683,31 +683,31 @@ def validate_file(path: Path) -> ValidationResult:
             errors.append(f"{prefix} group scene title must contain exactly one scene title, not a transition")
         elif leading_scene_numbers[:1] != [group.scene]:
             errors.append(f"{prefix} scene title must start with 场景{group.scene}")
-        establishing_line = leading_lines[1][1] if len(leading_lines) >= 2 else ""
-        establishing_content = extract_label_block_content(
+        entry_line = leading_lines[1][1] if len(leading_lines) >= 2 else ""
+        entry_content = extract_label_block_content(
             group.body,
-            ESTABLISHING_SHOT_LABEL,
+            ENTRY_SHOT_LABEL,
             stop_labels=(VISUAL_TONE_LABEL,),
         )
-        if len(leading_lines) < 2 or not establishing_line.startswith(ESTABLISHING_SHOT_LABEL):
+        if len(leading_lines) < 2 or not entry_line.startswith(ENTRY_SHOT_LABEL):
             errors.append(
-                f"{prefix} must include {ESTABLISHING_SHOT_LABEL} immediately after the scene title line"
+                f"{prefix} must include {ENTRY_SHOT_LABEL} immediately after the scene title line"
             )
-        elif not establishing_content:
-            errors.append(f"{prefix} empty {ESTABLISHING_SHOT_LABEL}")
+        elif not entry_content:
+            errors.append(f"{prefix} empty {ENTRY_SHOT_LABEL}")
         elif group_index > 0 and not any(
-            marker in establishing_content for marker in TAIL_FRAME_REPLAY_MARKERS
+            marker in entry_content for marker in TAIL_FRAME_REPLAY_MARKERS
         ):
             errors.append(
-                f"{prefix} {ESTABLISHING_SHOT_LABEL} must include a concrete previous tail-frame replay entry using one of {TAIL_FRAME_REPLAY_MARKERS}"
+                f"{prefix} {ENTRY_SHOT_LABEL} must include a concrete previous tail-frame replay entry using one of {TAIL_FRAME_REPLAY_MARKERS}"
             )
-        if establishing_content:
-            if COMPOSITION_LABEL not in establishing_content:
+        if entry_content:
+            if COMPOSITION_LABEL not in entry_content:
                 errors.append(
-                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include {COMPOSITION_LABEL} before {VISUAL_TONE_LABEL}"
+                    f"{prefix} {ENTRY_SHOT_LABEL} must include {COMPOSITION_LABEL} before {VISUAL_TONE_LABEL}"
                 )
             partition_contents = {
-                label: extract_composition_partition_content(establishing_content, label)
+                label: extract_composition_partition_content(entry_content, label)
                 for label in COMPOSITION_PARTITION_LABELS
             }
             missing_partition_labels = [
@@ -715,9 +715,9 @@ def validate_file(path: Path) -> ValidationResult:
             ]
             if missing_partition_labels:
                 errors.append(
-                    f"{prefix} {ESTABLISHING_SHOT_LABEL} must include all six non-empty composition partitions in order: {COMPOSITION_PARTITION_LABELS}; missing {missing_partition_labels}"
+                    f"{prefix} {ENTRY_SHOT_LABEL} must include all six non-empty composition partitions in order: {COMPOSITION_PARTITION_LABELS}; missing {missing_partition_labels}"
                 )
-            partition_indices = composition_partition_label_indices(establishing_content)
+            partition_indices = composition_partition_label_indices(entry_content)
             if all(index is not None for index in partition_indices):
                 concrete_indices = [index for index in partition_indices if index is not None]
                 if concrete_indices != sorted(concrete_indices):
@@ -736,7 +736,7 @@ def validate_file(path: Path) -> ValidationResult:
             prohibited_labels = PROHIBITED_GROUP_SUBJECT_LABEL_RE.findall(head_text)
             if prohibited_labels:
                 errors.append(
-                    f"{prefix} group head must integrate subject info into {ESTABLISHING_SHOT_LABEL}, not use structured labels {sorted(set(prohibited_labels))}"
+                    f"{prefix} group head must integrate subject info into {ENTRY_SHOT_LABEL}, not use structured labels {sorted(set(prohibited_labels))}"
                 )
 
         scene_numbers = extract_scene_numbers(group.body)
@@ -793,15 +793,15 @@ def validate_file(path: Path) -> ValidationResult:
             )
         if char_count > HARD_CHAR_COUNT:
             errors.append(
-                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
+                f"{prefix} estimated scene-title-entry-shot-visual-tone-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
             )
         elif char_count > TARGET_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
+                f"{prefix} estimated scene-title-entry-shot-visual-tone-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
             )
         if char_count < MIN_REVIEW_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated scene-title-establishing-shot-visual-tone-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
+                f"{prefix} estimated scene-title-entry-shot-visual-tone-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
         validate_yaml_stats(group, char_count, duration_seconds, errors, warnings)

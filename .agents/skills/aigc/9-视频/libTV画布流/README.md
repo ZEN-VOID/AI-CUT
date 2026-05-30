@@ -1,35 +1,76 @@
 # AIGC 9-视频 / libTV画布流
 
-## 目录树
+`libTV画布流` 是 AIGC 视频阶段的 LibTV 计划层技能包。它把 `6-分组` 的组级 prompt、主体参照、时长规格和证据链整理成可执行计划，再把真实执行交给 `.agents/skills/cli/libTV`。
+
+## Directory
 
 ```text
 libTV画布流/
-├── references/
-├── scripts/
-├── templates/
-├── review/
-├── steps/
-├── knowledge-base/
-├── types/
 ├── agents/
-│   └── openai.yaml
+├── knowledge-base/
+├── references/
+│   ├── official-libtv-cli-handoff.md
+│   ├── canvas-asset-management.md
+│   ├── subject-reference-flow.md
+│   └── storyboard-reference-flow.md
+├── review/
+├── scripts/
+├── steps/
+├── templates/
+├── types/
 ├── CHANGELOG.md
 ├── CONTEXT.md
 ├── README.md
 └── SKILL.md
 ```
 
-## 快速说明
+## Position
 
-- 默认路线：主体参照流。
-- 输入真源：`projects/aigc/<项目名>/6-分组/第N集.md`。
-- 主体绑定：使用 `主体绑定表` 固定 `yaml_name -> node_key -> URL`。
-- 调用层：通过本技能 `.env` wrapper 转调用 `.agents/skills/cli/libTV` 官方脚本，不改官方逻辑。
-- 证据链：项目级 active registry + 组级 manifest / submit plan / queue record / 执行报告。
-- 交付策略：生成物默认沉淀在 LibTV 画布；显式要求时才下载。
+- 本技能负责：路线判断、`6-分组` 提取、主体绑定、duration/spec 投影、manifest、submit plan、queue record、CLI handoff plan、review gate。
+- `.agents/skills/cli/libTV` 负责：登录、账号、项目、分组、节点、上传、模型 schema、运行、下载。
+- 本技能不再维护旧会话接口脚本或本地凭据包装器。
 
-## 快速入口
+## Default Output
+
+证据工件写入：
 
 ```text
-使用 $aigc-video-libtv-canvas-flow，为 projects/aigc/<项目名>/6-分组/第N集.md 生成 LibTV 画布视频任务。
+projects/aigc/<项目名>/9-视频/libTV画布流/第N集/
+```
+
+典型文件：
+
+```text
+<分镜组ID>-subject-reference-manifest.json
+<分镜组ID>-libtv-submit-plan.json
+<分镜组ID>-queue-record.json
+<分镜组ID>-cli-handoff-plan.md
+<分镜组ID>-执行报告.md
+```
+
+显式下载的视频命名为：
+
+```text
+<分镜组ID>.mp4
+```
+
+## CLI Handoff
+
+执行前读取：
+
+```text
+.agents/skills/cli/libTV/SKILL.md
+.agents/skills/cli/libTV/commands/*.md
+.agents/skills/cli/libTV/node-types/*.md
+```
+
+常见执行命令由 CLI skill 裁决：
+
+```bash
+libtv account info
+libtv project use "<projectUuid>"
+libtv group "<group>" -p "<projectUuid>"
+libtv upload "<name>" -p "<projectUuid>" -g "<group>" -f "/path/to/ref.png"
+libtv node "<group_id>" -p "<projectUuid>" -g "<group>" -t video --prompt "<clean prompt>"
+libtv node "<group_id>" -p "<projectUuid>" -g "<group>" --run
 ```

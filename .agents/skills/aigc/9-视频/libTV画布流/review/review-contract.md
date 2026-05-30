@@ -1,47 +1,59 @@
-# Review Contract
+# Review Contract: libTV画布流
+
+本 review 合同检查 `libTV画布流` 是否完成计划层职责，并是否正确把真实执行交给最新版 `.agents/skills/cli/libTV`。
+
+## Review Gates
+
+| gate_id | gate | pass condition | fail code |
+| --- | --- | --- | --- |
+| `REV-LIBTVCANVAS-01` | route | 路线唯一；默认主体参照流，分镜参照流只在显式指定时占位 | `FAIL-ROUTE` |
+| `REV-LIBTVCANVAS-02` | group source | 目标 `## x-y-z` 分镜组原文和 fenced YAML 可回指；连接件跳过 | `FAIL-GROUP-SOURCE` |
+| `REV-LIBTVCANVAS-03` | subject binding | 主体绑定表只来自 YAML `角色 / 场景 / 道具`，含 `yaml_name/category/node_key/url` | `FAIL-SUBJECT-BINDING` |
+| `REV-LIBTVCANVAS-04` | duration/spec | duration 4-15 秒 clamp，规格默认 720p / 16:9 或用户显式覆盖 | `FAIL-DURATION-SPEC` |
+| `REV-LIBTVCANVAS-05` | prompt hygiene | 创作 prompt 只含分镜组正文、完整 YAML 和已验证 `{{Image N}}` 主体引用，不含执行诊断 | `FAIL-PROMPT-HYGIENE` |
+| `REV-LIBTVCANVAS-06` | reference budget | 单组参考图 <= 9；预算排除有记录 | `FAIL-REFERENCE-BUDGET` |
+| `REV-LIBTVCANVAS-07` | official CLI handoff | 使用 `.agents/skills/cli/libTV` 的 `libtv` 命令；无旧会话接口 / HTTP fork | `FAIL-OFFICIAL-HANDOFF` |
+| `REV-LIBTVCANVAS-08` | download policy | 默认不下载；显式下载才计划或执行 `libtv download` | `FAIL-DOWNLOAD-POLICY` |
+| `REV-LIBTVCANVAS-09` | evidence artifacts | manifest、submit plan、queue record、CLI handoff plan、执行报告路径完整 | `FAIL-EVIDENCE` |
+| `REV-LIBTVCANVAS-10` | reference mode | 有可用参考图时显式 `mixed2video` 或经模型 schema 等价确认；不得静默 text2video fallback | `FAIL-REFERENCE-MODE` |
+| `REV-LIBTVCANVAS-11` | prompt identity | 保留上游场景/镜头身份、镜头先行顺序、方向参照和光线结果 | `FAIL-PROMPT-IDENTITY` |
+| `REV-LIBTVCANVAS-12` | active registry | `projectUuid::category::yaml_name` active 唯一；替换时旧记录 inactive | `FAIL-ACTIVE-REGISTRY` |
+| `REV-LIBTVCANVAS-13` | CLI auth boundary | 检查登录状态只用 `libtv account info` 摘要，不输出 token/credentials | `FAIL-CLI-AUTH` |
+| `REV-LIBTVCANVAS-14` | plan/execution boundary | 本技能只做计划；真实执行记录显示由 `.agents/skills/cli/libTV` 承接 | `FAIL-PLAN-EXECUTION-BOUNDARY` |
+| `REV-LIBTVCANVAS-15` | left input order | `left_input_edges[]`、`image_placeholder_map[]`、queried left input order 三者一致；`{{Image N}}` 编号可验证 | `FAIL-LEFT-INPUT-ORDER` |
+
+## Verdict Model
+
+```yaml
+verdict: pass | blocked | needs_rework
+route: subject_reference_flow | storyboard_reference_flow | prompt_only | query_or_download | repair_or_review
+fail_codes: []
+rework_targets: []
+evidence:
+  manifest: ""
+  submit_plan: ""
+  queue_record: ""
+  cli_handoff_plan: ""
+  report: ""
+```
 
 ## Required Checks
 
-| check_id | target | pass condition | fail code |
-| --- | --- | --- | --- |
-| `REV-LIBTVCANVAS-01` | route | 默认主体参照流；分镜参照流仅显式选择且当前占位 | `FAIL-ROUTE` |
-| `REV-LIBTVCANVAS-02` | group source | 每个任务可回指 `6-分组/第N集.md` 的 `## x-y-z` | `FAIL-GROUP-SOURCE` |
-| `REV-LIBTVCANVAS-03` | subject binding | `主体绑定表` 含 `yaml_name / node_key / URL / usage` | `FAIL-BINDING` |
-| `REV-LIBTVCANVAS-04` | image order safety | 远端消息声明图序冲突时以绑定表为准 | `FAIL-ORDER-SAFETY` |
-| `REV-LIBTVCANVAS-05` | duration | 按 YAML 估算并 clamp 到 4-15 秒 | `FAIL-DURATION` |
-| `REV-LIBTVCANVAS-06` | default spec | 未显式覆盖时为 `720p`、`16:9` | `FAIL-SPEC` |
-| `REV-LIBTVCANVAS-07` | official handoff | 使用 `.agents/skills/cli/libTV/scripts/` 官方脚本 | `FAIL-OFFICIAL-HANDOFF` |
-| `REV-LIBTVCANVAS-08` | download policy | 默认不下载；显式下载才调用 `download_results.py` | `FAIL-DOWNLOAD-POLICY` |
-| `REV-LIBTVCANVAS-09` | source fidelity | prompt 主体直接采用 `6-分组` 组正文；未回到 `5-摄影` / `3-Detail` 重写 | `FAIL-SOURCE-FIDELITY` |
-| `REV-LIBTVCANVAS-10` | YAML subject baseline | 主体只来自组底 YAML `角色 / 场景 / 道具`，没有正文泛词扩展 | `FAIL-YAML-SUBJECT` |
-| `REV-LIBTVCANVAS-11` | prompt optimization | `allow_libtv_prompt_optimization=false`，除非用户显式 opt-in 且记录在 plan/queue/report | `FAIL-PROMPT-OPT` |
-| `REV-LIBTVCANVAS-12` | active URL reuse | 同画布同 YAML 名 active URL 优先复用；替换/更新才上传 | `FAIL-ACTIVE-URL-REUSE` |
-| `REV-LIBTVCANVAS-13` | visual disambiguation | 多候选先发送候选图到窗口做视觉消歧，无法唯一才 ambiguous | `FAIL-DISAMBIGUATION` |
-| `REV-LIBTVCANVAS-14` | reference budget | `images[]` / `mixedList` <= 9；超限有排除记录，不可压缩则不得提交 | `FAIL-REFERENCE-BUDGET` |
-| `REV-LIBTVCANVAS-15` | env loading | 调用官方脚本前自动加载 `.env` 中的 `LIBTV_ACCESS_KEY` | `FAIL-ENV-LOADING` |
-| `REV-LIBTVCANVAS-16` | active registry | `libtv-canvas-active-registry.json` 使用 `projectUuid::category::yaml_name` 主键；同名 active 唯一；替换时旧记录 inactive | `FAIL-ACTIVE-REGISTRY` |
-| `REV-LIBTVCANVAS-17` | manifest schema | 每组 manifest 含主体绑定、候选/消歧证据、预算排除、进入 LibTV 图片且 `libtv_images <= 9` | `FAIL-MANIFEST` |
-| `REV-LIBTVCANVAS-18` | submit plan / queue | submit plan 与 queue record 同步记录 opt-in、wrapper、官方脚本、download=false 和阻断/提交状态 | `FAIL-QUEUE-EVIDENCE` |
-| `REV-LIBTVCANVAS-19` | official canvas asset detail | 上传资产时创建可见 resource node；默认 `素材图片` 时按官方细则修正 `name/data.name`，不新建重复节点 | `FAIL-CANVAS-ASSET-DETAIL` |
-| `REV-LIBTVCANVAS-20` | reference generation mode | 有可用参考图时，远端消息显式请求“全能参考 / 多图主体参考生成视频”，并含真实 `URL + node_key + yaml_name + 用途` | `FAIL-REFERENCE-MODE` |
-| `REV-LIBTVCANVAS-21` | no silent text fallback | 参考图预处理/审核失败时状态为 `needs_rework / reference_asset_review_failed`；无用户显式授权不得降级为纯文生视频 | `FAIL-SILENT-TEXT-FALLBACK` |
-| `REV-LIBTVCANVAS-22` | prompt hygiene | `create_generation_task.params.prompt` 不包含内部诊断、负面占位句、执行锁、生成参数、主体绑定表或 missing/excluded 状态，如 `本轮不提交任何参考图 URL`、`参考图审核失败`、`改为纯文生视频` | `FAIL-PROMPT-HYGIENE` |
-| `REV-LIBTVCANVAS-23` | prompt assembly structure | handoff message 与 `params.prompt` 分层；handoff 可包含执行/绑定元信息，`params.prompt` 只含分镜正文 + 底部完整 YAML + 主体 `@` 引用 | `FAIL-PROMPT-STRUCTURE` |
-| `REV-LIBTVCANVAS-24` | YAML subject projection | 组底 YAML 完整保留在 `params.prompt` 底部；已绑定主体在正文首次出现处和 YAML 对应主体名后插入画布 `@` 资产引用 / node mention | `FAIL-YAML-PROJECTION` |
-| `REV-LIBTVCANVAS-25` | no duplicated style/audio | 不重复追加 `StyleBible`、`StyleBible_Summary`、声音、字幕、背景音乐约束；无 `其中，...` 尾部复述 | `FAIL-PROMPT-DUPLICATION` |
-| `REV-LIBTVCANVAS-26` | no generic subject substitution | 不用 `角色与道具按原文生成`、泛化人物身份或泛化道具描述替代 YAML 主体绑定 | `FAIL-GENERIC-SUBJECT-SUBSTITUTION` |
-| `REV-LIBTVCANVAS-27` | standard modeType | `modeType` 显式为 Seedance 2.0 标准称谓之一；主体参照流默认 `mixed2video`；指定类型时 manifest/plan/queue/prompt/tool params 一致 | `FAIL-STANDARD-MODETYPE` |
-| `REV-LIBTVCANVAS-28` | prompt lock natural language | `allow_libtv_prompt_optimization=false` 同时出现在字段和 handoff message 自然语言锁定句中，明确禁止优化、重排、摘要、压缩、改写或补镜头，并要求 `params.prompt` 严格等于分镜正文 + 完整 YAML | `FAIL-PROMPT-LOCK` |
-| `REV-LIBTVCANVAS-29` | canvas @ asset mentions | `分镜组原文` 与底部 YAML 中已绑定 YAML 主体后插入 LibTV 画布 `@` 资产引用 / node mention（标准名称待官方确认）；引用绑定来自 `主体绑定表` 的 `canvas_node_name / node_key / URL`，不依赖上传图片顺序、`Image N` 或 `imageList` 顺序，且不得伪造成普通文本解释、URL 注释或 `{{Portrait N}}`；无法验证时记录 `at_asset_mention_unverified` | `FAIL-CANVAS-AT-ASSET-MENTION` |
-| `REV-LIBTVCANVAS-30` | remote prompt fidelity after query | 查询结果中的实际 `create_generation_task.params.prompt` 未被压缩、摘要、重排、改写为优化版单段 prompt，且未混入执行锁、生成参数、主体绑定表、missing/excluded 诊断；若发生则标记 `needs_rework / remote_prompt_rewritten_or_polluted` | `FAIL-REMOTE-PROMPT-REWRITTEN` |
-| `REV-LIBTVCANVAS-31` | duplicate subject reference | 同一 YAML 主体默认只进入一张参照图；除非用户显式要求多视图或多版本对比，`imageList/mixedList` 不含同主体重复图 | `FAIL-DUPLICATE-SUBJECT-REFERENCE` |
-| `REV-LIBTVCANVAS-32` | canonical reference order | `subject_bindings`、`source_node_keys`、`source_node_url_mapping`、`imageList/mixedList` 按 YAML `角色` 原顺序 -> `场景` 原顺序 -> `道具` 原顺序的选中子集排列；不得按上传顺序、画布创建时间、本地文件扫描顺序或 `Portrait N` 排列 | `FAIL-REFERENCE-ORDER` |
-| `REV-LIBTVCANVAS-33` | reference mapping consistency | 查询到的 `source_node_url_mapping` 中每个 `node_key/url` 与主体绑定表的 `yaml_name/category` 一一对应；不得用数组第 N 项反推主体 | `FAIL-REFERENCE-MAPPING` |
-| `REV-LIBTVCANVAS-34` | scene/shot identity order preservation | 实际 `params.prompt` 保留上游定场、场景/镜头身份、镜头先行顺序、机位高度、低角度/贴地前景/前景虚化/手持微晃/透视拉伸等观看选择、观众发现路径、方向参照、光线结果和分镜句序；未被改写成“人物做了什么”的动作摘要 | `FAIL-LIBTVCANVAS-PROMPT-IDENTITY` |
+1. `rg` 或等价扫描本轮输出，不得出现旧会话接口命令、旧项目切换命令、旧文件上传命令、旧下载命令或旧本地凭据包装器。
+2. submit plan 必须含 `cli_handoff.executor_skill: .agents/skills/cli/libTV`。
+3. CLI handoff plan 必须能回指 `.agents/skills/cli/libTV` 的命令文档或 `libtv --help`。
+4. 若执行已完成，queue record 必须记录 project / group / node / command summary，而不是旧会话 ID 作为主执行证据。
+5. 若没有执行，只能报告 plan-only 或 blocked，不得说视频已生成。
+6. 有参考图时，submit plan 必须包含 `left_input_edges[]` 和 `image_placeholder_map[]`；执行后 queue record 必须记录 `queried_left_input_order_verified=true` 或阻断原因。
+7. `video_node.params.prompt` 中出现的每个 `{{Image N}}` 必须能在 `image_placeholder_map[]` 中找到唯一主体绑定；不得出现未登记编号。
 
-## Verdict
+## Rework Targets
 
-- `PASS`: 所有必查项通过。
-- `BLOCKED`: 必需输入或主体绑定缺失。
-- `PLACEHOLDER`: 用户选择了分镜参照流，但该流尚未实现。
-- `REWORK`: LibTV 远端返回主体错绑、参考顺序/URL 映射不一致、工具错误、内容审核拦截、任务停滞，或实际 `params.prompt` 被远端压缩改写/混入 handoff 元信息。
+| fail code | rework target |
+| --- | --- |
+| `FAIL-OFFICIAL-HANDOFF` | `references/official-libtv-cli-handoff.md`、`steps/libtv-canvas-workflow.md` |
+| `FAIL-CLI-AUTH` | `.agents/skills/cli/libTV/commands/login.md`、`.agents/skills/cli/libTV/commands/account.md` |
+| `FAIL-PLAN-EXECUTION-BOUNDARY` | `SKILL.md Runtime Guardrails`、`scripts/README.md` |
+| `FAIL-EVIDENCE` | `templates/submit-plan-template.md`、`templates/queue-record-template.md`、`templates/output-template.md` |
+| `FAIL-PROMPT-HYGIENE` | `references/subject-reference-flow.md` |
+| `FAIL-LEFT-INPUT-ORDER` | `references/subject-reference-flow.md`、`templates/libtv-remote-prompt-template.md` |
