@@ -4,8 +4,8 @@
 
 允许脚本承担：
 
-- 读取 `4-分组/第N集.md` 并抽取 `group_id`、line range、hash。
-- 检查 `6-图像/B-分镜故事板/第N集/images/<group_id>.*` 是否存在。
+- 读取 `5-分组/第N集.md` 并抽取 `group_id`、line range、hash。
+- 检查 `7-图像/B-分镜故事板/第N集/images/<group_id>.*` 是否存在。
 - 投影 `第N集-libtv-batch.yaml`、queue ledger、results JSON。
 - 机械生成或校验 `storyboard_uploads` 与 `generation_slots`：前者只记录 `group_id/storyboard_sheet -> uploaded_url`，后者记录 `UI 图1/imageList[0] -> uploaded_url -> 故事板总参照`；若 UI 槽位可观测，必须保留 `slot_source` 并以 UI 图1 为准。
 - 按 YAML 调用 `LIBTV_ACCESS_KEY credential check`、`create_session.py`、`upload_file.py + create_session.py`、`query_session.py`。

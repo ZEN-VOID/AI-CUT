@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30
+
+- Added latest Skill 2.0 runtime guardrails with permission boundaries, self-modification prohibitions, anti-injection rules, and violation response protocol.
+- Converted `SKILL.md` Output Contract to validator-readable five-field bullets and added guardrail/provider references.
+- Added `Review Gate Mapping` to chapter drafting reference rules and expanded review dimensions for security, runtime behavior, integration, and convergence.
+- Reworked `types/type-map.md` to remove placeholder/glob paths and use concrete validator anchors while preserving dynamic题材目录 selection.
+- Corrected DeepSeek provider references to skill-relative paths for loading simulation and smoke validation.
+
 ## 2026-04-27
 
 - Standardized repair authorship: `local_repair`, `chapter_rewrite`, review返工和卷级修复优化仍必须由 DeepSeek provider 执行正文创作性改写。

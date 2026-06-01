@@ -72,7 +72,7 @@
 12. 输出路径固定为 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。
 13. actual creative step 必须调用 `scripts/polish_chapter_via_doubao.py`，并由它继续调用 `doubao_seed_chat.py`。
 14. 正式写作默认启动 team supervision subagents；GPT/subagents 只做监制包与 prompt 约束，正文仍由 Doubao provider 执行。
-15. 用户显式要求 subagents 模式时，必须按 `../SKILL.md` 的 `Subagent Review-Optimize Contract` 调度 `story/review` 维度子技能；不同审计点分别由结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚等子技能审计，并在同轮注入 Doubao messages 直接执行最小优化。
+15. 用户显式要求 subagents 模式时，必须按 `../SKILL.md` 的 `Subagent Review-Optimize Contract` 调度 `story/review` 维度子技能；不同审计点分别由结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚、文体读感等子技能审计，并在同轮注入 Doubao messages 直接执行最小优化。
 16. 若目标章已存在，`auto` 不得静默转为正式覆写；必须由用户显式选择 `polish_rewrite` 或 `local_repair`，且正式写回必须传入 `--force`。
 17. `local_repair` 必须提供 review finding、局部问题描述或补充约束，并把修补范围限制在 finding 指向的最小必要区域。
 18. 若豆包返回内容不含完整可解析 YAML frontmatter、`润色模型` 不等于 `Doubao`、正文过短、仍含模板占位或缺少 `# 第N章｜章标题` 标题行，必须判定为 provider output invalid，禁止直接写回业务真源。
@@ -102,3 +102,17 @@ YAML 头至少包含：
 - 正文主体不得保留“本章故事概要 / 本章冲突 / 规避”之类 planning 标题。
 - 章末必须对齐当前章 planning 的 `exit_hook / 对下章的直接推动 / 章末达成` 中至少一项强义务。
 - 当前技能默认不落盘 provider artifacts；业务真源只有 canonical 润色章节文件。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否锁定唯一项目根、卷章、`3-初稿` 源章和 canonical `4-润色` 输出路径？ | `context_loading` / `path_contract` | `FAIL-DRAFT-SOURCE` | `N1-SOURCE-LOCK`、`Input Contract` | source lock note、源章路径、输出路径 |
+| 是否真实加载 planning、global/style/north-star、项目 `MEMORY.md`、项目 `CONTEXT/` 与同目录 `CONTEXT.md`？ | `context_loading` / `source_alignment` | `FAIL-DRAFT-CONTEXT` | `N3-CONTEXT-PACK` | messages pack refs、north_star 摘要、项目上下文加载清单 |
+| 上一章存在时是否形成连续性桥，且不存在时没有硬阻断？ | `continuity` | `FAIL-DRAFT-CONTINUITY` | `N3-CONTEXT-PACK`、`N5*` | previous chapter ref、continuity bridge 摘要 |
+| 是否保留初稿骨架和文本分布，没有无授权整章重排、短句化清洗或通用顺滑化？ | `minimal_repair` / `prose_quality` | `FAIL-DRAFT-PROMPT` | `N4-DRAFT-BRANCH`、`N5*` | diff 摘要、修补范围说明 |
+| Doubao provider 是否真实命中，且失败时没有静默回退到 GPT 直写？ | `provider_evidence` / `script_boundary` | `FAIL-DRAFT-PROVIDER` | `N6-PROVIDER-DRAFT`、`scripts/polish_chapter_via_doubao.py` | messages pack、raw output、provider report |
+| 显式 subagents 模式是否完成 review 维度审计并通过 Doubao 同轮直接优化正文？ | `review_subagent_packets` | `FAIL-DRAFT-REVIEW-SUBAGENTS` | `N3R-REVIEW-SUBAGENT-AUDIT`、`N5D-REPAIR-PROMPT` | dimension packets、repair brief、provider 优化证据 |
+| 覆盖既有章节时是否有显式 mode、`--force` 与回读现稿？ | `overwrite_safety` | `FAIL-DRAFT-WRITEBACK` | `N2-TYPE-PROFILE`、`N7-VALIDATE-WRITEBACK` | overwrite authorization、existing draft ref |
+| 输出是否满足极简 frontmatter、标题、完整正文和写回路径？ | `frontmatter` / `path_contract` | `FAIL-DRAFT-WRITEBACK` | `N7-VALIDATE-WRITEBACK`、`templates/output-template.md` | final chapter path、frontmatter check、heading check |
+| 是否加载并遵守 guardrails，且无注入、provider 身份漂移或越权写入？ | `security` / `runtime_behavior` | `FAIL-DRAFT-PROVIDER` | `guardrails/guardrails-contract.md`、`types/guardrail-setup.md` | guardrail loaded note、injection scan、provider evidence |

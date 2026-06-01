@@ -17,9 +17,9 @@
 | --- | --- |
 | `project_root` | `projects/aigc/<项目名>/` |
 | `episode_id` | `第N集` 或等价稳定集号 |
-| `stage_slug` | `2-编剧`、`3-导演`、`4-表演`、`5-摄影`、`6-分组` |
+| `stage_slug` | `2-编导`、`3-运动`、`4-摄影`、`5-分组` |
 | `stage_skill` | `.agents/skills/aigc/<stage>/SKILL.md` |
-| `input_path` | 上一阶段 canonical 文件；`2-编剧` 读取 `1-分集/第N集.md` |
+| `input_path` | 上一阶段 canonical 文件；`2-编导` 读取 `1-分集/第N集.md` |
 | `output_path` | 当前阶段 canonical `第N集.md` |
 | `context_bundle` | 阶段 `SKILL.md + CONTEXT.md`、项目 `MEMORY.md`、相关项目 `CONTEXT/` |
 | `completion_gate` | 阶段 review contract 中对该集的通过条件 |

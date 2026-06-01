@@ -600,6 +600,30 @@ def test_character_validator_defers_dialogue_only_issues_until_step5(tmp_path):
     assert any(item.get("rework_target_step") == "5-对白优化" for item in step5_result["issues"])
 
 
+def test_prose_style_validator_flags_ai_formula_and_telling():
+    module = _load_module()
+    result = module._run_prose_style(
+        ctx={
+            "chapter": 14,
+            "manuscript_text": (
+                "---\n写作模型: Doubao\n字数: 900字\n---\n\n"
+                "# 第14章｜旧祠堂\n\n"
+                "总之，这意味着本章任务完成。换句话说，他很震惊，脸色大变。"
+                "镜头一转，李青感到愤怒，但事情的经过是线索终于出现。"
+                "由此可见，接下来他必须面对新的问题。"
+            ),
+            "current_step_id": "Step 8",
+        },
+        role_id="prose-style-validator",
+        spec={},
+        validation_context="final_acceptance",
+    )
+
+    assert result["pass"] is False
+    assert result["metrics"]["ai_formula_hits"] >= 3
+    assert any(item.get("rework_target_step") == "8-润色" for item in result["issues"])
+
+
 def test_review_runner_final_acceptance_writes_aggregate_json(tmp_path):
     module = _load_module()
     _seed_project(

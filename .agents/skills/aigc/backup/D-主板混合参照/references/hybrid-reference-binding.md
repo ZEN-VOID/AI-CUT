@@ -6,8 +6,8 @@
 
 查找路径：
 
-1. `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/<group_id>.*`
-2. `projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/<group_id>.*`
+1. `projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集/images/<group_id>.*`
+2. `projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集/<group_id>.*`
 
 允许扩展名：`png`、`jpg`、`jpeg`、`webp`。
 
@@ -28,9 +28,9 @@
 
 设计图查找路径：
 
-- `projects/aigc/<项目名>/5-设计/角色/3-生成/`
-- `projects/aigc/<项目名>/5-设计/场景/3-生成/`
-- `projects/aigc/<项目名>/5-设计/道具/3-生成/`
+- `projects/aigc/<项目名>/6-设计/角色/3-生成/`
+- `projects/aigc/<项目名>/6-设计/场景/3-生成/`
+- `projects/aigc/<项目名>/6-设计/道具/3-生成/`
 
 优先级：
 
@@ -49,8 +49,8 @@
 
 每次执行 D 路线都必须先从当前项目本地生成目录重新解析参照真源：
 
-1. 故事板总参照从当前 `6-图像/B-分镜故事板` 目录 fresh resolve。
-2. 主体参照从当前 `5-设计/角色|场景|道具/3-生成` 目录 fresh resolve。
+1. 故事板总参照从当前 `7-图像/B-分镜故事板` 目录 fresh resolve。
+2. 主体参照从当前 `6-设计/角色|场景|道具/3-生成` 目录 fresh resolve。
 3. 对每个进入 LibTV 的图片记录 `resolved_from_current_generation_dir: true`、`source_sha256`、`source_size_bytes`、`source_mtime_ns` 和候选集合。
 4. 只有当缓存记录的 `path + source_sha256 + source_size_bytes + source_mtime_ns` 与当前 fresh resolve 文件完全匹配时，才允许复用 cached uploaded URL。
 5. 本地源图缺失、指纹缺失或指纹不匹配时，该 URL 必须判定为 `stale_cached_upload`，不得进入 `mixedList`、final fenced YAML 绑定或 submit plan `images[]`。
@@ -61,7 +61,7 @@
 {
   "group_id": "1-1-1",
   "storyboard_total_reference": {
-    "path": "projects/aigc/<项目名>/6-图像/B-分镜故事板/第1集/images/1-1-1.png",
+    "path": "projects/aigc/<项目名>/7-图像/B-分镜故事板/第1集/images/1-1-1.png",
     "marker": "@图1",
     "role": "storyboard_total_reference",
     "resolved_from_current_generation_dir": true,
@@ -73,7 +73,7 @@
     {
       "subject_type": "角色",
       "subject_name": "林夏",
-      "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/林夏/多视图.png",
+      "path": "projects/aigc/<项目名>/6-设计/角色/3-生成/林夏/多视图.png",
       "marker": "uploaded_url_binding",
       "yaml_binding": {"name": "林夏", "reference_index": 1, "uploaded_url": "", "image_token": "{{Image 1}}"},
       "selected_variant": "multi_view",
@@ -103,11 +103,11 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 故事板总参照是否只按当前 `6-图像/B-分镜故事板/第N集/images/<group_id>.*` 与同集根层 `<group_id>.*` 两级路径查找，且只接受真实 `png/jpg/jpeg/webp` 图片？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `references/hybrid-reference-binding.md#Storyboard-Total-Reference` | storyboard search roots、candidate list、extension filter、selected path |
+| 故事板总参照是否只按当前 `7-图像/B-分镜故事板/第N集/images/<group_id>.*` 与同集根层 `<group_id>.*` 两级路径查找，且只接受真实 `png/jpg/jpeg/webp` 图片？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `references/hybrid-reference-binding.md#Storyboard-Total-Reference` | storyboard search roots、candidate list、extension filter、selected path |
 | 故事板候选是否唯一；无命中是否只记录 `storyboard_missing_optional` 并移除空图片槽，多命中是否阻断该组等待用户或上游清理？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` | unique/missing/multiple verdict、blocked reason、manifest `missing[]` |
 | 故事板总参照是否只作为整组总参照写入 `storyboard_total_reference`，没有被挂到某个角色、场景或道具主体后，也没有在 draft prompt 阶段预写槽位字段？ | `GATE-VIDHYB-REF-01` | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `N5-PROMPT-ASSEMBLE` | manifest role、draft prebinding scan、final `故事板参照` diff |
 | 主体清单是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有从组正文泛词、标题、旁白或历史 manifest 自动扩展主体？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md#Subject-References` | YAML subject list、rejected body-derived candidates、subject source trace |
-| 主体图片是否只从当前 `5-设计/角色、场景、道具/3-生成` 对应类型目录解析，没有用角色图替代道具图、用场景图替代角色图或跨类型兜底？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` | per-type search roots、candidate type、selected image path、cross-type rejection notes |
+| 主体图片是否只从当前 `6-设计/角色、场景、道具/3-生成` 对应类型目录解析，没有用角色图替代道具图、用场景图替代角色图或跨类型兜底？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` | per-type search roots、candidate type、selected image path、cross-type rejection notes |
 | 参照选择是否优先多视图或 multiview，其次主图/单图/封面图，并明确拒绝 JSON、Markdown、prompt 文件或目录占位冒充图片？ | `GATE-VIDHYB-REF-02` | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` | selected_variant、candidate ranking、non-image rejection list |
 | 每个进入 LibTV 的故事板或主体图片是否从当前本地生成目录 fresh resolve，并记录 `resolved_from_current_generation_dir: true`、`source_sha256`、`source_size_bytes`、`source_mtime_ns`？ | `GATE-VIDHYB-REF-03` | `FAIL-VIDHYB-STALE-REFERENCE-ASSET` | `N3-STORYBOARD-BIND` / `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md#Fresh-Local-Resolution-And-Upload-Cache` | fresh resolution record、fingerprint fields、source file stat |
 | 上传缓存是否只在当前 fresh resolve 的 `path + source_sha256 + source_size_bytes + source_mtime_ns` 完全匹配时复用，且没有按主体名、group_id、文件名或旧 URL 直接命中？ | `GATE-VIDHYB-REF-03` | `FAIL-VIDHYB-STALE-REFERENCE-ASSET` | `N3-STORYBOARD-BIND` / `N4-SUBJECT-BIND` | cache lookup key、fingerprint comparison、stale cache rejection |

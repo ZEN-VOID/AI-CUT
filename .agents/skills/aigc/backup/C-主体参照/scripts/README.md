@@ -1,6 +1,6 @@
 # Scripts
 
-本目录只承载机械辅助脚本，例如解析 `4-分组`、校验图片路径、投影 LibTV submit plan、更新 queue ledger。
+本目录只承载机械辅助脚本，例如解析 `5-分组`、校验图片路径、投影 LibTV submit plan、更新 queue ledger。
 
 脚本不得承担以下职责：
 

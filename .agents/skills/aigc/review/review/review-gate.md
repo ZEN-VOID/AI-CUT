@@ -36,15 +36,15 @@
 
 | review_gate | dimension | fail_code | blocking_condition |
 | --- | --- | --- | --- |
-| `GATE-DIM-DA-01` | `设计对位` | `FAIL-DA-01` | 未锁定同一 fact pack 下的 `4-分组` 与 `5-设计` canonical refs。 |
+| `GATE-DIM-DA-01` | `设计对位` | `FAIL-DA-01` | 未锁定同一 fact pack 下的 `5-分组` 与 `6-设计` canonical refs。 |
 | `GATE-DIM-DA-02` | `设计对位` | `FAIL-DA-01` | 场景、角色、道具清单或设计脱离分组 truth。 |
 | `GATE-DIM-DA-03` | `设计对位` | `FAIL-DA-01` | 设计审美、研究补充或 provider 偏好覆盖 upstream constraint。 |
 | `GATE-DIM-DA-04` | `设计对位` | `FAIL-DA-02` | list、design、panel / generation handoff 的主体 ID、路径或 slot bundle 不一致。 |
 | `GATE-DIM-DA-05` | `设计对位` | `FAIL-DA-02` | 下游缺少可消费设计包或 handoff readiness 不成立。 |
 | `GATE-DIM-DA-06` | `设计对位` | `FAIL-DA-03` | 对位问题未归因到 list、design、panel/generation 或 upstream group。 |
 | `GATE-DIM-DA-07` | `设计对位` | `FAIL-DA-03` | 维度 sidecar 越权写最终 route/status 或缺少聚合字段。 |
-| `GATE-DIM-DE-01` | `分镜执行连续性` | `FAIL-DE-01` | 未锁定同一 scope 的编导、摄影、分组真源与 validator evidence。 |
-| `GATE-DIM-DE-02` | `分镜执行连续性` | `FAIL-DE-01` | 编导、摄影、分组链路无法逐层追溯或镜头/组编号错位。 |
+| `GATE-DIM-DE-01` | `分镜执行连续性` | `FAIL-DE-01` | 未锁定同一 scope 的编导、运动、摄影、分组真源与 validator evidence。 |
+| `GATE-DIM-DE-02` | `分镜执行连续性` | `FAIL-DE-01` | 编导、运动、摄影、分组链路无法逐层追溯或镜头/组编号错位。 |
 | `GATE-DIM-DE-03` | `分镜执行连续性` | `FAIL-DE-01` | 组镜连续性断裂、吞 beat、重复镜头、越组外溢或 atomic unit 截断。 |
 | `GATE-DIM-DE-04` | `分镜执行连续性` | `FAIL-DE-01` | 时长、对白/动作负载、节奏或 AIGC 视频可执行性不一致。 |
 | `GATE-DIM-DE-05` | `分镜执行连续性` | `FAIL-DE-02` | 分组 handoff carrier 不稳定，不能安全交给下游。 |
@@ -77,7 +77,7 @@
 | `GATE-DIM-VD-04` | `视频交付就绪` | `FAIL-VD-01` | 主板混合参照未同时满足故事板总参照与主体参照绑定，或 slots 与 uploads 错层。 |
 | `GATE-DIM-VD-05` | `视频交付就绪` | `FAIL-VD-01` | motion、duration、audio expectation 或 reference continuity 未达到 provider 可执行门槛。 |
 | `GATE-DIM-VD-06` | `视频交付就绪` | `FAIL-VD-02` | provider handoff pack 缺官方执行路径、submit plan、brief/final YAML、queue/session 或 output root。 |
-| `GATE-DIM-VD-07` | `视频交付就绪` | `FAIL-VD-03` | 视频交付问题未归因到 B/C/D 路线或上游图像、设计、分组 owner。 |
+| `GATE-DIM-VD-07` | `视频交付就绪` | `FAIL-VD-03` | 视频交付问题未归因到 B/C/D 路线、`9-审片` 或上游图像、设计、分组 owner。 |
 | `GATE-DIM-VD-08` | `视频交付就绪` | `FAIL-VD-03` | 维度 sidecar 越权写最终 route/status 或直接修改视频/provider/上游文件。 |
 
 ## Parent Contract Review Gates

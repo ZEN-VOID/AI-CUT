@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30
+
+- Synced with latest `skill-工作车间` Skill 2.0 delivery contract.
+- Added `guardrails/guardrails-contract.md` and `Runtime Guardrails` markers in `SKILL.md`.
+- Renamed the review truth to canonical `review/review-contract.md` and updated path references.
+- Rebuilt `types/type-map.md` as a loadable Package Index that points to `types/book-level-type-map.md`.
+- Extended review dimensions with `security`, `runtime_behavior`, `integration`, and `convergence`.
+
 ## 2026-04-29
 
 - Added explicit project `team.yaml` advisor consultation contract for subagents-enabled book-level planning.

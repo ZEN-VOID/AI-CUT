@@ -25,8 +25,8 @@ recommended_action: keep-repair-heuristics-only
 | --- | --- | --- | --- | --- |
 | 只改下游提示词，下一轮又生成旧事实 | source owner drift | 回到最早 owning stage 修源层，再同步下游 | repair 必须先做 source rule review 和 impact map | 旧口径在上游无正向残留 |
 | 中文润色把镜头事实、对白或角色动作顺手改了 | polish overreach | 限定润色只处理表达、节奏和可读性 | 豆包 task packet 写明 forbidden changes | 事实、对白、顺序和镜头编号一致 |
-| 审片 finding 直接改 `6-分组`，没有回看 `5-摄影` | review route shortcut | 先判断缺陷源于视频、图像、分组还是摄影 | review finding 必须映射 source owner | repair report 列出 source_rules_reviewed |
-| 多个子技能包互相覆盖同一资产口径 | cross-stage consumer drift | 建 impact map，列出上游、同层、下游和 future guardrail | `7-设计`、`8-图像`、`9-视频` 修复统一走 owner route | 所有消费者引用同一新版对象 |
+| 审片 finding 直接改 `5-分组`，没有回看 `4-摄影` | review route shortcut | 先判断缺陷源于视频、图像、分组还是摄影 | review finding 必须映射 source owner | repair report 列出 source_rules_reviewed |
+| 多个子技能包互相覆盖同一资产口径 | cross-stage consumer drift | 建 impact map，列出上游、同层、下游和 future guardrail | `6-设计`、`7-图像`、`8-视频` 修复统一走 owner route | 所有消费者引用同一新版对象 |
 | 豆包调用失败但报告声称已执行 | provider evidence gap | 记录 provider-failed-local-plan，不宣称 provider 执行 | `provider_evidence` 必填文本和 report 路径或阻断原因 | evidence 路径存在或失败说明明确 |
 | repair 只做结构化正确，但中文仍像翻译腔/工程腔 | local expression miss | 将中文润色和本土语境创意交给豆包执行 lane | 在 `doubao_task_packet` 写明中文气口、本土文化语境和目标受众 | review 包含 `local_chinese_fit` |
 | 生成资产返工被写成“修改图片/视频文件” | asset truth confusion | repair 只失效、重建任务或路由生成 leaf | 图像/视频结果由 owning provider/leaf 生成 | asset action 是 preserve / invalidate / regenerate |
@@ -46,10 +46,10 @@ recommended_action: keep-repair-heuristics-only
 ## Reusable Heuristics
 
 - AIGC repair 的核心产物不是 patch，而是 `source_rules_reviewed + impact_map + writeback_order`。
-- 越靠后的产物越像症状：图像/视频失败常常源自 `6-分组` 的组内连续性、`7-设计` 的资产锚点或 `5-摄影` 的镜头语言。
+- 越靠后的产物越像症状：图像/视频失败常常源自 `5-分组` 的组内连续性、`6-设计` 的资产锚点或 `4-摄影` 的镜头语言。
 - “更好看”不是合法修复目标；必须翻译成阶段合同可验收的目标，例如表演更可见、镜头更连续、场景锚点更稳定、提示词更可执行。
 - 豆包适合做中文分析、表达润色、结构化 repair brief 和创意候选；最终 canonical 写回仍由 owning stage 合同裁决。
 - 本技能的差异化价值在“双模型分工”：当前模型负责工程化治理，豆包负责中文语境、本土文化气息和创意表达主执行。
 - 对多个子技能包输出物做整体调整时，先找共同源层，不要逐个文件局部打补丁。
-- `10-审片` 的 finding 是证据入口，不是自动改稿权；它要回到 `6-分组`、`5-摄影`、`8-图像` 或 `9-视频` 的 owner route。
+- `9-审片` 的 finding 是证据入口，不是自动改稿权；它要回到 `5-分组`、`4-摄影`、`7-图像` 或 `8-视频` 的 owner route。
 - 若用户要求“以后都按这个口味”，优先写项目 `MEMORY.md`；若只是本次返工，不要污染长期记忆。

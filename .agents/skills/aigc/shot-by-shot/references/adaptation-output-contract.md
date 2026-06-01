@@ -1,18 +1,19 @@
 # AIGC Adaptation Output Contract
 
-本文件定义 `shot-by-shot` 如何把参考片逐镜分析转成 `0-初始化`、`2-编导`、`3-摄影`、`5-设计` 与分镜生产可消费的项目解析文档。
+本文件定义 `shot-by-shot` 如何把参考片逐镜分析转成 `0-初始化`、`2-编导`、`3-运动`、`4-摄影`、`6-设计` 与分镜生产可消费的项目解析文档。
 
 ## Bridge Principle
 
 `shot-by-shot` 的桥接输出是 side context，不是 canonical rewrite。
 
 - `2-编导` 拥有剧本化投影、表演任务、场面调度和声画字段主真源。
-- `3-摄影` 拥有 `分镜明细：` 注入、镜头节拍、摄影语法和下游 payload 主真源。
-- `5-设计` 的角色、场景、道具 `2-设计` 子技能拥有正式设计稿、研究到提示词证据链和画面合同主真源。
+- `3-运动` 拥有角色运动的起点、路径、终点、参照系与跨画面连续性主真源。
+- `4-摄影` 拥有 `分镜明细：` 注入、镜头节拍、摄影语法和下游 payload 主真源。
+- `6-设计` 的角色、场景、道具 `2-设计` 子技能拥有正式设计稿、研究到提示词证据链和画面合同主真源。
 - `0-初始化` 拥有 `north_star.yaml` 中 `全局风格 / 细分风格 / 类型元素` 的长期项目真源。
-- `shot-by-shot` 只提供临摹原则、参考证据和转换建议，落点是 `shot-by-shot/<reference_slug>/` 目录下的 `全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`分镜脚本.md`。
+- `shot-by-shot` 只提供临摹原则、参考证据和转换建议，落点是 `shot-by-shot/<reference_slug>/` 目录下的 `全局风格解析.md`、`编剧风格解析.md`、`运动风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`分镜脚本.md`。
 - 统一输出路径：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`，不再写入 `CONTEXT/shot-by-shot/<reference_slug>/`。
-- canonical 解析文件名为：`全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`分镜脚本.md`。
+- canonical 解析文件名为：`全局风格解析.md`、`编剧风格解析.md`、`运动风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`分镜脚本.md`。
 - 旧文件名 `画面风格解析.md`、`编导解析.md`、`摄影解析.md`、`设计解析.md` 仅可作为 legacy mirror，不再作为主输出合同。
 
 ## Global Style Compatible Packet
@@ -72,6 +73,28 @@
 
 - 机位、景别、焦段、镜头运动、`分镜N`、`分镜明细：`、`分镜提示词`
 - 参考片具体台词、角色关系、剧情事件、标志性画面复制
+
+## Motion Compatible Packet
+
+输出文件：`运动风格解析.md`。
+
+允许字段：
+
+| field | requirement |
+| --- | --- |
+| `reference_frame_seed` | 可迁移参考系，例如桌沿、门框、走廊中线、角色站位、镜头内固定物 |
+| `motion_origin_seed` | 主体运动起点与身体/道具初态 |
+| `motion_path_seed` | 主体或道具从起点到终点的可观察路径、方向、相位和遮挡关系 |
+| `motion_destination_seed` | 运动终点、停顿姿态、落点、接触面和下一画面可承接状态 |
+| `previous_state_carryover_seed` | 上一画面最终位置或状态如何约束当前画面动作 |
+| `downstream_cinematography_note` | 给 `4-摄影` 的连续性提醒，不写成镜头参数终稿 |
+| `do_not_import` | 不得导入参考片专属动作编排、打斗招式、构图复刻或角色姿势复制 |
+
+禁止字段：
+
+- 直接改写项目 `3-运动` 正文。
+- 不看上一画面状态，凭风格印象编造动作路径。
+- 把参考片专属动作顺序、姿势组合或运动节奏逐镜复制到目标项目。
 
 ## Cinematography Compatible Packet
 
@@ -185,6 +208,13 @@ imitation_unit:
     emotion_pulse_seed: {}
     subplot_weave_seed: {}
     sound_narrative_seed: {}
+  motion_bridge:
+    reference_frame_seed: []
+    motion_origin_seed: []
+    motion_path_seed: []
+    motion_destination_seed: []
+    previous_state_carryover_seed: []
+    downstream_cinematography_note: []
   cinematography_bridge:
     visual_unit_function: ""
     beat_map_seed: []

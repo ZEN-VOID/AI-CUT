@@ -6,7 +6,7 @@
 | --- | --- |
 | Required output | 分镜组 canonical package、集级 summary、生成视频 |
 | Output format | Markdown + JSON + MP4/video assets |
-| Output path | canonical: `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/`; summary: `projects/aigc/<项目名>/7-视频/C-主体参照/第N集/` |
+| Output path | canonical: `projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/`; summary: `projects/aigc/<项目名>/8-视频/C-主体参照/第N集/` |
 | Naming convention | compact group package: `reference-manifest.json`、`prompt.md`、`libtv-submission.txt`、`libtv-submit-plan.json`、`queue.md`、`libtv-results.json`、`执行报告.md`、`<分镜组ID>.mp4`; optional full-trace: `debug/attempts/<attempt_id>/*`; episode summary: `第N集-*.json/md` |
 | Canvas link | Markdown 报告、queue summary 和最终用户回执必须返回可直接打开的 `[打开画布](<projectUrl>)`；JSON 同时保留 `projectUrl` 与 `canvasMarkdown` |
 | Completion gate | review verdict is `pass` or `pass_with_todo` |
@@ -16,7 +16,7 @@
 ## Episode Directory Shape
 
 ```text
-projects/aigc/<项目名>/7-视频/C-主体参照/第N集/
+projects/aigc/<项目名>/8-视频/C-主体参照/第N集/
 ├── groups/
 │   └── <分镜组ID>/
 │       ├── reference-manifest.json

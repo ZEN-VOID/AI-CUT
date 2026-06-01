@@ -1,13 +1,13 @@
 # Group Source Contract
 
-本文件定义 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，获取每个分镜组的完整内容，并直接作为生视频提示词主体。
+本文件定义 step1：以 `projects/aigc/<项目名>/5-分组` 为主要信息来源，获取每个分镜组的完整内容，并直接作为生视频提示词主体。
 
 ## Source Roots
 
 固定读取：
 
 ```text
-projects/aigc/<项目名>/4-分组/第N集.md
+projects/aigc/<项目名>/5-分组/第N集.md
 ```
 
 辅助上下文可读但不得覆盖组正文：
@@ -22,7 +22,7 @@ projects/aigc/<项目名>/CONTEXT/
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
 - 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
 - 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
-- `7-视频/B-分镜故事板参照` 默认完全忽略连接件块：不进入 `group_content`、视频 prompt、storyboard reference manifest、LibTV batch 或视频文件命名。
+- `8-视频/B-分镜故事板参照` 默认完全忽略连接件块：不进入 `group_content`、视频 prompt、storyboard reference manifest、LibTV batch 或视频文件命名。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 - 若组底存在 fenced YAML，应保留在索引中供审查与报告使用；视频 prompt 主体仍以完整组内容为主，不用 YAML 替代正文。
 
@@ -33,7 +33,7 @@ projects/aigc/<项目名>/CONTEXT/
 ```yaml
 group_id: "1-1-1"
 episode_id: "第1集"
-source_file: "projects/aigc/<项目名>/4-分组/第1集.md"
+source_file: "projects/aigc/<项目名>/5-分组/第1集.md"
 heading: "## 1-1-1"
 group_content: "<从标题后到下一个普通组标题或连接件标题前的现有完整内容>"
 source_body_hash: "<sha256>"
@@ -74,7 +74,7 @@ source_shot_labels: []
 
 | fail signal | rework |
 | --- | --- |
-| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
+| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `5-分组` 修复 |
 | group_content 被截断 | 重新按下一个二级标题定位边界 |
 | 连接件进入 group_content 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | 组正文被摘要或改写 | 回到本合同，恢复完整现有内容 |
@@ -84,7 +84,7 @@ source_shot_labels: []
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 本轮项目、集号和目标 `group_id` 是否只从 `projects/aigc/<项目名>/4-分组/第N集.md` 锁定，且 `MEMORY.md` / `CONTEXT/` 没有覆盖组正文？ | `GATE-SBVID-01` | `FAIL-SBVID-INPUT` | `N1-INTAKE` / `N2-CONTEXT` | input manifest 记录项目根、集号、source file、目标组范围与辅助上下文只读说明 |
+| 本轮项目、集号和目标 `group_id` 是否只从 `projects/aigc/<项目名>/5-分组/第N集.md` 锁定，且 `MEMORY.md` / `CONTEXT/` 没有覆盖组正文？ | `GATE-SBVID-01` | `FAIL-SBVID-INPUT` | `N1-INTAKE` / `N2-CONTEXT` | input manifest 记录项目根、集号、source file、目标组范围与辅助上下文只读说明 |
 | 每个目标普通分镜组是否按 `## x-y-z` 唯一识别，三段式 `group_id` 未被四段式分镜号、连接件或正文关键词替代？ | `GATE-SBVID-02` | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index 包含 `group_id`、heading、line range 或 `source_body_hash` |
 | `## x-y-z~x-y-z` 连接件是否完全排除在 `group_content`、prompt、storyboard manifest、batch 和视频命名之外？ | `GATE-SBVID-02` | `FAIL-SBVID-GROUP` | `N3-GROUP-INDEX` | group index 记录 connector headings ignored，prompt / batch 无连接件 ID |
 | `group_content` 是否从组标题后完整保留到下一个普通组、连接件或文件结尾之前，没有截断、吞并下一组或漏掉正文？ | `GATE-SBVID-03` | `FAIL-SBVID-PROMPT` | `N3-GROUP-INDEX` | source line range、body hash、prompt package 可回放完整组正文 |

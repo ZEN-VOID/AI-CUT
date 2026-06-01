@@ -39,8 +39,8 @@ This package now uses the Skill 2.0 dynamic-reference layout. `SKILL.md` is the 
 - 用户以自然语言要求“初始化影片 / 初始化电影 / 初始化影视 / 初始化视频项目 / 新建电影项目 / 电影项目起盘”等媒介明确为 film/movie/video/影视工作流的初始化。
 - Create a new AIGC film/video project under `projects/aigc/<项目名>/`.
 - Reinitialize an existing AIGC project when the user wants to return to initialization state, rebuild the north star, or discard the active direction while preserving the project shell.
-- Build `0-初始化/` through `10-审片/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
-- Lock a project-level `north_star` before entering `1-分集`, `2-编剧`, or later AIGC stages.
+- Build `0-初始化/` through `9-审片/`, project `MEMORY.md`, project `CONTEXT/`, `源/`, `team.yaml`, `STATE.json`, and the core initialization artifacts.
+- Lock a project-level `north_star` before entering `1-分集`, `2-编导`, or later AIGC stages.
 - Use `.agents/skills/team/` advisors to form a planning-led initialization council.
 
 ## When Not to Use
@@ -109,17 +109,17 @@ Use the exact canonical names in the table below. Do not create alternate names 
 
 ### Completion gate
 
-Completion requires the sufficiency gate in `review/init-review-gate.md`: one locked lineup mode, required artifacts present, source readiness represented honestly, planning direct-answer 顾问与复核流程 provenance resolved or blocked, and exactly one next-stage recommendation.
+Completion requires the sufficiency gate in `review/init-review-gate.md`: one locked lineup mode, required artifacts present, source readiness represented honestly, planning direct-answer 顾问与复核流程 provenance resolved or blocked, `team.yaml` locked as init-only synthesis, and exactly one next-stage recommendation.
 
 Required canonical writeback after sufficiency passes:
 
 | output | path | purpose | owner for detail |
 | --- | --- | --- | --- |
 | project root carriers | project root `MEMORY.md`, `CHANGELOG.md`, `CONTEXT/`, `源/`, `STATE.json` | project memory, trace, context/source, live route truth | `references/scope-and-runtime.md` |
-| north star | project initialization `north_star.yaml` | long-lived creative and production constraints, including exact `全局风格 / 细分风格 / 类型元素 / 世界观` global design blocks | `references/artifacts-and-sources.md` |
-| init handoff | project initialization `init_handoff.yaml` | next-stage seeds, unknowns, source breakdown | `references/artifacts-and-sources.md` |
+| north star | project initialization `north_star.yaml` | long-lived creative and production constraints, including `创作阶段不变量` and exact `全局风格 / 细分风格 / 类型元素 / 世界观` global design blocks | `references/artifacts-and-sources.md` |
+| init handoff | project initialization `init_handoff.yaml` | stage-entry seeds for `1-分集` and `2-编导` through `6-设计`, post-creative handoff hints, unknowns, source breakdown | `references/artifacts-and-sources.md` |
 | story source manifest | project initialization `story-source-manifest.yaml` | source readiness and coverage truth | `references/artifacts-and-sources.md` |
-| team manifest | project root `team.yaml` | lineup, roles, provenance, planning direct-answer trace | `references/mode-and-team-contract.md` |
+| team manifest | project root `team.yaml` | initialization lineup, init-only roles, planning direct-answer trace, and frozen `init_synthesis.stage_seed_summary`; no creative-stage persona runtime | `references/mode-and-team-contract.md` |
 | optional governance sidecars | `governance-state.yaml`, `mandate.yaml`, `mission-brief.yaml`, `route-plan.yaml`, `preflight-verdict.yaml`, `validation-report.md`, `learning-record.md` | only when trigger conditions apply | `references/artifacts-and-sources.md`, `review/init-review-gate.md` |
 
 Template binding for these outputs is tracked in `templates/output-template-map.md`; the final user-facing answer uses `templates/output-template.md`; shared templates remain shared and are not copied into this package.
@@ -129,6 +129,7 @@ Final user-facing answer must state:
 - locked `init_mode`
 - locked `team_lineup_mode`
 - whether planning direct-answer 顾问与复核流程 ran or blocked
+- whether `team.yaml` is locked as init-only synthesis and creative-stage persona dispatch is disabled
 - core five-piece status: `north_star`, `init_handoff`, `story-source-manifest`, `team`, `STATE`
 - lazy governance artifacts created, if any
 - exact recommended next stage and path
@@ -181,7 +182,7 @@ If the user has not clearly selected `auto` or `custom`, show the option card in
 - `selector_scope_root` 固定为 `.agents/skills/team/`。
 - planning 固定题包直答必须完成顾问与复核流程。
 - 若顾问与复核流程不可用，本轮初始化停止并报告阻塞。
-- Parent skill alone performs final canonical writeback; advisors return local patches, not parallel main drafts.
+- Parent skill alone performs final canonical writeback; initialization advisors return answer patches and synthesis inputs, not parallel main drafts or post-init persona presets.
 
 ## Core Workflow Index
 
@@ -210,9 +211,9 @@ This is an index only. Detailed node fields, branch rules, provider/checklist ga
 2. In `N0`, decide whether the request is first initialization, `rebootstrap`, or a resume/query task.
 3. In `N1`, lock `init_mode == smart_advisor` and exactly one `team_lineup_mode`.
 4. In `N2`, create the canonical project runtime skeleton, project `MEMORY.md`, `CONTEXT/`, and 同步创建项目根 `CHANGELOG.md` 作为时间序记录入口。
-5. In `N3`, build a minimal route/context packet and lock `.agents/skills/team/` as the only advisor selector root.
+5. In `N3`, build a minimal route/context packet and lock `.agents/skills/team/` as the only initialization team selector root.
 6. In `N4`, form or validate the lineup, write a `team.yaml` patch, then run `roles.planning.members` direct-answer packets with real 顾问与复核流程.
-7. In `N5`, synthesize only the patches produced by the actually selected path into `team.yaml`, `story-source-manifest.yaml`, `north_star.yaml`, `init_handoff.yaml`, and `STATE.json`.
+7. In `N5`, synthesize only the patches produced by the actually selected path into `team.yaml`, `story-source-manifest.yaml`, `north_star.yaml`, `init_handoff.yaml`, and `STATE.json`; team role identity output must become frozen initialization synthesis, not creative-stage runtime.
 8. In `N6`, create lazy governance artifacts only when triggered.
 9. In `N7`, run the sufficiency gate from `review/init-review-gate.md`. If it fails, reenter the failed node rather than writing partial canonical truth.
 
@@ -224,12 +225,13 @@ This is the entry-level execution spine. Process details, type routing, and revi
 - `selector_scope_root` is always `.agents/skills/team/`.
 - Auto lineup must first use the team root member/scenario index, then deep-read only shortlisted member skills.
 - Custom lineup may only reference members under `.agents/skills/team/`.
-- `team.yaml` is the project-level team manifest and must record init provenance, role ownership, and planning direct-answer provenance.
+- `team.yaml` is the project-level team manifest and must record init provenance, initialization role ownership, planning direct-answer provenance, `init_synthesis.stage_seed_summary`, and `runtime_policy.creative_stage_persona_dispatch_allowed == false`.
+- `team.yaml` must not write active `roles.supervision.stage_profiles` or other post-init team persona dispatch contracts for `2-编导` through `6-设计`.
 - Planning direct-answer execution is required for real initialization. If real 顾问与复核流程 are unavailable or blocked, initialization execution is blocked; local sequential imitation is not a valid substitute.
 - `source-light` projects may only write genre, tone, audience, production, and boundary constraints; story-level facts stay in `unknowns` or deferred notes.
 - `source-grounded` projects may write story-facing seeds only within the coverage of the registered source.
 - Rebootstrap defaults to `archive_reset`; never delete `源/`, source text, original assets, irreplaceable references, or legacy `Original/` without explicit user authorization.
-- `north_star.yaml` owns durable project constraints and the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`; it never owns live route truth. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
+- `north_star.yaml` owns durable project constraints, `创作阶段不变量`, and the exact global-design blocks `全局风格 / 细分风格 / 类型元素 / 世界观`; it never owns live route truth or team persona dispatch. Current route truth belongs to `STATE.json` and, when present, `governance-state.yaml`.
 - `全局风格` is the total style contract for the whole work collection. It is a union-style guidance field, not the old cross-design intersection prefix: it may contain the shared medium/era/texture baseline and conditional lighting, color, camera, material, atmosphere, motion, and negative-style rules for different scene types, as long as those rules describe reusable style logic rather than one-off plot facts.
 - `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`.
 - North-star style text defaults to Chinese. `全局风格提示词` should be a natural paragraph, usually 300-500 Chinese characters, must explicitly include the current `媒介属性` value, and must state which scene types use which matching light, color, texture, atmosphere, camera, motion, and negative-style rules. `类型元素提示词` remains capped at 30 Chinese characters; `画面风格` should stay at unified picture-style level and no longer strips scene-sensitive lighting or color logic when those rules belong to the whole work's reusable style system; `服装风格 / 建筑风格 / 物品风格` remain concise domain guidance.
@@ -242,12 +244,11 @@ Runtime bootstrap must create or verify the user-facing project skeleton below. 
 projects/aigc/<项目名>/
 ├── 0-初始化/
 ├── 1-分集/
-├── 2-编剧/
-├── 3-导演/
-├── 4-表演/
-├── 5-摄影/
-├── 6-分组/
-├── 7-设计/
+├── 2-编导/
+├── 3-运动/
+├── 4-摄影/
+├── 5-分组/
+├── 6-设计/
 │   ├── 场景/
 │   │   ├── 1-清单/
 │   │   ├── 2-设计/
@@ -260,9 +261,9 @@ projects/aigc/<项目名>/
 │       ├── 1-清单/
 │       ├── 2-设计/
 │       └── 3-生成/
-├── 8-图像/
-├── 9-视频/
-├── 10-审片/
+├── 7-图像/
+├── 8-视频/
+├── 9-审片/
 ├── 源/
 ├── CONTEXT/
 ├── CHANGELOG.md
@@ -273,33 +274,46 @@ projects/aigc/<项目名>/
 
 Story source marker: `源/` is the project-level source landing for new initialization. Historical `Original/` and `Story/` are legacy aliases and must be migrated or treated as compatibility inputs, not created by new initialization.
 
-Downstream runtime naming marker: `8-图像/`, `9-视频/` and `10-审片/` are stage roots only at initialization time. Concrete image/video/review task subdirectories are created by their owning stages when execution begins.
+Downstream runtime naming marker: `7-图像/`, `8-视频/` and `9-审片/` are stage roots only at initialization time. Concrete image/video/review task subdirectories are created by their owning stages when execution begins.
 
 Bootstrap runtime marker allowlist:
 
+- `projects/aigc/<项目名>/0-初始化/`
 - `projects/aigc/<项目名>/1-分集/`
-- `projects/aigc/<项目名>/2-编剧/`
-- `projects/aigc/<项目名>/3-导演/`
-- `projects/aigc/<项目名>/4-表演/`
-- `projects/aigc/<项目名>/5-摄影/`
-- `projects/aigc/<项目名>/6-分组/`
-- `projects/aigc/<项目名>/7-设计/`
-- `projects/aigc/<项目名>/8-图像/`
-- `projects/aigc/<项目名>/9-视频/`
-- `projects/aigc/<项目名>/10-审片/`
+- `projects/aigc/<项目名>/2-编导/`
+- `projects/aigc/<项目名>/3-运动/`
+- `projects/aigc/<项目名>/4-摄影/`
+- `projects/aigc/<项目名>/5-分组/`
+- `projects/aigc/<项目名>/6-设计/`
+- `projects/aigc/<项目名>/6-设计/场景/1-清单/`
+- `projects/aigc/<项目名>/6-设计/场景/2-设计/`
+- `projects/aigc/<项目名>/6-设计/场景/3-生成/`
+- `projects/aigc/<项目名>/6-设计/道具/1-清单/`
+- `projects/aigc/<项目名>/6-设计/道具/2-设计/`
+- `projects/aigc/<项目名>/6-设计/道具/3-生成/`
+- `projects/aigc/<项目名>/6-设计/角色/1-清单/`
+- `projects/aigc/<项目名>/6-设计/角色/2-设计/`
+- `projects/aigc/<项目名>/6-设计/角色/3-生成/`
+- `projects/aigc/<项目名>/7-图像/`
+- `projects/aigc/<项目名>/8-视频/`
+- `projects/aigc/<项目名>/9-审片/`
 - `projects/aigc/<项目名>/源/`
 - `projects/aigc/<项目名>/CONTEXT/`
+- `projects/aigc/<项目名>/MEMORY.md`
+- `projects/aigc/<项目名>/CHANGELOG.md`
+- `projects/aigc/<项目名>/STATE.json`
+- `projects/aigc/<项目名>/team.yaml`
 
 Forbidden bootstrap paths:
 
 - legacy source aliases: `Original/`, `Story/`
 - legacy English stages: `1-Planning/`, `2-Global/`, `3-Detail/`, `4-Design/`, `5-Image/`, `6-Video/`, `7-Cut/`
-- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `2-编导/`, `3-编导/`, `3-摄影/`, `4-摄影/`, `4-分组/`, `4-设计/`, `5-分组/`, `5-设计/`, `6-图像/`, `7-图像/`, `7-视频/`, `8-视频/`, `8-审片/`
+- stale Chinese numbering aliases: `1-规划/`, `2-全局/`, `3-编导/`, `3-摄影/`, `4-表演/`, `4-分组/`, `4-设计/`, `5-摄影/`, `5-设计/`, `6-分组/`, `6-图像/`, `7-设计/`, `7-视频/`, `8-图像/`, `8-审片/`, `9-视频/`, `10-审片/`
 - legacy project context aliases outside `projects/aigc/<项目名>/CONTEXT/`
 
 Project-root success criterion: 项目根 `CHANGELOG.md` 已创建，作为项目级时间序记录入口，但不承载 live route truth。
 
-Team manifest runtime marker: `projects/aigc/<项目名>/team.yaml` is created at project root and owns lineup, role provenance, and planning direct-answer trace.
+Team manifest runtime marker: `projects/aigc/<项目名>/team.yaml` is created at project root and owns initialization lineup, role provenance, planning direct-answer trace, and frozen stage seed summaries. It is not a creative-stage team persona runtime.
 
 ## Story Source Completeness Gate (Mandatory)
 
@@ -369,11 +383,11 @@ See `guardrails/guardrails-contract.md`.
 
 | field_id | owner | canonical output | required gate |
 | --- | --- | --- | --- |
-| `FIELD-INIT-01` | `N5` | `north_star.yaml` | Long-term constraints only; no route truth. |
+| `FIELD-INIT-01` | `N5` | `north_star.yaml` | Long-term constraints and `创作阶段不变量` only; no route truth or team persona runtime. |
 | `FIELD-INIT-01G` | `N5` | `north_star.yaml` | Exact global design blocks `全局风格 / 细分风格 / 类型元素 / 世界观` are present in north star. |
-| `FIELD-INIT-02` | `N5` | `init_handoff.yaml` | Stage-entry seeds, unknowns, source breakdown. |
+| `FIELD-INIT-02` | `N5` | `init_handoff.yaml` | Current stage-entry seeds, post-creative handoff hints, unknowns, source breakdown. |
 | `FIELD-INIT-03` | `N1/N3` | mode and provenance fields | `init_mode`, `team_lineup_mode`, source and decision owner are traceable. |
-| `FIELD-INIT-04` | `N4/N5` | project `team.yaml` | Advisor paths stay under `.agents/skills/team/`; planning provenance recorded. |
+| `FIELD-INIT-04` | `N4/N5` | project `team.yaml` | Team paths stay under `.agents/skills/team/`; planning provenance, init-only synthesis, and post-init persona-dispatch ban are recorded. |
 | `FIELD-INIT-05` | `N2/N5/N6` | project root carriers and optional governance | Required root files exist; lazy carriers are trigger-based. |
 | `FIELD-INIT-06` | `N7` | next-stage recommendation | Exactly one active next entry. |
 | `FIELD-INIT-07` | `N3/N4/N7` | mode topology and 顾问与复核流程 provenance | Router, lineup, direct-answer packets, and audit are internally consistent. |
@@ -389,7 +403,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | `FIELD-INIT-01G` | `north_star.yaml` | exact global design blocks | `FAIL-INIT-01G` |
 | `FIELD-INIT-02` | `init_handoff.yaml` | stage seeds and unknowns | `FAIL-INIT-02` |
 | `FIELD-INIT-03` | mode/provenance fields | mode, lineup, source trace | `FAIL-INIT-03` |
-| `FIELD-INIT-04` | `team.yaml` | advisor roles and planning provenance | `FAIL-INIT-04` |
+| `FIELD-INIT-04` | `team.yaml` | init-only team roles, planning provenance, and synthesis seed summary | `FAIL-INIT-04` |
 | `FIELD-INIT-05` | project root carriers | runtime and governance path completeness | `FAIL-INIT-05` |
 | `FIELD-INIT-06` | next-stage recommendation | one active entry | `FAIL-INIT-06` |
 | `FIELD-INIT-07` | internal topology | route, lineup, 顾问与复核流程, audit consistency | `FAIL-INIT-07` |
@@ -402,7 +416,7 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 | `N0` | `FIELD-INIT-08` | first init, rebootstrap, or resume? | lock task type and reset intent | reset misread as resume, or source deletion |
 | `N1` | `FIELD-INIT-03` | is `auto/custom` confirmed? | record mode and decision owner | artifact drafting before lock |
 | `N2` | `FIELD-INIT-05` | are root carriers and skeleton ready? | create runtime roots and project support files | missing `CHANGELOG.md`, `MEMORY.md`, `STATE.json`, `team.yaml`, `源/`, or `CONTEXT/` |
-| `N3` | `FIELD-INIT-03/07` | which lineup path and context packet? | create route and team context packets | advisor scope escapes team tree |
+| `N3` | `FIELD-INIT-03/07` | which lineup path and context packet? | create route and team context packets | team scope escapes team tree |
 | `N4` | `FIELD-INIT-01/02/04/07` | does planning have enough direct-answer material? | run lineup path and planning 顾问与复核流程 | local imitation or empty roster |
 | `N5` | `FIELD-INIT-01/02/04/05` | can patches become the five-piece set? | synthesize with provenance | north star/handoff mixed |
 | `N6` | `FIELD-INIT-05/08` | are lazy governance or reset traces needed? | write sidecars when triggered | full governance blocks a light start |
@@ -412,11 +426,11 @@ Detailed pass standards and rework entries are in `review/init-review-gate.md`.
 
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
-| `FIELD-INIT-01` | `north_star.yaml` only contains durable constraints and the exact global design blocks; it contains no live route truth | `FAIL-INIT-01` | `N4/N5` |
+| `FIELD-INIT-01` | `north_star.yaml` only contains durable constraints, `创作阶段不变量`, and the exact global design blocks; it contains no live route truth or team persona runtime | `FAIL-INIT-01` | `N4/N5` |
 | `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 细分风格 / 类型元素 / 世界观`; `全局风格` is a whole-work union style contract with reusable shared baseline plus scene-type lighting, color, texture, atmosphere, camera, motion, and negative-style rules; style text is Chinese by default and `全局风格提示词` is usually 300-500 Chinese characters | `FAIL-INIT-01G` | `N4/N5` |
-| `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, unknowns, and sources | `FAIL-INIT-02` | `N4/N5` |
+| `FIELD-INIT-02` | `init_handoff.yaml` contains current stage-entry seeds, post-creative handoff hints, unknowns, and sources | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-03` | mode and provenance are traceable | `FAIL-INIT-03` | `N1/N3` |
-| `FIELD-INIT-04` | `team.yaml` records team scope and planning provenance | `FAIL-INIT-04` | `N3/N4/N5` |
+| `FIELD-INIT-04` | `team.yaml` records team scope, planning provenance, init-only synthesis, and no active post-init persona dispatch | `FAIL-INIT-04` | `N3/N4/N5` |
 | `FIELD-INIT-05` | root carriers and triggered governance artifacts are correct | `FAIL-INIT-05` | `N2/N5/N6` |
 | `FIELD-INIT-06` | exactly one next stage is returned | `FAIL-INIT-06` | `N7` |
 | `FIELD-INIT-07` | mode, lineup, 顾问与复核流程, and audit are internally consistent | `FAIL-INIT-07` | `N3/N4/N7` |

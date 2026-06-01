@@ -6,7 +6,7 @@
 
 | package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
 | --- | --- | --- | --- | --- | --- | --- |
-| `bounded_episode_chain` | `types/bounded-episode-chain/` | 单集、少量明确集数、从 2 到 6 完整推进 | exclusive | `types/bounded-episode-chain/bounded-episode-chain.md` | `episode_batch_chain` | none |
+| `bounded_episode_chain` | `types/bounded-episode-chain/` | 单集、少量明确集数、从 2 到 5 完整推进 | exclusive | `types/bounded-episode-chain/bounded-episode-chain.md` | `episode_batch_chain` | none |
 | `episode_batch_chain` | `types/episode-batch-chain/` | 多集批处理、范围集数、每阶段多 subagents | exclusive | `types/episode-batch-chain/episode-batch-chain.md` | `bounded_episode_chain` | none |
 | `retry_from_stage` | `types/retry-from-stage/` | 续跑、重试、从某阶段继续、失败集补跑 | stackable | `types/retry-from-stage/retry-from-stage.md` | none | none |
 
@@ -14,7 +14,7 @@
 
 1. 明确单集或 1-3 集，默认 `bounded_episode_chain`。
 2. 明确连续区间或 4 集以上，默认 `episode_batch_chain`。
-3. 用户给出 `start_stage` 不是 `2-编剧`，或存在失败阶段，叠加 `retry_from_stage`。
+3. 用户给出 `start_stage` 不是 `2-编导`，或存在失败阶段，叠加 `retry_from_stage`。
 4. 类型歧义时先阻断澄清，不默认扩大批量范围。
 
 ## Default Package Rule
@@ -23,7 +23,7 @@
 
 1. 单集或 1-3 集默认加载 `bounded_episode_chain`。
 2. 4 集以上或连续区间默认加载 `episode_batch_chain`。
-3. 任意续跑、失败补跑或非 `2-编剧` 起步，叠加加载 `retry_from_stage`。
+3. 任意续跑、失败补跑或非 `2-编导` 起步，叠加加载 `retry_from_stage`。
 
 ## Loading Flow
 

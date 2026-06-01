@@ -25,7 +25,7 @@ recommended_action: keep-resume-heuristics-only
 | --- | --- | --- | --- | --- |
 | 把仓库根目录误判为项目根目录 | project-root guard | 先锁定 `projects/aigc/<项目名>/` | 在 `references/project-runtime-layout.md` 固定判定顺序 | 恢复建议基于真实项目目录 |
 | 旧英文 runtime 名泄漏到新版项目 | runtime migration layer | 将 `0-Init / 5-Image / 6-Video` 等只作为 legacy 输入兼容 | 新版 resume 默认引用中文 runtime 落点 | 输出下一入口不再指向旧路径 |
-| 设计阶段在 `4-设计` 与 `5-设计` 间漂移 | runtime transition layer | 默认恢复读取 `5-设计`，把 `4-设计` 当 transition/compat 输入 | 根技能、registry、query、review 与 resume 同步收敛设计阶段读写口径 | 恢复设计产物时不会查错目录 |
+| 设计阶段在 `4-设计` 与 `6-设计` 间漂移 | runtime transition layer | 默认恢复读取 `6-设计`，把 `4-设计` 当 transition/compat 输入 | 根技能、registry、query、review 与 resume 同步收敛设计阶段读写口径 | 恢复设计产物时不会查错目录 |
 | 只凭最近修改文件猜阶段 | evidence chain | 同时读取 `STATE.json`、初始化工件和阶段真实产物 | 在 workflow reference 固定“状态 + 产物 + gate”三证据 | 恢复结论列出证据来源 |
 | 缺 `preflight-verdict.yaml` 仍建议高风险续跑 | governance gate | 回根 `aigc` 补 preflight 或 route gate | 在 review gate 中标记高风险阻断 | 高风险恢复不会跳过 gate |
 | 把轻量初始化态一律判成治理重建 | init layering | 先确认 `STATE.json + 0-初始化/* + team.yaml` 是否完整 | 保留 `lightweight_init_continue` 模式 | 低风险下一步不会被治理补件卡死 |
@@ -47,7 +47,7 @@ recommended_action: keep-resume-heuristics-only
 ## Reusable Heuristics
 
 - `resume/` 恢复的不是聊天记忆中的上一步，而是磁盘与治理工件能够证明的最后稳定入口。
-- 对当前新版 `aigc`，中文 runtime 是默认真源：`0-初始化 / 1-分集 / 2-编导 / 3-摄影 / 4-分组 / 5-设计 / 6-图像 / 7-视频`。旧英文路径与 transition `4-设计` 只能作为迁移输入读取。
+- 对当前新版 `aigc`，中文 runtime 是默认真源：`0-初始化 / 1-分集 / 2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计 / 7-图像 / 8-视频 / 9-审片`。旧英文路径与 transition `4-设计` 只能作为迁移输入读取。
 - `STATE.json` 是轻量起盘的 live route truth；`governance-state.yaml` 是复杂恢复、review bridge 和高风险 gate 的结构化断点真源。
 - 空阶段目录只是初始化 skeleton，不是阶段完成证据。
 - 恢复建议越接近实际执行，越需要 preflight 或 review gate；越接近事实查询，越应该回 `query/`。

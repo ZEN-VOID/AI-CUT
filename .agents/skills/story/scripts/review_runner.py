@@ -44,6 +44,7 @@ ROLE_ID_TO_DIMENSION = {
     "character-validator": "人物一致性",
     "timeline-validator": "时间线",
     "task-convergence-validator": "任务汇聚",
+    "prose-style-validator": "文体读感",
 }
 
 CANONICAL_DRAFTING_STEPS = {
@@ -103,6 +104,91 @@ META_RESIDUE_MARKERS = (
     "节点",
     "时间压力落锁",
     "任务完成",
+)
+
+PROSE_SENSORY_ANCHOR_MARKERS = (
+    "风",
+    "雨",
+    "雪",
+    "雾",
+    "光",
+    "影",
+    "灯",
+    "声",
+    "响",
+    "气味",
+    "腥",
+    "潮",
+    "冷",
+    "热",
+    "疼",
+    "痛",
+    "汗",
+    "血",
+    "尘",
+    "泥",
+    "木",
+    "铁",
+    "纸",
+    "门",
+    "窗",
+    "墙",
+    "石",
+    "衣",
+    "袖",
+    "手",
+    "指",
+    "肩",
+    "背",
+    "脚",
+    "呼吸",
+    "喉",
+    "视线",
+    "步",
+    "退",
+    "停",
+    "摸",
+    "握",
+    "攥",
+    "碰",
+    "压",
+    "擦",
+)
+
+AI_FORMULA_MARKERS = (
+    "总之",
+    "换句话说",
+    "不难看出",
+    "这意味着",
+    "可以说",
+    "某种意义上",
+    "事实上",
+    "由此可见",
+    "归根结底",
+    "毋庸置疑",
+)
+
+EMOTION_TELLING_MARKERS = (
+    "很愤怒",
+    "非常愤怒",
+    "感到愤怒",
+    "很震惊",
+    "感到震惊",
+    "很害怕",
+    "感到害怕",
+    "很悲伤",
+    "感到悲伤",
+    "心中一惊",
+    "心里一惊",
+    "脸色大变",
+    "脸色惨白",
+    "脸色发白",
+    "脸都白了",
+    "脸红了",
+    "脸白了",
+    "脸绿了",
+    "脸黄了",
+    "吓得脸",
 )
 
 OUTLINE_HOOK_PATTERNS = (
@@ -181,6 +267,14 @@ def _strip_markdown_frontmatter(text: str) -> str:
         if lines[index].strip() == "---":
             return "\n".join(lines[index + 1 :]).lstrip()
     return text
+
+
+def _manuscript_body_text(text: str) -> str:
+    body = _strip_markdown_frontmatter(str(text or ""))
+    lines = body.splitlines()
+    if lines and lines[0].lstrip().startswith("#"):
+        lines = lines[1:]
+    return "\n".join(lines).strip()
 
 
 def _parse_markdown_frontmatter(text: str) -> dict[str, str]:
@@ -377,6 +471,26 @@ def _dialogue_lines(text: str) -> list[str]:
 
 def _paragraph_blocks(text: str) -> list[str]:
     return [row.strip() for row in re.split(r"\n\s*\n", str(text or "")) if row.strip()]
+
+
+def _marker_hits(text: str, markers: tuple[str, ...]) -> int:
+    return sum(str(text or "").count(marker) for marker in markers)
+
+
+def _sentence_rhythm_flattening_score(rows: list[str]) -> int:
+    lengths = [len(_normalize_match_text(row)) for row in rows if len(_normalize_match_text(row)) >= 8]
+    if len(lengths) < 10:
+        return 0
+    mean = sum(lengths) / len(lengths)
+    if mean <= 0:
+        return 0
+    variance = sum((length - mean) ** 2 for length in lengths) / len(lengths)
+    coefficient = (variance ** 0.5) / mean
+    if coefficient < 0.28:
+        return 2
+    if coefficient < 0.38:
+        return 1
+    return 0
 
 
 def _keyword_candidates(raw: Any) -> list[str]:
@@ -1428,6 +1542,149 @@ def _run_task_convergence(
     }
 
 
+def _run_prose_style(ctx: dict[str, Any], role_id: str, spec: dict[str, Any], validation_context: str) -> dict[str, Any]:
+    chapter = ctx["chapter"]
+    body = _manuscript_body_text(str(ctx["manuscript_text"] or ""))
+    rows = _paragraphs(body)
+    current_step_id = normalize_drafting_step_id(ctx.get("current_step_id"))
+
+    sensory_anchor_hits = _marker_hits(body, PROSE_SENSORY_ANCHOR_MARKERS)
+    ai_formula_hits = _marker_hits(body, AI_FORMULA_MARKERS)
+    meta_residue_hits = _marker_hits(body, META_RESIDUE_MARKERS) + _marker_hits(body, SCREENPLAY_RESIDUE_MARKERS)
+    emotion_telling_hits = _marker_hits(body, EMOTION_TELLING_MARKERS)
+    summaryish_hits = sum(1 for row in rows if any(re.search(pattern, row) for pattern in SUMMARYISH_PATTERNS))
+    rhythm_flattening = _sentence_rhythm_flattening_score(rows)
+    long_text = len(_normalize_match_text(body)) >= 1200
+    medium_text = len(_normalize_match_text(body)) >= 600
+    scene_density_gaps = 0
+
+    issues: list[dict[str, Any]] = []
+    if (long_text and sensory_anchor_hits < 8) or (medium_text and sensory_anchor_hits < 4):
+        scene_density_gaps = 1
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="medium" if validation_context == "final_acceptance" else "low",
+                location=f"第{chapter}章场景现场层",
+                description="正文缺少足够的物件、声音、气味、身体反应或空间阻隔，信息虽然推进，但现场感偏空。",
+                suggestion="回到场景和氛围渲染，补一个能推动人物反应、信息揭示或关系压力的现场发现。",
+                rework_target_step="3-场景和氛围渲染",
+            )
+        )
+
+    if ai_formula_hits + summaryish_hits >= 5:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="medium",
+                location=f"第{chapter}章叙述语气层",
+                description="总结腔、说明腔或模型整理式套语偏多，读感更像信息归纳而不是小说现场。",
+                suggestion="把总结判断改成动作、物象、误读、停顿、对白潜台词或局势反作用。",
+                rework_target_step="8-润色" if current_step_id == "Step 8" else "3-场景和氛围渲染",
+            )
+        )
+
+    if meta_residue_hits:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="medium",
+                location=f"第{chapter}章破沉浸 artifact",
+                description="正文残留流程、规划或分镜类表达，破坏小说叙事内视角。",
+                suggestion="把流程/镜头术语改成角色能感知到的声音、动作、物件、空间变化或危险余波。",
+                rework_target_step="8-润色",
+            )
+        )
+
+    if emotion_telling_hits >= 3:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="medium",
+                location=f"第{chapter}章情绪呈现层",
+                description="情绪被直接标签化或落入脸色变化捷径，人物反应缺少具体身体和关系动作。",
+                suggestion="回到心理活动描写，把情绪写成呼吸、手部细节、步伐、视线、物件误触、话语断裂或身份相关反应。",
+                rework_target_step="6-心理活动描写",
+            )
+        )
+
+    if rhythm_flattening >= 2:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="low",
+                location=f"第{chapter}章句群节奏层",
+                description="句群长度和段落呼吸过分平均，存在通用顺滑化风险。",
+                suggestion="在不改动事实的前提下恢复长短句、停顿、留白和段落重心变化。",
+                rework_target_step="8-润色",
+            )
+        )
+
+    dialogue = _dialogue_lines(body)
+    explanation_dialogue_hits = sum(
+        1
+        for line in dialogue
+        if len(line) >= 55 or any(marker in line for marker in EXPLANATION_DIALOGUE_MARKERS)
+    )
+    if explanation_dialogue_hits >= 2:
+        issues.append(
+            _issue(
+                role_id=role_id,
+                chapter=chapter,
+                index=len(issues) + 1,
+                issue_type="文体读感",
+                severity="medium",
+                location=f"第{chapter}章对白读感层",
+                description="对白解释功能过重，潜台词、试探、回避或关系动作不足。",
+                suggestion="回到对白优化，把说明压进人物的利益、遮掩、施压、索证或留退路动作里。",
+                rework_target_step="5-对白优化",
+            )
+        )
+
+    score = _clamp_score(
+        94
+        - scene_density_gaps * 14
+        - (ai_formula_hits + summaryish_hits) * 3
+        - meta_residue_hits * 6
+        - emotion_telling_hits * 4
+        - rhythm_flattening * 5
+        - explanation_dialogue_hits * 4
+    )
+    return {
+        "overall_score": score,
+        "pass": len(issues) == 0,
+        "issues": issues,
+        "metrics": {
+            "scene_density_gaps": scene_density_gaps,
+            "ai_formula_hits": ai_formula_hits + summaryish_hits,
+            "meta_residue_hits": meta_residue_hits,
+            "emotion_telling_hits": emotion_telling_hits,
+            "sentence_rhythm_flattening": rhythm_flattening,
+            "sensory_anchor_hits": sensory_anchor_hits,
+            "explanation_dialogue_hits": explanation_dialogue_hits,
+            "cold_commentary_risk": "high"
+            if ai_formula_hits + summaryish_hits >= 5 or scene_density_gaps
+            else ("medium" if rhythm_flattening or emotion_telling_hits else "low"),
+        },
+        "summary": "文体读感、现场感与中文句群基本成立。" if len(issues) == 0 else "存在现场感不足、AI/说明腔、句群平均化或模板化情绪表达。",
+    }
+
+
 ROLE_RUNNERS: dict[str, Callable[[dict[str, Any], str, dict[str, Any], str], dict[str, Any]]] = {
     "structure-validator": _run_structure,
     "continuity-validator": _run_continuity,
@@ -1435,6 +1692,7 @@ ROLE_RUNNERS: dict[str, Callable[[dict[str, Any], str, dict[str, Any], str], dic
     "character-validator": _run_character,
     "timeline-validator": _run_timeline,
     "task-convergence-validator": _run_task_convergence,
+    "prose-style-validator": _run_prose_style,
 }
 
 

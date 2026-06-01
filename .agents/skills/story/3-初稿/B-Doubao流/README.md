@@ -6,6 +6,8 @@
 
 ```text
 3-初稿/B-Doubao流/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   └── chapter-drafting-contract.md
 ├── scripts/
@@ -58,4 +60,5 @@ When the target chapter already exists, formal writeback requires explicit `--mo
 - `steps/` owns the thinking-action workflow.
 - `types/` owns mode classification.
 - `review/` owns quality gates.
+- `guardrails/` owns runtime permission boundaries, anti-injection rules, and violation response.
 - `scripts/` only provides mechanical assistance and must not replace LLM creative authorship.

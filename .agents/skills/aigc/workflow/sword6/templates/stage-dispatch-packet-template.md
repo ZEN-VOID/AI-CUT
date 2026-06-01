@@ -14,11 +14,11 @@
 run_id: sword6-YYYYMMDD-HHMMSS
 project_root: projects/aigc/<项目名>/
 episode_id: 第N集
-stage_slug: 2-编剧
-stage_skill: .agents/skills/aigc/2-编剧/SKILL.md
-stage_context: .agents/skills/aigc/2-编剧/CONTEXT.md
+stage_slug: 2-编导
+stage_skill: .agents/skills/aigc/2-编导/SKILL.md
+stage_context: .agents/skills/aigc/2-编导/CONTEXT.md
 input_path: projects/aigc/<项目名>/1-分集/第N集.md
-output_path: projects/aigc/<项目名>/2-编剧/第N集.md
+output_path: projects/aigc/<项目名>/2-编导/第N集.md
 extra_inputs: []
 context_bundle:
   - projects/aigc/<项目名>/MEMORY.md

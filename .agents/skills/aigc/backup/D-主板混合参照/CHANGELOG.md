@@ -2,7 +2,7 @@
 
 ## 2026-05-10
 
-- 将 D 主板混合参照视频时长从固定 15 秒改为组级估算投影：读取 `4-分组` 当前组 `时长估算`，按 4-15 秒范围 clamp 后写入 LibTV submit plan 和远端提交。
+- 将 D 主板混合参照视频时长从固定 15 秒改为组级估算投影：读取 `5-分组` 当前组 `时长估算`，按 4-15 秒范围 clamp 后写入 LibTV submit plan 和远端提交。
 
 ## 2026-05-05
 
@@ -14,6 +14,6 @@
 
 ## 2026-04-27
 
-- 初始化 `.agents/skills/aigc/7-视频-backup/D-主板混合参照/` Skill 2.0 包。
+- 初始化 `.agents/skills/aigc/8-视频-backup/D-主板混合参照/` Skill 2.0 包。
 - 明确 D 路线含义：在同一个分镜组提示词中合并故事板总参照与主体后缀参照。
 - 补齐 `references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`knowledge-base/` 与 `agents/openai.yaml`。

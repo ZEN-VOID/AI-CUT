@@ -1,13 +1,13 @@
 # Group Shot Source Contract
 
-本文件定义 step1：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，获取每个分镜组的完整内容，并把组内镜头映射为四段式 `分镜ID`。
+本文件定义 step1：以 `projects/aigc/<项目名>/5-分组` 为主要信息来源，获取每个分镜组的完整内容，并把组内镜头映射为四段式 `分镜ID`。
 
 ## Source Roots
 
 固定读取：
 
 ```text
-projects/aigc/<项目名>/4-分组/第N集.md
+projects/aigc/<项目名>/5-分组/第N集.md
 ```
 
 辅助上下文可读但不得覆盖组正文：
@@ -22,7 +22,7 @@ projects/aigc/<项目名>/CONTEXT/
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
 - 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
 - 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
-- `7-视频/A-分镜画面参照` 默认完全忽略连接件块：不进入 `group_content`、四段式 `shot_id` 映射、视频 prompt、reference manifest、LibTV batch 或视频文件命名。
+- `8-视频/A-分镜画面参照` 默认完全忽略连接件块：不进入 `group_content`、四段式 `shot_id` 映射、视频 prompt、reference manifest、LibTV batch 或视频文件命名。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 - 视频 prompt 主体使用完整组内容，不用底部 YAML 或摘要替代正文。
 
@@ -40,7 +40,7 @@ projects/aigc/<项目名>/CONTEXT/
 ```yaml
 group_id: "1-1-1"
 episode_id: "第1集"
-source_file: "projects/aigc/<项目名>/4-分组/第1集.md"
+source_file: "projects/aigc/<项目名>/5-分组/第1集.md"
 heading: "## 1-1-1"
 group_content: "<从标题后到下一个普通组标题或连接件标题前的现有完整内容>"
 source_body_hash: "<sha256>"
@@ -84,7 +84,7 @@ shots:
 
 | fail signal | rework |
 | --- | --- |
-| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
+| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `5-分组` 修复 |
 | group_content 被截断 | 重新按下一个二级标题定位边界 |
 | 连接件进入 group_content 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |
 | 组正文被摘要或改写 | 回到本合同，恢复完整现有内容 |
@@ -94,7 +94,7 @@ shots:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 目标输入是否固定读取 `projects/aigc/<项目名>/4-分组/第N集.md`，且项目 `MEMORY.md` / `CONTEXT/` 没有覆盖分镜组正文？ | `GATE-FVID-GROUP-01` | `FAIL-FVID-INPUT` | `N3-GROUP-INDEX` | input manifest 记录 `source_file`、episode、target `group_id` 与辅助上下文使用说明 |
+| 目标输入是否固定读取 `projects/aigc/<项目名>/5-分组/第N集.md`，且项目 `MEMORY.md` / `CONTEXT/` 没有覆盖分镜组正文？ | `GATE-FVID-GROUP-01` | `FAIL-FVID-INPUT` | `N3-GROUP-INDEX` | input manifest 记录 `source_file`、episode、target `group_id` 与辅助上下文使用说明 |
 | 普通分镜组与连接件是否按二级标题精确切分，`## x-y-z~x-y-z` 连接件没有进入 `group_content`、prompt、manifest、batch 或视频命名？ | `GATE-FVID-GROUP-02` | `FAIL-FVID-GROUP-BOUNDARY` | `N3-GROUP-INDEX` | group index 记录 heading、line range/hash 与 ignored connector list |
 | `group_content` 是否完整保留标题后的现有组正文，而不是底部 YAML、摘要、压缩版或重写版？ | `GATE-FVID-GROUP-03` | `FAIL-FVID-PROMPT` | `N3-GROUP-INDEX` | prompt package 以原 `## group_id` 起笔，并保留 `source_body_hash` |
 | 组内 `分镜N` / `分镜 N` / 已有四段式 `分镜ID` 是否稳定映射为唯一 `shot_id`，四段式用户输入是否能回推所属 `group_id`？ | `GATE-FVID-SHOT-01` | `FAIL-FVID-SHOT-ID` | `N4-SHOT-ID` | `group-shot-index.json` 列出 `shot_id`、`source_label`、`group_id` 与映射依据 |

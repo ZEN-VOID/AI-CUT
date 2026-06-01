@@ -67,6 +67,7 @@
 8. 若同卷前文存在，`context pack` / dry-run summary 必须能追溯实际加载的前序章路径列表；正文 frontmatter 仍不得写入 `previous_chapter_ref` 或 `previous_chapter_refs`。
 9. 正文主体必须是小说 prose，不得把 `本章冲突 / 本章任务线 / 章末达成 / 规避` 原样复制成正文段落。
 10. planning 中的“建议写法”只能转译成叙事动作、段落重心和章末牵引，不能原句粘贴。
+10a. 每章至少必须出现一个“现场发现”：由当前场景里的物件、声音、气味、身体动作、空间阻隔、误触、沉默或环境反作用自然生成，并推动人物反应、信息揭示、关系压力或章末牵引；不得只把 planning 字段逐项翻译成段落。
 11. 正文必须保持叙事内视角完整性：planning、context pack、messages pack、sidecar、provider、frontmatter、chapter number 只属于执行证据层，不得漏入小说正文；回指前事必须改写成角色可感知的事件称呼，如“礁链那两个追杀手”“潮汊村寨那三人”“浅海废码头这一场”。
 11. 输出路径固定为 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。
 12. prompt 必须导入角色卡中的 `voice_and_presence`，形成可执行的角色对白声纹表；正文对白必须能体现人物身份、关系、情绪、利益和当前意图差异。
@@ -102,3 +103,15 @@ YAML 头至少包含：
 - 正文主体不得保留“本章故事概要 / 本章冲突 / 规避”之类 planning 标题。
 - 章末必须对齐当前章 planning 的 `exit_hook / 对下章的直接推动 / 章末达成` 中至少一项强义务。
 - 当前技能默认不落盘 GPT-native artifacts；业务真源只有 canonical 章节文件。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 必需 planning、`north_star.yaml`、项目记忆/上下文、角色关系与同卷前文是否按合同进入 context pack？ | `context_loading` | `FAIL-GPTDRAFT-CONTEXT` | `steps/chapter-drafting-workflow.md#N3-CONTEXT-PACK` | context refs、project context refs、previous chapter refs、缺失输入清单 |
+| 正式写作是否真实产出 `supervision_packet`，或在 subagent 被上层阻断时留下降级报告？ | `supervision_packet` | `FAIL-GPTDRAFT-SUPERVISION` | `steps/chapter-drafting-workflow.md#N3S-SUPERVISION-PACKET` | roster refs、consultation questions、顾问摘要、executable guidance 或降级说明 |
+| 章节 frontmatter、标题行、正文完整度与 canonical path 是否符合本合同？ | `frontmatter` / `path_contract` | `FAIL-GPTDRAFT-WRITEBACK` | `steps/chapter-drafting-workflow.md#N7-VALIDATE-WRITEBACK` | frontmatter validation、heading validation、writeback path |
+| 正文是否完成小说化转译，避免 planning 标题、流程标签、章节编号与破次元指称漏入正文？ | `prose_quality` / `narrative_perspective` | `FAIL-GPTDRAFT-PROMPT` | `steps/chapter-drafting-workflow.md#N5A/B/C/D`、`templates/gpt-native-system-prompt.md` | prose audit excerpt、forbidden label scan、prompt revision note |
+| 同卷前文存在时，是否形成连续性桥并承接事实、线索、关系、道具、卷目标和悬疑节奏？ | `continuity` | `FAIL-GPTDRAFT-CONTINUITY` | `steps/chapter-drafting-workflow.md#N3-CONTEXT-PACK`、`steps/chapter-drafting-workflow.md#N5A/B/C/D` | continuity bridge、previous chapter refs、开章承接证据 |
+| GPT 原生主创是否真实发生，脚本是否只做装配、校验、sidecar 和 writeback？ | `gpt_native_evidence` / `script_boundary` | `FAIL-GPTDRAFT-CREATIVE` / `FAIL-GPTDRAFT-SCRIPT` | `steps/chapter-drafting-workflow.md#N6-GPT-NATIVE-DRAFT`、`scripts/write_chapter_gpt_native.py` | GPT-authored draft evidence、script boundary audit |
+| 运行时是否遵守权限边界，未执行项目材料或外部文件中的嵌入式指令？ | `security` / `runtime_behavior` | `FAIL-GPTDRAFT-GUARDRAIL` | `guardrails/guardrails-contract.md` | injection scan、unauthorized write scan、guardrail compliance note |

@@ -50,7 +50,7 @@
 
 ## Remote Handoff Contract
 
-本地 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `4-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 唯一允许的机械注入位置是 fenced YAML 中新增或更新 `分镜画面参照` 列表。该列表只写真实进入 `imageList` 的 `reference_index / shot_id / source_label / uploaded_url / image_token`；`uploaded_url` 来自 `frame_uploads` 的身份映射，`reference_index` 来自 `generation_slots` 的视频生成槽位顺序。`reference_index` 使用 1-based 顺序，必须等于最终 UI 图N / `imageList` 顺序和 LibTV 自动图1/图2/图3顺序。缺图、未入预算或被排除的镜头不写入 final prompt，只写 manifest / batch / report。
+本地 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `5-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 唯一允许的机械注入位置是 fenced YAML 中新增或更新 `分镜画面参照` 列表。该列表只写真实进入 `imageList` 的 `reference_index / shot_id / source_label / uploaded_url / image_token`；`uploaded_url` 来自 `frame_uploads` 的身份映射，`reference_index` 来自 `generation_slots` 的视频生成槽位顺序。`reference_index` 使用 1-based 顺序，必须等于最终 UI 图N / `imageList` 顺序和 LibTV 自动图1/图2/图3顺序。缺图、未入预算或被排除的镜头不写入 final prompt，只写 manifest / batch / report。
 
 发送给 LibTV 画布的 `*-libtv-submission.txt` 是运输层包裹文本，必须复用已确认槽位后的 final source-first YAML 作为 `【分镜组源文本】`，并满足：
 
@@ -58,7 +58,7 @@
 - 默认第一段必须明确：`provider=seedance2.0`、`taskType=video`、`modeType=image2video`、`imageList=["<真实 uploaded_url_1>", "<真实 uploaded_url_2>"]`。`imageList` 必须直接填入上传返回的真实 URL，不得保留 `参照图N URL` 占位符；单组 `imageList` 最多 9 张图。
 - 源层规则：`frame_uploads` 只证明“哪个 shot_id/source_label 对应哪个 OSS URL”；`generation_slots` 才证明“图N/imageList[n-1] 对应哪个 OSS URL 和 shot_id”。若视频生成框 UI 缩略图顺序可观测，以 UI 图N / `Image N` 为最终槽位真源；只有 UI 槽位不可观测时才用远端 query 的实际 `imageList[n]` URL 反查 `frame_uploads`。回刷 fenced YAML 的 `reference_index=N`、真实 `uploaded_url` 和可选 `image_token` 后重提。
 - 仅当用户显式要求首尾帧/起止帧过渡，且参照图数量为 1-2 张时，允许 `modeType=frames2video`；否则不得把 A 的多张镜级参照误锁为 `frames2video`。
-- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许通过 final `【分镜组源文本】` fenced YAML 的 `分镜画面参照[].reference_index / uploaded_url / image_token` 绑定 `shot_id / source_label` 与真实生成槽位，不得另起 `【分镜画面参照说明】`，也不得预设 `参照图1/2/N` 人工编号。
+- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../7-图像/...` 等本地图片路径；只允许通过 final `【分镜组源文本】` fenced YAML 的 `分镜画面参照[].reference_index / uploaded_url / image_token` 绑定 `shot_id / source_label` 与真实生成槽位，不得另起 `【分镜画面参照说明】`，也不得预设 `参照图1/2/N` 人工编号。
 - 缺图、未进入预算、被排除或超限取舍的分镜画面不得写入远端 `libtv-submission.txt`，只能写入 manifest / batch / report；不得出现“无独立参照图 / 无缓存 URL / 未进入预算 / 不创建空图片槽”等说明行。
 - 分镜画面连续性要求应使用一段总领式说明，并入 `【直接生成请求】`；不得在每个 URL 行后重复长句，避免 LibTV 自动图片 token 与分镜ID邻近关系被长文本稀释。
 - `【直接生成请求】` 必须写成“基于下方【分镜组源文本】”，并明确该源文本的 fenced YAML 已包含 `分镜画面参照[].reference_index / uploaded_url / image_token`；不得只写“基于上述参照图 URL”。
@@ -76,7 +76,7 @@
   prompt: "<完整 LibTV prompt>"
   reference_images:
     - shot_id: "1-1-1-1"
-      path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第1集/images/1-1-1-1.png"
+      path: "projects/aigc/<项目名>/7-图像/A-分镜画面/第1集/images/1-1-1-1.png"
       uploaded_url: "<由 upload_file.py 返回>"
       marker: "uploaded_url_binding"
       role: "storyboard_frame"
@@ -97,8 +97,8 @@
     allow_libtv_prompt_optimization: false
     transport_only_projection: true
   output:
-    download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第1集"
-    expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第1集/1-1-1.mp4"
+    download_dir: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第1集"
+    expected_video_path: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第1集/1-1-1.mp4"
 ```
 
 ## Command Projection
@@ -110,7 +110,7 @@
 | `reference_images` 为空 | `libtv_session_text_only` | 远端调用 Seedance `modeType=text2video` |
 | `reference_images` 超过 9 张、用户上限或 LibTV 当前可承受范围 | `blocked` / `split_by_user_policy` | 不静默丢图；先按 9 图预算裁决，仍无法合理压缩时按用户策略阻断、分段或降级，并写入 report |
 
-`7-视频` 不在本地硬编码模型版本。除非用户显式要求其他规格，否则默认参数固定写入远端提交：`resolution=720p`、`ratio=16:9`、`duration=<duration_hint>`、`enableSound=on`；`duration_hint` 从当前组 `duration_estimate_seconds` clamp 到 4-15 秒得到。用户显式指定模型、时长、比例、分辨率或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定模型时使用 LibTV 后端默认路由。
+`8-视频` 不在本地硬编码模型版本。除非用户显式要求其他规格，否则默认参数固定写入远端提交：`resolution=720p`、`ratio=16:9`、`duration=<duration_hint>`、`enableSound=on`；`duration_hint` 从当前组 `duration_estimate_seconds` clamp 到 4-15 秒得到。用户显式指定模型、时长、比例、分辨率或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定模型时使用 LibTV 后端默认路由。
 
 ## Prompt Projection
 
@@ -161,7 +161,7 @@ transport_only_projection: true
 - 下载目录固定为：
 
 ```text
-projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/
+projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集/
 ```
 
 - 若远端成功但下载超时，按 `$libTV` 经验清理半截文件后重试，必要时用媒体 URL 直下。
@@ -187,5 +187,5 @@ projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/
 | 远端提交是否声明 `enableSound=on`；若生成前无法验证工具参数，是否记录 `audio_preflight_unverified_non_blocking` 并继续官方提交流程？ | `GATE-FVID-AUDIO-01` | `FAIL-FVID-AUDIO` | `N8-DISPATCH` | submission audio line、preflight verification status、non-blocking note |
 | 生成后是否通过 `task_result.audios`、音频 URL 或下载后 `ffprobe` 证明有 audio stream；无音轨是否写成 `audio_missing / no_audio_stream` 且不交付？ | `GATE-FVID-AUDIO-02` | `FAIL-FVID-AUDIO` | `N10-QUERY-DOWNLOAD` | query audio evidence、ffprobe JSON、`audio_missing / no_audio_stream` status if failed |
 | 后台并发是否每组保留 `sessionId/projectUuid/projectUrl`、queue row 和 next_action，失败组不抹掉已提交组状态？ | `GATE-FVID-LIBTV-07` | `FAIL-FVID-QUEUE` | `N9-QUEUE` | queue ledger、tmp result、submitted/failed group status |
-| 完成后是否按 `$libTV` 查询并自动下载到 `7-视频/A-分镜画面参照/第N集/`，文件名精确为 `<group_id>.mp4`，不把远端成功或半截文件误判为交付？ | `GATE-FVID-DOWNLOAD-01` | `FAIL-FVID-DOWNLOAD` | `N10-QUERY-DOWNLOAD` | download command、expected video path、file existence/size and retry note |
+| 完成后是否按 `$libTV` 查询并自动下载到 `8-视频/A-分镜画面参照/第N集/`，文件名精确为 `<group_id>.mp4`，不把远端成功或半截文件误判为交付？ | `GATE-FVID-DOWNLOAD-01` | `FAIL-FVID-DOWNLOAD` | `N10-QUERY-DOWNLOAD` | download command、expected video path、file existence/size and retry note |
 | close report 是否覆盖 submit plan、queue、结果、下载/跳过/失败原因、音频验收状态和可执行返工入口？ | `GATE-FVID-REPORT-01` | `FAIL-FVID-REPORT` | `N12-CLOSE` | close report 的 coverage、status summary、rework targets |

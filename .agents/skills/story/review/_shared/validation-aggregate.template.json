@@ -21,7 +21,8 @@
     "logic-validator",
     "character-validator",
     "timeline-validator",
-    "task-convergence-validator"
+    "task-convergence-validator",
+    "prose-style-validator"
   ],
   "dimension_packets": {},
   "dimension_report_refs": {
@@ -30,7 +31,8 @@
     "logic-validator": "review/第0卷/逻辑自洽校验.md",
     "character-validator": "review/第0卷/人物一致性.md",
     "timeline-validator": "review/第0卷/时间线.md",
-    "task-convergence-validator": "review/第0卷/任务汇聚.md"
+    "task-convergence-validator": "review/第0卷/任务汇聚.md",
+    "prose-style-validator": "review/第0卷/文体读感.md"
   },
   "issues": [],
   "chapter_issue_index": {},
@@ -48,7 +50,8 @@
     "logic": 0,
     "character": 0,
     "timeline": 0,
-    "task_convergence": 0
+    "task_convergence": 0,
+    "prose_style": 0
   },
   "routing_decision": "back_to_source_contract",
   "handoff_targets": [],

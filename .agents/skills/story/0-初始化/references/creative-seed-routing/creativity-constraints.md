@@ -325,3 +325,11 @@
 - 爽点密度: {cool_point_density}/5
 - 长线潜力: {long_term_potential}/5
 ```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 创意约束是否只在 `module-spec.md` 判定需要差异化硬约束时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
+| 反常规规则是否至少能映射到一个长期约束、开篇钩子或 planning unknown，而不是孤立口号？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件约束设计段、`steps/init-workflow.md` N5 | hard_constraints patch、opening_hook notes |
+| 创意评分是否作为初始化证据，不替代 `1-设定 / 2-卷章` 的后续主创裁决？ | `convergence` | `FAIL-INIT-CONVERGENCE` | `review/review-contract.md` Verdict Rules | score summary、deferred decisions |

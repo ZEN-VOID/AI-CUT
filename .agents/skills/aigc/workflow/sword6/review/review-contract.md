@@ -53,6 +53,6 @@
 当以下条件全部满足时，`sword6` 可宣布完成：
 
 1. `GATE-SWORD6-01` 到 `GATE-SWORD6-06` 均通过。
-2. 所有目标分集在 `6-分组` 有 canonical 产物，或 completion report 明确标记 partial/blocked。
+2. 所有目标分集在 `5-分组` 有 canonical 产物，或 completion report 明确标记 partial/blocked。
 3. 主窗口没有保存阶段正文全文。
 4. 降级、失败或跳过项均有 fail code、evidence path 和 retry route。

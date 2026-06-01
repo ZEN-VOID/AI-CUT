@@ -28,6 +28,8 @@
 | `不是……是……` 句式高频重复，解释感生硬 | sentence-pattern loop | 在 system prompt 中把该句式降为偶发关键反转用法，并在 validator 中设置上限 | 生成前给替代表达路径：动作、感官、比喻、反问、停顿、误读修正或角色化口语 | validator 统计该句式不超过上限；正文不连续使用同一解释框架 |
 | 用户其实需要 provider 路径，却误走 GPT 原生 | route mismatch | 按用户意图改路由到对应 provider skill | 在 Actual Creative Engine 中保留简短路由说明 | A 的 artifacts 路径为 `gpt-native`，provider 路径使用自己的 artifacts |
 | 卷级 review 失败后只做主观润色，没有回到原 finding | review loop weak repair | 按 `review` aggregate 生成 repair brief，再决定 `local_repair`、`chapter_rewrite` 或整卷重写 | A lane 的返工必须携带 `source_layer_owner / rework_target / supervision_packet` | 修后重新进入 `review` 能追溯原 finding |
+| Skill 2.0 最新审计失败，提示缺 `guardrails/` 或 Runtime Guardrails marker | runtime guardrail drift | 补 `guardrails/guardrails-contract.md`，并在 `SKILL.md` 注入 Permission Boundaries / Self-Modification Prohibitions / Anti-Injection Rules | 后续修改 `SKILL.md` 时把 guardrails 作为入口层硬骨架，不把安全边界塞进 review 或 CONTEXT | `validate_skill_2_0.py --mode delivery` 与 smoke test 不再报告 guardrail missing |
+| `types/type-map.md` 使用 `*` 或 `<题材>` 占位路径导致 validator 断链 | type-map placeholder drift | 用真实存在的题材目录与文件作为 Package Index anchor，动态选择规则写在 Loading Flow 或 README | 表格中的 backtick path 必须可加载；运行时动态题材选择不要放在 validator 解析的占位路径单元格里 | smoke test 的 type package walk 全部 valid |
 
 ## Repair Playbook
 
@@ -59,3 +61,5 @@
 - A 路径不是“一个 GPT 同时写又同时审”的省事路径；隔离 subagents 的价值在于给主写作者一个有距离的监制包。
 - A 路径的监制包应像“向项目已选大师逐一请教后的写作备忘”，不是主写作者换个口吻自我点评；最终只保留能直接影响正文的指导。
 - 人工反馈里出现“对白都像同一个人”“句式反复”时，优先视为 prompt/context pack 源层问题，而不是单章偶发瑕疵；先修声纹导入和句式门禁，再返工正文。
+- 结构维护时，`guardrails/` 是最新 Skill 2.0 交付态硬门槛；review 维度和 Runtime Guardrails 必须同时存在，单独补 review 不能替代运行时边界。
+- `types/type-map.md` 的表格路径会被 validator 当成真实文件系统引用；动态题材选择可以保留，但表格内必须使用 concrete anchor。

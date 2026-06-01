@@ -22,7 +22,7 @@
 | `SKILL.md` | `Business Requirement Analysis Contract` | workflow analysis | `steps/book-level-planning-workflow.md` | move + expand | low | `SKILL.md` links steps file | manual semantic check |
 | `SKILL.md` | `Output Contract` canonical output | output contract | `SKILL.md` `Output Contract` | rewrite into five fields | medium | add `templates/output-template.md` alignment | `validate_skill_2_0.py` |
 | `SKILL.md` | `Required Headings` | output field rules | `references/book-level-output-contract.md` | move + expand | low | `SKILL.md` links reference | manual semantic check |
-| `SKILL.md` | `Hard Rules` | output/review rules | `references/book-level-output-contract.md` and `review/book-level-review-contract.md` | split | medium | `SKILL.md` links both owners | review gate |
+| `SKILL.md` | `Hard Rules` | output/review rules | `references/book-level-output-contract.md` and `review/review-contract.md` | split | medium | `SKILL.md` links both owners | review gate |
 | `SKILL.md` | `Visual Map` | topology map | `SKILL.md` and `steps/book-level-planning-workflow.md` | keep summary + expand workflow | low | none | Mermaid presence check |
 | `SKILL.md` | `Thinking-Action Network` | steps topology | `steps/book-level-planning-workflow.md` | move + expand evidence/gates | medium | `SKILL.md` links steps file | manual semantic check |
 | `CONTEXT.md` | `Type Map` | experience layer | `CONTEXT.md` | keep + expand | low | none | context audit |

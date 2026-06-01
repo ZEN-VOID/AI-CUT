@@ -1,6 +1,6 @@
 # Context: libTV画布流
 
-本文件是 `aigc/9-视频/libTV画布流` 的经验层知识库，不重定义 `SKILL.md` 的入口合同。
+本文件是 `aigc/8-视频/libTV画布流` 的经验层知识库，不重定义 `SKILL.md` 的入口合同。
 
 ## Context Health
 
@@ -22,7 +22,7 @@ last_checked_at: 2026-05-12
 | `TM-LIBTVCANVAS-04` | 生成后本地目录出现非显式下载文件 | 沿用了官方 CLI 自动下载旧习惯 | 删除默认下载步骤，仅保留画布结果 | `download=false` 是本技能默认策略 |
 | `TM-LIBTVCANVAS-05` | 画布素材显示为 `素材图片` | 只创建 resource node 未改节点名 | 用节点更新能力按原文件名修正 | 资产上传后检查 node name / data.name |
 | `TM-LIBTVCANVAS-06` | 分镜参照流被误执行 | 占位路线被当作已实现 | 返回 `not_implemented_placeholder` | 类型包和 references 都标注空白占位 |
-| `TM-LIBTVCANVAS-07` | 远端 Agent 重写、压缩或优化 `6-分组` 正文 | 未锁定 `allow_libtv_prompt_optimization=false` | 重提并明确禁止远端优化，除非用户显式 opt-in | submit plan、queue、report 必须记录 opt-in 状态 |
+| `TM-LIBTVCANVAS-07` | 远端 Agent 重写、压缩或优化 `5-分组` 正文 | 未锁定 `allow_libtv_prompt_optimization=false` | 重提并明确禁止远端优化，除非用户显式 opt-in | submit plan、queue、report 必须记录 opt-in 状态 |
 | `TM-LIBTVCANVAS-08` | 主体列表比 YAML 多，混入正文泛词 | 用正文子串或猜测名扩展主体 | 丢弃非 YAML 主体，只用组底 `角色 / 场景 / 道具` | review gate 检查 YAML subject baseline |
 | `TM-LIBTVCANVAS-09` | 批量任务重复上传同画布已有主体图 | 忽略 active URL 复用策略 | 优先复用同 projectUuid 下同 YAML 名 active URL | 只有缺 URL、歧义、替换/更新才上传 |
 | `TM-LIBTVCANVAS-10` | 单组参照图超过 LibTV 预算 | 未做 9 图预算裁决 | 角色和场景优先，道具先排除，无法压缩则阻断 | `images[] / mixedList <= 9` |
@@ -39,14 +39,14 @@ last_checked_at: 2026-05-12
 | `TM-LIBTVCANVAS-21` | `params.prompt` 里出现执行锁、生成参数、主体绑定表、missing/excluded 原因等大量废信息 | 混淆 handoff message 与视频节点创作 prompt | 重建分层提交：handoff 放执行与绑定，`params.prompt` 只放分镜正文 + 完整 YAML + 主体 `@` 引用 | 查询 `create_generation_task.params.prompt`，出现执行锁/绑定表/诊断即判 `remote_prompt_rewritten_or_polluted` |
 | `TM-LIBTVCANVAS-22` | 同一主体在同一视频任务中重复提交两张同义主体图 | 没有按 YAML 主体去重，active 图与新上传图同时进入 imageList | 按 `projectUuid + category + yaml_name` 去重，默认每主体只保留一张 active/最新可信图 | 除非用户显式要求多视图或多版本对比，否则 `imageList` 不得含同主体重复图 |
 | `TM-LIBTVCANVAS-23` | 视频节点按图1/图2顺序把 URL 错绑到主体 | `imageList` 使用上传顺序或文件扫描顺序，且远端按数组下标解释主体 | 按 YAML `角色` -> `场景` -> `道具` 展示顺序生成 canonical reference order，并按该顺序构造 `source_node_keys/source_node_url_mapping/imageList` | review/query gate 检查数组顺序和 URL/node_key 映射都与主体绑定表一致 |
-| `TM-LIBTVCANVAS-24` | 远端 prompt 把分镜组改成“人物做了什么”的动作摘要，丢失定场、镜头先行、方向参照或光线结果 | 把 LibTV prompt transport 当成二次创作优化 | 保留 `6-分组` 原文顺序；禁止远端优化、重排、摘要、压缩；查询后检查 `params.prompt` 中 scene/shot identity 仍在 | `params.prompt` 可回读到定场/镜头/构图/方向/光线结果 -> 人物动作的上游顺序 |
+| `TM-LIBTVCANVAS-24` | 远端 prompt 把分镜组改成“人物做了什么”的动作摘要，丢失定场、镜头先行、方向参照或光线结果 | 把 LibTV prompt transport 当成二次创作优化 | 保留 `5-分组` 原文顺序；禁止远端优化、重排、摘要、压缩；查询后检查 `params.prompt` 中 scene/shot identity 仍在 | `params.prompt` 可回读到定场/镜头/构图/方向/光线结果 -> 人物动作的上游顺序 |
 | `TM-LIBTVCANVAS-25` | 低角度、贴地前景、手持微晃、前景虚化、透视拉伸或遮挡揭示被远端压缩丢失 | 把观看选择当成可删修饰词 | 保留上游观看位置和发现路径；handoff 明确禁止把镜头身份压缩为动作摘要 | 查询 `params.prompt` 能回读到机位高度、前景/遮挡、透视或发现过程中的关键项 |
 
 ## Repair Playbook
 
 1. 先判断任务是主体参照流、分镜参照流、查询下载还是修复审查。
 2. 默认进入主体参照流；只有用户显式说“分镜参照流”才进入占位路线。
-3. 主体参照流先读 `6-分组/第N集.md`，不要回到 `5-摄影` 或重新编写组内容。
+3. 主体参照流先读 `5-分组/第N集.md`，不要回到 `4-摄影` 或重新编写组内容。
 4. 主体绑定只认组底 YAML 名称和画布节点名/URL/node_key，不认 UI 随机图片顺序。
 5. 每条视频任务的时长都从当前分镜组 YAML 读取并 clamp，不使用全局固定 15 秒。
 6. 调用 LibTV 只用 `.agents/skills/cli/libTV/scripts/` 官方脚本；不要复制改写官方脚本逻辑。
@@ -74,7 +74,7 @@ last_checked_at: 2026-05-12
 - 这个技能的关键价值是“画布语义稳定”，不是替代 LibTV 官方 CLI。
 - 主体绑定表应使用固定中文名 `主体绑定表`，减少远端 Agent 把它当普通说明忽略的概率。
 - LibTV 多图任务中，`node_key + URL + yaml_name` 比 `Image 1/2/3` 更稳定。
-- `6-分组` 组正文已经是 prompt 主体；本技能只做运输层组织、主体绑定和参数投影。
+- `5-分组` 组正文已经是 prompt 主体；本技能只做运输层组织、主体绑定和参数投影。
 - 自动下载对画布流是副作用；默认关闭能减少重复本地文件和错误归档。
 - 候选图片消歧证据属于 manifest / submit plan，不属于远端 prompt；远端只需要稳定主体名、node_key、URL 和用途。
 - wrapper 的价值是环境一致性，不是 fork 官方 libTV CLI；官方脚本行为仍是下游真源。

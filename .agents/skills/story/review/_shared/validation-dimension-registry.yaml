@@ -24,7 +24,7 @@ dimensions:
     report_filename: "结构兑现.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.16
     drafting_inline:
       enabled: true
       checkpoints:
@@ -42,13 +42,13 @@ dimensions:
   - role_id: "continuity-validator"
     dimension: "continuity"
     skill_path: ".agents/skills/story/review/连续性"
-    scope: "承接点、转场、threads 连续性"
-    objective: "确认卷内章节承接不断带，压力线不凭空消失"
-    method: "比对 continuity matrix、前序停点与当前正文，定位断带章节"
+    scope: "承接点、转场质量、threads 连续性"
+    objective: "确认卷内章节承接不断带，关键转场有自然牵引，压力线不凭空消失"
+    method: "比对 continuity matrix、前序停点与当前正文，定位断带章节，并检查转场是否由感知触发物、人物动作/对白、光影/声音或任务压力牵引"
     report_filename: "连续性.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.14
     drafting_inline:
       enabled: true
       checkpoints:
@@ -71,7 +71,7 @@ dimensions:
     report_filename: "逻辑自洽校验.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.14
     drafting_inline:
       enabled: true
       checkpoints:
@@ -89,13 +89,13 @@ dimensions:
   - role_id: "character-validator"
     dimension: "character"
     skill_path: ".agents/skills/story/review/人物一致性"
-    scope: "人物行为、动机、关系压力、声口与弧线"
-    objective: "确认角色仍按 cards/planning 压力场在行动，而不是只剩功能性对白"
-    method: "对照角色卡、关系线与正文表现，输出失真位置与修复建议"
+    scope: "人物行为、动机、关系压力、声口、社会身份语言与弧线"
+    objective: "确认角色仍按 cards/planning 压力场在行动和说话，而不是只剩功能性对白或割裂式声口"
+    method: "对照角色卡、关系线、身份背景与正文表现，输出行为失真、声口漂移、社会身份语言错位与修复建议"
     report_filename: "人物一致性.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.16
     drafting_inline:
       enabled: true
       checkpoints:
@@ -122,7 +122,7 @@ dimensions:
     report_filename: "时间线.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.12
     drafting_inline:
       enabled: true
       checkpoints:
@@ -146,7 +146,7 @@ dimensions:
     report_filename: "任务汇聚.md"
     final_acceptance:
       mandatory: true
-      weight: 0.20
+      weight: 0.10
     drafting_inline:
       enabled: false
       checkpoints: []
@@ -156,6 +156,34 @@ dimensions:
       - "7-追读力强化"
     upstream_source_owners:
       - "2-卷章"
+  - role_id: "prose-style-validator"
+    dimension: "prose_style"
+    skill_path: ".agents/skills/story/review/文体读感"
+    scope: "中文小说 prose、现场感、句群节奏、对白潜台词、心理暗流、AI 腔与模板化表达"
+    objective: "确认正文不只是完成信息交付，而是真正具备成熟小说读感、场景质感和可持续阅读手感"
+    method: "读取正文快照、style_gate、项目口味与 planning 压力，定位现场发现缺口、AI/说明腔、句群平均化、模板脸色反应和对白/心理扁平化"
+    report_filename: "文体读感.md"
+    final_acceptance:
+      mandatory: true
+      weight: 0.18
+    drafting_inline:
+      enabled: true
+      checkpoints:
+        - step_id: "3-场景和氛围渲染"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "5-对白优化"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "6-心理活动描写"
+          fail_action: "block_and_rewrite_current_or_earliest"
+        - step_id: "8-润色"
+          fail_action: "regression_guard"
+    default_rework_targets:
+      - "3-场景和氛围渲染"
+      - "5-对白优化"
+      - "6-心理活动描写"
+      - "8-润色"
+    upstream_source_owners:
+      - "0-初始化"
 fast_extension_rule:
   add_or_adjust_dimension:
     - "先更新本 registry：role_id、skill_path、drafting_inline checkpoints、final_acceptance mandatory/weight"

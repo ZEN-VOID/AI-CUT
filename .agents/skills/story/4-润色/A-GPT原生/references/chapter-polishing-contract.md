@@ -70,7 +70,7 @@
 12. 输出路径固定为 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。
 13. actual creative step 默认由当前 GPT/LLM 会话直接完成；若需要外部 provider，应显式改走对应 provider skill。
 14. 正式写作默认启动隔离 team supervision subagents；同为 GPT 时也必须分离主写作上下文与监制上下文。
-15. 用户显式要求 subagents 模式时，必须按 `../SKILL.md` 的 `Subagent Review-Optimize Contract` 调度 `story/review` 维度子技能；不同审计点分别由结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚等子技能审计，并在同轮由 GPT 主创直接执行最小优化。
+15. 用户显式要求 subagents 模式时，必须按 `../SKILL.md` 的 `Subagent Review-Optimize Contract` 调度 `story/review` 维度子技能；不同审计点分别由结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚、文体读感等子技能审计，并在同轮由 GPT 主创直接执行最小优化。
 16. `scripts/polish_chapter_gpt_native.py` 只能装配上下文、注入 `supervision_packet` / `review_subagent_packets`、输出 sidecar、校验已创作稿与写回，不得直接生成正文。
 17. 若 GPT 原生输出不含完整 YAML frontmatter、`润色模型` 不等于 `GPT`、缺少 `# 第N章｜章标题` 标题行，必须判定为 output invalid，禁止直接写回业务真源。
 
@@ -99,3 +99,16 @@ YAML 头至少包含：
 - 正文主体不得保留“本章故事概要 / 本章冲突 / 规避”之类 planning 标题。
 - 章末必须对齐当前章 planning 的 `exit_hook / 对下章的直接推动 / 章末达成` 中至少一项强义务。
 - 当前技能默认不落盘 GPT-native artifacts；业务真源只有 canonical 润色章节文件。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 是否锁定唯一项目根、卷章、`3-初稿` 源章和 canonical `4-润色` 输出路径？ | `context_loading` / `path_contract` | `FAIL-GPTDRAFT-SOURCE` | `N1-SOURCE-LOCK`、`Input Contract` | source lock note、源章路径、输出路径 |
+| 是否真实加载 planning、global/style/north-star、项目 `MEMORY.md`、项目 `CONTEXT/` 与同目录 `CONTEXT.md`？ | `context_loading` / `source_alignment` | `FAIL-GPTDRAFT-CONTEXT` | `N3-CONTEXT-PACK` | context refs、north_star 摘要、项目上下文加载清单 |
+| 上一章存在时是否形成连续性桥，且不存在时没有硬阻断？ | `continuity` | `FAIL-GPTDRAFT-CONTINUITY` | `N3-CONTEXT-PACK`、`N5*` | previous chapter ref、continuity bridge 摘要 |
+| 是否保留初稿骨架和文本分布，没有无授权整章重排、短句化清洗或通用顺滑化？ | `minimal_repair` / `prose_quality` | `FAIL-GPTDRAFT-PROMPT` | `N4-DRAFT-BRANCH`、`N5*` | diff 摘要、修补范围说明 |
+| GPT 原生主创是否真实发生，且脚本没有生成创作正文？ | `gpt_native_evidence` / `script_boundary` | `FAIL-GPTDRAFT-CREATIVE` | `N6-GPT-NATIVE-DRAFT`、`scripts/polish_chapter_gpt_native.py` | GPT-authored draft 证据、script boundary check |
+| 显式 subagents 模式是否完成 review 维度审计并同轮直接优化正文？ | `review_subagent_packets` | `FAIL-GPTDRAFT-REVIEW-SUBAGENTS` | `N3R-REVIEW-SUBAGENT-AUDIT`、`N5D-REPAIR-PROMPT` | dimension packets、repair brief、正文优化证据 |
+| 输出是否满足极简 frontmatter、标题、完整正文和写回路径？ | `frontmatter` / `path_contract` | `FAIL-GPTDRAFT-WRITEBACK` | `N7-VALIDATE-WRITEBACK`、`templates/output-template.md` | final chapter path、frontmatter check、heading check |
+| 是否加载并遵守 guardrails，且无注入或越权写入？ | `security` / `runtime_behavior` | `FAIL-GPTDRAFT-WRITEBACK` | `guardrails/guardrails-contract.md`、`types/guardrail-setup.md` | guardrail loaded note、injection scan、writeback authorization |

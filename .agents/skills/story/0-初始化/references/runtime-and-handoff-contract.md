@@ -77,3 +77,13 @@ projects/story/<项目名>/
 - 初始化不得生成 `2-卷章/整体规划.md`、`2-卷章/全息地图.json` 或正文主稿。
 - 长期偏好写入项目 `MEMORY.md`；运行期共享事实写入项目 `CONTEXT/`；技能经验写回技能 `CONTEXT.md` 或 `knowledge-base/`。
 - 更适合 cards/planning 收敛的问题写入 `init_handoff.yaml.unknowns`，不得在初始化阶段强行补完。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 初始化输出是否只写入 `projects/story/<项目名>/`，且未写入 AIGC、旧 tasks、旧 Init 或项目内 `.git/`？ | `runtime` / `security` | `FAIL-INIT-RUNTIME` / `FAIL-INIT-SECURITY` | 本文件 Canonical Runtime Root、`guardrails/guardrails-contract.md` | written paths、forbidden path scan |
+| 项目骨架是否包含 required skeleton，且阶段根与 `STATE.json.paths` 一致？ | `runtime` | `FAIL-INIT-RUNTIME` | 本文件 Required Project Skeleton、STATE sync 规则 | directory manifest、STATE paths diff |
+| `STATE.json.workflow_runtime.execution_state.stage_progress["0-init"]` 是否完成并记录正确 command/event？ | `runtime` | `FAIL-INIT-RUNTIME` | 本文件 STATE.json Synchronization、`steps/init-workflow.md` N6 | stage_progress、task_log |
+| 初始化是否只产出三件套和 runtime 骨架，没有越权生成规划主稿或正文主稿？ | `handoff` | `FAIL-INIT-HANDOFF` | 本文件 Handoff Boundary、`templates/output-template.md` | output artifact list、forbidden artifact scan |
+| 项目 `MEMORY.md` 与 `CONTEXT/` 是否职责分离，技能经验是否未写入项目记忆？ | `runtime` / `security` | `FAIL-INIT-RUNTIME` / `FAIL-INIT-SECURITY` | 本文件 Handoff Boundary、`guardrails/guardrails-contract.md` | MEMORY content summary、CONTEXT directory summary |

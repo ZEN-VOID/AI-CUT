@@ -1,6 +1,6 @@
 # Review Contract
 
-本 review gate 只裁决 `C-主体参照` 的组级视频 prompt、主体参照、LibTV 计划、队列和项目持久化，不改写 `4-分组` 主真源。
+本 review gate 只裁决 `C-主体参照` 的组级视频 prompt、主体参照、LibTV 计划、队列和项目持久化，不改写 `5-分组` 主真源。
 
 ## Review Verdicts
 
@@ -14,14 +14,14 @@
 
 | gate_id | check | fail_code | rework |
 | --- | --- | --- | --- |
-| `G1-SOURCE` | 每个 `group_id` 可回指 `4-分组` 源标题、组正文和 YAML | `FAIL-VIDSUBJ-GROUP` | `references/group-source-extraction.md` |
+| `G1-SOURCE` | 每个 `group_id` 可回指 `5-分组` 源标题、组正文和 YAML | `FAIL-VIDSUBJ-GROUP` | `references/group-source-extraction.md` |
 | `G2-CONTENT` | prompt 主体直接使用现有组正文，分镜顺序完整 | `FAIL-VIDSUBJ-PROMPT` | `references/video-prompt-assembly-contract.md` |
 | `G3-SUBJECTS` | Characters / Scene / Props 只来自组底 YAML | `FAIL-VIDSUBJ-REF` | `references/reference-slot-binding.md` |
 | `G4-SLOTS` | 只绑定同画布 active uploaded URL 或可上传的本地真实图片；需要新上传时多视图优先，缺图不留空路径；多候选必须有视觉消歧证据或进入 ambiguous | `FAIL-VIDSUBJ-REF` | `references/reference-slot-binding.md` |
 | `G5-LOCAL-ASSET-EVIDENCE` | 每个已绑定主体都在 manifest / submit plan 中保留复用或上传来源；同画布复用可只记录 active uploaded URL 和 registry key，本地路径/指纹作为可选审计证据；prompt 不再用 `@<图片路径>` 展开主体说明，远端提交不得泄漏本地路径 | `FAIL-VIDSUBJ-PROMPT` | `references/video-prompt-assembly-contract.md` |
 | `G6-REFERENCE-BUDGET` | 进入 LibTV 的 `images[]` / `mixedList` 单组不超过 9 张；超限时已优先排除道具，其次排除重复、不必要或可由源文本保留的次要主体，并记录取舍；无法合理压缩到 9 张以内时不得提交 | `FAIL-VIDSUBJ-REF-BUDGET` | `references/reference-slot-binding.md` |
 | `G7-PROVIDER-ROUTE` | 有图或视觉消歧已唯一解决时远端 handoff 锁 `modeType=mixed2video` 和 `mixedList`，无图锁 `modeType=text2video`，未解决 ambiguous 不提交且不传空图片槽 | `FAIL-VIDSUBJ-LIBTV` | `references/libtv-handoff.md` |
-| `G8-DURATION` | `duration_estimate_seconds` 可回指 `4-分组` 当前组，`duration_hint=clamp(duration_estimate_seconds, 4, 15)`，远端提交中的 `duration` 与 plan 一致；小于等于 4 秒用 4 秒，大于等于 15 秒用 15 秒 | `FAIL-VIDSUBJ-DURATION` | `references/group-source-extraction.md` / `references/libtv-handoff.md` |
+| `G8-DURATION` | `duration_estimate_seconds` 可回指 `5-分组` 当前组，`duration_hint=clamp(duration_estimate_seconds, 4, 15)`，远端提交中的 `duration` 与 plan 一致；小于等于 4 秒用 4 秒，大于等于 15 秒用 15 秒 | `FAIL-VIDSUBJ-DURATION` | `references/group-source-extraction.md` / `references/libtv-handoff.md` |
 | `G9-REMOTE-NUMBERING` | 远端提交只写主体名 + uploaded URL，不预设 `参照图1/2/N` 人工编号；若系统生成真实图片 token/编号，主体名必须邻近真实 token/编号 | `FAIL-VIDSUBJ-PROMPT` | `references/video-prompt-assembly-contract.md` |
 | `G10-SELF-CHECK` | 生成前有 `LIBTV_ACCESS_KEY credential check` 自检策略或结果 | `FAIL-VIDSUBJ-LIBTV` | `.agents/skills/cli/libTV/SKILL.md` |
 | `G11-QUEUE` | 每个 submitted / pending 任务都有 group package 内的 `queue.md`、sessionId 或 blocked reason；多轮查询摘要写入 `libtv-results.json.attempts[]`；集级 queue 只作汇总 | `FAIL-VIDSUBJ-LIBTV` | `references/libtv-handoff.md` |

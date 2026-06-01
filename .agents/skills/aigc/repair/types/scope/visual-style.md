@@ -4,7 +4,7 @@
 
 ## Fixed Context
 
-- 必查 `0-初始化/north_star.yaml`、`3-导演`、`4-表演`、`5-摄影` 和目标产物所属 leaf。
+- 必查 `0-初始化/north_star.yaml`、`2-编导` director layer、`2-编导` performance layer、`3-运动`、`4-摄影` 和目标产物所属 leaf。
 - 润色只改善表达自然度和可执行性，不改变事实、对白、编号、路径或结构。
 - 创意候选必须标注是否可直接采用，还是需要用户选择或 stage owner 吸收。
 

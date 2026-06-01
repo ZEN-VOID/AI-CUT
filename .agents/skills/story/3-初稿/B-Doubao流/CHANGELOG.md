@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30
+
+- Added `guardrails/guardrails-contract.md` and `SKILL.md` Runtime Guardrails for permission boundaries, self-modification prohibitions, anti-injection rules, and escalation.
+- Converted `SKILL.md` Output Contract from table-only form to validator-readable five-field contract.
+- Updated `types/type-map.md` to avoid treating glob or placeholder topic paths as literal delivery references.
+- Extended review gates with `security`, `runtime_behavior`, `integration`, and `convergence` dimensions.
+- Added `Review Gate Mapping` to `references/chapter-drafting-contract.md` and synced README/CONTEXT notes.
+
 ## 2026-04-27
 
 - Standardized repair authorship: `local_repair`, `chapter_rewrite`, review返工和卷级修复优化仍必须由 Doubao provider 执行正文创作性改写。

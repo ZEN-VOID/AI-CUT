@@ -4,7 +4,7 @@
 
 ## Prompt Shape
 
-每条 D 本地审核 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `4-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 才按最终 `generation_slots` 回刷参照字段。不得在原文前另写“固定开头”“混合参照说明”或缺图说明段。
+每条 D 本地审核 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `5-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 才按最终 `generation_slots` 回刷参照字段。不得在原文前另写“固定开头”“混合参照说明”或缺图说明段。
 
 唯一允许的机械注入位置是该组 fenced YAML：
 
@@ -66,7 +66,7 @@ transport_only_projection: true
 
 ## Body Rule
 
-`【分镜组源文本】` 直接接入 `4-分组` 的完整组正文，draft 不预填绑定字段，final 只允许在 fenced YAML 内注入 `reference_index / uploaded_url / image_token` 绑定。LLM 可以调整 provider 指令层的表达，但不得删改分镜事实、镜头顺序、动作结果或 YAML 主体。未 opt-in `libtv_optimize` 时，任何远端优化版提示词、摘要版分镜或镜头计划都不是正常执行步骤，必须按 `prompt_fidelity_violation / libtv_optimize_without_opt_in` 返工。
+`【分镜组源文本】` 直接接入 `5-分组` 的完整组正文，draft 不预填绑定字段，final 只允许在 fenced YAML 内注入 `reference_index / uploaded_url / image_token` 绑定。LLM 可以调整 provider 指令层的表达，但不得删改分镜事实、镜头顺序、动作结果或 YAML 主体。未 opt-in `libtv_optimize` 时，任何远端优化版提示词、摘要版分镜或镜头计划都不是正常执行步骤，必须按 `prompt_fidelity_violation / libtv_optimize_without_opt_in` 返工。
 
 ## Marker Ordering
 

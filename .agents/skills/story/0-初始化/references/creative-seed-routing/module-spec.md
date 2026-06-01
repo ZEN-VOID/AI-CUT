@@ -315,3 +315,12 @@
 - 父 `SKILL.md` 是否已写明当前模块触发机制：是
 - 若为多模块场景，是否已有统一路由段落：是，父技能新增 `Reference Loading Guide`
 - 父 `SKILL.md` 中的模块关系：`team代入模式` 固定为单主路径；`creative-seed-routing` 与题材/worldbuilding 为按需串行
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 创意缺口是否先经过本模块判型，而不是由父技能或 planning 直连 leaf references？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件 Phase 1、`SKILL.md` Reference Loading Guide | creative_route_plan、loaded_references |
+| leaf references 是否按最小读取原则加载，且趋势资料受用户显式请求与联网核验双闸门约束？ | `creative_seed` / `security` | `FAIL-INIT-CREATIVE-ROUTE` / `FAIL-INIT-SECURITY` | 本文件 Phase 2、`guardrails/guardrails-contract.md` | loaded_leaf_references、trend_gate evidence |
+| 创意资料是否转成 `north_star` / `init_handoff` 的结构化 patch，而不是资料墙或正文替代品？ | `handoff` | `FAIL-INIT-HANDOFF` | 本文件 Phase 3、`steps/init-workflow.md` N5-N6 | slot writeback patch、sources_breakdown |
+| 父入口、planning 固定题包直答和本模块是否形成单一真源链路？ | `integration` | `FAIL-INIT-INTEGRATION` | 本文件 Phase 4、`references/prompt-packet-contract.md` | routing_gate_summary、reference scan |

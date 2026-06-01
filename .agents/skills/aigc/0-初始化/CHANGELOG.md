@@ -2,6 +2,17 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-05-31
+
+- `Case-20260531-AIGC-INIT-RUNTIME-SKELETON-RESYNC`
+  - 按最新 AIGC 阶段链重新检查初始化落盘骨架，确认新项目默认创建 `0-初始化/`、`1-分集/`、`2-编导/`、`3-运动/`、`4-摄影/`、`5-分组/`、`6-设计/`、`7-图像/`、`8-视频/`、`9-审片/`、`源/`、`CONTEXT/` 与根层载体。
+  - 同步补齐 `scripts/aigc_skill_audit.py` 的 bootstrap 兼容期望：`3-运动/`、`6-设计/场景|道具|角色/1-清单|2-设计|3-生成/`、`MEMORY.md` 与 `CHANGELOG.md` 必须纳入初始化骨架校验。
+  - 将 `3-运动/validation-report.md` 纳入顾问阶段 review 路径表，保证初始化后的上下游交接校验覆盖 `2-编导 -> 3-运动 -> 4-摄影`。
+
+- `Case-20260531-AIGC-WRITING-DIRECTING-MERGE`
+  - 跟随 AIGC 主链合并，新项目初始化骨架改为：`0-初始化/`、`1-分集/`、`2-编导/`、`3-运动/`、`4-摄影/`、`5-分组/`、`6-设计/`、`7-图像/`、`8-视频/`、`9-审片/`、`源/`、`CONTEXT/` 与根层载体。
+  - 旧 `2-编剧`、`3-导演`、`4-表演` 仅作为历史兼容回读，不再作为新项目 bootstrap 真源。
+
 ## 2026-05-26
 
 - `Case-20260526-AIGC-INIT-GLOBAL-STYLE-UNION`
@@ -12,22 +23,22 @@
 ## 2026-05-14
 
 - `Case-20260514-AIGC-INIT-STAGE-STRUCTURE-SYNC`
-  - 跟随 `.agents/skills/aigc` 当前阶段链，同步新项目初始化骨架为：`0-初始化/`、`1-分集/`、`2-编剧/`、`3-导演/`、`4-表演/`、`5-摄影/`、`6-分组/`、`7-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`8-图像/`、`9-视频/`、`10-审片/`、`源/`、`CONTEXT/` 与根层载体。
-  - 将旧 `2-编导/3-摄影/4-分组/5-设计/6-图像/7-视频/8-审片` 口径退为新初始化 forbidden/stale alias，历史项目可兼容回读但不再作为新项目 bootstrap 真源。
+  - 跟随 `.agents/skills/aigc` 当前阶段链，同步新项目初始化骨架为：`0-初始化/`、`1-分集/`、`2-编剧/`、`3-导演/`、`4-表演/`、`4-摄影/`、`5-分组/`、`6-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`7-图像/`、`8-视频/`、`9-审片/`、`源/`、`CONTEXT/` 与根层载体。
+  - 将旧 `2-编导/4-摄影/5-分组/6-设计/7-图像/8-视频/9-审片` 口径退为新初始化 forbidden/stale alias，历史项目可兼容回读但不再作为新项目 bootstrap 真源。
   - 同步更新 `SKILL.md`、`references/scope-and-runtime.md`、`templates/state.template.json`、project context/changelog 模板、`agents/openai.yaml`、共享 runtime layout、顾问团队阶段矩阵与审计脚本 marker。
 
 ## 2026-04-26
 
 - `Case-20260426-AIGC-INIT-STAGE-SEQUENCE-ALIGNMENT`
-  - 按用户确认的当前阶段序号同步初始化骨架：`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-分组/`、`5-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`6-图像/`、`7-视频/`。
-  - 将 `4-设计/` 改为 stale Chinese numbering alias；新项目初始化不再预建 `4-设计/`，设计阶段 runtime 真源统一为 `projects/aigc/<项目名>/5-设计/`。
+  - 按用户确认的当前阶段序号同步初始化骨架：`0-初始化/`、`1-分集/`、`2-编导/`、`4-摄影/`、`5-分组/`、`6-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`7-图像/`、`8-视频/`。
+  - 将 `4-设计/` 改为 stale Chinese numbering alias；新项目初始化不再预建 `4-设计/`，设计阶段 runtime 真源统一为 `projects/aigc/<项目名>/6-设计/`。
   - 同步更新根流程图、shared runtime layout、初始化 scope/runtime、state template、review gate、registry routes 与审计脚本。
 
 ## 2026-04-25
 
 - `Case-20260425-AIGC-INIT-GROUPING-RUNTIME-ALIGNMENT`
-  - 同步分组阶段 canonical runtime：新项目初始化骨架中的分组根从 legacy `5-分组/` 收敛为 `4-分组/`。
-  - `5-分组/` 与 `6-分组/` 仅作为 legacy/forbidden 路径处理；实际分组阶段入口由 `.agents/skills/aigc/4-分组/` 与 `projects/aigc/<项目名>/4-分组/` 承接。
+  - 同步分组阶段 canonical runtime：新项目初始化骨架中的分组根从 legacy `5-分组/` 收敛为 `5-分组/`。
+  - `5-分组/` 与 `5-分组/` 仅作为 legacy/forbidden 路径处理；实际分组阶段入口由 `.agents/skills/aigc/5-分组/` 与 `projects/aigc/<项目名>/5-分组/` 承接。
 
 - `Case-20260425-AIGC-INIT-NORTH-STAR-STYLE-LENGTH-CAPS`
   - 按用户指定为 north-star 风格字段增加默认中文与字数上限：`全局风格提示词 <= 200 字`、`类型元素提示词 <= 30 字`、`画面风格 <= 70 字`、`服装风格 / 建筑风格 / 物品风格 <= 100 字`。
@@ -40,17 +51,17 @@
 
 - `Case-20260425-AIGC-INIT-TEMPLATE-RUNTIME-SOURCE`
   - 根据用户最新口径，将 `projects/aigc/<项目名>` 当前目录结构提升为初始化 runtime 真源。
-  - 初始化骨架调整为：`0-初始化/`、`1-分集/`、`2-编导/`、`3-摄影/`、`4-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`5-分组/`、`6-图像/`、`7-视频/`、`源/`、`CONTEXT/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
-  - 旧一轮 runtime 名称 `2-全局/`、`5-设计/`、`6-分组/`、`7-图像/`、`8-视频/` 在新初始化中不再预建；技能包路径仍保持现状，项目落盘路径以模板目录为准。
+  - 初始化骨架调整为：`0-初始化/`、`1-分集/`、`2-编导/`、`4-摄影/`、`4-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`5-分组/`、`7-图像/`、`8-视频/`、`源/`、`CONTEXT/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
+  - 旧一轮 runtime 名称 `2-全局/`、`6-设计/`、`5-分组/`、`7-图像/`、`8-视频/` 在新初始化中不再预建；技能包路径仍保持现状，项目落盘路径以模板目录为准。
 
 - `Case-20260425-AIGC-INIT-FLAT-RUNTIME-SKELETON`
-  - 按用户指定再次调整新项目初始化骨架为扁平阶段：`0-初始化/`、`1-分集/`、`2-全局/`、`3-编导/`、`4-摄影/`、`5-设计/`、`6-分组/`、`7-图像/`、`8-视频/`、`CONTEXT/`、`源/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
-  - `5-设计/` 在初始化阶段继续展开预建 `场景/道具/角色` 及其 `1-清单/2-设计/3-生成` 子目录。
-  - 旧 `1-规划/1-分集/`、`1-规划/2-分组/`、`6-图像/`、`7-视频/` 作为新初始化 forbidden/legacy 路径处理。
+  - 按用户指定再次调整新项目初始化骨架为扁平阶段：`0-初始化/`、`1-分集/`、`2-全局/`、`3-编导/`、`4-摄影/`、`6-设计/`、`5-分组/`、`7-图像/`、`8-视频/`、`CONTEXT/`、`源/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
+  - `6-设计/` 在初始化阶段继续展开预建 `场景/道具/角色` 及其 `1-清单/2-设计/3-生成` 子目录。
+  - 旧 `1-规划/1-分集/`、`1-规划/2-分组/`、`7-图像/`、`8-视频/` 作为新初始化 forbidden/legacy 路径处理。
 
 - `Case-20260425-AIGC-INIT-CHINESE-RUNTIME-SKELETON`
   - 将 skill 目录从 `.agents/skills/aigc/0-初始化/` 重命名为 `.agents/skills/aigc/0-初始化/`。
-  - 按用户指定调整新项目初始化骨架：`0-初始化/`、`1-规划/1-分集/`、`1-规划/2-分组/`、`2-全局/`、`3-编导/`、`4-摄影/`、`5-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`6-图像/`、`7-视频/`、`源/`、`CONTEXT/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
+  - 按用户指定调整新项目初始化骨架：`0-初始化/`、`1-规划/1-分集/`、`1-规划/2-分组/`、`2-全局/`、`3-编导/`、`4-摄影/`、`6-设计/场景|角色|道具/1-清单|2-设计|3-生成/`、`7-图像/`、`8-视频/`、`源/`、`CONTEXT/` 与根层 `CHANGELOG.md / MEMORY.md / STATE.json / team.yaml`。
   - 将旧英文 runtime 根 `Original/`、`1-Planning/`、`2-Global/`、`3-Detail/`、`4-Design/`、`5-Image/`、`6-Video/`、`7-Cut/` 退为兼容/禁用初始化落点，不再由新初始化创建。
   - 同步更新 `SKILL.md`、`CONTEXT.md`、`references/`、`steps/`、`review/`、`templates/`、`agents/openai.yaml`、registry 与审计脚本中的相关引用。
 

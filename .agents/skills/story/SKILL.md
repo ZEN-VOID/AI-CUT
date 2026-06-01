@@ -240,6 +240,7 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 - `_shared/genre-profiles.md`
 - `_shared/reading-power-taxonomy.md`
 - `_shared/cool-points-guide.md`
+- `_shared/genre-trope-quality-filter.md`（起草阶段加载题材类型包时必须作为质量过滤层，防止机械爽点和低级套路覆盖项目风格）
 
 ### 根级 `scripts/`
 
@@ -296,6 +297,7 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | 场景 | 读取文件 |
 | --- | --- |
 | 根级共享合同 | `_shared/context-loading-contract.md`、`_shared/core-constraints.md` |
+| 起草阶段加载题材类型包或网文题材细则 | `_shared/genre-trope-quality-filter.md` |
 | 跨阶段路由和执行拓扑 | 本文件 `System Topology` 与目标阶段 `SKILL.md + CONTEXT.md` |
 | 局部修改牵动整体、repair 判型和影响图 | `repair/SKILL.md + repair/CONTEXT.md`、`repair/types/type-map.md`、命中的 `repair/types/scope/*.md`、`repair/references/impact-scope-contract.md` |
 | 质量门禁和审计 | `review/SKILL.md + CONTEXT.md`、目标阶段审查合同 |

@@ -1,6 +1,6 @@
 # Context: D-主板混合参照
 
-本文件是 `7-视频/D-主板混合参照` 的经验层知识库，不是过程日志。调用本技能时，应在父级 `7-视频` 合同之后加载本文件。
+本文件是 `8-视频/D-主板混合参照` 的经验层知识库，不是过程日志。调用本技能时，应在父级 `8-视频` 合同之后加载本文件。
 
 ## Context Health
 
@@ -27,17 +27,17 @@
 | 视频生成框 UI 图N与本地预期或旧 query 回显不一致 | UI 槽位真源层 | 以 UI 图N / `Image N` 为最终 `generation_slots`，用 URL 反查 `asset_uploads` 后回刷 final YAML | `hybrid-prompt-assembly-contract.md` 与 `libtv-handoff.md` 固定 UI 槽位优先级 | final YAML 的 `reference_index / uploaded_url` 与 UI 图N一致 |
 | 初始 prompt 提前写入混合参照 `reference_index / uploaded_url`，后续 UI 槽位变化导致错绑 | 槽位相位混淆层 | draft prompt 只保留原 YAML；确认 UI 图N或最终 mixedList 后再回刷 `reference_index / uploaded_url / image_token` | `SKILL.md` 固定 draft/final 两相位 | draft 无空 URL/占位 URL；final 按 `generation_slots` 排序 |
 | LibTV 远端在提交后自行重新编排、摘要或优化分镜 | 提示词保真授权层 | 标记 `prompt_fidelity_violation / libtv_optimize_without_opt_in`，新建干净 session，以 `strict_original + transport_only` 重新提交 | `hybrid-prompt-assembly-contract.md` 与 `libtv-handoff.md` 固定三档模式，默认 `allow_libtv_prompt_optimization=false` | 远端提交开头含 strict 原文锁；query 中无未授权优化版提示词、镜头计划或摘要分镜 |
-| 所有分镜组都被固定提交为 15 秒，短组动作拖长或节奏失真 | 时长投影层 | 回到 `4-分组` 当前组 YAML 的 `时长估算`，重建 `duration_estimate_seconds` 与 `duration_hint`；按 `clamp(估算, 4, 15)` 写入 submit plan 和远端提交 | `group-source-extraction.md` 与 `libtv-handoff.md` 固定组级时长估算与 4-15 秒 clamp | submit plan 有 `duration_source / duration_estimate_seconds / duration_hint`，远端 `duration` 与 `duration_hint` 一致 |
+| 所有分镜组都被固定提交为 15 秒，短组动作拖长或节奏失真 | 时长投影层 | 回到 `5-分组` 当前组 YAML 的 `时长估算`，重建 `duration_estimate_seconds` 与 `duration_hint`；按 `clamp(估算, 4, 15)` 写入 submit plan 和远端提交 | `group-source-extraction.md` 与 `libtv-handoff.md` 固定组级时长估算与 4-15 秒 clamp | submit plan 有 `duration_source / duration_estimate_seconds / duration_hint`，远端 `duration` 与 `duration_hint` 一致 |
 | 远端混合参照区写入缺故事板、缺主体图、无缓存 URL 或未入预算列表 | 远端参照区污染层 | 重写远端提交：只列进入 `mixedList` 的故事板/主体名 + URL 短行；缺口和取舍说明只写本地 manifest / submit plan / report | `hybrid-prompt-assembly-contract.md` 和 `libtv-handoff.md` 固定缺口说明禁入远端参照区 | `*-libtv-submission.txt` 不含缺图/无缓存/未入预算/不创建空图片槽说明 |
-| 混合参照复用历史上传缓存，导致旧故事板或旧主体图进入 `mixedList` | 缓存真源越权层 | 废弃该轮提交；先从当前 `6-图像/B-分镜故事板` 与 `5-设计/*/3-生成` fresh resolve，再按 `path + 指纹` 判断是否可复用缓存 | `hybrid-reference-binding.md` 固定缓存只作 fresh resolution 之后的传输加速 | 每个 uploaded URL 能回指当前存在本地图片、匹配指纹，且 manifest 有 `resolved_from_current_generation_dir: true` |
+| 混合参照复用历史上传缓存，导致旧故事板或旧主体图进入 `mixedList` | 缓存真源越权层 | 废弃该轮提交；先从当前 `7-图像/B-分镜故事板` 与 `6-设计/*/3-生成` fresh resolve，再按 `path + 指纹` 判断是否可复用缓存 | `hybrid-reference-binding.md` 固定缓存只作 fresh resolution 之后的传输加速 | 每个 uploaded URL 能回指当前存在本地图片、匹配指纹，且 manifest 有 `resolved_from_current_generation_dir: true` |
 | 生成结果有视频 URL 但无音频证据 | 音频控制面缺失层 | 若 CLI 路径无法在生成前验证 `create_generation_task.params.enableSound`，记录 `audio_preflight_unverified_non_blocking` 并继续提交；生成后无音频证据则 `audio_missing` | `libtv-handoff.md` 固定非阻断音频预检和下载后 `ffprobe` 验收 | 远端提交写 `enableSound=on`；生成后 `task_result.audios` 非空或 `ffprobe` 检出 audio stream |
 
 ## Repair Playbook
 
 1. 先判断失败属于输入追溯、prompt 组装、故事板总参照、主体参照、LibTV handoff、队列台账、输出持久化还是报告闭环。
-2. 若问题在剧情事实或镜头内容，回 `4-分组` 源组核对，不在本技能内补写。
-3. 若问题在故事板图，按 `group_id` 查 `6-图像/B-分镜故事板`，不要把故事板当首帧或主体图。
-4. 若问题在主体槽位，先看组底 YAML，再查 `5-设计/*/3-生成`，不要从正文猜主体。
+2. 若问题在剧情事实或镜头内容，回 `5-分组` 源组核对，不在本技能内补写。
+3. 若问题在故事板图，按 `group_id` 查 `7-图像/B-分镜故事板`，不要把故事板当首帧或主体图。
+4. 若问题在主体槽位，先看组底 YAML，再查 `6-设计/*/3-生成`，不要从正文猜主体。
 5. 若问题在 prompt，先检查是否 source-first 起笔，再检查故事板和每个 bound subject 是否进入 final fenced YAML 的 `reference_index / uploaded_url / image_token` 绑定。
 6. 若问题在 LibTV submit plan，先检查 D 是否锁定 `modeType=mixed2video` 和 `mixedList`，并确认 `mixedList` <= 9 且无人工 `参照图N` 编号；再看 `.agents/skills/cli/libTV/SKILL.md` 当前子命令矩阵和图片上限。
 7. 若任务已提交但结果未下载，保留 sessionId，按 queue ledger 调 `query_session.py`，不要重新提交造成重复任务。
@@ -45,7 +45,7 @@
 9. 若远端代理把 D 任务解释成“先生成故事板/主体图、拆成 B/C 两条任务、多段视频再合成”，先修 `*-libtv-submission.txt` 的 `【LibTV 调用锁定】` 开头和 `mixed2video + mixedList`，再重新提交，不要补跑 B 或 C 路线。
 10. 若远端 `params.prompt` 只剩裸图片 token 或裸图片编号，说明 fenced YAML 的混合参照绑定没有进入 prompt 完整体；必须把 `【直接生成请求】` 改成基于下方 `【分镜组源文本】`，并要求原正文 + final YAML 槽位绑定一起进入 prompt。
 11. 若 query 显示远端把原文改成“优化提示词 / 重新编排镜头 / 摘要分镜 / 工作流规划”，先看 submit plan 是否 opt-in；未 opt-in 时不沿用该 session，按 `strict_original + transport_only` 新建测试 session。
-12. 若 submit plan 或远端提交把所有组固定为 15 秒，先查 `第N集-hybrid-group-index.json` 是否保留 `时长估算`；缺失时回 `4-分组` 重新提取。小于等于 4 秒统一用 4 秒，大于等于 15 秒统一用 15 秒，中间值用估算值。
+12. 若 submit plan 或远端提交把所有组固定为 15 秒，先查 `第N集-hybrid-group-index.json` 是否保留 `时长估算`；缺失时回 `5-分组` 重新提取。小于等于 4 秒统一用 4 秒，大于等于 15 秒统一用 15 秒，中间值用估算值。
 
 13. 若远端提交包含缺故事板、缺主体图、无缓存 URL、未入预算或空槽说明，先从 manifest 重投影提交文本；这些说明只留本地报告，不进入 LibTV prompt。
 14. 若使用上传缓存，先确认故事板或主体已从当前本地生成目录 fresh resolve；再按 `path + source_sha256 + source_size_bytes + source_mtime_ns` 命中缓存。任何按主体名、group_id、文件名或旧 URL 命中的缓存都视为 stale。

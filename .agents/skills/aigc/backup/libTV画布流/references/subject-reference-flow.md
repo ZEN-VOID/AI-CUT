@@ -7,10 +7,10 @@
 基本处理对象：
 
 ```text
-projects/aigc/<项目名>/6-分组/第N集.md
+projects/aigc/<项目名>/5-分组/第N集.md
 ```
 
-`6-分组` 是本技能的主要信息来源；不得回到 `5-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
+`5-分组` 是本技能的主要信息来源；不得回到 `4-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
 
 处理粒度：
 
@@ -99,7 +99,7 @@ projects/aigc/<项目名>/6-分组/第N集.md
    - 当前 CLI `create_session.py` 只发送纯文本消息，不能单独证明 UI 级 `@` 引用已插入；若查询结果、后端工具参数或画布节点引用回显无法证明，必须记录为 `at_asset_mention_unverified`，不得报告为已完全匹配。
    - `@` 引用只用于把原文中的主体名和参考图精准相连；不得改变原文措辞、句序、镜头顺序、台词、动作结果或风格描述。
 - 不追加 `其中，...` 复述段。
-- 不得删除或摘要上游关于机位高度、低角度、贴地前景、前景虚化、手持微晃、透视拉伸、观众发现过程、遮挡缓慢拉出等观看选择信息；这些属于 `6-分组` 正文的镜头身份和空间感执行信息。
+- 不得删除或摘要上游关于机位高度、低角度、贴地前景、前景虚化、手持微晃、透视拉伸、观众发现过程、遮挡缓慢拉出等观看选择信息；这些属于 `5-分组` 正文的镜头身份和空间感执行信息。
 
 禁止项：
 
@@ -131,7 +131,7 @@ projects/aigc/<项目名>/6-分组/第N集.md
 - `allow_libtv_prompt_optimization` 默认必须为 `false`。
 - 只有用户显式要求远端优化时才改为 `true`。
 - opt-in 必须记录在 submit plan、queue 和 report 中。
-- 未 opt-in 时，handoff message 必须要求 `params.prompt` 直接使用 `6-分组` 现有组正文 + 完整 YAML，不得要求远端重排、摘要、压缩或改写剧情事实。
+- 未 opt-in 时，handoff message 必须要求 `params.prompt` 直接使用 `5-分组` 现有组正文 + 完整 YAML，不得要求远端重排、摘要、压缩或改写剧情事实。
 - 未 opt-in 时，handoff message 还必须要求远端保留上游的观看选择信息，包括机位高度、前景/遮挡、透视、手持状态、景深和发现路径；不得把它们压缩成“人物做某动作”的动作摘要。
 - 若查询发现 LibTV 远端实际 `params.prompt` 被压缩改写为优化版单段 prompt，应标记为 `needs_rework / remote_prompt_rewritten`；后续重提必须使用提示词锁定句和画布 `@` 资产引用。
 
@@ -146,7 +146,7 @@ projects/aigc/<项目名>/6-分组/第N集.md
 active 登记的 canonical 路径固定为：
 
 ```text
-projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json
+projects/aigc/<项目名>/8-视频/libTV画布流/libtv-canvas-active-registry.json
 ```
 
 registry schema 由 `templates/canvas-active-registry.schema.json` 定义。active 记录必须以 `projectUuid::category::yaml_name` 为 `registry_key`，且至少包含 `yaml_name / category / canvas_node_name / node_key / url / active / status / source_type / last_verified_at`。
@@ -169,9 +169,9 @@ registry schema 由 `templates/canvas-active-registry.schema.json` 定义。acti
 本地目录：
 
 ```text
-projects/aigc/<项目名>/7-设计/角色/3-生成
-projects/aigc/<项目名>/7-设计/场景/3-生成
-projects/aigc/<项目名>/7-设计/道具/3-生成
+projects/aigc/<项目名>/6-设计/角色/3-生成
+projects/aigc/<项目名>/6-设计/场景/3-生成
+projects/aigc/<项目名>/6-设计/道具/3-生成
 ```
 
 需要新上传时：
@@ -188,11 +188,11 @@ projects/aigc/<项目名>/7-设计/道具/3-生成
 每个非连接件分镜组必须形成固定证据链：
 
 ```text
-projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json
-projects/aigc/<项目名>/9-视频/libTV画布流/第N集/<分镜组ID>-subject-reference-manifest.json
-projects/aigc/<项目名>/9-视频/libTV画布流/第N集/<分镜组ID>-libtv-submit-plan.json
-projects/aigc/<项目名>/9-视频/libTV画布流/第N集/<分镜组ID>-queue-record.json
-projects/aigc/<项目名>/9-视频/libTV画布流/第N集/<分镜组ID>-执行报告.md
+projects/aigc/<项目名>/8-视频/libTV画布流/libtv-canvas-active-registry.json
+projects/aigc/<项目名>/8-视频/libTV画布流/第N集/<分镜组ID>-subject-reference-manifest.json
+projects/aigc/<项目名>/8-视频/libTV画布流/第N集/<分镜组ID>-libtv-submit-plan.json
+projects/aigc/<项目名>/8-视频/libTV画布流/第N集/<分镜组ID>-queue-record.json
+projects/aigc/<项目名>/8-视频/libTV画布流/第N集/<分镜组ID>-执行报告.md
 ```
 
 artifact owner：
@@ -253,9 +253,9 @@ duration: 14
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 任务是否默认进入 `subject_reference_flow`，且没有在无显式指令时切到分镜参照流或其他路线？ | `REV-LIBTVCANVAS-01` | `FAIL-ROUTE` | `N1 Intake` | route note、selected type package、用户指令摘录 |
-| 每个视频任务是否可回指 `6-分组/第N集.md` 的单个 `## x-y-z` 分镜组正文与完整 fenced YAML？ | `REV-LIBTVCANVAS-02` | `FAIL-GROUP-SOURCE` | `N2 Group Extraction` | group source path、group_id、原文摘录 hash 或行号、YAML 摘录 |
+| 每个视频任务是否可回指 `5-分组/第N集.md` 的单个 `## x-y-z` 分镜组正文与完整 fenced YAML？ | `REV-LIBTVCANVAS-02` | `FAIL-GROUP-SOURCE` | `N2 Group Extraction` | group source path、group_id、原文摘录 hash 或行号、YAML 摘录 |
 | `## x-y-z~x-y-z` 连接件是否被默认忽略，没有进入视频 prompt、主体槽位、manifest、LibTV job 或文件命名？ | `REV-LIBTVCANVAS-02` | `FAIL-GROUP-SOURCE` | `N2 Group Extraction` | excluded connector list、manifest absence、queue/report skipped reason |
-| prompt 主体是否直接采用 `6-分组` 组正文，没有回到 `5-摄影`、`3-Detail` 或更早阶段重写剧情、镜头顺序、台词或动作结果？ | `REV-LIBTVCANVAS-09` | `FAIL-SOURCE-FIDELITY` | `N2 Group Extraction` / `N3e Prompt Assembly` | source fidelity diff、params.prompt 与组正文对照、无上游重写记录 |
+| prompt 主体是否直接采用 `5-分组` 组正文，没有回到 `4-摄影`、`3-Detail` 或更早阶段重写剧情、镜头顺序、台词或动作结果？ | `REV-LIBTVCANVAS-09` | `FAIL-SOURCE-FIDELITY` | `N2 Group Extraction` / `N3e Prompt Assembly` | source fidelity diff、params.prompt 与组正文对照、无上游重写记录 |
 | 主体清单是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有把正文泛词、子串或猜测名升级为主体？ | `REV-LIBTVCANVAS-10` | `FAIL-YAML-SUBJECT` | `N3 Subject Binding` | YAML subject baseline、excluded generic terms、manifest `subject_candidates` |
 | `主体绑定表` 是否包含 `yaml_name / category / canvas_node_name / node_key / URL / usage`，且不被复制进 `params.prompt`？ | `REV-LIBTVCANVAS-03` | `FAIL-BINDING` | `N3 Subject Binding` / `N3e Prompt Assembly` | handoff message 绑定表、manifest `subject_bindings`、params.prompt hygiene check |
 | 参考绑定、`source_node_keys`、`source_node_url_mapping`、`imageList/mixedList` 是否按 YAML `角色 -> 场景 -> 道具` 的选中子集排序，而非上传顺序或图片编号？ | `REV-LIBTVCANVAS-32` | `FAIL-REFERENCE-ORDER` | `N3 Subject Binding` / `N3e Prompt Assembly` | canonical_reference_order、数组顺序对照、queried tool params |

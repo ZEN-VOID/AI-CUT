@@ -8,7 +8,7 @@
 | Output format | Markdown；包含部级九个必填标题、整部悬念总设计、整书悬念池和 Mermaid 节奏图 |
 | Output path | `projects/story/<项目名>/2-卷章/整体规划.md` |
 | Naming convention | 文件名固定为 `整体规划.md`；机器字段和任务 ID 保持 ASCII 安全字符 |
-| Completion gate | 通过 `review/book-level-review-contract.md`，并可交给 `2-卷级` |
+| Completion gate | 通过 `review/review-contract.md`，并可交给 `2-卷级` |
 
 ## Template Body
 

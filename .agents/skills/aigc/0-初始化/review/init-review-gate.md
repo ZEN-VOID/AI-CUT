@@ -17,12 +17,15 @@ Initialization is incomplete unless all applicable items pass:
 - `team_lineup_mode` is locked
 - `team.yaml` exists or is ready to write
 - `team.yaml` records `.agents/skills/team/` as the only selector scope
+- `team.yaml.runtime_policy.team_identity_usage == init_only`
+- `team.yaml.runtime_policy.creative_stage_persona_dispatch_allowed == false`
+- `team.yaml.init_synthesis.stage_seed_summary` covers `1-分集 / 2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`
 - planning direct-answer packets ran with real 顾问与复核流程 for actual initialization
-- `north_star.yaml` has minimum long-term fields, whole-work union-style `全局风格`, required `细分风格`, default Chinese style text, and `全局风格提示词` explicitly contains `全局风格.媒介属性`
-- `init_handoff.yaml` has stage-entry seeds and `unknowns`
+- `north_star.yaml` has minimum long-term fields, `创作阶段不变量`, whole-work union-style `全局风格`, required `细分风格`, default Chinese style text, and `全局风格提示词` explicitly contains `全局风格.媒介属性`
+- `init_handoff.yaml` has stage-entry seeds for `episode_split / writing_directing / motion / cinematography / grouping / design`, post-creative handoff seeds, and `unknowns`
 - `story-source-manifest.yaml` exists and marks readiness
 - `STATE.json` points to primary init artifacts and one recommended next entry
-- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编剧/`, `3-导演/`, `4-表演/`, `5-摄影/`, `6-分组/`, `7-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `8-图像/`, `9-视频/`, `10-审片/`, `源/`, and `CONTEXT/`
+- the requested runtime skeleton exists: `0-初始化/`, `1-分集/`, `2-编导/`, `3-运动/`, `4-摄影/`, `5-分组/`, `6-设计/<场景|道具|角色>/<1-清单|2-设计|3-生成>/`, `7-图像/`, `8-视频/`, `9-审片/`, `源/`, and `CONTEXT/`
 - source-light story details are limited to `unknowns`, `deferred`, or `risk_notes`
 - late source input triggers reconciliation before downstream work
 - rebootstrap old-cycle artifacts are preserved, archived, purged, or marked stale according to reset mode
@@ -34,13 +37,13 @@ Initialization is incomplete unless all applicable items pass:
 
 | field_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
-| `FIELD-INIT-01` | `north_star.yaml` contains only long-lived project constraints and valid adaptation policy | `FAIL-INIT-01` | `N4/N5` |
+| `FIELD-INIT-01` | `north_star.yaml` contains only long-lived project constraints, valid adaptation policy, and durable `创作阶段不变量` for `2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`; it contains no live route truth or team persona runtime | `FAIL-INIT-01` | `N4/N5` |
 | `FIELD-INIT-01G` | `north_star.yaml` contains `全局风格 / 细分风格 / 类型元素 / 世界观`; `全局风格` is a whole-work union style contract, not a cross-design intersection prefix; `全局风格提示词` explicitly includes `全局风格.媒介属性`, is usually 300-500 Chinese characters, and describes reusable scene-type matching for light, color, texture, atmosphere, camera, motion, and negative-style rules; `类型元素提示词 <= 30 字`; `画面风格` is unified picture style and does not erase scene-sensitive light/color logic that belongs to the whole work style system | `FAIL-INIT-01G` | `N4/N5` |
-| `FIELD-INIT-02` | `init_handoff.yaml` contains seeds, `unknowns`, and source/provenance breakdown | `FAIL-INIT-02` | `N4/N5` |
+| `FIELD-INIT-02` | `init_handoff.yaml` contains current stage-entry seeds for `1-分集 / 2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`, post-creative handoff seeds, `unknowns`, and source/provenance breakdown | `FAIL-INIT-02` | `N4/N5` |
 | `FIELD-INIT-02S` | `story-source-manifest.yaml` exists, `primary_story_source` alone decides formal readiness, source-light story facts stay in `unknowns/deferred/risk_notes`, late true source triggers reconciliation, and storyboard-script `preset_registry[].lock_level` uses only `hard_lock / soft_lock / reference_only` | `FAIL-INIT-02S` | `N3/N5/N7` |
 | `FIELD-INIT-03` | mode, lineup, field provenance, `team_ref`, and decision source are traceable | `FAIL-INIT-03` | `N1/N3` |
-| `FIELD-INIT-04` | `team.yaml` has roles, selector root, planning direct-answer provenance, and final gate semantics | `FAIL-INIT-04` | `N3/N4/N5` |
-| `FIELD-INIT-05` | `0-初始化/` through `10-审片/`, `源/`, `CONTEXT/`, root carriers, project `MEMORY.md`, and `CHANGELOG.md` are complete; lazy carriers are trigger-based | `FAIL-INIT-05` | `N2/N5/N6` |
+| `FIELD-INIT-04` | `team.yaml` has init-only roles, selector root, planning direct-answer provenance, `init_synthesis.stage_seed_summary`, final gate semantics, and no active creative-stage persona dispatch contract | `FAIL-INIT-04` | `N3/N4/N5` |
+| `FIELD-INIT-05` | `0-初始化/` through `9-审片/`, `源/`, `CONTEXT/`, root carriers, project `MEMORY.md`, and `CHANGELOG.md` are complete; lazy carriers are trigger-based | `FAIL-INIT-05` | `N2/N5/N6` |
 | `FIELD-INIT-06` | exactly one next active stage is returned | `FAIL-INIT-06` | `N7` |
 | `FIELD-INIT-07` | route, mode, lineup, planning 顾问与复核流程, roster, and sufficiency audit are internally owned by this skill | `FAIL-INIT-07` | `N3/N4/N7` |
 | `FIELD-INIT-08` | rebootstrap is identified, traced, and old-cycle truth exits active flow | `FAIL-INIT-08` | `N0/N6/N7` |
@@ -54,7 +57,7 @@ Initialization is incomplete unless all applicable items pass:
 | structure | Skill 2.0 directories and root files exist |
 | dynamic reference | `SKILL.md` is entry/gate/navigation, not the long spec dump |
 | runtime | paths match `references/scope-and-runtime.md` and shared layout |
-| mode/team | `auto/custom` lock and advisor scope are explicit |
+| mode/team | `auto/custom` lock, initialization-only role identity use, and creative-stage persona-dispatch ban are explicit |
 | source | source-light and source-grounded behavior are separated |
 | reference | reference gate mappings resolve to pass table rows, fail codes, rework targets, and report evidence |
 | migration | Skill 2.0 section/resource migration records remain complete and do not create a parallel truth source |

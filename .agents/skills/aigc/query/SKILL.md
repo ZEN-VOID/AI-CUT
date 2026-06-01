@@ -25,7 +25,7 @@ metadata:
 Accepted input:
 
 - 用户询问 AIGC 项目当前状态、阶段进度、最近产物、断点、治理工件、验收证据或下一入口。
-- 用户询问 `projects/aigc/<项目名>/` 下 `0-初始化`、`1-分集`、`2-编导`、`3-摄影`、`4-分组`、`5-设计`、`6-图像`、`7-视频` 的文件是否存在、在哪里、是否通过验收。
+- 用户询问 `projects/aigc/<项目名>/` 下 `0-初始化`、`1-分集`、`2-编导`、`3-运动`、`4-摄影`、`5-分组`、`6-设计`、`7-图像`、`8-视频`、`9-审片` 的文件是否存在、在哪里、是否通过验收。
 - 用户询问角色、场景、道具、分镜组、图像、视频、storyboard reference、subject reference 等资产落点。
 - 用户询问某个路由制度、阶段入口或 registry/routes 与本地技能树是否一致。
 
@@ -52,8 +52,8 @@ Reject or clarify when:
 | --- | --- | --- |
 | `project_governance` | 当前状态、断点、治理工件、下一入口 | 状态结论、治理 carrier 证据、缺口与推荐入口 |
 | `stage_output` | 某阶段产物、某集文件、阶段目录 | 阶段产物路径、最近修改线索、验收状态 |
-| `subject_asset` | 角色、场景、道具、主体资产、设计结果 | `5-设计` 及相关生成资产证据 |
-| `media_asset` | 分镜画面、故事板、视频、参照视频、生成结果 | `6-图像` / `7-视频` 产物证据与兼容路径说明 |
+| `subject_asset` | 角色、场景、道具、主体资产、设计结果 | `6-设计` 及相关生成资产证据 |
+| `media_asset` | 分镜画面、故事板、视频、参照视频、生成结果、审片报告 | `7-图像` / `8-视频` / `9-审片` 产物证据与兼容路径说明 |
 | `governance_system` | 路由制度、registry、技能树状态 | registry/routes/技能合同证据与漂移说明 |
 | `conflict_diagnosis` | 用户发现路径冲突、阶段名漂移、结果互相矛盾 | 冲突源、主真源裁决、回修入口 |
 
@@ -87,9 +87,9 @@ flowchart TD
     A["query request"] --> B["resolve PROJECT_ROOT"]
     B --> C{"truth role"}
     C -->|"project_governance"| D["STATE / governance carriers"]
-    C -->|"stage_output"| E["0-初始化..4-分组 stage files"]
-    C -->|"subject_asset"| F["5-设计 subject assets"]
-    C -->|"media_asset"| G["6-图像 / 7-视频 media assets"]
+    C -->|"stage_output"| E["0-初始化..5-分组 stage files"]
+    C -->|"subject_asset"| F["6-设计 subject assets"]
+    C -->|"media_asset"| G["7-图像 / 8-视频 / 9-审片 media assets"]
     C -->|"governance_system"| H["registry / routes / skill contracts"]
     D --> I["cross-check validation status"]
     E --> I

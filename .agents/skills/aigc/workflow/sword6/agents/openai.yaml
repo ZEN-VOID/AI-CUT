@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC Sword6 Workflow"
   short_description: "AIGC sword6 subagent workflow"
-  default_prompt: "Use $aigc-workflow-sword6 for projects/aigc/<项目名>/ selected episodes, dispatching 2-编剧, 3-导演, 4-表演, 5-摄影, and 6-分组 through real per-episode subagents."
+  default_prompt: "Use $aigc-workflow-sword6 for projects/aigc/<项目名>/ selected episodes, dispatching 2-编导, 3-运动, 4-摄影, and 5-分组 through real per-episode subagents."

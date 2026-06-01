@@ -6,6 +6,8 @@
 
 ```text
 3-章级/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   ├── chapter-planning-contract.md
 │   ├── chapter-payoff-rules.md
@@ -16,12 +18,13 @@
 │   ├── chapter-planning.template.md
 │   └── output-template.md
 ├── review/
-│   └── chapter-planning-review.md
+│   └── review-contract.md
 ├── steps/
 │   └── chapter-planning-workflow.md
 ├── knowledge-base/
 │   └── chapter-planning-heuristics.md
 ├── types/
+│   ├── type-map.md
 │   ├── chapter-planning-type-map.md
 │   └── payoff-genre-type-map.md
 ├── agents/
@@ -37,6 +40,7 @@
 - 调用技能：`$story-plan-chapter-level`
 - 必需上游：`projects/story/<项目名>/2-卷章/整体规划.md` 与 `projects/story/<项目名>/2-卷章/第N卷/卷规划.md`
 - 输出真源：`projects/story/<项目名>/2-卷章/第N卷/第N章.md`
+- 运行时边界：`guardrails/guardrails-contract.md`
 
 ## 关键门禁
 
@@ -55,5 +59,6 @@
 ## 验证
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/smoke_test_skill_2_0.py .agents/skills/story/2-卷章/3-章级 --mode delivery
 ```

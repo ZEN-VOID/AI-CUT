@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-05-30
+
+- Added `guardrails/guardrails-contract.md` and `SKILL.md#Runtime Guardrails` to match the latest `$skill-工作车间` Skill 2.0 runtime boundary requirements.
+- Expanded `review/review-contract.md` with `security`、`runtime_behavior`、`integration`、`convergence` dimensions and parseable repair failure codes.
+- Added `Review Gate Mapping` to `references/impact-scope-contract.md` and `references/source-truth-ledger.md`.
+- Updated `README.md` directory tree and quick entry notes for the guardrails partition.
+
 ## 2026-04-29
 
 - Initialized `story-repair` as a full Skill 2.0 package.

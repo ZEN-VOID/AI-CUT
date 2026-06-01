@@ -19,9 +19,9 @@
 固定检查以下目录：
 
 ```text
-projects/aigc/<项目名>/5-设计/角色/3-生成
-projects/aigc/<项目名>/5-设计/场景/3-生成
-projects/aigc/<项目名>/5-设计/道具/3-生成
+projects/aigc/<项目名>/6-设计/角色/3-生成
+projects/aigc/<项目名>/6-设计/场景/3-生成
+projects/aigc/<项目名>/6-设计/道具/3-生成
 ```
 
 ## Same-Canvas Asset Reuse Order
@@ -32,7 +32,7 @@ projects/aigc/<项目名>/5-设计/道具/3-生成
 2. 先锁定当前 LibTV `projectUuid/projectUrl`。
 3. 在当前 `projectUuid` 的 `asset_uploads` / 项目级上传登记中查找同一 `category + yaml_name` 的 active uploaded URL。
 4. 若只命中一个 active URL，且 URL 的 `/claw/<projectUuid>/` 与当前画布一致，直接复用，不要求重新解析本地生成目录或匹配本地文件指纹。
-5. 若没有 active URL、同名登记有歧义、图片已调整，或用户显式要求“替换/更新/重新上传”，再按 `Image Priority` 从当前 `5-设计/*/3-生成` 搜索根解析图片并运行 `upload_file.py`，上传成功后把新 URL 标为 active。
+5. 若没有 active URL、同名登记有歧义、图片已调整，或用户显式要求“替换/更新/重新上传”，再按 `Image Priority` 从当前 `6-设计/*/3-生成` 搜索根解析图片并运行 `upload_file.py`，上传成功后把新 URL 标为 active。
 
 禁止顺序：
 
@@ -98,7 +98,7 @@ asset_uploads:
   - name: "林寂"              # 原 YAML 主体名；别名匹配时仍写 YAML 使用名
     canonical_asset_name: "林寂"
     category: "character"
-    source_path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+    source_path: "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
     source_sha256: "<optional_sha256>"
     source_size_bytes: 123456
     source_mtime_ns: 1770000000000000000
@@ -161,19 +161,19 @@ final 相位必须存在 `asset_uploads[]` 与 `generation_slots[]`；`generatio
 ```yaml
 name: "林寂"
 category: "character"
-path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+path: "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
 reuse_policy: "same_canvas_active_url"
 asset_registry_lookup_key: "<projectUuid>|character|林寂"
 resolved_from_current_generation_dir: false
 resolution_candidates:
-  - "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+  - "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
 source_sha256: "<optional_sha256>"
 source_size_bytes: 123456
 source_mtime_ns: 1770000000000000000
 uploaded_url: "https://.../claw/<projectUuid>/..."
 selected_variant: "multi_view"
 matched_by: "exact"
-subject_inline: "林寂 local_path=projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+subject_inline: "林寂 local_path=projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
 ```
 
 ## Visual Disambiguation Entry
@@ -183,10 +183,10 @@ name: "林寂"
 category: "character"
 group_id: "1-1-1"
 candidates:
-  - "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
-  - "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-主图.png"
+  - "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
+  - "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-主图.png"
 context_sent_to_window: true
-selected_path: "projects/aigc/<项目名>/5-设计/角色/3-生成/林寂-多视图.png"
+selected_path: "projects/aigc/<项目名>/6-设计/角色/3-生成/林寂-多视图.png"
 decision_basis: "多视图图像与组底 YAML 主体和组正文中的服装、年龄、关键外观一致。"
 status: "resolved"
 ```
@@ -213,7 +213,7 @@ status: "resolved"
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 参照主体是否只来自组底 YAML 的 `角色 / 场景 / 道具`，没有从正文、对白、分镜明细或泛词自动扩展？ | `G3-SUBJECTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` / 本文件 `YAML Baseline` | `reference-manifest.json.yaml_subjects`、YAML 原文和被排除的非 YAML 候选 |
-| 搜索根是否限定在当前项目 `5-设计/*/3-生成`，且 JSON 记录没有被当作可上传图片？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` | `resolution_candidates`、`missing[]`、真实图片路径存在性检查 |
+| 搜索根是否限定在当前项目 `6-设计/*/3-生成`，且 JSON 记录没有被当作可上传图片？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` | `resolution_candidates`、`missing[]`、真实图片路径存在性检查 |
 | 同画布 active uploaded URL 是否按 `projectUuid + category + yaml_name` 复用，且 URL `/claw/<projectUuid>/` 与当前画布一致？ | `G15-SAME-CANVAS-REUSE` | `FAIL-VIDSUBJ-REFERENCE-PROJECT-SCOPE` | `N5-REF-BIND` / `N8-DISPATCH` | `asset_uploads[].reuse_policy`、`asset_registry_lookup_key`、`projectUuid`、URL scope |
 | 同名多个 active URL、跨画布 URL、图片调整或用户显式替换请求是否被阻断或转入 `explicit_replace`，没有靠猜测沿用旧 URL？ | `G15-SAME-CANVAS-REUSE` | `FAIL-VIDSUBJ-ASSET-REGISTRY-AMBIGUOUS` / `FAIL-VIDSUBJ-REFERENCE-PROJECT-SCOPE` | `N5-REF-BIND` | `asset_registry_ambiguous` finding、`explicit_replace` 记录、上传或替换证据 |
 | 新上传或显式替换时是否遵守多视图优先、主图次之，缺图主体不保留空路径且不进入 LibTV 图片数组？ | `G4-SLOTS` | `FAIL-VIDSUBJ-REF` | `N5-REF-BIND` | `bound[].selected_variant`、`missing[]`、图片路径和 `images[]` 对照 |

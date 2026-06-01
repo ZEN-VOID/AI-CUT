@@ -6,9 +6,9 @@ This knowledge-base file keeps stable heuristics that are useful while reading o
 
 - The hardest part of initialization is separating long-lived north-star truth from stage-entry handoff seeds.
 - If a field affects live route state, it belongs in `STATE.json` or `governance-state.yaml`, not `north_star.yaml`.
-- `team.yaml` is both a lineup truth and a later-stage council runtime; role ownership and phase scope must be explicit.
+- `team.yaml` is initialization lineup truth and frozen synthesis provenance, not a later-stage council runtime; post-init stages read seed summaries instead of team personas.
 - In auto lineup, read the team root index first. Directly deep-reading the full team tree is slow and tends to hide stale root-index drift.
-- `策划 / 监制 / 评审` are governance roles, not necessarily three mutually exclusive human groups.
+- `策划 / 初始化专业顾问 / 初始化复核` are initialization roles, not necessarily three mutually exclusive human groups.
 - Source-light initialization is allowed, but it must be humble: production and tone boundaries are safe; concrete story facts are not.
 - Once a real source arrives, first reconcile initialization artifacts before running downstream stages.
 - `Assets/` is an asset library, not a phase output owner.
@@ -22,6 +22,7 @@ This knowledge-base file keeps stable heuristics that are useful while reading o
 | `north_star.yaml` contains next-stage route fields | route/state truth mixed into long-term constraints | keep stage entry in `init_handoff`, live route in `STATE.json` |
 | initialization starts without `auto/custom` | recommendation mistaken for lock | require mode lock note or option card |
 | advisor selected from outside team tree | custom path or auto scan escaped selector root | validate every member path before `team.yaml` writeback |
+| creative stage tries to call team member personas | old `roles.supervision.stage_profiles` runtime survived migration | migrate usable points to `init_synthesis.stage_seed_summary` and mark old fields as legacy evidence |
 | source-light project has detailed plot | assistant or advisor inference promoted too early | force story facts into `unknowns` until source is ready |
 | resume request is treated as rebootstrap | task classification skipped | N0 must decide "continue current direction" vs "restart direction" |
 | old downstream outputs influence a reset | archive/stale scope not enforced | write reset bridge before reading old outputs |

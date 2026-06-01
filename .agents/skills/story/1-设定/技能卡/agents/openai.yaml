@@ -1,4 +1,4 @@
 interface:
   display_name: "Story Cards Skill"
-  short_description: "Build broad capability cards with rules, costs, growth, and counterplay."
+  short_description: "Build capability cards with rules, costs, growth, counterplay."
   default_prompt: "Use $story-cards-skill to generate, repair, or audit skill cards for a story project."

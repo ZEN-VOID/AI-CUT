@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-30
+
+- Aligned package with latest `skill-工作车间` Skill 2.0 delivery contract.
+- Added `guardrails/guardrails-contract.md`, `types/type-map.md`, and `types/guardrail-setup.md`.
+- Added `Input Contract`, `Multi-Subskill Continuous Workflow`, `Runtime Guardrails`, `Field Mapping`, and parser-friendly `Output Contract` fields to `SKILL.md`.
+- Extended review gates with `security`, `runtime_behavior`, `integration`, `convergence`, fail-code registry, and convergence criteria.
+- Added `Review Gate Mapping` to `references/chapter-polishing-contract.md`.
+
 ## 2026-04-29
 
 - Added `subagent_review_optimize` mode for explicit subagents requests.

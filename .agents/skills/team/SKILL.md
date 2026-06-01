@@ -89,37 +89,52 @@ description: "Use when routing creative work to team perspective skills or multi
 | `deep_read_set` | child | 真正进入子技能深读的集合 | 只允许读取 shortlist 命中的子技能 |
 | `lineup_rationale` | root + child | 说明为何选这些人、不选另一些人 | 必须能回溯到部门覆盖与场景适配 |
 
-### Supervision Runtime Packet Fields
+### AIGC Init-Only Team Packet Fields
 
-本节供 AIGC 项目 `team.yaml.roles.supervision.stage_profiles` 初始化或修复时使用。它只描述监制载入字段，不替代具体阶段技能的 `Advisor Consultation Mechanism`。
+本节供 AIGC 项目 `team.yaml` 初始化或修复时使用。当前 team 根只支持 `0-初始化` 阶段的自动/自定义选人、固定题包问答和综合来源记录；不再要求新项目写入创作阶段 `roles.supervision.stage_profiles`，也不为 `2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计` 提供后续 persona/subagent 运行时。
 
 | field_id | owner | purpose | hard_rule |
 | --- | --- | --- | --- |
-| `supervision_stage` | root + AIGC stage | 锁定当前消费监制的阶段，如 `2-编剧`、`3-导演`、`4-表演`、`5-摄影`、`7-设计` | 必须使用项目 runtime 阶段名，不得写成模糊的 production |
-| `stage_profile` | `team.yaml` | 保存该阶段的 `members/members_ref`、`preferred_departments`、`focus_tags`、`question_binding` 与 `dispatch_policy` | 阶段专属 profile 优先于通用 `roles.supervision.members` |
-| `roster_resolution_order` | shared AIGC contract | 说明从阶段 profile 到旧字段的回退顺序 | 不得跳过 `team/SKILL.md + CONTEXT.md` 直接全树扫描 |
-| `advisor_focus_tags` | root + stage | 将成员能力转成阶段问题焦点 | 必须服务阶段节点判断，不写泛风格标签 |
-| `node_binding` | stage | 说明顾问问题绑定 `node_id / pass_id / gate_id` 还是 leaf 节点 | 不得退化为固定字段问卷 |
-| `dispatch_policy` | stage | 区分 `stage-front-advisor`、`leaf-advisor`、`review-advisor` 或禁用 | 顾问与复核流程 只给顾问意见，不拥有 canonical 写回权 |
-| `local_checklist_policy` | stage | 定义顾问与复核流程不可用时的本地 checklist 边界 | 不得把主 agent 本地顺序综合写成外部 provider 调度 |
+| `team_identity_usage` | `team.yaml.runtime_policy` | 声明 team 成员身份技能的使用范围 | 新项目必须为 `init_only` |
+| `creative_stage_persona_dispatch_allowed` | `team.yaml.runtime_policy` | 声明创作阶段是否可重新调用 team 身份 | 新项目必须为 `false` |
+| `planning_members` | root + `$aigc-init` | 保存初始化固定题包回答成员 | 成员必须来自本根索引，不得越过 shortlist 直接全树扫描 |
+| `role_identity_skill_calls` | `$aigc-init` | 记录初始化阶段真实调用的成员身份技能 | 只记录初始化调用，不生成后续阶段调度计划 |
+| `stage_seed_summary` | `team.yaml.init_synthesis` | 把成员回答压缩成 `1-分集` 与 `2-6` 创作阶段可读的冻结种子 | 只作为上下文种子，不拥有阶段 canonical writeback |
+| `legacy_compat.deprecated_fields` | `$aigc-init` + migration | 标记旧 stage profile / advisor 字段 | 旧字段只读，不得恢复为 active dispatch |
 
 推荐字段形态：
 
 ```yaml
+runtime_policy:
+  team_identity_usage: "init_only"
+  creative_stage_persona_dispatch_allowed: false
+  creative_stage_reads_init_synthesis_only: true
+
 roles:
-  supervision:
-    stage_profiles:
-      "5-摄影":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments: ["摄影组", "导演组", "设计组", "美学组"]
-        focus_tags: ["shot-design", "continuity", "ai-video-stability"]
-        question_binding: "pass_node_gate"
-        dispatch_policy: "stage-front-advisor"
+  planning:
+    owner_phase: "0-初始化"
+    members: []
+    init_execution:
+      role_identity_skill_calls: []
+
+init_synthesis:
+  stage_seed_summary:
+    "2-编导":
+      director_intent_hints: []
+      performance_boundaries: []
+    "3-运动":
+      continuity_principles: []
+    "4-摄影":
+      shot_language_baseline: []
+    "5-分组":
+      grouping_rhythm: []
+    "6-设计":
+      scene_design_invariants: []
+      character_design_invariants: []
+      prop_design_invariants: []
 ```
 
-若旧项目只有 `roles.production`、`roles.supervising` 或平铺 `team_setup.shared_agents`，可作为兼容回退读取；新初始化和重构时必须写入 `roles.supervision.stage_profiles`，让各阶段不再自行猜测监制载入含义。
+若旧项目已有 `roles.production`、`roles.supervising`、`roles.supervision.stage_profiles` 或平铺 `team_setup.shared_agents`，只能作为兼容证据迁入 `legacy_compat` 或手动提炼进 `init_synthesis.stage_seed_summary`；新初始化和重构不得把它们作为创作阶段调度入口。
 
 ## Member And Scenario Index
 

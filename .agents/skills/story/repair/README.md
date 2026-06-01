@@ -6,6 +6,8 @@
 
 ```text
 repair/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   ├── impact-scope-contract.md
 │   └── source-truth-ledger.md
@@ -46,3 +48,5 @@ repair/
 Use `$story-repair` for story project repair requests that require typed impact mapping across settings, planning, drafts, polish, review, return, state, and future generation constraints.
 
 The universal "when X, check X" matrix lives in `references/impact-scope-contract.md`; project-specific additions belong in `projects/story/<项目名>/CONTEXT/` or `MEMORY.md` only when they are stable project memory.
+
+Runtime safety boundaries live in `guardrails/guardrails-contract.md`; the short execution copy is embedded in `SKILL.md#Runtime Guardrails`.

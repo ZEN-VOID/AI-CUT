@@ -2,14 +2,14 @@
 
 ## Purpose
 
-定义整集情绪节奏曲线：从 3-导演 产出，被 4-表演 和 5-摄影 消费，确保全链路的情绪节奏是一致的——导演设计的"安静承压"不会被摄影变成"密集特写运动"，表演也不会把每个场景都演到满。
+定义整集情绪节奏曲线：从 `2-编导` 产出，被其 performance layer 与 `4-摄影` 消费，确保全链路的情绪节奏是一致的——编导设计的"安静承压"不会被摄影变成"密集特写运动"，表演也不会把每个场景都演到满。
 
 ## Ownership
 
-- **产出者**：3-导演 在 N7-DIR-AESTHETIC 节点形成 `emotional_rhythm_map`
+- **产出者**：`2-编导` 在 `N3-BD-DIRECTOR` / `N5-BD-VISUAL-LANGUAGE` 形成 `emotional_rhythm_map`
 - **消费者**：
-  - 4-表演 在 N2-PERF-TYPE 消费 `scene_emotional_register` 决定表演强度层级
-  - 5-摄影 在 N3.6-DENSITY-CURVE 消费 `peak_valley_sequence` 决定镜头密度与节奏
+  - `2-编导` performance layer 在 `N4-BD-PERFORMANCE` 消费 `scene_emotional_register` 决定表演强度层级
+  - 4-摄影 在 N3.6-DENSITY-CURVE 消费 `peak_valley_sequence` 决定镜头密度与节奏
 - 本合同不定义"什么是好节奏"，只定义"节奏必须是被设计的"。
 
 ---
@@ -98,19 +98,19 @@
 
 ## Per-Stage Consumption Contract
 
-### 3-导演 产出规则
+### 2-编导 产出规则
 
-- 在 N7-DIR-AESTHETIC 节点必须形成 `emotional_rhythm_map`
+- 在 `N3-BD-DIRECTOR` / `N5-BD-VISUAL-LANGUAGE` 必须形成 `emotional_rhythm_map`
 - 整集弧线必须有明确的 peak 和 valley（不能全是中段）
 - 峰谷序列中相邻场景不应连续两个都是相同 height（避免节奏平坦）
 
-### 4-表演 消费规则
+### 2-编导 performance layer 消费规则
 
-- 在 N2-PERF-TYPE 节点消费 `scene_emotional_register`
+- 在 `N4-BD-PERFORMANCE` 消费 `scene_emotional_register`
 - 根据 register 决定表演强度层级：`suppressed` 场景不演满、`violent` 场景留爆发空间
 - 不是每个场景都需要五层表演控制的全部层级——`cold` 场景可能只需要姿态和微表情
 
-### 5-摄影 消费规则
+### 4-摄影 消费规则
 
 - 在 N3.6-DENSITY-CURVE 节点消费 `peak_valley_sequence`
 - 根据 height 决定镜头密度：高点场景多分镜、低谷场景少分镜或长镜头

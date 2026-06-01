@@ -46,38 +46,47 @@ checkpoints:
       - "detail-execution-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "3-摄影"
+      - "3-运动"
+  - id: "motion-enrichment-ready"
+    stage: "3-运动"
+    trigger_node: "motion enrichment landed + validation carrier prepared"
+    scope: "episode"
+    mandatory_dimensions:
+      - "detail-execution-validator"
+      - "governance-closure-validator"
+    default_handoff_on_pass:
+      - "4-摄影"
   - id: "cinematography-ready"
-    stage: "3-摄影"
+    stage: "4-摄影"
     trigger_node: "shot language injected + validation carrier prepared"
     scope: "episode"
     mandatory_dimensions:
       - "detail-execution-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "4-分组"
+      - "5-分组"
   - id: "grouping-ready"
-    stage: "4-分组"
+    stage: "5-分组"
     trigger_node: "shot groups landed + validation carrier prepared"
     scope: "episode"
     mandatory_dimensions:
       - "detail-execution-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "5-设计"
-      - "6-图像"
+      - "6-设计"
+      - "7-图像"
   - id: "design-ready"
-    stage: "5-设计"
+    stage: "6-设计"
     trigger_node: "design lists/truth/generated subject assets ready"
     scope: "episode-domain"
     mandatory_dimensions:
       - "design-alignment-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "6-图像"
-      - "7-视频"
+      - "7-图像"
+      - "8-视频"
   - id: "image-request-ready"
-    stage: "6-图像/A-分镜画面"
+    stage: "7-图像/A-分镜画面"
     trigger_node: "frame image requests or prompts ready"
     scope: "episode"
     mandatory_dimensions:
@@ -85,9 +94,9 @@ checkpoints:
       - "image-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "6-图像/B-分镜故事板"
+      - "7-图像/B-分镜故事板"
   - id: "image-storyboard-ready"
-    stage: "6-图像/B-分镜故事板"
+    stage: "7-图像/B-分镜故事板"
     trigger_node: "storyboard sheet assets ready"
     scope: "episode"
     mandatory_dimensions:
@@ -95,18 +104,18 @@ checkpoints:
       - "image-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "7-视频/B-分镜故事板参照"
+      - "8-视频/B-分镜故事板参照"
   - id: "image-handoff-ready"
-    stage: "6-图像"
+    stage: "7-图像"
     trigger_node: "image stage handoff pack ready"
     scope: "episode"
     mandatory_dimensions:
       - "image-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "7-视频"
+      - "8-视频"
   - id: "video-request-ready"
-    stage: "7-视频/B-分镜故事板参照"
+    stage: "8-视频/B-分镜故事板参照"
     trigger_node: "storyboard-reference video requests ready"
     scope: "episode"
     mandatory_dimensions:
@@ -114,9 +123,9 @@ checkpoints:
       - "video-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "7-视频/C-主体参照"
+      - "8-视频/C-主体参照"
   - id: "video-subject-reference-ready"
-    stage: "7-视频/C-主体参照"
+    stage: "8-视频/C-主体参照"
     trigger_node: "subject-reference video requests ready"
     scope: "episode"
     mandatory_dimensions:
@@ -124,9 +133,9 @@ checkpoints:
       - "video-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "7-视频"
+      - "8-视频"
   - id: "video-hybrid-reference-ready"
-    stage: "7-视频/D-主板混合参照"
+    stage: "8-视频/D-主板混合参照"
     trigger_node: "hybrid storyboard-subject video requests ready"
     scope: "episode"
     mandatory_dimensions:
@@ -135,9 +144,9 @@ checkpoints:
       - "video-delivery-validator"
       - "governance-closure-validator"
     default_handoff_on_pass:
-      - "7-视频"
+      - "8-视频"
   - id: "video-handoff-ready"
-    stage: "7-视频"
+    stage: "8-视频"
     trigger_node: "video provider handoff pack ready"
     scope: "episode"
     mandatory_dimensions:
@@ -145,6 +154,16 @@ checkpoints:
       - "governance-closure-validator"
     default_handoff_on_pass:
       - "provider:video"
+      - "9-审片"
+  - id: "video-review-ready"
+    stage: "9-审片"
+    trigger_node: "footage review reports and repair routes ready"
+    scope: "episode"
+    mandatory_dimensions:
+      - "video-delivery-validator"
+      - "governance-closure-validator"
+    default_handoff_on_pass:
+      - "package-release-ready"
   - id: "package-release-ready"
     stage: "package"
     trigger_node: "cross-stage handoff pack assembled"
@@ -172,23 +191,31 @@ stage_acceptance:
       - "planning-seed-validator"
       - "detail-execution-validator"
       - "governance-closure-validator"
-  - stage: "3-摄影"
+  - stage: "3-运动"
     mandatory_dimensions:
       - "detail-execution-validator"
       - "governance-closure-validator"
-  - stage: "4-分组"
+  - stage: "4-摄影"
     mandatory_dimensions:
       - "detail-execution-validator"
       - "governance-closure-validator"
-  - stage: "5-设计"
+  - stage: "5-分组"
+    mandatory_dimensions:
+      - "detail-execution-validator"
+      - "governance-closure-validator"
+  - stage: "6-设计"
     mandatory_dimensions:
       - "design-alignment-validator"
       - "governance-closure-validator"
-  - stage: "6-图像"
+  - stage: "7-图像"
     mandatory_dimensions:
       - "image-delivery-validator"
       - "governance-closure-validator"
-  - stage: "7-视频"
+  - stage: "8-视频"
+    mandatory_dimensions:
+      - "video-delivery-validator"
+      - "governance-closure-validator"
+  - stage: "9-审片"
     mandatory_dimensions:
       - "video-delivery-validator"
       - "governance-closure-validator"
@@ -214,43 +241,43 @@ dimensions:
   - role_id: "detail-execution-validator"
     dimension: "分镜执行连续性"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/detail-execution-continuity.md"
-    scope: "2-编导 / 3-摄影 / 4-分组 continuity and shot grouping readiness"
-    objective: "确认编导事实、摄影分镜明细与分镜组可以稳定供下游消费"
-    method: "读取编导稿、摄影稿和分组稿，定位镜级字段断裂、组镜不连与 handoff 不足"
+    scope: "2-编导 / 3-运动 / 4-摄影 / 5-分组 continuity and shot grouping readiness"
+    objective: "确认编导事实、运动强化、摄影分镜明细与分镜组可以稳定供下游消费"
+    method: "读取编导稿、运动强化稿、摄影稿和分组稿，定位运动五要素、镜级字段断裂、组镜不连与 handoff 不足"
     report_filename: "分镜执行连续性.md"
     checkpoint_inline:
       enabled: true
-      checkpoints: ["directing-script-ready", "cinematography-ready", "grouping-ready", "image-request-ready", "video-request-ready"]
+      checkpoints: ["directing-script-ready", "motion-enrichment-ready", "cinematography-ready", "grouping-ready", "image-request-ready", "video-request-ready"]
     stage_acceptance:
-      stages: ["2-编导", "3-摄影", "4-分组"]
+      stages: ["2-编导", "3-运动", "4-摄影", "5-分组"]
       weight: 0.18
     package_release:
       enabled: true
       weight: 0.17
-    default_rework_targets: ["2-编导", "3-摄影", "4-分组"]
-    upstream_source_owners: ["1-分集", "2-编导", "3-摄影"]
+    default_rework_targets: ["2-编导", "3-运动", "4-摄影", "5-分组"]
+    upstream_source_owners: ["1-分集", "2-编导", "3-运动", "4-摄影"]
   - role_id: "design-alignment-validator"
     dimension: "设计对位"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/design-alignment.md"
-    scope: "5-设计 alignment against grouping and downstream image/video handoff"
+    scope: "6-设计 alignment against grouping and downstream image/video handoff"
     objective: "确认设计没有脱离上游分镜组，并为图像/视频提供稳定主体与视觉 truth"
-    method: "对照 4-分组 与 5-设计 各域 canonical truth，定位设计漂移与 continuity 断带"
+    method: "对照 5-分组 与 6-设计 各域 canonical truth，定位设计漂移与 continuity 断带"
     report_filename: "设计对位.md"
     checkpoint_inline:
       enabled: true
       checkpoints: ["design-ready", "image-storyboard-ready", "video-subject-reference-ready"]
     stage_acceptance:
-      stages: ["5-设计"]
+      stages: ["6-设计"]
       weight: 0.18
     package_release:
       enabled: true
       weight: 0.17
-    default_rework_targets: ["5-设计/场景", "5-设计/角色", "5-设计/道具"]
-    upstream_source_owners: ["4-分组", "5-设计"]
+    default_rework_targets: ["6-设计/场景", "6-设计/角色", "6-设计/道具"]
+    upstream_source_owners: ["5-分组", "6-设计"]
   - role_id: "image-delivery-validator"
     dimension: "图像交付就绪"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/image-delivery-readiness.md"
-    scope: "6-图像 frame image, storyboard sheet, and image handoff readiness"
+    scope: "7-图像 frame image, storyboard sheet, and image handoff readiness"
     objective: "确认图像阶段请求、分镜画面和故事板达到可信交付门"
     method: "读取 A-分镜画面、B-分镜故事板与 handoff refs，定位 continuity、asset 和 provider pack 缺口"
     report_filename: "图像交付就绪.md"
@@ -258,31 +285,31 @@ dimensions:
       enabled: true
       checkpoints: ["image-request-ready", "image-storyboard-ready", "image-handoff-ready"]
     stage_acceptance:
-      stages: ["6-图像"]
+      stages: ["7-图像"]
       weight: 0.18
     package_release:
       enabled: true
       weight: 0.17
-    default_rework_targets: ["6-图像/A-分镜画面", "6-图像/B-分镜故事板"]
-    upstream_source_owners: ["4-分组", "5-设计", "6-图像"]
+    default_rework_targets: ["7-图像/A-分镜画面", "7-图像/B-分镜故事板"]
+    upstream_source_owners: ["5-分组", "6-设计", "7-图像"]
   - role_id: "video-delivery-validator"
     dimension: "视频交付就绪"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/video-delivery-readiness.md"
-    scope: "7-视频 storyboard reference, subject reference, hybrid reference, and provider handoff readiness"
-    objective: "确认视频阶段参照、主体、运动与 provider handoff 达到可信交付门"
-    method: "读取 B-分镜故事板参照、C-主体参照、D-主板混合参照与 handoff refs，定位 provider、motion、duration、reference binding 与 continuity 缺口"
+    scope: "8-视频 storyboard reference, subject reference, hybrid reference, provider handoff, and 9-审片 readiness"
+    objective: "确认视频阶段参照、主体、运动、provider handoff 与审片报告达到可信交付门"
+    method: "读取 B-分镜故事板参照、C-主体参照、D-主板混合参照、provider handoff 与审片 refs，定位 provider、motion、duration、reference binding、footage defect 与 continuity 缺口"
     report_filename: "视频交付就绪.md"
     checkpoint_inline:
       enabled: true
-      checkpoints: ["video-request-ready", "video-subject-reference-ready", "video-hybrid-reference-ready", "video-handoff-ready"]
+      checkpoints: ["video-request-ready", "video-subject-reference-ready", "video-hybrid-reference-ready", "video-handoff-ready", "video-review-ready"]
     stage_acceptance:
-      stages: ["7-视频"]
+      stages: ["8-视频", "9-审片"]
       weight: 0.18
     package_release:
       enabled: true
       weight: 0.17
-    default_rework_targets: ["7-视频/B-分镜故事板参照", "7-视频/C-主体参照", "7-视频/D-主板混合参照"]
-    upstream_source_owners: ["4-分组", "5-设计", "6-图像", "7-视频"]
+    default_rework_targets: ["8-视频/B-分镜故事板参照", "8-视频/C-主体参照", "8-视频/D-主板混合参照", "9-审片"]
+    upstream_source_owners: ["5-分组", "6-设计", "7-图像", "8-视频", "9-审片"]
   - role_id: "governance-closure-validator"
     dimension: "治理闭环"
     dimension_spec_ref: ".agents/skills/aigc/review/references/dimensions/governance-closure.md"
@@ -296,6 +323,7 @@ dimensions:
         - "init-handoff-ready"
         - "episode-split-ready"
         - "directing-script-ready"
+        - "motion-enrichment-ready"
         - "cinematography-ready"
         - "grouping-ready"
         - "design-ready"
@@ -304,10 +332,12 @@ dimensions:
         - "image-handoff-ready"
         - "video-request-ready"
         - "video-subject-reference-ready"
+        - "video-hybrid-reference-ready"
         - "video-handoff-ready"
+        - "video-review-ready"
         - "package-release-ready"
     stage_acceptance:
-      stages: ["0-初始化", "1-分集", "2-编导", "3-摄影", "4-分组", "5-设计", "6-图像", "7-视频"]
+      stages: ["0-初始化", "1-分集", "2-编导", "3-运动", "4-摄影", "5-分组", "6-设计", "7-图像", "8-视频", "9-审片"]
       weight: 0.10
     package_release:
       enabled: true

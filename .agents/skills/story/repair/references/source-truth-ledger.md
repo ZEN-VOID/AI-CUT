@@ -35,3 +35,13 @@
 - B/C provider lane 的修复需要 provider messages/report；缺失时不得声称保持原 lane。
 - 若用户显式切换写作模型，必须同步更新目标文档 `写作模型`、provider sidecar/evidence 与最终报告，禁止保留旧模型标记来承载新模型正文。
 - 脚本可读取、diff、统计、校验和落盘，不得生成 canonical creative truth。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本次修复是否锁定最早 canonical owner，并按 source -> projection -> draft/polish -> review/return/state -> future guardrail 的顺序处理？ | `source_priority` | `FAIL-REPAIR-OWNER` | `steps/repair-workflow.md#N3-OWNER-ROUTE`、`steps/repair-workflow.md#N4-SOURCE-WRITEBACK` | `canonical_owner`、`writeback_order`、changed files 顺序 |
+| 是否避免让 `3-初稿`、`4-润色`、review、return 或 STATE 越权拥有上游设定、规划或验收事实？ | `cards_planning_alignment` | `FAIL-REPAIR-OWNER` | `references/source-truth-ledger.md#Truth Owners`、`steps/repair-workflow.md#N6-DOWNSTREAM-SYNC` | owner ledger 判定、未改文件理由、同步/失效动作 |
+| 创作性正文修复是否回到 owning stage 和原 provider lane；目标文档含 `写作模型` 时是否默认遵循该字段？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `steps/repair-workflow.md#N5-LANE-REPAIR-BRIEF` | `creative_engine`、provider evidence、repair brief 或 sidecar |
+| 用户显式切换写作模型时，是否同步更新 `写作模型`、provider sidecar/evidence 与最终报告？ | `authorship` | `FAIL-REPAIR-AUTHORSHIP` | `steps/repair-workflow.md#N5-LANE-REPAIR-BRIEF`、`SKILL.md#Execution Contract` | 切换授权、头部字段变更、sidecar/report 证据 |
+| 脚本是否只做读取、diff、统计、校验和落盘，没有生成 canonical creative truth？ | `runtime_behavior` | `FAIL-REPAIR-RUNTIME` | `guardrails/guardrails-contract.md`、`scripts/README.md` | 脚本调用清单、人工/LLM 创作判定、final report 降级说明 |

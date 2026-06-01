@@ -296,3 +296,11 @@
 ---
 
 **使用建议**：将灵感整理视为持续迭代的过程，定期回顾和更新创意地图，保持灵感池的活力与新鲜度。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 灵感收集是否只在 `module-spec.md` 判定故事核或卖点输入不足时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
+| 灵感条目是否被归并为可追溯输入，不直接冒充项目 canonical truth？ | `security` / `handoff` | `FAIL-INIT-SECURITY` / `FAIL-INIT-HANDOFF` | `guardrails/guardrails-contract.md`、`steps/init-workflow.md` N5 | inspiration source notes、sources_breakdown |
+| 灵感是否形成 `story_kernel`、`reader_promise` 或 unknowns 的候选 patch，而非完整正文或大纲？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | candidate patch、deferred unknowns |

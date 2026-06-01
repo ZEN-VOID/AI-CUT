@@ -7,7 +7,7 @@
 ```mermaid
 flowchart TD
     N1["N1-INTAKE<br/>mode + LibTV intent"] --> N2["N2-CONTEXT<br/>project + skill context"]
-    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 4-分组"]
+    N2 --> N3["N3-GROUP-INDEX<br/>extract groups from 5-分组"]
     N3 --> N4["N4-PROMPT<br/>assemble group video prompts"]
     N4 --> N5["N5-REF-BIND<br/>asset_uploads + draft YAML"]
     N5 --> N6{"N6-REVIEW<br/>review gate"}
@@ -27,9 +27,9 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 锁定任务目标、mode、集号、分镜组范围和 LibTV 意图 | 用户请求、目标项目 | 判定 `prompt_only` / `single_group_generate` / `episode_batch_generate` / `group_batch_generate` / `multi_episode_batch_generate` / `query_or_download` / `repair` / `review_only` | mode note | `N2` | 目标范围明确 |
 | `N2-CONTEXT` | 加载项目与技能上下文 | `SKILL.md`、`CONTEXT.md`、`MEMORY.md`、`north_star.yaml`、LibTV skill | 读取项目偏好、视频阶段上下文和 LibTV 约束 | input manifest | `N3` | 必需文件可读 |
-| `N3-GROUP-INDEX` | 从 `4-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、组正文、底部 YAML、分镜数量和 `时长估算` | `video-group-index.json` | `N4` | 每个 ID 唯一可回指，时长估算可追溯 |
+| `N3-GROUP-INDEX` | 从 `5-分组` 建立组级索引 | `第N集.md` | 解析 `## x-y-z`、组正文、底部 YAML、分镜数量和 `时长估算` | `video-group-index.json` | `N4` | 每个 ID 唯一可回指，时长估算可追溯 |
 | `N4-PROMPT` | 生成组级视频 prompt draft | group index | 直接接入现有组正文主体，保留原 fenced YAML，不提前写死图N字段 | prompt markdown / per-group txt | `N5` | 组正文完整且未改写，draft YAML 未伪造空绑定 |
-| `N5-REF-BIND` | 保守绑定 YAML 主体参照和 OSS 身份映射 | prompt package、5-设计生成目录 | 多视图优先、主图次之、缺图保留原主体名；上传只建立 `asset_uploads: name -> uploaded_url`，不决定 `reference_index` | reference manifest / upload ledger draft | `N6` | 无猜测路径，上传层与槽位层分离 |
+| `N5-REF-BIND` | 保守绑定 YAML 主体参照和 OSS 身份映射 | prompt package、6-设计生成目录 | 多视图优先、主图次之、缺图保留原主体名；上传只建立 `asset_uploads: name -> uploaded_url`，不决定 `reference_index` | reference manifest / upload ledger draft | `N6` | 无猜测路径，上传层与槽位层分离 |
 | `N6-REVIEW` | 执行生成前审查 | prompt、manifest、mode | 检查 ID、组正文、路径、LibTV submit plan可行性 | review note | `N7` / `N10` / repair | 必需项通过 |
 | `N7-LIBTV-CHECK` | 确认 $libTV 脚本与凭据 | $libTV scripts | 执行或规划 `LIBTV_ACCESS_KEY credential check` | self-check record | `N8` 或 blocked | 脚本可用且登录态正常 |
 | `N8-DISPATCH` | 批量调用 LibTV | submit plan | 每组独立任务；先按 UI 图N或最终 mixedList 建立 `generation_slots`，运行 `scripts/build-upload-ledger.py <package_dir> --sync` 将槽位注册表机械投影回 manifest、submit plan、final YAML 和远端 `mixedList`，再写远端提交；按 `duration_hint=clamp(duration_estimate_seconds, 4, 15)` 提交，默认后台多线程并发 | session ids / final upload ledger | `N9` | 不覆盖、不越权、不固定 15 秒，图N顺序与 final YAML 一致 |

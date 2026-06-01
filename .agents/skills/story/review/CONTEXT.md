@@ -32,11 +32,13 @@ last_checked_at: 2026-04-27
 | 父层为了“结构完整”补空维度，导致 aggregate 看似完整但没有真实审查证据 | phantom dimension | 聚合时只消费本轮真实调度且通过 schema 校验的 packets | `drafting_inline` 与 `final_acceptance` 都按 selected_agents 记录真实 dispatch | aggregate 中不存在未执行维度的假 packet |
 | 子技能给出问题但没有 `source_layer_owner`，返工被错误打回 drafting | source trace missing | 父层聚合时补查 issue 是否需要上溯 `0-初始化 / 1-设定 / 2-卷章` | child output contract 固定 source owner 槽位，父层 schema gate 检查 | 失败 issue 能说明是上游 source 修复还是正文返工 |
 | `drafting_inline` 与 `final_acceptance` 混用，单章即时 hook 误写卷级最终 gate | invocation mode confusion | 先判 mode；inline 只返回阻断/回退信号，终验才写 aggregate JSON | 在父 `SKILL.md` 固定 mode selection 与输出路径差异 | inline 运行不会生成或覆盖 `第V卷.validation.json` |
-| 六维审查权重或 mandatory 规则修改后，父导览表和 registry 不一致 | guide drift | 以 registry 为准修正父导览表 | 父导览表明确声明只作入口导览，冲突时回修导览 | `rg role_id` 与 registry 对齐 |
+| 七维审查权重或 mandatory 规则修改后，父导览表和 registry 不一致 | guide drift | 以 registry 为准修正父导览表 | 父导览表明确声明只作入口导览，冲突时回修导览 | `rg role_id` 与 registry 对齐 |
 | review 失败后只给总分，不给可执行返工入口 | route insufficiency | 聚合时保留 `routing_decision / rework_targets / handoff_targets` | 父层 Completion Gate 要求 PASS/FAIL 同时解释下一步 | 失败结果能直接路由到 source contract 或具体 drafting step |
 | 上层策略阻断真实 reviewer dispatch，但报告写成“已并发审查” | dispatch transparency | 明确记录降级来源、未真实启动的维度和实际采用路径 | 父层 dispatch contract 固定真实 dispatch 与降级报告口径 | 最终报告能区分真实 child result 与本地降级纪要 |
 | 维度 issue 分类漂移，结构、连续性、逻辑、人物、时间线互相抢问题 | boundary blur | 回到 child `Parent Positioning` 与父层 registry scope 拆分 issue | 父层只做聚合，不在父层重写维度判据 | 每条 issue 有唯一主维度，必要时用 related_dimensions 辅助说明 |
 | 初稿 review 和润色 review 使用同一套“越顺越好”标准，导致初稿被过早清洗或润色被鼓励整章重写 | stage review goal collapse | 区分 `3-初稿` 的完整性/兑现审查与 `4-润色` 的最小修补/分布保持审查 | 父 `SKILL.md` 固定 Stage-Specific Review Allocation | 初稿 FAIL 回原 drafting lane；润色 FAIL 回原 polishing lane，且能说明是否发生短句化清洗 |
+| 终验没有独立文体读感维度，导致“信息都对但不像小说”被结构或人物维度漏放 | prose-style dimension missing | 新增 `文体读感`，并在 registry、runner、aggregate 模板和父导览同步 | roster 调整必须先改 registry，再补 child 包和 runner handler | aggregate 出现 `prose_style` 分数与 `文体读感.md` sidecar |
+| 文体问题被误归为结构问题，返工只补事件不补现场 | prose boundary blur | 将现场感、句群、AI 腔、模板脸色归 `文体读感`；结构只判义务兑现 | 父层边界说明文体读感只管 prose 手感，不抢 planning 兑现 | issue 能打回 `3-场景和氛围渲染`、`5-对白优化`、`6-心理活动描写` 或 `8-润色` |
 
 ## Repair Playbook
 
@@ -52,10 +54,10 @@ last_checked_at: 2026-04-27
 
 ## Reusable Heuristics
 
-- 父 `review` 的价值不在于多说一遍六个维度，而在于让所有维度有同一个入口、同一个输入包、同一个聚合 gate。
+- 父 `review` 的价值不在于多说一遍七个维度，而在于让所有维度有同一个入口、同一个输入包、同一个聚合 gate。
 - `第V卷.validation.json` 是验收判定，`第V卷/<维度>.md` 是证据；证据可以很多份，gate 只能有一份。
 - review 失败最重要的问题通常不是“分数低”，而是“该回哪一层修”。没有返工归属的 review 只能制造噪音。
-- 维度边界要保持窄：结构看义务兑现，连续性看承接不断带，逻辑看能否成立，人物看是否仍像自己，时间线看锚点和窗口，任务汇聚看支流是否服务主线。
+- 维度边界要保持窄：结构看义务兑现，连续性看承接不断带，逻辑看能否成立，人物看是否仍像自己，时间线看锚点和窗口，任务汇聚看支流是否服务主线，文体读感看正文是否真正像中文小说。
 - 聚合层不要替 child 做审美细判；聚合层只负责把 child 的证据变成可执行 gate 和路由。
 - registry 是技能组的心脏。只要 roster 在两个地方都像真源，后面一定会漂移。
 - `drafting_inline` 是过程刹车，`final_acceptance` 是终验门；两者共用维度定义，但不能共用输出落点。

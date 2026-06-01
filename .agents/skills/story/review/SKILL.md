@@ -7,9 +7,9 @@ skill_role: parent_guide
 
 # story / review
 
-`review` 是 `story2026` 的技能组导引入口，不是第七个审查维度。
+`review` 是 `story2026` 的技能组导引入口，不是第八个审查维度。
 
-它负责组队、锁定输入 covenant、调度六个维度子技能、聚合维度证据，并写出卷级唯一验收 gate。各子技能只拥有自己的维度 verdict 与 sidecar report 权，不拥有最终 `validation_status` 判定权。
+它负责组队、锁定输入 covenant、调度七个维度子技能、聚合维度证据，并写出卷级唯一验收 gate。各子技能只拥有自己的维度 verdict 与 sidecar report 权，不拥有最终 `validation_status` 判定权。
 
 ## Context Loading Contract
 
@@ -46,14 +46,14 @@ skill_role: parent_guide
 
 ## Non Goals
 
-- 不直接替代六个维度子技能做细项判断。
+- 不直接替代七个维度子技能做细项判断。
 - 不生成正文、补写剧情、润色章节或改写上游 source truth。
 - 不让任一 child sidecar 直接成为最终 PASS/FAIL gate。
 - 不把 review 结果直接写回 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的 canonical truth；回写必须经由对应 owning stage 或 `return` 的 handoff gate。
 
 ## Group Topology
 
-当前 review 技能组由父导引入口和六个受治理子技能组成：
+当前 review 技能组由父导引入口和七个受治理子技能组成：
 
 | 维度 | 子技能路径 | role_id | 默认职责 |
 | --- | --- | --- | --- |
@@ -63,6 +63,7 @@ skill_role: parent_guide
 | 人物一致性 | `人物一致性/` | `character-validator` | 检查人物行为、动机、关系压力、成长承接与对白声口 |
 | 时间线 | `时间线/` | `timeline-validator` | 检查时间锚、事件顺序、持续时长与伏笔静默窗口 |
 | 任务汇聚 | `任务汇聚/` | `task-convergence-validator` | 检查卷级/章级任务是否从属于主任务并完成汇聚、转挂或显式保留开放 |
+| 文体读感 | `文体读感/` | `prose-style-validator` | 检查中文小说 prose、场景现场感、句群节奏、对白潜台词、心理暗流和 AI 腔 |
 
 维度名单、权重、drafting hook 与 sidecar 文件名的单一真源是 `_shared/validation-dimension-registry.yaml`。本表只作入口导览；发生冲突时以 registry 为准，并同步修正本表。
 
@@ -90,7 +91,7 @@ skill_role: parent_guide
 | 生成维度 sidecar 报告 | `_shared/validation-dimension-report.template.md` |
 | 解释 reviewer 团队共享规则 | `_shared/validation-team-contract.md` |
 | 执行某个维度判断 | 对应子目录的 `SKILL.md + CONTEXT.md` |
-| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；维度细则、类型包和局部 review 归六个维度子技能 |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；维度细则、类型包和局部 review 归七个维度子技能 |
 
 ## Invocation Modes
 
@@ -107,8 +108,8 @@ skill_role: parent_guide
 
 | target stage | review goal | primary checks | default route when failed |
 | --- | --- | --- | --- |
-| `3-初稿` | 判断候选正文是否完整兑现 planning、角色、连续性、逻辑和任务汇聚，是否允许进入润色 | 结构兑现、人物声口、事件完整度、连续性、逻辑自洽、任务汇聚、是否保留 Doubao 初稿的人话和中文气口 | 回到 `3-初稿` 原始 drafting lane；默认为 `B-Doubao流`，GPT/subagents 只产出 repair brief |
-| `4-润色` | 判断最小局部修补是否修坏处且没有破坏初稿分布、事实和人物气口，是否可作为 accepted manuscript | 初稿锚定、最小修补、无整章重排、无短句化清洗、无通用顺滑化、局部问题是否解决 | 回到 `4-润色` 原始 polishing lane；默认为 `C-Deepseek流` 的 `local_repair` |
+| `3-初稿` | 判断候选正文是否完整兑现 planning、角色、连续性、逻辑和任务汇聚，是否允许进入润色 | 结构兑现、人物声口、事件完整度、连续性、逻辑自洽、任务汇聚、文体读感、现场发现、是否保留 Doubao 初稿的人话和中文气口 | 回到 `3-初稿` 原始 drafting lane；默认为 `B-Doubao流`，GPT/subagents 只产出 repair brief |
+| `4-润色` | 判断最小局部修补是否修坏处且没有破坏初稿分布、事实和人物气口，是否可作为 accepted manuscript | 初稿锚定、最小修补、无整章重排、无短句化清洗、无通用顺滑化、文体读感未退化、局部问题是否解决 | 回到 `4-润色` 原始 polishing lane；默认为 `C-Deepseek流` 的 `local_repair` |
 
 硬规则：
 

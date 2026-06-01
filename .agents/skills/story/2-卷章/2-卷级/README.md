@@ -6,6 +6,8 @@
 
 ```text
 2-卷级/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   ├── legacy-upgrade-matrix.md
 │   ├── volume-planning-contract.md
@@ -22,11 +24,13 @@
 ├── knowledge-base/
 │   └── volume-planning-heuristics.md
 ├── types/
+│   ├── type-map.md
 │   └── volume-planning-type-map.md
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
 ├── CONTEXT.md
+├── README.md
 └── SKILL.md
 ```
 
@@ -39,9 +43,11 @@
 - 六拍框架：`references/volume-rhythm-framework.md`
 - 执行网络：`steps/volume-planning-workflow.md`
 - 输出模板：`templates/output-template.md`
+- 运行时边界：`guardrails/guardrails-contract.md`
 
 ## Validation
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/story/2-卷章/2-卷级 --mode delivery
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/smoke_test_skill_2_0.py .agents/skills/story/2-卷章/2-卷级 --mode delivery
 ```

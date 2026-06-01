@@ -26,6 +26,7 @@ governance_tier: lite
 
 - 检查当前章如何接上上一章停点
 - 检查本章内部场景切换、threads 承接与推进连续性
+- 检查关键转场是否通过声音、物件、光影、人物动作、对白牵引或时间压力自然过渡，而不是只靠“与此同时 / 过了几天 / 回到某处”等直白标记硬切
 - 检查是否突然断掉读者仍在记账的压力线
 
 它不负责：
@@ -51,9 +52,9 @@ governance_tier: lite
 | --- | --- |
 | `business_goal` | 判断这卷是不是按卷地图 continuity pack 长出来，卷内各章承接与线程推进没有断带。 |
 | `business_object` | 卷级 continuity matrix、当前卷正文集合、卷级写作日志、`chapter_planning_packets`。 |
-| `constraint_profile` | 先看卷级 entry/exit 关系，再看卷内相邻章节 transition；不能只靠“读起来还行”给通过。 |
-| `success_criteria` | 能指出哪条线接得上、哪一章中途断了、哪个转场突兀、哪个卷内 carryover 漂移。 |
-| `topology_fit` | `carryover load -> transition trace -> thread continuity -> report packet` |
+| `constraint_profile` | 先看卷级 entry/exit 关系，再看卷内相邻章节 transition；转场必须同时检查承接事实与手法质量，不能只靠“读起来还行”给通过。 |
+| `success_criteria` | 能指出哪条线接得上、哪一章中途断了、哪个转场突兀、哪个卷内 carryover 漂移，以及关键转场是否有感知触发物或人物动作牵引。 |
+| `topology_fit` | `carryover load -> transition trace -> transition quality check -> thread continuity -> report packet` |
 
 ## Total Input Contract
 
@@ -73,7 +74,7 @@ governance_tier: lite
 - `role_id`:
   - `continuity-validator`
 - `dimension_packet`:
-  - 至少包含 `previous_episode_bridge`、`transition_breaks`、`thread_drop_count`、`carryover_gaps`
+  - 至少包含 `previous_episode_bridge`、`transition_breaks`、`transition_quality_issues`、`thread_drop_count`、`carryover_gaps`
 - `dimension_report_ref`:
   - `review/第V卷/连续性.md`
 - 默认返工节点：
@@ -85,8 +86,9 @@ governance_tier: lite
 ```mermaid
 flowchart TD
     A["读取上一章停点与本章开篇"] --> B["追踪本章转场"]
-    B --> C["核查 threads 是否中断"]
-    C --> D["输出连续性 packet + report"]
+    B --> C["检查转场手法质量"]
+    C --> D["核查 threads 是否中断"]
+    D --> E["输出连续性 packet + report"]
 ```
 
 ## Thinking-Action Network
@@ -95,8 +97,9 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-CARRYOVER-LOAD` | `FIELD-CT-01` | 锁上一章停点与本章开篇关系 | 抽取情绪、动作、信息停点 | `carryover_note` | -> `N2` | 承接可读 |
 | `N2-TRANSITION-TRACE` | `FIELD-CT-02` | 检查本章内转场与推进 | 标记突兀跳转、断层、硬切 | `transition_note` | -> `N3` | 转场清楚 |
-| `N3-THREAD-CHECK` | `FIELD-CT-03` | 核查活跃 threads 是否中断 | 识别悬念线、任务线、关系线断带 | `thread_note` | -> `N4` | 线索不断带 |
-| `N4-PACKET-WRITE` | `FIELD-CT-04` | 输出连续性结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |
+| `N3-TRANSITION-QUALITY` | `FIELD-CT-03` | 检查转场手法质量 | 判断转场是否由感知触发物、人物动作、对白承接、光影/声音变化或任务压力牵引，标记直白时间标记和无因硬切 | `transition_quality_note` | -> `N4` | 转场有自然牵引 |
+| `N4-THREAD-CHECK` | `FIELD-CT-04` | 核查活跃 threads 是否中断 | 识别悬念线、任务线、关系线断带 | `thread_note` | -> `N5` | 线索不断带 |
+| `N5-PACKET-WRITE` | `FIELD-CT-05` | 输出连续性结论 | 生成 `dimension_packet + report_ref` | `packet_note` | done | 只写本维度 |
 
 ## Lite Field Contract
 
@@ -104,8 +107,9 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `FIELD-CT-01` | carryover bridge | 能说清上一章如何接到本章 | `FAIL-CT-01` | `N1` |
 | `FIELD-CT-02` | transition matrix | 关键转场没有硬断层 | `FAIL-CT-02` | `N2` |
-| `FIELD-CT-03` | thread continuity | 活跃线索/任务/关系线未被莫名放掉 | `FAIL-CT-03` | `N3` |
-| `FIELD-CT-04` | dimension packet | 报告可追溯且可聚合 | `FAIL-CT-04` | `N4` |
+| `FIELD-CT-03` | transition quality | 关键转场有感知触发物、人物动作、对白承接、光影/声音变化或任务压力牵引，不依赖纯时间/地点标记硬切 | `FAIL-CT-03` | `N3` |
+| `FIELD-CT-04` | thread continuity | 活跃线索/任务/关系线未被莫名放掉 | `FAIL-CT-04` | `N4` |
+| `FIELD-CT-05` | dimension packet | 报告可追溯且可聚合 | `FAIL-CT-05` | `N5` |
 
 ## Completion Contract
 
@@ -130,7 +134,7 @@ flowchart TD
 
 `Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
 
-若承接断带没有明确断在哪条线，回到 `N1-CARRYOVER-LOAD` 与 `N3-THREAD-CHECK`；若缺 continuity matrix，直接 route `FAIL-COVENANT`。
+若承接断带没有明确断在哪条线，回到 `N1-CARRYOVER-LOAD` 与 `N4-THREAD-CHECK`；若转场只指出“突兀”但没有判断触发物、人物动作或压力牵引，回到 `N3-TRANSITION-QUALITY`；若缺 continuity matrix，直接 route `FAIL-COVENANT`。
 
 ## Field Mapping
 

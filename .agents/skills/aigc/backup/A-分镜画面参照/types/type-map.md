@@ -38,18 +38,18 @@
 | `prompt_fidelity_mode` | `strict_original / transport_only / libtv_optimize` | 提示词保真与远端优化授权模式；默认 `strict_original` |
 | `allow_libtv_prompt_optimization` | `false / true` | 是否允许 LibTV Agent 做提示词优化、重排、摘要或工作流规划；默认 `false` |
 | `duration_source` | `group_yaml / shot_sum / fallback_default / user_override` | 组级视频时长估算来源 |
-| `duration_estimate_seconds` | positive number | 从 `4-分组` 当前组得到的真实估算时长 |
+| `duration_estimate_seconds` | positive number | 从 `5-分组` 当前组得到的真实估算时长 |
 | `duration_hint` | integer seconds | 提交给 LibTV 的视频时长，按 `clamp(duration_estimate_seconds, 4, 15)` 得到 |
 
 ## Mode Matrix
 
 | mode | required_existing_input | route | skipped stages |
 | --- | --- | --- | --- |
-| `prompt_only` | `4-分组/第N集.md` | `N1 -> N7 -> N11 -> N12` | LibTV submit / query / download |
-| `single_group_generate` | `4-分组/第N集.md` + one `group_id` | `N1 -> N12` | unrelated groups |
-| `episode_batch_generate` | `4-分组/第N集.md` | `N1 -> N12` with `N8` background pool | none |
-| `group_batch_generate` | `4-分组/第N集.md` + selected `group_ids` | `N1 -> N12` with selected jobs only | unselected groups |
-| `shot_batch_generate` | `4-分组/第N集.md` + selected `shot_ids` | map shot ids to groups, then selected group jobs | unrelated groups and shots |
+| `prompt_only` | `5-分组/第N集.md` | `N1 -> N7 -> N11 -> N12` | LibTV submit / query / download |
+| `single_group_generate` | `5-分组/第N集.md` + one `group_id` | `N1 -> N12` | unrelated groups |
+| `episode_batch_generate` | `5-分组/第N集.md` | `N1 -> N12` with `N8` background pool | none |
+| `group_batch_generate` | `5-分组/第N集.md` + selected `group_ids` | `N1 -> N12` with selected jobs only | unselected groups |
+| `shot_batch_generate` | `5-分组/第N集.md` + selected `shot_ids` | map shot ids to groups, then selected group jobs | unrelated groups and shots |
 | `query_or_download` | existing queue ledger or sessionId | `N1 -> N9 -> N10 -> N11 -> N12` | source extraction unless repair needs it |
 | `repair` | existing artifacts and fail code | targeted owning node | all unrelated nodes |
 | `review_only` | existing artifacts | review gate only | submit / download |
@@ -58,11 +58,11 @@
 
 | signal | action |
 | --- | --- |
-| 用户要求生成分镜画面图 | reroute to `6-图像/A-分镜画面` |
-| 用户要求故事板大图作为参照 | reroute to `7-视频/B-分镜故事板参照` |
-| 用户要求角色/场景/道具主体参照 | reroute to `7-视频/C-主体参照` |
+| 用户要求生成分镜画面图 | reroute to `7-图像/A-分镜画面` |
+| 用户要求故事板大图作为参照 | reroute to `8-视频/B-分镜故事板参照` |
+| 用户要求角色/场景/道具主体参照 | reroute to `8-视频/C-主体参照` |
 | `LIBTV_ACCESS_KEY credential check` 失败 | reroute to `.agents/skills/cli/libTV` login / auth repair |
-| `4-分组` 不存在或 group_id / shot_id 无法唯一追溯 | stop and return to `4-分组` |
+| `5-分组` 不存在或 group_id / shot_id 无法唯一追溯 | stop and return to `5-分组` |
 | 分镜画面图多候选歧义 | block current group and return to reference binding |
 
 ## Command Selection Matrix

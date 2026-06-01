@@ -76,7 +76,7 @@
 | `GATE-SBS-CINE-03A` | 运动类型系统是否说明类型清单、语义、切换逻辑、手持使用和速度节奏 | `FAIL-CINE-MOVE-TYPE` | 回到 `N5-BRIDGE` |
 | `GATE-SBS-CINE-03B` | 长镜头结构是否说明阈值、phase、机位运动层级、空间揭示和情绪功能 | `FAIL-CINE-LONG-TAKE` | 回到 `N5-BRIDGE` |
 | `GATE-SBS-CINE-03C` | 画幅和构图比例是否说明叙事功能、比例变化和下游约束 | `FAIL-CINE-FORMAT` | 回到 `N5-BRIDGE` |
-| `GATE-SBS-CINE-04` | `camera_grammar_plan_seed`、`functional_projection_payload` 和 `shot_detail_style_seed` 是否能被 `3-摄影` 消费 | `FAIL-CINE-PAYLOAD` | 回到 `N5-BRIDGE` |
+| `GATE-SBS-CINE-04` | `camera_grammar_plan_seed`、`functional_projection_payload` 和 `shot_detail_style_seed` 是否能被 `4-摄影` 消费 | `FAIL-CINE-PAYLOAD` | 回到 `N5-BRIDGE` |
 | `GATE-SBS-CINE-04A` | 摄影语法计划是否给出景别、视角、景深、焦点、镜头类型、构图、光影和运镜迁移策略 | `FAIL-CINE-GRAMMAR-PLAN` | 回到 `N5-BRIDGE` |
 | `GATE-SBS-CINE-04B` | `shot_detail_style_seed` 是否能转成自然中文 `分镜明细：` 写法参考 | `FAIL-CINE-SHOT-DETAIL` | 回到 `N5-BRIDGE` |
 | `GATE-SBS-CINE-05` | 摄影包是否避免改写 `2-编导` 正文、固定参考片镜头数量或导入不可执行空泛词 | `FAIL-CINE-DO-NOT` | 回到 `N5-BRIDGE` |

@@ -2,7 +2,7 @@
   "project": "<项目名>",
   "episode": "第N集",
   "route": "D-主板混合参照",
-  "output_root": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
+  "output_root": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集",
   "defaults": {
     "requested_model": "",
     "duration_source": "group_yaml",
@@ -23,9 +23,9 @@
     {
       "group_id": "1-1-1",
       "command_type": "libtv_session_with_uploaded_references",
-      "prompt_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/prompts/1-1-1.txt",
+      "prompt_path": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集/prompts/1-1-1.txt",
       "remote_prompt_contract_version": "hybrid_board_subject_direct_video_v1",
-      "remote_submission_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/prompts/1-1-1-libtv-submission.txt",
+      "remote_submission_path": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集/prompts/1-1-1-libtv-submission.txt",
       "remote_submission_required_opening": "【LibTV 调用锁定】",
       "required_modeType_when_referenced": "mixed2video",
       "required_reference_field": "mixedList",
@@ -54,7 +54,7 @@
         {
           "role": "storyboard_total_reference",
           "marker": "uploaded_url_binding",
-          "path": "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png",
+          "path": "projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集/images/1-1-1.png",
           "uploaded_url": "",
           "reference_index": 1,
           "oss_upload_index": 1,
@@ -66,7 +66,7 @@
           "subject_type": "角色",
           "subject_name": "主体名",
           "marker": "uploaded_url_binding",
-          "path": "projects/aigc/<项目名>/5-设计/角色/3-生成/主体名/多视图.png",
+          "path": "projects/aigc/<项目名>/6-设计/角色/3-生成/主体名/多视图.png",
           "uploaded_url": "",
           "reference_index": 2,
           "oss_upload_index": 2,
@@ -100,9 +100,9 @@
       "sessionId": "",
       "projectUuid": "",
       "projectUrl": "",
-      "queue_ledger": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/第N集-libtv-queue.md",
-      "download_dir": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集",
-      "expected_video_path": "projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/1-1-1.mp4"
+      "queue_ledger": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集/第N集-libtv-queue.md",
+      "download_dir": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集",
+      "expected_video_path": "projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集/1-1-1.mp4"
     }
   ]
 }

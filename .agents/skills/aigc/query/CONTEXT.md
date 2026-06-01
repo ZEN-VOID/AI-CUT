@@ -18,7 +18,7 @@ last_checked_at: 2026-04-26
 | --- | --- | --- | --- | --- |
 | 把 `.agents/skills/aigc/` 当成项目结果目录 | project-root guard | 先定位 `projects/aigc/<项目名>/` | 在 `SKILL.md` 与 `steps/query-workflow.md` 固定 root lock | 证据路径落在真实项目根 |
 | 沿用旧 `3-Detail` 查询编导主文件 | stage migration layer | 改查 `2-编导/第N集.md`，必要时标注 legacy fallback | 在 `references/project-runtime-layout.md` 固定新旧映射 | 回答同时说明 canonical 与 legacy |
-| 查询视觉资产时混用 `4-Design/5-Image/6-Video` | runtime naming layer | 新链路查 `5-设计/6-图像/7-视频` | 在 data-flow 表中保留 legacy only 字段 | 不把 legacy 当默认输出 |
+| 查询视觉资产时混用 `4-Design/5-Image/6-Video` | runtime naming layer | 新链路查 `6-设计/7-图像/8-视频` | 在 data-flow 表中保留 legacy only 字段 | 不把 legacy 当默认输出 |
 | 把文件存在当作验收通过 | validation distinction | 补读 `validation-report.md` 或 `执行报告.md` | review gate 固定“存在不等于 PASS” | 答复明确区分存在/通过 |
 | 问当前断点时只看目录结构 | governance carrier layer | 读 `governance-state.yaml`、`STATE.json` 与初始化核心工件 | system data flow 固定治理 carrier 顺序 | 结论带治理载体证据 |
 | 问制度路由时只扫项目目录 | registry route layer | 读取 `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` | `governance_system` mode 固定 registry first | 能指出制度层漂移 |
@@ -37,6 +37,6 @@ last_checked_at: 2026-04-26
 
 - `query/` 的价值不是全仓搜索，而是先回答“哪个文件有资格回答这个问题”。
 - 对项目事实，`projects/aigc/<项目名>/` 高于 registry；对制度事实，registry/routes 高于项目目录。
-- 新链路阶段名以当前 `.agents/skills/aigc` 真实目录为准：`0-初始化`、`1-分集`、`2-编导`、`3-摄影`、`4-分组`、`5-设计`、`6-图像`、`7-视频`。
+- 新链路阶段名以当前 `.agents/skills/aigc` 真实目录为准：`0-初始化`、`1-分集`、`2-编导`、`3-运动`、`4-摄影`、`5-分组`、`6-设计`、`7-图像`、`8-视频`、`9-审片`。
 - `STATE.json` 是轻量状态入口，`governance-state.yaml` 是结构化治理快照；两者不得被解释成彼此的替代品。
 - 没有 `validation-report.md` 或阶段 `执行报告.md` 时，只能说“未见验收证据”，不能说失败或通过。

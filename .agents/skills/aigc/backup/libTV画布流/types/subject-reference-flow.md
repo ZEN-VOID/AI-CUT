@@ -4,9 +4,9 @@
 
 ## Fixed Context
 
-- 基本处理对象：`projects/aigc/<项目名>/6-分组/第N集.md`。
+- 基本处理对象：`projects/aigc/<项目名>/5-分组/第N集.md`。
 - 每个非连接件分镜组 `## x-y-z` 直接作为一条 LibTV 视频生成任务的剧情主体。
-- `6-分组` 是主要信息来源；不得回到 `5-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
+- `5-分组` 是主要信息来源；不得回到 `4-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
 - 分镜组视频 prompt 主体直接采用现有分镜组正文；LLM 只负责裁决提取范围、保真组织、缺口说明和审查，不得扩写或改写剧情事实。
 - 组底 fenced YAML 的 `角色 / 场景 / 道具` 是主体参照绑定的默认来源。
 - 组底 YAML 同时定义参考数组的 canonical order：`角色` 原顺序 -> `场景` 原顺序 -> `道具` 原顺序。
@@ -55,12 +55,12 @@
 ## Reference Resolution
 
 - 同一 LibTV `projectUuid/projectID` 画布内，已经按同一 YAML 主体名成功上传并登记为 active 的主体图 URL 可直接复用。
-- active registry 固定为 `projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json`，主键为 `projectUuid::category::yaml_name`。
+- active registry 固定为 `projects/aigc/<项目名>/8-视频/libTV画布流/libtv-canvas-active-registry.json`，主键为 `projectUuid::category::yaml_name`。
 - 只有缺少 active URL、同名登记歧义、图片被调整/更换或用户明确要求“替换/更新/重新上传”时，才检查本地生成目录并上传。
 - 本地查找目录固定为：
-  - `projects/aigc/<项目名>/7-设计/角色/3-生成`
-  - `projects/aigc/<项目名>/7-设计/场景/3-生成`
-  - `projects/aigc/<项目名>/7-设计/道具/3-生成`
+  - `projects/aigc/<项目名>/6-设计/角色/3-生成`
+  - `projects/aigc/<项目名>/6-设计/场景/3-生成`
+  - `projects/aigc/<项目名>/6-设计/道具/3-生成`
 - 需要新上传时，多视图优先，没有多视图就主图，都没有就空着并从参照图片数组中移除。
 - 名称命中多个候选图片时，先把候选图发送到当前窗口作为可加载上下文执行视觉消歧；无法唯一判定才进入 `ambiguous`。
 - 本地图片路径、候选集合和消歧证据只写入 manifest / submit plan，不写进 prompt 正文。

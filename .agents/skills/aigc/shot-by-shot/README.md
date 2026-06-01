@@ -1,6 +1,6 @@
 # aigc shot-by-shot
 
-`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能，用于把参考影片或视频逐镜拆解成可供 `0-初始化`、`2-编导`、`3-摄影` 与 `5-设计` 消费的 AIGC 项目上下文解析。
+`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能，用于把参考影片或视频逐镜拆解成可供 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 与 `6-设计` 消费的 AIGC 项目上下文解析。
 
 ## 目录树
 
@@ -45,6 +45,7 @@ shot-by-shot/
 - 分镜脚本：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/分镜脚本.md`
 - 全局风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/全局风格解析.md`
 - 编剧风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/编剧风格解析.md`
+- 运动风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/运动风格解析.md`
 - 摄影风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/摄影风格解析.md`
 - 设计风格解析：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/设计风格解析.md`
 - 执行报告：`projects/aigc/<项目名>/shot-by-shot/<reference_slug>/执行报告.md`

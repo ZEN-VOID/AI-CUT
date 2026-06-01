@@ -36,17 +36,19 @@ Rules:
 7. `细分风格` owns domain-specific style guidance: `画面风格 / 服装风格 / 建筑风格 / 物品风格`. Ancient architecture guidance must not force-fit modern architects or modernist labels unless the project explicitly calls for it.
 8. `画面风格` defaults to Chinese and describes the unified picture style; it may echo the whole-work light/color logic at a high level, but the fuller scene-type matrix belongs in `全局风格.全局风格提示词` or `全局风格.场景化风格策略`.
 9. `服装风格 / 建筑风格 / 物品风格` default to Chinese and remain concise domain guidance; they can inherit the whole-work material/texture rules without becoming the owner of global style.
-10. Do not duplicate global-design fields in old umbrella slots such as `aesthetic_axes`, `genre_corridor`, `theme_promises`, or `tone_keywords`.
-11. `init_handoff.yaml` carries stage-entry seeds, source layers, and unknowns.
-12. Session-only information does not belong in `north_star.yaml`.
-13. `north_star.yaml` must not contain route truth or `rebootstrap` process state.
+10. `创作阶段不变量` owns durable constraints for `2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`; it may absorb initialization team synthesis, but it must not contain live route truth, stage status, single-shot facts, or post-init team persona dispatch rules.
+11. Do not duplicate global-design fields in old umbrella slots such as `aesthetic_axes`, `genre_corridor`, `theme_promises`, or `tone_keywords`.
+12. `init_handoff.yaml` carries stage-entry seeds, source layers, and unknowns.
+13. Session-only information does not belong in `north_star.yaml`.
+14. `north_star.yaml` must not contain route truth or `rebootstrap` process state.
 
 ## Stage Entry Ownership
 
 1. Initialization-round stage seed: `init_handoff.yaml.project_contract.recommended_next_stage`.
 2. Current live route truth: `STATE.json.recommended_next_stage`, `recommended_entry_path`, and `recommended_next_step`.
-3. If present, `governance-state.yaml.resume_contract.*` is the structured resume truth for `query`, `resume`, and high-risk gates.
-4. After the project leaves `0-初始化`, `init_handoff.yaml` remains historical handoff seed and no longer owns live current-stage truth.
+3. Creative-stage entry seed names are `episode_split_seed`, `writing_directing_seed`, `motion_seed`, `cinematography_seed`, `grouping_seed`, and `design_seed`; image/video/review hints belong under `post_creative_handoff`.
+4. If present, `governance-state.yaml.resume_contract.*` is the structured resume truth for `query`, `resume`, and high-risk gates.
+5. After the project leaves `0-初始化`, `init_handoff.yaml` remains historical handoff seed and no longer owns live current-stage truth.
 
 ## Adaptation And Pacing Seed
 
@@ -102,7 +104,7 @@ Priority:
 
 `story source user truth > user explicit confirmation > council_advised > assistant_inferred`
 
-Conflicting assistant-inferred story fields must be rewritten before entering `1-分集`, `2-编剧`, or later stages.
+Conflicting assistant-inferred story fields must be rewritten before entering `1-分集`, `2-编导`, or later stages.
 
 For `primary_story_source.source_type == storyboard_script`, `preset_registry[].lock_level` may only be `hard_lock`, `soft_lock`, or `reference_only`.
 
@@ -149,9 +151,9 @@ Triggers:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| Does `north_star.yaml` contain only durable project constraints, and does it exclude live route truth, session-only notes, and `rebootstrap` process state? | `FIELD-INIT-01` | `FAIL-INIT-01` | `steps/init-workflow.md` `N5-synthesis`; `templates/north-star.template.yaml`; this file's `North Star` and `Stage Entry Ownership` sections | Review report cites the inspected `north_star.yaml` path and any forbidden route/session/reset fields found or confirms none were present. |
+| Does `north_star.yaml` contain only durable project constraints, including `创作阶段不变量`, and does it exclude live route truth, session-only notes, `rebootstrap` process state, and post-init team persona dispatch rules? | `FIELD-INIT-01` | `FAIL-INIT-01` | `steps/init-workflow.md` `N5-synthesis`; `templates/north-star.template.yaml`; this file's `North Star` and `Stage Entry Ownership` sections | Review report cites the inspected `north_star.yaml` path, stage invariant coverage, and any forbidden route/session/reset/persona-runtime fields found or confirms none were present. |
 | Does `north_star.yaml` carry the exact `全局风格 / 细分风格 / 类型元素 / 世界观` blocks, with `全局风格` as a whole-work union-style contract and `全局风格提示词` explicitly containing `全局风格.媒介属性`? | `FIELD-INIT-01G` | `FAIL-INIT-01G` | `steps/init-workflow.md` `N4-mode-engine` and `N5-synthesis`; `templates/north-star.template.yaml`; this file's `North Star` section | Review report quotes or summarizes the four global design blocks, the medium-bearing prompt sentence, prompt length condition, and any missing or misplaced style logic. |
-| Does `init_handoff.yaml` own stage-entry seeds, source layers, unknowns, and initialization-round next-stage seed without stealing live route truth from `STATE.json`? | `FIELD-INIT-02` | `FAIL-INIT-02` | `steps/init-workflow.md` `N5-synthesis`; `templates/init-handoff.template.yaml`; this file's `Stage Entry Ownership` section | Review report compares `init_handoff.yaml.project_contract.recommended_next_stage` with `STATE.json` for the init completion turn and records any stale or duplicated route truth. |
+| Does `init_handoff.yaml` own the current seed set for `1-分集 / 2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`, source layers, unknowns, post-creative handoff hints, and initialization-round next-stage seed without stealing live route truth from `STATE.json`? | `FIELD-INIT-02` | `FAIL-INIT-02` | `steps/init-workflow.md` `N5-synthesis`; `templates/init-handoff.template.yaml`; this file's `Stage Entry Ownership` section | Review report compares `init_handoff.yaml.project_contract.recommended_next_stage` with `STATE.json` for the init completion turn, lists present seed keys, and records any stale or duplicated route truth. |
 | Does `story-source-manifest.yaml` always exist, use `primary_story_source` as the sole formal readiness owner, keep source-light story facts provisional, and reconcile late true source before downstream entry? | `FIELD-INIT-02S` | `FAIL-INIT-02S` | `steps/init-workflow.md` `N3-internal-router`, `N5-synthesis`, and `N7-internal-audit`; `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`; this file's `Story Source Manifest`, `Story Source Completeness Gate`, and `Story Source Reconciliation` sections | Review report records manifest path, `primary_story_source.status`, blocking reason or coverage evidence, source-light unknown/deferred/risk fields, and any reconciliation diff required before downstream work. |
 | If `primary_story_source.source_type == storyboard_script`, are all `preset_registry[].lock_level` values limited to `hard_lock`, `soft_lock`, or `reference_only`? | `FIELD-INIT-02S` | `FAIL-INIT-02S` | `steps/init-workflow.md` `N3-internal-router` and `N5-synthesis`; `.agents/skills/aigc/_shared/story-source-manifest.template.yaml`; this file's `Story Source Reconciliation` section | Review report lists the observed `preset_registry[].lock_level` values or states that no storyboard-script preset registry was present. |
 | Are lazy governance carriers created only when triggered, while the core five-piece set remains the always-required initialization output? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N6-lazy-governance`; `templates/output-template-map.md`; this file's `Lazy Governance` section | Review report lists created governance sidecars, their trigger reason, and confirms absent sidecars were not required for structural completeness alone. |

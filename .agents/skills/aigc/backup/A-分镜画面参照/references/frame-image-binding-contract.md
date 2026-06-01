@@ -1,14 +1,14 @@
 # Frame Image Binding Contract
 
-本文件定义 step2：检查 `projects/aigc/<项目名>/6-图像/A-分镜画面` 中是否存在对应四段式 `分镜ID` 的图像，并把真实路径写入 LibTV YAML。
+本文件定义 step2：检查 `projects/aigc/<项目名>/7-图像/A-分镜画面` 中是否存在对应四段式 `分镜ID` 的图像，并把真实路径写入 LibTV YAML。
 
 ## Source Roots
 
 固定候选根：
 
 ```text
-projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/
-projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/
+projects/aigc/<项目名>/7-图像/A-分镜画面/第N集/
+projects/aigc/<项目名>/7-图像/A-分镜画面/第N集/images/
 ```
 
 ## Match Key
@@ -25,7 +25,7 @@ projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/
 
 ```yaml
 shot_id: "1-1-1-1"
-reference_annotation: "1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第1集/images/1-1-1-1.png"
+reference_annotation: "1-1-1-1@projects/aigc/<项目名>/7-图像/A-分镜画面/第1集/images/1-1-1-1.png"
 reference_status: "found"
 ```
 
@@ -34,10 +34,10 @@ reference_status: "found"
 ```yaml
 reference_images:
   - shot_id: "1-1-1-1"
-    path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第1集/images/1-1-1-1.png"
+    path: "projects/aigc/<项目名>/7-图像/A-分镜画面/第1集/images/1-1-1-1.png"
     marker: "@图1"
     role: "storyboard_frame"
-    source: "6-图像/A-分镜画面"
+    source: "7-图像/A-分镜画面"
 ```
 
 未命中时，只写 manifest：
@@ -69,20 +69,20 @@ reference_annotation: "1-1-1-1"
 - 当前组至少有一张图时默认走 `libtv_session_with_uploaded_references`；没有任何图时走 `libtv_session_text_only`。
 - 多个同优先级候选命中时，标记 `ambiguous` 并阻断该组提交，不得随机选择。
 - 所有路径必须真实存在，且位于当前项目根内。
-- 参照图只作为分镜画面视觉参照；不得反向改写 `4-分组` 的剧情和镜头事实。
+- 参照图只作为分镜画面视觉参照；不得反向改写 `5-分组` 的剧情和镜头事实。
 - `imageList` 不超过 9 张；超限时必须有 `excluded_due_to_budget` 或阻断状态。
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 图片候选根是否只来自当前项目 `6-图像/A-分镜画面/第N集/` 与 `images/` 子目录，且解析路径真实存在并位于项目根内？ | `GATE-FVID-REF-01` | `FAIL-FVID-REF` | `N5-REF-BIND` | reference manifest 记录 search roots、resolved path、existence check 与 project-root check |
+| 图片候选根是否只来自当前项目 `7-图像/A-分镜画面/第N集/` 与 `images/` 子目录，且解析路径真实存在并位于项目根内？ | `GATE-FVID-REF-01` | `FAIL-FVID-REF` | `N5-REF-BIND` | reference manifest 记录 search roots、resolved path、existence check 与 project-root check |
 | 图片匹配是否只以四段式 `shot_id` 为默认键，优先 `images/<shot_id>.<ext>`，其次同集目录 `<shot_id>.<ext>`，没有使用角色名、场景名、正文关键词或语义猜测？ | `GATE-FVID-REF-02` | `FAIL-FVID-REF` | `N5-REF-BIND` | candidate list 记录匹配优先级、扩展名、selected candidate reason 或 no-match reason |
 | 唯一命中时是否同时写入 manifest 与当前组 `reference_images`；未命中时是否只写 `missing_optional` 并移除空槽位；同优先级多候选是否阻断而非随机选择？ | `GATE-FVID-REF-03` | `FAIL-FVID-REF` | `N5-REF-BIND` | reference manifest 的 `found / missing_optional / ambiguous` 状态、候选列表与空槽扫描结果 |
 | 本地 `marker` 是否只服务 manifest/review 且不跳号，远端 canonical 绑定是否改由 final fenced YAML `分镜画面参照[]` 承载，没有人工预设脱离 YAML 的 `参照图N`？ | `GATE-FVID-REF-04` | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | `generation_slots`、`imageList`、final YAML `reference_index` 与本地 marker 对照 |
 | `分镜画面参照[]` 是否只列真实存在且进入 `imageList` 的镜头，并且 `reference_index` 等于该图进入 `imageList` 的 1-based 顺序？ | `GATE-FVID-REF-04` | `FAIL-FVID-SLOT-ORDER` | `N8-DISPATCH` | final YAML、LibTV plan、slot ledger 的 `reference_index -> uploaded_url -> shot_id` 对照 |
 | 单个分镜组真实提交的 `imageList` 是否不超过 9 张；超限时是否按首镜、尾镜、关键动作、转场、空间关系镜头做预算裁决，并记录被排除 `shot_id`？ | `GATE-FVID-REF-05` | `FAIL-FVID-REFERENCE-BUDGET` | `N5-REF-BIND` | selected / excluded shot list、`excluded_due_to_budget`、budget rationale |
 | 无法在不破坏组内动作与空间连续性的前提下压到 9 张以内时，是否标记 `needs_rework / reference_budget_unresolved` 并阻断提交，而不是静默丢图或超量提交？ | `GATE-FVID-REF-05` | `FAIL-FVID-REFERENCE-BUDGET` | `N5-REF-BIND` | batch/report 中的 blocked reason、unresolved budget note、next rework entry |
-| 参照图是否只作为分镜画面视觉参照，没有反向改写 `4-分组` 的剧情、镜头事实、组正文或镜头顺序？ | `GATE-FVID-REF-06` | `FAIL-FVID-PROMPT` | `N6-YAML` | prompt package 与 group source hash 对照、reference usage note |
+| 参照图是否只作为分镜画面视觉参照，没有反向改写 `5-分组` 的剧情、镜头事实、组正文或镜头顺序？ | `GATE-FVID-REF-06` | `FAIL-FVID-PROMPT` | `N6-YAML` | prompt package 与 group source hash 对照、reference usage note |
 | 当前组至少一张图时是否走 uploaded references；没有任何图时是否走 text-only；两种路线都没有保留缺图镜头的空图片槽位？ | `GATE-FVID-LIBTV-01` | `FAIL-FVID-LIBTV` | `N6-YAML` | batch YAML 的 command type、reference image count、empty slot scan 与 skipped/missing summary |
 | 执行报告是否清楚区分 `found`、`missing_optional`、`ambiguous`、`excluded_due_to_budget`、`reference_budget_unresolved`，并给出对应返工入口？ | `GATE-FVID-REPORT-01` | `FAIL-FVID-REPORT` | `N12-CLOSE` | close report 的 reference coverage、status summary、rework targets |

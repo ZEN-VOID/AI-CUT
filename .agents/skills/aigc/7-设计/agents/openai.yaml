@@ -1,5 +1,0 @@
-version: 1
-interface:
-  display_name: "AIGC 7-设计"
-  short_description: "将7-设计任务路由到场景角色道具域并汇总阶段验收。"
-  default_prompt: "Use $aigc-design to route the current 7-设计 task into exactly the needed fused domain package: `$aigc-design-scene`, `$aigc-design-character`, or `$aigc-design-prop`. Each domain package runs list -> design -> generation in order and writes leaf outputs under `projects/aigc/<项目名>/7-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`."

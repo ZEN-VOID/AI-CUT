@@ -4,7 +4,7 @@
 
 允许脚本执行：
 
-- 读取 `4-分组` 并抽取 `group_id`、line range、YAML。
+- 读取 `5-分组` 并抽取 `group_id`、line range、YAML。
 - 枚举故事板图和主体图片路径。
 - 生成 JSON / Markdown / queue ledger 的机械投影。
 - 机械生成或校验 `asset_uploads` 与 `generation_slots`：前者只记录 `故事板/主体身份 -> uploaded_url`，后者记录 `UI 图N/mixedList[n-1] -> uploaded_url -> 故事板/主体身份`；若 UI 槽位可观测，必须保留 `slot_source` 并以 UI 图N 为准。

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本共享合同用于修复 AIGC 角色“像在摆拍、只等着表演、所有注意力都堆在脸上”的问题。它不提供固定台词或固定动作模板，而是要求导演、表演和摄影在关键人物 beat 中先找到角色此刻被什么生活压力推动、正在做什么小事、身体如何下意识反应，以及情绪最终落在哪里。
+本共享合同用于修复 AIGC 角色“像在摆拍、只等着表演、所有注意力都堆在脸上”的问题。它不提供固定台词或固定动作模板，而是要求编导和摄影在关键人物 beat 中先找到角色此刻被什么生活压力推动、正在做什么小事、身体如何下意识反应，以及情绪最终落在哪里。
 
 本合同不授权新增剧情事实、对白、人物设定或硬塞无关道具。所有“活人感”行为必须服从上游文本、人物动作链、空间可达性和道具/环境准入。
 
@@ -41,9 +41,9 @@
 
 | stage | required use |
 | --- | --- |
-| `3-导演` | 在 `director_substance_plan.character_pressure` 和 `performance_engine` 中给出行为动机：角色此刻被什么生活压力/目标/阻碍推动，以及哪类场景内小事可承托该压力。 |
-| `4-表演` | 把 `micro_activity`、`subconscious_response`、`emotional_landing` 投影到既有动作、对白画面、心理反应或内心独白画面；多人戏建立 `action_driver / reaction_receiver`。 |
-| `5-摄影` | 镜头先服务动作-反应因果：谁行动、谁反应、谁只在背景维持状态。不要为了同时照顾所有角色而制造奇怪角度，也不要让所有角色同时“演满”。 |
+| `2-编导` director layer | 在 `director_substance_plan.character_pressure` 和 `performance_engine` 中给出行为动机：角色此刻被什么生活压力/目标/阻碍推动，以及哪类场景内小事可承托该压力。 |
+| `2-编导` performance layer | 把 `micro_activity`、`subconscious_response`、`emotional_landing` 投影到既有动作、对白画面、心理反应或内心独白画面；多人戏建立 `action_driver / reaction_receiver`。 |
+| `4-摄影` | 镜头先服务动作-反应因果：谁行动、谁反应、谁只在背景维持状态。不要为了同时照顾所有角色而制造奇怪角度，也不要让所有角色同时“演满”。 |
 
 ## Failure Codes
 

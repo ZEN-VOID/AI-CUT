@@ -6,6 +6,8 @@
 
 ```text
 4-润色/C-Deepseek流/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   └── chapter-polishing-contract.md
 ├── scripts/
@@ -21,7 +23,9 @@
 ├── knowledge-base/
 │   └── polishing-heuristics.md
 ├── types/
-│   └── polishing-type-map.md
+│   ├── guardrail-setup.md
+│   ├── polishing-type-map.md
+│   └── type-map.md
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
@@ -56,4 +60,5 @@ When the target chapter already exists, formal overwrite requires explicit `--mo
 - `steps/` owns the thinking-action workflow.
 - `types/` owns mode classification.
 - `review/` owns quality gates.
+- `guardrails/` owns runtime permissions, provider identity boundaries, injection defense and violation response.
 - `scripts/` only provides mechanical assistance and must not replace LLM creative authorship.

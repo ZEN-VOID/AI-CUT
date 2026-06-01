@@ -10,7 +10,7 @@
 2. `projects/aigc/<项目名>/STATE.json`，读取 `current_stage`、`current_stage_path`、`recommended_next_stage`、`recommended_entry_path`、`recommended_next_step`。
 3. 初始化核心工件：`0-初始化/north_star.yaml`、`0-初始化/init_handoff.yaml`、`0-初始化/story-source-manifest.yaml`、`team.yaml`。
 4. 根治理工件：`mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`、`validation-report.md`、`learning-record.md`。
-5. 阶段 runtime 真实产物：例如 `1-分集/第N集.md`、`2-编导/第N集.md`、`3-摄影/第N集.md`、`4-分组/第N集.md`、`5-设计/**`、`6-图像/**`、`7-视频/**`。
+5. 阶段 runtime 真实产物：例如 `1-分集/第N集.md`、`2-编导/第N集.md`、`3-运动/第N集.md`、`4-摄影/第N集.md`、`5-分组/第N集.md`、`6-设计/**`、`7-图像/**`、`8-视频/**`、`9-审片/**`。
 6. Git 工作区状态与最近修改文件，只能作为辅助证据，不能单独决定断点。
 
 ## Recovery Modes

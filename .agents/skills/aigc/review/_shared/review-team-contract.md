@@ -5,9 +5,9 @@
 ## Ownership Rule
 
 - `team.yaml.roles.supervision`
-  - 只负责 `2-编导 / 3-摄影 / 4-分组 / 5-设计` 的前置 advisory
+  - 只负责 `2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计` 的前置 advisory
 - `team.yaml.roles.review`
-  - 当前仍保留在 `6-图像 / 7-视频` 的阶段 gate 语义
+  - 当前仍保留在 `7-图像 / 8-视频 / 9-审片` 的阶段 gate 语义
 - `aigc/review`
   - 负责 package-level / checkpoint-level / stage-level 结构化审计
 

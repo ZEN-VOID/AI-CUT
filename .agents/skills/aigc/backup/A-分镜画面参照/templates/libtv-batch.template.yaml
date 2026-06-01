@@ -1,16 +1,16 @@
 schema_version: "aigc.video.frame_reference.libtv_batch.v1"
 project_name: "<项目名>"
 episode_id: "第N集"
-source_group_file: "projects/aigc/<项目名>/4-分组/第N集.md"
-frame_reference_root: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集"
-output_root: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集"
+source_group_file: "projects/aigc/<项目名>/5-分组/第N集.md"
+frame_reference_root: "projects/aigc/<项目名>/7-图像/A-分镜画面/第N集"
+output_root: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集"
 execution:
   provider: "libtv"
   background: true
   max_workers: 4
   effective_concurrency: "<min(4, job_count)>"
-  queue_ledger: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-libtv-queue.md"
-  result_file: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/第N集-libtv-results.json"
+  queue_ledger: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集/第N集-libtv-queue.md"
+  result_file: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集/第N集-libtv-results.json"
 defaults:
   requested_model: ""
   duration_source: "group_yaml"
@@ -33,12 +33,12 @@ jobs:
     source_heading: "## 1-1-1"
     command_type: "libtv_session_with_uploaded_references"
     remote_prompt_contract_version: "frame_reference_direct_video_v1"
-    remote_submission_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/prompts/1-1-1-libtv-submission.txt"
+    remote_submission_path: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集/prompts/1-1-1-libtv-submission.txt"
     reference_status: "partial"
     shot_references:
       - shot_id: "1-1-1-1"
         source_label: "分镜1"
-        reference_annotation: "1-1-1-1@projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
+        reference_annotation: "1-1-1-1@projects/aigc/<项目名>/7-图像/A-分镜画面/第N集/images/1-1-1-1.png"
         reference_status: "found"
       - shot_id: "1-1-1-2"
         source_label: "分镜2"
@@ -46,11 +46,11 @@ jobs:
         reference_status: "missing_optional"
     reference_images:
       - shot_id: "1-1-1-1"
-        path: "projects/aigc/<项目名>/6-图像/A-分镜画面/第N集/images/1-1-1-1.png"
+        path: "projects/aigc/<项目名>/7-图像/A-分镜画面/第N集/images/1-1-1-1.png"
         uploaded_url: ""
         marker: "uploaded_url_binding"
         role: "storyboard_frame"
-        source: "6-图像/A-分镜画面"
+        source: "7-图像/A-分镜画面"
         oss_upload_index: 1
     frame_uploads:
       - shot_id: "1-1-1-1"
@@ -108,5 +108,5 @@ jobs:
       session_id: ""
       project_uuid: ""
       project_url: ""
-      download_dir: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集"
-      expected_video_path: "projects/aigc/<项目名>/7-视频/A-分镜画面参照/第N集/1-1-1.mp4"
+      download_dir: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集"
+      expected_video_path: "projects/aigc/<项目名>/8-视频/A-分镜画面参照/第N集/1-1-1.mp4"

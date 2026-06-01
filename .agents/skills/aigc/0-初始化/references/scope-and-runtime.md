@@ -35,24 +35,23 @@ Initialization creates or verifies:
 
 - `0-初始化/`
 - `1-分集/`
-- `2-编剧/`
-- `3-导演/`
-- `4-表演/`
-- `5-摄影/`
-- `6-分组/`
-- `7-设计/`
-- `7-设计/场景/1-清单/`
-- `7-设计/场景/2-设计/`
-- `7-设计/场景/3-生成/`
-- `7-设计/道具/1-清单/`
-- `7-设计/道具/2-设计/`
-- `7-设计/道具/3-生成/`
-- `7-设计/角色/1-清单/`
-- `7-设计/角色/2-设计/`
-- `7-设计/角色/3-生成/`
-- `8-图像/`
-- `9-视频/`
-- `10-审片/`
+- `2-编导/`
+- `3-运动/`
+- `4-摄影/`
+- `5-分组/`
+- `6-设计/`
+- `6-设计/场景/1-清单/`
+- `6-设计/场景/2-设计/`
+- `6-设计/场景/3-生成/`
+- `6-设计/道具/1-清单/`
+- `6-设计/道具/2-设计/`
+- `6-设计/道具/3-生成/`
+- `6-设计/角色/1-清单/`
+- `6-设计/角色/2-设计/`
+- `6-设计/角色/3-生成/`
+- `7-图像/`
+- `8-视频/`
+- `9-审片/`
 - `源/`
 - `CONTEXT/`
 - `MEMORY.md`
@@ -67,12 +66,11 @@ Initialization prebuilds the full user-facing stage skeleton requested for new A
 ```text
 0-初始化/
 1-分集/
-2-编剧/
-3-导演/
-4-表演/
-5-摄影/
-6-分组/
-7-设计/
+2-编导/
+3-运动/
+4-摄影/
+5-分组/
+6-设计/
   场景/
     1-清单/
     2-设计/
@@ -85,9 +83,9 @@ Initialization prebuilds the full user-facing stage skeleton requested for new A
     1-清单/
     2-设计/
     3-生成/
-8-图像/
-9-视频/
-10-审片/
+7-图像/
+8-视频/
+9-审片/
 源/
 CONTEXT/
 CHANGELOG.md
@@ -108,21 +106,22 @@ Forbidden bootstrap paths include:
 - `5-Image/`
 - `6-Video/`
 - `7-Cut/`
-- `2-编导/`
 - `2-全局/`
 - `3-编导/`
 - `3-摄影/`
-- `4-摄影/`
+- `4-表演/`
 - `4-设计/`
 - `4-分组/`
-- `5-分组/`
+- `5-摄影/`
 - `5-设计/`
 - `6-分组/`
 - `6-图像/`
-- `7-图像/`
+- `7-设计/`
 - `7-视频/`
-- `8-视频/`
+- `8-图像/`
 - `8-审片/`
+- `9-视频/`
+- `10-审片/`
 
 Legacy English runtime roots are compatibility inputs only; new initialization writes the Chinese runtime names above.
 
@@ -131,10 +130,10 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 - `源/` is the source landing root for new projects. Historical `Original/` and `Story/` may be read during migration but are not created for new initialization.
 - `CONTEXT/` stores project-level preset packs and supplemental reference materials; it does not replace `MEMORY.md` and does not own live route truth.
 - `1-分集/` is the episode-splitting stage root.
-- `2-编剧/`, `3-导演/`, `4-表演/`, and `5-摄影/` separate screenplay, directing, performance, and cinematography responsibilities in the project runtime.
-- `6-分组/` is the grouping stage root. Former `4-分组/`, `5-分组/`, and legacy nested grouping roots are no longer created by initialization.
-- `7-设计/场景|道具|角色/1-清单/` owns list outputs, `2-设计/` owns design truth, and `3-生成/` owns generated design-image outputs.
-- `8-图像/`, `9-视频/` and `10-审片/` are stage roots. Provider-specific request folders and review report subdirectories are created by their owning stages, not by initialization.
+- `2-编导/` integrates screenplay fidelity, directing intent, performance craft, and concrete visual language; `3-运动/` consumes it to strengthen character motion start, path, endpoint, and reference frame; `4-摄影/` consumes `3-运动/` for shot-detail injection.
+- `5-分组/` is the grouping stage root. Former `4-分组/`, `6-分组/`, and legacy nested grouping roots are no longer created by initialization.
+- `6-设计/场景|道具|角色/1-清单/` owns list outputs, `2-设计/` owns design truth, and `3-生成/` owns generated design-image outputs.
+- `7-图像/`, `8-视频/` and `9-审片/` are stage roots. Provider-specific request folders and review report subdirectories are created by their owning stages, not by initialization.
 
 ## Truth Ownership
 
@@ -154,7 +153,7 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 - project `CHANGELOG.md`
 - `0-初始化/story-source-manifest.yaml`
 
-`0-初始化` does not own canonical truth for `1-分集`, `2-编剧`, `3-导演`, `4-表演`, `5-摄影`, `6-分组`, `7-设计`, `8-图像`, `9-视频`, or `10-审片`.
+`0-初始化` does not own canonical truth for `1-分集`, `2-编导`, `3-运动`, `4-摄影`, `5-分组`, `6-设计`, `7-图像`, `8-视频`, or `9-审片`.
 
 ## Project Root Carrier Rules
 
@@ -179,7 +178,7 @@ Legacy English runtime roots are compatibility inputs only; new initialization w
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | Is the canonical project root `projects/aigc/<项目名>/`, and are all initialization business objects written under the project root or `0-初始化/` as specified? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap` and `N5-synthesis`; this file's `Canonical Project Root` and `Business Objects` sections | Review report lists the resolved project root, each required business object path, and any artifact found outside the canonical runtime. |
-| Does initialization create or verify the full Chinese runtime skeleton, including `7-设计/场景/`, `7-设计/道具/`, `7-设计/角色/` each with `1-清单/`, `2-设计/`, and `3-生成/`, plus `源/`, `CONTEXT/`, `MEMORY.md`, `CHANGELOG.md`, `STATE.json`, and `team.yaml`? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap`; `.agents/skills/aigc/_shared/project-runtime-layout.md`; this file's `Canonical Project Root` and `Bootstrap Runtime Skeleton` sections | Review report records a directory/file readback or dry-run manifest showing each required runtime path as present or planned to write. |
+| Does initialization create or verify the full Chinese runtime skeleton from `0-初始化/` through `9-审片/`, including `3-运动/` between `2-编导/` and `4-摄影/`, `6-设计/场景/`, `6-设计/道具/`, `6-设计/角色/` each with `1-清单/`, `2-设计/`, and `3-生成/`, plus `源/`, `CONTEXT/`, `MEMORY.md`, `CHANGELOG.md`, `STATE.json`, and `team.yaml`? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap`; `.agents/skills/aigc/_shared/project-runtime-layout.md`; this file's `Canonical Project Root` and `Bootstrap Runtime Skeleton` sections | Review report records a directory/file readback or dry-run manifest showing each required runtime path as present or planned to write. |
 | Are forbidden bootstrap paths such as `Original/`, `Story/`, legacy English stage roots, and stale Chinese numbering aliases not created for new initialization? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap`; this file's `Bootstrap Runtime Skeleton` and `Runtime Interpretation` sections | Review report lists any forbidden path found in a new initialization output, or confirms legacy aliases were only treated as compatibility inputs. |
 | Are empty skeleton directories treated as readiness containers rather than completed stage outputs? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap` and `N7-internal-audit`; this file's `Bootstrap Runtime Skeleton` and `Project Root Carrier Rules` sections | Review report states whether phase completion was inferred from real files rather than empty directories, and cites any false-positive stage output. |
 | Do `MEMORY.md`, `CONTEXT/`, `CHANGELOG.md`, `STATE.json`, and optional `governance-state.yaml` keep their distinct project-root responsibilities without `CONTEXT/` replacing memory or `CHANGELOG.md` replacing live route truth? | `FIELD-INIT-05` | `FAIL-INIT-05` | `steps/init-workflow.md` `N2-runtime-bootstrap`, `N5-synthesis`, and `N7-internal-audit`; this file's `Project Root Carrier Rules` section | Review report summarizes each carrier's role, current path, and any misplaced preference, context material, chronology, or live route field. |

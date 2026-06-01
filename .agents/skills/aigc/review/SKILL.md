@@ -8,7 +8,7 @@ metadata:
 
 # aigc / review
 
-`aigc-review` 是 `.agents/skills/aigc` 的 review 卫星技能包。它不进入主阶段串行链，不替代 `0-初始化` 到 `7-视频` 的业务产物，只负责把 checkpoint、stage acceptance 与 package release 的审计事实收束为唯一 aggregate review packet。
+`aigc-review` 是 `.agents/skills/aigc` 的 review 卫星技能包。它不进入主阶段串行链，不替代 `0-初始化` 到 `9-审片` 的业务产物，只负责把 checkpoint、stage acceptance 与 package release 的审计事实收束为唯一 aggregate review packet。
 
 ## Context Loading Contract
 

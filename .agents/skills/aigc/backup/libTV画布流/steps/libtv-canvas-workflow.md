@@ -10,8 +10,8 @@
 
 ## N2 Group Extraction
 
-- 读取 `projects/aigc/<项目名>/6-分组/第N集.md`。
-- 只以 `6-分组` 为主要信息来源；不得回到 `5-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
+- 读取 `projects/aigc/<项目名>/5-分组/第N集.md`。
+- 只以 `5-分组` 为主要信息来源；不得回到 `4-摄影`、`3-Detail` 或更早阶段重写分镜组内容，除非用户显式要求修复上游。
 - 完整提取每个 `## x-y-z` 的正文和 fenced YAML。
 - 同步提取组底 YAML 的 `时长估算`，形成 `duration_estimate_seconds`。
 - 缺失时按组内 `分镜明细` 秒数求和估算，区间时长优先取上限；仍无法确定时回退 15 秒并记录 `duration_source=fallback_default`。
@@ -23,9 +23,9 @@
 - 从 YAML 的 `角色 / 场景 / 道具` 生成主体清单。
 - 同步生成 `canonical_reference_order`：YAML `角色` 列表原顺序 -> YAML `场景` 列表原顺序 -> YAML `道具` 列表原顺序。
 - 不得用正文泛词、子串或猜测名自动扩展主体列表。
-- 读取 `projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json`；优先复用同一 LibTV `projectUuid/projectID` 画布内按同一 YAML 主体名登记为 active 的主体图 URL。
+- 读取 `projects/aigc/<项目名>/8-视频/libTV画布流/libtv-canvas-active-registry.json`；优先复用同一 LibTV `projectUuid/projectID` 画布内按同一 YAML 主体名登记为 active 的主体图 URL。
 - active 主键固定为 `projectUuid::category::yaml_name`；若同一主键存在多条 `active=true` 记录，状态为同名登记歧义，不得随机选择。
-- 只有缺少 active URL、同名登记歧义、图片被调整/更换或用户明确要求替换时，才检查 `7-设计/*/3-生成` 并上传。
+- 只有缺少 active URL、同名登记歧义、图片被调整/更换或用户明确要求替换时，才检查 `6-设计/*/3-生成` 并上传。
 - 新上传时多视图优先，没有多视图就主图；都没有就空着并从参照图片数组中移除。
 - 名称命中多个候选时，先把候选图发送到当前窗口作为可加载上下文自动识图匹配，仍不能唯一确认才列入 `ambiguous`。
 - 生成 `主体绑定表`。
@@ -107,5 +107,5 @@
 ## N7 Explicit Download
 
 - 只有用户显式要求下载或后续审片需要本地文件时，调用 `download_results.py`。
-- 下载目录默认 `projects/aigc/<项目名>/9-视频/libTV画布流/第N集/`。
+- 下载目录默认 `projects/aigc/<项目名>/8-视频/libTV画布流/第N集/`。
 - Gate: 没有显式下载授权时不得落本地生成物。

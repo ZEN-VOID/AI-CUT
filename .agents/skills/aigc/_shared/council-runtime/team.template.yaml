@@ -1,4 +1,4 @@
-schema_version: "aigc-team/v1"
+schema_version: "aigc-team/v2"
 project: "__PROJECT_NAME__"
 updated_at: "__DATE__"
 
@@ -23,19 +23,14 @@ runtime_policy:
   parent_skill_owns_canonical_writeback: true
   local_imitation_allowed: false
   selector_scope_enforced: true
-  supervision_roster_resolution_order:
-    - "roles.supervision.stage_profiles.<stage>.members"
-    - "roles.supervision.stage_profiles.<stage>.members_ref"
-    - "roles.supervision.stage_bindings.<stage>"
-    - "roles.supervision.members[stage_scope]"
-    - "roles.supervision.members"
-    - "roles.supervising.*"
-    - "roles.production.*"
-    - "team_setup.shared_agents"
-    - "roles.planning.members"
+  team_identity_usage: "init_only"
+  creative_stage_persona_dispatch_allowed: false
+  creative_stage_reads_init_synthesis_only: true
+  creative_stage_subagent_persona_presets_allowed: false
+  deprecated_stage_runtime_fields_active: false
 
 team_setup:
-  role_allocation_mode: "" # overlap | separated | overlap_allowed_separated_by_function
+  role_allocation_mode: "" # init_overlap | init_separated | init_overlap_allowed_by_question_scope
   overlap_notes: ""
   selector_scope_root: ".agents/skills/team/"
   required_departments:
@@ -62,109 +57,75 @@ roles:
       fixed_packet: "aigc-init planning direct-answer packet"
       direct_answer_packet_ref: ""
       packet_refs: []
-  supervision:
-    label: "监制"
-    owner_phases:
-      - "2-编剧"
-      - "3-导演"
-      - "4-表演"
-      - "5-摄影"
-      - "6-分组"
-      - "7-设计"
+      role_identity_skill_calls: []
+  init_advisors:
+    owner_phase: "0-初始化"
     members_ref: "roles.planning.members"
     members: []
-    boundary: "提供阶段前顾问判断，不替代阶段 canonical writeback。"
-    stage_profiles:
-      "2-编剧":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments:
-          - "编剧组"
-          - "导演组"
-          - "演员组"
-          - "摄影组"
-        focus_tags:
-          - "structure"
-          - "dialogue"
-          - "faithfulness"
-          - "field-routing"
-        question_binding: "pass_node_gate"
-        dispatch_policy: "stage-front-advisor"
-      "3-导演":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments:
-          - "导演组"
-          - "编剧组"
-          - "摄影组"
-          - "美学组"
-        focus_tags:
-          - "dramatic-substance"
-          - "visual-spine"
-          - "climax"
-          - "atmosphere"
-        question_binding: "pass_node_gate"
-        dispatch_policy: "stage-front-advisor"
-      "4-表演":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments:
-          - "演员组"
-          - "导演组"
-          - "编剧组"
-          - "摄影组"
-        focus_tags:
-          - "actor-control"
-          - "subtext"
-          - "blocking"
-          - "silence-reaction"
-        question_binding: "pass_node_gate"
-        dispatch_policy: "stage-front-advisor"
-      "5-摄影":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments:
-          - "摄影组"
-          - "导演组"
-          - "设计组"
-          - "美学组"
-        focus_tags:
-          - "shot-design"
-          - "continuity"
-          - "ai-video-stability"
-          - "visual-rhythm"
-        question_binding: "pass_node_gate"
-        dispatch_policy: "stage-front-advisor"
-      "7-设计":
-        enabled: true
-        members_ref: "roles.planning.members"
-        members: []
-        preferred_departments:
-          - "设计组"
-          - "服装组"
-          - "美学组"
-          - "摄影组"
-          - "导演组"
-        focus_tags:
-          - "material-system"
-          - "character-scene-prop"
-          - "prompt-readiness"
-          - "style-continuity"
-        question_binding: "leaf_node_gate"
-        dispatch_policy: "leaf-advisor"
-    stage_bindings: {}
-  review:
-    owner_phases:
-      - "8-图像"
-      - "9-视频"
-      - "10-审片"
+    boundary: "只在初始化阶段回答固定题包和补充风险/风格/设计判断；不作为创作阶段人格运行时。"
+  init_review:
+    owner_phase: "0-初始化"
     members_ref: "roles.planning.members"
     members: []
-    boundary: "围绕一致性、参考绑定、provider 风险与交付风险提供评审意见。"
+    boundary: "只复核初始化综合是否足以支撑 north_star、init_handoff、STATE 与 stage seed summary。"
+
+init_synthesis:
+  direct_answer_summary:
+    story_core: []
+    emotional_core: []
+    audience_and_use_case: []
+    style_references: []
+    aesthetic_exclusions: []
+    production_constraints: []
+    ip_and_adaptation_boundaries: []
+  member_answer_provenance:
+    - member: ""
+      skill_path: ""
+      department: ""
+      packet_ref: ""
+      question_scope: []
+      accepted_points: []
+      rejected_or_deferred_points: []
+  stage_seed_summary:
+    "1-分集":
+      episode_scope_hints: []
+      split_granularity: []
+      cliffhanger_or_turning_point_policy: []
+    "2-编导":
+      fidelity_rules: []
+      director_intent_hints: []
+      performance_boundaries: []
+      visual_language_constraints: []
+    "3-运动":
+      continuity_principles: []
+      start_path_end_priorities: []
+      reference_frame_rules: []
+    "4-摄影":
+      shot_language_baseline: []
+      rhythm_and_duration_hints: []
+      light_color_camera_constraints: []
+    "5-分组":
+      grouping_rhythm: []
+      bridge_policy: []
+      north_star_projection_notes: []
+    "6-设计":
+      scene_design_invariants: []
+      character_design_invariants: []
+      prop_design_invariants: []
+      asset_constraints: []
+
+legacy_compat:
+  deprecated_fields:
+    - "roles.supervision.stage_profiles"
+    - "roles.supervision.stage_bindings"
+    - "roles.supervision.members"
+    - "roles.supervising.*"
+    - "roles.production.*"
+    - "team_setup.shared_agents"
+    - "dispatch_policy: stage-front-advisor"
+    - "dispatch_policy: leaf-advisor"
+  handling: "Legacy fields are read-only migration evidence. New initialization must not use them for creative-stage advisor dispatch."
+  migration_note: ""
 
 provenance:
   parent_skill: ".agents/skills/aigc/0-初始化/SKILL.md"

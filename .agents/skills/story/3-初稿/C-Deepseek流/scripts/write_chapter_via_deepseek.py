@@ -30,6 +30,8 @@ STORY_SCRIPTS_DIR = STORY_ROOT / "scripts"
 DEEPSEEK_SCRIPT = SKILLS_ROOT / "api" / "deepseek" / "scripts" / "deepseek_chat.py"
 SYSTEM_PROMPT_PATH = DRAFTING_DIR / "templates" / "deepseek-system-prompt.md"
 CHAPTER_TEMPLATE_PATH = DRAFTING_DIR / "templates" / "chapter-root.template.md"
+TYPE_PACKAGE_ROOT = DRAFTING_DIR / "types" / "网文"
+GENRE_TROPE_QUALITY_FILTER_PATH = STORY_ROOT / "_shared" / "genre-trope-quality-filter.md"
 
 if str(STORY_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(STORY_SCRIPTS_DIR))
@@ -153,6 +155,171 @@ def _string_list(value: object, *, limit: int = 3) -> list[str]:
     if isinstance(value, str) and value.strip():
         return [value.strip()]
     return []
+
+
+def _load_yaml_mapping(path: Path) -> dict:
+    try:
+        payload = yaml.safe_load(_read_text(path)) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _dump_yaml_fragment(value: object) -> str:
+    if value in (None, "", [], {}):
+        return ""
+    return yaml.safe_dump(value, allow_unicode=True, sort_keys=False).strip()
+
+
+def _collect_path_values(value: object) -> list[str]:
+    found: list[str] = []
+    if isinstance(value, dict):
+        raw_path = value.get("path")
+        if isinstance(raw_path, str) and raw_path.strip():
+            found.append(raw_path.strip())
+        for nested in value.values():
+            found.extend(_collect_path_values(nested))
+    elif isinstance(value, list):
+        for item in value:
+            found.extend(_collect_path_values(item))
+    elif isinstance(value, str) and value.strip():
+        text = value.strip()
+        if text.endswith((".json", ".md", ".yaml", ".yml")) and "/" in text:
+            found.append(text)
+    return found
+
+
+def _dedupe_paths(paths: Iterable[Path]) -> list[Path]:
+    deduped: list[Path] = []
+    seen: set[str] = set()
+    for path in paths:
+        try:
+            key = str(path.resolve())
+        except OSError:
+            key = str(path)
+        if key in seen or not path.is_file():
+            continue
+        seen.add(key)
+        deduped.append(path)
+    return deduped
+
+
+def _collect_setting_cards(project_root: Path, relative_dir: str, index_name: str, *, max_cards: int = 12) -> list[Path]:
+    card_root = project_root / relative_dir
+    if not card_root.is_dir():
+        return []
+
+    candidates: list[Path] = []
+    index_path = card_root / index_name
+    if index_path.is_file():
+        try:
+            index_payload = json.loads(_read_text(index_path))
+        except (json.JSONDecodeError, OSError):
+            index_payload = {}
+        for raw_ref in _collect_path_values(index_payload):
+            ref_path = project_root / raw_ref
+            if ref_path.is_file():
+                candidates.append(ref_path)
+
+    for path in sorted(card_root.rglob("*.json")):
+        if path.name == index_name:
+            continue
+        candidates.append(path)
+
+    return _dedupe_paths(candidates)[:max_cards]
+
+
+def _north_star_contract_sections(north_star_payload: dict) -> list[tuple[str, str]]:
+    sections: list[tuple[str, str]] = []
+    for key, title in (
+        ("global_contract", "north_star.global_contract 全局真源"),
+        ("style_contract", "north_star.style_contract 风格真源"),
+        ("genre_contract", "north_star.genre_contract 题材方向盘"),
+    ):
+        dumped = _dump_yaml_fragment(north_star_payload.get(key))
+        if dumped:
+            sections.append((title, dumped))
+    return sections
+
+
+def _team_roster_section(project_root: Path) -> tuple[str, str]:
+    team_path = project_root / "team.yaml"
+    if not team_path.is_file():
+        return "", ""
+
+    payload = _load_yaml_mapping(team_path)
+    production = _dig(payload, ("roles", "production"))
+    if not isinstance(production, dict):
+        return _rel(team_path, project_root), _excerpt(_read_text(team_path), 2500)
+
+    members = production.get("members")
+    member_lines = _string_list(members, limit=20)
+    enabled = production.get("enabled")
+    label = production.get("label") or "监制"
+    lines = [
+        f"team_ref: {_rel(team_path, project_root)}",
+        f"production_enabled: {enabled}",
+        f"production_label: {label}",
+        "roles.production.members:",
+    ]
+    lines.extend(f"- {member}" for member in member_lines)
+    return _rel(team_path, project_root), "\n".join(lines)
+
+
+def _load_type_package_files(north_star_payload: dict, chapter_plan_text: str, user_instructions: list[str]) -> list[Path]:
+    if not TYPE_PACKAGE_ROOT.is_dir():
+        return []
+
+    positive_genre_parts = [
+        _dump_yaml_fragment(_dig(north_star_payload, ("project_identity", "genre"))),
+        _dump_yaml_fragment(_dig(north_star_payload, ("genre_contract", "story_promise"))),
+        _dump_yaml_fragment(_dig(north_star_payload, ("genre_contract", "genre_corridor"))),
+        _dump_yaml_fragment(_dig(north_star_payload, ("genre_contract", "navigation_rules"))),
+        chapter_plan_text,
+        "\n".join(user_instructions),
+    ]
+    search_text = "\n".join(part for part in positive_genre_parts if part)
+    package_dirs = [path for path in sorted(TYPE_PACKAGE_ROOT.iterdir()) if path.is_dir()]
+    selected: list[Path] = []
+    for package_dir in package_dirs:
+        name = package_dir.name
+        if name and name in search_text:
+            selected.append(package_dir)
+
+    if not selected:
+        return []
+
+    files: list[Path] = []
+    for package_dir in selected[:3]:
+        files.extend(sorted(package_dir.glob("*.md")))
+    return _dedupe_paths(files)
+
+
+def _validate_supervision_text(
+    *,
+    supervision_packet_text: str,
+    supervision_degradation_text: str,
+    dry_run: bool,
+) -> None:
+    if dry_run:
+        return
+    if not supervision_packet_text and not supervision_degradation_text:
+        raise SystemExit(
+            "正式调用缺少监制证据。请先通过 team supervision subagents 生成 "
+            "--supervision-packet，或在上层策略阻断时传入 --supervision-degradation-report。"
+        )
+    if supervision_packet_text:
+        required_markers = ("project_team_ref", "consultations")
+        missing = [marker for marker in required_markers if marker not in supervision_packet_text]
+        has_guidance = any(
+            marker in supervision_packet_text
+            for marker in ("executable_guidance", "execution_brief", "must_do")
+        )
+        if missing or not has_guidance:
+            raise SystemExit(
+                "supervision_packet 缺少可追溯监制字段："
+                + ", ".join(missing + ([] if has_guidance else ["executable_guidance/execution_brief/must_do"]))
+            )
 
 
 def _build_character_voice_guide(project_root: Path, *, max_cards: int = 64) -> str:
@@ -360,17 +527,22 @@ def _build_messages(
     volume_plan_path: Path,
     chapter_plan_path: Path,
     north_star_path: Path,
+    north_star_payload: dict,
     memory_path: Path | None,
     global_cards: list[Path],
     style_cards: list[Path],
+    type_package_files: list[Path],
     project_context_files: list[Path],
     previous_paths: list[Path],
     current_path: Path,
+    team_ref: str,
+    team_roster_text: str,
     user_instructions: list[str],
     instruction_file_text: str,
     repair_finding: str,
     continue_from: str,
     supervision_packet_text: str,
+    supervision_degradation_text: str,
 ) -> list[dict[str, str]]:
     system_prompt = _read_text(SYSTEM_PROMPT_PATH).strip()
     global_card_refs = [_rel(path, project_root) for path in global_cards]
@@ -395,11 +567,18 @@ def _build_messages(
         f"当前模式：{drafting_mode}",
         "章节正文不设置固定字数上下限；`字数` frontmatter 只记录最终正文估算字数，不作为截断、扩写或写回阻断依据。",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
+        "现场发现义务：本章至少写出一个由当前场景自然生成、而非 planning 原句复述的可感知细节；它必须来自物件、声音、气味、身体动作、空间阻隔、误触、沉默或环境反作用，并推动人物反应、信息揭示、关系压力或章末牵引。",
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),
         "north_star：\n" + _excerpt(_read_text(north_star_path), 3000),
     ]
+
+    for title, payload_text in _north_star_contract_sections(north_star_payload):
+        sections.append(f"{title}：\n" + _excerpt(payload_text, 4500))
+
+    if team_roster_text:
+        sections.append("项目 team.yaml 监制 roster（用于核对 supervision_packet 来源）：\n" + team_roster_text)
 
     sections.append(_build_continuity_bridge_section(previous_paths, project_root))
 
@@ -432,12 +611,33 @@ def _build_messages(
         for path in global_cards:
             global_payload.append(f"[{_rel(path, project_root)}]\n{_excerpt(_read_text(path), 2200)}")
         sections.append("全局卡摘录：\n" + "\n\n".join(global_payload))
+    elif _dump_yaml_fragment(north_star_payload.get("global_contract")):
+        sections.append(
+            "全局卡/全局契约摘录（实体全局卡目录缺失时由 north_star.global_contract 承接）：\n"
+            + _excerpt(_dump_yaml_fragment(north_star_payload.get("global_contract")), 4500)
+        )
 
     if style_cards:
         style_payload = []
         for path in style_cards:
             style_payload.append(f"[{_rel(path, project_root)}]\n{_excerpt(_read_text(path), 2200)}")
         sections.append("风格卡摘录：\n" + "\n\n".join(style_payload))
+    elif _dump_yaml_fragment(north_star_payload.get("style_contract")):
+        sections.append(
+            "风格卡/风格契约摘录（实体风格卡目录缺失时由 north_star.style_contract 承接）：\n"
+            + _excerpt(_dump_yaml_fragment(north_star_payload.get("style_contract")), 4500)
+        )
+
+    if type_package_files:
+        type_payload = []
+        if GENRE_TROPE_QUALITY_FILTER_PATH.is_file():
+            type_payload.append(
+                f"[{GENRE_TROPE_QUALITY_FILTER_PATH.relative_to(STORY_ROOT).as_posix()}]\n"
+                + _excerpt(_read_text(GENRE_TROPE_QUALITY_FILTER_PATH), 2600)
+            )
+        for path in type_package_files:
+            type_payload.append(f"[{path.relative_to(DRAFTING_DIR).as_posix()}]\n{_excerpt(_read_text(path), 2200)}")
+        sections.append("题材类型包固定上下文（先执行质量过滤层，再吸收题材原料）：\n" + "\n\n".join(type_payload))
 
     if project_context_files:
         context_payload = []
@@ -447,6 +647,8 @@ def _build_messages(
 
     if supervision_packet_text:
         sections.append("监制组 supervision_packet（必须吸收为创作约束，不得写入 frontmatter）：\n" + supervision_packet_text)
+    elif supervision_degradation_text:
+        sections.append("监制组降级报告（上层阻断真实 subagents 时的替代证据）：\n" + supervision_degradation_text)
 
     if current_path.exists():
         sections.append(
@@ -616,6 +818,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repair-finding", help="review finding or local issue description for local_repair")
     parser.add_argument("--stream", action="store_true", help="use stream mode when calling provider")
     parser.add_argument("--supervision-packet", help="team supervision packet file produced by drafting subagents")
+    parser.add_argument(
+        "--supervision-degradation-report",
+        help="report file explaining why real team supervision subagents were blocked",
+    )
     parser.add_argument("--dry-run", action="store_true", help="only emit the messages pack without calling DeepSeek")
     parser.add_argument("--no-writeback", action="store_true", help="call DeepSeek but do not write back the chapter file")
     parser.add_argument("--force", action="store_true", help="allow writeback over an existing canonical chapter file")
@@ -665,14 +871,47 @@ def main() -> int:
     drafting_mode = _resolve_drafting_mode(args, chapter_path)
     instruction_file_text = _read_optional_instruction_file(args.instruction_file)
     supervision_packet_text = _read_text(Path(args.supervision_packet)).strip() if args.supervision_packet else ""
+    supervision_degradation_text = (
+        _read_text(Path(args.supervision_degradation_report)).strip()
+        if args.supervision_degradation_report
+        else ""
+    )
 
     required_files = [book_plan_path, volume_plan_path, chapter_plan_path, north_star_path, memory_path]
     missing = [str(path) for path in required_files if not path.is_file()]
     if missing:
         raise SystemExit("缺少必需输入：\n- " + "\n- ".join(missing))
 
-    global_cards = []
-    style_cards = []
+    _validate_supervision_text(
+        supervision_packet_text=supervision_packet_text,
+        supervision_degradation_text=supervision_degradation_text,
+        dry_run=args.dry_run,
+    )
+
+    north_star_payload = _load_yaml_mapping(north_star_path)
+    missing_contracts: list[str] = []
+    if not north_star_payload.get("global_contract"):
+        missing_contracts.append("north_star.yaml.global_contract")
+    if not north_star_payload.get("style_contract"):
+        missing_contracts.append("north_star.yaml.style_contract")
+    if not north_star_payload.get("genre_contract"):
+        missing_contracts.append("north_star.yaml.genre_contract")
+    if missing_contracts:
+        raise SystemExit("缺少必需 north_star 契约：\n- " + "\n- ".join(missing_contracts))
+
+    global_cards = _collect_setting_cards(project_root, "1-设定/0-全局卡", "全局索引.json")
+    style_cards = _collect_setting_cards(project_root, "1-设定/1-风格卡", "风格索引.json")
+    type_package_files = _load_type_package_files(
+        north_star_payload,
+        _read_text(chapter_plan_path),
+        args.instruction + [instruction_file_text, args.repair_finding or "", args.continue_from or ""],
+    )
+    if not type_package_files and not args.dry_run:
+        raise SystemExit(
+            "未能依据 north_star.genre_contract、章节规划或用户约束识别题材类型包；"
+            "请补充题材关键词或完善 types/type-map.md。"
+        )
+    team_ref, team_roster_text = _team_roster_section(project_root)
 
     project_context_files = _select_project_context_files(project_root, volume_num, chapter_num)
     messages = _build_messages(
@@ -687,17 +926,22 @@ def main() -> int:
         volume_plan_path=volume_plan_path,
         chapter_plan_path=chapter_plan_path,
         north_star_path=north_star_path,
+        north_star_payload=north_star_payload,
         memory_path=memory_path,
         global_cards=global_cards,
         style_cards=style_cards,
+        type_package_files=type_package_files,
         project_context_files=project_context_files,
         previous_paths=previous_paths,
         current_path=chapter_path,
+        team_ref=team_ref,
+        team_roster_text=team_roster_text,
         user_instructions=args.instruction,
         instruction_file_text=instruction_file_text,
         repair_finding=args.repair_finding or "",
         continue_from=args.continue_from or "",
         supervision_packet_text=supervision_packet_text,
+        supervision_degradation_text=supervision_degradation_text,
     )
 
     output_dir = Path(args.output_dir) if args.output_dir else None
@@ -717,15 +961,24 @@ def main() -> int:
             "messages_path": str(messages_path) if messages_path else "",
             "output_dir": str(output_dir) if output_dir else "",
             "memory_ref": _rel(memory_path, project_root),
+            "team_ref": team_ref,
             "relationship_graph_ref": "1-设定/2-角色卡/角色关系图谱.md"
             if (project_root / "1-设定" / "2-角色卡" / "角色关系图谱.md").is_file()
             else "",
+            "global_contract_ref": "0-初始化/north_star.yaml#global_contract",
+            "style_contract_ref": "0-初始化/north_star.yaml#style_contract",
+            "genre_contract_ref": "0-初始化/north_star.yaml#genre_contract",
+            "global_card_refs": [_rel(path, project_root) for path in global_cards],
+            "style_card_refs": [_rel(path, project_root) for path in style_cards],
+            "type_package_refs": [path.relative_to(DRAFTING_DIR).as_posix() for path in type_package_files],
             "project_context_refs": [_rel(path, project_root) for path in project_context_files],
             "previous_chapter_refs": [_rel(path, project_root) for path in previous_paths],
             "provider": "deepseek-v4-pro",
             "thinking": "enabled",
             "reasoning_effort": "high",
             "supervision_packet_ref": args.supervision_packet or "",
+            "supervision_degradation_report_ref": args.supervision_degradation_report or "",
+            "supervision_required_for_formal_call": not bool(supervision_packet_text or supervision_degradation_text),
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
@@ -782,6 +1035,11 @@ def main() -> int:
         "thinking": "enabled",
         "reasoning_effort": "high",
         "supervision_packet_ref": args.supervision_packet or "",
+        "supervision_degradation_report_ref": args.supervision_degradation_report or "",
+        "team_ref": team_ref,
+        "global_card_refs": [_rel(path, project_root) for path in global_cards],
+        "style_card_refs": [_rel(path, project_root) for path in style_cards],
+        "type_package_refs": [path.relative_to(DRAFTING_DIR).as_posix() for path in type_package_files],
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0

@@ -422,3 +422,11 @@
 ---
 
 **使用建议**：市场定位不是一次性工作，应在创作过程中持续追踪数据，根据读者反馈动态调整策略。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本 leaf 是否只在 `module-spec.md` 判定需要市场定位时加载，而非被父技能直连？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
+| 平台规则、榜单或当期趋势判断是否经过 WebSearch/WebFetch 核验并保留来源分层？ | `security` / `creative_seed` | `FAIL-INIT-SECURITY` | `guardrails/guardrails-contract.md`、本文件市场核验提示 | market evidence、source timestamps |
+| 市场定位是否写成 `north_star` / `init_handoff` 的结构化定位 patch，而不是资料墙？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | target_reader、platform、promise_surface patch |

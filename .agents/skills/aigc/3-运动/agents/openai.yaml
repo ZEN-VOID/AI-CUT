@@ -1,0 +1,4 @@
+interface:
+  display_name: "AIGC 运动"
+  short_description: "强化逐集编导稿或任意剧本中的角色运动起点、路径、终点、组内参照系和前后连续性。"
+  default_prompt: "使用 $aigc-motion-enrichment，把 projects/aigc/<项目名>/2-编导/第N集.md 中每个包含角色运动属性的画面补成具备运动主体、起点、路径、终点和参照系的 `运动强化：`；同一分镜组或连续动作段尽量统一最佳参照系，每次落盘新画面前先回顾上一画面中相关角色的最终位置或状态，形成 motion_state_ledger 和 group_reference_profile，输出到 projects/aigc/<项目名>/3-运动/第N集.md，保留原编导稿剧情、对白和顺序，不写机位、景别、运镜、分镜编号或 prompt。"

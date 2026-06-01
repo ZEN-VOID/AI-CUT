@@ -39,7 +39,7 @@ flowchart TD
 | `N7-CHAPTER-RHYTHM` | 绘制章级节奏 handoff | `chapter_spine`、`chapter_timeline`、`conflict_profile`、`payoff_profile`、`chapter_suspense_switch`、shared rhythm contract | 锁 `selected_pack / selected_mode / mode_selection_reason / payoff_type / rhythm_intensity / previous_next_contrast / 七步职责映射 / 规划义务 / 义务段位 / 建议写法` 并附 Mermaid 图 | `rhythm_handoff` | `N8-CHAPTER-ELEMENTS` 与 `N9-INFO-LAYER` | handoff slots 齐全，mode 选择有证据，payoff 与爽点设计和悬念压力一致，强度可复核，前后章波形有承接，建议写法未变正文 |
 | `N8-CHAPTER-ELEMENTS` | 收束人物、场景、道具与任务线 | `rhythm_handoff`、`payoff_profile`、`chapter_suspense_switch`、`chapter_timeline`、Cards 真源、卷级任务线 | 输出本章登场人物、主要场景、关键道具、主支线任务、支流角色、汇聚动作和未汇聚去向 | `chapter_resources` | `N10-CHAPTER-CLOSE` | 任务可上溯卷级，支流不悬空 |
 | `N9-INFO-LAYER` | 分离线索与伏笔 | `chapter_spine`、`chapter_timeline`、`rhythm_handoff`、`payoff_profile`、`chapter_suspense_switch`、上游信息承诺 | 写本章可见信息推进、伏笔铺设、伏笔兑现判断，并标记只埋不揭的信息 | `info_layer` | `N10-CHAPTER-CLOSE` | 线索与伏笔不混写，铺设/兑现槽位存在，且不突破悬念开关 |
-| `N10-CHAPTER-CLOSE` | 锁章末达成与规避 | 所有节点产物 | 汇总章末达成、禁飞区，按模板落盘或输出 patch | `chapter_plan` | `review/chapter-planning-review.md` | 必填标题齐全，无正文越界 |
+| `N10-CHAPTER-CLOSE` | 锁章末达成与规避 | 所有节点产物 | 汇总章末达成、禁飞区，按模板落盘或输出 patch | `chapter_plan` | `review/review-contract.md` | 必填标题齐全，无正文越界 |
 
 ## Branch And Merge Rules
 

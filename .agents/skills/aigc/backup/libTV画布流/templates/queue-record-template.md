@@ -13,7 +13,7 @@ projectUrl: ""
 submitted_at: ""
 updated_at: ""
 official_script: .agents/skills/cli/libTV/scripts/create_session.py
-wrapper: .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py
+wrapper: .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py
 env_loaded_from: .env
 allow_libtv_prompt_optimization: false
 prompt_optimization_opt_in: false
@@ -31,9 +31,9 @@ yaml_subject_list_in_prompt: false
 prompt_duplication_checked: false
 download: false
 downloaded_files: []
-manifest_path: projects/aigc/<项目名>/9-视频/libTV画布流/第N集/x-y-z-subject-reference-manifest.json
-submit_plan_path: projects/aigc/<项目名>/9-视频/libTV画布流/第N集/x-y-z-libtv-submit-plan.json
-report_path: projects/aigc/<项目名>/9-视频/libTV画布流/第N集/x-y-z-执行报告.md
+manifest_path: projects/aigc/<项目名>/8-视频/libTV画布流/第N集/x-y-z-subject-reference-manifest.json
+submit_plan_path: projects/aigc/<项目名>/8-视频/libTV画布流/第N集/x-y-z-libtv-submit-plan.json
+report_path: projects/aigc/<项目名>/8-视频/libTV画布流/第N集/x-y-z-执行报告.md
 blocked_reason: ""
 ```
 

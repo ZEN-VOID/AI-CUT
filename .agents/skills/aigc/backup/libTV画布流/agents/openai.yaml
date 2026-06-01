@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC LibTV 画布流"
   short_description: "将AIGC分镜组与主体绑定表提交到LibTV画布生成视频"
-  default_prompt: "使用 $aigc-video-libtv-canvas-flow 从 projects/aigc/<项目名>/6-分组/第N集.md 生成 LibTV 画布视频任务。"
+  default_prompt: "使用 $aigc-video-libtv-canvas-flow 从 projects/aigc/<项目名>/5-分组/第N集.md 生成 LibTV 画布视频任务。"

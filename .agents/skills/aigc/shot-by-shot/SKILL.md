@@ -8,9 +8,9 @@ metadata:
 
 # aigc shot-by-shot
 
-`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能。它把参考影片、短片、广告、剧集片段或用户提供的视频逐镜拆解为可复用的导演策略、表演/场面调度策略、摄影运镜策略、设计资产策略和画面风格策略，再投影成能被 `0-初始化`、`2-编导`、`3-摄影` 与 `5-设计` 直接消费的项目 `CONTEXT/` 解析文档。
+`shot-by-shot` 是 `.agents/skills/aigc` 的临摹型卫星技能。它把参考影片、短片、广告、剧集片段或用户提供的视频逐镜拆解为可复用的导演策略、表演/场面调度策略、运动连续性策略、摄影运镜策略、设计资产策略和画面风格策略，再投影成能被 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 与 `6-设计` 直接消费的项目 `CONTEXT/` 解析文档。
 
-它不替代 `0-初始化` 的 `north_star.yaml` 主真源，不替代 `2-编导` 的剧本化主创，不替代 `3-摄影` 的分镜明细主创，也不替代 `5-设计` 的角色、场景、道具正式设计主创；它只拥有参考素材分析、风格语法提炼、临摹边界裁决、跨阶段解析文档和证据报告。不得把参考影片的剧情、构图、台词、角色设计、场景设计、道具设计、画面风格、镜头序列或受版权保护的具体表达逐字逐帧照搬到项目 canonical 产物。
+它不替代 `0-初始化` 的 `north_star.yaml` 主真源，不替代 `2-编导` 的剧本化主创，不替代 `3-运动` 的运动强化主创，不替代 `4-摄影` 的分镜明细主创，也不替代 `6-设计` 的角色、场景、道具正式设计主创；它只拥有参考素材分析、风格语法提炼、临摹边界裁决、跨阶段解析文档和证据报告。不得把参考影片的剧情、构图、台词、角色设计、场景设计、道具设计、画面风格、镜头序列或受版权保护的具体表达逐字逐帧照搬到项目 canonical 产物。
 
 ## Context Loading Contract
 
@@ -18,7 +18,7 @@ metadata:
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`、`0-初始化/north_star.yaml`、`team.yaml`，再按需加载项目根 `CONTEXT/` 中与参考片、导演、摄影、美术、表演或制作约束相关的上下文文件。
-- 若本轮输出将服务 `0-初始化`、`2-编导`、`3-摄影` 或 `5-设计`，必须按需加载对应 owning stage 的 `SKILL.md + CONTEXT.md`，并遵循其字段边界。服务 `0-初始化` 时，必须对齐 `north_star.yaml` 的 `全局风格 / 细分风格 / 类型元素` 边界；`5-设计` 细分到角色、场景、道具时，必须分别对齐 `.agents/skills/aigc/5-设计/角色/2-设计`、`.agents/skills/aigc/5-设计/场景/2-设计`、`.agents/skills/aigc/5-设计/道具/2-设计`。
+- 若本轮输出将服务 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 或 `6-设计`，必须按需加载对应 owning stage 的 `SKILL.md + CONTEXT.md`，并遵循其字段边界。服务 `0-初始化` 时，必须对齐 `north_star.yaml` 的 `全局风格 / 细分风格 / 类型元素` 边界；服务 `3-运动` 时，必须对齐起点、路径、终点、参照系与上一画面最终位置回顾；`6-设计` 细分到角色、场景、道具时，必须分别对齐 `.agents/skills/aigc/6-设计/角色/2-设计`、`.agents/skills/aigc/6-设计/场景/2-设计`、`.agents/skills/aigc/6-设计/道具/2-设计`。
 - 所有阶段解析文档与分镜脚本统一落点在 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`，不再写入 `CONTEXT/shot-by-shot/<reference_slug>/` 路径。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 核心视频理解、逐镜判断、风格归纳、临摹映射和迁移策略必须由 LLM 直接完成；`scripts/` 只能做文件存在检查、字段完整性校验、统计和格式辅助。
@@ -32,7 +32,7 @@ metadata:
 | `business_goal` | 本轮是学习导演调度、摄影语法、剪辑节奏、类型氛围，还是为某集/某场/某镜建立临摹参照 |
 | `business_object` | 参考素材、目标 AIGC 项目、目标阶段、目标集/场/分镜组 |
 | `constraint_profile` | 版权边界、不可照搬项、项目北极星、制作限制、AIGC 可执行限制 |
-| `success_criteria` | 输出能否直接喂给 `0-初始化`、`2-编导`、`3-摄影` 或 `5-设计`，并能说明“学什么、不学什么、怎么迁移” |
+| `success_criteria` | 输出能否直接喂给 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 或 `6-设计`，并能说明“学什么、不学什么、怎么迁移” |
 | `topology_fit` | 单素材逐镜、片段对比、目标场景反向临摹或多参考融合 |
 | `step_strategy` | 主干串行取证 + 并行维度分析 + 项目 `CONTEXT/` 解析文档汇流 |
 
@@ -47,25 +47,25 @@ Accepted input:
 Required input:
 
 - 可观察的参考素材证据，或足够明确的片段范围和分析目标。
-- 至少一个临摹用途：`0-初始化` 画面风格补强、`2-编导`、`3-摄影`、`5-设计`、`4-分组` 辅助、项目风格库、或单次研究报告。
+- 至少一个临摹用途：`0-初始化` 画面风格补强、`2-编导`、`3-运动`、`4-摄影`、`6-设计`、`5-分组` 辅助、项目风格库、或单次研究报告。
 
 Optional input:
 
 - 参考影片名、导演/摄影师、时间码范围、镜头粒度、目标题材、项目 `MEMORY.md` 中的长期视觉偏好。
-- 用户指定“只看摄影”“只看场面调度”“只看剪辑节奏”“只输出 3-摄影 可套用语言”等限制。
+- 用户指定“只看摄影”“只看场面调度”“只看剪辑节奏”“只输出 4-摄影 可套用语言”等限制。
 
 Reject or clarify when:
 
 - 用户要求复制受版权保护素材的具体镜头序列、台词、角色造型、画面构图或剧情表达。
 - 参考素材不可见、不可读，且用户也没有提供足够的时间码/截图/描述。
-- 用户要求本技能直接改写 `0-初始化/north_star.yaml`、`2-编导`、`3-摄影` 或 `5-设计` canonical 文件；本技能只能输出项目 `CONTEXT/` 解析文档，正式写回交给 owning stage。
+- 用户要求本技能直接改写 `0-初始化/north_star.yaml`、`2-编导`、`3-运动`、`4-摄影` 或 `6-设计` canonical 文件；本技能只能输出项目 `CONTEXT/` 解析文档，正式写回交给 owning stage。
 
 ## Mode Selection
 
 | mode | trigger | output |
 | --- | --- | --- |
 | `single_reference` | 单个视频或片段逐镜分析 | 运行时写入项目 `shot-by-shot/<reference_slug>/shot-by-shot.md` |
-| `targeted_stage_bridge` | 明确服务全局风格、编剧、摄影、设计或分镜脚本 | 主报告 + `shot-by-shot/<reference_slug>/全局风格解析.md` / `编剧风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` / `分镜脚本.md` |
+| `targeted_stage_bridge` | 明确服务全局风格、编剧、运动、摄影、设计或分镜脚本 | 主报告 + `shot-by-shot/<reference_slug>/全局风格解析.md` / `编剧风格解析.md` / `运动风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` / `分镜脚本.md` |
 | `scene_imitation_packet` | 为目标场景、场面、分镜组建立临摹策略 | 目标场景临摹映射与 forbidden-copy 清单 |
 | `comparative_reference` | 多个参考片段比较 | 多参考风格矩阵与融合裁决 |
 | `repair` | 既有拉片包缺证据、字段不对齐、临摹边界不清 | 最小修复后的拉片包与修复报告 |
@@ -76,7 +76,7 @@ Reject or clarify when:
 | need | load |
 | --- | --- |
 | 任意逐镜拉片 | `references/analysis-method.md`、`steps/shot-by-shot-workflow.md` |
-| 与 `0-初始化` / `2-编导` / `3-摄影` / `5-设计` 对接 | `references/adaptation-output-contract.md` |
+| 与 `0-初始化` / `2-编导` / `3-运动` / `4-摄影` / `6-设计` 对接 | `references/adaptation-output-contract.md` |
 | 输出全局风格解析 | `references/global-style-analysis-contract.md` |
 | 输出编剧风格解析 | `references/screenwriter-style-analysis-contract.md` |
 | 输出摄影风格解析 | `references/cinematography-style-analysis-contract.md` |
@@ -146,8 +146,8 @@ erDiagram
     IMITATION_PRINCIPLE ||--o{ CINEMATOGRAPHY_BRIDGE : feeds
     IMITATION_PRINCIPLE ||--o{ STORYBOARD_SCRIPT : feeds
     SCREENWRITER_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "2-编导 compatible"
-    CINEMATOGRAPHY_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "3-摄影 compatible"
-    DESIGN_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "5-设计 compatible"
+    CINEMATOGRAPHY_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "4-摄影 compatible"
+    DESIGN_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "6-设计 compatible"
     VISUAL_STYLE_BRIDGE ||--o{ AIGC_CONTEXT_ANALYSIS : "global style compatible"
     AIGC_CONTEXT_ANALYSIS ||--o{ FORBIDDEN_COPY_LEDGER : guarded_by
 ```
@@ -160,7 +160,7 @@ erDiagram
 4. 按 `references/analysis-method.md` 并行分析导演调度、表演任务、空间权力、摄影语法、运镜、光影色彩、剪辑节奏、声音接口、类型氛围和 AIGC 可执行性。
 5. 按 `references/evidence-and-rights-boundary.md` 将观察结果抽象成可迁移原则，明确禁止照搬项；所有临摹建议必须脱离参考片的具体角色、剧情、台词、构图复制和镜头顺序复制。
 6. 按 `references/adaptation-output-contract.md` 汇流输出：`全局风格解析.md` 侧参照 `global-style-director` 生成叙事研究、路由决议、媒介/技术栈、美学范式、节奏锚定、去污染审计和 200 字以内无污染风格提示词候选，不直接改写 `north_star.yaml` 或 `style_contract.json`。`编剧风格解析.md` 侧只给戏剧问题、人物压力、表演任务、场面调度、潜台词行为、对白策略和可拍承托；不得写摄影机位、景别或分镜编号。`摄影风格解析.md` 侧给 `visual_unit`、`beat_map`、`rhythm_profile`、`camera_grammar_plan`、`functional_projection_payload` 和可改写成 `分镜明细：` 的示范语法；不得改写项目编导正文。`设计风格解析.md` 侧按角色、场景、道具拆分可迁移视觉资产原则，并保留各设计子技能的画面合同。`分镜脚本.md` 必须使用 `input/苍穹裂缝·战神降维.numbers` 的 19 列字段和内容编排方式。所有文档统一落点在 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`，不再写入 `CONTEXT/` 路径。
-7. 输出前执行 `review/review-contract.md`：证据可回指、临摹边界清楚、0/2/3/5 阶段字段不越权、AIGC 可执行、没有复制具体表达。
+7. 输出前执行 `review/review-contract.md`：证据可回指、临摹边界清楚、0/2/3/4/6 阶段字段不越权、AIGC 可执行、没有复制具体表达。
 8. 写入 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/` 下的 `shot-by-shot.md`、`分镜脚本.md`、`全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md` 与 `执行报告.md`；若未绑定项目，则在当前回复中交付结构化拉片包，不落入项目 runtime。
 
 ## Output Contract
@@ -189,7 +189,8 @@ erDiagram
 - 主报告必须包含：`思考过程`、素材证据、逐镜表、解析维度、临摹原则、禁止照搬清单、阶段对接包和风险。
 - `全局风格解析.md` 必须使用 `global-style-director` 可消费字段：叙事研究、路由决议、媒介与技术栈、美学范式、叙事节奏锚定、去污染审计、全局风格提示词候选、`Do Not Import`。
 - `编剧风格解析.md` 必须使用 `2-编导` 可消费字段：戏剧问题、人物选择压力、观众位置、表演任务、场面调度、场景状态差、对白策略、可拍承托、禁用摄影越权。
-- `摄影风格解析.md` 必须使用 `3-摄影` 可消费字段：`visual_unit_function`、`beat_map`、`rhythm_profile`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_payload`、`shot_design_seed`、`分镜明细` 写法参考。
+- `运动风格解析.md` 必须使用 `3-运动` 可消费字段：参考系、主体起点、动作路径、终点状态、上一画面最终位置承接、禁止凭镜头感觉乱补。
+- `摄影风格解析.md` 必须使用 `4-摄影` 可消费字段：`visual_unit_function`、`beat_map`、`rhythm_profile`、`continuity_profile`、`camera_grammar_plan`、`functional_projection_payload`、`shot_design_seed`、`分镜明细` 写法参考。
 - `设计风格解析.md` 必须按 `角色解析`、`场景解析`、`道具解析` 分区，分别服务角色全身试装照、场景空镜、道具纯色背景 45 度完整近摄的设计合同。
 - `分镜脚本.md` 必须是 Markdown table，列顺序完全参照 `input/苍穹裂缝·战神降维.numbers`：`镜号`、`时长`、`画面描述`、`角色1`、`角色描述1`、`角色图1`、`角色2`、`角色描述2`、`角色图2`、`参考`、`景别`、`角色动作`、`情绪`、`场景标签`、`光影氛围`、`音效`、`对白`、`分镜提示词`、`视频运动提示词`。
 - 所有解析文档与分镜脚本统一落点在 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`，不再写入 `CONTEXT/` 路径。
@@ -199,7 +200,7 @@ erDiagram
 - 已说明为什么选择当前逐镜分析拓扑，并在 `思考过程` 中给出关键裁决。
 - 每条重要结论均能回指参考素材时间码、截图序号或用户提供描述。
 - 临摹建议已经抽象为可迁移 craft principle，没有复制参考片具体表达。
-- 输出解析能被全局风格、`2-编导`、`3-摄影` 或 `5-设计` 直接作为项目附加上下文消费，`分镜脚本.md` 能作为标准表格式分镜脚本继续生产，且不越权改写 owning stage canonical 文件。
+- 输出解析能被全局风格、`2-编导`、`3-运动`、`4-摄影` 或 `6-设计` 直接作为项目附加上下文消费，`分镜脚本.md` 能作为标准表格式分镜脚本继续生产，且不越权改写 owning stage canonical 文件。
 - 若发现素材不可见、证据不足、版权边界不清或阶段字段冲突，已输出阻断原因与最小补证需求。
 
 ## Runtime Guardrails
@@ -229,11 +230,12 @@ See `guardrails/guardrails-contract.md`.
 | `FIELD-SBS-04` | imitation principle | 观察被抽象为可迁移原则，禁止具体复制 | `FAIL-SBS-IMITATION` |
 | `FIELD-SBS-05` | global style bridge | `全局风格解析.md` 完整包含：叙事研究、类型承诺、视觉母题、年代质感、情绪曲线、路由、媒介技术栈、美学范式、节奏锚定、审计和提示词候选 | `FAIL-SBS-STYLE-BRIDGE` |
 | `FIELD-SBS-06` | screenwriter bridge | `编剧风格解析.md` 完整包含：戏剧问题、观众位、角色压力、表演任务、调度、对白策略、潜台词层、情绪脉冲、声音叙事、副线编织、状态差和承托字段；不含机位、景别、运镜、分镜编号 | `FAIL-SBS-DIRECTING-BRIDGE` |
+| `FIELD-SBS-06M` | motion bridge | `运动风格解析.md` 完整包含：参考系、主体起点、动作路径、终点状态、上一画面最终位置承接和下游摄影连续性提醒 | `FAIL-SBS-MOTION-BRIDGE` |
 | `FIELD-SBS-07` | cinematography bridge | `摄影风格解析.md` 完整包含：视觉单元、节拍图、视点/焦深语义、光源叙事、运动/切点语法、长镜头结构、摄影 payload 和分镜写法；能转成 `分镜明细：` | `FAIL-SBS-CINE-BRIDGE` |
 | `FIELD-SBS-08` | design bridge | `设计风格解析.md` 完整包含：角色/场景/道具解析，以及角色色调材质、空间叙事、道具层级、世界观视觉语法；按角色/场景/道具拆分且保留画面合同 | `FAIL-SBS-DESIGN-BRIDGE` |
 | `FIELD-SBS-09` | storyboard script | `分镜脚本.md` 使用 Numbers 示例 19 列字段和内容编排方式，且每行对应一个镜头 | `FAIL-SBS-STORYBOARD-SCRIPT` |
 | `FIELD-SBS-10` | rights ledger | 禁止照搬项、证据不足项、项目不适配项清楚 | `FAIL-SBS-RIGHTS` |
-| `FIELD-SBS-11` | output landing | `shot-by-shot` 主报告、`分镜脚本.md` 与四份解析落点统一在 `shot-by-shot/<reference_slug>/` | `FAIL-SBS-OUTPUT` |
+| `FIELD-SBS-11` | output landing | `shot-by-shot` 主报告、`分镜脚本.md` 与五份解析落点统一在 `shot-by-shot/<reference_slug>/` | `FAIL-SBS-OUTPUT` |
 
 ## Thought Pass Map
 
@@ -245,11 +247,12 @@ See `guardrails/guardrails-contract.md`.
 | `PASS-SBS-03` | `FIELD-SBS-04` | 哪些是可临摹原则，哪些是不可复制表达 | 抽象 craft grammar，写 forbidden-copy ledger | imitation principles |
 | `PASS-SBS-04` | `FIELD-SBS-05` | 哪些结果能服务全局风格底座且不直接覆盖 north star 或 style contract | 投影 global style analysis packet | global style bridge |
 | `PASS-SBS-05` | `FIELD-SBS-06` | 哪些结果能服务 `2-编导` 且不越权摄影 | 投影 screenwriter bridge packet | screenwriter bridge |
-| `PASS-SBS-06` | `FIELD-SBS-07` | 哪些结果能服务 `3-摄影` 的 `分镜明细：` | 投影 camera grammar / shot design seed | cinematography bridge |
-| `PASS-SBS-07` | `FIELD-SBS-08` | 哪些结果能服务 `5-设计` 且不复制参考片具体美术表达 | 投影 design analysis packet | design bridge |
+| `PASS-SBS-05M` | `FIELD-SBS-06M` | 哪些结果能服务 `3-运动` 的起点、路径、终点与参照系强化 | 投影 motion continuity bridge packet | motion bridge |
+| `PASS-SBS-06` | `FIELD-SBS-07` | 哪些结果能服务 `4-摄影` 的 `分镜明细：` | 投影 camera grammar / shot design seed | cinematography bridge |
+| `PASS-SBS-07` | `FIELD-SBS-08` | 哪些结果能服务 `6-设计` 且不复制参考片具体美术表达 | 投影 design analysis packet | design bridge |
 | `PASS-SBS-08` | `FIELD-SBS-09` | 如何生成标准表格式分镜脚本且继承示例字段编排 | 投影 storyboard script table | storyboard script |
 | `PASS-SBS-09` | `FIELD-SBS-10` | 版权、项目适配和 AIGC 可行性是否过门 | 执行 review gate 和风险裁决 | rights and feasibility verdict |
-| `PASS-SBS-10` | `FIELD-SBS-11` | 最终包是否唯一、可消费、可回指，路径统一在 `shot-by-shot/<reference_slug>/` | 写回主报告、四份解析和 `分镜脚本.md` | output paths |
+| `PASS-SBS-10` | `FIELD-SBS-11` | 最终包是否唯一、可消费、可回指，路径统一在 `shot-by-shot/<reference_slug>/` | 写回主报告、五份解析和 `分镜脚本.md` | output paths |
 
 ## Pass Table
 
@@ -261,11 +264,12 @@ See `guardrails/guardrails-contract.md`.
 | `PASS-SBS-03` | 可迁移原则与禁止照搬项分离 | `FAIL-SBS-IMITATION` | `references/evidence-and-rights-boundary.md` |
 | `PASS-SBS-04` | `全局风格解析.md` 完整包含叙事/类型承诺/视觉母题/年代质感/情绪曲线/路由/媒介/美学/节奏/审计/提示词候选，默认无污染，不直接改写 `north_star.yaml` 或 `style_contract.json` | `FAIL-SBS-STYLE-BRIDGE` | `references/global-style-analysis-contract.md` |
 | `PASS-SBS-05` | `编剧风格解析.md` 完整包含潜台词层/情绪脉冲/声音叙事/副线编织，不含机位、景别、运镜、分镜编号或 `分镜提示词` | `FAIL-SBS-DIRECTING-BRIDGE` | `references/screenwriter-style-analysis-contract.md` |
+| `PASS-SBS-05M` | `运动风格解析.md` 完整包含起点、路径、终点、参照系、上一画面最终位置承接和下游摄影连续性提醒 | `FAIL-SBS-MOTION-BRIDGE` | `references/adaptation-output-contract.md` |
 | `PASS-SBS-06` | `摄影风格解析.md` 完整包含视点/焦深语义/光源叙事/运动/切点/长镜头结构，能转成 `分镜明细：`，且不改写编导正文 | `FAIL-SBS-CINE-BRIDGE` | `references/cinematography-style-analysis-contract.md` |
 | `PASS-SBS-07` | `设计风格解析.md` 完整包含角色色调材质/空间叙事/道具层级/世界观视觉语法，按角色/场景/道具拆分，且保留画面合同 | `FAIL-SBS-DESIGN-BRIDGE` | `references/design-style-analysis-contract.md` |
 | `PASS-SBS-08` | `分镜脚本.md` 含 Numbers 示例 19 列，字段顺序、每镜一行和提示词编排合规 | `FAIL-SBS-STORYBOARD-SCRIPT` | `references/storyboard-script-contract.md` |
 | `PASS-SBS-09` | 没有复制参考片具体表达，AIGC 可执行风险清楚 | `FAIL-SBS-RIGHTS` | `review/review-contract.md` |
-| `PASS-SBS-10` | 主报告、`分镜脚本.md` 和四份解析统一落点在 `shot-by-shot/<reference_slug>/`，最终输出含 `思考过程` | `FAIL-SBS-OUTPUT` | `templates/output-template.md` |
+| `PASS-SBS-10` | 主报告、`分镜脚本.md` 和五份解析统一落点在 `shot-by-shot/<reference_slug>/`，最终输出含 `思考过程` | `FAIL-SBS-OUTPUT` | `templates/output-template.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -275,7 +279,8 @@ See `guardrails/guardrails-contract.md`.
 - 只输出抽象“电影感/高级感/压迫感”，没有可迁移导演、表演或摄影语法。
 - 把参考片具体画面、台词、角色、镜头顺序或构图复制到 AIGC 项目。
 - 给 `全局风格解析.md` 写成分场景摄影表、直接覆盖 `north_star.yaml` / `style_contract.json`，或把参考片专属画面组合偷渡进全局风格。
-- 给 `编剧风格解析.md` 写入机位、景别、运镜、分镜编号或 `分镜提示词`，越权到 `3-摄影` / `分镜脚本.md`。
+- 给 `编剧风格解析.md` 写入机位、景别、运镜、分镜编号或 `分镜提示词`，越权到 `3-运动` / `4-摄影` / `分镜脚本.md`。
+- 给 `运动风格解析.md` 凭感觉补动作，而没有回指参考系、起点、路径、终点与上一画面最终状态。
 - 给 `摄影风格解析.md` 只有参数清单，无法消费为自然中文 `分镜明细：`。
 - 给 `设计风格解析.md` 复制参考片具体人物脸、服装纹样、场景构图、道具纹章，或违反角色/场景/道具设计子技能的画面合同。
 - 给 `分镜脚本.md` 漏掉 Numbers 示例列、改变列顺序、把多镜合并成剧情段落，或照搬示例具体表达。
@@ -283,4 +288,4 @@ See `guardrails/guardrails-contract.md`.
 
 必经链路：
 
-`Symptom -> Direct Analysis/Bridge/Rights Failure -> shot-by-shot Section Owner -> global-style / 2-编导 / 3-摄影 / 5-设计 / storyboard script Contract -> AGENTS.md LLM-first / Skill 2.0 Rule`
+`Symptom -> Direct Analysis/Bridge/Rights Failure -> shot-by-shot Section Owner -> global-style / 2-编导 / 3-运动 / 4-摄影 / 6-设计 / storyboard script Contract -> AGENTS.md LLM-first / Skill 2.0 Rule`

@@ -1,0 +1,219 @@
+{
+  "meta": {
+    "schema": "aigc.scene_generation.multiview_prompt/v1",
+    "skill_id": "aigc-scene-generation",
+    "version": "v1.2",
+    "doc_role": "multiview_scene_prompt_template",
+    "source_design_template": ".agents/skills/aigc/6-设计/场景/2-设计/templates/scene_masterprompt.structured.v2.md",
+    "updated_at": "2026-04-26",
+    "note": "用于 Step2：以主体主图为参照图，生成同一场景的空间证明型多视图主体设计图；v1.2 增加主体身份牌和 panel 左下角场景视角标注。"
+  },
+  "prompt_payload": {
+    "input_slots": {
+      "subject_id": "<主体ID>",
+      "subject_id_source": "source_deconstruction_subject_id | source_filename_prefix",
+      "subject_name": "<主体名称>",
+      "source_design_document": "projects/aigc/<项目名>/6-设计/场景/2-设计/S###-<场景名>.md",
+      "source_deconstruction": "<直接引用或压缩场景设计文档 ## 4. 解构 的内容>",
+      "reference_main_image": "projects/aigc/<项目名>/6-设计/场景/3-生成/<主体ID>-<主体名称>-主图.<ext>",
+      "reference_context_status": "pending_view_image | visible_in_conversation_context",
+      "subject_short_id": "<SCENE_ID_ASCII_SAFE>"
+    },
+    "reference_context": {
+      "tool": "view_image",
+      "required_before_generation": true,
+      "role_label": "scene main image / multiview reference"
+    },
+    "layout": {
+      "asset_role": "scene_multiview_subject_design_sheet",
+      "sheet_intent": "spatial proof board for one coherent scene, not nine separate concept shots",
+      "aspect_ratio": "16:9",
+      "resolution_target": "2K or higher",
+      "panel_count": 9,
+      "grid": "3x3"
+    },
+    "identity_badge": {
+      "required": true,
+      "position": "top-left",
+      "display_strategy": "visible_short_ascii_id_in_image, full_subject_name_in_json, post_overlay_required_if_image_text_is_unreliable",
+      "visible_text": "<SCENE_ID_ASCII_SAFE>",
+      "full_subject_name": "<主体名称>",
+      "badge_content_order": [
+        "short_scene_id",
+        "short_scene_name_or_safe_slug"
+      ],
+      "visual_style": "small clean production badge, high contrast, secondary to the scene panels",
+      "fallback": "if exact text rendering fails, preserve a clean empty badge plate for post-production overlay and keep the full name in the JSON record"
+    },
+    "subject_invariant_lock": {
+      "locked_from": [
+        "source_deconstruction",
+        "reference_main_image"
+      ],
+      "must_preserve": [
+        "canonical scene identity and landmark relationships",
+        "spatial skeleton, entrance direction, thresholds and circulation logic",
+        "primary light source direction, color script and atmospheric pressure",
+        "era, culture, architectural logic and material family",
+        "scale logic and environmental measurement cues"
+      ],
+      "may_vary": [
+        "camera distance",
+        "camera height",
+        "detail emphasis",
+        "cropping within the same spatial orientation"
+      ],
+      "must_not_invent": [
+        "new architecture",
+        "new people, creatures or silhouettes",
+        "new story props",
+        "flipped orientation",
+        "unrelated locations"
+      ]
+    },
+    "reference_policy": {
+      "reference_main_image_role": "continuity anchor for scene identity, material logic, spatial silhouette, lighting direction and color script",
+      "do_not_copy": [
+        "accidental artifacts",
+        "unrelated crop",
+        "unwanted texture glitches",
+        "random composition errors",
+        "unintended extra subjects"
+      ]
+    },
+    "layout_generation_prompt": {
+      "canvas_setup": "Create a 16:9 widescreen scene multi-view design sheet on a clean dark neutral ground using a strict 3x3 nine-grid. Keep spacing, margins, and panel ratio uniform. Treat the sheet as a production design reference board for one coherent scene.",
+      "critical_requirements": [
+        "The upstream scene design document's section `4. 解构` is the primary source of truth. Use it directly for scene identity, era, style, spatial facts, architectural logic, material logic, lighting and narrative function; do not use the former English integrated prompt from `提示词设计` as the imported source for gpt-image-2.",
+        "Use the provided `reference_main_image` as a continuity anchor for the same scene subject; keep landmark identity, silhouette, material family, palette, lighting direction and spatial orientation consistent.",
+        "Do not redesign the scene. Do not add new architecture, new story elements, new people, creatures, silhouettes or human-shaped shadows unless the upstream section `4. 解构` explicitly requires them.",
+        "Render one coherent scene as a unified 3x3 panel sheet with strict cross-panel consistency.",
+        "Treat every panel as a view variant of the same space, not nine different scenes.",
+        "P1-P3: atmosphere plus iconography sequence: wide establishing view, medium spatial function view, close ritual or architectural detail.",
+        "P4/P5/P7/P8: structural and directional views that prove threshold design, circulation hierarchy, cosmology order, edge traversal, material joins, or sacred-light organization.",
+        "P6: low-angle up-shot emphasizing vertical authority, oppression or transcendence. P9: high-angle top-down shot revealing spatial order or cosmology logic.",
+        "Maintain one consistent spatial orientation across all panels; doors, thresholds, major landmarks and light direction must not flip randomly.",
+        "Include at least one scale-readable environmental cue such as steps, railing height, doorway size, furniture scale, floor tile rhythm or structural measurement logic, without adding people.",
+        "Panel labels, grid divisions and borders must remain clean and secondary; do not let labels, decorative UI or frame ornaments dominate the scene.",
+        "Reserve one fixed top-left identity badge area and visibly attempt the short ASCII subject ID `<SCENE_ID_ASCII_SAFE>`; if exact text rendering is unreliable, preserve the badge area for post-production overlay.",
+        "Every panel must include a small lower-left scene-view label using the panel id and short view name, such as `P1 WIDE`, `P2 MED`, `P3 DETAIL`; labels must be readable, secondary, and inside the panel margin."
+      ]
+    },
+    "layout_modules": {
+      "domain_view_grammar": "Scene panels must prove one reusable space through orientation, threshold, function, structure, light, circulation and top-down order.",
+      "panel_label_policy": {
+        "required": true,
+        "position": "lower-left inside each panel",
+        "display_strategy": "short_ascii_view_label_in_image, post_overlay_required_if_image_text_is_unreliable",
+        "style": "small high-contrast production label, no long prose, no decorative plaque",
+        "format": "<PANEL_ID> <VIEW_CODE>",
+        "fallback": "reserve a clean lower-left label strip in every panel for post-production overlay"
+      },
+      "panel_views": [
+        {
+          "id": "P1",
+          "label": "Atmosphere Wide",
+          "view_code": "WIDE",
+          "lower_left_label": "P1 WIDE",
+          "description": "Eye-level wide shot establishing full spatial envelope and dominant light logic."
+        },
+        {
+          "id": "P2",
+          "label": "Atmosphere Medium",
+          "view_code": "MED",
+          "lower_left_label": "P2 MED",
+          "description": "Mid shot showing functional zoning, narrative center and the first clear era or culture cue."
+        },
+        {
+          "id": "P3",
+          "label": "Ritual Detail",
+          "view_code": "DETAIL",
+          "lower_left_label": "P3 DETAIL",
+          "description": "Close architectural or material detail proving iconography, ceremonial logic or world-specific ornament."
+        },
+        {
+          "id": "P4",
+          "label": "Threshold View A",
+          "view_code": "THRESH",
+          "lower_left_label": "P4 THRESH",
+          "description": "Directional view proving entrance, edge traversal, barrier or passage logic."
+        },
+        {
+          "id": "P5",
+          "label": "Structural View",
+          "view_code": "STRUCT",
+          "lower_left_label": "P5 STRUCT",
+          "description": "View proving architectural support, material joins, scale and spatial hierarchy."
+        },
+        {
+          "id": "P6",
+          "label": "Low-Angle Vertical Axis",
+          "view_code": "LOW",
+          "lower_left_label": "P6 LOW",
+          "description": "Low-angle up-shot emphasizing vertical authority, oppression or transcendence."
+        },
+        {
+          "id": "P7",
+          "label": "Circulation View",
+          "view_code": "PATH",
+          "lower_left_label": "P7 PATH",
+          "description": "View proving movement path, ritual route, service path or cosmology linkage."
+        },
+        {
+          "id": "P8",
+          "label": "Material / Cultural View",
+          "view_code": "MATERIAL",
+          "lower_left_label": "P8 MATERIAL",
+          "description": "View foregrounding material continuity, cultural threshold, ornament or era-coded detail."
+        },
+        {
+          "id": "P9",
+          "label": "High-Angle Spatial Order",
+          "view_code": "TOP",
+          "lower_left_label": "P9 TOP",
+          "description": "High-angle top-down shot revealing spatial order, zoning or cosmology logic."
+        }
+      ],
+      "consistency": [
+        {
+          "id": "lighting",
+          "label": "Lighting Continuity",
+          "description": "Primary light source direction and intensity remain physically coherent in all panels."
+        },
+        {
+          "id": "material",
+          "label": "Material Continuity",
+          "description": "Material families and texture age state remain stable across panels."
+        },
+        {
+          "id": "composition",
+          "label": "Layout Discipline",
+          "description": "Equal panel sizes, clean gutters, no overlap and no decorative frame noise."
+        }
+      ]
+    },
+    "negative_drift_controls": {
+      "identity_drift": "every panel must read as the same scene with the same landmark order, material family and era logic",
+      "orientation_drift": "do not mirror doors, thresholds, dominant landmarks or primary light direction between panels",
+      "population_drift": "keep the sheet free of people, creatures, silhouettes and human-shaped shadows unless the source deconstruction explicitly requires them",
+      "layout_drift": "preserve clean 3x3 spacing and do not turn the sheet into a collage, storyboard, poster or decorative UI spread"
+    },
+    "review_focus": [
+      "same scene identity across all nine panels",
+      "consistent spatial orientation, threshold placement and light direction",
+      "scale cue present without adding people",
+      "no new scene facts beyond the upstream section `4. 解构`",
+      "top-left identity badge has a visible short ID or a clean overlay-ready badge plate",
+      "each panel has a lower-left scene-view label or a clean overlay-ready label strip"
+    ],
+    "negative_prompt": {
+      "global": "no people, no creatures, no silhouettes, no human-shaped shadows, no unrelated architecture, no scene redesign, no nine different locations, no random flipped orientation, no inconsistent era, no inconsistent materials, no unreadable clutter, no decorative UI dominance",
+      "layout": "no uneven grid, no overlapping panels, no broken gutters, no excessive labels, no ornamental frames dominating the scene, no missing panel label zones",
+      "reference_drift": "do not copy artifacts from reference image, do not introduce accidental objects, do not change the canonical scene identity"
+    },
+    "prompt_assembly": {
+      "prompt_text": "Use `<source_deconstruction>` as the primary scene source. Using `<reference_main_image>` as a continuity reference, create a 16:9 3x3 spatial proof multi-view production design sheet for `<subject_name>`. Apply `subject_invariant_lock`, include the top-left identity badge with `<SCENE_ID_ASCII_SAFE>`, add lower-left scene-view labels to every panel, follow all critical requirements and panel view modules, and preserve one coherent scene identity across all panels.",
+      "json_record_required": true
+    }
+  }
+}

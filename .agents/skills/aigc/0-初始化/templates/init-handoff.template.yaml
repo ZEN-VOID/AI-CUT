@@ -22,24 +22,35 @@ project_contract:
   handoff_status: ""  # blocked | ready | ready_with_unknowns
 
 stage_entry_seeds:
-  planning_seed:
+  episode_split_seed:
     scope: []
+    split_granularity: []
     structure_assumptions: []
     output_constraints: []
-  global_seed:
-    tone: []
-    visual_style_refs: []
-    type_element_priorities: []
+  writing_directing_seed:
+    fidelity_rules: []
     director_intent_hints: []
-  detail_seed:
-    beat_priorities: []
-    scene_energy_targets: []
-    camera_and_transition_hints: []
+    performance_boundaries: []
+    visual_language_constraints: []
+  motion_seed:
+    continuity_principles: []
+    start_path_end_priorities: []
+    reference_frame_rules: []
+  cinematography_seed:
+    shot_language_baseline: []
+    rhythm_and_duration_hints: []
+    light_color_camera_constraints: []
+  grouping_seed:
+    grouping_rhythm: []
+    bridge_policy: []
+    north_star_projection_notes: []
   design_seed:
-    role_pool: []
-    scene_pool: []
-    prop_pool: []
+    scene_design_invariants: []
+    character_design_invariants: []
+    prop_design_invariants: []
     asset_constraints: []
+
+post_creative_handoff:
   image_seed:
     storyboard_preferences: []
     frame_prompt_preferences: []
@@ -56,13 +67,13 @@ stage_entry_seeds:
 
 unknowns:
   unresolved_questions: []
-  deferred_to_planning: []
-  deferred_to_global: []
-  deferred_to_detail: []
+  deferred_to_episode_split: []
+  deferred_to_writing_directing: []
+  deferred_to_motion: []
+  deferred_to_cinematography: []
+  deferred_to_grouping: []
   deferred_to_design: []
-  deferred_to_image: []
-  deferred_to_video: []
-  deferred_to_cut: []
+  deferred_to_post_creative: []
 
 sources_breakdown:
   user_confirmed: []
@@ -73,6 +84,7 @@ planning_direct_answer_provenance:
   team_ref: "team.yaml"
   role: "planning"
   used_advisor_review: false
+  role_identity_skill_calls: []
   packet_refs: []
 
 risk_notes: []

@@ -3,8 +3,8 @@
   "project_name": "",
   "episode_id": "",
   "source_group_path": "",
-  "output_root": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集",
-  "package_dir": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>",
+  "output_root": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集",
+  "package_dir": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>",
   "artifact_mode": "compact",
   "artifact_policy": {
     "group_root_canonical_files": [
@@ -59,9 +59,9 @@
       "poll": 45,
       "slot_binding_phase": "draft",
       "generation_slot_source": "",
-      "prompt_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/prompt.md",
-      "remote_submission_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-submission.txt",
-      "reference_manifest_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/reference-manifest.json",
+      "prompt_path": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/prompt.md",
+      "remote_submission_path": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-submission.txt",
+      "reference_manifest_path": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/reference-manifest.json",
       "reference_image_budget": {
         "max_images": 9,
         "selection_rule": "角色和场景优先；超过上限时先从道具取舍，其次再考虑重复、不必要或可由源文本保留的次要主体。",
@@ -116,10 +116,10 @@
       "projectUuid": "",
       "projectUrl": "",
       "canvasMarkdown": "",
-      "download_dir": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>",
-      "expected_output": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/<分镜组ID>.mp4",
-      "queue_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/queue.md",
-      "results_path": "projects/aigc/<项目名>/7-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-results.json",
+      "download_dir": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>",
+      "expected_output": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/<分镜组ID>.mp4",
+      "queue_path": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/queue.md",
+      "results_path": "projects/aigc/<项目名>/8-视频/C-主体参照/第N集/groups/<分镜组ID>/libtv-results.json",
       "status": "planned"
     }
   ]

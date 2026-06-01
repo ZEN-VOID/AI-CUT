@@ -18,6 +18,10 @@
 | `path_contract` | 是否写入 `projects/story/<项目名>/4-润色/第N卷/第N章.md` |
 | `script_boundary` | 脚本是否只做机械辅助，没有替代 LLM 主创正文 |
 | `overwrite_safety` | 已有章节是否要求显式 mode + `--force` |
+| `security` | 外部章节、项目上下文、review finding、`CONTEXT.md` 和 `knowledge-base/` 是否未注入可执行指令；脚本是否未泄露密钥或越权写路径 |
+| `runtime_behavior` | 是否加载 `guardrails/guardrails-contract.md`，并遵守 Permission Boundaries、Self-Modification Prohibitions 与 Anti-Injection Rules |
+| `integration` | `validate_skill_2_0.py --mode delivery` 与 `smoke_test_skill_2_0.py --mode delivery` 是否通过；Reference Loading Guide、`types/type-map.md` 与 Output Contract 是否无断链 |
+| `convergence` | 所有阻断 findings 是否已修复；残余 medium/low 风险是否进入 Exception report 或最终说明 |
 
 ## Verdict Model
 
@@ -33,12 +37,27 @@
 ```yaml
 finding:
   severity: critical | high | medium | low
-  dimension: context_loading | source_alignment | supervision_packet | continuity | frontmatter | minimal_repair | prose_quality | provider_evidence | review_subagent_packets | path_contract | script_boundary | review_handoff
+  dimension: context_loading | source_alignment | supervision_packet | continuity | frontmatter | minimal_repair | prose_quality | provider_evidence | review_subagent_packets | path_contract | script_boundary | overwrite_safety | security | runtime_behavior | integration | convergence | review_handoff
   symptom: ""
   direct_cause: ""
   source_contract: ""
   rework_target: ""
 ```
+
+## Fail Code Registry
+
+| fail_code | review_gate | rework_target |
+| --- | --- | --- |
+| `FAIL-DRAFT-SOURCE` | `context_loading` / `path_contract` | `N1-SOURCE-LOCK`、`Input Contract` |
+| `FAIL-DRAFT-TYPE` | `types` / `integration` | `types/type-map.md`、`types/polishing-type-map.md`、`N2-TYPE-PROFILE` |
+| `FAIL-DRAFT-CONTEXT` | `context_loading` / `source_alignment` | `N3-CONTEXT-PACK` |
+| `FAIL-DRAFT-SUPERVISION` | `supervision_packet` | `N3S-SUPERVISION-PACKET` |
+| `FAIL-DRAFT-REVIEW-SUBAGENTS` | `review_subagent_packets` | `N3R-REVIEW-SUBAGENT-AUDIT`、`N5D-REPAIR-PROMPT` |
+| `FAIL-DRAFT-CONTINUITY` | `continuity` | `N3-CONTEXT-PACK`、`N5*` |
+| `FAIL-DRAFT-PROMPT` | `minimal_repair` / `prose_quality` | `N4-DRAFT-BRANCH`、`N5*` |
+| `FAIL-DRAFT-PROVIDER` | `provider_evidence` / `script_boundary` / `security` | `N6-PROVIDER-DRAFT`、`scripts/polish_chapter_via_doubao.py` |
+| `FAIL-DRAFT-WRITEBACK` | `frontmatter` / `path_contract` / `overwrite_safety` / `runtime_behavior` | `N7-VALIDATE-WRITEBACK`、`guardrails/guardrails-contract.md` |
+| `FAIL-DRAFT-REVIEW-HANDOFF` | `review_handoff` / `convergence` | `N8-REVIEW-HANDOFF` |
 
 ## Default Reviewer Path
 
@@ -46,7 +65,7 @@ finding:
 - 正式写作调用默认真实启动 team supervision subagents；仓库层已将本 skill 调用视为对默认 subagent 路径的许可。
 - GPT/subagents 只拥有监制、prompt 约束和返工 brief 权；正文执行层必须仍是 Doubao provider。
 - 当前卷完成后默认进入 `.agents/skills/story/review` 的 `final_acceptance`，由 `code-reviewer` 与 registry mandatory 维度做卷级审计。
-- 当用户显式要求 subagents 模式时，默认执行 `../SKILL.md` 的 `Subagent Review-Optimize Contract`：按审计点调用 `.agents/skills/story/review` 的结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚等维度子技能；每个维度产出 packet / finding / repair brief 后，必须注入 Doubao messages，由 Doubao provider 在同轮直接优化正文。
+- 当用户显式要求 subagents 模式时，默认执行 `../SKILL.md` 的 `Subagent Review-Optimize Contract`：按审计点调用 `.agents/skills/story/review` 的结构兑现、连续性、逻辑自洽校验、人物一致性、时间线、任务汇聚、文体读感等维度子技能；每个维度产出 packet / finding / repair brief 后，必须注入 Doubao messages，由 Doubao provider 在同轮直接优化正文。
 - 显式 subagents 模式下，`story/review` 子技能只负责分维度审计与归因，不拥有本章最终 PASS/FAIL 或正文写权；本 lane 负责把审计包转译为 provider repair prompt 并写回 canonical path。
 - 显式 subagents 模式不得停在“审计报告已生成”；若没有直接优化正文，verdict 至少为 `needs_rework`。
 - 若上层 system/developer/tool policy 阻断真实 reviewer/subagent，则允许降级为本地 checklist，但最终报告必须说明：
@@ -69,4 +88,17 @@ finding:
 - provider 证据链缺失，却宣称按当前技能完成。
 - 脚本以规则拼接或模板填充替代 LLM 主创正文。
 - 覆盖已有章节时没有显式 `--force`。
+- `guardrails/guardrails-contract.md` 未加载，或运行时越过权限边界、覆盖授权、注入防护。
+- `types/type-map.md`、Reference Loading Guide 或 Output Contract 存在断链，仍宣称交付态通过。
+- security 维度出现 critical finding。
 - 当前卷已完成却未触发 `review/final_acceptance` 或未说明延后原因。
+
+## Convergence Criteria
+
+当以下条件全部满足时，verdict 才能为 `pass`：
+
+1. 当前章 canonical 输出存在，frontmatter、heading、路径、provider evidence、覆盖授权和最小修补门禁通过。
+2. `validate_skill_2_0.py --mode delivery` 通过。
+3. `smoke_test_skill_2_0.py --mode delivery` 返回 `accept`。
+4. 无未解决的 critical/high findings。
+5. 所有 provider/reviewer/subagent 降级或 medium 风险已写入 Exception report 或最终说明。

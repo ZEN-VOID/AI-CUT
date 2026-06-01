@@ -10,7 +10,7 @@
 | --- | --- |
 | `root_router` | 是否需要同步 `.agents/skills/aigc/SKILL.md + CONTEXT.md` |
 | `primary_owner` | 最窄有效 owning skill 或分区 |
-| `related_stages` | 受影响的 `0-初始化` 到 `10-审片` 阶段 |
+| `related_stages` | 受影响的 `0-初始化` 到 `9-审片` 阶段 |
 | `related_satellites` | query / resume / review / repair / shot-by-shot / learn 等旁路消费者 |
 | `shared_carriers` | `_shared/`、registry、routes、audit scripts、templates |
 | `project_runtime` | 是否影响 `projects/aigc/<项目名>/` 的产物路径、MEMORY 或 CONTEXT |

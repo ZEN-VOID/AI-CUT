@@ -4,7 +4,7 @@
 
 | package | path | selection signal | relation |
 | --- | --- | --- | --- |
-| `subject_reference_flow` | `types/subject-reference-flow.md` | 默认；主体参照图、角色/场景/道具参照、`6-分组` 分镜组出视频 | default |
+| `subject_reference_flow` | `types/subject-reference-flow.md` | 默认；主体参照图、角色/场景/道具参照、`5-分组` 分镜组出视频 | default |
 | `storyboard_reference_flow` | `types/storyboard-reference-flow.md` | 用户显式指定分镜参照流、storyboard reference flow、用分镜图/故事板图参照出视频 | explicit-only |
 
 ## Default Package Rule

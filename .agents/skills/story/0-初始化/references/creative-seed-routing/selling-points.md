@@ -685,3 +685,11 @@ Lv4: 能创造新规则
 ---
 
 **使用建议**：核心卖点是整个创作的灵魂，应在创意阶段就明确定位，并在后续所有阶段（设定、框架、创作）中持续强化。每次大纲调整或情节设计前，都应回顾核心卖点，确保所有创作要素都服务于这个唯一的吸引力核心。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 本 leaf 是否只在 `module-spec.md` 判定需要卖点提炼时加载，而非被父技能直连？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
+| 卖点是否与目标读者、主角身份、金手指/规则和世界观放大机制形成一致链路？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件卖点匹配原则、`steps/init-workflow.md` N5 | reader_promise、story_kernel、risk_notes |
+| 卖点是否落到 `north_star.reader_promise` 与 `init_handoff.project_contract`，而不是替代后续大纲？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | promise_surface patch、deferred unknowns |

@@ -6,7 +6,7 @@
 
 | mode | input signal | required context | output |
 | --- | --- | --- | --- |
-| `prompt_only` | 只要提示词、manifest、submit plan，不执行 LibTV | `4-分组`、故事板目录、设计生成目录 | prompt、reference manifest、submit plan |
+| `prompt_only` | 只要提示词、manifest、submit plan，不执行 LibTV | `5-分组`、故事板目录、设计生成目录 | prompt、reference manifest、submit plan |
 | `single_group_generate` | 单个三段式 `group_id` + 要生成视频 | 单组正文、YAML、故事板/主体参照 | 单组 plan、queue、结果 |
 | `episode_batch_generate` | 第 N 集整集批量 | 全集分组、全集故事板、设计资产 | 逐组 plan、queue、报告 |
 | `group_batch_generate` | 多个三段式 `group_id` | 指定组集合 | 多组 plan、queue、报告 |
@@ -22,7 +22,7 @@
 | 只需要镜级分镜画面图、多张 shot image 或四段式分镜ID图像参照 | A-分镜画面参照路线 |
 | 只需要组级故事板图作为参照 | B-分镜故事板参照路线 |
 | 只需要角色、场景、道具主体参照 | C-主体参照路线 |
-| 需要同时使用故事板总参照和主体参照 | 留在 `7-视频/D-主板混合参照` |
+| 需要同时使用故事板总参照和主体参照 | 留在 `8-视频/D-主板混合参照` |
 | 需要生成故事板图本体 | B-分镜故事板图像路线 |
 | 需要生成角色/场景/道具设计图本体 | 对应设计生成路线 |
 
@@ -57,7 +57,7 @@
 ## Duration Rules
 
 - `duration_source` 可为 `group_yaml / shot_sum / fallback_default / user_override`。
-- `duration_estimate_seconds` 默认从 `4-分组` 当前组 `时长估算` 得到；缺失时按组内分镜秒数求和，仍无法确定才回退 15 秒。
+- `duration_estimate_seconds` 默认从 `5-分组` 当前组 `时长估算` 得到；缺失时按组内分镜秒数求和，仍无法确定才回退 15 秒。
 - `duration_hint` 必须按 `clamp(duration_estimate_seconds, 4, 15)` 得到；小于等于 4 秒用 4 秒，4 到 15 秒之间用估算值，大于等于 15 秒用 15 秒。
 - `transport_only` 中的时长投影必须来自当前组 `duration_hint`；不得把所有组固定为 15 秒。
 
@@ -74,7 +74,7 @@
 1. mode 与处理范围明确。
 2. D 任务必须同时尝试故事板总参照和 YAML 主体参照绑定。
 3. 若任一参照缺失，manifest 和报告必须说明缺失原因。
-4. 输出路径位于项目内 `7-视频/D-主板混合参照`。
+4. 输出路径位于项目内 `8-视频/D-主板混合参照`。
 5. 有参照图时，远端提交必须保留故事板身份 / 主体名与真实图片 token / 编号 / URL 绑定；提交文本不得人工预设 `参照图N`。
 6. 未显式 opt-in `libtv_optimize` 时，`allow_libtv_prompt_optimization` 必须为 `false`，远端提交必须包含 strict 原文与禁止优化约束。
 7. `duration_hint` 必须可回指 `duration_estimate_seconds` 与 `duration_source`，并符合 4-15 秒 clamp 规则。

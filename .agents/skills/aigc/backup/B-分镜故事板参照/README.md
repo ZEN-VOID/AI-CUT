@@ -1,6 +1,6 @@
 # B-分镜故事板参照
 
-`7-视频` Skill 2.0 包：从 `4-分组` 读取完整分镜组内容，按 `group_id` 绑定 `6-图像/B-分镜故事板` 的可选故事板图，并通过 $libTV skill scripts 批量生成组级视频。
+`8-视频` Skill 2.0 包：从 `5-分组` 读取完整分镜组内容，按 `group_id` 绑定 `7-图像/B-分镜故事板` 的可选故事板图，并通过 $libTV skill scripts 批量生成组级视频。
 
 ## Directory Tree
 
@@ -23,18 +23,18 @@ B-分镜故事板参照/
 
 ## Quick Entry
 
-- 技能目录：`.agents/skills/aigc/7-视频-backup/B-分镜故事板参照/`
-- 主要输入：`projects/aigc/<项目名>/4-分组/第N集.md`
-- 故事板参照：`projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/<分镜组ID>.*`
-- 项目输出根：`projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/`
+- 技能目录：`.agents/skills/aigc/8-视频-backup/B-分镜故事板参照/`
+- 主要输入：`projects/aigc/<项目名>/5-分组/第N集.md`
+- 故事板参照：`projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集/images/<分镜组ID>.*`
+- 项目输出根：`projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/`
 - 主要模式：`prompt_only`、`single_group_generate`、`episode_batch_generate`、`group_batch_generate`、`query_or_download`、`repair`、`review_only`
 
 ```mermaid
 flowchart LR
-    A["4-分组"] --> B["B-分镜故事板参照"]
-    C["6-图像/B-分镜故事板"] --> B
+    A["5-分组"] --> B["B-分镜故事板参照"]
+    C["7-图像/B-分镜故事板"] --> B
     B --> D["$libTV"]
-    D --> E["7-视频/B-分镜故事板参照/videos"]
+    D --> E["8-视频/B-分镜故事板参照/videos"]
 ```
 
 ## Runtime Artifacts

@@ -25,7 +25,7 @@
 | `references/advisor-council-mode/` | retired empty legacy mode directory | legacy residue | none | archive/drop empty | low | 全仓无活跃引用后移除空目录 | `rg` reference sync |
 | `references/fast-mode/` | retired empty legacy mode directory | legacy residue | none | archive/drop empty | low | 全仓无活跃引用后移除空目录 | `rg` reference sync |
 | `references/autonomous-mode/` | retired empty legacy mode directory | legacy residue | none | archive/drop empty | low | 全仓无活跃引用后移除空目录 | `rg` reference sync |
-| `templates/*.template.yaml`、`project-memory.template.md` | output artifact templates | templates | `templates/` | keep | medium | 新增 `templates/output-template.md` 作为五字段对齐说明 | validator |
+| `north-star.template.yaml`、`story-source-manifest.template.yaml`、`init-handoff.template.yaml`、`project-memory.template.md` | output artifact templates | templates | `templates/` | keep | medium | 新增 `templates/output-template.md` 作为五字段对齐说明 | validator |
 | `agents/openai.yaml` | product metadata | agents metadata | `agents/openai.yaml` | keep | low | default prompt 已显式提到 `$story-init` | validator |
 
 ## Reference Sync Notes
@@ -33,3 +33,11 @@
 - 已移除的旧空目录：`references/advisor-council-mode/`、`references/fast-mode/`、`references/autonomous-mode/`。
 - 这些目录在本轮扫描中没有外部活跃引用；若外部系统仍保存路径，需人工更新到 `references/mode-and-team-contract.md` 或 `references/prompt-packet-contract.md`。
 - `references/creative-seed-routing/` 保持独立模块入口，父技能不得绕过 `module-spec.md` 直接点名 leaf docs。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 旧 `SKILL.md` section 与旧资源是否都能追到现有 owner、保留动作和验证门？ | `dynamic_reference` | `FAIL-INIT-DYNAMIC-REFERENCE` | 本文件 Migration Matrix、目标 owner 分区 | migration matrix coverage |
+| 删除或退休的旧路径是否不再作为活跃引用出现？ | `integration` | `FAIL-INIT-INTEGRATION` | 本文件 Reference Sync Notes、全仓引用同步 | retired path `rg` 结果 |
+| 模板、review、types、scripts 的迁移是否没有制造第二真源？ | `structure` / `integration` | `FAIL-INIT-STRUCTURE` / `FAIL-INIT-INTEGRATION` | README Directory Tree、`SKILL.md` Reference Loading Guide | owner map、validator/smoke output |

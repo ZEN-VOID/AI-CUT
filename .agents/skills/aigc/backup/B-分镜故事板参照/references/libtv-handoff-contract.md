@@ -50,14 +50,14 @@
 
 ## Remote Handoff Contract
 
-本地 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `4-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 唯一允许的机械注入位置是 fenced YAML 中新增或更新 `故事板参照` 对象。该对象只在故事板图唯一绑定并上传、且槽位确认后写入 `name: 故事板总参照`、`role: storyboard_sheet`、`reference_index: 1`、真实 `uploaded_url` 和可选 `image_token`；`uploaded_url` 来自 `storyboard_uploads` 的身份映射，`reference_index: 1` 来自 `generation_slots` 的 UI 图1 / `imageList[0]` 槽位。缺故事板、多候选未裁决或未上传时不写空 URL、不写缺图说明。
+本地 `prompt.md` 必须采用 source-first YAML 两阶段处理：draft 直接保留 `5-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和原始 fenced YAML，不提前写死 `reference_index / uploaded_url`；final 唯一允许的机械注入位置是 fenced YAML 中新增或更新 `故事板参照` 对象。该对象只在故事板图唯一绑定并上传、且槽位确认后写入 `name: 故事板总参照`、`role: storyboard_sheet`、`reference_index: 1`、真实 `uploaded_url` 和可选 `image_token`；`uploaded_url` 来自 `storyboard_uploads` 的身份映射，`reference_index: 1` 来自 `generation_slots` 的 UI 图1 / `imageList[0]` 槽位。缺故事板、多候选未裁决或未上传时不写空 URL、不写缺图说明。
 
 发送给 LibTV 画布的 `*-libtv-submission.txt` 是运输层包裹文本，必须复用已确认槽位后的 final source-first YAML 作为 `【分镜组源文本】`，并满足：
 
 - 文件第一行必须是 `【LibTV 调用锁定】`。
 - 第一段必须明确：`provider=seedance2.0`、`taskType=video`、`modeType=singleImage2video`、`imageList=["<真实 uploaded_url_1>"]`；无故事板图时改用 `modeType=text2video` 且 `imageList=[]`。`imageList` 必须直接填入上传返回的真实 URL，不得保留 `参照图1 URL` 占位符；B 路线有图时 `imageList` 只含 1 张故事板图，且必须 <= 9。
 - 源层规则：`storyboard_uploads` 只证明“该 group_id 的故事板总参照对应哪个 OSS URL”；`generation_slots` 才证明“图1/imageList[0] 对应哪个 OSS URL 和故事板总参照”。若视频生成框 UI 缩略图可观测，以 UI 图1 / `Image 1` 为最终槽位真源；只有 UI 槽位不可观测时才用远端 query 的实际 `imageList[0]` URL 反查 `storyboard_uploads`。回刷 fenced YAML 的 `reference_index: 1`、真实 `uploaded_url` 和可选 `image_token` 后重提。
-- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../6-图像/...` 等本地图片路径；只允许通过 final `【分镜组源文本】` fenced YAML 的 `故事板参照.reference_index / uploaded_url / image_token` 绑定故事板总参照与真实图1槽位，不得另起 `【故事板参照说明】`，也不得预设 `参照图1/2/N` 人工编号。
+- 远端提交不得包含 `@projects/...`、`/Volumes/...`、`projects/aigc/.../7-图像/...` 等本地图片路径；只允许通过 final `【分镜组源文本】` fenced YAML 的 `故事板参照.reference_index / uploaded_url / image_token` 绑定故事板总参照与真实图1槽位，不得另起 `【故事板参照说明】`，也不得预设 `参照图1/2/N` 人工编号。
 - 缺故事板、多候选未裁决、被排除或未进入预算的信息不得写入远端 `libtv-submission.txt`，只能写入 manifest / batch / report；不得出现“无独立参照图 / 无缓存 URL / 未进入预算 / 不创建空图片槽”等说明行。
 - `【直接生成请求】` 必须写成“基于下方【分镜组源文本】”，并明确该源文本的 fenced YAML 已包含 `故事板参照.reference_index / uploaded_url / image_token`；不得只写“基于上述参照图 URL”。
 - 远端 `create_generation_task.params.prompt` 必须保留故事板总参照身份与图片 token/编号/URL 绑定；提交文本不得人工生成 `故事板总参照 参照图1` 这类编号，只有当 LibTV 自动插入真实图片编号后，才把故事板总参照邻近该真实编号，例如 `故事板总参照 {{Image 1}}` 或 `{{Image 1}} 故事板总参照`。不得把参照区压成裸 `{{Image 1}}`、裸 `图片1` 或裸 URL。
@@ -73,7 +73,7 @@
   command_type: "libtv_session_with_uploaded_references"
   prompt: "<完整 LibTV prompt>"
   reference_images:
-    - path: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第1集/images/1-1-1.png"
+    - path: "projects/aigc/<项目名>/7-图像/B-分镜故事板/第1集/images/1-1-1.png"
       uploaded_url: "<由 upload_file.py 返回>"
       marker: "uploaded_url_binding"
       role: "storyboard_sheet"
@@ -94,8 +94,8 @@
     allow_libtv_prompt_optimization: false
     transport_only_projection: true
   output:
-    download_dir: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第1集"
-    expected_video_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第1集/1-1-1.mp4"
+    download_dir: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第1集"
+    expected_video_path: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第1集/1-1-1.mp4"
 ```
 
 ## Command Projection
@@ -105,7 +105,7 @@
 | `reference_images` 非空 | `libtv_session_with_uploaded_references` | 上传故事板图后调用 `create_session.py`；远端必须调用 Seedance `modeType=singleImage2video`，`imageList` 只含故事板 URL |
 | `reference_images` 为空 | `libtv_session_text_only` | 调用 `create_session.py`；远端必须调用 Seedance `modeType=text2video` |
 
-`7-视频` 不在本地硬编码模型版本。除非用户显式要求其他规格，否则默认参数固定写入远端提交：`resolution=720p`、`ratio=16:9`、`duration=<duration_hint>`、`enableSound=on`；`duration_hint` 从当前组 `duration_estimate_seconds` clamp 到 4-15 秒得到。用户显式指定模型、时长、比例、分辨率或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定模型时使用 LibTV 后端默认路由。
+`8-视频` 不在本地硬编码模型版本。除非用户显式要求其他规格，否则默认参数固定写入远端提交：`resolution=720p`、`ratio=16:9`、`duration=<duration_hint>`、`enableSound=on`；`duration_hint` 从当前组 `duration_estimate_seconds` clamp 到 4-15 秒得到。用户显式指定模型、时长、比例、分辨率或质量档时，原样写入发送给 LibTV 的自然语言任务；未指定模型时使用 LibTV 后端默认路由。
 
 ## Prompt Projection
 
@@ -156,7 +156,7 @@ transport_only_projection: true
 - 下载目录固定为：
 
 ```text
-projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/
+projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/
 ```
 
 - 若远端成功但下载超时，按 `$libTV` 经验清理半截文件后重试，必要时用媒体 URL 直下。

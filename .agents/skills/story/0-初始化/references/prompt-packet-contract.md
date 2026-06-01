@@ -50,3 +50,12 @@ answers:
 - 助手推断或 planning 直答补出的字段记为 `assistant_inferred` 或对应 `member_inferred`。
 - legacy 工件只可记为 evidence，不可覆盖当前真源。
 - `decision_owner=assistant` 时，未显式由用户确认的剩余非空字段不得默认归入 `user_confirmed`。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| planning 成员是否围绕固定题包直接给出结构化判断，而不是恢复访谈或旧问卷？ | `subagents` | `FAIL-INIT-SUBAGENT` | 本文件 Fixed Direct-Answer Packet、`steps/init-workflow.md` N4 | member answer patches、fixed packet coverage |
+| 创意缺口是否只通过 `references/creative-seed-routing/module-spec.md` 进入 leaf references？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件 Creative Seed Routing、`references/creative-seed-routing/module-spec.md` | creative_route_plan、loaded_references |
+| unknowns 是否按 `1-设定 / 2-卷章` 边界切分，而非初始化强行补完？ | `handoff` | `FAIL-INIT-HANDOFF` | 本文件 Unknowns Rule、`steps/init-workflow.md` N5-N6 | init_handoff unknowns、cards/planning seed |
+| provenance 是否区分 `user_confirmed`、`assistant_inferred`、`member_inferred` 与 legacy evidence？ | `handoff` / `integration` | `FAIL-INIT-HANDOFF` | 本文件 Provenance Rule、`templates/init-handoff.template.yaml` | sources_breakdown、confirmation detail |

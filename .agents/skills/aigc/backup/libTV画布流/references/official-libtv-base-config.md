@@ -22,7 +22,7 @@ export LIBTV_ACCESS_KEY="your-access-key"
 在本仓库执行时，`LIBTV_ACCESS_KEY` 默认配置在仓库根 `.env` 中。本技能优先通过 wrapper 自动加载 `.env` 后再转调用官方脚本：
 
 ```bash
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
 ```
 
 wrapper 只负责定位仓库根、读取 `.env`、校验 `LIBTV_ACCESS_KEY` 并以同一参数调用 `.agents/skills/cli/libTV/scripts/` 下的官方脚本；不得复制、修改或替代官方脚本逻辑。
@@ -47,12 +47,12 @@ export IM_BASE_URL="https://im.liblib.tv"
 ## Preserved Official Calls
 
 ```bash
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "追加消息" --session-id SESSION_ID
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py query_session.py SESSION_ID --project-id PROJECT_UUID
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py change_project.py
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py upload_file.py /path/to/ref.png
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py download_results.py SESSION_ID --output-dir OUTPUT_DIR --filename FILE
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "追加消息" --session-id SESSION_ID
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py query_session.py SESSION_ID --project-id PROJECT_UUID
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py change_project.py
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py upload_file.py /path/to/ref.png
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py download_results.py SESSION_ID --output-dir OUTPUT_DIR --filename FILE
 ```
 
 这些命令等价于加载 `.env` 后调用官方脚本；官方脚本路径、参数语义、API 逻辑和输出格式仍以 `.agents/skills/cli/libTV` 为准。

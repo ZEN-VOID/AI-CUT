@@ -6,6 +6,8 @@
 
 ```text
 3-初稿/C-Deepseek流/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 │   └── chapter-drafting-contract.md
 ├── scripts/
@@ -23,6 +25,7 @@
 ├── types/
 │   ├── type-map.md
 │   └── 网文/
+│       └── README.md
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md
@@ -57,4 +60,5 @@ When the target chapter already exists, the script auto-selects `chapter_rewrite
 - `steps/` owns the thinking-action workflow.
 - `types/` owns mode classification.
 - `review/` owns quality gates.
+- `guardrails/` owns runtime permission boundaries and anti-injection rules.
 - `scripts/` only provides mechanical assistance and must not replace LLM creative authorship.

@@ -1,15 +1,15 @@
 schema_version: "aigc.video.storyboard_reference.libtv_batch.v1"
 project_name: "<项目名>"
 episode_id: "第N集"
-source_group_file: "projects/aigc/<项目名>/4-分组/第N集.md"
-storyboard_reference_root: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集"
-output_root: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集"
+source_group_file: "projects/aigc/<项目名>/5-分组/第N集.md"
+storyboard_reference_root: "projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集"
+output_root: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集"
 execution:
   provider: "libtv"
   background: true
   concurrency: 4
-  queue_ledger: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/第N集-libtv-queue.md"
-  result_file: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/第N集-libtv-results.json"
+  queue_ledger: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/第N集-libtv-queue.md"
+  result_file: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/第N集-libtv-results.json"
 defaults:
   requested_model: ""
   duration_source: "group_yaml"
@@ -32,14 +32,14 @@ jobs:
     source_heading: "## 1-1-1"
     command_type: "libtv_session_with_uploaded_references"
     remote_prompt_contract_version: "storyboard_reference_direct_video_v1"
-    remote_submission_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/prompts/1-1-1-libtv-submission.txt"
+    remote_submission_path: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/prompts/1-1-1-libtv-submission.txt"
     reference_status: "found"
     reference_images:
-      - path: "projects/aigc/<项目名>/6-图像/B-分镜故事板/第N集/images/1-1-1.png"
+      - path: "projects/aigc/<项目名>/7-图像/B-分镜故事板/第N集/images/1-1-1.png"
         uploaded_url: ""
         marker: "uploaded_url_binding"
         role: "storyboard_sheet"
-        source: "6-图像/B-分镜故事板"
+        source: "7-图像/B-分镜故事板"
         oss_upload_index: 1
     storyboard_uploads:
       - group_id: "1-1-1"
@@ -97,5 +97,5 @@ jobs:
       session_id: ""
       project_uuid: ""
       project_url: ""
-      download_dir: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集"
-      expected_video_path: "projects/aigc/<项目名>/7-视频/B-分镜故事板参照/第N集/1-1-1.mp4"
+      download_dir: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集"
+      expected_video_path: "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/第N集/1-1-1.mp4"

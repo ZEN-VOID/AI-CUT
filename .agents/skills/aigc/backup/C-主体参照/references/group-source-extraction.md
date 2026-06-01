@@ -1,13 +1,13 @@
 # Group Source Extraction Contract
 
-本文件定义 step1 的输入锁定：以 `projects/aigc/<项目名>/4-分组` 为主要信息来源，获取每个分镜组的完整内容。
+本文件定义 step1 的输入锁定：以 `projects/aigc/<项目名>/5-分组` 为主要信息来源，获取每个分镜组的完整内容。
 
 ## Source Roots
 
 固定读取：
 
 ```text
-projects/aigc/<项目名>/4-分组/第N集.md
+projects/aigc/<项目名>/5-分组/第N集.md
 ```
 
 辅助上下文可读但不得覆盖组正文：
@@ -23,7 +23,7 @@ projects/aigc/<项目名>/0-初始化/north_star.yaml
 - 分镜组标题固定识别为 Markdown 二级标题：`## x-y-z`。
 - 连接件标题固定识别为 Markdown 二级标题：`## x-y-z~x-y-z`，它不是分镜组。
 - 一个分镜组从该标题开始，到下一个 `## x-y-z`、下一个 `## x-y-z~x-y-z` 或文件结尾前结束。
-- `7-视频/C-主体参照` 默认完全忽略连接件块：不进入 `group_body`、视频 prompt、YAML 主体槽位、reference manifest、LibTV submit plan 或视频文件命名。
+- `8-视频/C-主体参照` 默认完全忽略连接件块：不进入 `group_body`、视频 prompt、YAML 主体槽位、reference manifest、LibTV submit plan 或视频文件命名。
 - 组底 fenced YAML 必须作为该组的结构化主体来源；正文和 YAML 都要保留各自角色，不得互相替代。
 - `group_id` 使用三段式模式 `episode-scene-group`，例如 `1-1-1`。
 
@@ -34,7 +34,7 @@ projects/aigc/<项目名>/0-初始化/north_star.yaml
 ```yaml
 group_id: "1-1-1"
 episode_id: "第1集"
-source_file: "projects/aigc/<项目名>/4-分组/第1集.md"
+source_file: "projects/aigc/<项目名>/5-分组/第1集.md"
 heading: "## 1-1-1"
 group_body: "<从标题后到 YAML 前的现有内容>"
 group_yaml:
@@ -79,7 +79,7 @@ duration_source: "group_yaml / shot_sum / fallback_default"
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否只从 `projects/aigc/<项目名>/4-分组/第N集.md` 锁定目标组，不回退 `3-摄影`、`3-Detail` 或更早阶段重写内容？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` / 本文件 `Source Roots` | `reference-manifest.json.group_source.source_file`、`heading`、源文件路径和读取范围 |
+| 是否只从 `projects/aigc/<项目名>/5-分组/第N集.md` 锁定目标组，不回退 `4-摄影`、`3-Detail` 或更早阶段重写内容？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` / 本文件 `Source Roots` | `reference-manifest.json.group_source.source_file`、`heading`、源文件路径和读取范围 |
 | `## x-y-z` 分镜组与 `## x-y-z~x-y-z` 连接件是否被正确区分，连接件是否未进入 group body、prompt、YAML 主体、manifest、submit plan 或视频命名？ | `G1-SOURCE` / `G2-CONTENT` | `FAIL-VIDSUBJ-GROUP` / `FAIL-VIDSUBJ-PROMPT` | `N3-GROUP-INDEX` / `N4-PROMPT` | group index 中的 `group_id`、`heading`、connector skipped 记录和 prompt 源文本片段 |
 | 每个目标 `group_id` 是否唯一回指源标题，且 `group_body` 从标题后完整截到下一个二级标题或文件结尾前？ | `G1-SOURCE` | `FAIL-VIDSUBJ-GROUP` | `N3-GROUP-INDEX` | `source_span`、`group_body_length`、`shot_count`、截取边界说明 |
 | fenced YAML 是否被作为结构化主体来源保留，且正文与 YAML 角色未互相替代？ | `G1-SOURCE` / `G3-SUBJECTS` | `FAIL-VIDSUBJ-GROUP` / `FAIL-VIDSUBJ-REF` | `N3-GROUP-INDEX` / `N5-REF-BIND` | `group_yaml` 原文、解析后的 `角色 / 场景 / 道具`、缺项记录 |
@@ -92,7 +92,7 @@ duration_source: "group_yaml / shot_sum / fallback_default"
 
 | fail signal | rework |
 | --- | --- |
-| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `4-分组` 修复 |
+| 找不到 `## x-y-z` | 确认集号或 group_id，必要时回上游 `5-分组` 修复 |
 | YAML fenced block 缺失 | 阻断参照绑定，允许 prompt-only 并报告 |
 | group_body 被截断 | 重新按下一个二级标题定位边界 |
 | 连接件进入 group_body 或 prompt | 按 `## x-y-z~x-y-z` 重新切块并忽略连接件 |

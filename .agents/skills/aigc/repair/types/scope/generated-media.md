@@ -4,8 +4,8 @@
 
 ## Fixed Context
 
-- 图像问题回看 `8-图像` owning leaf、`6-分组` 源组和 `7-设计` 资产引用。
-- 视频问题回看 `9-视频` owning leaf、上游图像/参照和 `10-审片` finding。
+- 图像问题回看 `7-图像` owning leaf、`5-分组` 源组和 `6-设计` 资产引用。
+- 视频问题回看 `8-视频` owning leaf、上游图像/参照和 `9-审片` finding。
 - repair 不直接修改二进制生成结果；只能保留、失效、重建任务或路由 provider。
 
 ## Review Gate

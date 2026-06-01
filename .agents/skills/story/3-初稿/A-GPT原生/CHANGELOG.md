@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-30
+
+- Added latest Skill 2.0 runtime guardrails with permission boundaries, self-modification prohibitions, anti-injection rules, and violation response protocol.
+- Converted `SKILL.md` Output Contract to validator-readable five-field bullets and added guardrail references.
+- Added `Review Gate Mapping` to chapter drafting reference rules and expanded review dimensions for security, runtime behavior, integration, and convergence.
+- Reworked `types/type-map.md` to remove placeholder/glob paths and use concrete validator anchors while preserving dynamic题材目录 selection.
+
 ## 2026-04-26
 
 - Created `A-GPT原生` as a Skill 2.0 chapter drafting package aligned with `B-Doubao流`.

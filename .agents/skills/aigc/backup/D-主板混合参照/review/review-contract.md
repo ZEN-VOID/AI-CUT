@@ -1,14 +1,14 @@
 # Review Contract: D-主板混合参照
 
-本 review gate 只裁决 `D-主板混合参照` 的组级视频 prompt、混合参照、LibTV 计划、队列和项目持久化，不改写 `4-分组` 主真源。
+本 review gate 只裁决 `D-主板混合参照` 的组级视频 prompt、混合参照、LibTV 计划、队列和项目持久化，不改写 `5-分组` 主真源。
 
 ## Review Checklist
 
 1. 运行 Skill 2.0 结构校验。
-2. 检查 `第N集-hybrid-group-index.json` 是否可回指 `4-分组/第N集.md` 的 `## group_id`。
+2. 检查 `第N集-hybrid-group-index.json` 是否可回指 `5-分组/第N集.md` 的 `## group_id`。
 3. 检查 prompt 是否为 source-first YAML：draft 以原 `## group_id` 起笔并保持未绑定 YAML；final 完整保留组正文，只在 fenced YAML 内注入故事板和主体 `reference_index / uploaded_url / image_token`。
-4. 检查故事板参照是否来自 `6-图像/B-分镜故事板`，且只作为 `storyboard_total_reference`。
-5. 检查主体参照是否只来自组底 YAML 与 `5-设计/*/3-生成` 的真实图片。
+4. 检查故事板参照是否来自 `7-图像/B-分镜故事板`，且只作为 `storyboard_total_reference`。
+5. 检查主体参照是否只来自组底 YAML 与 `6-设计/*/3-生成` 的真实图片。
 6. 检查每个已绑定主体是否在 final fenced YAML 对应 `角色 / 场景 / 道具` 列表项中出现 `name + reference_index + uploaded_url`，不得使用空 URL 或人工 `参照图N`。
 7. 检查故事板和主体图片是否从当前本地生成目录 fresh resolve，并记录 `source_sha256 / source_size_bytes / source_mtime_ns`；历史上传缓存只有在 `path + 指纹` 完全匹配时才能复用。
 8. 检查缺图主体、缺故事板或图片超限是否只写入 manifest、submit plan 和报告；远端 `libtv-submission.txt` 不得出现缺图/无缓存/未入预算/不创建空图片槽说明；真实进入 `mixedList` 的图片必须 <= 9，超限时必须先排除道具，再排除重复、不必要或可由源文本保留的次要主体。
@@ -20,19 +20,19 @@
 13. 检查远端 `*-libtv-submission.txt` 是否声明 `prompt_fidelity_mode: strict_original`、`allow_libtv_prompt_optimization: false` 和禁止优化/重排/摘要/改写/补镜头约束；除非 submit plan 记录用户 opt-in，否则 query 中不得出现远端自行生成的优化版提示词、镜头计划或摘要分镜。
 14. 检查提交前是否有 `LIBTV_ACCESS_KEY credential check` 策略；执行生成时是否有 queue ledger 与 sessionId / blocked reason。
 15. 检查提交文本是否声明 `enableSound=on`；若生成前无法验证 `create_generation_task.params.enableSound`，是否记录 `audio_preflight_unverified_non_blocking`；生成后或下载后是否通过音频证据 / `ffprobe`。
-16. 检查输出路径是否全部位于 `projects/aigc/<项目名>/7-视频/D-主板混合参照/第N集/`。
+16. 检查输出路径是否全部位于 `projects/aigc/<项目名>/8-视频/D-主板混合参照/第N集/`。
 
 ## Review Gates
 
 | gate_id | review gate | fail code | rework target | evidence |
 | --- | --- | --- | --- | --- |
-| `GATE-VIDHYB-GROUP-01` | 目标 `group_id` 必须唯一回指 `4-分组/第N集.md` 的普通 `## x-y-z` 标题，连接件 `## x-y-z~x-y-z` 不得作为可生成组 | `FAIL-VIDHYB-GROUP` | `N2-GROUP-EXTRACT` / `references/group-source-extraction.md` | `第N集-hybrid-group-index.json` 中的 source heading、line range、connector exclusion |
+| `GATE-VIDHYB-GROUP-01` | 目标 `group_id` 必须唯一回指 `5-分组/第N集.md` 的普通 `## x-y-z` 标题，连接件 `## x-y-z~x-y-z` 不得作为可生成组 | `FAIL-VIDHYB-GROUP` | `N2-GROUP-EXTRACT` / `references/group-source-extraction.md` | `第N集-hybrid-group-index.json` 中的 source heading、line range、connector exclusion |
 | `GATE-VIDHYB-GROUP-02` | 组正文提取必须保留原分镜顺序、动作、音效、场景、YAML 和 body hash，不得摘要、扩写或改写剧情事实 | `FAIL-VIDHYB-GROUP` | `N2-GROUP-EXTRACT` / `references/group-source-extraction.md` | group body snapshot、body hash、source line range |
 | `GATE-VIDHYB-GROUP-03` | 组底 fenced YAML 是主体基准；YAML 缺失时不得从正文猜 `角色 / 场景 / 道具`，必须阻断或按用户要求降级 | `FAIL-VIDHYB-GROUP` | `N2-GROUP-EXTRACT` / `N4-SUBJECT-BIND` | YAML parse status、missing_subject_yaml finding、降级或 blocked reason |
 | `GATE-VIDHYB-DURATION-01` | 必须从组底 `时长估算` 或分镜明细求和形成 `duration_estimate_seconds`，并在 handoff 层按 `clamp(4,15)` 生成 `duration_hint` | `FAIL-VIDHYB-DURATION` | `N2-GROUP-EXTRACT` / `N6-PLAN-BUILD` | duration_source、duration_estimate_seconds、submit plan duration_hint |
 | `GATE-VIDHYB-GROUP-04` | 连接件块不得进入 prompt、故事板/主体 manifest、LibTV job、视频文件命名或分镜组时长估算 | `FAIL-VIDHYB-GROUP` | `N2-GROUP-EXTRACT` / `N6-PLAN-BUILD` | connector skip list、job list、duration calculation notes |
-| `GATE-VIDHYB-REF-01` | 故事板总参照必须从当前 `6-图像/B-分镜故事板/第N集` 按 `group_id` 唯一解析；无命中只记录 optional missing，多命中阻断，不得挂到主体后 | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `references/hybrid-reference-binding.md` | storyboard search roots、candidate list、unique/missing/multiple verdict、manifest storyboard slot |
-| `GATE-VIDHYB-REF-02` | 主体参照只能来自组底 YAML 的 `角色 / 场景 / 道具` 与当前 `5-设计/*/3-生成` 真实图片；不得从正文泛词扩展、跨类型替图或把 JSON/Markdown 当图 | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md` | YAML subject list、design image candidates、selected_variant、missing subject notes |
+| `GATE-VIDHYB-REF-01` | 故事板总参照必须从当前 `7-图像/B-分镜故事板/第N集` 按 `group_id` 唯一解析；无命中只记录 optional missing，多命中阻断，不得挂到主体后 | `FAIL-VIDHYB-REF` | `N3-STORYBOARD-BIND` / `references/hybrid-reference-binding.md` | storyboard search roots、candidate list、unique/missing/multiple verdict、manifest storyboard slot |
+| `GATE-VIDHYB-REF-02` | 主体参照只能来自组底 YAML 的 `角色 / 场景 / 道具` 与当前 `6-设计/*/3-生成` 真实图片；不得从正文泛词扩展、跨类型替图或把 JSON/Markdown 当图 | `FAIL-VIDHYB-REF` | `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md` | YAML subject list、design image candidates、selected_variant、missing subject notes |
 | `GATE-VIDHYB-REF-03` | 每个进入 LibTV 的故事板或主体图片必须 fresh resolve 并记录 `path + source_sha256 + source_size_bytes + source_mtime_ns`；上传缓存只有指纹完全匹配时可复用 | `FAIL-VIDHYB-STALE-REFERENCE-ASSET` | `N3-STORYBOARD-BIND` / `N4-SUBJECT-BIND` / `references/hybrid-reference-binding.md` | fresh resolution record、fingerprint fields、cache match/mismatch verdict |
 | `GATE-VIDHYB-BUDGET-01` | 故事板总参照与主体参照共同计入单组 `mixedList` 9 图预算；超限必须按故事板、角色/场景、道具、次要主体顺序裁决并记录排除，无法压缩时不得提交 | `FAIL-VIDHYB-LIBTV` | `N4-SUBJECT-BIND` / `N6-PLAN-BUILD` / `references/hybrid-reference-binding.md` | reference_image_budget、excluded_due_to_budget、needs_rework reason、mixedList count |
 | `GATE-VIDHYB-PROMPT-01` | 本地 `prompt.md` 必须是 source-first 两阶段：draft 直接保留原组正文和原 YAML，不提前写 `reference_index / uploaded_url`，也不在原文前另起混合参照说明 | `FAIL-VIDHYB-PROMPT` | `N5-PROMPT-ASSEMBLE` / `references/hybrid-prompt-assembly-contract.md` | draft prompt、prebinding scan、prefix scan |

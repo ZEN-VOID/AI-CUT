@@ -60,3 +60,11 @@
 - 低风险创新：{视角/机制微调等}
 - 中风险创新：{叙事结构/多主角等}
 - 高风险创新：{全新题材/实验叙事等}
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 趋势资料是否只在用户显式请求或市场缺口阻断时加载，而非默认固定上下文？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 2 | trend_gate decision、loaded_leaf_references |
+| 趋势标签是否联网更新并保留来源时间，而非沿用过期静态判断？ | `security` / `integration` | `FAIL-INIT-SECURITY` | `guardrails/guardrails-contract.md`、本文件更新提示 | WebSearch/WebFetch evidence、source timestamps |
+| 趋势判断是否只形成风险/机会提示，不越权决定 `2-卷章` 的 canonical 规划？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | risk_notes、deferred_to_planning |

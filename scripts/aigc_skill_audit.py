@@ -16,7 +16,7 @@ ROOT_SKILL = ROOT / "SKILL.md"
 ROOT_CONTEXT = ROOT / "CONTEXT.md"
 REGISTRY = Path(".codex/registry/skills.yaml")
 ROUTES = Path(".codex/registry/routes.yaml")
-DESIGN_ROOT = ROOT / "7-设计"
+DESIGN_ROOT = ROOT / "6-设计"
 DESIGN_DOMAIN_ROOTS = {
     "场景": DESIGN_ROOT / "场景",
     "角色": DESIGN_ROOT / "角色",
@@ -97,39 +97,37 @@ SUBTYPE_PATH_PREFIXES = ("subtypes/", "./subtypes/")
 SHARED_RUNTIME_ROWS = {
     "0-初始化": "projects/aigc/<项目名>/0-初始化/",
     "1-分集": "projects/aigc/<项目名>/1-分集/",
-    "2-编剧": "projects/aigc/<项目名>/2-编剧/",
-    "3-导演": "projects/aigc/<项目名>/3-导演/",
-    "4-表演": "projects/aigc/<项目名>/4-表演/",
-    "5-摄影": "projects/aigc/<项目名>/5-摄影/",
-    "6-分组": "projects/aigc/<项目名>/6-分组/",
-    "7-设计": "projects/aigc/<项目名>/7-设计/",
-    "8-图像": "projects/aigc/<项目名>/8-图像/",
-    "9-视频": "projects/aigc/<项目名>/9-视频/",
-    "10-审片": "projects/aigc/<项目名>/10-审片/",
+    "2-编导": "projects/aigc/<项目名>/2-编导/",
+    "3-运动": "projects/aigc/<项目名>/3-运动/",
+    "4-摄影": "projects/aigc/<项目名>/4-摄影/",
+    "5-分组": "projects/aigc/<项目名>/5-分组/",
+    "6-设计": "projects/aigc/<项目名>/6-设计/",
+    "7-图像": "projects/aigc/<项目名>/7-图像/",
+    "8-视频": "projects/aigc/<项目名>/8-视频/",
+    "9-审片": "projects/aigc/<项目名>/9-审片/",
     "源": "projects/aigc/<项目名>/源/",
     "CONTEXT": "projects/aigc/<项目名>/CONTEXT/",
 }
 ROOT_STAGE_LANDING = (
     "projects/aigc/<项目名>/0-初始化/",
     "projects/aigc/<项目名>/1-分集/",
-    "projects/aigc/<项目名>/2-编剧/",
-    "projects/aigc/<项目名>/3-导演/",
-    "projects/aigc/<项目名>/4-表演/",
-    "projects/aigc/<项目名>/5-摄影/",
-    "projects/aigc/<项目名>/6-分组/",
-    "projects/aigc/<项目名>/7-设计/",
-    "projects/aigc/<项目名>/7-设计/场景/1-清单/",
-    "projects/aigc/<项目名>/7-设计/场景/2-设计/",
-    "projects/aigc/<项目名>/7-设计/场景/3-生成/",
-    "projects/aigc/<项目名>/7-设计/道具/1-清单/",
-    "projects/aigc/<项目名>/7-设计/道具/2-设计/",
-    "projects/aigc/<项目名>/7-设计/道具/3-生成/",
-    "projects/aigc/<项目名>/7-设计/角色/1-清单/",
-    "projects/aigc/<项目名>/7-设计/角色/2-设计/",
-    "projects/aigc/<项目名>/7-设计/角色/3-生成/",
-    "projects/aigc/<项目名>/8-图像/",
-    "projects/aigc/<项目名>/9-视频/",
-    "projects/aigc/<项目名>/10-审片/",
+    "projects/aigc/<项目名>/2-编导/",
+    "projects/aigc/<项目名>/3-运动/",
+    "projects/aigc/<项目名>/4-摄影/",
+    "projects/aigc/<项目名>/5-分组/",
+    "projects/aigc/<项目名>/6-设计/",
+    "projects/aigc/<项目名>/6-设计/场景/1-清单/",
+    "projects/aigc/<项目名>/6-设计/场景/2-设计/",
+    "projects/aigc/<项目名>/6-设计/场景/3-生成/",
+    "projects/aigc/<项目名>/6-设计/道具/1-清单/",
+    "projects/aigc/<项目名>/6-设计/道具/2-设计/",
+    "projects/aigc/<项目名>/6-设计/道具/3-生成/",
+    "projects/aigc/<项目名>/6-设计/角色/1-清单/",
+    "projects/aigc/<项目名>/6-设计/角色/2-设计/",
+    "projects/aigc/<项目名>/6-设计/角色/3-生成/",
+    "projects/aigc/<项目名>/7-图像/",
+    "projects/aigc/<项目名>/8-视频/",
+    "projects/aigc/<项目名>/9-审片/",
     "projects/aigc/<项目名>/源/",
     "projects/aigc/<项目名>/CONTEXT/",
 )
@@ -151,20 +149,22 @@ ROOT_FORBIDDEN_STAGE_LANDING = (
     "projects/aigc/<项目名>/5-Image/",
     "projects/aigc/<项目名>/6-Video/",
     "projects/aigc/<项目名>/7-Cut/",
-    "projects/aigc/<项目名>/2-编导/",
     "projects/aigc/<项目名>/2-全局/",
     "projects/aigc/<项目名>/3-编导/",
     "projects/aigc/<项目名>/3-摄影/",
-    "projects/aigc/<项目名>/4-摄影/",
+    "projects/aigc/<项目名>/4-表演/",
     "projects/aigc/<项目名>/4-设计/",
     "projects/aigc/<项目名>/4-分组/",
-    "projects/aigc/<项目名>/5-分组/",
+    "projects/aigc/<项目名>/5-摄影/",
     "projects/aigc/<项目名>/5-设计/",
+    "projects/aigc/<项目名>/6-分组/",
     "projects/aigc/<项目名>/6-图像/",
-    "projects/aigc/<项目名>/7-图像/",
+    "projects/aigc/<项目名>/7-设计/",
     "projects/aigc/<项目名>/7-视频/",
-    "projects/aigc/<项目名>/8-视频/",
+    "projects/aigc/<项目名>/8-图像/",
     "projects/aigc/<项目名>/8-审片/",
+    "projects/aigc/<项目名>/9-视频/",
+    "projects/aigc/<项目名>/10-审片/",
 )
 PROJECT_GOVERNANCE_ARTIFACTS = (
     "projects/aigc/<项目名>/STATE.json",
@@ -177,15 +177,14 @@ PROJECT_ROOT_SUPPORTING_ARTIFACTS = (
 )
 COUNCIL_STAGE_REVIEW_PATHS = {
     "1-分集": "projects/aigc/<项目名>/1-分集/validation-report.md",
-    "2-编剧": "projects/aigc/<项目名>/2-编剧/validation-report.md",
-    "3-导演": "projects/aigc/<项目名>/3-导演/validation-report.md",
-    "4-表演": "projects/aigc/<项目名>/4-表演/validation-report.md",
-    "5-摄影": "projects/aigc/<项目名>/5-摄影/validation-report.md",
-    "6-分组": "projects/aigc/<项目名>/6-分组/validation-report.md",
-    "7-设计": "projects/aigc/<项目名>/7-设计/validation-report.md",
-    "8-图像": "projects/aigc/<项目名>/8-图像/validation-report.md",
-    "9-视频": "projects/aigc/<项目名>/9-视频/validation-report.md",
-    "10-审片": "projects/aigc/<项目名>/10-审片/validation-report.md",
+    "2-编导": "projects/aigc/<项目名>/2-编导/validation-report.md",
+    "3-运动": "projects/aigc/<项目名>/3-运动/validation-report.md",
+    "4-摄影": "projects/aigc/<项目名>/4-摄影/validation-report.md",
+    "5-分组": "projects/aigc/<项目名>/5-分组/validation-report.md",
+    "6-设计": "projects/aigc/<项目名>/6-设计/validation-report.md",
+    "7-图像": "projects/aigc/<项目名>/7-图像/validation-report.md",
+    "8-视频": "projects/aigc/<项目名>/8-视频/validation-report.md",
+    "9-审片": "projects/aigc/<项目名>/9-审片/validation-report.md",
 }
 PROJECT_LEVEL_VALIDATION_REPORT = "projects/aigc/<项目名>/validation-report.md"
 REVIEW_TEMPLATE_REQUIRED_MARKERS = (
@@ -207,24 +206,23 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "0-初始化" / "SKILL.md": (
         "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-导演/",
-        "projects/aigc/<项目名>/4-表演/",
-        "projects/aigc/<项目名>/5-摄影/",
-        "projects/aigc/<项目名>/6-分组/",
-        "projects/aigc/<项目名>/7-设计/",
-        "projects/aigc/<项目名>/7-设计/场景/1-清单/",
-        "projects/aigc/<项目名>/7-设计/场景/2-设计/",
-        "projects/aigc/<项目名>/7-设计/场景/3-生成/",
-        "projects/aigc/<项目名>/7-设计/道具/1-清单/",
-        "projects/aigc/<项目名>/7-设计/道具/2-设计/",
-        "projects/aigc/<项目名>/7-设计/道具/3-生成/",
-        "projects/aigc/<项目名>/7-设计/角色/1-清单/",
-        "projects/aigc/<项目名>/7-设计/角色/2-设计/",
-        "projects/aigc/<项目名>/7-设计/角色/3-生成/",
-        "projects/aigc/<项目名>/8-图像/",
-        "projects/aigc/<项目名>/9-视频/",
-        "projects/aigc/<项目名>/10-审片/",
+        "projects/aigc/<项目名>/2-编导/",
+        "projects/aigc/<项目名>/3-运动/",
+        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/6-设计/",
+        "projects/aigc/<项目名>/6-设计/场景/1-清单/",
+        "projects/aigc/<项目名>/6-设计/场景/2-设计/",
+        "projects/aigc/<项目名>/6-设计/场景/3-生成/",
+        "projects/aigc/<项目名>/6-设计/道具/1-清单/",
+        "projects/aigc/<项目名>/6-设计/道具/2-设计/",
+        "projects/aigc/<项目名>/6-设计/道具/3-生成/",
+        "projects/aigc/<项目名>/6-设计/角色/1-清单/",
+        "projects/aigc/<项目名>/6-设计/角色/2-设计/",
+        "projects/aigc/<项目名>/6-设计/角色/3-生成/",
+        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/9-审片/",
         "projects/aigc/<项目名>/源/",
         "projects/aigc/<项目名>/CONTEXT/",
         "projects/aigc/<项目名>/MEMORY.md",
@@ -237,8 +235,13 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "projects/aigc/<项目名>/1-分集/",
         "projects/aigc/<项目名>/1-分集/执行报告.md",
     ),
-    ROOT / "7-设计" / "SKILL.md": (
-        "projects/aigc/<项目名>/7-设计/",
+    ROOT / "3-运动" / "SKILL.md": (
+        "projects/aigc/<项目名>/3-运动/",
+        "projects/aigc/<项目名>/2-编导/第N集.md",
+        "motion_enrichment_handoff",
+    ),
+    ROOT / "6-设计" / "SKILL.md": (
+        "projects/aigc/<项目名>/6-设计/",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "SKILL.md": (
         "projects/aigc/<项目名>/5-Image/",
@@ -258,20 +261,20 @@ STAGE_RUNTIME_EXPECTATIONS = {
         "expected_outputs",
         "result_outputs",
     ),
-    ROOT / "9-视频" / "SKILL.md": (
-        "projects/aigc/<项目名>/9-视频/",
-        "projects/aigc/<项目名>/9-视频/libTV画布流/",
-        "projects/aigc/<项目名>/9-视频/A-分镜画面参照/",
-        "projects/aigc/<项目名>/9-视频/B-分镜故事板参照/",
-        "projects/aigc/<项目名>/9-视频/C-主体参照/",
-        "projects/aigc/<项目名>/9-视频/D-主板混合参照/",
-        ".agents/skills/aigc/10-审片/SKILL.md",
+    ROOT / "8-视频" / "SKILL.md": (
+        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/8-视频/libTV画布流/",
+        "projects/aigc/<项目名>/8-视频/A-分镜画面参照/",
+        "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/",
+        "projects/aigc/<项目名>/8-视频/C-主体参照/",
+        "projects/aigc/<项目名>/8-视频/D-主板混合参照/",
+        ".agents/skills/aigc/9-审片/SKILL.md",
     ),
-    ROOT / "10-审片" / "SKILL.md": (
-        "projects/aigc/<项目名>/10-审片/",
-        "projects/aigc/<项目名>/9-视频/",
-        "projects/aigc/<项目名>/6-分组/",
-        "projects/aigc/<项目名>/10-审片/第N集/<group_id>[-variant]-审片.md",
+    ROOT / "9-审片" / "SKILL.md": (
+        "projects/aigc/<项目名>/9-审片/",
+        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/9-审片/第N集/<group_id>[-variant]-审片.md",
     ),
     ROOT / "review" / "SKILL.md": (
         "projects/aigc/<项目名>/review/",
@@ -291,19 +294,22 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/5-Image/",
         "projects/aigc/<项目名>/6-Video/",
         "projects/aigc/<项目名>/7-Cut/",
-        "projects/aigc/<项目名>/2-编导/",
         "projects/aigc/<项目名>/2-全局/",
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/3-摄影/",
-        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/4-表演/",
         "projects/aigc/<项目名>/4-分组/",
         "projects/aigc/<项目名>/4-设计/",
+        "projects/aigc/<项目名>/5-摄影/",
         "projects/aigc/<项目名>/5-设计/",
+        "projects/aigc/<项目名>/6-分组/",
         "projects/aigc/<项目名>/6-图像/",
-        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/7-设计/",
         "projects/aigc/<项目名>/7-视频/",
-        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/8-图像/",
         "projects/aigc/<项目名>/8-审片/",
+        "projects/aigc/<项目名>/9-视频/",
+        "projects/aigc/<项目名>/10-审片/",
         "projects/aigc/<项目名>/主体/",
         "projects/aigc/<项目名>/4-主体/",
         "projects/aigc/<项目名>/5-画面/",
@@ -315,7 +321,7 @@ STAGE_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/1-规划/",
         "projects/aigc/<项目名>/1-Planning/",
     ),
-    ROOT / "9-视频" / "SKILL.md": (
+    ROOT / "8-视频" / "SKILL.md": (
         "projects/aigc/<项目名>/设定/",
         "projects/aigc/<项目名>/5-画面/",
         "projects/aigc/<项目名>/主体/",
@@ -337,6 +343,7 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-repair-satellite-entry",
     "aigc-shot-by-shot-satellite-entry",
     "aigc-learn-satellite-entry",
+    "aigc-motion-enrichment-stage-entry",
     "aigc-image-stage-entry",
     "aigc-video-review-entry",
 }
@@ -357,8 +364,8 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "2-参照引用" / "SKILL.md",
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
     ),
-    ROOT / "9-视频": (
-        ROOT / "9-视频" / "libTV画布流" / "SKILL.md",
+    ROOT / "8-视频": (
+        ROOT / "8-视频" / "libTV画布流" / "SKILL.md",
     ),
     ROOT / "backup": (
         ROOT / "backup" / "A-分镜画面参照" / "SKILL.md",
@@ -370,18 +377,18 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
 LEGACY_SCRIPT_FLAG = "--allow-legacy-script-authorship"
 CREATIVE_AUTHORSHIP_GUARDS = {
-    ROOT / "7-设计" / "场景" / "SKILL.md": (
-        ROOT / "7-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_context.py",
-        ROOT / "7-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_packets.py",
-        ROOT / "7-设计" / "场景" / "3-生成" / "scripts" / "generate_scene_panels.py",
+    ROOT / "6-设计" / "场景" / "SKILL.md": (
+        ROOT / "6-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_context.py",
+        ROOT / "6-设计" / "场景" / "2-设计" / "scripts" / "build_scene_design_packets.py",
+        ROOT / "6-设计" / "场景" / "3-生成" / "scripts" / "generate_scene_panels.py",
     ),
-    ROOT / "7-设计" / "角色" / "SKILL.md": (
-        ROOT / "7-设计" / "角色" / "2-设计" / "scripts" / "build_role_research.py",
-        ROOT / "7-设计" / "角色" / "2-设计" / "scripts" / "build_character_design_packets.py",
+    ROOT / "6-设计" / "角色" / "SKILL.md": (
+        ROOT / "6-设计" / "角色" / "2-设计" / "scripts" / "build_role_research.py",
+        ROOT / "6-设计" / "角色" / "2-设计" / "scripts" / "build_character_design_packets.py",
     ),
-    ROOT / "7-设计" / "道具" / "SKILL.md": (
-        ROOT / "7-设计" / "道具" / "2-设计" / "scripts" / "build_prop_research.py",
-        ROOT / "7-设计" / "道具" / "2-设计" / "scripts" / "build_prop_design_packets.py",
+    ROOT / "6-设计" / "道具" / "SKILL.md": (
+        ROOT / "6-设计" / "道具" / "2-设计" / "scripts" / "build_prop_research.py",
+        ROOT / "6-设计" / "道具" / "2-设计" / "scripts" / "build_prop_design_packets.py",
     ),
     ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md": (
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "scripts" / "generate_episode_packets.py",
@@ -399,32 +406,43 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         ".agents/skills/aigc/5-Image/B.分镜故事板",
         "projects/aigc/<项目名>/5-Image/A-分镜帧/",
         "projects/aigc/<项目名>/5-Image/B-分镜故事板/",
-        ".agents/skills/aigc/9-视频/libTV画布流",
+        ".agents/skills/aigc/8-视频/libTV画布流",
         ".agents/skills/aigc/backup/A-分镜画面参照",
         ".agents/skills/aigc/backup/B-分镜故事板参照",
         ".agents/skills/aigc/backup/C-主体参照",
         ".agents/skills/aigc/backup/D-主板混合参照",
-        "projects/aigc/<项目名>/9-视频/libTV画布流/",
-        ".agents/skills/aigc/10-审片",
-        "projects/aigc/<项目名>/9-视频/A-分镜画面参照/",
-        "projects/aigc/<项目名>/9-视频/B-分镜故事板参照/",
-        "projects/aigc/<项目名>/9-视频/C-主体参照/",
-        "projects/aigc/<项目名>/9-视频/D-主板混合参照/",
-        "projects/aigc/<项目名>/10-审片/",
+        "projects/aigc/<项目名>/8-视频/libTV画布流/",
+        ".agents/skills/aigc/9-审片",
+        "projects/aigc/<项目名>/8-视频/A-分镜画面参照/",
+        "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/",
+        "projects/aigc/<项目名>/8-视频/C-主体参照/",
+        "projects/aigc/<项目名>/8-视频/D-主板混合参照/",
+        "projects/aigc/<项目名>/9-审片/",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
+        "projects/aigc/<项目名>/0-初始化/",
         "projects/aigc/<项目名>/1-分集/",
-        "projects/aigc/<项目名>/2-编剧/",
-        "projects/aigc/<项目名>/3-导演/",
-        "projects/aigc/<项目名>/4-表演/",
-        "projects/aigc/<项目名>/5-摄影/",
-        "projects/aigc/<项目名>/6-分组/",
-        "projects/aigc/<项目名>/7-设计/",
-        "projects/aigc/<项目名>/8-图像/",
-        "projects/aigc/<项目名>/9-视频/",
-        "projects/aigc/<项目名>/10-审片/",
+        "projects/aigc/<项目名>/2-编导/",
+        "projects/aigc/<项目名>/3-运动/",
+        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/6-设计/",
+        "projects/aigc/<项目名>/6-设计/场景/1-清单/",
+        "projects/aigc/<项目名>/6-设计/场景/2-设计/",
+        "projects/aigc/<项目名>/6-设计/场景/3-生成/",
+        "projects/aigc/<项目名>/6-设计/道具/1-清单/",
+        "projects/aigc/<项目名>/6-设计/道具/2-设计/",
+        "projects/aigc/<项目名>/6-设计/道具/3-生成/",
+        "projects/aigc/<项目名>/6-设计/角色/1-清单/",
+        "projects/aigc/<项目名>/6-设计/角色/2-设计/",
+        "projects/aigc/<项目名>/6-设计/角色/3-生成/",
+        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/9-审片/",
         "projects/aigc/<项目名>/源/",
         "projects/aigc/<项目名>/CONTEXT/",
+        "projects/aigc/<项目名>/MEMORY.md",
+        "projects/aigc/<项目名>/CHANGELOG.md",
         "projects/aigc/<项目名>/STATE.json",
         "projects/aigc/<项目名>/team.yaml",
         "Forbidden bootstrap paths",
@@ -448,22 +466,24 @@ BOOTSTRAP_COMPAT_RUNTIME_FORBIDDEN = {
         "projects/aigc/<项目名>/Original/",
         "projects/aigc/<项目名>/Story/",
         "projects/aigc/<项目名>/1-规划/",
-        "projects/aigc/<项目名>/2-编导/",
         "projects/aigc/<项目名>/2-全局/",
         "projects/aigc/<项目名>/3-编导/",
         "projects/aigc/<项目名>/3-摄影/",
-        "projects/aigc/<项目名>/4-摄影/",
+        "projects/aigc/<项目名>/4-表演/",
         "projects/aigc/<项目名>/4-分组/",
         "projects/aigc/<项目名>/4-设计/",
-        "projects/aigc/<项目名>/5-分组/",
+        "projects/aigc/<项目名>/5-摄影/",
         "projects/aigc/<项目名>/5-设计/",
         "projects/aigc/<项目名>/5-Image/",
+        "projects/aigc/<项目名>/6-分组/",
         "projects/aigc/<项目名>/6-Video/",
         "projects/aigc/<项目名>/6-图像/",
-        "projects/aigc/<项目名>/7-图像/",
+        "projects/aigc/<项目名>/7-设计/",
         "projects/aigc/<项目名>/7-视频/",
-        "projects/aigc/<项目名>/8-视频/",
+        "projects/aigc/<项目名>/8-图像/",
         "projects/aigc/<项目名>/8-审片/",
+        "projects/aigc/<项目名>/9-视频/",
+        "projects/aigc/<项目名>/10-审片/",
     ),
 }
 
@@ -551,6 +571,60 @@ def declared_local_subtype_paths(content: str) -> set[str]:
             continue
         subtype_paths.add(normalized.rstrip("/"))
     return subtype_paths
+
+
+def referenced_doc_paths(content: str) -> set[str]:
+    """Extract markdown/code-wrapped local document references."""
+    matches = re.findall(r"`([^`]+)`|\]\(([^)]+)\)", content)
+    paths: set[str] = set()
+    for pair in matches:
+        for candidate in pair:
+            if not candidate:
+                continue
+            raw = candidate.strip().split("#", 1)[0]
+            if "\n" in raw or "\r" in raw:
+                continue
+            if not raw or any(marker in raw for marker in ("<", ">", "*", "{", "}")):
+                continue
+            if len(raw) > 180:
+                continue
+            if raw.startswith(("http://", "https://", "projects/")):
+                continue
+            if "第N" in raw:
+                continue
+            suffix = Path(raw).suffix
+            if suffix not in {".md", ".py", ".yaml", ".yml", ".json"}:
+                continue
+            paths.add(raw)
+    return paths
+
+
+def resolves_local_doc(raw_path: str, source_path: Path, skill_root: Path) -> bool:
+    """Resolve a doc path using markdown-relative, skill-root, and same-dir semantics."""
+    if raw_path.startswith(".agents/"):
+        return Path(raw_path).exists()
+    candidates: list[Path] = []
+    if raw_path.startswith(("../", "./")):
+        candidates.append(source_path.parent / raw_path)
+    elif raw_path.startswith(
+        (
+            "references/",
+            "review/",
+            "steps/",
+            "types/",
+            "templates/",
+            "scripts/",
+            "knowledge-base/",
+            "agents/",
+        )
+    ):
+        candidates.append(skill_root / raw_path)
+        candidates.append(source_path.parent / raw_path)
+    else:
+        candidates.append(source_path.parent / raw_path)
+        candidates.append(skill_root / raw_path)
+        candidates.append(skill_root / "references" / raw_path)
+    return any(candidate.exists() for candidate in candidates)
 
 
 def extract_context_limit(content: str, limit_name: str, default: int) -> int:
@@ -848,7 +922,7 @@ def audit_stage_review_carriers(failures: list[str]) -> None:
 
 
 def audit_design_2_template_registry(failures: list[str]) -> None:
-    """Ensure 5-设计 domain packages keep one Markdown template truth per domain."""
+    """Ensure 6-设计 domain packages keep one Markdown template truth per domain."""
     if not DESIGN_ROOT.exists():
         return
 
@@ -863,7 +937,7 @@ def audit_design_2_template_registry(failures: list[str]) -> None:
 
     for domain, domain_root in DESIGN_DOMAIN_ROOTS.items():
         if not domain_root.exists():
-            failures.append(f"{domain_root}: missing 5-设计 domain package")
+            failures.append(f"{domain_root}: missing 6-设计 domain package")
             continue
 
         detail_root = DESIGN_DETAIL_ROOTS[domain]
@@ -990,6 +1064,39 @@ def audit_review_runtime_contracts(failures: list[str]) -> None:
             spec_path = Path(str(spec_ref))
             if not spec_path.is_file():
                 failures.append(f"{spec_path}: missing review dimension spec for `{role_id}`")
+
+
+def audit_writing_directing_reference_integrity(failures: list[str]) -> None:
+    """Keep the merged 2-编导 reference layer wired into the root skill contract."""
+    skill_root = ROOT / "2-编导"
+    skill_path = skill_root / "SKILL.md"
+    references_root = skill_root / "references"
+    if not skill_path.exists() or not references_root.exists():
+        return
+
+    skill_content = skill_path.read_text(encoding="utf-8")
+    if "## Reference Loading Guide" not in skill_content:
+        failures.append(f"{skill_path}: missing `Reference Loading Guide`")
+        return
+    reference_guide = skill_content.split("## Reference Loading Guide", 1)[1].split("\n## ", 1)[0]
+
+    for reference_path in sorted(references_root.glob("*.md")):
+        reference_name = reference_path.name
+        if reference_name not in reference_guide:
+            failures.append(
+                f"{skill_path}: Reference Loading Guide missing `references/{reference_name}`"
+            )
+        reference_content = reference_path.read_text(encoding="utf-8")
+        if "Review Gate Mapping" not in reference_content:
+            failures.append(f"{reference_path}: missing `Review Gate Mapping`")
+
+    for source_path in sorted(references_root.rglob("*.md")):
+        source_content = source_path.read_text(encoding="utf-8")
+        for raw_path in sorted(referenced_doc_paths(source_content)):
+            if not resolves_local_doc(raw_path, source_path, skill_root):
+                failures.append(
+                    f"{source_path}: unresolved local reference `{raw_path}`"
+                )
 
 
 def audit_init_single_skill_contract(failures: list[str]) -> None:
@@ -1522,6 +1629,7 @@ def main() -> int:
     audit_design_2_template_registry(failures)
     audit_design_slot_bundle_runtime(failures)
     audit_review_runtime_contracts(failures)
+    audit_writing_directing_reference_integrity(failures)
     audit_init_single_skill_contract(failures)
     audit_episode_split_skill_contract(failures)
     audit_global_single_skill_contract(failures)

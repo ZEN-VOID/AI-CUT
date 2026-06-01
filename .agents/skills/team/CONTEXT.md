@@ -38,7 +38,7 @@ last_checked_at: 2026-04-15T09:45:00-07:00
 | TM-TEAM-12 | 用户要的是影视编剧工艺，却被旧称“小说组”误导到文学作者镜片 | taxonomy 漂移层 | 先区分“影视写作工艺”与“文学作家方法论”，前者进 `aigc/编剧组/`，后者进 `study/文学系/` | 在根 `SKILL.md` 显式写清 `编剧组` 为当前工艺目录、`小说组` 仅保留兼容输入 | 结构/场景/对白类请求优先命中编剧组而非文学系 |
 | TM-TEAM-13 | 用户要的是类型小说家、长篇连载或武侠历史题材镜片，却被误路由到 `study/文学系/` 或影视编剧技能 | taxonomy 漂移层 | 先区分“学者/文学方法论”“影视编剧工艺”与“类型小说家/长篇气口”，后者优先进 `story/` | 在根 `SKILL.md` 补 `story/` taxonomy 与成员索引 | 回答重心落在章节推进、题材气口、人物成长和长篇引擎 |
 | TM-TEAM-14 | 单部作品条目因用户指定落在工种目录中，后续被误当成人物 skill | taxonomy 例外层 | 在根索引显式登记“物理落点 vs 语义类型”，回答时仍按作品优先处理 | 若工种目录继续出现作品型例外条目，统一写“作品语义优先、创作者 side input 可选”的说明 | 路由说明能明确区分作品镜片与人物镜片 |
-| TM-TEAM-15 | AIGC subagents 模式只读到通用监制名单，各阶段重复猜测 roster、问题焦点和降级语义 | team runtime schema 层 | 在 `team.yaml.roles.supervision.stage_profiles` 中补当前阶段 profile，并让阶段技能按共享解析顺序消费 | 根 `SKILL.md` 暴露 Supervision Runtime Packet Fields；初始化模板固定阶段 profile | 顾问 packet 能回指 `supervision_stage / focus_tags / node_binding / dispatch_policy` |
+| TM-TEAM-15 | AIGC 创作阶段仍把 team 成员当成后续 subagent/persona runtime，重复调度角色身份 | team init-only runtime schema 层 | 把旧 `roles.supervision.stage_profiles` 降为 legacy evidence，将可用结论压入 `team.yaml.init_synthesis.stage_seed_summary` | 根 `SKILL.md` 暴露 AIGC Init-Only Team Packet Fields；初始化模板固定 `team_identity_usage: init_only` 与 `creative_stage_persona_dispatch_allowed: false` | 创作阶段只能回指 `init_team_synthesis_context`，不能生成新的 team advisor packet 或 persona dispatch |
 
 ## Repair Playbook
 
@@ -49,7 +49,7 @@ last_checked_at: 2026-04-15T09:45:00-07:00
 5. 若同类失败出现在多个部门或人物技能，先补根 `CONTEXT.md` Type Map；稳定后再晋升根 `SKILL.md`。
 6. 若只有单人物本地输出问题，优先修该人物 `CONTEXT.md` 或 `SKILL.md`，不要把局部经验上收成根规则。
 7. 若问题出在自动配队选人效率或漏选，先检查根 `SKILL.md` 的成员索引是否已与当前 team 树同步，而不是直接改 `0-初始化` 的挑选文案。
-8. 若问题出在 AIGC 阶段 subagents 监制载入不稳定，先检查项目 `team.yaml.roles.supervision.stage_profiles.<stage>` 是否存在；没有时补阶段 profile，不要在每个阶段技能里复制一套 roster 解析规则。
+8. 若问题出在 AIGC 创作阶段继续调用 team subagents/persona，先检查项目 `team.yaml.runtime_policy.team_identity_usage` 与 `creative_stage_persona_dispatch_allowed`；旧 stage profile 只能迁入 `legacy_compat` 或压缩成 `init_synthesis.stage_seed_summary`。
 
 ## Reusable Heuristics
 
@@ -71,7 +71,7 @@ last_checked_at: 2026-04-15T09:45:00-07:00
 - 根层输出的 `思考过程` 应解释路由、关键判断和汇流理由，不应展开子技能完整草稿。
 - 对自动配队场景，team 根文档必须暴露“成员 + 适配场景”的直接可读索引；否则上游只能把 team 树当文件系统遍历，而不是当候选真源读取。
 - 当 team 树成员发生变化时，先同步根层成员索引，再让 `0-初始化` 之类的上游消费；这比在上游重复维护名单更稳。
-- 对 AIGC subagents 监制载入场景，team 根只提供阶段 profile 字段和成员索引；具体阶段如何提问、汇流和写入 `advisor_consultation_packet` 仍由 AIGC 阶段技能与共享顾问合同持有。
+- 对 AIGC 初始化配队场景，team 根只提供成员索引、初始化选人字段和问答 provenance；具体阶段不得继续写入 `advisor_consultation_packet`，只消费 `init_team_synthesis_context`。
 
 ## Promotion Backlog
 

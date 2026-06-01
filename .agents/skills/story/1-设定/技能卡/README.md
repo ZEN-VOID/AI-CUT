@@ -6,6 +6,8 @@
 
 ```text
 技能卡/
+├── guardrails/
+│   └── guardrails-contract.md
 ├── references/
 ├── scripts/
 ├── templates/
@@ -13,6 +15,9 @@
 ├── steps/
 ├── knowledge-base/
 ├── types/
+│   ├── type-map.md
+│   ├── field-map.md
+│   └── guardrail-setup.md
 ├── agents/
 │   └── openai.yaml
 ├── CHANGELOG.md

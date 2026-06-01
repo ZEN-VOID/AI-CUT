@@ -25,9 +25,10 @@ projects/aigc/<项目名>/
 ├── 0-初始化/
 ├── 1-分集/
 ├── 2-编导/
-├── 3-摄影/
-├── 4-分组/
-├── 5-设计/
+├── 3-运动/
+├── 4-摄影/
+├── 5-分组/
+├── 6-设计/
 │   ├── 场景/
 │   │   ├── 1-清单/
 │   │   ├── 2-设计/
@@ -40,10 +41,10 @@ projects/aigc/<项目名>/
 │       ├── 1-清单/
 │       ├── 2-设计/
 │       └── 3-生成/
-├── 6-图像/
-├── 7-视频/
+├── 7-图像/
+├── 8-视频/
+├── 9-审片/
 ├── 源/
-├── CONTEXT/
 ├── CONTEXT/
 ├── MEMORY.md
 ├── CHANGELOG.md
@@ -70,7 +71,7 @@ projects/aigc/<项目名>/
 
 - `MEMORY.md` 保存项目长期偏好、禁区、口味和持续要求。
 - `CONTEXT/` 是项目级共享附加上下文根；恢复时只读取与当前断点、阶段、治理缺口或用户问题相关的文件。
-- `CONTEXT/` 保存当前中文 runtime 的项目预设包和补充参考材料；它不替代 `MEMORY.md` 或 `CONTEXT/`。
+- `CONTEXT/` 保存当前中文 runtime 的项目预设包和补充参考材料；它不替代 `MEMORY.md` 或技能同目录 `CONTEXT.md`。
 
 ## Stage Evidence Hints
 
@@ -81,11 +82,13 @@ projects/aigc/<项目名>/
 | `0-初始化` | `north_star.yaml`, `init_handoff.yaml`, `story-source-manifest.yaml` |
 | `1-分集` | `第N集.md`, `执行报告.md` |
 | `2-编导` | `第N集.md`, `validation-report.md` |
-| `3-摄影` | `第N集.md`, `validation-report.md` |
-| `4-分组` | `第N集.md`, 分组统计或 validation report |
-| `5-设计` | `场景/角色/道具` 下的清单、设计稿、生成记录 |
-| `6-图像` | `A-分镜画面`, `B-分镜故事板` 或 provider handoff |
-| `7-视频` | 分镜画面参照、故事板参照、主体参照或生成任务记录 |
+| `3-运动` | `第N集.md`, `validation-report.md` |
+| `4-摄影` | `第N集.md`, `validation-report.md` |
+| `5-分组` | `第N集.md`, 分组统计或 validation report |
+| `6-设计` | `场景/角色/道具` 下的清单、设计稿、生成记录 |
+| `7-图像` | `A-分镜画面`, `B-分镜故事板` 或 provider handoff |
+| `8-视频` | 分镜画面参照、故事板参照、主体参照或生成任务记录 |
+| `9-审片` | 审片报告、缺陷清单、修复路由或验收记录 |
 
 ## Legacy Compatibility Inputs
 
@@ -105,7 +108,7 @@ projects/aigc/<项目名>/
 
 `7-Cut` 是旧后期/剪辑搁浅阶段。恢复时只能返回 `root_reroute` 或 `blocked_safety_stop`，不得把它当成可直接续跑阶段。
 
-`4-设计` 是设计阶段 transition 输入：若旧项目只存在 `4-设计`，resume 应报告路径漂移并回根确认迁移；若 `5-设计` 存在，默认以 `5-设计` 作为设计阶段恢复真源。
+`4-设计` 是设计阶段 transition 输入：若旧项目只存在 `4-设计`，resume 应报告路径漂移并回根确认迁移；若 `6-设计` 存在，默认以 `6-设计` 作为设计阶段恢复真源。
 
 ## Forbidden Resume Assumptions
 
@@ -125,6 +128,6 @@ projects/aigc/<项目名>/
 | 阶段证据是否来自真实文件，如 `第N集.md`、validation report、设计稿或生成记录，而不是空 skeleton 目录？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出每个阶段证据文件路径、文件存在性和空目录排除结果。 |
 | legacy 英文路径与中文路径并存时，是否优先报告 `root_reroute` 或 `governance_rebuild`，由根 `aigc` 决定迁移策略？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N3-TYPE` | 报告列出并存路径、漂移风险、选择的 resume mode 和 reroute owner。 |
 | 旧 `7-Cut` 是否被识别为搁浅/blocked 阶段，只返回 `root_reroute` 或 `blocked_safety_stop`？ | `GATE-RESUME-LEGACY-SHELVED` | `FAIL-RESUME-LEGACY-STAGE` | `N4-PLAN` | 报告记录 `7-Cut` 证据、阻断理由和唯一回接入口。 |
-| transition `4-设计` 与当前 `5-设计` 是否被区分；若 `5-设计` 存在，是否默认以 `5-设计` 作为设计阶段恢复真源？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出 `4-设计`/`5-设计` 存在性、采用的设计真源和漂移说明。 |
+| transition `4-设计` 与当前 `6-设计` 是否被区分；若 `6-设计` 存在，是否默认以 `6-设计` 作为设计阶段恢复真源？ | `GATE-RESUME-RUNTIME-PROFILE` | `FAIL-RESUME-RUNTIME` | `N2-TRUTH-LOCK` | 报告列出 `4-设计`/`6-设计` 存在性、采用的设计真源和漂移说明。 |
 | provider 缓存、临时下载、外部二进制或最近修改文件是否只作辅助证据，未单独决定恢复模式？ | `GATE-RESUME-EVIDENCE-CHAIN` | `FAIL-RESUME-EVIDENCE` | `N2-TRUTH-LOCK` | 报告列出辅助证据类型、为何不足以单独裁决，以及主证据链。 |
 | runtime layout 细则是否只服务恢复判定，不拥有初始化、迁移执行或阶段业务真稿生成权？ | `GATE-RESUME-TRUTH-BOUNDARY` | `FAIL-RESUME-TRUTH-BOUNDARY` | `N4-PLAN` | 报告说明本 reference 被用于路径/证据判定，未直接写业务产物或改变阶段真源。 |

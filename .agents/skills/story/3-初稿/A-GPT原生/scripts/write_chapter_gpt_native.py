@@ -361,6 +361,7 @@ def _build_messages(
         f"当前模式：{drafting_mode}",
         "章节正文不设置固定字数上下限；`字数` frontmatter 只记录最终正文估算字数，不作为截断、扩写或写回阻断依据。",
         "输出模板（必须按此 schema 返回完整文件）：\n" + output_template,
+        "现场发现义务：本章至少写出一个由当前场景自然生成、而非 planning 原句复述的可感知细节；它必须来自物件、声音、气味、身体动作、空间阻隔、误触、沉默或环境反作用，并推动人物反应、信息揭示、关系压力或章末牵引。",
         "整书规划：\n" + _excerpt(_read_text(book_plan_path), 5000),
         "当前卷规划：\n" + _excerpt(_read_text(volume_plan_path), 5000),
         "当前章规划：\n" + _excerpt(_read_text(chapter_plan_path), 7000),

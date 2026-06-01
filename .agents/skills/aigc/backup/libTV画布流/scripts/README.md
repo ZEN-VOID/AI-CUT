@@ -17,9 +17,9 @@
 本技能远端调用优先通过本地 wrapper 加载仓库根 `.env` 后转调用官方脚本：
 
 ```bash
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py query_session.py SESSION_ID --project-id PROJECT_UUID
-python3 .agents/skills/aigc/9-视频/libTV画布流/scripts/run_libtv_with_env.py upload_file.py /path/to/ref.png
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py create_session.py "把全部工作流和结果都放在画布上。..."
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py query_session.py SESSION_ID --project-id PROJECT_UUID
+python3 .agents/skills/aigc/8-视频/libTV画布流/scripts/run_libtv_with_env.py upload_file.py /path/to/ref.png
 ```
 
 `run_libtv_with_env.py` 的职责只限于：

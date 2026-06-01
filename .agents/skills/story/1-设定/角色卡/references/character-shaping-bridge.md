@@ -68,3 +68,15 @@
 - 禁止把旧模板段落整块贴进角色 JSON。
 - 禁止用“废柴流 / 冰山师尊 / 死党”之类标签直接替代 `narrative_function`。
 - 禁止把人物塑形写成单章感受，仍需维持 `card_scope=full-series`。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 全剧集 roster 是否闭合，且没有单章临时卡？ | `roster` | `FAIL-CD-CHAR-ROSTER` | `steps/character-card-workflow.md` 的 `C1` | `series_roster`、`card_scope` |
+| 角色桶、职责与 `cast_markers` 是否一致？ | `shaping` | `FAIL-CD-CHAR-SHAPING` | `steps/character-card-workflow.md` 的 `C2` | `group`、`cast_markers`、`narrative_function` |
+| `Desire / Flaw / Wound / Need / Change` 是否落到结构字段？ | `shaping` | `FAIL-CD-CHAR-SHAPING` | `SKILL.md` 的人物塑形硬映射与 `steps/character-card-workflow.md` 的 `C2-C3` | `core.desire_flaw_arc`、`experience_timeline` |
+| 主角三轴成长合同与当前态是否成立？ | `growth` | `FAIL-CD-CHAR-GROWTH` | `SKILL.md` 的成长系统硬映射与 `steps/character-card-workflow.md` 的 `C3` | `core.growth_contract`、`current_state.growth_state` |
+| 关系边、专属物接口与下游最小投影是否闭合？ | `interface` | `FAIL-CD-CHAR-CLOSURE` | `steps/character-card-workflow.md` 的 `C4` | `relationship_edges`、`exclusive_item_hooks` |
+| 关系图谱是否只是投影而非第二真源？ | `graph` | `FAIL-CD-CHAR-GRAPH` | `steps/character-card-workflow.md` 的 `C5` | `角色关系图谱.md`、`source_graph_path` |
+| 显式启用 subagents 时，顾问建议是否被转成可执行角色指导？ | `advisor_consultation` | `FAIL-CD-CHAR-ADVISOR` | `SKILL.md` 的 `C1A` | `advisor_consultation_packet.execution_brief` |

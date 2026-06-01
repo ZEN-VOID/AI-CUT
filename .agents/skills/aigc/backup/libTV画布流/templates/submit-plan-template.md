@@ -6,14 +6,14 @@ flow: subject_reference_flow
 project_root: projects/aigc/<项目名>
 episode: 第N集
 group_id: x-y-z
-group_source_path: projects/aigc/<项目名>/6-分组/第N集.md
+group_source_path: projects/aigc/<项目名>/5-分组/第N集.md
 group_source_heading: "## x-y-z"
 projectUuid: ""
 projectUrl: ""
-registry_path: projects/aigc/<项目名>/9-视频/libTV画布流/libtv-canvas-active-registry.json
-manifest_path: projects/aigc/<项目名>/9-视频/libTV画布流/第N集/x-y-z-subject-reference-manifest.json
-queue_record_path: projects/aigc/<项目名>/9-视频/libTV画布流/第N集/x-y-z-queue-record.json
-remote_prompt_template: .agents/skills/aigc/9-视频/libTV画布流/templates/libtv-remote-prompt-template.md
+registry_path: projects/aigc/<项目名>/8-视频/libTV画布流/libtv-canvas-active-registry.json
+manifest_path: projects/aigc/<项目名>/8-视频/libTV画布流/第N集/x-y-z-subject-reference-manifest.json
+queue_record_path: projects/aigc/<项目名>/8-视频/libTV画布流/第N集/x-y-z-queue-record.json
+remote_prompt_template: .agents/skills/aigc/8-视频/libTV画布流/templates/libtv-remote-prompt-template.md
 duration_estimate_seconds: 14
 duration_source: yaml_duration_estimate
 duration: 14
@@ -89,7 +89,7 @@ status: planned
 
 ## Required Notes
 
-- `prompt_body` 只引用 `6-分组` 现有组正文，不在计划中改写剧情事实。
+- `prompt_body` 只引用 `5-分组` 现有组正文，不在计划中改写剧情事实。
 - `allow_libtv_prompt_optimization=false` 必须同时写入 handoff message 自然语言锁定句，禁止优化、重排、摘要、压缩、改写或补镜头，并要求 `create_generation_task.params.prompt` 严格等于“分镜组正文 + 底部完整 YAML”。
 - `分镜组原文` 中每个已绑定 YAML 主体首次出现处、以及底部 YAML 中对应主体名后，必须插入 LibTV 画布 `@` 资产引用 / node mention（标准名称待官方确认）；引用绑定来自 `主体绑定表` 的 `canvas_node_name / node_key / URL`，不得伪造成普通文本解释、URL 注释、`{{Portrait N}}`、`〔主体参照: ...〕` 或手写图片编号。
 - 当前 CLI 纯文本消息无法单独证明 UI 级 `@` 引用已插入；提交计划必须记录验证方式，无法验证时写 `canvas_at_asset_mentions_status=at_asset_mention_unverified`。

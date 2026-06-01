@@ -2,7 +2,7 @@
 
 ## Purpose
 
-定义观众心理模型：在每个关键叙事 beat，系统回答"观众此刻知道什么、期待什么、害怕什么、渴望什么"。本合同为全链路（编剧→导演→表演→摄影）提供统一的观众心理参照层，让每个创作决策都不只是"角色在做什么"，而是"观众此刻会如何感受"。
+定义观众心理模型：在每个关键叙事 beat，系统回答"观众此刻知道什么、期待什么、害怕什么、渴望什么"。本合同为全链路（编导→摄影）提供统一的观众心理参照层，让每个创作决策都不只是"角色在做什么"，而是"观众此刻会如何感受"。
 
 ## Ownership
 
@@ -45,10 +45,8 @@
 
 ### 使用规则
 
-- **2-编剧** 在 N4-FIELD 阶段标记冲突继承状态，不做新增或解决
-- **3-导演** 在 N3-DIR-SUBSTANCE 阶段消费并深化冲突压力设计，在 N8-DIR-FINAL-IMAGE 阶段标记冲突遗产
-- **4-表演** 在 N5-PERF-SCENE-CRAFT 阶段消费冲突状态决定表演张力层级
-- **5-摄影** 在 N5.5-PEAK-SHOT 阶段消费冲突状态决定高点策略
+- **2-编导** 在 script layer 标记冲突继承状态，在 director layer 消费并深化冲突压力设计，在 performance layer 消费冲突状态决定表演张力层级
+- **4-摄影** 在 N5.5-PEAK-SHOT 阶段消费冲突状态决定高点策略
 
 ---
 
@@ -56,15 +54,11 @@
 
 | stage | node | consumption_action |
 | --- | --- | --- |
-| 2-编剧 | N4-FIELD | 在字段分流时标记观众此刻的知识基线；标注信息差类型（观众知道角色不知道 / 角色知道观众不知道 / 双方都不知道） |
-| 2-编剧 | N4.2-NOVEL-TRANSFORM | 确保小说转译不消除信息差：不把"观众应该不知道"的信息提前泄露 |
-| 2-编剧 | N6-SCRIPT-REVIEW | 检查：关键场景是否有观众心理标注 |
-| 3-导演 | N3-DIR-SUBSTANCE | 建立 `audience_psychology_map`：每个关键 beat 的观众知识、期待、恐惧、渴望 |
-| 3-导演 | N4-DIR-PEAK | 消费 audience_expectation 决定满足/延迟/反高潮策略 |
-| 3-导演 | N10-DIR-REVIEW | 检查：高潮画面是否回应了观众期待或有意颠覆 |
-| 4-表演 | N5-PERF-SCENE-CRAFT | 消费 audience_expectation 决定表演的"知情"层级：角色是否应该表现出比观众更多的知道/更少的知道 |
-| 5-摄影 | N5.5-PEAK-SHOT | 消费 audience_fear 和 audience_desire 决定高点画面的注意力引导方向 |
-| 5-摄影 | N6.4-FUNCTIONAL-PROJECTION | 消费 audience_surprise_potential 决定镜头的揭示/隐藏/误导策略 |
+| 2-编导 | N2-BD-SCRIPT | 在字段分流和小说转译时标记观众此刻的知识基线；确保小说转译不提前泄露"观众应该不知道"的信息 |
+| 2-编导 | N3-BD-DIRECTOR | 建立 `audience_psychology_map`：每个关键 beat 的观众知识、期待、恐惧、渴望；消费 expectation 决定满足/延迟/反高潮策略 |
+| 2-编导 | N4-BD-PERFORMANCE | 消费 audience_expectation 决定表演的"知情"层级：角色是否应该表现出比观众更多的知道/更少的知道 |
+| 4-摄影 | N5.5-PEAK-SHOT | 消费 audience_fear 和 audience_desire 决定高点画面的注意力引导方向 |
+| 4-摄影 | N6.4-FUNCTIONAL-PROJECTION | 消费 audience_surprise_potential 决定镜头的揭示/隐藏/误导策略 |
 
 ---
 

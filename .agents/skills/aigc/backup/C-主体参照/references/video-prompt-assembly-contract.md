@@ -1,10 +1,10 @@
 # Video Prompt Assembly Contract
 
-本文件定义 step1 之后的组级视频 prompt 组装规则。目标是把 `4-分组` 的现有组正文保真转换为 LibTV 可提交文本，而不是重新创作分镜。
+本文件定义 step1 之后的组级视频 prompt 组装规则。目标是把 `5-分组` 的现有组正文保真转换为 LibTV 可提交文本，而不是重新创作分镜。
 
 ## Prompt Shape
 
-每个分镜组生成一个独立 `prompt.md`。`prompt.md` 始终必须是 source-first YAML：直接保留 `4-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和 fenced YAML；不得在原文前另写“请根据以下完整分镜组内容...”、`主体参照说明：`、`分镜组原文：` 或缺图说明段。
+每个分镜组生成一个独立 `prompt.md`。`prompt.md` 始终必须是 source-first YAML：直接保留 `5-分组/第N集.md` 中对应 `## x-y-z` 分镜组原文，包含标题、正文和 fenced YAML；不得在原文前另写“请根据以下完整分镜组内容...”、`主体参照说明：`、`分镜组原文：` 或缺图说明段。
 
 `prompt.md` 有两个合法相位：
 
@@ -178,7 +178,7 @@ audio_preflight_required: false
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| `prompt.md` 是否采用 source-first YAML，直接保留 `4-分组` 对应 `## x-y-z` 的标题、正文和 fenced YAML，而非另写二次说明段？ | `G2-CONTENT` | `FAIL-VIDSUBJ-PROMPT` | `N4-PROMPT` | `prompt.md` 源文片段、`source_file` / `group_id` 回指 |
+| `prompt.md` 是否采用 source-first YAML，直接保留 `5-分组` 对应 `## x-y-z` 的标题、正文和 fenced YAML，而非另写二次说明段？ | `G2-CONTENT` | `FAIL-VIDSUBJ-PROMPT` | `N4-PROMPT` | `prompt.md` 源文片段、`source_file` / `group_id` 回指 |
 | draft 相位是否只保留原 YAML，未伪造空 `reference_index`、空 `uploaded_url`、占位 URL 或最终远端提交？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N4-PROMPT` / `N6-REVIEW` | `slot_binding_phase=draft`、draft YAML 扫描结果、无 `libtv-submission.txt` final 证据 |
 | final 相位是否只在原 fenced YAML 的已绑定主体项中注入 `reference_index`、真实 `uploaded_url` 和可选 `portrait_token`？ | `G16-REF-PROMPT-INTEGRITY` | `FAIL-VIDSUBJ-REF-PROMPT-INTEGRITY` | `N8-DISPATCH` | final YAML、`generation_slots`、`asset_uploads` 对照 |
 | `reference_index` 是否来自最终 `generation_slots` 或 UI 图N槽位，而不是 YAML 文本顺序、OSS 上传顺序或旧 mixedList 回显？ | `G19-REMOTE-REFERENCE-ORDER` | `FAIL-VIDSUBJ-REFERENCE-SLOT-REGISTRY` / `FAIL-VIDSUBJ-REMOTE-REFERENCE-ORDER` | `N8-DISPATCH` | `generation_slot_source`、UI / post-submit mixedList 证据、回刷记录 |

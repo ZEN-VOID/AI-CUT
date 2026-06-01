@@ -7,8 +7,8 @@
 | node_id | judgement | action | evidence | gate |
 | --- | --- | --- | --- | --- |
 | `N1-INTAKE` | 项目、集号、分镜组范围和执行意图是否明确 | 读取用户输入、父级路由、项目上下文 | input manifest | scope 明确 |
-| `N2-GROUP-EXTRACT` | 目标组是否可从 `4-分组` 唯一回指 | 提取 `group_id`、组正文、YAML、`时长估算` | hybrid group index | 组正文、YAML 和时长估算可读或有 fallback |
-| `N3-STORYBOARD-BIND` | 是否存在对应故事板总参照 | 按 `group_id` 搜索 `6-图像/B-分镜故事板` | manifest storyboard slot | 无空槽位 |
+| `N2-GROUP-EXTRACT` | 目标组是否可从 `5-分组` 唯一回指 | 提取 `group_id`、组正文、YAML、`时长估算` | hybrid group index | 组正文、YAML 和时长估算可读或有 fallback |
+| `N3-STORYBOARD-BIND` | 是否存在对应故事板总参照 | 按 `group_id` 搜索 `7-图像/B-分镜故事板` | manifest storyboard slot | 无空槽位 |
 | `N4-SUBJECT-BIND` | YAML 主体是否有真实图片 | 按角色/场景/道具目录绑定，多视图优先 | manifest subject slots | 不猜主体，不绑非图 |
 | `N5-PROMPT-ASSEMBLE` | prompt 是否同时表达总参照和主体参照 | 保留 source-first 组正文，先产出不含绑定字段的 `draft`；生成框槽位确认后再回刷 `final` fenced YAML 的故事板和主体 `reference_index / uploaded_url / image_token` | prompt markdown | draft/final 两段式绑定通过 |
 | `N6-PLAN-BUILD` | LibTV submit plan是否合法 | 生成 submit plan、处理图片上限、写入 `duration_hint=clamp(duration_estimate_seconds, 4, 15)` 与 `prompt_fidelity_mode`；上传后执行 `scripts/build-upload-ledger.py <package_dir> --sync` 将 `generation_slots` 投影回 manifest、submit plan、final YAML 和远端 `mixedList` | submit plan / slot ledger | 有图时 `modeType=mixed2video` 和 `mixedList` 正确，故事板/主体身份与图N同槽一致，默认 `allow_libtv_prompt_optimization=false` |

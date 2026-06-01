@@ -40,27 +40,29 @@ It must include:
 - `init_contract.selector_scope_root == ".agents/skills/team/"`
 - `runtime_policy.require_advisor_review_for_init_execution == true`
 - `runtime_policy.init_execution_owner_role == planning`
+- `runtime_policy.team_identity_usage == init_only`
+- `runtime_policy.creative_stage_persona_dispatch_allowed == false`
 - `roles.planning.init_execution.*`
-- `roles.supervision.stage_profiles` for at least `2-编剧 / 3-导演 / 4-表演 / 5-摄影 / 7-设计`
+- `init_synthesis.stage_seed_summary` for `1-分集 / 2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计`
 
 Hard rules:
 
-1. `team.yaml` is both the phase advisor runtime and the initialization lineup truth.
-2. Auto selection writes governance role ownership, required department coverage, optional department decisions, known gaps, and todo recommendation paths.
-3. Custom selection writes user-specified lineup evidence and validation notes.
-4. `roles.*.members` may only reference `.agents/skills/team/` skills.
-5. `roles.planning.init_execution.kickoff_owner` and `requires_advisor_review` must be true.
-6. `策划 / 监制 / 评审` may overlap or be separated; record the chosen allocation mode and overlap notes.
-7. `roles.supervision.stage_profiles.<stage>` is the canonical later-stage advisor profile. Generic `roles.supervision.members`, old `roles.supervising.*`, old `roles.production.*`, `team_setup.shared_agents`, and `roles.planning.members` are only fallback compatibility paths.
-8. Stage profiles must record `preferred_departments`, `focus_tags`, `question_binding`, and `dispatch_policy`, so later skills can ask node-derived questions without guessing what "监制" means for that stage.
+1. `team.yaml` is the initialization lineup, role-skill Q&A provenance, and synthesis record only; it is not a creative-stage advisor runtime.
+2. Team member role identity skills may be invoked only inside `0-初始化` to answer the fixed initialization packet and supply synthesis inputs.
+3. `roles.*.members` may only reference `.agents/skills/team/` skills.
+4. `roles.planning.init_execution.kickoff_owner` and `requires_advisor_review` must be true.
+5. New writes must not create active `roles.supervision.stage_profiles`, `roles.supervising.*`, `roles.production.*`, `team_setup.shared_agents`, `dispatch_policy: stage-front-advisor`, or `dispatch_policy: leaf-advisor` as creative-stage runtime contracts.
+6. If legacy projects already contain those fields, keep them read-only under `legacy_compat` or report them as deprecated evidence; do not use them to dispatch creative-stage persona work.
+7. Later creative stages may read only frozen synthesis fields such as `init_synthesis.stage_seed_summary.<stage>` and `init_handoff.stage_entry_seeds.<stage>`; they must not re-open team role skills or imitate member identities locally.
+8. Auto and custom selection still write department coverage, selected members, selection rationale, known gaps, and todo recommendation paths, but the downstream payload is stage guidance summary rather than stage advisor profiles.
 
-## Governance Role Matrix
+## Initialization Role Matrix
 
 | role | owned phase | timing | core function | non-owner boundary |
 | --- | --- | --- | --- | --- |
 | `策划` | `0-初始化` | first direct-answer packet before synthesis | converge story core, emotional core, boundaries, and stage seeds | does not own later-stage canonical truth |
-| `监制` | `2-编剧`, `3-导演`, `4-表演`, `5-摄影`, `6-分组`, `7-设计` | stage-front advisory, refined by `roles.supervision.stage_profiles.<stage>` | stage-specific style, type, director intent, performance craft, feasibility, design continuity | does not replace stage canonical writeback |
-| `评审` | `8-图像`, `9-视频`, `10-审片` | around validation reports and generated footage review | image/video consistency, reference binding, provider risk, footage delivery gate | not a default early creative expansion role |
+| `初始化专业顾问` | `0-初始化` | selected by auto/custom lineup, before synthesis | answer role-specific initialization questions and expose useful risks or taste constraints | does not become a later-stage persona or advisor runtime |
+| `初始化复核` | `0-初始化` | before artifact writeback | check whether Q&A synthesis supports `north_star`, `init_handoff`, `STATE`, and seed summaries | does not own image/video/review runtime gates |
 
 ## Auto Lineup Selection
 
@@ -68,9 +70,10 @@ Auto lineup uses two-level selection:
 
 1. Read `.agents/skills/team/SKILL.md + CONTEXT.md` first.
 2. Build a root-index shortlist by department, member, and scenario tags.
-3. Lock governance role ownership: `策划 -> 0-初始化`, `监制 -> 2-编剧/3-导演/4-表演/5-摄影/6-分组/7-设计`, `评审 -> 8-图像/9-视频/10-审片`.
+3. Lock initialization ownership only: `策划 / 初始化专业顾问 / 初始化复核 -> 0-初始化`.
 4. Select members only from `.agents/skills/team/`, prioritizing the required departments.
 5. Deep-read only shortlisted member skills.
+6. Summarize every selected member's answer into `init_synthesis.stage_seed_summary` instead of writing creative-stage persona profiles.
 
 Required departments:
 
@@ -86,10 +89,11 @@ Auto selection rationale must explain:
 
 - why required departments form the minimum closure
 - why the chosen members fit or complement each other
-- whether this is overlap or separated governance
+- how each selected role contributes to the initialization direct-answer packet
 - why optional departments were included or skipped
 - current roster gaps
 - root-index scenario tags and candidate shortlist evidence
+- how member answers were compressed into `north_star` invariants and `init_handoff` stage-entry seeds
 
 If the current roster is adequate but visibly missing a better domain expert, continue with the available lineup and create `todos/<project-or-task-id>-team-recommendation.md`; record that path in `team_setup.recommendation_todo_paths`.
 
@@ -98,10 +102,11 @@ If the current roster is adequate but visibly missing a better domain expert, co
 Custom lineup must:
 
 - validate every requested member path under `.agents/skills/team/`
-- map members into `策划 / 监制 / 评审`
+- map members into `策划 / 初始化专业顾问 / 初始化复核`
 - record user evidence and any coverage gaps
 - warn when required departments are not covered
 - refuse external advisor paths unless the user first adds them as proper team skills
+- refuse requests that would keep the selected members active as creative-stage persona/subagent presets after initialization, unless the user explicitly changes the workflow contract.
 
 ## Prompt Packet
 
@@ -124,8 +129,8 @@ Only ask for blockers that affect `north_star` or initial stage-entry seeds. Any
 | --- | --- | --- | --- | --- |
 | Is `smart_advisor` the only valid initialization mode, with legacy `主创会诊模式 / 快速成案模式 / 自主问答模式` rejected rather than revived as parallel modes? | `FIELD-INIT-03` | `FAIL-INIT-03` | `steps/init-workflow.md` `N1-mode-gate`; `SKILL.md` `Mode Selection`; this file's `Initialization Mode` section | Review report records the locked `init_mode`, any legacy mode wording found, and the file or artifact where the invalid mode appeared. |
 | Is exactly one `team_lineup_mode` locked as `auto` or `custom` before any canonical initialization artifact is drafted, with recommendation text kept separate from lock evidence? | `FIELD-INIT-03` | `FAIL-INIT-03` | `steps/init-workflow.md` `N1-mode-gate`; `templates/init-option-card.template.md`; this file's `Mode Lock Gate` section | Review report cites `lineup_mode_decision` or option-card output and confirms whether `north_star`, `init_handoff`, `team.yaml`, and `STATE.json` drafting waited for the lock. |
-| Does `team.yaml` record `init_contract`, selector scope, runtime policy, planning execution owner, role ownership, and required stage profiles for later supervision? | `FIELD-INIT-04` | `FAIL-INIT-04` | `steps/init-workflow.md` `N3-internal-router`, `N4-mode-engine`, and `N5-synthesis`; `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`; this file's `Team Manifest` and `Governance Role Matrix` sections | Review report lists present or missing `team.yaml` keys, stage profiles, role allocation mode, overlap notes, and planning direct-answer provenance. |
+| Does `team.yaml` record `init_contract`, selector scope, runtime policy, planning execution owner, initialization role ownership, Q&A provenance, stage seed summaries, and the explicit ban on creative-stage persona dispatch? | `FIELD-INIT-04` | `FAIL-INIT-04` | `steps/init-workflow.md` `N3-internal-router`, `N4-mode-engine`, and `N5-synthesis`; `.agents/skills/aigc/_shared/council-runtime/team.template.yaml`; this file's `Team Manifest` and `Initialization Role Matrix` sections | Review report lists present or missing `team.yaml` keys, deprecated stage-runtime fields, role allocation mode, init synthesis fields, and planning direct-answer provenance. |
 | In auto lineup, did selection start from `.agents/skills/team/SKILL.md + CONTEXT.md`, build a shortlist, deep-read only shortlisted members, keep all member paths under `.agents/skills/team/`, cover required departments, and record roster gaps? | `FIELD-INIT-04` | `FAIL-INIT-04` | `steps/init-workflow.md` `N3-internal-router` and `N4-mode-engine`; this file's `Auto Lineup Selection` section; project `todos/*-team-recommendation.md` when needed | Review report cites root-index shortlist evidence, selected member paths, required department coverage, optional department rationale, and any created roster-gap todo path. |
-| In custom lineup, are all requested members validated under `.agents/skills/team/`, mapped into `策划 / 监制 / 评审`, and refused or blocked if they point outside the team tree? | `FIELD-INIT-04` | `FAIL-INIT-04` | `steps/init-workflow.md` `N3-internal-router` and `N4-mode-engine`; this file's `Custom Lineup Selection` section | Review report lists each requested member path, validation result, assigned governance role, coverage gap warning, and any external advisor refusal. |
+| In custom lineup, are all requested members validated under `.agents/skills/team/`, mapped into initialization-only roles, and refused or blocked if they point outside the team tree or request post-init persona dispatch? | `FIELD-INIT-04` | `FAIL-INIT-04` | `steps/init-workflow.md` `N3-internal-router` and `N4-mode-engine`; this file's `Custom Lineup Selection` section | Review report lists each requested member path, validation result, assigned initialization role, coverage gap warning, external advisor refusal, and any post-init persona-dispatch refusal. |
 | Does the first prompt packet remain owned by the parent skill, answered by `roles.planning.members`, and limited to blockers that affect `north_star` or initial stage-entry seeds? | `FIELD-INIT-07` | `FAIL-INIT-07` | `steps/init-workflow.md` `N4-mode-engine`; this file's `Prompt Packet` section; `templates/output-template.md` blocked-output shape when advisor review is unavailable | Review report records prompt packet topics, planning member response provenance, blocked downstream-only questions moved to `unknowns`, and any local imitation attempt. |
 | Does this reference itself keep every mandatory mode/team rule bound to a review gate, fail code, rework target, and report evidence row? | `FIELD-INIT-10` | `FAIL-INIT-10` | This `Review Gate Mapping` section; `review/init-review-gate.md`; `steps/init-workflow.md` | Maintenance report enumerates this file in the reference gate coverage list and confirms every mode, lineup, team, auto/custom, and prompt-packet rule above is represented. |

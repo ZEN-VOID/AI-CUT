@@ -10,7 +10,7 @@
 | Output format | YAML frontmatter（`写作模型`、`字数`）、空行、`# 第N章｜章标题`、章节正文。 |
 | Output path | `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | GPT 原生主创完成，frontmatter（`写作模型: GPT`、`字数: XXX字`）/heading/正文校验通过，canonical path 写回完成。 |
+| Completion gate | team supervision subagents 已产出 `supervision_packet` 或有上层阻断降级报告；GPT 原生主创完成；frontmatter（`写作模型: GPT`、`字数: XXX字`）/heading/正文校验通过；canonical path 写回完成。 |
 
 ## Markdown Skeleton
 

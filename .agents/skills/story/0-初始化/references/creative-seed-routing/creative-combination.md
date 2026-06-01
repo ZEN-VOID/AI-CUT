@@ -509,3 +509,11 @@
 ---
 
 **使用建议**：组合创新是创意阶段的核心环节，建议先完成灵感收集与市场定位分析，再进行元素组合。每个组合方案都应经过开篇测试与评分验证，确保可行性后再进入后续阶段。
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 组合创新是否只在 `module-spec.md` 判定需要元素组合时加载，而非默认资料墙？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | creative_route_plan、loaded_leaf_references |
+| 每个组合元素是否有明确功能，并能用一句话说明核心吸引力？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | 本文件组合规则、`steps/init-workflow.md` N5 | combination summary、one-line hook |
+| 组合方案是否落到 story kernel、planning seed 或 unknowns，而不是生成完整大纲？ | `handoff` | `FAIL-INIT-HANDOFF` | `references/creative-seed-routing/module-spec.md` Phase 3 | story_kernel patch、planning_seed update |

@@ -1,0 +1,212 @@
+# AI Video Prompt Execution Contract
+
+本文件把 `reports/transcripts/audio/AI视频镜头与提示词学习稿.md` 中可复用的方法论转译为 `4-摄影` 的摄影细则。它不要求本阶段直接生成最终视频提示词；它要求每条 `分镜N` 在成稿时具备可被下游 `8-视频` 稳定改写为提示词的执行顺序、方向参照、光线结果和表演微动态控制。
+
+## Example Usage Guard
+
+本文件所有示例、正例、反例和 prompt-ready repair 片段仅用于说明 AI 视频执行稳定性的判断逻辑，不是提示词模板或分镜模板。执行具体任务时，不得复用示例中的人物动作、情绪表述、光线结果、镜头顺序或句式；必须根据当前画面、场景身份、镜头身份、方向参照和表演微动态重新组织。
+
+## Core Rule
+
+AI 视频生成更像顺序执行提示词，而不是自动理解导演意图。因此 `4-摄影` 的分镜明细必须采用“镜头包裹动作”的设计思路：先建立镜头、运动、构图和参照方向，再让人物动作、表演变化、光线结果和环境声在该镜头内部发生。
+
+镜头先行之前还必须先有场景/镜头身份。进入视频可执行排序时，先确认当前画面属于什么年代、功能空间、环境声底色、材质光影和镜头观察位置；如果第一句只写“人物在做什么”，而没有 `scene_identity` 与 `shot_identity`，下游视频模型会把动作生成在一个泛化空间里。
+
+不得把镜头作为动作之后的附加句，例如“人物走进房间，镜头推进”。应让读者能反推出：摄影机从一开始在哪里、以什么方式保持连续、人物动作如何在镜头内部完成、镜头最后停在哪里。
+
+## Camera-First Execution Order
+
+内部 `shot_design_plan` 必须按以下顺序组织视频可执行信息。最终正文不必分栏输出，但应能稳定还原这个顺序：
+
+| order | content | requirement |
+| --- | --- | --- |
+| 0 | 场景与镜头身份 | 年代/空间功能/环境声基底/材质光影、摄影机位置和朝向必须先成立；不要从“人物动作摘要”直接开始 |
+| 1 | 镜头类型与机位 | 固定、手持、稳定器、长焦、微距、过肩、主观、低角度等必须先服务当前观看任务 |
+| 2 | 镜头运动 | 推、拉、摇、移、跟、环绕、固定不动或焦点拉移要从镜头起点开始存在，不作为动作后的补丁 |
+| 3 | 构图关系 | 主体位于画面哪里、前景/门框/桌沿/黑板/光带如何压住或引导注意力 |
+| 4 | 观看选择与发现路径 | 观众先看到什么、被什么遮住、何时理解主体和空间；避免一开始全信息平铺 |
+| 5 | 人物动作 | 动作发生在镜头内部，明确进入、停住、转身、后退、坐下、抬眼、抓紧等相位 |
+| 6 | 情绪与表演微动态 | 只写可见泄露：眼神、咬肌、鼻翼、嘴角、肩膀、手指、呼吸、喉结、眨眼频率等 |
+| 7 | 环境和光线结果 | 光照亮哪里、哪里落入阴影、背景如何压暗或分离主体，环境声如何承托当前镜头 |
+
+若某条 `分镜N` 读起来像“动作先发生，镜头最后补上”，必须回到 `N6.5-SHOT-PLAN` 重排为镜头先行的执行顺序。
+
+## Camera Perspective And Discovery Rule
+
+AI 视频中“正面 + 平视 + 全身清楚展示”的写法容易生成扁平、摆拍、像资料图的画面。除非当前节拍明确需要制度化、中立观察或证件照式陈列，`4-摄影` 应先判断观众被放在什么观看位置，再决定是否使用低角度、贴地、前景遮挡、浅景深、手持微晃或慢速揭示。
+
+低角度不是装饰词，只有同时交代它带来的画面结果才成立：
+
+- 前景或地面进入画面，形成遮挡、深度或临场距离。
+- 人物腿部、衣摆、脚步、地面纹理或近处物件产生透视拉伸。
+- 空间被放大，主体被拉高或权力关系被改变。
+- 镜头以手持微晃、贴近地面、前景虚化、慢拉或焦点转移等拍摄状态出现，而不是干净的静态生成图。
+
+观看信息应有释放过程。不要一上来直接把主体、空间和动作全部展示清楚；可先让观众看见遮挡物、脚步、衣摆、门框、模糊前景或局部动作，再通过慢拉、横移、升降、焦点拉移或主体走入焦点，让观众从“不明白”逐步过渡到“理解场景和人物关系”。
+
+| flat / weak | prompt-ready repair |
+| --- | --- |
+| 正面平视全身镜头，人物向前走 | 低角度镜头贴近地面，前景地面和脚步先占画面下半部，人物朝镜头走来时身体被透视拉长，镜头轻微手持后退并停在半身近景 |
+| 镜头拍到一群人站在院子里 | 镜头先被门框和树影遮住一半，从低处慢慢横移露出院中人群，前景虚化的门框滑出画面后，观众才看清主角站在后景中央 |
+| 画面展示完整场景 | 镜头从不完整的信息开始：先给遮挡、脚步、衣摆或模糊轮廓，再用焦点转移或慢拉完成空间揭示 |
+
+## Direction Reference Rule
+
+AI 视频容易误解“向前、往后、左边、右边”。所有涉及运动方向、入画、退场、视线或空间位移的分镜，必须使用相对镜头或画面的参照物。
+
+“左/右”只有在镜头朝向已经锁定时才可用；如果镜头轴线没有说明，优先写“朝镜头、远离摄像机、从画面左侧进入、沿画面深处、贴着门框内侧、停在画面右侧三分之一处”等可执行参照。
+
+| ambiguous | executable |
+| --- | --- |
+| 人物向前走 | 人物朝镜头走来 / 沿课桌通道向画面深处走去 |
+| 人物往后退 | 人物背对镜头缓慢离开，身体逐渐远离摄像机 / 人物贴着黑板向画面右后方退 |
+| 人物从左边进入 | 人物从画面左侧进入，穿过前景，停在画面右侧三分之一处 |
+| 镜头跟着他走 | 镜头保持在他右后方半步跟随，直到他停在门框阴影里 |
+
+当方向信息会影响下游运动生成时，最终 `分镜明细` 应显式写出“朝镜头、远离摄像机、画面左侧、画面右侧三分之一、前景、后景、门框内侧、课桌通道”等参照词；不能只写文学化的“向前”“后退”“走过去”。
+
+### Repeated Spatial Anchor For AIGC
+
+当画面包含主角/反派、攻击者/防守者、说话者/听者、追逐者/被追逐者等需要稳定左右关系的双人或多人结构时，`4-摄影` 不只检查“方向词是否明确”，还必须检查轴线是否可被下游逐条提示词继承。
+
+每条可被下游独立消费的候选 `分镜N`，只要 screen left/right 会影响理解，就必须在内部 `ai_video_prompt_execution_profile` 中重复以下信息：
+
+- 谁在画面左侧、谁在画面右侧，或谁在镜头近端/远端。
+- 两人之间的中间空间锚点，例如石桥、桌子、门框、走廊、车道、剑线或光带。
+- 摄影机保持在两人连线哪一侧的 180 度半区；若切到过肩或侧机位，也必须仍能判断属于同侧半区。
+- 若需要换轴，使用中性镜头、主观视角、可见运动镜头或明确角色换位作为桥接。
+
+“主角在左、反派在右”只在第一镜出现不算稳定。AI 视频模型可能在后续镜头随机反转位置；因此需要在 `shot_design_plan` 和下游 payload 中逐镜携带 `axis_continuity_anchor`。
+
+## Lighting Result Rule
+
+光线提示不能只写光源或空泛效果词。每个重要光影选择必须写成“光造成的可见结果”，并能被图像和视频阶段继承。
+
+内部光线计划应至少判断：
+
+- 光源来自画面内还是画面外，以及相对画面的位置。
+- 光照亮人物、道具、文字、地面、墙面或背景的哪一部分。
+- 阴影落在哪里，阴影是硬、软、断裂、斜向还是被前景切割。
+- 背景应保持清楚、压暗、失焦还是只保留轮廓。
+- 轮廓光、反光、亮暗交界线是否用于把主体从背景中分离出来。
+- 光线结果是否服务当前情绪、危险、规则显影或空间层次，而不是只为了“电影感”。
+
+| weak | executable |
+| --- | --- |
+| 右侧柔光 | 画面右侧窗光照亮她右半边脸，左脸落进柔和阴影，桌面留下一条斜向亮带 |
+| 顶光压迫 | 冷白顶光压住眼窝，额头和鼻梁发亮，嘴角以下沉进灰影里 |
+| cinematic lighting | 背景压暗，只让门缝边缘光勾出他的肩线，前景课桌保持冷白反光 |
+
+若上游或项目视觉母题已有明确光色，本阶段不得写出互相冲突的光源；需要改变光影时，只能把改变写成当前画面内部可见的光变、遮挡、显影或边缘光结果。
+
+若当前画面继承场景参照图或已有画面光影，不要直接叠加新的“左侧光/右侧光”。先判断旧光线是否保留、减弱、被遮挡或被场内实用光替换，再写成可见结果：哪一侧脸亮起、哪块地面形成亮带、哪条轮廓从背景里分离。
+
+## Performance Microdynamic Rule
+
+当画面句子承载表演、情绪压制、伪装、惊恐、愤怒、离别或关系停顿时，镜头必须回答”观众通过什么可见细节看见情绪”。不能只写”紧张、愤怒、难过、压抑”。
+
+可用微动态包括：
+
+- 面部肌肉：眉心竖纹、半眯眼、咬肌收紧、鼻翼微张、嘴唇抿住、嘴角不对称抽动。
+- 眼神与视线：盯住镜头、短暂移向门口、迅速避开、追随背影后低头。
+- 身体联动：肩膀僵住或内收、指节发白、手指摩擦袖口、抓住衣角、胸口起伏变浅。
+- 微动态限制：前几秒几乎不动，随后只发生眼神变冷、呼吸变浅、嘴角压下等小变化。
+
+镜头运动必须保护这些微动态：强忍、伪装和压制类表演通常优先固定、极慢推或轻微手持；复杂环绕、快速甩镜和过多切点会破坏表演可读性。
+
+**非独白场景的情绪词转译（强制）**：`4-摄影` 的分镜明细不得将”紧张””愤怒””压抑””心痛””痛苦”等抽象心理标签直接写入正文——AI 视频生成器无法理解这些标签，也不会将其转化为可见动作。必须将每个抽象情绪词转译为以下可见物理动作之一：
+- 面部肌肉具体变化（咬肌收紧鼓起、眉心竖纹加深、鼻翼微张、嘴角下拉）
+- 身体动作（手指抓紧衣角/桌沿、指节发白、肩膀内收、胸腔起伏变浅、喉结滚动）
+- 呼吸节奏（屏住呼吸、呼气变浅变短、叹息）
+- 视线转移（眼神从对方身上移开、目光变冷、呆住不动）
+
+转译时每条分镜必须保留至少 1-2 个具体可见动作，不能只写”他看起来很紧张”却不交代具体怎么表现紧张。
+
+## Prompt-Ready Shot Payload
+
+每条 `分镜N` 的内部计划应形成 `ai_video_prompt_execution_profile`：
+
+| field | requirement |
+| --- | --- |
+| `scene_shot_identity` | 当前镜头的年代/空间功能/环境声基底/材质光影和摄影机观察位置是否已先行锁定 |
+| `camera_first_opening` | 这一镜开头先声明什么镜头、机位、运动或构图关系 |
+| `direction_reference` | 运动、入画、退场、视线或镜头路径是否有相对镜头/画面的参照 |
+| `axis_continuity_anchor` | 双人对峙/动作/追逐/对话中是否重复 screen left/right、两人连线、中间空间锚点和摄影机同侧 180 度半区；换轴是否有中性/主观/运动桥接 |
+| `action_inside_camera` | 人物动作是否发生在同一个镜头逻辑内部，而不是动作与运镜割裂 |
+| `microdynamic_visibility` | 情绪是否落到面部肌肉、身体联动、呼吸、手部或视线变化 |
+| `lighting_result` | 光线造成了什么亮面、暗面、轮廓、反光、背景层次或危险色块 |
+| `environment_support` | 声音或环境是否承托当前画面，但不越权生成音效设计主真源 |
+| `viewer_discovery_path` | 这一镜是否说明观众先看到什么、何时看懂；是否避免正面平视全信息直给造成的扁平摆拍 |
+| `negative_control` | 是否需要避免夸张表情、塑料感、卡通感、口型错位或大幅动作；本阶段只作为内部视频可控性提示，不机械落盘 |
+
+`ai_video_prompt_execution_profile` 不替代 `functional_projection_plan`，而是其视频执行稳定性扩展。若最终 `分镜明细` 不能反推出这些关键项，下游视频提示词会退化为关键词列表，应回到 `N6.4-FUNCTIONAL-PROJECTION` 或 `N6.5-SHOT-PLAN` 修复。
+
+## Output Boundary
+
+- `4-摄影` 仍输出自然中文 `分镜明细`，不输出完整视频提示词模板。
+- 分栏模板如“镜头与构图 / 人物与动作 / 情绪动机 / 面部肌肉 / 身体联动 / 光线 / 声音与环境 / 画面质感”只作为下游提示词结构参考，不直接粘进 `分镜明细`。
+- 情绪原因只能来自上游编导稿或项目上下文；不得为了补“情绪动机”新增剧情事实。
+- 声音与环境只能作为镜头承托和交出锚点，不能在本阶段越权替代音效或视频阶段的完整声音设计。
+- 负向约束默认留在内部或执行报告，不把”不要夸张表情、不要卡通感”等命令式提示词写进每条分镜正文。
+
+## Eye Close-up Rule（新增）
+
+当分镜涉及眼睛特写时，必须遵守以下规则：
+
+- **景框限定**：眼睛特写一律拍摄双眼，景框框住正面上半脸（眉骨到鼻尖），禁止侧面单眼特写——AI 视频生成器在侧面单眼特写时容易生成畸形五官（半脸消失、鼻歪、眼距错位）。
+- **景别表述**：用”正面双眼特写””正面上半脸特写””眉骨到鼻尖特写”等明确词，而非”眼睛特写””眼部特写”（后者无法区分单眼/双眼）。
+- **正面双眼的可见信息**：瞳孔、泪光、眼睑颤动、眼神方向、眉心肌肉变化——这些细节只能以双眼对称呈现才能被 AI 视频正确生成。
+- **执行示例**：
+  - ✅ `正面双眼特写：瞳孔在冷白灯下缓慢收缩，泪光把灯管映成两条白线。`
+  - ❌ `眼睛特写：左眼泪光闪烁。`（单眼+侧面，AI 视频易畸形）
+
+## Psychological Intensity Slowdown Rule（新增）
+
+当画面句子涉及**剧烈心理变化**（震惊、崩溃、突然醒悟、强忍情绪、悲痛爆发）时，镜头节奏必须放慢。执行方式二选一或组合：
+
+1. **慢镜头**：极慢推轨（约 3-5 秒）、长停顿（约 3-4 秒）、焦点极慢拉移——让观众有时间读取面部肌肉变化。
+2. **正面多角度切换**：正面中景（1-2 秒）→正面近景（1-2 秒）→正面双眼特写（1-2 秒），用硬切或焦点跳切串联，不用运动连接。
+
+**禁止**：在心理剧烈变化时使用快速运镜、急停、复杂环绕或频繁切点——这些会破坏演员表演的可读性，让关键情绪瞬间一闪而过。
+
+此规则覆盖 `rhythm_profile` 中该画面的 `tempo` 必须标记为 `slow_burn` 或 `hold`，不在该类画面中使用 `quick` 或 `rupture`。
+
+**执行示例**：
+```
+✅ 崩溃情绪：镜头停在正面近景，咬肌慢慢鼓起来，肩膀在冷白灯下起伏变浅——镜头沉默了四秒才下摇到她的双手。
+❌ 崩溃情绪：手持快速跟拍她后退，镜头晃动感强，节奏太快——关键表演瞬间没给够时间让观众读懂。
+```
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 示例、正例、反例或 prompt-ready repair 片段是否只用于判断逻辑，没有被复用成人物动作、情绪表述、光线结果、镜头顺序或句式模板？ | `GATE-CINE-17A`、`GATE-CINE-18` | `FAIL-CINE-05REF`、`FAIL-CINE-05G` | `review/review-contract.md#Reference-Review-Gate-Matrix`、`steps/cinematography-workflow.md#N7-INJECT` | reference gate 覆盖记录；说明本文件示例未被单独作为阻断真源；模板污染修复的字段标签 |
+| 每条下游可消费分镜是否先锁定场景/镜头身份，而不是从“人物正在做什么”直接开始？ | `GATE-CINE-26`、`GATE-CINE-15A` | `FAIL-SCENE-IDENTITY-01`、`FAIL-SHOT-IDENTITY-01` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` | `scene_identity` / `shot_identity` 抽样；年代、空间功能、环境声、材质光影、摄影机位置朝向证据 |
+| `分镜N` 能否还原“镜头类型/运动/构图先包裹动作”的执行顺序，而不是动作发生后才补一句镜头推进或跟拍？ | `GATE-CINE-15A`、`GATE-CINE-15` | `FAIL-SHOT-IDENTITY-01`、`FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `ai_video_prompt_execution_profile.camera_first_opening` 抽样；动作与镜头割裂修复记录 |
+| 人物行走、入场、压迫、群像或空间建立镜头是否有观看位置与发现路径，避免无动机正面平视全信息展示？ | `GATE-CINE-15A`、`GATE-CINE-31` | `FAIL-SHOT-IDENTITY-02`、`FAIL-CINE-05Z` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 正面平视使用理由；低角度、前景遮挡、透视、手持、慢拉或焦点转移的观看任务抽样 |
+| 运动方向、入画退场、视线和空间位移是否使用相对镜头/画面边界/前中后景/空间锚点，而不是只写“向前、后退、左边、右边”？ | `GATE-CINE-15A`、`GATE-CINE-26` | `FAIL-DIRECTION-REF-01`、`FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 方向参照抽样；朝镜头、远离摄像机、画面左/右侧、三分位、门框/课桌通道等可执行参照记录 |
+| 双人或多人对峙、追逐、动作、逼问、谈判场是否逐镜重复 `axis_continuity_anchor`，而不只在第一镜交代左右关系？ | `GATE-CINE-27`、`GATE-CINE-15A` | `FAIL-CINE-05V` | `steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 双人轴线与 180 度规则检查结果；screen left/right、中间空间锚点、camera_half_space 与换轴桥接抽样 |
+| 重要光线是否写成照亮对象、暗面、阴影、反光、轮廓或背景层次的可见结果，且不与既有场景光色冲突？ | `GATE-CINE-30`、`GATE-CINE-15A` | `FAIL-CINE-05Y`、`FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.3-SCENE-VISUAL-CONSTRAINT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 光源叙事检查结果；亮面/暗面/阴影/轮廓/反光/背景层次抽样；冲突光源修复记录 |
+| 情绪、伪装、惊恐、愤怒、离别或关系停顿是否落到可见微动态，而不是直接写抽象心理标签？ | `GATE-CINE-15A`、`GATE-CINE-23` | `FAIL-CINE-19C`、`FAIL-CINE-05N` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` | 表演微动态抽样；面部肌肉、呼吸、手部、身体姿态、视线变化的修复字段标签 |
+| 每条 `分镜N` 是否能形成 `ai_video_prompt_execution_profile` 的关键 payload，并能被下游稳定改写为视频提示词而不是关键词列表？ | `GATE-CINE-15A`、`GATE-CINE-15`、`GATE-CINE-26`、`GATE-CINE-27` | `FAIL-CINE-05N`、`FAIL-CINE-05H`、`FAIL-SHOT-IDENTITY-01`、`FAIL-CINE-05V` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `ai_video_prompt_execution_profile` 抽样；scene_shot_identity、camera_first_opening、direction_reference、axis_continuity_anchor、lighting_result 和 microdynamic_visibility 覆盖结果 |
+| 最终 `分镜明细` 是否仍是自然中文摄影设计，没有输出完整视频提示词分栏、下游提示词模板或命令式负向词？ | `GATE-CINE-15A`、`GATE-CINE-18`、`GATE-CINE-10` | `FAIL-CINE-05N`、`FAIL-CINE-05G` | `steps/cinematography-workflow.md#N7-INJECT` | 自然成稿检查结果；提示词模板腔、分栏、命令式负向词删除记录 |
+| 眼睛特写是否明确为正面双眼/正面上半脸/眉骨到鼻尖，而不是侧面单眼或泛称“眼部特写”？ | `GATE-CINE-15A` | `FAIL-CINE-19B` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` | 眼部特写抽样；正面双眼、眉骨到鼻尖、瞳孔/泪光/眼睑/眉心肌肉变化证据 |
+| 剧烈心理变化是否进入 `slow_burn` 或 `hold`，并用慢镜头、长停顿或正面多角度切换保护表演可读性？ | `GATE-CINE-04B`、`GATE-CINE-15A` | `FAIL-CINE-19D` | `steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `duration_profile` 与 `shot_duration_decision` 抽样；心理变化慢节奏承托和修复记录 |
+| Repair Rule 中列出的失败症状是否回到最早责任节点修复，并在报告中留下 repair actions 与复审 verdict？ | `GATE-CINE-17`、`GATE-CINE-17A` | `FAIL-CINE-05J`、`FAIL-CINE-05REF` | `steps/cinematography-workflow.md#N8-REVIEW`、`steps/cinematography-workflow.md#N8R-DIRECT-REPAIR`、`steps/cinematography-workflow.md#N8R-REVIEW-AGAIN` | repair actions、最早责任节点、复审 verdict、未修复风险和允许/不允许进入下游的结论 |
+
+## Repair Rule
+
+发现以下问题时，按本文件回修：
+
+1. 动作和镜头割裂：重写为镜头从起点包裹动作，动作在镜头内部完成。
+2. 方向含混：补相对镜头、画面边界、前中后景、构图三分位或空间锚点。
+3. 光线空泛：把光源词改成亮面、暗面、阴影、反光、背景层次和轮廓分离结果。
+4. 情绪抽象：把“紧张/愤怒/难过”落到可见的面部肌肉、身体联动、呼吸、手部和视线。
+5. 提示词模板腔：删除分栏和命令式负向词，把视频可控性内化为自然镜头文字。
+6. 眼睛特写为单眼侧面：改为正面双眼特写（眉骨到鼻尖），并在分镜文字中显式写"双眼"。
+7. 抽象情绪词进入正文：将其转译为可见面部肌肉变化（咬肌鼓起、眉心竖纹、嘴角下拉）和具体身体动作（手指抓紧衣角、肩膀内收）。
+8. 心理剧烈变化时节奏过快：改为慢镜头或正面多角度切换，`tempo` 标记为 `slow_burn` 或 `hold`。
+9. 缺少场景/镜头身份：补年代、空间功能、环境声底色、材质光影和摄影机观察位置，再组织主体动作。
+10. 正面平视导致扁平摆拍：改为有动机的机位高度、前景遮挡、透视关系或观众发现路径；若保留正面平视，必须说明它服务制度化、中立观察或压迫性固定框线。
+11. 双人/多人轴线漂移：回到 `shot-continuity-contract.md#Two-Person-Axis-And-180-Degree-Rule`，补 `axis_line / screen_position_lock / middle_spatial_anchor / camera_half_space / axis_change_bridge`，并在每条关键候选分镜的 `axis_continuity_anchor` 中重复；直接左右反转必须改为中性、主观或运动桥接。

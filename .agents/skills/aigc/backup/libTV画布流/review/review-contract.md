@@ -5,14 +5,14 @@
 | check_id | target | pass condition | fail code |
 | --- | --- | --- | --- |
 | `REV-LIBTVCANVAS-01` | route | 默认主体参照流；分镜参照流仅显式选择且当前占位 | `FAIL-ROUTE` |
-| `REV-LIBTVCANVAS-02` | group source | 每个任务可回指 `6-分组/第N集.md` 的 `## x-y-z` | `FAIL-GROUP-SOURCE` |
+| `REV-LIBTVCANVAS-02` | group source | 每个任务可回指 `5-分组/第N集.md` 的 `## x-y-z` | `FAIL-GROUP-SOURCE` |
 | `REV-LIBTVCANVAS-03` | subject binding | `主体绑定表` 含 `yaml_name / node_key / URL / usage` | `FAIL-BINDING` |
 | `REV-LIBTVCANVAS-04` | image order safety | 远端消息声明图序冲突时以绑定表为准 | `FAIL-ORDER-SAFETY` |
 | `REV-LIBTVCANVAS-05` | duration | 按 YAML 估算并 clamp 到 4-15 秒 | `FAIL-DURATION` |
 | `REV-LIBTVCANVAS-06` | default spec | 未显式覆盖时为 `720p`、`16:9` | `FAIL-SPEC` |
 | `REV-LIBTVCANVAS-07` | official handoff | 使用 `.agents/skills/cli/libTV/scripts/` 官方脚本 | `FAIL-OFFICIAL-HANDOFF` |
 | `REV-LIBTVCANVAS-08` | download policy | 默认不下载；显式下载才调用 `download_results.py` | `FAIL-DOWNLOAD-POLICY` |
-| `REV-LIBTVCANVAS-09` | source fidelity | prompt 主体直接采用 `6-分组` 组正文；未回到 `5-摄影` / `3-Detail` 重写 | `FAIL-SOURCE-FIDELITY` |
+| `REV-LIBTVCANVAS-09` | source fidelity | prompt 主体直接采用 `5-分组` 组正文；未回到 `4-摄影` / `3-Detail` 重写 | `FAIL-SOURCE-FIDELITY` |
 | `REV-LIBTVCANVAS-10` | YAML subject baseline | 主体只来自组底 YAML `角色 / 场景 / 道具`，没有正文泛词扩展 | `FAIL-YAML-SUBJECT` |
 | `REV-LIBTVCANVAS-11` | prompt optimization | `allow_libtv_prompt_optimization=false`，除非用户显式 opt-in 且记录在 plan/queue/report | `FAIL-PROMPT-OPT` |
 | `REV-LIBTVCANVAS-12` | active URL reuse | 同画布同 YAML 名 active URL 优先复用；替换/更新才上传 | `FAIL-ACTIVE-URL-REUSE` |

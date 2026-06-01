@@ -157,3 +157,11 @@
 - ✅ 约束贯穿全文
 - ✅ 约束驱动剧情发展
 - ✅ 约束与爽点相辅相成
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 仙侠反套路约束是否只在 `module-spec.md` 判定命中修炼/宗门/境界缺口时加载？ | `creative_seed` | `FAIL-INIT-CREATIVE-ROUTE` | `references/creative-seed-routing/module-spec.md` Phase 1-2 | anti_trope_mapping、loaded_leaf_references |
+| 选中的修炼或世界约束是否贯穿长期规则，不被万能金手指绕开？ | `creative_seed` / `handoff` | `FAIL-INIT-HANDOFF` | 本文件约束条目、`steps/init-workflow.md` N5 | hard_constraints、risk_notes |
+| 约束是否只写入初始化 seed 和 unknowns，不替代后续力量体系与卷章 canonical 设计？ | `convergence` | `FAIL-INIT-CONVERGENCE` | `review/review-contract.md` Verdict Rules | planning_seed、deferred_to_planning |

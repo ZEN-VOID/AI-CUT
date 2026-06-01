@@ -27,7 +27,7 @@ projects/aigc/<项目名>/shot-by-shot/<reference_slug>/
 
 统一落点为 `shot-by-shot/<reference_slug>/`。旧路径 `CONTEXT/shot-by-shot/<reference_slug>/` 停止使用，已废弃。
 
-`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；同目录下的四份解析是 owning stage 的附加上下文。
+`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；同目录下的五份解析是 owning stage 的附加上下文。
 
 ## Main Report Skeleton
 
@@ -238,7 +238,7 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 使用边界
 
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `3-摄影` 的项目上下文解析，不改写 `2-编导` 原文。
+- 这是 `shot-by-shot/<reference_slug>` 提供给 `4-摄影` 的项目上下文解析，不改写 `2-编导` 原文。
 - 参考写法必须服务 `分镜明细：` 与 `分镜脚本.md`，不复制参考片具体镜头顺序。
 
 ## 摄影语法摘要
@@ -320,7 +320,7 @@ review_status: pending | pass | needs_rework | blocked
 
 ## 使用边界
 
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `5-设计` 的项目上下文解析，服务 `角色/2-设计`、`场景/2-设计`、`道具/2-设计`。
+- 这是 `shot-by-shot/<reference_slug>` 提供给 `6-设计` 的项目上下文解析，服务 `角色/2-设计`、`场景/2-设计`、`道具/2-设计`。
 - 只提炼可迁移视觉设计原则，不复制参考片具体人物脸、服装纹样、场景构图、道具纹章或专属视觉符号。
 - 下游必须遵守：角色为纯色背景全身服装试装照；场景为空镜且无人；道具为纯色背景 45 度完整道具近摄。
 
