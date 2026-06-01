@@ -42,10 +42,6 @@ Current image and video migration keeps several legacy-compatible skill packages
 | `.agents/skills/aigc/5-Image/A.分镜画面` | superseded by `.agents/skills/aigc/7-图像/A-分镜画面` | `projects/aigc/<项目名>/5-Image/A-分镜帧/` is legacy/readback only |
 | `.agents/skills/aigc/5-Image/B.分镜故事板` | superseded by `.agents/skills/aigc/7-图像/B-分镜故事板` | `projects/aigc/<项目名>/5-Image/B-分镜故事板/` is legacy/readback only |
 | `.agents/skills/aigc/8-视频/libTV画布流` | active video leaf | writes `projects/aigc/<项目名>/8-视频/libTV画布流/` |
-| `.agents/skills/aigc/backup/A-分镜画面参照` | compatibility video leaf | writes or repairs `projects/aigc/<项目名>/8-视频/A-分镜画面参照/` |
-| `.agents/skills/aigc/backup/B-分镜故事板参照` | compatibility video leaf | writes or repairs `projects/aigc/<项目名>/8-视频/B-分镜故事板参照/` |
-| `.agents/skills/aigc/backup/C-主体参照` | compatibility video leaf | writes or repairs `projects/aigc/<项目名>/8-视频/C-主体参照/` |
-| `.agents/skills/aigc/backup/D-主板混合参照` | compatibility video leaf | writes or repairs `projects/aigc/<项目名>/8-视频/D-主板混合参照/` |
 | `.agents/skills/aigc/9-审片` | active footage review stage | writes `projects/aigc/<项目名>/9-审片/` reports and may repair owning `5-分组` groups |
 
 Forbidden new bootstrap roots are maintained by `scripts/aigc_skill_audit.py`. Keep this shared layout focused on active rows and explicitly allowed compatibility aliases so stale roots do not become discoverable by copy-paste.

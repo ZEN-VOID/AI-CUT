@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 分镜故事板参照视频"
-  short_description: "从 5-分组生成 LibTV 组级视频，按 group_id 绑定可选故事板图参照"
-  default_prompt: "使用 $aigc-video-storyboard-reference 从 `projects/aigc/<项目名>/5-分组/` 提取完整分镜组内容作为视频提示词主体，检查 `projects/aigc/<项目名>/7-图像/B-分镜故事板/` 是否有同 group_id 故事板图并写入 YAML 参照路径，然后按 `.agents/skills/cli/libTV` 规范以分镜组为单位后台多线程批量提交 LibTV 视频任务。"

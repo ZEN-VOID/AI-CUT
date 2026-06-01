@@ -1,5 +1,0 @@
-interface:
-  display_name: "AIGC Video D 主板混合参照"
-  short_description: "Hybrid storyboard and subject video refs"
-  default_prompt: "Use $aigc-video-hybrid-board-subject-reference when the user asks for D-主板混合参照, 主体参照和分镜故事板参照合二为一, or video prompts that use both `7-图像/B-分镜故事板` as a total reference and `6-设计/*/3-生成` subject images after each matching subject."
-  path: ".agents/skills/aigc/8-视频-backup/D-主板混合参照"

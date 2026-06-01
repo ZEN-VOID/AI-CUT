@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-01
+
+- 接入 `6-设计` 冻结初始化综合消费：只读 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`。
+- `init_team_synthesis_context` 只承载场景设计节点可执行的约束、启发和风险，不再触发 team 成员身份、旧 stage profile、叶子 persona profile 或伪顾问问答。
+- 同步 SKILL、steps、review、references、模板、README、入口元数据、经验层与知识库口径。
+
 ## 2026-05-01
 
 - 将 `references/design-output-contract.md`、`references/design-slot-review-contract.md` 与 `references/workflow-supervision-contract.md` 接入 Reference Loading Guide、steps、review gate 和脚本 resolver，避免输出硬规则和 reviewer slot bundle 漂成旁路文档。

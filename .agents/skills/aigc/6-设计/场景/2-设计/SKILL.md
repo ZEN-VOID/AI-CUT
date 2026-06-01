@@ -131,6 +131,7 @@ stateDiagram-v2
 | --- | --- |
 | 任意场景设计任务 | `references/scene-design-contract.md`、`steps/scene-design-workflow.md` |
 | 初始化综合消费 / init team synthesis consumption | `../../../_shared/team-advisor-consultation-contract.md` |
+| 反抽象语言、研究/物语/解构/prompt 的具象场景转译 | `../../../_shared/anti-abstract-language-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 场景类型、空间粒度、建筑/自然/超现实分型 | `types/scene-design-type-map.md` |
 | 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
@@ -150,7 +151,7 @@ stateDiagram-v2
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
 5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
 6. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
-7. 按 `references/scene-design-contract.md` 与 `references/design-output-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、顾问指导或设计依据。
+7. 按 `references/scene-design-contract.md`、`references/design-output-contract.md` 与 `../../../_shared/anti-abstract-language-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；必须把抽象空间气质、主题承载、风格标签和百科式研究转译为空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和可追溯 prompt token；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、初始化综合指导或设计依据。
 8. 为每个场景锁定唯一主体 ID；默认使用上游清单或文件名前缀 `S###`。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段，并作为英文 prompt 的开头 `<主体ID>: ...`。
 9. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
 10. `解构` 必须先包含主体 ID 行，再分为 `Scene Design` 与 `Cinematography` 字段；`提示词设计` 必须引用全局风格提示词、建筑风格、时间锚点和地域锚点，并输出英文整合提示词；最终英文提示词必须以主体 ID 号开头，显式包含时间和地域，长度不超过 2000 characters，并从 `Scene Design` 与 `Cinematography` 的全部有效槽位中蒸馏空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和氛围节奏。
@@ -174,6 +175,7 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
 | `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
 | `FIELD-SCENE-DESIGN-11` | Init team synthesis | 已按 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；缺失时有明确记录 | `FAIL-SCENE-DESIGN-11` |
+| `FIELD-SCENE-DESIGN-12` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象空间气质、主题、风格和研究判断已转为可见空间结构、材质、光线、构图与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
 
 ## Thought Pass Map
 
@@ -184,7 +186,7 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-03` | 类型画像 | 场景名、原文关键词、项目资料 | 场景类型、建筑风格入口、研究需求和摄影风险 | `type_profile` |
 | `PASS-SCENE-DESIGN-04` | 初始化综合汇流 | `team.yaml.init_synthesis`、共享初始化综合消费合同、场景目标、当前 `node_id / pass_id / gate_id` | 是否已把初始化综合压缩为可执行指导、局部 patch 或风险提示，且未触发 team 身份调用或伪顾问问答 | `init_team_synthesis_context` |
 | `PASS-SCENE-DESIGN-05` | 研究简报 | 上游证据、north star、team、type profile、init team synthesis context | 来源姿态、不确定性和视觉翻译是否足以支撑设计 | `research_brief` |
-| `PASS-SCENE-DESIGN-06` | LLM 设计 | research brief、north star、team、type profile、init team synthesis context | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出 | `scene_design_draft` |
+| `PASS-SCENE-DESIGN-06` | LLM 设计 | research brief、north star、team、type profile、init team synthesis context、反抽象语言合同 | 物语、解构、提示词和 prompt 证据链是否由 LLM 直出，抽象空间气质是否已转成可见设计材料 | `scene_design_draft`、`anti_abstract_design_projection` |
 | `PASS-SCENE-DESIGN-07` | reviewer 汇流 | 设计稿草案与 review contract | 初始化综合消费 或本地 checklist 是否通过门禁 | `review_verdict` |
 | `PASS-SCENE-DESIGN-08` | 落盘验收 | accepted draft | 路径、命名、字段、prompt 字符数是否合规 | `S###-<场景名>.md` |
 
@@ -197,7 +199,7 @@ stateDiagram-v2
 | `PASS-SCENE-DESIGN-03` | 生成 `type_profile` 并确定建筑/空间风格入口 | `type_profile` | `types/scene-design-type-map.md` |
 | `PASS-SCENE-DESIGN-04` | 初始化综合存在时形成 `init_team_synthesis_context`，缺失时记录 `not_applicable` / `blocked` | synthesis 来源、采纳内容、可执行指导或本地 review 记录 | `../../../_shared/team-advisor-consultation-contract.md` |
 | `PASS-SCENE-DESIGN-05` | 由 LLM 直写 `research_brief`、来源姿态、不确定性和视觉翻译 | `research_brief` | `references/scene-design-contract.md` |
-| `PASS-SCENE-DESIGN-06` | 由 LLM 直写物语、解构、英文提示词和 `prompt_evidence_chain` | `scene_design_draft` | `templates/output-template.md` |
+| `PASS-SCENE-DESIGN-06` | 由 LLM 直写物语、解构、英文提示词和 `prompt_evidence_chain`，并按反抽象语言合同完成设计投影 | `scene_design_draft`、`anti_abstract_design_projection` | `templates/output-template.md`、`../../../_shared/anti-abstract-language-contract.md` |
 | `PASS-SCENE-DESIGN-07` | 执行 初始化综合/reviewer 或本地等价 review | `review_verdict` | `review/review-contract.md` |
 | `PASS-SCENE-DESIGN-08` | 写入 canonical 单场景设计稿 | output file path | `SKILL.md` Output Contract |
 
@@ -215,6 +217,7 @@ stateDiagram-v2
 - `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
 - 英文提示词没有引用全局风格提示词、建筑风格、时间锚点和地域锚点，或最终英文整合提示词没有以主体 ID 号开头，没有显式包含时间和地域，或超过 2000 characters。
 - 最终英文整合提示词只拼接前缀/后缀/风格词/负向词，未系统吸收 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效空间、材质、光线、构图和镜头信息。
+- 场景研究、物语、解构或 prompt 停留在“高级、神秘、压迫、宏大、古典、超现实”等抽象词，没有转成可见空间结构、尺度、材质、光线、色彩、构图、动线和 prompt evidence token。
 - 场景 prompt 或摄影设计允许人物、人体局部、剪影、倒影或人群进入画面。
 - 把本阶段输出写回 `1-清单`、`3-生成`、registry、父级目录或其他 worker 范围。
 - 执行初始化综合消费时调用 team 身份、解析旧 stage profile、补造顾问问答，或没有把初始化综合转成节点级可执行判断、局部 patch 或风险提示。
@@ -267,6 +270,7 @@ stateDiagram-v2
 - 每个设计稿包含 required output 中的全部板块和字段。
 - 已按 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
 - 研究层已经产出 `research_brief`、`source_posture`、`uncertainty_register` 与 `visual_translation`，没有把猜测写成事实。
+- 已按 `../../../_shared/anti-abstract-language-contract.md` 完成反抽象设计投影，抽象空间气质、风格标签、主题承载和研究判断均已转成可见空间、材质、光线、构图与 prompt token。
 - 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接全局风格提示词、建筑风格、时间锚点与地域锚点，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。
 - `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。
 - 英文提示词和摄影字段明确固定为纯空镜，并包含 `no people / no human figures` 等负向约束。

@@ -5,7 +5,7 @@
 ## Fixed Context
 
 - 每个 motion unit 消费上一 unit 的 `final_state`。
-- 同一分镜组或连续动作段默认沿用 `primary_reference_frame`；场景切换、主体离开参照范围或动作重心转移时可重置 reference_frame，但必须记录重置原因。
+- 同一场景或连续动作段默认沿用 `primary_reference_frame`；只有输入源显式已有分镜组/group_id 时才继承源内组边界。场景切换、主体离开参照范围或动作重心转移时可重置 reference_frame，但必须记录重置原因。
 - 如果上一状态和当前 source 明确矛盾，优先尊重 source，并报告连续性断点。
 
 ## State Priority

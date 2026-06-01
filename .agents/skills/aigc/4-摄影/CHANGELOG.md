@@ -1,5 +1,46 @@
 # CHANGELOG
 
+## 2026-06-01 (Format-Aware Continuity Strengthening)
+
+- 将当前“原画面性字段标题 + 连续 `[起始秒-结束秒]` 时间段”明确为连续性承载面：字段标题保障逐画面点归属，字段内时间段保障镜内首尾，字段间末段/首段保障镜间交接。
+- 新增 `format_continuity_surface`、`field_link_chain`、`segment_link / sequence_link` 等内部证据口径，要求正文能读出上一落点、当前入口、当前落点和下一可消费入口，而不只是报告里存在连续性计划。
+- 同步更新 `SKILL.md`、`shot-continuity-contract.md`、`intra-shot-transition-contract.md`、`visual-sequence-alignment-contract.md`、workflow、review、模板和经验层；连续性不足仍回 `GATE-CINE-15D / FAIL-CINE-05AB`，跨块外溢仍回 `GATE-CINE-04D / FAIL-CINE-05M`。
+
+## 2026-06-01 (Original Visual Field Title Carrier)
+
+- 将 `4-摄影` canonical 输出从独立 `分镜画面：` 字段调整为“原画面性字段标题承载时间段”：保留 `动作画面/对白画面/环境描写/角色动作/心理反应/道具特写/转场` 等原字段标题，字段正文直接展开为连续 `[起始秒-结束秒]` 分镜时间段。
+- 明确不采用“原字段正文 + 紧跟分镜块”的双正文结构；画面事实、心理/思考反应外化和摄影运镜语言必须在同一组时间段中融合。
+- 同步更新入口合同、模板、workflow、review、references、经验层、脚本说明和 validator；独立 `分镜画面：` 现在只作为旧稿识别或禁止项存在。
+
+## 2026-06-01 (Remove AIGC Reset As Beat Trigger)
+
+- 从 `4-摄影` 的节拍触发矩阵中移除 `BT-16 / AIGC 执行重置点`；AIGC 视频执行稳定性不再作为增加 `分镜画面：` 时间段数量的独立理由。
+- 将时间段数量依据收束为 `BT-01~BT-15` 的有效观看触发点、观看结果、平台节奏和叙事节奏价值；AIGC 视频执行稳定性保留为后续功能投影、提示词可执行性和 review 质量门。
+- 同步更新 `SKILL.md`、beat/rhythm/sequence/shot-planning references、workflow、review、模板和经验层中的第二段/多段成立口径。
+
+## 2026-06-01 (Legacy Format Reference Removal)
+
+- 从生成侧入口、README 与模板中移除旧附着式格式样例，避免正常输出合同继续暴露历史语法。
+- 保留脚本校验和 repair 触发中的 legacy 识别能力，仅用于历史稿迁移、阻断和最小修复，不作为可选输出格式。
+
+## 2026-06-01 (Segment Switch And Duration Rule Alignment)
+
+- 复核并同步原“分镜切换 / 分镜时长”规则，使节拍合同、计划汇流、时值裁决、连续性审查和模板统一落到 `分镜画面：` + `[起始秒-结束秒]` 时间段格式。
+- 将旧规则中容易暗示 `分镜N（约X秒）` 的“分镜数量 / 第二镜 / 单镜 / 约秒数”表达，改为“时间段数量 / 第二段 / 单段 / time_range”，保留“镜头”作为摄影语言概念而非落盘列表格式。
+- 同步 `references/beat-analysis-contract.md`、`shot-duration-decision-contract.md`、`shot-planning-integration-contract.md`、`intra-shot-transition-contract.md`、`review/review-contract.md`、workflow 与经验层，确保最新输出模板和审核门槛一致。
+
+## 2026-06-01 (Integrated Storyboard Image Format)
+
+- 将 `4-摄影` canonical 输出从旧 `分镜明细：分镜N（约X秒）:` 附着式列表，升级为 `分镜画面：` 下的连续 `[起始秒-结束秒]` 时间段。
+- 明确原 `动作画面 / 对白画面 / 环境描写 / 角色动作 / 道具特写` 等画面性字段不再原样保留，而是语义保真融合进自然流畅的画面描述与镜头语言。
+- 同步更新入口合同、workflow、review gate、reference 合同、type map、模板、README、脚本校验与产品侧默认提示；validator 现在阻断旧 `分镜明细` 与 `分镜N（约X秒）` 格式，并校验时间段连续性。
+
+## 2026-06-01 (Init-Only Team Synthesis)
+
+- 将摄影阶段 team 上下文调整为只读 `team.yaml.init_synthesis.stage_seed_summary."4-摄影"`、`init_handoff.cinematography_seed` 与 `north_star.yaml.创作阶段不变量.摄影`。
+- 旧 stage profile 只作为迁移证据，不再作为 roster、members_ref 或 dispatch 来源；`init_team_synthesis_context` 只承载镜头指导、节奏取舍、审美取舍和风险提示。
+- 同步 review、workflow、模板和审计脚本 marker。
+
 ## 2026-05-31 (Motion Source Handoff)
 
 - 将默认上游输入调整为 `projects/aigc/<项目名>/3-运动/第N集.md`，用户明确跳过运动强化时才 fallback `2-编导/第N集.md`。

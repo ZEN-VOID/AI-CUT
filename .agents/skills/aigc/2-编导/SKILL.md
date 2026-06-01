@@ -17,7 +17,7 @@ metadata:
 - 每次调用 `$aigc-writing-directing` 或命中 `2-编导` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须识别并加载同目录 `types/` 中命中的类型包；默认至少读取 `types/type-map.md`、`types/source-to-script-type-map.md` 和 `types/performance-evidence-type-map.md`，涉及尾钩或跨集时再加载对应类型包。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与本轮分集、角色、风格、表演或制作约束直接相关的文件。
-- 若项目存在 `team.yaml`，只能读取 `init_synthesis.stage_seed_summary."2-编导"` 与初始化问答 provenance 作为冻结 `init_team_synthesis_context`；不得在本阶段调用 `.agents/skills/team/` 成员身份、解析旧 stage profile、或生成新的 team 顾问/角色代入包。旧项目残留的 `2-编剧`、`3-导演`、`4-表演` stage profile 只能作为只读迁移证据，不得重新形成独立入口。
+- 若项目存在 `team.yaml`，只能读取 `team.yaml.init_synthesis.stage_seed_summary."2-编导"` 与初始化问答 provenance 作为冻结 `init_team_synthesis_context`；不得在本阶段调用 `.agents/skills/team/` 成员身份、解析旧 stage profile、或生成新的 team 顾问/角色代入包。旧项目残留的 `2-编剧`、`3-导演`、`4-表演` stage profile 只能作为只读迁移证据，不得重新形成独立入口。
 - 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到本文件或对应分区。
@@ -89,7 +89,7 @@ Reject or clarify when:
 | 顶层质量基线 | `references/hollywood-quality-spec.md` |
 | 表演风格、心理反应、演员五层控制、台词交付、潜台词行为、角色弧线、群戏、生理真实性 | `references/performance-style-directive-contract.md`、`references/psychological-reaction-contract.md`、`references/actor-performance-control-contract.md`、`references/performance-and-scene-craft-contract.md`、`references/character-arc-performance-contract.md`、`references/ensemble-performance-contract.md`、`references/physiological-realism-contract.md`、`references/stanislavski-method-reference.md` |
 | 声音策略、反高潮和跨阶段情绪节奏 | `references/sound-design-directive-contract.md`、`references/anticlimax-strategy-contract.md`、`../_shared/emotional-rhythm-map-contract.md` |
-| 观众心理、动作链、活人感、场景身份和具像画面语言 | `../_shared/audience-psychology-model-contract.md`、`../_shared/action-first-continuity-contract.md`、`../_shared/lived-in-character-behavior-contract.md`、`../_shared/scene-shot-identity-contract.md`、`../_shared/concrete-visual-language-contract.md` |
+| 观众心理、动作链、活人感、场景身份、具像画面语言和反抽象语言 | `../_shared/audience-psychology-model-contract.md`、`../_shared/action-first-continuity-contract.md`、`../_shared/lived-in-character-behavior-contract.md`、`../_shared/scene-shot-identity-contract.md`、`../_shared/concrete-visual-language-contract.md`、`../_shared/anti-abstract-language-contract.md` |
 | 类型画像 | `types/type-map.md`、`types/source-to-script-type-map.md`、`types/performance-evidence-type-map.md`；跨集和尾钩任务再加载 `types/cross-episode-continuity-type-map.md`、`types/episode-final-image-type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md`；需要追溯旧层细则时读 `review/director-review-contract.md`、`review/performance-review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-script.template.md`、`templates/episode-director.template.md`、`templates/episode-performance.template.md` |
@@ -136,7 +136,7 @@ flowchart LR
 3. 执行 script layer：场景 slugline、字段分流、对白冻结、声画配对、长对白节拍、信息差、观众心理基线、场景节奏、小说表述二次画面化；每个新增字段都记录来源锚点、目标字段和正文嵌入位置。
 4. 执行 director layer：戏剧问题、人物压力、观众位置、高潮/反高潮、视觉主轴、单场美学、氛围意境、声音策略、终结画面和受控增强；所有判断必须落到可见、可听、可执行锚点，并回写 `scene_field_evidence_index`。
 5. 执行 performance layer：心理反应 GETability、演员五层控制、台词表演、长对白交付、潜台词行为、场景状态差、场面调度/权力关系、沉默余波、角色弧线、群戏层次和生理真实性；表演工艺必须嵌入具体对白、动作、沉默、空间或反应字段。
-6. 执行 visual language pass：删除抽象概念、审美口号、心理论文、表演意图总结、内部规则句和模板占位；将意义全部投到人物动作、空间、道具、光线、声音、停顿、呼吸、声线、表情和对手反应，并生成 `visual_unit_candidate_map`。
+6. 执行 visual language pass：加载并执行 `../_shared/anti-abstract-language-contract.md`，删除抽象概念、审美口号、心理论文、表演意图总结、内部规则句和模板占位；将意义全部投到人物动作、空间、道具、光线、声音、停顿、呼吸、声线、表情和对手反应，并生成 `visual_unit_candidate_map` 与 `anti_abstract_language_evidence`。
 7. 候选稿先视为 `candidate_writing_directing`，按 `review/review-contract.md` 审计；阻断项必须在本阶段直接最小修复并复审。
 8. 复审通过后写入 `projects/aigc/<项目名>/2-编导/第N集.md`，并生成或更新 `projects/aigc/<项目名>/2-编导/执行报告.md`；报告必须包含 `scene_field_evidence_index`、`visual_unit_candidate_map`、`motion_enrichment_handoff`，并可保留后续 `cinematography_handoff`。不得同时创建旧 `2-编剧`、`3-导演`、`4-表演` 新真源。
 
@@ -214,7 +214,7 @@ flowchart LR
 - 旧 `3-导演` 的戏剧实质、高潮/反高潮、视觉主轴、画面美学、氛围意境、声音策略、终结画面和受控增强证据已内嵌。
 - 旧 `4-表演` 的心理反应、五层表演控制、台词交付、长对白 delivery、潜台词行为、场景状态差、场面调度、沉默余波、角色弧线、群戏和生理真实性证据已内嵌。
 - 三层证据不是独立摘要：每条关键判断都能在 `scene_field_evidence_index` 中回到来源、目标字段、正文嵌入句和修复 owner。
-- 全稿通过 `../_shared/concrete-visual-language-contract.md`：不得用“电影感、高级感、宿命感、情绪复杂、权力压迫、内心崩塌、演员克制”等概念词替代具体声画、身体、空间和道具承托。
+- 全稿通过 `../_shared/concrete-visual-language-contract.md` 与 `../_shared/anti-abstract-language-contract.md`：不得用“电影感、高级感、宿命感、情绪复杂、权力压迫、内心崩塌、演员克制”等概念词替代具体声画、身体、空间和道具承托；若保留抽象词，必须同句绑定可见、可听、可演或可拍承托。
 - 执行报告包含 `thinking_action_node_ledger`、`script_layer_evidence`、`director_layer_evidence`、`performance_layer_evidence`、`concrete_visual_language_evidence`、`scene_field_evidence_index`、review verdict、repair actions 和结构化 `motion_enrichment_handoff`。
 - `motion_enrichment_handoff.visual_unit_candidate_map` 已列明可被 `3-运动` 强化的角色动作或画面化句子；若存在 `cinematography_handoff.visual_unit_candidate_map`，它仅作为 `3-运动` 后继续交给 `4-摄影` 的参考，且未越权写入机位、景别、镜头运动、分镜编号或提示词。
 - 已运行 `scripts/validate_script_projection.py` 或等价人工 review；阻断项已在本阶段内完成最小修复并复审通过。
@@ -232,7 +232,7 @@ flowchart LR
 3. 小说转译、信息差、节奏或潜台词失败：回到对应 references 与 `steps/script-layer-workflow.md`。
 4. 导演判断、视觉主轴、氛围、声音、尾钩失败：回到 director references 与 `steps/director-layer-workflow.md`。
 5. 表演可执行、台词交付、潜台词行为、动作链或群戏失败：回到 performance references 与 `steps/performance-layer-workflow.md`。
-6. 抽象化、概念化、解释化失败：回到 `../_shared/concrete-visual-language-contract.md` 与 `N5-BD-VISUAL-LANGUAGE`。
+6. 抽象化、概念化、解释化失败：回到 `../_shared/concrete-visual-language-contract.md`、`../_shared/anti-abstract-language-contract.md` 与 `N5-BD-VISUAL-LANGUAGE`。
 7. 输出模板、报告证据或下游交接失败：回到 `templates/output-template.md` 与 `review/review-contract.md`。
 8. 可复用经验写回同目录 `CONTEXT.md`，不要写入项目 `MEMORY.md`。
 

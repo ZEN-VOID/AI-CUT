@@ -97,8 +97,8 @@ route_policies:
     trigger: 命中 `6-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
     rule: "场景清单任务直达 `.agents/skills/aigc/6-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/6-设计/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
-    trigger: 命中 `8-视频`、`libTV画布流`、LibTV 画布视频、主体参照视频生成、按 `5-分组` 组级生视频，或旧 `A-分镜画面参照` / `B-分镜故事板参照` / `C-主体参照` / `D-主板混合参照` 路线与 legacy `6-Video`
-    rule: "默认路由 `.agents/skills/aigc/8-视频/libTV画布流/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/8-视频/libTV画布流/`；若用户明确点名旧 A 路线或修复既有 `projects/aigc/<项目名>/8-视频/A-分镜画面参照/` 产物，路由 `.agents/skills/aigc/backup/A-分镜画面参照/SKILL.md`；若明确点名旧 B 路线或修复既有 `projects/aigc/<项目名>/8-视频/B-分镜故事板参照/` 产物，路由 `.agents/skills/aigc/backup/B-分镜故事板参照/SKILL.md`；若明确点名旧 C 路线或修复既有 `projects/aigc/<项目名>/8-视频/C-主体参照/` 产物，路由 `.agents/skills/aigc/backup/C-主体参照/SKILL.md`；若明确点名旧 D 路线或修复既有 `projects/aigc/<项目名>/8-视频/D-主板混合参照/` 产物，路由 `.agents/skills/aigc/backup/D-主板混合参照/SKILL.md`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
+    trigger: 命中 `8-视频`、`libTV画布流`、LibTV 画布视频、创建画布项目、上传主体参照图、主体参照视频生成、按 `5-分组` 组级生视频，或 legacy `6-Video`
+    rule: "默认路由 `.agents/skills/aigc/8-视频/libTV画布流/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/8-视频/libTV画布流/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
   - id: aigc-video-review-entry
     trigger: 命中 `9-审片`、`审片`、`看片`、`分析视频内容`、`对照分镜组`、`把视频问题改回分组`、`generated footage review`，或给出 `projects/aigc/<项目名>/8-视频/**/*.mp4` 并要求评价/修复
     rule: "进入 `.agents/skills/aigc/9-审片/SKILL.md`；先按 `<分镜组ID>.mp4` 或 `<分镜组ID>-a.mp4` 文件名回推 `5-分组/第N集.md` 的对应 `## x-y-z`，审查实际视频证据，输出 `projects/aigc/<项目名>/9-审片/第N集/<group_id>[-variant]-审片.md`，并在高置信时把可执行修复写回对应 `5-分组` 分镜组；只有多例复现且能定位 source owner 时才上升源层优化。"

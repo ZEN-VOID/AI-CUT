@@ -66,6 +66,7 @@ metadata:
 | 父级增量对账、legacy archive 边界与阶段 closeout 验收 | `review/review-contract.md` |
 | 阶段末域级验收后直接修复闭环 | 本 `Stage-Closeout Review-Repair Contract`、`references/思行网络.md`、对应域级 leaf `review/review-contract.md` |
 | 设计创作阶段消费初始化团队综合 | `../_shared/team-advisor-consultation-contract.md`；只读消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，由命中域级/叶子技能压缩为 `init_team_synthesis_context` |
+| 设计语言反抽象、研究/解构/prompt 的具象化转译 | `../_shared/anti-abstract-language-contract.md`；父级必须要求命中域级 `2-设计` 叶子把风格标签、百科摘抄、身份口号和抽象美学转为形制、材质、工艺、姿态、光线、构图与 prompt evidence token |
 | 场景域执行 | `场景/SKILL.md + 场景/CONTEXT.md` |
 | 角色域执行 | `角色/SKILL.md + 角色/CONTEXT.md` |
 | 道具域执行 | `道具/SKILL.md + 道具/CONTEXT.md` |
@@ -79,7 +80,7 @@ metadata:
 4. 若检测到 `5-分组` 新增、更新、只覆盖部分集数，或既有 `6-设计` 产物已存在，必须进入 `incremental_reconcile`：读取 `references/incremental-reconciliation-contract.md`，并要求每个命中域先产出本轮 `reconcile_delta`。
 5. 只调度命中的域级子技能包；未命中的域不得补空清单、补占位主体或伪造面板 JSON。
 6. 域级子技能内部固定处理顺序为 `清单 -> 设计 -> 生成`，但每步只处理增量对账后的缺口；不得静默覆盖既有清单、设计稿或生成资产。
-7. 当命中 `角色/2-设计`、`道具/2-设计`、`场景/2-设计` 且项目存在初始化综合时，父级验收必须检查域级是否只读消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 并形成 `init_team_synthesis_context`；不得检查或要求创作阶段顾问请教、team 身份调用、旧 stage profile 或 leaf 专属 persona profile。
+7. 当命中 `角色/2-设计`、`道具/2-设计`、`场景/2-设计` 且项目存在初始化综合时，父级验收必须检查域级是否只读消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 并形成 `init_team_synthesis_context`；不得检查或要求创作阶段顾问请教、team 身份调用、旧 stage profile 或 leaf 专属 persona profile。父级还必须传递 `../_shared/anti-abstract-language-contract.md`，要求命中设计叶子记录或等价执行 `anti_abstract_design_projection`，不得让设计稿、解构或英文 prompt 停留在抽象风格词、身份口号、百科摘抄或未转译的审美标签。
 8. 父级只验证域级最终文件是否按 leaf 合同落到对应域内子目录；不直接改写域级业务主稿。
 9. 若需要阶段级 closeout，先汇总每个命中域的 leaf review verdict；存在 `needs_rework` 时，父级必须把问题路由回对应域级 leaf，要求该 leaf 直接修复并复审，不得由父级补写业务正文或伪造通过。
 10. 所有命中域通过复审后，写入 `projects/aigc/<项目名>/6-设计/validation-report.md`，并记录本轮上游范围、新增主体、跳过既有产物、初始化综合消费/本地复核、repair actions、复审结果和遗留风险。
@@ -110,6 +111,7 @@ metadata:
 4. 新增上游集数后覆盖旧清单、重复生成已有主体或重排场景编号：回到 `references/incremental-reconciliation-contract.md` 与对应域 `1-清单` merge 合同。
 5. 设计模板或面板模板漂移：回到对应域级 `templates/` 与 `review/`。
 6. 设计阶段仍调用 team 身份、解析旧 stage profile、补造顾问问答，或没有优先消费 `init_synthesis.stage_seed_summary."6-设计"`：回到 `../_shared/team-advisor-consultation-contract.md` 和对应叶子 `SKILL.md`。
+7. 设计稿、解构或 prompt 停留在抽象风格词、百科摘抄、身份口号或审美标签，没有转成形制、材料、工艺、年代、姿态、光线、构图和 prompt evidence token：回到 `../_shared/anti-abstract-language-contract.md` 和对应域级 `2-设计` leaf review gate。
 7. 引用无法自动更新：记录到最终报告；若形成可复用经验，再沉淀到对应域级 `CONTEXT.md`。
 
 ## Field Mapping
@@ -124,6 +126,7 @@ metadata:
 | `DESIGN-FIELD-06` | `projects/aigc/<项目名>/6-设计/validation-report.md` | 阶段级验收摘要 |
 | `DESIGN-FIELD-07` | `../_shared/team-advisor-consultation-contract.md` | 设计叶子只读消费初始化团队综合，并禁止创作阶段 team 身份调用、旧 stage profile 和伪顾问问答 |
 | `DESIGN-FIELD-08` | `Stage-Closeout Review-Repair Contract` | 失败域回 leaf 直接修复并复审，父级只聚合 verdict |
+| `DESIGN-FIELD-09` | `../_shared/anti-abstract-language-contract.md` | 设计叶子把抽象风格、身份、审美、研究和 prompt token 转为可见形制、材质、工艺、姿态、光线、构图与证据链 |
 
 ## Thought Pass Map
 
@@ -132,7 +135,7 @@ metadata:
 | `DESIGN-PASS-01` | 判断项目根与输出根 | 锁定 `projects/aigc/<项目名>/6-设计/` | runtime path |
 | `DESIGN-PASS-02` | 判断命中域 | 路由到 `场景 / 角色 / 道具` 包 | `domain_routes` |
 | `DESIGN-PASS-03` | 判断是否存在分批上游或既有产物 | 执行增量对账门 | `reconcile_delta` |
-| `DESIGN-PASS-04` | 判断域级输出是否完成 | 执行域级 review gate | `domain_verdicts` |
+| `DESIGN-PASS-04` | 判断域级输出是否完成 | 执行域级 review gate，并检查反抽象设计投影 | `domain_verdicts`、`anti_abstract_design_projection` |
 | `DESIGN-PASS-05` | 判断命中设计叶子是否完成初始化综合消费或缺失记录 | 汇总 `init_team_synthesis_context` 状态 | `init_team_synthesis_status` |
 | `DESIGN-PASS-06` | 判断是否需要域级修复 | 将失败 finding 路由回对应域级 leaf 并要求复审 | `domain_repair_results` |
 | `DESIGN-PASS-07` | 判断是否需要阶段 closure | 写或更新 `validation-report.md` | stage verdict |
@@ -146,6 +149,7 @@ metadata:
 | `DESIGN-REWORK-INCREMENTAL` | 新增 `5-分组` 后清单/设计/生成未对账或覆盖既有产物 | `references/incremental-reconciliation-contract.md` |
 | `DESIGN-REWORK-DOMAIN` | 域级输出失败 | 对应域级 leaf `review/review-contract.md` -> direct repair -> re-review |
 | `DESIGN-REWORK-INIT-SYNTHESIS` | 设计叶子缺少初始化综合消费，或误触发 team 身份调用 / 旧 stage profile / 伪顾问问答 | `../_shared/team-advisor-consultation-contract.md` |
+| `DESIGN-REWORK-ANTI-ABSTRACT` | 域级设计稿、解构或 prompt 停留在抽象风格词、身份口号、百科摘抄或未转译审美标签 | `../_shared/anti-abstract-language-contract.md` + 对应域级 `2-设计` |
 
 ## Output Contract
 
@@ -153,4 +157,4 @@ metadata:
 - Output format: `validation-report.md` 使用 Markdown；域级业务输出为对应 leaf 的清单、设计稿和生成请求/结果 JSON。
 - Output path: 父级阶段报告写到 `projects/aigc/<项目名>/6-设计/validation-report.md`；域级业务真源写到 `projects/aigc/<项目名>/6-设计/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`；域级状态 sidecar 可写到 `projects/aigc/<项目名>/6-设计/{场景,角色,道具}/design-manifest.yaml`。
 - Naming convention: 父级报告固定名 `validation-report.md`；域级命名由各域 `SKILL.md` 的 Output Contract 裁决。
-- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过；若存在分批上游或既有产物，已完成增量对账且未静默覆盖；设计叶子在初始化综合存在时已形成 `init_team_synthesis_context`，并确认未调用 team 身份、旧 stage profile 或伪顾问问答；阶段 closeout 中发现的域级阻断项已回到对应 leaf 直接修复并复审，或在 `validation-report.md` 中明确使用本地流程和未通过域。
+- Completion gate: 路由只命中 active 域级包；旧 tranche 路径不再作为 active skill 入口；命中域的 Skill 2.0 结构和输出合同验证通过；若存在分批上游或既有产物，已完成增量对账且未静默覆盖；设计叶子在初始化综合存在时已形成 `init_team_synthesis_context`，并确认未调用 team 身份、旧 stage profile 或伪顾问问答；命中设计叶子已按 `../_shared/anti-abstract-language-contract.md` 完成研究、解构和 prompt 的反抽象投影；阶段 closeout 中发现的域级阻断项已回到对应 leaf 直接修复并复审，或在 `validation-report.md` 中明确使用本地流程和未通过域。

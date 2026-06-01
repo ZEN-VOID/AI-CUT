@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -17,11 +18,16 @@ def validate(path: Path) -> tuple[bool, list[str]]:
 
     if "stage: 3-运动" not in text and "# 3-运动" not in text:
         findings.append("[ERROR] missing stage marker `3-运动`")
-    if "运动强化：" not in text:
-        findings.append("[ERROR] missing `运动强化：` entries")
+    if re.search(r"(?m)^\s*(运动强化|原运动字段|扩写后原字段)：", text):
+        findings.append("[ERROR] standalone enrichment/comparison fields are forbidden; expand the original motion-bearing field value in place")
     if "motion_state_ledger" not in text and "Motion State Ledger" not in text and "运动状态" not in text:
         findings.append("[WARN] missing visible motion_state_ledger evidence")
-    if "group_reference_profile" not in text and "Group Reference Profile" not in text and "组级参照" not in text:
+    if (
+        "group_reference_profile" not in text
+        and "Group Reference Profile" not in text
+        and "Scene / Segment Reference Profile" not in text
+        and "场景/动作段参照" not in text
+    ):
         findings.append("[WARN] missing visible group_reference_profile evidence")
 
     for term in FORBIDDEN_TERMS:

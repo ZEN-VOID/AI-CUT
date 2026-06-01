@@ -1,6 +1,6 @@
 # Dynamic Shot Detail Contract
 
-本文件定义 `分镜明细：分镜N` 的动态化描述方式。目标是让最终作品有流畅感、丝滑感和连续观看的运动逻辑，而不是静态参数堆叠。
+本文件定义原画面性字段标题下 `时间段` 的动态化描述方式。目标是让最终作品有流畅感、丝滑感和连续观看的运动逻辑，而不是静态参数堆叠。
 
 ## Example Usage Guard
 
@@ -8,14 +8,14 @@
 
 ## Core Rule
 
-每个 `分镜N` 默认写成“时间中的变化”，而不是“静态画面说明”。句子必须回答：
+每个 `时间段` 默认写成“时间中的变化”，而不是“静态画面说明”。句子必须回答：
 
 | question | requirement |
 | --- | --- |
 | 起点是什么 | 镜头从哪个景别、视角、焦点、空间位置或视觉信息开始 |
 | 过程怎么动 | 推、拉、摇、移、升降、环绕、跟随、甩镜、焦点拉移或组合运镜如何发生 |
 | 速度如何变化 | 静止、极慢、慢速、中速、快速、急停、变速或呼吸式缓动 |
-| 需要停留多久 | 该镜是快速通过、标准承接、读秒停留还是长停顿；正文必须以 `分镜N（约X秒）:` 显式展示 |
+| 需要停留多久 | 该镜是快速通过、标准承接、读秒停留还是长停顿；正文必须以 `[起始秒-结束秒]` 显式展示 |
 | 终点落在哪里 | 最终落到哪个人物、道具、文字、反应、危险源或转场接口 |
 | 为什么这样动 | 运动服务哪一个节拍：信息揭示、情绪加压、权力转移、空间压迫或边界交出 |
 | 属于哪个画面点 | 运动服务正上方哪条画面句子；段落连续性只提供入口、落点或视觉母题，不能让镜头失去当前归属 |
@@ -84,15 +84,15 @@
 
 ## Output Requirement
 
-每个 `分镜N` 的内部检查结构：
+每个 `时间段` 的内部检查结构：
 
 ```text
-分镜N（约X秒）: <自然写出起点、观看动作、速度变化、时值理由和落点；只显式保留当前节拍不可缺少的摄影选择。>
+[起始秒-结束秒] <自然写出起点、观看动作、速度变化、时值理由和落点；只显式保留当前节拍不可缺少的摄影选择。>
 ```
 
 不得机械照抄这个句式。成稿必须呈现动态变化，但应让技术判断藏在自然画面文字中。
 
-每个 `分镜N（约X秒）` 还必须能反推内部 `shot_design_plan`：起点、路径、速度、时值等级、终点、节拍动机和交出点缺一不可。简短可以成立，但不能短到只剩“镜头推进”“特写压迫”“转场丝滑”这类无法执行的概括；长停顿也可以成立，但必须通过对白承托、可读信息、框内细微变化、表演压力或高点读秒体现，不得只是把气氛拉长；也不能为了显得完整而把内部字段逐项摊开。
+每个 `[起始秒-结束秒]` 还必须能反推内部 `shot_design_plan`：起点、路径、速度、时值等级、终点、节拍动机和交出点缺一不可。简短可以成立，但不能短到只剩“镜头推进”“特写压迫”“转场丝滑”这类无法执行的概括；长停顿也可以成立，但必须通过对白承托、可读信息、框内细微变化、表演压力或高点读秒体现，不得只是把气氛拉长；也不能为了显得完整而把内部字段逐项摊开。
 
 若某条分镜会进入视频生成链路，还必须能反推 `ai_video_prompt_execution_profile`：镜头和构图先行，动作在镜头内部完成，方向参照明确，重要光影写出结果，表演情绪有可见微动态。缺任一项时不得靠“电影感”“连续感”补足。
 
@@ -102,7 +102,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| Does every `分镜N（约X秒）` read as a change across time with start point, path or stillness reason, speed, duration, endpoint and beat motivation? | `GATE-CINE-08` | `FAIL-CINE-05B` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N5.2-DURATION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | dynamic path samples, duration reasons and rewritten static lines |
+| Does every `[起始秒-结束秒]` read as a change across time with start point, path or stillness reason, speed, duration, endpoint and beat motivation? | `GATE-CINE-08` | `FAIL-CINE-05B` / `FAIL-CINE-05L` | `steps/cinematography-workflow.md#N5.2-DURATION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | dynamic path samples, duration reasons and rewritten static lines |
 | Is the camera or composition established before character action, so movement is wrapped inside the shot rather than appended after the action? | `GATE-CINE-15A` | `FAIL-CINE-05N` / `FAIL-SHOT-IDENTITY-01` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | AI video execution samples showing camera-first order |
 | Are movement direction, entry, exit and sightline described relative to camera, frame edge or space anchor? | `GATE-CINE-15A` / `GATE-CINE-26` | `FAIL-DIRECTION-REF-01` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | direction-reference corrections for walking, retreating, entering, exiting or looking |
 | Does the shot create a viewer discovery path with foreground, concealment, partial reveal, focus shift or low-angle/front-layer motivation when full frontal display would be flat? | `GATE-CINE-31` / `GATE-CINE-15A` | `FAIL-CINE-05Z` / `FAIL-SHOT-IDENTITY-02` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | discovery path samples and justified front-facing exceptions |

@@ -1,5 +1,11 @@
 # Changelog: aigc 道具 2-设计
 
+## 2026-06-01
+
+- 接入 `6-设计` 冻结初始化综合消费：只读 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`。
+- `init_team_synthesis_context` 只承载道具设计节点可执行的约束、启发和风险，不再触发 team 成员身份、旧 stage profile、叶子 persona profile 或伪顾问问答。
+- 同步 SKILL、steps、review、references、模板、README、入口元数据、经验层、知识库和脚本边界口径。
+
 ## 2026-05-28
 
 - 将固定画面约束从“近景特写”修正为“完整全貌展示”：默认要求 `full-view prop shot`、`full prop in view`、`entire prop fully visible`、`uncropped full silhouette`。

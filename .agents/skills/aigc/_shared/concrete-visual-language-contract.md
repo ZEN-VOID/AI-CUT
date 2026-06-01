@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本共享合同定义 `2-编导` 的画面化语言门。它不是保真剧本层的简单继承检查，而是要求编导稿中的导演判断和表演工艺在自身思考、证据、顾问汇流、执行报告和最终落盘中，都使用具像、可拍、可听、可演的影视语言，避免把已经画面化的上游成果重新抽象化、概念化或解释化。
+本共享合同定义 `2-编导` 的画面化语言门。它不是保真剧本层的简单继承检查，而是要求编导稿中的导演判断和表演工艺在自身思考、证据、初始化 team 综合摘要消费、执行报告和最终落盘中，都使用具像、可拍、可听、可演的影视语言，避免把已经画面化的上游成果重新抽象化、概念化或解释化。
 
 ## Core Rule
 
@@ -24,8 +24,8 @@
 
 | stage | must do |
 | --- | --- |
-| `2-编导 / director layer` | `director_substance_plan`、`peak_visual_plan`、`episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`episode_final_image_plan` 和 `advisor_consultation_packet` 都必须带可见/可听/可执行锚点；不得只输出戏剧问题、视觉主轴、氛围意境或导演意图的抽象概念。 |
-| `2-编导 / performance layer` | `psychological_reaction_evidence`、`actor_performance_control_evidence`、`dialogue_performance_evidence`、`scene_dramatic_map`、`performance_task_map`、`blocking_power_map`、`advisor_consultation_packet` 和终稿字段都必须落到演员可演的身体、声线、呼吸、停顿、空间、道具或对手反应；不得只输出情绪标签、心理结论或表演概念。 |
+| `2-编导 / director layer` | `director_substance_plan`、`peak_visual_plan`、`episode_visual_spine`、`visual_aesthetic_plan`、`atmosphere_mood_evidence`、`episode_final_image_plan` 和 `init_team_synthesis_context` 都必须带可见/可听/可执行锚点；不得只输出戏剧问题、视觉主轴、氛围意境或导演意图的抽象概念。 |
+| `2-编导 / performance layer` | `psychological_reaction_evidence`、`actor_performance_control_evidence`、`dialogue_performance_evidence`、`scene_dramatic_map`、`performance_task_map`、`blocking_power_map`、`init_team_synthesis_context` 和终稿字段都必须落到演员可演的身体、声线、呼吸、停顿、空间、道具或对手反应；不得只输出情绪标签、心理结论或表演概念。 |
 
 ## Evidence Shape
 
@@ -60,5 +60,5 @@ concrete_visual_language_evidence:
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | `2-编导` 的导演判断、视觉主轴、氛围意境、高潮处理、终结画面、心理反应、五层表演、台词表演、潜台词行为和场面调度是否都落到可见/可听/可执行锚点？ | `GATE-BD-13` | `FAIL-BD-VISUAL-LANGUAGE` | `2-编导/steps/directing-workflow.md#N5-BD-VISUAL-LANGUAGE` / `#N6R-BD-REPAIR` | `concrete_visual_language_evidence` 记录抽象风险、具像投影、目标字段和感官/执行通道 |
-| 顾问建议、planning evidence 和执行报告是否同样遵守画面化语言门，没有把抽象概念留在报告里而终稿字段无法消费？ | `GATE-BD-13` | `FAIL-BD-VISUAL-LANGUAGE` | 对应最早责任节点 + review repair | `advisor_consultation_packet.concrete_actionability_check`、`thinking_action_node_ledger.evidence_keys`、`concrete_visual_language_evidence` |
+| 初始化 team 综合摘要、planning evidence 和执行报告是否同样遵守画面化语言门，没有把抽象概念留在报告里而终稿字段无法消费？ | `GATE-BD-13` | `FAIL-BD-VISUAL-LANGUAGE` | 对应最早责任节点 + review repair | `init_team_synthesis_context.concrete_actionability_check`、`thinking_action_node_ledger.evidence_keys`、`concrete_visual_language_evidence` |
 | 具像化是否仍保持上游保真，没有新增对白、事件、因果、线索、规则、人物动机或无关前史？ | `GATE-BD-09` | `FAIL-BD-CONTROLLED-ENRICHMENT` | `N3-BD-DIRECTOR` / `N4-BD-PERFORMANCE` | `risk_check.fact_drift=false`、`new_dialogue_or_event=false`、上游锚点 |

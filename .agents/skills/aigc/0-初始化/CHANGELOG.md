@@ -2,6 +2,13 @@
 
 本文件记录 `.agents/skills/aigc/0-初始化/` 的结构迁移与目录治理说明，不参与默认技能预加载，也不与 `SKILL.md` / `CONTEXT.md` 竞争真源。
 
+## 2026-06-01
+
+- `Case-20260601-AIGC-INIT-ONLY-TEAM-SYNTHESIS`
+  - 将 `team.yaml` 调整为初始化阶段专属的编组、问答溯源与冻结综合载体，新增 `runtime_policy.team_identity_usage: init_only`、`creative_stage_persona_dispatch_allowed: false` 与 `init_synthesis.stage_seed_summary`。
+  - `north_star.template.yaml` 新增 `创作阶段不变量`，`init_handoff.template.yaml` 新增 `stage_entry_seeds`，覆盖 `2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计` 的阶段入口种子。
+  - 同步共享 team consumption contract、init review gate 与 `scripts/aigc_skill_audit.py`，禁止创作阶段重新调用 team 身份、旧 stage profile 或本地伪造顾问问答。
+
 ## 2026-05-31
 
 - `Case-20260531-AIGC-INIT-RUNTIME-SKELETON-RESYNC`

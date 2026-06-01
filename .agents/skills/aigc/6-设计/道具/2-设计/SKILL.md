@@ -85,6 +85,7 @@ Reject or clarify when:
 | --- | --- |
 | 任意道具细目设计任务 | `references/prop-design-contract.md`、`steps/prop-design-workflow.md` |
 | 初始化综合消费 / init team synthesis consumption | `../../../_shared/team-advisor-consultation-contract.md` |
+| 反抽象语言、研究/物语/解构/prompt 的具象道具转译 | `../../../_shared/anti-abstract-language-contract.md` |
 | 清单 merge 后的设计缺口补齐 | `../../references/incremental-reconciliation-contract.md` |
 | 类型分流、冷门考据、规则道具或状态版本 | `types/prop-design-type-map.md`、`knowledge-base/prop-design-heuristics.md` |
 | 输出结构、主体 ID 和 prompt 整合硬规则 | `references/design-output-contract.md` |
@@ -156,7 +157,7 @@ stateDiagram-v2
 4. 读取 `north_star.yaml` 与 `team.yaml.init_synthesis`，提取全局风格提示词、项目北极星、视觉禁区、设计相关初始化约束、启发和风险。
 5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标道具上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
 6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
-7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则和 prompt 整合硬规则。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
+7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性和 prompt evidence chain；“神秘、古老、高级、危险、破损、仪式感”等抽象判断必须落到具体轮廓、材质、刻痕、氧化、磨损、结构和尺度，冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、全局风格、物品风格、固定画面词或负向词等前缀/后缀；提示词必须把 Photography 与 Prop Design 中的全貌构图、45 度角度、完整轮廓、形制、材料、工艺、年代、磨损、功能逻辑、尺度和固定画面约束蒸馏成自然流畅的英文。
 9. 负向约束必须用自然语言写入 prompt，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，不得使用 Midjourney `--no` 参数。
 10. 为每个道具锁定唯一主体 ID；若上游清单或 manifest 已有 `PROP-###` 等 ID 则沿用，否则按清单顺序生成 `PROP-###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
@@ -171,13 +172,14 @@ stateDiagram-v2
 | `FIELD-PROP-DESIGN-02` | 单主体边界 | 每个文件只设计一个道具主体，不混入角色、场景或其他道具总稿 | `FAIL-PROP-DESIGN-02` |
 | `FIELD-PROP-DESIGN-02A` | 增量补缺 | 只处理缺设计稿或用户指定 repair 的主体，未静默覆盖既有设计稿 | `FAIL-PROP-DESIGN-02A` |
 | `FIELD-PROP-DESIGN-03` | 必填章节 | 名称/首次登场/原文描述复述、研究考据、物语、解构、提示词设计齐全；`## 4. 解构` 标题下方先写 `主体ID号：<主体ID>` | `FAIL-PROP-DESIGN-03` |
-| `FIELD-PROP-DESIGN-04` | 监制上下文 | 设计相关大师、全局风格和项目北极星被实际消费而非只贴名 | `FAIL-PROP-DESIGN-04` |
+| `FIELD-PROP-DESIGN-04` | 初始化综合与北极星消费 | 冻结初始化综合、全局风格和项目北极星被实际消费而非只贴名；未触发 team 身份调用或旧 stage profile | `FAIL-PROP-DESIGN-04` |
 | `FIELD-PROP-DESIGN-05` | 提示词约束 | 英文提示词以主体 ID 号开头，引用全局风格提示词 + 物品风格，且 1300 characters 内；整合对象是 `## 4. 解构` 的全部有效 Photography + Prop Design 字段，并使用自然语言负向约束，不使用 `--no`；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-PROP-DESIGN-05` |
 | `FIELD-PROP-DESIGN-06` | 输出落盘 | canonical 输出目录正确，文件名包含主体 ID 前缀和安全文件名，未触碰非授权范围 | `FAIL-PROP-DESIGN-06` |
 | `FIELD-PROP-DESIGN-07` | 全貌展示约束 | 默认为纯色背景单道具完整全貌展示、45 度视角，完整展示道具全貌与完整轮廓，仅展示道具，不做局部特写、裁切特写或半截道具画面，不置身场景或人物手持情境，不出现背景元素 | `FAIL-PROP-DESIGN-07` |
 | `FIELD-PROP-DESIGN-08` | 研究转译链 | 研究明确转化为形制、材料、工艺、年代、使用痕迹、功能逻辑、风险/不确定性 | `FAIL-PROP-DESIGN-08` |
 | `FIELD-PROP-DESIGN-09` | Prompt evidence chain | 英文 prompt 中的核心视觉 token 能回指研究证据、物语或解构字段 | `FAIL-PROP-DESIGN-09` |
 | `FIELD-PROP-DESIGN-10` | Init team synthesis | 已按 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；缺失时有明确记录 | `FAIL-PROP-DESIGN-10` |
+| `FIELD-PROP-DESIGN-11` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象年代感、危险感、神秘感、仪式感和审美标签已转为具体形制、材料、工艺、磨损、功能逻辑与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -191,6 +193,7 @@ stateDiagram-v2
 - `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
 - 道具 prompt 或摄影字段把道具放入剧情场景、桌面环境、室内陈设、街景、人物手持情境或背景元素中，或写成局部特写、裁切特写、半截道具画面，而不是完整展示道具全貌的纯色背景 45 度单道具全貌展示。
 - 研究层停留在百科信息或气氛形容词，没有转成形制、材料、工艺、年代、使用痕迹、功能逻辑和可追溯 prompt token。
+- 道具研究、物语、解构或 prompt 停留在“神秘、古老、高级、危险、仪式感、压迫感”等抽象词，没有转成具体形制、材料、工艺、磨损、尺度、功能逻辑和 prompt evidence token。
 - 输出写到父级、`1-清单`、`3-生成`、角色/场景目录或 registry。
 - 初始化综合存在却被静默跳过。
 - 执行初始化综合消费时调用 team 身份、解析旧 stage profile、补造顾问问答，或没有把初始化综合转成节点级可执行判断、局部 patch 或风险提示。
@@ -245,6 +248,7 @@ stateDiagram-v2
 - 已按 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
 - 必填章节齐全，`Photography` 与 `Prop Design` 解构字段存在。
 - 研究证据链已把来源判断转成可见设计，不确定性没有被伪装成确定史实。
+- 已按 `../../../_shared/anti-abstract-language-contract.md` 完成反抽象设计投影，年代感、危险感、神秘感、仪式感和审美标签均已转成具体形制、材料、工艺、磨损、尺度、功能逻辑与 prompt token。
 - `## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，引用全局风格提示词 + 物品风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters。
 - prompt evidence chain 能解释关键英文 token 来自哪些研究/物语/解构字段。
 - `Photography` 与英文 prompt 固定为 full-view prop shot、45-degree view、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、solid color background、no people、no background elements、no scene environment。

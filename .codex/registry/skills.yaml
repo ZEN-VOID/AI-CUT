@@ -166,22 +166,6 @@ active_skills:
             path: .agents/skills/aigc/8-视频/libTV画布流
             contract_status: active
             route_role: leaf
-          - id: aigc-video-frame-visual-reference
-            path: .agents/skills/aigc/backup/A-分镜画面参照
-            contract_status: partial-active
-            route_role: compat_leaf
-          - id: aigc-video-storyboard-reference
-            path: .agents/skills/aigc/backup/B-分镜故事板参照
-            contract_status: partial-active
-            route_role: compat_leaf
-          - id: aigc-video-subject-reference
-            path: .agents/skills/aigc/backup/C-主体参照
-            contract_status: partial-active
-            route_role: compat_leaf
-          - id: aigc-video-hybrid-board-subject-reference
-            path: .agents/skills/aigc/backup/D-主板混合参照
-            contract_status: partial-active
-            route_role: compat_leaf
       - id: aigc-video-review
         path: .agents/skills/aigc/9-审片
         owner_office: shangshu

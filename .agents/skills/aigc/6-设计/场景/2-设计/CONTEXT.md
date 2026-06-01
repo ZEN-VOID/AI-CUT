@@ -30,10 +30,10 @@ last_checked_at: 2026-04-25
 | Scene Design 与 Cinematography 混写 | 解构层 | 拆成空间/材质/色彩/动线与镜头/光线/运动/焦段 | 模板固定双字段 | 两组字段互不替代 |
 | 提示词没有承接全局风格 | 风格继承层 | 回读 `north_star.yaml` 并补全局风格引用 | 提示词前固定记录 source style | prompt 有 global style anchor |
 | 解构区缺少主体 ID | 结构投影层 | 在 `## 4. 解构` 下方补 `主体ID号：<主体ID>`，并同步 `## 5. 提示词设计` 与英文 prompt 前缀 | 模板和 review gate 固定三处 ID 一致性 | 解构 ID、提示词字段 ID、prompt 开头完全一致 |
-| 建筑风格缺失或空泛 | 建筑策略层 | 从场景类型、team 监制或用户要求中确定建筑风格 | `types/` 对不同场景给出建筑/空间风格入口 | prompt 有 architecture style anchor |
+| 建筑风格缺失或空泛 | 建筑策略层 | 从场景类型、初始化综合、项目 north star 或用户要求中确定建筑风格 | `types/` 对不同场景给出建筑/空间风格入口 | prompt 有 architecture style anchor |
 | 英文提示词缺少时间或地域 | 时间地域锚点层 | 从 `research_brief`、`type_profile`、上游清单或项目资料中补 period / region token；无法确认时使用有来源姿态的保守锚点 | prompt evidence chain 固定加入 `period_region_tokens` | final English prompt 同时含时间与地域 |
 | 英文提示词只补前缀后缀，未整合解构主体 | Prompt 整合层 | 回到 `## 4. 解构`，逐项压缩 Scene Design 与 Cinematography 的有效槽位进英文 prompt，并在 `deconstruction_coverage` 说明合并或剔除理由 | 模板和 review gate 固定“整合对象是解构全部有效信息” | final English prompt 可反查到空间、材质、光线、构图和镜头槽位 |
-| 初始化综合消费 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同优先解析 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`，让场景/建筑/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/scene-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `init_team_synthesis_context` 固定在 LLM 场景设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
+| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前场景节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 场景设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 英文提示词超 2000 characters | 输出约束层 | 压缩冗余形容词、合并同义短语、删除过程解释 | 交付前字符计数 | prompt <= 2000 characters |
 | 冷门信息无来源 | 考据可靠性层 | 标注为推断或在许可下网络搜索 | 区分本地资料、常识推断、网络来源 | 冷门信息有来源策略 |
@@ -43,10 +43,10 @@ last_checked_at: 2026-04-25
 
 1. 先确认目标设计稿对应上游清单的哪一行，避免从正文想象新增主体。
 2. 读取 `north_star.yaml` 时优先抓取全局视觉口味、母题、禁区、色彩和风格提示词；不要把它改写成单场景设定。
-3. 读取 `team.yaml` 时只提取设计、建筑、美术、摄影、导演或大师监制视角；没有相关角色时记录为 `未声明`，不要虚构。
+3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."6-设计"` 和 provenance；没有相关初始化综合时记录为 `未声明`，不要从成员名单虚构顾问视角。
 4. 对现实或半现实场景，先确定年代、地域、建筑类型、材质和空间使用方式，再写视觉描述。
 5. 对超现实、梦境、异化或象征空间，仍要建立可制作的空间规则：尺度、边界、材质、光源、动线。
-6. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再让项目监制顾问代入其角色意识、创作风格和专业水准参与该节点判断；不要把顾问请教写成固定字段问卷，也不要只问风格评价。
+6. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再把冻结综合转译为节点级判断、局部 patch 或风险提示；不要补造顾问问答、身份扮演或固定字段问卷。
 7. 先写 `research_questions`，再写答案；没有问题意识的研究段通常会滑向百科摘抄。
 8. 每个关键判断都给出来源姿态：项目资料、用户资料、常识、推断、网络来源或未解不确定性。
 9. 对 `uncertainty_register` 中的高风险项，优先采用非特指化、保守化或可替换视觉方案，不要硬写具体事实。
@@ -64,7 +64,7 @@ last_checked_at: 2026-04-25
 - 场景设计稿是图像和视频生成前的可制作蓝图，不是散文。
 - 好的场景设计应同时回答“它是什么空间”“为什么存在”“如何被拍到”。
 - 建筑风格不是标签堆叠；它要能解释形制、材料、比例和光线。
-- 顾问请教的最佳产物不是固定字段答案或大师名字清单，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
+- 初始化综合消费的最佳产物不是固定字段答案或大师名字清单，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
 - 摄影语言要服务空间，不要把所有场景都写成同一种电影感。
 - 冷门考据宁可标注不确定，也不要把猜测写成事实。
 - 研究的终点不是“知道得更多”，而是“哪些事实能被翻译成稳定可生成的画面”。

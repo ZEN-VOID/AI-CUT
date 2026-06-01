@@ -28,7 +28,7 @@ last_checked_at: 2026-04-25
 | 研究层停留在资料摘录 | 研究转化层 | 按身份、职业、阶层、地域年代、服饰工艺、身体姿态、禁区、不确定性补成 evidence chain | 每个研究点必须写出 design implication 和 prompt phrase | `Prompt Evidence Chain` 可回指研究证据 |
 | prompt 出现无证据文化/制服/身份短语 | prompt evidence 层 | 删除或回到研究层补证据与不确定性 | prompt 关键短语按 `evidence -> design decision -> prompt phrase` 审查 | prompt 中的特定词均可回指研究或项目风格 |
 | 初始化综合消费 输出互相竞争 | 汇流层 | 主 agent 只吸收 patch 和 risk，统一写 canonical 设计稿 | 初始化综合消费 不直接落盘最终稿 | 最终文件只有一个主稿声音 |
-| 初始化综合消费 启用但没有请教项目监制 | 顾问请教层 | 按共享团队顾问合同优先解析 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`，让角色/服装/美术/摄影/导演顾问代入其角色意识、创作风格和专业水准，围绕当前 `steps/character-design-workflow.md` 节点提出判断、局部 patch 或风险提示 | `init_team_synthesis_context` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref` | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示 |
+| 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."6-设计"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前角色节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 脚本生成正文 | LLM-first 层 | 删除生成逻辑，保留字段校验或长度检查 | scripts 分区固定机械辅助边界 | 脚本不输出研究、物语、解构和提示词正文 |
 | 批量定制后只有表格没有关键图 | Skill 2.0 可维护性层 | 在根 `SKILL.md`、`types/`、`review/` 和 README 补 Mermaid 拓扑或门禁图 | 批量生成后人工检查入口拓扑、类型分流和 review 闭环是否可视化 | 关键路径能从图中看见输入、分流、汇流、返工和落盘 |
@@ -37,8 +37,8 @@ last_checked_at: 2026-04-25
 
 1. 先核对角色是否来自 `角色/1-清单`，不要用设计阶段的兴趣新增主体。
 2. 读取 `north_star.yaml` 后先抽象出 3 到 5 条项目风格约束，再进入单角色创作。
-3. 读取 `team.yaml` 时只选择设计相关的大师或部门；每条建议必须能落到造型、服装、摄影或气质。
-4. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再让项目监制顾问代入其角色意识、创作风格和专业水准参与该节点判断；不要把顾问请教写成固定字段问卷，也不要只问风格评价。
+3. 读取 `team.yaml` 时只使用 `init_synthesis.stage_seed_summary."6-设计"` 和 provenance，不从成员名单推导新角色身份；每条采纳必须能落到造型、服装、摄影或气质。
+4. 执行初始化综合消费时，先锁定当前 `node_id / pass_id / gate_id`，再把冻结综合转译为节点级判断、局部 patch 或风险提示；不要补造顾问问答、身份扮演或固定字段问卷。
 5. 单角色设计先写“为什么这个人必须这样长”，再写“具体长什么样”。
 6. 研究考据要服务视觉选择；冷门资料若无法验证，宁可写成“可参考方向”，不要写成事实断言。
 7. 研究层先问“这个证据能改变什么可见设计”，再决定是否进入最终稿。
@@ -53,8 +53,8 @@ last_checked_at: 2026-04-25
 
 - 好的角色设计稿应同时回答叙事压力、可见形象、服装逻辑和镜头呈现，而不只是漂亮描述。
 - `原文描述复述` 是锚点，不是扩写区；扩写必须进入研究、物语或解构。
-- 大师监制上下文的价值在于选择与克制，不在于把所有大师名字都写进稿子。
-- 顾问请教的最佳产物不是固定字段答案或“某大师会怎么想”的长段扮演，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
+- 初始化综合的价值在于选择与克制，不在于把初始化成员或大师名字都写进稿子。
+- 初始化综合消费的最佳产物不是固定字段答案或“某大师会怎么想”的长段扮演，而是能改变当前思维·执行节点判断、取舍、局部 patch 或风险提示的短指令。
 - 英文提示词越接近“可拍摄、可制衣、可执行”的语言，越适合进入后续生成阶段。
 - 主体 ID 是结构锚点，不只是 prompt 前缀；批量修复时优先验证文件名前缀、`## 4. 解构`、`## 5. 提示词设计` 和英文 prompt 开头四处一致。
 - 对主角可以增加心理和符号层次；对群像或功能角色应控制篇幅，强调辨识度和资产复用。

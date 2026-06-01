@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-01 (Init-Only Team Synthesis)
+
+- 将 `2-编导` 的 team 入口收束为只读 `team.yaml.init_synthesis.stage_seed_summary."2-编导"`、`init_handoff.writing_directing_seed` 与 `north_star.yaml.创作阶段不变量.编导`。
+- `init_team_synthesis_context` 仅作为编导、导演、表演内部节点的冻结上下文，不再触发 team 成员身份、旧 stage profile 或新顾问问答。
+- 同步 steps、review、模板和入口合同，使创作阶段不再创建 advisor consultation packet。
+
 ## 2026-05-31 (Motion Handoff Insertion)
 
 - 将 `2-编导` 的直接下游从 `4-摄影` 调整为 `3-运动`，新链路为 `1-分集 -> 2-编导 -> 3-运动 -> 4-摄影`。

@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## 2026-06-01 (First Storyboard Line Continuity Schema)
+
+- 移除 `增补首帧：` 作为输出字段的规则；首帧衔接只作为内部裁决，落盘时直接内化为每组第一个普通 `[0-N秒]` 分镜行。
+- 第二组起仍回看上一组最后分镜的主体、动作、道具、空间关系、光线和已成立状态，但输出不写特殊字段、来源说明或规则说明。
+- validator 将 `增补首帧：` 作为禁用旧字段检查；YAML `字数统计` 改为计入场景标题行、`画面风格：` 和普通分镜正文。
+- 同步 `SKILL.md`、workflow、review、模板、references、README、入口元数据、经验层、类型包、脚本说明与 validator。
+
+## 2026-06-01 (Global Style And Supplemental First Frame Schema)
+
+- 移除新产物中的 `入场镜头：` 与 `出场画面：` 字段机制，旧字段只作为禁用项保留在 validator / review 里。
+- 移除独立 `## A~B` 组间连接件设计；相邻组承接先改由下一组补帧承担，随后在同日新 schema 中收束为第一个普通 `[0-N秒]` 分镜行。
+- 将 north_star 投影改为显式字段 `全局风格：`，固定放在每组的场景标题行下方；字段内三行分别为固定前置词 + 300 字以内当前证据风格整理句、类型元素提示词、细分画面风格。
+- 将 `画面属性：` 改为 `画面风格：`，并固定移动到第一个 `分镜画面：` 上方。
+- 移除新产物中的 `画面构图：` 与左/中/右/前景/中景/背景位置细节字段；validator / review 将其作为禁用残留检查。
+- 新增组内累计时间码规则：分组后原分散 `分镜画面：` 的 `[起始秒-结束秒]` 必须改写为当前分镜组基准下连续递增的 `[N-N秒]`，YAML `时长估算` 取最后结束秒。
+- 当时新增过独立线头帧规则；该规则已在同日后续 schema 中改为首帧衔接内化，不再作为输出字段。
+- 同步 `SKILL.md`、north-star / visual-tone / statistics / boundary references、workflow、review、模板、README、入口元数据、经验层、类型包、脚本说明与 validator。
+
+## 2026-06-01 (Storyboard Block Duration Parsing)
+
+- 将 `时长估算` 解析从所有 `[起始秒-结束秒]` 差值相加，修正为每个 `分镜画面：` 块取最后一个时间段的结束秒作为该画面总时长，组内连续画面块相加。
+- 更新 validator 只统计 `分镜画面：` 块内时间码，避免入场镜头、出场画面、说明字段或其他文本中的时间示例污染组时长；legacy `分镜N（约X秒）` 仍作为旧式时长错误处理。
+- 同步 boundary、statistics、review、workflow、types、template、README、经验层与入口元数据的时长口径。
+
+## 2026-06-01 (Time Range Duration Alignment)
+
+- 将分组边界与 YAML `时长估算` 的主口径从旧 `分镜N（约X秒）` 累计同步为 `分镜画面：` 下 `[起始秒-结束秒]` 时间段。
+- 同步入口合同、boundary/statistics/entry/exit/north-star/review/workflow/type/template/validator 口径；legacy 旧式时长不再计入 canonical 分组时长，validator 会要求回到 `4-摄影` 迁移。
+
+## 2026-06-01 (Init-Only Team Synthesis)
+
+- 接入冻结初始化综合消费：读取 `team.yaml.init_synthesis.stage_seed_summary."5-分组"`、`init_handoff.grouping_seed` 与 `north_star.yaml.创作阶段不变量.分组`，形成 `init_team_synthesis_context`。
+- 明确分组阶段不调用 team 身份、不解析旧 stage profile、不补造创作阶段顾问问答；初始化综合只影响分组节奏、桥接策略和 north star 投影提示。
+- 同步 SKILL、workflow、review、模板、README 和 `agents/openai.yaml`。
+
 ## 2026-06-01
 
 - 恢复组内 `出场画面：` 尾钩字段：每组原正文之后、YAML 之前必须记录本组最后一个原始分镜/末帧/尾帧的主体末态、空间关系、动作余势、镜头/观看位置和承接锚点。
@@ -21,7 +56,7 @@
 - 将构图分区从“至少两个有内容”升级为硬门槛：必须按固定顺序完整输出 `左侧：`、`中间：`、`右侧：`、`前景：`、`中景：`、`背景：` 六字段，且每字段必须展示具体可见主体、环境锚点、遮挡、光影材质或空场压力，不得使用泛化占位句。
 - 同步 `group-entry-shot-contract.md`、`SKILL.md`、workflow、review、模板、入口元数据、经验层、脚本说明与 validator；validator 现在机械检查六字段完整性、固定顺序和明显泛化内容。
 - 将 `north_star` 风格投影升级为当前组风格整理：第 1 行不再完整照抄 `全局风格.全局风格提示词`，而是以全局风格母稿为总体，根据当前分镜组或连接件的场景类型、光影、色彩、材质、动作和摄影证据抽取匹配部分，整理为 300 字以内自然语句。
-- 同步 `references/north-star-projection-contract.md`、`bridge-shot-contract.md`、workflow、review、模板、入口元数据、经验层、类型包、脚本说明与 validator；validator 现在机械检查固定前置词后全局风格整理句不超过 300 字。
+- 同步当时的 projection / bridge / workflow / review / 模板、入口元数据、经验层、类型包、脚本说明与 validator；validator 现在机械检查固定前置词后全局风格整理句不超过 300 字。
 - 进一步升级 `入场镜头：` 为构图分区主体账本：必须在场景/环境身份中包含氛围、光影、色彩，并新增 `画面构图：` 与左/中/右、前景/中景/背景等分区，把主体准确布置在画面结构中。
 - 在 workflow 中新增 `N5E-SUBJECT-EVIDENCE` 取证节点，从 `4-摄影` 的画面、角色动作、镜头设计、分镜明细、对白主体和道具特写建立主体/空间/镜头证据表，再进入入场落盘。
 - 明确 `画面构图：` 是主体站位账本，区别于后续 `画面属性：` 的摄影风格提炼；构图分区不得凭空创造上游没有的位置。

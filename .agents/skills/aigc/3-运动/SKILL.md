@@ -8,7 +8,7 @@ metadata:
 
 # aigc 3-运动
 
-`3-运动` 是 `2-编导` 与 `4-摄影` 之间的运动描写强化阶段。它默认读取 `projects/aigc/<项目名>/2-编导/第N集.md`，也可以读取用户指定的任意小说、剧本或编导稿来源，把每个包含运动属性的画面或角色动作扩写为具备运动主体、起点、路径、终点和参照系的可连续画面描述。
+`3-运动` 是 `2-编导` 与 `4-摄影` 之间的运动描写强化阶段。它默认读取 `projects/aigc/<项目名>/2-编导/第N集.md`，也可以读取用户指定的任意小说、剧本或编导稿来源，把每个包含运动属性的画面或角色动作，在原有 `画面`、`动作`、`表演`、`调度` 等运动承载字段内扩写为具备运动主体、起点、路径、终点和参照系的可连续画面描述。
 
 本阶段只强化人物或角色动作的空间运动和状态迁移；环境描写默认不处理，除非环境变化直接影响人物位置、方向、遮挡、可达路径或动作参照。它不得改写剧情事实、对白、场景顺序、角色关系或上游编导判断。
 
@@ -18,13 +18,14 @@ metadata:
 - 每次调用本技能时，必须同时识别并加载同目录 `types/` 中选中的类型包（单选或多选）。
 - 默认至少读取 `types/type-map.md`、`types/source/upstream-writing-directing.md`、`types/motion/character-action.md` 和 `types/continuity/adjacent-frame-state.md`；用户提供非项目小说或剧本时改读 `types/source/arbitrary-text.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与角色、空间、动作禁区或长期风格直接相关的文件。
+- 若任务绑定 `projects/aigc/<项目名>/`，还必须只读消费初始化冻结综合：`projects/aigc/<项目名>/team.yaml.init_synthesis.stage_seed_summary."3-运动"`、`projects/aigc/<项目名>/0-初始化/init_handoff.yaml.stage_entry_seeds.motion_seed` 与 `north_star.yaml.创作阶段不变量.运动`；不得调用 team 身份、解析旧 stage profile 或补造创作阶段顾问问答。
 - 上游默认真源为 `projects/aigc/<项目名>/2-编导/第N集.md`；用户显式指定任意来源文件时，以用户文件为本轮 source truth，但输出仍必须记录 `source_path`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## LLM-First Creative Authorship Contract
 
 - 运动要素判断、上一画面最终状态推导、当前画面运动路径补全和自然中文扩写必须由 LLM 直接完成。
-- `scripts/` 只能做字段存在、格式、覆盖率、编号、路径和报告完整性的机械检查，不得生成 canonical 运动强化正文。
+- `scripts/` 只能做字段存在、格式、覆盖率、编号、路径和报告完整性的机械检查，不得生成 canonical 运动扩写正文。
 - 若脚本或模板输出看似含有运动描写，只能作为占位或校验样式，必须经 LLM 主创判断、review gate 和本阶段写回门后才可成为 canonical truth。
 
 ## Multi-Subskill Continuous Workflow
@@ -56,6 +57,7 @@ Optional input:
 
 - 项目 `MEMORY.md` 中关于动作风格、节奏、角色行为禁区、真实感和镜头可执行性的长期要求。
 - 项目 `CONTEXT/` 中的场景平面、角色关系、道具可达性、空间方向和世界规则。
+- 初始化冻结综合中的运动阶段种子、动作连续性原则、起点/路径/终点优先级和参照帧规则。
 - 用户给出的特定结构句式、动作颗粒度、武打/追逐/日常/群戏等运动类型偏好。
 
 Reject or clarify when:
@@ -83,11 +85,13 @@ Reject or clarify when:
 | 运动五要素、扩写结构和自然语言落盘 | `references/motion-five-elements-contract.md` |
 | 上一画面最终位置/状态回顾、时间轴推导和连续性 ledger | `references/temporal-continuity-contract.md` |
 | 上游保真、处理范围和任意来源落盘边界 | `references/source-preservation-contract.md` |
+| 反抽象语言、抽象方向/气势/情绪动作的具象运动转译 | `../_shared/anti-abstract-language-contract.md` |
 | 类型画像和固定上下文 | `types/type-map.md` |
 | 验收、修复和 review gate | `review/review-contract.md` |
 | 输出样板 | `templates/output-template.md`、`templates/episode-motion.template.md` |
 | 脚本辅助边界与机械校验 | `scripts/README.md`、`scripts/validate_motion_enrichment.py` |
 | 可复用经验 | `knowledge-base/motion-heuristics.md` |
+| 初始化综合消费边界 | `../_shared/team-advisor-consultation-contract.md` |
 | 运行时行为边界 | `guardrails/guardrails-contract.md` |
 | 产品入口元数据 | `agents/openai.yaml` |
 
@@ -108,11 +112,11 @@ flowchart TD
 
 ## Execution Contract
 
-1. 读取本 `SKILL.md + CONTEXT.md`，按项目任务加载项目 `MEMORY.md` 与相关 `CONTEXT/`，并按 `types/type-map.md` 选择固定类型包。
+1. 读取本 `SKILL.md + CONTEXT.md`，按项目任务加载项目 `MEMORY.md`、相关 `CONTEXT/`、`team.yaml.init_synthesis.stage_seed_summary."3-运动"`、`init_handoff.stage_entry_seeds.motion_seed` 和 `north_star.yaml.创作阶段不变量.运动`，并按 `types/type-map.md` 选择固定类型包；初始化综合只能转成 `init_team_synthesis_context`，不得触发 team 身份调用、旧 stage profile 或新顾问问答。
 2. 锁定 source：默认 `2-编导/第N集.md`，或用户指定任意小说/剧本来源；记录 `source_path`、`source_kind`、目标输出路径和不可改写字段。
 3. 扫描运动候选：只选包含角色动作、位置变化、朝向变化、距离变化、进入/离开、接近/远离、移动中交互或身体状态迁移的画面；环境静态描写默认跳过。
-4. 建立 `motion_state_ledger` 与 `group_reference_profile`：若 source 已有分镜组、组标题或 group_id，按真实组边界选择组内 `primary_reference_frame`；若尚未分组，按场景或连续动作段建立临时 reference cluster，不生成下游分镜编号。每个 motion unit 必须记录 `previous_final_state`、`current_start_inference`、`motion_subject`、`reference_group_id`、`primary_reference_frame`、`reference_frame`、`reference_frame_basis`、`reference_switch_reason`、`start_point`、`path`、`end_point`、`final_state`、`continuity_status` 和 `evidence_anchor`。
-5. 执行 LLM 运动扩写：在不改写原剧情和对白的前提下，为每个命中画面补成自然中文运动句。同一分镜组或连续动作段尽量统一参照系，默认沿用组内 `primary_reference_frame`；局部微动作可使用 `local_reference_frame`，但必须能回接主参照并说明切换理由。默认结构为“在[参考系]XXX处，XXX面向XXX，从XXX沿XXX[动词]到XXX，最后在[参考系]XXX处XXX”，可根据语义改写，但运动主体、起点、路径、终点和参照系不得缺失。
+4. 建立 `motion_state_ledger` 与 `group_reference_profile`：默认按同一场景、连续动作段或相邻 motion units 建立参照簇，选出 `primary_reference_frame`；只有 source 已显式包含分镜组、组标题或 group_id 时，才继承源内真实组边界，不生成或改写下游分镜编号。每个 motion unit 必须记录 `previous_final_state`、`current_start_inference`、`motion_subject`、`reference_group_id`、`primary_reference_frame`、`reference_frame`、`reference_frame_basis`、`reference_switch_reason`、`start_point`、`path`、`end_point`、`final_state`、`continuity_status` 和 `evidence_anchor`。
+5. 执行 LLM 运动扩写：在不改写原剧情和对白的前提下，为每个命中画面的原有运动承载字段原位扩写自然中文运动句；原字段名必须逐字保留，只替换或扩写冒号后的字段值，不得新增、重命名、拆分字段，也不得新增独立 `运动强化：` 字段来重复一个更细的动作。扩写时吸收 `init_team_synthesis_context` 中已裁决的动作连续性、起点/路径/终点和参照帧约束；同时按 `../_shared/anti-abstract-language-contract.md` 将“气势、压迫、靠近感、迟疑、爆发”等抽象动作判断转译为主体、起点、路径、终点、参照系和最终状态。同一场景或连续动作段尽量统一参照系，默认沿用参照簇内 `primary_reference_frame`；局部微动作可使用 `local_reference_frame`，但必须能回接主参照并说明切换理由。默认表达可写成“在[参考系]XXX处，XXX面向XXX，从XXX沿XXX[动词]到XXX，最后在[参考系]XXX处XXX”，但必须嵌回原有 `画面` / `动作` / `表演` / `调度` 等字段值内，且运动主体、起点、路径、终点和参照系不得缺失。
 6. 若上一画面 final_state 与当前 start_point 冲突，先按时间轴和空间可达性推导桥接；仍无法自洽时，标记 `continuity_status: blocked_or_ambiguous`，输出最小澄清或不可用说明，不得胡乱补。
 7. 候选稿先视为 `candidate_motion_enrichment`，按 `review/review-contract.md` 审计；阻断项必须在本阶段直接最小修复并复审。
 8. 复审通过后写入 `3-运动/第N集.md` 或用户指定任意来源输出路径，并生成或更新 `执行报告.md`；报告必须包含 `motion_state_ledger`、`group_reference_profile`、review verdict、repair actions 和下游 `4-摄影` handoff。
@@ -123,7 +127,7 @@ flowchart TD
 
 1. `N4-MOTION-ENRICHMENT` 产物先视为候选稿。
 2. `N5-MOTION-REVIEW` 审计 source 保真、运动候选覆盖、运动五要素、上一画面状态回顾、时间轴推导、连续性、自然而非模板化落盘、证据 ledger 和输出路径。
-3. 若 verdict 为 `needs_rework`，执行 `N5R-MOTION-REPAIR`，只修运动强化句、ledger、报告和证据字段；不得改写上游原文、对白、场景标题、字段顺序或剧情事实。
+3. 若 verdict 为 `needs_rework`，执行 `N5R-MOTION-REPAIR`，只修原有运动承载字段内的扩写文本、ledger、报告和证据字段；不得改写上游对白、场景标题、字段顺序或剧情事实，不得补造独立 `运动强化：` 字段。
 4. 修复后必须复审；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限不可用时输出不可用说明，不得把失败稿推进 `4-摄影`。
 
 ## Runtime Guardrails
@@ -159,7 +163,7 @@ flowchart TD
 1. 输入、路径或项目 runtime 缺失：回到 `Input Contract` 与根 `aigc/SKILL.md`。
 2. 运动候选漏检或误检：回到 `references/source-preservation-contract.md` 和 `N2-MOTION-CANDIDATE-SCAN`。
 3. 运动五要素缺失：回到 `references/motion-five-elements-contract.md` 和 `N4-MOTION-ENRICHMENT`。
-4. 参照系不稳定、同组漂移或最佳参照识别缺证：回到 `references/motion-five-elements-contract.md`、`N3-MOTION-STATE-LEDGER` 和 `N4-MOTION-ENRICHMENT`。
+4. 参照系不稳定、同场景/动作段漂移或最佳参照识别缺证：回到 `references/motion-five-elements-contract.md`、`N3-MOTION-STATE-LEDGER` 和 `N4-MOTION-ENRICHMENT`。
 5. 前后画面位置或状态不连续：回到 `references/temporal-continuity-contract.md` 和 `N3-MOTION-STATE-LEDGER`。
 6. 输出模板、报告证据或下游交接失败：回到 `templates/output-template.md` 与 `review/review-contract.md`。
 7. 可复用经验写回同目录 `CONTEXT.md`，不要写入项目 `MEMORY.md`。
@@ -169,12 +173,14 @@ flowchart TD
 | field_id | output/evidence | requirement | fail_code |
 | --- | --- | --- | --- |
 | `FIELD-MOTION-01` | 输入取证 | source path、项目记忆、目标输出路径明确 | `FAIL-MOTION-INPUT` |
+| `FIELD-MOTION-01A` | 初始化综合消费 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."3-运动"`、`init_handoff.motion_seed` 或 `north_star.yaml.创作阶段不变量.运动`，形成 `init_team_synthesis_context`；未触发 team 身份、旧 stage profile 或伪顾问问答 | `FAIL-MOTION-INIT-SYNTHESIS` |
 | `FIELD-MOTION-02` | 运动候选 | motion unit 只覆盖角色动作或状态迁移，环境静态描写不误入 | `FAIL-MOTION-CANDIDATE` |
 | `FIELD-MOTION-03` | 运动五要素 | 主体、起点、路径、终点、参照系全部落到正文或 ledger | `FAIL-MOTION-ELEMENTS` |
-| `FIELD-MOTION-03A` | 组级参照系 | 同一分镜组或连续动作段有 `group_reference_profile`，参照系尽量统一，切换有理由 | `FAIL-MOTION-REFERENCE-GROUP` |
-| `FIELD-MOTION-03B` | 最佳参照识别 | `reference_frame_basis` 能说明为何最终参照优于候选参照或抽象方向 | `FAIL-MOTION-REFERENCE-SELECTION` |
+| `FIELD-MOTION-03A` | 场景/动作段参照系 | 同一场景或连续动作段有 `group_reference_profile`，参照系尽量统一；仅当输入源显式已有分镜组时继承源内组边界 | `FAIL-MOTION-REFERENCE-GROUP` |
+| `FIELD-MOTION-03B` | 最佳参照识别与反抽象转译 | `reference_frame_basis` 能说明为何最终参照优于候选参照或抽象方向；`anti_abstract_motion_projection` 能说明抽象动作词如何转成可执行运动五要素 | `FAIL-MOTION-REFERENCE-SELECTION` / `FAIL-ANTI-ABSTRACT-MOTION` |
 | `FIELD-MOTION-04` | 时间轴连续 | 每个新画面回顾上一画面 final_state，当前 start 可推导 | `FAIL-MOTION-CONTINUITY` |
 | `FIELD-MOTION-05` | 保真边界 | 未改写剧情、对白、场景顺序、角色关系或摄影字段 | `FAIL-MOTION-SOURCE` |
+| `FIELD-MOTION-05A` | 字段落点 | 原字段名逐字保留，运动五要素只并回原有 `画面`、`动作`、`表演`、`调度` 等运动承载字段值，未新增、重命名、拆分字段，未新增独立 `运动强化：` 字段 | `FAIL-MOTION-FIELD-PLACEMENT` |
 | `FIELD-MOTION-06` | 输出落盘 | `3-运动/第N集.md` 与 `执行报告.md` 可复查 | `FAIL-MOTION-PATH` |
 | `FIELD-MOTION-07` | 下游交接 | 运动强化稿可被 `4-摄影` 消费，且不含分镜越权字段 | `FAIL-MOTION-HANDOFF` |
 
@@ -182,10 +188,10 @@ flowchart TD
 
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
-| `PASS-MOTION-01` | source lock | source、项目上下文 | 本轮吃什么真源、哪些字段不可改 | `source_context_profile` |
+| `PASS-MOTION-01` | source lock | source、项目上下文、初始化综合 | 本轮吃什么真源、哪些字段不可改、初始化运动种子如何转为约束 | `source_context_profile`、`init_team_synthesis_context` |
 | `PASS-MOTION-02` | candidate scan | source 正文 | 哪些画面包含角色运动或状态迁移 | `motion_unit_index` |
-| `PASS-MOTION-03` | state ledger | motion units、上一画面状态、source 组边界 | 当前起点能否从上一终点推导，组内主参照是否稳定可继承 | `motion_state_ledger`、`group_reference_profile` |
-| `PASS-MOTION-04` | enrichment | motion_state_ledger、group_reference_profile | 五要素是否自然进入正文，参照系是否按最佳机制选择并尽量组内统一 | `candidate_motion_enrichment` |
+| `PASS-MOTION-03` | state ledger | motion units、上一画面状态、source 场景/段落边界 | 当前起点能否从上一终点推导，参照簇主参照是否稳定可继承 | `motion_state_ledger`、`group_reference_profile` |
+| `PASS-MOTION-04` | enrichment | motion_state_ledger、group_reference_profile | 五要素是否自然进入正文，参照系是否按最佳机制选择并尽量在同一场景/动作段内统一 | `candidate_motion_enrichment` |
 | `PASS-MOTION-05` | review repair | candidate、review gate | 阻断项是否最小修复并复审通过 | `review_repair_result` |
 | `PASS-MOTION-06` | writeback | final candidate、报告证据 | canonical 路径和下游 handoff 是否成立 | `writeback_result` |
 
@@ -193,17 +199,17 @@ flowchart TD
 
 | pass_id | pass standard | fail code | rework entry |
 | --- | --- | --- | --- |
-| `PASS-MOTION-01` | source 唯一、输出路径明确、不可改字段明确 | `FAIL-MOTION-INPUT` | `Input Contract`、`N1-MOTION-SOURCE-LOCK` |
+| `PASS-MOTION-01` | source 唯一、输出路径明确、不可改字段明确；初始化综合存在时已只读消费且未触发 team 身份或旧 stage profile | `FAIL-MOTION-INPUT` / `FAIL-MOTION-INIT-SYNTHESIS` | `Input Contract`、`N1-MOTION-SOURCE-LOCK` |
 | `PASS-MOTION-02` | motion units 覆盖所有角色动作，不误收静态环境 | `FAIL-MOTION-CANDIDATE` | `references/source-preservation-contract.md` |
 | `PASS-MOTION-03` | 每个 unit 有上一终点回顾和当前起点推导 | `FAIL-MOTION-CONTINUITY` | `references/temporal-continuity-contract.md` |
-| `PASS-MOTION-04` | 运动主体、起点、路径、终点、参照系齐全自然；同组参照尽量统一且选择依据可复查 | `FAIL-MOTION-ELEMENTS` / `FAIL-MOTION-REFERENCE-GROUP` / `FAIL-MOTION-REFERENCE-SELECTION` | `references/motion-five-elements-contract.md` |
+| `PASS-MOTION-04` | 运动主体、起点、路径、终点、参照系齐全自然；同一场景/动作段参照尽量统一且选择依据可复查；扩写只替换或扩写原有运动承载字段值，字段名不变 | `FAIL-MOTION-ELEMENTS` / `FAIL-MOTION-REFERENCE-GROUP` / `FAIL-MOTION-REFERENCE-SELECTION` / `FAIL-MOTION-FIELD-PLACEMENT` | `references/motion-five-elements-contract.md` |
 | `PASS-MOTION-05` | review verdict 为 pass 或阻断项已直接修复 | `FAIL-MOTION-REVIEW` | `review/review-contract.md` |
 | `PASS-MOTION-06` | 输出与报告落盘，并能交给 `4-摄影` | `FAIL-MOTION-PATH` | `Output Contract` |
 
 ## Output Contract
 
 - Required output: 逐集运动强化稿写入 `projects/aigc/<项目名>/3-运动/第N集.md`；阶段执行报告写入或更新 `projects/aigc/<项目名>/3-运动/执行报告.md`。任意来源模式写入用户指定路径，或 `<source_dir>/3-运动/<source_stem>-运动强化.md` 和同目录 `执行报告.md`。
-- Output format: Markdown 运动强化稿 + Markdown 执行报告；运动强化稿保留 source frontmatter、场景顺序、对白和原文结构，并在命中画面就近新增或改写 `运动强化：` 段落。
+- Output format: Markdown 运动强化稿 + Markdown 执行报告；运动强化稿保留 source frontmatter、场景顺序、对白、字段名和原文结构，并在命中画面的原有运动承载字段值内扩写，不新增、重命名或拆分字段，不新增独立 `运动强化：` 段落。
 - Output path: 项目模式固定为 `projects/aigc/<项目名>/3-运动/第N集.md` 与 `projects/aigc/<项目名>/3-运动/执行报告.md`；任意来源模式按用户指定或 source 相邻 `3-运动/` 目录。
 - Naming convention: 逐集稿命名为 `第N集.md`；报告命名为 `执行报告.md`；任意来源默认命名为 `<source_stem>-运动强化.md`。
-- Completion gate: 已加载本 `SKILL.md + CONTEXT.md` 和命中类型包；每个 motion unit 均有 `motion_state_ledger`；已按分镜组或连续动作段建立 `group_reference_profile`，同组参照系尽量统一且切换有理由；每条 `运动强化：` 能读出运动主体、起点、路径、终点和参照系；每次落盘新画面前已回顾上一画面的最终位置或状态；未改写剧情事实、对白和场景顺序；不含机位、景别、运镜、分镜编号、图像 prompt 或视频请求；review 阻断项已修复并复审通过。
+- Completion gate: 已加载本 `SKILL.md + CONTEXT.md` 和命中类型包；项目任务中已只读消费初始化运动综合并形成 `init_team_synthesis_context` 或明确记录缺失；每个 motion unit 均有 `motion_state_ledger`；已按同一场景或连续动作段建立 `group_reference_profile`，参照系尽量统一且切换有理由；已按 `../_shared/anti-abstract-language-contract.md` 清理抽象动作、气势、情绪方向和关系压力词，并在必要时记录 `anti_abstract_motion_projection`；仅在输入源显式已有分镜组时继承源内组边界，不生成下游分镜编号；每个被扩写的原有运动字段或动作句能读出运动主体、起点、路径、终点和参照系；每次落盘新画面前已回顾上一画面的最终位置或状态；未改写剧情事实、对白和场景顺序；未新增独立 `运动强化：` 字段；不含机位、景别、运镜、分镜编号、图像 prompt 或视频请求；未触发 team 身份、旧 stage profile 或伪顾问问答；review 阻断项已修复并复审通过。

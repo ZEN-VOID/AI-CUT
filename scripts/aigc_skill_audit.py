@@ -350,6 +350,33 @@ REQUIRED_ROUTE_POLICIES = {
 REQUIRED_STAGE_AGENT_DOCS = {
 }
 AGENT_REFERENCE_PATTERN = re.compile(r"\.codex/agents/aigc/[^\s`)\]>\"']+\.md")
+INIT_ONLY_TEAM_STAGE_MARKERS = {
+    "2-编导": (
+        'team.yaml.init_synthesis.stage_seed_summary."2-编导"',
+        "init_team_synthesis_context",
+    ),
+    "3-运动": (
+        'team.yaml.init_synthesis.stage_seed_summary."3-运动"',
+        "init_team_synthesis_context",
+    ),
+    "4-摄影": (
+        'team.yaml.init_synthesis.stage_seed_summary."4-摄影"',
+        "init_team_synthesis_context",
+    ),
+    "5-分组": (
+        'team.yaml.init_synthesis.stage_seed_summary."5-分组"',
+        "init_team_synthesis_context",
+    ),
+    "6-设计": (
+        'team.yaml.init_synthesis.stage_seed_summary."6-设计"',
+        "init_team_synthesis_context",
+    ),
+}
+INIT_ONLY_TEAM_LEAF_MARKERS = {
+    ROOT / "6-设计" / "角色" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."6-设计"',
+    ROOT / "6-设计" / "道具" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."6-设计"',
+    ROOT / "6-设计" / "场景" / "2-设计" / "SKILL.md": 'team.yaml.init_synthesis.stage_seed_summary."6-设计"',
+}
 BOOTSTRAP_COMPAT_MODE = "bootstrap_compat"
 BOOTSTRAP_COMPAT_ROUTE_POLICIES = {
     "aigc-bootstrap-compat-mode",
@@ -363,15 +390,6 @@ BOOTSTRAP_COMPAT_STAGE_CHILD_SKILLS = {
         ROOT / "5-Image" / "1-提示词蒸馏" / "分镜帧" / "SKILL.md",
         ROOT / "5-Image" / "2-参照引用" / "SKILL.md",
         ROOT / "5-Image" / "3-图像生成" / "SKILL.md",
-    ),
-    ROOT / "8-视频": (
-        ROOT / "8-视频" / "libTV画布流" / "SKILL.md",
-    ),
-    ROOT / "backup": (
-        ROOT / "backup" / "A-分镜画面参照" / "SKILL.md",
-        ROOT / "backup" / "B-分镜故事板参照" / "SKILL.md",
-        ROOT / "backup" / "C-主体参照" / "SKILL.md",
-        ROOT / "backup" / "D-主板混合参照" / "SKILL.md",
     ),
 }
 LLM_FIRST_CREATIVE_SECTION = "## LLM-First Creative Authorship Contract"
@@ -406,17 +424,8 @@ BOOTSTRAP_COMPAT_RUNTIME_EXPECTATIONS = {
         ".agents/skills/aigc/5-Image/B.分镜故事板",
         "projects/aigc/<项目名>/5-Image/A-分镜帧/",
         "projects/aigc/<项目名>/5-Image/B-分镜故事板/",
-        ".agents/skills/aigc/8-视频/libTV画布流",
-        ".agents/skills/aigc/backup/A-分镜画面参照",
-        ".agents/skills/aigc/backup/B-分镜故事板参照",
-        ".agents/skills/aigc/backup/C-主体参照",
-        ".agents/skills/aigc/backup/D-主板混合参照",
         "projects/aigc/<项目名>/8-视频/libTV画布流/",
         ".agents/skills/aigc/9-审片",
-        "projects/aigc/<项目名>/8-视频/A-分镜画面参照/",
-        "projects/aigc/<项目名>/8-视频/B-分镜故事板参照/",
-        "projects/aigc/<项目名>/8-视频/C-主体参照/",
-        "projects/aigc/<项目名>/8-视频/D-主板混合参照/",
         "projects/aigc/<项目名>/9-审片/",
     ),
     ROOT / "0-初始化" / "SKILL.md": (
@@ -1484,6 +1493,97 @@ def audit_stage_advisor_review_contracts(stage_index: list[dict], contract_mode:
                     failures.append(f"{path}: references missing agent contract `{raw_ref}`")
 
 
+def audit_init_only_team_runtime_contracts(stage_index: list[dict], failures: list[str]) -> None:
+    """Ensure team role identities are initialization-only and later stages read frozen synthesis."""
+    team_template = ROOT / "_shared" / "council-runtime" / "team.template.yaml"
+    if team_template.exists():
+        content = team_template.read_text(encoding="utf-8")
+        required_markers = (
+            'schema_version: "aigc-team/v2"',
+            'team_identity_usage: "init_only"',
+            "creative_stage_persona_dispatch_allowed: false",
+            "creative_stage_reads_init_synthesis_only: true",
+            "creative_stage_subagent_persona_presets_allowed: false",
+            "deprecated_stage_runtime_fields_active: false",
+            "init_synthesis:",
+            "stage_seed_summary:",
+            '"1-分集":',
+            '"2-编导":',
+            '"3-运动":',
+            '"4-摄影":',
+            '"5-分组":',
+            '"6-设计":',
+        )
+        for marker in required_markers:
+            if marker not in content:
+                failures.append(f"{team_template}: missing init-only team marker `{marker}`")
+
+    north_star_template = ROOT / "0-初始化" / "templates" / "north-star.template.yaml"
+    if north_star_template.exists():
+        content = north_star_template.read_text(encoding="utf-8")
+        for marker in ("创作阶段不变量", "编导:", "运动:", "摄影:", "分组:", "设计:"):
+            if marker not in content:
+                failures.append(f"{north_star_template}: missing north-star creative-stage invariant `{marker}`")
+
+    init_handoff_template = ROOT / "0-初始化" / "templates" / "init-handoff.template.yaml"
+    if init_handoff_template.exists():
+        content = init_handoff_template.read_text(encoding="utf-8")
+        for marker in (
+            "stage_entry_seeds:",
+            "writing_directing_seed:",
+            "motion_seed:",
+            "cinematography_seed:",
+            "grouping_seed:",
+            "design_seed:",
+        ):
+            if marker not in content:
+                failures.append(f"{init_handoff_template}: missing init handoff stage seed `{marker}`")
+
+    shared_contract = ROOT / "_shared" / "team-advisor-consultation-contract.md"
+    if shared_contract.exists():
+        content = shared_contract.read_text(encoding="utf-8")
+        for marker in (
+            "创作阶段不得调用 team 成员身份技能",
+            "init_team_synthesis_context",
+            "team.yaml.init_synthesis.stage_seed_summary.<stage>",
+        ):
+            if marker not in content:
+                failures.append(f"{shared_contract}: missing init-only consumption marker `{marker}`")
+
+    active_stage_roots = {
+        Path(stage["path"]).name: Path(stage["path"])
+        for stage in stage_index
+        if stage.get("contract_status") == "active"
+    }
+    for stage_name, markers in INIT_ONLY_TEAM_STAGE_MARKERS.items():
+        stage_root = active_stage_roots.get(stage_name, ROOT / stage_name)
+        skill_path = stage_root / "SKILL.md"
+        if not skill_path.exists():
+            failures.append(f"{skill_path}: missing active creative stage SKILL.md")
+            continue
+        content = skill_path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in content:
+                failures.append(f"{skill_path}: missing frozen init synthesis consumption marker `{marker}`")
+        if "advisor_consultation_packet" in content:
+            failures.append(f"{skill_path}: must not use active creative-stage advisor consultation packets")
+        if "roles.supervision.stage_profiles" in content:
+            failures.append(f"{skill_path}: must not read old `roles.supervision.stage_profiles` as active runtime")
+
+    for leaf_skill, marker in INIT_ONLY_TEAM_LEAF_MARKERS.items():
+        if not leaf_skill.exists():
+            failures.append(f"{leaf_skill}: missing design leaf SKILL.md")
+            continue
+        content = leaf_skill.read_text(encoding="utf-8")
+        for required in (marker, "init_team_synthesis_context"):
+            if required not in content:
+                failures.append(f"{leaf_skill}: missing design leaf init synthesis marker `{required}`")
+        if "advisor_consultation_packet" in content:
+            failures.append(f"{leaf_skill}: must not use active creative-stage advisor consultation packets")
+        if "roles.supervision.stage_profiles" in content:
+            failures.append(f"{leaf_skill}: must not read old `roles.supervision.stage_profiles` as active runtime")
+
+
 def audit_stage_index(stage_index: list[dict], contract_mode: str, failures: list[str]) -> None:
     root_content = ROOT_SKILL.read_text(encoding="utf-8") if ROOT_SKILL.exists() else ""
     for stage in stage_index:
@@ -1631,6 +1731,7 @@ def main() -> int:
     audit_review_runtime_contracts(failures)
     audit_writing_directing_reference_integrity(failures)
     audit_init_single_skill_contract(failures)
+    audit_init_only_team_runtime_contracts(stage_index, failures)
     audit_episode_split_skill_contract(failures)
     audit_global_single_skill_contract(failures)
     audit_detail_single_skill_contract(failures)

@@ -1,6 +1,6 @@
 # 道具 2-设计
 
-`$aigc-prop-design` 将上游 `6-设计/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `0-初始化/north_star.yaml` 与 `team.yaml` 中的全局风格和设计相关大师监制上下文。
+`$aigc-prop-design` 将上游 `6-设计/道具/1-清单/道具清单.md` 扩展为每个道具主体一个细目设计 Markdown，并结合 `0-初始化/north_star.yaml` 与 `team.yaml.init_synthesis` 中的全局风格、设计约束、启发和风险。
 
 ## Directory Tree
 
@@ -34,11 +34,11 @@
 ## Quick Entry
 
 1. 读取 `SKILL.md + CONTEXT.md`。
-2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`north_star.yaml`、`team.yaml`。
+2. 读取项目 `MEMORY.md`、相关 `CONTEXT/`、`1-清单/道具清单.md`、`north_star.yaml`、`team.yaml.init_synthesis`。
 3. 按单道具主体执行 `steps/prop-design-workflow.md`。
 4. 将研究转成 `source cue -> confidence -> visual translation -> design lock -> prompt evidence token`。
 5. 使用 `templates/output-template.md` 输出到 `projects/aigc/<项目名>/6-设计/道具/2-设计/PROP-###-<安全文件名>.md`。
-6. 按 `review/review-contract.md` 执行初始化综合消费 reviewer 或本地 review。
+6. 按 `review/review-contract.md` 执行初始化综合消费检查或本地 review；不得调用 team 身份或旧 stage profile。
 
 ## Visual Entry Points
 

@@ -1,24 +1,35 @@
 #!/usr/bin/env python3
-"""Mechanical checks for 4-摄影 cinematography markup.
+"""Mechanical checks for 4-摄影 integrated storyboard-picture markup.
 
-This script validates coverage, explicit duration markers, numbering,
-coarse shot-count distribution signals, source-text preservation,
-frontmatter presence, short-drama AIGC duration range hints, abstract term
-detection, and empty block detection. It does not generate shot details or
-decide creative beats.
+The script validates the new canonical output shape:
+
+    角色动作：
+    [0-2秒] ...
+    [2-3秒] ...
+
+It checks coverage, continuous time ranges, coarse segment-count
+distribution, non-visual source preservation, frontmatter presence,
+duration range hints, psychological/cognitive-reaction visual coverage,
+abstract term detection, and empty block detection.
+It does not generate storyboard prose or decide creative beats.
 """
 
 from __future__ import annotations
 
 import argparse
 import re
-import sys
 from pathlib import Path
 
 
-VISUAL_LABEL_RE = re.compile(r"^(?!分镜明细)([^：\n]*(画面|动作|表演|描写|特写|显影)[^：\n]*)：")
-SHOT_RE = re.compile(r"^分镜(\d+)（约((?:0\.5)|(?:[1-9]\d?(?:\.\d+)?))秒）[:：]")
-TWO_SHOT_WARNING_THRESHOLD = 0.8
+VISUAL_LABEL_RE = re.compile(
+    r"^(?!分镜画面)(?!分镜明细)"
+    r"([^：\n]*(画面|动作|表演|心理反应|心理变化|情绪反应|思考反应|角色思考|认知变化|意识变化|内心反应|内心活动|描写|特写|显影|角色造型|场面调度|转场)[^：\n]*)："
+)
+STORYBOARD_FIELD = "分镜画面："
+LEGACY_DETAIL_FIELD = "分镜明细："
+TIME_RANGE_RE = re.compile(r"^\[(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)秒\]\s*(.+)")
+LEGACY_SHOT_RE = re.compile(r"^分镜\d+（约.+?秒）[:：]")
+TWO_SEGMENT_WARNING_THRESHOLD = 0.8
 MIN_BLOCKS_FOR_DISTRIBUTION_WARNING = 10
 
 FRONTMATTER_REQUIRED_FIELDS = [
@@ -32,10 +43,10 @@ ABSTRACT_TERMS_RE = re.compile(
 )
 
 BODY_MARKER = "【剧本正文】"
+EPSILON = 1e-6
 
 
 def parse_frontmatter(lines: list[str]) -> tuple[dict[str, str], list[str]]:
-    """Extract simple key-value frontmatter fields."""
     findings: list[str] = []
     data: dict[str, str] = {}
     if not lines or lines[0].strip() != "---":
@@ -47,7 +58,6 @@ def parse_frontmatter(lines: list[str]) -> tuple[dict[str, str], list[str]]:
         if lines[i].strip() == "---":
             close_index = i
             break
-
     if close_index == -1:
         findings.append("[ERROR] Frontmatter not closed with '---'.")
         return data, findings
@@ -61,7 +71,6 @@ def parse_frontmatter(lines: list[str]) -> tuple[dict[str, str], list[str]]:
 
 
 def validate_frontmatter(lines: list[str]) -> list[str]:
-    """Check that required frontmatter fields are present."""
     findings: list[str] = []
     frontmatter, fm_findings = parse_frontmatter(lines)
     findings.extend(fm_findings)
@@ -77,8 +86,7 @@ def validate_frontmatter(lines: list[str]) -> list[str]:
                 continue
         elif field in frontmatter_text:
             continue
-        else:
-            findings.append(f"[ERROR] Frontmatter missing required field: {field}")
+        findings.append(f"[ERROR] Frontmatter missing required field: {field}")
 
     if (
         "source_motion_path" not in frontmatter
@@ -88,12 +96,10 @@ def validate_frontmatter(lines: list[str]) -> list[str]:
         findings.append(
             "[ERROR] Frontmatter missing source field: source_motion_path or source_writing_directing_path"
         )
-
     return findings
 
 
 def body_lines(lines: list[str]) -> list[str]:
-    """Return lines after the canonical screenplay body marker."""
     try:
         body_start = lines.index(BODY_MARKER)
     except ValueError:
@@ -101,95 +107,115 @@ def body_lines(lines: list[str]) -> list[str]:
     return lines[body_start:]
 
 
-def normalized_source_lines(lines: list[str]) -> list[str]:
-    """Normalize source body lines for preservation comparison."""
-    return [line.rstrip() for line in body_lines(lines) if line.strip()]
+def normalized_source_non_visual_lines(lines: list[str]) -> list[str]:
+    result: list[str] = []
+    for line in body_lines(lines):
+        if not line.strip():
+            continue
+        if VISUAL_LABEL_RE.match(line):
+            continue
+        result.append(line.rstrip())
+    return result
 
 
-def normalized_output_source_lines(lines: list[str]) -> list[str]:
-    """Remove injected 分镜明细 blocks and normalize remaining source body lines."""
+def normalized_output_non_storyboard_lines(lines: list[str]) -> list[str]:
     result: list[str] = []
     body = body_lines(lines)
     index = 0
     while index < len(body):
         line = body[index]
-        if line.strip() == "分镜明细：":
+        stripped = line.strip()
+        if stripped == STORYBOARD_FIELD:
             index += 1
             while index < len(body):
-                candidate = body[index]
-                if not candidate.strip() or candidate.startswith("分镜"):
+                current = body[index].strip()
+                if not current or TIME_RANGE_RE.match(current):
                     index += 1
                     continue
                 break
             continue
-        if line.strip():
+        if VISUAL_LABEL_RE.match(stripped):
+            index += 1
+            while index < len(body):
+                current = body[index].strip()
+                if not current or TIME_RANGE_RE.match(current):
+                    index += 1
+                    continue
+                break
+            continue
+        if stripped and stripped != LEGACY_DETAIL_FIELD:
             result.append(line.rstrip())
         index += 1
     return result
 
 
+def count_source_visual_units(lines: list[str]) -> int:
+    return sum(1 for line in body_lines(lines) if VISUAL_LABEL_RE.match(line))
+
+
 def validate_source_preservation(
     output_lines: list[str], source_path: Path
-) -> tuple[bool, list[str]]:
-    """Ensure output preserves the source performance body after removing injections."""
+) -> tuple[bool, list[str], int | None]:
     findings: list[str] = []
     if not source_path.is_file():
-        return False, [f"[ERROR] Source performance file not found: {source_path}"]
+        return False, [f"[ERROR] Source performance file not found: {source_path}"], None
 
     source_lines = source_path.read_text(encoding="utf-8").splitlines()
-    source_body = normalized_source_lines(source_lines)
-    output_body = normalized_output_source_lines(output_lines)
+    source_non_visual = normalized_source_non_visual_lines(source_lines)
+    output_non_storyboard = normalized_output_non_storyboard_lines(output_lines)
+    source_visual_count = count_source_visual_units(source_lines)
 
-    if source_body == output_body:
-        return True, ["[OK] Source body preservation check passed."]
+    if source_non_visual == output_non_storyboard:
+        return True, ["[OK] Non-visual source preservation check passed."], source_visual_count
 
     first_diff = 0
-    max_common = min(len(source_body), len(output_body))
-    while first_diff < max_common and source_body[first_diff] == output_body[first_diff]:
+    max_common = min(len(source_non_visual), len(output_non_storyboard))
+    while (
+        first_diff < max_common
+        and source_non_visual[first_diff] == output_non_storyboard[first_diff]
+    ):
         first_diff += 1
 
     findings.append(
-        "[ERROR] Source body preservation check failed after removing 分镜明细 blocks."
+        "[ERROR] Non-visual source preservation check failed after removing visual-field storyboard time ranges."
     )
     findings.append(
-        f"[INFO] source_body_lines={len(source_body)} output_body_lines={len(output_body)}"
+        f"[INFO] source_non_visual_lines={len(source_non_visual)} "
+        f"output_non_storyboard_lines={len(output_non_storyboard)}"
     )
-    if first_diff < len(source_body):
+    if first_diff < len(source_non_visual):
         findings.append(
             f"[INFO] first_source_mismatch_line={first_diff + 1}: "
-            f"{source_body[first_diff][:100]}"
+            f"{source_non_visual[first_diff][:100]}"
         )
-    if first_diff < len(output_body):
+    if first_diff < len(output_non_storyboard):
         findings.append(
             f"[INFO] first_output_mismatch_line={first_diff + 1}: "
-            f"{output_body[first_diff][:100]}"
+            f"{output_non_storyboard[first_diff][:100]}"
         )
-    return False, findings
+    return False, findings, source_visual_count
 
 
 def validate(
     path: Path,
     *,
-    strict_shot_distribution: bool = False,
+    strict_segment_distribution: bool = False,
     source_writing_directing_path: Path | None = None,
     skip_source_preservation: bool = False,
 ) -> tuple[bool, list[str]]:
     lines = path.read_text(encoding="utf-8").splitlines()
     findings: list[str] = []
     ok = True
-    visual_count = 0
-    detail_count = 0
-    shot_count_distribution: dict[int, int] = {}
+    storyboard_count = 0
+    segment_count_distribution: dict[int, int] = {}
+    source_visual_count: int | None = None
 
-    # --- Frontmatter check ---
     fm_findings = validate_frontmatter(lines)
-    if fm_findings:
-        for f in fm_findings:
-            findings.append(f)
-            if "[ERROR]" in f:
-                ok = False
+    for finding in fm_findings:
+        findings.append(finding)
+        if "[ERROR]" in finding:
+            ok = False
 
-    # --- Source preservation check ---
     if not skip_source_preservation:
         frontmatter, _ = parse_frontmatter(lines)
         resolved_source = source_writing_directing_path
@@ -202,7 +228,9 @@ def validate(
         if resolved_source is not None:
             if not resolved_source.is_absolute():
                 resolved_source = Path.cwd() / resolved_source
-            source_ok, source_findings = validate_source_preservation(lines, resolved_source)
+            source_ok, source_findings, source_visual_count = validate_source_preservation(
+                lines, resolved_source
+            )
             findings.extend(source_findings)
             if not source_ok:
                 ok = False
@@ -211,155 +239,155 @@ def validate(
                 "[WARN] Source preservation check skipped; no source_motion_path or source_writing_directing_path found."
             )
 
-    # --- Line-by-line scan ---
     index = 0
     while index < len(lines):
-        line = lines[index]
-        if not VISUAL_LABEL_RE.match(line):
-            index += 1
-            continue
-
-        visual_count += 1
-        next_index = index + 1
-        while next_index < len(lines) and lines[next_index] == "":
-            next_index += 1
-
-        if next_index >= len(lines) or lines[next_index].strip() != "分镜明细：":
-            findings.append(f"[ERROR] Missing 分镜明细 after line {index + 1}: {line[:80]}")
+        stripped = lines[index].strip()
+        if stripped == LEGACY_DETAIL_FIELD or LEGACY_SHOT_RE.match(stripped):
+            findings.append(
+                f"[ERROR] Legacy shot-detail markup at line {index + 1}; expected original visual field title with [N-N秒] ranges."
+            )
             ok = False
             index += 1
             continue
+        if stripped == STORYBOARD_FIELD:
+            findings.append(
+                f"[ERROR] Standalone 分镜画面 field at line {index + 1}; expected the original visual field title to carry [N-N秒] ranges."
+            )
+            ok = False
+            index += 1
+            continue
+        if not VISUAL_LABEL_RE.match(stripped):
+            index += 1
+            continue
 
-        detail_count += 1
-        shot_numbers: list[int] = []
-        cursor = next_index + 1
+        storyboard_count += 1
+        if "：" in stripped and stripped.split("：", 1)[1].strip():
+            findings.append(
+                f"[ERROR] Visual field line {index + 1} must keep only the original title; put storyboard prose in [N-N秒] lines below."
+            )
+            ok = False
+        cursor = index + 1
+        ranges: list[tuple[float, float]] = []
         while cursor < len(lines):
-            current = lines[cursor]
-            if current == "":
+            current = lines[cursor].strip()
+            if not current:
                 cursor += 1
                 continue
-            if current.startswith("分镜"):
-                match = SHOT_RE.match(current)
-                if not match:
-                    findings.append(
-                        f"[ERROR] Invalid shot marker at line {cursor + 1}; "
-                        f"expected 分镜N（约X秒）: {current[:80]}"
-                    )
-                    ok = False
-                    break
-                shot_numbers.append(int(match.group(1)))
+            match = TIME_RANGE_RE.match(current)
+            if not match:
+                break
 
-                # --- Duration range check ---
-                seconds = float(match.group(2))
-                if seconds < 1.0:
-                    findings.append(
-                        f"[WARN] Duration {seconds}s at line {cursor + 1}; "
-                        f"verify this is a deliberate flash-cut or instant reaction."
-                    )
-                elif seconds > 5.0:
-                    findings.append(
-                        f"[WARN] Duration {seconds}s at line {cursor + 1}; "
-                        f"verify this is a strong exception with dialogue, long blocking, or a major cognitive peak."
-                    )
-                elif seconds > 3.0:
-                    findings.append(
-                        f"[WARN] Duration {seconds}s at line {cursor + 1}; "
-                        f"verify short-drama AIGC necessity (dialogue/readability/performance/blocking/peak evidence)."
-                    )
+            start = float(match.group(1))
+            end = float(match.group(2))
+            content = match.group(3)
+            if end <= start:
+                findings.append(
+                    f"[ERROR] Invalid non-increasing time range at line {cursor + 1}: {current[:80]}"
+                )
+                ok = False
+            if not ranges and abs(start) > EPSILON:
+                findings.append(
+                    f"[ERROR] First time range after line {index + 1} must start at 0秒."
+                )
+                ok = False
+            if ranges and abs(start - ranges[-1][1]) > EPSILON:
+                findings.append(
+                    f"[ERROR] Non-continuous time range at line {cursor + 1}; "
+                    f"expected start {ranges[-1][1]:g}秒, got {start:g}秒."
+                )
+                ok = False
 
-                # --- Abstract term check ---
-                shot_content = current
-                if ABSTRACT_TERMS_RE.search(shot_content):
-                    term_match = ABSTRACT_TERMS_RE.search(shot_content)
-                    if term_match:
-                        findings.append(
-                            f"[WARN] Abstract term \"{term_match.group()}\" at line {cursor + 1} "
-                            f"in 分镜明细 block; verify translated to visible camera/visual language."
-                        )
+            duration = end - start
+            if duration < 1.0:
+                findings.append(
+                    f"[WARN] Duration {duration:g}s at line {cursor + 1}; verify deliberate flash-cut or instant reaction."
+                )
+            elif duration > 5.0:
+                findings.append(
+                    f"[WARN] Duration {duration:g}s at line {cursor + 1}; verify strong exception with dialogue, long blocking, or major cognitive peak."
+                )
+            elif duration > 3.0:
+                findings.append(
+                    f"[WARN] Duration {duration:g}s at line {cursor + 1}; verify short-drama AIGC necessity."
+                )
 
-                cursor += 1
-                continue
-            break
+            term_match = ABSTRACT_TERMS_RE.search(content)
+            if term_match:
+                findings.append(
+                    f"[WARN] Abstract term \"{term_match.group()}\" at line {cursor + 1}; "
+                    "verify translated to visible camera/visual language."
+                )
 
-        # --- Empty block check ---
-        if not shot_numbers and detail_count > 0:
+            ranges.append((start, end))
+            cursor += 1
+
+        if not ranges:
             findings.append(
-                f"[ERROR] Empty 分镜明细 block at line {next_index + 1} (no 分镜N entries)."
+                f"[ERROR] Empty visual field storyboard block at line {index + 1} (no [起始秒-结束秒] entries)."
             )
             ok = False
-
-        expected = list(range(1, len(shot_numbers) + 1))
-        if shot_numbers and shot_numbers != expected:
-            findings.append(
-                f"[ERROR] Non-continuous shot numbers after line {next_index + 1}: {shot_numbers}"
-            )
-            ok = False
-        elif shot_numbers:
-            shot_count_distribution[len(shot_numbers)] = (
-                shot_count_distribution.get(len(shot_numbers), 0) + 1
+        else:
+            segment_count_distribution[len(ranges)] = (
+                segment_count_distribution.get(len(ranges), 0) + 1
             )
         index = max(cursor, index + 1)
 
-    findings.append(f"[INFO] visual_units={visual_count} shot_detail_blocks={detail_count}")
-    if shot_count_distribution:
-        distribution_text = ", ".join(
-            f"{shot_count}:{count}" for shot_count, count in sorted(shot_count_distribution.items())
+    if source_visual_count is not None and source_visual_count != storyboard_count:
+        findings.append(
+            f"[ERROR] Source visual unit count ({source_visual_count}) does not match output visual field storyboard blocks ({storyboard_count})."
         )
-        findings.append(f"[INFO] shot_count_distribution={distribution_text}")
+        ok = False
 
-        two_shot_blocks = shot_count_distribution.get(2, 0)
-        total_blocks = sum(shot_count_distribution.values())
-        two_shot_ratio = two_shot_blocks / total_blocks if total_blocks else 0
+    findings.append(f"[INFO] visual_field_storyboard_blocks={storyboard_count}")
+    if segment_count_distribution:
+        distribution_text = ", ".join(
+            f"{segment_count}:{count}"
+            for segment_count, count in sorted(segment_count_distribution.items())
+        )
+        findings.append(f"[INFO] segment_count_distribution={distribution_text}")
+
+        two_segment_blocks = segment_count_distribution.get(2, 0)
+        total_blocks = sum(segment_count_distribution.values())
+        two_segment_ratio = two_segment_blocks / total_blocks if total_blocks else 0
         if (
             total_blocks >= MIN_BLOCKS_FOR_DISTRIBUTION_WARNING
-            and two_shot_ratio >= TWO_SHOT_WARNING_THRESHOLD
+            and two_segment_ratio >= TWO_SEGMENT_WARNING_THRESHOLD
         ):
-            severity = "ERROR" if strict_shot_distribution else "WARN"
-            message = (
-                f"[{severity}] Two-shot blocks are highly concentrated "
-                f"({two_shot_blocks}/{total_blocks}, {two_shot_ratio:.1%}). "
-                "Review beat_map/rhythm_profile/sequence_density_curve/shot_count_decision; "
-                "分镜2 must not be a template default, but fast-platform rhythm can allow "
-                "dense cuts when each shot has a trigger or viewing result."
+            severity = "ERROR" if strict_segment_distribution else "WARN"
+            findings.append(
+                f"[{severity}] Two-segment blocks are highly concentrated "
+                f"({two_segment_blocks}/{total_blocks}, {two_segment_ratio:.1%}). "
+                "Review beat_map/rhythm_profile/sequence_density_curve/shot_count_decision."
             )
-            findings.append(message)
-            if strict_shot_distribution:
+            if strict_segment_distribution:
                 ok = False
+
     if ok:
-        findings.append("[OK] Cinematography markup is mechanically valid.")
+        findings.append("[OK] Cinematography visual-field storyboard markup is mechanically valid.")
     return ok, findings
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate 4-摄影 markup.")
+    parser = argparse.ArgumentParser(description="Validate 4-摄影 integrated storyboard-picture markup.")
     parser.add_argument("episode_file", help="Path to projects/aigc/<项目名>/4-摄影/第N集.md")
     parser.add_argument(
         "--strict-shot-distribution",
+        "--strict-segment-distribution",
+        dest="strict_segment_distribution",
         action="store_true",
-        help="Treat highly concentrated 2-shot distribution as an error instead of a warning.",
+        help="Treat highly concentrated 2-segment distribution as an error instead of a warning.",
     )
-    parser.add_argument(
-        "--source-performance-path",
-        help="Override source performance file path for source body preservation check.",
-    )
-    parser.add_argument(
-        "--source-motion-path",
-        help="Override source motion-enrichment file path for source body preservation check.",
-    )
-    parser.add_argument(
-        "--source-writing-directing-path",
-        help="Override source writing-directing file path for source body preservation check.",
-    )
-    parser.add_argument(
-        "--skip-source-preservation",
-        action="store_true",
-        help="Skip source body preservation check.",
-    )
+    parser.add_argument("--source-performance-path", help="Legacy alias for source body preservation check.")
+    parser.add_argument("--source-motion-path", help="Override source motion-enrichment file path.")
+    parser.add_argument("--source-writing-directing-path", help="Override source writing-directing file path.")
+    parser.add_argument("--skip-source-preservation", action="store_true")
     args = parser.parse_args()
+
     path = Path(args.episode_file)
     if not path.is_file():
         print(f"[ERROR] Not a file: {path}")
         return 1
+
     source_override = (
         args.source_motion_path
         or args.source_writing_directing_path
@@ -368,7 +396,7 @@ def main() -> int:
     source_path = Path(source_override) if source_override else None
     ok, findings = validate(
         path,
-        strict_shot_distribution=args.strict_shot_distribution,
+        strict_segment_distribution=args.strict_segment_distribution,
         source_writing_directing_path=source_path,
         skip_source_preservation=args.skip_source_preservation,
     )

@@ -6,6 +6,7 @@
 
 - `team.yaml` 是初始化配队、成员问答来源、综合摘要和迁移证据，不是创作阶段运行时 roster。
 - 创作阶段只可读取冻结上下文：`team.yaml.init_synthesis.stage_seed_summary.<stage>`、`init_handoff.stage_entry_seeds.<stage>`、`north_star.yaml.创作阶段不变量.<stage>`，以及必要的成员问答 provenance。
+- 创作阶段不得调用 team 成员身份技能，不得本地扮演初始化成员，也不得生成新的创作阶段 team advisor packet。
 - 创作阶段不得解析或执行 `roles.supervision.stage_profiles`、`roles.supervision.stage_bindings`、`roles.supervising.*`、`roles.production.*`、`team_setup.shared_agents` 或 `dispatch_policy: stage-front-advisor|leaf-advisor`。
 - 若旧项目已有 `advisor_consultation_packet`、stage profile 或顾问 sidecar，只能作为只读历史证据；不得据此重新调度 team 角色身份或把主 agent 的本地判断伪装成成员回答。
 - 阶段本地 review、quality gate、LLM 主创、脚本校验和项目状态回写仍按各阶段 `SKILL.md + CONTEXT.md` 执行，不受本合同削弱。

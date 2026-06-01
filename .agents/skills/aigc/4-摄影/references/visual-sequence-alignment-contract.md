@@ -1,6 +1,6 @@
 # Visual Sequence Alignment Contract
 
-本文件定义 `4-摄影` 的段落级观看意图对齐规则。它只负责在内部建立连续观看意识，不改变 `visual_unit` 的源文本归属，不替代逐画面句子的 `分镜明细：` 注入，也不接管 `5-分组` 的组间连接件主创权。
+本文件定义 `4-摄影` 的段落级观看意图对齐规则。它只负责在内部建立连续观看意识，不改变 `visual_unit` 的源文本归属，不替代原画面性字段标题下的逐点时间段展开，也不接管 `5-分组` 的组间连接件主创权。
 
 ## Example Usage Guard
 
@@ -8,7 +8,9 @@
 
 ## Core Rule
 
-`4-摄影` 可以先形成段落级 `sequence_profile`，但最终落盘必须回到逐画面点：每个 `分镜明细：` 块只服务其正上方那条画面性字段或画面句子。段落级流畅只能通过“上一画面交出点 / 当前画面进入点 / 下一画面可消费锚点”体现，不能把多个画面点合并写成一条失去归属的连续运镜。
+`4-摄影` 可以先形成段落级 `sequence_profile`，但最终落盘必须回到逐画面点：每个原画面性字段标题下的连续时间段只服务该字段或画面句子。段落级流畅只能通过“上一画面交出点 / 当前画面进入点 / 下一画面可消费锚点”体现，不能把多个画面点合并写成一条失去归属的连续运镜。
+
+当前输出格式对本合同有利：原字段标题天然标出归属边界，字段下连续时间段天然标出镜内顺序，相邻字段块天然标出镜间交接。`sequence_profile` 必须利用这三层结构做连续性，而不是另起一条段落级镜头文本。合格做法是让当前字段首段接住上一字段末段落点，让当前字段末段给下一字段留下入口；不合格做法是为了顺滑把 3-6 个字段揉成一条看不出归属的长镜头。
 
 判断句：
 
@@ -28,6 +30,7 @@
 | `unit_ownership_map` | 每个 `visual_unit` 分别拥有哪一组主体、动作、道具、对白承托、记忆插入或信息显影 |
 | `visual_motif_chain` | 湿木、鱼鳞、酒葫芦、红光、黑板字、衣摆、脚趾、手指等视觉母题如何递进 |
 | `attention_relay` | 上一个画面单位把注意力交给当前画面单位的哪个入口 |
+| `field_link_chain` | 相邻原字段标题之间如何以末段/首段完成入口和交出，不改变字段归属 |
 | `movement_family` | 本段共享的运镜族谱，例如深焦横移、低机位推、手持低跟、柔焦记忆、静止近景 |
 | `texture_palette_continuity` | 材质、光色、潮湿度、反光、雾、血、木纹等如何保持连续 |
 | `boundary_policy` | 哪些接口只作为 `4-摄影` 的交出点，哪些连接方式必须留给 `5-分组` |
@@ -37,12 +40,12 @@
 
 ## Ownership Rules
 
-- 每个命中画面句子仍然是独立 `visual_unit`，其下方只挂一个 `分镜明细：` 块。
+- 每个命中画面句子仍然是独立 `visual_unit`，其原字段标题下只展开一组连续时间段。
 - 当前块可以承接上一块的落点，但不能替上一块继续完成主要动作，也不能提前执行下一块的主体动作。
 - 当前块可以设置下一块的进入提示，但不能把下一块的画面重点写成当前块的主要观看对象。
 - 记忆插入、柔焦闪回、幻觉、新闻画面或画中画必须有上游画面句子或明确可视化承托；不得为了段落流畅凭空增加。
 - 对白画面的身体锚点必须属于该对白画面或同一行明确可见承托；不能把后文身体反应提前并入前文环境镜。
-- 段落级运镜可以统一镜头质感，但每个 `分镜N` 仍必须能抽取自己的 `visible_subject / action_phase / camera_movement_plan / composition_anchor / light_color_material / continuity_handoff`。
+- 段落级运镜可以统一镜头质感，但每个 `时间段` 仍必须能抽取自己的 `visible_subject / action_phase / camera_movement_plan / composition_anchor / light_color_material / continuity_handoff`。
 
 ## Allowed Use
 
@@ -56,7 +59,7 @@
 
 不允许：
 
-- 把 5 个画面点写成一条连续分镜，导致无法判断每条 `分镜明细` 对应哪一行原文。
+- 把 5 个画面点写成一条连续分镜，导致无法判断每组时间段对应哪一行原文或哪一个原字段标题。
 - 为了横移流畅，把下一条角色动作、对白反应、道具揭示或记忆段提前写到环境描写下。
 - 用段落级镜头覆盖当前画面句子的核心动作，导致当前块虽然好看但没有完成自己的上游任务。
 - 把普通场景变化写成完整创意转场方案；`4-摄影` 只记录可见交出锚点和进入提示。
@@ -70,7 +73,8 @@
 3. 为每个 `visual_unit` 建立 `unit_ownership_map`：当前块拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项。
 3.5. 若 `unit_ownership_map` 包含道具/物件锚点，先标注 `prop_admission_reason`：`interaction / key_information / rule_or_danger / necessary_environment / rejected_background`。标为 `rejected_background` 的物件不得进入焦点拉移、反射、倒影、涟漪或独立分镜。
 4. 在 `continuity_profile` 和 `shot_design_plan` 中消费 `sequence_profile`：只吸收运动家族、材质光色、注意力接力和交出锚点，不吸收不属于当前块的剧情事实。
-5. 写 `分镜N` 前做归属检查：本镜是否能回指当前画面句子；若不能，移到对应画面句子的 `shot_design_plan`，或删除。
+5. 写 `时间段` 前做归属检查：本镜是否能回指当前画面句子；若不能，移到对应画面句子的 `shot_design_plan`，或删除。
+5.5. 写相邻字段时做 `field_link_chain` 检查：上一字段末段交出的焦点、姿态、声音、光色或运动方向，是否被当前字段首段消费；当前字段末段是否留下下一字段可消费入口。该检查不得引入后文主体动作或对白反应。
 6. 写完后做逆向审查：遮住上游原文只看当前分镜，是否还能判断该镜处理的是正上方画面点而不是整段泛化氛围。
 
 ## Output Pattern
@@ -79,20 +83,17 @@
 
 ```markdown
 环境描写：湿木栈板、鱼篓、麻绳、旧蓝染围裙……
-分镜明细：
-分镜1（约15秒）: 深焦横移掠过湿木栈板、鱼篓、令狐冲拎马鲛鱼、阿真赤脚、扁舟记忆和酒葫芦对白，最后停在她扣住板缝的脚趾。
+[起始秒-结束秒] 深焦横移掠过湿木栈板、鱼篓、令狐冲拎马鲛鱼、阿真赤脚、扁舟记忆和酒葫芦对白，最后停在她扣住板缝的脚趾。
 ```
 
 合格的逐点落盘：
 
 ```markdown
 环境描写：湿木栈板、鱼篓、麻绳、旧蓝染围裙……
-分镜明细：
-分镜1（约2.5秒）: 深焦横移贴着湿木栈板掠过，潮水在木纹里泛出旧银反光；鱼篓、麻绳和旧蓝染围裙依次擦过前景，停在被海风掀起的盐霜衣摆。
+[起始秒-结束秒] 深焦横移贴着湿木栈板掠过，潮水在木纹里泛出旧银反光；鱼篓、麻绳和旧蓝染围裙依次擦过前景，停在被海风掀起的盐霜衣摆。
 
 角色动作：令狐冲蹲在湿木栈上拎起半篓马鲛鱼……
-分镜明细：
-分镜1（约3秒）: 低机位从鱼鳞亮点推到令狐冲手里的马鲛鱼，酒葫芦轻碰剑鞘，声音把视线交给他腰侧。
+[起始秒-结束秒] 低机位从鱼鳞亮点推到令狐冲手里的马鲛鱼，酒葫芦轻碰剑鞘，声音把视线交给他腰侧。
 ```
 
 ## Review Triggers
@@ -100,9 +101,9 @@
 出现以下症状时必须回到本合同：
 
 - 分镜整体很流畅，但无法判断某条镜头属于哪一个上游画面点。
-- 当前 `分镜明细` 中出现后文画面句子的主体动作、对白反应、记忆段或道具揭示。
+- 当前字段时间段中出现后文画面句子的主体动作、对白反应、记忆段或道具揭示。
 - 普通无互动道具被当成段落锚点，导致镜头为了兼顾人物和物件突然换到别扭角度。
-- 连续运镜吞掉了字段边界，导致 `分镜明细` 不再紧贴正上方画面句子。
+- 连续运镜吞掉了字段边界，导致时间段不再归属于正上方原画面性字段标题。
 - 当前块只是在延续上一镜气氛，没有完成当前画面点的主体、动作、信息或下游 payload。
 - `5-分组` 难以判断组内帧，因为 `4-摄影` 把多个画面点熔成一个不可拆镜头。
 
@@ -111,12 +112,13 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 本文件的示例、表格样项和母题链说明是否只作为判断逻辑，没有被当成可复用对象、句式或视觉母题模板？ | `GATE-CINE-17A`、`GATE-CINE-18` | `FAIL-CINE-05REF`、`FAIL-CINE-05G` | `SKILL.md#Reference-Example-Guard`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N7-INJECT` | 示例非独立 gate 说明、当前项目真实共享线索、删除或改写模板污染记录 |
-| 相邻 3-6 个 `visual_unit` 形成 `sequence_profile` 时，是否仍保持每个 `分镜明细` 只服务正上方画面句子？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `sequence_profile`、`unit_ownership_map`、逐镜所属 `visual_unit` 抽样 |
+| 相邻 3-6 个 `visual_unit` 形成 `sequence_profile` 时，是否仍保持每组时间段只服务正上方画面句子或原字段标题？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `sequence_profile`、`unit_ownership_map`、逐镜所属 `visual_unit` 抽样 |
 | 每一个分镜动作是否能回答“它服务哪一条上游画面句子”，而不是只服务整段气氛、流畅或电影感？ | `GATE-CINE-04D`、`GATE-CINE-09` | `FAIL-CINE-05M`、`FAIL-CINE-05F` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `unit_ownership_check`、失主镜头删并/移动记录、shot_design_plan 回指 |
 | `unit_ownership_map` 是否明确每个 visual_unit 拥有的主体、动作相位、道具/文字/身体锚点、对白承托和禁止外溢项？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` | `unit_ownership_map`、`forbidden_bleed`、跨块外溢抽样 |
 | 后文主体动作、对白反应、记忆段、道具揭示或信息显影是否没有提前写进前一个 visual_unit？ | `GATE-CINE-04D` | `FAIL-CINE-05M` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` | 外溢字段标签、提前写入项清单、回迁/删除修复记录 |
 | 道具链、反射、倒影、涟漪或物件锚点是否先通过 `prop_admission_reason`，普通无互动物件没有成为注意力接力或独立分镜？ | `GATE-CINE-24`、`GATE-CINE-04D` | `FAIL-CINE-05S`、`FAIL-CINE-05M` | `references/visual-matching-contract.md#Prop-Admission-Overlay`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `prop_admission_reason`、`rejected_background` 清单、删除或降级的普通物件镜头 |
 | 段落级运动家族、材质光色和注意力接力是否只作为内部连续性上下文，没有覆盖当前画面句子的核心任务？ | `GATE-CINE-04D`、`GATE-CINE-15D` | `FAIL-CINE-05M`、`FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `continuity_profile`、entry/action_anchor/exit/handoff 抽样、当前块任务完成证据 |
+| `field_link_chain` 是否利用当前原字段标题 + 连续时间段格式承接上下画面：首段消费上一块交出点、末段留下下一块入口，同时不改变逐字段归属？ | `GATE-CINE-04D`、`GATE-CINE-15D` | `FAIL-CINE-05M`、`FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN`、`steps/cinematography-workflow.md#N6-CONTINUITY`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `field_link_chain` 抽样、上一末段/当前首段链接、当前末段/下一首段链接、未外溢说明 |
 | 边界接口是否只记录 `4-摄影` 可见交出点和进入提示，未把普通场景变化写成完整 `5-分组` 连接方案？ | `GATE-CINE-21`、`GATE-CINE-04D` | `FAIL-CINE-05K`、`FAIL-CINE-05M` | `steps/cinematography-workflow.md#N6.1-HANDOFF`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `boundary_policy`、`handoff_profile`、未越权写入组间转场的说明 |
 | `sequence_profile` 是否没有成为第二真源，没有改写 `visual-matching-contract.md` 的逐句注入边界或合并 visual_unit？ | `GATE-CINE-17A`、`GATE-CINE-04D` | `FAIL-CINE-05REF`、`FAIL-CINE-05M` | `review/review-contract.md#Reference-Review-Gate-Matrix`、`steps/cinematography-workflow.md#N3.5-SEQUENCE-ALIGN` | reference gate 覆盖记录、visual_unit 边界检查、未合并/未改写真源说明 |
 | 遮住上游原文只看当前分镜时，是否仍能判断它处理的是正上方画面点，并能抽取下游 payload？ | `GATE-CINE-04D`、`GATE-CINE-15` | `FAIL-CINE-05M`、`FAIL-CINE-05H` | `steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 逆向审查抽样、visible_subject/action_phase/camera_movement_plan/composition_anchor/light_color_material/continuity_handoff |

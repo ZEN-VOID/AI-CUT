@@ -47,7 +47,7 @@
 flowchart TD
     A["道具清单项"] --> B["来源复述与单主体边界"]
     C["north_star.yaml"] --> D["全局风格 / 主题 / 禁区"]
-    E["team.yaml"] --> F["设计相关大师监制上下文"]
+    E["team.yaml.init_synthesis"] --> F["冻结初始化综合"]
     G["MEMORY.md / CONTEXT/"] --> H["项目长期偏好与共享事实"]
     B --> I["LLM-first 道具设计判断"]
     D --> I

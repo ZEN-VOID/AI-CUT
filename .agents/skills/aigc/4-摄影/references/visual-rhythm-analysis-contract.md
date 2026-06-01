@@ -1,10 +1,10 @@
 # Visual Rhythm Analysis Contract
 
-本文件定义 step2.5“画面节奏分析”。节拍分析决定“切换点在哪里”，画面节奏分析决定“分镜明细写多满、多快、多炫、多克制”。目标是让不同类型、不同节奏、不同信息重要性的画面句子张弛有度，该收敛的收敛，该发散的发散。每个分镜的具体时值由 `shot-duration-decision-contract.md` 继续裁决；本文件只提供节奏画像，不替代单镜长短判断。
+本文件定义 step2.5“画面节奏分析”。节拍分析决定“切换点在哪里”，画面节奏分析决定“分镜画面写多满、多快、多炫、多克制”。目标是让不同类型、不同节奏、不同信息重要性的画面句子张弛有度，该收敛的收敛，该发散的发散。每个时间段的具体时值由 `shot-duration-decision-contract.md` 继续裁决；本文件只提供节奏画像，不替代单段长短判断。
 
 ## Core Rule
 
-每个画面句子在注入分镜明细前必须生成 `rhythm_profile`。它决定：
+每个画面句子在注入分镜画面前必须生成 `rhythm_profile`。它决定：
 
 | rhythm_dimension | decision |
 | --- | --- |
@@ -16,11 +16,11 @@
 | `boundary_clarity` | none / local_handoff / scene_boundary / group_boundary_candidate |
 | `peak_emphasis` | none / restrained_peak / expanded_peak / rupture_peak |
 
-`rhythm_profile` 还必须承担分镜数量去模板化职责：当 `beat_map` 倾向输出 2 镜时，先判断当前画面是否真的需要“起点/揭示”“动作/反应”“空间/压力源”两段观看；如果只是一个单一观看动作，收敛为 1 镜；如果是关键揭示、动作分相、群像扩散或高点承托，不得被压平为 2 镜。
+`rhythm_profile` 还必须承担时间段数量去模板化职责：当 `beat_map` 倾向输出 2 段时，先判断当前画面是否真的需要“起点/揭示”“动作/反应”“空间/压力源”两段观看；如果只是一个单一观看动作，收敛为 1 段；如果是关键揭示、动作分相、群像扩散或高点承托，不得被压平为 2 段。
 
 `rhythm_profile` 不能只停留在“快/慢/满/空”的模糊标签。进入 `shot_duration_decision` 前，必须给出时值倾向：哪些镜头需要快速通过，哪些镜头需要读秒，哪些镜头需要表演停顿，哪些镜头必须按短剧·AIGC 节奏压缩以保护 15 秒分组节奏，哪些镜头因对白/旁白台词量形成最低时长。
 
-当上游已形成 `sequence_density_curve` 时，`rhythm_profile` 必须消费其 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget`。单句节奏不能和段落变速曲线脱节：位于 `conserve` 或 `recovery` 槽位的画面优先收敛，位于 `burst`、`peak_slot` 或 `set_piece_chain_slot` 的画面可加密，但必须逐镜证明新的观看策略和结果落点。
+当上游已形成 `sequence_density_curve` 时，`rhythm_profile` 必须消费其 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget`。单句节奏不能和段落变速曲线脱节：位于 `conserve` 或 `recovery` 槽位的画面优先收敛，位于 `burst`、`peak_slot` 或 `set_piece_chain_slot` 的画面可加密，但必须逐段证明新的观看策略和结果落点。
 
 ## Rhythm Profile Matrix
 
@@ -36,7 +36,7 @@
 | 高能入场/惊吓 | critical | 断裂式发散 | 快速运动、急停、声画桥或光变，但要给落点 |
 | 低信息对白画面 | low/medium | 克制承托 | 1 个反应或关系镜头，避免每句对白都炫技 |
 | 上游高潮/爽点/高光承托 | high/critical | 峰值强化 | 按 `peak-shot-language-contract.md` 判断是停顿、扩展还是断裂，不一律更快或更多 |
-| set-piece 链条 / 连续声画打点 | critical | 峰值密度爆发后恢复 | 5-6 镜例外只在连续动作结果或一声一结果真实存在时成立；高密度后必须接反应、反压或交出 |
+| set-piece 链条 / 连续声画打点 | critical | 峰值密度爆发后恢复 | 5-6 段例外只在连续动作结果或一声一结果真实存在时成立；高密度后必须接反应、反压或交出 |
 
 ## Decision Procedure
 
@@ -44,13 +44,13 @@
 2. 再判断当前上下文节奏：上一组镜头是否已经高密度、高运动、高转场；若是，当前可适当收敛。
 3. 若存在 `sequence_density_curve`，判断当前画面落在整段哪个速度槽位；不得让全段同密度、全满、全空或没有峰值/恢复。
 4. 判断观众是否需要停顿读信息：规则文字、道具细节、微表情需要留读秒，不应被高速运动带走；但普通氛围、过场动作和常规反应默认压缩，不沿用传统影视宽停顿。
-5. 判断是否需要发散：关键揭示、空间重置、情绪峰值、威胁入场可提高分镜数量和动态复杂度。
+5. 判断是否需要发散：关键揭示、空间重置、情绪峰值、威胁入场可提高时间段数量和动态复杂度。
 6. 若发生场景变化，固定标记边界风险并交给 `references/transition-design-contract.md` 形成 `handoff_profile`；本阶段只记录交出锚点、进入提示和连续性风险，不裁决连接方式。
 7. 若画面承载上游高潮/爽点/高光成分，先标记 `peak_emphasis`，再交给 `references/peak-shot-language-contract.md` 裁定具体峰值镜头策略。
-8. 若画面命中 `set_piece_chain_slot` 或 `sound_cut_pattern`，允许 5-6 镜例外，但必须逐镜执行删减测试：删掉任一镜是否会少一个必要动作结果、声音打点、反应或交出接口。
-9. 形成内部 `rhythm_profile` 后，交给 `references/shot-duration-decision-contract.md` 生成每个计划分镜的 `shot_duration_decision` 和正文 `display_seconds`；没有短剧·AIGC 压缩复判和时值裁决，不得直接写 `分镜N（约X秒）`。
+8. 若画面命中 `set_piece_chain_slot` 或 `sound_cut_pattern`，允许 5-6 段例外，但必须逐段执行删减测试：删掉任一段是否会少一个必要动作结果、声音打点、反应或交出接口。
+9. 形成内部 `rhythm_profile` 后，交给 `references/shot-duration-decision-contract.md` 生成每个计划时间段的 `shot_duration_decision` 和正文 `time_range`；没有短剧·AIGC 压缩复判和时值裁决，不得直接写 `[起始秒-结束秒]`。
 10. `rhythm_profile` 不显式输出，只通过描述密度、运动复杂度、边界清晰度、时值分配和停顿感体现在成稿中。
-11. 对批量输出做分布抽查：若同一集或同一场中 2 镜块占比异常集中、连续多镜时值等级相同，或段落没有 `density_curve_summary`，回到低信息、关键显影、群像、高点和 set-piece 样本复核，证明每个 `分镜2`、高密度链条和长停顿都有有效触发点、观看结果或 AIGC 执行稳定性价值，或删并/扩展/压缩到正确数量与时值。机械校验提示 2 镜集中时，执行报告应记录抽样复核结果；缺少该证据不单独阻断，但抽样发现第二镜无触发价值时按 `FAIL-CINE-03A` 返工。
+11. 对批量输出做分布抽查：若同一集或同一场中 2 段块占比异常集中、连续多段时值等级相同，或段落没有 `density_curve_summary`，回到低信息、关键显影、群像、高点和 set-piece 样本复核，证明每个 `第二段`、高密度链条和长停顿都有有效触发点、观看结果或叙事节奏价值，或删并/扩展/压缩到正确数量与时值。机械校验提示 2 段集中时，执行报告应记录抽样复核结果；缺少该证据不单独阻断，但抽样发现第二段无触发价值时按 `FAIL-CINE-03A` 返工。
 
 ## Convergence Rules
 
@@ -82,22 +82,22 @@
 
 | profile | recommended output |
 | --- | --- |
-| `sparse + static` | `分镜1` 一句完成，固定机位或极慢推拉，强调落点 |
-| `measured + single_move` | `分镜1` 或 `分镜1-2`，一个清楚运动从 A 到 B |
-| `rich + combo_move` | `分镜1-4`，组合运镜、焦点/景别变化、反应承接或交出点 |
-| `maximal + rupture_move` | `分镜1-4`，断裂节奏或强余波交出点，但必须给空间/反应落点 |
-| `peak_emphasis + selected_move` | 先按 `peak_shot_profile` 决定停顿、扩展或断裂，再写入 `分镜N`；高点也可以用静止长镜完成 |
-| `set_piece_chain + sound_cut_pattern` | 可扩展到 `分镜1-5/6`，每镜短促但必须一声一结果；链条后需要恢复、反压或交出 |
+| `sparse + static` | `第一段` 一句完成，固定机位或极慢推拉，强调落点 |
+| `measured + single_move` | `第一段` 或 `第一段-2`，一个清楚运动从 A 到 B |
+| `rich + combo_move` | `第一段-4`，组合运镜、焦点/景别变化、反应承接或交出点 |
+| `maximal + rupture_move` | `第一段-4`，断裂节奏或强余波交出点，但必须给空间/反应落点 |
+| `peak_emphasis + selected_move` | 先按 `peak_shot_profile` 决定停顿、扩展或断裂，再写入 `时间段`；高点也可以用静止长镜完成 |
+| `set_piece_chain + sound_cut_pattern` | 可扩展到 `第一段-5/6`，每段短促但必须一声一结果；链条后需要恢复、反压或交出 |
 
-`profile` 标签仅用于内部判断，不写入 `分镜N`。输出应直接进入当前画面的镜头运动。
-具体单镜时值继续按 `shot-duration-decision-contract.md` 形成 `instant / short / standard / held / long_hold` 裁决；短剧·AIGC 模式下优先让镜头在 `short / standard` 内成立，最终通过句子密度、运动速度、停点和读秒感体现。
+`profile` 标签仅用于内部判断，不写入 `时间段`。输出应直接进入当前画面的镜头运动。
+具体单段时值继续按 `shot-duration-decision-contract.md` 形成 `instant / short / standard / held / long_hold` 裁决；短剧·AIGC 模式下优先让镜头在 `short / standard` 内成立，最终通过句子密度、运动速度、停点和读秒感体现。
 
 ## Anti-Patterns
 
 - 每条画面句子都写成长段大师炫技。
 - 每条画面句子都写成 2 个分镜，导致低信息画面被硬撑、关键画面被压平。
 - 只看单句节奏，不看整段 `sequence_density_curve`，导致全场没有变速曲线。
-- 把 5-6 镜链条当成新的固定爽点模板，而不是连续动作/声音结果的例外。
+- 把 5-6 段链条当成新的固定爽点模板，而不是连续动作/声音结果的例外。
 - 关键规则显影只写一句“特写规则文字”，没有读秒、反应和光色层次。
 - 低信息动作写 3-4 个分镜，拖慢节奏。
 - 强表演瞬间用复杂运镜抢走演员。
@@ -107,12 +107,12 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 每个画面句子在写入 `分镜明细` 前是否已形成 `rhythm_profile`，且不只是“快/慢/满/空”的模糊标签？ | `GATE-CINE-05` | `FAIL-CINE-05D` | `steps/cinematography-workflow.md#N5-RHYTHM` | `rhythm_profile` 抽样，包含 importance、tempo、density、movement_complexity、description_scope、boundary_clarity、peak_emphasis |
-| `beat_map` 倾向 2 镜时，是否证明第二镜有独立观看段、观看结果或 AIGC 执行稳定性价值，而不是固定 2 镜模板？ | `GATE-CINE-04A` | `FAIL-CINE-03A` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 2 镜块抽样、低信息删并记录、关键揭示/群像/高点扩展理由 |
-| 1 镜块是否没有把多个有效触发点、连续观看策略或注意力对象变化压进单镜；若合并，是否有 `trigger_merge_exception`？ | `GATE-CINE-04E` | `FAIL-CINE-03F` | `steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 1 镜吞多 beat 复核范围、拆镜修复记录或 `trigger_merge_exception` |
+| 每个画面句子在写入 `分镜画面` 前是否已形成 `rhythm_profile`，且不只是“快/慢/满/空”的模糊标签？ | `GATE-CINE-05` | `FAIL-CINE-05D` | `steps/cinematography-workflow.md#N5-RHYTHM` | `rhythm_profile` 抽样，包含 importance、tempo、density、movement_complexity、description_scope、boundary_clarity、peak_emphasis |
+| `beat_map` 倾向 2 段时，是否证明第二段有独立观看段、观看结果或叙事节奏价值，而不是固定 2 段模板？ | `GATE-CINE-04A` | `FAIL-CINE-03A` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 2 段块抽样、低信息删并记录、关键揭示/群像/高点扩展理由 |
+| 1 段块是否没有把多个有效触发点、连续观看策略或注意力对象变化压进单段；若合并，是否有 `trigger_merge_exception`？ | `GATE-CINE-04E` | `FAIL-CINE-03F` | `steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 1 段吞多 beat 复核范围、拆镜修复记录或 `trigger_merge_exception` |
 | 已存在 `sequence_density_curve` 时，单句节奏是否消费其 `tempo_beats / density_ramp / peak_slots / recovery_slots / set_piece_chain_slots / sound_cut_pattern / density_budget`，而不是脱离整段变速？ | `GATE-CINE-04A2`、`GATE-CINE-05` | `FAIL-CINE-03D`、`FAIL-CINE-05D` | `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N5-RHYTHM` | `density_curve_summary`、当前 visual_unit 所属槽位、收敛/发散依据和高密度后恢复证据 |
 | 规则文字、道具细节、微表情、对白/旁白是否进入停顿与可读性判断，同时普通氛围和过场动作是否按短剧 AIGC 节奏压缩？ | `GATE-CINE-04B` | `FAIL-CINE-03B` | `steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `shot_duration_decision` 抽样、长停顿/快速镜理由、15 秒组内节奏风险 |
 | 场景变化是否只在本阶段标记边界风险、交出锚点和进入提示，没有越权裁决完整组间创意转场？ | `GATE-CINE-21`、`GATE-CINE-04D` | `FAIL-CINE-05K`、`FAIL-CINE-05M` | `steps/cinematography-workflow.md#N6.1-HANDOFF`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | `handoff_profile`、场景变化交出点/进入提示、未落盘组间连接方案说明 |
 | 上游高潮/爽点/高光是否先标记 `peak_emphasis` 并交给峰值策略裁决，没有被普通节奏压平或硬拔成无依据高点？ | `GATE-CINE-14`、`GATE-CINE-05` | `FAIL-CINE-05E` | `steps/cinematography-workflow.md#N5.5-PEAK-SHOT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | 高点证据、`peak_emphasis`、`peak_shot_profile`、停顿/扩展/断裂选择 |
-| 命中 `set_piece_chain_slot` 或 `sound_cut_pattern` 时，5-6 镜例外是否逐镜通过删减测试，每镜都有独立动作结果、声音打点、反应或交出接口？ | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | set-piece 链条不可删证明、逐镜起点/撞点/结果/声音打点/反应落点 |
-| 同一集或同一场是否完成分布抽查，避免连续多块同密度、同长、同速或高密度后没有收束？ | `GATE-CINE-04A`、`GATE-CINE-04A2`、`GATE-CINE-04B` | `FAIL-CINE-03A`、`FAIL-CINE-03D`、`FAIL-CINE-03B` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N8-REVIEW` | 分镜数量分布、时值分布、2 镜集中抽样、连续高密度收束证据 |
+| 命中 `set_piece_chain_slot` 或 `sound_cut_pattern` 时，5-6 段例外是否逐段通过删减测试，每段都有独立动作结果、声音打点、反应或交出接口？ | `GATE-CINE-04A3` | `FAIL-CINE-03E` | `steps/cinematography-workflow.md#N3.6-DENSITY-CURVE`、`steps/cinematography-workflow.md#N4-BEAT`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | set-piece 链条不可删证明、逐段起点/撞点/结果/声音打点/反应落点 |
+| 同一集或同一场是否完成分布抽查，避免连续多块同密度、同长、同速或高密度后没有收束？ | `GATE-CINE-04A`、`GATE-CINE-04A2`、`GATE-CINE-04B` | `FAIL-CINE-03A`、`FAIL-CINE-03D`、`FAIL-CINE-03B` | `steps/cinematography-workflow.md#N5-RHYTHM`、`steps/cinematography-workflow.md#N5.2-DURATION`、`steps/cinematography-workflow.md#N8-REVIEW` | 时间段数量分布、时值分布、2 段集中抽样、连续高密度收束证据 |

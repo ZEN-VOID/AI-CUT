@@ -1,6 +1,6 @@
 # Transition Anchor Contract
 
-本文件定义分镜间「过渡锚点」的标准描述格式和执行规则。过渡锚点是连接相邻分镜的视觉/听觉接口，确保镜头流转连贯而非断裂。本契约是 `shot-continuity-contract.md` 的延续，专注于分镜明细内部的连续性设计。
+本文件定义原画面性字段标题下相邻时间段之间「过渡锚点」的标准描述格式和执行规则。过渡锚点是连接相邻时间段的视觉/听觉接口，确保镜头流转连贯而非断裂。本契约是 `shot-continuity-contract.md` 的延续，专注于同一画面字段内部的连续性设计。
 
 ## Example Usage Guard
 
@@ -8,74 +8,73 @@
 
 ## Core Rule
 
-每个分镜块的 `分镜N` 之间必须存在**物理因果链过渡**。相邻分镜的交接处必须找到：同一运动体的位置延续、同一道具的形态变化、同一声音的时序延伸，或同一光色的明暗过渡。
+每个原画面性字段标题下的 `时间段` 之间必须存在**物理因果链过渡**。相邻时间段的交接处必须找到：同一运动体的位置延续、同一道具的形态变化、同一声音的时序延伸，或同一光色的明暗过渡。
+
+当前输出格式要求过渡锚点直接融合进相邻 `[起始秒-结束秒]` 句子，而不是另起“过渡说明”“镜头连接”或内部字段。第一段句尾承担 `exit_position / outgoing_tail / previous_lighting`，下一段句首承担 `entry_condition / incoming_tail / transition_light`；如果读者需要查看内部计划才能理解 A 如何接到 B，说明过渡锚点没有投影到成稿。
 
 **禁止**：
 - 在两个分镜之间留下"因果黑洞"——动作A直接跳到结果C，中间没有B
 - 用硬切代替过渡锚点描述
 - 把"断裂""制造断裂"当作优点描述，除非断裂本身是叙事意图
+- 把过渡锚点写成独立说明行，破坏原字段标题下连续时间段的自然分镜正文
 
 ## Transition Anchor Types
 
 ### 1. 运动延续锚点（Movement Continuity Anchor）
 
-描述同一运动体在相邻分镜间的位置、速度、方向变化。
+描述同一运动体在相邻时间段间的位置、速度、方向变化。
 
 | anchor_field | description |
 | --- | --- |
 | `exit_position` | 运动体在本分镜结尾的位置 |
 | `entry_condition` | 运动体在下一分镜入口的初始状态 |
-| `transition_frame` | 连接两者的0.2-0.5秒过渡帧描述 |
+| `transition_frame` | 连接两者的内部 0.2-0.5 秒过渡锚点描述，必须融入相邻 `[起始秒-结束秒]` 句子，不单独落盘成箭头行 |
 | `velocity_curve` | 速度变化：加速/匀速/减速/急停 |
 
 **标准格式**：
 ```
-分镜1（约X秒）：<当前运动描述>；<本镜终点位置/速度>。
-→ 过渡帧（约0.2-0.5秒）：<运动体在接触点的瞬间状态>。
-分镜2（约X秒）：<下一运动的起点和延续方式>。
+[起始秒-结束秒]：<当前运动描述>；<本镜终点位置/速度>。
+[下一起始秒-下一结束秒]：<承接上一段终点的过渡锚点>，<下一运动的起点和延续方式>。
 ```
 
 **示例**：
 ```
-✅ 分镜1（约1秒）：十字枪刃以水平横扫擦过画面中轴，枪尖从左缘进入右缘；金属刃面在雾光里划出一道蓝冷横线。
-→ 过渡帧（约0.3秒）：枪尖咬入鱼篓边缘的瞬间，篾条在刃压下崩裂，银鳞从裂口挤射而出。
-分镜2（约1秒）：鱼鳞在雾光中拉出弧形轨迹，镜头用快速甩镜跟住鳞片飞行曲线。
+✅ [起始秒-结束秒]：十字枪刃以水平横扫擦过画面中轴，枪尖从左缘进入右缘；金属刃面在雾光里划出一道蓝冷横线。
+[下一起始秒-下一结束秒]：枪尖咬入鱼篓边缘，篾条在刃压下崩裂，银鳞从裂口挤射而出；镜头用快速甩镜跟住鳞片在雾光中拉出的弧形轨迹。
 
-❌ 分镜1（约1秒）：十字枪刃以水平横扫擦过画面中轴。
-分镜2（约1秒）：鱼鳞在雾光中拉出弧形轨迹。（没有枪刃接触鱼篓的过渡）
+❌ [起始秒-结束秒]：十字枪刃以水平横扫擦过画面中轴。
+[起始秒-结束秒]：鱼鳞在雾光中拉出弧形轨迹。（没有枪刃接触鱼篓的过渡）
 ```
 
 ### 2. 道具形态锚点（Prop State Anchor）
 
-描述同一道具在相邻分镜间的形态变化。
+描述同一道具在相邻时间段间的形态变化。
 
 | anchor_field | description |
 | --- | --- |
-| `object_identity` | 道具在同一分镜组内保持唯一指认 |
+| `object_identity` | 道具在同一原字段时间段组内保持唯一指认 |
 | `previous_state` | 道具在上一分镜结尾的状态 |
 | `transition_state` | 道具在过渡帧的形态变化瞬间 |
 | `next_state` | 道具在下一分镜入口的状态 |
 
 **标准格式**：
 ```
-分镜N（约X秒）：<道具当前状态>；<与上一镜的因果关系>。
-→ 过渡帧（约0.2-0.5秒）：<道具形态变化的瞬间>。
-分镜N+1（约X秒）：<道具在下一镜的延续状态>。
+[起始秒-结束秒]：<道具当前状态>；<与上一段的因果关系>。
+[下一起始秒-下一结束秒]：<承接上一段的道具形态变化瞬间>，<道具在下一时间段的延续状态>。
 ```
 
 **示例**：
 ```
-✅ 分镜1（约1秒）：枪尾短链从画面右侧甩入前景，铁环在雾里拖出一道冷弧。
-→ 过渡帧（约0.3秒）：倒钩咬进肩胛的瞬间，布料在铁尖崩裂，碎片挂在刃上。
-分镜2（约1.5秒）：链条带着后生身体向后拖行，挂在枪尖的布片在雾里轻抖。
+✅ [起始秒-结束秒]：枪尾短链从画面右侧甩入前景，铁环在雾里拖出一道冷弧。
+[下一起始秒-下一结束秒]：倒钩咬进肩胛，布料在铁尖崩裂，碎片挂在刃上；链条带着后生身体向后拖行，布片在雾里轻抖。
 
-❌ 分镜1（约1秒）：枪尾短链甩入前景，倒钩咬进肩胛。
-分镜2（约1.5秒）：后生身体撞向礁角。（没有倒钩接触肩胛、布料崩裂的过渡）
+❌ [起始秒-结束秒]：枪尾短链甩入前景，倒钩咬进肩胛。
+[起始秒-结束秒]：后生身体撞向礁角。（没有倒钩接触肩胛、布料崩裂的过渡）
 ```
 
 ### 3. 声音时序锚点（Sound Timeline Anchor）
 
-描述声音在相邻分镜间的延续或衰减。
+描述声音在相邻时间段间的延续或衰减。
 
 | anchor_field | description |
 | --- | --- |
@@ -86,24 +85,22 @@
 
 **标准格式**：
 ```
-分镜N（约X秒）：<当前声音描述>，<声音持续状态>。
-→ 过渡帧（约0.2-0.5秒）：<声音在分镜间的延续或转接>。
-分镜N+1（约X秒）：<下一声音的起点>，<与上一声音的关系>。
+[起始秒-结束秒]：<当前声音描述>，<声音持续状态>。
+[下一起始秒-下一结束秒]：<上一声音的尾音如何转接>，<下一声音的起点及其与上一声音的关系>。
 ```
 
 **示例**：
 ```
-✅ 分镜1（约1秒）：铁链拖行的咔哒声在礁石上留下回响，每一声都像是数着步子。
-→ 过渡帧（约0.3秒）：最后一节链环磕在石棱上，撞击声突然变闷，被布料撕裂声切断。
-分镜2（约1秒）：布料撕裂的脆响盖过链声，肩胛处的衣料在枪尖下崩裂。
+✅ [起始秒-结束秒]：铁链拖行的咔哒声在礁石上留下回响，每一声都像是数着步子。
+[下一起始秒-下一结束秒]：最后一节链环磕在石棱上，撞击声突然变闷，被布料撕裂的脆响盖过；肩胛处的衣料在枪尖下崩裂。
 
-❌ 分镜1（约1秒）：铁链拖行声在礁石上留下回响。
-分镜2（约1秒）：布料撕裂的脆响。（没有声音之间的过渡说明）
+❌ [起始秒-结束秒]：铁链拖行声在礁石上留下回响。
+[起始秒-结束秒]：布料撕裂的脆响。（没有声音之间的过渡说明）
 ```
 
 ### 4. 光色明暗锚点（Light Color Anchor）
 
-描述光色在相邻分镜间的明暗过渡。
+描述光色在相邻时间段间的明暗过渡。
 
 | anchor_field | description |
 | --- | --- |
@@ -114,20 +111,19 @@
 
 **标准格式**：
 ```
-分镜N（约X秒）：<当前光色状态>，<光源位置>。
-→ 过渡帧（约0.2-0.5秒）：<光色变化的瞬间>。
-分镜N+1（约X秒）：<下一光色状态>，<光源变化原因>。
+[起始秒-结束秒]：<当前光色状态>，<光源位置>。
+[下一起始秒-下一结束秒]：<上一光色如何变化到下一光色>，<光源变化原因>。
 ```
 
 ## Transition Anchor 位置规则
 
 ### 分镜块内位置
 
-| 分镜数量 | 过渡锚点位置 | 规则 |
+| 时间段数量 | 过渡锚点位置 | 规则 |
 | --- | --- | --- |
-| 2个分镜 | 分镜1结尾→分镜2开头 | 必须有1个过渡帧 |
-| 3个分镜 | 分镜1结尾→分镜2开头；分镜2结尾→分镜3开头 | 必须有2个过渡帧 |
-| 4+个分镜 | 每两个相邻分镜之间 | 必须有（N-1）个过渡帧 |
+| 2 个时间段 | 第一段结尾→第二段开头 | 必须有 1 个过渡帧 |
+| 3 个时间段 | 第一段结尾→第二段开头；第二段结尾→第三段开头 | 必须有 2 个过渡帧 |
+| 4+ 个时间段 | 每两个相邻时间段之间 | 必须有（N-1）个过渡帧 |
 
 ### 过渡帧时长规则
 
@@ -143,15 +139,16 @@
 
 | field | question |
 | --- | --- |
-| `intra_shot_transition` | 当前分镜块内相邻分镜之间是否存在物理因果链过渡 |
+| `intra_shot_transition` | 当前原字段时间段组内相邻时间段之间是否存在物理因果链过渡 |
 | `transition_type` | 运动延续/道具形态/声音时序/光色明暗（可多选） |
 | `transition_duration` | 过渡帧时长估算（0.2-0.5秒/0.5-1秒） |
 | `causal_gap` | 是否存在因果黑洞（无过渡的断裂）；若有，必须说明是否为叙事意图 |
 | `anchor_evidence` | 过渡锚点的具体描述（可被下游验证） |
+| `inline_projection` | 过渡锚点是否已投影到上一时间段句尾或下一时间段句首，而不是单独挂说明 |
 
 ## Decision Rules
 
-1. **因果链强制**：所有相邻分镜之间必须存在物理因果过渡，除非：
+1. **因果链强制**：所有相邻时间段之间必须存在物理因果过渡，除非：
    - 叙事意图要求强断裂（惊吓、规则打断、记忆闪回）
    - 断裂本身是节奏设计（急停后突然爆发）
    - 断裂已在 `transition_design_contract` 中被标记为合法
@@ -167,16 +164,16 @@
    - 声音过渡可以没有视觉表现，但必须有时序描述
 
 4. **验收门槛**：
-   - 每个分镜块内，相邻分镜之间的过渡锚点描述覆盖率应达到 100%
-   - 覆盖率 = 有过渡锚点描述的相邻分镜对数 / 总相邻分镜对数
+   - 每个原字段时间段组内，相邻时间段之间的过渡锚点描述覆盖率应达到 100%
+   - 覆盖率 = 有过渡锚点描述的相邻时间段对数 / 总相邻时间段对数
 
 ## Anti-Patterns
 
 ### 因果黑洞类
 
-- ❌ 分镜1：枪刃横扫。分镜2：鱼鳞飞出。（没有刃-篓接触的瞬间）
-- ❌ 分镜1：拳头挥出。分镜2：对手倒地。（没有击中的过渡）
-- ❌ 分镜1：链条甩出。分镜2：人撞上礁石。（没有钩-肉接触的瞬间）
+- ❌ 第一段：枪刃横扫。第二段：鱼鳞飞出。（没有刃-篓接触的瞬间）
+- ❌ 第一段：拳头挥出。第二段：对手倒地。（没有击中的过渡）
+- ❌ 第一段：链条甩出。第二段：人撞上礁石。（没有钩-肉接触的瞬间）
 
 ### 模糊替代类
 
@@ -192,29 +189,26 @@
 
 ## Audit Checklist
 
-每个分镜块在输出前必须通过以下检查：
+每个原字段时间段组在输出前必须通过以下检查：
 
 | # | 检查项 | 标准 | 若不合格 |
 | --- | --- | --- | --- |
-| 1 | 因果链覆盖率 | 相邻分镜对100%有物理因果过渡 | 重写分镜或合并 |
+| 1 | 因果链覆盖率 | 相邻时间段对 100% 有物理因果过渡 | 重写时间段或合并 |
 | 2 | 过渡帧可见性 | 过渡帧描述的是可见物理状态，非模糊词 | 替换为具体描述 |
-| 3 | 道具唯一性 | 同一道具在分镜块内状态可追溯 | 补全道具状态链 |
-| 4 | 声音时序 | 声音在分镜间有延续或衰减描述 | 补全声音过渡 |
+| 3 | 道具唯一性 | 同一道具在原字段时间段组内状态可追溯 | 补全道具状态链 |
+| 4 | 声音时序 | 声音在时间段间有延续或衰减描述 | 补全声音过渡 |
 | 5 | 叙事意图标注 | 若存在因果黑洞，必须标注为"叙事断裂" | 若非叙事意图则补过渡 |
 | 6 | 过渡帧时长 | 符合速度-时长对照表 | 按表格调整 |
 
 ## Output Format
 
-完整分镜块输出格式：
+完整原字段标题下时间段输出格式：
 
 ```text
-动作画面：<动作描述>
-分镜明细：
-分镜1（约X秒）：<分镜1完整描述，包含当前运动/道具/光色的具体状态>；<本镜终点可见落点>。
-→ 过渡帧（约0.2-0.5秒）：<过渡锚点描述——物理因果链的B点>。
-分镜2（约X秒）：<分镜2描述，延续过渡帧的起点>；<本镜终点可见落点>。
-→ 过渡帧（约0.2-0.5秒）：<第二个过渡锚点描述>。
-分镜3（约X秒）：<分镜3描述，延续第二个过渡帧>。
+<上游画面性字段标题>：
+[起始秒-结束秒]：<第一段完整描述，包含当前运动/道具/光色的具体状态>；<本镜终点可见落点>。
+[下一起始秒-下一结束秒]：<第二段描述，融入物理因果链的过渡锚点>；<本镜终点可见落点>。
+[下一起始秒-下一结束秒]：<第三段描述，延续第二段末尾锚点>。
 ```
 
 ---
@@ -228,7 +222,8 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| Does every adjacent `分镜N -> 分镜N+1` pair inside one block have a physical causal transition unless a narrative fracture is explicitly justified? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | intra-shot transition coverage ratio and causal-gap samples |
+| Does every adjacent `时间段 -> 时间段+1` pair inside one block have a physical causal transition unless a narrative fracture is explicitly justified? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | intra-shot transition coverage ratio and causal-gap samples |
+| Are transition anchors written inline into adjacent time-range sentences rather than as separate transition notes, so the current output format remains a continuous natural storyboard text? | `GATE-CINE-15D` / `GATE-CINE-18` | `FAIL-CINE-05AB` / `FAIL-CINE-05G` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | `inline_projection` samples and cleanup of detached transition-note lines |
 | Is each transition frame a visible physical state change rather than a vague word such as "suddenly", "hard cut" or "too fast to see"? | `GATE-CINE-15D` / `GATE-CINE-08` | `FAIL-CINE-05AB` / `FAIL-CINE-05B` | `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` / `steps/cinematography-workflow.md#N7-INJECT` | before/after transition-frame lines and visible-state evidence |
 | Are movement continuity anchors tracking exit position, entry condition, transition frame and velocity curve for the same moving body or object? | `GATE-CINE-15D` | `FAIL-CINE-05AB` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | movement anchor samples and velocity/position continuation checks |
 | Are prop state anchors using one stable object identity and traceable previous, transition and next states rather than jumping from action to result? | `GATE-CINE-15D` / `GATE-CINE-24` | `FAIL-CINE-05AB` / `FAIL-CINE-05S` | `steps/cinematography-workflow.md#N6-CONTINUITY` / `steps/cinematography-workflow.md#N6.5-SHOT-PLAN` | prop identity/state chain evidence and admitted-prop justification |

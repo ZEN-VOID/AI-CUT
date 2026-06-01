@@ -1,6 +1,6 @@
 # aigc 5-分组
 
-`5-分组` 将 `projects/aigc/<项目名>/4-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组重复当前场景标题、补充以入口源、入场触发、镜头/观看位置、主体入画和动态关系变化为核心的入场镜头、在正文后恢复 `出场画面：` 尾钩、按当前组整理 north_star 风格字段和 YAML 统计；相邻分镜组之间额外生成 3-4 秒组间首尾帧连接件，连接件消费上一组出场画面和下一组入场镜头，同样先标明同场景或跨场景标题关系，再输出三项风格行，并把固定音频/字幕约束置顶于第 1 行风格行最前。
+`5-分组` 将 `projects/aigc/<项目名>/4-摄影/第N集.md` 的逐集摄影稿切成完整分镜组，并为每组重复当前场景标题，在场景标题下方输出 `全局风格：`，再输出组级 `画面风格：`、普通分镜正文和 YAML 统计；相邻分镜组的连续性由下一组第一个普通 `[0-N秒]` 分镜行承担，不再生成 `## A~B` 组间连接件，也不输出 `增补首帧：` 字段。
 
 ## 目录树
 
@@ -27,11 +27,10 @@
 - 运行上下文：`CONTEXT.md`
 - 项目级必读：`projects/aigc/<项目名>/MEMORY.md`
 - 项目北极星：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
+- 初始化综合：`projects/aigc/<项目名>/team.yaml.init_synthesis.stage_seed_summary."5-分组"`、`init_handoff.grouping_seed`、`north_star.yaml.创作阶段不变量.分组`
 - 边界规则：`references/group-boundary-contract.md`
-- 入场镜头：`references/group-entry-shot-contract.md`
-- 出场画面：`references/group-exit-shot-contract.md`
-- 组间连接件：`references/bridge-shot-contract.md`
 - north_star 风格整理：`references/north-star-projection-contract.md`
+- 画面风格：`references/group-visual-tone-contract.md`
 - YAML 统计：`references/statistics-yaml-contract.md`
 - 流程：`steps/grouping-workflow.md`
 - 验收：`review/review-contract.md`
@@ -42,5 +41,7 @@
 
 - 输入：`projects/aigc/<项目名>/4-摄影/第N集.md`
 - 风格真源：`projects/aigc/<项目名>/0-初始化/north_star.yaml`
+- 分组综合：只读消费冻结初始化综合，不调用 team 身份、旧 stage profile 或新顾问问答
+- 时长口径：边界裁决先按 `4-摄影` 正文中每个 `分镜画面：` 块最后 `[起始秒-结束秒]` 的结束秒累计；落盘后改写为当前分镜组基准下连续递增的 `[N-N秒]`，组内 `时长估算` 取最后结束秒；组头、场景标题、全局风格、画面风格和 YAML 不计入
 - 输出：`projects/aigc/<项目名>/5-分组/第N集.md`
 - 报告：`projects/aigc/<项目名>/5-分组/执行报告.md`
