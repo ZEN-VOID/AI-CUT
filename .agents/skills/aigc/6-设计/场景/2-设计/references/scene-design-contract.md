@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | `6-设计/场景/1-清单/场景清单.md` | 作为场景主体、首次登场和原文关键词的唯一上游清单真源 | 新增未在清单出现的主体 |
 | `0-初始化/north_star.yaml` | 提取全局风格提示词、主题母题、禁区、审美方向 | 取代单场景的设计判断 |
-| `team.yaml` | 提取设计、美术、建筑、摄影、导演或大师监制上下文 | 虚构不存在的大师监制 |
+| `team.yaml.init_synthesis` | 提取设计、美术、建筑、摄影、导演相关初始化设计种子、约束、启发和风险 | 虚构不存在的大师监制或补造顾问问答 |
 | `MEMORY.md` / `CONTEXT/` | 读取项目长期偏好和共享事实 | 写入跨项目经验或技能规则 |
 | 用户补充资料 | 承接本轮特殊约束 | 覆盖更高优先级禁区，除非用户明确纠偏 |
 
@@ -154,13 +154,13 @@
 | `cinematography-reviewer` | 镜头、光线、构图和摄影一致性 |
 | `prompt-reviewer` | 英文提示词主体 ID 开头、全局风格、建筑风格、时间与地域显式锚点、`prompt_evidence_chain` 和 2000 character gate |
 
-若外部顾问与复核 provider 不可用或用户显式要求不用初始化综合消费，执行者直接使用本地等价 checklist。
+若外部 reviewer provider 不可用或用户显式要求不用初始化综合消费，执行者直接使用本地等价 checklist；不得用本地 checklist 冒充 team 顾问问答。
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否把 `6-设计/场景/1-清单/场景清单.md`、`0-初始化/north_star.yaml`、`team.yaml`、项目 `MEMORY.md` / `CONTEXT/` 和用户补充资料分别按 Source Contract 的用途锁定，而不是让任一来源替代单场景设计判断？ | `GATE-SCENE-DESIGN-01` | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | 报告记录 `input_manifest`、各来源路径、使用方式和任何缺失/降级说明。 |
+| 是否把 `6-设计/场景/1-清单/场景清单.md`、`0-初始化/north_star.yaml`、`team.yaml.init_synthesis`、项目 `MEMORY.md` / `CONTEXT/` 和用户补充资料分别按 Source Contract 的用途锁定，而不是让任一来源替代单场景设计判断？ | `GATE-SCENE-DESIGN-01` | `FAIL-SCENE-DESIGN-01` | `N2-SOURCES` | 报告记录 `input_manifest`、各来源路径、使用方式和任何缺失/降级说明。 |
 | 场景主体、首次登场和原文关键词是否只来自上游场景清单，且没有从剧情想象、研究资料或用户临时描述中新增清单外主体？ | `GATE-SCENE-DESIGN-02` | `FAIL-SCENE-DESIGN-02` | `N3-SELECT` | 留下目标主体、清单行号、`S###` 编号和未新增主体的判定证据。 |
 | 研究考据、物语、Scene Design、Cinematography、英文 prompt、`source_posture`、`visual_translation` 与 `prompt_evidence_chain` 是否由 LLM 直接完成，脚本只做字段、路径、字符数等机械检查？ | `GATE-SCENE-DESIGN-07` | `FAIL-SCENE-DESIGN-07` | `N6-DESIGN` | 报告说明核心正文生成路径、脚本实际职责和是否存在模板拼接/规则扩写痕迹。 |
 | 场景设计稿和英文 prompt 是否明确为纯空镜，并排除人物、人体局部、剪影、倒影、人群、背影或任何可识别人类存在？ | `GATE-SCENE-DESIGN-09` | `FAIL-SCENE-DESIGN-09` | `N6-DESIGN` | 留下摄影字段与 English prompt 中 `empty shot / no people / no human figures` 等约束位置，以及禁用项检查结果。 |

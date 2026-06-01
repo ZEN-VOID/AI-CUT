@@ -2,7 +2,7 @@
 
 source_character_list: `projects/aigc/<项目名>/6-设计/角色/1-清单/角色清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
-source_team: `projects/aigc/<项目名>/team.yaml`
+source_team_synthesis: `projects/aigc/<项目名>/team.yaml.init_synthesis`
 
 ## 固定画面约束
 
@@ -19,7 +19,7 @@ source_team: `projects/aigc/<项目名>/team.yaml`
 
 ## 2. 研究考据
 
-{{结合角色清单、north_star.yaml、team.yaml 和必要考据，形成可执行研究证据链。研究不得停留在资料摘抄；每个镜头都必须转化为外观、服装、姿态、摄影或 prompt 决策。}}
+{{结合角色清单、north_star.yaml、team.yaml.init_synthesis 和必要考据，形成可执行研究证据链。研究不得停留在资料摘抄；每个镜头都必须转化为外观、服装、姿态、摄影或 prompt 决策。}}
 
 ### Identity Evidence
 
@@ -226,4 +226,4 @@ research_layer:
 | Output format | Markdown 单角色设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定解构字段 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography`。 |
 | Output path | Canonical 路径为 `projects/aigc/<项目名>/6-设计/角色/2-设计/C###-<角色名>.md`；若上游已有主体 ID，则用该 ID 替代 `C###`。 |
 | Naming convention | 默认使用 `<主体ID>-<角色名>.md`；主体 ID 默认从 `C001` 起按清单顺序补零；冲突或多状态时在角色名后追加状态或首次登场 ID。 |
-| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；研究层已转化为设计证据链并标明不确定性；正文由 LLM 创作；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合全局风格和服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景全身定妆照，不置身具体场景。 |
+| Completion gate | 角色来自上游清单；已消费 `north_star.yaml` 与 `team.yaml.init_synthesis`；研究层已转化为设计证据链并标明不确定性；正文由 LLM 创作；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，融合全局风格和服装风格，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters；画面固定为纯色背景全身定妆照，不置身具体场景。 |

@@ -17,11 +17,11 @@
 - 若字段命名不统一，由 LLM 根据语义识别，但必须在执行报告中说明使用了哪些字段。
 - 不得虚构不存在的全局风格提示词；缺失时写明“未提供明确全局风格提示词”，并从 north star 的主题描述中提炼临时工作口径。
 
-`team.yaml`:
+`team.yaml.init_synthesis`:
 
-- 只消费与导演、美术、服装、摄影、角色设计、表演、动漫/漫画视觉相关的成员或大师上下文。
-- 大师上下文是监制视角，不是文风模仿许可；输出应吸收其设计判断，而不是堆人名。
-- 多个大师建议冲突时，以用户请求、项目 north star 和角色功能为裁决依据。
+- 只消费初始化阶段已统合的、与导演、美术、服装、摄影、角色设计、表演、动漫/漫画视觉相关的设计种子、约束、启发和风险。
+- 初始化综合是创作前上下文，不是文风模仿许可；输出应吸收其设计判断，而不是堆人名。
+- 多个初始化建议冲突时，以用户请求、项目 north star 和角色功能为裁决依据。
 
 ## LLM-First Creative Authorship
 
@@ -131,7 +131,7 @@
 | 待设计角色是否能回指 `角色清单.md` 的 `名称 / 首次登场 / 原文描述（关键词式）`，且未凭设计阶段兴趣新增主体？ | `GATE-CHAR-DESIGN-01` | `FAIL-NO-LIST` | `N3-CHARACTER-LIST` | `character_intake_table`、清单行号、缺失字段说明 |
 | 同名冲突、疑似漏项或归并错误是否只形成上游修复建议，而没有在本 leaf 直接改清单或静默裁决 canonical 主体？ | `GATE-CHAR-DESIGN-02` | `FAIL-CHAR-DESIGN-UPSTREAM-SCOPE` | `N1-INTAKE` / `N3-CHARACTER-LIST` | `execution_scope`、上游修复建议、未改动上游声明 |
 | `north_star.yaml` 的全局风格、主题、时代/地域、影像气质、禁区和视觉约束是否被读取；字段漂移或缺失是否明确报告，而非虚构风格？ | `GATE-CHAR-DESIGN-03` | `FAIL-NO-STYLE` | `N2-PROJECT-CONTEXT` | `project_design_context`、已消费字段清单、临时工作口径 |
-| `team.yaml` 是否只消费设计相关监制上下文，并把冲突建议按用户请求、north star 与角色功能裁决，而不是堆人名或模仿文风？ | `GATE-CHAR-DESIGN-04` | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `N2-PROJECT-CONTEXT` / `N6-INIT-SYNTHESIS-REVIEW` | init synthesis source、冲突裁决依据、剔除无关成员说明 |
+| `team.yaml.init_synthesis` 是否只消费设计相关初始化综合，并把冲突建议按用户请求、north star 与角色功能裁决，而不是堆人名、模仿文风或补造顾问问答？ | `GATE-CHAR-DESIGN-04` | `FAIL-CHAR-DESIGN-ADVISOR-CONTEXT` | `N2-PROJECT-CONTEXT` / `N6-INIT-SYNTHESIS-REVIEW` | init synthesis source、冲突裁决依据、剔除无关内容说明 |
 | 研究考据、物语、解构、服装设计、摄影描述和 prompt 是否由 LLM 主创，脚本只做读取、列检查、路径、统计、空字段和 manifest 汇总？ | `GATE-CHAR-DESIGN-05` | `FAIL-SCRIPT-AUTHORSHIP` | `N7-MERGE-DRAFT` | 脚本职责清单、LLM 汇流声明、正文生成来源说明 |
 | `identity / occupation / class / region_era / costume_craft / body_posture / taboo_constraints / uncertainty / prompt_evidence_chain` 是否都产生设计转化，而非资料堆叠？ | `GATE-CHAR-DESIGN-06` | `FAIL-RESEARCH-FLAT` | `N5-RESEARCH-PROFILE` | `research_profile`、八镜头覆盖表、每镜头 `design implication` |
 | 低证据推演、外部资料线索和待确认项是否标明“推演/待确认/置信度”，没有伪装成清单事实？ | `GATE-CHAR-DESIGN-07` | `FAIL-UNCERTAINTY-HIDDEN` | `N5-RESEARCH-PROFILE` | `Uncertainty Notes`、来源/置信度标注、待确认项 |

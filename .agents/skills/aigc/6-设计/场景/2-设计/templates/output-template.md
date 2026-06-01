@@ -2,7 +2,7 @@
 
 source_scene_list: `projects/aigc/<项目名>/6-设计/场景/1-清单/场景清单.md`
 source_north_star: `projects/aigc/<项目名>/0-初始化/north_star.yaml`
-source_team: `projects/aigc/<项目名>/team.yaml`
+source_team_synthesis: `projects/aigc/<项目名>/team.yaml.init_synthesis`
 
 ## 固定画面约束
 
@@ -26,7 +26,7 @@ research_brief:
     - "{{会影响空间形制、材质、光线、地域、年代或仪式可信度的问题}}"
   source_posture:
     project_source:
-      - "{{来自场景清单 / north_star.yaml / team.yaml / MEMORY.md / CONTEXT/ 的强约束}}"
+      - "{{来自场景清单 / north_star.yaml / team.yaml.init_synthesis / MEMORY.md / CONTEXT/ 的强约束}}"
     user_source:
       - "{{用户本轮补充；无则写 none}}"
     common_knowledge:
@@ -151,7 +151,7 @@ Lighting Type: {{lighting_type_en}}
 | prompt token group | evidence source | visual translation | uncertainty handling |
 | --- | --- | --- | --- |
 | subject_id_prefix | {{上游场景清单主体 ID / 文件名前缀 S###}} | {{英文整合提示词开头必须使用的主体 ID 号}} | mandatory |
-| style_anchor | {{north_star.yaml / team.yaml / user_source}} | {{全局风格如何转为可见色彩、质感、构图或氛围}} | {{无 / 保守化 / 非特指化}} |
+| style_anchor | {{north_star.yaml / team.yaml.init_synthesis / user_source}} | {{全局风格如何转为可见色彩、质感、构图或氛围}} | {{无 / 保守化 / 非特指化}} |
 | period_region_tokens | {{research_brief.source_posture / type_profile / user_source}} | {{最终英文 prompt 中必须显式出现的时间与地域英文 token}} | {{无 / 保守化 / 非特指化}} |
 | spatial_tokens | {{research_brief.evidence_matrix}} | {{空间结构、尺度、边界、动线}} | {{无 / 保守化 / 非特指化}} |
 | material_tokens | {{research_brief.evidence_matrix}} | {{材质、表面、装饰、陈设}} | {{无 / 保守化 / 非特指化}} |
@@ -187,4 +187,4 @@ notes: ""
 | Output format | Markdown 单场景设计稿；`## 4. 解构` 标题下方必须先写 `主体ID号：<主体ID>`，再写固定英文槽位；英文 prompt 放入 fenced text block。 |
 | Output path | canonical path 为 `projects/aigc/<项目名>/6-设计/场景/2-设计/S###-<场景名>.md`。 |
 | Naming convention | `S###` 来自上游清单顺序，场景名使用清单 canonical 名称并替换非法文件名字符。 |
-| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，有 prompt_evidence_chain，已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息，融合全局风格、建筑风格、时间与地域锚点且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |
+| Completion gate | 场景来自上游清单；已消费 `north_star.yaml` 与 `team.yaml.init_synthesis`；正文由 LLM 创作；研究层包含 research_brief / source_posture / uncertainty_register / visual_translation；`## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，有 prompt_evidence_chain，已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息，融合全局风格、建筑风格、时间与地域锚点且不超过 2000 字符；画面固定为纯空镜，无人物、人体局部、剪影或人群。 |
