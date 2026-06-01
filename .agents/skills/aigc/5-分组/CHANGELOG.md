@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2026-06-01 (Direct Screenplay Intake)
+
+- 新增 `source_state=direct_screenplay` 源层规则：当用户要求 `5-分组` 直接接手剧本/编导稿，或项目缺少 `4-摄影` 但存在可读剧本源时，不再阻断到 `4-摄影`。
+- 明确 direct screenplay 路径由 LLM 按剧本声画 atomic unit 自动规划约 15 秒/组，补写连续 `[N-N秒]` 时间码、组级 `画面风格：`、首帧衔接和 YAML 统计；脚本仍只做机械校验。
+- 要求 frontmatter 与执行报告声明剧本源路径、`source_state=direct_screenplay`、时间码由本阶段规划，以及 `4-摄影` 字段级 diff 不适用。
+- 同步 `SKILL.md`、`types/grouping-type-map.md`、`references/group-boundary-contract.md`、`steps/grouping-workflow.md`、`review/review-contract.md`、`CONTEXT.md` 与 `README.md`。
+
+## 2026-06-01 (Hulong Frame Terminology)
+
+- 将“回龙帧”定义为首帧衔接的内部执行口径：下一分镜组第一个普通 `[0-N秒]` 分镜行完整代入上一组结尾状态画面点内容，再通过景别和镜头视角调整进入本组开始画面。
+- 明确回龙帧不是输出字段、独立连接件、上一组完整画面块复制或完整原画面性字段复制；新产物不得输出 `回龙帧：`、来源说明或规则说明。
+- 补充声音承托规则：若回龙锚点来自对白画面、独白画面、旁白画面或音效画面，必须同步带入对应声音内容，避免声画承托断裂。
+- 同步 `SKILL.md`、boundary、workflow、review、模板、README、入口元数据、经验层、类型包、脚本说明与 validator。
+
+## 2026-06-01 (Inherited Visual Field Titles)
+
+- 将 `5-分组` 的正文继承口径同步为直接保留 `4-摄影` 的原画面性字段标题，不再把画面字段替换或包裹为 `分镜画面：`。
+- 强化组内时间码规则：每个分镜组内部从 `[0-N秒]` 开始后连续累加，后续原画面性字段下的时间段不得各自从 0 重启。
+- 同步 `SKILL.md`、boundary / visual-tone / statistics / north-star references、workflow、review、模板、README、入口元数据、经验层、类型包、脚本说明与 validator。
+
 ## 2026-06-01 (First Storyboard Line Continuity Schema)
 
 - 移除 `增补首帧：` 作为输出字段的规则；首帧衔接只作为内部裁决，落盘时直接内化为每组第一个普通 `[0-N秒]` 分镜行。

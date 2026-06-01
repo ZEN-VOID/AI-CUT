@@ -27,8 +27,13 @@ last_checked_at: 2026-05-04
 | 视频清晰但像正面摆拍资料图 | 摄影沉浸感层 | 判断 prompt 是否已有低角度/前景/透视/发现路径；有则 rerun-only，缺则回修 `4-摄影` 或 `5-分组` | review-dimensions 固定 `Viewer Immersion Subcheck` | 报告区分 `flat_observer_view` 与 `immersive_camera_view` |
 | 用户提供好/坏示例但未转化为维度 | 示例学习链路缺失 | 提炼可观察维度后再比较，不只写“更像/不像” | 好/坏示例必须进入 `example_calibration`，稳定经验再写 CONTEXT | 报告说明靠近好示例和落入坏示例的具体点 |
 | 只看 prompt / 分组文本就给审片结论 | 真实视频内容分析门缺失 | 立即补采关键帧、联系表和音频事实，先写 `observed_content_summary` 再判断 | `SKILL.md` 与证据合同固定 real video understanding gate | 报告能先说明视频里实际发生了什么，并回指证据 |
+| LibTV 链接审片停留在远端节点 JSON | LibTV intake 层缺失 | 用 `libtv node` 保存远端 query，再用 `libtv download` 下载真实视频，之后抽帧审片 | LibTV 入口必须固定 `N0-LIBTV-INTAKE -> N1/N3`，远端 URL 只作生成路线证据 | 报告同时有 `libtv_input`、本地视频路径、ffprobe 和关键帧/联系表 |
+| 画布名或视频名模糊导致审错节点 | LibTV target resolution 层 | 画布名必须 `libtv project list --name` 唯一命中；视频名默认只在 group_id 明确时使用 | 多命中阻断并要求 URL/project UUID/node key，不凭画面猜 | `libtv_input.projectUuid` 和 `video_node_key` 唯一 |
+| 远端 prompt 被 `{{Portrait N}}` 或绑定表污染 | LibTV prompt hygiene 层 | 保存修复前 node query，修干净 prompt，final query 确认无污染后再 rerun | `GATE-REVIEW-15` 固定 prompt hygiene 和 rerun closure | 报告有 before/after query、task id、result URL、queue record |
 | 顾问与复核流程启用时只本地模拟审片顾问 | 顾问请教层 | 回到项目 `team.yaml` 和共享团队顾问合同；不可用时直接使用本地流程 | `review_advisor_packet` 或本地 checklist 固定记录 node/pass/gate、角色视角和可执行指导 | packet 或本地 checklist 能回指审片节点与修复建议 |
 | 顾问与复核流程的顾问只给泛泛审美评价 | 顾问问题质量层 | 回到当前 `N3-EVIDENCE` / `N4-COMPARE` / `N5-LANDING` 节点，从 evidence、judgment、gate 和 rework target 派生问题 | 顾问输出必须转成 `must_check / must_not_accept / quality_bar / rerun_or_repair_guidance` | packet 中每条采纳意见都能影响证据补强、质量门、错配归因或落点风险 |
+| 审片变成固定流程打勾 | 方法选择层缺失 | 先用真实视频摘要选择 method palette，再判断 finding | `GATE-REVIEW-16` 固定 selected / skipped methods 和用户关注点覆盖 | 报告中有 `method_selection`，能解释为什么查或不查表演、摄影、声音、道具等方法 |
+| finding 只写“重跑/修分组”但无法执行 | operation design 层缺失 | 每条重要 finding 写 candidate operations、chosen operation 和拒绝其他操作理由 | `GATE-REVIEW-17` 固定 operation 与 landing 分离 | 报告能说明是同 prompt 重跑、修 LibTV prompt、拆组、修资产引用、修图片顺序、修声音策略还是补证 |
 
 ## Repair Playbook
 
@@ -45,6 +50,11 @@ last_checked_at: 2026-05-04
 10. 用户给好/坏示例时，先抽取维度，再比较目标视频；稳定可迁移的鉴赏判断才沉淀到本文件。
 11. 真实视频内容分析必须先于 verdict：先描述真实画面、主体、动作、空间、节奏、关键物和音频事实，再谈 prompt 匹配、创作质量和上游修复。
 12. 若本轮执行顾问与复核流程，先把 `team.yaml` 监制组相关智能顾问团作为审片监制请教；问题必须绑定当前审片节点，让顾问围绕证据缺口、prompt 归因、创作质量门、示例校准和落点越权风险给参谋，不问泛泛“好不好”。
+13. LibTV 链接或画布名审片时，先把远端目标标准化为 `projectUuid + video_node_key + downloaded_video_path`；只有下载并抽帧后才进入审片判断。
+14. LibTV 画布名多命中、视频节点多命中或只给画布不给视频名时，优先阻断澄清；不要为了继续流程从画布节点列表里猜一个视频。
+15. 远端 node query 中的 `params.prompt`、`taskInfo` 和 `imageList/mixedList` 是 prompt 对照证据，不是视频内容证据；真实内容仍以本地视频关键帧和联系表为准。
+16. 审片方法不是固定表。真实视频理解后先选方法：人物表演明显就查表演，镜头语言关键就查摄影，音轨存在就查声音，关键物/文字出现就查道具和伪影，同组多变体就查候选片比较。
+17. landing 和 operation 要分开写。`group_repair` 是层级，具体操作可能是改 prompt、拆组、并组、修资产引用或修图片顺序；`rerun_only` 也要区分同 prompt 重跑和换 seed/model 重跑。
 
 ## Reusable Heuristics
 
@@ -57,6 +67,9 @@ last_checked_at: 2026-05-04
 - 反平庸审片要把“技术可用”和“创作优先级”分开；没有明显崩坏的视频也可能因为库存感、无记忆点或节奏平铺而不值得选。
 - 没有 `observed_content_summary` 的审片报告不合格；关键帧和联系表只是证据载体，必须由 LLM 把它们转化为对真实视频内容的理解分析。
 - 顾问与复核流程下，顾问是审片参谋，不是最终裁判；主 agent 必须用真实视频证据和本技能合同裁决 verdict、landing 和写回范围。
+- `libtv download` 是 LibTV 审片入口的分水岭：下载前只能做目标解析和生成路线核验，下载后才允许做视频本体、prompt 匹配和创作质量 verdict。
+- 重新提交不是审片的默认动作；只有用户明确要求或 landing 合同授权时，才在 prompt hygiene 通过后执行 `libtv node --run` 并写 task/final query 证据。
+- 固定流程只负责自动化，不负责替代判断。高质量审片要能解释“为什么这条视频需要查这些点”，并能把结论落到具体操作。
 
 ## Aesthetic Calibration Heuristics
 

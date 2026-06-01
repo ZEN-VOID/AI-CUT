@@ -9,7 +9,7 @@ source_cinematography_path: projects/aigc/<项目名>/4-摄影/第N集.md
 north_star_path: projects/aigc/<项目名>/0-初始化/north_star.yaml
 output_path: projects/aigc/<项目名>/5-分组/第N集.md
 grouping_policy: explicit_time_range_sum_target_15s_hard_max_18s_inherited_visual_field_titles
-first_storyboard_line_policy: previous_group_tail_state_folded_into_normal_timecoded_line
+first_storyboard_line_policy: hulong_frame_tail_visual_point_and_sound_folded_into_normal_timecoded_line
 review_status: pending
 ---
 
@@ -53,7 +53,7 @@ review_status: pending
 画面风格：<从组内镜头设计提炼的自然语句；不再另列画面构图或位置细节字段>
 
 <首个原画面性字段标题>：
-[0-N秒] <按普通分镜画面语言自然承接上一组尾部状态并进入本组开始画面；只写画面，不写特殊字段、来源说明或规则说明>
+[0-N秒] <按回龙帧口径完整代入上一组结尾状态画面点内容，只调整景别和镜头视角进入本组开始画面；若该点来自对白画面、独白画面、旁白画面或音效画面，同步带入对应声音内容；只写画面和必要声音，不写特殊字段、来源说明或规则说明>
 <从 4-摄影 划定的下一组分镜剧本正文，同步原换行；原画面性字段标题完整保留，正文中的 `[起始秒-结束秒]` 按当前分镜组从 0 连续累加改写>
 
 ```yaml

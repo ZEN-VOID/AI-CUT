@@ -2,6 +2,8 @@
 
 本合同定义 `9-审片` 的核心审片维度。所有判断必须基于真实视频证据、prompt / 分镜组证据或用户提供的示例证据，避免空泛审美口号。
 
+本文件提供底座维度；更丰富的方法选择和操作设计由 `references/review-method-palette-contract.md` 负责。执行时先完成真实视频理解，再用方法库决定是否额外进入连续性、表演、摄影、剪辑节奏、声音、道具、伦理安全、AIGC 伪影、prompt 执行、候选片比较和修复设计。
+
 ## Dimension 1: Video Intrinsic Problems
 
 审查视频本身是否可用，即使暂时不看 prompt 也要先判断素材是否存在硬伤。
@@ -71,8 +73,9 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 是否先基于真实视频证据逐项判断 `basic_waste`、`logic_reasonability`、`consistency`、`common_aigc_artifacts`，而不是直接从 prompt 或分组文本推断素材可用性？ | `GATE-REVIEW-04` / `GATE-REVIEW-03` | `FAIL-REVIEW-EVIDENCE` | `steps/video-review-workflow.md#N3 Evidence Capture`、`references/video-evidence-contract.md`、本文件 `Dimension 1` | 元数据、关键帧/联系表、音频说明、`observed_content_summary`、本体问题逐项判断 |
-| prompt / 分镜组匹配是否给出 `matched`、`partially_matched`、`mismatched` 或 `not_enough_prompt_evidence`，并说明主体、动作、空间、风格和约束的 expected / actual？ | `GATE-REVIEW-05` / `GATE-REVIEW-09` | `FAIL-REVIEW-PROMPT-MATCH` | `steps/video-review-workflow.md#N4 Compare`、本文件 `Dimension 2` | prompt / 分组证据、expected / actual 对照、匹配 verdict |
-| 不一致时是否明确归因为 `prompt_problem`、`model_problem`、`evidence_gap` 或 `mixed_cause`，并把修复路线指向对应 owner？ | `GATE-REVIEW-05` / `GATE-REVIEW-10` | `FAIL-REVIEW-PROMPT-MATCH` | 本文件 `Mismatch Attribution`、`steps/video-review-workflow.md#N4 Compare` / `#N5 Landing` | `root_cause_guess`、repair route、缺证据说明或混合原因拆分 |
-| 创作质量是否检查反平庸、艺术方向、摄影、节奏、美学完整性，并用可观察画面/节奏/叙事效果支撑，而不是只有“电影感”“好看”等口号？ | `GATE-REVIEW-06` | `FAIL-REVIEW-QUALITY` | `steps/video-review-workflow.md#N4 Compare`、本文件 `Dimension 3` | 创作质量 finding、可观察 strong/weak signal、质量 verdict |
-| 人物行走、入场、压迫、群像或空间建立视频是否额外执行 `Viewer Immersion Subcheck`，并区分 `flat_observer_view`、`immersive_camera_view` 及其 prompt/model 归因？ | `GATE-REVIEW-06` / `GATE-REVIEW-05` | `FAIL-REVIEW-QUALITY` | 本文件 `Viewer Immersion Subcheck`、`steps/video-review-workflow.md#N4 Compare` | 观众位置判断、机位/前景/遮挡/透视证据、prompt/model 归因 |
+| prompt / 分镜组匹配是否给出 `matched`、`partially_matched`、`mismatched` 或 `not_enough_prompt_evidence`，并说明主体、动作、空间、风格和约束的 expected / actual？ | `GATE-REVIEW-05` / `GATE-REVIEW-09` | `FAIL-REVIEW-PROMPT-MATCH` | `steps/video-review-workflow.md#N4 Method Palette Compare`、本文件 `Dimension 2` | prompt / 分组证据、expected / actual 对照、匹配 verdict |
+| 不一致时是否明确归因为 `prompt_problem`、`model_problem`、`evidence_gap` 或 `mixed_cause`，并把修复路线指向对应 owner？ | `GATE-REVIEW-05` / `GATE-REVIEW-10` | `FAIL-REVIEW-PROMPT-MATCH` | 本文件 `Mismatch Attribution`、`steps/video-review-workflow.md#N4 Method Palette Compare` / `#N5 Landing And Operation Design` | `root_cause_guess`、repair route、缺证据说明或混合原因拆分 |
+| 创作质量是否检查反平庸、艺术方向、摄影、节奏、美学完整性，并用可观察画面/节奏/叙事效果支撑，而不是只有“电影感”“好看”等口号？ | `GATE-REVIEW-06` | `FAIL-REVIEW-QUALITY` | `steps/video-review-workflow.md#N4 Method Palette Compare`、本文件 `Dimension 3` | 创作质量 finding、可观察 strong/weak signal、质量 verdict |
+| 是否已按 `review-method-palette-contract` 选择适配方法，避免把本文件三层底座误当成完整固定流程？ | `GATE-REVIEW-16` | `FAIL-REVIEW-METHOD-SELECTION` | `references/review-method-palette-contract.md`、`steps/video-review-workflow.md#N4 Method Palette Compare` | `method_selection`、跳过方法理由、用户关注点覆盖 |
+| 人物行走、入场、压迫、群像或空间建立视频是否额外执行 `Viewer Immersion Subcheck`，并区分 `flat_observer_view`、`immersive_camera_view` 及其 prompt/model 归因？ | `GATE-REVIEW-06` / `GATE-REVIEW-05` | `FAIL-REVIEW-QUALITY` | 本文件 `Viewer Immersion Subcheck`、`steps/video-review-workflow.md#N4 Method Palette Compare` | 观众位置判断、机位/前景/遮挡/透视证据、prompt/model 归因 |
 | 最终 verdict 是否综合视频本体、prompt / 分镜组匹配和创作质量三层；任一阻断级问题是否阻止 `pass`，创作质量弱但无硬伤是否仅给 `conditional_pass`？ | `GATE-REVIEW-12` / `GATE-REVIEW-10` | `FAIL-REVIEW-VERDICT` | `steps/video-review-workflow.md#N7-VERIFY`、本文件 `Verdict Rule` | 最终 verdict、三层判断摘要、阻断项或 conditional_pass 理由 |

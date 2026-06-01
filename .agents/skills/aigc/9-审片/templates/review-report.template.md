@@ -2,6 +2,7 @@
 
 ## Input
 
+- input_origin:
 - video_path:
 - project_root:
 - group_id:
@@ -9,8 +10,24 @@
 - source_group_path:
 - reviewed_at:
 
+## LibTV Intake
+
+- input_shape:
+- canvas_url:
+- canvas_name:
+- projectUuid:
+- video_node_name:
+- video_node_key:
+- remote_result_url:
+- remote_task_id:
+- remote_query_path:
+- download_output_path:
+- canonical_video_path:
+- prompt_source:
+
 ## Evidence
 
+- source_origin:
 - duration:
 - resolution:
 - fps:
@@ -20,6 +37,14 @@
 ## Observed Content
 
 <实际视频内容概述>
+
+## Method Selection
+
+- selected_methods:
+- skipped_methods:
+- selection_reason:
+- user_focus_coverage:
+- advisor_focus_coverage:
 
 ## Expected From Group
 
@@ -66,8 +91,17 @@
 
 ## Findings
 
-| id | dimension | severity | expected | actual | root_cause_guess | evidence | confidence | landing |
-| --- | --- | --- | --- | --- | --- | --- | ---: | --- |
+| id | method_id | dimension | severity | expected | actual | root_cause_guess | evidence | confidence | landing | chosen_operation |
+| --- | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- |
+
+## Operation Design
+
+- candidate_operations:
+- chosen_operations:
+- rejected_operations_reason:
+- authorization_required:
+- closure_evidence:
+- next_action:
 
 ## Landing Decision
 
@@ -80,14 +114,23 @@
 ## Thinking Process
 
 - 为什么选择当前审片路径：
+- 为什么选择这些审片方法，为什么跳过其他方法：
 - 视频本身、prompt 匹配和创作质量三层如何综合：
 - 顾问与复核流程的顾问参谋如何影响或没有影响本次判断：
 - 如果不一致，为什么归因为 prompt / 模型 / 混合原因 / 证据缺口：
 - 好/坏示例如何影响本次判断：
 - 为什么这些 finding 应该这样落点：
+- 为什么选择这些操作，为什么没有选择其他操作：
 - 为什么没有/已经上升源层：
 
 ## Verification
 
 - checks:
+- libtv_checks:
+  - project_resolved:
+  - node_resolved:
+  - remote_query_saved:
+  - real_video_downloaded:
+  - prompt_hygiene_checked:
+  - rerun_closed:
 - residual_risk:

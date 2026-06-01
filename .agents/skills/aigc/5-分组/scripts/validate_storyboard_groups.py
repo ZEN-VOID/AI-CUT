@@ -4,8 +4,9 @@
 This script is intentionally read-only. It checks structure, rough word
 limits, storyboard block durations, group IDs, global style fields,
 visual-style placement, group-baseline time ranges, deprecated connector blocks,
-deprecated supplemental-first-frame fields, deprecated position-detail fields, and YAML
-stats. It does not generate grouping decisions or creative text.
+deprecated supplemental-first-frame/hulong-frame fields, deprecated
+position-detail fields, and YAML stats. It does not generate grouping decisions
+or creative text.
 """
 
 from __future__ import annotations
@@ -66,6 +67,7 @@ DEPRECATED_GROUP_LABELS = (
     "出场画面：",
     "画面属性：",
     "增补首帧：",
+    "回龙帧：",
     "入场画面：",
     *DEPRECATED_POSITION_DETAIL_LABELS,
 )

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-06-01
+
+- 增加 `references/review-method-palette-contract.md`，将审片从固定流程升级为“默认自动化载体 + 动态方法库 + 操作设计”。
+- 新增方法族：source fidelity、连续性、表演、摄影、剪辑节奏、声音、关键道具、伦理安全、AIGC 伪影、prompt 执行、候选片比较和修复设计。
+- 扩展 landing / operation 合同：支持接受、条件接受、变体比较、同 prompt 重跑、换 seed/model 重跑、LibTV prompt 修复并重提、拆并组、资产引用修复、图片顺序修复、声音策略修复、补证和 reject 归档。
+- 同步 `GATE-REVIEW-16/17`、`FAIL-REVIEW-METHOD-SELECTION`、`FAIL-REVIEW-OPERATION-DESIGN`、报告模板和类型映射。
+- 标准化 LibTV 审片入口：支持 `LibTV 链接 + 视频名`、`projectUuid + 视频名`、`画布名 + 视频名` 与 `.libtv/project.json` 默认项目。
+- 新增 `references/libtv-intake-contract.md`，要求通过 `.agents/skills/cli/libTV` 查询项目、查询视频节点、保存 node query、下载真实视频，再进入抽帧审片。
+- 将审片步骤拓扑升级为 `N0-LIBTV-INTAKE -> N1 -> N2 -> N3...`，避免只凭 prompt、远端 URL 或节点 JSON 做文本判断。
+- 同步 `types/type-map.md`、`review/review-gate.md`、`templates/review-report.template.md`、`video-evidence-contract.md` 与 `video-naming-contract.md`，补齐 LibTV evidence、prompt hygiene 和 rerun closure 门禁。
+- 在 `CONTEXT.md` 沉淀本轮经验：远端 node query 是生成路线证据，`libtv download` 后的本地视频关键帧/联系表才是审片 verdict 的事实基础。
+
 ## 2026-05-04
 
 - 初始化 `9-审片` Skill 2.0 包。
