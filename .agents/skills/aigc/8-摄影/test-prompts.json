@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-episode-camera-injection",
+    "prompt": "使用 $aigc-camera-movement-injection，读取 projects/aigc/示例项目/7-分镜/第1集.md，并结合 3-美学/画面基调 和 3-美学/摄影风格，生成逐分镜摄影运镜稿。",
+    "expected": "输出 projects/aigc/示例项目/8-摄影/第1集.md；每条普通分镜保留原有内容并追加镜头角度、镜头类型、镜头速度、焦点行为的综合运镜手法；报告包含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log。"
+  },
+  {
+    "id": "specified-storyboard-override",
+    "prompt": "跳过默认 7-分镜路径，用我指定的 /tmp/第2集分镜.md 直接做 8-摄影。",
+    "expected": "记录 source_override=true；使用指定文稿为 source；仍需加载或要求提供画面基调与摄影风格；只在可识别分镜行后追加运镜。"
+  },
+  {
+    "id": "one-take-camera-chain",
+    "prompt": "第3集第2场要求一镜到底，请把该画面点下所有分镜设计为连续组合运镜。",
+    "expected": "进入 one_take_camera_injection；以画面点为单位输出 一镜到底运镜（覆盖分镜A-B，N-N秒）：...；报告包含 one_take_chain_plan 和 transition_anchor_map。"
+  },
+  {
+    "id": "repair-random-camera-terms",
+    "prompt": "修复一个每条分镜都写成低角度慢推、转焦、电影感压迫的 8-摄影稿。",
+    "expected": "回到 shot_function_map 和 camera_movement_plan；删除随机术语，按每条分镜功能重裁镜头角度、镜头类型、速度和焦点；报告包含 FAIL-CAM-MOTIVATION-RANDOM 的返工证据。"
+  }
+]

@@ -1,0 +1,30 @@
+# Shot Continuity Contract
+
+本文件定义 `8-摄影` 的连续性规则。运镜注入不是给每条分镜套独立镜头，而是在整集、场景、画面点和分镜行之间建立可剪辑的观看链。
+
+## Continuity Scope
+
+| scope | requirement |
+| --- | --- |
+| `within_shot_line` | 同一分镜内，角度、运动、速度和焦点必须服务原有分镜内容 |
+| `within_visual_point` | 同一画面点内，相邻分镜的主体位置、运动方向、焦点和光色不能断裂 |
+| `between_visual_points` | 相邻画面点首尾要保留姿态、声音、方向或光色交接 |
+| `between_groups` | 若 source 已有分镜组或用户要求跨组连贯，必须记录上一组末镜和下一组首镜的连接策略 |
+| `one_take` | 一镜到底时跨分镜和跨组都不能硬切，必须以运动链连续推进 |
+
+## Axis And Direction Rule
+
+双人/多人对峙、追逐、逼问、谈判、动作场必须先锁定：
+
+- line of action。
+- screen left/right。
+- 摄影机所在同侧半区。
+- 换轴是否有中性镜、主观镜、可见运动或角色换位桥接。
+
+## Review Gate Mapping
+
+| review_question | gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 是否回看临近至少前 3 个画面点后再设计当前运镜？ | `GATE-CAM-08-CONT-01` | `FAIL-CAM-CONTEXT-LOOKBACK` | `N4-CAM-CONTEXT` | lookback_note |
+| 双人/多人关系是否保持轴线和画面方向？ | `GATE-CAM-08-CONT-02` | `FAIL-CAM-AXIS-BREAK` | `N6-CAM-MOVEMENT-DESIGN` | axis_continuity_map |
+| 相邻分镜是否没有姿态、位置、焦点或光色断裂？ | `GATE-CAM-08-CONT-03` | `FAIL-CAM-SHOT-BREAK` | `N6-CAM-MOVEMENT-DESIGN` | continuity_patch_log |

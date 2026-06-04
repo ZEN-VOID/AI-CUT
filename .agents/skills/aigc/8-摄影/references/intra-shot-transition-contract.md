@@ -1,0 +1,28 @@
+# Intra Shot Transition Contract
+
+本文件定义 `8-摄影` 如何处理相邻分镜之间的镜内/镜间过渡锚点，尤其适用于用户要求流畅、丝滑、连贯或一镜到底时。
+
+## Transition Anchors
+
+每个相邻分镜至少检查一种可继承锚点：
+
+| anchor | use |
+| --- | --- |
+| `body_anchor` | 人物姿态、朝向、手部位置、身体接触状态 |
+| `motion_anchor` | 运动方向、速度、转身、入画/出画方向 |
+| `focus_anchor` | 上一镜焦点如何交给下一镜主体 |
+| `sound_anchor` | 台词尾音、环境声、撞击声、呼吸、脚步声 |
+| `light_color_anchor` | 光线变化、阴影边缘、色温变化 |
+| `prop_anchor` | 重要道具状态或互动动作，不允许普通无互动道具抢焦点 |
+
+## Projection Rule
+
+过渡锚点不能只存在于报告或内部计划。普通模式下，它应压缩进入相邻分镜的运镜句；一镜到底模式下，它应成为连续运动链的连接节点。
+
+## Review Gate Mapping
+
+| review_question | gate | fail_code | rework_target | report_evidence |
+| --- | --- | --- | --- | --- |
+| 相邻分镜是否至少有一种连续锚点？ | `GATE-CAM-08-TRANS-01` | `FAIL-CAM-TRANSITION-ANCHOR` | `N6-CAM-MOVEMENT-DESIGN` | transition_anchor_map |
+| 过渡锚点是否进入正文，而不是只写在报告？ | `GATE-CAM-08-TRANS-02` | `FAIL-CAM-TRANSITION-NOT-PROJECTED` | `N7-CAM-INJECT` | text_projection_samples |
+| 是否没有为普通无互动道具强行设置过渡焦点？ | `GATE-CAM-08-TRANS-03` | `FAIL-CAM-PROP-OVERFOCUS` | `N6-CAM-MOVEMENT-DESIGN` | prop_admission_log |

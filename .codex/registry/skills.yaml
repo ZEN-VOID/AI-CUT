@@ -70,6 +70,12 @@ active_skills:
         contract_status: active
         route_role: stage
         purpose: 默认消费 `6-氛围` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调` 与 `3-美学/分镜风格`，在原剧本画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`。
+      - id: aigc-8-camera-movement-injection
+        path: .agents/skills/aigc/8-摄影
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 默认消费 `7-分镜` 逐集稿或用户指定分镜稿，并结合 `3-美学/画面基调` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容` 后内联注入综合运镜手法；一镜到底时以画面点为单位输出连续组合运镜。
       - id: aigc-3-motion-enrichment
         path: .agents/skills/aigc/3-运动
         owner_office: shangshu
