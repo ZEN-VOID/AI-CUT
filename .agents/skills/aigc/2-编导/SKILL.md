@@ -8,17 +8,17 @@ metadata:
 
 # aigc 2-编导
 
-`2-编导` 是 AIGC 影视主链中唯一的编剧、导演和表演整合阶段。它接收 `1-分集/第N集.md`，一次性完成旧 `2-编剧`、`3-导演`、`4-表演` 的创作职责：保真剧本化、导演级戏剧与视觉判断、演员可执行表演工艺，并把最终正文全部落成具像、可拍、可听、可演的画面化语言。
+`2-编导` 是 AIGC 影视主链中的导演与表演整合阶段。它优先接收 `2-编剧/第N集.md`，在项目尚未生成 `2-编剧` 且用户明确直接编导时回退接收 `1-分集/第N集.md`，继续完成导演级戏剧与视觉判断、演员可执行表演工艺，并把最终正文全部落成具像、可拍、可听、可演的画面化语言。
 
-本阶段不再把导演判断和表演工艺拆成独立 canonical 阶段；旧 `3-导演`、`4-表演` 技能目录已移除，这些名称只作为 legacy 兼容触发词或历史项目产物回读线索。下游 `3-运动` 的默认输入固定为 `projects/aigc/<项目名>/2-编导/第N集.md`；`4-摄影` 默认读取 `3-运动/第N集.md`，仅在用户显式跳过运动强化时回退读取本阶段编导稿。
+本阶段不再把导演判断和表演工艺拆成独立 canonical 阶段；旧 `3-导演`、`4-表演` 技能目录已移除，这些名称只作为 legacy 兼容触发词或历史项目产物回读线索。`2-编剧` 已恢复为 active 剧本阶段，不再作为本阶段的 legacy 别名。下游 `3-运动` 的默认输入固定为 `projects/aigc/<项目名>/2-编导/第N集.md`；`4-摄影` 默认读取 `3-运动/第N集.md`，仅在用户显式跳过运动强化时回退读取本阶段编导稿。
 
 ## Context Loading Contract
 
 - 每次调用 `$aigc-writing-directing` 或命中 `2-编导` 时，必须同时加载同目录 `CONTEXT.md`。
 - 每次调用本技能时，必须识别并加载同目录 `types/` 中命中的类型包；默认至少读取 `types/type-map.md`、`types/source-to-script-type-map.md` 和 `types/performance-evidence-type-map.md`，涉及尾钩或跨集时再加载对应类型包。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按需加载项目根 `CONTEXT/` 中与本轮分集、角色、风格、表演或制作约束直接相关的文件。
-- 若项目存在 `team.yaml`，只能读取 `team.yaml.init_synthesis.stage_seed_summary."2-编导"` 与初始化问答 provenance 作为冻结 `init_team_synthesis_context`；不得在本阶段调用 `.agents/skills/team/` 成员身份、解析旧 stage profile、或生成新的 team 顾问/角色代入包。旧项目残留的 `2-编剧`、`3-导演`、`4-表演` stage profile 只能作为只读迁移证据，不得重新形成独立入口。
-- 上游正文真源固定为 `projects/aigc/<项目名>/1-分集/第N集.md`，除非用户显式指定其他逐集正文文件。
+- 若项目存在 `team.yaml`，只能读取 `team.yaml.init_synthesis.stage_seed_summary."2-编导"` 与初始化问答 provenance 作为冻结 `init_team_synthesis_context`；不得在本阶段调用 `.agents/skills/team/` 成员身份、解析旧 stage profile、或生成新的 team 顾问/角色代入包。旧项目残留的 `3-导演`、`4-表演` stage profile 只能作为只读迁移证据，不得重新形成独立入口。
+- 上游正文真源优先为 `projects/aigc/<项目名>/2-编剧/第N集.md`；若该文件不存在且用户明确直接编导，则回退到 `projects/aigc/<项目名>/1-分集/第N集.md`；用户显式指定其他逐集正文文件时以用户路径为准。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 新的稳定失败模式或可复用打法先写入 `CONTEXT.md`；只有稳定为强制规则后再晋升到本文件或对应分区。
 
@@ -43,10 +43,10 @@ metadata:
 
 Accepted input:
 
-- 项目名、项目路径、单个 `projects/aigc/<项目名>/1-分集/第N集.md` 文件，或多个集号范围。
+- 项目名、项目路径、单个 `projects/aigc/<项目名>/2-编剧/第N集.md` / `projects/aigc/<项目名>/1-分集/第N集.md` 文件，或多个集号范围。
 - 用户要求“编导”“编剧”“导演”“表演”“剧本化改编”“可拍剧本”“画面化语言”“从 1-分集 到 2-编导”等任务。
 - 已完成或部分完成的 `1-分集` 输出；可按单集、集号范围或全量分集执行。
-- legacy 请求：用户点名旧 `2-编剧`、`3-导演`、`4-表演`，但目标是继续主链生产或更新技能包时，路由到本阶段。
+- legacy 请求：用户点名旧 `3-导演`、`4-表演`，但目标是继续主链生产或更新技能包时，路由到本阶段；点名 `2-编剧` 时应路由到 `.agents/skills/aigc/2-编剧/SKILL.md`。
 
 Required input:
 
@@ -73,7 +73,7 @@ Reject or clarify when:
 | `single_episode` | 指定单个 `第N集.md` 或单个集号 | `projects/aigc/<项目名>/2-编导/第N集.md` |
 | `episode_range` | 指定多个集号或范围 | 多个逐集编导稿与更新后的执行报告 |
 | `all_ready_episodes` | 未指定集号但 `1-分集/` 下有连续 `第N集.md` | 全部可读逐集编导稿 |
-| `legacy_stage_request` | 用户点名旧 `2-编剧`、`3-导演` 或 `4-表演` | 回接本阶段对应内部层，不创建旧 stage 新真源 |
+| `legacy_stage_request` | 用户点名旧 `3-导演` 或 `4-表演` | 回接本阶段对应内部层，不创建旧 stage 新真源 |
 | `repair` | 已有 `2-编导` 输出存在保真、导演、表演或画面化语言问题 | 最小修复后的逐集编导稿与问题报告 |
 | `stage_end_review_repair` | 任一非 `review_only` 编导任务完成候选稿后自动进入 | 阶段内 review -> 直接修复 -> 复审 -> canonical 写回 |
 | `review_only` | 用户只要求检查 `2-编导` 输出 | 审查报告，不改写正文，除非用户随后要求修复 |
@@ -101,7 +101,7 @@ Reject or clarify when:
 
 ```mermaid
 flowchart TD
-    A["1-分集/第N集.md"] --> B["N1-BD-INTAKE\n输入取证"]
+    A["2-编剧/第N集.md or 1-分集/第N集.md"] --> B["N1-BD-INTAKE\n输入取证"]
     B --> C["N2-BD-SCRIPT\n保真剧本化 + 声画字段"]
     C --> D["N3-BD-DIRECTOR\n戏剧问题 + 视觉主轴 + 氛围尾钩"]
     D --> E["N4-BD-PERFORMANCE\n心理反应 + 台词交付 + 场面调度"]
@@ -132,13 +132,13 @@ flowchart LR
 ## Execution Contract
 
 1. 读取本 `SKILL.md + CONTEXT.md`，按项目任务加载项目 `MEMORY.md`、`north_star.yaml`、`team.yaml.init_synthesis` 与相关 `CONTEXT/`；`team.yaml` 只提供初始化综合上下文，不触发 team 成员身份调用。
-2. 锁定 `1-分集/第N集.md`，建立 `source_episode_path`、目标集号、类型画像、reference load manifest 和 `scene_field_evidence_index` 初始索引。
+2. 优先锁定 `2-编剧/第N集.md`，缺失且用户明确直接编导时锁定 `1-分集/第N集.md`，建立 `source_episode_path`、目标集号、类型画像、reference load manifest 和 `scene_field_evidence_index` 初始索引。
 3. 执行 script layer：场景 slugline、字段分流、对白冻结、声画配对、长对白节拍、信息差、观众心理基线、场景节奏、小说表述二次画面化，以及非引号客观叙事的受控对白/独白改编；每个新增字段和派生语音都记录来源锚点、目标字段和正文嵌入位置。
 4. 执行 director layer：戏剧问题、人物压力、观众位置、高潮/反高潮、视觉主轴、单场美学、氛围意境、声音策略、终结画面和受控增强；所有判断必须落到可见、可听、可执行锚点，并回写 `scene_field_evidence_index`。
 5. 执行 performance layer：心理反应 GETability、演员五层控制、台词表演、长对白交付、潜台词行为、场景状态差、场面调度/权力关系、沉默余波、角色弧线、群戏层次和生理真实性；表演工艺必须嵌入具体对白、动作、沉默、空间或反应字段。
 6. 执行 visual language pass：加载并执行 `../_shared/anti-abstract-language-contract.md`，删除抽象概念、审美口号、心理论文、表演意图总结、内部规则句和模板占位；将意义全部投到人物动作、空间、道具、光线、声音、停顿、呼吸、声线、表情和对手反应，并生成 `visual_unit_candidate_map` 与 `anti_abstract_language_evidence`。
 7. 候选稿先视为 `candidate_writing_directing`，按 `review/review-contract.md` 审计；阻断项必须在本阶段直接最小修复并复审。
-8. 复审通过后写入 `projects/aigc/<项目名>/2-编导/第N集.md`，并生成或更新 `projects/aigc/<项目名>/2-编导/执行报告.md`；报告必须包含 `scene_field_evidence_index`、`visual_unit_candidate_map`、`motion_enrichment_handoff`，并可保留后续 `cinematography_handoff`。不得同时创建旧 `2-编剧`、`3-导演`、`4-表演` 新真源。
+8. 复审通过后写入 `projects/aigc/<项目名>/2-编导/第N集.md`，并生成或更新 `projects/aigc/<项目名>/2-编导/执行报告.md`；报告必须包含 `scene_field_evidence_index`、`visual_unit_candidate_map`、`motion_enrichment_handoff`，并可保留后续 `cinematography_handoff`。不得同时创建旧 `3-导演`、`4-表演` 新真源，也不得改写 active `2-编剧` 真源。
 
 ## Stage-End Review-Repair Contract
 
@@ -157,7 +157,7 @@ flowchart LR
 ### Permission Boundaries
 
 - 允许写入本技能 Output Contract 声明的 `2-编导/第N集.md` 和 `执行报告.md`。
-- 不允许写入旧 `2-编剧`、`3-导演`、`4-表演` 新 canonical 主稿；历史项目中已存在的旧 runtime 目录只允许兼容读取、迁移说明或用户显式要求的历史回读。
+- 不允许写入 `2-编剧`、旧 `3-导演`、旧 `4-表演` 新 canonical 主稿；`2-编剧` 是 active 上游剧本阶段，只允许读取，不允许本阶段改写。
 - 不允许改写 `1-分集` 上游正文、项目 `MEMORY.md` 或下游 `3-运动` / `4-摄影` 产物，除非用户另行授权对应 owning stage。
 
 ### Self-Modification Prohibitions
@@ -208,9 +208,9 @@ flowchart LR
 ### Completion gate
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
-- 上游 `1-分集/第N集.md` 可回指，frontmatter 记录 `source_episode_path`，输出路径为 `2-编导/第N集.md`。
+- 上游 `2-编剧/第N集.md` 或回退 `1-分集/第N集.md` 可回指，frontmatter 记录 `source_episode_path`，输出路径为 `2-编导/第N集.md`。
 - 上游剧情事实、信息量、顺序和已有对白完整承接；上游已有对白逐字保真，引号内无动作描写。
-- 旧 `2-编剧` 的字段分流、声画配对、小说表述二次画面化、客观叙事派生语音、信息差、观众心理、场景节奏和对白潜台词证据已形成；派生语音只来自非引号内叙事，不改写上游已有对白。
+- `2-编剧` 已形成的字段分流、声画配对、小说表述二次画面化、客观叙事派生语音、信息差、观众心理、场景节奏和对白潜台词证据已被读取并保留；直接回退 `1-分集` 时，本阶段仍须自行补齐这些 script layer 证据。
 - 旧 `3-导演` 的戏剧实质、高潮/反高潮、视觉主轴、画面美学、氛围意境、声音策略、终结画面和受控增强证据已内嵌。
 - 旧 `4-表演` 的心理反应、五层表演控制、台词交付、长对白 delivery、潜台词行为、场景状态差、场面调度、沉默余波、角色弧线、群戏和生理真实性证据已内嵌。
 - 三层证据不是独立摘要：每条关键判断都能在 `scene_field_evidence_index` 中回到来源、目标字段、正文嵌入句和修复 owner。
@@ -253,7 +253,7 @@ flowchart LR
 
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
-| `PASS-BD-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、上下文 | 是否具备可承接正文与目标集号 | `input_lock` |
+| `PASS-BD-01` | 输入取证 | `2-编剧/第N集.md` 或 `1-分集/第N集.md`、项目记忆、上下文 | 是否具备可承接正文与目标集号 | `input_lock` |
 | `PASS-BD-02` | 保真剧本层 | 上游正文、script references | 是否完成字段化、对白冻结、声画配对、小说转译、派生语音和信息释放 | `script_layer_evidence` |
 | `PASS-BD-03` | 导演判断层 | script evidence、director references | 戏剧问题、视觉主轴、氛围、声音、尾钩是否落到可拍声画 | `director_layer_evidence` |
 | `PASS-BD-04` | 表演工艺层 | director evidence、performance references | 心理、台词、潜台词、调度、沉默和群戏是否演员可执行 | `performance_layer_evidence` |

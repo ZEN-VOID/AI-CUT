@@ -1,0 +1,6 @@
+name: aigc-director-annotation
+display_name: AIGC 4-导演
+short_description: 结合逐集剧本和画面基调为每个画面点内联导演执导批注
+interface:
+  short_description: 结合剧本与画面基调逐画面内联注入导演执导批注
+  default_prompt: "使用 $aigc-director-annotation，默认读取 projects/aigc/<项目名>/2-编剧/第N集.md 和 3-美学/画面基调产物，按指名导演或美学锚点逐画面点注入（导演批注：XXX），并生成执行报告。"

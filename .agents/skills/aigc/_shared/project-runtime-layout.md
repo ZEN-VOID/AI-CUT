@@ -19,11 +19,13 @@
 | --- | --- | --- |
 | `0-初始化` | `projects/aigc/<项目名>/0-初始化/` | north star, init handoff, story source manifest |
 | `1-分集` | `projects/aigc/<项目名>/1-分集/` | episode source split |
-| `2-编导` | `projects/aigc/<项目名>/2-编导/` | faithful screenplay projection, directing intent, performance craft, and concrete visual language |
+| `2-编剧` | `projects/aigc/<项目名>/2-编剧/` | novel-to-screenplay adaptation, genre/narrative parsing, short-drama rhythm, climax, hook, and AIGC field routing |
+| `2-编导` | `projects/aigc/<项目名>/2-编导/` | directing intent, performance craft, and concrete visual language; consumes `2-编剧` when present |
 | `3-运动` | `projects/aigc/<项目名>/3-运动/` | character motion enrichment with start, path, end, reference frame, and adjacent-frame state continuity |
 | `4-摄影` | `projects/aigc/<项目名>/4-摄影/` | shot language enrichment |
 | `5-分组` | `projects/aigc/<项目名>/5-分组/` | storyboard group runtime |
 | `6-设计` | `projects/aigc/<项目名>/6-设计/` | scene, role, prop design runtime |
+| `7-分镜` | `projects/aigc/<项目名>/7-分镜/` | inline storyboard split runtime; consumes `6-氛围` or user-specified source |
 | `7-图像` | `projects/aigc/<项目名>/7-图像/` | current Chinese image runtime |
 | `8-视频` | `projects/aigc/<项目名>/8-视频/` | current Chinese video runtime |
 | `9-审片` | `projects/aigc/<项目名>/9-审片/` | generated footage review reports and repair evidence |
@@ -31,7 +33,7 @@
 | `shot-by-shot` | `projects/aigc/<项目名>/shot-by-shot/` | reference film/video analysis and imitation packets for `2-编导` / `3-运动` / `4-摄影` |
 | `CONTEXT` | `projects/aigc/<项目名>/CONTEXT/` | project-side supplemental context |
 
-旧 `3-导演` / `4-表演` 阶段不再保留技能目录或新 runtime root；旧名称直接兼容路由到 `2-编导` 内部 director / performance layer。
+`2-编剧` 是 active screenplay runtime，不再作为 `2-编导` legacy 触发词处理。旧 `3-导演` / `4-表演` 阶段不再保留技能目录或新 runtime root；旧名称直接兼容路由到 `2-编导` 内部 director / performance layer。
 
 ## Bootstrap Compatibility
 

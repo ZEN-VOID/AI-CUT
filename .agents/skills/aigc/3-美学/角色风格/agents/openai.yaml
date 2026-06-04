@@ -1,0 +1,14 @@
+name: aigc-character-style
+version: 1
+description: AIGC 影片项目角色层视觉风格协议与提示词制定阶段。
+entrypoint: .agents/skills/aigc/3-美学/角色风格/SKILL.md
+interface:
+  display_name: AIGC 3-美学/角色风格
+  short_description: 从剧本、画面基调和参考图/视频提取角色层风格基因，制定不写具体角色卡的角色视觉风格协议与约 100 字中文 prompt
+  default_prompt: "使用 $aigc-character-style，基于 projects/aigc/<项目名>/2-编剧/、3-美学/画面基调/全局风格协议.md 或我提供的参考资料，提取角色形象、气质、妆发、服装结构、体态、年龄质感和表演外观边界，输出 projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md；最终 Character Style Prompt 默认中文约 100 字，不写具体角色卡、姓名、剧情动作、场景或镜头。"
+runtime:
+  required_context:
+    - .agents/skills/aigc/3-美学/角色风格/SKILL.md
+    - .agents/skills/aigc/3-美学/角色风格/CONTEXT.md
+  default_output_root: projects/aigc/<项目名>/3-美学/角色风格/
+  llm_first: true

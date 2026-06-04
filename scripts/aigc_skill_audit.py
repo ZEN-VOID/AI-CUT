@@ -1282,11 +1282,12 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
     targets = (
         episode_root / "SKILL.md",
         episode_root / "CONTEXT.md",
+        episode_root / "test-prompts.json",
         episode_root / "agents" / "openai.yaml",
         episode_root / "references" / "input-output-contract.md",
-        episode_root / "steps" / "episode-split-workflow.md",
         episode_root / "types" / "source-type-map.md",
         episode_root / "review" / "review-contract.md",
+        episode_root / "templates" / "episode-output.template.md",
         episode_root / "templates" / "output-template.md",
     )
 
@@ -1307,7 +1308,7 @@ def audit_episode_split_skill_contract(failures: list[str]) -> None:
             ):
                 if required_marker not in content:
                     failures.append(f"{path}: missing episode split marker `{required_marker}`")
-        if path.name in {"SKILL.md", "input-output-contract.md", "episode-split-workflow.md", "source-type-map.md", "review-contract.md"}:
+        if path.name in {"SKILL.md", "input-output-contract.md", "source-type-map.md", "review-contract.md"}:
             for required_marker in (
                 "第N章",
                 "章节不等于集数",

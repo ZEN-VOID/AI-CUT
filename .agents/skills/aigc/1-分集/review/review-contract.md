@@ -14,13 +14,13 @@
 
 | gate_id | review_question | fail_code | rework_target | required_evidence |
 | --- | --- | --- | --- | --- |
-| `GATE-SPLIT-01-SOURCE-LOCK` | 是否锁定唯一小说原文真源，并按用户显式路径优先、项目 `源/` 次之、旧路径 fallback 仅用户明确要求的顺序执行？ | `FAIL-SPLIT-01` | `steps/episode-split-workflow.md#N1-SOURCE-LOCK`；`SKILL.md#Input Contract`；`references/input-output-contract.md#Source Priority` | 输入路径、fallback 说明、文件清单、被排除的非正文资料 |
-| `GATE-SPLIT-01A-SOURCE-ORDER` | 多文件或多章节来源是否可读，并已建立可复查的确定性顺序？ | `FAIL-SPLIT-01A` | `steps/episode-split-workflow.md#N2-SOURCE-ORDER`；`references/input-output-contract.md#Valid Source Material` | 可读性判断、排序依据、输入文件顺序表 |
-| `GATE-SPLIT-02-P1-EPISODE-MARK` | 原资料存在真实 P1 集标时，是否按原集标进入 `explicit_episode_split`，没有按字数重切？ | `FAIL-SPLIT-02` | `steps/episode-split-workflow.md#N3-EPISODE-MARK-SCAN`；`steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 集标列表、原始边界、切分模式 |
-| `GATE-SPLIT-02A-CHAPTER-NOT-EPISODE` | 章节、卷、节、chapter 或 story 文件名是否只作为 P2 候选，没有被当作 AIGC 原生集标或一章一集规则？ | `FAIL-SPLIT-02A` | `steps/episode-split-workflow.md#N3-EPISODE-MARK-SCAN`；`steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 被排除的章节信号、P2/P3 裁决说明、非一章一集证据 |
-| `GATE-SPLIT-03-BOUNDARY-SOLVE` | 无 P1 集标时，边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗，且没有切断句子、对白或关键动作？ | `FAIL-SPLIT-03` | `steps/episode-split-workflow.md#N4-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 每集字数、起止段落、边界理由、偏离说明 |
-| `GATE-SPLIT-04-EPISODE-WRITEBACK` | 逐集文件是否写入 canonical 目录、编号连续、正文保真，且未混入改写、剧本化、分镜化或设定说明？ | `FAIL-SPLIT-04` | `steps/episode-split-workflow.md#N5-WRITEBACK`；`SKILL.md#Output Contract`；`references/input-output-contract.md#Episode File Requirements` | 输出文件清单、编号检查、正文保真抽查或 diff 说明 |
-| `GATE-SPLIT-05-REPORT-COVERAGE` | `执行报告.md` 是否足以复查输入、边界、字数、覆盖状态、跳过原因和具体返工入口？ | `FAIL-SPLIT-05` | `steps/episode-split-workflow.md#N6-REVIEW`；`SKILL.md#Output Contract`；`references/input-output-contract.md#Execution Report Requirements` | 边界表、coverage 表、跳过原因、返工入口 |
+| `GATE-SPLIT-01-SOURCE-LOCK` | 是否锁定唯一小说原文真源，并按用户显式路径优先、项目 `源/` 次之、旧路径 fallback 仅用户明确要求的顺序执行？ | `FAIL-SPLIT-01` | `SKILL.md#T2-SOURCE-LOCK`；`SKILL.md#Input Contract`；`references/input-output-contract.md#Source Priority` | 输入路径、fallback 说明、文件清单、被排除的非正文资料 |
+| `GATE-SPLIT-01A-SOURCE-ORDER` | 多文件或多章节来源是否可读，并已建立可复查的确定性顺序？ | `FAIL-SPLIT-01A` | `SKILL.md#T3-SOURCE-ORDER`；`references/input-output-contract.md#Valid Source Material` | 可读性判断、排序依据、输入文件顺序表 |
+| `GATE-SPLIT-02-P1-EPISODE-MARK` | 原资料存在真实 P1 集标时，是否按原集标进入 `explicit_episode_split`，没有按字数重切？ | `FAIL-SPLIT-02` | `SKILL.md#T4-MARK-SCAN`；`SKILL.md#T5-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 集标列表、原始边界、切分模式 |
+| `GATE-SPLIT-02A-CHAPTER-NOT-EPISODE` | 章节、卷、节、chapter 或 story 文件名是否只作为 P2 候选，没有被当作 AIGC 原生集标或一章一集规则？ | `FAIL-SPLIT-02A` | `SKILL.md#T4-MARK-SCAN`；`SKILL.md#T5-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 被排除的章节信号、P2/P3 裁决说明、非一章一集证据 |
+| `GATE-SPLIT-03-BOUNDARY-SOLVE` | 无 P1 集标时，边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗，且没有切断句子、对白或关键动作？ | `FAIL-SPLIT-03` | `SKILL.md#T5-BOUNDARY-SOLVE`；`references/input-output-contract.md#Episode Boundary Policy` | 每集字数、起止段落、边界理由、偏离说明 |
+| `GATE-SPLIT-04-EPISODE-WRITEBACK` | 逐集文件是否写入 canonical 目录、编号连续、正文保真，且未混入改写、剧本化、分镜化或设定说明？ | `FAIL-SPLIT-04` | `SKILL.md#T6-WRITEBACK`；`SKILL.md#Output Contract`；`references/input-output-contract.md#Episode File Requirements` | 输出文件清单、编号检查、正文保真抽查或 diff 说明 |
+| `GATE-SPLIT-05-REPORT-COVERAGE` | `执行报告.md` 是否足以复查输入、边界、字数、覆盖状态、跳过原因和具体返工入口？ | `FAIL-SPLIT-05` | `SKILL.md#T7-REVIEW`；`SKILL.md#Output Contract`；`references/input-output-contract.md#Execution Report Requirements` | 边界表、coverage 表、跳过原因、返工入口 |
 
 ## Fail Codes
 

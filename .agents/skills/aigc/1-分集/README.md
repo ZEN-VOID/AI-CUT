@@ -10,9 +10,9 @@
 ├── CONTEXT.md
 ├── README.md
 ├── CHANGELOG.md
+├── test-prompts.json
 ├── agents/openai.yaml
 ├── references/input-output-contract.md
-├── steps/episode-split-workflow.md
 ├── review/review-contract.md
 ├── types/source-type-map.md
 ├── knowledge-base/episode-split-heuristics.md
@@ -28,3 +28,5 @@
 - 原资料自带集数划分：以原划分为准
 - 无集数划分：默认约 2500-3000 字一集
 - 输出：`projects/aigc/<项目名>/1-分集/第N集.md`
+- 执行主链：以 `SKILL.md` 的 `Thinking-Action Node Map` 为唯一节点真源；模块只做授权展开，不维护第二流程。
+- 回归资产：`test-prompts.json` 覆盖 source scan、显式集标、章节型小说和 repair/review 场景。

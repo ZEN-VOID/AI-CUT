@@ -1,0 +1,95 @@
+# Shot Duration And Planning Contract
+
+本文件重构旧 `4-摄影/references/shot-duration-decision-contract.md` 与 `shot-planning-integration-contract.md`，改写为 `7-分镜` 的 step3 时长与计划汇流细则。它不授权旧 `[起始秒-结束秒]` 字段正文格式；本阶段成稿只输出 `分镜N（N-N秒）：...`。
+
+## Core Rule
+
+每条分镜必须形成内部 `shot_duration_decision`，并在正文中用 `N-N秒` 显式落盘。秒数是近似观看时值，不是精剪帧码；它必须由节拍、观看任务、台词量、动作完成、信息可读、表演停顿和下游 AIGC 稳定性共同决定。
+
+## Duration Formula
+
+默认采用短剧 AIGC 压缩偏置：
+
+```text
+base_standard = 2.0 秒
+final_duration = base_standard
+  * genre_modifier
+  * beat_function_modifier
+  * information_load_modifier
+  * performance_modifier
+  * downstream_stability_modifier
+```
+
+量化修正：
+
+| factor | value | use |
+| --- | --- | --- |
+| `impact / instant` | `0.5-1秒` | 惊吓、闪现、撞点、急停 |
+| `short` | `1-1.5秒` | 单一动作、视线转交、短反应 |
+| `standard` | `1.5-2.5秒` | 普通揭示、动作完成、空间关系 |
+| `held` | `2.5-4秒` | 文字读秒、表演停顿、规则宣判、空间重置 |
+| `long_hold` | `4-5秒` | 重大认知翻转、关系停顿、长对白、压迫性长镜 |
+| `fast_genre_modifier` | `0.7-0.9` | 惊悚、动作、平台钩子密集段 |
+| `slow_genre_modifier` | `1.1-1.4` | 现实主义、关系停顿、慢燃心理段 |
+
+单条分镜超过 3 秒且 `tempo` 非 `slow_burn/hold` 时，必须有台词、读秒、表演变化、复杂调度、空间重置或高点证据。
+
+## Dialogue And Voiceover Budget
+
+对白、旁白、画外音或系统播报会影响最低时值。内部估算：
+
+```text
+dialogue_seconds_floor = ceil(中文字数 / speech_rate) + pause_allowance
+speech_rate:
+  快速喊话: 5 字/秒
+  常规对白: 4 字/秒
+  迟疑/压迫/低声: 3 字/秒
+pause_allowance:
+  0-0.5 秒: 短促命令
+  0.5-1 秒: 常规对白后反应
+  1-2 秒: 迟疑、沉默、关系停顿或规则宣判
+```
+
+如果一句长对白跨多条分镜延续，必须在内部 `dialogue_time_budget` 中说明每条承载哪段台词、听者反应、空间压力或沉默余波。
+
+## Shot Planning Integration
+
+每个画面点进入成稿前必须形成内部 `shot_plan`：
+
+1. `shot_count_decision`：为什么是 1/2/3/4/5-6 条分镜。
+2. `beat_trigger_reference`：每条分镜对应的 BT 触发点。
+3. `trigger_merge_exception`：有效触发点多于最终分镜数时，说明合并不损失观看结果。
+4. `shot_duration_decision`：每条分镜的时值等级、秒数、理由。
+5. `dialogue_time_budget`：对白/旁白/系统播报的最低时长。
+6. `shot_composition_plan`：景别、景深、构图、主体陪体背景。
+7. `continuity_handoff`：entry/action_anchor/exit/handoff。
+8. `source_fidelity_check`：未吞入后文动作、对白反应或新剧情。
+
+跳过 `shot_plan` 直接写正文，通常会造成分镜数量模板化、秒数漂移、长镜无理由或构图缺项。
+
+## Time Range Projection
+
+同一画面点下的分镜从 `0秒` 起连续递增。跨画面点允许重新从 `0秒` 开始，因为本技能输出的是每个画面点的内部观看时值，不是整集绝对时间码。
+
+```text
+分镜1（0-1秒）：...
+分镜2（1-3秒）：...
+分镜3（3-5秒）：...
+```
+
+禁止：
+
+- `分镜1（约2秒）`
+- `分镜1（0-2秒）`、`分镜2（3-5秒）` 中间跳秒
+- 所有分镜机械写成 `0-2秒`
+- 用 AIGC 工具片段 4-6 秒要求硬拉长每条叙事分镜
+
+## Review Gate Mapping
+
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
+| --- | --- | --- | --- | --- |
+| 每条分镜是否形成内部时值裁决并落盘为 `N-N秒`？ | `GATE-SB-09` | `FAIL-SB-DURATION` | `N6-DURATION-PLAN` | `duration_profile` |
+| 同一画面点内秒数是否连续递增？ | `GATE-SB-09` | `FAIL-SB-DURATION` | `N6-DURATION-PLAN` | `time_range_map` |
+| 超过 3 秒的分镜是否有必要性证据？ | `GATE-SB-10` | `FAIL-SB-LONG-SHOT` | `N6-DURATION-PLAN` | long-shot samples |
+| 对白/旁白承托是否估算台词下限？ | `GATE-SB-11` | `FAIL-SB-DIALOGUE-DURATION` | `N6-DURATION-PLAN` | `dialogue_time_budget` |
+| 分镜计划是否汇流 beat、composition、duration、continuity 和 fidelity？ | `GATE-SB-16` | `FAIL-SB-PLANNING` | `N4/N5/N6/N7` | `shot_plan` samples |

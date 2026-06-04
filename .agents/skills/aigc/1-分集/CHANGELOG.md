@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-06-04
+
+- 将 `SKILL.md` 升级为 Skill 2.0 runtime-spine 主合同，补齐业务画像、类型路由、思行节点、模块加载、模块触发、量化口径、汇流合同、检查点、注意力协议和学习回写。
+- 删除 `steps/episode-split-workflow.md` 的第二节点真源，并把 `references/`、`review/`、`types/` 中的返工目标同步回 `SKILL.md#T*` 主节点。
+- 新增 `test-prompts.json`，覆盖 source scan、原生集标分集、章节型小说切分和 repair/review 回归场景。
+- 更新 `README.md` 与 `CONTEXT.md`，明确模块只做授权展开，不维护平行执行链。
+
 ## 2026-04-25
 
 - 初始化 `aigc/1-分集` Skill 2.0 包。

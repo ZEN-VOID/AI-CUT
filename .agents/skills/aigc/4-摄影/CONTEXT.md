@@ -34,7 +34,7 @@
 | 对白台词量未进入镜头时值 | 声画时值层 | 先估算对白字数/语速/停顿，合并 `dialogue_seconds_floor` | `N5.2-DURATION`；台词不会没说完就切走 |
 | 长对白被拍成采访式单段 | 长对白镜头承托层 | 消费 `long_dialogue_beat_map` / `long_dialogue_delivery_map`，建立 `long_dialogue_visual_plan`，按节拍分配说话者、听者、手部/道具、空间压力、群像、画外声源或沉默余波焦点 | `GATE-CINE-33` + `FAIL-LONG-DIALOGUE-CINEMATOGRAPHY`；长对白有反应链、时值分配和连续性，不是一镜正面说完 |
 | 场景母题尾句机械灌入每条时间段 | 计划汇流/复审层 | 删除重复尾句，只在建立镜/转场镜/母题变化处保留 | review gate 增加重复句抽查 |
-| 字段内容纯度不足 | 字段语义层 | 删除抽象主题/裸心理结论/思考摘要/世界观解释/气氛口号；心理反应和思考反应字段要转译为可见表演微动态，再叠加景别/机位/镜头类型/运速/焦点/构图/光色 | `SKILL.md` + `natural-shot-detail-writing-contract.md`；`cinematic-technique-library.md` 补执行参数 |
+| 字段内容纯度不足 | 字段语义层 | 删除抽象主题/裸心理结论/思考摘要/世界观解释/气氛口号；心理反应和思考反应字段要转译为可见表演微动态，再叠加景别/机位/镜头类型/构图/光色与运速/焦点运动 | `SKILL.md` + `natural-shot-detail-writing-contract.md`；`cinematic-technique-library.md` 补静态摄影参数，`camera-movement-emotion-contract.md` 补动态运镜参数 |
 | 字段表达质量不足 | 动态表达层/自然成稿层 | 静态呆板改为"从起点到终点"变化句；参数腔/模板腔压成自然画面文字 | `dynamic-lens-language-contract.md` + `natural-shot-detail-writing-contract.md`；禁止连续同构句 |
 | 示例污染输出 | references 误读层 | 回到 `SKILL.md#Reference-Example-Guard`，只提取示例背后的判断逻辑，删除复用的人物、道具、场景、句式、镜头组合、时间段数量或时值分配 | 抽样对照当前 `visual_unit`：每条时间段都能回指本画面真实触发点、观看结果、连续性和下游执行价值，而不是长得像 reference 示例 |
 | 分镜画面好看但功能随机 | 功能性投影层 | 回到 `functional-cinematic-projection-contract.md`，补 shot_function/主体/动作/运镜/构图/光色/空间/交接 | `N6.4-FUNCTIONAL-PROJECTION`；下游能抽取完整 payload |
@@ -46,7 +46,7 @@
 | AI 视频画面清晰但扁平像摆拍 | 观看位置 / 发现路径层 | 回到 `Camera Perspective And Discovery Rule`，先裁决机位高度、前景遮挡、透视拉伸、拍摄状态和观众发现过程；低角度必须写出地面/脚步/衣摆/前景进入画面的结果 | `FAIL-SHOT-IDENTITY-02`；删除无动机正面平视全信息展示，或说明其服务制度化/中立观察/固定框线 |
 | 光线只写左右来源导致生成漂移 | 光线结果层 | 改成“相对镜头位置 + 照亮对象 + 阴影/轮廓结果”；已有参照光影时先判断保留、遮挡或重构 | `ai-video-prompt-execution-contract.md` + `scene-shot-identity-contract.md` |
 | 段落运镜流畅但画面点失主 | 段落对齐/归属边界层 | 回到 `visual-sequence-alignment-contract.md`，补 `unit_ownership_map` | `N3.5-SEQUENCE-ALIGN`；每条 `时间段` 能回指所属 `visual_unit` |
-| 景别/视角/焦点变化随机 | 摄影语法层 | 回到 `N6.2-CAMERA-GRAMMAR`，先确定景别梯度/视角动机/景深焦点交接 | `cinematic-technique-library.md` + `GATE-CINE-16` |
+| 景别/视角/焦点变化随机 | 摄影语法层 | 回到 `N6.2-CAMERA-GRAMMAR`，先确定景别梯度/视角动机/景深焦点交接；焦点运动、景别切换和运镜速度由动态运镜合同裁决 | `cinematic-technique-library.md` + `camera-movement-emotion-contract.md` + `GATE-CINE-16` |
 | references 细则未进入最终分镜 | 计划汇流层 | 回到 `N6.5-SHOT-PLAN`，先建 `shot_design_plan` 再写 `时间段` | `shot-planning-integration-contract.md` |
 | references 细则缺少审核落点 | review 覆盖层 | 回到 `review/review-contract.md#Reference-Review-Gate-Matrix`，为本轮加载或用于阻断的每个 reference 补 PASS/N、gate、fail code 和报告证据；解释性 glossary 只作术语口径，不单独阻断 | `GATE-CINE-17A` + `FAIL-CINE-05REF`；执行报告记录 reference gate 覆盖检查结果 |
 | 时间段数量多但随机 | 节拍计划层 | 删掉没有新观看策略的伪分镜 | `shot_design_plan.beats` 必须逐条说明 trigger/handoff |
@@ -99,7 +99,7 @@
 11. 若连续 3-6 个画面单位共享空间/道具链/声音链/动作链/记忆插入/视觉母题，先建立内部 `sequence_profile`，同步写清 `unit_ownership_map`。
 12. 若连续观看段落存在速度阶段/动作链/声音打点/峰值爆发，先建立 `sequence_density_curve`。
 13. 在写任何 `时间段` 前先走完节点链：`N2-MATCH -> N3-TYPE -> N3.5-SEQUENCE-ALIGN -> N3.6-DENSITY-CURVE -> N4-BEAT -> N5-RHYTHM -> N5.2-DURATION -> N5.5-PEAK-SHOT -> N5.6-INIT-SYNTHESIS -> N6-CONTINUITY -> N6.1-HANDOFF -> N6.2-CAMERA-GRAMMAR -> N6.4-FUNCTIONAL-PROJECTION -> N6.5-SHOT-PLAN`；缺任一层都不能直接成稿。
-14. 在 `camera_grammar_plan` 中先裁决景别梯度/镜头视角/景深焦点/镜头类型/构图/光色/运镜速度；不要到成稿阶段临时补孤立词。
+14. 在 `camera_grammar_plan` 中先裁决静态镜头骨架：景别梯度/镜头视角/景深焦点/镜头类型/构图/光色；在 `camera_movement_emotion_plan` 中裁决动态运镜骨架：运镜速度/景别切换/焦点运动/停点/交出锚点。不要到成稿阶段临时补孤立词。
 15. 在 `functional_projection_plan` 中补 payload：每条时间段必须有影视功能/主体/动作/运镜/时值理由/构图锚点/光色材质/空间接口/连续性交接/下游消费点/所属 visual_unit。
 15.3. 对关键动作句做“镜头意图”检查：先问人物是谁、为什么做这个动作、此刻状态和未出口压力是什么；再决定 focal_subject 是脸、手、背影、对手、旁观者、环境、道具还是动作源头。若答案只剩表层动作，回到 `functional_projection_plan`。
 15.5. 对每条候选 `时间段` 做源句复述扣除测试：去掉正上方画面句子已有的人物、动作、道具和事实后，若只剩景别词、顺序词或空泛效果词，说明它是画面内容拆写，必须回到功能投影重写摄影决策。
@@ -143,7 +143,7 @@
 - 高超运镜不是镜头一直动，而是镜头在观众意识到之前已经把注意力转交给下一个危险点。
 - 边界交出最适合寻找形态相似、运动方向相同、声音余波或信息显影的地方；不适合覆盖需要演员表演停顿的瞬间。
 - 高潮分镜不是每次都加速加镜头；认知高点常用读秒，关系高点常用停顿，动作高点才更常用急停、跟拍和结果钉镜。
-- 一个好用的分镜句式是"景别/景深 + 视角 + 镜头类型 + 运镜速度 + 戏剧动作"：例如"中近景、浅景深、过肩窥视视角、长焦压缩、极慢推轨到林寂停住的手指"。
+- 一个好用的内部计划句式是"静态镜头骨架 + 动态运镜骨架 + 戏剧动作"：例如先锁定景别/景深、视角和镜头类型，再锁定运镜速度、路径、停点和焦点交接。
 - 上一句只适合内部计划，不适合连续成稿。最终优先写成："长焦压扁后排课桌，镜头慢慢贴近林寂停住的手指。"
 - 更好的成稿要保留变化但不露骨架："长焦压扁后排课桌，镜头慢慢贴近林寂停住的手指；背景黑板字退成一片冷白。"
 - 输出太短通常不是"克制"，而是缺计划：克制分镜也要有清楚入口、运动方式、速度、落点和交出点。

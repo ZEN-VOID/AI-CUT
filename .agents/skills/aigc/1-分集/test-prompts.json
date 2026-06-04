@@ -1,0 +1,22 @@
+[
+  {
+    "id": "source-scan-default-project-source",
+    "prompt": "使用 $aigc-episode-split，检查 projects/aigc/示例项目/源/ 下的小说原文是否可用于分集，但先不要落盘。",
+    "expected": "Loads SKILL.md and CONTEXT.md, locks projects/aigc/示例项目/源/ as the candidate source, reports readable files, deterministic ordering, source_type, and stops at source_scan output without creating episode files."
+  },
+  {
+    "id": "explicit-episode-source-preserve-boundaries",
+    "prompt": "使用 $aigc-episode-split，把我指定路径 input/novel-with-第1集-第2集.md 切到 projects/aigc/示例项目/1-分集/。",
+    "expected": "Detects real P1 episode markers, chooses explicit_episode_split, preserves original episode boundaries, writes 第1集.md and 第2集.md, and records marker evidence plus coverage in 执行报告.md."
+  },
+  {
+    "id": "chaptered-novel-not-one-chapter-one-episode",
+    "prompt": "使用 $aigc-episode-split，将 projects/aigc/示例项目/源/ 中只有第1章、第2章、第3章结构的小说切分为 AIGC 分集。",
+    "expected": "Classifies chapter markers as P2 candidates rather than P1 episode markers, avoids mechanical one-chapter-one-episode mapping, uses natural structure plus the 2500-3000 character window, and documents excluded chapter signals."
+  },
+  {
+    "id": "repair-review-numbering-and-coverage",
+    "prompt": "使用 $aigc-episode-split，复核并修复 projects/aigc/示例项目/1-分集/ 里已有的分集文件，重点检查编号断裂和 coverage。",
+    "expected": "Runs review gates, reports fail codes for numbering or coverage gaps, applies only minimal repair after scope is clear, and updates 执行报告.md with concrete rework evidence."
+  }
+]

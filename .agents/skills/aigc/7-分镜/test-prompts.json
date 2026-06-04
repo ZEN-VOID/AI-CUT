@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-episode-storyboard-split",
+    "prompt": "使用 $aigc-storyboard-split，读取 projects/aigc/示例项目/6-氛围/第1集.md，并结合 3-美学/画面基调 和 3-美学/分镜风格，生成逐画面点内联分镜稿。",
+    "expected": "输出 projects/aigc/示例项目/7-分镜/第1集.md；每个画面点下方按 分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述 注入；报告包含 visual_point_inventory、beat_map、duration_profile、reference matrix。"
+  },
+  {
+    "id": "specified-script-override",
+    "prompt": "跳过 6-氛围，用我指定的 projects/aigc/示例项目/5-表演/第2集.md 直接做 7-分镜。",
+    "expected": "记录 source_override=true；使用指定文稿为 source；仍需加载或要求提供画面基调与分镜风格；只在可判定画面点下注入分镜，不补造缺失上游环节。"
+  },
+  {
+    "id": "repair-template-shot-count",
+    "prompt": "修复一个每个画面点都固定三条分镜、且秒数全部 0-2 秒的第3集分镜稿。",
+    "expected": "回到画面节拍法重新裁决 shot_count_decision；删除无有效触发点分镜；修复连续 N-N秒；报告包含 FAIL-SB-BEAT、FAIL-SB-DURATION 的返工证据。"
+  },
+  {
+    "id": "review-only-inline-storyboard",
+    "prompt": "只审查 projects/aigc/示例项目/7-分镜/第4集.md 是否漏掉心理反应、表演提示和氛围画面字段。",
+    "expected": "输出审查 findings，不改写正文；每条 finding 有 gate、fail code、source anchor、rework target，并区分画面点漏处理与非画面字段排除。"
+  }
+]

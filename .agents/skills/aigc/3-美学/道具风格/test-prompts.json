@@ -1,0 +1,17 @@
+[
+  {
+    "id": "script-to-prop-style",
+    "prompt": "使用 $aigc-prop-style，读取 projects/aigc/示例项目/2-编剧/第1集.md，并承接 projects/aigc/示例项目/3-美学/画面基调/全局风格协议.md，为该项目制定道具风格协议和约 100 字中文道具风格提示词。",
+    "expected": "读取道具风格 SKILL.md + CONTEXT.md，加载项目 MEMORY.md 和相关 CONTEXT/，路由 script_prop_style_analysis 或 hybrid_project_analysis；输出道具风格协议，包含 Source Manifest、Prop Style Slogan、Prop Style Principle、Prop Style Dimension Profile、Prop Style Causal Chain、Prop Boundary Matrix、Prop Style Prompt、Negative Traits；Prop Style Prompt 为中文约 80-130 字，且无具体道具清单、剧情用途、单件设定和生成请求污染。"
+  },
+  {
+    "id": "visual-tone-reference-calibration",
+    "prompt": "使用 $aigc-prop-style，根据当前项目的画面基调、我提供的两张参考图和一段参考视频，提取道具层面的文化元素、形制、表面行为、工艺痕迹、使用痕迹、尺度语言和符号系统，不写具体道具名称。",
+    "expected": "路由 visual_tone_inheritance、reference_prop_style_analysis 或 hybrid_project_analysis；多模态资料只提取道具风格事实，不复制参考图/视频中的具体物件、品牌、功能、构图或剧情用途；输出 tone_reference_prop_evidence_map、prop_style_dimension_profile、prop_boundary_matrix 和 contamination_scan。若缺少项目资料，writeback_status 标记 reference_only candidate，不覆盖正式项目协议。"
+  },
+  {
+    "id": "repair-list-contaminated-prop-style",
+    "prompt": "检查并修复这个道具风格 prompt：本片道具包括青铜钥匙、带血匕首、主角的怀表和机械罗盘，钥匙用于打开地下室，匕首由反派携带，请生成每个道具的图片提示词。按道具风格规则改成可继承的项目级道具风格提示词。",
+    "expected": "路由 repair；触发 GATE-PS-01、GATE-PS-02、GATE-PS-03；输出 root_cause_trace、repair_log 和修复后的约 80-130 字中文 Prop Style Prompt，删除具体道具名、剧情用途、持有人、单件设定和生成请求，只保留文化气质、形制趋势、表面行为、工艺/使用痕迹、尺度/符号语言和制作边界。"
+  }
+]

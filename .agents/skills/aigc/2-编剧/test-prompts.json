@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-episode-novel-to-screenplay",
+    "prompt": "使用 $aigc-screenwriting，把 projects/aigc/示例项目/1-分集/第1集.md 改编为短剧剧本，保留剧情事实，同时补节奏承托、声画同步、高潮和尾钩。",
+    "expected": "读取 2-编剧 SKILL.md + CONTEXT.md，加载项目记忆和 8 个 copied references，输出 2-编剧/第1集.md 与执行报告；报告包含 Execution Decision Trace、Reference Execution Matrix、Rule Evidence Map、N/A Justification、Repair Log、genre_narrative_profile、rhythm_strategy_map、audio_visual_pairing_map、same_frame_continuity_map、climax_treatment_map、episode_final_image_map 和 GATE-SCR review verdict。"
+  },
+  {
+    "id": "rhythm-repair",
+    "prompt": "第3集剧本太像小说复述，节奏弱，高潮平，尾钩没有吸引力。按 2-编剧 规则修复。",
+    "expected": "路由 rhythm_repair，回到 N2/N4/N5，使用 scene-rhythm、directorial-authorship、climax、episode-final-image 和 short-drama rhythm contract；不改上游事实，输出最小修复和 review 复审证据，并在 Reference Execution Matrix 中记录每份触发细则的 applied_to/evidence_in_output 或 n/a_reason。"
+  },
+  {
+    "id": "review-only-overreach",
+    "prompt": "检查 projects/aigc/示例项目/2-编剧/第5集.md 是否有机位、景别、prompt 越权，以及声画同步字段是否成对、相邻画面是否重复拆写。",
+    "expected": "路由 review_only，只输出审查报告；触发 GATE-SCR-07、GATE-SCR-14、GATE-SCR-16、GATE-SCR-18，列出 FAIL-SCR-AUDIO-VISUAL、FAIL-SCR-REPORT 或 FAIL-SCR-DOWNSTREAM-OVERREACH 的证据和返工节点，GATE-SCR-07 必须包含 audio_visual_pairing_map 和 same_frame_continuity_map，不自动改写正文。"
+  }
+]

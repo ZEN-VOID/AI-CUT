@@ -1,0 +1,22 @@
+[
+  {
+    "id": "single-episode-atmosphere-enrichment",
+    "prompt": "使用 $aigc-atmosphere-fx，读取 projects/aigc/示例项目/5-表演/第1集.md，并结合 3-美学三类协议，选择性新增氛围画面字段。",
+    "expected": "输出 projects/aigc/示例项目/6-氛围/第1集.md；只在渲染、烘托、增强触发点新增 氛围画面：XXX；每条新增有 source anchor、时间属性、物理特效手段和执行报告证据。"
+  },
+  {
+    "id": "repair-overwritten-atmosphere",
+    "prompt": "审查并修复一个每个画面点都新增氛围画面、且大量使用薄雾逆光套话的第2集氛围稿。",
+    "expected": "删除无触发理由的新增字段，保留少量关键触发点；修复抽象套话和无时间属性问题；报告包含 FAIL-ATM-DENSITY、FAIL-ATM-TIME-ANCHOR 的返工证据。"
+  },
+  {
+    "id": "review-only-physical-fx",
+    "prompt": "只审查 projects/aigc/示例项目/6-氛围/第3集.md 是否新增了无源天气、火源、烟源或设备参数。",
+    "expected": "输出审查 findings，不改写正文；每条 finding 有 gate、fail code、source anchor、rework target，并区分剧情越权和阶段越权。"
+  },
+  {
+    "id": "atmosphere-pack-research",
+    "prompt": "为规则怪谈题材的第4集表演稿适配氛围包，本地知识库如果没有整理再使用预训练或联网资料。",
+    "expected": "先查 knowledge-base/physical-atmosphere-index.md；缺项时标记 pretrained_atmosphere_inference 或网络来源；输出触发点清单、题材氛围包和选择性氛围字段。"
+  }
+]

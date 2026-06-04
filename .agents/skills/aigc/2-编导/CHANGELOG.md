@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-06-04 (Screenwriting Upstream Restored)
+
+- 同步 `2-编剧` 恢复为 active 剧本阶段后的上游合同：`2-编导` 优先读取 `projects/aigc/<项目名>/2-编剧/第N集.md`，仅在缺失且用户明确直接编导时回退 `1-分集/第N集.md`。
+- 将 `2-编剧` 从 legacy 触发词中移除；旧 `3-导演` / `4-表演` 仍只作为兼容触发词。
+
 ## 2026-06-01 (Narration To Voice Adaptation)
 
 - 新增 `references/narration-to-voice-adaptation-contract.md`，定义非引号客观叙事改编为对白、独白或内心独白的触发、说话者资格、语音预算、禁区和证据结构。

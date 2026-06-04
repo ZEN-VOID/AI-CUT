@@ -1,0 +1,17 @@
+[
+  {
+    "id": "script-to-global-visual-tone",
+    "prompt": "使用 $aigc-visual-tone，读取 projects/aigc/示例项目/2-编剧/第1集.md，为该项目制定画面基调和全局风格提示词。",
+    "expected": "读取画面基调 SKILL.md + CONTEXT.md，加载项目 MEMORY.md 和相关 CONTEXT/，路由 script_text_analysis；输出全局风格协议，包含 Source Manifest、Visual Slogan、Design Principle、Visual Gene Profile、Setting To Visual Chain、Master Anchor Matrix、Global Style Prompt、Negative Traits；Global Style Prompt 为中文 200-300 字，且无具体颜色、材质、构图、摄影/运镜和具象内容污染。"
+  },
+  {
+    "id": "reference-video-calibration",
+    "prompt": "使用 $aigc-visual-tone，根据我提供的参考视频和三张参考图，为当前项目提取媒介、渲染、光影氛围、VFX 和负面特征，只做画面基调，不写角色和场景。",
+    "expected": "路由 reference_visual_analysis 或 hybrid_project_analysis；多模态资料只提取风格事实，不复制参考图/视频中的具体人物、物件、地点、构图或颜色；输出 master_anchor_matrix 和 contamination_scan。若缺少项目资料，writeback_status 标记 reference_only candidate，不覆盖正式项目协议。"
+  },
+  {
+    "id": "repair-contaminated-style-prompt",
+    "prompt": "检查并修复这个画面基调 prompt：它写了蓝色霓虹、金属墙面、中心构图、35mm 镜头和主角站在废墟里。按画面基调规则改成可继承的全局风格提示词。",
+    "expected": "路由 repair；触发 GATE-VT-01、GATE-VT-02、GATE-VT-03、GATE-VT-04；输出 root_cause_trace、repair_log 和修复后的 200-300 字中文 Global Style Prompt，删除具体颜色、材质、构图、焦段和具象内容。"
+  }
+]

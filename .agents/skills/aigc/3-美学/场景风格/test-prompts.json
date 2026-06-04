@@ -1,0 +1,22 @@
+[
+  {
+    "id": "script-and-tone-to-scene-style",
+    "prompt": "使用 $aigc-scene-style，读取 projects/aigc/示例项目/2-编剧/第1集.md 和 projects/aigc/示例项目/3-美学/画面基调/全局风格协议.md，为该项目制定场景风格协议。",
+    "expected": "读取场景风格 SKILL.md + CONTEXT.md，加载项目 MEMORY.md 和相关 CONTEXT/，路由 hybrid_scene_protocol；输出 Source Manifest、Scene Style Dimension Matrix、Tone Inheritance Map、Narrative To Scene Chain、Unification Principle、Scene Style Prompt 和 Negative Traits；Scene Style Prompt 为中文 80-130 字，且不含具体场景清单、地点设计、构图摄影、运镜或生成请求。"
+  },
+  {
+    "id": "visual-tone-inheritance-only",
+    "prompt": "使用 $aigc-scene-style，只根据我提供的画面基调协议，提炼可供后续场景设计继承的空间光影、氛围密度、环境层次、时代背景和视觉统一性。",
+    "expected": "路由 visual_tone_inheritance；输出 tone_inheritance_map 和候选场景风格协议，明确只继承全局媒介、渲染、光影纪律和负面边界，不反向改写画面基调；若缺少项目剧本，writeback_status 标记 candidate。"
+  },
+  {
+    "id": "reference-environment-analysis",
+    "prompt": "使用 $aigc-scene-style，根据我提供的参考视频和两张环境参考图提取场景层面的风格事实，只研究空间层次、烟雾、自然元素、科技元素和时代质地，不写具体地点。",
+    "expected": "路由 reference_environment_analysis 或 hybrid_scene_protocol；多模态资料只提取场景风格事实，不复制参考中的具体地点、建筑、道具、构图或色名；输出 reference_scene_evidence_map、scene_style_dimension_matrix 和 contamination_scan。若缺少项目资料，标记 reference_only candidate。"
+  },
+  {
+    "id": "repair-scene-style-overreach",
+    "prompt": "检查并修复这个场景风格 prompt：生成一张未来城市街道，中心构图，35mm 镜头，蓝色霓虹灯照在金属高楼和玻璃天桥上，车辆停在画面右侧。按场景风格规则改成可继承的约 100 字中文提示词。",
+    "expected": "路由 repair；触发 GATE-SS-01、GATE-SS-04、GATE-SS-05；输出 root_cause_trace、repair_log 和修复后的中文 Scene Style Prompt，删除具体地点、构图、焦段、具体材质、具体颜色、车辆位置和生成请求。"
+  }
+]

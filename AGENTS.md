@@ -83,6 +83,36 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 智能体专用指令
 
 - 默认交互语言为中文；仅当任务确实需要英文输出时才切换。
+- 当用户使用英文提问时，应首先判断用户是否期望英文响应：
+  - 若用户明确要求英文输出（如 "please respond in English"），则使用英文
+  - 若用户仅使用英文措辞但未明确要求语言切换，默认保持中文响应
+  - 若任务本身涉及英文技术文档、代码、API 或需要输出英文内容，以任务需求为准
+- 多语言混合输入时，以用户的主要意图语言为准；若意图不清，优先使用中文响应
+
+### Skill 路由失败兜底策略（强制）
+
+当用户输入同时命中多个 skill、或命中 skill 但无法确定子技能路由时，按以下策略处理：
+
+1. **多命中仲裁**：
+   - 若同时命中的 skill 存在明确的父子关系，优先路由到子技能
+   - 若命中的 skill 之间无父子关系，按以下优先级选择：主技能 > 卫星技能 > 子技能
+   - 若仍无法裁决，以用户的第一个请求词或任务关键词为路由锚点
+
+2. **无命中兜底**：
+   - 若用户输入未命中任何已知 skill，以任务类型为锚点尝试最近似匹配
+   - 若无近似匹配，进入自由任务模式，按 AGENTS.md 通用规则处理
+   - 自由任务模式下的输出应明确说明"未命中特定 skill，按通用规则执行"
+
+3. **部分命中处理**：
+   - 若命中 skill 但缺少必要的输入字段，显式询问缺失字段
+   - 不得在输入不完整时假设默认值或跳过必要校验
+
+4. **路由失败报告**：
+   - 若路由失败且无法自动兜底，必须显式报告：
+     - 当前命中的 skill（若有）
+     - 路由失败的原因
+     - 已尝试的兜底策略
+     - 需要用户确认的信息
 
 ## 规则优先级与分级
 
@@ -95,20 +125,43 @@ python3 -m pip install <pkg>  # 安装依赖包
 3. 根 `AGENTS.md` / 共享治理合同（`office-governance-contract.md`）
 4. 主 `SKILL.md`（规范合同）
 5. 子技能 / 卫星技能 `SKILL.md`（局部合同）
-6. 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 子/卫星 `CONTEXT.md`
-7. 按需读取的 `CHANGELOG.md`
+6. 当前 `SKILL.md` 通过 `Module Loading Matrix` 显式授权的模块（`references/`、`review/`、`types/`、`templates/`、`scripts/`、`guardrails/`、`assets/`、`steps/`、`knowledge-base/` 等）
+7. 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 子/卫星 `CONTEXT.md`
+8. 按需读取的 `CHANGELOG.md`
 
 ### 规则分级
 
 本文件中的规则分为三级，执行时按级处理：
 
 - **P0-硬门槛**：不可绕过、不可降级。违反时必须暂停执行并修复。典型规则：安全红线、真源治理、根因上溯、`bootstrap_compat` 退出条件、LLM-first 主创规则。
-- **P1-默认规则**：默认遵守，用户可显式覆盖。违反时应报告偏离理由。典型规则：执行深度默认标准、批量调度默认语义、CONTEXT 健康阈值。
+- **P1-默认规则**：默认遵守，用户可显式覆盖。违反时应报告偏离理由。典型规则：执行深度默认标准、批量调度默认语义、CONTEXT 健康阈值、Skill 2.0 runtime-spine 结构基线。
 - **P2-最佳实践**：应遵守但不阻断执行。违反时记入经验层待后续改进。典型规则：命名约定、提交格式、CHANGELOG 维护建议、PR 叙述要求。
 
 各规则章节中标注的"（强制）"对应 P0；未标注的默认为 P1；建议性表述默认为 P2。
 
-## SKILL 运行规则
+### P0 规则冲突 Tie-Break 协议（强制）
+
+当两条或以上 P0 规则在同一执行上下文中产生不可调和的冲突时，按以下顺序裁决：
+
+1. **安全与权限规则优先**：涉及 `.env` 禁提交、路径安全、权限边界、API 密钥保护的规则 > 其他任何 P0 规则
+2. **用户显式指令次之**：用户明确要求"必须"、"不得"、"禁止"的事项，覆盖任何 P0 规则
+3. **真源收束规则优先**：涉及"单一真源"、"不得演化第二真相"的规则 > 具体执行规则
+4. **根因上溯规则优先**：当诊断规则与修复规则冲突时，诊断规则优先（先定位，再行动）
+5. **硬门槛兜底**：若仍无法裁决，取更宽泛的解释（给执行留有余地），并在输出中显式说明冲突点和临时护栏
+
+> **注**：`bootstrap_compat` 模式下的临时降级不受此 tie-break 约束；降级期间以临时护栏声明为准。
+
+### 调度前缀与角色类型的边界澄清（强制）
+
+命名前缀的调度语义仅适用于 `skills` 子技能包的结构化分组，不得与角色类型（主技能、子技能、卫星技能）的语义混淆：
+
+- **数字序号（如 `1-`、`2-`）**：表示串行执行顺序，但若该子技能同时被声明为卫星技能角色，则默认不参与主链聚合，应以角色类型合同为准
+- **英文序号（如 `A-`、`B-`）**：表示互斥候选，但卫星技能即使以 `A-` 命名，也不应自动参与互斥选择；是否参与由父技能显式声明
+- **卫星技能无论命名前缀为何**：其默认合同是不参与主链串行聚合，除非父技能明确将其输出声明为共享目标的必需 side input
+
+若父技能需要对卫星技能进行串行调度，必须在 `SKILL.md` 中显式声明"该卫星技能参与聚合"及其调度位置，不得依赖命名前缀语义自动推断。
+
+## SKILL 2.0 运行规则
 
 ### 内容创作型任务的 LLM 主创规则（强制）
 
@@ -120,6 +173,17 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 对现有工作流的兼容改造，允许暂时保留脚本型 carrier、validator、runner 与 provider bridge，但不得继续扩大脚本主创覆盖面；任何新增创作链路默认必须按 `LLM-first creative authorship` 设计。
 - 审查此类问题时，必须沿链路上溯：`Symptom -> Direct Script Overreach -> Skill/Template/Runner Source -> AGENTS.md 本条规则`。
 
+### AIGC 创作型 SKILL 执行报告证据标准（强制）
+
+- 对 `projects/aigc/<项目名>/` 下正式写回 canonical 产物的内容创作型 skill，若该 skill 的 `Output Contract` 声明需要同步生成执行报告，则报告不是可选附属物，而是完成门禁的一部分。
+- 执行报告必须记录“可公开、可审计的执行决策链”，不得输出自由散文式、不可验证的长篇思维链；这里的“思考过程”应落为结构化的 `Execution Decision Trace`，说明关键判断、适用规则、输入证据、取舍理由和输出落点。
+- 执行报告必须记录 `Reference Execution Matrix`：对当前 `SKILL.md` 通过 `Module Loading Matrix` 和 `Module Trigger Matrix` 授权加载的 `references/` 细则，逐条说明 `reference`、`load_status`、`trigger_reason`、`applied_to`、`evidence_in_output`、`verdict` 与 `n/a_reason`。
+- 执行报告必须采用“全量审计 / 选择性触发 / 必须说明未触发原因”模式：已授权且本轮相关的细则必须审计；不适用的细则必须写明 `N/A` 理由；不得用“已参考”“已综合考虑”等泛化表述替代证据。
+- 执行报告必须包含 `Rule Evidence Map`：把关键 gate、字段合同、声画配对、节奏承托、高潮/尾钩、保真边界、下游 handoff 等规则映射到正文位置、source anchor 或报告证据。
+- 执行报告必须包含 `N/A Justification` 与 `Repair Log`：规则未触发时说明原因；候选稿曾经违反 gate 时记录失败码、返工目标和修复结果。
+- `Reference Execution Matrix`、`Execution Decision Trace`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 中任一必需证据缺失时，正式写回不得判定为 `pass`；应回到对应 `Review Gate Binding` 的返工目标补证或修复。
+- 报告证据服务审计和下游交接，不得替代 canonical 创作正文，不得把完整创作过程稿、冗长推演或未筛选草稿灌入共享业务真源。
+
 ### 批量 SKILL 调度默认规则（强制）
 
 - 对 `skills` 子技能包的同级调度，命名前缀本身即为默认调度语义，无需额外显式声明。
@@ -128,6 +192,33 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 英文序号子技能包：形如 `A-`、`B-`、`C-` 或 `a-`、`b-`、`c-` 的同级子技能包默认作为互斥候选，按用户意图、父技能路由或任务类型单选执行。
 - 上述命名前缀语义仅针对 `skills` 子技能包与技能层调度，不外推到协作成员、顾问或外部 provider；协作成员一般不以名称序号承载调度语义。
 - 若用户显式指定不同调度方式，以用户显式指令优先；否则按本命名前缀语义执行。
+
+### Skill 2.0 Runtime-Spine 基线（强制）
+
+- 本仓库恢复 Skill 2.0 作为长期技能工程与项目级编排治理外壳，但采用 runtime-spine 版 Skill 2.0；不得恢复旧的“完整分区越多越合规”制度。
+- 长期维护的可执行 skill 默认应采用 core layout：
+
+  ```text
+  skill-name/
+  ├── agents/
+  │   └── openai.yaml
+  ├── CHANGELOG.md
+  ├── SKILL.md
+  ├── CONTEXT.md
+  └── README.md
+  ```
+- `SKILL.md` 是单次任务执行主脊柱，必须能独立跑通最小合格任务路径；不得退化为目录导航、入口摘要或引用索引。
+- runtime-spine `SKILL.md` 应至少表达：`Context Loading Contract`、`Runtime Spine Contract`、`Input Contract`、`Type Routing Matrix`、`Thinking-Action Node Map`、`Module Loading Matrix`、`Convergence Contract`、`Multi-Subskill Continuous Workflow`、`Review Gate Binding`、`Root-Cause Execution Contract`、`Field Mapping`、`Output Contract` 与 `Learning / Context Writeback`。
+- `references/`、`review/`、`types/`、`templates/`、`scripts/`、`guardrails/`、`assets/`、`steps/`、`knowledge-base/` 是受支持的可选模块；只有在技能自身 `SKILL.md` 的 `Module Loading Matrix` 显式声明触发条件、权限边界、禁止越权和回接 gate 时才参与执行。
+- 可选模块不得作为第二规则源：模块可以展开、校验、投影或提供资料，但不得改写 `SKILL.md` 的入口、节点、路由、gate、输出合同或学习回写规则。
+- `steps/` 不再是默认执行主链；思行节点主表必须在 `SKILL.md`。若启用 `steps/`，它只能展开 `SKILL.md` 已声明节点，不能维护第二节点网络。
+- `Type Routing Matrix.module_load` 应写成可解析的已授权模块或模块内真实文件路径；不得只写“按需加载”“按失败码加载”等依赖模型自行猜测的自然语言。
+- `Convergence Contract` 必须定义关键汇流点的通过条件、失败条件、证据和返工目标；最终完成不得只靠自我声明。
+- `knowledge-base/` 只承载用户或维护者手动加入的外部资料、参考包和资料索引；执行中产生的经验、失败模式、成功模式、修复打法与 reusable heuristic 写入同目录 `CONTEXT.md`。
+- `templates/` 只承载输出模板、脚手架模板和报告模板；它必须映射 `SKILL.md` 的 Output Contract，不得另立输出路径、命名规范或完成门禁。
+- `scripts/` 只承载机械创建、校验、格式转换、批量处理、diff、manifest 回写等辅助动作；内容创作、审美判断、叙事判断和复杂策略判断仍由 LLM 完成。
+- 创建、升级、修复或审计 Skill 2.0 包时，以 `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0` 为当前 canonical meta skill；不得继续引用已废弃的旧元技能路径。
+- 旧技能升级到 Skill 2.0 时，必须先建立迁移矩阵，标注旧 `SKILL.md`、同目录资源和入口元数据中每个 section / 资源的 `SKILL.md` 落点或授权模块落点、迁移动作、语义风险、引用更新与验证门禁。
 
 ### 项目级记忆与上下文规则（强制）
 
@@ -149,9 +240,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 技能组成与语义
 
 - 技能载体基线：
-  - `SKILL.md` 是执行主合同，负责入口、路由、关键门禁和输出合同。
+  - 长期维护的可执行 skill 默认采用 Skill 2.0 runtime-spine 基线：core layout 由 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml` 构成。
+  - `SKILL.md` 是执行主合同，负责入口、输入、类型路由、思行节点、模块授权、关键门禁、输出合同和学习回写。
   - `CONTEXT.md` 是经验层，作为预加载运行上下文和可复用知识库。
-  - 仓库根 `AGENTS.md` 不再规定 skill 包目录结构；除 `SKILL.md + CONTEXT.md` 的调用语义外，其他文件或目录只按具体技能自身规则处理。
+  - `references/`、`review/`、`types/`、`templates/`、`scripts/`、`guardrails/`、`assets/`、`steps/`、`knowledge-base/` 只有在当前技能 `SKILL.md` 显式授权时才参与执行；它们是模块展开层，不是根层强制完整分区。
 - `SKILL` 细分定位（仓库级规范）：
   - 主技能：拥有一段业务域或一条阶段链的总入口、总路由、共享载体边界与真源裁决权。形态通常为 `<skill-root>/SKILL.md + CONTEXT.md`，也可以是技能树中的阶段根，例如 `aigc/1-规划`。
   - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接吞并子技能的局部执行合同或业务真源。
@@ -172,8 +264,9 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 可使用主技能允许的共享载体，但不应借共享载体偷渡新的总线规则
   - 默认只拥有辅助真源或辅助动作权，例如查询、恢复、审查承接、状态持久化、桥接；不应改写主技能或主链 stage 的 canonical truth 判定权
 - `SKILL.md` 的角色（硬规则）：
-  - 定义范围、触发条件、必需输入、Mode Selection、核心工作流、工具/脚本入口、输出合同与质量门槛
+  - 定义范围、触发条件、必需输入、Mode Selection、Type Routing Matrix、Thinking-Action Node Map、Module Loading Matrix、Convergence Contract、核心工作流、工具/脚本入口、输出合同与质量门槛
   - 应明确、可执行、偏确定性；避免长篇叙述，也不要存放易过期的零散技巧
+  - 对 Skill 2.0 包，`SKILL.md` 不得只是 `Reference Loading Guide` 或目录导航；它必须包含能独立跑通单次任务的 runtime spine。
 - `CONTEXT.md` 的角色（经验层）：
   - 保存可复用的 heuristic：成功/失败案例、陷阱、调试线索、兼容性注记、提示技巧与战术捷径
   - 作为规划/执行时的预加载上下文，但不得重定义核心合同
@@ -215,8 +308,9 @@ python3 -m pip install <pkg>  # 安装依赖包
   3. 立即加载该 `SKILL.md` 同目录 `CONTEXT.md`，用于选择策略并避开该技能已知经验性失败模式。
   4. 若当前任务已绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，则在进入具体阶段执行前，先加载该项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 目录中与本轮任务相关的上下文文件；前者是项目创作记忆，后者是项目共享附加上下文。
   5. 若进入某个受治理子技能，按同样规则加载该子技能在父级合同中声明的局部 `SKILL.md + CONTEXT.md`；若进入某个卫星技能，按同样规则加载 `<satellite-name>/SKILL.md + CONTEXT.md`，锁定其局部合同与局部经验层。
-  6. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
-  7. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+  6. 若当前 `SKILL.md` 包含 `Module Loading Matrix`，只按其触发条件加载被授权模块；未授权模块不得作为默认上下文或阻断真源。
+  7. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
+  8. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > 当前 `SKILL.md` 授权模块 > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
@@ -301,8 +395,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 执行深度默认规则（强制）
 
 - 执行任务时，默认按“成熟版 engine”标准推进，避免因为习惯性谨慎而总是停在“最小补丁”或“最小闭环”。
-- 判断应做到哪一层时，以“用户需求自然要求的完成层级”为准，而不是以“当前最小可改动量”为准。
-- 对技能、工作流、规则、编排系统、模板体系、验证链路这类任务，默认目标应接近“成熟版 grouping engine”口径：
+- 判断应做到哪一层时，以”用户需求自然要求的完成层级”为准，而不是以”当前最小可改动量”为准。
+- 对技能、工作流、规则、编排系统、模板体系、验证链路这类任务，默认目标应接近”成熟版 grouping engine”口径：
   - 不只修局部文案或单点症状。
   - 应优先补齐对应的真源载体、路由细则、模板、校验/脚本、上下游回指与防回归机制。
 - 只有在以下情况成立时，才主动收敛到最小补丁：
@@ -313,6 +407,27 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 当前已完成到哪一层；
   - 为什么没有继续做到更完整层；
   - 下一步应补的真源或机制载体是什么。
+
+### “成熟版 engine”的量化特征定义
+
+以下特征用于判断当前工作是否已达到”成熟版”标准：
+
+| 特征维度 | 量化指标 | 说明 |
+| -------- | -------- | ---- |
+| **运行时完整性** | `SKILL.md` 包含完整的 `Runtime Spine Contract`（入口 → 类型路由 → 思行节点 → 输出合同 → 回写） | 可独立跑通最小合格任务路径 |
+| **下游调用覆盖** | 至少覆盖 2 个下游调用节点（如子技能调度、外部脚本、验证器调用） | 非单点线性处理 |
+| **类型路由存在** | `Type Routing Matrix` 包含至少 3 种有效路由分支 | 非单一路径死路 |
+| **真源收束** | 输入/输出合同在 `SKILL.md` 中显式声明，不依赖隐式推断 | 可追溯、可验证 |
+| **防回归机制** | 包含 validator、dry-run、smoke test 或等效校验链路之一 | 可自检、可回归 |
+
+**判断规则**：
+
+- 满足全部 5 项 → 达到成熟版标准
+- 满足 3-4 项 → 接近成熟版，存在可改进空间
+- 满足 1-2 项 → 处于早期阶段，需要补充
+- 满足 0 项 → 视为脚手架或探索性原型，不计入成熟版统计
+
+**注**：此特征清单是经验性参考，不是硬性合规门槛。特殊场景（如一次性任务、快速原型）允许跳过部分特征，但应在输出中显式说明当前处于”原型/实验”状态。
 
 ### 源层自动迭代触发协议（强制）
 
@@ -327,9 +442,16 @@ python3 -m pip install <pkg>  # 安装依赖包
   2. 修复该工件，并同步直接受影响的引用或派生文档。
   3. 做一次可行验证；无法验证时说明阻塞和临时护栏。
   4. 在最终回复中给出 `源层触发 -> 已同步内容 -> 验证结果`。
+- 若问题涉及 skill、工作流、模板、脚本或验证链路，源层闭环必须优先按 Skill 2.0 runtime-spine 模型追因：
+  1. 先检查目标 `SKILL.md` 是否能独立跑通任务路径。
+  2. 再检查 `Type Routing Matrix.required_nodes`、`Type Routing Matrix.module_load` 与 `Module Loading Matrix` 是否能互相解析。
+  3. 再检查 `Convergence Contract` 是否给出可验收的汇流/返工门。
+  4. 再检查授权模块、模板、脚本、README、registry、route、runbook、AGENTS/HARNESS 是否与 `SKILL.md` 同步。
+  5. 最后运行对应 validator、smoke test、dry-run 或审计脚本。
 - 若问题来自文档与脚本、模板与 validator、父技能与子技能、registry 与 routes、agent doc 与父层 topology 漂移，必须同步受影响关联面，而不是只修当前文件。
 - 若问题已表现为跨技能、跨阶段或跨项目复发，必须把预防机制向上晋升到 `AGENTS.md`、meta-SKILL 或共享治理合同。
 - 自动迭代的默认顺序为：`触发识别 -> 源层追因 -> 源层修复/优化 -> 引用同步 -> 审计或 smoke 验证 -> 经验沉淀或规范晋升 -> 继续原任务`。
+- 对 Skill 2.0 相关源层优化，默认顺序细化为：`症状 -> SKILL.md runtime spine -> Type Routing / Module Loading / Convergence -> 授权模块 -> 模板/脚本/validator/smoke -> 根 AGENTS/HARNESS -> 验证 -> CONTEXT 经验沉淀`。
 - 除非用户明确要求只解释、不改文件，或者更高优先级权限/安全规则阻断，否则不得把“是否进行源层升级”作为追问项；应直接实施可控范围内的源层修复，并在最终输出中说明已完成的升级点和剩余阻塞。
 - 如果当前任务不是修复源层本身，但执行过程中发现了低风险、高复用的源层改进机会，应在不破坏用户主目标的前提下并行完成；若改动风险较高或范围会明显扩大，必须记录为 `PRP` 或未决项，并继续当前最安全路径。
 - 自动迭代不能只停在 `CONTEXT.md` 经验记录：已确认会影响后续执行的稳定规则、触发条件、路由、输出合同、验证门禁或同步范围，必须晋升到对应规范真源。
@@ -575,3 +697,69 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 三省 agent doc 中引用的 `aigc` 路径、阶段名与 registry 条目全部与 `skills.yaml` / `routes.yaml` 一致
   - `HARNESS.md` 已同步更新为退出后状态，不再引用 `bootstrap_compat` 兼容口径
 - 退出 `bootstrap_compat` 模式时，必须在 `HARNESS.md` 的"现状判断"中显式记录退出日期、满足的条件清单与残留风险。
+
+---
+
+## 术语表（Glossary）
+
+本文档中使用的核心术语快速索引。详细定义请参阅对应章节。
+
+### 核心概念
+
+| 术语 | 定义 | 详细位置 |
+| ---- | ---- | -------- |
+| **真源（Canonical Source）** | 单一权威的事实来源；任何共享规则、结构、schema、模板或路由合同只允许有一个真源，其他载体为派生投影 | "真源治理合同"章节 |
+| **运行时脊柱（Runtime-Spine）** | SKILL.md 作为单次任务执行主脊柱，必须包含入口、类型路由、思行节点、模块授权、输出合同与回写的完整链路 | "Skill 2.0 Runtime-Spine 基线"章节 |
+| **bootstrap_compat** | 重大结构改造期间的兼容模式；保留 harness 真源骨架，放松对阶段内部细节的绑定强度 | "AIGC 改造兼容模式"章节 |
+| **根因上溯（Root-Cause Tracing）** | 从症状逐层向上追查到治理该行为的最高层规则源 | "根因优先"章节 |
+| **经验晋升（Experience Graduation）** | 将经验层（CONTEXT.md）中的稳定模式逐级晋升到规范层（SKILL.md / AGENTS.md） | "根因学习回路自动化"章节 |
+
+### 技能层级
+
+| 术语 | 定义 | 详细位置 |
+| ---- | ---- | -------- |
+| **主技能（Main Skill）** | 拥有业务域或阶段链的总入口、总路由、共享载体边界与真源裁决权 | "技能组成与语义"章节 |
+| **子技能（Sub-Skill）** | 受治理的可执行下钻单元，经父级路由进入，负责局部执行合同 | "技能组成与语义"章节 |
+| **卫星技能（Satellite Skill）** | 与主技能同根同级的旁路可执行技能；服务查询、恢复、复核等辅助职责 | "技能组成与语义"章节 |
+| **父级导引技能（Parent Guide Skill）** | 只负责路由、边界、聚合、回接和门禁的轻量形态，不吞并子技能的业务真源 | "技能组成与语义"章节 |
+
+### 合同类型
+
+| 术语 | 定义 | 详细位置 |
+| ---- | ---- | -------- |
+| **规范合同（Normative Contract）** | 写在 SKILL.md / AGENTS.md 中的强制执行规则，不可绕过 | "规则分级"章节 |
+| **经验层（Experience Layer）** | 写在 CONTEXT.md 中的可复用知识库，包括 Type Map、Repair Playbook、Reusable Heuristics | "CONTEXT 知识库模式"章节 |
+| **项目记忆层（Project Memory）** | 写在项目根 MEMORY.md 中的跨阶段持续生效的偏好、口味与长期要求 | "项目级记忆与上下文规则"章节 |
+
+### 治理工件
+
+| 术语 | 定义 | 详细位置 |
+| ---- | ---- | -------- |
+| **三省六部制** | 本仓库的编排治理架构：宪章层（AGENTS.md）+ 三省治理层（中书/门下/尚书）+ 六部能力层（吏户礼兵刑工） | "三省六部制编排治理基线"章节 |
+| **Harness** | 任务编排与治理的运行时控制面，包括共享治理合同、工件模板、审计入口 | "Harness 工程"章节 |
+| **Mission Brief** | 复杂任务的标准化任务简报，包含背景、目标、约束与验收标准 | "三省六部制编排治理基线"章节 |
+| **Route Plan** | 任务路由计划，定义技能调度顺序与回接策略 | "三省六部制编排治理基线"章节 |
+| **Preflight Verdict** | 高风险任务执行前的预检裁决 | "三省六部制编排治理基线"章节 |
+| **Validation Report** | 任务完成后的验证报告，确认输出符合预期 | "三省六部制编排治理基线"章节 |
+
+### 规则分级（Glossary）
+
+| 术语 | 定义 | 详细位置 |
+| ---- | ---- | -------- |
+| **P0-硬门槛** | 不可绕过、不可降级的强制规则；违反时必须暂停执行并修复 | "规则分级"章节 |
+| **P1-默认规则** | 默认遵守，用户可显式覆盖的规则；违反时应报告偏离理由 | "规则分级"章节 |
+| **P2-最佳实践** | 应遵守但不阻断执行的建议性规则 | "规则分级"章节 |
+| **P0 Tie-Break** | 当两条 P0 规则冲突时的裁决协议，按安全 > 用户指令 > 真源 > 根因 > 兜底的顺序裁决 | "P0 规则冲突 Tie-Break 协议"章节 |
+
+### 缩写对照
+
+| 缩写 | 全称 |
+| ---- | ---- |
+| LLM-first | 以 LLM 作为核心创作环节的第一执行者 |
+| runtime-spine | 运行时脊柱（SKILL.md 的核心执行链路） |
+| Type Routing Matrix | 类型路由矩阵（定义输入类型到执行路径的映射） |
+| Module Loading Matrix | 模块加载矩阵（定义哪些可选模块被授权参与执行） |
+| sidecar | 辅助工件（承载过程稿、思维链等非业务真源内容） |
+| canonical truth / canonical creative truth | 权威事实真相（单一真源的业务结论） |
+| dry-run | 空运行（不产生实际副作用的演练） |
+| smoke test | 冒烟测试（快速验证基本功能可用） |

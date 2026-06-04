@@ -122,9 +122,9 @@
 | `references/shot-continuity-contract.md` | `PASS-CINE-07` / `N6-CONTINUITY` / `N6.5-SHOT-PLAN` | `GATE-CINE-06`、`GATE-CINE-06A`、`GATE-CINE-11`、`GATE-CINE-15D`、`GATE-CINE-25`、`GATE-CINE-27` | `FAIL-CINE-05C`、`FAIL-CINE-05AB`、`FAIL-CINE-05T`、`FAIL-CINE-05U`、`FAIL-CINE-05V`、`FAIL-CINE-19A` | 前 3 个画面回看、entry/action_anchor/exit/handoff、`format_continuity_surface`、轴线与动作锚点继承抽样 |
 | `references/intra-shot-transition-contract.md` | `PASS-CINE-10` / `N6.5-SHOT-PLAN` / `N7-INJECT` | `GATE-CINE-15D`、`GATE-CINE-08` | `FAIL-CINE-05AB` | 块内相邻时间段物理因果链、过渡锚点和时值接力抽样 |
 | `references/transition-design-contract.md` | `PASS-CINE-07T` / `N6.1-HANDOFF` | `GATE-CINE-21`、`GATE-CINE-04D` | `FAIL-CINE-05K`、`FAIL-CINE-05M` | 场景变化交出点/进入提示、未越权写入组间转场方案 |
-| `references/cinematic-technique-library.md` | `PASS-CINE-08` / `N6.2-CAMERA-GRAMMAR` | `GATE-CINE-07`、`GATE-CINE-16`、`GATE-CINE-22` | `FAIL-CINE-05`、`FAIL-CINE-05I`、`FAIL-CINE-05P` | 景别/视角/镜头类型/构图/摄影技术选择抽样及动机 |
+| `references/cinematic-technique-library.md` | `PASS-CINE-08` / `N6.2-CAMERA-GRAMMAR` | `GATE-CINE-07`、`GATE-CINE-16`、`GATE-CINE-22` | `FAIL-CINE-05`、`FAIL-CINE-05I`、`FAIL-CINE-05P` | 静态摄影语法抽样：景别、视角、镜头类型、构图、光影色彩和摄影技术选择及动机；不审动态运镜 |
 | `references/dynamic-lens-language-contract.md` | `PASS-CINE-08` / `PASS-CINE-11` / `N6.2-CAMERA-GRAMMAR` / `N7-INJECT` | `GATE-CINE-08`、`GATE-CINE-16`、`GATE-CINE-18` | `FAIL-CINE-05B`、`FAIL-CINE-05G`、`FAIL-SHOT-IDENTITY-02` | 动态路径、速度曲线、停点、自然成稿和正面平视动机抽样 |
-| `references/camera-movement-emotion-contract.md` | `PASS-CINE-08` / `PASS-CINE-10` / `N6.2-CAMERA-GRAMMAR` | `GATE-CINE-29`、`GATE-CINE-16` | `FAIL-CINE-05X` | `camera_movement_emotion_plan` 是否说明情绪语义、速度曲线和停点 |
+| `references/camera-movement-emotion-contract.md` | `PASS-CINE-08` / `PASS-CINE-10` / `N6.2-CAMERA-GRAMMAR` | `GATE-CINE-29`、`GATE-CINE-16` | `FAIL-CINE-05X` | 动态运镜语法抽样：`camera_movement_emotion_plan` 是否说明情绪语义、速度曲线、景别切换、焦点运动、组合运镜、动态高点和停点/交出锚点 |
 | `references/depth-of-field-narrative-contract.md` | `PASS-CINE-08` / `PASS-CINE-10` / `N6.2-CAMERA-GRAMMAR` | `GATE-CINE-29`、`GATE-CINE-16` | `FAIL-CINE-05X` | `depth_of_field_narrative_plan` 是否说明隐藏、揭示、隔离或注意力转移 |
 | `references/scene-visual-constraint-contract.md` | `PASS-CINE-08` / `PASS-CINE-09` / `N6.3-SCENE-VISUAL-CONSTRAINT` | `GATE-CINE-22`、`GATE-CINE-26`、`GATE-CINE-30` | `FAIL-CINE-05P`、`FAIL-SCENE-IDENTITY-01`、`FAIL-CINE-05Y` | `scene_visual_constraint`、构图布局/光源/色彩/摄影技术参数内部裁决 |
 | `references/light-as-narrative-contract.md` | `PASS-CINE-08` / `PASS-CINE-10` / `N6.3-SCENE-VISUAL-CONSTRAINT` | `GATE-CINE-30`、`GATE-CINE-22` | `FAIL-CINE-05Y` | `light_narrative_plan`、照亮/遮蔽对象、阴影轮廓和信息可见性抽样 |
@@ -166,7 +166,7 @@
 | `FAIL-CINE-05R` | 时间段是画面内容拆写/复述：去掉源句已有主体、动作、道具和事实后，只剩景别词、空泛效果词或顺序词，无法读出独立摄影决策 | `references/functional-cinematic-projection-contract.md#Content-Paraphrase-Is-Not-Shot-Detail`、`references/natural-shot-detail-writing-contract.md#Paraphrase-Repair-Examples`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-05AC` | 源画面细节增量融合失败：上游画面描述中的必须保留可见事实被摘要、删短、泛化或摄影术语替代；缺少 `source_visible_fact_map` 或 `fact_to_segment_binding`；时间段秒点存在但无法说明原动作起点、撞点、读秒、结果或交出点如何被保留 | `references/source-detail-incremental-fusion-contract.md`、`references/functional-cinematic-projection-contract.md`、`references/natural-shot-detail-writing-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
 | `FAIL-CINE-05N` | 原字段标题下时间段不适合稳定改写为 AI 视频提示词：动作和镜头割裂、方向参照含混、光线只写光源或空泛效果、情绪没有可见微动态，或把完整提示词分栏/命令式负向词写进正文 | `references/ai-video-prompt-execution-contract.md`、`steps/cinematography-workflow.md#N6.4-FUNCTIONAL-PROJECTION`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN`、`steps/cinematography-workflow.md#N7-INJECT` |
-| `FAIL-CINE-05I` | 景别、镜头视角、景深/焦点、镜头类型或构图变化随机，无法回指节拍、空间、信息、情绪或连续性交接 | `references/cinematic-technique-library.md`、`steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` |
+| `FAIL-CINE-05I` | 静态摄影变化（景别、镜头视角、景深/焦点、镜头类型或构图）或动态运镜变化（速度、方向、景别切换、焦点运动、停点）随机，无法回指节拍、空间、信息、情绪或连续性交接 | `references/cinematic-technique-library.md`、`references/camera-movement-emotion-contract.md`、`steps/cinematography-workflow.md#N6.2-CAMERA-GRAMMAR` |
 | `FAIL-CINE-05K` | 场景变化没有交出点/进入提示，或把组间/跨场景创意转场方案落在 `4-摄影` | `references/transition-design-contract.md`、`references/shot-continuity-contract.md`、`steps/cinematography-workflow.md#N6.5-SHOT-PLAN` |
 | `FAIL-CINE-05J` | 思维·执行节点缺环：未完成画面匹配、类型画像、段落观看意图与逐点归属、摄影语法、功能投影、计划汇流或阶段内修复闭环，却直接写出原字段标题下时间段 | `steps/cinematography-workflow.md`、`SKILL.md#Thought Pass Map` |
 | `FAIL-CINE-06` | 改写原编导稿 | `SKILL.md` Output Contract 和本文件 `faithfulness_review` |
@@ -213,7 +213,7 @@
 - 源画面细节增量融合检查结果：`source_visible_fact_map` 抽样、必须保留事实数量、压缩/排除理由、`fact_to_segment_binding`、因 `FAIL-CINE-05AC` 修复的字段标签。
 - reference gate 覆盖检查结果：本轮加载的 `references/` 文件清单、对应 `PASS/N` 节点、`GATE-CINE-*`、`FAIL-CINE-*`、报告证据项；解释性 reference 未被单独作为阻断依据的说明。
 - 边界交出检查结果：场景变化交出点/进入提示、可见交出锚点，以及是否未在本阶段落盘创意转场方案。
-- 摄影语法变化检查结果：景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色和运镜变化。
+- 摄影语法变化检查结果：静态摄影骨架（景别梯度、镜头视角、景深/焦点、镜头类型、构图、光色）和动态运镜骨架（速度、方向、景别切换、焦点运动、停点、交出锚点）。
 - 功能性影视投影与 AIGC 下游可消费性检查结果。
 - 梯度描述完整性检查结果：抽样说明 `时间段` 的 L0/L1/L2/L3 裁决是否匹配画面任务、信息重要性、动作复杂度、情绪强度、段落位置和下游风险；说明低信息镜是否克制、高信息镜是否足够、是否存在堆砌分镜，因 `FAIL-CINE-05AA` 修复的字段标签。
 - 镜内/镜间连贯性检查结果：`entry/action_anchor/exit/handoff` 是否可抽取，块内相邻时间段是否有物理因果链或过渡锚点，块间人物姿态、轴线、运动方向、光色或声音余波是否连续，当前输出格式是否形成 `format_continuity_surface / field_link_chain`，因 `FAIL-CINE-05AB` 修复的字段标签。

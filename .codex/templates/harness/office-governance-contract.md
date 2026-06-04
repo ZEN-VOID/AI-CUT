@@ -25,6 +25,7 @@
 | `.codex/registry/routes.yaml` | 路由真源 | 定义 owner chain、默认流转与 legacy mapping |
 | `.codex/registry/skills.yaml` | 能力注册真源 | 新增 skill / workflow 时必须核对是否已注册 |
 | `.codex/templates/harness/*.yaml|*.md` | 任务工件真源 | mandate / brief / route / verdict / validation / learning |
+| `/Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0` | Skill 2.0 元技能真源 | 创建、升级、修复或审计长期维护 skill 时，按 runtime-spine 版 Skill 2.0 执行 |
 | `projects/aigc/<项目名>/` | AIGC 项目运行时真源 | 对 `aigc` 项目工作流，任务工件、项目状态、验收与学习记录以此为准 |
 | `.codex/state/tasks/<task_id>/` | 治理镜像 / 通用任务状态面 | 非项目任务的默认状态面；对 `aigc` 项目工作流仅作可选治理镜像，不覆盖 `projects/aigc/<项目名>/` |
 
@@ -35,6 +36,7 @@
 - 任何任务：不得在没有 `validation-report.md` 时宣布完成
 - 非平凡失败：不得绕过 `Symptom -> Direct Cause -> Rule Source -> Meta Rule Source`
 - 新增 skill / workflow / 继承映射：不得绕过 `registry` 与 `state` 载体
+- 新增、升级、修复或审计长期维护 skill：不得绕过 Skill 2.0 runtime-spine 基线；必须先检查 `SKILL.md` 主脊柱，再检查 `Type Routing Matrix.module_load`、`Module Loading Matrix`、`Convergence Contract` 与被授权模块是否可互相解析
 - 若工作流已声明 canonical runtime，不得再用镜像状态面反向覆盖主真源
 
 ## Shared Workflow

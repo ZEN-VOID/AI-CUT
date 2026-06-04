@@ -1,6 +1,6 @@
 version: 1
 repo: AIGC-FILM
-last_updated: 2026-05-31
+last_updated: 2026-06-04
 
 active_skills:
   - id: aigc
@@ -27,12 +27,49 @@ active_skills:
         owner_office: zhongshu
         contract_status: active
         route_role: stage
+      - id: aigc-2-screenwriting
+        path: .agents/skills/aigc/2-编剧
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 小说到短剧逐集剧本改编，负责题材/叙事解析、节奏承托、高潮尾钩、声画同步和 AIGC 下游字段。
       - id: aigc-2-writing-directing
         path: .agents/skills/aigc/2-编导
         owner_office: zhongshu
         contract_status: active
         route_role: stage
-        migration_note: merges old screenwriting, directing, and performance duties into one visual writing-directing stage.
+        purpose: 消费 `2-编剧` 或 `1-分集`，继续完成早期编导层的导演判断、表演工艺和具像画面化语言整合。
+        migration_note: old `4-表演` remains a legacy trigger here only for early writing-directing integration; explicit `5-表演` now routes to `.agents/skills/aigc/5-表演`.
+      - id: aigc-3-aesthetic-suite
+        path: .agents/skills/aigc/3-美学
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 消费 `2-编剧` 剧本或用户指定来源，生成画面基调、角色风格、场景风格、道具风格、分镜风格和摄影风格等美学协议。
+      - id: aigc-4-director-annotation
+        path: .agents/skills/aigc/4-导演
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 消费 `2-编剧` 剧本和 `3-美学` 画面基调，逐画面点注入导演批注，输出到 `projects/aigc/<项目名>/4-导演/`。
+      - id: aigc-5-performance-rewrite
+        path: .agents/skills/aigc/5-表演
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 消费 `4-导演` 导演批注稿和 `3-美学` 的画面基调、角色风格、场景风格，删除批注并融合改写为逐集表演稿。
+      - id: aigc-6-atmosphere-fx
+        path: .agents/skills/aigc/6-氛围
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 消费 `5-表演` 表演稿和 `3-美学` 的画面基调、角色风格、场景风格，按渲染、烘托、增强触发点选择性新增 `氛围画面` 字段。
+      - id: aigc-7-storyboard-split
+        path: .agents/skills/aigc/7-分镜
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 默认消费 `6-氛围` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调` 与 `3-美学/分镜风格`，在原剧本画面点下方内联注入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`。
       - id: aigc-3-motion-enrichment
         path: .agents/skills/aigc/3-运动
         owner_office: shangshu
