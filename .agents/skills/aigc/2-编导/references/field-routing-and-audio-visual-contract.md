@@ -100,11 +100,12 @@
 | 群体反应、全班凝固、集体低头 | `群像画面` | 用可见行为表达群体心理 |
 | 角色主观判断、恐惧、推理、记忆回闪 | `独白` / `内心独白` / `心理反应` | 优先转成可见身体、表情、道具停点或空间距离 |
 | 主角视角下对他人行为的解读、判断 | `内心独白（主角）` + 主角观察证据 | 把"她在试探他"改成主角内心独白 |
+| 非引号客观叙事、公共事实、群体共识、关系压力 | 优先可拍字段；必要时按 `narration-to-voice-adaptation-contract.md` 转 `对白` / `独白` / `内心独白` / `旁白` | 先通过 voice owner、知识依据、信息差安全和语音预算；不得改写上游已有对白 |
 | 直接情绪感受：恶心、难受、愤怒、害怕、崩溃 | `表情特写` / `心理反应` / `角色动作` | 关键面部变化优先落 `表情特写`；非面部联动、生理反应和身体动作分别落 `心理反应` / `角色动作` |
 | 往日常态、重复熟悉、过往背景 | 删除 / `内心独白（主角）` | 非当前主线必要信息删除；必要信息只转成当前可拍证据 |
 | 角色目标、阻碍、试探、潜台词 | `对白画面` / `表演提示` | 转成带目的的行为策略：停顿、避视、道具动作 |
 | 权力关系、信任变化、压迫位置 | `场面调度` + 具体位置字段 | 用站坐、高低、道具归属表达关系 |
-| 对白后的沉默、迟疑、反应 | `表演提示` / `表情特写` / `群像画面` | 不新增对白；用呼吸、停顿、纸张声消失承托 |
+| 对白后的沉默、迟疑、反应 | `表演提示` / `表情特写` / `群像画面` | 默认不新增对白；非引号客观叙事满足专项 gate 时才可派生语音，否则用呼吸、停顿、纸张声消失承托 |
 | 转场、未出口对白、下一场压力浮现 | `音效画面` / `道具特写` / `群像画面` / `转场` | 从声音桥、物件状态、动作中断中选择 |
 | 国运灾难、新闻碎片、现实世界同步后果 | `现实灾难画面` / `系统画面` | 作为短促压力插针，不挤占主叙事 |
 
@@ -113,8 +114,11 @@
 ```
 输入：上游小说原文
 │
-├─ 是否为对白/独白/内心独白？
+├─ 是否为上游已有对白/独白/内心独白？
 │   └─ 是 → 按 Dialogue Freeze (FR-3) 逐字保留，配对对应 *画面
+│
+├─ 是否为非引号客观叙事且需要语音化？
+│   └─ 是 → 先按 narration-to-voice gate 判断；通过后转 `对白` / `独白` / `内心独白` / `旁白` 并配对 *画面
 │
 ├─ 是否为可拍摄的身体动作？
 │   └─ 是 → `角色动作` / `动作画面`
@@ -396,9 +400,9 @@
 
 ### 10.1 基本规则
 
-- 对白必须逐字保真
+- 上游已有对白必须逐字保真
 - 不做润色、删改、同义替换、语序重排
-- 不把小说叙述句、作者判断、概括说明改写成新对白
+- 不把小说叙述句、作者判断、概括说明随意改写成新对白；非引号客观叙事只有通过 `narration-to-voice-adaptation-contract.md` 的 source-grounded gate，才可形成派生语音
 
 ### 10.2 语态/状态短语处理
 
@@ -515,7 +519,7 @@
 | --- | --- | --- | --- | --- |
 | 每条对白、独白、内心独白、旁白和音效是否就近配对对应 `*画面` 字段，且配对表达同一命题而非复述声音文本？ | `GATE-SCRIPT-05` | `FAIL-PAIRING` | `steps/directing-workflow.md#N4-FIELD` | `audio_visual_pairing_map` 逐条列出声音字段、对应画面字段、source anchor 和配对状态 |
 | 声音字段是否只写可听声音本体，未把时间、事件说明、声音类别或叙述概括写进引号？ | `GATE-SCRIPT-11` | `FAIL-SOUND-LITERAL` | `steps/directing-workflow.md#N4-FIELD` | `sound_literal_risk_map` 记录问题声音字段、修正后的声音本体和画面承托 |
-| 对白字段标题是否为 `对白（真实角色名，语态/状态短语）`，角色名不是模板占位，引号内没有动作描写，语态没有改写对白含义？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游原句、输出对白、真实角色名、语态来源和引号纯度 |
+| 对白字段标题是否为 `对白（真实角色名，语态/状态短语）`，角色名不是模板占位，引号内没有动作描写，语态没有改写上游已有对白含义；若为派生语音，是否回指非引号客观叙事？ | `GATE-SCRIPT-04` / `GATE-BD-19` | `FAIL-DIALOGUE` / `FAIL-BD-NARRATION-VOICE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `dialogue_lock_map` 记录上游原句、输出对白、真实角色名、语态来源和引号纯度；`narration_to_voice_adaptation_map` 记录派生语音来源 |
 | 上游单段长对白是否拆成连续原文节拍，拼回逐字等于上游对白，并为每个节拍配有就近可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录原文片段、节拍动作、气口/停顿、配对画面和拼回校验 |
 | 所有 `*画面`、`心理反应`、`表情特写`、`表演提示` 是否回答可见/可听/可执行内容，没有抽象概念、解释性因果、作者判断、任务说明或规则复述泄露？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-12` | `FAIL-CONCRETE-VISUAL` / `FAIL-PLACEHOLDER-LEAK` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `concrete_visual_risk_map` 与 `placeholder_leak_risk_map` 记录抽象句、占位句和修正字段 |
 | `角色动作` / `动作画面` 是否只写客观可拍动作、速度、力度、重心和空间运动，没有 `试图/想要/打算/意图` 等主观预判词？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `steps/directing-workflow.md#N4-FIELD` | `objective_action_purity_map` 与 `objective_action_purity_evidence` 记录删除的主观词和客观投影 |

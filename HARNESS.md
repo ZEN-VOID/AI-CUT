@@ -1,5 +1,5 @@
 # HARNESS.md
-<!-- last_synced: 2026-05-14 | version: 2026-05-14 -->
+<!-- last_synced: 2026-06-04 | version: 2026-06-04 -->
 
 本文件是仓库根层的 HARNESS 总览文档，用于把当前仓库的 Harness 工程化构思、已落地真源、运行方式、现状判断与发展方向收束为一份可快速阅读的初始化说明。
 
@@ -58,7 +58,7 @@
   - `bootstrap_compat` 改造兼容模式
   - 批量技能调度默认规则
   - `subagents` 默认真实启动、命中默认 subagent skill 即视为显式许可、以及降级显式报告口径
-  - Rollout 标准
+  - SKILL 运行规则与项目级记忆 / 上下文规则
   - 根因优先、根因学习回路、真源治理与复合型输出治理
 
 ### 2. 三省治理层
@@ -149,8 +149,8 @@
 - 根 `AGENTS.md` 与 `HARNESS.md` 的关键合同锚点是否存在
 - 三省 office 合同是否显式回指共享治理合同
 - runbook、template、registry 是否保留 `bootstrap_compat` 与 canonical runtime 口径
-- `aigc` 技能树的 tier / CONTEXT / 注册状态与阶段合同基线
-- `bootstrap_compat` 下的 checked / skipped 审计覆盖度，不再把 parent-only 通过包装成整树全绿
+- `aigc` 技能树的注册状态、阶段合同基线、项目 runtime 与上下文载体
+- `bootstrap_compat` 下的审计覆盖度，不再把仅父合同通过包装成整树全绿
 - `6-Video` 等 active 链路的 shared runtime 映射是否仍残留旧叶子口径
 - `aigc/review` 是否已从文档声明升级到可执行载体：
   - `scripts/aigc_review_runner.py` 是否存在并保留 `code-reviewer + review_fact_pack + repair_plan_ref + governance-state.yaml + resume_contract` 关键标记
@@ -243,10 +243,10 @@
 
 | 条件 | 当前状态 | 阻塞项 |
 | --- | --- | --- |
-| 所有 active stage 父合同通过 `--strict` 审计 | 未满足 | `3-Detail` 历史兼容面、`6-Video` 内部子路径 |
+| 所有 active stage 父合同通过当前启用的审计入口或人工复核 | 未满足 | `3-Detail` 历史兼容面、`6-Video` 内部子路径 |
 | `6-Video` 内部子路径收束且 provider 已注册 | 未满足 | provider 级执行面仍需继续收束 |
 | `7-Cut` 激活或显式归档 | 未满足 | 仍是注册层已声明、执行层未落地的搁浅阶段 |
-| 整树无 parent-only 伪装全绿 | 未满足 | `bootstrap_compat` 下仍存在 checked/skipped 降级项 |
+| 整树无仅父合同通过伪装全绿 | 未满足 | `bootstrap_compat` 下仍存在已说明的降级面 |
 | 三省 agent doc 与 registry 一致 | 部分满足 | 需持续同步 |
 | `HARNESS.md` 不再引用 `bootstrap_compat` 降级口径 | 未满足 | 仍在降级窗口内 |
 

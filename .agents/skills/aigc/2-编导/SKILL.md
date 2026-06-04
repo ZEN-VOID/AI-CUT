@@ -84,7 +84,7 @@ Reject or clarify when:
 | --- | --- |
 | 总执行拓扑 | `steps/directing-workflow.md`；按需读取 `steps/script-layer-workflow.md`、`steps/director-layer-workflow.md`、`steps/performance-layer-workflow.md` |
 | 保真剧本化、字段分流、声画配对、对白冻结、AIGC 视觉信号映射 | `references/script-adaptation-contract.md`、`references/field-routing-and-audio-visual-contract.md`、`references/aigc-visual-signal-matrix.md` |
-| 小说表述二次画面化、信息差、场景节奏、对白潜台词 | `references/novel-to-screen-language-contract.md`、`references/information-asymmetry-contract.md`、`references/scene-rhythm-contract.md`、`references/dialogue-subtext-contract.md` |
+| 小说表述二次画面化、客观叙事转对白/独白、信息差、场景节奏、对白潜台词 | `references/novel-to-screen-language-contract.md`、`references/narration-to-voice-adaptation-contract.md`、`references/information-asymmetry-contract.md`、`references/scene-rhythm-contract.md`、`references/dialogue-subtext-contract.md` |
 | 导演创作内核、高潮画面、视觉主轴、氛围意境、尾钩和受控增强 | `references/directorial-authorship-contract.md`、`references/climax-visual-treatment-contract.md`、`references/episode-visual-spine-contract.md`、`references/visual-aesthetic-contract.md`、`references/atmosphere-and-mood-contract.md`、`references/episode-final-image-contract.md`、`references/controlled-enrichment-contract.md` |
 | 顶层质量基线 | `references/hollywood-quality-spec.md` |
 | 表演风格、心理反应、演员五层控制、台词交付、潜台词行为、角色弧线、群戏、生理真实性 | `references/performance-style-directive-contract.md`、`references/psychological-reaction-contract.md`、`references/actor-performance-control-contract.md`、`references/performance-and-scene-craft-contract.md`、`references/character-arc-performance-contract.md`、`references/ensemble-performance-contract.md`、`references/physiological-realism-contract.md`、`references/stanislavski-method-reference.md` |
@@ -106,7 +106,7 @@ flowchart TD
     C --> D["N3-BD-DIRECTOR\n戏剧问题 + 视觉主轴 + 氛围尾钩"]
     D --> E["N4-BD-PERFORMANCE\n心理反应 + 台词交付 + 场面调度"]
     E --> F["N5-BD-VISUAL-LANGUAGE\n全稿画面化语言审查"]
-    F --> G{"N6-BD-REVIEW\nGATE-BD-01..18"}
+    F --> G{"N6-BD-REVIEW\nGATE-BD-01..19"}
     G -->|"needs_rework"| R["N6R-BD-REPAIR\n本阶段最小修复"]
     R --> G
     G -->|"pass"| W["N7-BD-WRITEBACK\n2-编导/第N集.md + 执行报告.md"]
@@ -133,7 +133,7 @@ flowchart LR
 
 1. 读取本 `SKILL.md + CONTEXT.md`，按项目任务加载项目 `MEMORY.md`、`north_star.yaml`、`team.yaml.init_synthesis` 与相关 `CONTEXT/`；`team.yaml` 只提供初始化综合上下文，不触发 team 成员身份调用。
 2. 锁定 `1-分集/第N集.md`，建立 `source_episode_path`、目标集号、类型画像、reference load manifest 和 `scene_field_evidence_index` 初始索引。
-3. 执行 script layer：场景 slugline、字段分流、对白冻结、声画配对、长对白节拍、信息差、观众心理基线、场景节奏、小说表述二次画面化；每个新增字段都记录来源锚点、目标字段和正文嵌入位置。
+3. 执行 script layer：场景 slugline、字段分流、对白冻结、声画配对、长对白节拍、信息差、观众心理基线、场景节奏、小说表述二次画面化，以及非引号客观叙事的受控对白/独白改编；每个新增字段和派生语音都记录来源锚点、目标字段和正文嵌入位置。
 4. 执行 director layer：戏剧问题、人物压力、观众位置、高潮/反高潮、视觉主轴、单场美学、氛围意境、声音策略、终结画面和受控增强；所有判断必须落到可见、可听、可执行锚点，并回写 `scene_field_evidence_index`。
 5. 执行 performance layer：心理反应 GETability、演员五层控制、台词表演、长对白交付、潜台词行为、场景状态差、场面调度/权力关系、沉默余波、角色弧线、群戏层次和生理真实性；表演工艺必须嵌入具体对白、动作、沉默、空间或反应字段。
 6. 执行 visual language pass：加载并执行 `../_shared/anti-abstract-language-contract.md`，删除抽象概念、审美口号、心理论文、表演意图总结、内部规则句和模板占位；将意义全部投到人物动作、空间、道具、光线、声音、停顿、呼吸、声线、表情和对手反应，并生成 `visual_unit_candidate_map` 与 `anti_abstract_language_evidence`。
@@ -147,8 +147,8 @@ flowchart LR
 固定执行语义：
 
 1. `N5-BD-VISUAL-LANGUAGE` 之后的正文先视为候选稿。
-2. `N6-BD-REVIEW` 按 `review/review-contract.md` 审计保真、对白冻结、声画配对、小说转译、导演判断、视觉主轴、氛围尾钩、表演可执行、台词交付、潜台词行为、动作链、具像画面语言、证据索引、摄影交接、LLM-first 和输出路径。
-3. 若 verdict 为 `needs_rework`，执行 `N6R-BD-REPAIR`，只修字段投影、画面化语言、导演/表演内嵌、证据缺口、`motion_enrichment_handoff`、报告和格式；不得改写上游剧情事实、对白和事件顺序。
+2. `N6-BD-REVIEW` 按 `review/review-contract.md` 的 `GATE-BD-01..19` 审计保真、对白冻结、声画配对、小说转译、客观叙事派生语音、导演判断、视觉主轴、氛围尾钩、表演可执行、台词交付、潜台词行为、动作链、具像画面语言、证据索引、摄影交接、LLM-first 和输出路径。
+3. 若 verdict 为 `needs_rework`，执行 `N6R-BD-REPAIR`，只修字段投影、派生语音触发/删除/改回画面化、画面化语言、导演/表演内嵌、证据缺口、`motion_enrichment_handoff`、报告和格式；不得改写上游剧情事实、上游已有对白和事件顺序。
 4. 修复后必须复审；复审仍失败时继续最小修复循环，或在源层冲突、输入缺失、权限不可用时输出不可用说明，不得把失败稿推进 `3-运动` 或 `4-摄影`。
 5. `review_only` 只产出审查报告，不自动修复；除此之外的生成、批量和 repair 模式都默认启用本闭环。
 
@@ -209,13 +209,13 @@ flowchart LR
 
 - 已读取本 `SKILL.md + CONTEXT.md`，并在项目任务中加载项目 `MEMORY.md` 与相关 `CONTEXT/`。
 - 上游 `1-分集/第N集.md` 可回指，frontmatter 记录 `source_episode_path`，输出路径为 `2-编导/第N集.md`。
-- 上游剧情事实、信息量、顺序和对白完整承接；对白逐字保真，引号内无动作描写。
-- 旧 `2-编剧` 的字段分流、声画配对、小说表述二次画面化、信息差、观众心理、场景节奏和对白潜台词证据已形成。
+- 上游剧情事实、信息量、顺序和已有对白完整承接；上游已有对白逐字保真，引号内无动作描写。
+- 旧 `2-编剧` 的字段分流、声画配对、小说表述二次画面化、客观叙事派生语音、信息差、观众心理、场景节奏和对白潜台词证据已形成；派生语音只来自非引号内叙事，不改写上游已有对白。
 - 旧 `3-导演` 的戏剧实质、高潮/反高潮、视觉主轴、画面美学、氛围意境、声音策略、终结画面和受控增强证据已内嵌。
 - 旧 `4-表演` 的心理反应、五层表演控制、台词交付、长对白 delivery、潜台词行为、场景状态差、场面调度、沉默余波、角色弧线、群戏和生理真实性证据已内嵌。
 - 三层证据不是独立摘要：每条关键判断都能在 `scene_field_evidence_index` 中回到来源、目标字段、正文嵌入句和修复 owner。
 - 全稿通过 `../_shared/concrete-visual-language-contract.md` 与 `../_shared/anti-abstract-language-contract.md`：不得用“电影感、高级感、宿命感、情绪复杂、权力压迫、内心崩塌、演员克制”等概念词替代具体声画、身体、空间和道具承托；若保留抽象词，必须同句绑定可见、可听、可演或可拍承托。
-- 执行报告包含 `thinking_action_node_ledger`、`script_layer_evidence`、`director_layer_evidence`、`performance_layer_evidence`、`concrete_visual_language_evidence`、`scene_field_evidence_index`、review verdict、repair actions 和结构化 `motion_enrichment_handoff`。
+- 执行报告包含 `thinking_action_node_ledger`、`script_layer_evidence`、`narration_to_voice_adaptation_map`、`director_layer_evidence`、`performance_layer_evidence`、`concrete_visual_language_evidence`、`scene_field_evidence_index`、review verdict、repair actions 和结构化 `motion_enrichment_handoff`。
 - `motion_enrichment_handoff.visual_unit_candidate_map` 已列明可被 `3-运动` 强化的角色动作或画面化句子；若存在 `cinematography_handoff.visual_unit_candidate_map`，它仅作为 `3-运动` 后继续交给 `4-摄影` 的参考，且未越权写入机位、景别、镜头运动、分镜编号或提示词。
 - 已运行 `scripts/validate_script_projection.py` 或等价人工 review；阻断项已在本阶段内完成最小修复并复审通过。
 
@@ -229,7 +229,7 @@ flowchart LR
 
 1. 输入、路径或项目 runtime 缺失：回到 `Input Contract` 与根 `aigc/SKILL.md`。
 2. 保真、对白或字段失败：回到 `references/script-adaptation-contract.md`、`references/field-routing-and-audio-visual-contract.md` 和 script layer。
-3. 小说转译、信息差、节奏或潜台词失败：回到对应 references 与 `steps/script-layer-workflow.md`。
+3. 小说转译、客观叙事派生语音、信息差、节奏或潜台词失败：回到对应 references 与 `steps/script-layer-workflow.md`。
 4. 导演判断、视觉主轴、氛围、声音、尾钩失败：回到 director references 与 `steps/director-layer-workflow.md`。
 5. 表演可执行、台词交付、潜台词行为、动作链或群戏失败：回到 performance references 与 `steps/performance-layer-workflow.md`。
 6. 抽象化、概念化、解释化失败：回到 `../_shared/concrete-visual-language-contract.md`、`../_shared/anti-abstract-language-contract.md` 与 `N5-BD-VISUAL-LANGUAGE`。
@@ -241,7 +241,7 @@ flowchart LR
 | field_id | output/evidence | requirement | fail_code |
 | --- | --- | --- | --- |
 | `FIELD-BD-01` | 输入取证 | source episode、项目记忆、CONTEXT、目标集号明确 | `FAIL-BD-INPUT` |
-| `FIELD-BD-02` | 保真字段化 | slugline、声画、对白冻结、小说转译完整 | `FAIL-BD-SCRIPT` |
+| `FIELD-BD-02` | 保真字段化 | slugline、声画、对白冻结、小说转译和派生语音留证完整 | `FAIL-BD-SCRIPT` |
 | `FIELD-BD-03` | 导演判断 | 戏剧问题、视觉主轴、高潮、氛围、尾钩可见可听可执行 | `FAIL-BD-DIRECTOR` |
 | `FIELD-BD-04` | 表演工艺 | 心理反应、台词交付、潜台词、调度、沉默余波演员可执行 | `FAIL-BD-PERFORMANCE` |
 | `FIELD-BD-05` | 画面化语言 | 全稿反抽象、反概念、反解释，离开概念词仍能拍 | `FAIL-BD-VISUAL-LANGUAGE` |
@@ -254,7 +254,7 @@ flowchart LR
 | step_id | pass_name | input | judgment | output |
 | --- | --- | --- | --- | --- |
 | `PASS-BD-01` | 输入取证 | `1-分集/第N集.md`、项目记忆、上下文 | 是否具备可承接正文与目标集号 | `input_lock` |
-| `PASS-BD-02` | 保真剧本层 | 上游正文、script references | 是否完成字段化、对白冻结、声画配对、小说转译和信息释放 | `script_layer_evidence` |
+| `PASS-BD-02` | 保真剧本层 | 上游正文、script references | 是否完成字段化、对白冻结、声画配对、小说转译、派生语音和信息释放 | `script_layer_evidence` |
 | `PASS-BD-03` | 导演判断层 | script evidence、director references | 戏剧问题、视觉主轴、氛围、声音、尾钩是否落到可拍声画 | `director_layer_evidence` |
 | `PASS-BD-04` | 表演工艺层 | director evidence、performance references | 心理、台词、潜台词、调度、沉默和群戏是否演员可执行 | `performance_layer_evidence` |
 | `PASS-BD-05` | 画面语言层 | candidate 编导稿、共享具像语言合同 | 是否还存在抽象审美词、心理解释、表演意图总结或规则泄露 | `concrete_visual_language_evidence` |

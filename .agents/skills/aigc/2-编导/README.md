@@ -26,6 +26,7 @@
 - 运行上下文：`CONTEXT.md`
 - 总流程：`steps/directing-workflow.md`
 - 编剧内部层细则：`steps/script-layer-workflow.md`
+- 客观叙事转对白/独白细则：`references/narration-to-voice-adaptation-contract.md`
 - 导演内部层细则：`steps/director-layer-workflow.md`
 - 表演内部层细则：`steps/performance-layer-workflow.md`
 - 统一审查：`review/review-contract.md`

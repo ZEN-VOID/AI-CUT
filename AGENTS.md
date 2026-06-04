@@ -1,5 +1,5 @@
 # AGENTS.md
-<!-- last_synced: 2026-05-14 | version: 2026-05-14 -->
+<!-- last_synced: 2026-06-04 | version: 2026-06-04 -->
 
 行业通用的 AI 智能体指令文件。兼容 Claude Code、Cursor、Windsurf 及其他 AI 编码工具。
 
@@ -95,22 +95,20 @@ python3 -m pip install <pkg>  # 安装依赖包
 3. 根 `AGENTS.md` / 共享治理合同（`office-governance-contract.md`）
 4. 主 `SKILL.md`（规范合同）
 5. 子技能 / 卫星技能 `SKILL.md`（局部合同）
-6. `references/` / `steps/` / `review/` / `types/` / 模板 / spec
-7. `agents/openai.yaml`（入口元数据）
-8. 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 子/卫星 `CONTEXT.md`
-9. 按需读取的 `CHANGELOG.md`
+6. 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 子/卫星 `CONTEXT.md`
+7. 按需读取的 `CHANGELOG.md`
 
 ### 规则分级
 
 本文件中的规则分为三级，执行时按级处理：
 
 - **P0-硬门槛**：不可绕过、不可降级。违反时必须暂停执行并修复。典型规则：安全红线、真源治理、根因上溯、`bootstrap_compat` 退出条件、LLM-first 主创规则。
-- **P1-默认规则**：默认遵守，用户可显式覆盖。违反时应报告偏离理由。典型规则：执行深度默认标准、批量调度默认语义、CONTEXT 健康阈值、Skill 2.0 结构基线。
+- **P1-默认规则**：默认遵守，用户可显式覆盖。违反时应报告偏离理由。典型规则：执行深度默认标准、批量调度默认语义、CONTEXT 健康阈值。
 - **P2-最佳实践**：应遵守但不阻断执行。违反时记入经验层待后续改进。典型规则：命名约定、提交格式、CHANGELOG 维护建议、PR 叙述要求。
 
 各规则章节中标注的"（强制）"对应 P0；未标注的默认为 P1；建议性表述默认为 P2。
 
-## SKILL2.0
+## SKILL 运行规则
 
 ### 内容创作型任务的 LLM 主创规则（强制）
 
@@ -131,70 +129,8 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 上述命名前缀语义仅针对 `skills` 子技能包与技能层调度，不外推到协作成员、顾问或外部 provider；协作成员一般不以名称序号承载调度语义。
 - 若用户显式指定不同调度方式，以用户显式指令优先；否则按本命名前缀语义执行。
 
-### 仓库 Rollout 标准（强制）
+### 项目级记忆与上下文规则（强制）
 
-- 长期维护的 skill 默认按 Skill 2.0 包结构建设；旧技能包进入升级窗口时，应以 `skill-工作车间` 的目录合同为当前 canonical 参考，不得继续把长细则、步骤、类型策略和审查规则堆回单一 `SKILL.md`。
-- Skill 2.0 标准目录结构如下；创建、修复或升级时若出现拼写变体，应归一到这些 canonical 名称：
-
-  ```text
-  skill-name/
-  ├── references/
-  ├── scripts/
-  ├── templates/
-  ├── review/
-  ├── steps/
-  ├── knowledge-base/
-  ├── types/
-  ├── agents/
-  │   └── openai.yaml
-  ├── CHANGELOG.md
-  ├── SKILL.md
-  ├── CONTEXT.md
-  └── README.md
-  ```
-- 常见目录拼写变体必须归一：`reference` / `refs` -> `references/`，`script` / `tools` -> `scripts/`，`template` -> `templates/`，`reviews` / `audit` -> `review/`，`step` / `workflow` / `workflows` -> `steps/`，`knowledge_base` / `knowledgebase` / `kb` -> `knowledge-base/`，`type` / `type-map` / `typings` -> `types/`，`agent` / `agent-config` / `agent-configs` -> `agents/`；若 alias 与 canonical 同时存在，不得自动覆盖，必须先合并再删除 alias。
-- Skill 2.0 分区可以以最小占位启动，但每个分区至少应包含一个说明文件，避免空目录在迁移、同步或版本控制中丢失。
-- 父级导引 skill 是 Skill 2.0 的轻量 tier：当某个 `SKILL.md` 只负责路由、子技能/卫星技能边界、共享真源裁决、聚合门禁和回接关系，且不直接拥有业务执行细则、类型包、模板或质量评估细则时，必须在 frontmatter 中声明 `governance_tier: router`，其本级最小结构只要求同目录 `SKILL.md + CONTEXT.md`。
-- `governance_tier: router` 只豁免本级完整分区、`README.md`、`CHANGELOG.md` 与 `agents/openai.yaml` 的强制要求，不豁免同目录 `CONTEXT.md`、Context Loading Contract、Root-Cause 合同、清晰输入/路由/输出或回接合同，也不降低子技能、卫星技能和真正执行型主技能的 Skill 2.0 要求。
-- 父级导引 skill 可以按真实需要引用共享 `_shared/`、registry、routes 或既有父级细则文件；这些共享载体不代表本级需要拥有完整 `references/`、`steps/`、`review/`、`types/`、`templates/`、`knowledge-base/`、`scripts/`、`agents/` 分区。若父级开始直接拥有执行细则、模板、类型策略、脚本或 review 真源，应取消 `governance_tier: router` 并升级为 `lite` 或 `full`。
-- Skill 2.0 的核心 owner 边界：
-
-  - `SKILL.md` 只保留入口、触发、路由、动态引用、关键门禁、Root-Cause 合同和输出合同。
-  - `CONTEXT.md` 保存经验性 Type Map、Repair Playbook 与 Reusable Heuristics，不承载核心执行合同和流水日志。
-  - `references/` 承载复杂规范、长细则、背景资料和专项规则展开，不拥有入口路由权。
-  - `references/` 中凡承载强制规则、Review Questions、反模式、失败症状、返工判断或阻断条件的细则，必须内置 `Review Gate Mapping`，将每条 `Review Question` 或强制判断绑定到 `Review Gate -> Fail Code -> Rework Target -> Report Evidence`；解释性、术语性、示例性 reference 若无独立强制裁决权，必须声明无独立 gate 并回接主 review gate。
-  - `steps/` 承载思维与执行一体化节点、串并行、分支、汇流、回退和证据门，不替代类型矩阵。
-  - `steps/` 中的思维·执行节点与同一 skill 内相关 Mermaid 图表视为一体化拓扑真源；凡调整节点名称、顺序、输入输出、路由、分支、汇流、回退或 gate，必须同轮同步检查并更新 `SKILL.md`、`README.md`、`steps/`、`references/`、`review/` 或其他文档中的相关 Mermaid 图表，不得让图表停留在旧拓扑。
-  - `review/` 承载质量评估、审计规范、review provider 接入和交付门禁，不改写业务主真源。
-  - `types/` 承载类型变量、类型映射矩阵和分型策略，不承载完整执行步骤。
-  - `knowledge-base/` 承载人工添加的外部知识库、参考资料包和领域资料索引，不承载执行中沉淀的经验、heuristic 或强制合同。
-  - `templates/` 承载输出模板、脚手架模板和报告模板，不承载运行状态。
-  - `scripts/` 只承载机械创建、校验、格式转换、批量处理等自动化辅助，不替代 LLM 主创判断。
-  - `agents/openai.yaml` 承载产品侧入口元数据，至少包含 `interface.display_name`、`interface.short_description` 与显式提到 `$skill-name` 的 `interface.default_prompt`。
-  - `README.md` 承载目录树、快速说明和入口命令；`CHANGELOG.md` 承载版本更新与迁移摘要。
-- Skill 2.0 的经验沉淀落点必须保持单一：执行中产生的新经验、稳定经验、失败模式、成功模式、修复打法与 reusable heuristic 均写入同目录 `CONTEXT.md`；`knowledge-base/` 只接收用户或维护者手动加入的外部知识材料，不作为自动学习、复盘或经验晋升的落点。
-- 每个长期维护的 skill 都应包含：
-
-  - 在 `SKILL.md` frontmatter 中声明 `governance_tier: full | lite | router`
-  - 在 `SKILL.md` 中包含 `Context Loading Contract`：明确该技能每次被调用时，必须同时加载同目录 `CONTEXT.md` 作为预加载上下文
-  - 在 `SKILL.md` 中包含 `Reference Loading Guide` 或等价动态引用表，声明何时加载 `references/`、`steps/`、`review/`、`types/` 与其他分区
-  - 在 `SKILL.md` 中包含与本全局政策对齐的 Root-Cause 执行合同，并附带上溯到 meta 层合同的钩子
-  - 在 `SKILL.md` 中根据 tier 提供字段中心映射（Tier-Full 使用三张表；Tier-Lite 使用合并表）
-  - 每个新建、升级或优化的 `references/` 细则必须包含 `Review Gate Mapping` 或等价验收映射；不得只写 Review Questions 而没有对应 gate、fail code、返工目标和报告证据。
-  - 在 `CONTEXT.md` 中包含知识库核心（Type Map、Repair Playbook 与/或 Reusable Heuristics）
-  - `CONTEXT.md` 不再维护 `Case Log` / `Case Record` 专栏；里程碑经验也应折叠沉淀到知识库核心，详细过程外置到 `CHANGELOG.md` 或 `reports/`
-  - 对 `full` / `lite` 技能，在 `agents/openai.yaml` 中提供产品侧入口元数据，不得把入口摘要偷渡成强于 `SKILL.md` 的隐藏执行规则；`router` 父级导引可不设本级 `agents/openai.yaml`，由上级或叶子入口承接产品发现
-- 声明 `governance_tier: router` 的父级导引 skill 应改按轻量基线验收：
-
-  - 同目录必须存在 `SKILL.md + CONTEXT.md`，且 `SKILL.md` frontmatter 必须包含 `governance_tier: router`
-  - `SKILL.md` 必须包含 `Context Loading Contract`、输入边界、子技能/卫星技能索引或路由表、真源边界、Root-Cause 执行合同、Output / Handoff / Aggregation 合同
-  - `CONTEXT.md` 必须包含经验性 `Type Map`、`Repair Playbook` 与/或 `Reusable Heuristics`
-  - 本级不得虚设空分区来满足形式检查；若确有本级专属分区，必须说明其 owner 边界，且不得与子技能分区形成第二真源
-- 上述基线适用于主技能、受治理子技能与长期维护的卫星技能；非执行型细则模块不单独视为独立 skill 基线对象。
-- 由元技能生成的新技能，必须初始化完整 Skill 2.0 目录、根文件与 `agents/openai.yaml`，并满足上述基线；不得回退为“只有主合同 + 经验层”。
-- 旧技能包升级到 Skill 2.0 时，必须先建立迁移矩阵，标注旧 `SKILL.md`、同目录资源与入口元数据中每个 section / 资源的 target owner、迁移动作、语义风险、引用更新与验证门禁；删除旧段落前必须能追到新 owner 或明确归档/丢弃理由。
-- 重命名、拆分或迁移 skill 文件/目录后，必须同步扫描并更新 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、markdown 链接、registry、routes、runbook 与项目内引用；无法自动更新的外部或二进制引用必须写入最终报告；若形成可复用经验，再沉淀到同目录 `CONTEXT.md`。
-- 创建或升级 Skill 2.0 包后，应运行对应元技能提供的结构校验器或仓库内等价审计；脚手架类改动还应额外生成临时目标 skill 做端到端冒烟验证。
 - 对 `story` 与 `aigc` 这类项目型创作工作流，初始化项目目录时还必须同步创建项目级 `MEMORY.md`：
 
   - `projects/story/<项目名>/MEMORY.md`
@@ -205,75 +141,43 @@ python3 -m pip install <pkg>  # 安装依赖包
   - `projects/aigc/<项目名>/CONTEXT/`
 - 项目级 `MEMORY.md` 是当前项目的创作记忆载体，用于沉淀跨阶段持续生效的偏好、口味、习惯、特殊元素、禁区与长期要求。
 - 项目级 `CONTEXT/` 不替代技能同目录 `CONTEXT.md`；它是项目运行时的附加上下文根，面向整个创作阶段共享。
-- `scripts/skill_context_audit.py --strict` 用于全仓校验：每个纳入范围的 `SKILL.md` 是否存在同目录 `CONTEXT.md`，并是否声明 `Context Loading Contract` 与“必须同时加载同目录 `CONTEXT.md`”规则。
-- `scripts/aigc_skill_audit.py --strict` 用于校验：tier 声明是否存在、对应 tier 所需表格是否齐全、`CONTEXT.md` 的基线章节是否存在；同时应对 `CONTEXT.md` 的日志化倾向、旧 `Case Log` 残留与超 soft-limit 状态给出软警告。缺项应被视为审计失败。
 
-  - 对 `aigc` 技能树，还应校验阶段注册状态、搁浅阶段声明以及 `projects/aigc/<项目名>/` 项目根运行时合同是否已同步进入 registry / routes / audit。
+### 团队技能索引同步（强制）
+
 - 对 `.agents/skills/team/` 技能树，凡成员配置出现新增、删除、重命名、迁移或适配场景显著变化，都必须在同一轮任务内同步更新 `.agents/skills/team/SKILL.md` 的 `Member And Scenario Index`；不得允许 team 子树与根索引脱节。
 
 ### 技能组成与语义
 
-- 技能目录基线：
-  - 长期维护的可执行 skill 默认采用 Skill 2.0 目录结构：`SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/openai.yaml`
-  - 父级导引 skill 若声明 `governance_tier: router`，默认采用轻量结构：`SKILL.md`、`CONTEXT.md`；它通过父级合同路由到子技能、卫星技能、共享 `_shared/` 或真实脚本，不要求本级完整 Skill 2.0 分区
-  - `SKILL.md`：必需，作为入口、路由、动态引用、关键门禁和输出合同
-  - `CONTEXT.md`：必需，作为预加载运行上下文和经验性知识库
-  - `references/`、`steps/`、`review/`、`types/`、`knowledge-base/`、`templates/`、`scripts/`、`agents/`：作为 Skill 2.0 功能分区，不得用拼写变体平行演化
-  - `assets/` 仅在技能确有静态素材需要时作为业务资源目录使用，不属于 Skill 2.0 canonical 必备分区；若出现，应由 `SKILL.md` 或 `README.md` 说明所有权和加载方式
+- 技能载体基线：
+  - `SKILL.md` 是执行主合同，负责入口、路由、关键门禁和输出合同。
+  - `CONTEXT.md` 是经验层，作为预加载运行上下文和可复用知识库。
+  - 仓库根 `AGENTS.md` 不再规定 skill 包目录结构；除 `SKILL.md + CONTEXT.md` 的调用语义外，其他文件或目录只按具体技能自身规则处理。
 - `SKILL` 细分定位（仓库级规范）：
   - 主技能：拥有一段业务域或一条阶段链的总入口、总路由、共享载体边界与真源裁决权。形态通常为 `<skill-root>/SKILL.md + CONTEXT.md`，也可以是技能树中的阶段根，例如 `aigc/1-规划`。
-  - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接拥有子技能的执行细则、模板、类型包或 review 真源；需要在 frontmatter 中声明 `governance_tier: router`。
-  - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块，可落在 `references/`、`steps/`、`review/`、`types/`、`templates/`、schema、spec、helper 或其他被合同显式声明的专项细则载体中；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
+  - 父级导引 skill：主技能或阶段根的一种轻量形态，只负责路由、边界、聚合、回接和门禁，不直接吞并子技能的局部执行合同或业务真源。
+  - 子模块：主技能或子技能为了拆分长细则而挂出的非执行模块；它们提供规则细则，但不拥有独立调度权、闭环权或经验层主权。
   - 子技能：受治理的可执行下钻单元；其路径、命名与载体形态由父级主技能显式声明，不再绑定固定目录包裹约定。它们由父级主技能路由进入，负责局部执行合同，避免擅自越权为新的总入口。
   - 卫星技能：与主技能同根同级放置的旁路可执行 skill，推荐形态为 `<skill-root>/<satellite-name>/SKILL.md + CONTEXT.md`；它们服务查询、恢复、复核、汇总、桥接等辅助职责，可被直接调用，但不默认冒充新的主链 stage 或新的父级总线。
 - 结构判定规则：
-  - 若某单元只提供长细则、模板、schema、思维链或策略表，而不独立受理任务，则它是子模块，不是子技能。
+  - 若某单元只提供长细则、样例、schema、思维链或策略表，而不独立受理任务，则它是子模块，不是子技能。
   - 若某单元需要经父级路由进入，且其结果默认回流到父级共享目标，则它优先视为子技能。
   - 若某单元与主技能同根同级存在，可直接被用户或上游命中，承担查询/恢复/审查承接等旁路职责，则它优先视为卫星技能。
-  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不应伪装成普通细则模块，应显式定义为子技能或卫星技能之一。
+  - 若某单元既想直达受理任务，又想长期维护独立 `CONTEXT.md`，则不应伪装成普通说明文件，应显式定义为子技能或卫星技能之一。
 - 现有结构判例：
   - `aigc/SKILL.md` 与各阶段根（如 `aigc/1-规划`、`aigc/3-Detail`）属于主技能层。
   - 跨项目仓 `story2026/query`、`story2026/resume` 属于卫星技能层；`story2026/review` 若被根技能声明为旁路承接而非主链真源拥有者，也应按卫星技能合同治理其边界。
 - `卫星技能` 的角色：
-  - 是主技能侧的旁路执行层，而不是普通细则模块，也不是默认加入主链阶段序列的子技能
+  - 是主技能侧的旁路执行层，而不是普通说明文件，也不是默认加入主链阶段序列的子技能
   - 应在主技能 `SKILL.md` 中显式声明其 `stage_position`、`truth ownership`、`not-owned truth` 与回接关系
-  - 可共享主技能的 `scripts/`、`templates/` 与其他共享模块载体，但不应借共享载体偷渡新的总线规则
+  - 可使用主技能允许的共享载体，但不应借共享载体偷渡新的总线规则
   - 默认只拥有辅助真源或辅助动作权，例如查询、恢复、审查承接、状态持久化、桥接；不应改写主技能或主链 stage 的 canonical truth 判定权
 - `SKILL.md` 的角色（硬规则）：
-  - 定义范围、触发条件、必需输入、Mode Selection、Reference Loading Guide、核心工作流、工具/脚本入口、输出合同与质量门槛
+  - 定义范围、触发条件、必需输入、Mode Selection、核心工作流、工具/脚本入口、输出合同与质量门槛
   - 应明确、可执行、偏确定性；避免长篇叙述，也不要存放易过期的零散技巧
-  - 对 Skill 2.0 包，`SKILL.md` 可以摘要并回链分区细则，但不得复制 `references/`、`steps/`、`review/`、`types/` 或外部 `knowledge-base/` 的完整正文；若 `references/`、`steps/`、`review/` 或 `types/` 改变主流程，必须同步回改 `SKILL.md` 的拓扑和引用表；`knowledge-base/` 不得直接改变主流程
-- `agents/openai.yaml` 的角色（入口元数据层）：
-  - 承载 `interface.display_name`、`interface.short_description`、`interface.default_prompt` 等 UI-facing 元数据
-  - `interface.default_prompt` 应显式提到 `$skill-name` 或目标 skill 的标准唤起名
-  - 负责 Codex 发现与进入技能时的入口摘要，但不得偷渡比主 `SKILL.md` 更强的执行规则
-- `references/` 的角色（细则层）：
-  - 保存复杂规范、详细规则、背景资料、专项合同和可独立回指的长细则
-  - 不拥有入口路由权；若细则需要改变主流程，必须回改 `SKILL.md`
-  - 不拥有无 gate 的阻断裁决权；每个强制性 reference 必须将 `Review Question -> Review Gate -> Fail Code -> Rework Target -> Report Evidence` 作为固有验收配置。
-  - `Review Questions` 只是问题入口，不是验收门本身；若无法回接 `review/` 的 gate、失败码、返工节点和报告证据，则该问题不得用于阻断交付。
-- `steps/` 的角色（思行网络层）：
-  - 保存串行、并行、树、网、分支、汇流、回退、证据门与执行节点
-  - 节点应同时表达判断、动作、证据、路由和 gate，不应退化为普通 checklist
-- `review/` 的角色（质量门禁层）：
-  - 保存质量评估、审计规范、评分模型、review provider 接入与验收 verdict
-  - 不拥有业务主真源改写权；审查结论应通过主技能的聚合与回写规则生效
-- `types/` 的角色（类型策略层）：
-  - 保存类型变量、类型映射矩阵、分型策略和 `type_profile` 生成规则
-  - 多类型任务应先判型，再让 `steps/` 消费类型画像进入对应分支
-- `knowledge-base/` 的角色（外部知识库层）：
-  - 保存用户或维护者手动添加的外部知识库、参考资料包、资料索引、摘录入口与领域背景材料
-  - 不承载执行中沉淀的新经验、稳定经验、reusable heuristic、失败复盘或强制合同；这些经验一律写入同目录 `CONTEXT.md`，若稳定到强制执行，再晋升到 `SKILL.md` 或对应规范分区
-- `templates/` 的角色（模板层）：
-  - 保存输出模板、脚手架模板、报告模板与可复用结构样板
-  - 不承载运行状态，也不作为任务唯一验收标准
-- `scripts/` 的角色（自动化辅助层）：
-  - 保存初始化、校验、格式转换、路径归一、批量处理等机械辅助脚本
-  - 不得替代 LLM 对目标 skill 业务合同、审美判断、叙事判断或复杂策略的主创设计
 - `CONTEXT.md` 的角色（经验层）：
   - 保存可复用的 heuristic：成功/失败案例、陷阱、调试线索、兼容性注记、提示技巧与战术捷径
   - 作为规划/执行时的预加载上下文，但不得重定义核心合同
-  - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识；同一技能的规范型类型化处理 / 多模式策略，应落在主合同显式回指的专项模块或共享 spec，而不是继续整合进 `CONTEXT.md`
+  - `CONTEXT.md` 中的 Type Map 属于经验性映射与修复知识，不得替代 `SKILL.md` 的执行主合同
 - `MEMORY.md` 的角色（项目记忆层）：
   - 保存当前项目跨阶段持续生效的创作偏好、审美口味、表达习惯、长期保留元素、明确禁区、长期协作要求与其他“以后继续按这个项目执行”的稳定约束
   - 只服务当前项目，不承载跨项目 heuristic、源层故障复盘、脚本调试经验或技能治理规则
@@ -311,20 +215,17 @@ python3 -m pip install <pkg>  # 安装依赖包
   3. 立即加载该 `SKILL.md` 同目录 `CONTEXT.md`，用于选择策略并避开该技能已知经验性失败模式。
   4. 若当前任务已绑定 `projects/story/<项目名>/` 或 `projects/aigc/<项目名>/`，则在进入具体阶段执行前，先加载该项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 目录中与本轮任务相关的上下文文件；前者是项目创作记忆，后者是项目共享附加上下文。
   5. 若进入某个受治理子技能，按同样规则加载该子技能在父级合同中声明的局部 `SKILL.md + CONTEXT.md`；若进入某个卫星技能，按同样规则加载 `<satellite-name>/SKILL.md + CONTEXT.md`，锁定其局部合同与局部经验层。
-  6. 若当前主技能、子技能或卫星技能采用 Skill 2.0 动态引用模式，则按 `Reference Loading Guide` 动态加载分区：复杂规则读 `references/`，执行拓扑读 `steps/`，质量门禁读 `review/`，分型任务先读 `types/` 形成 `type_profile` 后再进入 steps 分支；模板、schema、spec 与其他模块按任务需要读取。
-  7. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
-  8. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > 已声明的 `references/` / `steps/` / `review/` / `types/` / 模板 / spec > `agents/openai.yaml` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
+  6. `CHANGELOG.md`、执行报告、迁移记录与其他时间序载体默认不预加载；仅在需要追溯详细变更过程时按需读取。
+  7. 冲突优先级：用户显式请求 > `AGENTS.md` / meta 规则 > 主 `SKILL.md` > 当前命中的子技能或卫星技能 `SKILL.md` > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 主 `CONTEXT.md` > 当前命中的子技能或卫星技能 `CONTEXT.md` > 按需读取的 `CHANGELOG.md`
 - 维护规则：
   - 新的或尚不稳定的经验先写入 `CONTEXT.md`
   - 稳定、可重复、高置信度的实践再从 `CONTEXT.md` 晋升到 `SKILL.md`
-  - 新建、升级或优化 `references/` 细则时，必须同步补齐或复核 `Review Gate Mapping`；如果某条 reference 规则改变了验收逻辑，还必须同轮同步 `review/review-contract.md`、相关 `steps/` 返工节点、报告证据字段与必要模板。
   - 每个显著失败都应在 `CONTEXT.md` 中记录：症状、根因、修复与预防检查
   - 每个经用户确认的显著成功都应在 `CONTEXT.md` 中记录：结果、设计决策、提炼 heuristic 与可复制范围
   - 当前项目内一旦出现新的稳定偏好、禁区、长期要求、特殊元素或用户明确要求“以后都按这个来”的口径，应优先写入项目根 `MEMORY.md`
   - 若 `MEMORY.md` 中已有记录被用户替换、撤销或纠偏，必须同轮更新或删除旧条目，不得让项目记忆保留失效偏好
   - 每次用户主动针对 `projects/aigc/<项目名>/` 或 `projects/story/<项目名>/` 下相关项目发出清空、移除或等价删除指令时，必须顺带自动检查当前项目内展示其创作记录、阶段状态与进度的载体是否需要同步更新，例如项目根或阶段目录中的 `STATE.json`、进度索引、章节/分镜清单、manifest 或其他项目内状态文件；若存在已删除产物对应的状态残留、进度残留或索引残留，应在同轮同步修正或明确报告无法自动处理的遗留项。该规则不要求围绕 Git 追踪状态、跨项目治理镜像或外部控制面做泛化检查，除非当前项目合同另有显式声明。
   - 跨项目可复用的失败模式、修复策略、调试结论与治理规则，仍应写回技能 `CONTEXT.md` 或上升到 `SKILL.md` / `AGENTS.md`，不得写进单项目 `MEMORY.md`
-  - 同一技能的类型化/多模式处理若已上升为执行前必须遵守的专项细则，应沉到主合同显式声明的规范模块；`CONTEXT.md` 只保留执行后沉淀出的经验性 Type Map、Playbook 与 Heuristics
   - 详细变更时间线、迁移流水、执行长日志应优先写入 `CHANGELOG.md` 或 `reports/`，而不是把 `CONTEXT.md` 写成时间序备忘录
   - 保持 `SKILL.md` 简洁且规范；保持 `CONTEXT.md` 可积累且经验化
   - 当主技能、子技能与卫星技能的 `CONTEXT.md` 同时存在时，新经验应优先写入最窄且有效的作用域；仅当模式跨子技能、跨卫星或已经成为整技能级政策时，才向上晋升
@@ -356,7 +257,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 当父级已经定义统一输出模板、共享 schema、统一根文件合同或聚合规则时：
   - 子单元应显式回指父级真源。
   - 子单元不得再额外定义第二份平行输出模板。
-  - 子单元自己的局部模块、模板或 sidecar 规则，只应承载局部写位、执行流程、路由策略或本地约束，不得重写父级输出真源。
+  - 子单元自己的局部文件、样例或 sidecar 规则，只应承载局部写位、执行流程、路由策略或本地约束，不得重写父级输出真源。
 - 若共享目标当前无法直接承接局部 patch，必须显式报告：
   - 阻塞原因
   - 临时聚合适配层
@@ -417,11 +318,18 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - `源层治理`、`源层同步` 与 `源层优化` 是任务执行中的自动行为，不是只有用户再次点名才执行的事后文档整理。
 - 当用户已经明确指出某条规则、技能、工作流、模板、脚本、验证链路或治理合同“没有自动触发、没有同步、没有自发升级、反复失效、执行时漏掉”时，必须把该反馈本身视为负向触发，并在同一轮任务中优先修复对应源层合同。
-- 修复相关内容时，必须在执行循环内主动检查是否存在可复用升级点：
-  - 若问题来自规则缺口、触发词过窄、执行顺序不清、owner 分区不明或闭环格式缺失，直接修 `AGENTS.md`、目标 `SKILL.md`、`references/`、`steps/`、`review/`、`types/`、runbook、模板或脚本中的最高杠杆真源。
-  - 若问题来自文档与脚本、模板与 validator、父技能与子技能、registry 与 routes、agent doc 与父层 topology 漂移，必须同步受影响关联面，而不是只修当前文件。
-  - 若问题已表现为跨技能、跨阶段或跨项目复发，必须把预防机制向上晋升到 `AGENTS.md`、meta-SKILL 或共享治理合同。
-- 自动迭代的默认顺序为：`触发识别 -> 源层追因 -> owner 分区裁决 -> 源层修复/优化 -> 引用同步 -> 审计或 smoke 验证 -> 经验沉淀或规范晋升 -> 继续原任务`。
+- 每轮任务结束前必须执行一次 `Source Sync Check`，即使最终不展开说明也要完成判断：
+  1. 用户本轮是否反馈了规则、技能、工作流、模板、脚本、验证链路或治理合同的问题？
+  2. 本轮是否出现了可复用的负向失败模式或正向成功模式？
+  3. 本轮是否修改了规则、模板、脚本、registry、route、runbook、agent doc 或其他会影响后续执行的源层工件？
+- 任一问题答案为“是”，必须执行最小源层闭环：
+  1. 定位最高杠杆源层工件。
+  2. 修复该工件，并同步直接受影响的引用或派生文档。
+  3. 做一次可行验证；无法验证时说明阻塞和临时护栏。
+  4. 在最终回复中给出 `源层触发 -> 已同步内容 -> 验证结果`。
+- 若问题来自文档与脚本、模板与 validator、父技能与子技能、registry 与 routes、agent doc 与父层 topology 漂移，必须同步受影响关联面，而不是只修当前文件。
+- 若问题已表现为跨技能、跨阶段或跨项目复发，必须把预防机制向上晋升到 `AGENTS.md`、meta-SKILL 或共享治理合同。
+- 自动迭代的默认顺序为：`触发识别 -> 源层追因 -> 源层修复/优化 -> 引用同步 -> 审计或 smoke 验证 -> 经验沉淀或规范晋升 -> 继续原任务`。
 - 除非用户明确要求只解释、不改文件，或者更高优先级权限/安全规则阻断，否则不得把“是否进行源层升级”作为追问项；应直接实施可控范围内的源层修复，并在最终输出中说明已完成的升级点和剩余阻塞。
 - 如果当前任务不是修复源层本身，但执行过程中发现了低风险、高复用的源层改进机会，应在不破坏用户主目标的前提下并行完成；若改动风险较高或范围会明显扩大，必须记录为 `PRP` 或未决项，并继续当前最安全路径。
 - 自动迭代不能只停在 `CONTEXT.md` 经验记录：已确认会影响后续执行的稳定规则、触发条件、路由、输出合同、验证门禁或同步范围，必须晋升到对应规范真源。
@@ -429,25 +337,24 @@ python3 -m pip install <pkg>  # 安装依赖包
 ### 根因优先（强制）
 
 - 当用户反馈项目问题或任务执行故障时，必须先调查源层原因，再决定是否修补本地产物。
-- 源层诊断应优先检查规则工件与执行入口，通常包括 `SKILL.md`、已声明的 Skill 2.0 分区（`references/`、`steps/`、`review/`、`types/`）、`CONTEXT.md`、命令 runbook、阶段模板与相关脚本；仅当主合同显式引用外部资料时，才按需联查 `knowledge-base/`。
-- 对采用或正在升级为 Skill 2.0 的技能，源层修复/优化必须先做 owner 分区定位：判断问题应落在 `SKILL.md`、`CONTEXT.md`、`references/`、`steps/`、`review/`、`types/`、`templates/`、`scripts/`、`agents/openai.yaml`、`README.md` 或 `CHANGELOG.md` 中的哪一个真源载体；不得把所有修复继续堆回 `SKILL.md` 或 `CONTEXT.md`。只有当问题涉及用户或维护者手动导入的外部知识材料、索引或摘录入口时，才允许把 `knowledge-base/` 作为修复 owner。
-- Skill 2.0 结构问题本身也属于源层问题：缺失 canonical 目录、存在拼写 alias、`agents/openai.yaml` 缺入口元数据、`CONTEXT.md` 缺知识库核心、分区没有说明文件、长细则未拆出、经验错写到 `knowledge-base/`、执行步骤错写到 `CONTEXT.md` 等，都应先按结构 owner 修复，再继续业务产物修复。
-- 源层诊断不仅要看“写了什么规则”，还要看“规则要求如何思考与如何执行”：凡 `SKILL.md`、`references/` 或 `steps/` 中存在思维·执行节点、思维链细则、执行流程节点、判断分叉、tie-break、字段思考顺序、聚合/回写顺序等设计，均应视为可追因、可优化的源层合同。
+- 源层诊断应优先检查规则工件与执行入口，通常包括 `AGENTS.md`、目标 `SKILL.md`、`CONTEXT.md`、命令 runbook、阶段模板、registry、route、agent doc 与相关脚本。
+- 源层修复/优化应先判断最高杠杆源层工件，避免把所有修复继续堆回 `SKILL.md` 或 `CONTEXT.md`。
+- 源层诊断不仅要看“写了什么规则”，还要看“规则要求如何思考与如何执行”：凡规则工件中存在执行流程、判断分叉、tie-break、字段思考顺序、聚合/回写顺序等设计，均应视为可追因、可优化的源层合同。
 - 源层追踪必须分层进行：不得停在第一个局部原因，必须继续上溯直到识别治理该行为的规则源。
 - 非平凡问题的强制追因链为：
-  - `Symptom/Failure` -> `Runtime Artifact` -> `Direct Technical Cause` -> `Owner Partition`（Skill 2.0 owner / runbook / template / script gate）-> `Rule Source`（skill / module / runbook / template / script gate）-> `Meta Rule Source`（meta-AGENT / meta-SKILL / global policy）-> `Fix Landing Points` -> `Reference Sync` -> `Audit/Smoke`
-- `Rule Source` 通常包括：任务级 `SKILL.md`、Skill 2.0 分区、专项细则模块、`types/` 类型化模块、`steps/` 思维·执行节点设计、命令 runbook、阶段模板、验证脚本与执行入口。
+  - `Symptom/Failure` -> `Runtime Artifact` -> `Direct Technical Cause` -> `Rule Source` -> `Meta Rule Source` -> `Fix Landing Points` -> `Reference Sync` -> `Audit/Smoke`
+- `Rule Source` 通常包括：任务级 `SKILL.md`、命令 runbook、阶段模板、验证脚本与执行入口。
 - `Meta Rule Source` 通常包括：仓库 `AGENTS.md`、`.codex/skills/meta/*/SKILL.md` 以及其他跨技能治理合同。
 - 如果诊断无法上溯到 meta 层工件，必须明确说明为什么没有更高层治理合同。
-- 对每个问题，都应给出简洁修复建议，包括：根因位置、owner 分区、立即修复、系统预防修复、引用同步范围与验证门禁。
-- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、Skill 2.0 分区、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
+- 对每个问题，都应给出简洁修复建议，包括：根因位置、立即修复、系统预防修复、引用同步范围与验证门禁。
+- 在使用 `SKILL` 执行、dry-run、工作流排练或 `pytest` 回归测试期间，迭代相关源层工件（`SKILL.md`、`CONTEXT.md`、runbook、脚本、模板、验证器）应被视为合法且优先的并行目标，而不是事后补文档。
 - 如果执行被阻塞，必须立即暂停下游动作，先完成分层追因与源层修复/增强，再恢复任务。
 - 优先修复产生该错误模式的规则或脚本，使同类问题在后续运行中不再重复。
 - 每一个非平凡修复都应视为一次源层增强机会：不仅要修症状，也要补强源层合同，降低类似问题再次发生的概率。
 - 如果在工作中发现更优的执行路径或工作流，且源层重构风险可控，则允许在继续下游工作前优先完成源层优化。
 - 如果优化的安全性、范围或预期收益不够明确，应先按 `PRPs/README.md` 记录为 `PRP`，再沿当前最安全路径继续工作，等待人工确认。
-- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、补齐 Skill 2.0 结构与分区说明、在 `types/` 中补强类型化模块与决策表、在 `steps/` 中重写失效的思维·执行节点、在 `review/` 中补交付门禁、在 `templates/` 中修正输出样板、在 `scripts/` 中加机械校验，或在 `SKILL.md` / `references/` 中修正入口拓扑与合同说明。
-- 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 已定位并修复最高杠杆 owner 分区 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新 + 引用同步范围已扫描或说明 + 已运行相应审计 / dry-run / smoke 验证，或明确报告验证阻塞。
+- 推荐的增强方向可从以下一项或多项中选择：显式 gate / 诊断（明确错误状态、非零退出码、可执行提示）、对不稳定依赖的 fallback / retry、将重复逻辑收敛到单一真源（配置 / 入口 / 共享 helper）、在模板中修正输出样板、在脚本中加机械校验，或在 `SKILL.md` 中修正入口拓扑与合同说明。
+- 只有满足以下条件，才算“增强闭环完成”：问题已修复 + 已定位并修复最高杠杆源层工件 + 至少一个可复用的源层预防机制已落地 + 相关文档/合同已同步更新 + 引用同步范围已扫描或说明 + 已运行相应审计 / dry-run / smoke 验证，或明确报告验证阻塞。
 - 如果增强被权限、外部依赖或范围限制阻塞，必须显式报告阻塞项与临时防护措施。
 
 ### 多成员协作技能的源层联动（强制）
@@ -476,12 +383,12 @@ python3 -m pip install <pkg>  # 安装依赖包
 **负向触发**：当出现以下任一情况时自动触发：用户报告问题、用户指出源层治理/同步/优化未自动发生、运行失败、任务实践/测试阻塞（包括 `SKILL` 执行、dry-run 与 `pytest` 回归）、失败后返工、或用户明确要求修正。
 
 - 无需额外等待用户提示，必须自动执行以下流程：
-  1. 源层诊断（分层上溯）：从症状追到运行产物、直接原因、`Owner Partition` 与 `Rule Source`，必要时继续追到 `Meta Rule Source`（`AGENTS.md` / meta-SKILL）；诊断时必须按需联查 `references/`、`steps/`、`review/`、`types/` 与 `SKILL.md` 中的动态引用和主流程，并检查目标 skill 是否存在 Skill 2.0 结构错位。
-  2. 立即修复 + 增强：优先修补最高杠杆的源层 owner 分区（规则 / 脚本 / runbook / Skill 2.0 分区 / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
+  1. 源层诊断（分层上溯）：从症状追到运行产物、直接原因、`Rule Source` 与 `Meta Rule Source`（`AGENTS.md` / meta-SKILL），同时检查当前任务实际读取或执行的规则、模板、runbook、registry、routes、agent doc 与脚本是否存在合同错位。
+  2. 立即修复 + 增强：优先修补最高杠杆的源层工件（规则 / 脚本 / runbook / validator / registry / routes / agent doc / meta-rule），增加至少一项可复用的加固机制，然后再恢复下游执行；如仍有必要，再补本地产物。
   3. 上下文沉淀：更新受影响技能的 `CONTEXT.md`（若缺失则创建）；优先把结论化经验写入 Type Map / Playbook / Reusable Heuristics，若需保留里程碑细节，则外置到 `CHANGELOG.md` 或 `reports/`。
-  4. 引用同步与验证：若发生重命名、拆分、迁移或 owner 分区调整，必须扫描并同步 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、`agents/openai.yaml`、`scripts/`、`templates/`、registry、routes、runbook、markdown 链接和项目内引用；随后运行对应结构审计、脚本 dry-run 或 smoke 验证。
-  5. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / Skill 2.0 分区 / runbook -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
-  6. 面向用户的闭环输出：必须返回 `root cause location + owner partition + immediate fix + systemic prevention fix + validation`，并附上分层追踪路径 `symptom -> owner partition -> rule source -> meta rule source`。
+  4. 引用同步与验证：若发生重命名、拆分、迁移或真源落点调整，必须扫描并同步直接引用该工件的 `SKILL.md`、`CONTEXT.md`、`README.md`、`CHANGELOG.md`、脚本、模板、registry、routes、runbook、markdown 链接和项目内引用；随后运行对应审计、脚本 dry-run 或 smoke 验证。
+  5. 预防晋升（自下而上）：将已验证的修复从本地产物 -> `CONTEXT.md` -> `SKILL.md` / runbook / validator -> `AGENTS.md` 或 meta-SKILL 逐级晋升；若已观察到跨技能复发，则必须继续向上晋升。
+  6. 面向用户的闭环输出：必须返回 `root cause location + immediate fix + systemic prevention fix + validation`，并附上分层追踪路径 `symptom -> rule source -> meta rule source -> synced artifacts`。
 
 **正向触发**：当出现以下任一情况时自动触发：用户明确认可某输出（例如“这个很好”“以后按这个来”）、某设计决策在跨项目场景中被复用且无需重新推导、或输出质量明显超过预期基线。
 
@@ -489,12 +396,12 @@ python3 -m pip install <pkg>  # 安装依赖包
   1. 模式识别：定位产出正向结果的设计决策，例如 prompt 结构、参数选择、工作流顺序、字段映射或架构安排。
   2. 抽象：将该决策提炼为 1-3 句可复用 heuristic，且要限定适用范围（skill、阶段、领域、主题），避免过度泛化。
   3. 上下文沉淀：将 heuristic 写入对应技能的 `CONTEXT.md` 中的 Reusable Heuristics；若需要保留里程碑级证据，只保留结论摘要在知识库章节中，长材料外置到 `CHANGELOG.md` 或 `reports/`。
-  4. 晋升（自下而上）：当同一正向模式在 >= 2 次独立执行中得到确认时，将其从 `CONTEXT.md` 晋升到 `SKILL.md` 或对应 Skill 2.0 owner 分区；若已成为跨技能治理模式，再晋升到 `AGENTS.md` 或 meta-SKILL。
+  4. 晋升（自下而上）：当同一正向模式在 >= 2 次独立执行中得到确认时，将其从 `CONTEXT.md` 晋升到对应 `SKILL.md`、runbook、validator 或其他已存在的规范真源；若已成为跨技能治理模式，再晋升到 `AGENTS.md` 或 meta-SKILL。
   5. 面向用户的闭环输出：返回三元组：成功模式位置 + 提炼出的 heuristic + 晋升范围。
 - 若需要保留里程碑级证据，`CONTEXT.md` 仅保留结论化沉淀；详细字段、时间线与长证据材料应写入 `CHANGELOG.md`、执行报告或 `reports/`。
 - 如果只是修复了本地产物或确认了结果，却没有同步更新 `CONTEXT.md`，则视为 `Root-Cause Learning Loop` 尚未完成；若因阻塞无法更新，必须显式报告阻塞原因。
 
-### AGENT、SKILL、专项模块、CONTEXT 与入口元数据放置矩阵（全局真源）
+### 源层工件放置矩阵（全局真源）
 
 - 以下内容应写入 `AGENTS.md` / meta-SKILL（规范型元合同）：
 
@@ -503,11 +410,6 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 仓库级硬门槛、闭环格式与防回归要求
   - 仓库级多因素决策方法，包括层级角色、覆盖规则与回退原则
   - 字段中心 thought-pass 系统的规范标识符与必填表头
-- 以下内容应写入共享 `templates/` / schema / spec / shared helper（规范型复用载体）：
-
-  - 跨模式、跨模块共用的章节骨架、输出结构、schema 真源、复用清单与路由模板，不应在兄弟工件中各自重复定义
-  - 这类载体负责稳定复用结构；各兄弟模块应继承或局部特化，而不是静默拷贝一份再演化
-  - 当共享 template / spec 成为真源后，下游 `SKILL.md` / `module-spec.md` / runbook 应显式回指该真源
 - 以下内容应写入具体 agent 规则文档（例如 `.codex/agents/**/*.md`）作为源层规范合同：
 
   - agent 的人格边界、任务范围、输出 schema、路径约定、字段落点、审查合同与面向用户的硬门槛
@@ -518,7 +420,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 晋升规则：重复、多轮、高置信度的 agent heuristic，可在足够稳定后从经验层载体晋升回 agent 规则文档
 - 以下内容应写入 `SKILL.md`（规范合同）：
 
-  - frontmatter、触发条件、适用/不适用场景、Mode Selection、Reference Loading Guide、强制工作流、硬门槛与完成标准
+  - frontmatter、触发条件、适用/不适用场景、Mode Selection、强制工作流、硬门槛与完成标准
   - 源层诊断顺序与修复顺序（包括上溯到 meta 合同的钩子）
   - 面向用户的标准闭环格式（根因位置 + 立即修复 + 系统预防修复）
   - 从经验到规范的晋升规则（何时可将重复模式提升为规范）
@@ -529,25 +431,7 @@ python3 -m pip install <pkg>  # 安装依赖包
   - 卫星职责、触发条件、与主链/主技能的 `stage_position`
   - `owned truth`、`not-owned truth`、共享载体依赖与回接路径
   - 是否参与 tracked workflow、是否允许直接调用、以及完成后回到哪个主技能或阶段
-  - 不得把卫星技能写成主技能缩略版，也不得把它伪装成普通细则模块
-- 以下内容应写入 `agents/openai.yaml`（入口元数据层）：
-
-  - `interface.display_name`、`interface.short_description`、`interface.default_prompt` 等 UI-facing 入口元数据
-  - `interface.default_prompt` 必须显式提到 `$skill-name` 或目标 skill 的标准唤起名
-  - 与主 `SKILL.md` 同步的发现入口摘要
-  - 不得承载独立于主合同之外的隐藏执行规则
-- 以下内容应写入 Skill 2.0 分区或共享模块文件 / spec / schema（专项细则层）：
-
-  - `references/`：可独立升级、但仍受主合同约束的复杂规范、长细则、背景资料与专项合同；强制性细则必须内置 `Review Gate Mapping`，把 `Review Question -> Review Gate -> Fail Code -> Rework Target -> Report Evidence` 固化为验收链路
-  - `steps/`：思维·执行节点设计、执行流程细则、判断分叉、串并行、汇流、回退和证据门
-  - `review/`：质量评估、审计流程、评分模型、review provider 接入与交付 verdict
-  - `types/`：类型变量、类型映射矩阵、分型处理策略与 `type_profile` 生成规则
-  - `knowledge-base/`：人工添加的外部知识库、参考资料包、资料索引与领域背景材料；不得作为执行经验、稳定 heuristic 或复盘结论的沉淀落点
-  - `templates/`：输出模板、脚手架模板和报告模板；不得承载运行状态
-  - `scripts/`：机械创建、校验、格式转换、路径归一与批量处理；不得替代 LLM 主创判断
-  - 同一技能的多类型化 / 多模式化若属于执行前必须遵守的工作台，应优先落到主合同显式指定的规范模块，而不是放进 `CONTEXT.md`
-  - 若某项问题根因来自错误的思考顺序、判断节点、聚合节点、回写节点、review gate 或类型路由，应优先在对应 `references/`、`steps/`、`review/`、`types/`、spec、schema 或 module 中修复，而不是只在局部产物层面兜底
-  - 一旦某模块已成为 canonical module，主 `SKILL.md` 与其他文档应回链该模块，而不是平行复制同一套长说明
+  - 不得把卫星技能写成主技能缩略版，也不得把它伪装成普通说明文件
 - 以下内容应写入 `CONTEXT.md`（经验层）：
 
   - Type Map（失败模式 -> 修复策略 -> 验证点）、Repair Playbook 与 Reusable Heuristics
@@ -577,7 +461,7 @@ python3 -m pip install <pkg>  # 安装依赖包
 
 - Agent 规则文档是第一类源层工件，而不只是人格包装。
 - 对多成员协作 skill，agent 源层优化至少联查三处回指：父 skill 的 topology / handoff / synthesis 说明、`team.md` 的 team 级调用规则、agent doc 的局部边界与输出合同。
-- 若 agent 或父 skill 还显式依赖 `references/`、`steps/`、`review/`、`types/`、decision table 或 handoff node spec，源层优化必须把这些载体纳入联查与修复范围，不得只停留在 agent 主文档正文。
+- 若 agent 或父 skill 的当前执行依赖 decision table、handoff node spec、validator、registry、routes、runbook 或其他具体源层工件，源层优化必须把实际依赖载体纳入联查与修复范围，不得只停留在 agent 主文档正文。
 - 如果某个问题受 agent 自身合同约束，且该 agent 没有专用 `CONTEXT.md`，则应直接在 agent 规则文档中修复稳定规则，而不是等待外部经验层。
 - 若某次修复触及父 skill、`team.md` 或单个 agent doc 中任一层，必须同步核对其余受影响层；未联查或未同步说明，视为源层闭环不完整。
 - 直接修改 agent 规则文档时，应优先覆盖以下内容：
@@ -684,10 +568,10 @@ python3 -m pip install <pkg>  # 安装依赖包
 - 若需要放松约束，优先在 registry、routes、runbook、audit 中增加显式模式开关或降级逻辑，而不是删除现有真源载体。
 - 等 `aigc` 新结构稳定后，再将稳定规则从 `aigc` 回填到 harness 真源、审计脚本与 `HARNESS.md`，结束 `bootstrap_compat` 模式。
 - `bootstrap_compat` 模式的退出必须满足以下全部量化条件，缺一不可：
-  - 所有 `active` stage 的父合同已通过 `scripts/aigc_skill_audit.py --strict` 审计，不存在 `checked/skipped` 降级项
+  - 所有 `active` stage 的父合同已通过当前启用的审计入口或人工复核，不存在未说明的降级项
   - `6-Video` 内部子路径已收束且 provider 级执行面已注册到 `skills.yaml` 与 `routes.yaml`
-  - `7-Cut` 已明确激活并完成 Skill 2.0 基线，或已显式归档并在 registry/routes 中标记为 `shelved + archived`
-  - `aigc_skill_audit.py --strict` 对整树无 `parent-only` 通过伪装整树全绿的情况
+  - `7-Cut` 已明确激活并完成当前阶段合同基线，或已显式归档并在 registry/routes 中标记为 `shelved + archived`
+  - 整树审计或复核不存在仅父合同通过却伪装整树全绿的情况
   - 三省 agent doc 中引用的 `aigc` 路径、阶段名与 registry 条目全部与 `skills.yaml` / `routes.yaml` 一致
   - `HARNESS.md` 已同步更新为退出后状态，不再引用 `bootstrap_compat` 兼容口径
 - 退出 `bootstrap_compat` 模式时，必须在 `HARNESS.md` 的"现状判断"中显式记录退出日期、满足的条件清单与残留风险。

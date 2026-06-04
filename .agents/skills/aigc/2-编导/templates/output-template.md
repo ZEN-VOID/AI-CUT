@@ -10,7 +10,7 @@
 ### Output format
 
 - 逐集编导稿：Markdown，含 YAML frontmatter、`【剧本正文】`、场景标题和字段化正文；正文同时承载保真剧本、导演判断和表演工艺。
-- 执行报告：Markdown，记录输入、目标集、类型画像、review verdict、直接修复项、复审结果、`thinking_action_node_ledger`、`scene_field_evidence_index`、`script_layer_evidence`、`director_layer_evidence`、`performance_layer_evidence`、`concrete_visual_language_evidence`、`visual_unit_candidate_map`、初始化团队综合上下文、残余风险和 `motion_enrichment_handoff`。
+- 执行报告：Markdown，记录输入、目标集、类型画像、review verdict、直接修复项、复审结果、`thinking_action_node_ledger`、`scene_field_evidence_index`、`script_layer_evidence`、`narration_to_voice_adaptation_map`、`director_layer_evidence`、`performance_layer_evidence`、`concrete_visual_language_evidence`、`visual_unit_candidate_map`、初始化团队综合上下文、残余风险和 `motion_enrichment_handoff`。
 
 ### Output path
 
@@ -30,8 +30,8 @@ projects/aigc/<项目名>/2-编导/
 ### Completion gate
 
 - 上游 `1-分集/第N集.md` 已回指，输出 frontmatter 记录 `source_episode_path`。
-- 事实、顺序和对白保真；对白引号内不混入动作、解释或新增台词。
-- 场景 slugline、字段分流、声画配对、小说表述二次画面化、信息差、观众心理和节奏画像已完成。
+- 事实、顺序和上游已有对白保真；对白引号内不混入动作、解释或未锚定新增台词。
+- 场景 slugline、字段分流、声画配对、小说表述二次画面化、客观叙事派生语音裁决、信息差、观众心理和节奏画像已完成。
 - 导演判断已内嵌为可见、可听、可执行的戏剧问题、人物压力、视觉主轴、高潮/反高潮、氛围声音、尾钩和终结画面。
 - 表演工艺已内嵌为心理反应、演员五层控制、台词交付、长对白 delivery、潜台词行为、场面调度、沉默余波、角色弧线和群戏层次。
 - 全稿最终语言可被摄影机处理：离开“高级感、电影感、压迫感、情绪复杂、内心崩塌、演员克制”等概念词，仍能看见人物动作、空间、道具、光线、声音、呼吸、声线、表情和对手反应。
@@ -71,6 +71,12 @@ script_layer_evidence:
   dialogue_lock: ""
   audio_visual_pairing: ""
   novel_expression_transform_evidence: []
+  narration_to_voice_adaptation_map: []
+  continuity_bridge_evidence:
+    bridge_payload_units: []
+    voiced_units: []
+    visual_or_sound_units: []
+    omitted_or_left_unsaid_units: []
   information_asymmetry_map: []
   scene_rhythm_profile: []
 director_layer_evidence:

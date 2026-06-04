@@ -432,7 +432,7 @@ blocking_power_map:
 
 ## Silence And Reaction Rule
 
-高质量编导稿必须给沉默和反应留下可执行承托。上游没有新对白时，不得为了补戏新增对白；优先使用反应、停顿、声音空缺和动作余波。
+高质量编导稿必须给沉默和反应留下可执行承托。上游没有新对白或 script layer 没有通过 `narration_to_voice_adaptation_map` 留证的派生语音时，不得为了补戏新增对白；优先使用反应、停顿、声音空缺和动作余波。performance layer 可以处理已合格派生语音的交付方式，但不能再发明新台词。
 
 | situation | preferred projection |
 | --- | --- |
@@ -470,7 +470,7 @@ blocking_power_map:
 - 规划层的表演任务和场面调度已内嵌到对应剧本句段，没有在场景末尾或分镜组末尾总结式列出。
 - 权力关系变化通过空间、视线、道具或身体距离表现，而不是只写关系结论。
 - 转场、潜台词和未出口对白没有连续依赖同一种视线动作；若出现看向远方，能说明观看对象为何是当前 beat 的真实压力或信息来源。
-- 沉默和反应被写成可见/可听状态，未用新增对白替代。
+- 沉默和反应被写成可见/可听状态，未用未留证新增对白替代。
 - 没有出现摄影越权字段，如 `分镜明细预设`、机位、景别或分镜编号。
 
 ## Review Gate Mapping
@@ -485,4 +485,4 @@ blocking_power_map:
 | 人物动作链是否能交代姿态、方位、动作向量、可达对象、互动方式和退出状态，并收敛低信息动作堆叠？ | `GATE-PERF-05` | `FAIL-ACTION-FIRST-02` / `FAIL-ACTION-FIRST-03` / `FAIL-ACTION-FIRST-04` | `N5-PERF-SCENE-CRAFT` / `N8R-PERF-REPAIR` 的 Actor Action Chain And Reachability Rule | `thinking_action_node_ledger` 中 `N5-PERF-SCENE-CRAFT` 的 `gate_status`、`actions_taken`、`objective_action_purity_evidence` |
 | 关键人物 beat 是否有场景内成立的小事、下意识反应、情绪落点和行动-反应分工，且没有随机忙动作？ | `GATE-PERF-06` | `FAIL-LIVED-IN-01` / `FAIL-LIVED-IN-02` / `FAIL-LIVED-IN-03` / `FAIL-LIVED-IN-04` | `N5-PERF-SCENE-CRAFT` 的 Lived-In Behavior And Action-Reaction Rule | `lived_in_behavior_evidence[].micro_activity`、`subconscious_response`、`emotional_landing`、`action_reaction_pair` |
 | 场面调度是否只写人物、空间、道具、视线和权力关系，没有机位、景别、镜头运动或分镜编号？ | `GATE-PERF-02` | `FAIL-PERFORMANCE-INTEGRATION` | `N6-PERF-BLOCKING` 的 Blocking And Power Rule | `blocking_power_map`、`integration_targets`、`findings[].source_owner=references/performance-and-scene-craft-contract.md` |
-| 沉默和反应是否被写成可见/可听状态变化，未用新增对白替代，也未连续依赖同一种视线转场？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` 的 Silence And Reaction Rule 与 Transition And Subtext Variety Rule | `psychological_reaction_evidence[].getability_channels`、`monologue_budget_evidence`、`integration_targets` |
+| 沉默和反应是否被写成可见/可听状态变化，未用未留证新增对白替代，也未连续依赖同一种视线转场？ | `GATE-PERF-01` | `FAIL-PERFORMANCE-TASK` | `N5-PERF-SCENE-CRAFT` 的 Silence And Reaction Rule 与 Transition And Subtext Variety Rule | `psychological_reaction_evidence[].getability_channels`、`monologue_budget_evidence`、`narration_to_voice_adaptation_map`、`integration_targets` |

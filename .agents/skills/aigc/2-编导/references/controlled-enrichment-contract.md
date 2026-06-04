@@ -37,7 +37,7 @@ controlled-enrichment-contract.md
 | --- | --- | --- | --- |
 | `A-faithful_projection` | 默认主线 | 忠实投影上游正文 | canonical |
 | `B-controlled_enrichment` | 受控增强，可由用户要求或质量门触发 | 增加非剧情性承托细节，必须有上游锚点 | 可写入 canonical，但必须在报告中留 `controlled_enrichment_ledger` |
-| `C-authorized_adaptation` | 非本合同范围 | 新对白、新桥段、新场景、新因果强化 | 只能作为候选稿，需用户另行授权 |
+| `C-authorized_adaptation` | 非本合同范围 | 新对白、新桥段、新场景、新因果强化 | 只能作为候选稿，需用户另行授权；非引号客观叙事的 source-grounded 派生语音不走本路线，回到 script layer 的 `narration-to-voice-adaptation-contract.md` |
 
 ## Trigger
 
@@ -56,6 +56,7 @@ controlled-enrichment-contract.md
 - 上游事实缺失导致无法判断承托细节是否安全。
 
 这些必须进入阻断或另行请求 `C-authorized_adaptation` 授权。
+若用户明确要求的是“把客观叙事合理改编为对白/独白”，且不要求新增事实、桥段、因果或角色未知信息，应先路由到 `narration-to-voice-adaptation-contract.md`，而不是视为 C 路线。
 
 ## Allowed Enrichment
 

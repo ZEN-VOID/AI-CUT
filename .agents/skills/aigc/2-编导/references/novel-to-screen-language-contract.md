@@ -4,7 +4,7 @@
 
 本细则是 `2-编导` script layer 的**转换方法论**，定义小说文本向影视剧本画面化转换的执行路径。
 
-> **交叉引用**：核心保真规则（FR-1~FR-7）定义于 `script-adaptation-contract.md`；字段路由规范定义于 `field-routing-and-audio-visual-contract.md`。
+> **交叉引用**：核心保真规则（FR-1~FR-7）定义于 `script-adaptation-contract.md`；字段路由规范定义于 `field-routing-and-audio-visual-contract.md`；客观叙事转对白/独白的受控例外定义于 `narration-to-voice-adaptation-contract.md`。
 
 ---
 
@@ -17,6 +17,7 @@
 | 优先既有字段 | 任何二次加工都必须落入既有字段 | 新增摄影方案字段或第二套解析体系 |
 | 主角视角保持 | 主角内心想法必须保留为第一人称内心独白 | 把主角判断改成客观第三方概括 |
 | 可感知化 | 抽象表述转成可见、可听、可执行的具体元素 | 写"压抑气氛"而不是呼吸、眼神、道具停点 |
+| 派生语音受控 | 客观叙事只有在满足触发、说话者资格和证据要求时，才能改编为对白或独白 | 为了“更有意思”把作者评论塞进角色口中 |
 
 ### 1.1 画面化定义
 
@@ -30,12 +31,12 @@
 | 反解释 | 不直接说明因果、心理、主题和观众应理解的结论 | 写"因为...所以...""他意识到...""这说明..." |
 | 可拍性 | 画面字段回答摄影机看见什么，声音字段回答能听见什么，表演字段回答演员能做什么 | 离开文字解释后无法拍、无法演、无法听 |
 | 字段落点 | 所有转译结果必须落入 `环境描写`、`角色动作`、`对白画面`、`心理反应`、`表情特写`、`道具特写`、`群像画面`、`系统画面`、`音效画面` 等正式字段 | 另造"主题说明""镜头方案""导演意图"等第二体系 |
-| 保真边界 | 只转译上游已有信息，不新增对白、事件、因果、线索、规则、人物动机或无关前史 | 以"更电影化"为由扩写剧情事实 |
+| 保真边界 | 只转译上游已有信息；客观叙事派生语音必须有 source anchor，不新增事件、因果、线索、规则、人物动机或无关前史 | 以"更电影化"为由扩写剧情事实或让角色说出未知信息 |
 
 最小判断句固定为：摄影机能看见什么，演员能做什么，声音能听见什么；如果答案只是观众应该理解什么，则尚未完成画面化。
 
 **转换边界**（引用 `script-adaptation-contract.md` FR-1~FR-3）：
-- 不新增对白、桥段、因果、线索、规则、事件结果或人物动机
+- 不新增未锚定对白、桥段、因果、线索、规则、事件结果或人物动机；客观叙事派生语音仅按 `narration-to-voice-adaptation-contract.md` 执行
 - 对白必须逐字冻结，不润色、不同义替换、不调整语序
 - 场景标题必须使用 `内景/外景 + 场所 + 日/夜` 格式
 
@@ -57,7 +58,8 @@ novel_expression_transform_evidence:
     risk_check:
       fact_drift: false        # 是否发生事实漂移
       new_event: false          # 是否新增事件
-      new_dialogue: false       # 是否新增对白
+      unlicensed_new_dialogue: false  # 是否新增未授权/未锚定对白
+      derived_voice_line: false # 是否启用客观叙事派生语音
       over_explaining: false    # 是否过度解释
       cinematography_overreach: false  # 是否摄影越权
       subjective_intent_in_action: false  # 动作字段是否混入主观意图
@@ -79,6 +81,8 @@ novel_expression_transform_evidence:
 | 主观情绪感受 | 感到恶心、难受、愤怒、害怕、崩溃等 | 转成微表情、肢体动作、生理反应、声线变化，或主角内心独白 | `心理反应：他感到恶心/难受/愤怒` |
 | 文学比喻 / 象征句 | 制造意象、气质、情绪温度 | 抽取可见物：光、影、风、雪、落叶、尘、血迹、空座、门槛、器物磨损、衣角湿痕 | 原样输出"仿佛命运的齿轮""像一场审判" |
 | 概括叙述 / 省略叙述 | 压缩时间、跳过过程、概括多人行为 | 拆成 2-4 个可拍 beat、群像画面、道具状态变化 | 用一句"众人纷纷..."替代所有画面 |
+| 客观叙事描写 / 公共事实 | 交代场景状态、公共信息、群体共识、关系压力或可被角色感知的客观结论 | 默认先画面化；若直接画面化或旁白会笨重，且有合法 voice owner，可按 `narration-to-voice-adaptation-contract.md` 转为短对白、独白、内心独白或系统旁白 | 作者评论进角色嘴；角色说出未知事实；派生对白替换上游原对白 |
+| 跨度性剧情衔接 | 一段客观叙事压缩上一轮结果、场外行动、角色分工、外部威胁升级和下一 beat 触发 | 按 `continuity_bridge` 先拆信息簇，只把最影响当前行动的 1-2 个信息簇转派生语音，其余由现场痕迹、音效、动作或留白显像 | 一整段旁白复述战报；一句台词塞入三件以上事实；派生对白承担新剧情推进 |
 | 往日常态 / 重复熟悉总结 | 说明某事反复发生、角色早已熟悉或过去总是如此 | 若当前剧情必须承接，转成当下一个可拍现象、道具磨损、动作熟练度或主角内心独白；非主线必要则删除 | 直接写"他早已习惯这一切""这种场面每天都在重复" |
 | 背景说明 / 历史叙述 | 交代时代、制度、前史、规则 | 只保留当前主线必要且可由当下画面承托的信息 | 大段旁白独立承担所有关键信息 |
 | 因果解释 | 说明为何如此、所以怎样 | 转成行动-反应链、阻碍、选择压力、场面调度和信息递送顺序 | 画面字段写"因为...所以..." |
@@ -105,6 +109,7 @@ novel_expression_transform_evidence:
 | `leave_unsaid` | 让观众通过动作、沉默和环境承托理解 | 不把所有心理都解释出来 |
 | `split_fields` | 将同一句小说表达拆到多个字段 | 环境承托气氛、动作承托选择、道具承托信息、对白画面承托潜台词 |
 | `subjectivize_to_protagonist` | 将主角视角下对他人的判断改入主角内心独白 | 并配主角观察到的客观证据 |
+| `voice_adapt` | 将非引号内客观叙事改编为 source-grounded 短对白、独白、内心独白或系统旁白 | 仅在触发 gate 通过、voice owner 合法、信息差安全并留 `narration_to_voice_adaptation_map` 时使用 |
 | `strip_to_present_action` | 删除无关前史、来历和往日常态 | 只保留当前场景可拍动作、状态和情节必需信息 |
 
 ---
@@ -121,10 +126,13 @@ novel_expression_transform_evidence:
 - 把人物心理转换为表演任务、身体行为和对白附近反应
 - 把主角视角判断改写为主角内心独白，并用当前场景可见/可听证据承托
 - 把直接情绪感受改写为微表情、肢体动作、生理反应或主角内心独白
+- 把满足触发条件的非引号内客观叙事改写为有锚点的短对白、独白、内心独白或系统旁白，并在 `narration_to_voice_adaptation_map` 中留证
 
 ### 禁止
 
-- 新增对白、桥段、因果、线索、规则、事件结果或人物动机
+- 新增未锚定对白、桥段、因果、线索、规则、事件结果或人物动机
+- 改写、润色或替换上游已有对白；派生语音不得伪装成原文对白
+- 让角色说出其此时不知道、不能说或说出后会破坏信息差的信息
 - 新增与当前主线无关的人物过往、物品来历、回忆性信息或解释性补充
 - 用摄影机位、景别、镜头运动替代剧本画面化
 - 把"合理艺术加工"当成脱离上游的自由创作
@@ -148,6 +156,7 @@ novel_expression_transform_evidence:
 | 6 | 是否有新增剧情事实、对白或因果 | `risk_check` 全部为 `false` |
 | 7 | 旁白是否有画面证据承托 | 没有让旁白成为默认信息堆放处 |
 | 8 | 是否无摄影越权 | 没有机位、景别、镜头运动描述 |
+| 9 | 客观叙事派生语音是否触发正当 | `narration_to_voice_adaptation_map` 有 source_anchor、voice_owner、knowledge_basis、paired_visual_or_reaction_field，且没有改写原对白 |
 
 ---
 
@@ -157,9 +166,10 @@ novel_expression_transform_evidence:
 |-----------|----------|------|
 | §2 执行证据结构 | FR-2 | 信息量保真的执行记录要求 |
 | §3 表述类型矩阵 | FR-1, FR-2 | 9种表述类型的转换规则 |
-| §4 策略调色板 | FR-2, FR-6, FR-7 | 12种转换策略 |
+| §4 策略调色板 | FR-2, FR-6, FR-7 | 13种转换策略 |
 | §5 艺术转换边界 | FR-1, FR-3 | 允许与禁止边界 |
 | §6 质量检查清单 | FR-1~FR-7 | 完整执行检查项 |
+| 客观叙事派生语音 | `narration-to-voice-adaptation-contract.md` | 触发、说话者资格、证据和阻断边界 |
 
 ## Review Gate Mapping
 
@@ -168,7 +178,8 @@ novel_expression_transform_evidence:
 | 上游作者评论、主角视角判断、心理内视、主观情绪、文学比喻、概括叙述、往日常态、背景说明、因果解释、关系结论、感官散文、武侠/玄幻抽象、回忆/补叙和规则说明是否被逐项识别并记录 `expression_type` 与 `source_function`？ | `GATE-SCRIPT-15` / `GATE-SCRIPT-17` | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-CREATIVE-EVIDENCE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `novel_expression_transform_evidence` 记录 source_anchor、expression_type、source_function 和 target_fields |
 | 高风险小说表述是否先判叙事功能再转为可拍声画、表演、空间、道具、群像、主角内心独白、短旁白或留白，并同时满足具像化、反抽象、反概念、反解释、可拍性、字段落点和保真边界，而不是原样塞入画面字段？ | `GATE-SCRIPT-15` / `GATE-SCRIPT-10` | `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `screen_strategy_map` 与 `literal_prose_risk_map` 记录原句、屏幕策略、直译风险、抽象/概念/解释残留风险 |
 | 主角视角下对他人行为、语气、沉默或动机的判断是否进入 `内心独白（主角）` 或主角可感知反应，并把主角自指改成第一人称？ | `GATE-SCRIPT-16` | `FAIL-PROTAGONIST-INNER-VOICE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `protagonist_inner_voice_evidence` 记录主角、原判断、目标字段、配对画面和人称风险 |
-| 二次画面化是否没有新增事实、对白、事件、因果、线索、规则、人物动机、无关前史或物品来历？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-15` | `FAIL-FAITHFULNESS` / `FAIL-NOVEL-TO-SCREEN-LANGUAGE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `novel_expression_transform_evidence.risk_check` 记录 `fact_drift/new_event/new_dialogue/unrelated_backstory` 全部为 false 或阻断原因 |
+| 二次画面化是否没有新增事实、未锚定对白、事件、因果、线索、规则、人物动机、无关前史或物品来历；若启用派生语音，是否按专项合同留证？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-15` / `GATE-BD-19` | `FAIL-FAITHFULNESS` / `FAIL-NOVEL-TO-SCREEN-LANGUAGE` / `FAIL-BD-NARRATION-VOICE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `novel_expression_transform_evidence.risk_check` 记录 `fact_drift/new_event/unlicensed_new_dialogue/unrelated_backstory`；`narration_to_voice_adaptation_map` 记录派生语音依据 |
 | `角色动作` / `动作画面` 是否没有混入“试图/想要/打算/意图”等主观预判，直接情绪感受是否转成面部、肢体、生理反应、声线或主角内心独白？ | `GATE-SCRIPT-08` / `GATE-SCRIPT-17` | `FAIL-ACTION-PURITY` / `FAIL-CREATIVE-EVIDENCE` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `objective_action_purity_evidence` 记录删除的主观词、直接情绪标签和客观投影 |
+| 客观叙事若被改编为对白、独白或内心独白，是否满足触发、说话者资格、信息差安全、语音预算和就近画面承托？ | `GATE-BD-19` | `FAIL-BD-NARRATION-VOICE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `narration_to_voice_adaptation_map` 记录 trigger_reason、voice_owner、knowledge_basis、derived_voice_line、paired_visual_or_reaction_field 和 risk_check |
 | 旁白是否只在历史、规则、前史或原文本身承担不可替代信息时保留，并有画面证据承托，没有成为默认信息堆放处？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-15` | `FAIL-PAIRING` / `FAIL-NOVEL-TO-SCREEN-LANGUAGE` | `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `novel_expression_transform_evidence.narration_support_check` 记录旁白依据、配对画面和替代策略 |
 | 转译过程是否没有写机位、景别、镜头运动等摄影越权内容，也没有新增第二套解析字段？ | `GATE-SCRIPT-10` | `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `novel_expression_transform_evidence.risk_check.cinematography_overreach` 与 `field_projection_map.allowed_field_check` |

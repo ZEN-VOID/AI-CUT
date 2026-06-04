@@ -123,7 +123,7 @@ hollywood-quality-spec.md (顶层质量宪章)
 | forbidden action | reason | detection method | example |
 | --- | --- | --- | --- |
 | **新增剧情事实** | 破坏上游保真 | 逐项对比上游，若输出中存在上游原文没有的"发生了 X"即为越权 | "新增角色背景故事" |
-| **新增对白** | 改写上游正文 | 检查引号内内容，若与上游对白不符即为新增 | "为角色添加内心独白对白" |
+| **未锚定新增对白** | 改写上游正文或脱离叙事锚点自由加话 | 检查引号内内容；若既不是上游已有对白，也没有通过 `narration-to-voice-adaptation-contract.md` 留证，即为新增 | "为角色添加没有原文锚点的内心独白对白" |
 | **新增因果** | 改变事件逻辑 | 若角色行为原因在上游无锚点即为新增因果 | "让角色因为新原因做出选择" |
 | **新增桥段** | 增加上游没有的事件 | 若场景中出现上游无描述的动作序列即为新增桥段 | "新增追逐戏" |
 | **摄影越权** | 越界到下游 4-摄影 | 检查是否出现机位、景别、镜头运动、分镜编号或图像提示词 | "写分镜编号、机位、景别、镜头运动" |
@@ -165,7 +165,8 @@ hollywood_quality_notes:
       what_improved: ""
   fidelity_verified:
     no_new_fact: true
-    no_new_dialogue: true
+    no_unlicensed_dialogue: true
+    narration_to_voice_adaptation_source_grounded: true
     no_new_causality: true
     no_new_episode: true
     no_photography_overreach: true

@@ -2,7 +2,7 @@
 
 ## Review Purpose
 
-`2-编导` 的 review gate 验证逐集编导稿是否把 script layer、director layer、performance layer 的职责合成一个可拍、可听、可演的 canonical 主稿：忠实承接 `1-分集`，对白逐字冻结，导演判断和表演工艺内嵌到字段正文，最终表达全部落为画面化语言，并能以结构化 handoff 交给 `3-运动` 继续强化角色运动。
+`2-编导` 的 review gate 验证逐集编导稿是否把 script layer、director layer、performance layer 的职责合成一个可拍、可听、可演的 canonical 主稿：忠实承接 `1-分集`，上游已有对白逐字冻结，客观叙事派生语音受控留证，导演判断和表演工艺内嵌到字段正文，最终表达全部落为画面化语言，并能以结构化 handoff 交给 `3-运动` 继续强化角色运动。
 
 ## Default Provider
 
@@ -15,8 +15,8 @@
 
 - 除 `review_only` 外，review gate 是写回 `2-编导/第N集.md` 前的阻断门。
 - `needs_rework` 必须回到 `steps/directing-workflow.md` 的 `N6R-BD-REPAIR`，由 `2-编导` 本阶段直接做最小修复并复审；复审未通过不得写入 canonical，也不得推进 `3-运动` 或 `4-摄影`。
-- 允许直接修复的范围：字段投影、声画配对、slugline、对白画面、小说转译、信息释放、导演判断嵌入、视觉主轴、氛围/声音/尾钩、心理反应、台词交付、潜台词行为、场面调度、沉默余波、具像画面化语言、frontmatter、报告证据和格式。
-- 禁止直接修复的范围：新增或删减剧情事实、改写对白、改变事件顺序、替上游 `1-分集` 修剧情、直接生成分镜编号/图像提示词/视频请求。
+- 允许直接修复的范围：字段投影、声画配对、slugline、对白画面、小说转译、客观叙事派生语音的触发/删除/改回画面化、信息释放、导演判断嵌入、视觉主轴、氛围/声音/尾钩、心理反应、台词交付、潜台词行为、场面调度、沉默余波、具像画面化语言、frontmatter、报告证据和格式。
+- 禁止直接修复的范围：新增或删减剧情事实、改写上游已有对白、改变事件顺序、替上游 `1-分集` 修剧情、直接生成分镜编号/图像提示词/视频请求。
 - `pass_with_followups` 只允许非阻断质量建议；保真、对白、输出路径、LLM-first、导演/表演缺层或抽象化语言不得降级为 followup。
 
 ## Blocking Gates
@@ -26,9 +26,9 @@
 | `GATE-BD-01` | 输出路径为 `projects/aigc/<项目名>/2-编导/第N集.md`，不创建 script/director/performance 并列新主稿 | `FAIL-BD-PATH` | `N7-BD-WRITEBACK` | `output_path_check` |
 | `GATE-BD-02` | frontmatter 含 `source_episode_path` 且可回指 `1-分集/第N集.md` | `FAIL-BD-SOURCE` | `N1-BD-INTAKE` | `source_episode_path` |
 | `GATE-BD-03` | 上游事实、信息量、事件顺序完整承接 | `FAIL-BD-FAITHFULNESS` | `N2-BD-SCRIPT` | `faithfulness_evidence` |
-| `GATE-BD-04` | 对白逐字保真，引号内不加入动作或解释 | `FAIL-BD-DIALOGUE` | `N2-BD-SCRIPT` | `dialogue_lock_evidence` |
+| `GATE-BD-04` | 上游已有对白逐字保真，引号内不加入动作或解释；派生语音不得改写、替换或续写上游对白 | `FAIL-BD-DIALOGUE` | `N2-BD-SCRIPT` | `dialogue_lock_evidence` / `narration_to_voice_adaptation_map` |
 | `GATE-BD-05` | 场景标题、字段分流、声画配对和字段纯度成立 | `FAIL-BD-FIELD-PURITY` | `N2-BD-SCRIPT` | `script_layer_evidence` |
-| `GATE-BD-06` | 小说作者评论、心理内视、抽象概括、因果解释、关系结论已二次画面化 | `FAIL-BD-NOVEL-TO-SCREEN` | `N2-BD-SCRIPT` | `novel_expression_transform_evidence` |
+| `GATE-BD-06` | 小说作者评论、心理内视、客观叙事、抽象概括、因果解释、关系结论已二次画面化；必要派生语音有合法触发和画面承托 | `FAIL-BD-NOVEL-TO-SCREEN` | `N2-BD-SCRIPT` | `novel_expression_transform_evidence` / `narration_to_voice_adaptation_map` |
 | `GATE-BD-07` | 关键场景有观众知识状态、信息差、悬念保留与节奏画像 | `FAIL-BD-AUDIENCE-RHYTHM` | `N2-BD-SCRIPT` | `audience_psychology_map` / `scene_rhythm_profile` |
 | `GATE-BD-08` | 导演判断不是抽象评语，已落为戏剧问题、人物压力、视觉主轴、高潮/反高潮、声音与终结画面 | `FAIL-BD-DIRECTOR-SUBSTANCE` | `N3-BD-DIRECTOR` | `director_layer_evidence` |
 | `GATE-BD-09` | 导演增强没有新增剧情事实、对白、因果或未授权桥段 | `FAIL-BD-CONTROLLED-ENRICHMENT` | `N3-BD-DIRECTOR` | `controlled_enrichment_ledger` |
@@ -38,9 +38,10 @@
 | `GATE-BD-13` | 全稿通过具像画面语言检查；不得用情绪标签、审美口号、心理论文、表演意图总结代替可见可听可演锚点 | `FAIL-BD-VISUAL-LANGUAGE` | `N5-BD-VISUAL-LANGUAGE` | `concrete_visual_language_evidence` |
 | `GATE-BD-14` | 没有机位、景别、镜头运动、分镜编号或视频提示词越权 | `FAIL-BD-STAGE-OVERREACH` | `N5-BD-VISUAL-LANGUAGE` | `stage_boundary_check` |
 | `GATE-BD-15` | 脚本没有替代 LLM 生成核心创作正文 | `FAIL-BD-LLM-FIRST` | `N6R-BD-REPAIR` | `llm_first_authorship_check` |
-| `GATE-BD-16` | 执行报告含 `thinking_action_node_ledger`、三层证据、`scene_field_evidence_index`、review verdict、repair actions 和 re-review verdict；关键判断可回到来源、目标字段和正文嵌入句 | `FAIL-BD-EVIDENCE` | `N7-BD-WRITEBACK` | `report_evidence_check` |
+| `GATE-BD-16` | 执行报告含 `thinking_action_node_ledger`、三层证据、`narration_to_voice_adaptation_map`、`scene_field_evidence_index`、review verdict、repair actions 和 re-review verdict；关键判断可回到来源、目标字段和正文嵌入句 | `FAIL-BD-EVIDENCE` | `N7-BD-WRITEBACK` | `report_evidence_check` |
 | `GATE-BD-17` | 初始化团队综合若存在，已被裁决为节点上下文，不改写上游真源，不触发 team 身份技能或旧 stage profile | `FAIL-BD-ADVISOR-BOUNDARY` | `N6R-BD-REPAIR` | `init_team_synthesis_context` |
 | `GATE-BD-18` | `motion_enrichment_handoff.visual_unit_candidate_map` 齐全，每项含 `source_anchor`、`target_field`、`visual_unit_text`、`why_visual` 和 `non_camera_boundary`；不得含机位、景别、镜头运动、分镜编号或 prompt | `FAIL-BD-HANDOFF` | `N7-BD-WRITEBACK` | `motion_enrichment_handoff` |
+| `GATE-BD-19` | 客观叙事转对白/独白只来自非引号内叙事；每条派生语音有 `source_anchor`、`objective_fact_payload`、合法 `voice_owner`、知识依据、信息差安全、语音预算和就近画面/反应承托；跨度性剧情衔接已拆 `bridge_payload_units`，只将当前行动必需的 1-2 个信息簇语音化；不得新增事实、事件、因果、规则、线索、人物动机或作者口吻金句 | `FAIL-BD-NARRATION-VOICE` | `N2-BD-SCRIPT` | `narration_to_voice_adaptation_map` |
 
 ## Recommended Mechanical Check
 
@@ -56,7 +57,7 @@ python3 .agents/skills/aigc/2-编导/scripts/validate_script_projection.py proje
 | --- | --- |
 | `pass` | 可交付给 `3-运动`，再由 `3-运动` 交付给 `4-摄影` |
 | `pass_with_followups` | 可交付，但存在非阻断质量优化 |
-| `needs_rework` | 存在保真、对白、导演、表演、画面化语言、输出路径或证据阻断项 |
+| `needs_rework` | 存在保真、对白、派生语音、导演、表演、画面化语言、输出路径或证据阻断项 |
 | `blocked` | 上游缺失、路径不可读、权限或策略阻断 |
 
 ## Report Shape
@@ -70,6 +71,7 @@ review:
     source_lock: pass
     faithfulness: pass
     dialogue_lock: pass
+    narration_to_voice_adaptation: pass
     script_layer: pass
     director_layer: pass
     performance_layer: pass
@@ -83,6 +85,7 @@ review:
   thinking_action_node_ledger: []
   scene_field_evidence_index: []
   script_layer_evidence: {}
+  narration_to_voice_adaptation_map: []
   director_layer_evidence: {}
   performance_layer_evidence: {}
   concrete_visual_language_evidence: {}

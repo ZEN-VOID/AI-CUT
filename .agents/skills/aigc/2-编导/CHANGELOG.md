@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-06-01 (Narration To Voice Adaptation)
+
+- 新增 `references/narration-to-voice-adaptation-contract.md`，定义非引号客观叙事改编为对白、独白或内心独白的触发、说话者资格、语音预算、禁区和证据结构。
+- 标准化 `continuity_bridge` 触发：对跨度性剧情衔接叙事先拆 `bridge_payload_units`，只把当前行动必需的 1-2 个信息簇转成派生语音，其余用画面、音效、动作或留白显像。
+- 同步 script layer、类型画像、review gate、模板和经验层：上游已有对白仍逐字冻结，只有 source-grounded 派生语音可进入 canonical，并必须保留 `narration_to_voice_adaptation_map`。
+- 新增 `GATE-BD-19 / FAIL-BD-NARRATION-VOICE`，阻断无锚点新增台词、作者口吻泄露、信息差提前泄露和没有画面承托的派生语音。
+
 ## 2026-06-01 (Init-Only Team Synthesis)
 
 - 将 `2-编导` 的 team 入口收束为只读 `team.yaml.init_synthesis.stage_seed_summary."2-编导"`、`init_handoff.writing_directing_seed` 与 `north_star.yaml.创作阶段不变量.编导`。

@@ -8,7 +8,7 @@
 | --- | --- |
 | `business_goal` | 将逐集小说原文转成保真、可拍、可演、可听、可被 `3-运动` 强化并继续被 `4-摄影` 消费的编导稿 |
 | `business_object` | `projects/aigc/<项目名>/1-分集/第N集.md` |
-| `constraint_profile` | 保真、对白冻结、声画配对、导演判断不改事实、表演工艺不改对白、全稿画面化语言、LLM-first |
+| `constraint_profile` | 保真、对白冻结、声画配对、客观叙事派生语音受控、导演判断不改事实、表演工艺不改对白、全稿画面化语言、LLM-first |
 | `success_criteria` | 输出唯一 `2-编导/第N集.md`，同时包含 script/director/performance 三层证据、场景字段证据索引和结构化 `3-运动` handoff，且没有旧 3/4 新真源 |
 | `non_goals` | 不写分镜明细、不写图像提示词、不改上游分集、不生成旧阶段主稿 |
 | `topology_fit` | 串行三层主干 + 初始化综合旁路 + review 修复回路 |
@@ -28,7 +28,7 @@
 | reference | consumed_by | node evidence | blocking gate |
 | --- | --- | --- | --- |
 | `script-adaptation-contract.md` / `field-routing-and-audio-visual-contract.md` | `N2-BD-SCRIPT` | `script_layer_evidence` | `GATE-BD-02` |
-| `novel-to-screen-language-contract.md` / `information-asymmetry-contract.md` / `scene-rhythm-contract.md` / `dialogue-subtext-contract.md` | `N2-BD-SCRIPT` | `novel_expression_transform_evidence`、`information_asymmetry_map`、`scene_rhythm_profile`、`dialogue_subtext_map` | `GATE-BD-03` |
+| `novel-to-screen-language-contract.md` / `narration-to-voice-adaptation-contract.md` / `information-asymmetry-contract.md` / `scene-rhythm-contract.md` / `dialogue-subtext-contract.md` | `N2-BD-SCRIPT` | `novel_expression_transform_evidence`、`narration_to_voice_adaptation_map`、`information_asymmetry_map`、`scene_rhythm_profile`、`dialogue_subtext_map` | `GATE-BD-03` / `GATE-BD-19` |
 | `directorial-authorship-contract.md` / `visual-aesthetic-contract.md` / `atmosphere-and-mood-contract.md` | `N3-BD-DIRECTOR` | `director_layer_evidence` | `GATE-BD-04` |
 | `climax-visual-treatment-contract.md` / `anticlimax-strategy-contract.md` / `episode-final-image-contract.md` | `N3-BD-DIRECTOR` | `peak_visual_plan`、`anticlimax_directive`、`episode_final_image_plan` | `GATE-BD-05` |
 | `psychological-reaction-contract.md` / `actor-performance-control-contract.md` / `performance-and-scene-craft-contract.md` | `N4-BD-PERFORMANCE` | `performance_layer_evidence` | `GATE-BD-06` |
@@ -59,7 +59,7 @@
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-BD-INTAKE` | 锁定项目、集号、上游正文真源和加载边界 | 用户请求、项目根、`1-分集/` | 读取技能和项目上下文，建立 reference load manifest 与证据索引骨架 | `input_lock`、`source_episode_path`、`scene_field_evidence_index` | `N2-BD-SCRIPT` | `GATE-BD-01` |
-| `N2-BD-SCRIPT` | 完成保真剧本化和基础声画字段 | 上游正文、script refs、类型画像 | slugline、字段分流、对白冻结、小说转译、信息差、节奏、潜台词、长对白节拍；同步记录字段落点 | `script_layer_evidence`、`scene_field_evidence_index` | `N3-BD-DIRECTOR` | `GATE-BD-02` / `GATE-BD-03` |
+| `N2-BD-SCRIPT` | 完成保真剧本化和基础声画字段 | 上游正文、script refs、类型画像 | slugline、字段分流、对白冻结、小说转译、客观叙事派生语音裁决、信息差、节奏、潜台词、长对白节拍；同步记录字段落点 | `script_layer_evidence`、`narration_to_voice_adaptation_map`、`scene_field_evidence_index` | `N3-BD-DIRECTOR` | `GATE-BD-02` / `GATE-BD-03` / `GATE-BD-19` |
 | `N3-BD-DIRECTOR` | 注入导演级戏剧和视觉判断 | script evidence、director refs、north star | 戏剧问题、人物压力、观众位置、视觉主轴、氛围、声音、高潮/反高潮、尾钩；同步写入可拍锚点 | `director_layer_evidence`、`scene_field_evidence_index` | `N4-BD-PERFORMANCE` | `GATE-BD-04` / `GATE-BD-05` |
 | `N4-BD-PERFORMANCE` | 把导演判断转成演员可执行表演 | director evidence、performance refs | 心理反应、五层表演、台词交付、潜台词行为、调度、沉默、角色弧线、群戏、生理真实性；同步写入行为锚点 | `performance_layer_evidence`、`scene_field_evidence_index` | `N5-BD-VISUAL-LANGUAGE` | `GATE-BD-06` / `GATE-BD-07` |
 | `N5-BD-VISUAL-LANGUAGE` | 全稿具像画面语言审查 | candidate 编导稿、共享具像语言合同 | 清除抽象、概念、解释和内部规则句，把判断投到可见/可听/可演锚点，形成摄影可消费画面单元候选 | `concrete_visual_language_evidence`、`visual_unit_candidate_map` | `N6-BD-REVIEW` | `GATE-BD-08` |
@@ -70,6 +70,7 @@
 ## Branch Rules
 
 - 若上游是对白密集场景，先锁 `long_dialogue_beat_map`，再进入台词交付，不得先凭表演感觉重切台词。
+- 若上游客观叙事具备语音化潜力，先按 `narration-to-voice-adaptation-contract.md` 判定是否可转对白/独白；不通过 gate 的叙事只能画面化、旁白化或留白，不得由 director/performance layer 再补成新台词。
 - 若 director layer 需要受控增强，只能新增表现层承托，并记录 `controlled_enrichment_ledger`；任何新增剧情、对白、因果或规则必须阻断。
 - 若 performance layer 出现机位、景别、运镜或分镜编号，删除并改写为人物站位、距离、声线、呼吸和动作链。
 - 若 visual language pass 发现概念标签无法投到具体声画，回到最早责任节点，不允许用解释性总结交付。
@@ -82,7 +83,7 @@
 | symptom | route_back |
 | --- | --- |
 | 上游事实缺失、顺序漂移、对白不保真 | `N2-BD-SCRIPT` |
-| 小说解释句、抽象心理、概括叙述未画面化 | `N2-BD-SCRIPT` |
+| 小说解释句、抽象心理、概括叙述未画面化，或客观叙事派生语音无证据/越权 | `N2-BD-SCRIPT` |
 | 导演判断只有审美词，没有人物压力、观众位置或可拍策略 | `N3-BD-DIRECTOR` |
 | 视觉主轴、氛围、声音或尾钩新增剧情事实 | `N3-BD-DIRECTOR` |
 | 心理反应、潜台词、权力关系写成解释句 | `N4-BD-PERFORMANCE` |

@@ -31,16 +31,19 @@
 | 新增字段标签 | 27种正式字段 | 不得新增其他解析体系或摄影方案字段 |
 | 画面化改写 | 目标/阻碍/策略/停顿/视线/呼吸/手部动作/身体距离/道具关系 | 不得删除事实、改变事件顺序或把动作改成解释性旁白 |
 | 角色主观经验投影 | `独白（角色）`、`内心独白（角色）`、可感知 `心理反应`、可执行 `表演提示` | `心理反应` 必须落实为身体、表情、呼吸、停顿、声线、道具或空间反应，不能成为抽象内心解释 |
+| 客观叙事派生语音 | 非引号内客观叙事可按 `narration-to-voice-adaptation-contract.md` 转为有锚点的对白、独白、内心独白或旁白 | 不得改写上游已有对白，不得新增事实、事件、因果、规则、线索、人物动机或信息差泄露，必须在报告中留 `narration_to_voice_adaptation_map` |
 
 ### FR-3：对话冻结
 
 | 规则 | 说明 |
 |------|------|
-| **逐字保真** | 对白必须逐字保留，不润色、不删改、不同义替换、不调整语序 |
+| **逐字保真** | 上游已有对白必须逐字保留，不润色、不删改、不同义替换、不调整语序 |
 | **长对白节拍** | 上游单段长对白可以拆成多个连续原文片段，但所有片段按顺序拼回必须逐字等于上游对白；断句只改变结构落点，不改变文本 |
 | **格式规范** | 对白字段标题固定为 `对白（角色名，语态/状态短语）`；角色名必须取自上游真实说话者，`原文角色`、`角色名`、`某人` 等模板占位不得进入终稿 |
 | **语态限制** | 第二项只展示上游已有或上下文可确认的说话方式与角色状态，可以是短语（例如 `压着笑意`、`声音发颤`），不强制一词或以"地"结尾；不得借该项改变对白含义或新增人物心理 |
 | **引号纯度** | 引号内不得混入动作描写；动作、表情、停顿、空间反应全部下沉到对应 `*画面`、`角色动作`、`表情特写` 或 `表演提示` |
+
+派生语音边界：从非引号内客观叙事转出的 `derived_voice_line` 不属于 `source_dialogue`，但必须满足 `narration-to-voice-adaptation-contract.md` 的触发、说话者资格、预算和证据要求；它不得替代、修饰或续写上游已有对白。
 
 ### FR-4：场景标题规范
 
@@ -105,7 +108,7 @@
 | 潜台词 | 行为策略（试探、隐瞒、求证、施压、求同盟、拖延） | 通过停顿、避视、反问、道具动作、身体距离或声线变化呈现 |
 | 心理变化 | 演员任务 | 至少给出角色目标、阻碍、策略或外显动作中的两项 |
 | 权力关系 | 场面调度 | 通过站坐、高低、远近、门口/讲台/窗边占位、群体视线和道具归属表现 |
-| 沉默与反应 | 可见/可听余波 | 不得用新增对白替代上游没有写出的潜台词 |
+| 沉默与反应 | 可见/可听余波 | 默认不得用新增对白替代上游没有写出的潜台词；只有非引号客观叙事满足 `narration-to-voice-adaptation-contract.md` 时，才可形成 source-grounded 派生语音 |
 
 ### 越权禁止
 
@@ -153,7 +156,7 @@
 - 必须写明确主体的可感知反应，不写无主体心理结论
 - 只能靠文字解释才能成立的内容，应改入 `独白（角色）` / `内心独白（角色）`
 - 已能拆入具体字段的内容，优先拆入
-- **不得**新增对白、幻象、回忆、事件、因果、答案或人物动机
+- **不得**新增未锚定对白、幻象、回忆、事件、因果、答案或人物动机；客观叙事派生语音必须按专项合同留证
 
 ---
 
@@ -240,6 +243,7 @@ enrichment_mode: none
 | FR-1 | 事实保真 | `novel-to-screen-language-contract.md` §Artistic Transformation Boundary |
 | FR-2 | 信息量保真 | `field-routing-and-audio-visual-contract.md` §Audio-Visual Pairing |
 | FR-3 | 对话冻结 | `field-routing-and-audio-visual-contract.md` §Dialogue Freeze |
+| 派生语音 | 客观叙事转对白/独白 | `narration-to-voice-adaptation-contract.md` |
 | FR-4 | 场景标题规范 | `field-routing-and-audio-visual-contract.md` §Scene Title Contract |
 | FR-5 | 声音字段纯度 | `field-routing-and-audio-visual-contract.md` §Sound Literal Rule |
 | FR-6 | 动作字段纯度 | `field-routing-and-audio-visual-contract.md` §Action Field Dynamics |
@@ -256,7 +260,7 @@ enrichment_mode: none
 | 输出是否写入 canonical `projects/aigc/<项目名>/2-编导/第N集.md`，frontmatter 是否包含 `source_episode_path` 并可回指上游逐集正文？ | `GATE-SCRIPT-01` / `GATE-SCRIPT-02` | `FAIL-PATH` / `FAIL-SOURCE` | `steps/directing-workflow.md#N1-INTAKE` / `steps/directing-workflow.md#N7-SCRIPT-WRITEBACK` | `source_episode_path`、`output_path` 与 `reference_load_manifest` 记录路径、集号和加载边界 |
 | FR-1 事实保真是否成立：没有压缩、摘要、删减剧情事实，没有自由改写因果或重排事件顺序？ | `GATE-SCRIPT-03` | `FAIL-FAITHFULNESS` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N6R-SCRIPT-REPAIR` | `faithful_projection_trace` 逐段记录上游事实、输出字段和顺序对齐 |
 | FR-2 信息量保真是否成立：新增 frontmatter、slugline、字段标签和画面化改写只服务投影，没有替代正文、删除信息或新增第二套解析体系？ | `GATE-SCRIPT-03` / `GATE-SCRIPT-10` | `FAIL-FAITHFULNESS` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `field_projection_map` 与 `faithful_projection_trace` 记录每条新增字段的上游依据 |
-| FR-3 对话冻结是否成立：对白逐字保真、真实角色名、语态/状态短语不改含义、引号内无动作，且没有把小说叙述改写成新增对白？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游对白、输出对白、角色名、语态依据和新增对白风险 |
+| FR-3 对话冻结是否成立：上游已有对白逐字保真、真实角色名、语态/状态短语不改含义、引号内无动作，且客观叙事派生语音没有替代或改写上游对白？ | `GATE-SCRIPT-04` | `FAIL-DIALOGUE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `dialogue_lock_map` 记录上游对白、输出对白、角色名、语态依据和派生语音隔离风险；`narration_to_voice_adaptation_map` 记录非对白来源 |
 | FR-3 长对白节拍是否成立：上游单段长对白只被拆成连续原文片段，片段拼回逐字等于上游对白，且断句服务戏剧动作、气口和可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录 source_dialogue、exact_text_segment、recomposed_dialogue、dramatic_action 和 paired_visual_field |
 | FR-4 场景标题是否符合阿拉伯数字编号 + `内景/外景 场所 - 日/夜`，同一 slugline 只首次打印，不因叙事 beat 变化重复开场？ | `GATE-SCRIPT-07` | `FAIL-SLUGLINE` | `steps/directing-workflow.md#N3-SCENE` | `scene_slugline_table` 与 `scene_order_trace` 记录场景编号、slugline、首次出现和复用 |
 | 剧本化投影是否只使用允许字段，将上游信息转成可见、可听、可执行材料，而不是改写版小说、概要或自由发挥剧本？ | `GATE-SCRIPT-06` / `GATE-SCRIPT-10` | `FAIL-SCENE-VISUAL` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `field_projection_map.allowed_field_check` 记录正式字段、上游锚点和可拍性 |
