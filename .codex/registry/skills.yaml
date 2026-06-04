@@ -36,10 +36,10 @@ active_skills:
       - id: aigc-2-writing-directing
         path: .agents/skills/aigc/2-编导
         owner_office: zhongshu
-        contract_status: active
-        route_role: stage
-        purpose: 消费 `2-编剧` 或 `1-分集`，继续完成早期编导层的导演判断、表演工艺和具像画面化语言整合。
-        migration_note: old `4-表演` remains a legacy trigger here only for early writing-directing integration; explicit `5-表演` now routes to `.agents/skills/aigc/5-表演`.
+        contract_status: shelved
+        route_role: legacy_compat
+        purpose: legacy/兼容阶段：旧“编导整合”路径只作历史项目回读与迁移取证；当前主链拆分为 `2-编剧 -> 3-美学 -> 4-导演 -> 5-表演`。
+        migration_note: explicit legacy `2-编导` requests must route to current `2-编剧` / `4-导演` / `5-表演` owners according to task intent; this path is not an active default stage.
       - id: aigc-3-aesthetic-suite
         path: .agents/skills/aigc/3-美学
         owner_office: zhongshu
@@ -76,91 +76,93 @@ active_skills:
         contract_status: active
         route_role: stage
         purpose: 默认消费 `7-分镜` 逐集稿或用户指定分镜稿，并结合 `3-美学/画面基调` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容` 后内联注入综合运镜手法；一镜到底时以画面点为单位输出连续组合运镜。
+      - id: aigc-9-lighting-aesthetic-injection
+        path: .agents/skills/aigc/9-光影
+        owner_office: zhongshu
+        contract_status: active
+        route_role: stage
+        purpose: 默认消费 `8-摄影` 逐集稿或用户指定文稿，并结合 `3-美学/画面基调`、`3-美学/场景风格` 与 `3-美学/摄影风格`，在每条 `分镜N（N-N秒）：原有内容（包含摄影）` 后内联注入电影光影美学描述。
       - id: aigc-3-motion-enrichment
         path: .agents/skills/aigc/3-运动
         owner_office: shangshu
-        contract_status: active
-        route_role: stage
-        purpose: 强化角色运动起点、路径、终点、参照系和相邻画面状态连续性，默认消费 `2-编导` 并交给 `4-摄影`。
-      - id: aigc-4-cinematography
-        path: .agents/skills/aigc/4-摄影
+        contract_status: shelved
+        route_role: legacy_compat
+        purpose: legacy/兼容阶段：强化角色运动起点、路径、终点、参照系和相邻画面状态连续性；当前主链默认使用 `7-分镜 -> 8-摄影 -> 9-光影`。
+      - id: aigc-10-grouping
+        path: .agents/skills/aigc/10-分组
         owner_office: shangshu
         contract_status: active
         route_role: stage
-      - id: aigc-5-grouping
-        path: .agents/skills/aigc/5-分组
-        owner_office: shangshu
-        contract_status: active
-        route_role: stage
-      - id: aigc-6-design
-        path: .agents/skills/aigc/6-设计
+        purpose: 默认消费 `9-光影` 光影稿，用户指定文稿时优先指定 source，按真实集-场-组生成可生产分镜组。
+      - id: aigc-11-subjects
+        path: .agents/skills/aigc/11-主体
         owner_office: shangshu
         contract_status: active
         route_role: stage
         leaf_index:
           - id: aigc-design-scene
-            path: .agents/skills/aigc/6-设计/场景
+            path: .agents/skills/aigc/11-主体/场景
             contract_status: active
             route_role: domain
             child_index:
               - id: aigc-design-scene-list
-                path: .agents/skills/aigc/6-设计/场景/1-清单
+                path: .agents/skills/aigc/11-主体/场景/1-清单
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-scene-design
-                path: .agents/skills/aigc/6-设计/场景/2-设计
+                path: .agents/skills/aigc/11-主体/场景/2-设计
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-scene-generate
-                path: .agents/skills/aigc/6-设计/场景/3-生成
+                path: .agents/skills/aigc/11-主体/场景/3-生成
                 contract_status: active
                 route_role: leaf
           - id: aigc-design-character
-            path: .agents/skills/aigc/6-设计/角色
+            path: .agents/skills/aigc/11-主体/角色
             contract_status: active
             route_role: domain
             child_index:
               - id: aigc-design-character-list
-                path: .agents/skills/aigc/6-设计/角色/1-清单
+                path: .agents/skills/aigc/11-主体/角色/1-清单
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-character-detail
-                path: .agents/skills/aigc/6-设计/角色/2-设计
+                path: .agents/skills/aigc/11-主体/角色/2-设计
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-character-generation
-                path: .agents/skills/aigc/6-设计/角色/3-生成
+                path: .agents/skills/aigc/11-主体/角色/3-生成
                 contract_status: active
                 route_role: leaf
           - id: aigc-design-prop
-            path: .agents/skills/aigc/6-设计/道具
+            path: .agents/skills/aigc/11-主体/道具
             contract_status: active
             route_role: domain
             child_index:
               - id: aigc-design-prop-list
-                path: .agents/skills/aigc/6-设计/道具/1-清单
+                path: .agents/skills/aigc/11-主体/道具/1-清单
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-prop-design
-                path: .agents/skills/aigc/6-设计/道具/2-设计
+                path: .agents/skills/aigc/11-主体/道具/2-设计
                 contract_status: active
                 route_role: leaf
               - id: aigc-design-prop-generate
-                path: .agents/skills/aigc/6-设计/道具/3-生成
+                path: .agents/skills/aigc/11-主体/道具/3-生成
                 contract_status: active
                 route_role: leaf
-      - id: aigc-7-images
-        path: .agents/skills/aigc/7-图像
+      - id: aigc-12-images
+        path: .agents/skills/aigc/12-图像
         owner_office: shangshu
         contract_status: active
         route_role: stage
         leaf_index:
           - id: aigc-image-storyboard-frame
-            path: .agents/skills/aigc/7-图像/A-分镜画面
+            path: .agents/skills/aigc/12-图像/分镜画面
             contract_status: active
             route_role: leaf
           - id: aigc-image-storyboard-sheet
-            path: .agents/skills/aigc/7-图像/B-分镜故事板
+            path: .agents/skills/aigc/12-图像/分镜故事板
             contract_status: active
             route_role: leaf
       - id: aigc-5-visuals
@@ -168,7 +170,7 @@ active_skills:
         owner_office: shangshu
         contract_status: shelved
         route_role: legacy_compat
-        migration_note: legacy image stage; current default image runtime is .agents/skills/aigc/7-图像 and projects/aigc/<项目名>/7-图像/.
+        migration_note: legacy image stage; current default image runtime is .agents/skills/aigc/12-图像 and projects/aigc/<项目名>/12-图像/.
         leaf_index:
           - id: aigc-storyboard-frame-image
             path: .agents/skills/aigc/5-Image/A.分镜画面
@@ -198,31 +200,31 @@ active_skills:
             path: .agents/skills/aigc/5-Image/3-图像生成
             contract_status: shelved
             route_role: legacy_compat
-      - id: aigc-8-video
-        path: .agents/skills/aigc/8-视频
+      - id: aigc-13-canvas
+        path: .agents/skills/aigc/13-画布
         owner_office: shangshu
         contract_status: active
         route_role: stage
         migration_note: current Chinese video stage; legacy 6-Video paths are compatibility-only and no longer default runtime truth.
         leaf_index:
           - id: aigc-video-libtv-canvas-flow
-            path: .agents/skills/aigc/8-视频/libTV画布流
+            path: .agents/skills/aigc/13-画布/libTV画布流
             contract_status: active
             route_role: leaf
-      - id: aigc-video-review
-        path: .agents/skills/aigc/9-审片
+      - id: aigc-14-video-review
+        path: .agents/skills/aigc/14-审片
         owner_office: shangshu
         contract_status: active
         route_role: stage
-        migration_note: current Chinese generated-footage review stage; consumes 8-视频 actual videos and may repair owning 5-分组 groups.
+        migration_note: current Chinese generated-footage review stage; consumes 13-画布 actual videos and may repair owning 10-分组 groups.
     workflow_index:
-      - id: aigc-workflow-sword6
-        path: .agents/skills/aigc/workflow/sword6
+      - id: aigc-workflow-sword10
+        path: .agents/skills/aigc/workflow/sword10
         owner_office: shangshu
         governance_domain: bingbu
         contract_status: active
         route_role: workflow_orchestrator
-        purpose: 针对 AIGC 项目特定分集，真实启用后台隔离 subagents，按 `2-编导 -> 3-运动 -> 4-摄影 -> 5-分组` 串行阶段链执行；主窗口只做派发、追踪、汇流和下一阶段触发。
+        purpose: 针对 AIGC 项目特定分集，真实启用后台隔离 subagents，按 `2-编剧 -> 3-美学 -> 4-导演 -> 5-表演 -> 6-氛围 -> 7-分镜 -> 8-摄影 -> 9-光影 -> 10-分组` 串行阶段链执行；主窗口只做派发、追踪、汇流和下一阶段触发。
     satellite_index:
       - id: aigc-query
         path: .agents/skills/aigc/query
@@ -230,7 +232,7 @@ active_skills:
         governance_domain: hubu
         contract_status: active
         route_role: satellite
-        purpose: 项目级 runtime、阶段产物、`2-编导` 主文件与治理工件事实查询。
+        purpose: 项目级 runtime、当前 0-14 阶段产物、legacy 阶段回读与治理工件事实查询。
       - id: aigc-resume
         path: .agents/skills/aigc/resume
         owner_office: shangshu
@@ -258,7 +260,7 @@ active_skills:
         governance_domain: libu
         contract_status: active
         route_role: satellite
-        purpose: 参考影片或视频逐镜拉片，输出服务 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 与 `6-设计` 的项目解析、禁止照搬清单和 AIGC 可执行迁移策略。
+        purpose: 参考影片或视频逐镜拉片，输出服务 `0-初始化`、`2-编剧`、`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影` 与 `11-主体` 的项目解析、禁止照搬清单和 AIGC 可执行迁移策略。
       - id: aigc-learn
         path: .agents/skills/aigc/learn
         owner_office: menxia

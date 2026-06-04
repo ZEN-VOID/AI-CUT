@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-04
+
+- 按最新 `skill-2.0` runtime-spine 规范重构 `SKILL.md`：补齐 `Runtime Spine Contract`、`Core Task Contract`、`Business Requirement Analysis Contract`、`Type Routing Matrix`、`Thinking-Action Node Map`、`Module Loading Matrix`、`Module Trigger Matrix`、`Convergence Contract`、`Review Gate Binding`、`Quantifiable Execution Criteria Contract`、`Attention Concentration Protocol`、`Checkpoint Contract`、`Evaluation Prompt Contract` 与 `Learning / Context Writeback`。
+- 收束旧 `steps/video-review-workflow.md` 第二节点真源：N0-N7、Mermaid 拓扑、gate、fail code 和返工目标统一回到 `SKILL.md`。
+- 同步各 `references/` 中的旧步骤引用，改为回指 `SKILL.md#Thinking-Action Node Map` 的对应节点。
+- 新增 `test-prompts.json`，覆盖本地单片审查、LibTV 取证审片、示例校准变体选择和授权分组修复四类回归 prompt。
+- 更新 `README.md` 与 `CONTEXT.md`，记录新版结构、评估资产和步骤真源漂移修复经验。
+
 ## 2026-06-01
 
 - 增加 `references/review-method-palette-contract.md`，将审片从固定流程升级为“默认自动化载体 + 动态方法库 + 操作设计”。
@@ -14,10 +22,10 @@
 
 ## 2026-05-04
 
-- 初始化 `9-审片` Skill 2.0 包。
+- 初始化 `14-审片` Skill 2.0 包。
 - 固定视频命名规范：`<分镜组ID>.mp4`，同组变体为 `<分镜组ID>-a.mp4` / `-b.mp4`。
-- 建立审片到 `5-分组` 修复、rerun 建议和源层升级的落盘合同。
+- 建立审片到 `10-分组` 修复、rerun 建议和源层升级的落盘合同。
 - 按 `skill-知行合一` 要求加入业务需求分析、思行节点网络、Mermaid 拓扑与思考过程输出合同。
 - 明确审片三层能力：视频本体问题、prompt 匹配与错配归因、创作质量/反平庸/美学鉴定。
 - 增加用户好/坏示例比较学习合同，支持将稳定、可复用的鉴赏经验沉淀到本技能 `CONTEXT.md`。
-- 参照 `4-表演` 与 `4-摄影`，新增 `9-审片` 顾问与复核流程定义：以项目 `team.yaml` 监制组作为审片顾问团，节点级请教后汇流为 `review_advisor_packet`，不替代最终 verdict 或 canonical 写回。
+- 参照 `4-表演` 与 `4-摄影`，新增 `14-审片` 顾问与复核流程定义：以项目 `team.yaml` 监制组作为审片顾问团，节点级请教后汇流为 `review_advisor_packet`，不替代最终 verdict 或 canonical 写回。

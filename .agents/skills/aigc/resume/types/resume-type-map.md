@@ -6,7 +6,7 @@
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-本文件集中管理 `$aigc-resume` 的类型变量、恢复模式矩阵和风险策略。steps 消费这里形成的 `resume_type_profile`，不在 steps 内重复维护完整类型表。
+本文件集中管理 `$aigc-resume` 的类型变量、恢复模式矩阵和风险策略。`SKILL.md#Thinking-Action Node Map` 消费这里形成的 `resume_type_profile`，本文件不重复维护完整执行节点。
 
 ## Type Profile Variables
 
@@ -24,7 +24,7 @@
 
 ## Mode Mapping
 
-| signals | resume mode | step impact | review impact |
+| signals | resume mode | node impact | review impact |
 | --- | --- | --- | --- |
 | `intent_type=rebootstrap` | `init_rebootstrap_reroute` | 立即回 `0-初始化` | 检查未误用续跑 |
 | `state_depth=lightweight` + `artifact_depth=init_core` + `risk_level=low` | `lightweight_init_continue` | 允许低风险下一入口 | 不要求先补 `governance-state.yaml` |
@@ -49,9 +49,9 @@
 
 | runtime_profile | signal | action |
 | --- | --- | --- |
-| `current_chinese` | 存在 `0-初始化`、`1-分集`、`2-编导`、`3-运动`、`6-设计` 等新版目录 | 按新版口径继续 |
+| `current_chinese` | 存在 `0-初始化`、`1-分集`、`2-编剧`、`3-美学`、`4-导演`、`7-分镜`、`8-摄影`、`11-主体` 等当前目录 | 按当前口径继续 |
 | `legacy_english` | 只存在 `0-Init`、`1-Planning`、`5-Image` 等旧目录 | 报告 legacy 输入，回根决定迁移或兼容 |
-| `mixed` | 中英文目录并存、`4-设计/6-设计` 并存且状态工件不一致 | `root_reroute` 或 `governance_rebuild` |
+| `mixed` | 中英文目录并存、`4-设计/11-主体` 并存且状态工件不一致 | `root_reroute` 或 `governance_rebuild` |
 | `unknown` | 无法证明项目根或阶段布局 | block 并请求项目路径 |
 
 ## Type Profile Output

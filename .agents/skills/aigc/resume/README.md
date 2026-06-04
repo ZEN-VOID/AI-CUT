@@ -16,8 +16,6 @@ resume/
 │   └── output-template.md
 ├── review/
 │   └── resume-review-gate.md
-├── steps/
-│   └── resume-workflow.md
 ├── knowledge-base/
 │   └── resume-heuristics.md
 ├── types/
@@ -27,7 +25,8 @@ resume/
 ├── CHANGELOG.md
 ├── CONTEXT.md
 ├── README.md
-└── SKILL.md
+├── SKILL.md
+└── test-prompts.json
 ```
 
 ## 快速入口
@@ -39,6 +38,6 @@ resume/
 ## 验证
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/aigc/resume
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/aigc/resume --mode delivery
 python3 scripts/skill_context_audit.py --root .agents/skills/aigc/resume --strict
 ```

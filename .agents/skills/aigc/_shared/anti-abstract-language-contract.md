@@ -2,9 +2,9 @@
 
 ## Purpose
 
-本共享合同定义 `2-编导`、`3-运动`、`4-摄影`、`5-分组` 与 `6-设计` 共同适用的反抽象语言规范。它要求所有创作判断、阶段报告、设计描述和下游提示词在进入 canonical 输出前，先把抽象判断转译为可见、可听、可演、可拍、可生成或可审查的具象材料。
+本共享合同定义当前 `2-编剧`、`3-美学`、`4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影`、`10-分组` 与 `11-主体` 共同适用的反抽象语言规范。它要求所有创作判断、阶段报告、设计描述和下游提示词在进入 canonical 输出前，先把抽象判断转译为可见、可听、可演、可拍、可生成或可审查的具象材料。
 
-本合同不是替代各阶段的业务细则；它只提供跨阶段语言门、预设规则、抽象到具象的学习例子和验收映射。各阶段仍按自己的 `SKILL.md`、`references/`、`steps/`、`review/` 与输出合同裁决具体字段。
+本合同不是替代各阶段的业务细则；它只提供跨阶段语言门、预设规则、抽象到具象的学习例子和验收映射。各阶段仍按自己的 `SKILL.md`、已授权模块、review gate 与输出合同裁决具体字段；旧 `2-编导`、`3-运动`、旧 `4-摄影` 路径只允许作为历史回读或迁移参照。
 
 ## Core Rule
 
@@ -48,11 +48,16 @@
 
 | stage | mandatory consumption | evidence key | local rework owner |
 | --- | --- | --- | --- |
-| `2-编导` | visual language pass、导演判断、表演工艺、声画字段、报告证据 | `anti_abstract_language_evidence` + `concrete_visual_language_evidence` | `N5-BD-VISUAL-LANGUAGE` / `N6R-BD-REPAIR` |
-| `3-运动` | 运动候选、参照系选择、起点/路径/终点扩写、连续性报告 | `anti_abstract_motion_projection` | `N4-MOTION-ENRICHMENT` / `N5R-MOTION-REPAIR` |
-| `4-摄影` | `shot_design_plan`、`分镜画面：`、抽象情绪转译、光源/运镜/景深叙事 | `anti_abstract_cinematography_check` | `N7-INJECT` / `N8R-DIRECT-REPAIR` |
-| `5-分组` | 入场镜头、出场画面、连接件、画面属性、north star 风格整理 | `anti_abstract_grouping_check` | `PASS-GROUP-02A` / `PASS-GROUP-02B` / `PASS-GROUP-04` |
-| `6-设计` | 场景/角色/道具设计稿的研究转译、解构、摄影字段和英文 prompt | `anti_abstract_design_projection` | 命中域级 `2-设计` 的 design/review 节点 |
+| `2-编剧` | 剧本改编、对白外化、心理/关系/主题的可演可听投影 | `anti_abstract_screenwriting_evidence` | 本阶段 `Review Gate Binding` 的剧本具象化返工目标 |
+| `3-美学` | 全局视觉基调、角色/场景/道具/分镜风格的材质、光色、构图和禁区转译 | `anti_abstract_aesthetic_projection` | 命中美学子域的 style review gate |
+| `4-导演` | 导演判断、戏剧实质、声画字段、报告证据 | `anti_abstract_director_evidence` | 本阶段导演注释与声画配对返工目标 |
+| `5-表演` | 表演工艺、潜台词、沉默、身体和声线节拍 | `anti_abstract_performance_evidence` | 本阶段表演重写返工目标 |
+| `6-氛围` | 氛围、环境声、意象和情绪承托转译为人物动作链可承接材料 | `anti_abstract_atmosphere_projection` | 本阶段氛围增强返工目标 |
+| `7-分镜` | 分镜候选、参照系选择、起点/路径/终点扩写、连续性报告 | `anti_abstract_storyboard_projection` | 本阶段分镜拆分返工目标 |
+| `8-摄影` | `shot_design_plan`、`分镜画面：`、抽象情绪转译、光源/运镜/景深叙事 | `anti_abstract_cinematography_check` | 本阶段摄影注入返工目标 |
+| `9-光影` | 光影美学、光源位置、亮暗结果、主体分离和色彩承托 | `anti_abstract_lighting_projection` | 本阶段光影注入返工目标 |
+| `10-分组` | 入场镜头、出场画面、连接件、画面属性、当前组风格整理 | `anti_abstract_grouping_check` | `PASS-GROUP-02A` / `PASS-GROUP-02B` / `PASS-GROUP-04` |
+| `11-主体` | 场景/角色/道具设计稿的研究转译、解构、摄影字段和英文 prompt | `anti_abstract_design_projection` | 命中域级 `2-设计` 的 design/review 节点 |
 
 ## Learning And Growth Protocol
 
@@ -68,12 +73,12 @@
 
 | abstract_pattern | concrete_projection | stage_scope | boundary_check | review_gate |
 | --- | --- | --- | --- | --- |
-| `压迫感增强` | 对方往前半步，椅脚抵住地砖发出短响；被压迫者后背贴住门框，手指停在门把上没有拧下去 | `2-编导` / `4-摄影` | 不新增对话和新动作结果，只显化已存在的压力关系 | `GATE-AAL-01` |
-| `情绪崩溃但克制` | 下颌线绷紧，呼吸先断一拍；他把杯沿按回桌面，指腹发白，却没有抬高声音 | `2-编导` / `4-摄影` | 情绪词只作为内部标签，正文写身体和声线 | `GATE-AAL-01` |
-| `带着气势逼近` | 角色从桌角阴影外迈入灯下，右肩先越过桌沿，脚步停在对方膝前半步处 | `3-运动` / `4-摄影` | 必须有起点、路径、终点和参照系 | `GATE-AAL-02` |
-| `高级感镜头` | 低机位贴近冷玻璃桌沿，白色顶光在划痕上断成三截，焦点从纸角移到手背青筋 | `4-摄影` | 镜头技术服务信息和观看变化，不只堆摄影名词 | `GATE-AAL-03` |
-| `流动型连接` | 上一组结尾的雨线贴着镜头滑下，下一组首帧的门缝白光从同一竖线位置亮起 | `5-分组` | 连接方法必须写变化过程，不只写分类名 | `GATE-AAL-04` |
-| `神秘古物` | 暗青铜圆牌边缘有两圈不均匀刻痕，孔洞内残留黑色蜡渍，45 度全貌能看出一侧被长期手握磨亮 | `6-设计` | 研究/物语必须转为形制、材料、工艺和使用痕迹 | `GATE-AAL-05` |
+| `压迫感增强` | 对方往前半步，椅脚抵住地砖发出短响；被压迫者后背贴住门框，手指停在门把上没有拧下去 | `4-导演` / `5-表演` / `8-摄影` | 不新增对话和新动作结果，只显化已存在的压力关系 | `GATE-AAL-01` |
+| `情绪崩溃但克制` | 下颌线绷紧，呼吸先断一拍；他把杯沿按回桌面，指腹发白，却没有抬高声音 | `5-表演` / `8-摄影` | 情绪词只作为内部标签，正文写身体和声线 | `GATE-AAL-01` |
+| `带着气势逼近` | 角色从桌角阴影外迈入灯下，右肩先越过桌沿，脚步停在对方膝前半步处 | `7-分镜` / `8-摄影` | 必须有起点、路径、终点和参照系 | `GATE-AAL-02` |
+| `高级感镜头` | 低机位贴近冷玻璃桌沿，白色顶光在划痕上断成三截，焦点从纸角移到手背青筋 | `8-摄影` / `9-光影` | 镜头技术服务信息和观看变化，不只堆摄影名词 | `GATE-AAL-03` |
+| `流动型连接` | 上一组结尾的雨线贴着镜头滑下，下一组首帧的门缝白光从同一竖线位置亮起 | `10-分组` | 连接方法必须写变化过程，不只写分类名 | `GATE-AAL-04` |
+| `神秘古物` | 暗青铜圆牌边缘有两圈不均匀刻痕，孔洞内残留黑色蜡渍，45 度全貌能看出一侧被长期手握磨亮 | `11-主体` | 研究/物语必须转为形制、材料、工艺和使用痕迹 | `GATE-AAL-05` |
 
 ## Learned Example Bank
 
@@ -86,10 +91,9 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 输出是否仍用抽象情绪、审美、主题、关系或心理结论替代可见、可听、可演、可拍、可生成材料？ | `GATE-AAL-01` / `GATE-BD-13` / `GATE-CINE-15A` | `FAIL-ANTI-ABSTRACT-LANGUAGE` / `FAIL-BD-VISUAL-LANGUAGE` / `FAIL-CINE-19C` | `2-编导/steps/directing-workflow.md#N5-BD-VISUAL-LANGUAGE`；`4-摄影/steps/cinematography-workflow.md#N7-INJECT` | `anti_abstract_language_evidence`、抽象残留清单、具象投影和目标字段 |
-| 运动或动作描述是否缺少主体、起点、路径、终点、参照系或最终状态，仍停留在气势/方向/感觉？ | `GATE-AAL-02` / `PASS-MOTION-04` | `FAIL-ANTI-ABSTRACT-MOTION` / `FAIL-MOTION-ELEMENTS` / `FAIL-MOTION-REFERENCE-SELECTION` | `3-运动/references/motion-five-elements-contract.md`；`N4-MOTION-ENRICHMENT` | `anti_abstract_motion_projection`、`motion_state_ledger`、`reference_frame_basis` |
-| 摄影语言是否只写效果词、技法名或导演阐释，没有镜头起点、运镜路径、焦点、光线结果和观看变化？ | `GATE-AAL-03` / `FIELD-CINE-04` / `FIELD-CINE-14` | `FAIL-ANTI-ABSTRACT-CINEMATOGRAPHY` / `FAIL-CINE-04` / `FAIL-CINE-05G` | `4-摄影/steps/cinematography-workflow.md#N7-INJECT` / `#N8R-DIRECT-REPAIR` | `anti_abstract_cinematography_check`、`shot_design_plan`、`paraphrase_subtraction_check` |
-| 分组入场、出场、连接件或画面属性是否使用静态概括、连接分类或风格口号，没有首尾帧、主体运动、空间和变化过程？ | `GATE-AAL-04` / `PASS-GROUP-02A` / `PASS-GROUP-02B` / `PASS-GROUP-04` | `FAIL-ANTI-ABSTRACT-GROUPING` / `FAIL-GROUP-07` / `FAIL-GROUP-10` / `FAIL-GROUP-11` / `FAIL-GROUP-12` | `5-分组/references/group-entry-shot-contract.md`、`group-exit-shot-contract.md`、`bridge-shot-contract.md` | `anti_abstract_grouping_check`、`entry_source_profile`、`group_exit_picture_tail_hook`、`inter_group_connector` |
-| 设计稿、解构或 prompt 是否停留在风格标签、百科摘抄、身份口号或抽象美学，没有转成形制、材料、工艺、姿态、光线、构图和 prompt evidence token？ | `GATE-AAL-05` / `GATE-SCENE-DESIGN-03` / `GATE-CHAR-DESIGN-06` / `GATE-PROP-DESIGN-09` | `FAIL-ANTI-ABSTRACT-DESIGN` / `FAIL-SCENE-DESIGN-03` / `FAIL-RESEARCH-FLAT` / `FAIL-PROP-DESIGN-08` | 命中域级 `6-设计/*/2-设计` 的 research/design/review 节点 | `anti_abstract_design_projection`、`research_brief`、`visual_translation`、`prompt_evidence_chain` |
+| 输出是否仍用抽象情绪、审美、主题、关系或心理结论替代可见、可听、可演、可拍、可生成材料？ | `GATE-AAL-01` | `FAIL-ANTI-ABSTRACT-LANGUAGE` | 当前命中阶段 `SKILL.md` 的反抽象返工目标；旧 `2-编导` 路径仅作迁移参照 | `anti_abstract_language_evidence`、抽象残留清单、具象投影和目标字段 |
+| 运动或动作描述是否缺少主体、起点、路径、终点、参照系或最终状态，仍停留在气势/方向/感觉？ | `GATE-AAL-02` | `FAIL-ANTI-ABSTRACT-MOTION` | `7-分镜` 动作连续性返工目标；`8-摄影` 镜头承接返工目标 | `anti_abstract_storyboard_projection`、`motion_state_ledger`、`reference_frame_basis` |
+| 摄影语言是否只写效果词、技法名或导演阐释，没有镜头起点、运镜路径、焦点、光线结果和观看变化？ | `GATE-AAL-03` | `FAIL-ANTI-ABSTRACT-CINEMATOGRAPHY` | `8-摄影` 摄影注入返工目标；`9-光影` 光影结果返工目标 | `anti_abstract_cinematography_check`、`shot_design_plan`、`paraphrase_subtraction_check` |
+| 分组入场、出场、连接件或画面属性是否使用静态概括、连接分类或风格口号，没有首尾帧、主体运动、空间和变化过程？ | `GATE-AAL-04` / `PASS-GROUP-02A` / `PASS-GROUP-02B` / `PASS-GROUP-04` | `FAIL-ANTI-ABSTRACT-GROUPING` / `FAIL-GROUP-07` / `FAIL-GROUP-10` / `FAIL-GROUP-11` / `FAIL-GROUP-12` | `10-分组/references/group-entry-shot-contract.md`、`group-exit-shot-contract.md`、`bridge-shot-contract.md` | `anti_abstract_grouping_check`、`entry_source_profile`、`group_exit_picture_tail_hook`、`inter_group_connector` |
+| 设计稿、解构或 prompt 是否停留在风格标签、百科摘抄、身份口号或抽象美学，没有转成形制、材料、工艺、姿态、光线、构图和 prompt evidence token？ | `GATE-AAL-05` / `GATE-SCENE-DESIGN-03` / `GATE-CHAR-DESIGN-06` / `GATE-PROP-DESIGN-09` | `FAIL-ANTI-ABSTRACT-DESIGN` / `FAIL-SCENE-DESIGN-03` / `FAIL-RESEARCH-FLAT` / `FAIL-PROP-DESIGN-08` | 命中域级 `11-主体/*/2-设计` 的 research/design/review 节点 | `anti_abstract_design_projection`、`research_brief`、`visual_translation`、`prompt_evidence_chain` |
 | 新增或晋升抽象/具象示例时，是否有跨阶段或跨项目证据、边界检查和 review 通过记录，而不是把项目一次性好句子写成共享模板？ | `GATE-AAL-06` | `FAIL-ANTI-ABSTRACT-LEARNING` | 本文件 `Learning And Growth Protocol`；命中技能同目录 `CONTEXT.md` | 示例来源、复用范围、通过的 review gate、未晋升原因或晋升记录 |
-

@@ -16,6 +16,5 @@
 
 1. 锁定参考素材、目标项目、目标阶段和证据粒度。
 2. 加载 `types/source-type-map.md` 生成 source profile 与 bridge targets。
-3. 将类型画像交给 `steps/shot-by-shot-workflow.md`。
+3. 将类型画像交给 `SKILL.md` 的 `Thinking-Action Node Map`，不得再依赖 `steps/` 维护第二执行链。
 4. 输出前加载 `review/review-contract.md` 检查证据、版权和临摹边界。
-

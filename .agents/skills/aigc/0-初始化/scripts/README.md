@@ -7,14 +7,14 @@ Allowed script responsibilities:
 - validate paths and required files
 - project skeleton dry-runs
 - template projection checks
-- YAML/JSON schema or field checks
+- `MEMORY.md` template projection checks
+- `CONTEXT/README.md` template projection checks
 - reference synchronization audits
 
 Scripts must not:
 
 - generate creative story, design, prompt, or aesthetic decisions
-- replace planning direct-answer 顾问与复核流程
-- synthesize `north_star` or `init_handoff` as canonical creative truth
+- create former initialization artifacts such as `north_star`, `init_handoff`, `story-source-manifest`, `team.yaml`, `STATE.json`, `CHANGELOG.md`, or `源/`
 - silently delete or purge project assets
 
 Current package-level validation uses:

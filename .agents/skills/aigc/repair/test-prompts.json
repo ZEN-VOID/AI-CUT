@@ -1,0 +1,17 @@
+[
+  {
+    "id": "repair-plan-review-finding",
+    "prompt": "Use $aigc-repair to turn a review finding in projects/aigc/demo-film into a source-first repair plan without writing files.",
+    "expected": "Locks target locality, reviews source rules, builds impact_map, identifies canonical_owner and writeback_order, and returns a repair plan."
+  },
+  {
+    "id": "execute-text-repair",
+    "prompt": "Use $aigc-repair to execute an authorized Chinese polish repair for a stage output while preserving story facts.",
+    "expected": "Creates a Doubao task packet or degradation note, writes only authorized owner files, syncs downstream references, and returns audit_result plus changed_files."
+  },
+  {
+    "id": "asset-route-audit",
+    "prompt": "Use $aigc-repair to handle a generated storyboard image defect and decide whether to preserve, invalidate, regenerate, or review only.",
+    "expected": "Routes to the owning image or canvas leaf, records asset action, avoids fake generation claims, and closes with review evidence or blocker."
+  }
+]

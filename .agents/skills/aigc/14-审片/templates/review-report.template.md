@@ -48,7 +48,7 @@
 
 ## Expected From Group
 
-<来自 5-分组的目标意图摘要>
+<来自 10-分组的目标意图摘要>
 
 ## Prompt Alignment
 

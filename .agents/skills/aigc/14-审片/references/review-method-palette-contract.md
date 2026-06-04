@@ -1,6 +1,6 @@
 # Review Method Palette Contract
 
-本合同定义 `9-审片` 的方法库。`N0 -> N7` 是默认自动化载体，不是审片方法本身；真实审片必须按素材类型、分镜目标、prompt 证据、用户示例和已观察到的视频信号，动态选择审片方法，并把结论转成可执行操作。
+本合同定义 `14-审片` 的方法库。`N0 -> N7` 是默认自动化载体，不是审片方法本身；真实审片必须按素材类型、分镜目标、prompt 证据、用户示例和已观察到的视频信号，动态选择审片方法，并把结论转成可执行操作。
 
 ## Method Selection Rule
 
@@ -37,7 +37,7 @@
 | `rerun_same_prompt` | prompt 清楚但单次模型瑕疵或 seed 漂移 | model_problem 证据、无需改 prompt 的理由 |
 | `rerun_with_seed_or_model_change` | 同 prompt 多次失败或模型弱点明显 | 重复证据、建议参数/模型变化 |
 | `libtv_prompt_repair_and_rerun` | LibTV prompt 有缺失、过载、占位污染或用户要求修后重提 | before query、clean prompt、final query、task id / result URL |
-| `group_prompt_repair` | `5-分组` 组正文或节奏导致生成不稳定 | 目标 group patch、稳定性理由 |
+| `group_prompt_repair` | `10-分组` 组正文或节奏导致生成不稳定 | 目标 group patch、稳定性理由 |
 | `shot_split_or_merge` | 单组承载过多 beat 或相邻组切分破坏连续性 | beat list、拆/并后的首尾状态 |
 | `asset_reference_repair` | 角色、场景、道具、参考图或图片绑定错误 | 资产引用证据、正确引用目标 |
 | `image_order_repair` | LibTV `imageList/mixedList` 顺序或图片占位导致错配 | node query、图片顺序 before/after |
@@ -58,7 +58,7 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否在真实视频理解之后选择了适配目标视频的方法，而不是机械套固定三层流程或漏掉用户关注审片点？ | `GATE-REVIEW-16` | `FAIL-REVIEW-METHOD-SELECTION` | `steps/video-review-workflow.md#N4 Method Palette Compare`、本文件 `Method Selection Rule` | `method_selection.selected_methods`、`skipped_methods`、选择理由 |
+| 是否在真实视频理解之后选择了适配目标视频的方法，而不是机械套固定三层流程或漏掉用户关注审片点？ | `GATE-REVIEW-16` | `FAIL-REVIEW-METHOD-SELECTION` | `SKILL.md#Thinking-Action Node Map (N4-METHOD-COMPARE)`、本文件 `Method Selection Rule` | `method_selection.selected_methods`、`skipped_methods`、选择理由 |
 | 选定方法是否覆盖真实视频理解、source/prompt 对照和创作质量底座，并按视频信号扩展到表演、摄影、节奏、声音、道具、伦理、安全或 AIGC 伪影等适用方法？ | `GATE-REVIEW-16` | `FAIL-REVIEW-METHOD-SELECTION` | 本文件 `Method Families` | method coverage table、未覆盖项理由 |
-| 每条重要 finding 是否从 verdict 转化为候选操作和最终操作，而不是只写“好/坏/重跑”？ | `GATE-REVIEW-17` | `FAIL-REVIEW-OPERATION-DESIGN` | `steps/video-review-workflow.md#N5 Landing And Operation Design`、本文件 `Operation Palette` | `candidate_operations`、`chosen_operation`、拒绝其他操作的理由 |
-| operation 与 landing 是否区分清楚，且受控动作如 LibTV rerun、`5-分组` patch、源层升级都有授权和证据闭环？ | `GATE-REVIEW-10` / `GATE-REVIEW-17` | `FAIL-REVIEW-OPERATION-DESIGN` | `references/finding-landing-contract.md`、`references/libtv-intake-contract.md` | operation plan、authorization note、changed files / task id |
+| 每条重要 finding 是否从 verdict 转化为候选操作和最终操作，而不是只写“好/坏/重跑”？ | `GATE-REVIEW-17` | `FAIL-REVIEW-OPERATION-DESIGN` | `SKILL.md#Thinking-Action Node Map (N5-LANDING)`、本文件 `Operation Palette` | `candidate_operations`、`chosen_operation`、拒绝其他操作的理由 |
+| operation 与 landing 是否区分清楚，且受控动作如 LibTV rerun、`10-分组` patch、源层升级都有授权和证据闭环？ | `GATE-REVIEW-10` / `GATE-REVIEW-17` | `FAIL-REVIEW-OPERATION-DESIGN` | `references/finding-landing-contract.md`、`references/libtv-intake-contract.md` | operation plan、authorization note、changed files / task id |

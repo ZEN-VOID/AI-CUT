@@ -255,6 +255,14 @@ flowchart LR
 | `音效画面 / 旁白画面 / 系统画面 / 沉默 / FAIL-PERF-SOUND` | `references/sound-design-directive-contract.md` | `N4/N5` | `GATE-PERF-14-SOUND-PERFORMANCE` | 声音承托抽样 |
 | `细节不足 / 可演性不足 / FAIL-PERF-TYPE-REPAIR; FAIL-PERF-TYPE-REVIEW; FAIL-PERF-ENRICHMENT` | `references/controlled-enrichment-contract.md`, `references/performance-and-scene-craft-contract.md` | `N4/N6` | `GATE-PERF-15-CONTROLLED-ENRICHMENT` | `controlled_enrichment_ledger` |
 
+## Thought Pass Map
+
+| step_id | pass_focus | source_node | pass_evidence |
+| --- | --- | --- | --- |
+| `TP1` | director source lock | `Thinking-Action Node Map` | source manifest, annotation inventory |
+| `TP2` | performance rewrite pass | `Thinking-Action Node Map` | rewrite candidate, performance evidence |
+| `TP3` | review and writeback | `Review Gate Binding` / `Convergence Contract` | verdict, output manifest |
+
 ## Convergence Contract
 
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
@@ -371,6 +379,14 @@ Completion gate:
 | 字段漂移 | 改写时新建或替换了字段标题 | `field_fusion_map` | `N4` / `N5` | 字段标题 diff 通过 |
 | 新增剧情 | 受控增强缺上游锚点 | `controlled_enrichment_ledger` | `N4` / `N5` | 保真 diff 通过 |
 | 报告缺证 | 输出报告未映射 reference 或 gate | `execution_report` | `N6` / `N7` | 报告含 required sections |
+
+## Field Master
+
+| field_id | owner | canonical file | must contain | fail code |
+| --- | --- | --- | --- | --- |
+| `FIELD-PERF-01` | source lock | `projects/aigc/<项目名>/4-导演/第N集.md` | 导演批注稿、集号、source override 状态 | `FAIL-PERF-INPUT` |
+| `FIELD-PERF-02` | performance rewrite | `projects/aigc/<项目名>/5-表演/第N集.md` | 原场景顺序、字段标题、表演融合正文 | `FAIL-PERF-REWRITE` |
+| `FIELD-PERF-03` | report | `执行报告.md` 或 final note | review verdict、规则证据、返工入口 | `FAIL-PERF-REPORT` |
 
 ## Field Mapping
 

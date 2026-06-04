@@ -1,6 +1,6 @@
 # Shot Continuity And Transition Contract
 
-本文件融合旧 `4-摄影/references/intra-shot-transition-contract.md` 与 `shot-continuity-contract.md`，改写为 `7-分镜` 的连贯性细则。它约束字段内相邻分镜和字段间相邻画面点的可剪辑连续性，不替代下游创意转场或 `7-图像` / `8-视频` 生成。
+本文件融合旧 `4-摄影/references/intra-shot-transition-contract.md` 与 `shot-continuity-contract.md`，改写为 `7-分镜` 的连贯性细则。它约束字段内相邻分镜和字段间相邻画面点的可剪辑连续性，不替代下游创意转场或 `12-图像` / `13-画布` 生成。
 
 ## Core Rule
 

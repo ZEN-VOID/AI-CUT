@@ -15,7 +15,7 @@
 | imported_references | 8 个指定 copied references 均在 load manifest 中，且适配边界清楚 |
 | genre_narrative | 题材类型、叙事 beats、人物欲望/阻碍、信息差、观众契约完整 |
 | faithfulness | 剧情事实、事件顺序、人物关系和已有对白不漂移 |
-| hollywood_format | 场景标题与 `2-编导` 保持一致并追加天气后缀，字段顺序和剧本可读性 |
+| hollywood_format | 场景标题与 `2-编剧` 保持一致并追加天气后缀，字段顺序和剧本可读性 |
 | voice_adaptation | 陈述性信息转对白/独白/喊出式台词有 source anchor 和 voice owner |
 | audio_visual_sync | 对白、独白、内心独白、旁白、音效等声音字段与对应画面字段就近成对出现，不使用 `【声画同步锚点】` 正文标题；相邻画面字段通过同画面连续性检查，不把同一拍摄单位重复拆写 |
 | rhythm_support | 节奏机制匹配题材/情节，且有场内承托 |

@@ -29,4 +29,4 @@
 2. 选择 scope 包，先定位 stage output，再叠加对象、资产、生成媒体或风格包。
 3. 选择 operation 包，决定只出 plan 还是写回。
 4. 选择 acceptance 包，确定验收深度。
-5. 将命中包作为固定上下文交给 `steps/repair-workflow.md`。
+5. 将命中包作为固定上下文交给 `SKILL.md#Thinking-Action Node Map`。

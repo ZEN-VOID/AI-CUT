@@ -24,10 +24,11 @@ governance_tier: full
 ## Context Loading Contract
 
 1. 每次调用本技能时，必须加载本 `SKILL.md` 和同目录 `CONTEXT.md`。
-2. 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与分集相关的文件。
-3. 按 `Module Trigger Matrix` 加载授权模块；不得因为模块目录存在而自动全量读取。
-4. `knowledge-base/` 只承载人工资料与经验参考，不承载自动学习真源。
-5. 冲突优先级：用户显式请求 > 根 `AGENTS.md` / 共享治理合同 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 本 `CONTEXT.md`。
+2. 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
+3. 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与分集相关的文件。
+4. 按 `Module Trigger Matrix` 加载授权模块；不得因为模块目录存在而自动全量读取。
+5. `knowledge-base/` 只承载人工资料与经验参考，不承载自动学习真源。
+6. 冲突优先级：用户显式请求 > 根 `AGENTS.md` / 共享治理合同 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 项目级 `MEMORY.md` > 项目级 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
 

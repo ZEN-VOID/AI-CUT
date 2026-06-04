@@ -14,4 +14,4 @@
 - 自动覆盖阶段业务产物。
 - 默认执行 Git hard reset、删除源文本、清空资产或迁移项目目录。
 
-当前包不提供执行脚本；恢复裁决由 LLM 按 `SKILL.md`、`references/`、`steps/`、`types/` 与 `review/` 直接完成，脚本只可作为机械辅助。
+当前包不提供执行脚本；恢复裁决由 LLM 按 `SKILL.md` 主节点、`references/`、`types/` 与 `review/` 直接完成，脚本只可作为机械辅助。

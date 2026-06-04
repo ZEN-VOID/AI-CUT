@@ -7,19 +7,19 @@
 | `role_id` | `design-alignment-validator` |
 | `dimension` | `设计对位` |
 | `report_filename` | `设计对位.md` |
-| `default_rework_targets` | `6-设计/场景`, `6-设计/角色`, `6-设计/道具` |
-| `source_owners` | `5-分组`, `6-设计` |
+| `default_rework_targets` | `11-主体/场景`, `11-主体/角色`, `11-主体/道具` |
+| `source_owners` | `10-分组`, `11-主体` |
 
 ## Scope
 
-本维度检查 `6-设计` 各域输出是否仍对位 `5-分组`，并确认清单、设计、面板提示词或生成层 handoff 没有断裂。重点是 slot bundle 粒度的设计 continuity。
+本维度检查 `11-主体` 各域输出是否仍对位 `10-分组`，并确认清单、设计、面板提示词或生成层 handoff 没有断裂。重点是 slot bundle 粒度的设计 continuity。
 
 它不检查 image/video provider 提交本身。
 
 ## Evidence
 
-- `5-分组` 分镜组 truth
-- `6-设计` 场景、角色、道具清单与设计 truth
+- `10-分组` 分镜组 truth
+- `11-主体` 场景、角色、道具清单与设计 truth
 - 设计生成、面板提示词或下游 handoff refs
 - `review_fact_pack.required_refs`
 
@@ -44,9 +44,9 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 是否已读取同一 `review_fact_pack` 中的 `5-分组` 与 `6-设计` canonical refs，而不是凭文件存在或旧路径推断设计状态？ | `GATE-DIM-DA-01` | `FAIL-DA-01` | `N1-DESIGN-READ` | `design_note` 记录读取的 group truth、design truth、slot bundle refs 与缺失项。 |
-| 场景、角色、道具清单和设计是否仍对位 `5-分组` 的主体、地点、道具、组边界与叙事用途，没有新增、漏删或错并关键对象？ | `GATE-DIM-DA-02` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | `alignment_note` 标明漂移对象、对应分镜组、上游证据和 `source_layer_owner`。 |
-| 设计稿是否保留 `5-分组` 的视觉/叙事约束，而没有把局部审美优化、研究补充或 provider 偏好变成第二真源？ | `GATE-DIM-DA-03` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | 维度报告列出被覆盖的 upstream constraint、设计字段和建议回修阶段。 |
+| 是否已读取同一 `review_fact_pack` 中的 `10-分组` 与 `11-主体` canonical refs，而不是凭文件存在或旧路径推断设计状态？ | `GATE-DIM-DA-01` | `FAIL-DA-01` | `N1-DESIGN-READ` | `design_note` 记录读取的 group truth、design truth、slot bundle refs 与缺失项。 |
+| 场景、角色、道具清单和设计是否仍对位 `10-分组` 的主体、地点、道具、组边界与叙事用途，没有新增、漏删或错并关键对象？ | `GATE-DIM-DA-02` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | `alignment_note` 标明漂移对象、对应分镜组、上游证据和 `source_layer_owner`。 |
+| 设计稿是否保留 `10-分组` 的视觉/叙事约束，而没有把局部审美优化、研究补充或 provider 偏好变成第二真源？ | `GATE-DIM-DA-03` | `FAIL-DA-01` | `N2-UPSTREAM-CHECK` | 维度报告列出被覆盖的 upstream constraint、设计字段和建议回修阶段。 |
 | list -> design -> panel / generation handoff 是否主体 ID、名称、别名、路径、slot bundle 与 source trace 一致？ | `GATE-DIM-DA-04` | `FAIL-DA-02` | `N3-HANDOFF-CHECK` | `handoff_note` 记录不一致的 tranche、slot key、文件路径和下游阻断范围。 |
 | 下游 handoff 是否具备可消费的场景/角色/道具设计包，而不是只有清单、空模板、未绑定 prompt 或缺图状态？ | `GATE-DIM-DA-05` | `FAIL-DA-02` | `N3-HANDOFF-CHECK` | 维度报告标出缺失 bundle、影响的 image/video handoff 和默认返工目标。 |
 | 对位问题是否被归因到 list、design、panel/generation 或 upstream group，而不是笼统写成“设计质量不足”？ | `GATE-DIM-DA-06` | `FAIL-DA-03` | `N4-PACKET-WRITE` | `dimension_packet.issues[*].source_layer_owner`、`default_rework_targets` 与 evidence refs 完整。 |
@@ -54,10 +54,10 @@
 
 ## Failure Heuristics
 
-- 设计输出局部好看但整体脱离分组 truth 时，优先回溯 `6-设计` 与上游 truth 的对位关系。
-- `6-设计` 最怕的不是局部 prompt 不好，而是整体对位失真。
-- 先锁 `5-分组` 和 `6-设计` 真源，再判问题在 list、design 还是 panel 层。
+- 设计输出局部好看但整体脱离分组 truth 时，优先回溯 `11-主体` 与上游 truth 的对位关系。
+- `11-主体` 最怕的不是局部 prompt 不好，而是整体对位失真。
+- 先锁 `10-分组` 和 `11-主体` 真源，再判问题在 list、design 还是 panel 层。
 
 ## Root-Cause Rule
 
-若本维度失效，先修 `6-设计` 与 `5-分组` 的对位关系，不要把 design drift 直接甩给 image/video 阶段。
+若本维度失效，先修 `11-主体` 与 `10-分组` 的对位关系，不要把 design drift 直接甩给 image/video 阶段。

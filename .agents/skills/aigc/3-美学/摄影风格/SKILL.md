@@ -15,6 +15,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-cinematography-style` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与摄影、美学、参考视频、参考图、禁区或长期制作偏好相关的文件。
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的剧本；默认视觉上游为 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`。
 - 多模态参考只允许提供摄影事实、镜头组织、运动质感、景别转换、机位关系、节奏和连续性线索，不得把参考图/视频中的具体人物、物件、地点、剧情或单个镜头正文迁入最终协议。

@@ -2,16 +2,16 @@
 
 ## Purpose
 
-本细则为 `2-编导` script layer 增加一类受控能力：当小说来源中的客观视角叙事描写直接画面化会变成解释、死旁白或无戏的说明句时，可以把其改编为有上游锚点的对白、独白或内心独白，使信息更利于影视化表现。
+本细则为 `2-编剧` script layer 增加一类受控能力：当小说来源中的客观视角叙事描写直接画面化会变成解释、死旁白或无戏的说明句时，可以把其改编为有上游锚点的对白、独白或内心独白，使信息更利于影视化表现。
 
-该能力只处理**非引号内的客观叙事**，不授权改写上游已有对白。它是 `novel-to-screen-language-contract.md` 的专项分支，也是 `script-adaptation-contract.md` 对“新增对白”禁区的唯一受控例外：允许的是 `source-grounded derived speech`，不是自由新增台词。
+该能力只处理**非引号内的客观叙事**，不授权改写上游已有对白。它是 `script-adaptation-contract.md` 的专项分支，也是 `script-adaptation-contract.md` 对“新增对白”禁区的唯一受控例外：允许的是 `source-grounded derived speech`，不是自由新增台词。
 
 ## Ownership
 
 - 本文件拥有客观叙事转对白/独白的触发、说话者资格、字段选择、写法限制、证据结构和 review gate。
 - `script-adaptation-contract.md` 继续拥有保真、对白冻结、字段标题和声音字段纯度；上游已有对白仍逐字冻结。
-- `novel-to-screen-language-contract.md` 负责先识别小说式表述类型，再按本文件判断是否进入语音化分支。
-- `dialogue-subtext-contract.md` 可为派生对白补充戏剧动作，但不得借潜台词再改写派生行的信息。
+- `script-adaptation-contract.md` 负责先识别小说式表述类型，再按本文件判断是否进入语音化分支。
+- `.agents/skills/aigc/5-表演/references/dialogue-subtext-contract.md` 可为派生对白补充戏剧动作，但不得借潜台词再改写派生行的信息。
 - `review/review-contract.md` 负责把本文件的阻断项映射到阶段末 review。
 
 ## Terms

@@ -265,6 +265,14 @@ flowchart LR
 | `FAIL-DIR-ANTICLIMAX-STRATEGY` | `references/anticlimax-strategy-contract.md`, `review/review-contract.md` | `N2-DIR-UNDERSTAND -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | anticlimax strategy audit |
 | `FAIL-DIR-PERFORMANCE-HANDOFF` | `references/directorial-authorship-contract.md`, `references/director-annotation-contract.md`, `review/review-contract.md` | `N4-DIR-POINT-MAP -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | performance handoff audit |
 
+## Thought Pass Map
+
+| step_id | pass_focus | source_node | pass_evidence |
+| --- | --- | --- | --- |
+| `TP1` | source and style lock | `Thinking-Action Node Map` | source manifest, style load note |
+| `TP2` | director annotation pass | `Thinking-Action Node Map` | annotation candidate, boundary check |
+| `TP3` | review and writeback | `Review Gate Binding` / `Convergence Contract` | verdict, output manifest |
+
 ## Convergence Contract
 
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |

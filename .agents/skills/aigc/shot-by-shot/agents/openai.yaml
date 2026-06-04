@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC 拉片"
-  short_description: "逐镜分析参考视频，并输出全局风格、编剧、摄影、设计解析与标准表格式分镜脚本。"
-  default_prompt: "使用 $aigc-shot-by-shot 分析这段参考视频，输出全局风格解析、编剧风格解析、摄影风格解析、设计风格解析和标准表格式分镜脚本。"
+  short_description: "逐镜分析参考视频，并输出对齐 3-美学六子技能的风格解析与分镜脚本。"
+  default_prompt: "使用 $aigc-shot-by-shot 分析这段参考视频，输出画面基调、角色、场景、道具、摄影、分镜风格解析，并在需要时输出标准表格式分镜脚本。"

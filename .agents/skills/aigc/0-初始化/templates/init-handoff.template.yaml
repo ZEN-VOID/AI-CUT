@@ -1,5 +1,8 @@
 # init_handoff.yaml
 #
+# INACTIVE for current `$aigc-init` scaffold initialization.
+# Current initialization writes only 0-14 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
+#
 # 角色：
 # - `0-初始化` 的伴生 handoff
 # - 承接阶段入口种子、来源分层、unknowns
@@ -27,18 +30,23 @@ stage_entry_seeds:
     split_granularity: []
     structure_assumptions: []
     output_constraints: []
-  writing_directing_seed:
+  screenwriting_seed:
     fidelity_rules: []
+    rhythm_and_hook_hints: []
+  director_seed:
     director_intent_hints: []
-    performance_boundaries: []
     visual_language_constraints: []
-  motion_seed:
+  performance_seed:
+    performance_boundaries: []
+    acting_task_hints: []
+  storyboard_seed:
     continuity_principles: []
     start_path_end_priorities: []
     reference_frame_rules: []
-  cinematography_seed:
+  camera_seed:
     shot_language_baseline: []
     rhythm_and_duration_hints: []
+  lighting_seed:
     light_color_camera_constraints: []
   grouping_seed:
     grouping_rhythm: []

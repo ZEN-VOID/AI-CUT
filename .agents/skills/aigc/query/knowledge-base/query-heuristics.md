@@ -1,6 +1,6 @@
 # Query Heuristics
 
-本文件保存 `$aigc-query` 可复用经验。强制执行规则仍以 `SKILL.md`、`references/`、`steps/`、`types/` 与 `review/` 为准。
+本文件保存 `$aigc-query` 可复用经验。强制执行规则仍以 `SKILL.md` 主节点、`references/`、`types/` 与 `review/` 为准。
 
 ## Heuristics
 

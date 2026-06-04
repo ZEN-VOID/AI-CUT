@@ -20,7 +20,7 @@ governance_tier: full
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - `CONTEXT.md` 只记录本机 CLI 使用经验、凭据安全边界和命令选择提示；命令参数真源仍以本 `SKILL.md`、`commands/*.md`、`node-types/*.md`、`model-schema/schema.md` 与实际 `libtv --help` 输出为准。
-- 若外部计划层技能调用本技能，例如 `.agents/skills/aigc/8-视频/libTV画布流`，外部技能负责生成业务计划和审查证据；本技能只负责按 CLI 文档执行项目、分组、节点、上传、模型、查询和下载命令。
+- 若外部计划层技能调用本技能，例如 `.agents/skills/aigc/13-画布/libTV画布流`，外部技能负责生成业务计划和审查证据；本技能只负责按 CLI 文档执行项目、分组、节点、上传、模型、查询和下载命令。
 - 不读取、不输出 `~/.libtv/credentials.json` 内容；登录状态只通过 `libtv account info` 摘要验证。
 
 ## 文档地图

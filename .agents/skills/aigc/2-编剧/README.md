@@ -10,7 +10,7 @@
 ├── references/
 │   ├── imported-reference-adaptation-map.md
 │   ├── screenwriting-masters-and-shortdrama-rhythm-contract.md
-│   └── copied contracts from ../2-编导/references/
+│   └── copied contracts from references/
 ├── review/review-contract.md
 ├── templates/output-template.md
 ├── types/
@@ -28,7 +28,7 @@
 - 输入：`projects/aigc/<项目名>/1-分集/第N集.md` 或用户粘贴的单集小说正文。
 - 输出：`projects/aigc/<项目名>/2-编剧/第N集.md`。
 - 报告：`projects/aigc/<项目名>/2-编剧/执行报告.md`，正式写回时必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Audio Visual Pairing Map` 和 `Same Frame Continuity Map`。
-- 下游：`2-编导` 可消费剧本层输出继续导演/表演整合；`3-运动`、`4-摄影` 等阶段不得被本技能提前越权写入。
+- 下游：`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影` 等阶段可消费剧本层输出；这些下游真源不得被本技能提前越权写入。
 
 ## Runtime Spine
 

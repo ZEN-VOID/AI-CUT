@@ -12,7 +12,7 @@ metadata:
 
 核心文本动作是在原剧本基础上进行内联注入：保留原字段、原对白、原场景顺序和上游新增字段，在每个画面点下方加入 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`。画面点包括但不限于 `画面`、`动作画面`、`对白画面`、`音效画面`、`旁白画面`、`系统画面`、`心理反应`、`表演提示`、`氛围画面`、`环境描写`、`道具特写` 与其他可被摄影机处理的可见/可听/可表演字段。
 
-本技能不是 `7-图像`，不生成图片、storyboard sheet、图像 prompt 或视频请求；不是旧 `4-摄影` 的覆盖替代，也不把原字段正文改写为 `[起始秒-结束秒]` 时间段。本阶段只做逐画面点的分镜拆分和起始状态帧设计，为后续图像、视频、分组或审查提供稳定镜头清单。
+本技能不是 `12-图像`，不生成图片、storyboard sheet、图像 prompt 或视频请求；不是旧 `4-摄影` 的覆盖替代，也不把原字段正文改写为 `[起始秒-结束秒]` 时间段。本阶段只做逐画面点的分镜拆分和起始状态帧设计，为后续图像、视频、分组或审查提供稳定镜头清单。
 
 ## Context Loading Contract
 
@@ -215,7 +215,7 @@ flowchart LR
 - 英文序号路线：本技能当前没有 `A-`、`B-` 互斥路线；若未来新增英文序号路线，默认按用户意图单选，不得自动多路线写回。
 - 若同轮同时命中 `6-氛围` 和 `7-分镜`，必须先完成 `6-氛围` 输出，再以其 `6-氛围/第N集.md` 作为本技能 source。
 - `3-美学` 输出只作为上下文和约束，不参与本技能主稿聚合，不被反向改写。
-- `7-图像` 是下游图像阶段；本技能完成后可作为 `7-图像` 的上游文本依据，但不得自动调用图像生成。
+- `12-图像` 是下游图像阶段；本技能完成后可作为 `12-图像` 的上游文本依据，但不得自动调用图像生成。
 - 每个被调度的阶段、卫星或子技能仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 分镜主创。
 
 ## Module Loading Matrix
@@ -243,6 +243,14 @@ flowchart LR
 | 报告缺证、`FAIL-SB-REPORT` | `CONTEXT.md` | `N9` | `GATE-SB-16` | `N9` | 检查 execution_report required sections |
 | 产品索引或插件入口 | `agents/openai.yaml` | `N10` | `Output Contract` | `agents/openai.yaml` | entrypoint 指向本技能 |
 | 回归验证或审计 | `test-prompts.json` | `V1` | `Evaluation Prompt Contract` | `test-prompts.json` | 至少 4 条 prompt 覆盖 single/override/repair/review |
+
+## Thought Pass Map
+
+| step_id | pass_focus | source_node | pass_evidence |
+| --- | --- | --- | --- |
+| `TP1` | atmosphere source lock | `Thinking-Action Node Map` | source manifest,画面点 inventory |
+| `TP2` | storyboard split pass | `Thinking-Action Node Map` | shot split candidate, continuity evidence |
+| `TP3` | review and writeback | `Review Gate Binding` / `Convergence Contract` | verdict, output manifest |
 
 ## Convergence Contract
 
@@ -367,7 +375,7 @@ Completion gate:
 ### Permission Boundaries
 
 - 只允许在用户授权的项目路径或候选输出范围内写回 `7-分镜` 产物。
-- 不修改 `3-美学`、`6-氛围` 或 `7-图像` 的 canonical 真源，除非用户另行明确要求进入对应 owning skill。
+- 不修改 `3-美学`、`6-氛围` 或 `12-图像` 的 canonical 真源，除非用户另行明确要求进入对应 owning skill。
 - 脚本只做机械辅助，不生成核心分镜正文。
 
 ### Self-Modification Prohibitions

@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "schema": "aigc/prop-generation/multiview/v1",
+    "skill_id": "aigc-prop-generation",
+    "version": "v1.2",
+    "doc_role": "imagegen_prompt_payload",
+    "updated_at": "2026-04-26",
+    "derived_from": ".agents/skills/aigc/11-主体/道具/2-设计/templates/prop_masterprompt.structured.v2.md",
+    "note": "旧道具面板模板已重构为当前 11-主体/道具/3-生成 的多视图主体设计图模板；v1.2 强化主体不变量、功能视图、身份牌和漂移审查。"
+  },
+  "source": {
+    "project_root": "projects/aigc/<项目名>",
+    "source_design_doc": "projects/aigc/<项目名>/11-主体/道具/2-设计/<主体名称>.md",
+    "source_deconstruction_section": "4. 解构",
+    "subject_id": "<主体ID>",
+    "subject_id_source": "source_deconstruction_subject_id | source_filename_prefix | source_row_id",
+    "subject_name": "<主体名称>",
+    "subject_short_id": "<PROP_ID_ASCII_SAFE>",
+    "reference_image": "projects/aigc/<项目名>/11-主体/道具/3-生成/<主体ID>-<主体名称>-主图.png",
+    "reference_context_status": "pending_view_image | visible_in_conversation_context"
+  },
+  "output": {
+    "output_dir": "projects/aigc/<项目名>/11-主体/道具/3-生成",
+    "output_image": "projects/aigc/<项目名>/11-主体/道具/3-生成/<主体ID>-<主体名称>-多视图.png",
+    "output_prompt_json": "projects/aigc/<项目名>/11-主体/道具/3-生成/<主体ID>-<主体名称>-多视图.json"
+  },
+  "imagegen": {
+    "mode": "built_in_generate_with_reference",
+    "resolution_target": "2K",
+    "aspect_ratio": "16:9",
+    "reference_context": {
+      "tool": "view_image",
+      "required_before_generation": true,
+      "role_label": "prop main image / multiview reference"
+    },
+    "reference_images": [
+      "projects/aigc/<项目名>/11-主体/道具/3-生成/<主体ID>-<主体名称>-主图.png"
+    ]
+  },
+  "prompt_payload": {
+    "subject_invariant_lock": {
+      "locked_from": [
+        "source_deconstruction_section",
+        "reference_image"
+      ],
+      "must_preserve": [
+        "overall silhouette and proportion",
+        "functional part count and placement",
+        "construction logic, joints, seams, hinges, seals or edges",
+        "material family, color, aging, dirt, wear and markings",
+        "scale logic and narrative function"
+      ],
+      "may_vary": [
+        "view angle",
+        "opened or closed state when implied by the design",
+        "detail callout crop",
+        "neutral support surface or measurement cue"
+      ],
+      "must_not_invent": [
+        "new ornaments",
+        "extra functional parts",
+        "new branding or symbols",
+        "human hands",
+        "a different object in each panel"
+      ]
+    },
+    "reference_policy": {
+      "reference_image_role": "visual anchor for prop silhouette, proportion, material, wear and identifying details",
+      "do_not_copy": [
+        "accidental generation artifacts",
+        "unwanted background objects",
+        "lighting glitches",
+        "cropping mistakes",
+        "temporary support elements not present in the design"
+      ]
+    },
+    "identity_badge": {
+      "required": true,
+      "position": "top-left",
+      "display_strategy": "visible_short_ascii_id_in_image, full_subject_name_in_json, post_overlay_required_if_image_text_is_unreliable",
+      "visible_text": "<PROP_ID_ASCII_SAFE>",
+      "full_subject_name": "<主体名称>",
+      "badge_content_order": [
+        "short_prop_id",
+        "short_prop_name_or_safe_slug"
+      ],
+      "visual_style": "small clean production badge, high contrast, secondary to the prop views",
+      "fallback": "if exact text rendering fails, preserve a clean empty badge plate for post-production overlay and keep the full name in the JSON record"
+    },
+    "layout": {
+      "template_type": "PROP_MULTIVIEW_SUBJECT_DESIGN_SHEET",
+      "sheet_intent": "functional proof board for one prop identity, not a product advertisement or object lineup",
+      "aspect_ratio": "16:9",
+      "resolution": "2K or higher",
+      "canvas_type": "widescreen design sheet",
+      "background": "neutral dark warm gray production-board background",
+      "grid_overlay": "subtle production grid",
+      "view_modules": [
+        {
+          "id": "HERO_FRONT_THREE_QUARTER",
+          "description": "Large main three-quarter view matching the reference image."
+        },
+        {
+          "id": "ORTHOGRAPHIC_VIEWS",
+          "description": "Front, side, back, and top or functional angle views, all showing the same prop identity."
+        },
+        {
+          "id": "DETAIL_CALLOUTS",
+          "description": "Close-up cells for material, joints, wear, markings, moving parts, seals, edges, or functional affordance."
+        },
+        {
+          "id": "SCALE_AND_FUNCTION",
+          "description": "Non-human scale or usage cues such as table edge, tile size, measurement ticks, pedestal contact shadow, or opened/closed state."
+        },
+        {
+          "id": "STATE_VARIANTS",
+          "description": "Opened, closed, charged, dormant, damaged or assembled state only when the upstream design already implies that state."
+        }
+      ]
+    },
+    "view_plan": [
+      {
+        "slot": "H1",
+        "role": "hero front three-quarter",
+        "purpose": "locks the canonical silhouette and strongest identifying details"
+      },
+      {
+        "slot": "O1-O4",
+        "role": "front, side, back and top or functional orthographic views",
+        "purpose": "proves the same volume, scale and part placement from controlled angles"
+      },
+      {
+        "slot": "D1-D3",
+        "role": "detail callouts",
+        "purpose": "shows material, joints, wear, markings, moving parts or edge construction"
+      },
+      {
+        "slot": "S1",
+        "role": "scale or state proof",
+        "purpose": "uses non-human measurement cues or design-implied state variants without adding a character"
+      }
+    ],
+    "critical_requirements": [
+      "Use the corresponding prop/subject design document's section `4. 解构` as the primary source of truth.",
+      "Use the single-subject main image as the visual reference anchor for silhouette, proportions, materials, color, wear, and identifying details.",
+      "Apply the subject invariant lock before arranging views; every module must prove the same object identity.",
+      "Reserve one fixed top-left identity badge area and visibly attempt the short ASCII subject ID `<PROP_ID_ASCII_SAFE>`; if exact text rendering is unreliable, preserve the badge area for post-production overlay.",
+      "Create one prop multiview subject design sheet, not a poster, not a product advertisement, and not a collection of different objects.",
+      "All views must depict the same prop identity with stable morphology, scale logic, material aging, construction details, and narrative function.",
+      "Layout instructions organize views only; they must not override the upstream design document or redesign the prop.",
+      "No people, no hands, no dominant character figures, no unrelated scene takeover.",
+      "If exact text rendering is unreliable, reserve clean label areas for post-production overlay instead of hallucinating labels."
+    ],
+    "negative_drift_controls": {
+      "identity_drift": "do not change silhouette, proportions, functional part placement or material age between views",
+      "function_drift": "do not invent new mechanisms, markings, ornaments or supernatural functions",
+      "scale_drift": "use scale cues without hands, full people or character takeover",
+      "layout_drift": "do not turn the sheet into a luxury ad, lineup, poster, scene illustration or cluttered inventory board"
+    },
+    "review_focus": [
+      "same prop silhouette and construction logic across all views",
+      "orthographic or functional views prove front, side, back and top or opened-state logic",
+      "detail callouts match source materials and wear",
+      "no human hand or character takeover",
+      "no invented extra parts, labels, symbols or unrelated scene facts",
+      "top-left identity badge has a visible short ID or a clean overlay-ready badge plate"
+    ],
+    "source_deconstruction_quote": "",
+    "assembled_prompt": "<SOURCE_DECONSTRUCTION_QUOTE + MULTIVIEW_LAYOUT_INSTRUCTIONS>",
+    "negative_prompt": "different object in each view, character takeover, hands holding the prop, product lineup, luxury advertisement, unrelated poster scene, redesigned silhouette, invented ornaments, inconsistent material, extra parts not present in the source design"
+  },
+  "review": {
+    "verdict": "pending",
+    "notes": ""
+  }
+}

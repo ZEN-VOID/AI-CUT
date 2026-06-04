@@ -234,27 +234,31 @@ def map_skill_from_path(path_or_stage: str) -> str:
         "2-组间": "aigc-global",
         "2-Global": "aigc-global",
         "2-全局": "aigc-global",
-        "2-编导": "aigc-detail",
+        "2-编剧": "aigc-screenwriting",
+        "2-编导": "aigc-screenwriting",
+        "3-美学": "aigc-aesthetic-suite",
         "3-明细": "aigc-detail",
         "3-Detail": "aigc-detail",
         "3-编导": "aigc-detail",
-        "4-摄影": "aigc-detail",
+        "3-运动": "aigc-storyboard-split",
+        "4-导演": "aigc-director-annotation",
+        "5-表演": "aigc-performance-rewrite",
+        "6-氛围": "aigc-atmosphere-fx",
+        "7-分镜": "aigc-storyboard-split",
+        "8-摄影": "aigc-camera-movement-injection",
+        "9-光影": "aigc-lighting-aesthetic-injection",
+        "10-分组": "aigc-grouping",
         "4-Design": "aigc-design",
         "4-主体": "aigc-subject",
-        "4-摄影": "aigc-detail",
-        "5-分组": "aigc-grouping",
         "4-设计": "aigc-design",
-        "6-设计": "aigc-design",
+        "11-主体": "aigc-design",
         "5-Image": "aigc-visual-prompt-distillation",
-        "5-分组": "aigc-grouping",
         "5-画面": "aigc-visuals",
-        "5-分组": "aigc-grouping",
-        "7-图像": "aigc-visual-prompt-distillation",
-        "7-图像": "aigc-visual-prompt-distillation",
+        "12-图像": "aigc-image-stage",
         "6-Video": "aigc-video",
         "6-视频": "aigc-video",
-        "8-视频": "aigc-video",
-        "8-视频": "aigc-video",
+        "13-画布": "aigc-video-stage",
+        "14-审片": "aigc-video-review",
         "7-Cut": "aigc-cut",
         "query": "aigc-query",
         "resume": "aigc-resume",
@@ -284,20 +288,24 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
         project_root / "7-Cut",
         project_root / "1-分集",
         project_root / "1-规划",
+        project_root / "2-编剧",
         project_root / "2-全局",
         project_root / "2-编导",
+        project_root / "3-美学",
         project_root / "3-编导",
-        project_root / "4-摄影",
-        project_root / "4-摄影",
-        project_root / "5-分组",
+        project_root / "3-运动",
+        project_root / "4-导演",
+        project_root / "5-表演",
+        project_root / "6-氛围",
+        project_root / "7-分镜",
+        project_root / "8-摄影",
+        project_root / "9-光影",
+        project_root / "10-分组",
         project_root / "4-设计",
-        project_root / "6-设计",
-        project_root / "5-分组",
-        project_root / "5-分组",
-        project_root / "7-图像",
-        project_root / "7-图像",
-        project_root / "8-视频",
-        project_root / "8-视频",
+        project_root / "11-主体",
+        project_root / "12-图像",
+        project_root / "13-画布",
+        project_root / "14-审片",
         project_root / "规划",
         project_root / "主体",
         project_root / "画面",
@@ -316,27 +324,31 @@ def infer_phase(project_root: Path, project_state: dict[str, Any]) -> str:
         "2-Global",
         "2-组间",
         "2-全局",
+        "2-编剧",
         "2-编导",
+        "3-美学",
         "3-Detail",
         "3-明细",
         "3-编导",
-        "4-摄影",
+        "3-运动",
+        "4-导演",
+        "5-表演",
+        "6-氛围",
+        "7-分镜",
+        "8-摄影",
+        "9-光影",
         "4-Design",
         "4-主体",
-        "4-摄影",
         "4-设计",
-        "5-分组",
-        "6-设计",
+        "10-分组",
+        "11-主体",
         "5-Image",
-        "5-分组",
         "5-画面",
-        "5-分组",
-        "7-图像",
-        "7-图像",
+        "12-图像",
         "6-Video",
         "6-视频",
-        "8-视频",
-        "8-视频",
+        "13-画布",
+        "14-审片",
         "7-Cut",
         "7-后期",
     }:
@@ -403,7 +415,7 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
         stage_validation_ref = Path("validation-report.md")
 
     artifact_paths = {
-        "team": project_root / "team.yaml",
+        "memory": project_root / "MEMORY.md",
         "project_state": project_state_path,
         "governance_state": project_root / "governance-state.yaml",
         "mandate": project_root / "mandate.yaml",
@@ -418,10 +430,25 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     source_artifacts = [
         relative.as_posix()
         for relative in [
+            Path("MEMORY.md"),
             Path("0-初始化/north_star.yaml"),
             Path("0-初始化/init_handoff.yaml"),
             Path("0-Init/north_star.yaml"),
             Path("0-Init/init_handoff.yaml"),
+            Path("1-分集/validation-report.md"),
+            Path("2-编剧/validation-report.md"),
+            Path("3-美学/validation-report.md"),
+            Path("4-导演/validation-report.md"),
+            Path("5-表演/validation-report.md"),
+            Path("6-氛围/validation-report.md"),
+            Path("7-分镜/validation-report.md"),
+            Path("8-摄影/validation-report.md"),
+            Path("9-光影/validation-report.md"),
+            Path("10-分组/validation-report.md"),
+            Path("11-主体/validation-report.md"),
+            Path("12-图像/validation-report.md"),
+            Path("13-画布/validation-report.md"),
+            Path("14-审片/validation-report.md"),
             project_state_rel,
             Path("route-plan.yaml"),
             Path("validation-report.md"),
@@ -430,8 +457,9 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
         if (project_root / relative).exists()
     ]
 
+    required_artifacts = {"memory", "project_state"}
     required_repairs = [
-        f"补齐 `{name}`。" for name, path in artifact_paths.items() if name != "governance_state" and not path.exists()
+        f"补齐 `{name}`。" for name, path in artifact_paths.items() if name in required_artifacts and not path.exists()
     ]
     if project_state_path.name == LEGACY_STATE_FILENAME:
         required_repairs.append(
@@ -441,14 +469,15 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
 
     blockers = [str(item) for item in project_state.get("open_unknowns") or []]
 
+    template["project"] = str(project_state.get("project_name") or project_root.name)
     template["project_name"] = str(project_state.get("project_name") or project_root.name)
     template["canonical_runtime"]["project_root"] = f"projects/aigc/{project_root.name}/"
     template["lifecycle"]["phase"] = infer_phase(project_root, project_state)
     template["lifecycle"]["status"] = first_non_empty(project_state.get("status"), "governance_state_backfilled")
     template["current_focus"]["active_skill"] = map_skill_from_path(active_path)
-    template["current_focus"]["active_stage"] = active_path
-    template["current_focus"]["active_scope"] = active_stage or "project"
-    template["current_focus"]["active_step"] = first_non_empty(project_state.get("status"), "resume_ready")
+    template["current_focus"]["stage"] = active_path
+    template["current_focus"]["scope"] = active_stage or "project"
+    template["current_focus"]["step"] = first_non_empty(project_state.get("status"), "resume_ready")
     template["last_stable_checkpoint"]["checkpoint_id"] = f"CHK-{checkpoint_slug}"
     template["last_stable_checkpoint"]["summary"] = first_non_empty(
         project_state.get("recommended_next_step"),
@@ -465,8 +494,15 @@ def build_governance_state(project_root: Path) -> dict[str, Any]:
     template["resume_contract"]["required_repairs"] = required_repairs
 
     for name, path in artifact_paths.items():
-        template["artifact_status"][name] = file_status(path)
-    template["artifact_status"]["governance_state"] = "present"
+        status = file_status(path)
+        if isinstance(template["artifact_status"].get(name), dict):
+            template["artifact_status"][name]["status"] = status
+        else:
+            template["artifact_status"][name] = status
+    if isinstance(template["artifact_status"].get("governance_state"), dict):
+        template["artifact_status"]["governance_state"]["status"] = "present"
+    else:
+        template["artifact_status"]["governance_state"] = "present"
 
     template["review_bridge"]["latest_preflight_status"] = parse_preflight_status(project_root)
     template["review_bridge"]["latest_acceptance_status"] = parse_validation_status_at(project_root / stage_validation_ref)

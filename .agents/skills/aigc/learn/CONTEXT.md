@@ -41,7 +41,7 @@ recommended_action: execute-first-report-optional
 3. 复杂视频、课程视频和拉片素材不要只停在 `source-ingestion`；加载视频专属 reference，建立时间码、四轨证据和融合说明。
 4. 书籍和超长上下文不要从局部摘录直接推全局；先做目录消化、相关性映射、抽样计划和覆盖账本。
 5. 新知识若与固有认知或仓库合同冲突，先执行 conflict verification，不要急着吸收。
-6. 建立 target_skill_map：root、阶段、叶子、卫星、shared、registry/routes、audit、templates、review、types、steps。
+6. 建立 target_skill_map：root、阶段、叶子、卫星、shared、registry/routes、audit、templates、review、types、`SKILL.md` 节点。
 7. 改进落点选择最窄有效 owner；跨多处同步只同步消费者和控制面，不复制第二真源。
 8. 执行型改进完成后必须做协调审计，重点检查旧口径残留、引用断链、审计脚本遗漏和 root index 漏项。
 9. 如果已有 source digest、target_skill_map 和可写范围，不要停在学习报告；按最窄 owner 完成 writeback，除非存在事实冲突、版权、越权或用户明确只要分析。

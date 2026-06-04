@@ -15,6 +15,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-character-style` 时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与人物审美、表演外观、世界观、人群结构、禁区和长期偏好相关的文件。
 - 若项目已有 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，必须读取并作为上游风格边界；没有画面基调时，本技能只能产出 `candidate`，不得伪造全局风格真源。
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的全量剧本；用户显式指定文本、参考图或参考视频时，以用户输入为本轮来源并记录来源类型。

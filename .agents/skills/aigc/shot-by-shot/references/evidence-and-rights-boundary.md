@@ -34,8 +34,8 @@
 1. 学到的是不是 craft principle？
 2. 是否仍依赖参考片具体表达才成立？
 3. 替换角色、空间、道具和剧情后是否还能服务目标项目？
-4. 是否能用目标项目自己的 `north_star.yaml`、角色和场景重建？
-5. 是否能被 `0-初始化`、`2-编导`、`3-运动`、`4-摄影` 或 `6-设计` 以自己的字段主创吸收？
+4. 是否能用目标项目自己的 `MEMORY.md`、相关 `CONTEXT/`、角色和场景重建？
+5. 是否能被项目初始化回读、`2-编剧`、`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影` 或 `11-主体` 以自己的字段主创吸收？
 
 任何一项失败，建议必须移入 `forbidden-copy ledger` 或降级为风险提示。
 
@@ -47,5 +47,5 @@
 | 证据为 `insufficient` 时，是否停止逐镜强结论并提出最小补证需求？ | `GATE-SBS-RIGHTS-02` | `FAIL-RIGHTS-INSUFFICIENT` | `N1-INTAKE` | blocked reason、补视频/截图/时间码清单 |
 | 临摹建议是否只学习镜头功能、craft principle、抽象节奏和 AIGC 可执行结构？ | `GATE-SBS-RIGHTS-03` | `FAIL-RIGHTS-COPY` | `N4-PRINCIPLE` | imitation principle map 与 source_shot_refs |
 | 是否排除参考片台词、角色、剧情事件、标志性姿势、独特造型、镜头序列和剪辑顺序？ | `GATE-SBS-RIGHTS-03` | `FAIL-RIGHTS-COPY` | `N4-PRINCIPLE` | forbidden-copy ledger 的逐项禁用记录 |
-| 替换成目标项目自己的角色、空间、道具和剧情后，该原则是否仍成立？ | `GATE-SBS-RIGHTS-04` | `FAIL-RIGHTS-PROJECT-FIT` | `N4-PRINCIPLE` | project_fit 与 north_star / stage owner 对齐说明 |
+| 替换成目标项目自己的角色、空间、道具和剧情后，该原则是否仍成立？ | `GATE-SBS-RIGHTS-04` | `FAIL-RIGHTS-PROJECT-FIT` | `N4-PRINCIPLE` | project_fit 与项目记忆 / stage owner 对齐说明 |
 | 失败的临摹建议是否移入 forbidden-copy ledger 或降级为风险提示，而不是留在阶段桥接字段？ | `GATE-SBS-RIGHTS-05` | `FAIL-RIGHTS-LEDGER` | `N4-PRINCIPLE` | forbidden-copy / risk ledger 与降级原因 |

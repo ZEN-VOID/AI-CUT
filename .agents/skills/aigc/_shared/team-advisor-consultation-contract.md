@@ -1,11 +1,11 @@
-# AIGC Init Team Synthesis Consumption Contract
+# AIGC Legacy Init Team Synthesis Consumption Contract
 
-本合同是旧“创作阶段 team advisor consultation”口径的兼容替代。当前有效规则是：`.agents/skills/team/` 成员身份技能只允许在 `0-初始化` 阶段被调用，用于固定题包问答、初始化复核与综合；`2-编导 / 3-运动 / 4-摄影 / 5-分组 / 6-设计` 等创作阶段不得再调用 team 成员技能、不得代入成员人格、不得生成新的 team 顾问包。
+本合同是旧“创作阶段 team advisor consultation”口径的兼容替代。当前 `0-初始化` 是 scaffold-only：只创建当前 0-14 阶段目录和项目根 `MEMORY.md`，不主动生成 `team.yaml`、`north_star.yaml`、`init_handoff.yaml` 或 `story-source-manifest.yaml`。因此本合同只约束旧项目已有、用户显式提供或迁移脚本补建的 legacy/optional team synthesis carrier；它不是当前初始化必出项。
 
 ## Active Policy
 
-- `team.yaml` 是初始化配队、成员问答来源、综合摘要和迁移证据，不是创作阶段运行时 roster。
-- 创作阶段只可读取冻结上下文：`team.yaml.init_synthesis.stage_seed_summary.<stage>`、`init_handoff.stage_entry_seeds.<stage>`、`north_star.yaml.创作阶段不变量.<stage>`，以及必要的成员问答 provenance。
+- `team.yaml` 若存在，只能是初始化配队、成员问答来源、综合摘要和迁移证据，不是创作阶段运行时 roster；缺失时按 `N/A` 处理，不阻塞当前阶段。
+- 创作阶段只可读取已经存在的冻结上下文：`team.yaml.init_synthesis.stage_seed_summary.<stage>`，以及显式存在的 legacy `init_handoff.stage_entry_seeds.<stage>`、legacy `north_star.yaml.创作阶段不变量.<stage>` 和必要成员问答 provenance。
 - 创作阶段不得调用 team 成员身份技能，不得本地扮演初始化成员，也不得生成新的创作阶段 team advisor packet。
 - 创作阶段不得解析或执行 `roles.supervision.stage_profiles`、`roles.supervision.stage_bindings`、`roles.supervising.*`、`roles.production.*`、`team_setup.shared_agents` 或 `dispatch_policy: stage-front-advisor|leaf-advisor`。
 - 若旧项目已有 `advisor_consultation_packet`、stage profile 或顾问 sidecar，只能作为只读历史证据；不得据此重新调度 team 角色身份或把主 agent 的本地判断伪装成成员回答。
@@ -18,11 +18,11 @@
 ```yaml
 init_team_synthesis_context:
   project_team_ref: "projects/aigc/<项目名>/team.yaml"
-  stage: "2-编导 | 3-运动 | 4-摄影 | 5-分组 | 6-设计"
+  stage: "2-编剧 | 3-美学 | 4-导演 | 5-表演 | 6-氛围 | 7-分镜 | 8-摄影 | 9-光影 | 10-分组 | 11-主体 | 12-图像 | 13-画布 | 14-审片"
   synthesis_sources:
     - "team.yaml.init_synthesis.stage_seed_summary.<stage>"
-    - "init_handoff.stage_entry_seeds.<stage>"
-    - "north_star.yaml.创作阶段不变量.<stage>"
+    - "legacy init_handoff.stage_entry_seeds.<stage> if present"
+    - "legacy north_star.yaml.创作阶段不变量.<stage> if present"
   accepted_constraints: []
   useful_inspirations: []
   risks_to_watch: []
@@ -48,6 +48,6 @@ init_team_synthesis_context:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| Did initialization write `team.yaml` as init-only synthesis instead of creative-stage advisor runtime? | `FIELD-INIT-04` | `FAIL-INIT-04` | `0-初始化/references/mode-and-team-contract.md`; `0-初始化/templates/team.yaml` projection via `_shared/council-runtime/team.template.yaml` | Report cites `runtime_policy.team_identity_usage`, `creative_stage_persona_dispatch_allowed`, and absence or legacy marking of stage-runtime fields. |
+| If a legacy/explicit `team.yaml` exists, is it marked as init-only synthesis instead of creative-stage advisor runtime? | `FIELD-INIT-04` | `FAIL-INIT-04` | `_shared/council-runtime/team.template.yaml` legacy-optional projection | Report cites `runtime_policy.team_identity_usage`, `creative_stage_persona_dispatch_allowed`, and absence or legacy marking of stage-runtime fields. |
 | Did the creative stage consume only frozen initialization synthesis and avoid re-dispatching team member identities? | Local stage review gate | `FAIL-TEAM-RUNTIME-LEAK` | Current stage `SKILL.md`, templates, and review contract sections that mention team context | Report cites the consumed `init_team_synthesis_context` sources and any removed or blocked persona dispatch path. |
 | Were old advisor packets or stage profiles treated as read-only migration evidence rather than active instructions? | Local stage review gate | `FAIL-LEGACY-TEAM-ACTIVE` | Project `team.yaml`, legacy sidecars, and current stage handoff code/text | Report records each legacy field, whether it was ignored, migrated, or explicitly left as provenance. |

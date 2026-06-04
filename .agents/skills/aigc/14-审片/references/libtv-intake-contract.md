@@ -1,6 +1,6 @@
 # LibTV Intake Contract
 
-本合同定义 `9-审片` 如何从 LibTV 画布入口取得真实视频素材。凡用户输入包含 LibTV 链接、画布项目 UUID、画布名称或视频节点名时，审片必须先通过 `.agents/skills/cli/libTV` 官方 CLI 查询和下载真实视频，再进入 `N3-EVIDENCE`。
+本合同定义 `14-审片` 如何从 LibTV 画布入口取得真实视频素材。凡用户输入包含 LibTV 链接、画布项目 UUID、画布名称或视频节点名时，审片必须先通过 `.agents/skills/cli/libTV` 官方 CLI 查询和下载真实视频，再进入 `N3-EVIDENCE`。
 
 ## Accepted LibTV Targets
 
@@ -27,11 +27,11 @@
    - `<video_name>` 解析必须精确；多节点同名或节点不存在时阻断。
    - 节点类型必须是 `video`，或报告中明确为什么按非视频素材处理。
 4. Persist remote evidence:
-   - 将节点查询 stdout 保存到 `projects/aigc/<项目名>/9-审片/第N集/evidence/<group_id>/<group_id>-libtv-node-query.ndjson`。
+   - 将节点查询 stdout 保存到 `projects/aigc/<项目名>/14-审片/第N集/evidence/<group_id>/<group_id>-libtv-node-query.ndjson`。
    - 记录 `nodeKey`、`data.url[]`、`taskInfo`、`params.prompt`、`params.imageList/mixedList`、`settings`、`model`、`modeType`。
 5. Download real media:
-   - 运行 `libtv download -p <projectUuid> -n <video_name> -o projects/aigc/<项目名>/8-视频`。
-   - 下载后的 canonical 视频文件应为 `projects/aigc/<项目名>/8-视频/<group_id>[-variant].mp4`。
+   - 运行 `libtv download -p <projectUuid> -n <video_name> -o projects/aigc/<项目名>/13-画布`。
+   - 下载后的 canonical 视频文件应为 `projects/aigc/<项目名>/13-画布/<group_id>[-variant].mp4`。
    - 如果 CLI 输出文件名不规范，允许整理为 canonical 文件名，但必须在审片报告中记录原始下载路径和命名整理动作。
 6. Only after download:
    - 对本地视频执行 `ffprobe`、`ffmpeg` 抽帧、联系表、音频统计和 scene cut 检测。
@@ -77,14 +77,14 @@ libtv_input:
 - 修复 prompt 后，用 `libtv node <video_name> -p <projectUuid> --prompt <clean_prompt> ...` 覆盖远端节点。
 - 运行前必须查询确认 prompt hygiene：无 `{{Portrait N}}`、无诊断文本、无路径、无绑定表污染；保留合法 `{{Image N}}`。
 - 用户本轮明确要求重新提交或 rerun 时，才运行 `libtv node <video_name> -p <projectUuid> --run`。
-- rerun 输出和最终查询必须写回 `8-视频/libTV画布流/第N集/<group_id>-queue-record.json` 或审片报告中的等价证据。
+- rerun 输出和最终查询必须写回 `13-画布/libTV画布流/第N集/<group_id>-queue-record.json` 或审片报告中的等价证据。
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| LibTV 链接、project UUID、画布名或目录绑定是否被解析成唯一 `projectUuid`？ | `GATE-REVIEW-00` | `FAIL-REVIEW-LIBTV-INTAKE` | `steps/video-review-workflow.md#N0 LibTV Intake` | `libtv_input.projectUuid`、`canvas_url/canvas_name`、project list 或 URL 解析证据。 |
-| 视频名是否解析成唯一视频节点，且默认视频名只在 `group_id` 明确时使用？ | `GATE-REVIEW-00` | `FAIL-REVIEW-LIBTV-INTAKE` | `steps/video-review-workflow.md#N0 LibTV Intake` | `video_node_name`、`video_node_key`、节点查询文件；多命中或缺失时的阻断说明。 |
+| LibTV 链接、project UUID、画布名或目录绑定是否被解析成唯一 `projectUuid`？ | `GATE-REVIEW-00` | `FAIL-REVIEW-LIBTV-INTAKE` | `SKILL.md#Thinking-Action Node Map (N0-LIBTV-INTAKE)` | `libtv_input.projectUuid`、`canvas_url/canvas_name`、project list 或 URL 解析证据。 |
+| 视频名是否解析成唯一视频节点，且默认视频名只在 `group_id` 明确时使用？ | `GATE-REVIEW-00` | `FAIL-REVIEW-LIBTV-INTAKE` | `SKILL.md#Thinking-Action Node Map (N0-LIBTV-INTAKE)` | `video_node_name`、`video_node_key`、节点查询文件；多命中或缺失时的阻断说明。 |
 | 是否通过官方 `libtv node` 与 `libtv download` 取得真实视频，而不是只看远端 URL、prompt 或画布缩略图？ | `GATE-REVIEW-00` / `GATE-REVIEW-03` | `FAIL-REVIEW-LIBTV-INTAKE` / `FAIL-REVIEW-EVIDENCE` | `references/libtv-intake-contract.md#Required CLI Sequence` + `references/video-evidence-contract.md` | `remote_query_path`、`download_output_path`、`canonical_video_path`、ffprobe/关键帧证据。 |
-| LibTV prompt、imageList、taskInfo、result URL 是否作为生成路线证据保存，并与本地 `8-视频` prompt/queue 对齐？ | `GATE-REVIEW-14` | `FAIL-REVIEW-LIBTV-EVIDENCE` | `steps/video-review-workflow.md#N2 Source Lock` + `references/libtv-intake-contract.md#Evidence Fields` | 审片报告的 `libtv_input`、节点查询 NDJSON、queue record 或 submit plan 路径。 |
-| 发现远端 prompt 污染并重新提交时，是否先修 prompt hygiene、再查询验证、再在用户授权下 `--run`？ | `GATE-REVIEW-15` | `FAIL-REVIEW-LIBTV-RERUN` | `references/libtv-intake-contract.md#Prompt And Rerun Coupling` + `steps/video-review-workflow.md#N5 Landing And Operation Design` | 修复前/后节点查询、clean prompt、rerun task id、最终 query、queue record。 |
+| LibTV prompt、imageList、taskInfo、result URL 是否作为生成路线证据保存，并与本地 `13-画布` prompt/queue 对齐？ | `GATE-REVIEW-14` | `FAIL-REVIEW-LIBTV-EVIDENCE` | `SKILL.md#Thinking-Action Node Map (N2-SOURCE-LOCK)` + `references/libtv-intake-contract.md#Evidence Fields` | 审片报告的 `libtv_input`、节点查询 NDJSON、queue record 或 submit plan 路径。 |
+| 发现远端 prompt 污染并重新提交时，是否先修 prompt hygiene、再查询验证、再在用户授权下 `--run`？ | `GATE-REVIEW-15` | `FAIL-REVIEW-LIBTV-RERUN` | `references/libtv-intake-contract.md#Prompt And Rerun Coupling` + `SKILL.md#Thinking-Action Node Map (N5-LANDING)` | 修复前/后节点查询、clean prompt、rerun task id、最终 query、queue record。 |

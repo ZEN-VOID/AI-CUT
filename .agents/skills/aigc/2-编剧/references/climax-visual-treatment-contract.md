@@ -2,17 +2,17 @@
 
 ## Purpose
 
-本细则定义 `2-编导` director layer 的高潮画面兑现模式。它将上游已存在的读者满足、冲突释放、认知翻转、关系暖点或体验高点，强化为可拍、可听、可执行的剧本字段，同时保持与上游的严格保真关系。
+本细则定义 `4-导演` stage 的高潮画面兑现模式。它将上游已存在的读者满足、冲突释放、认知翻转、关系暖点或体验高点，强化为可拍、可听、可执行的剧本字段，同时保持与上游的严格保真关系。
 
-`2-编导` director layer 只负责识别和强化，不得新增剧情事实、对白、事件结果或人物动机。
+`4-导演` stage 只负责识别和强化，不得新增剧情事实、对白、事件结果或人物动机。
 
 ## Ownership
 
 - 本文件拥有高潮画面类型定义、兑现模式、受控强化边界、证据结构和越权检测。
 - `hollywood-quality-spec.md` 负责好莱坞级质量标准；本文件负责高潮画面的兑现方式判断。
-- `episode-visual-spine-contract.md` 负责整集视觉主轴；本文件的高潮画面应与主轴的 `callback_targets` 和 `rhythm_curve` 协调。
+- `.agents/skills/aigc/4-导演/references/episode-visual-spine-contract.md` 负责整集视觉主轴；本文件的高潮画面应与主轴的 `callback_targets` 和 `rhythm_curve` 协调。
 - `episode-final-image-contract.md` 负责尾钩；本文件产出的 `cost_or_aftershock` 是尾钩的候选来源之一。
-- `atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；高潮画面可消费其通感、声景层次和延时承托技法。
+- `.agents/skills/aigc/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围和意境技法；高潮画面可消费其通感、声景层次和延时承托技法。
 
 ## Dependency Graph
 
@@ -44,7 +44,7 @@ climax-visual-treatment-contract.md
 
 ## Required Peak Visual Slots
 
-执行 `2-编导` director layer 时，应在 LLM 草稿前完成一次 `peak_visual_pass`。若上游存在明确或隐性的高潮画面成分，每集至少锁定 1 个、最多 3 个 `peak_visual_candidate`；若上游没有真正高点，只锁定最强 `micro_payoff`，不得硬造大高潮。
+执行 `4-导演` stage 时，应在 LLM 草稿前完成一次 `peak_visual_pass`。若上游存在明确或隐性的高潮画面成分，每集至少锁定 1 个、最多 3 个 `peak_visual_candidate`；若上游没有真正高点，只锁定最强 `micro_payoff`，不得硬造大高潮。
 
 每个 candidate 至少回答：
 

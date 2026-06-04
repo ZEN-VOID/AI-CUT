@@ -1,4 +1,7 @@
 # north_star.yaml
+#
+# INACTIVE for current `$aigc-init` scaffold initialization.
+# Current initialization writes only 0-14 directories plus project `MEMORY.md` and `CONTEXT/README.md`.
 
 project_identity:
   project_name: ""
@@ -20,14 +23,18 @@ viewer_promise:
   must_keep: []
 
 创作阶段不变量:
-  # 只承载 `2-编导` 到 `6-设计` 可长期复用的约束、倾向和禁区。
+  # 只承载当前 `2-编剧` 到 `11-主体` 可长期复用的约束、倾向和禁区。
   # 不写 live route truth、阶段执行状态、单个镜头事实或 team 成员人格调度规则。
-  编导:
+  编剧:
     保真策略: []
+    节奏尾钩倾向: []
+  导演:
     导演判断: []
-    表演边界: []
     画面化语言: []
-  运动:
+  表演:
+    表演边界: []
+    表演任务倾向: []
+  分镜:
     动作连续性: []
     起点路径终点规则: []
     参照系规则: []

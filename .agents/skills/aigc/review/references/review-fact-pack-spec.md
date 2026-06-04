@@ -34,7 +34,7 @@
 
 ### package_release
 
-- 必须包含 `0-初始化` 到 `9-审片` 的关键 handoff refs。
+- 必须包含 `0-初始化` 到 `14-审片` 的关键 handoff refs。
 - 必须包含相关阶段 validation carrier。
 - 必须包含项目根 `STATE.json` 与 `governance-state.yaml`，若二者存在。
 
@@ -52,7 +52,7 @@
 | `review_fact_pack` 是否包含最小字段集，且 `project_root`、`review_mode`、`stage/checkpoint_id`、`scope_ref` 与 `aggregate_review_ref` 唯一对位？ | `GATE-REVIEW-FACT-01` | `FAIL-REVIEW-FACT-MINIMUM` | `N2-FACT-PACK` | fact pack 字段缺口、scope 对位结果、aggregate path 与缺失字段列表。 |
 | `checkpoint_inline` 模式是否包含当前 checkpoint 的 canonical output refs、stage validation carrier 和直接上游 truth refs？ | `GATE-REVIEW-FACT-02` | `FAIL-REVIEW-FACT-SLICE` | `N2-FACT-PACK` | `required_refs` 中 checkpoint refs、validation refs、upstream truth refs 与缺失项。 |
 | `stage_acceptance` 模式是否包含当前 stage 的 canonical outputs、validation carrier 和直接上游 truth refs，而不是只凭阶段目录或最终报告判断？ | `GATE-REVIEW-FACT-03` | `FAIL-REVIEW-FACT-SLICE` | `N2-FACT-PACK` | stage canonical refs、validation carrier、upstream truth refs、空目录/旧报告排除记录。 |
-| `package_release` 模式是否覆盖 `0-初始化` 到 `9-审片` 的关键 handoff refs、相关 validation carrier、`STATE.json` 与 `governance-state.yaml` 存在状态？ | `GATE-REVIEW-FACT-04` | `FAIL-REVIEW-FACT-SLICE` | `N2-FACT-PACK` | release required slice coverage、阶段缺口、治理 carrier 状态和阻断范围。 |
+| `package_release` 模式是否覆盖 `0-初始化` 到 `14-审片` 的关键 handoff refs、相关 validation carrier、`STATE.json` 与 `governance-state.yaml` 存在状态？ | `GATE-REVIEW-FACT-04` | `FAIL-REVIEW-FACT-SLICE` | `N2-FACT-PACK` | release required slice coverage、阶段缺口、治理 carrier 状态和阻断范围。 |
 | 同一轮 mandatory dimensions 是否消费同一份 fact pack，且 `scope_ref`、`review_mode`、`stage/checkpoint_id` 没有在维度间漂移？ | `GATE-REVIEW-FACT-05` | `FAIL-REVIEW-COVENANT` | `N3-DIMENSIONS` | `dimension_runtime.fact_pack_ref` 对比表、漂移维度、冲突字段和阻断结论。 |
 | required slice 缺失时，父层是否直接写 `FAIL-COVENANT` aggregate、repair sidecar 和 summary，并停止 provider 与 dimension review？ | `GATE-REVIEW-FACT-06` | `FAIL-REVIEW-COVENANT` | `N2-FACT-PACK` | aggregate `review_status=FAIL-COVENANT`、missing_required_refs、未调度维度/provider 证据。 |
 | fact pack 是否仅作为 evidence pack，不把摘要、推断或 runner 组装结果升级为第二业务真源？ | `GATE-REVIEW-FACT-07` | `FAIL-REVIEW-FACT-AUTHORITY` | `N2-FACT-PACK` | fact pack 中每个事实回指 canonical refs；推断字段标记为 evidence/summary 而非 truth。 |

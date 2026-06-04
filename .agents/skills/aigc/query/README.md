@@ -16,8 +16,6 @@ query/
 │   └── output-template.md
 ├── review/
 │   └── review-contract.md
-├── steps/
-│   └── query-workflow.md
 ├── knowledge-base/
 │   └── query-heuristics.md
 ├── types/
@@ -27,7 +25,8 @@ query/
 ├── CHANGELOG.md
 ├── CONTEXT.md
 ├── README.md
-└── SKILL.md
+├── SKILL.md
+└── test-prompts.json
 ```
 
 ## Quick Entry
@@ -39,11 +38,11 @@ Load `SKILL.md + CONTEXT.md`, then read:
 - `references/system-data-flow.md`
 - `references/project-runtime-layout.md`
 - `types/query-type-map.md`
-- `steps/query-workflow.md`
+- `SKILL.md#Thinking-Action Node Map`
 - `review/review-contract.md`
 
 ## Validation
 
 ```bash
-python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-工作车间/scripts/validate_skill_2_0.py .agents/skills/aigc/query
+python3 /Users/vincentlee/.codex/skills/meta/构建/技能/skill-2.0/scripts/validate_skill_2_0.py .agents/skills/aigc/query --mode delivery
 ```

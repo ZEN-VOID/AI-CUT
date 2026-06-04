@@ -10,7 +10,6 @@ repair/
 ├── scripts/
 ├── templates/
 ├── review/
-├── steps/
 ├── knowledge-base/
 ├── types/
 ├── agents/
@@ -18,7 +17,8 @@ repair/
 ├── CHANGELOG.md
 ├── SKILL.md
 ├── CONTEXT.md
-└── README.md
+├── README.md
+└── test-prompts.json
 ```
 
 ## Quick Entry
@@ -28,7 +28,7 @@ repair/
 - 影响范围：`references/impact-scope-contract.md`
 - 源层真源：`references/source-truth-ledger.md`
 - 豆包执行：`references/doubao-execution-contract.md`
-- 工作流：`steps/repair-workflow.md`
+- 工作流：`SKILL.md#Thinking-Action Node Map`
 - 验收：`review/review-contract.md`
 
 ## Output

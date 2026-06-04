@@ -1,4 +1,0 @@
-interface:
-  display_name: "AIGC 编导"
-  short_description: "把逐集原文整合转为保真、导演判断和表演工艺一体化的画面化编导稿。"
-  default_prompt: "使用 $aigc-writing-directing，把 projects/aigc/<项目名>/1-分集/第N集.md 转为 projects/aigc/<项目名>/2-编导/第N集.md；保持剧情事实、顺序和上游对白逐字保真，同时完成声画字段、客观叙事受控转对白/独白、导演视觉主轴、氛围尾钩、心理反应、台词交付和潜台词行为化，最终全部以可拍、可听、可演的画面化语言落盘。"

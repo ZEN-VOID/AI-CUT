@@ -33,9 +33,9 @@ route_policies:
   - id: aigc-root-entry
     trigger: AIGC 创作项目初始化、阶段切换、续跑、总入口判定
     rule: "优先进入 `.agents/skills/aigc/SKILL.md`，由根技能路由到一个明确阶段"
-  - id: aigc-workflow-sword6-entry
-    trigger: 命中 `sword6`、`workflow/sword6`、要求针对 AIGC 项目特定分集启用 subagents，从 `2-编导` 连续执行到 `5-分组`，或明确要求主窗口只负责 subagent 调用、完成追踪和下一阶段触发
-    rule: "进入 `.agents/skills/aigc/workflow/sword6/SKILL.md`；锁定 `projects/aigc/<项目名>/` 与具体分集，按 `2-编导 -> 3-运动 -> 4-摄影 -> 5-分组` 串行阶段链运行，每阶段一集一个后台隔离 subagent。主窗口只写 workflow ledger、dispatch packet 和 completion report；阶段正文仍由对应阶段技能 subagent 写入 canonical 目录。"
+  - id: aigc-workflow-sword10-entry
+    trigger: 命中 `sword10`、`workflow/sword10`、要求针对 AIGC 项目特定分集启用 subagents，从 `2-编剧` 连续执行到 `10-分组`，或明确要求主窗口只负责 subagent 调用、完成追踪和下一阶段触发
+    rule: "进入 `.agents/skills/aigc/workflow/sword10/SKILL.md`；锁定 `projects/aigc/<项目名>/` 与具体分集，按 `2-编剧 -> 3-美学 -> 4-导演 -> 5-表演 -> 6-氛围 -> 7-分镜 -> 8-摄影 -> 9-光影 -> 10-分组` 串行阶段链运行；逐集阶段一集一个后台隔离 subagent，`3-美学` 按父级合同并发 6 个风格子技能。主窗口只写 workflow ledger、dispatch packet 和 completion report；阶段正文和风格协议仍由对应阶段技能 subagent 写入 canonical 目录。"
   - id: story-root-entry
     trigger: story2026 小说项目初始化、阶段切换、续跑、总入口判定，或命中 `projects/story/<项目名>/`
     rule: "优先进入 `.agents/skills/story/SKILL.md`，由根技能路由到一个明确阶段；小说项目 canonical runtime 固定为 `projects/story/<项目名>/`。"
@@ -77,7 +77,7 @@ route_policies:
     rule: "进入 `.agents/skills/aigc/3-美学/场景风格/SKILL.md`；默认消费 `2-编剧`、`画面基调` 或用户指定参考图/视频，提取空间光影、色彩系统、氛围密度、自然元素、烟雾、科技元素、环境层次和时代背景，输出场景风格协议与约 100 字中文 Scene Style Prompt。不得写具体场景清单、具体地点设计、单镜头构图或生成请求。"
   - id: aigc-writing-directing-stage-entry
     trigger: 命中 `2-编导`、编导、早期编导整合、导演创作、演员调度、微表情、潜台词、画面化语言、从 `2-编剧` 到 `2-编导`、从 `1-分集` 到 `2-编导`，或要求输出 `projects/aigc/<项目名>/2-编导/第N集.md`
-    rule: "进入 `.agents/skills/aigc/2-编导/SKILL.md`；优先读取 `projects/aigc/<项目名>/2-编剧/第N集.md`，若项目尚未生成 `2-编剧` 且用户明确直接编导，则回退读取 `projects/aigc/<项目名>/1-分集/第N集.md`，完成早期编导层的导演判断、表演工艺和具像画面化语言整合，输出到 `projects/aigc/<项目名>/2-编导/第N集.md`。不得摘要、删减、重排剧情事实；对白逐字保真。显式命中 `4-导演` 时进入 `.agents/skills/aigc/4-导演/SKILL.md`；显式命中 `5-表演`、导演批注收束或演员表演稿时进入 `.agents/skills/aigc/5-表演/SKILL.md`。"
+    rule: "legacy alias route only；不得进入缺失/搁浅的 `.agents/skills/aigc/2-编导/SKILL.md` 作为 active stage。若任务是小说转剧本、短剧剧本、对白/声画改编，进入 `.agents/skills/aigc/2-编剧/SKILL.md` 并输出到 `projects/aigc/<项目名>/2-编剧/第N集.md`；若任务是导演批注、导演意图、声画配对，进入 `.agents/skills/aigc/4-导演/SKILL.md`；若任务是表演融合、微表情、潜台词或演员表演稿，进入 `.agents/skills/aigc/5-表演/SKILL.md`。旧 `projects/aigc/<项目名>/2-编导/` 只作历史回读或迁移证据。"
   - id: aigc-director-annotation-stage-entry
     trigger: 命中 `4-导演`、导演批注、导演稿、导演执导批注、在剧本里加导演批注、从 `3-美学` 到 `4-导演`，或要求输出 `projects/aigc/<项目名>/4-导演/第N集.md`
     rule: "进入 `.agents/skills/aigc/4-导演/SKILL.md`；默认读取 `projects/aigc/<项目名>/2-编剧/第N集.md` 与 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`，逐画面点内联注入 `（导演批注：...）`，输出到 `projects/aigc/<项目名>/4-导演/第N集.md`。不得改写原剧本文字、字段标题、场景顺序或 `3-美学` 风格真源。"
@@ -89,22 +89,22 @@ route_policies:
     rule: "进入 `.agents/skills/aigc/6-氛围/SKILL.md`；默认读取 `projects/aigc/<项目名>/5-表演/第N集.md`，并加载 `3-美学/画面基调/全局风格协议.md`、`3-美学/角色风格/角色风格协议.md` 和 `3-美学/场景风格/场景风格协议.md`。先理解题材、情节、表演稿正文和美学协议，再按渲染、烘托、增强三类触发机制选择少量关键画面点，在相邻点后新增 `氛围画面：XXX`。新增内容必须是画面化的现场物理/舞台特效细节，并具备时间属性；不得每点硬加、不得新增剧情事实、天气条件、火源烟源、对白或事件，不得写摄影分镜、设备参数、prompt 或视频参数。"
   - id: aigc-storyboard-split-stage-entry
     trigger: 命中 `7-分镜`、`aigc-storyboard-split`、分镜拆分、内联分镜、画面点分镜、从 `6-氛围` 到 `7-分镜`，或要求在原剧本画面点下方写 `分镜N（N-N秒）：景别，景深，构图形式，主体陪体背景描述`
-    rule: "进入 `.agents/skills/aigc/7-分镜/SKILL.md`；默认读取 `projects/aigc/<项目名>/6-氛围/第N集.md`，用户显式指定文稿或粘贴文本时优先指定 source 并记录 `source_override=true`；必须加载 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/分镜风格/分镜风格协议.md`，可选加载摄影风格、角色风格和场景风格。先理解题材、情节、剧本正文、画面基调、大师/作品参照和分镜风格，再逐个画面点执行画面节拍法、构图起始帧设计、N-N 秒时值裁决和连续性检查，并在原字段下方内联注入 `分镜N（N-N秒）：...`。不得改剧情事实、对白、场景顺序或上游字段标题，不得生成图像 prompt、视频请求、设备参数或旧 `4-摄影` 的 `[起始秒-结束秒]` 字段正文格式。"
+    rule: "进入 `.agents/skills/aigc/7-分镜/SKILL.md`；默认读取 `projects/aigc/<项目名>/6-氛围/第N集.md`，用户显式指定文稿或粘贴文本时优先指定 source 并记录 `source_override=true`；必须加载 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/分镜风格/分镜风格协议.md`，可选加载摄影风格、角色风格和场景风格。先理解题材、情节、剧本正文、画面基调、大师/作品参照和分镜风格，再逐个画面点执行画面节拍法、构图起始帧设计、N-N 秒时值裁决和连续性检查，并在原字段下方内联注入 `分镜N（N-N秒）：...`。不得改剧情事实、对白、场景顺序或上游字段标题，不得生成图像 prompt、视频请求、设备参数或旧式 `[起始秒-结束秒]` 字段正文格式。"
   - id: aigc-camera-movement-injection-stage-entry
     trigger: 命中 `8-摄影`、`aigc-camera-movement-injection`、摄影·运镜手法注入、分镜运镜注入、给 `7-分镜` 加运镜、从 `7-分镜` 到 `8-摄影`、一镜到底运镜，或要求输出 `projects/aigc/<项目名>/8-摄影/第N集.md`
     rule: "进入 `.agents/skills/aigc/8-摄影/SKILL.md`；默认读取 `projects/aigc/<项目名>/7-分镜/第N集.md`，用户显式指定分镜稿或粘贴文本时优先指定 source 并记录 `source_override=true`；必须加载 `3-美学/画面基调/全局风格协议.md` 与 `3-美学/摄影风格/摄影风格协议.md`，可选加载分镜风格、角色风格和场景风格。先充分理解题材、情节、剧本正文、画面基调、大师/作品参照和摄影风格，再在每条 `分镜N（N-N秒）：原有内容` 后追加镜头角度变化、镜头类型、镜头速度和焦点行为的综合运镜手法；一镜到底时以画面点为单位输出覆盖多条分镜的连续组合运镜。不得改剧情事实、对白、场景顺序、分镜编号、分镜秒数或原有分镜内容，不得生成图像 prompt、视频 prompt、设备参数或剪辑方案。"
+  - id: aigc-lighting-aesthetic-injection-stage-entry
+    trigger: 命中 `9-光影`、`aigc-lighting-aesthetic-injection`、光影美学注入、电影光影、逐分镜补光影、给 `8-摄影` 加光影、从 `8-摄影` 到 `9-光影`，或要求输出 `projects/aigc/<项目名>/9-光影/第N集.md`
+    rule: "进入 `.agents/skills/aigc/9-光影/SKILL.md`；默认读取 `projects/aigc/<项目名>/8-摄影/第N集.md`，用户显式指定文稿或粘贴文本时优先指定 source 并记录 `source_override=true`；必须加载 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md` 与 `3-美学/摄影风格/摄影风格协议.md`。先充分理解题材、情节、剧本正文、摄影运镜、画面基调、场景风格、摄影风格和大师/作品参照，再在每条 `分镜N（N-N秒）：原有内容（包含摄影）` 后追加当前分镜专属的电影光影美学描述，覆盖静止光、动态光源、浮光掠影、流光溢彩、多光源叠加、明暗关系、色温、空气介质和材质反射。不得改剧情事实、对白、场景顺序、分镜编号、分镜秒数或原有摄影内容，不得生成灯位图、图像 prompt、视频 prompt、设备参数或剪辑方案。"
   - id: aigc-motion-enrichment-stage-entry
     trigger: 命中 `3-运动`、运动强化、运动描写强化、动作路径、起点路径终点、参考系、从 `2-编导` 到 `3-运动`，或要求输出 `projects/aigc/<项目名>/3-运动/第N集.md`
-    rule: "进入 `.agents/skills/aigc/3-运动/SKILL.md`；默认读取 `projects/aigc/<项目名>/2-编导/第N集.md`，也可读取用户指定任意小说或剧本来源，对每个包含角色运动属性的画面补全运动主体、起点、路径、终点和参照系，并在落盘新画面前回顾上一画面最终位置或状态，输出到 `projects/aigc/<项目名>/3-运动/第N集.md`。不得改写剧情、对白、场景顺序，不得写机位、景别、运镜、分镜编号或 prompt。"
-  - id: aigc-cinematography-stage-entry
-    trigger: 命中 `4-摄影`、摄影、分镜摄影、镜头语言、运镜、画面句子下加分镜明细、从 `3-运动` 到 `4-摄影`、从 `2-编导` 到 `4-摄影`，或要求输出 `projects/aigc/<项目名>/4-摄影/第N集.md`
-    rule: "进入 `.agents/skills/aigc/4-摄影/SKILL.md`；优先读取 `projects/aigc/<项目名>/3-运动/第N集.md`，若项目尚未生成 `3-运动` 且用户明确跳过该阶段，则回退读取 `projects/aigc/<项目名>/2-编导/第N集.md`。按画面句子执行画面匹配、节拍分析和运镜摄影设计注入，在每个命中画面句子下方新增 `分镜明细：` 与连续 `分镜N:`，输出到 `projects/aigc/<项目名>/4-摄影/第N集.md`。不得改写上游事实、对白和顺序。"
+    rule: "legacy alias route only；不得进入缺失/搁浅的 `.agents/skills/aigc/3-运动/SKILL.md` 作为 active stage。动作起点/路径/终点、参考系和相邻画面连续性默认由 `.agents/skills/aigc/7-分镜/SKILL.md` 处理；若任务强调镜头承接、机位运动或摄影连续性，进入 `.agents/skills/aigc/8-摄影/SKILL.md`；若任务强调光影中的动作可读性，进入 `.agents/skills/aigc/9-光影/SKILL.md`。旧 `projects/aigc/<项目名>/3-运动/` 只作历史回读或迁移证据。"
   - id: aigc-grouping-stage-entry
-    trigger: 命中 `5-分组`、分组、分镜组、从 `4-摄影` 到 `5-分组`、入场画面、出场画面，或要求输出 `projects/aigc/<项目名>/5-分组/第N集.md`
-    rule: "进入 `.agents/skills/aigc/5-分组/SKILL.md`；读取 `projects/aigc/<项目名>/4-摄影/第N集.md` 与 `projects/aigc/<项目名>/0-初始化/north_star.yaml`，按真实集-场-组生成 `x-y-z` 分镜组，直引 `全局风格提示词 / 类型元素提示词 / 画面风格`，添加成对一致的入场/出场补位画面和组底 YAML 统计，输出到 `projects/aigc/<项目名>/5-分组/第N集.md`。不得改写摄影稿正文、对白、分镜明细或场景顺序。"
+    trigger: 命中 `10-分组`、分组、分镜组、从 `9-光影` 到 `10-分组`、入场画面、出场画面，或要求输出 `projects/aigc/<项目名>/10-分组/第N集.md`
+    rule: "进入 `.agents/skills/aigc/10-分组/SKILL.md`；读取 `projects/aigc/<项目名>/9-光影/第N集.md`，并按需读取 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、`3-美学/分镜风格/分镜风格协议.md` 或用户显式提供的风格约束；legacy `0-初始化/north_star.yaml` 仅在旧项目存在时作为可选回读。按真实集-场-组生成 `x-y-z` 分镜组，添加成对一致的入场/出场补位画面和组底 YAML 统计，输出到 `projects/aigc/<项目名>/10-分组/第N集.md`。不得改写摄影稿正文、对白、分镜明细或场景顺序。"
   - id: aigc-shot-by-shot-satellite-entry
-    trigger: 命中 `shot-by-shot`、`拉片`、逐镜分析、逐镜拆解、参考影片临摹、参考视频临摹、镜头拆解、分析这段视频怎么拍，或需要把参考片转换为 `0-初始化` / `2-编导` / `3-运动` / `4-摄影` / `6-设计` 可消费解析
-    rule: "进入 `.agents/skills/aigc/shot-by-shot/SKILL.md`；先锁定参考素材证据、目标项目与目标阶段，逐镜拆解导演调度、表演任务、运动连续性、摄影语法、剪辑节奏、声音接口、美术资产、画面风格和 AIGC 可执行性，再输出到 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md` 及可选 `全局风格解析.md` / `编剧风格解析.md` / `运动风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` / `分镜脚本.md`。该卫星只提供临摹参照和禁止照搬清单，不改写阶段 canonical 主稿。"
+    trigger: 命中 `shot-by-shot`、`拉片`、逐镜分析、逐镜拆解、参考影片临摹、参考视频临摹、镜头拆解、分析这段视频怎么拍，或需要把参考片转换为 `0-初始化` / `2-编剧` / `4-导演` / `5-表演` / `7-分镜` / `8-摄影` / `9-光影` / `11-主体` 可消费解析
+    rule: "进入 `.agents/skills/aigc/shot-by-shot/SKILL.md`；先锁定参考素材证据、目标项目与目标阶段，逐镜拆解导演调度、表演任务、运动连续性、摄影语法、剪辑节奏、声音接口、美术资产、画面风格和 AIGC 可执行性，再输出到 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md` 及可选 `全局风格解析.md` / `编剧风格解析.md` / `导演风格解析.md` / `表演风格解析.md` / `分镜风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` / `分镜脚本.md`。该卫星只提供临摹参照和禁止照搬清单，不改写阶段 canonical 主稿。"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -121,23 +121,23 @@ route_policies:
     trigger: 命中 `$aigc-learn`、`aigc/learn`、AIGC 技能学习、吸收外部材料、学习网页/文档/书籍/视频/音频、对比当前 AIGC 技能树不足、或要求把外部经验 source-first 补进 `.agents/skills/aigc/`
     rule: "优先进入 `.agents/skills/aigc/learn/SKILL.md`；先加载 aigc 根合同、learn 的 `SKILL.md + CONTEXT.md`、命中的 `types/` 类型包和相关目标 skill，建立 source digest、media evidence status、conflict verification、target_skill_map、gap matrix、landing_set 与 sync_scope；执行型任务按 owning skill 最窄有效分区落盘，并同步 root、registry、routes、audit 和引用后运行协调审计。"
   - id: aigc-image-stage-entry
-    trigger: 命中 `7-图像` 或 legacy `5-Image`，或需要把 `4-摄影` / `6-设计` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
-    rule: "优先进入 `.agents/skills/aigc/7-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/5-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/7-图像/A-分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/7-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `7-图像` 默认入口。"
+    trigger: 命中 `12-图像` 或 legacy `5-Image`，或需要把 `9-光影` / `11-主体` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
+    rule: "优先进入 `.agents/skills/aigc/12-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/10-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/12-图像/分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `.agents/skills/aigc/12-图像/分镜故事板/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `12-图像` 默认入口。"
   - id: aigc-design-prop-entry
-    trigger: 命中 `6-设计/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 6-设计 道具输出
-    rule: "道具清单任务直达 `.agents/skills/aigc/6-设计/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/6-设计/道具/` 对应子目录。"
+    trigger: 命中 `11-主体/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 11-主体 道具输出
+    rule: "道具清单任务直达 `.agents/skills/aigc/11-主体/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/11-主体/道具/` 对应子目录。"
   - id: aigc-design-character-entry
-    trigger: 命中 `6-设计/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 6-设计 角色输出
-    rule: "角色清单任务直达 `.agents/skills/aigc/6-设计/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/6-设计/角色/` 对应子目录。"
+    trigger: 命中 `11-主体/角色`、角色清单、角色设计、角色生成、角色面板、CharacterPanel、角色 panel layout、或批量 11-主体 角色输出
+    rule: "角色清单任务直达 `.agents/skills/aigc/11-主体/角色/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/11-主体/角色/` 对应子目录。"
   - id: aigc-design-scene-entry
-    trigger: 命中 `6-设计/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
-    rule: "场景清单任务直达 `.agents/skills/aigc/6-设计/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/6-设计/场景/` 对应子目录。"
+    trigger: 命中 `11-主体/场景`、场景清单、场景设计、场景生成、场景面板、场景九宫格、scene panel，或需要把场景设计 prompt 自动转成生成请求
+    rule: "场景清单任务直达 `.agents/skills/aigc/11-主体/场景/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/11-主体/场景/` 对应子目录。"
   - id: aigc-video-stage-entry
-    trigger: 命中 `8-视频`、`libTV画布流`、LibTV 画布视频、创建画布项目、上传主体参照图、主体参照视频生成、按 `5-分组` 组级生视频，或 legacy `6-Video`
-    rule: "默认路由 `.agents/skills/aigc/8-视频/libTV画布流/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/8-视频/libTV画布流/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
+    trigger: 命中 `13-画布`、`libTV画布流`、LibTV 画布视频、创建画布项目、上传主体参照图、主体参照视频生成、按 `10-分组` 组级生视频，或 legacy `6-Video`
+    rule: "默认路由 `.agents/skills/aigc/13-画布/libTV画布流/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/13-画布/libTV画布流/`；legacy `.agents/skills/aigc/6-Video/` 只作为旧产物、旧链路或明确点名旧路径时的兼容回读。"
   - id: aigc-video-review-entry
-    trigger: 命中 `9-审片`、`审片`、`看片`、`分析视频内容`、`对照分镜组`、`把视频问题改回分组`、`generated footage review`，或给出 `projects/aigc/<项目名>/8-视频/**/*.mp4` 并要求评价/修复
-    rule: "进入 `.agents/skills/aigc/9-审片/SKILL.md`；先按 `<分镜组ID>.mp4` 或 `<分镜组ID>-a.mp4` 文件名回推 `5-分组/第N集.md` 的对应 `## x-y-z`，审查实际视频证据，输出 `projects/aigc/<项目名>/9-审片/第N集/<group_id>[-variant]-审片.md`，并在高置信时把可执行修复写回对应 `5-分组` 分镜组；只有多例复现且能定位 source owner 时才上升源层优化。"
+    trigger: 命中 `14-审片`、`审片`、`看片`、`分析视频内容`、`对照分镜组`、`把视频问题改回分组`、`generated footage review`，或给出 `projects/aigc/<项目名>/13-画布/**/*.mp4` 并要求评价/修复
+    rule: "进入 `.agents/skills/aigc/14-审片/SKILL.md`；先按 `<分镜组ID>.mp4` 或 `<分镜组ID>-a.mp4` 文件名回推 `10-分组/第N集.md` 的对应 `## x-y-z`，审查实际视频证据，输出 `projects/aigc/<项目名>/14-审片/第N集/<group_id>[-variant]-审片.md`，并在高置信时把可执行修复写回对应 `10-分组` 分镜组；只有多例复现且能定位 source owner 时才上升源层优化。"
   - id: bootstrap-governance-first
     trigger: 仓库初始化、架构升级、长流程治理、跨仓继承
     rule: "先走治理链，再扩业务 skill"
@@ -345,17 +345,22 @@ workflow_carriers:
     learning_carrier: projects/aigc/<项目名>/learning-record.md
     governance_mirror: .codex/state/tasks/<task_id>/
     mirror_policy: canonical-first
-  - id: aigc-workflow-sword6-runtime
-    applies_to: aigc-workflow-sword6-entry
+  - id: aigc-workflow-sword10-runtime
+    applies_to: aigc-workflow-sword10-entry
     contract_mode: active
     canonical_runtime_root: projects/aigc/<项目名>/
-    workflow_root: projects/aigc/<项目名>/workflow/sword6/<run_id>/
-    run_ledger: projects/aigc/<项目名>/workflow/sword6/<run_id>/run-ledger.yaml
-    dispatch_packets: projects/aigc/<项目名>/workflow/sword6/<run_id>/dispatch/
-    completion_report: projects/aigc/<项目名>/workflow/sword6/<run_id>/completion-report.md
+    workflow_root: projects/aigc/<项目名>/workflow/sword10/<run_id>/
+    run_ledger: projects/aigc/<项目名>/workflow/sword10/<run_id>/run-ledger.yaml
+    dispatch_packets: projects/aigc/<项目名>/workflow/sword10/<run_id>/dispatch/
+    completion_report: projects/aigc/<项目名>/workflow/sword10/<run_id>/completion-report.md
     stage_outputs:
-      - projects/aigc/<项目名>/2-编导/第N集.md
-      - projects/aigc/<项目名>/3-运动/第N集.md
-      - projects/aigc/<项目名>/4-摄影/第N集.md
-      - projects/aigc/<项目名>/5-分组/第N集.md
+      - projects/aigc/<项目名>/2-编剧/第N集.md
+      - projects/aigc/<项目名>/3-美学/美学总览.md
+      - projects/aigc/<项目名>/4-导演/第N集.md
+      - projects/aigc/<项目名>/5-表演/第N集.md
+      - projects/aigc/<项目名>/6-氛围/第N集.md
+      - projects/aigc/<项目名>/7-分镜/第N集.md
+      - projects/aigc/<项目名>/8-摄影/第N集.md
+      - projects/aigc/<项目名>/9-光影/第N集.md
+      - projects/aigc/<项目名>/10-分组/第N集.md
     mirror_policy: canonical-first

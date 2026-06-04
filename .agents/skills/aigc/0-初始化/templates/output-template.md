@@ -1,52 +1,52 @@
 # $aigc-init Output Template
 
-Use this template for the final user-facing response after `$aigc-init` completes, blocks, or returns to the option card. It mirrors `SKILL.md` `Output Contract (Mandatory)`.
+Use this template for the final user-facing response after scaffold-only `$aigc-init` completes or blocks.
 
 ## Output Contract Alignment
 
 | marker | binding |
 | --- | --- |
-| Required output | initialized project state, core five-piece status, lazy governance status, one next-stage recommendation |
-| Output format | Markdown final response; references YAML, JSON, and Markdown artifacts written by the run |
-| Output path | artifact paths under `projects/aigc/<项目名>/`, plus chat response for this template |
-| Naming convention | use canonical artifact names from `SKILL.md` Output Contract and `templates/output-template-map.md` |
-| Completion gate | only use Completed shape after `review/init-review-gate.md` sufficiency gate passes |
+| Required output | current 0-14 project directory scaffold plus project `MEMORY.md` and `CONTEXT/README.md` |
+| Output format | Markdown final response referencing directories, `MEMORY.md`, and `CONTEXT/` |
+| Output path | `projects/aigc/<项目名>/` |
+| Naming convention | stage directory names match current `.agents/skills/aigc/0-14` package names |
+| Completion gate | `review/init-review-gate.md` scaffold sufficiency gate |
 
 ## Completed
 
 ```markdown
-已完成 `0-初始化` 初始化。
+已完成 `0-初始化` scaffold。
 
-- init_mode: smart_advisor
-- team_lineup_mode: <auto|custom>
-- planning_direct_answer_advisor_review: <ran|blocked|not_applicable>
-- core_five_piece:
-  - north_star: <path>
-  - init_handoff: <path>
-  - story_source_manifest: <path>
-  - team: <path>
-  - STATE: <path>
-- lazy_governance_artifacts: <none|paths>
-- recommended_next_stage: <stage>
-- recommended_entry_path: <path>
-- recommended_next_step: <one concrete next action>
-- root_cause_closeout:
-  - root cause location: <where the decisive rule lived>
-  - immediate fix: <what was fixed in this run>
-  - systemic prevention fix: <which contract/template/gate prevents recurrence>
+- project_root: <projects/aigc/项目名>
+- scaffold_dirs:
+  - 0-初始化
+  - 1-分集
+  - 2-编剧
+  - 3-美学
+  - 4-导演
+  - 5-表演
+  - 6-氛围
+  - 7-分镜
+  - 8-摄影
+  - 9-光影
+  - 10-分组
+  - 11-主体
+  - 12-图像
+  - 13-画布
+  - 14-审片
+- memory: <projects/aigc/项目名/MEMORY.md>
+- context_root: <projects/aigc/项目名/CONTEXT/>
+- memory_items_captured: <none|summary>
+- skipped_removed_artifacts: north_star/init_handoff/story-source/team/STATE/CHANGELOG/source/governance
 ```
 
 ## Blocked
 
 ```markdown
-`0-初始化` 暂停，尚未写入 canonical 初始化工件。
+`0-初始化` scaffold 暂停。
 
-- block_reason: <missing auto/custom | advisor_review_unavailable | unsafe reset scope | source conflict | other>
-- current_safe_output: <option card | source-light skeleton | diagnostic only>
+- block_reason: <missing project name | path outside projects/aigc | directory path conflict | memory overwrite risk | unsafe delete/reset scope | other>
+- current_safe_output: <diagnostic only | partial scaffold readback>
 - missing_input_or_gate: <specific missing field/gate>
 - next_required_user_action: <one concrete action>
 ```
-
-## Option Card
-
-When `team_lineup_mode` is not locked, return only `templates/init-option-card.template.md` plus the missing decision note.

@@ -15,25 +15,25 @@
 | performance source | 表演动作、心理可见化、场面调度是否需要修 | `2-编导/第N集.md` |
 | motion source | 角色运动起点、路径、终点、参照系和前后画面连续性是否需要修 | `3-运动/第N集.md` |
 | cinematography source | 景别、运镜、焦点、时长、连续性锚点是否需要修 | `4-摄影/第N集.md` |
-| grouping source | 分镜组边界、入场/出场、统计、组间桥接是否需要修 | `5-分组/第N集.md` |
-| design assets | 场景、角色、道具清单/设计/生成是否要同步 | `6-设计/**` |
-| image outputs | 图像 prompt、reference manifest、成图和报告是否要失效或重做 | `7-图像/**` |
-| video outputs | 视频任务、首帧/参照、MP4、生成报告是否要失效或重做 | `8-视频/**` |
-| review and state | 审片、review gate、STATE、governance state 是否要重验 | `9-审片/**`、`review/**`、`STATE.json`、`governance-state.yaml` |
+| grouping source | 分镜组边界、入场/出场、统计、组间桥接是否需要修 | `10-分组/第N集.md` |
+| design assets | 场景、角色、道具清单/设计/生成是否要同步 | `11-主体/**` |
+| image outputs | 图像 prompt、reference manifest、成图和报告是否要失效或重做 | `12-图像/**` |
+| video outputs | 视频任务、首帧/参照、MP4、生成报告是否要失效或重做 | `13-画布/**` |
+| review and state | 审片、review gate、STATE、governance state 是否要重验 | `14-审片/**`、`review/**`、`STATE.json`、`governance-state.yaml` |
 
 ## Universal Type Matrix
 
 | 当修改对象是 | 必查上游 | 必查同层/当前 | 必查下游/未来 | 必查验收 |
 | --- | --- | --- | --- | --- |
-| 剧情事实 / 对白 / 顺序 | `1-分集`、`2-编导` script layer | 当前集、相邻场景、字段纯度 | `2-编导` director layer 到 `9-审片` 已产物和后续生成约束 | 事实保真、对白不漂移、顺序一致 |
-| 导演意图 / 氛围 / 视觉主轴 | `2-编导` director layer、north_star 风格 | 当前场景、高潮画面、五感意境 | `2-编导` performance layer、`3-运动`、`4-摄影`、`5-分组`、图像/视频 prompt | 意图可见、非空泛口号、下游可执行 |
-| 表演动作 / 心理可见化 | `2-编导` performance layer、`2-编导` director layer | 当前画面句、角色状态、场面调度 | `3-运动`、`4-摄影` 镜头、`5-分组` 组内动作、视频表现 | 表演具体、动机连续、不改剧情事实 |
-| 运动路径 / 空间连续性 | `3-运动`、`2-编导` performance layer | 当前动作起点、路径、终点、参照系、相邻画面状态 | `4-摄影`、`5-分组`、`7-图像`、`8-视频` | 运动五要素完整、前后承接成立、下游可拍 |
-| 镜头语言 / 时长 / 连续性 | `4-摄影`、`3-运动`、`2-编导` performance layer | 当前分镜明细、相邻镜头 | `5-分组`、`7-图像`、`8-视频` | 景别运镜可执行、时长合理、连续性成立 |
-| 分镜组 / 组间桥接 | `5-分组`、`4-摄影`、`3-运动` | 组 ID、入场/出场、统计 YAML | storyboard、视频任务、审片 finding | 组边界、桥接、统计和生成消费一致 |
-| 场景 / 角色 / 道具资产 | `6-设计`、`5-分组`、项目 CONTEXT | 清单、设计稿、参照图、alias | 图像 prompt、视频 reference、后续分镜组 | 资产身份、造型、用途和引用路径一致 |
-| 图像 / storyboard | `7-图像` leaf、`5-分组`、`6-设计` | prompt、reference manifest、结果报告 | `8-视频` 首帧/参照、`9-审片` | 成图是否消费正确源，不用文字修补图像缺陷 |
-| 视频 / MP4 | `8-视频` leaf、`7-图像`、`5-分组` | 任务 JSON、素材、生成报告、实际视频 | `9-审片` 和 repair route | 缺陷定位到生成、图像、分组或摄影 owner |
+| 剧情事实 / 对白 / 顺序 | `1-分集`、`2-编导` script layer | 当前集、相邻场景、字段纯度 | `2-编导` director layer 到 `14-审片` 已产物和后续生成约束 | 事实保真、对白不漂移、顺序一致 |
+| 导演意图 / 氛围 / 视觉主轴 | `2-编导` director layer、north_star 风格 | 当前场景、高潮画面、五感意境 | `2-编导` performance layer、`3-运动`、`4-摄影`、`10-分组`、图像/视频 prompt | 意图可见、非空泛口号、下游可执行 |
+| 表演动作 / 心理可见化 | `2-编导` performance layer、`2-编导` director layer | 当前画面句、角色状态、场面调度 | `3-运动`、`4-摄影` 镜头、`10-分组` 组内动作、视频表现 | 表演具体、动机连续、不改剧情事实 |
+| 运动路径 / 空间连续性 | `3-运动`、`2-编导` performance layer | 当前动作起点、路径、终点、参照系、相邻画面状态 | `4-摄影`、`10-分组`、`12-图像`、`13-画布` | 运动五要素完整、前后承接成立、下游可拍 |
+| 镜头语言 / 时长 / 连续性 | `4-摄影`、`3-运动`、`2-编导` performance layer | 当前分镜明细、相邻镜头 | `10-分组`、`12-图像`、`13-画布` | 景别运镜可执行、时长合理、连续性成立 |
+| 分镜组 / 组间桥接 | `10-分组`、`4-摄影`、`3-运动` | 组 ID、入场/出场、统计 YAML | storyboard、视频任务、审片 finding | 组边界、桥接、统计和生成消费一致 |
+| 场景 / 角色 / 道具资产 | `11-主体`、`10-分组`、项目 CONTEXT | 清单、设计稿、参照图、alias | 图像 prompt、视频 reference、后续分镜组 | 资产身份、造型、用途和引用路径一致 |
+| 图像 / storyboard | `12-图像` leaf、`10-分组`、`11-主体` | prompt、reference manifest、结果报告 | `13-画布` 首帧/参照、`14-审片` | 成图是否消费正确源，不用文字修补图像缺陷 |
+| 视频 / MP4 | `13-画布` leaf、`12-图像`、`10-分组` | 任务 JSON、素材、生成报告、实际视频 | `14-审片` 和 repair route | 缺陷定位到生成、图像、分组或摄影 owner |
 | 中文表达 / 友好润色 | owning stage 文本合同、项目 MEMORY | 当前段落、相邻语气、字段格式 | 后续 prompt、provider messages、review | 只润表达，不改事实、编号、字段和引用 |
 | 创意激发 / 候选增强 | north_star、阶段源合同、用户禁区 | 候选点与原目标的映射 | 需要用户选择或 owning stage 吸收 | 创意可执行、有边界、不自动成为真源 |
 
@@ -77,7 +77,7 @@ impact_map:
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 修复前是否覆盖 `project memory`、`project context`、`0-初始化` 到 `9-审片`、review/state 等全部可能受影响 surface，而不是只看当前文件？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | `impact_map` 的 upstream、same_layer、current、downstream、assets、future、review_state 条目 |
+| 修复前是否覆盖 `project memory`、`project context`、`0-初始化` 到 `14-审片`、review/state 等全部可能受影响 surface，而不是只看当前文件？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | `impact_map` 的 upstream、same_layer、current、downstream、assets、future、review_state 条目 |
 | 修改对象是否先匹配 Universal Type Matrix，明确必查上游、同层/当前、下游/未来和验收面？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SCOPE` | `N3-IMPACT-MAP` | 命中的 matrix row、scope/type package、必查路径或未知项说明 |
 | 当旧口径在上游源层命中时，是否先修最早 source owner，而不是用下游 prompt、handoff 或润色掩盖源层错误？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | source hit 证据、canonical_owner、writeback_order |
 | 旧口径只在生成 handoff / manifest / task 中命中时，是否修 owning leaf，而不是反向改上游事实？ | `PASS-REPAIR-03` | `FAIL-AIGC-REPAIR-OWNER` | `N4-OWNER-ROUTE` | owning leaf 路由、handoff/manifest/task 命中位置、上游 unchanged 说明 |

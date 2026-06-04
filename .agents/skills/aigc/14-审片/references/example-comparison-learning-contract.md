@@ -23,7 +23,7 @@
 
 - 用户显式把示例标为好/坏，或在多轮中稳定表达同一偏好。
 - 结论能转写为可观察的鉴赏 heuristic，而不是“喜欢/不喜欢”。
-- 不与项目 `MEMORY.md`、根 `AGENTS.md`、`5-分组` 真源或用户当前指令冲突。
+- 不与项目 `MEMORY.md`、根 `AGENTS.md`、`10-分组` 真源或用户当前指令冲突。
 - 不会把单个项目口味误提升为所有项目的强制规则；项目专属偏好应写入项目 `MEMORY.md`，技能级鉴赏力只沉淀跨项目可复用判断。
 
 ## Learning Output Shape
@@ -40,8 +40,8 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 用户提供的示例是否已被锁定为 `good_example`、`bad_example`、`mixed_reference` 或 `unknown_reference`，且角色来自用户标签或可说明的上下文？ | `GATE-REVIEW-07` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `steps/video-review-workflow.md#N2 Source Lock`、本文件 `Accepted Examples` / `Comparison Procedure` | 报告中的 `example_refs`、示例角色、用户标签或不确定性说明 |
-| 示例是否只被转写为主体、动作、节奏、构图、光影、材质、风格一致性、叙事推进、记忆点、AIGC 瑕疵等可观察维度，而不是“喜欢/不喜欢”口号？ | `GATE-REVIEW-07` / `GATE-REVIEW-06` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `steps/video-review-workflow.md#N4 Method Palette Compare`、本文件 `Comparison Procedure` | 报告中的 `observable_example_dimensions` 或等价维度列表 |
-| 目标视频是否分别写明“靠近好示例的点”和“落入坏示例的点”，并把差距归因到 prompt、模型、分组密度、审美目标或素材不可用？ | `GATE-REVIEW-07` / `GATE-REVIEW-09` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `steps/video-review-workflow.md#N4 Method Palette Compare`、`references/review-dimensions-contract.md#Mismatch Attribution` | finding 中的 good/bad delta、`root_cause_guess`、示例对照证据 |
-| 示例差距是否被转成可执行修复路线，而不是停留在泛泛审美评价？ | `GATE-REVIEW-10` | `FAIL-REVIEW-LANDING` | `steps/video-review-workflow.md#N5 Landing And Operation Design`、`references/finding-landing-contract.md` | 每条相关 finding 的 `landing`、`confidence`、rerun / group repair / source candidate 理由 |
-| 学习写入是否同时满足稳定偏好、可观察 heuristic、无冲突、跨项目可复用；项目专属偏好是否回到项目 `MEMORY.md` 而非本技能经验层？ | `GATE-REVIEW-07` / `GATE-REVIEW-12` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `steps/video-review-workflow.md#N6 Write And Verify`、本文件 `Learning Rule` / `Learning Output Shape`、同目录 `CONTEXT.md#Aesthetic Calibration Heuristics` | `CONTEXT.md` 变更摘要，或报告中的 `learning_not_written_reason` / `project_memory_target` |
+| 用户提供的示例是否已被锁定为 `good_example`、`bad_example`、`mixed_reference` 或 `unknown_reference`，且角色来自用户标签或可说明的上下文？ | `GATE-REVIEW-07` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `SKILL.md#Thinking-Action Node Map (N2-SOURCE-LOCK)`、本文件 `Accepted Examples` / `Comparison Procedure` | 报告中的 `example_refs`、示例角色、用户标签或不确定性说明 |
+| 示例是否只被转写为主体、动作、节奏、构图、光影、材质、风格一致性、叙事推进、记忆点、AIGC 瑕疵等可观察维度，而不是“喜欢/不喜欢”口号？ | `GATE-REVIEW-07` / `GATE-REVIEW-06` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `SKILL.md#Thinking-Action Node Map (N4-METHOD-COMPARE)`、本文件 `Comparison Procedure` | 报告中的 `observable_example_dimensions` 或等价维度列表 |
+| 目标视频是否分别写明“靠近好示例的点”和“落入坏示例的点”，并把差距归因到 prompt、模型、分组密度、审美目标或素材不可用？ | `GATE-REVIEW-07` / `GATE-REVIEW-09` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `SKILL.md#Thinking-Action Node Map (N4-METHOD-COMPARE)`、`references/review-dimensions-contract.md#Mismatch Attribution` | finding 中的 good/bad delta、`root_cause_guess`、示例对照证据 |
+| 示例差距是否被转成可执行修复路线，而不是停留在泛泛审美评价？ | `GATE-REVIEW-10` | `FAIL-REVIEW-LANDING` | `SKILL.md#Thinking-Action Node Map (N5-LANDING)`、`references/finding-landing-contract.md` | 每条相关 finding 的 `landing`、`confidence`、rerun / group repair / source candidate 理由 |
+| 学习写入是否同时满足稳定偏好、可观察 heuristic、无冲突、跨项目可复用；项目专属偏好是否回到项目 `MEMORY.md` 而非本技能经验层？ | `GATE-REVIEW-07` / `GATE-REVIEW-12` | `FAIL-REVIEW-EXAMPLE-CALIBRATION` | `SKILL.md#Thinking-Action Node Map (N6-WRITE/N7-VERIFY)`、本文件 `Learning Rule` / `Learning Output Shape`、同目录 `CONTEXT.md#Aesthetic Calibration Heuristics` | `CONTEXT.md` 变更摘要，或报告中的 `learning_not_written_reason` / `project_memory_target` |

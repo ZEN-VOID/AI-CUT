@@ -21,6 +21,7 @@ metadata:
 ## Context Loading Contract
 
 - 每次调用 `$aigc-atmosphere-fx`、`6-氛围`、`氛围画面`、`现场特效氛围` 或命中本目录时，必须同时加载本目录 `SKILL.md + CONTEXT.md`。
+- 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与题材、场景、制作限制、审美禁区、氛围偏好或物理特效限制相关的文件。
 - 默认读取上游表演稿：`projects/aigc/<项目名>/5-表演/第N集.md`。用户显式指定其他表演稿、粘贴文本或候选稿时，以用户输入为 source，并在报告记录 `source_override=true`。
 - 必须读取可用的 `3-美学` 产物，优先级为 `画面基调`、`角色风格`、`场景风格`。若任一缺失，可使用用户提供的等价风格文本，但必须在报告记录降级来源和 N/A 理由。
@@ -248,6 +249,14 @@ flowchart LR
 | `过度增写 / 每点都加 / FAIL-ATM-DENSITY` | `CONTEXT.md`, `references/scene-rhythm-contract.md` | `N3/N6` | `GATE-ATM-04-SELECTIVE-TRIGGER` | `trigger_density_stats` |
 | `抽象氛围 / 诗意 / 电影感 / FAIL-ATM-ABSTRACT` | `references/atmosphere-and-mood-contract.md` | `N5/N6` | `GATE-ATM-10-CONCRETE-SENSORY` | 抽象词扫描 + 感官通道证据 |
 
+## Thought Pass Map
+
+| step_id | pass_focus | source_node | pass_evidence |
+| --- | --- | --- | --- |
+| `TP1` | performance source lock | `Thinking-Action Node Map` | source manifest, trigger inventory |
+| `TP2` | atmosphere enrichment pass | `Thinking-Action Node Map` | enrichment candidate, physical feasibility evidence |
+| `TP3` | review and writeback | `Review Gate Binding` / `Convergence Contract` | verdict, output manifest |
+
 ## Convergence Contract
 
 | convergence_point | pass_condition | fail_condition | evidence | rework_target |
@@ -358,6 +367,14 @@ Completion gate:
 | 新增剧情或天气事实 | 物理手段无上游条件 | `physical_fx_selection_map` | `N3/N4/N5` | 保真 diff 通过 |
 | 特效抢戏 | 增强点未回到人物焦点 | `trigger_point_inventory` | `N3/N5` | 表演焦点抽样通过 |
 | 报告缺证 | 输出报告未映射 reference 或 gate | `execution_report` | `N6/N7` | 报告含 required sections |
+
+## Field Master
+
+| field_id | owner | canonical file | must contain | fail code |
+| --- | --- | --- | --- | --- |
+| `FIELD-ATM-01` | source lock | `projects/aigc/<项目名>/5-表演/第N集.md` | 表演稿、集号、source override 状态 | `FAIL-ATM-INPUT` |
+| `FIELD-ATM-02` | atmosphere enrichment | `projects/aigc/<项目名>/6-氛围/第N集.md` | 选择性 `氛围画面`、物理可执行性、未改写剧情证据 | `FAIL-ATM-OUTPUT` |
+| `FIELD-ATM-03` | report | `执行报告.md` 或 final note | review verdict、规则证据、返工入口 | `FAIL-ATM-REPORT` |
 
 ## Field Mapping
 

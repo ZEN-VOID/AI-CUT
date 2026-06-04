@@ -2,15 +2,15 @@
 
 ## Purpose
 
-定义场景级节奏控制：场景长度、信息密度、节奏类型和过渡方式。节奏不是"快就好"或"慢就好"，而是场景与场景之间被设计的呼吸关系。本合同为 `2-编导` script layer 提供场景节奏的结构化标注，确保本阶段 director/performance layer 和下游摄影能在统一的节奏设计上创作，而不是各自猜测"这场戏应该多长、多密、怎么过渡"。
+定义场景级节奏控制：场景长度、信息密度、节奏类型和过渡方式。节奏不是"快就好"或"慢就好"，而是场景与场景之间被设计的呼吸关系。本合同为 `2-编剧` screenplay layer 提供场景节奏的结构化标注，确保 `4-导演`、`5-表演` 与下游摄影能在统一的节奏设计上创作，而不是各自猜测"这场戏应该多长、多密、怎么过渡"。
 
 ## Ownership
 
-- **产出者**：`2-编导` script layer 在剧本场景规划阶段逐场景标注节奏属性
+- **产出者**：`2-编剧` screenplay layer 在剧本场景规划阶段逐场景标注节奏属性
 - **消费者**：
-  - `2-编导` director layer 消费场景节奏配置决定视觉密度和场景内部张力组织
-  - `2-编导` performance layer 消费节奏类型决定表演强度和语速控制
-  - `4-摄影` 消费信息密度和过渡方式决定镜头运动和场景切换策略
+  - `4-导演` 消费场景节奏配置决定视觉密度和场景内部张力组织
+  - `5-表演` 消费节奏类型决定表演强度和语速控制
+  - `8-摄影` 消费信息密度和过渡方式决定镜头运动和场景切换策略
 - 本合同不定义"什么是好节奏"，只定义"节奏必须是被设计的——每场戏有多密、多长、怎么进怎么出"。
 
 ---
@@ -136,9 +136,9 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 每个场景是否都有 `scene_rhythm_profile`，包含 `scene_duration_feel`、`information_density`、`rhythm_type`、`beat_count` 和 `transition_out_method`？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile` 逐场记录五项节奏属性和 source anchor |
-| 场景时长体感是否与场景功能匹配，高潮/核心对质给足展开，过场不误标长场拖慢节奏？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.duration_function_audit` 记录场景功能、时长体感和修正理由 |
-| 信息密度是否有高低变化，未让全稿所有场景都保持标准密度或同一节奏类型？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.rhythm_variation_audit` 记录连续场景节奏类型和密度变化 |
-| 转出方式是否明确为硬切、声音桥、动作中断、对比转场、物件串联、环境渐变、重复节奏或跳切压缩之一，而不是“自然结束”或空白？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.transition_out_method` 记录转场手法、上一场余波和下一场入口 |
-| 连续场景是否避免三场同节奏或五场内转场方式机械重复，类型片基线是否被用于节奏设计而非僵硬模板？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `steps/directing-workflow.md#N3-SCENE` | `scene_rhythm_profile.sequence_pattern_audit` 记录连续节奏/转场重复检查 |
-| 节奏标注是否只控制编剧层场景呼吸、信息密度和转出方法，没有提前写导演级剪辑方案、镜头时长分配或分镜密度？ | `GATE-SCRIPT-20` / `GATE-SCRIPT-10` | `FAIL-SCENE-RHYTHM` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N3-SCENE` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.overreach_check` 记录剪辑/镜头越权词排查和编剧层替代字段 |
+| 每个场景是否都有 `scene_rhythm_profile`，包含 `scene_duration_feel`、`information_density`、`rhythm_type`、`beat_count` 和 `transition_out_method`？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `../SKILL.md#N3-SCENE` | `scene_rhythm_profile` 逐场记录五项节奏属性和 source anchor |
+| 场景时长体感是否与场景功能匹配，高潮/核心对质给足展开，过场不误标长场拖慢节奏？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `../SKILL.md#N3-SCENE` | `scene_rhythm_profile.duration_function_audit` 记录场景功能、时长体感和修正理由 |
+| 信息密度是否有高低变化，未让全稿所有场景都保持标准密度或同一节奏类型？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `../SKILL.md#N3-SCENE` | `scene_rhythm_profile.rhythm_variation_audit` 记录连续场景节奏类型和密度变化 |
+| 转出方式是否明确为硬切、声音桥、动作中断、对比转场、物件串联、环境渐变、重复节奏或跳切压缩之一，而不是“自然结束”或空白？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `../SKILL.md#N3-SCENE` / `../SKILL.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.transition_out_method` 记录转场手法、上一场余波和下一场入口 |
+| 连续场景是否避免三场同节奏或五场内转场方式机械重复，类型片基线是否被用于节奏设计而非僵硬模板？ | `GATE-SCRIPT-20` | `FAIL-SCENE-RHYTHM` | `../SKILL.md#N3-SCENE` | `scene_rhythm_profile.sequence_pattern_audit` 记录连续节奏/转场重复检查 |
+| 节奏标注是否只控制编剧层场景呼吸、信息密度和转出方法，没有提前写导演级剪辑方案、镜头时长分配或分镜密度？ | `GATE-SCRIPT-20` / `GATE-SCRIPT-10` | `FAIL-SCENE-RHYTHM` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N3-SCENE` / `../SKILL.md#N5-SCRIPT-DRAFT` | `scene_rhythm_profile.overreach_check` 记录剪辑/镜头越权词排查和编剧层替代字段 |

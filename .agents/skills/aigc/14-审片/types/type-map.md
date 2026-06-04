@@ -1,5 +1,25 @@
 # Type Map
 
+## Package Index
+
+| package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
+| --- | --- | --- | --- | --- | --- | --- |
+| `default` | `types/default/default.md` | 任意审片任务；无更具体类型包命中 | fallback | `types/default/default.md` | future concrete subtype packages | none |
+
+## Default Package Rule
+
+- 如果用户显式指定本地视频、LibTV、变体对比、示例校准或授权修复，先按 `Type Profile Variables` 建立对应 `type_profile`。
+- 如果用户未指定具体类型，使用 `default` 包，并在 `Mapping Matrix` 中依据输入来源、视频范围、命名状态、证据状态和 finding route 细化。
+- 默认包只提供类型画像和上下文固定加载，不执行审片、不生成 verdict、不替代 `SKILL.md` 的节点表。
+
+## Loading Flow
+
+1. 读取用户输入、路径、LibTV 信号、group_id、示例和授权状态。
+2. 选择 `Package Index` 中命中的类型包；当前稳定入口为 `default`。
+3. 加载该包的 `context_files`，形成 `type_profile`。
+4. 回到 `SKILL.md` 的 `Type Routing Matrix` 与 `Thinking-Action Node Map`，由主脊柱决定节点、模块和 gate。
+5. 若后续新增具体类型包，必须同步 `Package Index`、`Module Loading Matrix` 和 `test-prompts.json`。
+
 ## Type Profile Variables
 
 | variable | values |
@@ -50,5 +70,5 @@
 | `顾问与复核流程_state + local_checklist` | 不得本地模拟为顾问与复核流程 | 使用本地顾问与复核流程 |
 | `creative_quality + banal` | 给出创作质量阻断或条件通过 | 不把“技术可用”等同于“创作合格” |
 | `model_problem` | 默认 rerun 或换路线 | 不改分组，除非多例稳定失败 |
-| `prompt_problem` | 回到 `5-分组` / `8-视频` prompt owner | 修 prompt 密度、动作可执行性或审美约束 |
+| `prompt_problem` | 回到 `10-分组` / `13-画布` prompt owner | 修 prompt 密度、动作可执行性或审美约束 |
 | `source_escalation` | 必须读取 source escalation contract | 高置信门逐项检查 |

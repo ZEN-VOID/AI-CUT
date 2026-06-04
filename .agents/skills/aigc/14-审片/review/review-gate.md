@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `GATE-REVIEW-00` | LibTV intake | LibTV 链接 / project UUID / 画布名 / 目录绑定已解析成唯一 project 和视频节点，远端 node query 已保存，真实视频已通过 `libtv download` 下载为本地可读文件 |
 | `GATE-REVIEW-01` | input lock | video path、project root、group_id、variant 已锁定 |
-| `GATE-REVIEW-02` | source lock | `5-分组` 中对应组唯一可读 |
+| `GATE-REVIEW-02` | source lock | `10-分组` 中对应组唯一可读 |
 | `GATE-REVIEW-03` | real video understanding | 元数据、关键帧 / 联系表、音频说明和 `observed_content_summary` 足以证明已真实理解视频内容 |
 | `GATE-REVIEW-04` | video intrinsic review | 基础废片、逻辑合理性、一致性和 AIGC 常见瑕疵已逐项判断 |
 | `GATE-REVIEW-05` | prompt alignment | 视频与 prompt / 分镜组的一致性已判断；错配已归因到 prompt、模型、混合原因或证据缺口 |
@@ -17,8 +17,8 @@
 | `GATE-REVIEW-10` | landing | finding 落点和置信度匹配 |
 | `GATE-REVIEW-11` | patch scope | 只改 owning source，不顺手改无关组 |
 | `GATE-REVIEW-12` | thinking process | 输出含思考过程，说明 why this route |
-| `GATE-REVIEW-13` | video naming and handoff | 视频路径、三段式 group_id、variant、扩展名、搜索顺序和 8-视频外部 id 归档方式符合命名合同；命名漂移已显式记录 |
-| `GATE-REVIEW-14` | LibTV generation evidence | LibTV `params.prompt`、`imageList/mixedList`、`settings`、`taskInfo`、result URL 与本地 `8-视频` prompt/queue/report 的关系已记录 |
+| `GATE-REVIEW-13` | video naming and handoff | 视频路径、三段式 group_id、variant、扩展名、搜索顺序和 13-画布外部 id 归档方式符合命名合同；命名漂移已显式记录 |
+| `GATE-REVIEW-14` | LibTV generation evidence | LibTV `params.prompt`、`imageList/mixedList`、`settings`、`taskInfo`、result URL 与本地 `13-画布` prompt/queue/report 的关系已记录 |
 | `GATE-REVIEW-15` | LibTV rerun closure | 重新提交前后 query、clean prompt、task id、result URL、最终 query 和 queue/report 证据齐全 |
 | `GATE-REVIEW-16` | method selection | 已在真实视频理解之后按素材信号和用户关注点选择审片方法；底座方法已覆盖，跳过方法有理由 |
 | `GATE-REVIEW-17` | operation design | 重要 finding 已转成 candidate operations、chosen operation、拒绝其他操作的理由和闭环证据；operation 与 landing 未混淆 |
@@ -31,7 +31,7 @@
 | `FAIL-REVIEW-LIBTV-EVIDENCE` | LibTV 生成路线证据未保存，无法追溯 prompt、imageList、taskInfo 或 result URL | LibTV Intake Contract + `N2-SOURCE-LOCK` |
 | `FAIL-REVIEW-LIBTV-RERUN` | 重新提交缺少 prompt hygiene 验证、task id、final query 或 queue/report 回写 | LibTV Intake Contract + `N5-LANDING` / `N6-WRITE` |
 | `FAIL-REVIEW-INPUT` | group_id 不明确或视频不可读 | Naming Contract |
-| `FAIL-REVIEW-SOURCE` | 找不到对应 `5-分组` | Finding Landing Contract |
+| `FAIL-REVIEW-SOURCE` | 找不到对应 `10-分组` | Finding Landing Contract |
 | `FAIL-REVIEW-EVIDENCE` | 证据不足以支持结论，或没有先完成真实视频内容分析 | Video Evidence Contract |
 | `FAIL-REVIEW-FINDING` | finding 没有 expected/actual/evidence | Review Gate |
 | `FAIL-REVIEW-LANDING` | 低置信却改源层 | Source Escalation Contract |

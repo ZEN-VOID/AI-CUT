@@ -84,7 +84,7 @@ Non-goals:
 - 不跳过任一子技能；整体调用时 6 个 subagents 必须全部启用。
 - 不让父级直接代写 `场景风格协议.md`、`道具风格协议.md`、`分镜风格协议.md`、`全局风格协议.md`、`角色风格协议.md` 或 `摄影风格协议.md` 的核心正文。
 - 不生成具体角色卡、场景清单、道具清单、分镜正文、镜头参数、图片或视频。
-- 不反向修改 `2-编剧`、`2-编导`、`4-摄影`、`6-设计`、`7-图像` 或 `8-视频` 的业务真源。
+- 不反向修改 `2-编剧`、`2-编导`、`4-摄影`、`11-主体`、`12-图像` 或 `13-画布` 的业务真源。
 
 Runtime persona:
 
@@ -173,7 +173,7 @@ Reject or clarify when:
 | `N4-SUBAGENT-RESULTS` | 收集局部结果 | 6 个 subagent 输出 | 收集每个 subagent 的 `status`、canonical path、report path、prompt status、dependency gaps、fail codes | `subagent_result_matrix`，必须 6 行 | `N5` | 每个 subagent 必须返回 `pass/candidate/blocked` 之一和证据路径 |
 | `N5-CROSS-CHECK` | 父级一致性与边界审查 | `subagent_result_matrix`、6 个局部协议摘要 | 检查画面基调继承、角色/场景/道具边界、摄影/分镜边界、参考污染、候选状态、下游 handoff | `cross_style_consistency_report`、`dependency_gap_matrix` | `N6` / `R1` | 冲突必须定位到具体 subagent 和字段；父级不得直接改子协议正文 |
 | `N6-CONVERGE` | 生成父级总览和执行报告 | N4-N5 输出 | 写 `美学总览.md`、`执行报告.md`；列出 6 路状态、路径、提示词摘要、依赖缺口和下游继承建议 | `suite_overview`、`suite_execution_report` | `N7` | 总览只做索引和摘要，不成为 6 个局部协议的第二真源 |
-| `N7-HANDOFF` | 建立下游交接 | 父级总览、6 个局部协议 | 明确交给 `4-摄影`、`6-设计`、`7-图像`、`8-视频` 的继承字段和禁区 | `downstream_handoff_map` | `N8` | 每个下游至少说明继承什么、不继承什么 |
+| `N7-HANDOFF` | 建立下游交接 | 父级总览、6 个局部协议 | 明确交给 `4-摄影`、`11-主体`、`12-图像`、`13-画布` 的继承字段和禁区 | `downstream_handoff_map` | `N8` | 每个下游至少说明继承什么、不继承什么 |
 | `N8-CLOSE` | 完成交付 | 汇流证据 | 输出最终状态、验证结果、残余风险和需要返工的 subagents | `final_report` | done | 只有一个父级 final output；阻断项不得标记为 pass |
 | `C1-CHILD-ROUTE` | 单子技能或部分子技能路由 | 用户点名子技能 | 只调度被点名子技能；若用户未说整体，不自动补齐 6 个 | `child_route_manifest` | `N5` / `N8` | 路由必须与用户点名一致 |
 | `V1-REVIEW` | 审查已有 3-美学输出 | 已有输出路径、报告 | 检查 6 个 canonical output、6 个报告、父级总览、依赖缺口和下游 handoff | `review_findings` | `N6` / `R1` | findings 必须有文件路径或明确缺失项 |
@@ -386,7 +386,7 @@ If no project root is bound, return the same structure in the chat response as a
 | 6 个 subagent 的 prompt | `Style Prompt Index` | 供下游快速继承，不替代原协议 |
 | 6 个 subagent 的 `dependency_gap` | `Dependency Gap Matrix` | 决定是否需要后续顺序校准 |
 | 6 个 subagent 的 `negative traits` / 禁区 | `Cross-Style Consistency Notes` | 防止下游污染和风格冲突 |
-| 6 个 subagent 的 canonical path | `Downstream Handoff Map` | 交给 `4-摄影`、`6-设计`、`7-图像`、`8-视频` |
+| 6 个 subagent 的 canonical path | `Downstream Handoff Map` | 交给 `4-摄影`、`11-主体`、`12-图像`、`13-画布` |
 
 ## Root-Cause Execution Contract
 

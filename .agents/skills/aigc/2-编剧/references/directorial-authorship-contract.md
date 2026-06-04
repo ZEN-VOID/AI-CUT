@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本合同定义 `2-编导` director layer 的导演创作干货。它要求输出不只结构严谨、字段正确或文字漂亮，而是能基于上游编剧稿做专业导演判断：抓住戏剧问题、人物选择压力、场景转折、观众体验和可拍执行。
+本合同定义 `4-导演` stage 的导演创作干货。它要求输出不只结构严谨、字段正确或文字漂亮，而是能基于上游编剧稿做专业导演判断：抓住戏剧问题、人物选择压力、场景转折、观众体验和可拍执行。
 
 高质量编导稿必须同时满足保真、有戏、可演、可拍、有取舍和有回指六大标准。
 
@@ -10,9 +10,9 @@
 
 - 本文件拥有导演创作内核的规划证据、编导干货判定标准、证据集成规则和越权检测。
 - `hollywood-quality-spec.md` 负责顶层质量标准；本文件的 `director_substance_plan` 必须满足其 5 个质量维度。
-- `visual-aesthetic-contract.md` 负责单场画面美学；本文件产出的 `performance_engine` 是其表演任务来源。
+- `.agents/skills/aigc/3-美学/SKILL.md` 负责单场画面美学；本文件产出的 `performance_engine` 是其表演任务来源。
 - `climax-visual-treatment-contract.md` 负责高潮画面；本文件产出的 `character_pressure` 是其 `character_anchor` 来源。
-- `atmosphere-and-mood-contract.md` 负责五感氛围；本文件的 `sound_or_silence_engine` 与其声景技法协调。
+- `.agents/skills/aigc/6-氛围/references/atmosphere-and-mood-contract.md` 负责五感氛围；本文件的 `sound_or_silence_engine` 与其声景技法协调。
 - `../../_shared/action-first-continuity-contract.md` 负责人物动作链优先和空间可达性；本文件在 `director_substance_plan` 中先形成 entry/action/exit，再允许空间、道具、声音和氛围承托。
 - `../../_shared/lived-in-character-behavior-contract.md` 负责角色活人感行为动机、当下小事、下意识反应、情绪落点和多人动作-反应分工；本文件在 `director_substance_plan` 中提供行为动机种子，不把角色写成空闲摆拍。
 - `../../_shared/scene-shot-identity-contract.md` 负责场景/镜头身份共享口径；本文件在 `director_substance_plan` 中提供 `scene_identity_seed`，让后续摄影、图像和视频阶段不需要凭空判断年代、空间功能、环境声底色和材质光影。
@@ -34,7 +34,7 @@ directorial-authorship-contract.md
 
 ## Core Principle
 
-`2-编导` director layer 的主创责任不是重写剧情，而是把上游编剧稿中已经存在的事件、关系、心理和信息差，转化为导演、演员、声音和下游分组可以执行的戏剧动作。
+`4-导演` stage 的主创责任不是重写剧情，而是把上游编剧稿中已经存在的事件、关系、心理和信息差，转化为导演、演员、声音和下游分组可以执行的戏剧动作。
 
 所有导演增强先服从人物动作链：关键场景先回答“人物从什么姿态和位置开始、向哪里行动、能触及什么、在哪里结束”，再回答“环境、道具、声音如何承托”。如果一个环境或物件细节删掉后人物动作更顺，它不是导演干货，而是干扰项。
 
@@ -149,14 +149,14 @@ director_substance_plan:
 
 ### Lived-In Behavior Seed
 
-`lived_in_behavior_seed` 是 `performance_engine` 的上游动机种子。它不要求导演阶段写满演员微表情，但必须让下游 `2-编导` performance layer 知道角色不是“闲着等待表演”，而是被当前生活压力、目标或阻碍推着走。
+`lived_in_behavior_seed` 是 `performance_engine` 的上游动机种子。它不要求导演阶段写满演员微表情，但必须让下游 `5-表演` stage 知道角色不是“闲着等待表演”，而是被当前生活压力、目标或阻碍推着走。
 
 必须回答：
 
 - 角色此刻原本在做什么场景内成立的小事，或为什么必须保持静止。
 - 哪个上游压力、信息、关系或空间阻碍会打断这件事。
 - 压力进入后，角色可能先在哪里下意识泄露：手、呼吸、重心、声线、停顿、距离或视线落点。
-- 这个 beat 结束时，人物状态应该落在哪里，方便 `2-编导` performance layer 和 `4-摄影` 承接。
+- 这个 beat 结束时，人物状态应该落在哪里，方便 `5-表演` stage 和 `8-摄影` 承接。
 - 多人场面中，谁是行动者，谁是反应者，其他人是否只维持必要背景状态。
 
 约束：

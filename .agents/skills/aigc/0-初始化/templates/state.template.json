@@ -1,4 +1,5 @@
 {
+  "_inactive_for_current_aigc_init": "Current scaffold initialization writes only 0-14 directories plus project MEMORY.md and CONTEXT/README.md.",
   "schema_version": "aigc-state/v1",
   "project_root": "projects/aigc/__PROJECT_NAME__/",
   "current_stage": "0-初始化",
@@ -6,7 +7,7 @@
   "recommended_next_stage": "",
   "recommended_entry_path": "",
   "recommended_next_step": "",
-  "init_mode": "smart_advisor",
+  "init_mode": "scaffold_only",
   "team_lineup_mode": "",
   "source_profile": "",
   "artifacts": {
@@ -21,23 +22,19 @@
     "stage_roots": [
       "projects/aigc/__PROJECT_NAME__/0-初始化/",
       "projects/aigc/__PROJECT_NAME__/1-分集/",
-      "projects/aigc/__PROJECT_NAME__/2-编导/",
-      "projects/aigc/__PROJECT_NAME__/3-运动/",
-      "projects/aigc/__PROJECT_NAME__/4-摄影/",
-      "projects/aigc/__PROJECT_NAME__/5-分组/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/场景/1-清单/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/场景/2-设计/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/场景/3-生成/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/道具/1-清单/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/道具/2-设计/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/道具/3-生成/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/角色/1-清单/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/角色/2-设计/",
-      "projects/aigc/__PROJECT_NAME__/6-设计/角色/3-生成/",
-      "projects/aigc/__PROJECT_NAME__/7-图像/",
-      "projects/aigc/__PROJECT_NAME__/8-视频/",
-      "projects/aigc/__PROJECT_NAME__/9-审片/"
+      "projects/aigc/__PROJECT_NAME__/2-编剧/",
+      "projects/aigc/__PROJECT_NAME__/3-美学/",
+      "projects/aigc/__PROJECT_NAME__/4-导演/",
+      "projects/aigc/__PROJECT_NAME__/5-表演/",
+      "projects/aigc/__PROJECT_NAME__/6-氛围/",
+      "projects/aigc/__PROJECT_NAME__/7-分镜/",
+      "projects/aigc/__PROJECT_NAME__/8-摄影/",
+      "projects/aigc/__PROJECT_NAME__/9-光影/",
+      "projects/aigc/__PROJECT_NAME__/10-分组/",
+      "projects/aigc/__PROJECT_NAME__/11-主体/",
+      "projects/aigc/__PROJECT_NAME__/12-图像/",
+      "projects/aigc/__PROJECT_NAME__/13-画布/",
+      "projects/aigc/__PROJECT_NAME__/14-审片/"
     ]
   },
   "governance": {

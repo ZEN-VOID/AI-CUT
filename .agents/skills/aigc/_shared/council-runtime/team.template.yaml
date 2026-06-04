@@ -1,9 +1,10 @@
 schema_version: "aigc-team/v2"
+template_status: "legacy_optional"
 project: "__PROJECT_NAME__"
 updated_at: "__DATE__"
 
 init_contract:
-  init_mode: "smart_advisor"
+  init_mode: "legacy_optional_synthesis"
   team_lineup_mode: "auto" # auto | custom; replace only after user locks the lineup choice
   selector_scope_root: ".agents/skills/team/"
   decision_owner: "" # user_confirmed | blocked
@@ -67,7 +68,7 @@ roles:
     owner_phase: "0-初始化"
     members_ref: "roles.planning.members"
     members: []
-    boundary: "只复核初始化综合是否足以支撑 north_star、init_handoff、STATE 与 stage seed summary。"
+    boundary: "只复核 legacy/explicit 初始化综合是否足以支撑 stage seed summary；当前 scaffold-only 初始化不要求生成本文件。"
 
 init_synthesis:
   direct_answer_summary:
@@ -91,30 +92,64 @@ init_synthesis:
       episode_scope_hints: []
       split_granularity: []
       cliffhanger_or_turning_point_policy: []
-    "2-编导":
-      fidelity_rules: []
+    "2-编剧":
+      adaptation_fidelity_rules: []
+      screenplay_voice_constraints: []
+      dialogue_and_action_projection_notes: []
+    "3-美学":
+      visual_tone_invariants: []
+      character_style_constraints: []
+      scene_style_constraints: []
+      prop_style_constraints: []
+      storyboard_style_constraints: []
+    "4-导演":
       director_intent_hints: []
+      voice_picture_pairing_rules: []
+      dramatic_substance_boundaries: []
+    "5-表演":
       performance_boundaries: []
-      visual_language_constraints: []
-    "3-运动":
+      action_reaction_priorities: []
+      emotional_landing_rules: []
+    "6-氛围":
+      atmosphere_support_rules: []
+      environmental_sound_boundaries: []
+      image_motif_risks: []
+    "7-分镜":
       continuity_principles: []
       start_path_end_priorities: []
       reference_frame_rules: []
-    "4-摄影":
+    "8-摄影":
       shot_language_baseline: []
       rhythm_and_duration_hints: []
+      camera_constraints: []
+    "9-光影":
       light_color_camera_constraints: []
-    "5-分组":
+      lighting_result_rules: []
+      shadow_and_subject_separation_notes: []
+    "10-分组":
       grouping_rhythm: []
       bridge_policy: []
       north_star_projection_notes: []
-    "6-设计":
+    "11-主体":
       scene_design_invariants: []
       character_design_invariants: []
       prop_design_invariants: []
       asset_constraints: []
+    "12-图像":
+      prompt_evidence_rules: []
+      visual_asset_constraints: []
+    "13-画布":
+      canvas_flow_constraints: []
+      video_prompt_order_rules: []
+    "14-审片":
+      review_focus: []
+      defect_watchlist: []
 
 legacy_compat:
+  deprecated_stage_seed_aliases:
+    - "2-编导"
+    - "3-运动"
+    - "4-摄影"
   deprecated_fields:
     - "roles.supervision.stage_profiles"
     - "roles.supervision.stage_bindings"
@@ -124,7 +159,7 @@ legacy_compat:
     - "team_setup.shared_agents"
     - "dispatch_policy: stage-front-advisor"
     - "dispatch_policy: leaf-advisor"
-  handling: "Legacy fields are read-only migration evidence. New initialization must not use them for creative-stage advisor dispatch."
+  handling: "Legacy fields are read-only migration evidence. New scaffold-only initialization must not create or require this carrier for creative-stage advisor dispatch."
   migration_note: ""
 
 provenance:

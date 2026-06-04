@@ -1,0 +1,17 @@
+[
+  {
+    "id": "lightweight-init-continue",
+    "prompt": "Use $aigc-resume to continue a project that has STATE.json and 0-初始化 core files but no governance-state.yaml.",
+    "expected": "Locks PROJECT_ROOT, treats missing governance-state as lightweight state when safe, lists evidence and one low-risk next entry."
+  },
+  {
+    "id": "governance-rebuild",
+    "prompt": "Use $aigc-resume to recover a project whose state file is missing and whose stage outputs are incomplete.",
+    "expected": "Reports evidence gaps, routes to root aigc or 0-初始化 governance rebuild, and avoids guessing a stage continuation."
+  },
+  {
+    "id": "review-repair-reentry",
+    "prompt": "Use $aigc-resume to resume from a review bridge that points to required repairs.",
+    "expected": "Reads review or resume repair evidence, returns one repair route or blocker if the route is ambiguous, and filters destructive actions."
+  }
+]

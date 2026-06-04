@@ -2,32 +2,32 @@
 
 ## Output Contract Alignment
 
-本模板承接 `SKILL.md` 的 Output Contract。canonical 解析文件名为 `全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md` 与 `分镜脚本.md`；旧命名仅可作为兼容镜像。
+本模板承接 `SKILL.md` 的 Output Contract。风格解析已对齐 `.agents/skills/aigc/3-美学` 六子技能：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。`分镜脚本.md` 保持 `references/storyboard-script-contract.md` 的 19 列合同不变。
 
 | marker | binding |
 | --- | --- |
-| Required output | 主拉片报告、标准表格式分镜脚本、全局/编剧/摄影/设计解析、执行报告和风险说明 |
-| Output format | Markdown 文档包，主报告、解析文档和分镜脚本均按本模板骨架对齐 |
+| Required output | 主拉片报告、启用的 3-美学 side context、可选编剧/运动/摄影 stage 解析、可选标准表格式分镜脚本、执行报告和风险说明 |
+| Output format | Markdown 文档包 |
 | Output path | `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/` |
-| Naming convention | `shot-by-shot.md`、`分镜脚本.md`、`全局风格解析.md`、`编剧风格解析.md`、`摄影风格解析.md`、`设计风格解析.md`、`执行报告.md` |
-| Completion gate | 证据可回指、临摹边界清楚、阶段字段不越权、AIGC 可执行且没有复制具体表达 |
+| Naming convention | `shot-by-shot.md`、`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`、`分镜脚本.md`、`执行报告.md` |
+| Completion gate | 证据可回指、临摹边界清楚、3-美学字段不越权、AIGC 可执行、无具体表达复制、分镜脚本表头合规 |
 
 ## Canonical Paths
 
 ```text
 projects/aigc/<项目名>/shot-by-shot/<reference_slug>/
 ├── shot-by-shot.md
-├── 分镜脚本.md
-├── 全局风格解析.md
-├── 编剧风格解析.md
+├── 画面基调解析.md
+├── 角色风格解析.md
+├── 场景风格解析.md
+├── 道具风格解析.md
 ├── 摄影风格解析.md
-├── 设计风格解析.md
+├── 分镜风格解析.md
+├── 分镜脚本.md
 └── 执行报告.md
 ```
 
-统一落点为 `shot-by-shot/<reference_slug>/`。旧路径 `CONTEXT/shot-by-shot/<reference_slug>/` 停止使用，已废弃。
-
-`shot-by-shot.md` 是主报告；`分镜脚本.md` 是同次拉片包内的标准表格式分镜脚本；同目录下的五份解析是 owning stage 的附加上下文。
+`分镜脚本.md` 仅在用户要求或任务需要表格式分镜脚本时输出。旧路径 `CONTEXT/shot-by-shot/<reference_slug>/` 停止使用。
 
 ## Main Report Skeleton
 
@@ -38,20 +38,17 @@ stage: shot-by-shot
 reference_slug: <reference_slug>
 source_ref: <video path / stills / notes / link>
 evidence_grade: confirmed | partial | inferred | insufficient
-bridge_targets: [全局风格, 编剧, 摄影, 设计, 分镜脚本]
+bridge_targets: [3-美学/画面基调, 3-美学/角色风格, 3-美学/场景风格, 3-美学/道具风格, 3-美学/摄影风格, 3-美学/分镜风格]
 output_path: projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md
 review_status: pending | pass | needs_rework | blocked
 ---
 
 # shot-by-shot
 
-## 思考过程
+## Execution Decision Trace
 
-- business_goal:
-- topology_fit:
-- step_strategy:
-- key_decisions:
-- risk_decisions:
+| decision | rule | input_evidence | rationale | output_landing |
+| --- | --- | --- | --- | --- |
 
 ## 素材证据
 
@@ -78,13 +75,14 @@ review_status: pending | pass | needs_rework | blocked
 | source_ref | do_not_copy | reason | safe_translation |
 | --- | --- | --- | --- |
 
-## 阶段对接
+## 3-美学 Side Context
 
-- `shot-by-shot/<reference_slug>/全局风格解析.md`:
-- `shot-by-shot/<reference_slug>/编剧风格解析.md`:
+- `shot-by-shot/<reference_slug>/画面基调解析.md`:
+- `shot-by-shot/<reference_slug>/角色风格解析.md`:
+- `shot-by-shot/<reference_slug>/场景风格解析.md`:
+- `shot-by-shot/<reference_slug>/道具风格解析.md`:
 - `shot-by-shot/<reference_slug>/摄影风格解析.md`:
-- `shot-by-shot/<reference_slug>/设计风格解析.md`:
-- `shot-by-shot/<reference_slug>/分镜脚本.md`:
+- `shot-by-shot/<reference_slug>/分镜风格解析.md`:
 
 ## 风险与补证
 
@@ -93,279 +91,75 @@ review_status: pending | pass | needs_rework | blocked
 - aigc_feasibility_gap:
 ```
 
-## 全局风格解析 Skeleton
+## Aesthetic Side Context Skeleton
+
+以下骨架用于六份 3-美学解析文件。每份文件必须换成对应标题，例如 `# 画面基调解析`。
 
 ```markdown
-# 全局风格解析
+# <画面基调解析 / 角色风格解析 / 场景风格解析 / 道具风格解析 / 摄影风格解析 / 分镜风格解析>
 
 ## 使用边界
 
-- 这是 `shot-by-shot/<reference_slug>` 提供给项目全局风格底座的 side context，参照 `global-style-director` 的字段逻辑。
-- 本解析不直接改写 `north_star.yaml`，不直接生成或覆盖 `style_contract.json`。
-- 默认提炼叙事、世界、类型承诺、视觉母题、年代质感、情绪曲线、媒介、渲染技术栈、美学范式与节奏锚点，不复制参考片具体对象、构图、颜色组合、材质组合或镜头顺序。
+- side_context_for:
+- not_canonical:
+- do_not_import:
 
-## 叙事与世界约束
+## Source Evidence
 
-| field | value | evidence | confidence |
+| evidence_id | source_shots | observable_fact | evidence_grade |
 | --- | --- | --- | --- |
-| tldr |  |  |  |
-| theme_triplet |  |  |  |
-| world_triplet |  |  |  |
-| era |  |  |  |
-| region |  |  |  |
-| narrative_type |  |  |  |
-| pacing_tendency |  |  |  |
 
-## 类型叙事承诺
+## Transferable Principles
 
-| genre_core_contract | highlight_type_moments | promise_delivery_rhythm | sub_genre_or_hybrid | source_shots |
+| principle_id | source_shots | transferable_principle | project_fit | downstream_use |
 | --- | --- | --- | --- | --- |
 
-## 视觉母题系统
+## Style Seeds
 
-| recurring_visual_symbols | color_tonal_nodes | iconic_visual_commitment | motif_grammar | source_shots |
+| seed_id | source_shots | allowed_seed | why_it_maps | boundary |
 | --- | --- | --- | --- | --- |
 
-## 年代质感语法
+## Pollution Audit
 
-| era_signal_source | signal_density | modern_interference | time_sense_construction | source_shots |
-| --- | --- | --- | --- | --- |
-
-## 情绪曲线轮廓
-
-| curve_structure | act_emotion_anchor | climax_emotion_type | emotion_residual_design | source_shots |
-| --- | --- | --- | --- | --- |
-
-## 路由决议
-
-| route | trigger | reason | fallback |
+| item | risk | action | verdict |
 | --- | --- | --- | --- |
-
-## 媒介与技术栈
-
-| medium | tech_stack | narrative_service_reason | downstream_note |
-| --- | --- | --- | --- |
-
-## 美学范式
-
-| aesthetic_paradigm | style_logic | why_it_serves_story | risk |
-| --- | --- | --- | --- |
-
-## 叙事节奏锚定
-
-- 节奏档位：
-- 判断依据：
-- 拍摄段落执行字窗：
-- 回退规则：无明确逻辑根源时默认中节奏
-
-## 去污染审计
-
-| item | verdict | evidence | action |
-| --- | --- | --- | --- |
-
-## 全局风格提示词候选
-
-> <默认 200 字以内纯中文无污染提示词；R4 时保留用户锁定原文并标明 exact。>
 
 ## Do Not Import
 
 -
 ```
 
-## 编剧风格解析 Skeleton
+## Aesthetic File Focus
 
-```markdown
-# 编剧风格解析
-
-## 使用边界
-
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `2-编导` 的项目上下文解析，不改写上游正文。
-- 不包含机位、景别、运镜、焦段、分镜编号、`分镜明细：` 或 `分镜提示词`。
-
-## 戏剧结构摘要
-
-| unit_id | source_shots | dramatic_question_seed | audience_position_seed | scene_state_delta |
-| --- | --- | --- | --- | --- |
-
-## 编剧风格 Seeds
-
-| unit_id | source_shots | character_pressure_seed | dialogue_strategy_seed | controlled_enrichment_seed |
-| --- | --- | --- | --- | --- |
-
-## 潜台词与情感脉冲
-
-| unit_id | source_shots | subtext_layer_seed | emotion_pulse_seed |
-| --- | --- | --- | --- |
-
-### 潜台词层字段说明
-
-| unit_id | surface_dialogue_content | true_intent_beneath | hidden_info_layer | subtext_arc_design | audience_vs_character_knowledge |
-| --- | --- | --- | --- | --- | --- |
-
-### 情绪脉冲字段说明
-
-| unit_id | pulse_type | emotion_accumulation | release_trigger | post_release_residual | shared_audience_empathy |
-| --- | --- | --- | --- | --- | --- |
-
-## 声音叙事接口
-
-| unit_id | source_shots | music_thematic_identity | diegetic_sound_function | silence_as_narrative | sound_early_or_late | audio_visual_counterpoint |
-| --- | --- | --- | --- | --- | --- | --- |
-
-## 次要情节编织
-
-| unit_id | source_shots | subplot_identity | main_line_pressure | foreshadow_plant_pattern | subplot_resolution_type | hidden_connective_tissue |
-| --- | --- | --- | --- | --- | --- | --- |
-
-## 场面调度与表演承托
-
-| unit_id | performance_task_seed | blocking_power_seed | project_fit |
-| --- | --- | --- | --- |
-
-## 禁用摄影越权
-
--
-
-## Do Not Import
-
--
-```
-
-## 摄影风格解析 Skeleton
-
-```markdown
-# 摄影风格解析
-
-## 使用边界
-
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `4-摄影` 的项目上下文解析，不改写 `2-编导` 原文。
-- 参考写法必须服务 `分镜明细：` 与 `分镜脚本.md`，不复制参考片具体镜头顺序。
-
-## 摄影语法摘要
-
-| unit_id | source_shots | visual_unit_function | rhythm_profile_seed | continuity_seed |
-| --- | --- | --- | --- | --- |
-
-## 视点与焦深语义
-
-| unit_id | source_shots | point_of_view_profile | depth_of_field_semantic |
-| --- | --- | --- | --- |
-
-### 视点轮廓字段说明
-
-| unit_id | pov_ownership | pov_switch_logic | subjective_vs_objective_boundary | pov_as_narrative_tool |
-| --- | --- | --- | --- | --- |
-
-### 焦深语义字段说明
-
-| unit_id | dof_narrative_mode | foreground_semantic | background_semantic | rack_focus_trigger |
-| --- | --- | --- | --- | --- |
-
-## 光源叙事语法
-
-| unit_id | source_shots | light_source_semantic |
-| --- | --- | --- |
-
-### 光源叙事字段说明
-
-| unit_id | main_light_direction_as_power | natural_vs_artificial_narrative | light_color_temperature_narrative | light_source_visibility |
-| --- | --- | --- | --- | --- |
-
-## 运动与切点语法
-
-| unit_id | source_shots | camera_movement_taxonomy | cut_grammar_seed |
-| --- | --- | --- | --- |
-
-### 运动类型系统字段说明
-
-| unit_id | movement_type_inventory | movement_semantic_meaning | movement_transition_logic | handheld_narrative_usage | movement_speed_rhythm |
-| --- | --- | --- | --- | --- | --- |
-
-### 切点语法字段说明
-
-| unit_id | cut_type_inventory | cut_type_emotion_sync | cut_timing_rhythm | reaction_shot_pattern | overlap_cut_usage |
-| --- | --- | --- | --- | --- | --- |
-
-## 长镜头结构
-
-| unit_id | source_shots | long_take_threshold | phase_organization | camera_movement_within_take | spatial_revelation_in_take | long_take_emotion_function |
-| --- | --- | --- | --- | --- | --- | --- |
-
-## 摄影风格 Seeds
-
-| unit_id | beat_map_seed | camera_grammar_plan_seed | functional_projection_payload | shot_detail_style_seed |
-| --- | --- | --- | --- | --- |
-
-## 分镜明细写法参考
-
-```text
-分镜明细：
-分镜1: <根据目标项目重写后的自然中文运镜摄影设计，不照搬参考片具体构图。>
-```
-
-## AIGC 可执行性
-
-| risk | mitigation |
+| file | required focus |
 | --- | --- |
+| `画面基调解析.md` | `medium_and_rendering_seed`、`light_atmosphere_seed`、`aesthetic_paradigm_seed`、`master_anchor_candidate`、`global_style_prompt_candidate`、`contamination_scan` |
+| `角色风格解析.md` | `silhouette_language_seed`、`hair_makeup_discipline_seed`、`costume_structure_tendency`、`body_tension_seed`、`age_texture_seed`、`performance_appearance_boundary` |
+| `场景风格解析.md` | `space_type_seed`、`spatial_pressure_seed`、`material_light_order`、`empty_scene_rule`、`world_geography_signal`、`scene_do_not_import` |
+| `道具风格解析.md` | `prop_function_hierarchy`、`material_system_seed`、`detail_density_rule`、`symbol_boundary`、`generation_forbidden_zone`、`prop_do_not_import` |
+| `摄影风格解析.md` | `composition_order`、`shot_size_system`、`camera_height_rule`、`camera_movement_profile`、`movement_speed_rhythm`、`continuity_rule_seed` |
+| `分镜风格解析.md` | `rhythm_density`、`shot_size_transition`、`shot_combo_grammar`、`transition_logic`、`action_carryover_rule`、`information_reveal_flow` |
 
-## Do Not Import
-
--
-```
-
-## 设计风格解析 Skeleton
+## Optional Stage Context Skeleton
 
 ```markdown
-# 设计风格解析
+# 编剧风格解析 / 导演风格解析 / 表演风格解析 / 分镜组织解析 / 摄影解析 / 光影解析
 
 ## 使用边界
 
-- 这是 `shot-by-shot/<reference_slug>` 提供给 `6-设计` 的项目上下文解析，服务 `角色/2-设计`、`场景/2-设计`、`道具/2-设计`。
-- 只提炼可迁移视觉设计原则，不复制参考片具体人物脸、服装纹样、场景构图、道具纹章或专属视觉符号。
-- 下游必须遵守：角色为纯色背景全身服装试装照；场景为空镜且无人；道具为纯色背景 45 度完整道具近摄。
+- side_context_for:
+- not_canonical:
+- forbidden_overreach:
 
-## 角色解析
+## Source Evidence
 
-| design_seed_id | source_shots | role_design_need | transferable_principle | visual_design_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- |
+| evidence_id | source_shots | observable_fact | evidence_grade |
+| --- | --- | --- | --- |
 
-## 场景解析
+## Transferable Seeds
 
-| scene_seed_id | source_shots | scene_design_need | transferable_principle | empty_scene_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- |
-
-## 道具解析
-
-| prop_seed_id | source_shots | prop_design_need | transferable_principle | prop_design_seed | prompt_boundary |
-| --- | --- | --- | --- | --- | --- |
-
-## 角色色调与材质语法
-
-| seed_id | source_shots | color_identity_system | color_emotion_mapping | color_contrast_with_environment | material_vocabulary | wear_and_texture_narrative | costume_detail_hierarchy |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-
-## 空间叙事语法
-
-| seed_id | source_shots | space_as_character_metaphor | environmental_power_mapping | object_residue_narrative | empty_scene_design_grammar | spatial_tier_separation | world_geography_signal |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-
-## 道具功能层级
-
-| seed_id | source_shots | narrative_core_prop | scene_atmosphere_prop | transition_trigger_prop | symbolic_prop_system | prop_detail_level_hierarchy | prop_movement_narrative |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-
-## 世界观视觉语法
-
-| seed_id | source_shots | symbol_system | color_rule | material_system | cultural_visual_markers | world_visual_coherence | visual_deviation_permit |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-
-## 视觉转译原则
-
--
-
-## Do Not Import
-
--
+| seed_id | source_shots | allowed_seed | downstream_use | do_not_import |
+| --- | --- | --- | --- | --- |
 ```
 
 ## 分镜脚本 Skeleton
@@ -410,23 +204,38 @@ review_status: pending | pass | needs_rework | blocked
 - output_root: shot-by-shot/<reference_slug>/
 - bridge_targets:
 
+## Reference Execution Matrix
+
+| reference | load_status | trigger_reason | applied_to | evidence_in_output | verdict | n/a_reason |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## Execution Decision Trace
+
+| decision | rule | input_evidence | rationale | output_landing |
+| --- | --- | --- | --- | --- |
+
+## Rule Evidence Map
+
+| rule | output_location | evidence |
+| --- | --- | --- |
+
 ## Review Result
 
 - evidence_gate:
 - shot_map_gate:
 - observation_gate:
 - imitation_boundary_gate:
-- global_style_bridge_gate:
-- screenwriter_bridge_gate:
-- cinematography_bridge_gate:
-- design_bridge_gate:
+- aesthetic_bridge_gate:
 - storyboard_script_gate:
 - rights_gate:
 - output_gate:
 
-## Repair / Block
+## N/A Justification
 
-- repair_actions:
-- blocked_reason:
-- next_entry:
+-
+
+## Repair Log
+
+| fail_code | rework_target | action | result |
+| --- | --- | --- | --- |
 ```

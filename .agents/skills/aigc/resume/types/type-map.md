@@ -16,6 +16,5 @@
 
 1. 锁定项目根和恢复意图。
 2. 加载 `types/resume-type-map.md` 生成 resume profile 与 risk profile。
-3. 将类型画像交给 `steps/resume-workflow.md` 核对证据链。
+3. 将类型画像交给 `SKILL.md#Thinking-Action Node Map` 核对证据链。
 4. 交付前加载 `review/resume-review-gate.md` 检查唯一入口和禁止动作。
-

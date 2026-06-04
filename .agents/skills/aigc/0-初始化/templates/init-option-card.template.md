@@ -1,32 +1,7 @@
-# 初始化元选项卡
+# Inactive Init Option Card
 
-## 1. 本次初始化方式（固定主模式）
+This template is inactive for current `$aigc-init`.
 
-A. 智能顾问模式
+Current initialization no longer asks the user to choose automatic or custom team lineup. It only needs a project name/path and any long-term initialization requirements to record in `MEMORY.md`; it also creates the neutral project `CONTEXT/README.md`.
 
-## 2. 队伍确定方式
-
-A. 自动组队（推荐）
-B. 自定义组队
-
-## 3. 如果选 A
-
-- 由 `0-初始化` 锁定 `策划 / 初始化专业顾问 / 初始化复核` 的本阶段权属，再从 `.agents/skills/team/` 自动挑选具体大师
-- 自动组队默认至少覆盖 `导演组 / 设计组 / 摄影组`
-- 每个组允许 1 人以上；若题材需要，可再补 `小说组 / 演员组 / 武术组 / 美学组 / 动漫组`
-- 若现有 roster 明显不足但当前仍可继续，会在 `todos/` 输出推荐文档，同时本轮仍按现有 roster 执行
-- 编组结果会写入 `team.yaml`，并只作为初始化问答、provenance 与综合种子，不作为创作阶段人格调度运行时
-
-## 4. 如果选 B
-
-- 你可按 `策划 / 初始化专业顾问 / 初始化复核` 指定，也可按 `部门 + 人物` 指定
-- `策划 / 初始化专业顾问 / 初始化复核` 可以是同一波人，也可以是不同的人
-- 可提供人物名、skill 路径或“部门 + 人物”组合
-- 所有候选都必须位于 `.agents/skills/team/`
-- 自定义名单默认只在初始化阶段代入回答固定题包；不会自动成为 `2-编导` 到 `6-设计` 的预设 subagent
-
-## 5. 初始化固定题包执行方式（固定）
-
-- 先由 `roles.planning.members` 以顾问与复核流程 执行固定题包直答初始化
-- 将结果综合成 `north_star.yaml.创作阶段不变量`、`init_handoff.yaml.stage_entry_seeds` 与 `team.yaml.init_synthesis.stage_seed_summary`
-- 若初始化 顾问与复核流程不可用，本轮初始化停止并报告阻塞
+If a future workflow reintroduces team selection, it must declare a new active output contract before this template can be used again.

@@ -102,7 +102,7 @@ provider_evidence:
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 是否把 `doubao-seed-2.0-pro` 识别为中文分析、润色、创意候选的默认执行 lane，而不是可静默替换的普通 provider？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | `doubao_task_packet.provider`、mode 选择、provider 或降级状态 |
-| 当前模型是否先完成 repair 技能、owning stage、项目 `MEMORY.md` / `CONTEXT/` 与相关源层规则加载，再整理豆包输入？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SOURCE-RULE` | `N2-SOURCE-RULE-REVIEW` | `source_rules_reviewed` 中的 skill/context/reference/step/type/review 记录 |
+| 当前模型是否先完成 repair 技能、owning stage、项目 `MEMORY.md` / `CONTEXT/` 与相关源层规则加载，再整理豆包输入？ | `PASS-REPAIR-02` | `FAIL-AIGC-REPAIR-SOURCE-RULE` | `N2-SOURCE-RULE-REVIEW` | `source_rules_reviewed` 中的 skill/context/reference/type/review 记录 |
 | `doubao_task_packet` 是否结构化包含目标、固定事实、禁止改动、输出格式、语言和 acceptance gate，而不是把杂乱上下文原样倾倒给 provider？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | 完整 `doubao_task_packet`、`forbidden_changes`、`acceptance_gate` |
 | 豆包输出是否只作为 `provider_suggestion` / `provider_draft` / `provider_analysis`，写回前仍经过 owning stage 与 repair review gate？ | `PASS-REPAIR-05` | `FAIL-AIGC-REPAIR-REVIEW` | `N9-REVIEW-GATE` | provider output 分类、review verdict、写回前的 owner gate 记录 |
 | provider 调用失败时，是否显式记录 `provider_status: degraded` 与 `fallback: current-model-local-plan`，且没有宣称豆包已执行？ | `PASS-REPAIR-04` | `FAIL-AIGC-REPAIR-DOUBAO` | `N6-DOUBAO-LANE` | `provider_evidence.status: degraded`、失败原因、fallback 范围 |

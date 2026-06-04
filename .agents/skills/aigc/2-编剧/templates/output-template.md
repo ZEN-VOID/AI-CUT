@@ -28,7 +28,7 @@ genre_profile:
 rhythm_strategy:
   primary:
   secondary:
-screenplay_field_policy: align_with_2_编导_script_layer
+screenplay_field_policy: align_with_2_编剧_screenplay_layer
 audio_visual_pairing: required
 same_frame_continuity: required
 review_verdict:
@@ -38,7 +38,7 @@ review_verdict:
 
 ## 题材与叙事情节画像
 
-## 2-编导交接摘要
+## 2-编剧交接摘要
 
 【剧本正文】
 

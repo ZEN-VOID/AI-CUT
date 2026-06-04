@@ -1,6 +1,6 @@
 # Field Routing And Audio-Visual Contract
 
-> **契约地位**：本文件是 `2-编导` script layer 的**执行细则**，定义字段路由、声画配对和可感知化规范。
+> **契约地位**：本文件是 `2-编剧` screenplay layer 的**执行细则**，定义字段路由、声画配对和可感知化规范。
 >
 > **交叉引用**：本文件中引用的保真规则编号对应 `script-adaptation-contract.md`：
 > - `FR-1` ~ `FR-7` 定义不可违背底线
@@ -443,7 +443,7 @@
 
 ### 10.3 Long Dialogue Beat Segmentation（长对白节拍拆分）
 
-当上游小说原文中同一说话者存在单段长对白时，`2-编导` script layer 必须在对白冻结前提下建立 `long_dialogue_beat_map`。这不是改写台词，而是把同一段原文对白拆成可演、可拍、可被下游摄影承托的连续节拍。
+当上游小说原文中同一说话者存在单段长对白时，`2-编剧` screenplay layer 必须在对白冻结前提下建立 `long_dialogue_beat_map`。这不是改写台词，而是把同一段原文对白拆成可演、可拍、可被下游摄影承托的连续节拍。
 
 **触发建议**：
 - 30 字以内且只有一个明确动作的对白可保留为单句。
@@ -456,14 +456,14 @@
 - 不在专名、数字、固定称谓、成语、未完成因果短语或依存子句中间断开。
 - 优先在语义动作变化处断开：试探转施压、解释转请求、铺陈转揭示、伪装转泄露、命令转威胁。
 - 优先在表演气口处断开：呼吸换气、短暂停顿、吞咽、笑意收住、对手不接话、手部动作停点。
-- 若上游明确要求一口气说完，仍可建立节拍图，但标记 `breath_or_pause_hint: continuous/no_pause`，由 `2-编导` performance layer 处理连续气口。
+- 若上游明确要求一口气说完，仍可建立节拍图，但标记 `breath_or_pause_hint: continuous/no_pause`，由 `5-表演` stage 处理连续气口。
 - 每个节拍必须有就近 `对白画面` 或相邻 `表情特写`、`心理反应`、`群像画面`、`道具特写` 承托；不得让整段长对白共用一个泛化画面。
 - 每 2-3 个长对白节拍至少出现一次非说话者信息：听者反应、群像压力、手部动作、空间距离、道具状态、环境声或沉默余波。
 
 **禁止模式**：
 - 将长对白整体压成一行，后面只接一条“说话者看着对方说完”的 `对白画面`。
 - 为了断句而润色、删词、换词、补充台词或重排语序。
-- 把“长对白需要多机位”等摄影指令写入 `2-编导` script layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `4-摄影`。
+- 把“长对白需要多机位”等摄影指令写入 `2-编剧` screenplay layer 正文；编剧阶段只提供节拍、气口、反应和可见承托，镜头方案交给 `8-摄影`。
 
 ---
 
@@ -541,15 +541,15 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 每条对白、独白、内心独白、旁白和音效是否就近配对对应 `*画面` 字段，且配对表达同一命题而非复述声音文本？ | `GATE-SCRIPT-05` | `FAIL-PAIRING` | `steps/directing-workflow.md#N4-FIELD` | `audio_visual_pairing_map` 逐条列出声音字段、对应画面字段、source anchor 和配对状态 |
-| 相邻 `*画面`、`角色动作`、`表情特写`、`心理反应`、`道具特写`、`群像画面` 是否通过同画面连续性检查，未把同一时刻/同一主体/同一动作链重复拆成多个拍摄单位？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-10` | `FAIL-PAIRING` / `FAIL-CONCRETE-VISUAL` | `steps/directing-workflow.md#N4-FIELD` | `same_frame_continuity_map` 记录视觉簇、合并/保留决策、保留字段和下游拆分风险 |
-| 声音字段是否只写可听声音本体，未把时间、事件说明、声音类别或叙述概括写进引号？ | `GATE-SCRIPT-11` | `FAIL-SOUND-LITERAL` | `steps/directing-workflow.md#N4-FIELD` | `sound_literal_risk_map` 记录问题声音字段、修正后的声音本体和画面承托 |
-| 对白字段标题是否为 `对白（真实角色名，语态/状态短语）`，角色名不是模板占位，引号内没有动作描写，语态没有改写上游已有对白含义；若为派生语音，是否回指非引号客观叙事？ | `GATE-SCRIPT-04` / `GATE-BD-19` | `FAIL-DIALOGUE` / `FAIL-BD-NARRATION-VOICE` | `steps/directing-workflow.md#N5-SCRIPT-DRAFT` / `steps/directing-workflow.md#N4.2-NOVEL-TRANSFORM` | `dialogue_lock_map` 记录上游原句、输出对白、真实角色名、语态来源和引号纯度；`narration_to_voice_adaptation_map` 记录派生语音来源 |
-| 上游单段长对白是否拆成连续原文节拍，拼回逐字等于上游对白，并为每个节拍配有就近可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录原文片段、节拍动作、气口/停顿、配对画面和拼回校验 |
-| 所有 `*画面`、`心理反应`、`表情特写`、`表演提示` 是否回答可见/可听/可执行内容，没有抽象概念、解释性因果、作者判断、任务说明或规则复述泄露？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-12` | `FAIL-CONCRETE-VISUAL` / `FAIL-PLACEHOLDER-LEAK` | `steps/directing-workflow.md#N4-FIELD` / `steps/directing-workflow.md#N5-SCRIPT-DRAFT` | `concrete_visual_risk_map` 与 `placeholder_leak_risk_map` 记录抽象句、占位句和修正字段 |
-| `角色动作` / `动作画面` 是否只写客观可拍动作、速度、力度、重心和空间运动，没有 `试图/想要/打算/意图` 等主观预判词？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `steps/directing-workflow.md#N4-FIELD` | `objective_action_purity_map` 与 `objective_action_purity_evidence` 记录删除的主观词和客观投影 |
-| 上游明确的速度、停顿、力度是否在动作字段中保留，未把关键动作改成无节奏的动作清单？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `steps/directing-workflow.md#N4-FIELD` | `objective_action_purity_map.motion_dynamics` 记录速度/力度源词和输出动作节奏 |
-| `环境描写` 是否只写场景写景材料，且同一 slugline 内空间、背景、光线、空气或材质焦点变化时有必要环境刷新？ | `GATE-SCRIPT-13` / `GATE-SCRIPT-14` | `FAIL-ENVIRONMENT-PURITY` / `FAIL-ATMOSPHERIC-ENVIRONMENT` | `steps/directing-workflow.md#N4-FIELD` | `environment_purity_map` 与 `environment_refresh_map` 记录写景边界、刷新触发和新增事件风险 |
-| `心理反应` 是否写明确主体的可感知反应，而非抽象内视、文学比喻、无主体结论或直接情绪标签？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-17` | `FAIL-CONCRETE-VISUAL` / `FAIL-CREATIVE-EVIDENCE` | `steps/directing-workflow.md#N4-FIELD` | `objective_action_purity_evidence` 记录直接情绪转译、主体和可感知承托 |
-| `表情特写` 是否只在关键面部 beat 使用，写具体面部分区和瞬间形态，未写情绪标签、心理解释、机位、景别或镜头运动？ | `GATE-SCRIPT-18` | `FAIL-FACIAL-EXPRESSION-FIELD` | `steps/directing-workflow.md#N4-FIELD` | `facial_expression_anchor_evidence` 记录触发、主体、面部分区、moment_shape 和越权检查 |
-| 场景标题是否只因真实地点/空间范围或日夜变化新开，同一 slugline 不因规则宣告、角色入场或叙事 beat 重复开场？ | `GATE-SCRIPT-07` | `FAIL-SLUGLINE` | `steps/directing-workflow.md#N3-SCENE` | `scene_slugline_table` 与 `scene_order_trace` 记录 slugline、首次出现位置和复用情况 |
+| 每条对白、独白、内心独白、旁白和音效是否就近配对对应 `*画面` 字段，且配对表达同一命题而非复述声音文本？ | `GATE-SCRIPT-05` | `FAIL-PAIRING` | `../SKILL.md#N4-FIELD` | `audio_visual_pairing_map` 逐条列出声音字段、对应画面字段、source anchor 和配对状态 |
+| 相邻 `*画面`、`角色动作`、`表情特写`、`心理反应`、`道具特写`、`群像画面` 是否通过同画面连续性检查，未把同一时刻/同一主体/同一动作链重复拆成多个拍摄单位？ | `GATE-SCRIPT-05` / `GATE-SCRIPT-10` | `FAIL-PAIRING` / `FAIL-CONCRETE-VISUAL` | `../SKILL.md#N4-FIELD` | `same_frame_continuity_map` 记录视觉簇、合并/保留决策、保留字段和下游拆分风险 |
+| 声音字段是否只写可听声音本体，未把时间、事件说明、声音类别或叙述概括写进引号？ | `GATE-SCRIPT-11` | `FAIL-SOUND-LITERAL` | `../SKILL.md#N4-FIELD` | `sound_literal_risk_map` 记录问题声音字段、修正后的声音本体和画面承托 |
+| 对白字段标题是否为 `对白（真实角色名，语态/状态短语）`，角色名不是模板占位，引号内没有动作描写，语态没有改写上游已有对白含义；若为派生语音，是否回指非引号客观叙事？ | `GATE-SCRIPT-04` / `GATE-BD-19` | `FAIL-DIALOGUE` / `FAIL-BD-NARRATION-VOICE` | `../SKILL.md#N5-SCRIPT-DRAFT` / `../SKILL.md#N4.2-NOVEL-TRANSFORM` | `dialogue_lock_map` 记录上游原句、输出对白、真实角色名、语态来源和引号纯度；`narration_to_voice_adaptation_map` 记录派生语音来源 |
+| 上游单段长对白是否拆成连续原文节拍，拼回逐字等于上游对白，并为每个节拍配有就近可见承托？ | `GATE-SCRIPT-23` | `FAIL-LONG-DIALOGUE-BEAT` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `long_dialogue_beat_map` 记录原文片段、节拍动作、气口/停顿、配对画面和拼回校验 |
+| 所有 `*画面`、`心理反应`、`表情特写`、`表演提示` 是否回答可见/可听/可执行内容，没有抽象概念、解释性因果、作者判断、任务说明或规则复述泄露？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-12` | `FAIL-CONCRETE-VISUAL` / `FAIL-PLACEHOLDER-LEAK` | `../SKILL.md#N4-FIELD` / `../SKILL.md#N5-SCRIPT-DRAFT` | `concrete_visual_risk_map` 与 `placeholder_leak_risk_map` 记录抽象句、占位句和修正字段 |
+| `角色动作` / `动作画面` 是否只写客观可拍动作、速度、力度、重心和空间运动，没有 `试图/想要/打算/意图` 等主观预判词？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `../SKILL.md#N4-FIELD` | `objective_action_purity_map` 与 `objective_action_purity_evidence` 记录删除的主观词和客观投影 |
+| 上游明确的速度、停顿、力度是否在动作字段中保留，未把关键动作改成无节奏的动作清单？ | `GATE-SCRIPT-08` | `FAIL-ACTION-PURITY` | `../SKILL.md#N4-FIELD` | `objective_action_purity_map.motion_dynamics` 记录速度/力度源词和输出动作节奏 |
+| `环境描写` 是否只写场景写景材料，且同一 slugline 内空间、背景、光线、空气或材质焦点变化时有必要环境刷新？ | `GATE-SCRIPT-13` / `GATE-SCRIPT-14` | `FAIL-ENVIRONMENT-PURITY` / `FAIL-ATMOSPHERIC-ENVIRONMENT` | `../SKILL.md#N4-FIELD` | `environment_purity_map` 与 `environment_refresh_map` 记录写景边界、刷新触发和新增事件风险 |
+| `心理反应` 是否写明确主体的可感知反应，而非抽象内视、文学比喻、无主体结论或直接情绪标签？ | `GATE-SCRIPT-10` / `GATE-SCRIPT-17` | `FAIL-CONCRETE-VISUAL` / `FAIL-CREATIVE-EVIDENCE` | `../SKILL.md#N4-FIELD` | `objective_action_purity_evidence` 记录直接情绪转译、主体和可感知承托 |
+| `表情特写` 是否只在关键面部 beat 使用，写具体面部分区和瞬间形态，未写情绪标签、心理解释、机位、景别或镜头运动？ | `GATE-SCRIPT-18` | `FAIL-FACIAL-EXPRESSION-FIELD` | `../SKILL.md#N4-FIELD` | `facial_expression_anchor_evidence` 记录触发、主体、面部分区、moment_shape 和越权检查 |
+| 场景标题是否只因真实地点/空间范围或日夜变化新开，同一 slugline 不因规则宣告、角色入场或叙事 beat 重复开场？ | `GATE-SCRIPT-07` | `FAIL-SLUGLINE` | `../SKILL.md#N3-SCENE` | `scene_slugline_table` 与 `scene_order_trace` 记录 slugline、首次出现位置和复用情况 |

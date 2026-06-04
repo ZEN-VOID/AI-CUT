@@ -76,6 +76,6 @@ finding:
 
 1. 运行结构 validator。
 2. 检查 `SKILL.md` 是否只保留入口、路由和输出合同。
-3. 检查 `references/`、`steps/`、`types/`、`review/` 是否各有单一 owner。
+3. 检查 `SKILL.md` 主节点、`references/`、`types/`、`review/` 是否各有单一 owner。
 4. 检查输出模板是否包含 Output Contract Alignment。
 5. 检查 legacy runtime 是否只作为兼容输入出现。

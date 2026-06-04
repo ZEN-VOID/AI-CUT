@@ -22,7 +22,7 @@
 1. 识别学习对象的媒介、目标 skill 和写回权限。
 2. 从 `Package Index` 选择可叠加类型包。
 3. 加载所有选中类型包的 `context_files`。
-4. 将类型画像交给 `steps/learning-workflow.md`，再按需要加载视频、书籍、冲突核查或全局改进 references。
+4. 将类型画像交给 `SKILL.md#Thinking-Action Node Map`，再按需要加载视频、书籍、冲突核查或全局改进 references。
 
 ## Selection Rule
 

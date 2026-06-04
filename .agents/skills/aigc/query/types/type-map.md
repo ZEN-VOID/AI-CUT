@@ -16,6 +16,5 @@
 
 1. 锁定项目根候选和用户查询目标。
 2. 加载 `types/query-type-map.md` 生成 truth role。
-3. 将 truth role 交给 `steps/query-workflow.md` 读取 canonical carrier。
+3. 将 truth role 交给 `SKILL.md#Thinking-Action Node Map` 读取 canonical carrier。
 4. 涉及完成、通过或交付时补读 `review/review-contract.md`。
-
