@@ -8,7 +8,11 @@ metadata:
 
 # aigc 11-主体 / 场景 / 2-设计
 
-`$aigc-scene-design` 消费上游 `$aigc-scene-list` 的汇总式场景清单，为每个场景主体输出可制作、可审查、可进入图像生成阶段的单场景细目设计稿。核心创作、研究判断、空间想象、摄影语汇和提示词蒸馏必须由 LLM 直接完成；脚本只允许承担读取、字段校验、文件命名归一、字数检查和目录检查等机械辅助。研究层不是孤立考据段，必须形成 `research_brief -> source_posture -> uncertainty_register -> visual_translation -> prompt_evidence_chain` 的可追溯设计证据链。
+`$aigc-scene-design` 消费上游 `$aigc-scene-list` 的汇总式场景清单，为每个场景主体输出可制作、可审查、可进入图像生成阶段的单场景细目设计稿。核心创作、研究判断、空间想象、摄影语汇和提示词蒸馏必须由 LLM 直接完成；脚本只允许承担读取、字段校验、文件命名归一、字数检查和目录检查等机械辅助，不得批量生成、批量插入、正则套句或映射投影任何创作正文。研究层不是孤立考据段，必须形成 `research_brief -> source_posture -> uncertainty_register -> visual_translation -> prompt_evidence_chain` 的可追溯设计证据链。
+
+硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
+
+脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句或映射投影生成的研究考据、物语、空间解构、摄影描述、prompt evidence chain 或英文提示词，直接判定为 `FAIL-SCENE-DESIGN-PSEUDO-DIFF`；字段齐全、prompt 长度合规、ID 一致或风格锚点存在不得抵消该失败。
 
 ## Context Loading Contract
 
@@ -38,7 +42,7 @@ metadata:
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能只承担查询、恢复、审查承接或辅助动作；不会自动改写本技能的场景设计 canonical 输出，除非父级合同或用户明确要求回接。
-- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 场景设计主创或主 agent 最终裁决。
+- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 场景设计主创或主 agent 最终裁决，不得批量生成、批量插入、正则套句或映射投影设计正文。
 
 ## Input Contract
 
@@ -152,7 +156,7 @@ stateDiagram-v2
 3. 按用户指定、清单缺口或 manifest 的 `design_gaps` 选择目标场景，不新增未在上游清单出现的场景主体；已有设计稿默认跳过，除非用户明确要求 repair / regenerate。
 4. 按 `types/scene-design-type-map.md` 形成 `type_profile`：现实建筑、自然地貌、城市街区、室内空间、交通/过渡空间、仪式空间、超现实/异化空间、复合空间等。
 5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标场景上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
-6. 按 `references/scene-design-contract.md` 由 LLM 完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
+6. 按 `references/scene-design-contract.md` 由 LLM 从上到下逐个场景理解清单主体、空间功能、项目风格和初始化综合后完成研究层闭环：`research_brief`、`source_posture`、`uncertainty_register`、`visual_translation`；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，冷门信息可在许可条件下网络搜索，并记录来源、推断边界或未解不确定性。
 7. 按 `references/scene-design-contract.md`、`references/design-output-contract.md` 与 `../../../_shared/anti-abstract-language-contract.md` 由 LLM 完成物语、解构、英文提示词与 `prompt_evidence_chain`；必须把抽象空间气质、主题承载、风格标签和百科式研究转译为空间结构、尺度边界、材质表面、色彩陈设、动线、镜头距离、构图、光线、焦段、景深和可追溯 prompt token；最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、画面基调、场景风格、时间地域、空镜负向词等前缀/后缀；提示词中的关键空间、材质、光线、构图、风格、时间和地域 token 必须能回指研究、初始化综合指导或设计依据。
 8. 为每个场景锁定唯一主体 ID；默认使用上游清单或文件名前缀 `S###`。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段，并作为英文 prompt 的开头 `<主体ID>: ...`。
 9. 按 `templates/output-template.md` 输出单场景 Markdown，必须包含：名称/首次登场/原文描述复述、研究考据/Research Brief、物语、解构、提示词设计。
@@ -172,12 +176,13 @@ stateDiagram-v2
 | `FIELD-SCENE-DESIGN-04` | 物语 | 解释空间与角色关系、叙事和主题的关系，不写成剧情正文，不让人物入画 | `FAIL-SCENE-DESIGN-04` |
 | `FIELD-SCENE-DESIGN-05` | 解构 | `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，并包含 `Scene Design` 与 `Cinematography` 两组字段 | `FAIL-SCENE-DESIGN-05` |
 | `FIELD-SCENE-DESIGN-06` | 提示词 | 引用 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、时间锚点和地域锚点；最终英文整合提示词必须以主体 ID 号开头，并显式包含时间和地域，英文，不超过 2000 characters；必须整合 `## 4. 解构` 中 Scene Design 与 Cinematography 的全部有效信息，而不是只补前缀、后缀或少量非核心 token；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-SCENE-DESIGN-06` |
-| `FIELD-SCENE-DESIGN-07` | LLM-first | 脚本没有生成核心创作正文或提示词 | `FAIL-SCENE-DESIGN-07` |
+| `FIELD-SCENE-DESIGN-07` | LLM-first | 脚本没有生成、批量插入、正则套句或映射投影核心创作正文或提示词 | `FAIL-SCENE-DESIGN-07` |
 | `FIELD-SCENE-DESIGN-08` | 写入边界 | 只写项目 `11-主体/场景/2-设计` 输出，不改 registry 或其他技能 | `FAIL-SCENE-DESIGN-08` |
 | `FIELD-SCENE-DESIGN-09` | 纯空镜约束 | 摄影与 prompt 明确为纯空镜，不出现人物、人体局部、剪影、倒影或人群 | `FAIL-SCENE-DESIGN-09` |
 | `FIELD-SCENE-DESIGN-10` | Prompt 证据链 | `prompt_evidence_chain` 将关键 prompt token 回指来源、推断或设计翻译 | `FAIL-SCENE-DESIGN-10` |
 | `FIELD-SCENE-DESIGN-11` | Init team synthesis | 已按 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，并把节点级判断、执行取舍、局部 patch 或风险提示作为创作前上下文；缺失时有明确记录 | `FAIL-SCENE-DESIGN-11` |
 | `FIELD-SCENE-DESIGN-12` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象空间气质、主题、风格和研究判断已转为可见空间结构、材质、光线、构图与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
+| `FIELD-SCENE-DESIGN-13` | 反模板伪差异 | 研究、物语、Scene Design、Cinematography、prompt evidence chain 和英文提示词不是由脚本批量生成、批量插入、正则套句、映射投影、模板槽位、关键词锚点替换、句式轮换或同义改写制造；每个场景至少有一个不可互换的空间结构、材质/光线或镜头裁决证据 | `FAIL-SCENE-DESIGN-PSEUDO-DIFF` |
 
 ## Thought Pass Map
 
@@ -212,7 +217,7 @@ stateDiagram-v2
 - 从剧情想象新增了上游清单没有的场景主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有场景设计稿。
 - 未读取 `north_star.yaml` 或 `team.yaml.init_synthesis` 就生成风格判断。
-- 研究考据由脚本、模板拼接或无来源断言替代 LLM 判断。
+- 研究考据由脚本、模板拼接、批量插入、正则套句、映射投影或无来源断言替代 LLM 判断。
 - 研究层只有百科式段落，没有 `research_brief`、来源姿态、不确定性和视觉翻译。
 - 英文提示词关键 token 无法通过 `prompt_evidence_chain` 回指来源、推断或设计选择。
 - `解构` 缺少 `Scene Design` 或 `Cinematography` 字段。
@@ -223,6 +228,7 @@ stateDiagram-v2
 - 场景 prompt 或摄影设计允许人物、人体局部、剪影、倒影或人群进入画面。
 - 把本阶段输出写回 `1-清单`、`3-生成`、registry、父级目录或其他 worker 范围。
 - 执行初始化综合消费时调用 team 身份、解析旧 stage profile、补造顾问问答，或没有把初始化综合转成节点级可执行判断、局部 patch 或风险提示。
+- 研究/物语/解构/prompt 字段完整但不同场景只是替换场景名、时代地域词、风格前后缀或同义形容词，没有场景专属设计判断。
 
 必经链路：
 
@@ -276,5 +282,6 @@ stateDiagram-v2
 - 英文提示词以主体 ID 号开头，不超过 2000 characters，显式承接 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、时间锚点与地域锚点，并已整合 `## 4. 解构` 的 Scene Design 与 Cinematography 全部有效信息。
 - `prompt_evidence_chain` 能解释关键 prompt token 来自哪条来源事实、推断或设计翻译。
 - 英文提示词和摄影字段明确固定为纯空镜，并包含 `no people / no human figures` 等负向约束。
-- 未使用脚本生成核心创作正文、研究判断、空间设计、摄影设计或提示词。
+- 未使用脚本生成、批量插入、正则套句或映射投影核心创作正文、研究判断、空间设计、摄影设计或提示词。
+- 未使用脚本批量生成、批量插入、正则套句、映射投影、映射表、规则模板、关键词锚点替换、句式轮换或同义改写制造场景设计伪差异；疑似命中时已废弃候选稿并回到 LLM 研究/解构/prompt 节点。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 初始化综合消费 本地流程。

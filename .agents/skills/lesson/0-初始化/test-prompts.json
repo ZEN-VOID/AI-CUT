@@ -1,0 +1,22 @@
+[
+  {
+    "id": "new-lesson-scaffold",
+    "prompt": "初始化一个课程课件项目《AI销售新人训练营》，最终需要 DOC、PPT、HTML 三端输出。",
+    "expected": "Route to lesson-init, resolve projects/lesson/AI销售新人训练营/, create the 0-8 stage scaffold, sources, content-model, assets, MEMORY.md, and CONTEXT/README.md without generating course content or final deliverables."
+  },
+  {
+    "id": "repair-missing-memory-context",
+    "prompt": "修复 projects/lesson/企业内训课 的初始化骨架，补齐缺失的 MEMORY.md 和 CONTEXT/。",
+    "expected": "Treat as repair_scaffold, preserve existing files, create only missing scaffold pieces, and report MEMORY.md plus CONTEXT/README.md paths."
+  },
+  {
+    "id": "memory-update-only",
+    "prompt": "记住这个课程以后都要偏实战案例，少理论，面向一线销售新人。项目是 projects/lesson/销售话术课。",
+    "expected": "Treat as memory_update under projects/lesson/销售话术课/, update or create MEMORY.md with long-term course preferences, and avoid generating stage artifacts."
+  },
+  {
+    "id": "wrong-media-route",
+    "prompt": "初始化一个短剧项目《夜班地铁》，生成分镜和视频。",
+    "expected": "Do not initialize under projects/lesson/. Block or route to the AIGC film/video workflow because the media target is video drama, not lesson/courseware."
+  }
+]

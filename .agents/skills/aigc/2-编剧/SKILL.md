@@ -25,8 +25,9 @@ metadata:
 ## LLM-First Creative Authorship Contract
 
 - 题材判断、叙事拆解、节奏重构、对白/独白/喊出式信息点转译、高潮强化、尾钩设计、必要细节补充和剧本正文生成必须由 LLM 直接完成。
-- `scripts/` 只能做读取、字段覆盖统计、格式检查、diff、校验、报告辅助和模板投影，不得生成 canonical 剧本正文、节奏方案、对白、尾钩或高潮设计。
-- 若脚本、模板或批处理结果看似生成了创作正文，只能视为候选草稿或机械投影，必须经 LLM 主创判断和 review gate 后才能写回。
+- 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
+- `scripts/` 只能做读取、字段覆盖统计、格式检查、diff、校验和报告辅助，不得生成、插入、改写或修补 canonical 剧本正文、节奏方案、对白、尾钩、高潮设计或 handoff 文案。
+- 若脚本、模板、正则、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句或映射投影产生了看似可用的创作正文，必须废弃该机械产物，回到 LLM 主创节点重判，不得作为候选稿表层润色后写回。
 
 ## Runtime Spine Contract
 
@@ -216,8 +217,8 @@ Reject or clarify when:
 | `N3-SCR-FAITHFUL-PROJECTION` | 小说到剧本基础投影 | source、imported script/field/narration contracts | 按 Hollywood 格式和本技能场景标题规范建立场景；将叙述拆成画面、动作、对白、独白、内心独白、旁白、音效、道具证据；保留上游关键事实和既有对白；场景标题含天气后缀 | `source_to_script_map`、`dialogue_freeze_check`、`scene_heading_check` | `N4` / `R1` | 上游事实/顺序/对白无授权不得漂移；场景标题缺天气失败 |
 | `N4-SCR-RHYTHM-ENGINE` | 根据题材和情节设计短剧节奏 | `genre_narrative_profile`、`beat_inventory`、节奏 references | 匹配 1-2 个主节奏机制和 1 个辅助机制；标注开场 0-10 秒钩子、中段升级、反转或认知位移、集末尾钩；每个节奏点必须绑定场内承托 | `rhythm_strategy_map`、`rhythm_support_evidence` | `N5` / `R1` | 不允许只写“快节奏/强反转/爽感强”；必须有承托字段 |
 | `N5-SCR-CLIMAX-HOOK` | 强化高潮和尾钩 | 剧本候选、高潮/尾钩 references | 每集锁定 1 个主高潮或 micro-payoff，设计视觉冲击、声音冲击、情绪冲击、行动落点；集末设计最后可见/可听/可感受的尾钩或迷你彩蛋 | `climax_treatment_map`、`episode_final_image_map` | `N6` / `R1` | 高潮不得新增结果；尾钩必须让下一集问题未闭合 |
-| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates | LLM 直接写 `candidate_screenplay`；正文只使用 `2-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；必要细节补充必须回指 source 或连贯性需求；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题 | `candidate_screenplay`、`field_routing_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`handoff_evidence` | `N7` / `R1` | 候选稿必须可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位 |
-| `N7-SCR-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review contract、validation checklist | 执行 `GATE-SCR-01..18`；阻断项直接回对应节点最小修复，最多 3 轮；无法修复时 blocked 并报告最早 source owner | `review_verdict`、`repair_actions`、`validation_result` | `N8` / `R1` / `N9-SCR-BLOCKED` | review 未通过不得写回 canonical |
+| `N6-SCR-CANDIDATE-DRAFT` | 生成候选逐集剧本和 AIGC 下游交接证据 | N2-N5 evidence、templates | LLM 直接写 `candidate_screenplay`；正文只使用 `2-编剧` script layer 正式字段；对白、独白、内心独白、旁白、音效等声音字段必须就近配对对应画面字段，并检查相邻画面字段是否属于同一拍摄单位；必要细节补充必须回指 source 或连贯性需求；AIGC 下游理解、声画同步、节奏、高潮和尾钩证据写入 frontmatter 摘要或执行报告，不作为正文标题；生成后必须做 `anti_scripted_draft_audit`，排除模板句式、锚点替换、批量插入、正则套句、映射投影和同义改写批量痕迹 | `candidate_screenplay`、`field_routing_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`handoff_evidence`、`anti_scripted_draft_audit` | `N7` / `R1` | 候选稿必须可拍、可听、可演、可被下游解析，且不会把同一画面误拆成多个拍摄单位；脚本化生成、批量插入、正则套句或映射投影直接 fail |
+| `N7-SCR-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review contract、validation checklist | 执行 `GATE-SCR-01..19`；阻断项直接回对应节点最小修复，最多 3 轮；无法修复时 blocked 并报告最早 source owner | `review_verdict`、`repair_actions`、`validation_result` | `N8` / `R1` / `N9-SCR-BLOCKED` | review 未通过不得写回 canonical |
 | `N8-SCR-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract、report evidence standard | 写 `projects/aigc/<项目名>/2-编剧/第N集.md` 和 `执行报告.md`；批量任务逐集追加报告；报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`；不写 legacy 路径或下游真源 | `output_path_check`、`execution_report`、`reference_execution_matrix`、`rule_evidence_map`、`downstream_handoff_manifest` | done | 输出路径唯一且报告含必需证据索引；缺任一报告证据不得 pass |
 | `R1-SCR-REWORK` | 源层返工 | fail code、review evidence | 按失败码回到 N2-N7 或对应 reference；若发现 reference/模板/路由缺陷，进入技能维护任务而非运行中自改 | `root_cause_trace`、`rework_target` | `N2` / `N3` / `N4` / `N5` / `N6` / `N7` | 不得用局部润色掩盖保真、节奏、声画或输出路径失败 |
 | `N9-SCR-BLOCKED` | 阻断收束 | blocking evidence | 输出阻断原因、最早 source owner 和用户需补信息，不写回 canonical | `blocked_report` | done | 只在 source、权限或三轮返工仍失败时进入 |
@@ -232,7 +233,7 @@ flowchart TD
     D --> E["N4-SCR-RHYTHM-ENGINE\n短剧节奏机制匹配"]
     E --> F["N5-SCR-CLIMAX-HOOK\n高潮+尾钩"]
     F --> G["N6-SCR-CANDIDATE-DRAFT\n剧本正文+AIGC字段"]
-    G --> H{"N7-SCR-REVIEW-REPAIR\nGATE-SCR-01..18"}
+    G --> H{"N7-SCR-REVIEW-REPAIR\nGATE-SCR-01..19"}
     H -->|"needs_rework"| R["R1-SCR-REWORK"]
     R --> C
     H -->|"pass"| I["N8-SCR-WRITEBACK-CLOSE\n2-编剧/第N集.md + 执行报告.md"]
@@ -245,7 +246,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个 source；批量任务逐集独立执行 N2-N8；每集至少覆盖全部场景和全部 narrative beats | `Thinking-Action Node Map.actions` | `FAIL-QUANT-ACTION-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `genre_narrative_profile`、3-7 个 `beat_inventory`、1 个 `rhythm_strategy_map`、1 个 `climax_treatment_map`、1 个 `episode_final_image_map`、3 组以上 `audio_visual_pairing_map`，并对全部相邻画面字段簇输出 `same_frame_continuity_map`；若场景不足则按实际场景并报告 | `Thinking-Action Node Map.evidence` | `FAIL-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-SCR-01..18` 阻断项为 0；非阻断 followup 不超过 3 项，且不得影响保真、声画同步、输出路径、下游 handoff 或执行报告证据完整性 | `gate` / `Convergence Contract.pass_condition` | `FAIL-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-SCR-01..19` 阻断项为 0；非阻断 followup 不超过 3 项，且不得影响保真、声画同步、输出路径、下游 handoff、anti-scripted authorship 或执行报告证据完整性 | `gate` / `Convergence Contract.pass_condition` | `FAIL-QUANT-THRESHOLD` |
 | `report_evidence_count` | 正式写回时每集至少包含 1 个 `Execution Decision Trace`、1 个 `Reference Execution Matrix`、1 个 `Rule Evidence Map`、1 个 `N/A Justification`、1 个 `Repair Log`、1 个 `AIGC Handoff Manifest`；没有返工时 `Repair Log` 写 `none` 并说明审查结果 | `Execution Report Evidence Standard` / `GATE-SCR-16` | `FAIL-QUANT-REPORT-EVIDENCE` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked，报告最早 source owner 和不可修原因 | `R1-SCR-REWORK` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 若缺少明确题材或项目上下文，保守按文本事实建立临时画像，不写入项目 `MEMORY.md`；若缺少天气信息，场景标题写 `天气待定` 并在报告列为 followup | `Review Gate Binding.report_evidence` | `FAIL-QUANT-FALLBACK` |
@@ -303,7 +304,7 @@ flowchart TD
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、修复打法 | 重定义核心合同、输出路径或 gate | `Learning / Context Writeback` |
 | `references/` | 任一 reference 触发时 | 授权细则目录 | 新增未被 `SKILL.md` 声明的入口、输出或 gate | `Module Loading Matrix` |
 | `scripts/` | 机械校验说明或后续 validator 触发时 | 机械辅助目录 | 生成创作正文或替代 LLM 判断 | `LLM-First Creative Authorship Contract` |
-| `templates/` | 输出投影或报告格式触发时 | 格式投影目录 | 偷渡执行规则或完成标准 | `Output Contract` |
+| `templates/` | 输出样板或报告格式触发时 | 格式样板目录 | 偷渡执行规则或完成标准 | `Output Contract` |
 | `review/` | 候选稿审查、review_only 或 repair 触发时 | 审查细则目录 | 改写业务真源 | `Review Gate Binding` |
 | `types/` | 题材/叙事分型触发时 | 类型上下文目录 | 替代主入口路由或节点 | `Type Routing Matrix` |
 | `knowledge-base/` | 需要追溯外部资料来源时 | 外部资料索引目录 | 自动经验沉淀或强制执行合同 | `CONTEXT.md` |
@@ -318,7 +319,7 @@ flowchart TD
 | `references/script-adaptation-contract.md` | 每次基础投影 | 保真剧本化核心细则 | 改成 legacy 输出或越权写导演表演 | `N3-SCR-FAITHFUL-PROJECTION` |
 | `references/field-routing-and-audio-visual-contract.md` | 每次字段路由、声画同步和同画面连续性检查 | 字段纯度、声画配对、同画面合并、长对白节拍 | 生成下游镜头或视频参数 | `N3/N6` |
 | `types/type-map.md` | 每次题材/叙事分型 | 类型包索引 | 替代主入口路由 | `N2-SCR-GENRE-NARRATIVE` |
-| `templates/output-template.md` | 写剧本和报告 | 输出投影 | 偷渡新的完成门 | `Output Contract` |
+| `templates/output-template.md` | 写剧本和报告 | 输出格式样板 | 偷渡新的完成门 | `Output Contract` |
 | `review/review-contract.md` | 候选稿 review、review_only、repair | 质量门展开 | 改写业务真源 | `Review Gate Binding` |
 | `scripts/README.md` | 需要机械校验说明 | 脚本边界 | 生成创作正文 | `LLM-First Creative Authorship Contract` |
 | `knowledge-base/research-sources.md` | 需要追溯外部资料来源 | 外部资料索引 | 自动经验沉淀或强制合同 | `references/screenwriting-masters-and-shortdrama-rhythm-contract.md` |
@@ -333,14 +334,14 @@ flowchart TD
 | `voice_adaptation_repair` / `FAIL-TYPE-VOICE` / `FAIL-SCR-VOICE` / `FAIL-SCR-AUDIO-VISUAL` | `references/narration-to-voice-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `review/review-contract.md` | `N3/N6/N7` | `C2-SCREENPLAY-FAITHFUL` | each added voice has source anchor and owner |
 | `FAIL-SCR-CLIMAX` / `FAIL-SCR-HOOK` | `references/climax-visual-treatment-contract.md`, `references/episode-final-image-contract.md`, `references/directorial-authorship-contract.md`, `references/screenwriting-masters-and-shortdrama-rhythm-contract.md`, `review/review-contract.md` | `N5/N7` | `C4-CLIMAX-HOOK-READY` | climax/hook maps are present |
 | `FAIL-SCR-SCENE-HEADING` / `FAIL-SCR-FAITHFULNESS` / `FAIL-SCR-SCREENPLAY-QUALITY` | `references/hollywood-quality-spec.md`, `references/script-adaptation-contract.md`, `references/field-routing-and-audio-visual-contract.md`, `templates/output-template.md`, `review/review-contract.md` | `N3/N6/N8` | `C5-FINAL-OUTPUT` | scene headings include weather suffix |
-| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` | `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
+| `review_only` / `FAIL-TYPE-REVIEW` / `FAIL-SCR-REVIEW` / `FAIL-SCR-PATH` / `FAIL-SCR-LOAD` / `FAIL-SCR-DETAILS` / `FAIL-SCR-REWRITE-SCOPE` / `FAIL-SCR-AIGC-FIELDS` / `FAIL-SCR-DOWNSTREAM-OVERREACH` / `FAIL-SCR-REPORT` / `FAIL-SCR-LLM-FIRST` / `FAIL-SCR-SCRIPTED-DRAFT` | `review/review-contract.md`, `references/imported-reference-adaptation-map.md`, `templates/output-template.md`, `scripts/README.md` | `N7/R1` | `Review Gate Binding` | GATE-SCR rows mapped to fail codes |
 | `FAIL-MODULE-DRIFT` | `review/review-contract.md` | `R1` | `Module Loading Matrix` | no module carries second output truth |
 
 ## Thought Pass Map
 
 | step_id | pass_focus | source_node | pass_evidence |
 | --- | --- | --- | --- |
-| `TP1` | source lock and field routing | `Thinking-Action Node Map` | source manifest, field projection map |
+| `TP1` | source lock and field routing | `Thinking-Action Node Map` | source manifest, field routing map |
 | `TP2` | screenplay draft and repair | `Thinking-Action Node Map` | candidate draft, repair log |
 | `TP3` | review and writeback | `Review Gate Binding` / `Convergence Contract` | verdict, output manifest |
 
@@ -353,6 +354,7 @@ flowchart TD
 | `C3-RHYTHM-SUPPORTED` | 节奏机制匹配题材/叙事，且每个节奏点有承托 | 只写形容词、强行反转、节奏与题材不匹配 | `rhythm_strategy_map`、`rhythm_support_evidence` | `N4-SCR-RHYTHM-ENGINE` |
 | `C4-CLIMAX-HOOK-READY` | 主高潮或 micro-payoff、最终可感落点和下一集未闭合问题成立 | 高潮平铺、尾钩无画面/声音/感受落点、新增结果 | `climax_treatment_map`、`episode_final_image_map` | `N5-SCR-CLIMAX-HOOK` |
 | `C5-FINAL-OUTPUT` | 剧本和报告均符合 Output Contract，review 阻断项为 0 | 输出路径分裂、报告缺证据、下游字段缺失 | `output_path_check`、`review_verdict` | `N8-SCR-WRITEBACK-CLOSE` |
+| `C6-ANTI-SCRIPTED-DRAFT` | 剧本正文、节奏、对白、高潮、尾钩和 handoff 均由 LLM 从上到下逐条理解本集证据后重写，不存在模板句轮换、批量插入、正则套句、映射投影、锚点替换或同义改写批量痕迹 | 脚本、映射表、规则模板、关键词锚点替换、句式轮换、批量插入、正则套句、映射投影或同义改写批量生成核心创作内容 | `anti_scripted_draft_audit`、authorship_check | `N6-SCR-CANDIDATE-DRAFT` / `R1-SCR-REWORK` |
 
 ## Multi-Subskill Continuous Workflow
 
@@ -373,7 +375,7 @@ flowchart TD
 5. 根据题材和情节匹配短剧节奏机制；每个机制必须有场内承托和下游字段。
 6. 强化高潮和集末尾钩；高潮强化不新增结果，尾钩必须有最后可见/可听/可感受落点。
 7. LLM 直接生成候选剧本；正文只写 `2-编剧` screenplay layer 允许字段，AIGC 下游理解、声画同步、同画面连续性、节奏承托、高潮强化和尾钩落点只写入 frontmatter 摘要或执行报告证据，不作为剧本正文标题。
-8. 按 `review/review-contract.md` 执行 `GATE-SCR-01..18`，阻断项直接回对应节点修复并复审。
+8. 按 `review/review-contract.md` 执行 `GATE-SCR-01..19`，阻断项直接回对应节点修复并复审。
 9. 通过后写回 `projects/aigc/<项目名>/2-编剧/第N集.md` 和 `projects/aigc/<项目名>/2-编剧/执行报告.md`。
 10. 报告必须包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`source_to_script_map`、`genre_narrative_profile`、`rhythm_strategy_map`、`climax_treatment_map`、`episode_final_image_map`、`audio_visual_pairing_map`、`same_frame_continuity_map`、`narration_to_voice_adaptation_map`、review verdict 和 handoff。
 
@@ -399,6 +401,7 @@ flowchart TD
 | 输出模板、报告和证据索引是否完整，并包含决策链、references 执行矩阵、规则证据、N/A 说明和返工记录？ | `GATE-SCR-16` | `FAIL-SCR-REPORT` | `N8-SCR-WRITEBACK-CLOSE` | `execution_report`、`execution_decision_trace`、`reference_execution_matrix`、`rule_evidence_map`、`na_justification`、`repair_log` |
 | 是否遵守 LLM-first，脚本未替代主创？ | `GATE-SCR-17` | `FAIL-SCR-LLM-FIRST` | `LLM-First Creative Authorship Contract` | `authorship_check` |
 | 模块是否没有形成第二规则源或第二输出真源？ | `GATE-SCR-18` | `FAIL-MODULE-DRIFT` | `Module Loading Matrix` | `module_authorization_audit` |
+| 剧本正文、节奏方案、对白、高潮、尾钩和 handoff 是否由 LLM 从上到下逐条理解 source 后落盘，且无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-SCR-19` | `FAIL-SCR-SCRIPTED-DRAFT` | `N6-SCR-CANDIDATE-DRAFT` / `R1-SCR-REWORK` | `anti_scripted_draft_audit` |
 
 ## Execution Report Evidence Standard
 
@@ -430,6 +433,7 @@ flowchart TD
 | `N/A Justification` | `rule_or_reference`、`why_not_triggered`、`safe_to_skip_reason` | 未触发规则都有可审计理由 | `FAIL-SCR-REPORT-NA` |
 | `Repair Log` | `fail_code`、`rework_target`、`repair_action`、`result` | 无返工时写 `none`；有返工时能追踪修复闭环 | `FAIL-SCR-REPORT-REPAIR` |
 | `Review Verdict` | `gate_id`、`verdict`、`blocking_failures`、`followups` | 阻断项为 0，followup 不影响核心合同 | `FAIL-SCR-REPORT-VERDICT` |
+| `Anti Scripted Draft Audit` | `checked_sections`、`script_or_template_signals`、`anchor_replacement_risk`、`sentence_pattern_reuse`、`verdict` | 核心创作内容无脚本化生成、批量插入、正则套句、映射投影、模板复用、锚点替换或同义改写批量痕迹 | `FAIL-SCR-SCRIPTED-DRAFT` |
 
 ### Reference Execution Matrix Policy
 
@@ -474,7 +478,7 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-SCR-01..18` 阻断项为 0。
+- `GATE-SCR-01..19` 阻断项为 0。
 - 输出路径唯一，报告含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、evidence maps 和 handoff。
 - 已同步加载并触发用户指定 imported references；缺失任一指定 reference 不得正式交付。
 

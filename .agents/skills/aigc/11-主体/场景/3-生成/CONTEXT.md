@@ -30,6 +30,7 @@ last_checked_at: 2026-04-25
 | CLI fallback 被默认启用 | imagegen 路由层 | 回到内建 `image_gen` 或询问用户 | 读取 `$imagegen` 合同后再选模式 | 报告中记录 mode 与许可状态 |
 | 2.0 包有目录但缺少可视化拓扑 | Skill 2.0 表达层 | 在 `SKILL.md` 和 `steps/` 补 Mermaid 主流程、状态图和失败回路 | 批量定制后检查 `Visual Maps` 与 steps Mermaid 是否存在 | `rg \"mermaid|Visual Maps\"` 能定位入口图和步骤图 |
 | 多视图主图参照只记录路径未进入上下文 | reference context layer | 生成 Step2 前先 `view_image` 主图并标注为场景多视图参照 | Step2 gate 固化 `reference_context_status` | 多视图 JSON / 报告为 `visible_in_conversation_context` |
+| prompt JSON 看似完整但只是模板换名或视角词轮换 | 反模板伪差异层 | 废弃 JSON 候选，回到上游 `4. 解构` 和 LLM prompt 决策节点 | `SKILL.md` 固定 `FAIL-SCENE-GEN-PSEUDO-DIFF`，JSON schema 合规不得放行 | 主图/多视图 prompt 能回指场景专属结构、材质、光线或镜头裁决 |
 
 ## Repair Playbook
 
@@ -41,6 +42,7 @@ last_checked_at: 2026-04-25
 6. 批量任务按“设计文档 -> 主图 -> 主图 JSON -> 主图 `view_image` -> 多视图 -> 多视图 JSON”闭环处理，失败项单独记录，不阻塞已完成项的路径回写。
 7. 若顾问与复核流程不可用，至少执行本地 review checklist：来源、命名、JSON、参照、持久化、边界六项。
 8. 批量生成的 Skill 2.0 包若只有表格没有图，优先补 `SKILL.md` 的总览图，再补 `steps/` 的执行拓扑图；不要把完整细则倒灌回 `SKILL.md`。
+9. 若主图/多视图 prompt 只是替换场景名、视角标签或同义形容词，不修几个 token；废弃该 JSON 候选并重新由 LLM 基于 `4. 解构` 裁决生成重点。
 
 ## Reusable Heuristics
 

@@ -6,7 +6,7 @@
 - Output format: Markdown screenplay plus Markdown execution report.
 - Output path: canonical `2-编剧/` project runtime only.
 - Naming convention: `第N集.md`; report is `执行报告.md`.
-- Completion gate: `GATE-SCR-01..18` blocking failures are zero.
+- Completion gate: `GATE-SCR-01..19` blocking failures are zero, including `GATE-SCR-19` anti-scripted draft audit.
 - Module trigger evidence: cite `reference_load_manifest` and the matching `Module Trigger Matrix` row.
 - Business analysis evidence: include `business_profile` and `genre_narrative_profile`.
 - Quant criteria evidence: include source count, beat count, rhythm maps, climax/hook maps, A/V pair count, and same-frame continuity checks.
@@ -125,6 +125,11 @@ review_verdict:
 ## Continuity Detail Map
 
 ## Review Verdict
+
+## Anti Scripted Draft Audit
+
+| checked_sections | script_or_template_signals | anchor_replacement_risk | sentence_pattern_reuse | verdict |
+| --- | --- | --- | --- | --- |
 
 ## Repair Actions
 

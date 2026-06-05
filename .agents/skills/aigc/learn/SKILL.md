@@ -21,6 +21,7 @@ metadata:
 - 若学习对象绑定 `projects/aigc/<项目名>/` 的项目经验，必须先加载项目根 `MEMORY.md`，再按相关性加载项目根 `CONTEXT/`；项目偏好不得自动晋升为跨项目技能规则。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > owning skill `SKILL.md` > 本技能授权模块 > owning skill 授权模块 > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 核心学习判断、差距分析、改进设计和落点裁决必须由 LLM 直接完成；`scripts/` 只做读取、抽取、转写、校验、diff、引用扫描和报告投影等机械辅助。
+- 当学习目标是 AIGC 内容创作型技能包的源层验收改进时，必须显式检查该 owning skill 是否具备反脚本批量生成、反批量插入、反正则套句、反映射投影、反句式复用和反锚点替换伪差异的独立阻断门；缺失时不得用覆盖率、字段完整、四要素、动机证据或报告章节完整判定 `audit_result=pass`。
 
 ## Runtime Spine Contract
 
@@ -53,6 +54,7 @@ metadata:
 | `success_criteria` | 计划型输出 gap matrix 和 improvement plan；执行型输出 changed_files、audit_result、residual_risks | final packet、diff、audit verdict | `FAIL-LEARN-BUSINESS-SUCCESS` |
 | `complexity_source` | 复杂度来自多媒介证据、冲突核查、跨技能 owner 裁决、同步消费者和审计闭环 | 类型画像、source digest、sync scope | `FAIL-LEARN-BUSINESS-COMPLEXITY` |
 | `topology_fit` | 先证据锁定防止空泛学习；再 owner 映射防止乱写；最后 isolated audit 防止跨文件矛盾 | Mermaid 图、节点表、Review Gate Binding | `FAIL-LEARN-TOPOLOGY-FIT` |
+| `formalism_risk` | 创作型技能验收不能被脚本批量生成、批量插入、正则套句、映射投影、句式轮换、关键词锚点替换或同义改写批量产物绕过 | anti-formalism gap matrix、owning skill diff | `FAIL-LEARN-FORMALISM-GATE` |
 
 ## Input Contract
 
@@ -99,6 +101,7 @@ Reject or clarify when:
 | `L6-PLAN` | 形成改进顺序 | landing_set、权限、影响面 | 生成 writeback_order、audit_plan、report_need | improvement_plan | `L7-WRITEBACK` / `L10-CLOSE` | 未授权写回时只输出计划 |
 | `L7-WRITEBACK` | 最窄有效源层写回 | owning skill、授权文件、patch plan | 修改 owning skill、同步消费者、引用和索引 | changed_files、diff_summary | `L8-AUDIT` | 不越权写业务真源 |
 | `L8-AUDIT` | 协调性审计 | isolated audit contract、review contract、changed files | 检查 evidence、ownership、consistency、security 和 references | audit_result | `L9-DEPOSIT` / `L5-MAP` | verdict 为 pass 或 pass_with_followups 才完成执行 |
+| `L8B-FORMALISM-AUDIT` | 审计创作型技能反形式化门禁 | changed_files、owning skill gate、root `PASS-AIGC-05` | 检查是否已把脚本批量生成、批量插入、正则套句、映射投影、句式复用、锚点替换伪差异列为独立 fail code / review gate / rework target / report evidence | formalism_audit | `L9-DEPOSIT` / `L5-MAP` | 创作型技能缺任一硬门不得 pass；非创作型需写 N/A 理由 |
 | `L9-DEPOSIT` | 沉淀经验 | audit result、失败/成功模式 | 写目标 `CONTEXT.md` 或本技能 `CONTEXT.md`；外部资料才进 knowledge-base | deposition_note | `L10-CLOSE` | 不污染项目 MEMORY 或 knowledge-base |
 | `L10-CLOSE` | 交付 learning packet | plan、changed_files、audit_result、risks | 输出计划或执行结果；仅用户要求时用模板生成报告 | final_packet | done | 输出符合 Output Contract |
 
@@ -129,7 +132,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 每轮至少锁定 1 个学习对象、1 个目标范围和 1 个权限状态；执行型写回只改最窄 owning 文件集 | `L1-INTAKE`, `L7-WRITEBACK` | `FAIL-LEARN-QUANT-SCOPE` |
 | `evidence_count` | 每个 source digest 至少 1 个 locator/anchor；每个 landing candidate 至少 1 个 owner 证据 | `L2-SOURCE`, `L5-MAP` | `FAIL-LEARN-QUANT-EVIDENCE` |
-| `pass_threshold` | 执行型完成要求 audit_result 为 pass 或 pass_with_followups，且 changed_files 非空 | `L8-AUDIT`, `Output Contract` | `FAIL-LEARN-QUANT-THRESHOLD` |
+| `pass_threshold` | 执行型完成要求 audit_result 为 pass 或 pass_with_followups，且 changed_files 非空；若目标包含内容创作型技能，`formalism_audit` 必须 pass 或有明确 N/A 理由 | `L8-AUDIT`, `L8B-FORMALISM-AUDIT`, `Output Contract` | `FAIL-LEARN-QUANT-THRESHOLD` |
 | `retry_limit` | owner 不唯一或冲突核查失败时最多 1 次自动缩窄范围，仍失败则输出 blocker | `L4-VERIFY`, `L5-MAP` | `FAIL-LEARN-QUANT-RETRY` |
 | `fallback_evidence` | 媒体轨、长上下文或联网核查不可用时，记录缺口、替代证据和保守采用方式 | `Review Gate Binding` | `FAIL-LEARN-QUANT-FALLBACK` |
 
@@ -139,7 +142,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 锚点是学习对象、目标范围、写回权限、owner、audit gate 和 final packet | `L1-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source digest 完成后转 distill；冲突转 verify；owner 锁定后转 plan/writeback；审计失败回 map | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 出现无证学习、泛化改全局、复制原文、跳过 owner、报告替代执行时判定漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 出现无证学习、泛化改全局、复制原文、跳过 owner、报告替代执行、用覆盖率/字段完整替代反脚本化审计时判定漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 漂移时回最近有效节点，不继续扩写当前结论；最终说明 residual risk | `L2-SOURCE` / `L5-MAP` / `L8-AUDIT` |
 
 | drift_type | re_center_entry |
@@ -206,6 +209,7 @@ flowchart TD
 | owner、landing_set 和 sync_scope 是否唯一？ | `GATE-LEARN-MAP` | `FAIL-LEARN-MAP` | `L5-MAP` | target_skill_map、gap matrix |
 | 执行写回是否只改授权的最窄 owning 文件？ | `GATE-LEARN-WRITEBACK` | `FAIL-LEARN-WRITEBACK` | `L7-WRITEBACK` | changed_files、diff summary |
 | 协调审计是否通过或明确 followups？ | `GATE-LEARN-AUDIT` | `FAIL-LEARN-AUDIT` | `L8-AUDIT` | audit_result、residual risks |
+| 内容创作型 owning skill 是否已补独立反脚本化/反模板/反伪差异阻断门？ | `GATE-LEARN-FORMALISM` | `FAIL-LEARN-FORMALISM-GATE` | `L5-MAP` / `L7-WRITEBACK` / `L8B-FORMALISM-AUDIT` | formalism_audit、fail code、review gate、rework target、report evidence |
 | 输出是否区分执行结果和可选报告副产物？ | `GATE-LEARN-OUTPUT` | `FAIL-LEARN-OUTPUT` | `L10-CLOSE` | final packet、report_need |
 
 ## Checkpoint Contract
@@ -251,6 +255,7 @@ See `guardrails/guardrails-contract.md`.
 | `PASS-LEARN-01` | source evidence、版权边界和 target skill map 锁定 | source 不可证或 target owner 不明 | `N1/N2` |
 | `PASS-LEARN-02` | gap matrix 和 landing set 有规则证据 | 只写心得或污染执行主合同 | `N3/N4` |
 | `PASS-LEARN-03` | sync 后审计通过或残余风险明确 | 未验证却标 pass | `N6/N7` |
+| `PASS-LEARN-04` | 创作型技能的反形式化门禁可在 owning skill 中回指 | 只补覆盖率/字段/报告，缺脚本化和伪差异独立 fail | `L5/L7/L8B` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -282,11 +287,11 @@ See `guardrails/guardrails-contract.md`.
 
 ## Output Contract
 
-- Required output: 执行型改进必须交付 `changed_files`、`audit_result`、`residual_risks`、`next_learning_deposition`；计划型任务交付 `source_digest`、`gap_matrix`、`improvement_plan`。
+- Required output: 执行型改进必须交付 `changed_files`、`audit_result`、`residual_risks`、`next_learning_deposition`；若目标包含内容创作型技能，还必须交付 `formalism_audit`；计划型任务交付 `source_digest`、`gap_matrix`、`improvement_plan`。
 - Output format: 默认对话交付结构化 Markdown；报告仅在用户要求或需要审计追溯时使用 `templates/output-template.md` 生成。
 - Output path: 执行产物默认不落盘；报告默认落到 `reports/aigc-learn-YYYYMMDD.md`，但仅为追溯凭证。
 - Naming convention: 报告使用 kebab-case 与 `YYYYMMDD` 日期后缀；学习对象 slug、任务 ID、evidence sidecar 文件名保持 ASCII 安全。
-- Completion gate: 执行型任务已完成 source-first 改进并通过协调审计，`audit_result` 为 pass 或 pass_with_followups，且 `changed_files` 已验证；报告不是完成标志。
+- Completion gate: 执行型任务已完成 source-first 改进并通过协调审计，`audit_result` 为 pass 或 pass_with_followups，且 `changed_files` 已验证；内容创作型技能的 `formalism_audit` 必须 pass 或写明 N/A；报告不是完成标志。
 
 ## Learning / Context Writeback
 

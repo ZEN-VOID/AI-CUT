@@ -25,6 +25,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-GEN-06` | 输出被保存到 `$CODEX_HOME` 或临时目录 | 持久化缺口 | 复制最终资产到项目 canonical 输出目录 | 把项目路径写入 prompt/result 记录 | 报告路径在 workspace 内 |
 | `TM-PROP-GEN-07` | Skill 2.0 文件齐全但执行者仍看不出分支与汇流 | 拓扑表达不足 | 在 `SKILL.md`、`steps/`、`types/` 或 `review/` 补 Mermaid 图和节点交接表 | 结构校验之外增加语义 review gate | 可从图表追踪 single/batch/prompt-only/repair/review 路径 |
 | `TM-PROP-GEN-08` | 多视图主图参照只记录路径未进入上下文 | reference context layer | 生成 Step2 前先 `view_image` 主图并标注为道具多视图参照 | Step2 gate 固化 `reference_context_status` | 多视图 JSON / 报告为 `visible_in_conversation_context` |
+| `TM-PROP-GEN-09` | prompt JSON 看似完整但只是模板换名、换材质或视角词轮换 | 反模板伪差异层 | 废弃 JSON 候选，回到上游 `4. 解构` 和 LLM prompt 决策节点 | `SKILL.md` 固定 `FAIL-PROP-GEN-PSEUDO-DIFF`，JSON schema 合规不得放行 | 主图/多视图 prompt 能回指道具专属形制、材质、功能或工艺裁决 |
 
 ## Repair Playbook
 
@@ -36,6 +37,7 @@ last_checked_at: 2026-04-25
 6. 若图像已生成但未落盘到项目目录，按 `$imagegen` 的 persistence gate 把选定最终资产复制到 `3-生成`。
 7. 若不使用外部顾问与复核流程 或 reviewer，按 `SKILL.md` 的顾问与复核流程 Execution Contract 直接执行本地 checklist。
 8. 若校验器通过但用户指出“批量定制不细”，优先检查 Visual Maps、Node Network、Failure Routing、Provider Degradation 和 Output Contract Alignment 是否足够具体。
+9. 若主图/多视图 prompt 只是替换道具名、材质、视角标签或同义形容词，不修几个 token；废弃该 JSON 候选并重新由 LLM 基于 `4. 解构` 裁决生成重点。
 
 ## Reusable Heuristics
 

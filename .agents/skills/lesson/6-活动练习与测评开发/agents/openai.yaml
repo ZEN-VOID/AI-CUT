@@ -1,0 +1,4 @@
+interface:
+  display_name: "活动练习与测评开发"
+  short_description: "开发活动、练习、题库、答案解析、rubric 与测评包。"
+  default_prompt: "Use $lesson-assessment-development when the user asks for 6-活动练习与测评开发, activities, exercises, question banks, quizzes, assignments, answer explanations, scoring guides, rubrics, or formative/summative assessment packages for a lesson project. Default inputs are `projects/lesson/<项目名>/3-目标与评价蓝图/`, `4-教学策略与课程架构/`, and `5-课时内容开发/`. Produce `activity-exercise-package.md`, `question-bank.yaml`, `scoring-rubrics.md`, `answer-explanations.md`, `assessment-package.md`, and `downstream-handoff.md` under `projects/lesson/<项目名>/6-活动练习与测评开发/`. Do not rewrite course architecture, lesson scripts, visual design, DOC/PPT/HTML deliverables, or use scripts/templates to batch-generate creative assessment content."

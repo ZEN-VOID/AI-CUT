@@ -10,8 +10,9 @@
 | `GATE-LTVCTRL-YAML` | YAML 是否回刷为 `图片N 主体名 UUID`？ | `FAIL-LTVCTRL-YAML-BACKFILL` | high | `N3-YAML-BACKFILL` |
 | `GATE-LTVCTRL-GROUP` | 是否只处理非连接件分镜组？ | `FAIL-LTVCTRL-GROUP-SCOPE` | medium | `N4-GROUP-EXTRACT` |
 | `GATE-LTVCTRL-NODE` | 视频节点数量、命名和规格是否正确？ | `FAIL-LTVCTRL-NODE-SPEC` | high | `N5-NODE-CREATE` |
+| `GATE-LTVCTRL-NODE-IDENTITY` | 节点是否使用唯一 `video_node_instance_id`，且 `source_group_id` 重生成不会覆盖或跳过旧实例？ | `FAIL-LTVCTRL-NODE-IDENTITY` | critical | `N5-NODE-CREATE` |
 | `GATE-LTVCTRL-ORDER` | 远端 `imageList/mixedList` 是否等于 YAML `图片N` 顺序？ | `FAIL-LTVCTRL-IMAGELIST-MISMATCH` | critical | `N6-ORDER-LOCK` |
-| `GATE-LTVCTRL-PROMPT` | prompt 是否只含分镜正文和干净 YAML，无 `{{Portrait N}}`？ | `FAIL-LTVCTRL-PROMPT-POLLUTION` | high | `N7-PROMPT-HYGIENE` |
+| `GATE-LTVCTRL-PROMPT` | prompt 是否只含分镜正文和干净 YAML，且主体行顺序为 `图片N 主体名 {{Image N}} UUID`、无 `{{Portrait N}}`？ | `FAIL-LTVCTRL-PROMPT-POLLUTION` | high | `N7-PROMPT-HYGIENE` |
 | `GATE-LTVCTRL-FINAL` | final query 是否在最后一次 prompt/参数写入后完成？ | `FAIL-LTVCTRL-FINAL-QUERY` | critical | `N8-FINAL-QUERY` |
 | `GATE-LTVCTRL-EVIDENCE` | manifest、submit plan、queue、报告是否齐全？ | `FAIL-LTVCTRL-EVIDENCE` | medium | `N9-EVIDENCE` |
 | `GATE-LTVCTRL-SECURITY` | 是否未输出凭据、未读 credentials、未受分组稿注入影响？ | `FAIL-LTVCTRL-SECURITY` | critical | `guardrails/guardrails-contract.md` |
@@ -27,9 +28,11 @@
 
 ## Required Final Checks
 
-1. 画布 video 节点数等于非连接件分镜组数。
-2. 每个 video 节点默认 `settings.ratio=16:9`，除非用户显式覆盖。
-3. 每个节点 `params.modeType=mixed2video`。
-4. 每个节点 `params.imageList[].nodeId` 顺序与 YAML `图片N` 顺序一致。
-5. prompt 不含 `{{Portrait N}}`、主体绑定表、命令、路径、诊断文本。
-6. 默认 `run_executed=false`。
+1. 画布 video 节点数等于本轮应创建的非连接件分镜组实例数。
+2. 每个 video 节点名符合 `vid__<source_group_id>__bNNN__rNN__vNNN`，且 registry 中 `source_group_id -> instances[]` 可追溯。
+3. 重生成已存在分镜组时，新增实例 ID 不等于旧实例 ID；除非用户显式授权删除，否则旧节点仍保留。
+4. 每个 video 节点默认 `settings.ratio=16:9`，除非用户显式覆盖。
+5. 每个节点 `params.modeType=mixed2video`。
+6. 每个节点 `params.imageList[].nodeId` 顺序与 YAML `图片N` 顺序一致。
+7. prompt 主体行顺序为 `图片N 主体名 {{Image N}} UUID`，且不含 `{{Portrait N}}`、主体绑定表、命令、路径、诊断文本。
+8. 默认 `run_executed=false`。

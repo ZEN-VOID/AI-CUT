@@ -33,6 +33,7 @@ recommended_action: keep-resume-heuristics-only
 | 用户明确要求重起盘却进入 resume | satellite boundary | 直接回 `0-初始化` 的 rebootstrap | 在类型矩阵中标记 `reset_intent=explicit` | 主动回炉不沿旧方向继续 |
 | 输出多个下一入口 | convergence gate | 退回 blocker 或选择唯一 gate owner | 模板固定 `唯一下一入口` 字段 | 最终答复没有无序候选列表 |
 | 默认给 destructive Git 建议 | safety contract | 改成只读检查、diff、status 或人工确认 | hard guards 禁止默认 destructive action | 答复不含默认 `git reset --hard` |
+| 恢复裁决像路径扫描模板 | scripted conclusion layer | 标记 `FAIL-RESUME-SCRIPTED-CONCLUSION`，回到 `S4/S6` 重判 | scripts 只做证据扫描，不生成唯一入口 | final packet 能说明 state/artifact/gate 如何收束为入口 |
 
 ## Repair Playbook
 
@@ -43,6 +44,7 @@ recommended_action: keep-resume-heuristics-only
 5. 若涉及高风险执行，先检查或补 `mission-brief.yaml`、`route-plan.yaml`、`preflight-verdict.yaml`。
 6. 若 review 已写 repair route，优先消费该结构化入口，不重新猜阶段。
 7. 输出时说明 blocker、缺口和唯一下一入口；无法唯一裁决时只要最小补充信息。
+8. 路径扫描结果不能直接变成恢复裁决；脚本列出的候选必须经过 LLM 的证据链和安全 gate 汇流。
 
 ## Reusable Heuristics
 
@@ -61,3 +63,4 @@ recommended_action: keep-resume-heuristics-only
 - 用户说“接着上次”时先找 checkpoint；用户说“重来”时先锁 reset intent。
 - 问“上次跑到哪”优先看 `governance-state.yaml.last_stable_checkpoint`，再看 `STATE.json.current_stage` 与阶段产物。
 - 问“现在能不能继续”优先看 `preflight-verdict.yaml`、`route-plan.yaml` 和阶段 validation。
+- resume 的可靠性来自“证据 -> 风险 -> 唯一入口”的判断链，不来自模板字段齐全。

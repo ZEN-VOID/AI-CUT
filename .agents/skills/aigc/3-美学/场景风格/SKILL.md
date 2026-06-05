@@ -20,6 +20,7 @@ metadata:
 - 默认上游来源包括 `projects/aigc/<项目名>/2-编剧/`、`projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、用户指定参考图/视频和项目设定。用户显式指定其他来源时，以用户输入为本轮来源并标记来源类型。
 - 多模态参考只允许提供场景层风格事实，例如空间层次、环境光结果、气氛介质、自然/科技元素组织、时代质地和统一性策略；不得把参考中的具体地点、建筑、道具、镜头构图或生成参数迁入协议。
 - 核心风格判断、空间美学映射和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、清单校验、字数统计和污染扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成场景风格协议、统一策略或 prompt，直接 fail。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 上游 `画面基调` 协议 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -182,7 +183,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 剧本来源至少抽取 6 条场景风格证据；画面基调至少抽取 4 条继承约束；每个参考图/视频/作品至少抽取 3 条场景风格事实；正式协议必须覆盖 9 个场景维度 | `N2/N3/N4.actions` | `FAIL-SS-QUANT-SCOPE` |
 | `evidence_count` | 统一策略至少 5 条映射；负面约束至少 4 条；污染扫描至少覆盖地点、清单、构图摄影、生成请求、上游冲突 5 类 | `N5/N7.evidence` | `FAIL-SS-QUANT-EVIDENCE` |
-| `pass_threshold` | P0 gate 全部通过；`scene_style_prompt` 80-130 个中文字；禁用类别残留 0 个，除非用户明确要求且报告说明例外 | `N6/N7.gate` | `FAIL-SS-QUANT-THRESHOLD` |
+| `pass_threshold` | P0 gate 全部通过；`scene_style_prompt` 80-130 个中文字；禁用类别残留 0 个，除非用户明确要求且报告说明例外；`GATE-SS-10-ANTI-SCRIPTED-STYLE` 阻断项为 0 | `N6/N7.gate` | `FAIL-SS-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍出现 P0 越权、来源不足或上游冲突时阻断并报告 | `N7.route_out` | `FAIL-SS-QUANT-RETRY` |
 | `fallback_evidence` | 参考资料不可机器读取时，使用用户文字说明和可见元数据；无法验证的参考锚点标为 `unverified_reference_claim`，不得作为核心证据 | `Review Gate Binding.report_evidence` | `FAIL-SS-QUANT-FALLBACK` |
 
@@ -214,7 +215,8 @@ Pass conditions:
 - `tone_inheritance_map` 已说明从 `画面基调` 继承和不继承的内容；缺失画面基调时状态标记为候选。
 - `narrative_to_scene_chain` 至少 5 条，能说明场景风格决策如何来自剧本、设定、画面基调或参考证据。
 - `scene_style_prompt` 为 80-130 个中文字，且没有具体地点、场景清单、单镜头构图、摄影参数、运镜、生成请求或 provider 参数。
-- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
+- `anti_scripted_style_audit` 证明场景风格维度、统一策略和 prompt 不是模板句轮换、锚点替换或同义改写批量生成。
+- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`Anti Scripted Style Audit`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
 
 Fail conditions:
 
@@ -223,6 +225,7 @@ Fail conditions:
 - prompt 变成具体地点/空间设计清单、单场景 prompt 或生成请求。
 - 参考图/视频中的具体地点、建筑、道具、构图被照搬为项目设定。
 - 与上游 `画面基调` 的媒介、渲染或禁区发生未解释冲突。
+- 场景风格协议或 prompt 呈现脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量痕迹。
 - 字数低于 80 或高于 130 个中文字，且用户未明确覆盖。
 
 ## Review Gate Binding
@@ -238,6 +241,7 @@ Fail conditions:
 | prompt 是否约 100 字且中文默认？ | `GATE-SS-07-LENGTH-LANGUAGE` | `FAIL-SS-LENGTH` | `N6-PROMPT-DISTILL` | 字数统计与语言标记 |
 | 是否适合被具体场景设计继承而不抢占地点设计权？ | `GATE-SS-08-DOWNSTREAM-SAFETY` | `FAIL-SS-DOWNSTREAM-POLLUTION` | `N5-UNIFICATION-STRATEGY` / `N6-PROMPT-DISTILL` | 下游继承风险清单 |
 | 正式写回是否有结构化执行报告？ | `GATE-SS-09-REPORT-EVIDENCE` | `FAIL-SS-REPORT-MISSING` | `N8-CLOSE` | 报告 section 完整性 |
+| 场景风格维度、统一策略和 prompt 是否无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-SS-10-ANTI-SCRIPTED-STYLE` | `FAIL-SS-SCRIPTED-STYLE` | `N4-SCENE-STYLE-DIMENSIONS` / `N5-UNIFICATION-STRATEGY` / `N6-PROMPT-DISTILL` | `anti_scripted_style_audit` |
 
 ## Runtime Guardrails
 
@@ -299,6 +303,7 @@ Fail conditions:
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：本技能无外部 `references/` 时记录 `N/A: no references module authorized`；若未来启用 references，逐条记录 load_status、trigger_reason、applied_to、evidence_in_output、verdict 和 n/a_reason。
 - `Rule Evidence Map`：映射 `GATE-SS-*` 到正文位置或证据。
+- `Anti Scripted Style Audit`：记录模板句式复用、锚点替换、句式轮换和同义改写批量风险的检查结论。
 - `N/A Justification`：说明未触发来源、模块或例外规则。
 - `Repair Log`：记录失败码、修复目标和复审结果。
 - `Contamination Scan`：具体地点/清单、构图/摄影、生成请求、上游冲突、下游越权五类扫描结果。
@@ -378,6 +383,7 @@ Completion gate:
 | `PASS-SS-04` | 至少 5 条映射且能回指输入证据 | `FAIL-SS-CAUSALITY-MISSING` | `N5-UNIFICATION-STRATEGY` |
 | `PASS-SS-05` | Scene Style Prompt 为中文 80-130 字，五类污染为 0 | `FAIL-SS-PROMPT` | `N6-PROMPT-DISTILL` |
 | `PASS-SS-06` | 正式写回报告包含必需审计 section | `FAIL-SS-REPORT-MISSING` | `N8-CLOSE` |
+| `PASS-SS-07` | 场景风格协议无模板句轮换、锚点替换或同义改写批量痕迹 | `FAIL-SS-SCRIPTED-STYLE` | `N4-SCENE-STYLE-DIMENSIONS` / `N5-UNIFICATION-STRATEGY` / `N6-PROMPT-DISTILL` |
 
 ## Field Mapping
 

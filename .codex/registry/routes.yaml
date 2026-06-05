@@ -105,6 +105,9 @@ route_policies:
   - id: aigc-shot-by-shot-satellite-entry
     trigger: 命中 `shot-by-shot`、`拉片`、逐镜分析、逐镜拆解、参考影片临摹、参考视频临摹、镜头拆解、分析这段视频怎么拍，或需要把参考片转换为 `0-初始化` / `2-编剧` / `4-导演` / `5-表演` / `7-分镜` / `8-摄影` / `9-光影` / `11-主体` 可消费解析
     rule: "进入 `.agents/skills/aigc/shot-by-shot/SKILL.md`；先锁定参考素材证据、目标项目与目标阶段，逐镜拆解导演调度、表演任务、运动连续性、摄影语法、剪辑节奏、声音接口、美术资产、画面风格和 AIGC 可执行性，再输出到 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/shot-by-shot.md` 及可选 `全局风格解析.md` / `编剧风格解析.md` / `导演风格解析.md` / `表演风格解析.md` / `分镜风格解析.md` / `摄影风格解析.md` / `设计风格解析.md` / `分镜脚本.md`。该卫星只提供临摹参照和禁止照搬清单，不改写阶段 canonical 主稿。"
+  - id: aigc-flash-satellite-entry
+    trigger: 命中 `$aigc-flash`、`flash`、`$aigc-flash-tv`、`flashTV`、`FlashTV`、闪电视频提示词、短故事转视频 prompt、一小段故事转提示词、图生视频提示词、首尾帧生视频提示词、参照图生视频、参考视频转 prompt，或用户明确要求少量源内容只在当前聊天窗口输出统一视频提示词且不保存文档
+    rule: "进入 `.agents/skills/aigc/flash/SKILL.md`；把少量故事源、分镜组、参照图、首尾帧、参照视频或混合素材当作一个短分镜组，默认目标时长 `11.5秒`，压缩串联 `2-编剧`、`3-美学`、`4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影` 与 `10-分组` 的核心判断，在当前聊天窗口输出唯一 `Flash Prompt Pack`。该卫星不保存文档、不写 `projects/aigc/<项目名>/` canonical、不生成视频；多模态素材必须先做证据分级，参考素材只抽可迁移原则并列禁止照搬清单。"
   - id: aigc-query-satellite-entry
     trigger: 命中项目状态查询、阶段产物取证、编导/主体/画面/视频资产定位或治理工件查证
     rule: "优先进入 `.agents/skills/aigc/query/SKILL.md`；若问题实为阶段内细节，再由 `query` 回接根技能或目标阶段"
@@ -122,7 +125,7 @@ route_policies:
     rule: "优先进入 `.agents/skills/aigc/learn/SKILL.md`；先加载 aigc 根合同、learn 的 `SKILL.md + CONTEXT.md`、命中的 `types/` 类型包和相关目标 skill，建立 source digest、media evidence status、conflict verification、target_skill_map、gap matrix、landing_set 与 sync_scope；执行型任务按 owning skill 最窄有效分区落盘，并同步 root、registry、routes、audit 和引用后运行协调审计。"
   - id: aigc-image-stage-entry
     trigger: 命中 `12-图像` 或 legacy `5-Image`，或需要把 `9-光影` / `11-主体` 资产组织成图像请求 JSON、引用绑定结果或 provider-ready 图像 handoff
-    rule: "优先进入 `.agents/skills/aigc/12-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/10-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/12-图像/分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/A-分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `.agents/skills/aigc/12-图像/分镜故事板/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/B-分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `12-图像` 默认入口。"
+    rule: "优先进入 `.agents/skills/aigc/12-图像/SKILL.md`；若是单一四段式 `分镜ID`、分镜画面、生图提示词或需要从 `projects/aigc/<项目名>/10-分组` 拆镜生成 AIGC 图像，路由到 `.agents/skills/aigc/12-图像/分镜画面/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/分镜画面`；若是单一 `分镜组ID` 的多格 storyboard / 分镜故事板端到端准备，路由到 `.agents/skills/aigc/12-图像/分镜故事板/SKILL.md`，输出根路径固定为 `projects/aigc/<项目名>/12-图像/分镜故事板`；legacy `5-Image` 仅作为旧包兼容回读，不再作为 `12-图像` 默认入口。"
   - id: aigc-design-prop-entry
     trigger: 命中 `11-主体/道具`、道具清单、道具设计、道具生成、道具面板、道具 panel layout、或批量 11-主体 道具输出
     rule: "道具清单任务直达 `.agents/skills/aigc/11-主体/道具/1-清单/SKILL.md`；设计/生成任务按 registry child_index 路由到 `2-设计` 或 `3-生成`；输出到 `projects/aigc/<项目名>/11-主体/道具/` 对应子目录。"

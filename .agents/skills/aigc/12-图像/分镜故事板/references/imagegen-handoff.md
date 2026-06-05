@@ -99,7 +99,7 @@ layout_policy:
   panel_text_position: "below_each_panel_image"
   annotation_position: "inside_panel_image_area_without_obscuring_subjects_or_text"
   overflow_strategy: "paginate_or_multiple_sheets_when_needed"
-output_image_path: "projects/aigc/<项目名>/12-图像/B-分镜故事板/第1集/images/1-1-1.png"
+output_image_path: "projects/aigc/<项目名>/12-图像/分镜故事板/第1集/images/1-1-1.png"
 reference_input_status: "visible_in_conversation_context"
 ```
 
@@ -117,7 +117,7 @@ reference_input_status: "visible_in_conversation_context"
 
 ## Output Persistence
 
-- 生成结果必须复制或持久化到 `projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/images/`。
+- 生成结果必须复制或持久化到 `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/images/`。
 - 不得把 `$CODEX_HOME/generated_images/...` 作为项目内最终路径。
 - `imagegen-plan.json` 记录预期输出；`imagegen-results.json` 记录实际生成路径、源路径、状态与审查结论。
 
@@ -155,6 +155,6 @@ reference_input_status: "visible_in_conversation_context"
 | 每个任务的 `resolution_target` 是否固定为 `4K`，prompt、plan、result 没有继承通用 2K 默认？ | `G8-LAYOUT` | `FAIL-SHEET-IMAGEGEN` | `N4-PROMPT` / `N7-IMAGEGEN` | prompt、plan、result/report 均记录 `resolution_target: 4K` |
 | 任务 payload 是否包含完整 prompt、完整分镜组内容、`storyboard_frame_units`、`panel_description`、`panel_description_density: rich_brief`、`character_name_labels`、`annotation_plan`、默认 `panel_image_aspect_ratio: 16:9`、layout policy，并明确 panel 数来自 frame units 而不是 `shot_count`？ | `G3-FRAME-UNITS` | `FAIL-SHEET-GROUP` | `N3A-FRAME-UNITS` / `N7-IMAGEGEN` | plan 中每个 task 含 `complete_group_source`、`storyboard_frame_units`、`panel_description_density`、`character_name_labels`、`annotation_plan`、`layout_policy` 与源 frame-unit 追溯 |
 | frame units 过多时，是否记录 `layout_risk`、分页或多 sheet 建议，没有丢弃视觉节拍来适配单图？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N7-IMAGEGEN` / `N10-CLOSE` | imagegen plan / report 记录 layout risk、受影响 `group_id`、分页/多 sheet 或人工确认建议 |
-| 生成结果是否持久化到 `projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/images/`，且不把 `$CODEX_HOME/generated_images` 当最终路径？ | `G10-PERSIST` | `FAIL-SHEET-IMAGEGEN` | `N8-PERSIST` / `.agents/skills/cli/imagegen/references/output-persistence.md` | `imagegen-results.json` 记录项目内 `output_image_path`、源路径、复制状态和存在性检查 |
+| 生成结果是否持久化到 `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/images/`，且不把 `$CODEX_HOME/generated_images` 当最终路径？ | `G10-PERSIST` | `FAIL-SHEET-IMAGEGEN` | `N8-PERSIST` / `.agents/skills/cli/imagegen/references/output-persistence.md` | `imagegen-results.json` 记录项目内 `output_image_path`、源路径、复制状态和存在性检查 |
 | 输出路径若已存在，是否有用户 rerun / replace 授权或版本化策略，避免静默覆盖已有 storyboard？ | `G10-PERSIST` | `FAIL-SHEET-IMAGEGEN` | `N7-IMAGEGEN` / `N8-PERSIST` | plan / report 记录 existing-file check、replace authorization 或 versioned output path |
 | 执行结束是否列出 `generated / skipped / failed`，失败任务不阻塞已成功任务落盘，并提供返工入口？ | `G12-REPORT` | `FAIL-SHEET-REPORT` | `N10-CLOSE` / `templates/output-template.md` | `执行报告.md` 记录每组 status、failure reason、skipped reason、rework target 和 review verdict |

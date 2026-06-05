@@ -26,6 +26,7 @@ recommended_action: keep-heuristics-focused
 | 声景只有一个声音类别 | 声景层次层 | 补声音消失、距离、质感、节律、留声或替代关系 | `soundscape_map` 有变化或层次 |
 | 视觉特效与场景节奏冲突 | 节奏继承层 | 用 `scene-rhythm-contract` 重新判断蓄压、爆发、静默或转场余波 | `scene_rhythm_map` 与触发点一致 |
 | 设备说明书口吻 | 正文可读性层 | 删除设备名堆砌和执行参数，改成观众看到/听到/感到的效果 | 终稿读起来仍像剧本正文 |
+| 氛围画面像特效词库批量投影 | LLM-first 作者性层 | 标记 `FAIL-ATM-SCRIPTED-PROJECTION`，废弃候选稿，回 `N3/N4` 重建触发点和物理氛围包，再由 LLM 按时间锚点逐条重写 | `GATE-ATM-18-AUTHORSHIP-INTEGRITY` 通过，重复句式/锚点替换抽样无伪差异 |
 
 ## Repair Playbook
 
@@ -38,6 +39,7 @@ recommended_action: keep-heuristics-focused
 7. `3-美学` 的画面基调决定氛围密度和质感，场景风格决定物理手段边界，角色风格决定氛围是否贴近角色状态。
 8. 如果源稿没有雨、雪、火、烟、风暴条件，不要凭空添加；可用室内灯影、空气湿度、尘埃、静物、远声替代。
 9. 批量处理时逐集独立建立触发清单，不机械复制上一集的氛围包。
+10. 如果多条 `氛围画面` 只是“物理词 + 情绪词 + 相邻动作名”的同一骨架，不要替换词面；按作者性失败回源层重写。
 
 ## Reusable Heuristics
 

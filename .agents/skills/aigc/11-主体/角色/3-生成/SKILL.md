@@ -10,6 +10,8 @@ metadata:
 
 `角色/3-生成` 消费上游 `角色/2-设计` 已完成的单角色细目设计文档，调用 `imagegen` 生成角色主图与多视图主体设计图。它只执行基于设计稿的图像生成与提示词落盘，不重新设计角色主体，不改写上游设计稿，也不承担场景、道具或视频生成职责。
 
+生成阶段的 prompt JSON 和生成决策必须由 LLM 基于上游 `4. 解构` 直接裁决；脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的主图 prompt、多视图 prompt、视角差异或 `generation_profile`，直接判定为 `FAIL-CHAR-GEN-PSEUDO-DIFF`。JSON schema 合规、命名合规或图片已生成不得抵消该失败。
+
 ## Executor Lock
 
 - 默认唯一执行器是 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`。
@@ -27,6 +29,7 @@ metadata:
 - 生成执行必须加载并遵守 `.agents/skills/cli/imagegen/SKILL.md + CONTEXT.md`；默认按 imagegen 的 built-in route 或其当前合同执行，且不得在未获用户显式授权时切换到其他图像执行器。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `imagegen/SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `imagegen/CONTEXT.md`。
 - 脚本只能做读取、路径创建、JSON schema 检查、文件存在检查、manifest 汇总等机械辅助；不得生成或改写创作提示词正文。
+- 模板只能承载 JSON 结构和固定画面要求，不得通过锚点替换、句式轮换或同义改写批量替代 LLM 对主图/多视图 prompt 的主体差异化裁决。
 
 ## Advisor/Reviewer Coordination Contract
 
@@ -169,6 +172,7 @@ stateDiagram-v2
 | `FIELD-CHAR-GEN-06` | imagegen 合同 | 已遵守 imagegen 的模式、2K 默认和项目持久化规则 | `FAIL-CHAR-GEN-06` |
 | `FIELD-CHAR-GEN-07` | 顾问与复核流程 | 默认外部 provider 调度；不可用时有完整本地 checklist 结果 | `FAIL-CHAR-GEN-07` |
 | `FIELD-CHAR-GEN-08` | 执行器锁定 | 未获用户显式授权时，只使用 `.agents/skills/cli/imagegen`，不调用 nano-banana / AnyFast / 其他图像 API 子技能 | `FAIL-CHAR-GEN-08` |
+| `FIELD-CHAR-GEN-09` | 反模板伪差异 | 主图 JSON、多视图 JSON、视角差异和 `generation_profile` 不是由模板槽位、关键词锚点替换、句式轮换或同义改写批量投影；每组 prompt 能回指上游 `4. 解构` 的角色专属身份、服装、姿态或摄影裁决 | `FAIL-CHAR-GEN-PSEUDO-DIFF` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -183,6 +187,7 @@ stateDiagram-v2
 - 产物没有落到 `projects/aigc/<项目名>/11-主体/角色/3-生成/`。
 - 未获用户显式授权时切换到 nano-banana、AnyFast、seedream 或其他非 `.agents/skills/cli/imagegen` 执行器。
 - 默认顾问与复核流程被静默跳过。
+- 主图或多视图 JSON 看似完整但只是模板字段换角色名、替换视角词、轮换句式或同义改写，没有基于上游 `4. 解构` 的生成决策。
 
 必经链路：
 
@@ -232,5 +237,6 @@ stateDiagram-v2
 - 主图 prompt 来自设计文档 `4. 解构`；多视图模板只组织画面，不改写主体设计，也不回退引用旧英文整合 prompt。
 - 多视图生成以对应主图作为参照图；真实生成模式下，该本地主图已先通过 `view_image` 检视进入对话上下文，并记录 `reference_context_status: visible_in_conversation_context`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
+- 未使用脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造 prompt/多视图伪差异；疑似命中时已废弃 JSON 候选并回到 LLM prompt 决策节点。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。
 - 顾问与复核流程 默认路径已外部执行；若不可用，已使用本地流程报告。

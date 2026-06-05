@@ -1,0 +1,4 @@
+interface:
+  display_name: "目标与评价蓝图"
+  short_description: "把课程定位与知识模型转化为可测学习目标、评价证据、rubric 和目标-活动-测评对齐蓝图。"
+  default_prompt: "Use $lesson-objective-assessment-blueprint when the user asks for 目标与评价蓝图, learning objectives, measurable objectives, assessment evidence, rubric, backward design, or objective-activity-assessment alignment after lesson positioning and knowledge modeling. Default inputs are `projects/lesson/<项目名>/1-课程定位/course-positioning.md` plus the stage 2 knowledge-modeling outputs. Produce `learning-objectives.md`, `assessment-evidence-plan.md`, `rubric-blueprint.md`, `objective-activity-assessment-alignment.md`, and `downstream-handoff.md` under `projects/lesson/<项目名>/3-目标与评价蓝图/`. Do not generate complete question banks, answers, lesson scripts, course outlines, PPT copy, HTML pages, or DOC/PPT/HTML deliverables in this stage."

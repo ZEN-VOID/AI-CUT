@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-05
+
+- Upgraded `photoGPT` to the latest runtime-spine Skill 2.0 contract.
+- Moved execution workflow nodes, branch rules, failure loops, Mermaid maps, gates, and output convergence back into `SKILL.md`.
+- Removed the legacy workflow file as a second node source and synced README references.
+- Added business analysis, quantifiable execution criteria, attention concentration protocol, checkpoint contract, module trigger matrix, convergence contract, and evaluation prompt contract.
+- Added `test-prompts.json` covering prompt-only, executable `gpt-image-2` reference edit, and non-`gpt-image-2` provider blocking.
+- Synced `CONTEXT.md`, `references/`, `review/`, `scripts/`, `types/`, and `knowledge-base/` boundaries with LLM-first creative authorship and authorized-module rules.
+- Added `多镜头/九宫格` as the fifteenth subtype, including a cinematic 3x3 shot-grid JSON template, type routing, review gates, metadata, README, context heuristics, and regression prompt coverage.
+- Updated `多视图/角色` with a default `面部放大版` branch: top high-definition face close-up and bottom front/side/back full-body views; renamed the previous layout branch to `多细节界面版`.
+
 ## 2026-05-11
 
 - Clarified character-preservation wording for `多视图/角色` and `元素替换/换装|换角色|换脸`: prompts and gates must preserve original character appearance and makeup unchanged, not only identity.

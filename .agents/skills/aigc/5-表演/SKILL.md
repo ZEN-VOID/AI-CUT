@@ -30,12 +30,14 @@ metadata:
 - 表演风格资料优先查看本目录 `knowledge-base/`。若无匹配整理，可结合模型已有知识；若用户要求具体演员/表演流派事实、最新资料或可审计来源，必须联网检索并在报告记录来源、链接、检索日期和使用边界。
 - 正式生成、修复或审查时，必须加载 `references/stanislavski-method-reference.md`，并按触发信号加载本 `Module Trigger Matrix` 中授权的 performance references。
 - 核心题材理解、角色意识代入、逐画面融合改写、台词语气设计、微表情、生理反应、内心外显和表演节奏判断必须由 LLM 主创。脚本只允许承担读取、字段扫描、批注移除检查、覆盖统计、diff 和报告辅助。
+- 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 上游 `4-导演` 原稿 > `3-美学` 产物 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 知识库或网络资料。
 
 ## LLM-First Creative Authorship Contract
 
 - 表演稿正文、逐字段改写、演员角色意识代入、微表情设计、动作路径、台词语气、内心外显和自然反应设计必须由 LLM 直接完成。
 - 脚本不得自动生成表演正文，不得用模板拼接“眼神复杂、语气颤抖、动作细腻”等泛化句替代角色表演判断。
+- 映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量字段生成、批量插入、正则套句和映射投影不得生成或裁决表演正文；发现这类伪差异直接触发 `FAIL-PERF-SCRIPTED-PROJECTION`。
 - references、知识库和网络资料只提供方法、风格事实和边界证据，不得成为批量套写的句式模板。
 
 ## Runtime Spine Contract
@@ -74,7 +76,8 @@ Core task:
 - 建立 `performance_context_profile`：题材机制、整集情绪曲线、主要角色弧线位置、角色风格继承、场景风格约束、画面基调约束。
 - 建立 `actor_consciousness_profile`：逐主要角色的当下目标、隐性动机、身体基线、声音基线、面具/真实关系、弧线变化和场景压力。
 - 对角色相关画面点逐点融合改写，覆盖 `画面`、`动作画面`、`对白画面`、`旁白画面`、`系统画面`、`心理反应`、`表演提示`、`表情特写`、`角色动作`、`群像画面`、`独白画面`、`内心独白画面`、`音效画面` 等。
-- 改写时把导演批注转化为可见/可听/可演的画面化表演：动作方向、路径、幅度、动作过程、微表情、视线落点、呼吸、停顿、手部、重心、身体距离、声线、语气、断句、话前话后反应、道具接触、环境响应、生理残留和自然无意识反应。
+- 改写时把导演批注转化为可见/可听/可演的画面化表演。可优先使用但不限于以下开放通道：身体动作、姿态、重心、步伐、动作中断、动作方向、路径、幅度、动作过程、微表情、视线落点、眨眼、呼吸、吞咽、停顿、手部、身体距离、声线、语气、语速、断句、重音、尾音、话前话后反应、道具接触、空间位置、对手反应、群像反应、沉默、环境声、环境响应、生理残留和自然无意识反应。
+- 表演通道不是封闭清单，也不是逐项填空表。每个 beat 应根据角色目标、场景压力、上游锚点、字段类型和表演密度选择最有效的少数通道；不得为了“丰富”把无锚点的动作、道具、声音或环境细节堆进正文。
 - 台词在原意保真基础上允许合理微调语气承托、断句、气口和伴随动作；不得改变对白事实、角色意图、剧情信息和事件结果。
 - 输出为移除导演批注后的完整单集表演稿，而不是批注清单、表演说明书或局部 patch。
 
@@ -201,8 +204,8 @@ flowchart LR
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个导演稿 source；批量任务逐集独立执行 N1-N7；每集覆盖全部角色相关画面点和相邻导演批注 | `N4/N5.actions` | `FAIL-PERF-QUANT-SCOPE` |
-| `evidence_count` | 每集至少 1 个 `performance_context_profile`、1 个 `aesthetic_context_map`、1 个 `director_annotation_intent_map`、1 个 `actor_consciousness_profile`、1 个 `performance_point_inventory`、1 个 `fusion_plan`、1 个 `field_fusion_map`、1 个 `annotation_removal_stats`；主要角色至少 4 类表演变量；关键心理/对白/动作/表演画面点至少 1 个可见/可听/可演证据 | `Thinking-Action Node Map.evidence` | `FAIL-PERF-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-PERF-01..18` 阻断项为 0；导演批注残留 0；字段标题漂移 0；剧情事实越权 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、美学继承或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-PERF-QUANT-THRESHOLD` |
+| `evidence_count` | 每集至少 1 个 `performance_context_profile`、1 个 `aesthetic_context_map`、1 个 `director_annotation_intent_map`、1 个 `actor_consciousness_profile`、1 个 `performance_point_inventory`、1 个 `fusion_plan`、1 个 `field_fusion_map`、1 个 `annotation_removal_stats`；主要角色至少 4 类开放表演变量；关键心理/对白/动作/表演画面点至少 1 个可见/可听/可演证据，且通道选择能回指角色目标、场景压力或上游锚点 | `Thinking-Action Node Map.evidence` | `FAIL-PERF-QUANT-EVIDENCE` |
+| `pass_threshold` | `GATE-PERF-01..19` 阻断项为 0；导演批注残留 0；字段标题漂移 0；剧情事实越权 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、美学继承、作者性完整性或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-PERF-QUANT-THRESHOLD` |
 | `rewrite_density` | 每个命中画面点必须比原文更具体或更可演；单字段不可扩写成脱离剧本节奏的说明段，超长字段需报告理由 | `N5.actions` / `Review Gate Binding` | `FAIL-PERF-DENSITY` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-PERF-QUANT-RETRY` |
 | `fallback_evidence` | 若某项 `3-美学` 缺失，使用用户指定等价资料并标记降级；若知识库缺演员资料，记录 `pretrained_style_inference` 或网络来源；若某画面点语义不可判定，保留原文并在报告列 blocked/followup | `Review Gate Binding.report_evidence` | `FAIL-PERF-QUANT-FALLBACK` |
@@ -271,7 +274,7 @@ flowchart LR
 | `C2-UNDERSTANDING-READY` | 题材、情节、批注意图、画面基调、角色风格和场景风格已形成可执行表演方向 | 只写概念标签或缺上游证据 | `performance_context_profile`、`aesthetic_context_map` | `N2-PERF-UNDERSTAND` |
 | `C3-ACTOR-PROFILE-READY` | 主要角色有当下目标、身体/声音基线、隐藏动机和弧线位置 | 角色意识缺失或风格无来源边界 | `actor_consciousness_profile` | `N3-ACTOR-CONSCIOUSNESS` |
 | `C4-POINTS-MAPPED` | 命中画面点、批注和融合计划覆盖率 100% | 漏点、批注未映射、受控增强无 ledger | `performance_point_inventory`、`fusion_plan` | `N4-POINT-FUSION-PLAN` |
-| `C5-REWRITE-PASS` | 批注残留 0、字段标题保留、关键 beat 可演、review 阻断项 0 | 批注残留、字段漂移、保真失败、表演抽象 | `review_verdict`、`annotation_removal_stats` | `N5/N6` |
+| `C5-REWRITE-PASS` | 批注残留 0、字段标题保留、关键 beat 可演、作者性完整性通过、review 阻断项 0 | 批注残留、字段漂移、保真失败、表演抽象、脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 | `review_verdict`、`annotation_removal_stats`、`authorship_integrity_audit` | `N5/N6` |
 
 ## Review Gate Binding
 
@@ -295,6 +298,7 @@ flowchart LR
 | 是否没有摄影、图像、视频或 prompt 越权？ | `GATE-PERF-16-STAGE-BOUNDARY` | `FAIL-PERF-STAGE-OVERREACH` | `N5` | 越权术语扫描 |
 | 执行报告是否含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log？ | `GATE-PERF-17-REPORT-EVIDENCE` | `FAIL-PERF-REPORT-EVIDENCE` | `N6/N7` | 执行报告 sections |
 | 终稿是否能让演员读后直接知道每个关键画面怎么演，观众能感知并共情？ | `GATE-PERF-18-ACTOR-READABILITY` | `FAIL-PERF-ACTOR-READABILITY` | `N3/N5` | 关键 beat 表演可执行抽样 |
+| 表演正文是否由 LLM 基于角色目标、场景压力、导演批注意图和上游锚点逐 beat 判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成？ | `GATE-PERF-19-AUTHORSHIP-INTEGRITY` | `FAIL-PERF-SCRIPTED-PROJECTION` | `R1/R2` -> `N3-ACTOR-CONSCIOUSNESS` -> `N5-PERF-REWRITE` | `authorship_integrity_audit`、重复句式/锚点替换抽样、废弃候选记录 |
 
 ## Attention Concentration Protocol
 
@@ -346,7 +350,8 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-PERF-01..18` 阻断项为 0。
+- `GATE-PERF-01..19` 阻断项为 0。
+- `FAIL-PERF-SCRIPTED-PROJECTION` 必须为 0；若候选稿只是脚本化生成、批量插入、正则套句、映射投影、句式复用或锚点替换伪差异，不得通过局部润色修复，必须废弃候选稿并回到角色意识与逐 beat 改写节点。
 - 导演批注残留 0。
 - 字段标题漂移 0。
 - 剧情事实越权 0。

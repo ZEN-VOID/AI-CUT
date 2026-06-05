@@ -1,6 +1,6 @@
 # Review Contract
 
-本 review gate 只裁决 `B-分镜故事板` 的组级 prompt、主体参照、imagegen 计划与项目持久化，不改写 `10-分组` 主真源。
+本 review gate 只裁决 `分镜故事板` 的组级 prompt、主体参照、imagegen 计划与项目持久化，不改写 `10-分组` 主真源。
 
 ## Review Verdicts
 

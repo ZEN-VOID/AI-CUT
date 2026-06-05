@@ -1,0 +1,4 @@
+interface:
+  display_name: "课程项目查询"
+  short_description: "只读查询课程项目事实、阶段产物、交付路径、状态与缺口"
+  default_prompt: "Use $lesson-query to lock projects/lesson PROJECT_ROOT, classify the lesson truth role, read only existing carriers, distinguish file exists / stage complete / validation passed, and answer with evidence paths plus gaps."

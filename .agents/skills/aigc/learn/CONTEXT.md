@@ -33,6 +33,7 @@ recommended_action: execute-first-report-optional
 | 多处技能包口径互相矛盾 | coordination layer | 执行 isolated audit 或本地 checklist 矛盾扫描 | 跨多技能改进必须列 changed_files 和 consistency checks | 不存在新旧口径并存 |
 | 项目个案经验被写成全局规则 | memory boundary | 回退到项目 `MEMORY.md` 或项目 `CONTEXT/` | 区分 project preference 与 cross-project heuristic | 全局 skill 不含单项目限定偏好 |
 | 已有 source digest 和 target_skill_map 但停在报告 | execution closure layer | 按最窄 owner 执行 writeback 或明确写入 blocker，随后跑 root/context/aigc 审计 | 用户要求学习/优化且权限可用时，默认完成 `N7-WRITEBACK -> N8-AUDIT -> N9-DEPOSIT`，不把报告当终点 | changed_files、验证命令和 audit_result 同时存在 |
+| 创作型技能只补覆盖率、字段完整或动机证据，未补脚本批量生成、批量插入、正则套句、映射投影/伪差异独立门 | formalism gate layer | 回 owning skill 补 fail code、review gate、rework target、report evidence 与 CONTEXT 失败模式 | 执行型改进固定跑 `formalism_audit`；缺门禁不得 pass | `GATE-LEARN-FORMALISM` pass，且 root `PASS-AIGC-05` 可回指 |
 
 ## Repair Playbook
 
@@ -46,6 +47,7 @@ recommended_action: execute-first-report-optional
 8. 执行型改进完成后必须做协调审计，重点检查旧口径残留、引用断链、审计脚本遗漏和 root index 漏项。
 9. 如果已有 source digest、target_skill_map 和可写范围，不要停在学习报告；按最窄 owner 完成 writeback，除非存在事实冲突、版权、越权或用户明确只要分析。
 10. 稳定经验写到对应 skill 的 `CONTEXT.md`；外部知识材料或长摘录索引进入 `knowledge-base/`，但不得当作运行时固定规则。
+11. 审查内容创作型 skill 时，把“覆盖率、四要素、动机证据、报告完整”视为机械底线，不视为质量闭环；必须另查是否有 `scripted authorship / template projection / fake differentiation` 的独立 fail code 和返工入口。
 
 ## Reusable Heuristics
 
@@ -60,3 +62,4 @@ recommended_action: execute-first-report-optional
 - **执行型改进的终点是 `N8-AUDIT` 通过（`pass` 或 `pass_with_followups`），不是生成报告**。
 - **报告只是追溯凭证**：只有用户明确要求或需要审计追溯时才生成；默认不需要报告，直接交付 changed_files 和 audit_result。**不要把报告当成学习的目标**。
 - 停在报告的典型错误：已有 source digest、target_skill_map 和可写范围，但以”已生成学习报告”为由结束任务。应：按最窄 owner 完成 writeback，除非存在事实冲突、版权、越权或用户明确只要分析。
+- 反形式化门禁要落在 owning skill 的源层，而不是只写在学习报告里。最小合格形态是：硬禁止 + fail code + review gate + rework target + 报告证据 + CONTEXT 失败模式。

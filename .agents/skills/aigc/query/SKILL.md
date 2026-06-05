@@ -91,7 +91,7 @@ Reject or clarify when:
 | `Q4-CARRIER` | 读取事实 carrier | project root、runtime layout、truth role | 读取阶段、资产、媒体或状态 carrier；legacy 只作兼容回读 | evidence_pack、checked_paths | `Q6-DISTINCTION` | 每个结论至少一个可复核路径 |
 | `Q5-GOVERNANCE` | 读取制度证据 | registry/routes、技能合同、system flow | 读取制度 carrier 并判定 drift | governance_evidence | `Q6-DISTINCTION` | 制度问题不能只看目录 |
 | `Q6-DISTINCTION` | 区分存在、完成和验收 | evidence pack、review contract、执行报告 | 补读 validation/report；缺失时标注 validation gap | status_distinction | `Q7-ANSWER` | 完成/通过结论必须有验收证据 |
-| `Q7-ANSWER` | 交付唯一查询答复 | 所有证据和缺口 | 输出结论、证据路径、缺口/冲突、下一入口 | final_answer | done | 四字段齐全且没有无证断言 |
+| `Q7-ANSWER` | 交付唯一查询答复 | 所有证据和缺口 | 输出结论、证据路径、缺口/冲突、下一入口；脚本只能列文件和整理 evidence 引用，不得生成查询判断或完成/验收结论 | final_answer、authorship note | done | 四字段齐全且没有无证断言；命中脚本化结论即失败 |
 
 ## Visual Maps
 
@@ -113,7 +113,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 每次查询最多回答一个主问题；多问题按主次分段，不混合项目根 | `Q2-ROOT`, `Q3-ROLE` | `FAIL-QUERY-QUANT-SCOPE` |
 | `evidence_count` | 每个结论至少 1 个可复核路径；完成/通过至少 1 个验收或执行报告证据 | `Q4-CARRIER`, `Q6-DISTINCTION` | `FAIL-QUERY-QUANT-EVIDENCE` |
-| `pass_threshold` | 输出四字段全部存在；无证完成结论数量必须为 0 | `Q7-ANSWER`, `Convergence Contract` | `FAIL-QUERY-QUANT-THRESHOLD` |
+| `pass_threshold` | 输出四字段全部存在；无证完成结论数量必须为 0；脚本化查询结论、模板化完成判断数量必须为 0 | `Q7-ANSWER`, `Convergence Contract` | `FAIL-QUERY-QUANT-THRESHOLD` |
 | `retry_limit` | 项目根不唯一时不超过 1 轮自动候选扫描，随后询问最小缺口 | `Q2-ROOT` | `FAIL-QUERY-QUANT-RETRY` |
 | `fallback_evidence` | carrier 缺失时报告已检查 canonical path 和 legacy fallback，不得推断完成 | `Review Gate Binding` | `FAIL-QUERY-QUANT-FALLBACK` |
 
@@ -123,7 +123,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 当前锚点始终是用户主问题、PROJECT_ROOT、truth role、carrier 和输出四字段 | `Q1-LOAD` |
 | `ATTE-S20-02` | 注意力转移规则 | root lock 完成后转 truth role；carrier 读取后转 validation distinction；证据缺失转对应 gate | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 出现多项目混答、无证验收、legacy 当 current、制度问题不读 registry 时判定漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 出现多项目混答、无证验收、legacy 当 current、制度问题不读 registry、脚本生成查询结论时判定漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 漂移时回到最近有效节点，不继续扩写答案；最终说明 blocker 或残余风险 | `Q2-ROOT` / `Q3-ROLE` / `Q6-DISTINCTION` |
 
 | drift_type | re_center_entry |
@@ -142,7 +142,7 @@ flowchart TD
 | `types/` | 每次判定 truth role | 提供查询类型画像 | 不得直接输出结论 | `Q3-ROLE` |
 | `review/` | 涉及完成、通过、交付或质量判断 | 区分存在、执行报告和验收 | 不得替代阶段验收 | `Q6-DISTINCTION` |
 | `templates/` | 复杂查询或用户要求保存报告 | 投影四字段答复 | 不得创建平行状态真源 | `Q7-ANSWER` |
-| `scripts/` | 需要机械列文件、路径扫描或只读检查 | 机械辅助读取 | 不得生成查询判断 | `Q4-CARRIER` |
+| `scripts/` | 需要机械列文件、路径扫描或只读检查 | 机械辅助读取 | 不得生成查询判断、完成/验收结论或下一入口裁决 | `Q4-CARRIER` / `Q7-ANSWER` |
 | `guardrails/` | 任意查询涉及权限、注入或越权风险 | 展开只读边界 | 不得扩大写权限 | `Q1-LOAD` |
 | `knowledge-base/` | 需要参考人工沉淀的查询经验 | 外部/人工知识参考 | 不得作为自动经验写回落点 | `Learning / Context Writeback` |
 | `agents/` | 产品入口或索引元数据检查 | 说明 `$aigc-query` 入口 | 不得承载执行规则 | `Q1-LOAD` |
@@ -162,6 +162,7 @@ flowchart TD
 | `FAIL-QUERY-CARRIER` | `references/project-runtime-layout.md`, `references/system-data-flow.md` | `Q4-CARRIER` | `Q4-CARRIER` | checked_paths nonempty |
 | `FAIL-QUERY-VALIDATION` | `review/review-contract.md`, `templates/output-template.md` | `Q6-DISTINCTION` | `Q6-DISTINCTION` | validation distinction explicit |
 | `FAIL-QUERY-OUTPUT` | `templates/output-template.md` | `Q7-ANSWER` | `Q7-ANSWER` | four output fields present |
+| `FAIL-QUERY-SCRIPTED-CONCLUSION` | `templates/output-template.md` | `Q7-ANSWER` | `Q7-ANSWER` | final answer has evidence-backed human/LLM judgment |
 
 ## Convergence Contract
 
@@ -180,6 +181,7 @@ flowchart TD
 | 每个结论是否至少有一个可复核路径？ | `GATE-QUERY-CARRIER` | `FAIL-QUERY-CARRIER` | `Q4-CARRIER` | checked_paths、evidence_pack |
 | 是否明确区分产物存在、执行报告存在和验收通过？ | `GATE-QUERY-VALIDATION` | `FAIL-QUERY-VALIDATION` | `Q6-DISTINCTION` | validation evidence or gap |
 | 输出是否包含结论、证据、缺口/冲突和唯一下一入口？ | `GATE-QUERY-OUTPUT` | `FAIL-QUERY-OUTPUT` | `Q7-ANSWER` | final answer checklist |
+| 查询结论、完成/验收判断和下一入口是否由 LLM 基于 carrier 证据裁决，而不是脚本套表、关键词锚点替换或模板生成？ | `GATE-QUERY-AUTHORSHIP` | `FAIL-QUERY-SCRIPTED-CONCLUSION` | `Q7-ANSWER` | authorship note、checked_paths、status_distinction |
 
 ## Checkpoint Contract
 
@@ -244,7 +246,7 @@ See `guardrails/guardrails-contract.md`.
 - Output format: Markdown 结构化答复；复杂查询使用 `templates/output-template.md` 的四段式结构。
 - Output path: 默认只输出到当前对话；保存报告时写入 `projects/aigc/<项目名>/reports/query-report-YYYYMMDD.md`。
 - Naming convention: 保存报告使用 `query-report-YYYYMMDD.md`，不创建 `status.md`、`result.txt`、`query.json` 等平行真源。
-- Completion gate: 项目根和 truth role 已锁定，canonical carrier 已读取；若涉及完成/验收，已读取对应验收载体或明确缺失；输出包含结论、证据路径、缺口/冲突和唯一下一入口。
+- Completion gate: 项目根和 truth role 已锁定，canonical carrier 已读取；若涉及完成/验收，已读取对应验收载体或明确缺失；输出包含结论、证据路径、缺口/冲突和唯一下一入口；查询结论和完成/验收判断不是脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写生成。
 
 ## Learning / Context Writeback
 

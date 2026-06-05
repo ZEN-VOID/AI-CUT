@@ -31,6 +31,7 @@ recommended_action: keep-repair-heuristics-only
 | repair 只做结构化正确，但中文仍像翻译腔/工程腔 | local expression miss | 将中文润色和本土语境创意交给豆包执行 lane | 在 `doubao_task_packet` 写明中文气口、本土文化语境和目标受众 | review 包含 `local_chinese_fit` |
 | 生成资产返工被写成“修改图片/视频文件” | asset truth confusion | repair 只失效、重建任务或路由生成 leaf | 图像/视频结果由 owning provider/leaf 生成 | asset action 是 preserve / invalidate / regenerate |
 | 项目长期偏好未写 MEMORY，后续阶段又偏回旧口径 | project memory drift | 用户明确长期要求时更新项目 `MEMORY.md` | repair intake 区分一次性改动和长期偏好 | MEMORY 与 repair report 口径一致 |
+| 修复正文或润色像模板替换 | scripted repair layer | 标记 `FAIL-REPAIR-SCRIPTED-REPAIR`，回到 provider/LLM 主创 lane | scripts 只做 diff、扫描、投影、校验 | repair text 有 source rule refs 和 authorship note |
 
 ## Repair Playbook
 
@@ -42,6 +43,7 @@ recommended_action: keep-repair-heuristics-only
 6. 执行型文本修复默认整理上下文给豆包；若 provider 不可用，报告降级并只输出 repair plan 或当前模型可审计草案。
 7. 中文润色只优化清晰度、自然度、影视执行可读性和中文气口；创意激发只能给候选增强，不自动改写源层事实。
 8. 修复后必须执行 review gate，至少检查 source rule 回看、旧口径残留、stage owner、provider evidence、资产状态和 residual risks。
+9. 形式化 diff、字段齐全或替换成功不能证明 repair 合格；若修复正文只是把旧模板换锚点，必须返工到 LLM/provider 主创。
 
 ## Reusable Heuristics
 
@@ -53,3 +55,4 @@ recommended_action: keep-repair-heuristics-only
 - 对多个子技能包输出物做整体调整时，先找共同源层，不要逐个文件局部打补丁。
 - `14-审片` 的 finding 是证据入口，不是自动改稿权；它要回到 `10-分组`、`4-摄影`、`12-图像` 或 `13-画布` 的 owner route。
 - 若用户要求“以后都按这个口味”，优先写项目 `MEMORY.md`；若只是本次返工，不要污染长期记忆。
+- repair 的脚本价值在定位和校验，不在主创；任何“批量润色/批量修复正文”都要有 provider evidence 或明确降级为 repair plan。

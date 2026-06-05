@@ -10,6 +10,10 @@ metadata:
 
 `道具/2-设计` 负责消费上游 `道具/1-清单` 的汇总式道具清单，并结合 `3-美学/画面基调`、`3-美学/道具风格`、项目 `north_star.yaml` 与 `team.yaml.init_synthesis` 中的设计相关初始化综合上下文，为每个需要进入生成锁定的单个道具主体输出细目设计 Markdown。它不重新抽取清单，不批量改写父级 registry，也不代替 `3-生成` 产出图像。
 
+硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
+
+脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句或映射投影生成的研究考据、物语、Photography、Prop Design、prompt evidence chain 或英文提示词，直接判定为 `FAIL-PROP-DESIGN-PSEUDO-DIFF`；字段齐全、prompt 长度合规、ID 一致、语料库被加载或道具看似“有细节”不得抵消该失败。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-prop-design` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -27,7 +31,7 @@ metadata:
 - 文化元素语境约束：文化元素必须与项目时代、地域、阶层、职业、宗教/族群禁区和道具功能逻辑相容。可以风格化、符号化、戏剧化，但不得把现代奢牌、潮牌、战术结构、赛博灯条、哥特尖刺或泛奇幻符文硬套进不匹配的历史/文化语境。
 - 高质量道具语料库约束：凡进入 `single_prop`、`batch_from_inventory`、`incremental_fill` 或 `repair` 模式，且需要生成或修复道具审美、文化元素、装饰纹样、工艺细节、功能结构、使用痕迹或 prompt 设计短语时，必须加载 `knowledge-base/prop-design-corpus.md`。语料库只作为启发与原创转译库，不得替代清单锚点、项目时代语境、道具风格协议、`north_star.yaml`、`team.yaml.init_synthesis` 或本 `SKILL.md` 门禁。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 道具研究判断、物语提炼、造型解构、摄影/道具设计语言与提示词设计必须由 LLM 直接完成；`scripts/` 只能做读取、路径枚举、文件名归一、格式检查等机械辅助。
+- 道具研究判断、物语提炼、造型解构、摄影/道具设计语言与提示词设计必须由 LLM 直接完成；`scripts/` 只能做读取、路径枚举、文件名归一、格式检查等机械辅助，不得批量生成、批量插入、正则套句或映射投影任何创作正文。
 
 ## 初始化综合消费 Execution Contract
 
@@ -45,7 +49,7 @@ metadata:
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能只承担查询、恢复、审查承接或辅助动作；不会自动改写本技能的道具设计 canonical 输出，除非父级合同或用户明确要求回接。
-- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 道具设计主创或主 agent 最终裁决。
+- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 道具设计主创或主 agent 最终裁决，不得批量生成、批量插入、正则套句或映射投影设计正文。
 
 ## Input Contract
 
@@ -169,7 +173,7 @@ stateDiagram-v2
 4. 读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml` 与 `team.yaml.init_synthesis`，提取 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt` 作为道具设计风格词；`north_star.yaml` 仅提供项目北极星、视觉禁区和创作阶段不变量，`team.yaml.init_synthesis` 仅提供设计相关初始化约束、启发和风险。
 5. 按共享初始化综合消费合同优先消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`；采纳内容必须来自当前节点、目标道具上下文和 review gate，不能退化为固定字段清单或只点名大师；不得请教项目监制顾问或派生新 team 问答。
 6. 按 `types/prop-design-type-map.md` 判型，形成 `type_profile`，再进入 `steps/prop-design-workflow.md` 的单道具设计节点。
-7. 由 LLM 完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、设计细节、文化元素、风险/不确定性和 prompt evidence chain；“神秘、古老、高级、危险、破损、仪式感”等抽象判断必须落到具体轮廓、材质、刻痕、氧化、磨损、结构、文化符号、装饰纹样和尺度。命中 `Module Trigger Matrix` 时必须加载 `knowledge-base/prop-design-corpus.md` 并留下原创转译证据；冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
+7. 由 LLM 从上到下逐个道具理解清单锚点、功能逻辑、项目风格和初始化综合后，完成研究考据、物语、Photography + Prop Design 解构与英文提示词设计；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。研究必须先转译为形制、材料、工艺、年代、使用痕迹、功能逻辑、设计细节、文化元素、风险/不确定性和 prompt evidence chain；“神秘、古老、高级、危险、破损、仪式感”等抽象判断必须落到具体轮廓、材质、刻痕、氧化、磨损、结构、文化符号、装饰纹样和尺度。命中 `Module Trigger Matrix` 时必须加载 `knowledge-base/prop-design-corpus.md` 并留下原创转译证据；冷门信息仅在确有必要时允许网络搜索，并在输出中标注来源或不确定性。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、画面基调、道具风格、固定画面词或负向词等前缀/后缀；提示词必须把 Photography 与 Prop Design 中的全貌构图、45 度角度、完整轮廓、形制、材料、工艺、年代、磨损、功能逻辑、尺度和固定画面约束蒸馏成自然流畅的英文。
 9. 负向约束必须用自然语言写入 prompt，例如 `avoid people, hands, character, model, body parts, tabletop scene, room set, street, landscape, props cluster, background elements, cropped prop, partial prop`，不得使用 Midjourney `--no` 参数。
 10. 为每个道具锁定唯一主体 ID；若上游清单或 manifest 已有 `PROP-###` 等 ID 则沿用，否则按清单顺序生成 `PROP-###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
@@ -194,12 +198,13 @@ stateDiagram-v2
 | `FIELD-PROP-DESIGN-11` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象年代感、危险感、神秘感、仪式感和审美标签已转为具体形制、材料、工艺、磨损、功能逻辑与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
 | `FIELD-PROP-DESIGN-12` | 道具设计吸引力与文化细节 | 道具具备独特轮廓、材质记忆点、工艺/装饰细节、文化或身份符号、使用痕迹和功能结构中的有效组合；关键剧情道具拥有可复现 signature detail；不简单、平凡或只按功能还原 | `FAIL-PROP-DESIGN-DETAIL-CULTURE` |
 | `FIELD-PROP-DESIGN-13` | 高质量语料库触发 | 命中道具审美、文化元素、设计细节、工艺/纹样、使用痕迹或 prompt 设计短语时，已加载 `knowledge-base/prop-design-corpus.md`，并把语料原创转译为当前道具的可见设计；未逐字套用或覆盖项目时代语境 | `FAIL-PROP-DESIGN-CORPUS-MISSING` |
+| `FIELD-PROP-DESIGN-14` | 反模板伪差异 | 研究、物语、Photography、Prop Design、prompt evidence chain 和英文提示词不是由脚本批量生成、批量插入、正则套句、映射投影、模板槽位、关键词锚点替换、句式轮换或同义改写制造；每个道具至少有一个不可互换的形制、材质工艺、使用痕迹、功能结构或文化语境裁决证据 | `FAIL-PROP-DESIGN-PSEUDO-DIFF` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
 出现以下问题时，必须沿链路上溯并修复源层合同：
 
-- 脚本、模板或正则拼接替代 LLM 生成研究、物语、解构或提示词正文。
+- 脚本、模板、正则拼接、批量插入或映射投影替代 LLM 生成研究、物语、解构或提示词正文。
 - 道具细目没有从 `1-清单` 取证，或擅自新增上游不存在的道具主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有道具设计稿。
 - 未读取 `3-美学/画面基调/全局风格协议.md`、`3-美学/道具风格/道具风格协议.md`、`north_star.yaml` / `team.yaml.init_synthesis` 却声称已经使用画面基调、道具风格和初始化设计约束。
@@ -214,6 +219,7 @@ stateDiagram-v2
 - 输出写到父级、`1-清单`、`3-生成`、角色/场景目录或 registry。
 - 初始化综合存在却被静默跳过。
 - 执行初始化综合消费时调用 team 身份、解析旧 stage profile、补造顾问问答，或没有把初始化综合转成节点级可执行判断、局部 patch 或风险提示。
+- 研究/物语/解构/prompt 字段完整但不同道具只是替换道具名、材质、纹样、年代或形容词，没有道具专属设计判断。
 
 必经链路：
 
@@ -273,4 +279,5 @@ stateDiagram-v2
 - `## 4. 解构` 下的主体 ID、`## 5. 提示词设计` 的主体 ID 和英文 prompt 开头三者一致；英文 prompt 以主体 ID 号开头，引用 `画面基调.Global Style Prompt + 道具风格.Prop Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，不超过 1300 characters。
 - prompt evidence chain 能解释关键英文 token 来自哪些研究/物语/解构字段。
 - `Photography` 与英文 prompt 固定为 full-view prop shot、45-degree view、full prop in view、entire prop fully visible、uncropped full silhouette、prop only、solid color background、no people、no background elements、no scene environment。
+- 未使用脚本批量生成、批量插入、正则套句、映射投影、映射表、规则模板、关键词锚点替换、句式轮换或同义改写制造道具设计伪差异；疑似命中时已废弃候选稿并回到 LLM 研究/解构/prompt 节点。
 - 已执行 `review/review-contract.md` 的人工 review、外部 reviewer provider 或等价本地 review，并记录 verdict。

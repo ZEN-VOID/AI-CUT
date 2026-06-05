@@ -29,6 +29,7 @@ metadata:
 - 每个 subagent 必须独立加载自身 `SKILL.md + CONTEXT.md`，并按自身 Output Contract 继续路由到 `1-清单`、`2-设计` 或 `3-生成` 叶子技能。
 - 整体调用不得因为某一类主体输出尚未产出而降级为串行执行；缺失的跨域依赖在对应 subagent 输出中标记为 `dependency_gap`，并由父级汇流报告记录。
 - 核心主体抽取、归并、设计判断、提示词蒸馏和冲突裁决必须由 LLM 直接完成；脚本只可承担读取、整理、校验、索引生成、字数统计和污染扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造的清单判断、设计稿、研究/物语/解构/prompt 或生成决策，即使通过字段完整、字数、路径和格式检查，也必须判定为 `FAIL-SUBJ-PSEUDO-DIFF-BYPASS` 并返工到对应叶子源层。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 域级 subagent `SKILL.md` > 叶子 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 域级或叶子 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -248,6 +249,7 @@ Pass conditions:
 | 父级是否只做索引、汇流和 handoff，没有代写清单/设计/生成正文？ | `GATE-SUBJ-PARENT-BOUNDARY` | `FAIL-SUBJ-PARENT-OVERREACH` | `N6-CONVERGE` | 父级总览摘要与子输出路径 |
 | blocked 或 candidate 状态是否没有被父级伪装为 pass？ | `GATE-SUBJ-VERDICT` | `FAIL-SUBJ-VERDICT` | `N8-CLOSE` | `final_report` 与 `subagent_result_matrix` |
 | 下游交接是否指向 `12-图像`、`13-画布`、`14-审片`，并说明继承/不继承边界？ | `GATE-SUBJ-HANDOFF` | `FAIL-SUBJ-HANDOFF` | `N7-HANDOFF` | `downstream_handoff_map` |
+| 子技能是否独立阻断脚本化生成、批量插入、正则套句、映射投影、句式复用和锚点替换伪差异，而不是只看字段完整或数量指标？ | `GATE-SUBJ-ANTI-PSEUDO-DIFF` | `FAIL-SUBJ-PSEUDO-DIFF-BYPASS` | 对应域级组根或叶子 `LLM-first` gate | `subagent_result_matrix.fail_code`、叶子 review verdict |
 
 ## Quantifiable Execution Criteria Contract
 
@@ -255,7 +257,7 @@ Pass conditions:
 | --- | --- | --- | --- |
 | `action_scope` | 整体模式必须调度 3 个 subagents；局部模式只调度用户点名主体域 | `N3-PARALLEL-FANOUT` / `C1-DOMAIN-ROUTE` | `FAIL-SUBJ-ACTION-SCOPE` |
 | `evidence_count` | `subagent_dispatch_matrix` 和 `subagent_result_matrix` 各至少 3 行；每行至少包含状态、路径、报告、缺口、fail code | `N3` / `N4` evidence | `FAIL-SUBJ-EVIDENCE` |
-| `pass_threshold` | 无 blocked subagent；candidate 必须附依赖缺口和返工入口；父级不得声明纯 pass | `Convergence Contract` | `FAIL-SUBJ-THRESHOLD` |
+| `pass_threshold` | 无 blocked subagent；candidate 必须附依赖缺口和返工入口；父级不得声明纯 pass；任一叶子出现脚本化生成、批量插入、正则套句、映射投影、句式复用、锚点替换或同义改写批量伪差异时不得 pass | `Convergence Contract` | `FAIL-SUBJ-THRESHOLD` |
 | `retry_limit` | 同一 subagent 连续 2 次 blocked 后停止父级 pass，转 `repair_suite_route` 并报告阻断原因 | `R1-ROOT-CAUSE` / `R2-REPAIR` | `FAIL-SUBJ-RETRY` |
 | `fallback_evidence` | 无法正式写回时，必须输出候选路由、源路径、不可写原因和建议落点 | `Review Gate Binding.report_evidence` | `FAIL-SUBJ-FALLBACK` |
 
@@ -289,6 +291,7 @@ Pass conditions:
 3. 设计证据不足：回到对应 `2-设计` 叶子补设计稿、证据链和 prompt 边界。
 4. 生成参照缺失或错绑：回到对应 `3-生成` 叶子修 image/panel/manifest，不改写父级路由真源。
 5. 跨域冲突：父级只汇总冲突和返工 owner；不得吞并场景、角色、道具叶子的 canonical truth。
+6. 形式指标通过但内容呈现批量模板、句式轮换、关键词锚点替换或同义改写伪差异：废弃候选稿，回到拥有真源的叶子 `LLM-first` 节点重做，不在父级总览表层润色。
 
 ## Field Mapping
 
@@ -310,7 +313,7 @@ Pass conditions:
   - `projects/aigc/<项目名>/11-主体/执行报告.md`
   - 域级/叶子输出固定在 `projects/aigc/<项目名>/11-主体/{场景,角色,道具}/{1-清单,2-设计,3-生成}/`
 - Naming convention: 父级文件使用 `主体总览.md`、`执行报告.md`；域级和叶子产物按各自 Output Contract 命名。
-- Completion gate: 已加载父级与 3 个 subagents 的 `SKILL.md + CONTEXT.md`；已默认定位 `10-分组` 分组稿或记录 source override；整体模式下 3 路并发调度完成；父级未越权主创；blocked/candidate 状态未伪装为 pass；下游 handoff 指向当前编号阶段。
+- Completion gate: 已加载父级与 3 个 subagents 的 `SKILL.md + CONTEXT.md`；已默认定位 `10-分组` 分组稿或记录 source override；整体模式下 3 路并发调度完成；父级未越权主创；blocked/candidate 状态未伪装为 pass；下游 handoff 指向当前编号阶段；已确认子技能没有以脚本化生成、批量插入、正则套句、映射投影、句式复用、锚点替换或同义改写伪差异绕过 LLM-first。
 
 ## Learning / Context Writeback
 

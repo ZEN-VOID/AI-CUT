@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lesson Learn"
+  short_description: "Lesson learning source-first improvement"
+  default_prompt: "Use $lesson-learn when the user asks to absorb external teaching methods, course standards, reference courseware, documents, websites, videos, books, or lesson project experience into the lesson workflow. Build a source digest, credibility/copyright/applicability decisions, target skill map, gap matrix, and improvement plan. Only update the narrowest owning skill or CONTEXT when explicitly authorized, and do not overwrite lesson stage canonical drafts, content-model bodies, DOC/PPT/HTML deliverables, or project MEMORY without the owning workflow."

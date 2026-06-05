@@ -287,8 +287,8 @@ STAGE_RUNTIME_EXPECTATIONS = {
     ROOT / "13-画布" / "SKILL.md": (
         "projects/aigc/<项目名>/13-画布/",
         "projects/aigc/<项目名>/13-画布/libTV画布流/",
-        "projects/aigc/<项目名>/13-画布/A-分镜画面参照/",
-        "projects/aigc/<项目名>/13-画布/B-分镜故事板参照/",
+        "projects/aigc/<项目名>/13-画布/分镜画面参照/",
+        "projects/aigc/<项目名>/13-画布/分镜故事板参照/",
         "projects/aigc/<项目名>/13-画布/C-主体参照/",
         "projects/aigc/<项目名>/13-画布/D-主板混合参照/",
         ".agents/skills/aigc/14-审片/SKILL.md",
@@ -357,6 +357,7 @@ REQUIRED_SATELLITES = {
     "aigc-review": ROOT / "review",
     "aigc-repair": ROOT / "repair",
     "aigc-shot-by-shot": ROOT / "shot-by-shot",
+    "aigc-flash": ROOT / "flash",
     "aigc-learn": ROOT / "learn",
 }
 REQUIRED_ROUTE_POLICIES = {
@@ -365,6 +366,7 @@ REQUIRED_ROUTE_POLICIES = {
     "aigc-review-satellite-entry",
     "aigc-repair-satellite-entry",
     "aigc-shot-by-shot-satellite-entry",
+    "aigc-flash-satellite-entry",
     "aigc-learn-satellite-entry",
     "aigc-motion-enrichment-stage-entry",
     "aigc-image-stage-entry",

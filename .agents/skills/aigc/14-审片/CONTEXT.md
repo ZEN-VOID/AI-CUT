@@ -36,6 +36,7 @@ last_checked_at: 2026-06-04
 | finding 只写“重跑/修分组”但无法执行 | operation design 层缺失 | 每条重要 finding 写 candidate operations、chosen operation 和拒绝其他操作理由 | `GATE-REVIEW-17` 固定 operation 与 landing 分离 | 报告能说明是同 prompt 重跑、修 LibTV prompt、拆组、修资产引用、修图片顺序、修声音策略还是补证 |
 | 审片包存在 `steps/` 节点展开并被 references 反复引用 | runtime spine 节点真源漂移 | 删除 `steps/` 节点载体，把 N0-N7、Mermaid、gate、fail code 和返工目标收回 `SKILL.md` | references 的 Review Gate Mapping 只回指 `SKILL.md#Thinking-Action Node Map` 与对应合同 | 模块引用中无 `steps/video-review-workflow`，`SKILL.md` 能独立说明最小审片路径 |
 | 审片合同缺少量化证据数、注意力再集中、检查点或评估 prompts | Skill 2.0 最新 runtime-spine 缺槽 | 在 `SKILL.md` 补 Quantifiable Execution Criteria、Attention Concentration、Checkpoint、Evaluation Prompt Contract，并新增 `test-prompts.json` | 每次升级都同步 README、CHANGELOG 和引用检查 | `test-prompts.json` 至少 3 条，且 `SKILL.md` 包含 B10-B14 控制块 |
+| 审片 verdict 像固定打分模板 | scripted verdict layer | 标记 `FAIL-REVIEW-SCRIPTED-VERDICT`，回到真实视频摘要、证据到 finding 映射和 LLM 判断 | Review Gate 固化 verdict authorship | verdict 能说明具体帧/音频/分组证据如何导致结论 |
 
 ## Repair Playbook
 
@@ -59,6 +60,7 @@ last_checked_at: 2026-06-04
 17. landing 和 operation 要分开写。`group_repair` 是层级，具体操作可能是改 prompt、拆组、并组、修资产引用或修图片顺序；`rerun_only` 也要区分同 prompt 重跑和换 seed/model 重跑。
 18. `SKILL.md` 是 N0-N7 节点唯一真源。引用历史步骤文档时，应改为回指 `SKILL.md#Thinking-Action Node Map` 和具体节点名，不再恢复 `steps/`。
 19. 结构升级后要同时检查 `test-prompts.json`、Module Loading Matrix、Module Trigger Matrix、Review Gate Binding 和 README 目录树；少任何一项都容易让 skill 看似完整但无法回归评估。
+20. 审片表格、评分项和脚本可辅助覆盖检查，但不能生成 verdict、finding、prompt 归因或 operation。字段齐全但结论像替换素材名的模板，应直接返工。
 
 ## Reusable Heuristics
 
@@ -75,6 +77,7 @@ last_checked_at: 2026-06-04
 - 重新提交不是审片的默认动作；只有用户明确要求或 landing 合同授权时，才在 prompt hygiene 通过后执行 `libtv node --run` 并写 task/final query 证据。
 - 固定流程只负责自动化，不负责替代判断。高质量审片要能解释“为什么这条视频需要查这些点”，并能把结论落到具体操作。
 - 对审片类 Skill 2.0 包，最容易漂移的是“证据流程”和“判断流程”分裂；保持 `N3` 真实视频理解、`N4` 方法选择、`N5` operation 设计在 `SKILL.md` 同一条注意力路径里，比维护独立 steps 文档更稳。
+- 审片的“形式完整”经常掩盖模板化判断；真正可用的 verdict 必须把至少一个可回指视频证据、分组预期和 chosen operation 连起来。
 
 ## Aesthetic Calibration Heuristics
 

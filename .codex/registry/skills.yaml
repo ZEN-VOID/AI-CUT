@@ -261,6 +261,13 @@ active_skills:
         contract_status: active
         route_role: satellite
         purpose: 参考影片或视频逐镜拉片，输出服务 `0-初始化`、`2-编剧`、`4-导演`、`5-表演`、`7-分镜`、`8-摄影`、`9-光影` 与 `11-主体` 的项目解析、禁止照搬清单和 AIGC 可执行迁移策略。
+      - id: aigc-flash
+        path: .agents/skills/aigc/flash
+        owner_office: shangshu
+        governance_domain: libu
+        contract_status: active
+        route_role: satellite
+        purpose: 面向少量故事源、参照图、参照视频、图生视频和首尾帧生视频需求，压缩串联 AIGC `2-编剧` 到 `10-分组` 核心判断，只在当前聊天窗口输出统一视频提示词，不保存文档、不写项目 canonical 文件。
       - id: aigc-learn
         path: .agents/skills/aigc/learn
         owner_office: menxia

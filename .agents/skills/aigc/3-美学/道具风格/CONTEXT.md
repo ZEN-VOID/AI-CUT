@@ -27,6 +27,7 @@ recommended_action: keep-heuristics-focused
 | 输出太短像标签串 | prompt 密度不足层 | 增加文化气质、形制趋势、工艺痕迹、使用痕迹、尺度语言、符号节奏和负面边界 | 字数回到 80-130 |
 | 输出太长像报告正文 | prompt 收束层 | 把证据、因果和边界留在协议表格，prompt 只保留可继承道具风格前缀 | `Prop Style Prompt` 80-130 字 |
 | 风格听起来完整但下游不好接 | 下游安全层 | 去掉局部资产决策，保留道具类别无关的设计语言；把具体物件交给后续道具清单和单件设计阶段 | `GATE-PS-08` 通过 |
+| 输出像同一套道具模板换物件/文化锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新抽象形制、工艺、文化证据和制作边界，不做表层润色 | `GATE-PS-10` 通过 |
 
 ## Repair Playbook
 
@@ -37,7 +38,8 @@ recommended_action: keep-heuristics-focused
 5. 若 prompt 出现具体道具、用途、持有人、尺寸部件或生成指令，回到 `N7-PROMPT-DISTILL`，用风格层级表达替换。
 6. 若文化元素像拼贴，回到 `N5-CULTURE-CRAFT-MAPPING`，补来源语境、使用边界和禁用边界；无法验证则标为候选。
 7. 若边界不能保护后续设计空间，回到 `N6-BOUNDARY-CALIBRATION`，补清单、用途、单件、文化和制作五类边界。
-8. 修复后必须重新执行 `GATE-PS-01` 到 `GATE-PS-09`，并把失败码、返工点和复审结果写入 `Repair Log`。
+8. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个物件名、文化名或质感词。
+9. 修复后必须重新执行 `GATE-PS-01` 到 `GATE-PS-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Reusable Heuristics
 

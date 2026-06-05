@@ -27,6 +27,7 @@ recommended_action: keep-character-style-heuristics-focused
 | 输出太长像造型说明书 | prompt 收束层 | 把证据和维度留在协议表格，prompt 只保留可继承角色层风格前缀 | `Character Style Prompt` 80-130 字 |
 | 服装细节过具体 | 造型过拟合层 | 改成结构、剪裁倾向、层次纪律和廓形关系，不写单件服装或套装 | 无单角色完整定装 |
 | 年龄质感变成具体年龄 | 年龄卡化层 | 改成年龄跨度、皮肤/骨相/姿态的质感层级，不写具体岁数 | 无具体年龄数值 |
+| 输出像同一套角色模板换姓名/身份锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6` 重新抽象角色风格基因和继承边界，不做表层润色 | `GATE-CS-10-ANTI-SCRIPTED-CHARACTER` 通过 |
 
 ## Repair Playbook
 
@@ -37,7 +38,8 @@ recommended_action: keep-character-style-heuristics-focused
 5. 若参考图/视频带来具体脸、服装套装或姿势，回到 `N3-TONE-REFERENCE-EVIDENCE`，只保留角色层风格事实。
 6. 若 prompt 出现姓名、角色卡字段、剧情动作、场景、镜头或单人造型，回到 `N6-PROMPT-DISTILL`，用角色层风格语言替换。
 7. 若输出只剩空泛形容词，回到 `N4-CHARACTER-STYLE-GENES`，补 8 个解析维度。
-8. 修复后必须重新执行 `GATE-CS-01` 到 `GATE-CS-09`，并把失败码、返工点和复审结果写入 `Repair Log`。
+8. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个姓名、身份或造型词。
+9. 修复后必须重新执行 `GATE-CS-01` 到 `GATE-CS-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Reusable Heuristics
 

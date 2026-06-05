@@ -6,7 +6,29 @@
 
 从 `6-氛围/第N集.md` 或用户指定文稿中找出所有需要内联分镜处理的画面点。每个画面点保持原字段归属，分镜列表只追加在该字段下方。
 
-节拍在本阶段等价于“分镜切换触发点”：单个画面点内，任何会让观众观看策略、注意力对象、动作相位、信息可读性、情绪压力、空间关系或声画打点发生变化的瞬间，都可以触发一条新的 `分镜N（N-N秒）`。
+节拍在本阶段等价于“分镜切换触发点”：单个画面点内，任何会让观众观看策略、注意力对象、动作相位、信息可读性、情绪压力、空间关系或声画打点发生变化的瞬间，都可以触发一条新的 `分镜N（N-N秒）`。其中时码 `N-N秒` 由时值合同投影到 0.5 秒网格，不要求整数秒。
+
+## Beat Calculation Protocol
+
+`beat=N` 必须由“候选触发点 -> 观看状态变化聚类 -> 有效 beat 计数”得到，不得由字段类型、段落类型、动作复杂度标签或预设数量表直接推出。
+
+计算步骤：
+
+1. 锁定当前画面点的 `ownership_boundary`：只处理当前字段拥有的信息，不吞入上一字段或下一字段的动作、反应、结果或转场。
+2. 建立 `candidate_trigger_set`：从当前字段中列出可能触发分镜切换的观看变化，并用 `BT-01..BT-15` 标记依据。
+3. 建立 `state_change_cluster_map`：把候选触发点按“是否造成同一次独立观看状态变化”聚类。多个 `BT` 若共同支撑同一观看状态变化，只算 1 个 cluster。
+4. 建立 `merged_trigger_log`：记录被合并的触发点及合并理由，例如“同一声画打点同时造成主体切换和情绪转折，观众只需要一次观看策略变化”。
+5. 建立 `rejected_trigger_log`：删除无独立观看结果的候选触发点，例如“环境陪体只强化同一空间压迫，不改变注意力对象或信息可读性”。
+6. 得出 `beat_count_formula`：`beat=N = count(state_change_cluster_map.valid_clusters)`。
+7. 校验 `beat=N == shot_count_decision == actual_storyboard_lines`；不一致时回到本协议第 1 步，不得只改数字凑格式。
+
+禁止口径：
+
+- 不得写成“静态氛围/反应点多为 1 个 beat，复杂武器/护送调度/双重危险多为 2-3 个 beat”等类型到数量的经验映射。
+- 不得把 `BT` 数量直接等同于 beat 数量；`BT` 是证据标签，cluster 才是有效 beat 的数量真源。
+- 不得为了控制篇幅把多个独立观看状态变化压成 1 个 beat。
+- 不得为了显得密集把同一观看状态变化拆成多个 beat。
+- 不得让脚本、字段标签、关键词、行长、标点数量或固定镜头序列裁决 beat 数。
 
 ## Visual Point Match
 
@@ -49,13 +71,16 @@
 | `BT-14` | 物理接触点 | 碰到、拿起、推开、撕开、激活道具是否产生结果？ | 接触点 + 结果 |
 | `BT-15` | 构图刺激点 | 是否需要角度、前景、遮挡、突然留白制造观看变化？ | 新构图分镜 |
 
-## Shot Count Guard
+## Beat-To-Shot Mapping
 
-- `1 条分镜`：低信息过场、单一表演承托、单一文字读秒、单一反应镜头。
-- `2 条分镜`：建立后揭示、动作后反应、主体后压力源、声画接口后落点。
-- `3-4 条分镜`：关键规则显影、动作分相、群像恐慌、高潮/高光、空间重置、平台钩子连续推进。
-- `5-6 条分镜`：只在复杂动作链、连续命中、连续声音打点或 set-piece 链条成立时使用；每条都必须有独立起点、撞点、结果、声音或反应。
-- 超过 6 条通常说明 source 画面点过大，应报告结构异常或建议拆分源字段，不直接硬塞。
+- 分镜数必须等于当前画面点内的有效画面节拍数。
+- 每个有效画面节拍生成 1 条 `分镜N（N-N秒）`，时码按 0.5 秒网格连续落盘。
+- 分镜展开前必须先在正文写入 `节拍量化：beat=N（beat1: BT-xx 触发依据；beat2: BT-xx 触发依据）`。
+- `beat=N` 等同于当前画面点的有效画面节拍数，并且必须匹配 `shot_count_decision` 和下方实际 `分镜` 条数。
+- 括号内 `BT` 是各有效 beat 的判定依据，不是独立数量真源；多个 BT 若共同支撑同一个观看状态变化，应合并为同一个 beat 的依据。
+- 不设置任何分镜数量上下限。
+- 只有当两个候选触发点不构成独立观看状态变化时，才可判定为同一有效画面节拍。
+- 不得为了控制数量而压缩有效节拍，也不得为了显得密集而把同一节拍拆成多条分镜。
 
 ## Evidence
 
@@ -68,8 +93,14 @@
 | `match_reason` | 标签命中或语义命中原因 |
 | `scene_anchor` | 所在场景标题 |
 | `ownership_boundary` | 当前画面点拥有的信息边界 |
-| `beat_map` | 命中的 BT 触发点 |
-| `shot_count_decision` | 分镜数量与删并理由 |
+| `beat_map` | 每个有效 beat 对应的 BT 触发依据 |
+| `candidate_trigger_set` | 当前画面点的候选触发点及对应 BT 依据 |
+| `state_change_cluster_map` | 候选触发点按独立观看状态变化聚类后的有效 beat 真源 |
+| `merged_trigger_log` | 合并多个候选触发点为同一 beat 的理由 |
+| `rejected_trigger_log` | 删除无独立观看结果候选触发点的理由 |
+| `beat_count_formula` | `beat=N = count(valid_clusters)` 的计算证据 |
+| `shot_count_decision` | 有效画面节拍数与分镜数量一致性 |
+| `beat_quant_line` | 正文 `节拍量化：beat=N（BT-xx...）` 及其与分镜条数的一致性 |
 
 ## Review Gate Mapping
 
@@ -77,5 +108,7 @@
 | --- | --- | --- | --- | --- |
 | 所有画面点是否被识别并保留归属？ | `GATE-SB-02` | `FAIL-SB-VISUAL-POINT` | `N3-VISUAL-POINTS` | `visual_point_inventory` |
 | 心理/思考/认知字段是否被画面化，没有停留在抽象结论？ | `GATE-SB-02` | `FAIL-SB-VISUAL-POINT` | `N3/N5` | psychological visualization samples |
-| 每条分镜是否来自有效节拍触发点？ | `GATE-SB-04` | `FAIL-SB-BEAT` | `N4-BEAT-SPLIT` | `beat_map`、`shot_count_decision` |
+| 每条分镜是否来自有效画面节拍，且分镜数匹配有效画面节拍数即正文 `beat=N`、`shot_count_decision` 和实际分镜条数？ | `GATE-SB-04` | `FAIL-SB-BEAT` | `N4-BEAT-SPLIT` | `beat_map`、`beat_quant_line`、`shot_count_decision` |
 | 分镜数量是否避免固定模板化？ | `GATE-SB-04` | `FAIL-SB-SHOT-COUNT` | `N4-BEAT-SPLIT` | count distribution and repairs |
+| `beat=N` 是否由候选触发点聚类后的独立观看状态变化数量得到，而不是字段类型、动作复杂度标签、经验数量范围、BT 标签数量或脚本规则得到？ | `GATE-SB-23` | `FAIL-SB-BEAT-CALCULATION-DRIFT` | `N4-BEAT-SPLIT` | `candidate_trigger_set`、`state_change_cluster_map`、`merged_trigger_log`、`rejected_trigger_log`、`beat_count_formula` |
+| `节拍量化` 行是否位于原字段正文和第一条分镜之间？ | `GATE-SB-21` | `FAIL-SB-BEAT-QUANT-LINE` | `N4-BEAT-SPLIT` / `N8-INLINE-INJECT` | `beat_quant_line`、format samples |

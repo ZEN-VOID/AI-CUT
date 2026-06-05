@@ -10,14 +10,14 @@ metadata:
 
 `12-图像` 是 AIGC 项目的图像阶段父级入口。它负责把来自 `10-分组` 与 `11-主体` 的信息路由到叶子技能，不直接主创 prompt 正文，也不直接替代 `.agents/skills/cli/imagegen` 生成图像。
 
-`10-分组` 中的 `## x-y-z~x-y-z` 组间连接件在 `12-图像` A/B 叶子路线中默认全部忽略：不进入镜级 prompt、组级 storyboard prompt、参照 manifest、imagegen plan 或生成图片。未来连接件视频由单独手动视频连接 skill 处理，父级不得默认调度。
+`10-分组` 中的 `## x-y-z~x-y-z` 组间连接件在 `12-图像` 的分镜画面 / 分镜故事板叶子路线中默认全部忽略：不进入镜级 prompt、组级 storyboard prompt、参照 manifest、imagegen plan 或生成图片。未来连接件视频由单独手动视频连接 skill 处理，父级不得默认调度。
 
 当前技能目录 canonical 叶子路径为：
 
 - `.agents/skills/aigc/12-图像/分镜画面/SKILL.md`
 - `.agents/skills/aigc/12-图像/分镜故事板/SKILL.md`
 
-`A-分镜画面`、`B-分镜故事板` 是业务路线名和项目输出命名，不再作为 `.agents` 技能目录真源。父级路由必须使用当前真实目录；项目内业务输出路径仍由叶子技能的 `Output Contract` 裁决。
+`分镜画面`、`分镜故事板` 是真实叶子技能名，也是项目输出目录名。父级路由必须使用当前真实目录；项目内业务输出路径由叶子技能的 `Output Contract` 裁决。
 
 图像阶段默认画面比例为 `16:9`。只有用户显式要求 `9:16`、`1:1` 或其他比例时，父级才把 `aspect_ratio_override` 传给叶子技能；未显式指定时不得把平台、示例图或 provider 默认推断成竖屏/方图。
 
@@ -47,9 +47,10 @@ metadata:
 
 - 无序号同级子技能包默认全选并发执行，由本父级汇总、裁决和写回唯一 canonical 输出。
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
-- 英文序号子技能包或路线（如业务路线 `A-分镜画面`、`B-分镜故事板`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
+- 英文序号命名前缀不再用于当前 `12-图像` 叶子目录或项目输出目录；历史 `A-` / `B-` 仅作为 legacy 路径回读信号，不作为新产物 canonical 命名。
+- `分镜画面`、`分镜故事板` 两条叶子路线默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 连续调度不得绕过本技能的阻断门：缺少必需输入、图像目标无法唯一判断、叶子技能缺失或路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或不可用说明。
-- 每个被调度的叶子包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 图像 prompt 主创或父级最终裁决。
+- 每个被调度的叶子包仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 图像 prompt 主创或父级最终裁决；若发现叶子 prompt、storyboard 布局或图像生成决策来自脚本化生成、批量插入、正则套句、映射投影、规则模板、关键词锚点替换、句式轮换或同义改写批量生成，即使形式字段齐全也必须标记 `FAIL-IMG-STAGE-SCRIPTED-PROJECTION`。
 - 卫星技能默认不参与本父级的主链聚合。查询、审查、恢复、provider 桥接等卫星能力只有在用户显式命中或叶子技能明确声明为 side input 时才进入本轮证据层，且不得改写父级路线裁决。
 
 ## Input Contract
@@ -131,6 +132,7 @@ Reject or clarify when:
 | `FAIL-IMG-STAGE-ROUTE-STORYBOARD` | `CONTEXT.md` | `N4` | `PASS-IMG-STAGE-01` | route can resolve storyboard leaf |
 | `FAIL-IMG-STAGE-ROUTE-REPAIR` | `CONTEXT.md` | `N4` | `PASS-IMG-STAGE-03` | fail code has rework target |
 | `FAIL-IMG-STAGE-MULTI-IMAGE-SHAPE` | `CONTEXT.md` | `N4` | `PASS-IMG-STAGE-05` | contact sheet is not accepted for frame_image |
+| `FAIL-IMG-STAGE-SCRIPTED-PROJECTION` | `CONTEXT.md` | `N4` / `N5` | `PASS-IMG-STAGE-03` | leaf output authorship evidence is LLM-authored, not script-generated or mapping-projected |
 
 ## Visual Maps
 
@@ -139,8 +141,8 @@ flowchart TD
     A["12-图像 request"] --> B{"target"}
     B -->|"single frame / separate frame images"| C["分镜画面"]
     B -->|"storyboard sheet / contact sheet"| D["分镜故事板"]
-    C --> E["projects/aigc/<项目名>/12-图像/A-分镜画面"]
-    D --> F["projects/aigc/<项目名>/12-图像/B-分镜故事板"]
+    C --> E["projects/aigc/<项目名>/12-图像/分镜画面"]
+    D --> F["projects/aigc/<项目名>/12-图像/分镜故事板"]
 ```
 
 ## Execution Contract
@@ -189,6 +191,7 @@ flowchart TD
 | `PASS-IMG-STAGE-03` | 父级只路由不主创 | `FAIL-IMG-STAGE-BOUNDARY` | Execution Contract |
 | `PASS-IMG-STAGE-04` | 未显式指定比例时固定 `16:9`，显式指定时记录 override | `FAIL-IMG-STAGE-ASPECT` | Execution Contract |
 | `PASS-IMG-STAGE-05` | 分镜画面路线必须返回多张单独 bitmap；contact sheet/grid/panel 不通过 | `FAIL-IMG-STAGE-MULTI-IMAGE-SHAPE` | Execution Contract |
+| `PASS-IMG-STAGE-06` | 叶子 prompt、storyboard 布局和生成决策不得由脚本化生成、批量插入、正则套句、映射投影、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；形式字段齐全但主创证据缺失仍失败 | `FAIL-IMG-STAGE-SCRIPTED-PROJECTION` | leaf `Review Gate Binding` / `Output Contract` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -200,6 +203,6 @@ flowchart TD
 
 - Required output: 路由到唯一叶子技能，或报告叶子缺失/未配置。
 - Output format: 路由说明或叶子技能产物。
-- Output path: 父级不直接落业务产物；业务输出路径由叶子技能裁决，当前 `分镜画面` 叶子业务路线固定写入 `projects/aigc/<项目名>/12-图像/A-分镜画面`，`分镜故事板` 叶子业务路线固定写入 `projects/aigc/<项目名>/12-图像/B-分镜故事板`。
+- Output path: 父级不直接落业务产物；业务输出路径由叶子技能裁决，当前 `分镜画面` 叶子业务路线固定写入 `projects/aigc/<项目名>/12-图像/分镜画面`，`分镜故事板` 叶子业务路线固定写入 `projects/aigc/<项目名>/12-图像/分镜故事板`。
 - Naming convention: 叶子技能自定命名；父级不创建平行真源。
-- Completion gate: 目标叶子明确且已加载；比例锁定符合用户请求；若执行生成，返回形态必须符合目标路线；若叶子缺失或 provider 返回 contact sheet 等错误形态，明确报告缺口或 fail code。
+- Completion gate: 目标叶子明确且已加载；比例锁定符合用户请求；若执行生成，返回形态必须符合目标路线；叶子 prompt、storyboard 布局和生成决策有 LLM 主创证据，不是脚本化生成、批量插入、正则套句、映射投影、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；若叶子缺失、provider 返回 contact sheet 等错误形态，或命中 `FAIL-IMG-STAGE-SCRIPTED-PROJECTION`，明确报告缺口或 fail code。

@@ -27,6 +27,7 @@ recommended_action: keep-heuristics-focused
 | 输出太短像标签串 | prompt 密度不足层 | 增加媒介、渲染管线、艺术史锚点、视觉特效、负面特征和继承边界，但不加具象内容 | 字数回到 200-300 |
 | 输出太长像报告正文 | prompt 收束层 | 把证据、因果和锚点留在协议表格，prompt 只保留可继承风格前缀 | `Global Style Prompt` 200-300 字 |
 | 风格听起来漂亮但下游不好继承 | 下游安全层 | 去掉局部资产决策，保留底层渲染和美学范式；把角色/场景/道具细节交给后续子技能 | `GATE-VT-08` 通过 |
+| 输出像同一套全局风格模板换大师名/锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新抽象视觉基因、因果链和锚点选择，不做表层润色 | `GATE-VT-10-ANTI-SCRIPTED-TONE` 通过 |
 
 ## Reusable Heuristics
 
@@ -49,7 +50,8 @@ recommended_action: keep-heuristics-focused
 4. 若剧本分析只剩主题口号，回到 `N2-SCRIPT-EVIDENCE`，从题材机制、世界观规则、空间压力和情绪运行方式抽取视觉证据。
 5. 若 prompt 出现颜色、材质、构图、摄影或具体内容，回到 `N7-PROMPT-DISTILL`，用风格层级表达替换。
 6. 若大师参照只堆名字，回到 `N6-MASTER-ANCHORS`，补每个锚点的匹配维度和禁用边界。
-7. 修复后必须重新执行 `GATE-VT-01` 到 `GATE-VT-09`，并把失败码、返工点和复审结果写入 `Repair Log`。
+7. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个大师名或润色句子。
+8. 修复后必须重新执行 `GATE-VT-01` 到 `GATE-VT-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Contamination Scan Checklist
 

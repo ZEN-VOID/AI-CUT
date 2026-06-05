@@ -224,26 +224,26 @@ CHECKPOINT_REQUIREMENTS = {
         "validation_refs": ["12-图像/validation-report.md", "10-分组/validation-report.md"],
         "source_truth_refs": [
             "10-分组/{scope_ref}.md",
-            "12-图像/A-分镜画面/",
+            "12-图像/分镜画面/",
         ],
-        "runtime_artifact_refs": ["12-图像/A-分镜画面/"],
-        "handoff_candidate_refs": ["12-图像/B-分镜故事板/"],
+        "runtime_artifact_refs": ["12-图像/分镜画面/"],
+        "handoff_candidate_refs": ["12-图像/分镜故事板/"],
     },
     "image-storyboard-ready": {
         "validation_refs": ["12-图像/validation-report.md"],
         "source_truth_refs": [
             "10-分组/",
             "11-主体/",
-            "12-图像/B-分镜故事板/",
+            "12-图像/分镜故事板/",
         ],
-        "runtime_artifact_refs": ["12-图像/B-分镜故事板/"],
-        "handoff_candidate_refs": ["13-画布/B-分镜故事板参照/"],
+        "runtime_artifact_refs": ["12-图像/分镜故事板/"],
+        "handoff_candidate_refs": ["13-画布/分镜故事板参照/"],
     },
     "image-handoff-ready": {
         "validation_refs": ["12-图像/validation-report.md"],
         "source_truth_refs": [
-            "12-图像/A-分镜画面/",
-            "12-图像/B-分镜故事板/",
+            "12-图像/分镜画面/",
+            "12-图像/分镜故事板/",
         ],
         "runtime_artifact_refs": ["12-图像/"],
         "handoff_candidate_refs": ["Assets/", "13-画布/"],
@@ -252,10 +252,10 @@ CHECKPOINT_REQUIREMENTS = {
         "validation_refs": ["13-画布/validation-report.md", "10-分组/validation-report.md"],
         "source_truth_refs": [
             "10-分组/{scope_ref}.md",
-            "12-图像/B-分镜故事板/",
+            "12-图像/分镜故事板/",
             "13-画布/C-主体参照/",
         ],
-        "runtime_artifact_refs": ["13-画布/B-分镜故事板参照/"],
+        "runtime_artifact_refs": ["13-画布/分镜故事板参照/"],
         "handoff_candidate_refs": ["13-画布/C-主体参照/"],
     },
     "video-subject-reference-ready": {

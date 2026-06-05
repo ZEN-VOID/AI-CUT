@@ -1,6 +1,6 @@
 # Storyboard Sheet Workflow
 
-本文件承载 `B-分镜故事板` 的思行一体化节点。业务拓扑是先串行锁源、识别 storyboard frame units、组装 prompt 和绑定主体，再按 imagegen 当前能力逐组或受控批量生成，最后统一汇流审查。
+本文件承载 `分镜故事板` 的思行一体化节点。业务拓扑是先串行锁源、识别 storyboard frame units、组装 prompt 和绑定主体，再按 imagegen 当前能力逐组或受控批量生成，最后统一汇流审查。
 
 ## Mermaid Workflow
 
@@ -39,6 +39,6 @@ flowchart TD
 
 ## Parallel Boundary
 
-- `N1-N6` 是串行门禁，不应并发绕过；其中 `N3A` 必须由 LLM 判断 frame units，脚本只能辅助投影、校验和落盘。
+- `N1-N6` 是串行门禁，不应并发绕过；其中 `N3A` 必须由 LLM 判断 frame units，脚本只能辅助格式校验、manifest/路径检查和按已通过的 LLM 结果落盘。
 - `N7` 默认按 `group_id` 顺序或受控批量执行；每个任务只能写自己的图片和结果记录。
 - `N9-N10` 必须统一汇流，避免多个任务同时改写同一个报告文件。

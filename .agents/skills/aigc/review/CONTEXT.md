@@ -23,6 +23,7 @@ last_checked_at: 2026-04-25
 | `TM-REVIEW-04` | review 试图直接改写阶段主稿 | ownership boundary layer | 停止写业务 truth，改写 repair route | `SKILL.md` 固定“卫星不改阶段 canonical”边界 | 阶段文件未被 review 父层直接覆盖 |
 | `TM-REVIEW-05` | 新 `aigc` 阶段名与旧 runner 兼容名混用 | compatibility layer | 在 registry 和报告中标明当前 stage 与 legacy alias | `_shared/` 仅作 runner 兼容，规范分区用当前 stage 语言 | `scripts/aigc_review_runner.py --help` 可用，文档落点不漂移 |
 | `TM-REVIEW-06` | 六个维度目录被当作可直达 skill 调度 | source-layer topology drift | 删除维度目录入口，改读 `references/dimensions/*.md` | registry 只保存 `dimension_spec_ref`，runner 记录 spec runtime | `rg` 不再出现旧维度 `SKILL.md` 路径 |
+| `TM-REVIEW-07` | aggregate packet 字段完整但 verdict 像模板套壳 | scripted verdict layer | 标记 `FAIL-REVIEW-SCRIPTED-VERDICT`，回到 fact pack 和维度 evidence 重判 | runner 只做机械汇总，verdict 由 LLM/authorized reviewer 生成 | `routing_decision` 能指向具体 evidence 和 route reason |
 
 ## Repair Playbook
 
@@ -34,6 +35,7 @@ last_checked_at: 2026-04-25
 6. 若 provider/顾问与复核流程 被上层策略阻断，保留本地 checklist 证据：不可用来源、原 provider、实际 checklist、本地 reviewer checklist。
 7. 若 runner 兼容文件 `_shared/` 与 Skill 2.0 分区冲突，优先修 `references/` 的规范表达，再同步 `_shared/`。
 8. 若发现 `review/<中文维度名>/SKILL.md` 式旧路径，按“维度细则 -> `references/dimensions/`，经验 -> 父 `CONTEXT.md`”迁移，不恢复局部 skill 包。
+9. runner 可以校验 mandatory dimensions、字段和路径，但不能生成 aggregate verdict 或 routing decision；看到模板化 route 要回 `N4/N5`。
 
 ## Reusable Heuristics
 
@@ -44,3 +46,4 @@ last_checked_at: 2026-04-25
 - “自动修复”在 review 父层默认指生成 repair route 与治理桥接，不是替创作阶段改稿。
 - 新 `aigc` 文本主链阶段名以 `0-初始化 / 1-分集 / 2-编剧 / 3-美学 / 4-导演 / 5-表演 / 6-氛围 / 7-分镜 / 8-摄影 / 9-光影` 为主；`2-编导 / 3-运动 / 4-摄影 / 10-分组` 作为 legacy/并行制作链审计；`11-主体 / 12-图像 / 13-画布 / 14-审片` 作为下游生成与审片链审计；旧英文 stage 只作为兼容线索。
 - 六维审计的局部判断应保持为 dimension spec，而不是重新拆成六个独立 `SKILL.md + CONTEXT.md`。
+- review 的形式完整性常常高于语义可信度；route 能执行之前，必须确认它不是由字段存在性脚本直接推出来的。

@@ -35,6 +35,7 @@ last_checked_at: 2026-04-25
 | 初始化综合存在但仍触发顾问代入 | 初始化综合边界层 | 只读消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 与 `north_star.yaml.创作阶段不变量.设计`，提炼当前角色节点可执行的约束、启发和风险 | `init_team_synthesis_context` 固定在 LLM 角色设计前消费，并记录 `node_ref / pass_ref / gate_ref`；禁止 team 身份调用、旧 stage profile 和伪顾问问答 | 可见指导改变当前节点的判断、执行取舍、局部 patch 或风险提示，且没有新增创作阶段顾问身份 |
 | references 细则存在但未进入执行/验收 | 合同汇流层 | 把 reference 同步接入 Reference Loading Guide、steps 节点、review gate 和必要的机械 resolver | 新增硬规则 reference 时必须同时声明加载场景、消费节点和阻断门禁 | `rg` 能在 SKILL、steps、review、scripts/README 中找到该 reference 的消费点 |
 | 脚本生成正文 | LLM-first 层 | 删除生成逻辑，保留字段校验或长度检查 | scripts 分区固定机械辅助边界 | 脚本不输出研究、物语、解构和提示词正文 |
+| 角色设计稿字段完整但像批量模板换名 | 反模板伪差异层 | 废弃候选设计稿，回到研究、解构和 prompt 节点重做角色专属裁决 | `SKILL.md` 固定 `FAIL-CHAR-DESIGN-PSEUDO-DIFF`，禁止用字段完整、长度合规、审美词或语料库加载抵消 | 每个角色有不可互换的身份压力、骨相/妆发、服装系统或姿态裁决证据 |
 | 批量定制后只有表格没有关键图 | Skill 2.0 可维护性层 | 在根 `SKILL.md`、`types/`、`review/` 和 README 补 Mermaid 拓扑或门禁图 | 批量生成后人工检查入口拓扑、类型分流和 review 闭环是否可视化 | 关键路径能从图中看见输入、分流、汇流、返工和落盘 |
 
 ## Repair Playbook
@@ -57,6 +58,7 @@ last_checked_at: 2026-04-25
 16. 批量执行时，每个角色先独立成稿，再做跨角色一致性审查，避免所有角色共享同一套形容词、同一张模板脸或同一套服装吸引力。
 17. 初始化综合消费 并行时，主 agent 只采纳可回指清单、项目风格和字段要求的内容。
 18. 若发现清单字段错误，不在本技能直接修 `角色清单.md`；输出上游修复建议。
+19. 若发现研究、物语、解构或 prompt 只是替换姓名、职业、性别、服装色或审美形容词，不局部润色；整稿作废并从 LLM 研究/解构/prompt 节点重做。
 
 ## Reusable Heuristics
 

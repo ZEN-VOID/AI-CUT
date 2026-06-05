@@ -6,14 +6,14 @@
 | --- | --- |
 | Required output | prompt 文档、group index、reference manifest、imagegen plan/result、执行报告 |
 | Output format | Markdown + JSON + bitmap image assets |
-| Output path | `projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/` |
+| Output path | `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/` |
 | Naming convention | `第N集-分镜故事板-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-imagegen-plan.json`、`images/<分镜组ID>.png`、`执行报告.md` |
 | Completion gate | review verdict is `pass` or `pass_with_todo` |
 
 ## Episode Directory Shape
 
 ```text
-projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/
+projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 ├── 第N集-分镜故事板-prompts.md
 ├── 第N集-group-index.json
 ├── 第N集-reference-manifest.json
@@ -27,7 +27,7 @@ projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/
 ## Execution Report Template
 
 ```markdown
-# 第N集 B-分镜故事板执行报告
+# 第N集 分镜故事板执行报告
 
 ## Input
 

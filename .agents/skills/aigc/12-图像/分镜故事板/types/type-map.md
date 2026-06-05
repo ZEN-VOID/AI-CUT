@@ -6,13 +6,13 @@
 - `types/` 中命中的类型包作为固定上下文加载；`knowledge-base/` 只作为按需检索、切片或向量召回的知识库，不替代类型包。
 
 
-本文件定义 `B-分镜故事板` 的任务分型和 route。
+本文件定义 `分镜故事板` 的任务分型和 route。
 
 ## Package Index
 
 | package_id | path | match_signals | load_mode | context_files | conflicts_with | inherits_from |
 | --- | --- | --- | --- | --- | --- | --- |
-| `storyboard_sheet_default` | `types/storyboard-sheet-default.md` | B-分镜故事板所有组级 storyboard sheet 任务 | fallback | `types/storyboard-sheet-default.md` | none | none |
+| `storyboard_sheet_default` | `types/storyboard-sheet-default.md` | 分镜故事板所有组级 storyboard sheet 任务 | fallback | `types/storyboard-sheet-default.md` | none | none |
 
 ## Default Package Rule
 
@@ -53,9 +53,9 @@
 
 ## Reroute Rules
 
-- 单一四段式 `分镜ID` 或单帧画面请求：转 `A-分镜画面`。
+- 单一四段式 `分镜ID` 或单帧画面请求：转 `分镜画面`。
 - 漫画页、气泡文字、阅读顺序或漫画分镜页：转 repo-local `comic` workflow。
-- 视频生成前故事板参照：转 `13-画布/B-分镜故事板参照`。
+- 视频生成前故事板参照：转 `13-画布/分镜故事板参照`。
 - 需要重写 `10-分组` 内容：转 `10-分组` 修复，不在本技能内改写。
 
 ## Gate
@@ -68,4 +68,4 @@
 4. `reference_state != ambiguous`，除非 ambiguous 条目已被移除或用户确认。
 5. `layout_state != layout_missing`；若为 `layout_risk`，必须记录分页、多 sheet 或人工确认策略。
 6. 若存在主体参照图，`subject_fidelity_state != identity_anchors_partial`，除非缺失项已被记录为 `missing` 并从 reference images 移除。
-7. 输出路径位于项目内 `12-图像/B-分镜故事板`。
+7. 输出路径位于项目内 `12-图像/分镜故事板`。

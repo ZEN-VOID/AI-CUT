@@ -32,12 +32,14 @@ metadata:
 - 任意正式导演批注生成任务必须加载 `references/episode-visual-spine-contract.md`、`references/directorial-authorship-contract.md`、`references/information-asymmetry-contract.md`、`references/scene-rhythm-contract.md`、`references/anticlimax-strategy-contract.md` 和 `references/director-annotation-contract.md`；这些 reference 只授权内部证据和批注质量门，不授权改写剧本。
 - 导演风格优先查本目录 `knowledge-base/` 中的导演或作品资料；若没有匹配资料，允许结合模型已有知识和网络搜索资料完成风格画像，网络资料必须在执行报告中记录来源名称、链接、检索日期和使用边界。
 - 核心导演理解、逐画面批注、题材判断和风格代入必须由 LLM 直接完成；`scripts/` 只能做字段扫描、注入点统计、格式校验、diff 和报告辅助。
+- 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 外部知识库或网络资料。
 
 ## LLM-First Creative Authorship Contract
 
 - 题材理解、情节理解、导演风格画像、导演角色意识代入、逐画面批注正文和批注意图判断必须由 LLM 主创。
 - 脚本不得生成导演批注正文，不得用模板拼接“镜头更紧、情绪更强、节奏更快”等伪创作句替代导演判断。
+- 映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量替换、批量插入、正则套句或映射投影只能作为审查线索；一旦它们生成或决定导演批注核心正文，直接触发 `FAIL-DIR-SCRIPTED-PROJECTION`。
 - 知识库和网络资料只提供风格事实、作品特征和边界证据，不自动成为批注句式模板。
 
 ## Runtime Spine Contract
@@ -198,7 +200,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个剧本 source；批量任务逐集独立执行 N1-N7；每集覆盖全部命中画面点 | `N4/N5.actions` | `FAIL-DIR-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `episode_directing_profile`、1 个 `visual_tone_context_map`、1 个 `episode_director_intent_plan`、1 个 `episode_visual_spine`、1 个 `director_substance_plan`、1 个 `information_asymmetry_map`、1 个 `scene_rhythm_profile`、1 个 `director_style_profile`、1 个 `visual_point_inventory`、1 个 `annotation_binding_map`、1 个 `performance_handoff_map`；存在高点时至少 1 个 `anticlimax_strategy_map` 或 N/A 理由；导演画像至少 5 个可执行维度、2 个禁用误读；画面点覆盖率 100%；关键心理、对白、动作和表演画面点至少有 1 个可见/可听/可演的表演动作种子 | `Thinking-Action Node Map.evidence` | `FAIL-DIR-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-DIR-01..18` 阻断项为 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、导演风格证据、表演交接或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-DIR-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-DIR-01..19` 阻断项为 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、导演风格证据、表演交接、作者性完整性或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-DIR-QUANT-THRESHOLD` |
 | `annotation_length` | 默认每条批注 25-80 个中文字符；高潮、复杂群像或心理反应批注可到 120 字；超过上限需报告理由 | `N5.actions` / `Review Gate Binding` | `FAIL-DIR-ANNOTATION-LENGTH` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-DIR-QUANT-RETRY` |
 | `fallback_evidence` | 若 `3-美学` 缺失，使用用户指定风格资料并标记降级；若知识库缺导演资料，记录 `pretrained_style_inference` 或网络来源；若某画面点语义不可判定，保守不注入并在报告列 blocked/followup | `Review Gate Binding.report_evidence` | `FAIL-DIR-QUANT-FALLBACK` |
@@ -219,7 +221,7 @@ flowchart LR
 | `CONTEXT.md` | 每次调用本技能 | 经验层、失败模式、批注修复 heuristics | 重定义输入、节点、gate 或输出路径 | `Learning / Context Writeback` |
 | `references/` | 任意生成、修复或审查任务 | 注入点、批注质量和风格代入细则 | 替代本 `SKILL.md` 的主流程或输出门 | `N4/N5` |
 | `review/` | 候选稿审查、repair、review_only | 审查 gate 展开层 | 改写剧本或新增完成标准 | `N6-DIR-REVIEW-REPAIR` |
-| `templates/` | 输出投影、报告结构需要统一 | 格式投影层 | 偷渡执行规则、另立输出路径 | `Output Contract` |
+| `templates/` | 输出样板、报告结构需要统一 | 格式样板层 | 偷渡执行规则、另立输出路径 | `Output Contract` |
 | `scripts/` | 需要机械辅助说明或脚本边界 | 字段扫描、格式校验、diff 辅助边界 | 生成批注正文或裁决导演风格 | `scripts/README.md` |
 | `knowledge-base/` | 指名导演、作品锚点或风格研究 | 外部资料索引和本地导演资料入口 | 自动沉淀执行经验、覆盖 `SKILL.md` 规则 | `N3-DIR-STYLE` |
 | `agents/openai.yaml` | 产品入口或技能索引需要元数据 | 入口描述和默认 prompt | 覆盖本 `SKILL.md` 合同 | `agents/openai.yaml` |
@@ -264,6 +266,7 @@ flowchart LR
 | `FAIL-DIR-SCENE-RHYTHM` | `references/scene-rhythm-contract.md`, `review/review-contract.md` | `N2-DIR-UNDERSTAND -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | scene rhythm audit |
 | `FAIL-DIR-ANTICLIMAX-STRATEGY` | `references/anticlimax-strategy-contract.md`, `review/review-contract.md` | `N2-DIR-UNDERSTAND -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | anticlimax strategy audit |
 | `FAIL-DIR-PERFORMANCE-HANDOFF` | `references/directorial-authorship-contract.md`, `references/director-annotation-contract.md`, `review/review-contract.md` | `N4-DIR-POINT-MAP -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | performance handoff audit |
+| `FAIL-DIR-SCRIPTED-PROJECTION` | `review/review-contract.md`, `references/directorial-authorship-contract.md`, `CONTEXT.md` | `R1-DIR-REWORK -> N2-DIR-UNDERSTAND -> N5-DIR-INJECT` | `C4-REVIEW-PASS` | authorship integrity audit |
 
 ## Thought Pass Map
 
@@ -280,7 +283,7 @@ flowchart LR
 | `C1-SOURCE-LOCKED` | 剧本、美学上下文、导演锚点、集号和写回模式明确 | source 不唯一、无导演锚点、无写回权限 | `source_manifest`、`director_anchor_manifest` | `N1-DIR-INTAKE` |
 | `C2-STYLE-LOCKED` | 导演风格画像有至少 5 个可执行维度、2 个禁用误读，并标明来源 | 风格只剩名词、口号或无来源推断 | `director_style_profile`、`style_source_matrix` | `N3-DIR-STYLE` |
 | `C3-POINTS-MAPPED` | 全部画面点已识别，注入计划覆盖率 100%，且每个关键画面点能回指整集主轴、信息差或场景节奏证据；关键心理、对白、动作和表演画面点有表演外化种子 | 漏画面字段、误把非画面字段注入、无法定位归属、批注意图没有整集/场景证据、表演种子缺失 | `visual_point_inventory`、`coverage_stats`、`episode_spine_binding_map`、`asymmetry_rhythm_binding_map`、`performance_handoff_plan` | `N4-DIR-POINT-MAP` |
-| `C4-REVIEW-PASS` | `GATE-DIR-01..18` 阻断项为 0，修复日志收束 | 格式、覆盖、保真、风格、表演交接、报告任一阻断失败 | `review_verdict`、`repair_log` | `N6-DIR-REVIEW-REPAIR` |
+| `C4-REVIEW-PASS` | `GATE-DIR-01..19` 阻断项为 0，修复日志收束 | 格式、覆盖、保真、风格、表演交接、作者性完整性、报告任一阻断失败 | `review_verdict`、`repair_log`、`authorship_integrity_audit` | `N6-DIR-REVIEW-REPAIR` |
 | `C5-OUTPUT-READY` | 输出路径唯一，原剧本保留，批注内联，报告证据完整 | 多个 final output、覆盖统计缺失、网络来源未记录 | `output_manifest`、`execution_report` | `N7-DIR-WRITEBACK-CLOSE` |
 
 ## Review Gate Binding
@@ -305,6 +308,7 @@ flowchart LR
 | 场景节奏是否进入批注意图，避免每条批注同一密度和同一语气？ | `GATE-DIR-16-SCENE-RHYTHM` | `FAIL-DIR-SCENE-RHYTHM` | `N2-DIR-UNDERSTAND` / `N5-DIR-INJECT` | `scene_rhythm_profile`、批注密度/节奏变化 |
 | 高点是否判断满足、延迟、打断、假兑现、惨胜或反向兑现策略，而不是默认爽点满足？ | `GATE-DIR-17-ANTICLIMAX-STRATEGY` | `FAIL-DIR-ANTICLIMAX-STRATEGY` | `N2-DIR-UNDERSTAND` / `N5-DIR-INJECT` | `anticlimax_strategy_map`、N/A 理由 |
 | 批注是否能被表演技能包和演员直接消费为具体、显式、可画面化的表演方式？ | `GATE-DIR-18-PERFORMANCE-HANDOFF` | `FAIL-DIR-PERFORMANCE-HANDOFF` | `N4-DIR-POINT-MAP` / `N5-DIR-INJECT` | `performance_handoff_map`、表演动作抽样 |
+| 批注是否由 LLM 基于当前剧情、画面点、导演意图和风格证据逐条判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的伪差异？ | `GATE-DIR-19-AUTHORSHIP-INTEGRITY` | `FAIL-DIR-SCRIPTED-PROJECTION` | `R1-DIR-REWORK` -> `N2-DIR-UNDERSTAND` -> `N5-DIR-INJECT` | `authorship_integrity_audit`、重复句式/锚点替换抽样、废弃候选记录 |
 
 ## Attention Concentration Protocol
 
@@ -377,7 +381,8 @@ Naming convention:
 Completion gate:
 
 - `C1-SOURCE-LOCKED`、`C2-STYLE-LOCKED`、`C3-POINTS-MAPPED`、`C4-REVIEW-PASS`、`C5-OUTPUT-READY` 全部通过。
-- 正式写回时 `GATE-DIR-01..18` 阻断项为 0。
+- 正式写回时 `GATE-DIR-01..19` 阻断项为 0。
+- `FAIL-DIR-SCRIPTED-PROJECTION` 必须为 0；若候选批注呈现脚本化生成、批量插入、正则套句、映射投影、句式复用或锚点替换伪差异，候选稿不得表层润色通过，必须废弃并回到 `N2/N5` 重新由 LLM 逐画面主创。
 
 ## Root-Cause Execution Contract
 
@@ -396,6 +401,7 @@ Completion gate:
 7. 越权写成摄影分镜、prompt 或视频参数：回 `N5-DIR-INJECT`，降级为导演理解和执导意图。
 8. 批注无法被演员转成具体表演动作：回 `N4-DIR-POINT-MAP` 建表演种子，再回 `N5-DIR-INJECT` 改写批注。
 9. 来源或报告证据缺失：回 `N7-DIR-WRITEBACK-CLOSE`。
+10. 脚本化生成、批量插入、正则套句、映射投影、句式复用或锚点替换伪差异：标记 `FAIL-DIR-SCRIPTED-PROJECTION`，废弃候选稿，回 `N2-DIR-UNDERSTAND` 重建导演意图和画面点证据，再由 LLM 回 `N5-DIR-INJECT` 逐条重写。
 
 ## Field Mapping
 

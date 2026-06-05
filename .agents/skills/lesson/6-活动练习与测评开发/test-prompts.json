@@ -1,0 +1,27 @@
+[
+  {
+    "id": "project-assessment-package",
+    "prompt": "为 projects/lesson/AI销售新人训练营 执行 6-活动练习与测评开发。默认读取 3-目标与评价蓝图、4-教学策略与课程架构、5-课时内容开发，输出完整活动练习、题库、答案解析、rubric、评分规程和形成性/总结性测评包。",
+    "expected": "Route to project_assessment, lock upstream 3/4/5, build an objective-content-assessment alignment matrix, then write activity-exercise-package.md, question-bank.yaml, scoring-rubrics.md, answer-explanations.md, assessment-package.md, and downstream-handoff.md without generating DOC/PPT/HTML."
+  },
+  {
+    "id": "activity-exercise-only",
+    "prompt": "只帮 projects/lesson/客户成功训练课 的第 2 模块设计课堂活动、课中练习和课后作业，要求能对应已有学习目标和课时内容。",
+    "expected": "Route to activity_exercise_design, still perform upstream and alignment checks, produce activity and exercise designs with objectives, steps, timing, materials, deliverables, feedback, scoring hooks, and N/A reasons for unrequested assessment package components."
+  },
+  {
+    "id": "question-bank-with-rubric",
+    "prompt": "根据第 3 阶段目标蓝图和第 5 阶段课时内容，为一个 90 分钟 AI 销售课生成题库、答案解析和主观题评分 rubric。",
+    "expected": "Route to question_bank_development, create question metadata with objective_ref and knowledge_ref, write answers or scoring points, answer explanations, difficulty levels, use cases, and rubric/scoring references while blocking script-generated question text."
+  },
+  {
+    "id": "rubric-scoring-repair",
+    "prompt": "审查并修复已有的评分规程：现在只有优秀/良好/一般，没有行为证据、扣分项和反馈语。",
+    "expected": "Route to rubric_scoring_development or assessment_package_review, identify FAIL-LESSON-ASSESS-RUBRIC, return to N6, and repair the rubric with observable behavior evidence, levels, points, deductions, feedback language, and reassessment conditions."
+  },
+  {
+    "id": "overreach-block",
+    "prompt": "顺便把课程架构重排一下，重写每节课讲稿，并直接生成 PPT 和 HTML 课件。",
+    "expected": "Do not use lesson-assessment-development to rewrite architecture, lesson scripts, PPT, or HTML. Block or route architecture to stage 4, lesson content to stage 5, and delivery generation to stage 8."
+  }
+]

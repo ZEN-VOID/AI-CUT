@@ -10,6 +10,10 @@ metadata:
 
 `角色/2-设计` 消费上游 `角色/1-清单` 的汇总式清单输出，把每个角色主体扩展为可进入后续图像生成、服装设计和镜头设计的细目设计稿。它只负责角色主体设计，不生成最终图片、不替代 `3-生成`，也不改写上游清单真源。
 
+硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
+
+脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句或映射投影生成的研究考据、物语、视觉解构、服装解构、摄影描述、prompt evidence chain 或英文提示词，直接判定为 `FAIL-CHAR-DESIGN-PSEUDO-DIFF`；字段齐全、prompt 长度合规、ID 一致、审美词存在或语料库被加载不得抵消该失败。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-design-character-detail` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -28,7 +32,7 @@ metadata:
 - 高质量语料库约束：凡进入 `single_character`、`batch_from_list`、`incremental_fill` 或 `repair` 模式，且需要生成或修复 `Aesthetic Appeal Evidence`、`Visual Drivers`、妆容、服装风格化、主角审美强化、正反派魅力或英文 prompt 审美短语时，必须加载 `knowledge-base/character-design-corpus.md`。语料库只作为启发与转译库，不得替代清单锚点、项目时代语境、`north_star.yaml`、`team.yaml.init_synthesis` 或本 `SKILL.md` 门禁。
 - 服装时代语境约束：服装可以风格化、戏剧化和妆造化，但必须先锁定时代/地域/阶层/职业母体，再处理廓形、色彩、材质、纹样和配件；不得把现代高定、潮牌、哥特、战术服或奇幻盔甲直接硬套进不匹配的历史语境。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
-- 研究考据、物语、视觉解构、服装细节、摄影描述和英文提示词必须由 LLM 直接创作；`scripts/` 只能做读取、分发、字段校验、路径创建、长度检查和 manifest 汇总等机械辅助。
+- 研究考据、物语、视觉解构、服装细节、摄影描述和英文提示词必须由 LLM 直接创作；`scripts/` 只能做读取、分发、字段校验、路径创建、长度检查和 manifest 汇总等机械辅助，不得批量生成、批量插入、正则套句或映射投影任何创作正文。
 - 研究层必须转化为可执行设计证据链：身份、职业、阶层、地域年代、服饰工艺、身体姿态、审美吸引力、禁区、不确定性和 prompt evidence chain 均需落到后续角色外观、服装、姿态、摄影或英文提示词，不允许停留在资料摘抄。
 
 ## Init Synthesis And Reviewer Contract
@@ -47,7 +51,7 @@ metadata:
 - 数字序号子技能包或节点（如 `1-`、`2-`、`3-`）默认按数字升序串行执行，前一节点产物自动作为后一节点输入。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能只承担查询、恢复、审查承接或辅助动作；不会自动改写本技能的角色设计 canonical 输出，除非父级合同或用户明确要求回接。
-- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 角色设计主创或主 agent 最终裁决。
+- 每个被调度的子技能、卫星技能或 reviewer 仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 角色设计主创或主 agent 最终裁决，不得批量生成、批量插入、正则套句或映射投影设计正文。
 
 ## Input Contract
 
@@ -177,7 +181,7 @@ stateDiagram-v2
 4. 按 `types/character-design-type-map.md` 判定角色主体类型，形成 `type_profile`。
 5. 形成 `research_profile`：将清单、项目上下文与必要考据转化为身份、职业、阶层、地域年代、服饰工艺、身体姿态、审美吸引力、禁区、不确定性和 prompt evidence chain。
 6. 按初始化综合消费合同只读消费 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计`，形成 `init_team_synthesis_context`，再把节点级可执行指导作为额外上下文交给主 agent 创作或本地 reviewer 检查；不得解析叶子专属 profile、请教项目监制顾问、派生新 team 问答或把 team 成员作为 worker/reviewer 预设。
-7. 由 LLM 完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。身份压力、性格气质、阶层、审美风格和表演印象必须转译为面部/发型/身体、服装系统、材质工艺、姿态、光线、构图和 prompt evidence token；同时必须执行审美吸引力约束，并按 `Module Trigger Matrix` 加载 `knowledge-base/character-design-corpus.md`：女性角色要美丽动人，男性角色要英俊不凡，主角进一步强化颜值、气质和服装完成度，正反派都要有个性化魅力；妆容要风格化、可见化，服装风格化必须回到时代/地域/阶层/职业母体。冷门信息可按允许条件搜索并保留来源摘要。
+7. 由 LLM 从上到下逐个角色理解清单锚点、项目风格、初始化综合和类型语境后，完成研究考据、物语、视觉解构、服装解构、摄影描述和英文提示词；创作时必须吸收 `init_team_synthesis_context` 中已裁决的可执行指导，并同时执行 `references/design-output-contract.md` 的结构硬规则、prompt 整合硬规则和 `../../../_shared/anti-abstract-language-contract.md`。身份压力、性格气质、阶层、审美风格和表演印象必须转译为面部/发型/身体、服装系统、材质工艺、姿态、光线、构图和 prompt evidence token；同时必须执行审美吸引力约束，并按 `Module Trigger Matrix` 加载 `knowledge-base/character-design-corpus.md`：女性角色要美丽动人，男性角色要英俊不凡，主角进一步强化颜值、气质和服装完成度，正反派都要有个性化魅力；妆容要风格化、可见化，服装风格化必须回到时代/地域/阶层/职业母体。冷门信息可按允许条件搜索并保留来源摘要。
 8. 最终英文整合提示词的整合对象是 `## 4. 解构` 的全部有效信息，而不是只拼接主体 ID、画面基调、角色风格、固定画面词或负向词等前缀/后缀；提示词必须把身份压力、视觉驱动、面部/发型/身体、服装系统、姿态、光线、构图和固定画面约束蒸馏成自然流畅的英文。
 9. 摄影描述和英文提示词固定为纯色背景全身定妆照，不得把角色置入具体场景或复杂环境；负向约束必须用自然语言写入 prompt，例如 `avoid scene environment, architecture, street, interior set, props cluster, extra characters, crowds, cropped body, sexualized framing`，不得使用 Midjourney `--no` 参数。
 10. 为每个角色锁定唯一主体 ID；若上游清单已有 ID 则沿用，否则按清单顺序生成 `C###`，必要时再用安全名派生 ASCII ID。该 ID 必须同时写入 `## 4. 解构` 标题下方的 `主体ID号：<主体ID>`、`## 5. 提示词设计` 的主体 ID 字段、英文 prompt 的开头 `<主体ID>: ...`，并作为输出文件名前缀。
@@ -194,7 +198,7 @@ stateDiagram-v2
 | `FIELD-CHAR-DESIGN-03` | 初始化综合上下文 | `team.yaml.init_synthesis` 中设计相关约束、启发和风险已选择性消费，不无关堆砌 | `FAIL-CHAR-DESIGN-03` |
 | `FIELD-CHAR-DESIGN-04` | 解构字段 | `## 4. 解构` 标题下方先写 `主体ID号：<主体ID>`，且 `Identity & Story Pressure`、`Visual Drivers`、`Detailed Character Design`、`Detailed Costume Design`、`Cinematography` 全部存在 | `FAIL-CHAR-DESIGN-04` |
 | `FIELD-CHAR-DESIGN-05` | 提示词 | 英文、以主体 ID 号开头、含 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，不超过 1300 characters；整合对象是 `## 4. 解构` 全部有效字段，并使用自然语言负向约束，不使用 `--no`；prompt 前缀必须与 `## 4. 解构` 和 `## 5. 提示词设计` 中的主体 ID 完全一致 | `FAIL-CHAR-DESIGN-05` |
-| `FIELD-CHAR-DESIGN-06` | LLM-first | 脚本没有生成研究、物语、解构或提示词正文 | `FAIL-CHAR-DESIGN-06` |
+| `FIELD-CHAR-DESIGN-06` | LLM-first | 脚本没有生成、批量插入、正则套句或映射投影研究、物语、解构或提示词正文 | `FAIL-CHAR-DESIGN-06` |
 | `FIELD-CHAR-DESIGN-07` | 初始化综合消费 | 只读消费初始化综合；缺失时记录 `not_applicable` / `blocked`；未触发 team 身份调用、旧 stage profile 或伪顾问问答 | `FAIL-CHAR-DESIGN-07` |
 | `FIELD-CHAR-DESIGN-08` | 定妆照约束 | 默认为纯色背景全身定妆照，不置身剧情场景或复杂环境 | `FAIL-CHAR-DESIGN-08` |
 | `FIELD-CHAR-DESIGN-09` | 研究证据链 | 身份、职业、阶层、地域年代、服饰工艺、身体姿态、审美吸引力、禁区、不确定性和 prompt evidence chain 均有结论并回流到设计字段 | `FAIL-CHAR-DESIGN-09` |
@@ -202,6 +206,7 @@ stateDiagram-v2
 | `FIELD-CHAR-DESIGN-11` | 反抽象设计投影 | `anti_abstract_design_projection` 或等价证据能说明抽象身份、性格、阶层、审美和表演印象已转为可见身体、服饰、姿态、光线、构图与 prompt token | `FAIL-ANTI-ABSTRACT-DESIGN` |
 | `FIELD-CHAR-DESIGN-12` | 审美吸引力 | 容貌、妆发、骨相、身形、服装廓形、材质和色彩均具备明确审美完成度；女性角色美丽动人，男性角色英俊不凡，主角更强；正反派均有个性化魅力；明星脸灵感如被使用，已原创转译而非精确复刻 | `FAIL-CHAR-DESIGN-AESTHETIC-APPEAL` |
 | `FIELD-CHAR-DESIGN-13` | 高质量语料库触发 | 命中审美吸引力、妆容化、角色类型词库、服装时代语境或 prompt 审美短语时，已加载 `knowledge-base/character-design-corpus.md`，并把语料原创转译为当前角色的可见设计；未逐字套用或覆盖项目时代语境 | `FAIL-CHAR-DESIGN-CORPUS-MISSING` |
+| `FIELD-CHAR-DESIGN-14` | 反模板伪差异 | 研究、物语、Visual Drivers、Detailed Character/Costume Design、Cinematography、prompt evidence chain 和英文提示词不是由脚本批量生成、批量插入、正则套句、映射投影、模板槽位、关键词锚点替换、句式轮换或同义改写制造；每个角色至少有一个不可互换的身份压力、骨相/妆发、服装系统或姿态裁决证据 | `FAIL-CHAR-DESIGN-PSEUDO-DIFF` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -210,7 +215,7 @@ stateDiagram-v2
 - 设计稿脱离 `角色/1-清单`，新增或替换 canonical 角色主体。
 - 上游清单增量更新后，没有识别缺设计稿主体，或覆盖了已有角色设计稿。
 - 没有消费 `north_star.yaml` / `team.yaml.init_synthesis`，却声称符合项目风格或初始化设计约束。
-- 研究考据、物语、设计解构或提示词由脚本拼接、模板灌字或启发式扩写生成。
+- 研究考据、物语、设计解构或提示词由脚本拼接、模板灌字、启发式扩写、批量插入、正则套句或映射投影生成。
 - 角色设计变成图片生成执行、场景设计、道具设计或最终视频提示词。
 - 英文提示词未以主体 ID 号开头、未引用 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`、超过 1300 characters、包含 `--no` 参数，或只是拼接前缀后缀而未整合 `## 4. 解构` 全部有效信息。
 - `## 4. 解构` 下方缺少 `主体ID号：<主体ID>`，或该值与 `## 5. 提示词设计` 的主体 ID / 英文 prompt 前缀不一致。
@@ -220,6 +225,7 @@ stateDiagram-v2
 - 服装风格化脱离时代语境，例如把现代高定、战术服、哥特、潮牌或奇幻盔甲直接套到不匹配的历史/地域/阶层设定上。
 - 研究层只写资料、风格口号或世界观摘要，没有转化为身份/职业/阶层/地域年代/服饰工艺/身体姿态/禁区/不确定性和 prompt evidence chain。
 - 角色研究、物语、解构或 prompt 停留在“高级、冷峻、压迫、神秘、破碎、贵气、反差”等抽象词，没有转成可见身体、服饰、材质、工艺、姿态、光线、构图和 prompt evidence token。
+- 研究/物语/解构/prompt 字段完整但不同角色只是替换姓名、职业、性别、服装色或审美形容词，没有角色专属设计判断。
 - 初始化综合存在却被静默跳过。
 - 执行初始化综合消费时调用 team 身份、解析旧 stage profile、补造顾问问答，或没有把初始化综合转成节点级可执行判断、局部 patch 或风险提示。
 
@@ -279,5 +285,6 @@ stateDiagram-v2
 - 已按 `team.yaml.init_synthesis.stage_seed_summary."11-主体"`、`init_handoff.design_seed` 或 `north_star.yaml.创作阶段不变量.设计` 形成 `init_team_synthesis_context`，且采纳内容已绑定当前 `node_id / pass_id / gate_id` 并转成节点级判断、执行取舍、局部 patch 或风险提示；若不可用，已记录 `not_applicable` 或 `blocked`。
 - 英文提示词以主体 ID 号开头，含 `画面基调.Global Style Prompt + 角色风格.Character Style Prompt`，整合 `## 4. 解构` 全部有效信息，使用自然语言负向约束且不含 `--no`，长度不超过 1300 characters。
 - Cinematography 与英文提示词固定为 `full-body costume fitting photo`、纯色背景、无场景环境。
+- 未使用脚本批量生成、批量插入、正则套句、映射投影、映射表、规则模板、关键词锚点替换、句式轮换或同义改写制造角色设计伪差异；疑似命中时已废弃候选稿并回到 LLM 研究/解构/prompt 节点。
 - 已执行 `review/review-contract.md` 的人工审查或等价机械校验。
 - 初始化综合消费已确认未触发 team 身份调用、旧 stage profile 或伪顾问问答；本地 review 仅作为质量检查记录。

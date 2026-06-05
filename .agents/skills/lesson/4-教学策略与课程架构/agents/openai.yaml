@@ -1,0 +1,4 @@
+interface:
+  display_name: "教学策略与课程架构"
+  short_description: "设计课程模块、课时序列、教学策略、节奏和认知负荷蓝图。"
+  default_prompt: "Use $lesson-course-architecture when the user asks for 教学策略, 课程架构, course outline, module architecture, lesson/session sequence, learning path, pacing, rhythm, or cognitive load design after lesson positioning, knowledge modeling, and objectives. Default inputs are `projects/lesson/<项目名>/1-课程定位/course-positioning.md`, stage 2 knowledge-model outputs, and stage 3 objectives/evaluation blueprint. Produce `course-outline.md`, `teaching-strategy-and-load-plan.md`, and `downstream-handoff.md` under `projects/lesson/<项目名>/4-教学策略与课程架构/`. Do not generate complete lesson scripts, teacher notes, student handout正文, question banks, answer keys, PPT copy, HTML pages, visual systems, or DOC/PPT/HTML deliverables in this stage."

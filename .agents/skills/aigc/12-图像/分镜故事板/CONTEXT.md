@@ -1,6 +1,6 @@
 # Context: aigc-image-storyboard-sheet
 
-本文件是 `B-分镜故事板` 的经验层知识库，不是执行日志。它用于沉淀从 `10-分组` 生成组级多格 storyboard 时的类型判断、修复打法和可复用经验。
+本文件是 `分镜故事板` 的经验层知识库，不是执行日志。它用于沉淀从 `10-分组` 生成组级多格 storyboard 时的类型判断、修复打法和可复用经验。
 
 ## Context Health
 
@@ -34,6 +34,7 @@ last_checked_at: 2026-04-25
 | `TM-SHEET-15` | 标注颜色语义混乱，例如蓝色表示身体动作或红色表示摄影机 | annotation semantic drift | 按用户声明的颜色语义重建 `annotation_plan` | frame unit 与 imagegen plan 固化颜色图例 | 每个 frame unit 的 annotation plan 语义正确或写 none |
 | `TM-SHEET-16` | 可见角色头顶缺少角色名，或角色名与分组稿/YAML 不一致 | character label drift | 从组底 YAML `角色` 字段重建 `character_name_labels`，放在对应角色头顶 | group extraction、prompt、handoff 与 review gate 固化角色头顶名称字段 | 每个可见角色都有黑色文本角色名，且未改名、缩写、翻译或猜名 |
 | `TM-SHEET-17` | panel 下方文字过短像标签、过长不可读，或出现原文没有的新事实 | panel description density drift | 由 LLM 从 `source_span` 和分组稿分镜描述原文重建 `rich_brief panel_description` | group extraction、prompt、handoff 与 review gate 固化 rich_brief 描述密度 | 每个 panel 描述 1-2 句、来源可回指、信息足够且无新增事实 |
+| `TM-SHEET-18` | 多组 storyboard prompt 只替换主体名、场景名或颜色标注，句架高度重复但形式字段齐全 | scripted authorship pseudo-difference | 标记 `FAIL-SHEET-SCRIPTED-PROJECTION`，回到完整组稿由 LLM 重建 frame-unit plan、panel 描述、annotation plan 和 layout 策略 | Pass Table 固化脚本化生成、批量插入、正则套句和映射投影不得通过 | 每组输出能指出本组独有 source_span 判断，而不只是锚点替换 |
 
 ## Repair Playbook
 
@@ -56,10 +57,11 @@ last_checked_at: 2026-04-25
 16. 彩色只允许作为标注叠加在黑白线稿基底上：红=身体运动、蓝=摄影机运动、绿=取景/构图、橙=灯光方向、紫=情绪/声音/叙事强调、黑色文本=角色头顶名称、简短镜头笔记和面板标签。
 17. 若某 panel 没有对应标注信息，`annotation_plan` 中该项写 `none`；不要为了使用某个颜色而发明不存在的信息。
 18. 每个可见角色头顶都要有黑色文本角色名；名称来自分组稿或组底 YAML `角色` 字段，不从参照图文件名、外观或正文泛称猜测。
+19. 如果 storyboard prompt 的差异主要来自 `group_id`、角色名、场景名、道具名或同义词替换，而 panel 设计、镜头功能和标注计划没有本组源 span 的判断痕迹，应视为伪差异，不得用形式完整性放行。
 
 ## Reusable Heuristics
 
-- `B-分镜故事板` 的核心对象是 `group_id`，不是四段式单镜 `shot_id`。
+- `分镜故事板` 的核心对象是 `group_id`，不是四段式单镜 `shot_id`。
 - `source_shot_labels` 是运镜中心结果的追溯标签，`storyboard_frame_units` 才是多格 storyboard 的 panel 落点。
 - `10-分组` 已经包含足够的组级风格、场景、分镜明细和入出场信息；本技能不需要重新蒸馏上游剧情。
 - 组底 YAML 是主体参照绑定的唯一默认入口；正文中出现的普通名词不自动变成参照对象。
@@ -73,3 +75,5 @@ last_checked_at: 2026-04-25
 - 缺图不是阻塞 prompt 的理由，但必须阻塞“伪绑定”；空槽位应移除或进入 missing。
 - 批量生成默认是计划层能力，不等于后台并行执行；索引、prompt 包、manifest 和报告应统一汇流写入。
 - 已绑定本地参照图必须在生成前通过 `view_image` 可见化；否则只能算路径证据，不能算已传入视觉参照。
+- 脚本可以抽取 `source_span`、计数、整理已定 JSON 字段和检查路径。
+- 脚本不能生成 panel 描述、annotation plan、layout 决策或 prompt 正文，也不能批量插入、正则套句或映射投影；这些位置需要 LLM 主创和可审计源 span 依据。

@@ -34,6 +34,7 @@ last_checked_at: 2026-04-25
 | `TM-PROP-DESIGN-11` | 道具只是“普通匕首、普通盒子、普通信件、普通令牌”，功能准确但不好看、无设计细节 | 审美设计层 | 回到 `N5-RESEARCH-CHAIN / N6-DESIGN`，补独特轮廓、材质记忆点、工艺/装饰细节、文化/身份符号、使用痕迹、功能结构和 signature detail | 在 `SKILL.md`、模板、types、review gate 固定 `design_detail_culture` | `Design Appeal Target`、`Signature Detail`、`Cultural Element Strategy`、prompt token 均可见 |
 | `TM-PROP-DESIGN-12` | 文化元素像随机贴花，或把现代奢牌、战术、赛博、哥特奇幻符号硬套进历史/地域语境 | 文化语境层 | 删除错置元素，按项目时代、地域、阶层、职业、宗教/族群禁区和功能逻辑重做原创转译 | `knowledge-base/prop-design-corpus.md` 只做启发，必须配 `Period Context Guardrail` | `Prop Corpus Usage Trace` 说明语料种子、原创转译和 period/culture guardrail |
 | `TM-PROP-DESIGN-13` | 触发道具审美或文化细节任务，但输出没有加载或记录语料库 | 语料库触发层 | 加载 `knowledge-base/prop-design-corpus.md`，补 `Prop Corpus Usage Trace` 和 prompt 证据 | `GATE-PROP-DESIGN-14` 阻断缺语料库或照搬语料 | 输出中有语料种子、原创转译、时代/文化 guardrail 与 prompt evidence |
+| `TM-PROP-DESIGN-14` | 道具设计稿字段完整但像批量模板换名、换材质或换纹样 | 反模板伪差异层 | 废弃候选设计稿，回到研究、解构和 prompt 节点重做道具专属裁决 | `SKILL.md` 固定 `FAIL-PROP-DESIGN-PSEUDO-DIFF`，禁止用字段完整、长度合规、语料库加载或“细节很多”抵消 | 每个道具有不可互换的形制、材质工艺、使用痕迹、功能结构或文化语境裁决证据 |
 
 ## Repair Playbook
 
@@ -50,6 +51,7 @@ last_checked_at: 2026-04-25
 11. 若一个道具存在多状态，先判断是同一主体状态版本还是不同叙事道具；必要时按 `types/prop-design-type-map.md` 分流命名。
 12. 若不使用外部初始化综合消费 或 reviewer，按 `SKILL.md` 的初始化综合消费 Execution Contract 直接执行本地 checklist。
 13. 若维护本技能包结构，先确认根 `SKILL.md#Visual Maps` 与关键分区 Mermaid 图仍然覆盖输入、类型、创作、审查和落盘主链。
+14. 若发现研究、物语、解构或 prompt 只是替换道具名、材质、纹样、年代或形容词，不局部润色；整稿作废并从 LLM 研究/解构/prompt 节点重做。
 
 ## Reusable Heuristics
 

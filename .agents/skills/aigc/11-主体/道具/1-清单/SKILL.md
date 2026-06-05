@@ -18,6 +18,7 @@ metadata:
 - 上游唯一准确信息来源为 `projects/aigc/<项目名>/10-分组/第N集.md` 每个分镜组底部 YAML 的 `道具` 字段；必要时只允许回查同一分镜组正文作为证据。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 道具归并、别名裁决、背景杂物过滤和清单字段措辞必须由 LLM 直接完成；`scripts/` 只能做读取、路径枚举、YAML 块定位、表格格式检查等机械辅助。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的道具清单判断、重要性过滤、canonical 名称、归并理由或关键词描述，直接判定为 `FAIL-PROP-LIST-PSEUDO-DIFF`；字段完整、三列表格合规或数量达标不得抵消该失败。
 
 ## Input Contract
 
@@ -159,6 +160,7 @@ flowchart LR
 | `FIELD-PROP-LIST-05` | 主体字段 | 表格仅包含 `名称`、`首次登场`、`原文描述（关键词式）` 三列 | `FAIL-PROP-LIST-05` |
 | `FIELD-PROP-LIST-06` | 输出落盘 | canonical 清单与可选执行报告路径正确 | `FAIL-PROP-LIST-06` |
 | `FIELD-PROP-LIST-07` | 增量 merge | 既有清单被读取并对账，新道具追加、旧道具稳定，未静默全量覆盖 | `FAIL-PROP-LIST-07` |
+| `FIELD-PROP-LIST-08` | 反脚本化伪差异 | 归并、背景杂物过滤、保留理由和关键词描述不是由映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；每个保留/过滤/合并结论有主体级 LLM 裁决证据 | `FAIL-PROP-LIST-PSEUDO-DIFF` |
 
 ## Thought Pass Map
 
@@ -183,6 +185,7 @@ flowchart LR
 | `PASS-PROP-LIST-05` | 过滤无生成锁定价值的背景杂物 | filtered prop map | `knowledge-base/prop-list-heuristics.md` |
 | `PASS-PROP-LIST-06` | 输出固定三列表格 | `道具清单.md` | `templates/output-template.md` |
 | `PASS-PROP-LIST-07` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
+| `PASS-PROP-LIST-08` | 执行反脚本化/反模板伪差异验收 | per-prop decision evidence | 本 `SKILL.md` LLM-first gate |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -195,6 +198,7 @@ flowchart LR
 - `首次登场` 没有回指具体集号和分镜组 ID。
 - 输出表格新增了主体字段，或缺少固定三列中的任一列。
 - 新增部分集数后用局部结果覆盖了既有全局道具清单，或让已有道具设计稿失去清单锚点。
+- 形式指标通过但清单像同一模板换道具名、锚点替换、句式轮换或同义改写批量产物，没有逐道具归并/过滤裁决。
 
 必经链路：
 
@@ -241,4 +245,5 @@ flowchart LR
 - 纯背景杂物已过滤，或在执行报告中说明保留理由。
 - 输出 Markdown table 仅包含 `名称`、`首次登场`、`原文描述（关键词式）` 三列。
 - 若已有清单或 manifest，已执行 merge 对账，未静默覆盖旧清单、旧设计稿锚点或旧生成资产。
+- 未使用映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造道具清单伪差异；疑似命中时已废弃候选稿并回到 LLM 归并/过滤节点。
 - 已执行 `review/review-contract.md` 的人工 review 或等价机械格式检查，结果写入清单尾注或执行报告。

@@ -20,6 +20,7 @@ metadata:
 - 默认上游来源包括 `2-编剧/`、`3-美学/画面基调/全局风格协议.md`、`3-美学/摄影风格/`、用户粘贴文本、参考图/视频说明和已有候选分镜风格协议；用户显式指定来源时，以用户输入为本轮来源并标注来源类型。
 - 多模态参考只允许提供节奏事实、转场语法、段落推进、镜头组合倾向、信息密度和连接方式，不得复制参考中的具体剧情、人物、动作、物件、场景或镜头编号。
 - 核心风格判断、节奏归纳、分镜组织策略和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、字数统计、JSON/Markdown 校验和越权词扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写批量生成、批量插入、正则套句或映射投影生成分镜风格协议、连接语法、信息密度规则或 prompt，直接 fail。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -183,7 +184,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 剧本来源至少抽取 5 条分镜节奏证据；每类上游美学或参考来源至少抽取 3 条组织事实；正式协议至少覆盖 8 个解析维度 | `N2/N3/N4.actions` | `FAIL-SBS-QUANT-SCOPE` |
 | `evidence_count` | 镜头连接语法至少 6 条；信息功能至少 4 类；负面特征至少 3 条 | `N5/N6.evidence` | `FAIL-SBS-QUANT-EVIDENCE` |
-| `pass_threshold` | P0 gate 全部通过；`storyboard_style_prompt` 80-130 字；剧情动作、镜头编号、资产设计、摄影参数残留 0 个 | `N7/N8.gate` | `FAIL-SBS-QUANT-THRESHOLD` |
+| `pass_threshold` | P0 gate 全部通过；`storyboard_style_prompt` 80-130 字；剧情动作、镜头编号、资产设计、摄影参数残留 0 个；`GATE-SBS-11-ANTI-SCRIPTED-STYLE` 阻断项为 0 | `N7/N8.gate` | `FAIL-SBS-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍出现 P0 越权、来源不足或下游不可执行时阻断并报告 | `N8.route_out` | `FAIL-SBS-QUANT-RETRY` |
 | `fallback_evidence` | 参考资料不可机器读取时，使用用户文字说明和可见元数据；无法验证的节奏判断标为 `unverified_reference_claim`，不得作为核心证据 | `Review Gate Binding.report_evidence` | `FAIL-SBS-QUANT-FALLBACK` |
 
@@ -215,7 +216,8 @@ Pass conditions:
 - `shot_connection_grammar` 至少 6 条，能说明镜头组合、段落推进和连接方式如何来自输入证据。
 - `density_flow_matrix` 至少覆盖 4 类信息功能，并说明慢/中/快段落切换原则。
 - `storyboard_style_prompt` 为 80-130 字中文，且没有具体分镜正文、镜头编号、剧情动作、资产设计、摄影参数或参考内容照搬。
-- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 和 `Boundary Scan`。
+- `anti_scripted_style_audit` 证明分镜组织策略、连接语法和 prompt 不是脚本化生成、批量插入、正则套句、映射投影、模板句轮换、锚点替换或同义改写批量生成。
+- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`Anti Scripted Style Audit`、`N/A Justification`、`Repair Log` 和 `Boundary Scan`。
 
 Fail conditions:
 
@@ -223,6 +225,7 @@ Fail conditions:
 - prompt 写成镜头表、剧情动作说明或单镜头 prompt。
 - prompt 含具体镜头编号、角色动作、场景物件、资产外观、焦段、光圈、机位或运镜参数。
 - 参考视频的具体镜头顺序或动作段落被照搬为项目协议。
+- 分镜风格协议或 prompt 呈现脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量痕迹。
 - 字数低于 80 或高于 130，且用户未明确覆盖。
 
 ## Review Gate Binding
@@ -239,6 +242,7 @@ Fail conditions:
 | prompt 是否 80-130 字且中文默认？ | `GATE-SBS-08-LENGTH-LANGUAGE` | `FAIL-SBS-LENGTH` | `N7-PROMPT-DISTILL` | 字数统计与语言标记 |
 | 是否适合 AI 视频下游执行，不要求模型完成过细动作链？ | `GATE-SBS-09-DOWNSTREAM-EXECUTABLE` | `FAIL-SBS-DOWNSTREAM-UNSAFE` | `N5-CONNECTION-GRAMMAR` / `N6-DENSITY-FLOW-CALIBRATION` | 下游风险清单 |
 | 正式写回是否有结构化执行报告？ | `GATE-SBS-10-REPORT-EVIDENCE` | `FAIL-SBS-REPORT-MISSING` | `N9-CLOSE` | 报告 section 完整性 |
+| 分镜风格协议、连接语法、信息密度规则和 prompt 是否无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-SBS-11-ANTI-SCRIPTED-STYLE` | `FAIL-SBS-SCRIPTED-STYLE` | `N4-RHYTHM-PROFILE` / `N5-CONNECTION-GRAMMAR` / `N7-PROMPT-DISTILL` | `anti_scripted_style_audit` |
 
 ## Runtime Guardrails
 
@@ -298,6 +302,7 @@ Fail conditions:
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：本技能无外部 `references/` 时记录 `N/A: no references module authorized`；若未来启用 references，逐条记录 load_status、trigger_reason、applied_to、evidence_in_output、verdict 和 n/a_reason。
 - `Rule Evidence Map`：映射 `GATE-SBS-*` 到正文位置或证据。
+- `Anti Scripted Style Audit`：记录脚本化生成、批量插入、正则套句、映射投影、模板句式复用、锚点替换、句式轮换和同义改写批量风险的检查结论。
 - `N/A Justification`：说明未触发来源、模块或例外规则。
 - `Repair Log`：记录失败码、修复目标和复审结果。
 - `Boundary Scan`：分镜正文、镜头编号、剧情动作、资产设计、摄影参数和参考照搬六类扫描结果。
@@ -377,6 +382,7 @@ Completion gate:
 | `PASS-SBS-04` | 至少 4 类信息功能，且说明流畅性与连贯性 | `FAIL-SBS-DENSITY-MISSING` | `N6-DENSITY-FLOW-CALIBRATION` |
 | `PASS-SBS-05` | Storyboard Style Prompt 为中文 80-130 字，六类越权为 0 | `FAIL-SBS-PROMPT` | `N7-PROMPT-DISTILL` |
 | `PASS-SBS-06` | 正式写回报告包含必需审计 section | `FAIL-SBS-REPORT-MISSING` | `N9-CLOSE` |
+| `PASS-SBS-07` | 分镜风格协议无脚本化生成、批量插入、正则套句、映射投影、模板句轮换、锚点替换或同义改写批量痕迹 | `FAIL-SBS-SCRIPTED-STYLE` | `N4-RHYTHM-PROFILE` / `N5-CONNECTION-GRAMMAR` / `N7-PROMPT-DISTILL` |
 
 ## Field Mapping
 

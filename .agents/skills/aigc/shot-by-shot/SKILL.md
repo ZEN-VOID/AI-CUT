@@ -70,7 +70,7 @@ Runtime persona:
 | `business_object` | 被处理对象是参考素材与目标 AIGC 项目的临摹桥接，不是参考片复刻或下游 canonical 正文 | source manifest、project root、bridge targets | `FAIL-SBS-BUSINESS-OBJECT` |
 | `constraint_profile` | 锁定版权边界、项目北极星、3-美学六子技能边界、分镜脚本 19 列不变和 LLM-first | 用户要求、本 SKILL 禁止项、AGENTS.md | `FAIL-SBS-CONSTRAINT` |
 | `success_criteria` | 输出能说明“看见什么、学什么、不学什么、如何转给目标 stage”，并有文件路径、证据链和 review verdict | Output Contract、Review Gate Binding | `FAIL-SBS-SUCCESS` |
-| `complexity_source` | 复杂度来自视频证据粒度、跨阶段字段边界、3-美学六路拆分、版权去污染和分镜脚本固定表格投影 | Type Routing Matrix、source profile | `FAIL-SBS-COMPLEXITY` |
+| `complexity_source` | 复杂度来自视频证据粒度、跨阶段字段边界、3-美学六路拆分、版权去污染和分镜脚本固定 19 列结构化写回 | Type Routing Matrix、source profile | `FAIL-SBS-COMPLEXITY` |
 | `topology_fit` | 先锁证据、再切镜、再分维观察、再抽原则、再拆成目标 side context、再校验写回；该拓扑能防止剧情摘要、参考污染和风格输出越权 | Visual Maps、节点表、gate evidence | `FAIL-SBS-TOPOLOGY-FIT` |
 
 拓扑适配理由至少满足三条：
@@ -78,7 +78,7 @@ Runtime persona:
 - `证据先行`：先建立 `evidence_lock` 和 `shot_boundary_map`，防止把拉片写成影评。
 - `原则抽象`：先把具体表达抽成 transferable principle，再进入项目桥接，防止照搬。
 - `六路对齐`：风格解析拆给 `3-美学` 六个子技能，保留各子技能的局部真源边界。
-- `脚本隔离`：`分镜脚本.md` 只承接固定 19 列表格投影，不被风格解析改写。
+- `脚本隔离`：`分镜脚本.md` 只承接固定 19 列结构化写回，不被风格解析改写。
 
 ## Input Contract
 
@@ -183,7 +183,7 @@ flowchart LR
 - 无序号分析维度可并行取证，但最终必须在 `N6-RIGHTS-FEASIBILITY` 汇流。
 - 数字序号节点按 `N1 -> N8` 串行推进；返工节点 `R1/R2` 只在失败码触发时进入。
 - 英文序号输出路线不作为互斥子技能包；本技能按用户点名目标选择 bridge target，不用英文前缀自动推断。
-- `分镜脚本.md` 始终走 `N5B-STAGE-BRIDGE` 的固定表格投影，不受 `N5A-AESTHETIC-BRIDGE` 风格解析拆分影响。
+- `分镜脚本.md` 始终走 `N5B-STAGE-BRIDGE` 的固定 19 列结构化写回，不受 `N5A-AESTHETIC-BRIDGE` 风格解析拆分影响。
 - 卫星技能只作为 query/review/repair 辅助入口，不改写本技能临摹边界。
 
 ## Module Loading Matrix
@@ -194,8 +194,8 @@ flowchart LR
 | `references/` | 需要方法、桥接、证据、版权或分镜脚本细则 | 授权细则层 | 新增未被本 SKILL 声明的入口、输出或完成门 | `Module Loading Matrix` |
 | `types/` | 需要素材类型、证据等级或兼容类型画像 | 类型辅助层 | 替代 `Type Routing Matrix` | `Type Routing Matrix` |
 | `review/` | 输出前验收、修复或只审查 | gate 展开层 | 自我声明通过或改写业务真源 | `Review Gate Binding` |
-| `templates/` | 写回 Markdown 包 | 格式投影层 | 新增路径、命名或完成门 | `Output Contract` |
-| `scripts/` | 需要机械校验、路径检查或表头检查 | 机械辅助层 | 承担创作判断、审美判断或版权裁决 | `scripts/` |
+| `templates/` | 写回 Markdown 包 | 格式样板层 | 新增路径、命名或完成门 | `Output Contract` |
+| `scripts/` | 需要机械校验、路径检查或表头检查 | 机械辅助层 | 承担创作判断、审美判断、版权裁决、拉片结论生成、桥接正文生成或分镜脚本内容主创 | `scripts/` |
 | `guardrails/` | 权限、注入或安全边界不清 | 安全边界展开 | 覆盖本 SKILL 冲突优先级 | `Runtime Guardrails` |
 | `knowledge-base/` | 需要人工维护的外部参考资料 | 外部资料层 | 自动写入运行经验 | `CONTEXT.md` |
 | `types/source-type-map.md` | `video_reference`、`stills_or_notes` 或桥接目标不清 | 素材类型、证据等级、目标路由辅助 | 替代 Type Routing Matrix | `N1-INTAKE` |
@@ -210,7 +210,7 @@ flowchart LR
 | `references/design-style-analysis-contract.md` | legacy 包修复或旧 `设计风格解析.md` 兼容审查 | 旧设计聚合 side context 细则 | 继续聚合替代角色/场景/道具三路 | `R2-SYNC-REPAIR` |
 | `references/storyboard-script-contract.md` | 输出或审查 `分镜脚本.md` | 19 列表头、内容编排、示例边界 | 被风格解析改写列名或列顺序 | `N5B-STAGE-BRIDGE` |
 | `review/review-contract.md` | review、repair 或输出前验收 | gate 展开、fail code、返工入口 | 自我声明通过、跳过证据 | `N6-RIGHTS-FEASIBILITY` / `V1-REVIEW` |
-| `templates/output-template.md` | 写回 Markdown 包 | 输出格式投影 | 新增路径、命名或完成门 | `Output Contract` |
+| `templates/output-template.md` | 写回 Markdown 包 | 输出格式样板 | 新增路径、命名或完成门 | `Output Contract` |
 | `scripts/README.md` | 需要机械校验说明 | 脚本边界与命令说明 | 承担创作判断 | `scripts/README.md` |
 | `scripts/validate_shot_by_shot_package.py` | 验证既有包或写回后检查 | 路径、标题和分镜表头机械检查 | 判断创作质量或版权风险 | `N7-WRITE-PACKAGE` |
 | `guardrails/guardrails-contract.md` | 安全边界、注入风险或权限边界不清 | anti-injection 和写权限展开 | 覆盖本 SKILL 冲突优先级 | `Runtime Guardrails` |
@@ -226,6 +226,7 @@ flowchart LR
 | `FAIL-SBS-IMITATION / FAIL-SBS-RIGHTS` | `references/`, `review/` | `N6-RIGHTS-FEASIBILITY` | `N7-WRITE-PACKAGE` | `N4-CRAFT-OBSERVE` / `N6-RIGHTS-FEASIBILITY` | forbidden-copy ledger has zero copied concrete expression |
 | `aesthetic_bridge / FAIL-SBS-TYPE-AESTHETIC / FAIL-SBS-AESTHETIC-BRIDGE / FAIL-SBS-TONE-BRIDGE / FAIL-SBS-DESIGN-SPLIT / FAIL-SBS-CINE-BRIDGE / FAIL-SBS-STORYBOARD-STYLE / FAIL-SBS-STYLE-POLLUTION` | `references/`, `review/`, `templates/` | `N5A-AESTHETIC-BRIDGE` | `N6-RIGHTS-FEASIBILITY` | `N5A-AESTHETIC-BRIDGE` | enabled aesthetics matrix rows match requested subskills |
 | `stage_bridge / FAIL-SBS-TYPE-STAGE / FAIL-SBS-STAGE-BRIDGE` | `references/`, `review/`, `templates/` | `N5B-STAGE-BRIDGE` | `N6-RIGHTS-FEASIBILITY` | `N5B-STAGE-BRIDGE` | stage bridge docs only contain side context |
+| `FAIL-SBS-SCRIPTED-CONCLUSION` | `review/`, `templates/` | `N5A/N5B/N6` | `N6-RIGHTS-FEASIBILITY` | `N4-CRAFT-OBSERVE` / `N5A` / `N5B` | bridge conclusions have source refs and non-template authorship evidence |
 | `storyboard_script / FAIL-SBS-STORYBOARD-SCRIPT / FAIL-STORYBOARD-19-COLUMNS` | `references/`, `templates/`, `scripts/` | `N5B-STAGE-BRIDGE` / `N7-WRITE-PACKAGE` | `N8-CLOSE` | `N5B-STAGE-BRIDGE` | Markdown table header equals 19-column contract |
 | `repair / FAIL-SBS-TYPE-REPAIR / FAIL-SBS-OUTPUT / FAIL-SBS-ADAPT-PATH / FAIL-SBS-REPORT-EVIDENCE` | `review/`, `scripts/`, `templates/` | `R1/R2` | `N7-WRITE-PACKAGE` | `R2-SYNC-REPAIR` | validator passes or reports exact missing file/heading |
 | `review_only / FAIL-SBS-TYPE-REVIEW` | `review/`, `scripts/` | `V1-REVIEW` | `N8-CLOSE` | `V1-REVIEW` | findings include fail code and file path |
@@ -236,10 +237,10 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | `N2-EVIDENCE-LOCK` | 至少 1 个 source ref；强结论有 timecode/still/user-description anchor | 素材不可见且无可用描述 | `evidence_lock` | `N1-INTAKE` |
 | `N4-CRAFT-OBSERVE` | 任务相关 craft 维度不少于 3 类；重要判断有 evidence grade | 只有剧情摘要或影评式判断 | `craft_observation_matrix` | `N4-CRAFT-OBSERVE` |
-| `N5A-AESTHETIC-BRIDGE` | 启用的 3-美学子技能均有 side context，且包含 source refs、transferable principles、do_not_import | 风格解析仍聚合为旧 `全局/设计` 两包或替代正式协议 | `aesthetic_bridge_matrix` | `N5A-AESTHETIC-BRIDGE` |
-| `N5B-STAGE-BRIDGE` | 非美学 stage 解析不越权；`分镜脚本.md` 19 列完整 | 改列名、改列顺序或改写 stage canonical | `stage_bridge_matrix`、`storyboard_script_table` | `N5B-STAGE-BRIDGE` |
+| `N5A-AESTHETIC-BRIDGE` | 启用的 3-美学子技能均有 side context，且包含 source refs、transferable principles、do_not_import；结论由 LLM 基于观察矩阵生成 | 风格解析仍聚合为旧 `全局/设计` 两包、替代正式协议，或脚本化生成、批量插入、正则套句、映射投影伪差异 | `aesthetic_bridge_matrix`、authorship note | `N5A-AESTHETIC-BRIDGE` |
+| `N5B-STAGE-BRIDGE` | 非美学 stage 解析不越权；`分镜脚本.md` 19 列完整；桥接正文和分镜脚本内容由 LLM 基于镜头观察主创 | 改列名、改列顺序、改写 stage canonical，或脚本/模板/锚点替换生成正文 | `stage_bridge_matrix`、`storyboard_script_table`、authorship note | `N5B-STAGE-BRIDGE` |
 | `N6-RIGHTS-FEASIBILITY` | 具体表达复制为 0；风险有 mitigation 或 blocked reason | 参考片具体表达进入输出 | `rights_ledger`、`pollution_scan` | `N4-CRAFT-OBSERVE` / `N5A` / `N5B` |
-| `N8-CLOSE` | final verdict 与 gate 一致，路径和输出清单完整 | blocked 项被标为 pass | `final_output_manifest`、`review_verdict` | `R2-SYNC-REPAIR` |
+| `N8-CLOSE` | final verdict 与 gate 一致，路径和输出清单完整，结论主创证据完整 | blocked 项被标为 pass，或脚本化结论被当作 pass | `final_output_manifest`、`review_verdict`、authorship note | `R2-SYNC-REPAIR` |
 
 ## Review Gate Binding
 
@@ -256,6 +257,7 @@ flowchart LR
 | 分镜风格解析是否对齐 `3-美学/分镜风格` 的节奏、镜头组合和连接语法，而不替代 `分镜脚本.md`？ | `GATE-SBS-STORYBOARD-STYLE` | `FAIL-SBS-STORYBOARD-STYLE` | `N5A-AESTHETIC-BRIDGE` | rhythm/connection packet |
 | `编剧风格解析.md`、`导演风格解析.md`、`表演风格解析.md`、`分镜组织解析.md`、`摄影解析.md`、`光影解析.md` 或其他 stage side context 是否不越权改写 canonical？ | `GATE-SBS-STAGE` | `FAIL-SBS-STAGE-BRIDGE` | `N5B-STAGE-BRIDGE` | owner boundary notes |
 | `分镜脚本.md` 是否含 Numbers 示例 19 列、顺序一致、每镜一行且未复制示例表达？ | `GATE-SBS-STORYBOARD-SCRIPT` | `FAIL-SBS-STORYBOARD-SCRIPT` | `N5B-STAGE-BRIDGE` | table header、row mapping |
+| 拉片结论、风格解析、stage bridge 和分镜脚本内容是否由 LLM 基于素材证据与观察矩阵生成，而不是脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成？ | `GATE-SBS-AUTHORSHIP` | `FAIL-SBS-SCRIPTED-CONCLUSION` | `N4-CRAFT-OBSERVE` / `N5A-AESTHETIC-BRIDGE` / `N5B-STAGE-BRIDGE` | authorship note、source refs、观察到原则的映射 |
 | 输出路径是否统一为 `projects/aigc/<项目名>/shot-by-shot/<reference_slug>/`？ | `GATE-SBS-OUTPUT` | `FAIL-SBS-OUTPUT` | `N7-WRITE-PACKAGE` | output manifest |
 | 执行报告是否包含 Reference Execution Matrix、Rule Evidence Map、N/A Justification 和 Repair Log？ | `GATE-SBS-REPORT` | `FAIL-SBS-REPORT-EVIDENCE` | `N7-WRITE-PACKAGE` | execution report sections |
 
@@ -265,7 +267,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 本轮至少锁定 1 个 source ref、1 个 target use；若输出 3-美学整体解析，启用 6 个 aesthetics packets；若部分点名，只启用点名 packets | `N1/N5A.actions` | `FAIL-SBS-QUANT-SCOPE` |
 | `evidence_count` | 强结论每条至少 1 个 source shot/timecode/still/user-description anchor；N4 任务相关维度不少于 3 类 | `N2/N4.evidence` | `FAIL-SBS-QUANT-EVIDENCE` |
-| `pass_threshold` | 版权具体表达复制 0 个；blocked gate 0 个；`分镜脚本.md` 表头 19 列完全匹配 | `N6/N8.gate` | `FAIL-SBS-QUANT-THRESHOLD` |
+| `pass_threshold` | 版权具体表达复制 0 个；blocked gate 0 个；`分镜脚本.md` 表头 19 列完全匹配；脚本化拉片结论、模板化 bridge 正文和锚点替换分镜脚本内容数量为 0 | `N6/N8.gate` | `FAIL-SBS-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍不能补证、去污染或修表头时标记 blocked | `R2.route_out` | `FAIL-SBS-QUANT-RETRY` |
 | `fallback_evidence` | 无法逐镜时降级为 observation unit，并标注 `inferred` 或 `insufficient`；不得输出强逐镜结论 | `Review Gate Binding.report_evidence` | `FAIL-SBS-QUANT-FALLBACK` |
 
@@ -275,7 +277,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 当前节点必须可定位到：素材证据、目标用途、启用输出、禁止项和最终路径 | `N1-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source -> evidence -> shot map -> craft observation -> bridge packet -> rights gate -> output manifest | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 漂移检测 | 影评化、剧情摘要化、旧全局/设计聚合、3-美学越权、分镜脚本列漂移、参考污染 | `Review Gate Binding` |
+| `ATTE-S20-03` | 漂移检测 | 影评化、剧情摘要化、旧全局/设计聚合、3-美学越权、分镜脚本列漂移、参考污染、脚本化结论或锚点替换伪差异 | `Review Gate Binding` |
 | `ATTE-S20-04` | 再集中机制 | 发现漂移时回到最近证据或桥接节点，不继续扩写当前局部文本 | `R1-ROOT-CAUSE` / `R2-SYNC-REPAIR` |
 
 | drift_type | re_center_entry |
@@ -313,7 +315,7 @@ flowchart LR
   - 3-美学解析：`画面基调解析.md`、`角色风格解析.md`、`场景风格解析.md`、`道具风格解析.md`、`摄影风格解析.md`、`分镜风格解析.md`。
   - 非美学 stage 解析：`编剧风格解析.md`、`导演风格解析.md`、`表演风格解析.md`、`分镜组织解析.md`、`摄影解析.md`、`光影解析.md`、`主体设计参考解析.md` 等按目标 stage 启用。
   - 分镜脚本：`分镜脚本.md`，19 列表头不变。
-- Completion gate: 证据可回指、临摹边界清楚、3-美学六路或点名路由准确、stage 字段不越权、AIGC 可执行、没有复制具体表达、分镜脚本表头合规。
+- Completion gate: 证据可回指、临摹边界清楚、3-美学六路或点名路由准确、stage 字段不越权、AIGC 可执行、没有复制具体表达、分镜脚本表头合规；拉片结论、风格解析、stage bridge、分镜脚本内容和可执行原则由 LLM 基于素材证据生成，不得由脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成。
 
 ### Required output
 

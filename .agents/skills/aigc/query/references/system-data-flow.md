@@ -19,7 +19,7 @@
 | lighting | `projects/aigc/<项目名>/9-光影/第N集.md`、`9-光影/执行报告.md` | 光影美学事实 |
 | grouping | `projects/aigc/<项目名>/10-分组/第N集.md`、`10-分组/执行报告.md` | 分镜组、组 ID、组间连接件、统计 YAML |
 | subject assets | `projects/aigc/<项目名>/11-主体/场景/`、`11-主体/角色/`、`11-主体/道具/` | legacy `4-Design/` 只作兼容回读 |
-| image assets | `projects/aigc/<项目名>/12-图像/A-分镜画面/`、`12-图像/B-分镜故事板/` | legacy `5-Image/` 只作兼容回读 |
+| image assets | `projects/aigc/<项目名>/12-图像/分镜画面/`、`12-图像/分镜故事板/` | legacy `5-Image/` 只作兼容回读 |
 | video assets | `projects/aigc/<项目名>/13-画布/` | legacy `6-Video/` 只作兼容回读 |
 | footage review | `projects/aigc/<项目名>/14-审片/` | 查询审片报告、缺陷清单、修复路由与验收证据 |
 | governance system | `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`、相关阶段 `SKILL.md` | 回答路由制度、技能状态、路径漂移 |

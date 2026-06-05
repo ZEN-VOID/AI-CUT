@@ -1,0 +1,22 @@
+[
+  {
+    "id": "workshop-slide-deck",
+    "prompt": "基于父包 ppt packet，为 projects/lesson/销售训练营 生成工作坊 PPT 课件计划和 manifest。",
+    "expected": "Route to ppt_delivery, audit the parent ppt packet, create ppt-delivery-plan.md and ppt-assembly-manifest.json, and preserve LLM-first slide authorship."
+  },
+  {
+    "id": "update-visual-style",
+    "prompt": "更新 projects/lesson/管理课 的 PPT，只调整视觉风格和第 3 模块 slides。",
+    "expected": "Route to ppt_update, preserve unaffected slides, update the affected slide plan sections and assembly manifest entries only."
+  },
+  {
+    "id": "draft-ppt-no-project",
+    "prompt": "先不落盘，帮我设计一个 45 分钟授课 PPT 的 slide deck。",
+    "expected": "Route to draft_only, return a PPT delivery plan draft with slide groups, speaker notes strategy, and manifest outline."
+  },
+  {
+    "id": "missing-parent-packet",
+    "prompt": "没有第 8 阶段父包 manifest，直接给我生成 PPTX。",
+    "expected": "Route to blocked_or_redirect, require the parent ppt leaf packet or route to lesson-delivery, and do not fabricate slide content."
+  }
+]

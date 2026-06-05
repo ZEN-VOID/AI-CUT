@@ -10,6 +10,8 @@ metadata:
 
 `道具/3-生成` 负责消费上游 `道具/2-设计` 已经为目标道具细目式创建的设计文档，调用 `$imagegen` 生成图像资产：先为每份设计文档生成单主体图，再以单主体图为参照套用道具多视图模板生成多视图主体设计图。本技能不重新设计道具主体，不改写上游设计文档，不修改 registry、父级技能或其他设计线。除非用户显式要求其他 provider / API，本技能的唯一默认图像执行入口是 `.agents/skills/cli/imagegen`；不得直接路由到 `nano-banana`、Dreamina 或其他图像 API 技能。
 
+生成阶段的 prompt JSON 和生成决策必须由 LLM 基于上游 `4. 解构` 直接裁决；脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的主图 prompt、多视图 prompt、视角差异或 `type_profile` / `generation_profile`，直接判定为 `FAIL-PROP-GEN-PSEUDO-DIFF`。JSON schema 合规、命名合规或图片已生成不得抵消该失败。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-prop-generation` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -20,6 +22,7 @@ metadata:
 - 默认执行器边界：未获得用户显式 provider / API 指令时，只能通过 `.agents/skills/cli/imagegen` 进入图像生成；不得因为批量、参考图、多视图、质量、路径持久化或便利性而改走 `nano-banana`、Dreamina、AnyFast 子技能或其他外部执行器。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > `$imagegen` 经验层。
 - 生成提示词必须忠实引用相应道具/主体设计文档中的 `4. 解构`。导入给 gpt-image-2 的主图提示词和多视图提示词不得再以旧“提示词设计”英文整合 prompt 为主源。
+- 模板只能承载 JSON 结构、固定画面要求和多视图版式，不得通过锚点替换、句式轮换或同义改写批量替代 LLM 对主图/多视图 prompt 的主体差异化裁决。
 
 ## 顾问与复核流程 Execution Contract
 
@@ -153,6 +156,7 @@ stateDiagram-v2
 | `FIELD-PROP-GEN-04` | Step2 多视图 | 多视图以主图为参照，主图已 `view_image` 进入对话上下文，套用道具多视图模板，命名为 `主体ID-主体名称-多视图` | `FAIL-PROP-GEN-04` |
 | `FIELD-PROP-GEN-05` | JSON 提示词 | 主图与多视图均有同名 JSON，能回指设计文档和参考图 | `FAIL-PROP-GEN-05` |
 | `FIELD-PROP-GEN-06` | 输出落盘 | canonical 输出目录正确，未触碰非授权范围 | `FAIL-PROP-GEN-06` |
+| `FIELD-PROP-GEN-07` | 反模板伪差异 | 主图 JSON、多视图 JSON、视角差异和 `type_profile` / `generation_profile` 不是由模板槽位、关键词锚点替换、句式轮换或同义改写批量投影；每组 prompt 能回指上游 `4. 解构` 的道具专属形制、材质、功能或工艺裁决 | `FAIL-PROP-GEN-PSEUDO-DIFF` |
 
 ### Node Handoff Table
 
@@ -179,6 +183,7 @@ stateDiagram-v2
 | `FAIL-PROP-GEN-03` | 主图没有忠实消费 `4. 解构`，或继续消费旧英文整合 prompt | `templates/single-subject-prompt.json` |
 | `FAIL-PROP-GEN-04` | 多视图没有使用主图作为参照 | `templates/prop-multiview-prompt.json` |
 | `FAIL-PROP-GEN-06` | 输出路径越界或触碰非授权文件 | `review/review-contract.md` 与 `$imagegen` persistence gate |
+| `FAIL-PROP-GEN-PSEUDO-DIFF` | prompt JSON 或多视图差异只是模板槽位、锚点替换、句式轮换或同义改写批量投影 | `N3-MAIN-PROMPT` / `N5-MULTIVIEW-PROMPT` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -192,6 +197,7 @@ stateDiagram-v2
 - JSON 提示词与实际图像命名、参考图或上游设计文档脱节。
 - 输出写到 `2-设计`、父级、角色/场景目录、registry 或其他 worker 范围。
 - 顾问与复核流程 默认路径被工具不可用时没有执行本地 checklist。
+- 主图或多视图 JSON 看似完整但只是模板字段换道具名、替换视角词、轮换句式或同义改写，没有基于上游 `4. 解构` 的生成决策。
 
 必经链路：
 
@@ -242,4 +248,5 @@ stateDiagram-v2
 - 单主体 JSON 记录 `subject_id` 并引用设计文档中的 `4. 解构`；多视图 JSON 记录同一 `subject_id`、对应单主体图路径与 `reference_context_status`。
 - 图像和 JSON 都落在 `projects/aigc/<项目名>/11-主体/道具/3-生成/`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
+- 未使用脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造 prompt/多视图伪差异；疑似命中时已废弃 JSON 候选并回到 LLM prompt 决策节点。
 - 已执行 `review/review-contract.md` 的人工 review、外部 reviewer provider 或等价本地 review，并记录 verdict。

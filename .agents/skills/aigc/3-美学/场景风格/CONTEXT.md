@@ -26,6 +26,7 @@ recommended_action: keep-scene-style-heuristics-focused
 | 输出太短像标签串 | prompt 密度不足层 | 增加九维中缺失的抽象属性，但不加入具体地点或镜头语言 | 字数回到 80-130 中文字 |
 | 输出太长像设计说明 | prompt 收束层 | 把证据、矩阵和统一原则留在协议表格，prompt 只保留可继承场景风格前缀 | `Scene Style Prompt` 80-130 中文字 |
 | 场景统一性太空泛 | 统一策略缺证据层 | 用 `[叙事/基调 -> 场景风格]` 映射补跨场景一致规则 | 至少 5 条 `narrative_to_scene_chain` |
+| 输出像同一套场景模板换地点/锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6` 重新抽象九维、统一策略和 prompt，不做表层润色 | `GATE-SS-10` 通过 |
 
 ## Repair Playbook
 
@@ -36,7 +37,8 @@ recommended_action: keep-scene-style-heuristics-focused
 5. 若 prompt 出现场景清单、构图、摄影或生成请求，回到 `N6-PROMPT-DISTILL`，用场景层级抽象表达替换。
 6. 若九维矩阵不完整，回到 `N4-SCENE-STYLE-DIMENSIONS`，逐项补齐并删除具体地点。
 7. 若统一原则只是口号，回到 `N5-UNIFICATION-STRATEGY`，补至少 5 条可回指来源的映射。
-8. 修复后必须重新执行 `GATE-SS-01` 到 `GATE-SS-09`，并把失败码、返工点和复审结果写入 `Repair Log`。
+8. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个地点词或润色句子。
+9. 修复后必须重新执行 `GATE-SS-01` 到 `GATE-SS-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Reusable Heuristics
 

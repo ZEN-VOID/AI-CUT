@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tri-channel-delivery-plan",
+    "prompt": "项目 projects/lesson/销售训练营 已完成 3-7 阶段，请生成 DOC、PPT、HTML 三端交付计划和 manifest。",
+    "expected": "Route to tri_channel_plan, audit stages 3-7 plus content-model, create delivery-plan.md and delivery-manifest.json, and produce doc/ppt/html leaf work packets without generating final course正文 by script."
+  },
+  {
+    "id": "single-ppt-leaf-plan",
+    "prompt": "只为 projects/lesson/产品培训课 生成 PPT 交付计划，DOC 和 HTML 暂时不做。",
+    "expected": "Route to selected_leaf_plan, create a shared delivery map and a ppt leaf packet only, mark doc/html as omitted, and avoid empty leaf outputs."
+  },
+  {
+    "id": "manifest-repair",
+    "prompt": "修复 projects/lesson/管理课/8-多端交付生成 的 manifest，PPT 已更新但 DOC 和 HTML 没变。",
+    "expected": "Route to manifest_repair, preserve unaffected targets, update delivery-manifest.json and consistency evidence for the changed PPT target only."
+  },
+  {
+    "id": "upstream-missing-block",
+    "prompt": "还没有课时正文和活动测评，直接生成三端最终课件。",
+    "expected": "Route to blocked_or_redirect, report missing upstream owned by stages 5 and 6, and do not fabricate DOC/PPT/HTML content."
+  }
+]

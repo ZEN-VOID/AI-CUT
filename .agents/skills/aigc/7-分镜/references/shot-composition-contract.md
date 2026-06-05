@@ -4,13 +4,13 @@
 
 ## Core Rule
 
-每条 `分镜N（N-N秒）` 必须先裁决叙事功能，再确定起始状态帧。成稿至少包含：
+每条 `分镜N（N-N秒）` 必须先裁决叙事功能，再确定起始状态帧。`N-N秒` 的 `N` 由时值合同裁决到 0.5 秒网格，可为整数或 `.5` 小数。成稿至少包含：
 
 ```text
-景别，景深，构图形式，主体陪体背景描述
+景别，景深，构图形式，前景，中景，后景，主体站位
 ```
 
-这里的“构图”不是摄影技术表，而是让下游明确：摄影机开始看哪里，主体是谁，陪体如何承托，背景提供什么空间/信息/情绪，观众第一眼如何理解当前画面。
+这里的“构图”不是摄影技术表，也不是从剧情画面里临时抽取的描述词，而是可识别的摄影构图方法。构图形式必须优先来自 `knowledge-base/shot-composition-taxonomy.md` 的受控词表，负责概括摄影机开始如何组织画面。`7-分镜` 必须用最小必要短语定义静态画面结构，并按前景、中景、后景和主体站位落成字段；不得展开成重复上游画面正文的长描述。同一画面点的空间解析和多分镜连续性由 `start-frame-spatial-continuity-contract.md` 约束。
 
 ## Narrative Function
 
@@ -33,12 +33,11 @@
 | --- | --- |
 | `shot_scale` | 远景、全景、中景、近景、特写、大特写等；服务当前观看任务 |
 | `depth_strategy` | 深景深、浅景深、前虚后实、焦点拉移、柔焦等；说明观众此刻看哪里/不看哪里 |
-| `composition_form` | 对称、三分、三角、框架、引导线、前景遮挡、对角线、中心压迫、留白等 |
-| `subject` | 主体位置、朝向、动作相位或表演状态 |
-| `companion` | 陪体、反应者、道具、前景、群像或空间压力源 |
-| `background` | 场景身份、光色、文字/屏幕/门窗/材质或氛围承托 |
-| `direction_reference` | 入画、退场、视线、运动方向相对画面或镜头可执行 |
-| `lighting_result` | 光造成的亮面、暗面、轮廓、反光或背景层次，不只写光源名 |
+| `composition_form` | 必须选择 `knowledge-base/shot-composition-taxonomy.md` 中的受控构图形式，例如三分法构图、黄金比例构图、对角线构图、框架式构图、引导线构图、中心构图、留白构图等；表外构图必须记录 `controlled_exception` |
+| `spatial_field_map` | 每个画面点内部先拆出 `foreground`、`midground`、`background`、`subject_position`，作为分镜行空间字段的来源 |
+| `start_frame_spatial_layout` | 用最小必要短语记录起始状态帧的前景、中景、后景、主体站位、画面方位、遮挡关系、空间纵深或连续性锚点；这是 `8-摄影` 运动设计的既有空间依据 |
+| `screen_direction_axis_map` | 多人、对峙、追逐、进出门或转场承接时必须记录 screen left/right、主体朝向、入口/出口方向、视线轴线和上一镜交出点；不进入成稿标签，但必须能支撑正文里的“画面左/右、朝向、入口、出口、承接” |
+| `spatial_layer_payload` | 当前景/中景/后景、框架、遮挡或纵深影响观看时，必须拆出 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`；遮挡关系是 8-摄影的运动条件，不是装饰词 |
 
 ## Depth Of Field Narrative
 
@@ -59,10 +58,23 @@
 同一场景内先形成内部 `scene_visual_constraint`，不进入成稿字段，但应影响每条分镜：
 
 - `scene_identity`：年代、空间功能、社会语境、环境声底、材质年龄。
-- `composition_layout`：主体、陪体、前景、背景的位置和占比。
+- `composition_layout`：主体、前景、中景、后景的位置和占比。
 - `composition_method`：形状感、线条感、影调感、虚实感、节奏感、纹理质感、气势中选当前最关键 2-3 项。
 - `lighting_setup`：主光、辅光、逆光或实用光的可见结果。
 - `color_system`：只作为内部色彩关系，不替代 `3-美学/画面基调`。
+- `screen_direction_axis_map`：多人、对峙、追逐、进出门或转场承接时记录 screen left/right、主体朝向、入口/出口方向、视线轴线和上一镜交出点。
+- `spatial_field_map`：每个画面点先记录前景、中景、后景和主体站位，供同一画面点内多条分镜共享。
+- `spatial_layer_payload`：有前中后景、框架、遮挡或纵深时记录 `foreground_element`、`midground_subject`、`background_information`、`occlusion_role`，供 `8-摄影` 判断能否穿过前景、绕开遮挡或压向后景。
+
+## Composition Taxonomy Control
+
+执行 `N5-COMPOSITION-DESIGN` 时必须同步使用 `knowledge-base/shot-composition-taxonomy.md`：
+
+- 先用 `shot_narrative_function` 判断当前分镜是 `reveal`、`conceal`、`emphasize`、`compare`、`misdirect` 还是 `connect`。
+- 再选择 1 个主构图类型；需要增强空间、视线、运动或光影时，只追加 1 个辅助限定。
+- `composition_taxonomy_selection` 至少记录 `shot_id`、`narrative_function`、`primary_composition`、`selection_reason` 和 `misuse_checked`。
+- 如果使用表外术语，必须记录 `controlled_exception`，并说明为什么受控词表无法覆盖。
+- 成稿不得出现“压迫感构图”“氛围构图”“电影感构图”“高级构图”等泛化词；应改写成中心构图、封闭式构图、前景遮挡构图、低角度仰拍构图等可识别方法。
 
 ## AI Video Execution Stability
 
@@ -79,20 +91,24 @@
 成稿不输出内部标签，不写参数表。合法写法：
 
 ```text
-分镜1（0-2秒）：中景，浅景深，门框前景遮挡构图，主角站在画面右侧三分之一，左侧门缝冷光切过脸侧，后景走廊虚化成压低的灰白线条
+分镜1（0-1.5秒）：中景，浅景深，框架式构图，门框占前景两侧，人物压在中景右侧，后景走廊虚成退路，人物贴右侧门框后退。
 ```
 
 不合法写法：
 
 ```text
-分镜1（0-2秒）：电影感特写，氛围压迫，f/1.4，cinematic lighting
+分镜1（0-1.5秒）：电影感特写，氛围压迫，f/1.4，cinematic lighting
 ```
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 每条分镜是否至少含景别、景深、构图形式、主体陪体背景描述？ | `GATE-SB-05` | `FAIL-SB-COMPOSITION` | `N5-COMPOSITION-DESIGN` | `shot_composition_plan` |
+| 每条分镜是否至少含景别、景深、构图形式和起始状态帧空间信息，且构图形式来自受控 taxonomy 或有例外理由？ | `GATE-SB-05` | `FAIL-SB-COMPOSITION` | `N5-COMPOSITION-DESIGN` | `shot_composition_plan`、`composition_taxonomy_selection`、`start_frame_spatial_layout` |
 | 景深是否服务注意力控制，而非泛化虚化？ | `GATE-SB-06` | `FAIL-SB-DEPTH` | `N5-COMPOSITION-DESIGN` | `depth_plan` samples |
 | 分镜是否先裁决叙事功能，再选择构图？ | `GATE-SB-07` | `FAIL-SB-NARRATIVE-FUNCTION` | `N5-COMPOSITION-DESIGN` | function distribution |
 | 是否具备方向参照、光线结果和表演微动态？ | `GATE-SB-08` | `FAIL-SB-AI-EXEC` | `N5-COMPOSITION-DESIGN` | ai execution samples |
+| 方位/轴线连续性是否可审查，尤其是多人、对峙、追逐、进出门和转场承接？ | `GATE-SB-18` | `FAIL-SB-SCREEN-DIRECTION` | `N5-COMPOSITION-DESIGN` | `screen_direction_axis_map` |
+| 前中后景、遮挡或纵深是否拆成可供 8-摄影使用的空间条件？ | `GATE-SB-19` | `FAIL-SB-SPATIAL-LAYER` | `N5-COMPOSITION-DESIGN` | `spatial_layer_payload` |
+| 分镜行是否按前景、中景、后景和主体站位提供空间字段，而非复述原画面内容？ | `GATE-SB-20` | `FAIL-SB-LOW-NUTRITION-SPATIAL-PAYLOAD` | `N5-COMPOSITION-DESIGN` | `spatial_field_map`、`spatial_payload_nutrition_audit` |
+| 同一画面点内多条分镜的空间字段是否从同一个 `spatial_field_map` 派生并保持连续？ | `GATE-SB-22` | `FAIL-SB-SPATIAL-CONTINUITY-WITHIN-POINT` | `N5/N7` | `within_point_spatial_continuity_map` |

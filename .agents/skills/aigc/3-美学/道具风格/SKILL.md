@@ -20,6 +20,7 @@ metadata:
 - 默认上游来源包括 `projects/aigc/<项目名>/2-编剧/`、`projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`、用户指定参考图/视频、项目设定或已有候选道具风格协议。
 - 参考图/视频只允许提供道具风格事实、形制倾向、表面处理、使用痕迹、工艺逻辑、符号系统和制作边界，不得把参考中的具体物件、品牌、剧情用途或构图复制为项目真源。
 - 核心审美判断、文化研究、形制归纳、风格映射和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、转写整理、字数统计、JSON/Markdown 校验和污染词扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成道具风格协议、文化/工艺映射、边界矩阵或 prompt，直接 fail。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `画面基调` 输出 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -184,7 +185,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 剧本来源至少抽取 5 条道具风格证据；画面基调至少抽取 3 条继承约束；每个参考图/视频/作品至少抽取 3 条风格事实；正式协议至少覆盖 8 个道具风格维度 | `N2/N3/N4.actions` | `FAIL-PS-QUANT-SCOPE` |
 | `evidence_count` | 因果链至少 5 条；制作边界至少 5 条；负面特征至少 4 条 | `N5/N6.evidence` | `FAIL-PS-QUANT-EVIDENCE` |
-| `pass_threshold` | P0 gate 全部通过；`prop_style_prompt` 约 80-130 中文字；具体道具名、剧情用途、单件设定、生成请求残留 0 个 | `N7/N8.gate` | `FAIL-PS-QUANT-THRESHOLD` |
+| `pass_threshold` | P0 gate 全部通过；`prop_style_prompt` 约 80-130 中文字；具体道具名、剧情用途、单件设定、生成请求残留 0 个；`GATE-PS-10-ANTI-SCRIPTED-STYLE` 阻断项为 0 | `N7/N8.gate` | `FAIL-PS-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍出现 P0 越权、文化风险未说明或来源不足时阻断并报告 | `N8.route_out` | `FAIL-PS-QUANT-RETRY` |
 | `fallback_evidence` | 参考资料不可机器读取时，使用用户文字说明和可见元数据；无法验证的文化/工艺判断标为 `unverified_reference_claim`，不得作为核心证据 | `Review Gate Binding.report_evidence` | `FAIL-PS-QUANT-FALLBACK` |
 
@@ -217,7 +218,8 @@ Pass conditions:
 - `prop_style_causal_chain` 至少 5 条，能说明道具风格决策如何来自剧本、画面基调、项目设定或参考证据。
 - `prop_boundary_matrix` 至少 5 条，覆盖清单越权、用途越权、单件设计越权、文化符号风险和制作边界。
 - `prop_style_prompt` 为约 80-130 中文字，且没有具体道具名、剧情用途、单件设定、生成请求、摄影构图或角色/场景设计越权。
-- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
+- `anti_scripted_style_audit` 证明道具风格维度、因果链、边界矩阵和 prompt 不是模板句轮换、锚点替换或同义改写批量生成。
+- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`Anti Scripted Style Audit`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
 
 Fail conditions:
 
@@ -225,6 +227,7 @@ Fail conditions:
 - 输出变成具体道具清单、物件命名、持有人安排、剧情用途或生成请求。
 - 参考图/视频中的具体物件、品牌、符号或功能被照搬为项目设定。
 - prompt 只堆质感词，没有文化、形制、工艺、使用痕迹或制作边界因果。
+- 道具风格协议或 prompt 呈现脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量痕迹。
 - 字数低于 80 或高于 130，且用户未明确覆盖。
 
 ## Review Gate Binding
@@ -240,6 +243,7 @@ Fail conditions:
 | prompt 是否约 100 字且中文默认？ | `GATE-PS-07-LENGTH-LANGUAGE` | `FAIL-PS-LENGTH` | `N7-PROMPT-DISTILL` | 字数统计与语言标记 |
 | 是否适合被后续道具清单和单件设计无污染继承？ | `GATE-PS-08-DOWNSTREAM-SAFETY` | `FAIL-PS-DOWNSTREAM-POLLUTION` | `N6-BOUNDARY-CALIBRATION` / `N7-PROMPT-DISTILL` | 下游继承风险清单 |
 | 正式写回是否有结构化执行报告？ | `GATE-PS-09-REPORT-EVIDENCE` | `FAIL-PS-REPORT-MISSING` | `N9-CLOSE` | 报告 section 完整性 |
+| 道具风格维度、因果链、边界矩阵和 prompt 是否无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-PS-10-ANTI-SCRIPTED-STYLE` | `FAIL-PS-SCRIPTED-STYLE` | `N4-PROP-STYLE-DIMENSIONS` / `N5-CULTURE-CRAFT-MAPPING` / `N7-PROMPT-DISTILL` | `anti_scripted_style_audit` |
 
 ## Runtime Guardrails
 
@@ -301,6 +305,7 @@ Fail conditions:
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：本技能无外部 `references/` 时记录 `N/A: no references module authorized`；若未来启用 references，逐条记录 load_status、trigger_reason、applied_to、evidence_in_output、verdict 和 n/a_reason。
 - `Rule Evidence Map`：映射 `GATE-PS-*` 到正文位置或证据。
+- `Anti Scripted Style Audit`：记录模板句式复用、锚点替换、句式轮换和同义改写批量风险的检查结论。
 - `N/A Justification`：说明未触发来源、模块或例外规则。
 - `Repair Log`：记录失败码、修复目标和复审结果。
 - `Contamination Scan`：道具清单、剧情用途、单件设定、生成请求、参考照搬、角色/场景/摄影越权六类扫描结果。
@@ -379,6 +384,7 @@ Completion gate:
 | `PASS-PS-04` | 至少 5 条边界，覆盖清单、用途、单件、文化和制作风险 | `FAIL-PS-BOUNDARY` | `N6-BOUNDARY-CALIBRATION` |
 | `PASS-PS-05` | Prop Style Prompt 为中文约 80-130 字，六类污染为 0 | `FAIL-PS-PROMPT` | `N7-PROMPT-DISTILL` |
 | `PASS-PS-06` | 正式写回报告包含必需审计 section | `FAIL-PS-REPORT-MISSING` | `N9-CLOSE` |
+| `PASS-PS-07` | 道具风格协议无模板句轮换、锚点替换或同义改写批量痕迹 | `FAIL-PS-SCRIPTED-STYLE` | `N4-PROP-STYLE-DIMENSIONS` / `N5-CULTURE-CRAFT-MAPPING` / `N7-PROMPT-DISTILL` |
 
 ## Field Mapping
 

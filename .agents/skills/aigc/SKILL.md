@@ -25,9 +25,10 @@ metadata:
 - 数字序号阶段包默认按根入口声明的阶段链推进；当前显式阶段链包含 `0-初始化` -> `1-分集` -> `2-编剧` -> `3-美学` -> `4-导演` -> `5-表演` -> `6-氛围` -> `7-分镜` -> `8-摄影` -> `9-光影` -> `10-分组` -> `11-主体` -> `12-图像` -> `13-画布` -> `14-审片`。`2-编剧` 是当前剧本层真源；`2-编导`、`3-运动`、旧 `4-摄影`、旧 `5-分组` 只作为 legacy 兼容回读或迁移线索，不得作为当前 runtime 写回真源。显式命中 `4-导演` 时由 `4-导演` 消费剧本和 `3-美学` 生成导演批注稿；显式命中 `5-表演` 时由 `5-表演` 消费 `4-导演` 批注稿和 `3-美学` 三类风格协议生成表演稿；显式命中 `6-氛围` 时由 `6-氛围` 消费 `5-表演` 表演稿和 `3-美学` 三类风格协议选择性新增 `氛围画面` 字段；显式命中 `7-分镜` 时由 `7-分镜` 消费 `6-氛围` 或用户指定文稿并结合 `3-美学/画面基调` 与 `3-美学/分镜风格` 生成内联分镜稿；显式命中 `8-摄影` 时由 `8-摄影` 消费 `7-分镜` 或用户指定分镜稿，并结合 `3-美学/画面基调` 与 `3-美学/摄影风格` 逐分镜注入综合运镜手法；显式命中 `9-光影` 时由 `9-光影` 消费 `8-摄影` 或用户指定文稿，并结合 `3-美学/画面基调`、`3-美学/场景风格` 与 `3-美学/摄影风格` 逐分镜注入电影光影美学描述；显式命中 `10-分组` 时由 `10-分组` 默认消费 `9-光影` 光影稿，用户指定文稿时以指定 source 优先；显式命中 `11-主体` 时由 `11-主体` 默认消费 `10-分组` 分组稿，并并发调度 `场景`、`角色`、`道具`；显式命中 `12-图像`、`13-画布`、`14-审片` 时分别进入图像、画布视频和审片阶段。
 - 无序号同级子技能包默认全选并发执行，由所属父级汇总、裁决和写回唯一 canonical 输出；例如 `11-主体` 整体调用时由其父级并发调度 `场景`、`角色`、`道具`。
 - 英文序号子技能包或路线（如 `A-`、`B-`、`C-`、`D-`）默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
-- 卫星技能 `query/`、`resume/`、`review/`、`repair/`、`shot-by-shot/`、`learn/` 不默认纳入主链串行推进；只有用户请求查询、恢复、审查、修复、参考拉片、学习吸收或阶段门禁需要时才作为旁路回接。
+- 卫星技能 `query/`、`resume/`、`review/`、`repair/`、`shot-by-shot/`、`flash/`、`learn/` 不默认纳入主链串行推进；只有用户请求查询、恢复、审查、修复、参考拉片、聊天窗口迷你提示词、学习吸收或阶段门禁需要时才作为旁路回接。
 - 连续调度不得绕过阻断门：缺少必需输入、初始化项目名未锁定、破坏性操作未授权、阶段/叶子缺失、路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或不可用说明。
 - 每个被调度的阶段或叶子仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 主创判断或根入口最终裁决。
+- 对任何内容创作型阶段或叶子，覆盖率、字段完整、四要素齐全、动机证据存在、报告自证或格式校验通过都只算机械底线；若 owning skill 未把脚本批量生成、批量插入、正则套句、映射投影、句式复用、关键词/锚点替换伪差异、模板批量扩写列为独立阻断项，必须先路由 `learn/` 或目标 skill 源层修复，不得继续判定 canonical pass。
 
 ## Input Contract
 
@@ -60,6 +61,7 @@ Reject or clarify when:
 | `satellite_review`       | checkpoint / stage / package 审计聚合   | `.agents/skills/aigc/review/SKILL.md`       |
 | `satellite_repair`       | 多阶段输出物局部/整体修复、中文润色、豆包执行、review finding 回修 | `.agents/skills/aigc/repair/SKILL.md` |
 | `satellite_shot_by_shot` | 参考影片/视频拉片、逐镜分析、临摹参照包 | `.agents/skills/aigc/shot-by-shot/SKILL.md` |
+| `satellite_flash`        | 少量故事源、参照图、参照视频、图生视频或首尾帧需求快速输出聊天窗口统一视频提示词 | `.agents/skills/aigc/flash/SKILL.md` |
 | `satellite_learn`        | 外部学习对象吸收、AIGC 技能树差距分析、source-first 改进与同步审计 | `.agents/skills/aigc/learn/SKILL.md` |
 | `workflow_sword10`       | 明确命中 `sword10` 或 `workflow/sword10` subagent 编排 | `.agents/skills/aigc/workflow/sword10/SKILL.md` |
 | `legacy_compat`          | 明确点名 legacy `5-Image` 或旧产物    | 只做搁浅兼容回读或迁移说明                    |
@@ -89,6 +91,7 @@ flowchart TD
     D -->|"satellite_review"| I["review"]
     D -->|"satellite_repair"| R["repair"]
     D -->|"satellite_shot_by_shot"| S["shot-by-shot"]
+    D -->|"satellite_flash"| W["flash"]
     D -->|"satellite_learn"| U["learn"]
     D -->|"legacy_compat"| J["compat readback / migration note"]
     F --> F1["1-分集"]
@@ -125,6 +128,7 @@ flowchart TD
     I --> N["Aggregate review packet"]
     R --> Q["Source-first repair packet"]
     S --> P["Reference imitation packet for 2-编剧 / 8-摄影 / 9-光影"]
+    W --> V["Chat-only Flash Prompt Pack"]
     U --> T["Learning packet and source-first skill improvements"]
     J --> O["No new runtime truth"]
 ```
@@ -173,8 +177,9 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | current image stage                         | `12-图像/SKILL.md + CONTEXT.md`；未显式指定叶子时默认继续加载 `12-图像/分镜故事板/SKILL.md + CONTEXT.md`                |
 | current video stage                         | `13-画布/SKILL.md + CONTEXT.md`；默认继续加载 `13-画布/libTV画布流/SKILL.md + CONTEXT.md`               |
 | current footage review stage                | `14-审片/SKILL.md + CONTEXT.md`；对照 `13-画布` 素材和 `10-分组` 真源，必要时回写分镜组修复                             |
-| query / resume / review / repair / learn side channels | `query/`, `resume/`, `review/`, `repair/`, `learn/` skill pairs                                             |
+| query / resume / review / repair / flash / learn side channels | `query/`, `resume/`, `review/`, `repair/`, `flash/`, `learn/` skill pairs                                             |
 | reference imitation / shot-by-shot analysis | `shot-by-shot/SKILL.md + CONTEXT.md`；按需再加载 `2-编剧`、`8-摄影` 与 `9-光影` 阶段合同，输出临摹参照包而非阶段 canonical 主稿 |
+| chat-only mini prompt pipeline | `flash/SKILL.md + CONTEXT.md`；针对少量故事源、参照图、参照视频、图生视频或首尾帧生视频需求，压缩串联 `2-编剧` 到 `10-分组` 核心判断，只在当前聊天窗口输出统一 `Flash Prompt Pack`，不保存文档、不写项目 canonical |
 | sword10 subagent workflow | `workflow/sword10/SKILL.md + CONTEXT.md`；按需加载其 `types/`、`steps/`、`references/` 与 `review/`，主窗口只调度和追踪，不直接主创阶段正文 |
 | type package selection                      | 根入口只判定 route；目标阶段、叶子或卫星自行加载其同目录 `types/` 命中包                                                  |
 
@@ -186,6 +191,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 4. 用户显式指定、点名已有产物 query / repair、或明确要求多路线对比时，必须尊重用户路线或原所属叶子，不得被默认叶子覆盖。
 5. 阶段技能完成后，根入口只汇流下一入口、治理证据与失败回接，不改写阶段业务主稿。
 6. 若遇到 legacy `5-Image` 或 `6-Video`，只允许兼容读取或迁移说明，不得把旧路径写成新 runtime。
+7. 若阶段产物被用户或审计指出“脚本化、偷懒、未经思考、未差异化、句式复用、锚点替换”，根入口必须把它归类为 owning skill 的源层验收门缺口，优先进入 `learn/execute_improvement` 或对应阶段 `R*-REWORK`；不得用补报告、抽样解释、重复率下降或字段补齐替代返工。
 
 ## Field Master
 
@@ -194,7 +200,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | `FIELD-AIGC-ROOT-01` | root route         | this `SKILL.md`                          | project root, mode, selected entry                     | `FAIL-AIGC-ROUTE`   |
 | `FIELD-AIGC-ROOT-02` | runtime            | `_shared/project-runtime-layout.md`      | canonical project roots and forbidden legacy roots     | `FAIL-AIGC-RUNTIME` |
 | `FIELD-AIGC-ROOT-03` | governance         | `STATE.json` / `governance-state.yaml` | state carrier and review/resume bridge                 | `FAIL-AIGC-GOV`     |
-| `FIELD-AIGC-ROOT-04` | satellite boundary | `query/resume/review/repair/shot-by-shot/learn` | side-channel ownership and no business-truth overwrite | `FAIL-AIGC-SAT`     |
+| `FIELD-AIGC-ROOT-04` | satellite boundary | `query/resume/review/repair/shot-by-shot/flash/learn` | side-channel ownership and no business-truth overwrite | `FAIL-AIGC-SAT`     |
 
 ## Thought Pass Map
 
@@ -213,6 +219,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | `PASS-AIGC-02` | runtime 与 `_shared/project-runtime-layout.md` 对齐 | `FAIL-AIGC-RUNTIME` | shared layout            |
 | `PASS-AIGC-03` | state/governance carrier 不分叉                       | `FAIL-AIGC-GOV`     | `resume` or `review` |
 | `PASS-AIGC-04` | 卫星只写辅助 truth、repair route 或证据               | `FAIL-AIGC-SAT`     | satellite `SKILL.md`   |
+| `PASS-AIGC-05` | 内容创作型 owning skill 已设置反脚本批量生成、反批量插入、反正则套句、反映射投影和反伪差异独立阻断门 | `FAIL-AIGC-FORMALISM-GATE` | `learn` or owning stage `SKILL.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -222,9 +229,13 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 
 优先修源层：registry/routes、`_shared/project-runtime-layout.md`、根 `SKILL.md`、命中阶段 `SKILL.md`。若发现可复用经验，先沉淀到本目录 `CONTEXT.md`，稳定后再晋升到根合同或共享规范。
 
+形式化绕过失败固定上溯：
+
+`Scripted/Formalized Output -> Missing Authorship/Differentiation Gate -> Owning Stage SKILL.md -> learn sync scope -> AGENTS.md LLM-first`
+
 ## Output Contract
 
 - Required output: 唯一阶段/卫星入口、项目 runtime 证据、下一步或阻断原因。
 - Output format: 面向用户的简短路由结论；需要治理落盘时写对应阶段或卫星定义的 carrier。
 - Output path: 根入口不直接写阶段业务主稿；项目级状态只写 `projects/aigc/<项目名>/STATE.json`、`governance-state.yaml` 或阶段定义的 `validation-report.md`。
-- Completion gate: route 唯一，runtime 不漂移，legacy 状态明确，未命中单元不参与聚合。
+- Completion gate: route 唯一，runtime 不漂移，legacy 状态明确，未命中单元不参与聚合；内容创作型阶段不得缺少 `PASS-AIGC-05` 对应的反形式化门禁证据。

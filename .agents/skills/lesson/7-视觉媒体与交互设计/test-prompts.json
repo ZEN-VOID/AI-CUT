@@ -1,0 +1,27 @@
+[
+  {
+    "id": "project-visual-design",
+    "prompt": "为 projects/lesson/AI销售新人训练营 执行 7-视觉媒体与交互设计。项目已有 3-目标与评价蓝图、4-教学策略与课程架构、5-课时内容开发、6-活动练习与测评开发，请输出视觉系统、媒体 brief、图解规划、交互模型、无障碍要求和 PPT/HTML 视觉交付约束。",
+    "expected": "Route to project_visual_design, read stages 3-6 as upstream anchors, produce or write visual-system.md, media-asset-brief.md, diagram-and-infographic-plan.md, interaction-model.md, accessibility-requirements.md, delivery-visual-constraints.md, and downstream-handoff.md without generating final PPT, HTML, DOC, lesson scripts, or question banks."
+  },
+  {
+    "id": "media-asset-brief-update",
+    "prompt": "我给 projects/lesson/客户成功训练课 补充了品牌色、字体、三张产品截图和一个演示视频参考，请更新第 7 阶段的媒体资产 brief 和图表图解规划。",
+    "expected": "Route to media_brief_update, treat the supplied assets as source-bound design evidence, update media asset needs, source or copyright status, diagram planning, delivery constraints, and handoff while avoiding final asset generation or false authorization claims."
+  },
+  {
+    "id": "interaction-a11y-focus",
+    "prompt": "请只聚焦 projects/lesson/AI销售新人训练营 的 HTML 交互模型和无障碍要求：需要移动端可读、键盘可达、练习反馈清楚，并兼顾 PPT 课堂互动。",
+    "expected": "Route to interaction_accessibility_review, produce interaction model states, feedback flows, platform boundaries, accessibility requirements, and PPT/HTML constraints with upstream references and no final HTML or slides."
+  },
+  {
+    "id": "draft-without-project",
+    "prompt": "我还没有项目目录，但这里有学习目标、大纲、两节课讲稿和几个练习描述。先给我一版视觉媒体与交互设计草案。",
+    "expected": "Route to draft_only, use the supplied equivalent stages 3-6 brief, return draft Markdown sections, clearly state that nothing was formally written back, and list missing project inputs."
+  },
+  {
+    "id": "overreach-final-delivery-block",
+    "prompt": "直接把第 7 阶段做完并导出 PPTX、HTML 页面、讲师讲稿和题库答案。",
+    "expected": "Route to blocked_or_redirect. Do not generate final PPTX, HTML, lesson scripts, or question banks in lesson-visual-media-interaction; route final delivery to stage 8 and content or assessment requests to stages 5 and 6."
+  }
+]

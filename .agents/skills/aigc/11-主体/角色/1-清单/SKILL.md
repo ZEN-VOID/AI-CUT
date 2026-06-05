@@ -18,6 +18,7 @@ metadata:
 - 上游唯一准确信息来源固定为 `projects/aigc/<项目名>/10-分组/第N集.md` 中每个分镜组底部 YAML 的 `角色` 字段；必要时只允许回查同一分镜组正文作为证据。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `types/` / `review/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 角色归并、别名判断、代称识别和首次登场裁决必须由 LLM 直接完成；`scripts/` 只能做读取、抽取、表格列检查、重复项提示和机械校验。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的角色清单判断、canonical 名称、归并理由或关键词描述，直接判定为 `FAIL-CHAR-LIST-PSEUDO-DIFF`；字段完整、三列表格合规或数量达标不得抵消该失败。
 
 ## Input Contract
 
@@ -156,6 +157,7 @@ stateDiagram-v2
 | `FIELD-CHAR-LIST-05` | 固定表格 | 只输出 `名称`、`首次登场`、`原文描述（关键词式）` 三个主体字段 | `FAIL-CHAR-LIST-05` |
 | `FIELD-CHAR-LIST-06` | LLM-first | 脚本没有生成归并判断、描述关键词或 canonical 清单正文 | `FAIL-CHAR-LIST-06` |
 | `FIELD-CHAR-LIST-07` | 增量 merge | 既有清单被读取并对账，新角色追加、旧角色稳定，未静默全量覆盖 | `FAIL-CHAR-LIST-07` |
+| `FIELD-CHAR-LIST-08` | 反脚本化伪差异 | 身份归并、代称裁决、首次登场和关键词描述不是由映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；每个保留/合并/待核结论有主体级 LLM 裁决证据 | `FAIL-CHAR-LIST-PSEUDO-DIFF` |
 
 ## Thought Pass Map
 
@@ -180,6 +182,7 @@ stateDiagram-v2
 | `PASS-CHAR-LIST-05` | 选择最早分镜组作为首次登场 | first appearance map | `review/review-contract.md` |
 | `PASS-CHAR-LIST-06` | 输出固定三列表格 | `角色清单.md` | `templates/output-template.md` |
 | `PASS-CHAR-LIST-07` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
+| `PASS-CHAR-LIST-08` | 执行反脚本化/反模板伪差异验收 | per-character decision evidence | 本 `SKILL.md` LLM-first gate |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -193,6 +196,7 @@ stateDiagram-v2
 - 输出表格增加主体字段，导致后续设计阶段消费不稳定。
 - 新增部分集数后用局部结果覆盖了既有全局角色清单，或让已有角色设计稿失去清单锚点。
 - 脚本、模板拼接或规则启发式替代 LLM 的归并判断。
+- 形式指标通过但清单像同一模板换角色名、锚点替换、句式轮换或同义改写批量产物，没有逐角色身份裁决。
 
 必经链路：
 
@@ -240,4 +244,5 @@ stateDiagram-v2
 - 别名、代称和同一角色不同称呼已由 LLM 裁决；低置信度项进入执行报告风险区。
 - 输出表格只含 `名称`、`首次登场`、`原文描述（关键词式）` 三个主体字段。
 - 若已有清单或 manifest，已执行 merge 对账，未静默覆盖旧清单、旧设计稿锚点或旧生成资产。
+- 未使用映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造角色清单伪差异；疑似命中时已废弃候选稿并回到 LLM 归并节点。
 - 已执行 `review/review-contract.md` 的人工审查，或运行等价机械校验确认表格结构与路径。

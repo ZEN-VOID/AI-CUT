@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "template_id": "photoGPT.多镜头.九宫格.v1",
+    "edit_family": "多镜头",
+    "edit_subtype": "九宫格",
+    "doc_role": "cinematic_shot_grid_prompt_template",
+    "version": "v1.0",
+    "updated_at": "2026-06-05"
+  },
+  "required_fields": [
+    "one_or_more_reference_images",
+    "user_desc"
+  ],
+  "input_roles": {
+    "main_reference_image": "Provides the visual style, subject identity, composition elements, scene facts, lighting logic, costume, props and narrative state that must remain unchanged.",
+    "supporting_reference_images": "Only supplement secondary angle, local detail, material, lighting or composition evidence; never override the main reference image."
+  },
+  "reference_invariant_lock": {
+    "locked_from": [
+      "main_reference_image",
+      "user_desc"
+    ],
+    "must_preserve": [
+      "same image style and cinematic color language",
+      "same subject identity and body/costume/prop information",
+      "same scene identity, environment facts and era logic",
+      "same key composition elements and spatial relationships",
+      "same lighting direction, atmosphere and material logic",
+      "same narrative moment without adding new story events"
+    ],
+    "may_vary": [
+      "shot size",
+      "camera angle",
+      "camera height",
+      "lens distance",
+      "crop range",
+      "foreground, midground and background emphasis",
+      "visual center within the same scene facts"
+    ],
+    "must_not_invent": [
+      "new character identity",
+      "new costume or prop",
+      "new background location",
+      "new story action",
+      "different art style",
+      "unrelated lighting scheme",
+      "comic panels or poster collage"
+    ]
+  },
+  "layout": {
+    "template_type": "CINEMATIC_SHOT_GRID",
+    "sheet_intent": "nine-panel cinematic shot exploration for the same reference image facts",
+    "aspect_ratio": "16:9",
+    "resolution": "4096x2304",
+    "grid": "strict 3x3 with uniform gutters, clean panel divisions and consistent color management",
+    "background": "dark neutral production board #1a1a1a",
+    "panel_order": "left-to-right, top-to-bottom; each panel is one distinct shot size or camera view"
+  },
+  "panel_label_policy": {
+    "required": true,
+    "position": "lower-left inside each panel",
+    "format": "<PANEL_ID> <SHOT_CODE>",
+    "display_strategy": "short_ascii_shot_label_in_image, post_overlay_required_if image text is unreliable",
+    "fallback": "reserve a clean lower-left label strip in every panel"
+  },
+  "shot_plan": [
+    {
+      "id": "P1",
+      "shot_code": "EST",
+      "label": "P1 EST",
+      "shot_size": "establishing wide shot",
+      "camera_view": "neutral eye-level or slightly high angle",
+      "purpose": "establishes the full scene, subject placement, atmosphere and major composition elements from the reference"
+    },
+    {
+      "id": "P2",
+      "shot_code": "WIDE",
+      "label": "P2 WIDE",
+      "shot_size": "wide shot",
+      "camera_view": "cinematic three-quarter view",
+      "purpose": "shows subject-to-environment relationship while preserving the reference style and spatial anchors"
+    },
+    {
+      "id": "P3",
+      "shot_code": "FULL",
+      "label": "P3 FULL",
+      "shot_size": "full-body or full-subject shot",
+      "camera_view": "frontal or three-quarter camera",
+      "purpose": "proves the full subject silhouette, costume, props and posture without redesign"
+    },
+    {
+      "id": "P4",
+      "shot_code": "MED",
+      "label": "P4 MED",
+      "shot_size": "medium shot",
+      "camera_view": "eye-level narrative framing",
+      "purpose": "centers the subject action or expression while retaining background and composition cues"
+    },
+    {
+      "id": "P5",
+      "shot_code": "CU",
+      "label": "P5 CU",
+      "shot_size": "close-up",
+      "camera_view": "stable lens with shallow depth emphasis if appropriate",
+      "purpose": "preserves face/object identity and emotional focus from the same reference moment"
+    },
+    {
+      "id": "P6",
+      "shot_code": "ECU",
+      "label": "P6 ECU",
+      "shot_size": "extreme close-up or detail insert",
+      "camera_view": "tight detail view",
+      "purpose": "shows key texture, prop, eye, hand, material or symbolic detail already present in the reference"
+    },
+    {
+      "id": "P7",
+      "shot_code": "OTS",
+      "label": "P7 OTS",
+      "shot_size": "over-the-shoulder or foreground-framed shot",
+      "camera_view": "foreground layer framing the subject or scene",
+      "purpose": "adds cinematic depth and foreground/midground/background layering without changing facts"
+    },
+    {
+      "id": "P8",
+      "shot_code": "LOW",
+      "label": "P8 LOW",
+      "shot_size": "medium-wide or full shot",
+      "camera_view": "low-angle view",
+      "purpose": "emphasizes scale, power, verticality or tension while preserving identity and style"
+    },
+    {
+      "id": "P9",
+      "shot_code": "HIGH",
+      "label": "P9 HIGH",
+      "shot_size": "high-angle or POV variant",
+      "camera_view": "high-angle, overhead-leaning or subjective POV when suitable",
+      "purpose": "reveals spatial order, vulnerability, surveillance or subjective viewing within the same scene"
+    }
+  ],
+  "critical_requirements": [
+    "Keep the reference image style, composition elements, subject information, costume, props, environment and narrative facts unchanged.",
+    "Design exactly one 3x3 cinematic shot grid, not nine unrelated images.",
+    "Every panel must be a different cinematic shot size or camera view from the same scene and subject.",
+    "Use common film language: establishing, wide, full, medium, close-up, extreme close-up, over-shoulder, low-angle, high-angle or POV.",
+    "Do not redesign the subject, location, costume, props, lighting logic or visual style.",
+    "Every panel must include a short lower-left shot label or preserve a clean overlay-ready label strip."
+  ],
+  "negative_constraints": [
+    "no new character identity",
+    "no new costume, prop, logo, weapon or architecture",
+    "no different location or unrelated background",
+    "no style transfer, no color palette drift",
+    "no comic page, no storyboard sequence with new actions, no poster collage",
+    "no missing panel label area",
+    "no long text hallucination"
+  ],
+  "prompt_assembly": {
+    "final_prompt_template": "Create one CINEMATIC_SHOT_GRID as a strict 3x3 nine-panel image based on the reference image(s) and <user_desc>. Preserve the reference image style, composition elements, subject identity, costume, props, environment, lighting logic and narrative facts unchanged. Each panel must show the same subject and scene through a different common film shot size or camera view: P1 EST, P2 WIDE, P3 FULL, P4 MED, P5 CU, P6 ECU, P7 OTS, P8 LOW, P9 HIGH/POV. Keep all panels visually consistent, cinematic, and label-ready."
+  },
+  "review_focus": [
+    "same reference image style across all panels",
+    "same subject identity and scene facts across all panels",
+    "clear 3x3 grid with nine distinct cinematic shot sizes or camera views",
+    "film-language shot plan is followed",
+    "no subject, prop, costume, environment or lighting redesign",
+    "lower-left shot labels or overlay-ready label strips"
+  ]
+}

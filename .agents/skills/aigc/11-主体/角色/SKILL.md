@@ -66,7 +66,8 @@ metadata:
 
 - 本组根只能做路由、边界裁决、输入缺口判断和域级验收摘要。
 - 角色归并、角色设计、审美判断、提示词蒸馏与生成策略必须由 LLM 在对应叶子技能内直接完成。
-- 脚本只允许读取、枚举、校验、投影、格式检查和文件存在性检查；不得生成 canonical 角色清单、设计正文或图像提示词主创内容。
+- 脚本只允许读取、枚举、校验、格式检查、文件存在性检查和 manifest 辅助；不得生成 canonical 角色清单、设计正文或图像提示词主创内容，不得批量生成、批量插入、正则套句或映射投影。
+- 若角色清单判断、角色设计、prompt 或生成决策来自脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、批量插入、正则套句或映射投影产物，即使叶子字段完整也必须触发 `REWORK-CHAR-PSEUDO-DIFF`，回到对应叶子 LLM-first 节点。
 
 ## Execution Contract
 
@@ -124,6 +125,7 @@ metadata:
 | `REWORK-CHAR-RECONCILE` | 上游新增后未合并清单、重复角色或覆盖既有资产 | `../references/incremental-reconciliation-contract.md` |
 | `REWORK-CHAR-UPSTREAM` | 下游输入缺失 | 最早缺失叶子技能 |
 | `REWORK-CHAR-OUTPUT` | 输出路径或命名漂移 | 对应叶子 `Output Contract` |
+| `REWORK-CHAR-PSEUDO-DIFF` | 命中叶子输出存在脚本化生成、批量插入、正则套句、映射投影、句式复用、锚点替换或伪差异 | 对应叶子 `LLM-first` / anti-pseudo-diff gate |
 
 ## Output Contract
 
@@ -131,4 +133,4 @@ metadata:
 - Output format: Markdown 路由说明、域级状态摘要或最小修复 patch。
 - Output path: 叶子输出固定在 `projects/aigc/<项目名>/11-主体/角色/{1-清单,2-设计,3-生成}/`；增量状态 sidecar 可写入 `projects/aigc/<项目名>/11-主体/角色/design-manifest.yaml`。
 - Naming convention: 组根报告使用清晰的域名与叶子名；叶子产物按叶子 `Output Contract` 命名。
-- Completion gate: 本组根已加载同目录 `CONTEXT.md`；已在分批上游或既有产物场景中执行增量对账；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收。
+- Completion gate: 本组根已加载同目录 `CONTEXT.md`；已在分批上游或既有产物场景中执行增量对账；只调度命中叶子；未越权主创；叶子输出按其自身 review gate 验收，且未以脚本化生成、批量插入、正则套句、映射投影、句式复用、锚点替换或同义改写伪差异绕过 LLM-first。

@@ -20,6 +20,7 @@ metadata:
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的全量剧本；用户显式指定 `2-编导`、初始化资料、文本片段、参考图或参考视频时，以用户输入为本轮来源，但必须标记来源类型。
 - 多模态参考只允许提供风格事实、媒介特征、光影范式、渲染痕迹、动画流派、视觉特效和负面约束，不得把参考图/视频中的具体人物、物件、场景或构图迁入全局 prompt。
 - 核心审美判断、视觉映射、大师锚点选择和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、OCR/转写整理、清单校验、字数统计和违禁词扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成全局风格协议、大师锚点矩阵、视觉因果链或 prompt，直接 fail。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -181,7 +182,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 剧本来源至少抽取 5 条视觉证据；每个参考图/视频/作品至少抽取 3 条风格事实；正式协议至少覆盖 9 个解析维度 | `N2/N3/N4.actions` | `FAIL-VT-QUANT-SCOPE` |
 | `evidence_count` | 因果链至少 5 条；大师锚点至少 3 个；负面特征至少 3 条 | `N5/N6.evidence` | `FAIL-VT-QUANT-EVIDENCE` |
-| `pass_threshold` | P0 gate 全部通过；`global_style_prompt` 200-300 字；禁用类别残留 0 个，除非报告声明核心视觉符号例外 | `N7/N8.gate` | `FAIL-VT-QUANT-THRESHOLD` |
+| `pass_threshold` | P0 gate 全部通过；`global_style_prompt` 200-300 字；禁用类别残留 0 个，除非报告声明核心视觉符号例外；`GATE-VT-10-ANTI-SCRIPTED-TONE` 阻断项为 0 | `N7/N8.gate` | `FAIL-VT-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍出现 P0 污染或来源不足时阻断并报告 | `N8.route_out` | `FAIL-VT-QUANT-RETRY` |
 | `fallback_evidence` | 参考资料不可机器读取时，使用用户文字说明和可见元数据；无法验证的锚点标为 `unverified_reference_claim`，不得作为核心证据 | `Review Gate Binding.report_evidence` | `FAIL-VT-QUANT-FALLBACK` |
 
@@ -213,7 +214,8 @@ Pass conditions:
 - `setting_to_visual_chain` 至少 5 条，能说明视觉决策如何来自剧本、设定或参考证据。
 - `master_anchor_matrix` 至少 3 个具体锚点，并说明匹配维度与禁用边界。
 - `global_style_prompt` 为 200-300 字中文，且没有默认禁止的具体颜色词、具体材质词、构图术语、焦段/光圈/光源位置/运镜和具象内容。
-- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
+- `anti_scripted_style_audit` 证明视觉基因、因果链、大师锚点和 prompt 不是模板句轮换、锚点替换或同义改写批量生成。
+- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`Anti Scripted Style Audit`、`N/A Justification`、`Repair Log` 和 `Contamination Scan`。
 
 Fail conditions:
 
@@ -221,6 +223,7 @@ Fail conditions:
 - prompt 只堆风格词，没有因果链或大师锚点。
 - prompt 含具体角色、场景、道具、物件、构图、摄影参数或运镜。
 - 参考图/视频内容被照搬为项目设定。
+- 全局风格协议或 prompt 呈现脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量痕迹。
 - 字数低于 200 或高于 300，且用户未明确覆盖。
 
 ## Review Gate Binding
@@ -236,6 +239,7 @@ Fail conditions:
 | prompt 是否 200-300 字且中文默认？ | `GATE-VT-07-LENGTH-LANGUAGE` | `FAIL-VT-LENGTH` | `N7-PROMPT-DISTILL` | 字数统计与语言标记 |
 | 是否适合被角色、场景、道具、摄影、分镜无污染继承？ | `GATE-VT-08-DOWNSTREAM-SAFETY` | `FAIL-VT-DOWNSTREAM-POLLUTION` | `N7-PROMPT-DISTILL` | 下游继承风险清单 |
 | 正式写回是否有结构化执行报告？ | `GATE-VT-09-REPORT-EVIDENCE` | `FAIL-VT-REPORT-MISSING` | `N9-CLOSE` | 报告 section 完整性 |
+| 视觉基因、因果链、大师锚点和 prompt 是否无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-VT-10-ANTI-SCRIPTED-TONE` | `FAIL-VT-SCRIPTED-TONE` | `N4-VISUAL-GENES` / `N5-PHILOSOPHY-MAPPING` / `N7-PROMPT-DISTILL` | `anti_scripted_style_audit` |
 
 ## Runtime Guardrails
 
@@ -296,6 +300,7 @@ Fail conditions:
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：本技能无外部 `references/` 时记录 `N/A: no references module authorized`；若未来启用 references，逐条记录 load_status、trigger_reason、applied_to、evidence_in_output、verdict 和 n/a_reason。
 - `Rule Evidence Map`：映射 `GATE-VT-*` 到正文位置或证据。
+- `Anti Scripted Style Audit`：记录模板句式复用、锚点替换、句式轮换和同义改写批量风险的检查结论。
 - `N/A Justification`：说明未触发来源、模块或例外规则。
 - `Repair Log`：记录失败码、修复目标和复审结果。
 - `Contamination Scan`：色彩、材质、构图、摄影/运镜、具象内容五类扫描结果。
@@ -374,6 +379,7 @@ Completion gate:
 | `PASS-VT-04` | 至少 3 个大师锚点，均有匹配理由和禁用边界 | `FAIL-VT-MASTER-MISSING` | `N6-MASTER-ANCHORS` |
 | `PASS-VT-05` | Global Style Prompt 为中文 200-300 字，五类污染为 0 | `FAIL-VT-PROMPT` | `N7-PROMPT-DISTILL` |
 | `PASS-VT-06` | 正式写回报告包含必需审计 section | `FAIL-VT-REPORT-MISSING` | `N9-CLOSE` |
+| `PASS-VT-07` | 全局风格协议无模板句轮换、锚点替换或同义改写批量痕迹 | `FAIL-VT-SCRIPTED-TONE` | `N4-VISUAL-GENES` / `N5-PHILOSOPHY-MAPPING` / `N7-PROMPT-DISTILL` |
 
 ## Field Mapping
 

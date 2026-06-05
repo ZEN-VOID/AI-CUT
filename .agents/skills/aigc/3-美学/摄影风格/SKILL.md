@@ -20,6 +20,7 @@ metadata:
 - 默认上游剧本真源为 `projects/aigc/<项目名>/2-编剧/第N集.md` 或 `projects/aigc/<项目名>/2-编剧/` 下的剧本；默认视觉上游为 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md`。
 - 多模态参考只允许提供摄影事实、镜头组织、运动质感、景别转换、机位关系、节奏和连续性线索，不得把参考图/视频中的具体人物、物件、地点、剧情或单个镜头正文迁入最终协议。
 - 核心摄影判断、构图/运镜语法提炼、连招设计和提示词蒸馏必须由 LLM 直接完成；脚本只可承担读取、抽帧清单整理、字数统计、JSON/Markdown 校验和重复术语扫描。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成摄影风格协议、运动连招、连续性规则或 prompt，直接 fail。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -184,7 +185,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 剧本来源至少抽取 5 条摄影需求证据；每个参考图/视频/作品至少抽取 3 条摄影事实；正式协议至少覆盖 8 个摄影解析维度 | `N2/N3/N4.actions` | `FAIL-CS-QUANT-SCOPE` |
 | `evidence_count` | 运动连招至少 3 组；连续性规则至少 5 条；负面摄影禁区至少 3 条 | `N5/N6.evidence` | `FAIL-CS-QUANT-EVIDENCE` |
-| `pass_threshold` | P0 gate 全部通过；`cinematography_style_prompt` 默认 80-130 个汉字；禁用类别残留 0 个，除非用户明确要求候选单镜头化且标记非正式 | `N7/N8.gate` | `FAIL-CS-QUANT-THRESHOLD` |
+| `pass_threshold` | P0 gate 全部通过；`cinematography_style_prompt` 默认 80-130 个汉字；禁用类别残留 0 个，除非用户明确要求候选单镜头化且标记非正式；`GATE-CS-10-ANTI-SCRIPTED-CAMERA` 阻断项为 0 | `N7/N8.gate` | `FAIL-CS-QUANT-THRESHOLD` |
 | `retry_limit` | 自动修复最多 2 轮；仍出现 P0 越权或来源不足时阻断并报告 | `N8.route_out` | `FAIL-CS-QUANT-RETRY` |
 | `fallback_evidence` | 参考资料不可机器读取时，使用用户文字说明和可见元数据；无法验证的摄影师/作品声明标为 `unverified_reference_claim`，不得作为核心证据 | `Review Gate Binding.report_evidence` | `FAIL-CS-QUANT-FALLBACK` |
 
@@ -216,7 +217,8 @@ Pass conditions:
 - `movement_combo_map` 至少 3 组可复用运动连招，并说明起手、过渡、落点和禁用条件。
 - `continuity_rule_set` 至少 5 条，覆盖轴线、视线、动势、景别、速度或空间方向中的关键项。
 - `cinematography_style_prompt` 为中文，默认 80-130 个汉字，无剧情、角色、道具、场景、单镜头正文污染。
-- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log` 和 `Boundary Scan`。
+- `anti_scripted_style_audit` 证明摄影语法、运动连招、连续性规则和 prompt 不是模板句轮换、锚点替换或同义改写批量生成。
+- 正式写回时，执行报告包含 `Execution Decision Trace`、`Reference Execution Matrix`、`Rule Evidence Map`、`Anti Scripted Style Audit`、`N/A Justification`、`Repair Log` 和 `Boundary Scan`。
 
 Fail conditions:
 
@@ -224,6 +226,7 @@ Fail conditions:
 - 协议只堆运镜词，没有摄影证据、连招逻辑或连续性规则。
 - prompt 含具体剧情、角色、道具、场景、单镜头正文或逐镜头编号。
 - 参考图/视频内容被照搬为项目设定。
+- 摄影风格协议或 prompt 呈现脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量痕迹。
 - 字数低于 80 或高于 130 个汉字，且用户未明确覆盖。
 
 ## Review Gate Binding
@@ -239,6 +242,7 @@ Fail conditions:
 | prompt 是否约 100 字且中文默认？ | `GATE-CS-07-LENGTH-LANGUAGE` | `FAIL-CS-LENGTH` | `N7-PROMPT-DISTILL` | 字数统计与语言标记 |
 | 是否适合被分镜、图像和视频阶段继承而不抢具体镜头正文？ | `GATE-CS-08-DOWNSTREAM-SAFETY` | `FAIL-CS-DOWNSTREAM-POLLUTION` | `N7-PROMPT-DISTILL` | 下游继承风险清单 |
 | 正式写回是否有结构化执行报告？ | `GATE-CS-09-REPORT-EVIDENCE` | `FAIL-CS-REPORT-MISSING` | `N9-CLOSE` | 报告 section 完整性 |
+| 摄影语法、运动连招、连续性规则和 prompt 是否无脚本化生成、批量插入、正则套句、映射投影、模板句式复用、关键词锚点替换、句式轮换或同义改写批量生成痕迹？ | `GATE-CS-10-ANTI-SCRIPTED-CAMERA` | `FAIL-CS-SCRIPTED-CAMERA-STYLE` | `N4-CAMERA-GRAMMAR` / `N5-MOVEMENT-COMBO` / `N7-PROMPT-DISTILL` | `anti_scripted_style_audit` |
 
 ## Runtime Guardrails
 
@@ -295,6 +299,7 @@ Fail conditions:
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：本技能无外部 `references/` 时记录 `N/A: no references module authorized`；若未来启用 references，逐条记录 load_status、trigger_reason、applied_to、evidence_in_output、verdict 和 n/a_reason。
 - `Rule Evidence Map`：映射 `GATE-CS-*` 到正文位置或证据。
+- `Anti Scripted Style Audit`：记录模板句式复用、锚点替换、句式轮换和同义改写批量风险的检查结论。
 - `N/A Justification`：说明未触发来源、模块或例外规则。
 - `Repair Log`：记录失败码、修复目标和复审结果。
 - `Boundary Scan`：剧情、角色、道具、场景、单镜头正文五类扫描结果。
@@ -373,6 +378,7 @@ Completion gate:
 | `PASS-CS-04` | 至少 5 条连续性规则且可服务下游分镜 | `FAIL-CS-CONTINUITY-MISSING` | `N6-CONTINUITY-RULES` |
 | `PASS-CS-05` | Cinematography Style Prompt 为中文 80-130 个汉字，五类污染为 0 | `FAIL-CS-PROMPT` | `N7-PROMPT-DISTILL` |
 | `PASS-CS-06` | 正式写回报告包含必需审计 section | `FAIL-CS-REPORT-MISSING` | `N9-CLOSE` |
+| `PASS-CS-07` | 摄影风格协议无模板句轮换、锚点替换或同义改写批量痕迹 | `FAIL-CS-SCRIPTED-CAMERA-STYLE` | `N4-CAMERA-GRAMMAR` / `N5-MOVEMENT-COMBO` / `N7-PROMPT-DISTILL` |
 
 ## Field Mapping
 

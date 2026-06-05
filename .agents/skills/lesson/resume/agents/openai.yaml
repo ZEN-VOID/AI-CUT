@@ -1,0 +1,4 @@
+interface:
+  display_name: "课程课件项目续跑恢复"
+  short_description: "恢复课程课件项目断点、缺口与三端状态，输出唯一安全下一入口"
+  default_prompt: "Use $lesson-resume when the user asks to resume, continue, recover, or find the next safe entry for a lesson/courseware project under `projects/lesson/<项目名>/`. Load SKILL.md and CONTEXT.md, read lesson root boundaries, inspect project MEMORY.md, CONTEXT/, 0-8 stage directories, stage canonical files, content-model, and doc/ppt/html delivery state, then return one safe next entry or blocker. Do not author course content or directly continue stage artifacts."

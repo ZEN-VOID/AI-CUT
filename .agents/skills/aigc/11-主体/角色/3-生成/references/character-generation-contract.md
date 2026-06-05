@@ -39,7 +39,7 @@ Step2 multi-view sheet:
 - 主图 JSON 的 `prompt_text` 必须直接采用或轻量包装设计文档 `4. 解构`，但不得新增主体设定；不得继续使用旧 `提示词设计` 英文整合 prompt 作为 gpt-image-2 导入源。
 - 多视图 JSON 的 `critical_requirements` 允许直接引用角色设计文档中的 `4. 解构`，并把该文本作为设计真源。
 - 模板负责布局、模块和一致性，不负责创造角色身份、服装事实、时代设定或叙事压力。
-- 脚本不得生成 prompt_text；脚本只允许复制、校验、汇总或投影已有 prompt 字段。
+- 脚本不得生成 prompt_text；脚本只允许复制、校验、汇总已有 prompt 字段，不得批量生成、批量插入、正则套句或映射投影创作提示词。
 
 ## Non-Goals
 
@@ -63,4 +63,4 @@ Step2 multi-view sheet:
 | 真实生成模式下，多视图图片是否以 `<主体ID>-<主体名称>-多视图.<ext>` 存在于 canonical 输出目录？ | `GATE-CHAR-GEN-05` | `FAIL-MULTIVIEW-IMAGE` | `N6-MULTIVIEW-IMAGE` | 报告 `multiview_image_path`、文件存在检查、多视图 JSON 的 `output_image_path`。 |
 | 多视图模板是否只负责布局、模块和一致性，没有创造或覆盖角色身份、服装事实、时代设定或叙事压力？ | `GATE-CHAR-GEN-02` | `FAIL-PROMPT-DRIFT` | `N5-MULTIVIEW-JSON` | 报告多视图 JSON 的 `critical_requirements` 来源、`4. 解构` 回指和模板边界 finding。 |
 | 本阶段是否没有修改上游 `2-设计`、registry、父级 skill、场景/道具/视频/分镜目录，也没有把多视图做成 3x3 分镜、战斗动作集或泛化海报？ | `GATE-CHAR-GEN-08` | `FAIL-WRITE-BOUNDARY` | `N7-REVIEW` | 报告 `changed_files`，并确认全部位于 `projects/aigc/<项目名>/11-主体/角色/3-生成/` 或允许的执行报告路径。 |
-| 脚本是否只承担复制、校验、汇总或投影已有字段，没有生成或改写 `prompt_text` 创作正文？ | `GATE-CHAR-GEN-11` | `FAIL-SCRIPT-AUTHORSHIP` | `N3-MAIN-JSON` | 报告脚本使用范围、生成 prompt 的 LLM/source owner、无脚本主创结论。 |
+| 脚本是否只承担复制、校验或汇总已有字段，没有生成、改写、批量插入、正则套句或映射投影 `prompt_text` 创作正文？ | `GATE-CHAR-GEN-11` | `FAIL-SCRIPT-AUTHORSHIP` | `N3-MAIN-JSON` | 报告脚本使用范围、生成 prompt 的 LLM/source owner、无脚本主创结论。 |

@@ -18,6 +18,7 @@ metadata:
 - 上游唯一准确信息来源为 `projects/aigc/<项目名>/10-分组/第N集.md` 每个分镜组底部 YAML 的 `场景` 字段；必要时只允许回查同一分镜组正文和场景标题作为证据。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > `references/` / `steps/` / `review/` / `types/` / `templates/` > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 - 场景别名归并、代称判定、同一地点不同区域/时段的合并或拆分，必须由 LLM 直接完成；`scripts/` 只能做读取、字段检查、表格格式检查和机械校验。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的场景清单判断、canonical 名称、归并理由或关键词描述，直接判定为 `FAIL-SCENE-LIST-PSEUDO-DIFF`；字段完整、三列表格合规或数量达标不得抵消该失败。
 
 ## Input Contract
 
@@ -150,6 +151,7 @@ stateDiagram-v2
 | `FIELD-SCENE-LIST-06` | 输出落盘 | canonical 路径存在，报告可选且不替代清单真源 | `FAIL-SCENE-LIST-06` |
 | `FIELD-SCENE-LIST-07` | LLM-first | 脚本没有生成归并、别名裁决或创作性描述 | `FAIL-SCENE-LIST-07` |
 | `FIELD-SCENE-LIST-08` | 增量 merge | 既有清单被读取并对账，新主体追加、旧主体稳定，未静默全量覆盖 | `FAIL-SCENE-LIST-08` |
+| `FIELD-SCENE-LIST-09` | 反脚本化伪差异 | 清单判断、归并/拆分理由和关键词描述不是由映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；每个保留/合并/拆分结论有主体级 LLM 裁决证据 | `FAIL-SCENE-LIST-PSEUDO-DIFF` |
 
 ## Thought Pass Map
 
@@ -174,6 +176,7 @@ stateDiagram-v2
 | `PASS-SCENE-LIST-05` | 选择最早分镜组作为首次登场 | first appearance map | `review/review-contract.md` |
 | `PASS-SCENE-LIST-06` | 输出固定三列表格 | `场景清单.md` | `templates/output-template.md` |
 | `PASS-SCENE-LIST-07` | 执行人工或等价机械验收 | review result | `review/review-contract.md` |
+| `PASS-SCENE-LIST-08` | 执行反脚本化/反模板伪差异验收 | per-subject decision evidence | 本 `SKILL.md` LLM-first gate |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -187,6 +190,7 @@ stateDiagram-v2
 - `原文描述（关键词式）` 被扩写成设定稿、视觉设计稿或创作性文案。
 - 新增部分集数后用局部结果覆盖了既有全局清单，或导致已有 `S###` 设计稿锚点漂移。
 - 脚本、模板拼接或规则替代 LLM 的归并判断。
+- 形式指标通过但清单像同一模板换地点名、锚点替换、句式轮换或同义改写批量产物，没有逐主体归并/拆分裁决。
 
 必经链路：
 
@@ -236,4 +240,5 @@ stateDiagram-v2
 - 已完成别名、代称、区域/时段、子空间与跨场景边界的 LLM 裁决，并记录风险。
 - 若已有清单或 manifest，已执行 merge 对账，未静默覆盖旧清单、旧设计稿锚点或旧生成资产。
 - 未使用脚本生成归并判断或创作性场景描述。
+- 未使用映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造清单伪差异；疑似命中时已废弃候选稿并回到 LLM 归并节点。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果。

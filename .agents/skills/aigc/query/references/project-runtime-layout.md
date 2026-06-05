@@ -26,8 +26,8 @@ projects/aigc/<项目名>/
 │   ├── 角色/
 │   └── 道具/
 ├── 12-图像/
-│   ├── A-分镜画面/
-│   └── B-分镜故事板/
+│   ├── 分镜画面/
+│   └── 分镜故事板/
 ├── 13-画布/
 │   └── libTV画布流/
 └── 14-审片/
@@ -69,7 +69,7 @@ projects/aigc/<项目名>/
 | 项目根回答是否区分 `MEMORY.md`、`CONTEXT/`、`STATE.json`、`governance-state.yaml` 和阶段目录的不同职责，避免把任一载体说成全量替代品？ | `GATE-QUERY-04` | `FAIL-QUERY-EVIDENCE` | `N3-carrier-read` | 列出实际读取或缺失的 runtime carrier，并说明每个 carrier 能回答的事实范围。 |
 | `2-编剧` 到 `10-分组` 查询是否默认读取当前中文阶段链，而不是默认回到旧 `2-编导 / 3-运动 / 4-摄影`？ | `GATE-QUERY-07` | `FAIL-QUERY-CARRIER` | `N3-carrier-read` | 报告当前阶段 carrier 路径、legacy fallback 路径和 fallback 原因。 |
 | 角色、场景、道具类查询是否默认读取 `11-主体/{场景,角色,道具}/`，旧 `4-Design/` 只作为兼容证据？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告当前设计子目录证据，并在使用旧 `4-Design` 时显式标注 legacy。 |
-| 图像资产查询是否默认读取 `12-图像/A-分镜画面` 或 `12-图像/B-分镜故事板`，旧 `5-Image/` 不作为默认答案？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告当前图像 carrier、旧图像 fallback 与二者命中情况。 |
+| 图像资产查询是否默认读取 `12-图像/分镜画面` 或 `12-图像/分镜故事板`，旧 `5-Image/` 不作为默认答案？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告当前图像 carrier、旧图像 fallback 与二者命中情况。 |
 | 视频资产查询是否默认读取 `13-画布/`，旧 `6-Video/` 与 `7-Cut/` 只作为 legacy fallback，且 `7-Cut` 不被说成默认可执行阶段？ | `GATE-QUERY-06` | `FAIL-QUERY-LEGACY` | `N3-carrier-read` | 报告当前视频 carrier、旧视频/剪辑 fallback、以及回答中的 canonical/legacy 标注。 |
 | Evidence Priority 是否先尊重用户显式项目路径，再使用 cwd 祖先和项目核心载体，只有单候选时才谨慎推断？ | `GATE-QUERY-02` | `FAIL-QUERY-PROJECT-ROOT` | `N1-project-root` | 报告项目根推断来源；多候选或冲突时输出 `needs_clarification` 而不是混答。 |
 | 当用户问“完成/通过/可交付”时，runtime layout 命中的文件或目录是否只作为产物存在证据，并继续补读执行报告或 validation report？ | `GATE-QUERY-05` | `FAIL-QUERY-VALIDATION` | `N4-validation-crosscheck` | 报告产物路径、执行报告或验收报告路径；缺报告时写明“未见验收证据”。 |

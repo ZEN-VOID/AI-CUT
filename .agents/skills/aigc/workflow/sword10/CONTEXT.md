@@ -20,6 +20,7 @@
 | `SWORD10-TM-03` | 下游阶段在上一阶段未全通过或缺少 `3-美学` 必需协议时启动 | stage merge gate | 回到阶段汇流门，先补齐失败集或补齐协议 | stage ledger 显示上一阶段全 pass |
 | `SWORD10-TM-04` | 失败后从下游继续跑，造成平行真源 | handoff source | 从失败阶段或 owning stage 续跑 | retry packet 指向 owning stage |
 | `SWORD10-TM-05` | subagent runtime 不可用却被描述成已后台运行 | runtime honesty | 输出 `degraded-subagent-unavailable` 并停止 | report 记录 blocking_layer 与 missing_runtime |
+| `SWORD10-TM-06` | 主窗口、脚本或模板开始生成阶段正文 | scripted stage body | 标记 `FAIL-SWORD10-SCRIPTED-STAGE-BODY`，停止并回 owning stage subagent | dispatch packet 指向阶段技能，主窗口只记录路径/verdict |
 
 ## Repair Playbook
 
@@ -29,6 +30,7 @@
 4. 阶段内允许并发，阶段间必须串行；上一阶段未全通过，不触发下一阶段。
 5. 失败时保留成功分集的 canonical 产物，但 completion report 必须清楚标记未完成范围。
 6. 若主窗口上下文已经接近过载，只保留路径、verdict、失败码和下一阶段触发条件，不回读完整正文。
+7. 任何阶段正文、风格协议、分镜/摄影/分组稿都不能由 workflow 脚本或 completion report 补写；只能由 owning stage subagent 生成。
 
 ## Reusable Heuristics
 
@@ -37,3 +39,4 @@
 - 阶段汇流门要比单个 subagent 成功更强：只有目标集全集通过，默认才进入下一阶段。
 - 续跑时最重要的是 `start_stage` 和已有产物可信度；不可信的中间产物应回到 owning stage，而不是从下游补洞。
 - 主窗口状态汇总应短：项目、集数、当前阶段、通过数、失败数、下一动作，避免把后台正文带回主上下文。
+- `sword10` 的形式指标是 orchestration 指标；不能用 ledger、dispatch packet 或 completion report 的字段完整性替代阶段正文的 LLM-first 验收。

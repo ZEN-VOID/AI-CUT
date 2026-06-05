@@ -19,7 +19,7 @@ governance_tier: full
 | `canonical_input` | 用户显式路径优先；否则使用 `projects/aigc/<项目名>/源/`。 |
 | `canonical_output` | `projects/aigc/<项目名>/1-分集/第N集.md` 与 `projects/aigc/<项目名>/1-分集/执行报告.md`。 |
 | `non_goals` | 不改写正文、不扩写剧情、不剧本化、不分镜化、不把设定案或治理文档当正文真源。 |
-| `llm_first_boundary` | 分集边界裁决由 LLM 直接完成；脚本只允许做读取、统计、排序、diff、覆盖审计、格式检查等机械辅助。 |
+| `llm_first_boundary` | 分集边界裁决由 LLM 直接完成；脚本只允许做读取、统计、排序、diff、覆盖审计、格式检查等机械辅助；脚本、映射表、规则模板、关键词锚点替换或固定句式轮换批量生成边界理由，直接 fail。 |
 
 ## Context Loading Contract
 
@@ -92,9 +92,9 @@ governance_tier: full
 | `T2-SOURCE-LOCK` | 锁定唯一小说原文真源 | 按用户显式路径 > 项目 `源/` > 用户明确要求的旧路径 fallback 选源；排除 `MEMORY.md`、`CONTEXT/`、设定案和治理文档 | 至少 1 份输入清单、真源路径、被排除资料说明 | `T3` | 无可读正文或真源多头时停止，`FAIL-SPLIT-01` |
 | `T3-SOURCE-ORDER` | 建立稳定阅读顺序 | 对多文件按自然数字文件名、正文内章节号、标题顺序排序；记录排序依据 | 文件顺序表、可读性判断、排序规则 | `T4` | 排序不可复查或来源不可读时 `FAIL-SPLIT-01A` |
 | `T4-MARK-SCAN` | 判定源材料是否自带真实集数划分 | 扫描 P1 集标；同时列出被排除的 `第N章`、chapter、卷/章/节信号 | P1 集标列表、章节信号排除列表、`source_type` | `T5` | 把章节当集标时 `FAIL-SPLIT-02A`；忽略真实 P1 集标时 `FAIL-SPLIT-02` |
-| `T5-BOUNDARY-SOLVE` | 生成分集边界表 | P1 按原集标；否则用 P2 自然结构和 P3 2500-3000 字目标窗裁决边界 | 每集起止位置、字数、边界理由、偏离说明 | `T6` | 每集必须有来源范围；无 P1 时不得机械一章一集；断句/对白/关键动作被切断时 `FAIL-SPLIT-03` |
+| `T5-BOUNDARY-SOLVE` | 生成分集边界表 | P1 按原集标；否则用 P2 自然结构和 P3 2500-3000 字目标窗裁决边界 | 每集起止位置、字数、边界理由、偏离说明、anti_mechanical_boundary_audit | `T6` | 每集必须有来源范围；无 P1 时不得机械一章一集；不得用模板句、关键词锚点替换或固定句式伪造差异化边界理由；断句/对白/关键动作被切断时 `FAIL-SPLIT-03` |
 | `T6-WRITEBACK` | 写入逐集原文与执行报告 | 生成 `第N集.md`；正文保持原文；更新 `执行报告.md` | 输出文件清单、编号检查、报告路径、正文保真抽查或 diff | `T7` | 编号不连续、路径错误、正文改写或覆盖未授权时 `FAIL-SPLIT-04` |
-| `T7-REVIEW` | 验收覆盖、边界、路径和保真 | 执行 review gates；检查报告字段、覆盖状态、返工入口 | gate 结果、coverage 表、fail code 或 pass evidence | `T8` / `R1` | 7 个 gate 必须全过；失败按 fail code 返回对应节点 |
+| `T7-REVIEW` | 验收覆盖、边界、路径和保真 | 执行 review gates；检查报告字段、覆盖状态、返工入口 | gate 结果、coverage 表、fail code 或 pass evidence | `T8` / `R1` | 8 个 gate 必须全过；失败按 fail code 返回对应节点 |
 | `T8-CLOSE` | 汇流交付 | 输出最终说明、已写文件、未覆盖原因、残余风险和下一阶段入口 | final report、执行报告摘要 | done | 只允许一个 final output；不得留下平行真源 |
 | `R1-ROOT-CAUSE` | 对失败产物做根因上溯 | 将症状追到真源锁定、类型判定、边界裁决、写回或报告字段 | `Symptom -> Direct Cause -> Skill Contract Source -> AGENTS.md` | `R2` | 不得只补说明而不修 source artifact |
 | `R2-SYNC` | 同步修复受影响产物 | 修 `第N集.md`、`执行报告.md`、必要模块引用或技能合同 | 最小 patch、更新后的 gate evidence | `T7` | 受影响引用必须同步，覆盖仍需授权 |
@@ -172,7 +172,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 覆盖用户源路径或项目 `源/` 下所有可读正文文件；多文件必须列出 100% 输入顺序。 | `T2,T3` | `FAIL-QUANT-ACTION-SCOPE` |
 | `evidence_count` | 至少保留输入清单、源类型判定、边界表、输出文件清单、coverage 表 5 类证据。 | `T2-T7` | `FAIL-QUANT-EVIDENCE` |
-| `pass_threshold` | 7 个 review gates 全部通过；`第N集.md` 编号从 1 连续；coverage 不允许无解释遗漏。 | `T7` | `FAIL-QUANT-THRESHOLD` |
+| `pass_threshold` | 8 个 review gates 全部通过；`第N集.md` 编号从 1 连续；coverage 不允许无解释遗漏；`GATE-SPLIT-06-ANTI-MECHANICAL-BOUNDARY` 阻断项为 0。 | `T7` | `FAIL-QUANT-THRESHOLD` |
 | `length_window` | 无 P1 集标时每集目标 2500-3000 中文字；偏离必须有自然段、章节小节、悬念点或用户指令证据。 | `T5` | `FAIL-SPLIT-03` |
 | `retry_limit` | 同一 fail code 连续返工 2 次仍失败时，停止并报告阻塞原因、已试 patch 和需要用户确认的信息。 | `R1,R2` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 无法做完整 diff 时，至少抽查每集开头/中段/结尾各 1 处正文保真证据。 | `T6,T7` | `FAIL-QUANT-FALLBACK` |
@@ -182,7 +182,7 @@ flowchart LR
 | convergence_point | pass_condition | fail_condition | rework_target | evidence |
 | --- | --- | --- | --- | --- |
 | `CV-SOURCE` | 唯一正文真源锁定，且输入顺序可复查。 | 真源多头、误用设定/CONTEXT、不可读或排序漂移。 | `T2` / `T3` | 输入清单、排序表、排除说明 |
-| `CV-BOUNDARY` | P1 集标被尊重；无 P1 时 P2/P3 边界有字数和戏剧断点证据。 | 忽略 P1、把章节当集、机械截断正文。 | `T4` / `T5` | 集标列表、章节排除列表、边界表 |
+| `CV-BOUNDARY` | P1 集标被尊重；无 P1 时 P2/P3 边界有字数和戏剧断点证据，且每集边界理由不是模板句轮换。 | 忽略 P1、把章节当集、机械截断正文、用规则模板或锚点替换伪造边界差异。 | `T4` / `T5` | 集标列表、章节排除列表、边界表、anti_mechanical_boundary_audit |
 | `CV-WRITEBACK` | 所有 `第N集.md` 写入 canonical 目录，编号连续，正文未改写。 | 路径错误、编号断裂、正文改写或覆盖未授权。 | `T6` | 输出清单、保真抽查、diff |
 | `CV-REPORT` | `执行报告.md` 可复查输入、模式、每集范围、字数、coverage 和返工入口。 | 报告缺字段、coverage 无解释遗漏、返工入口不定位集数。 | `T7` | 报告字段与 gate 结果 |
 
@@ -197,6 +197,7 @@ flowchart LR
 | 无 P1 集标时，边界是否结合自然结构、戏剧断点和 2500-3000 字目标窗？ | `GATE-SPLIT-03-BOUNDARY-SOLVE` | `FAIL-SPLIT-03` | `T5-BOUNDARY-SOLVE` | 每集字数、起止段落、边界理由、偏离说明 |
 | 逐集文件是否写入 canonical 目录、编号连续、正文保真？ | `GATE-SPLIT-04-EPISODE-WRITEBACK` | `FAIL-SPLIT-04` | `T6-WRITEBACK` | 输出文件清单、编号检查、正文保真抽查或 diff |
 | `执行报告.md` 是否足以复查输入、边界、字数、覆盖状态、跳过原因和具体返工入口？ | `GATE-SPLIT-05-REPORT-COVERAGE` | `FAIL-SPLIT-05` | `T7-REVIEW` | 边界表、coverage 表、跳过原因、返工入口 |
+| 分集边界和理由是否由 LLM 基于原文结构裁决，而非脚本、映射表、规则模板、关键词锚点替换或固定句式轮换批量生成？ | `GATE-SPLIT-06-ANTI-MECHANICAL-BOUNDARY` | `FAIL-SPLIT-06` | `T5-BOUNDARY-SOLVE` | `anti_mechanical_boundary_audit`、非模板化边界理由样本 |
 
 ## Output Contract
 
@@ -220,7 +221,7 @@ flowchart LR
 - 所有源正文均被覆盖，或明确列出未覆盖原因。
 - `第N集.md` 文件编号连续且正文未改写。
 - `执行报告.md` 能复查每集边界、字数和来源范围。
-- `review/review-contract.md` 的 7 个 gates 全部通过，或 final 明确列出失败 gate 和返工目标。
+- `review/review-contract.md` 的 8 个 gates 全部通过，或 final 明确列出失败 gate 和返工目标。
 
 ## Field Mapping
 
@@ -233,6 +234,7 @@ flowchart LR
 | `FIELD-SPLIT-03` | 边界表 | 每集起止位置、来源标题/章节/段落证据、字数和理由 | `FAIL-SPLIT-03` |
 | `FIELD-SPLIT-04` | `第N集.md` | 编号连续、内容完整、未改写原文 | `FAIL-SPLIT-04` |
 | `FIELD-SPLIT-05` | `执行报告.md` | 输入、模式、字数、coverage、返工入口完整 | `FAIL-SPLIT-05` |
+| `FIELD-SPLIT-06` | `anti_mechanical_boundary_audit` | 边界理由逐集不同且能回指原文结构、段落张力或戏剧断点，不是模板句、锚点替换或固定句式轮换 | `FAIL-SPLIT-06` |
 
 ## Checkpoint Contract
 
@@ -282,6 +284,7 @@ flowchart LR
 - 把 `CONTEXT/`、设定案、治理文档误当小说原文真源。
 - 原资料已有 `第N集` 等明确划分，却又按 2500-3000 字重切。
 - 把 story 的 `第N章`、chapter 文件或章节标题误判为 AIGC 原生 `第N集` 标记。
+- 用脚本、映射表、规则模板、关键词锚点替换或固定句式轮换批量生成分集边界理由。
 - 输出写到 `1-Planning`、`1-规划`、`Original`、`源` 或其他平行目录。
 - 脚本替代 LLM 做分集边界创作判断。
 

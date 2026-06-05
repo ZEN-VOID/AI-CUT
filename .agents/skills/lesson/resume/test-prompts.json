@@ -1,0 +1,17 @@
+[
+  {
+    "id": "project-root-rebuild",
+    "prompt": "Use $lesson-resume to recover projects/lesson/AI销售新人训练营 when MEMORY.md or CONTEXT/ is missing after initialization.",
+    "expected": "Locks one lesson project root, checks the scaffold, reports missing project baseline evidence, and returns 0-初始化 or a blocker without authoring course content."
+  },
+  {
+    "id": "stage-gap-resume",
+    "prompt": "Use $lesson-resume to find the safe next entry for a lesson project where stages 1-3 have canonical files but stage 4 is an empty directory.",
+    "expected": "Treats the empty stage directory as skeleton only, identifies 4-教学策略与课程架构 as the owning stage, lists evidence gaps, and returns one next entry."
+  },
+  {
+    "id": "delivery-state-resume",
+    "prompt": "Use $lesson-resume to check whether a project can continue PPT delivery when content-model exists, delivery-plan.md exists, but the ppt leaf manifest is missing.",
+    "expected": "Audits content-model, stage evidence, delivery parent, and ppt leaf status, then returns lesson-delivery-ppt or the delivery parent as one safe next entry with blockers if evidence is insufficient."
+  }
+]

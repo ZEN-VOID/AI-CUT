@@ -1,0 +1,50 @@
+# CONTEXT.md
+
+## Purpose & Loading Contract
+
+- 本文件是 `lesson/8-多端交付生成/html` 的经验层知识库，不是第二份 HTML 交付合同。
+- 调用 `.agents/skills/lesson/8-多端交付生成/html/SKILL.md` 时，必须同时加载本文件。
+- 优先级遵循：用户显式请求 > `AGENTS.md` / meta 规则 > 父包 `SKILL.md` > 本叶子 `SKILL.md` > `CONTEXT.md`。
+
+## Context Health
+
+- soft_limit_chars: 20000
+- hard_limit_chars: 40000
+- status: ok
+- recommended_action: keep-html-delivery-heuristics
+
+## Type Map
+
+| failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
+| --- | --- | --- | --- | --- |
+| HTML 叶子重新决定三端交付范围 | parent packet 缺失 | 回到父包生成 html leaf packet | HTML 叶子只消费父包 packet | `packet_inventory` 指向父包 manifest |
+| 页面正文像模板套句 | LLM-first 违规 | 废弃机械产物，回到 `N4-LLM-WEB-ADAPTATION` | 脚本只做站点组装和校验 | authorship note 可追踪 |
+| web 结构只有文件名 | architecture 缺口 | 回到 `N3-WEB-ARCHITECTURE` 补导航、页面和状态 | web 架构先于站点 manifest | plan 包含 routes 和 pages |
+| HTML 组装覆盖了未授权页面 | update scope 漂移 | 只改受影响 pages/components 并更新 manifest diff | 正式写回前记录 overwrite note | changed pages 和 manifest 一致 |
+| HTML 与 DOC/PPT 术语不一致 | cross-channel consistency 缺口 | 回到父包 delivery map 或本叶子 gate | 术语和目标以父包 map 为真源 | consistency section 无冲突 |
+
+## Repair Playbook
+
+1. 先确认任务确实是 HTML、web course、静态站点、移动端阅读或 LMS 嵌入交付。
+2. 缺父包 packet 时回到 `$lesson-delivery`，不要在 HTML 叶子补父包 manifest。
+3. 设备、发布方式和交互要求不清时先定 web variant。
+4. 所有 HTML/site 组装都必须从 LLM-approved page plan 和 manifest 出发。
+5. 修订既有 HTML 时只改受影响 pages/components，并同步 `html-site-manifest.json`。
+
+## Reusable Heuristics
+
+- HTML 的优势是导航、响应式阅读和轻交互，不应复制 DOC 长文或 PPT 短句。
+- 页面计划要明确学习路径、状态、活动反馈和测评入口。
+- 路由、资源复制、静态站点生成和校验属于机械组装，不属于网页正文主创。
+- 缺交互或可访问性要求时应保守列缺口，不臆造最终实现。
+- 如果 HTML 与父包 map 冲突，优先修 HTML 叶子，不改父包事实。
+
+## Case Log
+
+### Case-001
+
+- milestone_type: html_leaf_creation
+- outcome: 建立 HTML/web 课程交付叶子的 Skill 2.0 runtime spine。
+- design_decision: HTML 叶子拥有 web architecture、page plan、site manifest 和可选 HTML/site 组装目标。
+- replication_checklist: 父包 packet -> web architecture -> LLM web 适配 -> site manifest -> consistency gate。
+- evidence_paths: `.agents/skills/lesson/8-多端交付生成/html/SKILL.md`

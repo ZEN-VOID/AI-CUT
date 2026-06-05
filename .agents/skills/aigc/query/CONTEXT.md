@@ -23,6 +23,7 @@ last_checked_at: 2026-04-26
 | 问当前断点时只看目录结构 | governance carrier layer | 读 `governance-state.yaml`、`STATE.json` 与初始化核心工件 | system data flow 固定治理 carrier 顺序 | 结论带治理载体证据 |
 | 问制度路由时只扫项目目录 | registry route layer | 读取 `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` | `governance_system` mode 固定 registry first | 能指出制度层漂移 |
 | 轻量初始化态被误判为治理失败 | init layering layer | 确认 `STATE.json`、`0-初始化/`、`MEMORY.md` 与 `CONTEXT/` | data-flow 写清 core first, governance lazy | 回答为“轻量初始化态” |
+| 查询结论像脚本模板 | scripted conclusion layer | 标记 `FAIL-QUERY-SCRIPTED-CONCLUSION`，回到 carrier 证据和 status distinction 重判 | scripts 只列路径和字段，不生成判断 | 答复能说明证据如何支撑结论 |
 
 ## Repair Playbook
 
@@ -32,6 +33,7 @@ last_checked_at: 2026-04-26
 4. 新 `aigc` 链路以当前中文阶段名为 canonical；旧英文阶段名与旧 `2-编导 / 3-运动 / 4-摄影` 只作为 legacy compatibility。
 5. 若 registry 中残留旧路径而本地技能树不存在，应把它作为制度层漂移报告，不要沉默纠正。
 6. 若查询发现可复用失败模式，先写入本 `CONTEXT.md`；稳定后再晋升到 `SKILL.md` 或 `references/`。
+7. 脚本输出只能作为 evidence pack；最终“存在/完成/通过/下一入口”必须由 LLM 按证据区分裁决。
 
 ## Reusable Heuristics
 
@@ -40,3 +42,4 @@ last_checked_at: 2026-04-26
 - 新链路阶段名以当前 `.agents/skills/aigc` 真实目录为准：`0-初始化`、`1-分集`、`2-编剧`、`3-美学`、`4-导演`、`5-表演`、`6-氛围`、`7-分镜`、`8-摄影`、`9-光影`、`10-分组`、`11-主体`、`12-图像`、`13-画布`、`14-审片`；旧 `2-编导`、`3-运动`、`4-摄影` 只作 legacy fallback。
 - `STATE.json` 是轻量状态入口，`governance-state.yaml` 是结构化治理快照；两者不得被解释成彼此的替代品。
 - 没有 `validation-report.md` 或阶段 `执行报告.md` 时，只能说“未见验收证据”，不能说失败或通过。
+- 查询回答的四字段齐全不等于可信；如果结论只是把路径扫描结果套模板，应返工到 `Q6/Q7`。

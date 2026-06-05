@@ -27,6 +27,7 @@ metadata:
 - 必须读取可用的 `3-美学` 产物，优先级为 `画面基调`、`角色风格`、`场景风格`。若任一缺失，可使用用户提供的等价风格文本，但必须在报告记录降级来源和 N/A 理由。
 - 必须加载本目录 `references/atmosphere-and-mood-contract.md`；当氛围增写涉及场景节奏、蓄压、爆发、静默、转场余波或视觉特效节奏时，必须加载 `references/scene-rhythm-contract.md`，并将其作为视觉特效节奏细则使用。
 - 题材理解、触发点选择、氛围包适配、逐字段增写、时间关系设计和物理特效审美判断必须由 LLM 主创。脚本只允许承担读取、字段扫描、覆盖统计、diff、报告辅助和残留检查。
+- 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 专属氛围包优先查看本目录 `knowledge-base/physical-atmosphere-index.md`。若本地知识库无匹配整理，可结合模型已有知识；若用户要求具体剧场设备、最新安全规范、真实供应商能力或可审计事实，必须联网检索并在报告记录来源、链接、检索日期和使用边界。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 上游 `5-表演` 原稿 > `3-美学` 产物 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 知识库或网络资料。
 
@@ -34,6 +35,7 @@ metadata:
 
 - `氛围画面：XXX` 正文、触发点裁决、叙事适配、时间属性、物理特效组合和画面细节必须由 LLM 直接完成。
 - 脚本不得自动生成氛围正文，不得用模板批量拼接“薄雾、逆光、风吹衣角”替代当前画面判断。
+- 映射表、规则模板、关键词锚点替换、句式轮换、同义改写、特效词库批量生成、批量插入、正则套句或映射投影不得生成或裁决 `氛围画面` 核心正文；发现即触发 `FAIL-ATM-SCRIPTED-PROJECTION`。
 - references、知识库和网络资料只提供技法、事实和边界证据，不得成为套写句库。
 
 ## Runtime Spine Contract
@@ -214,7 +216,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个表演稿 source；批量任务逐集独立执行 N1-N7；每集扫描全部画面点但只增写触发点 | `N3/N5.actions` | `FAIL-ATM-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `atmosphere_context_profile`、1 个 `aesthetic_context_map`、1 个 `scene_rhythm_map`、1 个 `trigger_point_inventory`、1 个 `genre_atmosphere_pack`、1 个 `atmosphere_insert_map`、1 个 `time_anchor_map`；每条新增字段至少 1 个 source anchor、1 个触发类型、1 个时间属性、1 个物理手段和 1 个风险检查 | `Thinking-Action Node Map.evidence` | `FAIL-ATM-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-ATM-01..17` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词替代具体细节 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-ATM-01..18` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词替代具体细节 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
 | `trigger_density` | 默认触发点不超过全画面点 40%；低密度/现实主义 15%-30%；强类型可到 50%，超出必须逐条报告理由 | `N3.actions` / `Review Gate Binding` | `FAIL-ATM-DENSITY` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-ATM-QUANT-RETRY` |
 | `fallback_evidence` | 若某项 `3-美学` 缺失，使用用户指定等价资料并标记降级；若知识库缺题材氛围包，记录 `pretrained_atmosphere_inference` 或网络来源；若某画面点语义不可判定，保持原文不增写并在报告列 N/A | `Review Gate Binding.report_evidence` | `FAIL-ATM-QUANT-FALLBACK` |
@@ -265,7 +267,7 @@ flowchart LR
 | `C2-UNDERSTANDING-READY` | 题材、情节、表演稿、画面基调、角色风格和场景风格已形成可执行氛围方向 | 只写概念标签或缺上游证据 | `atmosphere_context_profile`、`aesthetic_context_map` | `N2-ATM-UNDERSTAND` |
 | `C3-TRIGGERS-READY` | 触发点选择性明确，未触发点理由可解释，密度合规 | 每点硬加、漏关键点、触发无理由 | `trigger_point_inventory`、`trigger_density_stats` | `N3-TRIGGER-INVENTORY` |
 | `C4-PACK-READY` | 物理氛围包符合题材、场景条件和美学协议 | 无源天气/火/烟/雨，或手段与题材冲突 | `genre_atmosphere_pack`、`physical_fx_selection_map` | `N4-ATMOSPHERE-PACK` |
-| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、保真通过、review 阻断项 0 | 字段漂移、无时间属性、新剧情、抽象氛围、设备说明口吻 | `review_verdict`、`time_anchor_map` | `N5/N6` |
+| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、保真通过、作者性完整性通过、review 阻断项 0 | 字段漂移、无时间属性、新剧情、抽象氛围、设备说明口吻、脚本化生成、批量插入、正则套句、映射投影或特效词库伪差异 | `review_verdict`、`time_anchor_map`、`authorship_integrity_audit` | `N5/N6` |
 
 ## Review Gate Binding
 
@@ -288,6 +290,7 @@ flowchart LR
 | 专属氛围包是否先查知识库，缺失时才用预训练/网络并记录边界？ | `GATE-ATM-15-KB-ROUTE` | `FAIL-ATM-KB-ROUTE` | `N4` | `style_source_matrix`、网络来源记录 |
 | 执行报告是否含 Reference Execution Matrix、Rule Evidence Map、Trigger Coverage、N/A 和 Repair Log？ | `GATE-ATM-16-REPORT-EVIDENCE` | `FAIL-ATM-REPORT-EVIDENCE` | `N6/N7` | 执行报告 sections |
 | 终稿是否读起来仍像剧本正文，不像制作说明书或设备清单？ | `GATE-ATM-17-SCRIPT-READABILITY` | `FAIL-ATM-SCRIPT-READABILITY` | `N5` | 新增字段可读性抽样 |
+| 氛围画面是否由 LLM 基于触发理由、时间锚点、物理来源和场景节奏逐条判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、特效词库批量生成、批量插入、正则套句或映射投影？ | `GATE-ATM-18-AUTHORSHIP-INTEGRITY` | `FAIL-ATM-SCRIPTED-PROJECTION` | `R1/R2` -> `N3-TRIGGER-INVENTORY` -> `N5-ATM-ENRICH` | `authorship_integrity_audit`、重复句式/特效词替换抽样、废弃候选记录 |
 
 ## Attention Concentration Protocol
 
@@ -332,7 +335,8 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-ATM-01..17` 阻断项为 0。
+- `GATE-ATM-01..18` 阻断项为 0。
+- `FAIL-ATM-SCRIPTED-PROJECTION` 必须为 0；若候选稿只是特效词库投影、句式轮换或锚点替换，不得表层润色通过，必须废弃并回到触发清单和逐点增写节点。
 - 原字段结构漂移 0。
 - 剧情事实越权 0。
 - 无时间属性新增字段 0。

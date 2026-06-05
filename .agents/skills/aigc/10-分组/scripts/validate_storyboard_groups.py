@@ -3,7 +3,7 @@
 
 This script is intentionally read-only. It checks structure, rough word
 limits, storyboard block durations, group IDs, global style fields,
-visual-style placement, group-baseline time ranges, deprecated connector blocks,
+group-baseline time ranges, deprecated connector blocks,
 deprecated supplemental-first-frame/hulong-frame fields, deprecated
 position-detail fields, and YAML stats. It does not generate grouping decisions
 or creative text.
@@ -43,17 +43,17 @@ BRACKET_DURATION_RE = re.compile(
 )
 FIELD_LABEL_RE = re.compile(r"^[^\s\[]+[：:]")
 VISUAL_FIELD_LABEL_RE = re.compile(
-    r"^(?!分镜画面[：:]?$)(?!画面风格[：:]?$)(?!画面构图[：:]?$)(?!全局风格[：:]?$)"
+    r"^(?!分镜画面[：:]?$)(?!画面构图[：:]?$)(?!全局风格[：:]?$)"
     r"[^：:\n]*(画面|动作|表演|心理反应|心理变化|情绪反应|思考反应|角色思考|认知变化|意识变化|内心反应|内心活动|描写|特写|显影|角色造型|场面调度|转场)[^：:\n]*[：:]$"
 )
 
 GLOBAL_STYLE_LABEL = "全局风格："
+VISUAL_STYLE_LABEL = "画面风格："
 GLOBAL_STYLE_REQUIRED_PREFIX = "视频生成的画面风格，光影和氛围与场景参照图保持一致。需要生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声，不要生成任何字幕，不要生成背景音乐。"
 MAX_GLOBAL_STYLE_PROJECTION_CHARS = 300
-STYLE_LINE_COUNT = 3
-OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]", "[画面风格]")
+STYLE_LINE_COUNT = 1
+OLD_VISIBLE_STYLE_LABELS = ("[全局风格]", "[类型元素]")
 
-VISUAL_STYLE_LABEL = "画面风格："
 STORYBOARD_PICTURE_LABEL = "分镜画面："
 DEPRECATED_POSITION_DETAIL_LABELS = (
     "画面构图：",
@@ -92,12 +92,12 @@ DEPRECATED_CONNECTOR_LABELS = DEPRECATED_GROUP_LABELS + (
 )
 REQUIRED_YAML_KEYS = ("字数统计", "时长估算", "角色", "场景", "道具")
 COUNT_TOLERANCE = 30
-DURATION_TOLERANCE = 1.0
+DURATION_TOLERANCE = 0.05
 TARGET_CHAR_COUNT = 1680
-HARD_CHAR_COUNT = 1980
 MIN_REVIEW_CHAR_COUNT = 850
 MIN_REVIEW_SECONDS = 10.0
-MAX_REVIEW_SECONDS = 18.0
+MAX_REVIEW_SECONDS = 14.5
+HALF_SECOND_TOLERANCE = 0.01
 
 
 @dataclass
@@ -240,6 +240,10 @@ def estimate_duration_seconds(text: str) -> float:
     if not ranges:
         return 0.0
     return max(float(match.group(2)) for match in ranges)
+
+
+def ends_on_half_second(value: float) -> bool:
+    return abs((value % 1.0) - 0.5) <= HALF_SECOND_TOLERANCE
 
 
 def validate_group_baseline_ranges(prefix: str, text: str, errors: list[str]) -> None:
@@ -388,8 +392,6 @@ def extract_global_style_lines(body: str) -> list[str]:
         ):
             break
         style_lines.append(stripped)
-        if len(style_lines) == STYLE_LINE_COUNT:
-            break
     return style_lines
 
 
@@ -502,6 +504,10 @@ def validate_yaml_stats(
         errors.append(f"line {block.line_number}: {block.group_id} yaml 时长估算 must contain a number")
     else:
         declared_duration = float(duration_match.group(1))
+        if not ends_on_half_second(declared_duration):
+            errors.append(
+                f"line {block.line_number}: {block.group_id} yaml 时长估算 {declared_duration:g}s must end on .5s"
+            )
         if abs(declared_duration - duration_seconds) > DURATION_TOLERANCE:
             errors.append(
                 f"line {block.line_number}: {block.group_id} yaml 时长估算 {declared_duration:g} differs from estimated {duration_seconds:g} by more than {DURATION_TOLERANCE:g}"
@@ -603,31 +609,6 @@ def validate_file(path: Path) -> ValidationResult:
             errors.append(f"{prefix} expected scene-local group index {expected_index}")
         previous_by_scene[group.scene] = group.index
 
-        visual_style_index = find_prefixed_label_index(group.body, VISUAL_STYLE_LABEL)
-        global_style_indices = style_line_indices(group.body)
-        if visual_style_index is None:
-            errors.append(f"{prefix} missing {VISUAL_STYLE_LABEL}")
-        else:
-            visual_style_content = extract_prefixed_label_content(
-                group.body,
-                VISUAL_STYLE_LABEL,
-                stop_labels=(STORYBOARD_PICTURE_LABEL,),
-            )
-            if not visual_style_content:
-                errors.append(f"{prefix} empty {VISUAL_STYLE_LABEL}")
-            if global_style_indices and visual_style_index <= global_style_indices[-1]:
-                errors.append(f"{prefix} {VISUAL_STYLE_LABEL} must appear after {GLOBAL_STYLE_LABEL} content")
-            first_visual_index = find_first_visual_field_index(group.body)
-            first_time_range_index = find_first_time_range_index(group.body)
-            if first_visual_index is not None and visual_style_index >= first_visual_index:
-                errors.append(
-                    f"{prefix} {VISUAL_STYLE_LABEL} must appear before the first inherited visual field title"
-                )
-            if first_time_range_index is not None and visual_style_index >= first_time_range_index:
-                errors.append(
-                    f"{prefix} {VISUAL_STYLE_LABEL} must appear before the first timecoded storyboard line"
-                )
-
         yaml_index = first_fenced_yaml_line_index(group.body)
         head_without_yaml = group.body
         if yaml_index is not None:
@@ -651,25 +632,26 @@ def validate_file(path: Path) -> ValidationResult:
             warnings.append(
                 f"{prefix} contains no 分镜N（N-N秒） or [N-N秒] time ranges; semantic review should restore canonical timing or declare source_override/direct_screenplay timecode planning"
             )
-        elif duration_seconds < MIN_REVIEW_SECONDS:
+        else:
+            if duration_seconds < MIN_REVIEW_SECONDS:
+                warnings.append(
+                    f"{prefix} estimated group duration {duration_seconds:g}s is below review floor {MIN_REVIEW_SECONDS:g}s; semantic review must justify a short-scene exception or rebalance complete atomic units"
+                )
+            if not ends_on_half_second(duration_seconds):
+                errors.append(
+                    f"{prefix} estimated group duration {duration_seconds:g}s must end on .5s; if the natural sum does not end on .5s, add 0.5s to the final group end time"
+                )
+            if duration_seconds > MAX_REVIEW_SECONDS:
+                errors.append(
+                    f"{prefix} estimated group duration {duration_seconds:g}s exceeds hard max {MAX_REVIEW_SECONDS:g}s; split/rebalance complete atomic units or return to source owner to repair an overlong atomic unit"
+                )
+        if char_count > TARGET_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated group duration {duration_seconds:g}s is below review floor {MIN_REVIEW_SECONDS:g}s; semantic review must justify a short-scene exception or rebalance complete atomic units"
-            )
-        elif duration_seconds > MAX_REVIEW_SECONDS:
-            errors.append(
-                f"{prefix} estimated group duration {duration_seconds:g}s exceeds hard max {MAX_REVIEW_SECONDS:g}s; split/rebalance complete atomic units or return to source owner to repair an overlong atomic unit"
-            )
-        if char_count > HARD_CHAR_COUNT:
-            errors.append(
-                f"{prefix} estimated scene-title-visual-style-plus-body char count {char_count} exceeds hard limit {HARD_CHAR_COUNT}"
-            )
-        elif char_count > TARGET_CHAR_COUNT:
-            warnings.append(
-                f"{prefix} estimated scene-title-visual-style-plus-body char count {char_count} exceeds target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group instead of splitting complete atomic units"
+                f"{prefix} estimated scene-title-plus-body char count {char_count} exceeds review target {TARGET_CHAR_COUNT}; semantic review must justify keeping this dense group, but char count is not a hard failure"
             )
         if char_count < MIN_REVIEW_CHAR_COUNT:
             warnings.append(
-                f"{prefix} estimated scene-title-visual-style-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
+                f"{prefix} estimated scene-title-plus-body char count {char_count} is below review floor {MIN_REVIEW_CHAR_COUNT}; semantic review must justify a short-scene exception or rebalance complete atomic units"
             )
 
         validate_yaml_stats(group, char_count, duration_seconds, errors, warnings)

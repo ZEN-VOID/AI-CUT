@@ -1,4 +1,4 @@
-# aigc 12-图像 / A-分镜画面
+# aigc 12-图像 / 分镜画面
 
 从 `projects/aigc/<项目名>/10-分组/` 提取普通分镜组，按每个 `## x-y-z` 的完整组稿组织 GPT-IMAGE-2 组级多图任务：一个分镜组一次调用，生成组内 `分镜N` 数量相同的多张单独图片，并按四段式 `x-y-z-N` 持久化。
 
@@ -14,7 +14,7 @@
 ## Directory Tree
 
 ```text
-A-分镜画面/
+分镜画面/
 ├── references/
 ├── scripts/
 ├── templates/
@@ -39,5 +39,5 @@ A-分镜画面/
 输出根路径固定为：
 
 ```text
-projects/aigc/<项目名>/12-图像/A-分镜画面
+projects/aigc/<项目名>/12-图像/分镜画面
 ```

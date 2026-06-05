@@ -39,6 +39,8 @@ metadata:
 - 正式写回时，必读美学上下文为 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`3-美学/摄影风格/摄影风格协议.md`。三者缺失时，可使用用户提供的等价文本；若完全没有等价画面基调、场景风格或摄影风格，不得判定 canonical pass。
 - 可选上下文包括 `3-美学/分镜风格/分镜风格协议.md`、`角色风格/角色风格协议.md`、项目长期审美偏好、参考图/视频说明和视频模型限制。
 - 核心光影判断、场景光源组织、动态光源变化、多光源叠加和分镜别审美描述必须由 LLM 直接完成；脚本只允许做读取、格式扫描、覆盖统计、diff 和报告辅助。
+- 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
+- 脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、光影词库批量生成、批量插入、正则套句或映射投影不得生成或裁决光影核心正文；发现即触发 `FAIL-LIGHT-SCRIPTED-PROJECTION`。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权 references > source 摄影稿或指定稿 > `3-美学` 产物 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Runtime Spine Contract
@@ -194,7 +196,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个 source；批量任务逐集独立执行 N1-N9；每集扫描全部 `分镜N（N-N秒）` 行 | `N3.actions` | `FAIL-LIGHT-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `lighting_context_profile`、1 个 `aesthetic_context_map`、1 个 `shot_line_inventory`、1 个 `continuity_context`、1 个 `shot_function_map`、1 个 `lighting_aesthetic_plan`、1 个 `injection_map`；每条分镜至少 1 个光影计划 | `Thinking-Action Node Map.evidence` | `FAIL-LIGHT-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-LIGHT-09-*` 阻断项为 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数/灯位越权 0；泛化套词 0；抽象概念化光影句 0；AIGC 不可实现光影句 0；Seedance 2.0 默认工具标准不匹配 0；未解释新增光源 0 | `N8.gate` / `Convergence Contract` | `FAIL-LIGHT-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-LIGHT-09-*` 阻断项为 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数/灯位越权 0；泛化套词 0；抽象概念化光影句 0；AIGC 不可实现光影句 0；Seedance 2.0 默认工具标准不匹配 0；未解释新增光源 0；脚本化生成、批量插入、正则套句、映射投影或光影词库伪差异 0 | `N8.gate` / `Convergence Contract` | `FAIL-LIGHT-QUANT-THRESHOLD` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-LIGHT-QUANT-RETRY` |
 | `fallback_evidence` | source override、缺美学等价文本、不可判定光源、动态光源信号不足均需报告 N/A 或降级原因 | `Review Gate Binding.report_evidence` | `FAIL-LIGHT-QUANT-FALLBACK` |
 
@@ -243,6 +245,7 @@ flowchart TD
 | `FAIL-LIGHT-CONTINUITY-BREAK` | `references/light-continuity-contract.md` | `R1/R2` | `GATE-LIGHT-09-CONTINUITY` | light_state_timeline |
 | `FAIL-LIGHT-DOWNSTREAM-OVERREACH` | `references/ai-video-light-handoff-contract.md` | `R1/R2` | `GATE-LIGHT-09-BOUNDARY` | overreach scan |
 | `FAIL-LIGHT-REPORT-EVIDENCE` | `CONTEXT.md` | `R1/R2` | `GATE-LIGHT-09-REPORT` | execution_report_sections |
+| `FAIL-LIGHT-SCRIPTED-PROJECTION` | `CONTEXT.md`, `references/cinematic-light-language-contract.md`, `knowledge-base/aigc-video-lighting-vocabulary.md` | `R1/R2` | `GATE-LIGHT-09-AUTHORSHIP` | `authorship_integrity_audit` |
 
 ## Thought Pass Map
 
@@ -258,7 +261,7 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `C1-source-and-style` | source 可读，分镜行存在，三类美学上下文可用或有等价替代 | source 缺失、分镜行缺失、正式写回无美学上下文 | `source_manifest`, `aesthetic_manifest` | `N1-LIGHT-INTAKE` |
 | `C2-line-inventory` | 全部分镜行进入 inventory，原文锚点明确 | 漏分镜行、编号/秒数不可追踪 | `shot_line_inventory` | `N3-LIGHT-SHOT-LINES` |
-| `C3-lighting-plan` | 每条分镜光影计划专属、具象、可见、默认符合 Seedance 2.0 工具标准下的 AIGC 可执行性，有静态/动态/多光源取舍依据 | 泛化套词、抽象概念化语言、AIGC 不可实现、Seedance 2.0 标准不匹配、光源越权、与摄影冲突、动态变化无动机 | `lighting_aesthetic_plan`, `light_source_stack_map`, `concrete_visual_check`, `seedance2_implementability_profile` | `N5` / `N6` |
+| `C3-lighting-plan` | 每条分镜光影计划专属、具象、可见、默认符合 Seedance 2.0 工具标准下的 AIGC 可执行性，有静态/动态/多光源取舍依据，并通过作者性完整性审查 | 泛化套词、抽象概念化语言、AIGC 不可实现、Seedance 2.0 标准不匹配、光源越权、与摄影冲突、动态变化无动机、光影词库投影或句式轮换伪差异 | `lighting_aesthetic_plan`, `light_source_stack_map`, `concrete_visual_check`, `seedance2_implementability_profile`, `authorship_integrity_audit` | `N5` / `N6` |
 | `C4-injection` | 原文完整保留，只追加光影句，格式可读 | 原文丢失、剧情越权、prompt/灯位越权 | `source_preservation_diff`, `format_check` | `N7-LIGHT-INJECT` |
 | `C5-final` | review gate pass，报告证据完整，输出路径唯一 | 任一 P0 gate fail 或报告缺 matrix/rule map | `review_verdict`, `execution_report` | `N8-LIGHT-REVIEW-REPAIR` |
 
@@ -276,6 +279,7 @@ flowchart TD
 | 相邻分镜、画面点和场景内光色状态是否连续？ | `GATE-LIGHT-09-CONTINUITY` | `FAIL-LIGHT-CONTINUITY-BREAK` | `N4-LIGHT-CONTINUITY` | `light_state_timeline` |
 | 是否没有输出灯位图、设备参数、图像/video prompt 或下游剪辑方案？ | `GATE-LIGHT-09-BOUNDARY` | `FAIL-LIGHT-DOWNSTREAM-OVERREACH` | `N7-LIGHT-INJECT` | `overreach_scan` |
 | 执行报告是否包含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log？ | `GATE-LIGHT-09-REPORT` | `FAIL-LIGHT-REPORT-EVIDENCE` | `N8-LIGHT-REVIEW-REPAIR` | `execution_report_sections` |
+| 光影正文是否由 LLM 基于当前分镜功能、摄影内容、光源依据和三类美学上下文逐条裁决，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、光影词库批量生成、批量插入、正则套句或映射投影？ | `GATE-LIGHT-09-AUTHORSHIP` | `FAIL-LIGHT-SCRIPTED-PROJECTION` | `R1-LIGHT-REWORK` -> `N5-LIGHT-SHOT-FUNCTION` -> `N6-LIGHT-DESIGN` | `authorship_integrity_audit`, `lighting_reason_samples`, `discarded_candidate_log` |
 
 ## Attention Concentration Protocol
 
@@ -314,7 +318,7 @@ flowchart TD
 - Output format: 保留 source 全文；每条 `分镜N（N-N秒）：原有内容` 在原内容后追加一段具象、可见、AIGC 可实现的光影美学句。追加句不带内部字段标签，不输出 plan 表，不复制全局 prompt，不使用抽象概念词替代可见光影结果。
 - Naming convention: 逐集文件固定为 `第N集.md`；执行报告固定为 `执行报告.md`；不得另建旧编号路径或英文阶段名。
 - Report required sections: `Source Manifest`、`Aesthetic Context Map`、`Lighting Context Profile`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Output Manifest`。
-- Completion gate: `GATE-LIGHT-09-*` 阻断项为 0；source diff 只显示光影增量或允许的矛盾光影最小修复；正式写回时执行报告完整。
+- Completion gate: `GATE-LIGHT-09-*` 阻断项为 0；`FAIL-LIGHT-SCRIPTED-PROJECTION` 为 0；source diff 只显示光影增量或允许的矛盾光影最小修复；正式写回时执行报告完整。若候选光影句呈现词库投影、句式轮换或锚点替换伪差异，候选稿必须废弃并回到 `N5/N6` 由 LLM 重做逐镜光影裁决。
 
 ## Runtime Guardrails
 
@@ -341,6 +345,7 @@ flowchart TD
 | `PASS-LIGHT-01` | source、分镜编号、秒数和摄影内容锁定 | source 缺失或改写上游 | `N1/N2` |
 | `PASS-LIGHT-02` | 光影注入可执行且不写灯位图、图像 prompt 或视频 prompt | 空泛气氛、越权或不可执行 | `N4/N5` |
 | `PASS-LIGHT-03` | review verdict 与输出 manifest 一致 | blocked 被标 pass 或报告缺证据 | `Review Gate Binding` |
+| `PASS-LIGHT-04` | 光影句有逐镜作者性判断，未由脚本、模板、关键词替换、批量插入、正则套句、映射投影或词库批量生成 | 句式轮换、锚点替换、同义改写伪差异 | `N5/N6` |
 
 ## Root-Cause Execution Contract
 

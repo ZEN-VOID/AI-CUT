@@ -1,0 +1,22 @@
+[
+  {
+    "id": "student-handout-doc",
+    "prompt": "基于父包 doc packet，为 projects/lesson/销售训练营 生成学员手册 Word 交付计划和 manifest。",
+    "expected": "Route to doc_delivery, audit the parent doc packet, create doc-delivery-plan.md and doc-assembly-manifest.json, and preserve LLM-first authorship."
+  },
+  {
+    "id": "instructor-guide-update",
+    "prompt": "更新 projects/lesson/管理课 的讲师手册，只调整第 2 模块和活动说明。",
+    "expected": "Route to doc_update, preserve unaffected sections, update the affected document plan sections and assembly manifest entries only."
+  },
+  {
+    "id": "draft-doc-no-project",
+    "prompt": "先不落盘，帮我设计一个学员讲义 DOC 结构。",
+    "expected": "Route to draft_only, return a DOC delivery plan draft with document structure and manifest outline, and state that no files were written."
+  },
+  {
+    "id": "missing-parent-packet",
+    "prompt": "没有第 8 阶段父包 manifest，直接给我生成 Word 讲义。",
+    "expected": "Route to blocked_or_redirect, require the parent doc leaf packet or route to lesson-delivery, and do not fabricate the shared delivery map."
+  }
+]

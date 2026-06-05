@@ -143,7 +143,7 @@ Reject or clarify when:
 | `CONTEXT.md` | 每次调用本技能 | 经验层预加载和 reusable heuristic | 不得改写本 `SKILL.md` 节点、gate 或输出合同 | `Context Loading Contract` |
 | `references/` | 仅在具体 reference 文件被触发时 | 长细则展开、Review Gate Mapping 和返工目标 | 不得作为第二规则源或新增入口 | `Module Loading Matrix` / `Review Gate Binding` |
 | `scripts/` | 需要机械辅助、证据采集、字段检查时 | ffprobe/ffmpeg、路径检查、格式化和校验 | 不得生成审片结论或决定修复落点 | `N3-EVIDENCE` / `N7-VERIFY` |
-| `templates/` | 写报告或输出投影时 | 输出模板和报告结构投影 | 不得另立输出路径、命名或完成门 | `N6-WRITE` |
+| `templates/` | 写报告或统一输出格式时 | 输出样板和报告结构样板 | 不得另立输出路径、命名或完成门 | `N6-WRITE` |
 | `review/` | `N7` 验收或 fail code 返工时 | gate 清单、failure routing、review contract | 不得替代本文件主节点表 | `N7-VERIFY` |
 | `types/` | 任意审片任务进入 `N1` 前 | 类型画像、输入来源、finding route、operation route | 不得执行审片或生成 verdict | `N1-INTAKE` |
 | `knowledge-base/` | 需要人工沉淀的外部启发式参考时 | 外部资料参考和人工知识库 | 不得承载自动经验写回；经验写 `CONTEXT.md` | `N4-METHOD-COMPARE` |
@@ -270,6 +270,7 @@ stateDiagram-v2
 | `FIELD-REVIEW-09` | LibTV rerun evidence | `13-画布/libTV画布流` / review report | clean prompt query、rerun task id、final node query、result URL、queue record | `FAIL-REVIEW-LIBTV-RERUN` |
 | `FIELD-REVIEW-10` | review method selection | review report | selected_methods、skipped_methods、selection_reason、user concern coverage | `FAIL-REVIEW-METHOD-SELECTION` |
 | `FIELD-REVIEW-11` | operation design | review report / patch / LibTV evidence | candidate_operations、chosen_operation、rejected_operations_reason、authorization and closure evidence | `FAIL-REVIEW-OPERATION-DESIGN` |
+| `FIELD-REVIEW-12` | verdict authorship | review report | verdict、finding、prompt match、creative quality 和 operation 由 LLM 基于真实视频证据与分组真源判断，不是脚本套表、关键词锚点替换或句式轮换 | `FAIL-REVIEW-SCRIPTED-VERDICT` |
 
 ## Review Gate Binding
 
@@ -289,6 +290,7 @@ stateDiagram-v2
 | 报告是否包含必要字段、思考过程和最终 verdict？ | `GATE-REVIEW-12` | `FAIL-REVIEW-REPORT` / `FAIL-REVIEW-VERDICT` | `N6-WRITE` / `N7-VERIFY`; `templates/review-report.template.md` | report path、decision trace、gate result |
 | LibTV rerun 是否有 clean prompt、授权、task、result、final query 和 queue/report 证据？ | `GATE-REVIEW-15` | `FAIL-REVIEW-LIBTV-RERUN` | `N5-LANDING` / `N6-WRITE`; `references/libtv-intake-contract.md` | before/final query、task id、result URL、queue record |
 | 是否在真实视频理解之后选择方法，并记录 skipped reason？ | `GATE-REVIEW-16` | `FAIL-REVIEW-METHOD-SELECTION` | `N4-METHOD-COMPARE`; `references/review-method-palette-contract.md` | method_selection |
+| verdict、finding、prompt 匹配结论和 operation 是否基于真实视频证据与分组真源由 LLM 判断，而不是脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写？ | `GATE-REVIEW-18` | `FAIL-REVIEW-SCRIPTED-VERDICT` | `N4-METHOD-COMPARE` / `N7-VERIFY` | verdict authorship note、evidence-to-finding map、非模板化差异说明 |
 
 ## Thought Pass Map
 
@@ -315,7 +317,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `action_scope` | 单次审片至少覆盖 1 个目标视频；变体任务覆盖同组所有输入变体；`group_repair` 最多改 1 个目标组及必要相邻衔接；源层升级需至少 2 个可复现案例或用户显式源层授权。 | `N1.actions`, `N5.actions`, `N6.gate` | `FAIL-QUANT-ACTION-SCOPE` |
 | `evidence_count` | 每个目标视频至少记录 1 份元数据、1 组关键帧或联系表、1 条真实内容摘要；有音轨时 1 条音频事实；每条重要 finding 至少 1 条可回指证据。 | `N3.evidence`, `N4.evidence` | `FAIL-QUANT-EVIDENCE` |
-| `pass_threshold` | 任一 P0 blocker 不得 `pass`；`pass` 必须通过视频本体、prompt/分组匹配、创作质量三层；`conditional_pass` 必须说明使用条件；低置信 finding 只能 `review_only` 或 `request_missing_evidence`。 | `N4.gate`, `N5.gate`, `N7.gate` | `FAIL-QUANT-THRESHOLD` |
+| `pass_threshold` | 任一 P0 blocker 不得 `pass`；`pass` 必须通过视频本体、prompt/分组匹配、创作质量三层；`conditional_pass` 必须说明使用条件；低置信 finding 只能 `review_only` 或 `request_missing_evidence`；脚本化 verdict、模板 finding 或锚点替换式 operation 数量必须为 0。 | `N4.gate`, `N5.gate`, `N7.gate` | `FAIL-QUANT-THRESHOLD` |
 | `retry_limit` | LibTV 下载失败最多重试 1 次；证据补采最多 1 轮后仍不足则阻断；修复 patch 验证失败回最近 rework target 1 次，仍失败则报告 blocked risk。 | `N0.route_out`, `N3.route_out`, `N7.route_out` | `FAIL-QUANT-RETRY` |
 | `fallback_evidence` | 无法抽帧时必须说明工具失败、使用替代截图/播放器观察证据和残余风险；无法读取音频时标记 `audio_unverified`，不得给声音通过 verdict。 | `Review Gate Binding.report_evidence` | `FAIL-QUANT-FALLBACK` |
 
@@ -325,7 +327,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 当前目标始终是“真实视频是否适合该分镜组及应如何修”；每个节点必须说明 objective、actions、evidence、gate 与最终输出关系。 | `N1-INTAKE` / `Business Requirement Analysis Contract` |
 | `ATTE-S20-02` | 注意力转移规则 | 目标锁定后转 source；source 锁定后转真实视频证据；证据通过后转方法选择；finding 通过后转 operation；写回后转 gate。 | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 漂移检测 | 只谈 prompt 不看视频、只看画面不对照 `10-分组`、只写审美口号、operation 与 landing 混淆、顾问替代 verdict、模块引用新增入口，均视为漂移。 | `Review Gate Binding` |
+| `ATTE-S20-03` | 漂移检测 | 只谈 prompt 不看视频、只看画面不对照 `10-分组`、只写审美口号、operation 与 landing 混淆、顾问替代 verdict、模块引用新增入口、脚本套表生成 verdict 或 finding，均视为漂移。 | `Review Gate Binding` |
 | `ATTE-S20-04` | 再集中机制 | 发现漂移时回到最近有效锚点：输入漂移回 `N1`，证据漂移回 `N3`，判断漂移回 `N4`，写回漂移回 `N5`。最终报告说明漂移信号和收束依据。 | `N3` / `N4` / `N5` |
 
 | drift_type | re_center_entry |
@@ -371,6 +373,7 @@ stateDiagram-v2
 | `PASS-REVIEW-01` | 视频、prompt、分组真源和证据链可回指 | 视频不可读或 source 不可定位 | `N1/N2` |
 | `PASS-REVIEW-02` | finding 有分级、source owner 和 operation | 只有主观评价或无法落点 | `N4/N5` |
 | `PASS-REVIEW-03` | report、patch 或 rerun 证据与 verdict 一致 | blocked 被标 pass 或报告缺证据 | `N6/N7` |
+| `PASS-REVIEW-04` | verdict、finding 和 operation 有真实视频证据链与 LLM 判断依据，不是脚本套表、关键词锚点替换、句式轮换或同义改写 | 形式字段齐全但判断模板化或无证据差异 | `N4/N7` |
 
 ## Root-Cause Execution Contract
 
@@ -393,7 +396,7 @@ stateDiagram-v2
 - Output format: 面向用户的简短结论 + `projects/aigc/<项目名>/14-审片/第N集/<group_id>[-variant]-审片.md` 报告；必要时还包含 `10-分组` patch、LibTV prompt/rerun 证据或源层 patch。
 - Output path: canonical 报告写入 `projects/aigc/<项目名>/14-审片/第N集/`；证据写入 `projects/aigc/<项目名>/14-审片/第N集/evidence/<group_id>/`；业务修复写回 owning source。
 - Naming convention: 报告命名为 `<group_id>[-variant]-审片.md`；LibTV 远端查询证据命名为 `<group_id>-libtv-node-query.ndjson` / `<group_id>-libtv-final-node-query.ndjson`；本地视频仍为 `<group_id>[-variant].mp4`。
-- Completion gate: 本地或 LibTV 真实视频已取得且可读；真实视频内容分析可回指帧/联系表/音频证据；分镜组真源可回指；方法选择能解释覆盖和跳过；finding 有分级、落点和 operation；执行顾问与复核流程时已有 packet 或本地流程；所有写回都能解释为什么不只是 rerun。
+- Completion gate: 本地或 LibTV 真实视频已取得且可读；真实视频内容分析可回指帧/联系表/音频证据；分镜组真源可回指；方法选择能解释覆盖和跳过；finding 有分级、落点和 operation；verdict、prompt 匹配结论、创作质量判断和 operation 由 LLM 基于证据判断，不是脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成；执行顾问与复核流程时已有 packet 或本地流程；所有写回都能解释为什么不只是 rerun。
 
 ### Execution Decision Trace Shape
 

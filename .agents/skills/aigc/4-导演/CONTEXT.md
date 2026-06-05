@@ -32,6 +32,7 @@ recommended_action: keep-heuristics-focused
 | 每条批注同一密度同一语气 | 场景节奏层 | 回到 `scene-rhythm-contract.md`，按场景节奏、信息密度和转出方式调整批注密度 | `scene_rhythm_profile` 影响批注长短和取舍 |
 | 高点批注默认写爽点满足 | 反高潮策略层 | 回到 `anticlimax-strategy-contract.md`，判断满足、延迟、打断、假兑现、惨胜或反向兑现 | 高点有 `anticlimax_strategy_map` 或 N/A 理由 |
 | 批注不能被演员执行 | 表演交接层 | 回到 `N4/N5`，把心理、关系和信息差转成视线、呼吸、停顿、手部、距离、重心、声线、话前/话后反应或道具/空间接触 | `performance_handoff_map` 有可执行动作抽样 |
+| 批注格式合规但像脚本批量生成、批量插入、正则套句或映射投影 | LLM-first 作者性层 | 标记 `FAIL-DIR-SCRIPTED-PROJECTION`，直接废弃候选稿，回到整集导演意图、画面点和导演风格证据，由 LLM 逐条重写；不要只替换形容词或调整句序 | `GATE-DIR-19-AUTHORSHIP-INTEGRITY` 通过，重复句式/锚点替换抽样无伪差异 |
 
 ## Repair Playbook
 
@@ -45,6 +46,7 @@ recommended_action: keep-heuristics-focused
 8. 面向表演交接时，每个关键批注至少落到一个演员能做出来的动作通道：眼睛看哪里、呼吸怎样变、停顿多久、手在哪里、身体靠近还是后退、重心是否失衡、声线收住还是放开。
 9. 若用户指定导演但知识库没有资料，先查 `knowledge-base/director-style-index.md`；仍无资料时再使用预训练知识和必要网络检索，并在报告标记来源。
 10. 批量处理时逐集独立建 `episode_directing_profile`；不得把第一集批注语气机械复制到后续集。
+11. 发现“同一批注骨架 + 人名/动作/风格词替换”的伪差异时，不做表层润色；先判定为源层作者性失败，再废弃候选稿重跑 LLM 主创节点。
 
 ## Reusable Heuristics
 

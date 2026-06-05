@@ -12,14 +12,20 @@
 | `aesthetic_inheritance` | 来自画面基调和摄影风格的可执行约束 |
 | `camera_angle_change` | 镜头角度及变化 |
 | `shot_type` | 镜头类型或运动方式 |
+| `spatial_axis_usage` | 说明摄影机如何沿 `7-分镜` 已确定的构图轴线、前中后景、画面方位、遮挡关系或空间纵深运动；不得重新定义空间布局 |
+| `spatial_movement_action_map` | 仅从 `enter_from`、`track_parallel_to_axis`、`push_along_depth`、`pull_back_revealing_layer`、`cross_foreground_occlusion`、`orbit_existing_subject`、`hold_static_against_depth` 等动作中选择适用项，并回指 `start_frame_spatial_layout` / `screen_direction_axis_map` / `spatial_layer_payload` |
+| `lens_or_camera_motion_boundary` | 区分摄影机/机位运动、焦距变化和透视效果：推/拉/横移/跟拍/升降是机位运动；变焦是焦距变化；广角/长焦的空间夸张或压缩是镜头/透视效果 |
 | `movement_speed` | 速度曲线与停点 |
-| `focus_behavior` | 焦点静止或变化 |
+| `focus_behavior` | 摄影语义正确的焦点静止或变化：清晰主体、景深层次、对焦/拉焦/转焦/失焦再合焦或真实变焦边界明确 |
+| `focus_transition_map` | 对焦变化必须拆出 `focus_start`、`focus_end`、`focus_mode`、`depth_of_field_strategy`、`must_remain_readable`；避免浅景深虚掉关键线索 |
 | `continuity_handoff` | 入点和交出点 |
 | `one_take_link` | 一镜到底时与前后分镜的链路 |
 
 ## Integration Rule
 
-只有当 `camera_movement_plan` 能同时解释剧情功能、美学继承、运镜四要素和连续性交接时，才允许进入正文注入。计划失败不得靠润色句子掩盖。
+只有当 `camera_movement_plan` 能同时解释剧情功能、美学继承、运镜四要素、既有空间使用方式、镜头运动/焦距/透视边界、焦点计划和连续性交接时，才允许进入正文注入。计划失败不得靠润色句子掩盖。
+
+`focus_behavior` 必须先在内部 plan 中通过语义检查：叙事关注点、信息落点和心理压力只能作为选择焦点的理由，不能直接填入焦点字段；若使用“变焦”，必须说明焦距变化带来的视角收窄或放宽，而不是摄影机移动。`focus_transition_map` 不完整时，不得用“焦点接力”一词直接进入正文。
 
 ## Review Gate Mapping
 
@@ -28,3 +34,8 @@
 | 每条最终运镜句是否可回指内部 plan？ | `GATE-CAM-08-PLAN-01` | `FAIL-CAM-PLAN-MISSING` | `N6-CAM-MOVEMENT-DESIGN` | plan coverage table |
 | 是否先保留原分镜正文再追加运镜，而非替换原文？ | `GATE-CAM-08-PLAN-02` | `FAIL-CAM-SOURCE-REPLACED` | `N7-CAM-INJECT` | source preservation diff |
 | 画面基调和摄影风格是否转成具体运镜约束？ | `GATE-CAM-08-PLAN-03` | `FAIL-CAM-AESTHETIC-NOT-USED` | `N3-CAM-AESTHETIC` | aesthetic inheritance map |
+| `focus_behavior` 是否能读出清晰主体、景深层次或对焦动作，而不是关注点替身？ | `GATE-CAM-08-PLAN-04` | `FAIL-CAM-FOCUS-SEMANTIC` | `N6-CAM-MOVEMENT-DESIGN` | focus_semantic_audit |
+| `spatial_axis_usage` 是否只引用上游既有空间关系，没有新增空间布局？ | `GATE-CAM-08-SPATIAL-BOUNDARY` | `FAIL-CAM-SPATIAL-OVERREACH` | `N6-CAM-MOVEMENT-DESIGN` | spatial_axis_usage_map |
+| `spatial_movement_action_map` 是否能回指 7-分镜 的起始状态帧空间依据？ | `GATE-CAM-08-SPATIAL-ACTION` | `FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED` | `N6/N6B` | spatial_movement_action_map |
+| `lens_or_camera_motion_boundary` 是否区分机位运动、焦距变化和透视效果？ | `GATE-CAM-08-LENS-MOTION-BOUNDARY` | `FAIL-CAM-LENS-MOTION-CONFLATION` | `N6-CAM-MOVEMENT-DESIGN` | lens_or_camera_motion_boundary |
+| `focus_transition_map` 是否包含起止焦点、对焦模式、景深策略和必须保持可读的信息？ | `GATE-CAM-08-FOCUS-PLAN` | `FAIL-CAM-FOCUS-PLAN-INCOMPLETE` | `N6/N6B` | focus_transition_map |

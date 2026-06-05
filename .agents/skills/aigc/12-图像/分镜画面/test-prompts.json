@@ -11,7 +11,7 @@
   },
   {
     "id": "review-count-mismatch",
-    "prompt": "审查 projects/aigc/示例项目/12-图像/A-分镜画面/第1集，检查 1-1-1 的 plan.n 和 returned_count 是否与组内分镜数一致。",
+    "prompt": "审查 projects/aigc/示例项目/12-图像/分镜画面/第1集，检查 1-1-1 的 plan.n 和 returned_count 是否与组内分镜数一致。",
     "expected": "Runs review_only gates G1 through G9, reports FAIL-FRAME-RESULT-MAP when shot_count, plan.n, prompt Image section count, or returned_count differ, and points rework to N3-SHOT-POINT-MAP or N9-PERSIST-MAP."
   }
 ]

@@ -96,7 +96,7 @@ Reject or clarify when:
 | `R3-IMPACT` | 建立跨阶段影响图 | impact contract、types、rg/file evidence、review finding | 列 upstream、neighbors、current、downstream、assets、future、state | impact_map | `R4-OWNER` | 影响范围可解释 |
 | `R4-OWNER` | 决定 canonical owner 和修复路线 | impact_map、source ledger | 生成 canonical_owner、writeback_order、stage_routes、asset_actions | repair_plan | `R5-WRITEBACK` / `R6-DOUBAO` / `R7-ASSET` / `R9-REVIEW` | 不允许下游先改源层错误 |
 | `R5-WRITEBACK` | 修复最早源层真源 | user authorization、source files、stage contract | 最小写回或生成 owner repair brief，同步 source refs | changed_source_files | `R6-DOUBAO` / `R8-SYNC` | 写回范围受授权约束 |
-| `R6-DOUBAO` | 执行豆包分析、润色或创意候选 | task packet、source rules、forbidden changes | 调用 provider 或记录降级，形成 provider output | doubao_task_packet、provider_evidence | `R8-SYNC` | provider evidence 或降级说明齐全 |
+| `R6-DOUBAO` | 执行豆包分析、润色或创意候选 | task packet、source rules、forbidden changes | 调用 provider 或记录降级，形成 provider output；脚本不得生成修复正文、润色正文、创意候选或 repair verdict | doubao_task_packet、provider_evidence、authorship note | `R8-SYNC` | provider evidence 或降级说明齐全；命中脚本化 repair 正文即失败 |
 | `R7-ASSET` | 处理图像/视频等生成资产 | asset paths、provider reports、review findings | 决定 preserve / invalidate / regenerate / review_only | asset_action_plan | `R8-SYNC` | 不伪造生成结果 |
 | `R8-SYNC` | 同步下游产物和后续约束 | writeback order、provider output、asset actions | 更新、失效、重验或添加 next_generation_constraints | changed_downstream_refs | `R9-REVIEW` | 无已知消费者仍引用旧口径 |
 | `R9-REVIEW` | 审计修复完整性 | review contract、changed files、provider evidence | 检查 source review、owner、provider evidence、asset status | audit_result | `R10-CLOSE` / `R2-SOURCE` | PASS 或返工项明确 |
@@ -128,7 +128,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 每次至少锁定 1 个 target locality、1 个 canonical owner 和 1 个 permission state；写回仅限授权 owner 文件 | `R1-INTAKE`, `R4-OWNER`, `R5-WRITEBACK` | `FAIL-REPAIR-QUANT-SCOPE` |
 | `evidence_count` | source review 至少 1 个 owner 证据；impact map 至少覆盖 upstream/current/downstream 三类 | `R2-SOURCE`, `R3-IMPACT` | `FAIL-REPAIR-QUANT-EVIDENCE` |
-| `pass_threshold` | 执行型完成要求 audit_result 为 pass/pass_with_followups，provider evidence 或降级说明存在 | `R9-REVIEW`, `Output Contract` | `FAIL-REPAIR-QUANT-THRESHOLD` |
+| `pass_threshold` | 执行型完成要求 audit_result 为 pass/pass_with_followups，provider evidence 或降级说明存在；脚本化修复正文、模板润色、锚点替换 repair verdict 数量为 0 | `R9-REVIEW`, `Output Contract` | `FAIL-REPAIR-QUANT-THRESHOLD` |
 | `retry_limit` | owner 不清、provider 失败或 review 返工时最多 1 次自动缩窄，仍失败输出 blocker | `R4-OWNER`, `R6-DOUBAO`, `R9-REVIEW` | `FAIL-REPAIR-QUANT-RETRY` |
 | `fallback_evidence` | provider 不可用、资产不可访问或验收缺失时记录降级原因、已查路径和保守 repair route | `Review Gate Binding` | `FAIL-REPAIR-QUANT-FALLBACK` |
 
@@ -138,7 +138,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 锚点是项目根、target locality、change intent、canonical owner、provider evidence 和 audit gate | `R1-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source review 完成后转 impact；owner 锁定后转对应 repair route；review 失败回 source/owner | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 下游先改、无 provider evidence、资产结果伪造、无授权覆盖或忽略 review finding 时判定漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 下游先改、无 provider evidence、资产结果伪造、无授权覆盖、忽略 review finding、脚本生成 repair 正文或 verdict 时判定漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 漂移时回最近有效节点，停止继续改写；最终报告漂移和残余风险 | `R2-SOURCE` / `R4-OWNER` / `R9-REVIEW` |
 
 | drift_type | re_center_entry |
@@ -157,7 +157,7 @@ flowchart TD
 | `types/` | 每次判定 scope、operation、acceptance | 提供类型画像 | 不得直接执行修复 | `R1-INTAKE` |
 | `review/` | audit_only 或执行型交付前 | 提供 repair review verdict | 不得替代 owning stage 验收 | `R9-REVIEW` |
 | `templates/` | 用户要求报告或需要 repair report | 投影 repair packet | 不得改写输出完成门 | `R10-CLOSE` |
-| `scripts/` | 机械定位、diff、validator、引用扫描 | 机械辅助 | 不得生成创作正文或修复决策 | `R3-IMPACT` / `R8-SYNC` |
+| `scripts/` | 机械定位、diff、validator、引用扫描 | 机械辅助 | 不得生成创作正文、修复正文、润色正文、创意候选或 repair verdict | `R3-IMPACT` / `R6-DOUBAO` / `R8-SYNC` |
 | `guardrails/` | 任意写回、provider、权限或注入风险 | 展开运行防护 | 不得扩大授权 | `R1-INTAKE` |
 | `knowledge-base/` | 人工加入外部修复经验资料 | 外部资料库 | 不得承载自动经验沉淀 | `Learning / Context Writeback` |
 | `agents/` | 产品入口或索引元数据检查 | 说明 `$aigc-repair` 入口 | 不得承载执行规则 | `R1-INTAKE` |
@@ -176,6 +176,7 @@ flowchart TD
 | `FAIL-REPAIR-SCOPE` | `references/impact-scope-contract.md`, `types/type-map.md` | `R3-IMPACT` | `R3-IMPACT` | upstream/current/downstream listed |
 | `FAIL-REPAIR-OWNER` | `references/source-truth-ledger.md` | `R4-OWNER` | `R4-OWNER` | canonical owner unique |
 | `FAIL-REPAIR-DOUBAO` | `references/doubao-execution-contract.md` | `R6-DOUBAO` | `R6-DOUBAO` | task packet and evidence present |
+| `FAIL-REPAIR-SCRIPTED-REPAIR` | `references/doubao-execution-contract.md`, `review/review-contract.md` | `R6-DOUBAO` / `R9-REVIEW` | `R6-DOUBAO` | repair text and verdict have LLM/provider authorship evidence |
 | `FAIL-REPAIR-ASSET` | `references/impact-scope-contract.md`, `types/type-map.md` | `R7-ASSET` | `R7-ASSET` | preserve/invalidate/regenerate/review_only chosen |
 | `FAIL-REPAIR-REVIEW` | `review/review-contract.md` | `R9-REVIEW` | `R9-REVIEW` | verdict pass or rework |
 | `FAIL-REPAIR-OUTPUT` | `templates/output-template.md` | `R10-CLOSE` | `R10-CLOSE` | repair_packet fields present |
@@ -204,6 +205,7 @@ flowchart TD
 | 是否完成跨阶段影响图？ | `GATE-REPAIR-SCOPE` | `FAIL-REPAIR-SCOPE` | `R3-IMPACT` | impact_map surfaces |
 | canonical owner、writeback_order 和 stage_routes 是否唯一？ | `GATE-REPAIR-OWNER` | `FAIL-REPAIR-OWNER` | `R4-OWNER` | owner decision、writeback order |
 | 豆包 task packet、provider evidence 或降级说明是否齐全？ | `GATE-REPAIR-DOUBAO` | `FAIL-REPAIR-DOUBAO` | `R6-DOUBAO` | task packet、provider status |
+| 修复正文、润色正文、创意候选或 repair verdict 是否由 LLM/provider 基于 source rules 主创，而不是脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成？ | `GATE-REPAIR-AUTHORSHIP` | `FAIL-REPAIR-SCRIPTED-REPAIR` | `R6-DOUBAO` / `R9-REVIEW` | provider evidence、authorship note、source rule refs |
 | 生成资产修复是否明确 preserve/invalidate/regenerate/review_only？ | `GATE-REPAIR-ASSET` | `FAIL-REPAIR-ASSET` | `R7-ASSET` | asset_action_plan |
 | 修复是否通过 review gate 或返工项明确？ | `GATE-REPAIR-REVIEW` | `FAIL-REPAIR-REVIEW` | `R9-REVIEW` | audit_result、findings |
 | repair_packet 是否包含必需字段和残余风险？ | `GATE-REPAIR-OUTPUT` | `FAIL-REPAIR-OUTPUT` | `R10-CLOSE` | final_packet checklist |
@@ -284,7 +286,7 @@ See `guardrails/guardrails-contract.md`.
 - Output format: 默认对话交付结构化 Markdown；用户要求落盘时使用 `templates/output-template.md` 生成 repair report。
 - Output path: 默认不写业务真源；报告落盘到 `reports/aigc-repair-YYYYMMDD.md` 或 `projects/aigc/<项目名>/repair/repair-report-YYYYMMDD.md`。执行型写回必须落到 owning stage 合同声明的 canonical 路径。
 - Naming convention: 报告使用 kebab-case 与 `YYYYMMDD` 日期后缀；任务 ID、sidecar slug 和 provider evidence 文件名保持 ASCII 安全。
-- Completion gate: 已完成 source rule review、impact map、canonical owner、writeback order、豆包执行或降级说明、review gate、changed files/residual risks；若无法唯一裁决，必须返回 blocker 和最小补充信息。
+- Completion gate: 已完成 source rule review、impact map、canonical owner、writeback order、豆包执行或降级说明、review gate、changed files/residual risks；修复正文、润色正文、创意候选和 repair verdict 有 LLM/provider 主创证据，未命中 `FAIL-REPAIR-SCRIPTED-REPAIR`；若无法唯一裁决，必须返回 blocker 和最小补充信息。
 
 ## Learning / Context Writeback
 

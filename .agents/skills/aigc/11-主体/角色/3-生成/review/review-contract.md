@@ -30,7 +30,7 @@
 | `GATE-CHAR-GEN-08` | 本阶段未修改上游设计稿、父级 registry、场景/道具/视频/分镜目录或其他 worker 范围 | `FAIL-WRITE-BOUNDARY` | `N7-REVIEW` |
 | `GATE-CHAR-GEN-09` | 真实生成模式下，多视图参照主图已通过 `view_image` 进入对话上下文并记录状态 | `FAIL-REFERENCE-CONTEXT` | `N5-MULTIVIEW-JSON` |
 | `GATE-CHAR-GEN-10` | 未获用户显式授权时只使用 `.agents/skills/cli/imagegen`，并遵守 imagegen 当前合同和项目持久化规则 | `FAIL-EXECUTOR-DRIFT` | `N1-INTAKE` |
-| `GATE-CHAR-GEN-11` | 脚本只做复制、校验、汇总或投影，不生成或改写 `prompt_text` 创作正文 | `FAIL-SCRIPT-AUTHORSHIP` | `N3-MAIN-JSON` |
+| `GATE-CHAR-GEN-11` | 脚本只做复制、校验或汇总，不生成、改写、批量插入、正则套句或映射投影 `prompt_text` 创作正文 | `FAIL-SCRIPT-AUTHORSHIP` | `N3-MAIN-JSON` |
 
 ## Checklist
 

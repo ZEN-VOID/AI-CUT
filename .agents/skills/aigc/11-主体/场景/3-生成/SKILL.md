@@ -10,6 +10,8 @@ metadata:
 
 `$aigc-scene-generation` 消费上游 `$aigc-scene-design` 已完成的单场景设计文档，调用 `$imagegen` 生成场景主图与场景多视图主体设计图。本阶段只执行图像生成、提示词 JSON 落盘、路径归档与质量复核，不重新设计场景主体、不改写上游设计真源。
 
+生成阶段的 prompt JSON 和生成决策必须由 LLM 基于上游 `4. 解构` 直接裁决；脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成的主图 prompt、多视图 prompt、panel 差异或 `generation_profile`，直接判定为 `FAIL-SCENE-GEN-PSEUDO-DIFF`。JSON schema 合规、命名合规或图片已生成不得抵消该失败。
+
 ## Context Loading Contract
 
 - 每次调用 `$aigc-scene-generation` 时，必须同时加载同目录 `CONTEXT.md`。
@@ -152,6 +154,7 @@ stateDiagram-v2
 - 多视图使用本地主图作为参照但未先 `view_image` 进入对话上下文。
 - 项目资产仍只在 `$CODEX_HOME/generated_images`，未持久化到项目路径。
 - 覆盖已有资产、改 registry、改父级目录或改其他 worker 范围。
+- 主图或多视图 JSON 看似完整但只是模板字段换场景名、替换视角词、轮换句式或同义改写，没有基于上游 `4. 解构` 的生成决策。
 
 必经链路：
 
@@ -169,6 +172,7 @@ stateDiagram-v2
 | `FIELD-SCENE-GEN-06` | imagegen 合同 | 默认使用内建 `image_gen`，CLI/API fallback 有显式许可 | `FAIL-SCENE-GEN-06` |
 | `FIELD-SCENE-GEN-07` | 项目持久化 | 资产落在项目 `3-生成` 目录 | `FAIL-SCENE-GEN-07` |
 | `FIELD-SCENE-GEN-08` | 写入边界 | 不改上游设计、registry、父目录或其他 worker 范围 | `FAIL-SCENE-GEN-08` |
+| `FIELD-SCENE-GEN-09` | 反模板伪差异 | 主图 JSON、多视图 JSON、panel/视角差异和 `generation_profile` 不是由模板槽位、关键词锚点替换、句式轮换或同义改写批量投影；每组 prompt 能回指上游 `4. 解构` 的场景专属结构、材质、光线或镜头裁决 | `FAIL-SCENE-GEN-PSEUDO-DIFF` |
 
 ## Output Contract
 
@@ -220,4 +224,5 @@ stateDiagram-v2
 - 项目交付图片已持久化到 `projects/aigc/<项目名>/11-主体/场景/3-生成`。
 - 已识别并跳过既有完整资产；仅补齐缺主图、缺多视图、缺 JSON 或用户明确指定 repair 的主体。
 - 未重新设计主体，未改写上游设计，未修改边界外文件。
+- 未使用脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量制造 prompt/多视图伪差异；疑似命中时已废弃 JSON 候选并回到 LLM prompt 决策节点。
 - 已执行 `review/review-contract.md` 的验收，或写明等价人工 review 结果与 顾问与复核流程 本地流程。

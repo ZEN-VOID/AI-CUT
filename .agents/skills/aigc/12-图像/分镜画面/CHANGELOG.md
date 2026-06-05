@@ -2,6 +2,7 @@
 
 ## 2026-06-04
 
+- 将项目输出根从旧 `12-图像/A-分镜画面` 收敛为与叶子技能包名一致的 `12-图像/分镜画面`，并同步 `SKILL.md`、模板、README、CONTEXT、references、test prompt 与父级/registry/query 引用。
 - 明确画面比例规则：默认 `16:9`；仅当用户显式要求时调整为 `9:16` 或其他比例，并同步 prompt、plan 与报告字段。
 - 按新版 Skill 2.0 runtime-spine 规范升级 `A-分镜画面`：主 `SKILL.md` 补齐业务分析、类型路由、节点表、模块矩阵、触发矩阵、量化标准、汇流门、审查绑定、注意力协议、检查点和评估资产。
 - 生图拓扑从旧的“完整 prompts 文档前置 + 按 `shot_id` 逐镜串行 imagegen”调整为“每个普通分镜组一次 GPT-IMAGE-2 multi-image task”。

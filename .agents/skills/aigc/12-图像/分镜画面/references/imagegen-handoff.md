@@ -33,7 +33,7 @@ aspect_ratio: "16:9"
 aspect_ratio_override: null
 provider_cap: 10
 prompt_source:
-  prompts_path: "projects/aigc/<项目名>/12-图像/A-分镜画面/第1集/第1集-分镜画面-prompts.md"
+  prompts_path: "projects/aigc/<项目名>/12-图像/分镜画面/第1集/第1集-分镜画面-prompts.md"
   prompt_block_id: "Group 1-1-1 Multi-Image Task"
 source_group:
   source_episode_path: "projects/aigc/<项目名>/10-分组/第1集.md"
@@ -54,13 +54,13 @@ reference_input_status: "visible_in_conversation_context"
 output_mapping:
   - image_index: 1
     shot_id: "1-1-1-1"
-    output_image_path: "projects/aigc/<项目名>/12-图像/A-分镜画面/第1集/images/1-1-1-1.png"
+    output_image_path: "projects/aigc/<项目名>/12-图像/分镜画面/第1集/images/1-1-1-1.png"
   - image_index: 2
     shot_id: "1-1-1-2"
-    output_image_path: "projects/aigc/<项目名>/12-图像/A-分镜画面/第1集/images/1-1-1-2.png"
+    output_image_path: "projects/aigc/<项目名>/12-图像/分镜画面/第1集/images/1-1-1-2.png"
   - image_index: 3
     shot_id: "1-1-1-3"
-    output_image_path: "projects/aigc/<项目名>/12-图像/A-分镜画面/第1集/images/1-1-1-3.png"
+    output_image_path: "projects/aigc/<项目名>/12-图像/分镜画面/第1集/images/1-1-1-3.png"
 non_collage_constraint: true
 consistency_contract_status: "present"
 overwrite_policy: "fail_unless_rerun_or_replace_authorized"
@@ -79,7 +79,7 @@ overwrite_policy: "fail_unless_rerun_or_replace_authorized"
 
 ## Output Persistence
 
-- 结果必须持久化到 `projects/aigc/<项目名>/12-图像/A-分镜画面/第N集/images/`。
+- 结果必须持久化到 `projects/aigc/<项目名>/12-图像/分镜画面/第N集/images/`。
 - 文件名固定为 `<shot_id>.png`，例如 `1-1-1-2.png`。
 - `imagegen-results.json` 必须记录：
   - `group_id`

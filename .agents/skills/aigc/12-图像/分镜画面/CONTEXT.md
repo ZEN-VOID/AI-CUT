@@ -1,6 +1,6 @@
-# Context: aigc 12-图像 / A-分镜画面
+# Context: aigc 12-图像 / 分镜画面
 
-本文件是 `A-分镜画面` 的经验层知识库，不是执行日志。调用同目录 `SKILL.md` 时必须同时加载本文件。
+本文件是 `分镜画面` 的经验层知识库，不是执行日志。调用同目录 `SKILL.md` 时必须同时加载本文件。
 
 ## Context Health
 
@@ -28,6 +28,7 @@ last_checked_at: 2026-06-04
 | provider 单次多图超上限 | provider cap layer | 报告 blocked 或请求用户授权拆组/重组 | 默认 cap 10，覆盖值必须写入 plan/report | `shot_count <= provider_cap` 或 blocked |
 | 返回图片数少于/多于分镜数 | result mapping layer | 不猜测补齐或丢弃；进入 repair | `G8-RESULT-MAP` 阻断 | `expected_count == returned_count` |
 | 输出顺序错位 | result persistence layer | 用返回 image_index 按 `shot_id_order` 重建映射 | results 固定 `image_index_to_shot_id` | 每个 `<shot_id>.png` 对应正确 source_shot_label |
+| prompt 形式字段齐全但只是锚点替换、批量插入、正则套句或映射投影 | scripted authorship layer | 标记 `FAIL-FRAME-SCRIPTED-PROJECTION`，回到 `N6-PROMPT-PACKAGE` 由 LLM 基于完整组稿和分镜点重写 | review gate 固化 `G5B-AUTHORSHIP` | Image sections 能说明各自 source shot anchor 和本组独有画面状态 |
 
 ## Repair Playbook
 
@@ -42,6 +43,7 @@ last_checked_at: 2026-06-04
 9. 若生成结果是一张拼图，即使视觉上包含所有分镜，也必须判定失败并重写非拼图前缀。
 10. 若组内分镜数超过 provider cap，不要自动拆成多个任务；先报告阻断或取得用户明确授权。
 11. 执行报告必须记录 Reference Execution Matrix、Rule Evidence Map、N/A Justification 和 Repair Log；报告缺证据不能判 `pass`。
+12. prompt 字数、Image section 数、主体名和 `shot_id` 齐全不等于主创合格；若每节只是固定句式替换角色/场景/道具锚点或批量同义改写，直接返工。
 
 ## Reusable Heuristics
 
@@ -55,3 +57,5 @@ last_checked_at: 2026-06-04
 - 场景参照图在本技能中同时承担 `scene_reference` 和 `scene_visual_style_reference`，用于锁定空间、材质、光影、色调和氛围。
 - 输出检查必须同时看“数量”和“形态”：数量对但生成拼图仍失败；形态对但数量不对也失败。
 - 对用户只给四段式 `shot_id` 的请求，默认回到该 `shot_id` 所在 `group_id`，因为 GPT-IMAGE-2 多图一致性任务单位是组。
+- 脚本适合数分镜、整理已定 plan 字段、检查文件和映射结果。
+- 脚本不适合生成多图 prompt 正文、一致性策略、批量插入、正则套句或映射投影。看到模板味很重的 prompt 时，优先怀疑主创边界被脚本越权。

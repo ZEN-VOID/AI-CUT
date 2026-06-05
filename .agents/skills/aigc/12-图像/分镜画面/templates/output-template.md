@@ -6,14 +6,14 @@
 | --- | --- |
 | Required output | group index、组级多图 prompt 文档、reference manifest、GPT-IMAGE-2 multi-image plan/result、独立图片、执行报告 |
 | Output format | Markdown + JSON + bitmap image assets |
-| Output path | `projects/aigc/<项目名>/12-图像/A-分镜画面`，逐集文件组织在 `第N集/` 子目录 |
+| Output path | `projects/aigc/<项目名>/12-图像/分镜画面`，逐集文件组织在 `第N集/` 子目录 |
 | Naming convention | `第N集-分镜画面-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-imagegen-plan.json`、`第N集-imagegen-results.json`、`images/<shot_id>.png`、`执行报告.md` |
 | Completion gate | 每组一个 `multi_image_task`；`n == shot_count`；默认 `aspect_ratio=16:9`，只有用户显式要求时才使用 override；返回图片数匹配；不是拼图；每张独立落盘；报告证据完整 |
 
 ## Episode Directory Shape
 
 ```text
-projects/aigc/<项目名>/12-图像/A-分镜画面/
+projects/aigc/<项目名>/12-图像/分镜画面/
 └── 第N集/
     ├── 第N集-分镜画面-prompts.md
     ├── 第N集-group-index.json
@@ -28,7 +28,7 @@ projects/aigc/<项目名>/12-图像/A-分镜画面/
 ## Execution Report Template
 
 ```markdown
-# 第N集 A-分镜画面执行报告
+# 第N集 分镜画面执行报告
 
 ## Input
 

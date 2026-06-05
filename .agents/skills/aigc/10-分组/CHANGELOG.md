@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## 2026-06-05 (14.5s Boundary Hard Cap)
+
+- 将分镜组目标时长调整为约 14.5 秒；通常 10-14.5 秒可接受，14.5 秒为硬上限。
+- 保留最终累计结束秒 `.5` 收束规则：自然累计不以 `.5` 结尾时只允许上调到不超过 14.5 秒；超过 14.5 秒必须重裁或回退 source owner。
+- 同步 `SKILL.md`、boundary、review、CONTEXT、README、模板、入口元数据、类型映射、知识库、脚本说明、validator 和 test prompts。
+
+## 2026-06-05 (Remove Character Hard Limit)
+
+- 移除分镜组字数硬上限；字数高低只作为语义复核信号，不再作为 validator error 或正式 pass 阻断项。
+- 保留约 1680 字参考线和低于 850 字复核提示，用于报告解释密度风险；不得为了压低字数切断 atomic unit、改写上游正文或覆盖分镜总时长判断。
+- 同步 boundary、statistics、north-star projection、review、CONTEXT、knowledge-base 与 validator。
+
+## 2026-06-05 (Remove Visual Style Header From Template)
+
+- 从分镜组输出结构中移除独立 `画面风格：` 组头行。
+- 当前组头结构收束为：场景标题行 -> `全局风格：` -> 单行全局风格内容 -> 第一个普通时间码分镜行。
+- 同步 `SKILL.md`、templates、README、review、CONTEXT、入口元数据、脚本说明、validator 与 test prompts；不新增 `画面风格：` 的负向完成门。
+
+## 2026-06-05 (Single-Line Global Style)
+
+- 将每组 `全局风格：` 输出从三行结构收束为单行结构：只保留固定前置词 + 当前组 `Global Style Prompt` 整理句，300 字以内。
+- 移除 `Visual Slogan / Design Principle` 与 `Visual Gene Profile / Negative Traits` 两个独立输出行；这些字段不再作为 `全局风格：` 完成门槛。
+- 同步 `SKILL.md`、north-star projection、statistics、boundary、review、templates、CONTEXT、type map、入口元数据、脚本说明、validator 与 test prompts。
+- validator 现在要求 `全局风格：` 字段只有 1 行内容。
+
+## 2026-06-05 (13s Boundary And Half-Second Close)
+
+- 将分镜组目标时长从约 15 秒调整为约 13 秒；常规可接受带从 12-18 秒调整为 10-16 秒，硬上限从 18 秒调整为 16 秒。
+- 新增最终累计结束秒 `.5` 收束规则：每个分镜组最终结束秒必须以 `.5` 结尾；自然相加已为 `.5` 时保留，否则在组尾上调 0.5 秒；YAML `时长估算` 回指该最终结束秒。
+- 同步 `SKILL.md`、`references/group-boundary-contract.md`、`references/statistics-yaml-contract.md`、`review/review-contract.md`、`types/grouping-type-map.md`、`CONTEXT.md`、README、模板、入口元数据、脚本说明与 validator。
+- validator 现在将 `>16s`、最终结束秒未以 `.5` 结尾、YAML `时长估算` 未以 `.5` 结尾或未匹配最终结束秒视为 error。
+
 ## 2026-06-04 (Runtime Spine And Lighting Source Upgrade)
 
 - 将 `10-分组` 升级为 Skill 2.0 runtime-spine 主合同：补齐 Business Requirement、Type Routing、Thinking-Action Node Map、Module Loading / Trigger、Convergence、Review Gate、Quantifiable Criteria、Attention、Checkpoint、Evaluation Prompt 与 Learning Writeback。

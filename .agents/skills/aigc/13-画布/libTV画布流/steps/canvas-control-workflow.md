@@ -5,9 +5,9 @@ flowchart TD
     N1["N1-PROJECT<br/>lock project + episode + canvas name"] --> N2["N2-UPLOAD<br/>discover and upload references"]
     N2 --> N3["N3-YAML-BACKFILL<br/>write 图片N 主体名 UUID"]
     N3 --> N4["N4-GROUP-EXTRACT<br/>read non-connector groups"]
-    N4 --> N5["N5-NODE-CREATE<br/>create video nodes 16:9"]
+    N4 --> N5["N5-NODE-CREATE<br/>create video node instances 16:9"]
     N5 --> N6["N6-ORDER-LOCK<br/>sequential left-add + imageList/mixedList"]
-    N6 --> N7["N7-PROMPT-HYGIENE<br/>write clean prompt with {{Image N}}"]
+    N6 --> N7["N7-PROMPT-HYGIENE<br/>write clean prompt with 图片N 主体名 {{Image N}} UUID"]
     N7 --> N8["N8-FINAL-QUERY<br/>verify remote imageList + prompt"]
     N8 --> N9["N9-EVIDENCE<br/>write manifest/plan/queue/report"]
 ```
@@ -42,10 +42,10 @@ flowchart TD
 
 ## N5-NODE-CREATE
 
-- Judgment: 是否要删除旧视频节点；用户是否授权。
-- Action: 已授权时删除旧 video 节点；按 group_id 创建新 video 节点，默认 `star-video2/mixed2video/16:9/720p`，用户显式指定时覆盖默认值。
-- Evidence: deleted node list、new node list。
-- Gate: `GATE-LTVCTRL-NODE`。
+- Judgment: 是否要删除旧视频节点；用户是否授权；同一 `source_group_id` 是否已有实例。
+- Action: 查询 active registry 和远端已有节点；按 `vid__<source_group_id>__bNNN__rNN__vNNN` 选择新的 `video_node_instance_id` 创建 video 节点，默认 `star-video2/mixed2video/16:9/720p`，用户显式指定时覆盖默认值。已授权时才删除旧 video 节点；未授权时同一 `source_group_id` 的旧实例必须保留。
+- Evidence: deleted node list、new node list、instance identity map。
+- Gate: `GATE-LTVCTRL-NODE` / `GATE-LTVCTRL-NODE-IDENTITY`。
 
 ## N6-ORDER-LOCK
 
@@ -61,7 +61,7 @@ flowchart TD
 ## N7-PROMPT-HYGIENE
 
 - Judgment: prompt 是否干净且可执行。
-- Action: 保留原分镜组正文；底部 YAML 行末追加 `{{Image N}}`；删除旧 `{{Portrait N}}`、绑定表、命令说明和诊断文本。
+- Action: 保留原分镜组正文；提交 prompt 的底部 YAML 主体行重排为 `图片N 主体名 {{Image N}} UUID`；删除旧 `{{Portrait N}}`、绑定表、命令说明和诊断文本。
 - Evidence: final queried prompt excerpt。
 - Gate: `GATE-LTVCTRL-PROMPT`。
 
@@ -75,6 +75,6 @@ flowchart TD
 ## N9-EVIDENCE
 
 - Judgment: 本地证据是否足以复跑和审查。
-- Action: 写 manifest、submit plan、queue record、执行报告。
+- Action: 写以 `video_node_instance_id` 为前缀的 manifest、submit plan、queue record、执行报告，并更新 `source_group_id -> instances[]` registry。
 - Evidence: 证据文件路径。
 - Gate: `GATE-LTVCTRL-EVIDENCE`。

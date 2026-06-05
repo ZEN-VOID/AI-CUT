@@ -26,6 +26,7 @@ recommended_action: keep-cinematography-heuristics-focused
 | 输出太长像摄影论文 | prompt 收束失败 | 把证据、连招和规则留在协议表格，prompt 只保留可继承摄影前缀 | `Cinematography Style Prompt` 80-130 个汉字 |
 | 输出太短像标签串 | prompt 密度不足 | 补构图秩序、景别/机位、运动方式、连续性和负面限制 | 字数回到默认区间 |
 | 画面基调被摄影阶段反向改写 | 上游越权 | 只继承画面基调中的媒介、氛围和禁区，不修改其全局视觉协议 | 报告 `visual_tone_camera_constraints` |
+| 输出像同一套摄影模板换镜头词 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新设计摄影语法、运动连招和连续性，不做表层润色 | `GATE-CS-10-ANTI-SCRIPTED-CAMERA` 通过 |
 
 ## Repair Playbook
 
@@ -35,7 +36,8 @@ recommended_action: keep-cinematography-heuristics-focused
 4. 若剧本分析只剩情绪摘要，回到 `N2-SCRIPT-CAMERA-EVIDENCE`，从节奏、空间压力、动作密度、视角距离和段落转换需求抽取摄影证据。
 5. 若 prompt 出现剧情、角色、道具、场景或单镜头正文，回到 `N7-PROMPT-DISTILL`，用摄影层级表达替换。
 6. 若运动连招只是术语列表，回到 `N5-MOVEMENT-COMBO`，补起手、过渡、落点和连续性理由。
-7. 修复后必须重新执行 `GATE-CS-01` 到 `GATE-CS-09`，并把失败码、返工点和复审结果写入 `Repair Log`。
+7. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个摄影术语或润色句子。
+8. 修复后必须重新执行 `GATE-CS-01` 到 `GATE-CS-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Reusable Heuristics
 

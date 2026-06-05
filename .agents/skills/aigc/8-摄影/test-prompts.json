@@ -2,7 +2,7 @@
   {
     "id": "single-episode-camera-injection",
     "prompt": "使用 $aigc-camera-movement-injection，读取 projects/aigc/示例项目/7-分镜/第1集.md，并结合 3-美学/画面基调 和 3-美学/摄影风格，生成逐分镜摄影运镜稿。",
-    "expected": "输出 projects/aigc/示例项目/8-摄影/第1集.md；每条普通分镜保留原有内容并追加镜头角度、镜头类型、镜头速度、焦点行为的综合运镜手法；报告包含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log。"
+    "expected": "输出 projects/aigc/示例项目/8-摄影/第1集.md；每条普通分镜保留原有内容，并追加具体机位和角度、景别/镜头类型、运动方式、运动路径、速度曲线、如何沿既有构图轴线或空间层次运动，以及景深与对焦行为；报告包含 spatial_axis_usage_map、spatial_movement_action_map、lens_or_camera_motion_boundary、focus_transition_map、Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log。"
   },
   {
     "id": "specified-storyboard-override",
@@ -12,11 +12,36 @@
   {
     "id": "one-take-camera-chain",
     "prompt": "第3集第2场要求一镜到底，请把该画面点下所有分镜设计为连续组合运镜。",
-    "expected": "进入 one_take_camera_injection；以画面点为单位输出 一镜到底运镜（覆盖分镜A-B，N-N秒）：...；报告包含 one_take_chain_plan 和 transition_anchor_map。"
+    "expected": "进入 one_take_camera_injection；以画面点为单位输出 一镜到底运镜（覆盖分镜A-B，N-N秒）：从分镜A的既有起始状态帧和具体机位/角度进入，连续串联分镜A-B，说明景别/镜头类型、运动方式、如何沿既有构图轴线或空间层次推进、如何使用既有前中后景或遮挡关系、速度曲线与停点、景深策略与对焦/拉焦/转焦接力，以及跨分镜交出点。报告包含 one_take_chain_plan、spatial_movement_action_map、focus_transition_map 和 transition_anchor_map。"
   },
   {
     "id": "repair-random-camera-terms",
     "prompt": "修复一个每条分镜都写成低角度慢推、转焦、电影感压迫的 8-摄影稿。",
     "expected": "回到 shot_function_map 和 camera_movement_plan；删除随机术语，按每条分镜功能重裁镜头角度、镜头类型、速度和焦点；报告包含 FAIL-CAM-MOTIVATION-RANDOM 的返工证据。"
+  },
+  {
+    "id": "reject-mechanical-metric-pass",
+    "prompt": "候选 8-摄影稿覆盖率 100%，每条都有镜头角度、镜头类型、速度曲线、焦点行为，报告字段也齐全，但从中段开始焦点变化都是同一句式换人名。请验收。",
+    "expected": "不得 pass；覆盖率、四要素、报告字段完整只能作为机械底线；触发 FAIL-CAM-MECHANICAL-PASS 和 FAIL-CAM-FAKE-DIFFERENTIATION，回到逐画面点 LLM 作者性与差异化审计。"
+  },
+  {
+    "id": "reject-focus-as-attention",
+    "prompt": "候选 8-摄影稿每条都有“焦点交给危险方向、焦点压住下一步行动压力、焦点拉成三角关系”，请验收焦点部分。",
+    "expected": "不得 pass；触发 FAIL-CAM-FOCUS-SEMANTIC 或 FAIL-CAM-FOCUS-PLAN-INCOMPLETE。焦点必须按摄影语义重写为清晰主体、景深层次、对焦/拉焦/转焦/失焦再合焦行为；叙事关注点只能作为动机；focus_transition_map 必须含 focus_start、focus_end、focus_mode、depth_of_field_strategy、must_remain_readable；变焦不得替代推轨或横移。"
+  },
+  {
+    "id": "reject-lens-motion-conflation",
+    "prompt": "候选 8-摄影稿把短推、横移和靠近人物都写成变焦，还把长焦压缩空间写成镜头向后移动，请验收。",
+    "expected": "不得 pass；触发 FAIL-CAM-LENS-MOTION-CONFLATION。lens_or_camera_motion_boundary 必须区分摄影机/机位运动、焦距变化和透视效果：推/拉/横移/跟拍/升降是机位运动，变焦是焦距变化，广角/长焦空间夸张或压缩是镜头/透视效果。"
+  },
+  {
+    "id": "reject-unsupported-spatial-action",
+    "prompt": "候选 8-摄影稿大量写穿过前景、绕开遮挡、压向后景，但 7-分镜没有前景遮挡或后景信息，请审查。",
+    "expected": "不得 pass；触发 FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED 或 FAIL-CAM-SPATIAL-OVERREACH。spatial_movement_action_map 的 enter_from、track_parallel_to_axis、push_along_depth、pull_back_revealing_layer、cross_foreground_occlusion、orbit_existing_subject、hold_static_against_depth 必须回指 7-分镜 的 start_frame_spatial_layout、screen_direction_axis_map 或 spatial_layer_payload。"
+  },
+  {
+    "id": "reject-scripted-repair-body-edit",
+    "prompt": "把这些高度相似的焦点变化用脚本批量替换一下，同义改写成不同说法，然后直接写回正文。",
+    "expected": "拒绝脚本改正文；触发 FAIL-CAM-REPAIR-SCRIPTED。脚本最多输出失败画面点清单、source diff 和风险统计；正文修复必须由 LLM 按每个画面点重新判断观看决策后改写，并在报告中写入 Repair Authorship Note 与 Mechanical Assist Log。"
   }
 ]

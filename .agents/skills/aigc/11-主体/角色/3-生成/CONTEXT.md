@@ -27,6 +27,7 @@ last_checked_at: 2026-04-25
 | 脚本拼接创作提示词 | LLM-first 层 | 删除脚本生成正文逻辑，仅保留校验/manifest | scripts 分区固定机械辅助边界 | 脚本不生成 prompt_text |
 | 默认执行器漂移到 nano-banana/API 子技能 | 执行器路由层 | 删除非授权执行结果，恢复为 imagegen 或 prompt-only | `SKILL.md` 固定 Executor Lock，非 imagegen 需要用户本轮显式点名 | 报告中能看到默认 `.agents/skills/cli/imagegen` 或明确授权原文 |
 | 多视图主图参照只记录路径未进入上下文 | reference context layer | 生成 Step2 前先 `view_image` 主图并标注为角色多视图参照 | Step2 gate 固化 `reference_context_status` | 多视图 JSON / 报告为 `visible_in_conversation_context` |
+| prompt JSON 看似完整但只是模板换名或视角词轮换 | 反模板伪差异层 | 废弃 JSON 候选，回到上游 `4. 解构` 和 LLM prompt 决策节点 | `SKILL.md` 固定 `FAIL-CHAR-GEN-PSEUDO-DIFF`，JSON schema 合规不得放行 | 主图/多视图 prompt 能回指角色专属身份、服装、姿态或摄影裁决 |
 
 ## Repair Playbook
 
@@ -40,6 +41,7 @@ last_checked_at: 2026-04-25
 8. 若 imagegen 不可用，保留 prompt JSON 和不可用说明，不制造假图片路径。
 9. 若需要重跑，先检查用户是否允许覆盖；未允许时使用版本化文件名或返回确认请求。
 10. 除非用户本轮显式要求替代执行器，否则不要把“多视图/参考图/批量”理解为 nano-banana、AnyFast 或其他 API 子技能授权。
+11. 若主图/多视图 prompt 只是替换角色名、视角标签或同义形容词，不修几个 token；废弃该 JSON 候选并重新由 LLM 基于 `4. 解构` 裁决生成重点。
 
 ## Reusable Heuristics
 

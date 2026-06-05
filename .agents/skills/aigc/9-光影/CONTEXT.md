@@ -28,6 +28,7 @@ recommended_action: keep-heuristics-focused
 | 与运镜冲突 | 摄影配合层 | 让光影服务镜头方向、速度、焦点和表演可读性 | `camera_light_alignment` 通过 |
 | 原分镜内容被改写 | 保真层 | 回到 source diff，只允许追加光影或修旧矛盾光影 | `source_preservation_diff` 无剧情/秒数变化 |
 | 输出变成 prompt | 下游越权层 | 删除 provider 参数、负面词、灯位设备和镜头参数 | `overreach_scan` 为 0 |
+| 光影句像词库批量投影 | LLM-first 作者性层 | 废弃候选稿，回 `N5/N6` 重建分镜功能、光源依据和光影设计，再由 LLM 逐镜重写 | `GATE-LIGHT-09-AUTHORSHIP` 通过，重复句式/锚点替换抽样无伪差异 |
 
 ## Repair Playbook
 
@@ -40,6 +41,7 @@ recommended_action: keep-heuristics-focused
 7. 大师/作品参照只取光影组织原则，不把其标志性场面照搬到当前剧情。
 8. 修改已有稿时，先做 source diff；只有光影句失败才修光影句，不动原分镜和摄影内容。
 9. 未指定下游工具时，按 Seedance 2.0 审查可实现性：一句光影只保留 1 个主要时间变化，优先写光源方向、阴影落点、色温、材质/空气介质和镜头配合。
+10. 如果多条光影句只是“光源方向 + 情绪词 + 材质词 + 动态词”的同一骨架，不能靠替换同义词放行；判为 `FAIL-LIGHT-SCRIPTED-PROJECTION`，回源层重做逐镜判断。
 
 ## Reusable Heuristics
 

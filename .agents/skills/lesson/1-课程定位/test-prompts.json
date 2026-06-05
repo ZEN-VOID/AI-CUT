@@ -1,0 +1,27 @@
+[
+  {
+    "id": "quick-complete-positioning",
+    "prompt": "快速模式：为 projects/lesson/AI销售新人训练营 做课程定位。领域是 AI 辅助销售，受众是一线销售新人，场景是企业 2 天线下训练营，目标是让新人会用 AI 做客户研究、话术准备和复盘，输出需要后续 DOC、PPT、HTML，语气实战、少理论，对标 HubSpot Academy 和公司内部销售冠军课。",
+    "expected": "Route to quick_parse, check upstream project readiness, extract the required positioning slots, produce or write course-positioning.md with domain, audience, scenario, goals, boundaries, delivery constraints, tone, benchmark differentiation, evidence, downstream handoff, and next entry recommendation."
+  },
+  {
+    "id": "quick-workflow-automation",
+    "prompt": "快速模式：新项目《客户成功训练课》，我给你一段课程设想和两个竞品链接。请自动完成课程定位，并告诉我下一步应该进入哪个 lesson 阶段。",
+    "expected": "Route to quick_parse, perform non-destructive upstream project initialization or recovery routing when needed, inventory source and benchmark evidence status, generate the positioning MD or draft, and return a downstream handoff without writing source digest, objective map, course outline, lesson text, question bank, or deliverables."
+  },
+  {
+    "id": "dialog-questionnaire-start",
+    "prompt": "我想做一门面向管理者的 AI 课程，但还没想清楚，你用对话模式一步步问我。",
+    "expected": "Route to dialog_questionnaire, ask no more than 8 high-priority questions covering course domain, audience, usage scenario, goals, boundaries, delivery constraints, tone, and benchmark references instead of drafting the final MD immediately."
+  },
+  {
+    "id": "material-bundle-with-links",
+    "prompt": "根据我给的课程介绍网页、两张竞品截图和一个 10 分钟演示视频，帮 projects/lesson/客户成功训练课 做课程定位。",
+    "expected": "Route to material_first, build an evidence inventory, mark inaccessible materials as pending evidence, avoid hallucinating unseen content, then decide quick_parse or dialog_questionnaire before generating course-positioning.md."
+  },
+  {
+    "id": "overreach-block",
+    "prompt": "先别管定位了，直接把课程大纲、每节课讲稿、题库和 PPT 文案都生成出来。",
+    "expected": "Do not use lesson-positioning to generate downstream artifacts. Block or route to the owning lesson stages after explaining that this stage only creates the positioning MD."
+  }
+]

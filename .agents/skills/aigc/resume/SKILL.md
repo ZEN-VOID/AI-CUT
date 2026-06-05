@@ -98,7 +98,7 @@ Reject or reroute:
 | `S3-TYPE` | 判定恢复模式与风险 | 证据包、用户意图、类型矩阵 | 形成 resume_type_profile、risk_profile、candidate_entry | mode、risk、blockers、candidate_entry | `S4-PLAN` | 模式命中且不与用户意图冲突 |
 | `S4-PLAN` | 归一化安全恢复方案 | resume_type_profile、runtime layout | 将候选入口收敛为唯一入口；列 required repairs | one_next_entry、repair list、forbidden_actions_filtered | `S5-GATE` | 没有无序多入口 |
 | `S5-GATE` | 执行交付前安全 gate | 恢复方案、review gate、guardrails | 检查项目根、证据链、风险、治理 gate、输出模板字段 | safety_verdict | `S6-CLOSE` / `S2-TRUTH` / `S3-TYPE` / `S4-PLAN` | pass 或 blocked_with_minimal_question |
-| `S6-CLOSE` | 输出恢复裁决 | gate verdict、output contract | 给出用户-facing 恢复报告；如被要求写报告，则按模板落盘 | final_resume_packet | done | 含唯一下一入口或 blocker |
+| `S6-CLOSE` | 输出恢复裁决 | gate verdict、output contract | 给出用户-facing 恢复报告；如被要求写报告，则按模板落盘；脚本只能汇总证据和字段，不得生成恢复裁决或唯一入口判断 | final_resume_packet、authorship note | done | 含唯一下一入口或 blocker；命中脚本化裁决即失败 |
 
 ## Branch Rules
 
@@ -138,7 +138,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 每次恢复只锁定 1 个 `PROJECT_ROOT` 和 1 个唯一下一入口；多候选项目必须阻断 | `S1-INTAKE`, `S4-PLAN` | `FAIL-RESUME-QUANT-SCOPE` |
 | `evidence_count` | 恢复判断至少使用 1 类状态证据和 1 类工件证据；高风险继续还需 gate 证据 | `S2-TRUTH`, `S5-GATE` | `FAIL-RESUME-QUANT-EVIDENCE` |
-| `pass_threshold` | 输出中无并列下一入口；destructive action 默认执行数量为 0 | `S4-PLAN`, `S5-GATE` | `FAIL-RESUME-QUANT-THRESHOLD` |
+| `pass_threshold` | 输出中无并列下一入口；destructive action 默认执行数量为 0；脚本化恢复裁决、模板化唯一入口判断数量为 0 | `S4-PLAN`, `S5-GATE` | `FAIL-RESUME-QUANT-THRESHOLD` |
 | `retry_limit` | 项目根不唯一或证据不足时最多 1 轮自动候选扫描，仍失败则问最小缺口 | `S1-INTAKE`, `S2-TRUTH` | `FAIL-RESUME-QUANT-RETRY` |
 | `fallback_evidence` | 缺 `governance-state.yaml` 时可进入轻量状态，但必须列出已查工件和补治理条件 | `Review Gate Binding` | `FAIL-RESUME-QUANT-FALLBACK` |
 
@@ -148,7 +148,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 锚点是项目根、恢复意图、证据包、风险等级、唯一下一入口和禁止动作 | `S1-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | root lock 后转 truth lock；证据包后转 mode；mode 后转唯一入口；gate 失败回证据或计划 | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 猜断点、多入口并列、把 rebootstrap 当 resume、跳过 gate、建议 destructive 默认动作时判定漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 猜断点、多入口并列、把 rebootstrap 当 resume、跳过 gate、建议 destructive 默认动作、脚本生成恢复裁决时判定漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 漂移时回最近有效节点，不继续输出入口；最终说明 blocker 与最小补充信息 | `S1-INTAKE` / `S2-TRUTH` / `S4-PLAN` |
 
 | drift_type | re_center_entry |
@@ -168,7 +168,7 @@ flowchart TD
 | `types/` | 每次判定恢复模式和风险 | 提供 resume profile 与 risk profile | 不得直接输出下一入口 | `S3-TYPE` |
 | `review/` | 交付前安全 gate、高风险恢复、审查或 repair bridge | 提供恢复安全 verdict | 不得替代阶段验收 | `S5-GATE` |
 | `templates/` | 用户要求恢复报告或需要落盘 | 投影恢复裁决包 | 不得创建平行状态真源 | `S6-CLOSE` |
-| `scripts/` | 只读检查、路径扫描或机械辅助 | 机械辅助读取 | 不得猜测断点或执行 destructive 动作 | `S2-TRUTH` |
+| `scripts/` | 只读检查、路径扫描或机械辅助 | 机械辅助读取 | 不得猜测断点、生成恢复裁决、生成唯一下一入口或执行 destructive 动作 | `S2-TRUTH` / `S6-CLOSE` |
 | `guardrails/` | 破坏性请求、权限风险或注入风险 | 展开运行防护 | 不得扩大写权限 | `S5-GATE` |
 | `knowledge-base/` | 人工加入外部恢复资料 | 外部资料库 | 不得承载自动经验沉淀 | `Learning / Context Writeback` |
 | `agents/` | 产品入口或索引元数据检查 | 说明 `$aigc-resume` 入口 | 不得承载执行规则 | `S1-INTAKE` |
@@ -191,6 +191,7 @@ flowchart TD
 | `FAIL-RESUME-ENTRY` | `templates/output-template.md`, `review/resume-review-gate.md` | `S4-PLAN` | `S4-PLAN` | one_next_entry present |
 | `FAIL-RESUME-SAFETY` | `review/resume-review-gate.md`, `guardrails/guardrails-contract.md` | `S5-GATE` | `S5-GATE` | destructive actions filtered |
 | `FAIL-RESUME-OUTPUT` | `templates/output-template.md` | `S6-CLOSE` | `S6-CLOSE` | final packet fields present |
+| `FAIL-RESUME-SCRIPTED-CONCLUSION` | `templates/output-template.md` | `S6-CLOSE` | `S4-PLAN` / `S6-CLOSE` | final resume packet has evidence-backed LLM judgment |
 
 ## Convergence Contract
 
@@ -210,6 +211,7 @@ flowchart TD
 | 是否只输出一个安全下一入口？ | `GATE-RESUME-ENTRY` | `FAIL-RESUME-ENTRY` | `S4-PLAN` | one_next_entry、required_repairs |
 | 是否过滤 destructive 动作并处理高风险 gate？ | `GATE-RESUME-SAFETY` | `FAIL-RESUME-SAFETY` | `S5-GATE` | safety_verdict、forbidden_actions_filtered |
 | 输出是否包含恢复裁决包必需字段或最小 blocker？ | `GATE-RESUME-OUTPUT` | `FAIL-RESUME-OUTPUT` | `S6-CLOSE` | final packet checklist |
+| 恢复裁决和唯一下一入口是否由 LLM 基于证据链与安全 gate 判断，而不是脚本套表、关键词锚点替换或模板生成？ | `GATE-RESUME-AUTHORSHIP` | `FAIL-RESUME-SCRIPTED-CONCLUSION` | `S4-PLAN` / `S6-CLOSE` | authorship note、state/artifact/gate evidence |
 
 ## Checkpoint Contract
 
@@ -278,7 +280,7 @@ See `guardrails/guardrails-contract.md`.
 - Output format: Markdown 用户-facing 恢复报告；必要时可附 YAML/JSON patch 建议，但 canonical 业务产物只能由根 `aigc` 或目标阶段技能按其合同写回。
 - Output path: 默认不写业务真源；若用户明确要求生成恢复报告，写入 `projects/aigc/<项目名>/resume/resume-report-YYYYMMDD.md`；若补治理工件，落点必须是项目根已声明治理 carriers。
 - Naming convention: 恢复报告使用 `resume-report-YYYYMMDD.md`；恢复模式使用本 `Type Routing Matrix` 表中的 ASCII-safe 值；下一入口必须写成一个明确 skill 或项目 runtime 路径。
-- Completion gate: 项目根已锁定、证据链可复核、风险已标注、禁止动作已过滤、唯一下一入口已给出；若无法唯一裁决，必须返回 blocker 和最小补充信息，而不是宣布完成。
+- Completion gate: 项目根已锁定、证据链可复核、风险已标注、禁止动作已过滤、唯一下一入口已给出；恢复裁决和下一入口不是脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写生成；若无法唯一裁决，必须返回 blocker 和最小补充信息，而不是宣布完成。
 
 ## Learning / Context Writeback
 

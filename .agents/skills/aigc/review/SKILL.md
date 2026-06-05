@@ -80,7 +80,7 @@ Reject or clarify when:
 4. 按 `_shared/review-dimension-registry.yaml` 选择 mandatory dimensions，并加载其 `dimension_spec_ref` 指向的 `references/dimensions/*.md`。
 5. 若 `review_fact_pack` required slice 缺失，直接写 `FAIL-COVENANT` aggregate packet 与 repair plan，不进入 provider 或维度审计。
 6. 在上层策略允许时，使用 `review/review-gate.md` 声明的 provider 路径；若顾问与复核流程/provider 被阻断，使用本地 checklist 并在 packet 中记录。
-7. 聚合 `dimension_packet + dimension_report_ref + dimension_runtime`，写出唯一 aggregate review packet。
+7. 聚合 `dimension_packet + dimension_report_ref + dimension_runtime`，写出唯一 aggregate review packet；aggregate verdict 与 `routing_decision` 必须由 LLM/authorized reviewer 基于同一 fact pack 裁决，脚本只能计算结构覆盖和字段存在，不得用模板、锚点替换或句式轮换生成 verdict。
 8. 若未通过，写 `*.review.repair.json`，并在 `governance-state.yaml` 存在时同步 `review_bridge` 与 `resume_contract.required_repairs`。
 9. 父层不得直接改写阶段业务 canonical truth；返工必须路由回阶段、source owner 或 provider handoff owner。
 
@@ -107,6 +107,7 @@ Reject or clarify when:
 | `FIELD-REVIEW-PKG-07` | `templates/` | 输出模板 | Output Contract Alignment | `FAIL-REVIEW-TEMPLATE` |
 | `FIELD-REVIEW-PKG-08` | `scripts/` | 机械辅助 | runner wrapper 与脚本说明 | `FAIL-REVIEW-SCRIPTS` |
 | `FIELD-REVIEW-PKG-09` | `agents/openai.yaml` | 产品入口 | display_name、short_description、default_prompt | `FAIL-REVIEW-AGENT` |
+| `FIELD-REVIEW-PKG-10` | aggregate verdict | verdict authorship | `routing_decision`、repair route 和 handoff 结论由 LLM/authorized reviewer 基于 fact pack 生成 | `FAIL-REVIEW-SCRIPTED-VERDICT` |
 
 ### Node Handoff Table
 
@@ -126,6 +127,7 @@ Reject or clarify when:
 | `FAIL-REVIEW-COVENANT` | 维度 reviewer 读取了不同 scope 或 fact pack | `references/review-fact-pack-spec.md` |
 | `FAIL-REVIEW-DIMENSION` | mandatory 维度缺失或越权写 gate | `references/review-child-output-contract.md` |
 | `FAIL-REVIEW-GATE` | aggregate packet 缺 route 或 repair | `review/review-gate.md` + `_shared/review-aggregate.template.json` |
+| `FAIL-REVIEW-SCRIPTED-VERDICT` | aggregate verdict、routing_decision 或 repair route 是脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写生成 | `N4-AGGREGATE` / `N5-ROUTE` |
 
 ## Field Master
 
@@ -156,6 +158,7 @@ Reject or clarify when:
 | `PASS-REVIEW-03` | mandatory dimensions 全部可聚合，且 `dimension_runtime` 记录 spec 证据 | `FAIL-REVIEW-03` | `N3-DIMENSIONS` |
 | `PASS-REVIEW-04` | aggregate packet 拥有唯一 gate authority | `FAIL-REVIEW-04` | `N4-AGGREGATE` |
 | `PASS-REVIEW-05` | route / handoff 唯一且可执行 | `FAIL-REVIEW-05` | `N5-ROUTE` |
+| `PASS-REVIEW-06` | aggregate verdict、routing_decision 和 repair route 有 fact pack 证据与 reviewer 判断，不是脚本化生成、批量插入、正则套句、映射投影或锚点替换伪差异 | `FAIL-REVIEW-SCRIPTED-VERDICT` | `N4-AGGREGATE` / `N5-ROUTE` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -169,7 +172,8 @@ Reject or clarify when:
 2. fact pack 缺 required slice：修 `references/review-fact-pack-spec.md` 或项目阶段 carrier。
 3. 维度 reviewer 越权写 gate：修 `references/review-child-output-contract.md`。
 4. aggregate 缺 route / repair：修 `review/review-gate.md` 与 `_shared/review-aggregate.template.json`。
-5. runner 与 Skill 2.0 分区断链：修 `scripts/` 说明与 `_shared/` 兼容配置。
+5. aggregate verdict 或 repair route 呈现脚本化生成、批量插入、正则套句、映射投影伪差异：修 `N4-AGGREGATE` / `N5-ROUTE`，回到同一 fact pack 由 LLM/authorized reviewer 重判。
+6. runner 与 Skill 2.0 分区断链：修 `scripts/` 说明与 `_shared/` 兼容配置。
 
 ## Runtime Guardrails
 
@@ -195,3 +199,4 @@ See `guardrails/guardrails-contract.md`.
 - Output path: `projects/aigc/<项目名>/review/checkpoints/`、`projects/aigc/<项目名>/review/stages/` 或 `projects/aigc/<项目名>/review/releases/`。
 - Naming convention: aggregate 文件名固定为 `<scope_ref>.review.json`；fact pack 为 `<scope_ref>.review.fact-pack.json`；repair 为 `<scope_ref>.review.repair.json`；summary 为 `<scope_ref>.review.review.md`。
 - Completion gate: `templates/output-template.md` 与 `_shared/review-aggregate.template.json` 字段对齐，mandatory dimensions 已聚合并有 `dimension_runtime` 证据，最终 `routing_decision` 可执行。
+- Scripted verdict gate: scripts/runner 只能机械汇总 fact pack、dimension refs、字段覆盖和路径；若 aggregate verdict、`routing_decision`、repair route 或 handoff 结论由脚本套表、规则模板、关键词锚点替换、句式轮换或同义改写生成，直接 `FAIL-REVIEW-SCRIPTED-VERDICT`，不得以字段完整判 pass。

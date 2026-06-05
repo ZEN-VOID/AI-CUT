@@ -25,6 +25,7 @@ last_checked_at: 2026-06-04
 | `TM-SUBJ-06` | 场景、角色、道具主体边界冲突，父级直接改局部文本 | 父级越权修复 | 父级只记录冲突并返工对应域级 subagent | Review Gate 绑定 `FAIL-SUBJ-CROSS-CONFLICT` | `cross_subject_consistency_report` 有冲突字段和返工目标 |
 | `TM-SUBJ-07` | 部分命中 2 个主体域时被自动补齐 3 个 | 整体/部分路由混淆 | 只有用户明确整体调用时才 3 路并发；部分命中只调度点名项 | Mode Selection 区分 `overall_parallel` 与 `partial_named_route` | `domain_route_manifest` 与用户点名一致 |
 | `TM-SUBJ-08` | 下游仍写成 `12-图像`、`13-画布` 或 `14-审片` | 下游 handoff 未随阶段重编号同步 | 改为 `12-图像`、`13-画布`、`14-审片` | 父级 handoff gate 固定当前编号链 | `downstream_handoff_map` 无旧编号阶段 |
+| `TM-SUBJ-09` | 子技能字段、字数、数量都达标，但三域输出像同一模板换名、关键词锚点替换或同义改写批量产物 | 形式指标绕过 LLM-first 层 | 父级不得润色后放行；将 verdict 改为 `blocked/candidate` 并返工到对应叶子创作节点 | `GATE-SUBJ-ANTI-PSEUDO-DIFF` 汇总叶子 fail code | 叶子报告有反脚本化/反模板伪差异 verdict |
 
 ## Repair Playbook
 
@@ -38,6 +39,7 @@ last_checked_at: 2026-06-04
 8. 单域或部分域请求不自动补齐 3 个，除非用户明确说“整体”“全套”“完整阶段”。
 9. 下游 handoff 必须同时给出“继承什么”和“不继承什么”，避免 `12-图像` 或 `13-画布` 拿父级摘要替代域级设计稿。
 10. 发现旧编号路径时，先同步源层合同、registry 和脚本常量，再修模板/README/报告文案。
+11. 发现脚本化、偷懒、未思考或未差异化产物时，不做表层润色或替换几个形容词；废弃候选稿，回到拥有真源的清单/设计/生成叶子重新由 LLM 判断和创作。
 
 ## Reusable Heuristics
 

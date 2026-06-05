@@ -137,9 +137,9 @@ Reject or clarify when:
 | `types/episode-batch-chain/episode-batch-chain.md` | `episode_batch_chain` | 批处理固定上下文 | 允许失败静默推进 | `Convergence Contract` |
 | `types/retry-from-stage/retry-from-stage.md` | `retry_from_stage` | 续跑固定上下文 | 覆盖已通过产物而无授权 | `Convergence Contract` |
 | `review/review-contract.md` | preflight、merge、completion、review | 展开 gate、fail code 和 verdict | 替阶段技能审查艺术质量 | `Review Gate Binding` |
-| `templates/run-ledger-template.md` | 建立或修复 ledger | 输出格式投影 | 新增完成标准 | `Output Contract` |
-| `templates/stage-dispatch-packet-template.md` | 创建 dispatch packet | 输出格式投影 | 偷渡阶段正文或大段上下文 | `Output Contract` |
-| `templates/output-template.md` | completion report 或 blocked report | 输出格式投影 | 替代 completion gate | `Output Contract` |
+| `templates/run-ledger-template.md` | 建立或修复 ledger | 输出格式样板 | 新增完成标准 | `Output Contract` |
+| `templates/stage-dispatch-packet-template.md` | 创建 dispatch packet | 输出格式样板 | 偷渡阶段正文或大段上下文 | `Output Contract` |
+| `templates/output-template.md` | completion report 或 blocked report | 输出格式样板 | 替代 completion gate | `Output Contract` |
 | `guardrails/guardrails-contract.md` | preflight、安全异常、注入风险 | 安全边界展开 | 覆盖本 SKILL 的权限边界 | `Runtime Guardrails` |
 | `scripts/README.md` | 需要机械辅助说明时 | 脚本边界说明 | 生成阶段创作正文 | `Runtime Guardrails` |
 | `knowledge-base/sword10-heuristics.md` | 查询人工外部经验时 | 外部资料和启发 | 自动写入运行经验或规则 | `CONTEXT.md` |
@@ -199,7 +199,7 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-PREFLIGHT` | 锁定项目、集数、起止阶段、runtime 和业务画像 | user request、project root、episode selector、type signal | 检查项目根、`MEMORY.md`、相关 `CONTEXT/`、上游产物、阶段技能、subagent runtime；形成 `business_profile` | preflight evidence table；至少包含 project/root/episodes/start/end/runtime/stage availability 6 类证据 | `N2-BUILD-RUN` / `N7-FAILURE-ROUTE` | `GATE-SWORD10-01`；缺任一必需输入即 blocked |
 | `N2-BUILD-RUN` | 建立本轮最小账本和阶段计划 | preflight pass、Type Routing Matrix | 创建 `workflow/sword10/<run_id>/`、初始化 run ledger、确定 stage order、计算每阶段 dispatch scope | `run-ledger.yaml` initial；stage plan 至少 9 行 | `N3-DISPATCH-STAGE` | `GATE-SWORD10-06`；ledger 路径和 stage plan 必须存在 |
-| `N3-DISPATCH-STAGE` | 当前阶段按 scope 派发 subagents | stage plan、episode list、Stage Chain | 逐集阶段为每集写 dispatch packet 并启动隔离 subagent；`3-美学` 写 stage-suite packet 并按父级合同 fan-out | dispatch packet path、subagent id/runtime mode、stage scope | `N4-STAGE-MERGE` / `N7-FAILURE-ROUTE` | `GATE-SWORD10-02` / `GATE-SWORD10-03`；runtime 不可用必须降级停止 |
+| `N3-DISPATCH-STAGE` | 当前阶段按 scope 派发 subagents | stage plan、episode list、Stage Chain | 逐集阶段为每集写 dispatch packet 并启动隔离 subagent；`3-美学` 写 stage-suite packet 并按父级合同 fan-out；主窗口、脚本和模板不得生成阶段正文 | dispatch packet path、subagent id/runtime mode、stage scope | `N4-STAGE-MERGE` / `N7-FAILURE-ROUTE` | `GATE-SWORD10-02` / `GATE-SWORD10-03`；runtime 不可用必须降级停止；命中阶段正文脚本化即失败 |
 | `N4-STAGE-MERGE` | 汇流阶段结果并保持主窗口轻量 | subagent statuses、output paths、stage review verdicts | 记录 pass/fail/skipped、校验 canonical 输出和额外输入、更新 stage verdict table | stage verdict table；每个目标 episode 或 stage-suite 至少 1 条 verdict | `N5-ADVANCE` / `N7-FAILURE-ROUTE` / `N6-COMPLETE` | `GATE-SWORD10-04`；下游不得消费非 canonical 输出 |
 | `N5-ADVANCE` | 选择下一阶段或续跑入口 | current stage verdict、Stage Order | 若当前阶段全 pass，选择下一阶段并复核输入路径；若 partial，按类型包决定是否仅推进已通过集 | next stage dispatch plan；reused/regenerated 标记 | `N3-DISPATCH-STAGE` / `N7-FAILURE-ROUTE` | `GATE-SWORD10-04`；下一阶段输入缺失必须回 owning stage |
 | `N6-COMPLETE` | 输出完成报告 | final stage pass 或 declared partial | 汇总 run ledger、产物路径、失败路由、残余风险和验证结果 | `completion-report.md`；final artifacts table；failure routes table | done | `GATE-SWORD10-06`；报告不得复制阶段正文全文 |
@@ -274,6 +274,7 @@ flowchart TD
 | 项目、集数、起止阶段、runtime 和 stage skills 是否可定位？ | `GATE-SWORD10-01` | `FAIL-SWORD10-INPUT` | `N1-PREFLIGHT` | preflight evidence table |
 | 是否真实启用 subagent，或在不可用时诚实降级停止？ | `GATE-SWORD10-02` | `FAIL-SWORD10-SUBAGENT` | `N3-DISPATCH-STAGE`、`references/subagent-dispatch-contract.md` | dispatch packet、runtime mode、blocking layer |
 | 每个 subagent 是否只获得本集/本阶段/必要项目上下文？ | `GATE-SWORD10-03` | `FAIL-SWORD10-CONTEXT` | `templates/stage-dispatch-packet-template.md` | context bundle list |
+| 阶段正文、风格协议、分镜/摄影/分组正文是否只由对应阶段 subagent 按阶段 `SKILL.md + CONTEXT.md` 主创，而不是主窗口、脚本、映射表、规则模板、关键词锚点替换或句式轮换生成？ | `GATE-SWORD10-AUTHORSHIP` | `FAIL-SWORD10-SCRIPTED-STAGE-BODY` | `N3-DISPATCH-STAGE` / owning stage | dispatch packet、subagent runtime、stage output owner |
 | 下游是否只消费上一阶段 canonical 产物和声明的额外输入？ | `GATE-SWORD10-04` | `FAIL-SWORD10-HANDOFF` | `references/stage-handoff-contract.md`、`N4-STAGE-MERGE` | input/output/extra_inputs table |
 | 失败集是否停止推进并有 retry/repair route？ | `GATE-SWORD10-05` | `FAIL-SWORD10-FAILURE-ROUTE` | `N7-FAILURE-ROUTE` | failure routes table |
 | ledger、dispatch packet、completion report 是否落在声明路径且不替代阶段主稿？ | `GATE-SWORD10-06` | `FAIL-SWORD10-OUTPUT` | `Output Contract`、`templates/` | output manifest |
@@ -284,7 +285,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 本轮只覆盖 `episode_selector` 解析出的目标分集和 `start_stage..end_stage` 范围；默认最多 9 个 stage rows | `N1-PREFLIGHT` / `N2-BUILD-RUN` | `FAIL-SWORD10-QUANT-SCOPE` |
 | `evidence_count` | preflight 至少 6 类证据；stage plan 至少覆盖目标阶段数；每个 stage x episode 或 stage-suite 至少 1 条 verdict | `N1` / `N2` / `N4` | `FAIL-SWORD10-QUANT-EVIDENCE` |
-| `pass_threshold` | 当前阶段目标 scope 全部 pass 才默认推进下一阶段；partial 只能按类型包显式列示 | `N4-STAGE-MERGE` / `Convergence Contract` | `FAIL-SWORD10-QUANT-THRESHOLD` |
+| `pass_threshold` | 当前阶段目标 scope 全部 pass 才默认推进下一阶段；partial 只能按类型包显式列示；主窗口/脚本/模板生成阶段正文数量为 0 | `N4-STAGE-MERGE` / `Convergence Contract` | `FAIL-SWORD10-QUANT-THRESHOLD` |
 | `retry_limit` | 同一失败原因连续返工 2 次仍失败时停止并输出 blocked/repair route | `N7-FAILURE-ROUTE` | `FAIL-SWORD10-QUANT-RETRY` |
 | `fallback_evidence` | 无真实 subagent runtime 时只允许 `degraded-subagent-unavailable` 报告，不允许主窗口替代创作 | `Review Gate Binding` / `Runtime Guardrails` | `FAIL-SWORD10-QUANT-FALLBACK` |
 
@@ -294,7 +295,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-SWORD10-01` | 注意力锚点声明 | 当前锚点永远是 `project_root + episode_selector + stage_range + current node gate` | `N1-PREFLIGHT` |
 | `ATTE-SWORD10-02` | 注意力转移规则 | objective 完成后转 actions；actions 完成后转 evidence；evidence 不足转 gate；gate 失败转 owning rework target | `Thinking-Action Node Map` |
-| `ATTE-SWORD10-03` | 漂移检测 | 出现阶段正文创作、跨入 11+ 阶段、读取大段 subagent 正文、模块新增完成门、`steps/` 引用复现即视为漂移 | `Review Gate Binding` |
+| `ATTE-SWORD10-03` | 漂移检测 | 出现阶段正文创作、跨入 11+ 阶段、读取大段 subagent 正文、模块新增完成门、`steps/` 引用复现、脚本/模板替代阶段正文主创即视为漂移 | `Review Gate Binding` |
 | `ATTE-SWORD10-04` | 再集中机制 | 发现漂移时回到最近有效节点，不继续扩写局部文本；completion report 记录漂移信号和回收入口 | `N7-FAILURE-ROUTE` |
 
 ## Checkpoint Contract
@@ -325,4 +326,4 @@ flowchart TD
 - Output format: Markdown report + YAML/JSON-compatible ledger and dispatch packets；面向主窗口的简短状态汇总只引用路径和 verdict，不复制长正文。
 - Output path: `projects/aigc/<项目名>/workflow/sword10/<run_id>/`；阶段 canonical 产物按 `references/stage-handoff-contract.md` 的 Stage Chain 写入。
 - Naming convention: `run-ledger.yaml`、`completion-report.md`、`dispatch/<stage_slug>/第N集.yaml` 或阶段级 `dispatch/<stage_slug>/stage.yaml`；`run_id` 使用 `sword10-YYYYMMDD-HHMMSS` 或用户提供的 ASCII 安全任务 ID。
-- Completion gate: 所有目标分集在 `10-分组` 产物存在且通过对应阶段 gate；若未全部通过，completion report 必须列出失败集、失败阶段、阻断原因和 retry/repair route。
+- Completion gate: 所有目标分集在 `10-分组` 产物存在且通过对应阶段 gate；阶段正文、风格协议、分镜/摄影/分组正文均由 owning stage subagent 按阶段合同主创，未命中 `FAIL-SWORD10-SCRIPTED-STAGE-BODY`；若未全部通过，completion report 必须列出失败集、失败阶段、阻断原因和 retry/repair route。

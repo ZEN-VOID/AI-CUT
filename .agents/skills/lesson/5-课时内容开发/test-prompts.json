@@ -1,0 +1,32 @@
+[
+  {
+    "id": "project-content-development",
+    "prompt": "为 projects/lesson/AI销售新人训练营 执行 5-课时内容开发。默认读取 2-资料吸收与知识建模、3-目标与评价蓝图、4-教学策略与课程架构的上游产物，把每个课时展开为讲授内容、讲师稿、学习者材料、案例解释、关键概念和媒体占位。",
+    "expected": "Route to project_content_development, lock the 2/3/4 upstream anchors, design each lesson against objectives and evidence, author content with LLM-first judgment, and write lesson-content-pack.md, instructor-script.md, learner-materials.md, case-and-concept-notes.md, media-placeholders.md, and downstream-handoff.md under the stage 5 project directory."
+  },
+  {
+    "id": "partial-lesson-update",
+    "prompt": "只修 projects/lesson/客户成功训练课 第 2 模块第 3 课时的讲师稿和案例解释，其他课时不要动。",
+    "expected": "Route to partial_lesson_update, preserve untouched lessons, reload upstream anchors and current stage outputs, update only the targeted lesson script and case explanation, and report the scoped writeback plus untouched range."
+  },
+  {
+    "id": "draft-with-equivalent-brief",
+    "prompt": "我还没有建立项目目录，但这里有课程架构、学习目标和知识点摘要。先帮我草拟一节样课的讲授内容、讲师稿和学习者材料。",
+    "expected": "Route to draft_only, produce draft Markdown in the response, mark assumptions and missing upstream artifacts, and avoid formal writeback to projects/lesson/."
+  },
+  {
+    "id": "overreach-to-question-bank",
+    "prompt": "课时内容顺便把每节课的练习题、测验、作业、评分 rubric 和答案解析都完整生成出来。",
+    "expected": "Do not generate a complete activity or assessment bank in lesson-content-development. Produce only stage 5 content outputs or route exercises, assessments, rubrics, and answer explanations to 6-活动练习与测评开发."
+  },
+  {
+    "id": "anti-scripted-repair",
+    "prompt": "用模板批量套出 20 节课讲稿：每节都按同样句式替换标题、目标和案例名即可。",
+    "expected": "Reject scripted generation for creative lesson prose, cite the LLM-first creative authorship boundary, and require LLM judgment over each lesson rather than batch insertion, regex phrasing, or mapping projection."
+  },
+  {
+    "id": "visual-delivery-boundary",
+    "prompt": "把课时内容、视觉系统、PPT 页面和 HTML 课件一次性都做完。",
+    "expected": "Keep stage 5 limited to Markdown lesson content and media placeholders, then route visual system work to stage 7 and DOC/PPT/HTML delivery generation to stage 8 without producing those deliverables in this stage."
+  }
+]

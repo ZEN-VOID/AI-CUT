@@ -9,6 +9,22 @@
 3. 若 LibTV 中已有相同项目名或同项目同集画布，创建新画布时追加 `V2`、`V3`，不得覆盖旧画布。
 4. `projectUuid` 是后续上传、节点、证据和 registry 的唯一远端 project truth。
 
+## Video Node Identity
+
+视频节点身份必须分为两层：
+
+1. `source_group_id`：上游分镜组 ID，例如 `1-1-1`。它只用于追溯来源，不是远端节点唯一名。
+2. `video_node_instance_id`：本次画布视频节点实例 ID，格式为 `vid__<source_group_id>__b<batch_no>__r<revision_no>__v<variant_no>`，例如 `vid__1-1-1__b002__r00__v001`。
+
+编号规则：
+
+- `batch_no` 使用三位数字，首批为 `b001`；用户要求对已生成过的分镜组“重新生成一组”时默认创建新批次并递增为 `b002`、`b003`。
+- `revision_no` 使用两位数字，初稿为 `r00`；基于某个已生成节点做二次修改时递增为 `r01`、`r02`，并在 queue record 记录 `parent_video_node_instance_id`。
+- `variant_no` 使用三位数字，同一批次同一修订轮内并行备选从 `v001` 递增。
+- 若 active registry 与远端画布查询结果冲突，以远端已存在节点名为防覆盖边界，选择下一个未占用实例 ID，并在报告记录冲突来源。
+- 不得因 `source_group_id` 已经存在而跳过本轮新建；只有完全相同的 `video_node_instance_id` 已存在时，才视为实例名冲突并重新分配或阻断。
+- 删除或覆盖旧实例必须有用户显式授权；默认保留旧实例和旧证据。
+
 ## Reference Discovery
 
 默认本地查找范围：
@@ -46,21 +62,25 @@
 - 同一组内相同 UUID 复用第一次出现的 `图片N`。
 - 无 UUID 或无法匹配的主体保持原主体行，不写 `图片N`。
 - 回刷不得改写分镜组正文或连接件正文。
+- 提交 LibTV prompt 时，主体行按 `references/image-order-contract.md` 重排为 `图片N 主体名 {{Image N}} UUID`；本地回刷格式不直接等同于远端 prompt 主体行格式。
 
 ## Evidence
 
 必须生成或更新：
 
 - `libtv-canvas-active-registry.json`
-- `<group_id>-subject-reference-manifest.json`
-- `<group_id>-libtv-submit-plan.json`
-- `<group_id>-queue-record.json`
-- `<group_id>-执行报告.md`
+- `<video_node_instance_id>-subject-reference-manifest.json`
+- `<video_node_instance_id>-libtv-submit-plan.json`
+- `<video_node_instance_id>-queue-record.json`
+- `<video_node_instance_id>-执行报告.md`
+
+`libtv-canvas-active-registry.json` 必须按 `source_group_id` 维护多实例索引，至少记录 `instances[]`、`active_instance_id`、每个实例的 `video_node_instance_id`、远端节点 key、状态、创建时间和父实例关系。
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 画布项目是否按默认命名创建，且没有覆盖同名旧项目？ | `GATE-LTVCTRL-PROJECT` | `FAIL-LTVCTRL-PROJECT-NAME` | `N1-PROJECT` | project list query, projectUuid |
+| 视频节点是否使用实例 ID，且重生成未覆盖或跳过旧实例？ | `GATE-LTVCTRL-NODE-IDENTITY` | `FAIL-LTVCTRL-NODE-IDENTITY` | `N5-NODE-CREATE` | remote node query, active registry, queue record |
 | 参照图是否来自默认范围或用户显式 UUID，且无猜测替代？ | `GATE-LTVCTRL-UPLOAD` | `FAIL-LTVCTRL-REFERENCE-MATCH` | `N2-UPLOAD` | upload registry, skipped subjects |
 | YAML 是否按 `图片N 主体名 UUID` 回刷，同 UUID 是否复用编号？ | `GATE-LTVCTRL-YAML` | `FAIL-LTVCTRL-YAML-BACKFILL` | `N3-YAML-BACKFILL` | YAML excerpt, manifest bindings |

@@ -38,6 +38,7 @@ last_checked_at: 2026-04-25
 | 英文提示词超 2000 characters | 输出约束层 | 压缩冗余形容词、合并同义短语、删除过程解释 | 交付前字符计数 | prompt <= 2000 characters |
 | 冷门信息无来源 | 考据可靠性层 | 标注为推断或在许可下网络搜索 | 区分本地资料、常识推断、网络来源 | 冷门信息有来源策略 |
 | 脚本生成创作正文 | LLM-first 层 | 停用该脚本输出，改为 LLM 直写 | scripts 只保留机械辅助说明 | 没有脚本主创痕迹 |
+| 场景设计稿字段完整但像批量模板换名 | 反模板伪差异层 | 废弃候选设计稿，回到研究、解构和 prompt 节点重做场景专属裁决 | `SKILL.md` 固定 `FAIL-SCENE-DESIGN-PSEUDO-DIFF`，禁止用字段完整、长度合规或风格锚点抵消 | 每个场景有不可互换的空间结构、材质/光线或镜头裁决证据 |
 
 ## Repair Playbook
 
@@ -58,6 +59,7 @@ last_checked_at: 2026-04-25
 15. 英文提示词先确认 `## 4. 解构` 下的主体 ID，再继承 `画面基调.Global Style Prompt + 场景风格.Scene Style Prompt`、时间锚点、地域锚点和场景专属细节；少用抽象赞美词，多写可见物。
 16. 英文整合 prompt 的主体是 `## 4. 解构` 全部有效信息：Scene Design 与 Cinematography 中的空间、材质、色彩、陈设、动线、光线、构图、焦段、景深和氛围节奏都应被压缩进 prompt，不能只写前缀、后缀或风格/负向词。
 17. Prompt 最后反查 `prompt_evidence_chain`：每组关键 token 都应能回指研究、视觉翻译、Scene Design 或 Cinematography，且 subject_id_prefix 与解构 ID 一致；若某个解构槽位被合并或剔除，必须在 `deconstruction_coverage` 说明原因。
+18. 若发现研究、物语、解构或 prompt 只是替换场景名、时代地域词、风格前后缀或同义形容词，不局部润色；整稿作废并从 LLM 研究/解构/prompt 节点重做。
 
 ## Reusable Heuristics
 

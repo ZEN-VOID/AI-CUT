@@ -6,7 +6,7 @@
 | --- | --- |
 | Required output | 单个分镜组的 storyboard prompt block |
 | Output format | Markdown section that can be copied into `第N集-分镜故事板-prompts.md` |
-| Output path | Rendered inside `projects/aigc/<项目名>/12-图像/B-分镜故事板/第N集/第N集-分镜故事板-prompts.md` |
+| Output path | Rendered inside `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/第N集-分镜故事板-prompts.md` |
 | Naming convention | Section heading uses `## <分镜组ID>` |
 | Completion gate | 任务执行前缀完整并声明黑白线稿基底、受控彩色标注系统、每个可见角色头顶黑色角色名、4K、默认 16:9 panel 图片区、panel 下方 `rich_brief` 描述文字、自适应排版；frame-unit plan 可追溯；完整分镜组内容保留；主体参照来自 YAML manifest 并用于身份/空间/道具保真 |
 

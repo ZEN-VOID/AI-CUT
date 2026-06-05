@@ -27,6 +27,7 @@ recommended_action: keep-storyboard-style-heuristics-focused
 | 输出太短像标签串 | prompt 密度不足层 | 增加节奏、景别流转、连接方式、信息密度、连续性和负面特征 | 字数回到 80-130 |
 | 输出太长像报告正文 | prompt 收束层 | 把证据和表格留在协议正文，prompt 只保留可继承分镜组织规则 | `Storyboard Style Prompt` 80-130 字 |
 | 下游视频不可执行 | AI 视频容错层 | 减少超长动作链和快速主体变化，改成清晰承接、段落钩子和有限信息递进 | `GATE-SBS-09` 通过 |
+| 输出像同一套分镜模板换锚点 | 源层主创缺失层 | 废弃候选协议，回 `N4/N5/N6/N7` 重新基于来源证据设计节奏、连接和信息密度，不做表层润色 | `GATE-SBS-11` 通过 |
 
 ## Repair Playbook
 
@@ -37,7 +38,8 @@ recommended_action: keep-storyboard-style-heuristics-focused
 5. 若 prompt 出现镜头编号、剧情动作、资产词或摄影参数，回到 `N7-PROMPT-DISTILL`，用分镜组织层级表达替换。
 6. 若连接语法不可执行，回到 `N5-CONNECTION-GRAMMAR`，为每条规则补适用场景、承接对象和禁用边界。
 7. 若信息密度过高，回到 `N6-DENSITY-FLOW-CALIBRATION`，把复杂动作链拆成建立、推进、反应和尾钩功能。
-8. 修复后必须重新执行 `GATE-SBS-01` 到 `GATE-SBS-10`，并把失败码、返工点和复审结果写入 `Repair Log`。
+8. 用户指出“脚本化/偷懒/未思考/未差异化”时，直接废弃候选协议回源层重做，不接受替换几个参考词或润色句子。
+9. 修复后必须重新执行 `GATE-SBS-01` 到 `GATE-SBS-11`，并把失败码、返工点和复审结果写入 `Repair Log`。
 
 ## Reusable Heuristics
 
