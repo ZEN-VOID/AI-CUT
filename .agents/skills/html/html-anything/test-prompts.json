@@ -1,0 +1,14 @@
+[
+  {
+    "name": "lesson_html_template",
+    "prompt": "使用 html-anything 为一份课程正文选择合适模板，并生成完整 HTML 课程页面。"
+  },
+  {
+    "name": "html_to_deck",
+    "prompt": "把这份 markdown 内容转换成适合 HTML 转 PPT 的 deck 模板结构。"
+  },
+  {
+    "name": "dashboard_surface",
+    "prompt": "为一组业务指标选择 HTML dashboard 模板，并说明内容如何映射到界面。"
+  }
+]

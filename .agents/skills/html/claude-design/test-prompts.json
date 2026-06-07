@@ -1,0 +1,14 @@
+[
+  {
+    "name": "courseware_redesign",
+    "prompt": "使用 html-claude-design 改进一个课程 HTML 页面，保留已有正文，提升版式、层级、响应式和浏览器验证。"
+  },
+  {
+    "name": "direction_advisor",
+    "prompt": "我不知道要什么风格，请为这个 AI 工具页面给出 3 个差异明显的 HTML 设计方向。"
+  },
+  {
+    "name": "branded_prototype",
+    "prompt": "为一个明确品牌的产品原型设计 HTML 页面，先核对真实资产和当前事实，再生成视觉系统。"
+  }
+]

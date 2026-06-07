@@ -92,7 +92,7 @@ Hard prohibitions:
 | `business_goal` | 把短故事源或多模态参照快速转成聊天窗口统一视频提示词 | 用户请求、输入源、目标模型/时长 | `FAIL-FLASH-BUSINESS-GOAL` |
 | `business_object` | 被处理对象是单个短片段、单个分镜组或一组首尾帧/参照素材，不是整集项目阶段 | source manifest、media manifest、duration target | `FAIL-FLASH-BUSINESS-OBJECT` |
 | `constraint_profile` | 不保存文件；LLM 主创；默认 11.5 秒；多模态先证据后推断；参照素材只抽可迁移原则 | 本合同、用户限制、media evidence | `FAIL-FLASH-CONSTRAINT` |
-| `success_criteria` | 输出 1 份可直接使用的 `Flash Prompt Pack`，含源分析、统一正向 prompt、镜头段、运动/表演/光影/氛围、连续性、负面约束和多模态适配说明 | final prompt pack、review checklist | `FAIL-FLASH-SUCCESS` |
+| `success_criteria` | 输出 1 份可直接使用的 `Flash Prompt Pack`，含源分析、统一正向 prompt、镜头段、运动/表演/光影/氛围、声音与生成规则、连续性、负面约束和多模态适配说明 | final prompt pack、review checklist | `FAIL-FLASH-SUCCESS` |
 | `complexity_source` | 复杂度来自 2-10 阶段压缩、多模态证据等级、首尾帧连续性、短时长镜头数和 provider prompt 可执行性 | Type Routing、Node Map、evidence grades | `FAIL-FLASH-COMPLEXITY` |
 | `topology_fit` | 先锁输入和证据，再做故事压缩，再做美学/导演/表演/氛围，再拆镜头，再注入摄影/光影，再汇流 prompt：1) 防止素材误读；2) 防止把 prompt 写成剧本；3) 保持 2-10 的创作顺序；4) 让图生视频/首尾帧任务有连续性证据 | Visual Maps、节点表、Prompt Pack | `FAIL-FLASH-TOPOLOGY-FIT` |
 
@@ -253,7 +253,7 @@ flowchart TD
 Pass when:
 
 - 有且只有一份 `Flash Prompt Pack`。
-- Prompt pack 覆盖 `源分析 -> 正向视频提示词 -> 镜头段 -> 运动/表演 -> 摄影/光影/氛围 -> 多模态适配 -> 负面约束`。
+- Prompt pack 覆盖 `源分析 -> 正向视频提示词 -> 镜头段 -> 运动/表演 -> 摄影/光影/氛围 -> 声音与生成规则 -> 多模态适配 -> 负面约束`。
 - 默认时长 11.5 秒或用户指定时长被明确写入，镜头段总时长与目标一致。
 - 多模态证据均有 `confirmed / inferred / insufficient` 分级；参考素材有 `do_not_copy`。
 - 无文件写回、无项目路径落盘声明、无正式阶段执行报告。
@@ -343,6 +343,12 @@ Flash Prompt Pack
 
 摄影与光影：
 - ...
+
+声音与生成规则：
+- 必须生成现场物理互动音效、氛围感音效、环境声、自然现象声、动作声。
+- 音效应与画面动作同步，优先描述具体物理互动、环境空间和自然现象，不写背景音乐设计。
+- 不要生成任何字幕、文字、水印、Logo。
+- 禁止背景音乐。
 
 多模态适配：
 - 图生视频：保持...

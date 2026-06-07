@@ -1,0 +1,10 @@
+[
+  {
+    "name": "route_design_polish",
+    "prompt": "这个 HTML 版式太普通了，请选择合适的 HTML 技能改成更专业的视觉设计。"
+  },
+  {
+    "name": "route_template_selection",
+    "prompt": "请为这份 markdown 课程资料选择一个适合的 HTML Anything 模板。"
+  }
+]

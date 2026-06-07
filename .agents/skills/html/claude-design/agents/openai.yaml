@@ -1,0 +1,14 @@
+name: html-claude-design
+description: Codex adapter for high-fidelity HTML artifact design using Claude Design reference modules.
+entrypoint: SKILL.md
+language: zh-CN
+runtime:
+  model_role: coding_agent
+  authorship: llm_first
+permissions:
+  filesystem: workspace
+  network: when_fact_verification_requires_current_sources
+outputs:
+  - html
+  - markdown_report
+  - design_handoff

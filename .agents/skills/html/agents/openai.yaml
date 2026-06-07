@@ -1,0 +1,13 @@
+name: html
+description: Codex router for HTML design and template skill packages.
+entrypoint: SKILL.md
+language: zh-CN
+runtime:
+  model_role: coding_agent
+  authorship: router
+permissions:
+  filesystem: workspace
+  network: delegated_to_child_when_required
+outputs:
+  - skill_route
+  - html_artifact_handoff
