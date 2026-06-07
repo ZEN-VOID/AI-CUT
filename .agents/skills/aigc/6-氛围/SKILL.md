@@ -218,8 +218,8 @@ flowchart LR
 | criteria_slot | required_content | landing_place | fail_code |
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个表演稿 source；批量任务逐集独立执行 N1-N7；每集扫描全部画面点但只增写触发点 | `N3/N5.actions` | `FAIL-ATM-QUANT-SCOPE` |
-| `evidence_count` | 每集至少 1 个 `atmosphere_context_profile`、1 个 `aesthetic_context_map`、1 个 `scene_rhythm_map`、1 个 `trigger_point_inventory`、1 个 `genre_atmosphere_pack`、1 个 `atmosphere_insert_map`、1 个 `time_anchor_map`；每条新增字段至少 1 个 source anchor、1 个触发类型、1 个时间属性、1 个物理手段和 1 个风险检查 | `Thinking-Action Node Map.evidence` | `FAIL-ATM-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-ATM-01..18` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词替代具体细节 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
+| `evidence_count` | 每集至少 1 个 `atmosphere_context_profile`、1 个 `aesthetic_context_map`、1 个 `scene_rhythm_map`、1 个 `trigger_point_inventory`、1 个 `genre_atmosphere_pack`、1 个 `atmosphere_insert_map`、1 个 `time_anchor_map`；若触发动作破坏点，至少 1 个 `action_destruction_fx_map`；每条新增字段至少 1 个 source anchor、1 个触发类型、1 个时间属性、1 个物理手段和 1 个风险检查 | `Thinking-Action Node Map.evidence` | `FAIL-ATM-QUANT-EVIDENCE` |
+| `pass_threshold` | `GATE-ATM-01..19` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词替代具体细节 0；动作破坏点无来源/无材质/法术化/现代 CG 化 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
 | `trigger_density` | 默认触发点不超过全画面点 40%；低密度/现实主义 15%-30%；强类型可到 50%，超出必须逐条报告理由 | `N3.actions` / `Review Gate Binding` | `FAIL-ATM-DENSITY` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-ATM-QUANT-RETRY` |
 | `fallback_evidence` | 若某项 `3-美学` 缺失，使用用户指定等价资料并标记降级；若知识库缺题材氛围包，记录 `pretrained_atmosphere_inference` 或网络来源；若某画面点语义不可判定，保持原文不增写并在报告列 N/A | `Review Gate Binding.report_evidence` | `FAIL-ATM-QUANT-FALLBACK` |
@@ -240,6 +240,7 @@ flowchart LR
 | `CONTEXT.md` | 每次调用本技能 | 经验层、失败模式、氛围增写 heuristics | 重定义输入、节点、gate 或输出路径 | `Learning / Context Writeback` |
 | `references/atmosphere-and-mood-contract.md` | 任意生成、修复或审查任务 | 五感氛围、意境密度、声景层次、通感/微观/反衬/留白细则 | 替代本 `SKILL.md` 的触发机制、输出门或字段新增规则 | `N2/N4/N5/N6` |
 | `references/scene-rhythm-contract.md` | 涉及蓄压、爆发、静默、转场余波、视觉特效节奏或 `FAIL-ATM-RHYTHM` | 作为视觉特效节奏细则，约束氛围强度和出现时机 | 反向要求本阶段生成编剧层节奏字段或摄影剪辑方案 | `N2/N3/N5/N6` |
+| `references/action-destruction-fx-contract.md` | 涉及动作破坏点、武器风压、撞击、坍塌、爆点、碎石、木屑、湿泥、尘土、石粉、水汽、火星或 `FAIL-ATM-DESTRUCTION-FX` | 动作破坏点的类型设计、材质响应、风格继承、港式短促爆点边界和法术/现代 CG 光效禁区 | 新增动作事实、招式设定、剧情结果、现代武器、法术机制、VFX 参数或安全施工方案 | `N3/N4/N5/N6` |
 | `knowledge-base/physical-atmosphere-index.md` | 用户指名题材、物理特效、舞台/电影手段，或需要题材专属氛围包 | 12 类默认选择库、物理氛围手段索引、题材适配、禁用风险和组合建议 | 自动学习、承载执行经验或替代项目记忆；把默认库当成必选清单 | `N4` |
 | `agents/openai.yaml` | 产品入口、技能索引或 UI 调用 | 暴露默认 prompt 和短说明 | 覆盖本 `SKILL.md` 合同 | `N1` |
 | `test-prompts.json` | 回归验证、dry-run 或达尔文式评估 | 典型任务 prompts | 替代真实执行或审查 | `Evaluation Prompt Contract` |
@@ -248,9 +249,10 @@ flowchart LR
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
-| `default_generation; FAIL-ATM-TYPE-SINGLE; FAIL-ATM-SOURCE-CONTEXT; FAIL-ATM-TRIGGER; FAIL-ATM-TIME-ANCHOR; FAIL-ATM-CONCRETE` | `references/atmosphere-and-mood-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `N2-N6` | `GATE-ATM-01..17` | `trigger_point_inventory`、新增字段扫描、执行报告 sections |
+| `default_generation; FAIL-ATM-TYPE-SINGLE; FAIL-ATM-SOURCE-CONTEXT; FAIL-ATM-TRIGGER; FAIL-ATM-TIME-ANCHOR; FAIL-ATM-CONCRETE` | `references/atmosphere-and-mood-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `N2-N6` | `GATE-ATM-01..19` | `trigger_point_inventory`、新增字段扫描、执行报告 sections |
 | `节奏 / 蓄压 / 爆发 / 静默 / 转场 / FAIL-ATM-RHYTHM` | `references/scene-rhythm-contract.md`, `references/atmosphere-and-mood-contract.md` | `N2/N3/N5` | `GATE-ATM-08-RHYTHM-FX` | `scene_rhythm_map`、节奏触发理由 |
 | `烟雾 / 打灯 / 鼓风机 / 雨雪 / 火光 / 尘土 / 投影 / 天气模拟 / FAIL-ATM-PHYSICAL-FX` | `knowledge-base/physical-atmosphere-index.md`, `references/atmosphere-and-mood-contract.md` | `N4/N5` | `GATE-ATM-09-PHYSICAL-FX` | `physical_fx_selection_map`、风险检查 |
+| `动作破坏 / 武器风压 / 白刃剑风 / 枪风 / 链镰 / 飞剑 / 断链余劲 / 撞击 / 坍塌 / 爆点 / 碎石 / 木屑 / 湿泥 / 尘土 / 石粉 / 水汽 / 火星 / FAIL-ATM-DESTRUCTION-FX` | `references/action-destruction-fx-contract.md`, `references/scene-rhythm-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `N3/N4/N5/N6` | `GATE-ATM-19-ACTION-DESTRUCTION-FX` | `destruction_trigger_inventory`、`action_destruction_fx_map`、`boundary_check` |
 | `过度增写 / 每点都加 / FAIL-ATM-DENSITY` | `CONTEXT.md`, `references/scene-rhythm-contract.md` | `N3/N6` | `GATE-ATM-04-SELECTIVE-TRIGGER` | `trigger_density_stats` |
 | `抽象氛围 / 诗意 / 电影感 / FAIL-ATM-ABSTRACT` | `references/atmosphere-and-mood-contract.md` | `N5/N6` | `GATE-ATM-10-CONCRETE-SENSORY` | 抽象词扫描 + 感官通道证据 |
 
@@ -270,7 +272,7 @@ flowchart LR
 | `C2-UNDERSTANDING-READY` | 题材、情节、表演稿、画面基调、角色风格和场景风格已形成可执行氛围方向 | 只写概念标签或缺上游证据 | `atmosphere_context_profile`、`aesthetic_context_map` | `N2-ATM-UNDERSTAND` |
 | `C3-TRIGGERS-READY` | 触发点选择性明确，未触发点理由可解释，密度合规 | 每点硬加、漏关键点、触发无理由 | `trigger_point_inventory`、`trigger_density_stats` | `N3-TRIGGER-INVENTORY` |
 | `C4-PACK-READY` | 物理氛围包符合题材、场景条件和美学协议 | 无源天气/火/烟/雨，或手段与题材冲突 | `genre_atmosphere_pack`、`physical_fx_selection_map` | `N4-ATMOSPHERE-PACK` |
-| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、保真通过、作者性完整性通过、review 阻断项 0 | 字段漂移、无时间属性、新剧情、抽象氛围、设备说明口吻、脚本化生成、批量插入、正则套句、映射投影或特效词库伪差异 | `review_verdict`、`time_anchor_map`、`authorship_integrity_audit` | `N5/N6` |
+| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、保真通过、作者性完整性通过；若触发动作破坏点，动作源、受击材质、破坏材料和风格边界完整；review 阻断项 0 | 字段漂移、无时间属性、新剧情、抽象氛围、设备说明口吻、动作破坏无源/无材质/法术化/现代 CG 化、脚本化生成、批量插入、正则套句、映射投影或特效词库伪差异 | `review_verdict`、`time_anchor_map`、`action_destruction_fx_map`、`authorship_integrity_audit` | `N5/N6` |
 
 ## Review Gate Binding
 
@@ -294,6 +296,7 @@ flowchart LR
 | 执行报告是否含 Reference Execution Matrix、Rule Evidence Map、Trigger Coverage、N/A 和 Repair Log？ | `GATE-ATM-16-REPORT-EVIDENCE` | `FAIL-ATM-REPORT-EVIDENCE` | `N6/N7` | 执行报告 sections |
 | 终稿是否读起来仍像剧本正文，不像制作说明书或设备清单？ | `GATE-ATM-17-SCRIPT-READABILITY` | `FAIL-ATM-SCRIPT-READABILITY` | `N5` | 新增字段可读性抽样 |
 | 氛围画面是否由 LLM 基于触发理由、时间锚点、物理来源和场景节奏逐条判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、特效词库批量生成、批量插入、正则套句或映射投影？ | `GATE-ATM-18-AUTHORSHIP-INTEGRITY` | `FAIL-ATM-SCRIPTED-PROJECTION` | `R1/R2` -> `N3-TRIGGER-INVENTORY` -> `N5-ATM-ENRICH` | `authorship_integrity_audit`、重复句式/特效词替换抽样、废弃候选记录 |
+| 动作破坏点是否有动作来源、受击材质、破坏材料、节奏属性和风格边界，且没有法术化、现代 CG 发光化、无源爆炸或剧情结果越权？ | `GATE-ATM-19-ACTION-DESTRUCTION-FX` | `FAIL-ATM-DESTRUCTION-FX` | `N3/N4/N5` | `destruction_trigger_inventory`、`action_destruction_fx_map`、`style_fit_matrix`、`boundary_check` |
 
 ## Attention Concentration Protocol
 
@@ -326,7 +329,7 @@ Output format:
 - 只在触发点后新增 `氛围画面：XXX` 字段；不触发的画面点不新增占位字段。
 - `XXX` 必须是画面化正文，含物理氛围手段、感官细节、时间属性和相邻动作/画面锚点。
 - 不在正文中解释“为什么这样增写”“使用某参考合同”这类元说明；执行证据写入报告。
-- 执行报告必须包含：`Source Manifest`、`Aesthetic Context Map`、`Execution Decision Trace`、`Reference Execution Matrix`、`Trigger Point Inventory`、`Physical Atmosphere Pack`、`Rule Evidence Map`、`Coverage Stats`、`N/A Justification`、`Repair Log`、`Output Manifest`。
+- 执行报告必须包含：`Source Manifest`、`Aesthetic Context Map`、`Execution Decision Trace`、`Reference Execution Matrix`、`Trigger Point Inventory`、`Physical Atmosphere Pack`、`Rule Evidence Map`、`Coverage Stats`、`N/A Justification`、`Repair Log`、`Output Manifest`。若触发动作破坏点，还必须包含 `Action Destruction FX Map`，记录动作来源、受击材质、破坏材料、风格继承和边界检查。
 
 Output path:
 
@@ -338,8 +341,9 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-ATM-01..18` 阻断项为 0。
+- `GATE-ATM-01..19` 阻断项为 0。
 - `FAIL-ATM-SCRIPTED-PROJECTION` 必须为 0；若候选稿只是特效词库投影、句式轮换或锚点替换，不得表层润色通过，必须废弃并回到触发清单和逐点增写节点。
+- `FAIL-ATM-DESTRUCTION-FX` 必须为 0；若动作破坏点无动作来源、无受击材质、无破坏材料、法术化、现代 CG 发光化、无源爆炸或改写剧情结果，不得判定为 pass。
 - 原字段结构漂移 0。
 - 剧情事实越权 0。
 - 无时间属性新增字段 0。
