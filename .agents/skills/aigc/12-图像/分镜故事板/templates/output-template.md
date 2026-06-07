@@ -4,11 +4,11 @@
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | prompt 文档、group index、reference manifest、imagegen plan/result、执行报告 |
+| Required output | prompt 文档、group index、reference manifest、floor plan manifest、imagegen plan/result、执行报告 |
 | Output format | Markdown + JSON + bitmap image assets |
 | Output path | `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/` |
-| Naming convention | `第N集-分镜故事板-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-imagegen-plan.json`、`images/<分镜组ID>.png`、`执行报告.md` |
-| Completion gate | review verdict is `pass` or `pass_with_todo` |
+| Naming convention | `第N集-分镜故事板-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-floor-plan-manifest.json`、`第N集-imagegen-plan.json`、`floor-plans/<分镜组ID>.png`、`images/<分镜组ID>.png`、`执行报告.md` |
+| Completion gate | review verdict is `pass` or `pass_with_todo` and every target group has a persisted storyboard sheet image path; prompt-only / review-only / waiting-confirmation states cannot complete |
 
 ## Episode Directory Shape
 
@@ -17,8 +17,11 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 ├── 第N集-分镜故事板-prompts.md
 ├── 第N集-group-index.json
 ├── 第N集-reference-manifest.json
+├── 第N集-floor-plan-manifest.json
 ├── 第N集-imagegen-plan.json
 ├── 第N集-imagegen-results.json
+├── floor-plans/
+│   └── <分镜组ID>.png
 ├── images/
 │   └── <分镜组ID>.png
 └── 执行报告.md
@@ -42,9 +45,19 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - total_storyboard_frame_units:
 - resolution_target: 4K
 - visual_style: standard_storyboard_manuscript_black_white_line_art_base_with_controlled_annotation_colors
-- panel_image_aspect_ratio_default: 16:9
+- style_lock_policy: complete_group_source_is_evidence_only_not_visual_style_directive
+- panel_image_aspect_ratio_default: locked_16_9_image_box
 - panel_text_position: below_each_panel_image
-- layout_policy: auto_adapt_to_total_storyboard_frame_units
+- layout_policy: use_layout_aspect_decision
+- spatial_floor_plan_policy: accepted_top_view_before_storyboard
+- floor_plan_to_panel_mapping_policy: required_before_imagegen
+- visual_prompt_atoms_policy: required_per_panel_before_imagegen
+- provider_size_constraints:
+  - model: gpt-image-2
+  - max_edge_px: 3840
+  - edge_multiple_px: 16
+  - max_long_short_ratio: 3:1
+  - total_pixels: 655360..8294400
 - annotation_color_system:
   - red_arrows: body_movement
   - blue_arrows: camera_movement
@@ -55,12 +68,28 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - character_name_label_status:
 - prompted:
 - generated:
+- generated_image_paths:
+  - group_id:
+    path:
 - skipped:
 - failed:
 - missing_references:
+- floor_plans_generated:
+- floor_plans_accepted:
+- floor_plans_failed:
 
 ## Frame Unit Mapping
 
+- source_comprehension_status:
+- source_comprehension_evidence:
+  - narrative_function:
+  - action_chain:
+  - spatial_anchors:
+  - character_state_anchors:
+  - prop_state_anchors:
+  - visual_turning_points:
+  - must_preserve_source_facts:
+  - forbidden_inventions:
 - frame_unit_status:
 - mapping_policy: visual_beat_based_not_one_to_one_with_source_shot_labels
 - panel_description_status:
@@ -69,6 +98,68 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - annotation_plan_status:
 - complete_group_source_status:
 - partial_or_ambiguous_groups:
+
+## Style Lock And Prompt Atoms
+
+- style_lock_status:
+- upstream_style_quarantine_status:
+- quarantined_source_phrases:
+  - group_id:
+    source_phrase:
+    treatment: evidence_only_not_style_directive
+- forbidden_rendering_layers:
+  - color_cinematic_still
+  - photorealistic_rendering
+  - global_style_keywords
+  - scene_lighting_atmosphere
+  - costume_background_lighting_color_rendering
+- visual_prompt_atoms_status:
+- atom_fields_checked:
+  - draw_subjects
+  - subject_actions
+  - spatial_positions
+  - camera_framing
+  - line_art_instruction
+  - annotation_overlay
+  - text_strip
+  - negative_prompt_atoms
+- prompt_atom_rework_groups:
+
+## Layout Aspect Decision
+
+- layout_aspect_status:
+- panel_count_source: storyboard_frame_units.length
+- target_panel_image_aspect_ratio:
+- effective_panel_slot_ratio:
+- panel_geometry_blueprint_status:
+- max_panel_image_box_ratio_error:
+- outer_margin_pct:
+- gutter_pct:
+- text_strip_factor:
+- image_box_policy:
+- selected_grid:
+- selected_sheet_aspect_ratio:
+- selected_sheet_size:
+- panel_image_box_ratio_error:
+- pagination_or_multi_sheet_decision:
+- layout_risk_groups:
+
+## Spatial Floor Plan
+
+- floor_plan_status:
+- floor_plan_manifest:
+- floor_plan_output_root: floor-plans/
+- acceptance_policy: storyboard_generation_requires_accepted_floor_plan
+- top_view_status:
+- continuity_status:
+- floor_plan_to_panel_mapping_status:
+- floor_plan_to_panel_mapping_evidence:
+  - group_id:
+    mapped_panels:
+    unmapped_panels:
+    verdict:
+- accepted_floor_plans:
+- failed_or_pending_floor_plans:
 
 ## Reference Context
 

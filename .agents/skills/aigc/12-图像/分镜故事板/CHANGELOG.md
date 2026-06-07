@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-06-07
+
+- 针对 storyboard sheet 成图“风格漂移、平面图不一定匹配、生图提示不精准”的反馈新增三道硬门禁：`style_lock_spec`、`visual_prompt_atoms`、`floor_plan_to_panel_mapping`。
+- 强化黑白线稿画风锁定：完整组稿中的上游电影风格、彩色、光影、氛围、镜头质感和胶片颗粒等词必须隔离为 `evidence_only_not_style_directive`，不得进入最终绘制 atoms 或 imagegen 可执行指令。
+- 新增逐 panel 生图原子合同：每格必须记录 draw_subjects、subject_actions、spatial_positions、camera_framing、line_art_instruction、annotation_overlay、text_strip 和 negative_prompt_atoms，避免只用长组稿或摘要让 imagegen 自行理解。
+- 新增 accepted floor plan 到 storyboard panel 的映射门：每格必须回指平面图区块、角色站位/朝向、道具位置、摄影机方向、运动路径和禁止空间漂移项；只附 floor plan 路径不得通过。
+- 同步 `SKILL.md`、prompt assembly、imagegen handoff、spatial floor plan contract、review gate、workflow、type map、默认类型包、prompt/output template、README 与 CONTEXT，新增 `FAIL-SHEET-STYLE-LOCK`、`FAIL-SHEET-PROMPT-ATOMS`、`FAIL-SHEET-FLOOR-PLAN-MAPPING`。
+- 强化 source comprehension 前置节点：生成 frame units 前必须先记录本组叙事功能、动作链、空间/主体/道具锚点、视觉转折、必须保留源事实和禁止补写项，避免 prompt 形式完整但对现有内容理解不足。
+- 新增 `layout_aspect_decision` 合同：先根据实际 `storyboard_frame_units.length` 和目标单格 panel 比例枚举行列候选，再在 `gpt-image-2` 合法尺寸范围内选择整张 sheet 的比例与 `selected_sheet_size`，不得固定整图比例后挤压 panel。
+- 强化 panel 比例感门禁：`layout_aspect_decision` 必须包含 `panel_geometry_blueprint`，逐格记录 `cell_norm`、固定 `16:9 image_box`、`text_strip`、outer margin、gutter 和 `panel_image_box_ratio_error <= 0.06`；只声明 16:9 但没有几何坐标不得通过。
+- 新增 `G8A-LAYOUT-ASPECT` review gate 与 `FAIL-SHEET-LAYOUT-ASPECT` 失败码，并同步 prompt template、imagegen handoff、执行报告模板、默认类型包和经验层。
+- 新增 storyboard sheet 前置 `spatial_floor_plan`：每个分镜组先生成顶视图空间站位平面图，验收 `accepted` 后才能生成 storyboard sheet；相邻分镜组必须记录与上一张 accepted floor plan 的空间连续性。
+- 新增 `G8B-FLOOR-PLAN`、`G8C-FLOOR-PLAN-CONTINUITY`、`G8D-FLOOR-PLAN-ACCEPTANCE` review gates 与对应失败码，并同步 workflow、prompt package、imagegen handoff、输出模板、类型包和经验层。
+- 收紧完成态：`分镜故事板` 技能包不得以 prompt-only、review-only、平面图验收或等待确认作为完成态；所有内部 gate 失败均应自动返工并继续 imagegen，最终 pass 必须包含持久化 storyboard sheet 图片路径。
+
 ## 2026-06-04
 
 - 将项目输出根从旧 `12-图像/B-分镜故事板` 收敛为与叶子技能包名一致的 `12-图像/分镜故事板`，并同步 `SKILL.md`、模板、README、CONTEXT、references、types、agents metadata 与父级/registry/query 引用。

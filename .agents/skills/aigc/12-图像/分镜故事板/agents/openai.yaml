@@ -5,4 +5,4 @@ skill:
 interface:
   display_name: "AIGC 图像 / 分镜故事板"
   short_description: "从10-分组完整分镜组内容批量生成带角色名和彩色标注系统的黑白线稿组级故事板"
-  default_prompt: "使用 $aigc-image-storyboard-sheet，从 projects/aigc/<项目名>/10-分组 直接引用对应分镜组完整内容，添加黑白线稿分镜手稿任务执行前缀、角色头顶名称标注和受控彩色标注系统，绑定角色、场景、道具参照，按默认 16:9 panel 图片区和下方 rich_brief 分镜描述批量调用 imagegen 生成。"
+  default_prompt: "使用 $aigc-image-storyboard-sheet，从 projects/aigc/<项目名>/10-分组 直接引用对应分镜组完整内容，添加黑白线稿分镜手稿任务执行前缀、style_lock_spec、逐格 visual_prompt_atoms、角色头顶名称标注、受控彩色标注系统和 floor_plan_to_panel_mapping，绑定角色、场景、道具参照，按 locked 16:9 panel image box、panel_geometry_blueprint 和下方 rich_brief 分镜描述批量调用 imagegen 生成。"

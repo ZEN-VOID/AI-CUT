@@ -2,12 +2,12 @@
   {
     "id": "responsive-web-course",
     "prompt": "基于父包 html packet，为 projects/lesson/销售训练营 生成响应式 HTML 课程交付计划和 manifest。",
-    "expected": "Route to html_delivery, audit the parent html packet, create html-delivery-plan.md and html-site-manifest.json, and preserve LLM-first page authorship."
+    "expected": "Route to html_delivery, audit the parent html packet, create html-delivery-plan.md and html-site-manifest.json, preserve LLM-first page authorship, and mark .agents/skills/claude-design as the executor for any real HTML artifact."
   },
   {
     "id": "update-mobile-layout",
     "prompt": "更新 projects/lesson/管理课 的 HTML 课程，只调整移动端页面和导航。",
-    "expected": "Route to html_update, preserve unaffected pages, update the affected page plan sections and site manifest entries only."
+    "expected": "Route to html_update, preserve unaffected pages, update the affected page plan sections and site manifest entries only, and invoke .agents/skills/claude-design if an actual HTML artifact is changed or visually polished."
   },
   {
     "id": "draft-html-no-project",
@@ -17,6 +17,6 @@
   {
     "id": "missing-parent-packet",
     "prompt": "没有第 8 阶段父包 manifest，直接给我生成 index.html。",
-    "expected": "Route to blocked_or_redirect, require the parent html leaf packet or route to lesson-delivery, and do not fabricate web course content."
+    "expected": "Route to blocked_or_redirect, require the parent html leaf packet or route to lesson-delivery, and do not fabricate web course content or invoke claude-design without a valid lesson HTML packet."
   }
 ]

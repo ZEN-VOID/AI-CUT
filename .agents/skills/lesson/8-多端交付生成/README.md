@@ -48,7 +48,7 @@ Parent writeback is limited to:
 - `projects/lesson/<项目名>/8-多端交付生成/delivery-plan.md`
 - `projects/lesson/<项目名>/8-多端交付生成/delivery-manifest.json`
 
-Concrete DOC, PPT, and HTML delivery belongs to the `doc/`, `ppt/`, and `html/` leaf packages. Scripts may only do format conversion, assembly, validation, and manifest writeback; they must not generate or project course正文.
+Concrete DOC, PPT, and HTML delivery belongs to the `doc/`, `ppt/`, and `html/` leaf packages. If the HTML target includes a real `.html` / static-site artifact, the HTML leaf packet must point to `8-多端交付生成/html -> .agents/skills/claude-design` for high-fidelity HTML design execution and browser verification. Scripts may only do format conversion, assembly, validation, and manifest writeback; they must not generate or project course正文.
 
 ## Validation
 

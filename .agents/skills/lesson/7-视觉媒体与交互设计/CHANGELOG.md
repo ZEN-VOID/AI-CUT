@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-07
+
+- Added the HTML artifact handoff rule: stage 7 must not generate `.html` directly, and must route actual HTML generation through `8-多端交付生成/html -> .agents/skills/claude-design`.
+- Updated the visual delivery and downstream handoff schemas to include the `claude-design` executor route for HTML artifacts.
+- Synced `agents/openai.yaml` and test prompts to the same HTML handoff boundary.
+
 ## 2026-06-05
 
 - Implemented `7-视觉媒体与交互设计` as `lesson-visual-media-interaction`, a Skill 2.0 runtime-spine stage package.

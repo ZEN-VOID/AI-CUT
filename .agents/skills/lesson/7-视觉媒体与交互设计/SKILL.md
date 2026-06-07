@@ -31,10 +31,12 @@ metadata:
 - 交互模型：HTML 课件交互、PPT 课堂互动、练习反馈、导航、进度、状态、微交互和讲师操作路径。
 - 无障碍要求：颜色对比、字号、键盘可达、替代文本、字幕/转写、焦点状态、移动端可读性和认知负荷。
 - PPT/HTML 视觉交付约束：幻灯片版式、屏幕比例、响应式断点、组件状态、素材尺寸、导出限制和第 8 阶段 handoff。
+- HTML 生成调用链：当下游需要真实 `.html` 文件、可运行网页、静态站点或高保真 HTML 改造时，本阶段必须在 `delivery-visual-constraints.md` 和 `downstream-handoff.md` 中声明调用链为 `7-视觉媒体与交互设计 -> 8-多端交付生成/html -> .agents/skills/claude-design`，并要求加载 `.agents/skills/claude-design/SKILL.md + .agents/skills/claude-design/CONTEXT.md` 完成 HTML 视觉实现、交互 polish 和浏览器验证。
 
 非目标：
 
 - 不生成最终 `.pptx`、`.html`、`.docx`、Google Slides、网页项目或 DOC/PPT/HTML 成品；这些属于 `8-多端交付生成`。
+- 不在本阶段直接调用 `claude-design` 产出 HTML；本阶段只拥有视觉、媒体、交互、无障碍和 HTML handoff 约束。若用户在第 7 阶段要求生成 HTML 成品，必须路由到 `8-多端交付生成/html/`，并把 `.agents/skills/claude-design` 标记为 HTML artifact executor。
 - 不替代 `5-课时内容开发` 的讲稿、讲义正文、PPT 文案或案例展开。
 - 不替代 `6-活动练习与测评开发` 的题库、答案解析、活动脚本或测评 rubric。
 - 不把视觉 brief 写成可直接发布的素材库，也不伪造图片、视频、截图、版权状态或品牌资产。
@@ -73,6 +75,7 @@ N1-intake
 
 - 整体调用 `$lesson-visual-media-interaction` 时，在项目根、上游 3-6 阶段输入、版权/品牌边界和输出口径满足后，自动推进本阶段主链，不为每个设计节点额外确认。
 - 数字序号阶段包默认仍由 lesson 根入口串行推进；本阶段完成后只交付视觉媒体与交互设计文档和第 8 阶段 handoff，不自动生成 DOC/PPT/HTML 成品。
+- 当连续工作流推进到 HTML 成品生成或现有 HTML 改造时，必须保持 `7 -> 8/html -> .agents/skills/claude-design` 的调用链；第 7 阶段不得绕过 `8/html` 直接落地 `index.html` 或静态站点。
 - 无序号同级子技能包若未来挂入本阶段，默认全选并发执行，由本阶段汇总、裁决并写回唯一第 7 阶段输出集。
 - 英文序号路线若未来出现，默认按用户意图、父级路由或输入类型单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
 - 卫星技能不默认纳入本阶段主链；query/resume/repair/learn/benchmark 只在用户请求或本阶段阻断门需要时旁路回接。
@@ -125,6 +128,7 @@ Reject or clarify when:
 | `project_visual_design` | 项目根存在且 3-6 阶段输入足够 | `N1,N2,N3,N4,N5,N6,N7,N8,N9,N10` | 写入 canonical 第 7 阶段 MD 输出集。 |
 | `media_brief_update` | 用户补充素材、品牌规范、截图、视频或视觉参考 | `N1,N2,N3,N5,N7,N8,N9,N10` | 更新媒体资产 brief、图解规划和交付约束，不生成素材本体。 |
 | `interaction_accessibility_review` | 用户聚焦 HTML 交互、PPT 互动或无障碍 | `N1,N2,N3,N6,N7,N8,N9,N10` | 输出交互模型、状态、无障碍要求和第 8 阶段约束。 |
+| `html_generation_handoff` | 用户在第 7 阶段要求生成、重设计、改进或验证 HTML artifact | `N1,N2,N3,N6,N7,N9,N10` | 不生成 `.html`；输出或更新 HTML 设计约束，并路由 `8/html -> .agents/skills/claude-design`。 |
 | `draft_only` | 未绑定项目根但用户提供等价 3-6 brief | `N1,N2,N3,N4,N5,N6,N7,N9,N10` | 返回草案 Markdown，不正式写回。 |
 | `blocked_or_redirect` | 要求生成最终成品、代写正文/题库或伪造素材授权 | `N1,N9` | 阻断或路由到 owning stage。 |
 
@@ -135,6 +139,7 @@ Reject or clarify when:
 | `project_visual_design` | 项目根和 3-6 阶段上游可读 | `Project Visual Design Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9,N10` | `CONTEXT.md` | `FAIL-LESSON-VMI-PROJECT` |
 | `media_brief_update` | 输入含品牌规范、图片/视频/音频/截图/参考素材或图解需求 | `Media And Diagram Update Path` | `N1,N2,N3,N5,N7,N8,N9,N10` | `CONTEXT.md` | `FAIL-LESSON-VMI-MEDIA-UPDATE` |
 | `interaction_accessibility_review` | 输入聚焦交互、反馈状态、导航、可访问性或移动端可读性 | `Interaction Accessibility Path` | `N1,N2,N3,N6,N7,N8,N9,N10` | `CONTEXT.md` | `FAIL-LESSON-VMI-INTERACTION-REVIEW` |
+| `html_generation_handoff` | 输入要求生成/改造 `.html`、`index.html`、静态站点、网页课件或可运行页面 | `HTML Generation Handoff Path` | `N1,N2,N3,N6,N7,N9,N10` | `CONTEXT.md` | `FAIL-LESSON-VMI-HTML-HANDOFF` |
 | `draft_only` | 无项目根但有等价 3-6 brief 可形成草案 | `Draft Design Path` | `N1,N2,N3,N4,N5,N6,N7,N9,N10` | `CONTEXT.md` | `FAIL-LESSON-VMI-DRAFT` |
 | `blocked_or_redirect` | 要求生成最终成品、正文、题库、版权伪造或跨 namespace 写回 | `Block Or Redirect` | `N1,N9` | `CONTEXT.md` | `FAIL-LESSON-VMI-UNSAFE` |
 
@@ -153,6 +158,7 @@ Reject or clarify when:
 | `project_visual_design` / `FAIL-LESSON-VMI-PROJECT` | `CONTEXT.md` | `N1` | `C8-FINAL-OUTPUT` | project path and upstream 3-6 check |
 | `media_brief_update` / `FAIL-LESSON-VMI-MEDIA-UPDATE` | `CONTEXT.md` | `N5` | `C4-MEDIA-DIAGRAM-USABLE` | media brief and diagram coverage check |
 | `interaction_accessibility_review` / `FAIL-LESSON-VMI-INTERACTION-REVIEW` | `CONTEXT.md` | `N6` | `C5-INTERACTION-A11Y-USABLE` | interaction state and accessibility check |
+| `html_generation_handoff` / `FAIL-LESSON-VMI-HTML-HANDOFF` | `CONTEXT.md` | `N7` | `C6-DELIVERY-CONSTRAINTS-READY` | route is `8/html -> .agents/skills/claude-design`, no `.html` writeback |
 | `draft_only` / `FAIL-LESSON-VMI-DRAFT` | `CONTEXT.md` | `N1` | `C8-FINAL-OUTPUT` | draft-only no-writeback note |
 | `unsafe_scope` / `FAIL-LESSON-VMI-UNSAFE` | `CONTEXT.md` | `N1` | `Input Contract` | scope, copyright, authorship, and stage boundary check |
 | `FAIL-LESSON-VMI-UPSTREAM` | `CONTEXT.md` | `N2` | `C1-UPSTREAM-ANCHORED` | upstream artifact coverage check |
@@ -175,10 +181,10 @@ Reject or clarify when:
 | `N4-VISUAL-SYSTEM` | 生成课程视觉系统 | `design_scope`、品牌上下文、课程结构 | LLM 设计视觉原则、信息层级、版式节奏、色彩、字体、图标、图片风格、动效和品牌禁区 | `visual_system_draft`、`style_decisions` | `N5-MEDIA-DIAGRAM` | 视觉系统至少覆盖 8 个视觉槽位，并能追溯到上游教学意图 |
 | `N5-MEDIA-DIAGRAM` | 规划媒体资产 brief 与图表/图解 | 课时内容、案例、数据、活动、视觉系统 | LLM 逐项规划素材类型、用途、来源限制、版权状态、图解类型、内容锚点、生成/采购/拍摄要求和替代方案 | `media_brief_draft`、`diagram_plan_draft` | `N6-INTERACTION-A11Y,N7-DELIVERY-CONSTRAINTS` | 媒体和图解不得伪造资产；每个关键素材或图解有用途、来源状态和下游落点 |
 | `N6-INTERACTION-A11Y` | 设计交互模型与无障碍要求 | 活动练习、测评、HTML/PPT 场景、视觉系统 | LLM 设计交互路径、状态、反馈、导航、讲师操作、键盘/移动端/字幕/替代文本/对比度要求 | `interaction_model_draft`、`accessibility_draft` | `N7-DELIVERY-CONSTRAINTS` | 交互模型覆盖入口、动作、反馈、状态和失败路径；无障碍要求覆盖至少 7 类检查项 |
-| `N7-DELIVERY-CONSTRAINTS` | 汇总 PPT/HTML 视觉交付约束 | 视觉系统、媒体/图解、交互/无障碍 | 约束第 8 阶段的幻灯片版式、组件状态、响应式断点、素材尺寸、导出限制、不可改写正文/题库边界 | `delivery_constraints_draft`、`handoff_seed` | `N8-WRITEBACK,N9-REVIEW` | 只给交付约束，不生成 `.pptx`、`.html`、`.docx` 或最终页面 |
+| `N7-DELIVERY-CONSTRAINTS` | 汇总 PPT/HTML 视觉交付约束 | 视觉系统、媒体/图解、交互/无障碍 | 约束第 8 阶段的幻灯片版式、组件状态、响应式断点、素材尺寸、导出限制、不可改写正文/题库边界；若涉及真实 HTML artifact，写明 `8/html -> .agents/skills/claude-design` 调用链和输入包 | `delivery_constraints_draft`、`handoff_seed`、`html_executor_route` | `N8-WRITEBACK,N9-REVIEW` | 只给交付约束和 executor route，不生成 `.pptx`、`.html`、`.docx` 或最终页面 |
 | `N8-WRITEBACK` | 写回第 7 阶段 canonical MD 输出集或返回草案 | 设计草案、项目根、输出模式 | 项目根存在时写入 6 份 canonical MD 和 handoff；无项目根时返回草案并标记未正式写回 | `output_paths`、`draft_only_note` | `N9-REVIEW` | 正式写回只发生在 canonical lesson 项目根第 7 阶段目录 |
 | `N9-REVIEW` | 审查设计完整度、边界和 LLM-first 作者性 | 输出草案、Review Gate Binding | 检查上游追溯、视觉完整度、媒体/图解、交互、无障碍、交付边界、路径和 handoff | `review_result` | `N10-HANDOFF,N2-UPSTREAM,N3-DESIGN-SCOPE,N4-VISUAL-SYSTEM,N5-MEDIA-DIAGRAM,N6-INTERACTION-A11Y,N7-DELIVERY-CONSTRAINTS,N8-WRITEBACK` | 所有阻断 gate 通过；否则返工到 owning node |
-| `N10-HANDOFF` | 输出第 8 阶段可消费 handoff | review 结果、输出路径、交付约束 | 汇总第 8 阶段应读取的设计文件、不可生成/不可改写边界、缺口、风险和下一入口 | `handoff_packet`、`next_entry_recommendation` | `done` | handoff 明确，且没有写最终 PPT/HTML/DOC 成品 |
+| `N10-HANDOFF` | 输出第 8 阶段可消费 handoff | review 结果、输出路径、交付约束 | 汇总第 8 阶段应读取的设计文件、不可生成/不可改写边界、缺口、风险、下一入口；HTML artifact 需求必须指向 `8/html -> .agents/skills/claude-design` | `handoff_packet`、`next_entry_recommendation`、`html_executor_route` | `done` | handoff 明确，且没有写最终 PPT/HTML/DOC 成品 |
 
 ## Visual Map
 
@@ -277,10 +283,11 @@ flowchart TD
 ## 1. 第 8 阶段读取顺序
 ## 2. PPT 版式和幻灯片约束
 ## 3. HTML 组件、响应式和交互约束
-## 4. DOC 视觉辅助约束
-## 5. 素材尺寸、导出和质量要求
-## 6. 不得改写的课程正文与题库边界
-## 7. 风险、缺口和返工入口
+## 4. HTML 生成调用链与 claude-design 输入包
+## 5. DOC 视觉辅助约束
+## 6. 素材尺寸、导出和质量要求
+## 7. 不得改写的课程正文与题库边界
+## 8. 风险、缺口和返工入口
 ```
 
 ### `downstream-handoff.md`
@@ -291,9 +298,10 @@ flowchart TD
 ## 1. 给 8-多端交付生成
 ## 2. PPT 叶子读取说明
 ## 3. HTML 叶子读取说明
-## 4. DOC 叶子读取说明
-## 5. 素材缺口与风险
-## 6. 必须回到 3-6 阶段的返工问题
+## 4. claude-design 调用说明
+## 5. DOC 叶子读取说明
+## 6. 素材缺口与风险
+## 7. 必须回到 3-6 阶段的返工问题
 ```
 
 ## Convergence Contract
@@ -305,7 +313,7 @@ flowchart TD
 | `C3-VISUAL-SYSTEM-USABLE` | 视觉系统覆盖 8 个视觉槽位并服务教学意图 | 色彩/字体/版式孤立，无法指导第 8 阶段 | `visual_system_draft` | `N4-VISUAL-SYSTEM` |
 | `C4-MEDIA-DIAGRAM-USABLE` | 素材和图解均有用途、来源状态、版权/限制、优先级和落点 | 伪造素材授权，或图解与内容目标无关 | `media_brief_draft`、`diagram_plan_draft` | `N5-MEDIA-DIAGRAM` |
 | `C5-INTERACTION-A11Y-USABLE` | 交互覆盖动作/反馈/状态/失败路径；无障碍覆盖 7 类检查项 | 交互只有概念无状态，或无障碍缺可执行要求 | `interaction_model_draft`、`accessibility_draft` | `N6-INTERACTION-A11Y` |
-| `C6-DELIVERY-CONSTRAINTS-READY` | PPT/HTML/DOC 视觉约束明确，且不生成最终成品 | 输出 `.pptx`、`.html`、`.docx` 或改写正文/题库 | `delivery_constraints_draft` | `N7-DELIVERY-CONSTRAINTS` |
+| `C6-DELIVERY-CONSTRAINTS-READY` | PPT/HTML/DOC 视觉约束明确；HTML artifact 需求已路由 `8/html -> .agents/skills/claude-design`；且不生成最终成品 | 输出 `.pptx`、`.html`、`.docx`，绕过 `8/html` 直接调用 HTML 生成，或改写正文/题库 | `delivery_constraints_draft`、`html_executor_route` | `N7-DELIVERY-CONSTRAINTS` |
 | `C7-WRITEBACK-BOUND` | 正式输出路径为 lesson 项目根第 7 阶段目录；草案模式明确不写回 | 路径漂移、输出分裂或覆盖无授权 | `output_paths`、`draft_only_note` | `N8-WRITEBACK` |
 | `C8-FINAL-OUTPUT` | canonical 文件完整，review gate 无阻断，handoff 可被第 8 阶段消费 | 缺文件、缺 handoff、越界或证据不足 | `review_result`、`handoff_packet` | `N9-REVIEW` / `N10-HANDOFF` |
 
@@ -319,7 +327,7 @@ flowchart TD
 | 媒体 brief 和图解规划是否有用途、来源、版权/限制、优先级和下游落点？ | `FIELD-LESSON-VMI-04` | `FAIL-LESSON-VMI-MEDIA-DIAGRAM` | `N5-MEDIA-DIAGRAM` | asset and diagram matrix |
 | 交互模型是否覆盖入口、动作、反馈、状态、失败路径和平台边界？ | `FIELD-LESSON-VMI-05` | `FAIL-LESSON-VMI-INTERACTION` | `N6-INTERACTION-A11Y` | interaction state model |
 | 无障碍要求是否覆盖对比度、字号、键盘/焦点、替代文本、字幕、认知负荷和移动端？ | `FIELD-LESSON-VMI-06` | `FAIL-LESSON-VMI-A11Y` | `N6-INTERACTION-A11Y` | accessibility checklist |
-| 是否只输出第 7 阶段设计规划，而不是最终 PPT/HTML/DOC、正文或题库？ | `FIELD-LESSON-VMI-07` | `FAIL-LESSON-VMI-DELIVERY-BOUNDARY` | `Core Task Contract` / `N7-DELIVERY-CONSTRAINTS` | output headings and file types |
+| 是否只输出第 7 阶段设计规划，而不是最终 PPT/HTML/DOC、正文或题库；且 HTML artifact 是否路由到 `8/html -> .agents/skills/claude-design`？ | `FIELD-LESSON-VMI-07` | `FAIL-LESSON-VMI-DELIVERY-BOUNDARY` | `Core Task Contract` / `N7-DELIVERY-CONSTRAINTS` | output headings, file types, html executor route |
 | 正式写回是否落在 canonical lesson 项目根第 7 阶段目录？ | `FIELD-LESSON-VMI-08` | `FAIL-LESSON-VMI-PATH` | `N8-WRITEBACK` | output paths |
 | 第 8 阶段 handoff 是否说明读取顺序、约束、缺口和返工入口？ | `FIELD-LESSON-VMI-09` | `FAIL-LESSON-VMI-HANDOFF` | `N10-HANDOFF` | handoff packet |
 
@@ -333,7 +341,7 @@ flowchart TD
 | `FIELD-LESSON-VMI-04` | `N5` | `media-asset-brief.md`, `diagram-and-infographic-plan.md` | 素材和图解可追踪、可制作、可替代。 |
 | `FIELD-LESSON-VMI-05` | `N6` | `interaction-model.md` | 交互路径和状态可执行。 |
 | `FIELD-LESSON-VMI-06` | `N6` | `accessibility-requirements.md` | 无障碍要求可检查。 |
-| `FIELD-LESSON-VMI-07` | `N7/N9` | `delivery-visual-constraints.md` | 只给交付视觉约束，不生成成品。 |
+| `FIELD-LESSON-VMI-07` | `N7/N9` | `delivery-visual-constraints.md` | 只给交付视觉约束，不生成成品；HTML artifact 需求指向 `8/html -> .agents/skills/claude-design`。 |
 | `FIELD-LESSON-VMI-08` | `N8` | project-bound `7-视觉媒体与交互设计/*.md` | 正式写回路径唯一。 |
 | `FIELD-LESSON-VMI-09` | `N10` | `downstream-handoff.md` | 第 8 阶段读取顺序和返工入口清晰。 |
 
@@ -347,7 +355,7 @@ flowchart TD
 | `FIELD-LESSON-VMI-04` | 素材和图解条目均说明用途、来源/限制、优先级和落点 | `FAIL-LESSON-VMI-MEDIA-DIAGRAM` | `N5` |
 | `FIELD-LESSON-VMI-05` | 交互模型覆盖入口、动作、反馈、状态和失败路径 | `FAIL-LESSON-VMI-INTERACTION` | `N6` |
 | `FIELD-LESSON-VMI-06` | 无障碍要求覆盖至少 7 类检查项 | `FAIL-LESSON-VMI-A11Y` | `N6` |
-| `FIELD-LESSON-VMI-07` | 输出不含最终 `.pptx`、`.html`、`.docx`、课时正文或题库 | `FAIL-LESSON-VMI-DELIVERY-BOUNDARY` | `N7/N9` |
+| `FIELD-LESSON-VMI-07` | 输出不含最终 `.pptx`、`.html`、`.docx`、课时正文或题库；若涉及 HTML 生成，包含 `8/html -> .agents/skills/claude-design` 调用说明 | `FAIL-LESSON-VMI-DELIVERY-BOUNDARY` | `N7/N9` |
 | `FIELD-LESSON-VMI-08` | 项目写回路径为 lesson 项目根下的 `7-视觉媒体与交互设计/` | `FAIL-LESSON-VMI-PATH` | `N8` |
 | `FIELD-LESSON-VMI-09` | `downstream-handoff.md` 明确第 8 阶段读取顺序、缺口和返工入口 | `FAIL-LESSON-VMI-HANDOFF` | `N10` |
 
@@ -415,7 +423,7 @@ Symptom -> Direct Cause -> Visual Media Interaction Source Node -> lesson Root C
 - 视觉系统不可用：回到 `N4-VISUAL-SYSTEM`，补信息层级、版式、色彩、字体、图标、图片、动效和品牌边界。
 - 媒体或图解不可追溯：回到 `N5-MEDIA-DIAGRAM`，补用途、来源、限制、优先级和替代方案。
 - 交互或无障碍缺口：回到 `N6-INTERACTION-A11Y`，补动作、反馈、状态、失败路径和无障碍检查项。
-- 交付越界：回到 `Core Task Contract` 和 `N7-DELIVERY-CONSTRAINTS`，把最终成品生成路由到第 8 阶段。
+- 交付越界：回到 `Core Task Contract` 和 `N7-DELIVERY-CONSTRAINTS`，把最终成品生成路由到第 8 阶段；HTML artifact 必须继续指向 `8/html -> .agents/skills/claude-design`。
 - 写回路径错误：回到 `N8-WRITEBACK` 和 lesson 根 runtime 口径。
 
 ## Output Contract
@@ -435,7 +443,7 @@ Symptom -> Direct Cause -> Visual Media Interaction Source Node -> lesson Root C
   - `downstream-handoff.md`
 - Naming convention: canonical filenames 固定为以上七个文件；不得另立 `visual-design.md`、`interaction.md` 或多份平行视觉真源替代 canonical files。
 - Completion gate: `C1` 到 `C8` 通过，`Review Gate Binding` 无阻断 fail code，且没有生成最终 `.pptx`、`.html`、`.docx`、课时正文或题库。
-- Handoff: `downstream-handoff.md` 必须说明第 8 阶段读取顺序、PPT/HTML/DOC 视觉约束、素材缺口、不可改写边界和需要回到 3-6 阶段的返工问题。
+- Handoff: `downstream-handoff.md` 必须说明第 8 阶段读取顺序、PPT/HTML/DOC 视觉约束、HTML artifact 的 `8/html -> .agents/skills/claude-design` 调用说明、素材缺口、不可改写边界和需要回到 3-6 阶段的返工问题。
 - Content-model touchpoint: read-only；本阶段不刷新 `content-model/`，只通过第 7 阶段 canonical files 和 `downstream-handoff.md` 向第 8 阶段传递视觉、媒体、交互和无障碍约束。
 
 ## Runtime Guardrails
@@ -444,7 +452,7 @@ Symptom -> Direct Cause -> Visual Media Interaction Source Node -> lesson Root C
 
 - Read-only: 本阶段 `SKILL.md + CONTEXT.md`、lesson 根入口、`1-课程定位/course-positioning.md`、上游 3-6 阶段产物及 `downstream-handoff.md`、项目 `MEMORY.md`、项目 `CONTEXT/`、用户提供资料和品牌/素材参考。
 - Writable: 正式项目绑定时仅写 lesson 项目根下的 `7-视觉媒体与交互设计/*.md`；只有用户明确给出长期项目视觉偏好、品牌禁区或无障碍要求时，才按项目记忆规则更新项目 `MEMORY.md`。
-- Forbidden: 不写 `8-多端交付生成/` 成品，不写 `.pptx`、`.html`、`.docx`，不写 `5-课时内容开发/` 正文，不写 `6-活动练习与测评开发/` 题库，不写其他媒介 namespace。
+- Forbidden: 不写 `8-多端交付生成/` 成品，不写 `.pptx`、`.html`、`.docx`，不绕过 `8/html` 直接调用 HTML artifact 生成，不写 `5-课时内容开发/` 正文，不写 `6-活动练习与测评开发/` 题库，不写其他媒介 namespace。
 - agents/ entry metadata ownership: `agents/openai.yaml` 只声明本技能的产品入口、触发提示和边界摘要，不拥有运行时合同或输出完成门。
 
 ### Self-Modification Prohibitions

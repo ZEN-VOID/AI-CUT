@@ -2,7 +2,7 @@
   {
     "id": "project-visual-design",
     "prompt": "为 projects/lesson/AI销售新人训练营 执行 7-视觉媒体与交互设计。项目已有 3-目标与评价蓝图、4-教学策略与课程架构、5-课时内容开发、6-活动练习与测评开发，请输出视觉系统、媒体 brief、图解规划、交互模型、无障碍要求和 PPT/HTML 视觉交付约束。",
-    "expected": "Route to project_visual_design, read stages 3-6 as upstream anchors, produce or write visual-system.md, media-asset-brief.md, diagram-and-infographic-plan.md, interaction-model.md, accessibility-requirements.md, delivery-visual-constraints.md, and downstream-handoff.md without generating final PPT, HTML, DOC, lesson scripts, or question banks."
+    "expected": "Route to project_visual_design, read stages 3-6 as upstream anchors, produce or write visual-system.md, media-asset-brief.md, diagram-and-infographic-plan.md, interaction-model.md, accessibility-requirements.md, delivery-visual-constraints.md, and downstream-handoff.md without generating final PPT, HTML, DOC, lesson scripts, or question banks. If HTML artifact generation is later selected, include the 8/html -> .agents/skills/claude-design handoff route."
   },
   {
     "id": "media-asset-brief-update",
@@ -12,7 +12,7 @@
   {
     "id": "interaction-a11y-focus",
     "prompt": "请只聚焦 projects/lesson/AI销售新人训练营 的 HTML 交互模型和无障碍要求：需要移动端可读、键盘可达、练习反馈清楚，并兼顾 PPT 课堂互动。",
-    "expected": "Route to interaction_accessibility_review, produce interaction model states, feedback flows, platform boundaries, accessibility requirements, and PPT/HTML constraints with upstream references and no final HTML or slides."
+    "expected": "Route to interaction_accessibility_review, produce interaction model states, feedback flows, platform boundaries, accessibility requirements, and PPT/HTML constraints with upstream references and no final HTML or slides; any real HTML artifact must be routed to 8/html -> .agents/skills/claude-design."
   },
   {
     "id": "draft-without-project",
@@ -22,6 +22,6 @@
   {
     "id": "overreach-final-delivery-block",
     "prompt": "直接把第 7 阶段做完并导出 PPTX、HTML 页面、讲师讲稿和题库答案。",
-    "expected": "Route to blocked_or_redirect. Do not generate final PPTX, HTML, lesson scripts, or question banks in lesson-visual-media-interaction; route final delivery to stage 8 and content or assessment requests to stages 5 and 6."
+    "expected": "Route to blocked_or_redirect. Do not generate final PPTX, HTML, lesson scripts, or question banks in lesson-visual-media-interaction; route final delivery to stage 8, route HTML artifact execution through 8/html -> .agents/skills/claude-design, and route content or assessment requests to stages 5 and 6."
   }
 ]

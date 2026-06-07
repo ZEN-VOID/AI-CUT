@@ -2,7 +2,7 @@
   {
     "id": "tri-channel-delivery-plan",
     "prompt": "项目 projects/lesson/销售训练营 已完成 3-7 阶段，请生成 DOC、PPT、HTML 三端交付计划和 manifest。",
-    "expected": "Route to tri_channel_plan, audit stages 3-7 plus content-model, create delivery-plan.md and delivery-manifest.json, and produce doc/ppt/html leaf work packets without generating final course正文 by script."
+    "expected": "Route to tri_channel_plan, audit stages 3-7 plus content-model, create delivery-plan.md and delivery-manifest.json, produce doc/ppt/html leaf work packets without generating final course正文 by script, and include .agents/skills/claude-design as the HTML artifact design executor when real HTML output is selected."
   },
   {
     "id": "single-ppt-leaf-plan",

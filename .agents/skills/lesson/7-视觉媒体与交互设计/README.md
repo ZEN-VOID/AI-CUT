@@ -33,6 +33,8 @@ projects/lesson/<项目名>/7-视觉媒体与交互设计/downstream-handoff.md
 
 This stage does not generate `.pptx`, `.html`, `.docx`, final slides, final web pages, lesson scripts, or question banks.
 
+When a request involves actual HTML generation, `index.html`, static-site output, or redesigning an existing HTML artifact, this stage writes only the visual/interaction constraints and downstream handoff. The implementation route must be `8-多端交付生成/html -> .agents/skills/claude-design`, and that downstream executor must load `.agents/skills/claude-design/SKILL.md + .agents/skills/claude-design/CONTEXT.md`.
+
 ## Validation
 
 ```bash

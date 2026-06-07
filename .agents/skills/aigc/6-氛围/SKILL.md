@@ -16,7 +16,7 @@ metadata:
 - `projects/aigc/<项目名>/3-美学/角色风格/角色风格协议.md`
 - `projects/aigc/<项目名>/3-美学/场景风格/场景风格协议.md`
 
-本技能不是摄影分镜、灯光设计图、舞台执行单、VFX 参数表、图像 prompt 或视频生成技能。它只把烟雾、打灯、鼓风机、自然元素、天气模拟、水火尘雪、投影影纹、气味/温度等可见可感的氛围手段，写成服务叙事、动作和场景的画面化正文。
+本技能不是摄影分镜、灯光设计图、舞台执行单、VFX 参数表、图像 prompt 或视频生成技能。它只把烟雾、打灯、鼓风机、自然元素、天气模拟、水火尘雪、投影影纹、气味/温度、动作破坏点材质响应等可见可感的氛围手段，写成服务叙事、动作和场景的画面化正文。
 
 ## Context Loading Contract
 
@@ -25,7 +25,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与题材、场景、制作限制、审美禁区、氛围偏好或物理特效限制相关的文件。
 - 默认读取上游表演稿：`projects/aigc/<项目名>/5-表演/第N集.md`。用户显式指定其他表演稿、粘贴文本或候选稿时，以用户输入为 source，并在报告记录 `source_override=true`。
 - 必须读取可用的 `3-美学` 产物，优先级为 `画面基调`、`角色风格`、`场景风格`。若任一缺失，可使用用户提供的等价风格文本，但必须在报告记录降级来源和 N/A 理由。
-- 必须加载本目录 `references/atmosphere-and-mood-contract.md`；当氛围增写涉及场景节奏、蓄压、爆发、静默、转场余波或视觉特效节奏时，必须加载 `references/scene-rhythm-contract.md`，并将其作为视觉特效节奏细则使用。
+- 必须加载本目录 `references/atmosphere-and-mood-contract.md`；当氛围增写涉及场景节奏、蓄压、爆发、静默、转场余波或视觉特效节奏时，必须加载 `references/scene-rhythm-contract.md`，并将其作为视觉特效节奏细则使用；当任务涉及动作破坏点、武器风压、撞击、坍塌、爆点、断裂、碎石、木屑、湿泥、尘土、石粉、水汽或 `FAIL-ATM-DESTRUCTION-FX` 时，必须加载 `references/action-destruction-fx-contract.md`。
 - 题材理解、触发点选择、氛围包适配、逐字段增写、时间关系设计和物理特效审美判断必须由 LLM 主创。脚本只允许承担读取、字段扫描、覆盖统计、diff、报告辅助和残留检查。
 - 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 专属氛围包优先查看本目录 `knowledge-base/physical-atmosphere-index.md`。若本地知识库无匹配整理，可结合模型已有知识；若用户要求具体剧场设备、最新安全规范、真实供应商能力或可审计事实，必须联网检索并在报告记录来源、链接、检索日期和使用边界。
@@ -74,6 +74,7 @@ Core task:
 - 建立 `atmosphere_context_profile`：题材机制、整集情绪曲线、场景节奏、关键物理环境、已有表演密度、画面基调边界、角色/场景风格继承。
 - 建立 `trigger_point_inventory`：扫描全部画面点，但只标记需要渲染、烘托或增强的点位；未触发点保持原文，不补空字段。
 - 建立 `genre_atmosphere_pack`：先从 `knowledge-base/physical-atmosphere-index.md#Default Selection Library` 的 12 类默认选择库中选型，再按题材和场景裁剪物理氛围手段，例如 haze/fog/低烟、逆光/侧光/顶光/频闪、鼓风机、雨雪、火光、湿地面、水汽、尘土、灰烬、花瓣/落叶、投影影纹、雷电、温度/气味等。
+- 对动作强触发点建立 `action_destruction_fx_profile`：把动作来源、受击材质、破坏材料、节奏强度和风格边界绑定起来，例如白刃剑风、枪风、链镰、飞剑、断链余劲对石阶、大石、树木、树枝、林间地面造成的湿泥、尘土、石粉、木屑、水汽和短促爆点式破坏；但必须符合 `3-美学` 和项目 `MEMORY.md`，不得写成修仙法术、现代 CG 发光武器秀或无源爆炸。
 - 在触发点附近新增 `氛围画面：XXX` 字段。`XXX` 必须画面化、具体、具备时间属性，并与相邻动作或画面点绑定，例如“与此同时……”“在他转身之后……”“话音落下的两秒里……”。
 - 增写只改变表现层，不改变剧情事实、对白原意、事件结果、场景顺序、角色行动因果或美学协议真源。
 
@@ -89,6 +90,7 @@ Hard prohibitions:
 - 不得新增天气、灾害、火源、烟源、物件或群众事件，除非源稿、场景风格或上下文已有对应条件。
 - 不得让氛围特效抢走人物行动、表演节奏或剧情信息焦点。
 - 不得使用“氛围感很强”“高级电影感”“宿命感拉满”等抽象评价替代可见可感细节。
+- 不得把动作破坏点写成无源法术、激光、能量波、持续发光边缘或现代 CG 光效；冷兵器动作的夸张破坏必须落在现场材质、风压、碰撞、湿泥、尘土、石粉、木屑、水汽、火星和短促爆点等物理响应上。
 
 ## Business Requirement Analysis Contract
 
@@ -144,12 +146,12 @@ Reject or clarify when:
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
-| `single_episode_atmosphere_enrichment` | 单个集号、单个表演稿或单集文本 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `FAIL-ATM-TYPE-SINGLE` |
-| `episode_range_atmosphere_enrichment` | 多集范围或全量可读表演稿 | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `FAIL-ATM-TYPE-RANGE` |
-| `specified_script_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md` | `FAIL-ATM-TYPE-OVERRIDE` |
+| `single_episode_atmosphere_enrichment` | 单个集号、单个表演稿或单集文本 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `references/action-destruction-fx-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `FAIL-ATM-TYPE-SINGLE` |
+| `episode_range_atmosphere_enrichment` | 多集范围或全量可读表演稿 | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `references/action-destruction-fx-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `FAIL-ATM-TYPE-RANGE` |
+| `specified_script_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/action-destruction-fx-contract.md` | `FAIL-ATM-TYPE-OVERRIDE` |
 | `atmosphere_pack_research` | 指名题材/特效手段但 knowledge-base 无匹配 | `Atmosphere Pack Research Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `knowledge-base/physical-atmosphere-index.md`, `references/atmosphere-and-mood-contract.md` | `FAIL-ATM-TYPE-RESEARCH` |
-| `repair` | 既有稿件需修复 | `Repair Path` | `N1,R1,R2,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md` | `FAIL-ATM-TYPE-REPAIR` |
-| `review_only` | 只审查候选氛围稿 | `Review Path` | `N1,V1,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md` | `FAIL-ATM-TYPE-REVIEW` |
+| `repair` | 既有稿件需修复 | `Repair Path` | `N1,R1,R2,N6,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `references/action-destruction-fx-contract.md` | `FAIL-ATM-TYPE-REPAIR` |
+| `review_only` | 只审查候选氛围稿 | `Review Path` | `N1,V1,N7` | `CONTEXT.md`, `references/atmosphere-and-mood-contract.md`, `references/scene-rhythm-contract.md`, `references/action-destruction-fx-contract.md` | `FAIL-ATM-TYPE-REVIEW` |
 
 ## Atmosphere Trigger Contract
 
@@ -158,6 +160,7 @@ Reject or clarify when:
 | `render` | `渲染` | 场景进入、空间换气、环境质感需要被观众感知，或光线/空气/材质需要可见化 | 空气介质、光线形态、材质状态、至少一个感官通道、与原画面同时发生的时间关系 | 只写“环境很美”“气氛压抑” |
 | `support` | `烘托` | 角色表演、心理反应、对白停顿或场景留白需要外部环境承托 | 与角色动作/声音/静物反应绑定，说明在动作前后或同时如何变化 | 把心理解释写成环境替代剧情 |
 | `intensify` | `增强` | 危机、高潮、转折、雷电/爆发/风雨/火光/尘烟等需要加大冲击力 | 强度变化、持续时间、物理来源或已有场景条件、节奏变化 | 无源灾害、无源火/烟/雨、特效压过人物 |
+| `destruction_fx` | `动作破坏点强化` | 动作、武器风压、撞击、坍塌、追逐或余劲会让现场材质产生可见破坏，且该破坏能增强动作重量、危机或余波 | 动作来源、受击材质、破坏材料、节奏属性、风格边界；必要时加载 `references/action-destruction-fx-contract.md` | 无源爆炸、材质不明、法术化、现代 CG 发光秀、破坏结果改写剧情 |
 
 触发规则：
 
@@ -172,10 +175,10 @@ Reject or clarify when:
 | --- | --- | --- | --- | --- | --- | --- |
 | `N1-ATM-INTAKE` | 锁定项目、集号、表演稿 source、美学 source、写回权限和资料来源 | 用户请求、项目根、source 文件 | 加载 `SKILL.md + CONTEXT.md`；项目任务加载 `MEMORY.md/CONTEXT`；识别 `source_performance_path`、`episode_id`、`aesthetic_sources`、`writeback_mode`、`atmosphere_research_request`；形成 `business_profile`、scope checkpoint 和注意力锚点 | `source_manifest`、`aesthetic_manifest`、`business_profile`、`attention_anchor` | `N2` / `V1` / `N8` | source 不唯一、正式写回路径不明或完全无美学上下文时不得继续 |
 | `N2-ATM-UNDERSTAND` | 理解题材、情节、表演稿正文和 3-美学上下文 | 表演稿、美学协议、项目上下文、references | 摘要题材机制、主要冲突、场景节奏、情绪曲线、画面基调、大师/作品参照、角色风格和场景风格；识别已有环境条件 | `atmosphere_context_profile`、`aesthetic_context_map`、`scene_rhythm_map`、`existing_environment_condition_map` | `N3` / `R1` | 不能只写类型标签；必须说明氛围方向、禁用手段和美学继承边界 |
-| `N3-TRIGGER-INVENTORY` | 建立选择性增写触发点 | N2 证据、表演稿字段 | 扫描全部画面点；按 `render/support/intensify` 判定触发；为每个触发点记录 source anchor、触发理由、情绪/节奏目标、时间关系、风险和不触发点统计 | `trigger_point_inventory`、`non_trigger_rationale_summary`、`trigger_density_stats` | `N4` / `R1` | 触发点必须少而准；无触发理由不得新增字段；默认密度越界必须说明 |
-| `N4-ATMOSPHERE-PACK` | 适配题材与场景的专属氛围包 | N2-N3 证据、knowledge-base、必要网络资料 | 优先从 `physical-atmosphere-index.md#Default Selection Library` 的 12 类默认库选型；按题材、场景条件、表演强度和美学协议决定烟雾/光/风/雨雪/火水尘/投影/气味/温度等；记录来源边界 | `genre_atmosphere_pack`、`physical_fx_selection_map`、`style_source_matrix`、`risk_limit_map` | `N5` / `R1` | 每个手段必须符合场景条件；无源天气、火、烟、群众事件不得进入 |
-| `N5-ATM-ENRICH` | LLM 逐点新增 `氛围画面：XXX` | N2-N4 证据、references | 保留原表演稿字段和正文；只在触发点后新增 `氛围画面：`；写清物理特效、感官细节、时间属性、与动作/对白/心理/场景节奏的关系；不写设备清单或 prompt | `candidate_atmosphere_episode`、`atmosphere_insert_map`、`time_anchor_map`、`reference_application_map` | `N6` / `R1` | 新增字段格式正确；原稿结构不漂移；每条新增都可见/可听/可感且有时间锚点 |
-| `N6-ATM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-ATM-01..17`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`trigger_coverage_stats`、`reference_execution_matrix`、`rule_evidence_map` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
+| `N3-TRIGGER-INVENTORY` | 建立选择性增写触发点 | N2 证据、表演稿字段 | 扫描全部画面点；按 `render/support/intensify/destruction_fx` 判定触发；为每个触发点记录 source anchor、触发理由、情绪/节奏目标、时间关系、风险和不触发点统计 | `trigger_point_inventory`、`non_trigger_rationale_summary`、`trigger_density_stats`、`destruction_trigger_inventory` | `N4` / `R1` | 触发点必须少而准；无触发理由不得新增字段；默认密度越界必须说明 |
+| `N4-ATMOSPHERE-PACK` | 适配题材与场景的专属氛围包 | N2-N3 证据、knowledge-base、必要网络资料 | 优先从 `physical-atmosphere-index.md#Default Selection Library` 的 12 类默认库选型；按题材、场景条件、表演强度和美学协议决定烟雾/光/风/雨雪/火水尘/投影/气味/温度等；若触发动作破坏点，按 `action-destruction-fx-contract.md` 建立动作源、受击材质、破坏材料、强度节奏和边界句法；记录来源边界 | `genre_atmosphere_pack`、`physical_fx_selection_map`、`action_destruction_fx_profile`、`style_source_matrix`、`risk_limit_map` | `N5` / `R1` | 每个手段必须符合场景条件；无源天气、火、烟、群众事件或无源爆点不得进入 |
+| `N5-ATM-ENRICH` | LLM 逐点新增 `氛围画面：XXX` | N2-N4 证据、references | 保留原表演稿字段和正文；只在触发点后新增 `氛围画面：`；写清物理特效、感官细节、时间属性、与动作/对白/心理/场景节奏的关系；动作破坏点必须写清动作来源、受击材质、湿泥/尘土/石粉/木屑/水汽/火星等材料响应和风格边界；不写设备清单或 prompt | `candidate_atmosphere_episode`、`atmosphere_insert_map`、`time_anchor_map`、`action_destruction_fx_map`、`reference_application_map` | `N6` / `R1` | 新增字段格式正确；原稿结构不漂移；每条新增都可见/可听/可感且有时间锚点；破坏点不得法术化、现代 CG 化或改写剧情 |
+| `N6-ATM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-ATM-01..19`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`trigger_coverage_stats`、`reference_execution_matrix`、`rule_evidence_map`、`action_destruction_fx_map` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
 | `N7-ATM-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract | 写入 `projects/aigc/<项目名>/6-氛围/第N集.md` 与 `执行报告.md`；报告记录来源、触发、reference matrix、rule map、N/A、修复、网络来源和残余风险 | `output_manifest`、`execution_report` | done | 输出路径唯一；报告证据完整；正式写回不得缺执行报告 |
 | `R1-ATM-REWORK` | 源层返工定位 | fail code、review evidence | 追到题材理解、美学继承、触发判定、氛围包、增写正文、格式或输出路径层 | `root_cause_trace` | `R2` / `N2` / `N3` / `N4` / `N5` | 不得用泛化润色掩盖触发、保真、物理手段或报告失败 |
 | `R2-ATM-SYNC-REPAIR` | 修复已有氛围稿 | existing draft、root cause | 只修失败字段、过度增写、缺时间属性、物理越权、报告证据或格式错误；不得重写无关原表演稿 | `sync_patch` | `N6` | 修复后同类失败不得残留 |

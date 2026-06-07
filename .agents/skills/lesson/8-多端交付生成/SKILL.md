@@ -26,7 +26,7 @@ metadata:
 - 审计第 `3` 到 `7` 阶段与 `content-model/` 是否足以支持交付。
 - 决定本轮目标端：DOC、PPT、HTML 中一个、多个或全部。
 - 由 LLM 逐条理解课程内容模型，形成统一 delivery map，避免三端各自重写课程主稿。
-- 生成三端叶子执行包：范围、素材、结构、格式约束、交付路径、consistency gate 和 manifest 字段。
+- 生成三端叶子执行包：范围、素材、结构、格式约束、交付路径、consistency gate 和 manifest 字段；当 HTML 目标包含真实 `.html` / 静态站点 artifact 时，HTML leaf packet 必须声明 `.agents/skills/claude-design` 为 design executor。
 - 写回 `8-多端交付生成/delivery-plan.md` 与 `8-多端交付生成/delivery-manifest.json`。
 - 把 DOC/PPT/HTML 具体交付交给对应叶子技能，父包只聚合与裁决，不替代叶子执行。
 
@@ -156,7 +156,7 @@ Reject or clarify when:
 | `N2-UPSTREAM-AUDIT` | 审计上游 content model 和第 1、3-7 阶段产物 | `course-positioning.md`、`content-model/`、阶段输出与 handoff、项目记忆、项目上下文 | 检查定位、课程结构、目标评价、课时正文、活动测评、视觉媒体约束是否存在；列缺口与 owning stage | `upstream_inventory`、`missing_inputs` | `N3` / `N8` | 关键上游满足交付；缺口不能靠第 8 阶段补写 |
 | `N3-DELIVERY-PROFILE` | 锁定交付目标和格式约束 | 用户目标端、品牌、设备、页数/时长、语言、可访问性 | 选择 doc/ppt/html targets；记录每端输出形态、文件命名、素材要求和限制 | `delivery_profile`、`target_set` | `N4` | 至少 1 个目标端明确，三端约束不互相冲突 |
 | `N4-CONTENT-MODEL-FUSION` | 生成共享 delivery map | 上游 content model、delivery profile | LLM 逐条理解内容模型，建立课程顺序、模块、课时、活动、素材和证据到三端的映射 | `delivery_map`、`authorship_note` | `N5` / `N6` | delivery map 不新增课程主稿，不丢失关键学习目标 |
-| `N5-LEAF-WORK-PACKETS` | 形成叶子执行包 | `delivery_map`、target_set、叶子边界 | 为选中目标端生成 doc/ppt/html 执行包、输入清单、输出路径、consistency checks 和禁用动作 | `leaf_packets`、`leaf_routes` | `N6` | 每个选中端都有执行包；未选中端不补空产物 |
+| `N5-LEAF-WORK-PACKETS` | 形成叶子执行包 | `delivery_map`、target_set、叶子边界 | 为选中目标端生成 doc/ppt/html 执行包、输入清单、输出路径、consistency checks 和禁用动作；若 HTML 需要真实 artifact，写入 `design_executor: .agents/skills/claude-design` 和应加载的 skill pair | `leaf_packets`、`leaf_routes`、`html_design_executor` | `N6` | 每个选中端都有执行包；未选中端不补空产物；HTML artifact executor 不缺失 |
 | `N6-MANIFEST-WRITEBACK` | 写回或返回 delivery plan 与 manifest | `delivery_map`、`leaf_packets`、项目根 | 项目绑定时写 `delivery-plan.md` 与 `delivery-manifest.json`；草案模式只返回内容 | `output_paths`、`manifest_summary` 或 `draft_only_note` | `N7` | 正式写回只发生在 canonical lesson 第 8 阶段目录 |
 | `N7-CONSISTENCY-GATE` | 执行内置一致性 gate | 输出计划、manifest、Review Gate Binding | 检查上游保真、目标端覆盖、manifest 字段、叶子边界、跨端一致性和 LLM-first 证据 | `review_result`、`consistency_matrix` | `N8` / `N2` / `N4` / `N5` / `N6` | 所有阻断 gate 通过；否则返工到对应节点 |
 | `N8-HANDOFF` | 输出叶子路由和下一步 | `review_result`、leaf routes、manifest | 返回已写回路径、应调度的叶子、未决缺口、阻断原因或草案说明 | `handoff_packet`、`next_leaf_entries` | done | 用户可直接进入选中 leaf，且没有新增外部阶段 |
@@ -185,7 +185,7 @@ flowchart TD
 | `DEL-02-upstream` | 第 `3` 到 `7` 阶段和 `content-model/` 的输入清单、状态、缺口 | parent |
 | `DEL-03-targets` | doc/ppt/html target set、文件名、输出目录、是否本轮执行 | parent |
 | `DEL-04-delivery-map` | 模块、课时、活动、测评、素材到各端的映射 | parent |
-| `DEL-05-leaf-packets` | 每个选中叶子的输入、输出、限制、gate 和 handoff | parent + leaf |
+| `DEL-05-leaf-packets` | 每个选中叶子的输入、输出、限制、gate 和 handoff；HTML artifact packet 必须声明 `.agents/skills/claude-design` design executor | parent + leaf |
 | `DEL-06-consistency` | 学习目标、术语、顺序、素材、评测和品牌跨端一致性状态 | parent |
 | `DEL-07-tooling` | 允许的格式转换、组装、校验和 manifest 回写工具；脚本主创禁止项 | parent |
 
@@ -197,7 +197,7 @@ flowchart TD
 | `C2-TARGETS-LOCKED` | 至少 1 个目标端明确，未选端不生成空包 | 目标端不明或默认补空三端 | `target_set` | `N3` |
 | `C3-LLM-FIRST` | delivery map 由 LLM 逐条理解 content model 后形成 | 脚本/模板批量投影课程正文 | `authorship_note` | `N4` |
 | `C4-DELIVERY-MAP` | 内容顺序、目标、活动、测评和素材映射完整 | 三端各自重写或遗漏核心目标 | `delivery_map` | `N4` |
-| `C5-LEAF-PACKETS` | 每个选中目标端都有 leaf packet 和输出路径 | 叶子边界不清或未选端被写入 | `leaf_packets` | `N5` |
+| `C5-LEAF-PACKETS` | 每个选中目标端都有 leaf packet 和输出路径；HTML artifact packet 有 `claude-design` executor | 叶子边界不清、未选端被写入，或 HTML artifact packet 缺 design executor | `leaf_packets`、`html_design_executor` | `N5` |
 | `C6-MANIFEST` | plan 与 manifest 路径唯一，字段 `DEL-01` 到 `DEL-07` 齐全 | manifest 缺字段、路径分裂或覆盖未授权端 | `manifest_summary` | `N6` |
 | `C7-CONSISTENCY` | 跨端目标、术语、顺序、素材和品牌一致性 gate 通过 | DOC/PPT/HTML 内容模型漂移 | `consistency_matrix` | `N7/N4` |
 
@@ -208,7 +208,7 @@ flowchart TD
 | 上游第 `3` 到 `7` 阶段和 `content-model/` 是否足以支持交付？ | `FIELD-LESSON-DEL-01` | `FAIL-LESSON-DELIVERY-UPSTREAM` | `N2-upstream-audit` | upstream inventory |
 | 目标端和交付约束是否清晰？ | `FIELD-LESSON-DEL-02` | `FAIL-LESSON-DELIVERY-TARGETS` | `N3-delivery-profile` | target set and constraints |
 | delivery map 是否来自共享内容模型而非三端重写？ | `FIELD-LESSON-DEL-03` | `FAIL-LESSON-DELIVERY-MODEL` | `N4-content-model-fusion` | delivery map |
-| 选中叶子是否都有执行包，未选中叶子是否不被补空？ | `FIELD-LESSON-DEL-04` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5-leaf-work-packets` | leaf packet list |
+| 选中叶子是否都有执行包，未选中叶子是否不被补空；HTML artifact 是否指定 `.agents/skills/claude-design` executor？ | `FIELD-LESSON-DEL-04` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5-leaf-work-packets` | leaf packet list + html design executor |
 | manifest 是否包含 `DEL-01` 到 `DEL-07` 且路径唯一？ | `FIELD-LESSON-DEL-05` | `FAIL-LESSON-DELIVERY-MANIFEST` | `N6-manifest-writeback` | manifest summary |
 | DOC/PPT/HTML 的目标、术语、顺序、素材和品牌是否一致？ | `FIELD-LESSON-DEL-06` | `FAIL-LESSON-DELIVERY-CONSISTENCY` | `N7-consistency-gate` | consistency matrix |
 | 是否禁止脚本/模板生成或投影课程正文？ | `FIELD-LESSON-DEL-07` | `FAIL-LESSON-DELIVERY-LLM-FIRST` | `N4-content-model-fusion` | authorship note |
@@ -221,7 +221,7 @@ flowchart TD
 | `FIELD-LESSON-DEL-01` | `N2` | `delivery-plan.md` section 1 and `delivery-manifest.json` upstream block | 上游状态和缺口可追踪。 |
 | `FIELD-LESSON-DEL-02` | `N3` | `delivery-plan.md` section 2 | 目标端、格式约束和设备限制明确。 |
 | `FIELD-LESSON-DEL-03` | `N4` | `delivery-plan.md` section 3 and manifest delivery map | 共享内容模型是唯一业务真相。 |
-| `FIELD-LESSON-DEL-04` | `N5` | `delivery-plan.md` section 4 and manifest leaf packets | 叶子输入、输出和 gate 清晰。 |
+| `FIELD-LESSON-DEL-04` | `N5` | `delivery-plan.md` section 4 and manifest leaf packets | 叶子输入、输出和 gate 清晰；HTML artifact executor 清晰。 |
 | `FIELD-LESSON-DEL-05` | `N6` | `delivery-manifest.json` | manifest 字段完整且路径唯一。 |
 | `FIELD-LESSON-DEL-06` | `N7` | `delivery-plan.md` section 5 | 跨端一致性检查可审计。 |
 | `FIELD-LESSON-DEL-07` | `N4/N7` | `delivery-plan.md` authorship note | LLM-first 和脚本边界可见。 |
@@ -234,7 +234,7 @@ flowchart TD
 | `FIELD-LESSON-DEL-01` | 上游关键输入 100% 有路径、状态或缺口说明 | `FAIL-LESSON-DELIVERY-UPSTREAM` | `N2` |
 | `FIELD-LESSON-DEL-02` | 至少 1 个目标端明确；三端默认时 doc/ppt/html 均有约束 | `FAIL-LESSON-DELIVERY-TARGETS` | `N3` |
 | `FIELD-LESSON-DEL-03` | delivery map 覆盖课程模块、课时、活动、测评和素材 | `FAIL-LESSON-DELIVERY-MODEL` | `N4` |
-| `FIELD-LESSON-DEL-04` | 每个选中目标端有 leaf packet，未选中端不写产物 | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5` |
+| `FIELD-LESSON-DEL-04` | 每个选中目标端有 leaf packet，未选中端不写产物；HTML artifact packet 指定 `.agents/skills/claude-design` | `FAIL-LESSON-DELIVERY-LEAF-PACKETS` | `N5` |
 | `FIELD-LESSON-DEL-05` | manifest 含 `DEL-01` 到 `DEL-07`，且路径唯一 | `FAIL-LESSON-DELIVERY-MANIFEST` | `N6` |
 | `FIELD-LESSON-DEL-06` | 跨端术语、顺序、学习目标和品牌无冲突 | `FAIL-LESSON-DELIVERY-CONSISTENCY` | `N7` |
 | `FIELD-LESSON-DEL-07` | 没有脚本/模板批量生成课程正文的证据 | `FAIL-LESSON-DELIVERY-LLM-FIRST` | `N4` |
@@ -300,7 +300,7 @@ Symptom -> Direct Cause -> Delivery Source Node -> Leaf or Upstream Owning Stage
 - 上游缺失：回到 `N2-UPSTREAM-AUDIT`，把缺口路由到第 `3` 到 `7` 的 owning stage。
 - 目标端不清：回到 `N3-DELIVERY-PROFILE`，不要默认写三套空产物。
 - 脚本主创：回到 `LLM-First Creative Authorship Contract` 和 `N4-CONTENT-MODEL-FUSION`。
-- 叶子边界漂移：回到 `N5-LEAF-WORK-PACKETS`，重新声明 doc/ppt/html owning scope。
+- 叶子边界漂移：回到 `N5-LEAF-WORK-PACKETS`，重新声明 doc/ppt/html owning scope；HTML artifact 需声明 `8/html -> .agents/skills/claude-design`。
 - manifest 漂移：回到 `N6-MANIFEST-WRITEBACK`，保持 `delivery-plan.md` 与 `delivery-manifest.json` 同步。
 
 ## Output Contract
@@ -312,7 +312,7 @@ Symptom -> Direct Cause -> Delivery Source Node -> Leaf or Upstream Owning Stage
 - Output path: when project-bound, write under `projects/lesson/<项目名>/8-多端交付生成/`; leaf packets point to `doc/`, `ppt/`, and `html/` subdirectories only when selected.
 - Naming convention: parent canonical filenames 固定为 `delivery-plan.md` and `delivery-manifest.json`; do not create parallel `final-plan.md`, `release-plan.md`, external review stage, or seal stage.
 - Completion gate: `C1` 到 `C7` 通过，且 `Review Gate Binding` 无阻断 fail code；`C3-LLM-FIRST`、`C6-MANIFEST` 和 `FIELD-LESSON-DEL-08` 零容忍。
-- Handoff: 最终回复必须列出已写回路径、选中叶子、下一步叶子入口、未决上游缺口和禁止由脚本生成课程正文的边界。
+- Handoff: 最终回复必须列出已写回路径、选中叶子、下一步叶子入口、未决上游缺口和禁止由脚本生成课程正文的边界；如果选中 HTML artifact，必须指出 `8/html` 将调用 `.agents/skills/claude-design`。
 - Content-model touchpoint: 第 8 阶段只在上游审计通过后写入派生 `content-model/delivery-map.*` 或 manifest upstream block；不得刷新 `content-model/modules/`、`lessons/`、`assessments/`，不得替代第 `3` 到 `7` 阶段主稿。
 - Exception report: 若上游不足，只输出阻断报告和 owning stage 路由，不生成 leaf packets 或 manifest 成品。
 
