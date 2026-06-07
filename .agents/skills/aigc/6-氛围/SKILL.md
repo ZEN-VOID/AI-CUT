@@ -377,6 +377,7 @@ Completion gate:
 | 氛围抽象 | 未消费五感/物理细节 | `genre_atmosphere_pack` / references | `N4/N5` | 删除抽象词后仍有可见可感内容 |
 | 新增剧情或天气事实 | 物理手段无上游条件 | `physical_fx_selection_map` | `N3/N4/N5` | 保真 diff 通过 |
 | 特效抢戏 | 增强点未回到人物焦点 | `trigger_point_inventory` | `N3/N5` | 表演焦点抽样通过 |
+| 动作破坏点生硬、轻飘或越界 | 没有建立动作源、受击材质、破坏材料和风格边界，或把物理破坏写成法术/现代 CG 光效 | `destruction_trigger_inventory` / `action_destruction_fx_map` / `references/action-destruction-fx-contract.md` | `N3/N4/N5` | `FAIL-ATM-DESTRUCTION-FX` 为 0，破坏点有 source anchor、target material、effect material、boundary check |
 | 报告缺证 | 输出报告未映射 reference 或 gate | `execution_report` | `N6/N7` | 报告含 required sections |
 
 ## Field Master
@@ -391,11 +392,11 @@ Completion gate:
 
 | source_field | trigger_input | atmosphere_output | report_evidence |
 | --- | --- | --- | --- |
-| `画面` / `动作画面` / `角色动作` | 动作路径、空间变化、场景进入、危机升级 | 在相邻点后新增 `氛围画面：`，写空气介质、光线、风、水汽、尘土、雨雪、投影等与动作同步或先后关系 | `atmosphere_insert_map`、`time_anchor_map` |
+| `画面` / `动作画面` / `角色动作` | 动作路径、空间变化、场景进入、危机升级、武器风压、撞击、坍塌、余劲、现场材质破坏 | 在相邻点后新增 `氛围画面：`，写空气介质、光线、风、水汽、尘土、雨雪、投影等与动作同步或先后关系；动作破坏点额外写动作源、受击材质、湿泥/尘土/石粉/木屑/水汽/火星等材料响应和边界 | `atmosphere_insert_map`、`time_anchor_map`、`action_destruction_fx_map` |
 | `对白画面` | 台词前后停顿、压迫、试探、沉默、爆发 | 用声音消失、环境声层次、光影/空气变化烘托台词，不改对白原意 | `soundscape_map`、`trigger_point_inventory` |
 | `心理反应` / `表演提示` | 内心外显、强情绪残留、表演留白 | 用可见物理环境承托心理，例如风拽衣角、灯影晃动、湿气贴面、尘埃停滞 | `sensory_channel_map` |
-| `环境描写` / `场景描述` | 空间质感、天气/季节、场景换气 | 只在已有场景条件内加物理氛围；不得新增无源天气或地理条件 | `existing_environment_condition_map` |
-| `音效画面` / `旁白画面` / `系统画面` | 声音层次、沉默、余韵、信息接收 | 声景与视觉特效配合，例如雷声后的频闪、钟声余震、风声距离变化 | `soundscape_map`、`scene_rhythm_map` |
+| `环境描写` / `场景描述` | 空间质感、天气/季节、场景换气、已有石/木/泥/水/金属/玻璃/布纸等材质条件 | 只在已有场景条件内加物理氛围；不得新增无源天气或地理条件；可把已有材质作为动作破坏点的承托目标 | `existing_environment_condition_map`、`action_destruction_fx_map` |
+| `音效画面` / `旁白画面` / `系统画面` | 声音层次、沉默、余韵、信息接收、撞击回声、碎裂声、尘土落声、爆点余声 | 声景与视觉特效配合，例如雷声后的频闪、钟声余震、风声距离变化、碎石二次落地、木屑擦过地面、断链余声推远 | `soundscape_map`、`scene_rhythm_map`、`action_destruction_fx_map` |
 
 ## Evaluation Prompt Contract
 

@@ -15,6 +15,11 @@
     "expected": "输出审查 findings，不改写正文；每条 finding 有 gate、fail code、source anchor、rework target，并区分剧情越权和阶段越权。"
   },
   {
+    "id": "action-destruction-fx-strengthening",
+    "prompt": "修复一个武侠动作段落的氛围画面：白刃剑风、枪风、链镰、飞剑和断链余劲需要对石阶、大石、树木、树枝、林间地面造成更强破坏，同时保留项目风格边界，不写成修仙法术或现代 CG 发光武器秀。",
+    "expected": "加载 references/action-destruction-fx-contract.md；输出的动作破坏点有动作来源、受击材质、湿泥/尘土/石粉/木屑/水汽/火星等材料响应、短促节奏和边界检查；报告包含 Action Destruction FX Map、GATE-ATM-19-ACTION-DESTRUCTION-FX 和 FAIL-ATM-DESTRUCTION-FX=0。"
+  },
+  {
     "id": "atmosphere-pack-research",
     "prompt": "为规则怪谈题材的第4集表演稿适配氛围包，本地知识库如果没有整理再使用预训练或联网资料。",
     "expected": "先查 knowledge-base/physical-atmosphere-index.md；缺项时标记 pretrained_atmosphere_inference 或网络来源；输出触发点清单、题材氛围包和选择性氛围字段。"

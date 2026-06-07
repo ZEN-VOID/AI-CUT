@@ -27,6 +27,7 @@ recommended_action: keep-heuristics-focused
 | 视觉特效与场景节奏冲突 | 节奏继承层 | 用 `scene-rhythm-contract` 重新判断蓄压、爆发、静默或转场余波 | `scene_rhythm_map` 与触发点一致 |
 | 设备说明书口吻 | 正文可读性层 | 删除设备名堆砌和执行参数，改成观众看到/听到/感到的效果 | 终稿读起来仍像剧本正文 |
 | 氛围画面像特效词库批量投影 | LLM-first 作者性层 | 标记 `FAIL-ATM-SCRIPTED-PROJECTION`，废弃候选稿，回 `N3/N4` 重建触发点和物理氛围包，再由 LLM 按时间锚点逐条重写 | `GATE-ATM-18-AUTHORSHIP-INTEGRITY` 通过，重复句式/锚点替换抽样无伪差异 |
+| 动作破坏点生硬或越界 | 动作破坏细则缺失层 | 加载 `references/action-destruction-fx-contract.md`，按“动作源 -> 受击材质 -> 破坏材料 -> 节奏 -> 边界”重建 | `GATE-ATM-19-ACTION-DESTRUCTION-FX` 通过，`action_destruction_fx_map` 有 source anchor、target material、effect material、boundary check |
 
 ## Repair Playbook
 
@@ -40,6 +41,8 @@ recommended_action: keep-heuristics-focused
 8. 如果源稿没有雨、雪、火、烟、风暴条件，不要凭空添加；可用室内灯影、空气湿度、尘埃、静物、远声替代。
 9. 批量处理时逐集独立建立触发清单，不机械复制上一集的氛围包。
 10. 如果多条 `氛围画面` 只是“物理词 + 情绪词 + 相邻动作名”的同一骨架，不要替换词面；按作者性失败回源层重写。
+11. 动作破坏点不要只写“炸开/卷起”。先定位动作源，再选择石、木、泥、水、金属、玻璃、布纸等受击材质，最后写湿泥、尘土、石粉、木屑、水汽、火星、碎屑和余声的具体反应。
+12. 武侠/冷兵器可以用港式预埋爆点式夸张，但边界要稳：剑风、枪风、链镰、飞剑、断链余劲只能通过风压、碰撞、内力外化和现场材质响应呈现，不要写成修仙法术、激光刃或持续发光武器。
 
 ## Reusable Heuristics
 
@@ -48,3 +51,4 @@ recommended_action: keep-heuristics-focused
 - 低密度留白场的氛围可以更少、更小、更慢；危机场的氛围可以更突然，但必须有来源。
 - 如果一个氛围细节删掉后剧情完全不变但情绪重量明显下降，它通常是合格承托；如果删掉后剧情事实也变了，它已经越权。
 - 观众更容易相信具体物理变化：灯芯爆一下、风把窗帘顶出弧度、水滴间隔变慢、尘埃在光柱里停住。
+- 动作破坏越夸张，越需要具体材质来兜住可信度：石粉是硬物被刮白，湿泥是地面被掀开，木屑是树皮/木器被撕裂，水汽是空气和潮湿环境被风压切开，火星是短促金属碰撞，不是持续发光。

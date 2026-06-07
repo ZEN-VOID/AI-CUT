@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-06-07
+
+- 新增 `references/action-destruction-fx-contract.md`，将动作破坏点效果强化标准化为 `6-氛围` 的授权细则。
+- 在 `SKILL.md` 接入 `destruction_fx` 触发类型、`FAIL-ATM-DESTRUCTION-FX`、`GATE-ATM-19-ACTION-DESTRUCTION-FX`、`Action Destruction FX Map` 和 module trigger 路由。
+- 将白刃剑风、枪风、链镰、飞剑、断链余劲等冷兵器破坏，以及战争/废墟、惊悚追逐、海战水域、室内动作、奇幻仪式、现实街巷、科幻赛博等多类型破坏边界收束到同一细则。
+- 同步 `CONTEXT.md`、`README.md` 和 `test-prompts.json`，补齐动作破坏点生硬、轻飘、法术化或现代 CG 化的修复经验与回归样例。
+
 ## 2026-06-04
 
 - 初始化 `aigc/6-氛围` Skill 2.0 runtime-spine 包。
