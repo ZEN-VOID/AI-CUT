@@ -1,6 +1,6 @@
 # `libtv image` — 图片节点 Slash 快捷
 
-把画布上**图片生成器 / 图片工具栏九宫格**里能通过 `/` 触发的 Slash 指令搬到 CLI。子命令 **`shortcut`**：列表或在指定**源 `image` 节点**上执行一条 Slash。项目 / 分组范围与 [`libtv node`](./node.md) 一致：**`-p`**、**`-g`**、以及 [`libtv project use`](./project.md) / [`libtv group use`](./group.md) 的目录绑定。
+把画布上**图片生成器 / 图片工具栏九宫格**里能通过 `/` 触发的 Slash 指令搬到 CLI。子命令 **`shortcut`**：列表或在指定**源 `image` 节点**上执行一条 Slash。画布 / 分组范围与 [`libtv node`](./node.md) 一致：**`-p`**、**`-g`**、以及 [`libtv project use`](./project.md) / [`libtv group use`](./group.md) 的目录绑定；`-p` / `projectUuid` 指具体画布 UUID。
 
 节点类型语义与常写 `-s` / `-u` 字段见 [../node-types/image.md](../node-types/image.md)；管道（NDJSON）、stdout/stderr 约定见 [../examples/pipes/README.md](../examples/pipes/README.md)。
 
@@ -43,7 +43,7 @@
 | 选项                      | 必填 | 说明                                                                                                                                                 |
 | ------------------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `-n, --node <node>`       | 是   | **源 `image` 节点**的 id 或展示名（`id` 优先、精确匹配）；节点必须为 **`image`** 类型，且**具备参考图**（入边或本节点已有 `http(s)` 图），否则报错。 |
-| `-p, --project <project>` | 否   | 画布项目 UUID；缺省读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。                                   |
+| `-p, --project <project>` | 否   | 具体画布 UUID；缺省读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。                                   |
 | `-g, --group <group>`     | 否   | 父级**普通分组**（节点 id 或展示名）：限定 `-n` 的解析范围只在该组 `childNodeIds` 内；未传时若已 [`libtv group use`](./group.md) 则自动套用。        |
 | `--x <n>` / `--y <n>`     | 否   | **仅「新建节点」分支**生效的画布坐标（像素）。默认：X = 源节点绝对 X + 420；Y = 与源节点齐平。**「原地改图」分支忽略**。                             |
 

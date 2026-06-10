@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TD
-    N1["N1-PROJECT<br/>lock project + episode + canvas name"] --> N2["N2-UPLOAD<br/>discover and upload references"]
+    N1["N1-CANVAS-SCOPE<br/>lock local episode + projectSpace + canvas"] --> N2["N2-UPLOAD<br/>discover and upload references"]
     N2 --> N3["N3-YAML-BACKFILL<br/>write 图片N 主体名 UUID"]
     N3 --> N4["N4-GROUP-EXTRACT<br/>read non-connector groups"]
     N4 --> N5["N5-NODE-CREATE<br/>create video node instances 16:9"]
@@ -12,11 +12,11 @@ flowchart TD
     N8 --> N9["N9-EVIDENCE<br/>write manifest/plan/queue/report"]
 ```
 
-## N1-PROJECT
+## N1-CANVAS-SCOPE
 
-- Judgment: 是否已有目标画布项目，是否需要创建新版本。
-- Action: `libtv project list`，缺省命名 `项目名-第N集`，冲突追加 `V2/V3`，再 `libtv project create`。
-- Evidence: project name、projectUuid、冲突处理摘要。
+- Judgment: AIGC 项目根、集数、单集语义范围、目标项目空间和目标画布是否唯一，目标项目空间下是否已有同集画布，是否需要创建新版本。
+- Action: 锁定 `local_project_root=projects/aigc/<项目名>`、`local_episode=第N集`、`local_episode_scope=projects/aigc/<项目名>/第N集`；再执行 `libtv project list`，优先以 `project_space_name=<项目名>` 和 `projectSpaceId` / `folderId` 锁定上层项目空间；缺省画布命名 `第N集`，冲突追加 `V2/V3`，再 `libtv project create --folder-id <projectSpaceId>`。若项目空间不可唯一定位，退回旧兼容命名 `项目名-第N集` 并记录原因。
+- Evidence: local mapping、project space name、project space id / folder id、canvas name、projectUuid、冲突处理摘要。
 - Gate: `GATE-LTVCTRL-PROJECT`。
 
 ## N2-UPLOAD

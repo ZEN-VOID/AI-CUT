@@ -45,6 +45,7 @@ metadata:
 - 默认 source 为 `projects/aigc/<项目名>/7-分镜/第N集.md`。用户显式指定文稿、粘贴文本或要求跳过某些上游环节时，以用户指定 source 优先，并在报告中记录 `source_override=true`。
 - 必读美学上下文为 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 与 `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md`。二者缺一时，可使用用户提供的等价文本；若没有任何等价画面基调或摄影风格，不得判定 canonical pass。
 - 可选上下文包括 `3-美学/分镜风格/分镜风格协议.md`、`角色风格/角色风格协议.md`、`场景风格/场景风格协议.md`、项目长期摄影偏好和视频模型限制。
+- 任意涉及抽象情绪转运镜、AIGC 视频可执行性、焦点/空间/运动画面化或比喻化镜头描述的任务，必须加载 `../_shared/anti-abstract-language-contract.md`；运镜正文默认按白描式可拍材料处理。
 - 核心运镜判断、镜头角度变化、镜头类型、速度曲线、焦点行为和一镜到底组合运镜必须由 LLM 直接完成；脚本只允许做读取、格式扫描、覆盖统计、diff 和报告辅助。
 - 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 不得以脚本、映射表、规则模板、关键词替换、句式轮换、锚点替换、同义改写、批量插入、正则套句或映射投影生成运镜正文；这些产物即使覆盖率、四要素和格式检查通过，也必须判定为 `FAIL-CAM-SCRIPTED-AUTHORSHIP`。
@@ -105,6 +106,7 @@ Hard prohibitions:
 - 不得写“穿过前景、绕开遮挡、压向后景、沿纵深推进”等 7-分镜 未提供空间依据的运动。
 - 不得把“场景轴线 + 画面点类型 + 关键词锚点”机械扩展成逐条运镜句；这种规则投影属于脚本主创，不属于 LLM 主创。
 - 不得用覆盖率、四要素齐全、重复率降低或报告自证来替代人工级差异化判断；如果同一画面点内多条分镜只是替换对象名、替换焦点名或复用同一速度/交出结构，必须返工。
+- 不得用明喻、隐喻、象征或概念标签替代可拍摄运镜材料，例如“镜头像命运压下来”“焦点交给宿命感”“压迫感拉满”。删除这些词后，运镜句仍必须有机位/角度、运动路径、速度、焦点行为或可支持的空间依据。
 - 不得以“项目内已有分组稿/摄影稿”为模板批量改写 `7-分镜`；可读取其摄影原则和动作语法，但每条 `8-摄影` 运镜必须重新回到当前 source 分镜判断。
 - 机械指标只能作为格式底线，不能作为质量 pass 依据；`coverage=100%`、四要素关键词齐全、重复字符串下降、正则扫描通过或报告章节齐全，单独或组合都不得让 `GATE-CAM-08-AUTHORSHIP`、`GATE-CAM-08-DIFFERENTIATION`、`GATE-CAM-08-MOTIVATION` pass。
 - `repair` 路径不得用脚本、正则替换、映射表、词库轮换或批量同义改写生成、替换或修补任何运镜正文、焦点行为、速度曲线或镜头角度；脚本只允许定位失败行、对比 source、统计风险和生成待人工/LLM 处理的清单。
@@ -239,6 +241,7 @@ flowchart TD
 | module | load_when | authority | forbidden_use | rework_target |
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、修复策略 | 重定义输入、输出或完成门 | `Learning / Context Writeback` |
+| `../_shared/anti-abstract-language-contract.md` | 抽象情绪转运镜、比喻化镜头描述、AIGC 视频可执行性、焦点/空间/运动画面化、`FAIL-CAM-PLAIN-VISUALIZATION` | 跨阶段反抽象合同，定义白描式画面化、抽象/比喻残留审查和可拍摄材料投影 | 替代摄影术语语义、空间边界、焦点计划或 LLM 逐分镜主创 | `N5/N6/N8` |
 | `references/` | 任意正式生成、repair、review | 授权细则目录，承载运镜、连续性、保真和边界合同 | 新增主入口、改写输出路径或替代主节点 | `Module Loading Matrix` |
 | `scripts/` | 需要机械扫描、diff、覆盖统计、格式检查或失败清单时 | 机械辅助目录 | 生成、替换、润色或批量修补运镜正文、焦点行为、速度曲线、镜头角度；裁决摄影方案；用机械指标判定质量 pass | `scripts/README.md` / `GATE-CAM-08-AUTHORSHIP` |
 | `references/source-detail-incremental-fusion-contract.md` | 任意注入、repair、review | 原文保真、增量注入、旧矛盾口径最小修复 | 改写原分镜内容或剧情 | `N7-CAM-INJECT` |
@@ -262,6 +265,7 @@ flowchart TD
 | `FAIL-CAM-AESTHETIC` | `CONTEXT.md`, `references/shot-planning-integration-contract.md` | `R1/R2` | `GATE-CAM-08-AESTHETIC` | aesthetic_context_map |
 | `FAIL-CAM-SOURCE-LOSS` | `references/source-detail-incremental-fusion-contract.md` | `R1/R2` | `GATE-CAM-08-SOURCE` | source diff |
 | `FAIL-CAM-COMPONENT-MISSING, FAIL-CAM-MOTIVATION-RANDOM, FAIL-CAM-STILLNESS-EMPTY` | `references/dynamic-lens-language-contract.md`, `references/camera-movement-emotion-contract.md`, `references/shot-planning-integration-contract.md` | `R1/R2` | `GATE-CAM-08-DYNAMIC` | missing component table |
+| `FAIL-CAM-PLAIN-VISUALIZATION` | `../_shared/anti-abstract-language-contract.md`, `references/ai-video-prompt-execution-contract.md`, `references/dynamic-lens-language-contract.md` | `R1/R2` | `GATE-CAM-08-PLAIN-VISUALIZATION` | `plain_visualization_audit`, ai video executable payload check |
 | `FAIL-CAM-FOCUS-SEMANTIC, FAIL-CAM-FOCUS-PLAN-INCOMPLETE` | `CONTEXT.md`, `references/dynamic-lens-language-contract.md`, `references/shot-planning-integration-contract.md`, `references/ai-video-prompt-execution-contract.md` | `R1/R2` | `GATE-CAM-08-FOCUS-SEMANTIC` / `GATE-CAM-08-FOCUS-PLAN` | focus_semantic_audit, focus_transition_map |
 | `FAIL-CAM-SPATIAL-OVERREACH, FAIL-CAM-SPATIAL-ACTION-UNSUPPORTED, FAIL-CAM-LENS-MOTION-CONFLATION` | `CONTEXT.md`, `references/source-detail-incremental-fusion-contract.md`, `references/shot-planning-integration-contract.md`, `references/dynamic-lens-language-contract.md` | `R1/R2` | `GATE-CAM-08-SPATIAL-BOUNDARY` / `GATE-CAM-08-SPATIAL-ACTION` / `GATE-CAM-08-LENS-MOTION-BOUNDARY` | spatial_axis_usage_map, spatial_movement_action_map, lens_or_camera_motion_boundary |
 | `FAIL-CAM-SCRIPTED-AUTHORSHIP, FAIL-CAM-TEMPLATE-PROJECTION, FAIL-CAM-FAKE-DIFFERENTIATION` | `CONTEXT.md`, `references/shot-planning-integration-contract.md`, `references/camera-movement-emotion-contract.md`, `references/dynamic-lens-language-contract.md` | `R1/R2` | `GATE-CAM-08-AUTHORSHIP` | anti_template_audit |
@@ -302,6 +306,7 @@ flowchart TD
 | 焦点行为是否符合摄影语义，而不是把焦点写成叙事关注点、心理压力、动作交出对象或误用变焦？ | `GATE-CAM-08-FOCUS-SEMANTIC` | `FAIL-CAM-FOCUS-SEMANTIC` | `N6-CAM-MOVEMENT-DESIGN` | focus_semantic_audit |
 | 对焦变化是否有 `focus_start`、`focus_end`、`focus_mode`、`depth_of_field_strategy` 与 `must_remain_readable`，没有用浅景深虚掉关键线索？ | `GATE-CAM-08-FOCUS-PLAN` | `FAIL-CAM-FOCUS-PLAN-INCOMPLETE` | `N6-CAM-MOVEMENT-DESIGN` / `N6B-CAM-ONETAKE-CHAIN` | `focus_transition_map`、`focus_semantic_audit` |
 | 运镜选择是否服务当前分镜功能，而非随机术语组合？ | `GATE-CAM-08-MOTIVATION` | `FAIL-CAM-MOTIVATION-RANDOM` | `N5-CAM-SHOT-ANALYZE` | movement_reason_samples |
+| 运镜句是否白描式可拍摄，删除比喻、象征、概念标签或抽象解释后仍有机位/角度、运动路径、速度、焦点或空间依据？ | `GATE-CAM-08-PLAIN-VISUALIZATION` | `FAIL-CAM-PLAIN-VISUALIZATION` | `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | `plain_visualization_audit`, ai video executable payload check |
 | 是否把覆盖率、四要素齐全、重复率下降、章节齐全或越权扫描为 0 当成质量 pass？ | `GATE-CAM-08-MECHANICAL-PASS` | `FAIL-CAM-MECHANICAL-PASS` | `N8-CAM-REVIEW-REPAIR` / `N5-CAM-SHOT-ANALYZE` | mechanical_metric_boundary |
 | 运镜正文是否由 LLM 逐画面点主创，而不是脚本、映射表、模板、批量插入、正则套句或映射投影生成？ | `GATE-CAM-08-AUTHORSHIP` | `FAIL-CAM-SCRIPTED-AUTHORSHIP` | `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | anti_template_audit |
 | 相邻分镜和同类画面点是否有真实观看差异，而不是对象名替换或同构句式轮换？ | `GATE-CAM-08-DIFFERENTIATION` | `FAIL-CAM-FAKE-DIFFERENTIATION` | `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | differentiation_samples |
@@ -319,7 +324,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 目标始终是“在 7-分镜原文后追加运镜手法”；非目标是重写分镜、生成 prompt 或套用旧阶段链路 | `N1-CAM-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source/style 锁定后转分镜行；分镜行完成后转戏剧功能；功能完成后转运镜四要素；注入后转 review | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 出现改剧情、改秒数、旧格式、设备参数、prompt、随机术语、空间布局越权、焦点语义漂移、变焦误用、一镜到底硬切、脚本化批量生成、同构句式复用、机械指标冒充 pass、repair 脚本改正文即漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 出现改剧情、改秒数、旧格式、设备参数、prompt、随机术语、比喻/概念替代运镜材料、空间布局越权、焦点语义漂移、变焦误用、一镜到底硬切、脚本化批量生成、同构句式复用、机械指标冒充 pass、repair 脚本改正文即漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 发现漂移时回到最近有效节点，不继续润色当前错误句 | `R1-CAM-REWORK` |
 
 | drift_type | re_center_entry |
@@ -358,7 +363,7 @@ flowchart TD
 - Report required sections additionally include `Authorship And Differentiation Audit` for any正式写回或 repair：说明核心运镜由 LLM 主创、脚本只做机械辅助，并列出至少覆盖每个场景的代表性差异样本与已拒绝的模板化风险。
 - Report required sections additionally include `Mechanical Metric Boundary` for any正式写回或 repair：列明哪些机械指标仅作为格式底线、没有被用于质量 pass。
 - Repair reports must include `Repair Authorship Note` and `Mechanical Assist Log` when正文发生修改：前者说明 LLM 对失败画面点的重判，后者说明脚本只做定位/统计/diff。
-- Completion gate: `GATE-CAM-08-*` 阻断项为 0；source diff 只显示运镜增量或允许的矛盾运镜最小修复；正式写回时执行报告完整；`GATE-CAM-08-FOCUS-SEMANTIC`、`GATE-CAM-08-AUTHORSHIP`、`GATE-CAM-08-DIFFERENTIATION`、`GATE-CAM-08-MECHANICAL-PASS` 与 `GATE-CAM-08-REPAIR-AUTHORSHIP` 必须 pass。
+- Completion gate: `GATE-CAM-08-*` 阻断项为 0；source diff 只显示运镜增量或允许的矛盾运镜最小修复；正式写回时执行报告完整；`GATE-CAM-08-FOCUS-SEMANTIC`、`GATE-CAM-08-PLAIN-VISUALIZATION`、`GATE-CAM-08-AUTHORSHIP`、`GATE-CAM-08-DIFFERENTIATION`、`GATE-CAM-08-MECHANICAL-PASS` 与 `GATE-CAM-08-REPAIR-AUTHORSHIP` 必须 pass。
 
 ## Runtime Guardrails
 

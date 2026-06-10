@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-09
+
+- 同步新版 LibTV 项目空间 / 画布分层口径：`projectSpaceId` / `folderId` 作为上层项目空间线索，`projectUuid` 作为具体画布 UUID。
+- 调整默认命名：优先以 `项目名` 定位项目空间、以 `第N集` 命名具体画布；无法唯一定位项目空间时才退回旧兼容命名 `项目名-第N集`。
+- 更新主合同、canvas control reference、workflow、type 包、review gate、输出模板和入口元数据，使证据同时记录 `projectSpaceId/folderId` 与 `projectUuid`。
+- 明确 AIGC 本地层级映射：`projects/aigc/<项目名>` 对应 LibTV 项目空间名，`projects/aigc/<项目名>/第N集` 对应该项目空间下的画布语义范围；输入文件和证据目录继续使用阶段内标准路径。
+
 ## 2026-06-05
 
 - 调整 LibTV 提交 prompt 的 YAML 主体行顺序：由 `图片N 主体名 UUID {{Image N}}` 改为 `图片N 主体名 {{Image N}} UUID`，并保留本地回刷 `图片N 主体名 UUID` 作为 UUID 匹配和顺序锁定格式。

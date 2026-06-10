@@ -1,13 +1,17 @@
 # Canvas Control Contract
 
-本文件定义 LibTV 画布控制的项目、上传、YAML 回刷和证据规范。
+本文件定义 LibTV 画布控制的项目空间、具体画布、上传、YAML 回刷和证据规范。
 
-## Project Naming
+## Project Space And Canvas Naming
 
-1. 默认项目名为 `项目名-第N集`。
-2. 用户提供版本号时使用 `项目名-第N集-版本号`。
-3. 若 LibTV 中已有相同项目名或同项目同集画布，创建新画布时追加 `V2`、`V3`，不得覆盖旧画布。
-4. `projectUuid` 是后续上传、节点、证据和 registry 的唯一远端 project truth。
+1. `local_project_root=projects/aigc/<项目名>` 对应 LibTV `project_space_name=<项目名>`。
+2. `local_episode=第N集` 对应 LibTV `canvas_name=第N集`；`local_episode_scope=projects/aigc/<项目名>/第N集` 只表达跨系统语义范围。
+3. 单集输入真源通常是 `projects/aigc/<项目名>/10-分组/第N集.md`；画布证据目录是 `projects/aigc/<项目名>/13-画布/libTV画布流/第N集/`，不得把 `local_episode_scope` 当成这两个物理路径。
+4. 默认项目空间名为 `项目名`；若 `libtv project list` 返回的画布条目中已有可唯一对应的 `projectSpaceId` / `folderId`，后续新画布应优先落入该项目空间。
+5. 默认画布名为 `第N集`；用户提供版本号时使用 `第N集-版本号`。
+6. 若无法唯一定位项目空间，允许退回旧兼容命名 `项目名-第N集`；用户提供版本号时使用 `项目名-第N集-版本号`，并在报告记录 `project_space_resolution=unresolved_legacy_canvas_name`。
+7. 若目标项目空间下已有同名或同项目同集画布，创建新画布时追加 `V2`、`V3`，不得覆盖旧画布。
+8. `projectUuid` 是后续上传、节点、证据和 registry 的唯一远端 canvas truth；`projectSpaceId` / `folderId` 是上层项目空间 truth，不能传给 `-p/--project`。
 
 ## Video Node Identity
 
@@ -74,13 +78,15 @@
 - `<video_node_instance_id>-queue-record.json`
 - `<video_node_instance_id>-执行报告.md`
 
-`libtv-canvas-active-registry.json` 必须按 `source_group_id` 维护多实例索引，至少记录 `instances[]`、`active_instance_id`、每个实例的 `video_node_instance_id`、远端节点 key、状态、创建时间和父实例关系。
+`libtv-canvas-active-registry.json` 必须记录本地 / 远端层级映射：`local_project_root`、`local_episode`、`local_episode_scope`、`source_file`、`evidence_dir`、`project_space_name`、`projectSpaceId`、`folderId`、`canvas_name` 和 `projectUuid`。
+
+`libtv-canvas-active-registry.json` 还必须按 `source_group_id` 维护多实例索引，至少记录 `instances[]`、`active_instance_id`、每个实例的 `video_node_instance_id`、远端节点 key、状态、创建时间和父实例关系。
 
 ## Review Gate Mapping
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 画布项目是否按默认命名创建，且没有覆盖同名旧项目？ | `GATE-LTVCTRL-PROJECT` | `FAIL-LTVCTRL-PROJECT-NAME` | `N1-PROJECT` | project list query, projectUuid |
+| 是否锁定正确 AIGC 项目 / 集数到 LibTV 项目空间 / 画布的映射，并在其下创建或选择目标画布且没有覆盖同名旧画布？ | `GATE-LTVCTRL-PROJECT` | `FAIL-LTVCTRL-CANVAS-SCOPE` | `N1-CANVAS-SCOPE` | local mapping, project list query, `projectSpaceId` / `folderId`, projectUuid |
 | 视频节点是否使用实例 ID，且重生成未覆盖或跳过旧实例？ | `GATE-LTVCTRL-NODE-IDENTITY` | `FAIL-LTVCTRL-NODE-IDENTITY` | `N5-NODE-CREATE` | remote node query, active registry, queue record |
 | 参照图是否来自默认范围或用户显式 UUID，且无猜测替代？ | `GATE-LTVCTRL-UPLOAD` | `FAIL-LTVCTRL-REFERENCE-MATCH` | `N2-UPLOAD` | upload registry, skipped subjects |
 | YAML 是否按 `图片N 主体名 UUID` 回刷，同 UUID 是否复用编号？ | `GATE-LTVCTRL-YAML` | `FAIL-LTVCTRL-YAML-BACKFILL` | `N3-YAML-BACKFILL` | YAML excerpt, manifest bindings |

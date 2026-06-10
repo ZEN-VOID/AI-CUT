@@ -4,8 +4,8 @@
 
 | gate | question | fail_code | severity | rework |
 | --- | --- | --- | --- | --- |
-| `GATE-LTVCTRL-ROUTE` | 模式、项目、集数和分组稿是否唯一？ | `FAIL-LTVCTRL-ROUTE` | high | `SKILL.md#Mode Selection` |
-| `GATE-LTVCTRL-PROJECT` | 画布项目是否按命名规则创建，未覆盖旧项目？ | `FAIL-LTVCTRL-PROJECT-NAME` | high | `N1-PROJECT` |
+| `GATE-LTVCTRL-ROUTE` | 模式、AIGC 项目、集数、单集语义范围和分组稿是否唯一？ | `FAIL-LTVCTRL-ROUTE` | high | `SKILL.md#Mode Selection` |
+| `GATE-LTVCTRL-PROJECT` | 是否把 AIGC 项目 / 集数正确映射到 LibTV projectSpace / folder / canvas，并在其下创建或选择目标画布且未覆盖旧画布？ | `FAIL-LTVCTRL-CANVAS-SCOPE` | high | `N1-CANVAS-SCOPE` |
 | `GATE-LTVCTRL-UPLOAD` | 所有可匹配参照图是否上传或复用成功？ | `FAIL-LTVCTRL-UPLOAD` | high | `N2-UPLOAD` |
 | `GATE-LTVCTRL-YAML` | YAML 是否回刷为 `图片N 主体名 UUID`？ | `FAIL-LTVCTRL-YAML-BACKFILL` | high | `N3-YAML-BACKFILL` |
 | `GATE-LTVCTRL-GROUP` | 是否只处理非连接件分镜组？ | `FAIL-LTVCTRL-GROUP-SCOPE` | medium | `N4-GROUP-EXTRACT` |
@@ -28,11 +28,12 @@
 
 ## Required Final Checks
 
-1. 画布 video 节点数等于本轮应创建的非连接件分镜组实例数。
-2. 每个 video 节点名符合 `vid__<source_group_id>__bNNN__rNN__vNNN`，且 registry 中 `source_group_id -> instances[]` 可追溯。
-3. 重生成已存在分镜组时，新增实例 ID 不等于旧实例 ID；除非用户显式授权删除，否则旧节点仍保留。
-4. 每个 video 节点默认 `settings.ratio=16:9`，除非用户显式覆盖。
-5. 每个节点 `params.modeType=mixed2video`。
-6. 每个节点 `params.imageList[].nodeId` 顺序与 YAML `图片N` 顺序一致。
-7. prompt 主体行顺序为 `图片N 主体名 {{Image N}} UUID`，且不含 `{{Portrait N}}`、主体绑定表、命令、路径、诊断文本。
-8. 默认 `run_executed=false`。
+1. Registry / queue record 记录 `local_project_root`、`local_episode`、`local_episode_scope`、`project_space_name`、`projectSpaceId/folderId`、`canvas_name` 和 `projectUuid`。
+2. 画布 video 节点数等于本轮应创建的非连接件分镜组实例数。
+3. 每个 video 节点名符合 `vid__<source_group_id>__bNNN__rNN__vNNN`，且 registry 中 `source_group_id -> instances[]` 可追溯。
+4. 重生成已存在分镜组时，新增实例 ID 不等于旧实例 ID；除非用户显式授权删除，否则旧节点仍保留。
+5. 每个 video 节点默认 `settings.ratio=16:9`，除非用户显式覆盖。
+6. 每个节点 `params.modeType=mixed2video`。
+7. 每个节点 `params.imageList[].nodeId` 顺序与 YAML `图片N` 顺序一致。
+8. prompt 主体行顺序为 `图片N 主体名 {{Image N}} UUID`，且不含 `{{Portrait N}}`、主体绑定表、命令、路径、诊断文本。
+9. 默认 `run_executed=false`。

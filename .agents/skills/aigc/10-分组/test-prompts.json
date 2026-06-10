@@ -1,6 +1,6 @@
 {
   "skill": "aigc-grouping",
-  "version": "2026-06-05",
+  "version": "2026-06-08",
   "prompts": [
     {
       "id": "grouping-default-lighting-single",
@@ -12,6 +12,7 @@
         "每组包含场景标题、单行全局风格、分镜正文和 YAML",
         "全局风格只保留固定前置词加 Global Style Prompt 当前组整理句，不输出 Visual Slogan、Design Principle、Visual Gene Profile 或 Negative Traits 独立行",
         "每组目标约 14.5 秒、通常 10-14.5 秒，最终累计结束秒以 .5 结尾",
+        "第二组起首行复现上一组尾帧状态锚点，包括主体、动作余势、关键道具/介质、光声残留和空间关系",
         "执行报告包含 Reference Execution Matrix 与 Rule Evidence Map"
       ]
     },
@@ -32,7 +33,7 @@
       "prompt": "检查并修复 projects/aigc/<项目名>/10-分组/第3集.md 中 3-2-4 到 3-2-5 的首帧衔接断裂和 YAML 时长错误。",
       "expected": [
         "只修失败分镜组和执行报告证据",
-        "回龙帧内化到普通首个时间码分镜行",
+        "回龙帧内化到普通首个时间码分镜行，并复现上一组尾帧状态锚点五项元素",
         "YAML 时长估算与组内最后结束秒一致，且最后结束秒以 .5 结尾",
         "修复后运行机械 validator 或报告等价检查"
       ]

@@ -4,7 +4,7 @@
 
 | type | trigger | load | route |
 | --- | --- | --- | --- |
-| `full_canvas_control` | 创建新画布项目、上传主体参照、回刷 YAML、创建视频节点 | `types/full-canvas-control.md` | `steps/canvas-control-workflow.md` |
+| `full_canvas_control` | 在目标项目空间下创建或选择新画布、上传主体参照、回刷 YAML、创建视频节点 | `types/full-canvas-control.md` | `steps/canvas-control-workflow.md` |
 | `backfill_only` | 只要求上传图片或回刷 UUID 到分组稿 | `types/backfill-only.md` | `N1` 到 `N4` |
 | `node_rebuild_only` | YAML 已有 `图片N 主体名 UUID`，只重建视频节点 | `types/node-rebuild-only.md` | `N5` 到 `N8` |
 | `repair_order` | 已有节点出现 `{{Image N}}` 错绑或顺序漂移 | `types/node-rebuild-only.md` + `references/image-order-contract.md` | `N7` 到 `N9` |

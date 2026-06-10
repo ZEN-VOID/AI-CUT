@@ -17,6 +17,8 @@
 /.codex/state*.sqlite-shm
 /.codex/state*.sqlite-wal
 /.claude/
+/.codebuddy/
+/.workbuddy/
 /.libtv/
 /.env
 /.tmp/

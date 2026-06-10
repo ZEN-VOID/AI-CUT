@@ -6,7 +6,7 @@ governance_tier: router
 
 # AIGC 13-画布
 
-`13-画布` 是 AIGC 项目的视频生成阶段父入口。本级只负责路由、边界和回接；具体 LibTV 画布项目创建、素材上传、YAML 回刷、视频节点创建和连线由叶子技能持有。
+`13-画布` 是 AIGC 项目的视频生成阶段父入口。本级只负责路由、边界和回接；具体 LibTV 项目空间下的画布创建、素材上传、YAML 回刷、视频节点创建和连线由叶子技能持有。
 
 ## Context Loading Contract
 
@@ -15,12 +15,24 @@ governance_tier: router
 - 进入叶子技能后，必须继续加载叶子 `SKILL.md + CONTEXT.md`，并按叶子 `Reference Loading Guide` 加载必要分区。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > `.agents/skills/aigc/SKILL.md` > 本 `SKILL.md` > 叶子 `SKILL.md` > 叶子分区 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
+## LibTV-AIGC Layer Mapping
+
+本父入口持有 AIGC 本地层级与 LibTV 新版产品层级之间的路由真源：
+
+- `LibTV 项目空间名 = AIGC 项目名 = basename(projects/aigc/<项目名>)`。
+- `LibTV 项目空间.画布名 = AIGC 单集语义范围 = projects/aigc/<项目名>/第N集`。
+- `projects/aigc/<项目名>/第N集` 是跨系统语义范围，不要求作为本地物理目录存在。
+- 单集输入真源通常仍是 `projects/aigc/<项目名>/10-分组/第N集.md`。
+- 画布执行证据默认落到 `projects/aigc/<项目名>/13-画布/libTV画布流/第N集/`。
+- LibTV `projectSpaceId` / `folderId` 对应上层项目空间；LibTV `projectUuid` / CLI `uuid` / `-p --project` 对应具体画布。父级路由不得把 `projectSpaceId` / `folderId` 当作画布 UUID 下发。
+- 无法唯一定位 LibTV 项目空间时，叶子可按兼容规则退回 `项目名-第N集` 画布命名，但必须在证据中标明 `project_space_resolution=unresolved_legacy_canvas_name`。
+
 ## Input Contract
 
 Accepted input:
 
 - 从 `projects/aigc/<项目名>/10-分组/第N集.md` 生成 LibTV 画布视频节点。
-- 创建或选择 LibTV 画布项目，上传角色、场景、道具参照图，回刷 YAML 图片 UUID。
+- 在 LibTV 项目空间下创建或选择 `第N集` 画布，上传角色、场景、道具参照图，回刷 YAML 图片 UUID。
 - 修复 LibTV 视频节点主体错绑、图片顺序错乱、画幅或 prompt 证据漂移。
 
 Required input:
@@ -40,15 +52,15 @@ Reject or clarify when:
 
 | mode | trigger | route |
 | --- | --- | --- |
-| `canvas_flow` | 创建画布项目、上传主体参照、回刷 YAML、生成/连线视频节点 | `.agents/skills/aigc/13-画布/libTV画布流/SKILL.md` |
+| `canvas_flow` | 创建或选择项目空间下的画布、上传主体参照、回刷 YAML、生成/连线视频节点 | `.agents/skills/aigc/13-画布/libTV画布流/SKILL.md` |
 
 ## Output Contract
 
-- Required output: 唯一路由、项目根、分组稿路径、目标叶子技能或阻断原因。
+- Required output: 唯一路由、项目根、分组稿路径、LibTV 项目空间 / 画布语义映射、目标叶子技能或阻断原因。
 - Output format: 简短路由说明；具体证据文件由叶子技能生成。
 - Output path: 本父入口不写业务证据；叶子默认写 `projects/aigc/<项目名>/13-画布/libTV画布流/第N集/`。
 - Naming convention: 阶段父入口不命名远端节点；叶子必须把分镜组 ID 作为 `source_group_id`，并使用带批次、修订和变体号的 `video_node_instance_id` 作为唯一视频节点名，禁止用分镜组 ID 单独充当节点唯一名。
-- Completion gate: route 唯一、项目 runtime 不漂移、未越权改写上游分组稿正文；父级或叶子没有用脚本化生成、批量插入、正则套句、映射投影、模板锚点替换、句式轮换或同义改写批量生成 LibTV prompt / 视频节点正文，命中 `FAIL-CANVAS-SCRIPTED-PROMPT` 时不得完成。
+- Completion gate: route 唯一、项目 runtime 不漂移、LibTV 项目空间和画布语义不漂移、未越权改写上游分组稿正文；父级或叶子没有用脚本化生成、批量插入、正则套句、映射投影、模板锚点替换、句式轮换或同义改写批量生成 LibTV prompt / 视频节点正文，命中 `FAIL-CANVAS-SCRIPTED-PROMPT` 时不得完成。
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -59,5 +71,6 @@ Reject or clarify when:
 优先修复：
 
 1. 默认视频路线断链：回到本文件 `Mode Selection` 和 `.codex/registry/routes.yaml`。
-2. `libTV画布流` 主体错绑：路由到 `libTV画布流/references/image-order-contract.md`。
-3. LibTV prompt 或视频节点正文呈现脚本化生成、批量插入、正则套句、映射投影伪差异：路由到 `libTV画布流/SKILL.md#Output Contract` 与 prompt hygiene gate，使用源分镜组正文重新核验。
+2. LibTV 项目空间 / 画布错绑：回到本文件 `LibTV-AIGC Layer Mapping` 和 `libTV画布流/references/canvas-control-contract.md`。
+3. `libTV画布流` 主体错绑：路由到 `libTV画布流/references/image-order-contract.md`。
+4. LibTV prompt 或视频节点正文呈现脚本化生成、批量插入、正则套句、映射投影伪差异：路由到 `libTV画布流/SKILL.md#Output Contract` 与 prompt hygiene gate，使用源分镜组正文重新核验。

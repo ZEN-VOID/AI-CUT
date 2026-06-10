@@ -2,7 +2,7 @@
 
 **覆盖**：把 `libtv group create` 的 NDJSON 直接喂给 `libtv group use -r`，一条管道绑好 `groupNodeKey`；然后在组内串 `libtv node create`，用管道把多个上游节点挂进下游，并用 `libtv group … --run` 整组触发。
 
-**前置条件**：同 [examples/README.md 的通用前置条件](../README.md#通用前置条件)；已 `libtv project use <项目UUID>`。
+**前置条件**：同 [examples/README.md 的通用前置条件](../README.md#通用前置条件)；已 `libtv project use <画布UUID>`。
 
 ## 建组 + 绑定（管道一条命令搞定）
 
@@ -46,7 +46,7 @@ libtv group create 首集分镜 | libtv group use -r
 
 - 所有 `libtv node create` 都**不写 `-g`**：既然已 `group use`，默认就在 `首集分镜` 组内。
 - `(a && b && c) | d` 把三个上游的 NDJSON 一并喂给 `角-汇总`，等价于 `d --left a --left b --left c`。
-- 想**临时跳出当前组**（只绑项目、不进组），一次命令加 `-g ""` 或换用 `-p <projectUuid>` 不要 `-g`；也可以 `libtv group unuse` 后再跑。
+- 想**临时跳出当前组**（只绑定画布、不进组），一次命令加 `-g ""` 或换用 `-p <projectUuid>` 不要 `-g`；也可以 `libtv group unuse` 后再跑。
 
 ## 用 `--node` 把已有节点显式挂进组 + 整组触发
 

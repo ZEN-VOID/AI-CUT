@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-09
+
+- 增加台词/对白/旁白承接机制：`dialogue_manifest`、`dialogue_policy`、`dialogue_timing_map`。
+- 将台词作为 `dialogue_overlay` 接入 `F1/F3/F5/F6/F9/F10`，明确用户给出的引号、角色冒号发言或“必须说/原样保留”默认 `hard_frozen`。
+- 补齐 `GATE-FLASH-11`、`FAIL-FLASH-DIALOGUE`、输出模板中的 `台词策略`、声音生成边界和 `test-prompts.json` 回归用例。
+
 ## 2026-06-05
 
 - 初始化 `aigc-flash` 为 `.agents/skills/aigc` 的聊天窗口 mini prompt 技能。

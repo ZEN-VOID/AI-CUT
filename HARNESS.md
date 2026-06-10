@@ -53,9 +53,7 @@
 - 根 `AGENTS.md` 已明确：
   - 执行深度默认规则
   - 内容创作型任务的 `LLM-first creative authorship` 规则：核心创作必须由 LLM 直出，脚本仅可承担读取/组装/校验/落盘等机械辅助
-  - 三省六部制编排治理基线
   - `HARNESS.md` 总览同步责任
-  - `bootstrap_compat` 改造兼容模式
   - 批量技能调度默认规则
   - `subagents` 默认真实启动、命中默认 subagent skill 即视为显式许可、以及降级显式报告口径
   - Skill 2.0 runtime-spine 运行规则与项目级记忆 / 上下文规则
@@ -239,7 +237,7 @@
 
 ### bootstrap_compat 退出条件与进度
 
-`AGENTS.md` 已定义 `bootstrap_compat` 模式的量化退出条件。以下为各条件当前状态：
+`HARNESS.md` 维护 `bootstrap_compat` 模式的量化退出条件。以下为各条件当前状态：
 
 | 条件 | 当前状态 | 阻塞项 |
 | --- | --- | --- |
@@ -301,7 +299,7 @@
 
 当以下任一内容发生变化时，必须在同一轮任务内同步检查并更新 `HARNESS.md`：
 
-- 根 `AGENTS.md` 中的 HARNESS 宪章、治理层级、硬门槛、闭环格式、规则分级或优先级索引
+- 根 `AGENTS.md` 中的 HARNESS 同步责任、硬门槛、闭环格式、规则分级或优先级索引
 - `.codex/templates/harness/office-governance-contract.md`
 - `.codex/agents/harness治理/` 下任何 office 合同
 - `.codex/registry/skills.yaml`、`.codex/registry/routes.yaml`
@@ -315,7 +313,7 @@
 
 **AGENTS.md -> HARNESS.md（反向约束）**：
 
-当 `AGENTS.md` 的"Harness 工程"章节（包括三省六部制基线、HARNESS.md 总览与同步、AIGC 改造兼容模式、bootstrap_compat 退出条件）发生调整时，`HARNESS.md` 必须在同轮任务内同步检查以下内容是否需要更新：
+当 `AGENTS.md` 的"Harness 工程"章节发生调整时，`HARNESS.md` 必须在同轮任务内同步检查以下内容是否需要更新：
 
 - "当前工程化构思"是否仍与 AGENTS.md 宪章层一致
 - "当前运行方式"中的硬门槛与防漂移规则是否仍与 AGENTS.md 一致

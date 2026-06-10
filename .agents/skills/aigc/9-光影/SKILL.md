@@ -24,7 +24,7 @@ metadata:
 分镜3（N-N秒）：原有内容（包含摄影）。XXXX
 ```
 
-`XXXX` 必须是当前分镜专属的电影光影美学处理，覆盖动机光、环境光、人物/空间受光、明暗关系、色温/色彩倾向、材质反射、空气介质、阴影组织，以及必要时的动态光源变化。光影可以是静止的，也可以是时间中变化的，例如浮光掠影、流光溢彩、火光摇曳、霓虹反射、水面晃光、车辆扫光、屏幕冷光、烟雾体积光、门缝漏光、多光源叠加和光色接力。
+`XXXX` 必须是当前分镜专属的电影光影美学处理，覆盖动机光、环境光、人物/空间受光、明暗关系、色温/色彩倾向、材质反射、空气介质、阴影组织，以及必要时的动态光源变化。这里的“画面化光影”采用文学“白描”的直接写法：只写画面上能被 AIGC 视频模型看见和稳定生成的光源、方向、受光面、阴影边界、色温、材质、空气介质、动态变化和时间顺序，不用明喻、隐喻、象征或概念标签替代光影事实。光影可以是静止的，也可以是时间中变化的，例如浮光掠影、流光溢彩、火光摇曳、霓虹反射、水面晃光、车辆扫光、屏幕冷光、烟雾体积光、门缝漏光、多光源叠加和光色接力。
 
 本技能不改写剧情事实、对白、场景顺序、分镜编号、秒数、景别、构图或运镜；不生成灯位图、设备参数、图像 prompt、视频 prompt、剪辑方案或下游 provider 请求。
 
@@ -38,6 +38,7 @@ metadata:
 - 默认 source 为 `projects/aigc/<项目名>/8-摄影/第N集.md`。用户显式指定文稿、粘贴文本或要求跳过默认上游时，以用户指定 source 优先，并在报告中记录 `source_override=true`。
 - 正式写回时，必读美学上下文为 `3-美学/画面基调/全局风格协议.md`、`3-美学/场景风格/场景风格协议.md`、`3-美学/摄影风格/摄影风格协议.md`。三者缺失时，可使用用户提供的等价文本；若完全没有等价画面基调、场景风格或摄影风格，不得判定 canonical pass。
 - 可选上下文包括 `3-美学/分镜风格/分镜风格协议.md`、`角色风格/角色风格协议.md`、项目长期审美偏好、参考图/视频说明和视频模型限制。
+- 涉及“画面化光影”“意境”“氛围感”“宿命感”“诗意”“高级感”、抽象情绪转光影、比喻化光影句或 AIGC 可实现性审查时，必须加载 `../_shared/anti-abstract-language-contract.md`，并按白描式可生成材料审查。
 - 核心光影判断、场景光源组织、动态光源变化、多光源叠加和分镜别审美描述必须由 LLM 直接完成；脚本只允许做读取、格式扫描、覆盖统计、diff 和报告辅助。
 - 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、光影词库批量生成、批量插入、正则套句或映射投影不得生成或裁决光影核心正文；发现即触发 `FAIL-LIGHT-SCRIPTED-PROJECTION`。
@@ -88,7 +89,7 @@ Non-goals:
 Hard prohibitions:
 
 - 不得每条分镜都套用“冷暖对比、电影感、伦勃朗光、体积光”等泛化词。
-- 不得使用抽象化、概念化、不可见、不可由 AIGC 画面直接实现的语言替代具体光影结果；例如“宿命感更强”“高级审美”“灵魂被照亮”“压迫感拉满”必须转译为可见光源、受光位置、阴影形状、色温、材质反射、空气介质或动态光变化。
+- 不得使用抽象化、概念化、比喻化、象征化、不可见、不可由 AIGC 画面直接实现的语言替代具体光影结果；例如“宿命感更强”“高级审美”“灵魂被照亮”“压迫感拉满”“光像刀一样劈开命运”必须转译为白描式可见光源、受光位置、阴影形状、色温、材质反射、空气介质或动态光变化。
 - 不得用光影新增剧情事实，例如新增不存在的火源、窗户、车辆、屏幕、雨雪、爆炸或人群。
 - 不得把 `3-美学` 的全局风格 prompt 直接复制进每条分镜。
 - 不得让光影描述压过已经存在的摄影·运镜信息；光影必须服务当前镜头和表演可读性。
@@ -147,11 +148,11 @@ Reject or clarify when:
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
-| `single_episode_lighting_injection` | 单集 source 或单个集号 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `FAIL-LIGHT-TYPE-SINGLE` |
-| `episode_range_lighting_injection` | 多集或全量 source | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `FAIL-LIGHT-TYPE-RANGE` |
-| `specified_camera_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md` | `FAIL-LIGHT-TYPE-OVERRIDE` |
-| `repair` | 既有稿需修复 | `Repair Path` | `N1,R1,R2,N8,N9` | `CONTEXT.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/light-continuity-contract.md` | `FAIL-LIGHT-TYPE-REPAIR` |
-| `review_only` | 只审查 | `Review Path` | `N1,V1,N9` | `CONTEXT.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/light-continuity-contract.md` | `FAIL-LIGHT-TYPE-REVIEW` |
+| `single_episode_lighting_injection` | 单集 source 或单个集号 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `FAIL-LIGHT-TYPE-SINGLE` |
+| `episode_range_lighting_injection` | 多集或全量 source | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `FAIL-LIGHT-TYPE-RANGE` |
+| `specified_camera_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7,N8,N9` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md` | `FAIL-LIGHT-TYPE-OVERRIDE` |
+| `repair` | 既有稿需修复 | `Repair Path` | `N1,R1,R2,N8,N9` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/light-continuity-contract.md` | `FAIL-LIGHT-TYPE-REPAIR` |
+| `review_only` | 只审查 | `Review Path` | `N1,V1,N9` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/light-continuity-contract.md` | `FAIL-LIGHT-TYPE-REVIEW` |
 
 ## Thinking-Action Node Map
 
@@ -196,7 +197,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个 source；批量任务逐集独立执行 N1-N9；每集扫描全部 `分镜N（N-N秒）` 行 | `N3.actions` | `FAIL-LIGHT-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `lighting_context_profile`、1 个 `aesthetic_context_map`、1 个 `shot_line_inventory`、1 个 `continuity_context`、1 个 `shot_function_map`、1 个 `lighting_aesthetic_plan`、1 个 `injection_map`；每条分镜至少 1 个光影计划 | `Thinking-Action Node Map.evidence` | `FAIL-LIGHT-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-LIGHT-09-*` 阻断项为 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数/灯位越权 0；泛化套词 0；抽象概念化光影句 0；AIGC 不可实现光影句 0；Seedance 2.0 默认工具标准不匹配 0；未解释新增光源 0；脚本化生成、批量插入、正则套句、映射投影或光影词库伪差异 0 | `N8.gate` / `Convergence Contract` | `FAIL-LIGHT-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-LIGHT-09-*` 阻断项为 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数/灯位越权 0；泛化套词 0；抽象概念化、比喻化、象征化光影句 0；未白描式落到光源/受光/阴影/色温/材质/空气/时间变化的光影句 0；AIGC 不可实现光影句 0；Seedance 2.0 默认工具标准不匹配 0；未解释新增光源 0；脚本化生成、批量插入、正则套句、映射投影或光影词库伪差异 0 | `N8.gate` / `Convergence Contract` | `FAIL-LIGHT-QUANT-THRESHOLD` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-LIGHT-QUANT-RETRY` |
 | `fallback_evidence` | source override、缺美学等价文本、不可判定光源、动态光源信号不足均需报告 N/A 或降级原因 | `Review Gate Binding.report_evidence` | `FAIL-LIGHT-QUANT-FALLBACK` |
 
@@ -215,6 +216,7 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、修复策略 | 重定义输入、输出或完成门 | `Learning / Context Writeback` |
 | `references/` | 任意正式生成、repair、review | 授权细则目录，承载保真、继承、光影语言、动态光源和边界合同 | 新增主入口、改写输出路径或替代主节点 | `Module Loading Matrix` |
+| `../_shared/anti-abstract-language-contract.md` | 任意“画面化光影”、抽象情绪转光影、比喻/隐喻/象征/概念化光影、AIGC 可实现性审查 | 共享反抽象与白描式画面化合同，定义光影正文必须落到可生成的具体视觉事实 | 替代本技能光影设计、复制为正文、或绕过 source/memory/style 约束新增光源 | `N6-LIGHT-DESIGN` / `N8-LIGHT-REVIEW-REPAIR` |
 | `knowledge-base/` | 用户要求网络资料知识库、电影光影表现技巧 TOP10，或 `N6/R2` 出现泛化套词、动态光源不足、多光源无主次时 | 外部资料沉淀目录，提供可复用技巧、来源矩阵和触发参考 | 替代 `SKILL.md` 主节点、输出合同、review gate 或直接生成正文 | `N2-LIGHT-UNDERSTAND` / `N6-LIGHT-DESIGN` |
 | `scripts/` | 需要机械扫描、diff、覆盖统计或格式检查时 | 机械辅助目录 | 生成光影正文或裁决光影方案 | `scripts/README.md` |
 | `knowledge-base/cinematic-lighting-top10.md` | `top10_lighting_reference`、`FAIL-LIGHT-GENERIC`、`FAIL-LIGHT-MOTIVATION-RANDOM`、`FAIL-LIGHT-DYNAMIC-EMPTY`、`FAIL-LIGHT-CONTINUITY-BREAK` | 电影光影表现技巧 TOP10、source set、逐分镜应用公式和触发矩阵 | 作为第二规则源、输出 `Txx` 标签到正文、绕过美学上下文 | `N2-LIGHT-UNDERSTAND` / `N5-LIGHT-SHOT-FUNCTION` / `N6-LIGHT-DESIGN` |
@@ -230,7 +232,7 @@ flowchart TD
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
-| `default_lighting_injection` | `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `N1-N6` | `GATE-LIGHT-09-FORMAT`, `GATE-LIGHT-09-AESTHETIC` | 分镜行覆盖、原文保真 |
+| `default_lighting_injection` | `../_shared/anti-abstract-language-contract.md`, `references/source-incremental-light-injection-contract.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md`, `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md`, `references/ai-video-light-handoff-contract.md` | `N1-N6` | `GATE-LIGHT-09-FORMAT`, `GATE-LIGHT-09-AESTHETIC`, `GATE-LIGHT-09-CONCRETE-AIGC` | 分镜行覆盖、原文保真、`plain_visualization_audit` |
 | `top10_lighting_reference` | `knowledge-base/cinematic-lighting-top10.md`, `references/aesthetic-light-inheritance-contract.md`, `references/cinematic-light-language-contract.md` | `N2-N6` | `GATE-LIGHT-09-SPECIFICITY`, `GATE-LIGHT-09-MOTIVATION` | `technique_applied_map` |
 | `aigc_video_lighting_vocab` | `knowledge-base/aigc-video-lighting-vocabulary.md`, `references/ai-video-light-handoff-contract.md`, `references/cinematic-light-language-contract.md` | `N6-N7` | `GATE-LIGHT-09-CONCRETE-AIGC`, `GATE-LIGHT-09-BOUNDARY` | `vocabulary_applied_map`, `aigc_implementability_check` |
 | `seedance_2_0_tool_standard` | `knowledge-base/aigc-video-lighting-vocabulary.md`, `references/ai-video-light-handoff-contract.md`, `references/dynamic-light-source-contract.md` | `N2-N7` | `GATE-LIGHT-09-CONCRETE-AIGC`, `GATE-LIGHT-09-SEEDANCE2`, `GATE-LIGHT-09-BOUNDARY` | `seedance2_implementability_profile`, `video_light_payload_table`, `provider_overreach_scan` |
@@ -239,7 +241,7 @@ flowchart TD
 | `FAIL-LIGHT-AESTHETIC` | `CONTEXT.md`, `references/aesthetic-light-inheritance-contract.md` | `R1/R2` | `GATE-LIGHT-09-AESTHETIC` | aesthetic_context_map |
 | `FAIL-LIGHT-SOURCE-LOSS` | `references/source-incremental-light-injection-contract.md` | `R1/R2` | `GATE-LIGHT-09-SOURCE` | source diff |
 | `FAIL-LIGHT-GENERIC, FAIL-LIGHT-MOTIVATION-RANDOM` | `references/cinematic-light-language-contract.md`, `references/aesthetic-light-inheritance-contract.md` | `R1/R2` | `GATE-LIGHT-09-SPECIFICITY` | generic phrase scan |
-| `FAIL-LIGHT-ABSTRACT, FAIL-LIGHT-NONIMPLEMENTABLE, FAIL-LIGHT-SEEDANCE2-MISMATCH` | `knowledge-base/cinematic-lighting-top10.md`, `knowledge-base/aigc-video-lighting-vocabulary.md`, `references/cinematic-light-language-contract.md`, `references/ai-video-light-handoff-contract.md` | `R1/R2` | `GATE-LIGHT-09-CONCRETE-AIGC`, `GATE-LIGHT-09-SEEDANCE2` | `concrete_visual_check`, `aigc_implementability_check`, `vocabulary_applied_map`, `seedance2_implementability_profile` |
+| `FAIL-LIGHT-ABSTRACT, FAIL-LIGHT-PLAIN-VISUALIZATION, FAIL-LIGHT-NONIMPLEMENTABLE, FAIL-LIGHT-SEEDANCE2-MISMATCH` | `../_shared/anti-abstract-language-contract.md`, `knowledge-base/cinematic-lighting-top10.md`, `knowledge-base/aigc-video-lighting-vocabulary.md`, `references/cinematic-light-language-contract.md`, `references/ai-video-light-handoff-contract.md` | `R1/R2` | `GATE-LIGHT-09-CONCRETE-AIGC`, `GATE-LIGHT-09-SEEDANCE2` | `plain_visualization_audit`, `concrete_visual_check`, `aigc_implementability_check`, `vocabulary_applied_map`, `seedance2_implementability_profile` |
 | `FAIL-LIGHT-GENERIC, FAIL-LIGHT-MOTIVATION-RANDOM, FAIL-LIGHT-DYNAMIC-EMPTY` | `knowledge-base/cinematic-lighting-top10.md` | `R1/R2` | `GATE-LIGHT-09-SPECIFICITY`, `GATE-LIGHT-09-DYNAMIC` | `technique_applied_map` |
 | `FAIL-LIGHT-DYNAMIC-EMPTY, FAIL-LIGHT-SOURCE-OVERREACH` | `references/dynamic-light-source-contract.md`, `references/light-continuity-contract.md` | `R1/R2` | `GATE-LIGHT-09-DYNAMIC` | light_source_stack_map |
 | `FAIL-LIGHT-CONTINUITY-BREAK` | `references/light-continuity-contract.md` | `R1/R2` | `GATE-LIGHT-09-CONTINUITY` | light_state_timeline |
@@ -261,7 +263,7 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `C1-source-and-style` | source 可读，分镜行存在，三类美学上下文可用或有等价替代 | source 缺失、分镜行缺失、正式写回无美学上下文 | `source_manifest`, `aesthetic_manifest` | `N1-LIGHT-INTAKE` |
 | `C2-line-inventory` | 全部分镜行进入 inventory，原文锚点明确 | 漏分镜行、编号/秒数不可追踪 | `shot_line_inventory` | `N3-LIGHT-SHOT-LINES` |
-| `C3-lighting-plan` | 每条分镜光影计划专属、具象、可见、默认符合 Seedance 2.0 工具标准下的 AIGC 可执行性，有静态/动态/多光源取舍依据，并通过作者性完整性审查 | 泛化套词、抽象概念化语言、AIGC 不可实现、Seedance 2.0 标准不匹配、光源越权、与摄影冲突、动态变化无动机、光影词库投影或句式轮换伪差异 | `lighting_aesthetic_plan`, `light_source_stack_map`, `concrete_visual_check`, `seedance2_implementability_profile`, `authorship_integrity_audit` | `N5` / `N6` |
+| `C3-lighting-plan` | 每条分镜光影计划专属、白描式具象、可见、默认符合 Seedance 2.0 工具标准下的 AIGC 可执行性，有静态/动态/多光源取舍依据，并通过作者性完整性审查 | 泛化套词、抽象概念化语言、比喻/隐喻/象征替代光影事实、AIGC 不可实现、Seedance 2.0 标准不匹配、光源越权、与摄影冲突、动态变化无动机、光影词库投影或句式轮换伪差异 | `lighting_aesthetic_plan`, `light_source_stack_map`, `plain_visualization_audit`, `concrete_visual_check`, `seedance2_implementability_profile`, `authorship_integrity_audit` | `N5` / `N6` |
 | `C4-injection` | 原文完整保留，只追加光影句，格式可读 | 原文丢失、剧情越权、prompt/灯位越权 | `source_preservation_diff`, `format_check` | `N7-LIGHT-INJECT` |
 | `C5-final` | review gate pass，报告证据完整，输出路径唯一 | 任一 P0 gate fail 或报告缺 matrix/rule map | `review_verdict`, `execution_report` | `N8-LIGHT-REVIEW-REPAIR` |
 
@@ -272,7 +274,7 @@ flowchart TD
 | 是否加载并应用画面基调、场景风格和摄影风格？ | `GATE-LIGHT-09-AESTHETIC` | `FAIL-LIGHT-AESTHETIC` | `N2-LIGHT-UNDERSTAND` | `aesthetic_context_map` |
 | 是否完整保留原分镜编号、秒数、原文和摄影内容？ | `GATE-LIGHT-09-SOURCE` | `FAIL-LIGHT-SOURCE-LOSS` | `N7-LIGHT-INJECT` | `source_preservation_diff` |
 | 每条分镜是否有专属光影句，而不是泛化套词？ | `GATE-LIGHT-09-SPECIFICITY` | `FAIL-LIGHT-GENERIC` | `N5-LIGHT-SHOT-FUNCTION` / `N6-LIGHT-DESIGN` | `generic_phrase_scan`, `lighting_reason_samples` |
-| 光影句是否具象、可见、AIGC 可实现，而不是抽象概念化表达？ | `GATE-LIGHT-09-CONCRETE-AIGC` | `FAIL-LIGHT-ABSTRACT` / `FAIL-LIGHT-NONIMPLEMENTABLE` | `N6-LIGHT-DESIGN` / `N7-LIGHT-INJECT` | `concrete_visual_check`, `aigc_implementability_check` |
+| 光影句是否白描式具象、可见、AIGC 可实现，而不是抽象概念化、比喻化或象征化表达？ | `GATE-LIGHT-09-CONCRETE-AIGC` | `FAIL-LIGHT-ABSTRACT` / `FAIL-LIGHT-PLAIN-VISUALIZATION` / `FAIL-LIGHT-NONIMPLEMENTABLE` | `N6-LIGHT-DESIGN` / `N7-LIGHT-INJECT` | `plain_visualization_audit`, `concrete_visual_check`, `aigc_implementability_check` |
 | 未指定其他工具时，光影句是否符合 Seedance 2.0 最优工具标准：单镜头短视频可见、光源主次清晰、动态光有时间线、多模态参考可承接、无 provider prompt 越界？ | `GATE-LIGHT-09-SEEDANCE2` | `FAIL-LIGHT-SEEDANCE2-MISMATCH` | `N2-LIGHT-UNDERSTAND` / `N6-LIGHT-DESIGN` | `default_video_tool_profile`, `seedance2_implementability_profile`, `video_light_payload_table`, `provider_overreach_scan` |
 | 光影选择是否服务当前分镜功能和摄影运镜？ | `GATE-LIGHT-09-MOTIVATION` | `FAIL-LIGHT-MOTIVATION-RANDOM` | `N5-LIGHT-SHOT-FUNCTION` | `shot_function_map` |
 | 动态光源、多光源叠加或静止光是否有 source 与场景依据？ | `GATE-LIGHT-09-DYNAMIC` | `FAIL-LIGHT-DYNAMIC-EMPTY` / `FAIL-LIGHT-SOURCE-OVERREACH` | `N4-LIGHT-CONTINUITY` / `N6-LIGHT-DESIGN` | `light_source_stack_map`, `dynamic_light_map` |
@@ -287,7 +289,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 目标始终是“在 8-摄影或指定分镜原文后追加光影美学描述”；非目标是重写分镜、生成 prompt、灯位图或设备方案 | `N1-LIGHT-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source/style 锁定后转分镜行；分镜行完成后转光影连续性；功能完成后转光源组织；注入后转 review | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 注意力漂移检测 | 出现改剧情、改秒数、复制全局 prompt、设备参数、灯位图、泛化套词、抽象概念化语言、AIGC 不可实现描述、无依据新增光源即漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 注意力漂移检测 | 出现改剧情、改秒数、复制全局 prompt、设备参数、灯位图、泛化套词、抽象概念化语言、比喻/隐喻/象征替代光影事实、AIGC 不可实现描述、无依据新增光源即漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 注意力再集中机制 | 发现漂移时回到最近有效节点，不继续润色当前错误句 | `R1-LIGHT-REWORK` |
 
 | drift_type | re_center_entry |
@@ -296,7 +298,7 @@ flowchart TD
 | 题材、情节、摄影和美学未理解就套词 | `N2-LIGHT-UNDERSTAND` |
 | 分镜行漏扫或原文锚点不清 | `N3-LIGHT-SHOT-LINES` |
 | 光影连续性缺失 | `N4-LIGHT-CONTINUITY` |
-| 光源组织随机、泛化、抽象概念化、AIGC 不可实现或越权 | `N5-LIGHT-SHOT-FUNCTION` / `N6-LIGHT-DESIGN` |
+| 光源组织随机、泛化、抽象概念化、比喻/象征化、AIGC 不可实现或越权 | `N5-LIGHT-SHOT-FUNCTION` / `N6-LIGHT-DESIGN` |
 | 原文保真或输出格式漂移 | `N7-LIGHT-INJECT` |
 | 报告证据缺失 | `N8-LIGHT-REVIEW-REPAIR` |
 
@@ -315,10 +317,10 @@ flowchart TD
 - Output path: `projects/aigc/<项目名>/9-光影/第N集.md`；执行报告为 `projects/aigc/<项目名>/9-光影/执行报告.md`。
 - Canonical output path: `projects/aigc/<项目名>/9-光影/第N集.md`。
 - Report path: `projects/aigc/<项目名>/9-光影/执行报告.md`。
-- Output format: 保留 source 全文；每条 `分镜N（N-N秒）：原有内容` 在原内容后追加一段具象、可见、AIGC 可实现的光影美学句。追加句不带内部字段标签，不输出 plan 表，不复制全局 prompt，不使用抽象概念词替代可见光影结果。
+- Output format: 保留 source 全文；每条 `分镜N（N-N秒）：原有内容` 在原内容后追加一段白描式具象、可见、AIGC 可实现的光影美学句。追加句不带内部字段标签，不输出 plan 表，不复制全局 prompt，不使用抽象概念词、明喻、隐喻或象征替代可见光影结果。
 - Naming convention: 逐集文件固定为 `第N集.md`；执行报告固定为 `执行报告.md`；不得另建旧编号路径或英文阶段名。
 - Report required sections: `Source Manifest`、`Aesthetic Context Map`、`Lighting Context Profile`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Output Manifest`。
-- Completion gate: `GATE-LIGHT-09-*` 阻断项为 0；`FAIL-LIGHT-SCRIPTED-PROJECTION` 为 0；source diff 只显示光影增量或允许的矛盾光影最小修复；正式写回时执行报告完整。若候选光影句呈现词库投影、句式轮换或锚点替换伪差异，候选稿必须废弃并回到 `N5/N6` 由 LLM 重做逐镜光影裁决。
+- Completion gate: `GATE-LIGHT-09-*` 阻断项为 0；`FAIL-LIGHT-PLAIN-VISUALIZATION` 与 `FAIL-LIGHT-SCRIPTED-PROJECTION` 为 0；source diff 只显示光影增量或允许的矛盾光影最小修复；正式写回时执行报告完整。若候选光影句呈现词库投影、句式轮换或锚点替换伪差异，候选稿必须废弃并回到 `N5/N6` 由 LLM 重做逐镜光影裁决。
 
 ## Runtime Guardrails
 
@@ -326,7 +328,7 @@ flowchart TD
 
 - 只允许读取 source、项目记忆、项目上下文和 `3-美学` 风格协议；写回只允许落到 `projects/aigc/<项目名>/9-光影/` 或用户显式指定输出。
 - 不删除、重排或覆盖上游 `8-摄影`、`3-美学` 或项目根真源。
-- 正文只允许输出 AIGC 可实现的可见光影结果；抽象主题、心理判断、价值判断和审美概念必须先转译为光源、受光面、阴影、色温、材质、空气介质或动态光源变化。
+- 正文只允许输出 AIGC 可实现的白描式可见光影结果；抽象主题、心理判断、价值判断、审美概念、明喻、隐喻和象征必须先转译为光源、受光面、阴影、色温、材质、空气介质或动态光源变化。
 
 ### Self-Modification Prohibitions
 
@@ -364,7 +366,7 @@ flowchart TD
 | `FIELD-LIGHT-03` | inventory | `shot_line_inventory` | 全部分镜行、编号、秒数、原文、已有摄影 | `FAIL-LIGHT-FIELD-03` |
 | `FIELD-LIGHT-04` | continuity | `light_state_timeline` | 场景光色状态、现有光源、空气/材质、跨分镜光影接力 | `FAIL-LIGHT-CONTINUITY-BREAK` |
 | `FIELD-LIGHT-05` | design | `lighting_aesthetic_plan` | 主导光源、辅助/反射光、明暗、色温、空气/材质、动态变化、多光源叠加 | `FAIL-LIGHT-GENERIC` |
-| `FIELD-LIGHT-06` | injection | `candidate_lighting_episode` | 原文保留、增量注入、具象可见、默认符合 Seedance 2.0 可实现性、无 prompt/灯位/参数越权 | `FAIL-LIGHT-SOURCE-LOSS` |
+| `FIELD-LIGHT-06` | injection | `candidate_lighting_episode` | 原文保留、增量注入、白描式具象可见、默认符合 Seedance 2.0 可实现性、无 prompt/灯位/参数越权 | `FAIL-LIGHT-SOURCE-LOSS` |
 | `FIELD-LIGHT-07` | report | `execution_report` | Reference Execution Matrix、Rule Evidence Map、N/A、Repair Log | `FAIL-LIGHT-REPORT-EVIDENCE` |
 
 ## Evaluation Prompt Contract

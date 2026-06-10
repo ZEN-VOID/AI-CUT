@@ -29,6 +29,7 @@ metadata:
 - 必须读取可用的 `3-美学` 产物，优先级为 `画面基调`、`角色风格`、`场景风格`。若任一缺失，可使用用户提供的等价风格文本，但必须在报告记录降级来源和 N/A 原因。
 - 表演风格资料优先查看本目录 `knowledge-base/`。若无匹配整理，可结合模型已有知识；若用户要求具体演员/表演流派事实、最新资料或可审计来源，必须联网检索并在报告记录来源、链接、检索日期和使用边界。
 - 正式生成、修复或审查时，必须加载 `references/stanislavski-method-reference.md`，并按触发信号加载本 `Module Trigger Matrix` 中授权的 performance references。
+- 任何涉及“画面化”“可视化”“可演”“心理外显”或抽象情绪转写的任务，必须加载 `../_shared/anti-abstract-language-contract.md`；本技能中的“画面化表演”默认指文学白描式的可拍材料直写，而不是比喻、象征、概念标签或情绪解释。
 - 核心题材理解、角色意识代入、逐画面融合改写、台词语气设计、微表情、生理反应、内心外显和表演节奏判断必须由 LLM 主创。脚本只允许承担读取、字段扫描、批注移除检查、覆盖统计、diff 和报告辅助。
 - 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 本 `Module Loading Matrix` 授权模块 > 上游 `4-导演` 原稿 > `3-美学` 产物 > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md` > 知识库或网络资料。
@@ -76,7 +77,7 @@ Core task:
 - 建立 `performance_context_profile`：题材机制、整集情绪曲线、主要角色弧线位置、角色风格继承、场景风格约束、画面基调约束。
 - 建立 `actor_consciousness_profile`：逐主要角色的当下目标、隐性动机、身体基线、声音基线、面具/真实关系、弧线变化和场景压力。
 - 对角色相关画面点逐点融合改写，覆盖 `画面`、`动作画面`、`对白画面`、`旁白画面`、`系统画面`、`心理反应`、`表演提示`、`表情特写`、`角色动作`、`群像画面`、`独白画面`、`内心独白画面`、`音效画面` 等。
-- 改写时把导演批注转化为可见/可听/可演的画面化表演。可优先使用但不限于以下开放通道：身体动作、姿态、重心、步伐、动作中断、动作方向、路径、幅度、动作过程、微表情、视线落点、眨眼、呼吸、吞咽、停顿、手部、身体距离、声线、语气、语速、断句、重音、尾音、话前话后反应、道具接触、空间位置、对手反应、群像反应、沉默、环境声、环境响应、生理残留和自然无意识反应。
+- 改写时把导演批注转化为可见/可听/可演的画面化表演。这里的“画面化”采用文学白描式直写：用朴素、直接、客观、可被演员执行和 AIGC 视频生成器接收的材料，写出身体动作、姿态、重心、步伐、动作中断、动作方向、路径、幅度、动作过程、微表情、视线落点、眨眼、呼吸、吞咽、停顿、手部、身体距离、声线、语气、语速、断句、重音、尾音、话前话后反应、道具接触、空间位置、对手反应、群像反应、沉默、环境声、环境响应、生理残留和自然无意识反应。
 - 表演通道不是封闭清单，也不是逐项填空表。每个 beat 应根据角色目标、场景压力、上游锚点、字段类型和表演密度选择最有效的少数通道；不得为了“丰富”把无锚点的动作、道具、声音或环境细节堆进正文。
 - 台词在原意保真基础上允许合理微调语气承托、断句、气口和伴随动作；不得改变对白事实、角色意图、剧情信息和事件结果。
 - 输出为移除导演批注后的完整单集表演稿，而不是批注清单、表演说明书或局部 patch。
@@ -92,6 +93,7 @@ Hard prohibitions:
 - 不得保留 `（导演批注：...）`、`导演批注：`、`批注意图：` 等导演批注标记。
 - 不得把原字段标题改成 `表演稿：`、`演员理解：`、`导演要求：` 或其他新字段，除非源稿本来已有该字段。
 - 不得把心理写成抽象解释，例如“他很愤怒”“她十分复杂”。必须转成观众可感知的动作、表情、呼吸、声音、身体、生理或环境承托。
+- 不得用明喻、隐喻、象征或概念标签替代表演正文，例如“像被命运压住”“仿佛灵魂碎裂”“宿命感很强”。删除这些词后，字段仍必须保留清楚的身体、空间、光声、道具或时间变化。
 - 不得用大师/演员/方法派名词替代当前画面内容。删掉风格名后，文本仍必须能看出这个角色在这一刻如何演。
 
 ## Business Requirement Analysis Contract
@@ -148,12 +150,12 @@ Reject or clarify when:
 
 | input_type | signal | route_to | required_nodes | module_load | fail_code |
 | --- | --- | --- | --- | --- | --- |
-| `single_episode_performance_rewrite` | 单个集号、单个导演稿或单集文本 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-SINGLE` |
-| `episode_range_performance_rewrite` | 多集范围或全量可读导演稿 | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-RANGE` |
-| `specified_script_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md` | `FAIL-PERF-TYPE-OVERRIDE` |
-| `actor_style_research` | 指名演员/方法/作品但 knowledge-base 无匹配 | `Actor Style Research Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `knowledge-base/actor-style-index.md`, `references/performance-style-directive-contract.md`, `references/stanislavski-method-reference.md` | `FAIL-PERF-TYPE-RESEARCH` |
-| `repair` | 既有稿件需修复 | `Repair Path` | `N1,R1,R2,N6,N7` | `CONTEXT.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-REPAIR` |
-| `review_only` | 只审查候选表演稿 | `Review Path` | `N1,V1,N7` | `CONTEXT.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md` | `FAIL-PERF-TYPE-REVIEW` |
+| `single_episode_performance_rewrite` | 单个集号、单个导演稿或单集文本 | `Single Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-SINGLE` |
+| `episode_range_performance_rewrite` | 多集范围或全量可读导演稿 | `Batch Episode Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-RANGE` |
+| `specified_script_override` | 用户指定 source 或粘贴文本 | `Override Source Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md` | `FAIL-PERF-TYPE-OVERRIDE` |
+| `actor_style_research` | 指名演员/方法/作品但 knowledge-base 无匹配 | `Actor Style Research Path` | `N1,N2,N3,N4,N5,N6,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `knowledge-base/actor-style-index.md`, `references/performance-style-directive-contract.md`, `references/stanislavski-method-reference.md` | `FAIL-PERF-TYPE-RESEARCH` |
+| `repair` | 既有稿件需修复 | `Repair Path` | `N1,R1,R2,N6,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/controlled-enrichment-contract.md` | `FAIL-PERF-TYPE-REPAIR` |
+| `review_only` | 只审查候选表演稿 | `Review Path` | `N1,V1,N7` | `CONTEXT.md`, `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md` | `FAIL-PERF-TYPE-REVIEW` |
 
 ## Thinking-Action Node Map
 
@@ -162,9 +164,9 @@ Reject or clarify when:
 | `N1-PERF-INTAKE` | 锁定项目、集号、导演稿 source、美学 source、演员风格来源和写回权限 | 用户请求、项目根、source 文件 | 加载 `SKILL.md + CONTEXT.md`；项目任务加载 `MEMORY.md/CONTEXT`；识别 `source_director_script_path`、`episode_id`、`aesthetic_sources`、`writeback_mode`、`actor_style_request`；形成 `business_profile`、scope checkpoint 和注意力锚点 | `source_manifest`、`aesthetic_manifest`、`business_profile`、`attention_anchor` | `N2` / `V1` / `N8` | source 不唯一、正式写回路径不明或完全无美学上下文时不得继续 |
 | `N2-PERF-UNDERSTAND` | 理解题材、情节、导演批注、剧本正文和 3-美学上下文 | 导演稿、美学协议、项目上下文、references | 摘要题材机制、主要冲突、角色关系、情绪曲线、画面基调、大师/作品参照、角色风格和场景风格；抽取导演批注意图但不保留批注格式 | `performance_context_profile`、`aesthetic_context_map`、`director_annotation_intent_map`、`episode_emotion_curve` | `N3` / `R1` | 不能只写类型标签；必须说明表演改写方向、角色压力和美学继承边界 |
 | `N3-ACTOR-CONSCIOUSNESS` | 代入演员角色意识并建立表演画像 | N2 证据、知识库、必要网络资料 | 对主要角色建立当下目标、隐藏动机、身体基线、声音基线、面具/真实关系、弧线位置、自然反应习惯；调用 `stanislavski` 的假使、形体动作、注意力集中和最高任务方法 | `actor_consciousness_profile`、`performance_style_profile`、`character_arc_performance_map`、`style_source_matrix` | `N4` / `R1` | 每个主要角色至少有 4 类可执行表演变量；若引用演员风格，来源边界必须清楚 |
-| `N4-POINT-FUSION-PLAN` | 建立角色相关画面点与批注融合计划 | 导演稿、N2-N3 证据 | 识别全部角色相关画面点、相邻导演批注和声画承托；每点记录字段名、原文摘要、批注意图、角色意识、动作/微表情/台词/内心/生理/环境投影目标、保真风险和是否需要 controlled enrichment | `performance_point_inventory`、`annotation_removal_plan`、`fusion_plan`、`controlled_enrichment_ledger` | `N5` / `R1` | 命中画面点覆盖率 100%；每个点必须有上游锚点；新增承托不得变成新剧情 |
-| `N5-PERF-REWRITE` | LLM 逐点融合改写并删除导演批注 | N2-N4 证据、references | 在原字段标题下改写 `XXX` 内容；把动作写清朝向、路径、幅度、过程和环境时间响应；把台词写清语气、断句、气口、伴随动作和话前话后反应；把心理写成外显动作、生理反应或内心独白画面；删除所有导演批注标记；保留场景顺序和字段标题 | `candidate_performance_episode`、`field_fusion_map`、`reference_application_map`、`annotation_removal_stats` | `N6` / `R1` | 批注残留必须为 0；字段标题漂移为 0；关键 beat 必须可见/可听/可演 |
-| `N6-PERF-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-PERF-01..18`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`coverage_stats`、`reference_execution_matrix`、`rule_evidence_map` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
+| `N4-POINT-FUSION-PLAN` | 建立角色相关画面点与批注融合计划 | 导演稿、N2-N3 证据 | 识别全部角色相关画面点、相邻导演批注和声画承托；每点记录字段名、原文摘要、批注意图、角色意识、动作/微表情/台词/内心/生理/环境投影目标、白描式画面化投影目标、保真风险和是否需要 controlled enrichment | `performance_point_inventory`、`annotation_removal_plan`、`fusion_plan`、`controlled_enrichment_ledger`、`plain_visualization_plan` | `N5` / `R1` | 命中画面点覆盖率 100%；每个点必须有上游锚点；新增承托不得变成新剧情；删除比喻或概念词后仍应可演 |
+| `N5-PERF-REWRITE` | LLM 逐点融合改写并删除导演批注 | N2-N4 证据、references | 在原字段标题下改写 `XXX` 内容；把动作写清朝向、路径、幅度、过程和环境时间响应；把台词写清语气、断句、气口、伴随动作和话前话后反应；把心理写成外显动作、生理反应或内心独白画面；把抽象、比喻、象征和概念标签压回白描式身体/空间/光声/道具/时间事实；删除所有导演批注标记；保留场景顺序和字段标题 | `candidate_performance_episode`、`field_fusion_map`、`reference_application_map`、`annotation_removal_stats`、`plain_visualization_audit` | `N6` / `R1` | 批注残留必须为 0；字段标题漂移为 0；关键 beat 必须可见/可听/可演；正文不得靠比喻或概念标签承托主信息 |
+| `N6-PERF-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-PERF-01..20`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`coverage_stats`、`reference_execution_matrix`、`rule_evidence_map`、`plain_visualization_audit` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
 | `N7-PERF-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract | 写入 `projects/aigc/<项目名>/5-表演/第N集.md` 与 `执行报告.md`；报告记录来源、覆盖、reference matrix、rule map、N/A、修复、网络来源和残余风险 | `output_manifest`、`execution_report` | done | 输出路径唯一；报告证据完整；正式写回不得缺执行报告 |
 | `R1-PERF-REWORK` | 源层返工定位 | fail code、review evidence | 追到题材理解、美学继承、角色意识、点位计划、融合正文、格式或输出路径层 | `root_cause_trace` | `R2` / `N2` / `N3` / `N4` / `N5` | 不得用泛化润色掩盖保真、覆盖或批注残留失败 |
 | `R2-PERF-SYNC-REPAIR` | 修复已有表演稿 | existing draft、root cause | 只修失败字段、批注残留、缺失点、报告证据或格式错误；不得重写无关原剧本 | `sync_patch` | `N6` | 修复后同类失败不得残留 |
@@ -205,7 +207,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个导演稿 source；批量任务逐集独立执行 N1-N7；每集覆盖全部角色相关画面点和相邻导演批注 | `N4/N5.actions` | `FAIL-PERF-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `performance_context_profile`、1 个 `aesthetic_context_map`、1 个 `director_annotation_intent_map`、1 个 `actor_consciousness_profile`、1 个 `performance_point_inventory`、1 个 `fusion_plan`、1 个 `field_fusion_map`、1 个 `annotation_removal_stats`；主要角色至少 4 类开放表演变量；关键心理/对白/动作/表演画面点至少 1 个可见/可听/可演证据，且通道选择能回指角色目标、场景压力或上游锚点 | `Thinking-Action Node Map.evidence` | `FAIL-PERF-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-PERF-01..19` 阻断项为 0；导演批注残留 0；字段标题漂移 0；剧情事实越权 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、美学继承、作者性完整性或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-PERF-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-PERF-01..20` 阻断项为 0；导演批注残留 0；字段标题漂移 0；剧情事实越权 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0；比喻、象征、概念标签或抽象解释替代白描式表演材料 0；非阻断 followup 不超过 3 项且不得影响保真、覆盖、格式、美学继承、白描画面化、作者性完整性或输出路径 | `N6.gate` / `Convergence Contract` | `FAIL-PERF-QUANT-THRESHOLD` |
 | `rewrite_density` | 每个命中画面点必须比原文更具体或更可演；单字段不可扩写成脱离剧本节奏的说明段，超长字段需报告理由 | `N5.actions` / `Review Gate Binding` | `FAIL-PERF-DENSITY` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-PERF-QUANT-RETRY` |
 | `fallback_evidence` | 若某项 `3-美学` 缺失，使用用户指定等价资料并标记降级；若知识库缺演员资料，记录 `pretrained_style_inference` 或网络来源；若某画面点语义不可判定，保留原文并在报告列 blocked/followup | `Review Gate Binding.report_evidence` | `FAIL-PERF-QUANT-FALLBACK` |
@@ -227,6 +229,7 @@ flowchart LR
 | module | load_when | authority | forbidden_use | rework_target |
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用本技能 | 经验层、失败模式、表演改写 heuristics | 重定义输入、节点、gate 或输出路径 | `Learning / Context Writeback` |
+| `../_shared/anti-abstract-language-contract.md` | 任意画面化表演、心理外显、抽象情绪、比喻化表演、AIGC 视频可执行性判断、`FAIL-PERF-PLAIN-VISUALIZATION` | 跨阶段反抽象合同，定义白描式画面化、抽象/比喻/概念残留审查和可生成材料投影 | 替代角色意识、表演方法、剧情保真或逐 beat LLM 主创 | `N3/N4/N5/N6` |
 | `references/` | 任意生成、修复或审查任务 | 表演方法、心理外显、对白潜台词、生理真实、群戏和受控增强细则 | 替代本 `SKILL.md` 的主流程、输出门或字段保真规则 | `N3/N4/N5/N6` |
 | `knowledge-base/` | 用户指名演员、表演流派、具体作品或本地资料 | 外部资料索引和已整理风格事实 | 自动学习、承载执行经验或替代项目记忆 | `N3` |
 | `references/stanislavski-method-reference.md` | 任意生成、修复或审查任务 | 斯坦尼/方法派表演技术基底，强化角色意识、形体动作和情绪触发 | 替代当前剧情、凭空新增角色动机、写表演论文 | `N3/N5` |
@@ -248,9 +251,10 @@ flowchart LR
 
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
-| `default_generation; FAIL-PERF-TYPE-SINGLE; FAIL-PERF-TYPE-RANGE; FAIL-PERF-TYPE-OVERRIDE; FAIL-PERF-SOURCE-CONTEXT; FAIL-PERF-FIELD-STRUCTURE; FAIL-PERF-ANNOTATION-REMOVAL; FAIL-PERF-FAITHFULNESS; FAIL-PERF-FUSION; FAIL-PERF-STAGE-OVERREACH; FAIL-PERF-REPORT-EVIDENCE; FAIL-PERF-ACTOR-READABILITY` | `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `N2-N6` | `GATE-PERF-01..18` | `annotation_removal_stats`、字段 diff、保真 diff、执行报告 sections |
+| `default_generation; FAIL-PERF-TYPE-SINGLE; FAIL-PERF-TYPE-RANGE; FAIL-PERF-TYPE-OVERRIDE; FAIL-PERF-SOURCE-CONTEXT; FAIL-PERF-FIELD-STRUCTURE; FAIL-PERF-ANNOTATION-REMOVAL; FAIL-PERF-FAITHFULNESS; FAIL-PERF-FUSION; FAIL-PERF-STAGE-OVERREACH; FAIL-PERF-REPORT-EVIDENCE; FAIL-PERF-ACTOR-READABILITY` | `../_shared/anti-abstract-language-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md`, `references/performance-and-scene-craft-contract.md`, `references/controlled-enrichment-contract.md` | `N2-N6` | `GATE-PERF-01..20` | `annotation_removal_stats`、字段 diff、保真 diff、执行报告 sections、`plain_visualization_audit` |
 | `dialogue / 对白画面 / 潜台词 / FAIL-PERF-DIALOGUE` | `references/dialogue-subtext-contract.md`, `references/actor-performance-control-contract.md` | `N4/N5` | `GATE-PERF-09-DIALOGUE-DELIVERY` | 对白画面抽样含语气、断句、气口和话前话后反应 |
 | `心理反应 / 内心独白 / 抽象情绪 / FAIL-PERF-PSYCHOLOGY; FAIL-PERF-MICRO-REACTION; FAIL-PERF-ACTION-VISUALIZATION` | `references/psychological-reaction-contract.md`, `references/stanislavski-method-reference.md`, `references/actor-performance-control-contract.md` | `N4/N5` | `GATE-PERF-06..08` | 心理字段抽样可见/可听/可演 |
+| `画面化 / 白描 / 比喻 / 隐喻 / 象征 / 概念化表演 / 抽象心理 / FAIL-PERF-PLAIN-VISUALIZATION` | `../_shared/anti-abstract-language-contract.md`, `references/actor-performance-control-contract.md`, `references/psychological-reaction-contract.md` | `N4/N5/N6` | `GATE-PERF-20-PLAIN-VISUALIZATION` | `plain_visualization_audit`、比喻/概念残留扫描、删除抽象词后的可演性抽样 |
 | `哭泣 / 愤怒 / 恐惧 / 生理残留 / FAIL-PERF-PHYSIOLOGY` | `references/physiological-realism-contract.md`, `references/actor-performance-control-contract.md` | `N5` | `GATE-PERF-10-PHYSIOLOGICAL-REALISM` | 生理 beat 抽样含过渡和残留 |
 | `群戏 / 多人反应 / 众人 / FAIL-PERF-ENSEMBLE` | `references/ensemble-performance-contract.md` | `N4/N5` | `GATE-PERF-11-ENSEMBLE-FOCUS` | 群戏焦点层级表 |
 | `角色弧线 / 跨集变化 / FAIL-PERF-ARC` | `references/character-arc-performance-contract.md` | `N3/N5` | `GATE-PERF-12-CHARACTER-ARC` | `character_arc_performance_map` |
@@ -274,7 +278,7 @@ flowchart LR
 | `C2-UNDERSTANDING-READY` | 题材、情节、批注意图、画面基调、角色风格和场景风格已形成可执行表演方向 | 只写概念标签或缺上游证据 | `performance_context_profile`、`aesthetic_context_map` | `N2-PERF-UNDERSTAND` |
 | `C3-ACTOR-PROFILE-READY` | 主要角色有当下目标、身体/声音基线、隐藏动机和弧线位置 | 角色意识缺失或风格无来源边界 | `actor_consciousness_profile` | `N3-ACTOR-CONSCIOUSNESS` |
 | `C4-POINTS-MAPPED` | 命中画面点、批注和融合计划覆盖率 100% | 漏点、批注未映射、受控增强无 ledger | `performance_point_inventory`、`fusion_plan` | `N4-POINT-FUSION-PLAN` |
-| `C5-REWRITE-PASS` | 批注残留 0、字段标题保留、关键 beat 可演、作者性完整性通过、review 阻断项 0 | 批注残留、字段漂移、保真失败、表演抽象、脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 | `review_verdict`、`annotation_removal_stats`、`authorship_integrity_audit` | `N5/N6` |
+| `C5-REWRITE-PASS` | 批注残留 0、字段标题保留、关键 beat 可演、白描式画面化通过、作者性完整性通过、review 阻断项 0 | 批注残留、字段漂移、保真失败、表演抽象、比喻/象征/概念标签替代画面材料、脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 | `review_verdict`、`annotation_removal_stats`、`plain_visualization_audit`、`authorship_integrity_audit` | `N5/N6` |
 
 ## Review Gate Binding
 
@@ -299,6 +303,7 @@ flowchart LR
 | 执行报告是否含 Reference Execution Matrix、Rule Evidence Map、N/A 和 Repair Log？ | `GATE-PERF-17-REPORT-EVIDENCE` | `FAIL-PERF-REPORT-EVIDENCE` | `N6/N7` | 执行报告 sections |
 | 终稿是否能让演员读后直接知道每个关键画面怎么演，观众能感知并共情？ | `GATE-PERF-18-ACTOR-READABILITY` | `FAIL-PERF-ACTOR-READABILITY` | `N3/N5` | 关键 beat 表演可执行抽样 |
 | 表演正文是否由 LLM 基于角色目标、场景压力、导演批注意图和上游锚点逐 beat 判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换或同义改写批量生成？ | `GATE-PERF-19-AUTHORSHIP-INTEGRITY` | `FAIL-PERF-SCRIPTED-PROJECTION` | `R1/R2` -> `N3-ACTOR-CONSCIOUSNESS` -> `N5-PERF-REWRITE` | `authorship_integrity_audit`、重复句式/锚点替换抽样、废弃候选记录 |
+| 画面化表演是否按白描式可拍材料落地，删除比喻、象征、概念标签或抽象解释后仍能看见、听见并演出这一 beat？ | `GATE-PERF-20-PLAIN-VISUALIZATION` | `FAIL-PERF-PLAIN-VISUALIZATION` | `N4/N5` | `plain_visualization_audit`、比喻/概念残留、白描投影样本、可演性抽样 |
 
 ## Attention Concentration Protocol
 
@@ -306,7 +311,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `ATTE-S20-01` | 注意力锚点声明 | 当前目标始终是“导演批注稿 -> 无批注残留的同字段表演稿”；非目标是摄影、图像、视频、prompt、剧作改编和表演理论散文 | `N1-PERF-INTAKE` |
 | `ATTE-S20-02` | 注意力转移规则 | source 锁定后转理解；理解完成后转角色意识；角色意识完成后转点位计划；计划完成后转融合正文；审查失败转对应返工节点 | `Thinking-Action Node Map` |
-| `ATTE-S20-03` | 漂移检测 | 出现导演批注残留、字段标题漂移、抽象情绪、风格名堆叠、摄影术语、prompt 术语、新剧情事实或说明书口吻时视为漂移 | `Review Gate Binding` |
+| `ATTE-S20-03` | 漂移检测 | 出现导演批注残留、字段标题漂移、抽象情绪、比喻/象征替代表演材料、风格名堆叠、摄影术语、prompt 术语、新剧情事实或说明书口吻时视为漂移 | `Review Gate Binding` |
 | `ATTE-S20-04` | 再集中机制 | 发现漂移时回到最近有效锚点，不继续扩写当前局部文本；最终报告说明漂移信号、再集中入口和收束依据 | `R1/R2` |
 
 | drift_type | re_center_entry |
@@ -350,8 +355,9 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-PERF-01..19` 阻断项为 0。
+- `GATE-PERF-01..20` 阻断项为 0。
 - `FAIL-PERF-SCRIPTED-PROJECTION` 必须为 0；若候选稿只是脚本化生成、批量插入、正则套句、映射投影、句式复用或锚点替换伪差异，不得通过局部润色修复，必须废弃候选稿并回到角色意识与逐 beat 改写节点。
+- `FAIL-PERF-PLAIN-VISUALIZATION` 必须为 0；若画面化靠比喻、象征、概念标签或抽象解释承托主信息，必须回到 N4/N5 重写为白描式身体、空间、光声、道具和时间材料。
 - 导演批注残留 0。
 - 字段标题漂移 0。
 - 剧情事实越权 0。
@@ -381,6 +387,7 @@ Completion gate:
 | --- | --- | --- | --- | --- |
 | 批注残留 | 融合改写未删除批注壳 | `candidate_performance_episode` | `N5-PERF-REWRITE` | 批注标记检索为 0 |
 | 表演抽象 | 角色意识或五层控制未进入正文 | `actor_consciousness_profile` / references | `N3` / `N5` | 关键 beat 有可见/可听/可演动作 |
+| 画面化失真为比喻或概念 | 共享反抽象合同未进入 N4/N5，或把白描误当文采化修辞 | `plain_visualization_plan` / `candidate_performance_episode` / `../_shared/anti-abstract-language-contract.md` | `N4` / `N5` | `plain_visualization_audit` 通过；删除比喻/概念词后仍可演、可看、可生成 |
 | 字段漂移 | 改写时新建或替换了字段标题 | `field_fusion_map` | `N4` / `N5` | 字段标题 diff 通过 |
 | 新增剧情 | 受控增强缺上游锚点 | `controlled_enrichment_ledger` | `N4` / `N5` | 保真 diff 通过 |
 | 报告缺证 | 输出报告未映射 reference 或 gate | `execution_report` | `N6` / `N7` | 报告含 required sections |
@@ -402,6 +409,7 @@ Completion gate:
 | `心理反应` / `表演提示` | 批注中的心理、关系、信息差或演员种子 | 改为身体、微表情、呼吸、生理、道具、空间或内心独白画面 | `psychological_externalization_map` |
 | `旁白画面` / `系统画面` / `音效画面` | 批注中的声音、信息揭示或主观感知 | 改为角色接收信息的可见反应、声音承托或沉默变化 | `sound_performance_map` |
 | `群像画面` / 多人字段 | 批注中的焦点分配和场面关系 | 改为前景行动者、前景反应者和背景承托的不同表演强度 | `ensemble_focus_map` |
+| 任意“画面化”字段 | 批注或原文中的抽象情绪、概念词、象征说明、明喻/隐喻 | 改为白描式主体、动作、空间、光声、道具、材质和时间关系；删除比喻/概念词后仍可看、可听、可演 | `plain_visualization_audit` |
 
 ## Evaluation Prompt Contract
 

@@ -4,7 +4,7 @@
 
 | action | default | condition |
 | --- | --- | --- |
-| Create LibTV project | allowed | project name resolved |
+| Create or select LibTV canvas under projectSpace | allowed | projectSpace/folder and canvas name resolved, or legacy fallback recorded |
 | Upload reference images | allowed | source paths are inside project design output or user-provided |
 | Backfill YAML UUIDs | allowed | only fenced YAML subject lines; no story body rewrite |
 | Delete video nodes | gated | user explicitly asks to delete/rebuild current video nodes |

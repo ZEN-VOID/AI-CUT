@@ -1,6 +1,6 @@
 # `libtv upload` — 本地上传为资源节点
 
-把本地文件上传到当前画布项目，并生成 **`image` / `video` / `audio`** 资源节点；之后可用 [`libtv node`](./node.md) 的 `--left/--right` 或管道把该资源节点连到下游。需已登录，见 [`libtv login`](./login.md)；项目范围与 [`libtv project use`](./project.md) 一致。
+把本地文件上传到当前具体画布，并生成 **`image` / `video` / `audio`** 资源节点；之后可用 [`libtv node`](./node.md) 的 `--left/--right` 或管道把该资源节点连到下游。需已登录，见 [`libtv login`](./login.md)；画布范围与 [`libtv project use`](./project.md) 一致。
 
 ## 子命令
 
@@ -17,7 +17,7 @@
 | 选项                                      | 必填       | 说明                                                                                                                                                                                       |
 | ----------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `-f, --file <path>` / `--resource <path>` | 二选一必填 | 本地文件绝对 / 相对路径；两 flag 含义相同。                                                                                                                                                |
-| `-p, --project <project>`                 | 否         | 目标项目 **UUID**；省略时读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。**勿与** [`libtv project list -p`](./project.md)（**页码**）混淆。 |
+| `-p, --project <project>`                 | 否         | 目标画布 **UUID**；省略时读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。**勿与** [`libtv project list -p`](./project.md)（**页码**）或列表输出的 `projectSpaceId` / `folderId` 混淆。 |
 | `-g, --group <group>`                     | 否         | 父级**普通分组**的节点 id 或展示名。新资源节点创建在该组内并写入其 `childNodeIds`。未传时若已 [`libtv group use`](./group.md) 绑定默认分组则自动套用。                                     |
 | `-t, --type <type>`                       | 否         | 枚举 `image` / `video` / `audio`；不写则按文件后缀猜测。                                                                                                                                   |
 | `--x <n>` / `--y <n>`                     | 否         | 节点坐标（像素）。无 `-g` / 默认分组时为画布绝对坐标；有分组时为**组内相对坐标**。                                                                                                         |
@@ -36,7 +36,7 @@
 # case 1: 上传图片到当前目录绑定的画布（-p 省略）
 libtv upload "参考图" -f ./refs/scene.png
 
-# case 2: 显式指定项目
+# case 2: 显式指定画布
 libtv upload "参考图" -p 11111111-2222-3333-4444-555555555555 --resource ./refs/scene.png
 
 # case 3: 挂到指定普通分组；--x/--y 自动按组内相对坐标

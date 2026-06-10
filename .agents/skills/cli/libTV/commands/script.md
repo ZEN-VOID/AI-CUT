@@ -1,6 +1,6 @@
 # `libtv script` — 脚本节点相关命令
 
-面向画布上 **`script`** 节点的**跨行批处理**类操作（目前仅「生成分镜图组」）。项目 / 分组范围与 [`libtv node`](./node.md) 一致：通过 **`-p`** / **`-g`** 或 [`libtv project use`](./project.md) / [`libtv group use`](./group.md) 的目录绑定。脚本节点的生成器参数 / 属性语义见 [../node-types/script.md](../node-types/script.md)；管道（NDJSON）、stdout/stderr 约定见 [../examples/pipes/README.md](../examples/pipes/README.md)。
+面向画布上 **`script`** 节点的**跨行批处理**类操作（目前仅「生成分镜图组」）。画布 / 分组范围与 [`libtv node`](./node.md) 一致：通过 **`-p`** / **`-g`** 或 [`libtv project use`](./project.md) / [`libtv group use`](./group.md) 的目录绑定；`-p` / `projectUuid` 指具体画布 UUID。脚本节点的生成器参数 / 属性语义见 [../node-types/script.md](../node-types/script.md)；管道（NDJSON）、stdout/stderr 约定见 [../examples/pipes/README.md](../examples/pipes/README.md)。
 
 > 创建 / 修改 / 连线脚本节点本身请用 [`libtv node`](./node.md) 并配合 `-t script`；对单个脚本节点触发文本生成也走 [`libtv node "<脚本>" --run`](./node.md)，**不**经本命令。
 
@@ -24,7 +24,7 @@
 
 | 选项                      | 可重复 | 说明                                                                                                                                                                                                                                                                     |
 | ------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `-p, --project <project>` | 否     | 画布项目 UUID；缺省读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。                                                                                                                                                       |
+| `-p, --project <project>` | 否     | 具体画布 UUID；缺省读当前目录 `.libtv/project.json` 的 `projectUuid`（需已 [`libtv project use`](./project.md)）。                                                                                                                                                       |
 | `-g, --group <group>`     | 否     | 父级**普通分组**（id 或展示名）：限定 `<node>` 的解析范围只在该组 `childNodeIds` 内；未传时若已 [`libtv group use`](./group.md) 则自动套用。新建的**分镜图组**与其子节点会按画布规则落在脚本节点**右侧**，与此父组的从属关系由画布决定。                                 |
 | `-s, --set <key=value>`   | 是     | **覆盖**本次分镜图用的 `imageGenConfig`（模型与生成参数）。规则与 [`libtv node create --set`](./node.md) 完全一致：首个 `=` 拆键值；值可为 `true` / `false` / 数字 / JSON；`settings` 与节点已有值做**浅合并**。未传 `model` 时按 supportModels `scriptImage` 默认首项。 |
 

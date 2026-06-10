@@ -22,4 +22,4 @@ libtv group 首集分镜 --run
 
 - `libtv group use -r` 中的 `-r` 读取上游 stdin 的 **`nodeKey`** 并写入 `.libtv/project.json` 的 `groupNodeKey`。
 - 绑定到分组后，后续 `libtv node`（未显式 `-g` / `-p`）默认限定在该分组内。
-- 清除分组绑定：`libtv group unuse`；清除项目绑定：`libtv project unuse`。
+- 清除分组绑定：`libtv group unuse`；清除当前目录的画布绑定：`libtv project unuse`。

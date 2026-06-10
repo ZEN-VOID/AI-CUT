@@ -35,7 +35,7 @@
 | `duration_signal=missing / legacy / mixed` | 若用户未指定 source override 或 direct screenplay，回到 source owner 补 canonical 时间段；若用户已要求直接接手剧本，切换 `direct_screenplay` 而不是阻断 | group duration band | 报告缺时间段来源或 direct screenplay 路径 |
 | `style_payload=long_visual_tone` | 不影响组内时长或计入场景标题行/正文后的 1680 字风险口径；`全局风格：` 单行内容应从 `画面基调.Global Style Prompt` 抽取当前组匹配部分并压到 300 字以内；不得输出 `Visual Slogan`、`Design Principle`、`Visual Gene Profile` 或 `Negative Traits` 独立行 | visual tone projection | 禁止完整照抄全局风格母稿到每个组；禁止凭空新增当前组无证据风格 |
 | `style_payload=missing_global_style_prompt` | 阻塞或请求用户修复 | missing field handling | 不得猜测补字段 |
-| `continuity_risk=high` | 每组边界优先选择能被下一组第一个普通 `分镜N（0-N秒）：` 或 `[0-N秒]` 行以回龙帧口径完整代入、且只需调整景别和镜头视角即可进入本组的原尾帧/原首帧；若锚点来自对白、独白、旁白或音效画面，同步保留对应声音内容 | `SKILL.md#Thinking-Action Node Map` | first storyboard continuity review |
+| `continuity_risk=high` | 每组边界优先选择能被下一组第一个普通 `分镜N（0-N秒）：` 或 `[0-N秒]` 行以回龙帧口径复现尾帧状态锚点、且只需调整景别和镜头视角即可进入本组的原尾帧/原首帧；尾帧状态锚点必须能提供可见主体、动作余势、关键道具/介质、光声残留和空间关系；若锚点来自对白、独白、旁白或音效画面，同步保留对应声音内容 | `SKILL.md#Thinking-Action Node Map` | first storyboard continuity review |
 | `repair_need=stats_fix` | 保留正文，仅修 YAML | statistics contract | YAML 与正文一致性 |
 
 ## Source Detection Hints

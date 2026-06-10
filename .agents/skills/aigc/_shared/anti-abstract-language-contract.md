@@ -18,6 +18,21 @@
 
 若答案仍是“观众会理解什么”“氛围是什么”“主题是什么”“关系发生了什么”，则尚未完成反抽象。
 
+## Plain-Description Visualization Rule
+
+本仓库 AIGC 视频链路中出现的“画面化”“可视化”“可拍”“可生成”，默认指文学白描式的画面落地：用朴素、直接、客观、可被摄影机或生成器接收的材料写出主体、动作、状态、空间、道具、声音、光线、材质、起点、路径、终点和时间关系。
+
+白描式画面化不是“写得更有文采”，也不是把抽象词换成更漂亮的比喻。它要求正文删掉解释性结论、概念命名、象征性判断、明喻/隐喻和情绪口号，把意思压回观众能看到、听到、感到、演员能执行、AIGC 视频模型能稳定生成的物理事实。
+
+默认禁止把下列表达作为 canonical 画面正文的主要承托：
+
+- 明喻/隐喻：`像刀一样`、`仿佛被命运压住`、`灵魂被照亮`。
+- 概念标签：`高级感`、`宿命感`、`权力压迫`、`关系破裂`。
+- 抽象情绪：`愤怒`、`崩溃`、`复杂`、`压抑` 独立成句。
+- 主题解释：`这象征他的命运转折`、`观众会理解她的孤独`。
+
+允许保留的，是已经转译后的白描材料：`顶灯只照到鞋尖，门缝的窄光停在膝盖前；他说完后没有抬头，拇指在杯沿停住两秒，杯底贴着桌面发出短响。`
+
 ## Preset Rules
 
 | rule_id | rule | fail signal | required projection |
@@ -32,6 +47,8 @@
 | `AAL-R08` | 风格、主题、类型和 north star 可以作为内部裁决来源，但落盘必须转译成当前对象的具体材料 | 直接粘贴全局风格口号 | 当前场景/角色/道具自己的光色、材质、结构、镜头和负向约束 |
 | `AAL-R09` | 不得用具象化新增上游没有的剧情事实、对白、人物动机、规则、道具或场景 | 为了具象而补新事件 | 只使用上游事实、项目记忆和已授权推断；新增必须标注来源或退回上游 |
 | `AAL-R10` | 脚本只能检查抽象残留、示例覆盖和字段完整性，不得自动主创替换句 | 正则把抽象词批量替换成模板句 | LLM 按当前上下文完成具象投影，脚本只做审计辅助 |
+| `AAL-R11` | “画面化”默认采用白描式直写，不用比喻、象征或概念解释承担主要信息 | `像/仿佛/如同/似乎` 承担画面主信息，或只写“命运感/压迫感/高级感” | 主体 + 可见动作/状态 + 空间/道具/光声承托 + 时间关系 |
+| `AAL-R12` | 如果必须保留风格或情绪词，必须先有白描材料兜底；删除该词后画面仍应清楚 | 删除抽象词后句子失去可拍内容 | 把抽象词降级为报告或内部证据，正文保留可拍材料 |
 
 ## Projection Ladder
 
@@ -79,6 +96,8 @@
 | `高级感镜头` | 低机位贴近冷玻璃桌沿，白色顶光在划痕上断成三截，焦点从纸角移到手背青筋 | `8-摄影` / `9-光影` | 镜头技术服务信息和观看变化，不只堆摄影名词 | `GATE-AAL-03` |
 | `流动型连接` | 上一组结尾的雨线贴着镜头滑下，下一组首帧的门缝白光从同一竖线位置亮起 | `10-分组` | 连接方法必须写变化过程，不只写分类名 | `GATE-AAL-04` |
 | `神秘古物` | 暗青铜圆牌边缘有两圈不均匀刻痕，孔洞内残留黑色蜡渍，45 度全貌能看出一侧被长期手握磨亮 | `11-主体` | 研究/物语必须转为形制、材料、工艺和使用痕迹 | `GATE-AAL-05` |
+| `像被命运压住` | 肩线向下塌住，脚尖停在门槛内侧没有迈出；门外的光只落到鞋面前半寸 | `4-导演` / `5-表演` / `7-分镜` | 删除比喻后仍能看见身体、空间和光线压力 | `GATE-AAL-07` |
+| `诗意氛围` | 窗纸上的水痕缓慢下滑，落到木框底边时停住；房间里只剩水滴间隔变长的声音 | `6-氛围` / `9-光影` | 不用“诗意”作结果词，写可见/可听的时间变化 | `GATE-AAL-07` |
 
 ## Learned Example Bank
 
@@ -91,9 +110,10 @@
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 输出是否仍用抽象情绪、审美、主题、关系或心理结论替代可见、可听、可演、可拍、可生成材料？ | `GATE-AAL-01` | `FAIL-ANTI-ABSTRACT-LANGUAGE` | 当前命中阶段 `SKILL.md` 的反抽象返工目标；旧 `2-编导` 路径仅作迁移参照 | `anti_abstract_language_evidence`、抽象残留清单、具象投影和目标字段 |
+| 输出是否仍用抽象情绪、审美、主题、关系、心理结论、明喻或隐喻替代可见、可听、可演、可拍、可生成材料？ | `GATE-AAL-01` | `FAIL-ANTI-ABSTRACT-LANGUAGE` | 当前命中阶段 `SKILL.md` 的反抽象返工目标；旧 `2-编导` 路径仅作迁移参照 | `anti_abstract_language_evidence`、抽象/比喻残留清单、具象投影和目标字段 |
 | 运动或动作描述是否缺少主体、起点、路径、终点、参照系或最终状态，仍停留在气势/方向/感觉？ | `GATE-AAL-02` | `FAIL-ANTI-ABSTRACT-MOTION` | `7-分镜` 动作连续性返工目标；`8-摄影` 镜头承接返工目标 | `anti_abstract_storyboard_projection`、`motion_state_ledger`、`reference_frame_basis` |
 | 摄影语言是否只写效果词、技法名或导演阐释，没有镜头起点、运镜路径、焦点、光线结果和观看变化？ | `GATE-AAL-03` | `FAIL-ANTI-ABSTRACT-CINEMATOGRAPHY` | `8-摄影` 摄影注入返工目标；`9-光影` 光影结果返工目标 | `anti_abstract_cinematography_check`、`shot_design_plan`、`paraphrase_subtraction_check` |
 | 分组入场、出场、连接件或画面属性是否使用静态概括、连接分类或风格口号，没有首尾帧、主体运动、空间和变化过程？ | `GATE-AAL-04` / `PASS-GROUP-02A` / `PASS-GROUP-02B` / `PASS-GROUP-04` | `FAIL-ANTI-ABSTRACT-GROUPING` / `FAIL-GROUP-07` / `FAIL-GROUP-10` / `FAIL-GROUP-11` / `FAIL-GROUP-12` | `10-分组/references/group-entry-shot-contract.md`、`group-exit-shot-contract.md`、`bridge-shot-contract.md` | `anti_abstract_grouping_check`、`entry_source_profile`、`group_exit_picture_tail_hook`、`inter_group_connector` |
 | 设计稿、解构或 prompt 是否停留在风格标签、百科摘抄、身份口号或抽象美学，没有转成形制、材料、工艺、姿态、光线、构图和 prompt evidence token？ | `GATE-AAL-05` / `GATE-SCENE-DESIGN-03` / `GATE-CHAR-DESIGN-06` / `GATE-PROP-DESIGN-09` | `FAIL-ANTI-ABSTRACT-DESIGN` / `FAIL-SCENE-DESIGN-03` / `FAIL-RESEARCH-FLAT` / `FAIL-PROP-DESIGN-08` | 命中域级 `11-主体/*/2-设计` 的 research/design/review 节点 | `anti_abstract_design_projection`、`research_brief`、`visual_translation`、`prompt_evidence_chain` |
 | 新增或晋升抽象/具象示例时，是否有跨阶段或跨项目证据、边界检查和 review 通过记录，而不是把项目一次性好句子写成共享模板？ | `GATE-AAL-06` | `FAIL-ANTI-ABSTRACT-LEARNING` | 本文件 `Learning And Growth Protocol`；命中技能同目录 `CONTEXT.md` | 示例来源、复用范围、通过的 review gate、未晋升原因或晋升记录 |
+| 画面化、可视化、可拍或 AIGC 可实现表述是否采用白描式直写，而不是靠比喻、象征、概念标签或抽象解释承载主要信息？ | `GATE-AAL-07` | `FAIL-ANTI-ABSTRACT-PLAIN-VISUALIZATION` | 当前命中阶段的画面化/可视化/可拍返工节点 | `plain_visualization_audit`、比喻/概念残留、白描投影样本、AIGC 可执行性检查 |

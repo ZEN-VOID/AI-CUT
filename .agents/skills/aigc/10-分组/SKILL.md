@@ -12,7 +12,7 @@ metadata:
 
 本技能不改写剧情事实、对白、场景顺序、分镜编号含义或上游摄影/光影内容。核心裁决是组边界、组级 `全局风格：`、首帧衔接/回龙帧内化、组底 YAML 统计和唯一 canonical 落盘。
 
-术语：`回龙帧` 是组间连续性的内部执行口径。第二组起，当前组第一个普通 `分镜N（0-N秒）：` 或 `[0-N秒]` 时间码分镜行必须完整代入上一组结尾状态画面点内容，再通过景别、机位、镜头角度、焦距、观看距离或焦点路径调整进入本组开始画面。若被回龙的画面点承托对白、独白、旁白或音效，首行必须同步带入对应声音内容。输出正文不得出现 `回龙帧：`、来源说明、规则说明、`增补首帧：` 或独立 `## A~B` 连接件。
+术语：`回龙帧` 是组间连续性的内部执行口径。第二组起，当前组第一个普通 `分镜N（0-N秒）：` 或 `[0-N秒]` 时间码分镜行必须先复现上一组最后分镜的 `尾帧状态锚点`，再通过景别、机位、镜头角度、焦距、观看距离或焦点路径调整进入本组开始画面。`尾帧状态锚点` 至少包含：上一组尾帧可见主体、主体动作/姿态/运动余势、关键道具/介质/环境残留、光线/烟雾/水汽/碎片/声音余波等持续状态、已成立的保护线/战斗线/空间方位关系。若被回龙的画面点承托对白、独白、旁白或音效，首行必须同步带入对应声音内容。不得只承接情绪或空间大方向，不得直接开启新攻击、新场面或新主体动作而不复现尾帧状态锚点，不得原样复制上一组完整分镜行。若删掉下一组首行后，读者无法从画面中明确看到上一组最后分镜的主体、动作余势、关键介质/道具和光声残留，则判定 `FAIL-GROUP-12`。输出正文不得出现 `回龙帧：`、来源说明、规则说明、`增补首帧：` 或独立 `## A~B` 连接件。
 
 ## Context Loading Contract
 
@@ -117,7 +117,7 @@ Reject or clarify when:
 | `shot_line_inventory` | `分镜N（起始秒-结束秒）：` 或兼容 `[起始秒-结束秒]` 行 | atomic unit、时长累计、落盘时间码改写 | `N2-SOURCE-INVENTORY` / `N3-GROUP-BOUNDARY` | `GATE-GROUP-06` / `GATE-GROUP-08` |
 | `group_boundary_plan` | source 分镜行、声画承托、场景边界 | `## x-y-z` 分镜组边界 | `N3-GROUP-BOUNDARY` | `GATE-GROUP-05` / `GATE-GROUP-06` |
 | `global_style_projection_map` | `3-美学/画面基调/全局风格协议.md` 的 `Global Style Prompt`，以及必要的 `north_star.yaml` 项目禁区/不变量 | 每组 `全局风格：` 单行整理句 | `N4-GLOBAL-STYLE` | `GATE-GROUP-02` |
-| `first_line_continuity_map` | 当前组首分镜、上一组尾分镜 | 每组第一个普通时间码分镜行 | `N6-FIRST-LINE-CONTINUITY` | `GATE-GROUP-14` |
+| `first_line_continuity_map` | 当前组首分镜、上一组尾分镜及尾帧状态锚点 | 每组第一个普通时间码分镜行 | `N6-FIRST-LINE-CONTINUITY` | `GATE-GROUP-14` |
 | `stats_yaml` | 分组正文、角色/场景/道具证据 | 组底 YAML `字数统计`、`时长估算`、`角色`、`场景`、`道具` | `N7-ASSEMBLE-STATS` | `GATE-GROUP-11` |
 | `execution_report` | N1-N8 决策证据 | `执行报告.md` | `N9-WRITEBACK-CLOSE` | `GATE-GROUP-REPORT` |
 
@@ -129,7 +129,7 @@ Reject or clarify when:
 | `N2-SOURCE-INVENTORY` | 建立场景、分镜行和保真锚点 | source、types | 扫描场景标题、`分镜N（N-N秒）：` 行、兼容 `[N-N秒]` 行、对白/音效承托、现有摄影/光影信息 | `scene_map`, `shot_line_inventory`, `source_anchor_map`, `skipped_light_checks` | `N3` / `R1` | 默认光影路径漏分镜行 0；override 路径必须记录不适用检查 |
 | `N3-GROUP-BOUNDARY` | 裁决约 14.5 秒分镜组边界 | N2 清单、boundary reference | 按完整 shot line / 声画 atomic unit 累计时长；通常 10-14.5 秒；不得超过 14.5 秒；每组最终累计结束秒必须以 `.5` 结尾，若自然相加不是 `.5` 结尾则在组尾上调 0.5 秒；跨场景重置组序 | `group_boundary_plan`, `duration_table`, `scene_group_index` | `N4` / `R1` | 不拆 atomic unit；超 14.5 秒必须重裁或回退 source owner |
 | `N4-GLOBAL-STYLE` | 写每组 `全局风格：` | `3-美学/画面基调/全局风格协议.md`、north_star 项目禁区、当前组证据 | 按 `north-star-projection-contract.md` 的当前画面基调投影口径写单行风格：固定前置词 + 300 字以内当前组 `Global Style Prompt` 整理句 | `global_style_projection_map` | `N6` / `R1` | 每组均有单行内容；不能完整照抄母稿 |
-| `N6-FIRST-LINE-CONTINUITY` | 内化首帧衔接 / 回龙帧 | 当前组首分镜、上一组尾分镜 | 首组自然整理开始画面；第二组起把上一组尾帧状态画面点和必要声音承托写入首个普通时间码行 | `first_line_continuity_map`, `sound_support_map` | `N7` / `R1` | 不输出特殊字段、规则说明、连接件；不新增剧情或改对白 |
+| `N6-FIRST-LINE-CONTINUITY` | 内化首帧衔接 / 回龙帧 | 当前组首分镜、上一组尾分镜 | 首组自然整理开始画面；第二组起先提取上一组尾帧状态锚点的五类元素，再把主体、动作余势、关键道具/介质、光声残留、空间关系和必要声音承托写入首个普通时间码行 | `first_line_continuity_map`, `tail_state_anchor_map`, `sound_support_map` | `N7` / `R1` | 首行必须能看见上一组尾帧状态锚点；不输出特殊字段、规则说明、连接件；不新增剧情或改对白 |
 | `N7-ASSEMBLE-STATS` | 组装正文和 YAML | N3-N6 输出 | 写 `## x-y-z`、场景标题、风格、分镜正文、YAML；统计角色/场景/道具并做同物合并 | `candidate_groups`, `stats_yaml`, `source_preservation_diff` | `N8` / `R1` | 输出结构唯一；正文保真；YAML 字段完整 |
 | `N8-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates、validator | 执行 gate；可运行 validator；阻断项回到 N2-N7 或 R2，最多 3 轮 | `review_verdict`, `repair_log`, `reference_execution_matrix`, `rule_evidence_map` | `N9` / `R1` | review 未通过不得写回 canonical |
 | `N9-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate | 写入 `10-分组/第N集.md` 与 `执行报告.md`；报告记录 source、matrix、rule map、N/A、repair、残余风险 | `output_manifest`, `execution_report` | done | 正式写回不得缺执行报告 |
@@ -144,7 +144,7 @@ Reject or clarify when:
 | `P1-source` | 输入是否唯一、默认光影稿或 override 是否成立 | `N1-INTAKE` / `N2-SOURCE-INVENTORY` | `source_manifest`, `shot_line_inventory`, `skipped_light_checks` | `R1-ROOT-CAUSE` |
 | `P2-boundary` | 分组边界是否以完整分镜行和约 14.5 秒为主，且最终累计结束秒以 `.5` 结尾 | `N3-GROUP-BOUNDARY` | `group_boundary_plan`, `duration_table`, `atomic_unit_table` | `N3` / `R1` |
 | `P3-style` | `全局风格：` 是否取证且位置正确 | `N4-GLOBAL-STYLE` | `global_style_projection_map` | `N4` |
-| `P4-continuity` | 首帧衔接/回龙帧是否内化到普通首行并同步声音承托 | `N6-FIRST-LINE-CONTINUITY` | `first_line_continuity_map`, `sound_support_map` | `N6` / `R1` |
+| `P4-continuity` | 首帧衔接/回龙帧是否内化到普通首行，是否复现尾帧状态锚点并同步声音承托 | `N6-FIRST-LINE-CONTINUITY` | `first_line_continuity_map`, `tail_state_anchor_map`, `sound_support_map` | `N6` / `R1` |
 | `P5-assembly` | 正文、YAML、时间码、旧字段和保真是否可交付 | `N7-ASSEMBLE-STATS` / `N8-REVIEW-REPAIR` | `stats_yaml`, `legacy_field_scan`, `source_preservation_diff`, `review_verdict` | `N7` / `R2` |
 | `P6-report` | 执行报告证据是否满足审计合同 | `N9-WRITEBACK-CLOSE` | `Reference Execution Matrix`, `Rule Evidence Map`, `N/A Justification`, `Repair Log` | `N8` |
 
@@ -221,7 +221,7 @@ flowchart TD
 | 是否没有拆断同一分镜行、对白/画面承托或连续动作单元？ | `GATE-GROUP-08` | `FAIL-GROUP-06` | `N3-GROUP-BOUNDARY` | `atomic_unit_table` |
 | 是否没有旧连接件或旧字段？ | `GATE-GROUP-09` | `FAIL-GROUP-07` / `FAIL-GROUP-11` | `N7-ASSEMBLE-STATS` | `legacy_field_scan` |
 | source 正文是否未被无授权改写？ | `GATE-GROUP-13` | `FAIL-GROUP-09` | `N7-ASSEMBLE-STATS` | `source_preservation_diff` |
-| 首帧衔接/回龙帧是否内化到普通首行且同步声音承托？ | `GATE-GROUP-14` / `GATE-GROUP-15` | `FAIL-GROUP-12` | `N6-FIRST-LINE-CONTINUITY` | `first_line_continuity_map`, `sound_support_map` |
+| 首帧衔接/回龙帧是否内化到普通首行，且第二组起首行能明确复现上一组尾帧状态锚点的主体、动作余势、关键道具/介质、光声残留和空间关系，并同步声音承托？ | `GATE-GROUP-14` / `GATE-GROUP-15` | `FAIL-GROUP-12` | `N6-FIRST-LINE-CONTINUITY` | `first_line_continuity_map`, `tail_state_anchor_map`, `sound_support_map` |
 | direct screenplay 或无时长 source 是否声明时间码由本阶段规划？ | `GATE-GROUP-DIRECT-SCREENPLAY` | `FAIL-GROUP-DIRECT-SCREENPLAY` | `N1` / `N3` | `timecode_source_note`, `source_state` |
 | 报告是否包含 Reference Execution Matrix、Rule Evidence Map、N/A、Repair Log？ | `GATE-GROUP-REPORT` | `FAIL-GROUP-REPORT-EVIDENCE` | `N8-REVIEW-REPAIR` | `execution_report_sections` |
 | 分组边界、首帧衔接、组级风格和 YAML 语义统计是否由 LLM 基于 source atomic unit、north_star、组内声画连续和下游生产目标裁决，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写或固定分组模板批量生成？ | `GATE-GROUP-AUTHORSHIP` | `FAIL-GROUP-SCRIPTED-PROJECTION` | `R1-ROOT-CAUSE` -> `N3-GROUP-BOUNDARY` -> `N6-FIRST-LINE-CONTINUITY` | `authorship_integrity_audit`, `boundary_reason`, `discarded_candidate_log` |
@@ -235,7 +235,7 @@ flowchart TD
 | `source_layer` | 默认光影稿缺失、场景标题缺失、分镜行时长缺失、source override 未声明 | `source -> source_state -> skipped checks -> owner` | `N1-INTAKE` / source owner | source 不唯一或默认 source 缺 canonical 时间段且无 override 时停止 |
 | `boundary_layer` | 拆断 atomic unit、跨场景混组、单组超过 14.5 秒、最终累计结束秒未以 `.5` 结尾 | `shot_line_inventory -> group_boundary_plan -> duration_table` | `N3-GROUP-BOUNDARY` | 同一 atomic unit 自身超过 14.5 秒时回退 source owner |
 | `style_layer` | `全局风格：` 缺失、位置错误或证据不明 | `north_star/source evidence -> style map -> output position` | `N4-GLOBAL-STYLE` | 缺 north_star 或等价风格文本时停止 |
-| `continuity_layer` | 首帧衔接缺失、回龙帧写成字段、声音承托断裂 | `previous tail -> first line -> sound support` | `N6-FIRST-LINE-CONTINUITY` | 无上一组时只允许首组自然开始，不补伪回龙 |
+| `continuity_layer` | 首帧衔接缺失、尾帧状态锚点未复现、回龙帧写成字段、声音承托断裂 | `previous tail -> tail_state_anchor -> first line -> sound support` | `N6-FIRST-LINE-CONTINUITY` | 无上一组时只允许首组自然开始，不补伪回龙 |
 | `assembly_layer` | YAML 缺字段、旧字段残留、正文被改写、时间码不连续 | `candidate -> validator/review -> sync_patch` | `N7-ASSEMBLE-STATS` / `R2-SYNC-REPAIR` | 修复只动失败组和失败字段 |
 | `report_layer` | 执行报告缺 Reference Matrix、Rule Map、N/A 或 Repair Log | `review evidence -> report sections -> output manifest` | `N8-REVIEW-REPAIR` / `N9-WRITEBACK-CLOSE` | 证据缺失不得判定正式 pass |
 
@@ -255,7 +255,7 @@ flowchart TD
 - Output format: Markdown 分镜组稿与 Markdown 执行报告。
 - Output path: `projects/aigc/<项目名>/10-分组/`。
 - Naming convention: 逐集分组稿为 `第N集.md`；分镜组 ID 为 `x-y-z`。
-- Completion gate: 输入、边界、`全局风格`、首帧衔接/回龙帧、YAML、source 保真、机械校验和执行报告证据均通过；旧字段 `增补首帧：`、`入场镜头：`、`出场画面：`、`画面属性：`、`画面构图：`、六类位置细节字段、`回龙帧：` 和 `## A~B` 连接件块不得出现在新产物中。
+- Completion gate: 输入、边界、`全局风格`、首帧衔接/回龙帧、YAML、source 保真、机械校验和执行报告证据均通过；第二组起首个普通时间码行必须复现上一组尾帧状态锚点的主体、动作余势、关键道具/介质、光声残留和空间关系；旧字段 `增补首帧：`、`入场镜头：`、`出场画面：`、`画面属性：`、`画面构图：`、六类位置细节字段、`回龙帧：` 和 `## A~B` 连接件块不得出现在新产物中。
 - `FAIL-GROUP-SCRIPTED-PROJECTION` 必须为 0；若候选稿由固定模板、锚点替换或句式轮换生成边界、首帧衔接、风格或 YAML 语义结论，候选稿不得表层润色通过，必须废弃并回到边界和组装节点由 LLM 重做。
 
 ## Execution Report Evidence Contract
@@ -264,7 +264,7 @@ flowchart TD
 
 - `Execution Decision Trace`：关键判断、适用规则、输入证据、取舍理由和输出落点。
 - `Reference Execution Matrix`：逐条记录授权模块的 `reference`、`load_status`、`trigger_reason`、`applied_to`、`evidence_in_output`、`verdict`、`n/a_reason`。
-- `Rule Evidence Map`：把 source、边界、`全局风格：`、回龙帧、YAML、保真、下游 handoff 等规则映射到输出位置或报告证据。
+- `Rule Evidence Map`：把 source、边界、`全局风格：`、回龙帧/尾帧状态锚点、YAML、保真、下游 handoff 等规则映射到输出位置或报告证据。
 - `N/A Justification`：source override、缺光影稿、无显式时长、无需某模块等不适用理由。
 - `Repair Log`：失败码、返工目标、修复结果和残余风险。
 

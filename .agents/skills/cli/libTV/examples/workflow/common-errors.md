@@ -28,6 +28,6 @@ libtv login web --open                                   # ✅ 重新登录
 
 # case 6: 未绑定项目又没给 -p
 libtv node list                                          # ❌ PROJECT_NOT_BOUND
-libtv project use <项目UUID>                             # ✅ 绑定后再跑
-libtv -p <项目UUID> node list                           # ✅ 或临时覆盖
+libtv project use <画布UUID>                             # ✅ 绑定后再跑
+libtv -p <画布UUID> node list                           # ✅ 或临时覆盖
 ```

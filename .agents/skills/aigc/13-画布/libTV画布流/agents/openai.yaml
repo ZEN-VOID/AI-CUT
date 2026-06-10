@@ -1,4 +1,4 @@
 interface:
   display_name: "AIGC LibTV 画布流"
-  short_description: "创建 LibTV 画布项目、上传主体参照、回刷分组稿 YAML，并按图片N顺序创建和连线视频节点。"
-  default_prompt: "使用 $aigc-video-libtv-canvas-flow 根据 projects/aigc/<项目名>/10-分组/第N集.md 创建 LibTV 画布项目，上传 11-主体 下的角色/场景/道具参照图，回刷 YAML 为 图片N 主体名 UUID；提交 prompt 时主体行使用 图片N 主体名 {{Image N}} UUID，并只创建/连线视频节点，不执行生成。"
+  short_description: "在 LibTV 项目空间下创建或选择画布、上传主体参照、回刷分组稿 YAML，并按图片N顺序创建和连线视频节点。"
+  default_prompt: "使用 $aigc-video-libtv-canvas-flow 根据 projects/aigc/<项目名>/10-分组/第N集.md 在 LibTV 项目空间下创建或选择第N集画布，上传 11-主体 下的角色/场景/道具参照图，回刷 YAML 为 图片N 主体名 UUID；提交 prompt 时主体行使用 图片N 主体名 {{Image N}} UUID，并只创建/连线视频节点，不执行生成。"

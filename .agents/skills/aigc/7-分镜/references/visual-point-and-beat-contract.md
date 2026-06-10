@@ -6,6 +6,8 @@
 
 从 `6-氛围/第N集.md` 或用户指定文稿中找出所有需要内联分镜处理的画面点。每个画面点保持原字段归属，分镜列表只追加在该字段下方。
 
+本文件中的“画面化/可视化”默认按白描式可拍材料处理：画面点必须落到主体、起始状态、空间层次、动作相位、视线、声音、光线、道具、文字或时间变化；不得用明喻、隐喻、象征或概念标签替代可执行画面。
+
 节拍在本阶段等价于“分镜切换触发点”：单个画面点内，任何会让观众观看策略、注意力对象、动作相位、信息可读性、情绪压力、空间关系或声画打点发生变化的瞬间，都可以触发一条新的 `分镜N（N-N秒）`。其中时码 `N-N秒` 由时值合同投影到 0.5 秒网格，不要求整数秒。
 
 ## Beat Calculation Protocol
@@ -47,7 +49,7 @@
 
 ## Psychological And Audio-Visual Overlay
 
-- `心理反应/思考反应/认知变化` 不得默认排除，必须先转译为眼神、呼吸、咬肌、肩颈、手指、站姿、身体距离、视线回避、停顿、注意力停滞或与环境/道具的可见关系。
+- `心理反应/思考反应/认知变化` 不得默认排除，必须先白描式转译为眼神、呼吸、咬肌、肩颈、手指、站姿、身体距离、视线回避、停顿、注意力停滞或与环境/道具的可见关系；删除“像/仿佛/宿命感/压迫感”等词后仍应可分镜。
 - `音效画面` 和 `旁白画面` 不能只写声音本体；必须判断声音对应的可见主体、反应落点、空间变化、系统文字或环境承托。
 - `系统画面` 必须判断文字/图标/屏幕/规则显影的可读时值和反应镜头。
 
@@ -107,7 +109,7 @@
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
 | 所有画面点是否被识别并保留归属？ | `GATE-SB-02` | `FAIL-SB-VISUAL-POINT` | `N3-VISUAL-POINTS` | `visual_point_inventory` |
-| 心理/思考/认知字段是否被画面化，没有停留在抽象结论？ | `GATE-SB-02` | `FAIL-SB-VISUAL-POINT` | `N3/N5` | psychological visualization samples |
+| 心理/思考/认知字段是否被白描式画面化，没有停留在抽象结论、比喻、象征或概念标签？ | `GATE-SB-02` | `FAIL-SB-VISUAL-POINT` / `FAIL-SB-PLAIN-VISUALIZATION` | `N3/N5` | psychological visualization samples、`plain_visualization_audit` |
 | 每条分镜是否来自有效画面节拍，且分镜数匹配有效画面节拍数即正文 `beat=N`、`shot_count_decision` 和实际分镜条数？ | `GATE-SB-04` | `FAIL-SB-BEAT` | `N4-BEAT-SPLIT` | `beat_map`、`beat_quant_line`、`shot_count_decision` |
 | 分镜数量是否避免固定模板化？ | `GATE-SB-04` | `FAIL-SB-SHOT-COUNT` | `N4-BEAT-SPLIT` | count distribution and repairs |
 | `beat=N` 是否由候选触发点聚类后的独立观看状态变化数量得到，而不是字段类型、动作复杂度标签、经验数量范围、BT 标签数量或脚本规则得到？ | `GATE-SB-23` | `FAIL-SB-BEAT-CALCULATION-DRIFT` | `N4-BEAT-SPLIT` | `candidate_trigger_set`、`state_change_cluster_map`、`merged_trigger_log`、`rejected_trigger_log`、`beat_count_formula` |

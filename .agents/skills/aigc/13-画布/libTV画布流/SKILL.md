@@ -1,6 +1,6 @@
 ---
 name: aigc-video-libtv-canvas-flow
-description: "Use when creating LibTV canvas projects, uploading AIGC references, backfilling YAML UUIDs, and wiring video nodes."
+description: "Use when creating/selecting LibTV canvases under project spaces, uploading AIGC refs, backfilling YAML UUIDs, and wiring video nodes."
 governance_tier: full
 metadata:
   short-description: Standard LibTV canvas flow
@@ -8,7 +8,16 @@ metadata:
 
 # libTV 画布流
 
-`libTV画布流` 是 AIGC `13-画布` 阶段的标准画布执行技能包。它消费 `10-分组` 分镜组稿和 `11-主体` 生成的角色、场景、道具参照图，通过官方 `.agents/skills/cli/libTV` 创建画布项目、上传图片、回刷 YAML、创建视频节点并按 `图片N` 顺序稳定连线。
+`libTV画布流` 是 AIGC `13-画布` 阶段的标准画布执行技能包。它消费 `10-分组` 分镜组稿和 `11-主体` 生成的角色、场景、道具参照图，通过官方 `.agents/skills/cli/libTV` 在目标 LibTV 项目空间下创建或选择具体画布、上传图片、回刷 YAML、创建视频节点并按 `图片N` 顺序稳定连线。
+
+新版 LibTV 分层口径：
+
+- AIGC 本地项目根：`projects/aigc/<项目名>/`。
+- LibTV 项目空间：产品层项目容器，CLI 列表中通常由 `projectSpaceId` / `folderId` 表达，可包含多个画布。
+- LibTV 画布：视频节点、图片节点、分组和连线所在的具体远端画布；CLI 1.0.1 仍用 `projectUuid` / `uuid` / `-p --project` 表达它。
+- 稳定默认映射：`local_project_root=projects/aigc/<项目名>` 对应 `project_space_name=<项目名>`；`local_episode=第N集` 对应 `canvas_name=第N集`。
+- `local_episode_scope=projects/aigc/<项目名>/第N集` 是跨系统语义范围，不要求作为本地物理目录存在；输入真源仍通常是 `10-分组/第N集.md`，执行证据仍写入 `13-画布/libTV画布流/第N集/`。
+- 本技能所有上传、节点、分组和 final query 操作必须使用具体画布 `projectUuid`；不得把 `projectSpaceId` / `folderId` 传给 `-p/--project`。
 
 本技能只控制画布、节点和证据，不主创或改写分镜组正文。核心创作内容仍以 `10-分组/第N集.md` 为真源。
 
@@ -22,7 +31,7 @@ metadata:
 
 ## Multi-Subskill Continuous Workflow
 
-当本技能被整体调用时，视为用户已授权按本级声明路线自动完成项目命名、上传、YAML 回刷、视频节点创建、连线和证据落盘；在满足必要输入、显式选择和安全门后，不再为每个子步骤额外确认。
+当本技能被整体调用时，视为用户已授权按本级声明路线自动完成项目空间 / 画布命名、上传、YAML 回刷、视频节点创建、连线和证据落盘；在满足必要输入、显式选择和安全门后，不再为每个子步骤额外确认。
 
 - 数字序号步骤默认按 `N1 -> N2 -> N3...` 串行执行，前一步产物自动作为后一步输入。
 - 无序号同级辅助模块默认可并行读取，由本技能汇总唯一证据。
@@ -35,7 +44,7 @@ metadata:
 
 ### Permission Boundaries
 
-- 可执行：创建 LibTV 项目、上传参考图、创建/删除视频节点、更新节点参数、连线、查询节点、写本地证据。
+- 可执行：创建或选择 LibTV 项目空间下的具体画布、上传参考图、创建/删除视频节点、更新节点参数、连线、查询节点、写本地证据。
 - 默认不可执行：`--run` 生成视频、下载视频、删除图片参照节点、覆盖上游分镜组正文。
 - 删除已有视频节点必须由用户明确要求，例如“先删除当前所有视频节点”。
 
@@ -52,7 +61,7 @@ metadata:
 
 ### Escalation Protocol
 
-- 账号未登录、项目不可访问、参照图无法唯一匹配、目标画布项目命名冲突无法裁决、远端 `imageList` 与本地 `图片N` 不一致且无法写回时，状态为 `blocked_libtv_canvas_control`。
+- 账号未登录、项目空间不可访问、画布不可访问、参照图无法唯一匹配、目标项目空间或画布命名冲突无法裁决、远端 `imageList` 与本地 `图片N` 不一致且无法写回时，状态为 `blocked_libtv_canvas_control`。
 
 ## Input Contract
 
@@ -63,7 +72,7 @@ Accepted input:
   - 角色：`projects/aigc/<项目名>/11-主体/角色/3-生成/`
   - 场景：`projects/aigc/<项目名>/11-主体/场景/3-生成/`
   - 道具：`projects/aigc/<项目名>/11-主体/道具/3-生成/`
-- 用户要求创建新画布项目、上传参考图、回刷 UUID、对照 YAML 连线、只建节点不生成。
+- 用户要求创建或选择项目空间下的新画布、上传参考图、回刷 UUID、对照 YAML 连线、只建节点不生成。
 
 Required input:
 
@@ -74,8 +83,9 @@ Required input:
 
 Optional input:
 
-- 画布项目名；缺省为 `项目名-第N集`，若同名已存在则追加 `V2`、`V3`。
-- 版本号；用户显式指定时使用 `项目名-第N集-版本号`。
+- LibTV 项目空间名 / 项目空间 ID / 文件夹 ID；缺省项目空间名为 `项目名`，并优先使用 `libtv project list` 中与 `项目名` 对应的 `projectSpaceId` / `folderId`，若无法唯一定位则创建或使用当前账号默认空间下的画布，并在报告中标明。
+- 画布名；缺省为 `第N集`。兼容旧账号或无项目空间线索时，可退回 `项目名-第N集`。
+- 版本号；用户显式指定时，画布名使用 `第N集-版本号`；兼容旧命名时使用 `项目名-第N集-版本号`。
 - 视频节点实例号；用户显式指定 `batch/revision/variant` 时使用指定值，否则按 active registry 和画布查询自动选择下一个不冲突实例。
 - 画幅；默认 `16:9`，用户显式指定时以用户指定为准。
 - 分辨率；默认 `720p`，用户显式指定时以用户指定为准。
@@ -93,7 +103,7 @@ Reject or clarify when:
 
 | mode | trigger | route |
 | --- | --- | --- |
-| `full_canvas_control` | 创建项目、上传参照、回刷 YAML、生成并连线视频节点 | 加载 `types/full-canvas-control.md` 与 `steps/canvas-control-workflow.md` |
+| `full_canvas_control` | 锁定项目空间和画布、上传参照、回刷 YAML、生成并连线视频节点 | 加载 `types/full-canvas-control.md` 与 `steps/canvas-control-workflow.md` |
 | `backfill_only` | 只上传或只把 UUID 回刷到分组稿 | 加载 `types/backfill-only.md` |
 | `node_rebuild_only` | 已有 YAML UUID，只删除/重建视频节点 | 加载 `types/node-rebuild-only.md` |
 | `repair_order` | 修复 `{{Image N}}` 错位或 imageList 顺序漂移 | 加载 `references/image-order-contract.md` 与 review gate |
@@ -102,7 +112,7 @@ Reject or clarify when:
 
 | need | load |
 | --- | --- |
-| 项目命名、上传、YAML 回刷、视频节点总规范 | `references/canvas-control-contract.md` |
+| 项目空间 / 画布命名、上传、YAML 回刷、视频节点总规范 | `references/canvas-control-contract.md` |
 | `图片N`、逐张连线和 `imageList/mixedList` 顺序锁定 | `references/image-order-contract.md` |
 | 端到端步骤拓扑 | `steps/canvas-control-workflow.md` |
 | 类型选择 | `types/type-map.md` |
@@ -114,9 +124,9 @@ Reject or clarify when:
 
 ## Execution Contract
 
-1. 锁定项目根、集数、分组稿路径和目标画布项目名。
-2. 用 `libtv project list` 检查是否已有同名或同项目同集画布；缺省命名 `项目名-第N集`，冲突时追加 `V2`、`V3`。
-3. 查询或创建 LibTV 画布项目，并记录 `projectUuid`。
+1. 锁定本地项目根、集数、单集语义范围、分组稿路径、目标 LibTV 项目空间名 / ID（`projectSpaceId` / `folderId`）和目标画布名。
+2. 用 `libtv project list` 检查目标项目空间下是否已有同集画布；缺省项目空间名为 `项目名`，缺省画布名为 `第N集`，冲突时追加 `V2`、`V3`。若无法唯一锁定项目空间，退回旧命名 `项目名-第N集` 并在报告中标记 `project_space_resolution=unresolved_legacy_canvas_name`。
+3. 查询或创建 LibTV 具体画布，并记录 `projectUuid`（画布 UUID）以及可得的 `projectSpaceId` / `folderId`。
 4. 按默认查找范围收集角色、场景、道具参照图；以本地文件名作为上传后的画布节点名。
 5. 用 `libtv upload` 上传参考图，记录每张图的 `node_key / UUID / URL / canvas_node_name / local_path`。
 6. 回刷指定分组稿 fenced YAML：匹配到参考图的主体行改为 `图片N 主体名 图片UUID`；同一组内重复 UUID 复用同一个 `图片N`；缺失匹配的主体跳过，不猜图。
@@ -129,7 +139,7 @@ Reject or clarify when:
 
 ## Output Contract
 
-- Required output: LibTV 画布项目 UUID、上传参考图登记、已回刷分组稿、视频节点清单、每组 `图片N -> 主体 -> {{Image N}} -> UUID` 映射、未执行生成状态。
+- Required output: 本地项目根、单集、单集语义范围、分组稿路径、LibTV 项目空间名 / ID / 文件夹 ID（可得时）、LibTV 画布 UUID（`projectUuid`）、画布名、上传参考图登记、已回刷分组稿、视频节点清单、每组 `图片N -> 主体 -> {{Image N}} -> UUID` 映射、未执行生成状态。
 - Output format: 本地 JSON/Markdown 证据 + 简短用户汇报。
 - Output path: `projects/aigc/<项目名>/13-画布/libTV画布流/第N集/`，项目级 registry 写在 `projects/aigc/<项目名>/13-画布/libTV画布流/libtv-canvas-active-registry.json`。
 - Naming convention: 视频节点唯一名和证据文件前缀统一使用 `video_node_instance_id`，格式为 `vid__<source_group_id>__b<batch_no>__r<revision_no>__v<variant_no>`；证据文件为 `<video_node_instance_id>-subject-reference-manifest.json`、`<video_node_instance_id>-libtv-submit-plan.json`、`<video_node_instance_id>-queue-record.json`、`<video_node_instance_id>-执行报告.md`。`source_group_id` 必须保留在文件内容和 registry 中，但不得作为唯一文件名前缀。
@@ -152,8 +162,9 @@ Reject or clarify when:
 
 | field_id | owner | canonical evidence | must contain | fail code |
 | --- | --- | --- | --- | --- |
-| `FIELD-LTVCTRL-01` | route | `SKILL.md` / `types/type-map.md` | mode、project root、episode、source group file | `FAIL-LTVCTRL-ROUTE` |
-| `FIELD-LTVCTRL-02` | canvas project | LibTV project query / report | canvas project name、projectUuid、version collision handling | `FAIL-LTVCTRL-PROJECT-NAME` |
+| `FIELD-LTVCTRL-01` | route | `SKILL.md` / `types/type-map.md` | mode、local project root、local episode、local episode scope、source group file | `FAIL-LTVCTRL-ROUTE` |
+| `FIELD-LTVCTRL-02A` | project space scope | LibTV project list / report | project space name、`projectSpaceId` / `folderId`、project space resolution、account scope | `FAIL-LTVCTRL-PROJECT-SPACE` |
+| `FIELD-LTVCTRL-02B` | canvas scope | LibTV project query / report | local episode -> canvas name、projectUuid（画布 UUID）、version collision handling | `FAIL-LTVCTRL-CANVAS-NAME` |
 | `FIELD-LTVCTRL-03` | upload registry | active registry / manifest | local path、canvas node name、node UUID、URL | `FAIL-LTVCTRL-UPLOAD` |
 | `FIELD-LTVCTRL-04` | YAML backfill | grouped storyboard source file | `图片N 主体名 UUID`，重复 UUID 复用编号 | `FAIL-LTVCTRL-YAML-BACKFILL` |
 | `FIELD-LTVCTRL-05` | video node identity and spec | queried node params / active registry | 唯一 `video_node_instance_id`、`source_group_id`、`batch_no`、`revision_no`、`variant_no`、必要时 `parent_video_node_instance_id`，以及默认 `star-video2`、`mixed2video`、`16:9`、`720p` 或用户显式覆盖值 | `FAIL-LTVCTRL-NODE-SPEC` / `FAIL-LTVCTRL-NODE-IDENTITY` |
@@ -167,7 +178,7 @@ Reject or clarify when:
 | pass_id | focus | question | action | gate |
 | --- | --- | --- | --- | --- |
 | `PASS-LTVCTRL-01` | route | 本轮是完整控制、只回刷、只重建还是顺序修复？ | 选择 type package | `GATE-LTVCTRL-ROUTE` |
-| `PASS-LTVCTRL-02` | project/upload | 画布和参照图是否可唯一建立？ | 创建项目、上传或复用图片 | `GATE-LTVCTRL-PROJECT` / `GATE-LTVCTRL-UPLOAD` |
+| `PASS-LTVCTRL-02` | project-space/canvas/upload | 项目空间、画布和参照图是否可唯一建立？ | 锁定项目空间、创建或选择画布、上传或复用图片 | `GATE-LTVCTRL-PROJECT` / `GATE-LTVCTRL-UPLOAD` |
 | `PASS-LTVCTRL-03` | YAML | 是否已把主体顺序变成显式 `图片N`？ | 回刷 fenced YAML | `GATE-LTVCTRL-YAML` |
 | `PASS-LTVCTRL-04` | node/order | 视频节点是否按 `图片N` 顺序消费图片？ | 建节点、逐张连线、写 imageList/mixedList | `GATE-LTVCTRL-ORDER` |
 | `PASS-LTVCTRL-05` | final check | 远端 prompt 和 imageList 是否可运行前通过？ | final query | `GATE-LTVCTRL-FINAL` |
@@ -181,8 +192,8 @@ Reject or clarify when:
 
 | pass_id | pass standard | fail code | rework target |
 | --- | --- | --- | --- |
-| `PASS-LTVCTRL-01` | mode 唯一，项目和分组稿可定位 | `FAIL-LTVCTRL-ROUTE` | `SKILL.md#Mode Selection` |
-| `PASS-LTVCTRL-02` | projectUuid、upload UUID、URL 完整 | `FAIL-LTVCTRL-UPLOAD` | `N1-PROJECT` / `N2-UPLOAD` |
+| `PASS-LTVCTRL-01` | mode 唯一，本地项目、单集、单集语义范围和分组稿可定位 | `FAIL-LTVCTRL-ROUTE` | `SKILL.md#Mode Selection` |
+| `PASS-LTVCTRL-02` | project space name、`projectUuid`（画布 UUID）、可得的 `projectSpaceId/folderId`、upload UUID、URL 完整 | `FAIL-LTVCTRL-CANVAS-SCOPE` / `FAIL-LTVCTRL-UPLOAD` | `N1-CANVAS-SCOPE` / `N2-UPLOAD` |
 | `PASS-LTVCTRL-03` | YAML 主体行符合 `图片N 主体名 UUID` | `FAIL-LTVCTRL-YAML-BACKFILL` | `N3-YAML-BACKFILL` |
 | `PASS-LTVCTRL-04` | `imageList/mixedList` 顺序等于 YAML `图片N` | `FAIL-LTVCTRL-IMAGELIST-MISMATCH` | `N6-ORDER-LOCK` |
 | `PASS-LTVCTRL-05` | final query 在最后一次写入后通过 | `FAIL-LTVCTRL-FINAL-QUERY` | `N8-FINAL-QUERY` |

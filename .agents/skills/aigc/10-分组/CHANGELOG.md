@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-08 (Tail-State Anchor Continuity Tightening)
+
+- 将“回龙帧”从泛化的上一组结尾状态承接收紧为可审计的 `尾帧状态锚点`：主体、动作余势、关键道具/介质、光声残留和空间关系必须在下一组首个普通时间码行中可见。
+- 明确只承接情绪、空间大方向，或直接开启新攻击、新场面、新主体动作而未复现尾帧状态锚点，判定为 `FAIL-GROUP-12`。
+- 同步 `SKILL.md`、boundary、review、CONTEXT、README、模板、入口元数据、类型映射、知识库和 test prompts；validator 未扩展语义判断，仍只承担机械校验。
+
 ## 2026-06-05 (14.5s Boundary Hard Cap)
 
 - 将分镜组目标时长调整为约 14.5 秒；通常 10-14.5 秒可接受，14.5 秒为硬上限。

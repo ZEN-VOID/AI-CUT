@@ -384,6 +384,7 @@ def extract_global_style_lines(body: str) -> list[str]:
         if (
             stripped.startswith(VISUAL_STYLE_LABEL)
             or stripped.startswith(STORYBOARD_PICTURE_LABEL)
+            or FIELD_LABEL_RE.match(stripped)
             or VISUAL_FIELD_LABEL_RE.match(stripped)
             or SHOT_LINE_DURATION_RE.search(stripped)
             or BRACKET_DURATION_RE.search(stripped)

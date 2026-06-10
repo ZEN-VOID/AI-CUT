@@ -2,10 +2,15 @@
 
 ## 2026-06-07
 
-- 新增 `references/action-destruction-fx-contract.md`，将动作破坏点效果强化标准化为 `6-氛围` 的授权细则。
+- 曾新增动作破坏点 legacy reference 细则，将动作破坏点效果强化标准化为 `6-氛围` 的授权能力。
 - 在 `SKILL.md` 接入 `destruction_fx` 触发类型、`FAIL-ATM-DESTRUCTION-FX`、`GATE-ATM-19-ACTION-DESTRUCTION-FX`、`Action Destruction FX Map` 和 module trigger 路由。
 - 将白刃剑风、枪风、链镰、飞剑、断链余劲等冷兵器破坏，以及战争/废墟、惊悚追逐、海战水域、室内动作、奇幻仪式、现实街巷、科幻赛博等多类型破坏边界收束到同一细则。
 - 同步 `CONTEXT.md`、`README.md` 和 `test-prompts.json`，补齐动作破坏点生硬、轻飘、法术化或现代 CG 化的修复经验与回归样例。
+- 修正 legacy 动作破坏细则的触发表述：总入口改为“任何改变现场材质状态的力量、行动或余波”，港风武侠仅作为类型分支之一，并新增多类型分流回归样例。
+- 为动作破坏点新增显式 `destruction_type_route` 证据链，挂钩用户信号、`3-美学`、`5-表演` 场景/动作/材质和项目 `MEMORY.md`；新增 `FAIL-ATM-DESTRUCTION-TYPE-ROUTE`，防止只靠关键词误判类型。
+- 将动作破坏点能力从 legacy reference 全量迁移到 `types/action-destruction-fx/` 类型模块，由 `SKILL.md` 直接路由 `index.md` 和对应类型文件。
+- 新增 `wuxia-hk-cold-weapons`、`fantasy-xuanhuan`、`war-ruins`、`thriller-chase`、`naval-water`、`interior-court`、`realism-street`、`sci-fi-cyber`、`generic-material-response` 九个动作破坏类型模块。
+- 明确灵光、法阵、能量、护盾、粒子或科技光效不是统一禁词；只有在当前类型、上游 source、`3-美学` 或项目 `MEMORY.md` 未授权时才构成越界。
 
 ## 2026-06-04
 

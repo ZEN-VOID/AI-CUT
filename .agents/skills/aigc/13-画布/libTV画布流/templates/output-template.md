@@ -4,7 +4,7 @@
 
 | Field | Contract |
 | --- | --- |
-| Required output | project UUID, upload registry, YAML backfill, video node list, runtime image map |
+| Required output | local AIGC mapping, projectSpace/folder evidence, canvas UUID/projectUuid, upload registry, YAML backfill, video node list, runtime image map |
 | Output format | JSON manifests, JSON submit plans, JSON queue records, Markdown reports |
 | Output path | `projects/aigc/<项目名>/13-画布/libTV画布流/第N集/` |
 | Naming convention | `<video_node_instance_id>-subject-reference-manifest.json`, `<video_node_instance_id>-libtv-submit-plan.json`, `<video_node_instance_id>-queue-record.json`, `<video_node_instance_id>-执行报告.md`; `source_group_id` 只写入内容和 registry，不单独作为唯一文件名前缀 |
@@ -14,9 +14,17 @@
 
 ```json
 {
+  "local_project_root": "projects/aigc/<项目名>",
+  "local_episode": "第N集",
+  "local_episode_scope": "projects/aigc/<项目名>/第N集",
+  "source_file": "projects/aigc/<项目名>/10-分组/第N集.md",
+  "evidence_dir": "projects/aigc/<项目名>/13-画布/libTV画布流/第N集",
+  "projectSpaceId": null,
+  "folderId": null,
+  "project_space_name": "",
+  "project_space_resolution": "resolved_from_project_list",
   "projectUuid": "",
-  "canvas_project_name": "",
-  "source_file": "",
+  "canvas_name": "",
   "source_group_id": "",
   "video_node_instance_id": "vid__1-1-1__b001__r00__v001",
   "parent_video_node_instance_id": null,
@@ -42,8 +50,17 @@
 
 ```json
 {
+  "local_project_root": "projects/aigc/<项目名>",
+  "local_episode": "第N集",
+  "local_episode_scope": "projects/aigc/<项目名>/第N集",
+  "source_file": "projects/aigc/<项目名>/10-分组/第N集.md",
+  "evidence_dir": "projects/aigc/<项目名>/13-画布/libTV画布流/第N集",
+  "projectSpaceId": null,
+  "folderId": null,
+  "project_space_name": "",
+  "project_space_resolution": "resolved_from_project_list",
   "projectUuid": "",
-  "canvas_project_name": "",
+  "canvas_name": "",
   "groups": {
     "1-1-1": {
       "source_group_id": "1-1-1",

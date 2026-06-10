@@ -5,16 +5,20 @@
 ## Fixed Context
 
 - 输入真源：`projects/aigc/<项目名>/10-分组/第N集.md`。
+- 单集语义范围：`projects/aigc/<项目名>/第N集`，只用于跨系统映射，不替代输入真源或证据目录。
 - 默认图片查找范围：
   - `projects/aigc/<项目名>/11-主体/角色/3-生成/`
   - `projects/aigc/<项目名>/11-主体/场景/3-生成/`
   - `projects/aigc/<项目名>/11-主体/道具/3-生成/`
-- 默认画布项目命名：`项目名-第N集`；如同名或同项目同集已存在，追加 `V2`、`V3`。
+- 默认 LibTV 项目空间：`项目名`；默认画布命名：`第N集`。本地 `projects/aigc/<项目名>` 映射到 LibTV 项目空间名，本地 `第N集` 映射到该项目空间下画布名。如目标项目空间下同名或同项目同集画布已存在，追加 `V2`、`V3`。无法唯一定位项目空间时，退回旧兼容画布名 `项目名-第N集`。
 - 默认视频规格：`star-video2`、`mixed2video`、`16:9`、`720p`、`enableSound=on`；用户显式指定时覆盖对应默认值。
 
 ## Required Evidence
 
-- `projectUuid`
+- `projectUuid`（画布 UUID）
+- `local_project_root` / `local_episode` / `local_episode_scope`
+- `project_space_name`
+- `projectSpaceId` / `folderId`（可得时）
 - upload registry
 - YAML backfill diff or summary
 - video node list

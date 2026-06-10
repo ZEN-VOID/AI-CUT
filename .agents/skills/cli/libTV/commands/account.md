@@ -2,7 +2,7 @@
 
 查看当前登录用户、列出可切换账户，并切换当前生效账户（个人 / 团队）。
 
-本命令调远端接口，需已登录，见 [`libtv login`](./login.md)。`account info` 与 `account use` 会顺手校准本机活跃账户作用域；后续 [`libtv project list`](./project.md) / [`libtv project create`](./project.md) 在未显式传 `--team-id` 时，会默认跟随当前生效账户的团队空间。传 `--team-id 0` 可强制走个人项目。
+本命令调远端接口，需已登录，见 [`libtv login`](./login.md)。`account info` 与 `account use` 会顺手校准本机活跃账户作用域；后续 [`libtv project list`](./project.md) / [`libtv project create`](./project.md) 在未显式传 `--team-id` 时，会默认跟随当前生效账户的团队空间。CLI 1.0.1 的 `project` 命令列出 / 创建的是具体画布条目，输出里的 `projectSpaceId` / `folderId` 才是新版上层项目空间线索；传 `--team-id 0` 可强制走个人空间。
 
 ## 子命令
 
@@ -70,11 +70,11 @@ libtv account use 123456
 # case 4: 按精确账户名称切换；名称重复时改用 accountId
 libtv account use "我的团队"
 
-# case 5: 切换账户后，项目列表默认跟随当前账户作用域
+# case 5: 切换账户后，画布列表默认跟随当前账户作用域
 libtv account use 123456
 libtv project list
-libtv project create "团队项目"
+libtv project create "团队画布"
 
-# case 6: 临时覆盖作用域：强制查个人项目
+# case 6: 临时覆盖作用域：强制查个人空间画布
 libtv project list --team-id 0
 ```

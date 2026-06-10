@@ -7,7 +7,7 @@
 以下三条所有 case 默认满足，不在每个文件里重复：
 
 1. 已完成登录（[`libtv login web` / `login phone`](../commands/login.md)）；若用独立凭据目录见 [auth/config-dir.md](./auth/config-dir.md)。
-2. 在**画布所在工作目录**执行过 [`libtv project use <项目UUID>`](../commands/project.md)；`libtv project list` 可查 UUID。未绑定时每条命令可显式加 `-p <UUID>`。
+2. 在**画布所在工作目录**执行过 [`libtv project use <画布UUID>`](../commands/project.md)；`libtv project list` 可查具体画布 UUID（`uuid` / `projectUuid`）。未绑定时每条命令可显式加 `-p <画布UUID>`；不要把列表里的 `projectSpaceId` / `folderId` 传给 `-p`。
 3. 需要限定普通分组时执行 [`libtv group use <分组>`](../commands/group.md)；临时覆盖用 `-g/--group`。
 
 语法速查：`-s`（`data.params`）vs `-u`（`data` 顶层）见 [../node-types/README.md](../node-types/README.md)；管道（NDJSON）与 stdout/stderr 规则见 [pipes/README.md](./pipes/README.md)。

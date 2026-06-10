@@ -1,4 +1,4 @@
 interface:
   display_name: AIGC flash
-  short_description: Turn a short story source or visual reference into a chat-only video prompt pack.
-  default_prompt: "Use $aigc-flash to convert the provided short story, reference image, first/last frames, or reference video notes into one unified chat-only Flash Prompt Pack. Default to 11.5 seconds unless the user specifies another duration."
+  short_description: Turn a short story, dialogue source, or visual reference into a chat-only video prompt pack.
+  default_prompt: "Use $aigc-flash to convert the provided short story, dialogue/voice-over lines, reference image, first/last frames, or reference video notes into one unified chat-only Flash Prompt Pack. Default to 11.5 seconds unless the user specifies another duration, and preserve user-provided explicit dialogue unless the user allows rewriting."
