@@ -32,7 +32,7 @@ def _build_project(project_root: Path) -> None:
         {
             "project_info": {"title": "凡人资本论"},
             "progress": {"current_chapter": 12, "total_words": 32000},
-            "review_checkpoints": [],
+            "acceptance_checkpoints": [],
         },
     )
     _write_json(
@@ -211,9 +211,9 @@ def test_context_return_manager_blocks_pass_without_context_return_handoff(tmp_p
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_only",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_polishing_only",
+            "handoff_targets": ["4-润色"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -255,9 +255,9 @@ def test_context_return_manager_blocks_empty_actualization_delta(tmp_path, monke
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [],
@@ -312,9 +312,9 @@ def test_context_return_manager_applies_projection_refresh_modes(tmp_path, monke
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [],
             "map_deltas": [],
             "projection_refresh": [
@@ -377,9 +377,9 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "governance_refs": {
                 "validation_report_ref": "STATE.json#workflow_runtime.governance_index.run-12.validation_report",
                 "artifact_manifest_ref": "STATE.json#workflow_runtime.governance_index.run-12.artifact_manifest",
@@ -400,7 +400,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                     },
                     "history_append": {
                         "episode_ref": "第12章",
-                        "validation_ref": "review/第12章.validation.json",
+                        "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
@@ -424,7 +424,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                         "execution_status": "completed",
                         "validated_at": "2026-04-06T10:00:00",
                         "manuscript_ref": "4-润色/第2卷/第12章.md",
-                        "validation_ref": "review/第12章.validation.json",
+                        "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
                         "actual_outcome_summary": "本章完成破境并公开立场。",
                         "carry_forward_refs": ["1-设定/2-角色卡/主要角色/林辰.json"],
                     },
@@ -449,7 +449,7 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
                 {"ref_type": "manuscript", "ref_path": "4-润色/第2卷/第12章.md", "note": "正文真源"},
                 {
                     "ref_type": "validation_packet",
-                    "ref_path": "review/第12章.validation.json",
+                    "ref_path": "4-润色/第2卷/第12章.acceptance.json",
                     "note": "验证报告",
                 },
             ],
@@ -483,8 +483,8 @@ def test_context_return_manager_writes_artifact_and_applies_writebacks(tmp_path,
 
     artifact = json.loads(artifact_path.read_text(encoding="utf-8"))
     assert artifact["inputs"]["validation_status"] == "PASS"
-    assert artifact["inputs"]["routing_decision"] == "handoff_to_review_and_context_return"
-    assert artifact["inputs"]["handoff_targets"] == ["review/", "context-return"]
+    assert artifact["inputs"]["routing_decision"] == "handoff_to_return"
+    assert artifact["inputs"]["handoff_targets"] == ["return", "context-return"]
     assert artifact["inputs"]["book_plan_ref"] == "2-卷章/整体规划.md"
     assert artifact["inputs"]["volume_plan_ref"] == "2-卷章/第2卷/卷规划.md"
     assert artifact["inputs"]["chapter_plan_refs"] == ["2-卷章/第2卷/第12章.md"]
@@ -560,9 +560,9 @@ def test_context_return_manager_writes_slice_actualization_and_root_indexes(tmp_
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [],
             "map_deltas": [
                 {
@@ -643,9 +643,9 @@ def test_context_return_manager_rolls_back_on_commit_failure(tmp_path, monkeypat
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [
                 {
                     "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
@@ -726,9 +726,9 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [
                 {
                     "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
@@ -739,7 +739,7 @@ def test_context_return_manager_writes_nested_card_schema_state(tmp_path, monkey
                     },
                     "history_append": {
                         "episode_ref": "第12章",
-                        "validation_ref": "review/第12章.validation.json",
+                        "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
                         "changed_fields": ["realm", "stance"],
                         "change_summary": "林辰完成突破并转向结盟。",
                         "impact_scope": "cross-episode",
@@ -801,9 +801,9 @@ def test_context_return_manager_rejects_revision_drift(tmp_path, monkeypatch):
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [
                 {
                     "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",
@@ -849,9 +849,9 @@ def test_context_return_manager_rejects_non_whitelisted_delta_fields(tmp_path, m
         validation_path,
         {
             "validation_status": "PASS",
-            "routing_decision": "handoff_to_review_and_context_return",
-            "handoff_targets": ["review/", "context-return"],
-            "validation_ref": "review/第12章.validation.json",
+            "routing_decision": "handoff_to_return",
+            "handoff_targets": ["return", "context-return"],
+            "acceptance_ref": "4-润色/第2卷/第12章.acceptance.json",
             "card_deltas": [
                 {
                     "target_ref": "1-设定/2-角色卡/主要角色/林辰.json",

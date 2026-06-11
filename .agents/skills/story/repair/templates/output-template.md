@@ -22,7 +22,8 @@
 - `target_locality`:
 - `change_intent`:
 - `canonical_owner`:
-- `creative_engine`:
+- `owning_stage`:
+- `creative_engine_note`:
 - `writeback_order`:
 - `scope_packages_loaded`:
 
@@ -39,7 +40,7 @@
 ## Stage Routes
 
 - `source_stage`:
-- `drafting_or_polishing_lane`:
+- `drafting_or_polishing_stage`:
 - `review_route`:
 - `return_route`:
 
@@ -63,6 +64,6 @@
 
 - Impact map completed:
 - Source owner locked:
-- Provider authorship preserved:
+- Creative authorship preserved:
 - Review/return handled:
 - Residual risks reported:

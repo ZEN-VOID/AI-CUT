@@ -1,0 +1,4 @@
+interface:
+  display_name: "分镜平面图"
+  short_description: "生成AIGC组级顶视图空间站位、动线、机位与连续性平面图"
+  default_prompt: "Use $分镜平面图 to generate group-level top-view blocking, movement, and camera floor-plan sheets from AIGC grouped shots."

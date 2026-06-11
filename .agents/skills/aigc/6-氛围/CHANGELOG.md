@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求每条选择性 `氛围画面` 证明来自 `5-表演` 触发点、表演焦点和 `3-美学` 三类协议。
+- 新增 `FAIL-ATM-UPSTREAM-CONTEXT`、`GATE-ATM-20-UPSTREAM-CONTEXT` 和报告 `Upstream Context Application Map`，并将完成门扩展到 `GATE-ATM-01..20`。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-07
 
 - 曾新增动作破坏点 legacy reference 细则，将动作破坏点效果强化标准化为 `6-氛围` 的授权能力。

@@ -38,12 +38,13 @@ last_checked_at: 2026-04-25
 | `TM-SHEET-19` | panel 图片区被压扁，或整张 storyboard 固定 16:9 后导致单格比例不对 | sheet aspect decision missing | 根据实际 `storyboard_frame_units.length` 重算 `layout_aspect_decision`：枚举行列，建立 `panel_geometry_blueprint`，锁定每个 16:9 image_box，选择 `gpt-image-2` 合法 `selected_sheet_size`；必要时分页/多 sheet | group extraction、prompt、handoff 与 review gate 固化 `G8A-LAYOUT-ASPECT` | plan/report 记录 panel_count、candidate_grids、selected_grid、selected_sheet_size、panel_geometry_blueprint、panel_image_box_ratio_error |
 | `TM-SHEET-24` | 已声明 16:9，但成图里的 panel 仍像竖条、扁条或不同格比例不一致 | image box geometry missing | 不再只写比例；在 prompt/plan 中加入每格 `cell_norm`、`image_box_norm`、`text_strip_norm`，要求先画可见 16:9 图片框再填内容 | prompt template 和 imagegen handoff 固化 `panel_geometry_blueprint` | 每个 panel 的 image_box 有可见边框，`ratio_error <= 0.06`，文字条不侵入图片区 |
 | `TM-SHEET-20` | prompt 形式完整但对现有分组内容理解浅，panel 设计像通用模板 | source comprehension shallow | 回到完整组稿，补 `source_comprehension`：叙事功能、动作链、空间/主体/道具锚点、视觉转折、必须保留事实和禁止补写项 | workflow 增加 source comprehension gate，脚本不得生成理解摘要 | 每组 source comprehension 有具体 source anchor，不是“保持一致/突出情绪”等泛化句 |
-| `TM-SHEET-21` | storyboard 每格角色站位漂移，前后 panel 或相邻分镜组空间关系对不上 | floor plan missing | 在 storyboard 前补 `spatial_floor_plan` 顶视图平面图，验收 accepted 后再生成 storyboard | workflow 增加 N5A-FLOOR-PLAN 与 G8B/G8C/G8D gates | floor-plan manifest 记录顶视图、站位、摄影机、连续性和 accepted verdict |
-| `TM-SHEET-22` | 下一个分镜组的角色/道具/摄影机位置与上一个组无逻辑衔接 | floor plan continuity drift | 对照上一张 accepted floor plan，补 unchanged anchors、changed positions、movement logic；连续性失败则返工 | spatial-floor-plan contract 固化 continuity_from_previous | `continuity_from_previous.spatial_consistency_verdict` 为 consistent 或 initial |
-| `TM-SHEET-23` | 流程停在 prompt、review、平面图验收或等待确认，没有生成 storyboard sheet 图片 | no-generation close | 回到失败 owning node 自动返工，随后继续 N7 imagegen；不可恢复时只写 failed 报告 | mode/type/review/output gate 固化“生图为结束” | 目标组有持久化图片路径，或报告为 failed 且说明不可恢复输入缺口 |
+| `TM-SHEET-21` | storyboard 每格角色站位漂移，前后 panel 或相邻分镜组空间关系对不上 | source spatial anchors shallow | 回到 source comprehension 和 `visual_prompt_atoms.spatial_positions`，从源正文补相对方位、进出场、动线和机位证据；若存在 `分镜平面图` accepted 侧车，可作为可选证据读取 | prompt/handoff/review 固化 `spatial_handoff` 仅是可选证据，不是故事板前置门禁 | prompt / plan 记录源空间锚点；有侧车则记录 consumed，缺失记录 none |
+| `TM-SHEET-22` | 下一个分镜组的角色/道具/摄影机位置与上一个组无逻辑衔接 | continuity reasoning shallow | 按 `10-分组` 当前组和相邻组源锚点补空间变化说明；必要时建议另跑 `分镜平面图`，但本技能继续完成 storyboards | source comprehension 与 prompt atoms 固化上下文连续性字段 | 每组 atoms 能说明保留锚点、变化位置和路径逻辑 |
+| `TM-SHEET-23` | 流程停在 prompt、review、空间侧车等待、等待确认或 `imagegen-plan.json`，没有生成 storyboard sheet 图片 | no-generation close | 回到失败 owning node 自动返工，随后继续 N7 imagegen；不可恢复时只写 failed 报告 | mode/type/review/output gate 固化“生图为结束”；plan-only 不得 pass | 目标组有持久化图片路径和 `imagegen_called`，或报告为 failed 且说明不可恢复输入缺口 |
 | `TM-SHEET-25` | 明明要求黑白线稿 + 彩色标注，成图仍漂移成彩色电影 still、写实光影或场景氛围图 | upstream style leakage | 建立 `style_lock_spec`，把完整组稿中的上游电影风格、光影、氛围、胶片颗粒、渲染词隔离为 evidence-only，并从 `visual_prompt_atoms` 删除 | prompt、handoff、review gate 固化 `G2A-STYLE-LOCK` | plan/report 记录 `upstream_style_quarantine`，最终绘制 atoms 只含黑白线稿和标注颜色 |
-| `TM-SHEET-26` | 已有 accepted floor plan，但故事板角色站位、方向或镜头仍和它不确定匹配 | floor plan not transduced | 为每个 panel 建 `floor_plan_to_panel_mapping`，逐格绑定平面图区块、角色朝向、道具、摄影机方向和禁止漂移项 | spatial-floor-plan、prompt、handoff 固化 `G8E-FLOOR-PLAN-MAPPING` | 每个 panel 可回指 floor plan 区域和 camera cone；只写 floor plan path 不通过 |
-| `TM-SHEET-27` | prompt 看起来完整，但生图对分镜组内容理解不精准，画面像通用摘要或模型自行脑补 | executable prompt atoms missing | 从 `source_span`、panel description、annotation plan 和 floor-plan mapping 逐 panel 写 `visual_prompt_atoms` | prompt、handoff、review gate 固化 `G3B-PROMPT-ATOMS` | 每个 panel 有 draw_subjects、subject_actions、spatial_positions、camera_framing、line_art_instruction、annotation_overlay、text_strip、negative_prompt_atoms |
+| `TM-SHEET-26` | 已有 `分镜平面图` 侧车，但故事板把它当成画风来源、完成门禁或覆盖源事实 | spatial handoff misuse | 标记 `FAIL-SHEET-SPATIAL-HANDOFF`，只保留可消费的站位、动线、机位、连续性约束；冲突时以 `10-分组` 源事实优先 | prompt/handoff/review 固化 `G8B-SPATIAL-HANDOFF` | plan/report 记录 `spatial_handoff_status`、usable constraints、冲突处理 |
+| `TM-SHEET-27` | prompt 看起来完整，但生图对分镜组内容理解不精准，画面像通用摘要或模型自行脑补 | executable prompt atoms missing | 从 `source_span`、panel description、annotation plan、源空间锚点和可选 spatial handoff 逐 panel 写 `visual_prompt_atoms` | prompt、handoff、review gate 固化 `G3B-PROMPT-ATOMS` | 每个 panel 有 draw_subjects、subject_actions、spatial_positions、camera_framing、line_art_instruction、annotation_overlay、text_strip、negative_prompt_atoms |
+| `TM-SHEET-28` | validator 报 `steps/` unsupported 或主流程需要读 workflow 才能执行 | runtime spine drift | 删除 `steps/` 第二节点真源，把 N1-N10、Mermaid、gate、汇流和返工节点迁回 `SKILL.md` | Skill 2.0 最新版要求节点主表、Mermaid 和完成门由 `SKILL.md` 承载 | delivery validator 不再报 unsupported module，smoke 能从 `SKILL.md` 模拟 route |
 
 ## Repair Playbook
 
@@ -71,12 +72,13 @@ last_checked_at: 2026-04-25
 18. 每个可见角色头顶都要有黑色文本角色名；名称来自分组稿或组底 YAML `角色` 字段，不从参照图文件名、外观或正文泛称猜测。
 19. 如果 storyboard prompt 的差异主要来自 `group_id`、角色名、场景名、道具名或同义词替换，而 panel 设计、镜头功能和标注计划没有本组源 span 的判断痕迹，应视为伪差异，不得用形式完整性放行。
 20. 如果 source comprehension 不能说明本组动作链、空间锚点、主体/道具状态和禁止补写项，就不要进入 layout 或 imagegen；这通常意味着模型还没有真正理解现有内容。
-21. storyboard sheet 前必须有顶视图 `spatial_floor_plan`；它用于锁空间站位，不是场景插画、透视图或氛围图。
-22. 相邻组的 floor plan 必须连续；不要让角色从上一组位置无解释地跳到新位置，也不要让摄影机方向与 frame units 不对应。
-23. 分镜故事板技能包的自然终点是已持久化的 storyboard sheet 图片；prompt 包、review note、floor plan acceptance 都只是内部工件，不能作为完成态。
+21. storyboard sheet 的空间一致性首先来自 source comprehension 和 `visual_prompt_atoms.spatial_positions`；若已有 `分镜平面图` accepted 侧车，只作为可选空间证据读取，不是前置门禁。
+22. 相邻组的空间变化必须能从源正文锚点解释；需要专门锁定站位、动线、机位时，应路由到 `分镜平面图`，而不是在故事板技能内生成平面图。
+23. 分镜故事板技能包的自然终点是已持久化的 storyboard sheet 图片；prompt 包、review note、`imagegen-plan.json`、空间侧车等待或等待确认都不能作为完成态。
 24. 如果完整组稿里保留了“全局风格”“35mm 胶片”“体积光”“光影和氛围与场景参照图保持一致”等上游风格句，必须在 `style_lock_spec.upstream_style_quarantine` 中逐项隔离；不要相信一句“黑白线稿”前缀能压住后文长段电影风格。
-25. accepted floor plan 不等于 storyboard 已锁空间；必须有 `floor_plan_to_panel_mapping`，否则生图模型仍可能只按构图美观重摆角色。
+25. 可选 `spatial_handoff` 不是故事板的第二真源；它只能补强站位、相对方位、动线和机位约束，不能改写分组稿事实或故事板画风。
 26. `panel_description` 是读图文字，`visual_prompt_atoms` 才是生图执行指令；缺 atoms 时，模型容易把长组稿压成泛化画面。
+27. `steps/` 不再是合法节点展开层；故事板主流程必须在 `SKILL.md` 的 `Thinking-Action Node Map` 与 `Visual Maps` 中可独立执行。
 
 ## Reusable Heuristics
 
@@ -96,12 +98,13 @@ last_checked_at: 2026-04-25
 - source comprehension 是防止浅理解的前置证据；它不暴露自由思维链，只记录可审计的源内容理解摘要和事实边界。
 - style lock 是防止画风漂移的前置证据；凡完整组稿带有电影风格词，都要隔离成 evidence-only，并在最终 atoms 中只保留黑白线稿和标注系统。
 - visual prompt atoms 是防止生图不精准的执行层；每格至少要写清可见主体、动作/状态、空间锚点、机位/构图、线稿要求、标注覆盖、文字条和负向原子。
-- spatial floor plan 是防止角色空间站位漂移的前置证据；只有 accepted floor plan 才能进入 storyboard sheet generation。
-- floor plan to panel mapping 是 accepted floor plan 到 storyboard sheet 的桥；没有这层桥，平面图只是附件，不是每格画面的站位约束。
-- floor plan 连续性要按同一集内分镜组顺序审查：第一组是 initial，之后每组都要说明相对上一张 accepted floor plan 的不变锚点与变化路径。
-- floor plan acceptance 是内部自动 gate；不通过就返工平面图或 source comprehension，不能变成等待用户确认的断点。
+- 分镜平面图是独立叶子技能；故事板只可消费其 accepted 侧车作为可选空间证据，不能在本技能内生成或验收它。
+- 空间侧车缺失不阻断 storyboard sheet；如果故事板空间逻辑不足，先返工 source comprehension 和 `visual_prompt_atoms.spatial_positions`。
+- 空间侧车冲突时以 `10-分组` 源事实优先；若确需重新裁决站位、动线和机位，路由到 `分镜平面图`。
 - 缺图不是阻塞 prompt 的理由，但必须阻塞“伪绑定”；空槽位应移除或进入 missing。
 - 批量生成默认是计划层能力，不等于后台并行执行；索引、prompt 包、manifest 和报告应统一汇流写入。
+- imagegen plan 是执行载体，不是 storyboard sheet 产物；完成态必须包含 `imagegen_called` 和项目内持久化图片路径。
 - 已绑定本地参照图必须在生成前通过 `view_image` 可见化；否则只能算路径证据，不能算已传入视觉参照。
 - 脚本可以抽取 `source_span`、计数、整理已定 JSON 字段和检查路径。
-- 脚本不能生成 source comprehension、panel 描述、annotation plan、floor plan 空间裁决、layout 决策或 prompt 正文，也不能批量插入、正则套句或映射投影；这些位置需要 LLM 主创和可审计源 span 依据。
+- 脚本不能生成 source comprehension、panel 描述、annotation plan、空间侧车消费裁决、layout 决策或 prompt 正文，也不能批量插入、正则套句或映射投影；这些位置需要 LLM 主创和可审计源 span 依据。
+- 任何新增节点、路线或 Mermaid 拓扑都先改 `SKILL.md`，再让 references/types/templates 同步展开；不要重新创建 `steps/`。

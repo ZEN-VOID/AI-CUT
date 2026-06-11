@@ -1,6 +1,6 @@
 ---
 name: story2026
-description: "Use when coordinating story2026 novel projects across init, cards, planning, draft, polish, review, or return."
+description: "Use when coordinating story2026 novel projects across init, cards, planning, draft, polish, built-in acceptance, return, repair, query, or resume."
 governance_tier: lite
 skill_role: parent_guide
 allowed-tools: Read Grep Bash Write Edit Task
@@ -23,12 +23,13 @@ allowed-tools: Read Grep Bash Write Edit Task
 1. 当前诉求应该路由到哪个阶段 skill。
 2. 哪一层才是这类问题的 canonical truth。
 3. 根级 `_shared`、`scripts`、`templates` 分别承担什么共享职责。
-4. 题材方向盘如何通过 `0-初始化/north_star.yaml.genre_contract` 进入 planning / drafting / review / return。
+4. 题材方向盘如何通过 `0-初始化/north_star.yaml.genre_contract` 进入 planning / drafting / polishing / built-in acceptance / return。
 
 硬边界：
 
 - 根级 `story/SKILL.md` 只负责跨阶段拓扑、共享载体边界、总路由和根因追溯总则。
 - 各阶段目录下的 `SKILL.md` 负责本阶段的严格执行合同。
+- 正文阶段验收内置在 `3-初稿` 与 `4-润色` 阶段包内，任务执行时自动完成；根层不再保留独立 `story/review` 技能。
 - `repair/SKILL.md` 负责局部修改牵动整体时的影响判型、source-first 修复计划、跨阶段分流和验收；根层只路由到 repair，不复制 repair 的类型化矩阵。
 - 根级 `CONTEXT.md` 只沉淀跨阶段经验，不吞并阶段私有故障模式。
 
@@ -39,25 +40,28 @@ allowed-tools: Read Grep Bash Write Edit Task
 - 固定前置主链
 - 卷级创作闭环
 - 人工维护的 `north_star.yaml.genre_contract`
-- 三模型交叉分工
+- 正文阶段根技能包
+- 阶段内置自动验收
 
-三层架构。
+五层架构。
 
-### 三模型交叉分工
+### 正文阶段根技能包
 
-核心创作阶段默认采用三模型交叉使用机制：
+`3-初稿` 和 `4-润色` 的根目录就是完整技能包。正文生产只路由到阶段根 `SKILL.md`；阶段内的 `references/`、`review/`、`templates/`、`types/`、`guardrails/` 与 `knowledge-base/` 都是根技能授权模块，不再作为平行入口。
 
-| 模型 / lane | 默认职责 | 典型阶段 | 不默认承担 |
+| stage | root skill | 默认职责 | 不承担 |
 | --- | --- | --- | --- |
-| GPT / `A-GPT原生` | 总领、结构化、初始化、设定、卷章规划、问题发现、review 归因、任务调度、repair brief、跨阶段裁决 | `0-初始化`、`1-设定`、`2-卷章`、`review`、`query/resume`、返工分流 | 默认不承担 `3-初稿` 正文主写，也不把 GPT 直接改稿冒充 B/C provider 输出 |
-| Doubao / `B-Doubao流` | 中文友好、人话、网文气口、章节初稿主写 | `3-初稿` 默认 lane | 默认不承担润色阶段的整章二次调优 |
-| DeepSeek / `C-Deepseek流` | 长思维链、二次判断、最小局部修补、润色阶段事实锚定与分布保持 | `4-润色` 默认 lane | 默认不承担初稿主写，除非用户显式点名 DeepSeek 起草 |
+| `3-初稿` | `.agents/skills/story/3-初稿/SKILL.md` | 从 planning、north_star、cards、MEMORY/CONTEXT 和同卷前文生成 candidate draft，并自动产出初稿验收包 | 不改上游设定/规划，不授权 `return` actualization |
+| `4-润色` | `.agents/skills/story/4-润色/SKILL.md` | 承接 `3-初稿` 源章做最小局部修补、中文表达校准、题材质感增强，并自动产出终稿验收包 | 不覆盖初稿，不凭 planning 从零起草 |
 
 硬规则：
 
-- 默认正文主创链路为 `Doubao 初稿 -> DeepSeek 最小局部修补`。
-- GPT 是总领与诊断调度层，不得在未显式切换 lane 时直接改写 B/C 正文并继续标记为原 provider。
-- 若用户显式点名模型或 lane，按用户显式指令优先；但必须同步更新产物 frontmatter、sidecar 证据和 review 返工归属。
+- 普通写章、续写、重写和局部创作修复进入 `3-初稿` 根技能。
+- 普通润色、重润、局部表达修复和验收 finding 回灌进入 `4-润色` 根技能。
+- 新初稿产物 frontmatter 默认使用 `创作阶段: 初稿` 与 `字数`；新润色产物默认使用 `修订阶段: 润色`、`初稿来源` 与 `字数`。
+- 正式 `3-初稿` 写回必须同步生成 `3-初稿/第N卷/第N章.acceptance.json`；PASS 后只授权进入 `4-润色`。
+- 正式 `4-润色` 写回必须同步生成 `4-润色/第N卷/第N章.acceptance.json`；PASS 且 `handoff_targets` 包含 `return` 后才授权上下文回流。
+- 历史子目录、历史脚本和旧 frontmatter metadata 只允许作为兼容回读证据，不得继续驱动路由、返工归属或输出路径。
 
 ### 固定前置主链
 
@@ -74,17 +78,17 @@ allowed-tools: Read Grep Bash Write Edit Task
 每卷默认闭环固定为：
 
 1. `3-初稿`
-2. `review` 初稿验收
+2. `3-初稿` 内置初稿验收
 3. `4-润色`
-4. `review` 终稿验收
+4. `4-润色` 内置终稿验收
 5. `return`
 6. 下一卷 `3-初稿`
 
 硬规则：
 
 - `return` 不是全本润色后的线性终章；它是每卷最终验收后的 validated actualization checkpoint。
-- `return` 不因“检验完成”自动触发，只能在 `review/第V卷.validation.json` 同时满足 `validation_status == PASS`、`routing_decision == handoff_to_review_and_context_return`、`handoff_targets` 包含 `return`（兼容旧 `context-return`）时进入。
-- 上下文回流必须消费“最终被接受的本卷实绩”。默认应以润色后再次 review PASS 的 `4-润色/第V卷/*` 为 accepted manuscript；若项目明确跳过润色，aggregate 必须显式声明 `accepted_manuscript_stage = 3-初稿`，不得把仍可能被润色改动的初稿态直接 actualize。
+- `return` 不因“检验完成”自动触发，只能在 `4-润色/第N卷/第N章.acceptance.json` 或卷级汇总验收包同时满足 `acceptance_status == PASS`、`accepted_manuscript_stage == 4-润色`、`handoff_targets` 包含 `return` 时进入。
+- 上下文回流必须消费“最终被接受的本卷实绩”。默认应以润色后内置终稿验收 PASS 的 `4-润色/第V卷/*` 为 accepted manuscript；若项目明确跳过润色，初稿验收包必须显式声明 `accepted_manuscript_stage = 3-初稿` 且 `handoff_targets` 包含 `return`，不得把仍可能被润色改动的初稿态直接 actualize。
 - canonical 正文生产不建议多卷并发：第 V+1 卷正式起草前，应先让第 V 卷完成 PASS + 上下文回流，使下一卷消费 validated actual，而不是过期 planning。
 
 ### 人工题材契约
@@ -97,7 +101,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 - `1-设定` 不再单独设置 `类型卡`。
 - `2-卷章` 只导入 `story_promise / genre_corridor / navigation_rules`，不再二次猜题材。
 - `3-初稿` 只消费人工题材承诺与 planning handoff，不再消费自动 step hook。
-- `review` 继续做结构/连续性/逻辑/人物/时间线/任务汇聚校验，不再保留独立自动类型兑现维度；默认后台启用 `code-reviewer` 做独立审计，再把 findings 回流为修复分流。
+- `3-初稿` 与 `4-润色` 内置验收继续覆盖结构/连续性/逻辑/人物/时间线/任务汇聚和文体读感，不再保留独立 `story/review` 阶段；必要时可用 `code-reviewer` 做辅助审计，再把 findings 回流到 owning stage。
 - `4-润色` 可以沉淀反馈，但不得自动改写 `north_star.yaml.genre_contract`。
 - `return` 只承接终稿 PASS 且明确 handoff 的 validated actualization，不回写规划正文。
 
@@ -111,7 +115,7 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 - 用户只说“用 story2026 做这件事”，但还没有明确该进哪一个阶段。
 - 需要设计、选择或解释某个项目的题材方向盘。
-- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色 / repair / review / return / query / resume` 中的哪一层。
+- 需要判断某个问题应归 `0-初始化 / 1-设定 / 2-卷章 / 3-初稿 / 4-润色 / repair / return / query / resume` 中的哪一层。
 - 需要修复跨阶段路由、共享 reference、共享脚本、真源分工、运行态数据流的源层问题。
 
 ## Input Contract
@@ -133,15 +137,15 @@ allowed-tools: Read Grep Bash Write Edit Task
 
 正文生产从这里开始按卷循环：
 
-`第V卷初稿 -> review -> 第V卷润色 -> review -> PASS + handoff -> return -> 第V+1卷初稿`
+`第V卷初稿 -> 初稿内置验收 -> 第V卷润色 -> 终稿内置验收 -> PASS + handoff -> return -> 第V+1卷初稿`
 
 执行原则：
 
 - 前置主链默认按阶段顺序串行，不得跳过上游真源直接伪造下游结论。
 - 卷级正文生产默认一卷一卷推进；多卷并发只允许作为探索草稿、素材准备或非 canonical 支线，不得写成 validated final。
-- `review` 不再是序号化主链的一环；它是多环节自动触发的审查层，可由初稿完卷、润色返工、恢复续跑、质量查询或维护任务触发。
-- `4-润色` 只在 `review = PASS` 且 handoff 明确授予 `4-润色` 后拥有 validated truth writeback 权。
-- `return` 只在终稿 review aggregate 明确授予 `handoff_to_review_and_context_return` 后执行；它不是“检验完自动执行”的默认副作用。
+- 验收不再是独立 checkpoint skill；它是 `3-初稿` 和 `4-润色` 的自动节点，随任务执行完成并生成 `stage_acceptance_packet`。
+- `4-润色` 只在初稿验收包 PASS 且 handoff 明确授予 `4-润色` 后承接候选初稿。
+- `return` 只在终稿验收包明确授予 `return` 后执行；它不是“检验完自动执行”的默认副作用。
 
 ### Workflow Map
 
@@ -152,22 +156,21 @@ flowchart TD
     C --> D["1-设定<br/>角色 / 场景 / 物品对象真源"]
     D --> E["2-卷章<br/>部级 / 卷级 / 章级规划真源"]
     E --> F["第V卷 3-初稿<br/>候选正文"]
-    F --> G1["review<br/>初稿验收 / 第V卷.validation.json"]
+    F --> G1["3-初稿 内置验收<br/>第N章.acceptance.json"]
     G1 -->|"FAIL / 修复分流"| F
     G1 -->|"PASS + handoff: 4-润色"| H["第V卷 4-润色<br/>最小局部修补稿"]
-    H --> G2["review<br/>终稿验收 / 第V卷.validation.json"]
+    H --> G2["4-润色 内置验收<br/>第N章.acceptance.json"]
     G2 -->|"FAIL / 修复分流"| H
-    G2 -->|"PASS + handoff_to_review_and_context_return<br/>handoff_targets includes return"| I["return<br/>accepted actualization / projection refresh"]
+    G2 -->|"PASS + handoff_targets includes return"| I["return<br/>accepted actualization / projection refresh"]
     I --> L["第V+1卷 3-初稿<br/>消费 validated actual"]
     J["query / resume"] -.状态查询 / 续跑.-> B
-    K["4-润色/C-DeepSeek流"] -.默认最小局部修补.-> H
+    K["4-润色 根技能"] -.最小局部修补.-> H
 ```
 
 ### Checkpoint And Satellite Skills
 
 无序号 checkpoint / satellite 技能固定挂在主链侧，不单独冒充新的 numbered stage：
 
-- `review`
 - `return`
 - `query`
 - `resume`
@@ -188,7 +191,7 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 硬规则：
 
 - `record-skill-completion` 是普通 skill / 子技能执行的最小状态落点；不得只在对话里宣布完成。
-- 子技能单独调用时也必须执行该 hook；脚本会把 `story-cards-*`、`story-plan-*`、`story-drafting-*`、`story-polishing-*` 或含 `1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的技能路径归并到对应阶段。
+- 子技能单独调用时也必须执行该 hook；脚本会把 `story-cards-*`、`story-plan-*`、`story-drafting`、`story-polishing` 或含 `1-设定 / 2-卷章 / 3-初稿 / 4-润色` 的技能路径归并到对应阶段。
 - 状态写入目标固定为 `projects/story/<项目名>/STATE.json#workflow_runtime.execution_state.stage_progress`，并同步追加 `history`、`task_log` 与 `governance_index`。
 
 ## Root Truth Ownership Contract
@@ -199,11 +202,10 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | `0-初始化` | 立项合同、`0-初始化/*.yaml`、初始 seeds | 对象真源、规划真源、validated actualization |
 | `1-设定` | 类型/角色/场景/物品/技能等对象真源 | 章节编排真源、章节审查判断 |
 | `2-卷章` | 以 `1-部级 -> 2-卷级 -> 3-章级` 的三层分形结构持有 `2-卷章/整体规划.md`、`2-卷章/第N卷/卷规划.md`、`2-卷章/第N卷/第N章.md` 这组规划真源；`全息地图.json / 卷分片/*.json` 仅作兼容投影 | 对象当前态、validated actualization |
-| `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 父级导引层选择 A/B/C provider lane 执行；卷级写作日志等运行时工件仅作兼容 carrier，不再定义主创拓扑 | 评估判断权、validated truth writeback |
-| `review` | `validation_fact_pack` covenant、卷级隔离评估、父层 `review/第V卷.validation.json` 聚合 gate、审查报告与状态持久化 | actualization 写回 |
-| `4-润色` | 基于 `3-初稿/第N卷/第N章.md` 的最小局部修补稿、`4-润色/第N卷/第N章.md`、润色 sidecar | `3-初稿` 原文覆盖权、planning/cards/north_star 真源、validation PASS/FAIL 判定权、默认整章重写权 |
-| `repair` | 局部修改的 impact map、typed scope package selection、canonical owner 判定、source-first repair plan、跨阶段修复分流、code-reviewer 验收汇流 | 设定/规划/正文/润色的主创真源、review PASS 判定、return actualization 写回；repair 类型化矩阵不由根层复制 |
-| `return` | 终稿 PASS-gated actualization artifact、accepted manuscript refs、Cards current_state/history、规划 actualization sidecar、story_map actualization、项目 `CONTEXT/` carryover notes、`STATE.json` projection refresh | 规划正文改写、审查判定、正文/润色正文创作、把未被终稿验收接受的初稿态 actualize |
+| `3-初稿` | 以 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为章节正文唯一业务真源，由 `3-初稿` 根技能执行；同步拥有初稿内置验收包 `第N章.acceptance.json` 和 handoff 到 `4-润色` 的裁决权 | 上游设定/规划真源、`return` actualization 写回 |
+| `4-润色` | 基于 `3-初稿/第N卷/第N章.md` 的最小局部修补稿、`4-润色/第N卷/第N章.md`、终稿内置验收包 `第N章.acceptance.json` 和 handoff 到 `return` 的裁决权 | `3-初稿` 原文覆盖权、planning/cards/north_star 真源、默认整章重写权、actualization 写回 |
+| `repair` | 局部修改的 impact map、typed scope package selection、canonical owner 判定、source-first repair plan、跨阶段修复分流、阶段内置验收汇流 | 设定/规划/正文/润色的主创真源、return actualization 写回；repair 类型化矩阵不由根层复制 |
+| `return` | 终稿 PASS-gated actualization artifact、accepted manuscript refs、Cards current_state/history、规划 actualization sidecar、story_map actualization、项目 `CONTEXT/` carryover notes、`STATE.json` projection refresh | 规划正文改写、验收判定、正文/润色正文创作、把未被终稿验收接受的初稿态 actualize |
 | `query / resume` | 查询、恢复 | 主链 canonical truth 判定权 |
 
 ## Canonical Runtime Root
@@ -269,13 +271,14 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | 写章节、章节级执行包、从 planning 直接产出正文 | `3-初稿` |
 | 承接已有 `3-初稿` 做最小局部修补、中文表达局部校准、题材质感微调，并输出到 `4-润色/第N卷/第N章.md` | `4-润色` |
 | 明确要求“按章写正文”、输出到 `3-初稿/第N卷/第N章.md`、或要求 YAML 头携带 global/style/`north_star` 摘要 | `3-初稿` |
-| 隔离评估、checker 团队、`validation_status`、审查报告、评分落库、审查结果持久化 | `review` |
-| 终稿 PASS 且 `routing_decision == handoff_to_review_and_context_return`、`handoff_targets` 包含 `return`（兼容旧 `context-return`）后的 actualization、truth writeback、projection refresh | `return` |
+| 初稿质量验收、初稿 PASS/FAIL、初稿返工、初稿 handoff 到润色 | `3-初稿` 内置验收 |
+| 终稿质量验收、终稿 PASS/FAIL、终稿返工、终稿 handoff 到 return | `4-润色` 内置验收 |
+| 终稿验收包 `acceptance_status == PASS`、`accepted_manuscript_stage == 4-润色`、`handoff_targets` 包含 `return` 后的 actualization、truth writeback、projection refresh | `return` |
 | 查询当前态、规划态、实绩态、质量态 | `query` |
 | 查看断点、续跑、清理或重启任务 | `resume` |
-| 指定局部修改但可能牵动设定、规划、前后章节、已产物、后续生成、review 或 return actualization 的一致性修复 | `repair`；进入后必须由 repair 加载 `types/type-map.md` 与 `references/impact-scope-contract.md#Universal Type Matrix` |
-| 中文小说润色、去 AI 检测规整化风险、保留初稿骨架的最小局部修补 | `4-润色/C-Deepseek流` |
-| 明确要求整稿统修、整章重写、换模型重润或 Doubao/GPT 润色 | `4-润色` 后按显式 lane 路由 |
+| 指定局部修改但可能牵动设定、规划、前后章节、已产物、后续生成、阶段验收包或 return actualization 的一致性修复 | `repair`；进入后必须由 repair 加载 `types/type-map.md` 与 `references/impact-scope-contract.md#Universal Type Matrix` |
+| 中文小说润色、去 AI 检测规整化风险、保留初稿骨架的最小局部修补 | `4-润色` |
+| 明确要求整稿统修、整章重写、重润或指定当前会话执行润色 | `4-润色` 根技能 |
 
 ## Default Loading Order
 
@@ -285,9 +288,9 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 4. 若问题涉及共享合同，先读根级 `_shared/context-loading-contract.md` 与对应阶段的 `_shared/*`。
 5. 若当前项目已锁定题材方向盘，优先读取 `0-初始化/north_star.yaml.genre_contract` 与 `2-卷章/整体规划.md`；如项目仍在兼容态，再回退到 `全息地图.json`。
 6. 若当前诉求涉及终验或 actualization，继续读取：
-   - `review/_shared/validation-fact-pack-spec.md`
+   - `4-润色/SKILL.md` 与 `4-润色/review/review-contract.md`
    - `return/references/context-return-spec.md`
-   - 并确认 aggregate 指向最终 accepted manuscript，默认是 `4-润色` 终稿。
+   - 并确认 `stage_acceptance_packet` 指向最终 accepted manuscript，默认是 `4-润色` 终稿。
 7. 若路由到 `repair`，读取 `repair/SKILL.md + repair/CONTEXT.md`，再读取 `repair/types/type-map.md`、命中的 `repair/types/scope/*.md` 与 `repair/references/impact-scope-contract.md`；项目特例只从项目 `CONTEXT/` 或 `MEMORY.md` 追加。
 8. 路由到目标阶段或卫星技能的 `SKILL.md`。
 9. 读取目标阶段或卫星技能的 `CONTEXT.md`。
@@ -300,13 +303,13 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 | 起草阶段加载题材类型包或网文题材细则 | `_shared/genre-trope-quality-filter.md` |
 | 跨阶段路由和执行拓扑 | 本文件 `System Topology` 与目标阶段 `SKILL.md + CONTEXT.md` |
 | 局部修改牵动整体、repair 判型和影响图 | `repair/SKILL.md + repair/CONTEXT.md`、`repair/types/type-map.md`、命中的 `repair/types/scope/*.md`、`repair/references/impact-scope-contract.md` |
-| 质量门禁和审计 | `review/SKILL.md + CONTEXT.md`、目标阶段审查合同 |
+| 质量门禁和审计 | 目标阶段 `SKILL.md + CONTEXT.md` 与其内置 `review/review-contract.md` |
 | 请求判型 | 本文件 `Routing Table`、目标阶段 `Mode Selection` 与 `CONTEXT.md` Type Map |
 | 可复用经验 | `CONTEXT.md` |
 | 输出摘要 | 对话或用户指定 `reports/` 路径 |
 | 共享 CLI 和路径解析 | `scripts/story.py`、`scripts/project_locator.py` |
 | 产品侧入口 | `.codex/registry/skills.yaml` 与 `.codex/registry/routes.yaml` |
-| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；真实执行细则、模板、类型包和 review gate 由被路由到的阶段 skill 或卫星 skill 持有 |
+| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；真实执行细则、模板、类型包和内置验收 gate 由被路由到的阶段 skill 持有 |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -347,6 +350,6 @@ python3 .agents/skills/story/scripts/workflow_manager.py record-skill-completion
 - 已能明确把任一泛化 `story2026` 请求路由到唯一默认入口。
 - 已能说明该请求应读的 canonical truth 与不该误读的非真源层。
 - 已区分根级 `_shared`、`scripts/`、`templates/` 的共享职责。
-- 已能说明当前项目的题材方向盘如何从 `north_star.yaml.genre_contract` 进入 planning / drafting / validation。
+- 已能说明当前项目的题材方向盘如何从 `north_star.yaml.genre_contract` 进入 planning / drafting / polishing / built-in acceptance。
 - 已能指出 repo 级 `.codex/` 真源与项目级 `STATE.json.workflow_runtime` 内联工件链的分工。
-- 已能说明 planning root/slice 的分工、`validation_fact_pack` 的 covenant，以及 上下文回流 的 PASS+handoff gate。
+- 已能说明 planning root/slice 的分工、`stage_acceptance_packet` 的 covenant，以及 上下文回流 的 PASS+handoff gate。

@@ -1,4 +1,0 @@
-interface:
-  display_name: "逻辑自洽校验"
-  short_description: "小说逻辑自洽终验：因果链、世界规则、能力边界、例外代价与源层归因"
-  default_prompt: "使用 $story-review-logic-self-consistency 审查指定卷或章节的逻辑自洽维度。"

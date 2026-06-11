@@ -9,7 +9,7 @@
 | when | must check |
 | --- | --- |
 | 改当前章事件 | 当前章规划、上一章结尾、相关角色/物品/场景卡 |
-| 改事件结果 | 后续承接章、卷规划任务状态、review aggregate |
+| 改事件结果 | 后续承接章、卷规划任务状态、stage acceptance packet |
 | 改章末钩子 | 下一章规划、下一章开篇、provider continuity bridge |
 | 改场面动作 | 场景卡、人物位置、道具状态、时间线和空间动线 |
 

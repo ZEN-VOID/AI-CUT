@@ -87,7 +87,7 @@ class StateUpdater:
             "relationships",
             "world_settings",
             "plot_threads",
-            "review_checkpoints"
+            "acceptance_checkpoints"
         ]
 
         for key in required_keys:
@@ -330,19 +330,19 @@ class StateUpdater:
         })
         print(f"📝 标记第{volume}卷已规划: 第{chapters_range}章")
 
-    def add_review_checkpoint(
+    def add_acceptance_checkpoint(
         self,
         chapters_range: str,
-        report_file: str,
+        acceptance_file: str,
         volume: int | None = None,
         anti_ai_force_check: str = "pending",
         spoiler_risk: str = "low",
         contrivance_risk: str = "low",
         cold_commentary_risk: str = "low",
     ):
-        """添加审查记录"""
-        if "review_checkpoints" not in self.state:
-            self.state["review_checkpoints"] = []
+        """添加阶段验收记录"""
+        if "acceptance_checkpoints" not in self.state:
+            self.state["acceptance_checkpoints"] = []
 
         chapter_refs = []
         start_chapter = None
@@ -355,7 +355,7 @@ class StateUpdater:
 
         inferred_volume = volume
         if inferred_volume is None:
-            report_match = re.fullmatch(r".*第(\d+)卷审查报告\.md", report_file.strip())
+            report_match = re.fullmatch(r".*第(\d+)卷.*acceptance\.json", acceptance_file.strip())
             if report_match:
                 inferred_volume = int(report_match.group(1))
             elif start_chapter is not None and end_chapter is not None and end_chapter >= start_chapter:
@@ -365,8 +365,8 @@ class StateUpdater:
 
         checkpoint = {
             "chapters": chapters_range,
-            "report": report_file,
-            "reviewed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "acceptance_ref": acceptance_file,
+            "accepted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "anti_ai_force_check": anti_ai_force_check,
             "spoiler_risk": spoiler_risk,
             "contrivance_risk": contrivance_risk,
@@ -378,8 +378,8 @@ class StateUpdater:
         if chapter_refs:
             checkpoint["chapter_refs"] = chapter_refs
 
-        self.state["review_checkpoints"].append(checkpoint)
-        print(f"📝 添加审查记录: 第{chapters_range}章 → {report_file}")
+        self.state["acceptance_checkpoints"].append(checkpoint)
+        print(f"📝 添加验收记录: 第{chapters_range}章 → {acceptance_file}")
 
     def update_strand_tracker(self, strand: str, chapter: int):
         """更新主导情节线（Strand Weave系统）"""
@@ -549,42 +549,42 @@ def main():
         help='章节范围（如 "1-100"）'
     )
 
-    # 审查记录
+    # 验收记录
     parser.add_argument(
-        '--add-review',
+        '--add-acceptance',
         nargs=2,
-        metavar=('CHAPTERS_RANGE', 'REPORT_FILE'),
-        help='添加审查记录（章节范围 报告文件）'
+        metavar=('CHAPTERS_RANGE', 'ACCEPTANCE_FILE'),
+        help='添加阶段验收记录（章节范围 acceptance 文件）'
     )
     parser.add_argument(
-        '--review-volume',
+        '--acceptance-volume',
         type=int,
         metavar='VOLUME',
-        help='审查记录对应卷号（推荐卷级审查时显式提供）'
+        help='验收记录对应卷号（推荐卷级验收时显式提供）'
     )
     parser.add_argument(
-        '--review-anti-ai-force-check',
+        '--acceptance-anti-ai-force-check',
         choices=['pending', 'pass', 'fail'],
         default='pending',
-        help='审查摘要中的 anti_ai_force_check（默认 pending）'
+        help='验收摘要中的 anti_ai_force_check（默认 pending）'
     )
     parser.add_argument(
-        '--review-spoiler-risk',
+        '--acceptance-spoiler-risk',
         choices=['low', 'medium', 'high', 'critical'],
         default='low',
-        help='审查摘要中的 spoiler_risk（默认 low）'
+        help='验收摘要中的 spoiler_risk（默认 low）'
     )
     parser.add_argument(
-        '--review-contrivance-risk',
+        '--acceptance-contrivance-risk',
         choices=['low', 'medium', 'high', 'critical'],
         default='low',
-        help='审查摘要中的 contrivance_risk（默认 low）'
+        help='验收摘要中的 contrivance_risk（默认 low）'
     )
     parser.add_argument(
-        '--review-cold-commentary-risk',
+        '--acceptance-cold-commentary-risk',
         choices=['low', 'medium', 'high', 'critical'],
         default='low',
-        help='审查摘要中的 cold_commentary_risk（默认 low）'
+        help='验收摘要中的 cold_commentary_risk（默认 low）'
     )
 
     # Strand Tracker 更新
@@ -607,7 +607,7 @@ def main():
         args.resolve_foreshadowing,
         args.progress,
         args.volume_planned,
-        args.add_review,
+        args.add_acceptance,
         args.strand_dominant
     ]):
         parser.print_help()
@@ -671,16 +671,16 @@ def main():
                 sys.exit(1)
             updater.mark_volume_planned(args.volume_planned, args.chapters_range)
 
-        if args.add_review:
-            chapters_range, report_file = args.add_review
-            updater.add_review_checkpoint(
+        if args.add_acceptance:
+            chapters_range, acceptance_file = args.add_acceptance
+            updater.add_acceptance_checkpoint(
                 chapters_range,
-                report_file,
-                volume=args.review_volume,
-                anti_ai_force_check=args.review_anti_ai_force_check,
-                spoiler_risk=args.review_spoiler_risk,
-                contrivance_risk=args.review_contrivance_risk,
-                cold_commentary_risk=args.review_cold_commentary_risk,
+                acceptance_file,
+                volume=args.acceptance_volume,
+                anti_ai_force_check=args.acceptance_anti_ai_force_check,
+                spoiler_risk=args.acceptance_spoiler_risk,
+                contrivance_risk=args.acceptance_contrivance_risk,
+                cold_commentary_risk=args.acceptance_cold_commentary_risk,
             )
 
         # Strand Tracker 更新

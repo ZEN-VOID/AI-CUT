@@ -96,7 +96,7 @@ flowchart LR
 - 无序号同级子技能包：本目录下没有无序号可执行子技能；若未来新增，默认由本技能聚合其输出并回写唯一 `第N章.md`。
 - 数字序号同级子技能包：本技能消费父层数字序号链路产物，必须在部级与卷级规划完成后进入。
 - 英文序号同级子技能包：本目录下没有 `A- / B- / C-` 互斥路线；若未来新增，按用户意图或父层路由单选。
-- 卫星技能：本目录下没有本级卫星技能；查询、恢复、审查等旁路由 `story/query`、`story/resume`、`story/review` 或父层声明的 reviewer 承接。
+- 卫星技能：本目录下没有本级卫星技能；查询、恢复等旁路由 `story/query`、`story/resume` 承接，审查由本级 `review/review-contract.md` 或父层声明的 reviewer 承接。
 
 ## Execution Contract
 

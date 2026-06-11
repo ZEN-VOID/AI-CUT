@@ -1,4 +1,0 @@
-interface:
-  display_name: "文体读感"
-  short_description: "小说文体读感终验：场景现场感、中文句群、对白潜台词、心理暗流与 AI 腔清查"
-  default_prompt: "使用 $story-review-prose-style 审查指定卷或章节的文体读感维度。"

@@ -25,6 +25,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须先加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与题材、场景、制作限制、审美禁区、氛围偏好或物理特效限制相关的文件。
 - 默认读取上游表演稿：`projects/aigc/<项目名>/5-表演/第N集.md`。用户显式指定其他表演稿、粘贴文本或候选稿时，以用户输入为 source，并在报告记录 `source_override=true`。
 - 必须读取可用的 `3-美学` 产物，优先级为 `画面基调`、`角色风格`、`场景风格`。若任一缺失，可使用用户提供的等价风格文本，但必须在报告记录降级来源和 N/A 理由。
+- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map`：说明 `5-表演` 触发点、表演焦点和 `3-美学` 三类协议如何被投影为选择性 `氛围画面`、物理氛围手段、时间锚点和保真边界。
 - 必须加载本目录 `references/atmosphere-and-mood-contract.md`；当氛围增写涉及场景节奏、蓄压、爆发、静默、转场余波或视觉特效节奏时，必须加载 `references/scene-rhythm-contract.md`，并将其作为视觉特效节奏细则使用；当任务涉及动作破坏点、材质响应、现场受损、撞击、坍塌、爆破余波、风浪、机械擦撞、门窗破裂、道具毁坏、碎石、木屑、湿泥、尘土、石粉、水汽、火星、玻璃屑、金属碎片或 `FAIL-ATM-DESTRUCTION-FX` 时，必须加载 `types/action-destruction-fx/index.md`，建立 `destruction_type_route` 后再加载对应类型模块。
 - 任何涉及 `氛围画面`、画面化正文、抽象氛围、诗意/电影感/宿命感、比喻化感官或 AIGC 视频可实现性的任务，必须加载 `../_shared/anti-abstract-language-contract.md`；“画面化”默认按文学白描式可见/可听/可感材料处理。
 - 题材理解、触发点选择、氛围包适配、逐字段增写、时间关系设计和物理特效审美判断必须由 LLM 主创。脚本只允许承担读取、字段扫描、覆盖统计、diff、报告辅助和残留检查。
@@ -180,7 +181,7 @@ Reject or clarify when:
 | `N3-TRIGGER-INVENTORY` | 建立选择性增写触发点 | N2 证据、表演稿字段 | 扫描全部画面点；按 `render/support/intensify/destruction_fx` 判定触发；为每个触发点记录 source anchor、触发理由、情绪/节奏目标、时间关系、风险和不触发点统计 | `trigger_point_inventory`、`non_trigger_rationale_summary`、`trigger_density_stats`、`destruction_trigger_inventory` | `N4` / `R1` | 触发点必须少而准；无触发理由不得新增字段；默认密度越界必须说明 |
 | `N4-ATMOSPHERE-PACK` | 适配题材与场景的专属氛围包 | N2-N3 证据、knowledge-base、必要网络资料 | 优先从 `physical-atmosphere-index.md#Default Selection Library` 的 12 类默认库选型；按题材、场景条件、表演强度和美学协议决定烟雾/光/风/雨雪/火水尘/投影/气味/温度等；若触发动作破坏点，按 `destruction_type_route` 加载 `types/action-destruction-fx/index.md` 和对应类型模块，建立动作源、受击材质、破坏材料、强度节奏和边界句法；记录来源边界 | `genre_atmosphere_pack`、`physical_fx_selection_map`、`destruction_type_route`、`action_destruction_type_module`、`action_destruction_fx_profile`、`style_source_matrix`、`risk_limit_map` | `N5` / `R1` | 每个手段必须符合场景条件；无源天气、火、烟、群众事件或无源爆点不得进入；类型证据不足时回退 `generic_material_response` 或不触发 |
 | `N5-ATM-ENRICH` | LLM 逐点新增 `氛围画面：XXX` | N2-N4 证据、references | 保留原表演稿字段和正文；只在触发点后新增 `氛围画面：`；写清白描式物理特效、感官细节、时间属性、与动作/对白/心理/场景节奏的关系；把抽象、比喻、象征和概念标签压回可见/可听/可感材料；动作破坏点必须跟随 `destruction_type_route`，写清力量来源、受击材质、碎石/木屑/湿泥/水汽/火星/玻璃屑/金属碎片/纸灰等类型匹配的材料响应和风格边界；不写设备清单或 prompt | `candidate_atmosphere_episode`、`atmosphere_insert_map`、`time_anchor_map`、`destruction_type_route`、`action_destruction_fx_map`、`reference_application_map`、`plain_visualization_audit` | `N6` / `R1` | 新增字段格式正确；原稿结构不漂移；每条新增都可见/可听/可感且有时间锚点；不得靠比喻或概念标签承托主信息；破坏点不得类型越界、关键词误判或改写剧情 |
-| `N6-ATM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-ATM-01..19`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`trigger_coverage_stats`、`reference_execution_matrix`、`rule_evidence_map`、`destruction_type_route`、`action_destruction_fx_map`、`plain_visualization_audit` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
+| `N6-ATM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-ATM-01..20`；阻断项回到 N2-N5 或 R2 最小修复，最多 3 轮；无法修复时进入阻断收束 | `review_verdict`、`repair_log`、`trigger_coverage_stats`、`reference_execution_matrix`、`upstream_context_application_map`、`rule_evidence_map`、`destruction_type_route`、`action_destruction_fx_map`、`plain_visualization_audit` | `N7` / `R1` / `N8` | review 未通过不得写回 canonical |
 | `N7-ATM-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract | 写入 `projects/aigc/<项目名>/6-氛围/第N集.md` 与 `执行报告.md`；报告记录来源、触发、reference matrix、rule map、N/A、修复、网络来源和残余风险 | `output_manifest`、`execution_report` | done | 输出路径唯一；报告证据完整；正式写回不得缺执行报告 |
 | `R1-ATM-REWORK` | 源层返工定位 | fail code、review evidence | 追到题材理解、美学继承、触发判定、氛围包、增写正文、格式或输出路径层 | `root_cause_trace` | `R2` / `N2` / `N3` / `N4` / `N5` | 不得用泛化润色掩盖触发、保真、物理手段或报告失败 |
 | `R2-ATM-SYNC-REPAIR` | 修复已有氛围稿 | existing draft、root cause | 只修失败字段、过度增写、缺时间属性、物理越权、报告证据或格式错误；不得重写无关原表演稿 | `sync_patch` | `N6` | 修复后同类失败不得残留 |
@@ -221,7 +222,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `action_scope` | 单集任务处理 1 个表演稿 source；批量任务逐集独立执行 N1-N7；每集扫描全部画面点但只增写触发点 | `N3/N5.actions` | `FAIL-ATM-QUANT-SCOPE` |
 | `evidence_count` | 每集至少 1 个 `atmosphere_context_profile`、1 个 `aesthetic_context_map`、1 个 `scene_rhythm_map`、1 个 `trigger_point_inventory`、1 个 `genre_atmosphere_pack`、1 个 `atmosphere_insert_map`、1 个 `time_anchor_map`；若触发动作破坏点，至少 1 个 `destruction_type_route` 和 1 个 `action_destruction_fx_map`；每条新增字段至少 1 个 source anchor、1 个触发类型、1 个时间属性、1 个物理手段和 1 个风险检查 | `Thinking-Action Node Map.evidence` | `FAIL-ATM-QUANT-EVIDENCE` |
-| `pass_threshold` | `GATE-ATM-01..19` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词、明喻、隐喻、象征或概念标签替代白描式具体细节 0；动作破坏点无类型路由/无来源/无材质/类型模块缺失/未授权法术或科技光效/关键词误判 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-ATM-01..20` 阻断项为 0；原字段结构漂移 0；剧情事实越权 0；上游上下文应用缺证 0；无时间属性新增字段 0；无触发理由新增字段 0；抽象氛围词、明喻、隐喻、象征或概念标签替代白描式具体细节 0；动作破坏点无类型路由/无来源/无材质/类型模块缺失/未授权法术或科技光效/关键词误判 0；脚本化生成、批量插入、正则套句、映射投影或句式复用伪差异 0 | `N6.gate` / `Convergence Contract` | `FAIL-ATM-QUANT-THRESHOLD` |
 | `trigger_density` | 默认触发点不超过全画面点 40%；低密度/现实主义 15%-30%；强类型可到 50%，超出必须逐条报告理由 | `N3.actions` / `Review Gate Binding` | `FAIL-ATM-DENSITY` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-ATM-QUANT-RETRY` |
 | `fallback_evidence` | 若某项 `3-美学` 缺失，使用用户指定等价资料并标记降级；若知识库缺题材氛围包，记录 `pretrained_atmosphere_inference` 或网络来源；若某画面点语义不可判定，保持原文不增写并在报告列 N/A | `Review Gate Binding.report_evidence` | `FAIL-ATM-QUANT-FALLBACK` |
@@ -241,6 +242,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用本技能 | 经验层、失败模式、氛围增写 heuristics | 重定义输入、节点、gate 或输出路径 | `Learning / Context Writeback` |
 | `../_shared/anti-abstract-language-contract.md` | `氛围画面`、画面化正文、抽象氛围、诗意/电影感/宿命感、比喻化感官、AIGC 视频可实现性、`FAIL-ATM-PLAIN-VISUALIZATION` | 跨阶段反抽象合同，定义白描式画面化、比喻/概念残留审查和可生成材料投影 | 替代氛围触发裁决、题材氛围包、物理边界或 LLM 逐点主创 | `N3/N5/N6` |
+| `../_shared/upstream-context-application-contract.md` | 任意正式生成、repair、review，或 `FAIL-ATM-UPSTREAM-CONTEXT` | 规定表演稿与美学上下文如何被氛围稿应用、保真和举证，要求 `Upstream Context Application Map` | 替代氛围触发裁决、反向改写表演稿/美学协议、无源新增天气/火源/烟源/事件 | `N1-ATM-INTAKE` / `N3-TRIGGER-INVENTORY` / `N6` |
 | `references/atmosphere-and-mood-contract.md` | 任意生成、修复或审查任务 | 五感氛围、意境密度、声景层次、通感/微观/反衬/留白细则 | 替代本 `SKILL.md` 的触发机制、输出门或字段新增规则 | `N2/N4/N5/N6` |
 | `references/scene-rhythm-contract.md` | 涉及蓄压、爆发、静默、转场余波、视觉特效节奏或 `FAIL-ATM-RHYTHM` | 作为视觉特效节奏细则，约束氛围强度和出现时机 | 反向要求本阶段生成编剧层节奏字段或摄影剪辑方案 | `N2/N3/N5/N6` |
 | `types/action-destruction-fx/index.md` | 涉及动作破坏点、材质响应、现场受损或 `FAIL-ATM-DESTRUCTION-FX` / `FAIL-ATM-DESTRUCTION-TYPE-ROUTE` | 动作破坏点类型索引、`destruction_type_route` schema、类型模块 map 和通用路由原则 | 替代 `SKILL.md` 的触发、gate、输出合同或自行决定写回路径 | `N2/N4/N6` |
@@ -262,6 +264,7 @@ flowchart LR
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
 | `default_generation; FAIL-ATM-TYPE-SINGLE; FAIL-ATM-SOURCE-CONTEXT; FAIL-ATM-TRIGGER; FAIL-ATM-TIME-ANCHOR; FAIL-ATM-CONCRETE` | `../_shared/anti-abstract-language-contract.md`, `references/atmosphere-and-mood-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `N2-N6` | `GATE-ATM-01..19` | `trigger_point_inventory`、新增字段扫描、执行报告 sections、`plain_visualization_audit` |
+| `upstream_context_application; FAIL-ATM-UPSTREAM-CONTEXT` | `../_shared/upstream-context-application-contract.md` | `N1-N6` | `GATE-ATM-20-UPSTREAM-CONTEXT` | `Upstream Context Application Map` binds performance/aesthetic anchors to atmosphere decisions |
 | `节奏 / 蓄压 / 爆发 / 静默 / 转场 / FAIL-ATM-RHYTHM` | `references/scene-rhythm-contract.md`, `references/atmosphere-and-mood-contract.md` | `N2/N3/N5` | `GATE-ATM-08-RHYTHM-FX` | `scene_rhythm_map`、节奏触发理由 |
 | `烟雾 / 打灯 / 鼓风机 / 雨雪 / 火光 / 尘土 / 投影 / 天气模拟 / FAIL-ATM-PHYSICAL-FX` | `knowledge-base/physical-atmosphere-index.md`, `references/atmosphere-and-mood-contract.md` | `N4/N5` | `GATE-ATM-09-PHYSICAL-FX` | `physical_fx_selection_map`、风险检查 |
 | `动作破坏 / 材质响应 / 现场受损 / 武器风压 / 撞击 / 坍塌 / 爆破余波 / 风浪 / 机械擦撞 / 门窗破裂 / 道具毁坏 / 白刃剑风 / 枪风 / 链镰 / 飞剑 / 断链余劲 / 碎石 / 木屑 / 湿泥 / 尘土 / 石粉 / 水汽 / 火星 / 玻璃屑 / 金属碎片 / FAIL-ATM-DESTRUCTION-FX / FAIL-ATM-DESTRUCTION-TYPE-ROUTE` | `types/action-destruction-fx/index.md`, routed `types/action-destruction-fx/<type>.md`, `references/scene-rhythm-contract.md`, `knowledge-base/physical-atmosphere-index.md` | `N2/N3/N4/N5/N6` | `GATE-ATM-19-ACTION-DESTRUCTION-FX` | `destruction_type_route`、`action_destruction_type_module`、`destruction_trigger_inventory`、`action_destruction_fx_map`、`boundary_check` |
@@ -282,9 +285,10 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | `C1-SOURCES-LOCKED` | source、集号、美学上下文和写回模式唯一 | source 冲突、无可读表演稿、正式写回路径不明 | `source_manifest`、`aesthetic_manifest` | `N1-ATM-INTAKE` |
 | `C2-UNDERSTANDING-READY` | 题材、情节、表演稿、画面基调、角色风格和场景风格已形成可执行氛围方向 | 只写概念标签或缺上游证据 | `atmosphere_context_profile`、`aesthetic_context_map` | `N2-ATM-UNDERSTAND` |
+| `C2A-UPSTREAM-CONTEXT-APPLIED` | 表演稿触发点、表演焦点和三类美学协议已投影为氛围触发、物理手段和时间锚点 | 只说明已读取表演稿/美学，新增氛围无法回指上游锚点或保真检查 | `upstream_context_application_map` | `N1-ATM-INTAKE` / `N3-TRIGGER-INVENTORY` / `N5-ATM-ENRICH` |
 | `C3-TRIGGERS-READY` | 触发点选择性明确，未触发点理由可解释，密度合规 | 每点硬加、漏关键点、触发无理由 | `trigger_point_inventory`、`trigger_density_stats` | `N3-TRIGGER-INVENTORY` |
 | `C4-PACK-READY` | 物理氛围包符合题材、场景条件和美学协议 | 无源天气/火/烟/雨，或手段与题材冲突 | `genre_atmosphere_pack`、`physical_fx_selection_map` | `N4-ATMOSPHERE-PACK` |
-| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、白描式画面化通过、保真通过、作者性完整性通过；若触发动作破坏点，类型路由、类型模块、动作源、受击材质、破坏材料和风格边界完整；review 阻断项 0 | 字段漂移、无时间属性、新剧情、抽象氛围、比喻/象征/概念标签替代感官材料、设备说明口吻、动作破坏无类型路由/无类型模块/无源/无材质/关键词误判/未授权法术或科技光效、脚本化生成、批量插入、正则套句、映射投影或特效词库伪差异 | `review_verdict`、`time_anchor_map`、`plain_visualization_audit`、`destruction_type_route`、`action_destruction_type_module`、`action_destruction_fx_map`、`authorship_integrity_audit` | `N5/N6` |
+| `C5-ENRICHMENT-PASS` | 新增字段格式正确、时间属性完整、上游上下文应用通过、白描式画面化通过、保真通过、作者性完整性通过；若触发动作破坏点，类型路由、类型模块、动作源、受击材质、破坏材料和风格边界完整；review 阻断项 0 | 字段漂移、无时间属性、上游上下文应用缺证、新剧情、抽象氛围、比喻/象征/概念标签替代感官材料、设备说明口吻、动作破坏无类型路由/无类型模块/无源/无材质/关键词误判/未授权法术或科技光效、脚本化生成、批量插入、正则套句、映射投影或特效词库伪差异 | `review_verdict`、`upstream_context_application_map`、`time_anchor_map`、`plain_visualization_audit`、`destruction_type_route`、`action_destruction_type_module`、`action_destruction_fx_map`、`authorship_integrity_audit` | `N5/N6` |
 
 ## Review Gate Binding
 
@@ -309,6 +313,7 @@ flowchart LR
 | 终稿是否读起来仍像剧本正文，不像制作说明书或设备清单？ | `GATE-ATM-17-SCRIPT-READABILITY` | `FAIL-ATM-SCRIPT-READABILITY` | `N5` | 新增字段可读性抽样 |
 | 氛围画面是否由 LLM 基于触发理由、时间锚点、物理来源和场景节奏逐条判断，而非脚本、映射表、规则模板、关键词锚点替换、句式轮换、同义改写、特效词库批量生成、批量插入、正则套句或映射投影？ | `GATE-ATM-18-AUTHORSHIP-INTEGRITY` | `FAIL-ATM-SCRIPTED-PROJECTION` | `R1/R2` -> `N3-TRIGGER-INVENTORY` -> `N5-ATM-ENRICH` | `authorship_integrity_audit`、重复句式/特效词替换抽样、废弃候选记录 |
 | 动作破坏点是否先建立 `destruction_type_route`，并以用户信号、3-美学、5-表演场景/动作/材质和项目记忆为证据，而不是只靠单个关键词裁决类型？是否按路由加载了对应 `types/action-destruction-fx/<type>.md`？破坏正文是否有动作来源、受击材质、破坏材料、节奏属性和风格边界，且没有类型越界、无源爆炸或剧情结果越权？ | `GATE-ATM-19-ACTION-DESTRUCTION-FX` | `FAIL-ATM-DESTRUCTION-FX` / `FAIL-ATM-DESTRUCTION-TYPE-ROUTE` | `N2/N3/N4/N5` | `destruction_type_route`、`action_destruction_type_module`、`destruction_trigger_inventory`、`action_destruction_fx_map`、`style_fit_matrix`、`boundary_check` |
+| `5-表演` 和 `3-美学` 上下文是否明确投影为氛围触发与新增字段决策，并记录 source anchor、local decision 和 preservation check，而非只写“已读取/已参考”？ | `GATE-ATM-20-UPSTREAM-CONTEXT` | `FAIL-ATM-UPSTREAM-CONTEXT` | `N1-ATM-INTAKE` / `N3-TRIGGER-INVENTORY` / `N5-ATM-ENRICH` | `upstream_context_application_map` |
 
 ## Attention Concentration Protocol
 
@@ -341,7 +346,7 @@ Output format:
 - 只在触发点后新增 `氛围画面：XXX` 字段；不触发的画面点不新增占位字段。
 - `XXX` 必须是白描式画面化正文，含物理氛围手段、感官细节、时间属性和相邻动作/画面锚点；删除比喻、象征或概念词后仍须可见、可听、可感。
 - 不在正文中解释“为什么这样增写”“使用某参考合同”这类元说明；执行证据写入报告。
-- 执行报告必须包含：`Source Manifest`、`Aesthetic Context Map`、`Execution Decision Trace`、`Reference Execution Matrix`、`Type Module Execution Matrix`、`Trigger Point Inventory`、`Physical Atmosphere Pack`、`Rule Evidence Map`、`Coverage Stats`、`N/A Justification`、`Repair Log`、`Output Manifest`。若触发动作破坏点，还必须包含 `Destruction Type Route` 和 `Action Destruction FX Map`，前者记录 user/aesthetic/source_scene/source_action/material/memory 六类信号、confidence、boundary_profile、fallback_reason 和 loaded type module，后者记录动作来源、受击材质、破坏材料、风格继承和边界检查。
+- 执行报告必须包含：`Source Manifest`、`Aesthetic Context Map`、`Execution Decision Trace`、`Reference Execution Matrix`、`Type Module Execution Matrix`、`Upstream Context Application Map`、`Trigger Point Inventory`、`Physical Atmosphere Pack`、`Rule Evidence Map`、`Coverage Stats`、`N/A Justification`、`Repair Log`、`Output Manifest`。若触发动作破坏点，还必须包含 `Destruction Type Route` 和 `Action Destruction FX Map`，前者记录 user/aesthetic/source_scene/source_action/material/memory 六类信号、confidence、boundary_profile、fallback_reason 和 loaded type module，后者记录动作来源、受击材质、破坏材料、风格继承和边界检查。
 
 Output path:
 
@@ -353,7 +358,7 @@ Naming convention:
 
 Completion gate:
 
-- `GATE-ATM-01..19` 阻断项为 0。
+- `GATE-ATM-01..20` 阻断项为 0。
 - `FAIL-ATM-SCRIPTED-PROJECTION` 必须为 0；若候选稿只是特效词库投影、句式轮换或锚点替换，不得表层润色通过，必须废弃并回到触发清单和逐点增写节点。
 - `FAIL-ATM-DESTRUCTION-FX` 必须为 0；若动作破坏点无动作来源、无受击材质、无破坏材料、未加载路由后的类型模块、使用当前类型未授权的法术/科技光效、无源爆炸或改写剧情结果，不得判定为 pass。
 - `FAIL-ATM-DESTRUCTION-TYPE-ROUTE` 必须为 0；若动作破坏点没有 `destruction_type_route`，或只凭“爆点/水汽/火星/武器名”等单词裁决类型，不得判定为 pass。

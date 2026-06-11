@@ -47,14 +47,14 @@ def test_quality_guard_blocks_legacy_rework_snapshot(tmp_path):
                 "chapter_refs:",
                 "  - 3-初稿/第1卷/第5章.md",
                 "  - 3-初稿/第1卷/第8章.md",
-                "post_review_summary:",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "post_acceptance_summary:",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: rework_required_before_validation",
+                "  verdict: rework_required_before_acceptance",
                 "  next_action: 3-初稿-rework",
                 "  representative_chapter_refs:",
                 "    - 3-初稿/第1卷/第5章.md",
@@ -71,7 +71,7 @@ def test_quality_guard_blocks_legacy_rework_snapshot(tmp_path):
     result = module.validate_volume_log(write_log, volume_num=1)
 
     assert result["status"] == "block"
-    assert result["reason"] == "quality_rework_required_before_validation"
+    assert result["reason"] == "quality_rework_required_before_acceptance"
 
 
 def test_quality_guard_passes_ready_snapshot(tmp_path):
@@ -86,15 +86,15 @@ def test_quality_guard_passes_ready_snapshot(tmp_path):
                 "  - 3-初稿/第1卷/第8章.md",
                 "  - 3-初稿/第1卷/第10章.md",
                 "quality_gate_snapshot:",
-                "  checkpoint_stage: pre_validation",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "  checkpoint_stage: pre_acceptance",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: ready_for_validation",
-                "  next_action: review",
+                "  verdict: ready_for_acceptance",
+                "  next_action: 3-初稿-acceptance",
                 "  representative_chapter_refs:",
                 "    - 3-初稿/第1卷/第5章.md",
                 "    - 3-初稿/第1卷/第8章.md",

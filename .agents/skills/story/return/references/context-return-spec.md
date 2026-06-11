@@ -1,17 +1,17 @@
 # Context Return Actualization Spec
 
-`return` only handles volume-level validated actualization. It does not validate drafts, persist review reports, or repair upstream source truth.
+`return` only handles volume-level validated actualization. It does not validate drafts, persist standalone review reports, or repair upstream source truth.
 
 ## Intake Gate
 
 All four conditions are mandatory:
 
-- `validation_status == PASS`
-- `routing_decision == handoff_to_review_and_context_return`
-- `handoff_targets` contains both `review/` and `return`
+- `acceptance_status == PASS`
+- `handoff_targets` contains `return`
 - `accepted_manuscript_stage` and `accepted_manuscript_refs` identify the final accepted manuscript evidence
+- `acceptance_ref` points to the owning stage acceptance packet
 
-`PASS` without `return` handoff is a historical review result, not actualization permission. `PASS` that points only at an unaccepted `3-初稿` draft is also not actualization permission unless the aggregate explicitly declares polishing skipped and sets `accepted_manuscript_stage = 3-初稿`.
+`PASS` without `return` handoff is a historical acceptance result, not actualization permission. `PASS` that points only at an unaccepted `3-初稿` draft is also not actualization permission unless the acceptance packet explicitly declares polishing skipped and sets `accepted_manuscript_stage = 3-初稿`.
 
 ## Accepted Manuscript Boundary
 
@@ -23,26 +23,26 @@ Default accepted manuscript source:
 Allowed exception:
 
 - `accepted_manuscript_stage == 3-初稿`
-- the aggregate includes an explicit skip-polish acceptance note, such as `polish_status == skipped` or `skip_polish_accepted == true`
+- the acceptance packet includes an explicit skip-polish acceptance note, such as `polish_status == skipped` or `skip_polish_accepted == true`
 
 Forbidden:
 
-- actualizing a `3-初稿` candidate because review merely finished
+- actualizing a `3-初稿` candidate because acceptance merely finished
 - actualizing a draft that may still be changed by `4-润色`
-- deriving actualization from a child sidecar instead of the parent aggregate
+- deriving actualization from a commentary sidecar instead of the owning stage acceptance packet
 
 ## Delta Source Boundary
 
-`context_return_delta` may contain only validated results that can be traced to the accepted aggregate and evidence refs.
+`context_return_delta` may contain only validated results that can be traced to the accepted stage acceptance packet and evidence refs.
 
 It must not contain:
 
 - drafting guesses
 - unaccepted draft-state facts
-- subjective review advice not accepted by the aggregate
+- subjective review advice not accepted by the owning stage acceptance packet
 - source-fix drafts
 - projected future plans
-- inferred actualization without validation evidence
+- inferred actualization without acceptance evidence
 
 ## Writeback Targets
 
@@ -94,7 +94,7 @@ Actual disk writes are committed in this order:
 
 ## Hard Rules
 
-- Do not rewrite `validation_status`, `routing_decision`, or `handoff_targets`.
+- Do not rewrite `acceptance_status`, `handoff_targets`, or `accepted_manuscript_refs`.
 - Do not actualize a draft-state manuscript. Lock `accepted_manuscript_stage` and `accepted_manuscript_refs` before delta normalization.
 - Do not overwrite `planned_*`.
 - Do not write validated actualization directly into planning markdown bodies.

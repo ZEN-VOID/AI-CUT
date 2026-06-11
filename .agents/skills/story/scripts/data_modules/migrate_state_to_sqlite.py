@@ -18,7 +18,7 @@ migrate_state_to_sqlite.py - 数据迁移脚本 (v5.4)
 - world_settings (骨架)
 - plot_threads
 - relationships (简化版)
-- review_checkpoints
+- acceptance_checkpoints
 
 用法:
     python -m data_modules.migrate_state_to_sqlite --project-root "D:/wk/斗破苍穹"
@@ -246,7 +246,7 @@ def migrate_state_to_sqlite(
             "world_settings": _slim_world_settings(state.get("world_settings", {})),
             "plot_threads": state.get("plot_threads", {}),
             "relationships": _slim_relationships(state.get("relationships", {})),
-            "review_checkpoints": state.get("review_checkpoints", [])[-10:],  # 只保留最近10个
+            "acceptance_checkpoints": state.get("acceptance_checkpoints", [])[-10:],  # 只保留最近10个
             "disambiguation_warnings": state.get("disambiguation_warnings", [])[-20:],
             "disambiguation_pending": state.get("disambiguation_pending", [])[-10:],
             # v5.1 引入标记

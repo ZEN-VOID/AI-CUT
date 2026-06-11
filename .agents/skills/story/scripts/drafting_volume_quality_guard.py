@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-drafting_volume_quality_guard.py - pre-validation quality gate for story2026 drafting
+drafting_volume_quality_guard.py - pre-acceptance quality gate for story2026 drafting
 
 用途：
-- 在卷级 `candidate_volume_draft` 之后、进入 `review` 之前，阻止“工序完整但整体写平”的卷继续下游
+- 在卷级 `candidate_volume_draft` 之后、进入 `3-初稿` 内置验收之前，阻止“工序完整但整体写平”的卷继续下游
 - 统一消费 `第V卷.写作日志.yaml -> quality_gate_snapshot`
 """
 
@@ -24,8 +24,10 @@ from project_locator import resolve_project_root
 from runtime_compat import enable_windows_utf8_stdio, normalize_windows_path
 
 
-READY_VERDICT = "ready_for_validation"
-BLOCK_VERDICT = "rework_required_before_validation"
+READY_VERDICT = "ready_for_acceptance"
+BLOCK_VERDICT = "rework_required_before_acceptance"
+LEGACY_READY_VERDICT = "ready_for_validation"
+LEGACY_BLOCK_VERDICT = "rework_required_before_validation"
 REQUIRED_AXES = (
     "anti_formula_progression",
     "relationship_friction",
@@ -73,6 +75,9 @@ def _extract_snapshot(write_log_payload: dict[str, Any]) -> tuple[dict[str, Any]
     snapshot = write_log_payload.get("quality_gate_snapshot")
     if isinstance(snapshot, dict):
         return snapshot, "quality_gate_snapshot"
+    post_acceptance = write_log_payload.get("post_acceptance_summary")
+    if isinstance(post_acceptance, dict):
+        return post_acceptance, "post_acceptance_summary"
     legacy = write_log_payload.get("post_review_summary")
     if isinstance(legacy, dict):
         return legacy, "post_review_summary"
@@ -96,39 +101,39 @@ def validate_quality_snapshot(
             "snapshot_key": snapshot_key,
         }
 
-    review_mode = str(snapshot.get("review_mode") or "").strip()
-    reviewed_at = str(snapshot.get("reviewed_at") or "").strip()
-    reviewer_source = str(snapshot.get("reviewer_source") or "").strip()
+    acceptance_mode = str(snapshot.get("acceptance_mode") or snapshot.get("review_mode") or "").strip()
+    accepted_at = str(snapshot.get("accepted_at") or snapshot.get("reviewed_at") or "").strip()
+    assessor_source = str(snapshot.get("assessor_source") or snapshot.get("reviewer_source") or "").strip()
     verdict = str(snapshot.get("verdict") or "").strip()
     next_action = str(snapshot.get("next_action") or "").strip()
-    checkpoint_stage = str(snapshot.get("checkpoint_stage") or "pre_validation").strip()
-    reviewers = _normalized_list(snapshot.get("reviewers"))
+    checkpoint_stage = str(snapshot.get("checkpoint_stage") or "pre_acceptance").strip()
+    assessors = _normalized_list(snapshot.get("assessors") or snapshot.get("reviewers"))
     representative_refs = _normalized_list(snapshot.get("representative_chapter_refs"))
     primary_issues = _normalized_list(snapshot.get("primary_issues"))
     rework_targets = _normalized_list(snapshot.get("priority_rework_targets"))
     raw_axes = snapshot.get("guard_axes")
     axes = raw_axes if isinstance(raw_axes, dict) else {}
 
-    if checkpoint_stage != "pre_validation":
+    if checkpoint_stage not in {"pre_acceptance", "pre_validation"}:
         issues.append(
             {
                 "code": "invalid_checkpoint_stage",
-                "message": f"checkpoint_stage must be pre_validation, got {checkpoint_stage or '<empty>'}",
+                "message": f"checkpoint_stage must be pre_acceptance, got {checkpoint_stage or '<empty>'}",
             }
         )
-    if not review_mode:
-        issues.append({"code": "missing_review_mode", "message": "review_mode is required"})
-    if not reviewed_at:
-        issues.append({"code": "missing_reviewed_at", "message": "reviewed_at is required"})
-    if verdict not in {READY_VERDICT, BLOCK_VERDICT}:
+    if not acceptance_mode:
+        issues.append({"code": "missing_acceptance_mode", "message": "acceptance_mode is required"})
+    if not accepted_at:
+        issues.append({"code": "missing_accepted_at", "message": "accepted_at is required"})
+    if verdict not in {READY_VERDICT, BLOCK_VERDICT, LEGACY_READY_VERDICT, LEGACY_BLOCK_VERDICT}:
         issues.append(
             {
                 "code": "invalid_verdict",
                 "message": f"verdict must be {READY_VERDICT} or {BLOCK_VERDICT}",
             }
         )
-    if reviewer_source != "self-audit" and not reviewers:
-        issues.append({"code": "missing_reviewers", "message": "reviewers are required unless reviewer_source == self-audit"})
+    if assessor_source != "self-audit" and not assessors:
+        issues.append({"code": "missing_assessors", "message": "assessors are required unless assessor_source == self-audit"})
     if not representative_refs:
         issues.append(
             {
@@ -172,14 +177,14 @@ def validate_quality_snapshot(
                 "message": f"blocked guard axes: {', '.join(blocked_axes)}",
             }
         )
-    if verdict == READY_VERDICT and next_action != "review":
+    if verdict in {READY_VERDICT, LEGACY_READY_VERDICT} and next_action not in {"3-初稿-acceptance", "review"}:
         issues.append(
             {
                 "code": "invalid_next_action_for_ready",
-                "message": f"ready verdict requires next_action=review, got {next_action or '<empty>'}",
+                "message": f"ready verdict requires next_action=3-初稿-acceptance, got {next_action or '<empty>'}",
             }
         )
-    if verdict == BLOCK_VERDICT:
+    if verdict in {BLOCK_VERDICT, LEGACY_BLOCK_VERDICT}:
         if next_action != "3-初稿-rework":
             issues.append(
                 {
@@ -202,19 +207,19 @@ def validate_quality_snapshot(
                 }
             )
 
-    if snapshot_key == "post_review_summary" and verdict == READY_VERDICT and not axes:
+    if snapshot_key in {"post_acceptance_summary", "post_review_summary"} and verdict in {READY_VERDICT, LEGACY_READY_VERDICT} and not axes:
         issues.append(
             {
                 "code": "legacy_snapshot_missing_guard_axes",
-                "message": "legacy post_review_summary cannot directly pass quality gate without guard_axes",
+                "message": "legacy post_acceptance_summary cannot directly pass quality gate without guard_axes",
             }
         )
 
     status = "pass"
     reason = "volume_quality_gate_passed"
-    if verdict == BLOCK_VERDICT:
+    if verdict in {BLOCK_VERDICT, LEGACY_BLOCK_VERDICT}:
         status = "block"
-        reason = "quality_rework_required_before_validation"
+        reason = "quality_rework_required_before_acceptance"
     if issues:
         status = "block"
         if reason == "volume_quality_gate_passed":
@@ -227,7 +232,7 @@ def validate_quality_snapshot(
         "metrics": {
             "required_axes": len(REQUIRED_AXES),
             "passed_axes": passed_axes,
-            "reviewer_count": len(reviewers),
+            "assessor_count": len(assessors),
             "representative_chapter_count": len(representative_refs),
         },
         "verdict": verdict,

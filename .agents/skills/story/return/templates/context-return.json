@@ -11,7 +11,7 @@
   },
   "inputs": {
     "project_root": "",
-    "validation_ref": "",
+    "acceptance_ref": "",
     "manuscript_refs": [],
     "accepted_manuscript_stage": "4-润色",
     "accepted_manuscript_refs": [],
@@ -25,9 +25,8 @@
     "chapter_plan_actualization_refs": [],
     "story_map_ref": "2-卷章/全息地图.json",
     "story_map_slice_ref": "",
-    "validation_status": "PASS",
-    "routing_decision": "",
-    "handoff_targets": []
+    "acceptance_status": "PASS",
+    "handoff_targets": ["return"]
   },
   "content": {
     "context_return_delta_schema": {
@@ -39,7 +38,7 @@
         "current_state_patch": {},
         "history_append": {
           "volume_ref": "",
-          "validation_ref": "",
+          "acceptance_ref": "",
           "changed_fields": [],
           "change_summary": "",
           "impact_scope": "",
@@ -80,7 +79,7 @@
   },
   "gate_summary": {
     "status": "PASS",
-    "validation_gate": "PASS-only",
+    "acceptance_gate": "PASS-with-return-handoff",
     "handoff_grant": "granted",
     "fail_codes": [],
     "repair_entry": ""
@@ -92,7 +91,7 @@
       "manifest_id": "",
       "phase": "pending|committed",
       "volume_ref": "",
-      "validation_ref": "",
+      "acceptance_ref": "",
       "artifact_ref": "",
       "written_card_refs": [],
       "written_map_refs": [],
@@ -101,7 +100,7 @@
       "next_revisions": {}
     },
     "governance_refs": {
-      "validation_report_ref": "",
+      "acceptance_packet_ref": "",
       "artifact_manifest_ref": "",
       "mission_brief_ref": ""
     }

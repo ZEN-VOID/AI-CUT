@@ -1,6 +1,6 @@
 # Story Resume
 
-`story-resume` 是 story2026 的中断恢复卫星技能，负责检测真实断点、归一化安全恢复选项并回接唯一下一入口。它不拥有正文、规划、review 或 context return 的业务真源。
+`story-resume` 是 story2026 的中断恢复卫星技能，负责检测真实断点、归一化安全恢复选项并回接唯一下一入口。它不拥有正文、规划、stage acceptance 或 context return 的业务真源。
 
 ## Directory Tree
 

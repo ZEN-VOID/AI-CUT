@@ -23,6 +23,7 @@
 | `AIGC-TM-06` | 新学习入口或外部经验只改了局部 skill，根索引和审计未同步 | learning satellite integration | 进入 `learn/`，先建立 target_skill_map、sync_scope 和 isolated audit | root、registry、routes、audit 与 owning skill 口径一致 |
 | `AIGC-TM-07` | 阶段产物覆盖率、字段完整或动机证据齐全，但用户仍能看出脚本化、句式复用或锚点替换伪差异 | creative-authorship gate gap | 回 owning skill 补 `authorship / anti-template / differentiation` 独立阻断门；当前候选稿不得 pass | 目标阶段 `SKILL.md` 有 fail code、review gate、返工入口和报告证据；`CONTEXT.md` 有失败模式 |
 | `AIGC-TM-08` | 用户只要短视频 prompt，却被路由到正式 2-10 项目阶段落盘 | mini prompt route drift | 进入 `flash/`，只输出当前聊天窗口 `Flash Prompt Pack` | 无项目文件写回；prompt pack 明确 chat-only |
+| `AIGC-TM-09` | 下游阶段已读取上游输出，但情节桥段、人物关系、画面空间或风格锚点变得像另一套故事 | upstream context application gap | 同步 `_shared/upstream-context-application-contract.md`，要求 owning stage 报告 `Upstream Context Application Map`，并把“已读取但未应用”列为阻断门 | 阶段 `SKILL.md` 加载共享合同；执行报告能证明 `source_anchor -> local_decision -> preservation_check` |
 
 ## Repair Playbook
 
@@ -35,6 +36,7 @@
 7. 修复或学习改进后同时运行 `skill_context_audit.py --root .agents/skills/aigc --strict` 与 `aigc_skill_audit.py --strict`。
 8. 若任何阶段被指出“脚本化、偷懒、未思考、未差异化”，不要先问是否继续润色；先判定 `AIGC-TM-07`，废弃该候选稿的 pass 资格，并检查 owning skill 是否把脚本批量生成、批量插入、正则套句、映射投影、句式复用和锚点替换伪差异列为独立阻断项。
 9. 若用户给少量故事源、参照图、参照视频、图生视频或首尾帧生视频需求，且明确“不保存文档 / 只给 prompt / 当前聊天窗口输出”，优先路由 `flash/`；不要启动正式项目阶段写回。
+10. 若用户指出多阶段“读了上游但各说各话”，不要只补一句“参考上游”；先判定 `AIGC-TM-09`，把上游上下文拆成 truth / constraint / handoff seed / style signal，再要求目标阶段输出 `Upstream Context Application Map`。
 
 ## Reusable Heuristics
 
@@ -49,6 +51,7 @@
 - `learn/` 是 source-first 学习入口；它吸收外部知识前先判媒介证据、事实冲突、目标 owner 和同步消费者，避免局部改进制造全局矛盾。
 - `flash/` 是 chat-only mini prompt 入口；它压缩串联 2-10 的判断，但不写任何 stage canonical 文件，也不生成执行报告。
 - 创作型阶段的最低源层验收不是“字段都在”，而是“字段背后有不可模板化的观看/叙事/设计判断”。覆盖率、四要素、动机证据和报告章节可以被脚本伪造，必须另设反形式化硬门。
+- 上游上下文不是背景资料；它必须被转译为当前阶段的约束、裁决和证据。没有 `source_anchor -> local_decision -> preservation_check` 的链路，就只能说明读取发生过，不能说明上下文被应用。
 
 ## Stage Pipeline — 从原小说到最终视频的完整链路
 

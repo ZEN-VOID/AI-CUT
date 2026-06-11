@@ -8,7 +8,7 @@ metadata:
 
 # Story Resume
 
-`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`review/`、`return`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
+`story-resume` 是 `.agents/skills/story/` 下的恢复卫星技能。它负责定位可证明的中断点、归一化安全恢复选项、过滤危险动作，并把任务回接到 `3-初稿`、`4-润色`、`return`、`query/` 或其他唯一 owner。它不生成正文、不改写规划、不执行 actualization，也不拥有任何阶段业务真源。
 
 本包按 Skill 2.0 工作车间结构维护：入口、触发、模式路由、动态引用、关键门禁和输出合同保留在 `SKILL.md`；恢复协议在 `references/`，思行节点在 `steps/`，恢复类型在 `types/`，质量门禁在 `review/`，经验知识库在 `knowledge-base/`，输出样板在 `templates/`，机械辅助边界在 `scripts/`，产品侧元数据在 `agents/`。
 
@@ -26,15 +26,15 @@ metadata:
 - 用户要求恢复、继续、清理或诊断一个被打断的 story2026 任务。
 - 需要读取 `STATE.json.workflow_runtime.workflow_state`、`execution_state` 或 `task_log` 判断 tracked interruption。
 - `workflow detect` 没有 tracked 中断，但项目工件链显示存在唯一下一入口，需要执行 artifact fallback 判定。
-- 需要把 `story-write`、`story-validate`、`story-review`、`story-return`、`story-query` 等 run 的中断状态解释成人类可执行的恢复选项。
-- 某阶段产物已存在，但需要判断应回到 drafting、review、context return、query、source contract repair，还是先停下人工诊断。
+- 需要把 `story-write`、`story-polishing`、`story-return`、`story-query` 等 run 的中断状态解释成人类可执行的恢复选项。
+- 某阶段产物已存在，但需要判断应回到 drafting、polishing / built-in acceptance、context return、query、source contract repair，还是先停下人工诊断。
 
 ## When Not To Use
 
 - 用户只是查询项目事实、文件位置或已有产物清单，应优先进入 `query/`。
 - 用户要求对 PASS 集做正式 actualization，应进入 `return/`。
 - 用户要求生成或修改正文，应回到 `3-初稿` 对应工序。
-- 用户要求修复审查结论或做终验，应进入 `review/`。
+- 用户要求修复验收结论或做终验，应进入 owning stage 的内置验收：初稿为 `3-初稿`，终稿为 `4-润色`。
 - 用户要求破坏性 Git 操作、删除未备份正文、清空项目资产时，本技能只能提供风险说明和非破坏性检查路径，不得默认执行。
 
 ## Input Contract
@@ -46,21 +46,21 @@ metadata:
 | `project_root` | 项目路径，或当前工作目录可由 `story.py where` 解析到包含 `STATE.json` 的真实书项目根 | `steps/resume-workflow.md` |
 | `resume_intent` | 继续执行、只检测、清理现场、保留现场、重跑、退出恢复流程之一 | `types/resume-type-map.md` |
 | `runtime_evidence` | `workflow detect` 输出，或能证明“没有 tracked interruption”的诊断结果 | `references/workflow-resume.md` |
-| `stage_hint` | 可选；章节号、卷号、当前正文路径、review/report 路径或失败症状 | `references/system-data-flow.md` |
+| `stage_hint` | 可选；章节号、卷号、当前正文路径、acceptance/report 路径或失败症状 | `references/system-data-flow.md` |
 | `risk_profile` | 是否涉及删除正文、清理 workflow state、继续生成或人工保留现场 | `review/resume-review-gate.md` |
 
 Accepted input:
 
 - 明确项目路径或当前目录可解析到 `STATE.json`，并要求恢复、检测、清理或继续任务。
 - 已有 `workflow detect` 输出，需要转成人类可执行恢复方案。
-- 没有 tracked 中断，但存在 `review/*.validation.json`、`review/*章审查报告.md`、`3-初稿/第V卷.写作日志.yaml` 或 `context-return/*.context-return.json` 等业务证据链。
+- 没有 tracked 中断，但存在 `3-初稿/第N卷/第N章.acceptance.json`、`4-润色/第N卷/第N章.acceptance.json`、`3-初稿/第V卷.写作日志.yaml` 或 `context-return/*.context-return.json` 等业务证据链。
 
 Reject or reroute:
 
 - 项目根无法唯一定位 -> 先询问项目路径或要求运行 preflight。
 - 明确只是查询事实 -> `query/`。
 - 明确要求 PASS actualization -> `return/`。
-- 明确要求写正文或修正文稿质量 -> `3-初稿` / `review/`。
+- 明确要求写正文或修正文稿质量 -> `3-初稿` / `4-润色` owning stage。
 - 请求默认执行 `git reset --hard`、未备份删除正文、清空资产 -> block，并只给非破坏性恢复路径。
 
 ## Mode Selection
@@ -71,7 +71,7 @@ Reject or reroute:
 | `artifact_fallback_resume` | 无 tracked 中断，但业务工件链证明唯一下一入口 | 列出证据链，并回接到唯一 stage |
 | `query_light_resume` | tracked command 是 `story-query` | 只给 generic continue / rerun / diagnosis，不进入章节 cleanup |
 | `write_cleanup_resume` | `story-write` Step 2-8 中断且用户倾向重跑 | 先 preview cleanup，再等待确认，不自动删除 |
-| `review_decision_resume` | `story-review` 在人工裁决或后段中断 | 重新确认输入和关键问题处理策略 |
+| `acceptance_decision_resume` | 阶段内置验收在人工裁决或后段中断 | 重新确认输入和关键问题处理策略，并回到 owning stage |
 | `manual_diagnosis` | 手工 Bash、未注册命令或证据冲突 | 保留现场，输出人工诊断路线 |
 | `blocked_safety_stop` | 项目根缺失、证据不足、用户请求危险动作 | 停止恢复裁决，输出 blocker 和最小补充信息 |
 
@@ -82,7 +82,7 @@ Reject or reroute:
 | scenario | load |
 | --- | --- |
 | 恢复协议、安全边界、artifact fallback、step 语义 | `references/workflow-resume.md` |
-| canonical runtime、规划/正文/review/context return 真源 | `references/system-data-flow.md` |
+| canonical runtime、规划/正文/acceptance/context return 真源 | `references/system-data-flow.md` |
 | 旧长 `SKILL.md` 到 Skill 2.0 分区的迁移追踪 | `references/legacy-migration-matrix.md` |
 | 项目根预检、detect、选项归一化、确认、执行、closure | `steps/resume-workflow.md` |
 | 恢复模式、命令类型、风险等级与 stage 回接策略 | `types/resume-type-map.md` |

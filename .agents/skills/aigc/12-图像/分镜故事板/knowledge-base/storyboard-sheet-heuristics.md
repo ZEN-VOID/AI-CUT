@@ -15,8 +15,8 @@
 - panel 图片区默认是 locked 16:9 image box，panel 下方必须有来自源正文的 `rich_brief` 分镜描述文字；LLM 做语义压缩，规则控制来源、长度和信息优先级。
 - 整张 sheet 的画布比例应由 `storyboard_frame_units.length` 反推，而不是默认 16:9。先枚举行列候选，再建立 `panel_geometry_blueprint`，最后在 `gpt-image-2` 合法尺寸内选择能保持每个 image box 锁定 16:9 的 sheet ratio / size。
 - `gpt-image-2` 尺寸合法性：最大边 `<=3840px`，宽高为 `16px` 倍数，长短边比例 `<=3:1`，总像素 `655360..8294400`。合法单张画布无法保持 panel 可读时，应分页或多 sheet。
-- storyboard sheet 前置顶视图 `spatial_floor_plan` 能显著降低角色站位漂移；它应该是平面布置图，不是电影画面、气氛图或场景概念图。
-- 相邻分镜组的 floor plan 应审查连续性：上一组保留的空间锚点、角色移动路径、道具位置变化和摄影机方向变化都要说得通。
+- `分镜平面图` accepted 侧车能显著降低角色站位漂移；故事板只消费它的空间证据，不在本技能内生成或验收平面图。
+- 相邻分镜组的空间连续性应先从源正文和 `visual_prompt_atoms.spatial_positions` 解释；需要专门平面调度时路由到 `分镜平面图`。
 - 只有 JSON 设计稿时，应把主体列为 missing，而不是把 JSON 交给 imagegen 当图片参照。
 
 ## Risk Patterns
@@ -35,8 +35,8 @@
 | panel 比例只声明但没有几何坐标 | 成图仍会出现扁条、竖条或格子比例不一致 | 写入 locked `panel_image_aspect_ratio: 16:9` 和 `panel_geometry_blueprint` |
 | sheet 比例未按 panel 数裁决 | 单个 panel 被压扁或文字区不可读 | 写入 `layout_aspect_decision`：panel_count、candidate_grids、selected_grid、selected_sheet_size、panel_geometry_blueprint、panel_image_box_ratio_error、分页/多 sheet 决策 |
 | source comprehension 空泛 | 模型对既有内容理解不足，panel 设计模板化 | 回源正文逐组补动作链、空间/主体/道具锚点、视觉转折和禁止补写项 |
-| 缺少前置平面图 | storyboard 中角色空间站位漂移 | 先生成并验收 `spatial_floor_plan`，accepted 后再生成 storyboard sheet |
-| 相邻平面图不连续 | 下一个分镜组空间跳变 | 对照上一张 accepted floor plan 补 unchanged anchors、changed positions 和 movement logic |
+| 缺少空间侧车 | storyboard 中角色空间站位漂移风险上升 | 先回源正文补空间锚点和 atoms；必要时另跑 `分镜平面图`，但缺失不阻断 storyboard sheet |
+| 可选空间侧车与源正文冲突 | 下一个分镜组空间跳变或站位不可信 | 以 `10-分组` 源事实优先，标记 `FAIL-SHEET-SPATIAL-HANDOFF` 并移除误用 |
 | panel 数机械等同 `分镜N` 标签数 | storyboard 可能漏掉关键视觉状态或过度切碎运镜结果 | 建立 `storyboard_frame_units`，按视觉节拍 split/merge |
 | 同名主体多候选 | 参照错绑 | 进入 ambiguous，不自动选择 |
 | 批量 rerun 未锁覆盖策略 | 覆盖已有成图 | 默认跳过已有文件，除非用户要求 replace |

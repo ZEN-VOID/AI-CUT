@@ -16,6 +16,7 @@ metadata:
 - 若任务绑定 `projects/aigc/<项目名>/`，必须加载项目根 `MEMORY.md`，再加载项目根 `CONTEXT/` 中与本轮任务直接相关的文件；若任一项目级载体缺失，先报告基线缺口或路由到 `0-初始化`/`resume` 修复。
 - 项目 runtime 唯一真源固定为 `projects/aigc/<项目名>/`；`.codex/state/tasks/` 只作为可选治理镜像。
 - 项目状态载体固定为 `projects/aigc/<项目名>/STATE.json`；结构化治理状态固定为 `projects/aigc/<项目名>/governance-state.yaml`。
+- 当主链执行或审查落在 `2-编剧` 到 `9-光影` 任一阶段，且该阶段声明消费上游输出时，必须加载 `_shared/upstream-context-application-contract.md`；“已读取上游上下文”不等于 pass，必须能证明它如何被投影到当前阶段决策。
 - 冲突优先级：用户显式请求 > 根 `AGENTS.md` / meta 规则 > 本 `SKILL.md` > 阶段或卫星 `SKILL.md` > 分区规范 > `agents/openai.yaml` > 项目 `MEMORY.md` > 项目 `CONTEXT/` > 本 `CONTEXT.md`。
 
 ## Multi-Subskill Continuous Workflow
@@ -29,6 +30,16 @@ metadata:
 - 连续调度不得绕过阻断门：缺少必需输入、初始化项目名未锁定、破坏性操作未授权、阶段/叶子缺失、路线歧义会造成错误 canonical 写回时，必须先停下并给出最小澄清或不可用说明。
 - 每个被调度的阶段或叶子仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只能承担机械辅助，不得替代 LLM 主创判断或根入口最终裁决。
 - 对任何内容创作型阶段或叶子，覆盖率、字段完整、四要素齐全、动机证据存在、报告自证或格式校验通过都只算机械底线；若 owning skill 未把脚本批量生成、批量插入、正则套句、映射投影、句式复用、关键词/锚点替换伪差异、模板批量扩写列为独立阻断项，必须先路由 `learn/` 或目标 skill 源层修复，不得继续判定 canonical pass。
+
+## Upstream Context Application Contract
+
+`2-编剧` 到 `9-光影` 是同一故事源的连续投影链。根入口要求每个下游阶段把上游输出当作可审计 source/constraint，而不是只读作背景材料。
+
+- 凡阶段消费上游输出，必须按 `_shared/upstream-context-application-contract.md` 生成或审查 `Upstream Context Application Map`。
+- 每个关键新增、改写、注入、裁决或省略，都必须说明使用了哪个 `source_anchor`、投影成当前阶段的什么 `local_decision`、保留了哪些 `preserved_truth`。
+- 当前阶段只能投影到本阶段 owning dimension：编剧、风格、导演、表演、氛围、分镜、摄影或光影；不得借“继承上游”反向改写上游事实、字段、空间布局或风格真源。
+- 缺少 `Upstream Context Application Map`、只写“已读取/已参考/已综合考虑”、或无法证明上下文怎样影响输出时，统一触发 `FAIL-AIGC-UPSTREAM-CONTEXT`，返工到 owning stage 的理解、计划、注入或报告节点。
+- 根入口汇流时只接受已经通过本合同的阶段输出；下游产物若与上游同源桥段、人物关系、画面空间或风格锚点脱节，优先判定为上下文应用失败，而不是局部文案问题。
 
 ## Input Contract
 
@@ -162,6 +173,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | need                                        | load                                                                                                                        |
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | project runtime and bootstrap compatibility | `_shared/project-runtime-layout.md`                                                                                       |
+| upstream context application for stages 2-9 | `_shared/upstream-context-application-contract.md`；用于证明上游输出如何被当前阶段投影、保真和举证，不得作为第二输出真源 |
 | natural-language routing and registry truth | `.codex/registry/skills.yaml`, `.codex/registry/routes.yaml`                                                            |
 | initialization                              | `0-初始化/SKILL.md + CONTEXT.md`                                                                                          |
 | screenplay adaptation                       | `2-编剧/SKILL.md + CONTEXT.md`；处理小说到逐集剧本、题材/叙事解析、短剧节奏、高潮尾钩、声画同步和 AIGC 下游字段 |
@@ -189,9 +201,10 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 2. 若绑定项目，确认 `projects/aigc/<项目名>/`、`MEMORY.md`、`CONTEXT/` 和必要的治理状态；`STATE.json` 与 `governance-state.yaml` 仅在对应治理 workflow 需要时检查或创建。
 3. 选择唯一主入口；若主入口为 `12-图像` 且用户未显式指定叶子，默认进入 `12-图像/分镜故事板`；若主入口为 `13-画布`，默认进入 `13-画布/libTV画布流`；若主入口为 `14-审片`，必须定位实际视频素材和对应 `10-分组` 分镜组。
 4. 用户显式指定、点名已有产物 query / repair、或明确要求多路线对比时，必须尊重用户路线或原所属叶子，不得被默认叶子覆盖。
-5. 阶段技能完成后，根入口只汇流下一入口、治理证据与失败回接，不改写阶段业务主稿。
-6. 若遇到 legacy `5-Image` 或 `6-Video`，只允许兼容读取或迁移说明，不得把旧路径写成新 runtime。
-7. 若阶段产物被用户或审计指出“脚本化、偷懒、未经思考、未差异化、句式复用、锚点替换”，根入口必须把它归类为 owning skill 的源层验收门缺口，优先进入 `learn/execute_improvement` 或对应阶段 `R*-REWORK`；不得用补报告、抽样解释、重复率下降或字段补齐替代返工。
+5. 若主入口属于 `2-编剧` 到 `9-光影` 且消费上游输出，确认目标阶段已加载 `_shared/upstream-context-application-contract.md`，并把 `Upstream Context Application Map` 纳入完成门。
+6. 阶段技能完成后，根入口只汇流下一入口、治理证据与失败回接，不改写阶段业务主稿。
+7. 若遇到 legacy `5-Image` 或 `6-Video`，只允许兼容读取或迁移说明，不得把旧路径写成新 runtime。
+8. 若阶段产物被用户或审计指出“脚本化、偷懒、未经思考、未差异化、句式复用、锚点替换”，根入口必须把它归类为 owning skill 的源层验收门缺口，优先进入 `learn/execute_improvement` 或对应阶段 `R*-REWORK`；不得用补报告、抽样解释、重复率下降或字段补齐替代返工。
 
 ## Field Master
 
@@ -201,6 +214,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | `FIELD-AIGC-ROOT-02` | runtime            | `_shared/project-runtime-layout.md`      | canonical project roots and forbidden legacy roots     | `FAIL-AIGC-RUNTIME` |
 | `FIELD-AIGC-ROOT-03` | governance         | `STATE.json` / `governance-state.yaml` | state carrier and review/resume bridge                 | `FAIL-AIGC-GOV`     |
 | `FIELD-AIGC-ROOT-04` | satellite boundary | `query/resume/review/repair/shot-by-shot/flash/learn` | side-channel ownership and no business-truth overwrite | `FAIL-AIGC-SAT`     |
+| `FIELD-AIGC-ROOT-05` | upstream handoff   | `_shared/upstream-context-application-contract.md` | stages 2-9 prove upstream context application, preservation and projection | `FAIL-AIGC-UPSTREAM-CONTEXT` |
 
 ## Thought Pass Map
 
@@ -210,6 +224,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | `PASS-AIGC-02` | `FIELD-AIGC-ROOT-02` | 项目 runtime 是否落在 canonical 根 | 检查共享 layout 与项目文件           | runtime evidence    |
 | `PASS-AIGC-03` | `FIELD-AIGC-ROOT-03` | 是否需要治理桥接                   | 检查 state / review / resume carrier | governance evidence |
 | `PASS-AIGC-04` | `FIELD-AIGC-ROOT-04` | 是否误用卫星改写业务真源           | 校验卫星边界                         | boundary note       |
+| `PASS-AIGC-06` | `FIELD-AIGC-ROOT-05` | 下游是否真正应用上游上下文         | 检查 `Upstream Context Application Map` | upstream application evidence |
 
 ## Pass Table
 
@@ -220,6 +235,7 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 | `PASS-AIGC-03` | state/governance carrier 不分叉                       | `FAIL-AIGC-GOV`     | `resume` or `review` |
 | `PASS-AIGC-04` | 卫星只写辅助 truth、repair route 或证据               | `FAIL-AIGC-SAT`     | satellite `SKILL.md`   |
 | `PASS-AIGC-05` | 内容创作型 owning skill 已设置反脚本批量生成、反批量插入、反正则套句、反映射投影和反伪差异独立阻断门 | `FAIL-AIGC-FORMALISM-GATE` | `learn` or owning stage `SKILL.md` |
+| `PASS-AIGC-06` | `2-编剧` 到 `9-光影` 的阶段输出能证明上游 context 如何被应用，而不是只证明已读取 | `FAIL-AIGC-UPSTREAM-CONTEXT` | owning stage `SKILL.md` / `_shared/upstream-context-application-contract.md` |
 
 ## Root-Cause Execution Contract (Mandatory)
 
@@ -238,4 +254,4 @@ Supporting project roots may be created by later owning workflows as needed. `0-
 - Required output: 唯一阶段/卫星入口、项目 runtime 证据、下一步或阻断原因。
 - Output format: 面向用户的简短路由结论；需要治理落盘时写对应阶段或卫星定义的 carrier。
 - Output path: 根入口不直接写阶段业务主稿；项目级状态只写 `projects/aigc/<项目名>/STATE.json`、`governance-state.yaml` 或阶段定义的 `validation-report.md`。
-- Completion gate: route 唯一，runtime 不漂移，legacy 状态明确，未命中单元不参与聚合；内容创作型阶段不得缺少 `PASS-AIGC-05` 对应的反形式化门禁证据。
+- Completion gate: route 唯一，runtime 不漂移，legacy 状态明确，未命中单元不参与聚合；内容创作型阶段不得缺少 `PASS-AIGC-05` 对应的反形式化门禁证据；`2-编剧` 到 `9-光影` 的下游产物不得缺少 `PASS-AIGC-06` 对应的上游上下文应用证据。

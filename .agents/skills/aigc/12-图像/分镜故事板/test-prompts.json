@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-group-storyboard-sheet",
+    "prompt": "使用 $aigc-image-storyboard-sheet，为 projects/aigc/诡校-测试版/10-分组/第1集.md 的 1-1-1 生成分镜故事板，并绑定已有角色、场景、道具参照图。",
+    "expected": "路由到 single_group_generate，输出 group index、reference manifest、分镜故事板 prompt、imagegen plan/result、images/1-1-1.png 和执行报告；完成态必须包含 imagegen_called 与项目内图片路径。"
+  },
+  {
+    "id": "episode-batch-storyboard-sheet",
+    "prompt": "使用 $aigc-image-storyboard-sheet，为 projects/aigc/诡校-测试版/10-分组/第1集.md 批量生成第1集全部分镜组的多格分镜故事板。",
+    "expected": "路由到 episode_batch_generate，按分镜组顺序处理；每组先建立 source comprehension、storyboard frame units、layout_aspect_decision、visual_prompt_atoms，再调用 imagegen 生成并持久化 images/<分镜组ID>.png。"
+  },
+  {
+    "id": "repair-plan-only-storyboard",
+    "prompt": "检查已有 projects/aigc/诡校-测试版/12-图像/分镜故事板/第1集 输出，修复只有 imagegen-plan.json 但没有生成图片、部分 panel 只有摘要没有 visual_prompt_atoms 的问题。",
+    "expected": "路由到 repair_and_regenerate 或 review_then_regenerate，触发 FAIL-SHEET-IMAGEGEN 与 FAIL-SHEET-PROMPT-ATOMS，回到 N6-FINAL-PAYLOAD / N7-IMAGEGEN，重新生成并审查，不得以 plan-only 通过。"
+  }
+]

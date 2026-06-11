@@ -96,7 +96,7 @@ def test_extract_context_forwards_with_resolved_project_root(monkeypatch, tmp_pa
     ]
 
 
-def test_validate_forwards_with_resolved_project_root(monkeypatch, tmp_path):
+def test_validate_command_is_retired(monkeypatch, tmp_path):
     module = _load_webnovel_module()
 
     book_root = (tmp_path / "book").resolve()
@@ -133,19 +133,8 @@ def test_validate_forwards_with_resolved_project_root(monkeypatch, tmp_path):
     with pytest.raises(SystemExit) as exc:
         module.main()
 
-    assert int(exc.value.code or 0) == 0
-    assert called["script_name"] == "review_runner.py"
-    assert called["argv"] == [
-        "--project-root",
-        str(book_root),
-        "run-validator",
-        "--chapter",
-        "12",
-        "--role-id",
-        "logic-validator",
-        "--context",
-        "drafting_inline",
-    ]
+    assert int(exc.value.code or 0) == 2
+    assert called == {}
 
 
 def test_drafting_guard_forwards_with_resolved_project_root(monkeypatch, tmp_path):

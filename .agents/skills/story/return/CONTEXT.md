@@ -12,16 +12,16 @@
 
 | failure_or_outcome_type | root_cause_layer | immediate_fix | systemic_prevention | verification_point |
 |---|---|---|---|---|
-| 非 `PASS` 卷被错误写入 Cards 或 MAP | validation gate contract | 立刻阻断写入并回滚到 validation 结果判定 | 在 `return/SKILL.md` 写死 `PASS-only` gate | 非 PASS 卷不再产生 context return writeback |
-| `PASS` 但只被授予 `review/` 的历史复核结果被误 actualize | validation-handoff contract | 立刻阻断写回，并回看 `routing_decision / handoff_targets` 的完整组合 | 在 `return` 合同与脚本中同时要求完整 handoff | `handoff_to_review_only` 不再落入 actualization |
+| 非 `PASS` 卷被错误写入 Cards 或 MAP | acceptance gate contract | 立刻阻断写入并回滚到 owning stage 验收结果判定 | 在 `return/SKILL.md` 写死 `PASS + return handoff` gate | 非 PASS 卷不再产生 context return writeback |
+| `PASS` 但未授予 `return` 的历史验收结果被误 actualize | acceptance-handoff contract | 立刻阻断写回，并回看 `acceptance_status / handoff_targets / accepted_manuscript_refs` 的完整组合 | 在 `return` 合同与脚本中同时要求完整 handoff | `PASS-without-return` 不再落入 actualization |
 | 新三层规划已经成为 primary truth，但 上下文回流 仍只写兼容 `story_map`，没有把 validated 结果挂回三层规划 companion sidecar | planning-sidecar disconnect | 为 `整体规划 / 第N卷 / 第N章` 各写 actualization sidecar，并保留规划正文不变 | 在 skill/spec/template/script/tests 中统一固定 `planning sidecars -> holomap fallback` | 三层规划有 companion actualization 记录可回读 |
 | 规划阶段已进入卷分片模式，但 上下文回流 仍把卷级 actualization 细节直接写进根 `全息地图.json` | root-vs-slice writeback drift | 先把明细落到命中的卷分片，再回刷 root summary/index | 在 shared spec 固定 `Cards -> slice actualization -> root summary -> STATE` 顺序 | root 不再膨胀成第二份明细仓 |
-| 卷级 aggregate 已通过，但没有把变化拆成 `card_deltas / map_deltas / projection_refresh` | delta normalization gap | 先做 `context_return_delta` 提纯，再允许写盘 | 让模板、spec、脚本、测试共同承认 delta 拆分 | 成功包都至少真实写回一类 validated actualization |
+| 阶段验收包已通过，但没有把变化拆成 `card_deltas / map_deltas / projection_refresh` | delta normalization gap | 先做 `context_return_delta` 提纯，再允许写盘 | 让模板、spec、脚本、测试共同承认 delta 拆分 | 成功包都至少真实写回一类 validated actualization |
 | 只写了一半 truth 就中途失败 | multi-target commit discipline | 先做 staged patch，再做统一 commit；失败时 best-effort rollback | 维持 `Cards -> MAP -> STATE -> artifact` 的提交纪律，并保留 pending marker | 任何提交异常后不会留下静默半成品 |
 
 ## Repair Playbook
 
-1. 先看这次 上下文回流 是否同时满足 `PASS + handoff granted`，不要只看 `validation_status`。
+1. 先看这次 上下文回流 是否同时满足 `acceptance_status=PASS + return handoff granted + accepted manuscript locked`，不要只看 `PASS`。
 2. 再区分问题出在 `card_deltas`、`map_deltas`、`projection_refresh` 还是 commit 纪律。
 3. 若对象状态与规划进度混写，优先修 delta 拆分，而不是直接补卡或补 map。
 4. 若 `story_map` 被改坏，先恢复 `planned_*`，再把执行态迁回 `actualization`。

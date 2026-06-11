@@ -20,7 +20,7 @@ This review gate verifies that `return` remains a Skill 2.0 package and that a c
 | `satellite` | query/resume/source repair requests are not disguised as context-return artifacts |
 | `template` | `templates/context-return.json` and `templates/output-template.md` align with `SKILL.md` Output Contract |
 | `structure` | canonical Skill 2.0 dirs and root files exist |
-| `scripts` | scripts perform mechanical writeback and validation, not creative or validation judgment |
+| `scripts` | scripts perform mechanical writeback and structural checks, not creative or acceptance judgment |
 
 ## Verdict Model
 
@@ -45,12 +45,12 @@ finding:
 
 ## Completion Checklist
 
-- validation aggregate gate is legal
+- stage acceptance packet gate is legal
 - accepted manuscript refs are final accepted evidence, defaulting to `4-润色`
 - normalized delta contains at least one valid actualization or projection refresh
 - revision guards pass
 - pending marker is created before truth writeback
 - writeback order is `Cards -> Planning sidecars -> MAP -> STATE -> artifact`
 - pending marker is removed or converted into a committed manifest
-- artifact can point to validation and governance evidence
+- artifact can point to acceptance and governance evidence
 - no query/resume output impersonates context-return artifact

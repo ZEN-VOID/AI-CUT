@@ -1,4 +1,0 @@
-interface:
-  display_name: "结构兑现"
-  short_description: "小说结构兑现终验：规划义务、承诺交付、关键事件与戏剧化落地"
-  default_prompt: "使用 $story-review-structure-realization 审查指定卷或章节的结构兑现维度。"

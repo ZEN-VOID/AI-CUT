@@ -16,14 +16,14 @@ This file expands the owner boundary summarized in `SKILL.md`.
 
 ## Not Owned By context-return
 
-- changing `validation_status`
-- changing `routing_decision` or `handoff_targets`
-- producing official review reports
+- changing `acceptance_status`
+- changing `handoff_targets` or `accepted_manuscript_refs`
+- producing official stage acceptance packets
 - editing `3-初稿` manuscript bodies
 - overwriting `Cards.core`
 - overwriting planning `planned_*`
 - changing project genre/type cards
-- treating runtime projections as validation evidence
+- treating runtime projections as acceptance evidence
 
 ## Truth Split
 
@@ -41,6 +41,5 @@ If the target truth is wrong because an upstream source is wrong, do not patch o
 - seed or project covenant: `0-初始化`
 - object truth: `1-设定`
 - plan truth: `2-卷章`
-- manuscript truth: `3-初稿`
-- validation judgment: `review`
-- review persistence: `review/`
+- draft manuscript and draft acceptance: `3-初稿`
+- polished manuscript and final acceptance: `4-润色`

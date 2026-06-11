@@ -62,13 +62,13 @@ def test_workflow_lifecycle_and_trace(tmp_path, monkeypatch):
     module.start_task("story-plan", {"chapter_num": 7})
     module.start_step("Step 1", "Context")
     module.complete_step("Step 1", json.dumps({"state_json_modified": True}, ensure_ascii=False))
-    module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
+    module.complete_task(json.dumps({"acceptance_completed": True}, ensure_ascii=False))
 
     state = module.load_state()
     execution_state = module.load_execution_state()
     assert state["current_task"] is None
     assert state["history"][-1]["status"] == module.TASK_STATUS_COMPLETED
-    assert state["last_stable_state"]["artifacts"]["review_completed"] is True
+    assert state["last_stable_state"]["artifacts"]["acceptance_completed"] is True
     run_id = execution_state["runs"][-1]["run_id"]
     assert state["last_stable_state"]["governance_refs"]["mission_brief_ref"] == (
         f"STATE.json#workflow_runtime.governance_index.{run_id}.mission_brief"
@@ -296,7 +296,7 @@ def test_story_write_complete_task_requires_candidate_final_draft(tmp_path, monk
     module.start_step("Step 1", "单章叙事起盘")
     module.complete_step("Step 1")
     _pass_all_active_inline_validators(module)
-    module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
+    module.complete_task(json.dumps({"acceptance_completed": True}, ensure_ascii=False))
 
     state = module.load_state()
     assert state["current_task"] is not None
@@ -334,7 +334,7 @@ def test_story_write_complete_task_blocks_short_manuscript(tmp_path, monkeypatch
     state["current_task"]["inline_validation"]["blocking_gate"] = None
     module.save_state(state)
 
-    module.complete_task(json.dumps({"review_completed": True}, ensure_ascii=False))
+    module.complete_task(json.dumps({"acceptance_completed": True}, ensure_ascii=False))
 
     state = module.load_state()
     assert state["current_task"] is not None
@@ -606,7 +606,7 @@ def test_detect_interruption_uses_context_return_artifact_fallback(tmp_path, mon
         json.dumps(
             {
                     "meta": {"context_return_ref": "context-return/第1卷.context-return.json", "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
-                "inputs": {"validation_ref": "review/第1卷.validation.json"},
+                "inputs": {"acceptance_ref": "4-润色/第1卷/第10章.acceptance.json"},
             },
             ensure_ascii=False,
             indent=2,
@@ -633,7 +633,7 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
     _write_project_state(
         tmp_path,
         {
-            "review_checkpoints": [
+            "acceptance_checkpoints": [
                 {
                     "volume": 1,
                     "report": "review/第1卷审查报告.md",
@@ -642,16 +642,16 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
         },
     )
 
-    validation_dir = tmp_path / "review"
+    validation_dir = tmp_path / "4-润色" / "第1卷"
     validation_dir.mkdir(parents=True, exist_ok=True)
-    (validation_dir / "第1卷.validation.json").write_text(
+    (validation_dir / "第10章.acceptance.json").write_text(
         json.dumps(
                 {
                     "volume_ref": "第1卷",
                     "chapter_refs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                    "validation_status": "PASS",
-                    "routing_decision": "handoff_to_review_and_context_return",
-                    "handoff_targets": ["review/", "context-return"],
+                    "acceptance_status": "PASS",
+                    "routing_decision": "handoff_to_return",
+                    "handoff_targets": ["return", "context-return"],
                     "accepted_manuscript_stage": "4-润色",
                     "accepted_manuscript_refs": ["4-润色/第1卷/第10章.md"],
                 },
@@ -660,7 +660,6 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
         ),
         encoding="utf-8",
     )
-    (validation_dir / "第1卷审查报告.md").write_text("# report\n", encoding="utf-8")
 
     interrupt = module.detect_interruption()
 
@@ -668,7 +667,7 @@ def test_detect_interruption_uses_validation_review_artifact_fallback(tmp_path, 
     assert interrupt["detection_mode"] == "artifact_fallback"
     assert interrupt["command"] == "story-return"
     assert interrupt["args"]["volume_num"] == 1
-    assert interrupt["resume_reason"] == "validation_pass_review_persisted_context_return_pending"
+    assert interrupt["resume_reason"] == "polish_acceptance_pass_return_pending"
 
 
 def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypatch):
@@ -696,17 +695,17 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: review",
+                "  next_step: draft_acceptance",
                 "quality_gate_snapshot:",
-                "  checkpoint_stage: pre_validation",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "  checkpoint_stage: pre_acceptance",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: ready_for_validation",
-                "  next_action: review",
+                "  verdict: ready_for_acceptance",
+                "  next_action: 3-初稿-acceptance",
                 "  representative_chapter_refs:",
                 "    - 1",
                 "  primary_issues: []",
@@ -729,9 +728,9 @@ def test_detect_interruption_uses_writelog_artifact_fallback(tmp_path, monkeypat
 
     assert interrupt is not None
     assert interrupt["detection_mode"] == "artifact_fallback"
-    assert interrupt["command"] == "story-validate"
+    assert interrupt["command"] == "story-write"
     assert interrupt["args"]["volume_num"] == 1
-    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
+    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_drafting_acceptance"
 
 
 def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_blocks(tmp_path, monkeypatch):
@@ -751,17 +750,17 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: review",
+                "  next_step: draft_acceptance",
                 "quality_gate_snapshot:",
-                "  checkpoint_stage: pre_validation",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "  checkpoint_stage: pre_acceptance",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: ready_for_validation",
-                "  next_action: review",
+                "  verdict: ready_for_acceptance",
+                "  next_action: 3-初稿-acceptance",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",
@@ -774,14 +773,14 @@ def test_detect_interruption_routes_back_to_drafting_when_volume_quality_gate_bl
                 "    spatial_separation: pass",
                 "    antagonist_face: pass",
                 "    volume_closure: pass",
-                "post_review_summary:",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "post_acceptance_summary:",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: rework_required_before_validation",
+                "  verdict: rework_required_before_acceptance",
                 "  next_action: 3-初稿-rework",
                 "  representative_chapter_refs:",
                 "    - 3-初稿/第1卷/第5章.md",
@@ -821,17 +820,17 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: review",
+                "  next_step: draft_acceptance",
                 "quality_gate_snapshot:",
-                "  checkpoint_stage: pre_validation",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "  checkpoint_stage: pre_acceptance",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: ready_for_validation",
-                "  next_action: review",
+                "  verdict: ready_for_acceptance",
+                "  next_action: 3-初稿-acceptance",
                 "  representative_chapter_refs:",
                 "    - 3-初稿/第2卷/第11章.md",
                 "  primary_issues: []",
@@ -854,9 +853,9 @@ def test_detect_interruption_uses_validation_route_after_volume_quality_gate_pas
 
     assert interrupt is not None
     assert interrupt["detection_mode"] == "artifact_fallback"
-    assert interrupt["command"] == "story-validate"
+    assert interrupt["command"] == "story-write"
     assert interrupt["args"]["volume_num"] == 2
-    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
+    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_drafting_acceptance"
 
 
 def test_detect_interruption_prefers_newer_writelog_over_older_context_return(tmp_path, monkeypatch):
@@ -888,17 +887,17 @@ def test_detect_interruption_prefers_newer_writelog_over_older_context_return(tm
                 "candidate_final_state:",
                 "  status: candidate_volume_draft",
                 "current_resume_pointer:",
-                "  next_step: review",
+                "  next_step: draft_acceptance",
                 "quality_gate_snapshot:",
-                "  checkpoint_stage: pre_validation",
-                "  review_mode: subagent-review-council",
-                "  reviewed_at: '2026-04-22T13:10:00-07:00'",
-                "  reviewer_source: team-explicit",
-                "  reviewers:",
+                "  checkpoint_stage: pre_acceptance",
+                "  acceptance_mode: stage-built-in",
+                "  accepted_at: '2026-04-22T13:10:00-07:00'",
+                "  assessor_source: team-explicit",
+                "  assessors:",
                 "    - 金庸",
                 "    - 徐克",
-                "  verdict: ready_for_validation",
-                "  next_action: review",
+                "  verdict: ready_for_acceptance",
+                "  next_action: 3-初稿-acceptance",
                 "  representative_chapter_refs:",
                 "    - 11",
                 "  primary_issues: []",
@@ -921,6 +920,6 @@ def test_detect_interruption_prefers_newer_writelog_over_older_context_return(tm
 
     assert interrupt is not None
     assert interrupt["detection_mode"] == "artifact_fallback"
-    assert interrupt["command"] == "story-validate"
+    assert interrupt["command"] == "story-write"
     assert interrupt["args"]["volume_num"] == 2
-    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_validation"
+    assert interrupt["resume_reason"] == "candidate_volume_draft_waiting_drafting_acceptance"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Drafting DeepSeek"
-  short_description: "通过 DeepSeek deepseek-v4-pro 生成符合项目风格的章节正文"
-  default_prompt: "Use $story-drafting-deepseek to draft, continue, rewrite, or repair a story chapter through DeepSeek, loading project MEMORY, planning truth, cards, north_star, continuity context, and writing to projects/story/<项目名>/3-初稿/第N卷/第N章.md."

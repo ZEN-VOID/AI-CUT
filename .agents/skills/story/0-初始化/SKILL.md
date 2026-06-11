@@ -77,7 +77,7 @@ Reject or clarify when:
 - 无序号同级子技能包若未来挂入本初始化阶段，默认全选并发执行，由 `story-init` 汇总、裁决并写回唯一 canonical 初始化输出。
 - 数字序号节点按 `steps/init-workflow.md` 中的 `N0` 到 `N7` 顺序串行执行，前一节点的项目根、team provenance、planning patch 与 runtime 状态自动成为后一节点输入。
 - 英文序号路线按用户意图、父级路由或 `types/type-map.md` 的类型画像单选分流；只有用户明确要求对比、并跑或批量多路线时才多选。
-- 卫星技能、`story-query`、`story-resume`、`story-review` 与 reviewer 旁路不默认进入初始化主链；仅在用户请求、阻断门或 review gate 明确需要时回接。
+- 卫星技能、`story-query`、`story-resume` 与 reviewer 旁路不默认进入初始化主链；正文阶段验收由 `3-初稿` / `4-润色` 内置完成，仅在用户请求或阻断门明确需要时回接 owning stage。
 - 缺少必需输入、破坏性覆盖未授权、team roster 越界、真实 subagent 被阻断且不可降级、或路线歧义会导致错误 canonical 写回时，必须先阻断并给出最小澄清或阻断报告。
 - 被调度的子技能包、卫星技能或 team 成员仍必须加载自身 `SKILL.md + CONTEXT.md`；脚本只做机械落盘、校验和格式转换，不替代 LLM 初始化判断。
 

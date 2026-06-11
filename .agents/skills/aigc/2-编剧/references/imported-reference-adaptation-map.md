@@ -7,9 +7,9 @@
 | local_file | source_file | preservation_rule |
 | --- | --- | --- |
 | `scene-rhythm-contract.md` | local adapted copy from legacy 2-编导 reference source: scene-rhythm-contract | 本技能消费场景节奏标注、信息密度和过渡方式 |
-| `directorial-authorship-contract.md` | local adapted copy from legacy 2-编导 reference source: directorial-authorship-contract | 本技能只消费“创作判断必须有可见/可听/可执行承托” |
-| `climax-visual-treatment-contract.md` | local adapted copy from legacy 2-编导 reference source: climax-visual-treatment-contract | 本技能消费高潮视觉、声音、情绪和行动落点 |
-| `episode-final-image-contract.md` | local adapted copy from legacy 2-编导 reference source: episode-final-image-contract | 本技能消费集末最终画面/声音/感受尾钩 |
+| `directorial-authorship-contract.md` | local adapted copy from legacy 2-编导 reference source: directorial-authorship-contract | 本技能消费“创作判断必须有可见/可听/可执行承托”，本地证据落为 `screenplay_substance_map` / `support_evidence` |
+| `climax-visual-treatment-contract.md` | local adapted copy from legacy 2-编导 reference source: climax-visual-treatment-contract | 本技能消费高潮视觉、声音、情绪和行动落点，本地证据落为 `climax_treatment_map` |
+| `episode-final-image-contract.md` | local adapted copy from legacy 2-编导 reference source: episode-final-image-contract | 本技能消费集末最终画面/声音/感受尾钩，本地证据落为 `episode_final_image_map` |
 | `narration-to-voice-adaptation-contract.md` | local adapted copy from legacy 2-编导 reference source: narration-to-voice-adaptation-contract | 本技能消费陈述性信息转对白、独白、内心独白或喊出式台词 |
 | `hollywood-quality-spec.md` | local adapted copy from legacy 2-编导 reference source: hollywood-quality-spec | 本技能额外要求场景标题追加天气后缀 |
 | `script-adaptation-contract.md` | local adapted copy from legacy 2-编导 reference source: script-adaptation-contract | 输出路径固定为 `projects/aigc/<项目名>/2-编剧/第N集.md` |
@@ -21,6 +21,7 @@
 | --- | --- |
 | legacy `2-编导 script layer` | `2-编剧 screenplay layer` |
 | legacy `2-编导/第N集.md` in script projection context | `2-编剧/第N集.md` |
+| copied reference 中的 `4-导演 stage` / `N*-DIR` / `GATE-DIR` / `director_substance_plan` | 必须在本地 copy 中适配为 `2-编剧 stage` / `N*-SCR` / `GATE-SCR` / `screenplay_substance_map`，只把 `4-导演` 保留为下游 handoff |
 | legacy `director layer` / `performance layer` | `4-导演` / `5-表演` 下游承接提醒，不授权本技能输出导演稿或表演稿 |
 | legacy `4-摄影` consumption | `8-摄影` / `9-光影` 下游可读性目标；本技能不得写机位、景别、运镜、光影注入或分镜 |
 | `final image` | 剧本末尾最后可见/可听/可感受落点，不是生图 prompt |

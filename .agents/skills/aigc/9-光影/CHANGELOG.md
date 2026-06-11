@@ -1,5 +1,11 @@
 # Changelog: aigc 9-光影
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求光影注入证明 `8-摄影` 分镜/运镜与三类 `3-美学` 协议如何投影为光源、受光、阴影、色温、材质、空气介质和动态光。
+- 新增 `FAIL-LIGHT-UPSTREAM-CONTEXT`、`GATE-LIGHT-09-UPSTREAM-CONTEXT` 和报告 `Upstream Context Application Map`。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-04
 
 - 新建 `9-光影` Skill 2.0 runtime-spine 包。

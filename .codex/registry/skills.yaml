@@ -314,12 +314,6 @@ active_skills:
         contract_status: active
         route_role: stage
         natural_triggers: ["章节润色", "二次改写润色", "润色 3-初稿", "中文表达强化", "题材质感校准"]
-      - id: story-review
-        path: .agents/skills/story/review
-        owner_office: menxia
-        contract_status: active
-        route_role: automated_review
-        natural_triggers: ["review", "终验", "质量审查", "validation aggregate", "code-reviewer 汇流", "返工路由"]
       - id: story-return
         path: .agents/skills/story/return
         owner_office: zhongshu
@@ -340,7 +334,7 @@ active_skills:
         path: .agents/skills/story/repair
         contract_status: active
         route_role: satellite
-        purpose: 小说局部修改的跨层影响判定、source-first 修复、provider authorship 保持与 code-reviewer 验收。
+        purpose: 小说局部修改的跨层影响判定、source-first 修复、阶段归属保持与 code-reviewer 验收。
   - id: comic
     path: .agents/skills/comic
     owner_office: zhongshu
@@ -585,72 +579,22 @@ active_skills:
   - id: story-drafting-maintext
     path: .agents/skills/story/3-初稿
     owner_office: shangshu
-    purpose: "story 组 repo-local 章级正文直写 skill，按章消费三层 planning、全局卡、风格卡、north_star、项目 CONTEXT 与上一章正文，并输出 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。"
+    purpose: "story 组 repo-local 章级初稿根技能，按章消费三层 planning、north_star、对象卡、项目 MEMORY/CONTEXT 与同卷前文，并输出 `projects/story/<项目名>/3-初稿/第N卷/第N章.md`。"
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/story/3-初稿/"
       canonical_output: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
-      mirror_policy: "这是 `3-初稿` 的 chapter-native 根级主技能；只拥有当前章正文根稿与其 YAML 头，不拥有 planning/cards/validation/actualization 判定权。"
-  - id: story-drafting-doubao
-    path: .agents/skills/story/3-初稿/B-Doubao流
-    owner_office: shangshu
-    purpose: "story 组 repo-local Doubao 章级正文直写显式 provider lane，通过 AnyFast `doubao-seed-2.0-pro` 按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/story/3-初稿/B-Doubao流/"
-      provider_skill_root: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/"
-      script_entry: ".agents/skills/story/3-初稿/B-Doubao流/scripts/write_chapter_via_doubao.py"
-      canonical_output: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
-      provider_artifacts_root: "projects/story/<项目名>/reports/3-初稿/doubao/"
-      mirror_policy: "这是 `3-初稿` 的 Doubao provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。覆盖已有章节必须显式 mode + `--force`。"
-  - id: story-drafting-deepseek
-    path: .agents/skills/story/3-初稿/C-Deepseek流
-    owner_office: shangshu
-    purpose: "story 组 repo-local DeepSeek 章级正文直写 lane，通过 `.agents/skills/api/deepseek` 固定调用 `deepseek-v4-pro`，默认 `thinking=enabled` 与 `reasoning_effort=high`，按项目规划、全局卡、风格卡、north_star、MEMORY、CONTEXT 与上一章正文生成符合风格的小说篇章。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/story/3-初稿/C-Deepseek流/"
-      provider_skill_root: ".agents/skills/api/deepseek/"
-      script_entry: ".agents/skills/story/3-初稿/C-Deepseek流/scripts/write_chapter_via_deepseek.py"
-      canonical_output: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
-      provider_artifacts_root: "projects/story/<项目名>/reports/3-初稿/deepseek/"
-      mirror_policy: "这是 `3-初稿` 的 DeepSeek provider lane；只拥有当前章正文根稿与 provider 证据链，不拥有 planning/cards/validation/actualization 判定权。"
+      mirror_policy: "这是 `3-初稿` 的完整根技能包；只拥有当前章正文根稿与其阶段 frontmatter，不拥有 planning/cards/validation/actualization 判定权，也不再形成 A/B/C 子技能。"
   - id: story-polishing-maintext
     path: .agents/skills/story/4-润色
     owner_office: shangshu
-    purpose: "story 组 repo-local 章级润色主技能，承接 `3-初稿/第N卷/第N章.md` 做二次改写润色，强化中文表达与题材写作质感，并输出 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。"
+    purpose: "story 组 repo-local 章级润色根技能，承接 `3-初稿/第N卷/第N章.md` 做最小局部修补、中文表达校准与题材质感增强，并输出 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。"
     contract_mode: active
     runtime_control:
       canonical_skill_root: ".agents/skills/story/4-润色/"
       canonical_input: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
       canonical_output: "projects/story/<项目名>/4-润色/第N卷/第N章.md"
-      mirror_policy: "这是 `4-润色` 的 chapter polishing 根级主技能；不覆盖 `3-初稿` 原文，不拥有 planning/cards/north_star 或 validation 判定权。"
-  - id: story-polishing-doubao
-    path: .agents/skills/story/4-润色/B-Doubao流
-    owner_office: shangshu
-    purpose: "story 组 repo-local Doubao 章级润色默认 lane，通过 AnyFast `doubao-seed-2.0-pro` 对已有 `3-初稿` 章节做中文表达强化、去 AI 味与题材质感校准。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/story/4-润色/B-Doubao流/"
-      provider_skill_root: ".agents/skills/api/anyfast/llm/doubao-seed-2.0-pro/"
-      script_entry: ".agents/skills/story/4-润色/B-Doubao流/scripts/polish_chapter_via_doubao.py"
-      canonical_input: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
-      canonical_output: "projects/story/<项目名>/4-润色/第N卷/第N章.md"
-      provider_artifacts_root: "projects/story/<项目名>/reports/4-润色/doubao/"
-      mirror_policy: "这是 `4-润色` 的默认 Doubao provider lane；只拥有润色稿与 provider 证据链，覆盖已有润色稿必须显式 mode + `--force`。"
-  - id: story-polishing-deepseek
-    path: .agents/skills/story/4-润色/C-Deepseek流
-    owner_office: shangshu
-    purpose: "story 组 repo-local DeepSeek 章级润色 lane，通过 `.agents/skills/api/deepseek` 固定调用 `deepseek-v4-pro`，按 `3-初稿` 源章、项目风格与题材方向盘完成二次改写润色。"
-    contract_mode: active
-    runtime_control:
-      canonical_skill_root: ".agents/skills/story/4-润色/C-Deepseek流/"
-      provider_skill_root: ".agents/skills/api/deepseek/"
-      script_entry: ".agents/skills/story/4-润色/C-Deepseek流/scripts/polish_chapter_via_deepseek.py"
-      canonical_input: "projects/story/<项目名>/3-初稿/第N卷/第N章.md"
-      canonical_output: "projects/story/<项目名>/4-润色/第N卷/第N章.md"
-      provider_artifacts_root: "projects/story/<项目名>/reports/4-润色/deepseek/"
-      mirror_policy: "这是 `4-润色` 的 DeepSeek provider lane；只拥有润色稿与 provider 证据链，不拥有上游真源或 validation 判定权。"
+      mirror_policy: "这是 `4-润色` 的完整根技能包；不覆盖 `3-初稿` 原文，不拥有 planning/cards/north_star 或 validation 判定权，也不再形成 A/B/C 子技能。"
   - id: team-screenwriter-dazai-osamu
     path: .agents/skills/team/study/文学系/太宰治
     owner_office: shangshu

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Story Polishing Doubao"
-  short_description: "通过 AnyFast Doubao Seed 2.0 Pro 润色已有 3-初稿 章节"
-  default_prompt: "Use $story-polishing-doubao to polish or repair an existing 3-初稿 chapter through AnyFast Doubao Seed 2.0 Pro, loading project MEMORY, planning truth, north_star, continuity context, and writing to projects/story/<项目名>/4-润色/第N卷/第N章.md."

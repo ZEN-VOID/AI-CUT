@@ -11,7 +11,7 @@
 | `SKILL.md` | Reference Loading Levels | dynamic references | `SKILL.md` | rewrite | low | all section links point to canonical files | validator |
 | `SKILL.md` | Workflow Checklist / Step 0-7 | execution topology | `steps/resume-workflow.md` | rewrite | high | `SKILL.md` keeps only topology index | steps review gate |
 | `SKILL.md` | artifact_fallback interpretation | detailed recovery protocol | `references/workflow-resume.md`, `types/resume-type-map.md` | split | medium | fallback reasons preserved | semantic check |
-| `SKILL.md` | `story-write` / `story-validate` / `story-review` / `story-query` step semantics | command strategy | `references/workflow-resume.md`, `types/resume-type-map.md` | split | medium | no cleanup for query | review gate |
+| `SKILL.md` | `story-write` / `story-polishing` / `story-return` / `story-query` step semantics | command strategy | `references/workflow-resume.md`, `types/resume-type-map.md` | split | medium | no cleanup for query | acceptance gate |
 | `SKILL.md` | safe cleanup commands | mechanical command boundary | `scripts/README.md`, `references/workflow-resume.md` | split | medium | destructive actions require preview/confirm | safety gate |
 | `SKILL.md` | closure checklist / Completion Gate | quality gate | `review/resume-review-gate.md` | split | low | Output Contract references review gate | validator + manual check |
 | `SKILL.md` | Lite Tier Field Mapping | owner matrix | `SKILL.md` Field Mapping | keep + update | low | expanded to all Skill 2.0 owners | validator |

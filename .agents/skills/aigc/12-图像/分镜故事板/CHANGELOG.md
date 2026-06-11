@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-10
+
+- 执行 Skill 2.0 最新版 runtime-spine 升级：删除 `steps/` 第二节点真源，将 N1-N10 主流程、Mermaid 拓扑、量化口径、注意力协议、checkpoint、模块授权、触发矩阵、汇流门和 review binding 收回 `SKILL.md`。
+- 新增 `test-prompts.json`，覆盖单组生成、整集批量和 repair/review 再生成三类回归场景。
+- 同步 `types/type-map.md`、默认类型包与 README，不再加载 `steps/storyboard-sheet-workflow.md`。
+- 将分镜平面图职责迁移到 `12-图像/分镜平面图` 独立 Skill 2.0 叶子；`分镜故事板` 不再生成、验收或维护平面图，也不再输出 floor-plan manifest / floor-plans 目录。
+- 将原 `spatial_floor_plan` / `floor_plan_to_panel_mapping` 前置门禁收束为可选 `spatial_handoff` 消费接口：若 `分镜平面图` 已有 accepted 侧车，可作为站位、动线、机位和空间连续性证据；缺失不得阻断 storyboard sheet imagegen。
+- 同步 `SKILL.md`、prompt assembly、imagegen handoff、review gate、workflow、type map、默认类型包、prompt/output template、README、agents metadata 与 CONTEXT，新增 `FAIL-SHEET-SPATIAL-HANDOFF` 误用防护。
+- 收紧完成态：`分镜故事板` 不得停在 `imagegen-plan.json`；该文件只是调用 `.agents/skills/cli/imagegen` 的执行载体。
+- 同步 `SKILL.md`、imagegen handoff、review、output template、workflow、type map 与 README，明确必须直接调用 `.agents/skills/cli/imagegen` 生成并持久化 `images/<分镜组ID>.png` 后才能 pass。
+
 ## 2026-06-07
 
 - 针对 storyboard sheet 成图“风格漂移、平面图不一定匹配、生图提示不精准”的反馈新增三道硬门禁：`style_lock_spec`、`visual_prompt_atoms`、`floor_plan_to_panel_mapping`。

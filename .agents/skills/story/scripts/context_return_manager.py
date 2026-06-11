@@ -198,7 +198,7 @@ def _normalize_handoff_target_token(raw: str) -> str:
 def _context_return_handoff_granted(
     validation_payload: Dict[str, Any],
 ) -> tuple[str, List[str], bool, List[str]]:
-    routing_decision = str(validation_payload.get("routing_decision") or "").strip()
+    routing_decision = str(validation_payload.get("routing_decision") or "handoff_to_return").strip()
     handoff_targets = _normalize_handoff_targets(validation_payload.get("handoff_targets"))
     normalized_targets = {_normalize_handoff_target_token(item) for item in handoff_targets}
     context_return_aliases = {
@@ -209,16 +209,10 @@ def _context_return_handoff_granted(
         "5-loopback",
         "story-loopback",
     }
-    review_aliases = {"review", "story-review"}
 
     fail_codes: List[str] = []
-    if routing_decision not in {
-        "handoff_to_review_and_context_return",
-        "handoff_to_review_and_loopback",
-    }:
-        fail_codes.append("routing_decision_must_be_handoff_to_review_and_context_return")
-    if not (normalized_targets & review_aliases):
-        fail_codes.append("handoff_targets_missing_review")
+    if routing_decision not in {"handoff_to_return", "return"}:
+        fail_codes.append("routing_decision_must_be_handoff_to_return")
     if not (normalized_targets & context_return_aliases):
         fail_codes.append("handoff_targets_missing_context_return")
 
@@ -329,6 +323,7 @@ def _validate_card_delta(item: Dict[str, Any]) -> None:
                 "episode_ref",
                 "volume_ref",
                 "context_return_ref",
+                "acceptance_ref",
                 "validation_ref",
                 "changed_fields",
                 "change_summary",
@@ -1028,6 +1023,7 @@ def _apply_card_deltas(
 
         history_append = copy.deepcopy(item.get("history_append") or {})
         if history_append:
+            history_append.setdefault("acceptance_ref", validation_ref)
             history_append.setdefault("validation_ref", validation_ref)
             history_append["context_return_ref"] = artifact_ref
             state_owner["history"].append(history_append)
@@ -1096,6 +1092,7 @@ def _build_artifact(
     inputs["accepted_manuscript_note"] = accepted_manuscript_note
     inputs["volume_ref"] = _volume_ref(volume_num)
     inputs["chapter_refs"] = copy.deepcopy([_chapter_ref(chapter_num) for chapter_num in chapter_nums])
+    inputs["acceptance_ref"] = validation_ref
     inputs["validation_ref"] = validation_ref
     inputs["draft_packet_ref"] = draft_packet_ref
     inputs["book_plan_ref"] = book_plan_ref
@@ -1106,6 +1103,7 @@ def _build_artifact(
     inputs["chapter_plan_actualization_refs"] = copy.deepcopy(chapter_plan_actualization_refs)
     inputs["story_map_ref"] = story_map_ref
     inputs["story_map_slice_ref"] = story_map_slice_ref
+    inputs["acceptance_status"] = "PASS"
     inputs["validation_status"] = "PASS"
     inputs["routing_decision"] = routing_decision
     inputs["handoff_targets"] = copy.deepcopy(handoff_targets)
@@ -1332,15 +1330,18 @@ def actualize(args: argparse.Namespace) -> int:
         raise SystemExit(f"缺少 story_map: {story_map_path}")
 
     state = _load_json_file(state_path)
-    validation_payload = _load_json_arg(args.validation_data)
-    validation_status = str(validation_payload.get("validation_status") or "").strip()
-    if validation_status != "PASS":
+    acceptance_data_arg = args.acceptance_data or args.validation_data
+    if not acceptance_data_arg:
+        raise SystemExit("缺少 --acceptance-data（旧别名 --validation-data 仍可用）")
+    validation_payload = _load_json_arg(acceptance_data_arg)
+    acceptance_status = str(validation_payload.get("acceptance_status") or validation_payload.get("validation_status") or "").strip()
+    if acceptance_status != "PASS":
         print(
             json.dumps(
                 {
                     "ok": False,
-                    "error": "validation_status_must_be_pass",
-                    "validation_status": validation_status or "missing",
+                    "error": "acceptance_status_must_be_pass",
+                    "acceptance_status": acceptance_status or "missing",
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -1355,7 +1356,7 @@ def actualize(args: argparse.Namespace) -> int:
                 {
                     "ok": False,
                     "error": "context_return_handoff_not_granted",
-                    "validation_status": validation_status,
+                    "acceptance_status": acceptance_status,
                     "routing_decision": routing_decision or "missing",
                     "handoff_targets": handoff_targets,
                     "fail_codes": gate_fail_codes,
@@ -1376,7 +1377,7 @@ def actualize(args: argparse.Namespace) -> int:
                 {
                     "ok": False,
                     "error": "accepted_manuscript_not_locked",
-                    "validation_status": validation_status,
+                    "acceptance_status": acceptance_status,
                     "routing_decision": routing_decision,
                     "handoff_targets": handoff_targets,
                     "accepted_manuscript_stage": accepted_stage or "missing",
@@ -1404,8 +1405,10 @@ def actualize(args: argparse.Namespace) -> int:
                 {
                     "ok": False,
                     "error": "context_return_delta_empty",
-                    "validation_ref": str(
-                        args.validation_ref
+                    "acceptance_ref": str(
+                        args.acceptance_ref
+                        or args.validation_ref
+                        or validation_payload.get("acceptance_ref")
                         or validation_payload.get("validation_ref")
                         or validation_payload.get("report_file")
                         or ""
@@ -1436,7 +1439,9 @@ def actualize(args: argparse.Namespace) -> int:
     artifact_path = _build_artifact_path(project_root, state, volume_num)
     artifact_ref = _relpath(artifact_path, project_root)
     validation_ref = str(
-        args.validation_ref
+        args.acceptance_ref
+        or args.validation_ref
+        or validation_payload.get("acceptance_ref")
         or validation_payload.get("validation_ref")
         or validation_payload.get("report_file")
         or ""
@@ -1813,6 +1818,8 @@ def actualize(args: argparse.Namespace) -> int:
                 "episode_ref": _episode_ref(anchor_chapter_num),
                 "volume_ref": volume_ref,
                 "chapter_refs": [_chapter_ref(chapter_num) for chapter_num in chapter_nums],
+                "acceptance_ref": validation_ref,
+                "acceptance_status": "PASS",
                 "validation_ref": validation_ref,
                 "validation_status": "PASS",
                 "routing_decision": routing_decision,
@@ -1843,9 +1850,11 @@ def main() -> None:
     p_actualize = sub.add_parser("actualize", help="执行 PASS-only context_return actualization")
     p_actualize.add_argument("--episode", type=int, help="目标 chapter 编号（兼容入口）")
     p_actualize.add_argument("--volume", type=int, help="目标卷号（volume-scoped primary selector）")
-    p_actualize.add_argument("--validation-data", required=True, help="验证聚合结果 JSON 或 @文件路径")
+    p_actualize.add_argument("--acceptance-data", help="阶段验收结果 JSON 或 @文件路径")
+    p_actualize.add_argument("--validation-data", help="旧别名：阶段验收结果 JSON 或 @文件路径")
     p_actualize.add_argument("--manuscript-ref", required=True, help="正文稿件路径（相对 project_root）")
-    p_actualize.add_argument("--validation-ref", help="验证报告路径（相对 project_root）")
+    p_actualize.add_argument("--acceptance-ref", help="阶段验收报告路径（相对 project_root）")
+    p_actualize.add_argument("--validation-ref", help="旧别名：阶段验收报告路径（相对 project_root）")
     p_actualize.add_argument("--draft-packet-ref", help="可选 draft packet 引用")
     p_actualize.add_argument("--story-map-ref", default=canonical_planning_artifact_relpath("holomap"), help="story_map 相对路径")
     p_actualize.add_argument(

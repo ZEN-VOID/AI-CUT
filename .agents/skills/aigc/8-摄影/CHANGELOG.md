@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求运镜注入证明 `7-分镜` 既有空间层次、轴线、起始状态帧和 `3-美学` 摄影风格如何投影为机位、路径、速度和焦点行为。
+- 新增 `FAIL-CAM-UPSTREAM-CONTEXT`、`GATE-CAM-08-UPSTREAM-CONTEXT` 和报告 `Upstream Context Application Map`。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-05
 
 - 将“机械指标不得 pass”落成硬门：覆盖率、四要素齐全、重复率下降、报告字段完整和脚本扫描通过只能作为格式底线或风险信号，不能替代作者性、差异化和运镜动机验收。

@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Retired validation runner shim.
+
+Story acceptance is now built into `3-初稿` and `4-润色`. This file remains only
+to fail old direct imports with an explicit migration message instead of
+silently recreating a standalone review stage.
 """
-Backward-compatible shim for the renamed review runner.
 
-`4-Validation` 已重命名为 `review`，但部分测试或旧命令仍可能导入
-`validation_runner`。这里统一转发到 `review_runner`，避免旧入口直接断裂。
-"""
+from __future__ import annotations
 
-import review_runner as _review_runner
+import sys
 
-globals().update(
-    {
-        name: value
-        for name, value in vars(_review_runner).items()
-        if not name.startswith("__")
-    }
+
+RETIREMENT_MESSAGE = (
+    "validation_runner is retired; run the owning stage instead: "
+    "3-初稿 writes draft acceptance, 4-润色 writes final acceptance."
 )
 
 
-if __name__ == "__main__":
-    from review_runner import main
+def main(argv: list[str] | None = None) -> int:
+    _ = argv
+    print(RETIREMENT_MESSAGE, file=sys.stderr)
+    return 2
 
-    raise SystemExit(main())
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

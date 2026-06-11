@@ -1,0 +1,17 @@
+[
+  {
+    "id": "draft-new-chapter",
+    "prompt": "用 story-drafting 为 projects/story/示例项目 起草第2卷第12章。",
+    "expected": "Loads planning, north_star, MEMORY/CONTEXT, cards, same-volume prior chapters, then writes canonical 3-初稿 chapter without model-lane routing."
+  },
+  {
+    "id": "repair-existing-draft",
+    "prompt": "第12章人物对白太说明腔，局部修一下。",
+    "expected": "Reads existing draft, enters local_repair, preserves facts, rewrites only affected prose, and keeps canonical output path."
+  },
+  {
+    "id": "explicit-model-no-lane",
+    "prompt": "帮我续写第12章初稿。",
+    "expected": "Routes to root story-drafting chapter_continue or chapter_draft according to existing target chapter state."
+  }
+]

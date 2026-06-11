@@ -16,7 +16,7 @@ This file stores stable reusable heuristics. Mandatory gates remain in `SKILL.md
 | symptom | likely prevention |
 | --- | --- |
 | root story_map grows into a second detail store | force slice detail + root summary split |
-| historical PASS gets actualized | check `routing_decision` and `handoff_targets` before delta |
+| historical PASS gets actualized | check `acceptance_status`, `handoff_targets`, and `accepted_manuscript_refs` before delta |
 | planning markdown becomes mixed truth | only write `.actualization.json` companions |
 | half-written run is hard to diagnose | pending and committed manifests must be preserved |
 | user asks a query and receives an artifact | classify request before loading writeback workflow |

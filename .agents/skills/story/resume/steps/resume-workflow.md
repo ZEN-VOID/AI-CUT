@@ -7,18 +7,18 @@
 | slot | conclusion |
 | --- | --- |
 | `business_goal` | 将中断或疑似中断的 story2026 任务恢复到可证明、安全、唯一的下一入口。 |
-| `business_object` | `projects/story/<项目名>/` runtime、`STATE.json.workflow_runtime`、draft/review/context-return 工件、统一 CLI 输出与用户确认。 |
+| `business_object` | `projects/story/<项目名>/` runtime、`STATE.json.workflow_runtime`、draft/acceptance/context-return 工件、统一 CLI 输出与用户确认。 |
 | `constraint_profile` | 不能猜断点，不能绕过 `story.py`，不能默认执行 destructive Git 或未确认 cleanup，不能把恢复卫星技能冒充主阶段。 |
 | `success_criteria` | 输出恢复裁决包，包含证据链、风险等级、用户确认状态、已执行命令和唯一 next handoff。 |
-| `non_goals` | 不写正文，不改规划，不做 PASS actualization，不替 review 做人工裁决。 |
-| `complexity_source` | 复杂度来自 tracked run、artifact fallback、query 轻量恢复、write/review/context-return 多 stage 回接和 cleanup 安全门。 |
+| `non_goals` | 不写正文，不改规划，不做 PASS actualization，不替阶段验收做人工裁决。 |
+| `complexity_source` | 复杂度来自 tracked run、artifact fallback、query 轻量恢复、write/acceptance/context-return 多 stage 回接和 cleanup 安全门。 |
 | `topology_fit` | 串行预检 + 树形类型分流 + 用户确认 + closure 汇流。 |
 
 ## Node Network
 
 | node_id | objective | inputs | actions | evidence | route_out | gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 锁定恢复诉求与候选项目根 | 用户请求、cwd、项目名/路径、stage hint | 判定是否是 resume、query、context return、drafting 或 review 请求 | intent label、候选路径、reroute reason | `N2-PREFLIGHT` 或 reroute/block | 恢复意图明确，或已给最小追问/路由 |
+| `N1-INTAKE` | 锁定恢复诉求与候选项目根 | 用户请求、cwd、项目名/路径、stage hint | 判定是否是 resume、query、context return、drafting、polishing 或 acceptance 请求 | intent label、候选路径、reroute reason | `N2-PREFLIGHT` 或 reroute/block | 恢复意图明确，或已给最小追问/路由 |
 | `N2-PREFLIGHT` | 解析真实 `PROJECT_ROOT` | `WORKSPACE_ROOT`、`story.py preflight` | 执行 preflight 和 `where`，确认 `STATE.json` | preflight JSON、project_root | `N3-DETECT` | 项目根唯一且包含 `STATE.json` |
 | `N3-DETECT` | 读取中断或 fallback 证据 | `workflow detect`、runtime files | 执行或消费 `workflow detect`；无 tracked 中断时检查 artifact fallback | detect payload、fallback evidence | `N4-TYPE` | 不凭聊天记忆判断断点 |
 | `N4-TYPE` | 判定恢复模式与风险 | detect/fallback payload、用户意图、types 矩阵 | 形成 `resume_type_profile` | mode、risk、command、current_step、candidate_entry | `N5-NORMALIZE` | 模式命中且风险已标注 |
@@ -37,7 +37,7 @@
 
 ### `artifact_fallback_resume`
 
-- 条件：没有 tracked interruption，但命中 `return`、`review`、`3-初稿` 写作日志等可证明业务证据链。
+- 条件：没有 tracked interruption，但命中 `return`、stage acceptance packet、`3-初稿` 写作日志等可证明业务证据链。
 - 动作：列出证据链，并收敛到唯一下一入口。
 - gate：不得把 fallback 伪装成 tracked interruption。
 
@@ -53,11 +53,11 @@
 - 动作：先执行 `workflow cleanup --chapter {N}` 预览；用户确认后才 `--confirm` 和 `workflow clear`。
 - gate：删除前必须由脚本自动备份正文根文件。
 
-### `review_decision_resume`
+### `acceptance_decision_resume`
 
-- 条件：`story-review` 在 Step 7 或后段中断。
+- 条件：阶段验收在人工裁决或后段中断。
 - 动作：重新确认关键问题处理策略或核对输入未变后继续。
-- gate：不得替用户自动完成 Step 7 裁决。
+- gate：不得替用户自动完成验收裁决。
 
 ## Failure Loops
 

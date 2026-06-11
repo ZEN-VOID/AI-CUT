@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求导演批注证明 `2-编剧` 画面点与 `3-美学` 画面基调如何投影为导演意图、信息差、节奏和表演交接。
+- 新增 `FAIL-DIR-UPSTREAM-CONTEXT`、`GATE-DIR-20-UPSTREAM-CONTEXT` 和报告 `Upstream Context Application Map`，并将完成门扩展到 `GATE-DIR-01..20`。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-04
 
 - Created `4-导演` as a Skill 2.0 runtime-spine package.

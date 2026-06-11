@@ -45,6 +45,7 @@ metadata:
 - 默认 source 为 `projects/aigc/<项目名>/7-分镜/第N集.md`。用户显式指定文稿、粘贴文本或要求跳过某些上游环节时，以用户指定 source 优先，并在报告中记录 `source_override=true`。
 - 必读美学上下文为 `projects/aigc/<项目名>/3-美学/画面基调/全局风格协议.md` 与 `projects/aigc/<项目名>/3-美学/摄影风格/摄影风格协议.md`。二者缺一时，可使用用户提供的等价文本；若没有任何等价画面基调或摄影风格，不得判定 canonical pass。
 - 可选上下文包括 `3-美学/分镜风格/分镜风格协议.md`、`角色风格/角色风格协议.md`、`场景风格/场景风格协议.md`、项目长期摄影偏好和视频模型限制。
+- 正式生成、repair 或 review 时，必须加载 `../_shared/upstream-context-application-contract.md`，并在执行报告中记录 `Upstream Context Application Map`：说明 `7-分镜` 的分镜行、起始状态帧、空间层次、轴线和 `3-美学` 画面基调/摄影风格如何被投影为机位、运动路径、速度、焦点和一镜到底链路。
 - 任意涉及抽象情绪转运镜、AIGC 视频可执行性、焦点/空间/运动画面化或比喻化镜头描述的任务，必须加载 `../_shared/anti-abstract-language-contract.md`；运镜正文默认按白描式可拍材料处理。
 - 核心运镜判断、镜头角度变化、镜头类型、速度曲线、焦点行为和一镜到底组合运镜必须由 LLM 直接完成；脚本只允许做读取、格式扫描、覆盖统计、diff 和报告辅助。
 - 硬性要求：不能用脚本做批量生成、批量插入、正则套句或映射投影。从上到下逐条理解目标对象，并只把 LLM 判断后的结果按照指定要求落盘。
@@ -184,8 +185,8 @@ Reject or clarify when:
 | `N6-CAM-MOVEMENT-DESIGN` | 设计普通逐分镜综合运镜 | N5 输出、references | 形成 `camera_movement_plan`：镜头角度变化、镜头类型、速度曲线、沿既有构图轴线或空间层次的运动设计、摄影语义正确的焦点行为、连续性交出、AI 视频可执行 payload；显式审查脚本化/模板化风险、焦点语义漂移、空间布局越权和镜头运动/焦距/透视混淆 | `camera_movement_plan`、`speed_curve_map`、`spatial_axis_usage_map`、`spatial_movement_action_map`、`lens_or_camera_motion_boundary`、`focus_behavior_map`、`focus_transition_map`、`focus_semantic_audit`、`payload_table`、`anti_template_audit` | `N7` / `R1` | 每条普通分镜四要素齐全；只引用 7-分镜既有空间结构；焦点行为符合摄影语义；镜头运动、焦距变化和透视效果边界清楚；静止有理由；技术选择有动机；反模板审计通过 |
 | `N6B-CAM-ONETAKE-CHAIN` | 设计一镜到底画面点连续组合运镜 | one_take_signal、N3-N5 输出 | 以画面点为单位建立 `one_take_chain_plan`；串联该画面点全部分镜；说明从分镜A的既有起始状态帧和具体机位/角度进入，如何沿既有构图轴线或空间层次推进，如何使用既有前中后景或遮挡关系，速度曲线与停点如何变化，景深策略与对焦/拉焦/转焦如何接力，并检查跨画面点/跨组连接 | `one_take_chain_plan`、`spatial_movement_action_map`、`lens_or_camera_motion_boundary`、`focus_transition_map`、`transition_anchor_map`、`cross_group_continuity_note` | `N7` / `R1` | 一镜到底不得硬切；必须可读出连续运动链；不得重新发明空间布局；焦点接力必须落到景深策略和对焦行为 |
 | `N7-CAM-INJECT` | 在原分镜稿基础上内联注入运镜 | source、N3-N6/N6B 证据 | 保留原文；普通分镜在原内容后追加综合运镜句；一镜到底在画面点后追加覆盖段；不写内部计划标签 | `candidate_camera_episode`、`injection_map`、`format_check`、`source_preservation_diff` | `N8` / `R1` | 格式正确；原文保真；无 prompt/参数越权 |
-| `N8-CAM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-CAM-08-*`；阻断项回到 N2-N7 或 R2 最小修复，最多 3 轮；无法修复则 blocked；若发现脚本化主创，必须废弃候选稿回到 N5/N6，不得做表层润色 | `review_verdict`、`repair_log`、`reference_execution_matrix`、`rule_evidence_map`、`anti_template_audit` | `N9` / `R1` | review 未通过不得写回 canonical；脚本化主创不得 pass |
-| `N9-CAM-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract | 写入 projects/aigc/<项目名>/8-摄影/第N集.md 与执行报告；报告记录 source、美学继承、reference matrix、rule map、N/A、修复和残余风险 | `output_manifest`、`execution_report` | done | 输出路径唯一；正式写回不得缺执行报告 |
+| `N8-CAM-REVIEW-REPAIR` | 审查并最小修复候选稿 | candidate、review gates | 执行 `GATE-CAM-08-*`；阻断项回到 N2-N7 或 R2 最小修复，最多 3 轮；无法修复则 blocked；若发现脚本化主创，必须废弃候选稿回到 N5/N6，不得做表层润色 | `review_verdict`、`repair_log`、`reference_execution_matrix`、`upstream_context_application_map`、`rule_evidence_map`、`anti_template_audit` | `N9` / `R1` | review 未通过不得写回 canonical；脚本化主创不得 pass |
+| `N9-CAM-WRITEBACK-CLOSE` | 写回唯一输出并生成报告 | passed candidate、output contract | 写入 projects/aigc/<项目名>/8-摄影/第N集.md 与执行报告；报告记录 source、美学继承、upstream context application、reference matrix、rule map、N/A、修复和残余风险 | `output_manifest`、`execution_report` | done | 输出路径唯一；正式写回不得缺执行报告 |
 | `R1-CAM-REWORK` | 源层返工定位 | fail code、review evidence | 追到题材理解、美学继承、分镜行扫描、连续性、戏剧功能、运镜设计、注入格式或输出路径层 | `root_cause_trace` | `R2` / `N2` / `N3` / `N4` / `N5` / `N6` / `N6B` / `N7` | 不得用泛化润色掩盖失败 |
 | `R2-CAM-SYNC-REPAIR` | 修复已有摄影稿 | existing draft、root cause | 先列出失败画面点和失败原因；只由 LLM 基于 source、美学和当前画面点重新判断失败分镜的运镜句、四要素、连续性、原文保真或报告证据；脚本只可生成失败清单、source diff 和覆盖统计，不得生成、替换或润色正文 | `sync_patch`、`repair_authorship_note`、`mechanical_assist_log` | `N8` | 修复后同类失败不得残留；若正文修复来自脚本/正则/映射表/批量替换，直接 `FAIL-CAM-REPAIR-SCRIPTED` |
 | `V1-CAM-REVIEW` | 只审查摄影稿 | candidate draft、source 可选 | 执行 Review Gate Binding，不改写正文 | `review_findings` | `N9` | findings 必须有证据、fail code 和返工目标 |
@@ -223,7 +224,7 @@ flowchart TD
 | `focus_semantic_threshold` | `focus_semantic_audit` 必须通过：焦点句必须落到 `focus_start`、`focus_end`、`focus_mode`、`depth_of_field_strategy`、`must_remain_readable` 中至少可审查的清晰主体、景深层次或对焦/拉焦/转焦/失焦再合焦动作；不得用“焦点交给空路/压力/危险方向/心理反应”等关注点写法冒充焦点行为；不得把推轨、短推或靠近误称为变焦 | `N6/N8.gate` | `FAIL-CAM-FOCUS-SEMANTIC` |
 | `lens_motion_boundary_threshold` | `lens_or_camera_motion_boundary` 必须通过：推/拉/横移/跟拍/升降属于摄影机或机位运动；变焦属于焦距变化；广角/长焦造成空间夸张或压缩属于镜头/透视效果，不得冒充机位路径 | `N6/N8.gate` | `FAIL-CAM-LENS-MOTION-CONFLATION` |
 | `repair_authorship_threshold` | repair 中任何正文级修改必须有 `repair_authorship_note`，说明 LLM 如何回到当前画面点重判观看目标；若修复动作是脚本替换、批量套句、正则重写、词库轮换或只替换焦点名，必须 fail | `R2.gate` / `N8.gate` | `FAIL-CAM-REPAIR-SCRIPTED` |
-| `pass_threshold` | `GATE-CAM-08-*` 阻断项为 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数越权 0；普通分镜四要素缺失 0；一镜到底硬切 0；脚本化主创 0 | `N8.gate` / `Convergence Contract` | `FAIL-CAM-QUANT-THRESHOLD` |
+| `pass_threshold` | `GATE-CAM-08-*` 阻断项为 0；上游上下文应用缺证 0；分镜行漏处理 0；原文丢失 0；剧情越权 0；prompt/参数越权 0；普通分镜四要素缺失 0；一镜到底硬切 0；脚本化主创 0 | `N8.gate` / `Convergence Contract` | `FAIL-CAM-QUANT-THRESHOLD` |
 | `retry_limit` | 同一集同一 fail code 最多 3 轮最小修复；仍失败则 blocked 并报告最早 source owner | `R1/R2.route_out` | `FAIL-CAM-QUANT-RETRY` |
 | `fallback_evidence` | source override、缺美学等价文本、不可判定字段、一镜到底信号不足均需报告 N/A 或降级原因 | `Review Gate Binding.report_evidence` | `FAIL-CAM-QUANT-FALLBACK` |
 
@@ -242,6 +243,7 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `CONTEXT.md` | 每次调用 | 经验层、失败模式、修复策略 | 重定义输入、输出或完成门 | `Learning / Context Writeback` |
 | `../_shared/anti-abstract-language-contract.md` | 抽象情绪转运镜、比喻化镜头描述、AIGC 视频可执行性、焦点/空间/运动画面化、`FAIL-CAM-PLAIN-VISUALIZATION` | 跨阶段反抽象合同，定义白描式画面化、抽象/比喻残留审查和可拍摄材料投影 | 替代摄影术语语义、空间边界、焦点计划或 LLM 逐分镜主创 | `N5/N6/N8` |
+| `../_shared/upstream-context-application-contract.md` | 任意正式生成、repair、review，或 `FAIL-CAM-UPSTREAM-CONTEXT` | 规定分镜稿与摄影风格上下文如何被运镜稿应用、保真和举证，要求 `Upstream Context Application Map` | 替代运镜主创、改写 `7-分镜` 空间布局/秒数、把摄影风格机械套成运镜句 | `N1-CAM-INTAKE` / `N5-CAM-SHOT-ANALYZE` / `N8-CAM-REVIEW-REPAIR` |
 | `references/` | 任意正式生成、repair、review | 授权细则目录，承载运镜、连续性、保真和边界合同 | 新增主入口、改写输出路径或替代主节点 | `Module Loading Matrix` |
 | `scripts/` | 需要机械扫描、diff、覆盖统计、格式检查或失败清单时 | 机械辅助目录 | 生成、替换、润色或批量修补运镜正文、焦点行为、速度曲线、镜头角度；裁决摄影方案；用机械指标判定质量 pass | `scripts/README.md` / `GATE-CAM-08-AUTHORSHIP` |
 | `references/source-detail-incremental-fusion-contract.md` | 任意注入、repair、review | 原文保真、增量注入、旧矛盾口径最小修复 | 改写原分镜内容或剧情 | `N7-CAM-INJECT` |
@@ -259,6 +261,7 @@ flowchart TD
 | trigger_signal | required_modules | load_phase | return_gate | mechanical_check |
 | --- | --- | --- | --- | --- |
 | `default_camera_injection` | `references/source-detail-incremental-fusion-contract.md`, `references/shot-planning-integration-contract.md`, `references/camera-movement-emotion-contract.md`, `references/dynamic-lens-language-contract.md`, `references/shot-continuity-contract.md`, `references/ai-video-prompt-execution-contract.md` | `N1-N6` | `GATE-CAM-08-FORMAT`, `GATE-CAM-08-MOVE` | 分镜行覆盖、四要素抽样 |
+| `upstream_context_application` / `FAIL-CAM-UPSTREAM-CONTEXT` | `../_shared/upstream-context-application-contract.md` | `N1/N3/N5/N6/N8` | `GATE-CAM-08-UPSTREAM-CONTEXT` | `Upstream Context Application Map` links storyboard/style anchors to camera decisions |
 | `one_take_signal` | `references/shot-planning-integration-contract.md`, `references/dynamic-lens-language-contract.md`, `references/intra-shot-transition-contract.md`, `references/shot-continuity-contract.md`, `references/transition-design-contract.md`, `references/ai-video-prompt-execution-contract.md` | `N5-N6B` | `GATE-CAM-08-ONETAKE` | one_take_chain coverage |
 | `peak_or_climax_signal` | `references/peak-shot-language-contract.md`, `references/camera-movement-emotion-contract.md`, `references/shot-continuity-contract.md` | `N5-N6` | `GATE-CAM-08-PEAK` | peak classification |
 | `FAIL-CAM-TYPE-SINGLE, FAIL-CAM-TYPE-RANGE, FAIL-CAM-TYPE-OVERRIDE, FAIL-CAM-TYPE-ONETAKE, FAIL-CAM-TYPE-REPAIR, FAIL-CAM-TYPE-REVIEW` | `CONTEXT.md` | `N1/R1` | `Type Routing Matrix` | route evidence |
@@ -289,9 +292,10 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | `C1-source-and-style` | source 可读，分镜行存在，画面基调和摄影风格可用或有等价替代 | source 缺失、分镜行缺失、正式写回无美学上下文 | `source_manifest`, `aesthetic_manifest` | `N1-CAM-INTAKE` |
 | `C2-line-inventory` | 全部分镜行进入 inventory，画面点归属明确 | 漏分镜行、编号/秒数不可追踪 | `storyboard_line_inventory` | `N3-CAM-STORYBOARD-LINES` |
+| `C2A-upstream-context-applied` | `7-分镜` 的空间层次、轴线、分镜功能和摄影风格已投影为运镜路径、速度、焦点和连续性交出 | 只说明已读取分镜/美学，运镜无法回指分镜空间、source anchor 或 preservation check | `upstream_context_application_map` | `N1-CAM-INTAKE` / `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` |
 | `C3-movement-plan` | 普通分镜四要素齐全，焦点语义正确，镜头运动/焦距/透视边界清楚，只沿 `7-分镜` 既有构图轴线或空间层次运动，一镜到底链路完整，反模板审计通过 | 技术随机、焦点被写成关注点、变焦术语误用、广角/长焦透视被写成机位路径、静止无理由、重新发明空间布局、一镜到底硬切、脚本化主创、对象名替换式伪差异 | `camera_movement_plan`, `spatial_axis_usage_map`, `spatial_movement_action_map`, `lens_or_camera_motion_boundary`, `focus_transition_map`, `focus_semantic_audit`, `one_take_chain_plan`, `anti_template_audit` | `N5` / `N6` / `N6B` |
 | `C4-injection` | 原文完整保留，只追加运镜句，格式可读 | 原文丢失、剧情越权、prompt 越权 | `source_preservation_diff`, `format_check` | `N7-CAM-INJECT` |
-| `C5-final` | review gate pass，报告证据完整，输出路径唯一 | 任一 P0 gate fail 或报告缺 matrix/rule map | `review_verdict`, `execution_report` | `N8-CAM-REVIEW-REPAIR` |
+| `C5-final` | review gate pass，报告证据完整，输出路径唯一 | 任一 P0 gate fail 或报告缺 upstream context application / matrix / rule map | `review_verdict`, `execution_report` | `N8-CAM-REVIEW-REPAIR` |
 
 ## Review Gate Binding
 
@@ -311,6 +315,7 @@ flowchart TD
 | 运镜正文是否由 LLM 逐画面点主创，而不是脚本、映射表、模板、批量插入、正则套句或映射投影生成？ | `GATE-CAM-08-AUTHORSHIP` | `FAIL-CAM-SCRIPTED-AUTHORSHIP` | `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | anti_template_audit |
 | 相邻分镜和同类画面点是否有真实观看差异，而不是对象名替换或同构句式轮换？ | `GATE-CAM-08-DIFFERENTIATION` | `FAIL-CAM-FAKE-DIFFERENTIATION` | `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | differentiation_samples |
 | repair 是否只用 LLM 重判失败画面点，而没有用脚本、正则、映射表、批量替换、批量插入或映射投影修改正文？ | `GATE-CAM-08-REPAIR-AUTHORSHIP` | `FAIL-CAM-REPAIR-SCRIPTED` | `R2-CAM-SYNC-REPAIR` / `N5-CAM-SHOT-ANALYZE` | repair_authorship_note, mechanical_assist_log |
+| `7-分镜` 和 `3-美学` 上下文是否明确投影为运镜决策，并记录 source anchor、local decision 和 preservation check，而非只写“已读取/已参考”？ | `GATE-CAM-08-UPSTREAM-CONTEXT` | `FAIL-CAM-UPSTREAM-CONTEXT` | `N1-CAM-INTAKE` / `N5-CAM-SHOT-ANALYZE` / `N6-CAM-MOVEMENT-DESIGN` | `upstream_context_application_map` |
 | 静止镜头是否说明静止观看理由？ | `GATE-CAM-08-STILLNESS` | `FAIL-CAM-STILLNESS-EMPTY` | `N6-CAM-MOVEMENT-DESIGN` | stillness_reason |
 | 一镜到底是否以画面点为单位形成连续链，并按完整模板说明既有起始状态帧、机位/角度、既有构图轴线或空间层次、前中后景或遮挡关系、速度曲线与停点、景深和对焦接力？ | `GATE-CAM-08-ONETAKE` | `FAIL-CAM-ONETAKE-SPLIT` | `N6B-CAM-ONETAKE-CHAIN` | one_take_chain_plan、spatial_movement_action_map、focus_transition_map |
 | 相邻分镜、画面点和组边界是否连续？ | `GATE-CAM-08-CONTINUITY` | `FAIL-CAM-CONTINUITY-BREAK` | `N4-CAM-CONTEXT` / `N6` | continuity_profile |
@@ -359,11 +364,11 @@ flowchart TD
 - Report path: `projects/aigc/<项目名>/8-摄影/执行报告.md`。
 - Output format: 保留 source 全文；普通分镜在原内容后追加综合运镜句；一镜到底画面点在该画面点分镜列表后追加 `一镜到底运镜（覆盖分镜A-B，N-N秒）：从分镜A的既有起始状态帧和具体机位/角度进入，连续串联分镜A-B，说明景别/镜头类型、运动方式、如何沿既有构图轴线或空间层次推进、如何使用既有前中后景或遮挡关系、速度曲线与停点、景深策略与对焦/拉焦/转焦接力，以及跨分镜交出点。`。
 - Naming convention: 逐集文件固定为 `第N集.md`；执行报告固定为 `执行报告.md`；不得另建旧编号路径或英文阶段名。
-- Report required sections: `Source Manifest`、`Aesthetic Context Map`、`Reference Execution Matrix`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Output Manifest`。
+- Report required sections: `Source Manifest`、`Aesthetic Context Map`、`Reference Execution Matrix`、`Upstream Context Application Map`、`Rule Evidence Map`、`N/A Justification`、`Repair Log`、`Output Manifest`。
 - Report required sections additionally include `Authorship And Differentiation Audit` for any正式写回或 repair：说明核心运镜由 LLM 主创、脚本只做机械辅助，并列出至少覆盖每个场景的代表性差异样本与已拒绝的模板化风险。
 - Report required sections additionally include `Mechanical Metric Boundary` for any正式写回或 repair：列明哪些机械指标仅作为格式底线、没有被用于质量 pass。
 - Repair reports must include `Repair Authorship Note` and `Mechanical Assist Log` when正文发生修改：前者说明 LLM 对失败画面点的重判，后者说明脚本只做定位/统计/diff。
-- Completion gate: `GATE-CAM-08-*` 阻断项为 0；source diff 只显示运镜增量或允许的矛盾运镜最小修复；正式写回时执行报告完整；`GATE-CAM-08-FOCUS-SEMANTIC`、`GATE-CAM-08-PLAIN-VISUALIZATION`、`GATE-CAM-08-AUTHORSHIP`、`GATE-CAM-08-DIFFERENTIATION`、`GATE-CAM-08-MECHANICAL-PASS` 与 `GATE-CAM-08-REPAIR-AUTHORSHIP` 必须 pass。
+- Completion gate: `GATE-CAM-08-*` 阻断项为 0；source diff 只显示运镜增量或允许的矛盾运镜最小修复；正式写回时执行报告完整；`GATE-CAM-08-UPSTREAM-CONTEXT`、`GATE-CAM-08-FOCUS-SEMANTIC`、`GATE-CAM-08-PLAIN-VISUALIZATION`、`GATE-CAM-08-AUTHORSHIP`、`GATE-CAM-08-DIFFERENTIATION`、`GATE-CAM-08-MECHANICAL-PASS` 与 `GATE-CAM-08-REPAIR-AUTHORSHIP` 必须 pass。
 
 ## Runtime Guardrails
 

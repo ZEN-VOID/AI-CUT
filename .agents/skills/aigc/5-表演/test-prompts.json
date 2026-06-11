@@ -18,5 +18,10 @@
     "id": "actor-style-research-fallback",
     "prompt": "把第4集表演稿改得更接近某位指定演员的克制表演风格；如果本地没有资料，请标记来源边界。",
     "expected": "先查 knowledge-base/actor-style-index.md；无匹配时使用预训练或联网来源并记录 style_source_matrix，把风格转译为身体、声音、节奏和面具关系，不让演员名覆盖当前剧情。"
+  },
+  {
+    "id": "action-choreography-wuxia-xuanhuan",
+    "prompt": "使用 $aigc-performance-rewrite 处理一个武侠玄幻打戏导演稿：动作画面里只有“二人激烈交手，主角被逼退半步”，请改写为 5-表演稿，但不得新增胜负结果或伤势设定。",
+    "expected": "触发 references/action-choreography-contract.md；在保留字段和上游结果的前提下，补足起手、攻防链、空间路径、方式、力度速度、接触/闪避/反制、伴随声画反应和身体残留，并在报告中记录 action_choreography_map/audit 与保真检查。"
   }
 ]

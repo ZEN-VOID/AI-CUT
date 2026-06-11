@@ -98,19 +98,22 @@ Context Agent (读) ←→ index.db + STATE.json ←→ Data Agent (写)
 3-初稿
   → 以 `3-初稿/第N卷/第N章.md` 作为当前章唯一正文根文件
   → 根技能直接读取三层 planning + 全局卡 + 风格卡 + north_star + 项目 CONTEXT
-  → 实际正文创作固定走 `scripts/write_chapter_via_doubao.py -> doubao-seed-2.0-pro`
+  → 实际正文创作由 `3-初稿` 根技能的 LLM-first 主创节点完成；模型/API 只作执行环境备注
   → 若前序章已完成，可额外加载其正文做增强校准
+  → 自动生成 `3-初稿/第N卷/第N章.acceptance.json`
   → 并把章节数据写回 state/index
   → 同步推进 `STATE.json.workflow_runtime`
 
-review
-  → 新后台隔离团队做客观检验，决定是否 PASS
+4-润色
+  → 以 `3-初稿` 源章做最小局部修补、中文表达校准和题材质感增强
+  → 自动生成 `4-润色/第N卷/第N章.acceptance.json`
 
-review
-  → 汇总聚合评估，落库 review_metrics / checkpoints
+stage acceptance
+  → owning stage 决定是否 PASS，并写入 `stage_acceptance_packet`
+  → 可选落库 quality metrics / acceptance checkpoints
 
 context-return
-  → 仅对 PASS volume 写 validated actualization
+  → 仅对 PASS + return handoff 的 accepted manuscript 写 validated actualization
   → 更新 Cards.current_state/history
   → 更新 planning actualization sidecars
   → 更新 MAP.actualization compat projection
@@ -160,19 +163,19 @@ query / resume
    → 写回 `3-初稿/第N卷/第N章.md`
    → 兼容 runtime 若启用，可额外同步写入 `第V卷.写作日志.yaml`
 
-3. inline validation hooks
-   → 每个 drafting step 写回后，立即运行 registry 声明的即时审计
-   → 通过后才允许继续下一个工序
+3. 阶段内置验收
+   → `3-初稿` 写回后自动生成 `3-初稿/第N卷/第N章.acceptance.json`
+   → PASS 后 handoff 到 `4-润色`
 
-4. 隔离终验
-   → `review` 组装 `validation_fact_pack`
-   → 并发 6 个维度子技能
-   → 聚合为 `review/第V卷.validation.json`
+4. 终稿内置验收
+   → `4-润色` 写回后自动生成 `4-润色/第N卷/第N章.acceptance.json`
+   → 验收覆盖结构、连续性、逻辑、人物、时间线、任务汇聚、文体读感和输出状态
+   → PASS 且 `handoff_targets` 包含 `return` 后进入上下文回流
 
-5. review / 审查落盘
-   → `review/` 生成业务报告
-   → 落库 `review_metrics`
-   → 回写 `STATE.json.review_checkpoints`
+5. 验收证据落盘
+   → owning stage 保存 `stage_acceptance_packet`
+   → 可选落库 quality metrics
+   → 回写 `STATE.json.stage_progress` / completion records
 
 6. Data Agent / runtime 数据链
    → AI 实体提取（替代 XML 标签解析）
@@ -183,7 +186,7 @@ query / resume
    → 向量嵌入 (RAG)
    → 风格样本评估
 
-7. 通过 `return` 做 PASS-only actualization
+7. 通过 `return` 做 PASS + handoff actualization
    → 写 `Cards.current_state/history`
    → 写 `整体规划.actualization.json / 卷规划.actualization.json / 第N章.actualization.json`
    → 兼容项目再写 `content.holomap_slice.actualization`
@@ -216,11 +219,11 @@ query / resume
 | planning truth | 原计划如何编排、哪章承载什么 | `2-卷章/整体规划.md` + `2-卷章/第V卷/卷规划.md` + `2-卷章/第V卷/第N章.md` | compat 项目才回退到 `全息地图 + 卷分片` |
 | drafting truth | 当前章正文写成什么样、当前章采用了哪些写作约束 | `3-初稿/第N卷/第N章.md` | 不再回退到旧 `chapter-root.md` |
 | object truth | 对象长期定义、当前默认状态、历史变化 | `1-设定/**/*.json` | 优先区分 `core / current_state / history` |
-| runtime snapshot | 当前进度、主角快照、strand tracker、review checkpoints | `STATE.json` | 是快照，不是完整证据库 |
+| runtime snapshot | 当前进度、主角快照、strand tracker、acceptance checkpoints | `STATE.json` | 是快照，不是完整证据库 |
 | execution truth | 当前 run、stage 进度、resume marker、事件链 | `STATE.json.workflow_runtime.execution_state + task_log` | `workflow_state` 只是兼容断点，不是全阶段真源 |
 | indexed evidence | 实体别名、状态变化、关系、章节出场、评分趋势 | `.webnovel/index.db` | 适合做精确检索与证据补充 |
-| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章/整体规划.actualization.json` + `2-卷章/第V卷/卷规划.actualization.json` + `2-卷章/第V卷/第N章.actualization.json` + `context-return/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 PASS 证据时不能冒充 actual |
-| quality truth | 最近质量趋势、风险字段、阅读力 | `index.db.review_metrics` + `reading_power` | 由 `review + review` 生成 |
+| validated actualization | 哪些 planned nodes 已在 PASS 后被正式兑现 | `2-卷章/整体规划.actualization.json` + `2-卷章/第V卷/卷规划.actualization.json` + `2-卷章/第V卷/第N章.actualization.json` + `context-return/*.context-return.json`；compat 项目再补 `holomap actualization` | 没有 acceptance PASS + return handoff 证据时不能冒充 actual |
+| quality truth | 最近质量趋势、风险字段、阅读力 | `stage_acceptance_packet` + `index.db.quality_metrics` + `reading_power` | 由 owning stage 内置验收生成 |
 
 固定判定：
 
@@ -255,7 +258,7 @@ query / resume
   "world_settings": {},
   "disambiguation_warnings": [],
   "disambiguation_pending": [],
-  "review_checkpoints": [],
+  "acceptance_checkpoints": [],
   "chapter_meta": {},
   "_migrated_to_sqlite": true
 }
@@ -274,7 +277,7 @@ query / resume
 
 > **当前结构说明**: entities_v3、alias_index、state_changes、structured_relationships 已迁移到 index.db，不再存储在 `STATE.json` 中。
 
-> **查询注意**: `STATE.json` 仍然保留 `review_checkpoints`、`chapter_meta`、`strand_tracker` 等快照字段，但它不是 `Cards`、`MAP.actualization` 或 `index.db` 的替代品。
+> **查询注意**: `STATE.json` 可能仍然保留 legacy `acceptance_checkpoints`，新链路优先读取 `acceptance_checkpoints`、`chapter_meta`、`strand_tracker` 等快照字段；它不是 `Cards`、`MAP.actualization` 或 `index.db` 的替代品。
 
 ## `STATE.json.workflow_runtime.execution_state` 结构（全阶段执行状态）
 

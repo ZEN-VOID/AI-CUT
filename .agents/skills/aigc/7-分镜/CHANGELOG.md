@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求分镜拆分证明上游画面点、心理/表演/氛围字段和 `3-美学` 如何投影为节拍、构图、空间层次和时值。
+- 新增 `FAIL-SB-UPSTREAM-CONTEXT`、`GATE-SB-24` 和报告 `Upstream Context Application Map`，并将审查门扩展到 `GATE-SB-01..24`。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-04
 
 - 初始化 `aigc/7-分镜` Skill 2.0 runtime-spine 包。

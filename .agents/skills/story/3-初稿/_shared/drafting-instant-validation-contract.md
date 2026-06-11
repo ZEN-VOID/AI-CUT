@@ -8,13 +8,14 @@
 
 即时审计维度、step hook 映射、终验 mandatory 规则的单一真源固定为：
 
-- `../../review/_shared/validation-dimension-registry.yaml`
+- `../SKILL.md#Built-in Acceptance Contract`
+- `../review/review-contract.md`
 
 本文件只定义：
 
 - `3-初稿` 如何消费 registry
 - step 失败后的回退与重写顺序
-- `8-润色` 完成后的候选终稿边界
+- `N5-CREATIVE-DRAFT` 完成后的候选初稿边界
 
 ## Core Rule
 
@@ -90,17 +91,18 @@
   - 转 `back_to_source_contract`
   - 不允许继续把正文当成兜底层硬修
 
-## Candidate Final Draft Rule
+## Candidate Draft Acceptance Rule
 
-- `8-润色` 完成后，如果它对应的 inline hooks 通过：
-  - 当前章获得 `candidate_final_draft` 状态
-- 这不等于最终 `PASS`
+- `N5-CREATIVE-DRAFT` 完成后，如果即时 hooks 通过：
+  - 当前章获得 `candidate_draft` 状态
+- 这不等于初稿验收 `PASS`
 - 额外硬门槛：
   - 当前章在 `第V卷.写作日志.yaml.chapter_step_history[chapter_ref]` 中已收满 8 条正式 step 记录
   - 当前章在 `第V卷.写作日志.yaml.chapter_hook_results[chapter_ref]` 中已收满 8 条对位 hook 结果
   - 不存在以 Step 8 汇总、批量补记或事后倒填冒充逐步留痕的情况
-- 只有进入 `review` 终验层并拿到 `validation_status = PASS`：
-  - 才能变成 `validated_final_draft`
+- 只有 `3-初稿` 自动执行 `N6-AUTO-ACCEPTANCE` 并拿到 `acceptance_status = PASS`：
+  - 才能变成 `accepted_draft`
+  - `handoff_targets` 只能包含 `4-润色`，不得包含 `return`
 
 ## Process Log Rule
 
@@ -117,7 +119,7 @@
 目的：
 
 - 让 `resume/` 能知道当前 step 是否已通过 inline gate
-- 让 `review` 能看到 drafting 阶段已经做过哪些即时修复
+- 让 `3-初稿` 内置验收能看到 drafting 阶段已经做过哪些即时修复
 - 让父层能够证明当前卷真实完成了 `chapter_refs x 8 步`，而不是只在卷末回填若干摘要
 
 ### Volume-Ready Gate Addendum
@@ -126,32 +128,32 @@
 
 1. `chapter_step_history` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条正式 step 记录。
 2. `chapter_hook_results` 对当前卷全部 `chapter_ref` 全部写满，每章恰有 8 条对位 hook 结果。
-3. 任一章节若缺 step 记录、缺 hook 结果、顺序错位、或出现“卷末统一补记”的稀疏日志模式，卷级 gate 必须直接 `block`，不得移交 `review`。
+3. 任一章节若缺 step 记录、缺 hook 结果、顺序错位、或出现“卷末统一补记”的稀疏日志模式，卷级 gate 必须直接 `block`，不得生成初稿 PASS。
 
 ### Pre-Validation Quality Gate Addendum
 
-在卷级 `candidate_volume_draft` 之后、正式 handoff `review` 之前，父层还必须追加一轮卷级质量闸门：
+在卷级 `candidate_volume_draft` 之后、正式 handoff `4-润色` 之前，父层还必须追加一轮卷级质量闸门：
 
 1. 把结论写入 `第V卷.写作日志.yaml -> quality_gate_snapshot`
 2. `quality_gate_snapshot` 至少包含：
-   - `checkpoint_stage: pre_validation`
-   - `reviewed_at`
-   - `verdict: ready_for_validation|rework_required_before_validation`
+   - `checkpoint_stage: pre_acceptance`
+   - `accepted_at`
+   - `verdict: ready_for_acceptance|rework_required_before_acceptance`
    - `guard_axes`
    - `representative_chapter_refs`
    - `primary_issues`
    - `priority_rework_targets`
-   - `next_action: review|3-初稿-rework`
+   - `next_action: 3-初稿-acceptance|3-初稿-rework`
 3. 默认必须经过 `scripts/drafting_volume_quality_guard.py`
 4. 若 guard 返回 `block`：
    - runtime / resume 下一稳定入口必须仍是 `3-初稿`
    - 不得把 `next_step` 继续写成 `review`
-5. 若 guard 返回 `pass`，才允许把当前卷交给 `review`
+5. 若 guard 返回 `pass`，才允许把当前卷交给 `3-初稿` 内置验收；验收 PASS 后再交 `4-润色`
 
 ## Extension Rule
 
 若未来新增或调整 validation 维度：
 
-1. 优先改 `validation-dimension-registry.yaml`
-2. 再改对应 validator child package
-3. `3-初稿` 父层只需要继续按 registry 取 hook，不应手工扩写 8 个 step 的维度名单
+1. 优先改 `3-初稿/SKILL.md#Built-in Acceptance Contract`
+2. 再改 `3-初稿/review/review-contract.md` 的维度展开
+3. `3-初稿` 父层只需要继续按阶段内置验收合同取 hook，不应另建独立验收目录或平行 registry

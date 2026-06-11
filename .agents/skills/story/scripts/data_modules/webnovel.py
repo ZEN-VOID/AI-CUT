@@ -339,7 +339,7 @@ def main() -> None:
     p_extract_context.add_argument("--format", choices=["text", "json"], default="text", help="输出格式")
     p_extract_context.add_argument("--step-id", help="当前 drafting step_id，可选")
 
-    p_validate = sub.add_parser("validate", help="转发到 review_runner.py")
+    p_validate = sub.add_parser("validate", help="已退役：验收由 3-初稿/4-润色阶段内置自动完成")
     p_validate.add_argument("args", nargs=argparse.REMAINDER)
 
     p_drafting_guard = sub.add_parser("drafting-guard", help="转发到 drafting_manuscript_guard.py")
@@ -415,7 +415,11 @@ def main() -> None:
             return_args.extend(["--step-id", str(args.step_id)])
         raise SystemExit(_run_script("extract_chapter_context.py", return_args))
     if tool == "validate":
-        raise SystemExit(_run_script("review_runner.py", [*forward_args, *rest]))
+        print(
+            "validate command is retired; run story-write or story-polishing so the owning stage writes acceptance JSON.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
     if tool == "drafting-guard":
         guard_args = [*forward_args]
         if getattr(args, "chapter", None) is not None:

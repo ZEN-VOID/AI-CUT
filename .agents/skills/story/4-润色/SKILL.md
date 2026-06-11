@@ -1,228 +1,188 @@
 ---
 name: story-polishing
-description: "Use when routing story chapter polishing to GPT-native, Doubao, or DeepSeek flows."
-governance_tier: lite
-skill_role: parent_guide
+description: "Use when polishing, locally repairing, or rewriting an existing 3-初稿 chapter into canonical 4-润色 prose."
+governance_tier: full
 ---
 
 # 4-润色
 
+`4-润色` 是 `story2026` 的章节润色完整技能包。它承接 `3-初稿/第N卷/第N章.md`，在不改写核心剧情事实、不替代上游 planning/cards/north_star 的前提下，做最小局部修补、中文语感校准、题材质感强化与内置自动验收返工。
+
+用户给出外部执行偏好或当前会话直修时，仍进入本技能；执行环境只记入报告备注，不改变技能入口、frontmatter 或返工归属。
+
 ## Context Loading Contract
 
 - 每次调用本技能时，必须同时加载同目录 `CONTEXT.md`。
-- 必须回读 story 根层 `../SKILL.md` 与 `../CONTEXT.md`，先锁定 `story2026` 总线边界，再进入本阶段。
-- 若当前任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前卷/章相关性加载项目根 `CONTEXT/`。
-- 必须读取当前章 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为润色主输入；若缺失，禁止凭 planning、摘要或记忆直接生成润色稿。
+- 必须回读 story 根层 `../SKILL.md` 与 `../CONTEXT.md`。
+- 若当前任务绑定 `projects/story/<项目名>/`，必须先加载项目根 `MEMORY.md`，再按当前章相关性加载项目根 `CONTEXT/`。
+- 必须读取当前章 `projects/story/<项目名>/3-初稿/第N卷/第N章.md` 作为润色主输入；缺失时禁止凭 planning、摘要或记忆直接生成润色稿。
 - 当前章 planning、`north_star.yaml` 与项目上下文只用于校准义务、风格和题材质感，不得取代 `3-初稿` 成为润色主文本。
-- `CONTEXT.md` 只承载经验层 Type Map、Repair Playbook 与 Reusable Heuristics，不得重定义本入口合同。
+- 已有 `4-润色/第N卷/第N章.md` 存在时必须回读，覆盖需显式授权。
 
-## Purpose
+## Core Task Contract
 
-`4-润色` 是 `story2026` 在 `3-初稿` 之后的章节级最小局部修补阶段。它承接 `3-初稿` 的正文真源，在不改写核心剧情事实、不替代 planning/cards/north_star、不默认整章重排的前提下，只修明显坏处，输出保留初稿句群骨架、文本分布和人物气口的中文小说章节。
-
-它拥有：
+本技能拥有：
 
 - 当前章润色稿写权：`projects/story/<项目名>/4-润色/第N卷/第N章.md`
-- 当前章润色稿写权仅限：`projects/story/<项目名>/4-润色/第N卷/第N章.md`
-- 只对本次被调度 lane 的有效输出做父级聚合与最终落盘的裁决权
+- 润色范围、最小修补、输出形态和 writeback 安全裁决权
+- 润色后内置自动验收、验收 finding 回灌优化和 `return` handoff 裁决权
 
-它不拥有：
+本技能不拥有：
 
+- `3-初稿` 原文覆盖权
 - `0-初始化`、`1-设定`、`2-卷章` 的真源改写权
-- `3-初稿` 原始正文覆盖权
-- `review` 的 PASS/FAIL 判定权
-- 未被本轮实际调度 lane 的占位输出、空字段或理论补丁生成权
+- 另建阶段子入口或并行润色真源的权力
 
-## Mode Selection
+## Business Requirement Analysis Contract
 
-| lane | 默认状态 | 触发信号 | 子技能 |
-| --- | --- | --- | --- |
-| `C-Deepseek流` | default active | 用户未点名 provider、要求润色、去 AI 检测规整化风险、最小局部修补、长思维链二次调优 | `C-Deepseek流/SKILL.md` |
-| `B-Doubao流` | explicit | 用户点名豆包、Doubao，或明确要求中文口语/网文气口再生成一版润色稿 | `B-Doubao流/SKILL.md` |
-| `A-GPT原生` | explicit | 用户点名 GPT 原生、当前会话直接修补、或需要本地人工式小修和落盘校验 | `A-GPT原生/SKILL.md` |
-
-## Task Modes
-
-| mode | 触发信号 | 父级动作 | 子流动作 |
-| --- | --- | --- | --- |
-| `chapter_polish` | `4-润色` 目标章不存在 | 锁定源初稿、选择 lane、生成第一版最小局部修补稿 | 从 `3-初稿` 生成保留初稿骨架的 `4-润色` |
-| `polish_rewrite` | `4-润色` 目标章已存在，且用户明确要求重润、覆盖、重新润色或整章重写 | 回读源初稿与既有润色稿；要求显式覆盖确认 | 仅在显式授权下重新生成完整润色稿 |
-| `local_repair` | 用户或 review 指出局部表达、质感、连续性、事实漂移、AI 检测规整化风险 | 把 finding 路由到最小有效修复范围 | 局部修复，不扩大为整章重写，除非 finding 指向全章结构失效且用户确认 |
-| `subagent_review_optimize` | 用户显式要求启用 subagents、并行审计、分维度审查后直接优化 | 先按 `.agents/skills/story/review` registry 将审计点映射到维度子技能，再把 findings 回灌到所选 A/B/C lane | 每个审计点由对应 review 子技能审计；同轮必须直接执行最小优化并写回或给出阻断 |
-| `dry_run` | 用户或脚本只要求装配上下文 | 只返回 stdout 摘要，不写正文真源 | 不调用 provider 或不落盘正文 |
+| slot | current requirement |
+| --- | --- |
+| `business_goal` | 在保留初稿事实、骨架、人物气口和文本分布的基础上，修掉明显表达坏处并输出可交付润色稿。 |
+| `business_object` | `3-初稿` 源章、已有 `4-润色` 目标章、planning、north_star、MEMORY/CONTEXT、上一章与内置验收 findings。 |
+| `constraint_profile` | 润色不是从零起草；默认不整章重排、不短句化清洗、不通用顺滑化；脚本不得生成润色正文。 |
+| `success_criteria` | 润色稿落到 `4-润色/第N卷/第N章.md`，可追溯初稿事实，局部坏点被修复，题材质感和句群节奏未被磨平，并自动生成通过的终稿验收包。 |
+| `complexity_source` | 复杂度来自源章锚定、最小修补边界、中文语感、AI 腔坏点定位、内置验收回灌和覆盖安全。 |
+| `topology_fit` | 单根技能包能避免阶段路由断链；节点按 source -> context -> repair plan -> polish -> gate -> writeback 串行，适合章节级润色。 |
 
 ## Input Contract
 
 ### Required Input
 
 - 项目根：`projects/story/<项目名>/`
-- 当前卷章定位：`volume_num / chapter_num`，或可由 `chapter_num` 推导卷号。
-- 初稿正文：`projects/story/<项目名>/3-初稿/第N卷/第N章.md`
-- 规划参考：`projects/story/<项目名>/2-卷章/整体规划.md`
-- 规划参考：`projects/story/<项目名>/2-卷章/第N卷/卷规划.md`
-- 规划参考：`projects/story/<项目名>/2-卷章/第N卷/第N章.md`
-- 风格/题材参考：`projects/story/<项目名>/0-初始化/north_star.yaml`
+- 当前卷章定位：`volume_num / chapter_num`，或可由 `chapter_num` 推导卷号
+- 源初稿：`projects/story/<项目名>/3-初稿/第N卷/第N章.md`
+- 规划参考：
+  - `2-卷章/整体规划.md`
+  - `2-卷章/第N卷/卷规划.md`
+  - `2-卷章/第N卷/第N章.md`
+- 风格/题材参考：`0-初始化/north_star.yaml`
 
 ### Conditional Input
 
-- `projects/story/<项目名>/MEMORY.md`：项目存在时必须加载。
-- `projects/story/<项目名>/CONTEXT/**/*.md`：存在时按当前章相关性加载。
-- 既有 `projects/story/<项目名>/4-润色/第N卷/第N章.md`：存在时必须回读，覆盖需显式 force 或等价确认。
+- `MEMORY.md` 与项目 `CONTEXT/`：项目存在时必须加载。
+- 既有润色稿：存在时必须回读；正式覆盖需用户明确确认。
 - 上一章初稿或润色稿：存在时作为连续性、文气和章间节奏参考。
-- review finding / 用户局部问题描述：进入 `local_repair` 时必须加载。
+- 内置验收 finding / 用户局部问题描述：进入 `local_repair` 或 `acceptance_repair` 时必须加载。
 
 ### Reject Or Block
 
 - 缺少当前章 `3-初稿` 正文。
 - 用户要求润色阶段凭 planning 从零写正文。
-- 用户要求润色时静默改动核心事件、人物关系、世界观事实或章级任务结果。
-- 用户要求把润色结果写回 `3-初稿/`、`正文/`、平铺章节文件或临时 sibling 文件。
-- 目标章已存在但用户没有明确允许覆盖，且当前不是 `dry_run` / `no_writeback`。
+- 用户要求静默改动核心事件、人物关系、世界观事实或章级任务结果。
+- 用户要求把润色结果写回 `3-初稿/`、`正文/`、历史子目录、平铺章节文件或临时 sibling 文件。
+- 目标章已存在但用户没有明确允许覆盖，且当前不是 `dry_run / no_writeback`。
+
+## Type Routing Matrix
+
+| input_type | signal | route_to | required_nodes | module_load | fail_code |
+| --- | --- | --- | --- | --- | --- |
+| `chapter_polish` | 目标润色稿不存在 | 第一版最小局部修补 | `P1,P2,P3,P4,P5,P6` | `references/chapter-polishing-contract.md`, `templates/`, `review/review-contract.md` | `FAIL-POLISH-TYPE` |
+| `polish_rewrite` | 用户明确要求重润/覆盖/整章重写 | 授权重润 | `P1,P2,P3,P4,P5,P6` | `references/chapter-polishing-contract.md`, `guardrails/guardrails-contract.md`, `review/review-contract.md` | `FAIL-POLISH-REWRITE` |
+| `local_repair` | 用户或内置验收指定局部坏点 | 最小局部修复 | `P1,P2,P3,P4,P5,P6` | `references/chapter-polishing-contract.md`, `types/type-map.md`, `review/review-contract.md` | `FAIL-POLISH-REPAIR` |
+| `acceptance_repair` | 用户要求多维审计并直接优化，或内置终稿验收 FAIL | 验收 findings 回灌 | `P1,P2,P2A,P3,P4,P5,P6` | `review/review-contract.md`, `references/chapter-polishing-contract.md` | `FAIL-POLISH-ACCEPTANCE-REPAIR` |
+| `dry_run` | 只要求上下文包或诊断 | 不写回 | `P1,P2,P6` | `types/type-map.md` | `FAIL-POLISH-DRYRUN` |
+
+## Thinking-Action Node Map
+
+| node_id | objective | actions | evidence | route_out | gate |
+| --- | --- | --- | --- | --- | --- |
+| `P1-SOURCE-LOCK` | 锁定源章与输出路径 | 读取 `3-初稿` 源章、目标润色路径、既有润色稿 | `source_lock` | `P2` | 源章存在且路径唯一 |
+| `P2-CONTEXT-PACK` | 加载校准上下文 | 读取 planning、north_star、MEMORY/CONTEXT、上一章、验收 finding | `context_pack` | `P2A` 或 `P3` | 上下文缺口已列明 |
+| `P2A-ACCEPTANCE-BRIEF` | 汇总内置验收返工点 | 按本技能验收维度归并用户审计要求或上一轮验收 findings，形成 repair brief | `dimension_findings`、`repair_brief` | `P3` | 不允许只审不改后宣称完成 |
+| `P3-REPAIR-PLAN` | 确定最小修补范围 | 标注坏点、影响段落、可动范围和禁止改动事实 | `repair_plan` | `P4` | 默认不扩大为整章重写 |
+| `P4-CREATIVE-POLISH` | LLM-first 润色正文 | 当前执行 LLM 按源章逐段理解后做最小修补 | `polished_markdown`、`creative_engine_note` | `P5` | 禁止脚本主创和模板灌字 |
+| `P5-AUTO-ACCEPTANCE` | 自动完成终稿验收 | 检查源章锚定、最小修补、结构/连续性/逻辑/人物/时间线/任务不回退、中文 prose、题材质感、追读力、frontmatter、路径 | `stage_acceptance_packet`、`gate_result` | `P6` 或 `P3` | critical/high finding 必须返工 |
+| `P6-WRITEBACK-STATE` | 写回与状态闭合 | 写入 canonical path 与验收包；记录 `workflow_manager.py record-skill-completion` 需求或执行结果 | `polished_file`、`acceptance_file`、`state_hook_note` | done | 输出路径、验收落点和状态落点明确 |
+
+## Module Loading Matrix
+
+| module | load_when | authority | forbidden_use | rework_target |
+| --- | --- | --- | --- | --- |
+| `references/chapter-polishing-contract.md` | 任意正式润色、重润或修复 | 展开源章锚定、最小修补和内置验收 gate | 不得新增阶段子入口或第二润色真源 | `P3-REPAIR-PLAN` |
+| `types/type-map.md`、`types/polishing-type-map.md`、`types/guardrail-setup.md` | 判定润色模式、AI 腔坏点、guardrail 或 dry-run | 辅助分类和上下文包选择 | 不得替代 `Type Routing Matrix` 或生成第二执行链 | `P2-CONTEXT-PACK` |
+| `review/review-contract.md` | 写回前、内置验收、返工或审计 | 给出阶段内自动验收维度、fail code 和返工目标 | 不得外包给独立 `story/review` 技能或另写父层 aggregate | `P5-AUTO-ACCEPTANCE` |
+| `templates/` | 需要输出骨架或系统提示 | 约束 frontmatter、标题和 prose 输出形态 | 不得生成正文内容 | `P4-CREATIVE-POLISH` |
+| `guardrails/guardrails-contract.md` | 覆盖、整章重润、复杂外部输入时 | 约束权限、注入防护和写回边界 | 不得覆盖本 `SKILL.md` | `P5-AUTO-ACCEPTANCE` |
+| `knowledge-base/polishing-heuristics.md` | 需要可复用润色经验时 | 提供经验参考 | 不得成为执行指令源 | `P3-REPAIR-PLAN` |
 
 ## Base Polishing Rules
 
-1. 润色默认是最小局部修补，不是整章重写：保留初稿段落顺序、事件顺序、句群骨架、长短不齐、局部粗粝和人物原声，只修明显坏处。
+1. 润色默认是最小局部修补，不是整章重写：保留初稿段落顺序、事件顺序、句群骨架、长短不齐、局部粗粝和人物原声。
 2. 更符合中文表达风格：去掉翻译腔、说明腔、AI 腔和公式化解释，但不得把全文压成平均短句、整齐分段或通用顺滑文本。
-3. 更符合题材的写作质感：读取 `north_star.yaml.genre_contract` 与风格约束，让场景密度、情绪颗粒、对白锋利度、心理节奏和段落推进服务当前题材，但只在必要处微调。
-4. 初稿事实优先：保留初稿已成立的事件顺序、人物动机、信息揭示、章末牵引；只在用户明确要求时做结构级重写。
-5. 润色不是摘要：输出必须是完整章节 prose，不得变成点评、建议、改写说明或段落清单。
-6. 润色不是审查结论：发现源层问题时生成 repair finding 或阻断报告，不把下游润色伪装成上游真源修复。
-7. 润色不是同义词替换，也不是大面积洗稿：优先处理公式句、重复解释、局部对白同质、动作逻辑硬说明、事实漂移和连续性断点。
-8. 润色不是清洗风格：不得把作者口味、项目长期偏好、题材锋芒和人物声音修成通用顺滑文本。
-9. 章末与场景收束可使用意象回扣：优先从当前场景已有的天象、光影、声音、物件和人物动作中取材，把情绪余韵、题材质感和下一章牵引压进景物；不得新增剧情事实，不得用空泛风景替代冲突钩子，也不得把所有结尾公式化为月夜、冷风或远灯。
-10. AI 腔必须拆成可定位的坏点处理，而不是用“去 AI 味”泛化重写：优先检查过量因果连接词、均匀段落长度、异常完整主谓句、情绪标签直贴、解释性插入语、流程化总结句和角色共用作者口吻。
-11. 场景密度与信息节奏必须被保护：不得以“去冗余”为由删掉承载空间、物件、身体反应、关系压力或悬念延迟的感知颗粒；不得把需要由行动、对白或感官呈现的信息压平成高度概括的说明句。
-12. 初稿节奏意图必须被保护：不得以“提升可读性”为由，把有意的长复合句、意识流碎片、断裂句、省略句或长短不齐的句群全部改成中等长度均衡句。
+3. 更符合题材写作质感：读取 `north_star.yaml.genre_contract`，让场景密度、情绪颗粒、对白锋利度、心理节奏和段落推进服务当前题材。
+4. 初稿事实优先：保留初稿已成立的事件顺序、人物动机、信息揭示和章末牵引；结构级重写必须有用户授权。
+5. AI 腔必须拆成具体坏点：过量因果连接词、均匀段落、异常完整主谓句、情绪标签直贴、解释性插入语、流程总结句或角色共用作者口吻。
+6. 场景密度与信息节奏必须被保护；承载空间、物件、身体反应、关系压力或悬念延迟的感知颗粒不是默认冗余。
+7. 初稿节奏意图必须被保护；长复合句、碎片句、断裂句、省略句和长短不齐的句群只修明确语病、歧义或坏点。
+8. 输出必须是完整章节 prose，不得变成点评、建议、差异说明或多个版本。
 
-## Polishing Quality Gates
+## LLM-First Creative Authorship Contract
 
-| gate_id | gate | pass condition |
-| --- | --- | --- |
-| `G1-SOURCE-ANCHOR` | 初稿锚定 | 润色稿的核心事件、人物动机、信息揭示和章末牵引可追溯到 `3-初稿` |
-| `G2-MINIMAL-REPAIR` | 最小修补 | 默认保留初稿骨架和大部分句群，不出现无授权整章重排、短句化清洗或通用顺滑化 |
-| `G3-CHINESE-PROSE` | 中文语感 | 没有明显翻译腔、说明腔、AI 腔、公式化解释；AI 腔问题已定位到具体坏点；句长和段落分布不能明显机械收缩 |
-| `G4-GENRE-TEXTURE` | 题材质感 | `north_star.yaml.genre_contract` 能落实到场景压力、情绪颗粒、对白和节奏 |
-| `G5-CONTINUITY` | 连续性 | 与上一章、当前章 planning、项目记忆不冲突 |
-| `G6-OUTPUT-SHAPE` | 输出形态 | 完整 Markdown 章节；frontmatter 至少包含 `润色模型`、`初稿来源` 与 `字数` |
-| `G7-PATH` | 路径 | 写入 `4-润色/第N卷/第N章.md` |
-| `G8-DENSITY-RHYTHM-PRESERVATION` | 密度与节奏保护 | 感知密度、信息揭示节奏、人物声口和初稿句群起伏没有被压平成说明文或均衡模板 |
+- 润色正文必须由 LLM 逐段理解源初稿、修补边界和用户意图后直接改写。
+- 不能用脚本做批量生成、批量插入、正则套句、映射投影、模板灌字或启发式补句。
+- 脚本只允许承担读取、统计、校验、diff、路径检查、状态 hook 和落盘辅助。
+- 新产物默认不写 `润色模型`；旧稿中已有 `润色模型` 字段时，仅作为 legacy metadata 读取，不得参与路由或返工归属裁决。
 
-## Subagent Review-Optimize Contract
+## Built-in Acceptance Contract
 
-当用户在 `4-润色`、`A-GPT原生`、`B-Doubao流` 或 `C-Deepseek流` 中显式要求启用 subagents 模式时，默认进入 `subagent_review_optimize`，不再只产出泛化监制意见或单一 checklist。
+本技能不依赖 `.agents/skills/story/review`。正式润色任务在 `P4-CREATIVE-POLISH` 后必须自动执行 `P5-AUTO-ACCEPTANCE`，不得把终稿验收变成用户另行触发的步骤。
 
-执行模式固定为：
+验收输出默认写入：
 
-1. 先加载 `.agents/skills/story/review/SKILL.md + CONTEXT.md`、`_shared/validation-dimension-registry.yaml`，并按审计点加载对应维度子技能自己的 `SKILL.md + CONTEXT.md`。
-2. 按审计点拆分 subagents；一个审计点归属一个 review 维度子技能，不得用同一个泛化 reviewer 代替全部维度。
-3. 每个维度只输出自己的 `dimension_packet`、问题定位、source owner 和建议的 `rework_target`；父级 `4-润色` 不把 child sidecar 当最终 PASS/FAIL。
-4. 审计结果必须在同轮回灌到当前选中的 A/B/C lane，并由该 lane 执行 `local_repair`、`chapter_polish` 或显式 `polish_rewrite`；只写审计报告但不优化，不能宣称完成 subagents 模式。
-5. B/C provider lane 中，review subagents 只产出维度审计包和 repair brief；最终正文优化仍必须由 Doubao/DeepSeek provider 执行。A lane 中，审计 subagents 必须与 GPT 主写作上下文隔离。
-6. 若上层策略阻断真实 subagents，必须报告阻断层级、原计划 review 子技能 roster、实际降级路径、未真实启动的维度，并说明是否仍能执行本地最小优化。
-
-审计点默认映射：
-
-| 审计点 | review 子技能 | 优化回灌 |
-| --- | --- | --- |
-| planning 承诺、结构义务、伏笔兑现 | `.agents/skills/story/review/结构兑现` | 当前 lane 的结构/段落局部修复；若问题属于 planning 源层则阻断并路由上游 |
-| 章间承接、线程、压力线不断带 | `.agents/skills/story/review/连续性` | 当前 lane 的连续性桥、开章承接和必要过渡修复 |
-| 因果链、设定规则、能力边界、source truth 冲突 | `.agents/skills/story/review/逻辑自洽校验` | 当前 lane 只修正文表达层逻辑断点；source truth 冲突不得由润色硬改 |
-| 人物行为、动机、关系压力、对白声口 | `.agents/skills/story/review/人物一致性` | 当前 lane 的人物反应、对白、心理和声口局部修复 |
-| 时间锚、事件顺序、持续时长、伏笔窗口 | `.agents/skills/story/review/时间线` | 当前 lane 的时序提示、过渡句和窗口修复；源层错位则路由上游 |
-| 主从任务、支线去向、开放保留 | `.agents/skills/story/review/任务汇聚` | 当前 lane 的章末牵引、任务收束或开放声明局部修复 |
-| 中文 prose、现场感、句群节奏、AI 腔、模板脸色和对白潜台词 | `.agents/skills/story/review/文体读感` | 当前 lane 的文体读感最小修补；不得把初稿活气清洗成整齐说明文 |
-
-## Reference Loading Guide
-
-| 场景 | 读取文件 |
-| --- | --- |
-| GPT 原生润色 | `A-GPT原生/SKILL.md` + `A-GPT原生/CONTEXT.md` |
-| Doubao provider 润色 | `B-Doubao流/SKILL.md` + `B-Doubao流/CONTEXT.md` |
-| DeepSeek provider 润色 | `C-Deepseek流/SKILL.md` + `C-Deepseek流/CONTEXT.md` |
-| 需要 lane 级细则 | 对应 lane 的 `references/chapter-polishing-contract.md` |
-| 需要执行拓扑 | 对应 lane 的 `steps/chapter-polishing-workflow.md` |
-| 需要判定 mode | 对应 lane 的 `types/polishing-type-map.md` |
-| 需要质量门禁 | 对应 lane 的 `review/review-contract.md` |
-| 显式 subagents 分维度审计并直接优化 | `.agents/skills/story/review/SKILL.md + CONTEXT.md`、`.agents/skills/story/review/_shared/validation-dimension-registry.yaml`、命中的 review 维度子技能 `SKILL.md + CONTEXT.md` |
-| 需要输出骨架或系统提示 | 对应 lane 的 `templates/` |
-| 需要机械辅助 | 对应 lane 的 `scripts/polish_chapter_*.py` |
-| 父级导引最小结构 | 本父级导引 skill 只要求同目录 `SKILL.md + CONTEXT.md`；润色模板、类型包、provider bridge 和质量 gate 归 A/B/C 子路径 |
-
-## Execution Topology
-
-```mermaid
-flowchart TD
-    A["N1 Intake: 项目根与卷章"] --> B["N2 Source Lock: 读取 3-初稿 源章"]
-    B --> C["N3 Context Pack: planning/north_star/MEMORY/CONTEXT/上一章"]
-    C --> D{"N4 Lane Route"}
-    D -->|"explicit subagents"| S["N4R Review Subagents: 分维度审计"]
-    S --> L["N5 Lane Execute: 当前 A/B/C 直接优化"]
-    D -->|"default"| G["C-Deepseek流"]
-    D -->|"GPT explicit"| F["A-GPT原生"]
-    D -->|"Doubao explicit"| E["B-Doubao流"]
-    E --> H["N5 Validate: 中文表达/题材质感/事实锚定"]
-    F --> H
-    G --> H
-    L --> H
-    H --> I{"Gate"}
-    I -->|"pass"| J["写回 4-润色/第N卷/第N章.md"]
-    I -->|"fail"| K["Root-Cause Route"]
-    K --> B
+```text
+projects/story/<项目名>/4-润色/第N卷/第N章.acceptance.json
 ```
 
-## Root-Cause Execution Contract
+`stage_acceptance_packet` 至少包含：`acceptance_status`、`accepted_manuscript_stage`、`accepted_manuscript_refs`、`dimension_results`、`critical_issues`、`rework_targets`、`handoff_targets`、`acceptance_ref`。终稿通过时 `accepted_manuscript_stage` 必须为 `4-润色`，`handoff_targets` 应包含 `return`。
 
-失败追溯链固定为：
+### Polish Acceptance Dimensions
 
-`Symptom -> Direct Cause -> Section Owner -> Source Contract -> Meta Rule Source`
+| dimension | required check | fail_code | rework_target |
+| --- | --- | --- | --- |
+| `source_anchor` | 唯一 `3-初稿` 源章、目标 `4-润色` 路径和既有目标稿状态已锁定 | `FAIL-POLISH-SOURCE` | `P1-SOURCE-LOCK` |
+| `minimal_repair` | 保留初稿事实、骨架、文本分布、人物气口和章末牵引，不把润色扩大为无授权重写 | `FAIL-POLISH-SCOPE` | `P3-REPAIR-PLAN` |
+| `regression_structure_logic` | 润色没有损坏结构兑现、连续性、逻辑自洽、人物一致性、时间线和任务汇聚 | `FAIL-POLISH-REGRESSION` | `P3-REPAIR-PLAN` / `P4-CREATIVE-POLISH` |
+| `chinese_prose` | 去掉翻译腔、说明腔、流程腔、公式化解释和异常完整句，不把全文磨平成同质短句 | `FAIL-POLISH-PROSE` | `P4-CREATIVE-POLISH` |
+| `genre_texture_density` | 保留并强化题材质感、场景密度、信息延迟、心理暗流、对白锋利度和句群节奏 | `FAIL-POLISH-TEXTURE` | `P4-CREATIVE-POLISH` |
+| `anti_ai_features` | AI 腔坏点被具体定位并修掉，而不是泛化“更自然”洗稿 | `FAIL-POLISH-AI-FEATURES` | `P3-REPAIR-PLAN` / `P4-CREATIVE-POLISH` |
+| `reader_pull` | 悬念、冲突压力、情绪推进、章末钩子和读者追读力没有弱化 | `FAIL-POLISH-READER-PULL` | `P4-CREATIVE-POLISH` |
+| `creative_authorship` | 润色正文由 LLM-first 主创，脚本和模板没有生成正文 | `FAIL-POLISH-AUTHORSHIP` | `P4-CREATIVE-POLISH` |
+| `output_state` | frontmatter、标题、canonical path、验收包和状态 hook 正确 | `FAIL-POLISH-WRITEBACK` | `P6-WRITEBACK-STATE` |
 
-| symptom | direct owner | rework target |
-| --- | --- | --- |
-| 缺少 `3-初稿` 仍尝试润色 | 输入合同层 | `SKILL.md` Input Contract |
-| 润色稿改动核心剧情事实 | 源文本锚定层 | `Base Polishing Rules` + 对应 lane prompt |
-| 语言顺但没有中文小说手感 | 中文语感层 | `Polishing Quality Gates` + `CONTEXT.md` Type Map |
-| 题材味被磨平 | 题材质感层 | `north_star.yaml.genre_contract` + `CONTEXT.md` Type Map |
-| 输出成点评、摘要或差异说明 | 输出形态层 | `Output Contract` + lane template |
-| 覆盖既有润色稿没有确认或 backup | 写回安全层 | 对应 lane script + review gate |
-| 输出无法追溯源初稿或 provider/GPT 执行 | 证据链层 | lane script + `Output Contract` |
-| 子流没有加载同目录 `CONTEXT.md` | Skill 2.0 加载层 | lane `Context Loading Contract` |
-| 显式 subagents 模式只产出审计意见但未直接优化 | review-optimize 汇流层 | `Subagent Review-Optimize Contract` + lane `local_repair` |
+## Convergence Contract
 
-## Field Mapping
-
-### Directory Ownership Table
-
-| field_id | directory_or_file | owner_role | must_contain | fail_code |
+| convergence_point | pass_condition | fail_condition | evidence | rework_target |
 | --- | --- | --- | --- | --- |
-| `FIELD-POLISH-01` | `SKILL.md` | 父级入口与路由裁决层 | loading、mode/lane、input/output、base rules、quality gates | `FAIL-POLISH-ENTRY` |
-| `FIELD-POLISH-02` | `CONTEXT.md` | 父级经验层 | Type Map、Repair Playbook、Reusable Heuristics | `FAIL-POLISH-CONTEXT` |
-| `FIELD-POLISH-03` | `A-GPT原生/` | GPT 原生 lane | GPT-native 润色合同、模板、脚本、证据链 | `FAIL-POLISH-GPT-LANE` |
-| `FIELD-POLISH-04` | `B-Doubao流/` | 显式 Doubao lane | Doubao 润色合同、模板、脚本、provider evidence | `FAIL-POLISH-DOUBAO-LANE` |
-| `FIELD-POLISH-05` | `C-Deepseek流/` | 默认 DeepSeek 最小局部修补 lane | DeepSeek 润色合同、模板、脚本、provider evidence、最小修补约束 | `FAIL-POLISH-DEEPSEEK-LANE` |
-| `FIELD-POLISH-06` | lane `templates/` | 输出模板层 | frontmatter、heading、正文骨架、Output Contract Alignment | `FAIL-POLISH-TEMPLATE` |
-| `FIELD-POLISH-07` | lane `scripts/` | 自动化辅助层 | context pack、provider bridge、校验、writeback、backup | `FAIL-POLISH-SCRIPT` |
+| source lock | 源初稿存在且目标路径明确 | 缺源章或路径不唯一 | `source_lock` | `P1-SOURCE-LOCK` |
+| repair scope | 坏点和可动范围明确 | 泛化“更自然”导致整章洗稿 | `repair_plan` | `P3-REPAIR-PLAN` |
+| automatic acceptance | `acceptance_status=PASS` 且 critical/high finding 为 0 | 改事实、结构/逻辑/人物/时间线/任务回退、短句化清洗、追读力变弱、输出点评、frontmatter 膨胀 | `stage_acceptance_packet` | `P3` / `P4` / `P5` |
+| writeback | canonical path 和验收包写回且状态 hook 有记录或阻断说明 | 写回旧路径、临时路径、无验收包或状态无落点 | `polished_file`、`acceptance_file`、`state_hook_note` | `P6-WRITEBACK-STATE` |
 
-### Node Handoff Table
+## Review Gate Binding
 
-| node_id | input | action | output | next_gate |
+| Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| `N1-INTAKE` | 用户请求、项目根、卷章 | 判定 `chapter_polish / polish_rewrite / local_repair / dry_run` | `polish_task_profile` | `N2-SOURCE-LOCK` |
-| `N2-SOURCE-LOCK` | `polish_task_profile` | 锁定并读取 `3-初稿` 源章与目标 `4-润色` 路径 | `source_lock` | `N3-CONTEXT-PACK` |
-| `N3-CONTEXT-PACK` | 源章、planning、north_star、MEMORY、CONTEXT、上一章 | 组装 lane 可消费上下文 | `context_pack` | `N4-LANE-ROUTE` |
-| `N4-LANE-ROUTE` | 用户 provider 意图与上下文 | 选择 A/B/C lane；显式 subagents 模式下先进入 review 子技能审计 | `lane_selection` | `N4R-REVIEW-SUBAGENTS` 或 `N5-LANE-EXECUTE` |
-| `N4R-REVIEW-SUBAGENTS` | `lane_selection`、审计点、`context_pack`、源章或既有润色稿 | 显式 subagents 模式下按 `.agents/skills/story/review` 维度子技能并行审计，并生成可执行 repair brief | `dimension_packets`、`review_repair_brief` | `N5-LANE-EXECUTE` |
-| `N5-LANE-EXECUTE` | `context_pack`、lane 合同 | 由 LLM/provider 完成最小局部修补；显式重写请求才允许整章重排 | `polished_markdown` | `N6-QUALITY-GATE` |
-| `N6-QUALITY-GATE` | 润色稿、源章 | 校验事实锚定、最小修补、中文语感、题材质感、路径与 frontmatter | `gate_result` | `N7-WRITEBACK` |
-| `N7-WRITEBACK` | `gate_result=pass` | 写入 canonical path | `4-润色/第N卷/第N章.md` | `N8-STATE-HOOK` |
-| `N8-STATE-HOOK` | 写回结果、gate_result、产物路径 | 调用 `workflow_manager.py record-skill-completion` | `STATE.json#workflow_runtime.execution_state.stage_progress` | done |
+| 是否真实读取 `3-初稿` 源章并锁定唯一 `4-润色` 输出路径？ | `source_anchor` | `FAIL-POLISH-SOURCE` | `P1-SOURCE-LOCK` | `source_lock` |
+| 是否保留初稿事实、骨架、文本分布和人物气口？ | `minimal_repair` | `FAIL-POLISH-SCOPE` | `P3-REPAIR-PLAN` | diff summary |
+| 是否没有造成结构、连续性、逻辑、人物、时间线或任务汇聚回退？ | `regression_structure_logic` | `FAIL-POLISH-REGRESSION` | `P3-REPAIR-PLAN` / `P4-CREATIVE-POLISH` | regression issue map |
+| 是否保留并强化题材质感、场景密度、句群节奏和追读力？ | `genre_texture_density` / `reader_pull` | `FAIL-POLISH-TEXTURE` / `FAIL-POLISH-READER-PULL` | `P4-CREATIVE-POLISH` | before/after evidence |
+| 是否定位具体 AI 腔或中文表达坏点，而不是泛化洗稿？ | `anti_ai_features` | `FAIL-POLISH-AI-FEATURES` | `P3-REPAIR-PLAN` | issue list |
+| 润色正文是否由 LLM-first 主创，而非脚本/模板生成？ | `creative_authorship` | `FAIL-POLISH-AUTHORSHIP` | `P4-CREATIVE-POLISH` | `creative_engine_note`、script audit |
+| 输出是否符合 frontmatter、标题、canonical path 与验收包要求？ | `output_shape` | `FAIL-POLISH-WRITEBACK` | `P5-AUTO-ACCEPTANCE` / `P6-WRITEBACK-STATE` | parsed file summary |
 
 ## Output Contract
 
 | field | contract |
 | --- | --- |
-| Required output | 当前章完整中文最小局部修补稿 Markdown 文件。 |
-| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `润色模型`、`初稿来源` 与 `字数`，其中 `字数` 按正文去除 frontmatter 与章节标题后的非空白字符数统计，格式为 `XXX字`。 |
-| Output path | 业务真源固定写入 `projects/story/<项目名>/4-润色/第N卷/第N章.md`。 |
+| Required output | 当前章完整中文最小局部修补稿 Markdown 文件及终稿验收包。 |
+| Output format | YAML frontmatter、空行、`# 第N章｜章标题`、章节润色稿；frontmatter 至少包含 `修订阶段: 润色`、`初稿来源` 与 `字数: XXX字`。 |
+| Output path | 正文：`projects/story/<项目名>/4-润色/第N卷/第N章.md`；验收包：`projects/story/<项目名>/4-润色/第N卷/第N章.acceptance.json`。 |
 | Naming convention | 卷目录 `第N卷`，章节文件 `第N章.md`。 |
-| Completion gate | 已真实读取 `3-初稿` 源章；已执行所选 lane 的最小局部修补主创；显式 subagents 模式下已按 review 子技能完成分维度审计并把 findings 直接优化进当前 lane 输出；最小修补、中文表达与题材质感门禁通过；输出写回 canonical path。 |
-| State gate | 父技能使用 `--skill-id story-polishing`；lane 单独调用时分别使用 `story-polishing-gpt-native / story-polishing-doubao / story-polishing-deepseek`，并在 `--chapter`、`--volume` 与 `--artifacts` 中记录当前章、当前卷、源初稿与润色稿路径。 |
+| Completion gate | 源初稿已读取；LLM-first 润色完成；内置自动验收通过；写回 canonical path 和验收包；已记录或说明 `record-skill-completion` 状态 hook。 |
+| State gate | 使用 `--skill-id story-polishing`，并在 artifacts 中记录源初稿、润色稿与验收包路径。 |
+
+## Learning / Context Writeback
+
+- 新失败模式、修复打法和高复用启发写回同目录 `CONTEXT.md`。
+- 稳定规则再晋升到本 `SKILL.md`、`references/`、`review/` 或 `templates/`。
+- 不把执行环境偏好写成路由规则；如确需说明，只能作为报告备注或经验记录。

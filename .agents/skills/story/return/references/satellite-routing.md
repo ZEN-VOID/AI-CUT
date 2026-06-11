@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | "Has this happened?", "where is the evidence?", "current state?" | `../query/SKILL.md` | query answer only, no truth writeback |
 | "continue", "detect interruption", "rerun", "cleanup pending" | `../resume/SKILL.md` | recovery instruction or rerun plan, no direct actualization |
-| "fix the card/plan/manuscript/review source" | upstream owner stage | source repair patch or stage artifact |
+| "fix the card/plan/manuscript/acceptance source" | upstream owner stage | source repair patch or stage artifact |
 | "write PASS results back" with full handoff gate | `return` | canonical context-return artifact and serial truth writeback |
 
 ## Non-Impersonation Rule
@@ -24,6 +24,6 @@ When rerouting, preserve:
 - `project_root`
 - `volume_ref`
 - `chapter_refs`
-- relevant `validation_ref`
+- relevant `acceptance_ref`
 - missing gate reason
 - recommended owner stage

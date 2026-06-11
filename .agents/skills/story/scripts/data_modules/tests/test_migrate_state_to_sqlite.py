@@ -61,7 +61,7 @@ def test_migrate_state_to_sqlite_flow(temp_project):
         },
         "plot_threads": {"active_threads": [], "foreshadowing": []},
         "relationships": {},
-        "review_checkpoints": [],
+        "acceptance_checkpoints": [],
         "project_info": {"title": "测试书名"},
     }
     temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -111,7 +111,7 @@ def test_migrate_state_verbose_and_dry_run(temp_project, capsys):
         "world_settings": {},
         "plot_threads": {},
         "relationships": {},
-        "review_checkpoints": [],
+        "acceptance_checkpoints": [],
         "project_info": {},
     }
     temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
@@ -153,7 +153,7 @@ def test_migrate_state_backup_and_skips(temp_project):
         "relationships": {},
         "world_settings": {},
         "plot_threads": {},
-        "review_checkpoints": [],
+        "acceptance_checkpoints": [],
         "project_info": {},
     }
     temp_project.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
@@ -181,7 +181,7 @@ def test_migrate_state_error_branches(tmp_path, monkeypatch):
         "relationships": {},
         "world_settings": {},
         "plot_threads": {},
-        "review_checkpoints": [],
+        "acceptance_checkpoints": [],
         "project_info": {},
     }
     cfg.state_file.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")

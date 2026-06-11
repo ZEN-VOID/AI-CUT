@@ -162,7 +162,7 @@ class StateManager:
 
         state.setdefault("world_settings", {"power_system": [], "factions": [], "locations": []})
         state.setdefault("plot_threads", {"active_threads": [], "foreshadowing": []})
-        state.setdefault("review_checkpoints", [])
+        state.setdefault("acceptance_checkpoints", [])
         state.setdefault("chapter_meta", {})
         state.setdefault("carryover_context", {})
         state.setdefault("planning_projection", {})

@@ -6,9 +6,9 @@ governance_tier: full
 
 # return
 
-`return` is the validated actualization and project-context carryover checkpoint for the `story2026` workflow. It is the renamed skill package formerly located at `context-return/`. It is a sibling skill to `review/`, not a numbered mainline writing stage. It only writes truth after `review` has produced a volume-level PASS aggregate and explicitly granted handoff to both `review/` and `return`; legacy aggregates that still target `context-return` remain accepted as compatibility input.
+`return` is the validated actualization and project-context carryover checkpoint for the `story2026` workflow. It is the renamed skill package formerly located at `context-return/`. It is a satellite checkpoint, not a numbered mainline writing stage. It only writes truth after the owning writing stage has produced a PASS `stage_acceptance_packet` and explicitly granted handoff to `return`; legacy `context-return` aliases remain accepted only when they can be losslessly mapped to the same acceptance packet fields.
 
-It does **not** rewrite planning Markdown. Its job is to distinguish `planned` from `validated_actual`, then make the accepted actual readable and reusable for the next drafting or explicit replan run. By default, the accepted actual should be the post-polish manuscript reviewed after `4-润色`; an unpolished `3-初稿` may be actualized only when the aggregate explicitly records that polishing was skipped and `accepted_manuscript_stage = 3-初稿`.
+It does **not** rewrite planning Markdown. Its job is to distinguish `planned` from `validated_actual`, then make the accepted actual readable and reusable for the next drafting or explicit replan run. By default, the accepted actual should be the post-polish manuscript accepted by `4-润色`; an unpolished `3-初稿` may be actualized only when the draft acceptance packet explicitly records that polishing was skipped and `accepted_manuscript_stage = 3-初稿`.
 
 ## Context Loading Contract
 
@@ -24,7 +24,7 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 
 - A request to actualize a PASS-validated volume into runtime truth.
 - A `project_root` under `projects/story/<项目名>/`.
-- A volume-level validation aggregate from `review/第V卷.validation.json`.
+- A stage acceptance packet from `4-润色/第N卷/第N章.acceptance.json`, or an equivalent volume-level acceptance summary composed from chapter packets.
 - A context-return-shaped request that must be routed to `query/`, `resume/`, or upstream source repair instead of actualization.
 
 ### Required Input
@@ -34,8 +34,8 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 - `chapter_refs`
 - `accepted_manuscript_stage`, default `4-润色`
 - `accepted_manuscript_refs`
-- `validation_ref`
-- current `review/第V卷.validation.json`
+- `acceptance_ref`
+- current `4-润色/第N卷/第N章.acceptance.json` or equivalent volume-level `stage_acceptance_packet`
 - `book_plan_ref`, default `2-卷章/整体规划.md`
 - `volume_plan_ref`, default `2-卷章/第V卷/卷规划.md`
 - `chapter_plan_refs`, default matching `2-卷章/第V卷/第N章.md`
@@ -43,12 +43,11 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 - `story_map_slice_ref`
 - `STATE.json`
 
-### Validation Aggregate Required Fields
+### Stage Acceptance Packet Required Fields
 
-- `validation_status`
-- `routing_decision`
+- `acceptance_status`
 - `handoff_targets`
-- `validation_ref`
+- `acceptance_ref`
 - `issues`
 - `severity_counts`
 - `overall_score`
@@ -59,22 +58,21 @@ It does **not** rewrite planning Markdown. Its job is to distinguish `planned` f
 
 ### Reject Or Reroute When
 
-- `validation_status != PASS`
-- `routing_decision != handoff_to_review_and_context_return`
-- `handoff_targets` does not contain both `review/` and `return` or the legacy `context-return` alias
+- `acceptance_status != PASS`
+- `handoff_targets` does not contain `return` or the legacy `context-return` alias
 - `accepted_manuscript_stage` is missing, or points to `3-初稿` without an explicit skip-polish acceptance note
 - `accepted_manuscript_refs` still point to unaccepted draft files while a `4-润色` final exists or is required by the workflow
 - the request is a query, resume, cleanup, diagnosis, or source repair request
 - the provided delta mixes drafting guesses, subjective review advice, or unvalidated source-fix drafts
 - the run would overwrite `Cards.core`, `planned_*`, or planning markdown bodies
 
-One-line gate: `PASS` is necessary but not sufficient; only `PASS + handoff granted + accepted manuscript locked` can enter volume-level actualization.
+One-line gate: `PASS` is necessary but not sufficient; only `PASS + return handoff granted + accepted manuscript locked` can enter volume-level actualization.
 
 ## Mode Selection
 
 | mode | trigger | route |
 | --- | --- | --- |
-| `actualize_volume` | PASS aggregate explicitly grants `review/` and `return` handoff, or uses the legacy `context-return` alias, and locks accepted manuscript refs | run `steps/context-return-workflow.md` |
+| `actualize_volume` | PASS acceptance packet explicitly grants `return` handoff, or uses the legacy `context-return` alias, and locks accepted manuscript refs | run `steps/context-return-workflow.md` |
 | `query_route` | user asks what happened, what is current, or where evidence lives | route to `../query/SKILL.md` |
 | `resume_route` | user asks to continue, detect interruption, cleanup, or rerun | route to `../resume/SKILL.md` |
 | `source_repair_route` | upstream planning, drafting, card, or validation source is broken | route to the owning upstream stage |
@@ -88,8 +86,8 @@ One-line gate: `PASS` is necessary but not sufficient; only `PASS + handoff gran
 | Truth ownership and parent/satellite boundaries | `references/truth-ownership.md` |
 | Query/resume/upstream rerouting | `references/satellite-routing.md` |
 | Execution node network, serial writeback, staged patch rules, rollback route | `steps/context-return-workflow.md` |
-| Input request classification and aggregate field strategy | `types/type-map.md` |
-| Completion gate, semantic review, provider/subagent review rules | `review/review-contract.md` |
+| Input request classification and acceptance packet field strategy | `types/type-map.md` |
+| Completion gate, semantic review, final return eligibility rules | `review/review-contract.md` |
 | Stable heuristics and common failure prevention | `knowledge-base/context-return-heuristics.md` and `CONTEXT.md` |
 | Canonical artifact shape | `templates/context-return.json` and `templates/output-template.md` |
 | Mechanical script boundary and command hints | `scripts/README.md`, `../scripts/context_return_manager.py`, `../scripts/workflow_manager.py` |
@@ -99,10 +97,10 @@ One-line gate: `PASS` is necessary but not sufficient; only `PASS + handoff gran
 
 ```mermaid
 flowchart TD
-    A["review volume aggregate"] --> B{"PASS?"}
+    A["stage acceptance packet"] --> B{"PASS?"}
     B -->|"No"| R1["Reject writeback"]
-    B -->|"Yes"| C{"Handoff to review/ and return?"}
-    C -->|"No"| R2["Reroute to review/query/resume/source repair"]
+    B -->|"Yes"| C{"Handoff to return?"}
+    C -->|"No"| R2["Reroute to owning stage/query/resume/source repair"]
     C -->|"Yes"| D{"Accepted manuscript locked?"}
     D -->|"No"| R3["Reject draft-state actualization"]
     D -->|"Yes"| E["Normalize validated context_return_delta"]
@@ -133,8 +131,8 @@ stateDiagram-v2
 ## Core Execution Contract
 
 - Formal writeback is serial. Only staged patch preparation and risk analysis may run in parallel.
-- `context_return_delta` only contains validated actualization derived from the accepted aggregate and evidence.
-- `accepted_manuscript_refs` are the sole manuscript evidence refs for actualization. Default accepted stage is `4-润色`; `3-初稿` requires explicit aggregate-level skip-polish acceptance.
+- `context_return_delta` only contains validated actualization derived from the accepted stage acceptance packet and evidence.
+- `accepted_manuscript_refs` are the sole manuscript evidence refs for actualization. Default accepted stage is `4-润色`; `3-初稿` requires explicit acceptance-packet-level skip-polish acceptance.
 - Truth writeback order is fixed: `Cards -> Planning sidecars -> MAP -> project CONTEXT -> STATE -> context-return artifact`.
 - Planning sidecars are fixed as `book -> volume -> chapter`; planning markdown bodies stay planning-only.
 - `Cards` writeback is limited to `current_state/history` unless the user and upstream card contract explicitly authorize a separate source repair.
@@ -167,7 +165,7 @@ When 上下文回流 fails, trace:
 | `FIELD-CONTEXT-RETURN-02` | `CONTEXT.md` | Type Map, Repair Playbook, Reusable Heuristics | `FAIL-CONTEXT-BASELINE` |
 | `FIELD-CONTEXT-RETURN-03` | `references/` | gate, truth ownership, delta whitelist, satellite routing | `FAIL-REFERENCE-GAP` |
 | `FIELD-CONTEXT-RETURN-04` | `steps/` | node network, serial writeback, staged patch, rollback | `FAIL-STEPS-GAP` |
-| `FIELD-CONTEXT-RETURN-05` | `review/` | completion gate, semantic findings, provider/subagent review route | `FAIL-REVIEW-GAP` |
+| `FIELD-CONTEXT-RETURN-05` | `review/` | completion gate, semantic findings, final return eligibility route | `FAIL-REVIEW-GAP` |
 | `FIELD-CONTEXT-RETURN-06` | `types/` | input profile and request routing matrix | `FAIL-TYPE-GAP` |
 | `FIELD-CONTEXT-RETURN-07` | `knowledge-base/` | stable heuristics and prevention patterns | `FAIL-KB-GAP` |
 | `FIELD-CONTEXT-RETURN-08` | `templates/` | `context-return.json` and Output Contract alignment | `FAIL-TEMPLATE-GAP` |
@@ -177,7 +175,7 @@ When 上下文回流 fails, trace:
 ## Output Contract
 
 - Required output: one canonical validated actualization artifact for the accepted volume, project `CONTEXT/` carryover notes, plus the ordered truth writebacks it records.
-- Output format: JSON artifact following `templates/context-return.json`, including `volume_ref`, `chapter_refs`, `accepted_manuscript_stage`, `accepted_manuscript_refs`, `validation_ref`, `context_return_delta`, `writeback_summary`, `gate_summary`, and `execution_notes`.
+- Output format: JSON artifact following `templates/context-return.json`, including `volume_ref`, `chapter_refs`, `accepted_manuscript_stage`, `accepted_manuscript_refs`, `acceptance_ref`, `context_return_delta`, `writeback_summary`, `gate_summary`, and `execution_notes`.
 - Output path: `projects/story/<项目名>/context-return/第V卷.context-return.json`.
-- Naming convention: use `第V卷.context-return.json` for volume-level runs; references and summaries must preserve the same `volume_ref` and `validation_ref`.
-- Completion gate: aggregate gate confirmed; validated deltas written in serial order; pending marker resolved into committed manifest; artifact can point back to validation and governance evidence; `review/review-contract.md` returns `pass` or an explicitly accepted `pass_with_followups`.
+- Naming convention: use `第V卷.context-return.json` for volume-level runs; references and summaries must preserve the same `volume_ref` and `acceptance_ref`.
+- Completion gate: acceptance gate confirmed; validated deltas written in serial order; pending marker resolved into committed manifest; artifact can point back to acceptance and governance evidence; `review/review-contract.md` returns `pass` or an explicitly accepted `pass_with_followups`.

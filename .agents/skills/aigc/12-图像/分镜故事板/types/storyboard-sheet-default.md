@@ -6,9 +6,8 @@
 
 - `references/group-source-extraction.md`
 - `references/prompt-assembly-contract.md`
-- `references/spatial-floor-plan-contract.md`
 - `references/reference-slot-binding.md`
-- `steps/storyboard-sheet-workflow.md`
+- `SKILL.md` 的 `Thinking-Action Node Map`
 - `review/review-contract.md`
 
 ## Gate
@@ -19,14 +18,11 @@
 - storyboard panel / frame unit 必须从组正文视觉节拍识别。
 - 每个 panel 必须具备来自源正文的 `rich_brief` 分镜描述文字，位于 panel 图片下方；描述由 LLM 从分组稿原文保真精简为 1-2 句，不得脚本拼接或新增事实。
 - 每个 panel 必须具备 `visual_prompt_atoms`：draw_subjects、subject_actions、spatial_positions、camera_framing、line_art_instruction、annotation_overlay、text_strip、negative_prompt_atoms；不得只靠摘要或完整组稿让 imagegen 自行理解。
+- `spatial_positions` 优先来自源正文的空间锚点；若已有 `分镜平面图` accepted 侧车，可作为补充证据读取，但不得成为故事板生成前置条件。
 - 每个可见角色头顶必须有黑色文本角色名，名称必须与 `10-分组` 分组稿或组底 YAML `角色` 字段一致，不得简写、改名、翻译或猜名。
 - 每个 panel 图片区默认 locked 16:9 image box；用户显式要求时才可调整为 9:16 或其他比例。
-- 整张 storyboard sheet 的画布比例不得固定继承 16:9；必须在 frame-unit 数量确定后生成 `layout_aspect_decision` 和 `panel_geometry_blueprint`，选择能让每个单格 `image_box` 锁定 16:9 的 `gpt-image-2` 合法尺寸。合法约束：最大边 `<=3840px`、宽高为 `16px` 倍数、长短边比例 `<=3:1`、总像素 `655360..8294400`。
+- 整张 storyboard sheet 的画布比例不得固定继承 16:9；必须在 frame-unit 数量确定后生成 `layout_aspect_decision` 和 `panel_geometry_blueprint`，选择能让每个单格 `image_box` 锁定 16:9 的 `gpt-image-2` 合法尺寸。
 - `panel_geometry_blueprint` 必须记录每格 `cell_norm`、`image_box_norm`、`text_strip_norm`，并保证 `panel_image_box_ratio_error <= 0.06`；如果合法单张画布无法保持 panel 比例与文字可读性，必须分页或多 sheet，并在报告中说明。
-- storyboard sheet 前必须有 `spatial_floor_plan`：顶视图平面图清楚展示场景边界、角色站位/朝向、道具位置、摄影机位置/方向和运动路径。
-- 下一个分镜组的 `spatial_floor_plan` 必须与上一个 accepted 平面图的空间锚点和变化逻辑连续；不连续时不得进入 storyboard sheet。
-- `spatial_floor_plan.acceptance.verdict` 必须为 `accepted` 后才可生成 storyboard sheet。
-- `spatial_floor_plan.acceptance.verdict == accepted` 后还必须建立 `floor_plan_to_panel_mapping`，逐 panel 映射平面图区块、角色站位/朝向、道具位置、摄影机方向、运动路径和禁止空间漂移项；只记录平面图路径不得通过。
 - 角色、场景、道具参照只能来自组底 YAML 与真实资产。
 - 画面基底统一为标准分镜手稿风格黑白线稿，不援引项目全局风格作为风格词。
 - 彩色只允许用于标注系统：红色箭头=身体运动，蓝色箭头=摄影机运动，绿色标记=取景/构图笔记，橙色标记=灯光方向，紫色标记=情绪/声音/叙事强调，黑色文本=角色头顶名称、简短镜头笔记和面板标签。

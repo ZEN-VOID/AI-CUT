@@ -1,4 +1,0 @@
-interface:
-  display_name: "人物一致性"
-  short_description: "小说人物一致性终验：行为动机、关系压力、声口与成长承接"
-  default_prompt: "使用 $story-review-character-consistency 审查指定卷或章节的人物一致性维度。"

@@ -4,11 +4,11 @@
 
 | Output Contract field | Template alignment |
 | --- | --- |
-| Required output | prompt 文档、group index、reference manifest、floor plan manifest、imagegen plan/result、执行报告 |
+| Required output | prompt 文档、group index、reference manifest、imagegen plan/result、通过 `.agents/skills/cli/imagegen` 直接生成并持久化的 storyboard sheet 图片、执行报告 |
 | Output format | Markdown + JSON + bitmap image assets |
 | Output path | `projects/aigc/<项目名>/12-图像/分镜故事板/第N集/` |
-| Naming convention | `第N集-分镜故事板-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-floor-plan-manifest.json`、`第N集-imagegen-plan.json`、`floor-plans/<分镜组ID>.png`、`images/<分镜组ID>.png`、`执行报告.md` |
-| Completion gate | review verdict is `pass` or `pass_with_todo` and every target group has a persisted storyboard sheet image path; prompt-only / review-only / waiting-confirmation states cannot complete |
+| Naming convention | `第N集-分镜故事板-prompts.md`、`第N集-group-index.json`、`第N集-reference-manifest.json`、`第N集-imagegen-plan.json`、`第N集-imagegen-results.json`、`images/<分镜组ID>.png`、`执行报告.md` |
+| Completion gate | review verdict is `pass` or `pass_with_todo` only after `.agents/skills/cli/imagegen` has been called and every target group has a persisted storyboard sheet image path; prompt-only / review-only / waiting-confirmation / imagegen-plan-only states cannot complete |
 
 ## Episode Directory Shape
 
@@ -17,11 +17,8 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 ├── 第N集-分镜故事板-prompts.md
 ├── 第N集-group-index.json
 ├── 第N集-reference-manifest.json
-├── 第N集-floor-plan-manifest.json
 ├── 第N集-imagegen-plan.json
 ├── 第N集-imagegen-results.json
-├── floor-plans/
-│   └── <分镜组ID>.png
 ├── images/
 │   └── <分镜组ID>.png
 └── 执行报告.md
@@ -49,15 +46,8 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - panel_image_aspect_ratio_default: locked_16_9_image_box
 - panel_text_position: below_each_panel_image
 - layout_policy: use_layout_aspect_decision
-- spatial_floor_plan_policy: accepted_top_view_before_storyboard
-- floor_plan_to_panel_mapping_policy: required_before_imagegen
+- spatial_handoff_policy: optional_from_分镜平面图_not_completion_gate
 - visual_prompt_atoms_policy: required_per_panel_before_imagegen
-- provider_size_constraints:
-  - model: gpt-image-2
-  - max_edge_px: 3840
-  - edge_multiple_px: 16
-  - max_long_short_ratio: 3:1
-  - total_pixels: 655360..8294400
 - annotation_color_system:
   - red_arrows: body_movement
   - blue_arrows: camera_movement
@@ -65,7 +55,6 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
   - orange_marks: lighting_direction
   - purple_marks: emotion_sound_narrative_emphasis
   - black_text: character_name_labels_above_heads_short_shot_notes_and_panel_labels
-- character_name_label_status:
 - prompted:
 - generated:
 - generated_image_paths:
@@ -74,9 +63,6 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - skipped:
 - failed:
 - missing_references:
-- floor_plans_generated:
-- floor_plans_accepted:
-- floor_plans_failed:
 
 ## Frame Unit Mapping
 
@@ -103,16 +89,6 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 
 - style_lock_status:
 - upstream_style_quarantine_status:
-- quarantined_source_phrases:
-  - group_id:
-    source_phrase:
-    treatment: evidence_only_not_style_directive
-- forbidden_rendering_layers:
-  - color_cinematic_still
-  - photorealistic_rendering
-  - global_style_keywords
-  - scene_lighting_atmosphere
-  - costume_background_lighting_color_rendering
 - visual_prompt_atoms_status:
 - atom_fields_checked:
   - draw_subjects
@@ -133,33 +109,19 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - effective_panel_slot_ratio:
 - panel_geometry_blueprint_status:
 - max_panel_image_box_ratio_error:
-- outer_margin_pct:
-- gutter_pct:
-- text_strip_factor:
-- image_box_policy:
 - selected_grid:
 - selected_sheet_aspect_ratio:
 - selected_sheet_size:
-- panel_image_box_ratio_error:
 - pagination_or_multi_sheet_decision:
 - layout_risk_groups:
 
-## Spatial Floor Plan
+## Optional Spatial Handoff
 
-- floor_plan_status:
-- floor_plan_manifest:
-- floor_plan_output_root: floor-plans/
-- acceptance_policy: storyboard_generation_requires_accepted_floor_plan
-- top_view_status:
-- continuity_status:
-- floor_plan_to_panel_mapping_status:
-- floor_plan_to_panel_mapping_evidence:
-  - group_id:
-    mapped_panels:
-    unmapped_panels:
-    verdict:
-- accepted_floor_plans:
-- failed_or_pending_floor_plans:
+- spatial_handoff_status: none | available | consumed | conflict | misused
+- source: 分镜平面图
+- consumed_groups:
+- conflicts_or_misuse:
+- handling: missing_handoff_does_not_block_storyboard_generation
 
 ## Reference Context
 
@@ -169,6 +131,14 @@ projects/aigc/<项目名>/12-图像/分镜故事板/第N集/
 - subject_fidelity_anchor_status:
 - global_style_usage: forbidden
 - color_rendering_usage: forbidden_except_annotation_system
+
+## Imagegen Execution
+
+- dependency: .agents/skills/cli/imagegen/SKILL.md + .agents/skills/cli/imagegen/CONTEXT.md
+- direct_call_required: true
+- imagegen_called:
+- plan_only_status: forbidden_as_completion_state
+- persisted_storyboard_images:
 
 ## Review
 

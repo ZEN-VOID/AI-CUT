@@ -17,8 +17,8 @@ These scripts may:
 
 They must not:
 
-- decide validation status
+- decide acceptance status
 - invent creative actualization truth
 - rewrite planning markdown bodies
-- replace `review/` reports
-- bypass the `PASS + handoff granted` gate
+- replace owning-stage acceptance packets
+- bypass the `PASS + return handoff granted` gate

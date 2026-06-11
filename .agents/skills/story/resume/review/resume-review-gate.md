@@ -21,7 +21,7 @@
 | `user_confirmation` | 风险动作已等待用户确认；未确认时只输出方案 |
 | `unique_next_entry` | 输出一个唯一入口；无法唯一时输出 blocker |
 | `forbidden_actions` | 未默认建议 Git hard reset、未备份删除正文、伪造 workflow state |
-| `truth_boundary` | 未替 `3-初稿`、`review/` 或 `return` 写 canonical 业务真源 |
+| `truth_boundary` | 未替 `3-初稿`、`4-润色` 或 `return` 写 canonical 业务真源 |
 
 ## Verdict Model
 
@@ -51,7 +51,7 @@ finding:
 - 没有 tracked 中断时跳过 artifact fallback。
 - 输出多个并列下一入口。
 - 把 `story-query` 套进章节 cleanup。
-- `story-review` Step 7 自动替用户裁决。
+- 阶段内置 acceptance decision 自动替用户裁决。
 - cleanup 未 preview 或未确认即执行。
 - 默认建议 `git reset --hard`、假定章节 tag、未备份删除正文。
 - 把 `resume/` 冒充 `return` actualization。

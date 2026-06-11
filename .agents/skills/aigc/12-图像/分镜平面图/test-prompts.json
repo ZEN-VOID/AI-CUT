@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-group-floor-plan",
+    "prompt": "使用 $分镜平面图，为 projects/aigc/诡校-测试版/10-分组/第1集.md 的 1-1-1 生成分镜平面图。",
+    "expected": "路由到 single_group_generate，输出一组多 panel 顶视图平面图 prompt、floor-plan index、continuity verdict、imagegen plan/result、floor-plan-sheets/1-1-1.png 和执行报告。"
+  },
+  {
+    "id": "episode-continuity",
+    "prompt": "使用 $分镜平面图，批量生成第1集全部分镜组的角色站位、运动路径、机位与上下组空间连续性平面图。",
+    "expected": "路由到 episode_batch_generate，按分镜组顺序处理，第一组 continuity 为 initial，后续组记录 unchanged anchors、changed positions、movement logic 和 consistent/failed verdict。"
+  },
+  {
+    "id": "repair-color-drift",
+    "prompt": "检查已有 12-图像/分镜平面图/第1集 输出，修复其中角色被画成写实彩色人物、蓝色箭头表示角色移动的问题。",
+    "expected": "路由到 repair_or_review，触发 FAIL-FLOOR-DIAGRAM-STANDARD、FAIL-FLOOR-ICON-LEGEND 或 FAIL-FLOOR-ANNOTATION-COLOR，回到 N4-DIAGRAM-SPEC / N6-PROMPT-PAYLOAD 后重新生成并审查。"
+  }
+]

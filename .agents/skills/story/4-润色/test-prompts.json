@@ -1,0 +1,17 @@
+[
+  {
+    "id": "polish-existing-chapter",
+    "prompt": "用 story-polishing 润色 projects/story/示例项目 第2卷第12章。",
+    "expected": "Reads 3-初稿 source, preserves facts and structure, writes canonical 4-润色 chapter without model-lane routing."
+  },
+  {
+    "id": "local-ai-tone-repair",
+    "prompt": "第12章 AI 味重，做最小局部修补。",
+    "expected": "Identifies concrete anti-ai features, repairs only affected spans, and preserves draft rhythm and density."
+  },
+  {
+    "id": "explicit-model-no-lane",
+    "prompt": "润色第12章，尽量只修明显表达问题。",
+    "expected": "Routes to root story-polishing chapter_polish or local_repair according to existing target chapter state."
+  }
+]

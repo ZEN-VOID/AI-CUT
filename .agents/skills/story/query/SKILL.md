@@ -1,6 +1,6 @@
 ---
 name: story-query
-description: "Use when retrieving facts, plans, cards, review state, or runtime truth from an existing story project."
+description: "Use when retrieving facts, plans, cards, stage acceptance state, or runtime truth from an existing story project."
 governance_tier: lite
 allowed-tools: Read Grep Bash
 metadata:
@@ -9,7 +9,7 @@ metadata:
 
 # story2026 Query
 
-`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、`review/` 或 `return` 的主流程。
+`query/` 是 `story2026` 的事实查询卫星技能。它先判定用户问的是哪一种 truth role，再读取 `projects/story/<项目名>/` 的真实载体；它不生成正文、不改写规划、不回写卡片、不替代 `resume/`、阶段内置验收或 `return` 的主流程。
 
 ## Context Loading Contract
 
@@ -28,8 +28,8 @@ metadata:
 - `Cards` 回答“对象长期是什么、当前怎样、经历如何演化”；对主角，还回答 `技能 / 心路 / 情感` 三轴成长现在走到哪。
 - `STATE.json + index.db` 回答“当前运行态、索引证据和状态变化是什么”。
 - `workflow_runtime` 回答“当前跑到哪、最近哪个 run 卡住、恢复点在哪里”。
-- `actualization + context-return` 回答“哪些计划已经被 PASS 后正式兑现”。
-- `review_metrics` 回答“质量、阅读力和风险最近怎样”。
+- `stage_acceptance_packet + context-return` 回答“哪些计划已经被 PASS 后正式兑现”。
+- `stage_acceptance_packet / quality metrics` 回答“质量、阅读力和风险最近怎样”。
 
 固定禁区：
 
@@ -60,8 +60,8 @@ Optional input:
 Reject or clarify when:
 
 - 无法唯一定位 `PROJECT_ROOT`，且仓库内存在多个候选项目。
-- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/`、`review/` 或 `return`。
-- 用户要求用计划、快照或正文猜测“已经发生”，但缺少 actualization / PASS / context-return 证据。
+- 用户要求查询技能直接写正文、修规划、回写卡片、执行 actualization 或清理中断任务；应回接对应阶段、`resume/` 或 `return`。
+- 用户要求用计划、快照或正文猜测“已经发生”，但缺少 stage acceptance / actualization / context-return 证据。
 
 ## Mode Selection
 
@@ -70,8 +70,8 @@ Reject or clarify when:
 | `planned` | 原计划、安排、落在哪章、章节编排 | 规划结论、三层 planning 证据、兼容投影说明 |
 | `current` | 现在、当前、默认状态、持有、地点、境界 | Cards.current_state 结论、STATE/index 辅证 |
 | `history` | 怎么变成、经历、成长、关系演化 | timeline/history/state_changes 组合证据 |
-| `validated_actual` | 已经发生、实际兑现、最终推进到哪 | actualization sidecar、context-return、validation 证据或缺口 |
-| `quality` | 质量、阅读力、评分、风险、节奏 | review_metrics / reading_power / status 证据 |
+| `validated_actual` | 已经发生、实际兑现、最终推进到哪 | actualization sidecar、context-return、stage acceptance 证据或缺口 |
+| `quality` | 质量、阅读力、评分、风险、节奏 | stage acceptance packet / quality metrics / reading_power / status 证据 |
 | `execution` | run、执行态、卡住、断点、恢复点、task log | workflow status/list-runs/detect 证据 |
 | `manual_spec` | XML 标签、手动补标规范 | tag specification 答复 |
 | `conflict_diagnosis` | 来源互相矛盾、计划与实绩不一致 | truth-layer 裁决、冲突表、回修入口 |
@@ -101,8 +101,8 @@ flowchart TD
     B --> C{"truth role"}
     C -->|"planned"| D["planning docs"]
     C -->|"current/history"| E["Cards + STATE + index.db"]
-    C -->|"validated_actual"| F["actualization + context-return + PASS"]
-    C -->|"quality"| G["review metrics + reading power"]
+    C -->|"validated_actual"| F["stage acceptance + context-return + PASS"]
+    C -->|"quality"| G["acceptance packet + reading power"]
     C -->|"execution"| H["workflow_runtime + workflow CLI"]
     C -->|"manual_spec"| I["tag specification"]
     D --> J["cross-check planned/current/actual"]
@@ -120,7 +120,7 @@ flowchart TD
 2. 按 `steps/query-workflow.md` 解析 `PROJECT_ROOT` 并完成 preflight；若无法唯一定位，停止并要求用户给出项目名或路径。
 3. 按 `types/query-type-map.md` 判定 truth role；一句话命中多类时先回答主问题，再补次要问题。
 4. 按 `references/system-data-flow.md` 读取 canonical carrier；仅在用户或证据需要时读取 legacy / compat 路径。
-5. 若问题涉及“已经发生 / 已兑现 / 通过”，必须检查 actualization sidecar、`context-return/*.context-return.json` 与 validation evidence；缺失时只能回答“尚无 validated actual evidence”。
+5. 若问题涉及“已经发生 / 已兑现 / 通过”，必须检查 owning stage acceptance packet、actualization sidecar 与 `context-return/*.context-return.json`；缺失时只能回答“尚无 validated actual evidence”。
 6. 若问题涉及“当前跑到哪 / 最近哪个 run 卡住”，优先使用 `workflow status --format json`、`workflow list-runs --format json` 与 `workflow detect`。
 7. 按 `review/review-contract.md` 做最小质量门禁，再使用 `templates/output-template.md` 的结构返回结论、证据、边界与冲突。
 
@@ -143,7 +143,7 @@ flowchart TD
 - 把 `Cards.core` 当成当前态。
 - 把 `STATE.json` 当成唯一真源。
 - 把 XML 标签规范当成普通剧情查询入口。
-- 用文件存在冒充 validation PASS 或 actualization。
+- 用文件存在冒充 stage acceptance PASS 或 actualization。
 
 必经链路：
 
@@ -164,7 +164,7 @@ flowchart TD
 1. 查询结论：直接回答用户主问题，标明 truth role、置信度和是否存在证据缺口。
 2. 证据路径：列出实际读取或可复核的 canonical 文件、字段、CLI 输出或 index 查询。
 3. 边界与冲突：区分 planned、current、validated_actual、quality、execution 与 manual spec。
-4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/`、`review/` 或 `return`。
+4. 下一入口：若用户下一步要执行，给出唯一推荐入口，例如具体阶段、`resume/` 或 `return`。
 
 ### Output format
 

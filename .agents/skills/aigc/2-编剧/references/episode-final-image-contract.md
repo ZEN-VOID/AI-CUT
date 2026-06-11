@@ -2,7 +2,7 @@
 
 ## Purpose
 
-本细则定义 `4-导演` stage 的每集终结画面：它是导演层面的迷你彩蛋尾钩，用最后一个可见/可听/可感受的落点吸引观众继续追更下一集。
+本细则定义 `2-编剧` stage 的每集终结画面：它是剧本层面的迷你彩蛋尾钩，用最后一个可见/可听/可感受的落点吸引观众继续追更下一集。
 
 终结画面必须同时满足三件事：
 
@@ -22,20 +22,20 @@
 
 ```
 episode-final-image-contract.md
-├── consumed_by: N8-DIR-FINAL-IMAGE (终结画面形成)
-├── consumed_by: N9-DIR-DRAFT (内嵌终稿)
-├── consumed_by: N10-DIR-REVIEW (验证尾钩质量)
+├── consumed_by: N5-SCR-CLIMAX-HOOK (终结画面形成)
+├── consumed_by: N6-SCR-CANDIDATE-DRAFT (内嵌终稿字段)
+├── consumed_by: N7-SCR-REVIEW-REPAIR (验证尾钩质量)
 ├── consumes:
 │   ├── climax-visual-treatment-contract.md (peak_visual_pass.cost_or_aftershock)
 │   ├── episode-visual-spine-contract.md (callback_targets, motif_chain)
 │   └── atmosphere-and-mood-contract.md (意境技法)
 └── produces:
-    └── episode_final_image_evidence (执行报告证据)
+    └── episode_final_image_map (执行报告证据)
 ```
 
 ## Episode Final Image Pass
 
-每集进入 LLM 草稿前，必须先按 `types/episode-final-image-type-map.md` 形成 `final_image_type_profile`，再建立 `episode_final_image_plan`，并由 `N9-DIR-DRAFT` 把它内嵌到本集最后一组既有字段中。
+每集进入 LLM 草稿前，必须先形成 `final_image_type_profile`，再建立 `episode_final_image_map`，并由 `N6-SCR-CANDIDATE-DRAFT` 把它内嵌到本集最后一组既有字段中。
 
 | axis | question | output evidence |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ episode-final-image-contract.md
 - 终结画面不是只能一两个镜头；可以是一段 3-6 个 beat 的尾场小段落，通过环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向共同完成收束。
 - 终结画面应准、可拍、余味强；它是最后一组画面/声音/动作落点，不是结尾说明、剧情总结或预告词。
 - 避免"像/仿佛/象征/意味着/命运/下一处账目"等小说化或评论式表达；若需要意境，改用具体光线、湿度、物件运动、身体距离、门窗开合、船灯位置、声源方向和停顿节奏。
-- 尾钩必须能被下游摄影和分组消费，但 `4-导演` stage 只写导演/演员/声画可执行材料，不写机位、景别、镜头运动或分镜编号。
+- 尾钩必须能被下游导演、摄影和分组消费，但 `2-编剧` stage 只写剧本正式字段和可见/可听/可感受落点，不写机位、景别、镜头运动或分镜编号。
 
 ## Pass Relationship with Peak Visual Pass
 
@@ -117,7 +117,7 @@ episode-final-image-contract.md
 
 **症状**：终结画面只有"画面很美""余韵悠长""意味深长"等抽象描述，无法被下游分解为画面/声音/表演。
 
-**诊断**：N9-DIR-DRAFT 把 `episode_final_image_plan` 作为文学化收束输出，而不是导演层面的可执行收束。
+**诊断**：N6-SCR-CANDIDATE-DRAFT 把 `episode_final_image_map` 作为文学化收束输出，而不是剧本层面的可执行收束。
 
 **修复**：回到终结画面 pass，将抽象描述替换为具体的 3-6 个 beat 小段落：环境刷新、道具状态、人物停顿、群像位置、声音层次和空间方向。
 
@@ -131,7 +131,7 @@ episode-final-image-contract.md
 
 **修复**：确认 `episode_final_image_pass` 只使用 `cost_or_aftershock` 字段（代价/余韵/新压力），不改变 `delivery_action` 和 `satisfaction_delta`。若发现不一致，恢复到 `peak_visual_pass` 的原始输出。
 
-**验证**：执行报告中 `episode_final_image_evidence.next_episode_relation` 和 `episode_final_image_evidence.final_image_source_anchor` 能回答"尾钩承托的是余波，不是结果修正"。
+**验证**：执行报告中 `episode_final_image_map.next_episode_relation` 和 `episode_final_image_map.final_image_source_anchor` 能回答"尾钩承托的是余波，不是结果修正"。
 
 ### Failure 4: 尾钩硬塞，与本集末场脱节
 
@@ -157,9 +157,9 @@ episode-final-image-contract.md
 
 | Review Question | Review Gate | Fail Code | Rework Target | Report Evidence |
 | --- | --- | --- | --- | --- |
-| 每集是否先形成 `final_image_type_profile`，再建立 `episode_final_image_plan`，而不是直接硬写结尾？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N2-DIR-TYPE` / `N8-DIR-FINAL-IMAGE` | `final_image_type_profile`、`episode_final_image_evidence.plan` |
-| 尾钩是否只提取下一集“关联方向”，没有剧透具体事件、结果、台词、身份或新信息？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` | `next_episode_relation`、`spoiler_boundary`、被删除的具体信息记录 |
-| 尾钩是否从本集末场、高点余波、视觉母题、道具状态或沉默反应自然顺延，而非新增预告？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` | `final_image_source_anchor`、`continuity_bridge`、`callback_targets` 回接 |
-| 终结画面是否落入既有字段，没有新增 `终结画面` 字段或摄影/分镜方案？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N9-DIR-DRAFT` | `final_field_projection`、终稿字段清单、`risk_check.cinematography_overreach: false` |
-| 终结画面是否为 3-6 个可拍/可听/可演 beat，而非小说式抽象、象征说明或一两个薄镜头？ | `GATE-DIR-07` | `FAIL-EPISODE-FINAL-IMAGE` | `N8-DIR-FINAL-IMAGE` / `N9-DIR-DRAFT` | 终稿最后一组字段、`hook_surface`、`final_image_method` |
-| 使用高潮结尾式时，是否只消费 `cost_or_aftershock`，没有修改高点 `delivery_action` 或 `satisfaction_delta`？ | `GATE-DIR-01` | `FAIL-PEAK-VISUAL` | `N8-DIR-FINAL-IMAGE` / `N4-DIR-PEAK` | `peak_visual_plan.cost_or_aftershock`、`episode_final_image_evidence.final_image_source_anchor` |
+| 每集是否先形成 `final_image_type_profile`，再建立 `episode_final_image_map`，而不是直接硬写结尾？ | `GATE-SCR-10` | `FAIL-SCR-HOOK` | `N5-SCR-CLIMAX-HOOK` | `final_image_type_profile`、`episode_final_image_map.plan` |
+| 尾钩是否只提取下一集“关联方向”，没有剧透具体事件、结果、台词、身份或新信息？ | `GATE-SCR-10` | `FAIL-SCR-HOOK` | `N5-SCR-CLIMAX-HOOK` | `next_episode_relation`、`spoiler_boundary`、被删除的具体信息记录 |
+| 尾钩是否从本集末场、高点余波、视觉母题、道具状态或沉默反应自然顺延，而非新增预告？ | `GATE-SCR-10` | `FAIL-SCR-HOOK` | `N5-SCR-CLIMAX-HOOK` | `final_image_source_anchor`、`continuity_bridge`、`callback_targets` 回接 |
+| 终结画面是否落入既有字段，没有新增 `终结画面` 字段或摄影/分镜方案？ | `GATE-SCR-10` / `GATE-SCR-14` | `FAIL-SCR-HOOK` / `FAIL-SCR-DOWNSTREAM-OVERREACH` | `N6-SCR-CANDIDATE-DRAFT` | `final_field_projection`、终稿字段清单、`risk_check.cinematography_overreach: false` |
+| 终结画面是否为 3-6 个可拍/可听/可演 beat，而非小说式抽象、象征说明或一两个薄镜头？ | `GATE-SCR-10` / `GATE-SCR-15` | `FAIL-SCR-HOOK` / `FAIL-SCR-SCREENPLAY-QUALITY` | `N5-SCR-CLIMAX-HOOK` / `N6-SCR-CANDIDATE-DRAFT` | 终稿最后一组字段、`hook_surface`、`final_image_method` |
+| 使用高潮结尾式时，是否只消费 `cost_or_aftershock`，没有修改高点 `delivery_action` 或 `satisfaction_delta`？ | `GATE-SCR-09` | `FAIL-SCR-CLIMAX` | `N5-SCR-CLIMAX-HOOK` | `climax_treatment_map.cost_or_aftershock`、`episode_final_image_map.final_image_source_anchor` |

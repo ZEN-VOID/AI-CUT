@@ -57,8 +57,8 @@ PRODUCTION_SKILL_PATHS = [
     ".agents/skills/story/return",
 ]
 REVIEW_SKILL_PATHS = [
-    ".agents/skills/story/review",
-    ".agents/skills/story/review",
+    ".agents/skills/story/3-初稿",
+    ".agents/skills/story/4-润色",
 ]
 PROJECT_SKELETON_DIRS = [
     str(INIT_STAGE_REL),
@@ -415,7 +415,7 @@ def _ensure_state_schema(state: Dict[str, Any]) -> Dict[str, Any]:
     state.setdefault("disambiguation_pending", [])
     state.setdefault("world_settings", {"power_system": [], "factions": [], "locations": []})
     state.setdefault("plot_threads", {"active_threads": [], "foreshadowing": []})
-    state.setdefault("review_checkpoints", [])
+    state.setdefault("acceptance_checkpoints", [])
     state.setdefault("chapter_meta", {})
     state.setdefault("carryover_context", {})
     state.setdefault("planning_projection", {})
@@ -1784,6 +1784,7 @@ def init_project(
             "planning_root": "2-卷章/",
             "drafting_root": "3-初稿/",
             "polish_root": "4-润色/",
+            "acceptance_roots": ["3-初稿/", "4-润色/"],
             "review_root": "review/",
             "context_return_root": "context-return/",
             "one_liner": one_liner,
@@ -1859,6 +1860,7 @@ def init_project(
         "planning_root": "2-卷章/",
         "drafting_root": "3-初稿/",
         "polish_root": "4-润色/",
+        "acceptance_roots": ["3-初稿/", "4-润色/"],
         "review_root": "review/",
         "context_return_root": "context-return/",
         "north_star": "0-初始化/north_star.yaml",

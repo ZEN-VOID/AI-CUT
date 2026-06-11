@@ -25,6 +25,7 @@
 - 本地演员/流派资料索引：`knowledge-base/actor-style-index.md`
 - 基础方法论：`references/stanislavski-method-reference.md`
 - 表演控制：`references/actor-performance-control-contract.md`
+- 动作戏编排：`references/action-choreography-contract.md`
 - 受控增强：`references/controlled-enrichment-contract.md`
 
 ## 输入
@@ -40,4 +41,4 @@
 - 表演稿：`projects/aigc/<项目名>/5-表演/第N集.md`
 - 执行报告：`projects/aigc/<项目名>/5-表演/执行报告.md`
 
-核心口径：保留原字段标题和结构，删除 `（导演批注：...）`，把原画面点与批注意图融合成更具体的动作、微表情、台词语气、内心外显、自然反应和生理反应。
+核心口径：保留原字段标题和结构，删除 `（导演批注：...）`，把原画面点与批注意图融合成更具体的动作、微表情、台词语气、内心外显、自然反应和生理反应。武侠、动作、玄幻或其他打戏题材还必须补足动作戏本身的设计，包含动作过程、空间路径、攻防方式、力度速度、伴随声画反应和身体残留。

@@ -271,7 +271,7 @@ class TestStateManager:
             "relationships": {},
             "world_settings": {"power_system": [], "factions": [], "locations": []},
             "plot_threads": {"active_threads": [], "foreshadowing": []},
-            "review_checkpoints": [],
+            "acceptance_checkpoints": [],
             "strand_tracker": {"current_dominant": "quest", "history": []},
         }
         temp_project.state_file.write_text(json.dumps(init_state, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -295,7 +295,7 @@ class TestStateManager:
             "relationships": {"allies": ["药老"], "enemies": []},
             "world_settings": {"power_system": [], "factions": [], "locations": []},
             "plot_threads": {"active_threads": [{"id": "t1", "title": "主线"}], "foreshadowing": []},
-            "review_checkpoints": [],
+            "acceptance_checkpoints": [],
             "strand_tracker": {"current_dominant": "quest", "history": []},
             "custom_field": {"keep": True},
         }

@@ -3,10 +3,10 @@
 ## Output Contract Alignment
 
 - Required output: one canonical validated actualization artifact for the accepted volume, plus the ordered truth writebacks it records.
-- Output format: JSON following `templates/context-return.json`, including `volume_ref`, `chapter_refs`, `accepted_manuscript_stage`, `accepted_manuscript_refs`, `validation_ref`, `context_return_delta`, `writeback_summary`, `gate_summary`, and `execution_notes`.
+- Output format: JSON following `templates/context-return.json`, including `volume_ref`, `chapter_refs`, `accepted_manuscript_stage`, `accepted_manuscript_refs`, `acceptance_ref`, `context_return_delta`, `writeback_summary`, `gate_summary`, and `execution_notes`.
 - Output path: `projects/story/<项目名>/context-return/第V卷.context-return.json`.
-- Naming convention: use `第V卷.context-return.json` for volume-level runs and preserve the same `volume_ref` and `validation_ref` across refs.
-- Completion gate: aggregate gate confirmed; deltas written serially; pending marker resolved into committed manifest; artifact points to validation and governance evidence; review verdict is pass or accepted pass_with_followups.
+- Naming convention: use `第V卷.context-return.json` for volume-level runs and preserve the same `volume_ref` and `acceptance_ref` across refs.
+- Completion gate: acceptance gate confirmed; deltas written serially; pending marker resolved into committed manifest; artifact points to acceptance and governance evidence; return review verdict is pass or accepted pass_with_followups.
 
 ## Final Output
 
@@ -19,11 +19,11 @@
   },
   "inputs": {
     "project_root": "",
-    "validation_ref": "",
+    "acceptance_ref": "",
     "accepted_manuscript_stage": "4-润色",
     "accepted_manuscript_refs": [],
-    "routing_decision": "handoff_to_review_and_context_return",
-    "handoff_targets": ["review/", "context-return"]
+    "acceptance_status": "PASS",
+    "handoff_targets": ["return"]
   },
   "content": {
     "context_return_delta": {
@@ -41,7 +41,7 @@
 
 ## Evidence
 
-- validation aggregate ref
+- stage acceptance packet ref
 - written file refs
 - pending/committed manifest refs
-- review verdict
+- return review verdict

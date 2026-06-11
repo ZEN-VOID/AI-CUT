@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-10
+
+- 接入 `../_shared/upstream-context-application-contract.md`，要求 `1-分集` 或用户指定 source 的剧本化应用写入 `Upstream Context Application Map`。
+- 新增 `FAIL-SCR-UPSTREAM-CONTEXT`、`GATE-SCR-20` 和报告必填项，证明上游 source 如何投影为剧本事实、声画字段、节奏、高潮和尾钩。
+- 验证通过：`python3 scripts/skill_context_audit.py --root .agents/skills/aigc --strict`；`python3 scripts/aigc_skill_audit.py --strict`。
+
 ## 2026-06-04
 
 - 修复画面字段重复拆写风险：新增同画面连续性规则、`same_frame_continuity_map` 报告证据，并同步 `GATE-SCR-07`、field-routing reference、review contract、输出模板、README、CONTEXT 与测试 prompts。
